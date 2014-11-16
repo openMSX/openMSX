@@ -19,6 +19,7 @@
 #include "unreachable.hh"
 #include "memory.hh"
 #include <cassert>
+#include <stdexcept>
 
 using std::shared_ptr;
 using std::make_shared;
@@ -169,14 +170,19 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 {
 	if (name.starts_with("pp#")) {
 		// remove by id
-		unsigned id = stoi(name.substr(3));
-		auto it = find_if(begin(probeBreakPoints), end(probeBreakPoints),
-			[&](std::unique_ptr<ProbeBreakPoint>& e)
-				{ return e->getId() == id; });
-		if (it == end(probeBreakPoints)) {
+		try {
+			unsigned id = fast_stou(name.substr(3));
+			auto it = find_if(begin(probeBreakPoints), end(probeBreakPoints),
+				[&](std::unique_ptr<ProbeBreakPoint>& e)
+					{ return e->getId() == id; });
+			if (it == end(probeBreakPoints)) {
+				throw CommandException("No such breakpoint: " + name);
+			}
+			probeBreakPoints.erase(it);
+		} catch (std::invalid_argument&) {
+			// parse error in fast_stou()
 			throw CommandException("No such breakpoint: " + name);
 		}
-		probeBreakPoints.erase(it);
 	} else {
 		// remove by probe, only works for unconditional bp
 		auto it = find_if(begin(probeBreakPoints), end(probeBreakPoints),
@@ -491,14 +497,19 @@ void DebugCmd::removeBreakPoint(array_ref<TclObject> tokens,
 	string_ref tmp = tokens[2].getString();
 	if (tmp.starts_with("bp#")) {
 		// remove by id
-		unsigned id = stoi(tmp.substr(3));
-		auto it = find_if(begin(breakPoints), end(breakPoints),
-			[&](const shared_ptr<BreakPoint>& bp) {
-				return bp->getId() == id; });
-		if (it == end(breakPoints)) {
+		try {
+			unsigned id = fast_stou(tmp.substr(3));
+			auto it = find_if(begin(breakPoints), end(breakPoints),
+				[&](const shared_ptr<BreakPoint>& bp) {
+					return bp->getId() == id; });
+			if (it == end(breakPoints)) {
+				throw CommandException("No such breakpoint: " + tmp);
+			}
+			interface.removeBreakPoint(**it);
+		} catch (std::invalid_argument&) {
+			// parse error in fast_stou()
 			throw CommandException("No such breakpoint: " + tmp);
 		}
-		interface.removeBreakPoint(**it);
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(getInterpreter(), tokens);
@@ -600,16 +611,20 @@ void DebugCmd::removeWatchPoint(array_ref<TclObject> tokens,
 		throw SyntaxError();
 	}
 	string_ref tmp = tokens[2].getString();
-	if (tmp.starts_with("wp#")) {
-		// remove by id
-		unsigned id = stoi(tmp.substr(3));
-		auto& interface = debugger.motherBoard.getCPUInterface();
-		for (auto& wp : interface.getWatchPoints()) {
-			if (wp->getId() == id) {
-				interface.removeWatchPoint(wp);
-				return;
+	try {
+		if (tmp.starts_with("wp#")) {
+			// remove by id
+			unsigned id = fast_stou(tmp.substr(3));
+			auto& interface = debugger.motherBoard.getCPUInterface();
+			for (auto& wp : interface.getWatchPoints()) {
+				if (wp->getId() == id) {
+					interface.removeWatchPoint(wp);
+					return;
+				}
 			}
 		}
+	} catch (std::invalid_argument&) {
+		// parse error in fast_stou()
 	}
 	throw CommandException("No such watchpoint: " + tmp);
 }
@@ -691,16 +706,20 @@ void DebugCmd::removeCondition(array_ref<TclObject> tokens,
 	}
 
 	string_ref tmp = tokens[2].getString();
-	if (tmp.starts_with("cond#")) {
-		// remove by id
-		unsigned id = stoi(tmp.substr(5));
-		auto& interface = debugger.motherBoard.getCPUInterface();
-		for (auto& c : interface.getConditions()) {
-			if (c->getId() == id) {
-				interface.removeCondition(*c);
-				return;
+	try {
+		if (tmp.starts_with("cond#")) {
+			// remove by id
+			unsigned id = fast_stou(tmp.substr(5));
+			auto& interface = debugger.motherBoard.getCPUInterface();
+			for (auto& c : interface.getConditions()) {
+				if (c->getId() == id) {
+					interface.removeCondition(*c);
+					return;
+				}
 			}
 		}
+	} catch (std::invalid_argument&) {
+		// parse error in fast_stou()
 	}
 	throw CommandException("No such condition: " + tmp);
 }

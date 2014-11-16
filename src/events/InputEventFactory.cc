@@ -4,6 +4,7 @@
 #include "StringOp.hh"
 #include "Interpreter.hh"
 #include "openmsx.hh"
+#include <stdexcept>
 #include <SDL.h>
 
 using std::string;
@@ -34,11 +35,15 @@ static EventPtr parseKeyEvent(
 		return parseKeyEvent(components[1], 0);
 	} else if ((components.size() == 3) &&
 	           (StringOp::startsWith(components[2], "unicode"))) {
-		return parseKeyEvent(components[1],
-		                     stoi(string_ref(components[2]).substr(7)));
-	} else {
-		throw CommandException("Invalid keyboard event: " + str);
+		try {
+			return parseKeyEvent(
+				components[1],
+				fast_stou(string_ref(components[2]).substr(7)));
+		} catch (std::invalid_argument&) {
+			// parse error in fast_stou()
+		}
 	}
+	throw CommandException("Invalid keyboard event: " + str);
 }
 
 static bool upDown(const string& str)
@@ -77,19 +82,20 @@ static EventPtr parseMouseEvent(
 			StringOp::stringToInt(components[2]),
 			StringOp::stringToInt(components[3]),
 			absX, absY);
-	} else if (StringOp::startsWith(components[1], "button")) {
-		if (components.size() != 3) {
-			throw CommandException("Invalid mouse button event: " + str);
+	} else if (StringOp::startsWith(components[1], "button") &&
+		   (components.size() == 3)) {
+		try {
+			unsigned button = fast_stou(string_ref(components[1]).substr(6));
+			if (upDown(components[2])) {
+				return make_shared<MouseButtonUpEvent>  (button);
+			} else {
+				return make_shared<MouseButtonDownEvent>(button);
+			}
+		} catch (std::invalid_argument&) {
+			// parse error in fast_stou()
 		}
-		unsigned button = stoi(string_ref(components[1]).substr(6));
-		if (upDown(components[2])) {
-			return make_shared<MouseButtonUpEvent>  (button);
-		} else {
-			return make_shared<MouseButtonDownEvent>(button);
-		}
-	} else {
-		throw CommandException("Invalid mouse event: " + str);
 	}
+	throw CommandException("Invalid mouse event: " + str);
 }
 
 static EventPtr parseOsdControlEvent(

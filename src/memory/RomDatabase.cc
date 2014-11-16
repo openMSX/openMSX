@@ -13,6 +13,7 @@
 #include "unreachable.hh"
 #include "memory.hh"
 #include "stl.hh"
+#include <stdexcept>
 
 using std::string;
 using std::vector;
@@ -333,12 +334,14 @@ void DBParser::text(string_ref text)
 		country = text;
 		break;
 	case GENMSXID:
-		genMSXid = stoi(text);
-		// TODO error checks?
-		//	cliComm.printWarning(StringOp::Builder() <<
-		//		"Ignoring bad Generation MSX id (genmsxid) "
-		//		"in entry with title '" << title <<
-		//		": " << data);
+		try {
+			genMSXid = fast_stou(text);
+		} catch (std::invalid_argument&) {
+			cliComm.printWarning(StringOp::Builder() <<
+				"Ignoring bad Generation MSX id (genmsxid) "
+				"in entry with title '" << title <<
+				": " << text);
+		}
 		break;
 	case ORIGINAL:
 		dumps.back().origData = text;

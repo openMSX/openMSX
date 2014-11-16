@@ -19,6 +19,7 @@
 #include "xrange.hh"
 #include <cassert>
 #include <ctype.h>
+#include <stdexcept>
 
 using std::string;
 using std::vector;
@@ -114,10 +115,14 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		// whole disk
 		it->partition = 0;
 	} else {
-		const auto& num = diskname.substr(pos2);
-		int partition = stoi(num, nullptr, 10);
-		DiskImageUtils::checkFAT12Partition(*disk, partition);
-		it->partition = partition;
+		try {
+			unsigned partition = fast_stou(diskname.substr(pos2));
+			DiskImageUtils::checkFAT12Partition(*disk, partition);
+			it->partition = partition;
+		} catch (std::invalid_argument&) {
+			// parse error in fast_stou()
+			throw CommandException("Invalid partition name");
+		}
 	}
 	return *it;
 }

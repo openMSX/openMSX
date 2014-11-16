@@ -251,44 +251,45 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 		for (auto i : xrange(list.getListLength(interp))) {
 			const auto& elem = list.getListIndex(interp, i).getString();
 			if (elem.starts_with("button")) {
-				int n = stoi(elem.substr(6));
+				unsigned n = fast_stou(elem.substr(6));
 				if (InputEventGenerator::joystickGetButton(joystick, n)) {
 					return true;
 				}
 			} else if (elem.starts_with("+axis")) {
-				int n = stoi(elem.substr(5));
+				unsigned n = fast_stou(elem.substr(5));
 				if (SDL_JoystickGetAxis(joystick, n) > threshold) {
 					return true;
 				}
 			} else if (elem.starts_with("-axis")) {
-				int n = stoi(elem.substr(5));
+				unsigned n = fast_stou(elem.substr(5));
 				if (SDL_JoystickGetAxis(joystick, n) < -threshold) {
 					return true;
 				}
 			} else if (elem. starts_with("L_hat")) {
-				int n = stoi(elem.substr(5));
+				unsigned n = fast_stou(elem.substr(5));
 				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_LEFT) {
 					return true;
 				}
 			} else if (elem.starts_with("R_hat")) {
-				int n = stoi(elem.substr(5));
+				unsigned n = fast_stou(elem.substr(5));
 				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_RIGHT) {
 					return true;
 				}
 			} else if (elem.starts_with("U_hat")) {
-				int n = stoi(elem.substr(5));
+				unsigned n = fast_stou(elem.substr(5));
 				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_UP) {
 					return true;
 				}
 			} else if (elem.starts_with("D_hat")) {
-				int n = stoi(elem.substr(5));
+				unsigned n = fast_stou(elem.substr(5));
 				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_DOWN) {
 					return true;
 				}
 			}
 		}
-	} catch (MSXException&) {
-		// ignore
+	} catch (...) {
+		// Error, in getListLength()/getListIndex() or in fast_stou().
+		// In either case we can't do anything about it here, so ignore.
 	}
 	return false;
 }
