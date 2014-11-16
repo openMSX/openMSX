@@ -334,6 +334,8 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* buf
 			return frame->getLinePtr320_240(y, buf);
 		case 480:
 			return frame->getLinePtr640_480(y, buf);
+		case 720:
+			return frame->getLinePtr960_720(y, buf);
 		default:
 			UNREACHABLE;
 		}
@@ -347,6 +349,8 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* buf
 			return frame->getLinePtr320_240(y, buf);
 		case 480:
 			return frame->getLinePtr640_480(y, buf);
+		case 720:
+			return frame->getLinePtr960_720(y, buf);
 		default:
 			UNREACHABLE;
 		}

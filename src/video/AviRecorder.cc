@@ -240,6 +240,9 @@ void AviRecorder::processStart(array_ref<TclObject> tokens, TclObject& result)
 			} else if (token == "-doublesize") {
 				frameWidth = 640;
 				frameHeight = 480;
+			} else if (token == "-triplesize") {
+				frameWidth = 960;
+				frameHeight = 720;
 			} else {
 				throw CommandException("Invalid option: " + token);
 			}
@@ -353,8 +356,8 @@ string RecordCommand::help(const vector<string>& /*tokens*/) const
 	       "\n"
 	       "The start subcommand also accepts an optional -audioonly, -videoonly, "
 	       " -mono, -stereo, -doublesize flag.\n"
-	       "Videos are recorded in a 320x240 size by default and at 640x480 when the "
-	       "-doublesize flag is used.";
+	       "Videos are recorded in a 320x240 size by default, at 640x480 when the "
+	       "-doublesize flag is used and at 960x720 when the -triplesize flag is used.";
 }
 
 void RecordCommand::tabCompletion(vector<string>& tokens) const
@@ -366,7 +369,7 @@ void RecordCommand::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
 		static const char* const options[] = {
-			"-prefix", "-videoonly", "-audioonly", "-doublesize",
+			"-prefix", "-videoonly", "-audioonly", "-doublesize", "-triplesize",
 			"-mono", "-stereo",
 		};
 		completeFileName(tokens, UserFileContext(), options);
