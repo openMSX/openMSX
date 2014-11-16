@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1389475493">
+<softwaredb timestamp="1416080566">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1964,6 +1964,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>fee6b1579f08ca6a7376cb6db44e7aaead237464</hash></rom></dump>
 </software>
 <software>
+	<title>CMJN</title>
+	<system>MSX</system>
+	<company>Paulo Silva</company>
+	<year></year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>01135411960ef84cc93a56d15060c5edf4ed00bd</hash><remark>MSXDev2014 Entry</remark></rom></dump>
+</software>
+<software>
 	<title>Coaster Race</title>
 	<genmsxid>748</genmsxid>
 	<system>MSX</system>
@@ -2563,6 +2571,15 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1984</year>
 	<country>US</country>
 		<dump><rom><hash>4b4a58a310a1138b95192d7fe0881bbdc45601d4</hash></rom></dump>
+</software>
+<software>
+	<title>Destoryer</title>
+	<system>MSX</system>
+	<company>CEZ Games Studio</company>
+	<year>2014</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>fd646f058d1d194a42daad034c17bb1a117555a4</hash></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>8e835c159e737e7fa7967ac4e8b5c4795fb3a5e0</hash><remark>SCC music only</remark></megarom></dump>
 </software>
 <software>
 	<title>Devil Zone</title>
@@ -4348,6 +4365,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>GenericKonami</type><hash>afb235979ed7d91596b7adddffe7c295080e4669</hash><remark>GDX Conversion</remark></megarom></dump>
 </software>
 <software>
+	<title>Gorgeous Gemma in Escape from the Space Disposal Planet</title>
+	<system>MSX</system>
+	<company>Impulse9</company>
+	<year>2014</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>d85298a9cdd9bcb4a546cb020ebaccd3c4281f07</hash><remark>MSXDev14 Entry</remark></rom></dump>
+</software>
+<software>
 	<title>Gozilla Kun</title>
 	<genmsxid>463</genmsxid>
 	<system>MSX</system>
@@ -5605,6 +5630,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash>9afdee40e7b243f99cc50dd1ad710ab0928dd820</hash><remark>Kanji ROM Needed</remark></megarom></dump>
 </software>
 <software>
+	<title>Jawbreaker 2</title>
+	<system>MSX</system>
+	<company>Magoo</company>
+	<year>2014</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>ae3eb3af124b36878ab4f189abfc3737bfd3d56a</hash><remark>MSXDev14 Entry</remark></rom></dump>
+</software>
+<software>
 	<title>Jet Bomber</title>
 	<genmsxid>2392</genmsxid>
 	<system>MSX</system>
@@ -6534,6 +6567,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1990</year>
 	<country>KW</country>
 		<dump><rom><hash>73938f51fcb26349aa17e1ae1f1bd43b20ef227b</hash></rom></dump>
+</software>
+<software>
+	<title>Libreway</title>
+	<system>MSX</system>
+	<company>Paulo Silva</company>
+	<year>2014</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>be95c417ac1500e6127c57d0adedce6a99117b0e</hash><remark>MSXDev14 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Limaribu</title>
@@ -8990,6 +9031,15 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>ae6ad52d5ebcad7722ea070109a286fe13b06cb7</hash></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>d7f8c34e3ae9dea51d0c87857e0ff78028d402b7</hash><remark>cheat version</remark></megarom></dump>
+</software>
+<software>
+	<title>Pretty kingdom</title>
+	<system>MSX</system>
+	<company>Nerlaska Studio</company>
+	<year>2014</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>cb07324ae94c2546156badbcb5c1ff3c5ff4d041</hash><remark>v1 / MSXDev14 Entry - NLK006</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>bb23232a5d3d4c1d78647cce520a9accecb3cb4f</hash><remark>v2 / MSXDev14 Entry - NLK006</remark></rom></dump>
 </software>
 <software>
 	<title>Price Of Magik, The</title>
@@ -12100,6 +12150,15 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>059ab9b167c0e71bda811145a6ea04f0a41a0bdf</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
+	<title>Uridium</title>
+	<system>MSX</system>
+	<company>Trilobyte</company>
+	<year>2014</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><hash>2451a8027bff9d88edb61651a95d69d54cf06d7a</hash><remark>for real CRTs / MSXDev14 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>7c732955507df1eb292184d9648814786819cc0a</hash><remark>MSXDev14 Entry</remark></rom></dump>
+</software>
+<software>
 	<title>Urusei Yatsura</title>
 	<genmsxid>897</genmsxid>
 	<system>MSX</system>
@@ -12767,6 +12826,15 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>af61fac3f158abe5fd00d4166130942e4852db8c</hash></rom></dump>
 </software>
 <software>
+	<title>ZERO and the Castle of Infinite Sadness</title>
+	<system>MSX</system>
+	<company>Dioniso</company>
+	<year>2014</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>a44934434a761721f70873b1851de2dfca19bd99</hash><remark>MSXDev2014 Entry - with bug</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>a1fe1f9489ab188561beb2816a83a7a9fc347623</hash><remark>MSXDev2014 Entry</remark></rom></dump>
+</software>
+<software>
 	<title>Zexas Limited</title>
 	<genmsxid>533</genmsxid>
 	<system>MSX</system>
@@ -12856,6 +12924,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:3215
-Created on Sat Jan 11 22:25:08 CET 2014
+Roms in this XML file:3227
+Created on Sat Nov 15 20:42:56 CET 2014
  -->
