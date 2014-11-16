@@ -123,6 +123,19 @@ long long          stoll (string_ref str, string_ref::size_type* idx = nullptr, 
 //double             stod  (string_ref str, string_ref::size_type* idx = nullptr);
 //long double        stold (string_ref str, string_ref::size_type* idx = nullptr);
 
+
+// Faster than the above, but less general (not part of the std proposal):
+// - Only handles decimal.
+// - No leading + or - sign (and thus only positive values).
+// - No leading whitespace.
+// - No trailing non-digit characters.
+// - No out-of-range check (so undetected overflow on e.g. 9999999999).
+// - Empty string parses as zero.
+// Throws std::invalid_argument if any character is different from [0-9],
+// similar to the error reporting in the std::stoi() (and related) functions.
+unsigned fast_stou(string_ref str);
+
+
 // concatenation (this is not part of the std::string_ref proposal)
 std::string operator+(string_ref x, string_ref y);
 std::string operator+(char x, string_ref y);

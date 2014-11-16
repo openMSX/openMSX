@@ -1,7 +1,9 @@
 #include "string_ref.hh"
+#include "likely.hh"
 #include <algorithm>
 #include <iostream>
 #include <cstdlib>
+#include <stdexcept>
 
 using std::string;
 
@@ -186,6 +188,21 @@ long long stoll(string_ref str, string_ref::size_type* idx, int base)
 	char* end;
 	int result = strtoll(begin, &end, base);
 	if (idx) *idx = end - begin;
+	return result;
+}
+
+
+unsigned fast_stou(string_ref str)
+{
+	unsigned result = 0;
+	for (char c : str) {
+		unsigned d = c - '0';
+		if (unlikely(d > 9)) {
+			throw std::invalid_argument("fast_stoi");
+		}
+		result *= 10;
+		result += d;
+	}
 	return result;
 }
 
