@@ -10,8 +10,8 @@
 #include "DiskPartition.hh"
 #include "EnumSetting.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "memory.hh"
+#include <stdexcept>
 
 using std::string;
 
@@ -98,8 +98,13 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 			// likely more descriptive.
 			throw e;
 		}
-		unsigned num = StringOp::stringToUint(
-			diskImage.substr(pos + 1));
+		unsigned num;
+		try {
+			num = fast_stou(diskImage.substr(pos + 1));
+		} catch (std::invalid_argument&) {
+			// not a valid partion number, throw previous exception
+			throw e;
+		}
 		return make_unique<DiskPartition>(*wholeDisk, num, wholeDisk);
 	}
 }

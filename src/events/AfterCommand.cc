@@ -10,7 +10,6 @@
 #include "EmuTime.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "StringOp.hh"
 #include "memory.hh"
 #include "stl.hh"
 #include "unreachable.hh"
@@ -196,7 +195,6 @@ void AfterCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
-	int time;
 	string_ref subCmd = tokens[1].getString();
 	if (subCmd == "time") {
 		afterTime(tokens, result);
@@ -218,16 +216,20 @@ void AfterCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 		afterInfo(tokens, result);
 	} else if (subCmd == "cancel") {
 		afterCancel(tokens, result);
-	} else if (StringOp::stringToInt(subCmd.str(), time)) { // TODO
-		afterTclTime(time, tokens, result);
 	} else {
-		// try to interpret token as an event name
 		try {
-			afterInputEvent(
-				InputEventFactory::createInputEvent(subCmd.str()), // TODO
-				tokens, result);
-		} catch (MSXException&) {
-			throw SyntaxError();
+			// A valid integer?
+			int time = tokens[1].getInt(getInterpreter());
+			afterTclTime(time, tokens, result);
+		} catch (CommandException&) {
+			try {
+				// A valid event name?
+				afterInputEvent(
+					InputEventFactory::createInputEvent(subCmd.str()), // TODO
+					tokens, result);
+			} catch (MSXException&) {
+				throw SyntaxError();
+			}
 		}
 	}
 }
