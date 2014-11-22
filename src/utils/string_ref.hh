@@ -116,10 +116,10 @@ inline bool operator<=(string_ref x, string_ref y) { return !(y <  x); }
 inline bool operator>=(string_ref x, string_ref y) { return !(x <  y); }
 
 // numeric conversions
-int                stoi  (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
+//int                stoi  (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
 //long               stol  (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
-unsigned long      stoul (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
-long long          stoll (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
+//unsigned long      stoul (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
+//long long          stoll (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
 //unsigned long long stoull(string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
 //float              stof  (string_ref str, string_ref::size_type* idx = nullptr);
 //double             stod  (string_ref str, string_ref::size_type* idx = nullptr);

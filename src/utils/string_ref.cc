@@ -170,36 +170,6 @@ bool operator< (string_ref x, string_ref y)
 
 
 // numeric conversions
-//  TODO could be implemented more efficient (don't make a copy)
-int stoi(string_ref str, string_ref::size_type* idx, int base)
-{
-	string s = str.str();
-	const char* begin = s.c_str();
-	char* end;
-	int result = strtol(begin, &end, base);
-	if (idx) *idx = end - begin;
-	return result;
-}
-unsigned long stoul (string_ref str, string_ref::size_type* idx, int base)
-{
-	string s = str.str();
-	const char* begin = s.c_str();
-	char* end;
-	int result = strtoul(begin, &end, base);
-	if (idx) *idx = end - begin;
-	return result;
-}
-long long stoll(string_ref str, string_ref::size_type* idx, int base)
-{
-	string s = str.str();
-	const char* begin = s.c_str();
-	char* end;
-	int result = strtoll(begin, &end, base);
-	if (idx) *idx = end - begin;
-	return result;
-}
-
-
 unsigned fast_stou(string_ref str)
 {
 	unsigned result = 0;
