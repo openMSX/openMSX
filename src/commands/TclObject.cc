@@ -199,6 +199,14 @@ unsigned TclObject::getListLength(Interpreter& interp_) const
 	}
 	return result;
 }
+unsigned TclObject::getListLengthUnchecked() const
+{
+	int result;
+	if (Tcl_ListObjLength(nullptr, obj, &result) != TCL_OK) {
+		return 0; // error
+	}
+	return result;
+}
 
 TclObject TclObject::getListIndex(Interpreter& interp_, unsigned index) const
 {
@@ -206,6 +214,14 @@ TclObject TclObject::getListIndex(Interpreter& interp_, unsigned index) const
 	Tcl_Obj* element;
 	if (Tcl_ListObjIndex(interp, obj, index, &element) != TCL_OK) {
 		throwException(interp);
+	}
+	return element ? TclObject(element) : TclObject();
+}
+TclObject TclObject::getListIndexUnchecked(unsigned index) const
+{
+	Tcl_Obj* element;
+	if (Tcl_ListObjIndex(nullptr, obj, index, &element) != TCL_OK) {
+		return TclObject();
 	}
 	return element ? TclObject(element) : TclObject();
 }
@@ -230,16 +246,15 @@ bool TclObject::evalBool(Interpreter& interp_) const
 	return result != 0;
 }
 
-std::string TclObject::executeCommand(Interpreter& interp_, bool compile)
+TclObject TclObject::executeCommand(Interpreter& interp_, bool compile)
 {
 	auto* interp = interp_.interp;
 	int flags = compile ? 0 : TCL_EVAL_DIRECT;
 	int success = Tcl_EvalObjEx(interp, obj, flags);
-	std::string result =  Tcl_GetStringResult(interp);
 	if (success != TCL_OK) {
-		throw CommandException(result);
+		throw CommandException(Tcl_GetStringResult(interp));
 	}
-	return result;
+	return TclObject(Tcl_GetObjResult(interp));
 }
 
 } // namespace openmsx

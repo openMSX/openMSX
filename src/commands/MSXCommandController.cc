@@ -154,8 +154,8 @@ bool MSXCommandController::hasCommand(string_ref command) const
 	return findCommand(command) != nullptr;
 }
 
-string MSXCommandController::executeCommand(const string& command,
-                                            CliConnection* connection)
+TclObject MSXCommandController::executeCommand(const string& command,
+                                               CliConnection* connection)
 {
 	return globalCommandController.executeCommand(command, connection);
 }

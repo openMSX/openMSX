@@ -4,6 +4,7 @@
 #include "string_ref.hh"
 #include "openmsx.hh"
 #include <iterator>
+#include <cassert>
 
 struct Tcl_Obj;
 
@@ -13,6 +14,46 @@ class Interpreter;
 
 class TclObject
 {
+	// For STL interface, see below
+	struct iterator {
+		iterator(const TclObject& obj_, unsigned i_)
+			: obj(&obj_), i(i_) {}
+
+		bool operator==(const iterator& other) const {
+			assert(obj == other.obj);
+			return i == other.i;
+		}
+		bool operator!=(const iterator& other) const {
+			return !(*this == other);
+		}
+
+		string_ref operator*() const {
+			return obj->getListIndexUnchecked(i).getString();
+		}
+
+		iterator& operator++() {
+			++i;
+			return *this;
+		}
+		iterator operator++(int) {
+			iterator result = *this;
+			++result;
+			return result;
+		}
+		iterator& operator--() {
+			--i;
+			return *this;
+		}
+		iterator operator--(int) {
+			iterator result = *this;
+			--result;
+			return result;
+		}
+	private:
+		const TclObject* obj;
+		unsigned i;
+	};
+
 public:
 	TclObject();
 	explicit TclObject(Tcl_Obj* object);
@@ -49,6 +90,13 @@ public:
 	TclObject getListIndex(Interpreter& interp, unsigned index) const;
 	TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
 
+	// STL-like interface when interpreting this TclObject as a list of
+	// strings. Invalid Tcl lists are silently interpreted as empty lists.
+	unsigned size() const { return getListLengthUnchecked(); }
+	bool empty() const { return size() == 0; }
+	iterator begin() const { return iterator(*this, 0); }
+	iterator end()   const { return iterator(*this, size()); }
+
 	// expressions
 	bool evalBool(Interpreter& interp) const;
 
@@ -58,9 +106,8 @@ public:
 	  *           bytecode is stored inside the TclObject can speed up
 	  *           future invocations of the same command. Only set this
 	  *           flag when the command will be executed more than once.
-	  * TODO return TclObject instead of string?
 	  */
-	std::string executeCommand(Interpreter& interp, bool compile = false);
+	TclObject executeCommand(Interpreter& interp, bool compile = false);
 
 	bool operator==(const TclObject& other) const {
 		return getString() == other.getString();
@@ -72,6 +119,8 @@ public:
 private:
 	void init(Tcl_Obj* obj_);
 	void addListElement(Tcl_Obj* element);
+	unsigned getListLengthUnchecked() const;
+	TclObject getListIndexUnchecked(unsigned index) const;
 
 	Tcl_Obj* obj;
 };

@@ -146,7 +146,7 @@ int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 	if (commandEvent.getId() == this) {
 		try {
 			string result = commandController.executeCommand(
-				commandEvent.getCommand(), this);
+				commandEvent.getCommand(), this).getString().str();
 			output(reply(result, true));
 		} catch (CommandException& e) {
 			string result = e.getMessage() + '\n';

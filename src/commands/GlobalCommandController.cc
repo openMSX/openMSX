@@ -433,7 +433,7 @@ bool GlobalCommandController::isComplete(const string& command)
 	return interpreter->isComplete(command);
 }
 
-string GlobalCommandController::executeCommand(
+TclObject GlobalCommandController::executeCommand(
 	const string& cmd, CliConnection* connection_)
 {
 	ScopedAssign<CliConnection*> sa(connection, connection_);
@@ -513,19 +513,22 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 			command.addListElement("openmsx::tabcompletion");
 			command.addListElements(tokens);
 			try {
-				auto list = interpreter->splitList(
-					command.executeCommand(*interpreter));
+				TclObject list = command.executeCommand(*interpreter);
 				bool sensitive = true;
-				if (!list.empty()) {
-					if (list.back() == "false") {
-						list.pop_back();
+				auto begin = list.begin();
+				auto end   = list.end();
+				if (begin != end) {
+					auto it = end; --it;
+					auto back = *it;
+					if (back == "false") {
+						end = it;
 						sensitive = false;
-					} else if (list.back() == "true") {
-						list.pop_back();
+					} else if (back == "true") {
+						end = it;
 						sensitive = true;
 					}
 				}
-				Completer::completeString(tokens, list, sensitive);
+				Completer::completeString(tokens, begin, end, sensitive);
 			} catch (CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "
@@ -572,7 +575,7 @@ void HelpCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 			TclObject command;
 			command.addListElement("openmsx::help");
 			command.addListElements(std::begin(tokens) + 1, std::end(tokens));
-			result.setString(command.executeCommand(getInterpreter()));
+			result = command.executeCommand(getInterpreter());
 		}
 		break;
 	}

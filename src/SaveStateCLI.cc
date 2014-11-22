@@ -33,11 +33,11 @@ void SaveStateCLI::parseFileType(const string& filename,
 	TclObject command1;
 	command1.addListElement("restore_machine");
 	command1.addListElement(filename);
-	string newId = command1.executeCommand(interp);
+	auto newId = command1.executeCommand(interp);
 
 	TclObject command2;
 	command2.addListElement("machine");
-	string currentId = command2.executeCommand(interp);
+	auto currentId = command2.executeCommand(interp);
 
 	if (!currentId.empty()) {
 		TclObject command3;

@@ -27,6 +27,10 @@ public:
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
 
+	template<typename ITER>
+	static void completeString(std::vector<std::string>& tokens,
+	                           ITER begin, ITER end,
+	                           bool caseSensitive = true);
 	template<typename RANGE>
 	static void completeString(std::vector<std::string>& tokens,
 	                           const RANGE& possibleValues,
@@ -93,6 +97,20 @@ void Completer::completeString(
 	auto& str = tokens.back();
 	if (completeImpl(str,
 	                 filter(str, possibleValues, caseSensitive),
+	                 caseSensitive)) {
+		tokens.push_back("");
+	}
+}
+
+template<typename ITER>
+void Completer::completeString(
+	std::vector<std::string>& tokens,
+	ITER begin, ITER end,
+	bool caseSensitive)
+{
+	auto& str = tokens.back();
+	if (completeImpl(str,
+	                 filter(str, begin, end, caseSensitive),
 	                 caseSensitive)) {
 		tokens.push_back("");
 	}

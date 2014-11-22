@@ -2,6 +2,7 @@
 #define INTERPRETER_HH
 
 #include "TclParser.hh"
+#include "TclObject.hh"
 #include "StringMap.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
@@ -26,10 +27,10 @@ public:
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);
 	void unregisterCommand(string_ref name, Command& command);
-	std::vector<std::string> getCommandNames();
+	TclObject getCommandNames();
 	bool isComplete(const std::string& command) const;
-	std::string execute(const std::string& command);
-	std::string executeFile(const std::string& filename);
+	TclObject execute(const std::string& command);
+	TclObject executeFile(const std::string& filename);
 
 	void setVariable(const std::string& name, const std::string& value);
 	void unsetVariable(const std::string& name);
@@ -46,10 +47,6 @@ public:
 	  * @param name Name of the namespace, should not include '::' prefix.
 	  */
 	void deleteNamespace(const std::string& name);
-
-	std::vector<std::string> splitList(const std::string& list);
-	static std::vector<std::string> splitList(
-		const std::string& list, Tcl_Interp* interp);
 
 	TclParser parse(string_ref command);
 

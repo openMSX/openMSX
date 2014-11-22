@@ -186,9 +186,9 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 //   - build-in Tcl commands
 //   - openmsx commands
 //   - user-defined procs
-vector<string> Interpreter::getCommandNames()
+TclObject Interpreter::getCommandNames()
 {
-	return splitList(execute("openmsx::all_command_names"), interp);
+	return execute("openmsx::all_command_names");
 }
 
 bool Interpreter::isComplete(const string& command) const
@@ -196,24 +196,22 @@ bool Interpreter::isComplete(const string& command) const
 	return Tcl_CommandComplete(command.c_str()) != 0;
 }
 
-string Interpreter::execute(const string& command)
+TclObject Interpreter::execute(const string& command)
 {
 	int success = Tcl_Eval(interp, command.c_str());
-	string result =  Tcl_GetStringResult(interp);
 	if (success != TCL_OK) {
-		throw CommandException(result);
+		throw CommandException(Tcl_GetStringResult(interp));
 	}
-	return result;
+	return TclObject(Tcl_GetObjResult(interp));
 }
 
-string Interpreter::executeFile(const string& filename)
+TclObject Interpreter::executeFile(const string& filename)
 {
 	int success = Tcl_EvalFile(interp, filename.c_str());
-	string result =  Tcl_GetStringResult(interp);
 	if (success != TCL_OK) {
-		throw CommandException(result);
+		throw CommandException(Tcl_GetStringResult(interp));
 	}
-	return result;
+	return TclObject(Tcl_GetObjResult(interp));
 }
 
 static void setVar(Tcl_Interp* interp, const char* name, const char* value)
@@ -420,25 +418,6 @@ void Interpreter::createNamespace(const std::string& name)
 void Interpreter::deleteNamespace(const std::string& name)
 {
 	execute("namespace delete ::" + name);
-}
-
-vector<string> Interpreter::splitList(const std::string& list)
-{
-	return splitList(list, interp);
-}
-
-vector<string> Interpreter::splitList(const string& list, Tcl_Interp* interp)
-{
-	int argc;
-	const char** argv;
-	if (Tcl_SplitList(interp, list.c_str(), &argc, &argv) == TCL_ERROR) {
-		throw CommandException(
-			interp ? Tcl_GetStringResult(interp)
-			       : "splitList error");
-	}
-	vector<string> result(argv, argv + argc);
-	Tcl_Free(reinterpret_cast<char*>(argv));
-	return result;
 }
 
 void Interpreter::poll()

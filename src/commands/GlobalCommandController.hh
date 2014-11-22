@@ -59,8 +59,8 @@ public:
 	void unregisterCommand(Command& command,
 	                       string_ref str) override;
 	bool hasCommand(string_ref command) const override;
-	std::string executeCommand(const std::string& command,
-	                           CliConnection* connection = nullptr) override;
+	TclObject executeCommand(const std::string& command,
+	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
 	BaseSetting* findSetting(string_ref name) override;

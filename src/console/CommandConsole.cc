@@ -428,8 +428,9 @@ void CommandConsole::commandExecute()
 
 		try {
 			ScopedAssign<bool> sa(executingCommand, true);
-			string result = commandController.executeCommand(
+			auto resultObj = commandController.executeCommand(
 				commandBuffer);
+			auto result = resultObj.getString();
 			if (!result.empty()) {
 				print(result);
 			}

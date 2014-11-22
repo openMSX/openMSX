@@ -1,8 +1,8 @@
 #ifndef COMMANDCONTROLLER_HH
 #define COMMANDCONTROLLER_HH
 
+#include "TclObject.hh"
 #include "string_ref.hh"
-#include <vector>
 
 namespace openmsx {
 
@@ -41,8 +41,8 @@ public:
 	/**
 	 * Execute the given command
 	 */
-	virtual std::string executeCommand(const std::string& command,
-	                                   CliConnection* connection = nullptr) = 0;
+	virtual TclObject executeCommand(const std::string& command,
+	                                 CliConnection* connection = nullptr) = 0;
 
 	/** TODO
 	 */
