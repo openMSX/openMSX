@@ -320,8 +320,8 @@ void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 void MSXDevice::registerPorts()
 {
 	for (auto& i : getDeviceConfig().getChildren("io")) {
-		unsigned base = StringOp::stringToInt(i->getAttribute("base"));
-		unsigned num  = StringOp::stringToInt(i->getAttribute("num"));
+		unsigned base = i->getAttributeAsInt("base");
+		unsigned num  = i->getAttributeAsInt("num");
 		const auto& type = i->getAttribute("type", "IO");
 		if (((base + num) > 256) || (num == 0) ||
 		    ((type != "I") && (type != "O") && (type != "IO"))) {
