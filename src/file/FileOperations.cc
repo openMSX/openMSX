@@ -53,6 +53,7 @@
 #include <sstream>
 #include <cerrno>
 #include <cstdlib>
+#include <stdexcept>
 #include <cassert>
 
 #ifndef _MSC_VER
