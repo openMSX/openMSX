@@ -40,11 +40,32 @@ static string_ref type2string(int type)
 }
 #endif
 
+static bool inRange(char c, char low, char high)
+{
+	unsigned t = c - low;
+	return t <= unsigned(high - low);
+}
+
 static bool isNumber(string_ref str)
 {
-	string_ref::size_type idx;
-	stoll(str, &idx);
-	return idx == str.size();
+	if (str.starts_with('-') || str.starts_with('+')) {
+		str.pop_front();
+	}
+	if (str.starts_with("0x") || str.starts_with("0X")) {
+		str.remove_prefix(2);
+		for (auto c : str) {
+			if (!inRange(c, '0', '9') &&
+			    !inRange(c, 'a', 'f') &&
+			    !inRange(c, 'A', 'F')) {
+				return false;
+			}
+		}
+	} else {
+		for (auto c : str) {
+			if (!inRange(c, '0', '9')) return false;
+		}
+	}
+	return true;
 }
 
 

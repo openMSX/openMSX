@@ -2,8 +2,9 @@
 #include "MSXException.hh"
 #include <algorithm>
 #include <limits>
-#include <cstdlib>
 #include <cassert>
+#include <cstdlib>
+#include <stdexcept>
 
 using std::advance;
 using std::equal;
@@ -394,17 +395,15 @@ string join(const vector<string_ref>& elems, char separator)
 
 static unsigned parseNumber(string_ref str)
 {
-	// trimRight only: strtoul can handle leading spaces
-	trimRight(str, " \t");
-	if (str.empty()) {
-		throw openmsx::MSXException("Invalid integer: empty string");
+	trim(str, " \t");
+	if (!str.empty()) {
+		try {
+			return fast_stou(str);
+		} catch (std::invalid_argument&) {
+			// parse error
+		}
 	}
-	string_ref::size_type idx;
-	unsigned result = stoi(str, &idx);
-	if (idx != str.size()) {
-		throw openmsx::MSXException("Invalid integer: " + str);
-	}
-	return result;
+	throw openmsx::MSXException("Invalid integer: " + str);
 }
 
 static void insert(unsigned x, set<unsigned>& result, unsigned min, unsigned max)

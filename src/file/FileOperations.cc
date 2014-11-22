@@ -647,8 +647,8 @@ time_t getModificationDate(const Stat& st)
 	return st.st_mtime;
 }
 
-static int getNextNum(dirent* d, string_ref prefix, string_ref extension,
-                      unsigned nofdigits)
+static unsigned getNextNum(dirent* d, string_ref prefix, string_ref extension,
+                           unsigned nofdigits)
 {
 	auto extensionLen = extension.size();
 	auto prefixLen = prefix.size();
@@ -659,10 +659,11 @@ static int getNextNum(dirent* d, string_ref prefix, string_ref extension,
 	    (name.substr(prefixLen + nofdigits, extensionLen) != extension)) {
 		return 0;
 	}
-	string_ref num = name.substr(prefixLen, nofdigits);
-	string_ref::size_type idx;
-	unsigned long n = stoul(num, &idx, 10);
-	return (idx == num.size()) ? n : 0;
+	try {
+		return fast_stou(name.substr(prefixLen, nofdigits));
+	} catch (std::invalid_argument&) {
+		return 0;
+	}
 }
 
 string getNextNumberedFileName(
@@ -670,7 +671,7 @@ string getNextNumberedFileName(
 {
 	const unsigned nofdigits = 4;
 
-	int max_num = 0;
+	unsigned max_num = 0;
 
 	string dirName = getUserOpenMSXDir() + '/' + directory;
 	try {
@@ -680,7 +681,7 @@ string getNextNumberedFileName(
 	}
 
 	ReadDir dir(dirName);
-	while (dirent* d = dir.getEntry()) {
+	while (auto* d = dir.getEntry()) {
 		max_num = std::max(max_num, getNextNum(d, prefix, extension, nofdigits));
 	}
 
