@@ -140,11 +140,19 @@ bool string_ref::starts_with(string_ref x) const
 	return (siz >= x.size()) &&
 	       (memcmp(dat, x.data(), x.size()) == 0);
 }
+bool string_ref::starts_with(char x) const
+{
+	return !empty() && (front() == x);
+}
 
 bool string_ref::ends_with(string_ref x) const
 {
 	return (siz >= x.size()) &&
 	       (memcmp(dat + siz - x.size(), x.data(), x.size()) == 0);
+}
+bool string_ref::ends_with(char x) const
+{
+	return !empty() && (back() == x);
 }
 
 

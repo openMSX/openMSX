@@ -97,7 +97,9 @@ public:
 
 	// new string operations (not part of std::string)
 	bool starts_with(string_ref x) const;
+	bool starts_with(char x) const;
 	bool ends_with(string_ref x) const;
+	bool ends_with(char x) const;
 
 private:
 	const char* dat;

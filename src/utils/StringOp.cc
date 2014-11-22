@@ -308,6 +308,18 @@ void trimLeft(string_ref& str, char chars)
 	}
 }
 
+void trim(string_ref& str, string_ref chars)
+{
+	trimRight(str, chars);
+	trimLeft (str, chars);
+}
+
+void trim(string_ref& str, char chars)
+{
+	trimRight(str, chars);
+	trimLeft (str, chars);
+}
+
 void splitOnFirst(string_ref str, string_ref chars, string_ref& first, string_ref& last)
 {
 	auto pos = str.find_first_of(chars);
