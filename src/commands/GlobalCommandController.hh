@@ -61,7 +61,6 @@ public:
 	bool hasCommand(string_ref command) const override;
 	std::string executeCommand(const std::string& command,
 	                           CliConnection* connection = nullptr) override;
-	std::vector<std::string> splitList(const std::string& list) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
 	BaseSetting* findSetting(string_ref name) override;

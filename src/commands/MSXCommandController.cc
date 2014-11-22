@@ -160,11 +160,6 @@ string MSXCommandController::executeCommand(const string& command,
 	return globalCommandController.executeCommand(command, connection);
 }
 
-vector<string> MSXCommandController::splitList(const string& list)
-{
-	return globalCommandController.splitList(list);
-}
-
 CliComm& MSXCommandController::getCliComm()
 {
 	return motherboard.getMSXCliComm();

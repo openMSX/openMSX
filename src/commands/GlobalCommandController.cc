@@ -440,11 +440,6 @@ string GlobalCommandController::executeCommand(
 	return interpreter->execute(cmd);
 }
 
-vector<string> GlobalCommandController::splitList(const string& list)
-{
-	return interpreter->splitList(list);
-}
-
 void GlobalCommandController::source(const string& script)
 {
 	try {
@@ -518,7 +513,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 			command.addListElement("openmsx::tabcompletion");
 			command.addListElements(tokens);
 			try {
-				auto list = splitList(
+				auto list = interpreter->splitList(
 					command.executeCommand(*interpreter));
 				bool sensitive = true;
 				if (!list.empty()) {

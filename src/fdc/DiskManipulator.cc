@@ -511,21 +511,23 @@ string DiskManipulator::import(DriveSettings& driveData,
 	auto workhorse = getMSXtar(*partition, driveData);
 
 	string messages;
+	auto& interp = getInterpreter();
 	for (auto& l : lists) {
-		for (auto& i : getCommandController().splitList(l.getString().str())) {
+		for (auto i : xrange(l.getListLength(interp))) {
+			auto s = l.getListIndex(interp, i).getString();
 			try {
 				FileOperations::Stat st;
-				if (!FileOperations::getStat(i, st)) {
+				if (!FileOperations::getStat(s, st)) {
 					throw CommandException(
-						"Non-existing file " + i);
+						"Non-existing file " + s);
 				}
 				if (FileOperations::isDirectory(st)) {
-					messages += workhorse->addDir(i);
+					messages += workhorse->addDir(s);
 				} else if (FileOperations::isRegularFile(st)) {
-					messages += workhorse->addFile(i);
+					messages += workhorse->addFile(s.str());
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
-					messages += "Ignoring " + i + '\n';
+					messages += "Ignoring " + s + '\n';
 				}
 			} catch (MSXException& e) {
 				throw CommandException(e.getMessage());
