@@ -12,17 +12,17 @@ class ProxySetting final : public BaseSetting
 public:
 	ProxySetting(Reactor& reactor, string_ref name);
 
-	void setString(const std::string& value) override;
+	void setValue(const TclObject& value) override;
 	string_ref getTypeString() const override;
-	std::string getDescription() const override;
-	std::string getString() const override;
-	std::string getDefaultValue() const override;
-	std::string getRestoreValue() const override;
-	void setStringDirect(const std::string& value) override;
+	string_ref getDescription() const override;
+	const TclObject& getValue() const override;
+	TclObject getDefaultValue() const override;
+	TclObject getRestoreValue() const override;
+	void setValueDirect(const TclObject& value) override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 	bool needLoadSave() const override;
 	bool needTransfer() const override;
-	void setDontSaveValue(const std::string& dontSaveValue) override;
+	void setDontSaveValue(const TclObject& dontSaveValue) override;
 	void additionalInfo(TclObject& result) const override;
 
 private:

@@ -6,7 +6,7 @@ StringSetting::StringSetting(CommandController& commandController,
                              string_ref name, string_ref description,
                              string_ref initialValue, SaveSetting save)
 	: Setting(commandController, name, description,
-	          initialValue.str(), save)
+	          TclObject(initialValue), save)
 {
 	init();
 }

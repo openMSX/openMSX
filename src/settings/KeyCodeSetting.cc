@@ -7,7 +7,7 @@ KeyCodeSetting::KeyCodeSetting(CommandController& commandController,
                                string_ref name, string_ref description,
                                Keys::KeyCode initialValue)
 	: Setting(commandController, name, description,
-	          Keys::getName(initialValue), SAVE)
+	          TclObject(Keys::getName(initialValue)), SAVE)
 {
 	setChecker([this](TclObject& newValue) {
 		const auto& str = newValue.getString();

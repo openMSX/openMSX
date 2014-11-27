@@ -3,19 +3,12 @@
 
 namespace openmsx {
 
-static std::string toString(double d)
-{
-	TclObject obj;
-	obj.setDouble(d);
-	return obj.getString().str();
-}
-
 FloatSetting::FloatSetting(CommandController& commandController,
                            string_ref name, string_ref description,
                            double initialValue,
                            double minValue_, double maxValue_)
 	: Setting(commandController, name, description,
-	          toString(initialValue), SAVE)
+	          TclObject(initialValue), SAVE)
 	, minValue(minValue_)
 	, maxValue(maxValue_)
 {
@@ -41,9 +34,9 @@ void FloatSetting::additionalInfo(TclObject& result) const
 	result.addListElement(range);
 }
 
-void FloatSetting::setDouble (double d)
+void FloatSetting::setDouble(double d)
 {
-	setString(toString(d));
+	setValue(TclObject(d));
 }
 
 } // namespace openmsx

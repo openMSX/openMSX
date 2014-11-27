@@ -332,16 +332,16 @@ void CommandLineParser::parse(int argc, char** argv)
 				const auto& machine =
 					reactor.getMachineSetting().getString();
 				try {
-					reactor.switchMachine(machine);
+					reactor.switchMachine(machine.str());
 				} catch (MSXException& e) {
 					reactor.getCliComm().printInfo(
 						"Failed to initialize default machine: " + e.getMessage());
 					// Default machine is broken; fall back to C-BIOS config.
 					const auto& fallbackMachine =
-						reactor.getMachineSetting().getRestoreValue();
+						reactor.getMachineSetting().getRestoreValue().getString();
 					reactor.getCliComm().printInfo("Using fallback machine: " + fallbackMachine);
 					try {
-						reactor.switchMachine(fallbackMachine);
+						reactor.switchMachine(fallbackMachine.str());
 					} catch (MSXException& e2) {
 						// Fallback machine failed as well; we're out of options.
 						throw FatalError(e2.getMessage());

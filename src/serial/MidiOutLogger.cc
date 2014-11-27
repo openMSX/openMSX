@@ -22,7 +22,7 @@ MidiOutLogger::~MidiOutLogger()
 void MidiOutLogger::plugHelper(Connector& /*connector*/,
                                EmuTime::param /*time*/)
 {
-	FileOperations::openofstream(file, logFilenameSetting->getString());
+	FileOperations::openofstream(file, logFilenameSetting->getString().str());
 	if (file.fail()) {
 		file.clear();
 		throw PlugException("Error opening log file");

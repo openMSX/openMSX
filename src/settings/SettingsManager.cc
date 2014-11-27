@@ -103,7 +103,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 	// restore default values
 	for (auto* s : values(settingsMap)) {
 		if (s->needLoadSave()) {
-			s->setString(s->getRestoreValue());
+			s->setValue(s->getRestoreValue());
 		}
 	}
 
@@ -117,7 +117,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 		if (auto* elem = settings->findChildWithAttribute(
 		                                     "setting", "id", name)) {
 			try {
-				setting.setString(elem->getData());
+				setting.setValue(TclObject(elem->getData()));
 			} catch (MSXException&) {
 				// ignore, keep default value
 			}
@@ -186,7 +186,7 @@ SetCompleter::SetCompleter(CommandController& commandController,
 string SetCompleter::help(const vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		return manager.getByName("set", tokens[1]).getDescription();
+		return manager.getByName("set", tokens[1]).getDescription().str();
 	}
 	return "Set or query the value of a openMSX setting or Tcl variable\n"
 	       "  set <setting>          shows current value\n"

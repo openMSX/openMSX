@@ -9,7 +9,7 @@ FilenameSetting::FilenameSetting(
 		string_ref name, string_ref description,
 		string_ref initialValue)
 	: Setting(commandController, name, description,
-	          initialValue.str(), Setting::SAVE)
+	          TclObject(initialValue), Setting::SAVE)
 {
 	init();
 }

@@ -15,10 +15,10 @@ public:
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	bool getBoolean() const { return getValue().getBoolean(getInterpreter()); }
-	void setBoolean(bool b) { setString(toString(b)); }
+	void setBoolean(bool b) { setValue(TclObject(toString(b))); }
 
 private:
-	static std::string toString(bool b) { return b ? "true" : "false"; }
+	static string_ref toString(bool b) { return b ? "true" : "false"; }
 };
 
 } // namespace openmsx

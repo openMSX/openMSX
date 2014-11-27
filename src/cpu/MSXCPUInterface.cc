@@ -208,7 +208,8 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 		assert(!breakedSetting);
 		breakedSetting = make_unique<ReadOnlySetting>(
 			motherBoard.getReactor().getCommandController(),
-			"breaked", "Similar to 'debug breaked'", "false");
+			"breaked", "Similar to 'debug breaked'",
+			TclObject("false"));
 	}
 }
 
@@ -934,9 +935,9 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 	if (isFastForward()) return;
 
 	auto& interp = watchPoints.front()->getInterpreter();
-	interp.setVariable("wp_last_address", StringOp::toString(address));
+	interp.setVariable("wp_last_address", TclObject(int(address)));
 	if (value != ~0u) {
-		interp.setVariable("wp_last_value", StringOp::toString(value));
+		interp.setVariable("wp_last_value", TclObject(int(value)));
 	}
 
 	auto wpCopy = watchPoints;
@@ -962,7 +963,7 @@ void MSXCPUInterface::doBreak()
 
 	Reactor& reactor = motherBoard.getReactor();
 	reactor.block();
-	breakedSetting->setReadOnlyValue("true");
+	breakedSetting->setReadOnlyValue(TclObject("true"));
 	reactor.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
 	reactor.getEventDistributor().distributeEvent(
 		std::make_shared<SimpleEvent>(OPENMSX_BREAK_EVENT));
@@ -990,7 +991,7 @@ void MSXCPUInterface::doContinue2()
 {
 	breaked = false;
 	Reactor& reactor = motherBoard.getReactor();
-	breakedSetting->setReadOnlyValue("false");
+	breakedSetting->setReadOnlyValue(TclObject("false"));
 	reactor.getCliComm().update(CliComm::STATUS, "cpu", "running");
 	reactor.unblock();
 }

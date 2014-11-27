@@ -29,7 +29,8 @@ LedStatus::LedStatus(
 		std::string name = getLedName(static_cast<Led>(i));
 		ledStatus[i] = make_unique<ReadOnlySetting>(
 			commandController, "led_" + name,
-			"Current status for LED: " + name, "off");
+			"Current status for LED: " + name,
+			TclObject("off"));
 	}
 }
 
@@ -62,11 +63,11 @@ void LedStatus::setLed(Led led, bool status)
 
 void LedStatus::handleEvent(Led led)
 {
-	static const std::string ON  = "on";
-	static const std::string OFF = "off";
-	const std::string& str = ledValue[led] ? ON : OFF;
+	static const string_ref ON  = "on";
+	static const string_ref OFF = "off";
+	const string_ref& str = ledValue[led] ? ON : OFF;
 
-	ledStatus[led]->setReadOnlyValue(str);
+	ledStatus[led]->setReadOnlyValue(TclObject(str));
 	msxCliComm.update(CliComm::LED, getLedName(led), str);
 }
 

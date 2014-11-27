@@ -35,14 +35,14 @@ TclCallback::~TclCallback()
 {
 }
 
-string TclCallback::getValue() const
+TclObject TclCallback::getValue() const
 {
-	return getSetting().getString();
+	return getSetting().getValue();
 }
 
 void TclCallback::execute()
 {
-	const string callback = getValue();
+	const auto& callback = getValue();
 	if (callback.empty()) return;
 
 	TclObject command;
@@ -52,7 +52,7 @@ void TclCallback::execute()
 
 void TclCallback::execute(int arg1, int arg2)
 {
-	const string callback = getValue();
+	const auto& callback = getValue();
 	if (callback.empty()) return;
 
 	TclObject command;
@@ -64,7 +64,7 @@ void TclCallback::execute(int arg1, int arg2)
 
 void TclCallback::execute(int arg1, string_ref arg2)
 {
-	const string callback = getValue();
+	const auto& callback = getValue();
 	if (callback.empty()) return;
 
 	TclObject command;
@@ -76,7 +76,7 @@ void TclCallback::execute(int arg1, string_ref arg2)
 
 void TclCallback::execute(string_ref arg1, string_ref arg2)
 {
-	const string callback = getValue();
+	const auto& callback = getValue();
 	if (callback.empty()) return;
 
 	TclObject command;

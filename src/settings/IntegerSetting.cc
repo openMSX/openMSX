@@ -1,6 +1,5 @@
 #include "IntegerSetting.hh"
 #include "CommandController.hh"
-#include "StringOp.hh"
 
 namespace openmsx {
 
@@ -8,7 +7,7 @@ IntegerSetting::IntegerSetting(CommandController& commandController,
                                string_ref name, string_ref description,
                                int initialValue, int minValue_, int maxValue_)
 	: Setting(commandController, name, description,
-	          StringOp::toString(initialValue), SAVE)
+	          TclObject(initialValue), SAVE)
 	, minValue(minValue_)
 	, maxValue(maxValue_)
 {
@@ -36,7 +35,7 @@ void IntegerSetting::additionalInfo(TclObject& result) const
 
 void IntegerSetting::setInt(int i)
 {
-	setString(StringOp::toString(i));
+	setValue(TclObject(i));
 }
 
 } // namespace openmsx

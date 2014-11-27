@@ -44,6 +44,7 @@ public:
 
 	T getEnum() const;
 	void setEnum(T value);
+	string_ref getString() const;
 
 private:
 	string_ref toString(T value) const;
@@ -61,7 +62,7 @@ EnumSetting<T>::EnumSetting(
 	: EnumSettingBase(BaseMap(std::make_move_iterator(begin(map)),
 	                          std::make_move_iterator(end(map))))
 	, Setting(commandController, name, description,
-	          toString(initialValue).str(), save)
+	          TclObject(toString(initialValue)), save)
 {
 	setChecker([this](TclObject& newValue) {
 		fromStringBase(newValue.getString()); // may throw
@@ -101,7 +102,13 @@ template<> inline bool EnumSetting<bool>::getEnum() const
 template<typename T>
 void EnumSetting<T>::setEnum(T value)
 {
-	setString(toString(value).str());
+	setValue(TclObject(toString(value)));
+}
+
+template<typename T>
+string_ref EnumSetting<T>::getString() const
+{
+	return getValue().getString();
 }
 
 template<typename T>

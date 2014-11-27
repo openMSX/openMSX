@@ -58,6 +58,8 @@ public:
 	TclObject();
 	explicit TclObject(Tcl_Obj* object);
 	explicit TclObject(string_ref value);
+	explicit TclObject(int value);
+	explicit TclObject(double value);
 	TclObject(const TclObject& object);
 	~TclObject();
 

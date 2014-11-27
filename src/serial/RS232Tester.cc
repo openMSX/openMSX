@@ -36,16 +36,16 @@ RS232Tester::~RS232Tester()
 void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	// output
-	std::string outName = rs232OutputFilenameSetting->getString();
-	FileOperations::openofstream(outFile, outName);
+	string_ref outName = rs232OutputFilenameSetting->getString();
+	FileOperations::openofstream(outFile, outName.str());
 	if (outFile.fail()) {
 		outFile.clear();
 		throw PlugException("Error opening output file: " + outName);
 	}
 
 	// input
-	std::string inName = rs232InputFilenameSetting->getString();
-	inFile = FileOperations::openFile(inName, "rb");
+	string_ref inName = rs232InputFilenameSetting->getString();
+	inFile = FileOperations::openFile(inName.str(), "rb");
 	if (!inFile) {
 		outFile.close();
 		throw PlugException("Error opening input file: " + inName);

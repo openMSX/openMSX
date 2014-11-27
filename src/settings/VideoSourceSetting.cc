@@ -10,7 +10,7 @@ namespace openmsx {
 VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 	: Setting(commandController, "videosource",
 	          "selects the video source to display on the screen",
-	          "none", DONT_SAVE)
+	          TclObject("none"), DONT_SAVE)
 {
 	sources = { { "none", 0 } };
 
@@ -61,7 +61,7 @@ void VideoSourceSetting::setSource(int id)
 {
 	auto it = find_if_unguarded(sources,
 		[&](const Sources::value_type& p) { return p.second == id; });
-	setString(it->first);
+	setValue(TclObject(it->first));
 }
 
 string_ref VideoSourceSetting::getTypeString() const

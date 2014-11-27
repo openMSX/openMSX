@@ -816,7 +816,7 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 			if (s.recordSetting.get() == &setting) {
 				info.device->recordChannel(
 					channel,
-					Filename(s.recordSetting->getString()));
+					Filename(s.recordSetting->getString().str()));
 				return;
 			}
 			++channel;

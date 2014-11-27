@@ -14,6 +14,9 @@ public:
 
 	string_ref getTypeString() const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
+
+	string_ref getString() const { return getValue().getString(); }
+	void setString(string_ref str) { setValue(TclObject(str)); }
 };
 
 } // namespace openmsx

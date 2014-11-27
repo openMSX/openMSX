@@ -10,15 +10,14 @@ class ReadOnlySetting final : public Setting
 public:
 	ReadOnlySetting(CommandController& commandController,
 	                string_ref name, string_ref description,
-	                const std::string& initialValue);
+	                const TclObject& initialValue);
 
-	const TclObject& getValue() const { return Setting::getValue(); }
-	void setReadOnlyValue(const std::string& value);
+	void setReadOnlyValue(const TclObject& value);
 
 	string_ref getTypeString() const override;
 
 private:
-	std::string roValue;
+	TclObject roValue;
 };
 
 } // namespace openmsx

@@ -100,8 +100,8 @@ Interpreter::Interpreter(EventDistributor& eventDistributor_)
 	}
 	Tcl_SetStdChannel(channel, TCL_STDOUT);
 
-	setVariable("env(OPENMSX_USER_DATA)", FileOperations::getUserDataDir());
-	setVariable("env(OPENMSX_SYSTEM_DATA)", FileOperations::getSystemDataDir());
+	setVariable("env(OPENMSX_USER_DATA)",   TclObject(FileOperations::getUserDataDir()));
+	setVariable("env(OPENMSX_SYSTEM_DATA)", TclObject(FileOperations::getSystemDataDir()));
 }
 
 Interpreter::~Interpreter()
@@ -214,21 +214,22 @@ TclObject Interpreter::executeFile(const string& filename)
 	return TclObject(Tcl_GetObjResult(interp));
 }
 
-static void setVar(Tcl_Interp* interp, const char* name, const char* value)
+static void setVar(Tcl_Interp* interp, const char* name, TclObject value)
 {
-	if (!Tcl_SetVar(interp, name, value, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
+	if (!Tcl_SetVar2Ex(interp, name, nullptr, value.getTclObject(),
+		           TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
 		// might contain error message of a trace proc
 		std::cerr << Tcl_GetStringResult(interp) << std::endl;
 	}
 }
-static const char* getVar(Tcl_Interp* interp, const char* name)
+static Tcl_Obj* getVar(Tcl_Interp* interp, const char* name)
 {
-	return Tcl_GetVar(interp, name, TCL_GLOBAL_ONLY);
+	return Tcl_GetVar2Ex(interp, name, nullptr, TCL_GLOBAL_ONLY);
 }
 
-void Interpreter::setVariable(const string& name, const string& value)
+void Interpreter::setVariable(const string& name, TclObject value)
 {
-	if (!Tcl_SetVar(interp, name.c_str(), value.c_str(),
+	if (!Tcl_SetVar2Ex(interp, name.c_str(), nullptr, value.getTclObject(),
 		        TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
 		throw CommandException(Tcl_GetStringResult(interp));
 	}
@@ -239,25 +240,20 @@ void Interpreter::unsetVariable(const string& name)
 	Tcl_UnsetVar(interp, name.c_str(), TCL_GLOBAL_ONLY);
 }
 
-const char* Interpreter::getVariable(const string& name) const
-{
-	return getVar(interp, name.c_str());
-}
-
-static string getSafeValueString(BaseSetting& setting)
+static TclObject getSafeValue(BaseSetting& setting)
 {
 	try {
-		return setting.getString();
+		return setting.getValue();
 	} catch (MSXException&) {
-		return "0"; // 'safe' value, see comment in registerSetting()
+		return TclObject(0); // 'safe' value, see comment in registerSetting()
 	}
 }
 void Interpreter::registerSetting(BaseSetting& variable, const string& name)
 {
-	if (const char* tclVarValue = getVariable(name)) {
+	if (Tcl_Obj* tclVarValue = getVar(interp, name.c_str())) {
 		// Tcl var already existed, use this value
 		try {
-			variable.setStringDirect(tclVarValue);
+			variable.setValueDirect(TclObject(tclVarValue));
 		} catch (MSXException&) {
 			// Ignore: can happen in case of proxy settings when
 			// the current machine doesn't have this setting.
@@ -269,7 +265,7 @@ void Interpreter::registerSetting(BaseSetting& variable, const string& name)
 		}
 	} else {
 		// define Tcl var
-		setVariable(name, getSafeValueString(variable));
+		setVariable(name, getSafeValue(variable));
 	}
 
 	// The call setVariable() above can already trigger traces on this
@@ -285,7 +281,7 @@ void Interpreter::registerSetting(BaseSetting& variable, const string& name)
 	//   create_machine
 	//   machine2::load_machine msx2
 	//
-	// Before changing the 'safe-value' (see getSafeValueString()) to '0',
+	// Before changing the 'safe-value' (see getSafeValue()) to '0',
 	// this gave errors because the load_icons script didn't expect to see
 	// 'proxy' (the old 'safe-value') as value.
 	//
@@ -364,7 +360,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		static string static_string;
 		if (flags & TCL_TRACE_READS) {
 			try {
-				setVar(interp, part1, variable->getString().c_str());
+				setVar(interp, part1, variable->getValue());
 			} catch (MSXException& e) {
 				static_string = e.getMessage();
 				return const_cast<char*>(static_string.c_str());
@@ -372,15 +368,15 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		}
 		if (flags & TCL_TRACE_WRITES) {
 			try {
-				const char* v = getVar(interp, part1);
-				string newValue = v ? v : "";
-				variable->setStringDirect(newValue);
-				string newValue2 = variable->getString();
+				Tcl_Obj* v = getVar(interp, part1);
+				TclObject newValue(v ? v : Tcl_NewObj());
+				variable->setValueDirect(newValue);
+				const TclObject& newValue2 = variable->getValue();
 				if (newValue != newValue2) {
-					setVar(interp, part1, newValue2.c_str());
+					setVar(interp, part1, newValue2);
 				}
 			} catch (MSXException& e) {
-				setVar(interp, part1, getSafeValueString(*variable).c_str());
+				setVar(interp, part1, getSafeValue(*variable));
 				static_string = e.getMessage();
 				return const_cast<char*>(static_string.c_str());
 			}
@@ -390,15 +386,15 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				// note we cannot use restoreDefault(), because
 				// that goes via Tcl and the Tcl variable
 				// doesn't exist at this point
-				variable->setStringDirect(
-					variable->getRestoreValue());
+				variable->setValueDirect(TclObject(
+					variable->getRestoreValue()));
 			} catch (MSXException&) {
 				// for some reason default value is not valid ATM,
 				// keep current value (happened for videosource
 				// setting before turning on (set power on) the
 				// MSX machine)
 			}
-			setVar(interp, part1, getSafeValueString(*variable).c_str());
+			setVar(interp, part1, getSafeValue(*variable));
 			Tcl_TraceVar(interp, part1, TCL_TRACE_READS |
 			                TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 			             traceProc,

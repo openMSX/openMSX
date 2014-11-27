@@ -13,6 +13,9 @@ public:
 	              string_ref initialValue, SaveSetting save = SAVE);
 
 	string_ref getTypeString() const override;
+
+	string_ref getString() const { return getValue().getString(); }
+	void setString(string_ref str) { setValue(TclObject(str)); }
 };
 
 } // namespace openmsx

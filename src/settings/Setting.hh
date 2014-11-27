@@ -33,7 +33,7 @@ public:
 
 	/** Get a description of this setting that can be presented to the user.
 	  */
-	virtual std::string getDescription() const = 0;
+	virtual string_ref getDescription() const = 0;
 
 	/** Returns a string describing the setting type (integer, string, ..)
 	  * Could be used in a GUI to pick an appropriate setting widget.
@@ -51,22 +51,21 @@ public:
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
 
-	/** Get the current value of this setting in a string format that can be
-	  * presented to the user.
-	  */
-	virtual std::string getString() const = 0;
+	/** Get current value as a TclObject.
+	 */
+	virtual const TclObject& getValue() const = 0;
 
 	/** Get the default value of this setting.
 	  * This is the initial value of the setting. Default values don't
 	  * get saved in 'settings.xml'.
 	  */
-	virtual std::string getDefaultValue() const = 0;
+	virtual TclObject getDefaultValue() const = 0;
 
 	/** Get the value that will be set after a Tcl 'unset' command.
 	  * Usually this is the same as the default value. Though one
 	  * exception is 'renderer', see comments in RendererFactory.cc.
 	  */
-	virtual std::string getRestoreValue() const = 0;
+	virtual TclObject getRestoreValue() const = 0;
 
 	/** Change the value of this setting to the given value.
 	  * This method will trigger Tcl traces.
@@ -74,13 +73,13 @@ public:
 	  * so the value may be adjusted. Or in case of an invalid value
 	  * this method may throw.
 	  */
-	virtual void setString(const std::string& value) = 0;
+	virtual void setValue(const TclObject& value) = 0;
 
-	/** Similar to setString(), but doesn't trigger Tcl traces.
-	  * Like setString(), the given value may be adjusted or rejected.
+	/** Similar to setValue(), but doesn't trigger Tcl traces.
+	  * Like setValue(), the given value may be adjusted or rejected.
 	  * Should only be used by the Interpreter class.
 	  */
-	virtual void setStringDirect(const std::string& value) = 0;
+	virtual void setValueDirect(const TclObject& value) = 0;
 
 	/** Does this setting need to be loaded or saved (settings.xml).
 	  */
@@ -92,7 +91,7 @@ public:
 
 	/** This value will never end up in the settings.xml file
 	 */
-	virtual void setDontSaveValue(const std::string& dontSaveValue) = 0;
+	virtual void setDontSaveValue(const TclObject& dontSaveValue) = 0;
 
 private:
 	/** The name of this setting. */
@@ -113,11 +112,13 @@ public:
 
 	/** Gets the current value of this setting as a TclObject.
 	  */
-	const TclObject& getValue() const { return value; }
+	const TclObject& getValue() const final override { return value; }
 
 	/** Set restore value. See getDefaultValue() and getRestoreValue().
 	  */
-	void setRestoreValue(const std::string& value);
+	void setRestoreValue(const TclObject& value) {
+		restoreValue = value;
+	}
 
 	/** Set value-check-callback.
 	 * The callback is called on each change of this settings value.
@@ -133,17 +134,16 @@ public:
 	}
 
 	// BaseSetting
-	void setString(const std::string& value) final override;
-	std::string getDescription() const final override;
-	std::string getString() const final override;
-	std::string getDefaultValue() const final override;
-	std::string getRestoreValue() const final override;
-	void setStringDirect(const std::string& value) final override;
+	void setValue(const TclObject& value) final override;
+	string_ref getDescription() const final override;
+	TclObject getDefaultValue() const final override { return defaultValue; }
+	TclObject getRestoreValue() const final override { return restoreValue; }
+	void setValueDirect(const TclObject& value) final override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 	bool needLoadSave() const final override;
 	void additionalInfo(TclObject& result) const override;
 	bool needTransfer() const final override;
-	void setDontSaveValue(const std::string& dontSaveValue) final override;
+	void setDontSaveValue(const TclObject& dontSaveValue) final override;
 
 	// convenience functions
 	CommandController& getCommandController() const { return commandController; }
@@ -152,7 +152,7 @@ public:
 protected:
 	Setting(CommandController& commandController,
 	        string_ref name, string_ref description,
-	        const std::string& initialValue, SaveSetting save = SAVE);
+	        const TclObject& initialValue, SaveSetting save = SAVE);
 	void init();
 	void notifyPropertyChange() const;
 
@@ -165,9 +165,9 @@ private:
 	const std::string description;
 	std::function<void(TclObject&)> checkFunc;
 	TclObject value; // TODO can we share the underlying Tcl var storage?
-	const std::string defaultValue;
-	std::string restoreValue;
-	std::string dontSaveValue;
+	const TclObject defaultValue;
+	TclObject restoreValue;
+	TclObject dontSaveValue;
 	const SaveSetting save;
 };
 

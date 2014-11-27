@@ -27,10 +27,10 @@ const BaseSetting* ProxySetting::getSetting() const
 	return const_cast<ProxySetting*>(this)->getSetting();
 }
 
-void ProxySetting::setString(const std::string& value)
+void ProxySetting::setValue(const TclObject& value)
 {
 	if (auto* setting = getSetting()) {
-		setting->setString(value);
+		setting->setValue(value);
 	}
 }
 
@@ -43,7 +43,7 @@ string_ref ProxySetting::getTypeString() const
 	}
 }
 
-std::string ProxySetting::getDescription() const
+string_ref ProxySetting::getDescription() const
 {
 	if (auto* setting = getSetting()) {
 		return setting->getDescription();
@@ -52,38 +52,38 @@ std::string ProxySetting::getDescription() const
 	}
 }
 
-std::string ProxySetting::getString() const
+const TclObject& ProxySetting::getValue() const
 {
 	if (auto* setting = getSetting()) {
-		return setting->getString();
+		return setting->getValue();
 	} else {
 		throw MSXException("No setting '" + getName() + "' on current machine.");
 	}
 }
 
-std::string ProxySetting::getDefaultValue() const
+TclObject ProxySetting::getDefaultValue() const
 {
 	if (auto* setting = getSetting()) {
 		return setting->getDefaultValue();
 	} else {
-		return "proxy";
+		return TclObject("proxy");
 	}
 }
 
-std::string ProxySetting::getRestoreValue() const
+TclObject ProxySetting::getRestoreValue() const
 {
 	if (auto* setting = getSetting()) {
 		return setting->getRestoreValue();
 	} else {
-		return "proxy";
+		return TclObject("proxy");
 	}
 }
 
-void ProxySetting::setStringDirect(const string& value)
+void ProxySetting::setValueDirect(const TclObject& value)
 {
 	if (auto* setting = getSetting()) {
 		// note: not setStringDirect()
-		setting->setString(value);
+		setting->setValue(value);
 	} else {
 		throw MSXException("No setting '" + getName() + "' on current machine.");
 	}
@@ -114,7 +114,7 @@ bool ProxySetting::needTransfer() const
 	}
 }
 
-void ProxySetting::setDontSaveValue(const std::string& dontSaveValue)
+void ProxySetting::setDontSaveValue(const TclObject& dontSaveValue)
 {
 	if (auto* setting = getSetting()) {
 		setting->setDontSaveValue(dontSaveValue);

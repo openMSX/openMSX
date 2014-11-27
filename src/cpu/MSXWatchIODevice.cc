@@ -4,7 +4,6 @@
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
 #include "Interpreter.hh"
-#include "StringOp.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -42,7 +41,7 @@ void WatchIO::doReadCallback(unsigned port)
 	if (cpuInterface.isFastForward()) return;
 
 	auto& interp = getInterpreter();
-	interp.setVariable("wp_last_address", StringOp::toString(port));
+	interp.setVariable("wp_last_address", TclObject(int(port)));
 
 	// keep this object alive by holding a shared_ptr to it, for the case
 	// this watchpoint deletes itself in checkAndExecute()
@@ -59,8 +58,8 @@ void WatchIO::doWriteCallback(unsigned port, unsigned value)
 	if (cpuInterface.isFastForward()) return;
 
 	auto& interp = getInterpreter();
-	interp.setVariable("wp_last_address", StringOp::toString(port));
-	interp.setVariable("wp_last_value",   StringOp::toString(value));
+	interp.setVariable("wp_last_address", TclObject(int(port)));
+	interp.setVariable("wp_last_value",   TclObject(int(value)));
 
 	// see comment in doReadCallback() above
 	MSXCPUInterface::WatchPoints wpCopy(cpuInterface.getWatchPoints());

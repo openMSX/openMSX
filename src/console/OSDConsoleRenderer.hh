@@ -41,8 +41,8 @@ private:
 	void setActive(bool active);
 
 	bool updateConsoleRect();
-	void loadFont      (const std::string& value);
-	void loadBackground(const std::string& value);
+	void loadFont      (string_ref value);
+	void loadBackground(string_ref value);
 	byte getVisibility() const;
 	void drawText(OutputSurface& output, const ConsoleLine& text,
 	              int x, int y, byte alpha);

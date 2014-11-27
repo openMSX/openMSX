@@ -8,7 +8,7 @@ BooleanSetting::BooleanSetting(
 		CommandController& commandController, string_ref name,
 		string_ref description, bool initialValue, SaveSetting save)
 	: Setting(commandController, name, description,
-	          toString(initialValue), save)
+	          TclObject(toString(initialValue)), save)
 {
 	auto& interp = commandController.getInterpreter();
 	setChecker([this, &interp](TclObject& newValue) {

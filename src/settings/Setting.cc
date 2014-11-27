@@ -32,7 +32,7 @@ void BaseSetting::info(TclObject& result) const
 
 Setting::Setting(CommandController& commandController_,
                  string_ref name_, string_ref desc_,
-                 const string& initialValue, SaveSetting save_)
+                 const TclObject& initialValue, SaveSetting save_)
 	: BaseSetting(name_)
 	, commandController(commandController_)
 	, description(desc_.str())
@@ -53,7 +53,7 @@ void Setting::init()
 			if (auto* elem = config->findChildWithAttribute(
 			                                "setting", "id", getName())) {
 				try {
-					setStringDirect(elem->getData());
+					setValueDirect(TclObject(elem->getData()));
 				} catch (MSXException&) {
 					// saved value no longer valid, just keep default
 				}
@@ -74,12 +74,12 @@ Setting::~Setting()
 }
 
 
-string Setting::getDescription() const
+string_ref Setting::getDescription() const
 {
 	return description;
 }
 
-void Setting::setString(const string& value)
+void Setting::setValue(const TclObject& value)
 {
 	getCommandController().changeSetting(*this, value);
 }
@@ -95,13 +95,13 @@ void Setting::notify() const
 	//  - SettingsConfig (keeps values, also of not yet created settings)
 	// This method takes care of the last 3 in this list.
 	Subject<Setting>::notify();
+	TclObject value = getValue();
 	commandController.getCliComm().update(
-		CliComm::SETTING, getName(), getString());
+		CliComm::SETTING, getName(), value.getString());
 
 	// Always keep SettingsConfig in sync.
 	auto& config = getGlobalCommandController().getSettingsConfig().getXMLElement();
 	auto& settings = config.getCreateChild("settings");
-	string value = getString();
 	if (!needLoadSave() || (value == getDefaultValue())) {
 		// remove setting
 		if (auto* elem = settings.findChildWithAttribute(
@@ -115,7 +115,7 @@ void Setting::notify() const
 		// check for non-saveable value
 		// (mechanism can be generalize later when needed)
 		if (value == dontSaveValue) value = getRestoreValue();
-		elem.setData(value);
+		elem.setData(value.getString());
 	}
 }
 
@@ -136,7 +136,7 @@ bool Setting::needTransfer() const
 	return save != DONT_TRANSFER;
 }
 
-void Setting::setDontSaveValue(const std::string& dontSaveValue_)
+void Setting::setDontSaveValue(const TclObject& dontSaveValue_)
 {
 	dontSaveValue = dontSaveValue_;
 }
@@ -167,30 +167,10 @@ void Setting::additionalInfo(TclObject& /*result*/) const
 	// nothing
 }
 
-void Setting::setRestoreValue(const string& value)
-{
-	restoreValue = value;
-}
 
-
-string Setting::getString() const
+void Setting::setValueDirect(const TclObject& newValue_)
 {
-	return value.getString().str();
-}
-
-string Setting::getDefaultValue() const
-{
-	return defaultValue;
-}
-
-string Setting::getRestoreValue() const
-{
-	return restoreValue;
-}
-
-void Setting::setStringDirect(const string& str)
-{
-	TclObject newValue(str);
+	TclObject newValue = newValue_;
 	checkFunc(newValue);
 	if (newValue != value) {
 		value = newValue;
@@ -212,7 +192,7 @@ void Setting::setStringDirect(const string& str)
 	auto& globalController = controller->getGlobalCommandController();
 	// Tcl already makes sure this doesn't result in an endless loop.
 	try {
-		globalController.changeSetting(getName(), getString());
+		globalController.changeSetting(getName(), getValue());
 	} catch (MSXException&) {
 		// ignore
 	}

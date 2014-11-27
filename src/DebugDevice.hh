@@ -30,7 +30,7 @@ private:
 	void outputSingleByte(byte value, EmuTime::param time);
 	void outputMultiByte(byte value);
 	void displayByte(byte value, DisplayType type);
-	void openOutput(const std::string& name);
+	void openOutput(string_ref name);
 
 	std::unique_ptr<FilenameSetting> fileNameSetting;
 	std::ostream* outputstrm;

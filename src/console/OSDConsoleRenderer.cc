@@ -89,7 +89,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	fontSetting = make_unique<FilenameSetting>(commandController,
 		"consolefont", "console font file", defaultFont);
 	fontSetting->setChecker([this](TclObject& value) {
-		loadFont(value.getString().str());
+		loadFont(value.getString());
 	});
 	try {
 		loadFont(fontSetting->getString());
@@ -140,7 +140,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		"consolebackground", "console background file",
 		"skins/ConsoleBackgroundGrey.png");
 	backgroundSetting->setChecker([this](TclObject& value) {
-		loadBackground(value.getString().str());
+		loadBackground(value.getString());
 	});
 	// don't yet load background
 
@@ -270,7 +270,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	return result;
 }
 
-void OSDConsoleRenderer::loadFont(const string& value)
+void OSDConsoleRenderer::loadFont(string_ref value)
 {
 	string filename = SystemFileContext().resolve(value);
 	auto newFont = TTFFont(filename, fontSizeSetting->getInt());
@@ -281,7 +281,7 @@ void OSDConsoleRenderer::loadFont(const string& value)
 	clearCache();
 }
 
-void OSDConsoleRenderer::loadBackground(const string& value)
+void OSDConsoleRenderer::loadBackground(string_ref value)
 {
 	if (value.empty()) {
 		backgroundImage.reset();

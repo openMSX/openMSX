@@ -125,14 +125,14 @@ unique_ptr<RendererSetting> createRendererSetting(
 	// - After the error, the classes are destructed, part of that is
 	//   saving the current settings. But without extra care, this would
 	//   save renderer=none
-	setting->setDontSaveValue("none");
+	setting->setDontSaveValue(TclObject("none"));
 
 	// A saved value 'none' can be very confusing. If so change it to default.
 	if (setting->getEnum() == DUMMY) {
-		setting->setString(setting->getDefaultValue());
+		setting->setValue(setting->getDefaultValue());
 	}
 	// set saved value as default
-	setting->setRestoreValue(setting->getString());
+	setting->setRestoreValue(setting->getValue());
 
 	setting->setEnum(DUMMY); // always start hidden
 

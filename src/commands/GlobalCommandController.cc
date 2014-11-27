@@ -281,12 +281,12 @@ BaseSetting* GlobalCommandController::findSetting(string_ref name)
 }
 
 void GlobalCommandController::changeSetting(
-	const std::string& name, const string& value)
+	const std::string& name, const TclObject& value)
 {
 	interpreter->setVariable(name, value);
 }
 
-void GlobalCommandController::changeSetting(Setting& setting, const string& value)
+void GlobalCommandController::changeSetting(Setting& setting, const TclObject& value)
 {
 	changeSetting(setting.getName(), value);
 }

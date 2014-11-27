@@ -20,6 +20,16 @@ TclObject::TclObject(string_ref value)
 	init(Tcl_NewStringObj(value.data(), int(value.size())));
 }
 
+TclObject::TclObject(int value)
+{
+	init(Tcl_NewIntObj(value));
+}
+
+TclObject::TclObject(double value)
+{
+	init(Tcl_NewDoubleObj(value));
+}
+
 TclObject::TclObject(const TclObject& object)
 {
 	init(object.obj);

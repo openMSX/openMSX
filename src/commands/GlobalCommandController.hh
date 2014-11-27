@@ -47,7 +47,7 @@ public:
 	void registerProxySetting(Setting& setting);
 	void unregisterProxySetting(Setting& setting);
 
-	void changeSetting(const std::string& name, const std::string& value);
+	void changeSetting(const std::string& name, const TclObject& value);
 
 	// CommandController
 	void   registerCompleter(CommandCompleter& completer,
@@ -64,7 +64,7 @@ public:
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
 	BaseSetting* findSetting(string_ref name) override;
-	void changeSetting(Setting& setting, const std::string& value) override;
+	void changeSetting(Setting& setting, const TclObject& value) override;
 	CliComm& getCliComm() override;
 	Interpreter& getInterpreter() override;
 
