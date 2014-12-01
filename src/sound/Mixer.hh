@@ -2,6 +2,9 @@
 #define MIXER_HH
 
 #include "Observer.hh"
+#include "BooleanSetting.hh"
+#include "EnumSetting.hh"
+#include "IntegerSetting.hh"
 #include "noncopyable.hh"
 #include <vector>
 #include <memory>
@@ -12,14 +15,12 @@ class SoundDriver;
 class Reactor;
 class CommandController;
 class MSXMixer;
-class IntegerSetting;
-class BooleanSetting;
-template <typename T> class EnumSetting;
-class Setting;
 
 class Mixer final : private Observer<Setting>, private noncopyable
 {
 public:
+	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX };
+
 	Mixer(Reactor& reactor, CommandController& commandController);
 	~Mixer();
 
@@ -45,7 +46,7 @@ public:
 	 */
 	void uploadBuffer(MSXMixer& msxMixer, short* buffer, unsigned len);
 
-	IntegerSetting& getMasterVolume() const { return *masterVolume; }
+	IntegerSetting& getMasterVolume() { return masterVolume; }
 
 private:
 	void reloadDriver();
@@ -60,12 +61,11 @@ private:
 	Reactor& reactor;
 	CommandController& commandController;
 
-	const std::unique_ptr<BooleanSetting> muteSetting;
-	const std::unique_ptr<IntegerSetting> masterVolume;
-	const std::unique_ptr<IntegerSetting> frequencySetting;
-	const std::unique_ptr<IntegerSetting> samplesSetting;
-	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX };
-	std::unique_ptr<EnumSetting<SoundDriverType>> soundDriverSetting;
+	EnumSetting<SoundDriverType> soundDriverSetting;
+	BooleanSetting muteSetting;
+	IntegerSetting masterVolume;
+	IntegerSetting frequencySetting;
+	IntegerSetting samplesSetting;
 
 	int muteCount;
 };

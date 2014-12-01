@@ -4,13 +4,12 @@
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
+#include "KeyCodeSetting.hh"
 #include "serialize_meta.hh"
-#include <memory>
 
 namespace openmsx {
 
 class CommandController;
-class KeyCodeSetting;
 class MSXEventDistributor;
 class StateChangeDistributor;
 
@@ -48,12 +47,12 @@ private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 	const std::string name;
-	const std::unique_ptr<KeyCodeSetting> up;
-	const std::unique_ptr<KeyCodeSetting> down;
-	const std::unique_ptr<KeyCodeSetting> left;
-	const std::unique_ptr<KeyCodeSetting> right;
-	const std::unique_ptr<KeyCodeSetting> trigA;
-	const std::unique_ptr<KeyCodeSetting> trigB;
+	KeyCodeSetting up;
+	KeyCodeSetting down;
+	KeyCodeSetting left;
+	KeyCodeSetting right;
+	KeyCodeSetting trigA;
+	KeyCodeSetting trigB;
 
 	byte status;
 	bool pin8;

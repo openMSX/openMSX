@@ -8,7 +8,6 @@
 #include "RamDSKDiskImage.hh"
 #include "DirAsDSK.hh"
 #include "DiskPartition.hh"
-#include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "memory.hh"
 #include <stdexcept>
@@ -19,21 +18,19 @@ namespace openmsx {
 
 DiskFactory::DiskFactory(Reactor& reactor_)
 	: reactor(reactor_)
-{
-	CommandController& controller = reactor.getCommandController();
-
-	syncDirAsDSKSetting = make_unique<EnumSetting<DirAsDSK::SyncMode>>(
-		controller, "DirAsDSKmode",
+	, syncDirAsDSKSetting(
+		reactor.getCommandController(), "DirAsDSKmode",
 		"type of syncronisation between host directory and dir-as-dsk diskimage",
 		DirAsDSK::SYNC_FULL, EnumSetting<DirAsDSK::SyncMode>::Map{
 			{"read_only", DirAsDSK::SYNC_READONLY},
-			{"full",      DirAsDSK::SYNC_FULL}});
-
-	bootSectorSetting = make_unique<EnumSetting<DirAsDSK::BootSectorType>>(
-		controller, "bootsector", "boot sector type for dir-as-dsk",
+			{"full",      DirAsDSK::SYNC_FULL}})
+	, bootSectorSetting(
+		reactor.getCommandController(), "bootsector",
+		"boot sector type for dir-as-dsk",
 		DirAsDSK::BOOTSECTOR_DOS2, EnumSetting<DirAsDSK::BootSectorType>::Map{
 			{"DOS1", DirAsDSK::BOOTSECTOR_DOS1},
-			{"DOS2", DirAsDSK::BOOTSECTOR_DOS2}});
+			{"DOS2", DirAsDSK::BOOTSECTOR_DOS2}})
+{
 }
 
 std::unique_ptr<Disk> DiskFactory::createDisk(
@@ -50,8 +47,8 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 			diskChanger,
 			reactor.getCliComm(),
 			filename,
-			syncDirAsDSKSetting->getEnum(),
-			bootSectorSetting->getEnum());
+			syncDirAsDSKSetting.getEnum(),
+			bootSectorSetting.getEnum());
 	} catch (MSXException&) {
 		// DirAsDSK didn't work, no problem
 	}

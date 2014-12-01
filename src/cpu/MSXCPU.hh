@@ -2,6 +2,7 @@
 #define MSXCPU_HH
 
 #include "Observer.hh"
+#include "BooleanSetting.hh"
 #include "EmuTime.hh"
 #include "noncopyable.hh"
 #include "serialize_meta.hh"
@@ -13,12 +14,10 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class MSXCPUInterface;
-class BooleanSetting;
 class CPURegs;
 class Z80TYPE;
 class R800TYPE;
 template <typename T> class CPUCore;
-class Setting;
 class TimeInfoTopic;
 class CPUFreqInfoTopic;
 class MSXCPUDebuggable;
@@ -136,7 +135,7 @@ private:
 	void update(const Setting& setting) override;
 
 	MSXMotherBoard& motherboard;
-	const std::unique_ptr<BooleanSetting> traceSetting;
+	BooleanSetting traceSetting;
 	const std::unique_ptr<TclCallback> diHaltCallback;
 	const std::unique_ptr<CPUCore<Z80TYPE>> z80;
 	const std::unique_ptr<CPUCore<R800TYPE>> r800;

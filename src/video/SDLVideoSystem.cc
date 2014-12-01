@@ -85,9 +85,9 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	                        : vdp.getName();
 	auto& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer().getEnum()) {
-	case RendererFactory::SDL:
-	case RendererFactory::SDLGL_FB16:
-	case RendererFactory::SDLGL_FB32:
+	case RenderSettings::SDL:
+	case RenderSettings::SDLGL_FB16:
+	case RenderSettings::SDLGL_FB32:
 		switch (screen->getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 		case 2:
@@ -109,7 +109,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 			UNREACHABLE; return nullptr;
 		}
 #if COMPONENT_GL
-	case RendererFactory::SDLGL_PP:
+	case RenderSettings::SDLGL_PP:
 		return make_unique<SDLRasterizer<uint32_t>>(
 			vdp, display, *screen,
 			make_unique<GLPostProcessor>(
@@ -129,9 +129,9 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	                        : vdp.getName();
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer().getEnum()) {
-	case RendererFactory::SDL:
-	case RendererFactory::SDLGL_FB16:
-	case RendererFactory::SDLGL_FB32:
+	case RenderSettings::SDL:
+	case RenderSettings::SDLGL_FB16:
+	case RenderSettings::SDLGL_FB32:
 		switch (screen->getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 		case 2:
@@ -153,7 +153,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 			UNREACHABLE; return nullptr;
 		}
 #if COMPONENT_GL
-	case RendererFactory::SDLGL_PP:
+	case RenderSettings::SDLGL_PP:
 		return make_unique<V9990SDLRasterizer<uint32_t>>(
 			vdp, display, *screen,
 			make_unique<GLPostProcessor>(
@@ -172,9 +172,9 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	std::string videoSource = "Laserdisc"; // TODO handle multiple???
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
 	switch (renderSettings.getRenderer().getEnum()) {
-	case RendererFactory::SDL:
-	case RendererFactory::SDLGL_FB16:
-	case RendererFactory::SDLGL_FB32:
+	case RenderSettings::SDL:
+	case RenderSettings::SDLGL_FB16:
+	case RenderSettings::SDLGL_FB32:
 		switch (screen->getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 		case 2:
@@ -196,7 +196,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 			UNREACHABLE; return nullptr;
 		}
 #if COMPONENT_GL
-	case RendererFactory::SDLGL_PP:
+	case RenderSettings::SDLGL_PP:
 		return make_unique<LDSDLRasterizer<uint32_t>>(
 			*screen,
 			make_unique<GLPostProcessor>(
@@ -213,16 +213,16 @@ void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 {
 	unsigned factor = renderSettings.getScaleFactor().getInt();
 	switch (renderSettings.getRenderer().getEnum()) {
-	case RendererFactory::SDL:
-	case RendererFactory::SDLGL_FB16:
-	case RendererFactory::SDLGL_FB32:
+	case RenderSettings::SDL:
+	case RenderSettings::SDLGL_FB16:
+	case RenderSettings::SDLGL_FB32:
 		// We don't have 4x software scalers yet.
 		if (factor > 3) factor = 3;
 		break;
-	case RendererFactory::SDLGL_PP:
+	case RenderSettings::SDLGL_PP:
 		// All scale factors are supported.
 		break;
-	case RendererFactory::DUMMY:
+	case RenderSettings::DUMMY:
 		factor = 0;
 		break;
 	default:
@@ -291,27 +291,27 @@ void SDLVideoSystem::resize()
 	screen.reset();
 
 	switch (renderSettings.getRenderer().getEnum()) {
-	case RendererFactory::SDL:
+	case RenderSettings::SDL:
 		screen = make_unique<SDLVisibleSurface>(
 			width, height, renderSettings, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm());
 		break;
 #if COMPONENT_GL
-	case RendererFactory::SDLGL_PP:
+	case RenderSettings::SDLGL_PP:
 		screen = make_unique<SDLGLVisibleSurface>(
 			width, height, renderSettings, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm());
 		break;
-	case RendererFactory::SDLGL_FB16:
+	case RenderSettings::SDLGL_FB16:
 		screen = make_unique<SDLGLVisibleSurface>(
 			width, height, renderSettings, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm(),
 			SDLGLVisibleSurface::FB_16BPP);
 		break;
-	case RendererFactory::SDLGL_FB32:
+	case RenderSettings::SDLGL_FB32:
 		screen = make_unique<SDLGLVisibleSurface>(
 			width, height, renderSettings, rtScheduler,
 			eventDistributor, inputEventGenerator,

@@ -5,6 +5,8 @@
 #include "CacheLine.hh"
 #include "Probe.hh"
 #include "EmuTime.hh"
+#include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "array_ref.hh"
@@ -16,9 +18,6 @@ namespace openmsx {
 class MSXCPUInterface;
 class Scheduler;
 class MSXMotherBoard;
-class BooleanSetting;
-class IntegerSetting;
-class Setting;
 class TclCallback;
 class TclObject;
 class Interpreter;
@@ -126,8 +125,8 @@ private:
 	Probe<void> IRQAccept;
 
 	// dynamic freq
-	std::unique_ptr<BooleanSetting> freqLocked;
-	std::unique_ptr<IntegerSetting> freqValue;
+	BooleanSetting freqLocked;
+	IntegerSetting freqValue;
 	unsigned freq;
 
 	// state machine variables

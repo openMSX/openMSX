@@ -3,11 +3,9 @@
 #include "MSXEventDistributor.hh"
 #include "ReverseManager.hh"
 #include "InputEvents.hh"
-#include "FloatSetting.hh"
 #include "Timer.hh"
 #include "MSXException.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include <cassert>
 
@@ -25,9 +23,9 @@ EventDelay::EventDelay(Scheduler& scheduler,
 	, msxEventDistributor(msxEventDistributor_)
 	, prevEmu(EmuTime::zero)
 	, prevReal(Timer::getTime())
-	, delaySetting(make_unique<FloatSetting>(
+	, delaySetting(
 		commandController, "inputdelay",
-		"delay input to avoid key-skips", 0.0, 0.0, 10.0))
+		"delay input to avoid key-skips", 0.0, 0.0, 10.0)
 {
 	eventDistributor.registerEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::MSX);
@@ -80,7 +78,7 @@ EventDelay::~EventDelay()
 int EventDelay::signalEvent(const EventPtr& event)
 {
 	toBeScheduledEvents.push_back(event);
-	if (delaySetting->getDouble() == 0.0) {
+	if (delaySetting.getDouble() == 0.0) {
 		sync(getCurrentTime());
 	}
 	return 0;
@@ -95,7 +93,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 	prevEmu = curEmu;
 
 	double factor = emuDuration.toDouble() / realDuration;
-	EmuDuration extraDelay(delaySetting->getDouble());
+	EmuDuration extraDelay(delaySetting.getDouble());
 
 #if PLATFORM_ANDROID
 	// The virtual keyboard on Android sends a key press and the

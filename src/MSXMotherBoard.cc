@@ -32,7 +32,6 @@
 #include "DeviceFactory.hh"
 #include "BooleanSetting.hh"
 #include "GlobalSettings.hh"
-#include "VideoSourceSetting.hh"
 #include "Command.hh"
 #include "CommandException.hh"
 #include "InfoTopic.hh"
@@ -177,6 +176,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, msxMixer(make_unique<MSXMixer>(
 		reactor.getMixer(), *scheduler, *msxCommandController,
 		reactor.getGlobalSettings()))
+	, videoSourceSetting(*msxCommandController)
 	, fastForwardHelper(make_unique<FastForwardHelper>(*this))
 	, settingObserver(make_unique<SettingObserver>(*this))
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
@@ -209,8 +209,6 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 		*scheduler, *msxCommandController,
 		reactor.getEventDistributor(), *msxEventDistributor,
 		*reverseManager);
-	videoSourceSetting = make_unique<VideoSourceSetting>(
-		*msxCommandController);
 	realTime = make_unique<RealTime>(
 		*this, reactor.getGlobalSettings(), *eventDelay);
 

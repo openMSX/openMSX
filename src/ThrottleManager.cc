@@ -1,34 +1,32 @@
 #include "ThrottleManager.hh"
-#include "BooleanSetting.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 // class ThrottleManager:
 
 ThrottleManager::ThrottleManager(CommandController& commandController)
-	: throttleSetting(make_unique<BooleanSetting>(
+	: throttleSetting(
 		commandController, "throttle",
-		"controls speed throttling", true, Setting::DONT_SAVE))
-	, fullSpeedLoadingSetting(make_unique<BooleanSetting>(
+		"controls speed throttling", true, Setting::DONT_SAVE)
+	, fullSpeedLoadingSetting(
 		commandController, "fullspeedwhenloading",
-		"sets openMSX to full speed when the MSX is loading", false))
+		"sets openMSX to full speed when the MSX is loading", false)
 	, loading(0), throttle(true)
 {
-	throttleSetting->attach(*this);
-	fullSpeedLoadingSetting->attach(*this);
+	throttleSetting        .attach(*this);
+	fullSpeedLoadingSetting.attach(*this);
 }
 
 ThrottleManager::~ThrottleManager()
 {
-	throttleSetting->detach(*this);
-	fullSpeedLoadingSetting->detach(*this);
+	throttleSetting        .detach(*this);
+	fullSpeedLoadingSetting.detach(*this);
 }
 
 void ThrottleManager::updateStatus()
 {
-	bool newThrottle = throttleSetting->getBoolean() &&
-	                   (!loading || !fullSpeedLoadingSetting->getBoolean());
+	bool newThrottle = throttleSetting.getBoolean() &&
+	                   (!loading || !fullSpeedLoadingSetting.getBoolean());
 	if (throttle != newThrottle) {
 		throttle = newThrottle;
 		notify();

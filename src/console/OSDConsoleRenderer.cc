@@ -1,9 +1,6 @@
 #include "OSDConsoleRenderer.hh"
 #include "CommandConsole.hh"
-#include "EnumSetting.hh"
-#include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
-#include "FilenameSetting.hh"
 #include "SDLImage.hh"
 #include "Display.hh"
 #include "InputEventGenerator.hh"
@@ -55,6 +52,8 @@ OSDConsoleRenderer::TextCacheElement::TextCacheElement(TextCacheElement&& rhs)
 
 // class OSDConsoleRenderer
 
+static const string_ref defaultFont = "skins/VeraMono.ttf.gz";
+
 OSDConsoleRenderer::OSDConsoleRenderer(
 		Reactor& reactor_, CommandConsole& console_,
 		unsigned screenW_, unsigned screenH_,
@@ -66,6 +65,36 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	, screenW(screenW_)
 	, screenH(screenH_)
 	, openGL(openGL_)
+	, consolePlacementSetting(
+		reactor.getCommandController(), "consoleplacement",
+		"position of the console within the emulator",
+		// On Android, console must by default be placed on top, in
+		// order to prevent that it overlaps with the virtual Android
+		// keyboard, which is always placed at the bottom of the screen
+		PLATFORM_ANDROID ? CP_TOP : CP_BOTTOM,
+		EnumSetting<Placement>::Map{
+			{"topleft",     CP_TOPLEFT},
+			{"top",         CP_TOP},
+			{"topright",    CP_TOPRIGHT},
+			{"left",        CP_LEFT},
+			{"center",      CP_CENTER},
+			{"right",       CP_RIGHT},
+			{"bottomleft",  CP_BOTTOMLEFT},
+			{"bottom",      CP_BOTTOM},
+			{"bottomright", CP_BOTTOMRIGHT}})
+	, fontSizeSetting(reactor.getCommandController(),
+		"consolefontsize", "Size of the console font", 12, 8, 32)
+	, fontSetting(reactor.getCommandController(),
+		"consolefont", "console font file", defaultFont)
+	, consoleColumnsSetting(reactor.getCommandController(),
+		"consolecolumns", "number of columns in the console",
+		initFontAndGetColumns(), 32, 999)
+	, consoleRowsSetting(reactor.getCommandController(),
+		"consolerows", "number of rows in the console",
+		getRows(), 1, 99)
+	, backgroundSetting(reactor.getCommandController(),
+		"consolebackground", "console background file",
+		"skins/ConsoleBackgroundGrey.png")
 {
 #if !COMPONENT_GL
 	assert(!openGL);
@@ -79,27 +108,35 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	activeTime = 0;
 	setCoverage(COVER_PARTIAL);
 
-	// font size
-	CommandController& commandController = reactor.getCommandController();
-	fontSizeSetting = make_unique<IntegerSetting>(commandController,
-		"consolefontsize", "Size of the console font", 12, 8, 32);
+	adjustColRow();
 
-	// font
-	const string& defaultFont = "skins/VeraMono.ttf.gz";
-	fontSetting = make_unique<FilenameSetting>(commandController,
-		"consolefont", "console font file", defaultFont);
-	fontSetting->setChecker([this](TclObject& value) {
-		loadFont(value.getString());
+	// background (only load backgound on first paint())
+	backgroundSetting.setChecker([this](TclObject& value) {
+		loadBackground(value.getString());
+	});
+	// don't yet load background
+
+	consoleSetting.attach(*this);
+	fontSetting.attach(*this);
+	fontSizeSetting.attach(*this);
+	setActive(consoleSetting.getBoolean());
+}
+
+int OSDConsoleRenderer::initFontAndGetColumns()
+{
+	// init font
+	fontSetting.setChecker([this](TclObject& value) {
+		loadFont(value.getString().str());
 	});
 	try {
-		loadFont(fontSetting->getString());
+		loadFont(fontSetting.getString());
 	} catch (MSXException&) {
 		// This will happen when you upgrade from the old .png based
 		// fonts to the new .ttf fonts. So provide a smooth upgrade path.
 		reactor.getCliComm().printWarning(
-			"Loading selected font (" + fontSetting->getString() +
+			"Loading selected font (" + fontSetting.getString() +
 			") failed. Reverting to default font (" + defaultFont + ").");
-		fontSetting->setString(defaultFont);
+		fontSetting.setString(defaultFont);
 		if (font.empty()) {
 			// we can't continue without font
 			throw FatalError("Couldn't load default console font.\n"
@@ -107,53 +144,17 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		}
 	}
 
-	// rows / columns
-	int columns = (((screenW - CHAR_BORDER) / font.getWidth()) * 30) / 32;
-	int rows = ((screenH / font.getHeight()) * 6) / 15;
-	consoleColumnsSetting = make_unique<IntegerSetting>(commandController,
-		"consolecolumns", "number of columns in the console", columns,
-		32, 999);
-	consoleRowsSetting = make_unique<IntegerSetting>(commandController,
-		"consolerows", "number of rows in the console", rows, 1, 99);
-	adjustColRow();
-
-	// placement
-	// On Android, console must by default be placed on top, in order to prevent
-	// that it overlaps with the virtual Android keyboard, which is always placed
-	// at the bottom of the screen
-	consolePlacementSetting = make_unique<EnumSetting<Placement>>(
-		commandController, "consoleplacement",
-		"position of the console within the emulator",
-		PLATFORM_ANDROID ? CP_TOP : CP_BOTTOM, EnumSetting<Placement>::Map{
-			{"topleft",     CP_TOPLEFT},
-			{"top",         CP_TOP},
-			{"topright",    CP_TOPRIGHT},
-			{"left",        CP_LEFT},
-			{"center",      CP_CENTER},
-			{"right",       CP_RIGHT},
-			{"bottomleft",  CP_BOTTOMLEFT},
-			{"bottom",      CP_BOTTOM},
-			{"bottomright", CP_BOTTOMRIGHT}});
-
-	// background (only load backgound on first paint())
-	backgroundSetting = make_unique<FilenameSetting>(commandController,
-		"consolebackground", "console background file",
-		"skins/ConsoleBackgroundGrey.png");
-	backgroundSetting->setChecker([this](TclObject& value) {
-		loadBackground(value.getString());
-	});
-	// don't yet load background
-
-	consoleSetting.attach(*this);
-	fontSetting->attach(*this);
-	fontSizeSetting->attach(*this);
-	setActive(consoleSetting.getBoolean());
+	return (((screenW - CHAR_BORDER) / font.getWidth()) * 30) / 32;
 }
-
+int OSDConsoleRenderer::getRows()
+{
+	// initFontAndGetColumns() must already be called
+	return ((screenH / font.getHeight()) * 6) / 15;
+}
 OSDConsoleRenderer::~OSDConsoleRenderer()
 {
-	fontSizeSetting->detach(*this);
-	fontSetting->detach(*this);
+	fontSizeSetting.detach(*this);
+	fontSetting.detach(*this);
 	consoleSetting.detach(*this);
 	setActive(false);
 }
@@ -161,10 +162,10 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 void OSDConsoleRenderer::adjustColRow()
 {
 	unsigned consoleColumns = std::min<unsigned>(
-		consoleColumnsSetting->getInt(),
+		consoleColumnsSetting.getInt(),
 		(screenW - CHAR_BORDER) / font.getWidth());
 	unsigned consoleRows = std::min<unsigned>(
-		consoleRowsSetting->getInt(),
+		consoleRowsSetting.getInt(),
 		screenH / font.getHeight());
 	console.setColumns(consoleColumns);
 	console.setRows(consoleRows);
@@ -174,9 +175,9 @@ void OSDConsoleRenderer::update(const Setting& setting)
 {
 	if (&setting == &consoleSetting) {
 		setActive(consoleSetting.getBoolean());
-	} else if ((&setting == fontSetting.get()) ||
-	           (&setting == fontSizeSetting.get())) {
-		loadFont(fontSetting->getString());
+	} else if ((&setting == &fontSetting) ||
+	           (&setting == &fontSizeSetting)) {
+		loadFont(fontSetting.getString());
 	} else {
 		UNREACHABLE;
 	}
@@ -227,7 +228,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	w = (font.getWidth() * console.getColumns()) + CHAR_BORDER;
 
 	// TODO use setting listener in the future
-	switch (consolePlacementSetting->getEnum()) {
+	switch (consolePlacementSetting.getEnum()) {
 		case CP_TOPLEFT:
 		case CP_LEFT:
 		case CP_BOTTOMLEFT:
@@ -245,7 +246,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 			x = (screenW - w) / 2;
 			break;
 	}
-	switch (consolePlacementSetting->getEnum()) {
+	switch (consolePlacementSetting.getEnum()) {
 		case CP_TOPLEFT:
 		case CP_TOP:
 		case CP_TOPRIGHT:
@@ -273,7 +274,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 void OSDConsoleRenderer::loadFont(string_ref value)
 {
 	string filename = SystemFileContext().resolve(value);
-	auto newFont = TTFFont(filename, fontSizeSetting->getInt());
+	auto newFont = TTFFont(filename, fontSizeSetting.getInt());
 	if (!newFont.isFixedWidth()) {
 		throw MSXException(value + " is not a monospaced font");
 	}
@@ -416,7 +417,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 
 	if (updateConsoleRect()) {
 		try {
-			loadBackground(backgroundSetting->getString());
+			loadBackground(backgroundSetting.getString());
 		} catch (MSXException& e) {
 			reactor.getCliComm().printWarning(e.getMessage());
 		}

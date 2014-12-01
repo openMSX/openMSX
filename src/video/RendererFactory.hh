@@ -25,14 +25,6 @@ template <typename T> class EnumSetting;
   */
 namespace RendererFactory
 {
-	/** Enumeration of Renderers known to openMSX.
-	  * This is the full list, the list of available renderers may be smaller.
-	  */
-	enum RendererID { UNINITIALIZED, DUMMY, SDL,
-	                  SDLGL_PP, SDLGL_FB16, SDLGL_FB32 };
-
-	typedef EnumSetting<RendererID> RendererSetting;
-
 	/** Create the video system required by the current renderer setting.
 	  */
 	std::unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor);
@@ -58,12 +50,6 @@ namespace RendererFactory
 	std::unique_ptr<LDRenderer> createLDRenderer(
 		LaserdiscPlayer& ld, Display& display);
 #endif
-
-	/** Create the renderer setting.
-	  * The map of this setting contains only the available renderers.
-	  */
-	std::unique_ptr<RendererSetting> createRendererSetting(
-		CommandController& commandController);
 
 } // namespace RendererFactory
 } // namespace openmsx

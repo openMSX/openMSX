@@ -4,8 +4,8 @@
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
+#include "StringSetting.hh"
 #include "serialize_meta.hh"
-#include <memory>
 #include <SDL.h>
 
 namespace openmsx {
@@ -15,7 +15,6 @@ class StateChangeDistributor;
 class CommandController;
 class PluggingController;
 class GlobalSettings;
-class StringSetting;
 class IntegerSetting;
 class TclObject;
 class Interpreter;
@@ -74,12 +73,12 @@ private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	std::unique_ptr<StringSetting> configSetting;
 	SDL_Joystick* const joystick;
 	const unsigned joyNum;
 	IntegerSetting& deadSetting; // must come after joyNum
 	const std::string name;
 	const std::string desc;
+	StringSetting configSetting;
 
 	byte status;
 	bool pin8;

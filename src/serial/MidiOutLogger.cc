@@ -1,28 +1,22 @@
 #include "MidiOutLogger.hh"
 #include "PlugException.hh"
-#include "FilenameSetting.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 MidiOutLogger::MidiOutLogger(CommandController& commandController)
-	: logFilenameSetting(make_unique<FilenameSetting>(
+	: logFilenameSetting(
 		commandController, "midi-out-logfilename",
 		"filename of the file where the MIDI output is logged to",
-		"/dev/midi"))
-{
-}
-
-MidiOutLogger::~MidiOutLogger()
+		"/dev/midi")
 {
 }
 
 void MidiOutLogger::plugHelper(Connector& /*connector*/,
                                EmuTime::param /*time*/)
 {
-	FileOperations::openofstream(file, logFilenameSetting->getString().str());
+	FileOperations::openofstream(file, logFilenameSetting.getString().str());
 	if (file.fail()) {
 		file.clear();
 		throw PlugException("Error opening log file");

@@ -4,14 +4,13 @@
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
-#include <memory>
+#include "StringSetting.hh"
 
 namespace openmsx {
 
 class MSXEventDistributor;
 class StateChangeDistributor;
 class CommandController;
-class StringSetting;
 class TclObject;
 class Interpreter;
 
@@ -53,7 +52,7 @@ private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	std::unique_ptr<StringSetting> transformSetting;
+	StringSetting transformSetting;
 	double m[2][3]; // transformation matrix
 
 	EmuTime start; // last time when CS switched 0->1

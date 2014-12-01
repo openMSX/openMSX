@@ -4,15 +4,13 @@
 #include "Observer.hh"
 #include "DynamicClock.hh"
 #include "EmuTime.hh"
+#include "IntegerSetting.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
-#include <memory>
 
 namespace openmsx {
 
 class CommandController;
-class IntegerSetting;
-class Setting;
 
 /**
  * Autofire is a device that is between two other devices and outside
@@ -58,7 +56,7 @@ private:
 	const unsigned max_ints;
 
 	/** The currently selected speed. */
-	const std::unique_ptr<IntegerSetting> speedSetting;
+	IntegerSetting speedSetting;
 
 	/** Each tick of this clock, the signal changes.
 	  * Frequency is derived from speed, min_ints and max_ints.

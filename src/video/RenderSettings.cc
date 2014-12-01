@@ -1,14 +1,8 @@
 #include "RenderSettings.hh"
-#include "IntegerSetting.hh"
-#include "FloatSetting.hh"
-#include "BooleanSetting.hh"
-#include "StringSetting.hh"
-#include "EnumSetting.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "Version.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <iostream>
@@ -16,81 +10,8 @@
 
 namespace openmsx {
 
-RenderSettings::RenderSettings(CommandController& commandController)
+EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 {
-	accuracySetting = make_unique<EnumSetting<Accuracy>>(commandController,
-		"accuracy", "rendering accuracy", ACC_PIXEL,
-		EnumSetting<Accuracy>::Map{
-			{"screen", ACC_SCREEN},
-			{"line",   ACC_LINE},
-			{"pixel",  ACC_PIXEL}});
-
-	deinterlaceSetting = make_unique<BooleanSetting>(commandController,
-		"deinterlace", "deinterlacing on/off", true);
-
-	deflickerSetting = make_unique<BooleanSetting>(commandController,
-		"deflicker", "deflicker on/off", false);
-
-	maxFrameSkipSetting = make_unique<IntegerSetting>(commandController,
-		"maxframeskip", "set the max amount of frameskip", 3, 0, 100);
-
-	minFrameSkipSetting = make_unique<IntegerSetting>(commandController,
-		"minframeskip", "set the min amount of frameskip", 0, 0, 100);
-
-	fullScreenSetting = make_unique<BooleanSetting>(commandController,
-		"fullscreen", "full screen display on/off", false);
-
-	gammaSetting = make_unique<FloatSetting>(commandController, "gamma",
-		"amount of gamma correction: low is dark, high is bright",
-		1.1, 0.1, 5.0);
-
-	brightnessSetting = make_unique<FloatSetting>(commandController, "brightness",
-		"brightness video setting: "
-		"0 is normal, lower is darker, higher is brighter",
-		0.0, -100.0, 100.0);
-	contrastSetting = make_unique<FloatSetting>(commandController, "contrast",
-		"contrast video setting: "
-		"0 is normal, lower is less contrast, higher is more contrast",
-		0.0, -100.0, 100.0);
-	brightnessSetting->attach(*this);
-	contrastSetting->attach(*this);
-	updateBrightnessAndContrast();
-
-	auto& interp = commandController.getInterpreter();
-	colorMatrixSetting = make_unique<StringSetting>(commandController,
-		"color_matrix",
-		"3x3 matrix to transform MSX RGB to host RGB, see manual for details",
-		"{ 1 0 0 } { 0 1 0 } { 0 0 1 }");
-	colorMatrixSetting->setChecker([this, &interp](TclObject& newValue) {
-		try {
-			parseColorMatrix(interp, newValue);
-		} catch (CommandException& e) {
-			throw CommandException(
-				"Invalid color matrix: " + e.getMessage());
-		}
-	});
-	try {
-		parseColorMatrix(interp, colorMatrixSetting->getValue());
-	} catch (MSXException& e) {
-		std::cerr << e.getMessage() << std::endl;
-		cmIdentity = true;
-	}
-
-	glowSetting = make_unique<IntegerSetting>(commandController,
-		"glow", "amount of afterglow effect: 0 = none, 100 = lots",
-		0, 0, 100);
-
-	noiseSetting = make_unique<FloatSetting>(commandController,
-		"noise", "amount of noise to add to the frame",
-		0.0, 0.0, 100.0);
-
-	horizontalBlurSetting = make_unique<IntegerSetting>(commandController,
-		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
-		50, 0, 100);
-
-	// Get user-preferred renderer from config.
-	rendererSetting = RendererFactory::createRendererSetting(commandController);
-
 	EnumSetting<ScaleAlgorithm>::Map scalerMap = { { "simple", SCALER_SIMPLE } };
 	if (MAX_SCALE_FACTOR > 1) {
 		scalerMap.insert(end(scalerMap), {
@@ -107,32 +28,114 @@ RenderSettings::RenderSettings(CommandController& commandController)
 			scalerMap.emplace_back("MLAA", SCALER_MLAA);
 		}
 	}
-	scaleAlgorithmSetting = make_unique<EnumSetting<ScaleAlgorithm>>(
+	return scalerMap;
+}
+
+EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
+{
+	EnumSetting<RendererID>::Map rendererMap = {
+		{ "none", DUMMY },// TODO: only register when in CliComm mode
+		{ "SDL", SDL } };
+#if COMPONENT_GL
+	// compiled with OpenGL-2.0, still need to test whether
+	// it's available at run time, but cannot be done here
+	rendererMap.emplace_back("SDLGL-PP", SDLGL_PP);
+	if (!Version::RELEASE) {
+		// disabled for the release:
+		//  these renderers don't offer anything more than the existing
+		//  renderers and sdlgl-fb32 still has endian problems on PPC
+		// TODO is this still true now that SDLGL is removed?
+		rendererMap.insert(end(rendererMap), {
+			{"SDLGL-FB16", SDLGL_FB16},
+			{"SDLGL-FB32", SDLGL_FB32}});
+	}
+#endif
+	return rendererMap;
+}
+
+RenderSettings::RenderSettings(CommandController& commandController)
+	: accuracySetting(commandController,
+		"accuracy", "rendering accuracy", ACC_PIXEL,
+		EnumSetting<Accuracy>::Map{
+			{"screen", ACC_SCREEN},
+			{"line",   ACC_LINE},
+			{"pixel",  ACC_PIXEL}})
+
+	, deinterlaceSetting(commandController,
+		"deinterlace", "deinterlacing on/off", true)
+
+	, deflickerSetting(commandController,
+		"deflicker", "deflicker on/off", false)
+
+	, maxFrameSkipSetting(commandController,
+		"maxframeskip", "set the max amount of frameskip", 3, 0, 100)
+
+	, minFrameSkipSetting(commandController,
+		"minframeskip", "set the min amount of frameskip", 0, 0, 100)
+
+	, fullScreenSetting(commandController,
+		"fullscreen", "full screen display on/off", false)
+
+	, gammaSetting(commandController, "gamma",
+		"amount of gamma correction: low is dark, high is bright",
+		1.1, 0.1, 5.0)
+
+	, brightnessSetting(commandController, "brightness",
+		"brightness video setting: "
+		"0 is normal, lower is darker, higher is brighter",
+		0.0, -100.0, 100.0)
+	, contrastSetting(commandController, "contrast",
+		"contrast video setting: "
+		"0 is normal, lower is less contrast, higher is more contrast",
+		0.0, -100.0, 100.0)
+
+	, colorMatrixSetting(commandController,
+		"color_matrix",
+		"3x3 matrix to transform MSX RGB to host RGB, see manual for details",
+		"{ 1 0 0 } { 0 1 0 } { 0 0 1 }")
+
+	, glowSetting(commandController,
+		"glow", "amount of afterglow effect: 0 = none, 100 = lots",
+		0, 0, 100)
+
+	, noiseSetting(commandController,
+		"noise", "amount of noise to add to the frame",
+		0.0, 0.0, 100.0)
+
+	, rendererSetting(commandController,
+		"renderer", "rendering back-end used to display the MSX screen",
+		SDL, getRendererMap())
+
+	, horizontalBlurSetting(commandController,
+		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
+		50, 0, 100)
+
+	, scaleAlgorithmSetting(
 		commandController, "scale_algorithm", "scale algorithm",
-		SCALER_SIMPLE, std::move(scalerMap));
+		SCALER_SIMPLE, getScalerMap())
 
-	scaleFactorSetting = make_unique<IntegerSetting>(commandController,
+	, scaleFactorSetting(commandController,
 		"scale_factor", "scale factor",
-		std::min(2, MAX_SCALE_FACTOR), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
+		std::min(2, MAX_SCALE_FACTOR), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR)
 
-	scanlineAlphaSetting = make_unique<IntegerSetting>(commandController,
+	, scanlineAlphaSetting(commandController,
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
-		20, 0, 100);
+		20, 0, 100)
 
-	limitSpritesSetting = make_unique<BooleanSetting>(commandController,
+	, limitSpritesSetting(commandController,
 		"limitsprites", "limit number of sprites per line "
-		"(on for realism, off to reduce sprite flashing)", true);
+		"(on for realism, off to reduce sprite flashing)", true)
 
-	disableSpritesSetting = make_unique<BooleanSetting>(commandController,
+	, disableSpritesSetting(commandController,
 		"disablesprites", "disable sprite rendering",
-		false, Setting::DONT_SAVE);
+		false, Setting::DONT_SAVE)
 
-	cmdTimingSetting = make_unique<EnumSetting<bool>>(commandController,
+	, cmdTimingSetting(commandController,
 		"cmdtiming", "VDP command timing", false,
 		EnumSetting<bool>::Map{{"real", false}, {"broken", true}},
-		Setting::DONT_SAVE);
+		Setting::DONT_SAVE)
 
-	tooFastAccessSetting = make_unique<EnumSetting<bool>>(commandController,
+	, tooFastAccessSetting(commandController,
 		"too_fast_vram_access",
 		"Should too fast VDP VRAM access be correctly emulated.\n"
 		"Possible values are:\n"
@@ -140,20 +143,20 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		" ignore -> access speed is ignored, all accesses are executed",
 		false,
 		EnumSetting<bool>::Map{{"real", false }, {"ignore", true}},
-		Setting::DONT_SAVE);
+		Setting::DONT_SAVE)
 
-	displayDeformSetting = make_unique<EnumSetting<DisplayDeform>>(
+	, displayDeformSetting(
 		commandController,
 		"display_deform", "Display deform (for the moment this only "
 		"works with the SDLGL-PP renderer", DEFORM_NORMAL,
 		EnumSetting<DisplayDeform>::Map{
 			{"normal", DEFORM_NORMAL},
-			{"3d",     DEFORM_3D}});
+			{"3d",     DEFORM_3D}})
 
 	// Many android devices are relatively low powered. Therefore use
 	// no stretch (value 320) as default for Android because it gives
 	// better performance
-	horizontalStretchSetting = make_unique<FloatSetting>(commandController,
+	, horizontalStretchSetting(commandController,
 		"horizontal_stretch",
 		"Amount of horizontal stretch: this many MSX pixels will be "
 		"stretched over the complete width of the output screen.\n"
@@ -161,48 +164,89 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"  256 = max stretch (no border visible anymore)\n"
 		"  good values are 272 or 280\n"
 		"This setting has only effect when using the SDLGL-PP renderer.",
-		PLATFORM_ANDROID ? 320.0 : 280.0, 256.0, 320.0);
+		PLATFORM_ANDROID ? 320.0 : 280.0, 256.0, 320.0)
 
-	pointerHideDelaySetting = make_unique<FloatSetting>(commandController,
+	, pointerHideDelaySetting(commandController,
 		"pointer_hide_delay",
 		"number of seconds after which the mouse pointer is hidden in the openMSX "
 		"window; negative = no hiding, 0 = immediately",
-		2.0, -1.0, 60.0);
+		2.0, -1.0, 60.0)
 
-	interleaveBlackFrameSetting = make_unique<BooleanSetting>(commandController,
+	, interleaveBlackFrameSetting(commandController,
 		"interleave_black_frame",
 		"Insert a black frame in between each normal MSX frame. "
 		"Useful on (100Hz+) lightboost enabled monitors to reduce "
 		"motion blur and double frame artifacts.",
-		false);
+		false)
+{
+	brightnessSetting.attach(*this);
+	contrastSetting  .attach(*this);
+	updateBrightnessAndContrast();
+
+	auto& interp = commandController.getInterpreter();
+	colorMatrixSetting.setChecker([this, &interp](TclObject& newValue) {
+		try {
+			parseColorMatrix(interp, newValue);
+		} catch (CommandException& e) {
+			throw CommandException(
+				"Invalid color matrix: " + e.getMessage());
+		}
+	});
+	try {
+		parseColorMatrix(interp, colorMatrixSetting.getValue());
+	} catch (MSXException& e) {
+		std::cerr << e.getMessage() << std::endl;
+		cmIdentity = true;
+	}
+
+	// RendererSetting
+	// Make sure the value 'none' never gets saved in settings.xml.
+	// This happened in the following scenario:
+	// - During startup, the renderer is forced to the value 'none'.
+	// - If there's an error in the parsing of the command line (e.g.
+	//   because an invalid option is passed) then openmsx will never
+	//   get to the point where the actual renderer setting is restored
+	// - After the error, the classes are destructed, part of that is
+	//   saving the current settings. But without extra care, this would
+	//   save renderer=none
+	rendererSetting.setDontSaveValue(TclObject("none"));
+
+	// A saved value 'none' can be very confusing. If so change it to default.
+	if (rendererSetting.getEnum() == DUMMY) {
+		rendererSetting.setValue(rendererSetting.getDefaultValue());
+	}
+	// set saved value as default
+	rendererSetting.setRestoreValue(rendererSetting.getValue());
+
+	rendererSetting.setEnum(DUMMY); // always start hidden
 }
 
 RenderSettings::~RenderSettings()
 {
-	brightnessSetting->detach(*this);
-	contrastSetting->detach(*this);
+	brightnessSetting.detach(*this);
+	contrastSetting  .detach(*this);
 }
 
 int RenderSettings::getBlurFactor() const
 {
-	return (horizontalBlurSetting->getInt()) * 256 / 100;
+	return (horizontalBlurSetting.getInt()) * 256 / 100;
 }
 
 int RenderSettings::getScanlineFactor() const
 {
-	return 255 - ((scanlineAlphaSetting->getInt() * 255) / 100);
+	return 255 - ((scanlineAlphaSetting.getInt() * 255) / 100);
 }
 
 float RenderSettings::getScanlineGap() const
 {
-	return scanlineAlphaSetting->getInt() * 0.01f;
+	return scanlineAlphaSetting.getInt() * 0.01f;
 }
 
 void RenderSettings::update(const Setting& setting)
 {
-	if (&setting == brightnessSetting.get()) {
+	if (&setting == &brightnessSetting) {
 		updateBrightnessAndContrast();
-	} else if (&setting == contrastSetting.get()) {
+	} else if (&setting == &contrastSetting) {
 		updateBrightnessAndContrast();
 	} else {
 		UNREACHABLE;
@@ -226,7 +270,7 @@ static double conv2(double x, double gamma)
 double RenderSettings::transformComponent(double c) const
 {
 	double c2 = c * contrast + brightness;
-	double gamma = 1.0 / getGamma().getDouble();
+	double gamma = 1.0 / gammaSetting.getDouble();
 	return conv2(c2, gamma);
 }
 
@@ -240,7 +284,7 @@ void RenderSettings::transformRGB(double& r, double& g, double& b) const
 	double g2 = cm[1][0] * rbc + cm[1][1] * gbc + cm[1][2] * bbc;
 	double b2 = cm[2][0] * rbc + cm[2][1] * gbc + cm[2][2] * bbc;
 
-	double gamma = 1.0 / getGamma().getDouble();
+	double gamma = 1.0 / gammaSetting.getDouble();
 	r = conv2(r2, gamma);
 	g = conv2(g2, gamma);
 	b = conv2(b2, gamma);

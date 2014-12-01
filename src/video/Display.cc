@@ -1,4 +1,5 @@
 #include "Display.hh"
+#include "RenderSettings.hh"
 #include "Layer.hh"
 #include "VideoSystem.hh"
 #include "VideoLayer.hh"
@@ -75,7 +76,7 @@ Display::Display(Reactor& reactor_)
 	, commandConsole(make_unique<CommandConsole>(
 		reactor.getGlobalCommandController(),
 		reactor.getEventDistributor(), *this))
-	, currentRenderer(RendererFactory::UNINITIALIZED)
+	, currentRenderer(RenderSettings::UNINITIALIZED)
 	, switchInProgress(false)
 {
 	frameDurationSum = 0;
@@ -132,7 +133,7 @@ Display::~Display()
 void Display::createVideoSystem()
 {
 	assert(!videoSystem);
-	assert(currentRenderer == RendererFactory::UNINITIALIZED);
+	assert(currentRenderer == RenderSettings::UNINITIALIZED);
 	assert(!switchInProgress);
 	currentRenderer = renderSettings->getRenderer().getEnum();
 	switchInProgress = true;
@@ -284,8 +285,7 @@ void Display::checkRendererSwitch()
 		// queued we don't need to do it again.
 		return;
 	}
-	RendererFactory::RendererID newRenderer =
-		renderSettings->getRenderer().getEnum();
+	auto newRenderer = renderSettings->getRenderer().getEnum();
 	if ((newRenderer != currentRenderer) ||
 	    !getVideoSystem().checkSettings()) {
 		currentRenderer = newRenderer;
@@ -313,10 +313,10 @@ void Display::doRendererSwitch()
 				renderSettings->getRenderer().getString() +
 				": " + e.getMessage();
 			// now try some things that might work against this:
-			if (renderSettings->getRenderer().getEnum() != RendererFactory::SDL) {
+			if (renderSettings->getRenderer().getEnum() != RenderSettings::SDL) {
 				errorMsg += "\nTrying to switch to SDL renderer instead...";
-				renderSettings->getRenderer().setEnum(RendererFactory::SDL);
-				currentRenderer = RendererFactory::SDL;
+				renderSettings->getRenderer().setEnum(RenderSettings::SDL);
+				currentRenderer = RenderSettings::SDL;
 			} else {
 				unsigned curval = renderSettings->getScaleFactor().getInt();
 				if (curval == 1) throw MSXException(e.getMessage() + " (and I have no other ideas to try...)"); // give up and die... :(

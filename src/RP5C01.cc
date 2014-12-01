@@ -1,8 +1,6 @@
 #include "RP5C01.hh"
-#include "EnumSetting.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
 #include <ctime>
 
@@ -39,31 +37,21 @@ static const nibble mask[4][13] = {
 	{ 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf}
 };
 
-static std::unique_ptr<EnumSetting<RP5C01::RTCMode>> createModeSetting(
-	CommandController& commandController, const std::string& name)
-{
-	return make_unique<EnumSetting<RP5C01::RTCMode>>(
+RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
+               EmuTime::param time, const std::string& name)
+	: regs(regs_)
+	, modeSetting(
 		commandController,
 		((name == "Real time clock") ? "rtcmode" // bw-compat
 		                             : (name + " mode")),
 		"Real Time Clock mode", RP5C01::EMUTIME,
 		EnumSetting<RP5C01::RTCMode>::Map{
 			{"EmuTime",  RP5C01::EMUTIME},
-			{"RealTime", RP5C01::REALTIME}});
-}
-
-RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
-               EmuTime::param time, const std::string& name)
-	: regs(regs_)
-	, modeSetting(createModeSetting(commandController, name))
+			{"RealTime", RP5C01::REALTIME}})
 	, reference(time)
 {
 	initializeTime();
 	reset(time);
-}
-
-RP5C01::~RP5C01()
-{
 }
 
 void RP5C01::reset(EmuTime::param time)
@@ -196,7 +184,7 @@ static int daysInMonth(int month, unsigned leapYear)
 
 void RP5C01::updateTimeRegs(EmuTime::param time)
 {
-	if (modeSetting->getEnum() == EMUTIME) {
+	if (modeSetting.getEnum() == EMUTIME) {
 		// sync with EmuTime, perfect emulation
 		unsigned elapsed = unsigned(reference.getTicksTill(time));
 		reference.advance(time);

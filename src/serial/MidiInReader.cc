@@ -3,11 +3,9 @@
 #include "PlugException.hh"
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
-#include "FilenameSetting.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cstdio>
 #include <cerrno>
 #include <cstring>
@@ -21,10 +19,10 @@ MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
                            CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
 	, thread(this), lock(1)
-	, readFilenameSetting(make_unique<FilenameSetting>(
+	, readFilenameSetting(
 		commandController, "midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
-		"/dev/midi"))
+		"/dev/midi")
 {
 	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
 }
@@ -37,7 +35,7 @@ MidiInReader::~MidiInReader()
 // Pluggable
 void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
-	file = FileOperations::openFile(readFilenameSetting->getString().str(), "rb");
+	file = FileOperations::openFile(readFilenameSetting.getString().str(), "rb");
 	if (!file) {
 		throw PlugException(StringOp::Builder()
 			<< "Failed to open input: " << strerror(errno));

@@ -1,9 +1,7 @@
 #include "DebugDevice.hh"
 #include "Clock.hh"
 #include "FileOperations.hh"
-#include "FilenameSetting.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <iostream>
 #include <iomanip>
 
@@ -13,17 +11,13 @@ namespace openmsx {
 
 DebugDevice::DebugDevice(const DeviceConfig& config)
 	: MSXDevice(config)
-{
-	const auto& outputFile = config.getChildData("filename", "stdout");
-	fileNameSetting = make_unique<FilenameSetting>(
+	, fileNameSetting(
 		getCommandController(), "debugoutput",
-		"name of the file the debugdevice outputs to", outputFile);
-	openOutput(fileNameSetting->getString());
-	reset(EmuTime::dummy());
-}
-
-DebugDevice::~DebugDevice()
+		"name of the file the debugdevice outputs to",
+		config.getChildData("filename", "stdout"))
 {
+	openOutput(fileNameSetting.getString());
+	reset(EmuTime::dummy());
 }
 
 void DebugDevice::reset(EmuTime::param /*time*/)
@@ -34,7 +28,7 @@ void DebugDevice::reset(EmuTime::param /*time*/)
 
 void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
 {
-	const auto& newName = fileNameSetting->getString();
+	const auto& newName = fileNameSetting.getString();
 	if (newName != fileNameString) {
 		openOutput(newName);
 	}

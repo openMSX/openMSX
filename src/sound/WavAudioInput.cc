@@ -1,33 +1,31 @@
 #include "WavAudioInput.hh"
 #include "CommandController.hh"
 #include "PlugException.hh"
-#include "FilenameSetting.hh"
 #include "CliComm.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 using std::string;
 
 namespace openmsx {
 
 WavAudioInput::WavAudioInput(CommandController& commandController)
-	: audioInputFilenameSetting(make_unique<FilenameSetting>(
+	: audioInputFilenameSetting(
 		commandController, "audio-inputfilename",
 		"filename of the file where the sampler reads data from",
-		"audio-input.wav"))
+		"audio-input.wav")
 	, reference(EmuTime::zero)
 {
-	audioInputFilenameSetting->attach(*this);
+	audioInputFilenameSetting.attach(*this);
 }
 
 WavAudioInput::~WavAudioInput()
 {
-	audioInputFilenameSetting->detach(*this);
+	audioInputFilenameSetting.detach(*this);
 }
 
 void WavAudioInput::loadWave()
 {
-	wav = WavData(audioInputFilenameSetting->getString().str(), 16, 0);
+	wav = WavData(audioInputFilenameSetting.getString().str(), 16, 0);
 }
 
 const string& WavAudioInput::getName() const
@@ -62,7 +60,7 @@ void WavAudioInput::unplugHelper(EmuTime::param /*time*/)
 void WavAudioInput::update(const Setting& setting)
 {
 	(void)setting;
-	assert(&setting == audioInputFilenameSetting.get());
+	assert(&setting == &audioInputFilenameSetting);
 	try {
 		if (isPluggedIn()) {
 			loadWave();
@@ -91,7 +89,7 @@ void WavAudioInput::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("reference", reference);
 	if (ar.isLoader()) {
-		update(*audioInputFilenameSetting);
+		update(audioInputFilenameSetting);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(WavAudioInput);

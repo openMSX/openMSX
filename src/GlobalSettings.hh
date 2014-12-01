@@ -2,20 +2,19 @@
 #define GLOBALSETTINGS_HH
 
 #include "Observer.hh"
-#include "noncopyable.hh"
+#include "BooleanSetting.hh"
+#include "EnumSetting.hh"
+#include "IntegerSetting.hh"
+#include "StringSetting.hh"
 #include "ResampledSoundDevice.hh"
+#include "noncopyable.hh"
 #include <memory>
 #include <vector>
 
 namespace openmsx {
 
 class GlobalCommandController;
-class IntegerSetting;
-class BooleanSetting;
-class StringSetting;
 class ThrottleManager;
-class Setting;
-template <class T> class EnumSetting;
 
 /**
  * This class contains settings that are used by several other class
@@ -28,34 +27,34 @@ public:
 	explicit GlobalSettings(GlobalCommandController& commandController);
 	~GlobalSettings();
 
-	IntegerSetting& getSpeedSetting() const {
-		return *speedSetting;
+	IntegerSetting& getSpeedSetting() {
+		return speedSetting;
 	}
-	BooleanSetting& getPauseSetting() const {
-		return *pauseSetting;
+	BooleanSetting& getPauseSetting() {
+		return pauseSetting;
 	}
-	BooleanSetting& getPowerSetting() const {
-		return *powerSetting;
+	BooleanSetting& getPowerSetting() {
+		return powerSetting;
 	}
-	BooleanSetting& getAutoSaveSetting() const {
-		return *autoSaveSetting;
+	BooleanSetting& getAutoSaveSetting() {
+		return autoSaveSetting;
 	}
-	BooleanSetting& getPauseOnLostFocusSetting() const {
-		return *pauseOnLostFocusSetting;
+	BooleanSetting& getPauseOnLostFocusSetting() {
+		return pauseOnLostFocusSetting;
 	}
-	StringSetting& getUMRCallBackSetting() const {
-		return *umrCallBackSetting;
+	StringSetting& getUMRCallBackSetting() {
+		return umrCallBackSetting;
 	}
-	StringSetting& getInvalidPsgDirectionsSetting() const {
-		return *invalidPsgDirectionsSetting;
+	StringSetting& getInvalidPsgDirectionsSetting() {
+		return invalidPsgDirectionsSetting;
 	}
-	EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting() const {
-		return *resampleSetting;
+	EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting() {
+		return resampleSetting;
 	}
-	IntegerSetting& getJoyDeadzoneSetting(int i) const {
+	IntegerSetting& getJoyDeadzoneSetting(int i) {
 		return *deadzoneSettings[i];
 	}
-	ThrottleManager& getThrottleManager() const {
+	ThrottleManager& getThrottleManager() {
 		return *throttleManager;
 	}
 
@@ -65,14 +64,14 @@ private:
 
 	GlobalCommandController& commandController;
 
-	std::unique_ptr<IntegerSetting> speedSetting;
-	std::unique_ptr<BooleanSetting> pauseSetting;
-	std::unique_ptr<BooleanSetting> powerSetting;
-	std::unique_ptr<BooleanSetting> autoSaveSetting;
-	std::unique_ptr<BooleanSetting> pauseOnLostFocusSetting;
-	std::unique_ptr<StringSetting>  umrCallBackSetting;
-	std::unique_ptr<StringSetting>  invalidPsgDirectionsSetting;
-	std::unique_ptr<EnumSetting<ResampledSoundDevice::ResampleType>> resampleSetting;
+	IntegerSetting speedSetting;
+	BooleanSetting pauseSetting;
+	BooleanSetting powerSetting;
+	BooleanSetting autoSaveSetting;
+	BooleanSetting pauseOnLostFocusSetting;
+	StringSetting  umrCallBackSetting;
+	StringSetting  invalidPsgDirectionsSetting;
+	EnumSetting<ResampledSoundDevice::ResampleType> resampleSetting;
 	std::vector<std::unique_ptr<IntegerSetting>> deadzoneSettings;
 	std::unique_ptr<ThrottleManager> throttleManager;
 };

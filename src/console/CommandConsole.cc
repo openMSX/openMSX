@@ -11,14 +11,11 @@
 #include "InputEvents.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
-#include "BooleanSetting.hh"
-#include "IntegerSetting.hh"
 #include "Version.hh"
 #include "checked_cast.hh"
 #include "utf8_unchecked.hh"
 #include "StringOp.hh"
 #include "ScopedAssign.hh"
-#include "memory.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <fstream>
@@ -114,17 +111,17 @@ CommandConsole::CommandConsole(
 	: commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, display(display_)
-	, consoleSetting(make_unique<BooleanSetting>(
+	, consoleSetting(
 		commandController, "console",
-		"turns console display on/off", false, Setting::DONT_SAVE))
-	, historySizeSetting(make_unique<IntegerSetting>(
+		"turns console display on/off", false, Setting::DONT_SAVE)
+	, historySizeSetting(
 		commandController, "console_history_size",
-		"amount of commands kept in console history", 100, 0, 10000))
-	, removeDoublesSetting(make_unique<BooleanSetting>(
+		"amount of commands kept in console history", 100, 0, 10000)
+	, removeDoublesSetting(
 		commandController, "console_remove_doubles",
 		"don't add the command to history if it's the same as the previous one",
-		true))
-	, history(std::max(1, historySizeSetting->getInt()))
+		true)
+	, history(std::max(1, historySizeSetting.getInt()))
 	, executingCommand(false)
 {
 	resetScrollBack();
@@ -223,9 +220,7 @@ ConsoleLine CommandConsole::getLine(unsigned line) const
 int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	auto& keyEvent = checked_cast<const KeyEvent&>(*event);
-	if (!consoleSetting->getBoolean()) {
-		return 0;
-	}
+	if (!consoleSetting.getBoolean()) return 0;
 
 	// If the console is open then don't pass the event to the MSX
 	// (whetever the (keyboard) event is). If the event has a meaning for
@@ -400,7 +395,7 @@ void CommandConsole::putCommandHistory(const string& command)
 	if (command == prompt) {
 		return;
 	}
-	if (removeDoublesSetting->getBoolean() && !history.empty()
+	if (removeDoublesSetting.getBoolean() && !history.empty()
 		&& (history.back() == command)) {
 		return;
 	}

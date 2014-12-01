@@ -10,7 +10,6 @@
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
-#include "StringSetting.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "Clock.hh"
@@ -58,18 +57,18 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
                    CommandController& commandController)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
+	, transformSetting(commandController,
+		"touchpad_transform_matrix",
+		"2x3 matrix to transform host mouse coordinates to "
+		"MSX touchpad coordinates, see manual for details",
+		"{ 256 0 0 } { 0 256 0 }")
 	, start(EmuTime::zero)
 	, hostX(0), hostY(0), hostButtons(0)
 	, x(0), y(0), touch(false), button(false)
 	, shift(0), channel(0), last(0)
 {
 	auto& interp = commandController.getInterpreter();
-	transformSetting = make_unique<StringSetting>(commandController,
-		"touchpad_transform_matrix",
-		"2x3 matrix to transform host mouse coordinates to "
-		"MSX touchpad coordinates, see manual for details",
-		"{ 256 0 0 } { 0 256 0 }");
-	transformSetting->setChecker([this, &interp](TclObject& newValue) {
+	transformSetting.setChecker([this, &interp](TclObject& newValue) {
 		try {
 			parseTransformMatrix(interp, newValue);
 		} catch (CommandException& e) {
@@ -78,7 +77,7 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 		}
 	});
 	try {
-		parseTransformMatrix(interp, transformSetting->getValue());
+		parseTransformMatrix(interp, transformSetting.getValue());
 	} catch (CommandException& e) {
 		// should only happen when settings.xml was manually edited
 		std::cerr << e.getMessage() << std::endl;

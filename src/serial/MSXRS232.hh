@@ -69,7 +69,7 @@ private:
 	const bool hasMemoryBasedIo;
 	bool ioAccessEnabled;
 
-	const std::unique_ptr<BooleanSetting> switchSetting;
+	const std::unique_ptr<BooleanSetting> switchSetting; // can be nullptr
 
 	friend class Counter0;
 	friend class Counter1;

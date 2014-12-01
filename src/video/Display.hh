@@ -1,7 +1,7 @@
 #ifndef DISPLAY_HH
 #define DISPLAY_HH
 
-#include "RendererFactory.hh"
+#include "RenderSettings.hh"
 #include "EventListener.hh"
 #include "LayerListener.hh"
 #include "RTSchedulable.hh"
@@ -106,7 +106,7 @@ private:
 	const std::unique_ptr<CommandConsole> commandConsole;
 
 	// the current renderer
-	RendererFactory::RendererID currentRenderer;
+	RenderSettings::RendererID currentRenderer;
 
 	bool renderFrozen;
 	bool switchInProgress;

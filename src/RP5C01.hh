@@ -7,16 +7,15 @@
 #define RP5C01_HH
 
 #include "Clock.hh"
+#include "EnumSetting.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
-#include <memory>
 #include <string>
 
 namespace openmsx {
 
 class CommandController;
 class SRAM;
-template <typename T> class EnumSetting;
 
 class RP5C01 : private noncopyable
 {
@@ -25,7 +24,6 @@ public:
 
 	RP5C01(CommandController& commandController, SRAM& regs,
 	       EmuTime::param time, const std::string& name);
-	~RP5C01();
 
 	void reset(EmuTime::param time);
 	nibble readPort(nibble port, EmuTime::param time);
@@ -44,7 +42,7 @@ private:
 	static const unsigned FREQ = 16384;
 
 	SRAM& regs;
-	const std::unique_ptr<EnumSetting<RTCMode>> modeSetting;
+	EnumSetting<RTCMode> modeSetting;
 
 	Clock<FREQ> reference;
 	unsigned fraction;

@@ -1,13 +1,11 @@
 #include "KeyJoystick.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
-#include "KeyCodeSetting.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
-#include "memory.hh"
 
 using std::string;
 using std::shared_ptr;
@@ -46,18 +44,18 @@ KeyJoystick::KeyJoystick(CommandController& commandController,
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, name(name_)
-	, up   (make_unique<KeyCodeSetting>(commandController, name + ".up",
-		"key for direction up",    Keys::K_UP))
-	, down (make_unique<KeyCodeSetting>(commandController, name + ".down",
-		"key for direction down",  Keys::K_DOWN))
-	, left (make_unique<KeyCodeSetting>(commandController, name + ".left",
-		"key for direction left",  Keys::K_LEFT))
-	, right(make_unique<KeyCodeSetting>(commandController, name + ".right",
-		"key for direction right", Keys::K_RIGHT))
-	, trigA(make_unique<KeyCodeSetting>(commandController, name + ".triga",
-		"key for trigger A",       Keys::K_SPACE))
-	, trigB(make_unique<KeyCodeSetting>(commandController, name + ".trigb",
-		"key for trigger B",       Keys::K_M))
+	, up   (commandController, name + ".up",
+		"key for direction up",    Keys::K_UP)
+	, down (commandController, name + ".down",
+		"key for direction down",  Keys::K_DOWN)
+	, left (commandController, name + ".left",
+		"key for direction left",  Keys::K_LEFT)
+	, right(commandController, name + ".right",
+		"key for direction right", Keys::K_RIGHT)
+	, trigA(commandController, name + ".triga",
+		"key for trigger A",       Keys::K_SPACE)
+	, trigB(commandController, name + ".trigb",
+		"key for trigger B",       Keys::K_M)
 {
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -121,19 +119,19 @@ void KeyJoystick::signalEvent(const shared_ptr<const Event>& event,
 		auto key = static_cast<Keys::KeyCode>(
 			int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
-			if      (key == up   ->getKey()) press   = JOY_UP;
-			else if (key == down ->getKey()) press   = JOY_DOWN;
-			else if (key == left ->getKey()) press   = JOY_LEFT;
-			else if (key == right->getKey()) press   = JOY_RIGHT;
-			else if (key == trigA->getKey()) press   = JOY_BUTTONA;
-			else if (key == trigB->getKey()) press   = JOY_BUTTONB;
+			if      (key == up   .getKey()) press   = JOY_UP;
+			else if (key == down .getKey()) press   = JOY_DOWN;
+			else if (key == left .getKey()) press   = JOY_LEFT;
+			else if (key == right.getKey()) press   = JOY_RIGHT;
+			else if (key == trigA.getKey()) press   = JOY_BUTTONA;
+			else if (key == trigB.getKey()) press   = JOY_BUTTONB;
 		} else {
-			if      (key == up   ->getKey()) release = JOY_UP;
-			else if (key == down ->getKey()) release = JOY_DOWN;
-			else if (key == left ->getKey()) release = JOY_LEFT;
-			else if (key == right->getKey()) release = JOY_RIGHT;
-			else if (key == trigA->getKey()) release = JOY_BUTTONA;
-			else if (key == trigB->getKey()) release = JOY_BUTTONB;
+			if      (key == up   .getKey()) release = JOY_UP;
+			else if (key == down .getKey()) release = JOY_DOWN;
+			else if (key == left .getKey()) release = JOY_LEFT;
+			else if (key == right.getKey()) release = JOY_RIGHT;
+			else if (key == trigA.getKey()) release = JOY_BUTTONA;
+			else if (key == trigB.getKey()) release = JOY_BUTTONB;
 		}
 		break;
 	}

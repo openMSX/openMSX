@@ -9,13 +9,10 @@
 #define TURBORPAUSE_HH
 
 #include "MSXDevice.hh"
+#include "BooleanSetting.hh"
 #include "Observer.hh"
-#include <memory>
 
 namespace openmsx {
-
-class BooleanSetting;
-class Setting;
 
 /**
  * This class implements the MSX Turbo-R pause key
@@ -47,7 +44,7 @@ private:
 
 	void updatePause();
 
-	const std::unique_ptr<BooleanSetting> pauseSetting;
+	BooleanSetting pauseSetting;
 	byte status;
 	bool pauseLed;
 	bool turboLed;

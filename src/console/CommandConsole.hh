@@ -3,11 +3,12 @@
 
 #include "EventListener.hh"
 #include "InterpreterOutput.hh"
+#include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
 #include "CircularBuffer.hh"
 #include "circular_buffer.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
-#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -15,8 +16,6 @@ namespace openmsx {
 class GlobalCommandController;
 class EventDistributor;
 class KeyEvent;
-class BooleanSetting;
-class IntegerSetting;
 class Display;
 
 /** This class represents a single text line in the console.
@@ -71,7 +70,7 @@ public:
 	               Display& display);
 	~CommandConsole();
 
-	BooleanSetting& getConsoleSetting() { return *consoleSetting; }
+	BooleanSetting& getConsoleSetting() { return consoleSetting; }
 
 	unsigned getScrollBack() const { return consoleScrollBack; }
 	ConsoleLine getLine(unsigned line) const;
@@ -117,9 +116,9 @@ private:
 	GlobalCommandController& commandController;
 	EventDistributor& eventDistributor;
 	Display& display;
-	std::unique_ptr<BooleanSetting> consoleSetting;
-	std::unique_ptr<IntegerSetting> historySizeSetting;
-	std::unique_ptr<BooleanSetting> removeDoublesSetting;
+	BooleanSetting consoleSetting;
+	IntegerSetting historySizeSetting;
+	BooleanSetting removeDoublesSetting;
 
 	static const int LINESHISTORY = 1000;
 	CircularBuffer<ConsoleLine, LINESHISTORY> lines;

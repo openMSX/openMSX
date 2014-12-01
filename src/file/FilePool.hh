@@ -2,6 +2,7 @@
 #define FILEPOOL_HH
 
 #include "FileOperations.hh"
+#include "StringSetting.hh"
 #include "Observer.hh"
 #include "EventListener.hh"
 #include "sha1.hh"
@@ -18,8 +19,6 @@ namespace openmsx {
 class CommandController;
 class EventDistributor;
 class File;
-class Setting;
-class StringSetting;
 class CliComm;
 
 class FilePool final : private Observer<Setting>, private EventListener
@@ -93,7 +92,7 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 
-	const std::unique_ptr<StringSetting> filePoolSetting;
+	StringSetting filePoolSetting;
 	EventDistributor& distributor;
 	CliComm& cliComm;
 

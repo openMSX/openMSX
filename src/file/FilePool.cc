@@ -4,7 +4,6 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "TclObject.hh"
-#include "StringSetting.hh"
 #include "ReadDir.hh"
 #include "Date.hh"
 #include "CommandController.hh"
@@ -55,16 +54,16 @@ static string initialFilePoolSettingValue()
 }
 
 FilePool::FilePool(CommandController& controller, EventDistributor& distributor_)
-	: filePoolSetting(make_unique<StringSetting>(
+	: filePoolSetting(
 		controller, "__filepool",
 		"This is an internal setting. Don't change this directly, "
 		"instead use the 'filepool' command.",
-		initialFilePoolSettingValue()))
+		initialFilePoolSettingValue())
 	, distributor(distributor_)
 	, cliComm(controller.getCliComm())
 	, quit(false)
 {
-	filePoolSetting->attach(*this);
+	filePoolSetting.attach(*this);
 	distributor.registerEventListener(OPENMSX_QUIT_EVENT, *this);
 	readSha1sums();
 	needWrite = false;
@@ -76,7 +75,7 @@ FilePool::~FilePool()
 		writeSha1sums();
 	}
 	distributor.unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
-	filePoolSetting->detach(*this);
+	filePoolSetting.detach(*this);
 }
 
 void FilePool::insert(const Sha1Sum& sum, time_t time, const string& filename)
@@ -203,15 +202,15 @@ static int parseTypes(Interpreter& interp, const TclObject& list)
 
 void FilePool::update(const Setting& setting)
 {
-	assert(&setting == filePoolSetting.get()); (void)setting;
+	assert(&setting == &filePoolSetting); (void)setting;
 	getDirectories(); // check for syntax errors
 }
 
 FilePool::Directories FilePool::getDirectories() const
 {
 	Directories result;
-	auto& interp = filePoolSetting->getInterpreter();
-	const TclObject& all = filePoolSetting->getValue();
+	auto& interp = filePoolSetting.getInterpreter();
+	const TclObject& all = filePoolSetting.getValue();
 	unsigned numLines = all.getListLength(interp);
 	for (unsigned i = 0; i < numLines; ++i) {
 		Entry entry;

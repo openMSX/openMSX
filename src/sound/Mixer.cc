@@ -5,9 +5,6 @@
 #include "DirectXSoundDriver.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
-#include "IntegerSetting.hh"
-#include "BooleanSetting.hh"
-#include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "memory.hh"
 #include "stl.hh"
@@ -26,43 +23,54 @@ static const int defaultsamples = 2560;
 static const int defaultsamples = 1024;
 #endif
 
+static Mixer::SoundDriverType getDefaultSoundDriver()
+{
+#ifdef _WIN32
+	return Mixer::SND_DIRECTX;
+#else
+	return Mixer::SND_SDL;
+#endif
+}
+
+static EnumSetting<Mixer::SoundDriverType>::Map getSoundDriverMap()
+{
+	EnumSetting<Mixer::SoundDriverType>::Map soundDriverMap = {
+		{ "null", Mixer::SND_NULL },
+		{ "sdl",  Mixer::SND_SDL } };
+#ifdef _WIN32
+	soundDriverMap.emplace_back("directx", Mixer::SND_DIRECTX);
+#endif
+	return soundDriverMap;
+}
+
 Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	: reactor(reactor_)
 	, commandController(commandController_)
-	, muteSetting(make_unique<BooleanSetting>(
-		commandController, "mute",
-		"(un)mute the emulation sound", false, Setting::DONT_SAVE))
-	, masterVolume(make_unique<IntegerSetting>(
-		commandController, "master_volume",
-		"master volume", 75, 0, 100))
-	, frequencySetting(make_unique<IntegerSetting>(
-		commandController, "frequency",
-		"mixer frequency", 44100, 11025, 48000))
-	, samplesSetting(make_unique<IntegerSetting>(
-		commandController, "samples",
-		"mixer samples", defaultsamples, 64, 8192))
-	, muteCount(0)
-{
-	EnumSetting<SoundDriverType>::Map soundDriverMap = {
-		{ "null", SND_NULL },
-		{ "sdl",  SND_SDL } };
-	SoundDriverType defaultSoundDriver = SND_SDL;
-#ifdef _WIN32
-	soundDriverMap.emplace_back("directx", SND_DIRECTX);
-	defaultSoundDriver = SND_DIRECTX;
-#endif
-	soundDriverSetting = make_unique<EnumSetting<SoundDriverType>>(
+	, soundDriverSetting(
 		commandController, "sound_driver",
 		"select the sound output driver",
-		defaultSoundDriver, std::move(soundDriverMap));
-
-	muteSetting->attach(*this);
-	frequencySetting->attach(*this);
-	samplesSetting->attach(*this);
-	soundDriverSetting->attach(*this);
+		getDefaultSoundDriver(), getSoundDriverMap())
+	, muteSetting(
+		commandController, "mute",
+		"(un)mute the emulation sound", false, Setting::DONT_SAVE)
+	, masterVolume(
+		commandController, "master_volume",
+		"master volume", 75, 0, 100)
+	, frequencySetting(
+		commandController, "frequency",
+		"mixer frequency", 44100, 11025, 48000)
+	, samplesSetting(
+		commandController, "samples",
+		"mixer samples", defaultsamples, 64, 8192)
+	, muteCount(0)
+{
+	muteSetting       .attach(*this);
+	frequencySetting  .attach(*this);
+	samplesSetting    .attach(*this);
+	soundDriverSetting.attach(*this);
 
 	// Set correct initial mute state.
-	if (muteSetting->getBoolean()) ++muteCount;
+	if (muteSetting.getBoolean()) ++muteCount;
 
 	reloadDriver();
 }
@@ -72,32 +80,30 @@ Mixer::~Mixer()
 	assert(msxMixers.empty());
 	driver.reset();
 
-	soundDriverSetting->detach(*this);
-	samplesSetting->detach(*this);
-	frequencySetting->detach(*this);
-	muteSetting->detach(*this);
+	soundDriverSetting.detach(*this);
+	samplesSetting    .detach(*this);
+	frequencySetting  .detach(*this);
+	muteSetting       .detach(*this);
 }
 
 void Mixer::reloadDriver()
 {
-	driver = make_unique<NullSoundDriver>();
-
 	try {
-		switch (soundDriverSetting->getEnum()) {
+		switch (soundDriverSetting.getEnum()) {
 		case SND_NULL:
 			driver = make_unique<NullSoundDriver>();
 			break;
 		case SND_SDL:
 			driver = make_unique<SDLSoundDriver>(
 				reactor,
-				frequencySetting->getInt(),
-				samplesSetting->getInt());
+				frequencySetting.getInt(),
+				samplesSetting.getInt());
 			break;
 #ifdef _WIN32
 		case SND_DIRECTX:
 			driver = make_unique<DirectXSoundDriver>(
-				frequencySetting->getInt(),
-				samplesSetting->getInt());
+				frequencySetting.getInt(),
+				samplesSetting.getInt());
 			break;
 #endif
 		default:
@@ -105,6 +111,7 @@ void Mixer::reloadDriver()
 		}
 	} catch (MSXException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
+		driver = make_unique<NullSoundDriver>();
 	}
 
 	muteHelper();
@@ -165,15 +172,15 @@ void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, short* buffer, unsigned len)
 
 void Mixer::update(const Setting& setting)
 {
-	if (&setting == muteSetting.get()) {
-		if (muteSetting->getBoolean()) {
+	if (&setting == &muteSetting) {
+		if (muteSetting.getBoolean()) {
 			mute();
 		} else {
 			unmute();
 		}
-	} else if ((&setting == samplesSetting.get()) ||
-	           (&setting == soundDriverSetting.get()) ||
-	           (&setting == frequencySetting.get())) {
+	} else if ((&setting == &samplesSetting) ||
+	           (&setting == &soundDriverSetting) ||
+	           (&setting == &frequencySetting)) {
 		reloadDriver();
 	} else {
 		UNREACHABLE;

@@ -3,6 +3,9 @@
 
 #include "Layer.hh"
 #include "TTFFont.hh"
+#include "EnumSetting.hh"
+#include "IntegerSetting.hh"
+#include "FilenameSetting.hh"
 #include "Observer.hh"
 #include "string_ref.hh"
 #include "openmsx.hh"
@@ -16,11 +19,7 @@ class Reactor;
 class CommandConsole;
 class ConsoleLine;
 class BaseImage;
-class Setting;
 class BooleanSetting;
-class IntegerSetting;
-class FilenameSetting;
-template <typename T> class EnumSetting;
 
 class OSDConsoleRenderer final : public Layer, private Observer<Setting>
                                , private noncopyable
@@ -31,6 +30,9 @@ public:
 	~OSDConsoleRenderer();
 
 private:
+	int initFontAndGetColumns();
+	int getRows();
+
 	// Layer
 	void paint(OutputSurface& output) override;
 
@@ -77,21 +79,24 @@ private:
 	Reactor& reactor;
 	CommandConsole& console;
 	BooleanSetting& consoleSetting;
-	std::unique_ptr<EnumSetting<Placement>> consolePlacementSetting;
-	std::unique_ptr<IntegerSetting> fontSizeSetting;
-	std::unique_ptr<IntegerSetting> consoleRowsSetting;
-	std::unique_ptr<IntegerSetting> consoleColumnsSetting;
-	std::unique_ptr<FilenameSetting> backgroundSetting;
-	std::unique_ptr<FilenameSetting> fontSetting;
-	std::unique_ptr<BaseImage> backgroundImage;
+	const unsigned screenW;
+	const unsigned screenH;
+	const bool openGL;
+
 	TTFFont font;
 	TextCache textCache;
 	TextCache::iterator cacheHint;
 
+	EnumSetting<Placement> consolePlacementSetting;
+	IntegerSetting fontSizeSetting;
+	FilenameSetting fontSetting;
+	IntegerSetting consoleColumnsSetting;
+	IntegerSetting consoleRowsSetting;
+	FilenameSetting backgroundSetting;
+	std::unique_ptr<BaseImage> backgroundImage;
+
 	uint64_t lastBlinkTime;
 	uint64_t activeTime;
-	const unsigned screenW;
-	const unsigned screenH;
 	unsigned destX;
 	unsigned destY;
 	unsigned destW;
@@ -100,7 +105,6 @@ private:
 	unsigned lastCursorY;
 	bool blink;
 	bool active;
-	const bool openGL;
 };
 
 } // namespace openmsx

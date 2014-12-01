@@ -1,30 +1,28 @@
 #include "MSXTurboRPause.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
-#include "BooleanSetting.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 MSXTurboRPause::MSXTurboRPause(const DeviceConfig& config)
 	: MSXDevice(config)
-	, pauseSetting(make_unique<BooleanSetting>(
+	, pauseSetting(
 		getCommandController(), "turborpause",
-		"status of the TurboR pause", false))
+		"status of the TurboR pause", false)
 	, status(255)
 	, pauseLed(false)
 	, turboLed(false)
 	, hwPause(false)
 {
-	pauseSetting->attach(*this);
+	pauseSetting.attach(*this);
 	reset(EmuTime::dummy());
 }
 
 MSXTurboRPause::~MSXTurboRPause()
 {
 	powerDown(EmuTime::dummy());
-	pauseSetting->detach(*this);
+	pauseSetting.detach(*this);
 }
 
 void MSXTurboRPause::powerDown(EmuTime::param dummy)
@@ -34,7 +32,7 @@ void MSXTurboRPause::powerDown(EmuTime::param dummy)
 
 void MSXTurboRPause::reset(EmuTime::param dummy)
 {
-	pauseSetting->setBoolean(false);
+	pauseSetting.setBoolean(false);
 	writeIO(0, 0, dummy);
 }
 
@@ -45,7 +43,7 @@ byte MSXTurboRPause::readIO(word port, EmuTime::param time)
 
 byte MSXTurboRPause::peekIO(word /*port*/, EmuTime::param /*time*/) const
 {
-	return pauseSetting->getBoolean() ? 1 : 0;
+	return pauseSetting.getBoolean() ? 1 : 0;
 }
 
 void MSXTurboRPause::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
@@ -66,7 +64,7 @@ void MSXTurboRPause::update(const Setting& /*setting*/)
 
 void MSXTurboRPause::updatePause()
 {
-	bool newHwPause = (status & 0x02) && pauseSetting->getBoolean();
+	bool newHwPause = (status & 0x02) && pauseSetting.getBoolean();
 	if (newHwPause != hwPause) {
 		hwPause = newHwPause;
 		if (hwPause) {

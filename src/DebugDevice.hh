@@ -2,18 +2,15 @@
 #define DEBUGDEVICE_HH
 
 #include "MSXDevice.hh"
+#include "FilenameSetting.hh"
 #include <fstream>
-#include <memory>
 
 namespace openmsx {
-
-class FilenameSetting;
 
 class DebugDevice final : public MSXDevice
 {
 public:
 	explicit DebugDevice(const DeviceConfig& config);
-	~DebugDevice();
 
 	void reset(EmuTime::param time) override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
@@ -32,7 +29,7 @@ private:
 	void displayByte(byte value, DisplayType type);
 	void openOutput(string_ref name);
 
-	std::unique_ptr<FilenameSetting> fileNameSetting;
+	FilenameSetting fileNameSetting;
 	std::ostream* outputstrm;
 	std::ofstream debugOut;
 	std::string fileNameString;

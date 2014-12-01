@@ -163,8 +163,6 @@
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
-#include "BooleanSetting.hh"
-#include "IntegerSetting.hh"
 #include "TclCallback.hh"
 #include "Dasm.hh"
 #include "Z80.hh"
@@ -174,7 +172,6 @@
 #include "likely.hh"
 #include "inline.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <iomanip>
 #include <iostream>
 #include <type_traits>
@@ -316,14 +313,14 @@ template<class T> CPUCore<T>::CPUCore(
 	            "This probe is only useful to set a breakpoint on (the value "
 		    "return by read is meaningless). The breakpoint gets triggered "
 		    "right after the CPU accepted an IRQ.")
-	, freqLocked(make_unique<BooleanSetting>(
+	, freqLocked(
 		motherboard.getCommandController(), name + "_freq_locked",
 	        "real (locked) or custom (unlocked) " + name + " frequency",
-	        true))
-	, freqValue(make_unique<IntegerSetting>(
+	        true)
+	, freqValue(
 		motherboard.getCommandController(), name + "_freq",
 		"custom " + name + " frequency (only valid when unlocked)",
-		T::CLOCK_FREQ, 1000000, 1000000000))
+		T::CLOCK_FREQ, 1000000, 1000000000)
 	, freq(T::CLOCK_FREQ)
 	, NMIStatus(0)
 	, nmiEdge(false)
@@ -538,9 +535,9 @@ template<class T> void CPUCore<T>::disasmCommand(
 
 template<class T> void CPUCore<T>::update(const Setting& setting)
 {
-	if (&setting == freqLocked.get()) {
+	if (&setting == &freqLocked) {
 		doSetFreq();
-	} else if (&setting == freqValue.get()) {
+	} else if (&setting == &freqValue) {
 		doSetFreq();
 	} else if (&setting == &traceSetting) {
 		tracingEnabled = traceSetting.getBoolean();
@@ -555,12 +552,12 @@ template<class T> void CPUCore<T>::setFreq(unsigned freq_)
 
 template<class T> void CPUCore<T>::doSetFreq()
 {
-	if (freqLocked->getBoolean()) {
+	if (freqLocked.getBoolean()) {
 		// locked, use value set via setFreq()
 		T::setFreq(freq);
 	} else {
 		// unlocked, use value set by user
-		T::setFreq(freqValue->getInt());
+		T::setFreq(freqValue.getInt());
 	}
 }
 

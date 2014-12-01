@@ -2,19 +2,17 @@
 #define MIDIOUTLOGGER_HH
 
 #include "MidiOutDevice.hh"
+#include "FilenameSetting.hh"
 #include <fstream>
-#include <memory>
 
 namespace openmsx {
 
 class CommandController;
-class FilenameSetting;
 
 class MidiOutLogger final : public MidiOutDevice
 {
 public:
 	explicit MidiOutLogger(CommandController& commandController);
-	~MidiOutLogger();
 
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;
@@ -29,7 +27,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<FilenameSetting> logFilenameSetting;
+	FilenameSetting logFilenameSetting;
 	std::ofstream file;
 };
 

@@ -36,7 +36,6 @@ TODO:
 #include "VDPCmdEngine.hh"
 #include "EmuTime.hh"
 #include "VDPVRAM.hh"
-#include "BooleanSetting.hh"
 #include "TclCallback.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -1943,10 +1942,10 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 		CommandController& commandController)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, renderSettings(renderSettings_)
-	, cmdTraceSetting(make_unique<BooleanSetting>(
+	, cmdTraceSetting(
 		commandController, vdp_.getName() == "VDP" ? "vdpcmdtrace" :
 		vdp_.getName() + " vdpcmdtrace", "VDP command tracing on/off",
-		false))
+		false)
 	, cmdInProgressCallback(make_unique<TclCallback>(
 		commandController, vdp_.getName() == "VDP" ?
 		"vdpcmdinprogress_callback" : vdp_.getName() +
@@ -2160,7 +2159,7 @@ void VDPCmdEngine::executeCommand(EmuTime::param time)
 		return;
 	}
 
-	if (cmdTraceSetting->getBoolean()) {
+	if (cmdTraceSetting.getBoolean()) {
 		reportVdpCommand();
 	}
 

@@ -2,6 +2,7 @@
 #define LASERDISCPLAYER_HH
 
 #include "ResampledSoundDevice.hh"
+#include "BooleanSetting.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
@@ -16,7 +17,6 @@ class PioneerLDControl;
 class HardwareConfig;
 class MSXMotherBoard;
 class OggReader;
-class BooleanSetting;
 class LDRenderer;
 class RawFrame;
 class LoadingIndicator;
@@ -214,7 +214,7 @@ private:
 	int playingSpeed;
 
 	// Loading indicator
-	const std::unique_ptr<BooleanSetting> autoRunSetting;
+	BooleanSetting autoRunSetting;
 	const std::unique_ptr<LoadingIndicator> loadingIndicator;
 	int sampleReads;
 

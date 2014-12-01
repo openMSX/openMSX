@@ -2,6 +2,7 @@
 #define DISKFACTORY_HH
 
 #include "DirAsDSK.hh"
+#include "EnumSetting.hh"
 #include <string>
 
 namespace openmsx {
@@ -9,7 +10,6 @@ namespace openmsx {
 class Reactor;
 class DiskChanger;
 class Disk;
-template <class T> class EnumSetting;
 
 class DiskFactory
 {
@@ -20,8 +20,8 @@ public:
 
 private:
 	Reactor& reactor;
-	std::unique_ptr<EnumSetting<DirAsDSK::BootSectorType>> bootSectorSetting;
-	std::unique_ptr<EnumSetting<DirAsDSK::SyncMode>> syncDirAsDSKSetting;
+	EnumSetting<DirAsDSK::SyncMode> syncDirAsDSKSetting;
+	EnumSetting<DirAsDSK::BootSectorType> bootSectorSetting;
 };
 
 } // namespace openmsx

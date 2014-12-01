@@ -3,7 +3,6 @@
 #include "Debugger.hh"
 #include "Scheduler.hh"
 #include "SimpleDebuggable.hh"
-#include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "TclCallback.hh"
 #include "CPUCore.hh"
@@ -58,18 +57,18 @@ private:
 
 MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	: motherboard(motherboard_)
-	, traceSetting(make_unique<BooleanSetting>(
+	, traceSetting(
 		motherboard.getCommandController(), "cputrace",
-		"CPU tracing on/off", false, Setting::DONT_SAVE))
+		"CPU tracing on/off", false, Setting::DONT_SAVE)
 	, diHaltCallback(make_unique<TclCallback>(
 		motherboard.getCommandController(), "di_halt_callback",
 		"Tcl proc called when the CPU executed a DI/HALT sequence"))
 	, z80(make_unique<CPUCore<Z80TYPE>>(
-		motherboard, "z80", *traceSetting,
+		motherboard, "z80", traceSetting,
 		*diHaltCallback, EmuTime::zero))
 	, r800(motherboard.isTurboR()
 		? make_unique<CPUCore<R800TYPE>>(
-			motherboard, "r800", *traceSetting,
+			motherboard, "r800", traceSetting,
 			*diHaltCallback, EmuTime::zero)
 		: nullptr)
 	, timeInfo(make_unique<TimeInfoTopic>(
@@ -88,24 +87,24 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 
 	motherboard.getDebugger().setCPU(this);
 	motherboard.getScheduler().setCPU(this);
-	traceSetting->attach(*this);
+	traceSetting.attach(*this);
 
-	z80->freqLocked->attach(*this);
-	z80->freqValue->attach(*this);
+	z80->freqLocked.attach(*this);
+	z80->freqValue.attach(*this);
 	if (r800) {
-		r800->freqLocked->attach(*this);
-		r800->freqValue->attach(*this);
+		r800->freqLocked.attach(*this);
+		r800->freqValue.attach(*this);
 	}
 }
 
 MSXCPU::~MSXCPU()
 {
-	traceSetting->detach(*this);
-	z80->freqLocked->detach(*this);
-	z80->freqValue->detach(*this);
+	traceSetting.detach(*this);
+	z80->freqLocked.detach(*this);
+	z80->freqValue.detach(*this);
 	if (r800) {
-		r800->freqLocked->detach(*this);
-		r800->freqValue->detach(*this);
+		r800->freqLocked.detach(*this);
+		r800->freqValue.detach(*this);
 	}
 	motherboard.getScheduler().setCPU(nullptr);
 	motherboard.getDebugger() .setCPU(nullptr);

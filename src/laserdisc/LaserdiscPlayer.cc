@@ -1,5 +1,4 @@
 #include "LaserdiscPlayer.hh"
-#include "BooleanSetting.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "CommandController.hh"
@@ -141,9 +140,9 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, ack(false)
 	, seeking(false)
 	, playerState(PLAYER_STOPPED)
-	, autoRunSetting(make_unique<BooleanSetting>(
+	, autoRunSetting(
 		motherBoard.getCommandController(), "autorunlaserdisc",
-		"automatically try to run Laserdisc", true))
+		"automatically try to run Laserdisc", true)
 	, loadingIndicator(make_unique<LoadingIndicator>(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
 	, sampleReads(0)
@@ -668,9 +667,7 @@ int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event)
 
 void LaserdiscPlayer::autoRun()
 {
-	if (!autoRunSetting->getBoolean()) {
-		return;
-	}
+	if (!autoRunSetting.getBoolean()) return;
 
 	string var = "::auto_run_ld_counter";
 	string command =

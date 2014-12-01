@@ -2,13 +2,14 @@
 #define KEYBOARDSETTINGS_HH
 
 #include "Keys.hh"
+#include "EnumSetting.hh"
+#include "BooleanSetting.hh"
 #include <memory>
+#include <cassert>
 
 namespace openmsx {
 
 class CommandController;
-class BooleanSetting;
-template <typename T> class EnumSetting;
 
 class KeyboardSettings
 {
@@ -17,36 +18,39 @@ public:
 	enum MappingMode { KEY_MAPPING, CHARACTER_MAPPING };
 
 	explicit KeyboardSettings(CommandController& commandController);
-	~KeyboardSettings();
 
-	Keys::KeyCode getDeadkeyHostKey(unsigned n) const;
-	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey() const {
-		return *codeKanaHostKey;
+	Keys::KeyCode getDeadkeyHostKey(unsigned n) const {
+		assert(n < 3);
+		return deadkeyHostKey[n]->getEnum();
 	}
-	EnumSetting<KpEnterMode>& getKpEnterMode() const {
-		return *kpEnterMode;
+
+	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey() {
+		return codeKanaHostKey;
 	}
-	EnumSetting<MappingMode>& getMappingMode() const {
-		return *mappingMode;
+	EnumSetting<KpEnterMode>& getKpEnterMode() {
+		return kpEnterMode;
 	}
-	BooleanSetting& getAlwaysEnableKeypad() const {
-		return *alwaysEnableKeypad;
+	EnumSetting<MappingMode>& getMappingMode() {
+		return mappingMode;
 	}
-	BooleanSetting& getTraceKeyPresses() const {
-		return *traceKeyPresses;
+	BooleanSetting& getAlwaysEnableKeypad() {
+		return alwaysEnableKeypad;
 	}
-	BooleanSetting& getAutoToggleCodeKanaLock() const {
-		return *autoToggleCodeKanaLock;
+	BooleanSetting& getTraceKeyPresses() {
+		return traceKeyPresses;
+	}
+	BooleanSetting& getAutoToggleCodeKanaLock() {
+		return autoToggleCodeKanaLock;
 	}
 
 private:
 	std::unique_ptr<EnumSetting<Keys::KeyCode>> deadkeyHostKey[3];
-	std::unique_ptr<EnumSetting<Keys::KeyCode>> codeKanaHostKey;
-	std::unique_ptr<EnumSetting<KpEnterMode>> kpEnterMode;
-	std::unique_ptr<EnumSetting<MappingMode>> mappingMode;
-	std::unique_ptr<BooleanSetting> alwaysEnableKeypad;
-	std::unique_ptr<BooleanSetting> traceKeyPresses;
-	std::unique_ptr<BooleanSetting> autoToggleCodeKanaLock;
+	EnumSetting<Keys::KeyCode> codeKanaHostKey;
+	EnumSetting<KpEnterMode> kpEnterMode;
+	EnumSetting<MappingMode> mappingMode;
+	BooleanSetting alwaysEnableKeypad;
+	BooleanSetting traceKeyPresses;
+	BooleanSetting autoToggleCodeKanaLock;
 };
 
 } // namespace openmsx

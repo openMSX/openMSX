@@ -33,7 +33,7 @@ public:
 private:
 	void executeCommon(TclObject& command);
 
-	std::unique_ptr<StringSetting> callbackSetting2;
+	std::unique_ptr<StringSetting> callbackSetting2; // can be nullptr
 	StringSetting& callbackSetting;
 	const bool useCliComm;
 };

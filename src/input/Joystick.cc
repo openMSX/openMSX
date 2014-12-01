@@ -8,7 +8,6 @@
 #include "StateChange.hh"
 #include "TclObject.hh"
 #include "GlobalSettings.hh"
-#include "StringSetting.hh"
 #include "IntegerSetting.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
@@ -89,7 +88,8 @@ private:
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
 
 
-void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
+#ifndef SDL_JOYSTICK_DISABLED
+static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 {
 	unsigned n = newValue.getListLength(interp);
 	if (n & 1) {
@@ -123,28 +123,13 @@ void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 	}
 }
 
-
-#ifndef SDL_JOYSTICK_DISABLED
-// Note: It's OK to open/close the same SDL_Joystick multiple times (we open it
-// once per MSX machine). The SDL documentation doesn't state this, but I
-// checked the implementation and a SDL_Joystick uses a 'reference count' on
-// the open/close calls.
-Joystick::Joystick(MSXEventDistributor& eventDistributor_,
-                   StateChangeDistributor& stateChangeDistributor_,
-                   CommandController& commandController,
-                   GlobalSettings& globalSettings,
-                   SDL_Joystick* joystick_)
-	: eventDistributor(eventDistributor_)
-	, stateChangeDistributor(stateChangeDistributor_)
-	, joystick(joystick_)
-	, joyNum(SDL_JoystickIndex(joystick_))
-	, deadSetting(globalSettings.getJoyDeadzoneSetting(joyNum))
-	, name("joystickX") // 'X' is filled in below
-	, desc(string(SDL_JoystickName(joyNum)))
+static string getJoystickName(unsigned joyNum)
 {
-	const_cast<string&>(name)[8] = char('1' + joyNum);
+	return string("joystick") + char('1' + joyNum);
+}
 
-	// create config setting
+static TclObject getConfigValue(SDL_Joystick* joystick)
+{
 	TclObject value;
 	value.addListElement("LEFT" ); value.addListElement("-axis0");
 	value.addListElement("RIGHT"); value.addListElement("+axis0");
@@ -161,11 +146,30 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	}
 	value.addListElement("A"); value.addListElement(listA);
 	value.addListElement("B"); value.addListElement(listB);
-	configSetting = make_unique<StringSetting>(
-		commandController, name + "_config", "joystick configuration",
-		value.getString());
+	return value;
+}
+
+// Note: It's OK to open/close the same SDL_Joystick multiple times (we open it
+// once per MSX machine). The SDL documentation doesn't state this, but I
+// checked the implementation and a SDL_Joystick uses a 'reference count' on
+// the open/close calls.
+Joystick::Joystick(MSXEventDistributor& eventDistributor_,
+                   StateChangeDistributor& stateChangeDistributor_,
+                   CommandController& commandController,
+                   GlobalSettings& globalSettings,
+                   SDL_Joystick* joystick_)
+	: eventDistributor(eventDistributor_)
+	, stateChangeDistributor(stateChangeDistributor_)
+	, joystick(joystick_)
+	, joyNum(SDL_JoystickIndex(joystick_))
+	, deadSetting(globalSettings.getJoyDeadzoneSetting(joyNum))
+	, name(getJoystickName(joyNum))
+	, desc(string(SDL_JoystickName(joyNum)))
+	, configSetting(commandController, name + "_config",
+		"joystick configuration", getConfigValue(joystick).getString())
+{
 	auto& interp = commandController.getInterpreter();
-	configSetting->setChecker([&interp](TclObject& newValue) {
+	configSetting.setChecker([&interp](TclObject& newValue) {
 		checkJoystickConfig(interp, newValue); });
 
 	pin8 = false; // avoid UMR
@@ -231,8 +235,8 @@ byte Joystick::calcState()
 	              JOY_BUTTONA | JOY_BUTTONB;
 	if (joystick) {
 		int threshold = (deadSetting.getInt() * 32768) / 100;
-		auto& interp = configSetting->getInterpreter();
-		auto& dict   = configSetting->getValue();
+		auto& interp = configSetting.getInterpreter();
+		auto& dict   = configSetting.getValue();
 		if (getState(interp, dict, "A"    , threshold)) result &= ~JOY_BUTTONA;
 		if (getState(interp, dict, "B"    , threshold)) result &= ~JOY_BUTTONB;
 		if (getState(interp, dict, "UP"   , threshold)) result &= ~JOY_UP;

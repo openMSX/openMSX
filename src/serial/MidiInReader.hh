@@ -4,19 +4,18 @@
 #include "MidiInDevice.hh"
 #include "Thread.hh"
 #include "EventListener.hh"
+#include "FilenameSetting.hh"
 #include "FileOperations.hh"
 #include "Semaphore.hh"
 #include "openmsx.hh"
 #include "circular_buffer.hh"
 #include <cstdio>
-#include <memory>
 
 namespace openmsx {
 
 class EventDistributor;
 class Scheduler;
 class CommandController;
-class FilenameSetting;
 
 class MidiInReader final : public MidiInDevice, private Runnable
                          , private EventListener
@@ -52,7 +51,7 @@ private:
 	cb_queue<byte> queue;
 	Semaphore lock; // to protect queue
 
-	const std::unique_ptr<FilenameSetting> readFilenameSetting;
+	FilenameSetting readFilenameSetting;
 };
 
 } // namespace openmsx

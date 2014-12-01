@@ -7,6 +7,7 @@
 #include "Schedulable.hh"
 #include "Filename.hh"
 #include "EmuTime.hh"
+#include "BooleanSetting.hh"
 #include "serialize_meta.hh"
 #include <string>
 #include <memory>
@@ -18,7 +19,6 @@ class HardwareConfig;
 class MSXMotherBoard;
 class Wav8Writer;
 class LoadingIndicator;
-class BooleanSetting;
 class TapeCommand;
 
 class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
@@ -158,7 +158,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	const std::unique_ptr<TapeCommand> tapeCommand;
 	const std::unique_ptr<LoadingIndicator> loadingIndicator;
-	const std::unique_ptr<BooleanSetting> autoRunSetting;
+	BooleanSetting autoRunSetting;
 	std::unique_ptr<Wav8Writer> recordImage;
 	std::unique_ptr<CassetteImage> playImage;
 

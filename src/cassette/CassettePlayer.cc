@@ -21,7 +21,6 @@
 //   results in multiple matches.
 
 #include "CassettePlayer.hh"
-#include "BooleanSetting.hh"
 #include "Connector.hh"
 #include "CassettePort.hh"
 #include "CommandController.hh"
@@ -100,9 +99,8 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 		motherBoard.getScheduler(), *this))
 	, loadingIndicator(make_unique<LoadingIndicator>(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
-	, autoRunSetting(make_unique<BooleanSetting>(
-		motherBoard.getCommandController(),
-		"autoruncassettes", "automatically try to run cassettes", true))
+	, autoRunSetting(motherBoard.getCommandController(),
+		"autoruncassettes", "automatically try to run cassettes", true)
 	, sampcnt(0)
 	, state(STOP)
 	, lastOutput(false)
@@ -138,7 +136,7 @@ void CassettePlayer::autoRun()
 
 	// try to automatically run the tape, if that's set
 	CassetteImage::FileType type = playImage->getFirstFileType();
-	if (!autoRunSetting->getBoolean() || type == CassetteImage::UNKNOWN) {
+	if (!autoRunSetting.getBoolean() || type == CassetteImage::UNKNOWN) {
 		return;
 	}
 	string instr1, instr2;

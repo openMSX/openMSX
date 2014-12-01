@@ -4,10 +4,10 @@
 #include "EventListener.hh"
 #include "Schedulable.hh"
 #include "EmuTime.hh"
+#include "FloatSetting.hh"
 #include "build-info.hh"
 #include <vector>
 #include <deque>
-#include <memory>
 #include <cstdint>
 
 namespace openmsx {
@@ -18,7 +18,6 @@ class Event;
 class EventDistributor;
 class MSXEventDistributor;
 class ReverseManager;
-class FloatSetting;
 
 /** This class is responsible for translating host events into MSX events.
   * It also translates host event timing into EmuTime. To better do this
@@ -57,7 +56,7 @@ private:
 
 	EmuTime prevEmu;
 	uint64_t prevReal;
-	const std::unique_ptr<FloatSetting> delaySetting;
+	FloatSetting delaySetting;
 };
 
 } // namespace openmsx

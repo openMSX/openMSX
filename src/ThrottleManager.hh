@@ -2,14 +2,12 @@
 #define THROTTLEMANAGER_HH
 
 #include "Subject.hh"
+#include "BooleanSetting.hh"
 #include "noncopyable.hh"
-#include <memory>
 
 namespace openmsx {
 
 class CommandController;
-class BooleanSetting;
-class Setting;
 
 /**
  * Manages the throttle state of openMSX. It depends on the throttle setting,
@@ -49,8 +47,8 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting) override;
 
-	const std::unique_ptr<BooleanSetting> throttleSetting;
-	const std::unique_ptr<BooleanSetting> fullSpeedLoadingSetting;
+	BooleanSetting throttleSetting;
+	BooleanSetting fullSpeedLoadingSetting;
 	int loading;
 	bool throttle;
 };

@@ -3,10 +3,8 @@
 #include "PlugException.hh"
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
-#include "FilenameSetting.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -15,14 +13,14 @@ RS232Tester::RS232Tester(EventDistributor& eventDistributor_,
                          CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
 	, thread(this), lock(1)
-	, rs232InputFilenameSetting(make_unique<FilenameSetting>(
+	, rs232InputFilenameSetting(
 	        commandController, "rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
-	        "rs232-input"))
-	, rs232OutputFilenameSetting(make_unique<FilenameSetting>(
+	        "rs232-input")
+	, rs232OutputFilenameSetting(
 	        commandController, "rs232-outputfilename",
 	        "filename of the file where the RS232 output is written to",
-	        "rs232-output"))
+	        "rs232-output")
 {
 	eventDistributor.registerEventListener(OPENMSX_RS232_TESTER_EVENT, *this);
 }
@@ -36,7 +34,7 @@ RS232Tester::~RS232Tester()
 void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	// output
-	string_ref outName = rs232OutputFilenameSetting->getString();
+	string_ref outName = rs232OutputFilenameSetting.getString();
 	FileOperations::openofstream(outFile, outName.str());
 	if (outFile.fail()) {
 		outFile.clear();
@@ -44,7 +42,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	}
 
 	// input
-	string_ref inName = rs232InputFilenameSetting->getString();
+	string_ref inName = rs232InputFilenameSetting.getString();
 	inFile = FileOperations::openFile(inName.str(), "rb");
 	if (!inFile) {
 		outFile.close();

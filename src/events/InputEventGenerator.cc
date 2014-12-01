@@ -2,7 +2,6 @@
 #include "InputEventGenerator.hh"
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
-#include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "GlobalSettings.hh"
 #include "Keys.hh"
@@ -39,16 +38,16 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
                                          GlobalSettings& globalSettings_)
 	: eventDistributor(eventDistributor_)
 	, globalSettings(globalSettings_)
-	, grabInput(make_unique<BooleanSetting>(
+	, grabInput(
 		commandController, "grabinput",
 		"This setting controls if openMSX takes over mouse and keyboard input",
-		false, Setting::DONT_SAVE))
+		false, Setting::DONT_SAVE)
 	, escapeGrabCmd(make_unique<EscapeGrabCmd>(commandController, *this))
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
 	, keyRepeat(false)
 {
-	setGrabInput(grabInput->getBoolean());
-	grabInput->attach(*this);
+	setGrabInput(grabInput.getBoolean());
+	grabInput.attach(*this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 
 	reinit();
@@ -63,7 +62,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 InputEventGenerator::~InputEventGenerator()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
-	grabInput->detach(*this);
+	grabInput.detach(*this);
 }
 
 void InputEventGenerator::reinit()
@@ -369,10 +368,9 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 
 void InputEventGenerator::update(const Setting& setting)
 {
-	(void)setting;
-	assert(&setting == grabInput.get());
+	assert(&setting == &grabInput); (void)setting;
 	escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
-	setGrabInput(grabInput->getBoolean());
+	setGrabInput(grabInput.getBoolean());
 }
 
 int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
@@ -447,7 +445,7 @@ EscapeGrabCmd::EscapeGrabCmd(CommandController& commandController,
 void EscapeGrabCmd::execute(array_ref<TclObject> /*tokens*/,
 		            TclObject& /*result*/)
 {
-	if (inputEventGenerator.grabInput->getBoolean()) {
+	if (inputEventGenerator.grabInput.getBoolean()) {
 		inputEventGenerator.escapeGrabState =
 			InputEventGenerator::ESCAPE_GRAB_WAIT_LOST;
 		inputEventGenerator.setGrabInput(false);

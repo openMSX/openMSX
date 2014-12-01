@@ -2,6 +2,7 @@
 #define MSXMOTHERBOARD_HH
 
 #include "EmuTime.hh"
+#include "VideoSourceSetting.hh"
 #include "serialize_meta.hh"
 #include "string_ref.hh"
 #include "openmsx.hh"
@@ -53,7 +54,6 @@ class SettingObserver;
 class Scheduler;
 class Setting;
 class StateChangeDistributor;
-class VideoSourceSetting;
 
 class MSXMotherBoard final : private noncopyable
 {
@@ -128,7 +128,7 @@ public:
 	LedStatus& getLedStatus();
 	ReverseManager& getReverseManager() { return *reverseManager; }
 	Reactor& getReactor() { return reactor; }
-	VideoSourceSetting& getVideoSource() { return *videoSourceSetting; }
+	VideoSourceSetting& getVideoSource() { return videoSourceSetting; }
 
 	// convenience methods
 	CommandController& getCommandController();
@@ -237,7 +237,7 @@ private:
 	std::unique_ptr<JoyPortDebuggable> joyPortDebuggable;
 	std::unique_ptr<RenShaTurbo> renShaTurbo;
 	std::unique_ptr<LedStatus> ledStatus;
-	std::unique_ptr<VideoSourceSetting> videoSourceSetting;
+	VideoSourceSetting videoSourceSetting;
 
 	std::unique_ptr<CartridgeSlotManager> slotManager;
 	std::unique_ptr<ReverseManager> reverseManager;

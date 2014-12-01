@@ -2,16 +2,14 @@
 #define WAVAUDIOINPUT_HH
 
 #include "AudioInputDevice.hh"
+#include "FilenameSetting.hh"
 #include "WavData.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
-#include <memory>
 
 namespace openmsx {
 
 class CommandController;
-class FilenameSetting;
-class Setting;
 
 class WavAudioInput final : public AudioInputDevice, private Observer<Setting>
 {
@@ -33,7 +31,7 @@ private:
 	void loadWave();
 	void update(const Setting& setting) override;
 
-	const std::unique_ptr<FilenameSetting> audioInputFilenameSetting;
+	FilenameSetting audioInputFilenameSetting;
 
 	WavData wav;
 	EmuTime reference;

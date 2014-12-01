@@ -2,24 +2,21 @@
 #define FRONTSWITCH_HH
 
 #include "DeviceConfig.hh"
-#include "noncopyable.hh"
-#include <memory>
+#include "BooleanSetting.hh"
 
 namespace openmsx {
 
-class BooleanSetting;
-
-class FirmwareSwitch : private noncopyable
+class FirmwareSwitch
 {
 public:
 	explicit FirmwareSwitch(const DeviceConfig& config);
 	~FirmwareSwitch();
 
-	bool getStatus() const;
+	bool getStatus() const { return setting.getBoolean(); }
 
 private:
 	const DeviceConfig config;
-	const std::unique_ptr<BooleanSetting> setting;
+	BooleanSetting setting;
 };
 
 } // namespace openmsx

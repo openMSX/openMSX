@@ -2,6 +2,7 @@
 #define INPUTEVENTGENERATOR_HH
 
 #include "Observer.hh"
+#include "BooleanSetting.hh"
 #include "EventListener.hh"
 #include "noncopyable.hh"
 #include "Keys.hh"
@@ -11,10 +12,8 @@
 namespace openmsx {
 
 class CommandController;
-class BooleanSetting;
 class EventDistributor;
 class GlobalSettings;
-class Setting;
 class EscapeGrabCmd;
 
 class InputEventGenerator final : private Observer<Setting>
@@ -45,7 +44,7 @@ public:
 	void reinit();
 
 	/** Input Grab on or off */
-	BooleanSetting& getGrabInput() const { return *grabInput; }
+	BooleanSetting& getGrabInput() { return grabInput; }
 
 	/** Normally the following two functions simply delegate to
 	 * SDL_JoystickNumButtons() and SDL_JoystickGetButton(). Except on
@@ -70,7 +69,7 @@ private:
 
 	EventDistributor& eventDistributor;
 	GlobalSettings& globalSettings;
-	const std::unique_ptr<BooleanSetting> grabInput;
+	BooleanSetting grabInput;
 	const std::unique_ptr<EscapeGrabCmd> escapeGrabCmd;
 	friend class EscapeGrabCmd;
 

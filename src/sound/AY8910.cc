@@ -16,7 +16,6 @@
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "FloatSetting.hh"
 #include "serialize.hh"
 #include "likely.hh"
 #include "memory.hh"
@@ -150,21 +149,21 @@ inline void AY8910::ToneGenerator::setParent(AY8910& parent)
 int AY8910::ToneGenerator::getDetune()
 {
 	int result = 0;
-	float vibPerc = parent->vibratoPercent->getDouble();
+	float vibPerc = parent->vibratoPercent.getDouble();
 	if (vibPerc != 0.0f) {
 		int vibratoPeriod = int(
 			NATIVE_FREQ_DOUBLE
-			/ parent->vibratoFrequency->getDouble());
+			/ parent->vibratoFrequency.getDouble());
 		vibratoCount += period;
 		vibratoCount %= vibratoPeriod;
 		result += int(
 			sinf((float(2 * M_PI) * vibratoCount) / vibratoPeriod)
 			* vibPerc * 0.01f * period);
 	}
-	float detunePerc = parent->detunePercent->getDouble();
+	float detunePerc = parent->detunePercent.getDouble();
 	if (detunePerc != 0.0f) {
 		float detunePeriod = NATIVE_FREQ_DOUBLE /
-			parent->detuneFrequency->getDouble();
+			parent->detuneFrequency.getDouble();
 		detuneCount += period;
 		float noiseIdx = detuneCount / detunePeriod;
 		float noise = noiseValue(       noiseIdx)
@@ -484,18 +483,18 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
 	, periphery(periphery_)
 	, debuggable(make_unique<AY8910Debuggable>(
 		config.getMotherBoard(), *this))
-	, vibratoPercent(make_unique<FloatSetting>(
+	, vibratoPercent(
 		config.getCommandController(), getName() + "_vibrato_percent",
-		"controls strength of vibrato effect", 0.0, 0.0, 10.0))
-	, vibratoFrequency(make_unique<FloatSetting>(
+		"controls strength of vibrato effect", 0.0, 0.0, 10.0)
+	, vibratoFrequency(
 		config.getCommandController(), getName() + "_vibrato_frequency",
-		"frequency of vibrato effect in Hertz", 5, 1.0, 10.0))
-	, detunePercent(make_unique<FloatSetting>(
+		"frequency of vibrato effect in Hertz", 5, 1.0, 10.0)
+	, detunePercent(
 		config.getCommandController(), getName() + "_detune_percent",
-		"controls strength of detune effect", 0.0, 0.0, 10.0))
-	, detuneFrequency(make_unique<FloatSetting>(
+		"controls strength of detune effect", 0.0, 0.0, 10.0)
+	, detuneFrequency(
 		config.getCommandController(), getName() + "_detune_frequency",
-		"frequency of detune effect in Hertz", 5.0, 1.0, 100.0))
+		"frequency of detune effect in Hertz", 5.0, 1.0, 100.0)
 	, directionsCallback(make_unique<TclCallback>(
 		config.getGlobalSettings().getInvalidPsgDirectionsSetting()))
 	, amplitude(config)
@@ -504,9 +503,9 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
 {
 	// (lazily) initialize detune stuff
 	detuneInitialized = false;
-	update(*vibratoPercent);
-	vibratoPercent->attach(*this);
-	detunePercent ->attach(*this);
+	update(vibratoPercent);
+	vibratoPercent.attach(*this);
+	detunePercent .attach(*this);
 
 	for (auto& t : tone) t.setParent(*this);
 
@@ -522,8 +521,8 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
 AY8910::~AY8910()
 {
 	unregisterSound();
-	vibratoPercent->detach(*this);
-	detunePercent ->detach(*this);
+	vibratoPercent.detach(*this);
+	detunePercent .detach(*this);
 }
 
 void AY8910::reset(EmuTime::param time)
@@ -997,10 +996,10 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 
 void AY8910::update(const Setting& setting)
 {
-	if ((&setting == vibratoPercent.get()) ||
-	    (&setting == detunePercent .get())) {
-		doDetune = (vibratoPercent->getDouble() != 0) ||
-			   (detunePercent ->getDouble() != 0);
+	if ((&setting == &vibratoPercent) ||
+	    (&setting == &detunePercent)) {
+		doDetune = (vibratoPercent.getDouble() != 0) ||
+			   (detunePercent .getDouble() != 0);
 		if (doDetune && !detuneInitialized) {
 			detuneInitialized = true;
 			initDetune();

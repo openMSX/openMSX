@@ -2,17 +2,16 @@
 #include "PlugException.hh"
 #include "FileException.hh"
 #include "File.hh"
-#include "FilenameSetting.hh"
 #include "serialize.hh"
 #include "memory.hh"
 
 namespace openmsx {
 
 PrinterPortLogger::PrinterPortLogger(CommandController& commandController)
-	: logFilenameSetting(make_unique<FilenameSetting>(
+	: logFilenameSetting(
 		commandController, "printerlogfilename",
 		"filename of the file where the printer output is logged to",
-		"printer.log"))
+		"printer.log")
 	, toPrint(0) // Initialize to avoid a static analysis (cppcheck) warning.
 		     // For correctness it's not strictly needed to initialize
 		     // this variable. But understanding why exactly it's not
@@ -52,7 +51,7 @@ void PrinterPortLogger::plugHelper(
 		Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	try {
-		file = make_unique<File>(logFilenameSetting->getString(),
+		file = make_unique<File>(logFilenameSetting.getString(),
 		                         File::TRUNCATE);
 	} catch (FileException& e) {
 		throw PlugException("Couldn't plug printer logger: " +
