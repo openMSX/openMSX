@@ -241,7 +241,7 @@ DEADKEY2, 17,         # ~ -> ã, ũ, ĩ, õ
 00e9, 52, CODE        # é
 00f2, 53, CODE        # ò
 00ea, 54, CODE        # ê
-007e, 21, GRAPH       # ~
+223d, 21, GRAPH       # ∽
 00e1, 56, CODE        # á
 00e0, 57, CODE        # à
 0394, 00, SHIFT CODE  # Δ
