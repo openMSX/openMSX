@@ -114,7 +114,10 @@ void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 	} else if (address == 0x7FF9) {
 		// write control byte
 		control = value;
-	} else if ((0x8000 <= address) && (address < 0xC000)) {
+	} else {
+		// Tested on real FS-A1GT:
+		//  SRAM/RAM can be written to from all regions, including e.g.
+		//  address 0x7ff0. (I didn't actually test 0xc000-0xffff).
 		int region = address >> 13;
 		int selectedBank = bankSelect[region];
 		if (sram && (SRAM_BASE <= selectedBank) &&
@@ -131,12 +134,10 @@ void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 
 byte* RomPanasonic::getWriteCacheLine(word address) const
 {
-	//return nullptr;
-	if ((0x6000 <= address) && (address < 0x7FF0)) {
+	if ((0x6000 <= address) && (address < 0x8000)) {
+		// mapper select (low/high), control
 		return nullptr;
-	} else if (address == (0x7FF8 & CacheLine::HIGH)) {
-		return nullptr;
-	} else if ((0x8000 <= address) && (address < 0xC000)) {
+	} else {
 		int region = address >> 13;
 		int selectedBank = bankSelect[region];
 		if (sram && (SRAM_BASE <= selectedBank) &&
@@ -149,8 +150,6 @@ byte* RomPanasonic::getWriteCacheLine(word address) const
 		} else {
 			return unmappedWrite;
 		}
-	} else {
-		return unmappedWrite;
 	}
 }
 
