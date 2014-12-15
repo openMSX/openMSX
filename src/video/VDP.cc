@@ -246,7 +246,8 @@ VDP::VDP(const DeviceConfig& config)
 	, vScanSyncTime(Schedulable::getCurrentTime())
 	, hScanSyncTime(Schedulable::getCurrentTime())
 	, tooFastCallback(make_unique<TclCallback>(
-		getCommandController(), "too_fast_vram_access_callback",
+		getCommandController(),
+		getName() + ".too_fast_vram_access_callback",
 		"Tcl proc called when the VRAM is read or written too fast"))
 	, warningPrinted(false)
 {

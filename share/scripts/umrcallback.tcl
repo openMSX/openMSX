@@ -68,8 +68,8 @@ proc debug_too_fast_vram_access {} {
 	warn_too_fast_vram_access
 	debug break
 }
-#set too_fast_vram_access_callback debug_too_fast_vram_access
-#set too_fast_vram_access_callback warn_too_fast_vram_access
+#set VDP.too_fast_vram_access_callback debug_too_fast_vram_access
+#set VDP.too_fast_vram_access_callback warn_too_fast_vram_access
 
 
 # show message (also) as OSD message
