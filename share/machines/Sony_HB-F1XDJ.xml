@@ -125,7 +125,7 @@
         <MemoryMapper id="Main RAM">
           <size>64</size>
           <mem base="0x0000" size="0x10000"/>
-          <initialContent encoding="gz-base64">eNpj+M8wouEI9z4DAJBx/wE=</initialContent>
+          <initialContent encoding="gz-base64">eNpj+M8wouEI9z4DAJBx/wE=</initialContent> <!-- (chr(0) + chr(255)) * 128 + (chr(255)+ chr(0)) * 128) -->
         </MemoryMapper>
       </secondary>
 
