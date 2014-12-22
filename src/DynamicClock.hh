@@ -84,7 +84,7 @@ public:
 	  * @param freq New frequency in Hertz.
 	  */
 	void setFreq(unsigned freq) {
-		unsigned newStep = MAIN_FREQ32 / freq;
+		unsigned newStep = (MAIN_FREQ32 + (freq / 2)) / freq;
 		assert(newStep);
 		divmod.setDivisor(newStep);
 	}
