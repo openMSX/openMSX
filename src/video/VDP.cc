@@ -27,7 +27,6 @@ TODO:
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include "SimpleDebuggable.hh"
-#include "InfoTopic.hh"
 #include "TclObject.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -85,141 +84,6 @@ private:
 };
 
 
-class VDPInfo : public InfoTopic
-{
-public:
-	void execute(array_ref<TclObject> /*tokens*/,
-	                     TclObject& result) const override
-	{
-		result.setInt(calc(vdp.getCurrentTime()));
-	}
-	string help(const vector<string>& /*tokens*/) const override
-	{
-		return helpText;
-	}
-	virtual int calc(const EmuTime& time) const = 0;
-
-protected:
-	VDPInfo(VDP& vdp_, const string& name, string helpText_)
-		: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
-			    vdp_.getName() + '_' + name)
-		, vdp(vdp_)
-		, helpText(std::move(helpText_)) {}
-
-	VDP& vdp;
-	const string helpText;
-};
-
-class FrameCountInfo final : public VDPInfo
-{
-public:
-	FrameCountInfo(VDP& vdp)
-		: VDPInfo(vdp, "frame_count",
-			  "The current frame number, starts counting at 0 "
-			  "when MSX is powered up or reset.") {}
-	int calc(const EmuTime& /*time*/) const override
-	{
-		return vdp.frameCount;
-	}
-};
-
-class CycleInFrameInfo final : public VDPInfo
-{
-public:
-	CycleInFrameInfo(VDP& vdp)
-		: VDPInfo(vdp, "cycle_in_frame",
-			  "The number of VDP cycles since the beginning of "
-			  "the current frame. The VDP runs at 6 times the Z80 "
-			  "clock frequency, so at approximately 21.5MHz.") {}
-	int calc(const EmuTime& time) const override
-	{
-		return vdp.getTicksThisFrame(time);
-	}
-};
-
-class LineInFrameInfo final : public VDPInfo
-{
-public:
-	LineInFrameInfo(VDP& vdp)
-		: VDPInfo(vdp, "line_in_frame",
-			  "The absolute line number since the beginning of "
-			  "the current frame. Goes from 0 till 262 (NTSC) or "
-			  "313 (PAL). Note that this number includes the "
-			  "border lines, use 'msx_y_pos' to get MSX "
-			  "coordinates.") {}
-	int calc(const EmuTime& time) const override
-	{
-		return vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE;
-	}
-};
-
-class CycleInLineInfo final : public VDPInfo
-{
-public:
-	CycleInLineInfo(VDP& vdp)
-		: VDPInfo(vdp, "cycle_in_line",
-			  "The number of VDP cycles since the beginning of "
-			  "the current line. See also 'cycle_in_frame'."
-			  "Note that this includes the cycles in the border, "
-			  "use 'msx_x256_pos' or 'msx_x512_pos' to get MSX "
-			  "coordinates.") {}
-	int calc(const EmuTime& time) const override
-	{
-		return vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE;
-	}
-};
-
-class MsxYPosInfo final : public VDPInfo
-{
-public:
-	MsxYPosInfo(VDP& vdp)
-		: VDPInfo(vdp, "msx_y_pos",
-			  "Similar to 'line_in_frame', but expressed in MSX "
-			  "coordinates. So lines in the top border have "
-			  "negative coordinates, lines in the bottom border "
-			  "have coordinates bigger or equal to 192 or 212.") {}
-	int calc(const EmuTime& time) const override
-	{
-		return (vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE) -
-			vdp.getLineZero();
-	}
-};
-
-class MsxX256PosInfo final : public VDPInfo
-{
-public:
-	MsxX256PosInfo(VDP& vdp)
-		: VDPInfo(vdp, "msx_x256_pos",
-			  "Similar to 'cycle_in_frame', but expressed in MSX "
-			  "coordinates. So a position in the left border has "
-			  "a negative coordinate and a position in the right "
-			  "border has a coordinated bigger or equal to 256. "
-			  "See also 'msx_x512_pos'.") {}
-	int calc(const EmuTime& time) const override
-	{
-		return ((vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE) -
-			 vdp.getLeftSprites()) / 4;
-	}
-};
-
-class MsxX512PosInfo final : public VDPInfo
-{
-public:
-	MsxX512PosInfo(VDP& vdp)
-		: VDPInfo(vdp, "msx_x512_pos",
-			  "Similar to 'cycle_in_frame', but expressed in "
-			  "'narrow' (screen 7) MSX coordinates. So a position "
-			  "in the left border has a negative coordinate and "
-			  "a position in the right border has a coordinated "
-			  "bigger or equal to 512. See also 'msx_x256_pos'.") {}
-	int calc(const EmuTime& time) const override
-	{
-		return ((vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE) -
-			 vdp.getLeftSprites()) / 2;
-	}
-};
-
-
 
 VDP::VDP(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -238,13 +102,13 @@ VDP::VDP(const DeviceConfig& config)
 	, vdpStatusRegDebug(make_unique<VDPStatusRegDebug>(*this))
 	, vdpPaletteDebug  (make_unique<VDPPaletteDebug>  (*this))
 	, vramPointerDebug (make_unique<VRAMPointerDebug> (*this))
-	, frameCountInfo   (make_unique<FrameCountInfo>   (*this))
-	, cycleInFrameInfo (make_unique<CycleInFrameInfo> (*this))
-	, lineInFrameInfo  (make_unique<LineInFrameInfo>  (*this))
-	, cycleInLineInfo  (make_unique<CycleInLineInfo>  (*this))
-	, msxYPosInfo      (make_unique<MsxYPosInfo>      (*this))
-	, msxX256PosInfo   (make_unique<MsxX256PosInfo>   (*this))
-	, msxX512PosInfo   (make_unique<MsxX512PosInfo>   (*this))
+	, frameCountInfo   (*this)
+	, cycleInFrameInfo (*this)
+	, lineInFrameInfo  (*this)
+	, cycleInLineInfo  (*this)
+	, msxYPosInfo      (*this)
+	, msxX256PosInfo   (*this)
+	, msxX512PosInfo   (*this)
 	, frameStartTime(getCurrentTime())
 	, irqVertical  (getMotherBoard(), getName() + ".IRQvertical",   config)
 	, irqHorizontal(getMotherBoard(), getName() + ".IRQhorizontal", config)
@@ -1569,6 +1433,150 @@ void VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time
 	} else {
 		ptr = (ptr & 0xFF00) | value;
 	}
+}
+
+
+// class Info
+
+VDP::Info::Info(VDP& vdp_, const string& name, string helpText_)
+	: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
+		    vdp_.getName() + '_' + name)
+	, vdp(vdp_)
+	, helpText(std::move(helpText_))
+{
+}
+
+void VDP::Info::execute(array_ref<TclObject> /*tokens*/, TclObject& result) const
+{
+	result.setInt(calc(vdp.getCurrentTime()));
+}
+
+string VDP::Info::help(const vector<string>& /*tokens*/) const
+{
+	return helpText;
+}
+
+
+// class FrameCountInfo
+
+VDP::FrameCountInfo::FrameCountInfo(VDP& vdp)
+	: Info(vdp, "frame_count",
+	       "The current frame number, starts counting at 0 "
+	       "when MSX is powered up or reset.")
+{
+}
+
+int VDP::FrameCountInfo::calc(const EmuTime& /*time*/) const
+{
+	return vdp.frameCount;
+}
+
+
+// class CycleInFrameInfo
+
+VDP::CycleInFrameInfo::CycleInFrameInfo(VDP& vdp)
+	: Info(vdp, "cycle_in_frame",
+	       "The number of VDP cycles since the beginning of "
+	       "the current frame. The VDP runs at 6 times the Z80 "
+	       "clock frequency, so at approximately 21.5MHz.")
+{
+}
+
+int VDP::CycleInFrameInfo::calc(const EmuTime& time) const
+{
+	return vdp.getTicksThisFrame(time);
+}
+
+
+// class LineInFrameInfo
+
+VDP::LineInFrameInfo::LineInFrameInfo(VDP& vdp)
+	: Info(vdp, "line_in_frame",
+	       "The absolute line number since the beginning of "
+	       "the current frame. Goes from 0 till 262 (NTSC) or "
+	       "313 (PAL). Note that this number includes the "
+	       "border lines, use 'msx_y_pos' to get MSX "
+	       "coordinates.")
+{
+}
+
+int VDP::LineInFrameInfo::calc(const EmuTime& time) const
+{
+	return vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE;
+}
+
+
+// class CycleInLineInfo
+
+VDP::CycleInLineInfo::CycleInLineInfo(VDP& vdp)
+	: Info(vdp, "cycle_in_line",
+	       "The number of VDP cycles since the beginning of "
+	       "the current line. See also 'cycle_in_frame'."
+	       "Note that this includes the cycles in the border, "
+	       "use 'msx_x256_pos' or 'msx_x512_pos' to get MSX "
+	       "coordinates.")
+{
+}
+
+int VDP::CycleInLineInfo::calc(const EmuTime& time) const
+{
+	return vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE;
+}
+
+
+// class MsxYPosInfo
+
+VDP::MsxYPosInfo::MsxYPosInfo(VDP& vdp)
+	: Info(vdp, "msx_y_pos",
+	       "Similar to 'line_in_frame', but expressed in MSX "
+	       "coordinates. So lines in the top border have "
+	       "negative coordinates, lines in the bottom border "
+	       "have coordinates bigger or equal to 192 or 212.")
+{
+}
+
+int VDP::MsxYPosInfo::calc(const EmuTime& time) const
+{
+	return (vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE) -
+		vdp.getLineZero();
+}
+
+
+// class MsxX256PosInfo
+
+VDP::MsxX256PosInfo::MsxX256PosInfo(VDP& vdp)
+	: Info(vdp, "msx_x256_pos",
+	       "Similar to 'cycle_in_frame', but expressed in MSX "
+	       "coordinates. So a position in the left border has "
+	       "a negative coordinate and a position in the right "
+	       "border has a coordinated bigger or equal to 256. "
+	       "See also 'msx_x512_pos'.")
+{
+}
+
+int VDP::MsxX256PosInfo::calc(const EmuTime& time) const
+{
+	return ((vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE) -
+		 vdp.getLeftSprites()) / 4;
+}
+
+
+// class MsxX512PosInfo
+
+VDP::MsxX512PosInfo::MsxX512PosInfo(VDP& vdp)
+	: Info(vdp, "msx_x512_pos",
+	       "Similar to 'cycle_in_frame', but expressed in "
+	       "'narrow' (screen 7) MSX coordinates. So a position "
+	       "in the left border has a negative coordinate and "
+	       "a position in the right border has a coordinated "
+	       "bigger or equal to 512. See also 'msx_x256_pos'.")
+{
+}
+
+int VDP::MsxX512PosInfo::calc(const EmuTime& time) const
+{
+	return ((vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE) -
+		 vdp.getLeftSprites()) / 2;
 }
 
 

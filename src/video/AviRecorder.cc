@@ -4,7 +4,6 @@
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "FileContext.hh"
-#include "Command.hh"
 #include "CommandException.hh"
 #include "Display.hh"
 #include "PostProcessor.hh"
@@ -22,22 +21,9 @@ using std::vector;
 
 namespace openmsx {
 
-class RecordCommand final : public Command
-{
-public:
-	RecordCommand(CommandController& commandController, AviRecorder& recorder);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	AviRecorder& recorder;
-};
-
-
 AviRecorder::AviRecorder(Reactor& reactor_)
 	: reactor(reactor_)
-	, recordCommand(make_unique<RecordCommand>(
-		reactor.getCommandController(), *this))
+	, recordCommand(reactor.getCommandController(), *this)
 	, mixer(nullptr)
 	, duration(EmuDuration::infinity)
 	, prevTime(EmuTime::infinity)
@@ -316,16 +302,15 @@ void AviRecorder::status(array_ref<TclObject> tokens, TclObject& result) const
 
 }
 
-// class RecordCommand
+// class AviRecorder::Cmd
 
-RecordCommand::RecordCommand(CommandController& commandController,
-                             AviRecorder& recorder_)
+AviRecorder::Cmd::Cmd(CommandController& commandController, AviRecorder& recorder_)
 	: Command(commandController, "record")
 	, recorder(recorder_)
 {
 }
 
-void RecordCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void AviRecorder::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
@@ -344,7 +329,7 @@ void RecordCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 }
 
-string RecordCommand::help(const vector<string>& /*tokens*/) const
+string AviRecorder::Cmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Controls video recording: Write openMSX audio/video to a .avi file.\n"
 	       "record start              Record to file 'openmsxNNNN.avi'\n"
@@ -360,7 +345,7 @@ string RecordCommand::help(const vector<string>& /*tokens*/) const
 	       "-doublesize flag is used and at 960x720 when the -triplesize flag is used.";
 }
 
-void RecordCommand::tabCompletion(vector<string>& tokens) const
+void AviRecorder::Cmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		static const char* const cmds[] = {

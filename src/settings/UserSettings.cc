@@ -1,5 +1,4 @@
 #include "UserSettings.hh"
-#include "Command.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
@@ -17,41 +16,10 @@ using std::unique_ptr;
 
 namespace openmsx {
 
-class UserSettingCommand final : public Command
-{
-public:
-	UserSettingCommand(UserSettings& userSettings,
-	                   CommandController& commandController);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-
-private:
-	void create (array_ref<TclObject> tokens, TclObject& result);
-	void destroy(array_ref<TclObject> tokens, TclObject& result);
-	void info   (array_ref<TclObject> tokens, TclObject& result);
-
-	unique_ptr<Setting> createString (array_ref<TclObject> tokens);
-	unique_ptr<Setting> createBoolean(array_ref<TclObject> tokens);
-	unique_ptr<Setting> createInteger(array_ref<TclObject> tokens);
-	unique_ptr<Setting> createFloat  (array_ref<TclObject> tokens);
-
-	vector<string_ref> getSettingNames() const;
-
-	UserSettings& userSettings;
-};
-
-
 // class UserSettings
 
 UserSettings::UserSettings(CommandController& commandController_)
-	: userSettingCommand(make_unique<UserSettingCommand>(
-		*this, commandController_))
-{
-}
-
-UserSettings::~UserSettings()
+	: userSettingCommand(*this, commandController_)
 {
 }
 
@@ -78,16 +46,16 @@ Setting* UserSettings::findSetting(string_ref name) const
 }
 
 
-// class UserSettingCommand
+// class UserSettings::Cmd
 
-UserSettingCommand::UserSettingCommand(UserSettings& userSettings_,
-                                       CommandController& commandController)
+UserSettings::Cmd::Cmd(UserSettings& userSettings_,
+                       CommandController& commandController)
 	: Command(commandController, "user_setting")
 	, userSettings(userSettings_)
 {
 }
 
-void UserSettingCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void UserSettings::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw SyntaxError();
@@ -106,7 +74,7 @@ void UserSettingCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 }
 
-void UserSettingCommand::create(array_ref<TclObject> tokens, TclObject& result)
+void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 5) {
 		throw SyntaxError();
@@ -138,7 +106,7 @@ void UserSettingCommand::create(array_ref<TclObject> tokens, TclObject& result)
 	result.setString(tokens[3].getString()); // name
 }
 
-unique_ptr<Setting> UserSettingCommand::createString(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createString(array_ref<TclObject> tokens)
 {
 	if (tokens.size() != 6) {
 		throw SyntaxError();
@@ -150,7 +118,7 @@ unique_ptr<Setting> UserSettingCommand::createString(array_ref<TclObject> tokens
 		getCommandController(), name, desc, initVal);
 }
 
-unique_ptr<Setting> UserSettingCommand::createBoolean(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createBoolean(array_ref<TclObject> tokens)
 {
 	if (tokens.size() != 6) {
 		throw SyntaxError();
@@ -162,7 +130,7 @@ unique_ptr<Setting> UserSettingCommand::createBoolean(array_ref<TclObject> token
 		getCommandController(), name, desc, initVal);
 }
 
-unique_ptr<Setting> UserSettingCommand::createInteger(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createInteger(array_ref<TclObject> tokens)
 {
 	if (tokens.size() != 8) {
 		throw SyntaxError();
@@ -177,7 +145,7 @@ unique_ptr<Setting> UserSettingCommand::createInteger(array_ref<TclObject> token
 		getCommandController(), name, desc, initVal, minVal, maxVal);
 }
 
-unique_ptr<Setting> UserSettingCommand::createFloat(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createFloat(array_ref<TclObject> tokens)
 {
 	if (tokens.size() != 8) {
 		throw SyntaxError();
@@ -192,8 +160,7 @@ unique_ptr<Setting> UserSettingCommand::createFloat(array_ref<TclObject> tokens)
 		getCommandController(), name, desc, initVal, minVal, maxVal);
 }
 
-void UserSettingCommand::destroy(array_ref<TclObject> tokens,
-                                 TclObject& /*result*/)
+void UserSettings::Cmd::destroy(array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -208,13 +175,12 @@ void UserSettingCommand::destroy(array_ref<TclObject> tokens,
 	userSettings.deleteSetting(*setting);
 }
 
-void UserSettingCommand::info(array_ref<TclObject> /*tokens*/,
-                              TclObject& result)
+void UserSettings::Cmd::info(array_ref<TclObject> /*tokens*/, TclObject& result)
 {
 	result.addListElements(getSettingNames());
 }
 
-string UserSettingCommand::help(const vector<string>& tokens) const
+string UserSettings::Cmd::help(const vector<string>& tokens) const
 {
 	if (tokens.size() < 2) {
 		return
@@ -268,7 +234,7 @@ string UserSettingCommand::help(const vector<string>& tokens) const
 	}
 }
 
-void UserSettingCommand::tabCompletion(vector<string>& tokens) const
+void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		static const char* const cmds[] = {
@@ -285,7 +251,7 @@ void UserSettingCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-vector<string_ref> UserSettingCommand::getSettingNames() const
+vector<string_ref> UserSettings::Cmd::getSettingNames() const
 {
 	vector<string_ref> result;
 	for (auto& s : userSettings.getSettings()) {

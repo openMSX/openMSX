@@ -52,6 +52,10 @@ public:
 	virtual void getWidthHeight(const OutputRectangle& output,
 	                            double& width, double& height) const = 0;
 
+	// for OSDGUI::OSDCommand
+	void listWidgetNames(const std::string& parentName,
+	                     std::vector<std::string>& result) const;
+
 protected:
 	explicit OSDWidget(const std::string& name);
 	void invalidateChildren();
@@ -69,10 +73,6 @@ private:
 	void setParent(OSDWidget* parent_) { parent = parent_; }
 	void resortUp  (OSDWidget* elem);
 	void resortDown(OSDWidget* elem);
-
-	void listWidgetNames(const std::string& parentName,
-	                     std::vector<std::string>& result) const;
-	friend class OSDCommand;
 
 	/** Direct child widgets of this widget, sorted by z-coordinate.
 	  */

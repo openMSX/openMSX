@@ -1,6 +1,7 @@
 #ifndef SETTINGSCONFIG_HH
 #define SETTINGSCONFIG_HH
 
+#include "Command.hh"
 #include "XMLElement.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
@@ -14,8 +15,6 @@ class FileContext;
 class HotKey;
 class GlobalCommandController;
 class CommandController;
-class SaveSettingsCommand;
-class LoadSettingsCommand;
 
 class SettingsConfig : private noncopyable
 {
@@ -35,8 +34,27 @@ public:
 private:
 	CommandController& commandController;
 
-	const std::unique_ptr<SaveSettingsCommand> saveSettingsCommand;
-	const std::unique_ptr<LoadSettingsCommand> loadSettingsCommand;
+	class SaveSettingsCommand final : public Command {
+	public:
+		SaveSettingsCommand(CommandController& commandController,
+				    SettingsConfig& settingsConfig);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		SettingsConfig& settingsConfig;
+	} saveSettingsCommand;
+
+	class LoadSettingsCommand final : public Command {
+	public:
+		LoadSettingsCommand(CommandController& commandController,
+				    SettingsConfig& settingsConfig);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		SettingsConfig& settingsConfig;
+	} loadSettingsCommand;
 
 	const std::unique_ptr<SettingsManager> settingsManager;
 	XMLElement xmlElement;

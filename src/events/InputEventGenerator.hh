@@ -4,6 +4,7 @@
 #include "Observer.hh"
 #include "BooleanSetting.hh"
 #include "EventListener.hh"
+#include "Command.hh"
 #include "noncopyable.hh"
 #include "Keys.hh"
 #include <SDL.h>
@@ -14,7 +15,6 @@ namespace openmsx {
 class CommandController;
 class EventDistributor;
 class GlobalSettings;
-class EscapeGrabCmd;
 
 class InputEventGenerator final : private Observer<Setting>
                                 , private EventListener
@@ -70,8 +70,16 @@ private:
 	EventDistributor& eventDistributor;
 	GlobalSettings& globalSettings;
 	BooleanSetting grabInput;
-	const std::unique_ptr<EscapeGrabCmd> escapeGrabCmd;
-	friend class EscapeGrabCmd;
+
+	class EscapeGrabCmd final : public Command {
+	public:
+		EscapeGrabCmd(CommandController& commandController,
+			      InputEventGenerator& inputEventGenerator);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		InputEventGenerator& inputEventGenerator;
+	} escapeGrabCmd;
 
 	enum EscapeGrabState {
 		ESCAPE_GRAB_WAIT_CMD,

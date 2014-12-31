@@ -3,16 +3,15 @@
 
 #include "RomInfo.hh"
 #include "MemBuffer.hh"
+#include "InfoTopic.hh"
 #include "sha1.hh"
 #include "noncopyable.hh"
 #include <utility>
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 
 class CliComm;
-class SoftwareInfoTopic;
 class GlobalCommandController;
 
 class RomDatabase : private noncopyable
@@ -21,7 +20,6 @@ public:
 	typedef std::vector<std::pair<Sha1Sum, RomInfo>> RomDB;
 
 	RomDatabase(GlobalCommandController& commandController, CliComm& cliComm);
-	~RomDatabase();
 
 	/** Lookup an entry in the database by sha1sum.
 	 * Returns nullptr when no corresponding entry was found.
@@ -31,7 +29,18 @@ public:
 private:
 	RomDB db;
 	std::vector<MemBuffer<char>> buffers;
-	std::unique_ptr<SoftwareInfoTopic> softwareInfoTopic;
+
+	class SoftwareInfoTopic final : public InfoTopic {
+	public:
+		SoftwareInfoTopic(InfoCommand& openMSXInfoCommand,
+		                  RomDatabase& romDatabase);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		const RomDatabase& romDatabase;
+	} softwareInfoTopic;
 };
 
 } // namespace openmsx

@@ -8,7 +8,6 @@
 #include "CPUCore.hh"
 #include "Z80.hh"
 #include "R800.hh"
-#include "InfoTopic.hh"
 #include "TclObject.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -19,30 +18,6 @@ using std::string;
 using std::vector;
 
 namespace openmsx {
-
-class TimeInfoTopic final : public InfoTopic
-{
-public:
-	TimeInfoTopic(InfoCommand& machineInfoCommand,
-	              MSXCPU& msxcpu);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help (const vector<string>& tokens) const override;
-private:
-	MSXCPU& msxcpu;
-};
-
-class CPUFreqInfoTopic final : public InfoTopic
-{
-public:
-	CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
-	                 const string& name, CPUClock& clock);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help (const vector<string>& tokens) const override;
-private:
-	CPUClock& clock;
-};
 
 class MSXCPUDebuggable final : public SimpleDebuggable
 {
@@ -71,10 +46,8 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 			motherboard, "r800", traceSetting,
 			*diHaltCallback, EmuTime::zero)
 		: nullptr)
-	, timeInfo(make_unique<TimeInfoTopic>(
-		motherboard.getMachineInfoCommand(), *this))
-	, z80FreqInfo(make_unique<CPUFreqInfoTopic>(
-		motherboard.getMachineInfoCommand(), "z80_freq", *z80))
+	, timeInfo(motherboard.getMachineInfoCommand(), *this)
+	, z80FreqInfo(motherboard.getMachineInfoCommand(), "z80_freq", *z80)
 	, r800FreqInfo(r800
 		? make_unique<CPUFreqInfoTopic>(
 			motherboard.getMachineInfoCommand(), "r800_freq", *r800)
@@ -280,21 +253,21 @@ void MSXCPU::setPaused(bool paused)
 
 // class TimeInfoTopic
 
-TimeInfoTopic::TimeInfoTopic(InfoCommand& machineInfoCommand,
-                             MSXCPU& msxcpu_)
+MSXCPU::TimeInfoTopic::TimeInfoTopic(
+		InfoCommand& machineInfoCommand, MSXCPU& msxcpu_)
 	: InfoTopic(machineInfoCommand, "time")
 	, msxcpu(msxcpu_)
 {
 }
 
-void TimeInfoTopic::execute(array_ref<TclObject> /*tokens*/,
-                            TclObject& result) const
+void MSXCPU::TimeInfoTopic::execute(
+	array_ref<TclObject> /*tokens*/, TclObject& result) const
 {
 	EmuDuration dur = msxcpu.getCurrentTime() - msxcpu.reference;
 	result.setDouble(dur.toDouble());
 }
 
-string TimeInfoTopic::help(const vector<string>& /*tokens*/) const
+string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints the time in seconds that the MSX is powered on\n";
 }
@@ -302,20 +275,21 @@ string TimeInfoTopic::help(const vector<string>& /*tokens*/) const
 
 // class CPUFreqInfoTopic
 
-CPUFreqInfoTopic::CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
-                                   const string& name, CPUClock& clock_)
+MSXCPU::CPUFreqInfoTopic::CPUFreqInfoTopic(
+		InfoCommand& machineInfoCommand,
+		const string& name, CPUClock& clock_)
 	: InfoTopic(machineInfoCommand, name)
 	, clock(clock_)
 {
 }
 
-void CPUFreqInfoTopic::execute(array_ref<TclObject> /*tokens*/,
-                               TclObject& result) const
+void MSXCPU::CPUFreqInfoTopic::execute(
+	array_ref<TclObject> /*tokens*/, TclObject& result) const
 {
 	result.setInt(clock.getFreq());
 }
 
-string CPUFreqInfoTopic::help(const vector<string>& /*tokens*/) const
+string MSXCPU::CPUFreqInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns the actual frequency of this CPU.\n"
 	       "This frequency can vary because:\n"

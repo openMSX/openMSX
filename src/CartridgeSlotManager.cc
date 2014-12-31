@@ -1,9 +1,7 @@
 #include "CartridgeSlotManager.hh"
 #include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
-#include "RecordedCommand.hh"
 #include "CommandException.hh"
-#include "InfoTopic.hh"
 #include "FileContext.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
@@ -18,35 +16,6 @@ using std::string;
 using std::vector;
 
 namespace openmsx {
-
-class CartCmd final : public RecordedCommand
-{
-public:
-	CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
-	        string_ref commandName);
-	void execute(array_ref<TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-	bool needRecord(array_ref<TclObject> tokens) const override;
-private:
-	const HardwareConfig* getExtensionConfig(string_ref cartname);
-	CartridgeSlotManager& manager;
-	CliComm& cliComm;
-};
-
-class CartridgeSlotInfo final : public InfoTopic
-{
-public:
-	CartridgeSlotInfo(InfoCommand& machineInfoCommand,
-	                  CartridgeSlotManager& manger);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-private:
-	CartridgeSlotManager& manager;
-};
-
 
 // CartridgeSlotManager::Slot
 CartridgeSlotManager::Slot::Slot()
@@ -75,9 +44,8 @@ bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
 // CartridgeSlotManager
 CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, cartCmd(make_unique<CartCmd>(*this, motherBoard, "cart"))
-	, extSlotInfo(make_unique<CartridgeSlotInfo>(
-		motherBoard.getMachineInfoCommand(), *this))
+	, cartCmd(*this, motherBoard, "cart")
+	, extSlotInfo(motherBoard.getMachineInfoCommand(), *this)
 {
 }
 
@@ -298,8 +266,9 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 
 
 // CartCmd
-CartCmd::CartCmd(CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
-                 string_ref commandName)
+CartridgeSlotManager::CartCmd::CartCmd(
+		CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
+		string_ref commandName)
 	: RecordedCommand(motherBoard.getCommandController(),
 	                  motherBoard.getStateChangeDistributor(),
 	                  motherBoard.getScheduler(),
@@ -309,7 +278,8 @@ CartCmd::CartCmd(CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
 {
 }
 
-const HardwareConfig* CartCmd::getExtensionConfig(string_ref cartname)
+const HardwareConfig* CartridgeSlotManager::CartCmd::getExtensionConfig(
+	string_ref cartname)
 {
 	if (cartname.size() != 5) {
 		throw SyntaxError();
@@ -318,8 +288,8 @@ const HardwareConfig* CartCmd::getExtensionConfig(string_ref cartname)
 	return manager.slots[slot].config;
 }
 
-void CartCmd::execute(array_ref<TclObject> tokens, TclObject& result,
-                      EmuTime::param /*time*/)
+void CartridgeSlotManager::CartCmd::execute(
+	array_ref<TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
 {
 	string_ref cartname = tokens[0].getString();
 
@@ -392,7 +362,7 @@ void CartCmd::execute(array_ref<TclObject> tokens, TclObject& result,
 	}
 }
 
-string CartCmd::help(const vector<string>& tokens) const
+string CartridgeSlotManager::CartCmd::help(const vector<string>& tokens) const
 {
 	return tokens[0] + " eject              : remove the ROM cartridge from this slot\n" +
 	       tokens[0] + " insert <filename>  : insert ROM cartridge with <filename>\n" +
@@ -400,7 +370,7 @@ string CartCmd::help(const vector<string>& tokens) const
 	       tokens[0] + "                    : show which ROM cartridge is in this slot";
 }
 
-void CartCmd::tabCompletion(vector<string>& tokens) const
+void CartridgeSlotManager::CartCmd::tabCompletion(vector<string>& tokens) const
 {
 	vector<const char*> extra;
 	if (tokens.size() < 3) {
@@ -409,7 +379,7 @@ void CartCmd::tabCompletion(vector<string>& tokens) const
 	completeFileName(tokens, UserFileContext(), extra);
 }
 
-bool CartCmd::needRecord(array_ref<TclObject> tokens) const
+bool CartridgeSlotManager::CartCmd::needRecord(array_ref<TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }
@@ -417,15 +387,15 @@ bool CartCmd::needRecord(array_ref<TclObject> tokens) const
 
 // class CartridgeSlotInfo
 
-CartridgeSlotInfo::CartridgeSlotInfo(InfoCommand& machineInfoCommand,
-                                   CartridgeSlotManager& manager_)
+CartridgeSlotManager::CartridgeSlotInfo::CartridgeSlotInfo(
+		InfoCommand& machineInfoCommand, CartridgeSlotManager& manager_)
 	: InfoTopic(machineInfoCommand, "external_slot")
 	, manager(manager_)
 {
 }
 
-void CartridgeSlotInfo::execute(array_ref<TclObject> tokens,
-                                TclObject& result) const
+void CartridgeSlotManager::CartridgeSlotInfo::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -470,7 +440,8 @@ void CartridgeSlotInfo::execute(array_ref<TclObject> tokens,
 	}
 }
 
-string CartridgeSlotInfo::help(const vector<string>& /*tokens*/) const
+string CartridgeSlotManager::CartridgeSlotInfo::help(
+	const vector<string>& /*tokens*/) const
 {
 	return "Without argument: show list of available external slots.\n"
 	       "With argument: show primary and secondary slot number for "

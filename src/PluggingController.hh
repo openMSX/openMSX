@@ -1,6 +1,8 @@
 #ifndef PLUGGINGCONTROLLER_HH
 #define PLUGGINGCONTROLLER_HH
 
+#include "RecordedCommand.hh"
+#include "InfoTopic.hh"
 #include "EmuTime.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
@@ -13,11 +15,6 @@ class MSXMotherBoard;
 class Connector;
 class Pluggable;
 class CliComm;
-class PlugCmd;
-class UnplugCmd;
-class PluggableInfo;
-class ConnectorInfo;
-class ConnectionClassInfo;
 
 /**
  * Central administration of Connectors and Pluggables.
@@ -59,21 +56,74 @@ private:
 	Connector& getConnector(string_ref name) const;
 	Pluggable& getPluggable(string_ref name) const;
 
+	MSXMotherBoard& motherBoard;
 	std::vector<Connector*> connectors;
 	std::vector<std::unique_ptr<Pluggable>> pluggables;
 
-	friend class PlugCmd;
-	friend class UnplugCmd;
-	friend class PluggableInfo;
-	friend class ConnectorInfo;
-	friend class ConnectionClassInfo;
-	const std::unique_ptr<PlugCmd> plugCmd;
-	const std::unique_ptr<UnplugCmd> unplugCmd;
-	const std::unique_ptr<PluggableInfo> pluggableInfo;
-	const std::unique_ptr<ConnectorInfo> connectorInfo;
-	const std::unique_ptr<ConnectionClassInfo> connectionClassInfo;
+	class PlugCmd final : public RecordedCommand {
+	public:
+		PlugCmd(CommandController& commandController,
+			StateChangeDistributor& stateChangeDistributor,
+			Scheduler& scheduler,
+			PluggingController& pluggingController);
+		void execute(array_ref<TclObject> tokens, TclObject& result,
+			     EmuTime::param time) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+		bool needRecord(array_ref<TclObject> tokens) const override;
+	private:
+		PluggingController& pluggingController;
+	} plugCmd;
 
-	MSXMotherBoard& motherBoard;
+	class UnplugCmd final : public RecordedCommand {
+	public:
+		UnplugCmd(CommandController& commandController,
+			  StateChangeDistributor& stateChangeDistributor,
+			  Scheduler& scheduler,
+			  PluggingController& pluggingController);
+		void execute(array_ref<TclObject> tokens, TclObject& result,
+			     EmuTime::param time) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		PluggingController& pluggingController;
+	} unplugCmd;
+
+	class PluggableInfo final : public InfoTopic {
+	public:
+		PluggableInfo(InfoCommand& machineInfoCommand,
+			      PluggingController& pluggingController);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		PluggingController& pluggingController;
+	} pluggableInfo;
+
+	class ConnectorInfo final : public InfoTopic {
+	public:
+		ConnectorInfo(InfoCommand& machineInfoCommand,
+			      PluggingController& pluggingController);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		PluggingController& pluggingController;
+	} connectorInfo;
+
+	class ConnectionClassInfo final : public InfoTopic {
+	public:
+		ConnectionClassInfo(InfoCommand& machineInfoCommand,
+				    PluggingController& pluggingController);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		PluggingController& pluggingController;
+	} connectionClassInfo;
 };
 
 } // namespace openmsx

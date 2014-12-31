@@ -24,7 +24,6 @@
 #include "Connector.hh"
 #include "CassettePort.hh"
 #include "CommandController.hh"
-#include "RecordedCommand.hh"
 #include "DeviceConfig.hh"
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
@@ -61,23 +60,6 @@ namespace openmsx {
 static const unsigned RECORD_FREQ = 44100;
 static const double OUTPUT_AMP = 60.0;
 
-class TapeCommand final : public RecordedCommand
-{
-public:
-	TapeCommand(CommandController& commandController,
-	            StateChangeDistributor& stateChangeDistributor,
-	            Scheduler& scheduler,
-	            CassettePlayer& cassettePlayer);
-	void execute(array_ref<TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-	bool needRecord(array_ref<TclObject> tokens) const override;
-private:
-	CassettePlayer& cassettePlayer;
-};
-
-
 static XMLElement createXML()
 {
 	XMLElement xml("cassetteplayer");
@@ -93,13 +75,14 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	, prevSyncTime(EmuTime::zero)
 	, audioPos(0)
 	, motherBoard(hwConf.getMotherBoard())
-	, tapeCommand(make_unique<TapeCommand>(
+	, tapeCommand(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
-		motherBoard.getScheduler(), *this))
+		motherBoard.getScheduler(), *this)
 	, loadingIndicator(make_unique<LoadingIndicator>(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
-	, autoRunSetting(motherBoard.getCommandController(),
+	, autoRunSetting(
+		motherBoard.getCommandController(),
 		"autoruncassettes", "automatically try to run cassettes", true)
 	, sampcnt(0)
 	, state(STOP)
@@ -624,18 +607,19 @@ void CassettePlayer::execSyncAudioEmu(EmuTime::param time)
 
 // class TapeCommand
 
-TapeCommand::TapeCommand(CommandController& commandController,
-                         StateChangeDistributor& stateChangeDistributor,
-                         Scheduler& scheduler,
-                         CassettePlayer& cassettePlayer_)
+CassettePlayer::TapeCommand::TapeCommand(
+		CommandController& commandController,
+		StateChangeDistributor& stateChangeDistributor,
+		Scheduler& scheduler,
+		CassettePlayer& cassettePlayer_)
 	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "cassetteplayer")
 	, cassettePlayer(cassettePlayer_)
 {
 }
 
-void TapeCommand::execute(array_ref<TclObject> tokens, TclObject& result,
-                          EmuTime::param time)
+void CassettePlayer::TapeCommand::execute(
+	array_ref<TclObject> tokens, TclObject& result, EmuTime::param time)
 {
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
@@ -743,7 +727,7 @@ void TapeCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 	//}
 }
 
-string TapeCommand::help(const vector<string>& tokens) const
+string CassettePlayer::TapeCommand::help(const vector<string>& tokens) const
 {
 	string helptext;
 	if (tokens.size() >= 2) {
@@ -821,7 +805,7 @@ string TapeCommand::help(const vector<string>& tokens) const
 	return helptext;
 }
 
-void TapeCommand::tabCompletion(vector<string>& tokens) const
+void CassettePlayer::TapeCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		static const char* const cmds[] = {
@@ -838,7 +822,7 @@ void TapeCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-bool TapeCommand::needRecord(array_ref<TclObject> tokens) const
+bool CassettePlayer::TapeCommand::needRecord(array_ref<TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }

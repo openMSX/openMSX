@@ -3,6 +3,7 @@
 
 #include "ResampledSoundDevice.hh"
 #include "BooleanSetting.hh"
+#include "RecordedCommand.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
@@ -12,7 +13,6 @@
 
 namespace openmsx {
 
-class LaserdiscCommand;
 class PioneerLDControl;
 class HardwareConfig;
 class MSXMotherBoard;
@@ -150,7 +150,20 @@ private:
 	MSXMotherBoard& motherBoard;
 	PioneerLDControl& ldcontrol;
 
-	const std::unique_ptr<LaserdiscCommand> laserdiscCommand;
+	class Command final : public RecordedCommand {
+	public:
+		Command(CommandController& commandController,
+		        StateChangeDistributor& stateChangeDistributor,
+		        Scheduler& scheduler,
+		        LaserdiscPlayer& laserdiscPlayer);
+		void execute(array_ref<TclObject> tokens, TclObject& result,
+			     EmuTime::param time) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		LaserdiscPlayer& laserdiscPlayer;
+	} laserdiscCommand;
+
 	std::unique_ptr<OggReader> video;
 	Filename oggImage;
 	std::unique_ptr<LDRenderer> renderer;
@@ -217,8 +230,6 @@ private:
 	BooleanSetting autoRunSetting;
 	const std::unique_ptr<LoadingIndicator> loadingIndicator;
 	int sampleReads;
-
-	friend class LaserdiscCommand;
 };
 
 SERIALIZE_CLASS_VERSION(LaserdiscPlayer, 4);

@@ -8,8 +8,6 @@
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "InputEvents.hh"
-#include "Command.hh"
-#include "InfoTopic.hh"
 #include "OSDGUI.hh"
 #include "CliComm.hh"
 #include "CommandConsole.hh"
@@ -39,35 +37,10 @@ using std::vector;
 
 namespace openmsx {
 
-class ScreenShotCmd final : public Command
-{
-public:
-	ScreenShotCmd(CommandController& commandController, Display& display);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	Display& display;
-};
-
-class FpsInfoTopic final : public InfoTopic
-{
-public:
-	FpsInfoTopic(InfoCommand& openMSXInfoCommand, Display& display);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-private:
-	Display& display;
-};
-
-
 Display::Display(Reactor& reactor_)
 	: RTSchedulable(reactor_.getRTScheduler())
-	, screenShotCmd(make_unique<ScreenShotCmd>(
-		reactor_.getCommandController(), *this))
-	, fpsInfo(make_unique<FpsInfoTopic>(
-		reactor_.getOpenMSXInfoCommand(), *this))
+	, screenShotCmd(reactor_.getCommandController(), *this)
+	, fpsInfo(reactor_.getOpenMSXInfoCommand(), *this)
 	, osdGui(make_unique<OSDGUI>(
 		reactor_.getCommandController(), *this))
 	, reactor(reactor_)
@@ -419,14 +392,14 @@ void Display::updateZ(Layer& layer)
 
 // ScreenShotCmd
 
-ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
+Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
                              Display& display_)
 	: Command(commandController, "screenshot")
 	, display(display_)
 {
 }
 
-void ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	bool rawShot = false;
 	bool withOsd = false;
@@ -516,7 +489,7 @@ void ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 	result.setString(filename);
 }
 
-string ScreenShotCmd::help(const vector<string>& /*tokens*/) const
+string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 {
 	// Note: -no-sprites option is implemented in Tcl
 	return
@@ -529,7 +502,7 @@ string ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 		"screenshot -no-sprites       Don't include sprites in the screenshot\n";
 }
 
-void ScreenShotCmd::tabCompletion(vector<string>& tokens) const
+void Display::ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 {
 	static const char* const extra[] = {
 		"-prefix", "-raw", "-doublesize", "-with-osd", "-no-sprites",
@@ -540,21 +513,21 @@ void ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 
 // FpsInfoTopic
 
-FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand,
+Display::FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand,
                            Display& display_)
 	: InfoTopic(openMSXInfoCommand, "fps")
 	, display(display_)
 {
 }
 
-void FpsInfoTopic::execute(array_ref<TclObject> /*tokens*/,
+void Display::FpsInfoTopic::execute(array_ref<TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	double fps = 1000000.0 * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
 	result.setDouble(fps);
 }
 
-string FpsInfoTopic::help(const vector<string>& /*tokens*/) const
+string Display::FpsInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns the current rendering speed in frames per second.";
 }

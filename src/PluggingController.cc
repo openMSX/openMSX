@@ -1,7 +1,5 @@
 #include "PluggingController.hh"
 #include "PlugException.hh"
-#include "RecordedCommand.hh"
-#include "InfoTopic.hh"
 #include "Connector.hh"
 #include "Pluggable.hh"
 #include "PluggableFactory.hh"
@@ -10,7 +8,6 @@
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include <cassert>
 #include <iostream>
@@ -21,93 +18,19 @@ using std::vector;
 
 namespace openmsx {
 
-class PlugCmd final : public RecordedCommand
-{
-public:
-	PlugCmd(CommandController& commandController,
-	        StateChangeDistributor& stateChangeDistributor,
-	        Scheduler& scheduler,
-	        PluggingController& pluggingController);
-	void execute(array_ref<TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
-	string help   (const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-	bool needRecord(array_ref<TclObject> tokens) const override;
-private:
-	PluggingController& pluggingController;
-};
-
-class UnplugCmd final : public RecordedCommand
-{
-public:
-	UnplugCmd(CommandController& commandController,
-	          StateChangeDistributor& stateChangeDistributor,
-	          Scheduler& scheduler,
-	          PluggingController& pluggingController);
-	void execute(array_ref<TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
-	string help   (const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	PluggingController& pluggingController;
-};
-
-class PluggableInfo final : public InfoTopic
-{
-public:
-	PluggableInfo(InfoCommand& machineInfoCommand,
-	              PluggingController& pluggingController);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	PluggingController& pluggingController;
-};
-
-class ConnectorInfo final : public InfoTopic
-{
-public:
-	ConnectorInfo(InfoCommand& machineInfoCommand,
-	              PluggingController& pluggingController);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	PluggingController& pluggingController;
-};
-
-class ConnectionClassInfo final : public InfoTopic
-{
-public:
-	ConnectionClassInfo(InfoCommand& machineInfoCommand,
-	                    PluggingController& pluggingController);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	PluggingController& pluggingController;
-};
-
-
 PluggingController::PluggingController(MSXMotherBoard& motherBoard_)
-	: plugCmd(make_unique<PlugCmd>(
-		motherBoard_.getCommandController(),
-		motherBoard_.getStateChangeDistributor(),
-		motherBoard_.getScheduler(), *this))
-	, unplugCmd(make_unique<UnplugCmd>(
-		motherBoard_.getCommandController(),
-		motherBoard_.getStateChangeDistributor(),
-		motherBoard_.getScheduler(), *this))
-	, pluggableInfo(make_unique<PluggableInfo>(
-		motherBoard_.getMachineInfoCommand(), *this))
-	, connectorInfo(make_unique<ConnectorInfo>(
-		motherBoard_.getMachineInfoCommand(), *this))
-	, connectionClassInfo(make_unique<ConnectionClassInfo>(
-		motherBoard_.getMachineInfoCommand(), *this))
-	, motherBoard(motherBoard_)
+	: motherBoard(motherBoard_)
+	, plugCmd(
+		motherBoard.getCommandController(),
+		motherBoard.getStateChangeDistributor(),
+		motherBoard.getScheduler(), *this)
+	, unplugCmd(
+		motherBoard.getCommandController(),
+		motherBoard.getStateChangeDistributor(),
+		motherBoard.getScheduler(), *this)
+	, pluggableInfo      (motherBoard.getMachineInfoCommand(), *this)
+	, connectorInfo      (motherBoard.getMachineInfoCommand(), *this)
+	, connectionClassInfo(motherBoard.getMachineInfoCommand(), *this)
 {
 	PluggableFactory::createAll(*this, motherBoard);
 }
@@ -146,18 +69,19 @@ void PluggingController::registerPluggable(std::unique_ptr<Pluggable> pluggable)
 // === Commands ===
 //  plug command
 
-PlugCmd::PlugCmd(CommandController& commandController,
-                 StateChangeDistributor& stateChangeDistributor,
-                 Scheduler& scheduler,
-                 PluggingController& pluggingController_)
+PluggingController::PlugCmd::PlugCmd(
+		CommandController& commandController,
+		StateChangeDistributor& stateChangeDistributor,
+		Scheduler& scheduler,
+		PluggingController& pluggingController_)
 	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "plug")
 	, pluggingController(pluggingController_)
 {
 }
 
-void PlugCmd::execute(array_ref<TclObject> tokens, TclObject& result_,
-                      EmuTime::param time)
+void PluggingController::PlugCmd::execute(
+	array_ref<TclObject> tokens, TclObject& result_, EmuTime::param time)
 {
 	StringOp::Builder result;
 	switch (tokens.size()) {
@@ -202,13 +126,13 @@ void PlugCmd::execute(array_ref<TclObject> tokens, TclObject& result_,
 	result_.setString(result); // TODO return Tcl list
 }
 
-string PlugCmd::help(const vector<string>& /*tokens*/) const
+string PluggingController::PlugCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Plugs a plug into a connector\n"
 	       " plug [connector] [plug]";
 }
 
-void PlugCmd::tabCompletion(vector<string>& tokens) const
+void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete connector
@@ -231,7 +155,7 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-bool PlugCmd::needRecord(array_ref<TclObject> tokens) const
+bool PluggingController::PlugCmd::needRecord(array_ref<TclObject> tokens) const
 {
 	return tokens.size() == 3;
 }
@@ -239,18 +163,19 @@ bool PlugCmd::needRecord(array_ref<TclObject> tokens) const
 
 //  unplug command
 
-UnplugCmd::UnplugCmd(CommandController& commandController,
-                     StateChangeDistributor& stateChangeDistributor,
-                     Scheduler& scheduler,
-                     PluggingController& pluggingController_)
+PluggingController::UnplugCmd::UnplugCmd(
+		CommandController& commandController,
+		StateChangeDistributor& stateChangeDistributor,
+		Scheduler& scheduler,
+		PluggingController& pluggingController_)
 	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "unplug")
 	, pluggingController(pluggingController_)
 {
 }
 
-void UnplugCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/,
-                        EmuTime::param time)
+void PluggingController::UnplugCmd::execute(
+	array_ref<TclObject> tokens, TclObject& /*result*/, EmuTime::param time)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -261,13 +186,13 @@ void UnplugCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/,
 	pluggingController.getCliComm().update(CliComm::UNPLUG, connName, "");
 }
 
-string UnplugCmd::help(const vector<string>& /*tokens*/) const
+string PluggingController::UnplugCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Unplugs a plug from a connector\n"
 	       " unplug [connector]";
 }
 
-void UnplugCmd::tabCompletion(vector<string>& tokens) const
+void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete connector
@@ -328,15 +253,16 @@ EmuTime::param PluggingController::getCurrentTime() const
 
 // Pluggable info
 
-PluggableInfo::PluggableInfo(InfoCommand& machineInfoCommand,
-                             PluggingController& pluggingController_)
+PluggingController::PluggableInfo::PluggableInfo(
+		InfoCommand& machineInfoCommand,
+		PluggingController& pluggingController_)
 	: InfoTopic(machineInfoCommand, "pluggable")
 	, pluggingController(pluggingController_)
 {
 }
 
-void PluggableInfo::execute(array_ref<TclObject> tokens,
-                            TclObject& result) const
+void PluggingController::PluggableInfo::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -355,13 +281,13 @@ void PluggableInfo::execute(array_ref<TclObject> tokens,
 	}
 }
 
-string PluggableInfo::help(const vector<string>& /*tokens*/) const
+string PluggingController::PluggableInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows a list of available pluggables. "
 	       "Or show info on a specific pluggable.";
 }
 
-void PluggableInfo::tabCompletion(vector<string>& tokens) const
+void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> pluggables;
@@ -374,15 +300,16 @@ void PluggableInfo::tabCompletion(vector<string>& tokens) const
 
 // Connector info
 
-ConnectorInfo::ConnectorInfo(InfoCommand& machineInfoCommand,
-                             PluggingController& pluggingController_)
+PluggingController::ConnectorInfo::ConnectorInfo(
+		InfoCommand& machineInfoCommand,
+		PluggingController& pluggingController_)
 	: InfoTopic(machineInfoCommand, "connector")
 	, pluggingController(pluggingController_)
 {
 }
 
-void ConnectorInfo::execute(array_ref<TclObject> tokens,
-                            TclObject& result) const
+void PluggingController::ConnectorInfo::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -400,12 +327,12 @@ void ConnectorInfo::execute(array_ref<TclObject> tokens,
 	}
 }
 
-string ConnectorInfo::help(const vector<string>& /*tokens*/) const
+string PluggingController::ConnectorInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows a list of available connectors.";
 }
 
-void ConnectorInfo::tabCompletion(vector<string>& tokens) const
+void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> connectors;
@@ -418,7 +345,7 @@ void ConnectorInfo::tabCompletion(vector<string>& tokens) const
 
 // Connection Class info
 
-ConnectionClassInfo::ConnectionClassInfo(
+PluggingController::ConnectionClassInfo::ConnectionClassInfo(
 		InfoCommand& machineInfoCommand,
 		PluggingController& pluggingController_)
 	: InfoTopic(machineInfoCommand, "connectionclass")
@@ -426,8 +353,8 @@ ConnectionClassInfo::ConnectionClassInfo(
 {
 }
 
-void ConnectionClassInfo::execute(array_ref<TclObject> tokens,
-                                  TclObject& result) const
+void PluggingController::ConnectionClassInfo::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -459,12 +386,12 @@ void ConnectionClassInfo::execute(array_ref<TclObject> tokens,
 	}
 }
 
-string ConnectionClassInfo::help(const vector<string>& /*tokens*/) const
+string PluggingController::ConnectionClassInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows the class a connector or pluggable belongs to.";
 }
 
-void ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
+void PluggingController::ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> names;

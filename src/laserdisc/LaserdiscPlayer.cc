@@ -1,5 +1,4 @@
 #include "LaserdiscPlayer.hh"
-#include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "CommandController.hh"
 #include "EventDistributor.hh"
@@ -24,30 +23,14 @@
 #include <cstdlib>
 #include <iostream>
 
-using std::unique_ptr;
 using std::string;
 using std::vector;
 
 namespace openmsx {
 
-// LaserdiscCommand
+// Command
 
-class LaserdiscCommand final : public RecordedCommand
-{
-public:
-	LaserdiscCommand(CommandController& commandController,
-			 StateChangeDistributor& stateChangeDistributor,
-			 Scheduler& scheduler,
-			 LaserdiscPlayer& laserdiscPlayer);
-	void execute(array_ref<TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	LaserdiscPlayer& laserdiscPlayer;
-};
-
-LaserdiscCommand::LaserdiscCommand(
+LaserdiscPlayer::Command::Command(
 		CommandController& commandController_,
 		StateChangeDistributor& stateChangeDistributor,
 		Scheduler& scheduler, LaserdiscPlayer& laserdiscPlayer_)
@@ -57,8 +40,8 @@ LaserdiscCommand::LaserdiscCommand(
 {
 }
 
-void LaserdiscCommand::execute(array_ref<TclObject> tokens, TclObject& result,
-                               EmuTime::param time)
+void LaserdiscPlayer::Command::execute(
+	array_ref<TclObject> tokens, TclObject& result, EmuTime::param time)
 {
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
@@ -80,7 +63,7 @@ void LaserdiscCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 	}
 }
 
-string LaserdiscCommand::help(const vector<string>& tokens) const
+string LaserdiscPlayer::Command::help(const vector<string>& tokens) const
 {
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "insert") {
@@ -96,7 +79,7 @@ string LaserdiscCommand::help(const vector<string>& tokens) const
 	       ": eject the laserdisc\n";
 }
 
-void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
+void LaserdiscPlayer::Command::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		static const char* const extra[] = { "eject", "insert" };
@@ -124,11 +107,10 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, syncEven(hwConf.getMotherBoard().getScheduler(), *this)
 	, motherBoard(hwConf.getMotherBoard())
 	, ldcontrol(ldcontrol_)
-	, laserdiscCommand(make_unique<LaserdiscCommand>(
-		   motherBoard.getCommandController(),
-		   motherBoard.getStateChangeDistributor(),
-		   motherBoard.getScheduler(),
-		   *this))
+	, laserdiscCommand(motherBoard.getCommandController(),
+		           motherBoard.getStateChangeDistributor(),
+		           motherBoard.getScheduler(),
+		           *this)
 	, sampleClock(EmuTime::zero)
 	, start(EmuTime::zero)
 	, muteLeft(false)

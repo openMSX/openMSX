@@ -2,6 +2,9 @@
 #define GLOBALCOMMANDCONTROLLER_HH
 
 #include "CommandController.hh"
+#include "Command.hh"
+#include "InfoTopic.hh"
+#include "RomInfoTopic.hh"
 #include "StringMap.hh"
 #include "noncopyable.hh"
 #include <string>
@@ -16,17 +19,21 @@ class GlobalCliComm;
 class HotKey;
 class InfoCommand;
 class Interpreter;
-class HelpCmd;
-class TabCompletionCmd;
-class UpdateCmd;
 class ProxyCmd;
-class PlatformInfo;
-class VersionInfo;
-class RomInfoTopic;
 class ProxySetting;
 class SettingsConfig;
 
-class GlobalCommandController final : public CommandController, private noncopyable
+class GlobalCommandControllerBase
+{
+protected:
+	~GlobalCommandControllerBase();
+
+	StringMap<Command*> commands;
+	StringMap<CommandCompleter*> commandCompleters;
+};
+
+class GlobalCommandController final : private GlobalCommandControllerBase
+                                    , public CommandController, private noncopyable
 {
 public:
 	GlobalCommandController(EventDistributor& eventDistributor,
@@ -97,9 +104,6 @@ private:
 		ProxySettings;
 	ProxySettings::iterator findProxySetting(const std::string& name);
 
-	StringMap<Command*> commands;
-	StringMap<CommandCompleter*> commandCompleters;
-
 	GlobalCliComm& cliComm;
 	CliConnection* connection;
 
@@ -110,13 +114,53 @@ private:
 	std::unique_ptr<HotKey> hotKey;
 	std::unique_ptr<SettingsConfig> settingsConfig;
 
-	friend class HelpCmd;
-	std::unique_ptr<HelpCmd> helpCmd;
-	std::unique_ptr<TabCompletionCmd> tabCompletionCmd;
+	class HelpCmd final : public Command {
+	public:
+		explicit HelpCmd(GlobalCommandController& controller);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		GlobalCommandController& controller;
+	} helpCmd;
+
+	class TabCompletionCmd final : public Command {
+	public:
+		explicit TabCompletionCmd(GlobalCommandController& controller);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		GlobalCommandController& controller;
+	} tabCompletionCmd;
+
+	class UpdateCmd final : public Command {
+	public:
+		explicit UpdateCmd(CommandController& commandController);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		CliConnection& getConnection();
+	};
 	std::unique_ptr<UpdateCmd> updateCmd;
-	std::unique_ptr<PlatformInfo> platformInfo;
-	std::unique_ptr<VersionInfo> versionInfo;
-	std::unique_ptr<RomInfoTopic> romInfoTopic;
+
+	class PlatformInfo final : public InfoTopic {
+	public:
+		explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	} platformInfo;
+
+	class VersionInfo final : public InfoTopic {
+	public:
+		explicit VersionInfo(InfoCommand& openMSXInfoCommand);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	} versionInfo;
+
+	RomInfoTopic romInfoTopic;
 
 	StringMap<std::pair<unsigned, std::unique_ptr<ProxyCmd>>> proxyCommandMap;
 	ProxySettings proxySettings;

@@ -2,7 +2,6 @@
 #include "Mixer.hh"
 #include "SoundDevice.hh"
 #include "MSXCommandController.hh"
-#include "InfoTopic.hh"
 #include "TclObject.hh"
 #include "ThrottleManager.hh"
 #include "GlobalSettings.hh"
@@ -35,19 +34,6 @@ using std::string;
 using std::vector;
 
 namespace openmsx {
-
-class SoundDeviceInfoTopic final : public InfoTopic
-{
-public:
-	SoundDeviceInfoTopic(InfoCommand& machineInfoCommand, MSXMixer& mixer);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	MSXMixer& mixer;
-};
-
 
 MSXMixer::SoundDeviceInfo::SoundDeviceInfo()
 {
@@ -109,8 +95,7 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
 	, speedSetting(globalSettings.getSpeedSetting())
 	, throttleManager(globalSettings.getThrottleManager())
 	, prevTime(getCurrentTime(), 44100)
-	, soundDeviceInfo(make_unique<SoundDeviceInfoTopic>(
-		msxCommandController_.getMachineInfoCommand(), *this))
+	, soundDeviceInfo(msxCommandController_.getMachineInfoCommand(), *this)
 	, recorder(nullptr)
 	, synchronousCounter(0)
 {
@@ -909,15 +894,15 @@ SoundDevice* MSXMixer::findDevice(string_ref name) const
 	return (it != end(infos)) ? it->device : nullptr;
 }
 
-SoundDeviceInfoTopic::SoundDeviceInfoTopic(
+MSXMixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(
 		InfoCommand& machineInfoCommand, MSXMixer& mixer_)
 	: InfoTopic(machineInfoCommand, "sounddevice")
 	, mixer(mixer_)
 {
 }
 
-void SoundDeviceInfoTopic::execute(array_ref<TclObject> tokens,
-                                   TclObject& result) const
+void MSXMixer::SoundDeviceInfoTopic::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -938,12 +923,12 @@ void SoundDeviceInfoTopic::execute(array_ref<TclObject> tokens,
 	}
 }
 
-string SoundDeviceInfoTopic::help(const vector<string>& /*tokens*/) const
+string MSXMixer::SoundDeviceInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows a list of available sound devices.\n";
 }
 
-void SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
+void MSXMixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> devices;

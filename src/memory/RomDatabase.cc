@@ -1,5 +1,4 @@
 #include "RomDatabase.hh"
-#include "InfoTopic.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "FileContext.hh"
@@ -11,7 +10,6 @@
 #include "StringMap.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include <stdexcept>
 
@@ -19,21 +17,6 @@ using std::string;
 using std::vector;
 
 namespace openmsx {
-
-class SoftwareInfoTopic final : public InfoTopic
-{
-public:
-        SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase);
-
-        void execute(array_ref<TclObject> tokens,
-                     TclObject& result) const override;
-        string help(const vector<string>& tokens) const override;
-        void tabCompletion(vector<string>& tokens) const override;
-
-private:
-	const RomDatabase& romDatabase;
-};
-
 
 typedef StringMap<unsigned> UnknownTypes;
 
@@ -573,8 +556,7 @@ static void parseDB(CliComm& cliComm, const string& filename,
 }
 
 RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cliComm)
-	: softwareInfoTopic(make_unique<SoftwareInfoTopic>(
-		commandController.getOpenMSXInfoCommand(), *this))
+	: softwareInfoTopic(commandController.getOpenMSXInfoCommand(), *this)
 {
 	db.reserve(3500);
 	UnknownTypes unknownTypes;
@@ -610,10 +592,6 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	}
 }
 
-RomDatabase::~RomDatabase()
-{
-}
-
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
 	auto it = lower_bound(begin(db), end(db), sha1sum,
@@ -625,15 +603,15 @@ const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 
 // SoftwareInfoTopic
 
-SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand,
-                                     RomDatabase& romDatabase_)
+RomDatabase::SoftwareInfoTopic::SoftwareInfoTopic(
+		InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase_)
 	: InfoTopic(openMSXInfoCommand, "software")
 	, romDatabase(romDatabase_)
 {
 }
 
-void SoftwareInfoTopic::execute(array_ref<TclObject> tokens,
-                                TclObject& result) const
+void RomDatabase::SoftwareInfoTopic::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
 {
 	if (tokens.size() != 3) {
 		throw CommandException("Wrong number of parameters");
@@ -667,13 +645,13 @@ void SoftwareInfoTopic::execute(array_ref<TclObject> tokens,
 	result.addListElement(romInfo->getGenMSXid());
 }
 
-string SoftwareInfoTopic::help(const vector<string>& /*tokens*/) const
+string RomDatabase::SoftwareInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns information about the software "
 	       "given its sha1sum, in a paired list.";
 }
 
-void SoftwareInfoTopic::tabCompletion(vector<string>& /*tokens*/) const
+void RomDatabase::SoftwareInfoTopic::tabCompletion(vector<string>& /*tokens*/) const
 {
 	// no useful completion possible
 }

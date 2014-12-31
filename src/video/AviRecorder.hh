@@ -1,6 +1,7 @@
 #ifndef AVIRECORDER_HH
 #define AVIRECORDER_HH
 
+#include "Command.hh"
 #include "EmuTime.hh"
 #include "array_ref.hh"
 #include "noncopyable.hh"
@@ -16,7 +17,6 @@ class Filename;
 class PostProcessor;
 class FrameSource;
 class MSXMixer;
-class RecordCommand;
 class TclObject;
 
 class AviRecorder : private noncopyable
@@ -40,7 +40,17 @@ private:
 	void processToggle(array_ref<TclObject> tokens, TclObject& result);
 
 	Reactor& reactor;
-	const std::unique_ptr<RecordCommand> recordCommand;
+
+	class Cmd final : public Command {
+	public:
+		Cmd(CommandController& commandController, AviRecorder& recorder);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		AviRecorder& recorder;
+	} recordCommand;
+
 	std::vector<short> audioBuf;
 	std::unique_ptr<AviWriter> aviWriter;
 	std::unique_ptr<Wav16Writer> wavWriter;
@@ -55,8 +65,6 @@ private:
 	bool warnedSampleRate;
 	bool warnedStereo;
 	bool stereo;
-
-	friend class RecordCommand;
 };
 
 } // namespace openmsx

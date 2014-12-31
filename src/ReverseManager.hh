@@ -4,6 +4,7 @@
 #include "Schedulable.hh"
 #include "EventListener.hh"
 #include "StateChangeListener.hh"
+#include "Command.hh"
 #include "EmuTime.hh"
 #include "MemBuffer.hh"
 #include "array_ref.hh"
@@ -18,7 +19,6 @@ class MSXMotherBoard;
 class Keyboard;
 class EventDelay;
 class EventDistributor;
-class ReverseCmd;
 class TclObject;
 class Interpreter;
 
@@ -133,7 +133,17 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	EventDistributor& eventDistributor;
-	const std::unique_ptr<ReverseCmd> reverseCmd;
+
+	class ReverseCmd final : public Command {
+	public:
+		ReverseCmd(ReverseManager& manager, CommandController& controller);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		ReverseManager& manager;
+	} reverseCmd;
+
 	Keyboard* keyboard;
 	EventDelay* eventDelay;
 	ReverseHistory history;
@@ -143,7 +153,6 @@ private:
 
 	unsigned reRecordCount;
 
-	friend class ReverseCmd;
 	friend struct Replay;
 };
 

@@ -1,7 +1,6 @@
 #include "HotKey.hh"
 #include "InputEventFactory.hh"
 #include "GlobalCommandController.hh"
-#include "Command.hh"
 #include "CommandException.hh"
 #include "EventDistributor.hh"
 #include "CliComm.hh"
@@ -35,69 +34,16 @@ const bool META_HOT_KEYS =
 	false;
 #endif
 
-class BindCmd final : public Command
-{
-public:
-	BindCmd(CommandController& commandController, HotKey& hotKey,
-	        bool defaultCmd);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-private:
-	string formatBinding(const HotKey::BindMap::value_type& p);
-
-	HotKey& hotKey;
-	const bool defaultCmd;
-};
-
-class UnbindCmd final : public Command
-{
-public:
-	UnbindCmd(CommandController& commandController, HotKey& hotKey,
-	          bool defaultCmd);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-private:
-	HotKey& hotKey;
-	const bool defaultCmd;
-};
-
-class ActivateCmd final : public Command
-{
-public:
-	ActivateCmd(CommandController& commandController, HotKey& hotKey);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-private:
-	HotKey& hotKey;
-};
-
-class DeactivateCmd final : public Command
-{
-public:
-	DeactivateCmd(CommandController& commandController, HotKey& hotKey);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-private:
-	HotKey& hotKey;
-};
-
-
 HotKey::HotKey(RTScheduler& rtScheduler,
                GlobalCommandController& commandController_,
                EventDistributor& eventDistributor_)
 	: RTSchedulable(rtScheduler)
-	, bindCmd(make_unique<BindCmd>(
-		commandController_, *this, false))
-	, unbindCmd(make_unique<UnbindCmd>(
-		commandController_, *this, false))
-	, bindDefaultCmd(make_unique<BindCmd>(
-		commandController_, *this, true))
-	, unbindDefaultCmd(make_unique<UnbindCmd>(
-		commandController_, *this, true))
-	, activateCmd(make_unique<ActivateCmd>(
-		commandController_, *this))
-	, deactivateCmd(make_unique<DeactivateCmd>(
-		commandController_, *this))
+	, bindCmd         (commandController_, *this, false)
+	, bindDefaultCmd  (commandController_, *this, true)
+	, unbindCmd       (commandController_, *this, false)
+	, unbindDefaultCmd(commandController_, *this, true)
+	, activateCmd     (commandController_, *this)
+	, deactivateCmd   (commandController_, *this)
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
@@ -475,15 +421,15 @@ static string getBindCmdName(bool defaultCmd)
 	return defaultCmd ? "bind_default" : "bind";
 }
 
-BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_,
-                 bool defaultCmd_)
+HotKey::BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_,
+                         bool defaultCmd_)
 	: Command(commandController, getBindCmdName(defaultCmd_))
 	, hotKey(hotKey_)
 	, defaultCmd(defaultCmd_)
 {
 }
 
-string BindCmd::formatBinding(const HotKey::BindMap::value_type& p)
+string HotKey::BindCmd::formatBinding(const HotKey::BindMap::value_type& p)
 {
 	auto& info = p.second;
 	return p.first->toString() + (info.repeat ? " [repeat]" : "") +
@@ -518,7 +464,7 @@ static vector<TclObject> parse(bool defaultCmd, array_ref<TclObject> tokens_,
 	return tokens;
 }
 
-void BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
+void HotKey::BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 {
 	string layer;
 	bool layers;
@@ -586,7 +532,7 @@ void BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 	}
 	}
 }
-string BindCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
 {
 	string cmd = getBindCmdName(defaultCmd);
 	return cmd + "                       : show all bounded keys\n" +
@@ -606,15 +552,15 @@ static string getUnbindCmdName(bool defaultCmd)
 	return defaultCmd ? "unbind_default" : "unbind";
 }
 
-UnbindCmd::UnbindCmd(CommandController& commandController,
-                     HotKey& hotKey_, bool defaultCmd_)
+HotKey::UnbindCmd::UnbindCmd(CommandController& commandController,
+                             HotKey& hotKey_, bool defaultCmd_)
 	: Command(commandController, getUnbindCmdName(defaultCmd_))
 	, hotKey(hotKey_)
 	, defaultCmd(defaultCmd_)
 {
 }
 
-void UnbindCmd::execute(array_ref<TclObject> tokens_, TclObject& /*result*/)
+void HotKey::UnbindCmd::execute(array_ref<TclObject> tokens_, TclObject& /*result*/)
 {
 	string layer;
 	bool layers;
@@ -646,7 +592,7 @@ void UnbindCmd::execute(array_ref<TclObject> tokens_, TclObject& /*result*/)
 		}
 	}
 }
-string UnbindCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::UnbindCmd::help(const vector<string>& /*tokens*/) const
 {
 	string cmd = getUnbindCmdName(defaultCmd);
 	return cmd + " <key>                    : unbind this key\n" +
@@ -657,13 +603,14 @@ string UnbindCmd::help(const vector<string>& /*tokens*/) const
 
 // class ActivateCmd
 
-ActivateCmd::ActivateCmd(CommandController& commandController, HotKey& hotKey_)
+HotKey::ActivateCmd::ActivateCmd(
+		CommandController& commandController, HotKey& hotKey_)
 	: Command(commandController, "activate_input_layer")
 	, hotKey(hotKey_)
 {
 }
 
-void ActivateCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void HotKey::ActivateCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	string_ref layer;
 	bool blocking = false;
@@ -694,7 +641,7 @@ void ActivateCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 	result.setString(r);
 }
 
-string ActivateCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::ActivateCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "activate_input_layer                         "
 	       ": show list of active layers (most recent on top)\n"
@@ -705,13 +652,14 @@ string ActivateCmd::help(const vector<string>& /*tokens*/) const
 
 // class DeactivateCmd
 
-DeactivateCmd::DeactivateCmd(CommandController& commandController, HotKey& hotKey_)
+HotKey::DeactivateCmd::DeactivateCmd(
+		CommandController& commandController, HotKey& hotKey_)
 	: Command(commandController, "deactivate_input_layer")
 	, hotKey(hotKey_)
 {
 }
 
-void DeactivateCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
+void HotKey::DeactivateCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -719,7 +667,7 @@ void DeactivateCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
 	hotKey.deactivateLayer(tokens[1].getString());
 }
 
-string DeactivateCmd::help(const vector<string>& /*tokens*/) const
+string HotKey::DeactivateCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "deactivate_input_layer <layername> : deactive the given input layer";
 }

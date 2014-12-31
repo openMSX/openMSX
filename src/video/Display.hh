@@ -2,6 +2,8 @@
 #define DISPLAY_HH
 
 #include "RenderSettings.hh"
+#include "Command.hh"
+#include "InfoTopic.hh"
 #include "EventListener.hh"
 #include "LayerListener.hh"
 #include "RTSchedulable.hh"
@@ -18,11 +20,8 @@ class Reactor;
 class VideoSystem;
 class CliComm;
 class CommandConsole;
-class RenderSettings;
 class VideoSystemChangeListener;
 class Setting;
-class ScreenShotCmd;
-class FpsInfoTopic;
 class OSDGUI;
 class OutputSurface;
 
@@ -96,9 +95,26 @@ private:
 	uint64_t frameDurationSum;
 	uint64_t prevTimeStamp;
 
-	friend class FpsInfoTopic;
-	const std::unique_ptr<ScreenShotCmd> screenShotCmd;
-	const std::unique_ptr<FpsInfoTopic> fpsInfo;
+	class ScreenShotCmd final : public Command {
+	public:
+		ScreenShotCmd(CommandController& commandController, Display& display);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		Display& display;
+	} screenShotCmd;
+
+	class FpsInfoTopic final : public InfoTopic {
+	public:
+		FpsInfoTopic(InfoCommand& openMSXInfoCommand, Display& display);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		Display& display;
+	} fpsInfo;
+
 	const std::unique_ptr<OSDGUI> osdGui;
 
 	Reactor& reactor;

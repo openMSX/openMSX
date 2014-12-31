@@ -1,6 +1,7 @@
 #ifndef DEBUGGER_HH
 #define DEBUGGER_HH
 
+#include "RecordedCommand.hh"
 #include "WatchPoint.hh"
 #include "StringMap.hh"
 #include "string_ref.hh"
@@ -15,7 +16,6 @@ class Debuggable;
 class ProbeBase;
 class ProbeBreakPoint;
 class MSXCPU;
-class DebugCmd;
 
 class Debugger : private noncopyable
 {
@@ -51,8 +51,50 @@ private:
 	                       unsigned newId = -1);
 
 	MSXMotherBoard& motherBoard;
-	friend class DebugCmd;
-	const std::unique_ptr<DebugCmd> debugCmd;
+
+	class Cmd final : public RecordedCommand {
+	public:
+		Cmd(CommandController& commandController,
+		    StateChangeDistributor& stateChangeDistributor,
+		    Scheduler& scheduler, GlobalCliComm& cliComm,
+		    Debugger& debugger);
+		bool needRecord(array_ref<TclObject> tokens) const override;
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result, EmuTime::param time) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+
+	private:
+		void list(TclObject& result);
+		void desc(array_ref<TclObject> tokens, TclObject& result);
+		void size(array_ref<TclObject> tokens, TclObject& result);
+		void read(array_ref<TclObject> tokens, TclObject& result);
+		void readBlock(array_ref<TclObject> tokens, TclObject& result);
+		void write(array_ref<TclObject> tokens, TclObject& result);
+		void writeBlock(array_ref<TclObject> tokens, TclObject& result);
+		void setBreakPoint(array_ref<TclObject> tokens, TclObject& result);
+		void removeBreakPoint(array_ref<TclObject> tokens, TclObject& result);
+		void listBreakPoints(array_ref<TclObject> tokens, TclObject& result);
+		std::vector<std::string> getBreakPointIds() const;
+		std::vector<std::string> getWatchPointIds() const;
+		std::vector<std::string> getConditionIds() const;
+		void setWatchPoint(array_ref<TclObject> tokens, TclObject& result);
+		void removeWatchPoint(array_ref<TclObject> tokens, TclObject& result);
+		void listWatchPoints(array_ref<TclObject> tokens, TclObject& result);
+		void setCondition(array_ref<TclObject> tokens, TclObject& result);
+		void removeCondition(array_ref<TclObject> tokens, TclObject& result);
+		void listConditions(array_ref<TclObject> tokens, TclObject& result);
+		void probe(array_ref<TclObject> tokens, TclObject& result);
+		void probeList(array_ref<TclObject> tokens, TclObject& result);
+		void probeDesc(array_ref<TclObject> tokens, TclObject& result);
+		void probeRead(array_ref<TclObject> tokens, TclObject& result);
+		void probeSetBreakPoint(array_ref<TclObject> tokens, TclObject& result);
+		void probeRemoveBreakPoint(array_ref<TclObject> tokens, TclObject& result);
+		void probeListBreakPoints(array_ref<TclObject> tokens, TclObject& result);
+
+		GlobalCliComm& cliComm;
+		Debugger& debugger;
+	} cmd;
 
 	StringMap<Debuggable*> debuggables;
 	StringMap<ProbeBase*>  probes;

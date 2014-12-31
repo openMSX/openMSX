@@ -4,7 +4,6 @@
 #include "OSDRectangle.hh"
 #include "OSDText.hh"
 #include "Display.hh"
-#include "Command.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
@@ -18,35 +17,11 @@ using std::vector;
 
 namespace openmsx {
 
-class OSDCommand final : public Command
-{
-public:
-	OSDCommand(OSDGUI& gui, CommandController& commandController);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-
-private:
-	void create   (array_ref<TclObject> tokens, TclObject& result);
-	void destroy  (array_ref<TclObject> tokens, TclObject& result);
-	void info     (array_ref<TclObject> tokens, TclObject& result);
-	void exists   (array_ref<TclObject> tokens, TclObject& result);
-	void configure(array_ref<TclObject> tokens, TclObject& result);
-	unique_ptr<OSDWidget> create(string_ref type, const string& name) const;
-	void configure(OSDWidget& widget, array_ref<TclObject> tokens,
-	               unsigned skip);
-
-	OSDWidget& getWidget(string_ref name) const;
-
-	OSDGUI& gui;
-};
-
-
 // class OSDGUI
 
 OSDGUI::OSDGUI(CommandController& commandController, Display& display_)
 	: display(display_)
-	, osdCommand(make_unique<OSDCommand>(*this, commandController))
+	, osdCommand(*this, commandController)
 	, topWidget(make_unique<OSDTopWidget>(*this))
 {
 }
@@ -63,13 +38,13 @@ void OSDGUI::refresh() const
 
 // class OSDCommand
 
-OSDCommand::OSDCommand(OSDGUI& gui_, CommandController& commandController)
+OSDGUI::OSDCommand::OSDCommand(OSDGUI& gui_, CommandController& commandController)
 	: Command(commandController, "osd")
 	, gui(gui_)
 {
 }
 
-void OSDCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw SyntaxError();
@@ -95,7 +70,7 @@ void OSDCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 }
 
-void OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 4) {
 		throw SyntaxError();
@@ -124,7 +99,7 @@ void OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 	result.setString(fullname);
 }
 
-unique_ptr<OSDWidget> OSDCommand::create(
+unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
 		string_ref type, const string& name) const
 {
 	if (type == "rectangle") {
@@ -138,7 +113,7 @@ unique_ptr<OSDWidget> OSDCommand::create(
 	}
 }
 
-void OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -157,7 +132,7 @@ void OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
 	result.setBoolean(true);
 }
 
-void OSDCommand::info(array_ref<TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::info(array_ref<TclObject> tokens, TclObject& result)
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -184,7 +159,7 @@ void OSDCommand::info(array_ref<TclObject> tokens, TclObject& result)
 	}
 }
 
-void OSDCommand::exists(array_ref<TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::exists(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -193,7 +168,7 @@ void OSDCommand::exists(array_ref<TclObject> tokens, TclObject& result)
 	result.setBoolean(widget != nullptr);
 }
 
-void OSDCommand::configure(array_ref<TclObject> tokens, TclObject& /*result*/)
+void OSDGUI::OSDCommand::configure(array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() < 3) {
 		throw SyntaxError();
@@ -201,8 +176,8 @@ void OSDCommand::configure(array_ref<TclObject> tokens, TclObject& /*result*/)
 	configure(getWidget(tokens[2].getString()), tokens, 3);
 }
 
-void OSDCommand::configure(OSDWidget& widget, array_ref<TclObject> tokens,
-                           unsigned skip)
+void OSDGUI::OSDCommand::configure(OSDWidget& widget, array_ref<TclObject> tokens,
+                                   unsigned skip)
 {
 	assert(tokens.size() >= skip);
 	if ((tokens.size() - skip) & 1) {
@@ -218,7 +193,7 @@ void OSDCommand::configure(OSDWidget& widget, array_ref<TclObject> tokens,
 	}
 }
 
-string OSDCommand::help(const vector<string>& tokens) const
+string OSDGUI::OSDCommand::help(const vector<string>& tokens) const
 {
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "create") {
@@ -281,7 +256,7 @@ string OSDCommand::help(const vector<string>& tokens) const
 	}
 }
 
-void OSDCommand::tabCompletion(vector<string>& tokens) const
+void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		static const char* const cmds[] = {
@@ -314,7 +289,7 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-OSDWidget& OSDCommand::getWidget(string_ref name) const
+OSDWidget& OSDGUI::OSDCommand::getWidget(string_ref name) const
 {
 	auto* widget = gui.getTopWidget().findSubWidget(name);
 	if (!widget) {

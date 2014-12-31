@@ -3,6 +3,7 @@
 
 #include "Schedulable.hh"
 #include "Observer.hh"
+#include "InfoTopic.hh"
 #include "EmuTime.hh"
 #include "DynamicClock.hh"
 #include <cstdint>
@@ -22,7 +23,6 @@ class IntegerSetting;
 class StringSetting;
 class BooleanSetting;
 class Setting;
-class SoundDeviceInfoTopic;
 class AviRecorder;
 
 class MSXMixer final : private Schedulable, private Observer<Setting>
@@ -161,8 +161,16 @@ private:
 
 	DynamicClock prevTime;
 
-	friend class SoundDeviceInfoTopic;
-	const std::unique_ptr<SoundDeviceInfoTopic> soundDeviceInfo;
+	class SoundDeviceInfoTopic final : public InfoTopic {
+	public:
+		SoundDeviceInfoTopic(InfoCommand& machineInfoCommand, MSXMixer& mixer);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+	private:
+		MSXMixer& mixer;
+	} soundDeviceInfo;
 
 	AviRecorder* recorder;
 	unsigned synchronousCounter;

@@ -2,7 +2,6 @@
 #include "DebugCondition.hh"
 #include "DummyDevice.hh"
 #include "SimpleDebuggable.hh"
-#include "InfoTopic.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "Interpreter.hh"
@@ -72,55 +71,6 @@ private:
 	MSXCPUInterface& interface;
 };
 
-class SlotInfo final : public InfoTopic
-{
-public:
-	SlotInfo(InfoCommand& machineInfoCommand,
-	         MSXCPUInterface& interface);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-private:
-	MSXCPUInterface& interface;
-};
-
-class SubSlottedInfo final : public InfoTopic
-{
-public:
-	SubSlottedInfo(InfoCommand& machineInfoCommand,
-		       MSXCPUInterface& interface);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-private:
-	MSXCPUInterface& interface;
-};
-
-class ExternalSlotInfo final : public InfoTopic
-{
-public:
-	ExternalSlotInfo(InfoCommand& machineInfoCommand,
-			 CartridgeSlotManager& manager);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-private:
-	CartridgeSlotManager& manager;
-};
-
-class IOInfo final : public InfoTopic
-{
-public:
-	IOInfo(InfoCommand& machineInfoCommand,
-	       MSXCPUInterface& interface, bool input);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-private:
-	MSXCPUInterface& interface;
-	bool input;
-};
-
 
 // Global variables
 bool MSXCPUInterface::breaked = false;
@@ -147,17 +97,12 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 		*this, motherBoard_))
 	, ioDebug(make_unique<IODebug>(
 		*this, motherBoard_))
-	, slotInfo(make_unique<SlotInfo>(
-		motherBoard_.getMachineInfoCommand(), *this))
-	, subSlottedInfo(make_unique<SubSlottedInfo>(
-		motherBoard_.getMachineInfoCommand(), *this))
-	, externalSlotInfo(make_unique<ExternalSlotInfo>(
-		motherBoard_.getMachineInfoCommand(),
-		motherBoard_.getSlotManager()))
-	, inputPortInfo(make_unique<IOInfo>(
-	        motherBoard_.getMachineInfoCommand(), *this, true))
-	, outputPortInfo(make_unique<IOInfo>(
-	        motherBoard_.getMachineInfoCommand(), *this, false))
+	, slotInfo(motherBoard_.getMachineInfoCommand(), *this)
+	, subSlottedInfo(motherBoard_.getMachineInfoCommand(), *this)
+	, externalSlotInfo(motherBoard_.getMachineInfoCommand(),
+	                   motherBoard_.getSlotManager())
+	, inputPortInfo (motherBoard_.getMachineInfoCommand(), *this, true)
+	, outputPortInfo(motherBoard_.getMachineInfoCommand(), *this, false)
 	, dummyDevice(DeviceFactory::createDummyDevice(
 		*motherBoard_.getMachineConfig()))
 	, msxcpu(motherBoard_.getCPU())
@@ -1052,7 +997,7 @@ void SlottedMemoryDebug::write(unsigned address, byte value,
 }
 
 
-// class SubSlottedInfo
+// class SlotInfo
 
 static unsigned getSlot(
 	Interpreter& interp, const TclObject& token, const string& itemName)
@@ -1064,14 +1009,14 @@ static unsigned getSlot(
 	return slot;
 }
 
-SlotInfo::SlotInfo(InfoCommand& machineInfoCommand,
-                   MSXCPUInterface& interface_)
+MSXCPUInterface::SlotInfo::SlotInfo(
+		InfoCommand& machineInfoCommand, MSXCPUInterface& interface_)
 	: InfoTopic(machineInfoCommand, "slot")
 	, interface(interface_)
 {
 }
 
-void SlotInfo::execute(array_ref<TclObject> tokens,
+void MSXCPUInterface::SlotInfo::execute(array_ref<TclObject> tokens,
                        TclObject& result) const
 {
 	if (tokens.size() != 5) {
@@ -1087,7 +1032,7 @@ void SlotInfo::execute(array_ref<TclObject> tokens,
 	interface.slotLayout[ps][ss][page]->getNameList(result);
 }
 
-string SlotInfo::help(const vector<string>& /*tokens*/) const
+string MSXCPUInterface::SlotInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Retrieve name of the device inserted in given "
 	       "primary slot / secondary slot / page.";
@@ -1096,14 +1041,14 @@ string SlotInfo::help(const vector<string>& /*tokens*/) const
 
 // class SubSlottedInfo
 
-SubSlottedInfo::SubSlottedInfo(InfoCommand& machineInfoCommand,
-                               MSXCPUInterface& interface_)
+MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(
+		InfoCommand& machineInfoCommand, MSXCPUInterface& interface_)
 	: InfoTopic(machineInfoCommand, "issubslotted")
 	, interface(interface_)
 {
 }
 
-void SubSlottedInfo::execute(array_ref<TclObject> tokens,
+void MSXCPUInterface::SubSlottedInfo::execute(array_ref<TclObject> tokens,
                              TclObject& result) const
 {
 	if (tokens.size() != 3) {
@@ -1113,7 +1058,7 @@ void SubSlottedInfo::execute(array_ref<TclObject> tokens,
 		getSlot(getInterpreter(), tokens[2], "Slot")));
 }
 
-string SubSlottedInfo::help(
+string MSXCPUInterface::SubSlottedInfo::help(
 	const vector<string>& /*tokens*/) const
 {
 	return "Indicates whether a certain primary slot is expanded.";
@@ -1122,15 +1067,15 @@ string SubSlottedInfo::help(
 
 // class ExternalSlotInfo
 
-ExternalSlotInfo::ExternalSlotInfo(InfoCommand& machineInfoCommand,
-                                   CartridgeSlotManager& manager_)
+MSXCPUInterface::ExternalSlotInfo::ExternalSlotInfo(
+		InfoCommand& machineInfoCommand, CartridgeSlotManager& manager_)
 	: InfoTopic(machineInfoCommand, "isexternalslot")
 	, manager(manager_)
 {
 }
 
-void ExternalSlotInfo::execute(array_ref<TclObject> tokens,
-                               TclObject& result) const
+void MSXCPUInterface::ExternalSlotInfo::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
 {
 	int ps = 0;
 	int ss = 0;
@@ -1148,7 +1093,7 @@ void ExternalSlotInfo::execute(array_ref<TclObject> tokens,
 	result.setInt(manager.isExternalSlot(ps, ss, true));
 }
 
-string ExternalSlotInfo::help(
+string MSXCPUInterface::ExternalSlotInfo::help(
 	const vector<string>& /*tokens*/) const
 {
 	return "Indicates whether a certain slot is external or internal.";
@@ -1177,15 +1122,15 @@ void IODebug::write(unsigned address, byte value, EmuTime::param time)
 
 // class IOInfo
 
-IOInfo::IOInfo(InfoCommand& machineInfoCommand,
-               MSXCPUInterface& interface_, bool input_)
+MSXCPUInterface::IOInfo::IOInfo(InfoCommand& machineInfoCommand,
+                                MSXCPUInterface& interface_, bool input_)
 	: InfoTopic(machineInfoCommand, input_ ? "input_port" : "output_port")
 	, interface(interface_), input(input_)
 {
 }
 
-void IOInfo::execute(array_ref<TclObject> tokens,
-                     TclObject& result) const
+void MSXCPUInterface::IOInfo::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -1198,7 +1143,7 @@ void IOInfo::execute(array_ref<TclObject> tokens,
 	result.setString(devices[port]->getName());
 }
 
-string IOInfo::help(const vector<string>& /*tokens*/) const
+string MSXCPUInterface::IOInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Return the name of the device connected to the given IO port.";
 }

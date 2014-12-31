@@ -1,6 +1,7 @@
 #ifndef MSXCPU_HH
 #define MSXCPU_HH
 
+#include "InfoTopic.hh"
 #include "Observer.hh"
 #include "BooleanSetting.hh"
 #include "EmuTime.hh"
@@ -14,12 +15,11 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class MSXCPUInterface;
+class CPUClock;
 class CPURegs;
 class Z80TYPE;
 class R800TYPE;
 template <typename T> class CPUCore;
-class TimeInfoTopic;
-class CPUFreqInfoTopic;
 class MSXCPUDebuggable;
 class TclCallback;
 class TclObject;
@@ -140,12 +140,32 @@ private:
 	const std::unique_ptr<CPUCore<Z80TYPE>> z80;
 	const std::unique_ptr<CPUCore<R800TYPE>> r800;
 
-	friend class TimeInfoTopic;
-	friend class MSXCPUDebuggable;
-	const std::unique_ptr<TimeInfoTopic>    timeInfo;
-	const std::unique_ptr<CPUFreqInfoTopic> z80FreqInfo;
-	const std::unique_ptr<CPUFreqInfoTopic> r800FreqInfo;
+	class TimeInfoTopic final : public InfoTopic {
+	public:
+		TimeInfoTopic(InfoCommand& machineInfoCommand,
+			      MSXCPU& msxcpu);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help (const std::vector<std::string>& tokens) const override;
+	private:
+		MSXCPU& msxcpu;
+	} timeInfo;
+
+	class CPUFreqInfoTopic final : public InfoTopic {
+	public:
+		CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
+				 const std::string& name, CPUClock& clock);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help (const std::vector<std::string>& tokens) const override;
+	private:
+		CPUClock& clock;
+	};
+	CPUFreqInfoTopic                        z80FreqInfo;  // always present
+	const std::unique_ptr<CPUFreqInfoTopic> r800FreqInfo; // can be nullptr
+
 	const std::unique_ptr<MSXCPUDebuggable> debuggable;
+	friend class MSXCPUDebuggable;
 
 	EmuTime reference;
 	bool z80Active;

@@ -4,6 +4,7 @@
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
 #include "Schedulable.hh"
+#include "RecordedCommand.hh"
 #include "serialize_meta.hh"
 #include "array_ref.hh"
 #include "string_ref.hh"
@@ -19,9 +20,6 @@ class CommandController;
 class EventDistributor;
 class MSXEventDistributor;
 class StateChangeDistributor;
-class KeyMatrixUpCmd;
-class KeyMatrixDownCmd;
-class KeyInserter;
 class KeyEvent;
 class CapsLockAligner;
 class KeyboardSettings;
@@ -110,18 +108,70 @@ private:
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	friend class KeyMatrixUpCmd;
-	friend class KeyMatrixDownCmd;
-	friend class KeyInserter;
 	friend class CapsLockAligner;
 	friend class MsxKeyEventQueue;
 
 	static const int MAX_KEYSYM = 0x150;
 	static const byte keyTab[MAX_KEYSYM];
 
-	const std::unique_ptr<KeyMatrixUpCmd>   keyMatrixUpCmd;
-	const std::unique_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
-	const std::unique_ptr<KeyInserter>      keyTypeCmd;
+	class KeyMatrixUpCmd final : public RecordedCommand {
+	public:
+		KeyMatrixUpCmd(CommandController& commandController,
+			       StateChangeDistributor& stateChangeDistributor,
+			       Scheduler& scheduler, Keyboard& keyboard);
+		void execute(array_ref<TclObject> tokens, TclObject& result,
+			     EmuTime::param time) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		Keyboard& keyboard;
+	} keyMatrixUpCmd;
+
+	class KeyMatrixDownCmd final : public RecordedCommand {
+	public:
+		KeyMatrixDownCmd(CommandController& commandController,
+				 StateChangeDistributor& stateChangeDistributor,
+				 Scheduler& scheduler, Keyboard& keyboard);
+		void execute(array_ref<TclObject> tokens, TclObject& result,
+			     EmuTime::param time) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		Keyboard& keyboard;
+	} keyMatrixDownCmd;
+
+	class KeyInserter final : public RecordedCommand, public Schedulable {
+	public:
+		KeyInserter(CommandController& commandController,
+			    StateChangeDistributor& stateChangeDistributor,
+			    Scheduler& scheduler, Keyboard& keyboard);
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+
+	private:
+		void type(string_ref str);
+		void reschedule(EmuTime::param time);
+
+		// Command
+		void execute(array_ref<TclObject> tokens, TclObject& result,
+			     EmuTime::param time) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+
+		// Schedulable
+		void executeUntil(EmuTime::param time) override;
+
+		Keyboard& keyboard;
+		std::string text_utf8;
+		unsigned last;
+		int lockKeysMask;
+		bool releaseLast;
+		bool oldCodeKanaLockOn;
+		bool oldGraphLockOn;
+		bool oldCapsLockOn;
+
+		bool releaseBeforePress;
+		unsigned typingFrequency;
+	} keyTypeCmd;
+
 	const std::unique_ptr<CapsLockAligner>  capsLockAligner;
 	const std::unique_ptr<KeyboardSettings> keyboardSettings;
 	const std::unique_ptr<MsxKeyEventQueue> msxKeyEventQueue;

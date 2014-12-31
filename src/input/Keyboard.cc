@@ -8,7 +8,6 @@
 #include "StateChangeDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
-#include "RecordedCommand.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "SimpleDebuggable.hh"
@@ -46,32 +45,6 @@ static const byte GRAPH_MASK = 0x04;
 static const byte CAPS_MASK  = 0x08;
 static const byte CODE_MASK  = 0x10;
 
-class KeyMatrixUpCmd final : public RecordedCommand
-{
-public:
-	KeyMatrixUpCmd(CommandController& commandController,
-	               StateChangeDistributor& stateChangeDistributor,
-	               Scheduler& scheduler, Keyboard& keyboard);
-	void execute(array_ref<TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
-private:
-	Keyboard& keyboard;
-};
-
-class KeyMatrixDownCmd final : public RecordedCommand
-{
-public:
-	KeyMatrixDownCmd(CommandController& commandController,
-	                 StateChangeDistributor& stateChangeDistributor,
-	                 Scheduler& scheduler, Keyboard& keyboard);
-	void execute(array_ref<TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
-private:
-	Keyboard& keyboard;
-};
-
 class MsxKeyEventQueue final : public Schedulable
 {
 public:
@@ -88,41 +61,6 @@ private:
 	std::deque<shared_ptr<const Event>> eventQueue;
 	Keyboard& keyboard;
 	Interpreter& interp;
-};
-
-class KeyInserter final : public RecordedCommand, public Schedulable
-{
-public:
-	KeyInserter(CommandController& commandController,
-	            StateChangeDistributor& stateChangeDistributor,
-	            Scheduler& scheduler, Keyboard& keyboard);
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-private:
-	void type(string_ref str);
-	void reschedule(EmuTime::param time);
-
-	// Command
-	void execute(array_ref<TclObject> tokens, TclObject& result,
-	             EmuTime::param time) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-
-	// Schedulable
-	void executeUntil(EmuTime::param time) override;
-
-	Keyboard& keyboard;
-	string text_utf8;
-	unsigned last;
-	int lockKeysMask;
-	bool releaseLast;
-	bool oldCodeKanaLockOn;
-	bool oldGraphLockOn;
-	bool oldCapsLockOn;
-
-	bool releaseBeforePress;
-	unsigned typingFrequency;
 };
 
 class CapsLockAligner final : private EventListener, private Schedulable
@@ -220,12 +158,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, keyMatrixUpCmd  (make_unique<KeyMatrixUpCmd  >(
-		commandController, stateChangeDistributor, scheduler, *this))
-	, keyMatrixDownCmd(make_unique<KeyMatrixDownCmd>(
-		commandController, stateChangeDistributor, scheduler, *this))
-	, keyTypeCmd(make_unique<KeyInserter>(
-		commandController, stateChangeDistributor, scheduler, *this))
+	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler, *this)
+	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler, *this)
+	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler, *this)
 	, capsLockAligner(make_unique<CapsLockAligner>(
 		eventDistributor, msxEventDistributor, scheduler, *this))
 	, keyboardSettings(make_unique<KeyboardSettings>(commandController))
@@ -997,7 +932,8 @@ void Keyboard::debug(const char* format, ...)
 
 // class KeyMatrixUpCmd
 
-KeyMatrixUpCmd::KeyMatrixUpCmd(CommandController& commandController,
+Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(
+		CommandController& commandController,
 		StateChangeDistributor& stateChangeDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
 	: RecordedCommand(commandController, stateChangeDistributor,
@@ -1006,13 +942,13 @@ KeyMatrixUpCmd::KeyMatrixUpCmd(CommandController& commandController,
 {
 }
 
-void KeyMatrixUpCmd::execute(array_ref<TclObject> tokens,
-                             TclObject& /*result*/, EmuTime::param /*time*/)
+void Keyboard::KeyMatrixUpCmd::execute(
+	array_ref<TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	return keyboard.processCmd(getInterpreter(), tokens, true);
 }
 
-string KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
+string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText =
 		"keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
@@ -1022,7 +958,7 @@ string KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 
 // class KeyMatrixDownCmd
 
-KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
+Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
 		StateChangeDistributor& stateChangeDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
 	: RecordedCommand(commandController, stateChangeDistributor,
@@ -1031,13 +967,13 @@ KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
 {
 }
 
-void KeyMatrixDownCmd::execute(array_ref<TclObject> tokens,
+void Keyboard::KeyMatrixDownCmd::execute(array_ref<TclObject> tokens,
                                TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	return keyboard.processCmd(getInterpreter(), tokens, false);
 }
 
-string KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
+string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText=
 		"keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
@@ -1102,7 +1038,8 @@ void MsxKeyEventQueue::executeUntil(EmuTime::param time)
 
 // class KeyInserter
 
-KeyInserter::KeyInserter(CommandController& commandController,
+Keyboard::KeyInserter::KeyInserter(
+		CommandController& commandController,
 		StateChangeDistributor& stateChangeDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
 	: RecordedCommand(commandController, stateChangeDistributor,
@@ -1121,8 +1058,8 @@ KeyInserter::KeyInserter(CommandController& commandController,
 	typingFrequency = 15;
 }
 
-void KeyInserter::execute(array_ref<TclObject> tokens, TclObject& /*result*/,
-                          EmuTime::param /*time*/)
+void Keyboard::KeyInserter::execute(
+	array_ref<TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	if (tokens.size() < 2) {
 		throw SyntaxError();
@@ -1161,7 +1098,7 @@ void KeyInserter::execute(array_ref<TclObject> tokens, TclObject& /*result*/,
 	type(arguments[0]);
 }
 
-string KeyInserter::help(const vector<string>& /*tokens*/) const
+string Keyboard::KeyInserter::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText = "Type a string in the emulated MSX.\n" \
 		"Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n" \
@@ -1169,7 +1106,7 @@ string KeyInserter::help(const vector<string>& /*tokens*/) const
 	return helpText;
 }
 
-void KeyInserter::tabCompletion(vector<string>& tokens) const
+void Keyboard::KeyInserter::tabCompletion(vector<string>& tokens) const
 {
 	vector<const char*> options;
 	if (!contains(tokens, "-release")) {
@@ -1181,7 +1118,7 @@ void KeyInserter::tabCompletion(vector<string>& tokens) const
 	completeString(tokens, options);
 }
 
-void KeyInserter::type(string_ref str)
+void Keyboard::KeyInserter::type(string_ref str)
 {
 	if (str.empty()) {
 		return;
@@ -1195,7 +1132,7 @@ void KeyInserter::type(string_ref str)
 	text_utf8.append(str.data(), str.size());
 }
 
-void KeyInserter::executeUntil(EmuTime::param time)
+void Keyboard::KeyInserter::executeUntil(EmuTime::param time)
 {
 	if (lockKeysMask != 0) {
 		// release CAPS and/or Code/Kana Lock keys
@@ -1256,7 +1193,7 @@ void KeyInserter::executeUntil(EmuTime::param time)
 	}
 }
 
-void KeyInserter::reschedule(EmuTime::param time)
+void Keyboard::KeyInserter::reschedule(EmuTime::param time)
 {
 	setSyncPoint(time + EmuDuration::hz(typingFrequency));
 }
@@ -1380,7 +1317,7 @@ void KeybDebuggable::write(unsigned /*address*/, byte /*value*/)
 
 
 template<typename Archive>
-void KeyInserter::serialize(Archive& ar, unsigned /*version*/)
+void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
 	ar.serialize("text", text_utf8);
@@ -1407,7 +1344,7 @@ void KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Keyboard::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("keyTypeCmd", *keyTypeCmd);
+	ar.serialize("keyTypeCmd", keyTypeCmd);
 	ar.serialize("cmdKeyMatrix", cmdKeyMatrix);
 	ar.serialize("msxCapsLockOn", msxCapsLockOn);
 	ar.serialize("msxCodeKanaLockOn", msxCodeKanaLockOn);

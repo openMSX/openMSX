@@ -9,7 +9,6 @@
 #include "HotKey.hh"
 #include "CommandException.hh"
 #include "GlobalCommandController.hh"
-#include "Command.hh"
 #include "TclObject.hh"
 #include "memory.hh"
 
@@ -18,39 +17,12 @@ using std::vector;
 
 namespace openmsx {
 
-class SaveSettingsCommand final : public Command
-{
-public:
-	SaveSettingsCommand(CommandController& commandController,
-	                    SettingsConfig& settingsConfig);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	SettingsConfig& settingsConfig;
-};
-
-class LoadSettingsCommand final : public Command
-{
-public:
-	LoadSettingsCommand(CommandController& commandController,
-	                    SettingsConfig& settingsConfig);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	SettingsConfig& settingsConfig;
-};
-
-
 SettingsConfig::SettingsConfig(
 		GlobalCommandController& globalCommandController,
 		HotKey& hotKey_)
 	: commandController(globalCommandController)
-	, saveSettingsCommand(make_unique<SaveSettingsCommand>(
-		commandController, *this))
-	, loadSettingsCommand(make_unique<LoadSettingsCommand>(
-		commandController, *this))
+	, saveSettingsCommand(commandController, *this)
+	, loadSettingsCommand(commandController, *this)
 	, settingsManager(make_unique<SettingsManager>(
 		globalCommandController))
 	, hotKey(hotKey_)
@@ -109,7 +81,7 @@ void SettingsConfig::saveSetting(string_ref filename)
 
 // class SaveSettingsCommand
 
-SaveSettingsCommand::SaveSettingsCommand(
+SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
 		CommandController& commandController,
 		SettingsConfig& settingsConfig_)
 	: Command(commandController, "save_settings")
@@ -117,7 +89,8 @@ SaveSettingsCommand::SaveSettingsCommand(
 {
 }
 
-void SaveSettingsCommand::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
+void SettingsConfig::SaveSettingsCommand::execute(
+	array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	try {
 		switch (tokens.size()) {
@@ -135,12 +108,12 @@ void SaveSettingsCommand::execute(array_ref<TclObject> tokens, TclObject& /*resu
 	}
 }
 
-string SaveSettingsCommand::help(const vector<string>& /*tokens*/) const
+string SettingsConfig::SaveSettingsCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Save the current settings.";
 }
 
-void SaveSettingsCommand::tabCompletion(vector<string>& tokens) const
+void SettingsConfig::SaveSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		completeFileName(tokens, SystemFileContext());
@@ -150,7 +123,7 @@ void SaveSettingsCommand::tabCompletion(vector<string>& tokens) const
 
 // class LoadSettingsCommand
 
-LoadSettingsCommand::LoadSettingsCommand(
+SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
 		CommandController& commandController,
 		SettingsConfig& settingsConfig_)
 	: Command(commandController, "load_settings")
@@ -158,8 +131,8 @@ LoadSettingsCommand::LoadSettingsCommand(
 {
 }
 
-void LoadSettingsCommand::execute(array_ref<TclObject> tokens,
-                                  TclObject& /*result*/)
+void SettingsConfig::LoadSettingsCommand::execute(
+	array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -167,12 +140,12 @@ void LoadSettingsCommand::execute(array_ref<TclObject> tokens,
 	settingsConfig.loadSetting(SystemFileContext(), tokens[1].getString());
 }
 
-string LoadSettingsCommand::help(const vector<string>& /*tokens*/) const
+string SettingsConfig::LoadSettingsCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Load settings from given file.";
 }
 
-void LoadSettingsCommand::tabCompletion(vector<string>& tokens) const
+void SettingsConfig::LoadSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		completeFileName(tokens, SystemFileContext());

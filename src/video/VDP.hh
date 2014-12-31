@@ -4,6 +4,7 @@
 #include "MSXDevice.hh"
 #include "Schedulable.hh"
 #include "VideoSystemChangeListener.hh"
+#include "InfoTopic.hh"
 #include "IRQHelper.hh"
 #include "Clock.hh"
 #include "DisplayMode.hh"
@@ -22,13 +23,6 @@ class VDPRegDebug;
 class VDPStatusRegDebug;
 class VDPPaletteDebug;
 class VRAMPointerDebug;
-class FrameCountInfo;
-class CycleInFrameInfo;
-class LineInFrameInfo;
-class CycleInLineInfo;
-class MsxYPosInfo;
-class MsxX256PosInfo;
-class MsxX512PosInfo;
 class TclCallback;
 class Display;
 class RawFrame;
@@ -807,18 +801,57 @@ private:
 	friend class VDPStatusRegDebug;
 	friend class VDPPaletteDebug;
 	friend class VRAMPointerDebug;
-	friend class FrameCountInfo;
 	const std::unique_ptr<VDPRegDebug>       vdpRegDebug;
 	const std::unique_ptr<VDPStatusRegDebug> vdpStatusRegDebug;
 	const std::unique_ptr<VDPPaletteDebug>   vdpPaletteDebug;
 	const std::unique_ptr<VRAMPointerDebug>  vramPointerDebug;
-	const std::unique_ptr<FrameCountInfo>    frameCountInfo;
-	const std::unique_ptr<CycleInFrameInfo>  cycleInFrameInfo;
-	const std::unique_ptr<LineInFrameInfo>   lineInFrameInfo;
-	const std::unique_ptr<CycleInLineInfo>   cycleInLineInfo;
-	const std::unique_ptr<MsxYPosInfo>       msxYPosInfo;
-	const std::unique_ptr<MsxX256PosInfo>    msxX256PosInfo;
-	const std::unique_ptr<MsxX512PosInfo>    msxX512PosInfo;
+
+	class Info : public InfoTopic {
+	public:
+		void execute(array_ref<TclObject> tokens,
+		             TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		virtual int calc(const EmuTime& time) const = 0;
+	protected:
+		Info(VDP& vdp_, const std::string& name, std::string helpText_);
+		VDP& vdp;
+		const std::string helpText;
+	};
+
+	struct FrameCountInfo final : Info {
+		FrameCountInfo(VDP& vdp);
+		int calc(const EmuTime& time) const override;
+	} frameCountInfo;
+
+	struct CycleInFrameInfo final : Info {
+		CycleInFrameInfo(VDP& vdp);
+		int calc(const EmuTime& time) const override;
+	} cycleInFrameInfo;
+
+	struct LineInFrameInfo final : Info {
+		LineInFrameInfo(VDP& vdp);
+		int calc(const EmuTime& time) const override;
+	} lineInFrameInfo;
+
+	struct CycleInLineInfo final : Info {
+		CycleInLineInfo(VDP& vdp);
+		int calc(const EmuTime& time) const override;
+	} cycleInLineInfo;
+
+	struct MsxYPosInfo final : Info {
+		MsxYPosInfo(VDP& vdp);
+		int calc(const EmuTime& time) const override;
+	} msxYPosInfo;
+
+	struct MsxX256PosInfo final : Info {
+		MsxX256PosInfo(VDP& vdp);
+		int calc(const EmuTime& time) const override;
+	} msxX256PosInfo;
+
+	struct MsxX512PosInfo final : Info {
+		MsxX512PosInfo(VDP& vdp);
+		int calc(const EmuTime& time) const override;
+	} msxX512PosInfo;
 
 	/** Renderer that converts this VDP's state into an image.
 	  */

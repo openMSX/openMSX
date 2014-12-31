@@ -1,10 +1,8 @@
 #include "GlobalCommandController.hh"
 #include "Reactor.hh"
-#include "Command.hh"
 #include "Setting.hh"
 #include "ProxyCommand.hh"
 #include "ProxySetting.hh"
-#include "InfoTopic.hh"
 #include "LocalFileReference.hh"
 #include "GlobalCliComm.hh"
 #include "CliConnection.hh"
@@ -14,7 +12,6 @@
 #include "CommandException.hh"
 #include "SettingsConfig.hh"
 #include "SettingsManager.hh"
-#include "RomInfoTopic.hh"
 #include "TclObject.hh"
 #include "Version.hh"
 #include "ScopedAssign.hh"
@@ -29,57 +26,6 @@ using std::vector;
 
 namespace openmsx {
 
-class HelpCmd final : public Command
-{
-public:
-	explicit HelpCmd(GlobalCommandController& controller);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	GlobalCommandController& controller;
-};
-
-class TabCompletionCmd final : public Command
-{
-public:
-	explicit TabCompletionCmd(GlobalCommandController& controller);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-private:
-	GlobalCommandController& controller;
-};
-
-class UpdateCmd final : public Command
-{
-public:
-	explicit UpdateCmd(CommandController& commandController);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	CliConnection& getConnection();
-};
-
-class PlatformInfo final : public InfoTopic
-{
-public:
-	explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-};
-
-class VersionInfo final : public InfoTopic
-{
-public:
-	explicit VersionInfo(InfoCommand& openMSXInfoCommand);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-};
-
-
 GlobalCommandController::GlobalCommandController(
 	EventDistributor& eventDistributor,
 	GlobalCliComm& cliComm_, Reactor& reactor_)
@@ -89,11 +35,11 @@ GlobalCommandController::GlobalCommandController(
 	, interpreter(make_unique<Interpreter>(eventDistributor))
 	, openMSXInfoCommand(make_unique<InfoCommand>(*this, "openmsx_info"))
 	, hotKey(make_unique<HotKey>(reactor.getRTScheduler(), *this, eventDistributor))
-	, helpCmd(make_unique<HelpCmd>(*this))
-	, tabCompletionCmd(make_unique<TabCompletionCmd>(*this))
-	, platformInfo(make_unique<PlatformInfo>(getOpenMSXInfoCommand()))
-	, versionInfo(make_unique<VersionInfo>(getOpenMSXInfoCommand()))
-	, romInfoTopic(make_unique<RomInfoTopic>(getOpenMSXInfoCommand()))
+	, helpCmd(*this)
+	, tabCompletionCmd(*this)
+	, platformInfo(getOpenMSXInfoCommand())
+	, versionInfo (getOpenMSXInfoCommand())
+	, romInfoTopic(getOpenMSXInfoCommand())
 {
 	// For backwards compatibility:
 	//  In the past we had an openMSX command 'update'. This was a mistake
@@ -125,19 +71,12 @@ GlobalCommandController::GlobalCommandController(
 
 GlobalCommandController::~GlobalCommandController()
 {
-	// all this reset() stuff is also done automatically by the destructor,
-	// but we need it slightly earlier to test the assertions.
-	// TODO find a cleaner way to do this
-	romInfoTopic.reset();
-	platformInfo.reset();
-	versionInfo.reset();
-	updateCmd.reset();
-	tabCompletionCmd.reset();
-	helpCmd.reset();
-	settingsConfig.reset();
-	hotKey.reset();
-	openMSXInfoCommand.reset();
+}
 
+GlobalCommandControllerBase::~GlobalCommandControllerBase()
+{
+	// GlobalCommandController destructor must have run before
+	// we can check this.
 	assert(commands.empty());
 	assert(commandCompleters.empty());
 }
@@ -541,13 +480,14 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 
 // Help Command
 
-HelpCmd::HelpCmd(GlobalCommandController& controller_)
+GlobalCommandController::HelpCmd::HelpCmd(GlobalCommandController& controller_)
 	: Command(controller_, "help")
 	, controller(controller_)
 {
 }
 
-void HelpCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void GlobalCommandController::HelpCmd::execute(
+	array_ref<TclObject> tokens, TclObject& result)
 {
 	switch (tokens.size()) {
 	case 1: {
@@ -582,12 +522,12 @@ void HelpCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 }
 
-string HelpCmd::help(const vector<string>& /*tokens*/) const
+string GlobalCommandController::HelpCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "prints help information for commands\n";
 }
 
-void HelpCmd::tabCompletion(vector<string>& tokens) const
+void GlobalCommandController::HelpCmd::tabCompletion(vector<string>& tokens) const
 {
 	string front = std::move(tokens.front());
 	tokens.erase(begin(tokens));
@@ -598,13 +538,15 @@ void HelpCmd::tabCompletion(vector<string>& tokens) const
 
 // TabCompletionCmd Command
 
-TabCompletionCmd::TabCompletionCmd(GlobalCommandController& controller_)
+GlobalCommandController::TabCompletionCmd::TabCompletionCmd(
+		GlobalCommandController& controller_)
 	: Command(controller_, "tabcompletion")
 	, controller(controller_)
 {
 }
 
-void TabCompletionCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void GlobalCommandController::TabCompletionCmd::execute(
+	array_ref<TclObject> tokens, TclObject& result)
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -617,7 +559,7 @@ void TabCompletionCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 }
 
-string TabCompletionCmd::help(const vector<string>& /*tokens*/) const
+string GlobalCommandController::TabCompletionCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "!!! This command will change in the future !!!\n"
 	       "Tries to completes the given argument as if it were typed in "
@@ -628,7 +570,7 @@ string TabCompletionCmd::help(const vector<string>& /*tokens*/) const
 
 // class UpdateCmd
 
-UpdateCmd::UpdateCmd(CommandController& commandController)
+GlobalCommandController::UpdateCmd::UpdateCmd(CommandController& commandController)
 	: Command(commandController, "openmsx_update")
 {
 }
@@ -644,7 +586,7 @@ static GlobalCliComm::UpdateType getType(string_ref name)
 	throw CommandException("No such update type: " + name);
 }
 
-CliConnection& UpdateCmd::getConnection()
+CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 {
 	auto* controller = checked_cast<GlobalCommandController*>(
 		&getCommandController());
@@ -655,7 +597,8 @@ CliConnection& UpdateCmd::getConnection()
 	                       "it's used from an external application.");
 }
 
-void UpdateCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
+void GlobalCommandController::UpdateCmd::execute(
+	array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -669,13 +612,13 @@ void UpdateCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
 	}
 }
 
-string UpdateCmd::help(const vector<string>& /*tokens*/) const
+string GlobalCommandController::UpdateCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText = "Enable or disable update events for external applications. See doc/openmsx-control-xml.txt.";
 	return helpText;
 }
 
-void UpdateCmd::tabCompletion(vector<string>& tokens) const
+void GlobalCommandController::UpdateCmd::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -692,36 +635,36 @@ void UpdateCmd::tabCompletion(vector<string>& tokens) const
 
 // Platform info
 
-PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoCommand)
+GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoCommand)
 	: InfoTopic(openMSXInfoCommand, "platform")
 {
 }
 
-void PlatformInfo::execute(array_ref<TclObject> /*tokens*/,
-                           TclObject& result) const
+void GlobalCommandController::PlatformInfo::execute(
+	array_ref<TclObject> /*tokens*/, TclObject& result) const
 {
 	result.setString(TARGET_PLATFORM);
 }
 
-string PlatformInfo::help(const vector<string>& /*tokens*/) const
+string GlobalCommandController::PlatformInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints openMSX platform.";
 }
 
 // Version info
 
-VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand)
+GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand)
 	: InfoTopic(openMSXInfoCommand, "version")
 {
 }
 
-void VersionInfo::execute(array_ref<TclObject> /*tokens*/,
-                          TclObject& result) const
+void GlobalCommandController::VersionInfo::execute(
+	array_ref<TclObject> /*tokens*/, TclObject& result) const
 {
 	result.setString(Version::full());
 }
 
-string VersionInfo::help(const vector<string>& /*tokens*/) const
+string GlobalCommandController::VersionInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints openMSX version.";
 }

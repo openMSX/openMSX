@@ -3,6 +3,7 @@
 
 #include "RTSchedulable.hh"
 #include "EventListener.hh"
+#include "Command.hh"
 #include "stl.hh"
 #include "string_ref.hh"
 #include <map>
@@ -18,10 +19,6 @@ class RTScheduler;
 class GlobalCommandController;
 class EventDistributor;
 class XMLElement;
-class BindCmd;
-class UnbindCmd;
-class ActivateCmd;
-class DeactivateCmd;
 
 class HotKey final : public RTSchedulable, public EventListener
 {
@@ -73,16 +70,51 @@ private:
 	// RTSchedulable
 	void executeRT() override;
 
-	friend class BindCmd;
-	friend class UnbindCmd;
-	friend class ActivateCmd;
-	friend class DeactivateCmd;
-	const std::unique_ptr<BindCmd>       bindCmd;
-	const std::unique_ptr<UnbindCmd>     unbindCmd;
-	const std::unique_ptr<BindCmd>       bindDefaultCmd;
-	const std::unique_ptr<UnbindCmd>     unbindDefaultCmd;
-	const std::unique_ptr<ActivateCmd>   activateCmd;
-	const std::unique_ptr<DeactivateCmd> deactivateCmd;
+	class BindCmd final : public Command {
+	public:
+		BindCmd(CommandController& commandController, HotKey& hotKey,
+			bool defaultCmd);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		std::string formatBinding(const HotKey::BindMap::value_type& p);
+
+		HotKey& hotKey;
+		const bool defaultCmd;
+	};
+	BindCmd bindCmd;
+	BindCmd bindDefaultCmd;
+
+	class UnbindCmd final : public Command {
+	public:
+		UnbindCmd(CommandController& commandController, HotKey& hotKey,
+			  bool defaultCmd);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		HotKey& hotKey;
+		const bool defaultCmd;
+	};
+	UnbindCmd unbindCmd;
+	UnbindCmd unbindDefaultCmd;
+
+	class ActivateCmd final : public Command {
+	public:
+		ActivateCmd(CommandController& commandController, HotKey& hotKey);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		HotKey& hotKey;
+	} activateCmd;
+
+	class DeactivateCmd final : public Command {
+	public:
+		DeactivateCmd(CommandController& commandController, HotKey& hotKey);
+		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		HotKey& hotKey;
+	} deactivateCmd;
 
 	BindMap cmdMap;
 	BindMap defaultMap;

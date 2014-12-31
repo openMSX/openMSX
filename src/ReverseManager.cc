@@ -13,13 +13,11 @@
 #include "FileContext.hh"
 #include "StateChange.hh"
 #include "Reactor.hh"
-#include "Command.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "memory.hh"
 #include "xrange.hh"
 #include <functional>
 #include <cassert>
@@ -93,17 +91,6 @@ struct Replay
 };
 SERIALIZE_CLASS_VERSION(Replay, 4);
 
-class ReverseCmd final : public Command
-{
-public:
-	ReverseCmd(ReverseManager& manager, CommandController& controller);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	ReverseManager& manager;
-};
-
 
 // struct ReverseHistory
 
@@ -168,8 +155,7 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	, syncInputEvent (motherBoard_.getScheduler(), *this)
 	, motherBoard(motherBoard_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
-	, reverseCmd(make_unique<ReverseCmd>(
-		*this, motherBoard.getCommandController()))
+	, reverseCmd(*this, motherBoard.getCommandController())
 	, keyboard(nullptr)
 	, eventDelay(nullptr)
 	, replayIndex(0)
@@ -943,13 +929,14 @@ void ReverseManager::schedule(EmuTime::param time)
 
 // class ReverseCmd
 
-ReverseCmd::ReverseCmd(ReverseManager& manager_, CommandController& controller)
+ReverseManager::ReverseCmd::ReverseCmd(
+		ReverseManager& manager_, CommandController& controller)
 	: Command(controller, "reverse")
 	, manager(manager_)
 {
 }
 
-void ReverseCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void ReverseManager::ReverseCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing subcommand");
@@ -993,7 +980,7 @@ void ReverseCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 }
 
-string ReverseCmd::help(const vector<string>& /*tokens*/) const
+string ReverseManager::ReverseCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "start               start collecting reverse data\n"
 	       "stop                stop collecting\n"
@@ -1006,7 +993,7 @@ string ReverseCmd::help(const vector<string>& /*tokens*/) const
 	       "loadreplay [-goto <begin|end|savetime|<n>>] [-viewonly] <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
 }
 
-void ReverseCmd::tabCompletion(vector<string>& tokens) const
+void ReverseManager::ReverseCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		static const char* const subCommands[] = {

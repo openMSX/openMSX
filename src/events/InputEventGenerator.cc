@@ -1,4 +1,3 @@
-#include "Command.hh"
 #include "InputEventGenerator.hh"
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
@@ -18,18 +17,6 @@ using std::make_shared;
 
 namespace openmsx {
 
-class EscapeGrabCmd final : public Command
-{
-public:
-	EscapeGrabCmd(CommandController& commandController,
-		      InputEventGenerator& inputEventGenerator);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
-	string help(const vector<string>& tokens) const override;
-private:
-	InputEventGenerator& inputEventGenerator;
-};
-
-
 bool InputEventGenerator::androidButtonA = false;
 bool InputEventGenerator::androidButtonB = false;
 
@@ -42,7 +29,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		commandController, "grabinput",
 		"This setting controls if openMSX takes over mouse and keyboard input",
 		false, Setting::DONT_SAVE)
-	, escapeGrabCmd(make_unique<EscapeGrabCmd>(commandController, *this))
+	, escapeGrabCmd(commandController, *this)
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
 	, keyRepeat(false)
 {
@@ -435,15 +422,17 @@ bool InputEventGenerator::joystickGetButton(SDL_Joystick* joystick, int button)
 
 
 // class EscapeGrabCmd
-EscapeGrabCmd::EscapeGrabCmd(CommandController& commandController,
-                             InputEventGenerator& inputEventGenerator_)
+
+InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(
+		CommandController& commandController,
+		InputEventGenerator& inputEventGenerator_)
 	: Command(commandController, "escape_grab")
 	, inputEventGenerator(inputEventGenerator_)
 {
 }
 
-void EscapeGrabCmd::execute(array_ref<TclObject> /*tokens*/,
-		            TclObject& /*result*/)
+void InputEventGenerator::EscapeGrabCmd::execute(
+	array_ref<TclObject> /*tokens*/, TclObject& /*result*/)
 {
 	if (inputEventGenerator.grabInput.getBoolean()) {
 		inputEventGenerator.escapeGrabState =
@@ -452,7 +441,8 @@ void EscapeGrabCmd::execute(array_ref<TclObject> /*tokens*/,
 	}
 }
 
-string EscapeGrabCmd::help(const vector<string>& /*tokens*/) const
+string InputEventGenerator::EscapeGrabCmd::help(
+	const vector<string>& /*tokens*/) const
 {
 	return "Temporarily release input grab.";
 }

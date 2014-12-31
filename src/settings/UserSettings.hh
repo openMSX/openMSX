@@ -1,6 +1,7 @@
 #ifndef USERSETTINGS_HH
 #define USERSETTINGS_HH
 
+#include "Command.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
 #include <vector>
@@ -8,8 +9,6 @@
 
 namespace openmsx {
 
-class CommandController;
-class UserSettingCommand;
 class Setting;
 
 class UserSettings : private noncopyable
@@ -18,7 +17,6 @@ public:
 	typedef std::vector<std::unique_ptr<Setting>> Settings;
 
 	explicit UserSettings(CommandController& commandController);
-	~UserSettings();
 
 	void addSetting(std::unique_ptr<Setting> setting);
 	void deleteSetting(Setting& setting);
@@ -26,7 +24,29 @@ public:
 	const Settings& getSettings() const { return settings; }
 
 private:
-	const std::unique_ptr<UserSettingCommand> userSettingCommand;
+	class Cmd final : public Command {
+	public:
+		Cmd(UserSettings& userSettings, CommandController& commandController);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+
+	private:
+		void create (array_ref<TclObject> tokens, TclObject& result);
+		void destroy(array_ref<TclObject> tokens, TclObject& result);
+		void info   (array_ref<TclObject> tokens, TclObject& result);
+
+		std::unique_ptr<Setting> createString (array_ref<TclObject> tokens);
+		std::unique_ptr<Setting> createBoolean(array_ref<TclObject> tokens);
+		std::unique_ptr<Setting> createInteger(array_ref<TclObject> tokens);
+		std::unique_ptr<Setting> createFloat  (array_ref<TclObject> tokens);
+
+		std::vector<string_ref> getSettingNames() const;
+
+		UserSettings& userSettings;
+	} userSettingCommand;
+
 	Settings settings;
 };
 

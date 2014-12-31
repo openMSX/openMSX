@@ -1,6 +1,8 @@
 #ifndef CARTRIDGESLOTMANAGER_HH
 #define CARTRIDGESLOTMANAGER_HH
 
+#include "RecordedCommand.hh"
+#include "InfoTopic.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
 #include <memory>
@@ -8,10 +10,8 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class CartCmd;
 class ExtCmd;
 class HardwareConfig;
-class CartridgeSlotInfo;
 
 class CartridgeSlotManager : private noncopyable
 {
@@ -43,6 +43,34 @@ public:
 private:
 	int getSlot(int ps, int ss) const;
 
+	MSXMotherBoard& motherBoard;
+
+	class CartCmd final : public RecordedCommand {
+	public:
+		CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
+			string_ref commandName);
+		void execute(array_ref<TclObject> tokens, TclObject& result,
+			     EmuTime::param time) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+		bool needRecord(array_ref<TclObject> tokens) const override;
+	private:
+		const HardwareConfig* getExtensionConfig(string_ref cartname);
+		CartridgeSlotManager& manager;
+		CliComm& cliComm;
+	} cartCmd;
+
+	class CartridgeSlotInfo final : public InfoTopic {
+	public:
+		CartridgeSlotInfo(InfoCommand& machineInfoCommand,
+				  CartridgeSlotManager& manger);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		CartridgeSlotManager& manager;
+	} extSlotInfo;
+
 	struct Slot {
 		Slot();
 		~Slot();
@@ -58,11 +86,6 @@ private:
 	};
 	static const unsigned MAX_SLOTS = 16 + 4;
 	Slot slots[MAX_SLOTS];
-	MSXMotherBoard& motherBoard;
-	const std::unique_ptr<CartCmd> cartCmd;
-	const std::unique_ptr<CartridgeSlotInfo> extSlotInfo;
-	friend class CartCmd;
-	friend class CartridgeSlotInfo;
 };
 
 } // namespace openmsx

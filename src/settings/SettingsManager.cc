@@ -1,13 +1,10 @@
 #include "SettingsManager.hh"
 #include "GlobalCommandController.hh"
-#include "Command.hh"
-#include "InfoTopic.hh"
 #include "TclObject.hh"
 #include "Setting.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
 #include "KeyRange.hh"
-#include "memory.hh"
 #include <cassert>
 
 using std::string;
@@ -17,51 +14,11 @@ namespace openmsx {
 
 // SettingsManager implementation:
 
-class SettingInfo final : public InfoTopic
-{
-public:
-	SettingInfo(InfoCommand& openMSXInfoCommand, SettingsManager& manager);
-	void execute(array_ref<TclObject> tokens,
-	             TclObject& result) const override;
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	SettingsManager& manager;
-};
-
-class SetCompleter final : public CommandCompleter
-{
-public:
-	SetCompleter(CommandController& commandController,
-	             SettingsManager& manager);
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	SettingsManager& manager;
-};
-
-class SettingCompleter final : public CommandCompleter
-{
-public:
-	SettingCompleter(CommandController& commandController,
-	                 SettingsManager& manager,
-	                 const string& name);
-	string help(const vector<string>& tokens) const override;
-	void tabCompletion(vector<string>& tokens) const override;
-private:
-	SettingsManager& manager;
-};
-
-
 SettingsManager::SettingsManager(GlobalCommandController& commandController)
-	: settingInfo(make_unique<SettingInfo>(
-		commandController.getOpenMSXInfoCommand(), *this))
-	, setCompleter(make_unique<SetCompleter>(
-		commandController, *this))
-	, incrCompleter(make_unique<SettingCompleter>(
-		commandController, *this, "incr"))
-	, unsetCompleter(make_unique<SettingCompleter>(
-		commandController, *this, "unset"))
+	: settingInfo   (commandController.getOpenMSXInfoCommand(), *this)
+	, setCompleter  (commandController, *this)
+	, incrCompleter (commandController, *this, "incr")
+	, unsetCompleter(commandController, *this, "unset")
 {
 }
 
@@ -128,14 +85,15 @@ void SettingsManager::loadSettings(const XMLElement& config)
 
 // class SettingInfo
 
-SettingInfo::SettingInfo(InfoCommand& openMSXInfoCommand,
-                         SettingsManager& manager_)
+SettingsManager::SettingInfo::SettingInfo(
+		InfoCommand& openMSXInfoCommand, SettingsManager& manager_)
 	: InfoTopic(openMSXInfoCommand, "setting")
 	, manager(manager_)
 {
 }
 
-void SettingInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
+void SettingsManager::SettingInfo::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
 {
 	auto& settingsMap = manager.settingsMap;
 	switch (tokens.size()) {
@@ -158,7 +116,7 @@ void SettingInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 	}
 }
 
-string SettingInfo::help(const vector<string>& /*tokens*/) const
+string SettingsManager::SettingInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "openmsx_info setting        : "
 	             "returns list of all settings\n"
@@ -166,7 +124,7 @@ string SettingInfo::help(const vector<string>& /*tokens*/) const
 	             "returns info on a specific setting\n";
 }
 
-void SettingInfo::tabCompletion(vector<string>& tokens) const
+void SettingsManager::SettingInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		// complete setting name
@@ -177,13 +135,13 @@ void SettingInfo::tabCompletion(vector<string>& tokens) const
 
 // class SetCompleter
 
-SetCompleter::SetCompleter(CommandController& commandController,
-                           SettingsManager& manager_)
+SettingsManager::SetCompleter::SetCompleter(
+		CommandController& commandController, SettingsManager& manager_)
 	: CommandCompleter(commandController, "set"), manager(manager_)
 {
 }
 
-string SetCompleter::help(const vector<string>& tokens) const
+string SettingsManager::SetCompleter::help(const vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		return manager.getByName("set", tokens[1]).getDescription().str();
@@ -195,7 +153,7 @@ string SetCompleter::help(const vector<string>& tokens) const
 	       "openMSX setting.\n";
 }
 
-void SetCompleter::tabCompletion(vector<string>& tokens) const
+void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 	case 2:
@@ -216,7 +174,7 @@ void SetCompleter::tabCompletion(vector<string>& tokens) const
 
 // class SettingCompleter
 
-SettingCompleter::SettingCompleter(
+SettingsManager::SettingCompleter::SettingCompleter(
 		CommandController& commandController, SettingsManager& manager_,
 		const string& name)
 	: CommandCompleter(commandController, name)
@@ -224,12 +182,12 @@ SettingCompleter::SettingCompleter(
 {
 }
 
-string SettingCompleter::help(const vector<string>& /*tokens*/) const
+string SettingsManager::SettingCompleter::help(const vector<string>& /*tokens*/) const
 {
 	return ""; // TODO
 }
 
-void SettingCompleter::tabCompletion(vector<string>& tokens) const
+void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete setting name

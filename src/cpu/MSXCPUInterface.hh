@@ -1,6 +1,7 @@
 #ifndef MSXCPUINTERFACE_HH
 #define MSXCPUINTERFACE_HH
 
+#include "InfoTopic.hh"
 #include "CacheLine.hh"
 #include "MSXDevice.hh"
 #include "BreakPoint.hh"
@@ -23,12 +24,9 @@ class CliComm;
 class MemoryDebug;
 class SlottedMemoryDebug;
 class IODebug;
-class SlotInfo;
-class SubSlottedInfo;
-class ExternalSlotInfo;
-class IOInfo;
 class BreakPoint;
 class DebugCondition;
+class CartridgeSlotManager;
 
 struct CompareBreakpoints {
 	bool operator()(const std::shared_ptr<BreakPoint>& x,
@@ -282,17 +280,57 @@ private:
 
 	void doContinue2();
 
-	friend class SlotInfo;
 	friend class IODebug;
-	friend class IOInfo;
 	const std::unique_ptr<MemoryDebug> memoryDebug;
 	const std::unique_ptr<SlottedMemoryDebug> slottedMemoryDebug;
 	const std::unique_ptr<IODebug> ioDebug;
-	const std::unique_ptr<SlotInfo> slotInfo;
-	const std::unique_ptr<SubSlottedInfo> subSlottedInfo;
-	const std::unique_ptr<ExternalSlotInfo> externalSlotInfo;
-	const std::unique_ptr<IOInfo> inputPortInfo;
-	const std::unique_ptr<IOInfo> outputPortInfo;
+
+	class SlotInfo final : public InfoTopic {
+	public:
+		SlotInfo(InfoCommand& machineInfoCommand,
+			 MSXCPUInterface& interface);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		MSXCPUInterface& interface;
+	} slotInfo;
+
+	class SubSlottedInfo final : public InfoTopic {
+	public:
+		SubSlottedInfo(InfoCommand& machineInfoCommand,
+			       MSXCPUInterface& interface);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		MSXCPUInterface& interface;
+	} subSlottedInfo;
+
+	class ExternalSlotInfo final : public InfoTopic {
+	public:
+		ExternalSlotInfo(InfoCommand& machineInfoCommand,
+				 CartridgeSlotManager& manager);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		CartridgeSlotManager& manager;
+	} externalSlotInfo;
+
+	class IOInfo final : public InfoTopic {
+	public:
+		IOInfo(InfoCommand& machineInfoCommand,
+		       MSXCPUInterface& interface, bool input);
+		void execute(array_ref<TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+	private:
+		MSXCPUInterface& interface;
+		bool input;
+	};
+	IOInfo inputPortInfo;
+	IOInfo outputPortInfo;
 
 	/** Updated visibleDevices for a given page and clears the cache
 	  * on changes.

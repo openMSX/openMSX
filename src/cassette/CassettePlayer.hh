@@ -4,6 +4,7 @@
 #include "EventListener.hh"
 #include "CassetteDevice.hh"
 #include "ResampledSoundDevice.hh"
+#include "RecordedCommand.hh"
 #include "Schedulable.hh"
 #include "Filename.hh"
 #include "EmuTime.hh"
@@ -19,7 +20,6 @@ class HardwareConfig;
 class MSXMotherBoard;
 class Wav8Writer;
 class LoadingIndicator;
-class TapeCommand;
 
 class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
                            , private EventListener
@@ -156,7 +156,22 @@ private:
 	Filename casImage;
 
 	MSXMotherBoard& motherBoard;
-	const std::unique_ptr<TapeCommand> tapeCommand;
+
+	class TapeCommand final : public RecordedCommand {
+	public:
+		TapeCommand(CommandController& commandController,
+			    StateChangeDistributor& stateChangeDistributor,
+			    Scheduler& scheduler,
+			    CassettePlayer& cassettePlayer);
+		void execute(array_ref<TclObject> tokens, TclObject& result,
+			     EmuTime::param time) override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		void tabCompletion(std::vector<std::string>& tokens) const override;
+		bool needRecord(array_ref<TclObject> tokens) const override;
+	private:
+		CassettePlayer& cassettePlayer;
+	} tapeCommand;
+
 	const std::unique_ptr<LoadingIndicator> loadingIndicator;
 	BooleanSetting autoRunSetting;
 	std::unique_ptr<Wav8Writer> recordImage;
@@ -167,8 +182,6 @@ private:
 	bool lastOutput;
 	bool motor, motorControl;
 	bool syncScheduled;
-
-	friend class TapeCommand;
 };
 SERIALIZE_CLASS_VERSION(CassettePlayer, 2);
 
