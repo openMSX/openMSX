@@ -2,16 +2,15 @@
 #define Y8950ADPCM_HH
 
 #include "Y8950.hh"
+#include "Ram.hh"
 #include "Schedulable.hh"
 #include "Clock.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include <memory>
 
 namespace openmsx {
 
 class DeviceConfig;
-class Ram;
 
 class Y8950Adpcm final : public Schedulable
 {
@@ -62,7 +61,7 @@ private:
 	int calcSample(bool doEmu);
 
 	Y8950& y8950;
-	const std::unique_ptr<Ram> ram;
+	Ram ram;
 
 	Clock<Y8950::CLOCK_FREQ, Y8950::CLOCK_FREQ_DIV> clock;
 

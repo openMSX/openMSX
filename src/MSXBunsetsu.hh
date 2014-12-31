@@ -2,17 +2,14 @@
 #define MSXBUNSETSU_HH
 
 #include "MSXDevice.hh"
-#include <memory>
+#include "Rom.hh"
 
 namespace openmsx {
-
-class Rom;
 
 class MSXBunsetsu final : public MSXDevice
 {
 public:
 	explicit MSXBunsetsu(const DeviceConfig& DeviceConfig);
-	~MSXBunsetsu();
 
 	void reset(EmuTime::param time) override;
 
@@ -25,8 +22,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<Rom> bunsetsuRom;
-	const std::unique_ptr<Rom> jisyoRom;
+	Rom bunsetsuRom;
+	Rom jisyoRom;
 	unsigned jisyoAddress;
 };
 

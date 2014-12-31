@@ -2,20 +2,18 @@
 #define ESE_SCC_HH
 
 #include "MSXDevice.hh"
+#include "SRAM.hh"
+#include "SCC.hh"
 #include "RomBlockDebuggable.hh"
-#include <memory>
 
 namespace openmsx {
 
-class SRAM;
-class SCC;
 class MB89352;
 
 class ESE_SCC final : public MSXDevice
 {
 public:
 	ESE_SCC(const DeviceConfig& config, bool withSCSI);
-	~ESE_SCC();
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
@@ -30,12 +28,13 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	unsigned getSramSize(bool withSCSI) const;
 	void setMapperLow(unsigned page, byte value);
 	void setMapperHigh(byte value);
 
-	const std::unique_ptr<SRAM> sram;
-	const std::unique_ptr<SCC> scc;
-	const std::unique_ptr<MB89352> spc;
+	SRAM sram;
+	SCC scc;
+	std::unique_ptr<MB89352> spc; // can be nullptr
 	RomBlockDebuggable romBlockDebug;
 
 	const byte mapperMask;

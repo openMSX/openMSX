@@ -1,13 +1,14 @@
 #ifndef NOWINDCOMMAND_HH
 #define NOWINDCOMMAND_HH
 
-#include "NowindInterface.hh"
+#include "NowindHost.hh"
 #include "Command.hh"
 #include "string_ref.hh"
 #include <memory>
 
 namespace openmsx {
 
+class NowindInterface;
 class DiskChanger;
 class MSXMotherBoard;
 
@@ -26,9 +27,9 @@ public:
 		MSXMotherBoard& motherBoard) const;
 
 private:
-	unsigned searchRomdisk(const NowindInterface::Drives& drives) const;
+	unsigned searchRomdisk(const NowindHost::Drives& drives) const;
 	void processHdimage(string_ref hdimage,
-	                    NowindInterface::Drives& drives) const;
+	                    NowindHost::Drives& drives) const;
 	NowindInterface& interface;
 };
 

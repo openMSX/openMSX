@@ -45,7 +45,7 @@ private:
 	const byte* rom;
 	MemBuffer<byte> extendedRom;
 
-	std::unique_ptr<File> file;
+	std::unique_ptr<File> file; // can be nullptr
 
 	mutable Sha1Sum originalSha1;
 	Sha1Sum patchedSha1;

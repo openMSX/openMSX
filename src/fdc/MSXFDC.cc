@@ -1,5 +1,4 @@
 #include "MSXFDC.hh"
-#include "Rom.hh"
 #include "RealDrive.hh"
 #include "XMLElement.hh"
 #include "StringOp.hh"
@@ -11,7 +10,7 @@ namespace openmsx {
 
 MSXFDC::MSXFDC(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
+	, rom(getName() + " ROM", "rom", config)
 {
 	bool singleSided = config.findChild("singlesided") != nullptr;
 	int numDrives = config.getChildDataAsInt("drives", 1);
@@ -57,7 +56,7 @@ byte MSXFDC::peekMem(word address, EmuTime::param /*time*/) const
 
 const byte* MSXFDC::getReadCacheLine(word start) const
 {
-	return &(*rom)[start & 0x3FFF];
+	return &rom[start & 0x3FFF];
 }
 
 

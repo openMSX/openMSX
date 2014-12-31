@@ -1,47 +1,40 @@
 #include "RomMatraInk.hh"
-#include "AmdFlash.hh"
 #include "Rom.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 RomMatraInk::RomMatraInk(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: MSXRom(config, std::move(rom_))
-	, flash(make_unique<AmdFlash>(
-		*rom, std::vector<AmdFlash::SectorInfo>(2, {0x10000, false}),
-		0x01A4, false, config, false)) // don't load/save
+	, flash(*rom, std::vector<AmdFlash::SectorInfo>(2, {0x10000, false}),
+	        0x01A4, false, config, false) // don't load/save
 {
 	reset(EmuTime::dummy());
 }
 
-RomMatraInk::~RomMatraInk()
-{
-}
-
 void RomMatraInk::reset(EmuTime::param /*time*/)
 {
-	flash->reset();
+	flash.reset();
 }
 
 byte RomMatraInk::peekMem(word address, EmuTime::param /*time*/) const
 {
-	return flash->peek(address);
+	return flash.peek(address);
 }
 
 byte RomMatraInk::readMem(word address, EmuTime::param /*time*/)
 {
-	return flash->read(address);
+	return flash.read(address);
 }
 
 void RomMatraInk::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
-	flash->write(address + 0x10000, value);
+	flash.write(address + 0x10000, value);
 }
 
 const byte* RomMatraInk::getReadCacheLine(word address) const
 {
-	return flash->getReadCacheLine(address);
+	return flash.getReadCacheLine(address);
 }
 
 byte* RomMatraInk::getWriteCacheLine(word /*address*/) const
@@ -55,7 +48,7 @@ void RomMatraInk::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("flash", *flash);
+	ar.serialize("flash", flash);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomMatraInk);
 REGISTER_MSXDEVICE(RomMatraInk, "RomMatraInk");

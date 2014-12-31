@@ -101,7 +101,6 @@
 #include "serialize.hh"
 #include "likely.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 
 using std::string;
 

@@ -64,6 +64,23 @@ void RP5C01::reset(EmuTime::param time)
 
 nibble RP5C01::readPort(nibble port, EmuTime::param time)
 {
+	switch (port) {
+	case MODE_REG:
+	case TEST_REG:
+	case RESET_REG:
+		// nothing
+		break;
+	default:
+		unsigned block = modeReg & MODE_BLOKSELECT;
+		if (block == TIME_BLOCK) {
+			updateTimeRegs(time);
+		}
+	}
+	return peekPort(port);
+}
+
+nibble RP5C01::peekPort(nibble port) const
+{
 	assert(port <= 0x0f);
 	switch (port) {
 	case MODE_REG:
@@ -74,9 +91,6 @@ nibble RP5C01::readPort(nibble port, EmuTime::param time)
 		return 0x0f; // TODO check this
 	default:
 		unsigned block = modeReg & MODE_BLOKSELECT;
-		if (block == TIME_BLOCK) {
-			updateTimeRegs(time);
-		}
 		nibble tmp = regs[block * 13 + port];
 		return tmp & mask[block][port];
 	}

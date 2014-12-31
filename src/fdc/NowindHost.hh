@@ -1,7 +1,6 @@
 #ifndef NOWINDHOST_HH
 #define NOWINDHOST_HH
 
-#include "NowindInterface.hh"
 #include "DiskImageUtils.hh"
 #include "circular_buffer.hh"
 #include "openmsx.hh"
@@ -13,11 +12,14 @@
 namespace openmsx {
 
 class SectorAccessibleDisk;
+class DiskContainer;
 
 class NowindHost
 {
 public:
-	explicit NowindHost(const NowindInterface::Drives& drives);
+	typedef std::vector<std::unique_ptr<DiskContainer>> Drives;
+
+	explicit NowindHost(const Drives& drives);
 	~NowindHost();
 
 	// public for usb-host implementation
@@ -102,7 +104,7 @@ private:
 
 	static const unsigned MAX_DEVICES = 16;
 
-	const NowindInterface::Drives& drives;
+	const Drives& drives;
 
 	cb_queue<byte> hostToMsxFifo;
 

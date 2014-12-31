@@ -2,11 +2,11 @@
 #define MSXFDC_HH
 
 #include "MSXDevice.hh"
+#include "Rom.hh"
 #include <memory>
 
 namespace openmsx {
 
-class Rom;
 class DiskDrive;
 
 class MSXFDC : public MSXDevice
@@ -24,7 +24,7 @@ protected:
 	explicit MSXFDC(const DeviceConfig& config);
 	~MSXFDC();
 
-	const std::unique_ptr<Rom> rom;
+	Rom rom;
 	std::unique_ptr<DiskDrive> drives[4];
 };
 

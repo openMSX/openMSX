@@ -2,12 +2,11 @@
 #define MSXMEMORYMAPPER_HH
 
 #include "MSXDevice.hh"
-#include <memory>
+#include "CheckedRam.hh"
 
 namespace openmsx {
 
 class MSXMapperIO;
-class CheckedRam;
 
 class MSXMemoryMapper : public MSXDevice
 {
@@ -33,9 +32,11 @@ protected:
 	  */
 	unsigned calcAddress(word address) const;
 
-	const std::unique_ptr<CheckedRam> checkedRam;
+	CheckedRam checkedRam;
 
 private:
+	unsigned getRamSize() const;
+
 	MSXMapperIO& mapperIO;
 };
 

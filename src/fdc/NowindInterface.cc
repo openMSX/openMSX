@@ -1,8 +1,5 @@
 #include "NowindInterface.hh"
-#include "NowindHost.hh"
 #include "NowindCommand.hh"
-#include "Rom.hh"
-#include "AmdFlash.hh"
 #include "DiskChanger.hh"
 #include "Clock.hh"
 #include "MSXMotherBoard.hh"
@@ -17,14 +14,12 @@ using std::string;
 
 namespace openmsx {
 
-
 NowindInterface::NowindInterface(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
-	, flash(make_unique<AmdFlash>(
-		*rom, std::vector<AmdFlash::SectorInfo>(rom->getSize() / 0x10000, {0x10000, false}),
-		0x01A4, false, config))
-	, host(make_unique<NowindHost>(drives))
+	, rom(getName() + " ROM", "rom", config)
+	, flash(rom, std::vector<AmdFlash::SectorInfo>(rom.getSize() / 0x10000, {0x10000, false}),
+		0x01A4, false, config)
+	, host(drives)
 	, basename("nowindX")
 {
 	nowindsInUse = getMotherBoard().getSharedStuff<NowindsInUse>("nowindsInUse");
@@ -63,17 +58,17 @@ void NowindInterface::reset(EmuTime::param /*time*/)
 	bank = 0;
 
 	// Flash state is NOT changed on reset
-	//flash->reset();
+	//flash.reset();
 }
 
 byte NowindInterface::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
-		return host->peek();
+		return host.peek();
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		// note: range 0x8000-0xA000 is already handled above
-		return flash->peek(bank * 0x4000 + (address & 0x3FFF));
+		return flash.peek(bank * 0x4000 + (address & 0x3FFF));
 	} else {
 		return 0xFF;
 	}
@@ -83,10 +78,10 @@ byte NowindInterface::readMem(word address, EmuTime::param /*time*/)
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
-		return host->read();
+		return host.read();
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		// note: range 0x8000-0xA000 is already handled above
-		return flash->read(bank * 0x4000 + (address & 0x3FFF));
+		return flash.read(bank * 0x4000 + (address & 0x3FFF));
 	} else {
 		return 0xFF;
 	}
@@ -100,7 +95,7 @@ const byte* NowindInterface::getReadCacheLine(word address) const
 		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		// note: range 0x8000-0xA000 is already handled above
-		return flash->getReadCacheLine(bank * 0x4000 + (address & 0x3FFF));
+		return flash.getReadCacheLine(bank * 0x4000 + (address & 0x3FFF));
 	} else {
 		return unmappedRead;
 	}
@@ -109,14 +104,14 @@ const byte* NowindInterface::getReadCacheLine(word address) const
 void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (address < 0x4000) {
-		flash->write(bank * 0x4000 + address, value);
+		flash.write(bank * 0x4000 + address, value);
 	} else if (((0x4000 <= address) && (address < 0x6000)) ||
 	           ((0x8000 <= address) && (address < 0xA000))) {
 		static const Clock<1000> clock(EmuTime::zero);
-		host->write(value, clock.getTicksTill(time));
+		host.write(value, clock.getTicksTill(time));
 	} else if (((0x6000 <= address) && (address < 0x8000)) ||
 	           ((0xA000 <= address) && (address < 0xC000))) {
-		byte max = rom->getSize() / (16 * 1024);
+		byte max = rom.getSize() / (16 * 1024);
 		bank = (value < max) ? value : value & (max - 1);
 		invalidateMemCache(0x4000, 0x4000);
 		invalidateMemCache(0xA000, 0x2000);
@@ -138,9 +133,9 @@ template<typename Archive>
 void NowindInterface::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("flash", *flash);
+	ar.serialize("flash", flash);
 	ar.serializeWithID("drives", drives, std::ref(getMotherBoard()));
-	ar.serialize("nowindhost", *host);
+	ar.serialize("nowindhost", host);
 	ar.serialize("bank", bank);
 
 	// don't serialize command, rom, basename

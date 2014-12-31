@@ -20,7 +20,6 @@
  */
 
 #include "ESE_RAM.hh"
-#include "SRAM.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
@@ -29,31 +28,25 @@
 
 namespace openmsx {
 
-static std::unique_ptr<SRAM> createSRAM(
-	const DeviceConfig& config, const std::string& name)
+unsigned ESE_RAM::getSramSize() const
 {
-	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
+	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
 		throw MSXException(StringOp::Builder() <<
-			"SRAM size for " << name <<
+			"SRAM size for " << getName() <<
 			" should be 128, 256, 512 or 1024kB and not " <<
 			sramSize << "kB!");
 	}
-	sramSize *= 1024; // in bytes
-	return make_unique<SRAM>(name + " SRAM", sramSize, config);
+	return sramSize * 1024; // in bytes
 }
 
 ESE_RAM::ESE_RAM(const DeviceConfig& config)
 	: MSXDevice(config)
-	, sram(createSRAM(config, getName()))
+	, sram(getName() + " SRAM", getSramSize(), config)
 	, romBlockDebug(*this, mapped, 0x4000, 0x8000, 13)
-	, blockMask((sram->getSize() / 8192) - 1)
+	, blockMask((sram.getSize() / 8192) - 1)
 {
 	reset(EmuTime::dummy());
-}
-
-ESE_RAM::~ESE_RAM()
-{
 }
 
 void ESE_RAM::reset(EmuTime::param /*time*/)
@@ -69,7 +62,7 @@ byte ESE_RAM::readMem(word address, EmuTime::param /*time*/)
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 8192) - 2;
 		word addr = address & 0x1FFF;
-		result = (*sram)[8192 * mapped[page] + addr];
+		result = sram[8192 * mapped[page] + addr];
 	} else {
 		result = 0xFF;
 	}
@@ -81,7 +74,7 @@ const byte* ESE_RAM::getReadCacheLine(word address) const
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 8192) - 2;
 		address &= 0x1FFF;
-		return &(*sram)[8192 * mapped[page] + address];
+		return &sram[8192 * mapped[page] + address];
 	} else {
 		return unmappedRead;
 	}
@@ -96,7 +89,7 @@ void ESE_RAM::writeMem(word address, byte value, EmuTime::param /*time*/)
 		unsigned page = (address / 8192) - 2;
 		address &= 0x1FFF;
 		if (isWriteable[page]) {
-			sram->write(8192 * mapped[page] + address, value);
+			sram.write(8192 * mapped[page] + address, value);
 		}
 	}
 }
@@ -126,7 +119,7 @@ template<typename Archive>
 void ESE_RAM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("SRAM", *sram);
+	ar.serialize("SRAM", sram);
 	ar.serialize("isWriteable", isWriteable);
 	ar.serialize("mapped", mapped);
 }

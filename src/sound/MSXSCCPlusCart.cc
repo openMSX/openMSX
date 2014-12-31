@@ -2,24 +2,19 @@
 // renaming, which isn't worth it right now. TODO rename this :)
 
 #include "MSXSCCPlusCart.hh"
-#include "SCC.hh"
-#include "Ram.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "XMLElement.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	: MSXDevice(config)
-	, ram(make_unique<Ram>(
-		config, getName() + " RAM", "SCC+ RAM", 0x20000))
-	, scc(make_unique<SCC>(
-		getName(), config, getCurrentTime(), SCC::SCC_Compatible))
+	, ram(config, getName() + " RAM", "SCC+ RAM", 0x20000)
+	, scc(getName(), config, getCurrentTime(), SCC::SCC_Compatible)
 	, romBlockDebug(*this, mapper, 0x4000, 0x8000, 13)
 {
 	if (const XMLElement* fileElem = config.findChild("filename")) {
@@ -27,8 +22,8 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 		const std::string& filename = fileElem->getData();
 		try {
 			File file(config.getFileContext().resolve(filename));
-			auto size = std::min<size_t>(file.getSize(), ram->getSize());
-			file.read(&(*ram)[0], size);
+			auto size = std::min<size_t>(file.getSize(), ram.getSize());
+			file.read(&ram[0], size);
 		} catch (FileException&) {
 			throw MSXException("Error reading file: " + filename);
 		}
@@ -62,13 +57,9 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	powerUp(getCurrentTime());
 }
 
-MSXSCCPlusCart::~MSXSCCPlusCart()
-{
-}
-
 void MSXSCCPlusCart::powerUp(EmuTime::param time)
 {
-	scc->powerUp(time);
+	scc.powerUp(time);
 	reset(time);
 }
 
@@ -79,7 +70,7 @@ void MSXSCCPlusCart::reset(EmuTime::param time)
 	setMapper(1, 1);
 	setMapper(2, 2);
 	setMapper(3, 3);
-	scc->reset(time);
+	scc.reset(time);
 }
 
 
@@ -88,7 +79,7 @@ byte MSXSCCPlusCart::readMem(word addr, EmuTime::param time)
 	byte result;
 	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-		result = scc->readMem(addr & 0xFF, time);
+		result = scc.readMem(addr & 0xFF, time);
 	} else {
 		result = MSXSCCPlusCart::peekMem(addr, time);
 	}
@@ -102,7 +93,7 @@ byte MSXSCCPlusCart::peekMem(word addr, EmuTime::param time) const
 	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
 		// SCC  visible in 0x9800 - 0x9FFF
 		// SCC+ visible in 0xB800 - 0xBFFF
-		return scc->peekMem(addr & 0xFF, time);
+		return scc.peekMem(addr & 0xFF, time);
 	} else if ((0x4000 <= addr) && (addr < 0xC000)) {
 		// SCC(+) enabled/disabled but not requested so memory stuff
 		return internalMemoryBank[(addr >> 13) - 2][addr & 0x1FFF];
@@ -176,12 +167,12 @@ void MSXSCCPlusCart::writeMem(word address, byte value, EmuTime::param time)
 		break;
 	case EN_SCC:
 		if ((0x9800 <= address) && (address < 0xA000)) {
-			scc->writeMem(address & 0xFF, value, time);
+			scc.writeMem(address & 0xFF, value, time);
 		}
 		break;
 	case EN_SCCPLUS:
 		if ((0xB800 <= address) && (address < 0xC000)) {
-			scc->writeMem(address & 0xFF, value, time);
+			scc.writeMem(address & 0xFF, value, time);
 		}
 		break;
 	}
@@ -214,7 +205,7 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 		block = unmappedRead;
 		isMapped[regio] = false;
 	} else {
-		block = &(*ram)[0x2000 * value];
+		block = &ram[0x2000 * value];
 		isMapped[regio] = true;
 	}
 
@@ -229,9 +220,9 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 	checkEnable(); // invalidateMemCache() done below
 
 	if (modeRegister & 0x20) {
-		scc->setChipMode(SCC::SCC_plusmode);
+		scc.setChipMode(SCC::SCC_plusmode);
 	} else {
-		scc->setChipMode(SCC::SCC_Compatible);
+		scc.setChipMode(SCC::SCC_Compatible);
 	}
 
 	if (modeRegister & 0x10) {
@@ -271,9 +262,9 @@ void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
 	unsigned ramSize = (lowRAM && highRAM && (mapperMask == 0xF))
 	                 ? 0x20000 : 0x10000;
 	unsigned ramBase = lowRAM ? 0x00000 : 0x10000;
-	ar.serialize_blob("ram", &(*ram)[ramBase], ramSize);
+	ar.serialize_blob("ram", &ram[ramBase], ramSize);
 
-	ar.serialize("scc", *scc);
+	ar.serialize("scc", scc);
 	ar.serialize("mapper", mapper);
 	ar.serialize("mode", modeRegister);
 

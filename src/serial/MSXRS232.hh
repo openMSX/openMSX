@@ -90,8 +90,8 @@ private:
 	} interf;
 
 	const std::unique_ptr<I8251> i8251;
-	const std::unique_ptr<Rom> rom;
-	const std::unique_ptr<Ram> ram;
+	const std::unique_ptr<Rom> rom; // can be nullptr
+	const std::unique_ptr<Ram> ram; // can be nullptr
 
 	IRQHelper rxrdyIRQ;
 	bool rxrdyIRQlatch;

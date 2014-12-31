@@ -3,7 +3,6 @@
 #include "SCC.hh"
 #include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
-#include "AmdFlash.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
 #include "Ram.hh"
@@ -271,8 +270,7 @@ static std::vector<AmdFlash::SectorInfo> getSectorInfo()
 MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(
 		const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: MSXRom(config, std::move(rom_))
-	, flash(make_unique<AmdFlash>(
-		*rom, getSectorInfo(), 0x207E, true, config))
+	, flash(*rom, getSectorInfo(), 0x207E, true, config)
 	, scc(make_unique<SCC>(
 		"MFR SCC+ SD SCC-I", config, getCurrentTime(),
 		SCC::SCC_Compatible))
@@ -343,7 +341,7 @@ void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
 	psgLatch = 0;
 	psg->reset(time);
 
-	flash->reset();
+	flash.reset();
 
 	// memory mapper
 	for (auto i = 0; i < 4; ++i) {
@@ -368,7 +366,7 @@ byte MegaFlashRomSCCPlusSD::getSubSlot(unsigned addr) const
 void MegaFlashRomSCCPlusSD::writeToFlash(unsigned addr, byte value)
 {
 	if (isFlashRomWriteEnabled()) {
-		flash->write(addr, value);
+		flash.write(addr, value);
 	} else {
 		// flash is write protected, this is implemented by not passing
 		// writes to flash at all.
@@ -476,19 +474,19 @@ byte MegaFlashRomSCCPlusSD::readMemSubSlot0(word addr)
 {
 	// read from the first 16kB of flash
 	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
-	return flash->read(addr & 0x3FFF);
+	return flash.read(addr & 0x3FFF);
 }
 
 byte MegaFlashRomSCCPlusSD::peekMemSubSlot0(word addr) const
 {
 	// read from the first 16kB of flash
 	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
-	return flash->peek(addr & 0x3FFF);
+	return flash.peek(addr & 0x3FFF);
 }
 
 const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot0(word addr) const
 {
-	return flash->getReadCacheLine(addr & 0x3FFF);
+	return flash.getReadCacheLine(addr & 0x3FFF);
 }
 
 void MegaFlashRomSCCPlusSD::writeMemSubSlot0(word addr, byte value)
@@ -518,7 +516,7 @@ void MegaFlashRomSCCPlusSD::updateConfigReg(byte value)
 		}
 	}
 	configReg = value;
-	flash->setVppWpPinLow(isFlashRomBlockProtectEnabled());
+	flash.setVppWpPinLow(isFlashRomBlockProtectEnabled());
 	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
 }
 
@@ -566,7 +564,7 @@ byte MegaFlashRomSCCPlusSD::readMemSubSlot1(word addr, EmuTime::param time)
 
 	unsigned flashAddr = getFlashAddrSubSlot1(addr);
 	return (flashAddr != unsigned(-1))
-		? flash->read(flashAddr)
+		? flash.read(flashAddr)
 		: 0xFF; // unmapped read
 }
 
@@ -583,7 +581,7 @@ byte MegaFlashRomSCCPlusSD::peekMemSubSlot1(word addr, EmuTime::param time) cons
 
 	unsigned flashAddr = getFlashAddrSubSlot1(addr);
 	return (flashAddr != unsigned(-1))
-		? flash->peek(flashAddr)
+		? flash.peek(flashAddr)
 		: 0xFF; // unmapped read
 }
 
@@ -599,7 +597,7 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot1(word addr) const
 
 	unsigned flashAddr = getFlashAddrSubSlot1(addr);
 	return (flashAddr != unsigned(-1))
-		? flash->getReadCacheLine(flashAddr)
+		? flash.getReadCacheLine(flashAddr)
 		: unmappedRead;
 }
 
@@ -797,7 +795,7 @@ byte MegaFlashRomSCCPlusSD::readMemSubSlot3(word addr, EmuTime::param /*time*/)
 	if ((0x4000 <= addr) && (addr < 0xC000)) {
 		// read (flash)rom content
 		unsigned flashAddr = getFlashAddrSubSlot3(addr);
-		return flash->read(flashAddr);
+		return flash.read(flashAddr);
 	} else {
 		// unmapped read
 		return 0xFF;
@@ -809,7 +807,7 @@ byte MegaFlashRomSCCPlusSD::peekMemSubSlot3(word addr, EmuTime::param /*time*/) 
 	if ((0x4000 <= addr) && (addr < 0xC000)) {
 		// read (flash)rom content
 		unsigned flashAddr = getFlashAddrSubSlot3(addr);
-		return flash->peek(flashAddr);
+		return flash.peek(flashAddr);
 	} else {
 		// unmapped read
 		return 0xFF;
@@ -828,7 +826,7 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot3(word addr) const
 	if ((0x4000 <= addr) && (addr < 0xC000)) {
 		// (flash)rom content
 		unsigned flashAddr = getFlashAddrSubSlot3(addr);
-		return flash->getReadCacheLine(flashAddr);
+		return flash.getReadCacheLine(flashAddr);
 	} else {
 		return unmappedRead;
 	}
@@ -913,7 +911,7 @@ void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	// overall
-	ar.serialize("flash", *flash);
+	ar.serialize("flash", flash);
 	ar.serialize("subslotReg", subslotReg);
 
 	// subslot 0 stuff

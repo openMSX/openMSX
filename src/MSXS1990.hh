@@ -2,12 +2,10 @@
 #define MSXS1990_HH
 
 #include "MSXDevice.hh"
+#include "FirmwareSwitch.hh"
 #include "SimpleDebuggable.hh"
-#include <memory>
 
 namespace openmsx {
-
-class FirmwareSwitch;
 
 /**
  * This class implements the MSX-engine found in a MSX Turbo-R (S1990)
@@ -18,7 +16,6 @@ class MSXS1990 final : public MSXDevice
 {
 public:
 	explicit MSXS1990(const DeviceConfig& config);
-	~MSXS1990();
 
 	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;
@@ -33,8 +30,6 @@ private:
 	void writeRegister(byte reg, byte value);
 	void setCPUStatus(byte value);
 
-	const std::unique_ptr<FirmwareSwitch> firmwareSwitch;
-
 	class Debuggable final : public SimpleDebuggable {
 	public:
 		Debuggable(MSXMotherBoard& motherBoard, MSXS1990& s1990);
@@ -44,6 +39,7 @@ private:
 		MSXS1990& s1990;
 	} debuggable;
 
+	FirmwareSwitch firmwareSwitch;
 	byte registerSelect;
 	byte cpuStatus;
 };

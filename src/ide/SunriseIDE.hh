@@ -2,13 +2,13 @@
 #define SUNRISEIDE_HH
 
 #include "MSXDevice.hh"
+#include "Rom.hh"
 #include "RomBlockDebuggable.hh"
 #include <memory>
 
 namespace openmsx {
 
 class IDEDevice;
-class Rom;
 
 class SunriseIDE final : public MSXDevice
 {
@@ -38,7 +38,7 @@ private:
 	void writeData(word value, EmuTime::param time);
 	void writeReg(nibble reg, byte value, EmuTime::param time);
 
-	const std::unique_ptr<Rom> rom;
+	Rom rom;
 	RomBlockDebuggable romBlockDebug;
 	std::unique_ptr<IDEDevice> device[2];
 	const byte* internalBank;

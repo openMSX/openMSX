@@ -2,18 +2,15 @@
 #define ESE_RAM_HH
 
 #include "MSXDevice.hh"
+#include "SRAM.hh"
 #include "RomBlockDebuggable.hh"
-#include <memory>
 
 namespace openmsx {
-
-class SRAM;
 
 class ESE_RAM final : public MSXDevice
 {
 public:
 	ESE_RAM(const DeviceConfig& config);
-	~ESE_RAM();
 
 	void reset(EmuTime::param time) override;
 
@@ -26,9 +23,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	unsigned getSramSize() const;
 	void setSRAM(unsigned region, byte block);
 
-	const std::unique_ptr<SRAM> sram;
+	SRAM sram;
 	RomBlockDebuggable romBlockDebug;
 
 	bool isWriteable[4]; // which region is readonly?

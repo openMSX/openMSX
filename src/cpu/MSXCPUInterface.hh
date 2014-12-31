@@ -370,7 +370,7 @@ private:
 	CliComm& cliComm;
 	MSXMotherBoard& motherBoard;
 
-	std::unique_ptr<VDPIODelay> delayDevice;
+	std::unique_ptr<VDPIODelay> delayDevice; // can be nullptr
 
 	byte disallowReadCache [CacheLine::NUM];
 	byte disallowWriteCache[CacheLine::NUM];

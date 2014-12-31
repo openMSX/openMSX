@@ -2,13 +2,11 @@
 #define MSXMUSIC_HH
 
 #include "MSXDevice.hh"
+#include "Rom.hh"
+#include "YM2413.hh"
 #include "serialize_meta.hh"
-#include <memory>
 
 namespace openmsx {
-
-class Rom;
-class YM2413;
 
 class MSXMusicBase : public MSXDevice
 {
@@ -24,13 +22,13 @@ public:
 
 protected:
 	explicit MSXMusicBase(const DeviceConfig& config);
-	~MSXMusicBase();
+	~MSXMusicBase() {}
 
 	void writeRegisterPort(byte value, EmuTime::param time);
 	void writeDataPort(byte value, EmuTime::param time);
 
-	const std::unique_ptr<Rom> rom;
-	const std::unique_ptr<YM2413> ym2413;
+	Rom rom;
+	YM2413 ym2413;
 
 private:
 	int registerLatch;

@@ -5,7 +5,6 @@
 #include "TurboRFDC.hh"
 #include "TC8566AF.hh"
 #include "MSXCPU.hh"
-#include "Rom.hh"
 #include "CacheLine.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
@@ -36,7 +35,7 @@ TurboRFDC::TurboRFDC(const DeviceConfig& config)
 		getScheduler(), reinterpret_cast<DiskDrive**>(drives),
 		getCliComm(), getCurrentTime()))
 	, romBlockDebug(*this, &bank, 0x4000, 0x4000, 14)
-	, blockMask((rom->getSize() / 0x4000) - 1)
+	, blockMask((rom.getSize() / 0x4000) - 1)
 	, type(parseType(config))
 {
 	reset(getCurrentTime());
@@ -186,7 +185,7 @@ void TurboRFDC::setBank(byte value)
 {
 	invalidateMemCache(0x4000, 0x4000);
 	bank = value & blockMask;
-	memory = &(*rom)[0x4000 * bank];
+	memory = &rom[0x4000 * bank];
 }
 
 byte* TurboRFDC::getWriteCacheLine(word address) const

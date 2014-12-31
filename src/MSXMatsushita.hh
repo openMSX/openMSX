@@ -3,18 +3,15 @@
 
 #include "MSXDevice.hh"
 #include "MSXSwitchedDevice.hh"
-#include <memory>
+#include "FirmwareSwitch.hh"
+#include "SRAM.hh"
 
 namespace openmsx {
-
-class FirmwareSwitch;
-class SRAM;
 
 class MSXMatsushita final : public MSXDevice, public MSXSwitchedDevice
 {
 public:
 	explicit MSXMatsushita(const DeviceConfig& config);
-	~MSXMatsushita();
 
 	// MSXDevice
 	void reset(EmuTime::param time) override;
@@ -28,8 +25,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<FirmwareSwitch> firmwareSwitch;
-	const std::unique_ptr<SRAM> sram;
+	FirmwareSwitch firmwareSwitch;
+	SRAM sram;
 	word address;
 	nibble color1, color2;
 	byte pattern;

@@ -31,10 +31,7 @@
  */
 
 #include "MSXHBI55.hh"
-#include "I8255.hh"
-#include "SRAM.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -43,14 +40,10 @@ namespace openmsx {
 
 MSXHBI55::MSXHBI55(const DeviceConfig& config)
 	: MSXDevice(config)
-	, i8255(make_unique<I8255>(*this, getCurrentTime(), getCliComm()))
-	, sram(make_unique<SRAM>(getName() + " SRAM", 0x1000, config))
+	, i8255(*this, getCurrentTime(), getCliComm())
+	, sram(getName() + " SRAM", 0x1000, config)
 {
 	reset(getCurrentTime());
-}
-
-MSXHBI55::~MSXHBI55()
-{
 }
 
 void MSXHBI55::reset(EmuTime::param time)
@@ -60,7 +53,7 @@ void MSXHBI55::reset(EmuTime::param time)
 	addressLatch = 0;
 	writeLatch = 0;
 	mode = 0;
-	i8255->reset(time);
+	i8255.reset(time);
 }
 
 byte MSXHBI55::readIO(word port, EmuTime::param time)
@@ -68,16 +61,16 @@ byte MSXHBI55::readIO(word port, EmuTime::param time)
 	byte result;
 	switch (port & 0x03) {
 	case 0:
-		result = i8255->readPortA(time);
+		result = i8255.readPortA(time);
 		break;
 	case 1:
-		result = i8255->readPortB(time);
+		result = i8255.readPortB(time);
 		break;
 	case 2:
-		result = i8255->readPortC(time);
+		result = i8255.readPortC(time);
 		break;
 	case 3:
-		result = i8255->readControlPort(time);
+		result = i8255.readControlPort(time);
 		break;
 	default: // unreachable, avoid warning
 		UNREACHABLE; result = 0;
@@ -90,16 +83,16 @@ byte MSXHBI55::peekIO(word port, EmuTime::param time) const
 	byte result;
 	switch (port & 0x03) {
 	case 0:
-		result = i8255->peekPortA(time);
+		result = i8255.peekPortA(time);
 		break;
 	case 1:
-		result = i8255->peekPortB(time);
+		result = i8255.peekPortB(time);
 		break;
 	case 2:
-		result = i8255->peekPortC(time);
+		result = i8255.peekPortC(time);
 		break;
 	case 3:
-		result = i8255->readControlPort(time);
+		result = i8255.readControlPort(time);
 		break;
 	default: // unreachable, avoid warning
 		UNREACHABLE; result = 0;
@@ -111,16 +104,16 @@ void MSXHBI55::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0x03) {
 	case 0:
-		i8255->writePortA(value, time);
+		i8255.writePortA(value, time);
 		break;
 	case 1:
-		i8255->writePortB(value, time);
+		i8255.writePortB(value, time);
 		break;
 	case 2:
-		i8255->writePortC(value, time);
+		i8255.writePortC(value, time);
 		break;
 	case 3:
-		i8255->writeControlPort(value, time);
+		i8255.writeControlPort(value, time);
 		break;
 	default:
 		UNREACHABLE;
@@ -166,7 +159,7 @@ void MSXHBI55::writeB(byte value, EmuTime::param /*time*/)
 		writeAddress = address;
 		break;
 	case 2:
-		sram->write(writeAddress, writeLatch);
+		sram.write(writeAddress, writeLatch);
 		break;
 	case 3:
 		readAddress = address;
@@ -200,28 +193,28 @@ void MSXHBI55::writeC0(nibble value, EmuTime::param /*time*/)
 {
 	writeLatch = (writeLatch & 0xF0) | value;
 	if (mode == 1) {
-		sram->write(writeAddress, writeLatch);
+		sram.write(writeAddress, writeLatch);
 	}
 }
 void MSXHBI55::writeC1(nibble value, EmuTime::param /*time*/)
 {
 	writeLatch = (writeLatch & 0x0F) | (value << 4);
 	if (mode == 1) {
-		sram->write(writeAddress, writeLatch);
+		sram.write(writeAddress, writeLatch);
 	}
 }
 
 byte MSXHBI55::readSRAM(word address) const
 {
-	return address ? (*sram)[address] : 0x53;
+	return address ? sram[address] : 0x53;
 }
 
 template<typename Archive>
 void MSXHBI55::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("i8255", *i8255);
-	ar.serialize("SRAM", *sram);
+	ar.serialize("i8255", i8255);
+	ar.serialize("SRAM", sram);
 	ar.serialize("readAddress", readAddress);
 	ar.serialize("writeAddress", writeAddress);
 	ar.serialize("addressLatch", addressLatch);

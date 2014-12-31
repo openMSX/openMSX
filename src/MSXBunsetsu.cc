@@ -1,23 +1,15 @@
 #include "MSXBunsetsu.hh"
 #include "CacheLine.hh"
-#include "Rom.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 MSXBunsetsu::MSXBunsetsu(const DeviceConfig& config)
 	: MSXDevice(config)
-	, bunsetsuRom(make_unique<Rom>(
-		getName() + "_1", "rom", config, "bunsetsu"))
-	, jisyoRom(make_unique<Rom>(
-		getName() + "_2", "rom", config, "jisyo"))
+	, bunsetsuRom(getName() + "_1", "rom", config, "bunsetsu")
+	, jisyoRom   (getName() + "_2", "rom", config, "jisyo")
 {
 	reset(EmuTime::dummy());
-}
-
-MSXBunsetsu::~MSXBunsetsu()
-{
 }
 
 void MSXBunsetsu::reset(EmuTime::param /*time*/)
@@ -29,10 +21,10 @@ byte MSXBunsetsu::readMem(word address, EmuTime::param /*time*/)
 {
 	byte result;
 	if (address == 0xBFFF) {
-		result = (*jisyoRom)[jisyoAddress];
+		result = jisyoRom[jisyoAddress];
 		jisyoAddress = (jisyoAddress + 1) & 0x1FFFF;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
-		result = (*bunsetsuRom)[address - 0x4000];
+		result = bunsetsuRom[address - 0x4000];
 	} else {
 		result = 0xFF;
 	}
@@ -60,7 +52,7 @@ const byte* MSXBunsetsu::getReadCacheLine(word start) const
 	if ((start & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return nullptr;
 	} else {
-		return &(*bunsetsuRom)[start - 0x4000];
+		return &bunsetsuRom[start - 0x4000];
 	}
 }
 

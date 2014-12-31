@@ -1,9 +1,6 @@
 #include "MSXFmPac.hh"
-#include "SRAM.hh"
-#include "Rom.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -11,15 +8,10 @@ static const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXFmPac::MSXFmPac(const DeviceConfig& config)
 	: MSXMusicBase(config)
-	, sram(make_unique<SRAM>(
-		getName() + " SRAM", 0x1FFE, config, PAC_Header))
+	, sram(getName() + " SRAM", 0x1FFE, config, PAC_Header)
 	, romBlockDebug(*this, &bank, 0x4000, 0x4000, 14)
 {
 	reset(getCurrentTime());
-}
-
-MSXFmPac::~MSXFmPac()
-{
 }
 
 void MSXFmPac::reset(EmuTime::param time)
@@ -50,7 +42,7 @@ byte MSXFmPac::readMem(word address, EmuTime::param /*time*/)
 	default:
 		if (sramEnabled) {
 			if (address < 0x1FFE) {
-				return (*sram)[address];
+				return sram[address];
 			} else if (address == 0x1FFE) {
 				return r1ffe; // always 0x4D
 			} else if (address == 0x1FFF) {
@@ -59,7 +51,7 @@ byte MSXFmPac::readMem(word address, EmuTime::param /*time*/)
 				return 0xFF;
 			}
 		} else {
-			return (*rom)[bank * 0x4000 + address];
+			return rom[bank * 0x4000 + address];
 		}
 	}
 }
@@ -72,14 +64,14 @@ const byte* MSXFmPac::getReadCacheLine(word address) const
 	}
 	if (sramEnabled) {
 		if (address < (0x1FFE & CacheLine::HIGH)) {
-			return &(*sram)[address];
+			return &sram[address];
 		} else if (address == (0x1FFE & CacheLine::HIGH)) {
 			return nullptr;
 		} else {
 			return unmappedRead;
 		}
 	} else {
-		return &(*rom)[bank * 0x4000 + address];
+		return &rom[bank * 0x4000 + address];
 	}
 }
 
@@ -124,7 +116,7 @@ void MSXFmPac::writeMem(word address, byte value, EmuTime::param time)
 	}
 	default:
 		if (sramEnabled && (address < 0x1FFE)) {
-			sram->write(address, value);
+			sram.write(address, value);
 		}
 	}
 }
@@ -159,7 +151,7 @@ template<typename Archive>
 void MSXFmPac::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeInlinedBase<MSXMusicBase>(*this, version);
-	ar.serialize("sram", *sram);
+	ar.serialize("sram", sram);
 	ar.serialize("enable", enable);
 	ar.serialize("bank", bank);
 	ar.serialize("r1ffe", r1ffe);

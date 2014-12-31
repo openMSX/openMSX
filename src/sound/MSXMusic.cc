@@ -1,9 +1,6 @@
 #include "MSXMusic.hh"
-#include "YM2413.hh"
-#include "Rom.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -11,22 +8,17 @@ namespace openmsx {
 
 MSXMusicBase::MSXMusicBase(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
-	, ym2413(make_unique<YM2413>(getName(), config))
+	, rom(getName() + " ROM", "rom", config)
+	, ym2413(getName(), config)
 {
 	reset(getCurrentTime());
 }
 
-MSXMusicBase::~MSXMusicBase()
-{
-}
-
 void MSXMusicBase::reset(EmuTime::param time)
 {
-	ym2413->reset(time);
+	ym2413.reset(time);
 	registerLatch = 0; // TODO check
 }
-
 
 void MSXMusicBase::writeIO(word port, byte value, EmuTime::param time)
 {
@@ -47,7 +39,7 @@ void MSXMusicBase::writeRegisterPort(byte value, EmuTime::param /*time*/)
 
 void MSXMusicBase::writeDataPort(byte value, EmuTime::param time)
 {
-	ym2413->writeReg(registerLatch, value, time);
+	ym2413.writeReg(registerLatch, value, time);
 }
 
 byte MSXMusicBase::peekMem(word address, EmuTime::param /*time*/) const
@@ -62,7 +54,7 @@ byte MSXMusicBase::readMem(word address, EmuTime::param time)
 
 const byte* MSXMusicBase::getReadCacheLine(word start) const
 {
-	return &(*rom)[start & (rom->getSize() - 1)];
+	return &rom[start & (rom.getSize() - 1)];
 }
 
 // version 1:  initial version
@@ -73,11 +65,11 @@ void MSXMusicBase::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("ym2413", *ym2413);
+		ar.serialize("ym2413", ym2413);
 	} else {
 		// In older versions, the 'ym2413' level was missing, delegate
 		// directly to YM2413 without emitting the 'ym2413' tag.
-		ym2413->serialize(ar, version);
+		ym2413.serialize(ar, version);
 	}
 
 	ar.serialize("registerLatch", registerLatch);

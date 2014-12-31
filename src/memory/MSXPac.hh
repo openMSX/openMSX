@@ -2,17 +2,14 @@
 #define MSXPAC_HH
 
 #include "MSXDevice.hh"
-#include <memory>
+#include "SRAM.hh"
 
 namespace openmsx {
-
-class SRAM;
 
 class MSXPac final : public MSXDevice
 {
 public:
 	explicit MSXPac(const DeviceConfig& config);
-	~MSXPac();
 
 	void reset(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;
@@ -26,7 +23,7 @@ public:
 private:
 	void checkSramEnable();
 
-	const std::unique_ptr<SRAM> sram;
+	SRAM sram;
 	byte r1ffe, r1fff;
 	bool sramEnabled;
 };

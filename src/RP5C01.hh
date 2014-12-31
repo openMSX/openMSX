@@ -27,6 +27,7 @@ public:
 
 	void reset(EmuTime::param time);
 	nibble readPort(nibble port, EmuTime::param time);
+	nibble peekPort(nibble port) const;
 	void writePort(nibble port, nibble value, EmuTime::param time);
 
 	template<typename Archive>

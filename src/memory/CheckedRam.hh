@@ -1,6 +1,7 @@
 #ifndef CHECKEDRAM_HH
 #define CHECKEDRAM_HH
 
+#include "Ram.hh"
 #include "CacheLine.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
@@ -12,7 +13,6 @@
 namespace openmsx {
 
 class DeviceConfig;
-class Ram;
 class MSXCPU;
 class Setting;
 class TclCallback;
@@ -34,13 +34,13 @@ public:
 	~CheckedRam();
 
 	byte read(unsigned addr);
-	byte peek(unsigned addr) const;
+	byte peek(unsigned addr) const { return ram[addr]; }
 	void write(unsigned addr, const byte value);
 
 	const byte* getReadCacheLine(unsigned addr) const;
 	byte* getWriteCacheLine(unsigned addr) const;
 
-	unsigned getSize() const;
+	unsigned getSize() const { return ram.getSize(); }
 	void clear();
 
 	/**
@@ -49,7 +49,7 @@ public:
 	 * consistently, so that the initialized-administration will be always
 	 * up to date!
 	 */
-	Ram& getUncheckedRam() const { return *ram; }
+	Ram& getUncheckedRam() { return ram; }
 
 	// TODO
 	//template<typename Archive>
@@ -63,7 +63,7 @@ private:
 
 	std::vector<bool> completely_initialized_cacheline;
 	std::vector<std::bitset<CacheLine::SIZE>> uninitialized;
-	const std::unique_ptr<Ram> ram;
+	Ram ram;
 	MSXCPU& msxcpu;
 	std::unique_ptr<TclCallback> umrCallback;
 };

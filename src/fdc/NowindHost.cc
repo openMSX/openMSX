@@ -35,7 +35,7 @@ static void DBERR(const char* message, ...)
 }
 
 
-NowindHost::NowindHost(const NowindInterface::Drives& drives_)
+NowindHost::NowindHost(const Drives& drives_)
 	: drives(drives_)
 	, lastTime(0)
 	, state(STATE_SYNC1)

@@ -2,19 +2,16 @@
 #define MSXFMPAC_HH
 
 #include "MSXMusic.hh"
+#include "SRAM.hh"
 #include "RomBlockDebuggable.hh"
 #include "serialize_meta.hh"
-#include <memory>
 
 namespace openmsx {
-
-class SRAM;
 
 class MSXFmPac final : public MSXMusicBase
 {
 public:
 	explicit MSXFmPac(const DeviceConfig& config);
-	~MSXFmPac();
 
 	void reset(EmuTime::param time) override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
@@ -29,7 +26,7 @@ public:
 private:
 	void checkSramEnable();
 
-	const std::unique_ptr<SRAM> sram;
+	SRAM sram;
 	RomBlockDebuggable romBlockDebug;
 	byte enable;
 	byte bank;

@@ -37,7 +37,7 @@ public:
 private:
 	MSXCPU& msxcpu;
 
-	const std::unique_ptr<Rom> rom;
+	const std::unique_ptr<Rom> rom; // can be nullptr
 	byte* ram;
 	unsigned ramSize;
 	bool dram;

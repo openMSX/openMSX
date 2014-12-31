@@ -4,11 +4,11 @@
 #include "MSXDevice.hh"
 #include "Clock.hh"
 #include "IRQHelper.hh"
+#include "Rom.hh"
 #include <memory>
 
 namespace openmsx {
 
-class Rom;
 class LaserdiscPlayer;
 class MSXPPI;
 class VDP;
@@ -35,8 +35,8 @@ public:
 private:
 	void updateVideoSource();
 
-	const std::unique_ptr<Rom> rom;
-	std::unique_ptr<LaserdiscPlayer> laserdisc;
+	Rom rom;
+	std::unique_ptr<LaserdiscPlayer> laserdisc; // can be nullptr
 	MSXPPI* ppi;
 	VDP* vdp;
 

@@ -2,6 +2,9 @@
 #define NOWINDINTERFACE_HH
 
 #include "MSXDevice.hh"
+#include "NowindHost.hh"
+#include "Rom.hh"
+#include "AmdFlash.hh"
 #include <bitset>
 #include <memory>
 #include <vector>
@@ -10,16 +13,11 @@
 namespace openmsx {
 
 class NowindCommand;
-class Rom;
-class AmdFlash;
 class DiskContainer;
-class NowindHost;
 
 class NowindInterface final : public MSXDevice
 {
 public:
-	typedef std::vector<std::unique_ptr<DiskContainer>> Drives;
-
 	explicit NowindInterface(const DeviceConfig& config);
 	~NowindInterface();
 
@@ -34,11 +32,11 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<Rom> rom;
-	const std::unique_ptr<AmdFlash> flash;
-	const std::unique_ptr<NowindHost> host;
+	Rom rom;
+	AmdFlash flash;
+	NowindHost host;
 	std::unique_ptr<NowindCommand> command;
-	Drives drives;
+	NowindHost::Drives drives;
 	std::string basename;
 	byte bank;
 

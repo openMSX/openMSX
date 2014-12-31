@@ -2,13 +2,13 @@
 #define MEGAFLASHROMSCCPLUS_HH
 
 #include "MSXRom.hh"
+#include "AmdFlash.hh"
 #include <memory>
 
 namespace openmsx {
 
 class SCC;
 class AY8910;
-class AmdFlash;
 
 class MegaFlashRomSCCPlus final : public MSXRom
 {
@@ -42,7 +42,7 @@ private:
 
 	const std::unique_ptr<SCC> scc;
 	const std::unique_ptr<AY8910> psg;
-	const std::unique_ptr<AmdFlash> flash;
+	AmdFlash flash;
 
 	byte configReg;
 	byte offsetReg;

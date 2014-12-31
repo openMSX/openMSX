@@ -2,23 +2,17 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "PanasonicMemory.hh"
-#include "FirmwareSwitch.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 MSXS1990::MSXS1990(const DeviceConfig& config)
 	: MSXDevice(config)
-	, firmwareSwitch(make_unique<FirmwareSwitch>(config))
 	, debuggable(getMotherBoard(), *this)
+	, firmwareSwitch(config)
 {
 	reset(EmuTime::dummy());
-}
-
-MSXS1990::~MSXS1990()
-{
 }
 
 void MSXS1990::reset(EmuTime::param /*time*/)
@@ -63,7 +57,7 @@ byte MSXS1990::readRegister(byte reg) const
 {
 	switch (reg) {
 	case 5:
-		return firmwareSwitch->getStatus() ? 0x40 : 0x00;
+		return firmwareSwitch.getStatus() ? 0x40 : 0x00;
 	case 6:
 		return cpuStatus;
 	case 13:

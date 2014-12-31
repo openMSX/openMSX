@@ -1,5 +1,4 @@
 #include "PioneerLDControl.hh"
-#include "Rom.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
 #include "LaserdiscPlayer.hh"
@@ -34,7 +33,7 @@ namespace openmsx {
  */
 PioneerLDControl::PioneerLDControl(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
+	, rom(getName() + " ROM", "rom", config)
 	, clock(EmuTime::zero)
 	, irq(getMotherBoard(), "PioneerLDControl.IRQdisplayoff")
 	, videoEnabled(false)
@@ -111,7 +110,7 @@ byte PioneerLDControl::peekMem(word address, EmuTime::param time) const
 			val &= 0x7f;
 		}
 	} else if (0x4000 <= address && address < 0x6000) {
-		val = (*rom)[address & 0x1fff];
+		val = rom[address & 0x1fff];
 	}
 	return val;
 }
@@ -121,7 +120,7 @@ const byte* PioneerLDControl::getReadCacheLine(word start) const
 	if ((start & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
 		return nullptr;
 	} else if (0x4000 <= start && start < 0x6000) {
-		return &(*rom)[start & 0x1fff];
+		return &rom[start & 0x1fff];
 	} else {
 		return unmappedRead;
 	}

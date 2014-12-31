@@ -3,7 +3,6 @@
 #include "SCC.hh"
 #include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
-#include "AmdFlash.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
@@ -189,8 +188,7 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 	, psg(make_unique<AY8910>(
 		"MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 		getCurrentTime()))
-	, flash(make_unique<AmdFlash>(
-		*rom, getSectorInfo(), 0x205B, false, config))
+	, flash(*rom, getSectorInfo(), 0x205B, false, config)
 {
 	powerUp(getCurrentTime());
 
@@ -232,7 +230,7 @@ void MegaFlashRomSCCPlus::reset(EmuTime::param time)
 	psgLatch = 0;
 	psg->reset(time);
 
-	flash->reset();
+	flash.reset();
 
 	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
 }
@@ -296,7 +294,7 @@ byte MegaFlashRomSCCPlus::peekMem(word addr, EmuTime::param time) const
 		// read (flash)rom content
 		unsigned flashAddr = getFlashAddr(addr);
 		assert(flashAddr != unsigned(-1));
-		return flash->peek(flashAddr);
+		return flash.peek(flashAddr);
 	} else {
 		// unmapped read
 		return 0xFF;
@@ -323,7 +321,7 @@ byte MegaFlashRomSCCPlus::readMem(word addr, EmuTime::param time)
 		// read (flash)rom content
 		unsigned flashAddr = getFlashAddr(addr);
 		assert(flashAddr != unsigned(-1));
-		return flash->read(flashAddr);
+		return flash.read(flashAddr);
 	} else {
 		// unmapped read
 		return 0xFF;
@@ -351,7 +349,7 @@ const byte* MegaFlashRomSCCPlus::getReadCacheLine(word addr) const
 		// read (flash)rom content
 		unsigned flashAddr = getFlashAddr(addr);
 		assert(flashAddr != unsigned(-1));
-		return flash->getReadCacheLine(flashAddr);
+		return flash.getReadCacheLine(flashAddr);
 	} else {
 		// unmapped read
 		return unmappedRead;
@@ -489,7 +487,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 	if (((configReg & 0xC0) == 0x40) ||
 	    ((0x4000 <= addr) && (addr < 0xC000))) {
 		assert(flashAddr != unsigned(-1));
-		return flash->write(flashAddr, value);
+		return flash.write(flashAddr, value);
 	}
 }
 
@@ -530,7 +528,7 @@ void MegaFlashRomSCCPlus::serialize(Archive& ar, unsigned /*version*/)
 
 	ar.serialize("scc", *scc);
 	ar.serialize("psg", *psg);
-	ar.serialize("flash", *flash);
+	ar.serialize("flash", flash);
 
 	ar.serialize("configReg", configReg);
 	ar.serialize("offsetReg", offsetReg);

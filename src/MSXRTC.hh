@@ -2,18 +2,15 @@
 #define MSXRTC_HH
 
 #include "MSXDevice.hh"
-#include <memory>
+#include "SRAM.hh"
+#include "RP5C01.hh"
 
 namespace openmsx {
-
-class SRAM;
-class RP5C01;
 
 class MSXRTC final : public MSXDevice
 {
 public:
 	explicit MSXRTC(const DeviceConfig& config);
-	~MSXRTC();
 
 	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;
@@ -24,8 +21,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<SRAM> sram;
-	const std::unique_ptr<RP5C01> rp5c01;
+	SRAM sram;
+	RP5C01 rp5c01;
 	nibble registerLatch;
 };
 

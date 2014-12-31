@@ -1,6 +1,6 @@
 #include "NowindCommand.hh"
 #include "NowindRomDisk.hh"
-#include "NowindHost.hh"
+#include "NowindInterface.hh"
 #include "DiskChanger.hh"
 #include "DSKDiskImage.hh"
 #include "DiskPartition.hh"
@@ -36,7 +36,7 @@ unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 	return make_unique<DiskChanger>(motherBoard, name, false, true);
 }
 
-unsigned NowindCommand::searchRomdisk(const NowindInterface::Drives& drives) const
+unsigned NowindCommand::searchRomdisk(const NowindHost::Drives& drives) const
 {
 	for (unsigned i = 0; i < drives.size(); ++i) {
 		if (drives[i]->isRomdisk()) {
@@ -47,7 +47,7 @@ unsigned NowindCommand::searchRomdisk(const NowindInterface::Drives& drives) con
 }
 
 void NowindCommand::processHdimage(
-	string_ref hdimage, NowindInterface::Drives& drives) const
+	string_ref hdimage, NowindHost::Drives& drives) const
 {
 	MSXMotherBoard& motherboard = interface.getMotherBoard();
 
@@ -94,8 +94,8 @@ void NowindCommand::processHdimage(
 
 void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
-	NowindHost& host = *interface.host;
-	NowindInterface::Drives& drives = interface.drives;
+	auto& host = interface.host;
+	auto& drives = interface.drives;
 	unsigned oldRomdisk = searchRomdisk(drives);
 
 	if (tokens.size() == 1) {
@@ -132,7 +132,7 @@ void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	bool disallowOther = false;
 	bool changeDrives = false;
 	unsigned romdisk = 255;
-	NowindInterface::Drives tmpDrives;
+	NowindHost::Drives tmpDrives;
 	string error;
 
 	// actually parse the commandline

@@ -2,18 +2,14 @@
 #define ROMMATRAINK_HH
 
 #include "MSXRom.hh"
-#include <memory>
+#include "AmdFlash.hh"
 
 namespace openmsx {
-
-class Rom;
-class AmdFlash;
 
 class RomMatraInk final : public MSXRom
 {
 public:
 	RomMatraInk(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	~RomMatraInk();
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;
@@ -26,7 +22,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<AmdFlash> flash;
+	AmdFlash flash;
 };
 
 } // namespace openmsx

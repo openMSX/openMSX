@@ -1,8 +1,6 @@
 #include "MSXPac.hh"
-#include "SRAM.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -10,14 +8,9 @@ static const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXPac::MSXPac(const DeviceConfig& config)
 	: MSXDevice(config)
-	, sram(make_unique<SRAM>(
-		getName() + " SRAM", 0x1FFE, config, PAC_Header))
+	, sram(getName() + " SRAM", 0x1FFE, config, PAC_Header)
 {
 	reset(EmuTime::dummy());
-}
-
-MSXPac::~MSXPac()
-{
 }
 
 void MSXPac::reset(EmuTime::param /*time*/)
@@ -32,7 +25,7 @@ byte MSXPac::readMem(word address, EmuTime::param /*time*/)
 	address &= 0x3FFF;
 	if (sramEnabled) {
 		if (address < 0x1FFE) {
-			result = (*sram)[address];
+			result = sram[address];
 		} else if (address == 0x1FFE) {
 			result = r1ffe;
 		} else if (address == 0x1FFF) {
@@ -51,7 +44,7 @@ const byte* MSXPac::getReadCacheLine(word address) const
 	address &= 0x3FFF;
 	if (sramEnabled) {
 		if (address < (0x1FFE & CacheLine::HIGH)) {
-			return &(*sram)[address];
+			return &sram[address];
 		} else if (address == (0x1FFE & CacheLine::HIGH)) {
 			return nullptr;
 		} else {
@@ -76,7 +69,7 @@ void MSXPac::writeMem(word address, byte value, EmuTime::param /*time*/)
 			break;
 		default:
 			if (sramEnabled && (address < 0x1FFE)) {
-				sram->write(address, value);
+				sram.write(address, value);
 			}
 	}
 }
@@ -107,7 +100,7 @@ template<typename Archive>
 void MSXPac::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("SRAM", *sram);
+	ar.serialize("SRAM", sram);
 	ar.serialize("r1ffe", r1ffe);
 	ar.serialize("r1fff", r1fff);
 	if (ar.isLoader()) {

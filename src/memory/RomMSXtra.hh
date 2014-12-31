@@ -2,16 +2,14 @@
 #define ROMMSXTRA_HH
 
 #include "MSXRom.hh"
+#include "Ram.hh"
 
 namespace openmsx {
-
-class Ram;
 
 class RomMSXtra final : public MSXRom
 {
 public:
 	RomMSXtra(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	~RomMSXtra();
 
 	byte readMem(word address, EmuTime::param time) override;
 	const byte* getReadCacheLine(word address) const override;
@@ -22,7 +20,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<Ram> ram;
+	Ram ram;
 };
 
 } // namespace openmsx

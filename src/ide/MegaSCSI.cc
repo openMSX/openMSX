@@ -41,42 +41,33 @@
  */
 
 #include "MegaSCSI.hh"
-#include "MB89352.hh"
-#include "SRAM.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
 
 static const byte SPC = 0x7F;
 
-static std::unique_ptr<SRAM> createSRAM(
-	const DeviceConfig& config, const std::string& name)
+unsigned MegaSCSI::getSramSize() const
 {
-	unsigned sramSize = config.getChildDataAsInt("sramsize", 1024); // size in kb
+	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 1024); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
 		throw MSXException(StringOp::Builder() <<
-			"SRAM size for " << name <<
+			"SRAM size for " << getName() <<
 			" should be 128, 256, 512 or 1024kB and not " <<
 			sramSize << "kB!");
 	}
-	sramSize *= 1024; // in bytes
-	return make_unique<SRAM>(name + " SRAM", sramSize, config);
+	return sramSize * 1024; // in bytes
 }
 
 MegaSCSI::MegaSCSI(const DeviceConfig& config)
 	: MSXDevice(config)
-	, mb89352(make_unique<MB89352>(config))
-	, sram(createSRAM(config, getName()))
+	, mb89352(config)
+	, sram(getName() + " SRAM", getSramSize(), config)
 	, romBlockDebug(*this, mapped, 0x4000, 0x8000, 13)
-	, blockMask((sram->getSize() / 0x2000) - 1)
-{
-}
-
-MegaSCSI::~MegaSCSI()
+	, blockMask((sram.getSize() / 0x2000) - 1)
 {
 }
 
@@ -85,7 +76,7 @@ void MegaSCSI::reset(EmuTime::param /*time*/)
 	for (int i = 0; i < 4; ++i) {
 		setSRAM(i, 0);
 	}
-	mb89352->reset(true);
+	mb89352.reset(true);
 }
 
 byte MegaSCSI::readMem(word address, EmuTime::param /*time*/)
@@ -98,12 +89,12 @@ byte MegaSCSI::readMem(word address, EmuTime::param /*time*/)
 			// SPC read
 			if (addr < 0x1000) {
 				// Data Register
-				result = mb89352->readDREG();
+				result = mb89352.readDREG();
 			} else {
-				result = mb89352->readRegister(addr & 0x0F);
+				result = mb89352.readRegister(addr & 0x0F);
 			}
 		} else {
-			result = (*sram)[0x2000 * mapped[page] + addr];
+			result = sram[0x2000 * mapped[page] + addr];
 		}
 	} else {
 		result = 0xFF;
@@ -118,9 +109,9 @@ byte MegaSCSI::peekMem(word address, EmuTime::param /*time*/) const
 	} else {
 		address &= 0x1FFF;
 		if (address < 0x1000) {
-			return mb89352->peekDREG();
+			return mb89352.peekDREG();
 		} else {
-			return mb89352->peekRegister(address & 0x0F);
+			return mb89352.peekRegister(address & 0x0F);
 		}
 	}
 }
@@ -133,7 +124,7 @@ const byte* MegaSCSI::getReadCacheLine(word address) const
 		if (mapped[page] == SPC) {
 			return nullptr;
 		} else {
-			return &(*sram)[0x2000 * mapped[page] + address];
+			return &sram[0x2000 * mapped[page] + address];
 		}
 	} else {
 		return unmappedRead;
@@ -150,12 +141,12 @@ void MegaSCSI::writeMem(word address, byte value, EmuTime::param /*time*/)
 		address &= 0x1FFF;
 		if (mapped[page] == SPC) {
 			if (address < 0x1000) {
-				mb89352->writeDREG(value);
+				mb89352.writeDREG(value);
 			} else {
-				mb89352->writeRegister(address & 0x0F, value);
+				mb89352.writeRegister(address & 0x0F, value);
 			}
 		} else if (isWriteable[page]) {
-			sram->write(0x2000 * mapped[page] + address, value);
+			sram.write(0x2000 * mapped[page] + address, value);
 		}
 	}
 }
@@ -186,8 +177,8 @@ void MegaSCSI::setSRAM(unsigned region, byte block)
 template<typename Archive>
 void MegaSCSI::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("SRAM", *sram);
-	ar.serialize("MB89352", *mb89352);
+	ar.serialize("SRAM", sram);
+	ar.serialize("MB89352", mb89352);
 	ar.serialize("isWriteable", isWriteable);
 	ar.serialize("mapped", mapped);
 }

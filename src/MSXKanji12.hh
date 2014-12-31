@@ -3,17 +3,14 @@
 
 #include "MSXDevice.hh"
 #include "MSXSwitchedDevice.hh"
-#include <memory>
+#include "Rom.hh"
 
 namespace openmsx {
-
-class Rom;
 
 class MSXKanji12 final : public MSXDevice, public MSXSwitchedDevice
 {
 public:
 	explicit MSXKanji12(const DeviceConfig& config);
-	~MSXKanji12();
 
 	// MSXDevice
 	void reset(EmuTime::param time) override;
@@ -27,7 +24,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<Rom> rom;
+	Rom rom;
 	unsigned address;
 };
 

@@ -1,7 +1,6 @@
 #include "MSXYamahaSFG.hh"
 #include "YM2151.hh"
 #include "YM2148.hh"
-#include "Rom.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
 #include "memory.hh"
@@ -10,7 +9,7 @@ namespace openmsx {
 
 MSXYamahaSFG::MSXYamahaSFG(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
+	, rom(getName() + " ROM", "rom", config)
 	, ym2151(make_unique<YM2151>(
 		getName(), "Yamaha SFG-01/05", config, getCurrentTime()))
 	, ym2148(make_unique<YM2148>())
@@ -95,7 +94,7 @@ byte MSXYamahaSFG::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if (address < 0x3FF0 || address >= 0x3FF8) {
 		// size can also be 16kB for SFG-01 or 32kB for SFG-05
-		return (*rom)[address & (rom->getSize() - 1)];
+		return rom[address & (rom.getSize() - 1)];
 	}
 	switch (address & 0x3FFF) {
 	case 0x3FF0: // OPM STATUS REGISTER
@@ -120,7 +119,7 @@ const byte* MSXYamahaSFG::getReadCacheLine(word start) const
 	if ((start & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
 		return nullptr;
 	}
-	return &(*rom)[start & (rom->getSize() - 1)];
+	return &rom[start & (rom.getSize() - 1)];
 }
 
 template<typename Archive>

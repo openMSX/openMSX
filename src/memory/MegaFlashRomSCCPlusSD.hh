@@ -2,13 +2,13 @@
 #define MEGAFLASHROMSCCPLUSSD_HH
 
 #include "MSXRom.hh"
+#include "AmdFlash.hh"
 #include <memory>
 
 namespace openmsx {
 
 class SCC;
 class AY8910;
-class AmdFlash;
 class CheckedRam;
 class SdCard;
 
@@ -44,7 +44,7 @@ private:
 	 * Writes to flash only if it was not write protected.
 	 */
 	void writeToFlash(unsigned addr, byte value);
-	const std::unique_ptr<AmdFlash> flash;
+	AmdFlash flash;
 	byte subslotReg;
 
 	// subslot 0
@@ -100,7 +100,7 @@ private:
 	unsigned calcMemMapperAddress(word address) const;
 	unsigned calcAddress(word address) const;
 
-	const std::unique_ptr<CheckedRam> checkedRam;
+	const std::unique_ptr<CheckedRam> checkedRam; // can be nullptr
 	byte memMapperRegs[4];
 
 	// subslot 3

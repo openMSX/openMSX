@@ -46,8 +46,6 @@
  */
 
 #include "ESE_SCC.hh"
-#include "SRAM.hh"
-#include "SCC.hh"
 #include "MB89352.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
@@ -56,30 +54,28 @@
 
 namespace openmsx {
 
-static std::unique_ptr<SRAM> createSRAM(
-	const DeviceConfig& config, bool withSCSI, const std::string& name)
+unsigned ESE_SCC::getSramSize(bool withSCSI) const
 {
-	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
+	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
 		throw MSXException(StringOp::Builder() <<
-			"SRAM size for " << name <<
+			"SRAM size for " << getName() <<
 			" should be 128, 256, 512 or 1024kB and not " <<
 			sramSize << "kB!");
 	}
 	if (!withSCSI && sramSize == 1024) {
 		throw MSXException("1024kB SRAM is only allowed in WAVE-SCSI!");
 	}
-	sramSize *= 1024; // in bytes
-	return make_unique<SRAM>(name + " SRAM", sramSize, config);
+	return sramSize * 1024; // in bytes
 }
 
 ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	: MSXDevice(config)
-	, sram(createSRAM(config, withSCSI, getName()))
-	, scc(make_unique<SCC>(getName(), config, getCurrentTime()))
+	, sram(getName() + " SRAM", getSramSize(withSCSI), config)
+	, scc(getName(), config, getCurrentTime())
 	, spc(withSCSI ? make_unique<MB89352>(config) : nullptr)
 	, romBlockDebug(*this, mapper, 0x4000, 0x8000, 13)
-	, mapperMask((sram->getSize() / 0x2000) - 1)
+	, mapperMask((sram.getSize() / 0x2000) - 1)
 {
 	// initialized mapper
 	sccEnable   = false;
@@ -90,13 +86,9 @@ ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	}
 }
 
-ESE_SCC::~ESE_SCC()
-{
-}
-
 void ESE_SCC::powerUp(EmuTime::param time)
 {
-	scc->powerUp(time);
+	scc.powerUp(time);
 	reset(time);
 }
 
@@ -106,7 +98,7 @@ void ESE_SCC::reset(EmuTime::param time)
 	for (int i = 0; i < 4; ++i) {
 		setMapperLow(i, i);
 	}
-	scc->reset(time);
+	scc.reset(time);
 	if (spc) spc->reset(true);
 }
 
@@ -170,10 +162,10 @@ byte ESE_SCC::readMem(word address, EmuTime::param time)
 	}
 	// SCC bank
 	if (sccEnable && (address >= 0x9800) && (address < 0xa000)) {
-		return scc->readMem(address & 0xff, time);
+		return scc.readMem(address & 0xff, time);
 	}
 	// SRAM read
-	return (*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
+	return sram[mapper[page] * 0x2000 + (address & 0x1fff)];
 }
 
 byte ESE_SCC::peekMem(word address, EmuTime::param time) const
@@ -190,10 +182,10 @@ byte ESE_SCC::peekMem(word address, EmuTime::param time) const
 	}
 	// SCC bank
 	if (sccEnable && (address >= 0x9800) && (address < 0xa000)) {
-		return scc->peekMem(address & 0xff, time);
+		return scc.peekMem(address & 0xff, time);
 	}
 	// SRAM read
-	return (*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
+	return sram[mapper[page] * 0x2000 + (address & 0x1fff)];
 }
 
 const byte* ESE_SCC::getReadCacheLine(word address) const
@@ -208,7 +200,7 @@ const byte* ESE_SCC::getReadCacheLine(word address) const
 		return nullptr;
 	}
 	// SRAM read
-	return &(*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
+	return &sram[mapper[page] * 0x2000 + (address & 0x1fff)];
 }
 
 void ESE_SCC::writeMem(word address, byte value, EmuTime::param time)
@@ -227,7 +219,7 @@ void ESE_SCC::writeMem(word address, byte value, EmuTime::param time)
 
 	// SCC write
 	if (sccEnable && (0x9800 <= address) && (address < 0xa000)) {
-		scc->writeMem(address & 0xff, value, time);
+		scc.writeMem(address & 0xff, value, time);
 		return;
 	}
 
@@ -239,7 +231,7 @@ void ESE_SCC::writeMem(word address, byte value, EmuTime::param time)
 
 	// SRAM write (processing of 4000-7FFDH)
 	if (writeEnable && (page < 2)) {
-		sram->write(mapper[page] * 0x2000 + (address & 0x1FFF), value);
+		sram.write(mapper[page] * 0x2000 + (address & 0x1FFF), value);
 		return;
 	}
 
@@ -260,8 +252,8 @@ template<typename Archive>
 void ESE_SCC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("sram", *sram);
-	ar.serialize("scc", *scc);
+	ar.serialize("sram", sram);
+	ar.serialize("scc", scc);
 	if (spc) ar.serialize("MB89352", *spc);
 	ar.serialize("mapper", mapper);
 	ar.serialize("spcEnable", spcEnable);

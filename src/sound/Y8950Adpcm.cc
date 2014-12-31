@@ -10,12 +10,10 @@
 
 #include "Y8950Adpcm.hh"
 #include "Clock.hh"
-#include "Ram.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -48,8 +46,7 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const DeviceConfig& config,
                        const std::string& name, unsigned sampleRam)
 	: Schedulable(config.getScheduler())
 	, y8950(y8950_)
-	, ram(make_unique<Ram>(
-		config, name + " RAM", "Y8950 sample RAM", sampleRam))
+	, ram(config, name + " RAM", "Y8950 sample RAM", sampleRam)
 	, clock(config.getMotherBoard().getCurrentTime())
 	, volume(0)
 {
@@ -62,7 +59,7 @@ Y8950Adpcm::~Y8950Adpcm()
 
 void Y8950Adpcm::clearRam()
 {
-	ram->clear(0xFF);
+	ram.clear(0xFF);
 }
 
 void Y8950Adpcm::reset(EmuTime::param time)
@@ -409,17 +406,17 @@ byte Y8950Adpcm::peekData() const
 void Y8950Adpcm::writeMemory(unsigned memPntr, byte value)
 {
 	unsigned addr = (memPntr / 2) & addrMask;
-	if ((addr < ram->getSize()) && !romBank) {
-		(*ram)[addr] = value;
+	if ((addr < ram.getSize()) && !romBank) {
+		ram[addr] = value;
 	}
 }
 byte Y8950Adpcm::readMemory(unsigned memPntr) const
 {
 	unsigned addr = (memPntr / 2) & addrMask;
-	if (romBank || (addr >= ram->getSize())) {
+	if (romBank || (addr >= ram.getSize())) {
 		return 0; // checked on a real machine
 	} else {
-		return (*ram)[addr];
+		return ram[addr];
 	}
 }
 
@@ -511,7 +508,7 @@ template<typename Archive>
 void Y8950Adpcm::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<Schedulable>(*this);
-	ar.serialize("ram", *ram);
+	ar.serialize("ram", ram);
 	ar.serialize("startAddr", startAddr);
 	ar.serialize("stopAddr", stopAddr);
 	ar.serialize("addrMask", addrMask);

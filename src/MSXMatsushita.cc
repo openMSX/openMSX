@@ -1,9 +1,6 @@
 #include "MSXMatsushita.hh"
 #include "MSXCPU.hh"
-#include "FirmwareSwitch.hh"
-#include "SRAM.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -12,16 +9,12 @@ static const byte ID = 0x08;
 MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
-	, firmwareSwitch(make_unique<FirmwareSwitch>(config))
-	, sram(make_unique<SRAM>(getName() + " SRAM", 0x800, config))
+	, firmwareSwitch(config)
+	, sram(getName() + " SRAM", 0x800, config)
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
 
 	reset(EmuTime::dummy());
-}
-
-MSXMatsushita::~MSXMatsushita()
-{
 }
 
 void MSXMatsushita::reset(EmuTime::param /*time*/)
@@ -52,7 +45,7 @@ byte MSXMatsushita::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 		result = byte(~ID);
 		break;
 	case 1:
-		result = firmwareSwitch->getStatus() ? 0x7F : 0xFF;
+		result = firmwareSwitch.getStatus() ? 0x7F : 0xFF;
 		break;
 	case 3:
 		result = (((pattern & 0x80) ? color2 : color1) << 4)
@@ -60,7 +53,7 @@ byte MSXMatsushita::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 		break;
 	case 9:
 		if (address < 0x800) {
-			result = (*sram)[address];
+			result = sram[address];
 		} else {
 			result = 0xFF;
 		}
@@ -101,7 +94,7 @@ void MSXMatsushita::writeSwitchedIO(word port, byte value, EmuTime::param /*time
 	case 9:
 		// write sram
 		if (address < 0x800) {
-			sram->write(address, value);
+			sram.write(address, value);
 		}
 		address = (address + 1) & 0x1FFF;
 		break;
@@ -114,7 +107,7 @@ void MSXMatsushita::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	// no need to serialize MSXSwitchedDevice base class
 
-	ar.serialize("SRAM", *sram);
+	ar.serialize("SRAM", sram);
 	ar.serialize("address", address);
 	ar.serialize("color1", color1);
 	ar.serialize("color2", color2);

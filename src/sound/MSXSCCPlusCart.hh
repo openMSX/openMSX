@@ -5,19 +5,16 @@
 #define MSXSCCPLUSCART_HH
 
 #include "MSXDevice.hh"
+#include "SCC.hh"
+#include "Ram.hh"
 #include "RomBlockDebuggable.hh"
-#include <memory>
 
 namespace openmsx {
-
-class SCC;
-class Ram;
 
 class MSXSCCPlusCart final : public MSXDevice
 {
 public:
 	explicit MSXSCCPlusCart(const DeviceConfig& config);
-	~MSXSCCPlusCart();
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
@@ -35,8 +32,8 @@ private:
 	void setModeRegister(byte value);
 	void checkEnable();
 
-	const std::unique_ptr<Ram> ram;
-	const std::unique_ptr<SCC> scc;
+	Ram ram;
+	SCC scc;
 	RomBlockDebuggable romBlockDebug;
 	byte* internalMemoryBank[4]; // 4 blocks of 8kB starting at #4000
 	enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;

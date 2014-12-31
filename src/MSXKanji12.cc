@@ -1,8 +1,6 @@
 #include "MSXKanji12.hh"
-#include "Rom.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -11,18 +9,14 @@ static const byte ID = 0xF7;
 MSXKanji12::MSXKanji12(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
-	, rom(make_unique<Rom>(getName(), "Kanji-12 ROM", config))
+	, rom(getName(), "Kanji-12 ROM", config)
 {
-	unsigned size = rom->getSize();
+	unsigned size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
 		throw MSXException("MSXKanji12: wrong kanji rom");
 	}
 
 	reset(EmuTime::dummy());
-}
-
-MSXKanji12::~MSXKanji12()
-{
 }
 
 void MSXKanji12::reset(EmuTime::param /*time*/)
@@ -52,8 +46,8 @@ byte MSXKanji12::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 			result = 0x08; // TODO what is this
 			break;
 		case 9:
-			if (address < rom->getSize()) {
-				result = (*rom)[address];
+			if (address < rom.getSize()) {
+				result = rom[address];
 			} else {
 				result = 0xFF;
 			}

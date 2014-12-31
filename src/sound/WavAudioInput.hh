@@ -32,7 +32,6 @@ private:
 	void update(const Setting& setting) override;
 
 	FilenameSetting audioInputFilenameSetting;
-
 	WavData wav;
 	EmuTime reference;
 };

@@ -36,7 +36,7 @@ private:
 	void executeCommand();
 	byte readCurrentByteFromCurrentSector();
 
-	const std::unique_ptr<HD> hd;
+	const std::unique_ptr<HD> hd; // can be nullptr
 
 	byte cmdBuf[6];
 	SectorBuffer sectorBuf;

@@ -2,17 +2,14 @@
 #define MSXKANJI_HH
 
 #include "MSXDevice.hh"
-#include <memory>
+#include "Rom.hh"
 
 namespace openmsx {
-
-class Rom;
 
 class MSXKanji final : public MSXDevice
 {
 public:
 	explicit MSXKanji(const DeviceConfig& config);
-	~MSXKanji();
 
 	byte readIO(word port, EmuTime::param time) override;
 	byte peekIO(word port, EmuTime::param time) const override;
@@ -23,7 +20,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<Rom> rom;
+	Rom rom;
 	unsigned adr1, adr2;
 	const bool isLascom;
 };

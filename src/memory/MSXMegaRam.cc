@@ -23,7 +23,6 @@
  */
 
 #include "MSXMegaRam.hh"
-#include "Ram.hh"
 #include "Rom.hh"
 #include "Math.hh"
 #include "serialize.hh"
@@ -34,8 +33,7 @@ namespace openmsx {
 MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	: MSXDevice(config)
 	, numBlocks(config.getChildDataAsInt("size") / 8) // 8kB blocks
-	, ram(make_unique<Ram>(
-		config, getName() + " RAM", "Mega-RAM", numBlocks * 0x2000))
+	, ram(config, getName() + " RAM", "Mega-RAM", numBlocks * 0x2000)
 	, rom(config.findChild("rom")
 	      ? make_unique<Rom>(getName() + " ROM", "Mega-RAM DiskROM", config)
 	      : nullptr)
@@ -55,7 +53,7 @@ void MSXMegaRam::powerUp(EmuTime::param time)
 		setBank(i, 0);
 	}
 	writeMode = false;
-	ram->clear();
+	ram.clear();
 	reset(time);
 }
 
@@ -80,7 +78,7 @@ const byte* MSXMegaRam::getReadCacheLine(word address) const
 	}
 	unsigned block = bank[(address & 0x7FFF) / 0x2000];
 	return (block < numBlocks)
-	     ? &(*ram)[(block * 0x2000) + (address & 0x1FFF)]
+	     ? &ram[(block * 0x2000) + (address & 0x1FFF)]
 	     : unmappedRead;
 }
 
@@ -100,7 +98,7 @@ byte* MSXMegaRam::getWriteCacheLine(word address) const
 	if (writeMode) {
 		unsigned block = bank[(address & 0x7FFF) / 0x2000];
 		return (block < numBlocks)
-		     ? &(*ram)[(block * 0x2000) + (address & 0x1FFF)]
+		     ? const_cast<byte*>(&ram[(block * 0x2000) + (address & 0x1FFF)])
 		     : unmappedWrite;
 	} else {
 		return nullptr;
@@ -155,7 +153,7 @@ template<typename Archive>
 void MSXMegaRam::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ram", *ram);
+	ar.serialize("ram", ram);
 	ar.serialize("bank", bank);
 	ar.serialize("writeMode", writeMode);
 	ar.serialize("romMode", romMode);

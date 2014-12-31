@@ -1,26 +1,20 @@
 #include "MSXKanji.hh"
-#include "Rom.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 MSXKanji::MSXKanji(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(make_unique<Rom>(getName(), "Kanji ROM", config))
+	, rom(getName(), "Kanji ROM", config)
 	, isLascom(config.getChildData("type", "") == "lascom")
 {
-	int size = rom->getSize();
+	int size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
 		throw MSXException("MSXKanji: wrong kanji rom");
 	}
 
 	reset(EmuTime::dummy());
-}
-
-MSXKanji::~MSXKanji()
-{
 }
 
 void MSXKanji::reset(EmuTime::param /*time*/)
@@ -74,11 +68,11 @@ byte MSXKanji::peekIO(word port, EmuTime::param /*time*/) const
 			break;
 		}
 	case 1:
-		result = (*rom)[adr1];
+		result = rom[adr1];
 		break;
 	case 3:
-		if (rom->getSize() == 0x40000) { // temp workaround
-			result = (*rom)[adr2];
+		if (rom.getSize() == 0x40000) { // temp workaround
+			result = rom[adr2];
 		}
 		break;
 	}

@@ -1,5 +1,4 @@
 #include "CheckedRam.hh"
-#include "Ram.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "DeviceConfig.hh"
@@ -23,7 +22,7 @@ CheckedRam::CheckedRam(const DeviceConfig& config, const std::string& name,
                        const std::string& description, unsigned size)
 	: completely_initialized_cacheline(size / CacheLine::SIZE, false)
 	, uninitialized(size / CacheLine::SIZE, getBitSetAllTrue())
-	, ram(make_unique<Ram>(config, name, description, size))
+	, ram(config, name, description, size)
 	, msxcpu(config.getMotherBoard().getCPU())
 	, umrCallback(make_unique<TclCallback>(
 		config.getGlobalSettings().getUMRCallBackSetting()))
@@ -42,27 +41,22 @@ byte CheckedRam::read(unsigned addr)
 	unsigned line = addr >> CacheLine::BITS;
 	if (unlikely(!completely_initialized_cacheline[line])) {
 		if (unlikely(uninitialized[line][addr &  CacheLine::LOW])) {
-			umrCallback->execute(addr, ram->getName());
+			umrCallback->execute(addr, ram.getName());
 		}
 	}
-	return (*ram)[addr];
+	return ram[addr];
 }
 
 const byte* CheckedRam::getReadCacheLine(unsigned addr) const
 {
 	return (completely_initialized_cacheline[addr >> CacheLine::BITS])
-	     ? &(*ram)[addr] : nullptr;
+	     ? &ram[addr] : nullptr;
 }
 
 byte* CheckedRam::getWriteCacheLine(unsigned addr) const
 {
 	return (completely_initialized_cacheline[addr >> CacheLine::BITS])
-	     ? &(*ram)[addr] : nullptr;
-}
-
-byte CheckedRam::peek(unsigned addr) const
-{
-	return (*ram)[addr];
+	     ? const_cast<byte*>(&ram[addr]) : nullptr;
 }
 
 void CheckedRam::write(unsigned addr, const byte value)
@@ -76,12 +70,12 @@ void CheckedRam::write(unsigned addr, const byte value)
 			                          CacheLine::SIZE);
 		}
 	}
-	(*ram)[addr] = value;
+	ram[addr] = value;
 }
 
 void CheckedRam::clear()
 {
-	ram->clear();
+	ram.clear();
 	init();
 }
 
@@ -102,11 +96,6 @@ void CheckedRam::init()
 			uninitialized.size(), getBitSetAllTrue());
 	}
 	msxcpu.invalidateMemCache(0, 0x10000);
-}
-
-unsigned CheckedRam::getSize() const
-{
-	return ram->getSize();
 }
 
 void CheckedRam::update(const Setting& setting)

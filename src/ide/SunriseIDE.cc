@@ -1,7 +1,6 @@
 #include "SunriseIDE.hh"
 #include "IDEDeviceFactory.hh"
 #include "IDEDevice.hh"
-#include "Rom.hh"
 #include "Math.hh"
 #include "serialize.hh"
 #include "memory.hh"
@@ -10,7 +9,7 @@ namespace openmsx {
 
 SunriseIDE::SunriseIDE(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
+	, rom(getName() + " ROM", "rom", config)
 	, romBlockDebug(*this, &control, 0x4000, 0x4000, 14)
 {
 	device[0] = IDEDeviceFactory::create(
@@ -115,11 +114,11 @@ void SunriseIDE::writeControl(byte value)
 	}
 
 	byte bank = Math::reverseByte(control & 0xF8);
-	if (bank >= (rom->getSize() / 0x4000)) {
-		bank &= ((rom->getSize() / 0x4000) - 1);
+	if (bank >= (rom.getSize() / 0x4000)) {
+		bank &= ((rom.getSize() / 0x4000) - 1);
 	}
-	if (internalBank != &(*rom)[0x4000 * bank]) {
-		internalBank = &(*rom)[0x4000 * bank];
+	if (internalBank != &rom[0x4000 * bank]) {
+		internalBank = &rom[0x4000 * bank];
 		invalidateMemCache(0x4000, 0x4000);
 	}
 }

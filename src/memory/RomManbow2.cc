@@ -4,7 +4,6 @@
 #include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
-#include "AmdFlash.hh"
 #include "serialize.hh"
 #include "memory.hh"
 #include <cassert>
@@ -41,8 +40,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())
 		: nullptr)
-	, flash(make_unique<AmdFlash>(
-		*rom, getSectorInfo(type), 0x01A4, false, config))
+	, flash(*rom, getSectorInfo(type), 0x01A4, false, config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
 {
 	powerUp(getCurrentTime());
@@ -83,13 +81,13 @@ void RomManbow2::reset(EmuTime::param time)
 		psg->reset(time);
 	}
 
-	flash->reset();
+	flash.reset();
 }
 
 void RomManbow2::setRom(unsigned region, unsigned block)
 {
 	assert(region < 4);
-	unsigned nrBlocks = flash->getSize() / 0x2000;
+	unsigned nrBlocks = flash.getSize() / 0x2000;
 	bank[region] = block & (nrBlocks - 1);
 	invalidateMemCache(0x4000 + region * 0x2000, 0x2000);
 }
@@ -101,7 +99,7 @@ byte RomManbow2::peekMem(word address, EmuTime::param time) const
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
-		return flash->peek(addr);
+		return flash.peek(addr);
 	} else {
 		return 0xFF;
 	}
@@ -114,7 +112,7 @@ byte RomManbow2::readMem(word address, EmuTime::param time)
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
-		return flash->read(addr);
+		return flash.read(addr);
 	} else {
 		return 0xFF;
 	}
@@ -127,7 +125,7 @@ const byte* RomManbow2::getReadCacheLine(word address) const
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
-		return flash->getReadCacheLine(addr);
+		return flash.getReadCacheLine(addr);
 	} else {
 		return unmappedRead;
 	}
@@ -144,7 +142,7 @@ void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
-		flash->write(addr, value);
+		flash.write(addr, value);
 
 		if ((address & 0xF800) == 0x9000) {
 			// SCC enable/disable
@@ -203,7 +201,7 @@ void RomManbow2::serialize(Archive& ar, unsigned version)
 		ar.serialize("psg", *psg);
 		ar.serialize("psgLatch", psgLatch);
 	}
-	ar.serialize("flash", *flash);
+	ar.serialize("flash", flash);
 	ar.serialize("bank", bank);
 	ar.serialize("sccEnabled", sccEnabled);
 }
