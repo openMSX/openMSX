@@ -1,5 +1,4 @@
 #include "CommandLineParser.hh"
-#include "CLIOption.hh"
 #include "GlobalCommandController.hh"
 #include "Interpreter.hh"
 #include "SettingsConfig.hh"
@@ -9,15 +8,7 @@
 #include "GlobalCliComm.hh"
 #include "StdioMessages.hh"
 #include "Version.hh"
-#include "MSXRomCLI.hh"
-#include "CliExtension.hh"
 #include "CliConnection.hh"
-#include "ReplayCLI.hh"
-#include "SaveStateCLI.hh"
-#include "CassettePlayerCLI.hh"
-#include "DiskImageCLI.hh"
-#include "HDImageCLI.hh"
-#include "CDImageCLI.hh"
 #include "ConfigException.hh"
 #include "FileException.hh"
 #include "EnumSetting.hh"
@@ -31,12 +22,6 @@
 #include "memory.hh"
 #include "stl.hh"
 #include "build-info.hh"
-#include "components.hh"
-
-#if COMPONENT_LASERDISC
-#include "LaserdiscPlayerCLI.hh"
-#endif
-
 #include <cassert>
 #include <iostream>
 
@@ -47,97 +32,6 @@ using std::vector;
 
 namespace openmsx {
 
-class HelpOption final : public CLIOption
-{
-public:
-	explicit HelpOption(CommandLineParser& parser);
-	void parseOption(const string& option, array_ref<string>& cmdLine) override;
-	string_ref optionHelp() const override;
-private:
-	CommandLineParser& parser;
-};
-
-class VersionOption final : public CLIOption
-{
-public:
-	explicit VersionOption(CommandLineParser& parser);
-	void parseOption(const string& option, array_ref<string>& cmdLine) override;
-	string_ref optionHelp() const override;
-private:
-	CommandLineParser& parser;
-};
-
-class ControlOption final : public CLIOption
-{
-public:
-	explicit ControlOption(CommandLineParser& parser);
-	void parseOption(const string& option, array_ref<string>& cmdLine) override;
-	string_ref optionHelp() const override;
-private:
-	CommandLineParser& parser;
-};
-
-class ScriptOption final : public CLIOption, public CLIFileType
-{
-public:
-	const CommandLineParser::Scripts& getScripts() const;
-	void parseOption(const string& option, array_ref<string>& cmdLine) override;
-	string_ref optionHelp() const override;
-	void parseFileType(const std::string& filename,
-                           array_ref<std::string>& cmdLine) override;
-	string_ref fileTypeHelp() const override;
-
-private:
-	CommandLineParser::Scripts scripts;
-};
-
-class MachineOption final : public CLIOption
-{
-public:
-	explicit MachineOption(CommandLineParser& parser);
-	void parseOption(const string& option, array_ref<string>& cmdLine) override;
-	string_ref optionHelp() const override;
-private:
-	CommandLineParser& parser;
-};
-
-class SettingOption final : public CLIOption
-{
-public:
-	explicit SettingOption(CommandLineParser& parser);
-	void parseOption(const string& option, array_ref<string>& cmdLine) override;
-	string_ref optionHelp() const override;
-private:
-	CommandLineParser& parser;
-};
-
-class NoPBOOption final : public CLIOption {
-public:
-	void parseOption(const string& option, array_ref<string>& cmdLine) override;
-	string_ref optionHelp() const override;
-};
-
-class TestConfigOption final : public CLIOption
-{
-public:
-	explicit TestConfigOption(CommandLineParser& parser);
-	void parseOption(const string& option, array_ref<string>& cmdLine) override;
-	string_ref optionHelp() const override;
-private:
-	CommandLineParser& parser;
-};
-
-class BashOption final : public CLIOption
-{
-public:
-	explicit BashOption(CommandLineParser& parser);
-	void parseOption(const string& option, array_ref<string>& cmdLine) override;
-	string_ref optionHelp() const override;
-private:
-	CommandLineParser& parser;
-};
-
-
 // class CommandLineParser
 
 typedef LessTupleElement<0> CmpOptions;
@@ -145,48 +39,48 @@ typedef CmpTupleElement<0, StringOp::caseless> CmpFileTypes;
 
 CommandLineParser::CommandLineParser(Reactor& reactor_)
 	: reactor(reactor_)
-	, helpOption(make_unique<HelpOption>(*this))
-	, versionOption(make_unique<VersionOption>(*this))
-	, controlOption(make_unique<ControlOption>(*this))
-	, scriptOption(make_unique<ScriptOption>())
-	, machineOption(make_unique<MachineOption>(*this))
-	, settingOption(make_unique<SettingOption>(*this))
-	, noPBOOption(make_unique<NoPBOOption>())
-	, testConfigOption(make_unique<TestConfigOption>(*this))
-	, bashOption(make_unique<BashOption>(*this))
-	, msxRomCLI(make_unique<MSXRomCLI>(*this))
-	, cliExtension(make_unique<CliExtension>(*this))
-	, replayCLI(make_unique<ReplayCLI>(*this))
-	, saveStateCLI(make_unique<SaveStateCLI>(*this))
-	, cassettePlayerCLI(make_unique<CassettePlayerCLI>(*this))
+	, helpOption(*this)
+	, versionOption(*this)
+	, controlOption(*this)
+	, scriptOption()
+	, machineOption(*this)
+	, settingOption(*this)
+	, noPBOOption()
+	, testConfigOption(*this)
+	, bashOption(*this)
+	, msxRomCLI(*this)
+	, cliExtension(*this)
+	, replayCLI(*this)
+	, saveStateCLI(*this)
+	, cassettePlayerCLI(*this)
 #if COMPONENT_LASERDISC
-	, laserdiscPlayerCLI(make_unique<LaserdiscPlayerCLI>(*this))
+	, laserdiscPlayerCLI(*this)
 #endif
-	, diskImageCLI(make_unique<DiskImageCLI>(*this))
-	, hdImageCLI(make_unique<HDImageCLI>(*this))
-	, cdImageCLI(make_unique<CDImageCLI>(*this))
+	, diskImageCLI(*this)
+	, hdImageCLI(*this)
+	, cdImageCLI(*this)
 	, parseStatus(UNPARSED)
 {
 	haveConfig = false;
 	haveSettings = false;
 
-	registerOption("-h",          *helpOption,    PHASE_BEFORE_INIT, 1);
-	registerOption("--help",      *helpOption,    PHASE_BEFORE_INIT, 1);
-	registerOption("-v",          *versionOption, PHASE_BEFORE_INIT, 1);
-	registerOption("--version",   *versionOption, PHASE_BEFORE_INIT, 1);
-	registerOption("-bash",       *bashOption,    PHASE_BEFORE_INIT, 1);
+	registerOption("-h",          helpOption,    PHASE_BEFORE_INIT, 1);
+	registerOption("--help",      helpOption,    PHASE_BEFORE_INIT, 1);
+	registerOption("-v",          versionOption, PHASE_BEFORE_INIT, 1);
+	registerOption("--version",   versionOption, PHASE_BEFORE_INIT, 1);
+	registerOption("-bash",       bashOption,    PHASE_BEFORE_INIT, 1);
 
-	registerOption("-setting",    *settingOption, PHASE_BEFORE_SETTINGS);
-	registerOption("-control",    *controlOption, PHASE_BEFORE_SETTINGS, 1);
-	registerOption("-script",     *scriptOption,  PHASE_BEFORE_SETTINGS, 1); // correct phase?
+	registerOption("-setting",    settingOption, PHASE_BEFORE_SETTINGS);
+	registerOption("-control",    controlOption, PHASE_BEFORE_SETTINGS, 1);
+	registerOption("-script",     scriptOption,  PHASE_BEFORE_SETTINGS, 1); // correct phase?
 	#if COMPONENT_GL
-	registerOption("-nopbo",      *noPBOOption,   PHASE_BEFORE_SETTINGS, 1);
+	registerOption("-nopbo",      noPBOOption,   PHASE_BEFORE_SETTINGS, 1);
 	#endif
-	registerOption("-testconfig", *testConfigOption, PHASE_BEFORE_SETTINGS, 1);
+	registerOption("-testconfig", testConfigOption, PHASE_BEFORE_SETTINGS, 1);
 
-	registerOption("-machine",    *machineOption, PHASE_BEFORE_MACHINE);
+	registerOption("-machine",    machineOption, PHASE_BEFORE_MACHINE);
 
-	registerFileType("tcl", *scriptOption);
+	registerFileType("tcl", scriptOption);
 
 	// At this point all options and file-types must be registered
 	sort(begin(options),   end(options),   CmpOptions());
@@ -401,7 +295,7 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 
 const CommandLineParser::Scripts& CommandLineParser::getStartupScripts() const
 {
-	return scriptOption->getScripts();
+	return scriptOption.getScripts();
 }
 
 MSXMotherBoard* CommandLineParser::getMotherBoard() const
@@ -422,12 +316,13 @@ Interpreter& CommandLineParser::getInterpreter() const
 
 // Control option
 
-ControlOption::ControlOption(CommandLineParser& parser_)
+CommandLineParser::ControlOption::ControlOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-void ControlOption::parseOption(const string& option, array_ref<string>& cmdLine)
+void CommandLineParser::ControlOption::parseOption(
+	const string& option, array_ref<string>& cmdLine)
 {
 	const auto& fullType = getArgument(option, cmdLine);
 	string_ref type, arguments;
@@ -461,7 +356,7 @@ void ControlOption::parseOption(const string& option, array_ref<string>& cmdLine
 	parser.parseStatus = CommandLineParser::CONTROL;
 }
 
-string_ref ControlOption::optionHelp() const
+string_ref CommandLineParser::ControlOption::optionHelp() const
 {
 	return "Enable external control of openMSX process";
 }
@@ -469,31 +364,33 @@ string_ref ControlOption::optionHelp() const
 
 // Script option
 
-const CommandLineParser::Scripts& ScriptOption::getScripts() const
+const CommandLineParser::Scripts& CommandLineParser::ScriptOption::getScripts() const
 {
 	return scripts;
 }
 
-void ScriptOption::parseOption(const string& option, array_ref<string>& cmdLine)
+void CommandLineParser::ScriptOption::parseOption(
+	const string& option, array_ref<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_ref ScriptOption::optionHelp() const
+string_ref CommandLineParser::ScriptOption::optionHelp() const
 {
 	return "Run extra startup script";
 }
 
-void ScriptOption::parseFileType(const string& filename,
-                                 array_ref<std::string>& /*cmdLine*/)
+void CommandLineParser::ScriptOption::parseFileType(
+	const string& filename, array_ref<std::string>& /*cmdLine*/)
 {
 	scripts.push_back(filename);
 }
 
-string_ref ScriptOption::fileTypeHelp() const
+string_ref CommandLineParser::ScriptOption::fileTypeHelp() const
 {
 	return "Extra Tcl script to run at startup";
 }
+
 
 // Help option
 
@@ -558,13 +455,13 @@ static void printItemMap(const StringMap<vector<string_ref>>& itemMap)
 	}
 }
 
-HelpOption::HelpOption(CommandLineParser& parser_)
+CommandLineParser::HelpOption::HelpOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-void HelpOption::parseOption(const string& /*option*/,
-                             array_ref<string>& /*cmdLine*/)
+void CommandLineParser::HelpOption::parseOption(
+	const string& /*option*/, array_ref<string>& /*cmdLine*/)
 {
 	const auto& fullVersion = Version::full();
 	cout << fullVersion << endl;
@@ -596,7 +493,7 @@ void HelpOption::parseOption(const string& /*option*/,
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_ref HelpOption::optionHelp() const
+string_ref CommandLineParser::HelpOption::optionHelp() const
 {
 	return "Shows this text";
 }
@@ -604,13 +501,13 @@ string_ref HelpOption::optionHelp() const
 
 // class VersionOption
 
-VersionOption::VersionOption(CommandLineParser& parser_)
+CommandLineParser::VersionOption::VersionOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-void VersionOption::parseOption(const string& /*option*/,
-                                array_ref<string>& /*cmdLine*/)
+void CommandLineParser::VersionOption::parseOption(
+	const string& /*option*/, array_ref<string>& /*cmdLine*/)
 {
 	cout << Version::full() << endl;
 	cout << "flavour: " << BUILD_FLAVOUR << endl;
@@ -618,7 +515,7 @@ void VersionOption::parseOption(const string& /*option*/,
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_ref VersionOption::optionHelp() const
+string_ref CommandLineParser::VersionOption::optionHelp() const
 {
 	return "Prints openMSX version and exits";
 }
@@ -626,12 +523,13 @@ string_ref VersionOption::optionHelp() const
 
 // Machine option
 
-MachineOption::MachineOption(CommandLineParser& parser_)
+CommandLineParser::MachineOption::MachineOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-void MachineOption::parseOption(const string& option, array_ref<string>& cmdLine)
+void CommandLineParser::MachineOption::parseOption(
+	const string& option, array_ref<string>& cmdLine)
 {
 	if (parser.haveConfig) {
 		throw FatalError("Only one machine option allowed");
@@ -643,7 +541,8 @@ void MachineOption::parseOption(const string& option, array_ref<string>& cmdLine
 	}
 	parser.haveConfig = true;
 }
-string_ref MachineOption::optionHelp() const
+
+string_ref CommandLineParser::MachineOption::optionHelp() const
 {
 	return "Use machine specified in argument";
 }
@@ -651,12 +550,13 @@ string_ref MachineOption::optionHelp() const
 
 // Setting Option
 
-SettingOption::SettingOption(CommandLineParser& parser_)
+CommandLineParser::SettingOption::SettingOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-void SettingOption::parseOption(const string& option, array_ref<string>& cmdLine)
+void CommandLineParser::SettingOption::parseOption(
+	const string& option, array_ref<string>& cmdLine)
 {
 	if (parser.haveSettings) {
 		throw FatalError("Only one setting option allowed");
@@ -673,7 +573,7 @@ void SettingOption::parseOption(const string& option, array_ref<string>& cmdLine
 	}
 }
 
-string_ref SettingOption::optionHelp() const
+string_ref CommandLineParser::SettingOption::optionHelp() const
 {
 	return "Load an alternative settings file";
 }
@@ -681,8 +581,8 @@ string_ref SettingOption::optionHelp() const
 
 // class NoPBOOption
 
-void NoPBOOption::parseOption(const string& /*option*/,
-                              array_ref<string>& /*cmdLine*/)
+void CommandLineParser::NoPBOOption::parseOption(
+	const string& /*option*/, array_ref<string>& /*cmdLine*/)
 {
 	#if COMPONENT_GL
 	cout << "Disabling PBO" << endl;
@@ -690,7 +590,7 @@ void NoPBOOption::parseOption(const string& /*option*/,
 	#endif
 }
 
-string_ref NoPBOOption::optionHelp() const
+string_ref CommandLineParser::NoPBOOption::optionHelp() const
 {
 	return "Disables usage of openGL PBO (for debugging)";
 }
@@ -698,31 +598,31 @@ string_ref NoPBOOption::optionHelp() const
 
 // class TestConfigOption
 
-TestConfigOption::TestConfigOption(CommandLineParser& parser_)
+CommandLineParser::TestConfigOption::TestConfigOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-void TestConfigOption::parseOption(const string& /*option*/,
-                                   array_ref<string>& /*cmdLine*/)
+void CommandLineParser::TestConfigOption::parseOption(
+	const string& /*option*/, array_ref<string>& /*cmdLine*/)
 {
 	parser.parseStatus = CommandLineParser::TEST;
 }
 
-string_ref TestConfigOption::optionHelp() const
+string_ref CommandLineParser::TestConfigOption::optionHelp() const
 {
 	return "Test if the specified config works and exit";
 }
 
 // class BashOption
 
-BashOption::BashOption(CommandLineParser& parser_)
+CommandLineParser::BashOption::BashOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-void BashOption::parseOption(const string& /*option*/,
-                             array_ref<string>& cmdLine)
+void CommandLineParser::BashOption::parseOption(
+	const string& /*option*/, array_ref<string>& cmdLine)
 {
 	string last = cmdLine.empty() ? "" : cmdLine.front();
 	cmdLine.clear(); // eat all remaining parameters
@@ -747,7 +647,7 @@ void BashOption::parseOption(const string& /*option*/,
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_ref BashOption::optionHelp() const
+string_ref CommandLineParser::BashOption::optionHelp() const
 {
 	return ""; // don't include this option in --help
 }

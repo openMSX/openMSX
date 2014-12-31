@@ -1,7 +1,6 @@
 #include "Keyboard.hh"
 #include "KeyboardSettings.hh"
 #include "Keys.hh"
-#include "EventListener.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
 #include "MSXEventDistributor.hh"
@@ -29,7 +28,6 @@
 #include <cstring>
 #include <cassert>
 #include <cstdarg>
-#include <deque>
 
 using std::string;
 using std::vector;
@@ -43,51 +41,6 @@ static const byte CTRL_MASK  = 0x02;
 static const byte GRAPH_MASK = 0x04;
 static const byte CAPS_MASK  = 0x08;
 static const byte CODE_MASK  = 0x10;
-
-class MsxKeyEventQueue final : public Schedulable
-{
-public:
-	MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard,
-	                 Interpreter& interp);
-	void process_asap(EmuTime::param time, const shared_ptr<const Event>& event);
-	void clear();
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-private:
-	// Schedulable
-	void executeUntil(EmuTime::param time) override;
-	std::deque<shared_ptr<const Event>> eventQueue;
-	Keyboard& keyboard;
-	Interpreter& interp;
-};
-
-class CapsLockAligner final : private EventListener, private Schedulable
-{
-public:
-	CapsLockAligner(EventDistributor& eventDistributor,
-	                MSXEventDistributor& msxEventDistributor,
-	                Scheduler& scheduler, Keyboard& keyboard);
-	~CapsLockAligner();
-
-private:
-	// EventListener
-	int signalEvent(const shared_ptr<const Event>& event) override;
-
-	// Schedulable
-	void executeUntil(EmuTime::param time) override;
-
-	void alignCapsLock(EmuTime::param time);
-
-	Keyboard& keyboard;
-	EventDistributor& eventDistributor;
-	MSXEventDistributor& msxEventDistributor;
-
-	enum CapsLockAlignerStateType {
-		MUST_ALIGN_CAPSLOCK, MUST_DISTRIBUTE_KEY_RELEASE, IDLE
-	} state;
-};
-
 
 class KeyMatrixState final : public StateChange
 {
@@ -150,11 +103,9 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler, *this)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler, *this)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler, *this)
-	, capsLockAligner(make_unique<CapsLockAligner>(
-		eventDistributor, msxEventDistributor, scheduler, *this))
+	, capsLockAligner(eventDistributor, msxEventDistributor, scheduler, *this)
 	, keyboardSettings(make_unique<KeyboardSettings>(commandController))
-	, msxKeyEventQueue(make_unique<MsxKeyEventQueue>(
-		scheduler, *this, commandController.getInterpreter()))
+	, msxKeyEventQueue(scheduler, *this, commandController.getInterpreter())
 	, keybDebuggable(motherBoard, *this)
 	, unicodeKeymap(make_unique<UnicodeKeymap>(keyboardType))
 	, hasKeypad(hasKP)
@@ -246,7 +197,7 @@ void Keyboard::signalEvent(const shared_ptr<const Event>& event,
 		// we do not rescan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
 		// "set console off" in the console.
-		msxKeyEventQueue->process_asap(time, event);
+		msxKeyEventQueue.process_asap(time, event);
 	}
 }
 
@@ -266,7 +217,7 @@ void Keyboard::stopReplay(EmuTime::param time)
 		changeKeyMatrixEvent(time, row, hostKeyMatrix[row]);
 	}
 	msxmodifiers = 0xff;
-	msxKeyEventQueue->clear();
+	msxKeyEventQueue.clear();
 	memset(dynKeymap, 0, sizeof(dynKeymap));
 }
 
@@ -972,16 +923,16 @@ string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 
 // class MsxKeyEventQueue
 
-MsxKeyEventQueue::MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard_,
-                                   Interpreter& interp_)
+Keyboard::MsxKeyEventQueue::MsxKeyEventQueue(
+		Scheduler& scheduler, Keyboard& keyboard_, Interpreter& interp_)
 	: Schedulable(scheduler)
 	, keyboard(keyboard_)
 	, interp(interp_)
 {
 }
 
-void MsxKeyEventQueue::process_asap(EmuTime::param time,
-                                    const shared_ptr<const Event>& event)
+void Keyboard::MsxKeyEventQueue::process_asap(
+	EmuTime::param time, const shared_ptr<const Event>& event)
 {
 	bool processImmediately = eventQueue.empty();
 	eventQueue.push_back(event);
@@ -990,13 +941,13 @@ void MsxKeyEventQueue::process_asap(EmuTime::param time,
 	}
 }
 
-void MsxKeyEventQueue::clear()
+void Keyboard::MsxKeyEventQueue::clear()
 {
 	eventQueue.clear();
 	removeSyncPoint();
 }
 
-void MsxKeyEventQueue::executeUntil(EmuTime::param time)
+void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 {
 	// Get oldest event from the queue and process it
 	shared_ptr<const Event> event = eventQueue.front();
@@ -1199,9 +1150,10 @@ void Keyboard::KeyInserter::reschedule(EmuTime::param time)
  *
  * For focus regain, the alignment is done immediately.
  */
-CapsLockAligner::CapsLockAligner(EventDistributor& eventDistributor_,
-                                 MSXEventDistributor& msxEventDistributor_,
-                                 Scheduler& scheduler, Keyboard& keyboard_)
+Keyboard::CapsLockAligner::CapsLockAligner(
+		EventDistributor& eventDistributor_,
+		MSXEventDistributor& msxEventDistributor_,
+		Scheduler& scheduler, Keyboard& keyboard_)
 	: Schedulable(scheduler)
 	, keyboard(keyboard_)
 	, eventDistributor(eventDistributor_)
@@ -1212,13 +1164,13 @@ CapsLockAligner::CapsLockAligner(EventDistributor& eventDistributor_,
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 }
 
-CapsLockAligner::~CapsLockAligner()
+Keyboard::CapsLockAligner::~CapsLockAligner()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT,  *this);
 }
 
-int CapsLockAligner::signalEvent(const shared_ptr<const Event>& event)
+int Keyboard::CapsLockAligner::signalEvent(const shared_ptr<const Event>& event)
 {
 	if (state == IDLE) {
 		EmuTime::param time = getCurrentTime();
@@ -1235,7 +1187,7 @@ int CapsLockAligner::signalEvent(const shared_ptr<const Event>& event)
 	return 0;
 }
 
-void CapsLockAligner::executeUntil(EmuTime::param time)
+void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
 {
 	switch (state) {
 		case MUST_ALIGN_CAPSLOCK:
@@ -1263,7 +1215,7 @@ void CapsLockAligner::executeUntil(EmuTime::param time)
  * TODO: Find a solution for the above problem. For example by monitoring
  *       the MSX caps-lock LED state.
  */
-void CapsLockAligner::alignCapsLock(EmuTime::param time)
+void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 {
 	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
 	if (keyboard.msxCapsLockOn != hostCapsLockOn) {
@@ -1344,7 +1296,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 		ar.serialize("userKeyMatrix", userKeyMatrix);
 		ar.serialize("dynKeymap", dynKeymap);
 		ar.serialize("msxmodifiers", msxmodifiers);
-		ar.serialize("msxKeyEventQueue", *msxKeyEventQueue);
+		ar.serialize("msxKeyEventQueue", msxKeyEventQueue);
 	}
 	// don't serialize hostKeyMatrix
 
@@ -1357,7 +1309,7 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 INSTANTIATE_SERIALIZE_METHODS(Keyboard);
 
 template<typename Archive>
-void MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
+void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
 
@@ -1383,7 +1335,7 @@ void MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 		}
 	}
 }
-INSTANTIATE_SERIALIZE_METHODS(MsxKeyEventQueue);
+INSTANTIATE_SERIALIZE_METHODS(Keyboard::MsxKeyEventQueue);
 
 
 /** Keyboard bindings ****************************************/

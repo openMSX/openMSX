@@ -6,10 +6,12 @@
 #include "Schedulable.hh"
 #include "RecordedCommand.hh"
 #include "SimpleDebuggable.hh"
+#include "EventListener.hh"
 #include "serialize_meta.hh"
 #include "array_ref.hh"
 #include "string_ref.hh"
 #include "openmsx.hh"
+#include <deque>
 #include <vector>
 #include <memory>
 
@@ -22,9 +24,7 @@ class EventDistributor;
 class MSXEventDistributor;
 class StateChangeDistributor;
 class KeyEvent;
-class CapsLockAligner;
 class KeyboardSettings;
-class MsxKeyEventQueue;
 class UnicodeKeymap;
 class StateChange;
 class TclObject;
@@ -108,9 +108,6 @@ private:
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	friend class CapsLockAligner;
-	friend class MsxKeyEventQueue;
-
 	static const int MAX_KEYSYM = 0x150;
 	static const byte keyTab[MAX_KEYSYM];
 
@@ -172,9 +169,49 @@ private:
 		unsigned typingFrequency;
 	} keyTypeCmd;
 
-	const std::unique_ptr<CapsLockAligner>  capsLockAligner;
+	class CapsLockAligner final : private EventListener, private Schedulable {
+	public:
+		CapsLockAligner(EventDistributor& eventDistributor,
+				MSXEventDistributor& msxEventDistributor,
+				Scheduler& scheduler, Keyboard& keyboard);
+		~CapsLockAligner();
+
+	private:
+		// EventListener
+		int signalEvent(const std::shared_ptr<const Event>& event) override;
+
+		// Schedulable
+		void executeUntil(EmuTime::param time) override;
+
+		void alignCapsLock(EmuTime::param time);
+
+		Keyboard& keyboard;
+		EventDistributor& eventDistributor;
+		MSXEventDistributor& msxEventDistributor;
+
+		enum CapsLockAlignerStateType {
+			MUST_ALIGN_CAPSLOCK, MUST_DISTRIBUTE_KEY_RELEASE, IDLE
+		} state;
+	} capsLockAligner;
+
 	const std::unique_ptr<KeyboardSettings> keyboardSettings;
-	const std::unique_ptr<MsxKeyEventQueue> msxKeyEventQueue;
+
+	class MsxKeyEventQueue final : public Schedulable {
+	public:
+		MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard,
+		                 Interpreter& interp);
+		void process_asap(EmuTime::param time,
+		                  const std::shared_ptr<const Event>& event);
+		void clear();
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+	private:
+		// Schedulable
+		void executeUntil(EmuTime::param time) override;
+		std::deque<std::shared_ptr<const Event>> eventQueue;
+		Keyboard& keyboard;
+		Interpreter& interp;
+	} msxKeyEventQueue;
 
 	class KeybDebuggable final : public SimpleDebuggable {
 	public:

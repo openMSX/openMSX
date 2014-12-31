@@ -1,37 +1,29 @@
 #ifndef COMMANDLINEPARSER_HH
 #define COMMANDLINEPARSER_HH
 
+#include "CLIOption.hh"
+#include "MSXRomCLI.hh"
+#include "CliExtension.hh"
+#include "ReplayCLI.hh"
+#include "SaveStateCLI.hh"
+#include "CassettePlayerCLI.hh"
+#include "DiskImageCLI.hh"
+#include "HDImageCLI.hh"
+#include "CDImageCLI.hh"
 #include "array_ref.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
 #include "components.hh"
 #include <string>
 #include <vector>
-#include <memory>
 #include <utility>
+
+#if COMPONENT_LASERDISC
+#include "LaserdiscPlayerCLI.hh"
+#endif
 
 namespace openmsx {
 
-class CLIOption;
-class CLIFileType;
-class HelpOption;
-class VersionOption;
-class ControlOption;
-class ScriptOption;
-class MachineOption;
-class SettingOption;
-class NoPBOOption;
-class TestConfigOption;
-class BashOption;
-class MSXRomCLI;
-class CliExtension;
-class ReplayCLI;
-class SaveStateCLI;
-class CassettePlayerCLI;
-class LaserdiscPlayerCLI;
-class DiskImageCLI;
-class HDImageCLI;
-class CDImageCLI;
 class Reactor;
 class MSXMotherBoard;
 class GlobalCommandController;
@@ -90,38 +82,101 @@ private:
 
 	Reactor& reactor;
 
-	const std::unique_ptr<HelpOption> helpOption;
-	const std::unique_ptr<VersionOption> versionOption;
-	const std::unique_ptr<ControlOption> controlOption;
-	const std::unique_ptr<ScriptOption> scriptOption;
-	const std::unique_ptr<MachineOption> machineOption;
-	const std::unique_ptr<SettingOption> settingOption;
-	const std::unique_ptr<NoPBOOption> noPBOOption;
-	const std::unique_ptr<TestConfigOption> testConfigOption;
-	const std::unique_ptr<BashOption> bashOption;
+	class HelpOption final : public CLIOption {
+	public:
+		explicit HelpOption(CommandLineParser& parser);
+		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
+	private:
+		CommandLineParser& parser;
+	} helpOption;
 
-	const std::unique_ptr<MSXRomCLI> msxRomCLI;
-	const std::unique_ptr<CliExtension> cliExtension;
-	const std::unique_ptr<ReplayCLI> replayCLI;
-	const std::unique_ptr<SaveStateCLI> saveStateCLI;
-	const std::unique_ptr<CassettePlayerCLI> cassettePlayerCLI;
+	class VersionOption final : public CLIOption {
+	public:
+		explicit VersionOption(CommandLineParser& parser);
+		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
+	private:
+		CommandLineParser& parser;
+	} versionOption;
+
+	class ControlOption final : public CLIOption {
+	public:
+		explicit ControlOption(CommandLineParser& parser);
+		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
+	private:
+		CommandLineParser& parser;
+	} controlOption;
+
+	class ScriptOption final : public CLIOption, public CLIFileType {
+	public:
+		const CommandLineParser::Scripts& getScripts() const;
+		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
+		void parseFileType(const std::string& filename,
+				   array_ref<std::string>& cmdLine) override;
+		string_ref fileTypeHelp() const override;
+	private:
+		CommandLineParser::Scripts scripts;
+	} scriptOption;
+
+	class MachineOption final : public CLIOption {
+	public:
+		explicit MachineOption(CommandLineParser& parser);
+		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
+	private:
+		CommandLineParser& parser;
+	} machineOption;
+
+	class SettingOption final : public CLIOption {
+	public:
+		explicit SettingOption(CommandLineParser& parser);
+		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
+	private:
+		CommandLineParser& parser;
+	} settingOption;
+
+	class NoPBOOption final : public CLIOption {
+	public:
+		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
+	} noPBOOption;
+
+	class TestConfigOption final : public CLIOption {
+	public:
+		explicit TestConfigOption(CommandLineParser& parser);
+		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
+	private:
+		CommandLineParser& parser;
+	} testConfigOption;
+
+	class BashOption final : public CLIOption {
+	public:
+		explicit BashOption(CommandLineParser& parser);
+		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
+	private:
+		CommandLineParser& parser;
+	} bashOption;
+
+	MSXRomCLI msxRomCLI;
+	CliExtension cliExtension;
+	ReplayCLI replayCLI;
+	SaveStateCLI saveStateCLI;
+	CassettePlayerCLI cassettePlayerCLI;
 #if COMPONENT_LASERDISC
-	const std::unique_ptr<LaserdiscPlayerCLI> laserdiscPlayerCLI;
+	LaserdiscPlayerCLI laserdiscPlayerCLI;
 #endif
-	const std::unique_ptr<DiskImageCLI> diskImageCLI;
-	const std::unique_ptr<HDImageCLI> hdImageCLI;
-	const std::unique_ptr<CDImageCLI> cdImageCLI;
+	DiskImageCLI diskImageCLI;
+	HDImageCLI hdImageCLI;
+	CDImageCLI cdImageCLI;
 	ParseStatus parseStatus;
 	bool haveConfig;
 	bool haveSettings;
-
-	friend class ControlOption;
-	friend class HelpOption;
-	friend class VersionOption;
-	friend class MachineOption;
-	friend class SettingOption;
-	friend class TestConfigOption;
-	friend class BashOption;
 };
 
 } // namespace openmsx

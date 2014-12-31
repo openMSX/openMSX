@@ -16,54 +16,12 @@ namespace openmsx {
 static const byte LIMITED_RANGE_VALUE = 0x01; // b0 = "E8" => determines port range
 static const byte DISABLED_VALUE      = 0x80; // b7 = EN
 
-class MSXMidiCounter0 final : public ClockPinListener
-{
-public:
-	explicit MSXMidiCounter0(MSXMidi& midi);
-	~MSXMidiCounter0();
-	void signal(ClockPin& pin, EmuTime::param time) override;
-	void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
-private:
-	MSXMidi& midi;
-};
-
-class MSXMidiCounter2 final : public ClockPinListener
-{
-public:
-	explicit MSXMidiCounter2(MSXMidi& midi);
-	~MSXMidiCounter2();
-	void signal(ClockPin& pin, EmuTime::param time) override;
-	void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
-private:
-	MSXMidi& midi;
-};
-
-class MSXMidiI8251Interf final : public I8251Interface
-{
-public:
-	explicit MSXMidiI8251Interf(MSXMidi& midi);
-	~MSXMidiI8251Interf();
-	void setRxRDY(bool status, EmuTime::param time) override;
-	void setDTR(bool status, EmuTime::param time) override;
-	void setRTS(bool status, EmuTime::param time) override;
-	bool getDSR(EmuTime::param time) override;
-	bool getCTS(EmuTime::param time) override;
-	void setDataBits(DataBits bits) override;
-	void setStopBits(StopBits bits) override;
-	void setParityBit(bool enable, ParityBit parity) override;
-	void recvByte(byte value, EmuTime::param time) override;
-	void signal(EmuTime::param time) override;
-private:
-	MSXMidi& midi;
-};
-
-
 MSXMidi::MSXMidi(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MidiInConnector(MSXDevice::getPluggingController(), "msx-midi-in")
-	, cntr0(make_unique<MSXMidiCounter0>(*this))
-	, cntr2(make_unique<MSXMidiCounter2>(*this))
-	, interf(make_unique<MSXMidiI8251Interf>(*this))
+	, cntr0(*this)
+	, cntr2(*this)
+	, interf(*this)
 	, timerIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQtimer")
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, timerIRQlatch(false), timerIRQenabled(false)
@@ -73,9 +31,9 @@ MSXMidi::MSXMidi(const DeviceConfig& config)
 	, isLimitedTo8251(true)
 	, outConnector(make_unique<MidiOutConnector>(
 		MSXDevice::getPluggingController(), "msx-midi-out"))
-	, i8251(make_unique<I8251>(getScheduler(), *interf, getCurrentTime()))
+	, i8251(make_unique<I8251>(getScheduler(), interf, getCurrentTime()))
 	, i8254(make_unique<I8254>(
-		getScheduler(), cntr0.get(), nullptr, cntr2.get(),
+		getScheduler(), &cntr0, nullptr, &cntr2,
 		getCurrentTime()))
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz
@@ -324,61 +282,57 @@ void MSXMidi::enableRxRDYIRQ(bool enabled)
 
 // I8251Interface  (pass calls from I8251 to outConnector)
 
-MSXMidiI8251Interf::MSXMidiI8251Interf(MSXMidi& midi_)
+MSXMidi::I8251Interf::I8251Interf(MSXMidi& midi_)
 	: midi(midi_)
 {
 }
 
-MSXMidiI8251Interf::~MSXMidiI8251Interf()
-{
-}
-
-void MSXMidiI8251Interf::setRxRDY(bool status, EmuTime::param /*time*/)
+void MSXMidi::I8251Interf::setRxRDY(bool status, EmuTime::param /*time*/)
 {
 	midi.setRxRDYIRQ(status);
 }
 
-void MSXMidiI8251Interf::setDTR(bool status, EmuTime::param time)
+void MSXMidi::I8251Interf::setDTR(bool status, EmuTime::param time)
 {
 	midi.enableTimerIRQ(status, time);
 }
 
-void MSXMidiI8251Interf::setRTS(bool status, EmuTime::param /*time*/)
+void MSXMidi::I8251Interf::setRTS(bool status, EmuTime::param /*time*/)
 {
 	midi.enableRxRDYIRQ(status);
 }
 
-bool MSXMidiI8251Interf::getDSR(EmuTime::param /*time*/)
+bool MSXMidi::I8251Interf::getDSR(EmuTime::param /*time*/)
 {
 	return midi.timerIRQ.getState();
 }
 
-bool MSXMidiI8251Interf::getCTS(EmuTime::param /*time*/)
+bool MSXMidi::I8251Interf::getCTS(EmuTime::param /*time*/)
 {
 	return true;
 }
 
-void MSXMidiI8251Interf::setDataBits(DataBits bits)
+void MSXMidi::I8251Interf::setDataBits(DataBits bits)
 {
 	midi.outConnector->setDataBits(bits);
 }
 
-void MSXMidiI8251Interf::setStopBits(StopBits bits)
+void MSXMidi::I8251Interf::setStopBits(StopBits bits)
 {
 	midi.outConnector->setStopBits(bits);
 }
 
-void MSXMidiI8251Interf::setParityBit(bool enable, ParityBit parity)
+void MSXMidi::I8251Interf::setParityBit(bool enable, ParityBit parity)
 {
 	midi.outConnector->setParityBit(enable, parity);
 }
 
-void MSXMidiI8251Interf::recvByte(byte value, EmuTime::param time)
+void MSXMidi::I8251Interf::recvByte(byte value, EmuTime::param time)
 {
 	midi.outConnector->recvByte(value, time);
 }
 
-void MSXMidiI8251Interf::signal(EmuTime::param time)
+void MSXMidi::I8251Interf::signal(EmuTime::param time)
 {
 	midi.getPluggedMidiInDev().signal(time);
 }
@@ -386,16 +340,12 @@ void MSXMidiI8251Interf::signal(EmuTime::param time)
 
 // Counter 0 output
 
-MSXMidiCounter0::MSXMidiCounter0(MSXMidi& midi_)
+MSXMidi::Counter0::Counter0(MSXMidi& midi_)
 	: midi(midi_)
 {
 }
 
-MSXMidiCounter0::~MSXMidiCounter0()
-{
-}
-
-void MSXMidiCounter0::signal(ClockPin& pin, EmuTime::param time)
+void MSXMidi::Counter0::signal(ClockPin& pin, EmuTime::param time)
 {
 	ClockPin& clk = midi.i8251->getClockPin();
 	if (pin.isPeriodic()) {
@@ -406,7 +356,7 @@ void MSXMidiCounter0::signal(ClockPin& pin, EmuTime::param time)
 	}
 }
 
-void MSXMidiCounter0::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/)
+void MSXMidi::Counter0::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/)
 {
 	UNREACHABLE;
 }
@@ -414,16 +364,12 @@ void MSXMidiCounter0::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/)
 
 // Counter 2 output
 
-MSXMidiCounter2::MSXMidiCounter2(MSXMidi& midi_)
+MSXMidi::Counter2::Counter2(MSXMidi& midi_)
 	: midi(midi_)
 {
 }
 
-MSXMidiCounter2::~MSXMidiCounter2()
-{
-}
-
-void MSXMidiCounter2::signal(ClockPin& pin, EmuTime::param time)
+void MSXMidi::Counter2::signal(ClockPin& pin, EmuTime::param time)
 {
 	ClockPin& clk = midi.i8254->getClockPin(1);
 	if (pin.isPeriodic()) {
@@ -434,7 +380,7 @@ void MSXMidiCounter2::signal(ClockPin& pin, EmuTime::param time)
 	}
 }
 
-void MSXMidiCounter2::signalPosEdge(ClockPin& /*pin*/, EmuTime::param time)
+void MSXMidi::Counter2::signalPosEdge(ClockPin& /*pin*/, EmuTime::param time)
 {
 	midi.setTimerIRQ(true, time);
 }

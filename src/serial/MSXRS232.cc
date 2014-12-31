@@ -16,59 +16,16 @@ namespace openmsx {
 const unsigned RAM_OFFSET = 0x2000;
 const unsigned RAM_SIZE = 0x800;
 
-
-class Counter0 final : public ClockPinListener
-{
-public:
-	explicit Counter0(MSXRS232& rs232);
-	~Counter0();
-	void signal(ClockPin& pin, EmuTime::param time) override;
-	void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
-private:
-	MSXRS232& rs232;
-};
-
-class Counter1 final : public ClockPinListener
-{
-public:
-	explicit Counter1(MSXRS232& rs232);
-	~Counter1();
-	void signal(ClockPin& pin, EmuTime::param time) override;
-	void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
-private:
-	MSXRS232& rs232;
-};
-
-class I8251Interf final : public I8251Interface
-{
-public:
-	explicit I8251Interf(MSXRS232& rs232);
-	~I8251Interf();
-	void setRxRDY(bool status, EmuTime::param time) override;
-	void setDTR(bool status, EmuTime::param time) override;
-	void setRTS(bool status, EmuTime::param time) override;
-	bool getDSR(EmuTime::param time) override;
-	bool getCTS(EmuTime::param time) override;
-	void setDataBits(DataBits bits) override;
-	void setStopBits(StopBits bits) override;
-	void setParityBit(bool enable, ParityBit parity) override;
-	void recvByte(byte value, EmuTime::param time) override;
-	void signal(EmuTime::param time) override;
-private:
-	MSXRS232& rs232;
-};
-
-
 MSXRS232::MSXRS232(const DeviceConfig& config)
 	: MSXDevice(config)
 	, RS232Connector(MSXDevice::getPluggingController(), "msx-rs232")
-	, cntr0(make_unique<Counter0>(*this))
-	, cntr1(make_unique<Counter1>(*this))
+	, cntr0(*this)
+	, cntr1(*this)
 	, i8254(make_unique<I8254>(
-		getScheduler(), cntr0.get(), cntr1.get(), nullptr,
+		getScheduler(), &cntr0, &cntr1, nullptr,
 		getCurrentTime()))
-	, interf(make_unique<I8251Interf>(*this))
-	, i8251(make_unique<I8251>(getScheduler(), *interf, getCurrentTime()))
+	, interf(*this)
+	, i8251(make_unique<I8251>(getScheduler(), interf, getCurrentTime()))
 	, rom(config.findChild("rom")
 		? make_unique<Rom>(
 			MSXDevice::getName() + " ROM", "rom", config)
@@ -296,7 +253,7 @@ byte MSXRS232::readStatus(EmuTime::param time)
 		result |= 0x08;
 	}
 
-	if (!interf->getCTS(time)) {
+	if (!interf.getCTS(time)) {
 		result |= 0x80;
 	}
 	if (i8254->getOutputPin(2).getState(time)) {
@@ -337,61 +294,57 @@ void MSXRS232::enableRxRDYIRQ(bool enabled)
 
 // I8251Interface  (pass calls from I8251 to outConnector)
 
-I8251Interf::I8251Interf(MSXRS232& rs232_)
+MSXRS232::I8251Interf::I8251Interf(MSXRS232& rs232_)
 	: rs232(rs232_)
 {
 }
 
-I8251Interf::~I8251Interf()
-{
-}
-
-void I8251Interf::setRxRDY(bool status, EmuTime::param /*time*/)
+void MSXRS232::I8251Interf::setRxRDY(bool status, EmuTime::param /*time*/)
 {
 	rs232.setRxRDYIRQ(status);
 }
 
-void I8251Interf::setDTR(bool status, EmuTime::param time)
+void MSXRS232::I8251Interf::setDTR(bool status, EmuTime::param time)
 {
 	rs232.getPluggedRS232Dev().setDTR(status, time);
 }
 
-void I8251Interf::setRTS(bool status, EmuTime::param time)
+void MSXRS232::I8251Interf::setRTS(bool status, EmuTime::param time)
 {
 	rs232.getPluggedRS232Dev().setRTS(status, time);
 }
 
-bool I8251Interf::getDSR(EmuTime::param time)
+bool MSXRS232::I8251Interf::getDSR(EmuTime::param time)
 {
 	return rs232.getPluggedRS232Dev().getDSR(time);
 }
 
-bool I8251Interf::getCTS(EmuTime::param time)
+bool MSXRS232::I8251Interf::getCTS(EmuTime::param time)
 {
 	return rs232.getPluggedRS232Dev().getCTS(time);
 }
 
-void I8251Interf::setDataBits(DataBits bits)
+void MSXRS232::I8251Interf::setDataBits(DataBits bits)
 {
 	rs232.getPluggedRS232Dev().setDataBits(bits);
 }
 
-void I8251Interf::setStopBits(StopBits bits)
+void MSXRS232::I8251Interf::setStopBits(StopBits bits)
 {
 	rs232.getPluggedRS232Dev().setStopBits(bits);
 }
 
-void I8251Interf::setParityBit(bool enable, ParityBit parity)
+void MSXRS232::I8251Interf::setParityBit(bool enable, ParityBit parity)
 {
 	rs232.getPluggedRS232Dev().setParityBit(enable, parity);
 }
 
-void I8251Interf::recvByte(byte value, EmuTime::param time)
+void MSXRS232::I8251Interf::recvByte(byte value, EmuTime::param time)
 {
 	rs232.getPluggedRS232Dev().recvByte(value, time);
 }
 
-void I8251Interf::signal(EmuTime::param time)
+void MSXRS232::I8251Interf::signal(EmuTime::param time)
 {
 	rs232.getPluggedRS232Dev().signal(time); // for input
 }
@@ -399,16 +352,12 @@ void I8251Interf::signal(EmuTime::param time)
 
 // Counter 0 output
 
-Counter0::Counter0(MSXRS232& rs232_)
+MSXRS232::Counter0::Counter0(MSXRS232& rs232_)
 	: rs232(rs232_)
 {
 }
 
-Counter0::~Counter0()
-{
-}
-
-void Counter0::signal(ClockPin& pin, EmuTime::param time)
+void MSXRS232::Counter0::signal(ClockPin& pin, EmuTime::param time)
 {
 	ClockPin& clk = rs232.i8251->getClockPin();
 	if (pin.isPeriodic()) {
@@ -419,7 +368,7 @@ void Counter0::signal(ClockPin& pin, EmuTime::param time)
 	}
 }
 
-void Counter0::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/)
+void MSXRS232::Counter0::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/)
 {
 	UNREACHABLE;
 }
@@ -427,16 +376,12 @@ void Counter0::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/)
 
 // Counter 1 output // TODO split rx tx
 
-Counter1::Counter1(MSXRS232& rs232_)
+MSXRS232::Counter1::Counter1(MSXRS232& rs232_)
 	: rs232(rs232_)
 {
 }
 
-Counter1::~Counter1()
-{
-}
-
-void Counter1::signal(ClockPin& pin, EmuTime::param time)
+void MSXRS232::Counter1::signal(ClockPin& pin, EmuTime::param time)
 {
 	ClockPin& clk = rs232.i8251->getClockPin();
 	if (pin.isPeriodic()) {
@@ -447,7 +392,7 @@ void Counter1::signal(ClockPin& pin, EmuTime::param time)
 	}
 }
 
-void Counter1::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/)
+void MSXRS232::Counter1::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/)
 {
 	UNREACHABLE;
 }

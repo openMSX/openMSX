@@ -4,14 +4,11 @@
 #include "MSXDevice.hh"
 #include "IRQHelper.hh"
 #include "MidiInConnector.hh"
+#include "I8251.hh"
 
 namespace openmsx {
 
-class MSXMidiCounter0;
-class MSXMidiCounter2;
-class MSXMidiI8251Interf;
 class I8254;
-class I8251;
 class MidiOutConnector;
 
 class MSXMidi final : public MSXDevice, public MidiInConnector
@@ -47,9 +44,40 @@ private:
 	void registerRange(byte port, unsigned num);
 	void unregisterRange(byte port, unsigned num);
 
-	const std::unique_ptr<MSXMidiCounter0> cntr0; // counter 0 clock pin
-	const std::unique_ptr<MSXMidiCounter2> cntr2; // counter 2 clock pin
-	const std::unique_ptr<MSXMidiI8251Interf> interf;
+	class Counter0 final : public ClockPinListener {
+	public:
+		explicit Counter0(MSXMidi& midi);
+		void signal(ClockPin& pin, EmuTime::param time) override;
+		void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
+	private:
+		MSXMidi& midi;
+	} cntr0; // counter 0 clock pin
+
+	class Counter2 final : public ClockPinListener {
+	public:
+		explicit Counter2(MSXMidi& midi);
+		void signal(ClockPin& pin, EmuTime::param time) override;
+		void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
+	private:
+		MSXMidi& midi;
+	} cntr2; // counter 2 clock pin
+
+	class I8251Interf final : public I8251Interface {
+	public:
+		explicit I8251Interf(MSXMidi& midi);
+		void setRxRDY(bool status, EmuTime::param time) override;
+		void setDTR(bool status, EmuTime::param time) override;
+		void setRTS(bool status, EmuTime::param time) override;
+		bool getDSR(EmuTime::param time) override;
+		bool getCTS(EmuTime::param time) override;
+		void setDataBits(DataBits bits) override;
+		void setStopBits(StopBits bits) override;
+		void setParityBit(bool enable, ParityBit parity) override;
+		void recvByte(byte value, EmuTime::param time) override;
+		void signal(EmuTime::param time) override;
+	private:
+		MSXMidi& midi;
+	} interf;
 
 	IRQHelper timerIRQ;
 	IRQHelper rxrdyIRQ;
@@ -66,10 +94,6 @@ private:
 	const std::unique_ptr<MidiOutConnector> outConnector;
 	const std::unique_ptr<I8251> i8251;
 	const std::unique_ptr<I8254> i8254;
-
-	friend class MSXMidiCounter0;
-	friend class MSXMidiCounter2;
-	friend class MSXMidiI8251Interf;
 };
 SERIALIZE_CLASS_VERSION(MSXMidi, 2);
 
