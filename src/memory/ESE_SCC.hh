@@ -34,7 +34,7 @@ private:
 
 	SRAM sram;
 	SCC scc;
-	std::unique_ptr<MB89352> spc; // can be nullptr
+	const std::unique_ptr<MB89352> spc; // can be nullptr
 	RomBlockDebuggable romBlockDebug;
 
 	const byte mapperMask;

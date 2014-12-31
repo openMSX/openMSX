@@ -10,6 +10,7 @@
 #include "Filename.hh"
 #include "VideoSystemChangeListener.hh"
 #include "EventListener.hh"
+#include "ThrottleManager.hh"
 
 namespace openmsx {
 
@@ -19,7 +20,6 @@ class MSXMotherBoard;
 class OggReader;
 class LDRenderer;
 class RawFrame;
-class LoadingIndicator;
 
 class LaserdiscPlayer final : public ResampledSoundDevice
                             , private EventListener
@@ -228,7 +228,7 @@ private:
 
 	// Loading indicator
 	BooleanSetting autoRunSetting;
-	const std::unique_ptr<LoadingIndicator> loadingIndicator;
+	LoadingIndicator loadingIndicator;
 	int sampleReads;
 };
 

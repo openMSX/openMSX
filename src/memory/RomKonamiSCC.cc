@@ -12,38 +12,31 @@
 //  bank 4: 0xB000 - 0xB7ff (0xB000 used)
 
 #include "RomKonamiSCC.hh"
-#include "SCC.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
-	, scc(make_unique<SCC>("SCC", config, getCurrentTime()))
+	, scc("SCC", config, getCurrentTime())
 {
-
 	// warn if a ROM is used that would not work on a real KonamiSCC mapper
 	if (rom->getSize() > 512 * 1024) {
-		getMotherBoard().getMSXCliComm().printWarning("The size of "
-				"this ROM image is larger than 512kB, which is "
-				"not supported on real Konami SCC mapper "
-				"chips!"); }
-
+		getMotherBoard().getMSXCliComm().printWarning(
+			"The size of this ROM image is larger than 512kB, "
+			"which is not supported on real Konami SCC mapper "
+			"chips!");
+	}
 	powerUp(getCurrentTime());
-}
-
-RomKonamiSCC::~RomKonamiSCC()
-{
 }
 
 void RomKonamiSCC::powerUp(EmuTime::param time)
 {
-	scc->powerUp(time);
+	scc.powerUp(time);
 	reset(time);
 }
 
@@ -58,13 +51,13 @@ void RomKonamiSCC::reset(EmuTime::param time)
 	setUnmapped(7);
 
 	sccEnabled = false;
-	scc->reset(time);
+	scc.reset(time);
 }
 
 byte RomKonamiSCC::peekMem(word address, EmuTime::param time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return scc->peekMem(address & 0xFF, time);
+		return scc.peekMem(address & 0xFF, time);
 	} else {
 		return Rom8kBBlocks::peekMem(address, time);
 	}
@@ -73,7 +66,7 @@ byte RomKonamiSCC::peekMem(word address, EmuTime::param time) const
 byte RomKonamiSCC::readMem(word address, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return scc->readMem(address & 0xFF, time);
+		return scc.readMem(address & 0xFF, time);
 	} else {
 		return Rom8kBBlocks::readMem(address, time);
 	}
@@ -96,7 +89,7 @@ void RomKonamiSCC::writeMem(word address, byte value, EmuTime::param time)
 	}
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC
-		scc->writeMem(address & 0xFF, value, time);
+		scc.writeMem(address & 0xFF, value, time);
 		return;
 	}
 	if ((address & 0xF800) == 0x9000) {
@@ -132,7 +125,7 @@ template<typename Archive>
 void RomKonamiSCC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("scc", *scc);
+	ar.serialize("scc", scc);
 	ar.serialize("sccEnabled", sccEnabled);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomKonamiSCC);

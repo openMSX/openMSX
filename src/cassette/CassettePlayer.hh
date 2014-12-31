@@ -6,6 +6,7 @@
 #include "ResampledSoundDevice.hh"
 #include "RecordedCommand.hh"
 #include "Schedulable.hh"
+#include "ThrottleManager.hh"
 #include "Filename.hh"
 #include "EmuTime.hh"
 #include "BooleanSetting.hh"
@@ -19,7 +20,6 @@ class CassetteImage;
 class HardwareConfig;
 class MSXMotherBoard;
 class Wav8Writer;
-class LoadingIndicator;
 
 class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
                            , private EventListener
@@ -172,7 +172,7 @@ private:
 		CassettePlayer& cassettePlayer;
 	} tapeCommand;
 
-	const std::unique_ptr<LoadingIndicator> loadingIndicator;
+	LoadingIndicator loadingIndicator;
 	BooleanSetting autoRunSetting;
 	std::unique_ptr<Wav8Writer> recordImage;
 	std::unique_ptr<CassetteImage> playImage;

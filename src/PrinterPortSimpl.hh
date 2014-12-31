@@ -33,7 +33,7 @@ private:
 	void createDAC();
 
 	const HardwareConfig& hwConf;
-	std::unique_ptr<DACSound8U> dac;
+	std::unique_ptr<DACSound8U> dac; // can be nullptr
 };
 
 } // namespace openmsx

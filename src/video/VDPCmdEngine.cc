@@ -36,7 +36,6 @@ TODO:
 #include "VDPCmdEngine.hh"
 #include "EmuTime.hh"
 #include "VDPVRAM.hh"
-#include "TclCallback.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "memory.hh"
@@ -1946,12 +1945,12 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 		commandController, vdp_.getName() == "VDP" ? "vdpcmdtrace" :
 		vdp_.getName() + " vdpcmdtrace", "VDP command tracing on/off",
 		false)
-	, cmdInProgressCallback(make_unique<TclCallback>(
+	, cmdInProgressCallback(
 		commandController, vdp_.getName() == "VDP" ?
 		"vdpcmdinprogress_callback" : vdp_.getName() +
 		" vdpcmdinprogress_callback",
 	        "Tcl proc to call when a write to the VDP command engine is "
-		"detected while the previous command is still in progress."))
+		"detected while the previous command is still in progress.")
 	, time(EmuTime::zero)
 	, statusChangeTime(EmuTime::infinity)
 	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
@@ -2017,7 +2016,7 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, EmuTime::param time)
 {
 	sync(time);
 	if (currentCommand && (index != 12)) {
-		cmdInProgressCallback->execute(index, value);
+		cmdInProgressCallback.execute(index, value);
 	}
 	switch (index) {
 	case 0x00: // source X low

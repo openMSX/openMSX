@@ -2,16 +2,14 @@
 #define ROMKONAMISCC_HH
 
 #include "RomBlocks.hh"
+#include "SCC.hh"
 
 namespace openmsx {
-
-class SCC;
 
 class RomKonamiSCC final : public Rom8kBBlocks
 {
 public:
 	RomKonamiSCC(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	~RomKonamiSCC();
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
@@ -25,7 +23,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<SCC> scc;
+	SCC scc;
 	bool sccEnabled;
 };
 

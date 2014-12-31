@@ -1,17 +1,10 @@
 #include "KeyClick.hh"
-#include "DACSound8U.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 KeyClick::KeyClick(const DeviceConfig& config)
-	: dac(make_unique<DACSound8U>(
-		"keyclick", "1-bit click generator", config))
+	: dac("keyclick", "1-bit click generator", config)
 	, status(false)
-{
-}
-
-KeyClick::~KeyClick()
 {
 }
 
@@ -24,7 +17,7 @@ void KeyClick::setClick(bool newStatus, EmuTime::param time)
 {
 	if (newStatus != status) {
 		status = newStatus;
-		dac->writeDAC((status ? 0xff : 0x80), time);
+		dac.writeDAC((status ? 0xff : 0x80), time);
 	}
 }
 

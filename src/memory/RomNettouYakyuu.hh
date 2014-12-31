@@ -2,16 +2,14 @@
 #define ROMNETTOUYAKYUU_HH
 
 #include "RomBlocks.hh"
+#include "SamplePlayer.hh"
 
 namespace openmsx {
-
-class SamplePlayer;
 
 class RomNettouYakyuu final : public Rom8kBBlocks
 {
 public:
 	RomNettouYakyuu(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	~RomNettouYakyuu();
 
 	void reset(EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
@@ -21,7 +19,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<SamplePlayer> samplePlayer;
+	SamplePlayer samplePlayer;
 
 	// remember per region if writes are for the sample player or not
 	// there are 4 x 8kB regions in [0x4000-0xBFFF]

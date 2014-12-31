@@ -2,12 +2,12 @@
 #define MSXAUDIO_HH
 
 #include "MSXDevice.hh"
+#include "Y8950.hh"
 #include <memory>
 #include <string>
 
 namespace openmsx {
 
-class Y8950;
 class Y8950Periphery;
 class DACSound8U;
 
@@ -39,9 +39,9 @@ public:
 private:
 	void enableDAC(bool enable, EmuTime::param time);
 
-	std::unique_ptr<Y8950Periphery> periphery;
-	std::unique_ptr<Y8950> y8950;
-	std::unique_ptr<DACSound8U> dac;
+	std::unique_ptr<Y8950Periphery> periphery; // polymorphic
+	Y8950 y8950;
+	std::unique_ptr<DACSound8U> dac; // can be nullptr
 	int registerLatch;
 	byte dacValue;
 	bool dacEnabled;

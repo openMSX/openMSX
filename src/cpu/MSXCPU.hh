@@ -6,6 +6,7 @@
 #include "Observer.hh"
 #include "BooleanSetting.hh"
 #include "EmuTime.hh"
+#include "TclCallback.hh"
 #include "noncopyable.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
@@ -21,7 +22,6 @@ class CPURegs;
 class Z80TYPE;
 class R800TYPE;
 template <typename T> class CPUCore;
-class TclCallback;
 class TclObject;
 class Interpreter;
 
@@ -136,9 +136,9 @@ private:
 
 	MSXMotherBoard& motherboard;
 	BooleanSetting traceSetting;
-	const std::unique_ptr<TclCallback> diHaltCallback;
+	TclCallback diHaltCallback;
 	const std::unique_ptr<CPUCore<Z80TYPE>> z80;
-	const std::unique_ptr<CPUCore<R800TYPE>> r800;
+	const std::unique_ptr<CPUCore<R800TYPE>> r800; // can be nullptr
 
 	class TimeInfoTopic final : public InfoTopic {
 	public:

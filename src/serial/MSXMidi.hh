@@ -4,12 +4,11 @@
 #include "MSXDevice.hh"
 #include "IRQHelper.hh"
 #include "MidiInConnector.hh"
+#include "MidiOutConnector.hh"
 #include "I8251.hh"
+#include "I8254.hh"
 
 namespace openmsx {
-
-class I8254;
-class MidiOutConnector;
 
 class MSXMidi final : public MSXDevice, public MidiInConnector
 {
@@ -91,9 +90,9 @@ private:
 	bool isLimitedTo8251; /* inverse of E8 bit */
 
 	// must come last
-	const std::unique_ptr<MidiOutConnector> outConnector;
-	const std::unique_ptr<I8251> i8251;
-	const std::unique_ptr<I8254> i8254;
+	MidiOutConnector outConnector;
+	I8251 i8251;
+	I8254 i8254;
 };
 SERIALIZE_CLASS_VERSION(MSXMidi, 2);
 

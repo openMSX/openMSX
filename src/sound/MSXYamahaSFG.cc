@@ -1,30 +1,21 @@
 #include "MSXYamahaSFG.hh"
-#include "YM2151.hh"
-#include "YM2148.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 MSXYamahaSFG::MSXYamahaSFG(const DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName() + " ROM", "rom", config)
-	, ym2151(make_unique<YM2151>(
-		getName(), "Yamaha SFG-01/05", config, getCurrentTime()))
-	, ym2148(make_unique<YM2148>())
+	, ym2151(getName(), "Yamaha SFG-01/05", config, getCurrentTime())
 {
 	reset(getCurrentTime());
 }
 
-MSXYamahaSFG::~MSXYamahaSFG()
-{
-}
-
 void MSXYamahaSFG::reset(EmuTime::param time)
 {
-	ym2151->reset(time);
-	ym2148->reset();
+	ym2151.reset(time);
+	ym2148.reset();
 	registerLatch = 0; // TODO check
 	irqVector = 255; // TODO check
 }
@@ -47,17 +38,17 @@ void MSXYamahaSFG::writeMem(word address, byte value, EmuTime::param time)
 		//std::cerr << "TODO: keyboardLatch = " << (int)value << std::endl;
 		break;
 	case 0x3FF3: // MIDI IRQ VECTOR ADDRESS REGISTER
-		ym2148->setVector(value);
+		ym2148.setVector(value);
 		break;
 	case 0x3FF4: // EXTERNAL IRQ VECTOR ADDRESS REGISTER
 		// IRQ vector for YM2151 (+ default vector ???)
 		irqVector = value;
 		break;
 	case 0x3FF5: // MIDI standard UART DATA READ BUFFER
-		ym2148->writeData(value);
+		ym2148.writeData(value);
 		break;
 	case 0x3FF6: // MIDI standard UART STATUS REGISTER
-		ym2148->writeCommand(value);
+		ym2148.writeCommand(value);
 		break;
 	}
 }
@@ -82,7 +73,7 @@ void MSXYamahaSFG::writeRegisterPort(byte value, EmuTime::param /*time*/)
 
 void MSXYamahaSFG::writeDataPort(byte value, EmuTime::param time)
 {
-	ym2151->writeReg(registerLatch, value, time);
+	ym2151.writeReg(registerLatch, value, time);
 }
 
 byte MSXYamahaSFG::readMem(word address, EmuTime::param time)
@@ -98,17 +89,19 @@ byte MSXYamahaSFG::peekMem(word address, EmuTime::param /*time*/) const
 	}
 	switch (address & 0x3FFF) {
 	case 0x3FF0: // OPM STATUS REGISTER
-		return ym2151->readStatus();
+		return ym2151.readStatus();
 	case 0x3FF1: // OPM DATA REGISTER
-		return ym2151->readStatus();
+		return ym2151.readStatus();
 	case 0x3FF2: // Data buffer for SD0 to SD7 input ports
 		// TODO: return getKbdStatus();
 		break;
 	case 0x3FF5: // MIDI standard UART DATA READ BUFFER
-		return ym2148->readData();
+		// TODO create peekData() method
+		return const_cast<YM2148&>(ym2148).readData();
 		break;
 	case 0x3FF6: // MIDI standard UART STATUS REGISTER
-		return ym2148->readStatus();
+		// TODO create peekStatus() method
+		return const_cast<YM2148&>(ym2148).readStatus();
 		break;
 	}
 	return 0xFF;
@@ -125,8 +118,8 @@ const byte* MSXYamahaSFG::getReadCacheLine(word start) const
 template<typename Archive>
 void MSXYamahaSFG::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("YM2151", *ym2151);
-	ar.serialize("YM2148", *ym2148);
+	ar.serialize("YM2151", ym2151);
+	ar.serialize("YM2148", ym2148);
 	ar.serialize("registerLatch", registerLatch);
 	ar.serialize("irqVector", irqVector);
 }

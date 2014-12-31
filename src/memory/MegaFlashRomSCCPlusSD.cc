@@ -1,7 +1,5 @@
 #include "MegaFlashRomSCCPlusSD.hh"
 #include "Rom.hh"
-#include "SCC.hh"
-#include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
@@ -271,12 +269,9 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(
 		const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: MSXRom(config, std::move(rom_))
 	, flash(*rom, getSectorInfo(), 0x207E, true, config)
-	, scc(make_unique<SCC>(
-		"MFR SCC+ SD SCC-I", config, getCurrentTime(),
-		SCC::SCC_Compatible))
-	, psg(make_unique<AY8910>(
-		"MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
-		getCurrentTime()))
+	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
+	, psg("MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
+	      getCurrentTime())
 	, configReg(3) // avoid UMR
 	, checkedRam(config.getChildDataAsBool("hasmemorymapper", true) ?
 		make_unique<CheckedRam>(config, getName() + " memory mapper", "memory mapper", MEMORY_MAPPER_SIZE * 1024)
@@ -318,7 +313,7 @@ MegaFlashRomSCCPlusSD::~MegaFlashRomSCCPlusSD()
 
 void MegaFlashRomSCCPlusSD::powerUp(EmuTime::param time)
 {
-	scc->powerUp(time);
+	scc.powerUp(time);
 	reset(time);
 }
 
@@ -336,10 +331,10 @@ void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
 	for (int i = 0; i < 4; ++i) {
 		sccBanks[i] = i;
 	}
-	scc->reset(time);
+	scc.reset(time);
 
 	psgLatch = 0;
-	psg->reset(time);
+	psg.reset(time);
 
 	flash.reset();
 
@@ -557,7 +552,7 @@ byte MegaFlashRomSCCPlusSD::readMemSubSlot1(word addr, EmuTime::param time)
 		SCCEnable enable = getSCCEnable();
 		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-			byte val = scc->readMem(addr & 0xFF, time);
+			byte val = scc.readMem(addr & 0xFF, time);
 			return val;
 		}
 	}
@@ -574,7 +569,7 @@ byte MegaFlashRomSCCPlusSD::peekMemSubSlot1(word addr, EmuTime::param time) cons
 		SCCEnable enable = getSCCEnable();
 		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-			byte val = scc->peekMem(addr & 0xFF, time);
+			byte val = scc.peekMem(addr & 0xFF, time);
 			return val;
 		}
 	}
@@ -640,8 +635,8 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 		// Konami-SCC
 		if ((addr & 0xFFFE) == 0xBFFE) {
 			sccMode = value;
-			scc->setChipMode((value & 0x20) ? SCC::SCC_plusmode
-			                                : SCC::SCC_Compatible);
+			scc.setChipMode((value & 0x20) ? SCC::SCC_plusmode
+			                               : SCC::SCC_Compatible);
 			invalidateMemCache(0x9800, 0x800);
 			invalidateMemCache(0xB800, 0x800);
 		}
@@ -653,7 +648,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 		     (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
 		     (0xB800 <= addr) && (addr < 0xC000))) {
-			scc->writeMem(addr & 0xFF, value, time);
+			scc.writeMem(addr & 0xFF, value, time);
 			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands. 
 		}
 	}
@@ -870,13 +865,13 @@ byte MegaFlashRomSCCPlusSD::readIO(word port, EmuTime::param time)
 {
 	// Note: it's not possible to read from the Memory Mapper ports
 	assert((port & 0xFF) == 0x12 || (isPSGalsoMappedToNormalPorts() && ((port & 0xFF) == 0xA2))); (void)port;
-	return psg->readRegister(psgLatch, time);
+	return psg.readRegister(psgLatch, time);
 }
 
 byte MegaFlashRomSCCPlusSD::peekIO(word port, EmuTime::param time) const
 {
 	assert((port & 0xFF) == 0x12 || (isPSGalsoMappedToNormalPorts() && ((port & 0xFF) == 0xA2))); (void)port;
-	return psg->peekRegister(psgLatch, time);
+	return psg.peekRegister(psgLatch, time);
 }
 
 void MegaFlashRomSCCPlusSD::writeIO(word port, byte value, EmuTime::param time)
@@ -890,7 +885,7 @@ void MegaFlashRomSCCPlusSD::writeIO(word port, byte value, EmuTime::param time)
 		case 0xA1:
 			if (!isPSGalsoMappedToNormalPorts()) return;
 		case 0x11:
-			psg->writeRegister(psgLatch, value, time);
+			psg.writeRegister(psgLatch, value, time);
 			break;
 		case 0xFC:
 		case 0xFD:
@@ -918,10 +913,10 @@ void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
 	// (nothing)
 
 	// subslot 1 stuff
-	ar.serialize("scc", *scc);
+	ar.serialize("scc", scc);
 	ar.serialize("sccMode", sccMode);
 	ar.serialize("sccBanks", sccBanks);
-	ar.serialize("psg", *psg);
+	ar.serialize("psg", psg);
 	ar.serialize("psgLatch", psgLatch);
 	ar.serialize("configReg", configReg);
 	ar.serialize("mapperReg", mapperReg);

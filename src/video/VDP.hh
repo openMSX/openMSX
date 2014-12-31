@@ -5,6 +5,7 @@
 #include "Schedulable.hh"
 #include "VideoSystemChangeListener.hh"
 #include "SimpleDebuggable.hh"
+#include "TclCallback.hh"
 #include "InfoTopic.hh"
 #include "IRQHelper.hh"
 #include "Clock.hh"
@@ -20,7 +21,6 @@ class Renderer;
 class VDPCmdEngine;
 class VDPVRAM;
 class SpriteChecker;
-class TclCallback;
 class Display;
 class RawFrame;
 class Setting;
@@ -928,7 +928,7 @@ private:
 	  */
 	EmuTime hScanSyncTime;
 
-	std::unique_ptr<TclCallback> tooFastCallback;
+	TclCallback tooFastCallback;
 
 	/** VDP version.
 	  */

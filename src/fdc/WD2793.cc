@@ -81,12 +81,12 @@ void WD2793::reset(EmuTime::param time)
 
 bool WD2793::getDTRQ(EmuTime::param time)
 {
-	return time >= drqTime.getTime();
+	return peekDTRQ(time);
 }
 
-bool WD2793::peekDTRQ(EmuTime::param time)
+bool WD2793::peekDTRQ(EmuTime::param time) const
 {
-	return getDTRQ(time);
+	return time >= drqTime.getTime();
 }
 
 void WD2793::setDrqRate()
@@ -96,12 +96,12 @@ void WD2793::setDrqRate()
 
 bool WD2793::getIRQ(EmuTime::param time)
 {
-	return immediateIRQ || (irqTime <= time);
+	return peekIRQ(time);
 }
 
-bool WD2793::peekIRQ(EmuTime::param time)
+bool WD2793::peekIRQ(EmuTime::param time) const
 {
-	return getIRQ(time);
+	return immediateIRQ || (irqTime <= time);
 }
 
 bool WD2793::isReady() const
@@ -188,9 +188,10 @@ byte WD2793::getStatusReg(EmuTime::param time)
 	return statusReg;
 }
 
-byte WD2793::peekStatusReg(EmuTime::param time)
+byte WD2793::peekStatusReg(EmuTime::param time) const
 {
-	return getStatusReg(time);
+	// TODO implement proper peek?
+	return const_cast<WD2793*>(this)->getStatusReg(time);
 }
 
 void WD2793::setTrackReg(byte value, EmuTime::param /*time*/)
@@ -198,14 +199,14 @@ void WD2793::setTrackReg(byte value, EmuTime::param /*time*/)
 	trackReg = value;
 }
 
-byte WD2793::getTrackReg(EmuTime::param /*time*/)
+byte WD2793::getTrackReg(EmuTime::param time)
 {
-	return trackReg;
+	return peekTrackReg(time);
 }
 
-byte WD2793::peekTrackReg (EmuTime::param time)
+byte WD2793::peekTrackReg(EmuTime::param /*time*/) const
 {
-	return getTrackReg(time);
+	return trackReg;
 }
 
 void WD2793::setSectorReg(byte value, EmuTime::param /*time*/)
@@ -213,14 +214,14 @@ void WD2793::setSectorReg(byte value, EmuTime::param /*time*/)
 	sectorReg = value;
 }
 
-byte WD2793::getSectorReg(EmuTime::param /*time*/)
+byte WD2793::getSectorReg(EmuTime::param time)
 {
-	return sectorReg;
+	return peekSectorReg(time);
 }
 
-byte WD2793::peekSectorReg(EmuTime::param time)
+byte WD2793::peekSectorReg(EmuTime::param /*time*/) const
 {
-	return getSectorReg(time);
+	return sectorReg;
 }
 
 void WD2793::setDataReg(byte value, EmuTime::param time)
@@ -344,7 +345,7 @@ byte WD2793::getDataReg(EmuTime::param time)
 	return dataReg;
 }
 
-byte WD2793::peekDataReg(EmuTime::param time)
+byte WD2793::peekDataReg(EmuTime::param time) const
 {
 	if ((((commandReg & 0xE0) == 0x80) ||   // read sector
 	     ((commandReg & 0xF0) == 0xC0) ||   // read address

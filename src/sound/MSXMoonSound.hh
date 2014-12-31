@@ -2,19 +2,16 @@
 #define MSXMOONSOUND_HH
 
 #include "MSXDevice.hh"
+#include "YMF262.hh"
+#include "YMF278.hh"
 #include "serialize_meta.hh"
-#include <memory>
 
 namespace openmsx {
-
-class YMF262;
-class YMF278;
 
 class MSXMoonSound final : public MSXDevice
 {
 public:
 	explicit MSXMoonSound(const DeviceConfig& config);
-	~MSXMoonSound();
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
@@ -29,8 +26,8 @@ private:
 	bool getNew2() const;
 	byte readYMF278Status(EmuTime::param time) const;
 
-	const std::unique_ptr<YMF262> ymf262;
-	const std::unique_ptr<YMF278> ymf278;
+	YMF262 ymf262;
+	YMF278 ymf278;
 
 	/** Time at which instrument loading is finished. */
 	EmuTime ymf278LoadTime;

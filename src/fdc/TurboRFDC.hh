@@ -3,11 +3,9 @@
 
 #include "MSXFDC.hh"
 #include "RomBlockDebuggable.hh"
-#include <memory>
+#include "TC8566AF.hh"
 
 namespace openmsx {
-
-class TC8566AF;
 
 class TurboRFDC final : public MSXFDC
 {
@@ -15,10 +13,8 @@ public:
 	enum Type { BOTH, R7FF2, R7FF8 };
 
 	explicit TurboRFDC(const DeviceConfig& config);
-	~TurboRFDC();
 
 	void reset(EmuTime::param time) override;
-
 	byte readMem(word address, EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
@@ -31,7 +27,7 @@ public:
 private:
 	void setBank(byte value);
 
-	const std::unique_ptr<TC8566AF> controller;
+	TC8566AF controller;
 	RomBlockDebuggable romBlockDebug;
 	const byte* memory;
 	const byte blockMask;

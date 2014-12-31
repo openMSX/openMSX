@@ -37,7 +37,6 @@
 #include "Rom.hh"
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
-#include "FirmwareSwitch.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "memory.hh"
@@ -59,7 +58,7 @@ std::shared_ptr<SRAM> getSram(const DeviceConfig& config)
 RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: MSXRom(config, std::move(rom_))
 	, fsSram(getSram(config))
-	, firmwareSwitch(make_unique<FirmwareSwitch>(config))
+	, firmwareSwitch(config)
 {
 	if ((rom->getSize() != 0x100000) &&
 	    (rom->getSize() != 0x200000)) {
@@ -89,7 +88,7 @@ byte RomFSA1FM1::peekMem(word address, EmuTime::param /*time*/) const
 		case 4:
 			return (*fsSram)[address & 0x1FFF];
 		case 6:
-			return firmwareSwitch->getStatus() ? 0xFB : 0xFF;
+			return firmwareSwitch.getStatus() ? 0xFB : 0xFF;
 		default:
 			return 0xFF;
 		}

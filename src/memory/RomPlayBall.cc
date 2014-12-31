@@ -1,19 +1,17 @@
 #include "RomPlayBall.hh"
-#include "SamplePlayer.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 RomPlayBall::RomPlayBall(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
-	, samplePlayer(make_unique<SamplePlayer>(
+	, samplePlayer(
 		"Playball-DAC", "Sony Playball's DAC", config,
 		FileOperations::stripExtension(rom->getFilename()) + '_',
-		15, "playball/playball_"))
+		15, "playball/playball_")
 {
 	setUnmapped(0);
 	setRom(1, 0);
@@ -23,19 +21,15 @@ RomPlayBall::RomPlayBall(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	reset(EmuTime::dummy());
 }
 
-RomPlayBall::~RomPlayBall()
-{
-}
-
 void RomPlayBall::reset(EmuTime::param /*time*/)
 {
-	samplePlayer->reset();
+	samplePlayer.reset();
 }
 
 byte RomPlayBall::peekMem(word address, EmuTime::param time) const
 {
 	if (address == 0xBFFF) {
-		return samplePlayer->isPlaying() ? 0xFE : 0xFF;
+		return samplePlayer.isPlaying() ? 0xFE : 0xFF;
 	} else {
 		return Rom16kBBlocks::peekMem(address, time);
 	}
@@ -58,8 +52,8 @@ const byte* RomPlayBall::getReadCacheLine(word address) const
 void RomPlayBall::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if (address == 0xBFFF) {
-		if ((value <= 14) && !samplePlayer->isPlaying()) {
-			samplePlayer->play(value);
+		if ((value <= 14) && !samplePlayer.isPlaying()) {
+			samplePlayer.play(value);
 		}
 	}
 }
@@ -77,7 +71,7 @@ template<typename Archive>
 void RomPlayBall::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
-	ar.serialize("SamplePlayer", *samplePlayer);
+	ar.serialize("SamplePlayer", samplePlayer);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomPlayBall);
 REGISTER_MSXDEVICE(RomPlayBall, "RomPlayBall");

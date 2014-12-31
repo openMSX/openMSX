@@ -4,14 +4,13 @@
 #include "ResampledSoundDevice.hh"
 #include "FloatSetting.hh"
 #include "SimpleDebuggable.hh"
+#include "TclCallback.hh"
 #include "openmsx.hh"
-#include <memory>
 
 namespace openmsx {
 
 class AY8910Periphery;
 class DeviceConfig;
-class TclCallback;
 
 /** This class implements the AY-3-8910 sound chip.
   * Only the AY-3-8910 is emulated, no surrounding hardware,
@@ -182,7 +181,7 @@ private:
 	FloatSetting vibratoFrequency;
 	FloatSetting detunePercent;
 	FloatSetting detuneFrequency;
-	const std::unique_ptr<TclCallback> directionsCallback;
+	TclCallback directionsCallback;
 	ToneGenerator tone[3];
 	NoiseGenerator noise;
 	Amplitude amplitude;

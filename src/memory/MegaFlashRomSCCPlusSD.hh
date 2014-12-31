@@ -3,12 +3,12 @@
 
 #include "MSXRom.hh"
 #include "AmdFlash.hh"
+#include "SCC.hh"
+#include "AY8910.hh"
 #include <memory>
 
 namespace openmsx {
 
-class SCC;
-class AY8910;
 class CheckedRam;
 class SdCard;
 
@@ -63,8 +63,8 @@ private:
 	void writeMemSubSlot1(word address, byte value, EmuTime::param time);
 	unsigned getFlashAddrSubSlot1(unsigned addr) const;
 
-	const std::unique_ptr<SCC> scc;
-	const std::unique_ptr<AY8910> psg;
+	SCC scc;
+	AY8910 psg;
 
 	byte mapperReg;
 	bool is64KmapperConfigured()               const { return (mapperReg & 0xC0) == 0x40; }

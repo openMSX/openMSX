@@ -15,7 +15,6 @@
 #include "PioneerLDControl.hh"
 #include "OggReader.hh"
 #include "LDRenderer.hh"
-#include "ThrottleManager.hh"
 #include "Math.hh"
 #include "likely.hh"
 #include "memory.hh"
@@ -125,8 +124,8 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, autoRunSetting(
 		motherBoard.getCommandController(), "autorunlaserdisc",
 		"automatically try to run Laserdisc", true)
-	, loadingIndicator(make_unique<LoadingIndicator>(
-		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
+	, loadingIndicator(
+		motherBoard.getReactor().getGlobalSettings().getThrottleManager())
 	, sampleReads(0)
 {
 	motherBoard.getCassettePort().setLaserdiscPlayer(this);
@@ -530,7 +529,7 @@ void LaserdiscPlayer::execSyncFrame(EmuTime::param time, bool odd)
 		}
 
 		// Update throttling
-		loadingIndicator->update(seeking || sampleReads > 500);
+		loadingIndicator.update(seeking || sampleReads > 500);
 		sampleReads = 0;
 
 		if (!odd) {

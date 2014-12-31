@@ -15,21 +15,21 @@ byte AVTFDC::readIO(word port, EmuTime::param time)
 	byte value;
 	switch (port & 0x07) {
 	case 0:
-		value = controller->getStatusReg(time);
+		value = controller.getStatusReg(time);
 		break;
 	case 1:
-		value = controller->getTrackReg(time);
+		value = controller.getTrackReg(time);
 		break;
 	case 2:
-		value = controller->getSectorReg(time);
+		value = controller.getSectorReg(time);
 		break;
 	case 3:
-		value = controller->getDataReg(time);
+		value = controller.getDataReg(time);
 		break;
 	case 4:
 		value = 0x7F;
-		if (controller->getIRQ(time))  value |=  0x80;
-		if (controller->getDTRQ(time)) value &= ~0x40;
+		if (controller.getIRQ(time))  value |=  0x80;
+		if (controller.getDTRQ(time)) value &= ~0x40;
 		break;
 	default:
 		value = 255;
@@ -43,21 +43,21 @@ byte AVTFDC::peekIO(word port, EmuTime::param time) const
 	byte value;
 	switch (port & 0x07) {
 	case 0:
-		value = controller->peekStatusReg(time);
+		value = controller.peekStatusReg(time);
 		break;
 	case 1:
-		value = controller->peekTrackReg(time);
+		value = controller.peekTrackReg(time);
 		break;
 	case 2:
-		value = controller->peekSectorReg(time);
+		value = controller.peekSectorReg(time);
 		break;
 	case 3:
-		value = controller->peekDataReg(time);
+		value = controller.peekDataReg(time);
 		break;
 	case 4:
 		value = 0x7F;
-		if (controller->peekIRQ(time))  value |=  0x80;
-		if (controller->peekDTRQ(time)) value &= ~0x40;
+		if (controller.peekIRQ(time))  value |=  0x80;
+		if (controller.peekDTRQ(time)) value &= ~0x40;
 		break;
 	default:
 		value = 255;
@@ -70,16 +70,16 @@ void AVTFDC::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0x07) {
 	case 0:
-		controller->setCommandReg(value, time);
+		controller.setCommandReg(value, time);
 		break;
 	case 1:
-		controller->setTrackReg(value, time);
+		controller.setTrackReg(value, time);
 		break;
 	case 2:
-		controller->setSectorReg(value, time);
+		controller.setSectorReg(value, time);
 		break;
 	case 3:
-		controller->setDataReg(value, time);
+		controller.setDataReg(value, time);
 		break;
 	case 4: /* nothing only read... */
 		break;
@@ -109,9 +109,9 @@ void AVTFDC::writeIO(word port, byte value, EmuTime::param time)
 			// collision).
 			drive = DriveMultiplexer::NO_DRIVE;
 		}
-		multiplexer->selectDrive(drive, time);
-		multiplexer->setSide((value & 0x04) != 0);
-		multiplexer->setMotor(drive != DriveMultiplexer::NO_DRIVE, time);
+		multiplexer.selectDrive(drive, time);
+		multiplexer.setSide((value & 0x04) != 0);
+		multiplexer.setMotor(drive != DriveMultiplexer::NO_DRIVE, time);
 		break;
 	}
 }

@@ -3,7 +3,6 @@
 #include "Debugger.hh"
 #include "Scheduler.hh"
 #include "IntegerSetting.hh"
-#include "TclCallback.hh"
 #include "CPUCore.hh"
 #include "Z80.hh"
 #include "R800.hh"
@@ -23,16 +22,16 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	, traceSetting(
 		motherboard.getCommandController(), "cputrace",
 		"CPU tracing on/off", false, Setting::DONT_SAVE)
-	, diHaltCallback(make_unique<TclCallback>(
+	, diHaltCallback(
 		motherboard.getCommandController(), "di_halt_callback",
-		"Tcl proc called when the CPU executed a DI/HALT sequence"))
+		"Tcl proc called when the CPU executed a DI/HALT sequence")
 	, z80(make_unique<CPUCore<Z80TYPE>>(
 		motherboard, "z80", traceSetting,
-		*diHaltCallback, EmuTime::zero))
+		diHaltCallback, EmuTime::zero))
 	, r800(motherboard.isTurboR()
 		? make_unique<CPUCore<R800TYPE>>(
 			motherboard, "r800", traceSetting,
-			*diHaltCallback, EmuTime::zero)
+			diHaltCallback, EmuTime::zero)
 		: nullptr)
 	, timeInfo(motherboard.getMachineInfoCommand(), *this)
 	, z80FreqInfo(motherboard.getMachineInfoCommand(), "z80_freq", *z80)

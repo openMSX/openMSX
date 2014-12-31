@@ -3,6 +3,7 @@
 
 #include "MSXRom.hh"
 #include "RomTypes.hh"
+#include "SCC.hh"
 #include "AmdFlash.hh"
 #include "RomBlockDebuggable.hh"
 #include "serialize_meta.hh"
@@ -10,7 +11,6 @@
 
 namespace openmsx {
 
-class SCC;
 class AY8910;
 
 class RomManbow2 final : public MSXRom
@@ -38,7 +38,7 @@ public:
 private:
 	void setRom(unsigned region, unsigned block);
 
-	const std::unique_ptr<SCC> scc;
+	SCC scc;
 	const std::unique_ptr<AY8910> psg; // can be nullptr
 	AmdFlash flash;
 	RomBlockDebuggable romBlockDebug;

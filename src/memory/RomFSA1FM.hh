@@ -3,11 +3,11 @@
 
 #include "MSXRom.hh"
 #include "RomBlocks.hh"
+#include "FirmwareSwitch.hh"
 
 namespace openmsx {
 
 class MSXMotherBoard;
-class FirmwareSwitch;
 class SRAM;
 
 class RomFSA1FM1 final : public MSXRom
@@ -29,7 +29,7 @@ public:
 
 private:
 	std::shared_ptr<SRAM> fsSram;
-	const std::unique_ptr<FirmwareSwitch> firmwareSwitch;
+	FirmwareSwitch firmwareSwitch;
 };
 
 class RomFSA1FM2 final : public Rom8kBBlocks

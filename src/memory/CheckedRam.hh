@@ -2,20 +2,19 @@
 #define CHECKEDRAM_HH
 
 #include "Ram.hh"
+#include "TclCallback.hh"
 #include "CacheLine.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <vector>
 #include <bitset>
-#include <memory>
 
 namespace openmsx {
 
 class DeviceConfig;
 class MSXCPU;
 class Setting;
-class TclCallback;
 
 /**
  * This class keeps track of which bytes in the Ram have been written to. It
@@ -65,7 +64,7 @@ private:
 	std::vector<std::bitset<CacheLine::SIZE>> uninitialized;
 	Ram ram;
 	MSXCPU& msxcpu;
-	std::unique_ptr<TclCallback> umrCallback;
+	TclCallback umrCallback;
 };
 
 } // namespace openmsx

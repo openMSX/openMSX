@@ -17,18 +17,15 @@
 */
 
 #include "RomSynthesizer.hh"
-#include "DACSound8U.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 RomSynthesizer::RomSynthesizer(const DeviceConfig& config, std::unique_ptr<Rom> rom)
 	: Rom16kBBlocks(config, std::move(rom))
-	, dac(make_unique<DACSound8U>(
-		"Synthesizer-DAC", "Konami Synthesizer's DAC", config))
+	, dac("Synthesizer-DAC", "Konami Synthesizer's DAC", config)
 {
 	setUnmapped(0);
 	setRom(1, 0);
@@ -38,19 +35,15 @@ RomSynthesizer::RomSynthesizer(const DeviceConfig& config, std::unique_ptr<Rom> 
 	reset(getCurrentTime());
 }
 
-RomSynthesizer::~RomSynthesizer()
-{
-}
-
 void RomSynthesizer::reset(EmuTime::param time)
 {
-	dac->reset(time);
+	dac.reset(time);
 }
 
 void RomSynthesizer::writeMem(word address, byte value, EmuTime::param time)
 {
 	if ((address & 0xC010) == 0x4000) {
-		dac->writeDAC(value, time);
+		dac.writeDAC(value, time);
 	}
 }
 
@@ -67,7 +60,7 @@ template<typename Archive>
 void RomSynthesizer::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
-	ar.serialize("DAC", *dac);
+	ar.serialize("DAC", dac);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomSynthesizer);
 REGISTER_MSXDEVICE(RomSynthesizer, "RomSynthesizer");

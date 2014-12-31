@@ -138,7 +138,7 @@ void MusicModulePeriphery::write(nibble outputs, nibble values,
                                  EmuTime::param time)
 {
 	nibble actual = (outputs & values) | (~outputs & read(time));
-	audio.y8950->setEnabled((actual & 8) != 0, time);
+	audio.y8950.setEnabled((actual & 8) != 0, time);
 	audio.enableDAC((actual & 1) != 0, time);
 }
 
@@ -190,7 +190,7 @@ void PanasonicAudioPeriphery::write(nibble outputs, nibble values,
                                     EmuTime::param time)
 {
 	nibble actual = (outputs & values) | (~outputs & read(time));
-	audio.y8950->setEnabled(!(actual & 8), time);
+	audio.y8950.setEnabled(!(actual & 8), time);
 }
 
 nibble PanasonicAudioPeriphery::read(EmuTime::param /*time*/)
@@ -315,7 +315,7 @@ nibble ToshibaAudioPeriphery::read(EmuTime::param /*time*/)
 
 void ToshibaAudioPeriphery::setSPOFF(bool value, EmuTime::param time)
 {
-	audio.y8950->setEnabled(!value, time);
+	audio.y8950.setEnabled(!value, time);
 }
 
 

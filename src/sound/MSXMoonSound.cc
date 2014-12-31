@@ -8,12 +8,9 @@
 //      low priority.
 
 #include "MSXMoonSound.hh"
-#include "YMF262.hh"
-#include "YMF278.hh"
 #include "Clock.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -51,31 +48,26 @@ static const EmuDuration LOAD_DELAY = MasterClock::duration(10000);
 
 MSXMoonSound::MSXMoonSound(const DeviceConfig& config)
 	: MSXDevice(config)
-	, ymf262(make_unique<YMF262>(getName() + " FM", config, true))
-	, ymf278(make_unique<YMF278>(
-		getName() + " wave",
-		config.getChildDataAsInt("sampleram", 512), // size in kb
-		config))
+	, ymf262(getName() + " FM", config, true)
+	, ymf278(getName() + " wave",
+	         config.getChildDataAsInt("sampleram", 512), // size in kb
+	         config)
 	, ymf278LoadTime(getCurrentTime())
 	, ymf278BusyTime(getCurrentTime())
 {
 	powerUp(getCurrentTime());
 }
 
-MSXMoonSound::~MSXMoonSound()
-{
-}
-
 void MSXMoonSound::powerUp(EmuTime::param time)
 {
-	ymf278->clearRam();
+	ymf278.clearRam();
 	reset(time);
 }
 
 void MSXMoonSound::reset(EmuTime::param time)
 {
-	ymf262->reset(time);
-	ymf278->reset(time);
+	ymf262.reset(time);
+	ymf278.reset(time);
 
 	opl4latch = 0; // TODO check
 	opl3latch = 0; // TODO check
@@ -110,7 +102,7 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 				// doesn't have any measurable effect on MSX.
 				ymf278BusyTime = time + MEM_READ_DELAY;
 			}
-			result = ymf278->readReg(opl4latch);
+			result = ymf278.readReg(opl4latch);
 			break;
 		default: // unreachable, avoid warning
 			UNREACHABLE; result = 255;
@@ -120,7 +112,7 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 		switch (port & 0x03) {
 		case 0: // read status
 		case 2:
-			result = ymf262->readStatus() |
+			result = ymf262.readStatus() |
 			         readYMF278Status(time);
 			if (!alreadyReadID && getNew2()) {
 				// Verified on real YMF278:
@@ -137,7 +129,7 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 			break;
 		case 1:
 		case 3: // read fm register
-			result = ymf262->readReg(opl3latch);
+			result = ymf262.readReg(opl3latch);
 			break;
 		default: // unreachable, avoid warning
 			UNREACHABLE; result = 255;
@@ -156,7 +148,7 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 			result = 255;
 			break;
 		case 1: // read wave register
-			result = ymf278->peekReg(opl4latch);
+			result = ymf278.peekReg(opl4latch);
 			break;
 		default: // unreachable, avoid warning
 			UNREACHABLE; result = 255;
@@ -166,7 +158,7 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 		switch (port & 0x03) {
 		case 0: // read status
 		case 2:
-			result = ymf262->peekStatus() |
+			result = ymf262.peekStatus() |
 			         readYMF278Status(time);
 			if (!alreadyReadID && getNew2()) {
 				result |= 0x02;
@@ -174,7 +166,7 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 			break;
 		case 1:
 		case 3: // read fm register
-			result = ymf262->peekReg(opl3latch);
+			result = ymf262.peekReg(opl3latch);
 			break;
 		default: // unreachable, avoid warning
 			UNREACHABLE; result = 255;
@@ -209,7 +201,7 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 					// very briefly and only on R800.
 					ymf278BusyTime = time + WAVE_REG_WRITE_DELAY;
 				}
-				ymf278->writeReg(opl4latch, value, time);
+				ymf278.writeReg(opl4latch, value, time);
 				break;
 			default:
 				UNREACHABLE;
@@ -233,7 +225,7 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 		case 1:
 		case 3: // write fm register
 			ymf278BusyTime = time + FM_REG_WRITE_DELAY;
-			ymf262->writeReg(opl3latch, value, time);
+			ymf262.writeReg(opl3latch, value, time);
 			break;
 		default:
 			UNREACHABLE;
@@ -243,7 +235,7 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 
 bool MSXMoonSound::getNew2() const
 {
-	return (ymf262->peekReg(0x105) & 0x02) != 0;
+	return (ymf262.peekReg(0x105) & 0x02) != 0;
 }
 
 byte MSXMoonSound::readYMF278Status(EmuTime::param time) const
@@ -261,8 +253,8 @@ template<typename Archive>
 void MSXMoonSound::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ymf262", *ymf262);
-	ar.serialize("ymf278", *ymf278);
+	ar.serialize("ymf262", ymf262);
+	ar.serialize("ymf278", ymf278);
 	ar.serialize("opl3latch", opl3latch);
 	ar.serialize("opl4latch", opl4latch);
 	if (ar.versionAtLeast(version, 2)) {

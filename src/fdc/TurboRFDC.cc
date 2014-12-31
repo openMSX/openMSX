@@ -3,12 +3,10 @@
  */
 
 #include "TurboRFDC.hh"
-#include "TC8566AF.hh"
 #include "MSXCPU.hh"
 #include "CacheLine.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -31,9 +29,8 @@ static TurboRFDC::Type parseType(const DeviceConfig& config)
 
 TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	: MSXFDC(config)
-	, controller(make_unique<TC8566AF>(
-		getScheduler(), reinterpret_cast<DiskDrive**>(drives),
-		getCliComm(), getCurrentTime()))
+	, controller(getScheduler(), reinterpret_cast<DiskDrive**>(drives),
+	             getCliComm(), getCurrentTime())
 	, romBlockDebug(*this, &bank, 0x4000, 0x4000, 14)
 	, blockMask((rom.getSize() / 0x4000) - 1)
 	, type(parseType(config))
@@ -41,14 +38,10 @@ TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	reset(getCurrentTime());
 }
 
-TurboRFDC::~TurboRFDC()
-{
-}
-
 void TurboRFDC::reset(EmuTime::param time)
 {
 	setBank(0);
-	controller->reset(time);
+	controller.reset(time);
 }
 
 byte TurboRFDC::readMem(word address, EmuTime::param time)
@@ -63,18 +56,18 @@ byte TurboRFDC::readMem(word address, EmuTime::param time)
 			switch (address & 0xF) {
 			case 0x1: {
 				byte result = 0x33;
-				if (controller->diskChanged(0)) result &= ~0x10;
-				if (controller->diskChanged(1)) result &= ~0x20;
+				if (controller.diskChanged(0)) result &= ~0x10;
+				if (controller.diskChanged(1)) result &= ~0x20;
 				return result;
 			}
-			case 0x4: return controller->readReg(4, time);
-			case 0x5: return controller->readReg(5, time);
+			case 0x4: return controller.readReg(4, time);
+			case 0x5: return controller.readReg(5, time);
 			}
 		}
 		if (type != R7FF2) { // non-turboR or BOTH
 			switch (address & 0xF) {
-			case 0xA: return controller->readReg(4, time);
-			case 0xB: return controller->readReg(5, time);
+			case 0xA: return controller.readReg(4, time);
+			case 0xB: return controller.readReg(5, time);
 			}
 
 		}
@@ -99,18 +92,18 @@ byte TurboRFDC::peekMem(word address, EmuTime::param time) const
 				// bit 5  FDCHG2  Disk Change detect on drive 2
 				// active low
 				byte result = 0x33;
-				if (controller->peekDiskChanged(0)) result &= ~0x10;
-				if (controller->peekDiskChanged(1)) result &= ~0x20;
+				if (controller.peekDiskChanged(0)) result &= ~0x10;
+				if (controller.peekDiskChanged(1)) result &= ~0x20;
 				return result;
 			}
-			case 0x4: return controller->peekReg(4, time);
-			case 0x5: return controller->peekReg(5, time);
+			case 0x4: return controller.peekReg(4, time);
+			case 0x5: return controller.peekReg(5, time);
 			}
 		}
 		if (type != R7FF2) { // non-turboR or BOTH
 			switch (address & 0xF) {
-			case 0xA: return controller->peekReg(4, time);
-			case 0xB: return controller->peekReg(5, time);
+			case 0xA: return controller.peekReg(4, time);
+			case 0xB: return controller.peekReg(5, time);
 			}
 		}
 		switch (address & 0xF) {
@@ -164,7 +157,7 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time)
 			case 0x3FF3:
 			case 0x3FF4:
 			case 0x3FF5:
-				controller->writeReg(address & 0xF, value, time);
+				controller.writeReg(address & 0xF, value, time);
 				break;
 			}
 		}
@@ -174,7 +167,7 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time)
 			case 0x3FF9:
 			case 0x3FFA:
 			case 0x3FFB:
-				controller->writeReg((address & 0xF) - 6, value, time);
+				controller.writeReg((address & 0xF) - 6, value, time);
 				break;
 			}
 		}
@@ -205,7 +198,7 @@ template<typename Archive>
 void TurboRFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXFDC>(*this);
-	ar.serialize("TC8566AF", *controller);
+	ar.serialize("TC8566AF", controller);
 	ar.serialize("bank", bank);
 	if (ar.isLoader()) {
 		setBank(bank);

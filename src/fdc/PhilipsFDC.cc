@@ -24,21 +24,21 @@ byte PhilipsFDC::readMem(word address, EmuTime::param time)
 	byte value;
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
-		value = controller->getStatusReg(time);
+		value = controller.getStatusReg(time);
 		break;
 	case 0x3FF9:
-		value = controller->getTrackReg(time);
+		value = controller.getTrackReg(time);
 		break;
 	case 0x3FFA:
-		value = controller->getSectorReg(time);
+		value = controller.getSectorReg(time);
 		break;
 	case 0x3FFB:
-		value = controller->getDataReg(time);
+		value = controller.getDataReg(time);
 		break;
 	case 0x3FFF:
 		value = 0xC0;
-		if (controller->getIRQ(time)) value &= ~0x40;
-		if (controller->getDTRQ(time)) value &= ~0x80;
+		if (controller.getIRQ(time)) value &= ~0x40;
+		if (controller.getDTRQ(time)) value &= ~0x80;
 		break;
 	default:
 		value = PhilipsFDC::peekMem(address, time);
@@ -57,16 +57,16 @@ byte PhilipsFDC::peekMem(word address, EmuTime::param time) const
 	//   0xFFF8-0xFFFF
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
-		value = controller->peekStatusReg(time);
+		value = controller.peekStatusReg(time);
 		break;
 	case 0x3FF9:
-		value = controller->peekTrackReg(time);
+		value = controller.peekTrackReg(time);
 		break;
 	case 0x3FFA:
-		value = controller->peekSectorReg(time);
+		value = controller.peekSectorReg(time);
 		break;
 	case 0x3FFB:
-		value = controller->peekDataReg(time);
+		value = controller.peekDataReg(time);
 		break;
 	case 0x3FFC:
 		// bit 0 = side select
@@ -91,8 +91,8 @@ byte PhilipsFDC::peekMem(word address, EmuTime::param time) const
 		// bit 7: !dtrq
 		// TODO check other bits !!
 		value = 0xC0;
-		if (controller->peekIRQ(time)) value &= ~0x40;
-		if (controller->peekDTRQ(time)) value &= ~0x80;
+		if (controller.peekIRQ(time)) value &= ~0x40;
+		if (controller.peekDTRQ(time)) value &= ~0x80;
 		break;
 
 	default:
@@ -125,22 +125,22 @@ void PhilipsFDC::writeMem(word address, byte value, EmuTime::param time)
 {
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
-		controller->setCommandReg(value, time);
+		controller.setCommandReg(value, time);
 		break;
 	case 0x3FF9:
-		controller->setTrackReg(value, time);
+		controller.setTrackReg(value, time);
 		break;
 	case 0x3FFA:
-		controller->setSectorReg(value, time);
+		controller.setSectorReg(value, time);
 		break;
 	case 0x3FFB:
-		controller->setDataReg(value, time);
+		controller.setDataReg(value, time);
 		break;
 	case 0x3FFC:
 		// bit 0 = side select
 		// TODO check other bits !!
 		sideReg = value;
-		multiplexer->setSide(value & 1);
+		multiplexer.setSide(value & 1);
 		break;
 	case 0x3FFD:
 		// bit 1,0 -> drive number
@@ -162,8 +162,8 @@ void PhilipsFDC::writeMem(word address, byte value, EmuTime::param time)
 			default:
 				drive = DriveMultiplexer::NO_DRIVE;
 		}
-		multiplexer->selectDrive(drive, time);
-		multiplexer->setMotor((value & 128) != 0, time);
+		multiplexer.selectDrive(drive, time);
+		multiplexer.setMotor((value & 128) != 0, time);
 		break;
 	}
 }

@@ -2,13 +2,12 @@
 #define MSXPSG_HH
 
 #include "MSXDevice.hh"
+#include "AY8910.hh"
 #include "AY8910Periphery.hh"
 #include "serialize_meta.hh"
-#include <memory>
 
 namespace openmsx {
 
-class AY8910;
 class CassettePortInterface;
 class RenShaTurbo;
 class JoystickPortIf;
@@ -33,15 +32,15 @@ private:
 	byte readA(EmuTime::param time) override;
 	void writeB(byte value, EmuTime::param time) override;
 
-	std::unique_ptr<AY8910> ay8910;
-	JoystickPortIf* ports[2];
 	CassettePortInterface& cassette;
 	RenShaTurbo& renShaTurbo;
 
-	int registerLatch;
+	JoystickPortIf* ports[2];
 	int selectedPort;
+	int registerLatch;
 	byte prev;
 	const bool keyLayoutBit;
+	AY8910 ay8910; // must come after initialisation of most stuff above
 };
 SERIALIZE_CLASS_VERSION(MSXPSG, 2);
 

@@ -4,6 +4,7 @@
 #include "DiskDrive.hh"
 #include "Clock.hh"
 #include "Schedulable.hh"
+#include "ThrottleManager.hh"
 #include "serialize_meta.hh"
 #include <bitset>
 #include <memory>
@@ -12,7 +13,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class DiskChanger;
-class LoadingIndicator;
 
 /** This class implements a real drive, single or double sided.
  */
@@ -80,7 +80,7 @@ private:
 	static const unsigned INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
 	MSXMotherBoard& motherBoard;
-	const std::unique_ptr<LoadingIndicator> loadingIndicator;
+	LoadingIndicator loadingIndicator;
 	const EmuDuration motorTimeout;
 
 	typedef Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> MotorClock;

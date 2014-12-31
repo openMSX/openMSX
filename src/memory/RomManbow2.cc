@@ -1,6 +1,5 @@
 #include "RomManbow2.hh"
 #include "Rom.hh"
-#include "SCC.hh"
 #include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
@@ -34,7 +33,7 @@ static std::vector<AmdFlash::SectorInfo> getSectorInfo(RomType type)
 RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
                        RomType type)
 	: MSXRom(config, std::move(rom_))
-	, scc(make_unique<SCC>(getName() + " SCC", config, getCurrentTime()))
+	, scc(getName() + " SCC", config, getCurrentTime())
 	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT))
 		? make_unique<AY8910>(
 			getName() + " PSG", DummyAY8910Periphery::instance(),
@@ -63,7 +62,7 @@ RomManbow2::~RomManbow2()
 
 void RomManbow2::powerUp(EmuTime::param time)
 {
-	scc->powerUp(time);
+	scc.powerUp(time);
 	reset(time);
 }
 
@@ -74,7 +73,7 @@ void RomManbow2::reset(EmuTime::param time)
 	}
 
 	sccEnabled = false;
-	scc->reset(time);
+	scc.reset(time);
 
 	if (psg) {
 		psgLatch = 0;
@@ -95,7 +94,7 @@ void RomManbow2::setRom(unsigned region, unsigned block)
 byte RomManbow2::peekMem(word address, EmuTime::param time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return scc->peekMem(address & 0xFF, time);
+		return scc.peekMem(address & 0xFF, time);
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
@@ -108,7 +107,7 @@ byte RomManbow2::peekMem(word address, EmuTime::param time) const
 byte RomManbow2::readMem(word address, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return scc->readMem(address & 0xFF, time);
+		return scc.readMem(address & 0xFF, time);
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
@@ -135,7 +134,7 @@ void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC
-		scc->writeMem(address & 0xff, value, time);
+		scc.writeMem(address & 0xff, value, time);
 		// note: writes to SCC also go to flash
 		//    thanks to 'enen' for testing this
 	}
@@ -196,7 +195,7 @@ void RomManbow2::serialize(Archive& ar, unsigned version)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("scc", *scc);
+	ar.serialize("scc", scc);
 	if ((ar.versionAtLeast(version, 2)) && psg) {
 		ar.serialize("psg", *psg);
 		ar.serialize("psgLatch", psgLatch);

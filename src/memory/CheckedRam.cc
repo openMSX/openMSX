@@ -4,9 +4,7 @@
 #include "DeviceConfig.hh"
 #include "GlobalSettings.hh"
 #include "StringSetting.hh"
-#include "TclCallback.hh"
 #include "likely.hh"
-#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -24,16 +22,15 @@ CheckedRam::CheckedRam(const DeviceConfig& config, const std::string& name,
 	, uninitialized(size / CacheLine::SIZE, getBitSetAllTrue())
 	, ram(config, name, description, size)
 	, msxcpu(config.getMotherBoard().getCPU())
-	, umrCallback(make_unique<TclCallback>(
-		config.getGlobalSettings().getUMRCallBackSetting()))
+	, umrCallback(config.getGlobalSettings().getUMRCallBackSetting())
 {
-	umrCallback->getSetting().attach(*this);
+	umrCallback.getSetting().attach(*this);
 	init();
 }
 
 CheckedRam::~CheckedRam()
 {
-	umrCallback->getSetting().detach(*this);
+	umrCallback.getSetting().detach(*this);
 }
 
 byte CheckedRam::read(unsigned addr)
@@ -41,7 +38,7 @@ byte CheckedRam::read(unsigned addr)
 	unsigned line = addr >> CacheLine::BITS;
 	if (unlikely(!completely_initialized_cacheline[line])) {
 		if (unlikely(uninitialized[line][addr &  CacheLine::LOW])) {
-			umrCallback->execute(addr, ram.getName());
+			umrCallback.execute(addr, ram.getName());
 		}
 	}
 	return ram[addr];
@@ -81,7 +78,7 @@ void CheckedRam::clear()
 
 void CheckedRam::init()
 {
-	if (umrCallback->getValue().empty()) {
+	if (umrCallback.getValue().empty()) {
 		// there is no callback function,
 		// do as if everything is initialized
 		completely_initialized_cacheline.assign(
@@ -100,7 +97,7 @@ void CheckedRam::init()
 
 void CheckedRam::update(const Setting& setting)
 {
-	assert(&setting == &umrCallback->getSetting());
+	assert(&setting == &umrCallback.getSetting());
 	(void)setting;
 	init();
 }

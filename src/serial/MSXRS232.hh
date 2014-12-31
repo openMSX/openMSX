@@ -5,12 +5,11 @@
 #include "IRQHelper.hh"
 #include "RS232Connector.hh"
 #include "I8251.hh"
+#include "I8254.hh"
 #include <memory>
 
 namespace openmsx {
 
-class I8254;
-class I8251;
 class Ram;
 class Rom;
 class BooleanSetting;
@@ -70,7 +69,7 @@ private:
 		MSXRS232& rs232;
 	} cntr1; // counter 1 tx clock pin
 
-	const std::unique_ptr<I8254> i8254;
+	I8254 i8254;
 
 	class I8251Interf final : public I8251Interface {
 	public:
@@ -89,7 +88,7 @@ private:
 		MSXRS232& rs232;
 	} interf;
 
-	const std::unique_ptr<I8251> i8251;
+	I8251 i8251;
 	const std::unique_ptr<Rom> rom; // can be nullptr
 	const std::unique_ptr<Ram> ram; // can be nullptr
 

@@ -40,7 +40,6 @@
 #include "EventDistributor.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"
-#include "ThrottleManager.hh"
 #include "TclObject.hh"
 #include "DynamicClock.hh"
 #include "EmuDuration.hh"
@@ -79,8 +78,8 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(), *this)
-	, loadingIndicator(make_unique<LoadingIndicator>(
-		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
+	, loadingIndicator(
+		motherBoard.getReactor().getGlobalSettings().getThrottleManager())
 	, autoRunSetting(
 		motherBoard.getCommandController(),
 		"autoruncassettes", "automatically try to run cassettes", true)
@@ -295,7 +294,7 @@ void CassettePlayer::updateLoadingState(EmuTime::param time)
 	assert(prevSyncTime == time); // sync() must be called
 	// TODO also set loadingIndicator for RECORD?
 	// note: we don't use isRolling()
-	loadingIndicator->update(motor && (getState() == PLAY));
+	loadingIndicator.update(motor && (getState() == PLAY));
 
 	syncEndOfTape.removeSyncPoint();
 	if (isRolling() && (getState() == PLAY)) {

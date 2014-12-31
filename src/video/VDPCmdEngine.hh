@@ -4,6 +4,7 @@
 #include "VDP.hh"
 #include "VDPAccessSlots.hh"
 #include "BooleanSetting.hh"
+#include "TclCallback.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
@@ -16,7 +17,6 @@ class VDPVRAM;
 class DisplayMode;
 class CommandController;
 class RenderSettings;
-class TclCallback;
 
 
 /** This is an abstract base class the VDP commands
@@ -176,7 +176,7 @@ private:
 	/** Only call reportVdpCommand() when this setting is turned on
 	  */
 	BooleanSetting cmdTraceSetting;
-	const std::unique_ptr<TclCallback> cmdInProgressCallback;
+	TclCallback cmdInProgressCallback;
 
 	VDPCmd* commands[256][4];
 	VDPCmd* currentCommand;

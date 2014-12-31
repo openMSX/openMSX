@@ -1,20 +1,16 @@
 #include "MSXTurboRPCM.hh"
 #include "MSXMotherBoard.hh"
-#include "AudioInputConnector.hh"
-#include "DACSound8U.hh"
 #include "MSXMixer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 MSXTurboRPCM::MSXTurboRPCM(const DeviceConfig& config)
 	: MSXDevice(config)
 	, mixer(getMotherBoard().getMSXMixer())
-	, connector(make_unique<AudioInputConnector>(
-		getPluggingController(), "pcminput"))
-	, dac(make_unique<DACSound8U>("PCM", "Turbo-R PCM", config))
+	, connector(getPluggingController(), "pcminput")
+	, dac("PCM", "Turbo-R PCM", config)
 	, reference(getCurrentTime())
 	, hwMute(false)
 {
@@ -32,7 +28,7 @@ void MSXTurboRPCM::reset(EmuTime::param time)
 	status = 0;
 	DValue = 0x80; // TODO correct initial value?
 	hold = 0x80; // avoid UMR
-	dac->reset(time);
+	dac.reset(time);
 	hardwareMute(false);
 }
 
@@ -81,7 +77,7 @@ void MSXTurboRPCM::writeIO(word port, byte value, EmuTime::param time)
 		reference.advance(time);
 		DValue = value;
 		if (status & 0x02) {
-			dac->writeDAC(DValue, time);
+			dac.writeDAC(DValue, time);
 		}
 		break;
 
@@ -96,7 +92,7 @@ void MSXTurboRPCM::writeIO(word port, byte value, EmuTime::param time)
 		status = value;
 
 		if ((change & 0x01) && ((status & 0x01) == 0)) {
-			dac->writeDAC(DValue, time);
+			dac.writeDAC(DValue, time);
 		}
 		// TODO status & 0x08
 		if ((change & 0x10) && (status & 0x10)) {
@@ -110,7 +106,7 @@ void MSXTurboRPCM::writeIO(word port, byte value, EmuTime::param time)
 byte MSXTurboRPCM::getSample(EmuTime::param time) const
 {
 	return (status & 0x04)
-		? (connector->readSample(time) / 256) + 0x80
+		? (connector.readSample(time) / 256) + 0x80
 		: 0x80; // TODO check
 }
 
@@ -139,12 +135,12 @@ void MSXTurboRPCM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("audioConnector", *connector);
+	ar.serialize("audioConnector", connector);
 	ar.serialize("reference", reference);
 	ar.serialize("status", status);
 	ar.serialize("DValue", DValue);
 	ar.serialize("hold", hold);
-	ar.serialize("DAC", *dac);
+	ar.serialize("DAC", dac);
 
 	hardwareMute(!(status & 0x02));  // restore hwMute
 }

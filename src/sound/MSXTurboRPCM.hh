@@ -2,14 +2,13 @@
 #define MSXTURBORPCM_HH
 
 #include "MSXDevice.hh"
+#include "AudioInputConnector.hh"
+#include "DACSound8U.hh"
 #include "Clock.hh"
-#include <memory>
 
 namespace openmsx {
 
 class MSXMixer;
-class AudioInputConnector;
-class DACSound8U;
 
 class MSXTurboRPCM final : public MSXDevice
 {
@@ -31,8 +30,8 @@ private:
 	void hardwareMute(bool mute);
 
 	MSXMixer& mixer;
-	const std::unique_ptr<AudioInputConnector> connector;
-	const std::unique_ptr<DACSound8U> dac;
+	AudioInputConnector connector;
+	DACSound8U dac;
 	Clock<15750> reference;
 	byte DValue;
 	byte status;

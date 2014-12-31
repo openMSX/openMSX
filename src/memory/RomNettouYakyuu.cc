@@ -41,25 +41,19 @@
 #include "RomNettouYakyuu.hh"
 #include "Rom.hh"
 #include "FileOperations.hh"
-#include "SamplePlayer.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
-	, samplePlayer(make_unique<SamplePlayer>(
+	, samplePlayer(
 		"Nettou Yakyuu-DAC",
 		"Jaleco Moero!! Nettou Yakuu '88 DAC", config,
 		FileOperations::stripExtension(rom->getFilename()) + '_',
-		16, "nettou_yakyuu/nettou_yakyuu_"))
+		16, "nettou_yakyuu/nettou_yakyuu_")
 {
 	reset(EmuTime::dummy());
-}
-
-RomNettouYakyuu::~RomNettouYakyuu()
-{
 }
 
 void RomNettouYakyuu::reset(EmuTime::param /*time*/)
@@ -74,7 +68,7 @@ void RomNettouYakyuu::reset(EmuTime::param /*time*/)
 	setUnmapped(6);
 	setUnmapped(7);
 
-	samplePlayer->reset();
+	samplePlayer.reset();
 }
 
 void RomNettouYakyuu::writeMem(word address, byte value, EmuTime::param /*time*/)
@@ -102,17 +96,17 @@ void RomNettouYakyuu::writeMem(word address, byte value, EmuTime::param /*time*/
 
 	// bit 7==0: reset
 	if (!(value & 0x80)) {
-		samplePlayer->reset();
+		samplePlayer.reset();
 		return;
 	}
 
 	// bit 6==1: set no retrigger, don't alter playing sample
 	if (value & 0x40) {
-		samplePlayer->stopRepeat();
+		samplePlayer.stopRepeat();
 		return;
 	}
 
-	samplePlayer->repeat(value & 0xF);
+	samplePlayer.repeat(value & 0xF);
 }
 
 byte* RomNettouYakyuu::getWriteCacheLine(word /*address*/) const
@@ -124,7 +118,7 @@ template<typename Archive>
 void RomNettouYakyuu::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("SamplePlayer", *samplePlayer);
+	ar.serialize("SamplePlayer", samplePlayer);
 	ar.serialize("redirectToSamplePlayer", redirectToSamplePlayer);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomNettouYakyuu);

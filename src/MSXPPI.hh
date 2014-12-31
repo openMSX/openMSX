@@ -27,15 +27,14 @@
 
 #include "MSXDevice.hh"
 #include "I8255Interface.hh"
-#include <memory>
+#include "I8255.hh"
+#include "Keyboard.hh"
+#include "KeyClick.hh"
 
 namespace openmsx {
 
-class I8255;
-class KeyClick;
 class CassettePortInterface;
 class RenShaTurbo;
-class Keyboard;
 
 class MSXPPI final : public MSXDevice, public I8255Interface
 {
@@ -69,9 +68,9 @@ private:
 
 	CassettePortInterface& cassettePort;
 	RenShaTurbo& renshaTurbo;
-	const std::unique_ptr<I8255> i8255;
-	const std::unique_ptr<KeyClick> click;
-	const std::unique_ptr<Keyboard> keyboard;
+	I8255 i8255;
+	KeyClick click;
+	Keyboard keyboard;
 	nibble prevBits;
 	nibble selectedRow;
 };

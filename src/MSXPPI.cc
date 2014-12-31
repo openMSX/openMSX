@@ -1,51 +1,35 @@
 #include "MSXPPI.hh"
-#include "I8255.hh"
-#include "Keyboard.hh"
 #include "LedStatus.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "KeyClick.hh"
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 
 namespace openmsx {
-
-// MSXDevice
-
-static std::unique_ptr<Keyboard> createKeyboard(const DeviceConfig& config)
-{
-	bool keyGhosting = config.getChildDataAsBool("key_ghosting", true);
-	bool keyGhostingSGCprotected =
-		config.getChildDataAsBool("key_ghosting_sgc_protected", true);
-	string_ref keyboardType = config.getChildData("keyboard_type", "int");
-	bool hasKeypad = config.getChildDataAsBool("has_keypad", true);
-	bool hasYesNoKeys = config.getChildDataAsBool("has_yesno_keys", false);
-	bool codeKanaLocks = config.getChildDataAsBool("code_kana_locks", false);
-	bool graphLocks = config.getChildDataAsBool("graph_locks", false);
-	MSXMotherBoard& motherBoard = config.getMotherBoard();
-	return make_unique<Keyboard>(
-		motherBoard,
-		motherBoard.getScheduler(),
-		motherBoard.getCommandController(),
-		motherBoard.getReactor().getEventDistributor(),
-		motherBoard.getMSXEventDistributor(),
-		motherBoard.getStateChangeDistributor(),
-		keyboardType, hasKeypad, hasYesNoKeys,
-		keyGhosting, keyGhostingSGCprotected,
-		codeKanaLocks, graphLocks);
-}
 
 MSXPPI::MSXPPI(const DeviceConfig& config)
 	: MSXDevice(config)
 	, cassettePort(getMotherBoard().getCassettePort())
 	, renshaTurbo(getMotherBoard().getRenShaTurbo())
-	, i8255(make_unique<I8255>(*this, getCurrentTime(), getCliComm()))
-	, click(make_unique<KeyClick>(config))
-	, keyboard(createKeyboard(config))
+	, i8255(*this, getCurrentTime(), getCliComm())
+	, click(config)
+	, keyboard(
+		config.getMotherBoard(),
+		config.getMotherBoard().getScheduler(),
+		config.getMotherBoard().getCommandController(),
+		config.getMotherBoard().getReactor().getEventDistributor(),
+		config.getMotherBoard().getMSXEventDistributor(),
+		config.getMotherBoard().getStateChangeDistributor(),
+		config.getChildData("keyboard_type", "int"),                   // keyboardType
+		config.getChildDataAsBool("has_keypad", true),                 // hasKeypad
+		config.getChildDataAsBool("has_yesno_keys", false),            // hasYesNoKeys
+		config.getChildDataAsBool("key_ghosting", true),               // keyGhosting
+		config.getChildDataAsBool("key_ghosting_sgc_protected", true), // keyGhostingSGCprotected,
+		config.getChildDataAsBool("code_kana_locks", false),           // codeKanaLocks,
+		config.getChildDataAsBool("graph_locks", false))               // graphLocks
 	, prevBits(15)
 	, selectedRow(0)
 {
@@ -59,8 +43,8 @@ MSXPPI::~MSXPPI()
 
 void MSXPPI::reset(EmuTime::param time)
 {
-	i8255->reset(time);
-	click->reset(time);
+	i8255.reset(time);
+	click.reset(time);
 }
 
 void MSXPPI::powerDown(EmuTime::param /*time*/)
@@ -72,13 +56,13 @@ byte MSXPPI::readIO(word port, EmuTime::param time)
 {
 	switch (port & 0x03) {
 	case 0:
-		return i8255->readPortA(time);
+		return i8255.readPortA(time);
 	case 1:
-		return i8255->readPortB(time);
+		return i8255.readPortB(time);
 	case 2:
-		return i8255->readPortC(time);
+		return i8255.readPortC(time);
 	case 3:
-		return i8255->readControlPort(time);
+		return i8255.readControlPort(time);
 	default: // unreachable, avoid warning
 		UNREACHABLE;
 		return 0;
@@ -89,13 +73,13 @@ byte MSXPPI::peekIO(word port, EmuTime::param time) const
 {
 	switch (port & 0x03) {
 	case 0:
-		return i8255->peekPortA(time);
+		return i8255.peekPortA(time);
 	case 1:
-		return i8255->peekPortB(time);
+		return i8255.peekPortB(time);
 	case 2:
-		return i8255->peekPortC(time);
+		return i8255.peekPortC(time);
 	case 3:
-		return i8255->readControlPort(time);
+		return i8255.readControlPort(time);
 	default: // unreachable, avoid warning
 		UNREACHABLE;
 		return 0;
@@ -106,16 +90,16 @@ void MSXPPI::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0x03) {
 	case 0:
-		i8255->writePortA(value, time);
+		i8255.writePortA(value, time);
 		break;
 	case 1:
-		i8255->writePortB(value, time);
+		i8255.writePortB(value, time);
 		break;
 	case 2:
-		i8255->writePortC(value, time);
+		i8255.writePortC(value, time);
 		break;
 	case 3:
-		i8255->writeControlPort(value, time);
+		i8255.writeControlPort(value, time);
 		break;
 	default:
 		UNREACHABLE;
@@ -150,11 +134,12 @@ byte MSXPPI::readB(EmuTime::param time)
 }
 byte MSXPPI::peekB(EmuTime::param time) const
 {
-       if (selectedRow != 8) {
-               return keyboard->getKeys()[selectedRow];
-       } else {
-               return keyboard->getKeys()[8] | (renshaTurbo.getSignal(time) ? 1:0);
-       }
+	auto& keyb = const_cast<Keyboard&>(keyboard);
+	if (selectedRow != 8) {
+		return keyb.getKeys()[selectedRow];
+	} else {
+		return keyb.getKeys()[8] | (renshaTurbo.getSignal(time) ? 1:0);
+	}
 }
 void MSXPPI::writeB(byte /*value*/, EmuTime::param /*time*/)
 {
@@ -189,7 +174,7 @@ void MSXPPI::writeC1(nibble value, EmuTime::param time)
 		getLedStatus().setLed(LedStatus::CAPS, (value & 4) == 0);
 	}
 	if ((prevBits ^ value) & 8) {
-		click->setClick((value & 8) != 0, time);
+		click.setClick((value & 8) != 0, time);
 	}
 	prevBits = value;
 }
@@ -203,7 +188,7 @@ template<typename Archive>
 void MSXPPI::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("i8255", *i8255);
+	ar.serialize("i8255", i8255);
 
 	// merge prevBits and selectedRow into one byte
 	byte portC = (prevBits << 4) | (selectedRow << 0);
@@ -213,7 +198,7 @@ void MSXPPI::serialize(Archive& ar, unsigned /*version*/)
 		nibble bits = (portC >> 4) & 0xF;
 		writeC1(bits, getCurrentTime());
 	}
-	ar.serialize("keyboard", *keyboard);
+	ar.serialize("keyboard", keyboard);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXPPI);
 REGISTER_MSXDEVICE(MSXPPI, "PPI");

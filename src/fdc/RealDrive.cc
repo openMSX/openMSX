@@ -5,7 +5,6 @@
 #include "Reactor.hh"
 #include "LedStatus.hh"
 #include "CommandController.hh"
-#include "ThrottleManager.hh"
 #include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
@@ -22,8 +21,8 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	: syncLoadingTimeout(motherBoard_.getScheduler(), *this)
 	, syncMotorTimeout  (motherBoard_.getScheduler(), *this)
 	, motherBoard(motherBoard_)
-	, loadingIndicator(make_unique<LoadingIndicator>(
-		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
+	, loadingIndicator(
+		motherBoard.getReactor().getGlobalSettings().getThrottleManager())
 	, motorTimeout(motorTimeout_)
 	, motorTimer(getCurrentTime())
 	, headLoadTimer(getCurrentTime())
@@ -177,7 +176,7 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 		//  motor will (possibly) still keep rotating for a few
 		//  seconds.
 		syncLoadingTimeout.removeSyncPoint();
-		loadingIndicator->update(false);
+		loadingIndicator.update(false);
 
 		// Turn the motor off after some timeout (timeout could be 0)
 		syncMotorTimeout.setSyncPoint(time + motorTimeout);
@@ -211,7 +210,7 @@ void RealDrive::doSetMotor(bool status, EmuTime::param time)
 void RealDrive::setLoading(EmuTime::param time)
 {
 	assert(motorStatus);
-	loadingIndicator->update(true);
+	loadingIndicator.update(true);
 
 	// ThrottleManager heuristic:
 	//  We want to avoid getting stuck in 'loading state' when the MSX
@@ -222,7 +221,7 @@ void RealDrive::setLoading(EmuTime::param time)
 
 void RealDrive::execLoadingTimeout()
 {
-	loadingIndicator->update(false);
+	loadingIndicator.update(false);
 }
 
 void RealDrive::execMotorTimeout(EmuTime::param time)

@@ -97,7 +97,7 @@ public:
 	void reset();
 	void writeData(byte data);
 	void writeControl(byte data, EmuTime::param time);
-	bool getBSY(EmuTime::param time);
+	bool getBSY(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -487,9 +487,9 @@ void VLM5030::Impl::reset()
 }
 
 // get BSY pin level
-bool VLM5030::Impl::getBSY(EmuTime::param time)
+bool VLM5030::Impl::getBSY(EmuTime::param time) const
 {
-	updateStream(time);
+	const_cast<Impl*>(this)->updateStream(time);
 	return pin_BSY;
 }
 
@@ -673,7 +673,7 @@ void VLM5030::writeControl(byte data, EmuTime::param time)
 	pimpl->writeControl(data, time);
 }
 
-bool VLM5030::getBSY(EmuTime::param time)
+bool VLM5030::getBSY(EmuTime::param time) const
 {
 	return pimpl->getBSY(time);
 }

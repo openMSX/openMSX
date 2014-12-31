@@ -1,12 +1,9 @@
 #include "MegaFlashRomSCCPlus.hh"
 #include "Rom.hh"
-#include "SCC.hh"
-#include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
 #include <vector>
 
@@ -182,12 +179,9 @@ static std::vector<AmdFlash::SectorInfo> getSectorInfo() {
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 		const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: MSXRom(config, std::move(rom_))
-	, scc(make_unique<SCC>(
-		"MFR SCC+ SCC-I", config, getCurrentTime(),
-		SCC::SCC_Compatible))
-	, psg(make_unique<AY8910>(
-		"MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
-		getCurrentTime()))
+	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
+	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
+	      getCurrentTime())
 	, flash(*rom, getSectorInfo(), 0x205B, false, config)
 {
 	powerUp(getCurrentTime());
@@ -206,7 +200,7 @@ MegaFlashRomSCCPlus::~MegaFlashRomSCCPlus()
 
 void MegaFlashRomSCCPlus::powerUp(EmuTime::param time)
 {
-	scc->powerUp(time);
+	scc.powerUp(time);
 	reset(time);
 }
 
@@ -225,10 +219,10 @@ void MegaFlashRomSCCPlus::reset(EmuTime::param time)
 	for (int i = 0; i < 4; ++i) {
 		sccBanks[i] = i;
 	}
-	scc->reset(time);
+	scc.reset(time);
 
 	psgLatch = 0;
-	psg->reset(time);
+	psg.reset(time);
 
 	flash.reset();
 
@@ -285,7 +279,7 @@ byte MegaFlashRomSCCPlus::peekMem(word addr, EmuTime::param time) const
 		SCCEnable enable = getSCCEnable();
 		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-			return scc->peekMem(addr & 0xFF, time);
+			return scc.peekMem(addr & 0xFF, time);
 		}
 	}
 
@@ -312,7 +306,7 @@ byte MegaFlashRomSCCPlus::readMem(word addr, EmuTime::param time)
 		SCCEnable enable = getSCCEnable();
 		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-			return scc->readMem(addr & 0xFF, time);
+			return scc.readMem(addr & 0xFF, time);
 		}
 	}
 
@@ -386,8 +380,8 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 		// Konami-SCC
 		if ((addr & 0xFFFE) == 0xBFFE) {
 			sccMode = value;
-			scc->setChipMode((value & 0x20) ? SCC::SCC_plusmode
-			                                : SCC::SCC_Compatible);
+			scc.setChipMode((value & 0x20) ? SCC::SCC_plusmode
+			                               : SCC::SCC_Compatible);
 			invalidateMemCache(0x9800, 0x800);
 			invalidateMemCache(0xB800, 0x800);
 		}
@@ -399,7 +393,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 		     (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
 		     (0xB800 <= addr) && (addr < 0xC000))) {
-			scc->writeMem(addr & 0xFF, value, time);
+			scc.writeMem(addr & 0xFF, value, time);
 		}
 		return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
 	}
@@ -500,13 +494,13 @@ byte* MegaFlashRomSCCPlus::getWriteCacheLine(word /*addr*/) const
 byte MegaFlashRomSCCPlus::readIO(word port, EmuTime::param time)
 {
 	assert((port & 0xFF) == 0x12); (void)port;
-	return psg->readRegister(psgLatch, time);
+	return psg.readRegister(psgLatch, time);
 }
 
 byte MegaFlashRomSCCPlus::peekIO(word port, EmuTime::param time) const
 {
 	assert((port & 0xFF) == 0x12); (void)port;
-	return psg->peekRegister(psgLatch, time);
+	return psg.peekRegister(psgLatch, time);
 }
 
 void MegaFlashRomSCCPlus::writeIO(word port, byte value, EmuTime::param time)
@@ -515,7 +509,7 @@ void MegaFlashRomSCCPlus::writeIO(word port, byte value, EmuTime::param time)
 		psgLatch = value & 0x0F;
 	} else {
 		assert((port & 0xFF) == 0x11);
-		psg->writeRegister(psgLatch, value, time);
+		psg.writeRegister(psgLatch, value, time);
 	}
 }
 
@@ -526,8 +520,8 @@ void MegaFlashRomSCCPlus::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("scc", *scc);
-	ar.serialize("psg", *psg);
+	ar.serialize("scc", scc);
+	ar.serialize("psg", psg);
 	ar.serialize("flash", flash);
 
 	ar.serialize("configReg", configReg);

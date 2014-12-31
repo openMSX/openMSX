@@ -1,8 +1,6 @@
 #include "MSXRS232.hh"
 #include "RS232Device.hh"
 #include "CacheLine.hh"
-#include "I8254.hh"
-#include "I8251.hh"
 #include "Ram.hh"
 #include "Rom.hh"
 #include "BooleanSetting.hh"
@@ -21,11 +19,9 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	, RS232Connector(MSXDevice::getPluggingController(), "msx-rs232")
 	, cntr0(*this)
 	, cntr1(*this)
-	, i8254(make_unique<I8254>(
-		getScheduler(), &cntr0, &cntr1, nullptr,
-		getCurrentTime()))
+	, i8254(getScheduler(), &cntr0, &cntr1, nullptr, getCurrentTime())
 	, interf(*this)
-	, i8251(make_unique<I8251>(getScheduler(), interf, getCurrentTime()))
+	, i8251(getScheduler(), interf, getCurrentTime())
 	, rom(config.findChild("rom")
 		? make_unique<Rom>(
 			MSXDevice::getName() + " ROM", "rom", config)
@@ -48,9 +44,9 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
 	EmuTime::param time = getCurrentTime();
-	i8254->getClockPin(0).setPeriodicState(total, hi, time);
-	i8254->getClockPin(1).setPeriodicState(total, hi, time);
-	i8254->getClockPin(2).setPeriodicState(total, hi, time);
+	i8254.getClockPin(0).setPeriodicState(total, hi, time);
+	i8254.getClockPin(1).setPeriodicState(total, hi, time);
+	i8254.getClockPin(2).setPeriodicState(total, hi, time);
 
 	powerUp(time);
 }
@@ -153,7 +149,7 @@ byte MSXRS232::readIOImpl(word port, EmuTime::param time)
 	switch (port) {
 		case 0: // UART data register
 		case 1: // UART status register
-			result = i8251->readIO(port, time);
+			result = i8251.readIO(port, time);
 			break;
 		case 2: // Status sense port
 			result = readStatus(time);
@@ -165,7 +161,7 @@ byte MSXRS232::readIOImpl(word port, EmuTime::param time)
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			result = i8254->readIO(port - 4, time);
+			result = i8254.readIO(port - 4, time);
 			break;
 		default:
 			UNREACHABLE; return 0;
@@ -181,7 +177,7 @@ byte MSXRS232::peekIO(word port, EmuTime::param time) const
 	switch (port) {
 		case 0: // UART data register
 		case 1: // UART status register
-			result = i8251->peekIO(port, time);
+			result = i8251.peekIO(port, time);
 			break;
 		case 2: // Status sense port
 			result = 0; // TODO not implemented
@@ -193,7 +189,7 @@ byte MSXRS232::peekIO(word port, EmuTime::param time) const
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			result = i8254->peekIO(port - 4, time);
+			result = i8254.peekIO(port - 4, time);
 			break;
 		default:
 			UNREACHABLE; return 0;
@@ -211,7 +207,7 @@ void MSXRS232::writeIOImpl(word port, byte value, EmuTime::param time)
 	switch (port) {
 		case 0: // UART data register
 		case 1: // UART command register
-			i8251->writeIO(port, value, time);
+			i8251.writeIO(port, value, time);
 			break;
 		case 2: // interrupt mask register
 			setIRQMask(value);
@@ -222,7 +218,7 @@ void MSXRS232::writeIOImpl(word port, byte value, EmuTime::param time)
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			i8254->writeIO(port - 4, value, time);
+			i8254.writeIO(port - 4, value, time);
 			break;
 	}
 }
@@ -256,7 +252,7 @@ byte MSXRS232::readStatus(EmuTime::param time)
 	if (!interf.getCTS(time)) {
 		result |= 0x80;
 	}
-	if (i8254->getOutputPin(2).getState(time)) {
+	if (i8254.getOutputPin(2).getState(time)) {
 		result |= 0x40;
 	}
 	return result;
@@ -359,7 +355,7 @@ MSXRS232::Counter0::Counter0(MSXRS232& rs232_)
 
 void MSXRS232::Counter0::signal(ClockPin& pin, EmuTime::param time)
 {
-	ClockPin& clk = rs232.i8251->getClockPin();
+	ClockPin& clk = rs232.i8251.getClockPin();
 	if (pin.isPeriodic()) {
 		clk.setPeriodicState(pin.getTotalDuration(),
 		                     pin.getHighDuration(), time);
@@ -383,7 +379,7 @@ MSXRS232::Counter1::Counter1(MSXRS232& rs232_)
 
 void MSXRS232::Counter1::signal(ClockPin& pin, EmuTime::param time)
 {
-	ClockPin& clk = rs232.i8251->getClockPin();
+	ClockPin& clk = rs232.i8251.getClockPin();
 	if (pin.isPeriodic()) {
 		clk.setPeriodicState(pin.getTotalDuration(),
 		                     pin.getHighDuration(), time);
@@ -402,32 +398,32 @@ void MSXRS232::Counter1::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*
 
 bool MSXRS232::ready()
 {
-	return i8251->isRecvReady();
+	return i8251.isRecvReady();
 }
 
 bool MSXRS232::acceptsData()
 {
-	return i8251->isRecvEnabled();
+	return i8251.isRecvEnabled();
 }
 
 void MSXRS232::setDataBits(DataBits bits)
 {
-	i8251->setDataBits(bits);
+	i8251.setDataBits(bits);
 }
 
 void MSXRS232::setStopBits(StopBits bits)
 {
-	i8251->setStopBits(bits);
+	i8251.setStopBits(bits);
 }
 
 void MSXRS232::setParityBit(bool enable, ParityBit parity)
 {
-	i8251->setParityBit(enable, parity);
+	i8251.setParityBit(enable, parity);
 }
 
 void MSXRS232::recvByte(byte value, EmuTime::param time)
 {
-	i8251->recvByte(value, time);
+	i8251.recvByte(value, time);
 }
 
 // version 1: initial version
@@ -439,8 +435,8 @@ void MSXRS232::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<RS232Connector>(*this);
 
-	ar.serialize("I8254", *i8254);
-	ar.serialize("I8251", *i8251);
+	ar.serialize("I8254", i8254);
+	ar.serialize("I8251", i8251);
 	if (ram) ar.serialize("ram", *ram);
 	ar.serialize("rxrdyIRQ", rxrdyIRQ);
 	ar.serialize("rxrdyIRQlatch", rxrdyIRQlatch);

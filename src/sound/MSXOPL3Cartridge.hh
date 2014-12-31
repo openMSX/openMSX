@@ -2,17 +2,14 @@
 #define MSXOPL3CARTRIDGE_HH
 
 #include "MSXDevice.hh"
-#include <memory>
+#include "YMF262.hh"
 
 namespace openmsx {
-
-class YMF262;
 
 class MSXOPL3Cartridge final : public MSXDevice
 {
 public:
 	explicit MSXOPL3Cartridge(const DeviceConfig& config);
-	~MSXOPL3Cartridge();
 
 	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;
@@ -23,7 +20,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<YMF262> ymf262;
+	YMF262 ymf262;
 	int opl3latch;
 };
 

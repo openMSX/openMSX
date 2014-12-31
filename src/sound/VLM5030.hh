@@ -25,7 +25,7 @@ public:
 	void writeControl(byte data, EmuTime::param time);
 
 	/** get BSY pin level */
-	bool getBSY(EmuTime::param time);
+	bool getBSY(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

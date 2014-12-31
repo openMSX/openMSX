@@ -1,19 +1,16 @@
 #include "RomKonamiKeyboardMaster.hh"
-#include "VLM5030.hh"
 #include "MSXCPUInterface.hh"
 #include "Rom.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
 		const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
-	, vlm5030(make_unique<VLM5030>(
-		"VLM5030", "Konami Keyboard Master's VLM5030",
-		rom->getFilename(), config))
+	, vlm5030("VLM5030", "Konami Keyboard Master's VLM5030",
+	          rom->getFilename(), config)
 {
 	setUnmapped(0);
 	setRom(1, 0);
@@ -38,17 +35,17 @@ RomKonamiKeyboardMaster::~RomKonamiKeyboardMaster()
 
 void RomKonamiKeyboardMaster::reset(EmuTime::param /*time*/)
 {
-	vlm5030->reset();
+	vlm5030.reset();
 }
 
 void RomKonamiKeyboardMaster::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0xFF) {
 	case 0x00:
-		vlm5030->writeData(value);
+		vlm5030.writeData(value);
 		break;
 	case 0x20:
-		vlm5030->writeControl(value, time);
+		vlm5030.writeControl(value, time);
 		break;
 	default:
 		UNREACHABLE;
@@ -64,7 +61,7 @@ byte RomKonamiKeyboardMaster::peekIO(word port, EmuTime::param time) const
 {
 	switch (port & 0xFF) {
 	case 0x00:
-		return vlm5030->getBSY(time) ? 0x10 : 0x00;
+		return vlm5030.getBSY(time) ? 0x10 : 0x00;
 	case 0x20:
 		return 0xFF;
 	default:
@@ -76,7 +73,7 @@ template<typename Archive>
 void RomKonamiKeyboardMaster::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
-	ar.serialize("VLM5030", *vlm5030);
+	ar.serialize("VLM5030", vlm5030);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomKonamiKeyboardMaster);
 REGISTER_MSXDEVICE(RomKonamiKeyboardMaster, "RomKonamiKeyboardMaster");

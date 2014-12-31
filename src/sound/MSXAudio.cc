@@ -1,5 +1,4 @@
 #include "MSXAudio.hh"
-#include "Y8950.hh"
 #include "Y8950Periphery.hh"
 #include "DACSound8U.hh"
 #include "StringOp.hh"
@@ -14,6 +13,9 @@ namespace openmsx {
 
 MSXAudio::MSXAudio(const DeviceConfig& config)
 	: MSXDevice(config)
+	, y8950(getName(), config,
+	        config.getChildDataAsInt("sampleram", 256) * 1024,
+	        getCurrentTime(), *this)
 	, dacValue(0x80), dacEnabled(false)
 {
 	string type(StringOp::toLower(config.getChildData("type", "philips")));
@@ -22,11 +24,7 @@ MSXAudio::MSXAudio(const DeviceConfig& config)
 			getName() + " 8-bit DAC", "MSX-AUDIO 8-bit DAC",
 			config);
 	}
-	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
-	EmuTime::param time = getCurrentTime();
-	y8950 = make_unique<Y8950>(
-		getName(), config, ramSize * 1024, time, *this);
-	powerUp(time);
+	powerUp(getCurrentTime());
 }
 
 MSXAudio::~MSXAudio()
@@ -45,13 +43,13 @@ Y8950Periphery& MSXAudio::createPeriphery(const string& soundDeviceName)
 
 void MSXAudio::powerUp(EmuTime::param time)
 {
-	y8950->clearRam();
+	y8950.clearRam();
 	reset(time);
 }
 
 void MSXAudio::reset(EmuTime::param time)
 {
-	y8950->reset(time);
+	y8950.reset(time);
 	periphery->reset();
 	registerLatch = 0; // TODO check
 }
@@ -63,8 +61,8 @@ byte MSXAudio::readIO(word port, EmuTime::param time)
 		// read DAC
 		result = 255;
 	} else {
-		result = (port & 1) ? y8950->readReg(registerLatch, time)
-		                    : y8950->readStatus(time);
+		result = (port & 1) ? y8950.readReg(registerLatch, time)
+		                    : y8950.readStatus(time);
 	}
 	return result;
 }
@@ -75,8 +73,8 @@ byte MSXAudio::peekIO(word port, EmuTime::param time) const
 		// read DAC
 		return 255; // read always returns 255
 	} else {
-		return (port & 1) ? y8950->peekReg(registerLatch, time)
-		                  : y8950->peekStatus(time);
+		return (port & 1) ? y8950.peekReg(registerLatch, time)
+		                  : y8950.peekStatus(time);
 	}
 }
 
@@ -93,7 +91,7 @@ void MSXAudio::writeIO(word port, byte value, EmuTime::param time)
 		registerLatch = value;
 	} else {
 		// 0xC1 or 0xC3
-		y8950->writeReg(registerLatch, value, time);
+		y8950.writeReg(registerLatch, value, time);
 	}
 }
 
@@ -131,7 +129,7 @@ template<typename Archive>
 void MSXAudio::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serializePolymorphic("periphery", *periphery);
-	ar.serialize("Y8950", *y8950);
+	ar.serialize("Y8950", y8950);
 
 	ar.serialize("registerLatch", registerLatch);
 	ar.serialize("dacValue", dacValue);

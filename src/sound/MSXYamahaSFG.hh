@@ -2,19 +2,16 @@
 #define MSXYAMAHASFG_HH
 
 #include "MSXDevice.hh"
+#include "YM2151.hh"
+#include "YM2148.hh"
 #include "Rom.hh"
-#include <memory>
 
 namespace openmsx {
-
-class YM2151;
-class YM2148;
 
 class MSXYamahaSFG final : public MSXDevice
 {
 public:
 	explicit MSXYamahaSFG(const DeviceConfig& config);
-	~MSXYamahaSFG();
 
 	void reset(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;
@@ -32,8 +29,8 @@ private:
 	void writeDataPort(byte value, EmuTime::param time);
 
 	Rom rom;
-	const std::unique_ptr<YM2151> ym2151;
-	const std::unique_ptr<YM2148> ym2148;
+	YM2151 ym2151;
+	YM2148 ym2148;
 	int registerLatch;
 	byte irqVector;
 };

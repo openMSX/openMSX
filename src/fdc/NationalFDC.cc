@@ -16,24 +16,24 @@ byte NationalFDC::readMem(word address, EmuTime::param time)
 	byte value;
 	switch (address & 0x3FC7) {
 	case 0x3F80:
-		value = controller->getStatusReg(time);
+		value = controller.getStatusReg(time);
 		break;
 	case 0x3F81:
-		value = controller->getTrackReg(time);
+		value = controller.getTrackReg(time);
 		break;
 	case 0x3F82:
-		value = controller->getSectorReg(time);
+		value = controller.getSectorReg(time);
 		break;
 	case 0x3F83:
-		value = controller->getDataReg(time);
+		value = controller.getDataReg(time);
 		break;
 	case 0x3F84:
 	case 0x3F85:
 	case 0x3F86:
 	case 0x3F87:
 		value = 0x7F;
-		if (controller->getIRQ(time))  value |=  0x80;
-		if (controller->getDTRQ(time)) value &= ~0x40;
+		if (controller.getIRQ(time))  value |=  0x80;
+		if (controller.getDTRQ(time)) value &= ~0x40;
 		break;
 	default:
 		value = NationalFDC::peekMem(address, time);
@@ -50,16 +50,16 @@ byte NationalFDC::peekMem(word address, EmuTime::param time) const
 	//  7FB8 - 7FBF is mirrored in 7F80 - 7FBF
 	switch (address & 0x3FC7) {
 	case 0x3F80:
-		value = controller->peekStatusReg(time);
+		value = controller.peekStatusReg(time);
 		break;
 	case 0x3F81:
-		value = controller->peekTrackReg(time);
+		value = controller.peekTrackReg(time);
 		break;
 	case 0x3F82:
-		value = controller->peekSectorReg(time);
+		value = controller.peekSectorReg(time);
 		break;
 	case 0x3F83:
-		value = controller->peekDataReg(time);
+		value = controller.peekDataReg(time);
 		break;
 	case 0x3F84:
 	case 0x3F85:
@@ -70,8 +70,8 @@ byte NationalFDC::peekMem(word address, EmuTime::param time) const
 		// bit 6: !dtrq
 		// other bits read 1
 		value = 0x7F;
-		if (controller->peekIRQ(time))  value |=  0x80;
-		if (controller->peekDTRQ(time)) value &= ~0x40;
+		if (controller.peekIRQ(time))  value |=  0x80;
+		if (controller.peekDTRQ(time)) value &= ~0x40;
 		break;
 	default:
 		if (address < 0x8000) {
@@ -102,16 +102,16 @@ void NationalFDC::writeMem(word address, byte value, EmuTime::param time)
 {
 	switch (address & 0x3FC7) {
 	case 0x3F80:
-		controller->setCommandReg(value, time);
+		controller.setCommandReg(value, time);
 		break;
 	case 0x3F81:
-		controller->setTrackReg(value, time);
+		controller.setTrackReg(value, time);
 		break;
 	case 0x3F82:
-		controller->setSectorReg(value, time);
+		controller.setSectorReg(value, time);
 		break;
 	case 0x3F83:
-		controller->setDataReg(value, time);
+		controller.setDataReg(value, time);
 		break;
 	case 0x3F84:
 	case 0x3F85:
@@ -132,9 +132,9 @@ void NationalFDC::writeMem(word address, byte value, EmuTime::param time)
 			default:
 				drive = DriveMultiplexer::NO_DRIVE;
 		}
-		multiplexer->selectDrive(drive, time);
-		multiplexer->setSide((value & 0x04) != 0);
-		multiplexer->setMotor((value & 0x08) != 0, time);
+		multiplexer.selectDrive(drive, time);
+		multiplexer.setSide((value & 0x04) != 0);
+		multiplexer.setMotor((value & 0x08) != 0, time);
 		break;
 	}
 }

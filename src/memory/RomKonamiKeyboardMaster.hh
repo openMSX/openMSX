@@ -2,10 +2,9 @@
 #define ROMKONAMIKEYBOARDMASTER_HH
 
 #include "RomBlocks.hh"
+#include "VLM5030.hh"
 
 namespace openmsx {
-
-class VLM5030;
 
 class RomKonamiKeyboardMaster final : public Rom16kBBlocks
 {
@@ -22,7 +21,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<VLM5030> vlm5030;
+	VLM5030 vlm5030;
 };
 
 } // namespace openmsx

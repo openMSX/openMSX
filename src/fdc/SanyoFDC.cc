@@ -22,24 +22,24 @@ byte SanyoFDC::readMem(word address, EmuTime::param time)
 	byte value;
 	switch (address) {
 	case 0x7FF8:
-		value = controller->getStatusReg(time);
+		value = controller.getStatusReg(time);
 		break;
 	case 0x7FF9:
-		value = controller->getTrackReg(time);
+		value = controller.getTrackReg(time);
 		break;
 	case 0x7FFA:
-		value = controller->getSectorReg(time);
+		value = controller.getSectorReg(time);
 		break;
 	case 0x7FFB:
-		value = controller->getDataReg(time);
+		value = controller.getDataReg(time);
 		break;
 	case 0x7FFC:
 	case 0x7FFD:
 	case 0x7FFE:
 	case 0x7FFF:
 		value = 0x3F;
-		if (controller->getIRQ(time))  value |= 0x80;
-		if (controller->getDTRQ(time)) value |= 0x40;
+		if (controller.getIRQ(time))  value |= 0x80;
+		if (controller.getDTRQ(time)) value |= 0x40;
 		break;
 	default:
 		value = SanyoFDC::peekMem(address, time);
@@ -53,16 +53,16 @@ byte SanyoFDC::peekMem(word address, EmuTime::param time) const
 	byte value;
 	switch (address) {
 	case 0x7FF8:
-		value = controller->peekStatusReg(time);
+		value = controller.peekStatusReg(time);
 		break;
 	case 0x7FF9:
-		value = controller->peekTrackReg(time);
+		value = controller.peekTrackReg(time);
 		break;
 	case 0x7FFA:
-		value = controller->peekSectorReg(time);
+		value = controller.peekSectorReg(time);
 		break;
 	case 0x7FFB:
-		value = controller->peekDataReg(time);
+		value = controller.peekDataReg(time);
 		break;
 	case 0x7FFC:
 	case 0x7FFD:
@@ -73,8 +73,8 @@ byte SanyoFDC::peekMem(word address, EmuTime::param time) const
 		// bit 6: dtrq
 		// other bits read 1
 		value = 0x3F;
-		if (controller->peekIRQ(time))  value |= 0x80;
-		if (controller->peekDTRQ(time)) value |= 0x40;
+		if (controller.peekIRQ(time))  value |= 0x80;
+		if (controller.peekDTRQ(time)) value |= 0x40;
 		break;
 	default:
 		if (address < 0x8000) {
@@ -105,16 +105,16 @@ void SanyoFDC::writeMem(word address, byte value, EmuTime::param time)
 {
 	switch (address) {
 	case 0x7FF8:
-		controller->setCommandReg(value, time);
+		controller.setCommandReg(value, time);
 		break;
 	case 0x7FF9:
-		controller->setTrackReg(value, time);
+		controller.setTrackReg(value, time);
 		break;
 	case 0x7FFA:
-		controller->setSectorReg(value, time);
+		controller.setSectorReg(value, time);
 		break;
 	case 0x7FFB:
-		controller->setDataReg(value, time);
+		controller.setDataReg(value, time);
 		break;
 	case 0x7FFC:
 	case 0x7FFD:
@@ -135,9 +135,9 @@ void SanyoFDC::writeMem(word address, byte value, EmuTime::param time)
 			default:
 				drive = DriveMultiplexer::NO_DRIVE;
 		}
-		multiplexer->selectDrive(drive, time);
-		multiplexer->setSide((value & 0x04) != 0);
-		multiplexer->setMotor((value & 0x08) != 0, time);
+		multiplexer.selectDrive(drive, time);
+		multiplexer.setSide((value & 0x04) != 0);
+		multiplexer.setMotor((value & 0x08) != 0, time);
 		break;
 	}
 }

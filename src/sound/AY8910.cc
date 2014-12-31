@@ -11,13 +11,11 @@
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
 #include "DeviceConfig.hh"
-#include "TclCallback.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "likely.hh"
-#include "memory.hh"
 #include "random.hh"
 #include <cassert>
 #include <cmath>
@@ -482,8 +480,8 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
 	, detuneFrequency(
 		config.getCommandController(), getName() + "_detune_frequency",
 		"frequency of detune effect in Hertz", 5.0, 1.0, 100.0)
-	, directionsCallback(make_unique<TclCallback>(
-		config.getGlobalSettings().getInvalidPsgDirectionsSetting()))
+	, directionsCallback(
+		config.getGlobalSettings().getInvalidPsgDirectionsSetting())
 	, amplitude(config)
 	, envelope(amplitude.getEnvVolTable())
 	, isAY8910(checkAY8910(config))
@@ -583,7 +581,7 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 	// Warn/force port directions
 	if (reg == AY_ENABLE) {
 		if (value & PORT_A_DIRECTION) {
-			directionsCallback->execute();
+			directionsCallback.execute();
 		}
 		// portA -> input
 		// portB -> output

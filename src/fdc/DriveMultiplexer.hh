@@ -22,7 +22,6 @@ public:
 
 	// Multiplexer interface
 	explicit DriveMultiplexer(DiskDrive* drive[4]);
-	~DriveMultiplexer();
 	void selectDrive(DriveNum num, EmuTime::param time);
 
 	// DiskDrive interface
@@ -49,7 +48,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<DummyDrive> dummyDrive;
+	DummyDrive dummyDrive;
 	DiskDrive* drive[5];
 	DriveNum selected;
 	bool motor;

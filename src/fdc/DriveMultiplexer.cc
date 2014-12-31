@@ -1,11 +1,9 @@
 #include "DriveMultiplexer.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 DriveMultiplexer::DriveMultiplexer(DiskDrive* drv[4])
-	: dummyDrive(make_unique<DummyDrive>())
 {
 	motor = false;
 	side = false;
@@ -14,11 +12,7 @@ DriveMultiplexer::DriveMultiplexer(DiskDrive* drv[4])
 	drive[DRIVE_B]  = drv[1];
 	drive[DRIVE_C]  = drv[2];
 	drive[DRIVE_D]  = drv[3];
-	drive[NO_DRIVE] = dummyDrive.get();
-}
-
-DriveMultiplexer::~DriveMultiplexer()
-{
+	drive[NO_DRIVE] = &dummyDrive;
 }
 
 void DriveMultiplexer::selectDrive(DriveNum num, EmuTime::param time)
