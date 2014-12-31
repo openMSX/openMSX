@@ -10,7 +10,6 @@
 #include "ReverseManager.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
-#include "SimpleDebuggable.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
 #include "BooleanSetting.hh"
@@ -89,16 +88,6 @@ private:
 	} state;
 };
 
-class KeybDebuggable final : public SimpleDebuggable
-{
-public:
-	KeybDebuggable(MSXMotherBoard& motherBoard, Keyboard& keyboard);
-	byte read(unsigned address) override;
-	void write(unsigned address, byte value) override;
-private:
-	Keyboard& keyboard;
-};
-
 
 class KeyMatrixState final : public StateChange
 {
@@ -166,7 +155,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyboardSettings(make_unique<KeyboardSettings>(commandController))
 	, msxKeyEventQueue(make_unique<MsxKeyEventQueue>(
 		scheduler, *this, commandController.getInterpreter()))
-	, keybDebuggable(make_unique<KeybDebuggable>(motherBoard, *this))
+	, keybDebuggable(motherBoard, *this)
 	, unicodeKeymap(make_unique<UnicodeKeymap>(keyboardType))
 	, hasKeypad(hasKP)
 	, hasYesNoKeys(hasYNKeys)
@@ -1298,19 +1287,20 @@ void CapsLockAligner::alignCapsLock(EmuTime::param time)
 
 // class KeybDebuggable
 
-KeybDebuggable::KeybDebuggable(MSXMotherBoard& motherBoard, Keyboard& keyboard_)
+Keyboard::KeybDebuggable::KeybDebuggable(
+		MSXMotherBoard& motherBoard, Keyboard& keyboard_)
 	: SimpleDebuggable(motherBoard, "keymatrix", "MSX Keyboard Matrix",
 	                   Keyboard::NR_KEYROWS)
 	, keyboard(keyboard_)
 {
 }
 
-byte KeybDebuggable::read(unsigned address)
+byte Keyboard::KeybDebuggable::read(unsigned address)
 {
 	return keyboard.getKeys()[address];
 }
 
-void KeybDebuggable::write(unsigned /*address*/, byte /*value*/)
+void Keyboard::KeybDebuggable::write(unsigned /*address*/, byte /*value*/)
 {
 	// ignore
 }

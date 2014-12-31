@@ -46,7 +46,6 @@
  */
 
 #include "ESE_SCC.hh"
-#include "RomBlockDebuggable.hh"
 #include "SRAM.hh"
 #include "SCC.hh"
 #include "MB89352.hh"
@@ -79,8 +78,7 @@ ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	, sram(createSRAM(config, withSCSI, getName()))
 	, scc(make_unique<SCC>(getName(), config, getCurrentTime()))
 	, spc(withSCSI ? make_unique<MB89352>(config) : nullptr)
-	, romBlockDebug(make_unique<RomBlockDebuggable>(
-		*this, mapper, 0x4000, 0x8000, 13))
+	, romBlockDebug(*this, mapper, 0x4000, 0x8000, 13)
 	, mapperMask((sram->getSize() / 0x2000) - 1)
 {
 	// initialized mapper

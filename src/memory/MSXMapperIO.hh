@@ -2,18 +2,15 @@
 #define MSXMAPPERIO_HH
 
 #include "MSXDevice.hh"
-#include <memory>
+#include "SimpleDebuggable.hh"
 #include <vector>
 
 namespace openmsx {
-
-class MapperIODebuggable;
 
 class MSXMapperIO final : public MSXDevice
 {
 public:
 	explicit MSXMapperIO(const DeviceConfig& config);
-	~MSXMapperIO();
 
 	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;
@@ -43,8 +40,15 @@ private:
 	 */
 	void updateMask();
 
-	friend class MapperIODebuggable;
-	const std::unique_ptr<MapperIODebuggable> debuggable;
+	class Debuggable final : public SimpleDebuggable {
+	public:
+		Debuggable(MSXMotherBoard& motherBoard, MSXMapperIO& mapperIO);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value) override;
+	private:
+		MSXMapperIO& mapperIO;
+	} debuggable;
+
 	std::vector<unsigned> mapperSizes;
 	byte registers[4];
 

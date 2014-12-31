@@ -4,6 +4,7 @@
 #include "VRAMObserver.hh"
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
+#include "SimpleDebuggable.hh"
 #include "Ram.hh"
 #include "Math.hh"
 #include "openmsx.hh"
@@ -16,8 +17,6 @@ namespace openmsx {
 class DisplayMode;
 class SpriteChecker;
 class Renderer;
-class LogicalVRAMDebuggable;
-class PhysicalVRAMDebuggable;
 
 /*
 Note: The way VRAM is accessed depends a lot on who is doing the accessing.
@@ -598,13 +597,28 @@ private:
 	  *   This debuggable is also at least 128kB in size (it possibly
 	  *   contains unmapped regions).
 	  */
-	const std::unique_ptr<LogicalVRAMDebuggable> logicalVRAMDebug;
+	class LogicalVRAMDebuggable final : public SimpleDebuggable {
+	public:
+		explicit LogicalVRAMDebuggable(VDP& vdp);
+		byte read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		unsigned transform(unsigned address);
+		VDP& vdp;
+	} logicalVRAMDebug;
 
 	/** Physical view on the VRAM.
 	  *   Screen 7/8 are interleaved in this mode. The size of this
 	  *   debuggable is the same as the actual VRAM size.
 	  */
-	const std::unique_ptr<PhysicalVRAMDebuggable> physicalVRAMDebug;
+	class PhysicalVRAMDebuggable final : public SimpleDebuggable {
+	public:
+		PhysicalVRAMDebuggable(VDP& vdp, VDPVRAM& vram, unsigned actualSize);
+		byte read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		VDPVRAM& vram;
+	} physicalVRAMDebug;
 
 	// TODO: Renderer field can be removed, if updateDisplayMode
 	//       and updateDisplayEnabled are moved back to VDP.

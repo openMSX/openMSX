@@ -2,7 +2,6 @@
 #include "MSXMotherBoard.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
-#include "SimpleDebuggable.hh"
 #include "IntegerSetting.hh"
 #include "TclCallback.hh"
 #include "CPUCore.hh"
@@ -18,17 +17,6 @@ using std::string;
 using std::vector;
 
 namespace openmsx {
-
-class MSXCPUDebuggable final : public SimpleDebuggable
-{
-public:
-	MSXCPUDebuggable(MSXMotherBoard& motherboard, MSXCPU& cpu);
-	byte read(unsigned address) override;
-	void write(unsigned address, byte value) override;
-private:
-	MSXCPU& cpu;
-};
-
 
 MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	: motherboard(motherboard_)
@@ -52,7 +40,7 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 		? make_unique<CPUFreqInfoTopic>(
 			motherboard.getMachineInfoCommand(), "r800_freq", *r800)
 		: nullptr)
-	, debuggable(make_unique<MSXCPUDebuggable>(motherboard_, *this))
+	, debuggable(motherboard_, *this)
 	, reference(EmuTime::zero)
 {
 	z80Active = true; // setActiveCPU(CPU_Z80);
@@ -299,7 +287,7 @@ string MSXCPU::CPUFreqInfoTopic::help(const vector<string>& /*tokens*/) const
 }
 
 
-// class MSXCPUDebuggable
+// class Debuggable
 
 static const char* const CPU_REGS_DESC =
 	"Registers of the active CPU (Z80 or R800).\n"
@@ -316,13 +304,13 @@ static const char* const CPU_REGS_DESC =
 	"this effectively indicates that the CPU could accept an interrupt at\n"
 	"the start of the current instruction.\n";
 
-MSXCPUDebuggable::MSXCPUDebuggable(MSXMotherBoard& motherboard, MSXCPU& cpu_)
+MSXCPU::Debuggable::Debuggable(MSXMotherBoard& motherboard, MSXCPU& cpu_)
 	: SimpleDebuggable(motherboard, "CPU regs", CPU_REGS_DESC, 28)
 	, cpu(cpu_)
 {
 }
 
-byte MSXCPUDebuggable::read(unsigned address)
+byte MSXCPU::Debuggable::read(unsigned address)
 {
 	const CPURegs& regs = cpu.getRegisters();
 	switch (address) {
@@ -360,7 +348,7 @@ byte MSXCPUDebuggable::read(unsigned address)
 	}
 }
 
-void MSXCPUDebuggable::write(unsigned address, byte value)
+void MSXCPU::Debuggable::write(unsigned address, byte value)
 {
 	CPURegs& regs = cpu.getRegisters();
 	switch (address) {

@@ -5,13 +5,13 @@
 #define MSXSCCPLUSCART_HH
 
 #include "MSXDevice.hh"
+#include "RomBlockDebuggable.hh"
 #include <memory>
 
 namespace openmsx {
 
 class SCC;
 class Ram;
-class RomBlockDebuggable;
 
 class MSXSCCPlusCart final : public MSXDevice
 {
@@ -37,7 +37,7 @@ private:
 
 	const std::unique_ptr<Ram> ram;
 	const std::unique_ptr<SCC> scc;
-	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
+	RomBlockDebuggable romBlockDebug;
 	byte* internalMemoryBank[4]; // 4 blocks of 8kB starting at #4000
 	enum SCCEnable {EN_NONE, EN_SCC, EN_SCCPLUS} enable;
 	byte modeRegister;

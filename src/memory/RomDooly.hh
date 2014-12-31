@@ -2,16 +2,14 @@
 #define ROMDOOLY_HH
 
 #include "MSXRom.hh"
+#include "RomBlockDebuggable.hh"
 
 namespace openmsx {
-
-class RomBlockDebuggable;
 
 class RomDooly final : public MSXRom
 {
 public:
 	RomDooly(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	~RomDooly();
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;
@@ -23,7 +21,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
+	RomBlockDebuggable romBlockDebug;
 	byte conversion;
 };
 

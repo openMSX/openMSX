@@ -2,7 +2,6 @@
 #include "SpriteChecker.hh"
 #include "Renderer.hh"
 #include "Math.hh"
-#include "SimpleDebuggable.hh"
 #include "serialize.hh"
 #include "memory.hh"
 #include <algorithm>
@@ -41,19 +40,7 @@ VRAMWindow::VRAMWindow(Ram& vram)
  *   size of this debuggable would have to be 256kB to be able to access the
  *   complete extended VRAM in interleaved mode.
  */
-class LogicalVRAMDebuggable final : public SimpleDebuggable
-{
-public:
-	explicit LogicalVRAMDebuggable(VDP& vdp);
-	byte read(unsigned address, EmuTime::param time) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	unsigned transform(unsigned address);
-	VDP& vdp;
-};
-
-
-LogicalVRAMDebuggable::LogicalVRAMDebuggable(VDP& vdp_)
+VDPVRAM::LogicalVRAMDebuggable::LogicalVRAMDebuggable(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(), vdp_.getName() == "VDP" ? "VRAM" :
 			vdp_.getName() + " VRAM",
 			"CPU view on video RAM given the current display mode.",
@@ -62,19 +49,20 @@ LogicalVRAMDebuggable::LogicalVRAMDebuggable(VDP& vdp_)
 {
 }
 
-unsigned LogicalVRAMDebuggable::transform(unsigned address)
+unsigned VDPVRAM::LogicalVRAMDebuggable::transform(unsigned address)
 {
 	return vdp.getDisplayMode().isPlanar()
 	     ? ((address << 16) | (address >> 1)) & 0x1FFFF
 	     : address;
 }
 
-byte LogicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
+byte VDPVRAM::LogicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
 {
 	return vdp.getVRAM().cpuRead(transform(address), time);
 }
 
-void LogicalVRAMDebuggable::write(unsigned address, byte value, EmuTime::param time)
+void VDPVRAM::LogicalVRAMDebuggable::write(
+	unsigned address, byte value, EmuTime::param time)
 {
 	vdp.getVRAM().cpuWrite(transform(address), value, time);
 }
@@ -82,18 +70,7 @@ void LogicalVRAMDebuggable::write(unsigned address, byte value, EmuTime::param t
 
 // class PhysicalVRAMDebuggable
 
-class PhysicalVRAMDebuggable final : public SimpleDebuggable
-{
-public:
-	PhysicalVRAMDebuggable(VDP& vdp, VDPVRAM& vram, unsigned actualSize);
-	byte read(unsigned address, EmuTime::param time) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	VDPVRAM& vram;
-};
-
-
-PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(VDP& vdp,
+VDPVRAM::PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(VDP& vdp,
 				VDPVRAM& vram_, unsigned actualSize)
 	: SimpleDebuggable(vdp.getMotherBoard(), vdp.getName() == "VDP" ?
 			"physical VRAM" : "physical " + vdp.getName() + " VRAM",
@@ -103,12 +80,13 @@ PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(VDP& vdp,
 {
 }
 
-byte PhysicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
+byte VDPVRAM::PhysicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
 {
 	return vram.cpuRead(address, time);
 }
 
-void PhysicalVRAMDebuggable::write(unsigned address, byte value, EmuTime::param time)
+void VDPVRAM::PhysicalVRAMDebuggable::write(
+	unsigned address, byte value, EmuTime::param time)
 {
 	vram.cpuWrite(address, value, time);
 }
@@ -129,8 +107,8 @@ static unsigned bufferSize(unsigned size)
 VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	: vdp(vdp_)
 	, data(vdp_.getDeviceConfig2(), bufferSize(size))
-	, logicalVRAMDebug (make_unique<LogicalVRAMDebuggable>(vdp))
-	, physicalVRAMDebug(make_unique<PhysicalVRAMDebuggable>(vdp, *this, size))
+	, logicalVRAMDebug (vdp)
+	, physicalVRAMDebug(vdp, *this, size)
 	#ifdef DEBUG
 	, vramTime(EmuTime::zero)
 	#endif

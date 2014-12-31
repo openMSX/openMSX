@@ -1,3 +1,6 @@
+#ifndef ROMBLOCKDEBUGGABLE_HH
+#define ROMBLOCKDEBUGGABLE_HH
+
 #include "SimpleDebuggable.hh"
 #include "MSXDevice.hh"
 #include <string>
@@ -61,3 +64,5 @@ private:
 };
 
 } // namespace openmsx
+
+#endif

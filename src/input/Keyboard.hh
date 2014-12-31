@@ -5,6 +5,7 @@
 #include "StateChangeListener.hh"
 #include "Schedulable.hh"
 #include "RecordedCommand.hh"
+#include "SimpleDebuggable.hh"
 #include "serialize_meta.hh"
 #include "array_ref.hh"
 #include "string_ref.hh"
@@ -25,7 +26,6 @@ class CapsLockAligner;
 class KeyboardSettings;
 class MsxKeyEventQueue;
 class UnicodeKeymap;
-class KeybDebuggable;
 class StateChange;
 class TclObject;
 class Interpreter;
@@ -175,7 +175,15 @@ private:
 	const std::unique_ptr<CapsLockAligner>  capsLockAligner;
 	const std::unique_ptr<KeyboardSettings> keyboardSettings;
 	const std::unique_ptr<MsxKeyEventQueue> msxKeyEventQueue;
-	const std::unique_ptr<KeybDebuggable>   keybDebuggable;
+
+	class KeybDebuggable final : public SimpleDebuggable {
+	public:
+		KeybDebuggable(MSXMotherBoard& motherBoard, Keyboard& keyboard);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value) override;
+	private:
+		Keyboard& keyboard;
+	} keybDebuggable;
 
 	const std::unique_ptr<UnicodeKeymap> unicodeKeymap;
 	unsigned dynKeymap[MAX_KEYSYM];

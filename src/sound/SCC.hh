@@ -2,13 +2,11 @@
 #define SCC_HH
 
 #include "ResampledSoundDevice.hh"
+#include "SimpleDebuggable.hh"
 #include "Clock.hh"
 #include "openmsx.hh"
-#include <memory>
 
 namespace openmsx {
-
-class SCCDebuggable;
 
 class SCC final : public ResampledSoundDevice
 {
@@ -45,8 +43,14 @@ private:
 
 	static const int CLOCK_FREQ = 3579545;
 
-	friend class SCCDebuggable;
-	const std::unique_ptr<SCCDebuggable> debuggable;
+	class Debuggable final : public SimpleDebuggable {
+	public:
+		Debuggable(MSXMotherBoard& motherBoard, SCC& scc);
+		byte read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		SCC& scc;
+	} debuggable;
 
 	Clock<CLOCK_FREQ> deformTimer;
 	ChipMode currentChipMode;

@@ -56,7 +56,7 @@ private:
 	// This must come after 'name':
 	//   the destructor of RomDebuggable calls Rom::getName(), which still
 	//   needs the Rom::name member.
-	std::unique_ptr<RomDebuggable> romDebuggable;
+	std::unique_ptr<RomDebuggable> romDebuggable; // can be nullptr
 };
 
 } // namespace openmsx

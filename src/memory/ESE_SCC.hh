@@ -2,6 +2,7 @@
 #define ESE_SCC_HH
 
 #include "MSXDevice.hh"
+#include "RomBlockDebuggable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -9,7 +10,6 @@ namespace openmsx {
 class SRAM;
 class SCC;
 class MB89352;
-class RomBlockDebuggable;
 
 class ESE_SCC final : public MSXDevice
 {
@@ -36,7 +36,7 @@ private:
 	const std::unique_ptr<SRAM> sram;
 	const std::unique_ptr<SCC> scc;
 	const std::unique_ptr<MB89352> spc;
-	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
+	RomBlockDebuggable romBlockDebug;
 
 	const byte mapperMask;
 	byte mapper[4];

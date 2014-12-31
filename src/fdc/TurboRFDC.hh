@@ -2,12 +2,12 @@
 #define TURBORFDC_HH
 
 #include "MSXFDC.hh"
+#include "RomBlockDebuggable.hh"
 #include <memory>
 
 namespace openmsx {
 
 class TC8566AF;
-class RomBlockDebuggable;
 
 class TurboRFDC final : public MSXFDC
 {
@@ -32,7 +32,7 @@ private:
 	void setBank(byte value);
 
 	const std::unique_ptr<TC8566AF> controller;
-	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
+	RomBlockDebuggable romBlockDebug;
 	const byte* memory;
 	const byte blockMask;
 	byte bank;

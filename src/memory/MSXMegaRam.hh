@@ -2,13 +2,13 @@
 #define MSXMEGARAM_HH
 
 #include "MSXDevice.hh"
+#include "RomBlockDebuggable.hh"
 #include <memory>
 
 namespace openmsx {
 
 class Ram;
 class Rom;
-class RomBlockDebuggable;
 
 class MSXMegaRam final : public MSXDevice
 {
@@ -37,7 +37,7 @@ private:
 	const unsigned numBlocks; // must come before ram
 	const std::unique_ptr<Ram> ram;
 	const std::unique_ptr<Rom> rom;
-	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
+	RomBlockDebuggable romBlockDebug;
 	const byte maskBlocks;
 	byte bank[4];
 	bool writeMode;

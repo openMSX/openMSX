@@ -10,7 +10,6 @@
 
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
-#include "SimpleDebuggable.hh"
 #include "DeviceConfig.hh"
 #include "TclCallback.hh"
 #include "GlobalSettings.hh"
@@ -27,17 +26,6 @@
 using std::string;
 
 namespace openmsx {
-
-class AY8910Debuggable final : public SimpleDebuggable
-{
-public:
-	AY8910Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910);
-	byte read(unsigned address, EmuTime::param time) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	AY8910& ay8910;
-};
-
 
 // The step clock for the tone and noise generators is the chip clock
 // divided by 8; for the envelope generator of the AY-3-8910, it is half
@@ -481,8 +469,7 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
                const DeviceConfig& config, EmuTime::param time)
 	: ResampledSoundDevice(config.getMotherBoard(), name, "PSG", 3)
 	, periphery(periphery_)
-	, debuggable(make_unique<AY8910Debuggable>(
-		config.getMotherBoard(), *this))
+	, debuggable(config.getMotherBoard(), *this)
 	, vibratoPercent(
 		config.getCommandController(), getName() + "_vibrato_percent",
 		"controls strength of vibrato effect", 0.0, 0.0, 10.0)
@@ -1010,21 +997,21 @@ void AY8910::update(const Setting& setting)
 }
 
 
-// SimpleDebuggable
+// Debuggable
 
-AY8910Debuggable::AY8910Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910_)
+AY8910::Debuggable::Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910_)
 	: SimpleDebuggable(motherBoard, ay8910_.getName() + " regs",
 	                   "PSG", 0x10)
 	, ay8910(ay8910_)
 {
 }
 
-byte AY8910Debuggable::read(unsigned address, EmuTime::param time)
+byte AY8910::Debuggable::read(unsigned address, EmuTime::param time)
 {
 	return ay8910.readRegister(address, time);
 }
 
-void AY8910Debuggable::write(unsigned address, byte value, EmuTime::param time)
+void AY8910::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	return ay8910.writeRegister(address, value, time);
 }

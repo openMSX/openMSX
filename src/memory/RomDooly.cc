@@ -3,24 +3,17 @@
 //
 
 #include "RomDooly.hh"
-#include "RomBlockDebuggable.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
 RomDooly::RomDooly(const DeviceConfig& config, std::unique_ptr<Rom> rom)
 	: MSXRom(config, std::move(rom))
-	, romBlockDebug(make_unique<RomBlockDebuggable>(
-		*this, &conversion, 0x4000, 0x8000, 15))
+	, romBlockDebug(*this, &conversion, 0x4000, 0x8000, 15)
 {
 	conversion = 0;
-}
-
-RomDooly::~RomDooly()
-{
 }
 
 void RomDooly::reset(EmuTime::param /*time*/)

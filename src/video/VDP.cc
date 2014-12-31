@@ -26,7 +26,6 @@ TODO:
 #include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
-#include "SimpleDebuggable.hh"
 #include "TclObject.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -44,47 +43,6 @@ using std::vector;
 
 namespace openmsx {
 
-class VDPRegDebug final : public SimpleDebuggable
-{
-public:
-	explicit VDPRegDebug(VDP& vdp);
-	byte read(unsigned address) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	VDP& vdp;
-};
-
-class VDPStatusRegDebug final : public SimpleDebuggable
-{
-public:
-	explicit VDPStatusRegDebug(VDP& vdp);
-	byte read(unsigned address, EmuTime::param time) override;
-private:
-	VDP& vdp;
-};
-
-class VDPPaletteDebug final : public SimpleDebuggable
-{
-public:
-	explicit VDPPaletteDebug(VDP& vdp);
-	byte read(unsigned address) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	VDP& vdp;
-};
-
-class VRAMPointerDebug final : public SimpleDebuggable
-{
-public:
-	explicit VRAMPointerDebug(VDP& vdp);
-	byte read(unsigned address) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	VDP& vdp;
-};
-
-
-
 VDP::VDP(const DeviceConfig& config)
 	: MSXDevice(config)
 	, syncVSync(*this)
@@ -98,10 +56,10 @@ VDP::VDP(const DeviceConfig& config)
 	, display(getReactor().getDisplay())
 	, cmdTiming    (display.getRenderSettings().getCmdTiming())
 	, tooFastAccess(display.getRenderSettings().getTooFastAccess())
-	, vdpRegDebug      (make_unique<VDPRegDebug>      (*this))
-	, vdpStatusRegDebug(make_unique<VDPStatusRegDebug>(*this))
-	, vdpPaletteDebug  (make_unique<VDPPaletteDebug>  (*this))
-	, vramPointerDebug (make_unique<VRAMPointerDebug> (*this))
+	, vdpRegDebug      (*this)
+	, vdpStatusRegDebug(*this)
+	, vdpPaletteDebug  (*this)
+	, vramPointerDebug (*this)
 	, frameCountInfo   (*this)
 	, cycleInFrameInfo (*this)
 	, lineInFrameInfo  (*this)
@@ -1339,16 +1297,16 @@ void VDP::update(const Setting& setting)
 	}
 }
 
-// VDPRegDebug
+// RegDebug
 
-VDPRegDebug::VDPRegDebug(VDP& vdp_)
+VDP::RegDebug::RegDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   vdp_.getName() + " regs", "VDP registers.", 0x40)
 	, vdp(vdp_)
 {
 }
 
-byte VDPRegDebug::read(unsigned address)
+byte VDP::RegDebug::read(unsigned address)
 {
 	if (address < 0x20) {
 		return vdp.controlRegs[address];
@@ -1359,43 +1317,43 @@ byte VDPRegDebug::read(unsigned address)
 	}
 }
 
-void VDPRegDebug::write(unsigned address, byte value, EmuTime::param time)
+void VDP::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	vdp.changeRegister(address, value, time);
 }
 
 
-// VDPStatusRegDebug
+// StatusRegDebug
 
-VDPStatusRegDebug::VDPStatusRegDebug(VDP& vdp_)
+VDP::StatusRegDebug::StatusRegDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   vdp_.getName() + " status regs", "VDP status registers.", 0x10)
 	, vdp(vdp_)
 {
 }
 
-byte VDPStatusRegDebug::read(unsigned address, EmuTime::param time)
+byte VDP::StatusRegDebug::read(unsigned address, EmuTime::param time)
 {
 	return vdp.peekStatusReg(address, time);
 }
 
 
-// VDPPaletteDebug
+// PaletteDebug
 
-VDPPaletteDebug::VDPPaletteDebug(VDP& vdp_)
+VDP::PaletteDebug::PaletteDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   vdp_.getName() + " palette", "V99x8 palette (RBG format)", 0x20)
 	, vdp(vdp_)
 {
 }
 
-byte VDPPaletteDebug::read(unsigned address)
+byte VDP::PaletteDebug::read(unsigned address)
 {
 	word grb = vdp.getPalette(address / 2);
 	return (address & 1) ? (grb >> 8) : (grb & 0xff);
 }
 
-void VDPPaletteDebug::write(unsigned address, byte value, EmuTime::param time)
+void VDP::PaletteDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	int index = address / 2;
 	word grb = vdp.getPalette(index);
@@ -1408,7 +1366,7 @@ void VDPPaletteDebug::write(unsigned address, byte value, EmuTime::param time)
 
 // class VRAMPointerDebug
 
-VRAMPointerDebug::VRAMPointerDebug(VDP& vdp_)
+VDP::VRAMPointerDebug::VRAMPointerDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(), vdp_.getName() == "VDP" ?
 			"VRAM pointer" : vdp_.getName() + " VRAM pointer",
 			"VDP VRAM pointer (14 lower bits)", 2)
@@ -1416,7 +1374,7 @@ VRAMPointerDebug::VRAMPointerDebug(VDP& vdp_)
 {
 }
 
-byte VRAMPointerDebug::read(unsigned address)
+byte VDP::VRAMPointerDebug::read(unsigned address)
 {
 	if (address & 1) {
 		return vdp.vramPointer >> 8;  // TODO add read/write mode?
@@ -1425,7 +1383,7 @@ byte VRAMPointerDebug::read(unsigned address)
 	}
 }
 
-void VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time*/)
+void VDP::VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time*/)
 {
 	int& ptr = vdp.vramPointer;
 	if (address & 1) {

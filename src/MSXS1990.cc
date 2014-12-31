@@ -3,28 +3,16 @@
 #include "MSXMotherBoard.hh"
 #include "PanasonicMemory.hh"
 #include "FirmwareSwitch.hh"
-#include "SimpleDebuggable.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 
 namespace openmsx {
 
-class S1990Debuggable final : public SimpleDebuggable
-{
-public:
-	S1990Debuggable(MSXMotherBoard& motherBoard, MSXS1990& s1990);
-	byte read(unsigned address) override;
-	void write(unsigned address, byte value) override;
-private:
-	MSXS1990& s1990;
-};
-
-
 MSXS1990::MSXS1990(const DeviceConfig& config)
 	: MSXDevice(config)
 	, firmwareSwitch(make_unique<FirmwareSwitch>(config))
-	, debuggable(make_unique<S1990Debuggable>(getMotherBoard(), *this))
+	, debuggable(getMotherBoard(), *this)
 {
 	reset(EmuTime::dummy());
 }
@@ -110,19 +98,19 @@ void MSXS1990::setCPUStatus(byte value)
 }
 
 
-S1990Debuggable::S1990Debuggable(MSXMotherBoard& motherBoard, MSXS1990& s1990_)
+MSXS1990::Debuggable::Debuggable(MSXMotherBoard& motherBoard, MSXS1990& s1990_)
 	: SimpleDebuggable(motherBoard, s1990_.getName() + " regs",
 	                   "S1990 registers", 16)
 	, s1990(s1990_)
 {
 }
 
-byte S1990Debuggable::read(unsigned address)
+byte MSXS1990::Debuggable::read(unsigned address)
 {
 	return s1990.readRegister(address);
 }
 
-void S1990Debuggable::write(unsigned address, byte value)
+void MSXS1990::Debuggable::write(unsigned address, byte value)
 {
 	s1990.writeRegister(address, value);
 }

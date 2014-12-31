@@ -7,31 +7,19 @@
 // sharing his implementation with us (and pointing us to it).
 
 #include "RomHolyQuran2.hh"
-#include "RomBlockDebuggable.hh"
 #include "Rom.hh"
 #include "MSXCPU.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "likely.hh"
-#include "memory.hh"
 
 namespace openmsx {
-
-class Quran2RomBlocks final : public RomBlockDebuggableBase
-{
-public:
-	Quran2RomBlocks(RomHolyQuran2& device);
-	byte read(unsigned address) override;
-private:
-	RomHolyQuran2& device;
-};
-
 
 static byte decryptLUT[256];
 
 RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: MSXRom(config, std::move(rom_))
-	, romBlocks(make_unique<Quran2RomBlocks>(*this))
+	, romBlocks(*this)
 {
 	// protection uses a simple rotation on databus, some lines inverted:
 	//   out0 = ~in3   out1 =  in7   out2 = ~in5   out3 = ~in1
@@ -48,10 +36,6 @@ RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> ro
 		throw MSXException("Holy Quaran ROM should be exactly 1MB in size");
 	}
 	reset(EmuTime::dummy());
-}
-
-RomHolyQuran2::~RomHolyQuran2()
-{
 }
 
 void RomHolyQuran2::reset(EmuTime::param /*time*/)
@@ -137,13 +121,13 @@ INSTANTIATE_SERIALIZE_METHODS(RomHolyQuran2);
 REGISTER_MSXDEVICE(RomHolyQuran2, "RomHolyQuran2");
 
 
-Quran2RomBlocks::Quran2RomBlocks(RomHolyQuran2& device_)
+RomHolyQuran2::Blocks::Blocks(RomHolyQuran2& device_)
 	: RomBlockDebuggableBase(device_)
 	, device(device_)
 {
 }
 
-byte Quran2RomBlocks::read(unsigned address)
+byte RomHolyQuran2::Blocks::read(unsigned address)
 {
 	if ((address < 0x4000) || (address >= 0xc000)) return 255;
 	unsigned page = (address - 0x4000) / 0x2000;

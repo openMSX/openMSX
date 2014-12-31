@@ -2,12 +2,12 @@
 #define ROMBLOCKS_HH
 
 #include "MSXRom.hh"
+#include "RomBlockDebuggable.hh"
 #include "serialize_meta.hh"
 
 namespace openmsx {
 
 class SRAM;
-class RomBlockDebuggable;
 
 template <unsigned BANK_SIZE_>
 class RomBlocks : public MSXRom
@@ -82,7 +82,7 @@ protected:
 	byte blockNr[NUM_BANKS];
 
 private:
-	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
+	RomBlockDebuggable romBlockDebug;
 	const byte* extraMem;
 	unsigned extraSize;
 	const int nrBlocks;

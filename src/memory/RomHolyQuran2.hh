@@ -2,16 +2,14 @@
 #define ROMHOLYQURAN2_HH
 
 #include "MSXRom.hh"
+#include "RomBlockDebuggable.hh"
 
 namespace openmsx {
-
-class Quran2RomBlocks;
 
 class RomHolyQuran2 : public MSXRom
 {
 public:
 	RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	~RomHolyQuran2();
 
 	void reset(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;
@@ -24,11 +22,16 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<Quran2RomBlocks> romBlocks;
+	class Blocks final : public RomBlockDebuggableBase {
+	public:
+		Blocks(RomHolyQuran2& device);
+		byte read(unsigned address) override;
+	private:
+		RomHolyQuran2& device;
+	} romBlocks;
+
 	const byte* bank[4];
 	bool decrypt;
-
-	friend class Quran2RomBlocks;
 };
 
 } // namespace openmsx

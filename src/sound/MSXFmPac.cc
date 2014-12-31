@@ -1,5 +1,4 @@
 #include "MSXFmPac.hh"
-#include "RomBlockDebuggable.hh"
 #include "SRAM.hh"
 #include "Rom.hh"
 #include "CacheLine.hh"
@@ -14,8 +13,7 @@ MSXFmPac::MSXFmPac(const DeviceConfig& config)
 	: MSXMusicBase(config)
 	, sram(make_unique<SRAM>(
 		getName() + " SRAM", 0x1FFE, config, PAC_Header))
-	, romBlockDebug(make_unique<RomBlockDebuggable>(
-		*this, &bank, 0x4000, 0x4000, 14))
+	, romBlockDebug(*this, &bank, 0x4000, 0x4000, 14)
 {
 	reset(getCurrentTime());
 }

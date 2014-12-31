@@ -97,7 +97,6 @@
 //-----------------------------------------------------------------------------
 
 #include "SCC.hh"
-#include "SimpleDebuggable.hh"
 #include "DeviceConfig.hh"
 #include "serialize.hh"
 #include "likely.hh"
@@ -108,17 +107,6 @@ using std::string;
 
 namespace openmsx {
 
-class SCCDebuggable final : public SimpleDebuggable
-{
-public:
-	SCCDebuggable(MSXMotherBoard& motherBoard, SCC& scc);
-	byte read(unsigned address, EmuTime::param time) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	SCC& scc;
-};
-
-
 static string calcDescription(SCC::ChipMode mode)
 {
 	return (mode == SCC::SCC_Real) ? "Konami SCC" : "Konami SCC+";
@@ -128,8 +116,7 @@ SCC::SCC(const string& name, const DeviceConfig& config,
          EmuTime::param time, ChipMode mode)
 	: ResampledSoundDevice(
 		config.getMotherBoard(), name, calcDescription(mode), 5)
-	, debuggable(make_unique<SCCDebuggable>(
-		config.getMotherBoard(), *this))
+	, debuggable(config.getMotherBoard(), *this)
 	, deformTimer(time)
 	, currentChipMode(mode)
 {
@@ -556,16 +543,16 @@ void SCC::generateChannels(int** bufs, unsigned num)
 }
 
 
-// SimpleDebuggable
+// Debuggable
 
-SCCDebuggable::SCCDebuggable(MSXMotherBoard& motherBoard, SCC& scc_)
+SCC::Debuggable::Debuggable(MSXMotherBoard& motherBoard, SCC& scc_)
 	: SimpleDebuggable(motherBoard, scc_.getName() + " SCC",
 	                   "SCC registers in SCC+ format", 0x100)
 	, scc(scc_)
 {
 }
 
-byte SCCDebuggable::read(unsigned address, EmuTime::param time)
+byte SCC::Debuggable::read(unsigned address, EmuTime::param time)
 {
 	if (address < 0xA0) {
 		// read wave form 1..5
@@ -581,7 +568,7 @@ byte SCCDebuggable::read(unsigned address, EmuTime::param time)
 	}
 }
 
-void SCCDebuggable::write(unsigned address, byte value, EmuTime::param time)
+void SCC::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	if (address < 0xA0) {
 		// read wave form 1..5

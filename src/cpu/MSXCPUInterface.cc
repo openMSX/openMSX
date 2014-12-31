@@ -1,7 +1,6 @@
 #include "MSXCPUInterface.hh"
 #include "DebugCondition.hh"
 #include "DummyDevice.hh"
-#include "SimpleDebuggable.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "Interpreter.hh"
@@ -38,40 +37,6 @@ using std::shared_ptr;
 
 namespace openmsx {
 
-class MemoryDebug final : public SimpleDebuggable
-{
-public:
-	MemoryDebug(MSXCPUInterface& interface,
-	            MSXMotherBoard& motherBoard);
-	byte read(unsigned address, EmuTime::param time) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	MSXCPUInterface& interface;
-};
-
-class SlottedMemoryDebug final : public SimpleDebuggable
-{
-public:
-	SlottedMemoryDebug(MSXCPUInterface& interface,
-	                   MSXMotherBoard& motherBoard);
-	byte read(unsigned address, EmuTime::param time) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	MSXCPUInterface& interface;
-};
-
-class IODebug final : public SimpleDebuggable
-{
-public:
-	IODebug(MSXCPUInterface& interface,
-	        MSXMotherBoard& motherBoard);
-	byte read(unsigned address, EmuTime::param time) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	MSXCPUInterface& interface;
-};
-
-
 // Global variables
 bool MSXCPUInterface::breaked = false;
 bool MSXCPUInterface::continued = false;
@@ -91,12 +56,9 @@ static const byte GLOBAL_WRITE_BIT   = 0x04;
 
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
-	: memoryDebug(make_unique<MemoryDebug>(
-		*this, motherBoard_))
-	, slottedMemoryDebug(make_unique<SlottedMemoryDebug>(
-		*this, motherBoard_))
-	, ioDebug(make_unique<IODebug>(
-		*this, motherBoard_))
+	: memoryDebug       (*this, motherBoard_)
+	, slottedMemoryDebug(*this, motherBoard_)
+	, ioDebug           (*this, motherBoard_)
 	, slotInfo(motherBoard_.getMachineInfoCommand(), *this)
 	, subSlottedInfo(motherBoard_.getMachineInfoCommand(), *this)
 	, externalSlotInfo(motherBoard_.getMachineInfoCommand(),
@@ -955,7 +917,7 @@ void MSXCPUInterface::cleanup()
 
 // class MemoryDebug
 
-MemoryDebug::MemoryDebug(
+MSXCPUInterface::MemoryDebug::MemoryDebug(
 		MSXCPUInterface& interface_, MSXMotherBoard& motherBoard)
 	: SimpleDebuggable(motherBoard, "memory",
 	                   "The memory currently visible for the CPU.", 0x10000)
@@ -963,12 +925,12 @@ MemoryDebug::MemoryDebug(
 {
 }
 
-byte MemoryDebug::read(unsigned address, EmuTime::param time)
+byte MSXCPUInterface::MemoryDebug::read(unsigned address, EmuTime::param time)
 {
 	return interface.peekMem(address, time);
 }
 
-void MemoryDebug::write(unsigned address, byte value,
+void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value,
                                          EmuTime::param time)
 {
 	return interface.writeMem(address, value, time);
@@ -977,7 +939,7 @@ void MemoryDebug::write(unsigned address, byte value,
 
 // class SlottedMemoryDebug
 
-SlottedMemoryDebug::SlottedMemoryDebug(
+MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(
 		MSXCPUInterface& interface_, MSXMotherBoard& motherBoard)
 	: SimpleDebuggable(motherBoard, "slotted memory",
 	                   "The memory in slots and subslots.", 0x10000 * 4 * 4)
@@ -985,12 +947,12 @@ SlottedMemoryDebug::SlottedMemoryDebug(
 {
 }
 
-byte SlottedMemoryDebug::read(unsigned address, EmuTime::param time)
+byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address, EmuTime::param time)
 {
 	return interface.peekSlottedMem(address, time);
 }
 
-void SlottedMemoryDebug::write(unsigned address, byte value,
+void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value,
                                                 EmuTime::param time)
 {
 	return interface.writeSlottedMem(address, value, time);
@@ -1102,19 +1064,19 @@ string MSXCPUInterface::ExternalSlotInfo::help(
 
 // class IODebug
 
-IODebug::IODebug(MSXCPUInterface& interface_,
-                 MSXMotherBoard& motherBoard)
+MSXCPUInterface::IODebug::IODebug(MSXCPUInterface& interface_,
+                                  MSXMotherBoard& motherBoard)
 	: SimpleDebuggable(motherBoard, "ioports", "IO ports.", 0x100)
 	, interface(interface_)
 {
 }
 
-byte IODebug::read(unsigned address, EmuTime::param time)
+byte MSXCPUInterface::IODebug::read(unsigned address, EmuTime::param time)
 {
 	return interface.IO_In[address & 0xFF]->peekIO(address, time);
 }
 
-void IODebug::write(unsigned address, byte value, EmuTime::param time)
+void MSXCPUInterface::IODebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	interface.writeIO(word(address), value, time);
 }

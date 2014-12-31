@@ -4,6 +4,7 @@
 #include "MSXDevice.hh"
 #include "Schedulable.hh"
 #include "VideoSystemChangeListener.hh"
+#include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
 #include "IRQHelper.hh"
 #include "Clock.hh"
@@ -19,10 +20,6 @@ class Renderer;
 class VDPCmdEngine;
 class VDPVRAM;
 class SpriteChecker;
-class VDPRegDebug;
-class VDPStatusRegDebug;
-class VDPPaletteDebug;
-class VRAMPointerDebug;
 class TclCallback;
 class Display;
 class RawFrame;
@@ -797,14 +794,40 @@ private:
 	EnumSetting<bool>& cmdTiming;
 	EnumSetting<bool>& tooFastAccess;
 
-	friend class VDPRegDebug;
-	friend class VDPStatusRegDebug;
-	friend class VDPPaletteDebug;
-	friend class VRAMPointerDebug;
-	const std::unique_ptr<VDPRegDebug>       vdpRegDebug;
-	const std::unique_ptr<VDPStatusRegDebug> vdpStatusRegDebug;
-	const std::unique_ptr<VDPPaletteDebug>   vdpPaletteDebug;
-	const std::unique_ptr<VRAMPointerDebug>  vramPointerDebug;
+	class RegDebug final : public SimpleDebuggable {
+	public:
+		explicit RegDebug(VDP& vdp);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		VDP& vdp;
+	} vdpRegDebug;
+
+	class StatusRegDebug final : public SimpleDebuggable {
+	public:
+		explicit StatusRegDebug(VDP& vdp);
+		byte read(unsigned address, EmuTime::param time) override;
+	private:
+		VDP& vdp;
+	} vdpStatusRegDebug;
+
+	class PaletteDebug final : public SimpleDebuggable {
+	public:
+		explicit PaletteDebug(VDP& vdp);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		VDP& vdp;
+	} vdpPaletteDebug;
+
+	class VRAMPointerDebug final : public SimpleDebuggable {
+	public:
+		explicit VRAMPointerDebug(VDP& vdp);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		VDP& vdp;
+	} vramPointerDebug;
 
 	class Info : public InfoTopic {
 	public:

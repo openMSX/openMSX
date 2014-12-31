@@ -3,6 +3,7 @@
 
 #include "ResampledSoundDevice.hh"
 #include "FloatSetting.hh"
+#include "SimpleDebuggable.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -10,7 +11,6 @@ namespace openmsx {
 
 class AY8910Periphery;
 class DeviceConfig;
-class AY8910Debuggable;
 class TclCallback;
 
 /** This class implements the AY-3-8910 sound chip.
@@ -168,7 +168,16 @@ private:
 	void wrtReg(unsigned reg, byte value, EmuTime::param time);
 
 	AY8910Periphery& periphery;
-	const std::unique_ptr<AY8910Debuggable> debuggable;
+
+	class Debuggable final : public SimpleDebuggable {
+	public:
+		Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910);
+		byte read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		AY8910& ay8910;
+	} debuggable;
+
 	FloatSetting vibratoPercent;
 	FloatSetting vibratoFrequency;
 	FloatSetting detunePercent;

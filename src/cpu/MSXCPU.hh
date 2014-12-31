@@ -2,6 +2,7 @@
 #define MSXCPU_HH
 
 #include "InfoTopic.hh"
+#include "SimpleDebuggable.hh"
 #include "Observer.hh"
 #include "BooleanSetting.hh"
 #include "EmuTime.hh"
@@ -20,7 +21,6 @@ class CPURegs;
 class Z80TYPE;
 class R800TYPE;
 template <typename T> class CPUCore;
-class MSXCPUDebuggable;
 class TclCallback;
 class TclObject;
 class Interpreter;
@@ -164,8 +164,14 @@ private:
 	CPUFreqInfoTopic                        z80FreqInfo;  // always present
 	const std::unique_ptr<CPUFreqInfoTopic> r800FreqInfo; // can be nullptr
 
-	const std::unique_ptr<MSXCPUDebuggable> debuggable;
-	friend class MSXCPUDebuggable;
+	class Debuggable final : public SimpleDebuggable {
+	public:
+		Debuggable(MSXMotherBoard& motherboard, MSXCPU& cpu);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value) override;
+	private:
+		MSXCPU& cpu;
+	} debuggable;
 
 	EmuTime reference;
 	bool z80Active;

@@ -1,6 +1,7 @@
 #ifndef MSXCPUINTERFACE_HH
 #define MSXCPUINTERFACE_HH
 
+#include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
 #include "CacheLine.hh"
 #include "MSXDevice.hh"
@@ -21,9 +22,6 @@ class DummyDevice;
 class MSXMotherBoard;
 class MSXCPU;
 class CliComm;
-class MemoryDebug;
-class SlottedMemoryDebug;
-class IODebug;
 class BreakPoint;
 class DebugCondition;
 class CartridgeSlotManager;
@@ -280,10 +278,35 @@ private:
 
 	void doContinue2();
 
-	friend class IODebug;
-	const std::unique_ptr<MemoryDebug> memoryDebug;
-	const std::unique_ptr<SlottedMemoryDebug> slottedMemoryDebug;
-	const std::unique_ptr<IODebug> ioDebug;
+	class MemoryDebug final : public SimpleDebuggable {
+	public:
+		MemoryDebug(MSXCPUInterface& interface,
+			    MSXMotherBoard& motherBoard);
+		byte read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		MSXCPUInterface& interface;
+	} memoryDebug;
+
+	class SlottedMemoryDebug final : public SimpleDebuggable {
+	public:
+		SlottedMemoryDebug(MSXCPUInterface& interface,
+				   MSXMotherBoard& motherBoard);
+		byte read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		MSXCPUInterface& interface;
+	} slottedMemoryDebug;
+
+	class IODebug final : public SimpleDebuggable {
+	public:
+		IODebug(MSXCPUInterface& interface,
+			MSXMotherBoard& motherBoard);
+		byte read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		MSXCPUInterface& interface;
+	} ioDebug;
 
 	class SlotInfo final : public InfoTopic {
 	public:

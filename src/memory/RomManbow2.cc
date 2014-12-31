@@ -1,5 +1,4 @@
 #include "RomManbow2.hh"
-#include "RomBlockDebuggable.hh"
 #include "Rom.hh"
 #include "SCC.hh"
 #include "AY8910.hh"
@@ -44,8 +43,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 		: nullptr)
 	, flash(make_unique<AmdFlash>(
 		*rom, getSectorInfo(type), 0x01A4, false, config))
-	, romBlockDebug(make_unique<RomBlockDebuggable>(
-		*this, bank, 0x4000, 0x8000, 13))
+	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
 {
 	powerUp(getCurrentTime());
 

@@ -1,28 +1,13 @@
 #include "MSXMapperIO.hh"
 #include "MSXMotherBoard.hh"
-#include "SimpleDebuggable.hh"
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "Math.hh"
 #include "serialize.hh"
 #include "stl.hh"
-#include "memory.hh"
-
-using std::string;
 
 namespace openmsx {
-
-class MapperIODebuggable final : public SimpleDebuggable
-{
-public:
-	MapperIODebuggable(MSXMotherBoard& motherBoard, MSXMapperIO& mapperIO);
-	byte read(unsigned address) override;
-	void write(unsigned address, byte value) override;
-private:
-	MSXMapperIO& mapperIO;
-};
-
 
 static byte calcEngineMask(MSXMotherBoard& motherBoard)
 {
@@ -39,15 +24,11 @@ static byte calcEngineMask(MSXMotherBoard& motherBoard)
 
 MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
 	: MSXDevice(config)
-	, debuggable(make_unique<MapperIODebuggable>(getMotherBoard(), *this))
+	, debuggable(getMotherBoard(), *this)
 	, engineMask(calcEngineMask(getMotherBoard()))
 {
 	updateMask();
 	reset(EmuTime::dummy());
-}
-
-MSXMapperIO::~MSXMapperIO()
-{
 }
 
 void MSXMapperIO::updateMask()
@@ -104,20 +85,20 @@ void MSXMapperIO::write(unsigned address, byte value)
 
 // SimpleDebuggable
 
-MapperIODebuggable::MapperIODebuggable(MSXMotherBoard& motherBoard,
-                                       MSXMapperIO& mapperIO_)
+MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard,
+                                    MSXMapperIO& mapperIO_)
 	: SimpleDebuggable(motherBoard, mapperIO_.getName(),
 	                   "Memory mapper registers", 4)
 	, mapperIO(mapperIO_)
 {
 }
 
-byte MapperIODebuggable::read(unsigned address)
+byte MSXMapperIO::Debuggable::read(unsigned address)
 {
 	return mapperIO.getSelectedPage(address);
 }
 
-void MapperIODebuggable::write(unsigned address, byte value)
+void MSXMapperIO::Debuggable::write(unsigned address, byte value)
 {
 	mapperIO.write(address, value);
 }

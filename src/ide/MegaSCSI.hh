@@ -2,13 +2,13 @@
 #define MEGASCSI_HH
 
 #include "MSXDevice.hh"
+#include "RomBlockDebuggable.hh"
 #include <memory>
 
 namespace openmsx {
 
 class MB89352;
 class SRAM;
-class RomBlockDebuggable;
 
 class MegaSCSI final : public MSXDevice
 {
@@ -32,7 +32,7 @@ private:
 
 	const std::unique_ptr<MB89352> mb89352;
 	const std::unique_ptr<SRAM> sram;
-	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
+	RomBlockDebuggable romBlockDebug;
 
 	bool isWriteable[4]; // which region is readonly?
 	byte mapped[4]; // SPC block mapped in this region?

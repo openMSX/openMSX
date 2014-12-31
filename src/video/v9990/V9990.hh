@@ -7,6 +7,7 @@
 #include "IRQHelper.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990ModeEnum.hh"
+#include "SimpleDebuggable.hh"
 #include "Clock.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
@@ -20,8 +21,6 @@ class Display;
 class V9990VRAM;
 class V9990CmdEngine;
 class V9990Renderer;
-class V9990RegDebug;
-class V9990PalDebug;
 
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
   * cartridge by Sunrise.
@@ -493,10 +492,23 @@ private:
 
 	// --- members ----------------------------------------------------
 
-	friend class V9990RegDebug;
-	friend class V9990PalDebug;
-	const std::unique_ptr<V9990RegDebug> v9990RegDebug;
-	const std::unique_ptr<V9990PalDebug> v9990PalDebug;
+	class RegDebug final : public SimpleDebuggable {
+	public:
+		explicit RegDebug(V9990& v9990);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		V9990& v9990;
+	} v9990RegDebug;
+
+	class PalDebug final : public SimpleDebuggable {
+	public:
+		explicit PalDebug(V9990& v9990);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	private:
+		V9990& v9990;
+	} v9990PalDebug;
 
 	IRQHelper irq;
 

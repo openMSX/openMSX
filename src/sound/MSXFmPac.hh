@@ -2,13 +2,13 @@
 #define MSXFMPAC_HH
 
 #include "MSXMusic.hh"
+#include "RomBlockDebuggable.hh"
 #include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
 
 class SRAM;
-class RomBlockDebuggable;
 
 class MSXFmPac final : public MSXMusicBase
 {
@@ -30,7 +30,7 @@ private:
 	void checkSramEnable();
 
 	const std::unique_ptr<SRAM> sram;
-	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
+	RomBlockDebuggable romBlockDebug;
 	byte enable;
 	byte bank;
 	byte r1ffe, r1fff;
