@@ -6,11 +6,7 @@
 #include "LocalFileReference.hh"
 #include "GlobalCliComm.hh"
 #include "CliConnection.hh"
-#include "HotKey.hh"
-#include "Interpreter.hh"
-#include "InfoCommand.hh"
 #include "CommandException.hh"
-#include "SettingsConfig.hh"
 #include "SettingsManager.hh"
 #include "TclObject.hh"
 #include "Version.hh"
@@ -32,9 +28,10 @@ GlobalCommandController::GlobalCommandController(
 	: cliComm(cliComm_)
 	, connection(nullptr)
 	, reactor(reactor_)
-	, interpreter(make_unique<Interpreter>(eventDistributor))
-	, openMSXInfoCommand(make_unique<InfoCommand>(*this, "openmsx_info"))
-	, hotKey(make_unique<HotKey>(reactor.getRTScheduler(), *this, eventDistributor))
+	, interpreter(eventDistributor)
+	, openMSXInfoCommand(*this, "openmsx_info")
+	, hotKey(reactor.getRTScheduler(), *this, eventDistributor)
+	, settingsConfig(*this, hotKey)
 	, helpCmd(*this)
 	, tabCompletionCmd(*this)
 	, platformInfo(getOpenMSXInfoCommand())
@@ -48,8 +45,8 @@ GlobalCommandController::GlobalCommandController(
 	//  around 'update' that either forwards to the native Tcl command or
 	//  to the 'openmsx_update' command.
 	//  In future openMSX versions this wrapper will be removed.
-	interpreter->execute("rename update __tcl_update");
-	interpreter->execute(
+	interpreter.execute("rename update __tcl_update");
+	interpreter.execute(
 		"proc update { args } {\n"
 		"    if {$args == \"\"} {\n"
 		"        __tcl_update\n"
@@ -147,22 +144,9 @@ CliComm& GlobalCommandController::getCliComm()
 	return cliComm;
 }
 
-CliConnection* GlobalCommandController::getConnection() const
-{
-	return connection;
-}
-
 Interpreter& GlobalCommandController::getInterpreter()
 {
-	return *interpreter;
-}
-
-SettingsConfig& GlobalCommandController::getSettingsConfig()
-{
-	if (!settingsConfig) {
-		settingsConfig = make_unique<SettingsConfig>(*this, *hotKey);
-	}
-	return *settingsConfig;
+	return interpreter;
 }
 
 void GlobalCommandController::registerCommand(
@@ -171,7 +155,7 @@ void GlobalCommandController::registerCommand(
 	assert(commands.find(str) == end(commands));
 
 	commands[str] = &command;
-	interpreter->registerCommand(str, command);
+	interpreter.registerCommand(str, command);
 }
 
 void GlobalCommandController::unregisterCommand(
@@ -180,7 +164,7 @@ void GlobalCommandController::unregisterCommand(
 	assert(commands.find(str) != end(commands));
 	assert(commands.find(str)->second == &command);
 
-	interpreter->unregisterCommand(str, command);
+	interpreter.unregisterCommand(str, command);
 	commands.erase(str);
 }
 
@@ -204,13 +188,13 @@ void GlobalCommandController::registerSetting(Setting& setting)
 {
 	const auto& name = setting.getName();
 	getSettingsConfig().getSettingsManager().registerSetting(setting, name);
-	interpreter->registerSetting(setting, name);
+	interpreter.registerSetting(setting, name);
 }
 
 void GlobalCommandController::unregisterSetting(Setting& setting)
 {
 	const auto& name = setting.getName();
-	interpreter->unregisterSetting(setting, name);
+	interpreter.unregisterSetting(setting, name);
 	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
 }
 
@@ -222,7 +206,7 @@ BaseSetting* GlobalCommandController::findSetting(string_ref name)
 void GlobalCommandController::changeSetting(
 	const std::string& name, const TclObject& value)
 {
-	interpreter->setVariable(name, value);
+	interpreter.setVariable(name, value);
 }
 
 void GlobalCommandController::changeSetting(Setting& setting, const TclObject& value)
@@ -369,21 +353,21 @@ string GlobalCommandController::join(
 
 bool GlobalCommandController::isComplete(const string& command)
 {
-	return interpreter->isComplete(command);
+	return interpreter.isComplete(command);
 }
 
 TclObject GlobalCommandController::executeCommand(
 	const string& cmd, CliConnection* connection_)
 {
 	ScopedAssign<CliConnection*> sa(connection, connection_);
-	return interpreter->execute(cmd);
+	return interpreter.execute(cmd);
 }
 
 void GlobalCommandController::source(const string& script)
 {
 	try {
 		LocalFileReference file(script);
-		interpreter->executeFile(file.getFilename());
+		interpreter.executeFile(file.getFilename());
 	} catch (CommandException& e) {
 		getCliComm().printWarning(
 			 "While executing " + script + ": " + e.getMessage());
@@ -397,7 +381,7 @@ string GlobalCommandController::tabCompletion(string_ref command)
 	//    if {[debug rea<tab> <-- should complete the 'debug' command
 	//                              instead of the 'if' command
 	//    bind F6 { cycl<tab> <-- should complete 'cycle' instead of 'bind'
-	TclParser parser = interpreter->parse(command);
+	TclParser parser = interpreter.parse(command);
 	int last = parser.getLast();
 	string_ref pre  = command.substr(0, last);
 	string_ref post = command.substr(last);
@@ -442,7 +426,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 	if (tokens.size() == 1) {
 		// build a list of all command strings
 		Completer::completeString(tokens,
-		                          interpreter->getCommandNames());
+		                          interpreter.getCommandNames());
 	} else {
 		auto it = commandCompleters.find(tokens.front());
 		if (it != end(commandCompleters)) {
@@ -452,7 +436,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 			command.addListElement("openmsx::tabcompletion");
 			command.addListElements(tokens);
 			try {
-				TclObject list = command.executeCommand(*interpreter);
+				TclObject list = command.executeCommand(interpreter);
 				bool sensitive = true;
 				auto begin = list.begin();
 				auto end   = list.end();

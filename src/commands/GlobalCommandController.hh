@@ -3,7 +3,11 @@
 
 #include "CommandController.hh"
 #include "Command.hh"
+#include "Interpreter.hh"
+#include "InfoCommand.hh"
 #include "InfoTopic.hh"
+#include "HotKey.hh"
+#include "SettingsConfig.hh"
 #include "RomInfoTopic.hh"
 #include "StringMap.hh"
 #include "noncopyable.hh"
@@ -16,12 +20,8 @@ namespace openmsx {
 class EventDistributor;
 class Reactor;
 class GlobalCliComm;
-class HotKey;
-class InfoCommand;
-class Interpreter;
 class ProxyCmd;
 class ProxySetting;
-class SettingsConfig;
 
 class GlobalCommandControllerBase
 {
@@ -41,7 +41,7 @@ public:
 	                        Reactor& reactor);
 	~GlobalCommandController();
 
-	InfoCommand& getOpenMSXInfoCommand() { return *openMSXInfoCommand; }
+	InfoCommand& getOpenMSXInfoCommand() { return openMSXInfoCommand; }
 
 	/**
 	 * Executes all defined auto commands
@@ -86,8 +86,8 @@ public:
 	 */
 	bool isComplete(const std::string& command);
 
-	SettingsConfig& getSettingsConfig();
-	CliConnection* getConnection() const;
+	SettingsConfig& getSettingsConfig() { return settingsConfig; }
+	CliConnection* getConnection() const { return connection; }
 
 private:
 	void split(string_ref str,
@@ -109,10 +109,10 @@ private:
 
 	Reactor& reactor;
 
-	std::unique_ptr<Interpreter> interpreter;
-	std::unique_ptr<InfoCommand> openMSXInfoCommand;
-	std::unique_ptr<HotKey> hotKey;
-	std::unique_ptr<SettingsConfig> settingsConfig;
+	Interpreter interpreter;
+	InfoCommand openMSXInfoCommand;
+	HotKey hotKey;
+	SettingsConfig settingsConfig;
 
 	class HelpCmd final : public Command {
 	public:

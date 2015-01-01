@@ -2,9 +2,6 @@
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "RawFrame.hh"
-#include "CharacterConverter.hh"
-#include "BitmapConverter.hh"
-#include "SpriteConverter.hh"
 #include "MSXMotherBoard.hh"
 #include "Display.hh"
 #include "Renderer.hh"
@@ -60,11 +57,11 @@ inline void SDLRasterizer<Pixel>::renderBitmapLine(Pixel* buf, unsigned vramLine
 		const byte* vramPtr1;
 		vram.bitmapCacheWindow.getReadAreaPlanar(
 			vramLine * 256, 256, vramPtr0, vramPtr1);
-		bitmapConverter->convertLinePlanar(buf, vramPtr0, vramPtr1);
+		bitmapConverter.convertLinePlanar(buf, vramPtr0, vramPtr1);
 	} else {
 		const byte* vramPtr =
 			vram.bitmapCacheWindow.getReadArea(vramLine * 128, 128);
-		bitmapConverter->convertLine(buf, vramPtr);
+		bitmapConverter.convertLine(buf, vramPtr);
 	}
 }
 
@@ -77,12 +74,9 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	, postProcessor(std::move(postProcessor_))
 	, workFrame(make_unique<RawFrame>(screen.getSDLFormat(), 640, 240))
 	, renderSettings(display.getRenderSettings())
-	, characterConverter(make_unique<CharacterConverter<Pixel>>(
-		vdp, palFg, palBg))
-	, bitmapConverter(make_unique<BitmapConverter<Pixel>>(
-		palFg, PALETTE256, V9958_COLORS))
-	, spriteConverter(make_unique<SpriteConverter<Pixel>>(
-		vdp.getSpriteChecker()))
+	, characterConverter(vdp, palFg, palBg)
+	, bitmapConverter(palFg, PALETTE256, V9958_COLORS)
+	, spriteConverter(vdp.getSpriteChecker())
 {
 	// Init the palette.
 	precalcPalette();
@@ -129,7 +123,7 @@ void SDLRasterizer<Pixel>::reset()
 {
 	// Init renderer state.
 	setDisplayMode(vdp.getDisplayMode());
-	spriteConverter->setTransparency(vdp.getTransparency());
+	spriteConverter.setTransparency(vdp.getTransparency());
 
 	resetPalette();
 }
@@ -225,15 +219,15 @@ template <class Pixel>
 void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 {
 	if (mode.isBitmapMode()) {
-		bitmapConverter->setDisplayMode(mode);
+		bitmapConverter.setDisplayMode(mode);
 	} else {
-		characterConverter->setDisplayMode(mode);
+		characterConverter.setDisplayMode(mode);
 	}
 	precalcColorIndex0(mode, vdp.getTransparency(),
 	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
-	spriteConverter->setDisplayMode(mode);
-	spriteConverter->setPalette(mode.getByte() == DisplayMode::GRAPHIC7
-	                            ? palGraphic7Sprites : palBg);
+	spriteConverter.setDisplayMode(mode);
+	spriteConverter.setPalette(mode.getByte() == DisplayMode::GRAPHIC7
+	                           ? palGraphic7Sprites : palBg);
 
 	borderSettingChanged();
 }
@@ -246,7 +240,7 @@ void SDLRasterizer<Pixel>::setPalette(int index, int grb)
 	palFg[index     ] = newColor;
 	palFg[index + 16] = newColor;
 	palBg[index     ] = newColor;
-	bitmapConverter->palette16Changed();
+	bitmapConverter.palette16Changed();
 
 	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
 	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
@@ -284,7 +278,7 @@ void SDLRasterizer<Pixel>::setBorderMask(bool /*masked*/)
 template <class Pixel>
 void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 {
-	spriteConverter->setTransparency(enabled);
+	spriteConverter.setTransparency(enabled);
 	precalcColorIndex0(vdp.getDisplayMode(), enabled,
 	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
 }
@@ -414,7 +408,7 @@ void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 
 		if (palFg[0] != c) {
 			palFg[0] = c;
-			bitmapConverter->palette16Changed();
+			bitmapConverter.palette16Changed();
 		}
 	} else {
 		// TODO: superimposing
@@ -422,7 +416,7 @@ void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 		    (palFg[16] != palBg[tpIndex &  3])) {
 			palFg[ 0] = palBg[tpIndex >> 2];
 			palFg[16] = palBg[tpIndex &  3];
-			bitmapConverter->palette16Changed();
+			bitmapConverter.palette16Changed();
 		}
 	}
 }
@@ -604,10 +598,10 @@ void SDLRasterizer<Pixel>::drawDisplay(
 			Pixel* dst = workFrame->getLinePtrDirect<Pixel>(y)
 			           + leftBackground + displayX;
 			if (displayX == 0) {
-				characterConverter->convertLine(dst, displayY);
+				characterConverter.convertLine(dst, displayY);
 			} else {
 				Pixel buf[512];
-				characterConverter->convertLine(buf, displayY);
+				characterConverter.convertLine(buf, displayY);
 				const Pixel* src = buf + displayX;
 				memcpy(dst, src, displayWidth * sizeof(Pixel));
 			}
@@ -649,26 +643,26 @@ void SDLRasterizer<Pixel>::drawSprites(
 	if (spriteMode == 1) {
 		for (int y = fromY; y < limitY; y++, screenY++) {
 			Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
-			spriteConverter->drawMode1(y, displayX, displayLimitX, pixelPtr);
+			spriteConverter.drawMode1(y, displayX, displayLimitX, pixelPtr);
 		}
 	} else {
 		byte mode = vdp.getDisplayMode().getByte();
 		if (mode == DisplayMode::GRAPHIC5) {
 			for (int y = fromY; y < limitY; y++, screenY++) {
 				Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
-				spriteConverter->template drawMode2<DisplayMode::GRAPHIC5>(
+				spriteConverter.template drawMode2<DisplayMode::GRAPHIC5>(
 					y, displayX, displayLimitX, pixelPtr);
 			}
 		} else if (mode == DisplayMode::GRAPHIC6) {
 			for (int y = fromY; y < limitY; y++, screenY++) {
 				Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
-				spriteConverter->template drawMode2<DisplayMode::GRAPHIC6>(
+				spriteConverter.template drawMode2<DisplayMode::GRAPHIC6>(
 					y, displayX, displayLimitX, pixelPtr);
 			}
 		} else {
 			for (int y = fromY; y < limitY; y++, screenY++) {
 				Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
-				spriteConverter->template drawMode2<DisplayMode::GRAPHIC4>(
+				spriteConverter.template drawMode2<DisplayMode::GRAPHIC4>(
 					y, displayX, displayLimitX, pixelPtr);
 			}
 		}

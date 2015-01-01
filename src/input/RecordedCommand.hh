@@ -6,7 +6,6 @@
 #include "StateChange.hh"
 #include "TclObject.hh"
 #include "EmuTime.hh"
-#include <memory>
 
 namespace openmsx {
 
@@ -77,7 +76,7 @@ private:
 
 	StateChangeDistributor& stateChangeDistributor;
 	Scheduler& scheduler;
-	const std::unique_ptr<TclObject> dummyResultObject;
+	TclObject dummyResultObject;
 	TclObject* currentResultObject;
 };
 

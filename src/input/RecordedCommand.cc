@@ -7,7 +7,6 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 
 using std::vector;
 using std::string;
@@ -21,8 +20,7 @@ RecordedCommand::RecordedCommand(CommandController& commandController,
 	: Command(commandController, name)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, scheduler(scheduler_)
-	, dummyResultObject(make_unique<TclObject>())
-	, currentResultObject(dummyResultObject.get())
+	, currentResultObject(&dummyResultObject)
 {
 	stateChangeDistributor.registerListener(*this);
 }

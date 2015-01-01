@@ -1,5 +1,4 @@
 #include "SettingsConfig.hh"
-#include "SettingsManager.hh"
 #include "XMLLoader.hh"
 #include "LocalFileReference.hh"
 #include "File.hh"
@@ -10,7 +9,6 @@
 #include "CommandException.hh"
 #include "GlobalCommandController.hh"
 #include "TclObject.hh"
-#include "memory.hh"
 
 using std::string;
 using std::vector;
@@ -23,8 +21,7 @@ SettingsConfig::SettingsConfig(
 	: commandController(globalCommandController)
 	, saveSettingsCommand(commandController, *this)
 	, loadSettingsCommand(commandController, *this)
-	, settingsManager(make_unique<SettingsManager>(
-		globalCommandController))
+	, settingsManager(globalCommandController)
 	, hotKey(hotKey_)
 	, mustSaveSettings(false)
 {

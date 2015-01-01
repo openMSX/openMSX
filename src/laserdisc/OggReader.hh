@@ -1,6 +1,7 @@
 #ifndef OGGREADER_HH
 #define OGGREADER_HH
 
+#include "File.hh"
 #include "circular_buffer.hh"
 #include "noncopyable.hh"
 #include <ogg/ogg.h>
@@ -15,7 +16,6 @@ namespace openmsx {
 
 class CliComm;
 class RawFrame;
-class File;
 class Filename;
 
 struct AudioFragment
@@ -73,7 +73,7 @@ private:
 	                 size_t maxOffset, size_t maxSamples, size_t maxFrames);
 
 	CliComm& cli;
-	const std::unique_ptr<File> file;
+	File file;
 
 	enum State {
 		PLAYING,

@@ -1,6 +1,8 @@
 #ifndef KEYBOARD_HH
 #define KEYBOARD_HH
 
+#include "KeyboardSettings.hh"
+#include "UnicodeKeymap.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
 #include "Schedulable.hh"
@@ -24,8 +26,6 @@ class EventDistributor;
 class MSXEventDistributor;
 class StateChangeDistributor;
 class KeyEvent;
-class KeyboardSettings;
-class UnicodeKeymap;
 class StateChange;
 class TclObject;
 class Interpreter;
@@ -194,7 +194,7 @@ private:
 		} state;
 	} capsLockAligner;
 
-	const std::unique_ptr<KeyboardSettings> keyboardSettings;
+	KeyboardSettings keyboardSettings;
 
 	class MsxKeyEventQueue final : public Schedulable {
 	public:
@@ -222,7 +222,7 @@ private:
 		Keyboard& keyboard;
 	} keybDebuggable;
 
-	const std::unique_ptr<UnicodeKeymap> unicodeKeymap;
+	UnicodeKeymap unicodeKeymap;
 	unsigned dynKeymap[MAX_KEYSYM];
 	byte cmdKeyMatrix [NR_KEYROWS]; // for keymatrix/type command
 	byte userKeyMatrix[NR_KEYROWS]; // pressed user keys (live or replay)

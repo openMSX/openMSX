@@ -52,8 +52,8 @@ private:
 	} recordCommand;
 
 	std::vector<short> audioBuf;
-	std::unique_ptr<AviWriter> aviWriter;
-	std::unique_ptr<Wav16Writer> wavWriter;
+	std::unique_ptr<AviWriter>   aviWriter; // can be nullptr
+	std::unique_ptr<Wav16Writer> wavWriter; // can be nullptr
 	std::vector<PostProcessor*> postProcessors;
 	MSXMixer* mixer;
 	EmuDuration duration;

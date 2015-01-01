@@ -6,6 +6,7 @@
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"
 #include "StringSetting.hh"
+#include "ThrottleManager.hh"
 #include "ResampledSoundDevice.hh"
 #include "noncopyable.hh"
 #include <memory>
@@ -14,7 +15,6 @@
 namespace openmsx {
 
 class GlobalCommandController;
-class ThrottleManager;
 
 /**
  * This class contains settings that are used by several other class
@@ -55,7 +55,7 @@ public:
 		return *deadzoneSettings[i];
 	}
 	ThrottleManager& getThrottleManager() {
-		return *throttleManager;
+		return throttleManager;
 	}
 
 private:
@@ -73,7 +73,7 @@ private:
 	StringSetting  invalidPsgDirectionsSetting;
 	EnumSetting<ResampledSoundDevice::ResampleType> resampleSetting;
 	std::vector<std::unique_ptr<IntegerSetting>> deadzoneSettings;
-	std::unique_ptr<ThrottleManager> throttleManager;
+	ThrottleManager throttleManager;
 };
 
 } // namespace openmsx

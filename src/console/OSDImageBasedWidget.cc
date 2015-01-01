@@ -15,7 +15,7 @@ using std::vector;
 
 namespace openmsx {
 
-OSDImageBasedWidget::OSDImageBasedWidget(const OSDGUI& gui_, const string& name)
+OSDImageBasedWidget::OSDImageBasedWidget(OSDGUI& gui_, const string& name)
 	: OSDWidget(name)
 	, gui(gui_)
 	, startFadeTime(0)

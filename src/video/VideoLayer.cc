@@ -3,11 +3,9 @@
 #include "Reactor.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
-#include "VideoSourceSetting.hh"
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "Event.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -16,8 +14,7 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
 	: motherBoard(motherBoard_)
 	, display(motherBoard.getReactor().getDisplay())
 	, videoSourceSetting(motherBoard.getVideoSource())
-	, videoSourceActivator(make_unique<VideoSourceActivator>(
-		videoSourceSetting, videoSource_))
+	, videoSourceActivator(videoSourceSetting, videoSource_)
 	, powerSetting(motherBoard.getReactor().getGlobalSettings().getPowerSetting())
 	, video9000Source(0)
 	, activeVideo9000(INACTIVE)
@@ -42,7 +39,7 @@ VideoLayer::~VideoLayer()
 
 int VideoLayer::getVideoSource() const
 {
-	return videoSourceActivator->getID();
+	return videoSourceActivator.getID();
 }
 int VideoLayer::getVideoSourceSetting() const
 {

@@ -25,7 +25,7 @@ public:
 	double getRecursiveFadeValue() const override;
 
 protected:
-	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);
+	OSDImageBasedWidget(OSDGUI& gui, const std::string& name);
 	~OSDImageBasedWidget();
 	bool hasConstantAlpha() const;
 	void createImage(OutputRectangle& output);
@@ -51,7 +51,7 @@ private:
 	void getTransformedXY(const OutputRectangle& output,
 	                      double& outx, double& outy) const;
 
-	const OSDGUI& gui;
+	OSDGUI& gui;
 	uint64_t startFadeTime;
 	double fadePeriod;
 	double fadeTarget;

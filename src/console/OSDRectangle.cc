@@ -17,7 +17,7 @@ using std::vector;
 
 namespace openmsx {
 
-OSDRectangle::OSDRectangle(const OSDGUI& gui, const string& name)
+OSDRectangle::OSDRectangle(OSDGUI& gui, const string& name)
 	: OSDImageBasedWidget(gui, name)
 	, w(0.0), h(0.0), relw(0.0), relh(0.0), scale(1.0)
 	, borderSize(0.0), relBorderSize(0.0), borderRGBA(0x000000ff)

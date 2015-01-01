@@ -21,15 +21,11 @@ using std::vector;
 
 namespace openmsx {
 
-OSDText::OSDText(const OSDGUI& gui, const string& name)
+OSDText::OSDText(OSDGUI& gui, const string& name)
 	: OSDImageBasedWidget(gui, name)
 	, fontfile("skins/Vera.ttf.gz")
 	, size(12)
 	, wrapMode(NONE), wrapw(0.0), wraprelw(1.0)
-{
-}
-
-OSDText::~OSDText()
 {
 }
 

@@ -1,5 +1,4 @@
 #include "Keyboard.hh"
-#include "KeyboardSettings.hh"
 #include "Keys.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
@@ -13,14 +12,12 @@
 #include "StateChange.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
-#include "UnicodeKeymap.hh"
 #include "utf8_checked.hh"
 #include "checked_cast.hh"
 #include "unreachable.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "serialize_meta.hh"
-#include "memory.hh"
 #include "openmsx.hh"
 #include "stl.hh"
 #include <SDL.h>
@@ -104,10 +101,10 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler, *this)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler, *this)
 	, capsLockAligner(eventDistributor, msxEventDistributor, scheduler, *this)
-	, keyboardSettings(make_unique<KeyboardSettings>(commandController))
+	, keyboardSettings(commandController)
 	, msxKeyEventQueue(scheduler, *this, commandController.getInterpreter())
 	, keybDebuggable(motherBoard, *this)
-	, unicodeKeymap(make_unique<UnicodeKeymap>(keyboardType))
+	, unicodeKeymap(keyboardType)
 	, hasKeypad(hasKP)
 	, hasYesNoKeys(hasYNKeys)
 	, keyGhosting(keyGhosting_)
@@ -291,21 +288,21 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	}
-	if (key == keyboardSettings->getDeadkeyHostKey(0) &&
-	    keyboardSettings->getMappingMode().getEnum() ==
+	if (key == keyboardSettings.getDeadkeyHostKey(0) &&
+	    keyboardSettings.getMappingMode().getEnum() ==
 	            KeyboardSettings::CHARACTER_MAPPING) {
 		processDeadKeyEvent(0, time, down);
-	} else if (key == keyboardSettings->getDeadkeyHostKey(1) &&
-	    keyboardSettings->getMappingMode().getEnum() ==
+	} else if (key == keyboardSettings.getDeadkeyHostKey(1) &&
+	    keyboardSettings.getMappingMode().getEnum() ==
 	            KeyboardSettings::CHARACTER_MAPPING) {
 		processDeadKeyEvent(1, time, down);
-	} else if (key == keyboardSettings->getDeadkeyHostKey(2) &&
-	    keyboardSettings->getMappingMode().getEnum() ==
+	} else if (key == keyboardSettings.getDeadkeyHostKey(2) &&
+	    keyboardSettings.getMappingMode().getEnum() ==
 	            KeyboardSettings::CHARACTER_MAPPING) {
 		processDeadKeyEvent(2, time, down);
 	} else if (key == Keys::K_CAPSLOCK) {
 		processCapslockEvent(time, down);
-	} else if (key == keyboardSettings->getCodeKanaHostKey().getEnum()) {
+	} else if (key == keyboardSettings.getCodeKanaHostKey().getEnum()) {
 		processCodeKanaChange(time, down);
 	} else if (key == Keys::K_LALT) {
 		processGraphChange(time, down);
@@ -349,7 +346,7 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
  */
 void Keyboard::processDeadKeyEvent(unsigned n, EmuTime::param time, bool down)
 {
-	UnicodeKeymap::KeyInfo deadkey = unicodeKeymap->getDeadkey(n);
+	UnicodeKeymap::KeyInfo deadkey = unicodeKeymap.getDeadkey(n);
 	if (deadkey.keymask) {
 		updateKeyMatrix(time, down, deadkey.row, deadkey.keymask);
 	}
@@ -399,14 +396,14 @@ void Keyboard::executeUntil(EmuTime::param time)
 
 void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
 {
-	if (!hasKeypad && !keyboardSettings->getAlwaysEnableKeypad().getBoolean()) {
+	if (!hasKeypad && !keyboardSettings.getAlwaysEnableKeypad().getBoolean()) {
 		// User entered on host keypad but this MSX model does not have one
 		// Ignore the keypress/release
 		return;
 	}
 	int row;
 	byte mask;
-	if (keyboardSettings->getKpEnterMode().getEnum() ==
+	if (keyboardSettings.getKpEnterMode().getEnum() ==
 	    KeyboardSettings::MSX_KP_COMMA) {
 		row = 10;
 		mask = 0x40;
@@ -489,7 +486,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		(key == Keys::K_KP_PLUS));
 
 	if (isOnKeypad && !hasKeypad &&
-	    !keyboardSettings->getAlwaysEnableKeypad().getBoolean()) {
+	    !keyboardSettings.getAlwaysEnableKeypad().getBoolean()) {
 		// User entered on host keypad but this MSX model does not have one
 		// Ignore the keypress/release
 		return false;
@@ -498,7 +495,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 	if (down) {
 		if (/*___(userKeyMatrix[6] & 2) == 0 || */
 		    isOnKeypad ||
-		    keyboardSettings->getMappingMode().getEnum() == KeyboardSettings::KEY_MAPPING) {
+		    keyboardSettings.getMappingMode().getEnum() == KeyboardSettings::KEY_MAPPING) {
 			// /*CTRL-key is active,*/ user entered a key on numeric
 			// keypad or the driver is in KEY mapping mode.
 			// First /*two*/ option/*s*/ (/*CTRL key active,*/ keypad keypress) maps
@@ -704,13 +701,13 @@ void Keyboard::processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool
 bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool down)
 {
 	bool insertCodeKanaRelease = false;
-	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap->get(unicode);
+	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap.get(unicode);
 	if (keyInfo.keymask == 0) {
 		return insertCodeKanaRelease;
 	}
 	if (down) {
 		if (codeKanaLocks &&
-		    keyboardSettings->getAutoToggleCodeKanaLock().getBoolean() &&
+		    keyboardSettings.getAutoToggleCodeKanaLock().getBoolean() &&
 		    msxCodeKanaLockOn != ((keyInfo.modmask & CODE_MASK) == CODE_MASK) &&
 		    keyInfo.row < 6) { // only toggle CODE lock for 'normal' characters
 			// Code Kana locks, is in wrong state and must be auto-toggled:
@@ -778,7 +775,7 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 int Keyboard::pressAscii(unsigned unicode, bool down)
 {
 	int releaseMask = 0;
-	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap->get(unicode);
+	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap.get(unicode);
 	byte modmask = keyInfo.modmask & (~CAPS_MASK); // ignore CAPSLOCK mask;
 	if (codeKanaLocks) {
 		modmask &= (~CODE_MASK); // ignore CODE mask if CODE locks
@@ -852,8 +849,8 @@ void Keyboard::pressLockKeys(int lockKeysMask, bool down)
 bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2)
 {
 	// get row / mask of key (note: ignore modifier mask)
-	UnicodeKeymap::KeyInfo keyInfo1 = unicodeKeymap->get(unicode1);
-	UnicodeKeymap::KeyInfo keyInfo2 = unicodeKeymap->get(unicode2);
+	UnicodeKeymap::KeyInfo keyInfo1 = unicodeKeymap.get(unicode1);
+	UnicodeKeymap::KeyInfo keyInfo2 = unicodeKeymap.get(unicode2);
 
 	return ((keyInfo1.row == keyInfo2.row) &&
 	        (keyInfo1.keymask & keyInfo2.keymask));
@@ -861,7 +858,7 @@ bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2)
 
 void Keyboard::debug(const char* format, ...)
 {
-	if (keyboardSettings->getTraceKeyPresses().getBoolean()) {
+	if (keyboardSettings.getTraceKeyPresses().getBoolean()) {
 		va_list args;
 		va_start(args, format);
 		vfprintf(stderr, format, args);
@@ -915,7 +912,7 @@ void Keyboard::KeyMatrixDownCmd::execute(array_ref<TclObject> tokens,
 
 string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 {
-	static const string helpText=
+	static const string helpText =
 		"keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
 	return helpText;
 }
@@ -958,7 +955,7 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 		// Schedule a CODE/KANA release event, to be processed
 		// before any of the other events in the queue
 		eventQueue.push_front(make_shared<KeyUpEvent>(
-			keyboard.keyboardSettings->getCodeKanaHostKey().getEnum()));
+			keyboard.keyboardSettings.getCodeKanaHostKey().getEnum()));
 	} else {
 		// The event has been completely processed. Delete it from the queue
 		if (!eventQueue.empty()) {

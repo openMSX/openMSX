@@ -1,7 +1,6 @@
 // Code based on DOSBox-0.65
 
 #include "AviWriter.hh"
-#include "ZMBVEncoder.hh"
 #include "File.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
@@ -21,7 +20,7 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned channels_,
 		     unsigned freq_)
 	: file(make_unique<File>(filename, "wb"))
-	, codec(make_unique<ZMBVEncoder>(width_, height_, bpp))
+	, codec(width_, height_, bpp)
 	, fps(0.0) // will be filled in later
 	, width(width_)
 	, height(height_)
@@ -251,7 +250,7 @@ void AviWriter::addFrame(FrameSource* frame, unsigned samples, short* sampleData
 	bool keyFrame = (frames++ % 300 == 0);
 	void* buffer;
 	unsigned size;
-	codec->compressFrame(keyFrame, frame, buffer, size);
+	codec.compressFrame(keyFrame, frame, buffer, size);
 	addAviChunk("00dc", size, buffer, keyFrame ? 0x10 : 0x0);
 
 	if (samples) {

@@ -1,20 +1,16 @@
 #include "TclCallbackMessages.hh"
 #include "GlobalCliComm.hh"
-#include "TclCallback.hh"
-#include "memory.hh"
-
-using std::string;
 
 namespace openmsx {
 
 TclCallbackMessages::TclCallbackMessages(GlobalCliComm& cliComm_,
                                          CommandController& controller)
 	: cliComm(cliComm_)
-	, messageCallback(make_unique<TclCallback>(
+	, messageCallback(
 		controller, "message_callback",
 		"Tcl proc called when a new message is available",
 		false, // don't print callback err on cliComm (would cause infinite loop)
-		false)) // don't save setting
+		false) // don't save setting
 {
 	cliComm.addListener(this);
 }
@@ -27,7 +23,7 @@ TclCallbackMessages::~TclCallbackMessages()
 void TclCallbackMessages::log(CliComm::LogLevel level, string_ref message)
 {
 	auto levelStr = CliComm::getLevelStrings();
-	messageCallback->execute(message, levelStr[level]);
+	messageCallback.execute(message, levelStr[level]);
 }
 
 void TclCallbackMessages::update(

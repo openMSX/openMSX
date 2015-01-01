@@ -1,16 +1,15 @@
 #ifndef SETTINGSCONFIG_HH
 #define SETTINGSCONFIG_HH
 
+#include "SettingsManager.hh"
 #include "Command.hh"
 #include "XMLElement.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
 #include <string>
-#include <memory>
 
 namespace openmsx {
 
-class SettingsManager;
 class FileContext;
 class HotKey;
 class GlobalCommandController;
@@ -28,7 +27,7 @@ public:
 	void setSaveSettings(bool save) { mustSaveSettings = save; }
 	void setSaveFilename(const FileContext& context, string_ref filename);
 
-	SettingsManager& getSettingsManager() { return *settingsManager; }
+	SettingsManager& getSettingsManager() { return settingsManager; }
 	XMLElement& getXMLElement() { return xmlElement; }
 
 private:
@@ -56,7 +55,7 @@ private:
 		SettingsConfig& settingsConfig;
 	} loadSettingsCommand;
 
-	const std::unique_ptr<SettingsManager> settingsManager;
+	SettingsManager settingsManager;
 	XMLElement xmlElement;
 	HotKey& hotKey;
 	std::string saveName;

@@ -12,7 +12,7 @@ class BaseImage;
 class OSDRectangle final : public OSDImageBasedWidget
 {
 public:
-	OSDRectangle(const OSDGUI& gui, const std::string& name);
+	OSDRectangle(OSDGUI& gui, const std::string& name);
 
 	std::vector<string_ref> getProperties() const override;
 	void setProperty(Interpreter& interp,

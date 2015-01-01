@@ -1,5 +1,4 @@
 #include "OggReader.hh"
-#include "File.hh"
 #include "MSXException.hh"
 #include "yuv2rgb.hh"
 #include "likely.hh"
@@ -45,7 +44,7 @@ Frame::~Frame()
 
 OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	: cli(cli_)
-	, file(make_unique<File>(filename))
+	, file(filename)
 {
 	audioSerial = -1;
 	videoSerial = -1;
@@ -71,7 +70,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 
 	state = PLAYING;
 	fileOffset = 0;
-	fileSize = file->getSize();
+	fileSize = file.getSize();
 
 	ogg_page page;
 
@@ -789,7 +788,7 @@ bool OggReader::nextPage(ogg_page* page)
 		}
 
 		char* buffer = ogg_sync_buffer(&sync, long(chunk));
-		file->read(buffer, chunk);
+		file.read(buffer, chunk);
 		fileOffset += chunk;
 
 		if (ogg_sync_wrote(&sync, long(chunk)) == -1) {
@@ -826,7 +825,7 @@ size_t OggReader::bisection(
 		uint64_t sampleOffset = ratio * (offsetB - offsetA) / SHIFT + offsetA;
 		auto offset = std::min(sampleOffset, frameOffset);
 
-		file->seek(offset);
+		file.seek(offset);
 		fileOffset = offset;
 		ogg_sync_reset(&sync);
 		currentFrame = size_t(-1);
@@ -865,7 +864,7 @@ size_t OggReader::findOffset(size_t frame, size_t sample)
 	// The file might have changed since we last requested its size,
 	// we assume that only data will be added to it and the ogg streams
 	// are exactly as before
-	fileSize = file->getSize();
+	fileSize = file.getSize();
 	auto offset = fileSize - 1;
 
 	while (offset > 0) {
@@ -875,7 +874,7 @@ size_t OggReader::findOffset(size_t frame, size_t sample)
 			offset = 0;
 		}
 
-		file->seek(offset);
+		file.seek(offset);
 		fileOffset = offset;
 		ogg_sync_reset(&sync);
 		currentFrame = size_t(-1);
@@ -915,7 +914,7 @@ size_t OggReader::findOffset(size_t frame, size_t sample)
 	offset = bisection(frame, sample, maxOffset, maxSamples, maxFrames);
 
 	// Find key frame
-	file->seek(offset);
+	file.seek(offset);
 	fileOffset = offset;
 	ogg_sync_reset(&sync);
 	currentFrame = frame;
@@ -954,7 +953,7 @@ bool OggReader::seek(size_t frame, size_t samples)
 	audioList.clear();
 
 	fileOffset = findOffset(frame, samples);
-	file->seek(fileOffset);
+	file.seek(fileOffset);
 
 	ogg_sync_reset(&sync);
 

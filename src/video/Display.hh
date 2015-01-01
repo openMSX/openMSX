@@ -3,7 +3,9 @@
 
 #include "RenderSettings.hh"
 #include "Command.hh"
+#include "CommandConsole.hh"
 #include "InfoTopic.hh"
+#include "OSDGUI.hh"
 #include "EventListener.hh"
 #include "LayerListener.hh"
 #include "RTSchedulable.hh"
@@ -19,10 +21,8 @@ class Layer;
 class Reactor;
 class VideoSystem;
 class CliComm;
-class CommandConsole;
 class VideoSystemChangeListener;
 class Setting;
-class OSDGUI;
 class OutputSurface;
 
 /** Represents the output window/screen of openMSX.
@@ -41,9 +41,9 @@ public:
 	VideoSystem& getVideoSystem();
 
 	CliComm& getCliComm() const;
-	RenderSettings& getRenderSettings() const { return *renderSettings; }
-	OSDGUI& getOSDGUI() const { return *osdGui; }
-	CommandConsole& getCommandConsole() { return *commandConsole; }
+	RenderSettings& getRenderSettings() { return renderSettings; }
+	OSDGUI& getOSDGUI() { return osdGui; }
+	CommandConsole& getCommandConsole() { return commandConsole; }
 
 	/** Redraw the display.
 	  */
@@ -115,11 +115,11 @@ private:
 		Display& display;
 	} fpsInfo;
 
-	const std::unique_ptr<OSDGUI> osdGui;
+	OSDGUI osdGui;
 
 	Reactor& reactor;
-	const std::unique_ptr<RenderSettings> renderSettings;
-	const std::unique_ptr<CommandConsole> commandConsole;
+	RenderSettings renderSettings;
+	CommandConsole commandConsole;
 
 	// the current renderer
 	RenderSettings::RendererID currentRenderer;

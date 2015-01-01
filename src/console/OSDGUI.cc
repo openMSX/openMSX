@@ -1,6 +1,5 @@
 #include "OSDGUI.hh"
 #include "OSDWidget.hh"
-#include "OSDTopWidget.hh"
 #include "OSDRectangle.hh"
 #include "OSDText.hh"
 #include "Display.hh"
@@ -22,11 +21,7 @@ namespace openmsx {
 OSDGUI::OSDGUI(CommandController& commandController, Display& display_)
 	: display(display_)
 	, osdCommand(*this, commandController)
-	, topWidget(make_unique<OSDTopWidget>(*this))
-{
-}
-
-OSDGUI::~OSDGUI()
+	, topWidget(*this)
 {
 }
 

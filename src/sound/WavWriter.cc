@@ -1,10 +1,8 @@
 #include "WavWriter.hh"
-#include "File.hh"
 #include "MSXException.hh"
 #include "Math.hh"
 #include "vla.hh"
 #include "endian.hh"
-#include "memory.hh"
 #include <cstring>
 #include <vector>
 
@@ -12,7 +10,7 @@ namespace openmsx {
 
 WavWriter::WavWriter(const Filename& filename,
                      unsigned channels, unsigned bits, unsigned frequency)
-	: file(make_unique<File>(filename, "wb"))
+	: file(filename, "wb")
 	, bytes(0)
 {
 	// write wav header
@@ -46,7 +44,7 @@ WavWriter::WavWriter(const Filename& filename,
 	memcpy(header.subChunk2ID, "data", sizeof(header.subChunk2ID));
 	header.subChunk2Size = 0; // actaul value filled in later
 
-	file->write(&header, sizeof(header));
+	file.write(&header, sizeof(header));
 }
 
 WavWriter::~WavWriter()
@@ -54,8 +52,8 @@ WavWriter::~WavWriter()
 	try {
 		// data chunk must have an even number of bytes
 		if (bytes & 1) {
-			unsigned char pad = 0;
-			file->write(&pad, 1);
+			uint8_t pad = 0;
+			file.write(&pad, 1);
 		}
 
 		flush(); // write header
@@ -72,23 +70,23 @@ void WavWriter::flush()
 	totalSize = (bytes + 44 - 8 + 1) & ~1; // round up to even number
 	wavSize   = bytes;
 
-	file->seek(4);
-	file->write(&totalSize, 4);
-	file->seek(40);
-	file->write(&wavSize, 4);
-	file->seek(file->getSize()); // SEEK_END
-	file->flush();
+	file.seek(4);
+	file.write(&totalSize, 4);
+	file.seek(40);
+	file.write(&wavSize, 4);
+	file.seek(file.getSize()); // SEEK_END
+	file.flush();
 }
 
-void Wav8Writer::write(const unsigned char* buffer, unsigned samples)
+void Wav8Writer::write(const uint8_t* buffer, unsigned samples)
 {
-	file->write(buffer, samples);
+	file.write(buffer, samples);
 	bytes += samples;
 }
 
-void Wav16Writer::write(const short* buffer, unsigned samples)
+void Wav16Writer::write(const int16_t* buffer, unsigned samples)
 {
-	unsigned size = sizeof(short) * samples;
+	unsigned size = sizeof(int16_t) * samples;
 	if (OPENMSX_BIGENDIAN) {
 		// Variable length arrays (VLA) are part of c99 but not of c++
 		// (not even c++11). Some compilers (like gcc) do support VLA
@@ -102,9 +100,9 @@ void Wav16Writer::write(const short* buffer, unsigned samples)
 		for (unsigned i = 0; i < samples; ++i) {
 			buf[i] = buffer[i];
 		}
-		file->write(buf.data(), size);
+		file.write(buf.data(), size);
 	} else {
-		file->write(buffer, size);
+		file.write(buffer, size);
 	}
 	bytes += size;
 }
@@ -116,17 +114,17 @@ void Wav16Writer::write(const int* buffer, unsigned samples, int amp)
 	for (unsigned i = 0; i < samples; ++i) {
 		buf[i] = Math::clipIntToShort(buffer[i] * amp);
 	}
-	unsigned size = sizeof(short) * samples;
-	file->write(buf.data(), size);
+	unsigned size = sizeof(int16_t) * samples;
+	file.write(buf.data(), size);
 	bytes += size;
 }
 
 void Wav16Writer::writeSilence(unsigned samples)
 {
-	VLA(short, buf, samples);
-	unsigned size = sizeof(short) * samples;
+	VLA(int16_t, buf, samples);
+	unsigned size = sizeof(int16_t) * samples;
 	memset(buf, 0, size);
-	file->write(buf, size);
+	file.write(buf, size);
 	bytes += size;
 }
 

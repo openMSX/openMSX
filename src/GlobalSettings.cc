@@ -1,7 +1,6 @@
 #include "GlobalSettings.hh"
 #include "SettingsConfig.hh"
 #include "GlobalCommandController.hh"
-#include "ThrottleManager.hh"
 #include "StringOp.hh"
 #include "memory.hh"
 #include "xrange.hh"
@@ -44,6 +43,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 			{"hq",   ResampledSoundDevice::RESAMPLE_HQ},
 			{"fast", ResampledSoundDevice::RESAMPLE_LQ},
 			{"blip", ResampledSoundDevice::RESAMPLE_BLIP}})
+	, throttleManager(commandController)
 {
 	for (auto i : xrange(SDL_NumJoysticks())) {
 		std::string name = "joystick" + StringOp::toString(i) + "_deadzone";
@@ -52,8 +52,6 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 			"size (as a percentage) of the dead center zone",
 			25, 0, 100));
 	}
-
-	throttleManager = make_unique<ThrottleManager>(commandController);
 
 	getPowerSetting().attach(*this);
 }

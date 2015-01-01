@@ -2,9 +2,6 @@
 #include "V9990.hh"
 #include "RawFrame.hh"
 #include "PostProcessor.hh"
-#include "V9990BitmapConverter.hh"
-#include "V9990P1Converter.hh"
-#include "V9990P2Converter.hh"
 #include "BooleanSetting.hh"
 #include "FloatSetting.hh"
 #include "StringSetting.hh"
@@ -35,10 +32,9 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	, displayMode(P1) // dummy value
 	, colorMode(PP)   //   avoid UMR
 	, postProcessor(std::move(postProcessor_))
-	, bitmapConverter(make_unique<V9990BitmapConverter<Pixel>>(
-		vdp, palette64, palette256, palette32768))
-	, p1Converter(make_unique<V9990P1Converter<Pixel>>(vdp, palette64))
-	, p2Converter(make_unique<V9990P2Converter<Pixel>>(vdp, palette64))
+	, bitmapConverter(vdp, palette64, palette256, palette32768)
+	, p1Converter(vdp, palette64)
+	, p2Converter(vdp, palette64)
 {
 	// Fill palettes
 	preCalcPalettes();
@@ -114,14 +110,14 @@ template <class Pixel>
 void V9990SDLRasterizer<Pixel>::setDisplayMode(V9990DisplayMode mode)
 {
 	displayMode = mode;
-	bitmapConverter->setColorMode(colorMode, displayMode);
+	bitmapConverter.setColorMode(colorMode, displayMode);
 }
 
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::setColorMode(V9990ColorMode mode)
 {
 	colorMode = mode;
-	bitmapConverter->setColorMode(colorMode, displayMode);
+	bitmapConverter.setColorMode(colorMode, displayMode);
 }
 
 template <class Pixel>
@@ -229,9 +225,9 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 {
 	while (displayHeight--) {
 		Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(fromY) + fromX;
-		p1Converter->convertLine(pixelPtr, displayX, displayWidth,
-		                         displayY, displayYA, displayYB,
-					 drawSprites);
+		p1Converter.convertLine(pixelPtr, displayX, displayWidth,
+		                        displayY, displayYA, displayYB,
+		                        drawSprites);
 		workFrame->setLineWidth(fromY, 320);
 		++fromY;
 		++displayY;
@@ -247,8 +243,8 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 {
 	while (displayHeight--) {
 		Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(fromY) + fromX;
-		p2Converter->convertLine(pixelPtr, displayX, displayWidth,
-		                         displayY, displayYA, drawSprites);
+		p2Converter.convertLine(pixelPtr, displayX, displayWidth,
+		                        displayY, displayYA, drawSprites);
 		workFrame->setLineWidth(fromY, 640);
 		++fromY;
 		++displayY;
@@ -285,8 +281,8 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 		// plus 3 pixels cannot go beyond the end of the buffer.
 		unsigned y = scrollYBase + ((displayYA + scrollY) & rollMask);
 		Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(fromY) + fromX;
-		bitmapConverter->convertLine(pixelPtr, x, y, displayWidth,
-		                             cursorY, drawSprites);
+		bitmapConverter.convertLine(pixelPtr, x, y, displayWidth,
+		                            cursorY, drawSprites);
 		workFrame->setLineWidth(fromY, vdp.getLineWidth());
 		++fromY;
 		displayYA += lineStep;

@@ -1,11 +1,11 @@
 #ifndef VIDEOLAYER_HH
 #define VIDEOLAYER_HH
 
+#include "VideoSourceSetting.hh"
 #include "Layer.hh"
 #include "Observer.hh"
 #include "MSXEventListener.hh"
 #include "noncopyable.hh"
-#include <memory>
 #include <string>
 
 namespace openmsx {
@@ -14,8 +14,6 @@ class MSXMotherBoard;
 class Display;
 class Setting;
 class BooleanSetting;
-class VideoSourceSetting;
-class VideoSourceActivator;
 
 class VideoLayer : public Layer, protected Observer<Setting>
                  , private MSXEventListener, private noncopyable
@@ -71,7 +69,7 @@ private:
 	/** Reference to "videosource" setting. */
 	VideoSourceSetting& videoSourceSetting;
 	/** Activate the videosource */
-	const std::unique_ptr<VideoSourceActivator> videoSourceActivator;
+	VideoSourceActivator videoSourceActivator;
 	/** Reference to "power" setting. */
 	BooleanSetting& powerSetting;
 

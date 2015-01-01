@@ -2,6 +2,9 @@
 #define SDLRASTERIZER_HH
 
 #include "Rasterizer.hh"
+#include "BitmapConverter.hh"
+#include "CharacterConverter.hh"
+#include "SpriteConverter.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
@@ -18,9 +21,6 @@ class RawFrame;
 class RenderSettings;
 class Setting;
 class PostProcessor;
-template <class Pixel> class CharacterConverter;
-template <class Pixel> class BitmapConverter;
-template <class Pixel> class SpriteConverter;
 
 /** Rasterizer using a frame buffer approach: it writes pixels to a single
   * rectangular pixel buffer.
@@ -124,15 +124,15 @@ private:
 
 	/** VRAM to pixels converter for character display modes.
 	  */
-	const std::unique_ptr<CharacterConverter<Pixel>> characterConverter;
+	CharacterConverter<Pixel> characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	const std::unique_ptr<BitmapConverter<Pixel>> bitmapConverter;
+	BitmapConverter<Pixel> bitmapConverter;
 
 	/** VRAM to pixels converter for sprites.
 	  */
-	const std::unique_ptr<SpriteConverter<Pixel>> spriteConverter;
+	SpriteConverter<Pixel> spriteConverter;
 
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.

@@ -1,14 +1,13 @@
 #ifndef OSDGUI_HH
 #define OSDGUI_HH
 
+#include "OSDTopWidget.hh"
 #include "Command.hh"
 #include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
 
-class OSDTopWidget;
-class OSDWidget;
 class Display;
 class CommandController;
 
@@ -16,10 +15,10 @@ class OSDGUI : private noncopyable
 {
 public:
 	OSDGUI(CommandController& commandController, Display& display);
-	~OSDGUI();
 
 	Display& getDisplay() const { return display; }
-	OSDTopWidget& getTopWidget() const { return *topWidget; }
+	const OSDTopWidget& getTopWidget() const { return topWidget; }
+	      OSDTopWidget& getTopWidget()       { return topWidget; }
 	void refresh() const;
 
 	void setOpenGL(bool openGL_) { openGL = openGL_; }
@@ -51,7 +50,7 @@ private:
 		OSDGUI& gui;
 	} osdCommand;
 
-	const std::unique_ptr<OSDTopWidget> topWidget;
+	OSDTopWidget topWidget;
 	bool openGL;
 };
 

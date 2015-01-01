@@ -2,13 +2,12 @@
 #define TCLCALLBACKMESSAGES_HH
 
 #include "CliListener.hh"
-#include <memory>
+#include "TclCallback.hh"
 
 namespace openmsx {
 
 class GlobalCliComm;
 class CommandController;
-class TclCallback;
 
 class TclCallbackMessages final : public CliListener
 {
@@ -23,7 +22,7 @@ public:
 
 private:
 	GlobalCliComm& cliComm;
-	const std::unique_ptr<TclCallback> messageCallback;
+	TclCallback messageCallback;
 };
 
 } // namespace openmsx

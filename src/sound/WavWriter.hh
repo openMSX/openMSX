@@ -1,13 +1,13 @@
 #ifndef WAVWRITER_HH
 #define WAVWRITER_HH
 
+#include "File.hh"
 #include "noncopyable.hh"
 #include <cassert>
-#include <memory>
+#include <cstdint>
 
 namespace openmsx {
 
-class File;
 class Filename;
 
 /** Base class for writing WAV files.
@@ -29,7 +29,7 @@ protected:
 	          unsigned channels, unsigned bits, unsigned frequency);
 	~WavWriter();
 
-	const std::unique_ptr<File> file;
+	File file;
 	unsigned bytes;
 };
 
@@ -42,14 +42,13 @@ public:
 		: WavWriter(filename, channels, 8, frequency)
 	{}
 
-	void write(const unsigned char* buffer, unsigned stereo,
-	           unsigned samples) {
+	void write(const uint8_t* buffer, unsigned stereo, unsigned samples) {
 		assert(stereo == 1 || stereo == 2);
 		write(buffer, stereo * samples);
 	}
 
 private:
-	void write(const unsigned char* buffer, unsigned samples);
+	void write(const uint8_t* buffer, unsigned samples);
 };
 
 /** Writes 16-bit WAV files.
@@ -61,7 +60,7 @@ public:
 		: WavWriter(filename, channels, 16, frequency)
 	{}
 
-	void write(const short* buffer, unsigned stereo, unsigned samples) {
+	void write(const int16_t* buffer, unsigned stereo, unsigned samples) {
 		assert(stereo == 1 || stereo == 2);
 		write(buffer, stereo * samples);
 	}
@@ -76,7 +75,7 @@ public:
 	}
 
 private:
-	void write(const short* buffer, unsigned samples);
+	void write(const int16_t* buffer, unsigned samples);
 	void write(const int* buffer, unsigned samples, int amp);
 	void writeSilence(unsigned samples);
 };
