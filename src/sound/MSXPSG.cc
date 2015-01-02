@@ -14,13 +14,14 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	: MSXDevice(config)
 	, cassette(getMotherBoard().getCassettePort())
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
-	, ports{&getMotherBoard().getJoystickPort(0),
-	        &getMotherBoard().getJoystickPort(1)}
 	, selectedPort(0)
 	, prev(255)
 	, keyLayoutBit(config.getChildData("keyboardlayout", "") == "JIS")
-	, ay8910("PSG", *this, config, getCurrentTime())
 {
+	ports[0] = &getMotherBoard().getJoystickPort(0);
+	ports[1] = &getMotherBoard().getJoystickPort(1);
+	ay8910 = make_unique<AY8910>("PSG", *this, config, getCurrentTime());
+
 	reset(getCurrentTime());
 }
 
@@ -32,7 +33,7 @@ MSXPSG::~MSXPSG()
 void MSXPSG::reset(EmuTime::param time)
 {
 	registerLatch = 0;
-	ay8910.reset(time);
+	ay8910->reset(time);
 }
 
 void MSXPSG::powerDown(EmuTime::param /*time*/)
@@ -42,12 +43,12 @@ void MSXPSG::powerDown(EmuTime::param /*time*/)
 
 byte MSXPSG::readIO(word /*port*/, EmuTime::param time)
 {
-	return ay8910.readRegister(registerLatch, time);
+	return ay8910->readRegister(registerLatch, time);
 }
 
 byte MSXPSG::peekIO(word /*port*/, EmuTime::param time) const
 {
-	return ay8910.peekRegister(registerLatch, time);
+	return ay8910->peekRegister(registerLatch, time);
 }
 
 void MSXPSG::writeIO(word port, byte value, EmuTime::param time)
@@ -57,7 +58,7 @@ void MSXPSG::writeIO(word port, byte value, EmuTime::param time)
 		registerLatch = value & 0x0F;
 		break;
 	case 1:
-		ay8910.writeRegister(registerLatch, value, time);
+		ay8910->writeRegister(registerLatch, value, time);
 		break;
 	}
 }
@@ -98,7 +99,7 @@ template<typename Archive>
 void MSXPSG::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ay8910", ay8910);
+	ar.serialize("ay8910", *ay8910);
 	if (ar.versionBelow(version, 2)) {
 		assert(ar.isLoader());
 		// in older versions there were always 2 real joytsick ports

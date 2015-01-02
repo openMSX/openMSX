@@ -5,6 +5,7 @@
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
 #include "serialize_meta.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -40,7 +41,9 @@ private:
 	int registerLatch;
 	byte prev;
 	const bool keyLayoutBit;
-	AY8910 ay8910; // must come after initialisation of most stuff above
+	// TODO could be by-value, but visual studio doesn't support
+	// initialization of arrays (ports[2]) in the initializer list yet.
+	std::unique_ptr<AY8910> ay8910; // must come after initialisation of most stuff above
 };
 SERIALIZE_CLASS_VERSION(MSXPSG, 2);
 
