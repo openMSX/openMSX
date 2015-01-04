@@ -1,6 +1,7 @@
 #include "MSXMixer.hh"
 #include "Mixer.hh"
 #include "SoundDevice.hh"
+#include "MSXMotherBoard.hh"
 #include "MSXCommandController.hh"
 #include "TclObject.hh"
 #include "ThrottleManager.hh"
@@ -85,17 +86,17 @@ MSXMixer::SoundDeviceInfo::ChannelSettings::operator=(ChannelSettings&& rhs)
 }
 
 
-MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
-                   MSXCommandController& msxCommandController_,
+MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
                    GlobalSettings& globalSettings)
-	: Schedulable(scheduler)
+	: Schedulable(motherBoard_.getScheduler())
 	, mixer(mixer_)
-	, commandController(msxCommandController_)
+	, motherBoard(motherBoard_)
+	, commandController(motherBoard.getMSXCommandController())
 	, masterVolume(mixer.getMasterVolume())
 	, speedSetting(globalSettings.getSpeedSetting())
 	, throttleManager(globalSettings.getThrottleManager())
 	, prevTime(getCurrentTime(), 44100)
-	, soundDeviceInfo(msxCommandController_.getMachineInfoCommand(), *this)
+	, soundDeviceInfo(commandController.getMachineInfoCommand(), *this)
 	, recorder(nullptr)
 	, synchronousCounter(0)
 {
@@ -881,6 +882,15 @@ void MSXMixer::executeUntil(EmuTime::param time)
 {
 	updateStream(time);
 	reschedule2();
+
+	// This method gets called very regularly, typically 44100/512 = 86x
+	// per second (even if sound is muted and even with sound_driver=null).
+	// This rate is constant in real-time (compared to e.g. the VDP sync
+	// points that are constant in emutime). So we can use this to
+	// regularly exit from the main CPU emulation loop. Without this there
+	// were problems like described in 'bug#563 Console very slow when
+	// setting speed to low values like 1'.
+	motherBoard.exitCPULoopSync();
 }
 
 

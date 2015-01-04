@@ -174,7 +174,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 		*this, *msxEventDistributor, machineID))
 	, scheduler(make_unique<Scheduler>())
 	, msxMixer(make_unique<MSXMixer>(
-		reactor.getMixer(), *scheduler, *msxCommandController,
+		reactor.getMixer(), *this,
 		reactor.getGlobalSettings()))
 	, videoSourceSetting(*msxCommandController)
 	, fastForwardHelper(make_unique<FastForwardHelper>(*this))

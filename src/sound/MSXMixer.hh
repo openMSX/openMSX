@@ -14,9 +14,8 @@ namespace openmsx {
 
 class SoundDevice;
 class Mixer;
-class Scheduler;
+class MSXMotherBoard;
 class MSXCommandController;
-class CommandController;
 class GlobalSettings;
 class ThrottleManager;
 class IntegerSetting;
@@ -29,8 +28,7 @@ class MSXMixer final : private Schedulable, private Observer<Setting>
                      , private Observer<ThrottleManager>
 {
 public:
-	MSXMixer(Mixer& mixer, Scheduler& scheduler,
-	         MSXCommandController& msxCommandController,
+	MSXMixer(Mixer& mixer, MSXMotherBoard& motherBoard,
 	         GlobalSettings& globalSettings);
 	~MSXMixer();
 
@@ -153,7 +151,8 @@ private:
 	std::vector<SoundDeviceInfo> infos;
 
 	Mixer& mixer;
-	CommandController& commandController;
+	MSXMotherBoard& motherBoard;
+	MSXCommandController& commandController;
 
 	IntegerSetting& masterVolume;
 	IntegerSetting& speedSetting;
