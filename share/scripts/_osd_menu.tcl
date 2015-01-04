@@ -1223,7 +1223,7 @@ proc menu_create_toys_list {} {
 	foreach cmd [openmsx::all_command_names] {
 		if {[string match toggle_* $cmd]} {
 			lappend items $cmd
-			lappend presentation [string range $cmd 7 end]
+			lappend presentation [string map {_ " "} [string range $cmd 7 end]]
 		}
 	}
 	lappend menu_def presentation $presentation
