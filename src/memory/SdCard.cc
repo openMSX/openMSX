@@ -224,7 +224,7 @@ void SdCard::executeCommand()
 	case 8:  // SEND_IF_COND
 		// conditions are always OK
 		responseQueue.push_back({
-			R1_IDLE,    // R1 (OK) SDHC
+			R1_IDLE,    // R1 (OK) SDHC (checked by MegaSD and FUZIX)
 			byte(0x02), // command version
 			byte(0x00), // reserved
 			byte(0x01), // voltage accepted
@@ -232,10 +232,10 @@ void SdCard::executeCommand()
 		break;
 	case 9:{ // SEND_CSD 
 		responseQueue.push_back({
-			R1_IDLE, // OK
+			R1_BUSY, // OK (ignored on MegaSD code, used in FUZIX)
 		// now follows a CSD version 2.0 (for SDHC)
 			START_BLOCK_TOKEN, // data token
-			byte(0x01),        // CSD_STRUCTURE [127:120]
+			byte(0x40),        // CSD_STRUCTURE [127:120]
 			byte(0x0E),        // (TAAC)
 			byte(0x00),        // (NSAC)
 			byte(0x32),        // (TRAN_SPEED)
@@ -257,7 +257,7 @@ void SdCard::executeCommand()
 		break;}
 	case 10: // SEND_CID
 		responseQueue.push_back({
-			R1_IDLE, // OK
+			R1_BUSY, // OK (ignored on MegaSD, unused in FUZIX so far)
 			START_BLOCK_TOKEN, // data token
 			byte(0xAA),   // CID01 // manuf ID
 			byte('o' ),   // CID02 // OEM/App ID 1
@@ -313,11 +313,11 @@ void SdCard::executeCommand()
 		break;
 	case 58: // READ_OCR
 		responseQueue.push_back({
-			0x01,   // R1 (OK)
-			0x40,   // OCR Reg part 1 (SDHC: CCS=1)
-			0x00,   // OCR Reg part 2
-			0x00,   // OCR Reg part 3
-			0x00}); // OCR Reg part 4
+			R1_BUSY,// R1 (OK) (ignored on MegaSD, checked in FUZIX)
+			byte(0x40),   // OCR Reg part 1 (SDHC: CCS=1)
+			byte(0x00),   // OCR Reg part 2
+			byte(0x00),   // OCR Reg part 3
+			byte(0x00)}); // OCR Reg part 4
 		break;
 	
 	default:
