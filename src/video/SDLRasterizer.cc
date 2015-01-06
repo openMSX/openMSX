@@ -425,14 +425,13 @@ template <class Pixel>
 void SDLRasterizer<Pixel>::getBorderColors(Pixel& border0, Pixel& border1)
 {
 	DisplayMode mode = vdp.getDisplayMode();
-	byte modeBase = mode.getBase();
 	int bgColor = vdp.getBackgroundColor();
-	if (modeBase == DisplayMode::GRAPHIC5) {
+	if (mode.getBase() == DisplayMode::GRAPHIC5) {
 		// border in SCREEN6 has separate color for even and odd pixels.
 		// TODO odd/even swapped?
 		border0 = palBg[(bgColor & 0x0C) >> 2];
 		border1 = palBg[(bgColor & 0x03) >> 0];
-	} else if (modeBase == DisplayMode::GRAPHIC7) {
+	} else if (mode.getByte() == DisplayMode::GRAPHIC7) {
 		border0 = border1 = PALETTE256[bgColor];
 	} else {
 		if (!bgColor && vdp.isSuperimposing()) {
