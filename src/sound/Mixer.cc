@@ -88,6 +88,12 @@ Mixer::~Mixer()
 
 void Mixer::reloadDriver()
 {
+	// Destroy old driver before attempting to create a new one. Though
+	// this means we end up without driver if creating the new one failed
+	// for some reason.
+
+	driver = make_unique<NullSoundDriver>();
+
 	try {
 		switch (soundDriverSetting.getEnum()) {
 		case SND_NULL:
@@ -111,7 +117,6 @@ void Mixer::reloadDriver()
 		}
 	} catch (MSXException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
-		driver = make_unique<NullSoundDriver>();
 	}
 
 	muteHelper();
