@@ -6,7 +6,7 @@
     <manufacturer>FRS</manufacturer>
     <code>Acid1Test-slots</code>
     <release_year>2014</release_year>
-    <description>Acid1Test v0.6, aka "Usual hardware in unusual slot layout".
+    <description>Acid1Test v0.7, aka "Usual hardware in unusual slot layout".
 
   This machine was carefully dedigned to stress-test slot accesses routines.
 Incorrect assumptions about memory/resources layout will fail to run. Software
@@ -31,6 +31,10 @@ For more info, see http://frs.badcoffee.info/MSXAcidTests.html
   to plain RAM manipulation that were not being detected. For example, games
   that fail to run on a 16KB machine with the Casio OR-216 connected (to expand
   the RAM to 32KB).
+- v0.7: Fixed a bug in the slot layout (frame0 was missing, and frame-2 was
+  repeated), and moved frame-3 to catch some buggy programs that fail to run on
+  the Victor HX-90 and Victor-HC-95 machines.  Moved the SubROM to a subslot of
+  slot-0, to catch buggy programs that fail to run on National FS-4x00 machines.
 
 ==TODO==
 - Move the BIOS to a slot other than 0-0, to simulate what happens when an
@@ -104,10 +108,29 @@ For more info, see http://frs.badcoffee.info/MSXAcidTests.html
 
       </secondary>
 
+      <secondary slot="1">
+        <ROM id="MSX Sub ROM">
+          <rom>
+            <filename>phc-35j_msx2psub.rom</filename>
+            <sha1>fe0254cbfc11405b79e7c86c7769bd6322b04995</sha1>
+          </rom>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+        <ROM id="MSX Boot Logo">
+          <rom>
+            <filename>phc-35j_kanjibasic.rom</filename>
+            <sha1>dcc3a67732aa01c4f2ee8d1ad886444a4dbafe06</sha1>
+	    <!-- Crop the Kanji driver out -->
+            <window base="0x2000" size="0x2000"/>
+          </rom>
+          <mem base="0x6000" size="0x2000"/>
+        </ROM>
+      </secondary>
+
       <secondary slot="2">
-      <RAM id="Main RAM frame1">
-        <mem base="0x4000" size="0x4000"/>
-      </RAM>
+        <RAM id="Main RAM frame3">
+          <mem base="0xc000" size="0x4000"/>
+        </RAM>
       </secondary>
 
       <secondary slot="3">
@@ -157,9 +180,11 @@ For more info, see http://frs.badcoffee.info/MSXAcidTests.html
           <io base="0x7C" num="2" type="O"/>
           <mem base="0x4000" size="0x4000"/>
         </MSX-MUSIC>
+      </secondary>
 
-        <RAM id="Main RAM frame2">
-          <mem base="0x8000" size="0x4000"/>
+      <secondary slot="2">
+        <RAM id="Main RAM frame1">
+          <mem base="0x4000" size="0x4000"/>
         </RAM>
       </secondary>
 
@@ -208,8 +233,8 @@ For more info, see http://frs.badcoffee.info/MSXAcidTests.html
       </secondary>
 
       <secondary slot="3">
-        <RAM id="Main RAM frame3">
-          <mem base="0xc000" size="0x4000"/>
+        <RAM id="Main RAM frame0">
+          <mem base="0x0000" size="0x4000"/>
         </RAM>
       </secondary>
 
