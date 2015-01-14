@@ -56,6 +56,31 @@ public:
 		this->palette = palette;
 	}
 
+	static bool clipPattern(int& x, SpriteChecker::SpritePattern& pattern,
+	                        int minX, int maxX)
+	{
+		int before = minX - x;
+		if (before > 0) {
+			if (before >= 32) {
+				// 32 pixels before minX -> not visible
+				return false;
+			}
+			pattern <<= before;
+			x = minX;
+		}
+		int after = maxX - x;
+		if (after < 32) {
+			// close to maxX (or past)
+			if (after <= 0) {
+				// past maxX -> not visible
+				return false;
+			}
+			int mask = 0x80000000;
+			pattern &= (mask >> (after - 1));
+		}
+		return true; // visible
+	}
+
 	/** Draw sprites in sprite mode 1.
 	  * @param absLine Absolute line number.
 	  *     Range is [0..262) for NTSC and [0..313) for PAL.
@@ -88,14 +113,7 @@ public:
 			SpriteChecker::SpritePattern pattern = sip->pattern;
 			int x = sip->x;
 			// Clip sprite pattern to render range.
-			if (x < minX) {
-				if (x <= minX - 32) continue;
-				pattern <<= minX - x;
-				x = minX;
-			} else if (x > maxX - 32) {
-				if (x >= maxX) continue;
-				pattern &= ~0u << (32 - (maxX - x));
-			}
+			if (!clipPattern(x, pattern, minX, maxX)) continue;
 			// Convert pattern to pixels.
 			Pixel* p = &pixelPtr[x];
 			while (pattern) {
@@ -136,18 +154,8 @@ public:
 			const SpriteChecker::SpriteInfo& info = visibleSprites[i];
 			int x = info.x;
 			SpriteChecker::SpritePattern pattern = info.pattern;
-			int d = minX - x;
-			if (d > 0) {
-				if (d >= 32) continue;
-				pattern <<= d;
-				x = minX;
-			}
-			d = maxX - x;
-			if (d < 32) {
-				if (d <= 0) continue;
-				int mask = 0x80000000;
-				pattern &= (mask >> (d - 1));
-			}
+			// Clip sprite pattern to render range.
+			if (!clipPattern(x, pattern, minX, maxX)) continue;
 			byte c = info.colorAttrib & 0x0F;
 			if (c == 0 && transparency) continue;
 			while (pattern) {
