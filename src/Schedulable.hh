@@ -75,7 +75,7 @@ public:
 	static void restoreOld(Archive& ar, std::vector<Schedulable*> schedulables) {
 		assert(ar.isLoader());
 		for (auto* s : schedulables) {
-			assert(!s->pendingSyncPoint()); (void)s;
+			s->removeSyncPoints();
 		}
 		for (auto& old : serializeBW(ar)) {
 			unsigned i = old.userData;
