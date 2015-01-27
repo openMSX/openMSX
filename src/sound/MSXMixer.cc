@@ -389,158 +389,108 @@ static inline void mulMix2Acc(
 //
 //  formula:
 //     y(n) = x(n) - x(n-1) + R * y(n-1)
+//  implemented as:
+//     t1 = R * t0 + x(n)    mathematically equivalent, has
+//     y(n) = t1 - t0        the same number of operations but
+//     t0 = t1               requires only one state variable
+//    see: http://en.wikipedia.org/wiki/Digital_filter#Direct_Form_I
 //  with:
 //     R = 1 - (2*pi * cut-off-frequency / samplerate)
 //  we take R = 511/512
 //   44100Hz --> cutt-off freq = 14Hz
 //   22050Hz                     7Hz
-// Note1: we divide by 512 iso shift-right by 9 because we want
-//        to round towards zero (shift rounds to -inf).
-// Note2: the input still needs to be divided by 512 (because of balance-
-//        multiplication), can be done together with the above division.
+// Note: the input still needs to be divided by 512 (because of balance-
+//       multiplication), can be done together with the above division.
 
 // No new input, previous output was (non-zero) mono.
-static inline int32_t filterMonoNull(
-	int32_t x0, int32_t y, int16_t* out, int n)
+static inline int32_t filterMonoNull(int32_t t0, int16_t* out, int n)
 {
 	assert(n > 0);
-	y = ((511 * y) - x0) / 512;
-	auto s0 = Math::clipIntToShort(y);
-	out[0] = s0;
-	out[1] = s0;
-	for (int i = 1; i < n; ++i) {
-		y = (511 * y) / 512;
-		auto s = Math::clipIntToShort(y);
+	int i = 0;
+	do {
+		int32_t t1 = (511 * int64_t(t0)) >> 9;
+		auto s = Math::clipIntToShort(t1 - t0);
+		t0 = t1;
 		out[2 * i + 0] = s;
 		out[2 * i + 1] = s;
-	}
-	return y;
+	} while (++i < n);
+	return t0;
 }
 
 // No new input, previous output was (non-zero) stereo.
 static inline std::tuple<int32_t, int32_t> filterStereoNull(
-	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr, int16_t* out, int n)
+	int32_t tl0, int32_t tr0, int16_t* out, int n)
 {
 	assert(n > 0);
-	yl = ((511 * yl) - xl0) / 512;
-	yr = ((511 * yr) - xr0) / 512;
-	out[0] = Math::clipIntToShort(yl);
-	out[1] = Math::clipIntToShort(yr);
-	for (int i = 1; i < n; ++i) {
-		yl = (511 * yl) / 512;
-		yr = (511 * yr) / 512;
-		out[2 * i + 0] = Math::clipIntToShort(yl);
-		out[2 * i + 1] = Math::clipIntToShort(yr);
-	}
-	return std::make_tuple(yl, yr);
+	int i = 0;
+	do {
+		int32_t tl1 = (511 * int64_t(tl0)) >> 9;
+		int32_t tr1 = (511 * int64_t(tr0)) >> 9;
+		out[2 * i + 0] = Math::clipIntToShort(tl1 - tl0);
+		out[2 * i + 1] = Math::clipIntToShort(tr1 - tr0);
+		tl0 = tl1;
+		tr0 = tr1;
+	} while (++i < n);
+	return std::make_tuple(tl0, tr0);
 }
 
 // New input is mono, previous output was also mono.
-static inline std::tuple<int32_t, int32_t> filterMonoMono(
-	int32_t x0, int32_t y, void* buf, int n)
+static inline int32_t filterMonoMono(int32_t t0, void* buf, int n)
 {
 	assert(n > 0);
-#ifdef __arm__
-	// Note: there are two functional differences in the
-	//       asm and c++ code below:
-	//  - divide by 512 is replaced by ASR #9
-	//    (different for negative numbers)
-	//  - the outLeft variable is set to the clipped value
-	// Though this difference is very small, and we need
-	// the extra speed.
-	int32_t dummy1, dummy2, dummy3;
-	asm volatile (
-	"0:\n\t"
-		"rsb	%[y],%[y],%[y],LSL #9\n\t"  // y = (y0<<9)-y = 511y0
-		"rsb	%[y],%[x],%[y]\n\t"         // y = 511y0 - x0
-		"ldr	%[x],[%[buf]]\n\t"          // x = *(int*)buf
-		"add	%[y],%[y],%[x]\n\t"         // y = x - x0 + 511y0
-		"asrs	%[y],%[y],#9\n\t"           // y = (x-x0+511y0) >> 9
-		"lsls	%[t],%[y],#16\n\t"          // t = y << 16
-		"cmp	%[y],%[t],ASR #16\n\t"      // cond = y != (t >> 16)
-		"it ne\n\t"                         // if (cond)
-		"subne	%[y],%[m],%[y],ASR #31\n\t" // then y = m - y>>31
-		"strh	%[y],[%[buf]],#2\n\t"       // *(short*)buf = y; buf += 2
-		"strh	%[y],[%[buf]],#2\n\t"       // *(short*)buf = y; buf += 2
-		"subs	%[n],%[n],#1\n\t"           // --n
-		"bne	0b\n\t"                     // while (n)
-		: [y]   "=r"    (y)
-		, [x]   "=r"    (x0)
-		, [buf]  "=r"   (dummy1)
-		, [n]   "=r"    (dummy2)
-		, [t]   "=&r"   (dummy3)
-		:       "[y]"   (y)
-		,       "[x]"   (x0)
-		,       "[buf]" (buf)
-		,       "[n]"   (n)
-		, [m]   "r"     (0x7FFF)
-		: "memory"
-	);
-	return std::make_tuple(x0, y);
-#endif
+	const auto* in  = static_cast<const int32_t*>(buf);
+	      auto* out = static_cast<      int16_t*>(buf);
+	int i = 0;
+	do {
+		int32_t t1 = (511 * int64_t(t0) + in[i]) >> 9;
+		auto s = Math::clipIntToShort(t1 - t0);
+		t0 = t1;
+		out[2 * i + 0] = s;
+		out[2 * i + 1] = s;
+	} while (++i < n);
+	return t0;
+}
 
-	// C++ version
+// New input is mono, previous output was stereo
+static inline std::tuple<int32_t, int32_t> filterStereoMono(
+	int32_t tl0, int32_t tr0, void* buf, int n)
+{
+	assert(n > 0);
 	const auto* in  = static_cast<const int32_t*>(buf);
 	      auto* out = static_cast<      int16_t*>(buf);
 	int i = 0;
 	do {
 		auto x = in[i];
-		y = (x - x0 + (511 * y)) / 512;
-		x0 = x;
-		auto s = Math::clipIntToShort(y);
-		out[2 * i + 0] = s;
-		out[2 * i + 1] = s;
+		int32_t tl1 = (511 * int64_t(tl0) + x) >> 9;
+		int32_t tr1 = (511 * int64_t(tr0) + x) >> 9;
+		out[2 * i + 0] = Math::clipIntToShort(tl1 - tl0);
+		out[2 * i + 1] = Math::clipIntToShort(tr1 - tr0);
+		tl0 = tl1;
+		tr0 = tr1;
 	} while (++i < n);
-	return std::make_tuple(x0, y);
-}
-
-// New input is mono, previous output was stereo
-static inline std::tuple<int32_t, int32_t, int32_t> filterStereoMono(
-	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr, void* buf, int n)
-{
-	assert(n > 0);
-	const auto* in  = static_cast<const int32_t*>(buf);
-	      auto* out = static_cast<      int16_t*>(buf);
-	auto x = in[0];
-	yl = (x - xl0 + (511 * yl)) / 512;
-	yr = (x - xr0 + (511 * yr)) / 512;
-	out[0] = Math::clipIntToShort(yl);
-	out[1] = Math::clipIntToShort(yr);
-	for (int i = 1; i < n; ++i) {
-		auto x1 = in[i];
-		yl = (x1 - x + (511 * yl)) / 512;
-		yr = (x1 - x + (511 * yr)) / 512;
-		x = x1;
-		out[2 * i + 0] = Math::clipIntToShort(yl);
-		out[2 * i + 1] = Math::clipIntToShort(yr);
-	}
-	return std::make_tuple(x, yl, yr);
+	return std::make_tuple(tl0, tr0);
 }
 
 // New input is stereo, (previous output either mono/stereo)
-static inline std::tuple<int32_t, int32_t, int32_t, int32_t> filterStereoStereo(
-	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr,
-	const int32_t* in, int16_t* out, int n)
+static inline std::tuple<int32_t, int32_t> filterStereoStereo(
+	int32_t tl0, int32_t tr0, const int32_t* in, int16_t* out, int n)
 {
 	assert(n > 0);
 	int i = 0;
 	do {
-		auto xl = in[2 * i + 0];
-		auto xr = in[2 * i + 1];
-		yl = (xl - xl0 + (511 * yl)) / 512;
-		yr = (xr - xr0 + (511 * yr)) / 512;
-		xl0 = xl;
-		xr0 = xr;
-		out[2 * i + 0] = Math::clipIntToShort(yl);
-		out[2 * i + 1] = Math::clipIntToShort(yr);
+		int32_t tl1 = (511 * int64_t(tl0) + in[2 * i + 0]) >> 9;
+		int32_t tr1 = (511 * int64_t(tr0) + in[2 * i + 1]) >> 9;
+		out[2 * i + 0] = Math::clipIntToShort(tl1 - tl0);
+		out[2 * i + 1] = Math::clipIntToShort(tr1 - tr0);
+		tl0 = tl1;
+		tr0 = tr1;
 	} while (++i < n);
-	return std::make_tuple(xl0, xr0, yl, yr);
+	return std::make_tuple(tl0, tr0);
 }
 
 // We have both mono and stereo input (and produce stereo output)
-static inline std::tuple<int32_t, int32_t, int32_t, int32_t> filterBothStereo(
-	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr,
-	const int32_t* inS, void* buf, int n)
+static inline std::tuple<int32_t, int32_t> filterBothStereo(
+	int32_t tl0, int32_t tr0, const int32_t* inS, void* buf, int n)
 {
 	assert(n > 0);
 	const auto* inM = static_cast<const int32_t*>(buf);
@@ -548,16 +498,14 @@ static inline std::tuple<int32_t, int32_t, int32_t, int32_t> filterBothStereo(
 	int i = 0;
 	do {
 		auto m = inM[i];
-		auto xl = inS[2 * i + 0] + m;
-		auto xr = inS[2 * i + 1] + m;
-		yl = (xl - xl0 + (511 * yl)) / 512;
-		yr = (xr - xr0 + (511 * yr)) / 512;
-		xl0 = xl;
-		xr0 = xr;
-		out[2 * i + 0] = Math::clipIntToShort(yl);
-		out[2 * i + 1] = Math::clipIntToShort(yr);
+		int32_t tl1 = (511 * int64_t(tl0) + inS[2 * i + 0] + m) >> 9;
+		int32_t tr1 = (511 * int64_t(tr0) + inS[2 * i + 1] + m) >> 9;
+		out[2 * i + 0] = Math::clipIntToShort(tl1 - tl0);
+		out[2 * i + 1] = Math::clipIntToShort(tr1 - tr0);
+		tl0 = tl1;
+		tr0 = tr1;
 	} while (++i < n);
-	return std::make_tuple(xl0, xr0, yl, yr);
+	return std::make_tuple(tl0, tr0);
 }
 
 
@@ -655,47 +603,41 @@ void MSXMixer::generate(int16_t* output, EmuTime::param time, unsigned samples)
 	// DC removal filter
 	switch (usedBuffers) {
 	case 0: // no new input
-		if ((outLeft == outRight) && (prevLeft == prevRight)) {
-			if ((outLeft == 0) && (prevLeft == 0)) {
+		if (tl0 == tr0) {
+			if ((-511 <= tl0) && (tl0 <= 0)) {
 				// Output was zero, new input is zero,
 				// after DC-filter output will still be zero.
 				memset(output, 0, 2 * samples * sizeof(int16_t));
+				tl0 = tr0 = 0;
 			} else {
 				// Output was not zero, but it was the same left and right.
-				outLeft = filterMonoNull(prevLeft, outLeft, output, samples);
-				outRight = outLeft;
+				tl0 = filterMonoNull(tl0, output, samples);
+				tr0 = tl0;
 			}
 		} else {
-			std::tie(outLeft, outRight) = filterStereoNull(
-				prevLeft, prevRight, outLeft, outRight, output, samples);
+			std::tie(tl0, tr0) = filterStereoNull(tl0, tr0, output, samples);
 		}
-		prevLeft = prevRight = 0;
 		break;
 
 	case HAS_MONO_FLAG: // only mono
 		assert(static_cast<void*>(monoBuf) == static_cast<void*>(output));
-		if ((outLeft == outRight) && (prevLeft == prevRight)) {
+		if (tl0 == tr0) {
 			// previous output was also mono
-			std::tie(prevLeft, outLeft) = filterMonoMono(
-				prevLeft, outLeft, output, samples);
-			outRight = outLeft;
+			tl0 = filterMonoMono(tl0, output, samples);
+			tr0 = tl0;
 		} else {
 			// previous output was stereo, rarely triggers but needed for correctness
-			std::tie(prevLeft, outLeft, outRight) = filterStereoMono(
-				prevLeft, prevRight, outLeft, outRight, output, samples);
+			std::tie(tl0, tr0) = filterStereoMono(tl0, tr0, output, samples);
 		}
-		prevRight = prevLeft;
 		break;
 
 	case HAS_STEREO_FLAG: // only stereo
-		std::tie(prevLeft, prevRight, outLeft, outRight) = filterStereoStereo(
-			prevLeft, prevRight, outLeft, outRight, stereoBuf, output, samples);
+		std::tie(tl0, tr0) = filterStereoStereo(tl0, tr0, stereoBuf, output, samples);
 		break;
 
 	default: // mono + stereo
 		assert(static_cast<void*>(monoBuf) == static_cast<void*>(output));
-		std::tie(prevLeft, prevRight, outLeft, outRight) = filterBothStereo(
-			prevLeft, prevRight, outLeft, outRight, stereoBuf, output, samples);
+		std::tie(tl0, tr0) = filterBothStereo(tl0, tr0, stereoBuf, output, samples);
 	}
 }
 
@@ -719,8 +661,7 @@ void MSXMixer::unmute()
 {
 	--muteCount;
 	if (muteCount == 0) {
-		prevLeft = outLeft = 0;
-		prevRight = outRight = 0;
+		tl0 = tr0 = 0;
 		mixer.registerMixer(*this);
 	}
 }

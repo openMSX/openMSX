@@ -175,8 +175,7 @@ private:
 	unsigned synchronousCounter;
 
 	unsigned muteCount;
-	int32_t prevLeft, prevRight;
-	int32_t outLeft, outRight;
+	int32_t tl0, tr0; // internal DC-filter state
 };
 
 } // namespace openmsx
