@@ -110,8 +110,7 @@ byte SdCard::transfer(byte value, bool cs)
 				break;
 			case WRITE:
 			case MULTI_WRITE:
-				retval = R1_BUSY;
-				break;
+				// apparently nothing is returned while writing
 			case COMMAND:
 			default:
 			break;
