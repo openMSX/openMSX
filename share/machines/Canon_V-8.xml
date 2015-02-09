@@ -10,7 +10,13 @@
     <type>MSX</type>
   </info>
 
-  <!-- Based on serial 131844, thanks to Ricardo Jurczyk Pinheiro -->
+  <!-- Based on serial 131844, thanks to Ricardo Jurczyk Pinheiro
+
+  Z80 scf: 01C529ED01D429C (dunno)
+  Z80 cpl: 3AFF12D7 (standard)
+  Z80 out (c), 0: 0 (MSX)
+  PSG pin 6/7 quirk: C (YES)
+  -->
 
   <CassettePort/>
 
