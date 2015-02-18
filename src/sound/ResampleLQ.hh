@@ -26,7 +26,7 @@ protected:
 	ResampledSoundDevice& input;
 	const DynamicClock& hostClock;
 	DynamicClock emuClock;
-	typedef FixedPoint<14> FP;
+	using FP = FixedPoint<14>;
 	const FP step;
 	int lastInput[2 * CHANNELS];
 };
@@ -40,7 +40,7 @@ public:
 private:
 	bool generateOutput(int* dataOut, unsigned num,
 	                    EmuTime::param time) override;
-	typedef typename ResampleLQ<CHANNELS>::FP FP;
+	using FP = typename ResampleLQ<CHANNELS>::FP;
 };
 
 template <unsigned CHANNELS>
@@ -52,7 +52,7 @@ public:
 private:
 	bool generateOutput(int* dataOut, unsigned num,
 	                    EmuTime::param time) override;
-	typedef typename ResampleLQ<CHANNELS>::FP FP;
+	using FP = typename ResampleLQ<CHANNELS>::FP;
 };
 
 } // namespace openmsx

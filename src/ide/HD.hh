@@ -66,7 +66,7 @@ private:
 	bool alreadyTried;
 
 	static const unsigned MAX_HD = 26;
-	typedef std::bitset<MAX_HD> HDInUse;
+	using HDInUse = std::bitset<MAX_HD>;
 	std::shared_ptr<HDInUse> hdInUse;
 };
 

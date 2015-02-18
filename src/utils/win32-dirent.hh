@@ -54,7 +54,7 @@ struct dirent
 
 // This is the data type of directory stream objects.
 // The actual structure is opaque to users.
-typedef struct dirstream DIR;
+using DIR = struct dirstream;
 
 DIR* opendir(const char* name);
 struct dirent* readdir(DIR* dir);

@@ -17,7 +17,7 @@ class EventListener;
 class EventDistributor : private noncopyable
 {
 public:
-	typedef std::shared_ptr<const Event> EventPtr;
+	using EventPtr = std::shared_ptr<const Event>;
 
 	/** Priorities from high to low, higher priority listeners can block
 	  * events for lower priority listeners.
@@ -73,9 +73,9 @@ private:
 
 	Reactor& reactor;
 
-	typedef std::vector<std::pair<Priority, EventListener*>> PriorityMap;
+	using PriorityMap = std::vector<std::pair<Priority, EventListener*>>;
 	PriorityMap listeners[NUM_EVENT_TYPES];
-	typedef std::vector<EventPtr> EventQueue;
+	using EventQueue = std::vector<EventPtr>;
 	EventQueue scheduledEvents;
 	Semaphore sem;
 	CondVar cond;

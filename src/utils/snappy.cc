@@ -338,8 +338,8 @@ template<typename T> static inline unsigned ctzDiv8(T n)
 
 // search either 4 or 8 bytes at-a-time
 template<int> struct FindMatchUnit;
-template<> struct FindMatchUnit<4> { typedef uint32_t type; };
-template<> struct FindMatchUnit<8> { typedef uint64_t type; };
+template<> struct FindMatchUnit<4> { using type = uint32_t; };
+template<> struct FindMatchUnit<8> { using type = uint64_t; };
 
 static inline int findMatchLength(const char* s1,
                                   const char* s2, const char* s2Limit)
@@ -351,7 +351,7 @@ static inline int findMatchLength(const char* s1,
 	// time until we find a N-bit block that doesn't match, Then (only on
 	// little endian machines) we find the first non-matching bit and use
 	// that to calculate the total length of the match.
-	typedef FindMatchUnit<sizeof(void*)>::type T;
+	using T = FindMatchUnit<sizeof(void*)>::type;
 	while (likely(s2 <= s2Limit - sizeof(T))) {
 		T l2 = unalignedLoad<T>(s2);
 		T l1 = unalignedLoad<T>(s1 + matched);

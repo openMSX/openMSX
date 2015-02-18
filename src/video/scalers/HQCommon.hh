@@ -104,7 +104,7 @@ template <typename EdgeOp>
 void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict next,
                  uint32_t* __restrict edges2, EdgeOp edgeOp)
 {
-	typedef uint32_t Pixel;
+	using Pixel = uint32_t;
 	if (OPENMSX_BIGENDIAN) {
 		unsigned pattern = 0;
 		Pixel c5 = curr[0];

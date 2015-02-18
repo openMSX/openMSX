@@ -62,7 +62,7 @@ public:
 	/** Number of VDP clock ticks per second.
 	  */
 	static const int TICKS_PER_SECOND = 3579545 * 6; // 21.5MHz;
-	typedef Clock<TICKS_PER_SECOND> VDPClock;
+	using VDPClock = Clock<TICKS_PER_SECOND>;
 
 	/** Number of VDP clock ticks per line.
 	  */

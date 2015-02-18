@@ -12,7 +12,7 @@ class Channel;
 
 /** 16.16 fixed point type for frequency calculations.
   */
-typedef FixedPoint<16> FreqIndex;
+using FreqIndex = FixedPoint<16>;
 
 class Slot
 {
@@ -264,8 +264,8 @@ private:
 	/** Number of samples the output was completely silent. */
 	unsigned idleSamples;
 
-	typedef FixedPoint< 6> LFOAMIndex;
-	typedef FixedPoint<10> LFOPMIndex;
+	using LFOAMIndex = FixedPoint< 6>;
+	using LFOPMIndex = FixedPoint<10>;
 	LFOAMIndex lfo_am_cnt;
 	LFOPMIndex lfo_pm_cnt;
 

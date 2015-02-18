@@ -16,7 +16,7 @@ namespace openmsx {
 class BlipBuffer
 {
 public:
-	typedef FixedPoint<BLIP_PHASE_BITS> TimeIndex;
+	using TimeIndex = FixedPoint<BLIP_PHASE_BITS>;
 
 	BlipBuffer();
 

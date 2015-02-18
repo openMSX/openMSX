@@ -12,7 +12,7 @@ class Interpreter;
 
 namespace InputEventFactory
 {
-	typedef std::shared_ptr<const Event> EventPtr;
+	using EventPtr = std::shared_ptr<const Event>;
 
 	EventPtr createInputEvent(string_ref str,       Interpreter& interp);
 	EventPtr createInputEvent(const TclObject& str, Interpreter& interp);

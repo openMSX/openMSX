@@ -89,9 +89,9 @@ private:
 	int blockMask;
 };
 
-typedef RomBlocks<0x1000> Rom4kBBlocks;
-typedef RomBlocks<0x2000> Rom8kBBlocks;
-typedef RomBlocks<0x4000> Rom16kBBlocks;
+using Rom4kBBlocks  = RomBlocks<0x1000>;
+using Rom8kBBlocks  = RomBlocks<0x2000>;
+using Rom16kBBlocks = RomBlocks<0x4000>;
 
 REGISTER_BASE_CLASS(Rom4kBBlocks,  "Rom4kBBlocks");
 REGISTER_BASE_CLASS(Rom8kBBlocks,  "Rom8kBBlocks");

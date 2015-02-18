@@ -14,6 +14,7 @@
 // RapidXml produces a DOM-like output. This parser has a SAX-like interface.
 
 #include "string_ref.hh"
+#include <cstdint>
 
 namespace rapidsax {
 
@@ -109,60 +110,59 @@ private:
 
 namespace internal {
 
-typedef unsigned char u8;
-extern const u8 lutChar  [256]; // Character class
-extern const u8 lutDigits[256]; // Digits
+extern const uint8_t lutChar  [256]; // Character class
+extern const uint8_t lutDigits[256]; // Digits
 
 // Detect whitespace character (space \n \r \t)
 struct WhitespacePred {
-	static bool test(char ch) { return (lutChar[u8(ch)] & 0x02) != 0; }
+	static bool test(char ch) { return (lutChar[uint8_t(ch)] & 0x02) != 0; }
 };
 
 // Detect node name character (anything but space \n \r \t / > ? \0)
 struct NodeNamePred {
-	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x43); }
+	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x43); }
 };
 
 // Detect attribute name character (anything but space \n \r \t / < > = ? ! \0)
 struct AttributeNamePred {
-	static bool test(char ch) { return !(lutChar[u8(ch)] & 0xC7); }
+	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0xC7); }
 };
 
 // Detect text character (PCDATA) (anything but < \0)
 struct TextPred {
-	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x05); }
+	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x05); }
 };
 
 // Detect text character (PCDATA) that does not require processing when ws
 // normalization is disabled (anything but < \0 &)
 struct TextPureNoWsPred {
-	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x0D); }
+	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0D); }
 };
 
 // Detect text character (PCDATA) that does not require processing when ws
 // normalizationis is enabled (anything but < \0 & space \n \r \t)
 struct TextPureWithWsPred {
-	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x0F); }
+	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0F); }
 };
 
 // Detect attribute value character, single quote (anything but ' \0)
 struct AttPred1 {
-	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x11); }
+	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x11); }
 };
 // Detect attribute value character, double quote (anything but " \0)
 struct AttPred2 {
-	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x21); }
+	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x21); }
 };
 
 // Detect attribute value character, single quote, that does not require
 // processing (anything but ' \0 &)
 struct AttPurePred1 {
-	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x19); }
+	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x19); }
 };
 // Detect attribute value character, double quote, that does not require
 // processing (anything but " \0 &)
 struct AttPurePred2 {
-	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x29); }
+	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x29); }
 };
 
 // Insert coded character, using UTF8
@@ -293,7 +293,7 @@ static inline char* skipAndExpand(char*& text)
 					unsigned long code = 0;
 					src += 3; // skip &#x
 					while (true) {
-						u8 digit = lutDigits[u8(*src)];
+						uint8_t digit = lutDigits[uint8_t(*src)];
 						if (digit == 0xFF) break;
 						code = code * 16 + digit;
 						++src;
@@ -303,7 +303,7 @@ static inline char* skipAndExpand(char*& text)
 					unsigned long code = 0;
 					src += 2; // skip &#
 					while (1) {
-						   u8 digit = lutDigits[u8(*src)];
+						   uint8_t digit = lutDigits[uint8_t(*src)];
 						   if (digit == 0xFF) break;
 						   code = code * 10 + digit;
 						   ++src;

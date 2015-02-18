@@ -13,7 +13,7 @@ namespace openmsx {
 class IPSPatch final : public PatchInterface, private noncopyable
 {
 public:
-	typedef std::vector<std::pair<size_t, std::vector<byte>>> PatchMap;
+	using PatchMap = std::vector<std::pair<size_t, std::vector<byte>>>;
 
 	IPSPatch(const Filename& filename,
 	         std::unique_ptr<const PatchInterface> parent);

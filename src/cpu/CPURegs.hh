@@ -11,10 +11,10 @@ namespace openmsx {
 template<bool BigEndian> struct z80regpair_8bit;
 template<> struct z80regpair_8bit<false> { byte l, h; };
 template<> struct z80regpair_8bit<true>  { byte h, l; };
-typedef union {
+union z80regpair {
 	z80regpair_8bit<OPENMSX_BIGENDIAN> b;
 	word w;
-} z80regpair;
+};
 
 class CPURegs
 {

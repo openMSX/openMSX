@@ -147,7 +147,7 @@ template<> struct serialize_as_enum< TYPE > : serialize_as_enum_impl< TYPE > { \
 //      True iff this type must be serialized as a pointer.
 //      The fields below are only valid (even only present) if this variable
 //      is true.
-//  - typedef T type
+//  - using type = T
 //      The pointed-to type
 //  - T* getPointer(X x)
 //      Get an actual pointer from the abstract pointer x
@@ -163,7 +163,7 @@ template<typename T> struct serialize_as_pointer_impl : std::true_type
 	// pointer to primitive types not supported
 	static_assert(!is_primitive<T>::value,
 	              "can't serialize ptr to primitive type");
-	typedef T type;
+	using type = T;
 };
 template<typename T> struct serialize_as_pointer<T*>
 	: serialize_as_pointer_impl<T>
@@ -217,7 +217,7 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 //      The size of the collection, -1 for variable sized collections.
 //      Fixed sized collections can be serialized slightly more efficient
 //      becuase we don't need to explicitly store the size.
-//  - typedef ... value_type
+//  - using value_type = ...
 //      The type stored in the collection (only homogeneous collections are
 //      supported).
 //  - bool loadInPlace
@@ -225,11 +225,11 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 //      position in the container, otherwise there will be an extra assignment.
 //      For this to be possible, the output iterator must support a dereference
 //      operator that returns a 'regular' value_type.
-//  - typedef ... const_iterator
+//  - using const_iterator = ...
 //  - const_iterator begin(...)
 //  - const_iterator end(...)
 //      Returns begin/end iterator for the given collection. Used for saving.
-//  - typedef ... output_iterator
+//  - using output_iterator = ...
 //  - void prepare(..., int n)
 //  - output_iterator output(...)
 //      These are used for loading. The prepare() method should prepare the
@@ -240,14 +240,14 @@ template<typename T> struct serialize_as_collection : std::false_type {};
 template<typename T, int N> struct serialize_as_collection<T[N]> : std::true_type
 {
 	static const int size = N; // fixed size
-	typedef T value_type;
+	using value_type = T;
 	// save
-	typedef const T* const_iterator;
+	using const_iterator = const T*;
 	static const T* begin(const T (&array)[N]) { return &array[0]; }
 	static const T* end  (const T (&array)[N]) { return &array[N]; }
 	// load
 	static const bool loadInPlace = true;
-	typedef       T* output_iterator;
+	using output_iterator = T*;
 	static void prepare(T (&/*array*/)[N], int /*n*/) { }
 	static T* output(T (&array)[N]) { return &array[0]; }
 };
@@ -357,7 +357,7 @@ template<typename T> struct ClassSaver
 			constrArgs.save(ar, t);
 		}
 
-		typedef typename std::remove_const<T>::type TNC;
+		using TNC = typename std::remove_const<T>::type;
 		auto& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
@@ -370,7 +370,7 @@ template<typename TP> struct PointerSaver
 	{
 		static_assert(serialize_as_pointer<TP>::value,
 		              "must be serialized as pointer");
-		typedef typename serialize_as_pointer<TP>::type T;
+		using T = typename serialize_as_pointer<TP>::type;
 		const T* tp = serialize_as_pointer<TP>::getPointer(tp2);
 		if (!tp) {
 			unsigned id = 0;
@@ -413,7 +413,7 @@ template<typename TC> struct CollectionSaver
 	template<typename Archive> void operator()(Archive& ar, const TC& tc,
 	                                           bool saveId)
 	{
-		typedef serialize_as_collection<TC> sac;
+		using sac = serialize_as_collection<TC>;
 		static_assert(sac::value, "must be serialized as collection");
 		auto begin = sac::begin(tc);
 		auto end   = sac::end  (tc);
@@ -534,7 +534,7 @@ template<typename T> struct ClassLoader
 			version = loadVersion<T>(ar);
 		}
 
-		typedef typename std::remove_const<T>::type TNC;
+		using TNC = typename std::remove_const<T>::type;
 		auto& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
@@ -547,8 +547,8 @@ template<typename T> struct NonPolymorphicPointerLoader
 		int version = loadVersion<T>(ar);
 
 		// load (local) constructor args (if any)
-		typedef typename std::remove_const<T>::type TNC;
-		typedef SerializeConstructorArgs<TNC> ConstrArgs;
+		using TNC = typename std::remove_const<T>::type;
+		using ConstrArgs = SerializeConstructorArgs<TNC>;
 		ConstrArgs constrArgs;
 		auto localArgs = constrArgs.load(ar, version);
 
@@ -568,7 +568,7 @@ template<typename T> struct PolymorphicPointerLoader
 	template<typename Archive, typename TUPLE>
 	T* operator()(Archive& ar, unsigned id, TUPLE args)
 	{
-		typedef typename PolymorphicConstructorArgs<T>::type ArgsType;
+		using ArgsType = typename PolymorphicConstructorArgs<T>::type;
 		static_assert(std::is_same<TUPLE, ArgsType>::value,
 		              "constructor arguments types must match");
 		return static_cast<T*>(
@@ -599,7 +599,7 @@ template<typename TP> struct PointerLoader
 			ar.attribute("id", id);
 		}
 
-		typedef typename serialize_as_pointer<TP>::type T;
+		using T = typename serialize_as_pointer<TP>::type;
 		T* tp;
 		if (id == 0) {
 			tp = nullptr;
@@ -625,7 +625,7 @@ template<typename TP> struct IDLoader
 		unsigned id;
 		ar.attribute("id_ref", id);
 
-		typedef typename serialize_as_pointer<TP>::type T;
+		using T = typename serialize_as_pointer<TP>::type;
 		T* tp;
 		if (id == 0) {
 			tp = nullptr;
@@ -670,7 +670,7 @@ template<typename TC> struct CollectionLoader
 	void operator()(Archive& ar, TC& tc, TUPLE args, int id = 0)
 	{
 		assert((id == 0) || (id == -1));
-		typedef serialize_as_collection<TC> sac;
+		using sac = serialize_as_collection<TC>;
 		static_assert(sac::value, "must be serialized as a collection");
 		int n = sac::size;
 		if (n < 0) {

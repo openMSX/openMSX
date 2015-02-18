@@ -15,7 +15,7 @@ class EnumSettingBase
 {
 protected:
 	// cannot be string_ref because of the 'default_machine' setting
-	typedef std::vector<std::pair<std::string, int>> BaseMap;
+	using BaseMap = std::vector<std::pair<std::string, int>>;
 	EnumSettingBase(BaseMap&& m);
 
 	int fromStringBase(string_ref str) const;
@@ -32,7 +32,7 @@ private:
 template<typename T> class EnumSetting final : private EnumSettingBase, public Setting
 {
 public:
-	typedef std::vector<std::pair<std::string, T>> Map;
+	using Map = std::vector<std::pair<std::string, T>>;
 
 	EnumSetting(CommandController& commandController, string_ref name,
 	            string_ref description, T initialValue,

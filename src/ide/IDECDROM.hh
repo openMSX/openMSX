@@ -65,7 +65,7 @@ private:
 	bool mediaChanged;
 
 	static const unsigned MAX_CD = 26;
-	typedef std::bitset<MAX_CD> CDInUse;
+	using CDInUse = std::bitset<MAX_CD>;
 	std::shared_ptr<CDInUse> cdInUse;
 
 	friend class CDXCommand;

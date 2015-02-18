@@ -99,7 +99,7 @@ public:
 
 	std::string loadMachine(const std::string& machine);
 
-	typedef std::vector<std::unique_ptr<HardwareConfig>> Extensions;
+	using Extensions = std::vector<std::unique_ptr<HardwareConfig>>;
 	const Extensions& getExtensions() const { return extensions; }
 	HardwareConfig* findExtension(string_ref extensionName);
 	std::string loadExtension(string_ref extensionName, string_ref slotname);

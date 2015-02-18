@@ -25,7 +25,7 @@ public:
 	  */
 	enum RendererID { UNINITIALIZED, DUMMY, SDL,
 	                  SDLGL_PP, SDLGL_FB16, SDLGL_FB32 };
-	typedef EnumSetting<RendererID> RendererSetting;
+	using RendererSetting = EnumSetting<RendererID>;
 
 	/** Render accuracy: granularity of the rendered area.
 	  */

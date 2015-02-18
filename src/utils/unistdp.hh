@@ -12,7 +12,7 @@
 
 #define getpid _getpid
 
-typedef int mode_t;
+using mode_t = int;
 
 #endif
 

@@ -28,18 +28,18 @@ static bool isInit = false;
 
 // This maps a name to a RomType. There can be multiple names (aliases) for the
 // same type.
-typedef StringMap<RomType, false> RomTypeMap;
+using RomTypeMap = StringMap<RomType, false>;
 static RomTypeMap romTypeMap(256); // initial hashtable size
                                    // (big enough so that no rehash is needed)
 
 // This contains extra information for each RomType. This structure only
 // contains the primary (non-alias) romtypes.
-typedef std::tuple<RomType,    // rom type
-                   string_ref, // description
-                   unsigned    // blockSize
-	> RomTypeInfo;
-typedef vector<RomTypeInfo> RomTypeInfoMap;
-typedef LessTupleElement<0> RomTypeInfoMapLess;
+using RomTypeInfo = std::tuple<
+	RomType,    // rom type
+	string_ref, // description
+	unsigned>;  // blockSize
+using RomTypeInfoMap = vector<RomTypeInfo>;
+using RomTypeInfoMapLess = LessTupleElement<0>;
 static RomTypeInfoMap romTypeInfoMap;
 
 static void init(RomType type, string_ref name,

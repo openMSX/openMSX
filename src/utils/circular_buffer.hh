@@ -23,11 +23,11 @@
 template<typename BUF, typename T> class cb_iterator
 {
 public:
-	typedef T value_type;
-	typedef T* pointer;
-	typedef T& reference;
-	typedef ptrdiff_t difference_type;
-	typedef std::random_access_iterator_tag iterator_category;
+	using value_type = T;
+	using pointer    = T*;
+	using reference  = T&;
+	using difference_type = ptrdiff_t;
+	using iterator_category = std::random_access_iterator_tag;
 
 	cb_iterator() : buf(nullptr), p(nullptr) {}
 	cb_iterator(const cb_iterator& it) : buf(it.buf), p(it.p) {}
@@ -100,15 +100,15 @@ private:
 template<typename T> class circular_buffer
 {
 public:
-	typedef cb_iterator<circular_buffer<T>,       T>       iterator;
-	typedef cb_iterator<circular_buffer<T>, const T> const_iterator;
-	typedef std::reverse_iterator<      iterator>       reverse_iterator;
-	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-	typedef T value_type;
-	typedef T* pointer;
-	typedef T& reference;
-	typedef ptrdiff_t difference_type;
-	typedef size_t size_type;
+	using               iterator = cb_iterator<circular_buffer<T>,       T>;
+	using         const_iterator = cb_iterator<circular_buffer<T>, const T>;
+	using       reverse_iterator = std::reverse_iterator<      iterator>;
+	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+	using value_type = T;
+	using pointer    = T*;
+	using reference  = T&;
+	using difference_type = ptrdiff_t;
+	using size_type       = size_t;
 
 	circular_buffer()
 		: buf(nullptr), stop(nullptr)
@@ -349,11 +349,11 @@ private:
 template<typename T> class cb_queue
 {
 public:
-	typedef typename circular_buffer<T>::value_type             value_type;
-	typedef typename circular_buffer<T>::iterator               iterator;
-	typedef typename circular_buffer<T>::const_iterator         const_iterator;
-	typedef typename circular_buffer<T>::reverse_iterator       reverse_iterator;
-	typedef typename circular_buffer<T>::const_reverse_iterator const_reverse_iterator;
+	using             value_type = typename circular_buffer<T>::value_type;
+	using               iterator = typename circular_buffer<T>::iterator;
+	using         const_iterator = typename circular_buffer<T>::const_iterator;
+	using       reverse_iterator = typename circular_buffer<T>::reverse_iterator;
+	using const_reverse_iterator = typename circular_buffer<T>::const_reverse_iterator;
 
 	cb_queue() {}
 	explicit cb_queue(size_t capacity)

@@ -74,7 +74,7 @@ private:
 		unsigned rgb;
 		unsigned width;
 	};
-	typedef std::list<TextCacheElement> TextCache;
+	using TextCache = std::list<TextCacheElement>;
 
 	Reactor& reactor;
 	CommandConsole& console;

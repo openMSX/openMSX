@@ -18,10 +18,10 @@
 class string_ref
 {
 public:
-	typedef size_t size_type;
-	typedef std::ptrdiff_t difference_type;
-	typedef const char* const_iterator;
-	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+	using size_type = size_t;
+	using difference_type = std::ptrdiff_t;
+	using const_iterator = const char*;
+	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 	static const size_type npos = size_type(-1);
 

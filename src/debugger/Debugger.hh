@@ -98,7 +98,7 @@ private:
 
 	StringMap<Debuggable*> debuggables;
 	StringMap<ProbeBase*>  probes;
-	typedef std::vector<std::unique_ptr<ProbeBreakPoint>> ProbeBreakPoints;
+	using ProbeBreakPoints = std::vector<std::unique_ptr<ProbeBreakPoint>>;
 	ProbeBreakPoints probeBreakPoints;
 	MSXCPU* cpu;
 };

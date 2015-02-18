@@ -103,7 +103,7 @@ void GLHQScaler::scaleImage(
 	}
 }
 
-typedef unsigned Pixel;
+using Pixel = uint32_t;
 void GLHQScaler::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth,
 	FrameSource& paintFrame)

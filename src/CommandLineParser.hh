@@ -51,7 +51,7 @@ public:
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
 
-	typedef std::vector<std::string> Scripts;
+	using Scripts = std::vector<std::string>;
 	const Scripts& getStartupScripts() const;
 
 	MSXMotherBoard* getMotherBoard() const;

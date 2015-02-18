@@ -15,7 +15,7 @@
 namespace openmsx {
 
 // The master clock, running at 33.8MHz.
-typedef Clock<33868800> MasterClock;
+using MasterClock = Clock<33868800>;
 
 // Required delay between register select and register read/write.
 static const EmuDuration FM_REG_SELECT_DELAY = MasterClock::duration(56);

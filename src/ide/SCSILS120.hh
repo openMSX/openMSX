@@ -95,7 +95,7 @@ private:
 	byte cdb[12];          // Command Descriptor Block
 
 	static const unsigned MAX_LS = 26;
-	typedef std::bitset<MAX_LS> LSInUse;
+	using LSInUse = std::bitset<MAX_LS>;
 	std::shared_ptr<LSInUse> lsInUse;
 
 	friend class LSXCommand;

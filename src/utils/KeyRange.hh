@@ -9,15 +9,15 @@ namespace detail {
 
 template<typename MAP, size_t N> class KeyIterator
 {
-	typedef typename MAP::const_iterator                        map_iter;
-	typedef typename std::iterator_traits<map_iter>::value_type pair_type;
+	using map_iter  = typename MAP::const_iterator;
+	using pair_type = typename std::iterator_traits<map_iter>::value_type;
 public:
 
-	typedef const typename std::tuple_element<N, pair_type>::type     value_type;
-	typedef value_type*                                               pointer;
-	typedef value_type&                                               reference;
-	typedef typename std::iterator_traits<map_iter>::difference_type  difference_type;
-	typedef std::forward_iterator_tag                                 iterator_category;
+	using value_type        = const typename std::tuple_element<N, pair_type>::type;
+	using pointer           = value_type*;
+	using reference         = value_type&;
+	using difference_type   = typename std::iterator_traits<map_iter>::difference_type;
+	using iterator_category = std::forward_iterator_tag;
 
 	KeyIterator(map_iter it_) : it(it_) {}
 	reference operator*() const { return std::get<N>(*it); }
@@ -30,28 +30,28 @@ private:
 
 template<typename T, size_t N> struct StringMapGetter;
 template<typename T> struct StringMapGetter<T, 0> {
-	typedef string_ref  value_type;
-	typedef string_ref* pointer;
-	typedef string_ref  reference;
+	using value_type = string_ref;
+	using pointer    = string_ref*;
+	using reference  = string_ref;
 	reference operator()(const StringMapEntry<T>& entry) { return entry.first(); }
 };
 template<typename T> struct StringMapGetter<T, 1> {
-	typedef const T  value_type;
-	typedef const T* pointer;
-	typedef const T& reference;
+	using value_type = const T;
+	using pointer    = const T*;
+	using reference  = const T&;
 	reference operator()(const StringMapEntry<T>& entry) { return entry.second; }
 };
 
 template<typename T, size_t N> class KeyIterator2
 {
 	static_assert(N==0 || N==1, "StringMap only has key and value");
-	typedef StringMapGetter<T, N> Getter;
+	using Getter = StringMapGetter<T, N>;
 public:
-	typedef typename Getter::value_type value_type;
-	typedef typename Getter::pointer    pointer;
-	typedef typename Getter::reference  reference;
-	typedef int                         difference_type;
-	typedef std::forward_iterator_tag   iterator_category;
+	using value_type        = typename Getter::value_type;
+	using pointer           = typename Getter::pointer;
+	using reference         = typename Getter::reference;
+	using difference_type   = int;
+	using iterator_category = std::forward_iterator_tag;
 
 	KeyIterator2(typename StringMap<T>::const_iterator it_) : it(it_) {}
 	reference operator*() const { Getter getter; return getter(*it); }

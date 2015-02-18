@@ -62,8 +62,8 @@ private:
 		// start at this index.
 		unsigned eventCount;
 	};
-	typedef std::map<unsigned, ReverseChunk> Chunks;
-	typedef std::vector<std::shared_ptr<StateChange>> Events;
+	using Chunks = std::map<unsigned, ReverseChunk>;
+	using Events = std::vector<std::shared_ptr<StateChange>>;
 
 	struct ReverseHistory {
 		void swap(ReverseHistory& other);

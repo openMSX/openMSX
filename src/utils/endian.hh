@@ -109,10 +109,10 @@ template<> struct ConvBig   <false> : BSwap {};
 template<bool> struct ConvLittle;
 template<> struct ConvLittle<true > : BSwap {};
 template<> struct ConvLittle<false> : Ident {};
-typedef EndianT<uint16_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>> B16;
-typedef EndianT<uint16_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>> L16;
-typedef EndianT<uint32_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>> B32;
-typedef EndianT<uint32_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>> L32;
+using B16 = EndianT<uint16_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
+using L16 = EndianT<uint16_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
+using B32 = EndianT<uint32_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
+using L32 = EndianT<uint32_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
 static_assert(sizeof(B16)  == 2, "must have size 2");
 static_assert(sizeof(L16)  == 2, "must have size 2");
 static_assert(sizeof(B32)  == 4, "must have size 4");
@@ -276,17 +276,17 @@ static_assert(ALIGNOF(UA_L32) == 1, "must have alignment 1");
 // specific endianess. Typically used in template functions that can work on
 // either 16 or 32 bit values.
 //  usage:
-//    typedef typename Endian::Little<T>::type LE_T;
+//    using LE_T = typename Endian::Little<T>::type;
 //  The type LE_T is now a type that stores values of the same size as 'T'
 //  in little endian format (independent of host endianess).
 template<typename> struct Little;
-template<> struct Little<uint8_t > { typedef uint8_t type; };
-template<> struct Little<uint16_t> { typedef L16     type; };
-template<> struct Little<uint32_t> { typedef L32     type; };
+template<> struct Little<uint8_t > { using type = uint8_t; };
+template<> struct Little<uint16_t> { using type = L16; };
+template<> struct Little<uint32_t> { using type = L32; };
 template<typename> struct Big;
-template<> struct Big<uint8_t > { typedef uint8_t type; };
-template<> struct Big<uint16_t> { typedef B16     type; };
-template<> struct Big<uint32_t> { typedef B32     type; };
+template<> struct Big<uint8_t > { using type = uint8_t; };
+template<> struct Big<uint16_t> { using type = B16; };
+template<> struct Big<uint32_t> { using type = B32; };
 
 } // namespace Endian
 

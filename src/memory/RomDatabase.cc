@@ -18,7 +18,7 @@ using std::vector;
 
 namespace openmsx {
 
-typedef StringMap<unsigned> UnknownTypes;
+using UnknownTypes = StringMap<unsigned>;
 
 class DBParser : public rapidsax::NullHandler
 {

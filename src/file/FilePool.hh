@@ -59,10 +59,10 @@ private:
 		std::string path;
 		int types;
 	};
-	typedef std::vector<Entry> Directories;
+	using Directories = std::vector<Entry>;
 
 	// <sha1sum, timestamp, filename>, sorted on sha1sum
-	typedef std::vector<std::tuple<Sha1Sum, time_t, std::string>> Pool;
+	using Pool = std::vector<std::tuple<Sha1Sum, time_t, std::string>>;
 
 	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
 	void remove(Pool::iterator it);

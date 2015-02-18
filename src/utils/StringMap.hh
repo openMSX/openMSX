@@ -13,13 +13,13 @@
 // std::map<std::string, T> class. Though one notable difference is the use of
 // 'first'. An example:
 //
-//     typedef std::map<std::string, int> MySTLmap;
+//     using MySTLmap = std::map<std::string, int>;
 //     MySTLmap m1 = ...;
 //     MySTLmap::const_iterator it1 = m1.find("abc"); // *1*
 //     assert(it1->first == "abc");
 //     int i1 = it1->second;
 //
-//     typedef StringMap<int> MyHashmap;
+//     using MyHashmap = StringMap<int>;
 //     MyHashmap m2 = ...;
 //     MyHashmap::const_iterator it = m2.find("abc"); // *2
 //     assert(it2->first() == "abc");
@@ -199,12 +199,12 @@ template<typename T, bool CASE_SENSITIVE = true>
 class StringMap : public StringMapImpl2<CASE_SENSITIVE>
 {
 public:
-	typedef const char* key_type;
-	typedef T mapped_type;
-	typedef StringMapEntry<T> value_type;
-	typedef size_t size_type;
-	typedef StringMapConstIterator<T> const_iterator;
-	typedef StringMapIterator<T>      iterator;
+	using key_type    = const char*;
+	using mapped_type = T;
+	using value_type  = StringMapEntry<T>;
+	using size_type   = size_t;
+	using const_iterator = StringMapConstIterator<T>;
+	using       iterator = StringMapIterator<T>;
 
 	explicit StringMap(unsigned initialSize = 0)
 		: StringMapImpl2<CASE_SENSITIVE>(sizeof(value_type), initialSize)
@@ -348,7 +348,7 @@ private:
 template<typename T> class StringMapConstIterator
 {
 public:
-	typedef StringMapEntry<T> value_type;
+	using value_type = StringMapEntry<T>;
 
 	explicit StringMapConstIterator(
 			StringMapEntryBase** bucket, bool advance = false)
@@ -396,7 +396,7 @@ private:
 template<typename T> class StringMapIterator : public StringMapConstIterator<T>
 {
 public:
-	typedef StringMapEntry<T> value_type;
+	using value_type = StringMapEntry<T>;
 
 	explicit StringMapIterator(
 			StringMapEntryBase** bucket, bool advance = false)

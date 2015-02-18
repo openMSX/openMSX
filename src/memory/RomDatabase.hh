@@ -17,7 +17,7 @@ class GlobalCommandController;
 class RomDatabase : private noncopyable
 {
 public:
-	typedef std::vector<std::pair<Sha1Sum, RomInfo>> RomDB;
+	using RomDB = std::vector<std::pair<Sha1Sum, RomInfo>>;
 
 	RomDatabase(GlobalCommandController& commandController, CliComm& cliComm);
 

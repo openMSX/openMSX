@@ -20,7 +20,7 @@ namespace openmsx {
  * be stored in the archive). See below for more details on global constr args.
  *
  * The serialize_as_enum class has the following members:
- *   typedef tuple<...> type
+ *   using type = tuple<...>
  *     Tuple that holds the result of load() (see below)
  *   void save(Archive& ar, const T& t)
  *     This method should store the constructor args in the given archive
@@ -30,7 +30,7 @@ namespace openmsx {
  */
 template<typename T> struct SerializeConstructorArgs
 {
-	typedef std::tuple<> type;
+	using type = std::tuple<>;
 	template<typename Archive>
 	void save(Archive& /*ar*/, const T& /*t*/) { }
 	template<typename Archive>

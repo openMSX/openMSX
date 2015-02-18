@@ -7,7 +7,7 @@
 // On 64-bit CPUs gcc already provides a 128-bit type,
 // use that type because it's most likely much more efficient.
 // VC++ 2008 does not provide a 128-bit integer type
-typedef __uint128_t uint128;
+using uint128 = __uint128_t;
 inline uint64_t toUint64(uint128 a) { return a; }
 
 #else // __x86_64 && !_MSC_VER

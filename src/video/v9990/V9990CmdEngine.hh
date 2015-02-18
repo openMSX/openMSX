@@ -81,7 +81,7 @@ public:
 private:
 	class V9990P1 {
 	public:
-		typedef byte Type;
+		using Type = byte;
 		static const word BITS_PER_PIXEL  = 4;
 		static const word PIXELS_PER_BYTE = 2;
 		static inline unsigned getPitch(unsigned width);
@@ -102,7 +102,7 @@ private:
 
 	class V9990P2 {
 	public:
-		typedef byte Type;
+		using Type = byte;
 		static const word BITS_PER_PIXEL  = 4;
 		static const word PIXELS_PER_BYTE = 2;
 		static inline unsigned getPitch(unsigned width);
@@ -123,7 +123,7 @@ private:
 
 	class V9990Bpp2 {
 	public:
-		typedef byte Type;
+		using Type = byte;
 		static const word BITS_PER_PIXEL  = 2;
 		static const word PIXELS_PER_BYTE = 4;
 		static inline unsigned getPitch(unsigned width);
@@ -144,7 +144,7 @@ private:
 
 	class V9990Bpp4 {
 	public:
-		typedef byte Type;
+		using Type = byte;
 		static const word BITS_PER_PIXEL  = 4;
 		static const word PIXELS_PER_BYTE = 2;
 		static inline unsigned getPitch(unsigned width);
@@ -165,7 +165,7 @@ private:
 
 	class V9990Bpp8 {
 	public:
-		typedef byte Type;
+		using Type = byte;
 		static const word BITS_PER_PIXEL  = 8;
 		static const word PIXELS_PER_BYTE = 1;
 		static inline unsigned getPitch(unsigned width);
@@ -186,7 +186,7 @@ private:
 
 	class V9990Bpp16 {
 	public:
-		typedef word Type;
+		using Type = word;
 		static const word BITS_PER_PIXEL  = 16;
 		static const word PIXELS_PER_BYTE = 0;
 		static inline unsigned getPitch(unsigned width);

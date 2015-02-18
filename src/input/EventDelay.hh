@@ -36,7 +36,7 @@ public:
 	void flush();
 
 private:
-	typedef std::shared_ptr<const Event> EventPtr;
+	using EventPtr = std::shared_ptr<const Event>;
 
 	// EventListener
 	int signalEvent(const EventPtr& event) override;

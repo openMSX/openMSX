@@ -1,17 +1,16 @@
 #include "HexDump.hh"
 #include <algorithm>
+#include <cstdint>
 
 namespace HexDump {
 
 using std::string;
 
-typedef unsigned char byte;
-
-static char encode2(byte x)
+static char encode2(uint8_t x)
 {
 	return (x < 10) ? (x + '0') : (x - 10 + 'A');
 }
-static string encode(byte x)
+static string encode(uint8_t x)
 {
 	string result;
 	result += encode2(x >> 4);
@@ -20,7 +19,7 @@ static string encode(byte x)
 }
 string encode(const void* input_, size_t len, bool newlines)
 {
-	auto input = static_cast<const byte*>(input_);
+	auto input = static_cast<const uint8_t*>(input_);
 	string ret;
 	while (len) {
 		if (newlines && !ret.empty()) ret += '\n';

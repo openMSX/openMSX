@@ -2,14 +2,13 @@
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 
 namespace Base64 {
 
 using std::string;
 
-typedef unsigned char byte;
-
-static inline char encode(byte c)
+static inline char encode(uint8_t c)
 {
 	static const char* const base64_chars =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -19,7 +18,7 @@ static inline char encode(byte c)
 	return base64_chars[c];
 }
 
-static inline byte decode(unsigned char c)
+static inline uint8_t decode(unsigned char c)
 {
 	if        ('A' <= c && c <= 'Z') {
 		return c - 'A';
@@ -32,7 +31,7 @@ static inline byte decode(unsigned char c)
 	} else if (c == '/') {
 		return 63;
 	} else {
-		return byte(-1);
+		return uint8_t(-1);
 	}
 }
 
@@ -42,7 +41,7 @@ string encode(const void* input_, size_t inSize)
 	static const int IN_CHUNKS  = 3 * CHUNKS;
 	static const int OUT_CHUNKS = 4 * CHUNKS; // 76 chars per line
 
-	auto input = static_cast<const byte*>(input_);
+	auto input = static_cast<const uint8_t*>(input_);
 	auto outSize = ((inSize + (IN_CHUNKS - 1)) / IN_CHUNKS) * (OUT_CHUNKS + 1); // overestimation
 	string ret(outSize, 0); // too big
 
@@ -61,11 +60,11 @@ string encode(const void* input_, size_t inSize)
 			input += 3;
 		}
 		if (n) {
-			byte buf3[3] = { 0, 0, 0 };
+			uint8_t buf3[3] = { 0, 0, 0 };
 			for (unsigned i = 0; i < n; ++i) {
 				buf3[i] = input[i];
 			}
-			byte buf4[4];
+			uint8_t buf4[4];
 			buf4[0] =  (buf3[0] & 0xfc) >> 2;
 			buf4[1] = ((buf3[0] & 0x03) << 4) +
 				  ((buf3[1] & 0xf0) >> 4);
@@ -95,10 +94,10 @@ string decode(const string& input)
 
 	unsigned i = 0;
 	size_t out = 0;
-	byte buf4[4];
+	uint8_t buf4[4];
 	for (auto in : xrange(inSize)) {
-		byte d = decode(input[in]);
-		if (d == byte(-1)) continue;
+		uint8_t d = decode(input[in]);
+		if (d == uint8_t(-1)) continue;
 		buf4[i++] = d;
 		if (i == 4) {
 			i = 0;
@@ -111,7 +110,7 @@ string decode(const string& input)
 		for (unsigned j = i; j < 4; ++j) {
 			buf4[j] = 0;
 		}
-		byte buf3[3];
+		uint8_t buf3[3];
 		buf3[0] = ((buf4[0] & 0xff) << 2) + ((buf4[1] & 0x30) >> 4);
 		buf3[1] = ((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2);
 		buf3[2] = ((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0);

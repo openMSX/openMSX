@@ -19,17 +19,13 @@
 namespace openmsx {
 
 /** 4 bit integer */
-typedef unsigned char nibble;
+using nibble = unsigned char;
 
-/** 8 bit signed integer */
-typedef signed char signed_byte;
 /** 8 bit unsigned integer */
-typedef unsigned char byte;
+using byte = unsigned char;
 
-/** 16 bit signed integer */
-typedef short signed_word;
 /** 16 bit unsigned integer */
-typedef unsigned short word;
+using word = unsigned short;
 
 
 #if defined(__GNUC__) && \

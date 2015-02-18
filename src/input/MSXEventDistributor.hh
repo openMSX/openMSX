@@ -14,7 +14,7 @@ class Event;
 class MSXEventDistributor : private noncopyable
 {
 public:
-	typedef std::shared_ptr<const Event> EventPtr;
+	using EventPtr = std::shared_ptr<const Event>;
 
 	MSXEventDistributor();
 	~MSXEventDistributor();

@@ -56,7 +56,7 @@ public:
 	void poll();
 
 private:
-	typedef std::shared_ptr<const Event> EventPtr;
+	using EventPtr = std::shared_ptr<const Event>;
 
 	void handle(const SDL_Event& event);
 	void setGrabInput(bool grab);

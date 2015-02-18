@@ -12,7 +12,7 @@ namespace openmsx {
 namespace Keys {
 
 static std::vector<std::pair<string_ref, KeyCode>> keys;
-typedef CmpTupleElement<0, StringOp::caseless> CmpKeys;
+using CmpKeys = CmpTupleElement<0, StringOp::caseless>;
 
 static void initialize()
 {

@@ -147,9 +147,9 @@ struct IncrMask7;
 struct IncrShift4;
 struct IncrShift5;
 struct IncrShift7;
-typedef IncrByteAddr7 IncrPixelAddr7;
-typedef IncrMask4 IncrMask6;
-typedef IncrShift4 IncrShift6;
+using IncrPixelAddr7 = IncrByteAddr7;
+using IncrMask6  = IncrMask4;
+using IncrShift6 = IncrShift4;
 
 
 template <typename LogOp> static void psetFast(
@@ -164,10 +164,10 @@ template <typename LogOp> static void psetFast(
   */
 struct Graphic4Mode
 {
-	typedef IncrByteAddr4 IncrByteAddr;
-	typedef IncrPixelAddr4 IncrPixelAddr;
-	typedef IncrMask4 IncrMask;
-	typedef IncrShift4 IncrShift;
+	using IncrByteAddr  = IncrByteAddr4;
+	using IncrPixelAddr = IncrPixelAddr4;
+	using IncrMask      = IncrMask4;
+	using IncrShift     = IncrShift4;
 	static const byte COLOR_MASK = 0x0F;
 	static const byte PIXELS_PER_BYTE = 2;
 	static const byte PIXELS_PER_BYTE_SHIFT = 1;
@@ -214,10 +214,10 @@ inline byte Graphic4Mode::duplicate(byte color)
   */
 struct Graphic5Mode
 {
-	typedef IncrByteAddr5 IncrByteAddr;
-	typedef IncrPixelAddr5 IncrPixelAddr;
-	typedef IncrMask5 IncrMask;
-	typedef IncrShift5 IncrShift;
+	using IncrByteAddr  = IncrByteAddr5;
+	using IncrPixelAddr = IncrPixelAddr5;
+	using IncrMask      = IncrMask5;
+	using IncrShift     = IncrShift5;
 	static const byte COLOR_MASK = 0x03;
 	static const byte PIXELS_PER_BYTE = 4;
 	static const byte PIXELS_PER_BYTE_SHIFT = 2;
@@ -266,10 +266,10 @@ inline byte Graphic5Mode::duplicate(byte color)
   */
 struct Graphic6Mode
 {
-	typedef IncrByteAddr6 IncrByteAddr;
-	typedef IncrPixelAddr6 IncrPixelAddr;
-	typedef IncrMask6 IncrMask;
-	typedef IncrShift6 IncrShift;
+	using IncrByteAddr  = IncrByteAddr6;
+	using IncrPixelAddr = IncrPixelAddr6;
+	using IncrMask      = IncrMask6;
+	using IncrShift     = IncrShift6;
 	static const byte COLOR_MASK = 0x0F;
 	static const byte PIXELS_PER_BYTE = 2;
 	static const byte PIXELS_PER_BYTE_SHIFT = 1;
@@ -316,10 +316,10 @@ inline byte Graphic6Mode::duplicate(byte color)
   */
 struct Graphic7Mode
 {
-	typedef IncrByteAddr7 IncrByteAddr;
-	typedef IncrPixelAddr7 IncrPixelAddr;
-	typedef IncrMask7 IncrMask;
-	typedef IncrShift7 IncrShift;
+	using IncrByteAddr  = IncrByteAddr7;
+	using IncrPixelAddr = IncrPixelAddr7;
+	using IncrMask      = IncrMask7;
+	using IncrShift     = IncrShift7;
 	static const byte COLOR_MASK = 0xFF;
 	static const byte PIXELS_PER_BYTE = 1;
 	static const byte PIXELS_PER_BYTE_SHIFT = 0;
@@ -663,11 +663,11 @@ struct TransparentOp : Op {
 		if (color) Op::operator()(time, vram, addr, src, color, mask);
 	}
 };
-typedef TransparentOp<ImpOp> TImpOp;
-typedef TransparentOp<AndOp> TAndOp;
-typedef TransparentOp<OrOp> TOrOp;
-typedef TransparentOp<XorOp> TXorOp;
-typedef TransparentOp<NotOp> TNotOp;
+using TImpOp = TransparentOp<ImpOp>;
+using TAndOp = TransparentOp<AndOp>;
+using TOrOp  = TransparentOp<OrOp>;
+using TXorOp = TransparentOp<XorOp>;
+using TNotOp = TransparentOp<NotOp>;
 
 
 // Commands

@@ -26,14 +26,14 @@ struct RegWrite
 	byte reg;
 	byte val;
 };
-typedef vector<RegWrite> RegWrites;
+using RegWrites = vector<RegWrite>;
 struct LogEvent
 {
 	vector<RegWrite> regWrites;
 	unsigned samples; // number of samples between this and next event
 };
-typedef vector<LogEvent> Log;
-typedef vector<int> Samples;
+using Log = vector<LogEvent>;
+using Samples = vector<int>;
 
 
 static void error(const string& message)

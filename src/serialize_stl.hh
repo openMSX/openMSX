@@ -11,14 +11,14 @@ namespace openmsx {
 template<typename T> struct serialize_as_stl_collection : std::true_type
 {
 	static const int size = -1; // variable size
-	typedef typename T::value_type value_type;
+	using value_type = typename T::value_type;
 	// save
-	typedef typename T::const_iterator const_iterator;
+	using const_iterator = typename T::const_iterator;
 	static const_iterator begin(const T& t) { return t.begin(); }
 	static const_iterator end  (const T& t) { return t.end();   }
 	// load
 	static const bool loadInPlace = false;
-	typedef typename std::insert_iterator<T> output_iterator;
+	using output_iterator = typename std::insert_iterator<T>;
 	static void prepare(T& t, int /*n*/) {
 		t.clear();
 	}
@@ -48,8 +48,8 @@ template<typename T> struct serialize_as_collection<std::vector<T>>
 	// size at all intermediate steps. This may be important in case an
 	// exception occurs during loading.
 	static const bool loadInPlace = false;
-	typedef typename std::back_insert_iterator<std::vector<T>>
-		output_iterator;
+	using output_iterator =
+		typename std::back_insert_iterator<std::vector<T>>;
 	static void prepare(std::vector<T>& v, int n) {
 		v.clear(); v.reserve(n);
 	}
@@ -61,8 +61,8 @@ template<typename T> struct serialize_as_collection<std::vector<T>>
 template<typename T> struct serialize_as_collection<cb_queue<T>>
 	: serialize_as_stl_collection<cb_queue<T>>
 {
-	typedef typename std::back_insert_iterator<circular_buffer<T>>
-		output_iterator;
+	using output_iterator =
+		typename std::back_insert_iterator<circular_buffer<T>>;
 	static void prepare(cb_queue<T>& q, int n) {
 		q.clear(); q.getBuffer().set_capacity(n);
 	}

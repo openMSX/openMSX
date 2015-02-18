@@ -17,7 +17,7 @@ class DiskContainer;
 class NowindHost
 {
 public:
-	typedef std::vector<std::unique_ptr<DiskContainer>> Drives;
+	using Drives = std::vector<std::unique_ptr<DiskContainer>>;
 
 	explicit NowindHost(const Drives& drives);
 	~NowindHost();

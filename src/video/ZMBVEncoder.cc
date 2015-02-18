@@ -249,7 +249,7 @@ template<class P>
 void ZMBVEncoder::addXorBlock(
 	const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset, unsigned& workUsed)
 {
-	typedef typename Endian::Little<P>::type LE_P;
+	using LE_P = typename Endian::Little<P>::type;
 
 	auto* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
 	auto* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
@@ -308,7 +308,7 @@ void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat, unsigned& work
 template<class P>
 void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed)
 {
-	typedef typename Endian::Little<P>::type LE_P;
+	using LE_P = typename Endian::Little<P>::type;
 
 	PixelOperations<P> pixelOps(pixelFormat);
 	auto* readFrame =

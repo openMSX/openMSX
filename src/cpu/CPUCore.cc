@@ -246,8 +246,6 @@ static const byte ZSPXY0  = Z_FLAG | V_FLAG;
 static const byte ZS255   = S_FLAG;
 static const byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
 
-typedef signed char offset;
-
 // Global variable, because it should be shared between Z80 and R800.
 // It must not be shared between the CPUs of different MSX machines, but
 // the (logical) lifetime of this variable cannot overlap between execution
@@ -2194,7 +2192,7 @@ CASE(FD) {
 
 xx_cb: {
 		unsigned tmp = RD_WORD_PC(T::CC_DD + T::CC_DD_CB);
-		offset ofst = tmp & 0xFF;
+		int8_t ofst = tmp & 0xFF;
 		unsigned addr = (ixy + ofst) & 0xFFFF;
 		byte xxcb_opcode = tmp >> 8;
 		switch (xxcb_opcode) {
@@ -2671,7 +2669,7 @@ template<class T> template<Reg8 SRC> int CPUCore<T>::ld_xhl_R() {
 
 // LD (IXY+e),r
 template<class T> template<Reg16 IXY, Reg8 SRC> int CPUCore<T>::ld_xix_R() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_LD_XIX_R_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_LD_XIX_R_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	WRMEM(addr, get8<SRC>(), T::CC_DD + T::CC_LD_XIX_R_2);
@@ -2688,7 +2686,7 @@ template<class T> int CPUCore<T>::ld_xhl_byte() {
 // LD (IXY+e),n
 template<class T> template<Reg16 IXY> int CPUCore<T>::ld_xix_byte() {
 	unsigned tmp = RD_WORD_PC(T::CC_DD + T::CC_LD_XIX_N_1);
-	offset ofst = tmp & 0xFF;
+	int8_t ofst = tmp & 0xFF;
 	byte val = tmp >> 8;
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
@@ -2745,7 +2743,7 @@ template<class T> template<Reg8 DST> int CPUCore<T>::ld_R_xhl() {
 
 // LD r,(IXY+e)
 template<class T> template<Reg8 DST, Reg16 IXY> int CPUCore<T>::ld_R_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_LD_R_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_LD_R_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	set8<DST>(RDMEM(addr, T::CC_DD + T::CC_LD_R_XIX_2));
@@ -2814,7 +2812,7 @@ template<class T> int CPUCore<T>::adc_a_xhl() {
 	ADC(RDMEM(getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template<class T> template<Reg16 IXY> int CPUCore<T>::adc_a_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	ADC(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
@@ -2863,7 +2861,7 @@ template<class T> int CPUCore<T>::add_a_xhl() {
 	ADD(RDMEM(getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template<class T> template<Reg16 IXY> int CPUCore<T>::add_a_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	ADD(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
@@ -2903,7 +2901,7 @@ template<class T> int CPUCore<T>::and_xhl() {
 	AND(RDMEM(getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template<class T> template<Reg16 IXY> int CPUCore<T>::and_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	AND(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
@@ -2945,7 +2943,7 @@ template<class T> int CPUCore<T>::cp_xhl() {
 	CP(RDMEM(getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template<class T> template<Reg16 IXY> int CPUCore<T>::cp_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	CP(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
@@ -2985,7 +2983,7 @@ template<class T> int CPUCore<T>::or_xhl() {
 	OR(RDMEM(getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template<class T> template<Reg16 IXY> int CPUCore<T>::or_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	OR(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
@@ -3031,7 +3029,7 @@ template<class T> int CPUCore<T>::sbc_a_xhl() {
 	SBC(RDMEM(getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template<class T> template<Reg16 IXY> int CPUCore<T>::sbc_a_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	SBC(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
@@ -3073,7 +3071,7 @@ template<class T> int CPUCore<T>::sub_xhl() {
 	SUB(RDMEM(getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template<class T> template<Reg16 IXY> int CPUCore<T>::sub_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	SUB(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
@@ -3111,7 +3109,7 @@ template<class T> int CPUCore<T>::xor_xhl() {
 	XOR(RDMEM(getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
 }
 template<class T> template<Reg16 IXY> int CPUCore<T>::xor_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_CP_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	XOR(RDMEM(addr, T::CC_DD + T::CC_CP_XIX_2));
@@ -3147,7 +3145,7 @@ template<class T> int CPUCore<T>::dec_xhl() {
 	return DEC_X<0>(getHL());
 }
 template<class T> template<Reg16 IXY> int CPUCore<T>::dec_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_INC_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_INC_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	return DEC_X<T::CC_DD + T::EE_INC_XIX>(addr);
@@ -3181,7 +3179,7 @@ template<class T> int CPUCore<T>::inc_xhl() {
 	return INC_X<0>(getHL());
 }
 template<class T> template<Reg16 IXY> int CPUCore<T>::inc_xix() {
-	offset ofst = RDMEM_OPCODE(T::CC_DD + T::CC_INC_XIX_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_DD + T::CC_INC_XIX_1);
 	unsigned addr = (get16<IXY>() + ofst) & 0xFFFF;
 	T::setMemPtr(addr);
 	return INC_X<T::CC_DD + T::EE_INC_XIX>(addr);
@@ -3864,7 +3862,7 @@ template<class T> template<typename COND> int CPUCore<T>::jp(COND cond) {
 
 // JR e
 template<class T> template<typename COND> int CPUCore<T>::jr(COND cond) {
-	offset ofst = RDMEM_OPCODE(T::CC_JR_1);
+	int8_t ofst = RDMEM_OPCODE(T::CC_JR_1);
 	if (cond(getF())) {
 		if ((getPC() & 0xFF) == 0) {
 			// On R800, when this instruction is located in the
@@ -3908,7 +3906,7 @@ template<class T> template<typename COND> int CPUCore<T>::jr(COND cond) {
 template<class T> int CPUCore<T>::djnz() {
 	byte b = getB() - 1;
 	setB(b);
-	offset ofst = RDMEM_OPCODE(T::CC_JR_1 + T::EE_DJNZ);
+	int8_t ofst = RDMEM_OPCODE(T::CC_JR_1 + T::EE_DJNZ);
 	if (b) {
 		if ((getPC() & 0xFF) == 0) {
 			// See comment in jr()

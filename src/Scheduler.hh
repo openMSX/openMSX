@@ -35,7 +35,7 @@ private:
 class Scheduler : private noncopyable
 {
 public:
-	typedef std::vector<SynchronizationPoint> SyncPoints;
+	using SyncPoints = std::vector<SynchronizationPoint>;
 
 	Scheduler();
 	~Scheduler();

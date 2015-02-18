@@ -124,7 +124,7 @@ private:
 	// For each directory entry that has a mapped host file/directory we
 	// store the name, last modification time and size of the corresponding
 	// host file/dir.
-	typedef std::map<DirIndex, MapDir> MapDirs;
+	using MapDirs = std::map<DirIndex, MapDir>;
 	MapDirs mapDirs;
 
 	// format parameters which depend on single/double sided

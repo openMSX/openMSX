@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-typedef CmpTupleElement<0, StringOp::caseless> Comp;
+using Comp = CmpTupleElement<0, StringOp::caseless>;
 
 EnumSettingBase::EnumSettingBase(BaseMap&& map)
 	: baseMap(std::move(map))

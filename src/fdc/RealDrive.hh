@@ -83,7 +83,7 @@ private:
 	LoadingIndicator loadingIndicator;
 	const EmuDuration motorTimeout;
 
-	typedef Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> MotorClock;
+	using MotorClock = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>;
 	MotorClock motorTimer;
 	Clock<1000> headLoadTimer; // ms
 	std::unique_ptr<DiskChanger> changer;
@@ -96,7 +96,7 @@ private:
 	const bool signalsNeedMotorOn;
 
 	static const unsigned MAX_DRIVES = 26; // a-z
-	typedef std::bitset<MAX_DRIVES> DrivesInUse;
+	using DrivesInUse = std::bitset<MAX_DRIVES>;
 	std::shared_ptr<DrivesInUse> drivesInUse;
 };
 SERIALIZE_CLASS_VERSION(RealDrive, 4);

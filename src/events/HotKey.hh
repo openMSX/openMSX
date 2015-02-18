@@ -30,9 +30,9 @@ public:
 		std::string command;
 		bool repeat;
 	};
-	typedef std::shared_ptr<const Event> EventPtr;
-	typedef std::map<EventPtr, HotKeyInfo, LessDeref> BindMap;
-	typedef std::set<EventPtr,             LessDeref> KeySet;
+	using EventPtr = std::shared_ptr<const Event>;
+	using BindMap  = std::map<EventPtr, HotKeyInfo, LessDeref>;
+	using KeySet   = std::set<EventPtr,             LessDeref>;
 
 	HotKey(RTScheduler& rtScheduler,
 	       GlobalCommandController& commandController,

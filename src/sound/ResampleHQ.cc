@@ -50,7 +50,7 @@ public:
 	void releaseCoeffs(double ratio);
 
 private:
-	typedef FixedPoint<16> FilterIndex;
+	using FilterIndex = FixedPoint<16>;
 
 	ResampleCoeffs();
 	~ResampleCoeffs();

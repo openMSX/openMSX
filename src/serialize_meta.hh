@@ -80,18 +80,18 @@ template<typename T> struct ClassLoader;
 /** Store association between polymorphic class (base- or subclass) and
  *  the list of constructor arguments.
  * Specializations of this class should store the constructor arguments
- * as a 'typedef tupple<...> type'.
+ * as a 'using type = tupple<...>'.
  */
 template<typename T> struct PolymorphicConstructorArgs;
 
 /** Store association between (polymorphic) sub- and baseclass.
- * Specialization of this class should provide a 'typedef <base> type'.
+ * Specialization of this class should provide a 'using type = <base>'.
  */
 template<typename T> struct PolymorphicBaseClass;
 
 template<typename Base> struct MapConstrArgsEmpty
 {
-	typedef typename PolymorphicConstructorArgs<Base>::type TUPLEIn;
+	using TUPLEIn = typename PolymorphicConstructorArgs<Base>::type;
 	std::tuple<> operator()(const TUPLEIn& /*t*/)
 	{
 		return std::make_tuple();
@@ -99,8 +99,8 @@ template<typename Base> struct MapConstrArgsEmpty
 };
 template<typename Base, typename Derived> struct MapConstrArgsCopy
 {
-	typedef typename PolymorphicConstructorArgs<Base>::type TUPLEIn;
-	typedef typename PolymorphicConstructorArgs<Derived>::type TUPLEOut;
+	using TUPLEIn  = typename PolymorphicConstructorArgs<Base>::type;
+	using TUPLEOut = typename PolymorphicConstructorArgs<Derived>::type;
 	static_assert(std::is_same<TUPLEIn, TUPLEOut>::value,
 	              "constructor argument types must match");
 	TUPLEOut operator()(const TUPLEIn& t)
@@ -166,7 +166,7 @@ public:
 	}
 	void save(Archive& ar, const void* v) const override
 	{
-		typedef typename PolymorphicBaseClass<T>::type BaseType;
+		using BaseType = typename PolymorphicBaseClass<T>::type;
 		auto base = static_cast<const BaseType*>(v);
 		auto tp = static_cast<const T*>(base);
 		ClassSaver<T> saver;
@@ -182,9 +182,9 @@ class PolymorphicLoader : public PolymorphicLoaderBase<Archive>
 public:
 	void* load(Archive& ar, unsigned id, const void* args) const override
 	{
-		typedef typename PolymorphicBaseClass<T>::type BaseType;
-		typedef typename PolymorphicConstructorArgs<BaseType>::type TUPLEIn;
-		typedef typename PolymorphicConstructorArgs<T>::type TUPLEOut;
+		using BaseType = typename PolymorphicBaseClass<T>::type;
+		using TUPLEIn  = typename PolymorphicConstructorArgs<BaseType>::type;
+		using TUPLEOut = typename PolymorphicConstructorArgs<T>::type;
 		auto& argsIn = *static_cast<const TUPLEIn*>(args);
 		MapConstructorArguments<BaseType, T> mapArgs;
 		TUPLEOut argsOut = mapArgs(argsIn);
@@ -200,7 +200,7 @@ class PolymorphicInitializer : public PolymorphicInitializerBase<Archive>
 public:
 	void init(Archive& ar, void* v, unsigned id) const override
 	{
-		typedef typename PolymorphicBaseClass<T>::type BaseType;
+		using BaseType = typename PolymorphicBaseClass<T>::type;
 		auto base = static_cast<BaseType*>(v);
 		if (unlikely(dynamic_cast<T*>(base) != static_cast<T*>(base))) {
 			polyInitError(typeid(T).name(), typeid(*base).name());
@@ -337,19 +337,19 @@ template<typename Archive, typename T> struct RegisterInitializerHelper
 
 #define REGISTER_CONSTRUCTOR_ARGS_0(C) \
 template<> struct PolymorphicConstructorArgs<C> \
-{ typedef std::tuple<> type; };
+{ using type = std::tuple<>; };
 
 #define REGISTER_CONSTRUCTOR_ARGS_1(C,T1) \
 template<> struct PolymorphicConstructorArgs<C> \
-{ typedef std::tuple<T1> type; };
+{ using type = std::tuple<T1>; };
 
 #define REGISTER_CONSTRUCTOR_ARGS_2(C,T1,T2) \
 template<> struct PolymorphicConstructorArgs<C> \
-{ typedef std::tuple<T1,T2> type; };
+{ using type = std::tuple<T1,T2>; };
 
 #define REGISTER_CONSTRUCTOR_ARGS_3(C,T1,T2,T3) \
 template<> struct PolymorphicConstructorArgs<C> \
-{ typedef std::tuple<T1,T2,T3> type; };
+{ using type = std::tuple<T1,T2,T3>; };
 
 class MemInputArchive;
 class MemOutputArchive;
@@ -370,7 +370,7 @@ static RegisterLoaderHelper<MemInputArchive,  C> registerHelper3##C(N); \
 static RegisterSaverHelper <MemOutputArchive, C> registerHelper4##C(N); \
 static RegisterLoaderHelper<XmlInputArchive,  C> registerHelper5##C(N); \
 static RegisterSaverHelper <XmlOutputArchive, C> registerHelper6##C(N); \
-template<> struct PolymorphicBaseClass<C> { typedef B type; };
+template<> struct PolymorphicBaseClass<C> { using type = B; };
 
 #define REGISTER_POLYMORPHIC_INITIALIZER_HELPER(B,C,N) \
 static_assert(std::is_base_of<B,C>::value, "must be base and sub class"); \
@@ -378,7 +378,7 @@ static RegisterInitializerHelper<MemInputArchive,  C> registerHelper3##C(N); \
 static RegisterSaverHelper      <MemOutputArchive, C> registerHelper4##C(N); \
 static RegisterInitializerHelper<XmlInputArchive,  C> registerHelper5##C(N); \
 static RegisterSaverHelper      <XmlOutputArchive, C> registerHelper6##C(N); \
-template<> struct PolymorphicBaseClass<C> { typedef B type; };
+template<> struct PolymorphicBaseClass<C> { using type = B; };
 
 #define REGISTER_BASE_NAME_HELPER(B,N) \
 template<> struct BaseClassName<B> \

@@ -37,7 +37,7 @@ struct Div128_helper
 	static const uint64_t QL3 = C ? QL2 : QL2 + 1;
 	static const uint64_t QH3 = C ? QH2 : ((QL3 != 0) ? QH2 : QH2 + 1);
 
-	typedef Div128_helper<RH3, RL3, QH3, QL3, DH, DL, BITS - 1> Div;
+	using Div = Div128_helper<RH3, RL3, QH3, QL3, DH, DL, BITS - 1>;
 	static const uint64_t quotientLow   = Div::quotientLow;
 	static const uint64_t quotientHigh  = Div::quotientHigh;
 	static const uint64_t remainderLow  = Div::remainderLow;
@@ -63,7 +63,7 @@ struct Div128
 //   }
 template<uint64_t M, uint32_t S, bool B = M & 1> struct DBCReduce
 {
-	typedef DBCReduce<M / 2, S - 1> R2;
+	using R2 = DBCReduce<M / 2, S - 1>;
 	static const uint64_t   M2 = R2::M2;
 	static const uint32_t S2 = R2::S2;
 };
@@ -90,7 +90,7 @@ struct DBCReduce2Shift
 template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t L>
 struct DBCReduce2Test
 {
-	typedef DBCReduce2Shift<AH, AL, BH, BL> S;
+	using S = DBCReduce2Shift<AH, AL, BH, BL>;
 	static const bool C = (S::AH2 != S::BH2) ? (S::AH2 < S::BH2)
 	                                         : (S::AL2 < S::BL2);
 	static const bool value = C && (L > 0);
@@ -98,9 +98,9 @@ struct DBCReduce2Test
 template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t LL, bool B>
 struct DBCReduce2Loop
 {
-	typedef DBCReduce2Shift<AH, AL, BH, BL> S;
-	typedef DBCReduce2Test<S::AH2, S::AL2, S::BH2, S::BL2, LL - 1> T;
-	typedef DBCReduce2Loop<S::AH2, S::AL2, S::BH2, S::BL2, LL - 1, T::value> R;
+	using S = DBCReduce2Shift<AH, AL, BH, BL>;
+	using T = DBCReduce2Test<S::AH2, S::AL2, S::BH2, S::BL2, LL - 1>;
+	using R = DBCReduce2Loop<S::AH2, S::AL2, S::BH2, S::BL2, LL - 1, T::value>;
 	static const uint64_t MLH = R::MLH;
 	static const uint64_t MLL = R::MLL;
 	static const uint64_t MHH = R::MHH;
@@ -119,8 +119,8 @@ struct DBCReduce2Loop<AH, AL, BH, BL, LL, false>
 template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t LL>
 struct DBCReduce2
 {
-	typedef DBCReduce2Test<AH, AL, BH, BL, LL> T;
-	typedef DBCReduce2Loop<AH, AL, BH, BL, LL, T::value> R;
+	using T = DBCReduce2Test<AH, AL, BH, BL, LL>;
+	using R = DBCReduce2Loop<AH, AL, BH, BL, LL, T::value>;
 	static const uint64_t MLH = R::MLH;
 	static const uint64_t MLL = R::MLL;
 	static const uint64_t MHH = R::MHH;
@@ -159,7 +159,7 @@ template<uint64_t M, uint32_t S> struct DBCAlgo2
 	// division possible by multiplication and shift
 	uint32_t operator()(uint64_t dividend) const
 	{
-		typedef DBCReduce<M, S> R;
+		using R = DBCReduce<M, S>;
 	#if ASM_X86_32 || defined(__arm__)
 		const uint32_t _ah_ = R::M2 >> 32;
 		const uint32_t _al_ = uint32_t((R::M2 << 32) >> 32); // Suppress VC++ C4310 warning
@@ -303,12 +303,12 @@ template<uint32_t DIVISOR, uint32_t N> struct DBCAlgo3
 {
 	// division possible by multiplication, addition and shift
 	static const uint32_t S = log2<DIVISOR>::value - 1;
-	typedef Div128<1 << S, 0, 0, DIVISOR> D;
+	using D = Div128<1 << S, 0, 0, DIVISOR>;
 	static const uint64_t M = D::quotientLow + (D::remainderLow > (DIVISOR / 2));
 
 	uint32_t operator()(uint64_t dividend) const
 	{
-		typedef DBCReduce<M, S + N> R;
+		using R = DBCReduce<M, S + N>;
 	#if ASM_X86_32 || defined(__arm__)
 		const uint32_t ah = R::M2 >> 32;
 		const uint32_t al = uint32_t(R::M2);
@@ -411,12 +411,12 @@ template<uint32_t DIVISOR, uint32_t N> struct DBCHelper2
 {
 	static const uint32_t L = log2<DIVISOR>::value;
 	static const uint64_t J = 0xffffffffffffffffull % DIVISOR;
-	typedef Div128<1 << L, 0, 0, 0xffffffffffffffffull - J> K;
+	using K = Div128<1 << L, 0, 0, 0xffffffffffffffffull - J>;
 
-	typedef Div128< 1 << L,                    0,              0, DIVISOR> M_LOW;
-	typedef Div128<(1 << L) + K::quotientHigh, K::quotientLow, 0, DIVISOR> M_HIGH;
-	typedef DBCReduce2<M_LOW ::quotientHigh, M_LOW ::quotientLow,
-	                   M_HIGH::quotientHigh, M_HIGH::quotientLow, L> R;
+	using M_LOW  = Div128< 1 << L,                    0,              0, DIVISOR>;
+	using M_HIGH = Div128<(1 << L) + K::quotientHigh, K::quotientLow, 0, DIVISOR>;
+	using R = DBCReduce2<M_LOW ::quotientHigh, M_LOW ::quotientLow,
+	                     M_HIGH::quotientHigh, M_HIGH::quotientLow, L>;
 
 	uint32_t operator()(uint64_t dividend) const
 	{

@@ -31,7 +31,7 @@ static const unsigned EG_MUTE = 1 << EG_BITS;
 
 // Bits for envelope phase incremental counter
 static const int EG_DP_BITS = 23;
-typedef FixedPoint<EG_DP_BITS - EG_BITS> EnvPhaseIndex;
+using EnvPhaseIndex = FixedPoint<EG_DP_BITS - EG_BITS>;
 static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(EG_MUTE);
 
 

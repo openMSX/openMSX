@@ -9,7 +9,7 @@ namespace openmsx {
 class MSXMultiIODevice final : public MSXMultiDevice
 {
 public:
-	typedef std::vector<MSXDevice*> Devices;
+	using Devices = std::vector<MSXDevice*>;
 
 	explicit MSXMultiIODevice(const HardwareConfig& hwConf);
 	~MSXMultiIODevice();

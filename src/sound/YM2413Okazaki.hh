@@ -13,7 +13,7 @@ namespace YM2413Okazaki {
 
 class YM2413;
 
-typedef FixedPoint<EP_FP_BITS> EnvPhaseIndex;
+using EnvPhaseIndex = FixedPoint<EP_FP_BITS>;
 
 enum EnvelopeState {
 	ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH

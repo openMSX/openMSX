@@ -41,7 +41,7 @@ public:
 	void removeAttribute(string_ref name);
 
 	// child
-	typedef std::vector<XMLElement> Children;
+	using Children = std::vector<XMLElement>;
 	//  note: returned XMLElement& is validated on the next addChild() call
 	XMLElement& addChild(string_ref name);
 	XMLElement& addChild(string_ref name, string_ref data);
@@ -115,8 +115,8 @@ public:
 	static std::unique_ptr<FileContext> getLastSerializedFileContext();
 
 private:
-	typedef std::pair<std::string, std::string> Attribute;
-	typedef std::vector<Attribute> Attributes;
+	using Attribute = std::pair<std::string, std::string>;
+	using Attributes = std::vector<Attribute>;
 	Attributes::iterator findAttribute(string_ref name);
 	Attributes::const_iterator findAttribute(string_ref name) const;
 	void dump(StringOp::Builder& result, unsigned indentNum) const;

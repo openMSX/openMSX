@@ -90,11 +90,11 @@ Builder& Builder::operator<<(double t)
 // Returns a fast type that is (at least) big enough to hold the absolute value
 // of values of the given type. (It always returns 'unsigned' except for 64-bit
 // integers it returns unsigned long long).
-template<typename T> struct FastUnsigned           { typedef unsigned           type; };
-template<> struct FastUnsigned<long long>          { typedef unsigned long long type; };
-template<> struct FastUnsigned<unsigned long long> { typedef unsigned long long type; };
-template<> struct FastUnsigned<long>               { typedef unsigned long      type; };
-template<> struct FastUnsigned<unsigned long>      { typedef unsigned long      type; };
+template<typename T> struct FastUnsigned           { using type = unsigned; };
+template<> struct FastUnsigned<long long>          { using type = unsigned long long; };
+template<> struct FastUnsigned<unsigned long long> { using type = unsigned long long; };
+template<> struct FastUnsigned<long>               { using type = unsigned long; };
+template<> struct FastUnsigned<unsigned long>      { using type = unsigned long; };
 
 // This does the equivalent of
 //   unsigned u = (t < 0) ? -t : t;

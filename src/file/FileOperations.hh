@@ -14,7 +14,7 @@ namespace FileOperations {
 	struct FClose {
 		void operator()(FILE* f) { fclose(f); }
 	};
-	typedef std::unique_ptr<FILE, FClose> FILE_t;
+	using FILE_t = std::unique_ptr<FILE, FClose>;
 
 	const char nativePathSeparator =
 #ifdef _WIN32
@@ -208,9 +208,9 @@ namespace FileOperations {
 	std::string expandCurrentDirFromDrive(string_ref path);
 
 #ifdef _WIN32
-	typedef struct _stat Stat;
+	using Stat = struct _stat;
 #else
-	typedef struct stat Stat;
+	using Stat = struct stat;
 #endif
 	/**
 	 * Call stat() and return the stat structure

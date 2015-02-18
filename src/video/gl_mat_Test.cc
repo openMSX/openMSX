@@ -32,11 +32,11 @@ bool approxEq(const mat4& x, const mat4&y)
 int main()
 {
 	// Extra matrix types used in this test.
-	typedef matMxN<2, 2, int> imat2;
-	typedef matMxN<3, 3, int> imat3;
-	typedef matMxN<4, 4, int> imat4;
-	typedef matMxN<3, 2, float> mat32;
-	typedef matMxN<2, 3, float> mat23;
+	using imat2 = matMxN<2, 2, int>;
+	using imat3 = matMxN<3, 3, int>;
+	using imat4 = matMxN<4, 4, int>;
+	using mat32 matMxN<3, 2, float>;
+	using mat23 matMxN<2, 3, float>;
 
 	// It's useful to test both integer and float variants because the
 	// former are implemented in plain C++ and (only) the latter have SSE

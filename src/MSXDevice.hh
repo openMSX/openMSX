@@ -32,7 +32,7 @@ class TclObject;
 class MSXDevice : private noncopyable
 {
 public:
-	typedef std::vector<MSXDevice*> Devices;
+	using Devices = std::vector<MSXDevice*>;
 
 	virtual ~MSXDevice() = 0;
 
@@ -279,7 +279,7 @@ private:
 	void registerPorts();
 	void unregisterPorts();
 
-	typedef std::vector<std::pair<unsigned, unsigned>> MemRegions;
+	using MemRegions = std::vector<std::pair<unsigned, unsigned>>;
 	MemRegions memRegions;
 	std::vector<byte> inPorts;
 	std::vector<byte> outPorts;

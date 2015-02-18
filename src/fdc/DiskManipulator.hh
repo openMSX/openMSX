@@ -35,7 +35,7 @@ private:
 		/** 0 = whole disk, 1..MAX_PARTITIONS = partition number */
 		unsigned partition;
 	};
-	typedef std::vector<DriveSettings> Drives;
+	using Drives = std::vector<DriveSettings>;
 	Drives drives;
 
 	// Command interface

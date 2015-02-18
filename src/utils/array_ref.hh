@@ -20,16 +20,16 @@ class array_ref
 {
 public:
 	// types
-	typedef T value_type;
-	typedef const T* pointer;
-	typedef const T& reference;
-	typedef const T& const_reference;
-	typedef const T* const_iterator;
-	typedef const_iterator iterator;
-	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-	typedef const_reverse_iterator reverse_iterator;
-	typedef size_t size_type;
-	typedef ptrdiff_t difference_type;
+	using value_type      =       T;
+	using pointer         = const T*;
+	using       reference = const T&;
+	using const_reference = const T&;
+	using         const_iterator = const T*;
+	using               iterator = const_iterator;
+	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+	using       reverse_iterator = const_reverse_iterator;
+	using size_type       = size_t;
+	using difference_type = ptrdiff_t;
 
 	// construct/copy/assign
 	array_ref()

@@ -27,7 +27,7 @@ private:
 	bool has(int value) const;
 	int has(string_ref value) const;
 
-	typedef std::vector<std::pair<std::string, int>> Sources;
+	using Sources = std::vector<std::pair<std::string, int>>;
 	Sources sources;
 };
 

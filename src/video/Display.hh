@@ -32,7 +32,7 @@ class Display final : public EventListener, private Observer<Setting>
                     , private LayerListener, private RTSchedulable
 {
 public:
-	typedef std::vector<Layer*> Layers;
+	using Layers = std::vector<Layer*>;
 
 	explicit Display(Reactor& reactor);
 	~Display();

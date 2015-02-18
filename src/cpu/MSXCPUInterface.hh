@@ -194,19 +194,19 @@ public:
 	static void removeBreakPoint(const BreakPoint& bp);
 	// note: must be shared_ptr (not unique_ptr), see checkBreakPoints()
 	// TODO use multi_set sorted on BreakPoint->getAddress()
-	typedef std::vector<std::shared_ptr<BreakPoint>> BreakPoints;
+	using BreakPoints = std::vector<std::shared_ptr<BreakPoint>>;
 	static const BreakPoints& getBreakPoints() { return breakPoints; }
 
 	void setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint);
 	void removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint);
 	// note: must be shared_ptr (not unique_ptr), see WatchIO::doReadCallback()
-	typedef std::vector<std::shared_ptr<WatchPoint>> WatchPoints;
+	using WatchPoints = std::vector<std::shared_ptr<WatchPoint>>;
 	const WatchPoints& getWatchPoints() const { return watchPoints; }
 
 	static void setCondition(const std::shared_ptr<DebugCondition>& cond);
 	static void removeCondition(const DebugCondition& cond);
 	// note: must be shared_ptr (not unique_ptr), see checkBreakPoints()
-	typedef std::vector<std::shared_ptr<DebugCondition>> Conditions;
+	using Conditions = std::vector<std::shared_ptr<DebugCondition>>;
 	static const Conditions& getConditions() { return conditions; }
 
 	static bool isBreaked() { return breaked; }

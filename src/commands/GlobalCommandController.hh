@@ -100,8 +100,8 @@ private:
 
 	void tabCompletion(std::vector<std::string>& tokens);
 
-	typedef std::vector<std::pair<std::unique_ptr<ProxySetting>, unsigned>>
-		ProxySettings;
+	using ProxySettings =
+		std::vector<std::pair<std::unique_ptr<ProxySetting>, unsigned>>;
 	ProxySettings::iterator findProxySetting(const std::string& name);
 
 	GlobalCliComm& cliComm;

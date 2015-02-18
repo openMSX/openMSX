@@ -26,7 +26,7 @@ private:
 	                               //    ticks once per host sample
 	DynamicClock emuClock;         // time of the last emu-sample,
 	                               //    ticks once per emu-sample
-	typedef FixedPoint<16> FP;
+	using FP = FixedPoint<16>;
 	const FP step;
 	int lastInput[CHANNELS];
 };

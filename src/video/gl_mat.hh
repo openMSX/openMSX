@@ -143,9 +143,9 @@ private:
 
 
 // Convenience typedefs (same names as used by GLSL).
-typedef matMxN<2, 2, float> mat2;
-typedef matMxN<3, 3, float> mat3;
-typedef matMxN<4, 4, float> mat4;
+using mat2 = matMxN<2, 2, float>;
+using mat3 = matMxN<3, 3, float>;
+using mat4 = matMxN<4, 4, float>;
 
 
 // -- Matrix functions --

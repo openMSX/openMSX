@@ -34,8 +34,8 @@ namespace openmsx {
 
 // class CommandLineParser
 
-typedef LessTupleElement<0> CmpOptions;
-typedef CmpTupleElement<0, StringOp::caseless> CmpFileTypes;
+using CmpOptions = LessTupleElement<0>;
+using CmpFileTypes = CmpTupleElement<0, StringOp::caseless>;
 
 CommandLineParser::CommandLineParser(Reactor& reactor_)
 	: reactor(reactor_)

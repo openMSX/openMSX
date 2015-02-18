@@ -22,7 +22,7 @@ public:
 	  * If the sprite is less than 32 pixels wide,
 	  * the lower bits are unused.
 	  */
-	typedef uint32_t SpritePattern;
+	using SpritePattern = uint32_t;
 
 	/** Contains all the information to draw a line of a sprite.
 	  */
@@ -313,7 +313,7 @@ private:
 	  */
 	inline void checkSprites2(int minLine, int maxLine);
 
-	typedef void (SpriteChecker::*UpdateSpritesMethod)(int limit);
+	using UpdateSpritesMethod = void (SpriteChecker::*)(int limit);
 	UpdateSpritesMethod updateSpritesMethod;
 
 	/** The VDP this sprite checker is part of.

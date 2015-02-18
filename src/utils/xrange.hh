@@ -39,11 +39,11 @@ public:
 	class XRangeIter
 	{
 	public:
-		typedef size_t difference_type;
-		typedef T value_type;
-		typedef T* pointer;
-		typedef T& reference;
-		typedef std::forward_iterator_tag iterator_category;
+		using difference_type = size_t;
+		using value_type = T;
+		using pointer    = T*;
+		using reference  = T&;
+		using iterator_category = std::forward_iterator_tag;
 
 		XRangeIter(T x_)
 			: x(x_)

@@ -115,8 +115,8 @@ private:
 };
 
 // convenience types
-typedef IntHelper<IRQSource> IRQHelper;
-typedef IntHelper<OptionalIRQ> OptionalIRQHelper;
+using IRQHelper         = IntHelper<IRQSource>;
+using OptionalIRQHelper = IntHelper<OptionalIRQ>;
 
 } // namespace openmsx
 

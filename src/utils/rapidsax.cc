@@ -12,7 +12,7 @@ namespace internal {
 //   bit 5: "
 //   bit 6: / > ?
 //   bit 7: ! =
-const u8 lutChar[256] =
+const uint8_t lutChar[256] =
 {
 	// 0   1    2    3    4    5    6    7    8    9    A    B    C    D    E    F
 	0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x02,0x02,0x00,0x00,0x02,0x00,0x00, // 0
@@ -34,7 +34,7 @@ const u8 lutChar[256] =
 };
 
 // Digits (dec and hex, 255 denotes end of numeric character reference)
-const u8 lutDigits[256] =
+const uint8_t lutDigits[256] =
 {
 	// 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 	 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  // 0

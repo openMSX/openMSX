@@ -41,7 +41,7 @@ private:
 	byte bank;
 
 	static const unsigned MAX_NOWINDS = 8; // a-h
-	typedef std::bitset<MAX_NOWINDS> NowindsInUse;
+	using NowindsInUse = std::bitset<MAX_NOWINDS>;
 	std::shared_ptr<NowindsInUse> nowindsInUse;
 
 	friend class NowindCommand;

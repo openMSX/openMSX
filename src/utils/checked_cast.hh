@@ -19,7 +19,7 @@ static TO checked_cast(FROM* from)
 template<typename TO, typename FROM>
 static TO checked_cast(FROM& from)
 {
-    typedef typename std::remove_reference<TO>::type* TO_PTR;
+    using TO_PTR = typename std::remove_reference<TO>::type*;
     TO_PTR* suppress_warning = nullptr; (void)suppress_warning;
     assert(dynamic_cast<TO_PTR>(&from) == static_cast<TO_PTR>(&from));
     return static_cast<TO>(from);

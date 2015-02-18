@@ -38,7 +38,7 @@ private:
 
 	/** Rastering method for the current color mode
 	  */
-	typedef void (V9990BitmapConverter<Pixel>::*RasterMethod)
+	using RasterMethod = void (V9990BitmapConverter<Pixel>::*)
 	             (Pixel* pixelPtr, unsigned x, unsigned y, int nrPixels);
 	RasterMethod rasterMethod;
 

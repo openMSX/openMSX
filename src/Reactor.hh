@@ -103,12 +103,12 @@ public:
 	Interpreter& getInterpreter();
 	std::string getMachineID() const;
 
-	typedef std::unique_ptr<MSXMotherBoard> Board;
+	using Board = std::unique_ptr<MSXMotherBoard>;
 	Board createEmptyMotherBoard();
 	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
 
 private:
-	typedef std::vector<Board> Boards;
+	using Boards = std::vector<Board>;
 
 	void createMachineSetting();
 	void switchBoard(MSXMotherBoard* newBoard);

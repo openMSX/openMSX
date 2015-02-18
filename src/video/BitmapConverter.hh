@@ -8,8 +8,8 @@
 namespace openmsx {
 
 template<int N> struct DoublePixel;
-template<> struct DoublePixel<2> { typedef uint32_t type; };
-template<> struct DoublePixel<4> { typedef uint64_t type; };
+template<> struct DoublePixel<2> { using type = uint32_t; };
+template<> struct DoublePixel<4> { using type = uint64_t; };
 
 /** Utility class for converting VRAM contents to host pixels.
   */
@@ -92,7 +92,7 @@ private:
 	const Pixel* const __restrict palette256;
 	const Pixel* const __restrict palette32768;
 
-	typedef typename DoublePixel<sizeof(Pixel)>::type DPixel;
+	using DPixel = typename DoublePixel<sizeof(Pixel)>::type;
 	DPixel dPalette[16 * 16];
 	DisplayMode mode;
 	bool dPaletteValid;

@@ -17,7 +17,7 @@ class AfterCmd;
 class AfterCommand final : public Command, private EventListener
 {
 public:
-	typedef std::shared_ptr<const Event> EventPtr;
+	using EventPtr = std::shared_ptr<const Event>;
 
 	AfterCommand(Reactor& reactor,
 	             EventDistributor& eventDistributor,
@@ -46,7 +46,7 @@ private:
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
-	typedef std::vector<std::unique_ptr<AfterCmd>> AfterCmds;
+	using AfterCmds = std::vector<std::unique_ptr<AfterCmd>>;
 	AfterCmds afterCmds;
 	Reactor& reactor;
 	EventDistributor& eventDistributor;

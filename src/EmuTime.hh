@@ -14,10 +14,10 @@ public:
 	// it's cheaper to pass this by value. On 32-bit CPUs pass-by-reference
 	// is cheaper.
 #ifdef __x86_64
-	typedef const EmuTime param;
+	using param = const EmuTime;
 	static param dummy() { return EmuTime(); }
 #else
-	typedef const EmuTime& param;
+	using param = const EmuTime&;
 	static param dummy() { return zero; }
 #endif
 

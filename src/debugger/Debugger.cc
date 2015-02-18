@@ -29,8 +29,6 @@ using std::end;
 
 namespace openmsx {
 
-typedef MSXCPUInterface::BreakPoints BreakPoints;
-
 Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
 	, cmd(motherBoard.getCommandController(),

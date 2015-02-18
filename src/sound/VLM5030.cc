@@ -84,6 +84,7 @@ chirp 12-..: vokume   0   : silent
 #include "memory.hh"
 #include "random.hh"
 #include <cstring>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -131,9 +132,9 @@ private:
 	word address;
 	word vcu_addr_h;
 
-	signed_word old_k[10];
-	signed_word new_k[10];
-	signed_word target_k[10];
+	int16_t old_k[10];
+	int16_t new_k[10];
+	int16_t target_k[10];
 	word old_energy;
 	word new_energy;
 	word target_energy;
@@ -218,7 +219,7 @@ static const byte pitchtable [0x20] =
 	86, 94, 102,110,118,126          // 26-31 : 8step
 };
 
-static const signed_word K1_table[] = {
+static const int16_t K1_table[] = {
 	-24898,  -25672,  -26446,  -27091,  -27736,  -28252,  -28768,  -29155,
 	-29542,  -29929,  -30316,  -30574,  -30832,  -30961,  -31219,  -31348,
 	-31606,  -31735,  -31864,  -31864,  -31993,  -32122,  -32122,  -32251,
@@ -228,17 +229,17 @@ static const signed_word K1_table[] = {
 	     0,   -1935,   -3999,   -6063,   -7998,   -9804,  -11610,  -13416,
 	-15093,  -16642,  -18061,  -19480,  -20770,  -21931,  -22963,  -23995
 };
-static const signed_word K2_table[] = {
+static const int16_t K2_table[] = {
 	     0,   -3096,   -6321,   -9417,  -12513,  -15351,  -18061,  -20770,
 	-23092,  -25285,  -27220,  -28897,  -30187,  -31348,  -32122,  -32638,
 	     0,   32638,   32122,   31348,   30187,   28897,   27220,   25285,
 	 23092,   20770,   18061,   15351,   12513,    9417,    6321,    3096
 };
-static const signed_word K3_table[] = {
+static const int16_t K3_table[] = {
 	    0,   -3999,   -8127,  -12255,  -16384,  -20383,  -24511,  -28639,
 	32638,   28639,   24511,   20383,   16254,   12255,    8127,    3999
 };
-static const signed_word K5_table[] = {
+static const int16_t K5_table[] = {
 	0,   -8127,  -16384,  -24511,   32638,   24511,   16254,    8127
 };
 

@@ -72,7 +72,7 @@ class YMF262Channel;
 
 /** 16.16 fixed point type for frequency calculations
  */
-typedef FixedPoint<16> FreqIndex;
+using FreqIndex = FixedPoint<16>;
 
 static inline FreqIndex fnumToIncrement(unsigned block_fnum)
 {
@@ -254,8 +254,8 @@ private:
 	unsigned noise_rng;		// 23 bit noise shift register
 
 	// LFO
-	typedef FixedPoint< 6> LFOAMIndex;
-	typedef FixedPoint<10> LFOPMIndex;
+	using LFOAMIndex = FixedPoint< 6>;
+	using LFOPMIndex = FixedPoint<10>;
 	LFOAMIndex lfo_am_cnt;
 	LFOPMIndex lfo_pm_cnt;
 	bool lfo_am_depth;

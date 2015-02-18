@@ -87,7 +87,7 @@ void GLHQLiteScaler::scaleImage(
 	}
 }
 
-typedef unsigned Pixel;
+using Pixel = uint32_t;
 void GLHQLiteScaler::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth,
 	FrameSource& paintFrame)
