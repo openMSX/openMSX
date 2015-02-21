@@ -391,7 +391,7 @@ void WD2793::executeUntil(EmuTime::param time)
 		case FSM_TYPE2_NOT_FOUND:
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
-				type2NotFound(time);
+				type2NotFound();
 			}
 			break;
 		case FSM_TYPE2_ROTATED:
@@ -599,7 +599,12 @@ void WD2793::type2Search(EmuTime::param time)
 	}
 	// Sector not found in 5 revolutions (or read error),
 	// schedule to give a RECORD_NOT_FOUND error
-	schedule(FSM_TYPE2_NOT_FOUND, pulse5);
+	if (pulse5 < EmuTime::infinity) {
+		schedule(FSM_TYPE2_NOT_FOUND, pulse5);
+	} else {
+		// Drive not rotating. How does a real WD293 handle this?
+		type2NotFound();
+	}
 }
 
 void WD2793::type2Rotated(EmuTime::param time)
@@ -640,7 +645,7 @@ void WD2793::type2Rotated(EmuTime::param time)
 	}
 }
 
-void WD2793::type2NotFound(EmuTime::param /*time*/)
+void WD2793::type2NotFound()
 {
 	statusReg |= RECORD_NOT_FOUND;
 	endCmd();

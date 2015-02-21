@@ -77,7 +77,7 @@ private:
 	void type2WaitLoad   (EmuTime::param time);
 	void type2Loaded     (EmuTime::param time);
 	void type2Search     (EmuTime::param time);
-	void type2NotFound   (EmuTime::param time);
+	void type2NotFound   ();
 	void type2Rotated    (EmuTime::param time);
 	void startReadSector (EmuTime::param time);
 	void startWriteSector(EmuTime::param time);

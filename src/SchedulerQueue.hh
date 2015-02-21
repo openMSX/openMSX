@@ -60,6 +60,8 @@ public:
 	void insert(const T& t, SET_SENTINEL setSentinel, LESS less)
 	{
 		setSentinel(*useEnd); // put sentinel at the end
+		assert(less(t, *useEnd));
+
 		T* it = useBegin;
 		while (!less(t, *it)) ++it;
 
