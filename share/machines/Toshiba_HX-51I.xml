@@ -69,11 +69,9 @@
 
     <primary slot="3">
 
-      <secondary slot="0">
-        <RAM id="Main RAM 2">
-          <mem base="0x0000" size="0x8000"/>
-        </RAM>
-      </secondary>
+      <RAM id="Main RAM 2">
+        <mem base="0x0000" size="0x8000"/>
+      </RAM>
 
     </primary>
 

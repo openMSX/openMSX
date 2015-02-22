@@ -45,11 +45,9 @@ PSG pin 6/7 quierk: C (YES)
 
     <primary slot="2">
 
-      <secondary slot="0">
-        <RAM id="Main RAM">
-          <mem base="0x0000" size="0x10000"/>
-        </RAM>
-      </secondary>
+      <RAM id="Main RAM">
+        <mem base="0x0000" size="0x10000"/>
+      </RAM>
 
     </primary>
 
