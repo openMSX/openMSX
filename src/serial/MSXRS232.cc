@@ -4,6 +4,7 @@
 #include "Ram.hh"
 #include "Rom.hh"
 #include "BooleanSetting.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "memory.hh"
@@ -41,6 +42,10 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 		"toshiba_rs232c_switch", "status of the RS-232C enable switch",
 		true) : nullptr)
 {
+	if (rom && rom->getSize() != 0x2000 && rom->getSize() != 0x4000) {
+		throw MSXException("RS232C only supports 8kB or 16kB ROMs.");
+	}
+
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
 	EmuTime::param time = getCurrentTime();
@@ -81,7 +86,7 @@ byte MSXRS232::readMem(word address, EmuTime::param time)
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return (*ram)[addr - RAM_OFFSET];
 	} else if (rom && (0x4000 <= address) && (address < 0x8000)) {
-		return (*rom)[addr];
+		return (*rom)[addr & (rom->getSize() - 1)];
 	} else {
 		return 0xFF;
 	}
@@ -96,7 +101,7 @@ const byte* MSXRS232::getReadCacheLine(word start) const
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
 	} else if (rom && (0x4000 <= start) && (start < 0x8000)) {
-		return &(*rom)[addr];
+		return &(*rom)[addr & (rom->getSize() - 1)];
 	} else {
 		return unmappedRead;
 	}
