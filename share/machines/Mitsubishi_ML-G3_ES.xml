@@ -103,11 +103,11 @@
       <secondary slot="3">
         <MSX-RS232 id="MSX RS-232">
           <rom>
-            <sha1>150bd1d4989f879570861edff26b800e7b832333</sha1>
+            <sha1>b1ac74c2550d553579c1176f5dfde814218ec311</sha1>
             <filename>ml-g3_es_rs232.rom</filename>
           </rom>
           <io base="0x80" num="8"/>
-          <mem base="0x0000" size="0x10000"/>
+          <mem base="0x4000" size="0x4000"/>
         </MSX-RS232>
       </secondary>
 
