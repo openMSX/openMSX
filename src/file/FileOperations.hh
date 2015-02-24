@@ -208,7 +208,7 @@ namespace FileOperations {
 	std::string expandCurrentDirFromDrive(string_ref path);
 
 #ifdef _WIN32
-	using Stat = struct _stat;
+	typedef struct _stat Stat;
 #else
 	using Stat = struct stat;
 #endif
