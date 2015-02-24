@@ -32,11 +32,14 @@ namespace openmsx {
 // Time between two snapshots (in seconds)
 static const double SNAPSHOT_PERIOD = 1.0;
 
-// Max number of snapshots in a replay
+// Max number of snapshots in a replay file
 static const unsigned MAX_NOF_SNAPSHOTS = 10;
 
-// Min distance between snapshots in replay (in seconds)
+// Min distance between snapshots in replay file (in seconds)
 static const EmuDuration MIN_PARTITION_LENGTH = EmuDuration(60.0);
+
+// Max distance of one before last snapshot before the end time in replay file (in seconds)
+static const EmuDuration MAX_DIST_1_BEFORE_LAST_SNAPSHOT = EmuDuration(30.0);
 
 static const char* const REPLAY_DIR = "replays";
 
@@ -541,7 +544,12 @@ void ReverseManager::saveReplay(array_ref<TclObject> tokens, TclObject& result)
 
 	// determine which extra snapshots to put in the replay
 	const auto& startTime = begin(chunks)->second.time;
-	const auto& endTime   = chunks.rbegin()->second.time;
+	// for the end time, try to take MAX_DIST_1_BEFORE_LAST_SNAPSHOT
+	// seconds before the normal end time so that we get an extra snapshot
+	// at that point, which is comfortable if you want to reverse from the
+	// last snapshot after loading the replay.
+	const auto& lastChunkTime = chunks.rbegin()->second.time;
+	const auto& endTime   = ((startTime + MAX_DIST_1_BEFORE_LAST_SNAPSHOT) < lastChunkTime) ? lastChunkTime - MAX_DIST_1_BEFORE_LAST_SNAPSHOT : lastChunkTime;
 	EmuDuration totalLength = endTime - startTime;
 	EmuDuration partitionLength = totalLength.divRoundUp(MAX_NOF_SNAPSHOTS);
 	partitionLength = std::max(MIN_PARTITION_LENGTH, partitionLength);
