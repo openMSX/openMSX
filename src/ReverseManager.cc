@@ -377,9 +377,7 @@ void ReverseManager::goTo(
 		// 2 PAL and 2 NTSC frames isn't that big.
 		double dur2frames = 2.0 * (313.0 * 1368.0) / (3579545.0 * 6.0);
 		EmuDuration preDelta(novideo ? 0.0 : dur2frames);
-		EmuTime preTarget = ((targetTime - firstTime) > preDelta)
-		                  ? targetTime - preDelta
-		                  : firstTime;
+		EmuTime preTarget = std::max(targetTime - preDelta, firstTime);
 
 		// find oldest snapshot that is not newer than requested time
 		// TODO ATM we do a linear search, could be improved to do a binary search.
