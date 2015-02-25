@@ -984,7 +984,7 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		static const int SCHED_FSM     = 0;
 		static const int SCHED_IDX_IRQ = 1;
 		assert(ar.isLoader());
-		assert(!pendingSyncPoint());
+		removeSyncPoint();
 		for (auto& old : Schedulable::serializeBW(ar)) {
 			if (old.userData == SCHED_FSM) {
 				setSyncPoint(old.time);
