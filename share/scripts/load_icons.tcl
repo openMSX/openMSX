@@ -215,7 +215,10 @@ proc load_icons {{set_name "-show"} {position_param "default"}} {
 	# ... but allow to override these calculated values (again) by the skin script
 	if {[file isfile $script]} {source $script}
 
-	osd configure osd_icons -x $xbase -y $ybase
+	# Note: The actual width and height are irrelevant since this is only
+	#       an anchor to relatively position the icons to, but by checking
+	#       for a zero or non-zero value the orientation can be queried.
+	osd configure osd_icons -x $xbase -y $ybase -w $horizontal -h $vertical
 
 	foreach icon $icon_list {
 		osd configure osd_icons.${icon}_on \
