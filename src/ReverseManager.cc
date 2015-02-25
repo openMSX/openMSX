@@ -189,8 +189,6 @@ void ReverseManager::start()
 		// create first snapshot
 		collecting = true;
 		takeSnapshot(getCurrentTime());
-		// schedule creation of next snapshot
-		schedule(getCurrentTime());
 		// start recording events
 		motherBoard.getStateChangeDistributor().registerRecorder(*this);
 	}
@@ -453,17 +451,8 @@ void ReverseManager::goTo(
 		}
 
 		// -- goto correct time within snapshot --
-		// Fast forward 2 frames before target time.
-		// If we're short on snapshots, create them at the usual interval.
-		while (true) {
-			EmuTime nextTarget = std::min(
-				preTarget,
-				newBoard->getCurrentTime() + EmuDuration(SNAPSHOT_PERIOD));
-			newBoard->fastForward(nextTarget, true);
-			if (nextTarget >= preTarget) break;
-			newBoard->getReverseManager().takeSnapshot(
-				newBoard->getCurrentTime());
-		}
+		// fast forward 2 frames before target time
+		newBoard->fastForward(preTarget, true);
 
 		// switch to the new MSXMotherBoard
 		//  Note: this deletes the current MSXMotherBoard and
@@ -824,8 +813,6 @@ int ReverseManager::signalEvent(const shared_ptr<const Event>& event)
 	if (pendingTakeSnapshot) {
 		pendingTakeSnapshot = false;
 		takeSnapshot(getCurrentTime());
-		// schedule creation of next snapshot
-		schedule(getCurrentTime());
 	}
 	return 0;
 }
@@ -860,6 +847,9 @@ void ReverseManager::takeSnapshot(EmuTime::param time)
 	newChunk.time = time;
 	newChunk.savestate = out.releaseBuffer();
 	newChunk.eventCount = replayIndex;
+
+	// schedule creation of next snapshot
+	schedule(getCurrentTime());
 }
 
 void ReverseManager::replayNextEvent()
