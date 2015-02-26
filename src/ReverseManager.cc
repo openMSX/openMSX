@@ -839,11 +839,11 @@ int ReverseManager::signalEvent(const shared_ptr<const Event>& event)
 unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime::param time) const
 {
 	if (chunks.empty()) {
-		return 1;
+		return 0;
 	}
 	const auto& startTime = begin(chunks)->second.time;
 	double duration = (time - startTime).toDouble();
-	return unsigned(duration / SNAPSHOT_PERIOD + 0.5) + 1;
+	return unsigned(duration / SNAPSHOT_PERIOD + 0.5);
 }
 
 void ReverseManager::takeSnapshot(EmuTime::param time)
@@ -933,12 +933,12 @@ void ReverseManager::stopReplay(EmuTime::param time)
 template<unsigned N>
 void ReverseManager::dropOldSnapshots(unsigned count)
 {
-	unsigned y = (count + N - 1) ^ (count + N);
+	unsigned y = (count + N) ^ (count + N + 1);
 	unsigned d = N;
 	unsigned d2 = 2 * N + 1;
 	while (true) {
 		y >>= 1;
-		if ((y == 0) || (count <= d)) return;
+		if ((y == 0) || (count < d)) return;
 		history.chunks.erase(count - d);
 		d += d2;
 		d2 *= 2;
