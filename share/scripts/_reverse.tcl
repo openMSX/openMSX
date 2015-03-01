@@ -353,23 +353,10 @@ proc enable_reversebar {{visible true}} {
 		return
 	}
 
-	# Hack: Put the reverse bar at the bottom when the icons are at the top,
-	#  otherwise at the top.
-	#  It would be better to have a proper layout manager for the OSD stuff.
-	if {[catch {set led_y [osd info osd_icons -y]}]} {
-		set led_y 0
-	}
-	if {[catch {set led_w [osd info osd_icons -w]}]} {
-		set led_w 0
-	}
-	set y [expr {($led_y < 10) && ($led_w != 0) ? 231 : 1}]
-	# Set time indicator position (depending on reverse bar position)
-	variable overlayOffset [expr {($led_y > 16) ? 1.1 : -1.25}]
-
 	# Reversebar
 	set fade [expr {$visible ? 1.0 : 0.0}]
 	osd create rectangle reverse \
-		-scaled true -x 34 -y $y -w 252 -h 8 \
+		-scaled true -x 34 -y 1 -w 252 -h 8 \
 		-rgba 0x00000080 -fadeCurrent $fade -fadeTarget $fade \
 		-borderrgba 0xFFFFFFC0 -bordersize 1
 	osd create rectangle reverse.int \
@@ -414,6 +401,20 @@ proc update_reversebar {} {
 }
 
 proc update_reversebar2 {} {
+	# Hack: Put the reverse bar at the bottom when the icons are at the top,
+	#  otherwise at the top.
+	#  It would be better to have a proper layout manager for the OSD stuff.
+	if {[catch {set led_y [osd info osd_icons -y]}]} {
+		set led_y 0
+	}
+	if {[catch {set led_w [osd info osd_icons -w]}]} {
+		set led_w 0
+	}
+	osd configure reverse -y [expr {($led_y < 10) && ($led_w != 0) ? 231 : 1}]
+	# Set time indicator position (depending on reverse bar position)
+	variable overlayOffset [expr {($led_y > 16) ? 1.1 : -1.25}]
+
+
 	set stats [reverse status]
 
 	set x 2; set y 2
