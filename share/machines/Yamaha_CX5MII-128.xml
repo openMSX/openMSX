@@ -98,7 +98,7 @@
         <YamahaSFG id="Yamaha SFG-05">
           <mem base="0x0000" size="0x8000"/>
           <sound>
-            <volume>13000</volume>
+            <volume>30000</volume>
           </sound>
           <rom>
             <sha1>6680d7118d85418813f1db9449bf3e20942b16da</sha1>

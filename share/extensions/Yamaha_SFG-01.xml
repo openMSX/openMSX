@@ -17,7 +17,7 @@
         <YamahaSFG id="Yamaha SFG-01">
           <mem base="0x0000" size="0x10000"/> <!-- 16kB ROM mirrored over the whole slot -->
           <sound>
-            <volume>13000</volume>
+            <volume>30000</volume>
           </sound>
           <rom>
             <sha1>49a1750c10e407293af6bce27a02e99307ceba12</sha1>
