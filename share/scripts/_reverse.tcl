@@ -430,8 +430,12 @@ proc update_reversebar2 {} {
 		}
 		"replaying" {
 			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
-			osd configure reverse.int.bar \
-				-rgba "0x0044aaa0 0x2266dda0 0x0055cca0 0x55eeffa0"
+			if {[reverse viewonlymode]} {
+				set color "0x00aa44a0 0x22dd66a0 0x00cc55a0 0x55ffeea0"
+			} else {
+				set color "0x0044aaa0 0x2266dda0 0x0055cca0 0x55eeffa0"
+			}
+			osd configure reverse.int.bar -rgba $color
 			set invisibleTime +inf
 		}
 		"enabled" {
