@@ -454,11 +454,17 @@ void ReverseManager::goTo(
 
 		// -- goto correct time within snapshot --
 		// Fast forward 2 frames before target time.
-		// If we're short on snapshots, create them at the usual interval.
+		// If we're short on snapshots, create them at intervals that are
+		// at least the usual interval, but the later, the more: each
+		// time divide the remaining time in half and make a snapshot
+		// there.
 		while (true) {
 			EmuTime nextTarget = std::min(
 				preTarget,
-				newBoard->getCurrentTime() + EmuDuration(SNAPSHOT_PERIOD));
+				newBoard->getCurrentTime() + std::max(
+					EmuDuration(SNAPSHOT_PERIOD),
+					(preTarget - newBoard->getCurrentTime()) / 2
+					));
 			newBoard->fastForward(nextTarget, true);
 			if (nextTarget >= preTarget) break;
 			newBoard->getReverseManager().takeSnapshot(
