@@ -72,7 +72,7 @@ def _installDirsRec(path):
 	separator in "path".
 	'''
 	path = path.rstrip(sep)
-	if not isdir(path):
+	if path and not isdir(path):
 		index = path.rfind(sep)
 		if index != -1:
 			_installDirsRec(path[ : index])
