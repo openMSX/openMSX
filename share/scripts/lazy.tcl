@@ -39,8 +39,7 @@ register_lazy "_record_chunks.tcl" record_chunks
 register_lazy "_reg_log.tcl" reg_log
 register_lazy "_reverse.tcl" {
 	reverse_prev reverse_next goto_time_delta go_back_one_step
-	go_forward_one_step reverse_bookmarks auto_save_replay_enable
-	auto_save_replay_disable auto_save_replay_set_filename
+	go_forward_one_step reverse_bookmarks
 	toggle_reversebar enable_reversebar disable_reversebar auto_enable}
 register_lazy "_rom_info.tcl" {rom_info getlist_rom_info}
 register_lazy "_save_debuggable.tcl" {

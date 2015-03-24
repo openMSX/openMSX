@@ -42,6 +42,22 @@ user_setting create float "reversebar_fadeout_time" \
 {Time it takes for the reverse bar to fade out when it's not in focus. Set to 0 for no fade out at all.
 } 5.0 0.0 100.0
 
+user_setting create boolean "auto_save_replay" \
+{Enables automatically saving the current replay to filename specified \
+in the setting "auto_save_replay_filename" with the interval specified \
+in the setting "auto_save_replay_interval".
+The file will keep being overwritten until you disable the auto save again.\
+} false
+
+user_setting create string "auto_save_replay_filename" \
+{Filename of the replay file that will be saved to when auto_save_replay is \
+enabled.
+} "auto_save"
+
+user_setting create float "auto_save_replay_interval" \
+{If enabled, auto save the current replay every number of seconds that is \
+specified with this setting.
+} 30.0 0.01 100000.0
 
 # TODO hack:
 # The order in which the startup scripts are executed is not defined. But this

@@ -238,69 +238,41 @@ proc reverse_bookmarks_tabcompletion {args} {
 
 ### auto save replays
 
-variable auto_save_enabled false
-variable auto_save_interval false
+trace add variable ::auto_save_replay "write" [namespace code auto_save_setting_changed]
 
-set_help_text auto_save_replay_enable \
-{Enables automatically saving the current replay to the given filename.\
-Optionally you can also specify the interval in seconds, default is 5.\
-\
-The file will keep being overwritten until you disable the auto save with\
-the command auto_save_replay_disable. You can change the filename while\
-it's active with the auto_save_replay_set_filename command.\
-}
+variable old_auto_save_value $::auto_save_replay
+variable auto_save_after_id 0
 
-proc auto_save_replay_enable { filename {interval 5}} {
-	variable auto_save_enabled
-	variable auto_save_interval
+proc auto_save_setting_changed {name1 name2 op} {
+	variable old_auto_save_value
+	variable auto_save_after_id
 
-	if {$auto_save_enabled} {
-		error "Auto save is already enabled!"
-	}
-	set stat_dict [reverse status]
-	if {[dict get $stat_dict status] eq "disabled"} {
-		error "Reverse is not enabled!"
-	}
+	if {$::auto_save_replay != $old_auto_save_value} {
+		set old_auto_save_value $::auto_save_replay
 
-	set auto_save_enabled true
-	set auto_save_interval $interval
-
-	auto_save_replay_loop $filename
-
-	return "Enabled auto-save of replay to filename $filename every $auto_save_interval seconds."
-}
-
-proc auto_save_replay_loop {filename} {
-	variable auto_save_enabled
-	variable auto_save_interval
-
-	if {$auto_save_enabled} {
-		reverse savereplay $filename
-
-		after realtime $auto_save_interval "reverse::auto_save_replay_loop $filename"
+		if {$::auto_save_replay && $auto_save_after_id == 0 } {
+			set stat_dict [reverse status]
+			if {[dict get $stat_dict status] eq "disabled"} {
+				error "Reverse is not enabled!"
+			}
+			auto_save_replay_loop
+			puts "Enabled auto-save of replay to filename $::auto_save_replay_filename every $::auto_save_replay_interval seconds."
+		} elseif {!$::auto_save_replay && $auto_save_after_id != 0 } {
+			after cancel $auto_save_after_id
+			set auto_save_after_id 0
+			puts "Auto-save of replay disabled."
+		}
 	}
 }
 
-proc auto_save_replay_set_filename {filename} {
-	variable auto_save_enabled
-	variable auto_save_interval
+proc auto_save_replay_loop {} {
+	variable auto_save_after_id
 
-	if {!$auto_save_enabled} {
-		error "Auto save is not enabled!"
+	if {$::auto_save_replay} {
+		reverse savereplay $::auto_save_replay_filename
+
+		set auto_save_after_id [after realtime $::auto_save_replay_interval "reverse::auto_save_replay_loop"]
 	}
-
-	auto_save_replay_disable
-	auto_save_replay_enable $filename $auto_save_interval
-}
-
-proc auto_save_replay_disable {} {
-	variable auto_save_enabled
-
-	if {!$auto_save_enabled} {
-		error "Auto save was not enabled!"
-	}
-	set auto_save_enabled false
-	return "Disabled auto save of replays."
 }
 
 namespace export reverse_prev
@@ -309,9 +281,6 @@ namespace export goto_time_delta
 namespace export go_back_one_step
 namespace export go_forward_one_step
 namespace export reverse_bookmarks
-namespace export auto_save_replay_enable
-namespace export auto_save_replay_disable
-namespace export auto_save_replay_set_filename
 
 } ;# namespace reverse
 
