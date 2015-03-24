@@ -9,21 +9,25 @@ works when inserting cassettes when the MSX is already started up, not when
 inserting them via the openMSX command line." false
 
 variable old_value $::fast_cas_load_hack_enabled
+variable hack_is_already_enabled false
 
 proc set_hack {} {
+	variable hack_is_already_enabled
 	# example: turboR..
 	# for now, ignore the commands... it's quite complex to
 	# get this 100% water tight with adding/removing machines
 	# at run time
 	if {[catch "machine_info connector cassetteport"]} return
 	
-	if {$::fast_cas_load_hack_enabled} {
+	if {$::fast_cas_load_hack_enabled && !$hack_is_already_enabled} {
 		interp hide {} cassetteplayer
 		interp alias {} cassetteplayer {} cashandler::tapedeck
+		set hack_is_already_enabled true
 		puts "Fast cas load hack installed."
-	} else {
+	} elseif {!$::fast_cas_load_hack_enabled && $hack_is_already_enabled} {
 		interp alias {} cassetteplayer {}
 		interp expose {} cassetteplayer
+		set hack_is_already_enabled false
 		puts "Fast cas load hack uninstalled."
 	}
 }
