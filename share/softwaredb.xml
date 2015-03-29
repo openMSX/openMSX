@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1416080566">
+<softwaredb timestamp="1427609756">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
 
 Copyright 2003 Nicolas Beyaert (Initial Database)
 Copyright 2004-2013 BlueMSX Team
-Copyright 2005-2014 openMSX Team
+Copyright 2005-2015 openMSX Team
 Generation MSXIDs by www.generation-msx.nl
 
 ]]>
@@ -4610,6 +4610,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>f2ec3714138175212b6b6e28b5da4361cc4b5471</hash></rom></dump>
 </software>
 <software>
+	<title>Gunsmoke</title>
+	<system>MSX</system>
+	<company>Prosoft</company>
+	<year>1990</year>
+	<country>KR</country>
+		<dump><rom><hash>b27aef37ab7327e12a8d4460b89af391d3789961</hash></rom></dump>
+</software>
+<software>
 	<title>Guru Logic</title>
 	<system>MSX</system>
 	<company>Karoshi Corporation</company>
@@ -4948,18 +4956,20 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1987</year>
 	<country>JP</country>
 		<dump><megarom><type>ASCII8</type><hash>fed52c0455ce1e7cef80cd144c3d0ef3636134e5</hash><remark>[RC-747]</remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>d723f2eb1c887db5448fd56be5e7c57e60d88e63</hash><remark>[a1][RC-747]</remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>d723f2eb1c887db5448fd56be5e7c57e60d88e63</hash><remark>[RC-747] / [a1]</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>612c18616bc800d9eb69b9da3cd29eca31f50c1c</hash><remark>[RC-747]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>300f20adde3941ab10eb158db48250e8e856a911</hash><remark>[RC-747]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>875bbb27f6a54e5d123dc8a6df4bf46f97c23a57</hash><remark>[RC-747]</remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>45760316a4ebc74ddd55ee163c5aeaaafe965d2c</hash><remark>[RC-747] / Vampier cheat</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>7e5024e6e6aecd05ec6c885786a4aac287ed110b</hash><remark>[RC-747] / Ulver crack</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>357c0c2e9b3b2970c587c96f86a6b7272160f54a</hash><remark>[RC-747]</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>45c108f04c1abd12bfa5d2222e578bda6ef54c39</hash></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>0329a79f82f67f3799124f3539eccaaa37adca08</hash></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>a0a49baa3755dfeddb993f978efd2fdb7d1e2c79</hash></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>d37d24f73b1f819b676bcbf97217cdb39c9d8916</hash></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>ed67e8266c152f3020543fb5b3061c9a57a3ca1f</hash></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>45c108f04c1abd12bfa5d2222e578bda6ef54c39</hash><remark>[RC-747]</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>0329a79f82f67f3799124f3539eccaaa37adca08</hash><remark>[RC-747]</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>a0a49baa3755dfeddb993f978efd2fdb7d1e2c79</hash><remark>[RC-747]</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>d37d24f73b1f819b676bcbf97217cdb39c9d8916</hash><remark>[RC-747]</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>ed67e8266c152f3020543fb5b3061c9a57a3ca1f</hash><remark>[RC-747]</remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash>7b0b379c6f46552a6f5a0408b8182e8e79540f7f</hash><remark>[RC-747]</remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash>581eac8e476e2c95aae88befddef1ff3dc81c872</hash><remark>[RC-747] / fully patched (Turbo and speed fix)</remark></megarom></dump>
 </software>
 <software>
 	<title>Hisha</title>
@@ -12924,6 +12934,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:3227
-Created on Sat Nov 15 20:42:56 CET 2014
+Roms in this XML file:3230
+Created on Sun Mar 29 8:16:09 CEST 2015
  -->
