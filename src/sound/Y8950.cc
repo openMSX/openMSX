@@ -270,7 +270,7 @@ static unsigned RA_ADJUST_TABLE[EG_MUTE + 1];
 // Dynamic range
 static const int DB_BITS = 9;
 static const int DB_MUTE = 1 << DB_BITS;
-// PM table is calcurated by PM_AMP * pow(2, PM_DEPTH * sin(x) / 1200)
+// PM table is calcurated by PM_AMP * exp2(PM_DEPTH * sin(x) / 1200)
 static const int PM_AMP_BITS = 8;
 static const int PM_AMP = 1 << PM_AMP_BITS;
 
@@ -466,8 +466,8 @@ static void makeSinTable()
 static void makePmTable()
 {
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
-		pmtable[0][i] = int(double(PM_AMP) * pow(2, double(PM_DEPTH)  * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
-		pmtable[1][i] = int(double(PM_AMP) * pow(2, double(PM_DEPTH2) * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
+		pmtable[0][i] = int(double(PM_AMP) * exp2(double(PM_DEPTH)  * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
+		pmtable[1][i] = int(double(PM_AMP) * exp2(double(PM_DEPTH2) * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
 	}
 }
 

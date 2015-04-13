@@ -473,7 +473,7 @@ static byte lfo_noise_waveform[256] = {
 void YM2151::Impl::initTables()
 {
 	for (int x = 0; x < TL_RES_LEN; ++x) {
-		double m = (1 << 16) / pow(2, (x + 1) * (ENV_STEP / 4.0) / 8.0);
+		double m = (1 << 16) / exp2((x + 1) * (ENV_STEP / 4.0) / 8.0);
 		m = floor(m);
 
 		// we never reach (1 << 16) here due to the (x + 1)
@@ -502,12 +502,7 @@ void YM2151::Impl::initTables()
 		double m = sin((i * 2 + 1) * M_PI / SIN_LEN); // verified on the real chip
 
 		// we never reach zero here due to (i * 2 + 1)
-		double o;
-		if (m > 0.0) { // convert to decibels
-			o = 8 * log( 1.0 / m) / log(2.0);
-		} else {
-			o = 8 * log(-1.0 / m) / log(2.0);
-		}
+		double o = -8.0 * log2(std::abs(m)); // convert to decibels
 		o = o / (ENV_STEP / 4);
 
 		int n = int(2.0 * o);

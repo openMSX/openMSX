@@ -906,7 +906,7 @@ YMF278::Impl::Impl(YMF278& self, const std::string& name, int ramSize,
 
 	// Volume table, 1 = -0.375dB, 8 = -3dB, 256 = -96dB
 	for (int i = 0; i < 256; ++i) {
-		volume[i] = int(32768.0 * pow(2.0, (-0.375 / 6) * i));
+		volume[i] = int(32768.0 * exp2((-0.375 / 6) * i));
 	}
 	for (int i = 256; i < 256 * 4; ++i) {
 		volume[i] = 0;

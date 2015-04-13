@@ -610,7 +610,7 @@ static void initTables()
 	alreadyInit = true;
 
 	for (int x = 0; x < TL_RES_LEN; ++x) {
-		double m = (1 << 16) / pow(2, (x + 1) * (ENV_STEP / 4.0) / 8.0);
+		double m = (1 << 16) / exp2((x + 1) * (ENV_STEP / 4.0) / 8.0);
 		m = floor(m);
 
 		// we never reach (1 << 16) here due to the (x + 1)
@@ -631,7 +631,7 @@ static void initTables()
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
 		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN);
-		int n = int(round(log(m) * (-256.0 / log(2.0))));
+		int n = int(round(log2(m) * -256.0));
 		full[i] = half[i] = 2 * n;
 	}
 	for (int i = 0; i < SIN_LEN / 4; ++i) {

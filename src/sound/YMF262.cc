@@ -1004,7 +1004,7 @@ void YMF262::Impl::init_tables()
 	alreadyInit = true;
 
 	for (int x = 0; x < TL_RES_LEN; x++) {
-		double m = (1 << 16) / pow(2, (x + 1) * (ENV_STEP / 4.0) / 8.0);
+		double m = (1 << 16) / exp2((x + 1) * (ENV_STEP / 4.0) / 8.0);
 		m = floor(m);
 
 		// we never reach (1<<16) here due to the (x+1)
@@ -1023,14 +1023,11 @@ void YMF262::Impl::init_tables()
 		}
 	}
 
-	const double LOG2 = ::log(2.0);
 	for (int i = 0; i < SIN_LEN; i++) {
 		// non-standard sinus
 		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
 		// we never reach zero here due to ((i * 2) + 1)
-		double o = (m > 0.0) ?
-			8 * ::log( 1.0 / m) / LOG2: // convert to 'decibels'
-			8 * ::log(-1.0 / m) / LOG2; // convert to 'decibels'
+		double o = -8.0 * log2(std::abs(m)); // convert to 'decibels'
 		o = o / (ENV_STEP / 4);
 
 		int n = int(2 * o);
