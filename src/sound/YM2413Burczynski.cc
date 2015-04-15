@@ -627,11 +627,12 @@ static void initTables()
 
 	unsigned* full = &sin_tab[0 * SIN_LEN]; // waveform 0: standard sinus
 	unsigned* half = &sin_tab[1 * SIN_LEN]; // waveform 1: positive part of sinus
+	static const double LOG2 = log(2.0);
 	for (int i = 0; i < SIN_LEN / 4; ++i) {
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
 		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN);
-		int n = int(round(log2(m) * -256.0));
+		int n = int(round(log(m) / LOG2 * -256.0));
 		full[i] = half[i] = 2 * n;
 	}
 	for (int i = 0; i < SIN_LEN / 4; ++i) {
