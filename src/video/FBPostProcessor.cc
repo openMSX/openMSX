@@ -32,13 +32,13 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 {
 	// We skip noise drawing if the factor is 0, so there is no point in
 	// initializing the random data in that case.
-	if (factor == 0) return;
+	if (factor == 0.0f) return;
 
 	// for 32bpp groups of 4 consecutive noiseBuf elements (starting at
 	// 4 element boundaries) must have the same value. Later optimizations
 	// depend on it.
 
-	double scale[4];
+	float scale[4];
 	if (sizeof(Pixel) == 4) {
 		// 32bpp
 		// TODO ATM we compensate for big endian here. A better
@@ -50,16 +50,16 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 		// TODO we can also fill the array with 'factor' and only set
 		// 'alpha' to 0.0. But PixelOperations doesn't offer a simple
 		// way to get the position of the alpha byte (yet).
-		scale[0] = scale[1] = scale[2] = scale[3] = 0.0;
+		scale[0] = scale[1] = scale[2] = scale[3] = 0.0f;
 		scale[pixelOps.red  (p)] = factor;
 		scale[pixelOps.green(p)] = factor;
 		scale[pixelOps.blue (p)] = factor;
 	} else {
 		// 16bpp
-		scale[0] = (pixelOps.getMaxRed()   / 255.0) * factor;
-		scale[1] = (pixelOps.getMaxGreen() / 255.0) * factor;
-		scale[2] = (pixelOps.getMaxBlue()  / 255.0) * factor;
-		scale[3] = 0.0;
+		scale[0] = (pixelOps.getMaxRed()   / 255.0f) * factor;
+		scale[1] = (pixelOps.getMaxGreen() / 255.0f) * factor;
+		scale[2] = (pixelOps.getMaxBlue()  / 255.0f) * factor;
+		scale[3] = 0.0f;
 	}
 
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
