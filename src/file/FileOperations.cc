@@ -468,7 +468,8 @@ string getAbsolutePath(string_ref path)
 bool isAbsolutePath(string_ref path)
 {
 #ifdef _WIN32
-	if ((path.size() >= 3) && (path[1] == ':') && (path[2] == '/')) {
+	if ((path.size() >= 3) && (path[1] == ':') &&
+	    ((path[2] == '/') || (path[2] == '\\'))) {
 		char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
 			return true;
