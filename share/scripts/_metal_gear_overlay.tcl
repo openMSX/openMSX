@@ -46,26 +46,22 @@ proc init {} {
 	variable currentfield
 	variable map_feature_enabled
 
-	#Create OSD elements
+	# Create OSD elements
 	osd_widgets::msx_init metal_gear
 
 	for {set i 0} {$i < $num_enemies} {incr i} {
 		osd_widgets::create_power_bar metal_gear.powerbar$i 16 2 0xff0080b0 0x00000080 0xffffffC0
 		osd_widgets::create_power_bar metal_gear.punchbar$i 16 2 0x0080ffb0 0x00000080 0xffffffC0
+		set max_hp($i) 0
+		set punch_max_hp($i) 0
 	}
 
 	osd_widgets::create_power_bar metal_gear.powerbarsnake 24 2 0x00ff00b0 0x00000080 0xffffffC0
 	osd_widgets::create_power_bar metal_gear.boss  24 8 0x00ff00b0 0x00000080 0xffffffC0
 
-	for {set i 0} {$i < 256} {incr i} {
-		set max_hp($i) 0
-		set punch_max_hp($i) 0
-	}
-
 	set currentfield 0
 	
 	if {$map_feature_enabled} {
-		
 		for {set y 0} {$y < 16} {incr y} {
 			for {set x 0} {$x < 16} {incr x} {
 				set field [expr {$x + ($y * 16)}]
@@ -74,27 +70,25 @@ proc init {} {
 		}
 	}
 
-	#Start the overlay refresh
+	# Start the overlay refresh
 	update_overlay
 }
 
-proc update_overlay {} {
+proc update_impl {} {
 	variable max_hp
 	variable punch_max_hp
 	variable num_enemies
 	variable enemy_names
 	variable currentfield
-	variable metal_gear_overlay_active
 	variable map_feature_enabled
 
-	if {!$metal_gear_overlay_active} return
-
 	# check for field change
-	if {$currentfield != [peek 0xC130]} {
+	set newfield [peek 0xC130]
+	if {$currentfield != $newfield} {
 		set previousfield $currentfield
-		set currentfield [peek 0xC130]
+		set currentfield $newfield
 
-		#clear out old HP values if field has changed
+		# clear out old HP values if field has changed
 		for {set i 0} {$i < $num_enemies} {incr i} {
 			set punch_max_hp($i) 0
 			set max_hp($i) 0
@@ -105,42 +99,31 @@ proc update_overlay {} {
 		}
 	}
 
-	#check if not in demo or weapon/item screen
-	if {[peek 0xC012] == 0x00 || [peek 0xC012] == 0x47 || [peek 0xC012] == 0x50 || [peek 0xC151] != 0} {
-		osd configure metal_gear -y 999
-	} else {
-		osd configure metal_gear -y 0
-	}
-
 	for {set i 0; set addr 0xD000} {$i < $num_enemies} {incr i; incr addr 0x80} {
 		set enemy_type [peek $addr]
-		set enemy_hp [expr {0 + [peek [expr {$addr + 0x0D}]]}]
-		set enemy_punch_hp [expr {3 - [peek [expr $addr + 0x7A]]}]
-
-		if {$enemy_punch_hp > $punch_max_hp($i)} {
-			set punch_max_hp($i) $enemy_punch_hp
-		}
-		if {$enemy_hp > $max_hp($i)} {
-			set max_hp($i) $enemy_hp
-		}
-
-		set pos_x [expr { 0 + [peek [expr {$addr + 5}]]}]
-		set pos_y [expr { 0 + [peek [expr {$addr + 3}]]}]
-
+		set enemy_hp [peek [expr {$addr + 0x0D}]]
 		if {$enemy_type > 0 && $enemy_hp > 0} {
-			set power [expr {1.00 * $enemy_hp / $max_hp($i)}]
-			set punch_power [expr {1.00 * $enemy_punch_hp / $punch_max_hp($i)}]
+			set pos_x [peek [expr {$addr + 5}]]
+			set pos_y [peek [expr {$addr + 3}]]
 
+			if {$enemy_hp > $max_hp($i)} {
+				set max_hp($i) $enemy_hp
+			}
+			set power [expr {1.00 * $enemy_hp / $max_hp($i)}]
 			set text "HP: $enemy_hp $i [lindex $enemy_names $enemy_type] - #$enemy_type"
-			osd_widgets::update_power_bar metal_gear.powerbar$i $pos_x $pos_y  $power $text
+			osd_widgets::update_power_bar metal_gear.powerbar$i $pos_x $pos_y $power $text
 								
 			# only show the punch bar when the enemy can be punched
+			set enemy_punch_hp [expr {3 - [peek [expr {$addr + 0x7A}]]}]
 			if {$enemy_punch_hp > 0} {
+				if {$enemy_punch_hp > $punch_max_hp($i)} {
+					set punch_max_hp($i) $enemy_punch_hp
+				}
+				set punch_power [expr {1.00 * $enemy_punch_hp / $punch_max_hp($i)}]
 				osd_widgets::update_power_bar metal_gear.punchbar$i $pos_x [expr {$pos_y + 5}] $punch_power ""
 			} else {
 				osd_widgets::update_power_bar metal_gear.punchbar$i -50 -50 0 ""
 			}
-
 		} else {
 			osd_widgets::update_power_bar metal_gear.powerbar$i -50 -50 0 ""
 			osd_widgets::update_power_bar metal_gear.punchbar$i -50 -50 0 ""
@@ -149,39 +132,48 @@ proc update_overlay {} {
 
 	# get stats for snake
 	set snake_hp [peek 0xC131]
-	set power [expr {1.00 * $snake_hp / 48}]
+	set power [expr {$snake_hp / 48.0}]
 	set poisoned [peek 0xC139]
 	set pos_x [peek 0xC184]
 	set pos_y [peek 0xc182]
 
+	set text ""
 	if {$poisoned == 1} {
 		set power 0
-		set text "POISONED ($pos_x,$pos_y)  HP: $snake_hp"
-        } else {
-		set text "($pos_x,$pos_y)  HP: $snake_hp"
+		set text "POISONED "
 	}
+	append text "($pos_x,$pos_y)  HP: $snake_hp"
 
 	osd_widgets::update_power_bar metal_gear.powerbarsnake [expr {$pos_x - 13}] [expr {$pos_y + 20}] $power $text
+}
 
+proc update_overlay {} {
+	variable metal_gear_overlay_active
+	if {!$metal_gear_overlay_active} return
+
+	# check if not in demo or weapon/item screen
+	set c012 [peek 0xC012]
+	if {$c012 == 0x00 || $c012 == 0x47 || $c012 == 0x50 || [peek 0xC151] != 0} {
+		osd configure metal_gear -y 999
+	} else {
+		osd configure metal_gear -y 0
+		update_impl
+	}
 	after frame [namespace code update_overlay]
 }
 
 proc toggle_metal_gear_overlay {} {
 	variable metal_gear_overlay_active
-
 	set metal_gear_overlay_active [expr {!$metal_gear_overlay_active}]
-
 	if {$metal_gear_overlay_active} {
 		init
-		update_overlay
-		osd::display_message "Metal Gear overlay activated" info
-		return "Metal Gear overlay activated!"
+		set text "Metal Gear overlay activated!"
 	} else {
-		set retval ""
 		osd destroy metal_gear
-		osd::display_message "Metal Gear overlay deactivated" info
-		return "Metal Gear overlay deactivated."
+		set text "Metal Gear overlay deactivated."
 	}
+	osd::display_message $text info
+	return $text
 }
 
 namespace export toggle_metal_gear_overlay
