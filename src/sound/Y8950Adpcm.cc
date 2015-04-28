@@ -9,6 +9,7 @@
 // 100% realtime speed (which is most of the time better for sound quality).
 
 #include "Y8950Adpcm.hh"
+#include "Y8950.hh"
 #include "Clock.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
@@ -299,9 +300,9 @@ byte Y8950Adpcm::readReg(byte rg, EmuTime::param time)
 	return result;
 }
 
-byte Y8950Adpcm::peekReg(byte rg, EmuTime::param time)
+byte Y8950Adpcm::peekReg(byte rg, EmuTime::param time) const
 {
-	sync(time); // TODO only when needed
+	const_cast<Y8950Adpcm*>(this)->sync(time); // TODO only when needed
 	return peekReg(rg);
 }
 

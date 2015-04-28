@@ -5,224 +5,22 @@
   */
 
 #include "Y8950.hh"
-#include "Y8950Adpcm.hh"
-#include "Y8950KeyboardConnector.hh"
 #include "Y8950Periphery.hh"
 #include "MSXAudio.hh"
-#include "ResampledSoundDevice.hh"
-#include "EmuTimer.hh"
-#include "SimpleDebuggable.hh"
-#include "IRQHelper.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
-#include "DACSound16S.hh"
-#include "FixedPoint.hh"
 #include "Math.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <algorithm>
 #include <cmath>
 
 namespace openmsx {
 
-// Dynamic range of envelope
-static const int EG_BITS = 9;
-static const unsigned EG_MUTE = 1 << EG_BITS;
-
-// Bits for envelope phase incremental counter
-static const int EG_DP_BITS = 23;
-using EnvPhaseIndex = FixedPoint<EG_DP_BITS - EG_BITS>;
-static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(EG_MUTE);
-
-
-class Y8950Debuggable final : public SimpleDebuggable
-{
-public:
-	Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950,
-	                const std::string& name);
-	byte read(unsigned address, EmuTime::param time) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	Y8950& y8950;
-};
-
-
-class Y8950Patch {
-public:
-	Y8950Patch();
-	void reset();
-
-	void setKeyScaleRate(bool value) {
-		KR = value ? 9 : 11;
-	}
-	void setFeedbackShift(byte value) {
-		FB = value ? 8 - value : 0;
-	}
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-	bool AM, PM, EG;
-	byte KR; // 0,1   transformed to 9,11
-	byte ML; // 0-15
-	byte KL; // 0-3
-	byte TL; // 0-63
-	byte FB; // 0,1-7  transformed to 0,7-1
-	byte AR; // 0-15
-	byte DR; // 0-15
-	byte SL; // 0-15
-	byte RR; // 0-15
-};
-
-enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
-enum EnvelopeState { ATTACK, DECAY, SUSTAIN, RELEASE, FINISH };
-
-class Y8950Slot {
-public:
-	void reset();
-
-	inline bool isActive() const;
-	inline void slotOn (KeyPart part);
-	inline void slotOff(KeyPart part);
-
-	inline unsigned calc_phase(int lfo_pm);
-	inline unsigned calc_envelope(int lfo_am);
-	inline int calc_slot_car(int lfo_pm, int lfo_am, int fm);
-	inline int calc_slot_mod(int lfo_pm, int lfo_am);
-	inline int calc_slot_tom(int lfo_pm, int lfo_am);
-	inline int calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise);
-	inline int calc_slot_cym(int lfo_am, int a, int b);
-	inline int calc_slot_hat(int lfo_am, int a, int b, int whitenoise);
-
-	inline void updateAll(unsigned freq);
-	inline void updatePG(unsigned freq);
-	inline void updateTLL(unsigned freq);
-	inline void updateRKS(unsigned freq);
-	inline void updateEG();
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-	// OUTPUT
-	int feedback;
-	int output;		// Output value of slot
-
-	// for Phase Generator (PG)
-	unsigned phase;		// Phase
-	unsigned dphase;	// Phase increment amount
-
-	// for Envelope Generator (EG)
-	EnvPhaseIndex* dphaseARTableRks;
-	EnvPhaseIndex* dphaseDRTableRks;
-	int tll;		// Total Level + Key scale level
-	EnvelopeState eg_mode;  // Current state
-	EnvPhaseIndex eg_phase;	// Phase
-	EnvPhaseIndex eg_dphase;// Phase increment amount
-
-	Y8950Patch patch;
-	byte key;
-};
+static const unsigned EG_MUTE = 1 << Y8950::EG_BITS;
+static const Y8950::EnvPhaseIndex EG_DP_MAX = Y8950::EnvPhaseIndex(EG_MUTE);
 
 static const unsigned MOD = 0;
 static const unsigned CAR = 1;
-class Y8950Channel {
-public:
-	Y8950Channel();
-	void reset();
-	inline void setFreq(unsigned freq);
-	inline void keyOn (KeyPart part);
-	inline void keyOff(KeyPart part);
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-	Y8950Slot slot[2];
-	unsigned freq; // combined F-Number and Block
-	bool alg;
-};
-
-class Y8950::Impl final : private ResampledSoundDevice, private EmuTimerCallback
-{
-public:
-	Impl(Y8950& self, const std::string& name, const DeviceConfig& config,
-	     unsigned sampleRam, MSXAudio& audio);
-	void init(const DeviceConfig& config, EmuTime::param time);
-	~Impl();
-
-	void setEnabled(bool enabled, EmuTime::param time);
-	void clearRam();
-	void reset(EmuTime::param time);
-	void writeReg(byte reg, byte data, EmuTime::param time);
-	byte readReg(byte reg, EmuTime::param time);
-	byte peekReg(byte reg, EmuTime::param time) const;
-	byte readStatus(EmuTime::param time);
-	byte peekStatus(EmuTime::param time) const;
-
-	void setStatus(byte flags);
-	void resetStatus(byte flags);
-	byte peekRawStatus() const;
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-private:
-	// SoundDevice
-	int getAmplificationFactor() const override;
-	void generateChannels(int** bufs, unsigned num) override;
-
-	inline void keyOn_BD();
-	inline void keyOn_SD();
-	inline void keyOn_TOM();
-	inline void keyOn_HH();
-	inline void keyOn_CYM();
-	inline void keyOff_BD();
-	inline void keyOff_SD();
-	inline void keyOff_TOM();
-	inline void keyOff_HH();
-	inline void keyOff_CYM();
-	inline void setRythmMode(int data);
-	void update_key_status();
-
-	bool checkMuteHelper();
-
-	void changeStatusMask(byte newMask);
-
-	void callback(byte flag) override;
-
-
-	MSXMotherBoard& motherBoard;
-	Y8950Periphery& periphery;
-	const std::unique_ptr<Y8950Adpcm> adpcm;
-	const std::unique_ptr<Y8950KeyboardConnector> connector;
-	const std::unique_ptr<DACSound16S> dac13; // 13-bit (exponential) DAC
-	const std::unique_ptr<Y8950Debuggable> debuggable;
-
-	const std::unique_ptr<EmuTimer> timer1; //  80us timer
-	const std::unique_ptr<EmuTimer> timer2; // 320us timer
-	IRQHelper irq;
-
-	byte reg[0x100];
-
-	Y8950Channel ch[9];
-
-	unsigned pm_phase; // Pitch Modulator
-	unsigned am_phase; // Amp Modulator
-
-	// Noise Generator
-	int noise_seed;
-	unsigned noiseA_phase;
-	unsigned noiseB_phase;
-	unsigned noiseA_dphase;
-	unsigned noiseB_dphase;
-
-	byte status;     // STATUS Register
-	byte statusMask; // bit=0 -> masked
-	bool rythm_mode;
-	bool am_mode;
-	bool pm_mode;
-	bool enabled;
-};
-
 
 static const double EG_STEP = 0.1875; //  3/16
 static const double SL_STEP = 3.0;
@@ -255,9 +53,9 @@ static const int DP_BASE_BITS = DP_BITS - PG_BITS;
 static unsigned sintable[PG_WIDTH];
 
 // Phase incr table for Attack.
-static EnvPhaseIndex dphaseARTable[16][16];
+static Y8950::EnvPhaseIndex dphaseARTable[16][16];
 // Phase incr table for Decay and Release.
-static EnvPhaseIndex dphaseDRTable[16][16];
+static Y8950::EnvPhaseIndex dphaseDRTable[16][16];
 
 // TL Table.
 static int tllTable[16 * 8][4];
@@ -495,12 +293,12 @@ static void makeTllTable()
 static void makeDphaseARTable()
 {
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseARTable[Rks][0] = EnvPhaseIndex(0);
+		dphaseARTable[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (unsigned AR = 1; AR < 15; ++AR) {
 			unsigned RM = std::min(AR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
 			dphaseARTable[Rks][AR] =
-				EnvPhaseIndex(12 * (RL + 4)) >> (15 - RM);
+				Y8950::EnvPhaseIndex(12 * (RL + 4)) >> (15 - RM);
 		}
 		dphaseARTable[Rks][15] = EG_DP_MAX;
 	}
@@ -510,25 +308,25 @@ static void makeDphaseARTable()
 static void makeDphaseDRTable()
 {
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseDRTable[Rks][0] = EnvPhaseIndex(0);
+		dphaseDRTable[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (unsigned DR = 1; DR < 16; ++DR) {
 			unsigned RM = std::min(DR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
 			dphaseDRTable[Rks][DR] =
-				EnvPhaseIndex(RL + 4) >> (15 - RM);
+				Y8950::EnvPhaseIndex(RL + 4) >> (15 - RM);
 		}
 	}
 }
 
 
-// class Y8950Patch
+// class Y8950::Patch
 
-Y8950Patch::Y8950Patch()
+Y8950::Patch::Patch()
 {
 	reset();
 }
 
-void Y8950Patch::reset()
+void Y8950::Patch::reset()
 {
 	AM = false;
 	PM = false;
@@ -545,9 +343,9 @@ void Y8950Patch::reset()
 }
 
 
-// class Y8950Slot
+// class Y8950::Slot
 
-void Y8950Slot::reset()
+void Y8950::Slot::reset()
 {
 	phase = 0;
 	output = 0;
@@ -562,7 +360,7 @@ void Y8950Slot::reset()
 	updateAll(0);
 }
 
-void Y8950Slot::updatePG(unsigned freq)
+void Y8950::Slot::updatePG(unsigned freq)
 {
 	static const int mltable[16] = {
 		  1, 1*2,  2*2,  3*2,  4*2,  5*2,  6*2 , 7*2,
@@ -574,12 +372,12 @@ void Y8950Slot::updatePG(unsigned freq)
 	dphase = ((fnum * mltable[patch.ML]) << block) >> (21 - DP_BITS);
 }
 
-void Y8950Slot::updateTLL(unsigned freq)
+void Y8950::Slot::updateTLL(unsigned freq)
 {
 	tll = tllTable[freq >> 6][patch.KL] + patch.TL * TL_PER_EG;
 }
 
-void Y8950Slot::updateRKS(unsigned freq)
+void Y8950::Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
@@ -587,7 +385,7 @@ void Y8950Slot::updateRKS(unsigned freq)
 	dphaseDRTableRks = dphaseDRTable[rks];
 }
 
-void Y8950Slot::updateEG()
+void Y8950::Slot::updateEG()
 {
 	switch (eg_mode) {
 	case ATTACK:
@@ -601,12 +399,12 @@ void Y8950Slot::updateEG()
 		eg_dphase = dphaseDRTableRks[patch.RR];
 		break;
 	case FINISH:
-		eg_dphase = EnvPhaseIndex(0);
+		eg_dphase = Y8950::EnvPhaseIndex(0);
 		break;
 	}
 }
 
-void Y8950Slot::updateAll(unsigned freq)
+void Y8950::Slot::updateAll(unsigned freq)
 {
 	updatePG(freq);
 	updateTLL(freq);
@@ -614,30 +412,30 @@ void Y8950Slot::updateAll(unsigned freq)
 	updateEG(); // EG should be last
 }
 
-bool Y8950Slot::isActive() const
+bool Y8950::Slot::isActive() const
 {
 	return eg_mode != FINISH;
 }
 
 // Slot key on
-void Y8950Slot::slotOn(KeyPart part)
+void Y8950::Slot::slotOn(KeyPart part)
 {
 	if (!key) {
 		eg_mode = ATTACK;
 		phase = 0;
-		eg_phase = EnvPhaseIndex(RA_ADJUST_TABLE[eg_phase.toInt()]);
+		eg_phase = Y8950::EnvPhaseIndex(RA_ADJUST_TABLE[eg_phase.toInt()]);
 	}
 	key |= part;
 }
 
 // Slot key off
-void Y8950Slot::slotOff(KeyPart part)
+void Y8950::Slot::slotOff(KeyPart part)
 {
 	if (key) {
 		key &= ~part;
 		if (!key) {
 			if (eg_mode == ATTACK) {
-				eg_phase = EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
+				eg_phase = Y8950::EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
 			}
 			eg_mode = RELEASE;
 		}
@@ -645,14 +443,14 @@ void Y8950Slot::slotOff(KeyPart part)
 }
 
 
-// class Y8950Channel
+// class Y8950::Channel
 
-Y8950Channel::Y8950Channel()
+Y8950::Channel::Channel()
 {
 	reset();
 }
 
-void Y8950Channel::reset()
+void Y8950::Channel::reset()
 {
 	setFreq(0);
 	slot[MOD].reset();
@@ -661,50 +459,37 @@ void Y8950Channel::reset()
 }
 
 // Set frequency (combined F-Number (10bit) and Block (3bit))
-void Y8950Channel::setFreq(unsigned freq_)
+void Y8950::Channel::setFreq(unsigned freq_)
 {
 	freq = freq_;
 }
 
-void Y8950Channel::keyOn(KeyPart part)
+void Y8950::Channel::keyOn(KeyPart part)
 {
 	slot[MOD].slotOn(part);
 	slot[CAR].slotOn(part);
 }
 
-void Y8950Channel::keyOff(KeyPart part)
+void Y8950::Channel::keyOff(KeyPart part)
 {
 	slot[MOD].slotOff(part);
 	slot[CAR].slotOff(part);
 }
 
 
-Y8950::Impl::Impl(Y8950& self, const std::string& name,
-                  const DeviceConfig& config, unsigned sampleRam,
-                  MSXAudio& audio)
+Y8950::Y8950(const std::string& name, const DeviceConfig& config,
+             unsigned sampleRam, EmuTime::param time, MSXAudio& audio)
 	: ResampledSoundDevice(config.getMotherBoard(), name, "MSX-AUDIO", 9 + 5 + 1)
 	, motherBoard(config.getMotherBoard())
 	, periphery(audio.createPeriphery(getName()))
-	, adpcm(make_unique<Y8950Adpcm>(
-		self, config, name, sampleRam))
-	, connector(make_unique<Y8950KeyboardConnector>(
-		motherBoard.getPluggingController()))
-	, dac13(make_unique<DACSound16S>(
-		name + " DAC", "MSX-AUDIO 13-bit DAC", config))
-	, debuggable(make_unique<Y8950Debuggable>(
-		motherBoard, self, getName()))
+	, adpcm(*this, config, name, sampleRam)
+	, connector(motherBoard.getPluggingController())
+	, dac13(name + " DAC", "MSX-AUDIO 13-bit DAC", config)
+	, debuggable(motherBoard, *this, getName())
 	, timer1(EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
 	, timer2(EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
 	, irq(motherBoard, getName() + ".IRQ")
 	, enabled(true)
-{
-}
-
-// Constructor is split in two phases (actual constructor and this init()
-// method). Reason is that adpcm->reset() calls setStatus() via the Y8950
-// object, but before constructor is finished the pointer from Y8950 to
-// Y8950Impl is not yet initialized.
-void Y8950::Impl::init(const DeviceConfig& config, EmuTime::param time)
 {
 	makePmTable();
 	makeAdjustTable();
@@ -722,18 +507,18 @@ void Y8950::Impl::init(const DeviceConfig& config, EmuTime::param time)
 	registerSound(config);
 }
 
-Y8950::Impl::~Impl()
+Y8950::~Y8950()
 {
 	unregisterSound();
 }
 
-void Y8950::Impl::clearRam()
+void Y8950::clearRam()
 {
-	adpcm->clearRam();
+	adpcm.clearRam();
 }
 
 // Reset whole of opl except patch datas.
-void Y8950::Impl::reset(EmuTime::param time)
+void Y8950::reset(EmuTime::param time)
 {
 	for (auto& c : ch) c.reset();
 
@@ -758,26 +543,26 @@ void Y8950::Impl::reset(EmuTime::param time)
 	statusMask = 0;
 	irq.reset();
 
-	adpcm->reset(time);
+	adpcm.reset(time);
 }
 
 
 // Drum key on
-void Y8950::Impl::keyOn_BD()  { ch[6].keyOn(KEY_RHYTHM); }
-void Y8950::Impl::keyOn_HH()  { ch[7].slot[MOD].slotOn(KEY_RHYTHM); }
-void Y8950::Impl::keyOn_SD()  { ch[7].slot[CAR].slotOn(KEY_RHYTHM); }
-void Y8950::Impl::keyOn_TOM() { ch[8].slot[MOD].slotOn(KEY_RHYTHM); }
-void Y8950::Impl::keyOn_CYM() { ch[8].slot[CAR].slotOn(KEY_RHYTHM); }
+void Y8950::keyOn_BD()  { ch[6].keyOn(KEY_RHYTHM); }
+void Y8950::keyOn_HH()  { ch[7].slot[MOD].slotOn(KEY_RHYTHM); }
+void Y8950::keyOn_SD()  { ch[7].slot[CAR].slotOn(KEY_RHYTHM); }
+void Y8950::keyOn_TOM() { ch[8].slot[MOD].slotOn(KEY_RHYTHM); }
+void Y8950::keyOn_CYM() { ch[8].slot[CAR].slotOn(KEY_RHYTHM); }
 
 // Drum key off
-void Y8950::Impl::keyOff_BD() { ch[6].keyOff(KEY_RHYTHM); }
-void Y8950::Impl::keyOff_HH() { ch[7].slot[MOD].slotOff(KEY_RHYTHM); }
-void Y8950::Impl::keyOff_SD() { ch[7].slot[CAR].slotOff(KEY_RHYTHM); }
-void Y8950::Impl::keyOff_TOM(){ ch[8].slot[MOD].slotOff(KEY_RHYTHM); }
-void Y8950::Impl::keyOff_CYM(){ ch[8].slot[CAR].slotOff(KEY_RHYTHM); }
+void Y8950::keyOff_BD() { ch[6].keyOff(KEY_RHYTHM); }
+void Y8950::keyOff_HH() { ch[7].slot[MOD].slotOff(KEY_RHYTHM); }
+void Y8950::keyOff_SD() { ch[7].slot[CAR].slotOff(KEY_RHYTHM); }
+void Y8950::keyOff_TOM(){ ch[8].slot[MOD].slotOff(KEY_RHYTHM); }
+void Y8950::keyOff_CYM(){ ch[8].slot[CAR].slotOff(KEY_RHYTHM); }
 
 // Change Rhythm Mode
-void Y8950::Impl::setRythmMode(int data)
+void Y8950::setRythmMode(int data)
 {
 	bool newMode = (data & 32) != 0;
 	if (rythm_mode != newMode) {
@@ -794,7 +579,7 @@ void Y8950::Impl::setRythmMode(int data)
 }
 
 // recalculate 'key' from register settings
-void Y8950::Impl::update_key_status()
+void Y8950::update_key_status()
 {
 	for (unsigned i = 0; i < 9; ++i) {
 		int main = (reg[0xb0 + i] & 0x20) ? KEY_MAIN : 0;
@@ -823,7 +608,7 @@ static inline int wave2_8pi(int e)
 	return (shift > 0) ? (e >> shift) : (e << -shift);
 }
 
-unsigned Y8950Slot::calc_phase(int lfo_pm)
+unsigned Y8950::Slot::calc_phase(int lfo_pm)
 {
 	if (patch.PM) {
 		phase += (dphase * lfo_pm) >> PM_AMP_BITS;
@@ -833,12 +618,12 @@ unsigned Y8950Slot::calc_phase(int lfo_pm)
 	return phase >> DP_BASE_BITS;
 }
 
-#define S2E(x) EnvPhaseIndex(int(x / EG_STEP))
-static const EnvPhaseIndex SL[16] = {
+#define S2E(x) Y8950::EnvPhaseIndex(int(x / EG_STEP))
+static const Y8950::EnvPhaseIndex SL[16] = {
 	S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 	S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
 };
-unsigned Y8950Slot::calc_envelope(int lfo_am)
+unsigned Y8950::Slot::calc_envelope(int lfo_am)
 {
 	unsigned egout = 0;
 	switch (eg_mode) {
@@ -846,7 +631,7 @@ unsigned Y8950Slot::calc_envelope(int lfo_am)
 		eg_phase += eg_dphase;
 		if (eg_phase >= EG_DP_MAX) {
 			egout = 0;
-			eg_phase = EnvPhaseIndex(0);
+			eg_phase = Y8950::EnvPhaseIndex(0);
 			eg_mode = DECAY;
 			updateEG();
 		} else {
@@ -898,14 +683,14 @@ unsigned Y8950Slot::calc_envelope(int lfo_am)
 	return std::min<unsigned>(egout, DB_MUTE - 1);
 }
 
-int Y8950Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
+int Y8950::Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	int pgout = calc_phase(lfo_pm) + wave2_8pi(fm);
 	return dB2LinTab[sintable[pgout & PG_MASK] + egout];
 }
 
-int Y8950Slot::calc_slot_mod(int lfo_pm, int lfo_am)
+int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
@@ -919,14 +704,14 @@ int Y8950Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	return feedback;
 }
 
-int Y8950Slot::calc_slot_tom(int lfo_pm, int lfo_am)
+int Y8950::Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
 	return dB2LinTab[sintable[pgout & PG_MASK] + egout];
 }
 
-int Y8950Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
+int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
@@ -934,14 +719,14 @@ int Y8950Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
 	return (dB2LinTab[tmp + egout] + dB2LinTab[egout + whitenoise]) >> 1;
 }
 
-int Y8950Slot::calc_slot_cym(int lfo_am, int a, int b)
+int Y8950::Slot::calc_slot_cym(int lfo_am, int a, int b)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	return (dB2LinTab[egout + a] + dB2LinTab[egout + b]) >> 1;
 }
 
 // HI-HAT
-int Y8950Slot::calc_slot_hat(int lfo_am, int a, int b, int whitenoise)
+int Y8950::Slot::calc_slot_hat(int lfo_am, int a, int b, int whitenoise)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	return (dB2LinTab[egout + whitenoise] +
@@ -949,18 +734,18 @@ int Y8950Slot::calc_slot_hat(int lfo_am, int a, int b, int whitenoise)
 	        dB2LinTab[egout + b]) >> 2;
 }
 
-int Y8950::Impl::getAmplificationFactor() const
+int Y8950::getAmplificationFactor() const
 {
 	return 1 << (15 - DB2LIN_AMP_BITS);
 }
 
-void Y8950::Impl::setEnabled(bool enabled_, EmuTime::param time)
+void Y8950::setEnabled(bool enabled_, EmuTime::param time)
 {
 	updateStream(time);
 	enabled = enabled_;
 }
 
-bool Y8950::Impl::checkMuteHelper()
+bool Y8950::checkMuteHelper()
 {
 	if (!enabled) {
 		return true;
@@ -980,10 +765,10 @@ bool Y8950::Impl::checkMuteHelper()
 		if (ch[8].slot[CAR].isActive()) return false;
 	}
 
-	return adpcm->isMuted();
+	return adpcm.isMuted();
 }
 
-void Y8950::Impl::generateChannels(int** bufs, unsigned num)
+void Y8950::generateChannels(int** bufs, unsigned num)
 {
 	// TODO implement per-channel mute (instead of all-or-nothing)
 	if (checkMuteHelper()) {
@@ -1071,7 +856,7 @@ void Y8950::Impl::generateChannels(int** bufs, unsigned num)
 			//bufs[13] += 0;
 		}
 
-		bufs[14][sample] += adpcm->calcSample();
+		bufs[14][sample] += adpcm.calcSample();
 	}
 }
 
@@ -1079,7 +864,7 @@ void Y8950::Impl::generateChannels(int** bufs, unsigned num)
 // I/O Ctrl
 //
 
-void Y8950::Impl::writeReg(byte rg, byte data, EmuTime::param time)
+void Y8950::writeReg(byte rg, byte data, EmuTime::param time)
 {
 	int stbl[32] = {
 		 0,  2,  4,  1,  3,  5, -1, -1,
@@ -1148,11 +933,11 @@ void Y8950::Impl::writeReg(byte rg, byte data, EmuTime::param time)
 				timer2->setStart((data & Y8950::R04_ST2) != 0, time);
 				reg[rg] = data;
 			}
-			adpcm->resetStatus();
+			adpcm.resetStatus();
 			break;
 
 		case 0x06: // (KEYBOARD OUT)
-			connector->write(data, time);
+			connector.write(data, time);
 			reg[rg] = data;
 			break;
 
@@ -1173,7 +958,7 @@ void Y8950::Impl::writeReg(byte rg, byte data, EmuTime::param time)
 		case 0x12: // ENVELOP CONTROL
 		case 0x1A: // PCM-DATA
 			reg[rg] = data;
-			adpcm->writeReg(rg, data, time);
+			adpcm.writeReg(rg, data, time);
 			break;
 
 		case 0x15: // DAC-DATA  (bit9-2)
@@ -1183,7 +968,7 @@ void Y8950::Impl::writeReg(byte rg, byte data, EmuTime::param time)
 				        + reg[0x16];
 				tmp = (tmp * 4) >> (7 - reg[0x17]);
 				tmp = Math::clipIntToShort(tmp);
-				dac13->writeDAC(tmp, time);
+				dac13.writeDAC(tmp, time);
 			}
 			break;
 		case 0x16: //           (bit1-0)
@@ -1210,8 +995,8 @@ void Y8950::Impl::writeReg(byte rg, byte data, EmuTime::param time)
 	case 0x20: {
 		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			Y8950Channel& chan = ch[s / 2];
-			Y8950Slot& slot = chan.slot[s & 1];
+			auto& chan = ch[s / 2];
+			auto& slot = chan.slot[s & 1];
 			slot.patch.AM = (data >> 7) &  1;
 			slot.patch.PM = (data >> 6) &  1;
 			slot.patch.EG = (data >> 5) &  1;
@@ -1225,8 +1010,8 @@ void Y8950::Impl::writeReg(byte rg, byte data, EmuTime::param time)
 	case 0x40: {
 		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			Y8950Channel& chan = ch[s / 2];
-			Y8950Slot& slot = chan.slot[s & 1];
+			auto& chan = ch[s / 2];
+			auto& slot = chan.slot[s & 1];
 			slot.patch.KL = (data >> 6) &  3;
 			slot.patch.TL = (data >> 0) & 63;
 			slot.updateAll(chan.freq);
@@ -1237,7 +1022,7 @@ void Y8950::Impl::writeReg(byte rg, byte data, EmuTime::param time)
 	case 0x60: {
 		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			Y8950Slot& slot = ch[s / 2].slot[s & 1];
+			auto& slot = ch[s / 2].slot[s & 1];
 			slot.patch.AR = (data >> 4) & 15;
 			slot.patch.DR = (data >> 0) & 15;
 			slot.updateEG();
@@ -1248,7 +1033,7 @@ void Y8950::Impl::writeReg(byte rg, byte data, EmuTime::param time)
 	case 0x80: {
 		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			Y8950Slot& slot = ch[s / 2].slot[s & 1];
+			auto& slot = ch[s / 2].slot[s & 1];
 			slot.patch.SL = (data >> 4) & 15;
 			slot.patch.RR = (data >> 0) & 15;
 			slot.updateEG();
@@ -1322,7 +1107,7 @@ void Y8950::Impl::writeReg(byte rg, byte data, EmuTime::param time)
 	}
 }
 
-byte Y8950::Impl::readReg(byte rg, EmuTime::param time)
+byte Y8950::readReg(byte rg, EmuTime::param time)
 {
 	updateStream(time); // TODO only when necessary
 
@@ -1332,7 +1117,7 @@ byte Y8950::Impl::readReg(byte rg, EmuTime::param time)
 		case 0x13: //  ???
 		case 0x14: //  ???
 		case 0x1A: // PCM-DATA
-			result = adpcm->readReg(rg, time);
+			result = adpcm.readReg(rg, time);
 			break;
 		default:
 			result = peekReg(rg, time);
@@ -1340,17 +1125,17 @@ byte Y8950::Impl::readReg(byte rg, EmuTime::param time)
 	return result;
 }
 
-byte Y8950::Impl::peekReg(byte rg, EmuTime::param time) const
+byte Y8950::peekReg(byte rg, EmuTime::param time) const
 {
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
-			return connector->read(time); // TODO peek iso read
+			return connector.peek(time);
 
 		case 0x0F: // ADPCM-DATA
 		case 0x13: //  ???
 		case 0x14: //  ???
 		case 0x1A: // PCM-DATA
-			return adpcm->peekReg(rg, time);
+			return adpcm.peekReg(rg, time);
 
 		case 0x19: { // I/O DATA
 			byte input = periphery.read(time);
@@ -1363,25 +1148,25 @@ byte Y8950::Impl::peekReg(byte rg, EmuTime::param time) const
 	}
 }
 
-byte Y8950::Impl::readStatus(EmuTime::param time)
+byte Y8950::readStatus(EmuTime::param time)
 {
 	byte result = peekStatus(time);
 	//std::cout << "status: " << (int)result << std::endl;
 	return result;
 }
 
-byte Y8950::Impl::peekStatus(EmuTime::param time) const
+byte Y8950::peekStatus(EmuTime::param time) const
 {
-	adpcm->sync(time);
+	const_cast<Y8950Adpcm&>(adpcm).sync(time);
 	return (status & (0x80 | statusMask)) | 0x06; // bit 1 and 2 are always 1
 }
 
-void Y8950::Impl::callback(byte flag)
+void Y8950::callback(byte flag)
 {
 	setStatus(flag);
 }
 
-void Y8950::Impl::setStatus(byte flags)
+void Y8950::setStatus(byte flags)
 {
 	status |= flags;
 	if (status & statusMask) {
@@ -1389,7 +1174,7 @@ void Y8950::Impl::setStatus(byte flags)
 		irq.set();
 	}
 }
-void Y8950::Impl::resetStatus(byte flags)
+void Y8950::resetStatus(byte flags)
 {
 	status &= ~flags;
 	if (!(status & statusMask)) {
@@ -1397,11 +1182,11 @@ void Y8950::Impl::resetStatus(byte flags)
 		irq.reset();
 	}
 }
-byte Y8950::Impl::peekRawStatus() const
+byte Y8950::peekRawStatus() const
 {
 	return status;
 }
-void Y8950::Impl::changeStatusMask(byte newMask)
+void Y8950::changeStatusMask(byte newMask)
 {
 	statusMask = newMask;
 	status &= statusMask;
@@ -1416,7 +1201,7 @@ void Y8950::Impl::changeStatusMask(byte newMask)
 
 
 template<typename Archive>
-void Y8950Patch::serialize(Archive& ar, unsigned /*version*/)
+void Y8950::Patch::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("AM", AM);
 	ar.serialize("PM", PM);
@@ -1432,14 +1217,14 @@ void Y8950Patch::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("RR", RR);
 }
 
-static enum_string<EnvelopeState> envelopeStateInfo[]= {
-	{ "ATTACK",  ATTACK  },
-	{ "DECAY",   DECAY   },
-	{ "SUSTAIN", SUSTAIN },
-	{ "RELEASE", RELEASE },
-	{ "FINISH",  FINISH  }
+static enum_string<Y8950::EnvelopeState> envelopeStateInfo[]= {
+	{ "ATTACK",  Y8950::ATTACK  },
+	{ "DECAY",   Y8950::DECAY   },
+	{ "SUSTAIN", Y8950::SUSTAIN },
+	{ "RELEASE", Y8950::RELEASE },
+	{ "FINISH",  Y8950::FINISH  }
 };
-SERIALIZE_ENUM(EnvelopeState, envelopeStateInfo);
+SERIALIZE_ENUM(Y8950::EnvelopeState, envelopeStateInfo);
 
 // version 1: initial version
 // version 2: 'slotStatus' is replaced with 'key' and no longer serialized
@@ -1447,7 +1232,7 @@ SERIALIZE_ENUM(EnvelopeState, envelopeStateInfo);
 // version 3: serialize 'eg_mode' as an enum instead of an int, also merged
 //            the 2 enum values SUSHOLD and SUSTINE into SUSTAIN
 template<typename Archive>
-void Y8950Slot::serialize(Archive& ar, unsigned version)
+void Y8950::Slot::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("feedback", feedback);
 	ar.serialize("output", output);
@@ -1470,14 +1255,14 @@ void Y8950Slot::serialize(Archive& ar, unsigned version)
 		}
 	}
 
-	// These are restored by call to updateAll() in Y8950Channel::serialize()
+	// These are restored by call to updateAll() in Y8950::Channel::serialize()
 	//  dphase, tll, dphaseARTableRks, dphaseDRTableRks, eg_dphase
 	// These are restored by update_key_status():
 	//  key
 }
 
 template<typename Archive>
-void Y8950Channel::serialize(Archive& ar, unsigned /*version*/)
+void Y8950::Channel::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("mod", slot[MOD]);
 	ar.serialize("car", slot[CAR]);
@@ -1491,10 +1276,10 @@ void Y8950Channel::serialize(Archive& ar, unsigned /*version*/)
 }
 
 template<typename Archive>
-void Y8950::Impl::serialize(Archive& ar, unsigned /*version*/)
+void Y8950::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("keyboardConnector", *connector);
-	ar.serialize("adpcm", *adpcm);
+	ar.serialize("keyboardConnector", connector);
+	ar.serialize("adpcm", adpcm);
 	ar.serialize("timer1", *timer1);
 	ar.serialize("timer2", *timer2);
 	ar.serialize("irq", irq);
@@ -1531,99 +1316,24 @@ void Y8950::Impl::serialize(Archive& ar, unsigned /*version*/)
 
 // SimpleDebuggable
 
-Y8950Debuggable::Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950_,
-                                 const std::string& name)
+Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950_,
+                              const std::string& name)
 	: SimpleDebuggable(motherBoard, name + " regs", "MSX-AUDIO", 0x100)
 	, y8950(y8950_)
 {
 }
 
-byte Y8950Debuggable::read(unsigned address, EmuTime::param time)
+byte Y8950::Debuggable::read(unsigned address, EmuTime::param time)
 {
 	return y8950.peekReg(address, time);
 }
 
-void Y8950Debuggable::write(unsigned address, byte value, EmuTime::param time)
+void Y8950::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	y8950.writeReg(address, value, time);
 }
 
-
-// class Y8950
-
-Y8950::Y8950(const std::string& name, const DeviceConfig& config,
-             unsigned sampleRam, EmuTime::param time,
-             MSXAudio& audio)
-	: pimpl(make_unique<Impl>(*this, name, config, sampleRam, audio))
-{
-	pimpl->init(config, time);
-}
-
-Y8950::~Y8950()
-{
-}
-
-void Y8950::setEnabled(bool enabled, EmuTime::param time)
-{
-	pimpl->setEnabled(enabled, time);
-}
-
-void Y8950::clearRam()
-{
-	pimpl->clearRam();
-}
-
-void Y8950::reset(EmuTime::param time)
-{
-	pimpl->reset(time);
-}
-
-void Y8950::writeReg(byte reg, byte data, EmuTime::param time)
-{
-	pimpl->writeReg(reg, data, time);
-}
-
-byte Y8950::readReg(byte reg, EmuTime::param time)
-{
-	return pimpl->readReg(reg, time);
-}
-
-byte Y8950::peekReg(byte reg, EmuTime::param time) const
-{
-	return pimpl->peekReg(reg, time);
-}
-
-byte Y8950::readStatus(EmuTime::param time)
-{
-	return pimpl->readStatus(time);
-}
-
-byte Y8950::peekStatus(EmuTime::param time) const
-{
-	return pimpl->peekStatus(time);
-}
-
-void Y8950::setStatus(byte flags)
-{
-	pimpl->setStatus(flags);
-}
-
-void Y8950::resetStatus(byte flags)
-{
-	pimpl->resetStatus(flags);
-}
-
-byte Y8950::peekRawStatus() const
-{
-	return pimpl->peekRawStatus();
-}
-
-template<typename Archive>
-void Y8950::serialize(Archive& ar, unsigned version)
-{
-	pimpl->serialize(ar, version);
-}
 INSTANTIATE_SERIALIZE_METHODS(Y8950);
-SERIALIZE_CLASS_VERSION(Y8950Slot, 3);
+SERIALIZE_CLASS_VERSION(Y8950::Slot, 3);
 
 } // namespace openmsx

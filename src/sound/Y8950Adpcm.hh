@@ -1,7 +1,6 @@
 #ifndef Y8950ADPCM_HH
 #define Y8950ADPCM_HH
 
-#include "Y8950.hh"
 #include "Ram.hh"
 #include "Schedulable.hh"
 #include "Clock.hh"
@@ -11,6 +10,7 @@
 namespace openmsx {
 
 class DeviceConfig;
+class Y8950;
 
 class Y8950Adpcm final : public Schedulable
 {
@@ -24,7 +24,7 @@ public:
 	bool isMuted() const;
 	void writeReg(byte rg, byte data, EmuTime::param time);
 	byte readReg(byte rg, EmuTime::param time);
-	byte peekReg(byte rg, EmuTime::param time);
+	byte peekReg(byte rg, EmuTime::param time) const;
 	int calcSample();
 	void sync(EmuTime::param time);
 	void resetStatus();
@@ -63,7 +63,10 @@ private:
 	Y8950& y8950;
 	Ram ram;
 
-	Clock<Y8950::CLOCK_FREQ, Y8950::CLOCK_FREQ_DIV> clock;
+	// copy/pasted from Y8950.hh
+	static const int CLOCK_FREQ     = 3579545;
+	static const int CLOCK_FREQ_DIV = 72;
+	Clock<CLOCK_FREQ, CLOCK_FREQ_DIV> clock;
 
 	PlayData emu; // used for emulator behaviour (read back of sample data)
 	PlayData aud; // used by audio generation thread

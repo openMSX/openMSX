@@ -15,6 +15,7 @@ public:
 
 	void write(byte data, EmuTime::param time);
 	byte read(EmuTime::param time);
+	byte peek(EmuTime::param time) const;
 	Y8950KeyboardDevice& getPluggedKeyb() const;
 
 	// Connector
