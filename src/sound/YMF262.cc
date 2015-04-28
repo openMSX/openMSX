@@ -38,242 +38,21 @@
  */
 
 #include "YMF262.hh"
-#include "ResampledSoundDevice.hh"
-#include "EmuTimer.hh"
-#include "IRQHelper.hh"
-#include "FixedPoint.hh"
-#include "SimpleDebuggable.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cmath>
 #include <cstring>
 
 namespace openmsx {
 
-class YMF262Debuggable final : public SimpleDebuggable
-{
-public:
-	YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262,
-	                 const std::string& name);
-	byte read(unsigned address) override;
-	void write(unsigned address, byte value, EmuTime::param time) override;
-private:
-	YMF262& ymf262;
-};
-
-
-enum EnvelopeState {
-	EG_ATTACK, EG_DECAY, EG_SUSTAIN, EG_RELEASE, EG_OFF
-};
-
-class YMF262Channel;
-
-/** 16.16 fixed point type for frequency calculations
- */
-using FreqIndex = FixedPoint<16>;
-
-static inline FreqIndex fnumToIncrement(unsigned block_fnum)
+static inline YMF262::FreqIndex fnumToIncrement(unsigned block_fnum)
 {
 	// opn phase increment counter = 20bit
 	// chip works with 10.10 fixed point, while we use 16.16
 	unsigned block = (block_fnum & 0x1C00) >> 10;
-	return FreqIndex(block_fnum & 0x03FF) >> (11 - block);
+	return YMF262::FreqIndex(block_fnum & 0x03FF) >> (11 - block);
 }
-
-class YMF262Slot
-{
-public:
-	YMF262Slot();
-	inline int op_calc(unsigned phase, unsigned lfo_am) const;
-	inline void FM_KEYON(byte key_set);
-	inline void FM_KEYOFF(byte key_clr);
-	inline void advanceEnvelopeGenerator(unsigned eg_cnt);
-	inline void advancePhaseGenerator(YMF262Channel& ch, unsigned lfo_pm);
-	void update_ar_dr();
-	void update_rr();
-	void calc_fc(const YMF262Channel& ch);
-
-	/** Sets the amount of feedback [0..7]
-	 */
-	void setFeedbackShift(byte value) {
-		fb_shift = value ? 9 - value : 0;
-	}
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-	// Phase Generator
-	FreqIndex Cnt;	// frequency counter
-	FreqIndex Incr;	// frequency counter step
-	int* connect;	// slot output pointer
-	int op1_out[2];	// slot1 output for feedback
-
-	// Envelope Generator
-	unsigned TL;	// total level: TL << 2
-	int TLL;	// adjusted now TL
-	int volume;	// envelope counter
-	int sl;		// sustain level: sl_tab[SL]
-
-	unsigned* wavetable; // waveform select
-
-	EnvelopeState state; // EG: phase type
-	unsigned eg_m_ar;// (attack state)
-	unsigned eg_m_dr;// (decay state)
-	unsigned eg_m_rr;// (release state)
-	byte eg_sh_ar;	// (attack state)
-	byte eg_sel_ar;	// (attack state)
-	byte eg_sh_dr;	// (decay state)
-	byte eg_sel_dr;	// (decay state)
-	byte eg_sh_rr;	// (release state)
-	byte eg_sel_rr;	// (release state)
-
-	byte key;	// 0 = KEY OFF, >0 = KEY ON
-
-	byte fb_shift;	// PG: feedback shift value
-	bool CON;	// PG: connection (algorithm) type
-	bool eg_type;	// EG: percussive/non-percussive mode
-
-	// LFO
-	byte AMmask;	// LFO Amplitude Modulation enable mask
-	bool vib;	// LFO Phase Modulation enable flag (active high)
-
-	byte ar;	// attack rate: AR<<2
-	byte dr;	// decay rate:  DR<<2
-	byte rr;	// release rate:RR<<2
-	byte KSR;	// key scale rate
-	byte ksl;	// keyscale level
-	byte ksr;	// key scale rate: kcode>>KSR
-	byte mul;	// multiple: mul_tab[ML]
-};
-
-class YMF262Channel
-{
-public:
-	YMF262Channel();
-	void chan_calc(unsigned lfo_am);
-	void chan_calc_ext(unsigned lfo_am);
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-	YMF262Slot slot[2];
-
-	int block_fnum;	// block+fnum
-	FreqIndex fc;	// Freq. Increment base
-	int ksl_base;	// KeyScaleLevel Base step
-	byte kcode;	// key code (for key scaling)
-
-	// there are 12 2-operator channels which can be combined in pairs
-	// to form six 4-operator channel, they are:
-	//  0 and 3,
-	//  1 and 4,
-	//  2 and 5,
-	//  9 and 12,
-	//  10 and 13,
-	//  11 and 14
-	bool extended; // set if this channel forms up a 4op channel with
-	               // another channel (only used by first of pair of
-	               // channels, ie 0,1,2 and 9,10,11)
-};
-
-class YMF262::Impl final : private ResampledSoundDevice, private EmuTimerCallback
-{
-public:
-	Impl(YMF262& self, const std::string& name, const DeviceConfig& config,
-	     bool isYMF278);
-	~Impl();
-
-	void reset(EmuTime::param time);
-	void writeReg   (unsigned r, byte v, EmuTime::param time);
-	void writeReg512(unsigned r, byte v, EmuTime::param time);
-	byte readReg(unsigned reg);
-	byte peekReg(unsigned reg) const;
-	byte readStatus();
-	byte peekStatus() const;
-
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-private:
-	// SoundDevice
-	int getAmplificationFactor() const override;
-	void generateChannels(int** bufs, unsigned num) override;
-
-	void callback(byte flag) override;
-
-	void writeRegDirect(unsigned r, byte v, EmuTime::param time);
-	void init_tables();
-	void setStatus(byte flag);
-	void resetStatus(byte flag);
-	void changeStatusMask(byte flag);
-	void advance();
-
-	inline int genPhaseHighHat();
-	inline int genPhaseSnare();
-	inline int genPhaseCymbal();
-
-	void chan_calc_rhythm(unsigned lfo_am);
-	void set_mul(unsigned sl, byte v);
-	void set_ksl_tl(unsigned sl, byte v);
-	void set_ar_dr(unsigned sl, byte v);
-	void set_sl_rr(unsigned sl, byte v);
-	bool checkMuteHelper();
-
-	inline bool isExtended(unsigned ch) const;
-	inline YMF262Channel& getFirstOfPair(unsigned ch);
-	inline YMF262Channel& getSecondOfPair(unsigned ch);
-
-	const std::unique_ptr<YMF262Debuggable> debuggable;
-
-	// Bitmask for register 0x04
-	static const int R04_ST1       = 0x01; // Timer1 Start
-	static const int R04_ST2       = 0x02; // Timer2 Start
-	static const int R04_MASK_T2   = 0x20; // Mask Timer2 flag
-	static const int R04_MASK_T1   = 0x40; // Mask Timer1 flag
-	static const int R04_IRQ_RESET = 0x80; // IRQ RESET
-
-	// Bitmask for status register
-	static const int STATUS_T2      = R04_MASK_T2;
-	static const int STATUS_T1      = R04_MASK_T1;
-	// Timers (see EmuTimer class for details about timing)
-	const std::unique_ptr<EmuTimer> timer1; //  80.8us OPL4  ( 80.5us OPL3)
-	const std::unique_ptr<EmuTimer> timer2; // 323.1us OPL4  (321.8us OPL3)
-
-	IRQHelper irq;
-
-	int chanout[18]; // 18 channels
-
-	byte reg[512];
-	YMF262Channel channel[18];	// OPL3 chips have 18 channels
-
-	unsigned pan[18 * 4];		// channels output masks 4 per channel
-	                                //    0xffffffff = enable
-	unsigned eg_cnt;		// global envelope generator counter
-	unsigned noise_rng;		// 23 bit noise shift register
-
-	// LFO
-	using LFOAMIndex = FixedPoint< 6>;
-	using LFOPMIndex = FixedPoint<10>;
-	LFOAMIndex lfo_am_cnt;
-	LFOPMIndex lfo_pm_cnt;
-	bool lfo_am_depth;
-	byte lfo_pm_depth_range;
-
-	byte rhythm;			// Rhythm mode
-	bool nts;			// NTS (note select)
-	bool OPL3_mode;			// OPL3 extension enable flag
-
-	byte status;			// status flag
-	byte status2;
-	byte statusMask;		// status mask
-
-	bool alreadySignaledNEW2;
-	const bool isYMF278;		// true iff this is actually a YMF278
-					// ATM only used for NEW2 bit
-};
-
 
 // envelope output entries
 static const int ENV_BITS    = 10;
@@ -598,7 +377,7 @@ static int phase_modulation2; // phase modulation input (SLOT 3
                               // in 4 operator channels)
 
 
-YMF262Slot::YMF262Slot()
+YMF262::Slot::Slot()
 	: Cnt(0), Incr(0)
 {
 	ar = dr = rr = KSR = ksl = ksr = mul = 0;
@@ -613,7 +392,7 @@ YMF262Slot::YMF262Slot()
 	wavetable = &sin_tab[0 * SIN_LEN];
 }
 
-YMF262Channel::YMF262Channel()
+YMF262::Channel::Channel()
 {
 	block_fnum = ksl_base = kcode = 0;
 	extended = false;
@@ -621,13 +400,13 @@ YMF262Channel::YMF262Channel()
 }
 
 
-void YMF262::Impl::callback(byte flag)
+void YMF262::callback(byte flag)
 {
 	setStatus(flag);
 }
 
 // status set and IRQ handling
-void YMF262::Impl::setStatus(byte flag)
+void YMF262::setStatus(byte flag)
 {
 	// set status flag masking out disabled IRQs
 	status |= flag;
@@ -638,7 +417,7 @@ void YMF262::Impl::setStatus(byte flag)
 }
 
 // status reset and IRQ handling
-void YMF262::Impl::resetStatus(byte flag)
+void YMF262::resetStatus(byte flag)
 {
 	// reset status flag
 	status &= ~flag;
@@ -649,7 +428,7 @@ void YMF262::Impl::resetStatus(byte flag)
 }
 
 // IRQ mask set
-void YMF262::Impl::changeStatusMask(byte flag)
+void YMF262::changeStatusMask(byte flag)
 {
 	statusMask = flag;
 	status &= statusMask;
@@ -663,7 +442,7 @@ void YMF262::Impl::changeStatusMask(byte flag)
 }
 
 
-void YMF262Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
+void YMF262::Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
 {
 	switch (state) {
 	case EG_ATTACK:
@@ -722,7 +501,7 @@ void YMF262Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
 	}
 }
 
-void YMF262Slot::advancePhaseGenerator(YMF262Channel& ch, unsigned lfo_pm)
+void YMF262::Slot::advancePhaseGenerator(Channel& ch, unsigned lfo_pm)
 {
 	if (vib) {
 		// LFO phase modulation active
@@ -737,7 +516,7 @@ void YMF262Slot::advancePhaseGenerator(YMF262Channel& ch, unsigned lfo_pm)
 }
 
 // advance to next sample
-void YMF262::Impl::advance()
+void YMF262::advance()
 {
 	// Vibrato: 8 output levels (triangle waveform);
 	// 1 level takes 1024 samples
@@ -747,7 +526,7 @@ void YMF262::Impl::advance()
 	++eg_cnt;
 	for (auto& ch : channel) {
 		for (int s = 0; s < 2; ++s) {
-			YMF262Slot& op = ch.slot[s];
+			auto& op = ch.slot[s];
 			op.advanceEnvelopeGenerator(eg_cnt);
 			op.advancePhaseGenerator(ch, lfo_pm);
 		}
@@ -779,7 +558,7 @@ void YMF262::Impl::advance()
 }
 
 
-inline int YMF262Slot::op_calc(unsigned phase, unsigned lfo_am) const
+inline int YMF262::Slot::op_calc(unsigned phase, unsigned lfo_am) const
 {
 	unsigned env = (TLL + volume + (lfo_am & AMmask)) << 4;
 	int p = env + wavetable[phase & SIN_MASK];
@@ -788,7 +567,7 @@ inline int YMF262Slot::op_calc(unsigned phase, unsigned lfo_am) const
 
 // calculate output of a standard 2 operator channel
 // (or 1st part of a 4-op channel)
-void YMF262Channel::chan_calc(unsigned lfo_am)
+void YMF262::Channel::chan_calc(unsigned lfo_am)
 {
 	// !! something is wrong with this, it caused bug
 	// !!    [2823673] moonsound 4 operator FM fail
@@ -814,7 +593,7 @@ void YMF262Channel::chan_calc(unsigned lfo_am)
 	phase_modulation = 0;
 	phase_modulation2 = 0;
 
-	YMF262Slot& mod = slot[MOD];
+	auto& mod = slot[MOD];
 	int out = mod.fb_shift
 		? mod.op1_out[0] + mod.op1_out[1]
 		: 0;
@@ -822,12 +601,12 @@ void YMF262Channel::chan_calc(unsigned lfo_am)
 	mod.op1_out[1] = mod.op_calc(mod.Cnt.toInt() + (out >> mod.fb_shift), lfo_am);
 	*mod.connect += mod.op1_out[1];
 
-	YMF262Slot& car = slot[CAR];
+	auto& car = slot[CAR];
 	*car.connect += car.op_calc(car.Cnt.toInt() + phase_modulation, lfo_am);
 }
 
 // calculate output of a 2nd part of 4-op channel
-void YMF262Channel::chan_calc_ext(unsigned lfo_am)
+void YMF262::Channel::chan_calc_ext(unsigned lfo_am)
 {
 	// !! see remark in chan_cal(), something is wrong with this
 	// !! optimization disabled for now
@@ -841,10 +620,10 @@ void YMF262Channel::chan_calc_ext(unsigned lfo_am)
 
 	phase_modulation = 0;
 
-	YMF262Slot& mod = slot[MOD];
+	auto& mod = slot[MOD];
 	*mod.connect += mod.op_calc(mod.Cnt.toInt() + phase_modulation2, lfo_am);
 
-	YMF262Slot& car = slot[CAR];
+	auto& car = slot[CAR];
 	*car.connect += car.op_calc(car.Cnt.toInt() + phase_modulation, lfo_am);
 }
 
@@ -883,7 +662,7 @@ void YMF262Channel::chan_calc_ext(unsigned lfo_am)
 // The following formulas can be well optimized.
 // I leave them in direct form for now (in case I've missed something).
 
-inline int YMF262::Impl::genPhaseHighHat()
+inline int YMF262::genPhaseHighHat()
 {
 	// high hat phase generation (verified on real YM3812):
 	// phase = d0 or 234 (based on frequency only)
@@ -926,7 +705,7 @@ inline int YMF262::Impl::genPhaseHighHat()
 	return phase;
 }
 
-inline int YMF262::Impl::genPhaseSnare()
+inline int YMF262::genPhaseSnare()
 {
 	// verified on real YM3812
 	// base frequency derived from operator 1 in channel 7
@@ -935,7 +714,7 @@ inline int YMF262::Impl::genPhaseSnare()
 	     ^ ((noise_rng & 1) << 8);
 }
 
-inline int YMF262::Impl::genPhaseCymbal()
+inline int YMF262::genPhaseCymbal()
 {
 	// verified on real YM3812
 	// enable gate based on frequency of operator 2 in channel 8
@@ -955,7 +734,7 @@ inline int YMF262::Impl::genPhaseCymbal()
 }
 
 // calculate rhythm
-void YMF262::Impl::chan_calc_rhythm(unsigned lfo_am)
+void YMF262::chan_calc_rhythm(unsigned lfo_am)
 {
 	// Bass Drum (verified on real YM3812):
 	//  - depends on the channel 6 'connect' register:
@@ -964,12 +743,12 @@ void YMF262::Impl::chan_calc_rhythm(unsigned lfo_am)
 	//      when connect = 1 _only_ operator 2 is present on output
 	//      (op2->out), operator 1 is ignored
 	//  - output sample always is multiplied by 2
-	YMF262Slot& mod6 = channel[6].slot[MOD];
+	auto& mod6 = channel[6].slot[MOD];
 	int out = mod6.fb_shift ? mod6.op1_out[0] + mod6.op1_out[1] : 0;
 	mod6.op1_out[0] = mod6.op1_out[1];
 	int pm = mod6.CON ? 0 : mod6.op1_out[0];
 	mod6.op1_out[1] = mod6.op_calc(mod6.Cnt.toInt() + (out >> mod6.fb_shift), lfo_am);
-	YMF262Slot& car6 = channel[6].slot[CAR];
+	auto& car6 = channel[6].slot[CAR];
 	chanout[6] += 2 * car6.op_calc(car6.Cnt.toInt() + pm, lfo_am);
 
 	// Phase generation is based on:
@@ -985,19 +764,19 @@ void YMF262::Impl::chan_calc_rhythm(unsigned lfo_am)
 	// SD  channel 7->slot2
 	// TOM channel 8->slot1
 	// TOP channel 8->slot2
-	YMF262Slot& mod7 = channel[7].slot[MOD];
+	auto& mod7 = channel[7].slot[MOD];
 	chanout[7] += 2 * mod7.op_calc(genPhaseHighHat(), lfo_am);
-	YMF262Slot& car7 = channel[7].slot[CAR];
+	auto& car7 = channel[7].slot[CAR];
 	chanout[7] += 2 * car7.op_calc(genPhaseSnare(),   lfo_am);
-	YMF262Slot& mod8 = channel[8].slot[MOD];
+	auto& mod8 = channel[8].slot[MOD];
 	chanout[8] += 2 * mod8.op_calc(mod8.Cnt.toInt(),  lfo_am);
-	YMF262Slot& car8 = channel[8].slot[CAR];
+	auto& car8 = channel[8].slot[CAR];
 	chanout[8] += 2 * car8.op_calc(genPhaseCymbal(),  lfo_am);
 }
 
 
 // generic table initialize
-void YMF262::Impl::init_tables()
+void YMF262::init_tables()
 {
 	static bool alreadyInit = false;
 	if (alreadyInit) return;
@@ -1093,7 +872,7 @@ void YMF262::Impl::init_tables()
 }
 
 
-void YMF262Slot::FM_KEYON(byte key_set)
+void YMF262::Slot::FM_KEYON(byte key_set)
 {
 	if (!key) {
 		// restart Phase Generator
@@ -1104,7 +883,7 @@ void YMF262Slot::FM_KEYON(byte key_set)
 	key |= key_set;
 }
 
-void YMF262Slot::FM_KEYOFF(byte key_clr)
+void YMF262::Slot::FM_KEYOFF(byte key_clr)
 {
 	if (key) {
 		key &= ~key_clr;
@@ -1117,7 +896,7 @@ void YMF262Slot::FM_KEYOFF(byte key_clr)
 	}
 }
 
-void YMF262Slot::update_ar_dr()
+void YMF262::Slot::update_ar_dr()
 {
 	if ((ar + ksr) < 16 + 60) {
 		// verified on real YMF262 - all 15 x rates take "zero" time
@@ -1132,7 +911,7 @@ void YMF262Slot::update_ar_dr()
 	eg_sel_dr = eg_rate_select[dr + ksr];
 	eg_m_dr   = (1 << eg_sh_dr) - 1;
 }
-void YMF262Slot::update_rr()
+void YMF262::Slot::update_rr()
 {
 	eg_sh_rr  = eg_rate_shift [rr + ksr];
 	eg_sel_rr = eg_rate_select[rr + ksr];
@@ -1140,7 +919,7 @@ void YMF262Slot::update_rr()
 }
 
 // update phase increment counter of operator (also update the EG rates if necessary)
-void YMF262Slot::calc_fc(const YMF262Channel& ch)
+void YMF262::Slot::calc_fc(const Channel& ch)
 {
 	// (frequency) phase increment counter
 	Incr = ch.fc * mul;
@@ -1158,7 +937,7 @@ static const unsigned channelPairTab[18] = {
 	0,  1,  2,  0,  1,  2, unsigned(~0), unsigned(~0), unsigned(~0),
 	9, 10, 11,  9, 10, 11, unsigned(~0), unsigned(~0), unsigned(~0),
 };
-inline bool YMF262::Impl::isExtended(unsigned ch) const
+inline bool YMF262::isExtended(unsigned ch) const
 {
 	assert(ch < 18);
 	if (!OPL3_mode) return false;
@@ -1170,21 +949,21 @@ static inline unsigned getFirstOfPairNum(unsigned ch)
 	assert((ch < 18) && (channelPairTab[ch] != unsigned(~0)));
 	return channelPairTab[ch];
 }
-inline YMF262Channel& YMF262::Impl::getFirstOfPair(unsigned ch)
+inline YMF262::Channel& YMF262::getFirstOfPair(unsigned ch)
 {
 	return channel[getFirstOfPairNum(ch) + 0];
 }
-inline YMF262Channel& YMF262::Impl::getSecondOfPair(unsigned ch)
+inline YMF262::Channel& YMF262::getSecondOfPair(unsigned ch)
 {
 	return channel[getFirstOfPairNum(ch) + 3];
 }
 
 // set multi,am,vib,EG-TYP,KSR,mul
-void YMF262::Impl::set_mul(unsigned sl, byte v)
+void YMF262::set_mul(unsigned sl, byte v)
 {
 	unsigned chan_no = sl / 2;
-	YMF262Channel& ch = channel[chan_no];
-	YMF262Slot& slot = ch.slot[sl & 1];
+	auto& ch = channel[chan_no];
+	auto& slot = ch.slot[sl & 1];
 
 	slot.mul     = mul_tab[v & 0x0f];
 	slot.KSR     = (v & 0x10) ? 0 : 2;
@@ -1203,11 +982,11 @@ void YMF262::Impl::set_mul(unsigned sl, byte v)
 }
 
 // set ksl & tl
-void YMF262::Impl::set_ksl_tl(unsigned sl, byte v)
+void YMF262::set_ksl_tl(unsigned sl, byte v)
 {
 	unsigned chan_no = sl / 2;
-	YMF262Channel& ch = channel[chan_no];
-	YMF262Slot& slot = ch.slot[sl & 1];
+	auto& ch = channel[chan_no];
+	auto& slot = ch.slot[sl & 1];
 
 	// This is indeed {0.0, 3.0, 1.5, 6.0} dB/oct, verified on real YMF262.
 	// Note the illogical order of 2nd and 3rd element.
@@ -1218,7 +997,7 @@ void YMF262::Impl::set_ksl_tl(unsigned sl, byte v)
 
 	if (isExtended(chan_no)) {
 		// update this slot using frequency data for 1st channel of a pair
-		YMF262Channel& ch0 = getFirstOfPair(chan_no);
+		auto& ch0 = getFirstOfPair(chan_no);
 		slot.TLL = slot.TL + (ch0.ksl_base >> slot.ksl);
 	} else {
 		// normal
@@ -1227,10 +1006,10 @@ void YMF262::Impl::set_ksl_tl(unsigned sl, byte v)
 }
 
 // set attack rate & decay rate
-void YMF262::Impl::set_ar_dr(unsigned sl, byte v)
+void YMF262::set_ar_dr(unsigned sl, byte v)
 {
-	YMF262Channel& ch = channel[sl / 2];
-	YMF262Slot& slot = ch.slot[sl & 1];
+	auto& ch = channel[sl / 2];
+	auto& slot = ch.slot[sl & 1];
 
 	slot.ar = (v >> 4) ? 16 + ((v >> 4) << 2) : 0;
 	slot.dr = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
@@ -1238,28 +1017,28 @@ void YMF262::Impl::set_ar_dr(unsigned sl, byte v)
 }
 
 // set sustain level & release rate
-void YMF262::Impl::set_sl_rr(unsigned sl, byte v)
+void YMF262::set_sl_rr(unsigned sl, byte v)
 {
-	YMF262Channel& ch = channel[sl / 2];
-	YMF262Slot& slot = ch.slot[sl & 1];
+	auto& ch = channel[sl / 2];
+	auto& slot = ch.slot[sl & 1];
 
 	slot.sl  = sl_tab[v >> 4];
 	slot.rr  = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
 	slot.update_rr();
 }
 
-byte YMF262::Impl::readReg(unsigned r)
+byte YMF262::readReg(unsigned r)
 {
 	// no need to call updateStream(time)
 	return peekReg(r);
 }
 
-byte YMF262::Impl::peekReg(unsigned r) const
+byte YMF262::peekReg(unsigned r) const
 {
 	return reg[r];
 }
 
-void YMF262::Impl::writeReg(unsigned r, byte v, EmuTime::param time)
+void YMF262::writeReg(unsigned r, byte v, EmuTime::param time)
 {
 	if (!OPL3_mode && (r != 0x105)) {
 		// in OPL2 mode the only accessible in set #2 is register 0x05
@@ -1267,12 +1046,12 @@ void YMF262::Impl::writeReg(unsigned r, byte v, EmuTime::param time)
 	}
 	writeReg512(r, v, time);
 }
-void YMF262::Impl::writeReg512(unsigned r, byte v, EmuTime::param time)
+void YMF262::writeReg512(unsigned r, byte v, EmuTime::param time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
 	writeRegDirect(r, v, time);
 }
-void YMF262::Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
+void YMF262::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 {
 	reg[r] = v;
 
@@ -1436,7 +1215,7 @@ void YMF262::Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 			return;
 		}
 		unsigned chan_no = (r & 0x0F) + ch_offset;
-		YMF262Channel& ch  = channel[chan_no];
+		auto& ch  = channel[chan_no];
 		int block_fnum;
 		if (!(r & 0x10)) {
 			// a0-a8
@@ -1448,8 +1227,8 @@ void YMF262::Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 				if (getFirstOfPairNum(chan_no) == chan_no) {
 					// keyon/off slots of both channels
 					// forming a 4-op channel
-					YMF262Channel& ch0 = getFirstOfPair(chan_no);
-					YMF262Channel& ch3 = getSecondOfPair(chan_no);
+					auto& ch0 = getFirstOfPair(chan_no);
+					auto& ch3 = getSecondOfPair(chan_no);
 					if (v & 0x20) {
 						ch0.slot[MOD].FM_KEYON(1);
 						ch0.slot[CAR].FM_KEYON(1);
@@ -1498,8 +1277,8 @@ void YMF262::Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 					// update slots of both channels
 					// forming up 4-op channel
 					// refresh Total Level
-					YMF262Channel& ch0 = getFirstOfPair(chan_no);
-					YMF262Channel& ch3 = getSecondOfPair(chan_no);
+					auto& ch0 = getFirstOfPair(chan_no);
+					auto& ch3 = getSecondOfPair(chan_no);
 					ch0.slot[MOD].TLL = ch0.slot[MOD].TL + (ch.ksl_base >> ch0.slot[MOD].ksl);
 					ch0.slot[CAR].TLL = ch0.slot[CAR].TL + (ch.ksl_base >> ch0.slot[CAR].ksl);
 					ch3.slot[MOD].TLL = ch3.slot[MOD].TL + (ch.ksl_base >> ch3.slot[MOD].ksl);
@@ -1531,7 +1310,7 @@ void YMF262::Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 			return;
 		}
 		unsigned chan_no = (r & 0x0F) + ch_offset;
-		YMF262Channel& ch = channel[chan_no];
+		auto& ch = channel[chan_no];
 
 		unsigned base = chan_no * 4;
 		if (OPL3_mode) {
@@ -1554,8 +1333,8 @@ void YMF262::Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 		if (isExtended(chan_no)) {
 			unsigned chan_no0 = getFirstOfPairNum(chan_no);
 			unsigned chan_no3 = chan_no0 + 3;
-			YMF262Channel& ch0 = getFirstOfPair(chan_no);
-			YMF262Channel& ch3 = getSecondOfPair(chan_no);
+			auto& ch0 = getFirstOfPair(chan_no);
+			auto& ch3 = getSecondOfPair(chan_no);
 			switch ((ch0.slot[MOD].CON ? 2:0) | (ch3.slot[MOD].CON ? 1:0)) {
 			case 0:
 				// 1 -> 2 -> 3 -> 4 -> out
@@ -1604,7 +1383,7 @@ void YMF262::Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 		int slot = slot_array[r & 0x1f];
 		if (slot < 0) return;
 		slot += ch_offset * 2;
-		YMF262Channel& ch = channel[slot / 2];
+		auto& ch = channel[slot / 2];
 
 		// store 3-bit value written regardless of current OPL2 or OPL3
 		// mode... (verified on real YMF262)
@@ -1620,7 +1399,7 @@ void YMF262::Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 }
 
 
-void YMF262::Impl::reset(EmuTime::param time)
+void YMF262::reset(EmuTime::param time)
 {
 	eg_cnt = 0;
 
@@ -1654,12 +1433,11 @@ void YMF262::Impl::reset(EmuTime::param time)
 	}
 }
 
-YMF262::Impl::Impl(YMF262& self, const std::string& name,
-                   const DeviceConfig& config, bool isYMF278_)
+YMF262::YMF262(const std::string& name,
+               const DeviceConfig& config, bool isYMF278_)
 	: ResampledSoundDevice(config.getMotherBoard(), name, "MoonSound FM-part",
 	                       18, true)
-	, debuggable(make_unique<YMF262Debuggable>(
-		config.getMotherBoard(), self, getName()))
+	, debuggable(config.getMotherBoard(), *this, getName())
 	, timer1(isYMF278_
 	         ? EmuTimer::createOPL4_1(config.getScheduler(), *this)
 	         : EmuTimer::createOPL3_1(config.getScheduler(), *this))
@@ -1691,12 +1469,12 @@ YMF262::Impl::Impl(YMF262& self, const std::string& name,
 	registerSound(config);
 }
 
-YMF262::Impl::~Impl()
+YMF262::~YMF262()
 {
 	unregisterSound();
 }
 
-byte YMF262::Impl::readStatus()
+byte YMF262::readStatus()
 {
 	// no need to call updateStream(time)
 	byte result = status | status2;
@@ -1704,17 +1482,17 @@ byte YMF262::Impl::readStatus()
 	return result;
 }
 
-byte YMF262::Impl::peekStatus() const
+byte YMF262::peekStatus() const
 {
 	return status | status2;
 }
 
-bool YMF262::Impl::checkMuteHelper()
+bool YMF262::checkMuteHelper()
 {
 	// TODO this doesn't always mute when possible
 	for (auto& ch : channel) {
 		for (int j = 0; j < 2; j++) {
-			YMF262Slot& sl = ch.slot[j];
+			auto& sl = ch.slot[j];
 			if (!((sl.state == EG_OFF) ||
 			      ((sl.state == EG_RELEASE) &&
 			       ((sl.TLL + sl.volume) >= ENV_QUIET)))) {
@@ -1725,12 +1503,12 @@ bool YMF262::Impl::checkMuteHelper()
 	return true;
 }
 
-int YMF262::Impl::getAmplificationFactor() const
+int YMF262::getAmplificationFactor() const
 {
 	return 1 << 2;
 }
 
-void YMF262::Impl::generateChannels(int** bufs, unsigned num)
+void YMF262::generateChannels(int** bufs, unsigned num)
 {
 	// TODO implement per-channel mute (instead of all-or-nothing)
 	// TODO output rhythm on separate channels?
@@ -1763,8 +1541,8 @@ void YMF262::Impl::generateChannels(int** bufs, unsigned num)
 		// in either 2op or 4op mode
 		for (int k = 0; k <= 9; k += 9) {
 			for (int i = 0; i < 3; ++i) {
-				YMF262Channel& ch0 = channel[k + i + 0];
-				YMF262Channel& ch3 = channel[k + i + 3];
+				auto& ch0 = channel[k + i + 0];
+				auto& ch3 = channel[k + i + 3];
 				// extended 4op ch#0 part 1 or 2op ch#0
 				ch0.chan_calc(lfo_am);
 				if (ch0.extended) {
@@ -1804,17 +1582,17 @@ void YMF262::Impl::generateChannels(int** bufs, unsigned num)
 }
 
 
-static enum_string<EnvelopeState> envelopeStateInfo[]= {
-	{ "ATTACK",  EG_ATTACK  },
-	{ "DECAY",   EG_DECAY   },
-	{ "SUSTAIN", EG_SUSTAIN },
-	{ "RELEASE", EG_RELEASE },
-	{ "OFF",     EG_OFF     }
+static enum_string<YMF262::EnvelopeState> envelopeStateInfo[]= {
+	{ "ATTACK",  YMF262::EG_ATTACK  },
+	{ "DECAY",   YMF262::EG_DECAY   },
+	{ "SUSTAIN", YMF262::EG_SUSTAIN },
+	{ "RELEASE", YMF262::EG_RELEASE },
+	{ "OFF",     YMF262::EG_OFF     }
 };
-SERIALIZE_ENUM(EnvelopeState, envelopeStateInfo);
+SERIALIZE_ENUM(YMF262::EnvelopeState, envelopeStateInfo);
 
 template<typename Archive>
-void YMF262Slot::serialize(Archive& ar, unsigned /*version*/)
+void YMF262::Slot::serialize(Archive& ar, unsigned /*version*/)
 {
 	// wavetable
 	unsigned waveform = unsigned((wavetable - sin_tab) / SIN_LEN);
@@ -1858,7 +1636,7 @@ void YMF262Slot::serialize(Archive& ar, unsigned /*version*/)
 }
 
 template<typename Archive>
-void YMF262Channel::serialize(Archive& ar, unsigned /*version*/)
+void YMF262::Channel::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("slots", slot);
 	ar.serialize("block_fnum", block_fnum);
@@ -1871,7 +1649,7 @@ void YMF262Channel::serialize(Archive& ar, unsigned /*version*/)
 // version 1: initial version
 // version 2: added alreadySignaledNEW2
 template<typename Archive>
-void YMF262::Impl::serialize(Archive& ar, unsigned version)
+void YMF262::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("timer1", *timer1);
 	ar.serialize("timer2", *timer2);
@@ -1904,78 +1682,27 @@ void YMF262::Impl::serialize(Archive& ar, unsigned version)
 	}
 }
 
+INSTANTIATE_SERIALIZE_METHODS(YMF262);
 
-// SimpleDebuggable
 
-YMF262Debuggable::YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262_,
-                                   const std::string& name)
+// YMF262::Debuggable
+
+YMF262::Debuggable::Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262_,
+                               const std::string& name)
 	: SimpleDebuggable(motherBoard, name + " regs",
 	                   "MoonSound FM-part registers", 0x200)
 	, ymf262(ymf262_)
 {
 }
 
-byte YMF262Debuggable::read(unsigned address)
+byte YMF262::Debuggable::read(unsigned address)
 {
 	return ymf262.peekReg(address);
 }
 
-void YMF262Debuggable::write(unsigned address, byte value, EmuTime::param time)
+void YMF262::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	ymf262.writeReg512(address, value, time);
 }
-
-// class YMF262
-
-YMF262::YMF262(const std::string& name, const DeviceConfig& config, bool isYMF278)
-	: pimpl(make_unique<Impl>(*this, name, config, isYMF278))
-{
-}
-
-YMF262::~YMF262()
-{
-}
-
-void YMF262::reset(EmuTime::param time)
-{
-	pimpl->reset(time);
-}
-
-void YMF262::writeReg(unsigned r, byte v, EmuTime::param time)
-{
-	pimpl->writeReg(r, v, time);
-}
-
-void YMF262::writeReg512(unsigned r, byte v, EmuTime::param time)
-{
-	pimpl->writeReg512(r, v, time);
-}
-
-byte YMF262::readReg(unsigned reg)
-{
-	return pimpl->readReg(reg);
-}
-
-byte YMF262::peekReg(unsigned reg) const
-{
-	return pimpl->peekReg(reg);
-}
-
-byte YMF262::readStatus()
-{
-	return pimpl->readStatus();
-}
-
-byte YMF262::peekStatus() const
-{
-	return pimpl->peekStatus();
-}
-
-template<typename Archive>
-void YMF262::serialize(Archive& ar, unsigned version)
-{
-	pimpl->serialize(ar, version);
-}
-INSTANTIATE_SERIALIZE_METHODS(YMF262);
 
 } // namespace openmsx
