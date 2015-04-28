@@ -1,16 +1,17 @@
 #ifndef VLM5030_HH
 #define VLM5030_HH
 
+#include "ResampledSoundDevice.hh"
+#include "Rom.hh"
 #include "EmuTime.hh"
 #include "openmsx.hh"
 #include <string>
-#include <memory>
 
 namespace openmsx {
 
 class DeviceConfig;
 
-class VLM5030
+class VLM5030 final : public ResampledSoundDevice
 {
 public:
 	VLM5030(const std::string& name, const std::string& desc,
@@ -31,8 +32,56 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	class Impl;
-	const std::unique_ptr<Impl> pimpl;
+	void setRST(bool pin);
+	void setVCU(bool pin);
+	void setST (bool pin);
+
+	// SoundDevice
+	void generateChannels(int** bufs, unsigned num) override;
+
+	void setupParameter(byte param);
+	int getBits(unsigned sbit, unsigned bits);
+	int parseFrame();
+
+	Rom rom;
+	int address_mask;
+
+	// state of option paramter
+	int frame_size;
+	int pitch_offset;
+
+	// these contain data describing the current and previous voice frames
+	// these are all used to contain the current state of the sound generation
+	unsigned current_energy;
+	unsigned current_pitch;
+	int current_k[10];
+	int x[10];
+
+	word address;
+	word vcu_addr_h;
+
+	int16_t old_k[10];
+	int16_t new_k[10];
+	int16_t target_k[10];
+	word old_energy;
+	word new_energy;
+	word target_energy;
+	byte old_pitch;
+	byte new_pitch;
+	byte target_pitch;
+
+	byte interp_step;
+	byte interp_count; // number of interp periods
+	byte sample_count; // sample number within interp
+	byte pitch_count;
+
+	byte latch_data;
+	byte parameter;
+	byte phase;
+	bool pin_BSY;
+	bool pin_ST;
+	bool pin_VCU;
+	bool pin_RST;
 };
 
 } // namespace openmsx
