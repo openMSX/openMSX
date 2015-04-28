@@ -4,7 +4,6 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "LocalFileReference.hh"
-#include "FileContext.hh"
 #include "FileOperations.hh"
 #include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
@@ -51,7 +50,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 {
 	auto result = make_unique<HardwareConfig>(motherBoard, "rom");
 	const auto& sramfile = FileOperations::getFilename(romfile);
-	auto context = make_unique<UserFileContext>("roms/" + sramfile);
+	UserFileContext context("roms/" + sramfile);
 
 	vector<string_ref> ipsfiles;
 	string_ref mapper;
@@ -68,7 +67,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		}
 		string_ref arg = it->getString();
 		if (option == "-ips") {
-			if (!FileOperations::isRegularFile(context->resolve(arg))) {
+			if (!FileOperations::isRegularFile(context.resolve(arg))) {
 				throw MSXException("Invalid IPS file: " + arg);
 			}
 			ipsfiles.push_back(arg);
@@ -85,7 +84,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	}
 
 	string resolvedFilename = FileOperations::getAbsolutePath(
-		context->resolve(romfile));
+		context.resolve(romfile));
 	if (!FileOperations::isRegularFile(resolvedFilename)) {
 		throw MSXException("Invalid ROM file: " + resolvedFilename);
 	}
@@ -194,11 +193,6 @@ void HardwareConfig::testRemove() const
 	}
 }
 
-void HardwareConfig::setFileContext(unique_ptr<FileContext> context_)
-{
-	context = move(context_);
-}
-
 const XMLElement& HardwareConfig::getDevices() const
 {
 	return getConfig().getChild("devices");
@@ -247,8 +241,7 @@ void HardwareConfig::load(string_ref type)
 
 	assert(!userName.empty());
 	const auto& baseName = FileOperations::getBaseName(filename);
-	setFileContext(make_unique<ConfigFileContext>(
-		baseName, hwName, userName));
+	setFileContext(ConfigFileContext(baseName, hwName, userName));
 }
 
 void HardwareConfig::parseSlots()
@@ -385,6 +378,7 @@ void HardwareConfig::setSlot(string_ref slotname)
 // version 1: initial version
 // version 2: moved FileContext here (was part of config)
 // version 3: hold 'config' by-value instead of by-pointer
+// version 4: hold 'context' by-value instead of by-pointer
 template<typename Archive>
 void HardwareConfig::serialize(Archive& ar, unsigned version)
 {
@@ -398,10 +392,17 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("config", config); // fills in getLastSerializedFileContext()
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("context", context);
+		if (ar.versionAtLeast(version, 4)) {
+			ar.serialize("context", context);
+		} else {
+			std::unique_ptr<FileContext> ctxt;
+			ar.serialize("context", ctxt);
+			if (ctxt) context = *ctxt;
+		}
 	} else {
-		context = XMLElement::getLastSerializedFileContext();
-		assert(context);
+		auto ctxt = XMLElement::getLastSerializedFileContext();
+		assert(ctxt);
+		context = *ctxt;
 	}
 	if (ar.isLoader()) {
 		if (!motherBoard.getMachineConfig()) {
