@@ -198,10 +198,9 @@ public:
 	using WatchPoints = std::vector<std::shared_ptr<WatchPoint>>;
 	const WatchPoints& getWatchPoints() const { return watchPoints; }
 
-	static void setCondition(const std::shared_ptr<DebugCondition>& cond);
+	static void setCondition(const DebugCondition& cond);
 	static void removeCondition(const DebugCondition& cond);
-	// note: must be shared_ptr (not unique_ptr), see checkBreakPoints()
-	using Conditions = std::vector<std::shared_ptr<DebugCondition>>;
+	using Conditions = std::vector<DebugCondition>;
 	static const Conditions& getConditions() { return conditions; }
 
 	static bool isBreaked() { return breaked; }

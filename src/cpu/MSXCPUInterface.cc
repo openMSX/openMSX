@@ -704,7 +704,7 @@ void MSXCPUInterface::checkBreakPoints(
 	}
 	auto condCopy = conditions;
 	for (auto& c : condCopy) {
-		c->checkAndExecute(cliComm, interp);
+		c.checkAndExecute(cliComm, interp);
 	}
 }
 
@@ -758,7 +758,7 @@ void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
 	}
 }
 
-void MSXCPUInterface::setCondition(const shared_ptr<DebugCondition>& cond)
+void MSXCPUInterface::setCondition(const DebugCondition& cond)
 {
 	conditions.push_back(cond);
 }
@@ -766,7 +766,7 @@ void MSXCPUInterface::setCondition(const shared_ptr<DebugCondition>& cond)
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
 	conditions.erase(find_if_unguarded(conditions,
-		[&](std::shared_ptr<DebugCondition>& e) { return e.get() == &cond; }));
+		[&](DebugCondition& e) { return &e == &cond; }));
 }
 
 void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)

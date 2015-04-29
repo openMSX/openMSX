@@ -601,7 +601,6 @@ void Debugger::Cmd::listWatchPoints(
 
 void Debugger::Cmd::setCondition(array_ref<TclObject> tokens, TclObject& result)
 {
-	shared_ptr<DebugCondition> dc;
 	TclObject command("debug break");
 	TclObject condition;
 
@@ -609,10 +608,13 @@ void Debugger::Cmd::setCondition(array_ref<TclObject> tokens, TclObject& result)
 	case 4: // command
 		command = tokens[3];
 		// fall-through
-	case 3: // condition
+	case 3: { // condition
 		condition = tokens[2];
-		dc = make_shared<DebugCondition>(command, condition);
+		DebugCondition dc(command, condition);
+		result.setString(StringOp::Builder() << "cond#" << dc.getId());
+		debugger.motherBoard.getCPUInterface().setCondition(dc);
 		break;
+	}
 	default:
 		if (tokens.size() < 3) {
 			throw CommandException("Too few arguments.");
@@ -620,8 +622,6 @@ void Debugger::Cmd::setCondition(array_ref<TclObject> tokens, TclObject& result)
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString(StringOp::Builder() << "cond#" << dc->getId());
-	debugger.motherBoard.getCPUInterface().setCondition(dc);
 }
 
 void Debugger::Cmd::removeCondition(
@@ -638,8 +638,8 @@ void Debugger::Cmd::removeCondition(
 			unsigned id = fast_stou(tmp.substr(5));
 			auto& interface = debugger.motherBoard.getCPUInterface();
 			for (auto& c : interface.getConditions()) {
-				if (c->getId() == id) {
-					interface.removeCondition(*c);
+				if (c.getId() == id) {
+					interface.removeCondition(c);
 					return;
 				}
 			}
@@ -657,9 +657,9 @@ void Debugger::Cmd::listConditions(
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& c : interface.getConditions()) {
 		TclObject line;
-		line.addListElement(StringOp::Builder() << "cond#" << c->getId());
-		line.addListElement(c->getCondition());
-		line.addListElement(c->getCommand());
+		line.addListElement(StringOp::Builder() << "cond#" << c.getId());
+		line.addListElement(c.getCondition());
+		line.addListElement(c.getCommand());
 		res += line.getString() + '\n';
 	}
 	result.setString(res);
@@ -1023,7 +1023,7 @@ vector<string> Debugger::Cmd::getConditionIds() const
 	vector<string> condids;
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& c : interface.getConditions()) {
-		condids.push_back(StringOp::Builder() << "cond#" << c->getId());
+		condids.push_back(StringOp::Builder() << "cond#" << c.getId());
 	}
 	return condids;
 }
