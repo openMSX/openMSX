@@ -36,6 +36,8 @@ public:
 
 	void transfer(Debugger& other);
 
+	MSXMotherBoard& getMotherBoard() { return motherBoard; }
+
 private:
 	Debuggable& getDebuggable(string_ref name);
 	ProbeBase& getProbe(string_ref name);
@@ -56,8 +58,7 @@ private:
 	public:
 		Cmd(CommandController& commandController,
 		    StateChangeDistributor& stateChangeDistributor,
-		    Scheduler& scheduler, GlobalCliComm& cliComm,
-		    Debugger& debugger);
+		    Scheduler& scheduler, Debugger& debugger);
 		bool needRecord(array_ref<TclObject> tokens) const override;
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result, EmuTime::param time) override;
@@ -92,7 +93,6 @@ private:
 		void probeRemoveBreakPoint(array_ref<TclObject> tokens, TclObject& result);
 		void probeListBreakPoints(array_ref<TclObject> tokens, TclObject& result);
 
-		GlobalCliComm& cliComm;
 		Debugger& debugger;
 	} cmd;
 

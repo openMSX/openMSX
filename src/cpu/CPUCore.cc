@@ -2564,7 +2564,7 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 		}
 	} else {
 		while (!needExitCPULoop()) {
-			if (interface->checkBreakPoints(getPC())) {
+			if (interface->checkBreakPoints(getPC(), motherboard)) {
 				assert(interface->isBreaked());
 				break;
 			}

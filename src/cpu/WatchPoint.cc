@@ -5,11 +5,10 @@ namespace openmsx {
 
 unsigned WatchPoint::lastId = 0;
 
-WatchPoint::WatchPoint(GlobalCliComm& cliComm, Interpreter& interp,
-                       TclObject command, TclObject condition,
+WatchPoint::WatchPoint(TclObject command, TclObject condition,
                        Type type_, unsigned beginAddr_, unsigned endAddr_,
                        unsigned newId /*= -1*/)
-	: BreakPointBase(cliComm, interp, command, condition)
+	: BreakPointBase(command, condition)
 	, id((newId == unsigned(-1)) ? ++lastId : newId)
 	, beginAddr(beginAddr_), endAddr(endAddr_), type(type_)
 {

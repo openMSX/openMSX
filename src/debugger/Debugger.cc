@@ -34,7 +34,7 @@ Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	, cmd(motherBoard.getCommandController(),
 	      motherBoard.getStateChangeDistributor(),
 	      motherBoard.getScheduler(),
-	      motherBoard.getReactor().getGlobalCliComm(), *this)
+	      *this)
 	, cpu(nullptr)
 {
 }
@@ -108,8 +108,6 @@ unsigned Debugger::insertProbeBreakPoint(
 	ProbeBase& probe, unsigned newId /*= -1*/)
 {
 	auto bp = make_unique<ProbeBreakPoint>(
-		motherBoard.getReactor().getGlobalCliComm(),
-		motherBoard.getReactor().getInterpreter(),
 		command, condition, *this, probe, newId);
 	unsigned result = bp->getId();
 	probeBreakPoints.push_back(std::move(bp));
@@ -175,11 +173,8 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
 			command, condition, newId));
 	} else {
 		//wp = make_shared<WatchPoint>(
-		//	motherBoard.getReactor().getGlobalCliComm(),
 		//	command, condition, type, beginAddr, endAddr, newId);
 		wp.reset(new WatchPoint(
-			motherBoard.getReactor().getGlobalCliComm(),
-			motherBoard.getReactor().getInterpreter(),
 			command, condition, type, beginAddr, endAddr, newId));
 	}
 	motherBoard.getCPUInterface().setWatchPoint(wp);
@@ -227,11 +222,9 @@ static word getAddress(Interpreter& interp, array_ref<TclObject> tokens)
 
 Debugger::Cmd::Cmd(CommandController& commandController,
                    StateChangeDistributor& stateChangeDistributor,
-                   Scheduler& scheduler, GlobalCliComm& cliComm_,
-                   Debugger& debugger_)
+                   Scheduler& scheduler, Debugger& debugger_)
 	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "debug")
-	, cliComm(cliComm_)
 	, debugger(debugger_)
 {
 }
@@ -421,7 +414,7 @@ void Debugger::Cmd::setBreakPoint(array_ref<TclObject> tokens, TclObject& result
 	case 3: { // address
 		auto& interp = getInterpreter();
 		addr = getAddress(interp, tokens);
-		bp = make_shared<BreakPoint>(cliComm, interp, addr, command, condition);
+		bp = make_shared<BreakPoint>(addr, command, condition);
 		break;
 	}
 	default:
@@ -635,7 +628,7 @@ void Debugger::Cmd::setCondition(array_ref<TclObject> tokens, TclObject& result)
 		// fall-through
 	case 3: // condition
 		condition = tokens[2];
-		dc = make_shared<DebugCondition>(cliComm, getInterpreter(), command, condition);
+		dc = make_shared<DebugCondition>(command, condition);
 		break;
 	default:
 		if (tokens.size() < 3) {

@@ -4,9 +4,8 @@ namespace openmsx {
 
 unsigned DebugCondition::lastId = 0;
 
-DebugCondition::DebugCondition(GlobalCliComm& cliComm, Interpreter& interp,
-                               TclObject command, TclObject condition)
-	: BreakPointBase(cliComm, interp, command, condition)
+DebugCondition::DebugCondition(TclObject command, TclObject condition)
+	: BreakPointBase(command, condition)
 	, id(++lastId)
 {
 }

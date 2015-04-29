@@ -691,18 +691,21 @@ void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 
 void MSXCPUInterface::checkBreakPoints(
 	std::pair<BreakPoints::const_iterator,
-	          BreakPoints::const_iterator> range)
+	          BreakPoints::const_iterator> range,
+	MSXMotherBoard& motherBoard)
 {
 	// create copy for the case that breakpoint/condition removes itself
 	//  - keeps object alive by holding a shared_ptr to it
 	//  - avoids iterating over a changing collection
 	BreakPoints bpCopy(range.first, range.second);
+	auto& cliComm = motherBoard.getReactor().getGlobalCliComm();
+	auto& interp  = motherBoard.getReactor().getInterpreter();
 	for (auto& p : bpCopy) {
-		p->checkAndExecute();
+		p->checkAndExecute(cliComm, interp);
 	}
 	auto condCopy = conditions;
 	for (auto& c : condCopy) {
-		c->checkAndExecute();
+		c->checkAndExecute(cliComm, interp);
 	}
 }
 
@@ -841,7 +844,8 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 	assert(!watchPoints.empty());
 	if (isFastForward()) return;
 
-	auto& interp = watchPoints.front()->getInterpreter();
+	auto& cliComm = motherBoard.getReactor().getGlobalCliComm();
+	auto& interp  = motherBoard.getReactor().getInterpreter();
 	interp.setVariable("wp_last_address", TclObject(int(address)));
 	if (value != ~0u) {
 		interp.setVariable("wp_last_value", TclObject(int(value)));
@@ -852,7 +856,7 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 		if ((w->getBeginAddress() <= address) &&
 		    (w->getEndAddress()   >= address) &&
 		    (w->getType()         == type)) {
-			w->checkAndExecute();
+			w->checkAndExecute(cliComm, interp);
 		}
 	}
 

@@ -7,7 +7,6 @@
 
 namespace openmsx {
 
-class MSXCPUInterface;
 class MSXWatchIODevice;
 
 class WatchIO final : public WatchPoint
@@ -26,7 +25,7 @@ private:
 	void doReadCallback(unsigned port);
 	void doWriteCallback(unsigned port, unsigned value);
 
-	MSXCPUInterface& cpuInterface;
+	MSXMotherBoard& motherboard;
 	std::vector<std::unique_ptr<MSXWatchIODevice>> ios;
 
 	friend class MSXWatchIODevice;

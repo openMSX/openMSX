@@ -10,15 +10,13 @@ namespace openmsx {
 
 // class WatchIO
 
-WatchIO::WatchIO(MSXMotherBoard& motherboard,
+WatchIO::WatchIO(MSXMotherBoard& motherboard_,
                  WatchPoint::Type type,
                  unsigned beginAddr, unsigned endAddr,
                  TclObject command, TclObject condition,
                  unsigned newId /*= -1*/)
-	: WatchPoint(motherboard.getReactor().getGlobalCliComm(),
-	             motherboard.getReactor().getInterpreter(),
-	             command, condition, type, beginAddr, endAddr, newId)
-	, cpuInterface(motherboard.getCPUInterface())
+	: WatchPoint(command, condition, type, beginAddr, endAddr, newId)
+	, motherboard(motherboard_)
 {
 	for (unsigned i = byte(beginAddr); i <= byte(endAddr); ++i) {
 		ios.push_back(make_unique<MSXWatchIODevice>(
@@ -38,9 +36,11 @@ MSXWatchIODevice& WatchIO::getDevice(byte port)
 
 void WatchIO::doReadCallback(unsigned port)
 {
+	auto& cpuInterface = motherboard.getCPUInterface();
 	if (cpuInterface.isFastForward()) return;
 
-	auto& interp = getInterpreter();
+	auto& cliComm = motherboard.getReactor().getGlobalCliComm();
+	auto& interp  = motherboard.getReactor().getInterpreter();
 	interp.setVariable("wp_last_address", TclObject(int(port)));
 
 	// keep this object alive by holding a shared_ptr to it, for the case
@@ -48,22 +48,24 @@ void WatchIO::doReadCallback(unsigned port)
 	// TODO can be implemented more efficiently by using
 	//    std::shared_ptr::shared_from_this
 	MSXCPUInterface::WatchPoints wpCopy(cpuInterface.getWatchPoints());
-	checkAndExecute();
+	checkAndExecute(cliComm, interp);
 
 	interp.unsetVariable("wp_last_address");
 }
 
 void WatchIO::doWriteCallback(unsigned port, unsigned value)
 {
+	auto& cpuInterface = motherboard.getCPUInterface();
 	if (cpuInterface.isFastForward()) return;
 
-	auto& interp = getInterpreter();
+	auto& cliComm = motherboard.getReactor().getGlobalCliComm();
+	auto& interp  = motherboard.getReactor().getInterpreter();
 	interp.setVariable("wp_last_address", TclObject(int(port)));
 	interp.setVariable("wp_last_value",   TclObject(int(value)));
 
 	// see comment in doReadCallback() above
 	MSXCPUInterface::WatchPoints wpCopy(cpuInterface.getWatchPoints());
-	checkAndExecute();
+	checkAndExecute(cliComm, interp);
 
 	interp.unsetVariable("wp_last_address");
 	interp.unsetVariable("wp_last_value");

@@ -13,15 +13,14 @@ namespace openmsx {
 class BreakPoint final : public BreakPointBase
 {
 public:
-	BreakPoint(GlobalCliComm& CliComm, Interpreter& interp, word address,
-	           TclObject command, TclObject condition);
+	BreakPoint(word address, TclObject command, TclObject condition);
 
 	word getAddress() const { return address; }
 	unsigned getId() const { return id; }
 
 private:
-	const unsigned id;
-	const word address;
+	unsigned id;
+	word address;
 
 	static unsigned lastId;
 };

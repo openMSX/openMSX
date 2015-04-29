@@ -225,7 +225,7 @@ public:
 	{
 		return !breakPoints.empty() || !conditions.empty();
 	}
-	static bool checkBreakPoints(unsigned pc)
+	static bool checkBreakPoints(unsigned pc, MSXMotherBoard& motherBoard)
 	{
 		auto range = equal_range(begin(breakPoints), end(breakPoints),
 		                         pc, CompareBreakpoints());
@@ -234,7 +234,7 @@ public:
 		}
 
 		// slow path non-inlined
-		checkBreakPoints(range);
+		checkBreakPoints(range, motherBoard);
 		return isBreaked();
 	}
 
@@ -267,7 +267,8 @@ private:
 
 
 	static void checkBreakPoints(std::pair<BreakPoints::const_iterator,
-	                                       BreakPoints::const_iterator> range);
+	                                       BreakPoints::const_iterator> range,
+	                             MSXMotherBoard& motherBoard);
 
 	void removeAllWatchPoints();
 	void registerIOWatch  (WatchPoint& watchPoint, MSXDevice** devices);

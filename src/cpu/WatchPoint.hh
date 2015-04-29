@@ -16,8 +16,7 @@ public:
 
 	/** Begin and end address are inclusive (IOW range = [begin, end])
 	 */
-	WatchPoint(GlobalCliComm& CliComm, Interpreter& interp,
-	           TclObject command, TclObject condition,
+	WatchPoint(TclObject command, TclObject condition,
 	           Type type, unsigned beginAddr, unsigned endAddr,
 	           unsigned newId = -1);
 	virtual ~WatchPoint(); // needed for dynamic_cast
@@ -28,10 +27,10 @@ public:
 	unsigned getEndAddress()   const { return endAddr; }
 
 private:
-	const unsigned id;
-	const unsigned beginAddr;
-	const unsigned endAddr;
-	const Type type;
+	unsigned id;
+	unsigned beginAddr;
+	unsigned endAddr;
+	Type type;
 
 	static unsigned lastId;
 };

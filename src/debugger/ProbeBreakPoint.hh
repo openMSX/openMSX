@@ -13,9 +13,7 @@ class ProbeBreakPoint final : public BreakPointBase
                             , private Observer<ProbeBase>
 {
 public:
-	ProbeBreakPoint(GlobalCliComm& CliComm,
-	                Interpreter& interp,
-	                TclObject command,
+	ProbeBreakPoint(TclObject command,
 	                TclObject condition,
 	                Debugger& debugger,
 	                ProbeBase& probe,

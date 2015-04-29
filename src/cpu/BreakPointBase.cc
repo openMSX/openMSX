@@ -1,20 +1,17 @@
 #include "BreakPointBase.hh"
-#include "TclObject.hh"
 #include "CommandException.hh"
 #include "GlobalCliComm.hh"
 #include "ScopedAssign.hh"
 
 namespace openmsx {
 
-BreakPointBase::BreakPointBase(GlobalCliComm& cliComm_, Interpreter& interp_,
-                               TclObject command_, TclObject condition_)
-	: cliComm(cliComm_), interp(interp_)
-	, command(command_), condition(condition_)
+BreakPointBase::BreakPointBase(TclObject command_, TclObject condition_)
+	: command(command_), condition(condition_)
 	, executing(false)
 {
 }
 
-bool BreakPointBase::isTrue() const
+bool BreakPointBase::isTrue(GlobalCliComm& cliComm, Interpreter& interp) const
 {
 	if (condition.getString().empty()) {
 		// unconditional bp
@@ -28,14 +25,14 @@ bool BreakPointBase::isTrue() const
 	}
 }
 
-void BreakPointBase::checkAndExecute()
+void BreakPointBase::checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp)
 {
 	if (executing) {
 		// no recursive execution
 		return;
 	}
 	ScopedAssign<bool> sa(executing, true);
-	if (isTrue()) {
+	if (isTrue(cliComm, interp)) {
 		try {
 			command.executeCommand(interp, true); // compile command
 		} catch (CommandException& e) {

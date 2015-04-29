@@ -5,9 +5,8 @@ namespace openmsx {
 
 unsigned BreakPoint::lastId = 0;
 
-BreakPoint::BreakPoint(GlobalCliComm& cliComm, Interpreter& interp,
-                       word address_, TclObject command, TclObject condition)
-	: BreakPointBase(cliComm, interp, command, condition)
+BreakPoint::BreakPoint(word address_, TclObject command, TclObject condition)
+	: BreakPointBase(command, condition)
 	, id(++lastId)
 	, address(address_)
 {

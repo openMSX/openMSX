@@ -11,12 +11,11 @@ namespace openmsx {
 class DebugCondition final : public BreakPointBase
 {
 public:
-	DebugCondition(GlobalCliComm& CliComm, Interpreter& interp,
-	               TclObject command, TclObject condition);
+	DebugCondition(TclObject command, TclObject condition);
 	unsigned getId() const { return id; }
 
 private:
-	const unsigned id;
+	unsigned id;
 
 	static unsigned lastId;
 };

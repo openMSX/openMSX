@@ -2,18 +2,16 @@
 #define BREAKPOINTBASE_HH
 
 #include "TclObject.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
-
-class Interpreter;
 
 namespace openmsx {
 
+class Interpreter;
 class GlobalCliComm;
 
 /** Base class for CPU break and watch points.
  */
-class BreakPointBase : private noncopyable
+class BreakPointBase
 {
 public:
 	string_ref getCondition() const { return condition.getString(); }
@@ -21,23 +19,17 @@ public:
 	TclObject getConditionObj() const { return condition; }
 	TclObject getCommandObj()   const { return command; }
 
-	void checkAndExecute();
-
-	// get associated interpreter
-	Interpreter& getInterpreter() const { return interp; }
+	void checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp);
 
 protected:
 	// Note: we require GlobalCliComm here because breakpoint objects can
 	// be transfered to different MSX machines, and so the MSXCliComm
 	// object won't remain valid.
-	BreakPointBase(GlobalCliComm& cliComm, Interpreter& interp,
-	               TclObject command, TclObject condition);
+	BreakPointBase(TclObject command, TclObject condition);
 
 private:
-	bool isTrue() const;
+	bool isTrue(GlobalCliComm& cliComm, Interpreter& interp) const;
 
-	GlobalCliComm& cliComm;
-	Interpreter& interp;
 	TclObject command;
 	TclObject condition;
 	bool executing;
