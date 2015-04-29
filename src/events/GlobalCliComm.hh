@@ -5,6 +5,7 @@
 #include "Semaphore.hh"
 #include "StringMap.hh"
 #include "noncopyable.hh"
+#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -17,8 +18,8 @@ public:
 	GlobalCliComm();
 	~GlobalCliComm();
 
-	void addListener(CliListener* listener);
-	void removeListener(CliListener* listener);
+	void addListener(std::unique_ptr<CliListener> listener);
+	std::unique_ptr<CliListener> removeListener(CliListener& listener);
 
 	// Before this method has been called commands send over external
 	// connections are not yet processed (but they keep pending).
@@ -35,7 +36,7 @@ private:
 
 	StringMap<std::string> prevValues[NUM_UPDATES];
 
-	std::vector<CliListener*> listeners;
+	std::vector<std::unique_ptr<CliListener>> listeners;
 	Semaphore sem; // lock access to listeners member
 	bool delivering;
 	bool allowExternalCommands;

@@ -12,12 +12,13 @@ TclCallbackMessages::TclCallbackMessages(GlobalCliComm& cliComm_,
 		false, // don't print callback err on cliComm (would cause infinite loop)
 		false) // don't save setting
 {
-	cliComm.addListener(this);
+	cliComm.addListener(std::unique_ptr<CliListener>(this)); // wrap in unique_ptr
 }
 
 TclCallbackMessages::~TclCallbackMessages()
 {
-	cliComm.removeListener(this);
+	std::unique_ptr<CliListener> ptr = cliComm.removeListener(*this);
+	ptr.release();
 }
 
 void TclCallbackMessages::log(CliComm::LogLevel level, string_ref message)

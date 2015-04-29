@@ -21,40 +21,39 @@ GlobalCliComm::~GlobalCliComm()
 {
 	assert(Thread::isMainThread());
 	assert(!delivering);
-
-	ScopedLock lock(sem);
-	// TODO GlobalCliComm has unusual ownership semantics.
-	//      Try to rework it.
-	for (auto& l : listeners) {
-		delete l;
-	}
 }
 
-void GlobalCliComm::addListener(CliListener* listener)
+void GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
 {
 	// can be called from any thread
 	ScopedLock lock(sem);
-	listeners.push_back(listener);
+	auto* p = listener.get();
+	listeners.push_back(std::move(listener));
 	if (allowExternalCommands) {
-		if (auto* conn = dynamic_cast<CliConnection*>(listener)) {
+		if (auto* conn = dynamic_cast<CliConnection*>(p)) {
 			conn->start();
 		}
 	}
 }
 
-void GlobalCliComm::removeListener(CliListener* listener)
+std::unique_ptr<CliListener> GlobalCliComm::removeListener(CliListener& listener)
 {
 	// can be called from any thread
 	ScopedLock lock(sem);
-	listeners.erase(find_unguarded(listeners, listener));
+	auto it = find_if_unguarded(listeners,
+		[&](const std::unique_ptr<CliListener>& ptr) {
+			return ptr.get() == &listener; });
+	auto result = std::move(*it);
+	listeners.erase(it);
+	return result;
 }
 
 void GlobalCliComm::setAllowExternalCommands()
 {
 	assert(!allowExternalCommands); // should only be called once
 	allowExternalCommands = true;
-	for (auto* listener : listeners) {
-		if (auto* conn = dynamic_cast<CliConnection*>(listener)) {
+	for (auto& listener : listeners) {
+		if (auto* conn = dynamic_cast<CliConnection*>(listener.get())) {
 			conn->start();
 		}
 	}

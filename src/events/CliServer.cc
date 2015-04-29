@@ -4,6 +4,7 @@
 #include "StringOp.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
+#include "memory.hh"
 #include "random.hh"
 #include "statp.hh"
 #include <string>
@@ -257,9 +258,8 @@ void CliServer::mainLoop()
 			// sock_close(listenSock);  // hangs on win32
 			return;
 		}
-		CliListener* connection = new SocketConnection(
-				commandController, eventDistributor, sd);
-		cliComm.addListener(connection);
+		cliComm.addListener(make_unique<SocketConnection>(
+			commandController, eventDistributor, sd));
 	}
 }
 
