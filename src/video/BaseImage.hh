@@ -20,9 +20,13 @@ public:
 
 	virtual ~BaseImage() {}
 	virtual void draw(OutputSurface& output, int x, int y,
-	                  byte alpha = 255) = 0;
+	                  byte r, byte g, byte b, byte alpha) = 0;
 	virtual int getWidth() const = 0;
 	virtual int getHeight() const = 0;
+
+	void draw(OutputSurface& output, int x, int y, byte alpha = 255) {
+		draw(output, x, y, 255, 255, 255, alpha);
+	}
 };
 
 } // namespace openmsx

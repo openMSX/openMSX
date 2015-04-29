@@ -87,11 +87,11 @@ GLImage::GLImage(int width_, int height_, unsigned rgba)
 	height = height_;
 	borderSize = 0;
 	for (int i = 0; i < 4; ++i) {
-		r[i] = (rgba >> 24) & 0xff;
-		g[i] = (rgba >> 16) & 0xff;
-		b[i] = (rgba >>  8) & 0xff;
+		bgR[i] = (rgba >> 24) & 0xff;
+		bgG[i] = (rgba >> 16) & 0xff;
+		bgB[i] = (rgba >>  8) & 0xff;
 		unsigned alpha = (rgba >> 0) & 0xff;
-		a[i] = (alpha == 255) ? 256 : alpha;
+		bgA[i] = (alpha == 255) ? 256 : alpha;
 	}
 }
 
@@ -104,11 +104,11 @@ GLImage::GLImage(int width_, int height_, const unsigned* rgba,
 	height = height_;
 	borderSize = borderSize_;
 	for (int i = 0; i < 4; ++i) {
-		r[i] = (rgba[i] >> 24) & 0xff;
-		g[i] = (rgba[i] >> 16) & 0xff;
-		b[i] = (rgba[i] >>  8) & 0xff;
+		bgR[i] = (rgba[i] >> 24) & 0xff;
+		bgG[i] = (rgba[i] >> 16) & 0xff;
+		bgB[i] = (rgba[i] >>  8) & 0xff;
 		unsigned alpha = (rgba[i] >> 0) & 0xff;
-		a[i] = (alpha == 255) ? 256 : alpha;
+		bgA[i] = (alpha == 255) ? 256 : alpha;
 	}
 
 	borderR = (borderRGBA >> 24) & 0xff;
@@ -123,7 +123,7 @@ GLImage::GLImage(SDLSurfacePtr image)
 {
 }
 
-void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
+void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte r, byte g, byte b, byte alpha)
 {
 	// 4-----------------7
 	// |                 |
@@ -160,7 +160,7 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 
 		gl::context->progTex.activate();
 		glUniform4f(gl::context->unifTexColor,
-		            1.0f, 1.0f, 1.0f, alpha / 255.0f);
+		            r / 255.0f, g / 255.0f, b / 255.0f, alpha / 255.0f);
 		glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE,
 		                   &gl::context->pixelMvp[0][0]);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos + 4);
@@ -169,6 +169,9 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 		texture.bind();
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	} else {
+		assert(r == 255);
+		assert(g == 255);
+		assert(b == 255);
 		gl::context->progFill.activate();
 		glUniformMatrix4fv(gl::context->unifFillMvp, 1, GL_FALSE,
 		                   &gl::context->pixelMvp[0][0]);
@@ -191,10 +194,10 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 
 			// interior
 			byte col[4][4] = {
-				{ r[0], g[0], b[0], byte((a[0] * alpha) / 256) },
-				{ r[2], g[2], b[2], byte((a[2] * alpha) / 256) },
-				{ r[3], g[3], b[3], byte((a[3] * alpha) / 256) },
-				{ r[1], g[1], b[1], byte((a[1] * alpha) / 256) },
+				{ bgR[0], bgG[0], bgB[0], byte((bgA[0] * alpha) / 256) },
+				{ bgR[2], bgG[2], bgB[2], byte((bgA[2] * alpha) / 256) },
+				{ bgR[3], bgG[3], bgB[3], byte((bgA[3] * alpha) / 256) },
+				{ bgR[1], bgG[1], bgB[1], byte((bgA[1] * alpha) / 256) },
 			};
 			glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, col);
 			glEnableVertexAttribArray(1);

@@ -318,13 +318,14 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 	if (!getFromCache(text, rgb, image, width)) {
 		string textStr = text.str();
 		SDLSurfacePtr surf;
+		unsigned rgb2 = openGL ? 0xffffff : rgb; // openGL -> always render white
 		try {
 			unsigned dummyHeight;
 			font.getSize(textStr, width, dummyHeight);
 			surf = font.render(textStr,
-			                   (rgb >> 16) & 0xff,
-			                   (rgb >>  8) & 0xff,
-			                   (rgb >>  0) & 0xff);
+			                   (rgb2 >> 16) & 0xff,
+			                   (rgb2 >>  8) & 0xff,
+			                   (rgb2 >>  0) & 0xff);
 		} catch (MSXException& e) {
 			static bool alreadyPrinted = false;
 			if (!alreadyPrinted) {
@@ -349,7 +350,16 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 		image = image2.get();
 		insertInCache(textStr, rgb, std::move(image2), width);
 	}
-	if (image) image->draw(output, x, y, alpha);
+	if (image) {
+		if (openGL) {
+			byte r = (rgb >> 16) & 0xff;
+			byte g = (rgb >>  8) & 0xff;
+			byte b = (rgb >>  0) & 0xff;
+			image->draw(output, x, y, r, g, b, alpha);
+		} else {
+			image->draw(output, x, y, alpha);
+		}
+	}
 	x += width; // in case of trailing whitespace width != image->getWidth()
 }
 
@@ -361,7 +371,8 @@ bool OSDConsoleRenderer::getFromCache(string_ref text, unsigned rgb,
 	// duplicate items (e.g. the command prompt '> ') degrade this
 	// heuristic).
 	auto it = cacheHint;
-	if ((it->text == text) && (it->rgb  == rgb)) {
+	// For openGL ignore rgb
+	if ((it->text == text) && (openGL || (it->rgb  == rgb))) {
 		goto found;
 	}
 
@@ -370,7 +381,7 @@ bool OSDConsoleRenderer::getFromCache(string_ref text, unsigned rgb,
 	// in the N first positions in the cache (in approx reverse order).
 	for (it = begin(textCache); it != end(textCache); ++it) {
 		if (it->text != text) continue;
-		if (it->rgb  != rgb ) continue;
+		if (!openGL && (it->rgb  != rgb)) continue;
 found:		image = it->image.get();
 		width = it->width;
 		cacheHint = it;
@@ -398,8 +409,7 @@ void OSDConsoleRenderer::insertInCache(
 		}
 		textCache.pop_back();
 	}
-	textCache.push_front(TextCacheElement(
-		text, rgb, std::move(image), width));
+	textCache.emplace_front(text, rgb, std::move(image), width);
 }
 
 void OSDConsoleRenderer::clearCache()

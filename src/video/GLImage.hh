@@ -22,7 +22,7 @@ public:
 	        int borderSize, unsigned borderRGBA);
 
 	void draw(OutputSurface& output, int x, int y,
-	          byte alpha = 255) override;
+	          byte r, byte g, byte b, byte alpha) override;
 	int getWidth()  const override { return width; }
 	int getHeight() const override { return height; }
 
@@ -32,8 +32,8 @@ private:
 	int height;
 	GLfloat texCoord[4];
 	int borderSize;
-	int a[4], borderA;
-	byte r[4], g[4], b[4];
+	int bgA[4], borderA;
+	byte bgR[4], bgG[4], bgB[4];
 	byte borderR, borderG, borderB;
 };
 

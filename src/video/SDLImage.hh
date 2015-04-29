@@ -19,7 +19,7 @@ public:
 	         unsigned borderSize, unsigned borderRGBA);
 
 	void draw(OutputSurface& output, int x, int y,
-	                  byte alpha = 255) override;
+	          byte r, byte g, byte b, byte alpha) override;
 	int getWidth() const override;
 	int getHeight() const override;
 

@@ -585,8 +585,12 @@ void SDLImage::allocateWorkImage()
 	}
 }
 
-void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
+void SDLImage::draw(OutputSurface& output, int x, int y, byte r, byte g, byte b, byte alpha)
 {
+	assert(r == 255); (void)r;
+	assert(g == 255); (void)g;
+	assert(b == 255); (void)b;
+
 	if (!image) return;
 	if (flipX) x -= image->w;
 	if (flipY) y -= image->h;
