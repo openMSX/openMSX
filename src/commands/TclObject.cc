@@ -1,59 +1,8 @@
 #include "TclObject.hh"
 #include "Interpreter.hh"
 #include "CommandException.hh"
-#include <tcl.h>
 
 namespace openmsx {
-
-TclObject::TclObject()
-{
-	init(Tcl_NewObj());
-}
-
-TclObject::TclObject(Tcl_Obj* obj_)
-{
-	init(obj_);
-}
-
-TclObject::TclObject(string_ref value)
-{
-	init(Tcl_NewStringObj(value.data(), int(value.size())));
-}
-
-TclObject::TclObject(int value)
-{
-	init(Tcl_NewIntObj(value));
-}
-
-TclObject::TclObject(double value)
-{
-	init(Tcl_NewDoubleObj(value));
-}
-
-TclObject::TclObject(const TclObject& object)
-{
-	init(object.obj);
-}
-
-void TclObject::init(Tcl_Obj* obj_)
-{
-	obj = obj_;
-	Tcl_IncrRefCount(obj);
-}
-
-TclObject::~TclObject()
-{
-	Tcl_DecrRefCount(obj);
-}
-
-TclObject& TclObject::operator=(const TclObject& other)
-{
-	if (&other != this) {
-		Tcl_DecrRefCount(obj);
-		init(other.obj);
-	}
-	return *this;
-}
 
 static void throwException(Tcl_Interp* interp)
 {

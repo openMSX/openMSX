@@ -3,6 +3,7 @@
 
 #include "string_ref.hh"
 #include "openmsx.hh"
+#include <tcl.h>
 #include <iterator>
 #include <cassert>
 
@@ -55,16 +56,27 @@ class TclObject
 	};
 
 public:
-	TclObject();
-	explicit TclObject(Tcl_Obj* object);
-	explicit TclObject(string_ref value);
-	explicit TclObject(int value);
-	explicit TclObject(double value);
-	TclObject(const TclObject& object);
-	~TclObject();
+	TclObject()                      { init(Tcl_NewObj()); }
+	explicit TclObject(Tcl_Obj* o)   { init(o); }
+	explicit TclObject(string_ref v) { init(Tcl_NewStringObj(v.data(), int(v.size()))); }
+	explicit TclObject(int v)        { init(Tcl_NewIntObj(v)); }
+	explicit TclObject(double v)     { init(Tcl_NewDoubleObj(v)); }
+	TclObject(const TclObject&  o)   { init(o.obj); }
+	TclObject(      TclObject&& o)   { init(o.obj); }
+	~TclObject()                     { Tcl_DecrRefCount(obj); }
 
 	// assignment operator so we can use vector<TclObject>
-	TclObject& operator=(const TclObject& other);
+	TclObject& operator=(const TclObject& other) {
+		if (&other != this) {
+			Tcl_DecrRefCount(obj);
+			init(other.obj);
+		}
+		return *this;
+	}
+	TclObject& operator=(TclObject&& other) {
+		std::swap(obj, other.obj);
+		return *this;
+	}
 
 	// get underlying Tcl_Obj
 	Tcl_Obj* getTclObject() { return obj; }
@@ -119,7 +131,11 @@ public:
 	}
 
 private:
-	void init(Tcl_Obj* obj_);
+	void init(Tcl_Obj* obj_) {
+		obj = obj_;
+		Tcl_IncrRefCount(obj);
+	}
+
 	void addListElement(Tcl_Obj* element);
 	unsigned getListLengthUnchecked() const;
 	TclObject getListIndexUnchecked(unsigned index) const;
