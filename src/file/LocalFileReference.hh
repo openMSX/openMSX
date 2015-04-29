@@ -1,7 +1,6 @@
 #ifndef LOCALFILEREFERENCE_HH
 #define LOCALFILEREFERENCE_HH
 
-#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
@@ -9,7 +8,7 @@ namespace openmsx {
 class File;
 class Filename;
 
-/** Helper class to use files is APIs other than openmsx::File.
+/** Helper class to use files in APIs other than openmsx::File.
  * The openMSX File class has support for (g)zipped files (or maybe in the
  * future files over http, ftp, ...). Sometimes you need to pass a filename
  * to an API that doesn't support this (for example SDL_LoadWav()). This
@@ -28,13 +27,19 @@ class Filename;
  *       the file in read-write mode (for example IMG_Load() does this). The
  *       implementation of this class does not keep a reference to the file.
  */
-class LocalFileReference : private noncopyable
+class LocalFileReference
 {
 public:
+	LocalFileReference() {}
 	explicit LocalFileReference(const Filename& filename);
 	explicit LocalFileReference(const std::string& url);
 	explicit LocalFileReference(File& file);
 	~LocalFileReference();
+	// non-copyable, but moveable
+	LocalFileReference(const LocalFileReference&) = delete;
+	LocalFileReference(LocalFileReference&&) = default;
+	LocalFileReference& operator=(const LocalFileReference&) = delete;
+	LocalFileReference& operator=(LocalFileReference&&) = default;
 
 	/** Returns path to a local uncompressed version of this file.
 	  * This path only remains valid as long as this object is in scope.

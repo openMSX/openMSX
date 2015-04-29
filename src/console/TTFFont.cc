@@ -65,7 +65,7 @@ private:
 			return *this;
 		}
 
-		std::unique_ptr<LocalFileReference> file;
+		LocalFileReference file;
 		TTF_Font* font;
 		std::string name;
 		int size;
@@ -126,8 +126,8 @@ TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 
 	SDLTTF::instance(); // init library
 	FontInfo info;
-	info.file = make_unique<LocalFileReference>(filename);
-	auto* result = TTF_OpenFont(info.file->getFilename().c_str(), ptSize);
+	info.file = LocalFileReference(filename);
+	auto* result = TTF_OpenFont(info.file.getFilename().c_str(), ptSize);
 	if (!result) {
 		throw MSXException(TTF_GetError());
 	}

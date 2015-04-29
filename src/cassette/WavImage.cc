@@ -11,7 +11,7 @@ namespace openmsx {
 WavImage::WavImage(const Filename& filename, FilePool& filePool)
 	: clock(EmuTime::zero)
 {
-	std::unique_ptr<LocalFileReference> localFile;
+	LocalFileReference localFile;
 	{
 		// File object must be destroyed before localFile is actually
 		// used by an external API (see comments in LocalFileReference
@@ -19,9 +19,9 @@ WavImage::WavImage(const Filename& filename, FilePool& filePool)
 		File file(filename);
 		file.setFilePool(filePool);
 		setSha1Sum(file.getSha1Sum());
-		localFile = make_unique<LocalFileReference>(file);
+		localFile = LocalFileReference(file);
 	}
-	wav = WavData(localFile->getFilename(), 16, 0);
+	wav = WavData(localFile.getFilename(), 16, 0);
 	clock.setFreq(wav.getFreq());
 
 	// calculate the average to subtract it later (simple DC filter)

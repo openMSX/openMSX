@@ -13,7 +13,6 @@
 #include "serialize.hh"
 #include "memory.hh"
 
-using std::unique_ptr;
 using std::string;
 
 namespace openmsx {
