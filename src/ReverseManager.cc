@@ -651,7 +651,7 @@ void ReverseManager::loadReplay(
 	if (arguments.size() != 1) throw SyntaxError();
 
 	// resolve the filename
-	UserDataFileContext context(REPLAY_DIR);
+	auto context = userDataFileContext(REPLAY_DIR);
 	string fileNameArg = arguments[0];
 	string filename;
 	try {
@@ -1032,8 +1032,7 @@ void ReverseManager::ReverseCmd::tabCompletion(vector<string>& tokens) const
 			if (tokens[1] == "loadreplay") {
 				cmds = { "-goto", "-viewonly" };
 			}
-			UserDataFileContext context(REPLAY_DIR);
-			completeFileName(tokens, context, cmds);
+			completeFileName(tokens, userDataFileContext(REPLAY_DIR), cmds);
 		} else if (tokens[1] == "viewonlymode") {
 			static const char* const options[] = { "true", "false" };
 			completeString(tokens, options);

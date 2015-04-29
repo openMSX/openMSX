@@ -40,7 +40,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		return make_unique<RamDSKDiskImage>();
 	}
 
-	Filename filename(diskImage, UserFileContext());
+	Filename filename(diskImage, userFileContext());
 	try {
 		// First try DirAsDSK
 		return make_unique<DirAsDSK>(

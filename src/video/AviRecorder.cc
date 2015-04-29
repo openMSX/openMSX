@@ -357,7 +357,7 @@ void AviRecorder::Cmd::tabCompletion(vector<string>& tokens) const
 			"-prefix", "-videoonly", "-audioonly", "-doublesize", "-triplesize",
 			"-mono", "-stereo",
 		};
-		completeFileName(tokens, UserFileContext(), options);
+		completeFileName(tokens, userFileContext(), options);
 	}
 }
 

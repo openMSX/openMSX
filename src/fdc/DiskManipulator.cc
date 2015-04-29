@@ -294,7 +294,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, cmds);
 
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		completeFileName(tokens, UserFileContext());
+		completeFileName(tokens, userFileContext());
 
 	} else if (tokens.size() == 3) {
 		vector<string> names;
@@ -326,7 +326,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "savedsk") ||
 		    (tokens[1] == "import")  ||
 		    (tokens[1] == "export")) {
-			completeFileName(tokens, UserFileContext());
+			completeFileName(tokens, userFileContext());
 		} else if (tokens[1] == "create") {
 			static const char* const cmds[] = {
 				"360", "720", "32M", "-dos1"

@@ -376,7 +376,7 @@ void CartridgeSlotManager::CartCmd::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() < 3) {
 		extra = { "eject", "insert" };
 	}
-	completeFileName(tokens, UserFileContext(), extra);
+	completeFileName(tokens, userFileContext(), extra);
 }
 
 bool CartridgeSlotManager::CartCmd::needRecord(array_ref<TclObject> tokens) const

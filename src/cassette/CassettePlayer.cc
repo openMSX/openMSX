@@ -644,7 +644,7 @@ void CassettePlayer::TapeCommand::execute(
 	} else if (tokens[1].getString() == "insert" && tokens.size() == 3) {
 		try {
 			result.setString("Changing tape");
-			Filename filename(tokens[2].getString().str(), UserFileContext());
+			Filename filename(tokens[2].getString().str(), userFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
@@ -715,7 +715,7 @@ void CassettePlayer::TapeCommand::execute(
 	} else {
 		try {
 			result.setString("Changing tape");
-			Filename filename(tokens[1].getString().str(), UserFileContext());
+			Filename filename(tokens[1].getString().str(), userFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
@@ -812,9 +812,9 @@ void CassettePlayer::TapeCommand::tabCompletion(vector<string>& tokens) const
 			"play", "getpos", "getlength",
 			//"record",
 		};
-		completeFileName(tokens, UserFileContext(), cmds);
+		completeFileName(tokens, userFileContext(), cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {
-		completeFileName(tokens, UserFileContext());
+		completeFileName(tokens, userFileContext());
 	} else if ((tokens.size() == 3) && (tokens[1] == "motorcontrol")) {
 		static const char* const extra[] = { "on", "off" };
 		completeString(tokens, extra);

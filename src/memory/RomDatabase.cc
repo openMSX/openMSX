@@ -561,7 +561,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	db.reserve(3500);
 	UnknownTypes unknownTypes;
 	// first user- then system-directory
-	vector<string> paths = SystemFileContext().getPaths();
+	vector<string> paths = systemFileContext().getPaths();
 	for (auto& p : paths) {
 		string filename = FileOperations::join(p, "softwaredb.xml");
 		try {

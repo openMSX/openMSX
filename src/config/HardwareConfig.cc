@@ -50,7 +50,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 {
 	auto result = make_unique<HardwareConfig>(motherBoard, "rom");
 	const auto& sramfile = FileOperations::getFilename(romfile);
-	UserFileContext context("roms/" + sramfile);
+	auto context = userFileContext("roms/" + sramfile);
 
 	vector<string_ref> ipsfiles;
 	string_ref mapper;
@@ -217,7 +217,7 @@ XMLElement HardwareConfig::loadConfig(const string& filename)
 
 string HardwareConfig::getFilename(string_ref type, string_ref name)
 {
-	SystemFileContext context;
+	auto context = systemFileContext();
 	try {
 		// try <name>.xml
 		return context.resolve(FileOperations::join(
@@ -241,7 +241,7 @@ void HardwareConfig::load(string_ref type)
 
 	assert(!userName.empty());
 	const auto& baseName = FileOperations::getBaseName(filename);
-	setFileContext(ConfigFileContext(baseName, hwName, userName));
+	setFileContext(configFileContext(baseName, hwName, userName));
 }
 
 void HardwareConfig::parseSlots()

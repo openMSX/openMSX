@@ -155,7 +155,7 @@ bool PixelBuffers::enabled = true;
 // Utility function used by Shader.
 static string readTextFile(const string& filename)
 {
-	File file(SystemFileContext().resolve(filename));
+	File file(systemFileContext().resolve(filename));
 	size_t size;
 	const byte* data = file.mmap(size);
 	return string(reinterpret_cast<const char*>(data), size);

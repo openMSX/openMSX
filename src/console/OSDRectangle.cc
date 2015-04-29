@@ -183,7 +183,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 		assert(bs >= 0);
 		return make_unique<IMAGE>(sw, sh, getRGBA4(), bs, borderRGBA);
 	} else {
-		string file = SystemFileContext().resolve(imageName);
+		string file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
 			double factor = getScaleFactor(output) * scale;
 			return make_unique<IMAGE>(file, factor);

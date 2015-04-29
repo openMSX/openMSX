@@ -133,7 +133,7 @@ bool CommandLineParser::parseFileName(const string& arg, array_ref<string>& cmdL
 	bool processed = parseFileNameInner(arg, arg, cmdLine);
 	if (!processed) {
 		try {
-			File file(UserFileContext().resolve(arg));
+			File file(userFileContext().resolve(arg));
 			string originalName = file.getOriginalName();
 			processed = parseFileNameInner(originalName, arg, cmdLine);
 		} catch (FileException&) {
@@ -198,7 +198,7 @@ void CommandLineParser::parse(int argc, char** argv)
 					reactor.getGlobalCommandController().getSettingsConfig();
 				// Load default settings file in case the user
 				// didn't specify one.
-				SystemFileContext context;
+				auto context = systemFileContext();
 				string filename = "settings.xml";
 				try {
 					settingsConfig.loadSetting(context, filename);
@@ -564,7 +564,7 @@ void CommandLineParser::SettingOption::parseOption(
 	try {
 		auto& settingsConfig = parser.reactor.getGlobalCommandController().getSettingsConfig();
 		settingsConfig.loadSetting(
-			CurrentDirFileContext(), getArgument(option, cmdLine));
+			currentDirFileContext(), getArgument(option, cmdLine));
 		parser.haveSettings = true;
 	} catch (FileException& e) {
 		throw FatalError(e.getMessage());

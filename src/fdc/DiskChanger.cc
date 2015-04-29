@@ -172,11 +172,10 @@ int DiskChanger::insertDisk(string_ref filename)
 
 void DiskChanger::insertDisk(array_ref<TclObject> args)
 {
-	UserFileContext context;
 	const string& diskImage = FileOperations::getConventionalPath(args[1].getString());
 	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
 	for (unsigned i = 2; i < args.size(); ++i) {
-		Filename filename(args[i].getString().str(), context);
+		Filename filename(args[i].getString().str(), userFileContext());
 		newDisk->applyPatch(filename);
 	}
 
@@ -293,7 +292,7 @@ void DiskCommand::tabCompletion(vector<string>& tokens) const
 		static const char* const extra[] = {
 			"eject", "ramdsk", "insert",
 		};
-		completeFileName(tokens, UserFileContext(), extra);
+		completeFileName(tokens, userFileContext(), extra);
 	}
 }
 

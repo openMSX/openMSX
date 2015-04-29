@@ -162,10 +162,9 @@ CommandConsole::~CommandConsole()
 void CommandConsole::saveHistory()
 {
 	try {
-		UserFileContext context("console");
 		std::ofstream outputfile;
 		FileOperations::openofstream(outputfile,
-		        context.resolveCreate("history.txt"));
+		        userFileContext("console").resolveCreate("history.txt"));
 		if (!outputfile) {
 			throw FileException(
 				"Error while saving the console history.");
@@ -181,9 +180,9 @@ void CommandConsole::saveHistory()
 void CommandConsole::loadHistory()
 {
 	try {
-		UserFileContext context("console");
 		std::ifstream inputfile(
-		        context.resolveCreate("history.txt").c_str());
+		        userFileContext("console").
+				resolveCreate("history.txt").c_str());
 		string line;
 		while (inputfile) {
 			getline(inputfile, line);

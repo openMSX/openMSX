@@ -85,7 +85,7 @@ void LaserdiscPlayer::Command::tabCompletion(vector<string>& tokens) const
 		static const char* const extra[] = { "eject", "insert" };
 		completeString(tokens, extra);
 	} else if (tokens.size() == 3 && tokens[1] == "insert") {
-		completeFileName(tokens, UserFileContext());
+		completeFileName(tokens, userFileContext());
 	}
 }
 
@@ -628,7 +628,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 {
 	stop(time);
-	oggImage = Filename(std::move(newImage), UserFileContext());
+	oggImage = Filename(std::move(newImage), userFileContext());
 	video = make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
 
 	unsigned inputRate = video->getSampleRate();

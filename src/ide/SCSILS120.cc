@@ -792,7 +792,7 @@ void LSXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 			}
 		}
 		try {
-			string filename = UserFileContext().resolve(
+			string filename = userFileContext().resolve(
 				tokens[fileToken].getString().str());
 			ls.insert(filename);
 			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
@@ -816,7 +816,7 @@ string LSXCommand::help(const vector<string>& /*tokens*/) const
 void LSXCommand::tabCompletion(vector<string>& tokens) const
 {
 	static const char* const extra[] = { "eject", "insert" };
-	completeFileName(tokens, UserFileContext(), extra);
+	completeFileName(tokens, userFileContext(), extra);
 }
 
 

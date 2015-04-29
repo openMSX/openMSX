@@ -54,7 +54,7 @@ void OSDText::setProperty(
 	} else if (name == "-font") {
 		string val = value.getString().str();
 		if (fontfile != val) {
-			string file = SystemFileContext().resolve(val);
+			string file = systemFileContext().resolve(val);
 			if (!FileOperations::isRegularFile(file)) {
 				throw CommandException("Not a valid font file: " + val);
 			}
@@ -175,7 +175,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	int scale = getScaleFactor(output);
 	if (font.empty()) {
 		try {
-			string file = SystemFileContext().resolve(fontfile);
+			string file = systemFileContext().resolve(fontfile);
 			int ptSize = size * scale;
 			font = TTFFont(file, ptSize);
 		} catch (MSXException& e) {

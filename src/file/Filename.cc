@@ -34,7 +34,7 @@ void Filename::updateAfterLoadState()
 
 	try {
 		resolvedFilename = FileOperations::getAbsolutePath(
-			UserFileContext().resolve(originalFilename));
+			userFileContext().resolve(originalFilename));
 	} catch (MSXException&) {
 		// nothing
 	}

@@ -35,7 +35,7 @@ static string initialFilePoolSettingValue()
 {
 	TclObject result;
 
-	for (auto& p : SystemFileContext().getPaths()) {
+	for (auto& p : systemFileContext().getPaths()) {
 		TclObject entry1;
 		entry1.addListElement("-path");
 		entry1.addListElement(FileOperations::join(p, "systemroms"));

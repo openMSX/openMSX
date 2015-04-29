@@ -273,7 +273,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 
 void OSDConsoleRenderer::loadFont(string_ref value)
 {
-	string filename = SystemFileContext().resolve(value);
+	string filename = systemFileContext().resolve(value);
 	auto newFont = TTFFont(filename, fontSizeSetting.getInt());
 	if (!newFont.isFixedWidth()) {
 		throw MSXException(value + " is not a monospaced font");
@@ -288,7 +288,7 @@ void OSDConsoleRenderer::loadBackground(string_ref value)
 		backgroundImage.reset();
 		return;
 	}
-	string filename = SystemFileContext().resolve(value);
+	string filename = systemFileContext().resolve(value);
 	if (!openGL) {
 		backgroundImage = make_unique<SDLImage>(filename, destW, destH);
 	}

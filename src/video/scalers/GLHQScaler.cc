@@ -36,7 +36,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 	             nullptr);         // data
 	edgeBuffer.setImage(320, 240);
 
-	SystemFileContext context;
+	auto context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;

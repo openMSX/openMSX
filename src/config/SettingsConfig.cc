@@ -113,7 +113,7 @@ string SettingsConfig::SaveSettingsCommand::help(const vector<string>& /*tokens*
 void SettingsConfig::SaveSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		completeFileName(tokens, SystemFileContext());
+		completeFileName(tokens, systemFileContext());
 	}
 }
 
@@ -134,7 +134,7 @@ void SettingsConfig::LoadSettingsCommand::execute(
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	settingsConfig.loadSetting(SystemFileContext(), tokens[1].getString());
+	settingsConfig.loadSetting(systemFileContext(), tokens[1].getString());
 }
 
 string SettingsConfig::LoadSettingsCommand::help(const vector<string>& /*tokens*/) const
@@ -145,7 +145,7 @@ string SettingsConfig::LoadSettingsCommand::help(const vector<string>& /*tokens*
 void SettingsConfig::LoadSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		completeFileName(tokens, SystemFileContext());
+		completeFileName(tokens, systemFileContext());
 	}
 }
 

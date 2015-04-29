@@ -19,7 +19,7 @@ SamplePlayer::SamplePlayer(const std::string& name, const std::string& desc,
 
 	bool alreadyWarned = false;
 	samples.resize(numSamples); // initialize with empty wavs
-	SystemFileContext context;
+	auto context = systemFileContext();
 	for (unsigned i = 0; i < numSamples; ++i) {
 		try {
 			std::string filename = StringOp::Builder() <<

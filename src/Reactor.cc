@@ -288,7 +288,7 @@ InfoCommand& Reactor::getOpenMSXInfoCommand()
 vector<string> Reactor::getHwConfigs(string_ref type)
 {
 	vector<string> result;
-	for (auto& p : SystemFileContext().getPaths()) {
+	for (auto& p : systemFileContext().getPaths()) {
 		const auto& path = FileOperations::join(p, type);
 		ReadDir configsDir(path);
 		while (auto* entry = configsDir.getEntry()) {
@@ -499,7 +499,7 @@ void Reactor::run(CommandLineParser& parser)
 	// execute init.tcl
 	try {
 		commandController.source(
-			PreferSystemFileContext().resolve("init.tcl"));
+			preferSystemFileContext().resolve("init.tcl"));
 	} catch (FileException&) {
 		// no init.tcl, ignore
 	}
@@ -507,7 +507,7 @@ void Reactor::run(CommandLineParser& parser)
 	// execute startup scripts
 	for (auto& s : parser.getStartupScripts()) {
 		try {
-			commandController.source(UserFileContext().resolve(s));
+			commandController.source(userFileContext().resolve(s));
 		} catch (FileException& e) {
 			throw FatalError("Couldn't execute script: " +
 			                 e.getMessage());
@@ -992,7 +992,7 @@ string RestoreMachineCommand::help(const vector<string>& /*tokens*/) const
 void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	// TODO: add the default files (state files in user's savestates dir)
-	completeFileName(tokens, UserFileContext());
+	completeFileName(tokens, userFileContext());
 }
 
 

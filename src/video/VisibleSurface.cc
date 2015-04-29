@@ -103,7 +103,7 @@ VisibleSurface::VisibleSurface(
 		// always use 32x32 icon on Windows, for some reason you get badly scaled icons there
 #ifndef _WIN32
 		try {
-			iconSurf = PNG::load(PreferSystemFileContext().resolve("icons/openMSX-logo-256.png"), true);
+			iconSurf = PNG::load(preferSystemFileContext().resolve("icons/openMSX-logo-256.png"), true);
 		} catch (MSXException& e) {
 			cliComm.printWarning("Falling back to built in 32x32 icon, because failed to load icon: " + e.getMessage());
 #endif

@@ -6,9 +6,13 @@
 
 namespace openmsx {
 
-class FileContext
+class FileContext final
 {
 public:
+	FileContext() {}
+	FileContext(std::vector<std::string>&& paths,
+	            std::vector<std::string>&& savePaths);
+
 	const std::string resolve      (string_ref filename) const;
 	const std::string resolveCreate(string_ref filename) const;
 
@@ -18,49 +22,17 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-protected:
+private:
 	std::vector<std::string> paths;
 	std::vector<std::string> savePaths;
 };
 
-
-class ConfigFileContext : public FileContext
-{
-public:
-	ConfigFileContext(string_ref path,
-	                  string_ref hwDescr,
-	                  string_ref userName);
-};
-
-class SystemFileContext : public FileContext
-{
-public:
-	SystemFileContext();
-};
-
-class PreferSystemFileContext : public FileContext
-{
-public:
-	PreferSystemFileContext();
-};
-
-class UserFileContext : public FileContext
-{
-public:
-	explicit UserFileContext(string_ref savePath = "");
-};
-
-class UserDataFileContext : public FileContext
-{
-public:
-	explicit UserDataFileContext(string_ref subdir);
-};
-
-class CurrentDirFileContext : public FileContext
-{
-public:
-	CurrentDirFileContext();
-};
+FileContext configFileContext(string_ref path, string_ref hwDescr, string_ref userName);
+FileContext systemFileContext();
+FileContext preferSystemFileContext();
+FileContext userFileContext(string_ref savePath = "");
+FileContext userDataFileContext(string_ref subdir);
+FileContext currentDirFileContext();
 
 } // namespace openmsx
 

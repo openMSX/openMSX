@@ -21,7 +21,7 @@ string_ref FilenameSetting::getTypeString() const
 
 void FilenameSetting::tabCompletion(std::vector<std::string>& tokens) const
 {
-	Completer::completeFileName(tokens, SystemFileContext());
+	Completer::completeFileName(tokens, systemFileContext());
 }
 
 } // namespace openmsx

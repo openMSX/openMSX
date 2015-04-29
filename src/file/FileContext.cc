@@ -69,6 +69,11 @@ static string resolveHelper(const vector<string>& pathList,
 	throw FileException(filename + " not found in this context");
 }
 
+FileContext::FileContext(vector<string>&& paths_, vector<string>&& savePaths_)
+	: paths(std::move(paths_)), savePaths(std::move(savePaths_))
+{
+}
+
 const string FileContext::resolve(string_ref filename) const
 {
 	vector<string> pathList = getPathsHelper(paths);
@@ -106,6 +111,14 @@ bool FileContext::isUserContext() const
 	return contains(paths, USER_DIRS);
 }
 
+template<typename Archive>
+void FileContext::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("paths", paths);
+	ar.serialize("savePaths", savePaths);
+}
+INSTANTIATE_SERIALIZE_METHODS(FileContext);
+
 ///
 
 static string backSubstSymbols(const string& path)
@@ -126,53 +139,45 @@ static string backSubstSymbols(const string& path)
 	return path;
 }
 
-ConfigFileContext::ConfigFileContext(string_ref path,
-                                     string_ref hwDescr,
-                                     string_ref userName)
+FileContext configFileContext(string_ref path, string_ref hwDescr, string_ref userName)
 {
-	paths = { backSubstSymbols(FileOperations::expandTilde(path)) };
-	savePaths = { FileOperations::join(
-	                  USER_OPENMSX, "persistent", hwDescr, userName) };
+	return { { backSubstSymbols(FileOperations::expandTilde(path)) },
+	         { FileOperations::join(
+	               USER_OPENMSX, "persistent", hwDescr, userName) } };
 }
 
-SystemFileContext::SystemFileContext()
+FileContext systemFileContext()
 {
-	paths = { USER_DATA, SYSTEM_DATA };
-	savePaths = { USER_DATA };
+	return { { USER_DATA, SYSTEM_DATA },
+	         { USER_DATA } };
 }
 
-PreferSystemFileContext::PreferSystemFileContext()
+FileContext preferSystemFileContext()
 {
-	paths = { SYSTEM_DATA, USER_DATA }; // first system dir
+	return { { SYSTEM_DATA, USER_DATA },  // first system dir
+	         {} };
 }
 
-UserFileContext::UserFileContext(string_ref savePath)
+FileContext userFileContext(string_ref savePath)
 {
-	paths = { "", USER_DIRS };
+	vector<string> savePaths;
 	if (!savePath.empty()) {
 		savePaths = { FileOperations::join(
 		                 USER_OPENMSX, "persistent", savePath) };
 	}
+	return { { "", USER_DIRS }, std::move(savePaths) };
 }
 
-UserDataFileContext::UserDataFileContext(string_ref subDir)
+FileContext userDataFileContext(string_ref subDir)
 {
-	paths.emplace_back();
-	paths.emplace_back(USER_OPENMSX + '/' + subDir);
+	return { { "", USER_OPENMSX + '/' + subDir },
+	         {} };
 }
 
-CurrentDirFileContext::CurrentDirFileContext()
+FileContext currentDirFileContext()
 {
-	paths = { "" };
+	return { { "" },
+	         {} };
 }
-
-
-template<typename Archive>
-void FileContext::serialize(Archive& ar, unsigned /*version*/)
-{
-	ar.serialize("paths", paths);
-	ar.serialize("savePaths", savePaths);
-}
-INSTANTIATE_SERIALIZE_METHODS(FileContext);
 
 } // namespace openmsx

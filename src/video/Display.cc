@@ -502,7 +502,7 @@ void Display::ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 	static const char* const extra[] = {
 		"-prefix", "-raw", "-doublesize", "-with-osd", "-no-sprites",
 	};
-	completeFileName(tokens, UserFileContext(), extra);
+	completeFileName(tokens, userFileContext(), extra);
 }
 
 
