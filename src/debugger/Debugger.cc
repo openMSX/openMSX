@@ -386,10 +386,8 @@ void Debugger::Cmd::writeBlock(array_ref<TclObject> tokens, TclObject& /*result*
 
 void Debugger::Cmd::setBreakPoint(array_ref<TclObject> tokens, TclObject& result)
 {
-	shared_ptr<BreakPoint> bp;
 	TclObject command("debug break");
 	TclObject condition;
-	word addr;
 
 	switch (tokens.size()) {
 	case 5: // command
@@ -399,9 +397,10 @@ void Debugger::Cmd::setBreakPoint(array_ref<TclObject> tokens, TclObject& result
 		condition = tokens[3];
 		// fall-through
 	case 3: { // address
-		auto& interp = getInterpreter();
-		addr = getAddress(interp, tokens);
-		bp = make_shared<BreakPoint>(addr, command, condition);
+		word addr = getAddress(getInterpreter(), tokens);
+		BreakPoint bp(addr, command, condition);
+		result.setString(StringOp::Builder() << "bp#" << bp.getId());
+		debugger.motherBoard.getCPUInterface().insertBreakPoint(bp);
 		break;
 	}
 	default:
@@ -411,8 +410,6 @@ void Debugger::Cmd::setBreakPoint(array_ref<TclObject> tokens, TclObject& result
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString(StringOp::Builder() << "bp#" << bp->getId());
-	debugger.motherBoard.getCPUInterface().insertBreakPoint(bp);
 }
 
 void Debugger::Cmd::removeBreakPoint(
@@ -430,12 +427,11 @@ void Debugger::Cmd::removeBreakPoint(
 		try {
 			unsigned id = fast_stou(tmp.substr(3));
 			auto it = find_if(begin(breakPoints), end(breakPoints),
-				[&](const shared_ptr<BreakPoint>& bp) {
-					return bp->getId() == id; });
+				[&](const BreakPoint& bp) { return bp.getId() == id; });
 			if (it == end(breakPoints)) {
 				throw CommandException("No such breakpoint: " + tmp);
 			}
-			interface.removeBreakPoint(**it);
+			interface.removeBreakPoint(*it);
 		} catch (std::invalid_argument&) {
 			// parse error in fast_stou()
 			throw CommandException("No such breakpoint: " + tmp);
@@ -446,13 +442,13 @@ void Debugger::Cmd::removeBreakPoint(
 		auto range = equal_range(begin(breakPoints), end(breakPoints),
 		                         addr, CompareBreakpoints());
 		auto it = find_if(range.first, range.second,
-			[&](const shared_ptr<BreakPoint>& bp) {
-				return bp->getCondition().empty(); });
+			[&](const BreakPoint& bp) {
+				return bp.getCondition().empty(); });
 		if (it == range.second) {
 			throw CommandException(
 				"No (unconditional) breakpoint at address: " + tmp);
 		}
-		interface.removeBreakPoint(**it);
+		interface.removeBreakPoint(*it);
 	}
 }
 
@@ -463,10 +459,10 @@ void Debugger::Cmd::listBreakPoints(
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& bp : interface.getBreakPoints()) {
 		TclObject line;
-		line.addListElement(StringOp::Builder() << "bp#" << bp->getId());
-		line.addListElement("0x" + StringOp::toHexString(bp->getAddress(), 4));
-		line.addListElement(bp->getCondition());
-		line.addListElement(bp->getCommand());
+		line.addListElement(StringOp::Builder() << "bp#" << bp.getId());
+		line.addListElement("0x" + StringOp::toHexString(bp.getAddress(), 4));
+		line.addListElement(bp.getCondition());
+		line.addListElement(bp.getCommand());
 		res += line.getString() + '\n';
 	}
 	result.setString(res);
@@ -1009,7 +1005,7 @@ vector<string> Debugger::Cmd::getBreakPointIds() const
 	vector<string> bpids;
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& bp : interface.getBreakPoints()) {
-		bpids.push_back(StringOp::Builder() << "bp#" << bp->getId());
+		bpids.push_back(StringOp::Builder() << "bp#" << bp.getId());
 	}
 	return bpids;
 }

@@ -27,17 +27,14 @@ class DebugCondition;
 class CartridgeSlotManager;
 
 struct CompareBreakpoints {
-	bool operator()(const std::shared_ptr<BreakPoint>& x,
-			const std::shared_ptr<BreakPoint>& y) const {
-		return x->getAddress() < y->getAddress();
+	bool operator()(const BreakPoint& x, const BreakPoint& y) const {
+		return x.getAddress() < y.getAddress();
 	}
-	bool operator()(const std::shared_ptr<BreakPoint>& x,
-			word y) const {
-		return x->getAddress() < y;
+	bool operator()(const BreakPoint& x, word y) const {
+		return x.getAddress() < y;
 	}
-	bool operator()(word x,
-			const std::shared_ptr<BreakPoint>& y) const {
-		return x < y->getAddress();
+	bool operator()(word x, const BreakPoint& y) const {
+		return x < y.getAddress();
 	}
 };
 
@@ -190,11 +187,9 @@ public:
 
 	DummyDevice& getDummyDevice() { return *dummyDevice; }
 
-	static void insertBreakPoint(const std::shared_ptr<BreakPoint>& bp);
+	static void insertBreakPoint(const BreakPoint& bp);
 	static void removeBreakPoint(const BreakPoint& bp);
-	// note: must be shared_ptr (not unique_ptr), see checkBreakPoints()
-	// TODO use multi_set sorted on BreakPoint->getAddress()
-	using BreakPoints = std::vector<std::shared_ptr<BreakPoint>>;
+	using BreakPoints = std::vector<BreakPoint>;
 	static const BreakPoints& getBreakPoints() { return breakPoints; }
 
 	void setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint);

@@ -673,10 +673,10 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 	}
 }
 
-void MSXCPUInterface::insertBreakPoint(const shared_ptr<BreakPoint>& bp)
+void MSXCPUInterface::insertBreakPoint(const BreakPoint& bp)
 {
 	auto it = upper_bound(begin(breakPoints), end(breakPoints),
-	                      bp->getAddress(), CompareBreakpoints());
+	                      bp, CompareBreakpoints());
 	breakPoints.insert(it, bp);
 }
 
@@ -685,8 +685,7 @@ void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 	auto range = equal_range(begin(breakPoints), end(breakPoints),
 	                         bp.getAddress(), CompareBreakpoints());
 	breakPoints.erase(find_if_unguarded(range.first, range.second,
-		[&](const shared_ptr<BreakPoint>& i) {
-			return i.get() == &bp; }));
+		[&](const BreakPoint& i) { return &i == &bp; }));
 }
 
 void MSXCPUInterface::checkBreakPoints(
@@ -701,7 +700,7 @@ void MSXCPUInterface::checkBreakPoints(
 	auto& cliComm = motherBoard.getReactor().getGlobalCliComm();
 	auto& interp  = motherBoard.getReactor().getInterpreter();
 	for (auto& p : bpCopy) {
-		p->checkAndExecute(cliComm, interp);
+		p.checkAndExecute(cliComm, interp);
 	}
 	auto condCopy = conditions;
 	for (auto& c : condCopy) {
