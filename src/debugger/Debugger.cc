@@ -157,25 +157,12 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
 {
 	shared_ptr<WatchPoint> wp;
 	if ((type == WatchPoint::READ_IO) || (type == WatchPoint::WRITE_IO)) {
-		// Workaround visual studio 2012 limitation:
-		//   True variadic templates are not yet supported. Instead the
-		//   visual stdio's standard library supports make_shared with
-		//   (only) upto 5 parameters. It is possible to increase this
-		//   limit to 10 (by defining _VARIADIC_MAX) but that also
-		//   slows down compilation. It's easy enough to work around.
-		//   Also the next version of visual studio (still to be
-		//   release in 2012) will properly support this.
-		//wp = make_shared<WatchIO>(
-		//	motherBoard, type, beginAddr, endAddr,
-		//	command, condition, newId);
-		wp.reset(new WatchIO(
+		wp = make_shared<WatchIO>(
 			motherBoard, type, beginAddr, endAddr,
-			command, condition, newId));
+			command, condition, newId);
 	} else {
-		//wp = make_shared<WatchPoint>(
-		//	command, condition, type, beginAddr, endAddr, newId);
-		wp.reset(new WatchPoint(
-			command, condition, type, beginAddr, endAddr, newId));
+		wp = make_shared<WatchPoint>(
+			command, condition, type, beginAddr, endAddr, newId);
 	}
 	motherBoard.getCPUInterface().setWatchPoint(wp);
 	return wp->getId();
