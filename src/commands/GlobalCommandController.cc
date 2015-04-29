@@ -34,36 +34,11 @@ GlobalCommandController::GlobalCommandController(
 	, settingsConfig(*this, hotKey)
 	, helpCmd(*this)
 	, tabCompletionCmd(*this)
+	, updateCmd(*this)
 	, platformInfo(getOpenMSXInfoCommand())
 	, versionInfo (getOpenMSXInfoCommand())
 	, romInfoTopic(getOpenMSXInfoCommand())
 {
-	// For backwards compatibility:
-	//  In the past we had an openMSX command 'update'. This was a mistake
-	//  because it overlaps with the native Tcl command with the same name.
-	//  We renamed 'update' to 'openmsx_update'. And installed a wrapper
-	//  around 'update' that either forwards to the native Tcl command or
-	//  to the 'openmsx_update' command.
-	//  In future openMSX versions this wrapper will be removed.
-	interpreter.execute("rename update __tcl_update");
-	interpreter.execute(
-		"proc update { args } {\n"
-		"    if {$args == \"\"} {\n"
-		"        __tcl_update\n"
-		"    } elseif {$args == \"idletasks\"} {\n"
-		"        __tcl_update idletasks\n"
-		"    } else {\n"
-		"        puts stderr \"Warning: the openMSX \\'update\\' command "
-		                      "overlapped with a native Tcl command "
-		                      "and has been renamed to \\'openmsx_update\\'. "
-		                      "In future openMSX releases this forwarder "
-		                      "will stop working, so please change your "
-		                      "scripts to use the \\'openmsx_update\\' "
-		                      "command instead of \\'update\\'.\"\n"
-		"        eval \"openmsx_update $args\"\n"
-		"    }\n"
-		"}\n");
-	updateCmd = make_unique<UpdateCmd>(*this);
 }
 
 GlobalCommandController::~GlobalCommandController()

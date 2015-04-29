@@ -141,8 +141,7 @@ private:
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	private:
 		CliConnection& getConnection();
-	};
-	std::unique_ptr<UpdateCmd> updateCmd;
+	} updateCmd;
 
 	class PlatformInfo final : public InfoTopic {
 	public:
