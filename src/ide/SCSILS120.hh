@@ -13,6 +13,7 @@
 #include "SCSIDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
+#include "File.hh"
 #include "noncopyable.hh"
 #include <bitset>
 #include <memory>
@@ -22,7 +23,6 @@ namespace openmsx {
 class DeviceConfig;
 class MSXMotherBoard;
 class LSXCommand;
-class File;
 
 class SCSILS120 final : public SCSIDevice, public SectorAccessibleDisk
                       , public DiskContainer, private noncopyable
@@ -80,7 +80,7 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	AlignedBuffer& buffer;
-	std::unique_ptr<File> file;
+	File file;
 	std::unique_ptr<LSXCommand> lsxCommand;
 	std::string name;
 	const int mode;

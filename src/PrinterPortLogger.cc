@@ -1,7 +1,6 @@
 #include "PrinterPortLogger.hh"
 #include "PlugException.hh"
 #include "FileException.hh"
-#include "File.hh"
 #include "serialize.hh"
 #include "memory.hh"
 
@@ -33,10 +32,10 @@ bool PrinterPortLogger::getStatus(EmuTime::param /*time*/)
 
 void PrinterPortLogger::setStrobe(bool strobe, EmuTime::param /*time*/)
 {
-	if (file && !strobe && prevStrobe) {
+	if (file.is_open() && !strobe && prevStrobe) {
 		// falling edge
-		file->write(&toPrint, 1);
-		file->flush(); // optimize when it turns out flushing
+		file.write(&toPrint, 1);
+		file.flush(); // optimize when it turns out flushing
 		               // every time is too slow
 	}
 	prevStrobe = strobe;
@@ -51,8 +50,8 @@ void PrinterPortLogger::plugHelper(
 		Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	try {
-		file = make_unique<File>(logFilenameSetting.getString(),
-		                         File::TRUNCATE);
+		file = File(logFilenameSetting.getString(),
+		            File::TRUNCATE);
 	} catch (FileException& e) {
 		throw PlugException("Couldn't plug printer logger: " +
 		                    e.getMessage());
@@ -61,7 +60,7 @@ void PrinterPortLogger::plugHelper(
 
 void PrinterPortLogger::unplugHelper(EmuTime::param /*time*/)
 {
-	file.reset();
+	file.close();
 }
 
 const std::string& PrinterPortLogger::getName() const

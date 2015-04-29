@@ -3,12 +3,11 @@
 
 #include "PrinterPortDevice.hh"
 #include "FilenameSetting.hh"
-#include <memory>
+#include "File.hh"
 
 namespace openmsx {
 
 class CommandController;
-class File;
 
 class PrinterPortLogger final : public PrinterPortDevice
 {
@@ -32,7 +31,7 @@ public:
 
 private:
 	FilenameSetting logFilenameSetting;
-	std::unique_ptr<File> file;
+	File file;
 	byte toPrint;
 	bool prevStrobe;
 };

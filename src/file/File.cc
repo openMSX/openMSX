@@ -12,6 +12,10 @@ using std::string;
 
 namespace openmsx {
 
+File::File()
+{
+}
+
 static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
 {
 	static const byte GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
@@ -56,8 +60,24 @@ File::File(const Filename& filename, const char* mode)
 {
 }
 
+File::File(File&& other)
+	: file(std::move(other.file))
+{
+}
+
 File::~File()
 {
+}
+
+File& File::operator=(File&& other)
+{
+	file = std::move(other.file);
+	return *this;
+}
+
+void File::close()
+{
+	file.reset();
 }
 
 void File::read(void* buffer, size_t num)

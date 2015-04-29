@@ -2,6 +2,7 @@
 #define IDECDROM_HH
 
 #include "AbstractIDEDevice.hh"
+#include "File.hh"
 #include "noncopyable.hh"
 #include <bitset>
 #include <memory>
@@ -9,7 +10,6 @@
 namespace openmsx {
 
 class DeviceConfig;
-class File;
 class CDXCommand;
 
 class IDECDROM final : public AbstractIDEDevice, private noncopyable
@@ -52,7 +52,7 @@ private:
 
 	std::string name;
 	std::unique_ptr<CDXCommand> cdxCommand;
-	std::unique_ptr<File> file;
+	File file;
 	unsigned byteCountLimit;
 	unsigned transferOffset;
 

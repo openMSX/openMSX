@@ -345,9 +345,10 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			// I'm not sure which alternative is better.
 			if (!FileOperations::exists(name)) {
 				assert(!oldChecksum.empty());
-				if (auto file = filePool.getFile(
-				          FilePool::DISK, Sha1Sum(oldChecksum))) {
-					name = file->getURL();
+				auto file = filePool.getFile(
+					FilePool::DISK, Sha1Sum(oldChecksum));
+				if (file.is_open()) {
+					name = file.getURL();
 				}
 			}
 			vector<TclObject> args =

@@ -1,7 +1,6 @@
 #include "IDECDROM.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
-#include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "RecordedCommand.hh"
@@ -106,10 +105,10 @@ void IDECDROM::fillIdentifyBlock(AlignedBuffer& buffer)
 unsigned IDECDROM::readBlockStart(AlignedBuffer& buffer, unsigned count)
 {
 	assert(readSectorData);
-	if (file) {
+	if (file.is_open()) {
 		//fprintf(stderr, "read sector data at %08X\n", transferOffset);
-		file->seek(transferOffset);
-		file->read(buffer, count);
+		file.seek(transferOffset);
+		file.read(buffer, count);
 		transferOffset += count;
 		return count;
 	} else {
@@ -153,7 +152,7 @@ void IDECDROM::executeCommand(byte cmd)
 		} else {
 			// na WP MC na MCR ABRT NM obs
 			byte err = 0;
-			if (file) {
+			if (file.is_open()) {
 				err |= 0x40; // WP (write protected)
 			} else {
 				err |= 0x02; // NM (no media inserted)
@@ -306,7 +305,7 @@ void IDECDROM::executePacketCommand(AlignedBuffer& packet)
 
 void IDECDROM::eject()
 {
-	file.reset();
+	file.close();
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
 	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, "");
@@ -314,7 +313,7 @@ void IDECDROM::eject()
 
 void IDECDROM::insert(const string& filename)
 {
-	file = make_unique<File>(filename);
+	file = File(filename);
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
 	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, filename);
@@ -336,10 +335,10 @@ void CDXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		auto* file = cd.file.get();
+		auto& file = cd.file;
 		result.addListElement(cd.name + ':');
-		result.addListElement(file ? file->getURL() : "");
-		if (!file) result.addListElement("empty");
+		result.addListElement(file.is_open() ? file.getURL() : "");
+		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) &&
 	           ((tokens[1].getString() == "eject") ||
 		    (tokens[1].getString() == "-eject"))) {
@@ -396,7 +395,7 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<AbstractIDEDevice>(*this);
 
-	string filename = file ? file->getURL() : "";
+	string filename = file.is_open() ? file.getURL() : "";
 	ar.serialize("filename", filename);
 	if (ar.isLoader()) {
 		// re-insert CDROM before restoring 'mediaChanged', 'senseKey'

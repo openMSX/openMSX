@@ -3,7 +3,6 @@
 #include "XMLElement.hh"
 #include "RomInfo.hh"
 #include "RomDatabase.hh"
-#include "File.hh"
 #include "FileContext.hh"
 #include "Filename.hh"
 #include "FileException.hh"
@@ -116,8 +115,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {
 			try {
-				file = make_unique<File>(
-					resolvedFilenameElem->getData());
+				file = File(resolvedFilenameElem->getData());
 			} catch (FileException&) {
 				// ignore
 			}
@@ -125,20 +123,20 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// .. then try the actual sha1sum ..
 		auto fileType = context.isUserContext()
 			? FilePool::ROM : FilePool::SYSTEM_ROM;
-		if (!file && resolvedSha1Elem) {
+		if (!file.is_open() && resolvedSha1Elem) {
 			Sha1Sum sha1(resolvedSha1Elem->getData());
 			file = filepool.getFile(fileType, sha1);
-			if (file) {
+			if (file.is_open()) {
 				// avoid recalculating same sha1 later
 				originalSha1 = sha1;
 			}
 		}
 		// .. and then try filename as originally given by user ..
-		if (!file) {
+		if (!file.is_open()) {
 			for (auto& f : filenames) {
 				try {
 					Filename filename(f->getData(), context);
-					file = make_unique<File>(filename);
+					file = File(filename);
 				} catch (FileException&) {
 					// ignore
 				}
@@ -146,11 +144,11 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 		// .. then try all alternative sha1sums ..
 		// (this might retry the actual sha1sum)
-		if (!file) {
+		if (!file.is_open()) {
 			for (auto& s : sums) {
 				Sha1Sum sha1(s->getData());
 				file = filepool.getFile(fileType, sha1);
-				if (file) {
+				if (file.is_open()) {
 					// avoid recalculating same sha1 later
 					originalSha1 = sha1;
 					break;
@@ -158,7 +156,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			}
 		}
 		// .. still no file, then error
-		if (!file) {
+		if (!file.is_open()) {
 			StringOp::Builder error;
 			error << "Couldn't find ROM file for \""
 			      << name << '"';
@@ -184,21 +182,21 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 		try {
 			size_t size2;
-			rom = file->mmap(size2);
+			rom = file.mmap(size2);
 			if (size2 > std::numeric_limits<decltype(size)>::max()) {
 				throw MSXException("Rom file too big: " +
-				                   file->getURL());
+				                   file.getURL());
 			}
 			size = unsigned(size2);
 		} catch (FileException&) {
 			throw MSXException("Error reading ROM image: " +
-					   file->getURL());
+					   file.getURL());
 		}
 
 		// For file-based roms, calc sha1 via File::getSha1Sum(). It can
 		// possibly use the FilePool cache to avoid the calculation.
 		if (originalSha1.empty()) {
-			originalSha1 = filepool.getSha1Sum(*file);
+			originalSha1 = filepool.getSha1Sum(file);
 		}
 
 		// verify SHA1
@@ -207,7 +205,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 				StringOp::Builder() <<
 				"SHA1 sum for '" << name <<
 				"' does not match with sum of '" <<
-				file->getURL() << "'.");
+				file.getURL() << "'.");
 		}
 
 		// We loaded an extrenal file, so check.
@@ -267,7 +265,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			name = romInfo->getTitle().str();
 		} else {
 			// unknown ROM, use file name
-			name = file->getOriginalName();
+			name = file.getOriginalName();
 		}
 	}
 
@@ -290,7 +288,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		const auto& actualSha1Elem = mutableConfig.getCreateChild(
 			"resolvedSha1", patchedSha1Str);
 		if (actualSha1Elem.getData() != patchedSha1Str) {
-			string tmp = file ? file->getURL() : name;
+			string tmp = file.is_open() ? file.getURL() : name;
 			// can only happen in case of loadstate
 			motherBoard.getMSXCliComm().printWarning(
 				"The content of the rom " + tmp + " has "
@@ -338,7 +336,7 @@ Rom::~Rom()
 
 string Rom::getFilename() const
 {
-	return file ? file->getURL() : "";
+	return file.is_open() ? file.getURL() : "";
 }
 
 const Sha1Sum& Rom::getOriginalSHA1() const

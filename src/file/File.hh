@@ -2,7 +2,6 @@
 #define FILE_HH
 
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include <memory>
 #include <ctime>
@@ -12,7 +11,7 @@ namespace openmsx {
 class Filename;
 class FileBase;
 
-class File : private noncopyable
+class File
 {
 public:
 	enum OpenMode {
@@ -23,6 +22,12 @@ public:
 		SAVE_PERSISTENT,
 		PRE_CACHE,
 	};
+
+	/** Create a closed file handle.
+	 * The only valid operations on such an object are is_open() and the
+	 * move-assignment operator.
+	 */
+	File();
 
 	/** Create file object and open underlying file.
 	 * @param filename Name of the file to be opened.
@@ -42,8 +47,19 @@ public:
 	  */
 	File(string_ref         filename, const char* mode);
 	File(const Filename&    filename, const char* mode);
+	File(File&& other);
 
 	~File();
+
+	File& operator=(File&& other);
+
+	/** Return true iff this file handle refers to an open file. */
+	bool is_open() const { return file.get(); }
+
+	/** Close the current file.
+	 * Equivalent to assigning a default constructed value to this object.
+	 */
+	void close();
 
 	/** Read from file.
 	 * @param buffer Destination address
@@ -131,7 +147,7 @@ private:
 	 */
 	const std::string getLocalReference() const;
 
-	const std::unique_ptr<FileBase> file;
+	std::unique_ptr<FileBase> file;
 };
 
 } // namespace openmsx

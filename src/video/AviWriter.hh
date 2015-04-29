@@ -4,13 +4,13 @@
 #define AVIWRITER_HH
 
 #include "ZMBVEncoder.hh"
+#include "File.hh"
 #include "endian.hh"
 #include <vector>
 #include <memory>
 
 namespace openmsx {
 
-class File;
 class Filename;
 class FrameSource;
 
@@ -26,7 +26,7 @@ public:
 private:
 	void addAviChunk(const char* tag, unsigned size, void* data, unsigned flags);
 
-	std::unique_ptr<File> file;
+	File file;
 	ZMBVEncoder codec;
 	std::vector<Endian::L32> index;
 

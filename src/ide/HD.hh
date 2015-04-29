@@ -2,6 +2,7 @@
 #define HD_HH
 
 #include "Filename.hh"
+#include "File.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
 #include "TigerTree.hh"
@@ -14,7 +15,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class HDCommand;
-class File;
 class DeviceConfig;
 
 class HD : public SectorAccessibleDisk, public DiskContainer
@@ -60,7 +60,7 @@ private:
 	std::unique_ptr<HDCommand> hdCommand;
 	std::unique_ptr<TigerTree> tigerTree;
 
-	std::unique_ptr<File> file;
+	File file;
 	Filename filename;
 	size_t filesize;
 	bool alreadyTried;

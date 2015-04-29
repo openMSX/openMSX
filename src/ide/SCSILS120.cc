@@ -20,7 +20,6 @@
  */
 
 #include "SCSILS120.hh"
-#include "File.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "FilePool.hh"
@@ -154,12 +153,12 @@ void SCSILS120::disconnect()
 bool SCSILS120::isSelected()
 {
 	lun = 0;
-	return file != nullptr;
+	return file.is_open();
 }
 
 bool SCSILS120::getReady()
 {
-	if (file) return true;
+	if (file.is_open()) return true;
 	keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
 	return false;
 }
@@ -235,7 +234,7 @@ unsigned SCSILS120::inquiry()
 	}
 
 	if (length > 36) {
-		string filename = FileOperations::getFilename(file->getURL()).str();
+		string filename = FileOperations::getFilename(file.getURL()).str();
 		filename.resize(20, ' ');
 		memcpy(buffer + 36, filename.data(), 20);
 	}
@@ -335,7 +334,7 @@ unsigned SCSILS120::requestSense()
 
 bool SCSILS120::checkReadOnly()
 {
-	if (file->isReadOnly()) {
+	if (file.isReadOnly()) {
 		keycode = SCSI::SENSE_WRITE_PROTECT;
 		return true;
 	}
@@ -385,8 +384,8 @@ unsigned SCSILS120::readSector(unsigned& blocks)
 
 	try {
 		// TODO: somehow map this to SectorAccessibleDisk::readSector?
-		file->seek(SECTOR_SIZE * currentSector);
-		file->read(buffer, SECTOR_SIZE * numSectors);
+		file.seek(SECTOR_SIZE * currentSector);
+		file.read(buffer, SECTOR_SIZE * numSectors);
 		currentSector += numSectors;
 		currentLength -= numSectors;
 		blocks = currentLength;
@@ -420,8 +419,8 @@ unsigned SCSILS120::writeSector(unsigned& blocks)
 
 	// TODO: somehow map this to SectorAccessibleDisk::writeSector?
 	try {
-		file->seek(SECTOR_SIZE * currentSector);
-		file->write(buffer, SECTOR_SIZE * numSectors);
+		file.seek(SECTOR_SIZE * currentSector);
+		file.write(buffer, SECTOR_SIZE * numSectors);
 		currentSector += numSectors;
 		currentLength -= numSectors;
 
@@ -452,8 +451,8 @@ void SCSILS120::formatUnit()
 	if (getReady() && !checkReadOnly()) {
 		memset(buffer, 0, SECTOR_SIZE);
 		try {
-			file->seek(0);
-			file->write(buffer, SECTOR_SIZE);
+			file.seek(0);
+			file.write(buffer, SECTOR_SIZE);
 			unitAttention = true;
 			mediaChanged = true;
 		} catch (FileException&) {
@@ -469,7 +468,7 @@ byte SCSILS120::getStatusCode()
 
 void SCSILS120::eject()
 {
-	file.reset();
+	file.close();
 	mediaChanged = true;
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
@@ -479,7 +478,7 @@ void SCSILS120::eject()
 
 void SCSILS120::insert(string_ref filename)
 {
-	file = make_unique<File>(filename);
+	file = File(filename);
 	mediaChanged = true;
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
@@ -696,7 +695,7 @@ int SCSILS120::msgOut(byte value)
 
 size_t SCSILS120::getNbSectorsImpl() const
 {
-	return file ? (file->getSize() / SECTOR_SIZE) : 0;
+	return file.is_open() ? (const_cast<File&>(file).getSize() / SECTOR_SIZE) : 0;
 }
 
 bool SCSILS120::isWriteProtectedImpl() const
@@ -709,19 +708,19 @@ Sha1Sum SCSILS120::getSha1SumImpl(FilePool& filePool)
 	if (hasPatches()) {
 		return SectorAccessibleDisk::getSha1SumImpl(filePool);
 	}
-	return filePool.getSha1Sum(*file);
+	return filePool.getSha1Sum(file);
 }
 
 void SCSILS120::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
-	file->seek(sizeof(buf) * sector);
-	file->read(&buf, sizeof(buf));
+	file.seek(sizeof(buf) * sector);
+	file.read(&buf, sizeof(buf));
 }
 
 void SCSILS120::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
-	file->seek(sizeof(buf) * sector);
-	file->write(&buf, sizeof(buf));
+	file.seek(sizeof(buf) * sector);
+	file.write(&buf, sizeof(buf));
 }
 
 SectorAccessibleDisk* SCSILS120::getSectorAccessibleDisk()
@@ -765,10 +764,10 @@ void LSXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		auto* file = ls.file.get();
+		auto& file = ls.file;
 		result.addListElement(ls.name + ':');
-		result.addListElement(file ? file->getURL() : "");
-		if (!file) result.addListElement("empty");
+		result.addListElement(file.is_open() ? file.getURL() : "");
+		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) &&
 	           ((tokens[1].getString() == "eject") ||
 		    (tokens[1].getString() == "-eject"))) {
@@ -823,7 +822,7 @@ void LSXCommand::tabCompletion(vector<string>& tokens) const
 template<typename Archive>
 void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 {
-	string filename = file ? file->getURL() : "";
+	string filename = file.is_open() ? file.getURL() : "";
 	ar.serialize("filename", filename);
 	if (ar.isLoader()) {
 		// re-insert disk before restoring 'mediaChanged'

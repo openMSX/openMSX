@@ -1,6 +1,7 @@
 #ifndef ROM_HH
 #define ROM_HH
 
+#include "File.hh"
 #include "MemBuffer.hh"
 #include "sha1.hh"
 #include "openmsx.hh"
@@ -14,7 +15,6 @@ namespace openmsx {
 class MSXMotherBoard;
 class XMLElement;
 class DeviceConfig;
-class File;
 class FileContext;
 class RomDebuggable;
 
@@ -45,7 +45,7 @@ private:
 	const byte* rom;
 	MemBuffer<byte> extendedRom;
 
-	std::unique_ptr<File> file; // can be nullptr
+	File file; // can be a closed file
 
 	mutable Sha1Sum originalSha1;
 	Sha1Sum patchedSha1;

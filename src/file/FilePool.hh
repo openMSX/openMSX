@@ -7,7 +7,6 @@
 #include "EventListener.hh"
 #include "sha1.hh"
 #include "noncopyable.hh"
-#include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -36,7 +35,7 @@ public:
 	 * If found it returns the (already opened) file,
 	 * if not found it returns nullptr.
 	 */
-	std::unique_ptr<File> getFile(FileType fileType, const Sha1Sum& sha1sum);
+	File getFile(FileType fileType, const Sha1Sum& sha1sum);
 
 	/** Calculate sha1sum for the given File object.
 	 * If possible the result is retrieved from cache, avoiding the
@@ -71,16 +70,16 @@ private:
 	void readSha1sums();
 	void writeSha1sums();
 
-	std::unique_ptr<File> getFromPool(const Sha1Sum& sha1sum);
-	std::unique_ptr<File> scanDirectory(const Sha1Sum& sha1sum,
-	                                    const std::string& directory,
-	                                    const std::string& poolPath,
-	                                    ScanProgress& progress);
-	std::unique_ptr<File> scanFile(const Sha1Sum& sha1sum,
-	                               const std::string& filename,
-	                               const FileOperations::Stat& st,
-	                               const std::string& poolPath,
-	                               ScanProgress& progress);
+	File getFromPool(const Sha1Sum& sha1sum);
+	File scanDirectory(const Sha1Sum& sha1sum,
+	                   const std::string& directory,
+	                   const std::string& poolPath,
+	                   ScanProgress& progress);
+	File scanFile(const Sha1Sum& sha1sum,
+	              const std::string& filename,
+	              const FileOperations::Stat& st,
+	              const std::string& poolPath,
+	              ScanProgress& progress);
 	Pool::iterator findInDatabase(const std::string& filename);
 
 	Directories getDirectories() const;

@@ -1,5 +1,4 @@
 #include "HD.hh"
-#include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FilePool.hh"
@@ -43,8 +42,8 @@ HD::HD(const DeviceConfig& config)
 	string resolved = config.getFileContext().resolveCreate(original);
 	filename = Filename(resolved);
 	try {
-		file = make_unique<File>(filename);
-		filesize = file->getSize();
+		file = File(filename);
+		filesize = file.getSize();
 		tigerTree = make_unique<TigerTree>(*this, filesize,
 		                                   filename.getResolved());
 	} catch (FileException&) {
@@ -76,7 +75,7 @@ HD::~HD()
 
 void HD::openImage()
 {
-	if (file) return;
+	if (file.is_open()) return;
 
 	// image didn't exist yet, create new
 	if (alreadyTried) {
@@ -84,8 +83,8 @@ void HD::openImage()
 	}
 	alreadyTried = true;
 	try {
-		file = make_unique<File>(filename, File::CREATE);
-		file->truncate(filesize);
+		file = File(filename, File::CREATE);
+		file.truncate(filesize);
 		tigerTree = make_unique<TigerTree>(*this, filesize,
 		                                   filename.getResolved());
 	} catch (FileException& e) {
@@ -97,9 +96,9 @@ void HD::openImage()
 
 void HD::switchImage(const Filename& name)
 {
-	file = make_unique<File>(name);
+	file = File(name);
 	filename = name;
-	filesize = file->getSize();
+	filesize = file.getSize();
 	tigerTree = make_unique<TigerTree>(*this, filesize,
 	                                   filename.getResolved());
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
@@ -115,23 +114,23 @@ size_t HD::getNbSectorsImpl() const
 void HD::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
 	openImage();
-	file->seek(sector * sizeof(buf));
-	file->read(&buf, sizeof(buf));
+	file.seek(sector * sizeof(buf));
+	file.read(&buf, sizeof(buf));
 }
 
 void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
 	openImage();
-	file->seek(sector * sizeof(buf));
-	file->write(&buf, sizeof(buf));
+	file.seek(sector * sizeof(buf));
+	file.write(&buf, sizeof(buf));
 	tigerTree->notifyChange(sector * sizeof(buf), sizeof(buf),
-	                        file->getModificationDate());
+	                        file.getModificationDate());
 }
 
 bool HD::isWriteProtectedImpl() const
 {
 	const_cast<HD&>(*this).openImage();
-	return file->isReadOnly();
+	return file.isReadOnly();
 }
 
 Sha1Sum HD::getSha1SumImpl(FilePool& filePool)
@@ -140,7 +139,7 @@ Sha1Sum HD::getSha1SumImpl(FilePool& filePool)
 	if (hasPatches()) {
 		return SectorAccessibleDisk::getSha1SumImpl(filePool);
 	}
-	return filePool.getSha1Sum(*file);
+	return filePool.getSha1Sum(file);
 }
 
 std::string HD::getTigerTreeHash()
@@ -172,7 +171,7 @@ uint8_t* HD::getData(size_t offset, size_t size)
 
 bool HD::isCacheStillValid(time_t& cacheTime)
 {
-	time_t fileTime = file->getModificationDate();
+	time_t fileTime = file.getModificationDate();
 	bool result = fileTime == cacheTime;
 	cacheTime = fileTime;
 	return result;
@@ -208,7 +207,7 @@ int HD::insertDisk(string_ref filename)
 template<typename Archive>
 void HD::serialize(Archive& ar, unsigned version)
 {
-	Filename tmp = file ? filename : Filename();
+	Filename tmp = file.is_open() ? filename : Filename();
 	ar.serialize("filename", tmp);
 	if (ar.isLoader()) {
 		if (tmp.empty()) {
@@ -228,16 +227,16 @@ void HD::serialize(Archive& ar, unsigned version)
 			//  - So to get in the same state as the initial
 			//    savestate we again close the file. Otherwise the
 			//    checksum-check code below goes wrong.
-			file.reset();
+			file.close();
 		} else {
 			tmp.updateAfterLoadState();
 			if (filename != tmp) switchImage(tmp);
-			assert(file);
+			assert(file.is_open());
 		}
 	}
 
 	// store/check checksum
-	if (file) {
+	if (file.is_open()) {
 		bool mismatch = false;
 
 		if (ar.versionAtLeast(version, 2)) {

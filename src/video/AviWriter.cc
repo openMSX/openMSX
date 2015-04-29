@@ -1,7 +1,6 @@
 // Code based on DOSBox-0.65
 
 #include "AviWriter.hh"
-#include "File.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "memory.hh"
@@ -19,7 +18,7 @@ static const unsigned AVI_HEADER_SIZE = 500;
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned channels_,
 		     unsigned freq_)
-	: file(make_unique<File>(filename, "wb"))
+	: file(filename, "wb")
 	, codec(width_, height_, bpp)
 	, fps(0.0) // will be filled in later
 	, width(width_)
@@ -29,7 +28,7 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 {
 	char dummy[AVI_HEADER_SIZE];
 	memset(dummy, 0, sizeof(dummy));
-	file->write(dummy, sizeof(dummy));
+	file.write(dummy, sizeof(dummy));
 
 	index.resize(2);
 
@@ -42,8 +41,8 @@ AviWriter::~AviWriter()
 {
 	if (written == 0) {
 		// no data written yet (a recording less than one video frame)
-		std::string filename = file->getURL();
-		file.reset(); // close file (needed for windows?)
+		std::string filename = file.getURL();
+		file.close(); // close file (needed for windows?)
 		FileOperations::unlink(filename);
 		return;
 	}
@@ -214,9 +213,9 @@ AviWriter::~AviWriter()
 		unsigned idxSize = unsigned(index.size()) * sizeof(Endian::L32);
 		memcpy(&index[0], "idx1", 4);
 		index[1] = idxSize - 8;
-		file->write(&index[0], idxSize);
-		file->seek(0);
-		file->write(&avi_header, AVI_HEADER_SIZE);
+		file.write(&index[0], idxSize);
+		file.seek(0);
+		file.write(&avi_header, AVI_HEADER_SIZE);
 	} catch (MSXException&) {
 		// can't throw from destructor
 	}
@@ -230,10 +229,10 @@ void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned
 	} chunk;
 	memcpy(chunk.t, tag, sizeof(chunk.t));
 	chunk.s = size;
-	file->write(&chunk, sizeof(chunk));
+	file.write(&chunk, sizeof(chunk));
 
 	unsigned writesize = (size + 1) & ~1;
-	file->write(data, writesize);
+	file.write(data, writesize);
 	unsigned pos = written + 4;
 	written += writesize + 8;
 

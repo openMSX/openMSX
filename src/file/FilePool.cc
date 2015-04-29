@@ -249,11 +249,10 @@ FilePool::Directories FilePool::getDirectories() const
 	return result;
 }
 
-unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
+File FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 {
-	unique_ptr<File> result;
-	result = getFromPool(sha1sum);
-	if (result) return result;
+	File result = getFromPool(sha1sum);
+	if (result.is_open()) return result;
 
 	// not found in cache, need to scan directories
 	ScanProgress progress;
@@ -271,7 +270,7 @@ unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 		if (d.types & fileType) {
 			string path = FileOperations::expandTilde(d.path);
 			result = scanDirectory(sha1sum, path, d.path, progress);
-			if (result) return result;
+			if (result.is_open()) return result;
 		}
 	}
 
@@ -315,7 +314,7 @@ static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distr
 	return sha1.digest();
 }
 
-unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
+File FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
 	auto bound = equal_range(begin(pool), end(pool), sha1sum,
 	                         LessTupleElement<0>());
@@ -327,8 +326,8 @@ unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 		auto& time           = get<1>(*it);
 		const auto& filename = get<2>(*it);
 		try {
-			auto file = make_unique<File>(filename);
-			auto newTime = file->getModificationDate();
+			File file(filename);
+			auto newTime = file.getModificationDate();
 			if (time == newTime) {
 				// When modification time is unchanged, assume
 				// sha1sum is also unchanged. So avoid
@@ -337,7 +336,7 @@ unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 			}
 			time = newTime; // update timestamp
 			needWrite = true;
-			auto newSum = calcSha1sum(*file, cliComm, distributor);
+			auto newSum = calcSha1sum(file, cliComm, distributor);
 			if (newSum == sha1sum) {
 				// Modification time was changed, but
 				// (recalculated) sha1sum is still the same.
@@ -359,10 +358,10 @@ unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 			--last;
 		}
 	}
-	return nullptr; // not found
+	return File(); // not found
 }
 
-unique_ptr<File> FilePool::scanDirectory(
+File FilePool::scanDirectory(
 	const Sha1Sum& sha1sum, const string& directory, const string& poolPath,
 	ScanProgress& progress)
 {
@@ -372,13 +371,13 @@ unique_ptr<File> FilePool::scanDirectory(
 			// Scanning can take a long time. Allow to exit
 			// openmsx when it takes too long. Stop scanning
 			// by pretending we didn't find the file.
-			return nullptr;
+			return File();
 		}
 		string file = d->d_name;
 		string path = directory + '/' + file;
 		FileOperations::Stat st;
 		if (FileOperations::getStat(path, st)) {
-			unique_ptr<File> result;
+			File result;
 			if (FileOperations::isRegularFile(st)) {
 				result = scanFile(sha1sum, path, st, poolPath, progress);
 			} else if (FileOperations::isDirectory(st)) {
@@ -386,15 +385,15 @@ unique_ptr<File> FilePool::scanDirectory(
 					result = scanDirectory(sha1sum, path, poolPath, progress);
 				}
 			}
-			if (result) return result;
+			if (result.is_open()) return result;
 		}
 	}
-	return nullptr; // not found
+	return File(); // not found
 }
 
-unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
-                                    const FileOperations::Stat& st, const string& poolPath,
-                                    ScanProgress& progress)
+File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
+                        const FileOperations::Stat& st, const string& poolPath,
+                        ScanProgress& progress)
 {
 	++progress.amountScanned;
 	// Periodically send a progress message with the current filename
@@ -415,8 +414,8 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 	if (it == end(pool)) {
 		// not in pool
 		try {
-			auto file = make_unique<File>(filename);
-			auto sum = calcSha1sum(*file, cliComm, distributor);
+			File file(filename);
+			auto sum = calcSha1sum(file, cliComm, distributor);
 			auto time = FileOperations::getModificationDate(st);
 			insert(sum, time, filename);
 			if (sum == sha1sum) {
@@ -433,12 +432,12 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 			if (time == get<1>(*it)) {
 				// db is still up to date
 				if (get<0>(*it) == sha1sum) {
-					return make_unique<File>(filename);
+					return File(filename);
 				}
 			} else {
 				// db outdated
-				auto file = make_unique<File>(filename);
-				auto sum = calcSha1sum(*file, cliComm, distributor);
+				File file(filename);
+				auto sum = calcSha1sum(file, cliComm, distributor);
 				get<1>(*it) = time;
 				adjust(it, sum);
 				if (sum == sha1sum) {
@@ -450,7 +449,7 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 			remove(it);
 		}
 	}
-	return nullptr; // not found
+	return File(); // not found
 }
 
 FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
