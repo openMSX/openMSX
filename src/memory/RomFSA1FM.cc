@@ -34,7 +34,6 @@
 
 #include "RomFSA1FM.hh"
 #include "CacheLine.hh"
-#include "Rom.hh"
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
@@ -55,13 +54,13 @@ std::shared_ptr<SRAM> getSram(const DeviceConfig& config)
 
 // Mapper for slot 3-1 //
 
-RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, fsSram(getSram(config))
 	, firmwareSwitch(config)
 {
-	if ((rom->getSize() != 0x100000) &&
-	    (rom->getSize() != 0x200000)) {
+	if ((rom.getSize() != 0x100000) &&
+	    (rom.getSize() != 0x200000)) {
 		throw MSXException(
 			"Rom for FSA1FM mapper must be 1MB in size "
 			"(some dumps are 2MB, those can be used as well).");
@@ -81,7 +80,7 @@ byte RomFSA1FM1::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return (*rom)[(0x2000 * ((*fsSram)[0x1FC4] & 0x0F)) +
+		return rom[(0x2000 * ((*fsSram)[0x1FC4] & 0x0F)) +
 		              (address & 0x1FFF)];
 	} else if ((0x7FC0 <= address) && (address < 0x7FD0)) {
 		switch (address & 0x0F) {
@@ -113,7 +112,7 @@ const byte* RomFSA1FM1::getReadCacheLine(word address) const
 		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
-		return &(*rom)[(0x2000 * ((*fsSram)[0x1FC4] & 0x0F)) +
+		return &rom[(0x2000 * ((*fsSram)[0x1FC4] & 0x0F)) +
 		               (address & 0x1FFF)];
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		// read sram
@@ -162,8 +161,8 @@ REGISTER_MSXDEVICE(RomFSA1FM1, "RomFSA1FM1");
 
 // Mapper for slot 3-3 //
 
-RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom8kBBlocks(config, std::move(rom))
+RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, Rom&& rom_)
+	: Rom8kBBlocks(config, std::move(rom_))
 	, fsSram(getSram(config))
 {
 	reset(EmuTime::dummy());

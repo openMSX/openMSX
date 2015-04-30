@@ -8,7 +8,7 @@ namespace openmsx {
 class RomAscii16kB : public Rom16kBBlocks
 {
 public:
-	RomAscii16kB(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomAscii16kB(const DeviceConfig& config, Rom&& rom);
 	virtual ~RomAscii16kB() {}
 
 	void reset(EmuTime::param time) override;

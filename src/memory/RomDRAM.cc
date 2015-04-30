@@ -2,7 +2,6 @@
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -14,8 +13,8 @@ static unsigned calcBaseAddr(const DeviceConfig& config)
 	return first * 0x2000 - base;
 }
 
-RomDRAM::RomDRAM(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: MSXRom(config, std::move(rom))
+RomDRAM::RomDRAM(const DeviceConfig& config, Rom&& rom_)
+	: MSXRom(config, std::move(rom_))
 	, panasonicMemory(getMotherBoard().getPanasonicMemory())
 	, baseAddr(calcBaseAddr(config))
 {

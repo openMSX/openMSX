@@ -39,18 +39,17 @@
 // specialized class some time in the future.
 
 #include "RomNettouYakyuu.hh"
-#include "Rom.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 	, samplePlayer(
 		"Nettou Yakyuu-DAC",
 		"Jaleco Moero!! Nettou Yakuu '88 DAC", config,
-		FileOperations::stripExtension(rom->getFilename()) + '_',
+		FileOperations::stripExtension(rom.getFilename()) + '_',
 		16, "nettou_yakyuu/nettou_yakyuu_")
 {
 	reset(EmuTime::dummy());

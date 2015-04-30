@@ -1,5 +1,4 @@
 #include "RomBlocks.hh"
-#include "Rom.hh"
 #include "SRAM.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
@@ -15,15 +14,15 @@ template<unsigned A, unsigned R = 0> struct log2
 
 template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::RomBlocks(
-		const DeviceConfig& config, std::unique_ptr<Rom> rom_,
+		const DeviceConfig& config, Rom&& rom_,
 		unsigned debugBankSizeShift)
 	: MSXRom(config, std::move(rom_))
 	, romBlockDebug(
 		*this,  blockNr, 0x0000, 0x10000,
 		log2<BANK_SIZE>::value, debugBankSizeShift)
-	, nrBlocks(rom->getSize() / BANK_SIZE)
+	, nrBlocks(rom.getSize() / BANK_SIZE)
 {
-	if ((nrBlocks * BANK_SIZE) != rom->getSize()) {
+	if ((nrBlocks * BANK_SIZE) != rom.getSize()) {
 		throw MSXException(StringOp::Builder() <<
 			"(uncompressed) ROM image filesize must be a multiple of " <<
 			BANK_SIZE / 1024 << " kB (for this mapper type).");
@@ -61,7 +60,7 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 {
 	assert("address passed to setBank() is not serializable" &&
 	       ((adr == unmappedRead) ||
-	        ((&(*rom)[0] <= adr) && (adr <= &(*rom)[rom->getSize() - 1])) ||
+	        ((&rom[0] <= adr) && (adr <= &rom[rom.getSize() - 1])) ||
 	        (sram && (&(*sram)[0] <= adr) &&
 	                       (adr <= &(*sram)[sram->getSize() - 1])) ||
 	        ((extraMem <= adr) && (adr <= &extraMem[extraSize - 1]))));
@@ -90,7 +89,7 @@ void RomBlocks<BANK_SIZE>::setRom(byte region, int block)
 	//       for those we have to make an exception for "block < nrBlocks".
 	block = (block < nrBlocks) ? block : block & blockMask;
 	if (block < nrBlocks) {
-		setBank(region, &(*rom)[block * BANK_SIZE], block);
+		setBank(region, &rom[block * BANK_SIZE], block);
 	} else {
 		setBank(region, unmappedRead, 255);
 	}
@@ -108,7 +107,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	if (sram) ar.serialize("sram", *sram);
 
 	unsigned offsets[NUM_BANKS];
-	unsigned romSize = rom->getSize();
+	unsigned romSize = rom.getSize();
 	unsigned sramSize = sram ? sram->getSize() : 0;
 	if (ar.isLoader()) {
 		ar.serialize("banks", offsets);
@@ -116,7 +115,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 			if (offsets[i] == unsigned(-1)) {
 				bank[i] = unmappedRead;
 			} else if (offsets[i] < romSize) {
-				bank[i] = &(*rom)[offsets[i]];
+				bank[i] = &rom[offsets[i]];
 			} else if (offsets[i] < (romSize + sramSize)) {
 				assert(sram);
 				bank[i] = &(*sram)[offsets[i] - romSize];
@@ -131,9 +130,9 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 		for (unsigned i = 0; i < NUM_BANKS; ++i) {
 			if (bank[i] == unmappedRead) {
 				offsets[i] = unsigned(-1);
-			} else if ((&(*rom)[0] <= bank[i]) &&
-			           (bank[i] <= &(*rom)[romSize - 1])) {
-				offsets[i] = unsigned(bank[i] - &(*rom)[0]);
+			} else if ((&rom[0] <= bank[i]) &&
+			           (bank[i] <= &rom[romSize - 1])) {
+				offsets[i] = unsigned(bank[i] - &rom[0]);
 			} else if (sram && (&(*sram)[0] <= bank[i]) &&
 			           (bank[i] <= &(*sram)[sramSize - 1])) {
 				offsets[i] = unsigned(bank[i] - &(*sram)[0] + romSize);

@@ -1,17 +1,12 @@
 #include "MSXRom.hh"
-#include "Rom.hh"
 #include "XMLElement.hh"
 #include "TclObject.hh"
 
 namespace openmsx {
 
-MSXRom::MSXRom(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
-	: MSXDevice(config, rom_->getName())
+MSXRom::MSXRom(const DeviceConfig& config, Rom&& rom_)
+	: MSXDevice(config, rom_.getName())
 	, rom(std::move(rom_))
-{
-}
-
-MSXRom::~MSXRom()
 {
 }
 
@@ -38,11 +33,11 @@ void MSXRom::getExtraDeviceInfo(TclObject& result) const
 
 	// add sha1sum, to be able to get a unique key for this ROM device,
 	// so that it can be used to look up things in databases
-	result.addListElement(rom->getOriginalSHA1().toString());
+	result.addListElement(rom.getOriginalSHA1().toString());
 
 	// add original filename, e.g. to be able to see whether it comes
 	// from a system_rom pool
-	result.addListElement(rom->getFilename());
+	result.addListElement(rom.getFilename());
 }
 
 } // namespace openmsx

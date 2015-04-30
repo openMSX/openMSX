@@ -12,14 +12,13 @@
 
 #include "RomZemina90in1.hh"
 #include "MSXCPUInterface.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 
 namespace openmsx {
 
-RomZemina90in1::RomZemina90in1(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom8kBBlocks(config, std::move(rom))
+RomZemina90in1::RomZemina90in1(const DeviceConfig& config, Rom&& rom_)
+	: Rom8kBBlocks(config, std::move(rom_))
 {
 	reset(EmuTime::dummy());
 	getCPUInterface().register_IO_Out(0x77, this);

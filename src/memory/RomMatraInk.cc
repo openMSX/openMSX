@@ -1,12 +1,11 @@
 #include "RomMatraInk.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomMatraInk::RomMatraInk(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+RomMatraInk::RomMatraInk(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
-	, flash(*rom, std::vector<AmdFlash::SectorInfo>(2, {0x10000, false}),
+	, flash(rom, std::vector<AmdFlash::SectorInfo>(2, {0x10000, false}),
 	        0x01A4, false, config, false) // don't load/save
 {
 	reset(EmuTime::dummy());

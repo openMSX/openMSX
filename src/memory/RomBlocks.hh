@@ -36,7 +36,7 @@ protected:
 	 *      compared to the implementation block size, it's only used to
 	 *      correctly implement the 'romblocks' debuggable.
 	 */
-	RomBlocks(const DeviceConfig& config, std::unique_ptr<Rom> rom,
+	RomBlocks(const DeviceConfig& config, Rom&& rom,
 	          unsigned debugBankSizeShift = 0);
 	~RomBlocks();
 

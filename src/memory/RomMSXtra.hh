@@ -9,7 +9,7 @@ namespace openmsx {
 class RomMSXtra final : public MSXRom
 {
 public:
-	RomMSXtra(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomMSXtra(const DeviceConfig& config, Rom&& rom);
 
 	byte readMem(word address, EmuTime::param time) override;
 	const byte* getReadCacheLine(word address) const override;

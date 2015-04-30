@@ -8,7 +8,7 @@ namespace openmsx {
 class RomGeneric16kB final : public Rom16kBBlocks
 {
 public:
-	RomGeneric16kB(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomGeneric16kB(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;

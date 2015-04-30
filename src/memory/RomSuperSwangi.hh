@@ -8,7 +8,7 @@ namespace openmsx {
 class RomSuperSwangi final : public Rom16kBBlocks
 {
 public:
-	RomSuperSwangi(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomSuperSwangi(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;

@@ -10,21 +10,20 @@
 // other address in a page switches that page as well)
 
 #include "RomKonami.hh"
-#include "Rom.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomKonami::RomKonami(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+RomKonami::RomKonami(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 {
 	// Konami mapper is 256kB in size, even if ROM is smaller.
 	setBlockMask(31);
 
 	// warn if a ROM is used that would not work on a real Konami mapper
-	if (rom->getSize() > 256 * 1024) {
+	if (rom.getSize() > 256 * 1024) {
 		getMotherBoard().getMSXCliComm().printWarning("The size of "
 				"this ROM image is larger than 256kB, which is "
 				"not supported on real Konami mapper chips!");

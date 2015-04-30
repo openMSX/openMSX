@@ -6,14 +6,13 @@
 
 #include "RomZemina126in1.hh"
 #include "CacheLine.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
 RomZemina126in1::RomZemina126in1(
-		const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+		const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 {
 	reset(EmuTime::dummy());
 }

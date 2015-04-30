@@ -1,12 +1,11 @@
 #include "RomSuperSwangi.hh"
-#include "Rom.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomSuperSwangi::RomSuperSwangi(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+RomSuperSwangi::RomSuperSwangi(const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 {
 	reset(EmuTime::dummy());
 }

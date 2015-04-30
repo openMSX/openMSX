@@ -1,5 +1,4 @@
 #include "MegaFlashRomSCCPlus.hh"
-#include "Rom.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
@@ -177,12 +176,12 @@ static std::vector<AmdFlash::SectorInfo> getSectorInfo() {
 };
 
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
-		const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+		const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, scc("MFR SCC+ SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
-	, flash(*rom, getSectorInfo(), 0x205B, false, config)
+	, flash(rom, getSectorInfo(), 0x205B, false, config)
 {
 	powerUp(getCurrentTime());
 

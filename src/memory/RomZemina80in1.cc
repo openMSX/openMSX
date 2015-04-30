@@ -8,13 +8,12 @@
 
 #include "RomZemina80in1.hh"
 #include "CacheLine.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomZemina80in1::RomZemina80in1(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom8kBBlocks(config, std::move(rom))
+RomZemina80in1::RomZemina80in1(const DeviceConfig& config, Rom&& rom_)
+	: Rom8kBBlocks(config, std::move(rom_))
 {
 	reset(EmuTime::dummy());
 }

@@ -9,7 +9,7 @@ namespace openmsx {
 class RomMajutsushi final : public RomKonami
 {
 public:
-	RomMajutsushi(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomMajutsushi(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;

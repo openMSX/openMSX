@@ -14,7 +14,6 @@
 //  readable at 0x4000-0x5FFF
 
 #include "RomAscii8_8.hh"
-#include "Rom.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
 #include "memory.hh"
@@ -22,10 +21,10 @@
 namespace openmsx {
 
 RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
-                         std::unique_ptr<Rom> rom_, SubType subType)
+                         Rom&& rom_, SubType subType)
 	: Rom8kBBlocks(config, std::move(rom_))
 	, sramEnableBit((subType == WIZARDRY) ? 0x80
-	                                      : rom->getSize() / BANK_SIZE)
+	                                      : rom.getSize() / BANK_SIZE)
 	, sramPages(((subType == KOEI_8) || (subType == KOEI_32))
 	            ? 0x34 : 0x30)
 {
@@ -34,10 +33,6 @@ RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
 	                                      : 0x2000; //  8kB
 	sram = make_unique<SRAM>(getName() + " SRAM", size, config);
 	reset(EmuTime::dummy());
-}
-
-RomAscii8_8::~RomAscii8_8()
-{
 }
 
 void RomAscii8_8::reset(EmuTime::param /*time*/)

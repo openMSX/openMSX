@@ -1,16 +1,15 @@
 #include "RomPlayBall.hh"
 #include "CacheLine.hh"
-#include "Rom.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomPlayBall::RomPlayBall(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+RomPlayBall::RomPlayBall(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 	, samplePlayer(
 		"Playball-DAC", "Sony Playball's DAC", config,
-		FileOperations::stripExtension(rom->getFilename()) + '_',
+		FileOperations::stripExtension(rom.getFilename()) + '_',
 		15, "playball/playball_")
 {
 	setUnmapped(0);

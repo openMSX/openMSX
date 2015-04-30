@@ -1,14 +1,13 @@
 #include "RomSuperLodeRunner.hh"
 #include "MSXCPUInterface.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
 
 RomSuperLodeRunner::RomSuperLodeRunner(
-		const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+		const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 {
 	getCPUInterface().registerGlobalWrite(*this, 0x0000);
 	reset(EmuTime::dummy());

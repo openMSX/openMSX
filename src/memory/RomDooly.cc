@@ -4,13 +4,12 @@
 
 #include "RomDooly.hh"
 #include "CacheLine.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomDooly::RomDooly(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: MSXRom(config, std::move(rom))
+RomDooly::RomDooly(const DeviceConfig& config, Rom&& rom_)
+	: MSXRom(config, std::move(rom_))
 	, romBlockDebug(*this, &conversion, 0x4000, 0x8000, 15)
 {
 	conversion = 0;
@@ -24,7 +23,7 @@ void RomDooly::reset(EmuTime::param /*time*/)
 byte RomDooly::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0xc000)) {
-		byte value = (*rom)[address - 0x4000];
+		byte value = rom[address - 0x4000];
 		switch (conversion) {
 		case 0:
 			return value;

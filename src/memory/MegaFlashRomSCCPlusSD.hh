@@ -15,7 +15,7 @@ class SdCard;
 class MegaFlashRomSCCPlusSD final : public MSXRom
 {
 public:
-	MegaFlashRomSCCPlusSD(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	MegaFlashRomSCCPlusSD(const DeviceConfig& config, Rom&& rom);
 	~MegaFlashRomSCCPlusSD();
 
 	void powerUp(EmuTime::param time) override;

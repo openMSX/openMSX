@@ -9,9 +9,7 @@ class RomAscii16_2 final : public RomAscii16kB
 {
 public:
 	enum SubType { ASCII16_2, ASCII16_8 };
-	RomAscii16_2(const DeviceConfig& config,
-			std::unique_ptr<Rom> rom, SubType subType);
-	~RomAscii16_2();
+	RomAscii16_2(const DeviceConfig& config, Rom&& rom, SubType subType);
 
 	void reset(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;

@@ -18,13 +18,12 @@
 
 #include "RomSynthesizer.hh"
 #include "CacheLine.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomSynthesizer::RomSynthesizer(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+RomSynthesizer::RomSynthesizer(const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 	, dac("Synthesizer-DAC", "Konami Synthesizer's DAC", config)
 {
 	setUnmapped(0);

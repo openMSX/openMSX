@@ -8,13 +8,12 @@
  */
 
 #include "RomHarryFox.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomHarryFox::RomHarryFox(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+RomHarryFox::RomHarryFox(const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 {
 	reset(EmuTime::dummy());
 }

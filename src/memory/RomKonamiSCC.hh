@@ -9,7 +9,7 @@ namespace openmsx {
 class RomKonamiSCC final : public Rom8kBBlocks
 {
 public:
-	RomKonamiSCC(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomKonamiSCC(const DeviceConfig& config, Rom&& rom);
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;

@@ -1,5 +1,4 @@
 #include "RomManbow2.hh"
-#include "Rom.hh"
 #include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
@@ -30,7 +29,7 @@ static std::vector<AmdFlash::SectorInfo> getSectorInfo(RomType type)
 }
 
 
-RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
+RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
                        RomType type)
 	: MSXRom(config, std::move(rom_))
 	, scc(getName() + " SCC", config, getCurrentTime())
@@ -39,7 +38,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())
 		: nullptr)
-	, flash(*rom, getSectorInfo(type), 0x01A4, false, config)
+	, flash(rom, getSectorInfo(type), 0x01A4, false, config)
 	, romBlockDebug(*this, bank, 0x4000, 0x8000, 13)
 {
 	powerUp(getCurrentTime());

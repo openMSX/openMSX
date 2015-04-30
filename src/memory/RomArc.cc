@@ -2,13 +2,12 @@
 
 #include "RomArc.hh"
 #include "MSXCPUInterface.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomArc::RomArc(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+RomArc::RomArc(const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 {
 	setUnmapped(0);
 	setRom(1, 0);

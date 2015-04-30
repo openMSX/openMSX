@@ -25,7 +25,6 @@
 
 #include "RomHalnote.hh"
 #include "CacheLine.hh"
-#include "Rom.hh"
 #include "SRAM.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
@@ -33,19 +32,15 @@
 
 namespace openmsx {
 
-RomHalnote::RomHalnote(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+RomHalnote::RomHalnote(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 {
-	if (rom->getSize() != 0x100000) {
+	if (rom.getSize() != 0x100000) {
 		throw MSXException(
 			"Rom for HALNOTE mapper must be exactly 1MB in size.");
 	}
 	sram = make_unique<SRAM>(getName() + " SRAM", 0x4000, config);
 	reset(EmuTime::dummy());
-}
-
-RomHalnote::~RomHalnote()
-{
 }
 
 void RomHalnote::reset(EmuTime::param /*time*/)
@@ -68,7 +63,7 @@ const byte* RomHalnote::getReadCacheLine(word address) const
 	if (subMapperEnabled && (0x7000 <= address) && (address < 0x8000)) {
 		// sub-mapper
 		int subBank = address < 0x7800 ? 0 : 1;
-		return &(*rom)[0x80000 + subBanks[subBank] * 0x800 + (address & 0x7FF)];
+		return &rom[0x80000 + subBanks[subBank] * 0x800 + (address & 0x7FF)];
 	} else {
 		// default mapper implementation
 		return Rom8kBBlocks::getReadCacheLine(address);

@@ -36,9 +36,10 @@ public:
 	const std::string& getDescription() const override;
 	byte read(unsigned address) override;
 	void write(unsigned address, byte value) override;
+	void moved(Rom& r);
 private:
 	Debugger& debugger;
-	Rom& rom;
+	Rom* rom;
 };
 
 
@@ -330,6 +331,20 @@ bool Rom::checkSHA1(const XMLElement& config)
 	return false;
 }
 
+Rom::Rom(Rom&& r)
+	: rom          (std::move(r.rom))
+	, extendedRom  (std::move(r.extendedRom))
+	, file         (std::move(r.file))
+	, originalSha1 (std::move(r.originalSha1))
+	, patchedSha1  (std::move(r.patchedSha1))
+	, name         (std::move(r.name))
+	, description  (std::move(r.description))
+	, size         (std::move(r.size))
+	, romDebuggable(std::move(r.romDebuggable))
+{
+	if (romDebuggable) romDebuggable->moved(*this);
+}
+
 Rom::~Rom()
 {
 }
@@ -354,35 +369,40 @@ const Sha1Sum& Rom::getPatchedSHA1() const
 
 
 RomDebuggable::RomDebuggable(Debugger& debugger_, Rom& rom_)
-	: debugger(debugger_), rom(rom_)
+	: debugger(debugger_), rom(&rom_)
 {
-	debugger.registerDebuggable(rom.getName(), *this);
+	debugger.registerDebuggable(rom->getName(), *this);
 }
 
 RomDebuggable::~RomDebuggable()
 {
-	debugger.unregisterDebuggable(rom.getName(), *this);
+	debugger.unregisterDebuggable(rom->getName(), *this);
 }
 
 unsigned RomDebuggable::getSize() const
 {
-	return rom.getSize();
+	return rom->getSize();
 }
 
 const string& RomDebuggable::getDescription() const
 {
-	return rom.getDescription();
+	return rom->getDescription();
 }
 
 byte RomDebuggable::read(unsigned address)
 {
 	assert(address < getSize());
-	return rom[address];
+	return (*rom)[address];
 }
 
 void RomDebuggable::write(unsigned /*address*/, byte /*value*/)
 {
 	// ignore
+}
+
+void RomDebuggable::moved(Rom& r)
+{
+	rom = &r;
 }
 
 } // namespace openmsx

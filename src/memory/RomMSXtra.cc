@@ -1,11 +1,10 @@
 #include "RomMSXtra.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomMSXtra::RomMSXtra(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: MSXRom(config, std::move(rom))
+RomMSXtra::RomMSXtra(const DeviceConfig& config, Rom&& rom_)
+	: MSXRom(config, std::move(rom_))
 	, ram(config, getName() + " RAM", "MSXtra RAM", 0x0800)
 {
 	for (int i = 0; i < 0x800; ++i) {
@@ -16,7 +15,7 @@ RomMSXtra::RomMSXtra(const DeviceConfig& config, std::unique_ptr<Rom> rom)
 byte RomMSXtra::readMem(word address, EmuTime::param /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
-		return (*rom)[address & 0x1fff];
+		return rom[address & 0x1fff];
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		return ram[address & 0x07ff];
 	} else {
@@ -27,7 +26,7 @@ byte RomMSXtra::readMem(word address, EmuTime::param /*time*/)
 const byte* RomMSXtra::getReadCacheLine(word address) const
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
-		return &(*rom)[address & 0x1fff];
+		return &rom[address & 0x1fff];
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		return &ram[address & 0x07ff];
 	} else {

@@ -8,7 +8,7 @@ namespace openmsx {
 class RomSuperLodeRunner final : public Rom16kBBlocks
 {
 public:
-	RomSuperLodeRunner(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomSuperLodeRunner(const DeviceConfig& config, Rom&& rom);
 	~RomSuperLodeRunner();
 
 	void reset(EmuTime::param time) override;

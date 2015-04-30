@@ -1,5 +1,4 @@
 #include "RomMSXDOS2.hh"
-#include "Rom.hh"
 #include "CacheLine.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
@@ -7,9 +6,9 @@
 
 namespace openmsx {
 
-RomMSXDOS2::RomMSXDOS2(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+RomMSXDOS2::RomMSXDOS2(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
-	, range((*rom)[0x94])
+	, range(rom[0x94])
 {
 	if ((range != 0x00) && (range != 0x60) && (range != 0x7f)) {
 		throw MSXException("Invalid rom for MSXDOS2 mapper");

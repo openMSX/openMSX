@@ -9,7 +9,7 @@ namespace openmsx {
 class RomKonamiKeyboardMaster final : public Rom16kBBlocks
 {
 public:
-	RomKonamiKeyboardMaster(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomKonamiKeyboardMaster(const DeviceConfig& config, Rom&& rom);
 	~RomKonamiKeyboardMaster();
 
 	void reset(EmuTime::param time) override;

@@ -1,5 +1,4 @@
 #include "RomPlain.hh"
-#include "Rom.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
@@ -20,7 +19,7 @@ static std::string toString(unsigned start, unsigned len)
 	        "0x" + StringOp::toHexString(start + len, 4) + ']';
 }
 
-RomPlain::RomPlain(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
+RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_,
                    MirrorType mirrored, int start)
 	: Rom8kBBlocks(config, std::move(rom_))
 {
@@ -31,9 +30,9 @@ RomPlain::RomPlain(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 		windowSize = mem->getAttributeAsInt("size");
 	}
 
-	unsigned romSize = rom->getSize();
+	unsigned romSize = rom.getSize();
 	if ((romSize > 0x10000) || (romSize & 0x1FFF)) {
-		throw MSXException(StringOp::Builder() << rom->getName() <<
+		throw MSXException(StringOp::Builder() << rom.getName() <<
 		    ": invalid rom size: must be smaller than or equal to 64kB "
 		    "and must be a multiple of 8kB.");
 	}
@@ -47,13 +46,13 @@ RomPlain::RomPlain(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 		// ROM must fall inside the boundaries given by the <mem>
 		// tag (this code only looks at one <mem> tag), but only
 		// check when the start address was not explicitly specified
-		throw MSXException(StringOp::Builder() << rom->getName() <<
+		throw MSXException(StringOp::Builder() << rom.getName() <<
 		    ": invalid rom position: interval " <<
 		    toString(romBase, romSize) << " must fit in " <<
 		    toString(windowBase, windowSize) << '.');
 	}
 	if ((romBase & 0x1FFF)) {
-		throw MSXException(StringOp::Builder() << rom->getName() <<
+		throw MSXException(StringOp::Builder() << rom.getName() <<
 		    ": invalid rom position: must start at a 8kB boundary.");
 	}
 
@@ -76,10 +75,10 @@ RomPlain::RomPlain(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 
 void RomPlain::guessHelper(unsigned offset, int* pages)
 {
-	if (((*rom)[offset++] == 'A') && ((*rom)[offset++] =='B')) {
+	if ((rom[offset++] == 'A') && (rom[offset++] =='B')) {
 		for (int i = 0; i < 4; i++) {
-			word addr = (*rom)[offset + 0] +
-			            (*rom)[offset + 1] * 256;
+			word addr = rom[offset + 0] +
+			            rom[offset + 1] * 256;
 			offset += 2;
 			if (addr) {
 				int page = (addr >> 14) - (offset >> 14);
@@ -96,10 +95,10 @@ unsigned RomPlain::guessLocation(unsigned windowBase, unsigned windowSize)
 	int pages[3] = { 0, 0, 0 };
 
 	// count number of possible routine pointers
-	if (rom->getSize() >= 0x0010) {
+	if (rom.getSize() >= 0x0010) {
 		guessHelper(0x0000, pages);
 	}
-	if (rom->getSize() >= 0x4010) {
+	if (rom.getSize() >= 0x4010) {
 		guessHelper(0x4000, pages);
 	}
 

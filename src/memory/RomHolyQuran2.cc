@@ -7,7 +7,6 @@
 // sharing his implementation with us (and pointing us to it).
 
 #include "RomHolyQuran2.hh"
-#include "Rom.hh"
 #include "MSXCPU.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
@@ -17,7 +16,7 @@ namespace openmsx {
 
 static byte decryptLUT[256];
 
-RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, romBlocks(*this)
 {
@@ -32,7 +31,7 @@ RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> ro
 	                         ((i >> 6) & 0x02)) ^ 0x4d;
 	}
 
-	if (rom->getSize() != 0x100000) { // 1MB
+	if (rom.getSize() != 0x100000) { // 1MB
 		throw MSXException("Holy Quaran ROM should be exactly 1MB in size");
 	}
 	reset(EmuTime::dummy());
@@ -41,7 +40,7 @@ RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> ro
 void RomHolyQuran2::reset(EmuTime::param /*time*/)
 {
 	for (auto& b : bank) {
-		b = &(*rom)[0];
+		b = &rom[0];
 	}
 	decrypt = false;
 }
@@ -74,7 +73,7 @@ void RomHolyQuran2::writeMem(word address, byte value, EmuTime::param /*time*/)
 	// TODO are switch addresses mirrored?
 	if ((0x5000 <= address) && (address < 0x6000)) {
 		byte region = (address >> 10) & 3;
-		bank[region] = &(*rom)[(value & 127) * 0x2000];
+		bank[region] = &rom[(value & 127) * 0x2000];
 	}
 }
 
@@ -106,11 +105,11 @@ void RomHolyQuran2::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		ar.serialize("banks", b);
 		for (unsigned i = 0; i < 4; ++i) {
-			bank[i] = &(*rom)[(b[i] & 127) * 0x2000];
+			bank[i] = &rom[(b[i] & 127) * 0x2000];
 		}
 	} else {
 		for (unsigned i = 0; i < 4; ++i) {
-			b[i] = (bank[i] - &(*rom)[0]) / 0x2000;
+			b[i] = (bank[i] - &rom[0]) / 0x2000;
 		}
 		ar.serialize("banks", b);
 	}
@@ -131,7 +130,7 @@ byte RomHolyQuran2::Blocks::read(unsigned address)
 {
 	if ((address < 0x4000) || (address >= 0xc000)) return 255;
 	unsigned page = (address - 0x4000) / 0x2000;
-	return (device.bank[page] - &(*device.rom)[0]) / 0x2000;
+	return (device.bank[page] - &device.rom[0]) / 0x2000;
 }
 
 } // namespace openmsx

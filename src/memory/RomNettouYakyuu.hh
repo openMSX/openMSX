@@ -9,7 +9,7 @@ namespace openmsx {
 class RomNettouYakyuu final : public Rom8kBBlocks
 {
 public:
-	RomNettouYakyuu(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomNettouYakyuu(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;

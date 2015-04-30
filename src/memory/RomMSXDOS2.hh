@@ -8,7 +8,7 @@ namespace openmsx {
 class RomMSXDOS2 final : public Rom16kBBlocks
 {
 public:
-	RomMSXDOS2(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomMSXDOS2(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;

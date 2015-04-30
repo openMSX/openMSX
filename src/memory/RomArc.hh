@@ -8,7 +8,7 @@ namespace openmsx {
 class RomArc final : public Rom16kBBlocks
 {
 public:
-	RomArc(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomArc(const DeviceConfig& config, Rom&& rom);
 	~RomArc();
 
 	void reset(EmuTime::param time) override;

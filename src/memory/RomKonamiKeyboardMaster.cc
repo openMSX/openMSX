@@ -1,16 +1,15 @@
 #include "RomKonamiKeyboardMaster.hh"
 #include "MSXCPUInterface.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 
 namespace openmsx {
 
 RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
-		const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+		const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 	, vlm5030("VLM5030", "Konami Keyboard Master's VLM5030",
-	          rom->getFilename(), config)
+	          rom.getFilename(), config)
 {
 	setUnmapped(0);
 	setRom(1, 0);

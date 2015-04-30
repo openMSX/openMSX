@@ -16,8 +16,7 @@ class AY8910;
 class RomManbow2 final : public MSXRom
 {
 public:
-	RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom,
-	           RomType type);
+	RomManbow2(const DeviceConfig& config, Rom&& rom, RomType type);
 	~RomManbow2();
 
 	void powerUp(EmuTime::param time) override;

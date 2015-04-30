@@ -10,7 +10,7 @@ class PanasonicMemory;
 class RomDRAM final : public MSXRom
 {
 public:
-	RomDRAM(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomDRAM(const DeviceConfig& config, Rom&& rom);
 
 	byte readMem(word address, EmuTime::param time) override;
 	const byte* getReadCacheLine(word start) const override;

@@ -1,24 +1,17 @@
 //
-
-//
 // Manuel Pazos MultiROM Collection
 //
 
 #include "RomMultiRom.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomMultiRom::RomMultiRom(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+RomMultiRom::RomMultiRom(const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 {
 	counter = 0;
 	for (int i=0; i<4; i++) setRom(i, counter * 4 + i);
-}
-
-RomMultiRom::~RomMultiRom()
-{
 }
 
 void RomMultiRom::reset(EmuTime::param /*time*/)

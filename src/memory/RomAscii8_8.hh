@@ -10,8 +10,7 @@ class RomAscii8_8 final : public Rom8kBBlocks
 public:
 	enum SubType { ASCII8_8, KOEI_8, KOEI_32, WIZARDRY, ASCII8_2 };
 	RomAscii8_8(const DeviceConfig& config,
-	            std::unique_ptr<Rom> rom, SubType subType);
-	~RomAscii8_8();
+	            Rom&& rom, SubType subType);
 
 	void reset(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;

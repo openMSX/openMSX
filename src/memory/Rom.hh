@@ -5,7 +5,6 @@
 #include "MemBuffer.hh"
 #include "sha1.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <string>
 #include <memory>
 #include <cassert>
@@ -18,11 +17,12 @@ class DeviceConfig;
 class FileContext;
 class RomDebuggable;
 
-class Rom final : private noncopyable
+class Rom final
 {
 public:
 	Rom(const std::string& name, const std::string& description,
 	    const DeviceConfig& config, const std::string& id = "");
+	Rom(Rom&& other);
 	~Rom();
 
 	const byte& operator[](unsigned address) const {
@@ -42,6 +42,8 @@ private:
 	          const FileContext& context);
 	bool checkSHA1(const XMLElement& config);
 
+private:
+	// !! update the move constructor when changing these members !!
 	const byte* rom;
 	MemBuffer<byte> extendedRom;
 

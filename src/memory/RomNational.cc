@@ -1,21 +1,16 @@
 #include "RomNational.hh"
 #include "CacheLine.hh"
-#include "Rom.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
 #include "memory.hh"
 
 namespace openmsx {
 
-RomNational::RomNational(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+RomNational::RomNational(const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 {
 	sram = make_unique<SRAM>(getName() + " SRAM", 0x1000, config);
 	reset(EmuTime::dummy());
-}
-
-RomNational::~RomNational()
-{
 }
 
 void RomNational::reset(EmuTime::param /*time*/)

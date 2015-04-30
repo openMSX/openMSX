@@ -9,13 +9,12 @@
 //  second 16kb: 0x7000 - 0x77ff (0x7000 and 0x77ff used)
 
 #include "RomAscii16kB.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomAscii16kB::RomAscii16kB(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+RomAscii16kB::RomAscii16kB(const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 {
 	reset(EmuTime::dummy());
 }

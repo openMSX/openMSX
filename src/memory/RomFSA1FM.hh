@@ -13,7 +13,7 @@ class SRAM;
 class RomFSA1FM1 final : public MSXRom
 {
 public:
-	RomFSA1FM1(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomFSA1FM1(const DeviceConfig& config, Rom&& rom);
 	~RomFSA1FM1();
 
 	void reset(EmuTime::param time) override;
@@ -35,7 +35,7 @@ private:
 class RomFSA1FM2 final : public Rom8kBBlocks
 {
 public:
-	RomFSA1FM2(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomFSA1FM2(const DeviceConfig& config, Rom&& rom);
 	~RomFSA1FM2();
 
 	void reset(EmuTime::param time) override;

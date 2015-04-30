@@ -1,11 +1,10 @@
 #include "RomPageNN.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomPageNN::RomPageNN(const DeviceConfig& config, std::unique_ptr<Rom> rom, byte pages)
-	: Rom8kBBlocks(config, std::move(rom))
+RomPageNN::RomPageNN(const DeviceConfig& config, Rom&& rom_, byte pages)
+	: Rom8kBBlocks(config, std::move(rom_))
 {
 	int bank = 0;
 	for (int page = 0; page < 4; ++page) {

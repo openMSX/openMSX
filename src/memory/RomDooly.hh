@@ -9,7 +9,7 @@ namespace openmsx {
 class RomDooly final : public MSXRom
 {
 public:
-	RomDooly(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomDooly(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;

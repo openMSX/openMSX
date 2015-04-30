@@ -8,8 +8,7 @@ namespace openmsx {
 class RomNational final : public Rom16kBBlocks
 {
 public:
-	RomNational(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	~RomNational();
+	RomNational(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;

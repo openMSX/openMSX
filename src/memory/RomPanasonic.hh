@@ -10,8 +10,7 @@ class PanasonicMemory;
 class RomPanasonic final : public Rom8kBBlocks
 {
 public:
-	RomPanasonic(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	~RomPanasonic();
+	RomPanasonic(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;

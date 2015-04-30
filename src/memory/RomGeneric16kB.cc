@@ -1,11 +1,10 @@
 #include "RomGeneric16kB.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomGeneric16kB::RomGeneric16kB(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+RomGeneric16kB::RomGeneric16kB(const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 {
 	reset(EmuTime::dummy());
 }

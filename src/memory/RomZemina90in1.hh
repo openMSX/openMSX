@@ -8,7 +8,7 @@ namespace openmsx {
 class RomZemina90in1 final : public Rom8kBBlocks
 {
 public:
-	RomZemina90in1(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomZemina90in1(const DeviceConfig& config, Rom&& rom);
 	~RomZemina90in1();
 
 	void reset(EmuTime::param time) override;

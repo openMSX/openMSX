@@ -10,8 +10,7 @@ namespace openmsx {
 class RomMultiRom final : public Rom16kBBlocks
 {
 public:
-	RomMultiRom(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	~RomMultiRom();
+	RomMultiRom(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 

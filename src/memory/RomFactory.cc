@@ -154,7 +154,7 @@ static RomType guessRomType(const Rom& rom)
 
 unique_ptr<MSXDevice> create(const DeviceConfig& config)
 {
-	auto rom = make_unique<Rom>(config.getAttribute("id"), "rom", config);
+	Rom rom(config.getAttribute("id"), "rom", config);
 
 	// Get specified mapper type from the config.
 	RomType type;
@@ -163,9 +163,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	string_ref typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
-		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom->getOriginalSHA1());
+		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getOriginalSHA1());
 		if (!romInfo) {
-			type = guessRomType(*rom);
+			type = guessRomType(rom);
 		} else {
 			type = romInfo->getRomType();
 		}

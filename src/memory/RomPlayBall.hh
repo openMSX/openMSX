@@ -9,7 +9,7 @@ namespace openmsx {
 class RomPlayBall final : public Rom16kBBlocks
 {
 public:
-	RomPlayBall(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomPlayBall(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;

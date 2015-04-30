@@ -2,13 +2,12 @@
 // It's a Konami mapper with a DAC.
 
 #include "RomMajutsushi.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomMajutsushi::RomMajutsushi(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: RomKonami(config, std::move(rom))
+RomMajutsushi::RomMajutsushi(const DeviceConfig& config, Rom&& rom_)
+	: RomKonami(config, std::move(rom_))
 	, dac("Majutsushi-DAC", "Hai no Majutsushi's DAC", config)
 {
 }

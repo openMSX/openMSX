@@ -16,13 +16,12 @@
 //      0xc000-0xffff |  1 |  x |  x
 
 #include "RomCrossBlaim.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomCrossBlaim::RomCrossBlaim(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom16kBBlocks(config, std::move(rom))
+RomCrossBlaim::RomCrossBlaim(const DeviceConfig& config, Rom&& rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 {
 	reset(EmuTime::dummy());
 }

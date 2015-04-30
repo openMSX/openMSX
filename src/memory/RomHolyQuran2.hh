@@ -9,7 +9,7 @@ namespace openmsx {
 class RomHolyQuran2 : public MSXRom
 {
 public:
-	RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomHolyQuran2(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;

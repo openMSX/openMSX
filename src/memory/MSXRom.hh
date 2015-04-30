@@ -2,26 +2,22 @@
 #define MSXROM_HH
 
 #include "MSXDevice.hh"
-#include <memory>
+#include "Rom.hh"
 
 namespace openmsx {
-
-class Rom;
 
 class MSXRom : public MSXDevice
 {
 public:
-	~MSXRom();
-
 	void writeMem(word address, byte value, EmuTime::param time) override;
 	byte* getWriteCacheLine(word address) const override;
 
 	void getExtraDeviceInfo(TclObject& result) const override;
 
 protected:
-	MSXRom(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	MSXRom(const DeviceConfig& config, Rom&& rom);
 
-	const std::unique_ptr<Rom> rom;
+	Rom rom;
 };
 
 } // namespace openmsx

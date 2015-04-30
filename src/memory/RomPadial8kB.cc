@@ -7,13 +7,12 @@
 //  bank 4: 0x7800 - 0x7fff (0x7800 used)
 
 #include "RomPadial8kB.hh"
-#include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomPadial8kB::RomPadial8kB(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: RomAscii8kB(config, std::move(rom))
+RomPadial8kB::RomPadial8kB(const DeviceConfig& config, Rom&& rom_)
+	: RomAscii8kB(config, std::move(rom_))
 {
 	reset(EmuTime::dummy());
 }

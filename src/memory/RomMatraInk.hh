@@ -9,7 +9,7 @@ namespace openmsx {
 class RomMatraInk final : public MSXRom
 {
 public:
-	RomMatraInk(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	RomMatraInk(const DeviceConfig& config, Rom&& rom);
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;
