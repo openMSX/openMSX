@@ -48,39 +48,32 @@ DiskChanger::DiskChanger(MSXMotherBoard& board,
                          const string& driveName_,
                          bool createCmd,
                          bool isDoubleSidedDrive)
-	: controller(board.getCommandController())
+	: reactor(board.getReactor())
+	, controller(board.getCommandController())
 	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
-	, filePool(&board.getReactor().getFilePool())
-	, diskFactory(board.getReactor().getDiskFactory())
-	, manipulator(board.getReactor().getDiskManipulator())
 	, driveName(driveName_)
 	, doubleSidedDrive(isDoubleSidedDrive)
 {
 	init(board.getMachineID() + "::", createCmd);
 }
 
-DiskChanger::DiskChanger(const string& driveName_,
-                         CommandController& controller_,
-                         DiskFactory& diskFactory_,
-                         DiskManipulator& manipulator_,
-                         bool createCmd)
-	: controller(controller_)
+DiskChanger::DiskChanger(Reactor& reactor_, const string& driveName_)
+	: reactor(reactor_)
+	, controller(reactor.getCommandController())
 	, stateChangeDistributor(nullptr)
 	, scheduler(nullptr)
-	, filePool(nullptr)
-	, diskFactory(diskFactory_)
-	, manipulator(manipulator_)
 	, driveName(driveName_)
 	, doubleSidedDrive(true) // irrelevant, but needs a value
 {
-	init("", createCmd);
+	init("", true);
 }
 
 void DiskChanger::init(const string& prefix, bool createCmd)
 {
 	if (createCmd) createCommand();
 	ejectDisk();
+	auto& manipulator = reactor.getDiskManipulator();
 	manipulator.registerDrive(*this, prefix);
 	if (stateChangeDistributor) {
 		stateChangeDistributor->registerListener(*this);
@@ -98,6 +91,7 @@ DiskChanger::~DiskChanger()
 	if (stateChangeDistributor) {
 		stateChangeDistributor->unregisterListener(*this);
 	}
+	auto& manipulator = reactor.getDiskManipulator();
 	manipulator.unregisterDrive(*this);
 }
 
@@ -173,6 +167,7 @@ int DiskChanger::insertDisk(string_ref filename)
 void DiskChanger::insertDisk(array_ref<TclObject> args)
 {
 	const string& diskImage = FileOperations::getConventionalPath(args[1].getString());
+	auto& diskFactory = reactor.getDiskFactory();
 	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
 	for (unsigned i = 2; i < args.size(); ++i) {
 		Filename filename(args[i].getString().str(), userFileContext());
@@ -301,9 +296,9 @@ bool DiskCommand::needRecord(array_ref<TclObject> tokens) const
 	return tokens.size() > 1;
 }
 
-static string calcSha1(SectorAccessibleDisk* disk)
+static string calcSha1(SectorAccessibleDisk* disk, FilePool& filePool)
 {
-	return disk ? disk->getSha1Sum().toString() : "";
+	return disk ? disk->getSha1Sum(filePool).toString() : "";
 }
 
 // version 1:  initial version
@@ -331,9 +326,10 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("patches", patches);
 
+	auto& filePool = reactor.getFilePool();
 	string oldChecksum;
 	if (!ar.isLoader()) {
-		oldChecksum = calcSha1(getSectorAccessibleDisk());
+		oldChecksum = calcSha1(getSectorAccessibleDisk(), filePool);
 	}
 	ar.serialize("checksum", oldChecksum);
 
@@ -348,9 +344,8 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			// alternative is to prefer the exact sha1sum match.
 			// I'm not sure which alternative is better.
 			if (!FileOperations::exists(name)) {
-				assert(filePool);
 				assert(!oldChecksum.empty());
-				if (auto file = filePool->getFile(
+				if (auto file = filePool.getFile(
 				          FilePool::DISK, Sha1Sum(oldChecksum))) {
 					name = file->getURL();
 				}
@@ -373,7 +368,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			}
 		}
 
-		string newChecksum = calcSha1(getSectorAccessibleDisk());
+		string newChecksum = calcSha1(getSectorAccessibleDisk(), filePool);
 		if (oldChecksum != newChecksum) {
 			controller.getCliComm().printWarning(
 				"The content of the diskimage " +

@@ -14,10 +14,8 @@ namespace openmsx {
 class CommandController;
 class StateChangeDistributor;
 class Scheduler;
-class FilePool;
 class MSXMotherBoard;
-class DiskFactory;
-class DiskManipulator;
+class Reactor;
 class Disk;
 class DiskCommand;
 class TclObject;
@@ -31,11 +29,8 @@ public:
 	            const std::string& driveName,
 	            bool createCommand = true,
 	            bool isDoubleSidedDrive = true);
-	DiskChanger(const std::string& driveName,
-	            CommandController& commandController,
-	            DiskFactory& diskFactory,
-	            DiskManipulator& manipulator,
-	            bool createCommand);
+	DiskChanger(Reactor& reactor,
+	            const std::string& driveName); // for virtual_drive
 	~DiskChanger();
 
 	void createCommand();
@@ -72,12 +67,10 @@ private:
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;
 
+	Reactor& reactor;
 	CommandController& controller;
 	StateChangeDistributor* stateChangeDistributor;
 	Scheduler* scheduler;
-	FilePool* filePool;
-	DiskFactory& diskFactory;
-	DiskManipulator& manipulator;
 
 	const std::string driveName;
 	std::unique_ptr<Disk> disk;

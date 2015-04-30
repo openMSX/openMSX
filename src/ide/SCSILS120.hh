@@ -41,7 +41,7 @@ private:
 	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
 	size_t getNbSectorsImpl() const override;
 	bool isWriteProtectedImpl() const override;
-	Sha1Sum getSha1Sum() override;
+	Sha1Sum getSha1SumImpl(FilePool& filePool) override;
 
 	// Diskcontainer:
 	SectorAccessibleDisk* getSectorAccessibleDisk() override;

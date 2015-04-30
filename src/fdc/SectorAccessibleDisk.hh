@@ -9,6 +9,7 @@
 
 namespace openmsx {
 
+class FilePool;
 class PatchInterface;
 
 class SectorAccessibleDisk
@@ -35,7 +36,7 @@ public:
 	/** Calculate SHA1 of the content of this disk.
 	 * This value is cached (and flushed on writes).
 	 */
-	virtual Sha1Sum getSha1Sum();
+	Sha1Sum getSha1Sum(FilePool& filepool);
 
 	// For compatibility with nowind
 	//  - read/write multiple sectors instead of one-per-one
@@ -58,6 +59,7 @@ protected:
 
 	virtual void checkCaches();
 	virtual void flushCaches();
+	virtual Sha1Sum getSha1SumImpl(FilePool& filepool);
 
 private:
 	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf) = 0;

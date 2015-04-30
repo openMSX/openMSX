@@ -1,5 +1,6 @@
 #include "DSKDiskImage.hh"
 #include "File.hh"
+#include "FilePool.hh"
 
 namespace openmsx {
 
@@ -39,12 +40,12 @@ bool DSKDiskImage::isWriteProtectedImpl() const
 	return file->isReadOnly();
 }
 
-Sha1Sum DSKDiskImage::getSha1Sum()
+Sha1Sum DSKDiskImage::getSha1SumImpl(FilePool& filePool)
 {
 	if (hasPatches()) {
-		return SectorAccessibleDisk::getSha1Sum();
+		return SectorAccessibleDisk::getSha1SumImpl(filePool);
 	}
-	return file->getSha1Sum();
+	return filePool.getSha1Sum(*file);
 }
 
 } // namespace openmsx

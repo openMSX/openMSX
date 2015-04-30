@@ -1,6 +1,7 @@
 #include "WavImage.hh"
 #include "LocalFileReference.hh"
 #include "File.hh"
+#include "FilePool.hh"
 #include "Math.hh"
 #include "memory.hh"
 #include "xrange.hh"
@@ -17,8 +18,7 @@ WavImage::WavImage(const Filename& filename, FilePool& filePool)
 		// used by an external API (see comments in LocalFileReference
 		// for details).
 		File file(filename);
-		file.setFilePool(filePool);
-		setSha1Sum(file.getSha1Sum());
+		setSha1Sum(filePool.getSha1Sum(file));
 		localFile = LocalFileReference(file);
 	}
 	wav = WavData(localFile.getFilename(), 16, 0);

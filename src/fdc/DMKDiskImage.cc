@@ -2,6 +2,7 @@
 #include "RawTrack.hh"
 #include "DiskExceptions.hh"
 #include "File.hh"
+#include "FilePool.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -194,9 +195,9 @@ bool DMKDiskImage::isWriteProtectedImpl() const
 	return writeProtected || file->isReadOnly();
 }
 
-Sha1Sum DMKDiskImage::getSha1Sum()
+Sha1Sum DMKDiskImage::getSha1SumImpl(FilePool& filepool)
 {
-	return file->getSha1Sum();
+	return filepool.getSha1Sum(*file);
 }
 
 void DMKDiskImage::detectGeometryFallback()

@@ -1,6 +1,5 @@
 #include "File.hh"
 #include "Filename.hh"
-#include "FilePool.hh"
 #include "LocalFile.hh"
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
@@ -39,25 +38,21 @@ static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
 
 File::File(const Filename& filename, OpenMode mode)
 	: file(init(filename.getResolved(), mode))
-	, filepool(nullptr)
 {
 }
 
 File::File(string_ref url, OpenMode mode)
 	: file(init(url, mode))
-	, filepool(nullptr)
 {
 }
 
 File::File(string_ref filename, const char* mode)
 	: file(make_unique<LocalFile>(filename, mode))
-	, filepool(nullptr)
 {
 }
 
 File::File(const Filename& filename, const char* mode)
 	: file(make_unique<LocalFile>(filename.getResolved(), mode))
-	, filepool(nullptr)
 {
 }
 
@@ -72,10 +67,6 @@ void File::read(void* buffer, size_t num)
 
 void File::write(const void* buffer, size_t num)
 {
-	if (filepool) {
-		cachedSha1.clear();
-		filepool->removeSha1Sum(*this);
-	}
 	file->write(buffer, num);
 }
 
@@ -138,21 +129,6 @@ bool File::isReadOnly() const
 time_t File::getModificationDate()
 {
 	return file->getModificationDate();
-}
-
-Sha1Sum File::getSha1Sum()
-{
-	assert(filepool); // must be set
-	if (cachedSha1.empty()) {
-		cachedSha1 = filepool->getSha1Sum(*this);
-	}
-	return cachedSha1;
-}
-
-void File::setFilePool(FilePool& filepool_)
-{
-	assert(!filepool); // can only be set once
-	filepool = &filepool_;
 }
 
 } // namespace openmsx

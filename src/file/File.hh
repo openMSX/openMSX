@@ -1,7 +1,6 @@
 #ifndef FILE_HH
 #define FILE_HH
 
-#include "sha1.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
@@ -12,7 +11,6 @@ namespace openmsx {
 
 class Filename;
 class FileBase;
-class FilePool;
 
 class File : private noncopyable
 {
@@ -125,23 +123,6 @@ public:
 	 */
 	time_t getModificationDate();
 
-	/** Calculate sha1sum of this file.
-	 *
-	 * If the FilePool was set (see setFilePool()), the calculation can
-	 * possibly be avoided by using the pool as a cache.
-	 * Note that currently it's even an error to call this method without
-	 * first having called setFilePool(), we might change this in the
-	 * future.
-	 */
-	Sha1Sum getSha1Sum();
-
-	/** Set FilePool, see also getSha1Sum()
-	 * FilePool is used to lookup/store sha1sum<->filename mappings. But
-	 * also to invalidate these mappings on writes to this file (the file
-	 * modification date is used as well to detect writes).
-	 */
-	void setFilePool(FilePool& filepool);
-
 private:
 	friend class LocalFileReference;
 	/** This is an internal method used by LocalFileReference.
@@ -151,9 +132,6 @@ private:
 	const std::string getLocalReference() const;
 
 	const std::unique_ptr<FileBase> file;
-
-	FilePool* filepool;
-	Sha1Sum cachedSha1;
 };
 
 } // namespace openmsx

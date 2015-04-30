@@ -23,6 +23,7 @@
 #include "File.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
+#include "FilePool.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -479,7 +480,6 @@ void SCSILS120::eject()
 void SCSILS120::insert(string_ref filename)
 {
 	file = make_unique<File>(filename);
-	file->setFilePool(motherBoard.getReactor().getFilePool());
 	mediaChanged = true;
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
@@ -704,12 +704,12 @@ bool SCSILS120::isWriteProtectedImpl() const
 	return false;
 }
 
-Sha1Sum SCSILS120::getSha1Sum()
+Sha1Sum SCSILS120::getSha1SumImpl(FilePool& filePool)
 {
 	if (hasPatches()) {
-		return SectorAccessibleDisk::getSha1Sum();
+		return SectorAccessibleDisk::getSha1SumImpl(filePool);
 	}
-	return file->getSha1Sum();
+	return filePool.getSha1Sum(*file);
 }
 
 void SCSILS120::readSectorImpl(size_t sector, SectorBuffer& buf)

@@ -1,5 +1,6 @@
 #include "CasImage.hh"
 #include "File.hh"
+#include "FilePool.hh"
 #include "Filename.hh"
 #include "CliComm.hh"
 #include "Clock.hh"
@@ -224,8 +225,7 @@ void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cl
 	}
 
 	// conversion successful, now calc sha1sum
-	file.setFilePool(filePool);
-	setSha1Sum(file.getSha1Sum());
+	setSha1Sum(filePool.getSha1Sum(file));
 }
 
 } // namespace openmsx

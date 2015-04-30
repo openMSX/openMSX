@@ -2,6 +2,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "FilePool.hh"
 #include "DeviceConfig.hh"
 #include "CliComm.hh"
 #include "MSXMotherBoard.hh"
@@ -44,7 +45,6 @@ HD::HD(const DeviceConfig& config)
 	try {
 		file = make_unique<File>(filename);
 		filesize = file->getSize();
-		file->setFilePool(motherBoard.getReactor().getFilePool());
 		tigerTree = make_unique<TigerTree>(*this, filesize,
 		                                   filename.getResolved());
 	} catch (FileException&) {
@@ -86,7 +86,6 @@ void HD::openImage()
 	try {
 		file = make_unique<File>(filename, File::CREATE);
 		file->truncate(filesize);
-		file->setFilePool(motherBoard.getReactor().getFilePool());
 		tigerTree = make_unique<TigerTree>(*this, filesize,
 		                                   filename.getResolved());
 	} catch (FileException& e) {
@@ -101,7 +100,6 @@ void HD::switchImage(const Filename& name)
 	file = make_unique<File>(name);
 	filename = name;
 	filesize = file->getSize();
-	file->setFilePool(motherBoard.getReactor().getFilePool());
 	tigerTree = make_unique<TigerTree>(*this, filesize,
 	                                   filename.getResolved());
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
@@ -136,13 +134,13 @@ bool HD::isWriteProtectedImpl() const
 	return file->isReadOnly();
 }
 
-Sha1Sum HD::getSha1Sum()
+Sha1Sum HD::getSha1SumImpl(FilePool& filePool)
 {
 	openImage();
 	if (hasPatches()) {
-		return SectorAccessibleDisk::getSha1Sum();
+		return SectorAccessibleDisk::getSha1SumImpl(filePool);
 	}
-	return file->getSha1Sum();
+	return filePool.getSha1Sum(*file);
 }
 
 std::string HD::getTigerTreeHash()
@@ -252,9 +250,10 @@ void HD::serialize(Archive& ar, unsigned version)
 			}
 		} else {
 			// use sha1
+			auto& filepool = motherBoard.getReactor().getFilePool();
 			Sha1Sum oldChecksum;
 			if (!ar.isLoader()) {
-				oldChecksum = getSha1Sum();
+				oldChecksum = getSha1Sum(filepool);
 			}
 			string oldChecksumStr = oldChecksum.empty()
 					      ? ""
@@ -265,7 +264,7 @@ void HD::serialize(Archive& ar, unsigned version)
 				    : Sha1Sum(oldChecksumStr);
 
 			if (ar.isLoader()) {
-				Sha1Sum newChecksum = getSha1Sum();
+				Sha1Sum newChecksum = getSha1Sum(filepool);
 				mismatch = oldChecksum != newChecksum;
 			}
 		}

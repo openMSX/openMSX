@@ -54,8 +54,6 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 	}
 	try {
 		auto file = std::make_shared<File>(filename, File::PRE_CACHE);
-		file->setFilePool(reactor.getFilePool());
-
 		try {
 			// first try XSA
 			return make_unique<XSADiskImage>(filename, *file);

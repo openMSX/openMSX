@@ -80,26 +80,31 @@ bool SectorAccessibleDisk::hasPatches() const
 	return !patch->isEmptyPatch();
 }
 
-Sha1Sum SectorAccessibleDisk::getSha1Sum()
+Sha1Sum SectorAccessibleDisk::getSha1Sum(FilePool& filePool)
 {
 	checkCaches();
 	if (sha1cache.empty()) {
-		try {
-			setPeekMode(true);
-			SHA1 sha1;
-			for (auto i : xrange(getNbSectors())) {
-				SectorBuffer buf;
-				readSector(i, buf);
-				sha1.update(buf.raw, sizeof(buf));
-			}
-			sha1cache = sha1.digest();
-			setPeekMode(false);
-		} catch (MSXException&) {
-			setPeekMode(false);
-			throw;
-		}
+		sha1cache = getSha1SumImpl(filePool);
 	}
 	return sha1cache;
+}
+
+Sha1Sum SectorAccessibleDisk::getSha1SumImpl(FilePool& /*filePool*/)
+{
+	try {
+		setPeekMode(true);
+		SHA1 sha1;
+		for (auto i : xrange(getNbSectors())) {
+			SectorBuffer buf;
+			readSector(i, buf);
+			sha1.update(buf.raw, sizeof(buf));
+		}
+		setPeekMode(false);
+		return sha1.digest();
+	} catch (MSXException&) {
+		setPeekMode(false);
+		throw;
+	}
 }
 
 int SectorAccessibleDisk::readSectors (
