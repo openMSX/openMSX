@@ -32,7 +32,7 @@ public:
 		return ram[addr];
 	}
 	unsigned getSize() const {
-		return unsigned(ram.size());
+		return size;
 	}
 
 	const std::string& getName() const;
@@ -44,6 +44,7 @@ public:
 private:
 	const XMLElement& xml;
 	MemBuffer<byte> ram;
+	unsigned size; // must come before debuggable
 	const std::unique_ptr<RamDebuggable> debuggable; // can be nullptr
 };
 

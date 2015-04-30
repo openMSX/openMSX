@@ -12,7 +12,7 @@ class XSAExtractor
 {
 public:
 	explicit XSAExtractor(File& file);
-	void getData(MemBuffer<SectorBuffer>& data);
+	unsigned getData(MemBuffer<SectorBuffer>& data);
 
 private:
 	static const int MAXSTRLEN = 254;
@@ -37,6 +37,7 @@ private:
 	MemBuffer<SectorBuffer> outBuf;	// the output buffer
 	const byte* inBufPos;	// pos in input buffer
 	const byte* inBufEnd;
+	unsigned sectors;
 
 	int updHufCnt;
 	int cpDist[TBLSIZE + 1];
@@ -57,8 +58,8 @@ XSADiskImage::XSADiskImage(Filename& filename, File& file)
 	: SectorBasedDisk(filename)
 {
 	XSAExtractor extractor(file);
-	extractor.getData(data);
-	setNbSectors(data.size());
+	unsigned sectors = extractor.getData(data);
+	setNbSectors(sectors);
 }
 
 void XSADiskImage::readSectorImpl(size_t sector, SectorBuffer& buf)
@@ -99,10 +100,11 @@ XSAExtractor::XSAExtractor(File& file)
 	unLz77();
 }
 
-void XSAExtractor::getData(MemBuffer<SectorBuffer>& data)
+unsigned XSAExtractor::getData(MemBuffer<SectorBuffer>& data)
 {
 	// destroys internal outBuf, but that's ok
 	data.swap(outBuf);
+	return sectors;
 }
 
 // Get the next character from the input buffer
@@ -122,7 +124,8 @@ void XSAExtractor::chkHeader()
 	for (int i = 0, base = 1; i < 4; ++i, base <<= 8) {
 		outBufLen += base * charIn();
 	}
-	outBuf.resize((outBufLen + 511) / 512);
+	sectors = (outBufLen + 511) / 512;
+	outBuf.resize(sectors);
 
 	// skip compressed length
 	inBufPos += 4;
@@ -136,7 +139,7 @@ void XSAExtractor::unLz77()
 {
 	bitCnt = 0; // no bits read yet
 
-	size_t remaining = outBuf.size() * sizeof(SectorBuffer);
+	size_t remaining = sectors * sizeof(SectorBuffer);
 	byte* out = outBuf.data()->raw;
 	size_t outIdx = 0;
 	while (true) {

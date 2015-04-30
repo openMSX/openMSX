@@ -17,17 +17,14 @@ using std::string;
 
 namespace openmsx {
 
-MemBuffer<int> mixBufferStorage;
-int* mixBuffer; // 16-byte aligned ptr into mixBufferStorage (for SSE access)
+static MemBuffer<int, SSE2_ALIGNMENT> mixBuffer;
+static unsigned mixBufferSize = 0;
 
 static void allocateMixBuffer(unsigned size)
 {
-	size += 3; // to be able to align
-	if (unlikely(mixBufferStorage.size() < size)) {
-		mixBufferStorage.resize(size);
-		// align at 16-byte boundary
-		auto tmp = reinterpret_cast<size_t>(mixBufferStorage.data());
-		mixBuffer = reinterpret_cast<int*>((tmp + 15) & ~15);
+	if (unlikely(mixBufferSize < size)) {
+		mixBufferSize = size;
+		mixBuffer.resize(mixBufferSize);
 	}
 }
 
@@ -200,7 +197,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	}
 	if (separateChannels) {
 		allocateMixBuffer(pitch * separateChannels);
-		mset(reinterpret_cast<unsigned*>(mixBuffer),
+		mset(reinterpret_cast<unsigned*>(mixBuffer.data()),
 		     pitch * separateChannels, 0);
 		// still need to fill in (some) bufs[i] pointers
 		unsigned count = 0;

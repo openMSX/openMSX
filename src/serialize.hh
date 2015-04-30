@@ -614,7 +614,7 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	MemBuffer<byte> releaseBuffer();
+	MemBuffer<byte> releaseBuffer(size_t& size);
 
 private:
 	void put(const void* data, size_t len)

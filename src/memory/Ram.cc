@@ -28,18 +28,20 @@ private:
 
 
 Ram::Ram(const DeviceConfig& config, const string& name,
-         const string& description, unsigned size)
+         const string& description, unsigned size_)
 	: xml(*config.getXML())
-	, ram(size)
+	, ram(size_)
+	, size(size_)
 	, debuggable(make_unique<RamDebuggable>(
 		config.getMotherBoard(), name, description, *this))
 {
 	clear();
 }
 
-Ram::Ram(const DeviceConfig& config, unsigned size)
+Ram::Ram(const DeviceConfig& config, unsigned size_)
 	: xml(*config.getXML())
-	, ram(size)
+	, ram(size_)
+	, size(size_)
 {
 	clear();
 }
@@ -67,14 +69,14 @@ void Ram::clear(byte c)
 			string out = (encoding == "hex")
 			           ? HexDump::decode(init->getData())
 				   : Base64 ::decode(init->getData());
-			done = std::min(ram.size(), out.size());
+			done = std::min<unsigned>(size, out.size());
 			memcpy(ram.data(), out.data(), done);
 		} else {
 			throw MSXException("Unsupported encoding \"" + encoding + "\" for initialContent");
 		}
 
 		// repeat pattern over whole ram
-		auto left = ram.size() - done;
+		auto left = size - done;
 		while (left) {
 			auto tmp = std::min(done, left);
 			memcpy(&ram[done], &ram[0], tmp);
@@ -83,7 +85,7 @@ void Ram::clear(byte c)
 		}
 	} else {
 		// no init pattern specified
-		memset(ram.data(), c, ram.size());
+		memset(ram.data(), c, size);
 	}
 
 }
@@ -115,7 +117,7 @@ void RamDebuggable::write(unsigned address, byte value)
 template<typename Archive>
 void Ram::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize_blob("ram", ram.data(), ram.size());
+	ar.serialize_blob("ram", ram.data(), size);
 }
 INSTANTIATE_SERIALIZE_METHODS(Ram);
 

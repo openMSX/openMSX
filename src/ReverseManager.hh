@@ -56,6 +56,7 @@ private:
 
 		EmuTime time;
 		MemBuffer<uint8_t> savestate;
+		size_t size;
 
 		// Number of recorded events (or replay index) when this
 		// snapshot was created. So when going back replay should

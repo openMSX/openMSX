@@ -270,8 +270,11 @@ void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat, unsigned& work
 	PixelOperations<P> pixelOps(pixelFormat);
 	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
 
+	unsigned xblocks = width / BLOCK_WIDTH;
+	unsigned yblocks = height / BLOCK_HEIGHT;
+	unsigned blockcount = xblocks * yblocks;
+
 	// Align the following xor data on 4 byte boundary
-	auto blockcount = unsigned(blockOffsets.size());
 	workUsed = (workUsed + blockcount * 2 + 3) & ~3;
 
 	int bestvx = 0;

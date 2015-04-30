@@ -131,6 +131,7 @@ private:
 	int pcm_l, pcm_r;
 
 	Rom rom;
+	const unsigned ramSize;
 	MemBuffer<byte> ram;
 
 	/** Precalculated attenuation values with some margin for

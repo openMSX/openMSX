@@ -48,10 +48,10 @@ void CompressedFileAdapter::decompress()
 void CompressedFileAdapter::read(void* buffer, size_t num)
 {
 	decompress();
-	const MemBuffer<byte>& buf = decompressed->buf;
-	if (buf.size() < (pos + num)) {
+	if (decompressed->size < (pos + num)) {
 		throw FileException("Read beyond end of file");
 	}
+	const auto& buf = decompressed->buf;
 	memcpy(buffer, buf.data() + pos, num);
 	pos += num;
 }
@@ -64,7 +64,7 @@ void CompressedFileAdapter::write(const void* /*buffer*/, size_t /*num*/)
 const byte* CompressedFileAdapter::mmap(size_t& size)
 {
 	decompress();
-	size = decompressed->buf.size();
+	size = decompressed->size;
 	return reinterpret_cast<const byte*>(decompressed->buf.data());
 }
 
@@ -76,7 +76,7 @@ void CompressedFileAdapter::munmap()
 size_t CompressedFileAdapter::getSize()
 {
 	decompress();
-	return decompressed->buf.size();
+	return decompressed->size;
 }
 
 void CompressedFileAdapter::seek(size_t newpos)

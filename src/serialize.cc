@@ -174,9 +174,8 @@ void MemOutputArchive::save(const std::string& s)
 	memcpy(buf + sizeof(size), s.data(), size);
 }
 
-MemBuffer<byte> MemOutputArchive::releaseBuffer()
+MemBuffer<byte> MemOutputArchive::releaseBuffer(size_t& size)
 {
-	size_t size;
 	byte* data = buffer.release(size);
 	return MemBuffer<byte>(data, size);
 }

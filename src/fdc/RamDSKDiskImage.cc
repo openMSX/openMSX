@@ -8,7 +8,7 @@ RamDSKDiskImage::RamDSKDiskImage(size_t size)
 	: SectorBasedDisk(DiskName(Filename(), "ramdsk"))
 	, data(size / sizeof(SectorBuffer))
 {
-	setNbSectors(data.size());
+	setNbSectors(size / sizeof(SectorBuffer));
 
 	DiskImageUtils::format(*this);
 }

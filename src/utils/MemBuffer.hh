@@ -42,7 +42,9 @@ public:
 	 */
 	MemBuffer()
 		: dat(nullptr)
+#ifdef DEBUG
 		, sz(0)
+#endif
 	{
 	}
 
@@ -50,7 +52,9 @@ public:
 	 */
 	explicit MemBuffer(size_t size)
 		: dat(static_cast<T*>(my_malloc(size * sizeof(T))))
+#ifdef DEBUG
 		, sz(size)
+#endif
 	{
 	}
 
@@ -60,15 +64,20 @@ public:
 	  */
 	MemBuffer(T* data, size_t size)
 		: dat(data)
+#ifdef DEBUG
 		, sz(size)
+#endif
 	{
+		(void)size;
 		assert(SIMPLE_MALLOC);
 	}
 
 	/** Move constructor. */
 	MemBuffer(MemBuffer&& other)
 		: dat(other.dat)
+#ifdef DEBUG
 		, sz(other.sz)
+#endif
 	{
 		other.dat = nullptr;
 	}
@@ -77,7 +86,9 @@ public:
 	MemBuffer& operator=(MemBuffer&& other)
 	{
 		std::swap(dat, other.dat);
+#ifdef DEBUG
 		std::swap(sz , other.sz);
+#endif
 		return *this;
 	}
 
@@ -98,23 +109,22 @@ public:
 	 */
 	const T& operator[](size_t i) const
 	{
+#ifdef DEBUG
 		assert(i < sz);
+#endif
 		return dat[i];
 	}
 	T& operator[](size_t i)
 	{
+#ifdef DEBUG
 		assert(i < sz);
+#endif
 		return dat[i];
 	}
 
-	/** Returns size of the memory buffer.
-	  * The size is in number of elements, not number of allocated bytes.
-	  */
-	size_t size() const { return sz; }
-
-	/** Same as size() == 0.
+	/** No memory allocated?
 	 */
-	bool empty() const { return sz == 0; }
+	bool empty() const { return !dat; }
 
 	/** Grow or shrink the memory block.
 	  * In case of growing, the extra space is left uninitialized.
@@ -124,8 +134,14 @@ public:
 	  */
 	void resize(size_t size)
 	{
-		dat = static_cast<T*>(my_realloc(dat, size * sizeof(T)));
-		sz = size;
+		if (size) {
+			dat = static_cast<T*>(my_realloc(dat, size * sizeof(T)));
+#ifdef DEBUG
+			sz = size;
+#endif
+		} else {
+			clear();
+		}
 	}
 
 	/** Free the allocated memory block and set the current size to 0.
@@ -134,22 +150,19 @@ public:
 	{
 		my_free(dat);
 		dat = nullptr;
+#ifdef DEBUG
 		sz = 0;
+#endif
 	}
-
-	/** STL-style iterators.
-	 */
-	const T* begin() const { return dat; }
-	      T* begin()       { return dat; }
-	const T* end()   const { return dat + sz; }
-	      T* end()         { return dat + sz; }
 
 	/** Swap the managed memory block of two MemBuffers.
 	 */
 	void swap(MemBuffer& other)
 	{
 		std::swap(dat, other.dat);
+#ifdef DEBUG
 		std::swap(sz , other.sz );
+#endif
 	}
 
 private:
@@ -212,7 +225,9 @@ private:
 
 private:
 	T* dat;
+#ifdef DEBUG
 	size_t sz;
+#endif
 };
 
 } // namespace openmsx

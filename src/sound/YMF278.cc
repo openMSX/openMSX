@@ -730,7 +730,7 @@ byte YMF278::peekReg(byte reg) const
 	return result;
 }
 
-YMF278::YMF278(const std::string& name, int ramSize,
+YMF278::YMF278(const std::string& name, int ramSize_,
                const DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), name, "MoonSound wave-part",
 	                       24, true)
@@ -738,23 +738,24 @@ YMF278::YMF278(const std::string& name, int ramSize,
 	, debugRegisters(*this, motherBoard, getName())
 	, debugMemory   (*this, motherBoard, getName())
 	, rom(name + " ROM", "rom", config)
-	, ram(ramSize * 1024) // in kB
+	, ramSize(ramSize_ * 1024) // in kB
+	, ram(ramSize)
 {
 	if (rom.getSize() != 0x200000) { // 2MB
 		throw MSXException(
 			"Wrong ROM for MoonSound (YMF278). The ROM (usually "
 			"called yrw801.rom) should have a size of exactly 2MB.");
 	}
-	if ((ramSize !=    0) &&  //   -     -
-	    (ramSize !=  128) &&  // 128kB   -
-	    (ramSize !=  256) &&  // 128kB  128kB
-	    (ramSize !=  512) &&  // 512kB   -
-	    (ramSize !=  640) &&  // 512kB  128kB
-	    (ramSize != 1024) &&  // 512kB  512kB
-	    (ramSize != 2048)) {  // 512kB  512kB  512kB  512kB
+	if ((ramSize_ !=    0) &&  //   -     -
+	    (ramSize_ !=  128) &&  // 128kB   -
+	    (ramSize_ !=  256) &&  // 128kB  128kB
+	    (ramSize_ !=  512) &&  // 512kB   -
+	    (ramSize_ !=  640) &&  // 512kB  128kB
+	    (ramSize_ != 1024) &&  // 512kB  512kB
+	    (ramSize_ != 2048)) {  // 512kB  512kB  512kB  512kB
 		throw MSXException(StringOp::Builder() <<
 			"Wrong sampleram size for MoonSound (YMF278). "
-			"Got " << ramSize << ", but must be one of "
+			"Got " << ramSize_ << ", but must be one of "
 			"0, 128, 256, 512, 640, 1024 or 2048.");
 	}
 
@@ -781,7 +782,7 @@ YMF278::~YMF278()
 
 void YMF278::clearRam()
 {
-	memset(ram.data(), 0, ram.size());
+	memset(ram.data(), 0, ramSize);
 }
 
 void YMF278::reset(EmuTime::param time)
@@ -860,7 +861,7 @@ unsigned YMF278::getRamAddress(unsigned addr) const
 				// 1st 128kB of SRAM1
 				break;
 			case 0x020000: // [0x3A0000-0x3BFFFF]
-				if (ram.size() == 256*1024) {
+				if (ramSize == 256 * 1024) {
 					// 2nd 128kB SRAM chip
 				} else {
 					// 2nd block of 128kB in SRAM2
@@ -881,7 +882,7 @@ unsigned YMF278::getRamAddress(unsigned addr) const
 			addr = unsigned(-1); // unmapped
 		}
 	}
-	if (ram.size() == 640*1024) {
+	if (ramSize == 640 * 1024) {
 		// Verified on real MoonSound cartridge (v2.0): In case of
 		// 640kB (1x512kB + 1x128kB), the 128kB SRAM chip is 4 times
 		// visible. None of the other SRAM configurations show similar
@@ -902,7 +903,7 @@ byte YMF278::readMem(unsigned address) const
 		return rom[address];
 	} else {
 		unsigned ramAddr = getRamAddress(address);
-		if (ramAddr < ram.size()) {
+		if (ramAddr < ramSize) {
 			return ram[ramAddr];
 		} else {
 			// unmapped region
@@ -918,7 +919,7 @@ void YMF278::writeMem(unsigned address, byte value)
 		// can't write to ROM
 	} else {
 		unsigned ramAddr = getRamAddress(address);
-		if (ramAddr < ram.size()) {
+		if (ramAddr < ramSize) {
 			ram[ramAddr] = value;
 		} else {
 			// can't write to unmapped memory
@@ -1008,7 +1009,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("slots", slots);
 	ar.serialize("eg_cnt", eg_cnt);
-	ar.serialize_blob("ram", ram.data(), ram.size());
+	ar.serialize_blob("ram", ram.data(), ramSize);
 	ar.serialize_blob("registers", regs, sizeof(regs));
 	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'
 		ar.serialize("memadr", memadr);

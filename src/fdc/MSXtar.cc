@@ -103,8 +103,9 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 
 void MSXtar::writeLogicalSector(unsigned sector, const SectorBuffer& buf)
 {
+	assert(!fatBuffer.empty());
 	unsigned fatSector = sector - 1;
-	if ((fatSector < sectorsPerFat) && !fatBuffer.empty()) {
+	if (fatSector < sectorsPerFat) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> update cache
 		memcpy(&fatBuffer[fatSector], &buf, sizeof(buf));
@@ -116,8 +117,9 @@ void MSXtar::writeLogicalSector(unsigned sector, const SectorBuffer& buf)
 
 void MSXtar::readLogicalSector(unsigned sector, SectorBuffer& buf)
 {
+	assert(!fatBuffer.empty());
 	unsigned fatSector = sector - 1;
-	if ((fatSector < sectorsPerFat) && !fatBuffer.empty()) {
+	if (fatSector < sectorsPerFat) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> read from cache
 		memcpy(&buf, &fatBuffer[fatSector], sizeof(buf));
@@ -152,7 +154,7 @@ MSXtar::~MSXtar()
 {
 	if (!fatCacheDirty) return;
 
-	for (unsigned i = 0; i < fatBuffer.size(); ++i) {
+	for (unsigned i = 0; i < sectorsPerFat; ++i) {
 		try {
 			disk.writeSector(i + 1, fatBuffer[i]);
 		} catch (MSXException&) {

@@ -121,6 +121,7 @@ ReverseManager::ReverseChunk::ReverseChunk()
 ReverseManager::ReverseChunk::ReverseChunk(ReverseChunk&& rhs)
 	: time      (move(rhs.time))
 	, savestate (move(rhs.savestate))
+	, size      (move(rhs.size))
 	, eventCount(move(rhs.eventCount))
 {
 }
@@ -130,6 +131,7 @@ ReverseManager::ReverseChunk& ReverseManager::ReverseChunk::operator=(
 {
 	time       = move(rhs.time);
 	savestate  = move(rhs.savestate);
+	size       = move(rhs.size);
 	eventCount = move(rhs.eventCount);
 	return *this;
 }
@@ -279,9 +281,9 @@ void ReverseManager::debugInfo(TclObject& result) const
 		res << p.first << ' '
 		    << (chunk.time - EmuTime::zero).toDouble() << ' '
 		    << ((chunk.time - EmuTime::zero).toDouble() / (getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
-		    << " (" << chunk.savestate.size() << ')'
+		    << " (" << chunk.size << ')'
 		    << " (next event index: " << chunk.eventCount << ")\n";
-		totalSize += chunk.savestate.size();
+		totalSize += chunk.size;
 	}
 	res << "total size: " << totalSize << '\n';
 	result.setString(string(res));
@@ -421,7 +423,7 @@ void ReverseManager::goTo(
 			newBoard_ = reactor.createEmptyMotherBoard();
 			newBoard = newBoard_.get();
 			MemInputArchive in(it->second.savestate.data(),
-					   it->second.savestate.size());
+					   it->second.size);
 			in.serialize("machine", *newBoard);
 
 			if (eventDelay) {
@@ -555,7 +557,7 @@ void ReverseManager::saveReplay(array_ref<TclObject> tokens, TclObject& result)
 	// restore first snapshot to be able to serialize it to a file
 	auto initialBoard = reactor.createEmptyMotherBoard();
 	MemInputArchive in(begin(chunks)->second.savestate.data(),
-	                   begin(chunks)->second.savestate.size());
+	                   begin(chunks)->second.size);
 	in.serialize("machine", *initialBoard);
 	replay.motherBoards.push_back(move(initialBoard));
 
@@ -582,7 +584,7 @@ void ReverseManager::saveReplay(array_ref<TclObject> tokens, TclObject& result)
 				// this is a new one, add it to the list of snapshots
 				Reactor::Board board = reactor.createEmptyMotherBoard();
 				MemInputArchive in(it->second.savestate.data(),
-				                   it->second.savestate.size());
+				                   it->second.size);
 				in.serialize("machine", *board);
 				replay.motherBoards.push_back(move(board));
 				lastAddedIt = it;
@@ -725,7 +727,7 @@ void ReverseManager::loadReplay(
 
 		MemOutputArchive out;
 		out.serialize("machine", *m);
-		newChunk.savestate = out.releaseBuffer();
+		newChunk.savestate = out.releaseBuffer(newChunk.size);
 
 		// update replayIndex
 		// TODO: should we use <= instead??
@@ -864,7 +866,7 @@ void ReverseManager::takeSnapshot(EmuTime::param time)
 	out.serialize("machine", motherBoard);
 	ReverseChunk& newChunk = history.chunks[seqNum];
 	newChunk.time = time;
-	newChunk.savestate = out.releaseBuffer();
+	newChunk.savestate = out.releaseBuffer(newChunk.size);
 	newChunk.eventCount = replayIndex;
 }
 

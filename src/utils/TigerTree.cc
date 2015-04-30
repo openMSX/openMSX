@@ -25,6 +25,7 @@ struct TTCacheEntry
 
 	MemBuffer<TigerHash> hash;
 	MemBuffer<bool> valid;
+	size_t numNodes;
 	time_t time;
 };
 // Typically contains 0 or 1 element, and only rarely 2 or more. But we need
@@ -43,13 +44,11 @@ static TTCacheEntry& getCacheEntry(
 {
 	size_t numNodes = calcNumNodes(dataSize);
 	auto& result = ttCache[std::make_pair(dataSize, name)];
-	if (!data.isCacheStillValid(result.time)) {
+	if ((numNodes != result.numNodes) || !data.isCacheStillValid(result.time)) {
 		result.hash .resize(numNodes);
 		result.valid.resize(numNodes);
+		result.numNodes = numNodes;
 		memset(result.valid.data(), 0, numNodes); // all invalid
-	} else {
-		assert(result.hash .size() == numNodes);
-		assert(result.valid.size() == numNodes);
 	}
 	return result;
 }
@@ -144,29 +143,29 @@ const TigerHash& TigerTree::calcHash(Node node)
 
 TigerTree::Node TigerTree::getTop() const
 {
-	auto n = Math::floodRight(entry.valid.size() / 2);
+	auto n = Math::floodRight(entry.numNodes / 2);
 	return Node(n, n + 1);
 }
 
 TigerTree::Node TigerTree::getLeaf(size_t block) const
 {
-	assert((2 * block) < entry.valid.size());
+	assert((2 * block) < entry.numNodes);
 	return Node(2 * block, 1);
 }
 
 TigerTree::Node TigerTree::getParent(Node node) const
 {
-	assert(node.n < entry.valid.size());
+	assert(node.n < entry.numNodes);
 	do {
 		node.n = (node.n & ~(2 * node.l)) + node.l;
 		node.l *= 2;
-	} while (node.n >= entry.valid.size());
+	} while (node.n >= entry.numNodes);
 	return node;
 }
 
 TigerTree::Node TigerTree::getLeftChild(Node node) const
 {
-	assert(node.n < entry.valid.size());
+	assert(node.n < entry.numNodes);
 	assert(node.l > 1);
 	node.l /= 2;
 	node.n -= node.l;
@@ -175,12 +174,12 @@ TigerTree::Node TigerTree::getLeftChild(Node node) const
 
 TigerTree::Node TigerTree::getRightChild(Node node) const
 {
-	assert(node.n < entry.valid.size());
+	assert(node.n < entry.numNodes);
 	while (1) {
 		assert(node.l > 1);
 		node.l /= 2;
 		auto r = node.n + node.l;
-		if (r < entry.valid.size()) return Node(r, node.l);
+		if (r < entry.numNodes) return Node(r, node.l);
 	}
 }
 

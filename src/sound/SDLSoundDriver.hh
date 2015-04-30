@@ -34,6 +34,7 @@ private:
 
 	Reactor& reactor;
 	MemBuffer<short> mixBuffer;
+	unsigned mixBufferSize;
 	unsigned frequency;
 	unsigned fragmentSize;
 	unsigned readIdx, writeIdx;

@@ -44,8 +44,8 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	frequency = audioSpec.freq;
 	fragmentSize = audioSpec.samples;
 
-	unsigned bufferSize = 3 * (audioSpec.size / sizeof(short)) + 2;
-	mixBuffer.resize(bufferSize);
+	mixBufferSize = 3 * (audioSpec.size / sizeof(short)) + 2;
+	mixBuffer.resize(mixBufferSize);
 	reInit();
 }
 
@@ -100,8 +100,8 @@ void SDLSoundDriver::audioCallbackHelper(void* userdata, byte* strm, int len)
 unsigned SDLSoundDriver::getBufferFilled() const
 {
 	int result = writeIdx - readIdx;
-	if (result < 0) result += unsigned(mixBuffer.size());
-	assert((0 <= result) && (unsigned(result) < mixBuffer.size()));
+	if (result < 0) result += mixBufferSize;
+	assert((0 <= result) && (unsigned(result) < mixBufferSize));
 	return result;
 }
 
@@ -111,8 +111,8 @@ unsigned SDLSoundDriver::getBufferFree() const
 	// (in both cases readIx would be equal to writeIdx), so instead
 	// we define full as '(writeIdx + 2) == readIdx' (note that index
 	// increases in steps of 2 (stereo)).
-	int result = unsigned(mixBuffer.size()) - 2 - getBufferFilled();
-	assert((0 <= result) && (unsigned(result) < mixBuffer.size()));
+	int result = mixBufferSize - 2 - getBufferFilled();
+	assert((0 <= result) && (unsigned(result) < mixBufferSize));
 	return result;
 }
 
@@ -121,11 +121,11 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 	assert((len & 1) == 0); // stereo
 	unsigned available = getBufferFilled();
 	unsigned num = std::min(len, available);
-	if ((readIdx + num) < mixBuffer.size()) {
+	if ((readIdx + num) < mixBufferSize) {
 		memcpy(stream, &mixBuffer[readIdx], num * sizeof(short));
 		readIdx += num;
 	} else {
-		unsigned len1 = unsigned(mixBuffer.size()) - readIdx;
+		unsigned len1 = mixBufferSize - readIdx;
 		memcpy(stream, &mixBuffer[readIdx], len1 * sizeof(short));
 		unsigned len2 = num - len1;
 		memcpy(&stream[len1], &mixBuffer[0], len2 * sizeof(short));
@@ -160,11 +160,11 @@ void SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 		}
 	}
 	assert(len <= free);
-	if ((writeIdx + len) < mixBuffer.size()) {
+	if ((writeIdx + len) < mixBufferSize) {
 		memcpy(&mixBuffer[writeIdx], buffer, len * sizeof(short));
 		writeIdx += len;
 	} else {
-		unsigned len1 = unsigned(mixBuffer.size()) - writeIdx;
+		unsigned len1 = mixBufferSize - writeIdx;
 		memcpy(&mixBuffer[writeIdx], buffer, len1 * sizeof(short));
 		unsigned len2 = len - len1;
 		memcpy(&mixBuffer[0], &buffer[len1], len2 * sizeof(short));

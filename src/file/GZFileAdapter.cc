@@ -61,7 +61,7 @@ void GZFileAdapter::decompress(FileBase& file, Decompressed& decompressed)
 	if (!skipHeader(zlib, decompressed.originalName)) {
 		throw FileException("Not a gzip header");
 	}
-	zlib.inflate(decompressed.buf);
+	decompressed.size = zlib.inflate(decompressed.buf);
 }
 
 } // namespace openmsx

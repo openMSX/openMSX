@@ -80,7 +80,7 @@ std::string ZlibInflate::getCString()
 	return result;
 }
 
-void ZlibInflate::inflate(MemBuffer<byte>& output, size_t sizeHint)
+size_t ZlibInflate::inflate(MemBuffer<byte>& output, size_t sizeHint)
 {
 	int initErr = inflateInit2(&s, -MAX_WBITS);
 	if (initErr != Z_OK) {
@@ -89,8 +89,9 @@ void ZlibInflate::inflate(MemBuffer<byte>& output, size_t sizeHint)
 	}
 	wasInit = true;
 
-	output.resize(sizeHint);
-	s.avail_out = uInt(output.size()); // TODO overflow?
+	size_t outSize = sizeHint;
+	output.resize(outSize);
+	s.avail_out = uInt(outSize); // TODO overflow?
 	while (true) {
 		s.next_out = output.data() + s.total_out;
 		int err = ::inflate(&s, Z_NO_FLUSH);
@@ -101,13 +102,15 @@ void ZlibInflate::inflate(MemBuffer<byte>& output, size_t sizeHint)
 			throw FileException(StringOp::Builder()
 				<< "Error decompressing gzip: " << zError(err));
 		}
-		auto oldSize = output.size();
-		output.resize(oldSize * 2); // double buffer size
-		s.avail_out = uInt(output.size() - oldSize); // TODO overflow?
+		auto oldSize = outSize;
+		outSize = oldSize * 2; // double buffer size
+		output.resize(outSize);
+		s.avail_out = uInt(outSize - oldSize); // TODO overflow?
 	}
 
 	// set actual size
 	output.resize(s.total_out);
+	return s.total_out;
 }
 
 } // namespace openmsx

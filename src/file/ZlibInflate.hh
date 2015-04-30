@@ -21,7 +21,7 @@ public:
 	std::string getString(size_t len);
 	std::string getCString();
 
-	void inflate(MemBuffer<byte>& output, size_t sizeHint = 65536);
+	size_t inflate(MemBuffer<byte>& output, size_t sizeHint = 65536);
 
 private:
 	z_stream s;
