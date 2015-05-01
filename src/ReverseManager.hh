@@ -83,7 +83,8 @@ private:
 	void debugInfo(TclObject& result) const;
 	void goBack(array_ref<TclObject> tokens);
 	void goTo(array_ref<TclObject> tokens);
-	void saveReplay(array_ref<TclObject> tokens, TclObject& result);
+	void saveReplay(Interpreter& interp,
+	                array_ref<TclObject> tokens, TclObject& result);
 	void loadReplay(Interpreter& interp,
 	                array_ref<TclObject> tokens, TclObject& result);
 

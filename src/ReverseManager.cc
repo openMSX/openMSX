@@ -525,7 +525,8 @@ void ReverseManager::transferState(MSXMotherBoard& newBoard)
 	newBoard.getMSXCommandController().transferSettings(oldController);
 }
 
-void ReverseManager::saveReplay(array_ref<TclObject> tokens, TclObject& result)
+void ReverseManager::saveReplay(
+	Interpreter& interp, array_ref<TclObject> tokens, TclObject& result)
 {
 	const auto& chunks = history.chunks;
 	if (chunks.empty()) {
@@ -533,12 +534,31 @@ void ReverseManager::saveReplay(array_ref<TclObject> tokens, TclObject& result)
 	}
 
 	string filename;
+	int maxNofExtraSnapshots = MAX_NOF_SNAPSHOTS;
 	switch (tokens.size()) {
 	case 2:
 		// nothing
 		break;
 	case 3:
 		filename = tokens[2].getString().str();
+		break;
+	case 4:
+	case 5:
+		size_t tn;
+		for (tn = 2; tn < (tokens.size() - 1); ++tn) {
+			if (tokens[tn].getString() == "-maxnofextrasnapshots") {
+				maxNofExtraSnapshots = tokens[tn + 1].getInt(interp);
+				break;
+			}
+		}
+		if (tn == (tokens.size() - 1)) throw SyntaxError();
+		if (tokens.size() == 5) {
+			filename = tokens[tn == 2 ? 4 : 2].getString().str();
+		}
+		if (maxNofExtraSnapshots < 0) {
+			throw CommandException("Maximum number of snapshots should be at least 0");
+		}
+
 		break;
 	default:
 		throw SyntaxError();
@@ -561,41 +581,43 @@ void ReverseManager::saveReplay(array_ref<TclObject> tokens, TclObject& result)
 	in.serialize("machine", *initialBoard);
 	replay.motherBoards.push_back(move(initialBoard));
 
-	// determine which extra snapshots to put in the replay
-	const auto& startTime = begin(chunks)->second.time;
-	// for the end time, try to take MAX_DIST_1_BEFORE_LAST_SNAPSHOT
-	// seconds before the normal end time so that we get an extra snapshot
-	// at that point, which is comfortable if you want to reverse from the
-	// last snapshot after loading the replay.
-	const auto& lastChunkTime = chunks.rbegin()->second.time;
-	const auto& endTime   = ((startTime + MAX_DIST_1_BEFORE_LAST_SNAPSHOT) < lastChunkTime) ? lastChunkTime - MAX_DIST_1_BEFORE_LAST_SNAPSHOT : lastChunkTime;
-	EmuDuration totalLength = endTime - startTime;
-	EmuDuration partitionLength = totalLength.divRoundUp(MAX_NOF_SNAPSHOTS);
-	partitionLength = std::max(MIN_PARTITION_LENGTH, partitionLength);
-	EmuTime nextPartitionEnd = startTime + partitionLength;
-	auto it = begin(chunks);
-	auto lastAddedIt = begin(chunks); // already added
-	while (it != end(chunks)) {
-		++it;
-		if (it == end(chunks) || (it->second.time > nextPartitionEnd)) {
-			--it;
-			assert(it->second.time <= nextPartitionEnd);
-			if (it != lastAddedIt) {
-				// this is a new one, add it to the list of snapshots
-				Reactor::Board board = reactor.createEmptyMotherBoard();
-				MemInputArchive in(it->second.savestate.data(),
-				                   it->second.size);
-				in.serialize("machine", *board);
-				replay.motherBoards.push_back(move(board));
-				lastAddedIt = it;
-			}
+	if (maxNofExtraSnapshots > 0) {
+		// determine which extra snapshots to put in the replay
+		const auto& startTime = begin(chunks)->second.time;
+		// for the end time, try to take MAX_DIST_1_BEFORE_LAST_SNAPSHOT
+		// seconds before the normal end time so that we get an extra snapshot
+		// at that point, which is comfortable if you want to reverse from the
+		// last snapshot after loading the replay.
+		const auto& lastChunkTime = chunks.rbegin()->second.time;
+		const auto& endTime   = ((startTime + MAX_DIST_1_BEFORE_LAST_SNAPSHOT) < lastChunkTime) ? lastChunkTime - MAX_DIST_1_BEFORE_LAST_SNAPSHOT : lastChunkTime;
+		EmuDuration totalLength = endTime - startTime;
+		EmuDuration partitionLength = totalLength.divRoundUp(maxNofExtraSnapshots);
+		partitionLength = std::max(MIN_PARTITION_LENGTH, partitionLength);
+		EmuTime nextPartitionEnd = startTime + partitionLength;
+		auto it = begin(chunks);
+		auto lastAddedIt = begin(chunks); // already added
+		while (it != end(chunks)) {
 			++it;
-			while (it != end(chunks) && it->second.time > nextPartitionEnd) {
-				nextPartitionEnd += partitionLength;
+			if (it == end(chunks) || (it->second.time > nextPartitionEnd)) {
+				--it;
+				assert(it->second.time <= nextPartitionEnd);
+				if (it != lastAddedIt) {
+					// this is a new one, add it to the list of snapshots
+					Reactor::Board board = reactor.createEmptyMotherBoard();
+					MemInputArchive in(it->second.savestate.data(),
+							   it->second.size());
+					in.serialize("machine", *board);
+					replay.motherBoards.push_back(move(board));
+					lastAddedIt = it;
+				}
+				++it;
+				while (it != end(chunks) && it->second.time > nextPartitionEnd) {
+					nextPartitionEnd += partitionLength;
+				}
 			}
 		}
+		assert(lastAddedIt == --end(chunks)); // last snapshot must be included
 	}
-	assert(lastAddedIt == --end(chunks)); // last snapshot must be included
 
 	// add sentinel when there isn't one yet
 	bool addSentinel = history.events.empty() ||
@@ -982,7 +1004,7 @@ void ReverseManager::ReverseCmd::execute(array_ref<TclObject> tokens, TclObject&
 	} else if (subcommand == "goto") {
 		manager.goTo(tokens);
 	} else if (subcommand == "savereplay") {
-		return manager.saveReplay(tokens, result);
+		return manager.saveReplay(interp, tokens, result);
 	} else if (subcommand == "loadreplay") {
 		return manager.loadReplay(interp, tokens, result);
 	} else if (subcommand == "viewonlymode") {
