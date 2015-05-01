@@ -64,6 +64,23 @@ private:
 		Table table;
 		unsigned filterLen;
 		unsigned count;
+
+		// workaround for vs013: normally these are auto-generated
+		Element(double ratio_, Table&& table_, unsigned filterLen_, unsigned count_)
+			: ratio(ratio_), table(std::move(table_))
+			, filterLen(filterLen_), count(count_) {}
+		Element(Element&& e)
+			: ratio    (std::move(e.ratio))
+			, table    (std::move(e.table))
+			, filterLen(std::move(e.filterLen))
+			, count    (std::move(e.count)) {}
+		Element& operator=(Element&& e) {
+			ratio     = std::move(e.ratio);
+			table     = std::move(e.table);
+			filterLen = std::move(e.filterLen);
+			count     = std::move(e.count);
+			return *this;
+		}
 	};
 	std::vector<Element> cache; // typically 1-4 entries -> unsorted vector
 };
