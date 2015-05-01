@@ -10,28 +10,27 @@ namespace openmsx {
 
 ArgumentGenerator::~ArgumentGenerator()
 {
-	for (unsigned i = 0; i < argv.size(); ++i) {
+	for (int i = 0; i < argc; ++i) {
 		free(argv[i]);
 	}
 }
 
-char** ArgumentGenerator::GetArguments(int& argc)
+char** ArgumentGenerator::GetArguments(int& argc_)
 {
 	if (argv.empty()) {
-		int cArgs;
-		LPWSTR* pszArglist = CommandLineToArgvW(GetCommandLineW(), &cArgs);
+		LPWSTR* pszArglist = CommandLineToArgvW(GetCommandLineW(), &argc);
 		if (!pszArglist) {
 			throw MSXException("Failed to obtain command line arguments");
 		}
 
-		argv.resize(cArgs);
-		for (int i = 0; i < cArgs; ++i) {
+		argv.resize(argc);
+		for (int i = 0; i < argc; ++i) {
 			argv[i] = strdup(utf8::utf16to8(pszArglist[i]).c_str());
 		}
 		LocalFree(pszArglist);
 	}
 
-	argc = int(argv.size());
+	argc_ = argc;
 	return argv.data();
 }
 

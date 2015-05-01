@@ -15,6 +15,7 @@ public:
 
 private:
 	MemBuffer<char*> argv;
+	int argc;
 };
 
 #endif
