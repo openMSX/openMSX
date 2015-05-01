@@ -605,7 +605,7 @@ void ReverseManager::saveReplay(
 					// this is a new one, add it to the list of snapshots
 					Reactor::Board board = reactor.createEmptyMotherBoard();
 					MemInputArchive in(it->second.savestate.data(),
-							   it->second.size());
+							   it->second.size);
 					in.serialize("machine", *board);
 					replay.motherBoards.push_back(move(board));
 					lastAddedIt = it;
