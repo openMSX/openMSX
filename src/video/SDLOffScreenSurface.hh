@@ -3,6 +3,7 @@
 
 #include "OutputSurface.hh"
 #include "SDLSurfacePtr.hh"
+#include "MemBuffer.hh"
 
 namespace openmsx {
 
@@ -10,7 +11,6 @@ class SDLOffScreenSurface final : public OutputSurface
 {
 public:
 	explicit SDLOffScreenSurface(const SDL_Surface& prototype);
-	~SDLOffScreenSurface();
 
 private:
 	// OutputSurface
@@ -18,7 +18,7 @@ private:
 	void clearScreen() override;
 
 	SDLSurfacePtr surface;
-	void* buffer;
+	MemBuffer<char, SSE2_ALIGNMENT> buffer;
 };
 
 } // namespace openmsx

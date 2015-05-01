@@ -1,6 +1,7 @@
 #ifndef SDLSURFACEPTR
 #define SDLSURFACEPTR
 
+#include "MemBuffer.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <new>
@@ -38,15 +39,11 @@ public:
 		assert((depth % 8) == 0);
 		unsigned pitch = width * (depth >> 3);
 		unsigned size = height * pitch;
-		buffer = malloc(size);
-		if (!buffer) throw std::bad_alloc();
+		buffer.resize(size);
 		surface = SDL_CreateRGBSurfaceFrom(
-			buffer, width, height, depth, pitch,
+			buffer.data(), width, height, depth, pitch,
 			rMask, gMask, bMask, aMask);
-		if (!surface) {
-			free(buffer);
-			throw std::bad_alloc();
-		}
+		if (!surface) throw std::bad_alloc();
 	}
 
 	// don't allow copy and assign
@@ -54,27 +51,20 @@ public:
 	SDLSurfacePtr(const SDLSurfacePtr&) /*= delete*/;
 	SDLSurfacePtr& operator=(const SDLSurfacePtr&) /*= delete*/;
 
-	explicit SDLSurfacePtr(SDL_Surface* surface_ = nullptr,
-	                       void* buffer_ = nullptr)
+	explicit SDLSurfacePtr(SDL_Surface* surface_ = nullptr)
 		: surface(surface_)
-		, buffer(buffer_)
 	{
 	}
-
 	SDLSurfacePtr(SDLSurfacePtr&& other)
 		: surface(other.surface)
-		, buffer(other.buffer)
+		, buffer(std::move(other.buffer))
 	{
 		other.surface = nullptr;
-		other.buffer = nullptr;
 	}
 
 	~SDLSurfacePtr()
 	{
-		if (surface) {
-			SDL_FreeSurface(surface);
-		}
-		free(buffer);
+		if (surface) SDL_FreeSurface(surface);
 	}
 
 	void reset(SDL_Surface* surface_ = nullptr)
@@ -100,10 +90,8 @@ public:
 
 	SDLSurfacePtr& operator=(SDLSurfacePtr&& other)
 	{
-		SDLSurfacePtr tmp(other.surface, other.buffer);
-		other.surface = nullptr;
-		other.buffer = nullptr;
-		tmp.swap(*this);
+		std::swap(surface, other.surface);
+		std::swap(buffer,  other.buffer);
 		return *this;
 	}
 
@@ -142,7 +130,7 @@ public:
 
 private:
 	SDL_Surface* surface;
-	void* buffer;
+	openmsx::MemBuffer<char> buffer;
 };
 
 #endif

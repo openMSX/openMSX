@@ -12,7 +12,7 @@
 #include "ResampleHQ.hh"
 #include "ResampledSoundDevice.hh"
 #include "FixedPoint.hh"
-#include "MemoryOps.hh"
+#include "MemBuffer.hh"
 #include "countof.hh"
 #include "likely.hh"
 #include "noncopyable.hh"
@@ -51,16 +51,17 @@ public:
 
 private:
 	using FilterIndex = FixedPoint<16>;
+	using Table = MemBuffer<float, SSE2_ALIGNMENT>;
 
 	ResampleCoeffs();
 	~ResampleCoeffs();
 
 	double getCoeff(FilterIndex index);
-	void calcTable(double ratio, float*& table, unsigned& filterLen);
+	Table calcTable(double ratio, unsigned& filterLen);
 
 	struct Element {
 		double ratio;
-		float* table;
+		Table table;
 		unsigned filterLen;
 		unsigned count;
 	};
@@ -88,13 +89,14 @@ void ResampleCoeffs::getCoeffs(
 	auto it = find_if(begin(cache), end(cache),
 		[=](const Element& e) { return e.ratio == ratio; });
 	if (it != end(cache)) {
-		table     = it->table;
+		table     = it->table.data();
 		filterLen = it->filterLen;
 		it->count++;
 		return;
 	}
-	calcTable(ratio, table, filterLen);
-	cache.push_back({ratio, table, filterLen, 1});
+	Table tab = calcTable(ratio, filterLen);
+	table = tab.data();
+	cache.push_back({ratio, std::move(tab), filterLen, 1});
 }
 
 void ResampleCoeffs::releaseCoeffs(double ratio)
@@ -103,8 +105,9 @@ void ResampleCoeffs::releaseCoeffs(double ratio)
 		[=](const Element& e) { return e.ratio == ratio; });
 	it->count--;
 	if (it->count == 0) {
-		MemoryOps::freeAligned(it->table);
-		*it = cache.back(); // move last element here
+		if (it != (end(cache) - 1)) {
+			*it = std::move(cache.back()); // move last element here
+		}
 		cache.pop_back();   // and erase last
 	}
 }
@@ -117,8 +120,7 @@ double ResampleCoeffs::getCoeff(FilterIndex index)
 	       fraction * (double(coeffs[indx + 1]) - double(coeffs[indx]));
 }
 
-void ResampleCoeffs::calcTable(
-	double ratio, float*& table, unsigned& filterLen)
+ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLen)
 {
 	double floatIncr = (ratio > 1.0) ? INDEX_INC / ratio : INDEX_INC;
 	double normFactor = floatIncr / INDEX_INC;
@@ -130,9 +132,8 @@ void ResampleCoeffs::calcTable(
 	int idx_cnt = max_idx - min_idx + 1;
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
 	min_idx -= (filterLen - idx_cnt);
-	table = static_cast<float*>(MemoryOps::mallocAligned(
-		16, TAB_LEN * filterLen * sizeof(float)));
-	memset(table, 0, TAB_LEN * filterLen * sizeof(float));
+	Table table(TAB_LEN * filterLen);
+	memset(table.data(), 0, TAB_LEN * filterLen * sizeof(float));
 
 	for (unsigned t = 0; t < TAB_LEN; ++t) {
 		double lastPos = double(t) / TAB_LEN;
@@ -160,6 +161,7 @@ void ResampleCoeffs::calcTable(
 			bufIndex -= 1;
 		} while (filterIndex > FilterIndex(0));
 	}
+	return table;
 }
 
 

@@ -15,7 +15,7 @@
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
 #include "CommandException.hh"
-#include "MemoryOps.hh"
+#include "MemBuffer.hh"
 #include "vla.hh"
 #include "memory.hh"
 #include "likely.hh"
@@ -211,29 +211,31 @@ void PostProcessor::executeUntil(EmuTime::param /*time*/)
 			getVideoSource(), getVideoSourceSetting(), false));
 }
 
-void PostProcessor::getScaledFrame(unsigned height, const void** lines,
-                                   std::vector<void*>& workBuffer)
+using WorkBuffer = std::vector<MemBuffer<char, SSE2_ALIGNMENT>>;
+static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
+                           unsigned height, const void** lines,
+                           WorkBuffer& workBuffer)
 {
 	unsigned width = (height == 240) ? 320 : 640;
-	unsigned pitch = width * ((getBpp() == 32) ? 4 : 2);
+	unsigned pitch = width * ((bpp == 32) ? 4 : 2);
 	const void* line = nullptr;
 	void* work = nullptr;
 	for (unsigned i = 0; i < height; ++i) {
 		if (line == work) {
 			// If work buffer was used in previous iteration,
 			// then allocate a new one.
-			work = MemoryOps::mallocAligned(16, pitch);
-			workBuffer.push_back(work);
+			workBuffer.emplace_back(pitch);
+			work = workBuffer.back().data();
 		}
 #if HAVE_32BPP
-		if (getBpp() == 32) {
+		if (bpp == 32) {
 			// 32bpp
 			auto* work2 = static_cast<uint32_t*>(work);
 			if (height == 240) {
-				line = paintFrame->getLinePtr320_240(i, work2);
+				line = paintFrame.getLinePtr320_240(i, work2);
 			} else {
 				assert (height == 480);
-				line = paintFrame->getLinePtr640_480(i, work2);
+				line = paintFrame.getLinePtr640_480(i, work2);
 			}
 		} else
 #endif
@@ -242,10 +244,10 @@ void PostProcessor::getScaledFrame(unsigned height, const void** lines,
 			// 15bpp or 16bpp
 			auto* work2 = static_cast<uint16_t*>(work);
 			if (height == 240) {
-				line = paintFrame->getLinePtr320_240(i, work2);
+				line = paintFrame.getLinePtr320_240(i, work2);
 			} else {
 				assert (height == 480);
-				line = paintFrame->getLinePtr640_480(i, work2);
+				line = paintFrame.getLinePtr640_480(i, work2);
 			}
 #endif
 		}
@@ -260,15 +262,10 @@ void PostProcessor::takeRawScreenShot(unsigned height, const std::string& filena
 	}
 
 	VLA(const void*, lines, height);
-	std::vector<void*> workBuffer;
-	getScaledFrame(height, lines, workBuffer);
-
+	WorkBuffer workBuffer;
+	getScaledFrame(*paintFrame, getBpp(), height, lines, workBuffer);
 	unsigned width = (height == 240) ? 320 : 640;
 	PNG::save(width, height, lines, paintFrame->getSDLPixelFormat(), filename);
-
-	for (void* p : workBuffer) {
-		MemoryOps::freeAligned(p);
-	}
 }
 
 unsigned PostProcessor::getBpp() const

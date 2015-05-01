@@ -37,7 +37,7 @@
 namespace openmsx {
 
 extern int w32_midiOutInit();
-extern int w32_midiOutClean();
+extern void w32_midiOutClean();
 extern unsigned w32_midiOutGetVFNsNum();
 extern std::string w32_midiOutGetVFN(unsigned nmb);
 extern std::string w32_midiOutGetRDN(unsigned nmb);
@@ -46,7 +46,7 @@ extern int w32_midiOutClose(unsigned idx);
 extern int w32_midiOutPut(unsigned char value, unsigned idx);
 
 extern int w32_midiInInit();
-extern int w32_midiInClean();
+extern void w32_midiInClean();
 extern unsigned w32_midiInGetVFNsNum();
 extern std::string w32_midiInGetVFN(unsigned nmb);
 extern std::string w32_midiInGetRDN(unsigned nmb);

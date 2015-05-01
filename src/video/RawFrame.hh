@@ -26,11 +26,10 @@ class RawFrame final : public FrameSource
 {
 public:
 	RawFrame(const SDL_PixelFormat& format, unsigned maxWidth, unsigned height);
-	~RawFrame();
 
 	template<typename Pixel>
 	Pixel* getLinePtrDirect(unsigned y) {
-		return reinterpret_cast<Pixel*>(data + y * pitch);
+		return reinterpret_cast<Pixel*>(data.data() + y * pitch);
 	}
 
 	unsigned getLineWidthDirect(unsigned y) const {
@@ -65,7 +64,7 @@ protected:
 	bool hasContiguousStorage() const override;
 
 private:
-	char* data;
+	MemBuffer<char, 64> data;
 	MemBuffer<unsigned> lineWidths;
 	unsigned maxWidth;
 	unsigned pitch;

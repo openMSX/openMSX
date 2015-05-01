@@ -1,10 +1,13 @@
 #ifndef SCHEDULERQUEUE_HH
 #define SCHEDULERQUEUE_HH
 
+#include "MemBuffer.hh"
 #include "likely.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
+
+namespace openmsx {
 
 // This is similar to a sorted vector<T>. Though this container can have spare
 // capacity both at the front and at the end (vector only at the end). This
@@ -16,25 +19,18 @@
 template<typename T> class SchedulerQueue
 {
 public:
+	static const int CAPACITY = 32; // initial capacity
+	static const int SPARE_FRONT = 1;
 	SchedulerQueue()
+		: storage   (CAPACITY + 1) // one extra for sentinel
+		, storageEnd(storage.data() + CAPACITY)
+		, useBegin  (storage.data() + SPARE_FRONT)
+		, useEnd    (useBegin)
 	{
-		static const int CAPACITY = 32; // initial capacity
-		static const int SPARE_FRONT = 1;
-
-		// Allocate one extra to be able to store sentinel.
-		storageBegin = static_cast<T*>(malloc((CAPACITY + 1) * sizeof(T)));
-		storageEnd = storageBegin + CAPACITY;
-		useBegin   = storageBegin + SPARE_FRONT;
-		useEnd     = useBegin;
 	}
 
-	~SchedulerQueue()
-	{
-		free(storageBegin);
-	}
-
-	size_t capacity()   const { return storageEnd - storageBegin; }
-	size_t spareFront() const { return useBegin   - storageBegin; }
+	size_t capacity()   const { return storageEnd - storage.data(); }
+	size_t spareFront() const { return useBegin   - storage.data(); }
 	size_t spareBack()  const { return storageEnd - useEnd;       }
 	size_t size()  const { return useEnd -  useBegin; }
 	bool   empty() const { return useEnd == useBegin; }
@@ -66,7 +62,7 @@ public:
 		while (!less(t, *it)) ++it;
 
 		if ((it - useBegin) <= (useEnd - it)) {
-			if (likely(useBegin != storageBegin)) {
+			if (likely(useBegin != storage.data())) {
 				insertFront(it, t);
 			} else if (useEnd != storageEnd) {
 				insertBack(it, t);
@@ -76,7 +72,7 @@ public:
 		} else {
 			if (likely(useEnd != storageEnd)) {
 				insertBack(it, t);
-			} else if (useBegin != storageBegin) {
+			} else if (useBegin != storage.data()) {
 				insertFront(it, t);
 			} else {
 				insertRealloc(it, t);
@@ -131,29 +127,29 @@ private:
 	{
 		static const int SPARE_FRONT = 1;
 
-		size_t oldSize = storageEnd - storageBegin;
+		size_t oldSize = storageEnd - storage.data();
 		size_t newSize = oldSize * 2;
 
-		// Allocate one extra to be able to store sentinel.
-		T* newStorage = static_cast<T*>(malloc((newSize + 1) * sizeof(T)));
-		T* newUseBegin = newStorage + SPARE_FRONT;
+		MemBuffer<T> newStorage(newSize + 1); // one extra for sentinel
+		T* newUseBegin = newStorage.data() + SPARE_FRONT;
 		std::copy(useBegin, it, newUseBegin);
 		*(newUseBegin + (it - useBegin)) = t;
 		std::copy(it, useEnd, newUseBegin + (it - useBegin) + 1);
-		free(storageBegin);
 
-		storageBegin = newStorage;
-		storageEnd   = newStorage + newSize;
-		useBegin     = newUseBegin;
-		useEnd       = useBegin + oldSize + 1;
+		storage    = std::move(newStorage);
+		storageEnd = storage.data() + newSize;
+		useBegin   = newUseBegin;
+		useEnd     = useBegin + oldSize + 1;
 	}
 
 private:
-	// Invariant: storageBegin <= useBegin <= useEnd <= storageEnd
-	T* storageBegin;
+	// Invariant: storage.data() <= useBegin <= useEnd <= storageEnd
+	MemBuffer<T> storage;
 	T* storageEnd;
 	T* useBegin;
 	T* useEnd;
 };
+
+} // namespace openmsx
 
 #endif // SCHEDULERQUEUE_HH

@@ -1,6 +1,7 @@
 #ifndef SERIALIZEBUFFER_HH
 #define SERIALIZEBUFFER_HH
 
+#include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <algorithm>
@@ -28,10 +29,6 @@ public:
 	/** Create an empty output buffer.
 	 */
 	OutputBuffer();
-
-	/** Delete the buffer again. The data may not be used anymore.
-	  */
-	~OutputBuffer();
 
 	/** Insert data at the end of this buffer.
 	  * This will automatically grow this buffer.
@@ -64,8 +61,8 @@ public:
 	  */
 	void insertAt(size_t pos, const void* __restrict data, size_t len) __restrict
 	{
-		assert(begin + pos + len <= finish);
-		memcpy(begin + pos, data, len);
+		assert(buf.data() + pos + len <= finish);
+		memcpy(buf.data() + pos, data, len);
 	}
 
 	/** Reserve space to insert the given number of bytes.
@@ -81,7 +78,7 @@ public:
 		byte* newEnd = end + len;
 		// Make sure the next OutputBuffer will start with an initial size
 		// that can hold this much space plus some slack.
-		size_t newSize = newEnd - begin;
+		size_t newSize = newEnd - buf.data();
 		lastSize = std::max(lastSize, newSize + 1000);
 		if (newEnd <= finish) {
 			byte* result = end;
@@ -105,7 +102,7 @@ public:
 	  */
 	void deallocate(byte* pos)
 	{
-		assert(begin <= pos);
+		assert(buf.data() <= pos);
 		assert(pos <= end);
 		end = pos;
 	}
@@ -114,23 +111,23 @@ public:
 	 */
 	size_t getPosition() const
 	{
-		return end - begin;
+		return end - buf.data();
 	}
 
 	/** Release ownership of the buffer.
-	 * Returns both a pointer to the raw buffer and its size.
+	 * Returns both the buffer and its size.
 	 */
-	byte* release(size_t& size);
+	MemBuffer<byte> release(size_t& size);
 
 private:
 	void insertGrow(const void* __restrict data, size_t len) __restrict;
 	byte* allocateGrow(size_t len) __restrict;
 
-	byte* begin;   // begin of allocated memory
-	byte* end;     // points right after the last used byte
-	               // so   end - begin == size
-	byte* finish;  // points right after the last allocated byte
-	               // so   finish - begin == capacity
+	MemBuffer<byte> buf; // begin of allocated memory
+	byte* end;           // points right after the last used byte
+	                     // so   end - buf == size
+	byte* finish;        // points right after the last allocated byte
+	                     // so   finish - buf == capacity
 
 	static size_t lastSize;
 };

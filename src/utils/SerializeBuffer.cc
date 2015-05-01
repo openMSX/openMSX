@@ -10,9 +10,9 @@ namespace openmsx {
 size_t OutputBuffer::lastSize = 50000; // initial estimate
 
 OutputBuffer::OutputBuffer()
-	: begin(static_cast<byte*>(malloc(lastSize)))
-	, end(begin)
-	, finish(begin + lastSize)
+	: buf(lastSize)
+	, end(buf.data())
+	, finish(buf.data() + lastSize)
 {
 	// We've allocated a buffer with an estimated initial size. This
 	// estimate is based on the largest intermediate size of the previously
@@ -22,20 +22,12 @@ OutputBuffer::OutputBuffer()
 	// performance. If later we discover the buffer is too small, we have
 	// to reallocate (and thus make a copy). In profiling this reallocation
 	// step was noticable.
-	if (!begin) {
-		throw std::bad_alloc();
-	}
 
 	// Slowly drop the estimated required size. This makes sure that when
 	// we've overestimated the size once, we don't forever keep this too
 	// high value. For performance an overestimation is less bad than an
 	// underestimation.
 	lastSize -= lastSize >> 7;
-}
-
-OutputBuffer::~OutputBuffer()
-{
-	free(begin);
 }
 
 #ifdef __GNUC__
@@ -67,15 +59,15 @@ void OutputBuffer::insertN(const void* __restrict data, size_t len) __restrict
 	}
 }
 
-byte* OutputBuffer::release(size_t& size)
+MemBuffer<byte> OutputBuffer::release(size_t& size)
 {
-	size = end - begin;
+	size = end - buf.data();
 
 	// Deallocate unused buffer space.
-	byte* result = static_cast<byte*>(realloc(begin, size));
+	buf.resize(size);
 
-	begin = end = finish = nullptr;
-	return result;
+	end = finish = nullptr;
+	return std::move(buf);
 }
 
 void OutputBuffer::insertGrow(const void* __restrict data, size_t len) __restrict
@@ -86,16 +78,12 @@ void OutputBuffer::insertGrow(const void* __restrict data, size_t len) __restric
 
 byte* OutputBuffer::allocateGrow(size_t len) __restrict
 {
-	size_t oldSize = end - begin;
+	size_t oldSize = end - buf.data();
 	size_t newSize = std::max(oldSize + len, oldSize + oldSize / 2);
-	auto newBegin = static_cast<byte*>(realloc(begin, newSize));
-	if (!newBegin) {
-		throw std::bad_alloc();
-	}
-	begin = newBegin;
-	end = begin + oldSize + len;
-	finish = begin + newSize;
-	return begin + oldSize;
+	buf.resize(newSize);
+	end = buf.data() + oldSize + len;
+	finish = buf.data() + newSize;
+	return buf.data() + oldSize;
 }
 
 

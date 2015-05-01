@@ -1,5 +1,4 @@
 #include "RawFrame.hh"
-#include "MemoryOps.hh"
 #include <cstdint>
 #include <SDL.h>
 
@@ -18,8 +17,7 @@ RawFrame::RawFrame(
 	// - SSE instructions need 16 byte aligned data
 	// - cache line size on many CPUs is 64 bytes
 	pitch = ((bytesPerPixel * maxWidth) + 63) & ~63;
-	data = reinterpret_cast<char*>(
-		MemoryOps::mallocAligned(64, pitch * height));
+	data.resize(pitch * height);
 
 	maxWidth = pitch / bytesPerPixel; // adjust maxWidth
 
@@ -34,11 +32,6 @@ RawFrame::RawFrame(
 	}
 }
 
-RawFrame::~RawFrame()
-{
-	MemoryOps::freeAligned(data);
-}
-
 unsigned RawFrame::getLineWidth(unsigned line) const
 {
 	assert(line < getHeight());
@@ -51,7 +44,7 @@ const void* RawFrame::getLineInfo(
 {
 	assert(line < getHeight());
 	width = lineWidths[line];
-	return data + line * pitch;
+	return data.data() + line * pitch;
 }
 
 unsigned RawFrame::getRowLength() const

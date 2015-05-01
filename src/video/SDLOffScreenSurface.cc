@@ -1,6 +1,5 @@
 #include "SDLOffScreenSurface.hh"
 #include "PNG.hh"
-#include "MemoryOps.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -21,20 +20,14 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 	unsigned pitch = proto.w * format.BitsPerPixel / 8;
 	assert((pitch % 16) == 0);
 	unsigned size = pitch * proto.h;
-	buffer = MemoryOps::mallocAligned(16, size);
-	memset(buffer, 0, size);
+	buffer.resize(size);
+	memset(buffer.data(), 0, size);
 	surface.reset(SDL_CreateRGBSurfaceFrom(
-		buffer, proto.w, proto.h, format.BitsPerPixel, pitch,
+		buffer.data(), proto.w, proto.h, format.BitsPerPixel, pitch,
 		format.Rmask, format.Gmask, format.Bmask, format.Amask));
 
 	setSDLSurface(surface.get());
 	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
-}
-
-SDLOffScreenSurface::~SDLOffScreenSurface()
-{
-	surface.reset();
-	MemoryOps::freeAligned(buffer);
 }
 
 void SDLOffScreenSurface::saveScreenshot(const std::string& filename)

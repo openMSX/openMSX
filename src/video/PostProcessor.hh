@@ -147,9 +147,6 @@ protected:
 	int height;   // these two vars remember how big those should be
 
 private:
-	void getScaledFrame(unsigned height, const void** lines,
-	                    std::vector<void*>& workBuffer);
-
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 

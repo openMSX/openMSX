@@ -28,6 +28,7 @@
 #ifdef _WIN32
 
 #include "MSXException.hh"
+#include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "cstdiop.hh"
 
@@ -67,11 +68,12 @@ struct outbuf {
 	MIDIHDR  header;
 };
 
-static struct vfn_midi *vfnt_midiout, *vfnt_midiin;
+static MemBuffer<vfn_midi> vfnt_midiout;
+static MemBuffer<vfn_midi> vfnt_midiin;
 static unsigned vfnt_midiout_num, vfnt_midiin_num;
 
-static int *state_out;
-static struct outbuf *buf_out;
+static MemBuffer<int> state_out;
+static MemBuffer<outbuf> buf_out;
 
 static MIDIHDR inhdr;
 static char inlongmes[OPENMSX_W32_MIDI_SYSMES_MAXLEN];
@@ -112,22 +114,15 @@ int w32_midiOutInit()
 {
 	vfnt_midiout_num = 0;
 	unsigned num = midiOutGetNumDevs();
-	if (!num) {
-		return 0;
-	}
-	if ((state_out = static_cast<int*>(malloc((num + 1) * sizeof(int)))) == nullptr) {
-		return 1;
-	}
-	memset(state_out, 0, (num + 1) * sizeof(int));
+	if (!num) return 0;
 
-	if ((buf_out = static_cast<outbuf*>(malloc((num + 1) * sizeof(struct outbuf)))) == nullptr) {
-		return 1;
-	}
-	memset(buf_out, 0, (num + 1) * sizeof(struct outbuf));
+	state_out.resize(num + 1);
+	memset(state_out.data(), 0, (num + 1) * sizeof(int));
 
-	if ((vfnt_midiout = static_cast<vfn_midi*>(malloc((num + 1) * sizeof(struct vfn_midi)))) == nullptr) {
-		return 1;
-	}
+	buf_out.resize(num + 1);
+	memset(buf_out.data(), 0, (num + 1) * sizeof(outbuf));
+
+	vfnt_midiout.resize(num + 1);
 
 	// MIDI_MAPPER is #define's as ((UINT)-1)
 	UINT OPENMSX_MIDI_MAPPER = static_cast<UINT>(-1);
@@ -152,13 +147,9 @@ int w32_midiOutInit()
 	return 0;
 }
 
-int w32_midiOutClean()
+void w32_midiOutClean()
 {
 	vfnt_midiout_num = 0;
-	free(vfnt_midiout);
-	free(buf_out);
-	free(state_out);
-	return 0;
 }
 
 
@@ -333,12 +324,9 @@ int w32_midiInInit()
 {
 	vfnt_midiin_num = 0;
 	unsigned num = midiInGetNumDevs();
-	if (!num) {
-		return 0;
-	}
-	if ((vfnt_midiin = static_cast<vfn_midi*>(malloc((num + 1) * sizeof(struct vfn_midi)))) == nullptr) {
-		return	1;
-	}
+	if (!num) return 0;
+
+	vfnt_midiin.resize(num + 1);
 	for (unsigned i = 0; i < num; ++i) {
 		MIDIINCAPSA cap;
 		if (midiInGetDevCapsA(i, &cap, sizeof(cap)) != MMSYSERR_NOERROR) {
@@ -352,11 +340,9 @@ int w32_midiInInit()
 	return 0;
 }
 
-int w32_midiInClean()
+void w32_midiInClean()
 {
 	vfnt_midiin_num = 0;
-	free(vfnt_midiout);
-	return 0;
 }
 
 

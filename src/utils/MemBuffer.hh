@@ -58,20 +58,6 @@ public:
 	{
 	}
 
-	/** Take ownership of the given memory block. This pointer should have
-	 * been allocated earlier with malloc() or realloc() (or it should be
-	 * nullptr).
-	  */
-	MemBuffer(T* data, size_t size)
-		: dat(data)
-#ifdef DEBUG
-		, sz(size)
-#endif
-	{
-		(void)size;
-		assert(SIMPLE_MALLOC);
-	}
-
 	/** Move constructor. */
 	MemBuffer(MemBuffer&& other)
 		: dat(other.dat)

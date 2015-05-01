@@ -2,7 +2,7 @@
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
 #include "Math.hh"
-#include "MemoryOps.hh"
+#include "MemBuffer.hh"
 #include "MemBuffer.hh"
 #include "vla.hh"
 #include "build-info.hh"
@@ -43,16 +43,15 @@ void MLAAScaler<Pixel>::scaleImage(
 	const int srcNumLines = srcEndY - srcStartY;
 	VLA(const Pixel*, srcLinePtrsArray, srcNumLines + 2);
 	auto** srcLinePtrs = &srcLinePtrsArray[1];
-	std::vector<Pixel*> workBuffer;
+	std::vector<MemBuffer<Pixel, SSE2_ALIGNMENT>> workBuffer;
 	const Pixel* line = nullptr;
 	Pixel* work = nullptr;
 	for (int y = -1; y < srcNumLines + 1; y++) {
 		if (line == work) {
 			// Allocate new workBuffer when needed
 			// e.g. when used in previous iteration
-			work = static_cast<Pixel*>(
-				MemoryOps::mallocAligned(16, srcWidth * sizeof(Pixel)));
-			workBuffer.push_back(work);
+			workBuffer.emplace_back(srcWidth);
+			work = workBuffer.back().data();
 		}
 		line = src.getLinePtr(srcStartY + y, srcWidth, work);
 		srcLinePtrs[y] = line;
@@ -666,9 +665,6 @@ void MLAAScaler<Pixel>::scaleImage(
 		}
 	}
 
-	for (auto* p : workBuffer) {
-		MemoryOps::freeAligned(p);
-	}
 	for (unsigned i = dstStartY; i < dstEndY; ++i) {
 		dst.releaseLine(i, dstLines[i]);
 	}
