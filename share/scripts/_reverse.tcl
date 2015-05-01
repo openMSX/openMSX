@@ -269,7 +269,7 @@ proc auto_save_replay_loop {} {
 	variable auto_save_after_id
 
 	if {$::auto_save_replay} {
-		reverse savereplay $::auto_save_replay_filename
+		reverse savereplay -maxnofextrasnapshots 0 $::auto_save_replay_filename
 
 		set auto_save_after_id [after realtime $::auto_save_replay_interval "reverse::auto_save_replay_loop"]
 	}
