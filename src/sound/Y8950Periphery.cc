@@ -66,8 +66,8 @@ private:
 
 	MSXAudio& audio;
 	BooleanSetting swSwitch;
-	const std::unique_ptr<Ram> ram;
-	const std::unique_ptr<Rom> rom;
+	Ram ram;
+	Rom rom;
 	byte bankSelect;
 	byte ioPorts;
 };
@@ -164,11 +164,9 @@ PanasonicAudioPeriphery::PanasonicAudioPeriphery(
 	           "software of this module must be started or not.",
 	           false)
 	// note: name + " RAM"  already taken by sample RAM
-	, ram(make_unique<Ram>(
-		config, audio.getName() + " mapped RAM",
-		"MSX-AUDIO mapped RAM", 0x1000))
-	, rom(make_unique<Rom>(
-		audio.getName() + " ROM", "MSX-AUDIO ROM", config))
+	, ram(config, audio.getName() + " mapped RAM",
+	      "MSX-AUDIO mapped RAM", 0x1000)
+	, rom(audio.getName() + " ROM", "MSX-AUDIO ROM", config)
 	, ioPorts(0)
 {
 	reset();
@@ -181,7 +179,7 @@ PanasonicAudioPeriphery::~PanasonicAudioPeriphery()
 
 void PanasonicAudioPeriphery::reset()
 {
-	ram->clear(); // TODO check
+	ram.clear(); // TODO check
 	setBank(0);
 	setIOPorts(0); // TODO check: neither IO port ranges active
 }
@@ -202,18 +200,18 @@ nibble PanasonicAudioPeriphery::read(EmuTime::param /*time*/)
 byte PanasonicAudioPeriphery::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
-		return (*ram)[(address & 0x3FFF) - 0x3000];
+		return ram[(address & 0x3FFF) - 0x3000];
 	} else {
-		return (*rom)[0x8000 * bankSelect + (address & 0x7FFF)];
+		return rom[0x8000 * bankSelect + (address & 0x7FFF)];
 	}
 }
 
 const byte* PanasonicAudioPeriphery::getReadCacheLine(word address) const
 {
 	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
-		return &(*ram)[(address & 0x3FFF) - 0x3000];
+		return &ram[(address & 0x3FFF) - 0x3000];
 	} else {
-		return &(*rom)[0x8000 * bankSelect + (address & 0x7FFF)];
+		return &rom[0x8000 * bankSelect + (address & 0x7FFF)];
 	}
 }
 
@@ -227,7 +225,7 @@ void PanasonicAudioPeriphery::writeMem(word address, byte value, EmuTime::param 
 	}
 	address &= 0x3FFF;
 	if ((bankSelect == 0) && (address >= 0x3000)) {
-		(*ram)[address - 0x3000] = value;
+		ram[address - 0x3000] = value;
 	}
 }
 
@@ -239,7 +237,7 @@ byte* PanasonicAudioPeriphery::getWriteCacheLine(word address) const
 	}
 	address &= 0x3FFF;
 	if ((bankSelect == 0) && (address >= 0x3000)) {
-		return const_cast<byte*>(&(*ram)[address - 0x3000]);
+		return const_cast<byte*>(&ram[address - 0x3000]);
 	} else {
 		return MSXDevice::unmappedWrite;
 	}
@@ -281,7 +279,7 @@ void PanasonicAudioPeriphery::setIOPortsHelper(unsigned base, bool enable)
 template<typename Archive>
 void PanasonicAudioPeriphery::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("ram", *ram);
+	ar.serialize("ram", ram);
 	ar.serialize("bankSelect", bankSelect);
 	byte tmpIoPorts = ioPorts;
 	ar.serialize("ioPorts", tmpIoPorts);
