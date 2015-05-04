@@ -35,7 +35,6 @@ public:
 	const std::string& getName() const { return name; }
 	const std::string& getDescription() const { return description; }
 	const Sha1Sum& getOriginalSHA1() const;
-	const Sha1Sum& getPatchedSHA1() const;
 
 private:
 	void init(MSXMotherBoard& motherBoard, const XMLElement& config,
@@ -50,7 +49,6 @@ private:
 	File file; // can be a closed file
 
 	mutable Sha1Sum originalSha1;
-	Sha1Sum patchedSha1;
 	std::string name;
 	const std::string description;
 	unsigned size;

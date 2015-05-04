@@ -226,6 +226,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		checkResolvedSha1 = false;
 	}
 
+	Sha1Sum patchedSha1;
 	if (size != 0) {
 		if (auto* patchesElem = config.findChild("patches")) {
 			// calculate before content is altered
@@ -285,7 +286,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	if (checkResolvedSha1) {
 		auto& mutableConfig = const_cast<XMLElement&>(config);
-		string patchedSha1Str = getPatchedSHA1().toString();
+		auto& psha1 = patchedSha1.empty() ? getOriginalSHA1() : patchedSha1;
+		string patchedSha1Str = psha1.toString();
 		const auto& actualSha1Elem = mutableConfig.getCreateChild(
 			"resolvedSha1", patchedSha1Str);
 		if (actualSha1Elem.getData() != patchedSha1Str) {
@@ -312,7 +314,6 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 		rom = &rom[windowBase];
 		size = windowSize;
-		patchedSha1 = SHA1::calc(rom, size);
 	}
 }
 
@@ -336,7 +337,6 @@ Rom::Rom(Rom&& r)
 	, extendedRom  (std::move(r.extendedRom))
 	, file         (std::move(r.file))
 	, originalSha1 (std::move(r.originalSha1))
-	, patchedSha1  (std::move(r.patchedSha1))
 	, name         (std::move(r.name))
 	, description  (std::move(r.description))
 	, size         (std::move(r.size))
@@ -357,14 +357,9 @@ string Rom::getFilename() const
 const Sha1Sum& Rom::getOriginalSHA1() const
 {
 	if (originalSha1.empty()) {
-		assert(patchedSha1.empty());
 		originalSha1 = SHA1::calc(rom, size);
 	}
 	return originalSha1;
-}
-const Sha1Sum& Rom::getPatchedSHA1() const
-{
-	return patchedSha1.empty() ? getOriginalSHA1() : patchedSha1;
 }
 
 
