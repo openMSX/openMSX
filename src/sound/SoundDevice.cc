@@ -92,7 +92,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 	}
 
 	for (auto& b : soundConfig.getChildren("balance")) {
-		int balance = b->getDataAsInt();
+		int balance = StringOp::stringToInt(b->getData());
 
 		if (!b->hasAttribute("channel")) {
 			devBalance = balance;

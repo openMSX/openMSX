@@ -53,11 +53,6 @@ public:
 	// Convenience functions
 	//
 
-	// data
-	bool getDataAsBool() const;
-	int getDataAsInt() const;
-	double getDataAsDouble() const;
-
 	// attribute
 	bool hasAttribute(string_ref name) const;
 	const std::string& getAttribute(string_ref attName) const;

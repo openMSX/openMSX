@@ -78,21 +78,6 @@ void XMLElement::removeAttribute(string_ref name)
 	}
 }
 
-bool XMLElement::getDataAsBool() const
-{
-	return StringOp::stringToBool(getData());
-}
-
-int XMLElement::getDataAsInt() const
-{
-	return StringOp::stringToInt(getData());
-}
-
-double XMLElement::getDataAsDouble() const
-{
-	return StringOp::stringToDouble(getData());
-}
-
 void XMLElement::setName(string_ref name_)
 {
 	name = name_.str();
