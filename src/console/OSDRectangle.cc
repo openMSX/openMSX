@@ -139,7 +139,7 @@ bool OSDRectangle::takeImageDimensions() const
 vec2 OSDRectangle::getSize(const OutputRectangle& output) const
 {
 	if (!imageName.empty() && image && takeImageDimensions()) {
-		return vec2(image->getWidth(), image->getHeight());
+		return vec2(image->getSize());
 	} else {
 		return (size * float(getScaleFactor(output)) * scale) +
 		       (getParent()->getSize(output) * relSize);
@@ -170,7 +170,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 		float factor = getScaleFactor(output) * scale;
 		int bs = int(round(factor * borderSize + iSize[0] * relBorderSize));
 		assert(bs >= 0);
-		return make_unique<IMAGE>(iSize[0], iSize[1], getRGBA4(), bs, borderRGBA);
+		return make_unique<IMAGE>(iSize, getRGBA4(), bs, borderRGBA);
 	} else {
 		string file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
@@ -178,7 +178,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 			return make_unique<IMAGE>(file, factor);
 		} else {
 			ivec2 iSize = round(getSize(output));
-			return make_unique<IMAGE>(file, iSize[0], iSize[1]);
+			return make_unique<IMAGE>(file, iSize);
 		}
 	}
 }

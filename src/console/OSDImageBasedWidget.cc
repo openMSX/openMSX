@@ -274,7 +274,7 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 	byte fadedAlpha = getFadedAlpha();
 	if ((fadedAlpha != 0) && image) {
 		ivec2 pos = round(getTransformedPos(output));
-		image->draw(output, pos[0], pos[1], fadedAlpha);
+		image->draw(output, pos, fadedAlpha);
 	}
 	if (isFading()) {
 		gui.refresh();

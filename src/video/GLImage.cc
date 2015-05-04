@@ -13,19 +13,14 @@ using namespace gl;
 
 namespace openmsx {
 
-static gl::Texture loadTexture(SDLSurfacePtr surface,
-	int& width, int& height, GLfloat* texCoord)
+static gl::Texture loadTexture(
+	SDLSurfacePtr surface, ivec2& size, vec2& texCoord)
 {
-	width  = surface->w;
-	height = surface->h;
-	int w2 = Math::powerOfTwo(width);
-	int h2 = Math::powerOfTwo(height);
-	texCoord[0] = 0.0f;                 // min X
-	texCoord[1] = 0.0f;                 // min Y
-	texCoord[2] = GLfloat(width)  / w2; // max X
-	texCoord[3] = GLfloat(height) / h2; // max Y
-
-	SDLSurfacePtr image2(w2, h2, 32,
+	size = ivec2(surface->w, surface->h);
+	ivec2 size2(Math::powerOfTwo(size[0]),
+	            Math::powerOfTwo(size[1]));
+	texCoord = vec2(size) / vec2(size2);
+	SDLSurfacePtr image2(size2[0], size2[1], 32,
 		OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
 		OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
 		OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
@@ -34,23 +29,23 @@ static gl::Texture loadTexture(SDLSurfacePtr surface,
 	SDL_Rect area;
 	area.x = 0;
 	area.y = 0;
-	area.w = width;
-	area.h = height;
+	area.w = size[0];
+	area.h = size[1];
 	SDL_SetAlpha(surface.get(), 0, 0);
 	SDL_BlitSurface(surface.get(), &area, image2.get(), &area);
 
 	gl::Texture texture(true); // enable interpolation
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w2, h2, 0, GL_RGBA,
-	             GL_UNSIGNED_BYTE, image2->pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size2[0], size2[1], 0,
+	             GL_RGBA, GL_UNSIGNED_BYTE, image2->pixels);
 	return texture;
 }
 
-static gl::Texture loadTexture(const string& filename,
-	int& width, int& height, GLfloat* texCoord)
+static gl::Texture loadTexture(
+	const string& filename, ivec2& size, vec2& texCoord)
 {
 	SDLSurfacePtr surface(PNG::load(filename, false));
 	try {
-		return loadTexture(std::move(surface), width, height, texCoord);
+		return loadTexture(std::move(surface), size, texCoord);
 	} catch (MSXException& e) {
 		throw MSXException("Error loading image " + filename +
 		                   ": " + e.getMessage());
@@ -59,32 +54,29 @@ static gl::Texture loadTexture(const string& filename,
 
 
 GLImage::GLImage(const string& filename)
-	: texture(loadTexture(filename, width, height, texCoord))
+	: texture(loadTexture(filename, size, texCoord))
 {
 }
 
 GLImage::GLImage(const string& filename, float scalefactor)
-	: texture(loadTexture(filename, width, height, texCoord))
+	: texture(loadTexture(filename, size, texCoord))
 {
-	width  = int(scalefactor * width);
-	height = int(scalefactor * height);
-	checkSize(width, height);
+	size = trunc(vec2(size) * scalefactor);
+	checkSize(size);
 }
 
-GLImage::GLImage(const string& filename, int width_, int height_)
-	: texture(loadTexture(filename, width, height, texCoord))
+GLImage::GLImage(const string& filename, ivec2 size_)
+	: texture(loadTexture(filename, size, texCoord))
 {
-	checkSize(width_, height_);
-	width  = width_;
-	height = height_;
+	checkSize(size_);
+	size = size_;
 }
 
-GLImage::GLImage(int width_, int height_, unsigned rgba)
+GLImage::GLImage(ivec2 size_, unsigned rgba)
 	: texture(gl::Null())
 {
-	checkSize(width_, height_);
-	width  = width_;
-	height = height_;
+	checkSize(size_);
+	size = size_;
 	borderSize = 0;
 	for (int i = 0; i < 4; ++i) {
 		bgR[i] = (rgba >> 24) & 0xff;
@@ -95,13 +87,12 @@ GLImage::GLImage(int width_, int height_, unsigned rgba)
 	}
 }
 
-GLImage::GLImage(int width_, int height_, const unsigned* rgba,
+GLImage::GLImage(ivec2 size_, const unsigned* rgba,
                  int borderSize_, unsigned borderRGBA)
 	: texture(gl::Null())
 {
-	checkSize(width_, height_);
-	width  = width_;
-	height = height_;
+	checkSize(size_);
+	size = size_;
 	borderSize = borderSize_;
 	for (int i = 0; i < 4; ++i) {
 		bgR[i] = (rgba[i] >> 24) & 0xff;
@@ -119,11 +110,11 @@ GLImage::GLImage(int width_, int height_, const unsigned* rgba,
 }
 
 GLImage::GLImage(SDLSurfacePtr image)
-	: texture(loadTexture(std::move(image), width, height, texCoord))
+	: texture(loadTexture(std::move(image), size, texCoord))
 {
 }
 
-void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte r, byte g, byte b, byte alpha)
+void GLImage::draw(OutputSurface& /*output*/, ivec2 pos, byte r, byte g, byte b, byte alpha)
 {
 	// 4-----------------7
 	// |                 |
@@ -133,17 +124,17 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte r, byte g, byte
 	// |   1-------- 2   |
 	// |                 |
 	// 5-----------------6
-	int bx = (width  > 0) ? borderSize : -borderSize;
-	int by = (height > 0) ? borderSize : -borderSize;
-	vec2 pos[8] = {
-		vec2(x         + bx, y          + by), // 0
-		vec2(x         + bx, y + height - by), // 1
-		vec2(x + width - bx, y + height - by), // 2
-		vec2(x + width - bx, y          + by), // 3
-		vec2(x             , y              ), // 4
-		vec2(x             , y + height     ), // 5
-		vec2(x + width     , y + height     ), // 6
-		vec2(x + width     , y              ), // 7
+	int bx = (size[0] > 0) ? borderSize : -borderSize;
+	int by = (size[1] > 0) ? borderSize : -borderSize;
+	ivec2 positions[8] = {
+		pos + ivec2(        + bx,         + by), // 0
+		pos + ivec2(        + bx, size[1] - by), // 1
+		pos + ivec2(size[0] - bx, size[1] - by), // 2
+		pos + ivec2(size[0] - bx,         + by), // 3
+		pos + ivec2(0           , 0           ), // 4
+		pos + ivec2(0           , size[1]     ), // 5
+		pos + ivec2(size[0]     , size[1]     ), // 6
+		pos + ivec2(size[0]     , 0           ), // 7
 	};
 
 	glEnable(GL_BLEND);
@@ -152,10 +143,10 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte r, byte g, byte
 
 	if (texture.get()) {
 		vec2 tex[4] = {
+			vec2(       0.0f,        0.0f),
+			vec2(       0.0f, texCoord[1]),
 			vec2(texCoord[0], texCoord[1]),
-			vec2(texCoord[0], texCoord[3]),
-			vec2(texCoord[2], texCoord[3]),
-			vec2(texCoord[2], texCoord[1]),
+			vec2(texCoord[0],        0.0f),
 		};
 
 		gl::context->progTex.activate();
@@ -163,7 +154,7 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte r, byte g, byte
 		            r / 255.0f, g / 255.0f, b / 255.0f, alpha / 255.0f);
 		glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE,
 		                   &gl::context->pixelMvp[0][0]);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos + 4);
+		glVertexAttribPointer(0, 2, GL_INT,   GL_FALSE, 0, positions + 4);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
 		glEnableVertexAttribArray(1);
 		texture.bind();
@@ -175,12 +166,12 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte r, byte g, byte
 		gl::context->progFill.activate();
 		glUniformMatrix4fv(gl::context->unifFillMvp, 1, GL_FALSE,
 		                   &gl::context->pixelMvp[0][0]);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
+		glVertexAttribPointer(0, 2, GL_INT, GL_FALSE, 0, positions);
 		glVertexAttrib4f(1, borderR / 255.0f, borderG / 255.0f, borderB / 255.0f,
 		                (borderA * alpha) / (255.0f * 255.0f));
 
-		if ((2 * borderSize >= abs(width )) ||
-		    (2 * borderSize >= abs(height))) {
+		if ((2 * borderSize >= abs(size[0])) ||
+		    (2 * borderSize >= abs(size[1]))) {
 			// only border
 			glDisableVertexAttribArray(1);
 			glDrawArrays(GL_TRIANGLE_FAN, 4, 4);

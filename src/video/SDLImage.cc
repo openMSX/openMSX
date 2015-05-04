@@ -8,6 +8,7 @@
 #include <SDL.h>
 
 using std::string;
+using namespace gl;
 
 namespace openmsx {
 
@@ -157,14 +158,14 @@ static void getRGBAmasks32(Uint32& rmask, Uint32& gmask, Uint32& bmask, Uint32& 
 	}
 }
 
-static SDLSurfacePtr scaleImage32(SDLSurfacePtr input, int width, int height)
+static SDLSurfacePtr scaleImage32(SDLSurfacePtr input, ivec2 size)
 {
 	// create a 32 bpp surface that will hold the scaled version
 	auto& format = *input->format;
 	assert(format.BitsPerPixel == 32);
-	SDLSurfacePtr result(abs(width), abs(height), 32,
+	SDLSurfacePtr result(abs(size[0]), abs(size[1]), 32,
 		format.Rmask, format.Gmask, format.Bmask, format.Amask);
-	zoomSurface(input.get(), result.get(), width < 0, height < 0);
+	zoomSurface(input.get(), result.get(), size[0] < 0, size[1] < 0);
 	return result;
 }
 
@@ -183,27 +184,25 @@ static SDLSurfacePtr loadImage(const string& filename, float scaleFactor)
 	}
 	bool want32bpp = true; // scaleImage32 needs 32bpp
 	SDLSurfacePtr picture(PNG::load(filename, want32bpp));
-	int width  = int(picture->w * scaleFactor);
-	int height = int(picture->h * scaleFactor);
-	BaseImage::checkSize(width, height);
-	if ((width == 0) || (height == 0)) {
+	ivec2 size = trunc(vec2(picture->w, picture->h) * scaleFactor);
+	BaseImage::checkSize(size);
+	if ((size[0] == 0) || (size[1] == 0)) {
 		return SDLSurfacePtr();
 	}
 	return convertToDisplayFormat(
-		scaleImage32(std::move(picture), width, height));
+		scaleImage32(std::move(picture), size));
 }
 
 static SDLSurfacePtr loadImage(
-	const string& filename, int width, int height)
+	const string& filename, ivec2 size)
 {
-	BaseImage::checkSize(width, height);
-	if ((width == 0) || (height == 0)) {
+	BaseImage::checkSize(size);
+	if ((size[0] == 0) || (size[1] == 0)) {
 		return SDLSurfacePtr();
 	}
 	bool want32bpp = true; // scaleImage32 needs 32bpp
 	return convertToDisplayFormat(
-		scaleImage32(PNG::load(filename, want32bpp),
-		             width, height));
+		scaleImage32(PNG::load(filename, want32bpp), size));
 }
 
 // Helper functions to draw a gradient
@@ -374,29 +373,29 @@ SDLImage::SDLImage(const std::string& filename, float scaleFactor)
 {
 }
 
-SDLImage::SDLImage(const string& filename, int width, int height)
-	: image(loadImage(filename, width, height))
-	, a(-1), flipX(width < 0), flipY(height < 0)
+SDLImage::SDLImage(const string& filename, ivec2 size)
+	: image(loadImage(filename, size))
+	, a(-1), flipX(size[0] < 0), flipY(size[1] < 0)
 {
 }
 
-SDLImage::SDLImage(int width, int height, unsigned rgba)
-	: flipX(width < 0), flipY(height < 0)
+SDLImage::SDLImage(ivec2 size, unsigned rgba)
+	: flipX(size[0] < 0), flipY(size[1] < 0)
 {
-	initSolid(width, height, rgba, 0, 0); // no border
+	initSolid(size, rgba, 0, 0); // no border
 }
 
 
-SDLImage::SDLImage(int width, int height, const unsigned* rgba,
+SDLImage::SDLImage(ivec2 size, const unsigned* rgba,
                    unsigned borderSize, unsigned borderRGBA)
-	: flipX(width < 0), flipY(height < 0)
+	: flipX(size[0] < 0), flipY(size[1] < 0)
 {
 	if ((rgba[0] == rgba[1]) &&
 	    (rgba[0] == rgba[2]) &&
 	    (rgba[0] == rgba[3])) {
-		initSolid   (width, height, rgba[0], borderSize, borderRGBA);
+		initSolid   (size, rgba[0], borderSize, borderRGBA);
 	} else {
-		initGradient(width, height, rgba,    borderSize, borderRGBA);
+		initGradient(size, rgba,    borderSize, borderRGBA);
 	}
 }
 
@@ -454,11 +453,11 @@ static void drawBorder(SDL_Surface& image, int size, unsigned rgba)
 	}
 }
 
-void SDLImage::initSolid(int width, int height, unsigned rgba,
+void SDLImage::initSolid(ivec2 size, unsigned rgba,
                          unsigned borderSize, unsigned borderRGBA)
 {
-	checkSize(width, height);
-	if ((width == 0) || (height == 0)) {
+	checkSize(size);
+	if ((size[0] == 0) || (size[1] == 0)) {
 		// SDL_FillRect crashes on zero-width surfaces, so check for it
 		return;
 	}
@@ -495,7 +494,7 @@ void SDLImage::initSolid(int width, int height, unsigned rgba,
 	}
 
 	// Create surface with correct size/masks.
-	image = SDLSurfacePtr(abs(width), abs(height), bpp,
+	image = SDLSurfacePtr(abs(size[0]), abs(size[1]), bpp,
 	                      rmask, gmask, bmask, amask);
 
 	// draw interior
@@ -504,11 +503,11 @@ void SDLImage::initSolid(int width, int height, unsigned rgba,
 	drawBorder(*image, borderSize, borderRGBA);
 }
 
-void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
+void SDLImage::initGradient(ivec2 size, const unsigned* rgba_,
                             unsigned borderSize, unsigned borderRGBA)
 {
-	checkSize(width, height);
-	if ((width == 0) || (height == 0)) {
+	checkSize(size);
+	if ((size[0] == 0) || (size[1] == 0)) {
 		return;
 	}
 
@@ -539,7 +538,7 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
 	Uint32 rmask, gmask, bmask, amask;
 	getRGBAmasks32(rmask, gmask, bmask, amask);
 	if (!needAlphaChannel) amask = 0;
-	SDLSurfacePtr tmp32(abs(width), abs(height), 32,
+	SDLSurfacePtr tmp32(abs(size[0]), abs(size[1]), 32,
 	                    rmask, gmask, bmask, amask);
 	for (auto& c : rgba) {
 		c = convertColor(*tmp32->format, c);
@@ -585,21 +584,21 @@ void SDLImage::allocateWorkImage()
 	}
 }
 
-void SDLImage::draw(OutputSurface& output, int x, int y, byte r, byte g, byte b, byte alpha)
+void SDLImage::draw(OutputSurface& output, gl::ivec2 pos, byte r, byte g, byte b, byte alpha)
 {
 	assert(r == 255); (void)r;
 	assert(g == 255); (void)g;
 	assert(b == 255); (void)b;
 
 	if (!image) return;
-	if (flipX) x -= image->w;
-	if (flipY) y -= image->h;
+	if (flipX) pos[0] -= image->w;
+	if (flipY) pos[1] -= image->h;
 
 	output.unlock();
 	SDL_Surface* outputSurface = output.getSDLSurface();
 	SDL_Rect rect;
-	rect.x = x;
-	rect.y = y;
+	rect.x = pos[0];
+	rect.y = pos[1];
 	if (a == -1) {
 		if (alpha == 255) {
 			SDL_BlitSurface(image.get(), nullptr, outputSurface, &rect);
@@ -618,14 +617,9 @@ void SDLImage::draw(OutputSurface& output, int x, int y, byte r, byte g, byte b,
 	}
 }
 
-int SDLImage::getWidth() const
+ivec2 SDLImage::getSize() const
 {
-	return image ? image->w : 0;
-}
-
-int SDLImage::getHeight() const
-{
-	return image ? image->h : 0;
+	return image ? ivec2(image->w, image->h) : ivec2();
 }
 
 } // namespace openmsx

@@ -22,6 +22,7 @@
 #endif
 
 using std::string;
+using namespace gl;
 
 namespace openmsx {
 
@@ -99,7 +100,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 #if !COMPONENT_GL
 	assert(!openGL);
 #endif
-	destX = destY = destW = destH = 0; // recalc on first paint()
+	bgPos = bgSize = ivec2(); // recalc on first paint()
 	blink = false;
 	lastBlinkTime = Timer::getTime();
 	lastCursorX = lastCursorY = 0;
@@ -223,51 +224,51 @@ bool OSDConsoleRenderer::updateConsoleRect()
 {
 	adjustColRow();
 
-	unsigned x, y, w, h;
-	h = font.getHeight() * console.getRows();
-	w = (font.getWidth() * console.getColumns()) + CHAR_BORDER;
+	ivec2 size((font.getWidth()  * console.getColumns()) + CHAR_BORDER,
+	            font.getHeight() * console.getRows());
 
 	// TODO use setting listener in the future
+	ivec2 pos;
 	switch (consolePlacementSetting.getEnum()) {
 		case CP_TOPLEFT:
 		case CP_LEFT:
 		case CP_BOTTOMLEFT:
-			x = 0;
+			pos[0] = 0;
 			break;
 		case CP_TOPRIGHT:
 		case CP_RIGHT:
 		case CP_BOTTOMRIGHT:
-			x = (screenW - w);
+			pos[0] = (screenW - size[0]);
 			break;
 		case CP_TOP:
 		case CP_CENTER:
 		case CP_BOTTOM:
 		default:
-			x = (screenW - w) / 2;
+			pos[0] = (screenW - size[0]) / 2;
 			break;
 	}
 	switch (consolePlacementSetting.getEnum()) {
 		case CP_TOPLEFT:
 		case CP_TOP:
 		case CP_TOPRIGHT:
-			y = 0;
+			pos[1] = 0;
 			break;
 		case CP_LEFT:
 		case CP_CENTER:
 		case CP_RIGHT:
-			y = (screenH - h) / 2;
+			pos[1] = (screenH - size[1]) / 2;
 			break;
 		case CP_BOTTOMLEFT:
 		case CP_BOTTOM:
 		case CP_BOTTOMRIGHT:
 		default:
-			y = (screenH - h);
+			pos[1] = (screenH - size[1]);
 			break;
 	}
 
-	bool result = (x != destX) || (y != destY) ||
-	              (w != destW) || (h != destH);
-	destX = x; destY = y; destW = w; destH = h;
+	bool result = (pos != bgPos) || (size != bgSize);
+	bgPos  = pos;
+	bgSize = size;
 	return result;
 }
 
@@ -290,23 +291,23 @@ void OSDConsoleRenderer::loadBackground(string_ref value)
 	}
 	string filename = systemFileContext().resolve(value);
 	if (!openGL) {
-		backgroundImage = make_unique<SDLImage>(filename, destW, destH);
+		backgroundImage = make_unique<SDLImage>(filename, bgSize);
 	}
 #if COMPONENT_GL
 	else {
-		backgroundImage = make_unique<GLImage>(filename, destW, destH);
+		backgroundImage = make_unique<GLImage>(filename, bgSize);
 	}
 #endif
 }
 
 void OSDConsoleRenderer::drawText(OutputSurface& output, const ConsoleLine& line,
-                                  int x, int y, byte alpha)
+                                  ivec2 pos, byte alpha)
 {
 	unsigned chunks = line.numChunks();
 	for (unsigned i = 0; i < chunks; ++i) {
 		unsigned rgb = line.chunkColor(i);
 		string_ref text = line.chunkText(i);
-		drawText2(output, text, x, y, alpha, rgb);
+		drawText2(output, text, pos[0], pos[1], alpha, rgb);
 	}
 }
 
@@ -355,9 +356,9 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 			byte r = (rgb >> 16) & 0xff;
 			byte g = (rgb >>  8) & 0xff;
 			byte b = (rgb >>  0) & 0xff;
-			image->draw(output, x, y, r, g, b, alpha);
+			image->draw(output, ivec2(x, y), r, g, b, alpha);
 		} else {
-			image->draw(output, x, y, alpha);
+			image->draw(output, ivec2(x, y), alpha);
 		}
 	}
 	x += width; // in case of trailing whitespace width != image->getWidth()
@@ -420,6 +421,12 @@ void OSDConsoleRenderer::clearCache()
 	cacheHint = begin(textCache);
 }
 
+gl::ivec2 OSDConsoleRenderer::getTextPos(int cursorX, int cursorY)
+{
+	return bgPos + ivec2(CHAR_BORDER + cursorX * font.getWidth(),
+	                     bgSize[1] - (font.getHeight() * (cursorY + 1)) - 1);
+}
+
 void OSDConsoleRenderer::paint(OutputSurface& output)
 {
 	byte visibility = getVisibility();
@@ -439,12 +446,12 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		try {
 			if (!openGL) {
 				backgroundImage = make_unique<SDLImage>(
-					destW, destH, CONSOLE_ALPHA);
+					bgSize, CONSOLE_ALPHA);
 			}
 #if COMPONENT_GL
 			else {
 				backgroundImage = make_unique<GLImage>(
-					destW, destH, CONSOLE_ALPHA);
+					bgSize, CONSOLE_ALPHA);
 			}
 #endif
 		} catch (MSXException&) {
@@ -452,15 +459,13 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		}
 	}
 	if (backgroundImage) {
-		backgroundImage->draw(output, destX, destY, visibility);
+		backgroundImage->draw(output, bgPos, visibility);
 	}
 
-	for (auto loop : xrange(destH / font.getHeight())) {
+	for (auto loop : xrange(bgSize[1] / font.getHeight())) {
 		drawText(output,
 		         console.getLine(loop + console.getScrollBack()),
-		         destX + CHAR_BORDER,
-		         destY + destH - (1 + loop) * font.getHeight() - 1,
-		         visibility);
+		         getTextPos(0, loop), visibility);
 	}
 
 	// Check if the blink period is over
@@ -480,9 +485,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 	}
 	if (blink && (console.getScrollBack() == 0)) {
 		drawText(output, ConsoleLine("_"),
-		         destX + CHAR_BORDER + cursorX * font.getWidth(),
-		         destY + destH - (font.getHeight() * (cursorY + 1)) - 1,
-		         visibility);
+		         getTextPos(cursorX, cursorY), visibility);
 	}
 }
 

@@ -18,7 +18,7 @@
 
 using std::string;
 using std::vector;
-using gl::vec2;
+using namespace gl;
 
 namespace openmsx {
 
@@ -150,7 +150,7 @@ string_ref OSDText::getType() const
 vec2 OSDText::getSize(const OutputRectangle& /*output*/) const
 {
 	if (image) {
-		return vec2(image->getWidth(), image->getHeight());
+		return vec2(image->getSize());
 	} else {
 		// we don't know the dimensions, must be because of an error
 		assert(hasError());
@@ -167,7 +167,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	OutputRectangle& output)
 {
 	if (text.empty()) {
-		return make_unique<IMAGE>(0, 0, 0);
+		return make_unique<IMAGE>(ivec2(), 0);
 	}
 	int scale = getScaleFactor(output);
 	if (font.empty()) {
@@ -206,7 +206,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		if (surface) {
 			return make_unique<IMAGE>(std::move(surface));
 		} else {
-			return make_unique<IMAGE>(0, 0, 0);
+			return make_unique<IMAGE>(ivec2(), 0);
 		}
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't render text: " + e.getMessage());
@@ -403,9 +403,7 @@ vec2 OSDText::getRenderedSize() const
 	// force creating image (does not yet draw it on screen)
 	const_cast<OSDText*>(this)->createImage(output);
 
-	vec2 size = image
-	          ? vec2(image->getWidth(), image->getHeight())
-	          : vec2();
+	vec2 size = image ? vec2(image->getSize()) : vec2();
 	return size / float(getScaleFactor(output));
 }
 

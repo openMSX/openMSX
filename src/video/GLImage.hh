@@ -16,21 +16,19 @@ public:
 	explicit GLImage(const std::string& filename);
 	explicit GLImage(SDLSurfacePtr image);
 	GLImage(const std::string& filename, float scaleFactor);
-	GLImage(const std::string& filename, int width, int height);
-	GLImage(int width, int height, unsigned rgba);
-	GLImage(int width, int height, const unsigned* rgba,
+	GLImage(const std::string& filename, gl::ivec2 size);
+	GLImage(gl::ivec2 size, unsigned rgba);
+	GLImage(gl::ivec2 size, const unsigned* rgba,
 	        int borderSize, unsigned borderRGBA);
 
-	void draw(OutputSurface& output, int x, int y,
+	void draw(OutputSurface& output, gl::ivec2 pos,
 	          byte r, byte g, byte b, byte alpha) override;
-	int getWidth()  const override { return width; }
-	int getHeight() const override { return height; }
+	gl::ivec2 getSize() const override { return size; }
 
 private:
-	gl::Texture texture;
-	int width;
-	int height;
-	GLfloat texCoord[4];
+	gl::ivec2 size;
+	gl::vec2 texCoord;
+	gl::Texture texture; // must come after size and texCoord
 	int borderSize;
 	int bgA[4], borderA;
 	byte bgR[4], bgG[4], bgB[4];

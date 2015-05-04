@@ -8,6 +8,7 @@
 #include "FilenameSetting.hh"
 #include "Observer.hh"
 #include "string_ref.hh"
+#include "gl_vec.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <list>
@@ -47,9 +48,10 @@ private:
 	void loadBackground(string_ref value);
 	byte getVisibility() const;
 	void drawText(OutputSurface& output, const ConsoleLine& text,
-	              int x, int y, byte alpha);
+	              gl::ivec2 pos, byte alpha);
 	void drawText2(OutputSurface& output, string_ref text,
                        int& x, int y, byte alpha, unsigned rgb);
+	gl::ivec2 getTextPos(int cursorX, int cursorY);
 
 	bool getFromCache(string_ref text, unsigned rgb,
 	                  BaseImage*& image, unsigned& width);
@@ -97,10 +99,8 @@ private:
 
 	uint64_t lastBlinkTime;
 	uint64_t activeTime;
-	unsigned destX;
-	unsigned destY;
-	unsigned destW;
-	unsigned destH;
+	gl::ivec2 bgPos;
+	gl::ivec2 bgSize;
 	unsigned lastCursorX;
 	unsigned lastCursorY;
 	bool blink;

@@ -13,21 +13,20 @@ public:
 	explicit SDLImage(const std::string& filename);
 	explicit SDLImage(SDLSurfacePtr image);
 	SDLImage(const std::string& filename, float scaleFactor);
-	SDLImage(const std::string& filename, int width, int height);
-	SDLImage(int width, int height, unsigned rgba);
-	SDLImage(int width, int height, const unsigned* rgba,
+	SDLImage(const std::string& filename, gl::ivec2 size);
+	SDLImage(gl::ivec2 size, unsigned rgba);
+	SDLImage(gl::ivec2 size, const unsigned* rgba,
 	         unsigned borderSize, unsigned borderRGBA);
 
-	void draw(OutputSurface& output, int x, int y,
+	void draw(OutputSurface& output, gl::ivec2 pos,
 	          byte r, byte g, byte b, byte alpha) override;
-	int getWidth() const override;
-	int getHeight() const override;
+	gl::ivec2 getSize() const override;
 
 private:
-	void initSolid(int width, int height, unsigned rgba,
+	void initSolid(gl::ivec2 size, unsigned rgba,
 	               unsigned borderSize, unsigned borderRGBA);
-	void initGradient(int width, int height, const unsigned* rgba,
-	               unsigned borderSize, unsigned borderRGBA);
+	void initGradient(gl::ivec2 size, const unsigned* rgba,
+	                  unsigned borderSize, unsigned borderRGBA);
 	void allocateWorkImage();
 
 	SDLSurfacePtr image;
