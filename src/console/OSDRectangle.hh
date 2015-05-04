@@ -23,8 +23,7 @@ public:
 private:
 	bool takeImageDimensions() const;
 
-	void getWidthHeight(const OutputRectangle& output,
-	                    float& width, float& height) const override;
+	gl::vec2 getSize(const OutputRectangle& output) const override;
 	byte getFadedAlpha() const override;
 	std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) override;
 	std::unique_ptr<BaseImage> createGL (OutputRectangle& output) override;
@@ -32,7 +31,8 @@ private:
 		OutputRectangle& output);
 
 	std::string imageName;
-	float w, h, relw, relh, scale, borderSize, relBorderSize;
+	gl::vec2 size, relSize;
+	float scale, borderSize, relBorderSize;
 	unsigned borderRGBA;
 };
 

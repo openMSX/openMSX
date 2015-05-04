@@ -14,13 +14,14 @@
 
 using std::string;
 using std::vector;
+using namespace gl;
 
 namespace openmsx {
 
 OSDRectangle::OSDRectangle(OSDGUI& gui, const string& name)
 	: OSDImageBasedWidget(gui, name)
-	, w(0.0), h(0.0), relw(0.0), relh(0.0), scale(1.0)
-	, borderSize(0.0), relBorderSize(0.0), borderRGBA(0x000000ff)
+	, scale(1.0), borderSize(0.0), relBorderSize(0.0)
+	, borderRGBA(0x000000ff)
 {
 }
 
@@ -39,27 +40,27 @@ void OSDRectangle::setProperty(
 	Interpreter& interp, string_ref name, const TclObject& value)
 {
 	if (name == "-w") {
-		float w2 = value.getDouble(interp);
-		if (w != w2) {
-			w = w2;
+		float w = value.getDouble(interp);
+		if (size[0] != w) {
+			size[0] = w;
 			invalidateRecursive();
 		}
 	} else if (name == "-h") {
-		float h2 = value.getDouble(interp);
-		if (h != h2) {
-			h = h2;
+		float h = value.getDouble(interp);
+		if (size[1] != h) {
+			size[1] = h;
 			invalidateRecursive();
 		}
 	} else if (name == "-relw") {
-		float relw2 = value.getDouble(interp);
-		if (relw != relw2) {
-			relw = relw2;
+		float relw = value.getDouble(interp);
+		if (relSize[0] != relw) {
+			relSize[0] = relw;
 			invalidateRecursive();
 		}
 	} else if (name == "-relh") {
-		float relh2 = value.getDouble(interp);
-		if (relh != relh2) {
-			relh = relh2;
+		float relh = value.getDouble(interp);
+		if (relSize[1] != relh) {
+			relSize[1] = relh;
 			invalidateRecursive();
 		}
 	} else if (name == "-scale") {
@@ -103,13 +104,13 @@ void OSDRectangle::setProperty(
 void OSDRectangle::getProperty(string_ref name, TclObject& result) const
 {
 	if (name == "-w") {
-		result.setDouble(w);
+		result.setDouble(size[0]);
 	} else if (name == "-h") {
-		result.setDouble(h);
+		result.setDouble(size[1]);
 	} else if (name == "-relw") {
-		result.setDouble(relw);
+		result.setDouble(relSize[0]);
 	} else if (name == "-relh") {
-		result.setDouble(relh);
+		result.setDouble(relSize[1]);
 	} else if (name == "-scale") {
 		result.setDouble(scale);
 	} else if (name == "-image") {
@@ -132,25 +133,16 @@ string_ref OSDRectangle::getType() const
 
 bool OSDRectangle::takeImageDimensions() const
 {
-	return (w    == 0.0f) && (h    == 0.0f) &&
-	       (relw == 0.0f) && (relh == 0.0f);
+	return (size == vec2()) && (relSize == vec2());
 }
 
-void OSDRectangle::getWidthHeight(const OutputRectangle& output,
-                                  float& width, float& height) const
+vec2 OSDRectangle::getSize(const OutputRectangle& output) const
 {
 	if (!imageName.empty() && image && takeImageDimensions()) {
-		width  = image->getWidth();
-		height = image->getHeight();
+		return vec2(image->getWidth(), image->getHeight());
 	} else {
-		float factor = getScaleFactor(output) * scale;
-		width  = factor * w;
-		height = factor * h;
-
-		float pwidth, pheight;
-		getParent()->getWidthHeight(output, pwidth, pheight);
-		width  += pwidth  * relw;
-		height += pheight * relh;
+		return (size * float(getScaleFactor(output)) * scale) +
+		       (getParent()->getSize(output) * relSize);
 	}
 	//std::cout << "rectangle getWH " << getName() << "  " << width << " x " << height << std::endl;
 }
@@ -174,25 +166,19 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 			//   creating it till alpha changes.
 			return nullptr;
 		}
-		float width, height;
-		getWidthHeight(output, width, height);
-		int sw = int(round(width));
-		int sh = int(round(height));
+		ivec2 iSize = round(getSize(output));
 		float factor = getScaleFactor(output) * scale;
-		int bs = int(round(factor * borderSize + width * relBorderSize));
+		int bs = int(round(factor * borderSize + iSize[0] * relBorderSize));
 		assert(bs >= 0);
-		return make_unique<IMAGE>(sw, sh, getRGBA4(), bs, borderRGBA);
+		return make_unique<IMAGE>(iSize[0], iSize[1], getRGBA4(), bs, borderRGBA);
 	} else {
 		string file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
 			float factor = getScaleFactor(output) * scale;
 			return make_unique<IMAGE>(file, factor);
 		} else {
-			float width, height;
-			getWidthHeight(output, width, height);
-			int sw = int(round(width));
-			int sh = int(round(height));
-			return make_unique<IMAGE>(file, sw, sh);
+			ivec2 iSize = round(getSize(output));
+			return make_unique<IMAGE>(file, iSize[0], iSize[1]);
 		}
 	}
 }

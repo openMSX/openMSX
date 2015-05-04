@@ -13,6 +13,7 @@
 using std::string;
 using std::vector;
 using std::unique_ptr;
+using namespace gl;
 
 namespace openmsx {
 
@@ -121,8 +122,7 @@ GLScopedClip::~GLScopedClip()
 OSDWidget::OSDWidget(const string& name_)
 	: parent(nullptr)
 	, name(name_)
-	, x(0.0), y(0.0), z(0.0)
-	, relx(0.0), rely(0.0)
+	, z(0.0)
 	, scaled(false)
 	, clip(false)
 	, suppressErrors(false)
@@ -248,9 +248,9 @@ void OSDWidget::setProperty(
 	} else if (name == "-mousecoord") {
 		throw CommandException("-mousecoord property is readonly");
 	} else if (name == "-x") {
-		x = value.getDouble(interp);
+		pos[0] = value.getDouble(interp);
 	} else if (name == "-y") {
-		y = value.getDouble(interp);
+		pos[1] = value.getDouble(interp);
 	} else if (name == "-z") {
 		float z2 = value.getDouble(interp);
 		if (z != z2) {
@@ -266,9 +266,9 @@ void OSDWidget::setProperty(
 			}
 		}
 	} else if (name == "-relx") {
-		relx = value.getDouble(interp);
+		relPos[0] = value.getDouble(interp);
 	} else if (name == "-rely") {
-		rely = value.getDouble(interp);
+		relPos[1] = value.getDouble(interp);
 	} else if (name == "-scaled") {
 		bool scaled2 = value.getBoolean(interp);
 		if (scaled != scaled2) {
@@ -289,24 +289,23 @@ void OSDWidget::getProperty(string_ref name, TclObject& result) const
 	if (name == "-type") {
 		result.setString(getType());
 	} else if (name == "-x") {
-		result.setDouble(x);
+		result.setDouble(pos[0]);
 	} else if (name == "-y") {
-		result.setDouble(y);
+		result.setDouble(pos[1]);
 	} else if (name == "-z") {
 		result.setDouble(z);
 	} else if (name == "-relx") {
-		result.setDouble(relx);
+		result.setDouble(relPos[0]);
 	} else if (name == "-rely") {
-		result.setDouble(rely);
+		result.setDouble(relPos[1]);
 	} else if (name == "-scaled") {
 		result.setBoolean(scaled);
 	} else if (name == "-clip") {
 		result.setBoolean(clip);
 	} else if (name == "-mousecoord") {
-		float x, y;
-		getMouseCoord(x, y);
-		result.addListElement(x);
-		result.addListElement(y);
+		vec2 coord = getMouseCoord();
+		result.addListElement(coord[0]);
+		result.addListElement(coord[1]);
 	} else if (name == "-suppressErrors") {
 		result.setBoolean(suppressErrors);
 	} else {
@@ -347,9 +346,10 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 
 	std::unique_ptr<SDLScopedClip> scopedClip;
 	if (clip) {
-		int x, y, w, h;
-		getBoundingBox(output, x, y, w, h);
-		scopedClip = make_unique<SDLScopedClip>(output, x, y, w, h);
+		ivec2 pos, size;
+		getBoundingBox(output, pos, size);
+		scopedClip = make_unique<SDLScopedClip>(
+			output, pos[0], pos[1], size[0], size[1]);
 	}
 
 	for (auto& s : subWidgets) {
@@ -365,9 +365,10 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 
 	std::unique_ptr<GLScopedClip> scopedClip;
 	if (clip) {
-		int x, y, w, h;
-		getBoundingBox(output, x, y, w, h);
-		scopedClip = make_unique<GLScopedClip>(output, x, y, w, h);
+		ivec2 pos, size;
+		getBoundingBox(output, pos, size);
+		scopedClip = make_unique<GLScopedClip>(
+			output, pos[0], pos[1], size[0], size[1]);
 	}
 
 	for (auto& s : subWidgets) {
@@ -387,39 +388,31 @@ int OSDWidget::getScaleFactor(const OutputRectangle& output) const
 	}
 }
 
-void OSDWidget::transformXY(const OutputRectangle& output,
-                            float x, float y, float relx, float rely,
-                            float& outx, float& outy) const
+vec2 OSDWidget::transformPos(const OutputRectangle& output,
+                             vec2 pos, vec2 relPos) const
 {
-	float width, height;
-	getWidthHeight(output, width, height);
-	int factor = getScaleFactor(output);
-	outx = x + factor * getX() + relx * width;
-	outy = y + factor * getY() + rely * height;
+	vec2 out = pos
+	         + (float(getScaleFactor(output)) * getPos())
+		 + (relPos * getSize(output));
 	if (const OSDWidget* parent = getParent()) {
-		parent->transformXY(output, outx, outy, getRelX(), getRelY(),
-		                    outx, outy);
+		out = parent->transformPos(output, out, getRelPos());
 	}
+	return out;
 }
 
-void OSDWidget::transformReverse(
-	const OutputRectangle& output, float x, float y,
-	float& outx, float& outy) const
+vec2 OSDWidget::transformReverse(const OutputRectangle& output, vec2 pos) const
 {
 	if (const OSDWidget* parent = getParent()) {
-		parent->transformReverse(output, x, y, x, y);
-		float width, height;
-		parent->getWidthHeight(output, width, height);
-		int factor = getScaleFactor(output);
-		outx = x - (getRelX() * width ) - (getX() * factor);
-		outy = y - (getRelY() * height) - (getY() * factor);
+		pos = parent->transformReverse(output, pos);
+		return pos
+		       - (getRelPos() * parent->getSize(output))
+		       - (getPos() * float(getScaleFactor(output)));
 	} else {
-		outx = x;
-		outy = y;
+		return pos;
 	}
 }
 
-void OSDWidget::getMouseCoord(float& outx, float& outy) const
+vec2 OSDWidget::getMouseCoord() const
 {
 	if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE) {
 		// Host cursor is not visible. Return dummy mouse coords for
@@ -437,9 +430,7 @@ void OSDWidget::getMouseCoord(float& outx, float& outy) const
 		// softfloat, in c++ NaN seems to behave as expected, but maybe
 		// there's a problem on the tcl side? Anyway, when we return
 		// +inf instead of NaN it does work.
-		outx = std::numeric_limits<float>::infinity();
-		outy = std::numeric_limits<float>::infinity();
-		return;
+		return vec2(std::numeric_limits<float>::infinity());
 	}
 
 	SDL_Surface* surface = SDL_GetVideoSurface();
@@ -452,29 +443,24 @@ void OSDWidget::getMouseCoord(float& outx, float& outy) const
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	transformReverse(output, mouseX, mouseY, outx, outy);
+	vec2 out = transformReverse(output, vec2(mouseX, mouseY));
 
-	float width, height;
-	getWidthHeight(output, width, height);
-	if ((width == 0) || (height == 0)) {
+	vec2 size = getSize(output);
+	if ((size[0] == 0.0f) || (size[1] == 0.0f)) {
 		throw CommandException(
 			"-can't get mouse coordinates: "
 			"widget has zero width or height");
 	}
-	outx /= width;
-	outy /= height;
+	return out / size;
 }
 
 void OSDWidget::getBoundingBox(const OutputRectangle& output,
-                               int& x, int& y, int& w, int& h)
+                               ivec2& pos, ivec2& size)
 {
-	float x1, y1, x2, y2;
-	transformXY(output, 0.0f, 0.0f, 0.0f, 0.0f, x1, y1);
-	transformXY(output, 0.0f, 0.0f, 1.0f, 1.0f, x2, y2);
-	x = int(x1 + 0.5f);
-	y = int(y1 + 0.5f);
-	w = int(x2 - x1 + 0.5f);
-	h = int(y2 - y1 + 0.5f);
+	vec2 topLeft     = transformPos(output, vec2(), vec2(0.0f));
+	vec2 bottomRight = transformPos(output, vec2(), vec2(1.0f));
+	pos  = round(topLeft);
+	size = round(bottomRight - topLeft);
 }
 
 void OSDWidget::listWidgetNames(const string& parentName, vector<string>& result) const

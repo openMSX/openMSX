@@ -3,6 +3,7 @@
 
 #include "StringMap.hh"
 #include "string_ref.hh"
+#include "gl_vec.hh"
 #include <vector>
 #include <memory>
 
@@ -19,11 +20,9 @@ public:
 	virtual ~OSDWidget();
 
 	const std::string& getName() const { return name; }
-	float getX()    const { return x; }
-	float getY()    const { return y; }
-	float getZ()    const { return z; }
-	float getRelX() const { return relx; }
-	float getRelY() const { return rely; }
+	gl::vec2 getPos()    const { return pos; }
+	gl::vec2 getRelPos() const { return relPos; }
+	float    getZ()      const { return z; }
 
 	      OSDWidget* getParent()       { return parent; }
 	const OSDWidget* getParent() const { return parent; }
@@ -44,13 +43,11 @@ public:
 	void paintGLRecursive (OutputSurface& output);
 
 	int getScaleFactor(const OutputRectangle& surface) const;
-	void transformXY(const OutputRectangle& output,
-	                 float x, float y, float relx, float rely,
-	                 float& outx, float& outy) const;
+	gl::vec2 transformPos(const OutputRectangle& output,
+	                      gl::vec2 pos, gl::vec2 relPos) const;
 	void getBoundingBox(const OutputRectangle& output,
-	                    int& x, int& y, int& w, int& h);
-	virtual void getWidthHeight(const OutputRectangle& output,
-	                            float& width, float& height) const = 0;
+	                    gl::ivec2& pos, gl::ivec2& size);
+	virtual gl::vec2 getSize(const OutputRectangle& output) const = 0;
 
 	// for OSDGUI::OSDCommand
 	void listWidgetNames(const std::string& parentName,
@@ -66,10 +63,9 @@ protected:
 	virtual void paintGL (OutputSurface& output) = 0;
 
 private:
-	void getMouseCoord(float& outx, float& outy) const;
-	void transformReverse(const OutputRectangle& output,
-	                      float x, float y,
-	                      float& outx, float& outy) const;
+	gl::vec2 getMouseCoord() const;
+	gl::vec2 transformReverse(const OutputRectangle& output,
+	                          gl::vec2 pos) const;
 	void setParent(OSDWidget* parent_) { parent = parent_; }
 	void resortUp  (OSDWidget* elem);
 	void resortDown(OSDWidget* elem);
@@ -86,8 +82,9 @@ private:
 	OSDWidget* parent;
 
 	const std::string name;
-	float x, y, z;
-	float relx, rely;
+	gl::vec2 pos;
+	gl::vec2 relPos;
+	float z;
 	bool scaled;
 	bool clip;
 	bool suppressErrors;

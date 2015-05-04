@@ -12,6 +12,7 @@
 
 using std::string;
 using std::vector;
+using namespace gl;
 
 namespace openmsx {
 
@@ -212,15 +213,13 @@ void OSDImageBasedWidget::invalidateLocal()
 	image.reset();
 }
 
-void OSDImageBasedWidget::getTransformedXY(const OutputRectangle& output,
-                                           float& outx, float& outy) const
+vec2 OSDImageBasedWidget::getTransformedPos(const OutputRectangle& output) const
 {
 	const OSDWidget* parent = getParent();
 	assert(parent);
-	int factor = getScaleFactor(output);
-	float x = factor * getX();
-	float y = factor * getY();
-	parent->transformXY(output, x, y, getRelX(), getRelY(), outx, outy);
+	return parent->transformPos(output,
+	                            float(getScaleFactor(output)) * getPos(),
+	                            getRelPos());
 }
 
 void OSDImageBasedWidget::setError(string message)
@@ -274,9 +273,8 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 
 	byte fadedAlpha = getFadedAlpha();
 	if ((fadedAlpha != 0) && image) {
-		float x, y;
-		getTransformedXY(output, x, y);
-		image->draw(output, int(x + 0.5f), int(y + 0.5f), fadedAlpha);
+		ivec2 pos = round(getTransformedPos(output));
+		image->draw(output, pos[0], pos[1], fadedAlpha);
 	}
 	if (isFading()) {
 		gui.refresh();

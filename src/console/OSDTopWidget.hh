@@ -14,8 +14,7 @@ class OSDTopWidget final : public OSDWidget
 public:
 	OSDTopWidget(OSDGUI& gui);
 	string_ref getType() const override;
-	void getWidthHeight(const OutputRectangle& output,
-	                    float& width, float& height) const override;
+	gl::vec2 getSize(const OutputRectangle& output) const override;
 
 	void queueError(std::string message);
 	void showAllErrors();

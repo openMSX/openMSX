@@ -18,6 +18,7 @@
 
 using std::string;
 using std::vector;
+using gl::vec2;
 
 namespace openmsx {
 
@@ -126,10 +127,9 @@ void OSDText::getProperty(string_ref name, TclObject& result) const
 	} else if (name == "-wraprelw") {
 		result.setDouble(wraprelw);
 	} else if (name == "-query-size") {
-		float outX, outY;
-		getRenderedSize(outX, outY);
-		result.addListElement(outX);
-		result.addListElement(outY);
+		vec2 size = getRenderedSize();
+		result.addListElement(size[0]);
+		result.addListElement(size[1]);
 	} else {
 		OSDImageBasedWidget::getProperty(name, result);
 	}
@@ -147,17 +147,14 @@ string_ref OSDText::getType() const
 	return "text";
 }
 
-void OSDText::getWidthHeight(const OutputRectangle& /*output*/,
-                             float& width, float& height) const
+vec2 OSDText::getSize(const OutputRectangle& /*output*/) const
 {
 	if (image) {
-		width  = image->getWidth();
-		height = image->getHeight();
+		return vec2(image->getWidth(), image->getHeight());
 	} else {
 		// we don't know the dimensions, must be because of an error
 		assert(hasError());
-		width  = 0;
-		height = 0;
+		return vec2();
 	}
 }
 
@@ -183,9 +180,8 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		}
 	}
 	try {
-		float pWidth, pHeight;
-		getParent()->getWidthHeight(output, pWidth, pHeight);
-		int maxWidth = int(wrapw * scale + wraprelw * pWidth + 0.5f);
+		vec2 pSize = getParent()->getSize(output);
+		int maxWidth = int(wrapw * scale + wraprelw * pSize[0] + 0.5f);
 		// Width can't be negative, if it is make it zero instead.
 		// This will put each character on a different line.
 		maxWidth = std::max(0, maxWidth);
@@ -396,7 +392,7 @@ string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 	return StringOp::join(wrappedLines, '\n');
 }
 
-void OSDText::getRenderedSize(float& outX, float& outY) const
+vec2 OSDText::getRenderedSize() const
 {
 	SDL_Surface* surface = SDL_GetVideoSurface();
 	if (!surface) {
@@ -407,16 +403,10 @@ void OSDText::getRenderedSize(float& outX, float& outY) const
 	// force creating image (does not yet draw it on screen)
 	const_cast<OSDText*>(this)->createImage(output);
 
-	unsigned width = 0;
-	unsigned height = 0;
-	if (image) {
-		width  = image->getWidth();
-		height = image->getHeight();
-	}
-
-	float scale = getScaleFactor(output);
-	outX = width  / scale;
-	outY = height / scale;
+	vec2 size = image
+	          ? vec2(image->getWidth(), image->getHeight())
+	          : vec2();
+	return size / float(getScaleFactor(output));
 }
 
 std::unique_ptr<BaseImage> OSDText::createSDL(OutputRectangle& output)

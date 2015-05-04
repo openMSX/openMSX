@@ -17,11 +17,10 @@ string_ref OSDTopWidget::getType() const
 	return "top";
 }
 
-void OSDTopWidget::getWidthHeight(const OutputRectangle& output,
-                                  float& width, float& height) const
+gl::vec2 OSDTopWidget::getSize(const OutputRectangle& output) const
 {
-	width  = output.getOutputWidth();
-	height = output.getOutputHeight();
+	return gl::vec2(output.getOutputWidth(),
+	                output.getOutputHeight());
 }
 
 void OSDTopWidget::invalidateLocal()

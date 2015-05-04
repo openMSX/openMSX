@@ -48,8 +48,7 @@ private:
 	void updateCurrentFadeValue();
 
 	void paint(OutputSurface& output, bool openGL);
-	void getTransformedXY(const OutputRectangle& output,
-	                      float& outx, float& outy) const;
+	gl::vec2 getTransformedPos(const OutputRectangle& output) const;
 
 	OSDGUI& gui;
 	uint64_t startFadeTime;

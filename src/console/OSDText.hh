@@ -21,8 +21,7 @@ public:
 
 private:
 	void invalidateLocal() override;
-	void getWidthHeight(const OutputRectangle& output,
-	                    float& width, float& height) const override;
+	gl::vec2 getSize(const OutputRectangle& output) const override;
 	byte getFadedAlpha() const override;
 	std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) override;
 	std::unique_ptr<BaseImage> createGL (OutputRectangle& output) override;
@@ -38,7 +37,7 @@ private:
 	std::string getCharWrappedText(const std::string& text, unsigned maxWidth) const;
 	std::string getWordWrappedText(const std::string& text, unsigned maxWidth) const;
 
-	void getRenderedSize(float& outX, float& outY) const;
+	gl::vec2 getRenderedSize() const;
 
 	enum WrapMode { NONE, WORD, CHAR };
 
