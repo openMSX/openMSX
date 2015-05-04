@@ -10,6 +10,7 @@ namespace openmsx {
 class MSXWatchIODevice;
 
 class WatchIO final : public WatchPoint
+                    , public std::enable_shared_from_this<WatchIO>
 {
 public:
 	WatchIO(MSXMotherBoard& motherboard,

@@ -45,9 +45,7 @@ void WatchIO::doReadCallback(unsigned port)
 
 	// keep this object alive by holding a shared_ptr to it, for the case
 	// this watchpoint deletes itself in checkAndExecute()
-	// TODO can be implemented more efficiently by using
-	//    std::shared_ptr::shared_from_this
-	MSXCPUInterface::WatchPoints wpCopy(cpuInterface.getWatchPoints());
+	auto keepAlive = shared_from_this();
 	checkAndExecute(cliComm, interp);
 
 	interp.unsetVariable("wp_last_address");
@@ -64,7 +62,7 @@ void WatchIO::doWriteCallback(unsigned port, unsigned value)
 	interp.setVariable("wp_last_value",   TclObject(int(value)));
 
 	// see comment in doReadCallback() above
-	MSXCPUInterface::WatchPoints wpCopy(cpuInterface.getWatchPoints());
+	auto keepAlive = shared_from_this();
 	checkAndExecute(cliComm, interp);
 
 	interp.unsetVariable("wp_last_address");
