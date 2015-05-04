@@ -86,13 +86,13 @@ void OSDText::setProperty(
 			invalidateRecursive();
 		}
 	} else if (name == "-wrapw") {
-		double wrapw2 = value.getDouble(interp);
+		float wrapw2 = value.getDouble(interp);
 		if (wrapw != wrapw2) {
 			wrapw = wrapw2;
 			invalidateRecursive();
 		}
 	} else if (name == "-wraprelw") {
-		double wraprelw2 = value.getDouble(interp);
+		float wraprelw2 = value.getDouble(interp);
 		if (wraprelw != wraprelw2) {
 			wraprelw = wraprelw2;
 			invalidateRecursive();
@@ -126,7 +126,7 @@ void OSDText::getProperty(string_ref name, TclObject& result) const
 	} else if (name == "-wraprelw") {
 		result.setDouble(wraprelw);
 	} else if (name == "-query-size") {
-		double outX, outY;
+		float outX, outY;
 		getRenderedSize(outX, outY);
 		result.addListElement(outX);
 		result.addListElement(outY);
@@ -148,7 +148,7 @@ string_ref OSDText::getType() const
 }
 
 void OSDText::getWidthHeight(const OutputRectangle& /*output*/,
-                             double& width, double& height) const
+                             float& width, float& height) const
 {
 	if (image) {
 		width  = image->getWidth();
@@ -183,9 +183,9 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		}
 	}
 	try {
-		double pWidth, pHeight;
+		float pWidth, pHeight;
 		getParent()->getWidthHeight(output, pWidth, pHeight);
-		int maxWidth = int(wrapw * scale + wraprelw * pWidth + 0.5);
+		int maxWidth = int(wrapw * scale + wraprelw * pWidth + 0.5f);
 		// Width can't be negative, if it is make it zero instead.
 		// This will put each character on a different line.
 		maxWidth = std::max(0, maxWidth);
@@ -396,7 +396,7 @@ string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 	return StringOp::join(wrappedLines, '\n');
 }
 
-void OSDText::getRenderedSize(double& outX, double& outY) const
+void OSDText::getRenderedSize(float& outX, float& outY) const
 {
 	SDL_Surface* surface = SDL_GetVideoSurface();
 	if (!surface) {
@@ -414,7 +414,7 @@ void OSDText::getRenderedSize(double& outX, double& outY) const
 		height = image->getHeight();
 	}
 
-	double scale = getScaleFactor(output);
+	float scale = getScaleFactor(output);
 	outX = width  / scale;
 	outY = height / scale;
 }

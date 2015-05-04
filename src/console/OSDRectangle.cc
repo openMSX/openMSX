@@ -39,31 +39,31 @@ void OSDRectangle::setProperty(
 	Interpreter& interp, string_ref name, const TclObject& value)
 {
 	if (name == "-w") {
-		double w2 = value.getDouble(interp);
+		float w2 = value.getDouble(interp);
 		if (w != w2) {
 			w = w2;
 			invalidateRecursive();
 		}
 	} else if (name == "-h") {
-		double h2 = value.getDouble(interp);
+		float h2 = value.getDouble(interp);
 		if (h != h2) {
 			h = h2;
 			invalidateRecursive();
 		}
 	} else if (name == "-relw") {
-		double relw2 = value.getDouble(interp);
+		float relw2 = value.getDouble(interp);
 		if (relw != relw2) {
 			relw = relw2;
 			invalidateRecursive();
 		}
 	} else if (name == "-relh") {
-		double relh2 = value.getDouble(interp);
+		float relh2 = value.getDouble(interp);
 		if (relh != relh2) {
 			relh = relh2;
 			invalidateRecursive();
 		}
 	} else if (name == "-scale") {
-		double scale2 = value.getDouble(interp);
+		float scale2 = value.getDouble(interp);
 		if (scale != scale2) {
 			scale = scale2;
 			invalidateRecursive();
@@ -78,13 +78,13 @@ void OSDRectangle::setProperty(
 			invalidateRecursive();
 		}
 	} else if (name == "-bordersize") {
-		double size = value.getDouble(interp);
+		float size = value.getDouble(interp);
 		if (borderSize != size) {
 			borderSize = size;
 			invalidateLocal();
 		}
 	} else if (name == "-relbordersize") {
-		double size = value.getDouble(interp);
+		float size = value.getDouble(interp);
 		if (relBorderSize != size) {
 			relBorderSize = size;
 			invalidateLocal();
@@ -132,22 +132,22 @@ string_ref OSDRectangle::getType() const
 
 bool OSDRectangle::takeImageDimensions() const
 {
-	return (w    == 0.0) && (h    == 0.0) &&
-	       (relw == 0.0) && (relh == 0.0);
+	return (w    == 0.0f) && (h    == 0.0f) &&
+	       (relw == 0.0f) && (relh == 0.0f);
 }
 
 void OSDRectangle::getWidthHeight(const OutputRectangle& output,
-                                  double& width, double& height) const
+                                  float& width, float& height) const
 {
 	if (!imageName.empty() && image && takeImageDimensions()) {
 		width  = image->getWidth();
 		height = image->getHeight();
 	} else {
-		double factor = getScaleFactor(output) * scale;
+		float factor = getScaleFactor(output) * scale;
 		width  = factor * w;
 		height = factor * h;
 
-		double pwidth, pheight;
+		float pwidth, pheight;
 		getParent()->getWidthHeight(output, pwidth, pheight);
 		width  += pwidth  * relw;
 		height += pheight * relh;
@@ -166,7 +166,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 	if (imageName.empty()) {
 		bool constAlpha = hasConstantAlpha();
 		if (constAlpha && ((getRGBA(0) & 0xff) == 0) &&
-		    (((borderRGBA & 0xFF) == 0) || (borderSize == 0.0))) {
+		    (((borderRGBA & 0xFF) == 0) || (borderSize == 0.0f))) {
 			// optimization: Sometimes it's useful to have a
 			//   rectangle that will never be drawn, it only exists
 			//   as a parent for sub-widgets. For those cases
@@ -174,21 +174,21 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 			//   creating it till alpha changes.
 			return nullptr;
 		}
-		double width, height;
+		float width, height;
 		getWidthHeight(output, width, height);
 		int sw = int(round(width));
 		int sh = int(round(height));
-		double factor = getScaleFactor(output) * scale;
+		float factor = getScaleFactor(output) * scale;
 		int bs = int(round(factor * borderSize + width * relBorderSize));
 		assert(bs >= 0);
 		return make_unique<IMAGE>(sw, sh, getRGBA4(), bs, borderRGBA);
 	} else {
 		string file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
-			double factor = getScaleFactor(output) * scale;
+			float factor = getScaleFactor(output) * scale;
 			return make_unique<IMAGE>(file, factor);
 		} else {
-			double width, height;
+			float width, height;
 			getWidthHeight(output, width, height);
 			int sw = int(round(width));
 			int sh = int(round(height));

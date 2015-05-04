@@ -22,7 +22,7 @@ public:
 private:
 	void invalidateLocal() override;
 	void getWidthHeight(const OutputRectangle& output,
-	                    double& width, double& height) const override;
+	                    float& width, float& height) const override;
 	byte getFadedAlpha() const override;
 	std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) override;
 	std::unique_ptr<BaseImage> createGL (OutputRectangle& output) override;
@@ -38,7 +38,7 @@ private:
 	std::string getCharWrappedText(const std::string& text, unsigned maxWidth) const;
 	std::string getWordWrappedText(const std::string& text, unsigned maxWidth) const;
 
-	void getRenderedSize(double& outX, double& outY) const;
+	void getRenderedSize(float& outX, float& outY) const;
 
 	enum WrapMode { NONE, WORD, CHAR };
 
@@ -47,7 +47,7 @@ private:
 	TTFFont font;
 	int size;
 	WrapMode wrapMode;
-	double wrapw, wraprelw;
+	float wrapw, wraprelw;
 
 	friend struct SplitAtChar;
 };

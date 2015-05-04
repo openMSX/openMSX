@@ -15,7 +15,7 @@ public:
 	OSDTopWidget(OSDGUI& gui);
 	string_ref getType() const override;
 	void getWidthHeight(const OutputRectangle& output,
-	                    double& width, double& height) const override;
+	                    float& width, float& height) const override;
 
 	void queueError(std::string message);
 	void showAllErrors();

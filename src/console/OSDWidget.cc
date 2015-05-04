@@ -162,7 +162,7 @@ void OSDWidget::addWidget(unique_ptr<OSDWidget> widget)
 	// case a linear search is probably faster than a binary search. Only
 	// when there are many sub-widgets with not all the same Z (and not
 	// created in sorted Z-order) a binary search would be faster.
-	double z = widget->getZ();
+	float z = widget->getZ();
 	if (subWidgets.empty() || (subWidgets.back()->getZ() <= z)) {
 		subWidgets.push_back(std::move(widget));
 	} else {
@@ -201,7 +201,7 @@ void OSDWidget::resortUp(OSDWidget* elem)
 	auto it1 = begin(subWidgets);
 	while (it1->get() != elem) ++it1;
 	// next search for the position were it belongs
-	double z = elem->getZ();
+	float z = elem->getZ();
 	auto it2 = it1;
 	++it2;
 	while ((it2 != end(subWidgets)) && ((*it2)->getZ() < z)) ++it2;
@@ -215,7 +215,7 @@ void OSDWidget::resortDown(OSDWidget* elem)
 {
 	// z-coordinate was decreased, first search for new position
 	auto it1 = begin(subWidgets);
-	double z = elem->getZ();
+	float z = elem->getZ();
 	while ((*it1)->getZ() <= z) {
 		++it1;
 		if (it1 == end(subWidgets)) return;
@@ -252,7 +252,7 @@ void OSDWidget::setProperty(
 	} else if (name == "-y") {
 		y = value.getDouble(interp);
 	} else if (name == "-z") {
-		double z2 = value.getDouble(interp);
+		float z2 = value.getDouble(interp);
 		if (z != z2) {
 			bool up = z2 > z; // was z increased?
 			z = z2;
@@ -303,7 +303,7 @@ void OSDWidget::getProperty(string_ref name, TclObject& result) const
 	} else if (name == "-clip") {
 		result.setBoolean(clip);
 	} else if (name == "-mousecoord") {
-		double x, y;
+		float x, y;
 		getMouseCoord(x, y);
 		result.addListElement(x);
 		result.addListElement(y);
@@ -314,9 +314,9 @@ void OSDWidget::getProperty(string_ref name, TclObject& result) const
 	}
 }
 
-double OSDWidget::getRecursiveFadeValue() const
+float OSDWidget::getRecursiveFadeValue() const
 {
-	return 1.0; // fully opaque
+	return 1.0f; // fully opaque
 }
 
 void OSDWidget::invalidateRecursive()
@@ -388,10 +388,10 @@ int OSDWidget::getScaleFactor(const OutputRectangle& output) const
 }
 
 void OSDWidget::transformXY(const OutputRectangle& output,
-                            double x, double y, double relx, double rely,
-                            double& outx, double& outy) const
+                            float x, float y, float relx, float rely,
+                            float& outx, float& outy) const
 {
-	double width, height;
+	float width, height;
 	getWidthHeight(output, width, height);
 	int factor = getScaleFactor(output);
 	outx = x + factor * getX() + relx * width;
@@ -403,12 +403,12 @@ void OSDWidget::transformXY(const OutputRectangle& output,
 }
 
 void OSDWidget::transformReverse(
-	const OutputRectangle& output, double x, double y,
-	double& outx, double& outy) const
+	const OutputRectangle& output, float x, float y,
+	float& outx, float& outy) const
 {
 	if (const OSDWidget* parent = getParent()) {
 		parent->transformReverse(output, x, y, x, y);
-		double width, height;
+		float width, height;
 		parent->getWidthHeight(output, width, height);
 		int factor = getScaleFactor(output);
 		outx = x - (getRelX() * width ) - (getX() * factor);
@@ -419,7 +419,7 @@ void OSDWidget::transformReverse(
 	}
 }
 
-void OSDWidget::getMouseCoord(double& outx, double& outy) const
+void OSDWidget::getMouseCoord(float& outx, float& outy) const
 {
 	if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE) {
 		// Host cursor is not visible. Return dummy mouse coords for
@@ -437,8 +437,8 @@ void OSDWidget::getMouseCoord(double& outx, double& outy) const
 		// softfloat, in c++ NaN seems to behave as expected, but maybe
 		// there's a problem on the tcl side? Anyway, when we return
 		// +inf instead of NaN it does work.
-		outx = std::numeric_limits<double>::infinity();
-		outy = std::numeric_limits<double>::infinity();
+		outx = std::numeric_limits<float>::infinity();
+		outy = std::numeric_limits<float>::infinity();
 		return;
 	}
 
@@ -454,7 +454,7 @@ void OSDWidget::getMouseCoord(double& outx, double& outy) const
 
 	transformReverse(output, mouseX, mouseY, outx, outy);
 
-	double width, height;
+	float width, height;
 	getWidthHeight(output, width, height);
 	if ((width == 0) || (height == 0)) {
 		throw CommandException(
@@ -468,13 +468,13 @@ void OSDWidget::getMouseCoord(double& outx, double& outy) const
 void OSDWidget::getBoundingBox(const OutputRectangle& output,
                                int& x, int& y, int& w, int& h)
 {
-	double x1, y1, x2, y2;
-	transformXY(output, 0.0, 0.0, 0.0, 0.0, x1, y1);
-	transformXY(output, 0.0, 0.0, 1.0, 1.0, x2, y2);
-	x = int(x1 + 0.5);
-	y = int(y1 + 0.5);
-	w = int(x2 - x1 + 0.5);
-	h = int(y2 - y1 + 0.5);
+	float x1, y1, x2, y2;
+	transformXY(output, 0.0f, 0.0f, 0.0f, 0.0f, x1, y1);
+	transformXY(output, 0.0f, 0.0f, 1.0f, 1.0f, x2, y2);
+	x = int(x1 + 0.5f);
+	y = int(y1 + 0.5f);
+	w = int(x2 - x1 + 0.5f);
+	h = int(y2 - y1 + 0.5f);
 }
 
 void OSDWidget::listWidgetNames(const string& parentName, vector<string>& result) const

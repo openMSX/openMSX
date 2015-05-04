@@ -19,11 +19,11 @@ public:
 	virtual ~OSDWidget();
 
 	const std::string& getName() const { return name; }
-	double getX()    const { return x; }
-	double getY()    const { return y; }
-	double getZ()    const { return z; }
-	double getRelX() const { return relx; }
-	double getRelY() const { return rely; }
+	float getX()    const { return x; }
+	float getY()    const { return y; }
+	float getZ()    const { return z; }
+	float getRelX() const { return relx; }
+	float getRelY() const { return rely; }
 
 	      OSDWidget* getParent()       { return parent; }
 	const OSDWidget* getParent() const { return parent; }
@@ -36,7 +36,7 @@ public:
 	virtual void setProperty(Interpreter& interp,
 	                         string_ref name, const TclObject& value);
 	virtual void getProperty(string_ref name, TclObject& result) const;
-	virtual double getRecursiveFadeValue() const;
+	virtual float getRecursiveFadeValue() const;
 	virtual string_ref getType() const = 0;
 
 	void invalidateRecursive();
@@ -45,12 +45,12 @@ public:
 
 	int getScaleFactor(const OutputRectangle& surface) const;
 	void transformXY(const OutputRectangle& output,
-	                 double x, double y, double relx, double rely,
-	                 double& outx, double& outy) const;
+	                 float x, float y, float relx, float rely,
+	                 float& outx, float& outy) const;
 	void getBoundingBox(const OutputRectangle& output,
 	                    int& x, int& y, int& w, int& h);
 	virtual void getWidthHeight(const OutputRectangle& output,
-	                            double& width, double& height) const = 0;
+	                            float& width, float& height) const = 0;
 
 	// for OSDGUI::OSDCommand
 	void listWidgetNames(const std::string& parentName,
@@ -66,10 +66,10 @@ protected:
 	virtual void paintGL (OutputSurface& output) = 0;
 
 private:
-	void getMouseCoord(double& outx, double& outy) const;
+	void getMouseCoord(float& outx, float& outy) const;
 	void transformReverse(const OutputRectangle& output,
-	                      double x, double y,
-	                      double& outx, double& outy) const;
+	                      float x, float y,
+	                      float& outx, float& outy) const;
 	void setParent(OSDWidget* parent_) { parent = parent_; }
 	void resortUp  (OSDWidget* elem);
 	void resortDown(OSDWidget* elem);
@@ -86,8 +86,8 @@ private:
 	OSDWidget* parent;
 
 	const std::string name;
-	double x, y, z;
-	double relx, rely;
+	float x, y, z;
+	float relx, rely;
 	bool scaled;
 	bool clip;
 	bool suppressErrors;

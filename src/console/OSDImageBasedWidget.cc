@@ -155,17 +155,17 @@ bool OSDImageBasedWidget::hasConstantAlpha() const
 	return constantAlpha(rgba);
 }
 
-double OSDImageBasedWidget::getRecursiveFadeValue() const
+float OSDImageBasedWidget::getRecursiveFadeValue() const
 {
 	return getParent()->getRecursiveFadeValue() * getCurrentFadeValue();
 }
 
 bool OSDImageBasedWidget::isFading() const
 {
-	return (startFadeValue != fadeTarget) && (fadePeriod != 0.0);
+	return (startFadeValue != fadeTarget) && (fadePeriod != 0.0f);
 }
 
-double OSDImageBasedWidget::getCurrentFadeValue() const
+float OSDImageBasedWidget::getCurrentFadeValue() const
 {
 	if (!isFading()) {
 		return startFadeValue;
@@ -173,22 +173,22 @@ double OSDImageBasedWidget::getCurrentFadeValue() const
 	return getCurrentFadeValue(Timer::getTime());
 }
 
-double OSDImageBasedWidget::getCurrentFadeValue(uint64_t now) const
+float OSDImageBasedWidget::getCurrentFadeValue(uint64_t now) const
 {
 	assert(now >= startFadeTime);
 
 	int diff = int(now - startFadeTime); // int should be big enough
-	assert(fadePeriod != 0.0);
-	double delta = diff / (1000000.0 * fadePeriod);
+	assert(fadePeriod != 0.0f);
+	float delta = diff / (1000000.0f * fadePeriod);
 	if (startFadeValue < fadeTarget) {
-		double tmp = startFadeValue + delta;
+		float tmp = startFadeValue + delta;
 		if (tmp >= fadeTarget) {
 			startFadeValue = fadeTarget;
 			return startFadeValue;
 		}
 		return tmp;
 	} else {
-		double tmp = startFadeValue - delta;
+		float tmp = startFadeValue - delta;
 		if (tmp <= fadeTarget) {
 			startFadeValue = fadeTarget;
 			return startFadeValue;
@@ -213,13 +213,13 @@ void OSDImageBasedWidget::invalidateLocal()
 }
 
 void OSDImageBasedWidget::getTransformedXY(const OutputRectangle& output,
-                                           double& outx, double& outy) const
+                                           float& outx, float& outy) const
 {
 	const OSDWidget* parent = getParent();
 	assert(parent);
 	int factor = getScaleFactor(output);
-	double x = factor * getX();
-	double y = factor * getY();
+	float x = factor * getX();
+	float y = factor * getY();
 	parent->transformXY(output, x, y, getRelX(), getRelY(), outx, outy);
 }
 
@@ -274,9 +274,9 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 
 	byte fadedAlpha = getFadedAlpha();
 	if ((fadedAlpha != 0) && image) {
-		double x, y;
+		float x, y;
 		getTransformedXY(output, x, y);
-		image->draw(output, int(x + 0.5), int(y + 0.5), fadedAlpha);
+		image->draw(output, int(x + 0.5f), int(y + 0.5f), fadedAlpha);
 	}
 	if (isFading()) {
 		gui.refresh();

@@ -22,7 +22,7 @@ public:
 	void setProperty(Interpreter& interp,
 	                 string_ref name, const TclObject& value) override;
 	void getProperty(string_ref name, TclObject& result) const override;
-	double getRecursiveFadeValue() const override;
+	float getRecursiveFadeValue() const override;
 
 protected:
 	OSDImageBasedWidget(OSDGUI& gui, const std::string& name);
@@ -43,19 +43,19 @@ protected:
 private:
 	void setRGBA(const unsigned newRGBA[4]);
 	bool isFading() const;
-	double getCurrentFadeValue() const;
-	double getCurrentFadeValue(uint64_t) const;
+	float getCurrentFadeValue() const;
+	float getCurrentFadeValue(uint64_t) const;
 	void updateCurrentFadeValue();
 
 	void paint(OutputSurface& output, bool openGL);
 	void getTransformedXY(const OutputRectangle& output,
-	                      double& outx, double& outy) const;
+	                      float& outx, float& outy) const;
 
 	OSDGUI& gui;
 	uint64_t startFadeTime;
-	double fadePeriod;
-	double fadeTarget;
-	mutable double startFadeValue;
+	float fadePeriod;
+	float fadeTarget;
+	mutable float startFadeValue;
 	unsigned rgba[4];
 	bool error;
 };

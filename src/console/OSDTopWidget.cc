@@ -18,7 +18,7 @@ string_ref OSDTopWidget::getType() const
 }
 
 void OSDTopWidget::getWidthHeight(const OutputRectangle& output,
-                                  double& width, double& height) const
+                                  float& width, float& height) const
 {
 	width  = output.getOutputWidth();
 	height = output.getOutputHeight();
