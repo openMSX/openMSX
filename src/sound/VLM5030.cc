@@ -535,8 +535,8 @@ VLM5030::VLM5030(const std::string& name, const std::string& desc,
 	address_mask = rom.getSize() - 1;
 
 	const int CLOCK_FREQ = 3579545;
-	double input = CLOCK_FREQ / 440.0;
-	setInputRate(int(input + 0.5));
+	float input = CLOCK_FREQ / 440.0f;
+	setInputRate(int(input + 0.5f));
 
 	registerSound(config);
 }

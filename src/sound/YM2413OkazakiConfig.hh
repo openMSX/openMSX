@@ -10,9 +10,9 @@ static const int DB_BITS = 8;
 static const int DB_MUTE = 1 << DB_BITS;
 static const int DBTABLEN = 3 * DB_MUTE; // enough to not have to check for overflow
 
-static const double DB_STEP = 48.0 / DB_MUTE;
-static const double EG_STEP = 0.375;
-static const double TL_STEP = 0.75;
+static const float DB_STEP = 48.0 / DB_MUTE;
+static const float EG_STEP = 0.375;
+static const float TL_STEP = 0.75;
 
 // Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
 static const int PG_BITS = 9;

@@ -57,7 +57,7 @@ static inline YMF262::FreqIndex fnumToIncrement(unsigned block_fnum)
 // envelope output entries
 static const int ENV_BITS    = 10;
 static const int ENV_LEN     = 1 << ENV_BITS;
-static const double ENV_STEP = 128.0 / ENV_LEN;
+static const float ENV_STEP = 128.0 / ENV_LEN;
 
 static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; // 511
 static const int MIN_ATT_INDEX = 0;
@@ -134,7 +134,7 @@ static const unsigned ksl_tab[8 * 16] = {
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(db) unsigned(db * (2.0 / ENV_STEP))
+#define SC(db) unsigned(db * (2.0f / ENV_STEP))
 static const unsigned sl_tab[16] = {
 	SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
 	SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
@@ -783,8 +783,8 @@ void YMF262::init_tables()
 	alreadyInit = true;
 
 	for (int x = 0; x < TL_RES_LEN; x++) {
-		double m = (1 << 16) / exp2((x + 1) * (ENV_STEP / 4.0) / 8.0);
-		m = floor(m);
+		float m = (1 << 16) / exp2f((x + 1) * (ENV_STEP / 4.0f) / 8.0f);
+		m = floorf(m);
 
 		// we never reach (1<<16) here due to the (x+1)
 		// result fits within 16 bits at maximum
@@ -802,17 +802,17 @@ void YMF262::init_tables()
 		}
 	}
 
-	static const double LOG2 = log(2.0);
+	static const float LOG2 = log(2.0);
 	for (int i = 0; i < SIN_LEN; i++) {
 		// non-standard sinus
-		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
+		float m = sinf(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
 		// we never reach zero here due to ((i * 2) + 1)
-		double o = -8.0 * log(std::abs(m)) / LOG2; // convert to 'decibels'
+		float o = -8.0f * logf(std::abs(m)) / LOG2; // convert to 'decibels'
 		o = o / (ENV_STEP / 4);
 
 		int n = int(2 * o);
 		n = (n >> 1) + (n & 1); // round to nearest
-		sin_tab[i] = n * 2 + (m >= 0.0 ? 0 : 1);
+		sin_tab[i] = n * 2 + (m >= 0.0f ? 0 : 1);
 	}
 
 	for (int i = 0; i < SIN_LEN; ++i) {
@@ -1460,10 +1460,10 @@ YMF262::YMF262(const std::string& name,
 
 	init_tables();
 
-	double input = isYMF278
-	             ?    33868800.0 / (19 * 36)
-	             : 4 * 3579545.0 / ( 8 * 36);
-	setInputRate(int(input + 0.5));
+	float input = isYMF278
+	            ?    33868800.0f / (19 * 36)
+	            : 4 * 3579545.0f / ( 8 * 36);
+	setInputRate(int(input + 0.5f));
 
 	reset(config.getMotherBoard().getCurrentTime());
 	registerSound(config);

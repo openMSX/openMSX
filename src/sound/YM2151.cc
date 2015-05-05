@@ -20,7 +20,7 @@ static const int FREQ_MASK = (1 << FREQ_SH) - 1;
 
 static const int ENV_BITS = 10;
 static const int ENV_LEN  = 1 << ENV_BITS;
-static const double ENV_STEP = 128.0 / ENV_LEN;
+static const float ENV_STEP = 128.0f / ENV_LEN;
 
 static const int MAX_ATT_INDEX = ENV_LEN - 1; // 1023
 static const int MIN_ATT_INDEX = 0;
@@ -296,8 +296,8 @@ static byte lfo_noise_waveform[256] = {
 void YM2151::initTables()
 {
 	for (int x = 0; x < TL_RES_LEN; ++x) {
-		double m = (1 << 16) / exp2((x + 1) * (ENV_STEP / 4.0) / 8.0);
-		m = floor(m);
+		float m = (1 << 16) / exp2f((x + 1) * (ENV_STEP / 4.0f) / 8.0f);
+		m = floorf(m);
 
 		// we never reach (1 << 16) here due to the (x + 1)
 		// result fits within 16 bits at maximum
@@ -320,29 +320,28 @@ void YM2151::initTables()
 		}
 	}
 
-	static const double LOG2 = log(2.0);
+	static const float LOG2 = log(2.0);
 	for (int i = 0; i < SIN_LEN; ++i) {
 		// non-standard sinus
-		double m = sin((i * 2 + 1) * M_PI / SIN_LEN); // verified on the real chip
+		float m = sinf((i * 2 + 1) * M_PI / SIN_LEN); // verified on the real chip
 
 		// we never reach zero here due to (i * 2 + 1)
-		double o = -8.0 * log(std::abs(m)) / LOG2; // convert to decibels
+		float o = -8.0f * logf(std::abs(m)) / LOG2; // convert to decibels
 		o = o / (ENV_STEP / 4);
 
-		int n = int(2.0 * o);
+		int n = int(2.0f * o);
 		if (n & 1) { // round to closest
 			n = (n >> 1) + 1;
 		} else {
 			n = n >> 1;
 		}
-		sin_tab[i] = n * 2 + (m >= 0.0 ? 0 : 1);
+		sin_tab[i] = n * 2 + (m >= 0.0f ? 0 : 1);
 	}
 
 	// calculate d1l_tab table
 	for (int i = 0; i < 16; ++i) {
 		// every 3 'dB' except for all bits = 1 = 45+48 'dB'
-		double m = unsigned((i != 15 ? i : i + 16) * (4.0 / ENV_STEP));
-		d1l_tab[i] = unsigned(m);
+		d1l_tab[i] = unsigned((i != 15 ? i : i + 16) * (4.0f / ENV_STEP));
 	}
 }
 
@@ -354,10 +353,10 @@ void YM2151::initChipTables()
 
 	// real chip works with 10 bits fixed point values (10.10)
 	//   -10 because phaseinc_rom table values are already in 10.10 format
-	double mult = 1 << (FREQ_SH - 10);
+	float mult = 1 << (FREQ_SH - 10);
 
 	for (int i = 0; i < 768; ++i) {
-		double phaseinc = phaseinc_rom[i]; // real chip phase increment
+		float phaseinc = phaseinc_rom[i]; // real chip phase increment
 
 		// octave 2 - reference octave
 		//   adjust to X.10 fixed point
@@ -390,7 +389,7 @@ void YM2151::initChipTables()
 		for (int i = 0; i < 32; ++i) {
 
 			// calculate phase increment
-			double phaseinc = double(dt1_tab[j * 32 + i]) / (1 << 20) * (SIN_LEN);
+			float phaseinc = float(dt1_tab[j * 32 + i]) / (1 << 20) * (SIN_LEN);
 
 			// positive and negative values
 			dt1_freq[(j + 0) * 32 + i] = int(phaseinc * mult);
@@ -847,8 +846,8 @@ YM2151::YM2151(const std::string& name, const std::string& desc,
 	initChipTables();
 
 	static const int CLCK_FREQ = 3579545;
-	double input = CLCK_FREQ / 64.0;
-	setInputRate(int(input + 0.5));
+	float input = CLCK_FREQ / 64.0f;
+	setInputRate(int(input + 0.5f));
 
 	reset(time);
 

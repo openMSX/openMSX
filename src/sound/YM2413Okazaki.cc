@@ -45,14 +45,14 @@ static inline unsigned TL2EG(unsigned d)
 	return d * int(TL_STEP / EG_STEP);
 }
 
-static inline unsigned DB_POS(double x)
+static inline unsigned DB_POS(float x)
 {
 	int result = int(x / DB_STEP);
 	assert(0 <= result);
 	assert(result < DB_MUTE);
 	return result;
 }
-static inline unsigned DB_NEG(double x)
+static inline unsigned DB_NEG(float x)
 {
 	return DBTABLEN + DB_POS(x);
 }
@@ -733,8 +733,8 @@ ALWAYS_INLINE int Slot::calc_slot_snare(bool noise)
 	unsigned phase = calc_phase(0);
 	unsigned egout = calc_envelope<false, false>(0, 0);
 	return BIT(phase, 7)
-		? dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout]
-		: dB2LinTab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egout];
+		? dB2LinTab[(noise ? DB_POS(0.0f) : DB_POS(15.0f)) + egout]
+		: dB2LinTab[(noise ? DB_NEG(0.0f) : DB_NEG(15.0f)) + egout];
 }
 
 // TOP-CYM (ch8 car)
@@ -746,8 +746,8 @@ ALWAYS_INLINE int Slot::calc_slot_cym(unsigned phase7, unsigned phase8)
 	                   BIT(phase7, PG_BITS - 7)) ^
 	                  ( BIT(phase8, PG_BITS - 7) &
 	                   !BIT(phase8, PG_BITS - 5)))
-	               ? DB_NEG(3.0)
-	               : DB_POS(3.0);
+	               ? DB_NEG(3.0f)
+	               : DB_POS(3.0f);
 	return dB2LinTab[dbout + egout];
 }
 
@@ -760,8 +760,8 @@ ALWAYS_INLINE int Slot::calc_slot_hat(unsigned phase7, unsigned phase8, bool noi
 	                   BIT(phase7, PG_BITS - 7)) ^
 	                  ( BIT(phase8, PG_BITS - 7) &
 	                   !BIT(phase8, PG_BITS - 5)))
-	               ? (noise ? DB_NEG(12.0) : DB_NEG(24.0))
-	               : (noise ? DB_POS(12.0) : DB_POS(24.0));
+	               ? (noise ? DB_NEG(12.0f) : DB_NEG(24.0f))
+	               : (noise ? DB_POS(12.0f) : DB_POS(24.0f));
 	return dB2LinTab[dbout + egout];
 }
 

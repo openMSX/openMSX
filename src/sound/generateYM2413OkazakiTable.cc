@@ -62,14 +62,14 @@ static void formatTable2(const T (&tab)[M][N], int width, int newLines, int colu
 }
 
 // Sawtooth function with amplitude 1 and period 1.
-static inline double saw(double phase)
+static inline float saw(float phase)
 {
-	if (phase < 0.25) {
-		return phase * 4.0;
-	} else if (phase < 0.75) {
-		return 2.0 - (phase * 4.0);
+	if (phase < 0.25f) {
+		return phase * 4.0f;
+	} else if (phase < 0.75f) {
+		return  2.0f - (phase * 4.0f);
 	} else {
-		return -4.0 + (phase * 4.0);
+		return -4.0f + (phase * 4.0f);
 	}
 }
 
@@ -95,8 +95,8 @@ static void makeDB2LinTable()
 	int dB2LinTab[2 * DBTABLEN];
 
 	for (int i = 0; i < DB_MUTE; ++i) {
-		dB2LinTab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
-		                   pow(10, -double(i) * DB_STEP / 20));
+		dB2LinTab[i] = int(float((1 << DB2LIN_AMP_BITS) - 1) *
+		                   powf(10, -float(i) * DB_STEP / 20));
 	}
 	dB2LinTab[DB_MUTE - 1] = 0;
 	for (int i = DB_MUTE; i < DBTABLEN; ++i) {
@@ -121,8 +121,8 @@ static void makeAdjustTable()
 	unsigned AR_ADJUST_TABLE[1 << EG_BITS];
 	AR_ADJUST_TABLE[0] = (1 << EG_BITS) - 1;
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
-		AR_ADJUST_TABLE[i] = unsigned(double(1 << EG_BITS) - 1 -
-		         ((1 << EG_BITS) - 1) * ::log(double(i)) / ::log(127.0));
+		AR_ADJUST_TABLE[i] = unsigned(float(1 << EG_BITS) - 1 -
+		         ((1 << EG_BITS) - 1) * ::logf(float(i)) / ::logf(127.0f));
 	}
 
 	cout << "// Linear to Log curve conversion table (for Attack rate)\n"
@@ -157,11 +157,11 @@ static void makeTllTable()
 }
 
 // lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)
-static int lin2db(double d)
+static int lin2db(float d)
 {
 	return (d == 0)
 		? DB_MUTE - 1
-		: std::min(-int(20.0 * log10(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
+		: std::min(-int(20.0f * log10f(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
 }
 
 // Sin Table
@@ -171,7 +171,7 @@ static void makeSinTable()
 	unsigned halfsintable[PG_WIDTH];
 
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		fullsintable[i] = lin2db(sin(2.0 * M_PI * i / PG_WIDTH));
+		fullsintable[i] = lin2db(sinf(float(2.0 * M_PI) * i / PG_WIDTH));
 	}
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
 		fullsintable[PG_WIDTH / 2 - 1 - i] = fullsintable[i];
@@ -282,7 +282,7 @@ static void makeSusLevTable()
 {
 	unsigned slTable[16];
 	for (int i = 0; i < 16; ++i) {
-		double x = (i == 15) ? 48.0 : (3.0 * i);
+		float x = (i == 15) ? 48.0f : (3.0f * i);
 		slTable[i] = int(x / EG_STEP) << EP_FP_BITS;
 	}
 

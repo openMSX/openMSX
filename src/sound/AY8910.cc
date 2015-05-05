@@ -28,8 +28,8 @@ namespace openmsx {
 // The step clock for the tone and noise generators is the chip clock
 // divided by 8; for the envelope generator of the AY-3-8910, it is half
 // that much (clock/16).
-static const double NATIVE_FREQ_DOUBLE = (3579545.0 / 2) / 8;
-static const int NATIVE_FREQ_INT = int(NATIVE_FREQ_DOUBLE + 0.5);
+static const float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
+static const int NATIVE_FREQ_INT = int(NATIVE_FREQ_FLOAT + 0.5f);
 
 static const int PORT_A_DIRECTION = 0x40;
 static const int PORT_B_DIRECTION = 0x80;
@@ -138,8 +138,8 @@ int AY8910::ToneGenerator::getDetune()
 	float vibPerc = parent->vibratoPercent.getDouble();
 	if (vibPerc != 0.0f) {
 		int vibratoPeriod = int(
-			NATIVE_FREQ_DOUBLE
-			/ parent->vibratoFrequency.getDouble());
+			NATIVE_FREQ_FLOAT /
+			float(parent->vibratoFrequency.getDouble()));
 		vibratoCount += period;
 		vibratoCount %= vibratoPeriod;
 		result += int(
@@ -148,8 +148,8 @@ int AY8910::ToneGenerator::getDetune()
 	}
 	float detunePerc = parent->detunePercent.getDouble();
 	if (detunePerc != 0.0f) {
-		float detunePeriod = NATIVE_FREQ_DOUBLE /
-			parent->detuneFrequency.getDouble();
+		float detunePeriod = NATIVE_FREQ_FLOAT /
+			float(parent->detuneFrequency.getDouble());
 		detuneCount += period;
 		float noiseIdx = detuneCount / detunePeriod;
 		float noise = noiseValue(       noiseIdx)
@@ -302,10 +302,10 @@ inline void AY8910::Amplitude::setMasterVolume(int volume)
 	// YM2149 has 32 levels, the 16 extra levels are only used for envelope
 	// volumes
 
-	double out = volume; // avoid clipping
-	double factor = pow(0.5, 0.25); // 1/sqrt(sqrt(2)) ~= 1/(1.5dB)
+	float out = volume; // avoid clipping
+	float factor = powf(0.5f, 0.25f); // 1/sqrt(sqrt(2)) ~= 1/(1.5dB)
 	for (int i = 31; i > 0; --i) {
-		envVolTable[i] = unsigned(out + 0.5); // round to nearest;
+		envVolTable[i] = unsigned(out + 0.5f); // round to nearest;
 		out *= factor;
 	}
 	envVolTable[0] = 0;

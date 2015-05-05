@@ -29,7 +29,7 @@ namespace YM2413Burczynski {
 
 // envelope output entries
 static const int ENV_BITS = 10;
-static const double ENV_STEP = 128.0 / (1 << ENV_BITS);
+static const float ENV_STEP = 128.0f / (1 << ENV_BITS);
 
 static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
 static const int MIN_ATT_INDEX = 0;
@@ -93,7 +93,7 @@ static const int ksl_tab[8 * 16] =
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,45 (dB)
-#define SC(db) int((double(db)) / ENV_STEP)
+#define SC(db) int((float(db)) / ENV_STEP)
 static const int sl_tab[16] = {
 	SC( 0),SC( 1),SC( 2),SC(3 ),SC(4 ),SC(5 ),SC(6 ),SC( 7),
 	SC( 8),SC( 9),SC(10),SC(11),SC(12),SC(13),SC(14),SC(15)
@@ -610,8 +610,8 @@ static void initTables()
 	alreadyInit = true;
 
 	for (int x = 0; x < TL_RES_LEN; ++x) {
-		double m = (1 << 16) / exp2((x + 1) * (ENV_STEP / 4.0) / 8.0);
-		m = floor(m);
+		float m = (1 << 16) / exp2f((x + 1) * (ENV_STEP / 4.0f) / 8.0f);
+		m = floorf(m);
 
 		// we never reach (1 << 16) here due to the (x + 1)
 		// result fits within 16 bits at maximum
@@ -627,12 +627,12 @@ static void initTables()
 
 	unsigned* full = &sin_tab[0 * SIN_LEN]; // waveform 0: standard sinus
 	unsigned* half = &sin_tab[1 * SIN_LEN]; // waveform 1: positive part of sinus
-	static const double LOG2 = log(2.0);
+	static const float LOG2 = logf(2.0f);
 	for (int i = 0; i < SIN_LEN / 4; ++i) {
 		// checked on real hardware, see also
 		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
-		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN);
-		int n = int(round(log(m) / LOG2 * -256.0));
+		float m = sinf(((i * 2) + 1) * M_PI / SIN_LEN);
+		int n = int(roundf(logf(m) / LOG2 * -256.0f));
 		full[i] = half[i] = 2 * n;
 	}
 	for (int i = 0; i < SIN_LEN / 4; ++i) {

@@ -22,19 +22,19 @@ static const Y8950::EnvPhaseIndex EG_DP_MAX = Y8950::EnvPhaseIndex(EG_MUTE);
 static const unsigned MOD = 0;
 static const unsigned CAR = 1;
 
-static const double EG_STEP = 0.1875; //  3/16
-static const double SL_STEP = 3.0;
-static const double TL_STEP = 0.75;   // 12/16
-static const double DB_STEP = 0.1875; //  3/16
+static const float EG_STEP = 0.1875f; //  3/16
+static const float SL_STEP = 3.0f;
+static const float TL_STEP = 0.75f;   // 12/16
+static const float DB_STEP = 0.1875f; //  3/16
 
 static const unsigned SL_PER_EG = 16; // SL_STEP / EG_STEP
 static const unsigned TL_PER_EG =  4; // TL_STEP / EG_STEP
 static const unsigned EG_PER_DB =  1; // EG_STEP / DB_STEP
 
 // PM speed(Hz) and depth(cent)
-static const double PM_SPEED  = 6.4;
-static const double PM_DEPTH  = 13.75 / 2;
-static const double PM_DEPTH2 = 13.75;
+static const float PM_SPEED  = 6.4f;
+static const float PM_DEPTH  = 13.75f / 2;
+static const float PM_DEPTH2 = 13.75f;
 
 // Dynamic range of sustine level
 static const int SL_BITS = 4;
@@ -87,7 +87,7 @@ static const int AM_DP_BITS = 16;
 static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
 
 // LFO Table
-static const unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
+static const unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV)));
 static int pmtable[2][PM_PG_WIDTH];
 
 // dB to Liner table
@@ -191,9 +191,9 @@ static inline unsigned DB_NEG(int x)
 //**************************************************//
 
 // Return log_BASE(x)  IOW the value y so that pow(BASE, y) == x.
-template<int BASE> static inline double log(double x)
+template<int BASE> static inline float log(float x)
 {
-	return ::log(x) / ::log(double(BASE));
+	return ::logf(x) / ::logf(float(BASE));
 }
 
 // Table for AR to LogCurve and vice versa.
@@ -203,7 +203,7 @@ static void makeAdjustTable()
 	RA_ADJUST_TABLE[0] = EG_MUTE;
 	for (int i = 1; i < int(EG_MUTE); ++i) {
 		AR_ADJUST_TABLE[i] = (EG_MUTE - 1 - EG_MUTE * log<EG_MUTE>(i)) / 2;
-		RA_ADJUST_TABLE[i] = pow(EG_MUTE, double(EG_MUTE - 1 - 2 * i) / EG_MUTE);
+		RA_ADJUST_TABLE[i] = powf(EG_MUTE, float(EG_MUTE - 1 - 2 * i) / EG_MUTE);
 		assert(0 <= int(AR_ADJUST_TABLE[i]));
 		assert(0 <= int(RA_ADJUST_TABLE[i]));
 		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
@@ -220,8 +220,8 @@ static void makeAdjustTable()
 static void makeDB2LinTable()
 {
 	for (int i = 0; i < DB_MUTE; ++i) {
-		dB2LinTab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
-		                   pow(10, -double(i) * DB_STEP / 20));
+		dB2LinTab[i] = int(float((1 << DB2LIN_AMP_BITS) - 1) *
+		                   powf(10, -float(i) * DB_STEP / 20));
 	}
 	assert(dB2LinTab[DB_MUTE - 1] == 0);
 	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
@@ -233,13 +233,13 @@ static void makeDB2LinTable()
 }
 
 // Liner(+0.0 - +1.0) to dB(DB_MUTE-1 -- 0)
-static unsigned lin2db(double d)
+static unsigned lin2db(float d)
 {
-	if (d < 1e-4) {
+	if (d < 1e-4f) {
 		// (almost) zero
 		return DB_MUTE - 1;
 	}
-	int tmp = -int(20.0 * log10(d) / DB_STEP);
+	int tmp = -int(20.0f * log10f(d) / DB_STEP);
 	int result = std::min(tmp, DB_MUTE - 1);
 	assert(result >= 0);
 	assert(result <= DB_MUTE - 1);
@@ -250,7 +250,7 @@ static unsigned lin2db(double d)
 static void makeSinTable()
 {
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		sintable[i] = lin2db(sin(2.0 * M_PI * i / PG_WIDTH));
+		sintable[i] = lin2db(sinf(float(2.0 * M_PI) * i / PG_WIDTH));
 	}
 	for (int i = 0; i < PG_WIDTH / 4; i++) {
 		sintable[PG_WIDTH / 2 - 1 - i] = sintable[i];
@@ -264,8 +264,8 @@ static void makeSinTable()
 static void makePmTable()
 {
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
-		pmtable[0][i] = int(double(PM_AMP) * exp2(double(PM_DEPTH)  * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
-		pmtable[1][i] = int(double(PM_AMP) * exp2(double(PM_DEPTH2) * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
+		pmtable[0][i] = int(float(PM_AMP) * exp2f(float(PM_DEPTH)  * sinf(float(2.0 * M_PI) * i / PM_PG_WIDTH) / 1200));
+		pmtable[1][i] = int(float(PM_AMP) * exp2f(float(PM_DEPTH2) * sinf(float(2.0 * M_PI) * i / PM_PG_WIDTH) / 1200));
 	}
 }
 
@@ -500,8 +500,8 @@ Y8950::Y8950(const std::string& name, const DeviceConfig& config,
 	makeDphaseARTable();
 	makeDphaseDRTable();
 
-	double input = Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV);
-	setInputRate(int(input + 0.5));
+	float input = Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV);
+	setInputRate(int(input + 0.5f));
 
 	reset(time);
 	registerSound(config);

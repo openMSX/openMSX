@@ -44,8 +44,8 @@ YM2413::YM2413(const std::string& name, const DeviceConfig& config)
 	, core(createCore(config))
 	, debuggable(config.getMotherBoard(), *this)
 {
-	double input = YM2413Core::CLOCK_FREQ / 72.0;
-	setInputRate(int(input + 0.5));
+	float input = YM2413Core::CLOCK_FREQ / 72.0f;
+	setInputRate(int(input + 0.5f));
 
 	registerSound(config);
 }

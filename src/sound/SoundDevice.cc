@@ -78,7 +78,7 @@ int SoundDevice::getAmplificationFactor() const
 void SoundDevice::registerSound(const DeviceConfig& config)
 {
 	const XMLElement& soundConfig = config.getChild("sound");
-	double volume = soundConfig.getChildDataAsInt("volume") / 32767.0;
+	float volume = soundConfig.getChildDataAsInt("volume") / 32767.0f;
 	int devBalance = 0;
 	string_ref mode = soundConfig.getChildData("mode", "mono");
 	if (mode == "mono") {

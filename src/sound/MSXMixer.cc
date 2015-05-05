@@ -127,7 +127,7 @@ MSXMixer::~MSXMixer()
 	mute(); // calls Mixer::unregisterMixer()
 }
 
-void MSXMixer::registerSound(SoundDevice& device, double volume,
+void MSXMixer::registerSound(SoundDevice& device, float volume,
                              int balance, unsigned numChannels)
 {
 	// TODO read volume/balance(mode) from config file
@@ -778,30 +778,30 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info)
 {
 	int mVolume = masterVolume.getInt();
 	int dVolume = info.volumeSetting->getInt();
-	double volume = info.defaultVolume * mVolume * dVolume / (100.0 * 100.0);
+	float volume = info.defaultVolume * mVolume * dVolume / (100.0f * 100.0f);
 	int balance = info.balanceSetting->getInt();
-	double l1, r1, l2, r2;
+	float l1, r1, l2, r2;
 	if (info.device->isStereo()) {
 		if (balance < 0) {
-			double b = (balance + 100.0) / 100.0;
+			float b = (balance + 100.0f) / 100.0f;
 			l1 = volume;
-			r1 = 0.0;
-			l2 = volume * sqrt(std::max(0.0, 1.0 - b));
-			r2 = volume * sqrt(std::max(0.0,       b));
+			r1 = 0.0f;
+			l2 = volume * sqrtf(std::max(0.0f, 1.0f - b));
+			r2 = volume * sqrtf(std::max(0.0f,        b));
 		} else {
-			double b = balance / 100.0;
-			l1 = volume * sqrt(std::max(0.0, 1.0 - b));
-			r1 = volume * sqrt(std::max(0.0,       b));
-			l2 = 0.0;
+			float b = balance / 100.0f;
+			l1 = volume * sqrtf(std::max(0.0f, 1.0f - b));
+			r1 = volume * sqrtf(std::max(0.0f,        b));
+			l2 = 0.0f;
 			r2 = volume;
 		}
 	} else {
 		// make sure that in case of rounding errors
 		// we don't take sqrt() of negative numbers
-		double b = (balance + 100.0) / 200.0;
-		l1 = volume * sqrt(std::max(0.0, 1.0 - b));
-		r1 = volume * sqrt(std::max(0.0,       b));
-		l2 = r2 = 0.0; // dummy
+		float b = (balance + 100.0f) / 200.0f;
+		l1 = volume * sqrtf(std::max(0.0f, 1.0f - b));
+		r1 = volume * sqrtf(std::max(0.0f,        b));
+		l2 = r2 = 0.0f; // dummy
 	}
 	// 512 (9 bits) because in the DC filter we also have a factor 512, and
 	// using the same allows to fold both (later) divisions into one.

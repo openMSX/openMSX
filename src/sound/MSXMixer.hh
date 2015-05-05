@@ -40,7 +40,7 @@ public:
 	 * After registration the device its updateBuffer() method is
 	 * 'regularly' called (see SoundDevice for more info).
 	 */
-	void registerSound(SoundDevice& device, double volume,
+	void registerSound(SoundDevice& device, float volume,
 	                   int balance, unsigned numChannels);
 
 	/**
@@ -112,7 +112,7 @@ private:
 		SoundDeviceInfo& operator=(SoundDeviceInfo&& rhs);
 
 		SoundDevice* device;
-		double defaultVolume;
+		float defaultVolume;
 		std::unique_ptr<IntegerSetting> volumeSetting;
 		std::unique_ptr<IntegerSetting> balanceSetting;
 		struct ChannelSettings {

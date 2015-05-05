@@ -122,8 +122,8 @@ SCC::SCC(const string& name, const DeviceConfig& config,
 	// Make valgrind happy
 	for (auto& op : orgPeriod) op = 0;
 
-	double input = 3579545.0 / 32;
-	setInputRate(int(input + 0.5));
+	float input = 3579545.0f / 32;
+	setInputRate(int(input + 0.5f));
 
 	powerUp(time);
 	registerSound(config);
