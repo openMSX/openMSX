@@ -82,8 +82,8 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 		// should only happen when settings.xml was manually edited
 		std::cerr << e.getMessage() << std::endl;
 		// fill in safe default values
-		m[0][0] = 256.0; m[0][1] =   0.0; m[0][2] = 0.0;
-		m[1][0] =   0.0; m[1][1] = 256.0; m[1][2] = 0.0;
+		m[0][0] = 256.0f; m[0][1] =   0.0f; m[0][2] = 0.0f;
+		m[1][0] =   0.0f; m[1][1] = 256.0f; m[1][2] = 0.0f;
 	}
 }
 
@@ -192,8 +192,8 @@ void Touchpad::write(byte value, EmuTime::param time)
 void Touchpad::transformCoords(int& x, int& y)
 {
 	if (SDL_Surface* surf = SDL_GetVideoSurface()) {
-		double u = double(x) / surf->w;
-		double v = double(y) / surf->h;
+		float u = float(x) / surf->w;
+		float v = float(y) / surf->h;
 		x = m[0][0] * u + m[0][1] * v + m[0][2];
 		y = m[1][0] * u + m[1][1] * v + m[1][2];
 	}

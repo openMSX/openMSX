@@ -53,7 +53,7 @@ private:
 	StateChangeDistributor& stateChangeDistributor;
 
 	StringSetting transformSetting;
-	double m[2][3]; // transformation matrix
+	float m[2][3]; // transformation matrix
 
 	EmuTime start; // last time when CS switched 0->1
 	int hostX, hostY; // host state
