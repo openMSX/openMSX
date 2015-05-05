@@ -15,7 +15,7 @@ SDLSnow<Pixel>::SDLSnow(OutputSurface& output, Display& display_)
 {
 	// Precalc gray values for noise
 	for (unsigned i = 0; i < 256; ++i) {
-		double t = i / 255.0;
+		float t = i / 255.0f;
 		gray[i] = output.mapRGB(t, t, t);
 	}
 }

@@ -30,7 +30,7 @@ public:
 	  * No effort is made to ensure that the returned pixel value is not the
 	  * color key for this output surface.
 	  */
-	unsigned mapRGB(double dr, double dg, double db);
+	unsigned mapRGB(float dr, float dg, float db);
 
 	/** Returns the color key for this output surface.
 	  */
@@ -73,11 +73,11 @@ public:
 	  * It is guaranteed that the returned pixel value is different from the
 	  * color key for this output surface.
 	  */
-	template<typename Pixel> Pixel mapKeyedRGB(double dr, double dg, double db)
+	template<typename Pixel> Pixel mapKeyedRGB(float dr, float dg, float db)
 	{
-		int r8 = int(dr * 255.0);
-		int g8 = int(dg * 255.0);
-		int b8 = int(db * 255.0);
+		int r8 = int(dr * 255.0f);
+		int g8 = int(dg * 255.0f);
+		int b8 = int(db * 255.0f);
 		return mapKeyedRGB<Pixel>(r8, g8, b8);
 	}
 

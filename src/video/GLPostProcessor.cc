@@ -147,10 +147,10 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	}
 
 	auto deform = renderSettings.getDisplayDeform();
-	double horStretch = renderSettings.getHorizontalStretch();
+	float horStretch = renderSettings.getHorizontalStretch();
 	int glow = renderSettings.getGlow();
 	bool renderToTexture = (deform != RenderSettings::DEFORM_NORMAL) ||
-	                       (horStretch != 320.0) ||
+	                       (horStretch != 320.0f) ||
 	                       (glow != 0);
 
 	if ((deform == RenderSettings::DEFORM_3D) || !paintFrame) {
@@ -466,7 +466,7 @@ void GLPostProcessor::preCalcNoise(float factor)
 
 void GLPostProcessor::drawNoise()
 {
-	if (renderSettings.getNoise() == 0.0) return;
+	if (renderSettings.getNoise() == 0.0f) return;
 
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.

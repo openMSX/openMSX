@@ -22,17 +22,17 @@ static const unsigned BLOCK_HEIGHT = MAX_VECTOR;
 static const unsigned FLAG_KEYFRAME = 0x01;
 
 struct CodecVector {
-	double cost() const {
-		double c = sqrt(double(x * x + y * y));
+	float cost() const {
+		float c = sqrtf(float(x * x + y * y));
 		if ((x == 0) || (y == 0)) {
 			// no penalty for purely horizontal/vertical offset
-			c *= 1.0;
+			c *= 1.0f;
 		} else if (abs(x) == abs(y)) {
 			// small penalty for pure diagonal
-			c *= 2.0;
+			c *= 2.0f;
 		} else {
 			// bigger penalty for 'random' direction
-			c *= 4.0;
+			c *= 4.0f;
 		}
 		return c;
 	}
@@ -86,47 +86,34 @@ static void createVectorTable()
 {
 	unsigned p = 0;
 	// center
-	vectorTable[p].x = 0;
-	vectorTable[p].y = 0;
+	vectorTable[p] = {0, 0};
 	p += 1;
 	// horizontal, vertial, diagonal
 	for (int i = 1; i <= int(MAX_VECTOR); ++i) {
-		vectorTable[p + 0].x =  i;
-		vectorTable[p + 0].y =  0;
-		vectorTable[p + 1].x = -i;
-		vectorTable[p + 1].y =  0;
-		vectorTable[p + 2].x =  0;
-		vectorTable[p + 2].y =  i;
-		vectorTable[p + 3].x =  0;
-		vectorTable[p + 3].y = -i;
-		vectorTable[p + 4].x =  i;
-		vectorTable[p + 4].y =  i;
-		vectorTable[p + 5].x = -i;
-		vectorTable[p + 5].y =  i;
-		vectorTable[p + 6].x =  i;
-		vectorTable[p + 6].y = -i;
-		vectorTable[p + 7].x = -i;
-		vectorTable[p + 7].y = -i;
+		vectorTable[p + 0] = { i, 0};
+		vectorTable[p + 1] = {-i, 0};
+		vectorTable[p + 2] = { 0, i};
+		vectorTable[p + 3] = { 0,-i};
+		vectorTable[p + 4] = { i, i};
+		vectorTable[p + 5] = {-i, i};
+		vectorTable[p + 6] = { i,-i};
+		vectorTable[p + 7] = {-i,-i};
 		p += 8;
 	}
 	// rest
 	for (int y = 1; y <= int(MAX_VECTOR / 2); ++y) {
 		for (int x = 1; x <= int(MAX_VECTOR / 2); ++x) {
 			if (x == y) continue; // already have diagonal
-			vectorTable[p + 0].x =  x;
-			vectorTable[p + 0].y =  y;
-			vectorTable[p + 1].x = -x;
-			vectorTable[p + 1].y =  y;
-			vectorTable[p + 2].x =  x;
-			vectorTable[p + 2].y = -y;
-			vectorTable[p + 3].x = -x;
-			vectorTable[p + 3].y = -y;
+			vectorTable[p + 0] = { x, y};
+			vectorTable[p + 1] = {-x, y};
+			vectorTable[p + 2] = { x,-y};
+			vectorTable[p + 3] = {-x,-y};
 			p += 4;
 		}
 	}
 	assert(p == VECTOR_TAB_SIZE);
 
-	std::sort(&vectorTable[0], &vectorTable[VECTOR_TAB_SIZE]);
+	std::sort(std::begin(vectorTable), std::end(vectorTable));
 }
 
 ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)

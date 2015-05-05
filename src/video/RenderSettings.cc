@@ -241,34 +241,34 @@ void RenderSettings::update(const Setting& setting)
 
 void RenderSettings::updateBrightnessAndContrast()
 {
-	double contrastValue = getContrast();
-	contrast = (contrastValue >= 0.0) ? (1.0 + contrastValue / 25.0)
-	                                  : (1.0 + contrastValue / 125.0);
-	brightness = (getBrightness() / 100.0 - 0.5) * contrast + 0.5;
+	float contrastValue = getContrast();
+	contrast = (contrastValue >= 0.0f) ? (1.0f + contrastValue /  25.0f)
+	                                   : (1.0f + contrastValue / 125.0f);
+	brightness = (getBrightness() / 100.0f - 0.5f) * contrast + 0.5f;
 }
 
-static double conv2(double x, double gamma)
+static float conv2(float x, float gamma)
 {
-	return ::pow(std::min(std::max(0.0, x), 1.0), gamma);
+	return ::powf(std::min(std::max(0.0f, x), 1.0f), gamma);
 }
 
-double RenderSettings::transformComponent(double c) const
+float RenderSettings::transformComponent(float c) const
 {
-	double c2 = c * contrast + brightness;
-	return conv2(c2, 1.0 / getGamma());
+	float c2 = c * contrast + brightness;
+	return conv2(c2, 1.0f / getGamma());
 }
 
-void RenderSettings::transformRGB(double& r, double& g, double& b) const
+void RenderSettings::transformRGB(float& r, float& g, float& b) const
 {
-	double rbc = r * contrast + brightness;
-	double gbc = g * contrast + brightness;
-	double bbc = b * contrast + brightness;
+	float rbc = r * contrast + brightness;
+	float gbc = g * contrast + brightness;
+	float bbc = b * contrast + brightness;
 
-	double r2 = cm[0][0] * rbc + cm[0][1] * gbc + cm[0][2] * bbc;
-	double g2 = cm[1][0] * rbc + cm[1][1] * gbc + cm[1][2] * bbc;
-	double b2 = cm[2][0] * rbc + cm[2][1] * gbc + cm[2][2] * bbc;
+	float r2 = cm[0][0] * rbc + cm[0][1] * gbc + cm[0][2] * bbc;
+	float g2 = cm[1][0] * rbc + cm[1][1] * gbc + cm[1][2] * bbc;
+	float b2 = cm[2][0] * rbc + cm[2][1] * gbc + cm[2][2] * bbc;
 
-	double gamma = 1.0 / getGamma();
+	float gamma = 1.0f / getGamma();
 	r = conv2(r2, gamma);
 	g = conv2(g2, gamma);
 	b = conv2(b2, gamma);
@@ -287,9 +287,9 @@ void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& valu
 		}
 		for (int j = 0; j < 3; ++j) {
 			TclObject element = row.getListIndex(interp, j);
-			double value = element.getDouble(interp);
+			float value = element.getDouble(interp);
 			cm[i][j] = value;
-			identity &= (value == (i == j ? 1.0 : 0.0));
+			identity &= (value == (i == j ? 1.0f : 0.0f));
 		}
 	}
 	cmIdentity = identity;

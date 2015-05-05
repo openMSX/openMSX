@@ -38,11 +38,11 @@ void OutputSurface::setPosition(int x, int y)
 	yOffset = y;
 }
 
-unsigned OutputSurface::mapRGB(double dr, double dg, double db)
+unsigned OutputSurface::mapRGB(float dr, float dg, float db)
 {
-	int r = int(dr * 255.0);
-	int g = int(dg * 255.0);
-	int b = int(db * 255.0);
+	int r = int(dr * 255.0f);
+	int g = int(dg * 255.0f);
+	int b = int(db * 255.0f);
 	return SDL_MapRGB(&format, r, g, b); // alpha is fully opaque
 }
 

@@ -285,13 +285,13 @@ void VisibleSurface::updateCursor()
 		SDL_ShowCursor(SDL_DISABLE);
 		return;
 	}
-	double delay = renderSettings.getPointerHideDelay();
-	if (delay == 0.0) {
+	float delay = renderSettings.getPointerHideDelay();
+	if (delay == 0.0f) {
 		SDL_ShowCursor(SDL_DISABLE);
 	} else {
 		SDL_ShowCursor(SDL_ENABLE);
-		if (delay > 0.0) {
-			scheduleRT(int(delay * 1e6)); // delay in s, schedule in us
+		if (delay > 0.0f) {
+			scheduleRT(int(delay * 1e6f)); // delay in s, schedule in us
 		}
 	}
 }

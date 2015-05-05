@@ -208,7 +208,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 template <class Pixel>
 void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output)
 {
-	if (renderSettings.getNoise() == 0.0) return;
+	if (renderSettings.getNoise() == 0.0f) return;
 
 	unsigned height = output.getHeight();
 	unsigned width = output.getWidth();
@@ -310,8 +310,8 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
 		output.lock();
-		double horStretch = renderSettings.getHorizontalStretch();
-		unsigned inWidth = unsigned(horStretch + 0.5);
+		float horStretch = renderSettings.getHorizontalStretch();
+		unsigned inWidth = unsigned(horStretch + 0.5f);
 		std::unique_ptr<ScalerOutput<Pixel>> dst(
 			StretchScalerOutputFactory<Pixel>::create(
 				output, pixelOps, inWidth));

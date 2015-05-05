@@ -290,9 +290,9 @@ void SDLRasterizer<Pixel>::precalcPalette()
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
 			const byte* rgb = vdp.hasToshibaPalette() ? Renderer::TOSHIBA_PALETTE[i] : Renderer::TMS99X8A_PALETTE[i];
-			double dr = rgb[0] / 255.0;
-			double dg = rgb[1] / 255.0;
-			double db = rgb[2] / 255.0;
+			float dr = rgb[0] / 255.0f;
+			float dg = rgb[1] / 255.0f;
+			float db = rgb[2] / 255.0f;
 			renderSettings.transformRGB(dr, dg, db);
 			palFg[i] = palFg[i + 16] = palBg[i] =
 				screen.mapKeyedRGB<Pixel>(dr, dg, db);
@@ -318,9 +318,9 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				for (int r5 = 0; r5 < 32; r5++) {
 					for (int g5 = 0; g5 < 32; g5++) {
 						for (int b5 = 0; b5 < 32; b5++) {
-							double dr = r5 / 31.0;
-							double dg = g5 / 31.0;
-							double db = b5 / 31.0;
+							float dr = r5 / 31.0f;
+							float dg = g5 / 31.0f;
+							float db = b5 / 31.0f;
 							renderSettings.transformRGB(dr, dg, db);
 							V9958_COLORS[(r5<<10) + (g5<<5) + b5] =
 								screen.mapKeyedRGB<Pixel>(dr, dg, db);
@@ -364,9 +364,9 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				for (int r3 = 0; r3 < 8; r3++) {
 					for (int g3 = 0; g3 < 8; g3++) {
 						for (int b3 = 0; b3 < 8; b3++) {
-							double dr = r3 / 7.0;
-							double dg = g3 / 7.0;
-							double db = b3 / 7.0;
+							float dr = r3 / 7.0f;
+							float dg = g3 / 7.0f;
+							float db = b3 / 7.0f;
 							renderSettings.transformRGB(dr, dg, db);
 							V9938_COLORS[r3][g3][b3] =
 								screen.mapKeyedRGB<Pixel>(dr, dg, db);

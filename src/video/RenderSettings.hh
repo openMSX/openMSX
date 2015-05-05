@@ -69,15 +69,15 @@ public:
 
 	/** The amount of gamma correction. */
 	FloatSetting& getGammaSetting() { return gammaSetting; }
-	double getGamma() const { return gammaSetting.getDouble(); }
+	float getGamma() const { return gammaSetting.getDouble(); }
 
 	/** Brightness video setting. */
 	FloatSetting& getBrightnessSetting() { return brightnessSetting; }
-	double getBrightness() const { return brightnessSetting.getDouble(); }
+	float getBrightness() const { return brightnessSetting.getDouble(); }
 
 	/** Contrast video setting. */
 	FloatSetting& getContrastSetting() { return contrastSetting; }
-	double getContrast() const { return contrastSetting.getDouble(); }
+	float getContrast() const { return contrastSetting.getDouble(); }
 
 	/** Color matrix setting. */
 	StringSetting& getColorMatrixSetting() { return colorMatrixSetting; }
@@ -89,7 +89,7 @@ public:
 
 	/** The amount of noise to add to the frame. */
 	FloatSetting& getNoiseSetting() { return noiseSetting; }
-	double getNoise() const { return noiseSetting.getDouble(); }
+	float getNoise() const { return noiseSetting.getDouble(); }
 
 	/** The amount of horizontal blur [0..256]. */
 	int getBlurFactor() const {
@@ -150,7 +150,7 @@ public:
 	FloatSetting& getHorizontalStretchSetting() {
 		return horizontalStretchSetting;
 	}
-	double getHorizontalStretch() const {
+	float getHorizontalStretch() const {
 		return horizontalStretchSetting.getDouble();
 	}
 
@@ -159,7 +159,7 @@ public:
 	FloatSetting& getPointerHideDelaySetting() {
 		return pointerHideDelaySetting;
 	}
-	double getPointerHideDelay() const {
+	float getPointerHideDelay() const {
 		return pointerHideDelaySetting.getDouble();
 	}
 
@@ -175,7 +175,7 @@ public:
 	  * This method skips the cross-influence of color components on each
 	  * other that is controlled by the "color_matrix" setting.
 	  */
-	double transformComponent(double c) const;
+	float transformComponent(float c) const;
 
 	/** Apply brightness, contrast and gamma transformation on the input
 	  * color. The R, G and B component are expected to be in the range
@@ -183,7 +183,7 @@ public:
 	  * this range. After transformation it's guaranteed all components
 	  * lay inside this range.
 	  */
-	void transformRGB(double& r, double& g, double& b) const;
+	void transformRGB(float& r, float& g, float& b) const;
 
 private:
 	static EnumSetting<ScaleAlgorithm>::Map getScalerMap();
@@ -225,11 +225,11 @@ private:
 	FloatSetting pointerHideDelaySetting;
 	BooleanSetting interleaveBlackFrameSetting;
 
-	double brightness;
-	double contrast;
+	float brightness;
+	float contrast;
 
 	/** Parsed color matrix, kept in sync with colorMatrix setting. */
-	double cm[3][3];
+	float cm[3][3];
 	/** True iff color matrix is identity matrix. */
 	bool cmIdentity;
 };
