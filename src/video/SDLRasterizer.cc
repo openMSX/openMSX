@@ -18,6 +18,8 @@
 #include <cassert>
 #include <cstdint>
 
+using namespace gl;
+
 namespace openmsx {
 
 /** VDP ticks between start of line and start of left border.
@@ -288,14 +290,12 @@ void SDLRasterizer<Pixel>::precalcPalette()
 {
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
-		for (int i = 0; i < 16; i++) {
+		for (int i = 0; i < 16; ++i) {
 			const byte* rgb = vdp.hasToshibaPalette() ? Renderer::TOSHIBA_PALETTE[i] : Renderer::TMS99X8A_PALETTE[i];
-			float dr = rgb[0] / 255.0f;
-			float dg = rgb[1] / 255.0f;
-			float db = rgb[2] / 255.0f;
-			renderSettings.transformRGB(dr, dg, db);
 			palFg[i] = palFg[i + 16] = palBg[i] =
-				screen.mapKeyedRGB<Pixel>(dr, dg, db);
+				screen.mapKeyedRGB<Pixel>(
+					renderSettings.transformRGB(
+						vec3(rgb[0], rgb[1], rgb[2]) / 255.0f));
 		}
 	} else {
 		if (vdp.hasYJK()) {
@@ -304,26 +304,24 @@ void SDLRasterizer<Pixel>::precalcPalette()
 				// Most users use the "normal" monitor type; making this a
 				// special case speeds up palette precalculation a lot.
 				int intensity[32];
-				for (int i = 0; i < 32; i++) {
+				for (int i = 0; i < 32; ++i) {
 					intensity[i] =
 						int(255 * renderSettings.transformComponent(i / 31.0));
 				}
-				for (int rgb = 0; rgb < (1 << 15); rgb++) {
-					V9958_COLORS[rgb] = screen.mapKeyedRGB<Pixel>(
-						intensity[(rgb >> 10)     ],
+				for (int rgb = 0; rgb < (1 << 15); ++rgb) {
+					V9958_COLORS[rgb] = screen.mapKeyedRGB255<Pixel>(ivec3(
+						intensity[(rgb >> 10) & 31],
 						intensity[(rgb >>  5) & 31],
-						intensity[ rgb        & 31]);
+						intensity[(rgb >>  0) & 31]));
 				}
 			} else {
-				for (int r5 = 0; r5 < 32; r5++) {
-					for (int g5 = 0; g5 < 32; g5++) {
-						for (int b5 = 0; b5 < 32; b5++) {
-							float dr = r5 / 31.0f;
-							float dg = g5 / 31.0f;
-							float db = b5 / 31.0f;
-							renderSettings.transformRGB(dr, dg, db);
-							V9958_COLORS[(r5<<10) + (g5<<5) + b5] =
-								screen.mapKeyedRGB<Pixel>(dr, dg, db);
+				for (int r = 0; r < 32; ++r) {
+					for (int g = 0; g < 32; ++g) {
+						for (int b = 0; b < 32; ++b) {
+							V9958_COLORS[(r << 10) + (g << 5) + b] =
+								screen.mapKeyedRGB<Pixel>(
+									renderSettings.transformRGB(
+										vec3(r, g, b) / 31.0f));
 						}
 					}
 				}
@@ -331,14 +329,14 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			// Precalculate palette for V9938 colors.
 			// Based on comparing red and green gradients, using palette and
 			// YJK, in SCREEN11 on a real turbo R.
-			for (int r3 = 0; r3 < 8; r3++) {
+			for (int r3 = 0; r3 < 8; ++r3) {
 				int r5 = (r3 << 2) | (r3 >> 1);
-				for (int g3 = 0; g3 < 8; g3++) {
+				for (int g3 = 0; g3 < 8; ++g3) {
 					int g5 = (g3 << 2) | (g3 >> 1);
-					for (int b3 = 0; b3 < 8; b3++) {
+					for (int b3 = 0; b3 < 8; ++b3) {
 						int b5 = (b3 << 2) | (b3 >> 1);
 						V9938_COLORS[r3][g3][b3] =
-							V9958_COLORS[(r5<<10) + (g5<<5) + b5];
+							V9958_COLORS[(r5 << 10) + (g5 << 5) + b5];
 					}
 				}
 			}
@@ -346,44 +344,43 @@ void SDLRasterizer<Pixel>::precalcPalette()
 			// Precalculate palette for V9938 colors.
 			if (renderSettings.isColorMatrixIdentity()) {
 				int intensity[8];
-				for (int i = 0; i < 8; i++) {
+				for (int i = 0; i < 8; ++i) {
 					intensity[i] =
-						int(255 * renderSettings.transformComponent(i / 7.0));
+						int(255 * renderSettings.transformComponent(i / 7.0f));
 				}
-				for (int r3 = 0; r3 < 8; r3++) {
-					for (int g3 = 0; g3 < 8; g3++) {
-						for (int b3 = 0; b3 < 8; b3++) {
-							V9938_COLORS[r3][g3][b3] =
-								screen.mapKeyedRGB<Pixel>(
-									intensity[r3], intensity[g3], intensity[b3]
-									);
+				for (int r = 0; r < 8; ++r) {
+					for (int g = 0; g < 8; ++g) {
+						for (int b = 0; b < 8; ++b) {
+							V9938_COLORS[r][g][b] =
+								screen.mapKeyedRGB255<Pixel>(ivec3(
+									intensity[r],
+									intensity[g],
+									intensity[b]));
 						}
 					}
 				}
 			} else {
-				for (int r3 = 0; r3 < 8; r3++) {
-					for (int g3 = 0; g3 < 8; g3++) {
-						for (int b3 = 0; b3 < 8; b3++) {
-							float dr = r3 / 7.0f;
-							float dg = g3 / 7.0f;
-							float db = b3 / 7.0f;
-							renderSettings.transformRGB(dr, dg, db);
-							V9938_COLORS[r3][g3][b3] =
-								screen.mapKeyedRGB<Pixel>(dr, dg, db);
+				for (int r = 0; r < 8; ++r) {
+					for (int g = 0; g < 8; ++g) {
+						for (int b = 0; b < 8; ++b) {
+							V9938_COLORS[r][g][b] =
+								screen.mapKeyedRGB<Pixel>(
+									renderSettings.transformRGB(
+										vec3(r, g, b) / 7.0f));;
 						}
 					}
 				}
 			}
 		}
 		// Precalculate Graphic 7 bitmap palette.
-		for (int i = 0; i < 256; i++) {
+		for (int i = 0; i < 256; ++i) {
 			PALETTE256[i] = V9938_COLORS
 				[(i & 0x1C) >> 2]
 				[(i & 0xE0) >> 5]
 				[(i & 0x03) == 3 ? 7 : (i & 0x03) * 2];
 		}
 		// Precalculate Graphic 7 sprite palette.
-		for (int i = 0; i < 16; i++) {
+		for (int i = 0; i < 16; ++i) {
 			uint16_t grb = Renderer::GRAPHIC7_SPRITE_PALETTE[i];
 			palGraphic7Sprites[i] =
 				V9938_COLORS[(grb >> 4) & 7][grb >> 8][grb & 7];

@@ -298,12 +298,9 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 	for (int g = 0; g < 32; ++g) {
 		for (int r = 0; r < 32; ++r) {
 			for (int b = 0; b < 32; ++b) {
-				float dr = r / 31.0f;
-				float dg = g / 31.0f;
-				float db = b / 31.0f;
-				renderSettings.transformRGB(dr, dg, db);
 				palette32768[(g << 10) + (r << 5) + b] =
-					screen.mapRGB(dr, dg, db);
+					screen.mapRGB(renderSettings.transformRGB(
+						gl::vec3(r, g, b) / 31.0f));
 			}
 		}
 	}

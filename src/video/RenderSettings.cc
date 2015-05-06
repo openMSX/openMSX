@@ -9,6 +9,8 @@
 #include <iostream>
 #include <cmath>
 
+using namespace gl;
+
 namespace openmsx {
 
 EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
@@ -258,20 +260,13 @@ float RenderSettings::transformComponent(float c) const
 	return conv2(c2, 1.0f / getGamma());
 }
 
-void RenderSettings::transformRGB(float& r, float& g, float& b) const
+vec3 RenderSettings::transformRGB(vec3 rgb) const
 {
-	float rbc = r * contrast + brightness;
-	float gbc = g * contrast + brightness;
-	float bbc = b * contrast + brightness;
-
-	float r2 = cm[0][0] * rbc + cm[0][1] * gbc + cm[0][2] * bbc;
-	float g2 = cm[1][0] * rbc + cm[1][1] * gbc + cm[1][2] * bbc;
-	float b2 = cm[2][0] * rbc + cm[2][1] * gbc + cm[2][2] * bbc;
-
+	vec3 t = colorMatrix * (rgb * contrast + vec3(brightness));
 	float gamma = 1.0f / getGamma();
-	r = conv2(r2, gamma);
-	g = conv2(g2, gamma);
-	b = conv2(b2, gamma);
+	return vec3(conv2(t[0], gamma),
+	            conv2(t[1], gamma),
+	            conv2(t[2], gamma));
 }
 
 void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& value)
@@ -288,7 +283,7 @@ void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& valu
 		for (int j = 0; j < 3; ++j) {
 			TclObject element = row.getListIndex(interp, j);
 			float value = element.getDouble(interp);
-			cm[i][j] = value;
+			colorMatrix[i][j] = value;
 			identity &= (value == (i == j ? 1.0f : 0.0f));
 		}
 	}

@@ -2,6 +2,7 @@
 #define OUTPUTSURFACE_HH
 
 #include "OutputRectangle.hh"
+#include "gl_vec.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <cassert>
@@ -30,7 +31,17 @@ public:
 	  * No effort is made to ensure that the returned pixel value is not the
 	  * color key for this output surface.
 	  */
-	unsigned mapRGB(float dr, float dg, float db);
+	unsigned mapRGB(gl::vec3 rgb)
+	{
+		return mapRGB255(gl::ivec3(rgb * 255.0f));
+	}
+
+	/** Same as mapRGB, but RGB components are in range [0..255].
+	 */
+	unsigned mapRGB255(gl::ivec3 rgb)
+	{
+		return SDL_MapRGB(&format, rgb[0], rgb[1], rgb[2]); // alpha is fully opaque
+	}
 
 	/** Returns the color key for this output surface.
 	  */
@@ -56,9 +67,9 @@ public:
 	  * It is guaranteed that the returned pixel value is different from the
 	  * color key for this output surface.
 	  */
-	template<typename Pixel> Pixel mapKeyedRGB(int r8, int g8, int b8)
+	template<typename Pixel> Pixel mapKeyedRGB255(gl::ivec3 rgb)
 	{
-		Pixel p = SDL_MapRGB(&format, r8, g8, b8);
+		Pixel p = mapRGB255(rgb);
 		if (sizeof(Pixel) == 2) {
 			return (p != getKeyColor<Pixel>())
 				? p
@@ -73,12 +84,9 @@ public:
 	  * It is guaranteed that the returned pixel value is different from the
 	  * color key for this output surface.
 	  */
-	template<typename Pixel> Pixel mapKeyedRGB(float dr, float dg, float db)
+	template<typename Pixel> Pixel mapKeyedRGB(gl::vec3 rgb)
 	{
-		int r8 = int(dr * 255.0f);
-		int g8 = int(dg * 255.0f);
-		int b8 = int(db * 255.0f);
-		return mapKeyedRGB<Pixel>(r8, g8, b8);
+		return mapKeyedRGB255<Pixel>(gl::ivec3(rgb * 255.0f));
 	}
 
 	/** Lock this OutputSurface.

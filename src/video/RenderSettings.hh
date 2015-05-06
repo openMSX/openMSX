@@ -7,6 +7,7 @@
 #include "IntegerSetting.hh"
 #include "StringSetting.hh"
 #include "Observer.hh"
+#include "gl_mat.hh"
 
 namespace openmsx {
 
@@ -183,7 +184,7 @@ public:
 	  * this range. After transformation it's guaranteed all components
 	  * lay inside this range.
 	  */
-	void transformRGB(float& r, float& g, float& b) const;
+	gl::vec3 transformRGB(gl::vec3 rgb) const;
 
 private:
 	static EnumSetting<ScaleAlgorithm>::Map getScalerMap();
@@ -229,7 +230,7 @@ private:
 	float contrast;
 
 	/** Parsed color matrix, kept in sync with colorMatrix setting. */
-	float cm[3][3];
+	gl::mat3 colorMatrix;
 	/** True iff color matrix is identity matrix. */
 	bool cmIdentity;
 };
