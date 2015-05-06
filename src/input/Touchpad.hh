@@ -5,6 +5,7 @@
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
 #include "StringSetting.hh"
+#include "gl_mat.hh"
 
 namespace openmsx {
 
@@ -30,7 +31,7 @@ private:
 	void createTouchpadStateChange(EmuTime::param time,
 		byte x, byte y, bool touch, bool button);
 	void parseTransformMatrix(Interpreter& interp, const TclObject& value);
-	void transformCoords(int& x, int& y);
+	gl::ivec2 transformCoords(gl::ivec2 xy);
 
 	// Pluggable
 	const std::string& getName() const override;
@@ -53,10 +54,10 @@ private:
 	StateChangeDistributor& stateChangeDistributor;
 
 	StringSetting transformSetting;
-	float m[2][3]; // transformation matrix
+	gl::matMxN<2, 3, float> m; // transformation matrix
 
 	EmuTime start; // last time when CS switched 0->1
-	int hostX, hostY; // host state
+	gl::ivec2 hostPos; // host state
 	byte hostButtons; //
 	byte x, y;          // msx state (different from host state
 	bool touch, button; //    during replay)

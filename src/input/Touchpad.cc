@@ -21,6 +21,7 @@
 #include <SDL.h>
 
 using std::shared_ptr;
+using namespace gl;
 
 namespace openmsx {
 
@@ -63,7 +64,7 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 		"MSX touchpad coordinates, see manual for details",
 		"{ 256 0 0 } { 0 256 0 }")
 	, start(EmuTime::zero)
-	, hostX(0), hostY(0), hostButtons(0)
+	, hostButtons(0)
 	, x(0), y(0), touch(false), button(false)
 	, shift(0), channel(0), last(0)
 {
@@ -189,31 +190,25 @@ void Touchpad::write(byte value, EmuTime::param time)
 	}
 }
 
-void Touchpad::transformCoords(int& x, int& y)
+ivec2 Touchpad::transformCoords(ivec2 xy)
 {
 	if (SDL_Surface* surf = SDL_GetVideoSurface()) {
-		float u = float(x) / surf->w;
-		float v = float(y) / surf->h;
-		x = m[0][0] * u + m[0][1] * v + m[0][2];
-		y = m[1][0] * u + m[1][1] * v + m[1][2];
+		vec2 uv = vec2(xy) / vec2(surf->w, surf->h);
+		xy = ivec2(m * vec3(uv, 1.0f));
 	}
-	x = Math::clipIntToByte(x);
-	y = Math::clipIntToByte(y);
+	return clamp(xy, 0, 255);
 }
 
 // MSXEventListener
 void Touchpad::signalEvent(const shared_ptr<const Event>& event,
                            EmuTime::param time)
 {
-	int x = hostX;
-	int y = hostY;
+	ivec2 pos = hostPos;
 	int b = hostButtons;
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
 		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-		x = mev.getAbsX();
-		y = mev.getAbsY();
-		transformCoords(x, y);
+		pos = transformCoords(ivec2(mev.getAbsX(), mev.getAbsY()));
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
@@ -250,12 +245,11 @@ void Touchpad::signalEvent(const shared_ptr<const Event>& event,
 		// ignore
 		break;
 	}
-	if ((x != hostX) || (y != hostY) || (b != hostButtons)) {
-		hostX       = x;
-		hostY       = y;
+	if ((pos != hostPos) || (b != hostButtons)) {
+		hostPos     = pos;
 		hostButtons = b;
 		createTouchpadStateChange(
-			time, hostX, hostY,
+			time, pos[0], pos[1],
 			(hostButtons & 1) != 0,
 			(hostButtons & 2) != 0);
 	}
