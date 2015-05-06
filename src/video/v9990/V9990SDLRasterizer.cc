@@ -295,12 +295,28 @@ template <class Pixel>
 void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 {
 	// the 32768 color palette
-	for (int g = 0; g < 32; ++g) {
-		for (int r = 0; r < 32; ++r) {
-			for (int b = 0; b < 32; ++b) {
-				palette32768[(g << 10) + (r << 5) + b] =
-					screen.mapRGB(renderSettings.transformRGB(
-						gl::vec3(r, g, b) / 31.0f));
+	if (renderSettings.isColorMatrixIdentity()) {
+		// Most users use the "normal" monitor type; making this a
+		// special case speeds up palette precalculation a lot.
+		int intensity[32];
+		for (int i = 0; i < 32; ++i) {
+			intensity[i] =
+				int(255 * renderSettings.transformComponent(i / 31.0f));
+		}
+		for (int grb = 0; grb < (1 << 15); ++grb) {
+			palette32768[grb] = screen.mapKeyedRGB255<Pixel>(gl::ivec3(
+				intensity[(grb >>  5) & 31],
+				intensity[(grb >> 10) & 31],
+				intensity[(grb >>  0) & 31]));
+		}
+	} else {
+		for (int g = 0; g < 32; ++g) {
+			for (int r = 0; r < 32; ++r) {
+				for (int b = 0; b < 32; ++b) {
+					palette32768[(g << 10) + (r << 5) + b] =
+						screen.mapRGB(renderSettings.transformRGB(
+							gl::vec3(r, g, b) / 31.0f));
+				}
 			}
 		}
 	}
