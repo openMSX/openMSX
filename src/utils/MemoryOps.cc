@@ -263,12 +263,14 @@ public:
 	}
 
 	void insert(void* aligned, void* unaligned) {
+		if (!aligned) return;
 		assert(none_of(begin(allocMap), end(allocMap),
 		               EqualTupleValue<0>(aligned)));
 		allocMap.emplace_back(aligned, unaligned);
 	}
 
 	void* remove(void* aligned) {
+		if (!aligned) return nullptr;
 		// LIFO order is more likely than FIFO -> search backwards
 		auto it = find_if_unguarded(allocMap.rbegin(), allocMap.rend(),
 		               EqualTupleValue<0>(aligned));
