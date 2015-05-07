@@ -73,7 +73,7 @@ def detectOS():
 		# a generic GNU system.
 		return 'gnu'
 	elif os.startswith('mingw') or os == 'windows':
-		return 'mingw32'
+		return 'mingw-w64'
 	elif os == 'sunos':
 		return 'solaris'
 	elif os == '':
