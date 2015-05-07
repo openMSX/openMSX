@@ -121,8 +121,8 @@ LOCAL_PLATFORM:=$(shell $(PYTHON) $(DETECTSYS_SCRIPT))
 ifeq ($(LOCAL_PLATFORM),)
 $(error No platform specified using OPENMSX_TARGET_CPU and OPENMSX_TARGET_OS and autodetection of local platform failed)
 endif
-OPENMSX_TARGET_CPU:=$(word 1,$(subst -, ,$(LOCAL_PLATFORM)))
-OPENMSX_TARGET_OS:=$(word 2,$(subst -, ,$(LOCAL_PLATFORM)))
+OPENMSX_TARGET_CPU:=$(word 1,$(LOCAL_PLATFORM))
+OPENMSX_TARGET_OS:=$(word 2,$(LOCAL_PLATFORM))
 endif # OPENMSX_TARGET_CPU && OPENMSX_TARGET_OS
 
 PLATFORM:=

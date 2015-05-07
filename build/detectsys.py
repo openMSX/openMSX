@@ -136,7 +136,7 @@ if __name__ == '__main__':
 			if detectMaemo5():
 				hostOS = 'maemo5'
 
-		print '%s-%s' % (hostCPU, hostOS)
+		print hostCPU, hostOS
 	except ValueError, ex:
 		print >> sys.stderr, ex
 		sys.exit(1)
