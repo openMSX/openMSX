@@ -885,9 +885,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\thread\CondVar.cc">
       <Filter>thread</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\thread\Semaphore.cc">
-      <Filter>thread</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Thread.cc">
       <Filter>thread</Filter>
     </ClCompile>
@@ -2232,9 +2229,6 @@
       <Filter>sound</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\thread\CondVar.hh">
-      <Filter>thread</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\thread\Semaphore.hh">
       <Filter>thread</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\thread\Thread.hh">
