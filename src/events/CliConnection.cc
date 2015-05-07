@@ -317,7 +317,7 @@ SocketConnection::SocketConnection(CommandController& commandController,
                                    EventDistributor& eventDistributor,
                                    SOCKET sd_)
 	: CliConnection(commandController, eventDistributor)
-	, sem(1), sd(sd_), established(false)
+	, sd(sd_), established(false)
 {
 }
 
@@ -332,7 +332,7 @@ void SocketConnection::run()
 #ifdef _WIN32
 	bool ok;
 	{
-		ScopedLock lock(sem);
+		std::lock_guard<std::mutex> lock(mutex);
 		// Authenticate and authorize the caller
 		SocketStreamWrapper stream(sd);
 		SspiNegotiateServer server(stream);
@@ -376,7 +376,7 @@ void SocketConnection::output(string_ref message)
 	while (bytesLeft) {
 		int bytesSend;
 		{
-			ScopedLock lock(sem);
+			std::lock_guard<std::mutex> lock(mutex);
 			if (sd == OPENMSX_INVALID_SOCKET) return;
 			bytesSend = sock_send(sd, &data[pos], bytesLeft);
 		}
@@ -392,7 +392,7 @@ void SocketConnection::output(string_ref message)
 
 void SocketConnection::close()
 {
-	ScopedLock lock(sem);
+	std::lock_guard<std::mutex> lock(mutex);
 	if (sd != OPENMSX_INVALID_SOCKET) {
 		SOCKET _sd = sd;
 		sd = OPENMSX_INVALID_SOCKET;

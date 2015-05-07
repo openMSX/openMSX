@@ -38,7 +38,7 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
 MidiInWindows::MidiInWindows(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_, unsigned num)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), devidx(unsigned(-1)), lock(1)
+	, thread(this), devidx(unsigned(-1))
 {
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);
@@ -73,7 +73,7 @@ void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 void MidiInWindows::unplugHelper(EmuTime::param /*time*/)
 {
-	ScopedLock l(lock);
+	std::lock_guard<std::mutex> lock(mutex);
 	thread.stop();
 	if (devidx != unsigned(-1)) {
 		w32_midiInClose(devidx);
@@ -95,7 +95,7 @@ void MidiInWindows::procLongMsg(LPMIDIHDR p)
 {
 	if (p->dwBytesRecorded) {
 		{
-			ScopedLock l(lock);
+			std::lock_guard<std::mutex> lock(mutex);
 			for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
 				queue.push_back(p->lpData[i]);
 			}
@@ -116,7 +116,7 @@ void MidiInWindows::procShortMsg(DWORD param)
 		default:
 			num = 1; break;
 	}
-	ScopedLock l(lock);
+	std::lock_guard<std::mutex> lock(mutex);
 	while (num--) {
 		queue.push_back(param & 0xFF);
 		param >>= 8;
@@ -166,7 +166,7 @@ void MidiInWindows::signal(EmuTime::param time)
 {
 	auto connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
-		ScopedLock l(lock);
+		std::lock_guard<std::mutex> lock(mutex);
 		queue.clear();
 		return;
 	}
@@ -174,7 +174,7 @@ void MidiInWindows::signal(EmuTime::param time)
 
 	byte data;
 	{
-		ScopedLock l(lock);
+		std::lock_guard<std::mutex> lock(mutex);
 		if (queue.empty()) return;
 		data = queue.pop_front();
 	}
@@ -187,7 +187,7 @@ int MidiInWindows::signalEvent(const std::shared_ptr<const Event>& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		ScopedLock l(lock);
+		std::lock_guard<std::mutex> lock(mutex);
 		queue.clear();
 	}
 	return 0;

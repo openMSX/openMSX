@@ -3,11 +3,11 @@
 
 #include "CliListener.hh"
 #include "Thread.hh"
-#include "Semaphore.hh"
 #include "EventListener.hh"
 #include "Socket.hh"
 #include "CliComm.hh"
 #include "AdhocCliCommParser.hh"
+#include <mutex>
 #include <string>
 
 namespace openmsx {
@@ -128,7 +128,7 @@ private:
 	void close() override;
 	void run() override;
 
-	Semaphore sem;
+	std::mutex mutex;
 	SOCKET sd;
 	bool established;
 };

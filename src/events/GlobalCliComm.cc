@@ -11,8 +11,7 @@
 namespace openmsx {
 
 GlobalCliComm::GlobalCliComm()
-	: sem(1)
-	, delivering(false)
+	: delivering(false)
 	, allowExternalCommands(false)
 {
 }
@@ -26,7 +25,7 @@ GlobalCliComm::~GlobalCliComm()
 void GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
 {
 	// can be called from any thread
-	ScopedLock lock(sem);
+	std::lock_guard<std::mutex> lock(mutex);
 	auto* p = listener.get();
 	listeners.push_back(std::move(listener));
 	if (allowExternalCommands) {
@@ -39,7 +38,7 @@ void GlobalCliComm::addListener(std::unique_ptr<CliListener> listener)
 std::unique_ptr<CliListener> GlobalCliComm::removeListener(CliListener& listener)
 {
 	// can be called from any thread
-	ScopedLock lock(sem);
+	std::lock_guard<std::mutex> lock(mutex);
 	auto it = find_if_unguarded(listeners,
 		[&](const std::unique_ptr<CliListener>& ptr) {
 			return ptr.get() == &listener; });
@@ -65,7 +64,7 @@ void GlobalCliComm::log(LogLevel level, string_ref message)
 
 	if (delivering) {
 		// Don't allow recursive calls, this would hang while trying to
-		// acquire the Semaphore below. But also when we would change
+		// acquire the mutex below. But also when we would change
 		// this to a recursive-mutex, this could result in an infinite
 		// loop.
 		// One example of a recursive invocation is when something goes
@@ -76,7 +75,7 @@ void GlobalCliComm::log(LogLevel level, string_ref message)
 	}
 	ScopedAssign<bool> sa(delivering, true);
 
-	ScopedLock lock(sem);
+	std::lock_guard<std::mutex> lock(mutex);
 	if (!listeners.empty()) {
 		for (auto& l : listeners) {
 			l->log(level, message);
@@ -106,7 +105,7 @@ void GlobalCliComm::updateHelper(UpdateType type, string_ref machine,
                                  string_ref name, string_ref value)
 {
 	assert(Thread::isMainThread());
-	ScopedLock lock(sem);
+	std::lock_guard<std::mutex> lock(mutex);
 	for (auto& l : listeners) {
 		l->update(type, machine, name, value);
 	}

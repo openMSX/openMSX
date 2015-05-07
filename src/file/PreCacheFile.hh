@@ -2,7 +2,7 @@
 #define PRECACHEFILE_HH
 
 #include "Thread.hh"
-#include "Semaphore.hh"
+#include <atomic>
 #include <string>
 
 namespace openmsx {
@@ -25,8 +25,7 @@ private:
 	const std::string name;
 	Thread thread;
 
-	Semaphore sem;
-	bool exitLoop; // locked by sem
+	std::atomic<bool> exitLoop;
 };
 
 } // namespace openmsx

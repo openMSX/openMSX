@@ -2,10 +2,10 @@
 #define GLOBALCLICOMM_HH
 
 #include "CliComm.hh"
-#include "Semaphore.hh"
 #include "StringMap.hh"
 #include "noncopyable.hh"
 #include <memory>
+#include <mutex>
 #include <vector>
 
 namespace openmsx {
@@ -37,7 +37,7 @@ private:
 	StringMap<std::string> prevValues[NUM_UPDATES];
 
 	std::vector<std::unique_ptr<CliListener>> listeners;
-	Semaphore sem; // lock access to listeners member
+	std::mutex mutex; // lock access to listeners member
 	bool delivering;
 	bool allowExternalCommands;
 

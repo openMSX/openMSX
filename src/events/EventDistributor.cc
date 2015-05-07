@@ -17,14 +17,13 @@ namespace openmsx {
 
 EventDistributor::EventDistributor(Reactor& reactor_)
 	: reactor(reactor_)
-	, sem(1)
 {
 }
 
 void EventDistributor::registerEventListener(
 		EventType type, EventListener& listener, Priority priority)
 {
-	ScopedLock lock(sem);
+	std::lock_guard<std::mutex> lock(mutex);
 	auto& priorityMap = listeners[type];
 	for (auto* l : values(priorityMap)) {
 		// a listener may only be registered once for each type
@@ -39,7 +38,7 @@ void EventDistributor::registerEventListener(
 void EventDistributor::unregisterEventListener(
 		EventType type, EventListener& listener)
 {
-	ScopedLock lock(sem);
+	std::lock_guard<std::mutex> lock(mutex);
 	auto& priorityMap = listeners[type];
 	priorityMap.erase(find_if_unguarded(priorityMap,
 		[&](PriorityMap::value_type v) { return v.second == &listener; }));
@@ -54,7 +53,7 @@ void EventDistributor::distributeEvent(const EventPtr& event)
 	// TODO: Is it useful to test for 0 listeners or should we just always
 	//       queue the event?
 	assert(event);
-	ScopedLock lock(sem);
+	std::unique_lock<std::mutex> lock(mutex);
 	if (!listeners[event->getType()].empty()) {
 		scheduledEvents.push_back(event);
 		// must release lock, otherwise there's a deadlock:
@@ -63,7 +62,7 @@ void EventDistributor::distributeEvent(const EventPtr& event)
 		//   thread 2: EventDistributor::distributeEvent()
 		//             Reactor::enterMainLoop()
 		cond.signalAll();
-		lock.release();
+		lock.unlock();
 		reactor.enterMainLoop();
 	}
 }
@@ -84,7 +83,7 @@ void EventDistributor::deliverEvents()
 	reactor.getInterpreter().poll();
 	reactor.getRTScheduler().execute();
 
-	ScopedLock lock(sem);
+	std::unique_lock<std::mutex> lock(mutex);
 	// It's possible that executing an event triggers scheduling of another
 	// event. We also want to execute those secondary events. That's why
 	// we have this while loop here.
@@ -99,7 +98,7 @@ void EventDistributor::deliverEvents()
 		for (auto& event : eventsCopy) {
 			auto type = event->getType();
 			auto priorityMapCopy = listeners[type];
-			sem.up();
+			lock.unlock();
 			unsigned blockPriority = unsigned(-1); // allow all
 			for (auto& p : priorityMapCopy) {
 				// It's possible delivery to one of the previous
@@ -114,7 +113,7 @@ void EventDistributor::deliverEvents()
 					blockPriority = block;
 				}
 			}
-			sem.down();
+			lock.lock();
 		}
 	}
 }

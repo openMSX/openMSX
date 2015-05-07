@@ -173,8 +173,7 @@ private:
 
 
 Reactor::Reactor()
-	: mbSem(1)
-	, activeBoard(nullptr)
+	: activeBoard(nullptr)
 	, blockedCounter(0)
 	, paused(false)
 	, running(true)
@@ -437,7 +436,7 @@ void Reactor::switchBoard(MSXMotherBoard* newBoard)
 		// Don't hold the lock for longer than the actual switch.
 		// In the past we had a potential for deadlocks here, because
 		// (indirectly) the code below still acquires other locks.
-		ScopedLock lock(mbSem);
+		std::lock_guard<std::mutex> lock(mbMutex);
 		activeBoard = newBoard;
 	}
 	eventDistributor->distributeEvent(
@@ -484,7 +483,7 @@ void Reactor::enterMainLoop()
 			activeBoard->exitCPULoopSync();
 		}
 	} else {
-		ScopedLock lock(mbSem);
+		std::lock_guard<std::mutex> lock(mbMutex);
 		if (activeBoard) {
 			activeBoard->exitCPULoopAsync();
 		}

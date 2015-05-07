@@ -12,7 +12,7 @@ RS232Tester::RS232Tester(EventDistributor& eventDistributor_,
                          Scheduler& scheduler_,
                          CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), lock(1)
+	, thread(this)
 	, rs232InputFilenameSetting(
 	        commandController, "rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
@@ -65,7 +65,7 @@ void RS232Tester::unplugHelper(EmuTime::param /*time*/)
 	outFile.close();
 
 	// input
-	ScopedLock l(lock);
+	std::lock_guard<std::mutex> lock(mutex);
 	thread.stop();
 	inFile.reset();
 }
@@ -95,7 +95,7 @@ void RS232Tester::run()
 			continue;
 		}
 		assert(isPluggedIn());
-		ScopedLock l(lock);
+		std::lock_guard<std::mutex> lock(mutex);
 		queue.push_back(buf);
 		eventDistributor.distributeEvent(
 			std::make_shared<SimpleEvent>(OPENMSX_RS232_TESTER_EVENT));
@@ -107,13 +107,13 @@ void RS232Tester::signal(EmuTime::param time)
 {
 	auto connector = static_cast<RS232Connector*>(getConnector());
 	if (!connector->acceptsData()) {
-		ScopedLock l(lock);
+		std::lock_guard<std::mutex> lock(mutex);
 		queue.clear();
 		return;
 	}
 	if (!connector->ready()) return;
 
-	ScopedLock l(lock);
+	std::lock_guard<std::mutex> lock(mutex);
 	if (queue.empty()) return;
 	connector->recvByte(queue.pop_front(), time);
 }
@@ -124,7 +124,7 @@ int RS232Tester::signalEvent(const std::shared_ptr<const Event>& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		ScopedLock l(lock);
+		std::lock_guard<std::mutex> lock(mutex);
 		queue.clear();
 	}
 	return 0;

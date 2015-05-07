@@ -11,11 +11,11 @@
 #include "MidiInDevice.hh"
 #include "Thread.hh"
 #include "EventListener.hh"
-#include "Semaphore.hh"
 #include "serialize_meta.hh"
 #include "circular_buffer.hh"
 #include <windows.h>
 #include <mmsystem.h>
+#include <mutex>
 
 namespace openmsx {
 
@@ -65,7 +65,7 @@ private:
 	unsigned devidx;
 	DWORD thrdid;
 	cb_queue<byte> queue;
-	Semaphore lock; // to protect queue
+	std::mutex mutex; // to protect queue
 	std::string name;
 	std::string desc;
 };

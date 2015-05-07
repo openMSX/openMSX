@@ -3,12 +3,12 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
-#include "Semaphore.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
 #include "openmsx.hh"
 #include <string>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 namespace openmsx {
@@ -125,8 +125,8 @@ private:
 	void unpause();
 	void pause();
 
-	Semaphore mbSem; // this should come first, because it's still used by
-	                 // the destructors of the unique_ptr below
+	std::mutex mbMutex; // this should come first, because it's still used by
+	                    // the destructors of the unique_ptr below
 
 	// note: order of unique_ptr's is important
 	std::unique_ptr<RTScheduler> rtScheduler;
@@ -171,10 +171,10 @@ private:
 	// Locking rules for activeBoard access:
 	//  - main thread can always access activeBoard without taking a lock
 	//  - changing activeBoard handle can only be done in the main thread
-	//    and needs to take the mbSem lock
+	//    and needs to take the mbMutex lock
 	//  - non-main thread can only access activeBoard via specific
 	//    member functions (atm only via enterMainLoop()), it needs to take
-	//    the mbSem lock
+	//    the mbMutex lock
 	Boards boards;
 	Boards garbageBoards;
 	MSXMotherBoard* activeBoard; // either nullptr or a board inside 'boards'

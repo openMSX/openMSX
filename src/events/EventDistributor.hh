@@ -2,10 +2,10 @@
 #define EVENTDISTRIBUTOR_HH
 
 #include "Event.hh"
-#include "Semaphore.hh"
 #include "CondVar.hh"
 #include "noncopyable.hh"
 #include <memory>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -77,7 +77,7 @@ private:
 	PriorityMap listeners[NUM_EVENT_TYPES];
 	using EventQueue = std::vector<EventPtr>;
 	EventQueue scheduledEvents;
-	Semaphore sem;
+	std::mutex mutex;
 	CondVar cond;
 };
 

@@ -18,7 +18,7 @@ MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_,
                            CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), lock(1)
+	, thread(this)
 	, readFilenameSetting(
 		commandController, "midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
@@ -53,7 +53,7 @@ void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 void MidiInReader::unplugHelper(EmuTime::param /*time*/)
 {
-	ScopedLock l(lock);
+	std::lock_guard<std::mutex> lock(mutex);
 	thread.stop();
 	file.reset();
 }
@@ -85,7 +85,7 @@ void MidiInReader::run()
 		assert(isPluggedIn());
 
 		{
-			ScopedLock l(lock);
+			std::lock_guard<std::mutex> lock(mutex);
 			queue.push_back(buf);
 		}
 		eventDistributor.distributeEvent(
@@ -98,7 +98,7 @@ void MidiInReader::signal(EmuTime::param time)
 {
 	auto connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
-		ScopedLock l(lock);
+		std::lock_guard<std::mutex> lock(mutex);
 		queue.clear();
 		return;
 	}
@@ -108,7 +108,7 @@ void MidiInReader::signal(EmuTime::param time)
 
 	byte data;
 	{
-		ScopedLock l(lock);
+		std::lock_guard<std::mutex> lock(mutex);
 		if (queue.empty()) return;
 		data = queue.pop_front();
 	}
@@ -121,7 +121,7 @@ int MidiInReader::signalEvent(const std::shared_ptr<const Event>& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		ScopedLock l(lock);
+		std::lock_guard<std::mutex> lock(mutex);
 		queue.clear();
 	}
 	return 0;

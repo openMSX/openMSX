@@ -5,11 +5,11 @@
 
 #include "MidiInDevice.hh"
 #include "EventListener.hh"
-#include "Semaphore.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
 #include "circular_buffer.hh"
 #include <CoreMIDI/MIDIServices.h>
+#include <mutex>
 
 namespace openmsx {
 
@@ -56,7 +56,7 @@ private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	cb_queue<byte> queue;
-	Semaphore lock; // to protect queue
+	std::mutex mutex; // to protect queue
 
 	MIDIClientRef client;
 	MIDIPortRef port;
@@ -100,7 +100,7 @@ private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	cb_queue<byte> queue;
-	Semaphore lock; // to protect queue
+	std::mutex mutex; // to protect queue
 
 	MIDIClientRef client;
 	MIDIEndpointRef endpoint;

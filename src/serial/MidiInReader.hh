@@ -6,10 +6,10 @@
 #include "EventListener.hh"
 #include "FilenameSetting.hh"
 #include "FileOperations.hh"
-#include "Semaphore.hh"
 #include "openmsx.hh"
 #include "circular_buffer.hh"
 #include <cstdio>
+#include <mutex>
 
 namespace openmsx {
 
@@ -49,7 +49,7 @@ private:
 	Thread thread;
 	FileOperations::FILE_t file;
 	cb_queue<byte> queue;
-	Semaphore lock; // to protect queue
+	std::mutex mutex; // to protect queue
 
 	FilenameSetting readFilenameSetting;
 };
