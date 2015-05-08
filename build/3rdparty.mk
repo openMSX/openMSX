@@ -66,17 +66,15 @@ TRIPLE_VENDOR:=w64
 endif
 TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_VENDOR)-$(TRIPLE_OS)
 
-# If we're using a compiler with a <triple>-cc naming scheme, assume the
-# entire toolchain does.
-ifneq ($(filter $(TARGET_TRIPLE)%,$(CC)),)
-export AR=$(TARGET_TRIPLE)-ar
-export RANLIB=$(TARGET_TRIPLE)-ranlib
-export STRIP=$(TARGET_TRIPLE)-strip
+# Ask the compiler for the names and locations of other toolchain components.
+# This works with GCC and Clang at least, so it should be pretty safe.
+export AR:=$(shell $(CC) -print-prog-name=ar)
+export RANLIB:=$(shell $(CC) -print-prog-name=ranlib)
+export STRIP:=$(shell $(CC) -print-prog-name=strip)
 ifeq ($(TRIPLE_OS),mingw32)
 # SDL calls it WINDRES, Tcl calls it RC; define both.
 export RC:=$(TARGET_TRIPLE)-windres
 export WINDRES:=$(RC)
-endif
 endif
 
 # Work around some autoconf versions returning "universal" for endianess when
