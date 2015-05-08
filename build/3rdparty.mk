@@ -29,12 +29,10 @@ SYSTEM_LIBS:=$(shell $(PYTHON) build/list_system_libs.py $(OPENMSX_TARGET_OS))
 # Compiler selection, compiler flags, SDK selection.
 # These variables are already exported, but we make it explicit here.
 export CC
-export LD
 export NEXT_ROOT
 export MACOSX_DEPLOYMENT_TARGET
 
 CC=$(_CC)
-LD=$(_LD)
 
 TIMESTAMP_DIR:=$(BUILD_PATH)/timestamps
 BUILD_DIR:=$(BUILD_PATH)/build
@@ -68,6 +66,7 @@ TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_VENDOR)-$(TRIPLE_OS)
 
 # Ask the compiler for the names and locations of other toolchain components.
 # This works with GCC and Clang at least, so it should be pretty safe.
+export LD:=$(shell $(CC) -print-prog-name=ld)
 export AR:=$(shell $(CC) -print-prog-name=ar)
 export RANLIB:=$(shell $(CC) -print-prog-name=ranlib)
 export STRIP:=$(shell $(CC) -print-prog-name=strip)

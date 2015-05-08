@@ -334,8 +334,7 @@ ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.
   COMPILE_FLAGS+=-Wno-unused-const-variable
-  CC:=$(subst clang++,clang,$(CXX))
-  LD:=ld
+  CC:=$(shell clang++ -print-prog-name=clang)
   DEPEND_FLAGS+=-MP
 else
 ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
@@ -364,8 +363,6 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.
   CC:=$(subst g++,gcc,$(CXX))
-  # Guess the name of the linker.
-  LD:=$(subst g++,ld,$(CXX:g++%=g++))
 else
   ifneq ($(filter %gcc,$(CXX))$(filter gcc%,$(CXX)),)
     $(error Set CXX to your "g++" executable instead of "gcc")
@@ -700,7 +697,7 @@ run-3rdparty:
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		_CC=$(CC) _CFLAGS="$(TARGET_FLAGS) $(CXXFLAGS)" \
-		_LD=$(LD) _LDFLAGS="$(TARGET_FLAGS)" \
+		_LDFLAGS="$(TARGET_FLAGS)" \
 		LINK_MODE=$(LINK_MODE) $(COMPILE_ENV) \
 		PYTHON=$(PYTHON)
 
