@@ -15,7 +15,11 @@ MINGW_CPU:=$(OPENMSX_TARGET_CPU)
 endif
 
 CXX:=$(MINGW_CPU)-w64-mingw32-g++
-WINDRES:=$(MINGW_CPU)-w64-mingw32-windres
+
+# Native windres is not prefixed; just use default from main.mk there.
+ifeq ($(filter MINGW%,$(shell uname -s)),)
+WINDRES?=$(MINGW_CPU)-w64-mingw32-windres
+endif
 
 # make sure the threading lib is also included in the exe
 LINK_FLAGS:= -static $(LINK_FLAGS)

@@ -71,9 +71,9 @@ export AR:=$(shell $(CC) -print-prog-name=ar)
 export RANLIB:=$(shell $(CC) -print-prog-name=ranlib)
 export STRIP:=$(shell $(CC) -print-prog-name=strip)
 ifeq ($(TRIPLE_OS),mingw32)
-# SDL calls it WINDRES, Tcl calls it RC; define both.
-export RC:=$(TARGET_TRIPLE)-windres
-export WINDRES:=$(RC)
+# SDL calls it WINDRES, Tcl calls it RC; provide both.
+export WINDRES
+export RC:=$(WINDRES)
 endif
 
 # Work around some autoconf versions returning "universal" for endianess when
