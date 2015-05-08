@@ -9,6 +9,7 @@
 #include "stl.hh"
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 
 using std::pair;
 using std::string;
@@ -61,7 +62,7 @@ void EventDistributor::distributeEvent(const EventPtr& event)
 		//             EventDistributor::unregisterEventListener()
 		//   thread 2: EventDistributor::distributeEvent()
 		//             Reactor::enterMainLoop()
-		cond.signalAll();
+		condition.notify_all();
 		lock.unlock();
 		reactor.enterMainLoop();
 	}
@@ -120,7 +121,9 @@ void EventDistributor::deliverEvents()
 
 bool EventDistributor::sleep(unsigned us)
 {
-	return cond.waitTimeout(us);
+	std::chrono::microseconds duration(us);
+	std::unique_lock<std::mutex> lock(cvMutex);
+	return condition.wait_for(lock, duration) == std::cv_status::timeout;
 }
 
 } // namespace openmsx

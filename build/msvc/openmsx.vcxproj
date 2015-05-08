@@ -582,7 +582,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413Okazaki.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF262.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\thread\CondVar.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Thread.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Timer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
@@ -1120,7 +1119,6 @@
     <None Include="$(OpenMSXSrcDir)\sound\YM2413Okazaki.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YMF262.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YMF278.hh" />
-    <None Include="$(OpenMSXSrcDir)\thread\CondVar.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Thread.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Timer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh" />

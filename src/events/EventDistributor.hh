@@ -2,8 +2,8 @@
 #define EVENTDISTRIBUTOR_HH
 
 #include "Event.hh"
-#include "CondVar.hh"
 #include "noncopyable.hh"
+#include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <utility>
@@ -77,8 +77,9 @@ private:
 	PriorityMap listeners[NUM_EVENT_TYPES];
 	using EventQueue = std::vector<EventPtr>;
 	EventQueue scheduledEvents;
-	std::mutex mutex;
-	CondVar cond;
+	std::mutex mutex; // lock datastructures
+	std::mutex cvMutex; // lock condition_variable
+	std::condition_variable condition;
 };
 
 } // namespace openmsx
