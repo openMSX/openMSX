@@ -9,6 +9,7 @@
 #include "CommandException.hh"
 #include "GlobalCommandController.hh"
 #include "TclObject.hh"
+#include "outer.hh"
 
 using std::string;
 using std::vector;
@@ -19,8 +20,8 @@ SettingsConfig::SettingsConfig(
 		GlobalCommandController& globalCommandController,
 		HotKey& hotKey_)
 	: commandController(globalCommandController)
-	, saveSettingsCommand(commandController, *this)
-	, loadSettingsCommand(commandController, *this)
+	, saveSettingsCommand(commandController)
+	, loadSettingsCommand(commandController)
 	, settingsManager(globalCommandController)
 	, hotKey(hotKey_)
 	, mustSaveSettings(false)
@@ -79,16 +80,15 @@ void SettingsConfig::saveSetting(string_ref filename)
 // class SaveSettingsCommand
 
 SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
-		CommandController& commandController,
-		SettingsConfig& settingsConfig_)
+		CommandController& commandController)
 	: Command(commandController, "save_settings")
-	, settingsConfig(settingsConfig_)
 {
 }
 
 void SettingsConfig::SaveSettingsCommand::execute(
 	array_ref<TclObject> tokens, TclObject& /*result*/)
 {
+	auto& settingsConfig = OUTER(SettingsConfig, saveSettingsCommand);
 	try {
 		switch (tokens.size()) {
 		case 1:
@@ -121,10 +121,8 @@ void SettingsConfig::SaveSettingsCommand::tabCompletion(vector<string>& tokens) 
 // class LoadSettingsCommand
 
 SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
-		CommandController& commandController,
-		SettingsConfig& settingsConfig_)
+		CommandController& commandController)
 	: Command(commandController, "load_settings")
-	, settingsConfig(settingsConfig_)
 {
 }
 
@@ -134,6 +132,7 @@ void SettingsConfig::LoadSettingsCommand::execute(
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
+	auto& settingsConfig = OUTER(SettingsConfig, loadSettingsCommand);
 	settingsConfig.loadSetting(systemFileContext(), tokens[1].getString());
 }
 

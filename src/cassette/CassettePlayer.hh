@@ -10,6 +10,7 @@
 #include "Filename.hh"
 #include "EmuTime.hh"
 #include "BooleanSetting.hh"
+#include "outer.hh"
 #include "serialize_meta.hh"
 #include <string>
 #include <memory>
@@ -113,21 +114,19 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// Schedulable
-	struct SyncBase : public Schedulable {
-		SyncBase(Scheduler& s, CassettePlayer& cp_)
-			: Schedulable(s), cp(cp_) {}
-		CassettePlayer& cp;
+	struct SyncEndOfTape : Schedulable {
 		friend class CassettePlayer;
-	};
-	struct SyncEndOfTape : public SyncBase {
-		SyncEndOfTape(Scheduler& s, CassettePlayer& c) : SyncBase(s, c) {}
+		SyncEndOfTape(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& cp = OUTER(CassettePlayer, syncEndOfTape);
 			cp.execEndOfTape(time);
 		}
 	} syncEndOfTape;
-	struct SyncAudioEmu : public SyncBase {
-		SyncAudioEmu(Scheduler& s, CassettePlayer& c) : SyncBase(s, c) {}
+	struct SyncAudioEmu : Schedulable {
+		friend class CassettePlayer;
+		SyncAudioEmu(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& cp = OUTER(CassettePlayer, syncAudioEmu);
 			cp.execSyncAudioEmu(time);
 		}
 	} syncAudioEmu;
@@ -157,19 +156,15 @@ private:
 
 	MSXMotherBoard& motherBoard;
 
-	class TapeCommand final : public RecordedCommand {
-	public:
+	struct TapeCommand final : RecordedCommand {
 		TapeCommand(CommandController& commandController,
 			    StateChangeDistributor& stateChangeDistributor,
-			    Scheduler& scheduler,
-			    CassettePlayer& cassettePlayer);
+			    Scheduler& scheduler);
 		void execute(array_ref<TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 		bool needRecord(array_ref<TclObject> tokens) const override;
-	private:
-		CassettePlayer& cassettePlayer;
 	} tapeCommand;
 
 	LoadingIndicator loadingIndicator;

@@ -26,7 +26,7 @@ public:
 private:
 	class Cmd final : public Command {
 	public:
-		Cmd(UserSettings& userSettings, CommandController& commandController);
+		Cmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
@@ -43,8 +43,6 @@ private:
 		std::unique_ptr<Setting> createFloat  (array_ref<TclObject> tokens);
 
 		std::vector<string_ref> getSettingNames() const;
-
-		UserSettings& userSettings;
 	} userSettingCommand;
 
 	Settings settings;

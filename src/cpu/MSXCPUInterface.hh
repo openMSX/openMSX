@@ -273,82 +273,63 @@ private:
 
 	void doContinue2();
 
-	class MemoryDebug final : public SimpleDebuggable {
-	public:
-		MemoryDebug(MSXCPUInterface& interface,
-			    MSXMotherBoard& motherBoard);
+	struct MemoryDebug final : SimpleDebuggable {
+		MemoryDebug(MSXMotherBoard& motherBoard);
 		byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		MSXCPUInterface& interface;
 	} memoryDebug;
 
-	class SlottedMemoryDebug final : public SimpleDebuggable {
-	public:
-		SlottedMemoryDebug(MSXCPUInterface& interface,
-				   MSXMotherBoard& motherBoard);
+	struct SlottedMemoryDebug final : SimpleDebuggable {
+		SlottedMemoryDebug(MSXMotherBoard& motherBoard);
 		byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		MSXCPUInterface& interface;
 	} slottedMemoryDebug;
 
-	class IODebug final : public SimpleDebuggable {
-	public:
-		IODebug(MSXCPUInterface& interface,
-			MSXMotherBoard& motherBoard);
+	struct IODebug final : SimpleDebuggable {
+		IODebug(MSXMotherBoard& motherBoard);
 		byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		MSXCPUInterface& interface;
 	} ioDebug;
 
-	class SlotInfo final : public InfoTopic {
-	public:
-		SlotInfo(InfoCommand& machineInfoCommand,
-			 MSXCPUInterface& interface);
+	struct SlotInfo final : InfoTopic {
+		SlotInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		MSXCPUInterface& interface;
 	} slotInfo;
 
-	class SubSlottedInfo final : public InfoTopic {
-	public:
-		SubSlottedInfo(InfoCommand& machineInfoCommand,
-			       MSXCPUInterface& interface);
+	struct SubSlottedInfo final : InfoTopic {
+		SubSlottedInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		MSXCPUInterface& interface;
 	} subSlottedInfo;
 
-	class ExternalSlotInfo final : public InfoTopic {
-	public:
-		ExternalSlotInfo(InfoCommand& machineInfoCommand,
-				 CartridgeSlotManager& manager);
+	struct ExternalSlotInfo final : InfoTopic {
+		ExternalSlotInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		CartridgeSlotManager& manager;
 	} externalSlotInfo;
 
-	class IOInfo final : public InfoTopic {
-	public:
-		IOInfo(InfoCommand& machineInfoCommand,
-		       MSXCPUInterface& interface, bool input);
-		void execute(array_ref<TclObject> tokens,
-			     TclObject& result) const override;
+	struct IOInfo : InfoTopic {
+		IOInfo(InfoCommand& machineInfoCommand, const char* name);
+		void helper(array_ref<TclObject> tokens,
+		            TclObject& result, MSXDevice** devices) const;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		MSXCPUInterface& interface;
-		bool input;
 	};
-	IOInfo inputPortInfo;
-	IOInfo outputPortInfo;
+	struct IInfo final : IOInfo {
+		IInfo(InfoCommand& machineInfoCommand)
+			: IOInfo(machineInfoCommand, "input ports") {}
+		void execute(array_ref<TclObject> tokens,
+		             TclObject& result) const override;
+	} inputPortInfo;
+	struct OInfo final : IOInfo {
+		OInfo(InfoCommand& machineInfoCommand)
+			: IOInfo(machineInfoCommand, "output ports") {}
+		void execute(array_ref<TclObject> tokens,
+		             TclObject& result) const override;
+	} outputPortInfo;
 
 	/** Updated visibleDevices for a given page and clears the cache
 	  * on changes.

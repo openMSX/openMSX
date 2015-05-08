@@ -12,8 +12,9 @@
 #include "CliComm.hh"
 #include "FileOperations.hh"
 #include "TclObject.hh"
-#include "vla.hh"
 #include "memory.hh"
+#include "outer.hh"
+#include "vla.hh"
 #include <cassert>
 
 using std::string;
@@ -23,7 +24,7 @@ namespace openmsx {
 
 AviRecorder::AviRecorder(Reactor& reactor_)
 	: reactor(reactor_)
-	, recordCommand(reactor.getCommandController(), *this)
+	, recordCommand(reactor.getCommandController())
 	, mixer(nullptr)
 	, duration(EmuDuration::infinity)
 	, prevTime(EmuTime::infinity)
@@ -304,9 +305,8 @@ void AviRecorder::status(array_ref<TclObject> tokens, TclObject& result) const
 
 // class AviRecorder::Cmd
 
-AviRecorder::Cmd::Cmd(CommandController& commandController, AviRecorder& recorder_)
+AviRecorder::Cmd::Cmd(CommandController& commandController)
 	: Command(commandController, "record")
-	, recorder(recorder_)
 {
 }
 
@@ -315,6 +315,7 @@ void AviRecorder::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
+	auto& recorder = OUTER(AviRecorder, recordCommand);
 	const string_ref subcommand = tokens[1].getString();
 	if (subcommand == "start") {
 		recorder.processStart(tokens, result);

@@ -13,6 +13,7 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "likely.hh"
+#include "outer.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -735,8 +736,8 @@ YMF278::YMF278(const std::string& name, int ramSize_,
 	: ResampledSoundDevice(config.getMotherBoard(), name, "MoonSound wave-part",
 	                       24, true)
 	, motherBoard(config.getMotherBoard())
-	, debugRegisters(*this, motherBoard, getName())
-	, debugMemory   (*this, motherBoard, getName())
+	, debugRegisters(motherBoard, getName())
+	, debugMemory   (motherBoard, getName())
 	, rom(name + " ROM", "rom", config)
 	, ramSize(ramSize_ * 1024) // in kB
 	, ram(ramSize)
@@ -1039,42 +1040,44 @@ INSTANTIATE_SERIALIZE_METHODS(YMF278);
 
 // class DebugRegisters
 
-YMF278::DebugRegisters::DebugRegisters(YMF278& ymf278_, MSXMotherBoard& motherBoard,
+YMF278::DebugRegisters::DebugRegisters(MSXMotherBoard& motherBoard,
                                        const std::string& name)
 	: SimpleDebuggable(motherBoard, name + " regs",
 	                   "OPL4 registers", 0x100)
-	, ymf278(ymf278_)
 {
 }
 
 byte YMF278::DebugRegisters::read(unsigned address)
 {
+	auto& ymf278 = OUTER(YMF278, debugRegisters);
 	return ymf278.peekReg(address);
 }
 
 void YMF278::DebugRegisters::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& ymf278 = OUTER(YMF278, debugRegisters);
 	ymf278.writeReg(address, value, time);
 }
 
 
 // class DebugMemory
 
-YMF278::DebugMemory::DebugMemory(YMF278& ymf278_, MSXMotherBoard& motherBoard,
+YMF278::DebugMemory::DebugMemory(MSXMotherBoard& motherBoard,
                                  const std::string& name)
 	: SimpleDebuggable(motherBoard, name + " mem",
 	                   "OPL4 memory (includes both ROM and RAM)", 0x400000) // 4MB
-	, ymf278(ymf278_)
 {
 }
 
 byte YMF278::DebugMemory::read(unsigned address)
 {
+	auto& ymf278 = OUTER(YMF278, debugMemory);
 	return ymf278.readMem(address);
 }
 
 void YMF278::DebugMemory::write(unsigned address, byte value)
 {
+	auto& ymf278 = OUTER(YMF278, debugMemory);
 	ymf278.writeMem(address, value);
 }
 

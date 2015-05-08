@@ -6,8 +6,9 @@
 #include "BooleanSetting.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "unreachable.hh"
 #include "memory.hh"
+#include "outer.hh"
+#include "unreachable.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -18,10 +19,7 @@ const unsigned RAM_SIZE = 0x800;
 MSXRS232::MSXRS232(const DeviceConfig& config)
 	: MSXDevice(config)
 	, RS232Connector(MSXDevice::getPluggingController(), "msx-rs232")
-	, cntr0(*this)
-	, cntr1(*this)
 	, i8254(getScheduler(), &cntr0, &cntr1, nullptr, getCurrentTime())
-	, interf(*this)
 	, i8251(getScheduler(), interf, getCurrentTime())
 	, rom(config.findChild("rom")
 		? make_unique<Rom>(
@@ -295,71 +293,72 @@ void MSXRS232::enableRxRDYIRQ(bool enabled)
 
 // I8251Interface  (pass calls from I8251 to outConnector)
 
-MSXRS232::I8251Interf::I8251Interf(MSXRS232& rs232_)
-	: rs232(rs232_)
-{
-}
-
 void MSXRS232::I8251Interf::setRxRDY(bool status, EmuTime::param /*time*/)
 {
+	auto& rs232 = OUTER(MSXRS232, interf);
 	rs232.setRxRDYIRQ(status);
 }
 
 void MSXRS232::I8251Interf::setDTR(bool status, EmuTime::param time)
 {
+	auto& rs232 = OUTER(MSXRS232, interf);
 	rs232.getPluggedRS232Dev().setDTR(status, time);
 }
 
 void MSXRS232::I8251Interf::setRTS(bool status, EmuTime::param time)
 {
+	auto& rs232 = OUTER(MSXRS232, interf);
 	rs232.getPluggedRS232Dev().setRTS(status, time);
 }
 
 bool MSXRS232::I8251Interf::getDSR(EmuTime::param time)
 {
+	auto& rs232 = OUTER(MSXRS232, interf);
 	return rs232.getPluggedRS232Dev().getDSR(time);
 }
 
 bool MSXRS232::I8251Interf::getCTS(EmuTime::param time)
 {
+	auto& rs232 = OUTER(MSXRS232, interf);
 	return rs232.getPluggedRS232Dev().getCTS(time);
 }
 
 void MSXRS232::I8251Interf::setDataBits(DataBits bits)
 {
+	auto& rs232 = OUTER(MSXRS232, interf);
 	rs232.getPluggedRS232Dev().setDataBits(bits);
 }
 
 void MSXRS232::I8251Interf::setStopBits(StopBits bits)
 {
+	auto& rs232 = OUTER(MSXRS232, interf);
 	rs232.getPluggedRS232Dev().setStopBits(bits);
 }
 
 void MSXRS232::I8251Interf::setParityBit(bool enable, ParityBit parity)
 {
+	auto& rs232 = OUTER(MSXRS232, interf);
 	rs232.getPluggedRS232Dev().setParityBit(enable, parity);
 }
 
 void MSXRS232::I8251Interf::recvByte(byte value, EmuTime::param time)
 {
+	auto& rs232 = OUTER(MSXRS232, interf);
 	rs232.getPluggedRS232Dev().recvByte(value, time);
 }
 
 void MSXRS232::I8251Interf::signal(EmuTime::param time)
 {
+	auto& rs232 = OUTER(MSXRS232, interf);
 	rs232.getPluggedRS232Dev().signal(time); // for input
 }
 
 
 // Counter 0 output
 
-MSXRS232::Counter0::Counter0(MSXRS232& rs232_)
-	: rs232(rs232_)
-{
-}
-
 void MSXRS232::Counter0::signal(ClockPin& pin, EmuTime::param time)
 {
+	auto& rs232 = OUTER(MSXRS232, cntr0);
 	ClockPin& clk = rs232.i8251.getClockPin();
 	if (pin.isPeriodic()) {
 		clk.setPeriodicState(pin.getTotalDuration(),
@@ -377,13 +376,9 @@ void MSXRS232::Counter0::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*
 
 // Counter 1 output // TODO split rx tx
 
-MSXRS232::Counter1::Counter1(MSXRS232& rs232_)
-	: rs232(rs232_)
-{
-}
-
 void MSXRS232::Counter1::signal(ClockPin& pin, EmuTime::param time)
 {
+	auto& rs232 = OUTER(MSXRS232, cntr1);
 	ClockPin& clk = rs232.i8251.getClockPin();
 	if (pin.isPeriodic()) {
 		clk.setPeriodicState(pin.getTotalDuration(),

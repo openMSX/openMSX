@@ -4,26 +4,27 @@
 #include "DeviceConfig.hh"
 #include "serialize.hh"
 #include "memory.hh"
+#include "outer.hh"
 
 namespace openmsx {
 
 // Debuggable
 
 YM2413::Debuggable::Debuggable(
-		MSXMotherBoard& motherBoard, YM2413& ym2413_)
-	: SimpleDebuggable(motherBoard, ym2413_.getName() + " regs",
-	                   "MSX-MUSIC", 0x40)
-	, ym2413(ym2413_)
+		MSXMotherBoard& motherBoard, const std::string& name)
+	: SimpleDebuggable(motherBoard, name + " regs", "MSX-MUSIC", 0x40)
 {
 }
 
 byte YM2413::Debuggable::read(unsigned address)
 {
+	auto& ym2413 = OUTER(YM2413, debuggable);
 	return ym2413.core->peekReg(address);
 }
 
 void YM2413::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& ym2413 = OUTER(YM2413, debuggable);
 	ym2413.writeReg(address, value, time);
 }
 
@@ -42,7 +43,7 @@ static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
 YM2413::YM2413(const std::string& name, const DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), name, "MSX-MUSIC", 9 + 5)
 	, core(createCore(config))
-	, debuggable(config.getMotherBoard(), *this)
+	, debuggable(config.getMotherBoard(), getName())
 {
 	float input = YM2413Core::CLOCK_FREQ / 72.0f;
 	setInputRate(int(input + 0.5f));

@@ -156,11 +156,11 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, EndLogEvent, "EndLog");
 // class ReverseManager
 
 ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
-	: syncNewSnapshot(motherBoard_.getScheduler(), *this)
-	, syncInputEvent (motherBoard_.getScheduler(), *this)
+	: syncNewSnapshot(motherBoard_.getScheduler())
+	, syncInputEvent (motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
-	, reverseCmd(*this, motherBoard.getCommandController())
+	, reverseCmd(motherBoard.getCommandController())
 	, keyboard(nullptr)
 	, eventDelay(nullptr)
 	, replayIndex(0)
@@ -977,10 +977,8 @@ void ReverseManager::schedule(EmuTime::param time)
 
 // class ReverseCmd
 
-ReverseManager::ReverseCmd::ReverseCmd(
-		ReverseManager& manager_, CommandController& controller)
+ReverseManager::ReverseCmd::ReverseCmd(CommandController& controller)
 	: Command(controller, "reverse")
-	, manager(manager_)
 {
 }
 
@@ -989,6 +987,7 @@ void ReverseManager::ReverseCmd::execute(array_ref<TclObject> tokens, TclObject&
 	if (tokens.size() < 2) {
 		throw CommandException("Missing subcommand");
 	}
+	auto& manager = OUTER(ReverseManager, reverseCmd);
 	auto& interp = getInterpreter();
 	string_ref subcommand = tokens[1].getString();
 	if        (subcommand == "start") {

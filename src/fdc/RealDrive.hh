@@ -5,6 +5,7 @@
 #include "Clock.hh"
 #include "Schedulable.hh"
 #include "ThrottleManager.hh"
+#include "outer.hh"
 #include "serialize_meta.hh"
 #include <bitset>
 #include <memory>
@@ -47,22 +48,20 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	struct SyncBase : public Schedulable {
-		SyncBase(Scheduler& s, RealDrive& drive_)
-			: Schedulable(s), drive(drive_) {}
-		RealDrive& drive;
+	struct SyncLoadingTimeout : Schedulable {
 		friend class RealDrive;
-	};
-	struct SyncLoadingTimeout : public SyncBase {
-		SyncLoadingTimeout(Scheduler& s, RealDrive& d) : SyncBase(s, d) {}
+		SyncLoadingTimeout(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
+			auto& drive = OUTER(RealDrive, syncLoadingTimeout);
 			drive.execLoadingTimeout();
 		}
 	} syncLoadingTimeout;
 
-	struct SyncMotorTimeout : public SyncBase {
-		SyncMotorTimeout(Scheduler& s, RealDrive& d) : SyncBase(s, d) {}
+	struct SyncMotorTimeout : Schedulable {
+		friend class RealDrive;
+		SyncMotorTimeout(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& drive = OUTER(RealDrive, syncMotorTimeout);
 			drive.execMotorTimeout(time);
 		}
 	} syncMotorTimeout;

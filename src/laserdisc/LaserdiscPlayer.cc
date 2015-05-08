@@ -33,16 +33,16 @@ namespace openmsx {
 LaserdiscPlayer::Command::Command(
 		CommandController& commandController_,
 		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler, LaserdiscPlayer& laserdiscPlayer_)
+		Scheduler& scheduler)
 	: RecordedCommand(commandController_, stateChangeDistributor,
 			  scheduler, "laserdiscplayer")
-	, laserdiscPlayer(laserdiscPlayer_)
 {
 }
 
 void LaserdiscPlayer::Command::execute(
 	array_ref<TclObject> tokens, TclObject& result, EmuTime::param time)
 {
+	auto& laserdiscPlayer = OUTER(LaserdiscPlayer, laserdiscCommand);
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
@@ -102,15 +102,14 @@ LaserdiscPlayer::LaserdiscPlayer(
 		const HardwareConfig& hwConf, PioneerLDControl& ldcontrol_)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), "laserdiscplayer",
 	                       "Laserdisc Player", 1, true)
-	, syncAck (hwConf.getMotherBoard().getScheduler(), *this)
-	, syncOdd (hwConf.getMotherBoard().getScheduler(), *this)
-	, syncEven(hwConf.getMotherBoard().getScheduler(), *this)
+	, syncAck (hwConf.getMotherBoard().getScheduler())
+	, syncOdd (hwConf.getMotherBoard().getScheduler())
+	, syncEven(hwConf.getMotherBoard().getScheduler())
 	, motherBoard(hwConf.getMotherBoard())
 	, ldcontrol(ldcontrol_)
 	, laserdiscCommand(motherBoard.getCommandController(),
 		           motherBoard.getStateChangeDistributor(),
-		           motherBoard.getScheduler(),
-		           *this)
+		           motherBoard.getScheduler())
 	, sampleClock(EmuTime::zero)
 	, start(EmuTime::zero)
 	, muteLeft(false)

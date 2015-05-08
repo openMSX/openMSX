@@ -9,6 +9,7 @@
 #include "CliComm.hh"
 #include "unreachable.hh"
 #include "memory.hh"
+#include "outer.hh"
 #include "xrange.hh"
 #include <cassert>
 
@@ -45,7 +46,7 @@ bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
 CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
 	, cartCmd(*this, motherBoard, "cart")
-	, extSlotInfo(motherBoard.getMachineInfoCommand(), *this)
+	, extSlotInfo(motherBoard.getMachineInfoCommand())
 {
 }
 
@@ -388,15 +389,15 @@ bool CartridgeSlotManager::CartCmd::needRecord(array_ref<TclObject> tokens) cons
 // class CartridgeSlotInfo
 
 CartridgeSlotManager::CartridgeSlotInfo::CartridgeSlotInfo(
-		InfoCommand& machineInfoCommand, CartridgeSlotManager& manager_)
+		InfoCommand& machineInfoCommand)
 	: InfoTopic(machineInfoCommand, "external_slot")
-	, manager(manager_)
 {
 }
 
 void CartridgeSlotManager::CartridgeSlotInfo::execute(
 	array_ref<TclObject> tokens, TclObject& result) const
 {
+	auto& manager = OUTER(CartridgeSlotManager, extSlotInfo);
 	switch (tokens.size()) {
 	case 2: {
 		// return list of slots

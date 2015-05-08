@@ -18,6 +18,7 @@
 #include "memory.hh"
 #include "stl.hh"
 #include "aligned.hh"
+#include "outer.hh"
 #include "unreachable.hh"
 #include "vla.hh"
 #include <algorithm>
@@ -96,7 +97,7 @@ MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
 	, speedSetting(globalSettings.getSpeedSetting())
 	, throttleManager(globalSettings.getThrottleManager())
 	, prevTime(getCurrentTime(), 44100)
-	, soundDeviceInfo(commandController.getMachineInfoCommand(), *this)
+	, soundDeviceInfo(commandController.getMachineInfoCommand())
 	, recorder(nullptr)
 	, synchronousCounter(0)
 {
@@ -846,15 +847,15 @@ SoundDevice* MSXMixer::findDevice(string_ref name) const
 }
 
 MSXMixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(
-		InfoCommand& machineInfoCommand, MSXMixer& mixer_)
+		InfoCommand& machineInfoCommand)
 	: InfoTopic(machineInfoCommand, "sounddevice")
-	, mixer(mixer_)
 {
 }
 
 void MSXMixer::SoundDeviceInfoTopic::execute(
 	array_ref<TclObject> tokens, TclObject& result) const
 {
+	auto& mixer = OUTER(MSXMixer, soundDeviceInfo);
 	switch (tokens.size()) {
 	case 2:
 		for (auto& info : mixer.infos) {
@@ -883,6 +884,7 @@ void MSXMixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> devices;
+		auto& mixer = OUTER(MSXMixer, soundDeviceInfo);
 		for (auto& info : mixer.infos) {
 			devices.push_back(info.device->getName());
 		}

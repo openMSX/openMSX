@@ -2,6 +2,7 @@
 #include "SpriteChecker.hh"
 #include "Renderer.hh"
 #include "Math.hh"
+#include "outer.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <cstring>
@@ -44,49 +45,52 @@ VDPVRAM::LogicalVRAMDebuggable::LogicalVRAMDebuggable(VDP& vdp_)
 			vdp_.getName() + " VRAM",
 			"CPU view on video RAM given the current display mode.",
 			 128 * 1024) // always 128kB
-	, vdp(vdp_)
 {
 }
 
 unsigned VDPVRAM::LogicalVRAMDebuggable::transform(unsigned address)
 {
-	return vdp.getDisplayMode().isPlanar()
+	auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
+	return vram.vdp.getDisplayMode().isPlanar()
 	     ? ((address << 16) | (address >> 1)) & 0x1FFFF
 	     : address;
 }
 
 byte VDPVRAM::LogicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
 {
-	return vdp.getVRAM().cpuRead(transform(address), time);
+	auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
+	return vram.cpuRead(transform(address), time);
 }
 
 void VDPVRAM::LogicalVRAMDebuggable::write(
 	unsigned address, byte value, EmuTime::param time)
 {
-	vdp.getVRAM().cpuWrite(transform(address), value, time);
+	auto& vram = OUTER(VDPVRAM, logicalVRAMDebug);
+	vram.cpuWrite(transform(address), value, time);
 }
 
 
 // class PhysicalVRAMDebuggable
 
-VDPVRAM::PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(VDP& vdp,
-				VDPVRAM& vram_, unsigned actualSize)
+VDPVRAM::PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(
+		VDP& vdp, unsigned actualSize)
 	: SimpleDebuggable(vdp.getMotherBoard(), vdp.getName() == "VDP" ?
 			"physical VRAM" : "physical " + vdp.getName() + " VRAM",
 	                   "VDP-screen-mode-independent view on the video RAM.",
 	                   actualSize)
-	, vram(vram_) // vdp.getVRAM() doesn't work yet
 {
 }
 
 byte VDPVRAM::PhysicalVRAMDebuggable::read(unsigned address, EmuTime::param time)
 {
+	auto& vram = OUTER(VDPVRAM, physicalVRAMDebug);
 	return vram.cpuRead(address, time);
 }
 
 void VDPVRAM::PhysicalVRAMDebuggable::write(
 	unsigned address, byte value, EmuTime::param time)
 {
+	auto& vram = OUTER(VDPVRAM, physicalVRAMDebug);
 	vram.cpuWrite(address, value, time);
 }
 
@@ -107,7 +111,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	: vdp(vdp_)
 	, data(vdp_.getDeviceConfig2(), bufferSize(size))
 	, logicalVRAMDebug (vdp)
-	, physicalVRAMDebug(vdp, *this, size)
+	, physicalVRAMDebug(vdp, size)
 	#ifdef DEBUG
 	, vramTime(EmuTime::zero)
 	#endif

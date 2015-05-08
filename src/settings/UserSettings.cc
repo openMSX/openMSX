@@ -7,6 +7,7 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "memory.hh"
+#include "outer.hh"
 #include "stl.hh"
 #include <cassert>
 
@@ -19,7 +20,7 @@ namespace openmsx {
 // class UserSettings
 
 UserSettings::UserSettings(CommandController& commandController_)
-	: userSettingCommand(*this, commandController_)
+	: userSettingCommand(commandController_)
 {
 }
 
@@ -48,10 +49,8 @@ Setting* UserSettings::findSetting(string_ref name) const
 
 // class UserSettings::Cmd
 
-UserSettings::Cmd::Cmd(UserSettings& userSettings_,
-                       CommandController& commandController)
+UserSettings::Cmd::Cmd(CommandController& commandController)
 	: Command(commandController, "user_setting")
-	, userSettings(userSettings_)
 {
 }
 
@@ -101,6 +100,7 @@ void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
 			"Invalid setting type '" + type + "', expected "
 			"'string', 'boolean', 'integer' or 'float'.");
 	}
+	auto& userSettings = OUTER(UserSettings, userSettingCommand);
 	userSettings.addSetting(std::move(setting));
 
 	result.setString(tokens[3].getString()); // name
@@ -167,6 +167,7 @@ void UserSettings::Cmd::destroy(array_ref<TclObject> tokens, TclObject& /*result
 	}
 	const auto& name = tokens[2].getString();
 
+	auto& userSettings = OUTER(UserSettings, userSettingCommand);
 	auto* setting = userSettings.findSetting(name);
 	if (!setting) {
 		throw CommandException(
@@ -254,6 +255,7 @@ void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 vector<string_ref> UserSettings::Cmd::getSettingNames() const
 {
 	vector<string_ref> result;
+	auto& userSettings = OUTER(UserSettings, userSettingCommand);
 	for (auto& s : userSettings.getSettings()) {
 		result.push_back(s->getName());
 	}

@@ -30,16 +30,12 @@ private:
 	RomDB db;
 	std::vector<MemBuffer<char>> buffers;
 
-	class SoftwareInfoTopic final : public InfoTopic {
-	public:
-		SoftwareInfoTopic(InfoCommand& openMSXInfoCommand,
-		                  RomDatabase& romDatabase);
+	struct SoftwareInfoTopic final : InfoTopic {
+		SoftwareInfoTopic(InfoCommand& openMSXInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		const RomDatabase& romDatabase;
 	} softwareInfoTopic;
 };
 

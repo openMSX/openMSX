@@ -33,26 +33,18 @@ public:
 private:
 	CommandController& commandController;
 
-	class SaveSettingsCommand final : public Command {
-	public:
-		SaveSettingsCommand(CommandController& commandController,
-				    SettingsConfig& settingsConfig);
+	struct SaveSettingsCommand final : Command {
+		SaveSettingsCommand(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		SettingsConfig& settingsConfig;
 	} saveSettingsCommand;
 
-	class LoadSettingsCommand final : public Command {
-	public:
-		LoadSettingsCommand(CommandController& commandController,
-				    SettingsConfig& settingsConfig);
+	struct LoadSettingsCommand final : Command {
+		LoadSettingsCommand(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		SettingsConfig& settingsConfig;
 	} loadSettingsCommand;
 
 	SettingsManager settingsManager;

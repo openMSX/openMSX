@@ -2,9 +2,10 @@
 #include "MidiInDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
+#include "memory.hh"
+#include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -16,9 +17,6 @@ static const byte DISABLED_VALUE      = 0x80; // b7 = EN
 MSXMidi::MSXMidi(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MidiInConnector(MSXDevice::getPluggingController(), "msx-midi-in")
-	, cntr0(*this)
-	, cntr2(*this)
-	, interf(*this)
 	, timerIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQtimer")
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, timerIRQlatch(false), timerIRQenabled(false)
@@ -276,28 +274,27 @@ void MSXMidi::enableRxRDYIRQ(bool enabled)
 
 // I8251Interface  (pass calls from I8251 to outConnector)
 
-MSXMidi::I8251Interf::I8251Interf(MSXMidi& midi_)
-	: midi(midi_)
-{
-}
-
 void MSXMidi::I8251Interf::setRxRDY(bool status, EmuTime::param /*time*/)
 {
+	auto& midi = OUTER(MSXMidi, interf);
 	midi.setRxRDYIRQ(status);
 }
 
 void MSXMidi::I8251Interf::setDTR(bool status, EmuTime::param time)
 {
+	auto& midi = OUTER(MSXMidi, interf);
 	midi.enableTimerIRQ(status, time);
 }
 
 void MSXMidi::I8251Interf::setRTS(bool status, EmuTime::param /*time*/)
 {
+	auto& midi = OUTER(MSXMidi, interf);
 	midi.enableRxRDYIRQ(status);
 }
 
 bool MSXMidi::I8251Interf::getDSR(EmuTime::param /*time*/)
 {
+	auto& midi = OUTER(MSXMidi, interf);
 	return midi.timerIRQ.getState();
 }
 
@@ -308,39 +305,40 @@ bool MSXMidi::I8251Interf::getCTS(EmuTime::param /*time*/)
 
 void MSXMidi::I8251Interf::setDataBits(DataBits bits)
 {
+	auto& midi = OUTER(MSXMidi, interf);
 	midi.outConnector.setDataBits(bits);
 }
 
 void MSXMidi::I8251Interf::setStopBits(StopBits bits)
 {
+	auto& midi = OUTER(MSXMidi, interf);
 	midi.outConnector.setStopBits(bits);
 }
 
 void MSXMidi::I8251Interf::setParityBit(bool enable, ParityBit parity)
 {
+	auto& midi = OUTER(MSXMidi, interf);
 	midi.outConnector.setParityBit(enable, parity);
 }
 
 void MSXMidi::I8251Interf::recvByte(byte value, EmuTime::param time)
 {
+	auto& midi = OUTER(MSXMidi, interf);
 	midi.outConnector.recvByte(value, time);
 }
 
 void MSXMidi::I8251Interf::signal(EmuTime::param time)
 {
+	auto& midi = OUTER(MSXMidi, interf);
 	midi.getPluggedMidiInDev().signal(time);
 }
 
 
 // Counter 0 output
 
-MSXMidi::Counter0::Counter0(MSXMidi& midi_)
-	: midi(midi_)
-{
-}
-
 void MSXMidi::Counter0::signal(ClockPin& pin, EmuTime::param time)
 {
+	auto& midi = OUTER(MSXMidi, cntr0);
 	ClockPin& clk = midi.i8251.getClockPin();
 	if (pin.isPeriodic()) {
 		clk.setPeriodicState(pin.getTotalDuration(),
@@ -358,13 +356,9 @@ void MSXMidi::Counter0::signalPosEdge(ClockPin& /*pin*/, EmuTime::param /*time*/
 
 // Counter 2 output
 
-MSXMidi::Counter2::Counter2(MSXMidi& midi_)
-	: midi(midi_)
-{
-}
-
 void MSXMidi::Counter2::signal(ClockPin& pin, EmuTime::param time)
 {
+	auto& midi = OUTER(MSXMidi, cntr2);
 	ClockPin& clk = midi.i8254.getClockPin(1);
 	if (pin.isPeriodic()) {
 		clk.setPeriodicState(pin.getTotalDuration(),
@@ -376,6 +370,7 @@ void MSXMidi::Counter2::signal(ClockPin& pin, EmuTime::param time)
 
 void MSXMidi::Counter2::signalPosEdge(ClockPin& /*pin*/, EmuTime::param time)
 {
+	auto& midi = OUTER(MSXMidi, cntr2);
 	midi.setTimerIRQ(true, time);
 }
 

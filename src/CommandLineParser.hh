@@ -82,85 +82,54 @@ private:
 
 	Reactor& reactor;
 
-	class HelpOption final : public CLIOption {
-	public:
-		explicit HelpOption(CommandLineParser& parser);
+	struct HelpOption final : CLIOption {
 		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;
-	private:
-		CommandLineParser& parser;
 	} helpOption;
 
-	class VersionOption final : public CLIOption {
-	public:
-		explicit VersionOption(CommandLineParser& parser);
+	struct VersionOption final : CLIOption {
 		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;
-	private:
-		CommandLineParser& parser;
 	} versionOption;
 
-	class ControlOption final : public CLIOption {
-	public:
-		explicit ControlOption(CommandLineParser& parser);
+	struct ControlOption final : CLIOption {
 		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;
-	private:
-		CommandLineParser& parser;
 	} controlOption;
 
-	class ScriptOption final : public CLIOption, public CLIFileType {
-	public:
-		const CommandLineParser::Scripts& getScripts() const;
+	struct ScriptOption final : CLIOption, CLIFileType {
 		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;
 		void parseFileType(const std::string& filename,
 				   array_ref<std::string>& cmdLine) override;
 		string_ref fileTypeHelp() const override;
-	private:
+
 		CommandLineParser::Scripts scripts;
 	} scriptOption;
 
-	class MachineOption final : public CLIOption {
-	public:
-		explicit MachineOption(CommandLineParser& parser);
+	struct MachineOption final : CLIOption {
 		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;
-	private:
-		CommandLineParser& parser;
 	} machineOption;
 
-	class SettingOption final : public CLIOption {
-	public:
-		explicit SettingOption(CommandLineParser& parser);
+	struct SettingOption final : CLIOption {
 		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;
-	private:
-		CommandLineParser& parser;
 	} settingOption;
 
-	class NoPBOOption final : public CLIOption {
-	public:
+	struct NoPBOOption final : CLIOption {
 		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;
 	} noPBOOption;
 
-	class TestConfigOption final : public CLIOption {
-	public:
-		explicit TestConfigOption(CommandLineParser& parser);
+	struct TestConfigOption final : CLIOption {
 		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;
-	private:
-		CommandLineParser& parser;
 	} testConfigOption;
 
-	class BashOption final : public CLIOption {
-	public:
-		explicit BashOption(CommandLineParser& parser);
+	struct BashOption final : CLIOption {
 		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;
-	private:
-		CommandLineParser& parser;
 	} bashOption;
 
 	MSXRomCLI msxRomCLI;

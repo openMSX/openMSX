@@ -95,24 +95,18 @@ private:
 	uint64_t frameDurationSum;
 	uint64_t prevTimeStamp;
 
-	class ScreenShotCmd final : public Command {
-	public:
-		ScreenShotCmd(CommandController& commandController, Display& display);
+	struct ScreenShotCmd final : Command {
+		ScreenShotCmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		Display& display;
 	} screenShotCmd;
 
-	class FpsInfoTopic final : public InfoTopic {
-	public:
-		FpsInfoTopic(InfoCommand& openMSXInfoCommand, Display& display);
+	struct FpsInfoTopic final : InfoTopic {
+		FpsInfoTopic(InfoCommand& openMSXInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		Display& display;
 	} fpsInfo;
 
 	OSDGUI osdGui;

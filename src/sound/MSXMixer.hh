@@ -160,15 +160,12 @@ private:
 
 	DynamicClock prevTime;
 
-	class SoundDeviceInfoTopic final : public InfoTopic {
-	public:
-		SoundDeviceInfoTopic(InfoCommand& machineInfoCommand, MSXMixer& mixer);
+	struct SoundDeviceInfoTopic final : InfoTopic {
+		SoundDeviceInfoTopic(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		MSXMixer& mixer;
 	} soundDeviceInfo;
 
 	AviRecorder* recorder;

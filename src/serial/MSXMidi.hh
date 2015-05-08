@@ -43,27 +43,17 @@ private:
 	void registerRange(byte port, unsigned num);
 	void unregisterRange(byte port, unsigned num);
 
-	class Counter0 final : public ClockPinListener {
-	public:
-		explicit Counter0(MSXMidi& midi);
+	struct Counter0 final : ClockPinListener {
 		void signal(ClockPin& pin, EmuTime::param time) override;
 		void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
-	private:
-		MSXMidi& midi;
 	} cntr0; // counter 0 clock pin
 
-	class Counter2 final : public ClockPinListener {
-	public:
-		explicit Counter2(MSXMidi& midi);
+	struct Counter2 final : ClockPinListener {
 		void signal(ClockPin& pin, EmuTime::param time) override;
 		void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
-	private:
-		MSXMidi& midi;
 	} cntr2; // counter 2 clock pin
 
-	class I8251Interf final : public I8251Interface {
-	public:
-		explicit I8251Interf(MSXMidi& midi);
+	struct I8251Interf final : I8251Interface {
 		void setRxRDY(bool status, EmuTime::param time) override;
 		void setDTR(bool status, EmuTime::param time) override;
 		void setRTS(bool status, EmuTime::param time) override;
@@ -74,8 +64,6 @@ private:
 		void setParityBit(bool enable, ParityBit parity) override;
 		void recvByte(byte value, EmuTime::param time) override;
 		void signal(EmuTime::param time) override;
-	private:
-		MSXMidi& midi;
 	} interf;
 
 	IRQHelper timerIRQ;

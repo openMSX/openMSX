@@ -7,9 +7,10 @@
 #include "Z80.hh"
 #include "R800.hh"
 #include "TclObject.hh"
+#include "memory.hh"
+#include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cassert>
 
 using std::string;
@@ -33,13 +34,13 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 			motherboard, "r800", traceSetting,
 			diHaltCallback, EmuTime::zero)
 		: nullptr)
-	, timeInfo(motherboard.getMachineInfoCommand(), *this)
+	, timeInfo(motherboard.getMachineInfoCommand())
 	, z80FreqInfo(motherboard.getMachineInfoCommand(), "z80_freq", *z80)
 	, r800FreqInfo(r800
 		? make_unique<CPUFreqInfoTopic>(
 			motherboard.getMachineInfoCommand(), "r800_freq", *r800)
 		: nullptr)
-	, debuggable(motherboard_, *this)
+	, debuggable(motherboard_)
 	, reference(EmuTime::zero)
 {
 	z80Active = true; // setActiveCPU(CPU_Z80);
@@ -240,17 +241,16 @@ void MSXCPU::setPaused(bool paused)
 
 // class TimeInfoTopic
 
-MSXCPU::TimeInfoTopic::TimeInfoTopic(
-		InfoCommand& machineInfoCommand, MSXCPU& msxcpu_)
+MSXCPU::TimeInfoTopic::TimeInfoTopic(InfoCommand& machineInfoCommand)
 	: InfoTopic(machineInfoCommand, "time")
-	, msxcpu(msxcpu_)
 {
 }
 
 void MSXCPU::TimeInfoTopic::execute(
 	array_ref<TclObject> /*tokens*/, TclObject& result) const
 {
-	EmuDuration dur = msxcpu.getCurrentTime() - msxcpu.reference;
+	auto& cpu = OUTER(MSXCPU, timeInfo);
+	EmuDuration dur = cpu.getCurrentTime() - cpu.reference;
 	result.setDouble(dur.toDouble());
 }
 
@@ -303,14 +303,14 @@ static const char* const CPU_REGS_DESC =
 	"this effectively indicates that the CPU could accept an interrupt at\n"
 	"the start of the current instruction.\n";
 
-MSXCPU::Debuggable::Debuggable(MSXMotherBoard& motherboard, MSXCPU& cpu_)
+MSXCPU::Debuggable::Debuggable(MSXMotherBoard& motherboard)
 	: SimpleDebuggable(motherboard, "CPU regs", CPU_REGS_DESC, 28)
-	, cpu(cpu_)
 {
 }
 
 byte MSXCPU::Debuggable::read(unsigned address)
 {
+	auto& cpu = OUTER(MSXCPU, debuggable);
 	const CPURegs& regs = cpu.getRegisters();
 	switch (address) {
 	case  0: return regs.getA();
@@ -349,6 +349,7 @@ byte MSXCPU::Debuggable::read(unsigned address)
 
 void MSXCPU::Debuggable::write(unsigned address, byte value)
 {
+	auto& cpu = OUTER(MSXCPU, debuggable);
 	CPURegs& regs = cpu.getRegisters();
 	switch (address) {
 	case  0: regs.setA(value); break;

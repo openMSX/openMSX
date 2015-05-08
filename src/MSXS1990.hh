@@ -30,13 +30,10 @@ private:
 	void writeRegister(byte reg, byte value);
 	void setCPUStatus(byte value);
 
-	class Debuggable final : public SimpleDebuggable {
-	public:
-		Debuggable(MSXMotherBoard& motherBoard, MSXS1990& s1990);
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
-	private:
-		MSXS1990& s1990;
 	} debuggable;
 
 	FirmwareSwitch firmwareSwitch;

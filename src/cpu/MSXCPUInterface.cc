@@ -22,6 +22,7 @@
 #include "StringOp.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
+#include "outer.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include <iomanip>
@@ -56,15 +57,14 @@ static const byte GLOBAL_WRITE_BIT   = 0x04;
 
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
-	: memoryDebug       (*this, motherBoard_)
-	, slottedMemoryDebug(*this, motherBoard_)
-	, ioDebug           (*this, motherBoard_)
-	, slotInfo(motherBoard_.getMachineInfoCommand(), *this)
-	, subSlottedInfo(motherBoard_.getMachineInfoCommand(), *this)
-	, externalSlotInfo(motherBoard_.getMachineInfoCommand(),
-	                   motherBoard_.getSlotManager())
-	, inputPortInfo (motherBoard_.getMachineInfoCommand(), *this, true)
-	, outputPortInfo(motherBoard_.getMachineInfoCommand(), *this, false)
+	: memoryDebug       (motherBoard_)
+	, slottedMemoryDebug(motherBoard_)
+	, ioDebug           (motherBoard_)
+	, slotInfo(motherBoard_.getMachineInfoCommand())
+	, subSlottedInfo(motherBoard_.getMachineInfoCommand())
+	, externalSlotInfo(motherBoard_.getMachineInfoCommand())
+	, inputPortInfo (motherBoard_.getMachineInfoCommand())
+	, outputPortInfo(motherBoard_.getMachineInfoCommand())
 	, dummyDevice(DeviceFactory::createDummyDevice(
 		*motherBoard_.getMachineConfig()))
 	, msxcpu(motherBoard_.getCPU())
@@ -920,22 +920,22 @@ void MSXCPUInterface::cleanup()
 
 // class MemoryDebug
 
-MSXCPUInterface::MemoryDebug::MemoryDebug(
-		MSXCPUInterface& interface_, MSXMotherBoard& motherBoard)
+MSXCPUInterface::MemoryDebug::MemoryDebug(MSXMotherBoard& motherBoard)
 	: SimpleDebuggable(motherBoard, "memory",
 	                   "The memory currently visible for the CPU.", 0x10000)
-	, interface(interface_)
 {
 }
 
 byte MSXCPUInterface::MemoryDebug::read(unsigned address, EmuTime::param time)
 {
+	auto& interface = OUTER(MSXCPUInterface, memoryDebug);
 	return interface.peekMem(address, time);
 }
 
 void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value,
                                          EmuTime::param time)
 {
+	auto& interface = OUTER(MSXCPUInterface, memoryDebug);
 	return interface.writeMem(address, value, time);
 }
 
@@ -943,21 +943,22 @@ void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value,
 // class SlottedMemoryDebug
 
 MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(
-		MSXCPUInterface& interface_, MSXMotherBoard& motherBoard)
+		MSXMotherBoard& motherBoard)
 	: SimpleDebuggable(motherBoard, "slotted memory",
 	                   "The memory in slots and subslots.", 0x10000 * 4 * 4)
-	, interface(interface_)
 {
 }
 
 byte MSXCPUInterface::SlottedMemoryDebug::read(unsigned address, EmuTime::param time)
 {
+	auto& interface = OUTER(MSXCPUInterface, slottedMemoryDebug);
 	return interface.peekSlottedMem(address, time);
 }
 
 void MSXCPUInterface::SlottedMemoryDebug::write(unsigned address, byte value,
                                                 EmuTime::param time)
 {
+	auto& interface = OUTER(MSXCPUInterface, slottedMemoryDebug);
 	return interface.writeSlottedMem(address, value, time);
 }
 
@@ -975,9 +976,8 @@ static unsigned getSlot(
 }
 
 MSXCPUInterface::SlotInfo::SlotInfo(
-		InfoCommand& machineInfoCommand, MSXCPUInterface& interface_)
+		InfoCommand& machineInfoCommand)
 	: InfoTopic(machineInfoCommand, "slot")
-	, interface(interface_)
 {
 }
 
@@ -991,6 +991,7 @@ void MSXCPUInterface::SlotInfo::execute(array_ref<TclObject> tokens,
 	unsigned ps   = getSlot(interp, tokens[2], "Primary slot");
 	unsigned ss   = getSlot(interp, tokens[3], "Secondary slot");
 	unsigned page = getSlot(interp, tokens[4], "Page");
+	auto& interface = OUTER(MSXCPUInterface, slotInfo);
 	if (!interface.isExpanded(ps)) {
 		ss = 0;
 	}
@@ -1007,9 +1008,8 @@ string MSXCPUInterface::SlotInfo::help(const vector<string>& /*tokens*/) const
 // class SubSlottedInfo
 
 MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(
-		InfoCommand& machineInfoCommand, MSXCPUInterface& interface_)
+		InfoCommand& machineInfoCommand)
 	: InfoTopic(machineInfoCommand, "issubslotted")
-	, interface(interface_)
 {
 }
 
@@ -1019,6 +1019,7 @@ void MSXCPUInterface::SubSlottedInfo::execute(array_ref<TclObject> tokens,
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
+	auto& interface = OUTER(MSXCPUInterface, subSlottedInfo);
 	result.setInt(interface.isExpanded(
 		getSlot(getInterpreter(), tokens[2], "Slot")));
 }
@@ -1033,9 +1034,8 @@ string MSXCPUInterface::SubSlottedInfo::help(
 // class ExternalSlotInfo
 
 MSXCPUInterface::ExternalSlotInfo::ExternalSlotInfo(
-		InfoCommand& machineInfoCommand, CartridgeSlotManager& manager_)
+		InfoCommand& machineInfoCommand)
 	: InfoTopic(machineInfoCommand, "isexternalslot")
-	, manager(manager_)
 {
 }
 
@@ -1055,6 +1055,8 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 	default:
 		throw SyntaxError();
 	}
+	auto& interface = OUTER(MSXCPUInterface, externalSlotInfo);
+	auto& manager = interface.motherBoard.getSlotManager();
 	result.setInt(manager.isExternalSlot(ps, ss, true));
 }
 
@@ -1067,35 +1069,33 @@ string MSXCPUInterface::ExternalSlotInfo::help(
 
 // class IODebug
 
-MSXCPUInterface::IODebug::IODebug(MSXCPUInterface& interface_,
-                                  MSXMotherBoard& motherBoard)
+MSXCPUInterface::IODebug::IODebug(MSXMotherBoard& motherBoard)
 	: SimpleDebuggable(motherBoard, "ioports", "IO ports.", 0x100)
-	, interface(interface_)
 {
 }
 
 byte MSXCPUInterface::IODebug::read(unsigned address, EmuTime::param time)
 {
+	auto& interface = OUTER(MSXCPUInterface, ioDebug);
 	return interface.IO_In[address & 0xFF]->peekIO(address, time);
 }
 
 void MSXCPUInterface::IODebug::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& interface = OUTER(MSXCPUInterface, ioDebug);
 	interface.writeIO(word(address), value, time);
 }
 
 
 // class IOInfo
 
-MSXCPUInterface::IOInfo::IOInfo(InfoCommand& machineInfoCommand,
-                                MSXCPUInterface& interface_, bool input_)
-	: InfoTopic(machineInfoCommand, input_ ? "input_port" : "output_port")
-	, interface(interface_), input(input_)
+MSXCPUInterface::IOInfo::IOInfo(InfoCommand& machineInfoCommand, const char* name)
+	: InfoTopic(machineInfoCommand, name)
 {
 }
 
-void MSXCPUInterface::IOInfo::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+void MSXCPUInterface::IOInfo::helper(
+	array_ref<TclObject> tokens, TclObject& result, MSXDevice** devices) const
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -1104,14 +1104,26 @@ void MSXCPUInterface::IOInfo::execute(
 	if (port >= 256) {
 		throw CommandException("Port must be in range 0..255");
 	}
-	MSXDevice** devices = input ? interface.IO_In : interface.IO_Out;
 	result.setString(devices[port]->getName());
+}
+void MSXCPUInterface::IInfo::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
+{
+	auto& interface = OUTER(MSXCPUInterface, inputPortInfo);
+	helper(tokens, result, interface.IO_In);
+}
+void MSXCPUInterface::OInfo::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
+{
+	auto& interface = OUTER(MSXCPUInterface, outputPortInfo);
+	helper(tokens, result, interface.IO_Out);
 }
 
 string MSXCPUInterface::IOInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Return the name of the device connected to the given IO port.";
 }
+
 
 template<typename Archive>
 void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)

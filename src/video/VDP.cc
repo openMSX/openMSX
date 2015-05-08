@@ -1301,12 +1301,12 @@ void VDP::update(const Setting& setting)
 VDP::RegDebug::RegDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   vdp_.getName() + " regs", "VDP registers.", 0x40)
-	, vdp(vdp_)
 {
 }
 
 byte VDP::RegDebug::read(unsigned address)
 {
+	auto& vdp = OUTER(VDP, vdpRegDebug);
 	if (address < 0x20) {
 		return vdp.controlRegs[address];
 	} else if (address < 0x2F) {
@@ -1318,6 +1318,7 @@ byte VDP::RegDebug::read(unsigned address)
 
 void VDP::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& vdp = OUTER(VDP, vdpRegDebug);
 	vdp.changeRegister(address, value, time);
 }
 
@@ -1327,12 +1328,12 @@ void VDP::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 VDP::StatusRegDebug::StatusRegDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   vdp_.getName() + " status regs", "VDP status registers.", 0x10)
-	, vdp(vdp_)
 {
 }
 
 byte VDP::StatusRegDebug::read(unsigned address, EmuTime::param time)
 {
+	auto& vdp = OUTER(VDP, vdpStatusRegDebug);
 	return vdp.peekStatusReg(address, time);
 }
 
@@ -1342,18 +1343,19 @@ byte VDP::StatusRegDebug::read(unsigned address, EmuTime::param time)
 VDP::PaletteDebug::PaletteDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   vdp_.getName() + " palette", "V99x8 palette (RBG format)", 0x20)
-	, vdp(vdp_)
 {
 }
 
 byte VDP::PaletteDebug::read(unsigned address)
 {
+	auto& vdp = OUTER(VDP, vdpPaletteDebug);
 	word grb = vdp.getPalette(address / 2);
 	return (address & 1) ? (grb >> 8) : (grb & 0xff);
 }
 
 void VDP::PaletteDebug::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& vdp = OUTER(VDP, vdpPaletteDebug);
 	int index = address / 2;
 	word grb = vdp.getPalette(index);
 	grb = (address & 1)
@@ -1369,12 +1371,12 @@ VDP::VRAMPointerDebug::VRAMPointerDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(), vdp_.getName() == "VDP" ?
 			"VRAM pointer" : vdp_.getName() + " VRAM pointer",
 			"VDP VRAM pointer (14 lower bits)", 2)
-	, vdp(vdp_)
 {
 }
 
 byte VDP::VRAMPointerDebug::read(unsigned address)
 {
+	auto& vdp = OUTER(VDP, vramPointerDebug);
 	if (address & 1) {
 		return vdp.vramPointer >> 8;  // TODO add read/write mode?
 	} else {
@@ -1384,6 +1386,7 @@ byte VDP::VRAMPointerDebug::read(unsigned address)
 
 void VDP::VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time*/)
 {
+	auto& vdp = OUTER(VDP, vramPointerDebug);
 	int& ptr = vdp.vramPointer;
 	if (address & 1) {
 		ptr = (ptr & 0x00FF) | ((value & 0x3F) << 8);

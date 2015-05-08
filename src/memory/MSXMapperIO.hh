@@ -40,13 +40,10 @@ private:
 	 */
 	void updateMask();
 
-	class Debuggable final : public SimpleDebuggable {
-	public:
-		Debuggable(MSXMotherBoard& motherBoard, MSXMapperIO& mapperIO);
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
-	private:
-		MSXMapperIO& mapperIO;
 	} debuggable;
 
 	std::vector<unsigned> mapperSizes;

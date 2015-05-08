@@ -9,6 +9,7 @@
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
 #include "memory.hh"
+#include "outer.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <algorithm>
@@ -42,8 +43,8 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 	, bindDefaultCmd  (commandController_, *this, true)
 	, unbindCmd       (commandController_, *this, false)
 	, unbindDefaultCmd(commandController_, *this, true)
-	, activateCmd     (commandController_, *this)
-	, deactivateCmd   (commandController_, *this)
+	, activateCmd     (commandController_)
+	, deactivateCmd   (commandController_)
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
@@ -603,10 +604,8 @@ string HotKey::UnbindCmd::help(const vector<string>& /*tokens*/) const
 
 // class ActivateCmd
 
-HotKey::ActivateCmd::ActivateCmd(
-		CommandController& commandController, HotKey& hotKey_)
+HotKey::ActivateCmd::ActivateCmd(CommandController& commandController)
 	: Command(commandController, "activate_input_layer")
-	, hotKey(hotKey_)
 {
 }
 
@@ -626,6 +625,7 @@ void HotKey::ActivateCmd::execute(array_ref<TclObject> tokens, TclObject& result
 	}
 
 	string r;
+	auto& hotKey = OUTER(HotKey, activateCmd);
 	if (layer.empty()) {
 		for (auto it = hotKey.activeLayers.rbegin();
 		     it != hotKey.activeLayers.rend(); ++it) {
@@ -652,10 +652,8 @@ string HotKey::ActivateCmd::help(const vector<string>& /*tokens*/) const
 
 // class DeactivateCmd
 
-HotKey::DeactivateCmd::DeactivateCmd(
-		CommandController& commandController, HotKey& hotKey_)
+HotKey::DeactivateCmd::DeactivateCmd(CommandController& commandController)
 	: Command(commandController, "deactivate_input_layer")
-	, hotKey(hotKey_)
 {
 }
 
@@ -664,6 +662,7 @@ void HotKey::DeactivateCmd::execute(array_ref<TclObject> tokens, TclObject& /*re
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
+	auto& hotKey = OUTER(HotKey, deactivateCmd);
 	hotKey.deactivateLayer(tokens[1].getString());
 }
 

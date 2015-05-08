@@ -10,6 +10,7 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
+#include "outer.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <cmath>
@@ -485,7 +486,7 @@ Y8950::Y8950(const std::string& name, const DeviceConfig& config,
 	, adpcm(*this, config, name, sampleRam)
 	, connector(motherBoard.getPluggingController())
 	, dac13(name + " DAC", "MSX-AUDIO 13-bit DAC", config)
-	, debuggable(motherBoard, *this, getName())
+	, debuggable(motherBoard, getName())
 	, timer1(EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
 	, timer2(EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
 	, irq(motherBoard, getName() + ".IRQ")
@@ -1316,20 +1317,21 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 
 // SimpleDebuggable
 
-Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950_,
+Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard,
                               const std::string& name)
 	: SimpleDebuggable(motherBoard, name + " regs", "MSX-AUDIO", 0x100)
-	, y8950(y8950_)
 {
 }
 
 byte Y8950::Debuggable::read(unsigned address, EmuTime::param time)
 {
+	auto& y8950 = OUTER(Y8950, debuggable);
 	return y8950.peekReg(address, time);
 }
 
 void Y8950::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& y8950 = OUTER(Y8950, debuggable);
 	y8950.writeReg(address, value, time);
 }
 

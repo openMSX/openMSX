@@ -34,25 +34,18 @@ public:
 private:
 	BaseSetting& getByName(string_ref cmd, string_ref name) const;
 
-	class SettingInfo final : public InfoTopic {
-	public:
-		SettingInfo(InfoCommand& openMSXInfoCommand, SettingsManager& manager);
+	struct SettingInfo final : InfoTopic {
+		SettingInfo(InfoCommand& openMSXInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		SettingsManager& manager;
 	} settingInfo;
 
-	class SetCompleter final : public CommandCompleter {
-	public:
-		SetCompleter(CommandController& commandController,
-			     SettingsManager& manager);
+	struct SetCompleter final : CommandCompleter {
+		SetCompleter(CommandController& commandController);
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		SettingsManager& manager;
 	} setCompleter;
 
 	class SettingCompleter final : public CommandCompleter {

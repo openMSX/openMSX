@@ -8,6 +8,7 @@
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+#include "outer.hh"
 
 namespace openmsx {
 
@@ -46,21 +47,19 @@ public:
 	void recvByte(byte value, EmuTime::param time) override;
 
 	// Schedulable
-	struct SyncBase : public Schedulable {
-		SyncBase(Scheduler& s, I8251& i8251_)
-			: Schedulable(s), i8251(i8251_) {}
-		I8251& i8251;
+	struct SyncRecv : Schedulable {
 		friend class I8251;
-	};
-	struct SyncRecv : public SyncBase {
-		SyncRecv(Scheduler& s, I8251& i) : SyncBase(s, i) {}
+		SyncRecv(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& i8251 = OUTER(I8251, syncRecv);
 			i8251.execRecv(time);
 		}
 	} syncRecv;
-	struct SyncTrans : public SyncBase {
-		SyncTrans(Scheduler& s, I8251& i) : SyncBase(s, i) {}
+	struct SyncTrans : Schedulable {
+		friend class I8251;
+		SyncTrans(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& i8251 = OUTER(I8251, syncTrans);
 			i8251.execTrans(time);
 		}
 	} syncTrans;

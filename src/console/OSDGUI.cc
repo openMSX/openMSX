@@ -7,6 +7,7 @@
 #include "TclObject.hh"
 #include "StringOp.hh"
 #include "memory.hh"
+#include "outer.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -20,7 +21,7 @@ namespace openmsx {
 
 OSDGUI::OSDGUI(CommandController& commandController, Display& display_)
 	: display(display_)
-	, osdCommand(*this, commandController)
+	, osdCommand(commandController)
 	, topWidget(*this)
 {
 }
@@ -33,9 +34,8 @@ void OSDGUI::refresh() const
 
 // class OSDCommand
 
-OSDGUI::OSDCommand::OSDCommand(OSDGUI& gui_, CommandController& commandController)
+OSDGUI::OSDCommand::OSDCommand(CommandController& commandController)
 	: Command(commandController, "osd")
-	, gui(gui_)
 {
 }
 
@@ -44,6 +44,7 @@ void OSDGUI::OSDCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() < 2) {
 		throw SyntaxError();
 	}
+	auto& gui = OUTER(OSDGUI, osdCommand);
 	string_ref subCommand = tokens[1].getString();
 	if (subCommand == "create") {
 		create(tokens, result);
@@ -76,6 +77,7 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 	StringOp::splitOnLast(fullname, '.', parentname, name);
 	if (name.empty()) std::swap(parentname, name);
 
+	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* parent = gui.getTopWidget().findSubWidget(parentname);
 	if (!parent) {
 		throw CommandException(
@@ -97,6 +99,7 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
 		string_ref type, const string& name) const
 {
+	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (type == "rectangle") {
 		return make_unique<OSDRectangle>(gui, name);
 	} else if (type == "text") {
@@ -113,6 +116,7 @@ void OSDGUI::OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
+	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
 	if (!widget) {
 		// widget not found, not an error
@@ -129,6 +133,7 @@ void OSDGUI::OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
 
 void OSDGUI::OSDCommand::info(array_ref<TclObject> tokens, TclObject& result)
 {
+	auto& gui = OUTER(OSDGUI, osdCommand);
 	switch (tokens.size()) {
 	case 2: {
 		// list widget names
@@ -159,6 +164,7 @@ void OSDGUI::OSDCommand::exists(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
+	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
 	result.setBoolean(widget != nullptr);
 }
@@ -253,6 +259,7 @@ string OSDGUI::OSDCommand::help(const vector<string>& tokens) const
 
 void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 {
+	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (tokens.size() == 2) {
 		static const char* const cmds[] = {
 			"create", "destroy", "info", "exists", "configure"
@@ -286,6 +293,7 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 
 OSDWidget& OSDGUI::OSDCommand::getWidget(string_ref name) const
 {
+	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findSubWidget(name);
 	if (!widget) {
 		throw CommandException("No widget with name " + name);

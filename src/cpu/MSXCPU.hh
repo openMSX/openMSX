@@ -140,15 +140,11 @@ private:
 	const std::unique_ptr<CPUCore<Z80TYPE>> z80;
 	const std::unique_ptr<CPUCore<R800TYPE>> r800; // can be nullptr
 
-	class TimeInfoTopic final : public InfoTopic {
-	public:
-		TimeInfoTopic(InfoCommand& machineInfoCommand,
-			      MSXCPU& msxcpu);
+	struct TimeInfoTopic final : InfoTopic {
+		TimeInfoTopic(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help (const std::vector<std::string>& tokens) const override;
-	private:
-		MSXCPU& msxcpu;
 	} timeInfo;
 
 	class CPUFreqInfoTopic final : public InfoTopic {
@@ -164,13 +160,10 @@ private:
 	CPUFreqInfoTopic                        z80FreqInfo;  // always present
 	const std::unique_ptr<CPUFreqInfoTopic> r800FreqInfo; // can be nullptr
 
-	class Debuggable final : public SimpleDebuggable {
-	public:
-		Debuggable(MSXMotherBoard& motherboard, MSXCPU& cpu);
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherboard);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
-	private:
-		MSXCPU& cpu;
 	} debuggable;
 
 	EmuTime reference;

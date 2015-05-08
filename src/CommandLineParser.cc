@@ -20,6 +20,7 @@
 #include "RomInfo.hh"
 #include "StringMap.hh"
 #include "memory.hh"
+#include "outer.hh"
 #include "stl.hh"
 #include "build-info.hh"
 #include <cassert>
@@ -39,15 +40,6 @@ using CmpFileTypes = CmpTupleElement<0, StringOp::caseless>;
 
 CommandLineParser::CommandLineParser(Reactor& reactor_)
 	: reactor(reactor_)
-	, helpOption(*this)
-	, versionOption(*this)
-	, controlOption(*this)
-	, scriptOption()
-	, machineOption(*this)
-	, settingOption(*this)
-	, noPBOOption()
-	, testConfigOption(*this)
-	, bashOption(*this)
 	, msxRomCLI(*this)
 	, cliExtension(*this)
 	, replayCLI(*this)
@@ -295,7 +287,7 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 
 const CommandLineParser::Scripts& CommandLineParser::getStartupScripts() const
 {
-	return scriptOption.getScripts();
+	return scriptOption.scripts;
 }
 
 MSXMotherBoard* CommandLineParser::getMotherBoard() const
@@ -316,11 +308,6 @@ Interpreter& CommandLineParser::getInterpreter() const
 
 // Control option
 
-CommandLineParser::ControlOption::ControlOption(CommandLineParser& parser_)
-	: parser(parser_)
-{
-}
-
 void CommandLineParser::ControlOption::parseOption(
 	const string& option, array_ref<string>& cmdLine)
 {
@@ -328,6 +315,7 @@ void CommandLineParser::ControlOption::parseOption(
 	string_ref type, arguments;
 	StringOp::splitOnFirst(fullType, ':', type, arguments);
 
+	auto& parser = OUTER(CommandLineParser, controlOption);
 	auto& controller  = parser.getGlobalCommandController();
 	auto& distributor = parser.reactor.getEventDistributor();
 	auto& cliComm     = parser.reactor.getGlobalCliComm();
@@ -363,11 +351,6 @@ string_ref CommandLineParser::ControlOption::optionHelp() const
 
 
 // Script option
-
-const CommandLineParser::Scripts& CommandLineParser::ScriptOption::getScripts() const
-{
-	return scripts;
-}
 
 void CommandLineParser::ScriptOption::parseOption(
 	const string& option, array_ref<string>& cmdLine)
@@ -455,14 +438,13 @@ static void printItemMap(const StringMap<vector<string_ref>>& itemMap)
 	}
 }
 
-CommandLineParser::HelpOption::HelpOption(CommandLineParser& parser_)
-	: parser(parser_)
-{
-}
+
+// class HelpOption
 
 void CommandLineParser::HelpOption::parseOption(
 	const string& /*option*/, array_ref<string>& /*cmdLine*/)
 {
+	auto& parser = OUTER(CommandLineParser, helpOption);
 	const auto& fullVersion = Version::full();
 	cout << fullVersion << endl;
 	cout << string(fullVersion.size(), '=') << endl;
@@ -501,17 +483,13 @@ string_ref CommandLineParser::HelpOption::optionHelp() const
 
 // class VersionOption
 
-CommandLineParser::VersionOption::VersionOption(CommandLineParser& parser_)
-	: parser(parser_)
-{
-}
-
 void CommandLineParser::VersionOption::parseOption(
 	const string& /*option*/, array_ref<string>& /*cmdLine*/)
 {
 	cout << Version::full() << endl;
 	cout << "flavour: " << BUILD_FLAVOUR << endl;
 	cout << "components: " << BUILD_COMPONENTS << endl;
+	auto& parser = OUTER(CommandLineParser, versionOption);
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
@@ -523,14 +501,10 @@ string_ref CommandLineParser::VersionOption::optionHelp() const
 
 // Machine option
 
-CommandLineParser::MachineOption::MachineOption(CommandLineParser& parser_)
-	: parser(parser_)
-{
-}
-
 void CommandLineParser::MachineOption::parseOption(
 	const string& option, array_ref<string>& cmdLine)
 {
+	auto& parser = OUTER(CommandLineParser, machineOption);
 	if (parser.haveConfig) {
 		throw FatalError("Only one machine option allowed");
 	}
@@ -548,16 +522,12 @@ string_ref CommandLineParser::MachineOption::optionHelp() const
 }
 
 
-// Setting Option
-
-CommandLineParser::SettingOption::SettingOption(CommandLineParser& parser_)
-	: parser(parser_)
-{
-}
+// class SettingOption
 
 void CommandLineParser::SettingOption::parseOption(
 	const string& option, array_ref<string>& cmdLine)
 {
+	auto& parser = OUTER(CommandLineParser, settingOption);
 	if (parser.haveSettings) {
 		throw FatalError("Only one setting option allowed");
 	}
@@ -598,14 +568,10 @@ string_ref CommandLineParser::NoPBOOption::optionHelp() const
 
 // class TestConfigOption
 
-CommandLineParser::TestConfigOption::TestConfigOption(CommandLineParser& parser_)
-	: parser(parser_)
-{
-}
-
 void CommandLineParser::TestConfigOption::parseOption(
 	const string& /*option*/, array_ref<string>& /*cmdLine*/)
 {
+	auto& parser = OUTER(CommandLineParser, testConfigOption);
 	parser.parseStatus = CommandLineParser::TEST;
 }
 
@@ -616,14 +582,10 @@ string_ref CommandLineParser::TestConfigOption::optionHelp() const
 
 // class BashOption
 
-CommandLineParser::BashOption::BashOption(CommandLineParser& parser_)
-	: parser(parser_)
-{
-}
-
 void CommandLineParser::BashOption::parseOption(
 	const string& /*option*/, array_ref<string>& cmdLine)
 {
+	auto& parser = OUTER(CommandLineParser, bashOption);
 	string last = cmdLine.empty() ? "" : cmdLine.front();
 	cmdLine.clear(); // eat all remaining parameters
 

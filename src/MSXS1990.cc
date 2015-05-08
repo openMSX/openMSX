@@ -2,6 +2,7 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "PanasonicMemory.hh"
+#include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 
@@ -9,7 +10,7 @@ namespace openmsx {
 
 MSXS1990::MSXS1990(const DeviceConfig& config)
 	: MSXDevice(config)
-	, debuggable(getMotherBoard(), *this)
+	, debuggable(getMotherBoard(), getName())
 	, firmwareSwitch(config)
 {
 	reset(EmuTime::dummy());
@@ -92,20 +93,20 @@ void MSXS1990::setCPUStatus(byte value)
 }
 
 
-MSXS1990::Debuggable::Debuggable(MSXMotherBoard& motherBoard, MSXS1990& s1990_)
-	: SimpleDebuggable(motherBoard, s1990_.getName() + " regs",
-	                   "S1990 registers", 16)
-	, s1990(s1990_)
+MSXS1990::Debuggable::Debuggable(MSXMotherBoard& motherBoard, const std::string& name)
+	: SimpleDebuggable(motherBoard, name + " regs", "S1990 registers", 16)
 {
 }
 
 byte MSXS1990::Debuggable::read(unsigned address)
 {
+	auto& s1990 = OUTER(MSXS1990, debuggable);
 	return s1990.readRegister(address);
 }
 
 void MSXS1990::Debuggable::write(unsigned address, byte value)
 {
+	auto& s1990 = OUTER(MSXS1990, debuggable);
 	s1990.writeRegister(address, value);
 }
 

@@ -114,27 +114,20 @@ private:
 	HotKey hotKey;
 	SettingsConfig settingsConfig;
 
-	class HelpCmd final : public Command {
-	public:
+	struct HelpCmd final : Command {
 		explicit HelpCmd(GlobalCommandController& controller);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		GlobalCommandController& controller;
 	} helpCmd;
 
-	class TabCompletionCmd final : public Command {
-	public:
+	struct TabCompletionCmd final : Command {
 		explicit TabCompletionCmd(GlobalCommandController& controller);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		GlobalCommandController& controller;
 	} tabCompletionCmd;
 
-	class UpdateCmd final : public Command {
-	public:
+	struct UpdateCmd final : Command {
 		explicit UpdateCmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
@@ -143,16 +136,14 @@ private:
 		CliConnection& getConnection();
 	} updateCmd;
 
-	class PlatformInfo final : public InfoTopic {
-	public:
+	struct PlatformInfo final : InfoTopic {
 		explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} platformInfo;
 
-	class VersionInfo final : public InfoTopic {
-	public:
+	struct VersionInfo final : InfoTopic {
 		explicit VersionInfo(InfoCommand& openMSXInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;

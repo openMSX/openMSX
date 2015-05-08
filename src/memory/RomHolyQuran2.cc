@@ -9,8 +9,9 @@
 #include "RomHolyQuran2.hh"
 #include "MSXCPU.hh"
 #include "MSXException.hh"
-#include "serialize.hh"
 #include "likely.hh"
+#include "outer.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -122,7 +123,6 @@ REGISTER_MSXDEVICE(RomHolyQuran2, "RomHolyQuran2");
 
 RomHolyQuran2::Blocks::Blocks(RomHolyQuran2& device_)
 	: RomBlockDebuggableBase(device_)
-	, device(device_)
 {
 }
 
@@ -130,6 +130,7 @@ byte RomHolyQuran2::Blocks::read(unsigned address)
 {
 	if ((address < 0x4000) || (address >= 0xc000)) return 255;
 	unsigned page = (address - 0x4000) / 0x2000;
+	auto& device = OUTER(RomHolyQuran2, romBlocks);
 	return (device.bank[page] - &device.rom[0]) / 0x2000;
 }
 

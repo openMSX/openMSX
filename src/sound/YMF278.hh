@@ -86,26 +86,6 @@ private:
 		bool lfo_active;
 	};
 
-	class DebugRegisters final : public SimpleDebuggable {
-	public:
-		DebugRegisters(YMF278& ymf278, MSXMotherBoard& motherBoard,
-			       const std::string& name);
-		byte read(unsigned address) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		YMF278& ymf278;
-	};
-
-	class DebugMemory final : public SimpleDebuggable {
-	public:
-		DebugMemory(YMF278& ymf278, MSXMotherBoard& motherBoard,
-			    const std::string& name);
-		byte read(unsigned address) override;
-		void write(unsigned address, byte value) override;
-	private:
-		YMF278& ymf278;
-	};
-
 	// SoundDevice
 	void generateChannels(int** bufs, unsigned num) override;
 
@@ -117,8 +97,18 @@ private:
 	void keyOnHelper(Slot& slot);
 
 	MSXMotherBoard& motherBoard;
-	DebugRegisters debugRegisters;
-	DebugMemory    debugMemory;
+
+	struct DebugRegisters final : SimpleDebuggable {
+		DebugRegisters(MSXMotherBoard& motherBoard, const std::string& name);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	} debugRegisters;
+
+	struct DebugMemory final : SimpleDebuggable {
+		DebugMemory(MSXMotherBoard& motherBoard, const std::string& name);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value) override;
+	} debugMemory;
 
 	Slot slots[24];
 

@@ -22,12 +22,9 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	class Blocks final : public RomBlockDebuggableBase {
-	public:
+	struct Blocks final : RomBlockDebuggableBase {
 		Blocks(RomHolyQuran2& device);
 		byte read(unsigned address) override;
-	private:
-		RomHolyQuran2& device;
 	} romBlocks;
 
 	const byte* bank[4];

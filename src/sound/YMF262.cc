@@ -40,6 +40,7 @@
 #include "YMF262.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
+#include "outer.hh"
 #include "serialize.hh"
 #include <cmath>
 #include <cstring>
@@ -1437,7 +1438,7 @@ YMF262::YMF262(const std::string& name,
                const DeviceConfig& config, bool isYMF278_)
 	: ResampledSoundDevice(config.getMotherBoard(), name, "MoonSound FM-part",
 	                       18, true)
-	, debuggable(config.getMotherBoard(), *this, getName())
+	, debuggable(config.getMotherBoard(), getName())
 	, timer1(isYMF278_
 	         ? EmuTimer::createOPL4_1(config.getScheduler(), *this)
 	         : EmuTimer::createOPL3_1(config.getScheduler(), *this))
@@ -1687,21 +1688,22 @@ INSTANTIATE_SERIALIZE_METHODS(YMF262);
 
 // YMF262::Debuggable
 
-YMF262::Debuggable::Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262_,
+YMF262::Debuggable::Debuggable(MSXMotherBoard& motherBoard,
                                const std::string& name)
 	: SimpleDebuggable(motherBoard, name + " regs",
 	                   "MoonSound FM-part registers", 0x200)
-	, ymf262(ymf262_)
 {
 }
 
 byte YMF262::Debuggable::read(unsigned address)
 {
+	auto& ymf262 = OUTER(YMF262, debuggable);
 	return ymf262.peekReg(address);
 }
 
 void YMF262::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& ymf262 = OUTER(YMF262, debuggable);
 	ymf262.writeReg512(address, value, time);
 }
 

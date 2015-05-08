@@ -11,6 +11,7 @@
 #include "Clock.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+#include "outer.hh"
 #include "unreachable.hh"
 #include <memory>
 
@@ -355,43 +356,47 @@ private:
 	void postVideoSystemChange() override;
 
 	// Scheduler stuff
-	struct SyncBase : public Schedulable {
-		SyncBase(V9990& v9990_) : Schedulable(v9990_.getScheduler()), v9990(v9990_) {}
-		V9990& v9990;
+	struct SyncBase : Schedulable {
+		SyncBase(V9990& v9990) : Schedulable(v9990.getScheduler()) {}
 		friend class V9990;
 	};
 
-	struct SyncVSync : public SyncBase {
+	struct SyncVSync : SyncBase {
 		SyncVSync(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& v9990 = OUTER(V9990, syncVSync);
 			v9990.execVSync(time);
 		}
 	} syncVSync;
 
-	struct SyncDisplayStart : public SyncBase {
+	struct SyncDisplayStart : SyncBase {
 		SyncDisplayStart(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& v9990 = OUTER(V9990, syncDisplayStart);
 			v9990.execDisplayStart(time);
 		}
 	} syncDisplayStart;
 
-	struct SyncVScan : public SyncBase {
+	struct SyncVScan : SyncBase {
 		SyncVScan(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& v9990 = OUTER(V9990, syncVScan);
 			v9990.execVScan(time);
 		}
 	} syncVScan;
 
-	struct SyncHScan : public SyncBase {
+	struct SyncHScan : SyncBase {
 		SyncHScan(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param /*time*/) override {
+			auto& v9990 = OUTER(V9990, syncHScan);
 			v9990.execHScan();
 		}
 	} syncHScan;
 
-	struct SyncSetMode : public SyncBase {
+	struct SyncSetMode : SyncBase {
 		SyncSetMode(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& v9990 = OUTER(V9990, syncSetMode);
 			v9990.execSetMode(time);
 		}
 	} syncSetMode;
@@ -492,22 +497,16 @@ private:
 
 	// --- members ----------------------------------------------------
 
-	class RegDebug final : public SimpleDebuggable {
-	public:
+	struct RegDebug final : SimpleDebuggable {
 		explicit RegDebug(V9990& v9990);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		V9990& v9990;
 	} v9990RegDebug;
 
-	class PalDebug final : public SimpleDebuggable {
-	public:
+	struct PalDebug final : SimpleDebuggable {
 		explicit PalDebug(V9990& v9990);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		V9990& v9990;
 	} v9990PalDebug;
 
 	IRQHelper irq;

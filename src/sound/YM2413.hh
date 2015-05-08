@@ -31,13 +31,10 @@ private:
 
 	const std::unique_ptr<YM2413Core> core;
 
-	class Debuggable final : public SimpleDebuggable {
-	public:
-		Debuggable(MSXMotherBoard& motherBoard, YM2413& ym2413);
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		YM2413& ym2413;
 	} debuggable;
 };
 

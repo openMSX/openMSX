@@ -47,8 +47,8 @@ const byte CMD_HUNT   = 0x80;
 
 
 I8251::I8251(Scheduler& scheduler, I8251Interface& interf_, EmuTime::param time)
-	: syncRecv (scheduler, *this)
-	, syncTrans(scheduler, *this)
+	: syncRecv (scheduler)
+	, syncTrans(scheduler)
 	, interf(interf_), clock(scheduler)
 {
 	reset(time);

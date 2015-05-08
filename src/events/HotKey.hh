@@ -98,22 +98,16 @@ private:
 	UnbindCmd unbindCmd;
 	UnbindCmd unbindDefaultCmd;
 
-	class ActivateCmd final : public Command {
-	public:
-		ActivateCmd(CommandController& commandController, HotKey& hotKey);
+	struct ActivateCmd final : Command {
+		ActivateCmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		HotKey& hotKey;
 	} activateCmd;
 
-	class DeactivateCmd final : public Command {
-	public:
-		DeactivateCmd(CommandController& commandController, HotKey& hotKey);
+	struct DeactivateCmd final : Command {
+		DeactivateCmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		HotKey& hotKey;
 	} deactivateCmd;
 
 	BindMap cmdMap;

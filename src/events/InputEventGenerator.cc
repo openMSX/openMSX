@@ -6,6 +6,7 @@
 #include "Keys.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
+#include "outer.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <cassert>
@@ -29,7 +30,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		commandController, "grabinput",
 		"This setting controls if openMSX takes over mouse and keyboard input",
 		false, Setting::DONT_SAVE)
-	, escapeGrabCmd(commandController, *this)
+	, escapeGrabCmd(commandController)
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
 	, keyRepeat(false)
 {
@@ -424,16 +425,15 @@ bool InputEventGenerator::joystickGetButton(SDL_Joystick* joystick, int button)
 // class EscapeGrabCmd
 
 InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(
-		CommandController& commandController,
-		InputEventGenerator& inputEventGenerator_)
+		CommandController& commandController)
 	: Command(commandController, "escape_grab")
-	, inputEventGenerator(inputEventGenerator_)
 {
 }
 
 void InputEventGenerator::EscapeGrabCmd::execute(
 	array_ref<TclObject> /*tokens*/, TclObject& /*result*/)
 {
+	auto& inputEventGenerator = OUTER(InputEventGenerator, escapeGrabCmd);
 	if (inputEventGenerator.grabInput.getBoolean()) {
 		inputEventGenerator.escapeGrabState =
 			InputEventGenerator::ESCAPE_GRAB_WAIT_LOST;

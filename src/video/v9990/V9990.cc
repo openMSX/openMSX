@@ -474,17 +474,18 @@ void V9990::postVideoSystemChange()
 V9990::RegDebug::RegDebug(V9990& v9990_)
 	: SimpleDebuggable(v9990_.getMotherBoard(),
 	                   v9990_.getName() + " regs", "V9990 registers", 0x40)
-	, v9990(v9990_)
 {
 }
 
 byte V9990::RegDebug::read(unsigned address)
 {
+	auto& v9990 = OUTER(V9990, v9990RegDebug);
 	return v9990.regs[address];
 }
 
 void V9990::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& v9990 = OUTER(V9990, v9990RegDebug);
 	v9990.writeRegister(address, value, time);
 }
 
@@ -496,17 +497,18 @@ V9990::PalDebug::PalDebug(V9990& v9990_)
 	: SimpleDebuggable(v9990_.getMotherBoard(),
 	                   v9990_.getName() + " palette",
 	                   "V9990 palette (format is R, G, B, 0).", 0x100)
-	, v9990(v9990_)
 {
 }
 
 byte V9990::PalDebug::read(unsigned address)
 {
+	auto& v9990 = OUTER(V9990, v9990PalDebug);
 	return v9990.palette[address];
 }
 
 void V9990::PalDebug::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& v9990 = OUTER(V9990, v9990PalDebug);
 	v9990.writePaletteRegister(address, value, time);
 }
 

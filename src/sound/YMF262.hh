@@ -139,16 +139,6 @@ private:
 			       // channels, ie 0,1,2 and 9,10,11)
 	};
 
-	class Debuggable final : public SimpleDebuggable {
-	public:
-		Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262,
-		           const std::string& name);
-		byte read(unsigned address) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		YMF262& ymf262;
-	};
-
 	// SoundDevice
 	int getAmplificationFactor() const override;
 	void generateChannels(int** bufs, unsigned num) override;
@@ -177,7 +167,11 @@ private:
 	inline Channel& getFirstOfPair(unsigned ch);
 	inline Channel& getSecondOfPair(unsigned ch);
 
-	Debuggable debuggable;
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	} debuggable;
 
 	// Bitmask for register 0x04
 	static const int R04_ST1       = 0x01; // Timer1 Start

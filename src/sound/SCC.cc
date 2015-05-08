@@ -100,6 +100,7 @@
 #include "DeviceConfig.hh"
 #include "serialize.hh"
 #include "likely.hh"
+#include "outer.hh"
 #include "unreachable.hh"
 
 using std::string;
@@ -115,7 +116,7 @@ SCC::SCC(const string& name, const DeviceConfig& config,
          EmuTime::param time, ChipMode mode)
 	: ResampledSoundDevice(
 		config.getMotherBoard(), name, calcDescription(mode), 5)
-	, debuggable(config.getMotherBoard(), *this)
+	, debuggable(config.getMotherBoard(), getName())
 	, deformTimer(time)
 	, currentChipMode(mode)
 {
@@ -544,15 +545,15 @@ void SCC::generateChannels(int** bufs, unsigned num)
 
 // Debuggable
 
-SCC::Debuggable::Debuggable(MSXMotherBoard& motherBoard, SCC& scc_)
-	: SimpleDebuggable(motherBoard, scc_.getName() + " SCC",
+SCC::Debuggable::Debuggable(MSXMotherBoard& motherBoard, const string& name)
+	: SimpleDebuggable(motherBoard, name + " SCC",
 	                   "SCC registers in SCC+ format", 0x100)
-	, scc(scc_)
 {
 }
 
 byte SCC::Debuggable::read(unsigned address, EmuTime::param time)
 {
+	auto& scc = OUTER(SCC, debuggable);
 	if (address < 0xA0) {
 		// read wave form 1..5
 		return scc.readWave(address >> 5, address, time);
@@ -569,6 +570,7 @@ byte SCC::Debuggable::read(unsigned address, EmuTime::param time)
 
 void SCC::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& scc = OUTER(SCC, debuggable);
 	if (address < 0xA0) {
 		// read wave form 1..5
 		scc.writeWave(address >> 5, address, value);

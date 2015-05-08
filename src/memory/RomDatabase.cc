@@ -8,6 +8,7 @@
 #include "CliComm.hh"
 #include "StringOp.hh"
 #include "StringMap.hh"
+#include "outer.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
 #include "stl.hh"
@@ -556,7 +557,7 @@ static void parseDB(CliComm& cliComm, const string& filename,
 }
 
 RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cliComm)
-	: softwareInfoTopic(commandController.getOpenMSXInfoCommand(), *this)
+	: softwareInfoTopic(commandController.getOpenMSXInfoCommand())
 {
 	db.reserve(3500);
 	UnknownTypes unknownTypes;
@@ -604,9 +605,8 @@ const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 // SoftwareInfoTopic
 
 RomDatabase::SoftwareInfoTopic::SoftwareInfoTopic(
-		InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase_)
+		InfoCommand& openMSXInfoCommand)
 	: InfoTopic(openMSXInfoCommand, "software")
-	, romDatabase(romDatabase_)
 {
 }
 
@@ -618,6 +618,7 @@ void RomDatabase::SoftwareInfoTopic::execute(
 	}
 
 	Sha1Sum sha1sum = Sha1Sum(tokens[2].getString());
+	auto& romDatabase = OUTER(RomDatabase, softwareInfoTopic);
 	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
 	if (!romInfo) {
 		// no match found

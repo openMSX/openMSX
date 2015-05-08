@@ -18,8 +18,8 @@ namespace openmsx {
 
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeout_,
                      bool signalsNeedMotorOn_, bool doubleSided)
-	: syncLoadingTimeout(motherBoard_.getScheduler(), *this)
-	, syncMotorTimeout  (motherBoard_.getScheduler(), *this)
+	: syncLoadingTimeout(motherBoard_.getScheduler())
+	, syncMotorTimeout  (motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 	, loadingIndicator(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager())

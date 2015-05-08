@@ -26,12 +26,12 @@ private:
 
 	CommandLineParser& cmdLineParser;
 
-	class IpsOption final : public CLIOption {
+	struct IpsOption final : CLIOption {
 		void parseOption(const std::string& option,
 		                 array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;
 	} ipsOption;
-	class RomTypeOption final : public CLIOption {
+	struct RomTypeOption final : CLIOption {
 		void parseOption(const std::string& option,
 		                 array_ref<std::string>& cmdLine) override;
 		string_ref optionHelp() const override;

@@ -23,6 +23,7 @@
 #include "Version.hh"
 #include "build-info.hh"
 #include "checked_cast.hh"
+#include "outer.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include <algorithm>
@@ -35,8 +36,8 @@ namespace openmsx {
 
 Display::Display(Reactor& reactor_)
 	: RTSchedulable(reactor_.getRTScheduler())
-	, screenShotCmd(reactor_.getCommandController(), *this)
-	, fpsInfo(reactor_.getOpenMSXInfoCommand(), *this)
+	, screenShotCmd(reactor_.getCommandController())
+	, fpsInfo(reactor_.getOpenMSXInfoCommand())
 	, osdGui(reactor_.getCommandController(), *this)
 	, reactor(reactor_)
 	, renderSettings(reactor.getCommandController())
@@ -387,15 +388,14 @@ void Display::updateZ(Layer& layer)
 
 // ScreenShotCmd
 
-Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
-                             Display& display_)
+Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController)
 	: Command(commandController, "screenshot")
-	, display(display_)
 {
 }
 
 void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
+	auto& display = OUTER(Display, screenShotCmd);
 	bool rawShot = false;
 	bool withOsd = false;
 	bool doubleSize = false;
@@ -508,16 +508,15 @@ void Display::ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 
 // FpsInfoTopic
 
-Display::FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand,
-                           Display& display_)
+Display::FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand)
 	: InfoTopic(openMSXInfoCommand, "fps")
-	, display(display_)
 {
 }
 
 void Display::FpsInfoTopic::execute(array_ref<TclObject> /*tokens*/,
                            TclObject& result) const
 {
+	auto& display = OUTER(Display, fpsInfo);
 	float fps = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
 	result.setDouble(fps);
 }

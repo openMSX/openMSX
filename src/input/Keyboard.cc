@@ -17,6 +17,7 @@
 #include "serialize_stl.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+#include "outer.hh"
 #include "stl.hh"
 #include <SDL.h>
 #include <cstdio>
@@ -95,13 +96,13 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler, *this)
-	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler, *this)
-	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler, *this)
-	, capsLockAligner(eventDistributor, msxEventDistributor, scheduler, *this)
+	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler)
+	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler)
+	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler)
+	, capsLockAligner(eventDistributor, scheduler)
 	, keyboardSettings(commandController)
-	, msxKeyEventQueue(scheduler, *this, commandController.getInterpreter())
-	, keybDebuggable(motherBoard, *this)
+	, msxKeyEventQueue(scheduler, commandController.getInterpreter())
+	, keybDebuggable(motherBoard)
 	, unicodeKeymap(keyboardType)
 	, hasKeypad(hasKP)
 	, hasYesNoKeys(hasYNKeys)
@@ -866,16 +867,16 @@ void Keyboard::debug(const char* format, ...)
 Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(
 		CommandController& commandController,
 		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler, Keyboard& keyboard_)
+		Scheduler& scheduler)
 	: RecordedCommand(commandController, stateChangeDistributor,
 		scheduler, "keymatrixup")
-	, keyboard(keyboard_)
 {
 }
 
 void Keyboard::KeyMatrixUpCmd::execute(
 	array_ref<TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
+	auto& keyboard = OUTER(Keyboard, keyMatrixUpCmd);
 	return keyboard.processCmd(getInterpreter(), tokens, true);
 }
 
@@ -891,16 +892,16 @@ string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 
 Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
 		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler, Keyboard& keyboard_)
+		Scheduler& scheduler)
 	: RecordedCommand(commandController, stateChangeDistributor,
 		scheduler, "keymatrixdown")
-	, keyboard(keyboard_)
 {
 }
 
 void Keyboard::KeyMatrixDownCmd::execute(array_ref<TclObject> tokens,
                                TclObject& /*result*/, EmuTime::param /*time*/)
 {
+	auto& keyboard = OUTER(Keyboard, keyMatrixDownCmd);
 	return keyboard.processCmd(getInterpreter(), tokens, false);
 }
 
@@ -915,9 +916,8 @@ string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 // class MsxKeyEventQueue
 
 Keyboard::MsxKeyEventQueue::MsxKeyEventQueue(
-		Scheduler& scheduler, Keyboard& keyboard_, Interpreter& interp_)
+		Scheduler& scheduler, Interpreter& interp_)
 	: Schedulable(scheduler)
-	, keyboard(keyboard_)
 	, interp(interp_)
 {
 }
@@ -942,6 +942,7 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 {
 	// Get oldest event from the queue and process it
 	shared_ptr<const Event> event = eventQueue.front();
+	auto& keyboard = OUTER(Keyboard, msxKeyEventQueue);
 	bool insertCodeKanaRelease = keyboard.processQueuedEvent(*event, time);
 
 	if (insertCodeKanaRelease) {
@@ -972,11 +973,10 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 Keyboard::KeyInserter::KeyInserter(
 		CommandController& commandController,
 		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler, Keyboard& keyboard_)
+		Scheduler& scheduler)
 	: RecordedCommand(commandController, stateChangeDistributor,
 		scheduler, "type")
 	, Schedulable(scheduler)
-	, keyboard(keyboard_)
 	, lockKeysMask(0)
 	, releaseLast(false)
 {
@@ -1054,6 +1054,7 @@ void Keyboard::KeyInserter::type(string_ref str)
 	if (str.empty()) {
 		return;
 	}
+	auto& keyboard = OUTER(Keyboard, keyTypeCmd);
 	oldCodeKanaLockOn = keyboard.msxCodeKanaLockOn;
 	oldGraphLockOn = keyboard.msxGraphLockOn;
 	oldCapsLockOn = keyboard.msxCapsLockOn;
@@ -1065,6 +1066,7 @@ void Keyboard::KeyInserter::type(string_ref str)
 
 void Keyboard::KeyInserter::executeUntil(EmuTime::param time)
 {
+	auto& keyboard = OUTER(Keyboard, keyTypeCmd);
 	if (lockKeysMask != 0) {
 		// release CAPS and/or Code/Kana Lock keys
 		keyboard.pressLockKeys(lockKeysMask, false);
@@ -1143,12 +1145,9 @@ void Keyboard::KeyInserter::reschedule(EmuTime::param time)
  */
 Keyboard::CapsLockAligner::CapsLockAligner(
 		EventDistributor& eventDistributor_,
-		MSXEventDistributor& msxEventDistributor_,
-		Scheduler& scheduler, Keyboard& keyboard_)
+		Scheduler& scheduler)
 	: Schedulable(scheduler)
-	, keyboard(keyboard_)
 	, eventDistributor(eventDistributor_)
-	, msxEventDistributor(msxEventDistributor_)
 {
 	state = IDLE;
 	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT,  *this);
@@ -1185,9 +1184,10 @@ void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
 			alignCapsLock(time);
 			break;
 		case MUST_DISTRIBUTE_KEY_RELEASE: {
+			auto& keyboard = OUTER(Keyboard, capsLockAligner);
 			assert(keyboard.sdlReleasesCapslock);
 			auto event = make_shared<KeyUpEvent>(Keys::K_CAPSLOCK);
-			msxEventDistributor.distributeEvent(event, time);
+			keyboard.msxEventDistributor.distributeEvent(event, time);
 			state = IDLE;
 			break;
 		}
@@ -1209,12 +1209,13 @@ void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
 void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 {
 	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
+	auto& keyboard = OUTER(Keyboard, capsLockAligner);
 	if (keyboard.msxCapsLockOn != hostCapsLockOn) {
 		keyboard.debug("Resyncing host and MSX CAPS lock\n");
 		// note: send out another event iso directly calling
 		// processCapslockEvent() because we want this to be recorded
 		auto event = make_shared<KeyDownEvent>(Keys::K_CAPSLOCK);
-		msxEventDistributor.distributeEvent(event, time);
+		keyboard.msxEventDistributor.distributeEvent(event, time);
 		if (keyboard.sdlReleasesCapslock) {
 			keyboard.debug("Sending fake CAPS release\n");
 			state = MUST_DISTRIBUTE_KEY_RELEASE;
@@ -1230,16 +1231,15 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 
 // class KeybDebuggable
 
-Keyboard::KeybDebuggable::KeybDebuggable(
-		MSXMotherBoard& motherBoard, Keyboard& keyboard_)
+Keyboard::KeybDebuggable::KeybDebuggable(MSXMotherBoard& motherBoard)
 	: SimpleDebuggable(motherBoard, "keymatrix", "MSX Keyboard Matrix",
 	                   Keyboard::NR_KEYROWS)
-	, keyboard(keyboard_)
 {
 }
 
 byte Keyboard::KeybDebuggable::read(unsigned address)
 {
+	auto& keyboard = OUTER(Keyboard, keybDebuggable);
 	return keyboard.getKeys()[address];
 }
 

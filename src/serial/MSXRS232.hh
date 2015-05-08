@@ -51,29 +51,19 @@ private:
 	void setRxRDYIRQ(bool status);
 	void enableRxRDYIRQ(bool enabled);
 
-	class Counter0 final : public ClockPinListener {
-	public:
-		explicit Counter0(MSXRS232& rs232);
+	struct Counter0 final : ClockPinListener {
 		void signal(ClockPin& pin, EmuTime::param time) override;
 		void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
-	private:
-		MSXRS232& rs232;
 	} cntr0; // counter 0 rx clock pin
 
-	class Counter1 final : public ClockPinListener {
-	public:
-		explicit Counter1(MSXRS232& rs232);
+	struct Counter1 final : ClockPinListener {
 		void signal(ClockPin& pin, EmuTime::param time) override;
 		void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
-	private:
-		MSXRS232& rs232;
 	} cntr1; // counter 1 tx clock pin
 
 	I8254 i8254;
 
-	class I8251Interf final : public I8251Interface {
-	public:
-		explicit I8251Interf(MSXRS232& rs232);
+	struct I8251Interf final : I8251Interface {
 		void setRxRDY(bool status, EmuTime::param time) override;
 		void setDTR(bool status, EmuTime::param time) override;
 		void setRTS(bool status, EmuTime::param time) override;
@@ -84,8 +74,6 @@ private:
 		void setParityBit(bool enable, ParityBit parity) override;
 		void recvByte(byte value, EmuTime::param time) override;
 		void signal(EmuTime::param time) override;
-	private:
-		MSXRS232& rs232;
 	} interf;
 
 	I8251 i8251;

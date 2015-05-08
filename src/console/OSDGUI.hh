@@ -29,7 +29,7 @@ private:
 
 	class OSDCommand final : public Command {
 	public:
-		OSDCommand(OSDGUI& gui, CommandController& commandController);
+		OSDCommand(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
@@ -46,8 +46,6 @@ private:
 			       unsigned skip);
 
 		OSDWidget& getWidget(string_ref name) const;
-
-		OSDGUI& gui;
 	} osdCommand;
 
 	OSDTopWidget topWidget;

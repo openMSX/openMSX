@@ -604,20 +604,16 @@ private:
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	private:
 		unsigned transform(unsigned address);
-		VDP& vdp;
 	} logicalVRAMDebug;
 
 	/** Physical view on the VRAM.
 	  *   Screen 7/8 are interleaved in this mode. The size of this
 	  *   debuggable is the same as the actual VRAM size.
 	  */
-	class PhysicalVRAMDebuggable final : public SimpleDebuggable {
-	public:
-		PhysicalVRAMDebuggable(VDP& vdp, VDPVRAM& vram, unsigned actualSize);
+	struct PhysicalVRAMDebuggable final : SimpleDebuggable {
+		PhysicalVRAMDebuggable(VDP& vdp, unsigned actualSize);
 		byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		VDPVRAM& vram;
 	} physicalVRAMDebug;
 
 	// TODO: Renderer field can be removed, if updateDisplayMode

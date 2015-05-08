@@ -43,13 +43,10 @@ private:
 
 	static const int CLOCK_FREQ = 3579545;
 
-	class Debuggable final : public SimpleDebuggable {
-	public:
-		Debuggable(MSXMotherBoard& motherBoard, SCC& scc);
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		SCC& scc;
 	} debuggable;
 
 	Clock<CLOCK_FREQ> deformTimer;

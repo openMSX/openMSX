@@ -8,6 +8,7 @@
 #include "EmuTime.hh"
 #include "MemBuffer.hh"
 #include "array_ref.hh"
+#include "outer.hh"
 #include <vector>
 #include <map>
 #include <memory>
@@ -102,21 +103,19 @@ private:
 	template<unsigned N> void dropOldSnapshots(unsigned count);
 
 	// Schedulable
-	struct SyncBase : public Schedulable {
-		SyncBase(Scheduler& s, ReverseManager& rm_)
-			: Schedulable(s), rm(rm_) {}
-		ReverseManager& rm;
+	struct SyncNewSnapshot : Schedulable {
 		friend class ReverseManager;
-	};
-	struct SyncNewSnapshot : public SyncBase {
-		SyncNewSnapshot(Scheduler& s, ReverseManager& m) : SyncBase(s, m) {}
+		SyncNewSnapshot(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
+			auto& rm = OUTER(ReverseManager, syncNewSnapshot);
 			rm.execNewSnapshot();
 		}
 	} syncNewSnapshot;
-	struct SyncInputEvent : public SyncBase {
-		SyncInputEvent(Scheduler& s, ReverseManager& m) : SyncBase(s, m) {}
+	struct SyncInputEvent : Schedulable {
+		friend class ReverseManager;
+		SyncInputEvent(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
+			auto& rm = OUTER(ReverseManager, syncInputEvent);
 			rm.execInputEvent();
 		}
 	} syncInputEvent;
@@ -136,14 +135,11 @@ private:
 	MSXMotherBoard& motherBoard;
 	EventDistributor& eventDistributor;
 
-	class ReverseCmd final : public Command {
-	public:
-		ReverseCmd(ReverseManager& manager, CommandController& controller);
+	struct ReverseCmd final : Command {
+		ReverseCmd(CommandController& controller);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		ReverseManager& manager;
 	} reverseCmd;
 
 	Keyboard* keyboard;

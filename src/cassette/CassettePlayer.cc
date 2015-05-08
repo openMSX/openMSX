@@ -67,8 +67,8 @@ static XMLElement createXML()
 
 CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), getName(), getDescription(), 1)
-	, syncEndOfTape(hwConf.getMotherBoard().getScheduler(), *this)
-	, syncAudioEmu (hwConf.getMotherBoard().getScheduler(), *this)
+	, syncEndOfTape(hwConf.getMotherBoard().getScheduler())
+	, syncAudioEmu (hwConf.getMotherBoard().getScheduler())
 	, tapePos(EmuTime::zero)
 	, prevSyncTime(EmuTime::zero)
 	, audioPos(0)
@@ -76,7 +76,7 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	, tapeCommand(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
-		motherBoard.getScheduler(), *this)
+		motherBoard.getScheduler())
 	, loadingIndicator(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager())
 	, autoRunSetting(
@@ -608,17 +608,16 @@ void CassettePlayer::execSyncAudioEmu(EmuTime::param time)
 CassettePlayer::TapeCommand::TapeCommand(
 		CommandController& commandController,
 		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler,
-		CassettePlayer& cassettePlayer_)
+		Scheduler& scheduler)
 	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "cassetteplayer")
-	, cassettePlayer(cassettePlayer_)
 {
 }
 
 void CassettePlayer::TapeCommand::execute(
 	array_ref<TclObject> tokens, TclObject& result, EmuTime::param time)
 {
+	auto& cassettePlayer = OUTER(CassettePlayer, tapeCommand);
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger

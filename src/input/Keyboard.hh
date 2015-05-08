@@ -111,35 +111,29 @@ private:
 	static const int MAX_KEYSYM = 0x150;
 	static const byte keyTab[MAX_KEYSYM];
 
-	class KeyMatrixUpCmd final : public RecordedCommand {
-	public:
+	struct KeyMatrixUpCmd final : RecordedCommand {
 		KeyMatrixUpCmd(CommandController& commandController,
 			       StateChangeDistributor& stateChangeDistributor,
-			       Scheduler& scheduler, Keyboard& keyboard);
+			       Scheduler& scheduler);
 		void execute(array_ref<TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		Keyboard& keyboard;
 	} keyMatrixUpCmd;
 
-	class KeyMatrixDownCmd final : public RecordedCommand {
-	public:
+	struct KeyMatrixDownCmd final : RecordedCommand {
 		KeyMatrixDownCmd(CommandController& commandController,
 				 StateChangeDistributor& stateChangeDistributor,
-				 Scheduler& scheduler, Keyboard& keyboard);
+				 Scheduler& scheduler);
 		void execute(array_ref<TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		Keyboard& keyboard;
 	} keyMatrixDownCmd;
 
 	class KeyInserter final : public RecordedCommand, public Schedulable {
 	public:
 		KeyInserter(CommandController& commandController,
 			    StateChangeDistributor& stateChangeDistributor,
-			    Scheduler& scheduler, Keyboard& keyboard);
+			    Scheduler& scheduler);
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
@@ -156,7 +150,6 @@ private:
 		// Schedulable
 		void executeUntil(EmuTime::param time) override;
 
-		Keyboard& keyboard;
 		std::string text_utf8;
 		unsigned last;
 		int lockKeysMask;
@@ -172,8 +165,7 @@ private:
 	class CapsLockAligner final : private EventListener, private Schedulable {
 	public:
 		CapsLockAligner(EventDistributor& eventDistributor,
-				MSXEventDistributor& msxEventDistributor,
-				Scheduler& scheduler, Keyboard& keyboard);
+				Scheduler& scheduler);
 		~CapsLockAligner();
 
 	private:
@@ -185,9 +177,7 @@ private:
 
 		void alignCapsLock(EmuTime::param time);
 
-		Keyboard& keyboard;
 		EventDistributor& eventDistributor;
-		MSXEventDistributor& msxEventDistributor;
 
 		enum CapsLockAlignerStateType {
 			MUST_ALIGN_CAPSLOCK, MUST_DISTRIBUTE_KEY_RELEASE, IDLE
@@ -198,8 +188,7 @@ private:
 
 	class MsxKeyEventQueue final : public Schedulable {
 	public:
-		MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard,
-		                 Interpreter& interp);
+		MsxKeyEventQueue(Scheduler& scheduler, Interpreter& interp);
 		void process_asap(EmuTime::param time,
 		                  const std::shared_ptr<const Event>& event);
 		void clear();
@@ -209,17 +198,13 @@ private:
 		// Schedulable
 		void executeUntil(EmuTime::param time) override;
 		std::deque<std::shared_ptr<const Event>> eventQueue;
-		Keyboard& keyboard;
 		Interpreter& interp;
 	} msxKeyEventQueue;
 
-	class KeybDebuggable final : public SimpleDebuggable {
-	public:
-		KeybDebuggable(MSXMotherBoard& motherBoard, Keyboard& keyboard);
+	struct KeybDebuggable final : SimpleDebuggable {
+		KeybDebuggable(MSXMotherBoard& motherBoard);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
-	private:
-		Keyboard& keyboard;
 	} keybDebuggable;
 
 	UnicodeKeymap unicodeKeymap;

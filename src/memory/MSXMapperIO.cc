@@ -4,6 +4,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "Math.hh"
+#include "outer.hh"
 #include "serialize.hh"
 #include "stl.hh"
 
@@ -24,7 +25,7 @@ static byte calcEngineMask(MSXMotherBoard& motherBoard)
 
 MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
 	: MSXDevice(config)
-	, debuggable(getMotherBoard(), *this)
+	, debuggable(getMotherBoard(), getName())
 	, engineMask(calcEngineMask(getMotherBoard()))
 {
 	updateMask();
@@ -86,20 +87,20 @@ void MSXMapperIO::write(unsigned address, byte value)
 // SimpleDebuggable
 
 MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard,
-                                    MSXMapperIO& mapperIO_)
-	: SimpleDebuggable(motherBoard, mapperIO_.getName(),
-	                   "Memory mapper registers", 4)
-	, mapperIO(mapperIO_)
+                                    const std::string& name)
+	: SimpleDebuggable(motherBoard, name, "Memory mapper registers", 4)
 {
 }
 
 byte MSXMapperIO::Debuggable::read(unsigned address)
 {
+	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
 	return mapperIO.getSelectedPage(address);
 }
 
 void MSXMapperIO::Debuggable::write(unsigned address, byte value)
 {
+	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
 	mapperIO.write(address, value);
 }
 

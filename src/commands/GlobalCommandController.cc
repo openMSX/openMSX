@@ -14,6 +14,7 @@
 #include "StringOp.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
+#include "outer.hh"
 #include "xrange.hh"
 #include <cassert>
 
@@ -441,13 +442,13 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 
 GlobalCommandController::HelpCmd::HelpCmd(GlobalCommandController& controller_)
 	: Command(controller_, "help")
-	, controller(controller_)
 {
 }
 
 void GlobalCommandController::HelpCmd::execute(
 	array_ref<TclObject> tokens, TclObject& result)
 {
+	auto& controller = OUTER(GlobalCommandController, helpCmd);
 	switch (tokens.size()) {
 	case 1: {
 		string text =
@@ -490,6 +491,7 @@ void GlobalCommandController::HelpCmd::tabCompletion(vector<string>& tokens) con
 {
 	string front = std::move(tokens.front());
 	tokens.erase(begin(tokens));
+	auto& controller = OUTER(GlobalCommandController, helpCmd);
 	controller.tabCompletion(tokens);
 	tokens.insert(begin(tokens), std::move(front));
 }
@@ -500,7 +502,6 @@ void GlobalCommandController::HelpCmd::tabCompletion(vector<string>& tokens) con
 GlobalCommandController::TabCompletionCmd::TabCompletionCmd(
 		GlobalCommandController& controller_)
 	: Command(controller_, "tabcompletion")
-	, controller(controller_)
 {
 }
 
@@ -510,6 +511,7 @@ void GlobalCommandController::TabCompletionCmd::execute(
 	switch (tokens.size()) {
 	case 2: {
 		// TODO this prints list of possible completions in the console
+		auto& controller = OUTER(GlobalCommandController, tabCompletionCmd);
 		result.setString(controller.tabCompletion(tokens[1].getString()));
 		break;
 	}
@@ -547,9 +549,8 @@ static GlobalCliComm::UpdateType getType(string_ref name)
 
 CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 {
-	auto* controller = checked_cast<GlobalCommandController*>(
-		&getCommandController());
-	if (auto* connection = controller->getConnection()) {
+	auto& controller = OUTER(GlobalCommandController, updateCmd);
+	if (auto* connection = controller.getConnection()) {
 		return *connection;
 	}
 	throw CommandException("This command only makes sense when "

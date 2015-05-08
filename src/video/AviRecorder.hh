@@ -41,14 +41,11 @@ private:
 
 	Reactor& reactor;
 
-	class Cmd final : public Command {
-	public:
-		Cmd(CommandController& commandController, AviRecorder& recorder);
+	struct Cmd final : Command {
+		Cmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		AviRecorder& recorder;
 	} recordCommand;
 
 	std::vector<short> audioBuf;

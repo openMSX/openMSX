@@ -197,22 +197,17 @@ private:
 		bool alg;
 	};
 
-	class Debuggable final : public SimpleDebuggable {
-	public:
-		Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950,
-		           const std::string& name);
-		byte read(unsigned address, EmuTime::param time) override;
-		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		Y8950& y8950;
-	};
-
 	MSXMotherBoard& motherBoard;
 	Y8950Periphery& periphery;
 	Y8950Adpcm adpcm;
 	Y8950KeyboardConnector connector;
 	DACSound16S dac13; // 13-bit (exponential) DAC
-	Debuggable debuggable;
+
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
+		byte read(unsigned address, EmuTime::param time) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
+	} debuggable;
 
 	const std::unique_ptr<EmuTimer> timer1; //  80us timer
 	const std::unique_ptr<EmuTimer> timer2; // 320us timer

@@ -8,6 +8,7 @@
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
+#include "outer.hh"
 #include "stl.hh"
 #include <cassert>
 #include <iostream>
@@ -23,14 +24,14 @@ PluggingController::PluggingController(MSXMotherBoard& motherBoard_)
 	, plugCmd(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
-		motherBoard.getScheduler(), *this)
+		motherBoard.getScheduler())
 	, unplugCmd(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
-		motherBoard.getScheduler(), *this)
-	, pluggableInfo      (motherBoard.getMachineInfoCommand(), *this)
-	, connectorInfo      (motherBoard.getMachineInfoCommand(), *this)
-	, connectionClassInfo(motherBoard.getMachineInfoCommand(), *this)
+		motherBoard.getScheduler())
+	, pluggableInfo      (motherBoard.getMachineInfoCommand())
+	, connectorInfo      (motherBoard.getMachineInfoCommand())
+	, connectionClassInfo(motherBoard.getMachineInfoCommand())
 {
 	PluggableFactory::createAll(*this, motherBoard);
 }
@@ -72,11 +73,9 @@ void PluggingController::registerPluggable(std::unique_ptr<Pluggable> pluggable)
 PluggingController::PlugCmd::PlugCmd(
 		CommandController& commandController,
 		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler,
-		PluggingController& pluggingController_)
+		Scheduler& scheduler)
 	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "plug")
-	, pluggingController(pluggingController_)
 {
 }
 
@@ -84,6 +83,7 @@ void PluggingController::PlugCmd::execute(
 	array_ref<TclObject> tokens, TclObject& result_, EmuTime::param time)
 {
 	StringOp::Builder result;
+	auto& pluggingController = OUTER(PluggingController, plugCmd);
 	switch (tokens.size()) {
 	case 1:
 		for (auto& c : pluggingController.connectors) {
@@ -134,6 +134,7 @@ string PluggingController::PlugCmd::help(const vector<string>& /*tokens*/) const
 
 void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 {
+	auto& pluggingController = OUTER(PluggingController, plugCmd);
 	if (tokens.size() == 2) {
 		// complete connector
 		vector<string_ref> connectors;
@@ -166,11 +167,9 @@ bool PluggingController::PlugCmd::needRecord(array_ref<TclObject> tokens) const
 PluggingController::UnplugCmd::UnplugCmd(
 		CommandController& commandController,
 		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler,
-		PluggingController& pluggingController_)
+		Scheduler& scheduler)
 	: RecordedCommand(commandController, stateChangeDistributor,
 	                  scheduler, "unplug")
-	, pluggingController(pluggingController_)
 {
 }
 
@@ -180,6 +179,7 @@ void PluggingController::UnplugCmd::execute(
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
+	auto& pluggingController = OUTER(PluggingController, unplugCmd);
 	string_ref connName = tokens[1].getString();
 	auto& connector = pluggingController.getConnector(connName);
 	connector.unplug(time);
@@ -197,6 +197,7 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		// complete connector
 		vector<string_ref> connectors;
+		auto& pluggingController = OUTER(PluggingController, unplugCmd);
 		for (auto& c : pluggingController.connectors) {
 			connectors.push_back(c->getName());
 		}
@@ -254,16 +255,15 @@ EmuTime::param PluggingController::getCurrentTime() const
 // Pluggable info
 
 PluggingController::PluggableInfo::PluggableInfo(
-		InfoCommand& machineInfoCommand,
-		PluggingController& pluggingController_)
+		InfoCommand& machineInfoCommand)
 	: InfoTopic(machineInfoCommand, "pluggable")
-	, pluggingController(pluggingController_)
 {
 }
 
 void PluggingController::PluggableInfo::execute(
 	array_ref<TclObject> tokens, TclObject& result) const
 {
+	auto& pluggingController = OUTER(PluggingController, pluggableInfo);
 	switch (tokens.size()) {
 	case 2:
 		for (auto& p : pluggingController.pluggables) {
@@ -291,6 +291,7 @@ void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) co
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> pluggables;
+		auto& pluggingController = OUTER(PluggingController, pluggableInfo);
 		for (auto& p : pluggingController.pluggables) {
 			pluggables.push_back(p->getName());
 		}
@@ -301,16 +302,15 @@ void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) co
 // Connector info
 
 PluggingController::ConnectorInfo::ConnectorInfo(
-		InfoCommand& machineInfoCommand,
-		PluggingController& pluggingController_)
+		InfoCommand& machineInfoCommand)
 	: InfoTopic(machineInfoCommand, "connector")
-	, pluggingController(pluggingController_)
 {
 }
 
 void PluggingController::ConnectorInfo::execute(
 	array_ref<TclObject> tokens, TclObject& result) const
 {
+	auto& pluggingController = OUTER(PluggingController, connectorInfo);
 	switch (tokens.size()) {
 	case 2:
 		for (auto& c : pluggingController.connectors) {
@@ -336,6 +336,7 @@ void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) co
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> connectors;
+		auto& pluggingController = OUTER(PluggingController, connectorInfo);
 		for (auto& c : pluggingController.connectors) {
 			connectors.push_back(c->getName());
 		}
@@ -346,16 +347,15 @@ void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) co
 // Connection Class info
 
 PluggingController::ConnectionClassInfo::ConnectionClassInfo(
-		InfoCommand& machineInfoCommand,
-		PluggingController& pluggingController_)
+		InfoCommand& machineInfoCommand)
 	: InfoTopic(machineInfoCommand, "connectionclass")
-	, pluggingController(pluggingController_)
 {
 }
 
 void PluggingController::ConnectionClassInfo::execute(
 	array_ref<TclObject> tokens, TclObject& result) const
 {
+	auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
 	switch (tokens.size()) {
 	case 2: {
 		std::set<string_ref> classes; // filter duplicates
@@ -395,6 +395,7 @@ void PluggingController::ConnectionClassInfo::tabCompletion(vector<string>& toke
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> names;
+		auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
 		for (auto& c : pluggingController.connectors) {
 			names.push_back(c->getName());
 		}

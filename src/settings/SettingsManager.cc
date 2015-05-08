@@ -5,6 +5,7 @@
 #include "CommandException.hh"
 #include "XMLElement.hh"
 #include "KeyRange.hh"
+#include "outer.hh"
 #include <cassert>
 
 using std::string;
@@ -15,8 +16,8 @@ namespace openmsx {
 // SettingsManager implementation:
 
 SettingsManager::SettingsManager(GlobalCommandController& commandController)
-	: settingInfo   (commandController.getOpenMSXInfoCommand(), *this)
-	, setCompleter  (commandController, *this)
+	: settingInfo   (commandController.getOpenMSXInfoCommand())
+	, setCompleter  (commandController)
 	, incrCompleter (commandController, *this, "incr")
 	, unsetCompleter(commandController, *this, "unset")
 {
@@ -85,16 +86,15 @@ void SettingsManager::loadSettings(const XMLElement& config)
 
 // class SettingInfo
 
-SettingsManager::SettingInfo::SettingInfo(
-		InfoCommand& openMSXInfoCommand, SettingsManager& manager_)
+SettingsManager::SettingInfo::SettingInfo(InfoCommand& openMSXInfoCommand)
 	: InfoTopic(openMSXInfoCommand, "setting")
-	, manager(manager_)
 {
 }
 
 void SettingsManager::SettingInfo::execute(
 	array_ref<TclObject> tokens, TclObject& result) const
 {
+	auto& manager = OUTER(SettingsManager, settingInfo);
 	auto& settingsMap = manager.settingsMap;
 	switch (tokens.size()) {
 	case 2:
@@ -128,6 +128,7 @@ void SettingsManager::SettingInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		// complete setting name
+		auto& manager = OUTER(SettingsManager, settingInfo);
 		completeString(tokens, keys(manager.settingsMap));
 	}
 }
@@ -136,14 +137,15 @@ void SettingsManager::SettingInfo::tabCompletion(vector<string>& tokens) const
 // class SetCompleter
 
 SettingsManager::SetCompleter::SetCompleter(
-		CommandController& commandController, SettingsManager& manager_)
-	: CommandCompleter(commandController, "set"), manager(manager_)
+		CommandController& commandController)
+	: CommandCompleter(commandController, "set")
 {
 }
 
 string SettingsManager::SetCompleter::help(const vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
+		auto& manager = OUTER(SettingsManager, setCompleter);
 		return manager.getByName("set", tokens[1]).getDescription().str();
 	}
 	return "Set or query the value of a openMSX setting or Tcl variable\n"
@@ -155,6 +157,7 @@ string SettingsManager::SetCompleter::help(const vector<string>& tokens) const
 
 void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 {
+	auto& manager = OUTER(SettingsManager, setCompleter);
 	switch (tokens.size()) {
 	case 2:
 		// complete setting name

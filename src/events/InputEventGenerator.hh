@@ -71,14 +71,10 @@ private:
 	GlobalSettings& globalSettings;
 	BooleanSetting grabInput;
 
-	class EscapeGrabCmd final : public Command {
-	public:
-		EscapeGrabCmd(CommandController& commandController,
-			      InputEventGenerator& inputEventGenerator);
+	struct EscapeGrabCmd final : Command {
+		EscapeGrabCmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		InputEventGenerator& inputEventGenerator;
 	} escapeGrabCmd;
 
 	enum EscapeGrabState {

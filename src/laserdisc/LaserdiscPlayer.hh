@@ -11,6 +11,7 @@
 #include "VideoSystemChangeListener.hh"
 #include "EventListener.hh"
 #include "ThrottleManager.hh"
+#include "outer.hh"
 
 namespace openmsx {
 
@@ -111,27 +112,27 @@ private:
 	                  EmuTime::param time) override;
 
 	// Schedulable
-	struct SyncBase : public Schedulable {
-		SyncBase(Scheduler& s, LaserdiscPlayer& player_)
-			: Schedulable(s), player(player_) {}
-		LaserdiscPlayer& player;
+	struct SyncAck : public Schedulable {
 		friend class LaserdiscPlayer;
-	};
-	struct SyncAck : public SyncBase {
-		SyncAck(Scheduler& s, LaserdiscPlayer& p) : SyncBase(s, p) {}
+		SyncAck(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& player = OUTER(LaserdiscPlayer, syncAck);
 			player.execSyncAck(time);
 		}
 	} syncAck;
-	struct SyncOdd : public SyncBase {
-		SyncOdd(Scheduler& s, LaserdiscPlayer& p) : SyncBase(s, p) {}
+	struct SyncOdd : public Schedulable {
+		friend class LaserdiscPlayer;
+		SyncOdd(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& player = OUTER(LaserdiscPlayer, syncOdd);
 			player.execSyncFrame(time, true);
 		}
 	} syncOdd;
-	struct SyncEven : public SyncBase {
-		SyncEven(Scheduler& s, LaserdiscPlayer& p) : SyncBase(s, p) {}
+	struct SyncEven : public Schedulable {
+		friend class LaserdiscPlayer;
+		SyncEven(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
+			auto& player = OUTER(LaserdiscPlayer, syncEven);
 			player.execSyncFrame(time, false);
 		}
 	} syncEven;
@@ -150,18 +151,14 @@ private:
 	MSXMotherBoard& motherBoard;
 	PioneerLDControl& ldcontrol;
 
-	class Command final : public RecordedCommand {
-	public:
+	struct Command final : RecordedCommand {
 		Command(CommandController& commandController,
 		        StateChangeDistributor& stateChangeDistributor,
-		        Scheduler& scheduler,
-		        LaserdiscPlayer& laserdiscPlayer);
+		        Scheduler& scheduler);
 		void execute(array_ref<TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		LaserdiscPlayer& laserdiscPlayer;
 	} laserdiscCommand;
 
 	std::unique_ptr<OggReader> video;

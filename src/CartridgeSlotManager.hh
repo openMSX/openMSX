@@ -60,15 +60,11 @@ private:
 		CliComm& cliComm;
 	} cartCmd;
 
-	class CartridgeSlotInfo final : public InfoTopic {
-	public:
-		CartridgeSlotInfo(InfoCommand& machineInfoCommand,
-				  CartridgeSlotManager& manger);
+	struct CartridgeSlotInfo final : InfoTopic {
+		CartridgeSlotInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-	private:
-		CartridgeSlotManager& manager;
 	} extSlotInfo;
 
 	struct Slot {

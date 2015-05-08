@@ -16,6 +16,7 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "likely.hh"
+#include "outer.hh"
 #include "random.hh"
 #include <cassert>
 #include <cmath>
@@ -123,33 +124,28 @@ inline void AY8910::Generator::advanceFast(unsigned duration)
 // ToneGenerator:
 
 AY8910::ToneGenerator::ToneGenerator()
-	: parent(nullptr), vibratoCount(0), detuneCount(0)
+	: vibratoCount(0), detuneCount(0)
 {
 }
 
-inline void AY8910::ToneGenerator::setParent(AY8910& parent)
-{
-	this->parent = &parent;
-}
-
-int AY8910::ToneGenerator::getDetune()
+int AY8910::ToneGenerator::getDetune(AY8910& ay8910)
 {
 	int result = 0;
-	float vibPerc = parent->vibratoPercent.getDouble();
+	float vibPerc = ay8910.vibratoPercent.getDouble();
 	if (vibPerc != 0.0f) {
 		int vibratoPeriod = int(
 			NATIVE_FREQ_FLOAT /
-			float(parent->vibratoFrequency.getDouble()));
+			float(ay8910.vibratoFrequency.getDouble()));
 		vibratoCount += period;
 		vibratoCount %= vibratoPeriod;
 		result += int(
 			sinf((float(2 * M_PI) * vibratoCount) / vibratoPeriod)
 			* vibPerc * 0.01f * period);
 	}
-	float detunePerc = parent->detunePercent.getDouble();
+	float detunePerc = ay8910.detunePercent.getDouble();
 	if (detunePerc != 0.0f) {
 		float detunePeriod = NATIVE_FREQ_FLOAT /
-			float(parent->detuneFrequency.getDouble());
+			float(ay8910.detuneFrequency.getDouble());
 		detuneCount += period;
 		float noiseIdx = detuneCount / detunePeriod;
 		float noise = noiseValue(       noiseIdx)
@@ -171,10 +167,10 @@ inline void AY8910::ToneGenerator::advance(int duration)
 	}
 }
 
-inline void AY8910::ToneGenerator::doNextEvent(bool doDetune)
+inline void AY8910::ToneGenerator::doNextEvent(bool doDetune, AY8910& ay8910)
 {
 	if (unlikely(doDetune)) {
-		count = getDetune();
+		count = getDetune(ay8910);
 	} else {
 		count = 0;
 	}
@@ -467,7 +463,7 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
                const DeviceConfig& config, EmuTime::param time)
 	: ResampledSoundDevice(config.getMotherBoard(), name, "PSG", 3)
 	, periphery(periphery_)
-	, debuggable(config.getMotherBoard(), *this)
+	, debuggable(config.getMotherBoard(), getName())
 	, vibratoPercent(
 		config.getCommandController(), getName() + "_vibrato_percent",
 		"controls strength of vibrato effect", 0.0, 0.0, 10.0)
@@ -491,8 +487,6 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
 	update(vibratoPercent);
 	vibratoPercent.attach(*this);
 	detunePercent .attach(*this);
-
-	for (auto& t : tone) t.setParent(*this);
 
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
@@ -746,7 +740,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 						remaining -= nextT;
 						nextE -= nextT;
 						envelope.advanceFast(nextT);
-						t.doNextEvent(doDetune);
+						t.doNextEvent(doDetune, *this);
 						nextT = t.getNextEventTime();
 					} else if (nextE < nextT) {
 						addFill(buf, val, nextE);
@@ -759,7 +753,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 						assert(nextT == nextE);
 						addFill(buf, val, nextT);
 						remaining -= nextT;
-						t.doNextEvent(doDetune);
+						t.doNextEvent(doDetune, *this);
 						nextT = t.getNextEventTime();
 						envelope.doNextEvent();
 						nextE = envelope.getNextEventTime();
@@ -810,7 +804,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 					if (nextT) {
 						t.advanceFast(next);
 					} else {
-						t.doNextEvent(doDetune);
+						t.doNextEvent(doDetune, *this);
 						nextT = t.getNextEventTime();
 					}
 					if (nextN) {
@@ -891,7 +885,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 					addFill(buf, val, next);
 					val ^= volume;
 					remaining -= next;
-					t.doNextEvent(doDetune);
+					t.doNextEvent(doDetune, *this);
 					next = t.getNextEventTime();
 				}
 				if (remaining) {
@@ -919,7 +913,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 						remaining -= nextT;
 						nextN -= nextT;
 						noise.advanceFast(nextT);
-						t.doNextEvent(doDetune);
+						t.doNextEvent(doDetune, *this);
 						nextT = t.getNextEventTime();
 						val1 ^= volume;
 						val2 = val1 * noise.getOutput();
@@ -935,7 +929,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 						assert(nextT == nextN);
 						addFill(buf, val2, nextT);
 						remaining -= nextT;
-						t.doNextEvent(doDetune);
+						t.doNextEvent(doDetune, *this);
 						nextT = t.getNextEventTime();
 						noise.doNextEvent();
 						nextN = noise.getNextEventTime();
@@ -997,20 +991,20 @@ void AY8910::update(const Setting& setting)
 
 // Debuggable
 
-AY8910::Debuggable::Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910_)
-	: SimpleDebuggable(motherBoard, ay8910_.getName() + " regs",
-	                   "PSG", 0x10)
-	, ay8910(ay8910_)
+AY8910::Debuggable::Debuggable(MSXMotherBoard& motherBoard, const string& name)
+	: SimpleDebuggable(motherBoard, name + " regs", "PSG", 0x10)
 {
 }
 
 byte AY8910::Debuggable::read(unsigned address, EmuTime::param time)
 {
+	auto& ay8910 = OUTER(AY8910, debuggable);
 	return ay8910.readRegister(address, time);
 }
 
 void AY8910::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
+	auto& ay8910 = OUTER(AY8910, debuggable);
 	return ay8910.writeRegister(address, value, time);
 }
 

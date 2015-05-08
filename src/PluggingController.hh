@@ -60,69 +60,49 @@ private:
 	std::vector<Connector*> connectors;
 	std::vector<std::unique_ptr<Pluggable>> pluggables;
 
-	class PlugCmd final : public RecordedCommand {
-	public:
+	struct PlugCmd final : RecordedCommand {
 		PlugCmd(CommandController& commandController,
 			StateChangeDistributor& stateChangeDistributor,
-			Scheduler& scheduler,
-			PluggingController& pluggingController);
+			Scheduler& scheduler);
 		void execute(array_ref<TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 		bool needRecord(array_ref<TclObject> tokens) const override;
-	private:
-		PluggingController& pluggingController;
 	} plugCmd;
 
-	class UnplugCmd final : public RecordedCommand {
-	public:
+	struct UnplugCmd final : RecordedCommand {
 		UnplugCmd(CommandController& commandController,
 			  StateChangeDistributor& stateChangeDistributor,
-			  Scheduler& scheduler,
-			  PluggingController& pluggingController);
+			  Scheduler& scheduler);
 		void execute(array_ref<TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		PluggingController& pluggingController;
 	} unplugCmd;
 
-	class PluggableInfo final : public InfoTopic {
-	public:
-		PluggableInfo(InfoCommand& machineInfoCommand,
-			      PluggingController& pluggingController);
+	struct PluggableInfo final : InfoTopic {
+		PluggableInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		PluggingController& pluggingController;
 	} pluggableInfo;
 
-	class ConnectorInfo final : public InfoTopic {
-	public:
-		ConnectorInfo(InfoCommand& machineInfoCommand,
-			      PluggingController& pluggingController);
+	struct ConnectorInfo final : InfoTopic {
+		ConnectorInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		PluggingController& pluggingController;
 	} connectorInfo;
 
-	class ConnectionClassInfo final : public InfoTopic {
-	public:
-		ConnectionClassInfo(InfoCommand& machineInfoCommand,
-				    PluggingController& pluggingController);
+	struct ConnectionClassInfo final : InfoTopic {
+		ConnectionClassInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-	private:
-		PluggingController& pluggingController;
 	} connectionClassInfo;
 };
 

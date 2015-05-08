@@ -12,6 +12,7 @@
 #include "DisplayMode.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
+#include "outer.hh"
 #include <memory>
 
 namespace openmsx {
@@ -576,49 +577,72 @@ private:
 	};
 
 	struct SyncBase : public Schedulable {
-		SyncBase(VDP& vdp_) : Schedulable(vdp_.getScheduler()), vdp(vdp_) {}
-		VDP& vdp;
+		SyncBase(VDP& vdp_) : Schedulable(vdp_.getScheduler()) {}
 		friend class VDP;
 	};
 
 	struct SyncVSync : public SyncBase {
 		SyncVSync(VDP& vdp) : SyncBase(vdp) {}
-		virtual void executeUntil(EmuTime::param time) { vdp.execVSync(time); }
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncVSync);
+			vdp.execVSync(time);
+		}
 	} syncVSync;
 
 	struct SyncDisplayStart : public SyncBase {
 		SyncDisplayStart(VDP& vdp) : SyncBase(vdp) {}
-		virtual void executeUntil(EmuTime::param time) { vdp.execDisplayStart(time); }
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncDisplayStart);
+			vdp.execDisplayStart(time);
+		}
 	} syncDisplayStart;
 
 	struct SyncVScan : public SyncBase {
 		SyncVScan(VDP& vdp) : SyncBase(vdp) {}
-		virtual void executeUntil(EmuTime::param time) { vdp.execVScan(time); }
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncVScan);
+			vdp.execVScan(time);
+		}
 	} syncVScan;
 
 	struct SyncHScan : public SyncBase {
 		SyncHScan(VDP& vdp) : SyncBase(vdp) {}
-		virtual void executeUntil(EmuTime::param /*time*/) { vdp.execHScan(); }
+		void executeUntil(EmuTime::param /*time*/) override {
+			auto& vdp = OUTER(VDP, syncHScan);
+			vdp.execHScan();
+		}
 	} syncHScan;
 
 	struct SyncHorAdjust : public SyncBase {
 		SyncHorAdjust(VDP& vdp) : SyncBase(vdp) {}
-		virtual void executeUntil(EmuTime::param time) { vdp.execHorAdjust(time); }
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncHorAdjust);
+			vdp.execHorAdjust(time);
+		}
 	} syncHorAdjust;
 
 	struct SyncSetMode : public SyncBase {
 		SyncSetMode(VDP& vdp) : SyncBase(vdp) {}
-		virtual void executeUntil(EmuTime::param time) { vdp.execSetMode(time); }
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncSetMode);
+			vdp.execSetMode(time);
+		}
 	} syncSetMode;
 
 	struct SyncSetBlank : public SyncBase {
 		SyncSetBlank(VDP& vdp) : SyncBase(vdp) {}
-		virtual void executeUntil(EmuTime::param time) { vdp.execSetBlank(time); }
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncSetBlank);
+			vdp.execSetBlank(time);
+		}
 	} syncSetBlank;
 
 	struct SyncCpuVramAccess : public SyncBase {
 		SyncCpuVramAccess(VDP& vdp) : SyncBase(vdp) {}
-		virtual void executeUntil(EmuTime::param time) { vdp.execCpuVramAccess(time); }
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncCpuVramAccess);
+			vdp.execCpuVramAccess(time);
+		}
 	} syncCpuVramAccess;
 
 	void execVSync(EmuTime::param time);
@@ -794,39 +818,27 @@ private:
 	EnumSetting<bool>& cmdTiming;
 	EnumSetting<bool>& tooFastAccess;
 
-	class RegDebug final : public SimpleDebuggable {
-	public:
+	struct RegDebug final : SimpleDebuggable {
 		explicit RegDebug(VDP& vdp);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		VDP& vdp;
 	} vdpRegDebug;
 
-	class StatusRegDebug final : public SimpleDebuggable {
-	public:
+	struct StatusRegDebug final : SimpleDebuggable {
 		explicit StatusRegDebug(VDP& vdp);
 		byte read(unsigned address, EmuTime::param time) override;
-	private:
-		VDP& vdp;
 	} vdpStatusRegDebug;
 
-	class PaletteDebug final : public SimpleDebuggable {
-	public:
+	struct PaletteDebug final : SimpleDebuggable {
 		explicit PaletteDebug(VDP& vdp);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		VDP& vdp;
 	} vdpPaletteDebug;
 
-	class VRAMPointerDebug final : public SimpleDebuggable {
-	public:
+	struct VRAMPointerDebug final : SimpleDebuggable {
 		explicit VRAMPointerDebug(VDP& vdp);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		VDP& vdp;
 	} vramPointerDebug;
 
 	class Info : public InfoTopic {

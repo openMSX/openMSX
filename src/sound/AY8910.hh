@@ -69,21 +69,19 @@ private:
 	class ToneGenerator : public Generator {
 	public:
 		ToneGenerator();
-		inline void setParent(AY8910& parent);
 		/** Advance tone generator several steps in time.
 		  * @param duration Length of interval to simulate.
 		  */
 		inline void advance(int duration);
 
-		inline void doNextEvent(bool doDetune);
+		inline void doNextEvent(bool doDetune, AY8910& ay8910);
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
 	private:
-		int getDetune();
+		int getDetune(AY8910& ay8910);
 
-		AY8910* parent;
 		/** Time passed since start of vibrato cycle.
 		  */
 		unsigned vibratoCount;
@@ -168,13 +166,10 @@ private:
 
 	AY8910Periphery& periphery;
 
-	class Debuggable final : public SimpleDebuggable {
-	public:
-		Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910);
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
-	private:
-		AY8910& ay8910;
 	} debuggable;
 
 	FloatSetting vibratoPercent;

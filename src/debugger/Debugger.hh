@@ -6,6 +6,7 @@
 #include "StringMap.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
+#include "outer.hh"
 #include <vector>
 #include <memory>
 
@@ -58,7 +59,7 @@ private:
 	public:
 		Cmd(CommandController& commandController,
 		    StateChangeDistributor& stateChangeDistributor,
-		    Scheduler& scheduler, Debugger& debugger);
+		    Scheduler& scheduler);
 		bool needRecord(array_ref<TclObject> tokens) const override;
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result, EmuTime::param time) override;
@@ -66,6 +67,8 @@ private:
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	private:
+		      Debugger& debugger()       { return OUTER(Debugger, cmd); }
+		const Debugger& debugger() const { return OUTER(Debugger, cmd); }
 		void list(TclObject& result);
 		void desc(array_ref<TclObject> tokens, TclObject& result);
 		void size(array_ref<TclObject> tokens, TclObject& result);
@@ -92,8 +95,6 @@ private:
 		void probeSetBreakPoint(array_ref<TclObject> tokens, TclObject& result);
 		void probeRemoveBreakPoint(array_ref<TclObject> tokens, TclObject& result);
 		void probeListBreakPoints(array_ref<TclObject> tokens, TclObject& result);
-
-		Debugger& debugger;
 	} cmd;
 
 	StringMap<Debuggable*> debuggables;
