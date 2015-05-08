@@ -16,7 +16,6 @@ endif
 
 CXX:=$(MINGW_CPU)-w64-mingw32-g++
 WINDRES:=$(MINGW_CPU)-w64-mingw32-windres
-STRIP:=$(MINGW_CPU)-w64-mingw32-strip
 
 # make sure the threading lib is also included in the exe
 LINK_FLAGS:= -static $(LINK_FLAGS)
