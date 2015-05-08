@@ -10,6 +10,7 @@
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "array_ref.hh"
+#include <atomic>
 #include <string>
 #include <memory>
 
@@ -140,7 +141,7 @@ private:
 	 */
 	bool nmiEdge;
 
-	volatile bool exitLoop;
+	std::atomic<bool> exitLoop;
 
 	/** In sync with traceSetting.getBoolean(). */
 	bool tracingEnabled;

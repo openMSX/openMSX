@@ -435,10 +435,18 @@ template<class T> inline bool CPUCore<T>::needExitCPULoop()
 {
 	// always executed in main thread
 	if (unlikely(exitLoop)) {
+		// Note: The test-and-set is _not_ atomic! But that's fine.
+		//   An atomic implementation is trivial (see below), but
+		//   this version (at least on x86) avoids the more expensive
+		//   instructions on the likely path.
 		exitLoop = false;
 		return true;
 	}
 	return false;
+
+	// Alternative implementation:
+	//  atomically set to false and return the old value
+	//return exitLoop.exchange(false);
 }
 
 template<class T> void CPUCore<T>::setSlowInstructions()
