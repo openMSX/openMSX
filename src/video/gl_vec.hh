@@ -22,6 +22,7 @@
 // const-reference. Though also in the latter case usually the compiler can
 // optimize away the indirection.
 
+#include <algorithm>
 #include <cmath>
 
 namespace gl {
@@ -42,6 +43,13 @@ public:
 	explicit vecN(T x)
 	{
 		for (int i = 0; i < N; ++i) e[i] = x;
+	}
+
+	// Conversion constructor from vector of same size but different type
+	template<typename T2>
+	explicit vecN(const vecN<N, T2>& x)
+	{
+		for (int i = 0; i < N; ++i) e[i] = T(x[i]);
 	}
 
 	// Construct from larger vector (higher order elements are dropped).
@@ -243,6 +251,38 @@ inline vecN<N, T> operator/(const vecN<N, T>& x, const vecN<N, T>& y)
 	return x * recip(y);
 }
 
+// min(vector, vector)
+template<int N, typename T>
+inline vecN<N, T> min(const vecN<N, T>& x, const vecN<N, T>& y)
+{
+	vecN<N, T> r;
+	for (int i = 0; i < N; ++i) r[i] = std::min(x[i], y[i]);
+	return r;
+}
+
+// max(vector, vector)
+template<int N, typename T>
+inline vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
+{
+	vecN<N, T> r;
+	for (int i = 0; i < N; ++i) r[i] = std::max(x[i], y[i]);
+	return r;
+}
+
+// clamp(vector, vector, vector)
+template<int N, typename T>
+inline vecN<N, T> clamp(const vecN<N, T>& x, const vecN<N, T>& minVal, const vecN<N, T>& maxVal)
+{
+	return min(maxVal, max(minVal, x));
+}
+
+// clamp(vector, scalar, scalar)
+template<int N, typename T>
+inline vecN<N, T> clamp(const vecN<N, T>& x, T minVal, T maxVal)
+{
+	return clamp(x, vecN<N, T>(minVal), vecN<N, T>(maxVal));
+}
+
 // sum of components
 template<int N, typename T>
 inline T sum(const vecN<N, T>& x)
@@ -297,6 +337,25 @@ inline vecN<3, T> cross(const vecN<3, T>& x, const vecN<3, T>& y)
 	return vecN<3, T>(x[1] * y[2] - x[2] * y[1],
 	                  x[2] * y[0] - x[0] * y[2],
 	                  x[0] * y[1] - x[1] * y[0]);
+}
+
+// round each component to the nearest integer (returns a vector of integers)
+template<int N, typename T>
+inline vecN<N, int> round(const vecN<N, T>& x)
+{
+	vecN<N, int> r;
+	for (int i = 0; i < N; ++i) r[i] = int(roundf(x[i]));
+	return r;
+}
+
+// truncate each component to the nearest integer that is not bigger in
+// absolute value (returns a vector of integers)
+template<int N, typename T>
+inline vecN<N, int> trunc(const vecN<N, T>& x)
+{
+	vecN<N, int> r;
+	for (int i = 0; i < N; ++i) r[i] = int(x[i]);
+	return r;
 }
 
 } // namespace gl
@@ -428,6 +487,16 @@ inline vec4 sum_broadcast(vec4 x)
 	return vec4(t2);
 }
 #endif
+
+inline vec4 min(vec4 x, vec4 y)
+{
+	return vec4(_mm_min_ps(x.sse(), y.sse()));
+}
+
+inline vec4 max(vec4 x, vec4 y)
+{
+	return vec4(_mm_max_ps(x.sse(), y.sse()));
+}
 
 #ifdef __SSE4_1__
 inline float dot(vec4 x, vec4 y)

@@ -376,6 +376,30 @@ int main()
 		assert(approxEq((v4 / w4), vec4(-2,0.5f,-2,0.5f)));
 	}
 	{
+		// component-wise min/max
+		assert(min( vec3(2,3,4),  vec3(1,-5,7)) ==  vec3(1,-5,4));
+		assert(min(ivec3(2,3,4), ivec3(1,-5,7)) == ivec3(1,-5,4));
+		assert(min( vec4(1,-2,5,-7),  vec4(0,2,-4,-3)) ==  vec4(0,-2,-4,-7));
+		assert(min(ivec4(1,-2,5,-7), ivec4(0,2,-4,-3)) == ivec4(0,-2,-4,-7));
+
+		assert(max( vec3(2,3,4),  vec3(1,-5,7)) ==  vec3(2,3,7));
+		assert(max(ivec3(2,3,4), ivec3(1,-5,7)) == ivec3(2,3,7));
+		assert(max( vec4(1,-2,5,-7),  vec4(0,2,-4,-3)) ==  vec4(1,2,5,-3));
+		assert(max(ivec4(1,-2,5,-7), ivec4(0,2,-4,-3)) == ivec4(1,2,5,-3));
+	}
+	{
+		// clamp
+		assert(clamp( vec3(2,3,4),  vec3(0,4,-4),  vec3(4,7,0)) ==  vec3(2,4,0));
+		assert(clamp(ivec3(2,3,4), ivec3(0,4,-4), ivec3(4,7,0)) == ivec3(2,4,0));
+		assert(clamp( vec4(4,2,7,1),  vec4(0,3,2,1),  vec4(4,6,8,3)) ==  vec4(4,3,7,1));
+		assert(clamp(ivec4(4,2,7,1), ivec4(0,3,2,1), ivec4(4,6,8,3)) == ivec4(4,3,7,1));
+
+		assert(clamp( vec3(2,3,4), 1.0f, 3.0f) ==  vec3(2,3,3));
+		assert(clamp(ivec3(2,3,4), 1,    3   ) == ivec3(2,3,3));
+		assert(clamp( vec4(4,2,7,1), 2.0f, 6.0f) ==  vec4(4,2,6,2));
+		assert(clamp(ivec4(4,2,7,1), 2,    6   ) == ivec4(4,2,6,2));
+	}
+	{
 		// sum of vector components
 		assert(sum( vec3(4,-3,2))    == 3.0f);
 		assert(sum(ivec3(4,-3,2))    == 3   );
@@ -416,6 +440,20 @@ int main()
 		// vector normalization, only floating point
 		assert(normalize(vec3(0,4,-3  )) == vec3(0.0f,0.8f,-0.6f));
 		assert(normalize(vec4(-4,0,0,3)) == vec4(-0.8f,0.0f,0.0f,0.6f));
+	}
+	{
+		// round
+		assert(round(vec3(1.1f,2.5f,-3.8f))       == ivec3(1,3,-4));
+		assert(round(vec4(-1.1f,2.5f,3.8f,-4.5f)) == ivec4(-1,3,4,-5));
+		// round integers, nop
+		assert(round(ivec4(1,-2,3,-4)) == ivec4(1,-2,3,-4));
+	}
+	{
+		// trunc
+		assert(trunc(vec3(1.1f,2.5f,-3.8f))       == ivec3(1,2,-3));
+		assert(trunc(vec4(-1.1f,2.5f,3.8f,-4.5f)) == ivec4(-1,2,3,-4));
+		// trunc integers, nop
+		assert(trunc(ivec4(1,-2,3,-4)) == ivec4(1,-2,3,-4));
 	}
 }
 
@@ -620,6 +658,41 @@ void test_div(const vec3& x, float y, vec3& z)
 	z = x / y;
 }
 
+void test_min(const vec3& x, const vec3& y, vec3& z)
+{
+	z = min(x, y);
+}
+
+void test_min(const vec4& x, const vec4& y, vec4& z)
+{
+	z = min(x, y);
+}
+
+void test_clamp(const vec3& x, const vec3& y, const vec3& z, vec3& w)
+{
+	w = clamp(x, y, z);
+}
+
+void test_clamp(const vec4& x, const vec4& y, const vec4& z, vec4& w)
+{
+	w = clamp(x, y, z);
+}
+
+void test_clamp(const vec3& x, float y, float z, vec3& w)
+{
+	w = clamp(x, y, z);
+}
+
+void test_clamp(const vec4& x, float y, float z, vec4& w)
+{
+	w = clamp(x, y, z);
+}
+
+void test_clamp(const vec4& x, vec4& y)
+{
+	y = clamp(x, 0.0f, 1.0f);
+}
+
 void test_sum(const vec3& x, float& y)
 {
 	y = sum(x);
@@ -643,4 +716,13 @@ void test_length(const vec3& x, float& y)
 void test_normalize(const vec3& x, vec3& y)
 {
 	y = normalize(x);
+}
+
+void test_round(const vec4& x, ivec4& y)
+{
+	y = round(x);
+}
+void test_trunc(const vec4& x, ivec4& y)
+{
+	y = trunc(x);
 }
