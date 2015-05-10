@@ -10,6 +10,7 @@
 #             linked statically.
 
 from executils import captureStdout, shjoin
+from msysutils import msysActive, msysPathToNative
 
 from os import listdir
 from os.path import isdir, isfile
@@ -339,7 +340,10 @@ class TCL(Library):
 				yield tclpath
 			else:
 				if distroRoot is None or cls.isSystemLibrary(platform):
-					roots = ('/usr/local', '/usr')
+					if msysActive():
+						roots = (msysPathToNative('/mingw32'), )
+					else:
+						roots = ('/usr/local', '/usr')
 				else:
 					roots = (distroRoot, )
 				for root in roots:
