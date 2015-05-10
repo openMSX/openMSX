@@ -15,7 +15,7 @@ class GLImage final : public BaseImage
 public:
 	explicit GLImage(const std::string& filename);
 	explicit GLImage(SDLSurfacePtr image);
-	GLImage(const std::string& filename, double scaleFactor);
+	GLImage(const std::string& filename, float scaleFactor);
 	GLImage(const std::string& filename, int width, int height);
 	GLImage(int width, int height, unsigned rgba);
 	GLImage(int width, int height, const unsigned* rgba,

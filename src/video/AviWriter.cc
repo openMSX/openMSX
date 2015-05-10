@@ -20,7 +20,7 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 		     unsigned freq_)
 	: file(filename, "wb")
 	, codec(width_, height_, bpp)
-	, fps(0.0) // will be filled in later
+	, fps(0.0f) // will be filled in later
 	, width(width_)
 	, height(height_)
 	, channels(channels_)
@@ -46,7 +46,7 @@ AviWriter::~AviWriter()
 		FileOperations::unlink(filename);
 		return;
 	}
-	assert(fps != 0.0); // a decent fps should have been set
+	assert(fps != 0.0f); // a decent fps should have been set
 
 	// Possible cleanup: use structs for the different headers, that
 	// also allows to use the aligned versions of the Endian routines.

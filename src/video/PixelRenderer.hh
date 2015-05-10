@@ -120,7 +120,7 @@ private:
 
 	const std::unique_ptr<Rasterizer> rasterizer;
 
-	double finishFrameDuration;
+	float finishFrameDuration;
 	int frameSkipCounter;
 
 	/** Number of the next position within a line to render.

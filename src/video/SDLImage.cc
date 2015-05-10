@@ -91,8 +91,8 @@ static void zoomSurface(const SDL_Surface* src, SDL_Surface* dst,
 
 	// For interpolation: assume source dimension is one pixel
 	// smaller to avoid overflow on right and bottom edge.
-	int sx = int(65536.0 * double(src->w - 1) / double(dst->w));
-	int sy = int(65536.0 * double(src->h - 1) / double(dst->h));
+	int sx = int(65536.0f * float(src->w - 1) / float(dst->w));
+	int sy = int(65536.0f * float(src->h - 1) / float(dst->h));
 
 	// Interpolating Zoom, Scan destination
 	auto sp = static_cast<const unsigned*>(src->pixels);
@@ -176,9 +176,9 @@ static SDLSurfacePtr loadImage(const string& filename)
 	return convertToDisplayFormat(PNG::load(filename, want32bpp));
 }
 
-static SDLSurfacePtr loadImage(const string& filename, double scaleFactor)
+static SDLSurfacePtr loadImage(const string& filename, float scaleFactor)
 {
-	if (scaleFactor == 1.0) {
+	if (scaleFactor == 1.0f) {
 		return loadImage(filename);
 	}
 	bool want32bpp = true; // scaleImage32 needs 32bpp
@@ -368,9 +368,9 @@ SDLImage::SDLImage(const string& filename)
 {
 }
 
-SDLImage::SDLImage(const std::string& filename, double scaleFactor)
+SDLImage::SDLImage(const std::string& filename, float scaleFactor)
 	: image(loadImage(filename, scaleFactor))
-	, a(-1), flipX(scaleFactor < 0), flipY(scaleFactor < 0)
+	, a(-1), flipX(scaleFactor < 0.0f), flipY(scaleFactor < 0.0f)
 {
 }
 

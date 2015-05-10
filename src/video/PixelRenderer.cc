@@ -212,7 +212,7 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 		rasterizer->frameEnd();
 		auto time2 = Timer::getTime();
 		auto current = time2 - time1;
-		const double ALPHA = 0.2;
+		const float ALPHA = 0.2f;
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
 

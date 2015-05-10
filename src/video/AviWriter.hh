@@ -21,7 +21,7 @@ public:
 	          unsigned bpp, unsigned channels, unsigned freq);
 	~AviWriter();
 	void addFrame(FrameSource* frame, unsigned samples, short* sampleData);
-	void setFps(double fps_) { fps = fps_; }
+	void setFps(float fps_) { fps = fps_; }
 
 private:
 	void addAviChunk(const char* tag, unsigned size, void* data, unsigned flags);
@@ -30,7 +30,7 @@ private:
 	ZMBVEncoder codec;
 	std::vector<Endian::L32> index;
 
-	double fps;
+	float fps;
 	const unsigned width;
 	const unsigned height;
 	const unsigned channels;

@@ -75,7 +75,7 @@ private:
 
 	/** Frameskip
 	  */
-	double finishFrameDuration;
+	float finishFrameDuration;
 	int frameSkipCounter;
 
 	/** Accuracy setting for current frame.

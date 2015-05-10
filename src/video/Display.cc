@@ -518,7 +518,7 @@ Display::FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand,
 void Display::FpsInfoTopic::execute(array_ref<TclObject> /*tokens*/,
                            TclObject& result) const
 {
-	double fps = 1000000.0 * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
+	float fps = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
 	result.setDouble(fps);
 }
 

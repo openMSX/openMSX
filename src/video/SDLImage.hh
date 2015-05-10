@@ -12,7 +12,7 @@ class SDLImage final : public BaseImage
 public:
 	explicit SDLImage(const std::string& filename);
 	explicit SDLImage(SDLSurfacePtr image);
-	SDLImage(const std::string& filename, double scaleFactor);
+	SDLImage(const std::string& filename, float scaleFactor);
 	SDLImage(const std::string& filename, int width, int height);
 	SDLImage(int width, int height, unsigned rgba);
 	SDLImage(int width, int height, const unsigned* rgba,

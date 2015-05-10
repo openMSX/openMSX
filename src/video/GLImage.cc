@@ -63,7 +63,7 @@ GLImage::GLImage(const string& filename)
 {
 }
 
-GLImage::GLImage(const string& filename, double scalefactor)
+GLImage::GLImage(const string& filename, float scalefactor)
 	: texture(loadTexture(filename, width, height, texCoord))
 {
 	width  = int(scalefactor * width);
