@@ -26,7 +26,7 @@ def _determineMounts():
 	msysRoot = stdoutdata.strip()
 
 	# Figure out all mount points of MSYS.
-	mounts = { '/': msysRoot + '/' }
+	mounts = {}
 	fstab = msysRoot + '/etc/fstab'
 	if isfile(fstab):
 		try:
@@ -36,15 +36,17 @@ def _determineMounts():
 					line = line.strip()
 					if line and not line.startswith('#'):
 						nativePath, mountPoint = (
-							path.rstrip('/') + '/' for path in line.split()
+							path.rstrip('/') + '/' for path in line.split()[:2]
 							)
-						mounts[mountPoint] = nativePath
+						if nativePath != 'none':
+							mounts[mountPoint] = nativePath
 			finally:
 				inp.close()
 		except IOError, ex:
 			print >> sys.stderr, 'Failed to read MSYS fstab:', ex
 		except ValueError, ex:
 			print >> sys.stderr, 'Failed to parse MSYS fstab:', ex
+	mounts['/'] = msysRoot + '/'
 	return mounts
 
 def msysPathToNative(path):
