@@ -65,7 +65,7 @@ def msysActive():
 	return environ.get('OSTYPE') == 'msys' or 'MSYSCON' in environ
 
 def msysShell():
-	return environ.get('MSYSCON') or environ.get('SHELL') or 'sh.exe'
+	return environ.get('SHELL') or 'sh.exe'
 
 if msysActive():
 	msysMounts = _determineMounts()
