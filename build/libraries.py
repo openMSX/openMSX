@@ -117,12 +117,7 @@ class Library(object):
 					)
 				for name in cls.dependsOn
 				]
-			systemDependentFlags = list(cls.getSystemDependentFlags(platform))
-			return ' '.join(flags + dependentFlags + systemDependentFlags)
-
-	@classmethod
-	def getSystemDependentFlags(cls, platform):
-		return ()
+			return ' '.join(flags + dependentFlags)
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
