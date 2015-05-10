@@ -287,6 +287,17 @@ class SDL_ttf(Library):
 		return platform in ('android', 'dingux')
 
 	@classmethod
+	def getLinkFlags(cls, platform, linkStatic, distroRoot):
+		flags = super(SDL_ttf, cls).getLinkFlags(
+			platform, linkStatic, distroRoot
+			)
+		if not linkStatic:
+			# Because of the SDLmain trickery, we need SDL's link flags too
+			# on some platforms even though we're linking dynamically.
+			flags += ' ' + SDL.getLinkFlags(platform, linkStatic, distroRoot)
+		return flags
+
+	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
 		def execute(cmd, log):
 			version = cmd.expand(log, cls.getHeaders(platform),
