@@ -341,7 +341,7 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Generic compilation flags.
   COMPILE_FLAGS+=-pipe
   # Enable C++11
-  COMPILE_FLAGS+=-std=gnu++0x
+  COMPILE_FLAGS+=-std=c++11
   # Stricter warning and error reporting.
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wunused-macros -Wdouble-promotion
   # Flag that is not accepted by old GCC versions.
