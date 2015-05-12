@@ -33,7 +33,7 @@ public:
 	/** Insert data at the end of this buffer.
 	  * This will automatically grow this buffer.
 	  */
-	void insert(const void* __restrict data, size_t len) __restrict
+	void insert(const void* __restrict data, size_t len)
 	{
 #ifdef __GNUC__
 		if (__builtin_constant_p(len)) {
@@ -51,15 +51,15 @@ public:
 		insertN(data, len);
 	}
 #ifdef __GNUC__
-	template<size_t N> void insertN(const void* __restrict data) __restrict;
+	template<size_t N> void insertN(const void* __restrict data);
 #endif
-	void insertN(const void* __restrict data, size_t len) __restrict;
+	void insertN(const void* __restrict data, size_t len);
 
 	/** Insert data at a given position. This will overwrite the old data.
 	  * It's not possible to grow the buffer via this method (so the buffer
 	  * must already be big enough to hold the new data).
 	  */
-	void insertAt(size_t pos, const void* __restrict data, size_t len) __restrict
+	void insertAt(size_t pos, const void* __restrict data, size_t len)
 	{
 		assert(buf.data() + pos + len <= finish);
 		memcpy(buf.data() + pos, data, len);
@@ -120,8 +120,8 @@ public:
 	MemBuffer<byte> release(size_t& size);
 
 private:
-	void insertGrow(const void* __restrict data, size_t len) __restrict;
-	byte* allocateGrow(size_t len) __restrict;
+	void insertGrow(const void* __restrict data, size_t len);
+	byte* allocateGrow(size_t len);
 
 	MemBuffer<byte> buf; // begin of allocated memory
 	byte* end;           // points right after the last used byte

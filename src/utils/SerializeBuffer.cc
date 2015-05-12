@@ -31,7 +31,7 @@ OutputBuffer::OutputBuffer()
 }
 
 #ifdef __GNUC__
-template<size_t LEN> void OutputBuffer::insertN(const void* __restrict data) __restrict
+template<size_t LEN> void OutputBuffer::insertN(const void* __restrict data)
 {
 	byte* newEnd = end + LEN;
 	if (likely(newEnd <= finish)) {
@@ -42,13 +42,13 @@ template<size_t LEN> void OutputBuffer::insertN(const void* __restrict data) __r
 	}
 }
 // Force template instantiation
-template void OutputBuffer::insertN<1>(const void* __restrict data) __restrict;
-template void OutputBuffer::insertN<2>(const void* __restrict data) __restrict;
-template void OutputBuffer::insertN<4>(const void* __restrict data) __restrict;
-template void OutputBuffer::insertN<8>(const void* __restrict data) __restrict;
+template void OutputBuffer::insertN<1>(const void* __restrict data);
+template void OutputBuffer::insertN<2>(const void* __restrict data);
+template void OutputBuffer::insertN<4>(const void* __restrict data);
+template void OutputBuffer::insertN<8>(const void* __restrict data);
 #endif
 
-void OutputBuffer::insertN(const void* __restrict data, size_t len) __restrict
+void OutputBuffer::insertN(const void* __restrict data, size_t len)
 {
 	byte* newEnd = end + len;
 	if (likely(newEnd <= finish)) {
@@ -70,13 +70,13 @@ MemBuffer<byte> OutputBuffer::release(size_t& size)
 	return std::move(buf);
 }
 
-void OutputBuffer::insertGrow(const void* __restrict data, size_t len) __restrict
+void OutputBuffer::insertGrow(const void* __restrict data, size_t len)
 {
 	byte* pos = allocateGrow(len);
 	memcpy(pos, data, len);
 }
 
-byte* OutputBuffer::allocateGrow(size_t len) __restrict
+byte* OutputBuffer::allocateGrow(size_t len)
 {
 	size_t oldSize = end - buf.data();
 	size_t newSize = std::max(oldSize + len, oldSize + oldSize / 2);
