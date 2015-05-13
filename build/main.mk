@@ -328,7 +328,7 @@ ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   COMPILE_FLAGS+=-std=c++11
   # Clang does support -Wunused-macros, but it triggers on SDL's headers,
   # causing way too many false positives that we cannot fix.
-  COMPILE_FLAGS+=-Wall -Wextra -Wundef
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof
   # TODO: Remove the overloading from the code instead.
   COMPILE_FLAGS+=-Wno-overloaded-virtual
   # Hardware descriptions can contain constants that are not used in the code
@@ -343,7 +343,7 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Enable C++11
   COMPILE_FLAGS+=-std=c++11
   # Stricter warning and error reporting.
-  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wunused-macros -Wdouble-promotion
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion
   # Flag that is not accepted by old GCC versions.
   COMPILE_FLAGS+=$(shell \
     echo | $(CXX) -E -Wno-missing-field-initializers - >/dev/null 2>&1 \
