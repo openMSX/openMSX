@@ -17,7 +17,13 @@ namespace openmsx {
     #define MAX_ALIGN_V  8
   #endif
 #else
-  #define MAX_ALIGN_V ALIGNOF(MAX_ALIGN_T)
+  // This only works starting from gcc-4-9
+  //  #define MAX_ALIGN_V ALIGNOF(MAX_ALIGN_T)
+  #ifdef __x86_64
+    #define MAX_ALIGN_V 16
+  #else
+    #define MAX_ALIGN_V  8
+  #endif
 #endif
 
 // Interface for an aligned buffer.
