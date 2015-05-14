@@ -27,12 +27,12 @@ namespace openmsx {
 //   }
 #ifdef _MSC_VER
 // TODO in the future use the c++11 'alignas' feature
-__declspec (align(16))
+__declspec (align(ALIGNOF(MAX_ALIGN_T)))
 #endif
 class AlignedBuffer
 {
 public:
-	static const size_t ALIGNMENT = 16;
+	static const size_t ALIGNMENT = ALIGNOF(MAX_ALIGN_T);
 
 	operator       uint8_t*()       { return p(); }
 	operator const uint8_t*() const { return p(); }
@@ -54,7 +54,7 @@ private:
 	const uint8_t* p() const { return reinterpret_cast<const uint8_t*>(this); }
 }
 #ifndef _MSC_VER
-__attribute__((__aligned__((16))))
+__attribute__((__aligned__((ALIGNOF(MAX_ALIGN_T)))))
 #endif
 ;
 static_assert(ALIGNOF(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be aligned");
@@ -76,7 +76,7 @@ private:
 // Repeat alignment because Clang 3.2svn does not inherit it from an empty
 // base class.
 #ifndef _MSC_VER
-__attribute__((__aligned__((16))))
+__attribute__((__aligned__((ALIGNOF(MAX_ALIGN_T)))))
 #endif
 ;
 static_assert(ALIGNOF(AlignedByteArray<13>) == AlignedBuffer::ALIGNMENT,
