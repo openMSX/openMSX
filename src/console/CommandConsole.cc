@@ -475,7 +475,7 @@ ConsoleLine CommandConsole::highLight(string_ref line)
 
 void CommandConsole::putPrompt()
 {
-	commandScrollBack = history.size();
+	commandScrollBack = unsigned(history.size());
 	currentLine = prompt;
 	lines[0] = highLight(currentLine);
 	cursorPosition = unsigned(prompt.size());
@@ -534,7 +534,7 @@ void CommandConsole::nextCommand()
 		commandScrollBack = tmp;
 		lines[0] = highLight(history[commandScrollBack]);
 	} else {
-		commandScrollBack = history.size();
+		commandScrollBack = unsigned(history.size());
 		lines[0] = highLight(currentLine);
 	}
 	cursorPosition = lines[0].numChars();

@@ -84,7 +84,7 @@ private:
 	bool checkCommandProgram();
 	bool checkCommandQuadrupleByteProgram();
 	bool checkCommandManifacturer();
-	bool partialMatch(unsigned len, const byte* dataSeq) const;
+	bool partialMatch(size_t len, const byte* dataSeq) const;
 
 	bool isSectorWritable(unsigned sector) const;
 

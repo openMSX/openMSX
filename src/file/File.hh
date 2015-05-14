@@ -54,7 +54,7 @@ public:
 	File& operator=(File&& other);
 
 	/** Return true iff this file handle refers to an open file. */
-	bool is_open() const { return file.get(); }
+	bool is_open() const { return file.get() != nullptr; }
 
 	/** Close the current file.
 	 * Equivalent to assigning a default constructed value to this object.

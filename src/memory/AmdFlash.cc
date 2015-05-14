@@ -67,7 +67,7 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<SectorInfo>& sectorInfo_,
 	unsigned offset = 0;
 	for (auto i : xrange(numSectors)) {
 		unsigned sectorSize = sectorInfo[i].size;
-		if (isSectorWritable(i)) {
+		if (isSectorWritable(unsigned(i))) {
 			readAddress[i] = &(*ram)[writeAddress[i]];
 			if (!loaded) {
 				auto ramPtr = const_cast<byte*>(
@@ -292,13 +292,13 @@ bool AmdFlash::checkCommandManifacturer()
 	return false;
 }
 
-bool AmdFlash::partialMatch(unsigned len, const byte* dataSeq) const
+bool AmdFlash::partialMatch(size_t len, const byte* dataSeq) const
 {
 	static const unsigned addrSeq[] = { 0, 1, 0, 0, 1 };
 	unsigned cmdAddr[2] = { 0x555, 0x2aa };
 
 	assert(len <= 5);
-	unsigned n = std::min(len, cmdIdx);
+	unsigned n = std::min(unsigned(len), cmdIdx);
 	for (unsigned i = 0; i < n; ++i) {
 		// convert the address to the '11 bit case'
 		unsigned addr = use12bitAddressing ? cmd[i].addr >> 1 : cmd[i].addr;
