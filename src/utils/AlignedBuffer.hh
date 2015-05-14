@@ -9,6 +9,17 @@
 
 namespace openmsx {
 
+// Hack for visual studio, remove when we can use c++11 alignas/alignof
+#ifdef _MSC_VER
+  #ifdef _WIN64
+    #define MAX_ALIGN_V 16
+  #else
+    #define MAX_ALIGN_V  8
+  #endif
+#else
+  #define MAX_ALIGN_V ALIGNOF(MAX_ALIGN_T)
+#endif
+
 // Interface for an aligned buffer.
 // This type doesn't itself provide any storage, it only 'refers' to some
 // storage. In that sense it is very similar in usage to a 'uint8_t*'.
@@ -27,12 +38,12 @@ namespace openmsx {
 //   }
 #ifdef _MSC_VER
 // TODO in the future use the c++11 'alignas' feature
-__declspec (align(ALIGNOF(MAX_ALIGN_T)))
+__declspec (align(MAX_ALIGN_V))
 #endif
 class AlignedBuffer
 {
 public:
-	static const size_t ALIGNMENT = ALIGNOF(MAX_ALIGN_T);
+	static const size_t ALIGNMENT = MAX_ALIGN_V;
 
 	operator       uint8_t*()       { return p(); }
 	operator const uint8_t*() const { return p(); }
@@ -54,7 +65,7 @@ private:
 	const uint8_t* p() const { return reinterpret_cast<const uint8_t*>(this); }
 }
 #ifndef _MSC_VER
-__attribute__((__aligned__((ALIGNOF(MAX_ALIGN_T)))))
+__attribute__((__aligned__((MAX_ALIGN_V))))
 #endif
 ;
 static_assert(ALIGNOF(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be aligned");
@@ -76,7 +87,7 @@ private:
 // Repeat alignment because Clang 3.2svn does not inherit it from an empty
 // base class.
 #ifndef _MSC_VER
-__attribute__((__aligned__((ALIGNOF(MAX_ALIGN_T)))))
+__attribute__((__aligned__((MAX_ALIGN_V))))
 #endif
 ;
 static_assert(ALIGNOF(AlignedByteArray<13>) == AlignedBuffer::ALIGNMENT,
