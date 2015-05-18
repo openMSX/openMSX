@@ -6,6 +6,7 @@
 
 #include "YM2151.hh"
 #include "DeviceConfig.hh"
+#include "Math.hh"
 #include "serialize.hh"
 #include <cmath>
 #include <cstring>

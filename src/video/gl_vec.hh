@@ -22,6 +22,7 @@
 // const-reference. Though also in the latter case usually the compiler can
 // optimize away the indirection.
 
+#include "Math.hh"
 #include <algorithm>
 #include <cmath>
 

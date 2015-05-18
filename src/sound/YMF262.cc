@@ -40,6 +40,7 @@
 #include "YMF262.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
+#include "Math.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include <cmath>

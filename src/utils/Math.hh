@@ -6,6 +6,12 @@
 #include <cmath>
 #include <cstdint>
 
+// M_PI is a very common extension, but not guaranteed to be defined by <cmath>
+// when compiling in a strict standards compliant mode.
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 namespace Math {
 
 /** Is the given number an integer power of 2?

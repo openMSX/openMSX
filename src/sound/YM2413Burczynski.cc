@@ -20,6 +20,7 @@
  */
 
 #include "YM2413Burczynski.hh"
+#include "Math.hh"
 #include "serialize.hh"
 #include <cmath>
 #include <cstring>
