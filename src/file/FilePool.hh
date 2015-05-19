@@ -43,12 +43,6 @@ public:
 	 */
 	Sha1Sum getSha1Sum(File& file);
 
-	/** Remove sha1sum for this file from the cache.
-	 * When the file was written to, sha1sum changes and it should be
-	 * removed from the cache.
-	 */
-	void removeSha1Sum(File& file);
-
 private:
 	struct ScanProgress {
 		uint64_t lastTime;
