@@ -535,18 +535,11 @@ void DBParser::doctype(string_ref text)
 	systemID = t.substr(0, pos2);
 }
 
-static void parseDB(CliComm& cliComm, const string& filename,
-                    MemBuffer<char>& buf, RomDatabase::RomDB& db,
+static void parseDB(CliComm& cliComm, char* buf, RomDatabase::RomDB& db,
                     UnknownTypes& unknownTypes)
 {
-	File file(filename);
-	auto size = file.getSize();
-	buf.resize(size + 1);
-	file.read(buf.data(), size);
-	buf[size] = 0;
-
 	DBParser handler(db, unknownTypes, cliComm);
-	rapidsax::parse<rapidsax::trimWhitespace>(handler, buf.data());
+	rapidsax::parse<rapidsax::trimWhitespace>(handler, buf);
 
 	if (handler.getSystemID() != "softwaredb1.dtd") {
 		throw rapidsax::ParseError(
@@ -563,19 +556,36 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	UnknownTypes unknownTypes;
 	// first user- then system-directory
 	vector<string> paths = systemFileContext().getPaths();
+	vector<File> files;
+	size_t bufferSize = 0;
 	for (auto& p : paths) {
-		string filename = FileOperations::join(p, "softwaredb.xml");
 		try {
-			buffers.emplace_back();
-			parseDB(cliComm, filename, buffers.back(), db, unknownTypes);
-		} catch (rapidsax::ParseError& e) {
-			cliComm.printWarning(StringOp::Builder() <<
-				"Rom database parsing failed: " << e.what());
+			files.emplace_back(FileOperations::join(p, "softwaredb.xml"));
+			bufferSize += files.back().getSize() + 1;
 		} catch (MSXException& /*e*/) {
 			// Ignore. It's not unusual the DB in the user
 			// directory is not found. In case there's an error
 			// with both user and system DB, we must give a
 			// warning, but that's done below.
+		}
+	}
+	buffer.resize(bufferSize);
+	size_t bufferOffset = 0;
+	for (auto& file : files) {
+		try {
+			auto size = file.getSize();
+			auto* buf = &buffer[bufferOffset];
+			bufferOffset += size + 1;
+
+			file.read(buf, size);
+			buf[size] = 0;
+
+			parseDB(cliComm, buf, db, unknownTypes);
+		} catch (rapidsax::ParseError& e) {
+			cliComm.printWarning(StringOp::Builder() <<
+				"Rom database parsing failed: " << e.what());
+		} catch (MSXException& /*e*/) {
+			// Ignore, see above
 		}
 	}
 	if (db.empty()) {

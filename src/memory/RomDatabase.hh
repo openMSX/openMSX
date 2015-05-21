@@ -28,7 +28,7 @@ public:
 
 private:
 	RomDB db;
-	std::vector<MemBuffer<char>> buffers;
+	MemBuffer<char> buffer;
 
 	struct SoftwareInfoTopic final : InfoTopic {
 		SoftwareInfoTopic(InfoCommand& openMSXInfoCommand);
