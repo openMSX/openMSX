@@ -468,7 +468,7 @@ static const size_t BLOCK_SIZE = 1 << 16;
 //
 // Returns an "end" pointer into "op" buffer.
 // "end - op" is the compressed size of "input".
-char* compressFragment(const char* input, size_t inputSize, char* op)
+static char* compressFragment(const char* input, size_t inputSize, char* op)
 {
 	static const int HASH_TABLE_BITS = 14;
 	static const int SHIFT = 32 - HASH_TABLE_BITS;

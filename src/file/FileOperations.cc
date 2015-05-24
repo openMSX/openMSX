@@ -283,8 +283,8 @@ int deleteRecursive(const std::string& path)
 	return SHFileOperationW(&rmdirFileop);
 }
 #elif HAVE_NFTW
-int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
-                       int /*typeflag*/, struct FTW* /*ftwbuf*/)
+static int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
+                              int /*typeflag*/, struct FTW* /*ftwbuf*/)
 {
 	return remove(fpath);
 }

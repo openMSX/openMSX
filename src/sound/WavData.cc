@@ -8,7 +8,7 @@ using std::string;
 
 namespace openmsx {
 
-bool is8Bit(Uint16 format)
+static inline bool is8Bit(Uint16 format)
 {
 	return (format == AUDIO_U8) || (format == AUDIO_S8);
 }

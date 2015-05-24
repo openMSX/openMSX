@@ -139,11 +139,11 @@ template<uint8_t MASK8> static inline uint32_t xxhash_impl(string_ref key)
 	}
 }
 
-uint32_t xxhash(string_ref key)
+inline uint32_t xxhash(string_ref key)
 {
 	return xxhash_impl<0xFF>(key);
 }
-uint32_t xxhash_case(string_ref key)
+inline uint32_t xxhash_case(string_ref key)
 {
 	return xxhash_impl<static_cast<uint8_t>(~('a' - 'A'))>(key);
 }

@@ -39,7 +39,7 @@ struct CodecVector {
 	int x;
 	int y;
 };
-bool operator<(const CodecVector& l, const CodecVector& r)
+static inline bool operator<(const CodecVector& l, const CodecVector& r)
 {
 	return l.cost() < r.cost();
 }

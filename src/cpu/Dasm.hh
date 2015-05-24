@@ -5,9 +5,9 @@
 #include "openmsx.hh"
 #include <string>
 
-class MSXCPUInterface;
-
 namespace openmsx {
+
+class MSXCPUInterface;
 
 /** Disassemble
   * @param interf The CPU interface, used to peek bytes from memory

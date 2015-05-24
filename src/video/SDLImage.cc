@@ -301,7 +301,7 @@ static unsigned packRGBA(unsigned rb, unsigned ga)
 //    0 -- 1
 //    |    |
 //    2 -- 3
-void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
+static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
 {
 	int width  = surface.w - 2 * borderSize;
 	int height = surface.h - 2 * borderSize;

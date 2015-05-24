@@ -59,7 +59,7 @@ void Simple2xScaler<Pixel>::scaleBlank1to2(
 #ifdef __SSE2__
 
 // Combines upper-half of 'x' with lower half of 'y'.
-__m128i shuffle(__m128i x, __m128i y)
+static inline __m128i shuffle(__m128i x, __m128i y)
 {
 	// mm_shuffle_pd() actually shuffles 64-bit floating point values, we
 	// need to shuffle integers. Though floats and ints are stored in the
@@ -74,8 +74,9 @@ __m128i shuffle(__m128i x, __m128i y)
 }
 
 // 32bpp
-void blur1on2_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
-                   unsigned c1_, unsigned c2_, unsigned long width)
+static void blur1on2_SSE2(
+	const uint32_t* __restrict in_, uint32_t* __restrict out_,
+	unsigned c1_, unsigned c2_, unsigned long width)
 {
 	width *= sizeof(uint32_t); // in bytes
 	assert(width >= (2 * sizeof(__m128i)));
@@ -141,8 +142,8 @@ void blur1on2_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
 }
 
 // no SSE2 16bpp routine yet (probably not worth the effort)
-void blur1on2_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
-                   unsigned /*c1*/, unsigned /*c2*/, unsigned long /*width*/)
+static void blur1on2_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
+                          unsigned /*c1*/, unsigned /*c2*/, unsigned long /*width*/)
 {
 	UNREACHABLE;
 }
@@ -241,8 +242,9 @@ void Simple2xScaler<Pixel>::blur1on2(
 #ifdef __SSE2__
 
 // 32bpp
-void blur1on1_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
-                   unsigned c1_, unsigned c2_, unsigned long width)
+static void blur1on1_SSE2(
+	const uint32_t* __restrict in_, uint32_t* __restrict out_,
+	unsigned c1_, unsigned c2_, unsigned long width)
 {
 	width *= sizeof(uint32_t); // in bytes
 	assert(width >= (2 * sizeof(__m128i)));
@@ -296,8 +298,8 @@ void blur1on1_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
 }
 
 // no SSE2 16bpp routine yet (probably not worth the effort)
-void blur1on1_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
-                   unsigned /*c1*/, unsigned /*c2*/, unsigned long /*width*/)
+static void blur1on1_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
+                          unsigned /*c1*/, unsigned /*c2*/, unsigned long /*width*/)
 {
 	UNREACHABLE;
 }

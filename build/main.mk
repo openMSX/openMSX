@@ -343,7 +343,7 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Enable C++11
   COMPILE_FLAGS+=-std=c++11
   # Stricter warning and error reporting.
-  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations
   # Flag that is not accepted by old GCC versions.
   COMPILE_FLAGS+=$(shell \
     echo | $(CXX) -E -Wno-missing-field-initializers - >/dev/null 2>&1 \
