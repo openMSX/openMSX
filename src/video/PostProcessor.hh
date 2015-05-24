@@ -32,9 +32,6 @@ class PostProcessor : public VideoLayer, private Schedulable
 public:
 	virtual ~PostProcessor();
 
-	// Layer interface:
-	virtual void paint(OutputSurface& output) = 0;
-
 	/** Sets up the "abcdFrame" variables for a new frame.
 	  * TODO: The point of passing the finished frame in and the new workFrame
 	  *       out is to be able to split off the scaler application as a

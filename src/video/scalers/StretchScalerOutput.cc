@@ -20,11 +20,10 @@ public:
 	                        const PixelOperations<Pixel>& pixelOps);
 	~StretchScalerOutputBase();
 
-	virtual unsigned getWidth()  const;
-	virtual unsigned getHeight() const;
-	virtual Pixel* acquireLine(unsigned y);
-	virtual void   releaseLine(unsigned y, Pixel* buf) = 0;
-	virtual void   fillLine   (unsigned y, Pixel color);
+	unsigned getWidth()  const override;
+	unsigned getHeight() const override;
+	Pixel* acquireLine(unsigned y) override;
+	void   fillLine   (unsigned y, Pixel color) override;
 
 protected:
 	Pixel* releasePre(unsigned y, Pixel* buf);

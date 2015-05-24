@@ -19,10 +19,10 @@ public:
 	string_ref getClass() const final override;
 
 	// input (SerialDataInterface)
-	virtual void setDataBits(DataBits bits) = 0;
-	virtual void setStopBits(StopBits bits) = 0;
-	virtual void setParityBit(bool enable, ParityBit parity) = 0;
-	virtual void recvByte(byte value, EmuTime::param time) = 0;
+	void setDataBits(DataBits bits) override = 0;
+	void setStopBits(StopBits bits) override = 0;
+	void setParityBit(bool enable, ParityBit parity) override = 0;
+	void recvByte(byte value, EmuTime::param time) override = 0;
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;
 

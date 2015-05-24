@@ -30,7 +30,7 @@ public:
 	  * @param tokens Tokenized command line;
 	  *     tokens[1] is the topic.
 	  */
-	virtual std::string help(const std::vector<std::string>& tokens) const = 0;
+	std::string help(const std::vector<std::string>& tokens) const override = 0;
 
 	/** Attempt tab completion for this topic.
 	  * Default implementation does nothing.

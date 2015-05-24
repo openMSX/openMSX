@@ -22,9 +22,6 @@ protected:
 	          std::unique_ptr<RawFrame>* lastFrames);
 
 	unsigned getLineWidth(unsigned line) const override;
-	virtual const void* getLineInfo(
-		unsigned line, unsigned& width,
-		void* buf, unsigned bufWidth) const = 0;
 
 	std::unique_ptr<RawFrame>* lastFrames;
 };
