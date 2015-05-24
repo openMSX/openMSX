@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1427609756">
+<softwaredb timestamp="1432451892">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -512,6 +512,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>6bd5b97baceb3bc8da3571590e2a6a761bb90b48</hash><remark>[RC-701] / [SCC]</remark></megarom></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>e1c7169bd44a3c67f2941a14699b954d7e337d29</hash><remark>[RC-701] / [SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><rom><hash>c7af3306dbae898fcc077492cc4574298951df34</hash><remark>[RC-701] / Konami Antiques MSX Collection 1</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>c40d24a31e36f786688a556c1b63c1dda40325b6</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Anty</title>
@@ -747,6 +748,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>90bdd12d632d2e909ac5d69235ad0366f430b734</hash><remark>[RC-700]</remark></rom></dump>
 		<dump><rom><hash>29e2f2daed13cef12c20c9c0d383b99d18e489de</hash><remark>[RC-700] / [b][o]</remark></rom></dump>
 		<dump><rom><hash>de9eb0e9ef183f49e9d9b631f8818f9cac5df409</hash><remark>[RC-700] / [b]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash> 6a955432a641d87954763ef58735fa90495b65c8</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Attack 4 Women Volleyball</title>
@@ -1322,6 +1324,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>33ad6d1bf1fb816b232ea706d149327e363c7b21</hash><remark>[a]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>451cbb072011b26a7e0bc9931e67995a71f5fd6f</hash></rom></dump>
 		<dump><rom><hash>30161382e2410a72ece072719a561ec550256c7c</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>6f50ab2e4b4f40aa78e3d52ea3a1d6bace3ad361</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Bouken Roman - Dota</title>
@@ -1556,6 +1559,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>2a0f9899a4d8dba76db501d6e3435546cc7cd9aa</hash><remark>[RC-716]</remark></rom></dump>
 		<dump><rom><hash>ed547caf3e45f621b588cb1fa91008c9c1bc9ed7</hash></rom></dump>
 		<dump><rom><hash>55819eb8d38095c77d45b834cf15e6753044fc87</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>363e898c52f47ad01493490a7ae62bb5e1f8d1a4</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Candoo Ninja</title>
@@ -2073,9 +2077,10 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>8cf06f93d4e8bcf7be04ae8532f72e6eec8ba2f1</hash><remark>[RC-714]</remark></rom></dump>
 		<dump><rom><hash>553ed3a8577f25b6ee884ba78fba5454dd5cac36</hash><remark>[RC-714] / Ulver crack</remark></rom></dump>
 		<dump><rom><hash>9aab2b5dd7ae963d2f1eb7b35122221996b96ffe</hash><remark>[RC-714] / Ulver crack</remark></rom></dump>
-		<dump><rom><hash>c9a50b7649ac241899dbeb6cb80854c392a76b91</hash></rom></dump>
-		<dump><rom><hash>2f9698819b1c5cf28ced374be71afd720e650bbb</hash></rom></dump>
-		<dump><rom><hash>22e944b9453ffb305642f583e4ea0f2fc1fa29d1</hash></rom></dump>
+		<dump><rom><hash>c9a50b7649ac241899dbeb6cb80854c392a76b91</hash><remark>[RC-714]</remark></rom></dump>
+		<dump><rom><hash>2f9698819b1c5cf28ced374be71afd720e650bbb</hash><remark>[RC-714]</remark></rom></dump>
+		<dump><rom><hash>22e944b9453ffb305642f583e4ea0f2fc1fa29d1</hash><remark>[RC-714]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>fa4f2f0bfbef1bf744c1722406c45850045225e4</hash><remark>[RC-714] / GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Compile Gamecase</title>
@@ -2246,6 +2251,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2005</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>5586085d3be79378f9623e52fd04cad25febc34b</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>9d716d8bb0cf925d19dff40e0e404b38c89adff9</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Crazy Bullet</title>
@@ -2613,6 +2619,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>6e2e5cff4ee4dd935fbe6684f2c54b39eca06092</hash></rom></dump>
 		<dump><rom><hash>c1376facb3db0124f0557a95684d3059a3043fec</hash></rom></dump>
 		<dump><rom><hash>4dea8a5b2bbf77222f302addbe4fb6278793356a</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>0496b9a6e3f48577eae0ec1a110a88359a8a0be4</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Digital Devil Story - Monogatari Megami Tensei</title>
@@ -2818,6 +2825,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>761ab0aa7f528bf0f51ea9de75c847ea949478d7</hash></rom></dump>
 		<dump><rom><hash>533dc6d28ca60c090740879dcb3cfa386544ee45</hash></rom></dump>
 		<dump><rom><hash>0a04143b9357c6f2f0dc177c2acc5b27562e2a76</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>03a496f08946a344fff343509f596f7030bf5a50</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Dragon Buster</title>
@@ -3623,6 +3631,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>ec0320eda10bf6bbee8081f6672a7bf9d858c1bb</hash><remark>[a]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>0889ca383bcf24198db1fb2dd23dea1bf8c18be8</hash></rom></dump>
 		<dump><rom><hash>4b5cb07c6d0129bbccf1d9c5a98887ee36b94c03</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>9dcd8d6a89618401da9f1df566a98914a6be4dea</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Flappy Limited</title>
@@ -3963,6 +3972,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>4ec477eaff4cb23a2a82810a0031ed7b647ac670</hash></rom></dump>
 		<dump><rom><hash>b90aa345904890dd449bbd35c9648d22e01313fd</hash></rom></dump>
 		<dump><rom><hash>c650de3523eba6d220445cb727db4ef2248c3a98</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>90f3696fe96e720a9309cab8b981b6f84744b60e</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Galaxian</title>
@@ -3986,6 +3996,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>e2abb08abacce57703fc008881279890328f6277</hash></rom></dump>
 		<dump><rom><hash>d357b635ae007609718d21f0e22ea486f4eac2bd</hash></rom></dump>
 		<dump><rom><hash>307f5680290a88400126010ab26cbc87fb85913c</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>a2816649eac034d3b068678860ace2b94d4c1def</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Gall Force - Defence Of Chaos</title>
@@ -5939,6 +5950,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>d2c5497a52f5b8ababfc24fff1573622f86a69c6</hash></rom></dump>
 		<dump><rom><hash>15c82849dfc691a9cc39f874ab48243523ea6b9c</hash></rom></dump>
 		<dump><rom><hash>c1cd04c3ff667d12764fff9e150b863e94b9bb20</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>3aaa762a16a942bc45e884a428123eecd1fa6a85</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>King Kong 2</title>
@@ -6809,7 +6821,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>4ef4cd14a70e5eef213f8d70877dd394cb1999b1</hash><remark>[RC-713] / [h Magicalsoft]</remark></rom></dump>
 		<dump><rom><hash>bf5678f3c065a4507f71ed6206a63ac922ad93dd</hash><remark>[RC-713]</remark></rom></dump>
 		<dump><rom><hash>dceffda922852fd22e1a566b9cb3106d82db5847</hash><remark>[RC-713] / Ulver crack</remark></rom></dump>
-		<dump><rom><hash>539bcdafc48a34704b17f04682b6284dc3da257c</hash></rom></dump>
+		<dump><rom><hash>539bcdafc48a34704b17f04682b6284dc3da257c</hash><remark>[RC-713]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>b7d8bdfb3dea0d595e35c593b80104f834af7dae</hash><remark>[RC-713] / GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Magnetics</title>
@@ -6981,6 +6994,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>a8313b0dce35faa80b399a220f19b04333fdec1d</hash><remark>[a1]</remark></rom></dump>
 		<dump><rom><hash>43ec23bbdb3af0f5dbc6d17ea0b8d745e8833c86</hash></rom></dump>
 		<dump><rom><hash>028eb65719ea49cc97ceb6bc3143df87c10078e4</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>7df9d6786925a7218fd6808b1cad5e21f3a5a2af</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Marchen Veil</title>
@@ -7125,6 +7139,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>3167ffc2f2411138e4545cbdf4466c3237a04874</hash></rom></dump>
 		<dump><rom><hash>2af58d6b3a8c77270fa5bb82f129fc97f999b7ec</hash><remark>[a2]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>8c6e1e21cc45b2ca72ceea93df48eda9cef1dbad</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>1ebb2e5c3f6dd650871f829be8fa749bde2a7b16</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Meikyu no Tobira - Gate of Labyrinth</title>
@@ -7464,6 +7479,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>e61f407e51ea4411145e236272842bdb3e0743e6</hash><remark>[RC-702] / [a1]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>6fefe304cc8cd099456bbbbbcb23ff776cb113c9</hash><remark>[RC-702] / [a2]</remark></rom></dump>
 		<dump><rom><hash>e0d84b3b2ac7675c3ed104797840d43bc2347a5b</hash><remark>[RC-702]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>3e37d6b312d9100ddc9329748e8dbc11274534e6</hash><remark>[RC-702] / GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Monster Bash</title>
@@ -8431,6 +8447,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>56febd50be4accb3eb8c73ff4ff641ea767108b3</hash><remark>[a]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>a72724a79c2c50ec66046c0828934b5cad11b7c9</hash><remark>[a1]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>61695eb1dc6242d8a70c7ef2172cf86a26e3c2dd</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>fdb9d995ecdd2eacf369c11b8833d08559957695</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Pac-Man Collection DX Demo</title>
@@ -9409,6 +9426,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>e5de6e75ab06822aa10263e971b2473a3b573124</hash></rom></dump>
 		<dump><megarom><type>Normal</type><hash>9e06939700ebfebc28d5fb8837a84da5c89fcf2a</hash></megarom></dump>
 		<dump><rom><hash>c0a20a9484d0758eb93c31f570f1f83b3bb3b792</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>5ad581075397ea7de010b1cd8475d45fd7738195</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Rambo</title>
@@ -11049,8 +11067,9 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>31472edf134c8ba532e6a1eded0dcc1aa088e8ba</hash><remark>[RC-705] / [o]</remark></rom></dump>
 		<dump><rom><hash>87a9f78c0bba4e38d98890e34033a7b14f75f5e2</hash><remark>[RC-705] / [o2]</remark></rom></dump>
 		<dump><rom><hash>de2dd71730922168428dbc11a82fe91b84c23192</hash><remark>[RC-705] / [o3]</remark></rom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>32972530da19cac5956f83c2253c7cbf41e14dc3</hash><remark>[SCC][RC-705]</remark></megarom></dump>
-		<dump><sccpluscart><boot>scc+</boot><hash>93ab050bc4965667ee863773b8ecd36dd4f3f86c</hash><remark>[SD Snatcher RAM SCC+][RC-705]</remark></sccpluscart></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>32972530da19cac5956f83c2253c7cbf41e14dc3</hash><remark>[RC-705] / SCC Version</remark></megarom></dump>
+		<dump><sccpluscart><boot>scc+</boot><hash>93ab050bc4965667ee863773b8ecd36dd4f3f86c</hash><remark>[RC-705] / SD Snatcher RAM SCC+</remark></sccpluscart></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>9539999ed728aa6dbe4bef8b4be9876c7d1392c7</hash><remark>[RC-705] / GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Super Columns</title>
@@ -11342,6 +11361,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>5bbcbd47f05a2742cfb0cad88856eb2df6e469fe</hash></rom></dump>
 		<dump><rom><hash>72ddee4416abba094c0c6ff109248feecf648946</hash></rom></dump>
 		<dump><megarom><type>ASCII8</type><hash>6ad15c64eed81fceca9a8f3d882cb536e1d0d17b</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>48ebe2e2436a0bd484500a226adabd6a326538ad</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Tape Gamecase</title>
@@ -11790,8 +11810,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Konami</company>
 	<year>1983</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>b3c2dc4d1c940ddb4b9e742b8f5a47ab1e2d385f</hash><remark>[a1][RC-703]</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>b3c2dc4d1c940ddb4b9e742b8f5a47ab1e2d385f</hash><remark>[RC-703] / [a1]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>c1c5ec4042760880216f781ebd5e7174a3b0f9ca</hash><remark>[RC-703]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>b87a0363687d2c3563520d24fbcd148b309a10c9</hash><remark>[RC-703] / GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Title Memory</title>
@@ -12366,6 +12387,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>b9d2e0b6bb7f2b027c9beb0c762d127efcfff127</hash><remark>[o]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>52f95f6f4261be00ae1b9caf88a05c021c229e28</hash></rom></dump>
 		<dump><rom><hash>1f47ccfd979e653b96c9d7a36f62daf3a186e186</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>c338405946f83c15307b888046c88651bc56005a</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Warrior</title>
@@ -12934,6 +12956,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:3230
-Created on Sun Mar 29 8:16:09 CEST 2015
+Roms in this XML file:3252
+Created on Sun May 24 9:18:17 CEST 2015
  -->
