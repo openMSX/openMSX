@@ -105,8 +105,8 @@ bool SspiNegotiateServer::Authorize()
 	if (!secur32) {
 		return false;
 	}
-	QUERY_SECURITY_CONTEXT_TOKEN_FN QuerySecurityContextToken =
-		(QUERY_SECURITY_CONTEXT_TOKEN_FN)GetProcAddress(secur32, "QuerySecurityContextToken");
+	auto QuerySecurityContextToken = reinterpret_cast<QUERY_SECURITY_CONTEXT_TOKEN_FN>(
+		GetProcAddress(secur32, "QuerySecurityContextToken"));
 	if (!QuerySecurityContextToken) {
 		return false;
 	}
@@ -127,7 +127,7 @@ bool SspiNegotiateServer::Authorize()
 		psd,
 		hClientToken,
 		ACCESS_ALL,
-		(PGENERIC_MAPPING)&mapping,
+		const_cast<PGENERIC_MAPPING>(&mapping),
 		&privilegeSet,
 		&dwPrivSetSize,
 		&dwGranted,

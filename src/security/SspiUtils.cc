@@ -152,7 +152,7 @@ static PTOKEN_USER GetProcessToken()
 		ret = GetTokenInformation(hProcessToken, TokenUser, nullptr, 0, &cbToken);
 		assert(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER && cbToken);
 
-		pToken = (TOKEN_USER*)LocalAlloc(LMEM_ZEROINIT, cbToken);
+		pToken = static_cast<TOKEN_USER*>(LocalAlloc(LMEM_ZEROINIT, cbToken));
 		if (pToken) {
 			ret = GetTokenInformation(hProcessToken, TokenUser, pToken, cbToken, &cbToken);
 			DebugPrintSecurityBool("GetTokenInformation", ret);
@@ -179,17 +179,17 @@ PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor()
 
 		// Allocate the SD and the ACL in one allocation, so we only have one buffer to manage
 		// The SD structure ends with a pointer, so the start of the ACL will be well aligned
-		BYTE* buffer = (BYTE*)LocalAlloc(LMEM_ZEROINIT, SECURITY_DESCRIPTOR_MIN_LENGTH + cbACL);
+		BYTE* buffer = static_cast<BYTE*>(LocalAlloc(LMEM_ZEROINIT, SECURITY_DESCRIPTOR_MIN_LENGTH + cbACL));
 		if (buffer) {
-			psd = (PSECURITY_DESCRIPTOR)buffer;
-			PACL pacl = (PACL)(buffer + SECURITY_DESCRIPTOR_MIN_LENGTH);
+			psd = static_cast<PSECURITY_DESCRIPTOR>(buffer);
+			PACL pacl = reinterpret_cast<PACL>(buffer + SECURITY_DESCRIPTOR_MIN_LENGTH);
 			PACCESS_ALLOWED_ACE pUserAce;
 			if (InitializeSecurityDescriptor(psd, SECURITY_DESCRIPTOR_REVISION) &&
 			    InitializeAcl(pacl, cbACL, ACL_REVISION) &&
 			    AddAccessAllowedAce(pacl, ACL_REVISION, ACCESS_ALL, pUserSid) &&
 			    SetSecurityDescriptorDacl(psd, TRUE, pacl, FALSE) &&
 			    // Need to set the Group and Owner on the SD in order to use it with AccessCheck()
-			    GetAce(pacl, 0, (void**)&pUserAce) &&
+			    GetAce(pacl, 0, reinterpret_cast<void**>(&pUserAce)) &&
 			    SetSecurityDescriptorGroup(psd, &pUserAce->SidStart, FALSE) &&
 			    SetSecurityDescriptorOwner(psd, &pUserAce->SidStart, FALSE)) {
 				buffer = nullptr;
@@ -224,7 +224,7 @@ static bool Send(StreamWrapper& stream, void* buffer, uint32_t cb)
 {
 	uint32_t sent = 0;
 	while (sent < cb) {
-		uint32_t ret = stream.Write((char*)buffer + sent, cb - sent);
+		uint32_t ret = stream.Write(static_cast<char*>(buffer) + sent, cb - sent);
 		if (ret == STREAM_ERROR) return false;
 		sent += ret;
 	}
@@ -244,7 +244,7 @@ static bool Recv(StreamWrapper& stream, void* buffer, uint32_t cb)
 {
 	uint32_t recvd = 0;
 	while (recvd < cb) {
-		uint32_t ret = stream.Read((char*)buffer + recvd, cb - recvd);
+		uint32_t ret = stream.Read(static_cast<char*>(buffer) + recvd, cb - recvd);
 		if (ret == STREAM_ERROR) return false;
 		recvd += ret;
 	}

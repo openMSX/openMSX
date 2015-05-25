@@ -11,10 +11,11 @@ std::string sock_error()
 #ifdef _WIN32
 	wchar_t* s = nullptr;
 	FormatMessageW(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER
-		| FORMAT_MESSAGE_FROM_SYSTEM
-		| FORMAT_MESSAGE_IGNORE_INSERTS,
-		nullptr, WSAGetLastError(), 0, (LPWSTR)&s, 0, nullptr);
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		nullptr, WSAGetLastError(), 0, reinterpret_cast<LPWSTR>(&s),
+		0, nullptr);
 	std::string result = utf8::utf16to8(s);
 	LocalFree(s);
 	return result;
