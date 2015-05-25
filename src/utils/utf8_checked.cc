@@ -8,7 +8,7 @@
 
 namespace utf8 {
 
-bool multibytetoutf16(const std::string& multibyte, UINT cp, DWORD dwFlags, std::wstring& utf16)
+static bool multibytetoutf16(const std::string& multibyte, UINT cp, DWORD dwFlags, std::wstring& utf16)
 {
 	const char* multibyteA = multibyte.c_str();
 	int len = MultiByteToWideChar(cp, dwFlags, multibyteA, -1, nullptr, 0);
@@ -23,7 +23,7 @@ bool multibytetoutf16(const std::string& multibyte, UINT cp, DWORD dwFlags, std:
 	return false;
 }
 
-bool utf16tomultibyte(const std::wstring& utf16, UINT cp, std::string& multibyte)
+static bool utf16tomultibyte(const std::wstring& utf16, UINT cp, std::string& multibyte)
 {
 	const wchar_t* utf16W = utf16.c_str();
 	int len = WideCharToMultiByte(cp, 0, utf16W, -1, nullptr, 0, nullptr, nullptr);
