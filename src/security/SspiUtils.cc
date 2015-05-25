@@ -140,7 +140,7 @@ void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd)
 
 // If successful, caller must free the results with LocalFree()
 // If unsuccessful, returns null
-PTOKEN_USER GetProcessToken()
+static PTOKEN_USER GetProcessToken()
 {
 	PTOKEN_USER pToken = nullptr;
 
@@ -220,7 +220,7 @@ unsigned long GetPackageMaxTokenSize(const SEC_WCHAR* package)
 	return cbMaxToken;
 }
 
-bool Send(StreamWrapper& stream, void* buffer, uint32_t cb)
+static bool Send(StreamWrapper& stream, void* buffer, uint32_t cb)
 {
 	uint32_t sent = 0;
 	while (sent < cb) {

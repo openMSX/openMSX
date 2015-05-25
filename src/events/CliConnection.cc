@@ -240,7 +240,7 @@ PipeConnection::~PipeConnection()
 	CloseHandle(shutdownEvent);
 }
 
-void InitOverlapped(LPOVERLAPPED overlapped)
+static void InitOverlapped(LPOVERLAPPED overlapped)
 {
 	ZeroMemory(overlapped, sizeof(*overlapped));
 	overlapped->hEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
@@ -250,7 +250,7 @@ void InitOverlapped(LPOVERLAPPED overlapped)
 	}
 }
 
-void ClearOverlapped(LPOVERLAPPED overlapped)
+static void ClearOverlapped(LPOVERLAPPED overlapped)
 {
 	if (overlapped->hEvent) {
 		CloseHandle(overlapped->hEvent);
