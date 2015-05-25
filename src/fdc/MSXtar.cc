@@ -442,8 +442,11 @@ static void getTimeDate(const string& filename, unsigned& time, unsigned& date)
 		time = 0;
 		date = 0;
 	} else {
-		// some info indicates that st.st_mtime could be useless on win32 with vfat.
-		getTimeDate(static_cast<time_t&>(st.st_mtime), time, date);
+		// Some info indicates that st.st_mtime could be useless on win32 with vfat.
+		// On Android 'st_mtime' is 'unsigned long' instead of 'time_t'
+		// (like on linux), so we require a reinterpret_cast. That cast
+		// is fine (but redundant) on linux.
+		getTimeDate(reinterpret_cast<time_t&>(st.st_mtime), time, date);
 	}
 }
 
