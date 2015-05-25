@@ -36,22 +36,22 @@
 
 namespace openmsx {
 
-extern int w32_midiOutInit();
-extern void w32_midiOutClean();
-extern unsigned w32_midiOutGetVFNsNum();
-extern std::string w32_midiOutGetVFN(unsigned nmb);
-extern std::string w32_midiOutGetRDN(unsigned nmb);
-extern unsigned w32_midiOutOpen(const char* vfn);
-extern int w32_midiOutClose(unsigned idx);
-extern int w32_midiOutPut(unsigned char value, unsigned idx);
+int w32_midiOutInit();
+void w32_midiOutClean();
+unsigned w32_midiOutGetVFNsNum();
+std::string w32_midiOutGetVFN(unsigned nmb);
+std::string w32_midiOutGetRDN(unsigned nmb);
+unsigned w32_midiOutOpen(const char* vfn);
+int w32_midiOutClose(unsigned idx);
+int w32_midiOutPut(unsigned char value, unsigned idx);
 
-extern int w32_midiInInit();
-extern void w32_midiInClean();
-extern unsigned w32_midiInGetVFNsNum();
-extern std::string w32_midiInGetVFN(unsigned nmb);
-extern std::string w32_midiInGetRDN(unsigned nmb);
-extern unsigned w32_midiInOpen(const char* vfn, DWORD thrdid);
-extern int w32_midiInClose(unsigned idx);
+int w32_midiInInit();
+void w32_midiInClean();
+unsigned w32_midiInGetVFNsNum();
+std::string w32_midiInGetVFN(unsigned nmb);
+std::string w32_midiInGetRDN(unsigned nmb);
+unsigned w32_midiInOpen(const char* vfn, DWORD thrdid);
+int w32_midiInClose(unsigned idx);
 
 } // namespace openmsx
 
