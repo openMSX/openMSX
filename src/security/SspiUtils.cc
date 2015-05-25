@@ -240,7 +240,7 @@ bool SendChunk(StreamWrapper& stream, void* buffer, uint32_t cb)
 	return Send(stream, buffer, cb);
 }
 
-bool Recv(StreamWrapper& stream, void* buffer, uint32_t cb)
+static bool Recv(StreamWrapper& stream, void* buffer, uint32_t cb)
 {
 	uint32_t recvd = 0;
 	while (recvd < cb) {
@@ -251,7 +251,7 @@ bool Recv(StreamWrapper& stream, void* buffer, uint32_t cb)
 	return true;
 }
 
-bool RecvChunkSize(StreamWrapper& stream, uint32_t* pcb)
+static bool RecvChunkSize(StreamWrapper& stream, uint32_t* pcb)
 {
 	uint32_t cb;
 	bool ret = Recv(stream, &cb, sizeof(cb));
