@@ -362,7 +362,7 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Enable C++14
   COMPILE_FLAGS+=-std=c++14
   # Stricter warning and error reporting.
-  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast
   # Flag that is not accepted by old GCC versions.
   COMPILE_FLAGS+=$(shell \
     echo | $(CXX) -E -Wno-missing-field-initializers - >/dev/null 2>&1 \
