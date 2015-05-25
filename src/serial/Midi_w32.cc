@@ -27,6 +27,7 @@
 
 #ifdef _WIN32
 
+#include "Midi_w32.hh"
 #include "MSXException.hh"
 #include "MemBuffer.hh"
 #include "StringOp.hh"
@@ -36,8 +37,6 @@
 #include <cstdlib>
 #include <sstream>
 #include <cassert>
-#include <windows.h>
-#include <mmsystem.h>
 
 #define MAXPATHLEN MAX_PATH
 
