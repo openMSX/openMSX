@@ -261,10 +261,13 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// TODO fix this, this is a hack that depends heavily on
 	//      HardwareConig::createRomConfig
 	if (StringOp::startsWith(name, "MSXRom")) {
-		const auto* romInfo = motherBoard.getReactor().
-			getSoftwareDatabase().fetchRomInfo(getOriginalSHA1());
-		if (romInfo && !romInfo->getTitle().empty()) {
-			name = romInfo->getTitle().str();
+		auto& db = motherBoard.getReactor().getSoftwareDatabase();
+		string_ref title;
+		if (const auto* romInfo = db.fetchRomInfo(getOriginalSHA1())) {
+			title = romInfo->getTitle(db.getBufferStart());
+		}
+		if (!title.empty()) {
+			name = title.str();
 		} else {
 			// unknown ROM, use file name
 			name = file.getOriginalName();

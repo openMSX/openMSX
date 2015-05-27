@@ -2,6 +2,7 @@
 #define ROMINFO_HH
 
 #include "RomTypes.hh"
+#include "String32.hh"
 #include "string_ref.hh"
 #include <vector>
 #include <utility>
@@ -11,10 +12,10 @@ namespace openmsx {
 class RomInfo
 {
 public:
-	RomInfo(string_ref title_,    string_ref year_,
-                string_ref company_,  string_ref country_,
-                bool original_,       string_ref origType_,
-                string_ref remark_,  RomType romType_,
+	RomInfo(String32 title_,   String32 year_,
+                String32 company_, String32 country_,
+                bool original_,    String32 origType_,
+                String32 remark_,  RomType romType_,
                 int genMSXid_)
 		: title   (title_)
 		, year    (year_)
@@ -28,12 +29,24 @@ public:
 	{
 	}
 
-	const string_ref getTitle()     const { return title; }
-	const string_ref getYear()      const { return year; }
-	const string_ref getCompany()   const { return company; }
-	const string_ref getCountry()   const { return country; }
-	const string_ref getOrigType()  const { return origType; }
-	const string_ref getRemark()    const { return remark; }
+	const string_ref getTitle   (const char* buf) const {
+		return fromString32(buf, title);
+	}
+	const string_ref getYear    (const char* buf) const {
+		return fromString32(buf, year);
+	}
+	const string_ref getCompany (const char* buf) const {
+		return fromString32(buf, company);
+	}
+	const string_ref getCountry (const char* buf) const {
+		return fromString32(buf, country);
+	}
+	const string_ref getOrigType(const char* buf) const {
+		return fromString32(buf, origType);
+	}
+	const string_ref getRemark  (const char* buf) const {
+		return fromString32(buf, remark);
+	}
 	RomType          getRomType()   const { return romType; }
 	bool             getOriginal()  const { return original; }
 	int              getGenMSXid()  const { return genMSXid; }
@@ -45,12 +58,12 @@ public:
 	static unsigned   getBlockSize  (RomType type);
 
 private:
-	string_ref title;
-	string_ref year;
-	string_ref company;
-	string_ref country;
-	string_ref origType;
-	string_ref remark;
+	String32 title;
+	String32 year;
+	String32 company;
+	String32 country;
+	String32 origType;
+	String32 remark;
 	RomType romType;
 	int genMSXid;
 	bool original;

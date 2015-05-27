@@ -8,6 +8,7 @@
 #include "CliComm.hh"
 #include "StringOp.hh"
 #include "StringMap.hh"
+#include "String32.hh"
 #include "outer.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
@@ -25,10 +26,11 @@ class DBParser : public rapidsax::NullHandler
 {
 public:
 	DBParser(RomDatabase::RomDB& db_, UnknownTypes& unknownTypes_,
-	         CliComm& cliComm_)
+	         CliComm& cliComm_, char* bufStart_)
 		: db(db_)
 		, unknownTypes(unknownTypes_)
 		, cliComm(cliComm_)
+		, bufStart(bufStart_)
 		, state(BEGIN)
 		, unknownLevel(0)
 		, initialSize(db.size())
@@ -45,6 +47,7 @@ public:
 	string_ref getSystemID() const { return systemID; }
 
 private:
+	String32 cIndex(string_ref str);
 	void addEntries();
 	void addAllEntries();
 
@@ -70,9 +73,9 @@ private:
 	};
 
 	struct Dump {
-		string_ref remark;
+		String32 remark;
 		Sha1Sum hash;
-		string_ref origData;
+		String32 origData;
 		RomType type;
 		bool origValue;
 	};
@@ -80,6 +83,7 @@ private:
 	RomDatabase::RomDB& db;
 	UnknownTypes& unknownTypes;
 	CliComm& cliComm;
+	char* bufStart;
 
 	string_ref systemID;
 	string_ref type;
@@ -87,10 +91,10 @@ private:
 
 	vector<Dump> dumps;
 	string_ref system;
-	string_ref title;
-	string_ref company;
-	string_ref year;
-	string_ref country;
+	String32 title;
+	String32 company;
+	String32 year;
+	String32 country;
 	int genMSXid;
 
 	State state;
@@ -115,10 +119,10 @@ void DBParser::start(string_ref tag)
 	case SOFTWAREDB:
 		if (tag == "software") {
 			system.clear();
-			title.clear();
-			company.clear();
-			year.clear();
-			country.clear();
+			title = 0;
+			company = 0;
+			year = 0;
+			country = 0;
 			genMSXid = 0;
 			dumps.clear();
 			state = SOFTWARE;
@@ -306,16 +310,16 @@ void DBParser::text(string_ref text)
 		system = text;
 		break;
 	case TITLE:
-		title = text;
+		title = cIndex(text);
 		break;
 	case COMPANY:
-		company = text;
+		company = cIndex(text);
 		break;
 	case YEAR:
-		year = text;
+		year = cIndex(text);
 		break;
 	case COUNTRY:
-		country = text;
+		country = cIndex(text);
 		break;
 	case GENMSXID:
 		try {
@@ -328,7 +332,7 @@ void DBParser::text(string_ref text)
 		}
 		break;
 	case ORIGINAL:
-		dumps.back().origData = text;
+		dumps.back().origData = cIndex(text);
 		break;
 	case TYPE:
 		type = text;
@@ -341,7 +345,7 @@ void DBParser::text(string_ref text)
 		break;
 	case DUMP_REMARK:
 	case DUMP_TEXT:
-		dumps.back().remark = text;
+		dumps.back().remark = cIndex(text);
 		break;
 	case BEGIN:
 	case SOFTWAREDB:
@@ -353,6 +357,16 @@ void DBParser::text(string_ref text)
 	default:
 		UNREACHABLE;
 	}
+}
+
+String32 DBParser::cIndex(string_ref str)
+{
+	auto* begin = const_cast<char*>(str.data());
+	auto* end = begin + str.size();
+	*end = 0;
+	String32 result;
+	toString32(bufStart, begin, result);
+	return result;
 }
 
 // called on </software>
@@ -535,10 +549,10 @@ void DBParser::doctype(string_ref text)
 	systemID = t.substr(0, pos2);
 }
 
-static void parseDB(CliComm& cliComm, char* buf, RomDatabase::RomDB& db,
-                    UnknownTypes& unknownTypes)
+static void parseDB(CliComm& cliComm, char* buf, char* bufStart,
+                    RomDatabase::RomDB& db, UnknownTypes& unknownTypes)
 {
-	DBParser handler(db, unknownTypes, cliComm);
+	DBParser handler(db, unknownTypes, cliComm, bufStart);
 	rapidsax::parse<rapidsax::trimWhitespace>(handler, buf);
 
 	if (handler.getSystemID() != "softwaredb1.dtd") {
@@ -580,7 +594,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 			file.read(buf, size);
 			buf[size] = 0;
 
-			parseDB(cliComm, buf, db, unknownTypes);
+			parseDB(cliComm, buf, buffer.data(), db, unknownTypes);
 		} catch (rapidsax::ParseError& e) {
 			cliComm.printWarning(StringOp::Builder() <<
 				"Rom database parsing failed: " << e.what());
@@ -588,6 +602,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 			// Ignore, see above
 		}
 	}
+	if (bufferSize) buffer[0] = 0;
 	if (db.empty()) {
 		cliComm.printWarning(
 			"Couldn't load software database.\n"
@@ -636,18 +651,19 @@ void RomDatabase::SoftwareInfoTopic::execute(
 			"Software with sha1sum " + sha1sum.toString() + " not found");
 	}
 
+	const char* bufStart = romDatabase.buffer.data();
 	result.addListElement("title");
-	result.addListElement(romInfo->getTitle());
+	result.addListElement(romInfo->getTitle(bufStart));
 	result.addListElement("year");
-	result.addListElement(romInfo->getYear());
+	result.addListElement(romInfo->getYear(bufStart));
 	result.addListElement("company");
-	result.addListElement(romInfo->getCompany());
+	result.addListElement(romInfo->getCompany(bufStart));
 	result.addListElement("country");
-	result.addListElement(romInfo->getCountry());
+	result.addListElement(romInfo->getCountry(bufStart));
 	result.addListElement("orig_type");
-	result.addListElement(romInfo->getOrigType());
+	result.addListElement(romInfo->getOrigType(bufStart));
 	result.addListElement("remark");
-	result.addListElement(romInfo->getRemark());
+	result.addListElement(romInfo->getRemark(bufStart));
 	result.addListElement("original");
 	result.addListElement(romInfo->getOriginal());
 	result.addListElement("mapper_type_name");

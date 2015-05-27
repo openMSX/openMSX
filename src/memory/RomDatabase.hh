@@ -26,6 +26,8 @@ public:
 	 */
 	const RomInfo* fetchRomInfo(const Sha1Sum& sha1sum) const;
 
+	const char* getBufferStart() const { return buffer.data(); }
+
 private:
 	RomDB db;
 	MemBuffer<char> buffer;
