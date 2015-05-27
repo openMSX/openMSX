@@ -14,6 +14,7 @@
 // RapidXml produces a DOM-like output. This parser has a SAX-like interface.
 
 #include "string_ref.hh"
+#include <cassert>
 #include <cstdint>
 
 namespace rapidsax {
@@ -496,6 +497,13 @@ private:
 			}
 		}
 
+		// check next char before calling handler.text()
+		if (*text == '\0') {
+			throw ParseError("unexpected end of data", text);
+		} else {
+			assert(*text == '<');
+		}
+
 		// Handle text, but only if non-empty.
 		auto len = end - value;
 		if (len) handler.text(string_ref(value, len));
@@ -620,10 +628,10 @@ private:
 			char* contentsStart = text; // start before ws is skipped
 			skip<WhitespacePred>(text); // Skip ws between > and contents
 
-afterText:		// After parseText() jump here instead of continuing
-			// the loop, because skipping whitespace is unnecessary.
 			switch (*text) {
 			case '<': // Node closing or child node
+afterText:		// After parseText() jump here instead of continuing
+			// the loop, because skipping whitespace is unnecessary.
 				if (text[1] == '/') {
 					// Node closing
 					text += 2; // skip '</'
@@ -689,6 +697,13 @@ afterText:		// After parseText() jump here instead of continuing
 			char* valueEnd = (quote == '\'')
 				? skipAndExpand<AttPred1, AttPurePred1, FLAGS2>(text)
 				: skipAndExpand<AttPred2, AttPurePred2, FLAGS2>(text);
+			// Make sure that end quote is present
+			// check before calling handler.xxx()
+			if (*text != quote) {
+				throw ParseError("expected ' or \"", text);
+			}
+			++text; // skip quote
+
 			if (!declaration) {
 				handler.attribute(string_ref(name, nameEnd),
 				                  string_ref(value, valueEnd));
@@ -696,12 +711,6 @@ afterText:		// After parseText() jump here instead of continuing
 				handler.declAttribute(string_ref(name, nameEnd),
 				                      string_ref(value, valueEnd));
 			}
-
-			// Make sure that end quote is present
-			if (*text != quote) {
-				throw ParseError("expected ' or \"", text);
-			}
-			++text; // skip quote
 
 			skip<WhitespacePred>(text); // skip ws after value
 		}
