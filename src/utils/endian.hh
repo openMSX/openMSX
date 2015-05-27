@@ -36,7 +36,7 @@ static inline uint32_t bswap32(uint32_t x)
 }
 
 // Revese bytes in a 64-bit value: 0x1122334455667788 becomes 0x8877665544332211
-static inline uint32_t bswap64(uint64_t x)
+static inline uint64_t bswap64(uint64_t x)
 {
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3))
 	// Starting from gcc-4.3 there's a builtin function for this.
