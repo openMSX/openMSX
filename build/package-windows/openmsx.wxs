@@ -140,7 +140,7 @@
         <!-- Shortcut to openMSX website -->
         <util:InternetShortcut Id="openMSXWebSiteShortcut"
                                Name="!(loc.openMSXWebSite)"
-                               Target="http://openmsx.sourceforge.net/" />
+                               Target="http://www.openmsx.org/" />
 
         <!-- Shortcut to uninstall - do we really need this? 
              Note that [SystemFolder64] is always the native system folder -->

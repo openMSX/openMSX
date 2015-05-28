@@ -107,7 +107,7 @@ compiling on a new platform, please share your experiences (see below for
 contact info), so we can make openMSX more portable.
 
 openMSX Home Page:
-  http://openmsx.sourceforge.net/
+  http://www.openmsx.org/
 Project page on SourceForge:
   http://sourceforge.net/projects/openmsx/
 Contact options:

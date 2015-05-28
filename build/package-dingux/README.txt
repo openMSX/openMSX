@@ -44,7 +44,7 @@ Installing openMSX
 ------------------
 
 This info is also in the openMSX Compilation Guide:
-  http://openmsx.sourceforge.net/manual/compile.html#installstandalone
+  http://www.openmsx.org/manual/compile.html#installstandalone
 
 Copy the directory named "local" from the openMSX for Dingux ZIP file to the
 root of the miniSD card. If you have run Dingux from the miniSD card before,
@@ -55,7 +55,7 @@ openMSX comes with the C-BIOS system ROMs, which is an open source MSX BIOS.
 If you'd like to use other system ROMs, for example to get disk support or
 because you want to emulate the exact MSX model you had years ago, you have
 to install those yourself. Please read this for more info:
-  http://openmsx.sourceforge.net/manual/setup.html#systemroms
+  http://www.openmsx.org/manual/setup.html#systemroms
 As mentioned before, currently it's wise to include only those system ROMs you
 really need. Better not install large ones either (e.g. the MoonSound ROM),
 unless you don't care about very long start up times.
@@ -64,7 +64,7 @@ Using openMSX
 -------------
 
 The keymappings are documented in the openMSX User's Manual:
-  http://openmsx.sourceforge.net/manual/user.html#keymapping
+  http://www.openmsx.org/manual/user.html#keymapping
 
 
 Customizing openMSX
@@ -78,7 +78,7 @@ Please have a look in the share/openmsx/scripts directory for examples. Any
 script you place there will be executed by openMSX on startup.
 
 Please read this document to learn about the commands and settings of openMSX:
-  http://openmsx.sourceforge.net/manual/commands.html
+  http://www.openmsx.org/manual/commands.html
 
 Building openMSX
 ----------------
@@ -88,11 +88,11 @@ Dingux.
 
 This is described in the Compilation Guide (with specific instructions for
 Dingux):
-  http://openmsx.sourceforge.net/manual/compile.html
+  http://www.openmsx.org/manual/compile.html
 
 Feedback
 --------
 
 If you found a bug, made a patch, created a cool theme or have anything else
 you'd like to share, please contact us, see
-  http://openmsx.sourceforge.net/manual/user.html#contact
+  http://www.openmsx.org/manual/user.html#contact
