@@ -4,7 +4,7 @@
 
   <info>
     <manufacturer>Canon</manufacturer>
-    <code>V-20</code>
+    <code>V-20 (EU)</code>
     <release_year>1984?</release_year>
     <description/>
     <type>MSX</type>
@@ -27,7 +27,7 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
         <mem base="0x0000" size="0x8000"/>
         <rom>
           <sha1>8963fc041975f31dc2ab1019cfdd4967999de53e</sha1>
-          <filename>v-20_basic-bios1.rom</filename>
+          <filename>v-20eu_basic-bios1.rom</filename>
         </rom>
       </ROM>
     </primary>
