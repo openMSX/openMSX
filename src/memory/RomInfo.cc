@@ -94,6 +94,7 @@ static void init()
 	init(ROM_SUPERLODERUNNER,"SuperLodeRunner",0x4000, "Super Lode Runner");
 	init(ROM_SUPERSWANGI,    "SuperSwangi"    ,0x4000, "Super Swangi");
 	init(ROM_MSXDOS2,        "MSXDOS2",        0x4000, "MSX-DOS2");
+	init(ROM_MITSUBISHIMLTS2,"MitsubishiMLTS2",0x2000, "Mitsubishi ML-TS2 firmware");
 	init(ROM_MANBOW2,        "Manbow2",        0x2000, "Manbow2");
 	init(ROM_MANBOW2_2,      "Manbow2_2",      0x2000, "Manbow2 - Second Release");
 	init(ROM_HAMARAJANIGHT,  "HamarajaNight",  0x2000, "Best of Hamaraja Night");

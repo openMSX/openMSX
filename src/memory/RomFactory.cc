@@ -16,6 +16,7 @@
 #include "RomPadial16kB.hh"
 #include "RomSuperLodeRunner.hh"
 #include "RomSuperSwangi.hh"
+#include "RomMitsubishiMLTS2.hh"
 #include "RomMSXDOS2.hh"
 #include "RomAscii16_2.hh"
 #include "RomRType.hh"
@@ -247,6 +248,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case ROM_SUPERSWANGI:
 		result = make_unique<RomSuperSwangi>(config, move(rom));
+		break;
+	case ROM_MITSUBISHIMLTS2:
+		result = make_unique<RomMitsubishiMLTS2>(config, move(rom));
 		break;
 	case ROM_MSXDOS2:
 		result = make_unique<RomMSXDOS2>(config, move(rom));
