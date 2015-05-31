@@ -11,11 +11,19 @@
   </info>
 
   <!-- Based on serial 131844, thanks to Ricardo Jurczyk Pinheiro
-
+       and serial 125424, thanks to Werner Kai
+  both:
   Z80 scf: 01C529ED01D429C (dunno)
   Z80 cpl: 3AFF12D7 (standard)
   Z80 out (c), 0: 0 (MSX)
   PSG pin 6/7 quirk: C (YES)
+  
+  pics of 125424 reveal:
+  has S3527 MSX-ENGINE
+  Z80: NEC D780C-1
+  VDP: TMS9118NL
+  no printerport
+
   -->
 
   <CassettePort/>
@@ -37,11 +45,11 @@
 
     <VDP id="VDP">
       <version>TMS9118</version> <!-- NO effect of 4k/16k switch, no latch, HAS clones, HAS screen 2 mirrored mode, HAS mode 3 mixed mode -->
-      <io base="0x98" num="2"/>
+      <io base="0x98" num="8"/> <!-- S-3527 mirrors -->
     </VDP>
 
     <PSG id="PSG">
-      <type>YM2149</type> <!-- according to ident.bas -->
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
       <keyboardlayout>jis</keyboardlayout>
       <sound>
         <volume>21000</volume>
