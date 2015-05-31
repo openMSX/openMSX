@@ -34,7 +34,9 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
 
     <primary external="true" slot="1"/>
 
-    <primary slot="2">
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
 
       <secondary slot="0">
         <RAM id="Main RAM">
@@ -43,8 +45,6 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
       </secondary>
 
     </primary>
-
-    <primary external="true" slot="3"/>
 
     <PPI id="ppi">
       <io base="0xA8" num="8"/> <!-- mirroring confirmed by hap -->
