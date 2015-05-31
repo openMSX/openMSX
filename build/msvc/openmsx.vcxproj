@@ -499,6 +499,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMajutsushi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomManbow2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXtra.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMitsubishiMLTS2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMultiRom.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraInk.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.cc" />
@@ -638,14 +639,14 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLSnow.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLTVScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLUtil.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ2xLiteScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ2xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ3xLiteScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\HQ3xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\Icon.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\Layer.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Multiply32.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\OutputSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\PixelRenderer.cc" />
@@ -1023,6 +1024,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomKonamiSCC.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMajutsushi.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomManbow2.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomMitsubishiMLTS2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXtra.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMultiRom.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMatraInk.hh" />
@@ -1044,8 +1046,8 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina90in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\SRAM.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.hh" />
-	<None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.hh" />
-	<None Include="$(OpenMSXSrcDir)\memory\SdCard.cc.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\SdCard.cc.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomDooly.hh" />
     <None Include="$(OpenMSXSrcDir)\resource\openmsx.ico" />
     <None Include="$(OpenMSXSrcDir)\settings\BooleanSetting.hh" />
@@ -1219,7 +1221,7 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\HQCommon.hh" />
     <None Include="$(OpenMSXSrcDir)\video\Icon.hh" />
     <None Include="$(OpenMSXSrcDir)\video\Layer.hh" />
-	<None Include="$(OpenMSXSrcDir)\video\GLContext.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\GLContext.hh" />
     <None Include="$(OpenMSXSrcDir)\video\LayerListener.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\LineScalers.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\Multiply32.hh" />
@@ -1233,7 +1235,7 @@
     <None Include="$(OpenMSXSrcDir)\video\Renderer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\RendererFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\video\RenderSettings.hh" />
-	<None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />	
+    <None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />	
     <None Include="$(OpenMSXSrcDir)\video\scalers\RGBTriplet3xScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\SaI2xScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\SaI3xScaler.hh" />

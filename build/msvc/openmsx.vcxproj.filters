@@ -1327,6 +1327,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\AVTFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Touchpad.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMitsubishiMLTS2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXtra.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMultiRom.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\ReadOnlySetting.cc" />
@@ -2786,6 +2787,7 @@
     <None Include="$(OpenMSXSrcDir)\fdc\AVTFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Touchpad.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomMitsubishiMLTS2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXtra.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMultiRom.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.hh" />
