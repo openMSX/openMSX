@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1432451892">
+<softwaredb timestamp="1433089666">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1302,6 +1302,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><rom><hash>da7cfd16dd1a76ae6b551ceabfd7053ca8e3412f</hash><remark>[a]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>ef535ab6013d9b6e38227272f2ebe6a0f0b33cb5</hash></rom></dump>
+</software>
+<software>
+	<title>Booming Boy</title>
+	<system>MSX</system>
+	<company>MSxNAKE</company>
+	<year>2015</year>
+	<country>ES</country>
+		<dump><rom><hash>120f5a2bbba9e7628ae58122f3cb0307648ea22d</hash><remark>Demo Version</remark></rom></dump>
 </software>
 <software>
 	<title>Borfesu</title>
@@ -12956,6 +12964,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:3252
-Created on Sun May 24 9:18:17 CEST 2015
+Roms in this XML file:3253
+Created on Sun May 31 9:29:08 PDT 2015
  -->
