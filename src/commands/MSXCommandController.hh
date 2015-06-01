@@ -79,7 +79,7 @@ private:
 	Reactor& reactor;
 	MSXMotherBoard& motherboard;
 	MSXEventDistributor& msxEventDistributor;
-	const std::string& machineID;
+	std::string machineID;
 	std::unique_ptr<InfoCommand> machineInfoCommand;
 
 	StringMap<Command*> commandMap;
