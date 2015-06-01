@@ -15,7 +15,7 @@
 
       https://plus.google.com/photos/112629367302659371233/albums/6155507573429019985
 
-      Z80: SHARP LH0080A z80A-CPU-D
+      Z80: SHARP LH0080A Z80A-CPU-D
       PPI: NEC D8255AC-5
       PSG: Yamaha YM2149F
       VDP: TMS9118NL
@@ -91,7 +91,7 @@
       <ROM id="Personal Data Bank">
         <rom>
           <filename>hb-101_firmware.rom</filename>
-          <sha1>64adb7fcf9b86f59d8658badb02f58e61bb15712</sha1> <!-- note: original ROM dump showed a 2nd 16kB, but that one was completely 0x7E. As there's only a 16kB and a 32kB mask ROM on the PCB, it must really be a 16kB ROM -->
+          <sha1>64adb7fcf9b86f59d8658badb02f58e61bb15712</sha1> <!-- note: original ROM dump showed a 2nd 16kB, but that one was completely 0x7E. As there's only a 16kB and a 32kB mask ROM on the PCB, it must really be a 16kB ROM. Moreover, we found out that all unconnected memory showed as 0x7E (but unconnected I/O ports showed 0xFF) -->
         </rom>
         <mem base="0x4000" size="0x4000"/>
       </ROM>
