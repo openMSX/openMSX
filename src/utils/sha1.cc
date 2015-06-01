@@ -154,22 +154,6 @@ void Sha1Sum::clear()
 	}
 }
 
-bool Sha1Sum::operator==(const Sha1Sum& other) const
-{
-	for (int i = 0; i < 5; ++i) {
-		if (a[i] != other.a[i]) return false;
-	}
-	return true;
-}
-
-bool Sha1Sum::operator<(const Sha1Sum& other) const
-{
-	for (int i = 0; i < 5-1; ++i) {
-		if (a[i] != other.a[i]) return a[i] < other.a[i];
-	}
-	return a[5-1] < other.a[5-1];
-}
-
 
 // class SHA1
 

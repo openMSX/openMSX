@@ -16,28 +16,6 @@ string string_ref::str() const
 }
 
 
-// mutators
-
-void string_ref::remove_prefix(size_type n)
-{
-	if (n <= siz) {
-		dat += n;
-		siz -= n;
-	} else {
-		clear();
-	}
-}
-
-void string_ref::remove_suffix(size_type n)
-{
-	if (n <= siz) {
-		siz -= n;
-	} else {
-		clear();
-	}
-}
-
-
 // string operations with the same semantics as std::string
 
 int string_ref::compare(string_ref rhs) const
@@ -157,12 +135,6 @@ bool string_ref::ends_with(char x) const
 
 
 // Comparison operators
-bool operator==(string_ref x, string_ref y)
-{
-	return (x.size() == y.size()) &&
-	       (memcmp(x.data(), y.data(), x.size()) == 0);
-}
-
 bool operator< (string_ref x, string_ref y)
 {
 	return x.compare(y) < 0;

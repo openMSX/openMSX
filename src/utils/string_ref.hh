@@ -73,8 +73,21 @@ public:
 
 	// mutators
 	void clear() { siz = 0; } // no need to change 'dat'
-	void remove_prefix(size_type n);
-	void remove_suffix(size_type n);
+	void remove_prefix(size_type n) {
+		if (n <= siz) {
+			dat += n;
+			siz -= n;
+		} else {
+			clear();
+		}
+	}
+	void remove_suffix(size_type n) {
+		if (n <= siz) {
+			siz -= n;
+		} else {
+			clear();
+		}
+	}
 	void pop_back()  { remove_suffix(1); }
 	void pop_front() { remove_prefix(1); }
 
@@ -108,7 +121,11 @@ private:
 
 
 // Comparison operators
-bool operator==(string_ref x, string_ref y);
+inline bool operator==(string_ref x, string_ref y) {
+	return (x.size() == y.size()) &&
+	       (memcmp(x.data(), y.data(), x.size()) == 0);
+}
+
 bool operator< (string_ref x, string_ref y);
 inline bool operator!=(string_ref x, string_ref y) { return !(x == y); }
 inline bool operator> (string_ref x, string_ref y) { return  (y <  x); }
