@@ -8,6 +8,12 @@
      Mobo shows some modem chip: MP7246 JPN 8719&delta;
      CPU: NEC D780C -1
      S1985 MSX ENGINE
+
+     z80 scf: 01C501ED01D401C (NEC)
+     z80 cpl: 3AFF12D7 (standard)
+     Z80 out (c),0: 0 (MSX)
+     PSG pin 6/7 quirk: C (YES)
+     PSGmask: AY8910-like
      -->
 
   <info>
