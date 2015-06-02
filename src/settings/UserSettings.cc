@@ -1,11 +1,12 @@
 #include "UserSettings.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringSetting.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "checked_cast.hh"
 #include "memory.hh"
 #include "outer.hh"
 #include "stl.hh"
@@ -81,7 +82,8 @@ void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
 	const auto& type = tokens[2].getString();
 	const auto& name = tokens[3].getString();
 
-	if (getCommandController().findSetting(name)) {
+	auto& controller = checked_cast<GlobalCommandController&>(getCommandController());
+	if (controller.findSetting(name)) {
 		throw CommandException(
 			"There already exists a setting with this name: " + name);
 	}
