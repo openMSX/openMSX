@@ -119,10 +119,10 @@ void DBParser::start(string_ref tag)
 	case SOFTWAREDB:
 		if (tag == "software") {
 			system.clear();
-			title = 0;
-			company = 0;
-			year = 0;
-			country = 0;
+			toString32(bufStart, bufStart, title);
+			toString32(bufStart, bufStart, company);
+			toString32(bufStart, bufStart, year);
+			toString32(bufStart, bufStart, country);
 			genMSXid = 0;
 			dumps.clear();
 			state = SOFTWARE;
@@ -171,6 +171,8 @@ void DBParser::start(string_ref tag)
 				dumps.resize(dumps.size() + 1);
 				dumps.back().type = ROM_UNKNOWN;
 				dumps.back().origValue = false;
+				toString32(bufStart, bufStart, dumps.back().remark);
+				toString32(bufStart, bufStart, dumps.back().origData);
 				state = DUMP;
 				return;
 			}
