@@ -20,7 +20,17 @@ void RomMitsubishiMLTS2::reset(EmuTime::param /*time*/)
 
 void RomMitsubishiMLTS2::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
-	if (address == 0x7FC0) {
+	// TODO What are these 4 registers? Are there any more?
+	//      Is there any mirroring going on?
+	if        (address == 0x7f00) {
+		// TODO
+	} else if (address == 0x7f01) {
+		// TODO
+	} else if (address == 0x7f02) {
+		// TODO
+	} else if (address == 0x7f03) {
+		// TODO
+	} else if (address == 0x7FC0) {
 		byte bank = ((value & 0x10) >> 2) | // transform bit-pattern
 		            ((value & 0x04) >> 1) | //        ...a.b.c
 		            ((value & 0x01) >> 0);  //  into  00000abc
@@ -38,7 +48,18 @@ byte RomMitsubishiMLTS2::readMem(word address, EmuTime::param time)
 
 byte RomMitsubishiMLTS2::peekMem(word address, EmuTime::param time) const
 {
-	if ((0x6000 <= address) && (address < 0x8000)) {
+	// TODO What are these 4 registers? Are there any more?
+	//      Is there any mirroring going on?
+	//      Is the bank select register readable? (0x7fc0)
+	if        (address == 0x7f00) {
+		return 0xff; // TODO
+	} else if (address == 0x7f01) {
+		return 0xff; // TODO
+	} else if (address == 0x7f02) {
+		return 0xff; // TODO
+	} else if (address == 0x7f03) {
+		return 0xff; // TODO
+	} else if ((0x6000 <= address) && (address < 0x8000)) {
                 return ram[address & 0x1FFF];
 	} else {
 		return Rom8kBBlocks::peekMem(address, time);
