@@ -2,7 +2,7 @@
 #define ROMMITSUBISHIMLTS2_HH
 
 #include "RomBlocks.hh"
-#include <memory>
+#include "Ram.hh"
 
 // PLEASE NOTE!
 //
@@ -13,21 +13,23 @@ namespace openmsx {
 
 class Ram;
 
-class RomMitsubishiMLTS2 : public Rom8kBBlocks
+class RomMitsubishiMLTS2 final : public Rom8kBBlocks
 {
 public:
 	RomMitsubishiMLTS2(const DeviceConfig& config, Rom&& rom);
-	virtual ~RomMitsubishiMLTS2();
 
-	virtual void reset(EmuTime::param time);
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual byte readMem(word address, EmuTime::param time) override;
-	virtual byte peekMem(word address, EmuTime::param time) const override;
-	virtual byte* getWriteCacheLine(word address) const override;
-	virtual const byte* getReadCacheLine(word address) const override;
+	void reset(EmuTime::param time) override;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	byte readMem(word address, EmuTime::param time) override;
+	byte peekMem(word address, EmuTime::param time) const override;
+	byte* getWriteCacheLine(word address) const override;
+	const byte* getReadCacheLine(word address) const override;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::unique_ptr<Ram> ram;
+	Ram ram;
 };
 
 } // namespace openmsx
