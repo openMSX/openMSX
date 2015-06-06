@@ -34,7 +34,7 @@ XMLElement load(string_ref filename, string_ref systemID)
 	try {
 		File file(filename);
 		auto size = file.getSize();
-		buf.resize(size + 1);
+		buf.resize(size + rapidsax::EXTRA_BUFFER_SPACE);
 		file.read(buf.data(), size);
 		buf[size] = 0;
 	} catch (FileException& e) {

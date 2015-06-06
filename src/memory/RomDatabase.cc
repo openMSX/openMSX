@@ -118,7 +118,7 @@ void DBParser::start(string_ref tag)
 		}
 		throw MSXException("Expected <softwaredb> as root tag.");
 	case SOFTWAREDB:
-		if (tag == "software") {
+		if (small_compare<'s','o','f','t','w','a','r','e'>(tag)) {
 			system.clear();
 			toString32(bufStart, bufStart, title);
 			toString32(bufStart, bufStart, company);
@@ -135,40 +135,40 @@ void DBParser::start(string_ref tag)
 		tag.pop_front();
 		switch (c) {
 		case 's':
-			if (tag == "ystem") {
+			if (small_compare<'y','s','t','e','m'>(tag)) {
 				state = SYSTEM;
 				return;
 			}
 			break;
 		case 't':
-			if (tag == "itle") {
+			if (small_compare<'i','t','l','e'>(tag)) {
 				state = TITLE;
 				return;
 			}
 			break;
 		case 'c':
-			if (tag == "ompany") {
+			if (small_compare<'o','m','p','a','n','y'>(tag)) {
 				state = COMPANY;
 				return;
-			} else if (tag == "ountry") {
+			} else if (small_compare<'o','u','n','t','r','y'>(tag)) {
 				state = COUNTRY;
 				return;
 			}
 			break;
 		case 'y':
-			if (tag == "ear") {
+			if (small_compare<'e','a','r'>(tag)) {
 				state = YEAR;
 				return;
 			}
 			break;
 		case 'g':
-			if (tag == "enmsxid") {
+			if (small_compare<'e','n','m','s','x','i','d'>(tag)) {
 				state = GENMSXID;
 				return;
 			}
 			break;
 		case 'd':
-			if (tag == "ump") {
+			if (small_compare<'u','m','p'>(tag)) {
 				dumps.resize(dumps.size() + 1);
 				dumps.back().type = ROM_UNKNOWN;
 				dumps.back().origValue = false;
@@ -186,14 +186,14 @@ void DBParser::start(string_ref tag)
 		tag.pop_front();
 		switch (c) {
 		case 'o':
-			if (tag == "riginal") {
+			if (small_compare<'r','i','g','i','n','a','l'>(tag)) {
 				dumps.back().origValue = false;
 				state = ORIGINAL;
 				return;
 			}
 			break;
 		case 'm':
-			if (tag == "egarom") {
+			if (small_compare<'e','g','a','r','o','m'>(tag)) {
 				type.clear();
 				startVal.clear();
 				state = ROM;
@@ -201,7 +201,7 @@ void DBParser::start(string_ref tag)
 			}
 			break;
 		case 'r':
-			if (tag == "om") {
+			if (small_compare<'o','m'>(tag)) {
 				type = "Mirrored";
 				startVal.clear();
 				state = ROM;
@@ -216,25 +216,25 @@ void DBParser::start(string_ref tag)
 		tag.pop_front();
 		switch (c) {
 		case 't':
-			if (tag == "ype") {
+			if (small_compare<'y','p','e'>(tag)) {
 				state = TYPE;
 				return;
 			}
 			break;
 		case 's':
-			if (tag == "tart") {
+			if (small_compare<'t','a','r','t'>(tag)) {
 				state = START;
 				return;
 			}
 			break;
 		case 'r':
-			if (tag == "emark") {
+			if (small_compare<'e','m','a','r','k'>(tag)) {
 				state = DUMP_REMARK;
 				return;
 			}
 			break;
 		case 'h':
-			if (tag == "ash") {
+			if (small_compare<'a','s','h'>(tag)) {
 				state = HASH;
 				return;
 			}
@@ -243,7 +243,7 @@ void DBParser::start(string_ref tag)
 		break;
 	}
 	case DUMP_REMARK:
-		if (tag == "text") {
+		if (small_compare<'t','e','x','t'>(tag)) {
 			state = DUMP_TEXT;
 			return;
 		}
@@ -277,7 +277,7 @@ void DBParser::attribute(string_ref name, string_ref value)
 
 	switch (state) {
 	case ORIGINAL:
-		if (name == "value") {
+		if (small_compare<'v','a','l','u','e'>(name)) {
 			dumps.back().origValue = StringOp::stringToBool(value);
 		}
 		break;
@@ -375,7 +375,7 @@ String32 DBParser::cIndex(string_ref str)
 // called on </software>
 void DBParser::addEntries()
 {
-	if (!system.empty() && (system != "MSX")) {
+	if (!system.empty() && !small_compare<'M','S','X'>(system)) {
 		// skip non-MSX entries
 		return;
 	}
@@ -503,13 +503,13 @@ void DBParser::stop()
 	case ROM: {
 		string_ref t = type;
 		char buf[12];
-		if (t == "Mirrored") {
+		if (small_compare<'M','i','r','r','o','r','e','d'>(t)) {
 			if (const char* s = parseStart(startVal)) {
 				memcpy(buf, t.data(), 8);
 				memcpy(buf + 8, s, 4);
 				t = string_ref(buf, 12);
 			}
-		} else if (t == "Normal") {
+		} else if (small_compare<'N','o','r','m','a','l'>(t)) {
 			if (const char* s = parseStart(startVal)) {
 				memcpy(buf, t.data(), 6);
 				memcpy(buf + 6, s, 4);
@@ -578,7 +578,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	for (auto& p : paths) {
 		try {
 			files.emplace_back(FileOperations::join(p, "softwaredb.xml"));
-			bufferSize += files.back().getSize() + 1;
+			bufferSize += files.back().getSize() + rapidsax::EXTRA_BUFFER_SPACE;
 		} catch (MSXException& /*e*/) {
 			// Ignore. It's not unusual the DB in the user
 			// directory is not found. In case there's an error
@@ -592,8 +592,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 		try {
 			auto size = file.getSize();
 			auto* buf = &buffer[bufferOffset];
-			bufferOffset += size + 1;
-
+			bufferOffset += size + rapidsax::EXTRA_BUFFER_SPACE;
 			file.read(buf, size);
 			buf[size] = 0;
 
