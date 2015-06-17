@@ -1,6 +1,3 @@
-# Disable building openMSX, remove the next line to re-enable it.
-$(error This is the old sourceforge version of openMSX, it is obsolete. OpenMSX development has moved to github: https://github.com/openMSX/openMSX)
-
 # openMSX Build System
 # ====================
 #
