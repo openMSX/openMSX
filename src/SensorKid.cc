@@ -93,14 +93,12 @@ byte SensorKid::getAnalog(byte chi)
 
 	if (analog_dir[port] == 0) {
 		analog[port]--;
-		if (analog[port] < 0) {
-			analog[port] = 0;
+		if (analog[port] == 0) {
 			analog_dir[port] = 1;
 		}
 	} else {
 		analog[port]++;
-		if (analog[port] > 255) {
-			analog[port] = 255;
+		if (analog[port] == 255) {
 			analog_dir[port] = 0;
 		}
 	}
