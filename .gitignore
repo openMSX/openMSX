@@ -5,3 +5,5 @@
 *~
 core.*
 core
+.cproject
+.project
