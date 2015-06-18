@@ -3,6 +3,7 @@
 #include "serialize.hh"
 #include "Rom.hh"
 #include "MSXException.hh"
+#include "GlobalSettings.hh"
 #include <iostream>
 #include <stdlib.h>
 
@@ -13,6 +14,7 @@ namespace openmsx {
 
 SensorKid::SensorKid(const DeviceConfig& config)
 	: MSXDevice(config)
+    , sensorKidPortStatusCallback(config.getGlobalSettings().getSensorKidPortStatusCallBackSetting())
 {
 	prev = 255; // previously written value to port 0
 	mb4052_ana = 0; // the analog value that's currently being read
@@ -25,6 +27,8 @@ SensorKid::SensorKid(const DeviceConfig& config)
 	analog_dir[1] = rand() % 2;
 	analog_dir[2] = rand() % 2;
 	analog_dir[3] = rand() % 2;
+	// sensorKidPortStatusCallback.getSetting().attach(*this);
+
 }
 
 void SensorKid::writeIO(word port, byte value, EmuTime::param /* time */)
@@ -112,9 +116,11 @@ void SensorKid::putPort(byte data, byte diff)
 	// I assume the cartridge also has two digital output pins?
 	if (diff & 0x80) {
 		cout << "Status Port 0: " << (int)((data & 0x80) == 0) << endl;
+		sensorKidPortStatusCallback.execute(0, (int)((data & 0x80) == 0));
 	}
 	if (diff & 0x40) {
 		cout << "Status Port 1:  " << (int)((data & 0x40) == 0) << endl;
+		sensorKidPortStatusCallback.execute(1, (int)((data & 0x40) == 0));
 	}
 }
 

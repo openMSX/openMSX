@@ -57,6 +57,10 @@ public:
 	ThrottleManager& getThrottleManager() {
 		return throttleManager;
 	}
+	StringSetting& getSensorKidPortStatusCallBackSetting() {
+		return sensorKidPortStatusCallBackSetting;
+	}
+
 
 private:
 	// Observer<Setting>
@@ -74,6 +78,7 @@ private:
 	EnumSetting<ResampledSoundDevice::ResampleType> resampleSetting;
 	std::vector<std::unique_ptr<IntegerSetting>> deadzoneSettings;
 	ThrottleManager throttleManager;
+	StringSetting sensorKidPortStatusCallBackSetting;
 };
 
 } // namespace openmsx

@@ -2,6 +2,7 @@
 #define SENSORKID_HH
 
 #include "MSXDevice.hh"
+#include "TclCallback.hh"
 
 namespace openmsx {
 
@@ -30,6 +31,8 @@ private:
 	byte mb4052_count;
 	byte analog[4];
 	byte analog_dir[4];
+	TclCallback sensorKidPortStatusCallback;
+
 };
 
 } // namespace openmsx
