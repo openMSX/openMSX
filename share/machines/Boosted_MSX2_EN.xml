@@ -117,7 +117,7 @@
       <sound>
         <volume>16000</volume>
       </sound>
-      <key_ghosting>true</key_ghosting>
+      <key_ghosting>false</key_ghosting>
       <keyboard_type>int</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>

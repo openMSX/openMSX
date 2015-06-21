@@ -15,7 +15,6 @@
   <devices>
 
     <PPI id="ppi">
-      <key_ghosting>true</key_ghosting>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <sound>
         <volume>16000</volume>

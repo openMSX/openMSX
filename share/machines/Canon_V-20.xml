@@ -51,7 +51,6 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
       <sound>
         <volume>16000</volume>
       </sound>
-      <key_ghosting>true</key_ghosting>
       <keyboard_type>gb</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
