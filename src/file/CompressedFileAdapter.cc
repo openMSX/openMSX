@@ -1,13 +1,20 @@
 #include "CompressedFileAdapter.hh"
 #include "FileException.hh"
-#include "StringMap.hh"
+#include "hash_set.hh"
+#include "xxhash.hh"
 #include <cstring>
 
 using std::string;
 
 namespace openmsx {
 
-static StringMap<std::shared_ptr<CompressedFileAdapter::Decompressed>> decompressCache;
+struct GetURLFromDecompressed {
+	template<typename Ptr> const string& operator()(const Ptr& p) const {
+		return p->cachedURL;
+	}
+};
+static hash_set<std::shared_ptr<CompressedFileAdapter::Decompressed>,
+                GetURLFromDecompressed, XXHasher> decompressCache;
 
 
 CompressedFileAdapter::CompressedFileAdapter(std::unique_ptr<FileBase> file_)
@@ -19,7 +26,7 @@ CompressedFileAdapter::~CompressedFileAdapter()
 {
 	auto it = decompressCache.find(getURL());
 	decompressed.reset();
-	if (it != end(decompressCache) && it->second.unique()) {
+	if (it != end(decompressCache) && it->unique()) {
 		// delete last user of Decompressed, remove from cache
 		decompressCache.erase(it);
 	}
@@ -32,13 +39,13 @@ void CompressedFileAdapter::decompress()
 	string url = getURL();
 	auto it = decompressCache.find(url);
 	if (it != end(decompressCache)) {
-		decompressed = it->second;
+		decompressed = *it;
 	} else {
 		decompressed = std::make_shared<Decompressed>();
 		decompress(*file, *decompressed);
 		decompressed->cachedModificationDate = getModificationDate();
-		decompressed->cachedURL = url;
-		decompressCache[url] = decompressed;
+		decompressed->cachedURL = std::move(url);
+		decompressCache.insert_noDuplicateCheck(decompressed);
 	}
 
 	// close original file after succesful decompress
