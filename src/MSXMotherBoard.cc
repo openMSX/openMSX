@@ -677,8 +677,8 @@ string MSXMotherBoard::getUserName(const string& hwName)
 	string userName;
 	do {
 		userName = StringOp::Builder() << "untitled" << ++n;
-	} while (s.find(userName) != end(s));
-	s.insert(userName);
+	} while (find(begin(s), end(s), userName) != end(s));
+	s.push_back(userName);
 	return userName;
 }
 
@@ -686,8 +686,7 @@ void MSXMotherBoard::freeUserName(const string& hwName,
                                       const string& userName)
 {
 	auto& s = userNames[hwName];
-	assert(s.find(userName) != end(s));
-	s.erase(userName);
+	s.erase(find_unguarded(s, userName));
 }
 
 // AddRemoveUpdate

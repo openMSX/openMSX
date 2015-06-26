@@ -9,7 +9,6 @@
 #include "noncopyable.hh"
 #include "RecordedCommand.hh"
 #include <memory>
-#include <set>
 #include <vector>
 
 namespace openmsx {
@@ -201,7 +200,7 @@ private:
 	std::vector<MSXDevice*> availableDevices; // no ownership
 
 	StringMap<std::weak_ptr<void>> sharedStuffMap;
-	StringMap<std::set<std::string>> userNames;
+	StringMap<std::vector<std::string>> userNames;
 
 	std::unique_ptr<MSXMapperIO> mapperIO;
 	unsigned mapperIOCounter;
