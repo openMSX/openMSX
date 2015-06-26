@@ -1125,6 +1125,8 @@
     <None Include="$(OpenMSXSrcDir)\thread\Timer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\StringMap.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\hash_map.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\hash_set.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.hh" />

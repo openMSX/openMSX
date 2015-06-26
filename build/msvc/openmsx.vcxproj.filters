@@ -2739,6 +2739,8 @@
     <None Include="$(OpenMSXSrcDir)\sound\YM2413OkazakiTable.ii" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\StringMap.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\hash_map.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\hash_set.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\string_ref.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\rapidsax.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.hh" />
