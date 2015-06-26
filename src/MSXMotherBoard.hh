@@ -201,8 +201,8 @@ private:
 
 	std::vector<MSXDevice*> availableDevices; // no ownership
 
-	hash_map<string_ref, std::weak_ptr<void>, XXHasher> sharedStuffMap;
-	StringMap<std::vector<std::string>> userNames;
+	hash_map<string_ref, std::weak_ptr<void>,      XXHasher> sharedStuffMap;
+	hash_map<string_ref, std::vector<std::string>, XXHasher> userNames;
 
 	std::unique_ptr<MSXMapperIO> mapperIO;
 	unsigned mapperIOCounter;
