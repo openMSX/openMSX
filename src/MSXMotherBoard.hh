@@ -3,8 +3,10 @@
 
 #include "EmuTime.hh"
 #include "VideoSourceSetting.hh"
+#include "hash_map.hh"
 #include "serialize_meta.hh"
 #include "string_ref.hh"
+#include "xxhash.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include "RecordedCommand.hh"
@@ -199,7 +201,7 @@ private:
 
 	std::vector<MSXDevice*> availableDevices; // no ownership
 
-	StringMap<std::weak_ptr<void>> sharedStuffMap;
+	hash_map<string_ref, std::weak_ptr<void>, XXHasher> sharedStuffMap;
 	StringMap<std::vector<std::string>> userNames;
 
 	std::unique_ptr<MSXMapperIO> mapperIO;
