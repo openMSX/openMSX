@@ -9,12 +9,12 @@ ProbeBase::ProbeBase(Debugger& debugger_, const std::string& name_,
 	, name(name_)
 	, description(description_)
 {
-	debugger.registerProbe(name, *this);
+	debugger.registerProbe(*this);
 }
 
 ProbeBase::~ProbeBase()
 {
-	debugger.unregisterProbe(name, *this);
+	debugger.unregisterProbe(*this);
 }
 
 
