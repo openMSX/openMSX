@@ -1,11 +1,12 @@
 #ifndef SERIALIZE_META_HH
 #define SERIALIZE_META_HH
 
-#include "StringMap.hh"
-#include "noncopyable.hh"
-#include "type_traits.hh"
+#include "hash_map.hh"
 #include "likely.hh"
 #include "memory.hh"
+#include "noncopyable.hh"
+#include "type_traits.hh"
+#include "xxhash.hh"
 #include <tuple>
 #include <typeindex>
 #include <type_traits>
@@ -277,7 +278,8 @@ private:
 		const char* name,
 		std::unique_ptr<PolymorphicLoaderBase<Archive>> loader);
 
-	StringMap<std::unique_ptr<PolymorphicLoaderBase<Archive>>> loaderMap;
+	hash_map<string_ref, std::unique_ptr<PolymorphicLoaderBase<Archive>>, XXHasher>
+		loaderMap;
 };
 
 template<typename Archive>
@@ -305,7 +307,7 @@ private:
 		const char* name,
 		std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer);
 
-	StringMap<std::unique_ptr<PolymorphicInitializerBase<Archive>>>
+	hash_map<string_ref, std::unique_ptr<PolymorphicInitializerBase<Archive>>, XXHasher>
 		initializerMap;
 };
 
