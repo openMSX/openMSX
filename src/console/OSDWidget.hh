@@ -1,9 +1,10 @@
 #ifndef OSDWIDGET_HH
 #define OSDWIDGET_HH
 
-#include "StringMap.hh"
-#include "string_ref.hh"
 #include "gl_vec.hh"
+#include "hash_set.hh"
+#include "string_ref.hh"
+#include "xxhash.hh"
 #include <vector>
 #include <memory>
 
@@ -63,6 +64,12 @@ protected:
 	virtual void paintGL (OutputSurface& output) = 0;
 
 private:
+	struct NameFromWidget {
+		const std::string& operator()(const OSDWidget* w) const {
+			return w->getName();
+		}
+	};
+
 	gl::vec2 getMouseCoord() const;
 	gl::vec2 transformReverse(const OutputRectangle& output,
 	                          gl::vec2 pos) const;
@@ -77,7 +84,8 @@ private:
 	/** Contains the same widgets as "subWidgets", but stored with their name
 	  * the key, so lookup by name is fast.
 	  */
-	StringMap<OSDWidget*> subWidgetsMap;
+	hash_set<OSDWidget*, NameFromWidget, XXHasher> subWidgetsMap;
+	//TODO make one global hash_set??
 
 	OSDWidget* parent;
 

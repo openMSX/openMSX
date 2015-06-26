@@ -141,7 +141,7 @@ OSDWidget* OSDWidget::findSubWidget(string_ref name)
 	string_ref first, last;
 	StringOp::splitOnFirst(name, '.', first, last);
 	auto it = subWidgetsMap.find(first);
-	return it == end(subWidgetsMap) ? nullptr : it->second->findSubWidget(last);
+	return it == end(subWidgetsMap) ? nullptr : (*it)->findSubWidget(last);
 }
 
 const OSDWidget* OSDWidget::findSubWidget(string_ref name) const
@@ -152,7 +152,7 @@ const OSDWidget* OSDWidget::findSubWidget(string_ref name) const
 void OSDWidget::addWidget(unique_ptr<OSDWidget> widget)
 {
 	widget->setParent(this);
-	subWidgetsMap[widget->getName()] = widget.get();
+	subWidgetsMap.insert_noDuplicateCheck(widget.get());
 
 	// Insert the new widget in the correct place (sorted on ascending Z)
 	// heuristic: often we have either
