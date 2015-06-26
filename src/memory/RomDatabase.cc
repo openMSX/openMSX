@@ -7,12 +7,13 @@
 #include "GlobalCommandController.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
-#include "StringMap.hh"
 #include "String32.hh"
+#include "hash_map.hh"
 #include "outer.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
 #include "stl.hh"
+#include "xxhash.hh"
 #include <stdexcept>
 
 using std::string;
@@ -20,7 +21,7 @@ using std::vector;
 
 namespace openmsx {
 
-using UnknownTypes = StringMap<unsigned>;
+using UnknownTypes = hash_map<string, unsigned, XXHasher>;
 
 class DBParser : public rapidsax::NullHandler
 {
@@ -517,7 +518,7 @@ void DBParser::stop()
 		}
 		RomType romType = RomInfo::nameToRomType(t);
 		if (romType == ROM_UNKNOWN) {
-			unknownTypes[t]++;
+			unknownTypes[t.str()]++;
 		}
 		dumps.back().type = romType;
 		state = DUMP;
@@ -614,7 +615,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 		StringOp::Builder output;
 		output << "Unknown mapper types in software database: ";
 		for (auto& p : unknownTypes) {
-			output << p.first() << " (" << p.second << "x); ";
+			output << p.first << " (" << p.second << "x); ";
 		}
 		cliComm.printWarning(output);
 	}
