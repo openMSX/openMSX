@@ -96,7 +96,7 @@ void GlobalCliComm::update(UpdateType type, string_ref name, string_ref value)
 		}
 		it->second = value.str();
 	} else {
-		prevValues[type][name] = value.str();
+		prevValues[type].emplace_noDuplicateCheck(name.str(), value.str());
 	}
 	updateHelper(type, "", name, value);
 }

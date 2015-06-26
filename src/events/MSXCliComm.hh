@@ -2,8 +2,9 @@
 #define MSXCLICOMM_HH
 
 #include "CliComm.hh"
-#include "StringMap.hh"
+#include "hash_map.hh"
 #include "noncopyable.hh"
+#include "xxhash.hh"
 
 namespace openmsx {
 
@@ -22,7 +23,7 @@ public:
 private:
 	MSXMotherBoard& motherBoard;
 	GlobalCliComm& cliComm;
-	StringMap<std::string> prevValues[NUM_UPDATES];
+	hash_map<std::string, std::string, XXHasher> prevValues[NUM_UPDATES];
 };
 
 } // namespace openmsx
