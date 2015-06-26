@@ -44,18 +44,17 @@ Debugger::~Debugger()
 	assert(debuggables.empty());
 }
 
-void Debugger::registerDebuggable(string_ref name, Debuggable& debuggable)
+void Debugger::registerDebuggable(string name, Debuggable& debuggable)
 {
-	assert(debuggables.find(name) == end(debuggables));
-	debuggables[name] = &debuggable;
+	assert(!debuggables.contains(name));
+	debuggables.emplace_noDuplicateCheck(std::move(name), &debuggable);
 }
 
 void Debugger::unregisterDebuggable(string_ref name, Debuggable& debuggable)
 {
-	(void)debuggable;
-	auto it = debuggables.find(name);
-	assert(it != end(debuggables) && (it->second == &debuggable));
-	debuggables.erase(it);
+	assert(debuggables.contains(name));
+	assert(debuggables[name.str()] == &debuggable); (void)debuggable;
+	debuggables.erase(name);
 }
 
 Debuggable* Debugger::findDebuggable(string_ref name)

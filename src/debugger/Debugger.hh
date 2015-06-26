@@ -4,9 +4,11 @@
 #include "RecordedCommand.hh"
 #include "WatchPoint.hh"
 #include "StringMap.hh"
+#include "hash_map.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
 #include "outer.hh"
+#include "xxhash.hh"
 #include <vector>
 #include <memory>
 
@@ -24,7 +26,7 @@ public:
 	explicit Debugger(MSXMotherBoard& motherBoard);
 	~Debugger();
 
-	void registerDebuggable   (string_ref name, Debuggable& interface);
+	void registerDebuggable   (std::string name, Debuggable& interface);
 	void unregisterDebuggable (string_ref name, Debuggable& interface);
 	Debuggable* findDebuggable(string_ref name);
 
@@ -97,7 +99,7 @@ private:
 		void probeListBreakPoints(array_ref<TclObject> tokens, TclObject& result);
 	} cmd;
 
-	StringMap<Debuggable*> debuggables;
+	hash_map<std::string, Debuggable*, XXHasher> debuggables;
 	StringMap<ProbeBase*>  probes;
 	using ProbeBreakPoints = std::vector<std::unique_ptr<ProbeBreakPoint>>;
 	ProbeBreakPoints probeBreakPoints;
