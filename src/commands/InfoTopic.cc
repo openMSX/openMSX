@@ -10,12 +10,12 @@ InfoTopic::InfoTopic(InfoCommand& infoCommand_, const string& name)
 	: Completer(name)
 	, infoCommand(infoCommand_)
 {
-	infoCommand.registerTopic(*this, getName());
+	infoCommand.registerTopic(*this);
 }
 
 InfoTopic::~InfoTopic()
 {
-	infoCommand.unregisterTopic(*this, getName());
+	infoCommand.unregisterTopic(*this);
 }
 
 void InfoTopic::tabCompletion(vector<string>& /*tokens*/) const
