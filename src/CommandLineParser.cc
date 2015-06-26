@@ -18,10 +18,11 @@
 #include "GLUtil.hh"
 #include "Reactor.hh"
 #include "RomInfo.hh"
-#include "StringMap.hh"
+#include "hash_map.hh"
 #include "memory.hh"
 #include "outer.hh"
 #include "stl.hh"
+#include "xxhash.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <iostream>
@@ -425,12 +426,14 @@ static string formatHelptext(string_ref helpText,
 	return outText;
 }
 
-static void printItemMap(const StringMap<vector<string_ref>>& itemMap)
+// items grouped per common help-text
+using GroupedItems = hash_map<string_ref, vector<string_ref>, XXHasher>;
+static void printItemMap(const GroupedItems& itemMap)
 {
 	vector<string> printSet;
 	for (auto& p : itemMap) {
 		printSet.push_back(formatSet(p.second, 15) + ' ' +
-		                   formatHelptext(p.first(), 50, 20));
+		                   formatHelptext(p.first, 50, 20));
 	}
 	sort(begin(printSet), end(printSet));
 	for (auto& s : printSet) {
@@ -454,23 +457,23 @@ void CommandLineParser::HelpOption::parseOption(
 	cout << endl;
 	cout << "  this is the list of supported options:" << endl;
 
-	StringMap<vector<string_ref>> optionMap;
+	GroupedItems itemMap;
 	for (auto& p : parser.options) {
 		const auto& helpText = p.second.option->optionHelp();
 		if (!helpText.empty()) {
-			optionMap[helpText].push_back(p.first);
+			itemMap[helpText].push_back(p.first);
 		}
 	}
-	printItemMap(optionMap);
+	printItemMap(itemMap);
 
 	cout << endl;
 	cout << "  this is the list of supported file types:" << endl;
 
-	StringMap<vector<string_ref>> extMap;
+	itemMap.clear();
 	for (auto& p : parser.fileTypes) {
-		extMap[p.second->fileTypeHelp()].push_back(p.first);
+		itemMap[p.second->fileTypeHelp()].push_back(p.first);
 	}
-	printItemMap(extMap);
+	printItemMap(itemMap);
 
 	parser.parseStatus = CommandLineParser::EXIT;
 }
