@@ -6,7 +6,7 @@
     <manufacturer>Sony</manufacturer>
     <code>HBI-232</code>
     <release_year>1985</release_year>
-    <description>Sony MSX RS-232C cartridge.</description>
+    <description>Sony MSX RS-232C (version 2) cartridge.</description>
     <type>RS-232C cartridge</type>
   </info>
   <devices>
