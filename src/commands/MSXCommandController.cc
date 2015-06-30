@@ -49,8 +49,8 @@ MSXCommandController::~MSXCommandController()
 	for (auto& p : commandMap) {
 		std::cout << "Command not unregistered: " << p.first() << std::endl;
 	}
-	for (auto& p : settingMap) {
-		std::cout << "Setting not unregistered: " << p.first() << std::endl;
+	for (auto* s : settingMap) {
+		std::cout << "Setting not unregistered: " << s->getName() << std::endl;
 	}
 	assert(commandMap.empty());
 	assert(settingMap.empty());
@@ -104,7 +104,7 @@ void MSXCommandController::registerSetting(Setting& setting)
 {
 	const string& name = setting.getName();
 	assert(!findSetting(name));
-	settingMap[name] = &setting;
+	settingMap.insert_noDuplicateCheck(&setting);
 
 	globalCommandController.registerProxySetting(setting);
 	string fullname = getFullName(name);
@@ -141,7 +141,7 @@ Command* MSXCommandController::findCommand(string_ref name) const
 BaseSetting* MSXCommandController::findSetting(string_ref name)
 {
 	auto it = settingMap.find(name);
-	return (it != end(settingMap)) ? it->second : nullptr;
+	return (it != end(settingMap)) ? *it : nullptr;
 }
 
 const BaseSetting* MSXCommandController::findSetting(string_ref setting) const
@@ -176,7 +176,7 @@ void MSXCommandController::signalEvent(
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
 
 	// simple way to synchronize proxy settings
-	for (auto* s : values(settingMap)) {
+	for (auto* s : settingMap) {
 		try {
 			changeSetting(*s, s->getValue());
 		} catch (MSXException&) {
@@ -192,11 +192,11 @@ bool MSXCommandController::isActive() const
 
 void MSXCommandController::transferSettings(const MSXCommandController& from)
 {
-	for (auto& p : settingMap) {
-		if (auto* fromSetting = from.findSetting(p.first())) {
+	for (auto* s : settingMap) {
+		if (auto* fromSetting = from.findSetting(s->getName())) {
 			if (!fromSetting->needTransfer()) continue;
 			try {
-				changeSetting(*p.second, fromSetting->getValue());
+				changeSetting(*s, fromSetting->getValue());
 			} catch (MSXException&) {
 				// ignore
 			}
