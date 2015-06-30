@@ -2,9 +2,9 @@
 #define MSXCOMMANDCONTROLLER_HH
 
 #include "CommandController.hh"
+#include "Command.hh"
 #include "MSXEventListener.hh"
 #include "Setting.hh"
-#include "StringMap.hh"
 #include "hash_set.hh"
 #include "noncopyable.hh"
 #include "xxhash.hh"
@@ -85,7 +85,12 @@ private:
 	std::string machineID;
 	std::unique_ptr<InfoCommand> machineInfoCommand;
 
-	StringMap<Command*> commandMap;
+	struct NameFromCommand {
+		const std::string& operator()(const Command* c) const {
+			return c->getName();
+		}
+	};
+	hash_set<Command*, NameFromCommand, XXHasher> commandMap;
 
 	struct NameFromSetting {
 		const std::string& operator()(const Setting* s) const {

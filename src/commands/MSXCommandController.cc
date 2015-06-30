@@ -46,8 +46,8 @@ MSXCommandController::~MSXCommandController()
 	machineInfoCommand.reset();
 
 	#ifndef NDEBUG
-	for (auto& p : commandMap) {
-		std::cout << "Command not unregistered: " << p.first() << std::endl;
+	for (auto* c : commandMap) {
+		std::cout << "Command not unregistered: " << c->getName() << std::endl;
 	}
 	for (auto* s : settingMap) {
 		std::cout << "Setting not unregistered: " << s->getName() << std::endl;
@@ -67,7 +67,8 @@ string MSXCommandController::getFullName(string_ref name)
 void MSXCommandController::registerCommand(Command& command, const string& str)
 {
 	assert(!hasCommand(str));
-	commandMap[str] = &command;
+	assert(command.getName() == str);
+	commandMap.insert_noDuplicateCheck(&command);
 
 	string fullname = getFullName(str);
 	globalCommandController.registerCommand(command, fullname);
@@ -79,6 +80,7 @@ void MSXCommandController::registerCommand(Command& command, const string& str)
 void MSXCommandController::unregisterCommand(Command& command, string_ref str)
 {
 	assert(hasCommand(str));
+	assert(command.getName() == str);
 	commandMap.erase(str);
 
 	globalCommandController.unregisterProxyCommand(str);
@@ -135,7 +137,7 @@ void MSXCommandController::changeSetting(Setting& setting, const TclObject& valu
 Command* MSXCommandController::findCommand(string_ref name) const
 {
 	auto it = commandMap.find(name);
-	return (it != end(commandMap)) ? it->second : nullptr;
+	return (it != end(commandMap)) ? *it : nullptr;
 }
 
 BaseSetting* MSXCommandController::findSetting(string_ref name)
