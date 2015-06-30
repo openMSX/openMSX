@@ -10,7 +10,9 @@
 #include "SettingsConfig.hh"
 #include "RomInfoTopic.hh"
 #include "StringMap.hh"
+#include "hash_map.hh"
 #include "noncopyable.hh"
+#include "xxhash.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -29,7 +31,7 @@ protected:
 	~GlobalCommandControllerBase();
 
 	StringMap<Command*> commands;
-	StringMap<CommandCompleter*> commandCompleters;
+	hash_map<std::string, CommandCompleter*, XXHasher> commandCompleters;
 };
 
 class GlobalCommandController final : private GlobalCommandControllerBase

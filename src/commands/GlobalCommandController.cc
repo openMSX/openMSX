@@ -143,16 +143,15 @@ void GlobalCommandController::unregisterCommand(
 void GlobalCommandController::registerCompleter(
 	CommandCompleter& completer, string_ref str)
 {
-	assert(commandCompleters.find(str) == end(commandCompleters));
-	commandCompleters[str] = &completer;
+	assert(!commandCompleters.contains(str));
+	commandCompleters.emplace_noDuplicateCheck(str.str(), &completer);
 }
 
 void GlobalCommandController::unregisterCompleter(
 	CommandCompleter& completer, string_ref str)
 {
-	(void)completer;
-	assert(commandCompleters.find(str) != end(commandCompleters));
-	assert(commandCompleters.find(str)->second == &completer);
+	assert(commandCompleters.contains(str));
+	assert(commandCompleters[str.str()] == &completer); (void)completer;
 	commandCompleters.erase(str);
 }
 
@@ -451,7 +450,7 @@ void GlobalCommandController::HelpCmd::execute(
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
 		for (auto& p : controller.commandCompleters) {
-			const auto& key = p.first();
+			const auto& key = p.first;
 			text.append(key.data(), key.size());
 			text += '\n';
 		}
