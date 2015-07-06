@@ -12,10 +12,9 @@ using std::string;
 
 namespace openmsx {
 
-ProxyCmd::ProxyCmd(Reactor& reactor_, std::string name_)
-	: Command(reactor_.getGlobalCommandController(), "")
+ProxyCmd::ProxyCmd(Reactor& reactor_, string_ref name)
+	: Command(reactor_.getGlobalCommandController(), name)
 	, reactor(reactor_)
-	, name(std::move(name_))
 {
 }
 
@@ -23,7 +22,7 @@ Command* ProxyCmd::getMachineCommand() const
 {
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return nullptr;
-	return motherBoard->getMSXCommandController().findCommand(name);
+	return motherBoard->getMSXCommandController().findCommand(getName());
 }
 
 void ProxyCmd::execute(array_ref<TclObject> tokens, TclObject& result)
@@ -39,7 +38,7 @@ void ProxyCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 		}
 		command->execute(tokens, result);
 	} else {
-		throw CommandException("Invalid command name \"" + name + '"');
+		throw CommandException("Invalid command name \"" + getName() + '"');
 	}
 }
 
@@ -48,7 +47,7 @@ string ProxyCmd::help(const vector<string>& tokens) const
 	if (Command* command = getMachineCommand()) {
 		return command->help(tokens);
 	} else {
-		return "unknown command: " + name;
+		return "unknown command: " + getName();
 	}
 }
 

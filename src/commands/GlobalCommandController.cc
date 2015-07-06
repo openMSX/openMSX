@@ -59,8 +59,6 @@ void GlobalCommandController::registerProxyCommand(const string& name)
 	auto& p = proxyCommandMap[name];
 	if (p.first == 0) {
 		p.second = make_unique<ProxyCmd>(reactor, name);
-		registerCommand(*p.second, name);
-		registerCompleter(*p.second, name);
 	}
 	++p.first;
 }
@@ -71,8 +69,6 @@ void GlobalCommandController::unregisterProxyCommand(string_ref name)
 	assert(p.first > 0);
 	--p.first;
 	if (p.first == 0) {
-		unregisterCompleter(*p.second, name);
-		unregisterCommand(*p.second, name);
 		p.second.reset();
 	}
 }
