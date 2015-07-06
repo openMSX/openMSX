@@ -59,6 +59,7 @@ CliComm& CommandCompleter::getCliComm() const
 Command::Command(CommandController& commandController, string_ref name)
 	: CommandCompleter(commandController, name)
 	, allowInEmptyMachine(true)
+	, token(nullptr)
 {
 	if (!getName().empty()) {
 		getCommandController().registerCommand(*this, getName());

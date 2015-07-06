@@ -140,7 +140,7 @@ void GlobalCommandController::unregisterCommand(
 	assert(commands.find(str) != end(commands));
 	assert(commands.find(str)->second == &command);
 
-	interpreter.unregisterCommand(str, command);
+	interpreter.unregisterCommand(command);
 	commands.erase(str);
 }
 

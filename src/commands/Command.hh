@@ -57,12 +57,17 @@ public:
 	void setAllowedInEmptyMachine(bool value) { allowInEmptyMachine = value; }
 	bool isAllowedInEmptyMachine() const { return allowInEmptyMachine; }
 
+	// used by Interpreter::(un)registerCommand()
+	void setToken(void* token_) { assert(!token); token = token_; }
+	void* getToken() const { return token; }
+
 protected:
 	Command(CommandController& controller, string_ref name);
 	~Command();
 
 private:
 	bool allowInEmptyMachine;
+	void* token;
 };
 
 } // namespace openmsx
