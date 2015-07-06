@@ -148,4 +148,16 @@ inline uint32_t xxhash_case(string_ref key)
 	return xxhash_impl<static_cast<uint8_t>(~('a' - 'A'))>(key);
 }
 
+struct XXHasher {
+	uint32_t operator()(string_ref key) const {
+		return xxhash(key);
+	}
+};
+
+struct XXHasher_IgnoreCase {
+	uint32_t operator()(string_ref key) const {
+		return xxhash_case(key);
+	}
+};
+
 #endif
