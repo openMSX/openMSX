@@ -56,20 +56,22 @@ GlobalCommandControllerBase::~GlobalCommandControllerBase()
 
 void GlobalCommandController::registerProxyCommand(const string& name)
 {
-	auto& p = proxyCommandMap[name];
-	if (p.first == 0) {
-		p.second = make_unique<ProxyCmd>(reactor, name);
+	auto it = proxyCommandMap.find(name);
+	if (it == end(proxyCommandMap)) {
+		it = proxyCommandMap.emplace_noDuplicateCheck(
+			0, make_unique<ProxyCmd>(reactor, name));
 	}
-	++p.first;
+	++it->first;
 }
 
 void GlobalCommandController::unregisterProxyCommand(string_ref name)
 {
-	auto& p = proxyCommandMap[name];
-	assert(p.first > 0);
-	--p.first;
-	if (p.first == 0) {
-		p.second.reset();
+	auto it = proxyCommandMap.find(name);
+	assert(it != end(proxyCommandMap));
+	assert(it->first > 0);
+	--it->first;
+	if (it->first == 0) {
+		proxyCommandMap.erase(it);
 	}
 }
 
@@ -124,20 +126,18 @@ Interpreter& GlobalCommandController::getInterpreter()
 void GlobalCommandController::registerCommand(
 	Command& command, const string& str)
 {
-	assert(commands.find(str) == end(commands));
-
-	commands[str] = &command;
+	assert(!commands.contains(str));
+	commands.emplace_noDuplicateCheck(str, &command);
 	interpreter.registerCommand(str, command);
 }
 
 void GlobalCommandController::unregisterCommand(
 	Command& command, string_ref str)
 {
-	assert(commands.find(str) != end(commands));
-	assert(commands.find(str)->second == &command);
-
-	interpreter.unregisterCommand(command);
+	assert(commands.contains(str));
+	assert(commands[str.str()] == &command);
 	commands.erase(str);
+	interpreter.unregisterCommand(command);
 }
 
 void GlobalCommandController::registerCompleter(
