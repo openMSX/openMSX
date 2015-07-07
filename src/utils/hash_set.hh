@@ -60,7 +60,7 @@ struct Element {
 	//  TODO remove once we switch to vs2015
 	Element(Element&& source)
 		: value(std::move(source.value))
-		, hash(source.hash), nextIdx(source.hash)
+		, hash(source.hash), nextIdx(source.nextIdx)
 	{
 	}
 };
