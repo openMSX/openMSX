@@ -585,6 +585,7 @@ public:
 			}
 		}
 		UNREACHABLE;
+		return end(); // avoid warning
 	}
 
 	const_iterator begin() const
@@ -597,6 +598,7 @@ public:
 			}
 		}
 		UNREACHABLE;
+		return end(); // avoid warning
 	}
 
 	iterator end()
