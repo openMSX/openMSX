@@ -198,7 +198,13 @@ private:
 	{
 		auto* oldBuf = buf1_ + 1;
 		Elem* newBuf;
-		if (std::is_trivially_move_constructible<Elem>::value) {
+#if __GNUC__ <= 4
+		// only implemented starting from gcc-5
+		bool trivial = false;
+#else
+		bool trivial = std::is_trivially_move_constructible<Elem>::value;
+#endif
+		if (trivial) {
 			newBuf = static_cast<Elem*>(realloc(oldBuf, newCapacity * sizeof(Elem)));
 			if (!newBuf) throw std::bad_alloc();
 		} else {
