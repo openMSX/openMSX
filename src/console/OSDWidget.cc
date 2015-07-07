@@ -4,8 +4,8 @@
 #include "TclObject.hh"
 #include "StringOp.hh"
 #include "GLUtil.hh"
-#include "unreachable.hh"
 #include "memory.hh"
+#include "stl.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <limits>
@@ -119,9 +119,8 @@ GLScopedClip::~GLScopedClip()
 
 ////
 
-OSDWidget::OSDWidget(const string& name_)
+OSDWidget::OSDWidget()
 	: parent(nullptr)
-	, name(name_)
 	, z(0.0)
 	, scaled(false)
 	, clip(false)
@@ -133,26 +132,9 @@ OSDWidget::~OSDWidget()
 {
 }
 
-OSDWidget* OSDWidget::findSubWidget(string_ref name)
-{
-	if (name.empty()) {
-		return this;
-	}
-	string_ref first, last;
-	StringOp::splitOnFirst(name, '.', first, last);
-	auto it = subWidgetsMap.find(first);
-	return it == end(subWidgetsMap) ? nullptr : (*it)->findSubWidget(last);
-}
-
-const OSDWidget* OSDWidget::findSubWidget(string_ref name) const
-{
-	return const_cast<OSDWidget*>(this)->findSubWidget(name);
-}
-
 void OSDWidget::addWidget(unique_ptr<OSDWidget> widget)
 {
 	widget->setParent(this);
-	subWidgetsMap.insert_noDuplicateCheck(widget.get());
 
 	// Insert the new widget in the correct place (sorted on ascending Z)
 	// heuristic: often we have either
@@ -175,16 +157,9 @@ void OSDWidget::addWidget(unique_ptr<OSDWidget> widget)
 
 void OSDWidget::deleteWidget(OSDWidget& widget)
 {
-	string widgetName = widget.getName();
-	for (auto it = begin(subWidgets); it != end(subWidgets); ++it) {
-		if (it->get() == &widget) {
-			subWidgets.erase(it);
-			auto existed = subWidgetsMap.erase(widgetName);
-			assert(existed); (void)existed;
-			return;
-		}
-	}
-	UNREACHABLE;
+	auto it = find_if_unguarded(subWidgets,
+		[&](const std::unique_ptr<OSDWidget>& p) { return p.get() == &widget; });
+	subWidgets.erase(it);
 }
 
 #ifdef DEBUG
@@ -461,17 +436,6 @@ void OSDWidget::getBoundingBox(const OutputRectangle& output,
 	vec2 bottomRight = transformPos(output, vec2(), vec2(1.0f));
 	pos  = round(topLeft);
 	size = round(bottomRight - topLeft);
-}
-
-void OSDWidget::listWidgetNames(const string& parentName, vector<string>& result) const
-{
-	string pname = parentName;
-	if (!pname.empty()) pname += '.';
-	for (auto& s : subWidgets) {
-		string name = pname + s->getName();
-		result.push_back(name);
-		s->listWidgetNames(name, result);
-	}
 }
 
 } // namespace openmsx

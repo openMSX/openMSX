@@ -72,38 +72,40 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 		throw SyntaxError();
 	}
 	string_ref type = tokens[2].getString();
-	string_ref fullname = tokens[3].getString();
-	string_ref parentname, name;
-	StringOp::splitOnLast(fullname, '.', parentname, name);
-	if (name.empty()) std::swap(parentname, name);
+	auto& fullname = tokens[3];
+	auto fullnameStr = fullname.getString();
 
 	auto& gui = OUTER(OSDGUI, osdCommand);
-	auto* parent = gui.getTopWidget().findSubWidget(parentname);
+	auto& top = gui.getTopWidget();
+	if (top.findByName(fullnameStr)) {
+		throw CommandException(
+			"There already exists a widget with this name: " +
+			fullnameStr);
+	}
+
+	string_ref parentname, name;
+	StringOp::splitOnLast(fullnameStr, '.', parentname, name);
+	auto* parent = name.empty() ? &top : top.findByName(parentname);
 	if (!parent) {
 		throw CommandException(
 			"Parent widget doesn't exist yet:" + parentname);
 	}
-	if (parent->findSubWidget(name)) {
-		throw CommandException(
-			"There already exists a widget with this name: " +
-			fullname);
-	}
 
-	auto widget = create(type, name.str());
+	auto widget = create(type);
 	configure(*widget, tokens, 4);
+	top.addName(fullname, *widget);
 	parent->addWidget(std::move(widget));
 
-	result.setString(fullname);
+	result = fullname;
 }
 
-unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
-		string_ref type, const string& name) const
+unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(string_ref type) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (type == "rectangle") {
-		return make_unique<OSDRectangle>(gui, name);
+		return make_unique<OSDRectangle>(gui);
 	} else if (type == "text") {
-		return make_unique<OSDText>(gui, name);
+		return make_unique<OSDText>(gui);
 	} else {
 		throw CommandException(
 			"Invalid widget type '" + type + "', expected "
@@ -116,17 +118,23 @@ void OSDGUI::OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
+	auto fullname = tokens[2].getString();
+
 	auto& gui = OUTER(OSDGUI, osdCommand);
-	auto* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
+	auto& top = gui.getTopWidget();
+	auto* widget = top.findByName(fullname);
 	if (!widget) {
 		// widget not found, not an error
 		result.setBoolean(false);
 		return;
 	}
+
 	auto* parent = widget->getParent();
 	if (!parent) {
 		throw CommandException("Can't destroy the top widget.");
 	}
+
+	top.removeName(fullname);
 	parent->deleteWidget(*widget);
 	result.setBoolean(true);
 }
@@ -137,9 +145,7 @@ void OSDGUI::OSDCommand::info(array_ref<TclObject> tokens, TclObject& result)
 	switch (tokens.size()) {
 	case 2: {
 		// list widget names
-		vector<string> names;
-		gui.getTopWidget().listWidgetNames("", names);
-		result.addListElements(names);
+		result.addListElements(gui.getTopWidget().getAllWidgetNames());
 		break;
 	}
 	case 3: {
@@ -165,7 +171,7 @@ void OSDGUI::OSDCommand::exists(array_ref<TclObject> tokens, TclObject& result)
 		throw SyntaxError();
 	}
 	auto& gui = OUTER(OSDGUI, osdCommand);
-	auto* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
+	auto* widget = gui.getTopWidget().findByName(tokens[2].getString());
 	result.setBoolean(widget != nullptr);
 }
 
@@ -270,14 +276,12 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, types);
 	} else if ((tokens.size() == 3) ||
 	           ((tokens.size() == 4) && (tokens[1] == "create"))) {
-		vector<string> names;
-		gui.getTopWidget().listWidgetNames("", names);
-		completeString(tokens, names);
+		completeString(tokens, gui.getTopWidget().getAllWidgetNames());
 	} else {
 		try {
 			vector<string_ref> properties;
 			if (tokens[1] == "create") {
-				auto widget = create(tokens[2], "");
+				auto widget = create(tokens[2]);
 				properties = widget->getProperties();
 			} else if ((tokens[1] == "configure") ||
 			           (tokens[1] == "info")) {
@@ -294,7 +298,7 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 OSDWidget& OSDGUI::OSDCommand::getWidget(string_ref name) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
-	auto* widget = gui.getTopWidget().findSubWidget(name);
+	auto* widget = gui.getTopWidget().findByName(name);
 	if (!widget) {
 		throw CommandException("No widget with name " + name);
 	}

@@ -3,13 +3,14 @@
 #include "OutputRectangle.hh"
 #include "Display.hh"
 #include "CliComm.hh"
+#include "KeyRange.hh"
 
 namespace openmsx {
 
 OSDTopWidget::OSDTopWidget(OSDGUI& gui_)
-	: OSDWidget("")
-	, gui(gui_)
+	: gui(gui_)
 {
+	addName(TclObject(), *this);
 }
 
 string_ref OSDTopWidget::getType() const
@@ -50,6 +51,38 @@ void OSDTopWidget::showAllErrors()
 		cliComm.printWarning(std::move(message));
 	}
 	errors.clear();
+}
+
+OSDWidget* OSDTopWidget::findByName(string_ref name)
+{
+	auto it = widgetsByName.find(name);
+	return (it != end(widgetsByName)) ? it->second : nullptr;
+}
+
+const OSDWidget* OSDTopWidget::findByName(string_ref name) const
+{
+	return const_cast<OSDTopWidget*>(this)->findByName(name);
+}
+
+void OSDTopWidget::addName(const TclObject& name, OSDWidget& widget)
+{
+	assert(!widgetsByName.contains(name));
+	widgetsByName.emplace_noDuplicateCheck(name, &widget);
+}
+
+void OSDTopWidget::removeName(string_ref name)
+{
+	assert(widgetsByName.contains(name));
+	widgetsByName.erase(name);
+}
+
+std::vector<string_ref> OSDTopWidget::getAllWidgetNames() const
+{
+	std::vector<string_ref> result;
+	for (auto& p : widgetsByName) {
+		result.push_back(p.first.getString());
+	}
+	return result;
 }
 
 } // namespace openmsx

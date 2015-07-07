@@ -25,7 +25,7 @@ public:
 	float getRecursiveFadeValue() const override;
 
 protected:
-	OSDImageBasedWidget(OSDGUI& gui, const std::string& name);
+	explicit OSDImageBasedWidget(OSDGUI& gui);
 	~OSDImageBasedWidget();
 	bool hasConstantAlpha() const;
 	void createImage(OutputRectangle& output);

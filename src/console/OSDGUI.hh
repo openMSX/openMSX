@@ -40,8 +40,7 @@ private:
 		void info     (array_ref<TclObject> tokens, TclObject& result);
 		void exists   (array_ref<TclObject> tokens, TclObject& result);
 		void configure(array_ref<TclObject> tokens, TclObject& result);
-		std::unique_ptr<OSDWidget> create(
-			string_ref type, const std::string& name) const;
+		std::unique_ptr<OSDWidget> create(string_ref type) const;
 		void configure(OSDWidget& widget, array_ref<TclObject> tokens,
 			       unsigned skip);
 
