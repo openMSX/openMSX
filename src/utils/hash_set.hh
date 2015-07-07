@@ -54,6 +54,15 @@ struct Element {
 		// nextIdx left uninitialized
 	{
 	}
+
+	// Move constructor should be auto-generated, but visual studio 2013
+	// is not fully c++11 compliant :(
+	//  TODO remove once we switch to vs2015
+	Element(Element&& source)
+		: value(std::move(source.value))
+		, hash(source.hash), nextIdx(source.hash)
+	{
+	}
 };
 
 
