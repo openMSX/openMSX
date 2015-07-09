@@ -396,8 +396,18 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 	}
 	if (tokens.size() == 1) {
 		// build a list of all command strings
-		Completer::completeString(tokens,
-		                          interpreter.getCommandNames());
+		TclObject names = interpreter.getCommandNames();
+		vector<string> names2; // each command with and without :: prefix
+		names2.reserve(2 * names.size());
+		for (string_ref n : names) {
+			names2.push_back(n.str());
+			if (n.starts_with("::")) {
+				names2.push_back(n.substr(2).str());
+			} else {
+				names2.push_back("::" + n);
+			}
+		}
+		Completer::completeString(tokens, names2);
 	} else {
 		auto it = commandCompleters.find(tokens.front());
 		if (it != end(commandCompleters)) {

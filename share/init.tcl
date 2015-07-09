@@ -63,6 +63,10 @@ proc all_command_names {} {
 	foreach procs [dict values $lazy] {
 		lappend result {*}$procs
 	}
+	# only one level deep, good enough for machineN::*
+	foreach ns [namespace children ::] {
+		lappend result {*}[info commands ${ns}::*]
+	}
 	return $result
 }
 
