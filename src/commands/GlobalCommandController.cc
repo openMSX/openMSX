@@ -531,7 +531,7 @@ GlobalCommandController::UpdateCmd::UpdateCmd(CommandController& commandControll
 {
 }
 
-static GlobalCliComm::UpdateType getType(string_ref name)
+static GlobalCliComm::UpdateType getType(const TclObject& name)
 {
 	auto updateStr = CliComm::getUpdateStrings();
 	for (auto i : xrange(updateStr.size())) {
@@ -539,7 +539,7 @@ static GlobalCliComm::UpdateType getType(string_ref name)
 			return static_cast<CliComm::UpdateType>(i);
 		}
 	}
-	throw CommandException("No such update type: " + name);
+	throw CommandException("No such update type: " + name.getString());
 }
 
 CliConnection& GlobalCommandController::UpdateCmd::getConnection()
@@ -558,10 +558,10 @@ void GlobalCommandController::UpdateCmd::execute(
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	if (tokens[1].getString() == "enable") {
-		getConnection().setUpdateEnable(getType(tokens[2].getString()), true);
-	} else if (tokens[1].getString() == "disable") {
-		getConnection().setUpdateEnable(getType(tokens[2].getString()), false);
+	if (tokens[1] == "enable") {
+		getConnection().setUpdateEnable(getType(tokens[2]), true);
+	} else if (tokens[1] == "disable") {
+		getConnection().setUpdateEnable(getType(tokens[2]), false);
 	} else {
 		throw SyntaxError();
 	}

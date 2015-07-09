@@ -48,10 +48,10 @@ void LaserdiscPlayer::Command::execute(
 		// DiskChanger
 		result.addListElement(getName() + ':');
 		result.addListElement(laserdiscPlayer.getImageName().getResolved());
-	} else if (tokens.size() == 2 && tokens[1].getString() == "eject") {
+	} else if (tokens.size() == 2 && tokens[1] == "eject") {
 		result.setString("Ejecting laserdisc.");
 		laserdiscPlayer.eject(time);
-	} else if (tokens.size() == 3 && tokens[1].getString() == "insert") {
+	} else if (tokens.size() == 3 && tokens[1] == "insert") {
 		try {
 			result.setString("Changing laserdisc.");
 			laserdiscPlayer.setImageName(tokens[2].getString().str(), time);

@@ -139,8 +139,8 @@ void DiskChanger::signalStateChange(const std::shared_ptr<StateChange>& event)
 	if (!commandEvent) return;
 
 	auto& tokens = commandEvent->getTokens();
-	if (tokens[0].getString() == getDriveName()) {
-		if (tokens[1].getString() == "eject") {
+	if (tokens[0] == getDriveName()) {
+		if (tokens[1] == "eject") {
 			ejectDisk();
 		} else {
 			insertDisk(tokens);
@@ -222,27 +222,27 @@ void DiskCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 			result.addListElement(options);
 		}
 
-	} else if (tokens[1].getString() == "ramdsk") {
+	} else if (tokens[1] == "ramdsk") {
 		string args[] = {
 			diskChanger.getDriveName(), tokens[1].getString().str()
 		};
 		diskChanger.sendChangeDiskEvent(args);
-	} else if (tokens[1].getString() == "-ramdsk") {
+	} else if (tokens[1] == "-ramdsk") {
 		string args[] = {diskChanger.getDriveName(), "ramdsk"};
 		diskChanger.sendChangeDiskEvent(args);
 		result.setString(
 			"Warning: use of '-ramdsk' is deprecated, instead use the 'ramdsk' subcommand");
-	} else if (tokens[1].getString() == "-eject") {
+	} else if (tokens[1] == "-eject") {
 		string args[] = {diskChanger.getDriveName(), "eject"};
 		diskChanger.sendChangeDiskEvent(args);
 		result.setString(
 			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
-	} else if (tokens[1].getString() == "eject") {
+	} else if (tokens[1] == "eject") {
 		string args[] = {diskChanger.getDriveName(), "eject"};
 		diskChanger.sendChangeDiskEvent(args);
 	} else {
 		int firstFileToken = 1;
-		if (tokens[1].getString() == "insert") {
+		if (tokens[1] == "insert") {
 			if (tokens.size() > 2) {
 				firstFileToken = 2; // skip this subcommand as filearg
 			} else {

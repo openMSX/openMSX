@@ -123,12 +123,19 @@ public:
 	  */
 	TclObject executeCommand(Interpreter& interp, bool compile = false);
 
-	bool operator==(const TclObject& other) const {
-		return getString() == other.getString();
+	friend bool operator==(const TclObject& x, const TclObject& y) {
+		return x.getString() == y.getString();
 	}
-	bool operator!=(const TclObject& other) const {
-		return !(*this == other);
+	friend bool operator==(const TclObject& x, string_ref y) {
+		return x.getString() == y;
 	}
+	friend bool operator==(string_ref x, const TclObject& y) {
+		return x == y.getString();
+	}
+
+	friend bool operator!=(const TclObject& x, const TclObject& y) { return !(x == y); }
+	friend bool operator!=(const TclObject& x, string_ref       y) { return !(x == y); }
+	friend bool operator!=(string_ref       x, const TclObject& y) { return !(x == y); }
 
 private:
 	void init(Tcl_Obj* obj_) {

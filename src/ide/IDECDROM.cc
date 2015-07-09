@@ -340,20 +340,18 @@ void CDXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 		result.addListElement(file.is_open() ? file.getURL() : "");
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) &&
-	           ((tokens[1].getString() == "eject") ||
-		    (tokens[1].getString() == "-eject"))) {
+	           ((tokens[1] == "eject") || (tokens[1] == "-eject"))) {
 		cd.eject();
 		// TODO check for locked tray
-		if (tokens[1].getString() == "-eject") {
+		if (tokens[1] == "-eject") {
 			result.setString(
 				"Warning: use of '-eject' is deprecated, "
 				"instead use the 'eject' subcommand");
 		}
 	} else if ((tokens.size() == 2) ||
-	           ((tokens.size() == 3) &&
-		    (tokens[1].getString() == "insert"))) {
+	           ((tokens.size() == 3) && (tokens[1] == "insert"))) {
 		int fileToken = 1;
-		if (tokens[1].getString() == "insert") {
+		if (tokens[1] == "insert") {
 			if (tokens.size() > 2) {
 				fileToken = 2;
 			} else {

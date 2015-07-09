@@ -628,7 +628,7 @@ void CassettePlayer::TapeCommand::execute(
 		options.addListElement(cassettePlayer.getStateString());
 		result.addListElement(options);
 
-	} else if (tokens[1].getString() == "new") {
+	} else if (tokens[1] == "new") {
 		string directory = "taperecordings";
 		string prefix = "openmsx";
 		string extension = ".wav";
@@ -639,7 +639,7 @@ void CassettePlayer::TapeCommand::execute(
 		result.setString("Created new cassette image file: " + filename +
 		                 ", inserted it and set recording mode.");
 
-	} else if (tokens[1].getString() == "insert" && tokens.size() == 3) {
+	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
 			result.setString("Changing tape");
 			Filename filename(tokens[2].getString().str(), userFileContext());
@@ -648,11 +648,11 @@ void CassettePlayer::TapeCommand::execute(
 			throw CommandException(e.getMessage());
 		}
 
-	} else if (tokens[1].getString() == "motorcontrol" && tokens.size() == 3) {
-		if (tokens[2].getString() == "on") {
+	} else if (tokens[1] == "motorcontrol" && tokens.size() == 3) {
+		if (tokens[2] == "on") {
 			cassettePlayer.setMotorControl(true, time);
 			result.setString("Motor control enabled.");
-		} else if (tokens[2].getString() == "off") {
+		} else if (tokens[2] == "off") {
 			cassettePlayer.setMotorControl(false, time);
 			result.setString("Motor control disabled.");
 		} else {
@@ -662,14 +662,14 @@ void CassettePlayer::TapeCommand::execute(
 	} else if (tokens.size() != 2) {
 		throw SyntaxError();
 
-	} else if (tokens[1].getString() == "motorcontrol") {
+	} else if (tokens[1] == "motorcontrol") {
 		result.setString(string("Motor control is ") +
 		                 (cassettePlayer.motorControl ? "on" : "off"));
 
-	} else if (tokens[1].getString() == "record") {
+	} else if (tokens[1] == "record") {
 			result.setString("TODO: implement this... (sorry)");
 
-	} else if (tokens[1].getString() == "play") {
+	} else if (tokens[1] == "play") {
 		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
 			try {
 				result.setString("Play mode set, rewinding tape.");
@@ -685,11 +685,11 @@ void CassettePlayer::TapeCommand::execute(
 			result.setString("Already in play mode.");
 		}
 
-	} else if (tokens[1].getString() == "eject") {
+	} else if (tokens[1] == "eject") {
 		result.setString("Tape ejected");
 		cassettePlayer.removeTape(time);
 
-	} else if (tokens[1].getString() == "rewind") {
+	} else if (tokens[1] == "rewind") {
 		string r;
 		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
 			try {
@@ -704,10 +704,10 @@ void CassettePlayer::TapeCommand::execute(
 		r += "Tape rewound";
 		result.setString(r);
 
-	} else if (tokens[1].getString() == "getpos") {
+	} else if (tokens[1] == "getpos") {
 		result.setDouble(cassettePlayer.getTapePos(time));
 
-	} else if (tokens[1].getString() == "getlength") {
+	} else if (tokens[1] == "getlength") {
 		result.setDouble(cassettePlayer.getTapeLength(time));
 
 	} else {

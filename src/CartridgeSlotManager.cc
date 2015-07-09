@@ -312,10 +312,9 @@ void CartridgeSlotManager::CartCmd::execute(
 			options.addListElement("empty");
 			result.addListElement(options);
 		}
-	} else if ((tokens[1].getString() ==  "eject") ||
-	           (tokens[1].getString() == "-eject")) {
+	} else if ((tokens[1] == "eject") || (tokens[1] == "-eject")) {
 		// remove cartridge (or extension)
-		if (tokens[1].getString() == "-eject") {
+		if (tokens[1] == "-eject") {
 			result.setString(
 				"Warning: use of '-eject' is deprecated, "
 				"instead use the 'eject' subcommand");
@@ -335,7 +334,7 @@ void CartridgeSlotManager::CartCmd::execute(
 			? string(1, cartname[4])
 			: "any";
 		size_t extensionNameToken = 1;
-		if (tokens[1].getString() == "insert") {
+		if (tokens[1] == "insert") {
 			if (tokens.size() > 2) {
 				extensionNameToken = 2;
 			} else {

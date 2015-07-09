@@ -443,7 +443,7 @@ static vector<TclObject> parse(bool defaultCmd, array_ref<TclObject> tokens_,
 	layers = false;
 	vector<TclObject> tokens(std::begin(tokens_) + 1, std::end(tokens_));
 	for (size_t i = 0; i < tokens.size(); /**/) {
-		if (tokens[i].getString() == "-layer") {
+		if (tokens[i] == "-layer") {
 			if (i == (tokens.size() - 1)) {
 				throw CommandException("Missing layer name");
 			}
@@ -455,7 +455,7 @@ static vector<TclObject> parse(bool defaultCmd, array_ref<TclObject> tokens_,
 
 			auto it = begin(tokens) + i;
 			tokens.erase(it, it + 2);
-		} else if (tokens[i].getString() == "-layers") {
+		} else if (tokens[i] == "-layers") {
 			layers = true;
 			tokens.erase(begin(tokens) + i);
 		} else {
@@ -511,7 +511,7 @@ void HotKey::BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 		string command;
 		bool repeat = false;
 		unsigned start = 1;
-		if (tokens[1].getString() == "-repeat") {
+		if (tokens[1] == "-repeat") {
 			repeat = true;
 			++start;
 		}
@@ -614,7 +614,7 @@ void HotKey::ActivateCmd::execute(array_ref<TclObject> tokens, TclObject& result
 	string_ref layer;
 	bool blocking = false;
 	for (size_t i = 1; i < tokens.size(); ++i) {
-		if (tokens[i].getString() == "-blocking") {
+		if (tokens[i] == "-blocking") {
 			blocking = true;
 		} else {
 			if (!layer.empty()) {

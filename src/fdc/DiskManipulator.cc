@@ -195,7 +195,7 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 			if (drive == "-dos1") {
 				dos1 = true;
 				drive = tokens[3].getString();
-			} else if (tokens[3].getString() == "-dos1") {
+			} else if (tokens[3] == "-dos1") {
 				dos1 = true;
 			}
 		}
@@ -360,7 +360,7 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 	bool dos1 = false;
 
 	for (unsigned i = 3; i < tokens.size(); ++i) {
-		if (tokens[i].getString() == "-dos1") {
+		if (tokens[i] == "-dos1") {
 			dos1 = true;
 			continue;
 		}
