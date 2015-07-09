@@ -143,6 +143,7 @@ void GlobalCommandController::unregisterCommand(
 void GlobalCommandController::registerCompleter(
 	CommandCompleter& completer, string_ref str)
 {
+	if (str.starts_with("::")) str = str.substr(2); // drop leading ::
 	assert(!commandCompleters.contains(str));
 	commandCompleters.emplace_noDuplicateCheck(str.str(), &completer);
 }
@@ -150,6 +151,7 @@ void GlobalCommandController::registerCompleter(
 void GlobalCommandController::unregisterCompleter(
 	CommandCompleter& completer, string_ref str)
 {
+	if (str.starts_with("::")) str = str.substr(2); // drop leading ::
 	assert(commandCompleters.contains(str));
 	assert(commandCompleters[str.str()] == &completer); (void)completer;
 	commandCompleters.erase(str);
@@ -409,7 +411,10 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		}
 		Completer::completeString(tokens, names2);
 	} else {
-		auto it = commandCompleters.find(tokens.front());
+		string_ref cmd = tokens.front();
+		if (cmd.starts_with("::")) cmd = cmd.substr(2); // drop leading ::
+
+		auto it = commandCompleters.find(cmd);
 		if (it != end(commandCompleters)) {
 			it->second->tabCompletion(tokens);
 		} else {
