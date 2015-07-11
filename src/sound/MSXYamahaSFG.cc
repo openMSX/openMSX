@@ -44,10 +44,10 @@ void MSXYamahaSFG::writeMem(word address, byte value, EmuTime::param time)
 		// IRQ vector for YM2151 (+ default vector ???)
 		irqVector = value;
 		break;
-	case 0x3FF5: // MIDI standard UART DATA READ BUFFER
+	case 0x3FF5: // MIDI standard UART DATA WRITE BUFFER
 		ym2148.writeData(value);
 		break;
-	case 0x3FF6: // MIDI standard UART STATUS REGISTER
+	case 0x3FF6: // MIDI standard UART COMMAND REGISTER
 		ym2148.writeCommand(value);
 		break;
 	}
