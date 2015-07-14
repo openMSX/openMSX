@@ -136,13 +136,16 @@ void Touchpad::unplugHelper(EmuTime::param /*time*/)
 }
 
 // JoystickDevice
+static const byte SENSE  = JoystickDevice::RD_PIN1;
+static const byte EOC    = JoystickDevice::RD_PIN2;
+static const byte SO     = JoystickDevice::RD_PIN3;
+static const byte BUTTON = JoystickDevice::RD_PIN4;
+static const byte SCK    = JoystickDevice::WR_PIN6;
+static const byte SI     = JoystickDevice::WR_PIN7;
+static const byte CS     = JoystickDevice::WR_PIN8;
+
 byte Touchpad::read(EmuTime::param time)
 {
-	static const byte SENSE  = RD_PIN1;
-	static const byte EOC    = RD_PIN2;
-	static const byte SO     = RD_PIN3;
-	static const byte BUTTON = RD_PIN4;
-
 	byte result = SENSE | BUTTON; // 1-bit means not pressed
 	if (touch)  result &= ~SENSE;
 	if (button) result &= ~BUTTON;
@@ -156,16 +159,13 @@ byte Touchpad::read(EmuTime::param time)
 	}
 
 	if (shift & 0x80) result |= SO;
+	if (last & CS)    result |= SO;
 
-	return result;
+	return result | 0x30;
 }
 
 void Touchpad::write(byte value, EmuTime::param time)
 {
-	static const byte SCK = WR_PIN6;
-	static const byte SI  = WR_PIN7;
-	static const byte CS  = WR_PIN8;
-
 	byte diff = last ^ value;
 	last = value;
 	if (diff & CS) {
