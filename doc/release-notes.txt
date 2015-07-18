@@ -14,6 +14,7 @@ MSX device support:
 - fixed crash in openMSX when using the AVT DPF-550 extension
 - fixed support of 8kB RS-232C ROMs (which is the only correct size!)
 - tweaked volumes of SFG-01/05 against the PSG
+- added proper YM2148 emulation (MIDI in/out for Yamaha SFG modules)
 - added many new machines: Canon V-25 (thanks to Rudi Westerhof), Canon V-8,
   Fenner/Samsung SPC-800, Hitachi MB-H1, Toshiba HX-10D (thanks to Ricardo
   Jurcyk Pinheiro), Canon V-10, Canon V-20 (JP), Spectravideo SVI-728 (ES),
