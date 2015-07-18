@@ -84,7 +84,7 @@ byte MSXYamahaSFG::readMem(word address, EmuTime::param time)
 		return peekMem(address, time);
 	}
 	switch (address & 0x3FFF) {
-	case 0x3FF0: // ??
+	case 0x3FF0: // (not used, it seems)
 	case 0x3FF1: // OPM STATUS REGISTER
 	case 0x3FF2: // Data buffer for SD0 to SD7 input ports
 		return peekMem(address, time);
@@ -106,7 +106,8 @@ byte MSXYamahaSFG::peekMem(word address, EmuTime::param time) const
 		return rom[address & (rom.getSize() - 1)];
 	}
 	switch (address & 0x3FFF) {
-	case 0x3FF0: // ??
+	case 0x3FF0: // (not used, it seems)
+		return 0xFF;
 	case 0x3FF1: // OPM STATUS REGISTER
 		return ym2151.readStatus();
 	case 0x3FF2: // Data buffer for SD0 to SD7 input ports
