@@ -71,9 +71,6 @@ public:
 	CliComm& getCliComm() override;
 	Interpreter& getInterpreter() override;
 
-	      BaseSetting* findSetting(string_ref name);
-	const BaseSetting* findSetting(string_ref setting) const;
-
 private:
 	std::string getFullName(string_ref name);
 

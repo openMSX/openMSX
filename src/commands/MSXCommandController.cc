@@ -105,7 +105,6 @@ void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
 void MSXCommandController::registerSetting(Setting& setting)
 {
 	const string& name = setting.getName();
-	assert(!findSetting(name));
 	settingMap.insert_noDuplicateCheck(&setting);
 
 	globalCommandController.registerProxySetting(setting);
@@ -117,7 +116,6 @@ void MSXCommandController::registerSetting(Setting& setting)
 void MSXCommandController::unregisterSetting(Setting& setting)
 {
 	const string& name = setting.getName();
-	assert(findSetting(name));
 	settingMap.erase(name);
 
 	globalCommandController.unregisterProxySetting(setting);
@@ -136,17 +134,6 @@ Command* MSXCommandController::findCommand(string_ref name) const
 {
 	auto it = commandMap.find(name);
 	return (it != end(commandMap)) ? *it : nullptr;
-}
-
-BaseSetting* MSXCommandController::findSetting(string_ref name)
-{
-	auto it = settingMap.find(name);
-	return (it != end(settingMap)) ? *it : nullptr;
-}
-
-const BaseSetting* MSXCommandController::findSetting(string_ref setting) const
-{
-	return const_cast<MSXCommandController*>(this)->findSetting(setting);
 }
 
 bool MSXCommandController::hasCommand(string_ref command) const
