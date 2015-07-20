@@ -107,7 +107,7 @@ byte SensorKid::getAnalog(byte chi)
 	} catch (MSXException& e) {
 		getCliComm().printWarning(
 			"Wrong result for callback function \"" +
-			acquireCallback.getSetting().getName() +
+			acquireCallback.getSetting().getFullName() +
 			"\": " + e.getMessage());
 	}
 	return result;

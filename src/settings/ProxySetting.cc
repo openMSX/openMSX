@@ -22,7 +22,7 @@ BaseSetting* ProxySetting::getSetting()
 	if (!motherBoard) return nullptr;
 	auto& manager = reactor.getGlobalCommandController().getSettingsManager();
 	auto& controller = motherBoard->getMSXCommandController();
-	return manager.findSetting(controller.getPrefix(), getName());
+	return manager.findSetting(controller.getPrefix(), getFullName());
 }
 
 const BaseSetting* ProxySetting::getSetting() const
@@ -60,7 +60,7 @@ const TclObject& ProxySetting::getValue() const
 	if (auto* setting = getSetting()) {
 		return setting->getValue();
 	} else {
-		throw MSXException("No setting '" + getName() + "' on current machine.");
+		throw MSXException("No setting '" + getFullName() + "' on current machine.");
 	}
 }
 
@@ -88,7 +88,7 @@ void ProxySetting::setValueDirect(const TclObject& value)
 		// note: not setStringDirect()
 		setting->setValue(value);
 	} else {
-		throw MSXException("No setting '" + getName() + "' on current machine.");
+		throw MSXException("No setting '" + getFullName() + "' on current machine.");
 	}
 }
 

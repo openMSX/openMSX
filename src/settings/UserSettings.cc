@@ -28,7 +28,7 @@ UserSettings::UserSettings(CommandController& commandController_)
 
 void UserSettings::addSetting(unique_ptr<Setting> setting)
 {
-	assert(!findSetting(setting->getName()));
+	assert(!findSetting(setting->getFullName()));
 	settings.push_back(std::move(setting));
 }
 
@@ -41,7 +41,7 @@ void UserSettings::deleteSetting(Setting& setting)
 Setting* UserSettings::findSetting(string_ref name) const
 {
 	for (auto& s : settings) {
-		if (s->getName() == name) {
+		if (s->getFullName() == name) {
 			return s.get();
 		}
 	}
@@ -260,7 +260,7 @@ vector<string_ref> UserSettings::Cmd::getSettingNames() const
 	vector<string_ref> result;
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
 	for (auto& s : userSettings.getSettings()) {
-		result.push_back(s->getName());
+		result.push_back(s->getFullName());
 	}
 	return result;
 }

@@ -79,12 +79,12 @@ GlobalCommandController::ProxySettings::iterator
 GlobalCommandController::findProxySetting(const std::string& name)
 {
 	return find_if(begin(proxySettings), end(proxySettings),
-		[&](ProxySettings::value_type& v) { return v.first->getName() == name; });
+		[&](ProxySettings::value_type& v) { return v.first->getFullName() == name; });
 }
 
 void GlobalCommandController::registerProxySetting(Setting& setting)
 {
-	const auto& name = setting.getName();
+	const auto& name = setting.getBaseName();
 	auto it = findProxySetting(name);
 	if (it == end(proxySettings)) {
 		// first occurrence
@@ -100,7 +100,7 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 
 void GlobalCommandController::unregisterProxySetting(Setting& setting)
 {
-	const auto& name = setting.getName();
+	const auto& name = setting.getBaseName();
 	auto it = findProxySetting(name);
 	assert(it != end(proxySettings));
 	assert(it->second);
@@ -159,14 +159,14 @@ void GlobalCommandController::unregisterCompleter(
 
 void GlobalCommandController::registerSetting(Setting& setting)
 {
-	const auto& name = setting.getName();
+	const auto& name = setting.getFullName();
 	getSettingsManager().registerSetting(setting, name);
 	interpreter.registerSetting(setting, name);
 }
 
 void GlobalCommandController::unregisterSetting(Setting& setting)
 {
-	const auto& name = setting.getName();
+	const auto& name = setting.getFullName();
 	interpreter.unregisterSetting(setting, name);
 	getSettingsManager().unregisterSetting(setting, name);
 }
@@ -179,7 +179,7 @@ void GlobalCommandController::changeSetting(
 
 void GlobalCommandController::changeSetting(Setting& setting, const TclObject& value)
 {
-	changeSetting(setting.getName(), value);
+	changeSetting(setting.getFullName(), value);
 }
 
 bool GlobalCommandController::hasCommand(string_ref command) const

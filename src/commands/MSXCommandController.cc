@@ -51,7 +51,7 @@ MSXCommandController::~MSXCommandController()
 		std::cout << "Command not unregistered: " << c->getName() << std::endl;
 	}
 	for (auto* s : settings) {
-		std::cout << "Setting not unregistered: " << s->getName() << std::endl;
+		std::cout << "Setting not unregistered: " << s->getFullName() << std::endl;
 	}
 	assert(commandMap.empty());
 	assert(settings.empty());
@@ -105,10 +105,12 @@ void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
 
 void MSXCommandController::registerSetting(Setting& setting)
 {
+	setting.setPrefix(machineID);
+
 	settings.push_back(&setting);
 
 	globalCommandController.registerProxySetting(setting);
-	string fullname = getFullName(setting.getName());
+	const string& fullname = setting.getFullName();
 	globalCommandController.getSettingsManager().registerSetting(setting, fullname);
 	globalCommandController.getInterpreter().registerSetting(setting, fullname);
 }
@@ -118,15 +120,14 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	move_pop_back(settings, rfind_unguarded(settings, &setting));
 
 	globalCommandController.unregisterProxySetting(setting);
-	string fullname = getFullName(setting.getName());
+	const string& fullname = setting.getFullName();
 	globalCommandController.getInterpreter().unregisterSetting(setting, fullname);
 	globalCommandController.getSettingsManager().unregisterSetting(setting, fullname);
 }
 
 void MSXCommandController::changeSetting(Setting& setting, const TclObject& value)
 {
-	string fullname = getFullName(setting.getName());
-	globalCommandController.changeSetting(fullname, value);
+	globalCommandController.changeSetting(setting, value);
 }
 
 Command* MSXCommandController::findCommand(string_ref name) const
@@ -181,7 +182,7 @@ void MSXCommandController::transferSettings(const MSXCommandController& from)
 	const auto& fromPrefix = from.getPrefix();
 	auto& manager = globalCommandController.getSettingsManager();
 	for (auto* s : settings) {
-		if (auto* fromSetting = manager.findSetting(fromPrefix, s->getName())) {
+		if (auto* fromSetting = manager.findSetting(fromPrefix, s->getBaseName())) {
 			if (!fromSetting->needTransfer()) continue;
 			try {
 				changeSetting(*s, fromSetting->getValue());

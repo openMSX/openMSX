@@ -103,7 +103,7 @@ TclObject TclCallback::executeCommon(TclObject& command)
 	} catch (CommandException& e) {
 		string message =
 			"Error executing callback function \"" +
-			getSetting().getName() + "\": " + e.getMessage();
+			getSetting().getFullName() + "\": " + e.getMessage();
 		if (useCliComm) {
 			getSetting().getCommandController().getCliComm().printWarning(
 				message);
