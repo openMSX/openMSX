@@ -110,9 +110,8 @@ void MSXCommandController::registerSetting(Setting& setting)
 	settings.push_back(&setting);
 
 	globalCommandController.registerProxySetting(setting);
-	const string& fullname = setting.getFullName();
-	globalCommandController.getSettingsManager().registerSetting(setting, fullname);
-	globalCommandController.getInterpreter().registerSetting(setting, fullname);
+	globalCommandController.getSettingsManager().registerSetting(setting);
+	globalCommandController.getInterpreter().registerSetting(setting);
 }
 
 void MSXCommandController::unregisterSetting(Setting& setting)
@@ -120,9 +119,8 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	move_pop_back(settings, rfind_unguarded(settings, &setting));
 
 	globalCommandController.unregisterProxySetting(setting);
-	const string& fullname = setting.getFullName();
-	globalCommandController.getInterpreter().unregisterSetting(setting, fullname);
-	globalCommandController.getSettingsManager().unregisterSetting(setting, fullname);
+	globalCommandController.getInterpreter().unregisterSetting(setting);
+	globalCommandController.getSettingsManager().unregisterSetting(setting);
 }
 
 void MSXCommandController::changeSetting(Setting& setting, const TclObject& value)

@@ -245,8 +245,9 @@ static TclObject getSafeValue(BaseSetting& setting)
 		return TclObject(0); // 'safe' value, see comment in registerSetting()
 	}
 }
-void Interpreter::registerSetting(BaseSetting& variable, const string& name)
+void Interpreter::registerSetting(BaseSetting& variable)
 {
+	const string& name = variable.getFullName();
 	if (Tcl_Obj* tclVarValue = getVar(interp, name.c_str())) {
 		// Tcl var already existed, use this value
 		try {
@@ -296,8 +297,9 @@ void Interpreter::registerSetting(BaseSetting& variable, const string& name)
 	             traceProc, reinterpret_cast<ClientData>(traceID));
 }
 
-void Interpreter::unregisterSetting(BaseSetting& variable, const string& name)
+void Interpreter::unregisterSetting(BaseSetting& variable)
 {
+	const string& name = variable.getFullName();
 	auto it = rfind_if_unguarded(traces, EqualTupleValue<1>(&variable));
 	uintptr_t traceID = it->first;
 	traces.erase(it);

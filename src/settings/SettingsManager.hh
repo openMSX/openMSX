@@ -30,8 +30,8 @@ public:
 
 	void loadSettings(const XMLElement& config);
 
-	void registerSetting  (BaseSetting& setting, string_ref name);
-	void unregisterSetting(BaseSetting& setting, string_ref name);
+	void registerSetting  (BaseSetting& setting);
+	void unregisterSetting(BaseSetting& setting);
 
 private:
 	BaseSetting& getByName(string_ref cmd, string_ref name) const;

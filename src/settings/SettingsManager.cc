@@ -30,14 +30,16 @@ SettingsManager::~SettingsManager()
 	assert(settingsMap.empty());
 }
 
-void SettingsManager::registerSetting(BaseSetting& setting, string_ref name)
+void SettingsManager::registerSetting(BaseSetting& setting)
 {
+	const auto& name = setting.getFullName();
 	assert(!settingsMap.contains(name));
-	settingsMap.emplace_noDuplicateCheck(name.str(), &setting);
+	settingsMap.emplace_noDuplicateCheck(name, &setting);
 }
 
-void SettingsManager::unregisterSetting(BaseSetting& /*setting*/, string_ref name)
+void SettingsManager::unregisterSetting(BaseSetting& setting)
 {
+	const auto& name = setting.getFullName();
 	assert(settingsMap.contains(name));
 	settingsMap.erase(name);
 }
