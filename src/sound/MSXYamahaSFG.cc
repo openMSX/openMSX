@@ -140,7 +140,6 @@ void MSXYamahaSFG::serialize(Archive& ar, unsigned version)
 	ar.serialize("YM2148", ym2148);
 	ar.serialize("registerLatch", registerLatch);
 	ar.serialize("irqVector", irqVector);
-	// [wouter] Should we bother at all with bw-compat savestates for this device?
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("irqVector2148", irqVector2148);
 	} else {

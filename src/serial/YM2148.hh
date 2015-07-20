@@ -60,10 +60,14 @@ private:
 	void execRecv (EmuTime::param time);
 	void execTrans(EmuTime::param time);
 
+	void send(byte value, EmuTime::param time);
+
 	IRQHelper rxIRQ;
 	IRQHelper txIRQ;
 	bool rxReady;
-	byte rxBuffer; //<! Byte received from MIDI in connector.
+	byte rxBuffer;  //<! Byte received from MIDI in connector.
+	byte txBuffer1; //<! The byte currently being send.
+	byte txBuffer2; //<! The next to-be-send byte.
 	byte status;
 	byte commandReg;
 

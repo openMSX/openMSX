@@ -34,6 +34,7 @@ YM2148::YM2148(const std::string& name, MSXMotherBoard& motherBoard)
 	, syncTrans(motherBoard.getScheduler())
 	, rxIRQ(motherBoard, name + "-rx-IRQ")
 	, txIRQ(motherBoard, name + "-tx-IRQ")
+	, txBuffer1(0), txBuffer2(0) // avoid UMR
 	, outConnector(motherBoard.getPluggingController(), name + "-MIDI-out")
 {
 	reset();
@@ -179,23 +180,42 @@ void YM2148::writeData(byte value, EmuTime::param time)
 {
 	if (!(commandReg & CMD_TXEN)) return;
 
-	// TODO: Current implementation immediately passes 'value' to
-	// 'outConnector'. In reality sending a character takes some time
-	// (CHAR_DURATION). Implement that in a later step.
-	outConnector.recvByte(value, time);
+	if (syncTrans.pendingSyncPoint()) {
+		// We're still sending the previous character, only buffer
+		// this one. Don't accept any further characters.
+		txBuffer2 = value;
+		status &= ~STAT_TXRDY;
+		txIRQ.reset();
+	} else {
+		// Immediately start sending this character. We're still
+		// ready to accept a next character.
+		send(value, time);
+	}
+}
 
-	status &= ~STAT_TXRDY;
-	txIRQ.reset();
+// Start sending a character. It takes a while before it's finished sending.
+void YM2148::send(byte value, EmuTime::param time)
+{
+	txBuffer1 = value;
 	syncTrans.setSyncPoint(time + CHAR_DURATION);
 }
 
-// Triggered when we're ready to send the next character.
-void YM2148::execTrans(EmuTime::param /*time*/)
+// Triggered when a character has finished sending.
+void YM2148::execTrans(EmuTime::param time)
 {
 	assert(commandReg & CMD_TXEN);
-	assert(!(status & STAT_TXRDY));
-	status |= STAT_TXRDY;
-	if (commandReg & CMD_TXIE) txIRQ.set();
+
+	outConnector.recvByte(txBuffer1, time);
+
+	if (status & STAT_TXRDY) {
+		// No next character to send.
+	} else {
+		// There already is a next character, start sending that now
+		// and accept a next one.
+		status |= STAT_TXRDY;
+		if (commandReg & CMD_TXIE) txIRQ.set();
+		send(txBuffer2, time);
+	}
 }
 
 // Any pending IRQs?
@@ -218,6 +238,8 @@ void YM2148::serialize(Archive& ar, unsigned /*version*/)
 
 	ar.serialize("rxReady",    rxReady);
 	ar.serialize("rxBuffer",   rxBuffer);
+	ar.serialize("txBuffer1",  txBuffer1);
+	ar.serialize("txBuffer2",  txBuffer2);
 	ar.serialize("status",     status);
 	ar.serialize("commandReg", commandReg);
 }
