@@ -92,12 +92,7 @@ private:
 	};
 	hash_set<Command*, NameFromCommand, XXHasher> commandMap;
 
-	struct NameFromSetting {
-		const std::string& operator()(const Setting* s) const {
-			return s->getName();
-		}
-	};
-	hash_set<Setting*, NameFromSetting, XXHasher> settingMap;
+	std::vector<Setting*> settings; // unordered
 };
 
 } // namespace openmsx

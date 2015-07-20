@@ -12,6 +12,7 @@
 #include "MSXException.hh"
 #include "KeyRange.hh"
 #include "memory.hh"
+#include "stl.hh"
 #include <iostream>
 
 using std::string;
@@ -49,11 +50,11 @@ MSXCommandController::~MSXCommandController()
 	for (auto* c : commandMap) {
 		std::cout << "Command not unregistered: " << c->getName() << std::endl;
 	}
-	for (auto* s : settingMap) {
+	for (auto* s : settings) {
 		std::cout << "Setting not unregistered: " << s->getName() << std::endl;
 	}
 	assert(commandMap.empty());
-	assert(settingMap.empty());
+	assert(settings.empty());
 	#endif
 
 	globalCommandController.getInterpreter().deleteNamespace(machineID);
@@ -104,22 +105,20 @@ void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
 
 void MSXCommandController::registerSetting(Setting& setting)
 {
-	const string& name = setting.getName();
-	settingMap.insert_noDuplicateCheck(&setting);
+	settings.push_back(&setting);
 
 	globalCommandController.registerProxySetting(setting);
-	string fullname = getFullName(name);
+	string fullname = getFullName(setting.getName());
 	globalCommandController.getSettingsManager().registerSetting(setting, fullname);
 	globalCommandController.getInterpreter().registerSetting(setting, fullname);
 }
 
 void MSXCommandController::unregisterSetting(Setting& setting)
 {
-	const string& name = setting.getName();
-	settingMap.erase(name);
+	move_pop_back(settings, rfind_unguarded(settings, &setting));
 
 	globalCommandController.unregisterProxySetting(setting);
-	string fullname = getFullName(name);
+	string fullname = getFullName(setting.getName());
 	globalCommandController.getInterpreter().unregisterSetting(setting, fullname);
 	globalCommandController.getSettingsManager().unregisterSetting(setting, fullname);
 }
@@ -163,7 +162,7 @@ void MSXCommandController::signalEvent(
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
 
 	// simple way to synchronize proxy settings
-	for (auto* s : settingMap) {
+	for (auto* s : settings) {
 		try {
 			changeSetting(*s, s->getValue());
 		} catch (MSXException&) {
@@ -181,7 +180,7 @@ void MSXCommandController::transferSettings(const MSXCommandController& from)
 {
 	const auto& fromPrefix = from.getPrefix();
 	auto& manager = globalCommandController.getSettingsManager();
-	for (auto* s : settingMap) {
+	for (auto* s : settings) {
 		if (auto* fromSetting = manager.findSetting(fromPrefix, s->getName())) {
 			if (!fromSetting->needTransfer()) continue;
 			try {
