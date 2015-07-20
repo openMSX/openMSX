@@ -76,7 +76,7 @@ void GlobalCommandController::unregisterProxyCommand(string_ref name)
 }
 
 GlobalCommandController::ProxySettings::iterator
-GlobalCommandController::findProxySetting(const std::string& name)
+GlobalCommandController::findProxySetting(string_ref name)
 {
 	return find_if(begin(proxySettings), end(proxySettings),
 		[&](ProxySettings::value_type& v) { return v.first->getFullName() == name; });
@@ -84,8 +84,8 @@ GlobalCommandController::findProxySetting(const std::string& name)
 
 void GlobalCommandController::registerProxySetting(Setting& setting)
 {
-	const auto& name = setting.getBaseName();
-	auto it = findProxySetting(name);
+	const auto& name = setting.getBaseNameObj();
+	auto it = findProxySetting(name.getString());
 	if (it == end(proxySettings)) {
 		// first occurrence
 		auto proxy = make_unique<ProxySetting>(reactor, name);
@@ -176,7 +176,7 @@ void GlobalCommandController::changeSetting(
 
 void GlobalCommandController::changeSetting(Setting& setting, const TclObject& value)
 {
-	changeSetting(setting.getFullName(), value);
+	changeSetting(setting.getFullName().str(), value); // TODO optimize
 }
 
 bool GlobalCommandController::hasCommand(string_ref command) const

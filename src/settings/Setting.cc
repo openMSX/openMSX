@@ -16,7 +16,13 @@ namespace openmsx {
 // class BaseSetting
 
 BaseSetting::BaseSetting(string_ref name_)
-	: fullName(name_.str())
+	: fullName(name_)
+	, baseName(fullName)
+{
+}
+
+BaseSetting::BaseSetting(const TclObject& name_)
+	: fullName(name_)
 	, baseName(fullName)
 {
 }
@@ -193,7 +199,7 @@ void Setting::setValueDirect(const TclObject& newValue_)
 	auto& globalController = controller->getGlobalCommandController();
 	// Tcl already makes sure this doesn't result in an endless loop.
 	try {
-		globalController.changeSetting(getBaseName(), getValue()); // TODO optimize
+		globalController.changeSetting(getBaseName().str(), getValue()); // TODO optimize
 	} catch (MSXException&) {
 		// ignore
 	}

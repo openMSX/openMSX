@@ -34,7 +34,7 @@ void SettingsManager::registerSetting(BaseSetting& setting)
 {
 	const auto& name = setting.getFullName();
 	assert(!settingsMap.contains(name));
-	settingsMap.emplace_noDuplicateCheck(name, &setting);
+	settingsMap.emplace_noDuplicateCheck(name.str(), &setting); // TODO optimize
 }
 
 void SettingsManager::unregisterSetting(BaseSetting& setting)

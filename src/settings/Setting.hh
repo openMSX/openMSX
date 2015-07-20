@@ -18,6 +18,7 @@ class BaseSetting : private noncopyable
 {
 protected:
 	BaseSetting(string_ref name);
+	BaseSetting(const TclObject& name);
 	~BaseSetting() {}
 
 public:
@@ -28,14 +29,16 @@ public:
 	  *   fullName = "::machine1::PSG_volume"
 	  *   baseName = "PSG_volume"
 	  */
-	const std::string& getFullName() const { return fullName; }
-	const std::string& getBaseName() const { return baseName; }
+	const TclObject& getFullNameObj() const { return fullName; }
+	const TclObject& getBaseNameObj() const { return baseName; }
+	const string_ref getFullName()    const { return fullName.getString(); }
+	const string_ref getBaseName()    const { return baseName.getString(); }
 
 	/** Set a machine specific prefix.
 	 */
 	void setPrefix(string_ref prefix) {
 		assert(prefix.starts_with("::"));
-		fullName = prefix + baseName;
+		fullName.setString(prefix + getBaseName());
 	}
 
 	/** For SettingInfo
@@ -107,8 +110,8 @@ public:
 	virtual void setDontSaveValue(const TclObject& dontSaveValue) = 0;
 
 private:
-	      std::string fullName;
-	const std::string baseName;
+	      TclObject fullName;
+	const TclObject baseName;
 };
 
 

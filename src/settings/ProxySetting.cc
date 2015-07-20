@@ -10,7 +10,7 @@ using std::vector;
 
 namespace openmsx {
 
-ProxySetting::ProxySetting(Reactor& reactor_, string_ref name)
+ProxySetting::ProxySetting(Reactor& reactor_, const TclObject& name)
 	: BaseSetting(name)
 	, reactor(reactor_)
 {

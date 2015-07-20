@@ -247,7 +247,7 @@ static TclObject getSafeValue(BaseSetting& setting)
 }
 void Interpreter::registerSetting(BaseSetting& variable)
 {
-	const string& name = variable.getFullName();
+	string name = variable.getFullName().str(); // TODO optimize
 	if (Tcl_Obj* tclVarValue = getVar(interp, name.c_str())) {
 		// Tcl var already existed, use this value
 		try {
@@ -299,7 +299,7 @@ void Interpreter::registerSetting(BaseSetting& variable)
 
 void Interpreter::unregisterSetting(BaseSetting& variable)
 {
-	const string& name = variable.getFullName();
+	string name = variable.getFullName().str(); // TODO optimize
 	auto it = rfind_if_unguarded(traces, EqualTupleValue<1>(&variable));
 	uintptr_t traceID = it->first;
 	traces.erase(it);

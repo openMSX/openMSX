@@ -103,7 +103,7 @@ private:
 
 	using ProxySettings =
 		std::vector<std::pair<std::unique_ptr<ProxySetting>, unsigned>>;
-	ProxySettings::iterator findProxySetting(const std::string& name);
+	ProxySettings::iterator findProxySetting(string_ref name);
 
 	GlobalCliComm& cliComm;
 	CliConnection* connection;
