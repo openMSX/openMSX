@@ -1,4 +1,5 @@
 #include "ProxySetting.hh"
+#include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
@@ -19,7 +20,9 @@ BaseSetting* ProxySetting::getSetting()
 {
 	auto* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return nullptr;
-	return motherBoard->getMSXCommandController().findSetting(getName());
+	auto& manager = reactor.getGlobalCommandController().getSettingsManager();
+	auto& controller = motherBoard->getMSXCommandController();
+	return manager.findSetting(controller.getPrefix(), getName());
 }
 
 const BaseSetting* ProxySetting::getSetting() const

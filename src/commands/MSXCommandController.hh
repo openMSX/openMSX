@@ -38,6 +38,9 @@ public:
 	MSXMotherBoard& getMSXMotherBoard() const {
 		return motherboard;
 	}
+	const std::string& getPrefix() const {
+		return machineID;
+	}
 
 	Command* findCommand(string_ref name) const;
 
