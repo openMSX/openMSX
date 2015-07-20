@@ -89,7 +89,7 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 	if (it == end(proxySettings)) {
 		// first occurrence
 		auto proxy = make_unique<ProxySetting>(reactor, name);
-		getSettingsConfig().getSettingsManager().registerSetting(*proxy, name);
+		getSettingsManager().registerSetting(*proxy, name);
 		getInterpreter().registerSetting(*proxy, name);
 		proxySettings.emplace_back(std::move(proxy), 1);
 	} else {
@@ -108,7 +108,7 @@ void GlobalCommandController::unregisterProxySetting(Setting& setting)
 	if (it->second == 0) {
 		auto& proxy = *it->first;
 		getInterpreter().unregisterSetting(proxy, name);
-		getSettingsConfig().getSettingsManager().unregisterSetting(proxy, name);
+		getSettingsManager().unregisterSetting(proxy, name);
 		move_pop_back(proxySettings, it);
 	}
 }
@@ -160,7 +160,7 @@ void GlobalCommandController::unregisterCompleter(
 void GlobalCommandController::registerSetting(Setting& setting)
 {
 	const auto& name = setting.getName();
-	getSettingsConfig().getSettingsManager().registerSetting(setting, name);
+	getSettingsManager().registerSetting(setting, name);
 	interpreter.registerSetting(setting, name);
 }
 
@@ -168,12 +168,12 @@ void GlobalCommandController::unregisterSetting(Setting& setting)
 {
 	const auto& name = setting.getName();
 	interpreter.unregisterSetting(setting, name);
-	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
+	getSettingsManager().unregisterSetting(setting, name);
 }
 
 BaseSetting* GlobalCommandController::findSetting(string_ref name)
 {
-	return getSettingsConfig().getSettingsManager().findSetting(name);
+	return getSettingsManager().findSetting(name);
 }
 
 void GlobalCommandController::changeSetting(

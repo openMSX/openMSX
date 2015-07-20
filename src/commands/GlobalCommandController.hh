@@ -88,6 +88,7 @@ public:
 	bool isComplete(const std::string& command);
 
 	SettingsConfig& getSettingsConfig() { return settingsConfig; }
+	SettingsManager& getSettingsManager() { return settingsConfig.getSettingsManager(); }
 	CliConnection* getConnection() const { return connection; }
 
 private:

@@ -110,8 +110,7 @@ void MSXCommandController::registerSetting(Setting& setting)
 
 	globalCommandController.registerProxySetting(setting);
 	string fullname = getFullName(name);
-	globalCommandController.getSettingsConfig().getSettingsManager()
-		.registerSetting(setting, fullname);
+	globalCommandController.getSettingsManager().registerSetting(setting, fullname);
 	globalCommandController.getInterpreter().registerSetting(setting, fullname);
 }
 
@@ -124,8 +123,7 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	globalCommandController.unregisterProxySetting(setting);
 	string fullname = getFullName(name);
 	globalCommandController.getInterpreter().unregisterSetting(setting, fullname);
-	globalCommandController.getSettingsConfig().getSettingsManager()
-		.unregisterSetting(setting, fullname);
+	globalCommandController.getSettingsManager().unregisterSetting(setting, fullname);
 }
 
 void MSXCommandController::changeSetting(Setting& setting, const TclObject& value)
