@@ -225,23 +225,25 @@ bool YM2148::pendingIRQ() const
 }
 
 template<typename Archive>
-void YM2148::serialize(Archive& ar, unsigned /*version*/)
+void YM2148::serialize(Archive& ar, unsigned version)
 {
-	ar.template serializeBase<MidiInConnector>(*this);
-	ar.serialize("outConnector", outConnector);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.template serializeBase<MidiInConnector>(*this);
+		ar.serialize("outConnector", outConnector);
 
-	ar.serialize("syncRecv",  syncRecv);
-	ar.serialize("syncTrans", syncTrans);
+		ar.serialize("syncRecv",  syncRecv);
+		ar.serialize("syncTrans", syncTrans);
 
-	ar.serialize("rxIRQ", rxIRQ);
-	ar.serialize("txIRQ", txIRQ);
+		ar.serialize("rxIRQ", rxIRQ);
+		ar.serialize("txIRQ", txIRQ);
 
-	ar.serialize("rxReady",    rxReady);
-	ar.serialize("rxBuffer",   rxBuffer);
-	ar.serialize("txBuffer1",  txBuffer1);
-	ar.serialize("txBuffer2",  txBuffer2);
-	ar.serialize("status",     status);
-	ar.serialize("commandReg", commandReg);
+		ar.serialize("rxReady",    rxReady);
+		ar.serialize("rxBuffer",   rxBuffer);
+		ar.serialize("txBuffer1",  txBuffer1);
+		ar.serialize("txBuffer2",  txBuffer2);
+		ar.serialize("status",     status);
+		ar.serialize("commandReg", commandReg);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(YM2148);
 

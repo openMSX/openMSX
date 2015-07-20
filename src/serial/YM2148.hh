@@ -73,6 +73,7 @@ private:
 
 	MidiOutConnector outConnector;
 };
+SERIALIZE_CLASS_VERSION(YM2148, 2);
 
 } // namespace openmsx
 
