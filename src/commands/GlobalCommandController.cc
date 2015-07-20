@@ -171,11 +171,6 @@ void GlobalCommandController::unregisterSetting(Setting& setting)
 	getSettingsManager().unregisterSetting(setting, name);
 }
 
-BaseSetting* GlobalCommandController::findSetting(string_ref name)
-{
-	return getSettingsManager().findSetting(name);
-}
-
 void GlobalCommandController::changeSetting(
 	const std::string& name, const TclObject& value)
 {

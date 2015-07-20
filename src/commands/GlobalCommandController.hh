@@ -56,7 +56,6 @@ public:
 	void unregisterProxySetting(Setting& setting);
 
 	void changeSetting(const std::string& name, const TclObject& value);
-	BaseSetting* findSetting(string_ref name);
 
 	// CommandController
 	void   registerCompleter(CommandCompleter& completer,
