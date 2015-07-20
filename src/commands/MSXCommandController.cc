@@ -192,8 +192,10 @@ bool MSXCommandController::isActive() const
 
 void MSXCommandController::transferSettings(const MSXCommandController& from)
 {
+	const auto& fromPrefix = from.getPrefix();
+	auto& manager = globalCommandController.getSettingsManager();
 	for (auto* s : settingMap) {
-		if (auto* fromSetting = from.findSetting(s->getName())) {
+		if (auto* fromSetting = manager.findSetting(fromPrefix, s->getName())) {
 			if (!fromSetting->needTransfer()) continue;
 			try {
 				changeSetting(*s, fromSetting->getValue());
