@@ -6,7 +6,9 @@
 #include "XMLElement.hh"
 #include "KeyRange.hh"
 #include "outer.hh"
+#include "vla.hh"
 #include <cassert>
+#include <cstring>
 
 using std::string;
 using std::vector;
@@ -44,6 +46,15 @@ BaseSetting* SettingsManager::findSetting(string_ref name) const
 {
 	auto it = settingsMap.find(name);
 	return (it != end(settingsMap)) ? it->second : nullptr;
+}
+
+BaseSetting* SettingsManager::findSetting(string_ref prefix, string_ref baseName) const
+{
+	auto size = prefix.size() + baseName.size();
+	VLA(char, fullname, size);
+	memcpy(&fullname[0],             prefix  .data(), prefix  .size());
+	memcpy(&fullname[prefix.size()], baseName.data(), baseName.size());
+	return findSetting(string_ref(fullname, size));
 }
 
 // Helper functions for setting commands

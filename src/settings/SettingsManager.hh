@@ -26,6 +26,7 @@ public:
 	  * @return The requested setting or nullptr.
 	  */
 	BaseSetting* findSetting(string_ref name) const;
+	BaseSetting* findSetting(string_ref prefix, string_ref baseName) const;
 
 	void loadSettings(const XMLElement& config);
 
