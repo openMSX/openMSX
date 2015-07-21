@@ -3,7 +3,8 @@
 
 #include "Command.hh"
 #include "InfoTopic.hh"
-#include "hash_map.hh"
+#include "Setting.hh"
+#include "hash_set.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
 #include "xxhash.hh"
@@ -63,8 +64,12 @@ private:
 	SettingCompleter incrCompleter;
 	SettingCompleter unsetCompleter;
 
-	// TODO refactor so that we can use Setting::getName()
-	hash_map<std::string, BaseSetting*, XXHasher> settingsMap;
+	struct NameFromSetting {
+		const TclObject& operator()(BaseSetting* s) const {
+			return s->getFullNameObj();
+		}
+	};
+	hash_set<BaseSetting*, NameFromSetting, XXTclHasher> settings;
 };
 
 } // namespace openmsx

@@ -1,10 +1,8 @@
 #include "SettingsManager.hh"
 #include "GlobalCommandController.hh"
 #include "TclObject.hh"
-#include "Setting.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
-#include "KeyRange.hh"
 #include "outer.hh"
 #include "vla.hh"
 #include <cassert>
@@ -27,27 +25,26 @@ SettingsManager::SettingsManager(GlobalCommandController& commandController)
 
 SettingsManager::~SettingsManager()
 {
-	assert(settingsMap.empty());
+	assert(settings.empty());
 }
 
 void SettingsManager::registerSetting(BaseSetting& setting)
 {
-	const auto& name = setting.getFullName();
-	assert(!settingsMap.contains(name));
-	settingsMap.emplace_noDuplicateCheck(name.str(), &setting); // TODO optimize
+	assert(!settings.contains(setting.getFullNameObj()));
+	settings.emplace_noDuplicateCheck(&setting);
 }
 
 void SettingsManager::unregisterSetting(BaseSetting& setting)
 {
-	const auto& name = setting.getFullName();
-	assert(settingsMap.contains(name));
-	settingsMap.erase(name);
+	const auto& name = setting.getFullNameObj();
+	assert(settings.contains(name));
+	settings.erase(name);
 }
 
 BaseSetting* SettingsManager::findSetting(string_ref name) const
 {
-	auto it = settingsMap.find(name);
-	return (it != end(settingsMap)) ? it->second : nullptr;
+	auto it = settings.find(name);
+	return (it != end(settings)) ? *it : nullptr;
 }
 
 BaseSetting* SettingsManager::findSetting(string_ref prefix, string_ref baseName) const
@@ -72,23 +69,21 @@ BaseSetting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 void SettingsManager::loadSettings(const XMLElement& config)
 {
 	// restore default values
-	for (auto* s : values(settingsMap)) {
+	for (auto* s : settings) {
 		if (s->needLoadSave()) {
 			s->setValue(s->getRestoreValue());
 		}
 	}
 
 	// load new values
-	auto* settings = config.findChild("settings");
-	if (!settings) return;
-	for (auto& p : settingsMap) {
-		auto& name = p.first;
-		auto& setting = *p.second;
-		if (!setting.needLoadSave()) continue;
-		if (auto* elem = settings->findChildWithAttribute(
-		                                     "setting", "id", name)) {
+	auto* settingsElem = config.findChild("settings");
+	if (!settingsElem) return;
+	for (auto* s : settings) {
+		if (!s->needLoadSave()) continue;
+		if (auto* elem = settingsElem->findChildWithAttribute(
+		                "setting", "id", s->getFullName())) {
 			try {
-				setting.setValue(TclObject(elem->getData()));
+				s->setValue(TclObject(elem->getData()));
 			} catch (MSXException&) {
 				// ignore, keep default value
 			}
@@ -108,20 +103,20 @@ void SettingsManager::SettingInfo::execute(
 	array_ref<TclObject> tokens, TclObject& result) const
 {
 	auto& manager = OUTER(SettingsManager, settingInfo);
-	auto& settingsMap = manager.settingsMap;
+	auto& settings = manager.settings;
 	switch (tokens.size()) {
 	case 2:
-		for (auto& p : settingsMap) {
-			result.addListElement(p.first);
+		for (auto* p : settings) {
+			result.addListElement(p->getFullNameObj());
 		}
 		break;
 	case 3: {
 		const auto& name = tokens[2].getString();
-		auto it = settingsMap.find(name);
-		if (it == end(settingsMap)) {
+		auto it = settings.find(name);
+		if (it == end(settings)) {
 			throw CommandException("No such setting: " + name);
 		}
-		it->second->info(result);
+		(*it)->info(result);
 		break;
 	}
 	default:
@@ -142,7 +137,11 @@ void SettingsManager::SettingInfo::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 3) {
 		// complete setting name
 		auto& manager = OUTER(SettingsManager, settingInfo);
-		completeString(tokens, keys(manager.settingsMap));
+		vector<string_ref> names;
+		for (auto* s : manager.settings) {
+			names.push_back(s->getFullName());
+		}
+		completeString(tokens, names);
 	}
 }
 
@@ -172,15 +171,20 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 {
 	auto& manager = OUTER(SettingsManager, setCompleter);
 	switch (tokens.size()) {
-	case 2:
+	case 2: {
 		// complete setting name
-		completeString(tokens, keys(manager.settingsMap), false); // case insensitive
+		vector<string_ref> names;
+		for (auto* s : manager.settings) {
+			names.push_back(s->getFullName());
+		}
+		completeString(tokens, names, false); // case insensitive
 		break;
+	}
 	case 3: {
 		// complete setting value
-		auto it = manager.settingsMap.find(tokens[1]);
-		if (it != end(manager.settingsMap)) {
-			it->second->tabCompletion(tokens);
+		auto it = manager.settings.find(tokens[1]);
+		if (it != end(manager.settings)) {
+			(*it)->tabCompletion(tokens);
 		}
 		break;
 	}
@@ -207,7 +211,11 @@ void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) co
 {
 	if (tokens.size() == 2) {
 		// complete setting name
-		completeString(tokens, keys(manager.settingsMap));
+		vector<string_ref> names;
+		for (auto* s : manager.settings) {
+			names.push_back(s->getFullName());
+		}
+		completeString(tokens, names);
 	}
 }
 
