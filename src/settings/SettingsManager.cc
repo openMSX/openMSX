@@ -66,6 +66,22 @@ BaseSetting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 	throw CommandException(cmd + ": " + name + ": no such setting");
 }
 
+vector<string> SettingsManager::getTabSettingNames() const
+{
+	vector<string> result;
+	result.reserve(settings.size() * 2);
+	for (auto* s : settings) {
+		string_ref name = s->getFullName();
+		result.push_back(name.str());
+		if (name.starts_with("::")) {
+			result.push_back(name.substr(2).str());
+		} else {
+			result.push_back("::" + name);
+		}
+	}
+	return result;
+}
+
 void SettingsManager::loadSettings(const XMLElement& config)
 {
 	// restore default values
@@ -137,11 +153,7 @@ void SettingsManager::SettingInfo::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 3) {
 		// complete setting name
 		auto& manager = OUTER(SettingsManager, settingInfo);
-		vector<string_ref> names;
-		for (auto* s : manager.settings) {
-			names.push_back(s->getFullName());
-		}
-		completeString(tokens, names);
+		completeString(tokens, manager.getTabSettingNames());
 	}
 }
 
@@ -173,11 +185,7 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete setting name
-		vector<string_ref> names;
-		for (auto* s : manager.settings) {
-			names.push_back(s->getFullName());
-		}
-		completeString(tokens, names, false); // case insensitive
+		completeString(tokens, manager.getTabSettingNames(), false); // case insensitive
 		break;
 	}
 	case 3: {
@@ -211,11 +219,7 @@ void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) co
 {
 	if (tokens.size() == 2) {
 		// complete setting name
-		vector<string_ref> names;
-		for (auto* s : manager.settings) {
-			names.push_back(s->getFullName());
-		}
-		completeString(tokens, names);
+		completeString(tokens, manager.getTabSettingNames());
 	}
 }
 

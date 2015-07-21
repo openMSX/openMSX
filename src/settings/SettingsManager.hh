@@ -36,6 +36,7 @@ public:
 
 private:
 	BaseSetting& getByName(string_ref cmd, string_ref name) const;
+	std::vector<std::string> getTabSettingNames() const;
 
 	struct SettingInfo final : InfoTopic {
 		SettingInfo(InfoCommand& openMSXInfoCommand);
