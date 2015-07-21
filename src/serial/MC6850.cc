@@ -19,7 +19,7 @@ namespace openmsx {
 // control register bits
 static const unsigned CR_CDS1 = 0x01; // Counter Divide Select 1
 static const unsigned CR_CDS2 = 0x02; // Counter Divide Select 2
-static const unsigned CR_MR   = 0x03; // Master Reset
+static const unsigned CR_MR   = CR_CDS1 | CR_CDS2; // Master Reset
 // CDS2 CDS1
 // 0    0     divide by 1
 // 0    1     divide by 16
@@ -29,6 +29,7 @@ static const unsigned CR_MR   = 0x03; // Master Reset
 static const unsigned CR_WS1  = 0x04; // Word Select 1 (mostly parity)
 static const unsigned CR_WS2  = 0x08; // Word Select 2 (mostly nof stop bits)
 static const unsigned CR_WS3  = 0x10; // Word Select 3: 7/8 bits
+static const unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
 // WS3 WS2 WS1
 // 0   0   0   7 bits - 2 stop bits - Even parity
 // 0   0   1   7 bits - 2 stop bits - Odd  parity
@@ -42,6 +43,7 @@ static const unsigned CR_WS3  = 0x10; // Word Select 3: 7/8 bits
 
 static const unsigned CR_TC1  = 0x20; // Transmit Control 1
 static const unsigned CR_TC2  = 0x40; // Transmit Control 2
+static const unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
 // TC2 TC1
 // 0   0   /RTS low,  Transmitting Interrupt disabled
 // 0   1   /RTS low,  Transmitting Interrupt enabled
