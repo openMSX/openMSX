@@ -199,7 +199,7 @@ void Setting::setValueDirect(const TclObject& newValue_)
 	auto& globalController = controller->getGlobalCommandController();
 	// Tcl already makes sure this doesn't result in an endless loop.
 	try {
-		globalController.changeSetting(getBaseName().str(), getValue()); // TODO optimize
+		globalController.changeSetting(getBaseNameObj(), getValue());
 	} catch (MSXException&) {
 		// ignore
 	}

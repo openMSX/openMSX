@@ -41,7 +41,7 @@ void WatchIO::doReadCallback(unsigned port)
 
 	auto& cliComm = motherboard.getReactor().getGlobalCliComm();
 	auto& interp  = motherboard.getReactor().getInterpreter();
-	interp.setVariable("wp_last_address", TclObject(int(port)));
+	interp.setVariable(TclObject("wp_last_address"), TclObject(int(port)));
 
 	// keep this object alive by holding a shared_ptr to it, for the case
 	// this watchpoint deletes itself in checkAndExecute()
@@ -58,8 +58,8 @@ void WatchIO::doWriteCallback(unsigned port, unsigned value)
 
 	auto& cliComm = motherboard.getReactor().getGlobalCliComm();
 	auto& interp  = motherboard.getReactor().getInterpreter();
-	interp.setVariable("wp_last_address", TclObject(int(port)));
-	interp.setVariable("wp_last_value",   TclObject(int(value)));
+	interp.setVariable(TclObject("wp_last_address"), TclObject(int(port)));
+	interp.setVariable(TclObject("wp_last_value"),   TclObject(int(value)));
 
 	// see comment in doReadCallback() above
 	auto keepAlive = shared_from_this();

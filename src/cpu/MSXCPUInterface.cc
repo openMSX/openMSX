@@ -845,9 +845,11 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 
 	auto& cliComm = motherBoard.getReactor().getGlobalCliComm();
 	auto& interp  = motherBoard.getReactor().getInterpreter();
-	interp.setVariable("wp_last_address", TclObject(int(address)));
+	interp.setVariable(TclObject("wp_last_address"),
+	                   TclObject(int(address)));
 	if (value != ~0u) {
-		interp.setVariable("wp_last_value", TclObject(int(value)));
+		interp.setVariable(TclObject("wp_last_value"),
+		                   TclObject(int(value)));
 	}
 
 	auto wpCopy = watchPoints;

@@ -169,14 +169,14 @@ void GlobalCommandController::unregisterSetting(Setting& setting)
 }
 
 void GlobalCommandController::changeSetting(
-	const std::string& name, const TclObject& value)
+	const TclObject& name, const TclObject& value)
 {
 	interpreter.setVariable(name, value);
 }
 
 void GlobalCommandController::changeSetting(Setting& setting, const TclObject& value)
 {
-	changeSetting(setting.getFullName().str(), value); // TODO optimize
+	changeSetting(setting.getFullNameObj(), value);
 }
 
 bool GlobalCommandController::hasCommand(string_ref command) const

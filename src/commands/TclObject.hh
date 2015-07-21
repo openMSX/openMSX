@@ -80,6 +80,7 @@ public:
 
 	// get underlying Tcl_Obj
 	Tcl_Obj* getTclObject() { return obj; }
+	Tcl_Obj* getTclObjectNonConst() const { return const_cast<Tcl_Obj*>(obj); }
 
 	// value setters
 	void setString(string_ref value);

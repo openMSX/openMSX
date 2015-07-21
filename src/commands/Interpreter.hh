@@ -31,8 +31,8 @@ public:
 	TclObject execute(const std::string& command);
 	TclObject executeFile(const std::string& filename);
 
-	void setVariable(const std::string& name, TclObject value);
-	void unsetVariable(const std::string& name);
+	void setVariable(const TclObject& name, const TclObject& value);
+	void unsetVariable(const char* name);
 	void registerSetting(BaseSetting& variable);
 	void unregisterSetting(BaseSetting& variable);
 
