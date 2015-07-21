@@ -168,17 +168,6 @@ void GlobalCommandController::unregisterSetting(Setting& setting)
 	getSettingsManager().unregisterSetting(setting);
 }
 
-void GlobalCommandController::changeSetting(
-	const TclObject& name, const TclObject& value)
-{
-	interpreter.setVariable(name, value);
-}
-
-void GlobalCommandController::changeSetting(Setting& setting, const TclObject& value)
-{
-	changeSetting(setting.getFullNameObj(), value);
-}
-
 bool GlobalCommandController::hasCommand(string_ref command) const
 {
 	return commands.find(command) != end(commands);

@@ -55,8 +55,6 @@ public:
 	void registerProxySetting(Setting& setting);
 	void unregisterProxySetting(Setting& setting);
 
-	void changeSetting(const TclObject& name, const TclObject& value);
-
 	// CommandController
 	void   registerCompleter(CommandCompleter& completer,
 	                         string_ref str) override;
@@ -71,7 +69,6 @@ public:
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
-	void changeSetting(Setting& setting, const TclObject& value) override;
 	CliComm& getCliComm() override;
 	Interpreter& getInterpreter() override;
 

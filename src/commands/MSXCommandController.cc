@@ -123,11 +123,6 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	globalCommandController.getSettingsManager().unregisterSetting(setting);
 }
 
-void MSXCommandController::changeSetting(Setting& setting, const TclObject& value)
-{
-	globalCommandController.changeSetting(setting, value);
-}
-
 Command* MSXCommandController::findCommand(string_ref name) const
 {
 	auto it = commandMap.find(name);
@@ -163,7 +158,8 @@ void MSXCommandController::signalEvent(
 	// simple way to synchronize proxy settings
 	for (auto* s : settings) {
 		try {
-			changeSetting(*s, s->getValue());
+			getInterpreter().setVariable(
+				s->getFullNameObj(), s->getValue());
 		} catch (MSXException&) {
 			// ignore
 		}
@@ -183,7 +179,8 @@ void MSXCommandController::transferSettings(const MSXCommandController& from)
 		if (auto* fromSetting = manager.findSetting(fromPrefix, s->getBaseName())) {
 			if (!fromSetting->needTransfer()) continue;
 			try {
-				changeSetting(*s, fromSetting->getValue());
+				getInterpreter().setVariable(
+					s->getFullNameObj(), fromSetting->getValue());
 			} catch (MSXException&) {
 				// ignore
 			}

@@ -67,7 +67,6 @@ public:
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
-	void changeSetting(Setting& setting, const TclObject& value) override;
 	CliComm& getCliComm() override;
 	Interpreter& getInterpreter() override;
 

@@ -88,7 +88,7 @@ string_ref Setting::getDescription() const
 
 void Setting::setValue(const TclObject& value)
 {
-	getCommandController().changeSetting(*this, value);
+	getInterpreter().setVariable(getFullNameObj(), value);
 }
 
 void Setting::notify() const
@@ -196,10 +196,9 @@ void Setting::setValueDirect(const TclObject& newValue_)
 		return;
 	}
 
-	auto& globalController = controller->getGlobalCommandController();
 	// Tcl already makes sure this doesn't result in an endless loop.
 	try {
-		globalController.changeSetting(getBaseNameObj(), getValue());
+		getInterpreter().setVariable(getBaseNameObj(), getValue());
 	} catch (MSXException&) {
 		// ignore
 	}
