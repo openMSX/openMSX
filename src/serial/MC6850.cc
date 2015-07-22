@@ -19,6 +19,7 @@ namespace openmsx {
 // control register bits
 static const unsigned CR_CDS1 = 0x01; // Counter Divide Select 1
 static const unsigned CR_CDS2 = 0x02; // Counter Divide Select 2
+static const unsigned CR_CDS  = CR_CDS1 | CR_CDS2;
 static const unsigned CR_MR   = CR_CDS1 | CR_CDS2; // Master Reset
 // CDS2 CDS1
 // 0    0     divide by 1
@@ -89,40 +90,38 @@ MC6850::MC6850(const DeviceConfig& config)
 	, MidiInConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-in")
 	, syncRecv (getMotherBoard().getScheduler())
 	, syncTrans(getMotherBoard().getScheduler())
+	, txClock(EmuTime::zero)
 	, rxIRQ(getMotherBoard(), MSXDevice::getName() + "-rx-IRQ")
 	, txIRQ(getMotherBoard(), MSXDevice::getName() + "-tx-IRQ")
-	, transmitDataReg(0), transmitShiftReg(0) // avoid UMR
+	, txDataReg(0), txShiftReg(0) // avoid UMR
 	, outConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-out")
 {
-	reset(EmuTime::dummy());
+	reset(EmuTime::zero);
 }
 
-void MC6850::reset(EmuTime::param /*time*/)
+void MC6850::reset(EmuTime::param time)
 {
 	std::cerr << "MC6850 reset" << std::endl;
 	syncRecv .removeSyncPoint();
 	syncTrans.removeSyncPoint();
+	txClock.reset(time);
+	txClock.setFreq(500000);
 	rxIRQ.reset();
 	txIRQ.reset();
 	rxReady = false;
+	txShiftRegValid = false;
 	controlReg = CR_MR;
 	statusReg = 0;
-	receiveDataReg = 0;
+	rxDataReg = 0;
 }
 
 byte MC6850::readIO(word port, EmuTime::param /*time*/)
 {
 	switch (port & 0x1) {
-	case 0:{// read Status Register
-		byte regVal = statusReg;
-		if (rxIRQ.getState() || txIRQ.getState()) regVal |= STAT_IRQ;
-		std::cerr << "MC6850 reading statusReg: 0x" << std::hex << int(regVal) << std::endl;
-		return regVal; }
-	case 1: // read Receive Data Register
-		std::cerr << "MC6850 reading receiveDataReg: 0x" << std::hex << int(receiveDataReg) << std::endl;
-		statusReg &= ~STAT_RDRF;
-		rxIRQ.reset();
-		return receiveDataReg;
+	case 0:
+		return readStatusReg();
+	case 1:
+		return readDataReg();
 	}
 	UNREACHABLE;
 	return 0xFF;
@@ -131,10 +130,10 @@ byte MC6850::readIO(word port, EmuTime::param /*time*/)
 byte MC6850::peekIO(word port, EmuTime::param /*time*/) const
 {
 	switch (port & 0x1) {
-	case 0: // read Status Register
-		return statusReg;
-	case 1: // read Receive Data Register
-		return receiveDataReg;
+	case 0:
+		return peekStatusReg();
+	case 1:
+		return peekDataReg();
 	}
 	UNREACHABLE;
 	return 0xFF;
@@ -143,45 +142,122 @@ byte MC6850::peekIO(word port, EmuTime::param /*time*/) const
 void MC6850::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0x01) {
-	case 0: // write Control Register
-		std::cerr << "MC6850 writing controlReg: 0x" << std::hex << int(value) << std::endl;
-		if ((value & 3) == CR_MR) {
-			reset(time);
-		} else {
-			if ((controlReg & 3) == CR_MR) {
-				// we got out of MR state
-				rxReady = true;
-				statusReg |= STAT_TDRE;
-			}
-		}
-		controlReg = value;
-		// update IRQ status
-		rxIRQ.set(( value & CR_RIE) && (statusReg & STAT_RDRF));
-		txIRQ.set(((value & (CR_TC1 | CR_TC2)) == 0x20) && (statusReg & STAT_TDRE));
+	case 0:
+		writeControlReg(value, time);
 		break;
-	case 1: // write Transmit Data Register
-		std::cerr << "MC6850 writing TDR: 0x" << std::hex << int(value) << std::endl;
-		if (syncTrans.pendingSyncPoint()) {
-			// We're still sending the previous character, only
-			// buffer this one. Don't accept any further characters
-			// TODO: this is WRONG. TDRE should go low immediately
-			transmitDataReg = value;
-			statusReg &= ~STAT_TDRE;
-			txIRQ.reset();
-		} else {
-			// Immediately start sending this character. We're
-			// still ready to accept a next character
-			send(value, time);
-		}
+	case 1:
+		writeDataReg(value, time);
 		break;
 	}
 }
 
-// Start sending a character. It takes a while before it's finished sending.
-void MC6850::send(byte value, EmuTime::param time)
+byte MC6850::readStatusReg()
 {
-	transmitShiftReg = value;
-	syncTrans.setSyncPoint(time + CHAR_DURATION);
+	return peekStatusReg();
+}
+
+byte MC6850::peekStatusReg() const
+{
+	byte result = statusReg;
+	if (rxIRQ.getState() || txIRQ.getState()) result |= STAT_IRQ;
+	std::cerr << "MC6850 reading statusReg: 0x" << std::hex << int(result) << std::endl;
+	return result;
+}
+
+byte MC6850::readDataReg()
+{
+	byte result = peekDataReg();
+	std::cerr << "MC6850 reading rxDataReg: 0x" << std::hex << int(result) << std::endl;
+	statusReg &= ~STAT_RDRF;
+	rxIRQ.reset();
+	return result;
+}
+
+byte MC6850::peekDataReg() const
+{
+	return rxDataReg;
+}
+
+void MC6850::writeControlReg(byte value, EmuTime::param time)
+{
+	std::cerr << "MC6850 writing controlReg: 0x" << std::hex << int(value) << std::endl;
+
+	byte diff = value ^ controlReg;
+	if (diff & CR_CDS) {
+		if ((value & CR_CDS) == CR_MR) {
+			reset(time);
+		} else {
+			// we got out of MR state
+			rxReady = true;
+			statusReg |= STAT_TDRE;
+
+			txClock.reset(time);
+			switch (value & CR_CDS) {
+			case 0: txClock.setFreq(500000,  1); break;
+			case 1: txClock.setFreq(500000, 16); break;
+			case 2: txClock.setFreq(500000, 64); break;
+			}
+		}
+	}
+	if (diff & CR_WS) {
+		// TODO
+	}
+
+	controlReg = value;
+
+	// update IRQ status
+	rxIRQ.set(( value & CR_RIE) && (statusReg & STAT_RDRF));
+	txIRQ.set(((value & CR_TC) == 0x20) && (statusReg & STAT_TDRE));
+}
+
+void MC6850::writeDataReg(byte value, EmuTime::param time)
+{
+	std::cerr << "MC6850 writing TDR: 0x" << std::hex << int(value) << std::endl;
+	
+	if ((controlReg & CR_CDS) == CR_MR) return;
+
+	txDataReg = value;
+	statusReg &= ~STAT_TDRE;
+	txIRQ.reset();
+
+	if (syncTrans.pendingSyncPoint()) {
+		// We're still sending the previous character, only
+		// buffer this one. Don't accept any further characters
+	} else {
+		// We were not yet sending. Start sending at the next txClock.
+		// Important: till that time TDRE should go low
+		//  (MC6850 detection routine in Synthesix depends on this)
+		txClock.advance(time); // clock edge before or at 'time'
+		txClock += 1; // clock edge strictly after 'time'
+		syncTrans.setSyncPoint(txClock.getTime());
+	}
+}
+
+// Triggered between transmitted characters, including before the first and
+// after the last character.
+void MC6850::execTrans(EmuTime::param time)
+{
+	assert(txClock.getTime() == time);
+
+	if (txShiftRegValid) {
+		txShiftRegValid = false;
+		outConnector.recvByte(txShiftReg, time);
+	}
+
+	if (statusReg & STAT_TDRE) {
+		// No next character to send, we're done.
+	} else {
+		// There already is a next character, start sending that now
+		// and accept a next one.
+		statusReg |= STAT_TDRE;
+		if (((controlReg & CR_TC) == 0x20)) txIRQ.set();
+
+		txShiftReg = txDataReg;
+		txShiftRegValid = true;
+
+		txClock += 10; // TODO make configurable
+		syncTrans.setSyncPoint(txClock.getTime());
+	}
 }
 
 // MidiInConnector sends a new character.
@@ -196,7 +272,7 @@ void MC6850::recvByte(byte value, EmuTime::param time)
 		// respond fast enough to an earlier received byte.
 		statusReg |= STAT_OVRN;
 	} else {
-		receiveDataReg = value;
+		rxDataReg = value;
 		statusReg |= STAT_RDRF;
 	}
 	// both for OVRN and RDRF an IRQ is raised
@@ -204,13 +280,13 @@ void MC6850::recvByte(byte value, EmuTime::param time)
 
 	// Not ready now, but we will be in a while
 	rxReady = false;
-	syncRecv.setSyncPoint(time + CHAR_DURATION);
+	syncRecv.setSyncPoint(time + CHAR_DURATION); // TODO make configurable
 }
 
 // Triggered when we're ready to receive the next character.
 void MC6850::execRecv(EmuTime::param time)
 {
-	assert((controlReg & 3) != CR_MR);
+	assert(acceptsData());
 	assert(!rxReady);
 	rxReady = true;
 	getPluggedMidiInDev().signal(time); // trigger (possible) send of next char
@@ -225,7 +301,7 @@ bool MC6850::ready()
 // MidiInDevice queries whether it can send characters at all.
 bool MC6850::acceptsData()
 {
-	return (controlReg & 3) != CR_MR;
+	return (controlReg & CR_CDS) != CR_MR;
 }
 
 // MidiInDevice informs us about the format of the data it will send
@@ -243,24 +319,9 @@ void MC6850::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 	// ignore
 }
 
-// Triggered when a character has finished sending.
-void MC6850::execTrans(EmuTime::param time)
-{
-	outConnector.recvByte(transmitShiftReg, time);
-
-	if (statusReg & STAT_TDRE) {
-		// no next character to send
-	} else {
-		// There already is a next character, start sending that now
-		// and accept a next one
-		statusReg |= STAT_TDRE;
-		if (((controlReg & (CR_TC1 | CR_TC2)) == 0x20)) txIRQ.set();
-		send(transmitDataReg, time);
-	}
-}
-
 // version 1: initial version
 // version 2: added control
+// version 3: WIP
 template<typename Archive>
 void MC6850::serialize(Archive& ar, unsigned version)
 {
@@ -272,16 +333,18 @@ void MC6850::serialize(Archive& ar, unsigned version)
 		ar.serialize("syncRecv",  syncRecv);
 		ar.serialize("syncTrans", syncTrans);
 
+		ar.serialize("txClock", txClock);
 		ar.serialize("rxIRQ", rxIRQ);
 		ar.serialize("txIRQ", txIRQ);
 
-		ar.serialize("rxReady",    rxReady);
-		ar.serialize("receiveDataReg", receiveDataReg);
-		ar.serialize("transmitDataReg", transmitDataReg);
-		ar.serialize("transmitShiftReg", transmitShiftReg);
+		ar.serialize("rxReady",         rxReady);
+		ar.serialize("txShiftRegValid", txShiftRegValid);
 
-		ar.serialize("statusReg",  statusReg);
+		ar.serialize("rxDataReg",  rxDataReg);
+		ar.serialize("txDataReg",  txDataReg);
+		ar.serialize("txShiftReg", txShiftReg);
 		ar.serialize("controlReg", controlReg);
+		ar.serialize("statusReg",  statusReg);
 	} else if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("control", controlReg);
 	} else {

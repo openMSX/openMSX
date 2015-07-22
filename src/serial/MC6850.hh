@@ -2,6 +2,7 @@
 #define MC6850_HH
 
 #include "MSXDevice.hh"
+#include "DynamicClock.hh"
 #include "IRQHelper.hh"
 #include "MidiInConnector.hh"
 #include "MidiOutConnector.hh"
@@ -29,6 +30,13 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	byte readStatusReg();
+	byte peekStatusReg() const;
+	byte readDataReg();
+	byte peekDataReg() const;
+	void writeControlReg(byte value, EmuTime::param time);
+	void writeDataReg   (byte value, EmuTime::param time);
+
 	// MidiInConnector
 	bool ready() override;
 	bool acceptsData() override;
@@ -57,15 +65,18 @@ private:
 	void execRecv (EmuTime::param time);
 	void execTrans(EmuTime::param time);
 
-	void send(byte value, EmuTime::param time);
+	// External clock of 500kHz, divided by 1, 16 or 64.
+	// Transmitted bits are synced to this clock
+	DynamicClock txClock;
 
 	IRQHelper rxIRQ;
 	IRQHelper txIRQ;
 	bool rxReady;
+	bool txShiftRegValid; //<! True iff txShiftReg contains a valid value
+	byte rxDataReg;       //<! Byte received from MIDI in connector.
+	byte txDataReg;       //<! Next to-be-sent byte.
+	byte txShiftReg;      //<! Byte currently being sent.
 	byte controlReg;
-	byte receiveDataReg;   //<! Byte received from MIDI in connector.
-	byte transmitDataReg;  //<! Next to-be-sent byte.
-	byte transmitShiftReg; //<! Byte currently being sent.
 	byte statusReg;
 
 	MidiOutConnector outConnector;
