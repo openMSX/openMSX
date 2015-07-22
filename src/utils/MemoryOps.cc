@@ -276,9 +276,7 @@ public:
 		               EqualTupleValue<0>(aligned));
 		// return the associated unaligned value
 		void* unaligned = it->second;
-		// instead of vector::erase(), swap with back and drop that
-		*it = allocMap.back();
-		allocMap.pop_back();
+		move_pop_back(allocMap, it);
 		return unaligned;
 	}
 

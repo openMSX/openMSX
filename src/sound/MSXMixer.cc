@@ -182,8 +182,7 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 		s.recordSetting->detach(*this);
 		s.muteSetting->detach(*this);
 	}
-	if (it != (end(infos) - 1)) std::swap(*it, *(end(infos) - 1));
-	infos.pop_back();
+	move_pop_back(infos, it);
 	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "remove");
 }
 
