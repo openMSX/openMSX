@@ -79,6 +79,7 @@ private:
 	byte txShiftReg;      //<! Byte currently being sent.
 	byte controlReg;
 	byte statusReg;
+	byte charLen;         //<! #start- + #data- + #parity- + #stop-bits
 
 	MidiOutConnector outConnector;
 };

@@ -107,6 +107,12 @@ public:
 		return MAIN_FREQ32 / getStep();
 	}
 
+	/** Returns the length of one clock-cycle.
+	  */
+	EmuDuration getPeriod() const {
+		return EmuDuration(uint64_t(getStep()));
+	}
+
 	/** Reset the clock to start ticking at the given time.
 	  */
 	void reset(EmuTime::param e) {

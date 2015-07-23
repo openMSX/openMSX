@@ -99,6 +99,22 @@ MC6850::MC6850(const DeviceConfig& config)
 	reset(EmuTime::zero);
 }
 
+static byte calcCharacterLength(byte controlReg)
+{
+	// start-bits, data-bits, parity-bits, stop-bits
+	byte len[8] = {
+		1 + 7 + 1 + 2,
+		1 + 7 + 1 + 2,
+		1 + 7 + 1 + 1,
+		1 + 7 + 1 + 1,
+		1 + 8 + 0 + 2,
+		1 + 8 + 0 + 1,
+		1 + 8 + 1 + 1,
+		1 + 8 + 1 + 1,
+	};
+	return len[(controlReg & CR_WS) >> 2];
+}
+
 void MC6850::reset(EmuTime::param time)
 {
 	std::cerr << "MC6850 reset" << std::endl;
@@ -114,6 +130,7 @@ void MC6850::reset(EmuTime::param time)
 	controlReg = CR_MR;
 	statusReg = 0;
 	rxDataReg = 0;
+	charLen = calcCharacterLength(controlReg);
 }
 
 byte MC6850::readIO(word port, EmuTime::param /*time*/)
@@ -205,7 +222,19 @@ void MC6850::writeControlReg(byte value, EmuTime::param time)
 		}
 	}
 	if (diff & CR_WS) {
-		// TODO
+		outConnector.setDataBits(value & CR_WS3 ? DATA_8 : DATA_7);
+
+		StopBits stopBits[8] = {
+			STOP_2, STOP_2, STOP_1, STOP_1,
+			STOP_2, STOP_1, STOP_1, STOP_1,
+		};
+		outConnector.setStopBits(stopBits[(value & CR_WS) >> 2]);
+
+		outConnector.setParityBit(
+			(value & (CR_WS3 | CR_WS2)) != 0x10, // enable
+			(value & CR_WS1) ? ODD : EVEN);
+
+		charLen = calcCharacterLength(value);
 	}
 
 	controlReg = value;
@@ -260,7 +289,7 @@ void MC6850::execTrans(EmuTime::param time)
 		txShiftReg = txDataReg;
 		txShiftRegValid = true;
 
-		txClock += 10; // TODO make configurable
+		txClock += charLen;
 		syncTrans.setSyncPoint(txClock.getTime());
 	}
 }
@@ -287,7 +316,12 @@ void MC6850::recvByte(byte value, EmuTime::param time)
 
 	// Not ready now, but we will be in a while
 	rxReady = false;
-	syncRecv.setSyncPoint(time + CHAR_DURATION); // TODO make configurable
+
+	// The MC6850 has separate TxCLK and RxCLK inputs, but both shared a
+	// common divider. This implementation hard-codes an input frequency of
+	// 500kHz for both. Below we want the receive clock period, but it's OK
+	// to calculate that as 'txClock.getPeriod()'.
+	syncRecv.setSyncPoint(time + txClock.getPeriod() * charLen);
 }
 
 // Triggered when we're ready to receive the next character.
@@ -357,6 +391,10 @@ void MC6850::serialize(Archive& ar, unsigned version)
 		ar.serialize("control", controlReg);
 	} else {
 		controlReg = 3;
+	}
+
+	if (ar.isLoader()) {
+		charLen = calcCharacterLength(controlReg);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MC6850);
