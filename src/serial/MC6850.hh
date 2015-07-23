@@ -73,6 +73,7 @@ private:
 	IRQHelper txIRQ;
 	bool rxReady;
 	bool txShiftRegValid; //<! True iff txShiftReg contains a valid value
+	bool pendingOVRN;     //<! Overrun detected but not yet reported.
 	byte rxDataReg;       //<! Byte received from MIDI in connector.
 	byte txDataReg;       //<! Next to-be-sent byte.
 	byte txShiftReg;      //<! Byte currently being sent.

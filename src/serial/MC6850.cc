@@ -110,6 +110,7 @@ void MC6850::reset(EmuTime::param time)
 	txIRQ.reset();
 	rxReady = false;
 	txShiftRegValid = false;
+	pendingOVRN = false;
 	controlReg = CR_MR;
 	statusReg = 0;
 	rxDataReg = 0;
@@ -168,7 +169,11 @@ byte MC6850::readDataReg()
 {
 	byte result = peekDataReg();
 	std::cerr << "MC6850 reading rxDataReg: 0x" << std::hex << int(result) << std::endl;
-	statusReg &= ~STAT_RDRF;
+	statusReg &= ~(STAT_RDRF | STAT_OVRN);
+	if (pendingOVRN) {
+		pendingOVRN = false;
+		statusReg |= STAT_OVRN;
+	}
 	rxIRQ.reset();
 	return result;
 }
@@ -270,7 +275,9 @@ void MC6850::recvByte(byte value, EmuTime::param time)
 		// So, there is a byte that has to be read by the MSX still!
 		// This happens when the MSX program doesn't
 		// respond fast enough to an earlier received byte.
-		statusReg |= STAT_OVRN;
+		// The STAT_OVRN flag only becomes active once the prior valid
+		// character has been read from the data register.
+		pendingOVRN = true;
 	} else {
 		rxDataReg = value;
 		statusReg |= STAT_RDRF;
@@ -339,6 +346,7 @@ void MC6850::serialize(Archive& ar, unsigned version)
 
 		ar.serialize("rxReady",         rxReady);
 		ar.serialize("txShiftRegValid", txShiftRegValid);
+		ar.serialize("pendingOVRN",     pendingOVRN);
 
 		ar.serialize("rxDataReg",  rxDataReg);
 		ar.serialize("txDataReg",  txDataReg);
