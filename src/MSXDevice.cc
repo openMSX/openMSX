@@ -123,7 +123,7 @@ void MSXDevice::lockDevices()
 void MSXDevice::unlockDevices()
 {
 	for (auto& r : references) {
-		r->referencedBy.erase(rfind_unguarded(r->referencedBy, this));
+		move_pop_back(r->referencedBy, rfind_unguarded(r->referencedBy, this));
 	}
 }
 

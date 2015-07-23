@@ -520,7 +520,7 @@ void MSXMotherBoard::addDevice(MSXDevice& device)
 
 void MSXMotherBoard::removeDevice(MSXDevice& device)
 {
-	availableDevices.erase(rfind_unguarded(availableDevices, &device));
+	move_pop_back(availableDevices, rfind_unguarded(availableDevices, &device));
 }
 
 void MSXMotherBoard::doReset()
@@ -685,7 +685,7 @@ string MSXMotherBoard::getUserName(const string& hwName)
 void MSXMotherBoard::freeUserName(const string& hwName, const string& userName)
 {
 	auto& s = userNames[hwName];
-	s.erase(rfind_unguarded(s, userName));
+	move_pop_back(s, rfind_unguarded(s, userName));
 }
 
 // AddRemoveUpdate

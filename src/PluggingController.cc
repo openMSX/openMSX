@@ -56,7 +56,7 @@ void PluggingController::registerConnector(Connector& connector)
 
 void PluggingController::unregisterConnector(Connector& connector)
 {
-	connectors.erase(rfind_unguarded(connectors, &connector));
+	move_pop_back(connectors, rfind_unguarded(connectors, &connector));
 	getCliComm().update(CliComm::CONNECTOR, connector.getName(), "remove");
 }
 

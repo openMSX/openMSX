@@ -58,7 +58,7 @@ template <typename T> void Subject<T>::attach(Observer<T>& observer)
 template <typename T> void Subject<T>::detach(Observer<T>& observer)
 {
 	assert(!notifyInProgress);
-	observers.erase(rfind_unguarded(observers, &observer));
+	move_pop_back(observers, rfind_unguarded(observers, &observer));
 }
 
 template <typename T> void Subject<T>::notify() const

@@ -32,7 +32,7 @@ void UserSettings::addSetting(unique_ptr<Setting> setting)
 
 void UserSettings::deleteSetting(Setting& setting)
 {
-	settings.erase(rfind_if_unguarded(settings,
+	move_pop_back(settings, rfind_if_unguarded(settings,
 		[&](unique_ptr<Setting>& p) { return p.get() == &setting; }));
 }
 

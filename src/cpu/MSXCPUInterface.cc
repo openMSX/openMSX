@@ -512,7 +512,7 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 {
 	GlobalWriteInfo info = { &device, address };
-	globalWrites.erase(rfind_unguarded(globalWrites, info));
+	move_pop_back(globalWrites, rfind_unguarded(globalWrites, info));
 
 	for (auto& g : globalWrites) {
 		if ((g.addr >> CacheLine::BITS) ==

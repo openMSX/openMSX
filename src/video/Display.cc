@@ -134,7 +134,7 @@ void Display::attach(VideoSystemChangeListener& listener)
 
 void Display::detach(VideoSystemChangeListener& listener)
 {
-	listeners.erase(rfind_unguarded(listeners, &listener));
+	move_pop_back(listeners, rfind_unguarded(listeners, &listener));
 }
 
 Layer* Display::findActiveLayer() const

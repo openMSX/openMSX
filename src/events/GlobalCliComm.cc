@@ -43,7 +43,7 @@ std::unique_ptr<CliListener> GlobalCliComm::removeListener(CliListener& listener
 		[&](const std::unique_ptr<CliListener>& ptr) {
 			return ptr.get() == &listener; });
 	auto result = std::move(*it);
-	listeners.erase(it);
+	move_pop_back(listeners, it);
 	return result;
 }
 

@@ -109,7 +109,7 @@ void GlobalCommandController::unregisterProxySetting(Setting& setting)
 		auto& proxy = *it->first;
 		getInterpreter().unregisterSetting(proxy, name);
 		getSettingsConfig().getSettingsManager().unregisterSetting(proxy, name);
-		proxySettings.erase(it);
+		move_pop_back(proxySettings, it);
 	}
 }
 

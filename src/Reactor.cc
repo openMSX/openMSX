@@ -385,7 +385,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 	// Note that we don't use the 'garbageBoards' mechanism as used in
 	// deleteBoard(). This means oldBoard cannot be used  anymore right
 	// after this method returns.
-	boards.erase(it);
+	move_pop_back(boards, it);
 }
 
 void Reactor::switchMachine(const string& machine)
@@ -464,7 +464,7 @@ void Reactor::deleteBoard(MSXMotherBoard* board)
 	auto it = rfind_if_unguarded(boards,
 		[&](Boards::value_type& b) { return b.get() == board; });
 	auto board_ = move(*it);
-	boards.erase(it);
+	move_pop_back(boards, it);
 	// Don't immediately delete old boards because it's possible this
 	// routine is called via a code path that goes through the old
 	// board. Instead remember this board and delete it at a safe moment
