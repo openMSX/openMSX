@@ -9,8 +9,8 @@
 #include "Schedulable.hh"
 #include "openmsx.hh"
 #include "outer.hh"
+#include "serialize_meta.hh"
 
-class MSXMotherBoard;
 class Scheduler;
 
 namespace openmsx {
@@ -36,6 +36,7 @@ private:
 	byte peekDataReg() const;
 	void writeControlReg(byte value, EmuTime::param time);
 	void writeDataReg   (byte value, EmuTime::param time);
+	void setDataFormat();
 
 	// MidiInConnector
 	bool ready() override;

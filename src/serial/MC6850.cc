@@ -5,8 +5,6 @@
 #include "serialize.hh"
 #include "unreachable.hh"
 
-#include <iostream>
-
 namespace openmsx {
 
 // MSX interface:
@@ -41,7 +39,6 @@ static const unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
 // 1   1   0   8 bits - 1 stop bit  - Even parity
 // 1   1   1   8 bits - 1 stop bit  - Odd  parity
 
-
 static const unsigned CR_TC1  = 0x20; // Transmit Control 1
 static const unsigned CR_TC2  = 0x40; // Transmit Control 2
 static const unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
@@ -51,6 +48,7 @@ static const unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
 // 1   0   /RTS high, Transmitting Interrupt disabled
 // 1   1   /RTS low,  Transmits a Break level on the Transmit Data Output.
 //                                 Interrupt disabled
+
 static const unsigned CR_RIE  = 0x80; // Receive Interrupt Enable: interrupt
 // at Receive Data Register Full, Overrun, low-to-high transition on the Data
 // Carrier Detect (/DCD) signal line
@@ -65,10 +63,6 @@ static const unsigned STAT_OVRN = 0x20; // Receiver Overrun
 static const unsigned STAT_PE   = 0x40; // Parity Error
 static const unsigned STAT_IRQ  = 0x80; // Interrupt Request (/IRQ)
 
-
-static const EmuDuration BIT_DURATION = EmuDuration::hz(31250);
-// fixed for now:
-static const EmuDuration CHAR_DURATION = BIT_DURATION * 10; // 1 start-bit, 8 data-bits, 1 stop-bit
 
 // Some existing Music-Module detection routines:
 // - fac demo 5: does OUT 0,3 : OUT 0,21 : INP(4) and expects to read 2
@@ -97,31 +91,16 @@ MC6850::MC6850(const DeviceConfig& config)
 	, outConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-out")
 {
 	reset(EmuTime::zero);
+	setDataFormat();
 }
 
-static byte calcCharacterLength(byte controlReg)
-{
-	// start-bits, data-bits, parity-bits, stop-bits
-	byte len[8] = {
-		1 + 7 + 1 + 2,
-		1 + 7 + 1 + 2,
-		1 + 7 + 1 + 1,
-		1 + 7 + 1 + 1,
-		1 + 8 + 0 + 2,
-		1 + 8 + 0 + 1,
-		1 + 8 + 1 + 1,
-		1 + 8 + 1 + 1,
-	};
-	return len[(controlReg & CR_WS) >> 2];
-}
-
+// (Re-)initialize chip to default values (Tx and Rx disabled)
 void MC6850::reset(EmuTime::param time)
 {
-	std::cerr << "MC6850 reset" << std::endl;
 	syncRecv .removeSyncPoint();
 	syncTrans.removeSyncPoint();
 	txClock.reset(time);
-	txClock.setFreq(500000);
+	txClock.setFreq(500000); // 500kHz
 	rxIRQ.reset();
 	txIRQ.reset();
 	rxReady = false;
@@ -130,7 +109,7 @@ void MC6850::reset(EmuTime::param time)
 	controlReg = CR_MR;
 	statusReg = 0;
 	rxDataReg = 0;
-	charLen = calcCharacterLength(controlReg);
+	setDataFormat();
 }
 
 byte MC6850::readIO(word port, EmuTime::param /*time*/)
@@ -178,14 +157,12 @@ byte MC6850::peekStatusReg() const
 {
 	byte result = statusReg;
 	if (rxIRQ.getState() || txIRQ.getState()) result |= STAT_IRQ;
-	std::cerr << "MC6850 reading statusReg: 0x" << std::hex << int(result) << std::endl;
 	return result;
 }
 
 byte MC6850::readDataReg()
 {
 	byte result = peekDataReg();
-	std::cerr << "MC6850 reading rxDataReg: 0x" << std::hex << int(result) << std::endl;
 	statusReg &= ~(STAT_RDRF | STAT_OVRN);
 	if (pendingOVRN) {
 		pendingOVRN = false;
@@ -202,8 +179,6 @@ byte MC6850::peekDataReg() const
 
 void MC6850::writeControlReg(byte value, EmuTime::param time)
 {
-	std::cerr << "MC6850 writing controlReg: 0x" << std::hex << int(value) << std::endl;
-
 	byte diff = value ^ controlReg;
 	if (diff & CR_CDS) {
 		if ((value & CR_CDS) == CR_MR) {
@@ -215,39 +190,52 @@ void MC6850::writeControlReg(byte value, EmuTime::param time)
 
 			txClock.reset(time);
 			switch (value & CR_CDS) {
-			case 0: txClock.setFreq(500000,  1); break;
-			case 1: txClock.setFreq(500000, 16); break;
-			case 2: txClock.setFreq(500000, 64); break;
+			case 0: txClock.setFreq(500000,  1); break; // 500kHz
+			case 1: txClock.setFreq(500000, 16); break; // 31250Hz (MIDI)
+			case 2: txClock.setFreq(500000, 64); break; // 7812.5Hz
 			}
 		}
 	}
-	if (diff & CR_WS) {
-		outConnector.setDataBits(value & CR_WS3 ? DATA_8 : DATA_7);
-
-		StopBits stopBits[8] = {
-			STOP_2, STOP_2, STOP_1, STOP_1,
-			STOP_2, STOP_1, STOP_1, STOP_1,
-		};
-		outConnector.setStopBits(stopBits[(value & CR_WS) >> 2]);
-
-		outConnector.setParityBit(
-			(value & (CR_WS3 | CR_WS2)) != 0x10, // enable
-			(value & CR_WS1) ? ODD : EVEN);
-
-		charLen = calcCharacterLength(value);
-	}
 
 	controlReg = value;
+	if (diff & CR_WS) setDataFormat();
 
 	// update IRQ status
 	rxIRQ.set(( value & CR_RIE) && (statusReg & STAT_RDRF));
 	txIRQ.set(((value & CR_TC) == 0x20) && (statusReg & STAT_TDRE));
 }
 
+// Sync data-format related parameters with the current value of controlReg
+void MC6850::setDataFormat()
+{
+	outConnector.setDataBits(controlReg & CR_WS3 ? DATA_8 : DATA_7);
+
+	StopBits stopBits[8] = {
+		STOP_2, STOP_2, STOP_1, STOP_1,
+		STOP_2, STOP_1, STOP_1, STOP_1,
+	};
+	outConnector.setStopBits(stopBits[(controlReg & CR_WS) >> 2]);
+
+	outConnector.setParityBit(
+		(controlReg & (CR_WS3 | CR_WS2)) != 0x10, // enable
+		(controlReg & CR_WS1) ? ODD : EVEN);
+
+	// start-bits, data-bits, parity-bits, stop-bits
+	byte len[8] = {
+		1 + 7 + 1 + 2,
+		1 + 7 + 1 + 2,
+		1 + 7 + 1 + 1,
+		1 + 7 + 1 + 1,
+		1 + 8 + 0 + 2,
+		1 + 8 + 0 + 1,
+		1 + 8 + 1 + 1,
+		1 + 8 + 1 + 1,
+	};
+	charLen = len[(controlReg & CR_WS) >> 2];
+}
+
 void MC6850::writeDataReg(byte value, EmuTime::param time)
 {
-	std::cerr << "MC6850 writing TDR: 0x" << std::hex << int(value) << std::endl;
-	
 	if ((controlReg & CR_CDS) == CR_MR) return;
 
 	txDataReg = value;
@@ -272,6 +260,7 @@ void MC6850::writeDataReg(byte value, EmuTime::param time)
 void MC6850::execTrans(EmuTime::param time)
 {
 	assert(txClock.getTime() == time);
+	assert((controlReg & CR_CDS) != CR_MR);
 
 	if (txShiftRegValid) {
 		txShiftRegValid = false;
@@ -298,7 +287,6 @@ void MC6850::execTrans(EmuTime::param time)
 void MC6850::recvByte(byte value, EmuTime::param time)
 {
 	assert(acceptsData() && ready());
-	std::cerr << "MC6850 receiving MIDI in data: 0x" << std::hex << int(value) << std::endl;
 
 	if (statusReg & STAT_RDRF) {
 		// So, there is a byte that has to be read by the MSX still!
@@ -317,7 +305,7 @@ void MC6850::recvByte(byte value, EmuTime::param time)
 	// Not ready now, but we will be in a while
 	rxReady = false;
 
-	// The MC6850 has separate TxCLK and RxCLK inputs, but both shared a
+	// The MC6850 has separate TxCLK and RxCLK inputs, but both share a
 	// common divider. This implementation hard-codes an input frequency of
 	// 500kHz for both. Below we want the receive clock period, but it's OK
 	// to calculate that as 'txClock.getPeriod()'.
@@ -362,7 +350,7 @@ void MC6850::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 
 // version 1: initial version
 // version 2: added control
-// version 3: WIP
+// version 3: actually working MC6850 with many more member variables
 template<typename Archive>
 void MC6850::serialize(Archive& ar, unsigned version)
 {
@@ -394,7 +382,7 @@ void MC6850::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.isLoader()) {
-		charLen = calcCharacterLength(controlReg);
+		setDataFormat();
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MC6850);
