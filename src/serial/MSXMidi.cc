@@ -61,7 +61,7 @@ MSXMidi::~MSXMidi()
 	}
 }
 
-void MSXMidi::reset(EmuTime::param /*time*/)
+void MSXMidi::reset(EmuTime::param time)
 {
 	timerIRQlatch = false;
 	timerIRQenabled = false;
@@ -73,6 +73,7 @@ void MSXMidi::reset(EmuTime::param /*time*/)
 	if (isExternalMSXMIDI) {
 		registerIOports(DISABLED_VALUE | LIMITED_RANGE_VALUE); // also resets state
 	}
+	i8251.reset(time);
 }
 
 byte MSXMidi::readIO(word port, EmuTime::param time)
