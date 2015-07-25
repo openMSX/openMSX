@@ -16,6 +16,7 @@ MSX device support:
 - tweaked volumes of SFG-01/05 against the PSG
 - added proper YM2148 emulation (MIDI in/out for Yamaha SFG modules)
 - added proper MC6850 emulation (MIDI in/out for Philips Music Module)
+- added emulation of FAC MIDI Interface
 - added many new machines: Canon V-25 (thanks to Rudi Westerhof), Canon V-8,
   Fenner/Samsung SPC-800, Hitachi MB-H1, Toshiba HX-10D (thanks to Ricardo
   Jurcyk Pinheiro), Canon V-10, Canon V-20 (JP), Spectravideo SVI-728 (ES),
