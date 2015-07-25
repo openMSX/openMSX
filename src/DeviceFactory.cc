@@ -5,6 +5,7 @@
 #include "MSXPPI.hh"
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
+#include "MSXFacMidiInterface.hh"
 #include "MSXResetStatusRegister.hh"
 #include "MSXTurboRPause.hh"
 #include "MSXTurboRPCM.hh"
@@ -134,6 +135,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXAudio>(conf);
 	} else if (type == "MusicModuleMIDI") {
 		result = make_unique<MC6850>(conf);
+	} else if (type == "FACMIDIInterface") {
+		result = make_unique<MSXFacMidiInterface>(conf);
 	} else if (type == "YamahaSFG") {
 		result = make_unique<MSXYamahaSFG>(conf);
 	} else if (type == "MoonSound") {

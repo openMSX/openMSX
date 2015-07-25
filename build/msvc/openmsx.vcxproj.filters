@@ -1170,6 +1170,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MidiOutWindows.cc">
       <Filter>serial</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXFacMidiInterface.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXMidi.cc">
       <Filter>serial</Filter>
     </ClCompile>
@@ -2622,6 +2625,9 @@
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\MidiOutWindows.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\serial\MSXFacMidiInterface.hh">
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\MSXMidi.hh">
