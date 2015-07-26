@@ -1,18 +1,14 @@
 #include "MSXFacMidiInterface.hh"
 #include "MidiInDevice.hh"
-#include "MSXException.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "serialize.hh"
-#include "unreachable.hh"
-#include <cassert>
 
 namespace openmsx {
 
 MSXFacMidiInterface::MSXFacMidiInterface(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MidiInConnector(MSXDevice::getPluggingController(), MSXDevice::getName() + "-in")
-	, outConnector(MSXDevice::getPluggingController(), MSXDevice::getName() + "-out")
+	, outConnector   (MSXDevice::getPluggingController(), MSXDevice::getName() + "-out")
 	, i8251(getScheduler(), interf, getCurrentTime())
 {
 	EmuTime::param time = getCurrentTime();
@@ -21,45 +17,28 @@ MSXFacMidiInterface::MSXFacMidiInterface(const DeviceConfig& config)
 	reset(time);
 }
 
-MSXFacMidiInterface::~MSXFacMidiInterface()
-{
-}
-
 void MSXFacMidiInterface::reset(EmuTime::param time)
 {
-	i8251.reset(time); // TODO: verify
+	i8251.reset(time); // TODO: probably ok, but verify
 }
 
 byte MSXFacMidiInterface::readIO(word port, EmuTime::param time)
 {
-	switch (port & 1) {
-		case 0: // UART data register
-		case 1: // UART status register
-			return i8251.readIO(port & 1, time);
-		default:
-			UNREACHABLE; return 0;
-	}
+	// 0 -> UART data   register
+	// 1 -> UART status register
+	return i8251.readIO(port & 1, time);
 }
 
 byte MSXFacMidiInterface::peekIO(word port, EmuTime::param time) const
 {
-	switch (port & 1) {
-		case 0: // UART data register
-		case 1: // UART status register
-			return i8251.peekIO(port & 1, time);
-		default:
-			UNREACHABLE; return 0;
-	}
+	return i8251.peekIO(port & 1, time);
 }
 
 void MSXFacMidiInterface::writeIO(word port, byte value, EmuTime::param time)
 {
-	switch (port & 1) {
-		case 0: // UART data register
-		case 1: // UART command register
-			i8251.writeIO(port & 1, value, time);
-			break;
-	}
+	// 0 -> UART data    register
+	// 1 -> UART command register
+	i8251.writeIO(port & 1, value, time);
 }
 
 // I8251Interface  (pass calls from I8251 to outConnector)
