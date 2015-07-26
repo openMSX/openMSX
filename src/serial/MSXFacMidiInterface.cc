@@ -19,7 +19,7 @@ MSXFacMidiInterface::MSXFacMidiInterface(const DeviceConfig& config)
 
 void MSXFacMidiInterface::reset(EmuTime::param time)
 {
-	i8251.reset(time); // TODO: probably ok, but verify
+	i8251.reset(time);
 }
 
 byte MSXFacMidiInterface::readIO(word port, EmuTime::param time)
