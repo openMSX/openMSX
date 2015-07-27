@@ -36,6 +36,7 @@
 #include "SanyoFDC.hh"
 #include "TurboRFDC.hh"
 #include "SunriseIDE.hh"
+#include "BeerIDE.hh"
 #include "GoudaSCSI.hh"
 #include "MegaSCSI.hh"
 #include "ESE_RAM.hh"
@@ -176,6 +177,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<NationalFDC>(conf);
 	} else if (type == "TC8566AF") {
 		result = make_unique<TurboRFDC>(conf);
+	} else if (type == "BeerIDE") {
+		result = make_unique<BeerIDE>(conf);
 	} else if (type == "SunriseIDE") {
 		result = make_unique<SunriseIDE>(conf);
 	} else if (type == "GoudaSCSI") {
