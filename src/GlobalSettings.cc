@@ -44,9 +44,6 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 			{"fast", ResampledSoundDevice::RESAMPLE_LQ},
 			{"blip", ResampledSoundDevice::RESAMPLE_BLIP}})
 	, throttleManager(commandController)
-	, sensorKidPortStatusCallBackSetting(commandController, "sensor_kid_port_status_callback",
-		"Tcl proc to call when an Sensor Kid port status is changed", "")
-
 {
 	for (auto i : xrange(SDL_NumJoysticks())) {
 		std::string name = "joystick" + StringOp::toString(i) + "_deadzone";

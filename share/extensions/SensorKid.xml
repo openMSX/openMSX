@@ -10,10 +10,10 @@
     <type>sensor cartridge</type>
   </info>
   <devices>
-    <SensorKid id="Sensor Kid">
+    <SensorKid id="sensor_kid">
       <io base="0x00" num="2"/>
     </SensorKid>
-  
+
     <primary slot="any">
       <secondary slot="any">
         <ROM id="Sensor Kid ROM">

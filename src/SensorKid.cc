@@ -1,41 +1,40 @@
 #include "SensorKid.hh"
-#include "Clock.hh"
+#include "random.hh"
 #include "serialize.hh"
-#include "Rom.hh"
-#include "MSXException.hh"
-#include "GlobalSettings.hh"
-#include <iostream>
-#include <stdlib.h>
-
-using std::cout;
-using std::endl;
 
 namespace openmsx {
 
 SensorKid::SensorKid(const DeviceConfig& config)
 	: MSXDevice(config)
-    , sensorKidPortStatusCallback(config.getGlobalSettings().getSensorKidPortStatusCallBackSetting())
+	, portStatusCallBackSetting(getCommandController(),
+		getName() + "_port_status_callback",
+		"Tcl proc to call when an Sensor Kid port status is changed",
+		"")
+	, portStatusCallback(portStatusCallBackSetting)
+{
+	// hack: triangle waves, see getAnalog()
+	analog[0] = random_int(0, 255); // Brightness / HIKARI
+	analog[1] = random_int(0, 255); // Temperature /  ONDO
+	analog[2] = random_int(0, 255); // Sound / OTO
+	analog[3] = 0xFF; // not connected??  always reads as 255
+	analog_dir[0] = random_bool();
+	analog_dir[1] = random_bool();
+	analog_dir[2] = random_bool();
+	analog_dir[3] = false;
+
+	reset(getCurrentTime());
+}
+
+void SensorKid::reset(EmuTime::param /*time*/)
 {
 	prev = 255; // previously written value to port 0
 	mb4052_ana = 0; // the analog value that's currently being read
 	mb4052_count = 0; // keep track of which bit we're reading
-	analog[0] = rand() % 256;   // Brightness / HIKARI
-	analog[1] = rand() % 256;   // Temperature /  ONDO
-	analog[2] = rand() % 256;   // Sound / OTO
-	analog[3] = 0xFF; // not connected??  always reads as 255
-	analog_dir[0] = rand() % 2;
-	analog_dir[1] = rand() % 2;
-	analog_dir[2] = rand() % 2;
-	analog_dir[3] = rand() % 2;
-	// sensorKidPortStatusCallback.getSetting().attach(*this);
-
 }
 
-void SensorKid::writeIO(word port, byte value, EmuTime::param /* time */)
+void SensorKid::writeIO(word port, byte value, EmuTime::param /*time*/)
 {
-	if ((port & 0xFF) != 0) {
-		return;
-	}
+	if ((port & 1) != 0) return;
 
 	byte diff = prev ^ value;
 	prev = value;
@@ -64,14 +63,13 @@ void SensorKid::writeIO(word port, byte value, EmuTime::param /* time */)
 
 byte SensorKid::readIO(word port, EmuTime::param /* time */)
 {
-	if ((port & 0xFF) == 0) {
+	if ((port & 1) == 0) {
 		// port 0
 		// mb4052_count can take on values [0, 12]
 		//  for 12,11,1,0 we return 1
 		//  for 10        we return 0
 		//  for 9..2      we return one of the analog bits
 		byte result;
-
 		if (mb4052_count == 10) {
 			result = 0;
 		} else if ((mb4052_count < 10) && (mb4052_count > 1)) {
@@ -80,13 +78,11 @@ byte SensorKid::readIO(word port, EmuTime::param /* time */)
 			result = 1;
 		}
 		return 0xFE | result; // other bits read as '1'.
-	} else if ((port & 0xFF) == 1) {
+	} else {
 		// port 1
 		// returns two of the previously written bits (shuffled in different positions)
 		return 0xFC | ((prev >> 5) & 0x02) | ((prev >> 7) & 0x01);
 	}
-	return 0xFC | ((prev >> 5) & 0x02) | ((prev >> 7) & 0x01);
-
 }
 
 byte SensorKid::getAnalog(byte chi)
@@ -95,32 +91,38 @@ byte SensorKid::getAnalog(byte chi)
 	// for some reason bits 2 and 3 are swapped and then shifted down
 	byte port = ((chi >> 1) & 2) | ((chi >> 3) & 1);
 
-	if (analog_dir[port] == 0) {
-		analog[port]--;
-		if (analog[port] == 0) {
-			analog_dir[port] = 1;
-		}
-	} else {
-		analog[port]++;
-		if (analog[port] == 255) {
-			analog_dir[port] = 0;
+	// Generate triangle wave
+	//  TODO Actually get some 'interesting' data.
+	//       Idea: delegate to Tcl proc
+	if (port != 3) {
+		if (analog_dir[port]) {
+			// count up
+			++analog[port];
+			if (analog[port] == 255) {
+				analog_dir[port] = false;
+			}
+		} else {
+			// count down
+			--analog[port];
+			if (analog[port] == 0) {
+				analog_dir[port] = true;
+			}
 		}
 	}
-
 	return analog[port];
 }
 
 void SensorKid::putPort(byte data, byte diff)
 {
-	// when the upper 2 bits (bit 6 and 7) change we send a message?
+	// When the upper 2 bits (bit 6 and 7) change we send a message.
 	// I assume the cartridge also has two digital output pins?
 	if (diff & 0x80) {
-		cout << "Status Port 0: " << (int)((data & 0x80) == 0) << endl;
-		sensorKidPortStatusCallback.execute(0, (int)((data & 0x80) == 0));
+		//std::cout << "Status Port 0: " << int((data & 0x80) == 0) << std::endl;
+		portStatusCallback.execute(0, (data & 0x80) == 0);
 	}
 	if (diff & 0x40) {
-		cout << "Status Port 1:  " << (int)((data & 0x40) == 0) << endl;
-		sensorKidPortStatusCallback.execute(1, (int)((data & 0x40) == 0));
+		//std::cout << "Status Port 1:  " << int((data & 0x40) == 0) << std::endl;
+		portStatusCallback.execute(1, (data & 0x40) == 0);
 	}
 }
 
@@ -128,8 +130,14 @@ template<typename Archive>
 void SensorKid::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("prev", prev);
+	ar.serialize("mb4052_ana", mb4052_ana);
+	ar.serialize("mb4052_count", mb4052_count);
+	// TODO I didn't serialize these because they will be replaced by Tcl callbacks
+	//byte analog[4];
+	//byte analog_dir[4];
 }
 INSTANTIATE_SERIALIZE_METHODS(SensorKid);
 REGISTER_MSXDEVICE(SensorKid, "SensorKid");
 
-}
+} // namespace openmsx
