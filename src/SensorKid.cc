@@ -1,27 +1,23 @@
 #include "SensorKid.hh"
-#include "random.hh"
+#include "CliComm.hh"
+#include "CommandController.hh"
+#include "MSXException.hh"
+#include "StringSetting.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
 SensorKid::SensorKid(const DeviceConfig& config)
 	: MSXDevice(config)
-	, portStatusCallBackSetting(getCommandController(),
+	, portStatusCallback(getCommandController(),
 		getName() + "_port_status_callback",
-		"Tcl proc to call when an Sensor Kid port status is changed",
-		"")
-	, portStatusCallback(portStatusCallBackSetting)
+		"Tcl proc to call when an Sensor Kid port status is changed")
+	, acquireCallback(getCommandController(),
+		getName() + "_acquire_callback",
+		"Tcl proc called to aquire analog data. "
+		"Input: port number (0-3). "
+		"Output: the value for that port (0-255).")
 {
-	// hack: triangle waves, see getAnalog()
-	analog[0] = random_int(0, 255); // Brightness / HIKARI
-	analog[1] = random_int(0, 255); // Temperature /  ONDO
-	analog[2] = random_int(0, 255); // Sound / OTO
-	analog[3] = 0xFF; // not connected??  always reads as 255
-	analog_dir[0] = random_bool();
-	analog_dir[1] = random_bool();
-	analog_dir[2] = random_bool();
-	analog_dir[3] = false;
-
 	reset(getCurrentTime());
 }
 
@@ -91,25 +87,30 @@ byte SensorKid::getAnalog(byte chi)
 	// for some reason bits 2 and 3 are swapped and then shifted down
 	byte port = ((chi >> 1) & 2) | ((chi >> 3) & 1);
 
-	// Generate triangle wave
-	//  TODO Actually get some 'interesting' data.
-	//       Idea: delegate to Tcl proc
-	if (port != 3) {
-		if (analog_dir[port]) {
-			// count up
-			++analog[port];
-			if (analog[port] == 255) {
-				analog_dir[port] = false;
-			}
-		} else {
-			// count down
-			--analog[port];
-			if (analog[port] == 0) {
-				analog_dir[port] = true;
+	// Execute Tcl callback
+	//   input: the port number (0-3)
+	//   output: the analog value for that port (0-255)
+	// On the real cartrige
+	//  port 0 is connected to a light sensor         HIKARI
+	//  port 1 is connector to a temperature sensor   ONDO
+	//  port 2 is connected to a microphone           OTO
+	//  port 3 is not connected, always return 255
+	int result = 255;
+	try {
+		auto obj = acquireCallback.execute(port);
+		if (obj != TclObject()) {
+			result = obj.getInt(getCommandController().getInterpreter());
+			if ((result < 0) || (result > 255)) {
+				throw MSXException("outside range 0..255");
 			}
 		}
+	} catch (MSXException& e) {
+		getCliComm().printWarning(
+			"Wrong result for callback function \"" +
+			acquireCallback.getSetting().getName() +
+			"\": " + e.getMessage());
 	}
-	return analog[port];
+	return result;
 }
 
 void SensorKid::putPort(byte data, byte diff)
@@ -133,9 +134,6 @@ void SensorKid::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("prev", prev);
 	ar.serialize("mb4052_ana", mb4052_ana);
 	ar.serialize("mb4052_count", mb4052_count);
-	// TODO I didn't serialize these because they will be replaced by Tcl callbacks
-	//byte analog[4];
-	//byte analog_dir[4];
 }
 INSTANTIATE_SERIALIZE_METHODS(SensorKid);
 REGISTER_MSXDEVICE(SensorKid, "SensorKid");

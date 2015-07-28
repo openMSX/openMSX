@@ -2,7 +2,6 @@
 #define SENSORKID_HH
 
 #include "MSXDevice.hh"
-#include "StringSetting.hh"
 #include "TclCallback.hh"
 
 namespace openmsx {
@@ -23,15 +22,12 @@ private:
 	void putPort(byte data, byte diff);
 	byte getAnalog(byte chi);
 
-	StringSetting portStatusCallBackSetting;
 	TclCallback portStatusCallback;
+	TclCallback acquireCallback;
 
 	byte prev;
 	byte mb4052_ana;
 	byte mb4052_count;
-
-	byte analog[4];
-	bool analog_dir[4];
 };
 
 } // namespace openmsx
