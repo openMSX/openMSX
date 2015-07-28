@@ -433,6 +433,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ide\SCSIHD.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ide\SCSILS120.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ide\SunriseIDE.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\ide\BeerIDE.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ide\WD33C93.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\ArkanoidPad.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\DummyJoystick.cc" />
@@ -957,6 +958,7 @@
     <None Include="$(OpenMSXSrcDir)\ide\SCSIHD.hh" />
     <None Include="$(OpenMSXSrcDir)\ide\SCSILS120.hh" />
     <None Include="$(OpenMSXSrcDir)\ide\SunriseIDE.hh" />
+    <None Include="$(OpenMSXSrcDir)\ide\BeerIDE.hh" />
     <None Include="$(OpenMSXSrcDir)\ide\WD33C93.hh" />
     <None Include="$(OpenMSXSrcDir)\input\ArkanoidPad.hh" />
     <None Include="$(OpenMSXSrcDir)\input\DummyJoystick.hh" />
