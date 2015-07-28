@@ -471,6 +471,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ide\SunriseIDE.cc">
       <Filter>ide</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\ide\BeerIDE.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\ide\WD33C93.cc">
       <Filter>ide</Filter>
     </ClCompile>
@@ -1779,6 +1782,9 @@
       <Filter>ide</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\ide\SunriseIDE.hh">
+      <Filter>ide</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\ide\BeerIDE.hh">
       <Filter>ide</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\ide\WD33C93.hh">
