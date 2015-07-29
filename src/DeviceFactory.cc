@@ -64,6 +64,7 @@
 #include "MSXException.hh"
 #include "memory.hh"
 #include "components.hh"
+#include "SensorKid.hh"
 
 #if COMPONENT_LASERDISC
 #include "PioneerLDControl.hh"
@@ -227,6 +228,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<NowindInterface>(conf);
 	} else if (type == "Mirror") {
 		result = make_unique<MSXMirrorDevice>(conf);
+	} else if (type == "SensorKid") {
+		result = make_unique<SensorKid>(conf);
 	} else {
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");
