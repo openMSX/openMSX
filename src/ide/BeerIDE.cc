@@ -22,7 +22,7 @@ BeerIDE::~BeerIDE()
 
 void BeerIDE::reset(EmuTime::param time)
 {
-	addressReg = 0;
+	controlReg = 0;
 	dataReg = 0;
 	device->reset(time);
 	i8255.reset(time);
@@ -146,24 +146,37 @@ nibble BeerIDE::peekC0(EmuTime::param /*time*/) const
 }
 void BeerIDE::writeC1(nibble value, EmuTime::param time)
 {
-	if ( (value & 0x08) == 0) { // read
-		if (addressReg == 0) {
+	changeControl((controlReg & 0x0F) | (value << 4), time);
+}
+void BeerIDE::writeC0(nibble value, EmuTime::param time)
+{
+	changeControl((controlReg & 0xF0) | value, time);
+}
+void BeerIDE::changeControl(byte value, EmuTime::param time)
+{
+	byte diff = controlReg ^ value;
+	controlReg = value;
+	if ((diff & 0xE7) == 0) return; // nothing relevant changed
+
+	byte address = controlReg & 7;
+	switch (value & 0xE0) {
+	case 0x40: // read   /IORD=0,  /IOWR=1,  /CS0=0
+		if (address == 0) {
 			dataReg = device->readData(time);
 		} else {
-			dataReg = device->readReg(addressReg, time);
+			dataReg = device->readReg(address, time);
 		}
-	}
-	if ((value & 0x04) == 0) { // write
-		if (addressReg == 0) {
+		break;
+	case 0x80: // write  /IORD=1,  /IOWR=0,  /CS0=0
+		if (address == 0) {
 			device->writeData(dataReg, time);
 		} else {
-			device->writeReg(addressReg, dataReg & 0xFF, time);
+			device->writeReg(address, dataReg & 0xFF, time);
 		}
+		break;
+	default: // all (6) other cases, nothing
+		break;
 	}
-}
-void BeerIDE::writeC0(nibble value, EmuTime::param /*time*/)
-{
-	addressReg = value & 0x07;
 }
 
 template<typename Archive>
@@ -172,8 +185,8 @@ void BeerIDE::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("i8255", i8255);
 	ar.serializePolymorphic("device", *device);
-	ar.serialize("addressReg", addressReg);
 	ar.serialize("dataReg", dataReg);
+	ar.serialize("controlReg", controlReg);
 }
 INSTANTIATE_SERIALIZE_METHODS(BeerIDE);
 REGISTER_MSXDEVICE(BeerIDE, "BeerIDE");

@@ -65,6 +65,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void changeControl(byte value, EmuTime::param time);
+
 	// I8255Interface
 	byte readA(EmuTime::param time) override;
 	byte readB(EmuTime::param time) override;
@@ -83,7 +85,7 @@ private:
 	Rom rom;
 	std::unique_ptr<IDEDevice> device;
 	word dataReg;
-	byte addressReg;
+	byte controlReg;
 };
 
 } // namespace openmsx
