@@ -8,9 +8,10 @@
 namespace openmsx {
 
 OSDTopWidget::OSDTopWidget(OSDGUI& gui_)
-	: gui(gui_)
+	: OSDWidget(TclObject())
+	, gui(gui_)
 {
-	addName(TclObject(), *this);
+	addName(*this);
 }
 
 string_ref OSDTopWidget::getType() const
@@ -56,7 +57,7 @@ void OSDTopWidget::showAllErrors()
 OSDWidget* OSDTopWidget::findByName(string_ref name)
 {
 	auto it = widgetsByName.find(name);
-	return (it != end(widgetsByName)) ? it->second : nullptr;
+	return (it != end(widgetsByName)) ? *it : nullptr;
 }
 
 const OSDWidget* OSDTopWidget::findByName(string_ref name) const
@@ -64,23 +65,27 @@ const OSDWidget* OSDTopWidget::findByName(string_ref name) const
 	return const_cast<OSDTopWidget*>(this)->findByName(name);
 }
 
-void OSDTopWidget::addName(const TclObject& name, OSDWidget& widget)
+void OSDTopWidget::addName(OSDWidget& widget)
 {
-	assert(!widgetsByName.contains(name));
-	widgetsByName.emplace_noDuplicateCheck(name, &widget);
+	assert(!widgetsByName.contains(widget.getName()));
+	widgetsByName.emplace_noDuplicateCheck(&widget);
 }
 
-void OSDTopWidget::removeName(string_ref name)
+void OSDTopWidget::removeName(OSDWidget& widget)
 {
-	assert(widgetsByName.contains(name));
-	widgetsByName.erase(name);
+	auto it = widgetsByName.find(widget.getName());
+	assert(it != end(widgetsByName));
+	for (auto& child : (*it)->getChildren()) {
+		removeName(*child);
+	}
+	widgetsByName.erase(it);
 }
 
 std::vector<string_ref> OSDTopWidget::getAllWidgetNames() const
 {
 	std::vector<string_ref> result;
-	for (auto& p : widgetsByName) {
-		result.push_back(p.first.getString());
+	for (auto* p : widgetsByName) {
+		result.push_back(p->getName());
 	}
 	return result;
 }

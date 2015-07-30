@@ -1,6 +1,7 @@
 #ifndef OSDWIDGET_HH
 #define OSDWIDGET_HH
 
+#include "TclObject.hh"
 #include "gl_vec.hh"
 #include "hash_set.hh"
 #include "string_ref.hh"
@@ -17,15 +18,18 @@ class Interpreter;
 
 class OSDWidget
 {
+	using SubWidgets = std::vector<std::unique_ptr<OSDWidget>>;
 public:
 	virtual ~OSDWidget();
 
+	string_ref getName() const { return name.getString(); }
 	gl::vec2 getPos()    const { return pos; }
 	gl::vec2 getRelPos() const { return relPos; }
 	float    getZ()      const { return z; }
 
 	      OSDWidget* getParent()       { return parent; }
 	const OSDWidget* getParent() const { return parent; }
+	const SubWidgets& getChildren() const { return subWidgets; }
 	void addWidget(std::unique_ptr<OSDWidget> widget);
 	void deleteWidget(OSDWidget& widget);
 
@@ -48,7 +52,7 @@ public:
 	virtual gl::vec2 getSize(const OutputRectangle& output) const = 0;
 
 protected:
-	OSDWidget();
+	OSDWidget(const TclObject& name);
 	void invalidateChildren();
 	bool needSuppressErrors() const;
 
@@ -66,10 +70,11 @@ private:
 
 	/** Direct child widgets of this widget, sorted by z-coordinate.
 	  */
-	std::vector<std::unique_ptr<OSDWidget>> subWidgets;
+	SubWidgets subWidgets;
 
 	OSDWidget* parent;
 
+	TclObject name;
 	gl::vec2 pos;
 	gl::vec2 relPos;
 	float z;

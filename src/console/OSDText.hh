@@ -11,7 +11,7 @@ namespace openmsx {
 class OSDText final : public OSDImageBasedWidget
 {
 public:
-	explicit OSDText(OSDGUI& gui);
+	OSDText(OSDGUI& gui, const TclObject& name);
 
 	std::vector<string_ref> getProperties() const override;
 	void setProperty(Interpreter& interp,

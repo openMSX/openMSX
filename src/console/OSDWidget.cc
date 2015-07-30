@@ -119,8 +119,9 @@ GLScopedClip::~GLScopedClip()
 
 ////
 
-OSDWidget::OSDWidget()
+OSDWidget::OSDWidget(const TclObject& name_)
 	: parent(nullptr)
+	, name(name_)
 	, z(0.0)
 	, scaled(false)
 	, clip(false)
