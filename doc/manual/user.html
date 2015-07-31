@@ -1250,10 +1250,13 @@ most cases. Change it with the <code><a class="external" href="commands.html#sou
 <h3><a id="midi">7.2 MIDI</a></h3>
 
 <p>
-openMSX supports the MSX-MIDI interface of the MSXturboR GT.
-To use this feature, start openMSX with the machine
-<code>Panasonic_FS-A1GT</code> and plug in a MIDI device on the console.
-For example:
+openMSX supports the MSX-MIDI interface of the MSXturboR GT and the mu-Pack, the MIDI interface
+of the Philips Music Module (NMS 1205), the MIDI interface of the Yamaha SFG-01
+and SFG-05 module (also present in the Yamaha CX5M series of machines) and the
+FAC MIDI Interface.
+</p>
+<p>To use MIDI, start openMSX with a machine that has a MIDI interface built in, or add one of the mentioned MIDI interface extensions. For example, use the machine
+<code>Panasonic_FS-A1GT</code> and plug in a MIDI device on the console:
 </p>
 <div class="commandline">
     <a class="external" href="commands.html#plugunplug">plug</a> msx-midi-out midi-out-logger
@@ -1264,7 +1267,7 @@ Because there is no timing information logged, this is not very useful yet.
 </p>
 
 <p>
-It's more interesting to connect MSX-MIDI to an actual PC MIDI device,
+It's more interesting to connect the MIDI out of the MSX to an actual PC MIDI device,
 such as a MIDI out port or the internal synthesizer of your sound card.
 On Linux, you can use the <code>midi-out-logger</code> and set a MIDI
 device node, for example <code>/dev/midi</code>, as its output file. This is
@@ -1275,9 +1278,10 @@ can also select <code>Virtual OUT</code> to provide a port to external software.
 </p>
 
 <p>
-Vice versa, MSX-MIDI can also receive input from the system by plugging a device
-into <code>msx-midi-in</code>. Analogous to the above mentioned outputs you can
-connect a <code>midi-in-reader</code> which reads from a file or
+Vice versa, the MIDI in port can also receive data from the system by plugging a device
+into <code>msx-midi-in</code> (for the Panasonic FS-A1GT; use the appropriate
+connector name for other devices). Analogous to the above mentioned outputs you
+can connect a <code>midi-in-reader</code> which reads from a file or
 <code>/dev/midi</code> on Linux. On Windows and Mac OS X available MIDI devices
 show up as separate pluggables. On OS X a <code>Virtual IN</code> port is
 available as well.
