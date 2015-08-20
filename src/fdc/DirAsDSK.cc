@@ -402,7 +402,7 @@ void DirAsDSK::checkDeletedHostFiles()
 	// This handles both host files and directories.
 	auto copy = mapDirs;
 	for (auto& p : copy) {
-		if (!mapDirs.count(p.first)) { // c++20 contains()
+		if (!mapDirs.contains(p.first)) {
 			// While iterating over (the copy of) mapDirs we delete
 			// entries of mapDirs (when we delete files only the
 			// current entry is deleted, when we delete
@@ -499,7 +499,7 @@ void DirAsDSK::checkModifiedHostFiles()
 {
 	auto copy = mapDirs;
 	for (auto& p : copy) {
-		if (!mapDirs.count(p.first)) { // c++20 contains()
+		if (!mapDirs.contains(p.first)) {
 			// See comment in checkDeletedHostFiles().
 			continue;
 		}
@@ -536,7 +536,7 @@ void DirAsDSK::checkModifiedHostFiles()
 void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 {
 	assert(!(msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY));
-	assert(mapDirs.count(dirIndex)); // c++20 contains()
+	assert(mapDirs.contains(dirIndex));
 
 	// Set _msx_ modification time.
 	setMSXTimeStamp(dirIndex, fst);
@@ -859,7 +859,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 			    (msxName[0] == char(0xE5))) {
 				// Found an unused msx entry. There shouldn't
 				// be any hostfile mapped to this entry.
-				assert(!mapDirs.count(dirIndex)); // c++20 contains()
+				assert(!mapDirs.contains(dirIndex));
 				return dirIndex;
 			}
 		}
