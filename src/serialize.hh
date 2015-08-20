@@ -5,6 +5,7 @@
 #include "SerializeBuffer.hh"
 #include "XMLElement.hh"
 #include "MemBuffer.hh"
+#include "hash_map.hh"
 #include "inline.hh"
 #include "strCat.hh"
 #include "unreachable.hh"
@@ -13,7 +14,6 @@
 #include <typeindex>
 #include <type_traits>
 #include <vector>
-#include <map>
 #include <sstream>
 #include <cassert>
 #include <memory>
@@ -22,6 +22,16 @@ namespace openmsx {
 
 class LastDeltaBlocks;
 class DeltaBlock;
+
+// TODO move somewhere in utils once we use this more often
+struct HashPair {
+	template<typename T1, typename T2>
+	size_t operator()(const std::pair<T1, T2>& p) const {
+		return 31 * std::hash<T1>()(p.first) +
+			    std::hash<T2>()(p.second);
+	}
+};
+
 
 template<typename T> struct SerializeClassVersion;
 
@@ -402,8 +412,8 @@ private:
 	unsigned getID1(const void* p);
 	unsigned getID2(const void* p, const std::type_info& typeInfo);
 
-	std::map<std::pair<const void*, std::type_index>, unsigned> idMap;
-	std::map<const void*, unsigned> polyIdMap;
+	hash_map<std::pair<const void*, std::type_index>, unsigned, HashPair> idMap;
+	hash_map<const void*, unsigned> polyIdMap;
 	unsigned lastId = 0;
 };
 
@@ -509,7 +519,7 @@ public:
 		auto it = sharedPtrMap.find(r);
 		if (it == end(sharedPtrMap)) {
 			s.reset(r);
-			sharedPtrMap[r] = s; // TODO use c++17 try_emplace()
+			sharedPtrMap.emplace_noDuplicateCheck(r, s);
 		} else {
 			s = std::static_pointer_cast<T>(it->second);
 		}
@@ -519,8 +529,8 @@ protected:
 	InputArchiveBase2() = default;
 
 private:
-	std::map<unsigned, void*> idMap;
-	std::map<void*, std::shared_ptr<void>> sharedPtrMap;
+	hash_map<unsigned, void*> idMap;
+	hash_map<void*, std::shared_ptr<void>> sharedPtrMap;
 };
 
 template<typename Derived>

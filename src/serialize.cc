@@ -37,8 +37,8 @@ unsigned OutputArchiveBase2::generateID1(const void* p)
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	assert(!polyIdMap.count(p)); // c++20 contains()
-	polyIdMap[p] = lastId;
+	assert(!polyIdMap.contains(p));
+	polyIdMap.emplace_noDuplicateCheck(p, lastId);
 	return lastId;
 }
 unsigned OutputArchiveBase2::generateID2(
@@ -50,8 +50,8 @@ unsigned OutputArchiveBase2::generateID2(
 	#endif
 	++lastId;
 	auto key = std::make_pair(p, std::type_index(typeInfo));
-	assert(!idMap.count(key)); // c++20 contains()
-	idMap[key] = lastId;
+	assert(!idMap.contains(key));
+	idMap.emplace_noDuplicateCheck(key, lastId);
 	return lastId;
 }
 
@@ -116,8 +116,8 @@ void* InputArchiveBase2::getPointer(unsigned id)
 
 void InputArchiveBase2::addPointer(unsigned id, const void* p)
 {
-	assert(!idMap.count(id)); // c++20 contains()
-	idMap[id] = const_cast<void*>(p);
+	assert(!idMap.contains(id));
+	idMap.emplace_noDuplicateCheck(id, const_cast<void*>(p));
 }
 
 unsigned InputArchiveBase2::getId(const void* ptr) const
