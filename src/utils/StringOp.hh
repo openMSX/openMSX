@@ -5,7 +5,6 @@
 #include "stringsp.hh"
 #include <string>
 #include <vector>
-#include <set>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
@@ -54,8 +53,8 @@ namespace StringOp
 	std::vector<string_view> split(string_view str, char chars);
 	std::string join(const std::vector<string_view>& elems,
 	                 char separator);
-	std::set<unsigned> parseRange(string_view str,
-	                              unsigned min, unsigned max);
+	std::vector<unsigned> parseRange(string_view str,
+	                                 unsigned min, unsigned max);
 
 	// case insensitive less-than operator
 	struct caseless {

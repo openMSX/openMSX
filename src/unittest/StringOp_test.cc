@@ -89,7 +89,7 @@ static void checkJoin(const vector<string_view>& v, const string& expected)
 	CHECK(join(v, '-') == expected);
 }
 
-static void checkParseRange(const string& s, const set<unsigned>& expected)
+static void checkParseRange(const string& s, const vector<unsigned>& expected)
 {
 	CHECK(parseRange(s, 0, 99) == expected);
 }

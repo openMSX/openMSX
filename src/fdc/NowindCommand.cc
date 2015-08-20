@@ -15,7 +15,6 @@
 #include <memory>
 
 using std::unique_ptr;
-using std::set;
 using std::string;
 using std::vector;
 
@@ -58,7 +57,7 @@ void NowindCommand::processHdimage(
 	// Though <filename> itself can contain ':' characters. To solve this
 	// disambiguity we will always interpret the string as <filename> if
 	// it is an existing filename.
-	set<unsigned> partitions;
+	vector<unsigned> partitions;
 	auto pos = hdimage.find_last_of(':');
 	if ((pos != string::npos) && !FileOperations::exists(hdimage)) {
 		partitions = StringOp::parseRange(
@@ -71,7 +70,7 @@ void NowindCommand::processHdimage(
 		// insert all partitions
 		failOnError = false;
 		for (unsigned i = 1; i <= 31; ++i) {
-			partitions.insert(i);
+			partitions.push_back(i);
 		}
 	}
 

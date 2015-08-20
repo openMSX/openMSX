@@ -9,7 +9,6 @@
 using std::string;
 using std::transform;
 using std::vector;
-using std::set;
 
 namespace StringOp {
 
@@ -233,15 +232,18 @@ static unsigned parseNumber(string_view str)
 	throw openmsx::MSXException("Invalid integer: ", str);
 }
 
-static void insert(unsigned x, set<unsigned>& result, unsigned min, unsigned max)
+static void insert(unsigned x, vector<unsigned>& result, unsigned min, unsigned max)
 {
 	if ((x < min) || (x > max)) {
 		throw openmsx::MSXException("Out of range");
 	}
-	result.insert(x);
+	auto it = std::lower_bound(begin(result), end(result), x);
+	if ((it == end(result)) || (*it != x)) {
+		result.insert(it, x);
+	}
 }
 
-static void parseRange2(string_view str, set<unsigned>& result,
+static void parseRange2(string_view str, vector<unsigned>& result,
                         unsigned min, unsigned max)
 {
 	// trimRight only: here we only care about all spaces
@@ -263,9 +265,9 @@ static void parseRange2(string_view str, set<unsigned>& result,
 	}
 }
 
-set<unsigned> parseRange(string_view str, unsigned min, unsigned max)
+vector<unsigned> parseRange(string_view str, unsigned min, unsigned max)
 {
-	set<unsigned> result;
+	vector<unsigned> result;
 	while (true) {
 		auto next = str.find(',');
 		string_view sub = (next == string_view::npos)
