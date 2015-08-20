@@ -30,9 +30,6 @@ template<typename T> struct serialize_as_stl_collection : std::true_type
 //template<typename T> struct serialize_as_collection<std::list<T>>
 //	: serialize_as_stl_collection<std::list<T>> {};
 
-//template<typename T> struct serialize_as_collection<std::set<T>>
-//	: serialize_as_stl_collection<std::set<T>> {};
-
 //template<typename T> struct serialize_as_collection<std::deque<T>>
 //	: serialize_as_stl_collection<std::deque<T>> {};
 

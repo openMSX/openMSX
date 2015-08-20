@@ -11,7 +11,6 @@
 #include "stl.hh"
 #include <cassert>
 #include <iostream>
-#include <set>
 
 using std::string;
 using std::vector;
@@ -358,12 +357,14 @@ void PluggingController::ConnectionClassInfo::execute(
 	auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
 	switch (tokens.size()) {
 	case 2: {
-		std::set<string_view> classes; // filter duplicates
+		std::vector<string_view> classes;
+		classes.reserve(pluggingController.connectors.size());
 		for (auto& c : pluggingController.connectors) {
-			classes.insert(c->getClass());
+			classes.push_back(c->getClass());
 		}
 		for (auto& p : pluggingController.pluggables) {
-			classes.insert(p->getClass());
+			auto c = p->getClass();
+			if (!contains(classes, c)) classes.push_back(c);
 		}
 		result.addListElements(classes);
 		break;

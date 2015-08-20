@@ -200,8 +200,8 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 // collection to have it serialized (you don't have to iterate over it
 // manually).
 //
-// By default arrays, std::vector, std::list, std::set, std::deque and std::map
-// are recognized as collections. Though for STL collections you need to add
+// By default arrays, std::vector, std::list, std::deque and std::map are
+// recognized as collections. Though for STL collections you need to add
 //    #include "serialize_stl.hh"
 //
 // The serialize_as_collection class has the following members:
