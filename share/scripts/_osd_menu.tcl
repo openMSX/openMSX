@@ -1099,7 +1099,8 @@ proc menu_remove_extension_exec {item} {
 }
 
 proc get_pluggable_for_connector {connector} {
-	return [lindex [split [plug $connector] ": "] 2]
+	set t [plug $connector]
+	return [string range $t [string first ": " $t]+2 end]
 }
 
 proc menu_create_connectors_list {} {
