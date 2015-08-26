@@ -24,7 +24,7 @@ MSX device support:
   Jurcyk Pinheiro), Canon V-10, Canon V-20 (JP), Spectravideo SVI-728 (ES),
   Mitsubishi ML-TS2 (partly, it's still work-in-progress), Sony HB-101 (JP),
   Sony HB-201 (JP), Sanyo MPC-6, Mitsubishi ML-F120 and ML-F110 and Hitachi
-  MB-H3 (thanks to Werner Kai)
+  MB-H3 (thanks to Werner Kai) and Yamaha AX350IIF (thanks to Rudolf Gutlich)
 
 New or improved emulator features:
 - added "too_fast_vram_access_callback": you can now run a Tcl script when the
