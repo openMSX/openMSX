@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.11.1 (2015-xx-xx)
+Release Notes for openMSX 0.12.0 (2015-09-xx)
 =============================================
 
 This release brings you... stuff.
@@ -6,19 +6,24 @@ This release brings you... stuff.
 Here's the list with all highlights:
 
 MSX device support:
-- added Panasonic FS-A1WSX/WX variant ot the MSX-MUSIC mapper
 - fixed (S)RAM writing on turboR
 - fixed border color in screen 11/12
 - fixed some details of SD card emulation (found with FUZIX)
 - fixed clipping bug in sprite-mode-1 drawing
 - fixed crash in openMSX when using the AVT DPF-550 extension
 - fixed support of 8kB RS-232C ROMs (which is the only correct size!)
+- fixed emulation of joystick mode of the mouse
+- improved trackball movement emulation so that JoyTest can also detect it like
+  on real hardware
+- fixed touchpad joystick pins (fixing detection in JoyTest)
 - tweaked volumes of SFG-01/05 against the PSG
+- added Panasonic FS-A1WSX/WX variant ot the MSX-MUSIC mapper
 - added proper YM2148 emulation (MIDI in/out for Yamaha SFG modules)
 - added proper MC6850 emulation (MIDI in/out for Philips Music Module)
 - added emulation of FAC MIDI Interface
 - added emulation of Sensor Kid, ported from yayaMSX2SK, which is based on
   Mr. Takeda's Common Source Code Project
+- added emulation of BeerIDE (experimental)
 - added many new machines: Canon V-25 (thanks to Rudi Westerhof), Canon V-8,
   Fenner/Samsung SPC-800, Hitachi MB-H1, Toshiba HX-10D (thanks to Ricardo
   Jurcyk Pinheiro), Canon V-10, Canon V-20 (JP), Spectravideo SVI-728 (ES),
@@ -70,14 +75,13 @@ compiling on a new platform, please share your experiences (see below for
 contact info), so we can make openMSX more portable.
 
 openMSX Home Page:
-  http://www.openmsx.org/
-Project page on SourceForge:
-  http://sourceforge.net/projects/openmsx/
+  http://openmsx.org/
+Project page on GitHub:
+  https://github.com/openMSX
 Contact options:
 - Talk to us on #openmsx on irc.freenode.net.
 - Use the forum on http://www.msx.org/forum/semi-msx-talk/openmsx
-- Send a message to the openmsx-user mailing list.
-  Go to the SourceForge project page and look under "Lists".
+- File a ticket on https://github.com/openMSX/openMSX/issues
 
 Thanks to all contributors for their feedback, support, bug reports, testing,
 coding and other help!
