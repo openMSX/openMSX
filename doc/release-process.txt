@@ -82,29 +82,24 @@ such that the released code is equal to the tagged code.
 Make the release public
 -----------------------
 
-Put the release on SourceForge:
-- On the project page, make sure you're logged in. In the menu bar, click Files
-  and then choose the "openmsx" folder.
-- Add a new folder for the new release 1.2.3: click on "Add Folder" and give
-  it the name "1.2.3". You can check the box for Staging the folder. Do this
-  until the folder is complete for release.
-- Click the new folder and choose "Add File" and select the
-  files to upload.
-- Click the 'i' icon to see the sha1sum of the file. Confirm it's the same as
-  what you expect.
-- Upload also the file "doc/release-notes.txt" to the same folder and click the
-  'i' icon to rename it to "README_release-notes.txt". This will trigger the
-  file release system to know that this file contains the release notes so that
-  it will be displayed when browsing this folder.
-- For each file, you can select in the 'i' icon menu that it is the default
-  file for a certain OS. Set this up (choose
-  openmsx-1.2.3-windows-vc-x86-bin-msi.zip for Windows, the dmg file for Mac
-  and the tar.gz source code for the others).
+Put the release on GitHub (refer to
+https://help.github.com/articles/creating-releases/):
+- Make sure you're logged in
+- Go to https://github.com/openMSX/openMSX/releases. Click "Draft a new release"
+- Select the tag version you made above: RELEASE_1_2_3
+- Type 'openMSX' and the release number of the new release at "Release title":
+  openMSX 1.2.3
+- TODO: at this point it seems we cannot use the tarball we created ourselves
+  in one of the earlier steps described above. I contacted GitHub about this
+  for their advice.
+- At the "Describe this release" box, describe the release, e.g. take the first
+  few paragraphs of the release notes (before the list of changes starts).
+- At "Attach binaries" select the files to upload.
 
 Announce:
 - Post change list to msx.org.
-- Post news item on sourceforge.net.
 - Post news item on web site.
+- Post news item on our Facebook page.
 - Post news and/or change list to openmsx-devel and openmsx-user mailinglists
   (at least one packager uses it to get a trigger)
 
