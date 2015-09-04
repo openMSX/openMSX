@@ -74,8 +74,10 @@ unsigned OutputArchiveBase2::getID2(
 
 template<typename Derived>
 void OutputArchiveBase<Derived>::serialize_blob(
-	const char* tag, const void* data, size_t len)
+	const char* tag, const void* data_, size_t len)
 {
+	auto* data = static_cast<const uint8_t*>(data_);
+
 	string encoding;
 	string tmp;
 	if (false) {
@@ -136,26 +138,23 @@ void InputArchiveBase<Derived>::serialize_blob(
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {
-		tmp = Base64::decode(tmp);
+		auto p = Base64::decode(tmp);
 		auto dstLen = uLongf(len); // TODO check for overflow?
 		if ((uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
-		                reinterpret_cast<const Bytef*>(tmp.data()), uLong(tmp.size()))
+		                reinterpret_cast<const Bytef*>(p.first.data()), uLong(p.second))
 		     != Z_OK) ||
 		    (dstLen != len)) {
 			throw MSXException("Error while decompressing blob.");
 		}
 	} else if ((encoding == "hex") || (encoding == "base64")) {
-		if (encoding == "hex") {
-			tmp = HexDump::decode(tmp);
-		} else {
-			tmp = Base64::decode(tmp);
-		}
-		if (tmp.size() != len) {
+		auto p = (encoding == "hex") ? HexDump::decode(tmp)
+		                             : Base64 ::decode(tmp);
+		if (p.second != len) {
 			throw XMLException(StringOp::Builder()
-				<< "Length of decoded blob: " << tmp.size()
+				<< "Length of decoded blob: " << p.second
 				<< " not identical to expected value: " << len);
 		}
-		memcpy(data, tmp.data(), len);
+		memcpy(data, p.first.data(), len);
 	} else {
 		throw XMLException("Unsupported encoding \"" + encoding + "\" for blob");
 	}

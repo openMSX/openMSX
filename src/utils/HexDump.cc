@@ -1,10 +1,11 @@
 #include "HexDump.hh"
 #include <algorithm>
-#include <cstdint>
+#include <cassert>
 
 namespace HexDump {
 
 using std::string;
+using openmsx::MemBuffer;
 
 static char encode2(uint8_t x)
 {
@@ -17,9 +18,8 @@ static string encode(uint8_t x)
 	result += encode2(x & 15);
 	return result;
 }
-string encode(const void* input_, size_t len, bool newlines)
+string encode(const uint8_t* input, size_t len, bool newlines)
 {
-	auto input = static_cast<const uint8_t*>(input_);
 	string ret;
 	while (len) {
 		if (newlines && !ret.empty()) ret += '\n';
@@ -45,24 +45,29 @@ static int decode(char x)
 		return -1;
 	}
 }
-string decode(const string& input)
+std::pair<MemBuffer<uint8_t>, size_t> decode(const string& input)
 {
-	string ret;
-	const size_t len = input.size();
+	auto inSize = input.size();
+	auto outSize = inSize / 2; // overestimation
+	MemBuffer<uint8_t> ret(outSize); // too big
+
+	size_t out = 0;
 	bool flip = true;
-	char tmp = 0;
-	for (size_t in = 0; in < len; ++in) {
+	uint8_t tmp = 0;
+	for (size_t in = 0; in < inSize; ++in) {
 		int d = decode(input[in]);
 		if (d == -1) continue;
 		if (flip) {
-			tmp = d << 4;
+			tmp = d;
 		} else {
-			tmp |= d;
-			ret += tmp;
+			ret[out++] = (tmp << 4) | d;
 		}
 		flip = !flip;
 	}
-	return ret;
+
+	assert(outSize >= out);
+	ret.resize(out); // shrink to correct size
+	return std::make_pair(std::move(ret), out);
 }
 
 } // namespace HexDump

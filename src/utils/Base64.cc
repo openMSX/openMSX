@@ -2,11 +2,11 @@
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
-#include <cstdint>
 
 namespace Base64 {
 
 using std::string;
+using openmsx::MemBuffer;
 
 static inline char encode(uint8_t c)
 {
@@ -35,13 +35,12 @@ static inline uint8_t decode(unsigned char c)
 	}
 }
 
-string encode(const void* input_, size_t inSize)
+string encode(const uint8_t* input, size_t inSize)
 {
 	static const int CHUNKS = 19;
 	static const int IN_CHUNKS  = 3 * CHUNKS;
 	static const int OUT_CHUNKS = 4 * CHUNKS; // 76 chars per line
 
-	auto input = static_cast<const uint8_t*>(input_);
 	auto outSize = ((inSize + (IN_CHUNKS - 1)) / IN_CHUNKS) * (OUT_CHUNKS + 1); // overestimation
 	string ret(outSize, 0); // too big
 
@@ -86,11 +85,11 @@ string encode(const void* input_, size_t inSize)
 	return ret;
 }
 
-string decode(const string& input)
+std::pair<MemBuffer<uint8_t>, size_t> decode(const string& input)
 {
 	auto inSize = input.size();
 	auto outSize = (inSize * 3 + 3) / 4; // overestimation
-	string ret(outSize, 0); // too big
+	MemBuffer<uint8_t> ret(outSize); // too big
 
 	unsigned i = 0;
 	size_t out = 0;
@@ -121,7 +120,7 @@ string decode(const string& input)
 
 	assert(outSize >= out);
 	ret.resize(out); // shrink to correct size
-	return ret;
+	return std::make_pair(std::move(ret), out);
 }
 
 } // namespace Base64
