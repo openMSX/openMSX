@@ -132,9 +132,7 @@ void InputArchiveBase<Derived>::serialize_blob(
 	string encoding;
 	this->self().attribute("encoding", encoding);
 
-	string tmp;
-	Loader<string> loader;
-	loader(this->self(), tmp, std::make_tuple(), -1);
+	string_ref tmp = this->self().loadStr();
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {
@@ -188,6 +186,15 @@ void MemInputArchive::load(std::string& s)
 	if (length) {
 		get(&s[0], length);
 	}
+}
+
+string_ref MemInputArchive::loadStr()
+{
+	size_t length;
+	load(length);
+	const byte* p = buffer.getCurrentPos();
+	buffer.skip(length);
+	return string_ref(reinterpret_cast<const char*>(p), length);
 }
 
 ////
@@ -349,6 +356,17 @@ XmlInputArchive::XmlInputArchive(const string& filename)
 	elems.emplace_back(&elem, 0);
 }
 
+string_ref XmlInputArchive::loadStr()
+{
+	if (!elems.back().first->getChildren().empty()) {
+		throw XMLException("No child tags expected for primitive type");
+	}
+	return elems.back().first->getData();
+}
+void XmlInputArchive::load(string& t)
+{
+	t = loadStr().str();
+}
 void XmlInputArchive::loadChar(char& c)
 {
 	std::string str;
@@ -356,19 +374,9 @@ void XmlInputArchive::loadChar(char& c)
 	std::istringstream is(str);
 	is >> c;
 }
-void XmlInputArchive::load(string& t)
-{
-	if (!elems.back().first->getChildren().empty()) {
-		throw XMLException("No child tags expected for string types");
-	}
-	t = elems.back().first->getData();
-}
 void XmlInputArchive::load(bool& b)
 {
-	if (!elems.back().first->getChildren().empty()) {
-		throw XMLException("No child tags expected for boolean types");
-	}
-	const auto& s = elems.back().first->getData();
+	string_ref s = loadStr();
 	if ((s == "true") || (s == "1")) {
 		b = true;
 	} else if ((s == "false") || (s == "0")) {
@@ -376,24 +384,6 @@ void XmlInputArchive::load(bool& b)
 	} else {
 		throw XMLException("Bad value found for boolean: " + s);
 	}
-}
-void XmlInputArchive::load(unsigned char& b)
-{
-	unsigned i;
-	load(i);
-	b = i;
-}
-void XmlInputArchive::load(signed char& c)
-{
-	int i;
-	load(i);
-	c = i;
-}
-void XmlInputArchive::load(char& c)
-{
-	int i;
-	load(i);
-	c = i;
 }
 
 // This function parses a number from a string. It's similar to the generic
@@ -420,7 +410,7 @@ template<> struct ConditionalNegate<false> {
 		assert(!negate); (void)negate; // can't negate unsigned type
 	}
 };
-template<typename T> static inline void fastAtoi(const string& str, T& t)
+template<typename T> static inline void fastAtoi(string_ref str, T& t)
 {
 	t = 0;
 	bool neg = false;
@@ -451,21 +441,36 @@ template<typename T> static inline void fastAtoi(const string& str, T& t)
 }
 void XmlInputArchive::load(int& i)
 {
-	std::string str;
-	load(str);
+	string_ref str = loadStr();
 	fastAtoi(str, i);
 }
 void XmlInputArchive::load(unsigned& u)
 {
-	std::string str;
-	load(str);
+	string_ref str = loadStr();
 	fastAtoi(str, u);
 }
 void XmlInputArchive::load(unsigned long long& ull)
 {
-	std::string str;
-	load(str);
+	string_ref str = loadStr();
 	fastAtoi(str, ull);
+}
+void XmlInputArchive::load(unsigned char& b)
+{
+	unsigned i;
+	load(i);
+	b = i;
+}
+void XmlInputArchive::load(signed char& c)
+{
+	int i;
+	load(i);
+	c = i;
+}
+void XmlInputArchive::load(char& c)
+{
+	int i;
+	load(i);
+	c = i;
 }
 
 void XmlInputArchive::beginTag(const char* tag)

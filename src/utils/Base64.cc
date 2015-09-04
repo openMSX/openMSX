@@ -85,7 +85,7 @@ string encode(const uint8_t* input, size_t inSize)
 	return ret;
 }
 
-std::pair<MemBuffer<uint8_t>, size_t> decode(const string& input)
+std::pair<MemBuffer<uint8_t>, size_t> decode(string_ref input)
 {
 	auto inSize = input.size();
 	auto outSize = (inSize * 3 + 3) / 4; // overestimation
