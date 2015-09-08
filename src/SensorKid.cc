@@ -131,9 +131,9 @@ template<typename Archive>
 void SensorKid::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("prev", prev);
-	ar.serialize("mb4052_ana", mb4052_ana);
-	ar.serialize("mb4052_count", mb4052_count);
+	ar.serialize("prev",         prev,
+	             "mb4052_ana",   mb4052_ana,
+	             "mb4052_count", mb4052_count);
 }
 INSTANTIATE_SERIALIZE_METHODS(SensorKid);
 REGISTER_MSXDEVICE(SensorKid, "SensorKid");

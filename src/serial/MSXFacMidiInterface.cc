@@ -133,11 +133,9 @@ template<typename Archive>
 void MSXFacMidiInterface::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-
 	ar.template serializeBase<MidiInConnector>(*this);
-	ar.serialize("outConnector", outConnector);
-
-	ar.serialize("I8251", i8251);
+	ar.serialize("outConnector", outConnector,
+	             "I8251",        i8251);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXFacMidiInterface);
 REGISTER_MSXDEVICE(MSXFacMidiInterface, "MSXFacMidiInterface");

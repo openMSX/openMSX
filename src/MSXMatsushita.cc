@@ -107,11 +107,11 @@ void MSXMatsushita::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	// no need to serialize MSXSwitchedDevice base class
 
-	ar.serialize("SRAM", sram);
-	ar.serialize("address", address);
-	ar.serialize("color1", color1);
-	ar.serialize("color2", color2);
-	ar.serialize("pattern", pattern);
+	ar.serialize("SRAM",    sram,
+	             "address", address,
+	             "color1",  color1,
+	             "color2",  color2,
+	             "pattern", pattern);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMatsushita);
 REGISTER_MSXDEVICE(MSXMatsushita, "Matsushita");

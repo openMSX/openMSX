@@ -135,8 +135,8 @@ void NowindInterface::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("flash", flash);
 	ar.serializeWithID("drives", drives, std::ref(getMotherBoard()));
-	ar.serialize("nowindhost", host);
-	ar.serialize("bank", bank);
+	ar.serialize("nowindhost", host,
+	             "bank",       bank);
 
 	// don't serialize command, rom, basename
 }

@@ -139,12 +139,12 @@ template<typename Archive>
 void ClockPin::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
-	ar.serialize("totalDur", totalDur);
-	ar.serialize("hiDur", hiDur);
-	ar.serialize("referenceTime", referenceTime);
-	ar.serialize("periodic", periodic);
-	ar.serialize("status", status);
-	ar.serialize("signalEdge", signalEdge);
+	ar.serialize("totalDur",      totalDur,
+	             "hiDur",         hiDur,
+	             "referenceTime", referenceTime,
+	             "periodic",      periodic,
+	             "status",        status,
+	             "signalEdge",    signalEdge);
 }
 INSTANTIATE_SERIALIZE_METHODS(ClockPin);
 

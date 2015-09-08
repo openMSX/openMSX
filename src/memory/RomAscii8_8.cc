@@ -116,8 +116,8 @@ template<typename Archive>
 void RomAscii8_8::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("sramEnabled", sramEnabled);
-	ar.serialize("sramBlock", sramBlock);
+	ar.serialize("sramEnabled", sramEnabled,
+	             "sramBlock",   sramBlock);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomAscii8_8);
 REGISTER_MSXDEVICE(RomAscii8_8, "RomAscii8_8");

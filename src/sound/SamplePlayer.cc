@@ -143,9 +143,9 @@ void SamplePlayer::doRepeat()
 template<typename Archive>
 void SamplePlayer::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("index", index);
-	ar.serialize("currentSampleNum", currentSampleNum);
-	ar.serialize("nextSampleNum", nextSampleNum);
+	ar.serialize("index",            index,
+	             "currentSampleNum", currentSampleNum,
+	             "nextSampleNum",    nextSampleNum);
 	if (ar.isLoader()) {
 		setWavParams();
 	}

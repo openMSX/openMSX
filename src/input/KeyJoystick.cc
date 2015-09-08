@@ -26,9 +26,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("name", name);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("name",    name,
+		             "press",   press,
+		             "release", release);
 	}
 
 private:

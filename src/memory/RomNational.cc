@@ -110,9 +110,9 @@ template<typename Archive>
 void RomNational::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
-	ar.serialize("control", control);
-	ar.serialize("sramAddr", sramAddr);
-	ar.serialize("bankSelect", bankSelect);
+	ar.serialize("control",    control,
+	             "sramAddr",   sramAddr,
+	             "bankSelect", bankSelect);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomNational);
 REGISTER_MSXDEVICE(RomNational, "RomNational");

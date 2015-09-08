@@ -100,9 +100,9 @@ template<typename Archive>
 void MSXPac::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("SRAM", sram);
-	ar.serialize("r1ffe", r1ffe);
-	ar.serialize("r1fff", r1fff);
+	ar.serialize("SRAM",  sram,
+	             "r1ffe", r1ffe,
+	             "r1fff", r1fff);
 	if (ar.isLoader()) {
 		checkSramEnable();
 	}

@@ -596,12 +596,12 @@ SERIALIZE_ENUM(SCC::ChipMode, chipModeInfo);
 template<typename Archive>
 void SCC::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mode", currentChipMode);
-	ar.serialize("period", orgPeriod);
-	ar.serialize("volume", volume);
-	ar.serialize("ch_enable", ch_enable);
-	ar.serialize("deformTimer", deformTimer);
-	ar.serialize("deform", deformValue);
+	ar.serialize("mode",        currentChipMode,
+	             "period",      orgPeriod,
+	             "volume",      volume,
+	             "ch_enable",   ch_enable,
+	             "deformTimer", deformTimer,
+	             "deform",      deformValue);
 	// multi-dimensional arrays are not directly support by the
 	// serialization framework, maybe in the future. So for now
 	// manually loop over the channels.
@@ -637,9 +637,9 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	// call to setFreqVol() modifies these variables, see above
-	ar.serialize("count", count);
-	ar.serialize("pos", pos);
-	ar.serialize("out", out);
+	ar.serialize("count", count,
+	             "pos",   pos,
+	             "out",   out);
 }
 INSTANTIATE_SERIALIZE_METHODS(SCC);
 

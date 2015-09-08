@@ -78,8 +78,8 @@ template<typename Archive>
 void MSXOPL3Cartridge::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ymf262", ymf262);
-	ar.serialize("opl3latch", opl3latch);
+	ar.serialize("ymf262",    ymf262,
+	             "opl3latch", opl3latch);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXOPL3Cartridge);
 REGISTER_MSXDEVICE(MSXOPL3Cartridge, "OPL3Cartridge");

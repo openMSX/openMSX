@@ -1528,76 +1528,76 @@ void YM2151::YM2151Operator::serialize(Archive& a, unsigned /*version*/)
 {
 	//int* connect; // recalculated from regs[0x20-0x27]
 	//int* mem_connect; // recalculated from regs[0x20-0x27]
-	a.serialize("phase", phase);
-	a.serialize("freq", freq);
-	a.serialize("dt1", dt1);
-	a.serialize("mul", mul);
-	a.serialize("dt1_i", dt1_i);
-	a.serialize("dt2", dt2);
-	a.serialize("mem_value", mem_value);
-	//a.serialize("fb_shift", fb_shift); // recalculated from regs[0x20-0x27]
-	a.serialize("fb_out_curr", fb_out_curr);
-	a.serialize("fb_out_prev", fb_out_prev);
-	a.serialize("kc", kc);
-	a.serialize("kc_i", kc_i);
-	a.serialize("pms", pms);
-	a.serialize("ams", ams);
-	a.serialize("AMmask", AMmask);
-	a.serialize("state", state);
-	a.serialize("tl", tl);
-	a.serialize("volume", volume);
-	a.serialize("d1l", d1l);
-	a.serialize("key", key);
-	a.serialize("ks", ks);
-	a.serialize("ar", ar);
-	a.serialize("d1r", d1r);
-	a.serialize("d2r", d2r);
-	a.serialize("rr", rr);
-	a.serialize("eg_sh_ar", eg_sh_ar);
-	a.serialize("eg_sel_ar", eg_sel_ar);
-	a.serialize("eg_sh_d1r", eg_sh_d1r);
-	a.serialize("eg_sel_d1r", eg_sel_d1r);
-	a.serialize("eg_sh_d2r", eg_sh_d2r);
-	a.serialize("eg_sel_d2r", eg_sel_d2r);
-	a.serialize("eg_sh_rr", eg_sh_rr);
-	a.serialize("eg_sel_rr", eg_sel_rr);
+	a.serialize("phase",       phase,
+	            "freq",        freq,
+	            "dt1",         dt1,
+	            "mul",         mul,
+	            "dt1_i",       dt1_i,
+	            "dt2",         dt2,
+	            "mem_value",   mem_value,
+	            //"fb_shift",    fb_shift, // recalculated from regs[0x20-0x27]
+	            "fb_out_curr", fb_out_curr,
+	            "fb_out_prev", fb_out_prev,
+	            "kc",          kc,
+	            "kc_i",        kc_i,
+	            "pms",         pms,
+	            "ams",         ams,
+	            "AMmask",      AMmask,
+	            "state",       state,
+	            "tl",          tl,
+	            "volume",      volume,
+	            "d1l",         d1l,
+	            "key",         key,
+	            "ks",          ks,
+	            "ar",          ar,
+	            "d1r",         d1r,
+	            "d2r",         d2r,
+	            "rr",          rr,
+	            "eg_sh_ar",    eg_sh_ar,
+	            "eg_sel_ar",   eg_sel_ar,
+	            "eg_sh_d1r",   eg_sh_d1r,
+	            "eg_sel_d1r",  eg_sel_d1r,
+	            "eg_sh_d2r",   eg_sh_d2r,
+	            "eg_sel_d2r",  eg_sel_d2r,
+	            "eg_sh_rr",    eg_sh_rr,
+	            "eg_sel_rr",   eg_sel_rr);
 };
 
 template<typename Archive>
 void YM2151::serialize(Archive& a, unsigned /*version*/)
 {
-	a.serialize("irq", irq);
-	a.serialize("timer1", *timer1);
-	a.serialize("timer2", *timer2);
-	a.serialize("operators", oper);
-	//a.serialize("pan", pan); // recalculated from regs[0x20-0x27]
-	a.serialize("eg_cnt", eg_cnt);
-	a.serialize("eg_timer", eg_timer);
-	a.serialize("lfo_phase", lfo_phase);
-	a.serialize("lfo_timer", lfo_timer);
-	a.serialize("lfo_overflow", lfo_overflow);
-	a.serialize("lfo_counter", lfo_counter);
-	a.serialize("lfo_counter_add", lfo_counter_add);
-	a.serialize("lfa", lfa);
-	a.serialize("lfp", lfp);
-	a.serialize("noise", noise);
-	a.serialize("noise_rng", noise_rng);
-	a.serialize("noise_p", noise_p);
-	a.serialize("noise_f", noise_f);
-	a.serialize("csm_req", csm_req);
-	a.serialize("irq_enable", irq_enable);
-	a.serialize("status", status);
-	a.serialize("chanout", chanout);
-	a.serialize("m2", m2);
-	a.serialize("c1", c1);
-	a.serialize("c2", c2);
-	a.serialize("mem", mem);
-	a.serialize("timer_A_val", timer_A_val);
-	a.serialize("lfo_wsel", lfo_wsel);
-	a.serialize("amd", amd);
-	a.serialize("pmd", pmd);
-	a.serialize("test", test);
-	a.serialize("ct", ct);
+	a.serialize("irq",             irq,
+	            "timer1",          *timer1,
+	            "timer2",          *timer2,
+	            "operators",       oper,
+	            //"pan",             pan, // recalculated from regs[0x20-0x27]
+	            "eg_cnt",          eg_cnt,
+	            "eg_timer",        eg_timer,
+	            "lfo_phase",       lfo_phase,
+	            "lfo_timer",       lfo_timer,
+	            "lfo_overflow",    lfo_overflow,
+	            "lfo_counter",     lfo_counter,
+	            "lfo_counter_add", lfo_counter_add,
+	            "lfa",             lfa,
+	            "lfp",             lfp,
+	            "noise",           noise,
+	            "noise_rng",       noise_rng,
+	            "noise_p",         noise_p,
+	            "noise_f",         noise_f,
+	            "csm_req",         csm_req,
+	            "irq_enable",      irq_enable,
+	            "status",          status,
+	            "chanout",         chanout,
+	            "m2",              m2,
+	            "c1",              c1,
+	            "c2",              c2,
+	            "mem",             mem,
+	            "timer_A_val",     timer_A_val,
+	            "lfo_wsel",        lfo_wsel,
+	            "amd",             amd,
+	            "pmd",             pmd,
+	            "test",            test,
+	            "ct",              ct);
 	a.serialize_blob("registers", regs, sizeof(regs));
 
 	if (a.isLoader()) {

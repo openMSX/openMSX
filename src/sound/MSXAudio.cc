@@ -129,11 +129,10 @@ template<typename Archive>
 void MSXAudio::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serializePolymorphic("periphery", *periphery);
-	ar.serialize("Y8950", y8950);
-
-	ar.serialize("registerLatch", registerLatch);
-	ar.serialize("dacValue", dacValue);
-	ar.serialize("dacEnabled", dacEnabled);
+	ar.serialize("Y8950",         y8950,
+	             "registerLatch", registerLatch,
+	             "dacValue",      dacValue,
+	             "dacEnabled",    dacEnabled);
 
 	if (ar.isLoader()) {
 		// restore dac status
