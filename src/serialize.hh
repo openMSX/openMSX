@@ -612,6 +612,7 @@ template<> struct SerializeAsMemcpy<unsigned long long> : std::true_type {};
 template<> struct SerializeAsMemcpy<         float    > : std::true_type {};
 template<> struct SerializeAsMemcpy<         double   > : std::true_type {};
 template<> struct SerializeAsMemcpy<    long double   > : std::true_type {};
+template<typename T, size_t N> struct SerializeAsMemcpy<T[N]> : SerializeAsMemcpy<T> {};
 
 class MemOutputArchive final : public OutputArchiveBase<MemOutputArchive>
 {
@@ -649,6 +650,12 @@ public:
 		//   correct for a single pair, but it's less tuned for that
 		//   case).
 		serialize_group(std::make_tuple(), tag, t, std::forward<Args>(args)...);
+	}
+	template<typename T, size_t N>
+	ALWAYS_INLINE void serialize(const char* /*tag*/, const T(&t)[N],
+		typename std::enable_if<SerializeAsMemcpy<T>::value>::type* = nullptr)
+	{
+		buffer.insert(&t[0], N * sizeof(T));
 	}
 
 	void beginSection()
@@ -749,6 +756,13 @@ public:
 	{
 		// see comments in MemOutputArchive
 		serialize_group(std::make_tuple(), tag, t, std::forward<Args>(args)...);
+	}
+
+	template<typename T, size_t N>
+	ALWAYS_INLINE void serialize(const char* /*tag*/, T(&t)[N],
+		typename std::enable_if<SerializeAsMemcpy<T>::value>::type* = nullptr)
+	{
+		buffer.read(&t[0], N * sizeof(T));
 	}
 
 	void skipSection(bool skip)
