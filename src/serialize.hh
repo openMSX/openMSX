@@ -614,7 +614,7 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	MemBuffer<byte> releaseBuffer(size_t& size);
+	MemBuffer<uint8_t> releaseBuffer(size_t& size);
 
 private:
 	void put(const void* data, size_t len)
@@ -631,7 +631,7 @@ private:
 class MemInputArchive final : public InputArchiveBase<MemInputArchive>
 {
 public:
-	MemInputArchive(const byte* data, size_t size)
+	MemInputArchive(const uint8_t* data, size_t size)
 		: buffer(data, size)
 	{
 	}

@@ -91,7 +91,7 @@ void OutputArchiveBase<Derived>::serialize_blob(
 		encoding = "gz-base64";
 		// TODO check for overflow?
 		auto dstLen = uLongf(len + len / 1000 + 12 + 1); // worst-case
-		MemBuffer<byte> buf(dstLen);
+		MemBuffer<uint8_t> buf(dstLen);
 		if (compress2(buf.data(), &dstLen,
 		              reinterpret_cast<const Bytef*>(data),
 		              uLong(len), 9)
@@ -166,12 +166,12 @@ template class InputArchiveBase<XmlInputArchive>;
 void MemOutputArchive::save(const std::string& s)
 {
 	auto size = s.size();
-	byte* buf = buffer.allocate(sizeof(size) + size);
+	uint8_t* buf = buffer.allocate(sizeof(size) + size);
 	memcpy(buf, &size, sizeof(size));
 	memcpy(buf + sizeof(size), s.data(), size);
 }
 
-MemBuffer<byte> MemOutputArchive::releaseBuffer(size_t& size)
+MemBuffer<uint8_t> MemOutputArchive::releaseBuffer(size_t& size)
 {
 	return buffer.release(size);
 }
@@ -192,7 +192,7 @@ string_ref MemInputArchive::loadStr()
 {
 	size_t length;
 	load(length);
-	const byte* p = buffer.getCurrentPos();
+	const uint8_t* p = buffer.getCurrentPos();
 	buffer.skip(length);
 	return string_ref(reinterpret_cast<const char*>(p), length);
 }
@@ -222,13 +222,13 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len)
 	// but 'snappy' is about twice as fast. So I switched to 'snappy'.
 	if (len >= SMALL_SIZE) {
 		size_t dstLen = snappy::maxCompressedLength(len);
-		byte* buf = buffer.allocate(sizeof(dstLen) + dstLen);
+		uint8_t* buf = buffer.allocate(sizeof(dstLen) + dstLen);
 		snappy::compress(static_cast<const char*>(data), len,
 		                 reinterpret_cast<char*>(&buf[sizeof(dstLen)]), dstLen);
 		memcpy(buf, &dstLen, sizeof(dstLen)); // fill-in actual size
 		buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
 	} else {
-		byte* buf = buffer.allocate(len);
+		uint8_t* buf = buffer.allocate(len);
 		memcpy(buf, data, len);
 	}
 
