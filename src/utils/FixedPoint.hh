@@ -1,6 +1,7 @@
 #ifndef FIXEDPOINT_HH
 #define FIXEDPOINT_HH
 
+#include "serialize.hh"
 #include <cmath>
 #include <cstdint>
 
@@ -232,6 +233,9 @@ public:
 private:
 	int value;
 };
+
+template <unsigned FRACTION_BITS>
+struct SerializeAsMemcpy<FixedPoint<FRACTION_BITS>> : std::true_type {};
 
 // Force all constants being defined, some compilers need this:
 

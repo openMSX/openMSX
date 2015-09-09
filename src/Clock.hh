@@ -152,6 +152,9 @@ private:
 	EmuTime lastTick;
 };
 
+template<unsigned FREQ_NUM, unsigned FREQ_DENOM>
+struct SerializeAsMemcpy<Clock<FREQ_NUM, FREQ_DENOM>> : std::true_type {};
+
 } // namespace openmsx
 
 #endif
