@@ -393,8 +393,8 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
 		     (0xB800 <= addr) && (addr < 0xC000))) {
 			scc.writeMem(addr & 0xFF, value, time);
+			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
 		}
-		return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
 	}
 
 	unsigned subslot = getSubslot(addr);
