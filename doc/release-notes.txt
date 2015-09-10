@@ -13,6 +13,7 @@ MSX device support:
 - fixed crash in openMSX when using the AVT DPF-550 extension
 - fixed support of 8kB RS-232C ROMs (which is the only correct size!)
 - fixed emulation of joystick mode of the mouse
+- fixed broken MegaFlashROM SCC+ (introduced with openMSX 0.11.0)
 - improved trackball movement emulation so that JoyTest can also detect it like
   on real hardware
 - fixed touchpad joystick pins (fixing detection in JoyTest)
