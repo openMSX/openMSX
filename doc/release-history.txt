@@ -6,9 +6,16 @@ This is an overview of the changes that were incorporated into past releases.
 openMSX 0.12.0 (2015-09-12)
 ---------------------------
 
-This release brings you... stuff.
+This was going to be (mostly) a bug fix release. But at the end we also got
+inspired by Grauw to add a lot of MIDI devices. And, reviewing what we changed
+the last 10 months, we saw that we also got loads of help from several people
+to add many new machine configurations and added some fun stuff like Sensor Kid
+and (experimental) Beer IDE emulation. On the emulator features category we
+give you stuff like triplesize video recording, some TAS enhancements and a
+callback for too fast VRAM access.
+So, enjoy this 'various features and bug fixes' release!
 
-Here's the list with all highlights:
+Here's the list with all highlights and details:
 
 MSX device support:
 - fixed (S)RAM writing on turboR
