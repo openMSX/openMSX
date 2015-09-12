@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.12.0 (2015-09-xx)
+Release Notes for openMSX 0.12.0 (2015-09-12)
 =============================================
 
 This release brings you... stuff.

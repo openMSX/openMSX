@@ -12,7 +12,7 @@ import re
 packageName = 'openmsx'
 
 # Version number.
-packageVersionNumber = '0.11.0'
+packageVersionNumber = '0.12.0'
 
 # Version code for Android must be an incremental number
 # Increase this number for each release build. For a dev build, the
@@ -25,7 +25,7 @@ packageVersionSuffix = ''
 packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").
-releaseFlag = False
+releaseFlag = True
 
 def _extractRevisionFromStdout(log, command, regex):
 	text = captureStdout(log, command)

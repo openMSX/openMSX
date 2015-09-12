@@ -3,6 +3,65 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.12.0 (2015-09-12)
+---------------------------
+
+This release brings you... stuff.
+
+Here's the list with all highlights:
+
+MSX device support:
+- fixed (S)RAM writing on turboR
+- fixed border color in screen 11/12
+- fixed some details of SD card emulation (found with FUZIX)
+- fixed clipping bug in sprite-mode-1 drawing
+- fixed crash in openMSX when using the AVT DPF-550 extension
+- fixed support of 8kB RS-232C ROMs (which is the only correct size!)
+- fixed emulation of joystick mode of the mouse
+- fixed broken MegaFlashROM SCC+ (introduced with openMSX 0.11.0)
+- improved trackball movement emulation so that JoyTest can also detect it like
+  on real hardware
+- fixed touchpad joystick pins (fixing detection in JoyTest)
+- tweaked volumes of SFG-01/05 against the PSG
+- added Panasonic FS-A1WSX/WX variant ot the MSX-MUSIC mapper
+- added proper YM2148 emulation (MIDI in/out for Yamaha SFG modules)
+- added proper MC6850 emulation (MIDI in/out for Philips Music Module)
+- added emulation of FAC MIDI Interface
+- added emulation of Sensor Kid, ported from yayaMSX2SK, which is based on
+  Mr. Takeda's Common Source Code Project
+- added emulation of BeerIDE (experimental)
+- added many new machines: Canon V-25 (thanks to Rudi Westerhof), Canon V-8,
+  Fenner/Samsung SPC-800, Hitachi MB-H1, Toshiba HX-10D (thanks to Ricardo
+  Jurcyk Pinheiro), Canon V-10, Canon V-20 (JP), Spectravideo SVI-728 (ES),
+  Mitsubishi ML-TS2 (partly, it's still work-in-progress), Sony HB-101 (JP),
+  Sony HB-201 (JP), Sanyo MPC-6, Mitsubishi ML-F120 and ML-F110 and Hitachi
+  MB-H3 (thanks to Werner Kai) and Yamaha AX350IIF (thanks to Rudolf Gutlich)
+
+New or improved emulator features:
+- added "too_fast_vram_access_callback": you can now run a Tcl script when the
+  running MSX software accesses VRAM too fast, e.g. break to debug
+- added display of 'movie length' in TAS mode. This is the length of your
+  'movie' if you upload it to tasvideos.org
+- added -triplesize to video recorder: allows creation of video files in
+  960x720 pixels, for which YouTube renders videos at 60 fps.
+- some fixes in keyboard mappings
+- fixed slow console when emulation speed is very low
+- add a snapshot 'near the end' to the OMR when saving it, allowing quicker
+  continuation of the replay after loading it
+- similarly, add snapshots when fast-forwarding to the target time, so they
+  can be used to jump back more quickly
+- show reverse bar in green when replaying in viewonly mode
+- added a converter from/to OMR to/from text, which allows you to more easily
+  edit the OMR outside of openMSX
+- improved implementation of 'auto-save' feature of replays: the setting will
+  now persist over openMSX sessions
+- added an OSD overlay for Metal Gear
+
+Build system, packaging, documentation:
+- replace mingw32 build support with MinGW-w64 build support on Windows
+- updated our website and other URL's to point to http://openmsx.org/ or
+  GitHub
+
 openMSX 0.11.0 (2014-11-08)
 ---------------------------
 
