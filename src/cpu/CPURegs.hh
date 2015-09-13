@@ -127,7 +127,7 @@ public:
 	// instruction.
 	inline bool isSameAfter() const {
 		// Between two instructions these two should be the same
-		return after_ == afterNext_;
+		return (after_ & 0x07) == (afterNext_ & 0x07); // ignore pop/ret
 	}
 	inline bool getAfterEI()   const {
 		assert(isSameAfter());
@@ -136,6 +136,13 @@ public:
 	inline bool getAfterLDAI() const {
 		assert(isSameAfter());
 		return (after_ & 0x02) != 0;
+	}
+	inline bool getAfterCall() const {
+		// Can be called during execution of an instruction
+		return (after_ & 0x04) != 0;
+	}
+	inline bool getAfterPopRet() const {
+		return (afterNext_ & 0x08) != 0;
 	}
 	inline bool debugGetAfterEI() const {
 		// Can be called during execution of an instruction
@@ -150,7 +157,7 @@ public:
 		// In the fast code path we avoid calling clearNextAfter()
 		// before every instruction. But in debug mode we want
 		// to verify that this optimzation is valid.
-		return afterNext_ == 0;
+		return (afterNext_ & 0x07) == 0; // don't check pop/ret
 	}
 	inline void setAfterEI() {
 		// Set both after_ and afterNext_. Can only be called
@@ -163,6 +170,17 @@ public:
 		// Set both, see above.
 		assert(isNextAfterClear());
 		afterNext_ = after_ = 0x02;
+	}
+	inline void setAfterCall() {
+		// Set both, see above.
+		assert(isNextAfterClear());
+		afterNext_ = after_ = 0x04;
+	}
+	inline void setAfterPopRet() {
+		// Only set 'afterNext_', executeSlow() still needs 'after_'.
+		// This does mean getAfterPopRet() is unreliable in the
+		// fast execute() code path, but that's ok.
+		afterNext_ = 0x08;
 	}
 	inline void copyNextAfter() {
 		// At the end of an instruction, the next flags become

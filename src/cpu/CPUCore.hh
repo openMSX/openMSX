@@ -459,8 +459,8 @@ private:
 
 class Z80TYPE;
 class R800TYPE;
-SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  3);
-SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 3); // keep these two the same
+SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  4);
+SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 4); // keep these two the same
 
 } // namespace openmsx
 

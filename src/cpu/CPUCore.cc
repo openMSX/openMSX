@@ -2505,6 +2505,20 @@ template<class T> void CPUCore<T>::executeSlow()
 		cpuTracePre();
 		assert(T::limitReached()); // we want only one instruction
 		executeInstructions();
+		if (T::isR800()) {
+			if (unlikely(getAfterCall()) && likely(!getAfterPopRet())) {
+				// On R800 a CALL or RST instruction not _immediately_
+				// followed by a (single-byte) POP or RET instruction
+				// causes an extra cycle in that following instruction.
+				// No idea why yet. See doc/internal/r800-call.txt
+				// for more information.
+				//
+				// TODO this implementation adds the extra cycle at
+				// the end of the instruction. It is not known where
+				// in the instruction the real R800 adds this cycle.
+				T::add(1);
+			}
+		}
 		cpuTracePost();
 		copyNextAfter();
 	}
@@ -3796,6 +3810,15 @@ template<class T> template<Reg16 REG, int EE> int CPUCore<T>::push_SS() {
 template<class T> template<int EE> inline unsigned CPUCore<T>::POP() {
 	unsigned addr = getSP();
 	setSP(addr + 2);
+	if (T::isR800()) {
+		// handles both POP and RET instructions (RET with condition = true)
+		if (EE == 0) { // not reti/retn, not pop ix/iy
+			setAfterPopRet();
+			// no need for setSlowInstructions()
+			//  -> because of this we need exceptions in
+			//      isSameAfter() and isNextAfterClear()
+		}
+	}
 	return RD_WORD(addr, T::CC_POP_1 + EE);
 }
 template<class T> template<Reg16 REG, int EE> int CPUCore<T>::pop_SS() {
@@ -3810,6 +3833,10 @@ template<class T> template<typename COND> int CPUCore<T>::call(COND cond) {
 	if (cond(getF())) {
 		PUSH<T::EE_CALL>(getPC());
 		setPC(addr);
+		if (T::isR800()) {
+			setAfterCall();
+			setSlowInstructions();
+		}
 		return T::CC_CALL_A;
 	} else {
 		return T::CC_CALL_B;
@@ -3822,6 +3849,10 @@ template<class T> template<unsigned ADDR> int CPUCore<T>::rst() {
 	PUSH<0>(getPC());
 	T::setMemPtr(ADDR);
 	setPC(ADDR);
+	if (T::isR800()) {
+		setAfterCall();
+		setSlowInstructions();
+	}
 	return T::CC_RST;
 }
 
@@ -4318,6 +4349,7 @@ template<class T> template<Reg16 REG> int CPUCore<T>::muluw_hl_SS() {
 //  1 -> initial version
 //  2 -> moved memptr from here to Z80TYPE (and not to R800TYPE)
 //  3 -> timing of the emulation changed (no changes in serialization)
+//  4 -> timing of the emulation changed again (see doc/internal/r800-call.txt)
 template<class T> template<typename Archive>
 void CPUCore<T>::serialize(Archive& ar, unsigned version)
 {
@@ -4339,7 +4371,7 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 	//    slowInstructions
 	//    exitLoop
 
-	if (T::isR800() && ar.versionBelow(version, 3)) {
+	if (T::isR800() && ar.versionBelow(version, 4)) {
 		motherboard.getMSXCliComm().printWarning(
 			"Loading an old savestate: the timing of the R800 "
 			"emulation has changed. This may cause synchronization "
