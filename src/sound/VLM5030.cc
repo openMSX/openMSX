@@ -78,6 +78,7 @@ chirp 12-..: vokume   0   : silent
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "FileOperations.hh"
+#include "Math.hh"
 #include "serialize.hh"
 #include "random.hh"
 #include <cstring>
@@ -324,13 +325,7 @@ void VLM5030::generateChannels(int** bufs, unsigned length)
 			x[0] = u[0];
 
 			// clipping, buffering
-			if (u[0] > 511) {
-				bufs[0][buf_count] =  511 << 6;
-			} else if (u[0] < -511) {
-				bufs[0][buf_count] = -511 << 6;
-			} else {
-				bufs[0][buf_count] = (u[0] << 6);
-			}
+			bufs[0][buf_count] = Math::clip<-511, 511>(u[0]);
 			++buf_count;
 			--sample_count;
 			++pitch_count;
@@ -366,6 +361,11 @@ phase_stop:
 		bufs[0][buf_count++] = 0;
 		--length;
 	}
+}
+
+int VLM5030::getAmplificationFactor() const
+{
+	return 1 << (15 - 9);
 }
 
 // setup parameteroption when RST=H
