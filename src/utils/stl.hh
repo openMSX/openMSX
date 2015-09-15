@@ -22,39 +22,36 @@ struct EqualTo
        bool operator()(const T1& t1, const T2& t2) const { return t1 == t2; }
 };
 
-// Note: LessTupleElement and CmpTupleElement can be made a lot more general
-// (and uniform). This can be done relatively easily with variadic templates.
-// Unfortunately vc++ doesn't support this yet. So for now these classes are
-// 'just enough' to make the current users of these utilities happy.
-
-// Compare the N-th element of a tuple using the less-than operator. Also
-// provides overloads to compare the N-the element with a single value of the
-// same type.
-template<int N> struct LessTupleElement
+// Heterogeneous version of std::less.
+struct LessThan
 {
-	template<typename TUPLE>
-	bool operator()(const TUPLE& x, const TUPLE& y) const {
-		return std::get<N>(x) < std::get<N>(y);
-	}
-
-	template<typename TUPLE>
-	bool operator()(const typename std::tuple_element<N, TUPLE>::type& x,
-	                const TUPLE& y) const {
-		return x < std::get<N>(y);
-	}
-
-	template<typename TUPLE>
-	bool operator()(const TUPLE& x,
-	                const typename std::tuple_element<N, TUPLE>::type& y) const {
-		return std::get<N>(x) < y;
-	}
+	template<typename T1, typename T2>
+	bool operator()(const T1& t1, const T2& t2) const { return t1 < t2; }
 };
 
-// Similar to LessTupleElement, but with a custom comparison functor. ATM the
-// functor cannot take constructor arguments, possibly refactor this in the
-// future.
+
+// Compare the N-th element of two tuples using a custom comparison functor.
+// Also provides overloads to compare the N-the element of a tuple with a
+// single value (of a compatible type).
+// ATM the functor cannot take constructor arguments, possibly refactor this in
+// the future.
 template<int N, typename CMP> struct CmpTupleElement
 {
+	template<typename... Args>
+	bool operator()(const std::tuple<Args...>& x, const std::tuple<Args...>& y) const {
+		return cmp(std::get<N>(x), std::get<N>(y));
+	}
+
+	template<typename T, typename... Args>
+	bool operator()(const T& x, const std::tuple<Args...>& y) const {
+		return cmp(x, std::get<N>(y));
+	}
+
+	template<typename T, typename... Args>
+	bool operator()(const std::tuple<Args...>& x, const T& y) const {
+		return cmp(std::get<N>(x), y);
+	}
+
 	template<typename T1, typename T2>
 	bool operator()(const std::pair<T1, T2>& x, const std::pair<T1, T2>& y) const {
 		return cmp(std::get<N>(x), std::get<N>(y));
@@ -73,6 +70,9 @@ template<int N, typename CMP> struct CmpTupleElement
 private:
 	CMP cmp;
 };
+
+// Similar to CmpTupleElement above, but uses the less-than operator.
+template<int N> using LessTupleElement = CmpTupleElement<N, LessThan>;
 
 
 // Check whether the N-the element of a tuple is equal to the given value.
