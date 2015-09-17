@@ -634,8 +634,10 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 		}
 #endif
 	} else if (type == OPENMSX_DELETE_BOARDS) {
+		// Doesn't really matter which one we delete, just that we do
+		// one per event.
 		assert(!garbageBoards.empty());
-		garbageBoards.erase(begin(garbageBoards));
+		garbageBoards.pop_back();
 	} else {
 		UNREACHABLE; // we didn't subscribe to this event...
 	}
