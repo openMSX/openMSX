@@ -37,7 +37,7 @@ private:
 
 	hash_map<std::string, std::string, XXHasher> prevValues[NUM_UPDATES];
 
-	std::vector<std::unique_ptr<CliListener>> listeners;
+	std::vector<std::unique_ptr<CliListener>> listeners; // unordered
 	std::mutex mutex; // lock access to listeners member
 	bool delivering;
 	bool allowExternalCommands;

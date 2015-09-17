@@ -26,7 +26,7 @@ protected:
 	void notify() const;
 
 private:
-	std::vector<Observer<T>*> observers;
+	std::vector<Observer<T>*> observers; // unordered
 #ifndef NDEBUG
 	mutable bool notifyInProgress;
 #endif

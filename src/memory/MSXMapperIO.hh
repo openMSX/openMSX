@@ -46,7 +46,7 @@ private:
 		void write(unsigned address, byte value) override;
 	} debuggable;
 
-	std::vector<unsigned> mapperSizes;
+	std::vector<unsigned> mapperSizes; // sorted
 	byte registers[4];
 
 	/**

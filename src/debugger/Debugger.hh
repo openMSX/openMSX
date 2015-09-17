@@ -108,7 +108,7 @@ private:
 	hash_map<std::string, Debuggable*, XXHasher> debuggables;
 	hash_set<ProbeBase*, NameFromProbe, XXHasher>  probes;
 	using ProbeBreakPoints = std::vector<std::unique_ptr<ProbeBreakPoint>>;
-	ProbeBreakPoints probeBreakPoints;
+	ProbeBreakPoints probeBreakPoints; // unordered
 	MSXCPU* cpu;
 };
 

@@ -26,7 +26,7 @@ using std::vector;
 namespace openmsx {
 
 // See comments in traceProc()
-static std::vector<std::pair<uintptr_t, BaseSetting*>> traces;
+static std::vector<std::pair<uintptr_t, BaseSetting*>> traces; // sorted on first
 static uintptr_t traceCount = 0;
 
 

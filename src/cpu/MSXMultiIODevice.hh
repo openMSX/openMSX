@@ -26,7 +26,7 @@ public:
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 private:
-	Devices devices;
+	Devices devices; // ordered to get predictable readIO() conflict resolution
 };
 
 } // namespace openmsx

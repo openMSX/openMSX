@@ -45,7 +45,7 @@ private:
 		std::vector<string_ref> getSettingNames() const;
 	} userSettingCommand;
 
-	Settings settings;
+	Settings settings; // unordered
 };
 
 } // namespace openmsx

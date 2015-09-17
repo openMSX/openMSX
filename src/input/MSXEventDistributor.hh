@@ -43,7 +43,7 @@ public:
 private:
 	bool isRegistered(MSXEventListener* listener) const;
 
-	std::vector<MSXEventListener*> listeners;
+	std::vector<MSXEventListener*> listeners; // unordered
 };
 
 } // namespace openmsx

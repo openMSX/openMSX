@@ -175,7 +175,7 @@ private:
 	//  - non-main thread can only access activeBoard via specific
 	//    member functions (atm only via enterMainLoop()), it needs to take
 	//    the mbMutex lock
-	Boards boards;
+	Boards boards; // unordered
 	Boards garbageBoards;
 	MSXMotherBoard* activeBoard; // either nullptr or a board inside 'boards'
 

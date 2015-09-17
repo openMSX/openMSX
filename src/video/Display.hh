@@ -84,10 +84,10 @@ private:
 	// LayerListener interface
 	void updateZ(Layer& layer) override;
 
-	Layers layers;
+	Layers layers; // sorted on z
 	std::unique_ptr<VideoSystem> videoSystem;
 
-	std::vector<VideoSystemChangeListener*> listeners;
+	std::vector<VideoSystemChangeListener*> listeners; // unordered
 
 	// fps related data
 	static const unsigned NUM_FRAME_DURATIONS = 50;

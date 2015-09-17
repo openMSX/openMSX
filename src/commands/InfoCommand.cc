@@ -35,7 +35,6 @@ void InfoCommand::registerTopic(InfoTopic& topic)
 
 void InfoCommand::unregisterTopic(InfoTopic& topic)
 {
-	(void)topic;
 	if (!infoTopics.contains(topic.getName())) {
 		std::cerr << "INTERNAL ERROR: can't unregister topic with name "
 		          << topic.getName() << ", not found!" << std::endl;
