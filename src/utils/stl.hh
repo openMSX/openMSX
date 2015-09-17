@@ -179,4 +179,39 @@ inline auto rfind_if_unguarded(RANGE& range, PRED pred)
 	return it.base();
 }
 
+
+/** This is like a combination of partition_copy() and remove().
+ *
+  * Each element is tested against the predicate. If it matches, the element is
+  * copied to the output and removed from the input. So the output contains all
+  * elements for which the predicate gives true and the input is modified
+  * in-place to contain the elements for which the predicate gives false. (Like
+  * the remove() algorithm, it's still required to call erase() to also shrink
+  * the input).
+  *
+  * This algorithm returns a pair of iterators.
+  * -first: one past the matching elements (in the output range). Similar to
+  *    the return value of the partition_copy() algorithm.
+  * -second: one past the non-matching elements (in the input range). Similar
+  *    to the return value of the remove() algorithm.
+  */
+template<typename ForwardIt, typename OutputIt, typename UnaryPredicate>
+std::pair<OutputIt, ForwardIt> partition_copy_remove(
+	ForwardIt first, ForwardIt last, OutputIt out_true, UnaryPredicate p)
+{
+	first = std::find_if(first, last, p);
+	auto out_false = first;
+	if (first != last) {
+		goto l_true;
+		while (first != last) {
+			if (p(*first)) {
+l_true:				*out_true++  = std::move(*first++);
+			} else {
+				*out_false++ = std::move(*first++);
+			}
+		}
+	}
+	return std::make_pair(out_true, out_false);
+}
+
 #endif
