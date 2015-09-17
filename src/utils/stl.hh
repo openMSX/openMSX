@@ -180,6 +180,34 @@ inline auto rfind_if_unguarded(RANGE& range, PRED pred)
 }
 
 
+/** Erase the pointed to element from the given vector.
+  *
+  * We first move the last element into the indicated position and then pop
+  * the last element.
+  *
+  * If the order of the elements in the vector is allowed to change this may
+  * be a faster alternative than calling 'v.erase(it)'.
+  */
+template<typename VECTOR>
+void move_pop_back(VECTOR& v, typename VECTOR::iterator it)
+{
+	// Check for self-move-assignment.
+	//
+	// This check is only needed in libstdc++ when compiled with
+	// -D_GLIBCXX_DEBUG. In non-debug mode this routine works perfectly
+	// fine without the check.
+	//
+	// See here for a related discussion:
+	//    http://stackoverflow.com/questions/13129031/on-implementing-stdswap-in-terms-of-move-assignment-and-move-constructor
+	// It's not clear whether the assert in libstdc++ is conforming
+	// behavior.
+	if (&*it != &v.back()) {
+		*it = std::move(v.back());
+	}
+	v.pop_back();
+}
+
+
 /** This is like a combination of partition_copy() and remove().
  *
   * Each element is tested against the predicate. If it matches, the element is
