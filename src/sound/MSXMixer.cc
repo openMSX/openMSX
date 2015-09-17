@@ -174,7 +174,7 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 
 void MSXMixer::unregisterSound(SoundDevice& device)
 {
-	auto it = find_if_unguarded(infos,
+	auto it = rfind_if_unguarded(infos,
 		[&](const SoundDeviceInfo& i) { return i.device == &device; });
 	it->volumeSetting->detach(*this);
 	it->balanceSetting->detach(*this);

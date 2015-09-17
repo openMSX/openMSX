@@ -24,7 +24,7 @@ void MSXMultiIODevice::addDevice(MSXDevice* device)
 
 void MSXMultiIODevice::removeDevice(MSXDevice* device)
 {
-	devices.erase(find_unguarded(devices, device));
+	devices.erase(rfind_unguarded(devices, device));
 }
 
 std::string MSXMultiIODevice::getName() const

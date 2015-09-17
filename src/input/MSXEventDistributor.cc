@@ -28,7 +28,7 @@ void MSXEventDistributor::registerEventListener(MSXEventListener& listener)
 
 void MSXEventDistributor::unregisterEventListener(MSXEventListener& listener)
 {
-	listeners.erase(find_unguarded(listeners, &listener));
+	listeners.erase(rfind_unguarded(listeners, &listener));
 }
 
 void MSXEventDistributor::distributeEvent(const EventPtr& event, EmuTime::param time)

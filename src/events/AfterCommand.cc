@@ -495,7 +495,7 @@ void AfterCmd::execute()
 
 unique_ptr<AfterCmd> AfterCmd::removeSelf()
 {
-	auto it = find_if_unguarded(afterCommand.afterCmds,
+	auto it = rfind_if_unguarded(afterCommand.afterCmds,
 		[&](std::unique_ptr<AfterCmd>& e) { return e.get() == this; });
 	auto result = move(*it);
 	afterCommand.afterCmds.erase(it);

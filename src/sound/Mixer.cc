@@ -131,7 +131,7 @@ void Mixer::registerMixer(MSXMixer& mixer)
 
 void Mixer::unregisterMixer(MSXMixer& mixer)
 {
-	msxMixers.erase(find_unguarded(msxMixers, &mixer));
+	msxMixers.erase(rfind_unguarded(msxMixers, &mixer));
 	muteHelper();
 }
 

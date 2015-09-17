@@ -118,7 +118,7 @@ void ResampleCoeffs::getCoeffs(
 
 void ResampleCoeffs::releaseCoeffs(double ratio)
 {
-	auto it = find_if_unguarded(cache,
+	auto it = rfind_if_unguarded(cache,
 		[=](const Element& e) { return e.ratio == ratio; });
 	it->count--;
 	if (it->count == 0) {

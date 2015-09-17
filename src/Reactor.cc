@@ -461,7 +461,7 @@ void Reactor::deleteBoard(MSXMotherBoard* board)
 		// delete active board -> there is no active board anymore
 		switchBoard(nullptr);
 	}
-	auto it = find_if_unguarded(boards,
+	auto it = rfind_if_unguarded(boards,
 		[&](Boards::value_type& b) { return b.get() == board; });
 	auto board_ = move(*it);
 	boards.erase(it);

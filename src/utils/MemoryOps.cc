@@ -272,7 +272,7 @@ public:
 	void* remove(void* aligned) {
 		if (!aligned) return nullptr;
 		// LIFO order is more likely than FIFO -> search backwards
-		auto it = find_if_unguarded(allocMap.rbegin(), allocMap.rend(),
+		auto it = rfind_if_unguarded(allocMap,
 		               EqualTupleValue<0>(aligned));
 		// return the associated unaligned value
 		void* unaligned = it->second;

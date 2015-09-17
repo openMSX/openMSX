@@ -141,7 +141,7 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
-	probeBreakPoints.erase(find_if_unguarded(probeBreakPoints,
+	probeBreakPoints.erase(rfind_if_unguarded(probeBreakPoints,
 		[&](ProbeBreakPoints::value_type& v) { return v.get() == &bp; }));
 }
 

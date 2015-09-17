@@ -141,7 +141,7 @@ TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 
 void TTFFontPool::release(TTF_Font* font)
 {
-	auto it = find_if_unguarded(pool,
+	auto it = rfind_if_unguarded(pool,
 		[&](const FontInfo& i) { return i.font == font; });
 	--it->count;
 	if (it->count == 0) {

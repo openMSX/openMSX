@@ -48,7 +48,7 @@ void MSXMapperIO::registerMapper(unsigned blocks)
 
 void MSXMapperIO::unregisterMapper(unsigned blocks)
 {
-	mapperSizes.erase(find_unguarded(mapperSizes, blocks));
+	mapperSizes.erase(rfind_unguarded(mapperSizes, blocks));
 	updateMask();
 }
 

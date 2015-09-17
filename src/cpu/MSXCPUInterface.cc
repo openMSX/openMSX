@@ -512,7 +512,7 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 {
 	GlobalWriteInfo info = { &device, address };
-	globalWrites.erase(find_unguarded(globalWrites, info));
+	globalWrites.erase(rfind_unguarded(globalWrites, info));
 
 	for (auto& g : globalWrites) {
 		if ((g.addr >> CacheLine::BITS) ==
@@ -765,7 +765,7 @@ void MSXCPUInterface::setCondition(const DebugCondition& cond)
 
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
-	conditions.erase(find_if_unguarded(conditions,
+	conditions.erase(rfind_if_unguarded(conditions,
 		[&](DebugCondition& e) { return &e == &cond; }));
 }
 

@@ -298,7 +298,7 @@ void Interpreter::registerSetting(BaseSetting& variable, const string& name)
 
 void Interpreter::unregisterSetting(BaseSetting& variable, const string& name)
 {
-	auto it = find_if_unguarded(traces, EqualTupleValue<1>(&variable));
+	auto it = rfind_if_unguarded(traces, EqualTupleValue<1>(&variable));
 	uintptr_t traceID = it->first;
 	traces.erase(it);
 
