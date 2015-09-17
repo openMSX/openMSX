@@ -390,21 +390,23 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 	// TODO : make more complete
 }
 
+// Execute the cmds for which the predicate returns true, and erase those from afterCmds.
 template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 {
-	// predicate should return false on matches
-	auto it = partition(begin(afterCmds), end(afterCmds), pred);
-	AfterCmds tmp(std::make_move_iterator(it),
-	              std::make_move_iterator(end(afterCmds)));
-	afterCmds.erase(it, end(afterCmds));
-	for (auto& c : tmp) {
+	AfterCmds matches;
+	// Usually there are very few matches (typically even 0 or 1), so no
+	// need to reserve() space.
+	auto p = partition_copy_remove(begin(afterCmds), end(afterCmds),
+	                               std::back_inserter(matches), pred);
+	afterCmds.erase(p.second, end(afterCmds));
+	for (auto& c : matches) {
 		c->execute();
 	}
 }
 
 template<EventType T> struct AfterEventPred {
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
-		return !dynamic_cast<AfterEventCmd<T>*>(x.get());
+		return dynamic_cast<AfterEventCmd<T>*>(x.get());
 	}
 };
 template<EventType T> void AfterCommand::executeEvents()
@@ -416,10 +418,10 @@ struct AfterEmuTimePred {
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterTimedCmd*>(x.get())) {
 			if (cmd->getTime() == 0.0) {
-				return false;
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 };
 
@@ -428,9 +430,9 @@ struct AfterInputEventPred {
 		: event(std::move(event_)) {}
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {
-			if (cmd->getEvent()->matches(*event)) return false;
+			if (cmd->getEvent()->matches(*event)) return true;
 		}
-		return true;
+		return false;
 	}
 	AfterCommand::EventPtr event;
 };
