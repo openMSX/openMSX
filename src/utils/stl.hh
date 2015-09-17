@@ -134,7 +134,6 @@ inline auto find_unguarded(RANGE& range, const VAL& val)
 	return find_unguarded(std::begin(range), std::end(range), val);
 }
 
-
 /** Faster alternative to 'find_if' when it's guaranteed that the predicate
   * will be true for at least one element in the given range.
   * See also 'find_unguarded'.
@@ -154,6 +153,30 @@ inline auto find_if_unguarded(RANGE& range, PRED pred)
 -> decltype(std::begin(range))
 {
 	return find_if_unguarded(std::begin(range), std::end(range), pred);
+}
+
+/** Similar to the find(_if)_unguarded functions above, but searches from the
+  * back to front.
+  * Note that we only need to provide range versions. Because for the iterator
+  * versions it is already possible to pass reverse iterators.
+  */
+template<typename RANGE, typename VAL>
+inline auto rfind_unguarded(RANGE& range, const VAL& val)
+-> decltype(std::begin(range))
+{
+	//auto it = find_unguarded(std::rbegin(range), std::rend(range), val); // c++14
+	auto it = find_unguarded(range.rbegin(), range.rend(), val);
+	++it;
+	return it.base();
+}
+
+template<typename RANGE, typename PRED>
+inline auto rfind_if_unguarded(RANGE& range, PRED pred)
+-> decltype(std::begin(range))
+{
+	auto it = find_if_unguarded(range.rbegin(), range.rend(), pred);
+	++it;
+	return it.base();
 }
 
 #endif
