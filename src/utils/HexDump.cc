@@ -1,4 +1,5 @@
 #include "HexDump.hh"
+#include "likely.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -54,8 +55,8 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(string_ref input)
 	size_t out = 0;
 	bool flip = true;
 	uint8_t tmp = 0;
-	for (size_t in = 0; in < inSize; ++in) {
-		int d = decode(input[in]);
+	for (char c : input) {
+		int d = decode(c);
 		if (d == -1) continue;
 		if (flip) {
 			tmp = d;
@@ -68,6 +69,26 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(string_ref input)
 	assert(outSize >= out);
 	ret.resize(out); // shrink to correct size
 	return std::make_pair(std::move(ret), out);
+}
+
+bool decode_inplace(string_ref input, uint8_t* output, size_t outSize)
+{
+	size_t out = 0;
+	bool flip = true;
+	uint8_t tmp = 0;
+	for (char c : input) {
+		int d = decode(c);
+		if (d == -1) continue;
+		if (flip) {
+			tmp = d;
+		} else {
+			if (unlikely(out == outSize)) return false;
+			output[out++] = (tmp << 4) | d;
+		}
+		flip = !flip;
+	}
+
+	return out == outSize;
 }
 
 } // namespace HexDump

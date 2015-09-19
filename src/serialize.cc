@@ -145,14 +145,14 @@ void InputArchiveBase<Derived>::serialize_blob(
 			throw MSXException("Error while decompressing blob.");
 		}
 	} else if ((encoding == "hex") || (encoding == "base64")) {
-		auto p = (encoding == "hex") ? HexDump::decode(tmp)
-		                             : Base64 ::decode(tmp);
-		if (p.second != len) {
+		bool ok = (encoding == "hex")
+		        ? HexDump::decode_inplace(tmp, static_cast<uint8_t*>(data), len)
+		        : Base64 ::decode_inplace(tmp, static_cast<uint8_t*>(data), len);
+		if (!ok) {
 			throw XMLException(StringOp::Builder()
-				<< "Length of decoded blob: " << p.second
-				<< " not identical to expected value: " << len);
+				<< "Length of decoded blob different from "
+				   "expected value (" << len << ')');
 		}
-		memcpy(data, p.first.data(), len);
 	} else {
 		throw XMLException("Unsupported encoding \"" + encoding + "\" for blob");
 	}
