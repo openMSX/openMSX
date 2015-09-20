@@ -86,9 +86,17 @@ void IDEHD::writeBlockComplete(AlignedBuffer& buffer, unsigned count)
 
 void IDEHD::executeCommand(byte cmd)
 {
+	if (0x10 <= cmd && cmd < 0x20) {
+		// Recalibrate
+		setError(0);
+		setByteCount(0);
+		return;
+	}
 	switch (cmd) {
 	case 0x20: // Read Sector
-	case 0x30: { // Write Sector
+	case 0x21: // Read Sector without Retry
+	case 0x30: // Write Sector
+	case 0x31: { // Write Sector without Retry
 		unsigned sectorNumber = getSectorNumber();
 		unsigned numSectors = getNumSectors();
 		if ((sectorNumber + numSectors) > getNbSectors()) {
@@ -98,7 +106,7 @@ void IDEHD::executeCommand(byte cmd)
 			break;
 		}
 		transferSectorNumber = sectorNumber;
-		if (cmd == 0x20) {
+		if (cmd < 0x30) {
 			startLongReadTransfer(numSectors * 512);
 		} else {
 			startWriteTransfer(numSectors * 512);

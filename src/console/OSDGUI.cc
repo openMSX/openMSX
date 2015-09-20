@@ -91,21 +91,22 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 			"Parent widget doesn't exist yet:" + parentname);
 	}
 
-	auto widget = create(type);
+	auto widget = create(type, fullname);
 	configure(*widget, tokens, 4);
-	top.addName(fullname, *widget);
+	top.addName(*widget);
 	parent->addWidget(std::move(widget));
 
 	result = fullname;
 }
 
-unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(string_ref type) const
+unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
+	string_ref type, const TclObject& name) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (type == "rectangle") {
-		return make_unique<OSDRectangle>(gui);
+		return make_unique<OSDRectangle>(gui, name);
 	} else if (type == "text") {
-		return make_unique<OSDText>(gui);
+		return make_unique<OSDText>(gui, name);
 	} else {
 		throw CommandException(
 			"Invalid widget type '" + type + "', expected "
@@ -134,7 +135,7 @@ void OSDGUI::OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
 		throw CommandException("Can't destroy the top widget.");
 	}
 
-	top.removeName(fullname);
+	top.removeName(*widget);
 	parent->deleteWidget(*widget);
 	result.setBoolean(true);
 }
@@ -281,7 +282,7 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 		try {
 			vector<string_ref> properties;
 			if (tokens[1] == "create") {
-				auto widget = create(tokens[2]);
+				auto widget = create(tokens[2], TclObject());
 				properties = widget->getProperties();
 			} else if ((tokens[1] == "configure") ||
 			           (tokens[1] == "info")) {

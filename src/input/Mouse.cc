@@ -8,6 +8,7 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
+#include <SDL.h>
 
 using std::string;
 using std::min;
@@ -88,13 +89,13 @@ string_ref Mouse::getDescription() const
 
 void Mouse::plugHelper(Connector& /*connector*/, EmuTime::param time)
 {
-	if (status & JOY_BUTTONA) {
+	if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+		// left mouse button pressed, joystick emulation mode
+		mouseMode = false;
+	} else {
 		// not pressed, mouse mode
 		mouseMode = true;
 		lastTime = time;
-	} else {
-		// left mouse button pressed, joystick emulation mode
-		mouseMode = false;
 	}
 	plugHelper2();
 }

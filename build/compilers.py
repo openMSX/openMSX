@@ -124,18 +124,36 @@ class CompileCommand(_Command):
 				return (None, ) * len(keys)
 		else:
 			expanded = {}
+			prevKey = None
 			for line in output.split('\n'):
+				line = line.strip()
+				if not line or line.startswith('#'):
+					continue
 				if line.startswith(signature):
-					key, value = line[len(signature) : ].split(' ', 1)
-					value = value.strip()
-					if key in keys:
-						if value != key:
-							expanded[key] = value
-					else:
+					prevKey = None
+					keyValueStr = line[len(signature) : ]
+					try:
+						key, value = keyValueStr.split(None, 1)
+					except ValueError:
+						key, value = keyValueStr, ''
+					if key not in keys:
 						log.write(
 							'Ignoring macro expand signature match on '
 							'non-requested macro "%s"\n' % key
 							)
+						continue
+					elif value == '':
+						# GCC5 puts value on separate line.
+						prevKey = key
+						continue
+				elif prevKey is not None:
+					key = prevKey
+					value = line
+					prevKey = None
+				else:
+					continue
+				if value != key:
+					expanded[key] = value
 			if len(keys) == 1:
 				return expanded.get(keys[0])
 			else:

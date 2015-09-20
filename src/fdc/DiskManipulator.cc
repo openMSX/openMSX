@@ -69,7 +69,7 @@ void DiskManipulator::unregisterDrive(DiskContainer& drive)
 {
 	auto it = findDriveSettings(drive);
 	assert(it != end(drives));
-	drives.erase(it);
+	move_pop_back(drives, it);
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(

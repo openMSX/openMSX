@@ -19,22 +19,6 @@ class CommandController;
 class RenderSettings;
 
 
-/** This is an abstract base class the VDP commands
-  */
-class VDPCmd {
-public:
-	virtual ~VDPCmd() {}
-
-	/** Prepare execution of cmd
-	  */
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine) = 0;
-
-	/** Perform a given V9938 graphical operation.
-	  */
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine) = 0;
-};
-
-
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
   */
@@ -43,7 +27,6 @@ class VDPCmdEngine : private noncopyable
 public:
 	VDPCmdEngine(VDP& vdp, RenderSettings& renderSettings_,
 	             CommandController& commandController);
-	~VDPCmdEngine();
 
 	/** Reinitialise Renderer state.
 	  * @param time The moment in time the reset occurs.
@@ -56,16 +39,9 @@ public:
 	  * @param time The moment in emulated time to sync to.
 	  */
 	inline void sync(EmuTime::param time) {
-		if (!currentCommand) return;
-		currentCommand->execute(time, *this);
-		if (currentCommand && unlikely(vdp.cpuAccessScheduled())) {
-			// If there's a CPU access scheduled, then the next
-			// slot will be used by the CPU. So we take a later
-			// slot.
-			nextAccessSlot(VDPAccessSlots::DELTA_1); // skip one slot
-			assert(this->time > time);
-		}
+		if (CMD) sync2(time);
 	}
+	void sync2(EmuTime::param time);
 
 	/** Gets the command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
@@ -93,7 +69,7 @@ public:
 		// Note: Real VDP always resets TR, but for such a short time
 		//       that the MSX won't notice it.
 		// TODO: What happens on non-transfer commands?
-		if (!currentCommand) status &= 0x7F;
+		if (!CMD) status &= 0x7F;
 		transfer = true;
 	}
 
@@ -136,15 +112,36 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	template <template <typename Mode> class Command>
-	void createHEngines(unsigned cmd);
-	void deleteHEngines(unsigned cmd);
-
-	template <template <typename Mode, typename LogOp> class Command>
-	void createLEngines(unsigned cmd, VDPCmd* dummy);
-	void deleteLEngines(unsigned cmd);
-
 	void executeCommand(EmuTime::param time);
+
+	void calcFinishTime(unsigned NX, unsigned NY, unsigned ticksPerPixel);
+
+	                        void startAbrt(EmuTime::param t);
+	                        void startPoint(EmuTime::param t);
+	                        void startPset(EmuTime::param t);
+	                        void startSrch(EmuTime::param t);
+	                        void startLine(EmuTime::param t);
+	template<typename Mode> void startLmmv(EmuTime::param t);
+	template<typename Mode> void startLmmm(EmuTime::param t);
+	template<typename Mode> void startLmcm(EmuTime::param t);
+	template<typename Mode> void startLmmc(EmuTime::param t);
+	template<typename Mode> void startHmmv(EmuTime::param t);
+	template<typename Mode> void startHmmm(EmuTime::param t);
+	template<typename Mode> void startYmmm(EmuTime::param t);
+	template<typename Mode> void startHmmc(EmuTime::param t);
+
+	template<typename Mode>                 void executePoint(EmuTime::param limit);
+	template<typename Mode, typename LogOp> void executePset(EmuTime::param limit);
+	template<typename Mode>                 void executeSrch(EmuTime::param limit);
+	template<typename Mode, typename LogOp> void executeLine(EmuTime::param limit);
+	template<typename Mode, typename LogOp> void executeLmmv(EmuTime::param limit);
+	template<typename Mode, typename LogOp> void executeLmmm(EmuTime::param limit);
+	template<typename Mode>                 void executeLmcm(EmuTime::param limit);
+	template<typename Mode, typename LogOp> void executeLmmc(EmuTime::param limit);
+	template<typename Mode>                 void executeHmmv(EmuTime::param limit);
+	template<typename Mode>                 void executeHmmm(EmuTime::param limit);
+	template<typename Mode>                 void executeYmmm(EmuTime::param limit);
+	template<typename Mode>                 void executeHmmc(EmuTime::param limit);
 
 	inline void nextAccessSlot() {
 		time = vdp.getAccessSlot(time, VDPAccessSlots::DELTA_0);
@@ -177,9 +174,6 @@ private:
 	  */
 	BooleanSetting cmdTraceSetting;
 	TclCallback cmdInProgressCallback;
-
-	VDPCmd* commands[256][4];
-	VDPCmd* currentCommand;
 
 	/** Time at which the next operation cycle starts.
 	  * A cycle consists of reading source VRAM (if applicable),
@@ -237,28 +231,6 @@ private:
 	/** Flag that indicated whether extended VRAM is available
 	 */
 	const bool hasExtendedVRAM;
-
-	friend struct AbortCmd;
-	friend struct PointBaseCmd;
-	friend struct PsetBaseCmd;
-	friend struct SrchBaseCmd;
-	friend struct LineBaseCmd;
-	friend class BlockCmd;
-	template<typename> friend struct PointCmd;
-	template<typename> friend struct SrchCmd;
-	template<typename> friend struct LmcmCmd;
-	template<typename> friend struct HmmvCmd;
-	template<typename> friend struct HmmmCmd;
-	template<typename> friend struct YmmmCmd;
-	template<typename> friend struct HmmcCmd;
-	template<typename> friend struct LmmvBaseCmd;
-	template<typename> friend struct LmmmBaseCmd;
-	template<typename> friend struct LmmcBaseCmd;
-	template<typename, typename> friend struct PsetCmd;
-	template<typename, typename> friend struct LineCmd;
-	template<typename, typename> friend struct LmmvCmd;
-	template<typename, typename> friend struct LmmmCmd;
-	template<typename, typename> friend struct LmmcCmd;
 };
 SERIALIZE_CLASS_VERSION(VDPCmdEngine, 3);
 

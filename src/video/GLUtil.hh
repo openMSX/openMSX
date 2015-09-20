@@ -108,7 +108,7 @@ public:
 		height = other.height;
 	}
 	ColorTexture& operator=(ColorTexture&& other) {
-		*this = std::move(other);
+		Texture::operator=(std::move(other));
 		width  = other.width;
 		height = other.height;
 		return *this;

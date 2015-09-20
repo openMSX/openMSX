@@ -370,11 +370,8 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 	boards.push_back(move(newBoard_));
 
 	// Lookup old board (it must be present).
-	auto it = begin(boards);
-	while (it->get() != &oldBoard_) {
-		++it;
-		assert(it != end(boards));
-	}
+	auto it = find_if_unguarded(boards,
+		[&](Boards::value_type& b) { return b.get() == &oldBoard_; });
 
 	// If the old board was the active board, then activate the new board
 	if (it->get() == activeBoard) {
@@ -385,7 +382,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 	// Note that we don't use the 'garbageBoards' mechanism as used in
 	// deleteBoard(). This means oldBoard cannot be used  anymore right
 	// after this method returns.
-	boards.erase(it);
+	move_pop_back(boards, it);
 }
 
 void Reactor::switchMachine(const string& machine)
@@ -461,10 +458,10 @@ void Reactor::deleteBoard(MSXMotherBoard* board)
 		// delete active board -> there is no active board anymore
 		switchBoard(nullptr);
 	}
-	auto it = find_if_unguarded(boards,
+	auto it = rfind_if_unguarded(boards,
 		[&](Boards::value_type& b) { return b.get() == board; });
 	auto board_ = move(*it);
-	boards.erase(it);
+	move_pop_back(boards, it);
 	// Don't immediately delete old boards because it's possible this
 	// routine is called via a code path that goes through the old
 	// board. Instead remember this board and delete it at a safe moment
@@ -634,8 +631,10 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 		}
 #endif
 	} else if (type == OPENMSX_DELETE_BOARDS) {
+		// Doesn't really matter which one we delete, just that we do
+		// one per event.
 		assert(!garbageBoards.empty());
-		garbageBoards.erase(begin(garbageBoards));
+		garbageBoards.pop_back();
 	} else {
 		UNREACHABLE; // we didn't subscribe to this event...
 	}

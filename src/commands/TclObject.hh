@@ -3,6 +3,7 @@
 
 #include "string_ref.hh"
 #include "openmsx.hh"
+#include "xxhash.hh"
 #include <tcl.h>
 #include <iterator>
 #include <cassert>
@@ -80,6 +81,7 @@ public:
 
 	// get underlying Tcl_Obj
 	Tcl_Obj* getTclObject() { return obj; }
+	Tcl_Obj* getTclObjectNonConst() const { return const_cast<Tcl_Obj*>(obj); }
 
 	// value setters
 	void setString(string_ref value);
@@ -166,6 +168,16 @@ void TclObject::addListElements(const CONT& container)
 
 // We want to be able to reinterpret_cast a Tcl_Obj* as a TclObject.
 static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*), "");
+
+
+struct XXTclHasher {
+	uint32_t operator()(string_ref str) const {
+		return xxhash(str);
+	}
+	uint32_t operator()(const TclObject& obj) const {
+		return xxhash(obj.getString());
+	}
+};
 
 } // namespace openmsx
 

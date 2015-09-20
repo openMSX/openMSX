@@ -57,7 +57,7 @@ private:
 	Pluggable& getPluggable(string_ref name) const;
 
 	MSXMotherBoard& motherBoard;
-	std::vector<Connector*> connectors;
+	std::vector<Connector*> connectors; // no order
 	std::vector<std::unique_ptr<Pluggable>> pluggables;
 
 	struct PlugCmd final : RecordedCommand {

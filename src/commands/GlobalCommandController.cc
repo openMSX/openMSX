@@ -76,21 +76,21 @@ void GlobalCommandController::unregisterProxyCommand(string_ref name)
 }
 
 GlobalCommandController::ProxySettings::iterator
-GlobalCommandController::findProxySetting(const std::string& name)
+GlobalCommandController::findProxySetting(string_ref name)
 {
 	return find_if(begin(proxySettings), end(proxySettings),
-		[&](ProxySettings::value_type& v) { return v.first->getName() == name; });
+		[&](ProxySettings::value_type& v) { return v.first->getFullName() == name; });
 }
 
 void GlobalCommandController::registerProxySetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	auto it = findProxySetting(name);
+	const auto& name = setting.getBaseNameObj();
+	auto it = findProxySetting(name.getString());
 	if (it == end(proxySettings)) {
 		// first occurrence
 		auto proxy = make_unique<ProxySetting>(reactor, name);
-		getSettingsConfig().getSettingsManager().registerSetting(*proxy, name);
-		getInterpreter().registerSetting(*proxy, name);
+		getSettingsManager().registerSetting(*proxy);
+		getInterpreter().registerSetting(*proxy);
 		proxySettings.emplace_back(std::move(proxy), 1);
 	} else {
 		// was already registered
@@ -100,16 +100,15 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 
 void GlobalCommandController::unregisterProxySetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	auto it = findProxySetting(name);
+	auto it = findProxySetting(setting.getBaseName());
 	assert(it != end(proxySettings));
 	assert(it->second);
 	--(it->second);
 	if (it->second == 0) {
 		auto& proxy = *it->first;
-		getInterpreter().unregisterSetting(proxy, name);
-		getSettingsConfig().getSettingsManager().unregisterSetting(proxy, name);
-		proxySettings.erase(it);
+		getInterpreter().unregisterSetting(proxy);
+		getSettingsManager().unregisterSetting(proxy);
+		move_pop_back(proxySettings, it);
 	}
 }
 
@@ -159,32 +158,14 @@ void GlobalCommandController::unregisterCompleter(
 
 void GlobalCommandController::registerSetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	getSettingsConfig().getSettingsManager().registerSetting(setting, name);
-	interpreter.registerSetting(setting, name);
+	getSettingsManager().registerSetting(setting);
+	interpreter.registerSetting(setting);
 }
 
 void GlobalCommandController::unregisterSetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	interpreter.unregisterSetting(setting, name);
-	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
-}
-
-BaseSetting* GlobalCommandController::findSetting(string_ref name)
-{
-	return getSettingsConfig().getSettingsManager().findSetting(name);
-}
-
-void GlobalCommandController::changeSetting(
-	const std::string& name, const TclObject& value)
-{
-	interpreter.setVariable(name, value);
-}
-
-void GlobalCommandController::changeSetting(Setting& setting, const TclObject& value)
-{
-	changeSetting(setting.getName(), value);
+	interpreter.unregisterSetting(setting);
+	getSettingsManager().unregisterSetting(setting);
 }
 
 bool GlobalCommandController::hasCommand(string_ref command) const

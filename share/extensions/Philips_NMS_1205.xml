@@ -10,7 +10,7 @@
     <type>sound expansion</type>
   </info>
   <devices>
-    <MSX-AUDIO id="Philips NMS 1205 Music Module MSX-Audio">
+    <MSX-AUDIO id="Philips Music Module MSX-Audio">
       <io base="0xC0" num="2"/>
       <io base="0x0A" num="1" type="O"/>
       <type>Philips</type>
@@ -20,14 +20,14 @@
       <sampleram>32</sampleram>
     </MSX-AUDIO>
 
-    <MusicModuleMIDI id="Philips NMS 1205 Music Module MSX-Audio-MIDI">
+    <MusicModuleMIDI id="Philips Music Module MIDI">
       <io base="0x00" num="2" type="O"/>
       <io base="0x04" num="2" type="I"/>
     </MusicModuleMIDI>
 
     <primary slot="any">
       <secondary slot="any">
-        <ROM id="Philips NMS 1205 Music Module ROM Music Box">
+        <ROM id="Philips Music Module ROM Music Box">
           <mem base="0x4000" size="0x8000"/>
           <rom>
             <sha1>c7463e1fd0433c5d41b70670d6c10fd781b66426</sha1>

@@ -148,9 +148,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 						toBeRescheduledEvents.push_back(newKeyupEvent);
 						continue; // continue with next to be scheduled event
 					}
-					auto backIt = end(nonMatchedKeyPresses) - 1;
-					if (it != backIt) std::swap(*it, *backIt);
-					nonMatchedKeyPresses.pop_back();
+					move_pop_back(nonMatchedKeyPresses, it);
 				}
 			}
 		}

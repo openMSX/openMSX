@@ -291,10 +291,11 @@
   command will be executed. Any Tcl command or combination of commands
   separated with <tt>;</tt> (normal Tcl syntax) can be used. To customize your
   bindings you should use the (un)bind commands. A script that wants to provide
-  a default binding for its functionality needs to use <tt>bind_default</tt>.
-  Using the <tt>-repeat</tt> option makes sure that if the event is repeated
-  (especially useful for key events, so when keeping a key pressed), the
-  command is repeated as well.</p>
+  a default binding for its functionality needs to use <tt>bind_default</tt>,
+  this allows users with different preferences to overrule the default
+  bindings. Using the <tt>-repeat</tt> option makes sure that if the event is
+  repeated (e.g. keyboard events when keeping a key pressed), the command is
+  repeated as well.</p>
 
   <p>Tcl scripts that need a whole set of bindings and only conditionally
   activate those bindings can use the 'input layer' system. It's possible to
@@ -427,9 +428,9 @@
     Toggle fullscreen with ALT and ENTER.<br/>
     <code>bind ALT+RETURN toggle fullscreen</code><br />
     <br />
-    React to joystick or cursor up movement in a TCL script:<br />
+    React to joystick or cursor up movement in a Tcl script:<br />
     <code>bind_default "OSDcontrol UP PRESS" -repeat {osd_menu::menu_action UP }</code><br />
-    React to joystick button 1 or spacebar press in a TCL script:<br />
+    React to joystick button 1 or spacebar press in a Tcl script:<br />
     <code>bind_default "OSDcontrol A PRESS" -repeat {osd_menu::menu_action A }</code><br />
   </div>
 
@@ -973,7 +974,7 @@
 3: C:/Program Files/openMSX/share/systemroms  [system_rom]
 4: C:/Program Files/openMSX/share/software  [rom disk tape]
 </pre>
-  <p>The first one is the system ROMs dir in the user's home directory. The second is the (new) software file pool for other software in the user's home directory. The last two are similar, but then on system level. On a UNIX like system, you get something very similar.</p>
+  <p>The first one is the system ROMs dir in the user's home directory. The second is the software file pool for other software in the user's home directory. The last two are similar, but then on system level. On a UNIX like system, you get something very similar.</p>
 
   <h3><a id="findcheat">findcheat</a></h3>
 
@@ -981,7 +982,7 @@
 
   <p>It works more or less like this:</p>
   <ol>
-    <li>Initialize the <code>findcheat</code> tool (this takes an initial snapshot of the MSX memory)</li>
+    <li>Initialize the <code>findcheat</code> tool, this takes an initial snapshot of the MSX memory.</li>
     <li>Perform some action in the game that changes the variable that you're interested in. For example if you want to find the memory location where the number of lives is stored, you have to loose (or gain) a life in the game.</li>
     <li>Now use the <code>findcheat</code> tool to compare the current MSX memory state with the previous memory snapshot. <code>findcheat</code> offers a lot of possibilities here, for example you can search for memory locations that became bigger or smaller or locations whose value changed or didn't change.</li>
     <li><code>findcheat</code> will show a list of memory locations that still match the search criteria.</li>
@@ -1098,7 +1099,7 @@
 
   <h3><a id="keymatrix">keymatrixdown / keymatrixup</a></h3>
 
-  <p>Press or release keys in the MSX keyboard matrix. Can be used to make an external program or Tcl script press MSX keys. For some more information about the keymatrix, you could read the <a href="http://map.tni.nl/articles/keymatrix.php">article on the MAP</a>.</p>
+  <p>Press or release keys in the MSX keyboard matrix. Can be used to make an external program or Tcl script press MSX keys. For some more information about the keymatrix, you could read the <a href="http://map.grauw.nl/articles/keymatrix.php">article on the MAP</a>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2109,7 +2110,8 @@
 
   <h3><a id="toggle">toggle</a></h3>
 
-  <p>Toggles any boolean (on/off) setting: if it was on, it will be turned off and vice versa.</p>
+  <p>Toggles any boolean (on/off) setting: if it was on, it will be turned off and vice versa.
+  See also: <code><a class="internal" href="#cycle">cycle</a></code>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5328,7 +5330,7 @@
   <code>warn_too_fast_vram_access</code> and
   <code>debug_too_fast_vram_access</code> which respectively print a warning or
   break CPU emulation when this condition occurs. You can find the source code
-  for these procedures in <code>scripts/umrcallback.tcl</code>. Feel free to
+  for these procedures in <code>scripts/callbackprocs.tcl</code>. Feel free to
   write your own procedure that does exactly what you need.</p>
 
   <div class="subsectiontitle">
@@ -5435,7 +5437,7 @@
 
   <p>Selects the Tcl procedure to be called when an Uninitialized Memory Read has been detected. This is useful for debugging MSX programs: uninitialized memory is not guaranteed to have any particular value, so reading it is most likely a bug.</p>
 
-  <p>By default this setting is empty, which means that nothing is done when an Uninitialized Memory Read is detected. We ship a useful procedure called <code>umrcallback</code> which logs all UMRs. You can activate it with <code>set umr_callback umrcallback</code>. You can find the source code for this procedure in <code>scripts/umrcallback.tcl</code>.</p>
+  <p>By default this setting is empty, which means that nothing is done when an Uninitialized Memory Read is detected. We ship a useful procedure called <code>umrcallback</code> which logs all UMRs. You can activate it with <code>set umr_callback umrcallback</code>. You can find the source code for this procedure in <code>scripts/callbackprocs.tcl</code>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5456,7 +5458,7 @@
 
   <p>Selects the Tcl procedure to be called when a write to a VDP command engine register is detected while there is still a VDP command in progress. Often this is an indication of a bug in the running MSX program. Note that writes to VDP register R#44 with a command in progress are normal behaviour, so the callback is not triggered for such writes.</p>
 
-  <p>By default this setting is empty, which means that nothing is done when a suspicious VDP command engine write is detected. We ship an example proc called <code>vdpcmdinprogresscallback</code> which simply logs all occurrences. You can activate it with <code>set vdpcmdinprogress_callback vdpcmdinprogresscallback</code>. You can find the source code for this proc in <code>scripts/umrcallback.tcl</code>. Feel free to write your own proc that does exactly what you need. For example it might be a good idea to execute <code>debug break</code> in your callback, so that you can easily examine what code triggered this write.</p>
+  <p>By default this setting is empty, which means that nothing is done when a suspicious VDP command engine write is detected. We ship an example proc called <code>vdpcmdinprogresscallback</code> which simply logs all occurrences. You can activate it with <code>set vdpcmdinprogress_callback vdpcmdinprogresscallback</code>. You can find the source code for this proc in <code>scripts/callbackprocs.tcl</code>. Feel free to write your own proc that does exactly what you need. For example it might be a good idea to execute <code>debug break</code> in your callback, so that you can easily examine what code triggered this write.</p>
 
   <div class="subsectiontitle">
     usage:

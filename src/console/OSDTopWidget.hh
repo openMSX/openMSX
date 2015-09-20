@@ -3,7 +3,7 @@
 
 #include "OSDWidget.hh"
 #include "TclObject.hh"
-#include "hash_map.hh"
+#include "hash_set.hh"
 #include "xxhash.hh"
 #include <vector>
 #include <string>
@@ -11,15 +11,6 @@
 namespace openmsx {
 
 class OSDGUI;
-
-struct XXTclHasher {
-	uint32_t operator()(string_ref str) const {
-		return xxhash(str);
-	}
-	uint32_t operator()(const TclObject& obj) const {
-		return xxhash(obj.getString());
-	}
-};
 
 class OSDTopWidget final : public OSDWidget
 {
@@ -33,8 +24,8 @@ public:
 
 	OSDWidget* findByName(string_ref name);
 	const OSDWidget* findByName(string_ref name) const;
-	void addName(const TclObject& name, OSDWidget& widget);
-	void removeName(string_ref name);
+	void addName(OSDWidget& widget);
+	void removeName(OSDWidget& widget);
 	std::vector<string_ref> getAllWidgetNames() const;
 
 protected:
@@ -45,7 +36,13 @@ protected:
 private:
 	OSDGUI& gui;
 	std::vector<std::string> errors;
-	hash_map<TclObject, OSDWidget*, XXTclHasher> widgetsByName;
+
+	struct NameFromWidget {
+		string_ref operator()(const OSDWidget* w) const {
+			return w->getName();
+		}
+	};
+	hash_set<OSDWidget*, NameFromWidget, XXTclHasher> widgetsByName;
 };
 
 } // namespace openmsx

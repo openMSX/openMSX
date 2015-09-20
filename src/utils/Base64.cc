@@ -1,12 +1,12 @@
 #include "Base64.hh"
-#include "xrange.hh"
+#include "likely.hh"
 #include <algorithm>
 #include <cassert>
-#include <cstdint>
 
 namespace Base64 {
 
 using std::string;
+using openmsx::MemBuffer;
 
 static inline char encode(uint8_t c)
 {
@@ -18,7 +18,7 @@ static inline char encode(uint8_t c)
 	return base64_chars[c];
 }
 
-static inline uint8_t decode(unsigned char c)
+static inline uint8_t decode(uint8_t c)
 {
 	if        ('A' <= c && c <= 'Z') {
 		return c - 'A';
@@ -35,13 +35,12 @@ static inline uint8_t decode(unsigned char c)
 	}
 }
 
-string encode(const void* input_, size_t inSize)
+string encode(const uint8_t* input, size_t inSize)
 {
 	static const int CHUNKS = 19;
 	static const int IN_CHUNKS  = 3 * CHUNKS;
 	static const int OUT_CHUNKS = 4 * CHUNKS; // 76 chars per line
 
-	auto input = static_cast<const uint8_t*>(input_);
 	auto outSize = ((inSize + (IN_CHUNKS - 1)) / IN_CHUNKS) * (OUT_CHUNKS + 1); // overestimation
 	string ret(outSize, 0); // too big
 
@@ -86,17 +85,16 @@ string encode(const void* input_, size_t inSize)
 	return ret;
 }
 
-string decode(const string& input)
+std::pair<MemBuffer<uint8_t>, size_t> decode(string_ref input)
 {
-	auto inSize = input.size();
-	auto outSize = (inSize * 3 + 3) / 4; // overestimation
-	string ret(outSize, 0); // too big
+	auto outSize = (input.size() * 3 + 3) / 4; // overestimation
+	MemBuffer<uint8_t> ret(outSize); // too big
 
 	unsigned i = 0;
 	size_t out = 0;
 	uint8_t buf4[4];
-	for (auto in : xrange(inSize)) {
-		uint8_t d = decode(input[in]);
+	for (auto c : input) {
+		uint8_t d = decode(c);
 		if (d == uint8_t(-1)) continue;
 		buf4[i++] = d;
 		if (i == 4) {
@@ -121,7 +119,41 @@ string decode(const string& input)
 
 	assert(outSize >= out);
 	ret.resize(out); // shrink to correct size
-	return ret;
+	return std::make_pair(std::move(ret), out);
+}
+
+bool decode_inplace(string_ref input, uint8_t* output, size_t outSize)
+{
+	unsigned i = 0;
+	size_t out = 0;
+	uint8_t buf4[4];
+	for (auto c : input) {
+		uint8_t d = decode(c);
+		if (d == uint8_t(-1)) continue;
+		buf4[i++] = d;
+		if (i == 4) {
+			i = 0;
+			if (unlikely((out + 3) > outSize)) return false;
+			output[out++] = char(((buf4[0] & 0xff) << 2) + ((buf4[1] & 0x30) >> 4));
+			output[out++] = char(((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2));
+			output[out++] = char(((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0));
+		}
+	}
+	if (i) {
+		for (unsigned j = i; j < 4; ++j) {
+			buf4[j] = 0;
+		}
+		uint8_t buf3[3];
+		buf3[0] = ((buf4[0] & 0xff) << 2) + ((buf4[1] & 0x30) >> 4);
+		buf3[1] = ((buf4[1] & 0x0f) << 4) + ((buf4[2] & 0x3c) >> 2);
+		buf3[2] = ((buf4[2] & 0x03) << 6) + ((buf4[3] & 0xff) >> 0);
+		for (unsigned j = 0; (j < i - 1); ++j) {
+			if (unlikely(out == outSize)) return false;
+			output[out++] = buf3[j];
+		}
+	}
+
+	return out == outSize;
 }
 
 } // namespace Base64

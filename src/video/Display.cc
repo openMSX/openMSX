@@ -134,7 +134,7 @@ void Display::attach(VideoSystemChangeListener& listener)
 
 void Display::detach(VideoSystemChangeListener& listener)
 {
-	listeners.erase(find_unguarded(listeners, &listener));
+	move_pop_back(listeners, rfind_unguarded(listeners, &listener));
 }
 
 Layer* Display::findActiveLayer() const
@@ -374,7 +374,7 @@ void Display::addLayer(Layer& layer)
 
 void Display::removeLayer(Layer& layer)
 {
-	layers.erase(find_unguarded(layers, &layer));
+	layers.erase(rfind_unguarded(layers, &layer));
 }
 
 void Display::updateZ(Layer& layer)

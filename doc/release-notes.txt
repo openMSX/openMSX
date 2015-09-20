@@ -1,26 +1,43 @@
-Release Notes for openMSX 0.11.1 (2015-xx-xx)
+Release Notes for openMSX 0.12.0 (2015-09-12)
 =============================================
 
-This release brings you... stuff.
+This was going to be (mostly) a bug fix release. But at the end we also got
+inspired by Grauw to add a lot of MIDI devices. And, reviewing what we changed
+the last 10 months, we saw that we also got loads of help from several people
+to add many new machine configurations and added some fun stuff like Sensor Kid
+and (experimental) Beer IDE emulation. On the emulator features category we
+give you stuff like triplesize video recording, some TAS enhancements and a
+callback for too fast VRAM access.
+So, enjoy this 'various features and bug fixes' release!
 
-Here's the list with all highlights:
+Here's the list with all highlights and details:
 
 MSX device support:
-- added Panasonic FS-A1WSX/WX variant ot the MSX-MUSIC mapper
 - fixed (S)RAM writing on turboR
 - fixed border color in screen 11/12
 - fixed some details of SD card emulation (found with FUZIX)
 - fixed clipping bug in sprite-mode-1 drawing
 - fixed crash in openMSX when using the AVT DPF-550 extension
 - fixed support of 8kB RS-232C ROMs (which is the only correct size!)
+- fixed emulation of joystick mode of the mouse
+- fixed broken MegaFlashROM SCC+ (introduced with openMSX 0.11.0)
+- improved trackball movement emulation so that JoyTest can also detect it like
+  on real hardware
+- fixed touchpad joystick pins (fixing detection in JoyTest)
 - tweaked volumes of SFG-01/05 against the PSG
+- added Panasonic FS-A1WSX/WX variant ot the MSX-MUSIC mapper
 - added proper YM2148 emulation (MIDI in/out for Yamaha SFG modules)
+- added proper MC6850 emulation (MIDI in/out for Philips Music Module)
+- added emulation of FAC MIDI Interface
+- added emulation of Sensor Kid, ported from yayaMSX2SK, which is based on
+  Mr. Takeda's Common Source Code Project
+- added emulation of BeerIDE (experimental)
 - added many new machines: Canon V-25 (thanks to Rudi Westerhof), Canon V-8,
   Fenner/Samsung SPC-800, Hitachi MB-H1, Toshiba HX-10D (thanks to Ricardo
   Jurcyk Pinheiro), Canon V-10, Canon V-20 (JP), Spectravideo SVI-728 (ES),
   Mitsubishi ML-TS2 (partly, it's still work-in-progress), Sony HB-101 (JP),
   Sony HB-201 (JP), Sanyo MPC-6, Mitsubishi ML-F120 and ML-F110 and Hitachi
-  MB-H3 (thanks to Werner Kai)
+  MB-H3 (thanks to Werner Kai) and Yamaha AX350IIF (thanks to Rudolf Gutlich)
 
 New or improved emulator features:
 - added "too_fast_vram_access_callback": you can now run a Tcl script when the
@@ -66,14 +83,13 @@ compiling on a new platform, please share your experiences (see below for
 contact info), so we can make openMSX more portable.
 
 openMSX Home Page:
-  http://www.openmsx.org/
-Project page on SourceForge:
-  http://sourceforge.net/projects/openmsx/
+  http://openmsx.org/
+Project page on GitHub:
+  https://github.com/openMSX
 Contact options:
 - Talk to us on #openmsx on irc.freenode.net.
 - Use the forum on http://www.msx.org/forum/semi-msx-talk/openmsx
-- Send a message to the openmsx-user mailing list.
-  Go to the SourceForge project page and look under "Lists".
+- File a ticket on https://github.com/openMSX/openMSX/issues
 
 Thanks to all contributors for their feedback, support, bug reports, testing,
 coding and other help!

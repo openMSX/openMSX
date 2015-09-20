@@ -31,10 +31,10 @@ public:
 	TclObject execute(const std::string& command);
 	TclObject executeFile(const std::string& filename);
 
-	void setVariable(const std::string& name, TclObject value);
-	void unsetVariable(const std::string& name);
-	void registerSetting(BaseSetting& variable, const std::string& name);
-	void unregisterSetting(BaseSetting& variable, const std::string& name);
+	void setVariable(const TclObject& name, const TclObject& value);
+	void unsetVariable(const char* name);
+	void registerSetting(BaseSetting& variable);
+	void unregisterSetting(BaseSetting& variable);
 
 	/** Create the global namespace with given name.
 	  * @param name Name of the namespace, should not include '::' prefix.

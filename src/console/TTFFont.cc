@@ -141,13 +141,12 @@ TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 
 void TTFFontPool::release(TTF_Font* font)
 {
-	auto it = find_if_unguarded(pool,
+	auto it = rfind_if_unguarded(pool,
 		[&](const FontInfo& i) { return i.font == font; });
 	--it->count;
 	if (it->count == 0) {
 		TTF_CloseFont(it->font);
-		if (it != (end(pool) - 1)) std::swap(*it, *(end(pool) - 1));
-		pool.pop_back();
+		move_pop_back(pool, it);
 	}
 }
 

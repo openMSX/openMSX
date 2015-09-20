@@ -335,9 +335,9 @@ HardwareConfig* MSXMotherBoard::findExtension(string_ref extensionName)
 void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
-	auto it = find_if_unguarded(extensions,
-		[&](Extensions::value_type& v) { return v.get() == &extension; });
 	getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
+	auto it = rfind_if_unguarded(extensions,
+		[&](Extensions::value_type& v) { return v.get() == &extension; });
 	extensions.erase(it);
 }
 
@@ -520,7 +520,7 @@ void MSXMotherBoard::addDevice(MSXDevice& device)
 
 void MSXMotherBoard::removeDevice(MSXDevice& device)
 {
-	availableDevices.erase(find_unguarded(availableDevices, &device));
+	move_pop_back(availableDevices, rfind_unguarded(availableDevices, &device));
 }
 
 void MSXMotherBoard::doReset()
@@ -682,11 +682,10 @@ string MSXMotherBoard::getUserName(const string& hwName)
 	return userName;
 }
 
-void MSXMotherBoard::freeUserName(const string& hwName,
-                                      const string& userName)
+void MSXMotherBoard::freeUserName(const string& hwName, const string& userName)
 {
 	auto& s = userNames[hwName];
-	s.erase(find_unguarded(s, userName));
+	move_pop_back(s, rfind_unguarded(s, userName));
 }
 
 // AddRemoveUpdate

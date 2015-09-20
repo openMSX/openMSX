@@ -55,8 +55,6 @@ public:
 	void registerProxySetting(Setting& setting);
 	void unregisterProxySetting(Setting& setting);
 
-	void changeSetting(const std::string& name, const TclObject& value);
-
 	// CommandController
 	void   registerCompleter(CommandCompleter& completer,
 	                         string_ref str) override;
@@ -71,8 +69,6 @@ public:
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
-	BaseSetting* findSetting(string_ref name) override;
-	void changeSetting(Setting& setting, const TclObject& value) override;
 	CliComm& getCliComm() override;
 	Interpreter& getInterpreter() override;
 
@@ -88,6 +84,7 @@ public:
 	bool isComplete(const std::string& command);
 
 	SettingsConfig& getSettingsConfig() { return settingsConfig; }
+	SettingsManager& getSettingsManager() { return settingsConfig.getSettingsManager(); }
 	CliConnection* getConnection() const { return connection; }
 
 private:
@@ -103,7 +100,7 @@ private:
 
 	using ProxySettings =
 		std::vector<std::pair<std::unique_ptr<ProxySetting>, unsigned>>;
-	ProxySettings::iterator findProxySetting(const std::string& name);
+	ProxySettings::iterator findProxySetting(string_ref name);
 
 	GlobalCliComm& cliComm;
 	CliConnection* connection;

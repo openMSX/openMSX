@@ -28,7 +28,7 @@ private:
 	int has(string_ref value) const;
 
 	using Sources = std::vector<std::pair<std::string, int>>;
-	Sources sources;
+	Sources sources; // unordered
 };
 
 class VideoSourceActivator

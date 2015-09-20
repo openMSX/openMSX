@@ -38,6 +38,9 @@ public:
 	MSXMotherBoard& getMSXMotherBoard() const {
 		return motherboard;
 	}
+	const std::string& getPrefix() const {
+		return machineID;
+	}
 
 	Command* findCommand(string_ref name) const;
 
@@ -64,12 +67,8 @@ public:
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
-	BaseSetting* findSetting(string_ref name) override;
-	void changeSetting(Setting& setting, const TclObject& value) override;
 	CliComm& getCliComm() override;
 	Interpreter& getInterpreter() override;
-
-	const BaseSetting* findSetting(string_ref setting) const;
 
 private:
 	std::string getFullName(string_ref name);
@@ -92,12 +91,7 @@ private:
 	};
 	hash_set<Command*, NameFromCommand, XXHasher> commandMap;
 
-	struct NameFromSetting {
-		const std::string& operator()(const Setting* s) const {
-			return s->getName();
-		}
-	};
-	hash_set<Setting*, NameFromSetting, XXHasher> settingMap;
+	std::vector<Setting*> settings; // unordered
 };
 
 } // namespace openmsx

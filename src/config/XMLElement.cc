@@ -39,7 +39,7 @@ XMLElement& XMLElement::addChild(string_ref name, string_ref data)
 
 void XMLElement::removeChild(const XMLElement& child)
 {
-	children.erase(find_if_unguarded(children,
+	children.erase(rfind_if_unguarded(children,
 		[&](Children::value_type& v) { return &v == &child; }));
 }
 

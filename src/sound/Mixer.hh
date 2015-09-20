@@ -55,7 +55,7 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting) override;
 
-	std::vector<MSXMixer*> msxMixers;
+	std::vector<MSXMixer*> msxMixers; // unordered
 
 	std::unique_ptr<SoundDriver> driver;
 	Reactor& reactor;

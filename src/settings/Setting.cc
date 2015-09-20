@@ -16,7 +16,14 @@ namespace openmsx {
 // class BaseSetting
 
 BaseSetting::BaseSetting(string_ref name_)
-	: name(name_.str())
+	: fullName(name_)
+	, baseName(fullName)
+{
+}
+
+BaseSetting::BaseSetting(const TclObject& name_)
+	: fullName(name_)
+	, baseName(fullName)
 {
 }
 
@@ -51,7 +58,7 @@ void Setting::init()
 			.getSettingsConfig().getXMLElement();
 		if (auto* config = settingsConfig.findChild("settings")) {
 			if (auto* elem = config->findChildWithAttribute(
-			                                "setting", "id", getName())) {
+			                                "setting", "id", getBaseName())) {
 				try {
 					setValueDirect(TclObject(elem->getData()));
 				} catch (MSXException&) {
@@ -81,7 +88,7 @@ string_ref Setting::getDescription() const
 
 void Setting::setValue(const TclObject& value)
 {
-	getCommandController().changeSetting(*this, value);
+	getInterpreter().setVariable(getFullNameObj(), value);
 }
 
 void Setting::notify() const
@@ -97,7 +104,7 @@ void Setting::notify() const
 	Subject<Setting>::notify();
 	TclObject value = getValue();
 	commandController.getCliComm().update(
-		CliComm::SETTING, getName(), value.getString());
+		CliComm::SETTING, getBaseName(), value.getString());
 
 	// Always keep SettingsConfig in sync.
 	auto& config = getGlobalCommandController().getSettingsConfig().getXMLElement();
@@ -105,13 +112,13 @@ void Setting::notify() const
 	if (!needLoadSave() || (value == getDefaultValue())) {
 		// remove setting
 		if (auto* elem = settings.findChildWithAttribute(
-				"setting", "id", getName())) {
+				"setting", "id", getBaseName())) {
 			settings.removeChild(*elem);
 		}
 	} else {
 		// add (or overwrite) setting
 		auto& elem = settings.getCreateChildWithAttribute(
-				"setting", "id", getName());
+				"setting", "id", getBaseName());
 		// check for non-saveable value
 		// (mechanism can be generalize later when needed)
 		if (value == dontSaveValue) value = getRestoreValue();
@@ -124,7 +131,7 @@ void Setting::notifyPropertyChange() const
 	TclObject result;
 	info(result);
 	commandController.getCliComm().update(
-		CliComm::SETTINGINFO, getName(), result.getString());
+		CliComm::SETTINGINFO, getBaseName(), result.getString());
 }
 
 bool Setting::needLoadSave() const
@@ -189,10 +196,9 @@ void Setting::setValueDirect(const TclObject& newValue_)
 		return;
 	}
 
-	auto& globalController = controller->getGlobalCommandController();
 	// Tcl already makes sure this doesn't result in an endless loop.
 	try {
-		globalController.changeSetting(getName(), getValue());
+		getInterpreter().setVariable(getBaseNameObj(), getValue());
 	} catch (MSXException&) {
 		// ignore
 	}

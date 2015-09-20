@@ -5,7 +5,7 @@
   <String Id="LANG">1033</String>
   <String Id="openMSX">openMSX</String>
   <String Id="TagLine">The MSX emulator that aims for perfection</String>
-  <String Id="Website">http://www.openmsx.org/</String>
+  <String Id="Website">http://openmsx.org/</String>
 
   <!-- Shortcuts -->
   <String Id="openMSXManual">openMSX Manual</String>

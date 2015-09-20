@@ -61,8 +61,9 @@
 			<li><a class="internal" href="#harddisks">4.4 Emulating MSX Harddisks, SD interfaces and CD-ROM</a>
 				<ol class="toc">
 					<li><a class="internal" href="#ide">4.4.1 Sunrise IDE</a></li>
-					<li><a class="internal" href="#scsi">4.4.2 SCSI devices</a></li>
-					<li><a class="internal" href="#sd">4.4.3 Mega Flash ROM SCC+ SD</a></li>
+					<li><a class="internal" href="#beeride">4.4.2 Beer IDE</a></li>
+					<li><a class="internal" href="#scsi">4.4.3 SCSI devices</a></li>
+					<li><a class="internal" href="#sd">4.4.4 Mega Flash ROM SCC+ SD</a></li>
 				</ol>
 
 			</li>
@@ -133,7 +134,7 @@
 The latest version of the openMSX manual can be found on the openMSX home page:
 </p>
 <p>
-<a class="external" href="http://www.openmsx.org/manual/">http://www.openmsx.org/manual/</a>
+<a class="external" href="http://openmsx.org/manual/">http://openmsx.org/manual/</a>
 </p>
 <p>
 You can also use this URL to get up-to-date versions of the hyper links
@@ -145,7 +146,7 @@ if you printed out this manual.
 This manual is about openMSX, the open source MSX emulator that tries to achieve
 near-perfect emulation by using a novel emulation model.
 You can find more information about openMSX on the
-<a class="external" href="http://www.openmsx.org/">openMSX home page</a>.
+<a class="external" href="http://openmsx.org/">openMSX home page</a>.
 You can also download the emulator itself from there.
 </p>
 
@@ -153,7 +154,7 @@ You can also download the emulator itself from there.
 openMSX is not completed yet, which means that most things work but not all
 features are implemented yet.
 Many emulation features are implemented, but in terms of user interface
-it is rather bare bones, unless you use the optional Graphical User Interface dubbed openMSX Catapult, which has separate <a class="external" href="http://www.openmsx.org/catapult-manual/">manuals</a> for now.
+it is rather bare bones, unless you use the optional Graphical User Interface dubbed openMSX Catapult, which has separate <a class="external" href="http://openmsx.org/catapult-manual/">manuals</a> for now.
 However, because the emulation is already pretty good,
 it would be nice if non-insiders would be able to play with it, too.
 For those people, we have written this guide.
@@ -161,7 +162,7 @@ For those people, we have written this guide.
 
 <p>
 This manual tells you how you can use openMSX, once it has been installed and properly set up. You should be able to use most of the features of openMSX if you have read it.
-If you are using using openMSX with Catapult, you don't have to pay attention to the exact command and setting names. However it is still useful to read this document to find out how openMSX works and learn its terminology.
+If you are using openMSX with Catapult, you don't have to pay attention to the exact command and setting names. However it is still useful to read this document to find out how openMSX works and learn its terminology.
 </p>
 
 <p>
@@ -190,7 +191,7 @@ Thanks to all of them!
 
 <p>
 For the revision history, please refer to the <a class="external"
-href="https://sourceforge.net/p/openmsx/openmsx/ci/HEAD/log/?path=doc/manual/user.html">commit log</a>.
+href="https://github.com/openMSX/openMSX/commits/master/doc/manual/user.html">commit log</a>.
 </p>
 
 <h2><a id="starting">2. Starting the Emulator</a></h2>
@@ -255,7 +256,7 @@ openMSX has a built-in command interface called the <em>console</em>,
 which allows you to control almost all aspects of openMSX while it is running.
 You can access the console by pressing F10
 (with default key mapping; Cmd+L on Mac) when the focus is on the emulator window.  This will
-give you a command line in the openMSX window. Note that due to a <a class="external" href="https://sourceforge.net/p/openmsx/bugs/184/">known problem</a>
+give you a command line in the openMSX window. Note that due to a <a class="external" href="https://github.com/openMSX/openMSX/issues/485">known problem</a>
 in SDL on Windows, the console won't come up if you went to fullscreen by using
 ALT-ENTER. Use F12 to go to fullscreen to work around this problem. (See also <a class="internal" href="#settings">Settings</a> and <a class="internal" href="#keymapping">Keymapping</a>.)
 </p>
@@ -387,7 +388,7 @@ To run a disk image, you can type:
 </p>
 <div class="commandline">openmsx relax.dsk</div>
 <p>
-for example. Or, if you use a disk image with an extension that is unknown to openMSX:
+for example. Or, if you use a disk image with a filename extension that is unknown to openMSX:
 </p>
 <div class="commandline">openmsx -diska relax.di</div>
 
@@ -557,7 +558,7 @@ Note that saving to CAS files (new or existing ones) is not possible; one can on
 <h3><a id="harddisks">4.4 Emulating MSX Harddisks and CD-ROM</a></h3>
 
 <p>
-openMSX supports mostly the emulation of the Sunrise IDE interface, but there is also some experimental support for two types of SCSI interfaces: the Gouda/Novaxis SCSI interface and the MEGA-SCSI. Nowadays, openMSX also emulates the SD interface MegaFlashROM SCC+ SD.
+openMSX supports mostly the emulation of the Sunrise IDE interface, but there is also some experimental support for two types of SCSI interfaces: the Gouda/Novaxis SCSI interface and the MEGA-SCSI. Nowadays, openMSX also emulates the SD interface MegaFlashROM SCC+ SD and the Beer IDE interface.
 </p>
 
 <p>
@@ -566,7 +567,7 @@ configuration, in the form of a 100MB sized disk image. This is the default size
 not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/NAME/untitled1/IMAGENAME.dsk</code>, where NAME is the name of the extension used and IMAGENAME is a name that is configured in the extension's XML file.
 </p>
 
-<p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to initialise them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, but only supports the Sunrise IDE extension at the moment.
+<p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to initialise them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, but only supports hard disk images with a partition table format compatible with the Sunrise IDE at the moment.
 </p>
 
 <p>
@@ -639,15 +640,30 @@ set <a class="external" href="commands.html#power">power</a> off<br/>
 set <a class="external" href="commands.html#power">power</a> on
 </div>
 
-<p>Note that the diskmanipulator can only handle hard disk images that work with the Sunrise IDE interface!</p>
+<p>Note that the diskmanipulator can only handle hard disk images that are compatible with the Sunrise IDE interface!</p>
 
 <p>
 As announced above, there is (limited) support for CD-ROM with the 'ide' extension. You can insert an ISO image in that virtual CD-ROM player with the <code>-cda</code> command line option and change it at run time with the <code><a class="external" href="commands.html#cd">cda</a></code> console command, all similar to the aforementioned <code><a class="external" href="commands.html#hd">hda</a></code> and <code><a class="external" href="commands.html#disk">diska</a></code> commands and options.
 </p>
 
-<h4><a id="scsi">4.4.2 SCSI devices</a></h4>
+<h4><a id="beeride">4.4.2 Beer IDE</a></h4>
 
-<p>First of all: the SCSI emulation is experimental! There is a lot bigger chance that you may lose data on your emulated harddisk images with SCSI than with IDE! When we tried it, everything seemed fine, but you are warned.</p>
+<p>The Beer IDE interface, as brought to us by SOLID, is emulated by openMSX, too. This interfaces only offers a single device (no master and slave) and can only handle up to 5 partitions of 32MB. But the up side is that it doesn't need MSX-DOS2, and thus it can run on any MSX (with 64kB RAM to run MSX-DOS). Emulation of this interface is quite recent, so consider it experimental.</p>
+
+<p>Usage is identical to using the Sunrise hard disk interface: you can use the <a class="external" href="commands.html#hd">hda</a> command and the matching command line parameter <code>-hda</code> to control which image will be used.</p>
+
+<p>By default, the image is 170MB, so that 5 partitions of 32MB fit easily. Firmware version 1.9RC1 is selected by default, because we could not get the 1.8 firmware to work: the MSXFDISK program didn't create partitions which actually worked with the 1.8 firmware. If you want to experiment with it, you can change the firmware to use by editing the extension file in <code>share/extensions/Beer_IDE.xml</code>.</p>
+
+<p>With the 1.9RC1 firmware, we were able to work with an existing harddisk image, partitioned with the Windows tools that come with that firmware. Using this firmware, you can also partly work with Sunrise IDE compatible hard disk images, so you can use diskmanipulator to create a hard disk image and to import and export to them. Be careful though, this has not been extensively tested. Always back-up your hard disk image before doing this, in case something goes wrong. Important note: the Sunrise partition format numbers partitions the other way around as what Beer IDE 1.9RC1 firmware expects. This also means that you can't boot from Sunrise IDE images (and thus also not from images created by diskmanipulator).
+</p>
+
+<p>
+Unfortunately, the Beer IDE is hardly documented and the software is hard to find. So, it's for experts only!
+</p>
+
+<h4><a id="scsi">4.4.3 SCSI devices</a></h4>
+
+<p>First of all: the SCSI emulation is experimental! There is a lot bigger chance that you may lose data on your emulated harddisk images with SCSI than with Sunrise IDE! When we tried it, everything seemed fine, but you are warned.</p>
 
 <p>The SCSI extensions (currently Gouda_SCSI, ESE_MEGA-SCSI and ESE_WAVE-SCSI) have the default 100 MB harddisk image connected on target ID 1 and an (even more experimental) LS-120 device (basically a harddisk like media that can be changed/ejected when the power is on) on target ID 2.
 </p>
@@ -664,11 +680,11 @@ To change the disk image of the LS-120 device, use the <code>lsa</code> (LS driv
 <p>For the Gouda (Novaxis) SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://msx.hansotten.com/index.php?page=msxscsi">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
 </p>
 
-<h4><a id="sd">4.4.3 Mega Flash ROM SCC+ SD</a></h4>
+<h4><a id="sd">4.4.4 Mega Flash ROM SCC+ SD</a></h4>
 
-<p>Currently there is only on SD interface emulated: the Mega Flash ROM SCC+ SD. All features of this cartridge are emulated in the sense that all currently working software with it runs on openMSX too. It is not emulated accurately enough to rely on it for development.</p>
+<p>Currently there is only one SD interface emulated: the Mega Flash ROM SCC+ SD. All features of this cartridge are emulated in the sense that all currently working software with it runs on openMSX too. It is not emulated accurately enough to rely on it for development.</p>
 
-<p>Usage is idential to using the Sunrise hard disk interface: you can use the <a class="external" href="commands.html#hd">hda/hdb</a> commands and the matching command line parameters <code>-hda</code> and <code>-hdb</code> to control which image will be used for the first and second SD card.</p>
+<p>Usage is again identical to using the Sunrise hard disk interface: you can use the <a class="external" href="commands.html#hd">hda/hdb</a> commands and the matching command line parameters <code>-hda</code> and <code>-hdb</code> to control which image will be used for the first and second SD card.</p>
 
 <p>Currently, by default, the first SD card is 8MB and the 2nd SD card is 100MB size. You can change these defaults by editing the extension file in <code>share/extensions/MegaFlashROM_SCC+_SD.xml</code>. For formatting and managing the SD cards, please refer to its manual and tools on the Flash part of the <a class="external" href="http://www.msxcartridgeshop.com/">MSX Cartridge Shop</a>.
 </p>
@@ -883,7 +899,7 @@ This device is mostly supported by the Philips drawing programs Designer, Design
 </p>
 
 <p>
-Note that the whole openMSX window will function as the surface of the touch pad. This will not align with the actual pixels of the screen in that window...
+Note that the whole openMSX window will function as the surface of the touch pad. This will not align with the actual pixels of the screen in that window, see the <a class="external" href="commands.html#touchpad_transform_matrix">touchpad_transform_matrix</a> setting for more details.
 </p>
 
 <h2><a id="video">6. Video</a></h2>
@@ -1031,7 +1047,7 @@ This algorithm is trying to emulate the fact that on a CRT brighter pixels look 
 </dl>
 
 <p>
-A small (somewhat outdated) demonstration of some of the algorithms can be found on <a class="external" href="http://www.openmsx.org/">the openMSX web site</a>.
+A small (somewhat outdated) demonstration of some of the algorithms can be found on <a class="external" href="http://openmsx.org/">the openMSX web site</a>.
 </p>
 
 <h3><a id="gamma">6.4 Gamma Correction</a></h3>
@@ -1234,10 +1250,13 @@ most cases. Change it with the <code><a class="external" href="commands.html#sou
 <h3><a id="midi">7.2 MIDI</a></h3>
 
 <p>
-openMSX supports the MSX-MIDI interface of the MSXturboR GT.
-To use this feature, start openMSX with the machine
-<code>Panasonic_FS-A1GT</code> and plug in a MIDI device on the console.
-For example:
+openMSX supports the MSX-MIDI interface of the MSXturboR GT and the mu-Pack, the MIDI interface
+of the Philips Music Module (NMS 1205), the MIDI interface of the Yamaha SFG-01
+and SFG-05 module (also present in the Yamaha CX5M series of machines) and the
+FAC MIDI Interface.
+</p>
+<p>To use MIDI, start openMSX with a machine that has a MIDI interface built in, or add one of the mentioned MIDI interface extensions. For example, use the machine
+<code>Panasonic_FS-A1GT</code> and plug in a MIDI device on the console:
 </p>
 <div class="commandline">
     <a class="external" href="commands.html#plugunplug">plug</a> msx-midi-out midi-out-logger
@@ -1248,7 +1267,7 @@ Because there is no timing information logged, this is not very useful yet.
 </p>
 
 <p>
-It's more interesting to connect MSX-MIDI to an actual PC MIDI device,
+It's more interesting to connect the MIDI out of the MSX to an actual PC MIDI device,
 such as a MIDI out port or the internal synthesizer of your sound card.
 On Linux, you can use the <code>midi-out-logger</code> and set a MIDI
 device node, for example <code>/dev/midi</code>, as its output file. This is
@@ -1259,9 +1278,10 @@ can also select <code>Virtual OUT</code> to provide a port to external software.
 </p>
 
 <p>
-Vice versa, MSX-MIDI can also receive input from the system by plugging a device
-into <code>msx-midi-in</code>. Analogous to the above mentioned outputs you can
-connect a <code>midi-in-reader</code> which reads from a file or
+Vice versa, the MIDI in port can also receive data from the system by plugging a device
+into <code>msx-midi-in</code> (for the Panasonic FS-A1GT; use the appropriate
+connector name for other devices). Analogous to the above mentioned outputs you
+can connect a <code>midi-in-reader</code> which reads from a file or
 <code>/dev/midi</code> on Linux. On Windows and Mac OS X available MIDI devices
 show up as separate pluggables. On OS X a <code>Virtual IN</code> port is
 available as well.
@@ -1500,6 +1520,9 @@ Go to our IRC channel: <code>#openMSX</code> on <code>irc.freenode.net</code>
 and ask your question there. Also reachable via <a class="external" href="http://webchat.freenode.net/?channels=openMSX">webchat</a>! If you don't get a reply immediately, please stick around for a while, or use one of the other contact options. The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
 </li>
 <li>
+Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a>.
+</li>
+<li>
 Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible problems,
 join our <code>openmsx-user</code> mailing list.
 If you want to address the openMSX developers directly,
@@ -1509,14 +1532,10 @@ More info on the
 including an archive of old messages, can be found at SourceForge.
 </li>
 <li>
-Use one of the
-<a class="external" href="https://sourceforge.net/p/openmsx/_list/tickets">openMSX ticket trackers</a>
-at SourceForge.
-At the moment of writing, there are four ticket trackers:
-Bugs, Support Requests, Patches and Feature Requests. You need a (free) log-in on SourceForge to get access.
-</li>
-<li>
-Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a> or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge.
+Create a new issue in the
+<a class="external" href="https://github.com/openMSX/openMSX/issues">openMSX issue tracker</a>
+on GitHub.
+You need a (free) log-in on GitHub to get access.
 </li>
 </ol>
 

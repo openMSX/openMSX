@@ -72,7 +72,7 @@ private:
 	bool isRegistered(StateChangeListener* listener) const;
 	void distribute(const EventPtr& event);
 
-	std::vector<StateChangeListener*> listeners;
+	std::vector<StateChangeListener*> listeners; // unordered
 	StateChangeRecorder* recorder;
 	bool viewOnlyMode;
 };

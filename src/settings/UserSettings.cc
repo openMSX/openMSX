@@ -1,11 +1,13 @@
 #include "UserSettings.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
+#include "SettingsManager.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringSetting.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "checked_cast.hh"
 #include "memory.hh"
 #include "outer.hh"
 #include "stl.hh"
@@ -26,20 +28,20 @@ UserSettings::UserSettings(CommandController& commandController_)
 
 void UserSettings::addSetting(unique_ptr<Setting> setting)
 {
-	assert(!findSetting(setting->getName()));
+	assert(!findSetting(setting->getFullName()));
 	settings.push_back(std::move(setting));
 }
 
 void UserSettings::deleteSetting(Setting& setting)
 {
-	settings.erase(find_if_unguarded(settings,
+	move_pop_back(settings, rfind_if_unguarded(settings,
 		[&](unique_ptr<Setting>& p) { return p.get() == &setting; }));
 }
 
 Setting* UserSettings::findSetting(string_ref name) const
 {
 	for (auto& s : settings) {
-		if (s->getName() == name) {
+		if (s->getFullName() == name) {
 			return s.get();
 		}
 	}
@@ -81,7 +83,8 @@ void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
 	const auto& type = tokens[2].getString();
 	const auto& name = tokens[3].getString();
 
-	if (getCommandController().findSetting(name)) {
+	auto& controller = checked_cast<GlobalCommandController&>(getCommandController());
+	if (controller.getSettingsManager().findSetting(name)) {
 		throw CommandException(
 			"There already exists a setting with this name: " + name);
 	}
@@ -257,7 +260,7 @@ vector<string_ref> UserSettings::Cmd::getSettingNames() const
 	vector<string_ref> result;
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
 	for (auto& s : userSettings.getSettings()) {
-		result.push_back(s->getName());
+		result.push_back(s->getFullName());
 	}
 	return result;
 }

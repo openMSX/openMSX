@@ -433,6 +433,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ide\SCSIHD.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ide\SCSILS120.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ide\SunriseIDE.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\ide\BeerIDE.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ide\WD33C93.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\ArkanoidPad.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\DummyJoystick.cc" />
@@ -719,6 +720,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MidiOutDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MidiOutLogger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MidiOutWindows.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXFacMidiInterface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXMidi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXRS232.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\RS232Connector.cc" />
@@ -757,6 +759,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXDeviceSwitch.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXE6Timer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXHiResTimer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXException.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXResetStatusRegister.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXKanji.cc" />
@@ -790,6 +793,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\SaveStateCLI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Schedulable.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Scheduler.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SensorKid.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_core.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_meta.cc" />
@@ -956,6 +960,7 @@
     <None Include="$(OpenMSXSrcDir)\ide\SCSIHD.hh" />
     <None Include="$(OpenMSXSrcDir)\ide\SCSILS120.hh" />
     <None Include="$(OpenMSXSrcDir)\ide\SunriseIDE.hh" />
+    <None Include="$(OpenMSXSrcDir)\ide\BeerIDE.hh" />
     <None Include="$(OpenMSXSrcDir)\ide\WD33C93.hh" />
     <None Include="$(OpenMSXSrcDir)\input\ArkanoidPad.hh" />
     <None Include="$(OpenMSXSrcDir)\input\DummyJoystick.hh" />
@@ -1318,6 +1323,7 @@
     <None Include="$(OpenMSXSrcDir)\serial\MidiOutDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\MidiOutLogger.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\MidiOutWindows.hh" />
+    <None Include="$(OpenMSXSrcDir)\serial\MSXFacMidiInterface.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\MSXMidi.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\MSXRS232.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\RS232Connector.hh" />
@@ -1369,6 +1375,7 @@
     <None Include="$(OpenMSXSrcDir)\MSXDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXDeviceSwitch.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXE6Timer.hh" />
+    <None Include="$(OpenMSXSrcDir)\MSXHiResTimer.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXException.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXResetStatusRegister.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXKanji.hh" />
@@ -1496,6 +1503,7 @@ popd</Command>
     <None Include="$(OpenMSXSrcDir)\SaveState.hh" />
     <None Include="$(OpenMSXSrcDir)\Schedulable.hh" />
     <None Include="$(OpenMSXSrcDir)\Scheduler.hh" />
+    <None Include="$(OpenMSXSrcDir)\SensorKid.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize_constr.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize_core.hh" />

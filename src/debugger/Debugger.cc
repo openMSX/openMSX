@@ -121,7 +121,7 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 			if (it == end(probeBreakPoints)) {
 				throw CommandException("No such breakpoint: " + name);
 			}
-			probeBreakPoints.erase(it);
+			move_pop_back(probeBreakPoints, it);
 		} catch (std::invalid_argument&) {
 			// parse error in fast_stou()
 			throw CommandException("No such breakpoint: " + name);
@@ -135,13 +135,13 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 			throw CommandException(
 				"No (unconditional) breakpoint for probe: " + name);
 		}
-		probeBreakPoints.erase(it);
+		move_pop_back(probeBreakPoints, it);
 	}
 }
 
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
-	probeBreakPoints.erase(find_if_unguarded(probeBreakPoints,
+	move_pop_back(probeBreakPoints, rfind_if_unguarded(probeBreakPoints,
 		[&](ProbeBreakPoints::value_type& v) { return v.get() == &bp; }));
 }
 

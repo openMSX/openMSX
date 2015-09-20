@@ -74,8 +74,10 @@ unsigned OutputArchiveBase2::getID2(
 
 template<typename Derived>
 void OutputArchiveBase<Derived>::serialize_blob(
-	const char* tag, const void* data, size_t len)
+	const char* tag, const void* data_, size_t len)
 {
+	auto* data = static_cast<const uint8_t*>(data_);
+
 	string encoding;
 	string tmp;
 	if (false) {
@@ -130,32 +132,27 @@ void InputArchiveBase<Derived>::serialize_blob(
 	string encoding;
 	this->self().attribute("encoding", encoding);
 
-	string tmp;
-	Loader<string> loader;
-	loader(this->self(), tmp, std::make_tuple(), -1);
+	string_ref tmp = this->self().loadStr();
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {
-		tmp = Base64::decode(tmp);
+		auto p = Base64::decode(tmp);
 		auto dstLen = uLongf(len); // TODO check for overflow?
 		if ((uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
-		                reinterpret_cast<const Bytef*>(tmp.data()), uLong(tmp.size()))
+		                reinterpret_cast<const Bytef*>(p.first.data()), uLong(p.second))
 		     != Z_OK) ||
 		    (dstLen != len)) {
 			throw MSXException("Error while decompressing blob.");
 		}
 	} else if ((encoding == "hex") || (encoding == "base64")) {
-		if (encoding == "hex") {
-			tmp = HexDump::decode(tmp);
-		} else {
-			tmp = Base64::decode(tmp);
-		}
-		if (tmp.size() != len) {
+		bool ok = (encoding == "hex")
+		        ? HexDump::decode_inplace(tmp, static_cast<uint8_t*>(data), len)
+		        : Base64 ::decode_inplace(tmp, static_cast<uint8_t*>(data), len);
+		if (!ok) {
 			throw XMLException(StringOp::Builder()
-				<< "Length of decoded blob: " << tmp.size()
-				<< " not identical to expected value: " << len);
+				<< "Length of decoded blob different from "
+				   "expected value (" << len << ')');
 		}
-		memcpy(data, tmp.data(), len);
 	} else {
 		throw XMLException("Unsupported encoding \"" + encoding + "\" for blob");
 	}
@@ -189,6 +186,15 @@ void MemInputArchive::load(std::string& s)
 	if (length) {
 		get(&s[0], length);
 	}
+}
+
+string_ref MemInputArchive::loadStr()
+{
+	size_t length;
+	load(length);
+	const byte* p = buffer.getCurrentPos();
+	buffer.skip(length);
+	return string_ref(reinterpret_cast<const char*>(p), length);
 }
 
 ////
@@ -350,6 +356,17 @@ XmlInputArchive::XmlInputArchive(const string& filename)
 	elems.emplace_back(&elem, 0);
 }
 
+string_ref XmlInputArchive::loadStr()
+{
+	if (!elems.back().first->getChildren().empty()) {
+		throw XMLException("No child tags expected for primitive type");
+	}
+	return elems.back().first->getData();
+}
+void XmlInputArchive::load(string& t)
+{
+	t = loadStr().str();
+}
 void XmlInputArchive::loadChar(char& c)
 {
 	std::string str;
@@ -357,19 +374,9 @@ void XmlInputArchive::loadChar(char& c)
 	std::istringstream is(str);
 	is >> c;
 }
-void XmlInputArchive::load(string& t)
-{
-	if (!elems.back().first->getChildren().empty()) {
-		throw XMLException("No child tags expected for string types");
-	}
-	t = elems.back().first->getData();
-}
 void XmlInputArchive::load(bool& b)
 {
-	if (!elems.back().first->getChildren().empty()) {
-		throw XMLException("No child tags expected for boolean types");
-	}
-	const auto& s = elems.back().first->getData();
+	string_ref s = loadStr();
 	if ((s == "true") || (s == "1")) {
 		b = true;
 	} else if ((s == "false") || (s == "0")) {
@@ -377,24 +384,6 @@ void XmlInputArchive::load(bool& b)
 	} else {
 		throw XMLException("Bad value found for boolean: " + s);
 	}
-}
-void XmlInputArchive::load(unsigned char& b)
-{
-	unsigned i;
-	load(i);
-	b = i;
-}
-void XmlInputArchive::load(signed char& c)
-{
-	int i;
-	load(i);
-	c = i;
-}
-void XmlInputArchive::load(char& c)
-{
-	int i;
-	load(i);
-	c = i;
 }
 
 // This function parses a number from a string. It's similar to the generic
@@ -421,7 +410,7 @@ template<> struct ConditionalNegate<false> {
 		assert(!negate); (void)negate; // can't negate unsigned type
 	}
 };
-template<typename T> static inline void fastAtoi(const string& str, T& t)
+template<typename T> static inline void fastAtoi(string_ref str, T& t)
 {
 	t = 0;
 	bool neg = false;
@@ -452,21 +441,36 @@ template<typename T> static inline void fastAtoi(const string& str, T& t)
 }
 void XmlInputArchive::load(int& i)
 {
-	std::string str;
-	load(str);
+	string_ref str = loadStr();
 	fastAtoi(str, i);
 }
 void XmlInputArchive::load(unsigned& u)
 {
-	std::string str;
-	load(str);
+	string_ref str = loadStr();
 	fastAtoi(str, u);
 }
 void XmlInputArchive::load(unsigned long long& ull)
 {
-	std::string str;
-	load(str);
+	string_ref str = loadStr();
 	fastAtoi(str, ull);
+}
+void XmlInputArchive::load(unsigned char& b)
+{
+	unsigned i;
+	load(i);
+	b = i;
+}
+void XmlInputArchive::load(signed char& c)
+{
+	int i;
+	load(i);
+	c = i;
+}
+void XmlInputArchive::load(char& c)
+{
+	int i;
+	load(i);
+	c = i;
 }
 
 void XmlInputArchive::beginTag(const char* tag)

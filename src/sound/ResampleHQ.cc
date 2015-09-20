@@ -118,14 +118,11 @@ void ResampleCoeffs::getCoeffs(
 
 void ResampleCoeffs::releaseCoeffs(double ratio)
 {
-	auto it = find_if_unguarded(cache,
+	auto it = rfind_if_unguarded(cache,
 		[=](const Element& e) { return e.ratio == ratio; });
 	it->count--;
 	if (it->count == 0) {
-		if (it != (end(cache) - 1)) {
-			*it = std::move(cache.back()); // move last element here
-		}
-		cache.pop_back();   // and erase last
+		move_pop_back(cache, it);
 	}
 }
 

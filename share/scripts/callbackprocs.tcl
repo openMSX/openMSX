@@ -71,6 +71,30 @@ proc debug_too_fast_vram_access {} {
 #set VDP.too_fast_vram_access_callback debug_too_fast_vram_access
 #set VDP.too_fast_vram_access_callback warn_too_fast_vram_access
 
+proc sensorkidportstatuscallback {port value} {
+	message "Sensor Kid port $port has been [expr {$value ? "enabled" : "disabled"}]" info
+}
+proc sensorkidacquirecallback {port} {
+	set time [machine_info time]
+	switch $port {
+		0 { # Sine
+			return [expr {int(sin($time * 0.1) * 127.0) + 128}]
+		}
+		1 { # Sawtooth
+			return [expr {int($time * 10.0) % 256}]
+		}
+		2 { # Triangle
+			set t [expr {int($time * 4.0) % 512}]
+			return [expr {($t > 255) ? (511 - $t) : $t}]
+		}
+		default {
+			return 255
+		}
+	}
+}
+set sensor_kid_port_status_callback sensorkidportstatuscallback
+set sensor_kid_acquire_callback     sensorkidacquirecallback
+
 
 # show message (also) as OSD message
 set message_callback osd::display_message

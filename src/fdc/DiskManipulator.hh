@@ -36,7 +36,7 @@ private:
 		unsigned partition;
 	};
 	using Drives = std::vector<DriveSettings>;
-	Drives drives;
+	Drives drives; // unordered
 
 	// Command interface
 	void execute(array_ref<TclObject> tokens, TclObject& result) override;

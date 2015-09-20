@@ -65,7 +65,7 @@
 The latest version of the openMSX manual can be found on the openMSX home page:
 </p>
 <p>
-<a class="external" href="http://www.openmsx.org/manual/">http://www.openmsx.org/manual/</a>
+<a class="external" href="http://openmsx.org/manual/">http://openmsx.org/manual/</a>
 </p>
 <p>
 You can also use this URL to get up-to-date versions of the hyper links
@@ -77,7 +77,7 @@ if you printed out this manual.
 This guide is about openMSX, the open source MSX emulator that tries to achieve
 near-perfect emulation by using a novel emulation model.
 You can find more information about openMSX on the
-<a class="external" href="http://www.openmsx.org/">openMSX home page</a>.
+<a class="external" href="http://openmsx.org/">openMSX home page</a>.
 You can also download the emulator itself from there.
 </p>
 
@@ -129,7 +129,7 @@ Thanks to all of them!
 
 <p>
 For the revision history, please refer to the <a class="external"
-href="https://sourceforge.net/p/openmsx/openmsx/ci/HEAD/log/?path=doc/manual/setup.html">commit log</a>.
+href="https://github.com/openMSX/openMSX/commits/master/doc/manual/setup.html">commit log</a>.
 </p>
 
 <h2><a id="machext">2. Machines and Extensions</a></h2>
@@ -292,13 +292,13 @@ make a <code>systemroms</code> sub directory in your own user directory, which i
 <table class="border_enabled">
 <tr><th>Platform</th><th>User directory</th></tr>
 <tr><td>Old versions of Windows (e.g. Windows XP)</td><td>My Documents\openMSX\share</td></tr>
-<tr><td>Modern versions of Windows (e.g. Windows 7)</td><td>c:\Users\&lt;user name&gt;\openMSX\share whereby &lt;user name&gt; stands for your Windows login name</td></tr>
+<tr><td>Modern versions of Windows (e.g. Windows 7)</td><td>c:\Users\&lt;user name&gt;\Documents\openMSX\share whereby &lt;user name&gt; stands for your Windows login name</td></tr>
 <tr><td>Unix and Linux</td><td>~/.openMSX/share</td></tr>
 <tr><td>Android</td><td>&lt;external storage&gt;/openMSX/share, whereby &lt;external storage&gt; stands for the default external storage location of your Android device. On the Samsung Galaxy Nexus it is for example /sdcard</td></tr>
 </table>
 <p>
-That way, you do not need
-special privilages. Furtermore, the installer won't touch them for sure on Windows nor on Android.
+That way, you do not need special privilages. Furtermore, the installer won't
+touch them for sure on Windows nor on Android.
 </p>
 <p>
 A template for the <code>systemroms</code> sub directory is present in the installation directory of openMSX, which is also platform dependent:
@@ -441,7 +441,7 @@ stop: 39127
 </pre>
 
 <p>
-Note that the emulated Pioneer PX-7 and Pioneer PX-V60 are virtually identical, except that that Pioneer PX-7 has pseudo-stereo for its PSG.
+Note that the emulated Pioneer PX-7 and Pioneer PX-V60 are virtually identical, except that the Pioneer PX-7 has pseudo-stereo for its PSG.
 </p>
 
 <h2><a id="settings">5. User Preferences</a></h2>
@@ -640,9 +640,8 @@ the FMPAC commander with <code>CALL FMPAC</code> in the emulated MSX!
 In a similar fashion, you can also add an MSX-Audio device
 (<code>&lt;MSX-AUDIO&gt;</code>, note that some programs also need the
 <code>MusicModuleMIDI</code> device to
-detect the Music Module; this device is at the moment not fully implemented
-though), an empty SCC cartridge (<code>&lt;SCC&gt;</code>), etc. Just
-browse the existing existing extensions, the Boosted_MSX2_EN
+detect the Music Module, an empty SCC cartridge (<code>&lt;SCC&gt;</code>),
+etc. Just browse the existing existing extensions, the Boosted_MSX2_EN
 configuration file or the extensions and see what you can find.
 </p>
 
@@ -689,6 +688,9 @@ Go to our IRC channel: <code>#openMSX</code> on <code>irc.freenode.net</code>
 and ask your question there. Also reachable via <a class="external" href="http://webchat.freenode.net/?channels=openMSX">webchat</a>! If you don't get a reply immediately, please stick around for a while, or use one of the other contact options. The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
 </li>
 <li>
+Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a>.
+</li>
+<li>
 Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible problems,
 join our <code>openmsx-user</code> mailing list.
 If you want to address the openMSX developers directly,
@@ -698,14 +700,10 @@ More info on the
 including an archive of old messages, can be found at SourceForge.
 </li>
 <li>
-Use one of the
-<a class="external" href="https://sourceforge.net/p/openmsx/_list/tickets">openMSX ticket trackers</a>
-at SourceForge.
-At the moment of writing, there are four ticket trackers:
-Bugs, Support Requests, Patches and Feature Requests. You need a (free) log-in on SourceForge to get access.
-</li>
-<li>
-Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a> or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge.
+Create a new issue in the
+<a class="external" href="https://github.com/openMSX/openMSX/issues">openMSX issue tracker</a>
+on GitHub.
+You need a (free) log-in on GitHub to get access.
 </li>
 </ol>
 

@@ -115,7 +115,7 @@ int VideoSourceSetting::registerVideoSource(const std::string& source)
 
 void VideoSourceSetting::unregisterVideoSource(int source)
 {
-	sources.erase(find_if_unguarded(sources,
+	move_pop_back(sources, rfind_if_unguarded(sources,
 		[&](Sources::value_type& p) { return p.second == source; }));
 
 	// First notify the (possibly) changed value before announcing the
