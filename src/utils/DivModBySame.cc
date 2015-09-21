@@ -53,9 +53,9 @@ void DivModBySame::setDivisor(uint32_t divisor_)
 			// "Integer Multiplication and Division on the HP Precision Architecture".
 			// IEEE Transactions on Computers, Vol 37, No. 8, August 1988, page 980.
 			s = log2(t);
-			uint128 m_low =     (uint128(1) << (64 + s)) / t;
+			uint128 m_low2 =      (uint128(1) << (64 + s)) / t;
 			uint64_t r = toUint64((uint128(1) << (64 + s)) % t);
-			m = toUint64(m_low + ((r <= (t >> 1)) ? 0 : 1));
+			m = toUint64(m_low2 + ((r <= (t >> 1)) ? 0 : 1));
 			a = m;
 		}
 		// reduce multiplier to smallest possible

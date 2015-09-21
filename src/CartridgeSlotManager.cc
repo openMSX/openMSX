@@ -268,14 +268,14 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 
 // CartCmd
 CartridgeSlotManager::CartCmd::CartCmd(
-		CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
+		CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard_,
 		string_ref commandName)
-	: RecordedCommand(motherBoard.getCommandController(),
-	                  motherBoard.getStateChangeDistributor(),
-	                  motherBoard.getScheduler(),
+	: RecordedCommand(motherBoard_.getCommandController(),
+	                  motherBoard_.getStateChangeDistributor(),
+	                  motherBoard_.getScheduler(),
 	                  commandName)
 	, manager(manager_)
-	, cliComm(motherBoard.getMSXCliComm())
+	, cliComm(motherBoard_.getMSXCliComm())
 {
 }
 
@@ -410,17 +410,17 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 	}
 	case 3: {
 		// return info on a particular slot
-		const auto& name = tokens[2].getString();
-		if ((name.size() != 5) || (!name.starts_with("slot"))) {
-			throw CommandException("Invalid slot name: " + name);
+		const auto& slotName = tokens[2].getString();
+		if ((slotName.size() != 5) || (!slotName.starts_with("slot"))) {
+			throw CommandException("Invalid slot name: " + slotName);
 		}
-		unsigned num = name[4] - 'a';
+		unsigned num = slotName[4] - 'a';
 		if (num >= CartridgeSlotManager::MAX_SLOTS) {
-			throw CommandException("Invalid slot name: " + name);
+			throw CommandException("Invalid slot name: " + slotName);
 		}
 		auto& slot = manager.slots[num];
 		if (!slot.exists()) {
-			throw CommandException("Slot '" + name + "' doesn't currently exist in this msx machine.");
+			throw CommandException("Slot '" + slotName + "' doesn't currently exist in this msx machine.");
 		}
 		result.addListElement(slot.ps);
 		if (slot.ss == -1) {

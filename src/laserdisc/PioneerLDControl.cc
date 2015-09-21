@@ -49,16 +49,14 @@ void PioneerLDControl::init()
 {
 	MSXDevice::init();
 
-	const auto& references = getReferences();
-	ppi = references.size() >= 1 ?
-		dynamic_cast<MSXPPI*>(references[0]) : nullptr;
+	const auto& refs = getReferences();
+	ppi = refs.size() >= 1 ? dynamic_cast<MSXPPI*>(refs[0]) : nullptr;
 	if (!ppi) {
 		throw MSXException("Invalid PioneerLDControl configuration: "
 		                   "need reference to PPI device.");
 	}
 
-	vdp = references.size() == 2 ?
-		dynamic_cast<VDP*>(references[1]) : nullptr;
+	vdp = refs.size() == 2 ? dynamic_cast<VDP*>(refs[1]) : nullptr;
 	if (!vdp) {
 		throw MSXException("Invalid PioneerLDControl configuration: "
 		                   "need reference to VDP device.");

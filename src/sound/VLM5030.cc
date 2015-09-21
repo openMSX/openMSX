@@ -520,10 +520,10 @@ static XMLElement getRomConfig(const std::string& name, const std::string& romFi
 	return voiceROMconfig;
 }
 
-VLM5030::VLM5030(const std::string& name, const std::string& desc,
+VLM5030::VLM5030(const std::string& name_, const std::string& desc,
                  const std::string& romFilename, const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name, desc, 1)
-	, rom(name + " ROM", "rom", DeviceConfig(config, getRomConfig(name, romFilename)))
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1)
+	, rom(name_ + " ROM", "rom", DeviceConfig(config, getRomConfig(name_, romFilename)))
 {
 	// reset input pins
 	pin_RST = pin_ST = pin_VCU = false;

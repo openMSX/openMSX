@@ -68,7 +68,7 @@ public:
 	inline void slotOn();
 	inline void slotOn2();
 	inline void slotOff();
-	inline void setPatch(Patch& patch);
+	inline void setPatch(const Patch& patch);
 	inline void setVolume(unsigned volume);
 
 	inline unsigned calc_phase(unsigned lfo_pm);

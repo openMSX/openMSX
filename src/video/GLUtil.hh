@@ -286,10 +286,10 @@ bool PixelBuffer<T>::openGLSupported() const
 }
 
 template <typename T>
-void PixelBuffer<T>::setImage(GLuint width, GLuint height)
+void PixelBuffer<T>::setImage(GLuint width_, GLuint height_)
 {
-	this->width = width;
-	this->height = height;
+	width = width_;
+	height = height_;
 	if (bufferId != 0) {
 		bind();
 		// TODO make performance hint configurable?

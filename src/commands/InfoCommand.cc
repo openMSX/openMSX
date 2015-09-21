@@ -11,8 +11,8 @@ using std::vector;
 
 namespace openmsx {
 
-InfoCommand::InfoCommand(CommandController& commandController, const string& name)
-	: Command(commandController, name)
+InfoCommand::InfoCommand(CommandController& commandController_, const string& name_)
+	: Command(commandController_, name_)
 {
 }
 

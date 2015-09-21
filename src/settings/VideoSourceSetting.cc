@@ -7,8 +7,8 @@
 
 namespace openmsx {
 
-VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
-	: Setting(commandController, "videosource",
+VideoSourceSetting::VideoSourceSetting(CommandController& commandController_)
+	: Setting(commandController_, "videosource",
 	          "selects the video source to display on the screen",
 	          TclObject("none"), DONT_SAVE)
 {
@@ -20,13 +20,13 @@ VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 	init();
 }
 
-void VideoSourceSetting::checkSetValue(string_ref value) const
+void VideoSourceSetting::checkSetValue(string_ref newValue) const
 {
 	// Special case: in case there are no videosources registered (yet),
 	// the only allowed value is "none". In case there is at least one
 	// registered source, this special value "none" should be hidden.
-	if (((value == "none") && (sources.size() >  1)) ||
-	    ((value != "none") && !has(value))) {
+	if (((newValue == "none") && (sources.size() >  1)) ||
+	    ((newValue != "none") && !has(newValue))) {
 		throw CommandException("video source not available");
 	}
 }
@@ -124,17 +124,17 @@ void VideoSourceSetting::unregisterVideoSource(int source)
 	notifyPropertyChange();
 }
 
-bool VideoSourceSetting::has(int value) const
+bool VideoSourceSetting::has(int val) const
 {
-	return contains(values(sources), value);
+	return contains(values(sources), val);
 }
 
-int VideoSourceSetting::has(string_ref value) const
+int VideoSourceSetting::has(string_ref val) const
 {
 	auto it = find_if(begin(sources), end(sources),
 		[&](const Sources::value_type& p) {
 			StringOp::casecmp cmp;
-			return cmp(p.first, value); });
+			return cmp(p.first, val); });
 	return (it != end(sources)) ? it->second : 0;
 }
 

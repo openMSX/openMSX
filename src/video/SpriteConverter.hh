@@ -35,15 +35,15 @@ public:
 	  */
 	void setTransparency(bool enabled)
 	{
-		this->transparency = enabled;
+		transparency = enabled;
 	}
 
 	/** Notify SpriteConverter of a display mode change.
 	  * @param mode The new display mode.
 	  */
-	void setDisplayMode(DisplayMode mode)
+	void setDisplayMode(DisplayMode newMode)
 	{
-		this->mode = mode;
+		mode = newMode;
 	}
 
 	/** Set palette to use for converting sprites.
@@ -51,9 +51,9 @@ public:
 	  * will be used while drawing.
 	  * @param palette 16-entry array containing the sprite palette.
 	  */
-	void setPalette(const Pixel* palette)
+	void setPalette(const Pixel* newPalette)
 	{
-		this->palette = palette;
+		palette = newPalette;
 	}
 
 	static bool clipPattern(int& x, SpriteChecker::SpritePattern& pattern,

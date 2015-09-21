@@ -11,14 +11,14 @@ namespace openmsx {
 // class WatchIO
 
 WatchIO::WatchIO(MSXMotherBoard& motherboard_,
-                 WatchPoint::Type type,
-                 unsigned beginAddr, unsigned endAddr,
-                 TclObject command, TclObject condition,
+                 WatchPoint::Type type_,
+                 unsigned beginAddr_, unsigned endAddr_,
+                 TclObject command_, TclObject condition_,
                  unsigned newId /*= -1*/)
-	: WatchPoint(command, condition, type, beginAddr, endAddr, newId)
+	: WatchPoint(command_, condition_, type_, beginAddr_, endAddr_, newId)
 	, motherboard(motherboard_)
 {
-	for (unsigned i = byte(beginAddr); i <= byte(endAddr); ++i) {
+	for (unsigned i = byte(beginAddr_); i <= byte(endAddr_); ++i) {
 		ios.push_back(make_unique<MSXWatchIODevice>(
 			*motherboard.getMachineConfig(), *this));
 	}

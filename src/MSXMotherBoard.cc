@@ -857,15 +857,15 @@ void RemoveExtCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/,
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	string_ref name = tokens[1].getString();
-	HardwareConfig* extension = motherBoard.findExtension(name);
+	string_ref extName = tokens[1].getString();
+	HardwareConfig* extension = motherBoard.findExtension(extName);
 	if (!extension) {
-		throw CommandException("No such extension: " + name);
+		throw CommandException("No such extension: " + extName);
 	}
 	try {
 		motherBoard.removeExtension(*extension);
 	} catch (MSXException& e) {
-		throw CommandException("Can't remove extension '" + name +
+		throw CommandException("Can't remove extension '" + extName +
 		                       "': " + e.getMessage());
 	}
 }
@@ -924,10 +924,10 @@ void DeviceInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 		}
 		break;
 	case 3: {
-		string_ref name = tokens[2].getString();
-		MSXDevice* device = motherBoard.findDevice(name);
+		string_ref deviceName = tokens[2].getString();
+		MSXDevice* device = motherBoard.findDevice(deviceName);
 		if (!device) {
-			throw CommandException("No such device: " + name);
+			throw CommandException("No such device: " + deviceName);
 		}
 		device->getDeviceInfo(result);
 		break;
@@ -977,8 +977,8 @@ void FastForwardHelper::executeUntil(EmuTime::param /*time*/)
 
 // class JoyPortDebuggable
 
-JoyPortDebuggable::JoyPortDebuggable(MSXMotherBoard& motherBoard)
-	: SimpleDebuggable(motherBoard, "joystickports", "MSX Joystick Ports", 2)
+JoyPortDebuggable::JoyPortDebuggable(MSXMotherBoard& motherBoard_)
+	: SimpleDebuggable(motherBoard_, "joystickports", "MSX Joystick Ports", 2)
 {
 }
 

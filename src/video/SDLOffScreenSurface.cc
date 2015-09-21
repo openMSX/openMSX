@@ -15,16 +15,16 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 	// OutputSurface interface.
 
 	setSDLFormat(*proto.format);
-	const SDL_PixelFormat& format = getSDLFormat();
+	const SDL_PixelFormat& frmt = getSDLFormat();
 
-	unsigned pitch = proto.w * format.BitsPerPixel / 8;
-	assert((pitch % 16) == 0);
-	unsigned size = pitch * proto.h;
+	unsigned pitch2 = proto.w * frmt.BitsPerPixel / 8;
+	assert((pitch2 % 16) == 0);
+	unsigned size = pitch2 * proto.h;
 	buffer.resize(size);
 	memset(buffer.data(), 0, size);
 	surface.reset(SDL_CreateRGBSurfaceFrom(
-		buffer.data(), proto.w, proto.h, format.BitsPerPixel, pitch,
-		format.Rmask, format.Gmask, format.Bmask, format.Amask));
+		buffer.data(), proto.w, proto.h, frmt.BitsPerPixel, pitch2,
+		frmt.Rmask, frmt.Gmask, frmt.Bmask, frmt.Amask));
 
 	setSDLSurface(surface.get());
 	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);

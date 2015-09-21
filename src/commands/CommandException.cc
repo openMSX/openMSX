@@ -2,8 +2,8 @@
 
 namespace openmsx {
 
-CommandException::CommandException(string_ref message)
-	: MSXException(message)
+CommandException::CommandException(string_ref message_)
+	: MSXException(message_)
 {
 }
 

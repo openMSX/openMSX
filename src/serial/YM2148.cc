@@ -28,14 +28,14 @@ static const unsigned CMD_IR    = 0x80; // Internal Reset
 static const EmuDuration BIT_DURATION = EmuDuration::hz(31250);
 static const EmuDuration CHAR_DURATION = BIT_DURATION * 10; // 1 start-bit, 8 data-bits, 1 stop-bit
 
-YM2148::YM2148(const std::string& name, MSXMotherBoard& motherBoard)
-	: MidiInConnector(motherBoard.getPluggingController(), name + "-MIDI-in")
+YM2148::YM2148(const std::string& name_, MSXMotherBoard& motherBoard)
+	: MidiInConnector(motherBoard.getPluggingController(), name_ + "-MIDI-in")
 	, syncRecv (motherBoard.getScheduler())
 	, syncTrans(motherBoard.getScheduler())
-	, rxIRQ(motherBoard, name + "-rx-IRQ")
-	, txIRQ(motherBoard, name + "-tx-IRQ")
+	, rxIRQ(motherBoard, name_ + "-rx-IRQ")
+	, txIRQ(motherBoard, name_ + "-tx-IRQ")
 	, txBuffer1(0), txBuffer2(0) // avoid UMR
-	, outConnector(motherBoard.getPluggingController(), name + "-MIDI-out")
+	, outConnector(motherBoard.getPluggingController(), name_ + "-MIDI-out")
 {
 	reset();
 }

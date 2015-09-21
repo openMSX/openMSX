@@ -33,9 +33,9 @@ namespace openmsx {
 const unsigned DiskManipulator::MAX_PARTITIONS;
 #endif
 
-DiskManipulator::DiskManipulator(CommandController& commandController,
+DiskManipulator::DiskManipulator(CommandController& commandController_,
                                  Reactor& reactor_)
-	: Command(commandController, "diskmanipulator")
+	: Command(commandController_, "diskmanipulator")
 	, reactor(reactor_)
 {
 }
@@ -80,10 +80,10 @@ DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
-	string_ref name)
+	string_ref driveName)
 {
 	return find_if(begin(drives), end(drives),
-	               [&](DriveSettings& ds) { return ds.driveName == name; });
+	               [&](DriveSettings& ds) { return ds.driveName == driveName; });
 }
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(

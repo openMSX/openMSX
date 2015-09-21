@@ -388,8 +388,8 @@ void Display::updateZ(Layer& layer)
 
 // ScreenShotCmd
 
-Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController)
-	: Command(commandController, "screenshot")
+Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController_)
+	: Command(commandController_, "screenshot")
 {
 }
 

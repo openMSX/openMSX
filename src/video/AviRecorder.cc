@@ -305,8 +305,8 @@ void AviRecorder::status(array_ref<TclObject> tokens, TclObject& result) const
 
 // class AviRecorder::Cmd
 
-AviRecorder::Cmd::Cmd(CommandController& commandController)
-	: Command(commandController, "record")
+AviRecorder::Cmd::Cmd(CommandController& commandController_)
+	: Command(commandController_, "record")
 {
 }
 

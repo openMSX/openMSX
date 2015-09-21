@@ -1062,8 +1062,8 @@ struct DirScanner : NullScanner {
 
 // Figure out whether a given sector is part of the msx directory structure.
 struct IsDirSector : DirScanner {
-	IsDirSector(unsigned sector_, DirAsDSK::DirIndex& dirDirIndex)
-		: DirScanner(dirDirIndex)
+	IsDirSector(unsigned sector_, DirAsDSK::DirIndex& dirDirIndex_)
+		: DirScanner(dirDirIndex_)
 		, sector(sector_) {}
 	bool onDirSector(unsigned dirSector) {
 		return sector == dirSector;
@@ -1079,8 +1079,8 @@ bool DirAsDSK::isDirSector(unsigned sector, DirIndex& dirDirIndex)
 struct DirEntryForCluster : DirScanner {
 	DirEntryForCluster(unsigned cluster_,
 	                   DirAsDSK::DirIndex& dirIndex_,
-	                   DirAsDSK::DirIndex& dirDirIndex)
-		: DirScanner(dirDirIndex)
+	                   DirAsDSK::DirIndex& dirDirIndex_)
+		: DirScanner(dirDirIndex_)
 		, cluster(cluster_)
 		, result(dirIndex_) {}
 	bool onDirEntry(DirAsDSK::DirIndex dirIndex, const MSXDirEntry& entry) {

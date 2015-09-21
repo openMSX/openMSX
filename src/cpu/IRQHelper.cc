@@ -24,8 +24,8 @@ void IRQSource::lower()
 
 // class OptionalIRQ
 
-OptionalIRQ::OptionalIRQ(MSXCPU& cpu, const DeviceConfig& config)
-	: cpu(config.getChildDataAsBool("irq_connected", true) ? &cpu : nullptr)
+OptionalIRQ::OptionalIRQ(MSXCPU& cpu_, const DeviceConfig& config)
+	: cpu(config.getChildDataAsBool("irq_connected", true) ? &cpu_ : nullptr)
 {
 }
 

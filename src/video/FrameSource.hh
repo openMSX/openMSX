@@ -58,7 +58,6 @@ public:
 	 * video frames (for superimpose).
 	 */
 	unsigned getWidth() const {
-		unsigned height = getHeight();
 		assert(height > 0);
 		unsigned result = getLineWidth(0);
 		for (unsigned line = 1; line < height; ++line) {
@@ -117,8 +116,7 @@ public:
 		unsigned width, Pixel* buf) const
 	{
 		actualLines = 1;
-		int height = getHeight();
-		if ((line < 0) || (height <= line)) {
+		if ((line < 0) || (int(height) <= line)) {
 			return getLinePtr(line, width, buf);
 		}
 		unsigned internalWidth;
@@ -133,7 +131,7 @@ public:
 		}
 		while (--numLines) {
 			++line;
-			if ((line == height) || (getLineWidth(line) != width)) {
+			if ((line == int(height)) || (getLineWidth(line) != width)) {
 				break;
 			}
 			++actualLines;

@@ -16,8 +16,8 @@ using namespace gl;
 
 namespace openmsx {
 
-OSDImageBasedWidget::OSDImageBasedWidget(OSDGUI& gui_, const TclObject& name)
-	: OSDWidget(name)
+OSDImageBasedWidget::OSDImageBasedWidget(OSDGUI& gui_, const TclObject& name_)
+	: OSDWidget(name_)
 	, gui(gui_)
 	, startFadeTime(0)
 	, fadePeriod(0.0)
@@ -62,13 +62,13 @@ static void get4(Interpreter& interp, const TclObject& value, unsigned* result)
 	}
 }
 void OSDImageBasedWidget::setProperty(
-	Interpreter& interp, string_ref name, const TclObject& value)
+	Interpreter& interp, string_ref propName, const TclObject& value)
 {
-	if (name == "-rgba") {
+	if (propName == "-rgba") {
 		unsigned newRGBA[4];
 		get4(interp, value, newRGBA);
 		setRGBA(newRGBA);
-	} else if (name == "-rgb") {
+	} else if (propName == "-rgb") {
 		unsigned newRGB[4];
 		get4(interp, value, newRGB);
 		unsigned newRGBA[4];
@@ -77,7 +77,7 @@ void OSDImageBasedWidget::setProperty(
 			             ((newRGB[i] << 8) & 0xffffff00);
 		}
 		setRGBA(newRGBA);
-	} else if (name == "-alpha") {
+	} else if (propName == "-alpha") {
 		unsigned newAlpha[4];
 		get4(interp, value, newAlpha);
 		unsigned newRGBA[4];
@@ -86,17 +86,17 @@ void OSDImageBasedWidget::setProperty(
 			             (newAlpha[i] & 0x000000ff);
 		}
 		setRGBA(newRGBA);
-	} else if (name == "-fadePeriod") {
+	} else if (propName == "-fadePeriod") {
 		updateCurrentFadeValue();
 		fadePeriod = value.getDouble(interp);
-	} else if (name == "-fadeTarget") {
+	} else if (propName == "-fadeTarget") {
 		updateCurrentFadeValue();
 		fadeTarget = std::max(0.0, std::min(1.0 , value.getDouble(interp)));
-	} else if (name == "-fadeCurrent") {
+	} else if (propName == "-fadeCurrent") {
 		startFadeValue = std::max(0.0, std::min(1.0, value.getDouble(interp)));
 		startFadeTime = Timer::getTime();
 	} else {
-		OSDWidget::setProperty(interp, name, value);
+		OSDWidget::setProperty(interp, propName, value);
 	}
 }
 
@@ -126,22 +126,22 @@ static void set4(const unsigned rgba[4], unsigned mask, unsigned shift, TclObjec
 		}
 	}
 }
-void OSDImageBasedWidget::getProperty(string_ref name, TclObject& result) const
+void OSDImageBasedWidget::getProperty(string_ref propName, TclObject& result) const
 {
-	if (name == "-rgba") {
+	if (propName == "-rgba") {
 		set4(rgba, 0xffffffff, 0, result);
-	} else if (name == "-rgb") {
+	} else if (propName == "-rgb") {
 		set4(rgba, 0xffffff00, 8, result);
-	} else if (name == "-alpha") {
+	} else if (propName == "-alpha") {
 		set4(rgba, 0x000000ff, 0, result);
-	} else if (name == "-fadePeriod") {
+	} else if (propName == "-fadePeriod") {
 		result.setDouble(fadePeriod);
-	} else if (name == "-fadeTarget") {
+	} else if (propName == "-fadeTarget") {
 		result.setDouble(fadeTarget);
-	} else if (name == "-fadeCurrent") {
+	} else if (propName == "-fadeCurrent") {
 		result.setDouble(getCurrentFadeValue());
 	} else {
-		OSDWidget::getProperty(name, result);
+		OSDWidget::getProperty(propName, result);
 	}
 }
 
@@ -215,11 +215,8 @@ void OSDImageBasedWidget::invalidateLocal()
 
 vec2 OSDImageBasedWidget::getTransformedPos(const OutputRectangle& output) const
 {
-	const OSDWidget* parent = getParent();
-	assert(parent);
-	return parent->transformPos(output,
-	                            float(getScaleFactor(output)) * getPos(),
-	                            getRelPos());
+	return getParent()->transformPos(
+		output, float(getScaleFactor(output)) * getPos(), getRelPos());
 }
 
 void OSDImageBasedWidget::setError(string message)
@@ -273,8 +270,8 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 
 	byte fadedAlpha = getFadedAlpha();
 	if ((fadedAlpha != 0) && image) {
-		ivec2 pos = round(getTransformedPos(output));
-		image->draw(output, pos, fadedAlpha);
+		ivec2 drawPos = round(getTransformedPos(output));
+		image->draw(output, drawPos, fadedAlpha);
 	}
 	if (isFading()) {
 		gui.refresh();

@@ -132,8 +132,8 @@ public:
 
 	/** Set restore value. See getDefaultValue() and getRestoreValue().
 	  */
-	void setRestoreValue(const TclObject& value) {
-		restoreValue = value;
+	void setRestoreValue(const TclObject& newRestoreValue) {
+		restoreValue = newRestoreValue;
 	}
 
 	/** Set value-check-callback.

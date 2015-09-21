@@ -160,9 +160,9 @@ int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 // class StdioConnection
 
 static const int BUF_SIZE = 4096;
-StdioConnection::StdioConnection(CommandController& commandController,
-                                 EventDistributor& eventDistributor)
-	: CliConnection(commandController, eventDistributor)
+StdioConnection::StdioConnection(CommandController& commandController_,
+                                 EventDistributor& eventDistributor_)
+	: CliConnection(commandController_, eventDistributor_)
 	, ok(true)
 {
 	startOutput();
@@ -313,10 +313,10 @@ void PipeConnection::close()
 
 // class SocketConnection
 
-SocketConnection::SocketConnection(CommandController& commandController,
-                                   EventDistributor& eventDistributor,
+SocketConnection::SocketConnection(CommandController& commandController_,
+                                   EventDistributor& eventDistributor_,
                                    SOCKET sd_)
-	: CliConnection(commandController, eventDistributor)
+	: CliConnection(commandController_, eventDistributor_)
 	, sd(sd_), established(false)
 {
 }

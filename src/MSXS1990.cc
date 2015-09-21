@@ -93,8 +93,8 @@ void MSXS1990::setCPUStatus(byte value)
 }
 
 
-MSXS1990::Debuggable::Debuggable(MSXMotherBoard& motherBoard, const std::string& name)
-	: SimpleDebuggable(motherBoard, name + " regs", "S1990 registers", 16)
+MSXS1990::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& name_)
+	: SimpleDebuggable(motherBoard_, name_ + " regs", "S1990 registers", 16)
 {
 }
 

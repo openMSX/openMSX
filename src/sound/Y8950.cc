@@ -478,14 +478,14 @@ void Y8950::Channel::keyOff(KeyPart part)
 }
 
 
-Y8950::Y8950(const std::string& name, const DeviceConfig& config,
+Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
              unsigned sampleRam, EmuTime::param time, MSXAudio& audio)
-	: ResampledSoundDevice(config.getMotherBoard(), name, "MSX-AUDIO", 9 + 5 + 1)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-AUDIO", 9 + 5 + 1)
 	, motherBoard(config.getMotherBoard())
 	, periphery(audio.createPeriphery(getName()))
-	, adpcm(*this, config, name, sampleRam)
+	, adpcm(*this, config, name_, sampleRam)
 	, connector(motherBoard.getPluggingController())
-	, dac13(name + " DAC", "MSX-AUDIO 13-bit DAC", config)
+	, dac13(name_ + " DAC", "MSX-AUDIO 13-bit DAC", config)
 	, debuggable(motherBoard, getName())
 	, timer1(EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
 	, timer2(EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
@@ -1317,9 +1317,9 @@ void Y8950::serialize(Archive& ar, unsigned /*version*/)
 
 // SimpleDebuggable
 
-Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard,
-                              const std::string& name)
-	: SimpleDebuggable(motherBoard, name + " regs", "MSX-AUDIO", 0x100)
+Y8950::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
+                              const std::string& name_)
+	: SimpleDebuggable(motherBoard_, name_ + " regs", "MSX-AUDIO", 0x100)
 {
 }
 

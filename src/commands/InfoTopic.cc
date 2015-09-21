@@ -6,8 +6,8 @@ using std::vector;
 
 namespace openmsx {
 
-InfoTopic::InfoTopic(InfoCommand& infoCommand_, const string& name)
-	: Completer(name)
+InfoTopic::InfoTopic(InfoCommand& infoCommand_, const string& name_)
+	: Completer(name_)
 	, infoCommand(infoCommand_)
 {
 	infoCommand.registerTopic(*this);

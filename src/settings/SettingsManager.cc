@@ -119,18 +119,17 @@ void SettingsManager::SettingInfo::execute(
 	array_ref<TclObject> tokens, TclObject& result) const
 {
 	auto& manager = OUTER(SettingsManager, settingInfo);
-	auto& settings = manager.settings;
 	switch (tokens.size()) {
 	case 2:
-		for (auto* p : settings) {
+		for (auto* p : manager.settings) {
 			result.addListElement(p->getFullNameObj());
 		}
 		break;
 	case 3: {
-		const auto& name = tokens[2].getString();
-		auto it = settings.find(name);
-		if (it == end(settings)) {
-			throw CommandException("No such setting: " + name);
+		const auto& settingName = tokens[2].getString();
+		auto it = manager.settings.find(settingName);
+		if (it == end(manager.settings)) {
+			throw CommandException("No such setting: " + settingName);
 		}
 		(*it)->info(result);
 		break;
@@ -161,8 +160,8 @@ void SettingsManager::SettingInfo::tabCompletion(vector<string>& tokens) const
 // class SetCompleter
 
 SettingsManager::SetCompleter::SetCompleter(
-		CommandController& commandController)
-	: CommandCompleter(commandController, "set")
+		CommandController& commandController_)
+	: CommandCompleter(commandController_, "set")
 {
 }
 
@@ -203,9 +202,9 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 // class SettingCompleter
 
 SettingsManager::SettingCompleter::SettingCompleter(
-		CommandController& commandController, SettingsManager& manager_,
-		const string& name)
-	: CommandCompleter(commandController, name)
+		CommandController& commandController_, SettingsManager& manager_,
+		const string& name_)
+	: CommandCompleter(commandController_, name_)
 	, manager(manager_)
 {
 }

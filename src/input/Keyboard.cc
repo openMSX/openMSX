@@ -42,8 +42,8 @@ class KeyMatrixState final : public StateChange
 {
 public:
 	KeyMatrixState() {} // for serialize
-	KeyMatrixState(EmuTime::param time, byte row_, byte press_, byte release_)
-		: StateChange(time)
+	KeyMatrixState(EmuTime::param time_, byte row_, byte press_, byte release_)
+		: StateChange(time_)
 		, row(row_), press(press_), release(release_)
 	{
 		// disallow useless events
@@ -84,7 +84,7 @@ static bool checkSDLReleasesCapslock()
 }
 
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
-                   Scheduler& scheduler,
+                   Scheduler& scheduler_,
                    CommandController& commandController_,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
@@ -92,16 +92,16 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    string_ref keyboardType, bool hasKP, bool hasYNKeys,
                    bool keyGhosting_, bool keyGhostSGCprotected,
                    bool codeKanaLocks_, bool graphLocks_)
-	: Schedulable(scheduler)
+	: Schedulable(scheduler_)
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler)
-	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler)
-	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler)
-	, capsLockAligner(eventDistributor, scheduler)
+	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
+	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
+	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
+	, capsLockAligner(eventDistributor, scheduler_)
 	, keyboardSettings(commandController)
-	, msxKeyEventQueue(scheduler, commandController.getInterpreter())
+	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
 	, unicodeKeymap(keyboardType)
 	, hasKeypad(hasKP)
@@ -865,11 +865,11 @@ void Keyboard::debug(const char* format, ...)
 // class KeyMatrixUpCmd
 
 Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(
-		CommandController& commandController,
-		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler)
-	: RecordedCommand(commandController, stateChangeDistributor,
-		scheduler, "keymatrixup")
+		CommandController& commandController_,
+		StateChangeDistributor& stateChangeDistributor_,
+		Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+		scheduler_, "keymatrixup")
 {
 }
 
@@ -890,11 +890,11 @@ string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 
 // class KeyMatrixDownCmd
 
-Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
-		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler)
-	: RecordedCommand(commandController, stateChangeDistributor,
-		scheduler, "keymatrixdown")
+Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController_,
+		StateChangeDistributor& stateChangeDistributor_,
+		Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+		scheduler_, "keymatrixdown")
 {
 }
 
@@ -916,8 +916,8 @@ string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 // class MsxKeyEventQueue
 
 Keyboard::MsxKeyEventQueue::MsxKeyEventQueue(
-		Scheduler& scheduler, Interpreter& interp_)
-	: Schedulable(scheduler)
+		Scheduler& scheduler_, Interpreter& interp_)
+	: Schedulable(scheduler_)
 	, interp(interp_)
 {
 }
@@ -971,12 +971,12 @@ void Keyboard::MsxKeyEventQueue::executeUntil(EmuTime::param time)
 // class KeyInserter
 
 Keyboard::KeyInserter::KeyInserter(
-		CommandController& commandController,
-		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler)
-	: RecordedCommand(commandController, stateChangeDistributor,
-		scheduler, "type")
-	, Schedulable(scheduler)
+		CommandController& commandController_,
+		StateChangeDistributor& stateChangeDistributor_,
+		Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+		scheduler_, "type")
+	, Schedulable(scheduler_)
 	, lockKeysMask(0)
 	, releaseLast(false)
 {
@@ -1007,10 +1007,10 @@ void Keyboard::KeyInserter::execute(
 
         vector<string_ref> arguments;
 	for (unsigned i = 1; i < tokens.size(); ++i) {
-		string_ref token = tokens[i].getString();
-		if (token == "-release") {
+		string_ref t = tokens[i].getString();
+		if (t == "-release") {
 			releaseBeforePress = true;
-		} else if (token == "-freq") {
+		} else if (t == "-freq") {
 			if (++i == tokens.size()) {
 				throw CommandException("Missing argument");
 			}
@@ -1020,7 +1020,7 @@ void Keyboard::KeyInserter::execute(
 			}
 			typingFrequency = tmp;
 		} else {
-			arguments.push_back(token);
+			arguments.push_back(t);
 		}
 	}
 
@@ -1145,8 +1145,8 @@ void Keyboard::KeyInserter::reschedule(EmuTime::param time)
  */
 Keyboard::CapsLockAligner::CapsLockAligner(
 		EventDistributor& eventDistributor_,
-		Scheduler& scheduler)
-	: Schedulable(scheduler)
+		Scheduler& scheduler_)
+	: Schedulable(scheduler_)
 	, eventDistributor(eventDistributor_)
 {
 	state = IDLE;
@@ -1231,8 +1231,8 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 
 // class KeybDebuggable
 
-Keyboard::KeybDebuggable::KeybDebuggable(MSXMotherBoard& motherBoard)
-	: SimpleDebuggable(motherBoard, "keymatrix", "MSX Keyboard Matrix",
+Keyboard::KeybDebuggable::KeybDebuggable(MSXMotherBoard& motherBoard_)
+	: SimpleDebuggable(motherBoard_, "keymatrix", "MSX Keyboard Matrix",
 	                   Keyboard::NR_KEYROWS)
 {
 }

@@ -166,10 +166,10 @@ void StretchScalerOutputBase<Pixel>::fillLine(unsigned y, Pixel color)
 
 template<typename Pixel>
 StretchScalerOutput<Pixel>::StretchScalerOutput(
-		unique_ptr<ScalerOutput<Pixel>> output,
-		const PixelOperations<Pixel>& pixelOps,
+		unique_ptr<ScalerOutput<Pixel>> output_,
+		const PixelOperations<Pixel>& pixelOps_,
 		unsigned inWidth_)
-	: StretchScalerOutputBase<Pixel>(std::move(output), pixelOps)
+	: StretchScalerOutputBase<Pixel>(std::move(output_), pixelOps_)
 	, inWidth(inWidth_)
 {
 }
@@ -193,9 +193,9 @@ void StretchScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 
 template<typename Pixel, unsigned IN_WIDTH, typename SCALE>
 StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::StretchScalerOutputN(
-		unique_ptr<ScalerOutput<Pixel>> output,
-		const PixelOperations<Pixel>& pixelOps)
-	: StretchScalerOutputBase<Pixel>(std::move(output), pixelOps)
+		unique_ptr<ScalerOutput<Pixel>> output_,
+		const PixelOperations<Pixel>& pixelOps_)
+	: StretchScalerOutputBase<Pixel>(std::move(output_), pixelOps_)
 {
 }
 
@@ -218,10 +218,10 @@ void StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::releaseLine(unsigned y, Pixel
 
 template<typename Pixel>
 StretchScalerOutput256<Pixel>::StretchScalerOutput256(
-		unique_ptr<ScalerOutput<Pixel>> output,
-		const PixelOperations<Pixel>& pixelOps)
+		unique_ptr<ScalerOutput<Pixel>> output_,
+		const PixelOperations<Pixel>& pixelOps_)
 	: StretchScalerOutputN<Pixel, 256, Scale_4on5<Pixel>>(
-		std::move(output), pixelOps)
+		std::move(output_), pixelOps_)
 {
 }
 
@@ -230,10 +230,10 @@ StretchScalerOutput256<Pixel>::StretchScalerOutput256(
 
 template<typename Pixel>
 StretchScalerOutput272<Pixel>::StretchScalerOutput272(
-		unique_ptr<ScalerOutput<Pixel>> output,
-		const PixelOperations<Pixel>& pixelOps)
+		unique_ptr<ScalerOutput<Pixel>> output_,
+		const PixelOperations<Pixel>& pixelOps_)
 	: StretchScalerOutputN<Pixel, 272, Scale_17on20<Pixel>>(
-		std::move(output), pixelOps)
+		std::move(output_), pixelOps_)
 {
 }
 
@@ -242,10 +242,10 @@ StretchScalerOutput272<Pixel>::StretchScalerOutput272(
 
 template<typename Pixel>
 StretchScalerOutput280<Pixel>::StretchScalerOutput280(
-		unique_ptr<ScalerOutput<Pixel>> output,
-		const PixelOperations<Pixel>& pixelOps)
+		unique_ptr<ScalerOutput<Pixel>> output_,
+		const PixelOperations<Pixel>& pixelOps_)
 	: StretchScalerOutputN<Pixel, 280, Scale_7on8<Pixel>>(
-		std::move(output), pixelOps)
+		std::move(output_), pixelOps_)
 {
 }
 
@@ -254,10 +254,10 @@ StretchScalerOutput280<Pixel>::StretchScalerOutput280(
 
 template<typename Pixel>
 StretchScalerOutput288<Pixel>::StretchScalerOutput288(
-		unique_ptr<ScalerOutput<Pixel>> output,
-		const PixelOperations<Pixel>& pixelOps)
+		unique_ptr<ScalerOutput<Pixel>> output_,
+		const PixelOperations<Pixel>& pixelOps_)
 	: StretchScalerOutputN<Pixel, 288, Scale_9on10<Pixel>>(
-		std::move(output), pixelOps)
+		std::move(output_), pixelOps_)
 {
 }
 

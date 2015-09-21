@@ -26,14 +26,14 @@ XMLElement::XMLElement(string_ref name_, string_ref data_)
 {
 }
 
-XMLElement& XMLElement::addChild(string_ref name)
+XMLElement& XMLElement::addChild(string_ref childName)
 {
-	children.emplace_back(name);
+	children.emplace_back(childName);
 	return children.back();
 }
-XMLElement& XMLElement::addChild(string_ref name, string_ref data)
+XMLElement& XMLElement::addChild(string_ref childName, string_ref childData)
 {
-	children.emplace_back(name, data);
+	children.emplace_back(childName, childData);
 	return children.back();
 }
 
@@ -43,44 +43,44 @@ void XMLElement::removeChild(const XMLElement& child)
 		[&](Children::value_type& v) { return &v == &child; }));
 }
 
-XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref name)
+XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref attrName)
 {
 	return find_if(begin(attributes), end(attributes),
-	               [&](Attribute& a) { return a.first == name; });
+	               [&](Attribute& a) { return a.first == attrName; });
 }
-XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_ref name) const
+XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_ref attrName) const
 {
 	return find_if(begin(attributes), end(attributes),
-	               [&](const Attribute& a) { return a.first == name; });
+	               [&](const Attribute& a) { return a.first == attrName; });
 }
 
-void XMLElement::addAttribute(string_ref name, string_ref value)
+void XMLElement::addAttribute(string_ref attrName, string_ref value)
 {
-	assert(findAttribute(name) == end(attributes));
-	attributes.emplace_back(name.str(), value.str());
+	assert(findAttribute(attrName) == end(attributes));
+	attributes.emplace_back(attrName.str(), value.str());
 }
 
-void XMLElement::setAttribute(string_ref name, string_ref value)
+void XMLElement::setAttribute(string_ref attrName, string_ref value)
 {
-	auto it = findAttribute(name);
+	auto it = findAttribute(attrName);
 	if (it != end(attributes)) {
 		it->second = value.str();
 	} else {
-		attributes.emplace_back(name.str(), value.str());
+		attributes.emplace_back(attrName.str(), value.str());
 	}
 }
 
-void XMLElement::removeAttribute(string_ref name)
+void XMLElement::removeAttribute(string_ref attrName)
 {
-	auto it = findAttribute(name);
+	auto it = findAttribute(attrName);
 	if (it != end(attributes)) {
 		attributes.erase(it);
 	}
 }
 
-void XMLElement::setName(string_ref name_)
+void XMLElement::setName(string_ref newName)
 {
-	name = name_.str();
+	name = newName.str();
 }
 
 void XMLElement::clearName()
@@ -88,48 +88,48 @@ void XMLElement::clearName()
 	name.clear();
 }
 
-void XMLElement::setData(string_ref data_)
+void XMLElement::setData(string_ref newData)
 {
 	assert(children.empty()); // no mixed-content elements
-	data = data_.str();
+	data = newData.str();
 }
 
-std::vector<const XMLElement*> XMLElement::getChildren(string_ref name) const
+std::vector<const XMLElement*> XMLElement::getChildren(string_ref childName) const
 {
 	std::vector<const XMLElement*> result;
 	for (auto& c : children) {
-		if (c.getName() == name) {
+		if (c.getName() == childName) {
 			result.push_back(&c);
 		}
 	}
 	return result;
 }
 
-XMLElement* XMLElement::findChild(string_ref name)
+XMLElement* XMLElement::findChild(string_ref childName)
 {
 	for (auto& c : children) {
-		if (c.getName() == name) {
+		if (c.getName() == childName) {
 			return &c;
 		}
 	}
 	return nullptr;
 }
-const XMLElement* XMLElement::findChild(string_ref name) const
+const XMLElement* XMLElement::findChild(string_ref childName) const
 {
-	return const_cast<XMLElement*>(this)->findChild(name);
+	return const_cast<XMLElement*>(this)->findChild(childName);
 }
 
-const XMLElement* XMLElement::findNextChild(string_ref name,
+const XMLElement* XMLElement::findNextChild(string_ref childName,
 	                                    size_t& fromIndex) const
 {
 	for (auto i : xrange(fromIndex, children.size())) {
-		if (children[i].getName() == name) {
+		if (children[i].getName() == childName) {
 			fromIndex = i + 1;
 			return &children[i];
 		}
 	}
 	for (auto i : xrange(fromIndex)) {
-		if (children[i].getName() == name) {
+		if (children[i].getName() == childName) {
 			fromIndex = i + 1;
 			return &children[i];
 		}
@@ -137,11 +137,11 @@ const XMLElement* XMLElement::findNextChild(string_ref name,
 	return nullptr;
 }
 
-XMLElement* XMLElement::findChildWithAttribute(string_ref name,
+XMLElement* XMLElement::findChildWithAttribute(string_ref childName,
 	string_ref attName, string_ref attValue)
 {
 	for (auto& c : children) {
-		if ((c.getName() == name) &&
+		if ((c.getName() == childName) &&
 		    (c.getAttribute(attName) == attValue)) {
 			return &c;
 		}
@@ -149,77 +149,77 @@ XMLElement* XMLElement::findChildWithAttribute(string_ref name,
 	return nullptr;
 }
 
-const XMLElement* XMLElement::findChildWithAttribute(string_ref name,
+const XMLElement* XMLElement::findChildWithAttribute(string_ref childName,
 	string_ref attName, string_ref attValue) const
 {
 	return const_cast<XMLElement*>(this)->findChildWithAttribute(
-		name, attName, attValue);
+		childName, attName, attValue);
 }
 
-XMLElement& XMLElement::getChild(string_ref name)
+XMLElement& XMLElement::getChild(string_ref childName)
 {
-	if (auto* elem = findChild(name)) {
+	if (auto* elem = findChild(childName)) {
 		return *elem;
 	}
 	throw ConfigException(StringOp::Builder() <<
-		"Missing tag \"" << name << "\".");
+		"Missing tag \"" << childName << "\".");
 }
-const XMLElement& XMLElement::getChild(string_ref name) const
+const XMLElement& XMLElement::getChild(string_ref childName) const
 {
-	return const_cast<XMLElement*>(this)->getChild(name);
+	return const_cast<XMLElement*>(this)->getChild(childName);
 }
 
-XMLElement& XMLElement::getCreateChild(string_ref name,
+XMLElement& XMLElement::getCreateChild(string_ref childName,
                                        string_ref defaultValue)
 {
-	if (auto* result = findChild(name)) {
+	if (auto* result = findChild(childName)) {
 		return *result;
 	}
-	return addChild(name, defaultValue);
+	return addChild(childName, defaultValue);
 }
 
 XMLElement& XMLElement::getCreateChildWithAttribute(
-	string_ref name, string_ref attName,
+	string_ref childName, string_ref attName,
 	string_ref attValue)
 {
-	if (auto* result = findChildWithAttribute(name, attName, attValue)) {
+	if (auto* result = findChildWithAttribute(childName, attName, attValue)) {
 		return *result;
 	}
-	auto& result = addChild(name);
+	auto& result = addChild(childName);
 	result.addAttribute(attName, attValue);
 	return result;
 }
 
-const string& XMLElement::getChildData(string_ref name) const
+const string& XMLElement::getChildData(string_ref childName) const
 {
-	return getChild(name).getData();
+	return getChild(childName).getData();
 }
 
-string_ref XMLElement::getChildData(string_ref name,
+string_ref XMLElement::getChildData(string_ref childName,
                                     string_ref defaultValue) const
 {
-	auto* child = findChild(name);
+	auto* child = findChild(childName);
 	return child ? child->getData() : defaultValue;
 }
 
-bool XMLElement::getChildDataAsBool(string_ref name, bool defaultValue) const
+bool XMLElement::getChildDataAsBool(string_ref childName, bool defaultValue) const
 {
-	auto* child = findChild(name);
+	auto* child = findChild(childName);
 	return child ? StringOp::stringToBool(child->getData()) : defaultValue;
 }
 
-int XMLElement::getChildDataAsInt(string_ref name, int defaultValue) const
+int XMLElement::getChildDataAsInt(string_ref childName, int defaultValue) const
 {
-	auto* child = findChild(name);
+	auto* child = findChild(childName);
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
 }
 
-void XMLElement::setChildData(string_ref name, string_ref value)
+void XMLElement::setChildData(string_ref childName, string_ref value)
 {
-	if (auto* child = findChild(name)) {
+	if (auto* child = findChild(childName)) {
 		child->setData(value);
 	} else {
-		addChild(name, value);
+		addChild(childName, value);
 	}
 }
 
@@ -228,9 +228,9 @@ void XMLElement::removeAllChildren()
 	children.clear();
 }
 
-bool XMLElement::hasAttribute(string_ref name) const
+bool XMLElement::hasAttribute(string_ref attrName) const
 {
-	return findAttribute(name) != end(attributes);
+	return findAttribute(attrName) != end(attributes);
 }
 
 const string& XMLElement::getAttribute(string_ref attName) const

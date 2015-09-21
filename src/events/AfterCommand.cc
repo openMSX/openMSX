@@ -117,8 +117,8 @@ private:
 
 AfterCommand::AfterCommand(Reactor& reactor_,
                            EventDistributor& eventDistributor_,
-                           CommandController& commandController)
-	: Command(commandController, "after")
+                           CommandController& commandController_)
+	: Command(commandController_, "after")
 	, reactor(reactor_)
 	, eventDistributor(eventDistributor_)
 {
@@ -508,13 +508,12 @@ unique_ptr<AfterCmd> AfterCmd::removeSelf()
 // class  AfterTimedCmd
 
 AfterTimedCmd::AfterTimedCmd(
-		Scheduler& scheduler,
-		AfterCommand& afterCommand,
-		const TclObject& command, double time_)
-	: AfterCmd(afterCommand, command)
-	, Schedulable(scheduler)
+		Scheduler& scheduler_,
+		AfterCommand& afterCommand_,
+		const TclObject& command_, double time_)
+	: AfterCmd(afterCommand_, command_)
+	, Schedulable(scheduler_)
 	, time(time_)
-
 {
 	reschedule();
 }
@@ -546,10 +545,10 @@ void AfterTimedCmd::schedulerDeleted()
 // class AfterTimeCmd
 
 AfterTimeCmd::AfterTimeCmd(
-		Scheduler& scheduler,
-		AfterCommand& afterCommand,
-		const TclObject& command, double time)
-	: AfterTimedCmd(scheduler, afterCommand, command, time)
+		Scheduler& scheduler_,
+		AfterCommand& afterCommand_,
+		const TclObject& command_, double time_)
+	: AfterTimedCmd(scheduler_, afterCommand_, command_, time_)
 {
 }
 
@@ -562,10 +561,10 @@ string AfterTimeCmd::getType() const
 // class AfterIdleCmd
 
 AfterIdleCmd::AfterIdleCmd(
-		Scheduler& scheduler,
-		AfterCommand& afterCommand,
-		const TclObject& command, double time)
-	: AfterTimedCmd(scheduler, afterCommand, command, time)
+		Scheduler& scheduler_,
+		AfterCommand& afterCommand_,
+		const TclObject& command_, double time_)
+	: AfterTimedCmd(scheduler_, afterCommand_, command_, time_)
 {
 }
 
@@ -579,9 +578,9 @@ string AfterIdleCmd::getType() const
 
 template<EventType T>
 AfterEventCmd<T>::AfterEventCmd(
-		AfterCommand& afterCommand, const TclObject& type_,
-		const TclObject& command)
-	: AfterCmd(afterCommand, command), type(type_.getString().str())
+		AfterCommand& afterCommand_, const TclObject& type_,
+		const TclObject& command_)
+	: AfterCmd(afterCommand_, command_), type(type_.getString().str())
 {
 }
 
@@ -595,10 +594,10 @@ string AfterEventCmd<T>::getType() const
 // AfterInputEventCmd
 
 AfterInputEventCmd::AfterInputEventCmd(
-		AfterCommand& afterCommand,
+		AfterCommand& afterCommand_,
 		AfterCommand::EventPtr event_,
-		const TclObject& command)
-	: AfterCmd(afterCommand, command)
+		const TclObject& command_)
+	: AfterCmd(afterCommand_, command_)
 	, event(std::move(event_))
 {
 }
@@ -611,9 +610,9 @@ string AfterInputEventCmd::getType() const
 // class AfterRealTimeCmd
 
 AfterRealTimeCmd::AfterRealTimeCmd(
-		RTScheduler& rtScheduler, AfterCommand& afterCommand,
-		const TclObject& command, double time)
-	: AfterCmd(afterCommand, command)
+		RTScheduler& rtScheduler, AfterCommand& afterCommand_,
+		const TclObject& command_, double time)
+	: AfterCmd(afterCommand_, command_)
 	, RTSchedulable(rtScheduler)
 {
 	scheduleRT(uint64_t(time * 1e6)); // micro seconds

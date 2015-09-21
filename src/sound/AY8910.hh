@@ -74,7 +74,7 @@ private:
 		  */
 		inline void advance(int duration);
 
-		inline void doNextEvent(bool doDetune, AY8910& ay8910);
+		inline void doNextEvent(AY8910& ay8910);
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);

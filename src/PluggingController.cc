@@ -71,11 +71,11 @@ void PluggingController::registerPluggable(std::unique_ptr<Pluggable> pluggable)
 //  plug command
 
 PluggingController::PlugCmd::PlugCmd(
-		CommandController& commandController,
-		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler)
-	: RecordedCommand(commandController, stateChangeDistributor,
-	                  scheduler, "plug")
+		CommandController& commandController_,
+		StateChangeDistributor& stateChangeDistributor_,
+		Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+	                  scheduler_, "plug")
 {
 }
 
@@ -137,22 +137,22 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 	auto& pluggingController = OUTER(PluggingController, plugCmd);
 	if (tokens.size() == 2) {
 		// complete connector
-		vector<string_ref> connectors;
+		vector<string_ref> connectorNames;
 		for (auto& c : pluggingController.connectors) {
-			connectors.push_back(c->getName());
+			connectorNames.push_back(c->getName());
 		}
-		completeString(tokens, connectors);
+		completeString(tokens, connectorNames);
 	} else if (tokens.size() == 3) {
 		// complete pluggable
-		vector<string_ref> pluggables;
+		vector<string_ref> pluggableNames;
 		auto* connector = pluggingController.findConnector(tokens[1]);
 		string_ref className = connector ? connector->getClass() : "";
 		for (auto& p : pluggingController.pluggables) {
 			if (p->getClass() == className) {
-				pluggables.push_back(p->getName());
+				pluggableNames.push_back(p->getName());
 			}
 		}
-		completeString(tokens, pluggables);
+		completeString(tokens, pluggableNames);
 	}
 }
 
@@ -165,11 +165,11 @@ bool PluggingController::PlugCmd::needRecord(array_ref<TclObject> tokens) const
 //  unplug command
 
 PluggingController::UnplugCmd::UnplugCmd(
-		CommandController& commandController,
-		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler)
-	: RecordedCommand(commandController, stateChangeDistributor,
-	                  scheduler, "unplug")
+		CommandController& commandController_,
+		StateChangeDistributor& stateChangeDistributor_,
+		Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+	                  scheduler_, "unplug")
 {
 }
 
@@ -196,12 +196,12 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete connector
-		vector<string_ref> connectors;
+		vector<string_ref> connectorNames;
 		auto& pluggingController = OUTER(PluggingController, unplugCmd);
 		for (auto& c : pluggingController.connectors) {
-			connectors.push_back(c->getName());
+			connectorNames.push_back(c->getName());
 		}
-		completeString(tokens, connectors);
+		completeString(tokens, connectorNames);
 	}
 }
 
@@ -290,12 +290,12 @@ string PluggingController::PluggableInfo::help(const vector<string>& /*tokens*/)
 void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string_ref> pluggables;
+		vector<string_ref> pluggableNames;
 		auto& pluggingController = OUTER(PluggingController, pluggableInfo);
 		for (auto& p : pluggingController.pluggables) {
-			pluggables.push_back(p->getName());
+			pluggableNames.push_back(p->getName());
 		}
-		completeString(tokens, pluggables);
+		completeString(tokens, pluggableNames);
 	}
 }
 
@@ -335,12 +335,12 @@ string PluggingController::ConnectorInfo::help(const vector<string>& /*tokens*/)
 void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string_ref> connectors;
+		vector<string_ref> connectorNames;
 		auto& pluggingController = OUTER(PluggingController, connectorInfo);
 		for (auto& c : pluggingController.connectors) {
-			connectors.push_back(c->getName());
+			connectorNames.push_back(c->getName());
 		}
-		completeString(tokens, connectors);
+		completeString(tokens, connectorNames);
 	}
 }
 

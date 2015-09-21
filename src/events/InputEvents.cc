@@ -16,8 +16,8 @@ namespace openmsx {
 
 // class TimedEvent
 
-TimedEvent::TimedEvent(EventType type)
-	: Event(type)
+TimedEvent::TimedEvent(EventType type_)
+	: Event(type_)
 	, realtime(Timer::getTime())
 {
 }
@@ -100,8 +100,8 @@ KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, uint16_t unicode_)
 {
 }
 #else
-KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, uint16_t unicode_)
-	: TimedEvent(type), keyCode(keyCode_), unicode(unicode_)
+KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, uint16_t unicode_)
+	: TimedEvent(type_), keyCode(keyCode_), unicode(unicode_)
 {
 }
 #endif
@@ -126,34 +126,34 @@ bool KeyEvent::lessImpl(const Event& other) const
 
 // class KeyUpEvent
 
-KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, uint16_t(0))
+KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode_)
+	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, uint16_t(0))
 {
 }
 
-KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode, uint16_t unicode)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, unicode)
+KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode_, uint16_t unicode_)
+	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, unicode_)
 {
 }
 
 
 // class KeyDownEvent
 
-KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, uint16_t(0))
+KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_)
+	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, uint16_t(0))
 {
 }
 
-KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode, uint16_t unicode)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, unicode)
+KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_, uint16_t unicode_)
+	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, unicode_)
 {
 }
 
 
 // class MouseButtonEvent
 
-MouseButtonEvent::MouseButtonEvent(EventType type, unsigned button_)
-	: TimedEvent(type), button(button_)
+MouseButtonEvent::MouseButtonEvent(EventType type_, unsigned button_)
+	: TimedEvent(type_), button(button_)
 {
 }
 
@@ -172,8 +172,8 @@ bool MouseButtonEvent::lessImpl(const Event& other) const
 
 // class MouseButtonUpEvent
 
-MouseButtonUpEvent::MouseButtonUpEvent(unsigned button)
-	: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_UP_EVENT, button)
+MouseButtonUpEvent::MouseButtonUpEvent(unsigned button_)
+	: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_UP_EVENT, button_)
 {
 }
 
@@ -186,8 +186,8 @@ void MouseButtonUpEvent::toStringImpl(TclObject& result) const
 
 // class MouseButtonDownEvent
 
-MouseButtonDownEvent::MouseButtonDownEvent(unsigned button)
-	: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, button)
+MouseButtonDownEvent::MouseButtonDownEvent(unsigned button_)
+	: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, button_)
 {
 }
 
@@ -252,8 +252,8 @@ bool MouseMotionGroupEvent::matches(const Event& other) const
 
 // class JoystickEvent
 
-JoystickEvent::JoystickEvent(EventType type, unsigned joystick_)
-	: TimedEvent(type), joystick(joystick_)
+JoystickEvent::JoystickEvent(EventType type_, unsigned joystick_)
+	: TimedEvent(type_), joystick(joystick_)
 {
 }
 
@@ -274,8 +274,8 @@ bool JoystickEvent::lessImpl(const Event& other) const
 // class JoystickButtonEvent
 
 JoystickButtonEvent::JoystickButtonEvent(
-		EventType type, unsigned joystick, unsigned button_)
-	: JoystickEvent(type, joystick), button(button_)
+		EventType type_, unsigned joystick_, unsigned button_)
+	: JoystickEvent(type_, joystick_), button(button_)
 {
 }
 
@@ -294,8 +294,8 @@ bool JoystickButtonEvent::lessImpl(const JoystickEvent& other) const
 
 // class JoystickButtonUpEvent
 
-JoystickButtonUpEvent::JoystickButtonUpEvent(unsigned joystick, unsigned button)
-	: JoystickButtonEvent(OPENMSX_JOY_BUTTON_UP_EVENT, joystick, button)
+JoystickButtonUpEvent::JoystickButtonUpEvent(unsigned joystick_, unsigned button_)
+	: JoystickButtonEvent(OPENMSX_JOY_BUTTON_UP_EVENT, joystick_, button_)
 {
 }
 
@@ -308,8 +308,8 @@ void JoystickButtonUpEvent::toStringImpl(TclObject& result) const
 
 // class JoystickButtonDownEvent
 
-JoystickButtonDownEvent::JoystickButtonDownEvent(unsigned joystick, unsigned button)
-	: JoystickButtonEvent(OPENMSX_JOY_BUTTON_DOWN_EVENT, joystick, button)
+JoystickButtonDownEvent::JoystickButtonDownEvent(unsigned joystick_, unsigned button_)
+	: JoystickButtonEvent(OPENMSX_JOY_BUTTON_DOWN_EVENT, joystick_, button_)
 {
 }
 
@@ -323,8 +323,8 @@ void JoystickButtonDownEvent::toStringImpl(TclObject& result) const
 // class JoystickAxisMotionEvent
 
 JoystickAxisMotionEvent::JoystickAxisMotionEvent(
-		unsigned joystick, unsigned axis_, short value_)
-	: JoystickEvent(OPENMSX_JOY_AXIS_MOTION_EVENT, joystick)
+		unsigned joystick_, unsigned axis_, short value_)
+	: JoystickEvent(OPENMSX_JOY_AXIS_MOTION_EVENT, joystick_)
 	, axis(axis_), value(value_)
 {
 }
@@ -346,8 +346,8 @@ bool JoystickAxisMotionEvent::lessImpl(const JoystickEvent& other) const
 
 // class JoystickHatEvent
 
-JoystickHatEvent::JoystickHatEvent(unsigned joystick, unsigned hat_, unsigned value_)
-	: JoystickEvent(OPENMSX_JOY_HAT_EVENT, joystick)
+JoystickHatEvent::JoystickHatEvent(unsigned joystick_, unsigned hat_, unsigned value_)
+	: JoystickEvent(OPENMSX_JOY_HAT_EVENT, joystick_)
 	, hat(hat_), value(value_)
 {
 }
@@ -440,9 +440,9 @@ bool QuitEvent::lessImpl(const Event& /*other*/) const
 // class OsdControlEvent
 
 OsdControlEvent::OsdControlEvent(
-		EventType type, unsigned button_,
+		EventType type_, unsigned button_,
 		const std::shared_ptr<const Event>& origEvent_)
-	: TimedEvent(type), origEvent(origEvent_), button(button_)
+	: TimedEvent(type_), origEvent(origEvent_), button(button_)
 {
 }
 
@@ -481,8 +481,8 @@ bool OsdControlEvent::lessImpl(const Event& other) const
 // class OsdControlReleaseEvent
 
 OsdControlReleaseEvent::OsdControlReleaseEvent(
-		unsigned button, const std::shared_ptr<const Event>& origEvent)
-	: OsdControlEvent(OPENMSX_OSD_CONTROL_RELEASE_EVENT, button, origEvent)
+		unsigned button_, const std::shared_ptr<const Event>& origEvent_)
+	: OsdControlEvent(OPENMSX_OSD_CONTROL_RELEASE_EVENT, button_, origEvent_)
 {
 }
 
@@ -496,8 +496,8 @@ void OsdControlReleaseEvent::toStringImpl(TclObject& result) const
 // class OsdControlPressEvent
 
 OsdControlPressEvent::OsdControlPressEvent(
-		unsigned button, const std::shared_ptr<const Event>& origEvent)
-	: OsdControlEvent(OPENMSX_OSD_CONTROL_PRESS_EVENT, button, origEvent)
+		unsigned button_, const std::shared_ptr<const Event>& origEvent_)
+	: OsdControlEvent(OPENMSX_OSD_CONTROL_PRESS_EVENT, button_, origEvent_)
 {
 }
 

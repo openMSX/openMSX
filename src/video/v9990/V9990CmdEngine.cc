@@ -662,7 +662,7 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
   */
 V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
                                RenderSettings& settings_)
-	: settings(settings_), vdp(vdp_), vram(vdp.getVRAM()), time(time_)
+	: settings(settings_), vdp(vdp_), vram(vdp.getVRAM()), engineTime(time_)
 {
 	cmdTraceSetting = vdp.getMotherBoard().getSharedStuff<BooleanSetting>(
 		"v9990cmdtrace",
@@ -675,7 +675,7 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
 	update(cmdTimingSetting);
 	cmdTimingSetting.attach(*this);
 
-	reset(time);
+	reset(time_);
 
 	// avoid UMR on savestate
 	srcAddress = dstAddress = nbBytes = 0;
@@ -925,9 +925,9 @@ EmuDuration V9990CmdEngine::getTiming(const unsigned table[4][3][4]) const
 
 
 // STOP
-void V9990CmdEngine::startSTOP(EmuTime::param t)
+void V9990CmdEngine::startSTOP(EmuTime::param time)
 {
-	cmdReady(t);
+	cmdReady(time);
 }
 
 void V9990CmdEngine::executeSTOP(EmuTime::param /*limit*/)
@@ -936,16 +936,16 @@ void V9990CmdEngine::executeSTOP(EmuTime::param /*limit*/)
 }
 
 // LMMC
-void V9990CmdEngine::startLMMC(EmuTime::param /*t*/)
+void V9990CmdEngine::startLMMC(EmuTime::param /*time*/)
 {
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
 	status |= TR;
 }
-void V9990CmdEngine::startLMMC16(EmuTime::param t)
+void V9990CmdEngine::startLMMC16(EmuTime::param time)
 {
 	bitsLeft = 1;
-	startLMMC(t);
+	startLMMC(time);
 }
 
 template<>
@@ -1006,9 +1006,9 @@ void V9990CmdEngine::executeLMMC(EmuTime::param limit)
 }
 
 // LMMV
-void V9990CmdEngine::startLMMV(EmuTime::param t)
+void V9990CmdEngine::startLMMV(EmuTime::param time)
 {
-	time = t;
+	engineTime = time;
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
 }
@@ -1023,8 +1023,8 @@ void V9990CmdEngine::executeLMMV(EmuTime::param limit)
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
 	const byte* lut = Mode::getLogOpLUT(LOG);
-	while (time < limit) {
-		time += delta;
+	while (engineTime < limit) {
+		engineTime += delta;
 		Mode::psetColor(vram, DX, DY, pitch, fgCol, WM, lut, LOG);
 
 		DX += dx;
@@ -1032,7 +1032,7 @@ void V9990CmdEngine::executeLMMV(EmuTime::param limit)
 			DX -= (NX * dx);
 			DY += dy;
 			if (!--(ANY)) {
-				cmdReady(time);
+				cmdReady(engineTime);
 				return;
 			} else {
 				ANX = getWrappedNX();
@@ -1042,17 +1042,17 @@ void V9990CmdEngine::executeLMMV(EmuTime::param limit)
 }
 
 // LMCM
-void V9990CmdEngine::startLMCM(EmuTime::param /*t*/)
+void V9990CmdEngine::startLMCM(EmuTime::param /*time*/)
 {
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
 	status &= ~TR;
 	endAfterRead = false;
 }
-void V9990CmdEngine::startLMCM16(EmuTime::param t)
+void V9990CmdEngine::startLMCM16(EmuTime::param time)
 {
 	bitsLeft = 0;
-	startLMCM(t);
+	startLMCM(time);
 }
 
 template<typename Mode>
@@ -1098,9 +1098,9 @@ void V9990CmdEngine::executeLMCM(EmuTime::param /*limit*/)
 }
 
 // LMMM
-void V9990CmdEngine::startLMMM(EmuTime::param t)
+void V9990CmdEngine::startLMMM(EmuTime::param time)
 {
-	time = t;
+	engineTime = time;
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
 }
@@ -1115,8 +1115,8 @@ void V9990CmdEngine::executeLMMM(EmuTime::param limit)
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
 	const byte* lut = Mode::getLogOpLUT(LOG);
-	while (time < limit) {
-		time += delta;
+	while (engineTime < limit) {
+		engineTime += delta;
 		auto src = Mode::point(vram, SX, SY, pitch);
 		src = Mode::shift(src, SX, DX);
 		Mode::pset(vram, DX, DY, pitch, src, WM, lut, LOG);
@@ -1129,7 +1129,7 @@ void V9990CmdEngine::executeLMMM(EmuTime::param limit)
 			DY += dy;
 			SY += dy;
 			if (!--(ANY)) {
-				cmdReady(time);
+				cmdReady(engineTime);
 				return;
 			} else {
 				ANX = getWrappedNX();
@@ -1139,7 +1139,7 @@ void V9990CmdEngine::executeLMMM(EmuTime::param limit)
 }
 
 // CMMC
-void V9990CmdEngine::startCMMC(EmuTime::param /*t*/)
+void V9990CmdEngine::startCMMC(EmuTime::param /*time*/)
 {
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
@@ -1179,10 +1179,10 @@ void V9990CmdEngine::executeCMMC(EmuTime::param limit)
 }
 
 // CMMK
-void V9990CmdEngine::startCMMK(EmuTime::param t)
+void V9990CmdEngine::startCMMK(EmuTime::param time)
 {
 	std::cout << "V9990: CMMK not yet implemented" << std::endl;
-	cmdReady(t); // TODO dummy implementation
+	cmdReady(time); // TODO dummy implementation
 }
 
 void V9990CmdEngine::executeCMMK(EmuTime::param /*limit*/)
@@ -1191,9 +1191,9 @@ void V9990CmdEngine::executeCMMK(EmuTime::param /*limit*/)
 }
 
 // CMMM
-void V9990CmdEngine::startCMMM(EmuTime::param t)
+void V9990CmdEngine::startCMMM(EmuTime::param time)
 {
-	time = t;
+	engineTime = time;
 	srcAddress = (SX & 0xFF) + ((SY & 0x7FF) << 8);
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
@@ -1210,8 +1210,8 @@ void V9990CmdEngine::executeCMMM(EmuTime::param limit)
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
 	const byte* lut = Mode::getLogOpLUT(LOG);
-	while (time < limit) {
-		time += delta;
+	while (engineTime < limit) {
+		engineTime += delta;
 		if (!bitsLeft) {
 			data = vram.readVRAMBx(srcAddress++);
 			bitsLeft = 8;
@@ -1228,7 +1228,7 @@ void V9990CmdEngine::executeCMMM(EmuTime::param limit)
 			DX -= (NX * dx);
 			DY += dy;
 			if (!--(ANY)) {
-				cmdReady(time);
+				cmdReady(engineTime);
 				return;
 			} else {
 				ANX = getWrappedNX();
@@ -1238,9 +1238,9 @@ void V9990CmdEngine::executeCMMM(EmuTime::param limit)
 }
 
 // BMXL
-void V9990CmdEngine::startBMXL(EmuTime::param t)
+void V9990CmdEngine::startBMXL(EmuTime::param time)
 {
-	time = t;
+	engineTime = time;
 	srcAddress = (SX & 0xFF) + ((SY & 0x7FF) << 8);
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
@@ -1256,8 +1256,8 @@ void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 	int dy = (ARG & DIY) ? -1 : 1;
 	const byte* lut = V9990Bpp16::getLogOpLUT(LOG);
 
-	while (time < limit) {
-		time += delta;
+	while (engineTime < limit) {
+		engineTime += delta;
 		word src = vram.readVRAMBx(srcAddress + 0) +
 		           vram.readVRAMBx(srcAddress + 1) * 256;
 		srcAddress += 2;
@@ -1267,7 +1267,7 @@ void V9990CmdEngine::executeBMXL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 			DX -= (NX * dx);
 			DY += dy;
 			if (!--(ANY)) {
-				cmdReady(time);
+				cmdReady(engineTime);
 				return;
 			} else {
 				ANX = getWrappedNX();
@@ -1285,8 +1285,8 @@ void V9990CmdEngine::executeBMXL(EmuTime::param limit)
 	int dy = (ARG & DIY) ? -1 : 1;
 	const byte* lut = Mode::getLogOpLUT(LOG);
 
-	while (time < limit) {
-		time += delta;
+	while (engineTime < limit) {
+		engineTime += delta;
 		byte d = vram.readVRAMBx(srcAddress++);
 		for (int i = 0; (ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			Mode::pset(vram, DX, DY, pitch, d, WM, lut, LOG);
@@ -1295,7 +1295,7 @@ void V9990CmdEngine::executeBMXL(EmuTime::param limit)
 				DX -= (NX * dx);
 				DY += dy;
 				if (!--(ANY)) {
-					cmdReady(time);
+					cmdReady(engineTime);
 					return;
 				} else {
 					ANX = getWrappedNX();
@@ -1306,9 +1306,9 @@ void V9990CmdEngine::executeBMXL(EmuTime::param limit)
 }
 
 // BMLX
-void V9990CmdEngine::startBMLX(EmuTime::param t)
+void V9990CmdEngine::startBMLX(EmuTime::param time)
 {
-	time = t;
+	engineTime = time;
 	dstAddress = (DX & 0xFF) + ((DY & 0x7FF) << 8);
 	ANX = getWrappedNX();
 	ANY = getWrappedNY();
@@ -1326,8 +1326,8 @@ void V9990CmdEngine::executeBMLX(EmuTime::param limit)
 
 	word tmp = 0;
 	bitsLeft = 16;
-	while (time < limit) {
-		time += delta;
+	while (engineTime < limit) {
+		engineTime += delta;
 		auto src = Mode::point(vram, SX, SY, pitch);
 		src = Mode::shift(src, SX, 0); // TODO optimize
 		if (Mode::BITS_PER_PIXEL == 16) {
@@ -1352,7 +1352,7 @@ void V9990CmdEngine::executeBMLX(EmuTime::param limit)
 			DY += dy;
 			SY += dy;
 			if (!--(ANY)) {
-				cmdReady(time);
+				cmdReady(engineTime);
 				// TODO handle last pixels
 				return;
 			} else {
@@ -1363,9 +1363,9 @@ void V9990CmdEngine::executeBMLX(EmuTime::param limit)
 }
 
 // BMLL
-void V9990CmdEngine::startBMLL(EmuTime::param t)
+void V9990CmdEngine::startBMLL(EmuTime::param time)
 {
-	time = t;
+	engineTime = time;
 	srcAddress = (SX & 0xFF) + ((SY & 0x7FF) << 8);
 	dstAddress = (DX & 0xFF) + ((DY & 0x7FF) << 8);
 	nbBytes    = (NX & 0xFF) + ((NY & 0x7FF) << 8);
@@ -1373,9 +1373,9 @@ void V9990CmdEngine::startBMLL(EmuTime::param t)
 		nbBytes = 0x80000;
 	}
 }
-void V9990CmdEngine::startBMLL16(EmuTime::param t)
+void V9990CmdEngine::startBMLL16(EmuTime::param time)
 {
-	startBMLL(t);
+	startBMLL(time);
 	// TODO is this correct???
 	// drop last bit
 	srcAddress >>= 1;
@@ -1391,8 +1391,8 @@ void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 	auto delta = getTiming(BMLL_TIMING) * 2;
 	const byte* lut = V9990Bpp16::getLogOpLUT(LOG);
 	bool transp = (LOG & 0x10) != 0;
-	while (time < limit) {
-		time += delta;
+	while (engineTime < limit) {
+		engineTime += delta;
 		// VRAM always mapped as in Bx modes
 		word srcColor = vram.readVRAMDirect(srcAddress + 0x00000) +
 		                vram.readVRAMDirect(srcAddress + 0x40000) * 256;
@@ -1405,7 +1405,7 @@ void V9990CmdEngine::executeBMLL<V9990CmdEngine::V9990Bpp16>(EmuTime::param limi
 		srcAddress = (srcAddress + 1) & 0x3FFFF;
 		dstAddress = (dstAddress + 1) & 0x3FFFF;
 		if (!--nbBytes) {
-			cmdReady(time);
+			cmdReady(engineTime);
 			return;
 		}
 	}
@@ -1417,8 +1417,8 @@ void V9990CmdEngine::executeBMLL(EmuTime::param limit)
 	// TODO DIX DIY?
 	auto delta = getTiming(BMLL_TIMING);
 	const byte* lut = Mode::getLogOpLUT(LOG);
-	while (time < limit) {
-		time += delta;
+	while (engineTime < limit) {
+		engineTime += delta;
 		// VRAM always mapped as in Bx modes
 		byte srcColor = vram.readVRAMBx(srcAddress);
 		unsigned addr = V9990VRAM::transformBx(dstAddress);
@@ -1430,16 +1430,16 @@ void V9990CmdEngine::executeBMLL(EmuTime::param limit)
 		srcAddress = (srcAddress + 1) & 0x7FFFF;
 		dstAddress = (dstAddress + 1) & 0x7FFFF;
 		if (!--nbBytes) {
-			cmdReady(time);
+			cmdReady(engineTime);
 			return;
 		}
 	}
 }
 
 // LINE
-void V9990CmdEngine::startLINE(EmuTime::param t)
+void V9990CmdEngine::startLINE(EmuTime::param time)
 {
-	time = t;
+	engineTime = time;
 	ASX = (NX - 1) / 2;
 	ADX = DX;
 	ANX = 0;
@@ -1458,8 +1458,8 @@ void V9990CmdEngine::executeLINE(EmuTime::param limit)
 
 	if ((ARG & MAJ) == 0) {
 		// X-Axis is major direction.
-		while (time < limit) {
-			time += delta;
+		while (engineTime < limit) {
+			engineTime += delta;
 			Mode::psetColor(vram, ADX, DY, pitch, fgCol, WM, lut, LOG);
 
 			ADX += TX;
@@ -1470,14 +1470,14 @@ void V9990CmdEngine::executeLINE(EmuTime::param limit)
 			ASX -= NY;
 			//ASX &= 1023; // mask to 10 bits range
 			if (ANX++ == NX || (ADX & width)) {
-				cmdReady(time);
+				cmdReady(engineTime);
 				break;
 			}
 		}
 	} else {
 		// Y-Axis is major direction.
-		while (time < limit) {
-			time += delta;
+		while (engineTime < limit) {
+			engineTime += delta;
 			Mode::psetColor(vram, ADX, DY, pitch, fgCol, WM, lut, LOG);
 			DY += TY;
 			if (ASX < NY) {
@@ -1487,7 +1487,7 @@ void V9990CmdEngine::executeLINE(EmuTime::param limit)
 			ASX -= NY;
 			//ASX &= 1023; // mask to 10 bits range
 			if (ANX++ == NX || (ADX & width)) {
-				cmdReady(time);
+				cmdReady(engineTime);
 				break;
 			}
 		}
@@ -1495,9 +1495,9 @@ void V9990CmdEngine::executeLINE(EmuTime::param limit)
 }
 
 // SRCH
-void V9990CmdEngine::startSRCH(EmuTime::param t)
+void V9990CmdEngine::startSRCH(EmuTime::param time)
 {
-	time = t;
+	engineTime = time;
 	ASX = SX;
 }
 
@@ -1512,8 +1512,8 @@ void V9990CmdEngine::executeSRCH(EmuTime::param limit)
 	int TX = (ARG & DIX) ? -1 : 1;
 	bool AEQ = (ARG & NEQ) != 0;
 
-	while (time < limit) {
-		time += delta;
+	while (engineTime < limit) {
+		engineTime += delta;
 		typename Mode::Type value;
 		typename Mode::Type col;
 		typename Mode::Type mask2;
@@ -1530,13 +1530,13 @@ void V9990CmdEngine::executeSRCH(EmuTime::param limit)
 		}
 		if (((value & mask2) == (col & mask2)) ^ AEQ) {
 			status |= BD; // border detected
-			cmdReady(time);
+			cmdReady(engineTime);
 			borderX = ASX;
 			break;
 		}
 		if ((ASX += TX) & width) {
 			status &= ~BD; // border not detected
-			cmdReady(time);
+			cmdReady(engineTime);
 			borderX = ASX;
 			break;
 		}
@@ -1544,10 +1544,10 @@ void V9990CmdEngine::executeSRCH(EmuTime::param limit)
 }
 
 // POINT
-void V9990CmdEngine::startPOINT(EmuTime::param t)
+void V9990CmdEngine::startPOINT(EmuTime::param time)
 {
 	std::cout << "V9990: POINT not yet implemented" << std::endl;
-	cmdReady(t); // TODO dummy implementation
+	cmdReady(time); // TODO dummy implementation
 }
 
 void V9990CmdEngine::executePOINT(EmuTime::param /*limit*/)
@@ -1557,7 +1557,7 @@ void V9990CmdEngine::executePOINT(EmuTime::param /*limit*/)
 
 // PSET
 template<typename Mode>
-void V9990CmdEngine::startPSET(EmuTime::param t)
+void V9990CmdEngine::startPSET(EmuTime::param time)
 {
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	const byte* lut = Mode::getLogOpLUT(LOG);
@@ -1565,7 +1565,7 @@ void V9990CmdEngine::startPSET(EmuTime::param t)
 
 	// TODO advance DX DY
 
-	cmdReady(t);
+	cmdReady(time);
 }
 
 void V9990CmdEngine::executePSET(EmuTime::param /*limit*/)
@@ -1574,10 +1574,10 @@ void V9990CmdEngine::executePSET(EmuTime::param /*limit*/)
 }
 
 // ADVN
-void V9990CmdEngine::startADVN(EmuTime::param t)
+void V9990CmdEngine::startADVN(EmuTime::param time)
 {
 	std::cout << "V9990: ADVN not yet implemented" << std::endl;
-	cmdReady(t); // TODO dummy implementation
+	cmdReady(time); // TODO dummy implementation
 }
 
 void V9990CmdEngine::executeADVN(EmuTime::param /*limit*/)
@@ -1730,7 +1730,7 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 {
 	// note: V9990Cmd objects are stateless
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("time", time);
+		ar.serialize("time", engineTime);
 	} else {
 		// In version 1 we forgot to serialize the time member (it was
 		// also still a Clock back then). The best we can do is

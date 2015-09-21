@@ -491,11 +491,11 @@ inline void Slot::updateReleaseRate(int kcodeScaled)
 }
 
 inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
-                            unsigned lfo_am, int phase)
+                            unsigned lfo_am, int phase2)
 {
-	int egout = calc_envelope(channel, eg_cnt, carrier);
-	int env = (TLL + egout + (lfo_am & AMmask)) << 5;
-	int p = env + wavetable[phase & SIN_MASK];
+	int egout2 = calc_envelope(channel, eg_cnt, carrier);
+	int env = (TLL + egout2 + (lfo_am & AMmask)) << 5;
+	int p = env + wavetable[phase2 & SIN_MASK];
 	return p < TL_TAB_LEN ? tl_tab[p] : 0;
 }
 
@@ -503,14 +503,14 @@ inline int Slot::calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
                                unsigned lfo_pm, unsigned lfo_am)
 {
 	// Compute phase.
-	int phase = calc_phase(channel, lfo_pm);
+	int phase2 = calc_phase(channel, lfo_pm);
 	if (fb_shift) {
-		phase += (op1_out[0] + op1_out[1]) >> fb_shift;
+		phase2 += (op1_out[0] + op1_out[1]) >> fb_shift;
 	}
 	// Shift output in 2-place buffer.
 	op1_out[0] = op1_out[1];
 	// Calculate operator output.
-	op1_out[1] = calcOutput(channel, eg_cnt, carrier, lfo_am, phase);
+	op1_out[1] = calcOutput(channel, eg_cnt, carrier, lfo_am, phase2);
 	return op1_out[0] << 1;
 }
 
@@ -1039,9 +1039,9 @@ bool YM2413::isRhythm() const
 	return (reg[0x0E] & 0x20) != 0;
 }
 
-Channel& YM2413::getChannelForReg(byte reg)
+Channel& YM2413::getChannelForReg(byte r)
 {
-	byte chan = (reg & 0x0F) % 9; // verified on real YM2413
+	byte chan = (r & 0x0F) % 9; // verified on real YM2413
 	return channels[chan];
 }
 
@@ -1303,33 +1303,33 @@ namespace YM2413Burczynski {
 //            - calculated more members from other state
 //              (TLL, freq, eg_sel_*, eg_sh_*)
 template<typename Archive>
-void Slot::serialize(Archive& ar, unsigned /*version*/)
+void Slot::serialize(Archive& a, unsigned /*version*/)
 {
 	// TODO some of the serialized members here could be calculated from
 	//      other members
 	int waveform = (wavetable == &sin_tab[0]) ? 0 : 1;
-	ar.serialize("waveform", waveform);
-	if (ar.isLoader()) {
+	a.serialize("waveform", waveform);
+	if (a.isLoader()) {
 		setWaveform(waveform);
 	}
 
-	ar.serialize("phase", phase);
-	ar.serialize("TL", TL);
-	ar.serialize("volume", egout);
-	ar.serialize("sl", sl);
-	ar.serialize("state", state);
-	ar.serialize("op1_out", op1_out);
-	ar.serialize("eg_sustain", eg_sustain);
-	ar.serialize("fb_shift", fb_shift);
-	ar.serialize("key", key);
-	ar.serialize("ar", this->ar);
-	ar.serialize("dr", dr);
-	ar.serialize("rr", rr);
-	ar.serialize("KSR", KSR);
-	ar.serialize("ksl", ksl);
-	ar.serialize("mul", mul);
-	ar.serialize("AMmask", AMmask);
-	ar.serialize("vib", vib);
+	a.serialize("phase", phase);
+	a.serialize("TL", TL);
+	a.serialize("volume", egout);
+	a.serialize("sl", sl);
+	a.serialize("state", state);
+	a.serialize("op1_out", op1_out);
+	a.serialize("eg_sustain", eg_sustain);
+	a.serialize("fb_shift", fb_shift);
+	a.serialize("key", key);
+	a.serialize("ar", ar);
+	a.serialize("dr", dr);
+	a.serialize("rr", rr);
+	a.serialize("KSR", KSR);
+	a.serialize("ksl", ksl);
+	a.serialize("mul", mul);
+	a.serialize("AMmask", AMmask);
+	a.serialize("vib", vib);
 
 	// These are calculated by updateTotalLevel()
 	//   TLL
@@ -1342,22 +1342,22 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 // version 2: removed kcode
 // version 3: removed instvol_r
 template<typename Archive>
-void Channel::serialize(Archive& ar, unsigned /*version*/)
+void Channel::serialize(Archive& a, unsigned /*version*/)
 {
 	// mod/car were originally an array, keep serializing as such for bwc
 	Slot slots[2] = { mod, car };
-	ar.serialize("slots", slots);
-	if (ar.isLoader()) {
+	a.serialize("slots", slots);
+	if (a.isLoader()) {
 		mod = slots[0];
 		car = slots[1];
 	}
 
-	ar.serialize("block_fnum", block_fnum);
-	ar.serialize("fc", fc);
-	ar.serialize("ksl_base", ksl_base);
-	ar.serialize("sus", sus);
+	a.serialize("block_fnum", block_fnum);
+	a.serialize("fc", fc);
+	a.serialize("ksl_base", ksl_base);
+	a.serialize("sus", sus);
 
-	if (ar.isLoader()) {
+	if (a.isLoader()) {
 		mod.updateFrequency(*this);
 		car.updateFrequency(*this);
 	}
@@ -1367,19 +1367,19 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 // version 2: 'registers' are moved here (no longer serialized in base class)
 // version 3: removed 'rhythm' variable
 template<typename Archive>
-void YM2413::serialize(Archive& ar, unsigned version)
+void YM2413::serialize(Archive& a, unsigned version)
 {
-	if (ar.versionBelow(version, 2)) ar.beginTag("YM2413Core");
-	ar.serialize("registers", reg);
-	if (ar.versionBelow(version, 2)) ar.endTag("YM2413Core");
+	if (a.versionBelow(version, 2)) a.beginTag("YM2413Core");
+	a.serialize("registers", reg);
+	if (a.versionBelow(version, 2)) a.endTag("YM2413Core");
 
 	// only serialize user instrument
-	ar.serialize_blob("user_instrument", inst_tab[0], 8);
-	ar.serialize("channels", channels);
-	ar.serialize("eg_cnt", eg_cnt);
-	ar.serialize("noise_rng", noise_rng);
-	ar.serialize("lfo_am_cnt", lfo_am_cnt);
-	ar.serialize("lfo_pm_cnt", lfo_pm_cnt);
+	a.serialize_blob("user_instrument", inst_tab[0], 8);
+	a.serialize("channels", channels);
+	a.serialize("eg_cnt", eg_cnt);
+	a.serialize("noise_rng", noise_rng);
+	a.serialize("lfo_am_cnt", lfo_am_cnt);
+	a.serialize("lfo_pm_cnt", lfo_pm_cnt);
 	// don't serialize idleSamples, it's only an optimization
 }
 

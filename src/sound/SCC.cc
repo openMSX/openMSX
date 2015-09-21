@@ -112,10 +112,10 @@ static string calcDescription(SCC::ChipMode mode)
 	return (mode == SCC::SCC_Real) ? "Konami SCC" : "Konami SCC+";
 }
 
-SCC::SCC(const string& name, const DeviceConfig& config,
+SCC::SCC(const string& name_, const DeviceConfig& config,
          EmuTime::param time, ChipMode mode)
 	: ResampledSoundDevice(
-		config.getMotherBoard(), name, calcDescription(mode), 5)
+		config.getMotherBoard(), name_, calcDescription(mode), 5)
 	, debuggable(config.getMotherBoard(), getName())
 	, deformTimer(time)
 	, currentChipMode(mode)
@@ -357,13 +357,13 @@ void SCC::writeWave(unsigned channel, unsigned address, byte value)
 	assert((channel != 4) || (currentChipMode == SCC_plusmode));
 
 	if (!readOnly[channel]) {
-		unsigned pos = address & 0x1F;
-		wave[channel][pos] = value;
-		volAdjustedWave[channel][pos] = adjust(value, volume[channel]);
+		unsigned p = address & 0x1F;
+		wave[channel][p] = value;
+		volAdjustedWave[channel][p] = adjust(value, volume[channel]);
 		if ((currentChipMode != SCC_plusmode) && (channel == 3)) {
 			// copy waveform 4 -> waveform 5
-			wave[4][pos] = wave[3][pos];
-			volAdjustedWave[4][pos] = adjust(value, volume[4]);
+			wave[4][p] = wave[3][p];
+			volAdjustedWave[4][p] = adjust(value, volume[4]);
 		}
 	}
 }
@@ -545,8 +545,8 @@ void SCC::generateChannels(int** bufs, unsigned num)
 
 // Debuggable
 
-SCC::Debuggable::Debuggable(MSXMotherBoard& motherBoard, const string& name)
-	: SimpleDebuggable(motherBoard, name + " SCC",
+SCC::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const string& name_)
+	: SimpleDebuggable(motherBoard_, name_ + " SCC",
 	                   "SCC registers in SCC+ format", 0x100)
 {
 }
@@ -614,9 +614,9 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		// recalculate volAdjustedWave
 		for (int channel = 0; channel < 5; ++channel) {
-			for (int pos = 0; pos < 32; ++pos) {
-				volAdjustedWave[channel][pos] =
-					adjust(wave[channel][pos], volume[channel]);
+			for (int p = 0; p < 32; ++p) {
+				volAdjustedWave[channel][p] =
+					adjust(wave[channel][p], volume[channel]);
 			}
 		}
 

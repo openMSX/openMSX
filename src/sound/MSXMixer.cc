@@ -854,15 +854,15 @@ MSXMixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(
 void MSXMixer::SoundDeviceInfoTopic::execute(
 	array_ref<TclObject> tokens, TclObject& result) const
 {
-	auto& mixer = OUTER(MSXMixer, soundDeviceInfo);
+	auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
 	switch (tokens.size()) {
 	case 2:
-		for (auto& info : mixer.infos) {
+		for (auto& info : msxMixer.infos) {
 			result.addListElement(info.device->getName());
 		}
 		break;
 	case 3: {
-		SoundDevice* device = mixer.findDevice(tokens[2].getString());
+		SoundDevice* device = msxMixer.findDevice(tokens[2].getString());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}
@@ -883,8 +883,8 @@ void MSXMixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> devices;
-		auto& mixer = OUTER(MSXMixer, soundDeviceInfo);
-		for (auto& info : mixer.infos) {
+		auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
+		for (auto& info : msxMixer.infos) {
 			devices.push_back(info.device->getName());
 		}
 		completeString(tokens, devices);

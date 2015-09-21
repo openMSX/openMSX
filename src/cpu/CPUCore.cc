@@ -4324,9 +4324,9 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 	T::serialize(ar, version);
 	ar.serialize("regs", static_cast<CPURegs&>(*this));
 	if (ar.versionBelow(version, 2)) {
-		unsigned memptr = 0; // dummy value (avoid warning)
-		ar.serialize("memptr", memptr);
-		T::setMemPtr(memptr);
+		unsigned mptr = 0; // dummy value (avoid warning)
+		ar.serialize("memptr", mptr);
+		T::setMemPtr(mptr);
 	}
 
 	if (ar.isLoader()) {

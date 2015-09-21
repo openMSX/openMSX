@@ -644,9 +644,9 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 
 // class QuitCommand
 
-QuitCommand::QuitCommand(CommandController& commandController,
+QuitCommand::QuitCommand(CommandController& commandController_,
                          EventDistributor& distributor_)
-	: Command(commandController, "exit")
+	: Command(commandController_, "exit")
 	, distributor(distributor_)
 {
 }
@@ -664,9 +664,9 @@ string QuitCommand::help(const vector<string>& /*tokens*/) const
 
 // class MachineCommand
 
-MachineCommand::MachineCommand(CommandController& commandController,
+MachineCommand::MachineCommand(CommandController& commandController_,
                                Reactor& reactor_)
-	: Command(commandController, "machine")
+	: Command(commandController_, "machine")
 	, reactor(reactor_)
 {
 }
@@ -705,9 +705,9 @@ void MachineCommand::tabCompletion(vector<string>& tokens) const
 
 // class TestMachineCommand
 
-TestMachineCommand::TestMachineCommand(CommandController& commandController,
+TestMachineCommand::TestMachineCommand(CommandController& commandController_,
                                        Reactor& reactor_)
-	: Command(commandController, "test_machine")
+	: Command(commandController_, "test_machine")
 	, reactor(reactor_)
 {
 }
@@ -742,8 +742,8 @@ void TestMachineCommand::tabCompletion(vector<string>& tokens) const
 // class CreateMachineCommand
 
 CreateMachineCommand::CreateMachineCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "create_machine")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "create_machine")
 	, reactor(reactor_)
 {
 }
@@ -774,8 +774,8 @@ string CreateMachineCommand::help(const vector<string>& /*tokens*/) const
 // class DeleteMachineCommand
 
 DeleteMachineCommand::DeleteMachineCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "delete_machine")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "delete_machine")
 	, reactor(reactor_)
 {
 }
@@ -803,8 +803,8 @@ void DeleteMachineCommand::tabCompletion(vector<string>& tokens) const
 // class ListMachinesCommand
 
 ListMachinesCommand::ListMachinesCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "list_machines")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "list_machines")
 	, reactor(reactor_)
 {
 }
@@ -824,8 +824,8 @@ string ListMachinesCommand::help(const vector<string>& /*tokens*/) const
 // class ActivateMachineCommand
 
 ActivateMachineCommand::ActivateMachineCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "activate_machine")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "activate_machine")
 	, reactor(reactor_)
 {
 }
@@ -862,8 +862,8 @@ void ActivateMachineCommand::tabCompletion(vector<string>& tokens) const
 // class StoreMachineCommand
 
 StoreMachineCommand::StoreMachineCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "store_machine")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "store_machine")
 	, reactor(reactor_)
 {
 }
@@ -915,8 +915,8 @@ void StoreMachineCommand::tabCompletion(vector<string>& tokens) const
 // class RestoreMachineCommand
 
 RestoreMachineCommand::RestoreMachineCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "restore_machine")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "restore_machine")
 	, reactor(reactor_)
 {
 }

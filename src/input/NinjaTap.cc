@@ -4,9 +4,9 @@
 
 namespace openmsx {
 
-NinjaTap::NinjaTap(PluggingController& pluggingController,
-                   const std::string& name)
-	: JoyTap(pluggingController, name)
+NinjaTap::NinjaTap(PluggingController& pluggingController_,
+                   const std::string& name_)
+	: JoyTap(pluggingController_, name_)
 {
 	status = 0x3F; // TODO check initial value
 	previous = 0;
@@ -23,7 +23,7 @@ string_ref NinjaTap::getDescription() const
 
 void NinjaTap::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
-	createPorts(pluggingController, "Ninja Tap port ");
+	createPorts("Ninja Tap port ");
 }
 
 byte NinjaTap::read(EmuTime::param /*time*/)

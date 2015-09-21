@@ -444,12 +444,12 @@ void YMF262::changeStatusMask(byte flag)
 }
 
 
-void YMF262::Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
+void YMF262::Slot::advanceEnvelopeGenerator(unsigned egCnt)
 {
 	switch (state) {
 	case EG_ATTACK:
-		if (!(eg_cnt & eg_m_ar)) {
-			volume += (~volume * eg_inc[eg_sel_ar + ((eg_cnt >> eg_sh_ar) & 7)]) >> 3;
+		if (!(egCnt & eg_m_ar)) {
+			volume += (~volume * eg_inc[eg_sel_ar + ((egCnt >> eg_sh_ar) & 7)]) >> 3;
 			if (volume <= MIN_ATT_INDEX) {
 				volume = MIN_ATT_INDEX;
 				state = EG_DECAY;
@@ -458,8 +458,8 @@ void YMF262::Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
 		break;
 
 	case EG_DECAY:
-		if (!(eg_cnt & eg_m_dr)) {
-			volume += eg_inc[eg_sel_dr + ((eg_cnt >> eg_sh_dr) & 7)];
+		if (!(egCnt & eg_m_dr)) {
+			volume += eg_inc[eg_sel_dr + ((egCnt >> eg_sh_dr) & 7)];
 			if (volume >= sl) {
 				state = EG_SUSTAIN;
 			}
@@ -477,8 +477,8 @@ void YMF262::Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
 		} else {
 			// percussive mode
 			// during sustain phase chip adds Release Rate (in percussive mode)
-			if (!(eg_cnt & eg_m_rr)) {
-				volume += eg_inc[eg_sel_rr + ((eg_cnt >> eg_sh_rr) & 7)];
+			if (!(egCnt & eg_m_rr)) {
+				volume += eg_inc[eg_sel_rr + ((egCnt >> eg_sh_rr) & 7)];
 				if (volume >= MAX_ATT_INDEX) {
 					volume = MAX_ATT_INDEX;
 				}
@@ -489,8 +489,8 @@ void YMF262::Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
 		break;
 
 	case EG_RELEASE:
-		if (!(eg_cnt & eg_m_rr)) {
-			volume += eg_inc[eg_sel_rr + ((eg_cnt >> eg_sh_rr) & 7)];
+		if (!(egCnt & eg_m_rr)) {
+			volume += eg_inc[eg_sel_rr + ((egCnt >> eg_sh_rr) & 7)];
 			if (volume >= MAX_ATT_INDEX) {
 				volume = MAX_ATT_INDEX;
 				state = EG_OFF;
@@ -1435,9 +1435,9 @@ void YMF262::reset(EmuTime::param time)
 	}
 }
 
-YMF262::YMF262(const std::string& name,
+YMF262::YMF262(const std::string& name_,
                const DeviceConfig& config, bool isYMF278_)
-	: ResampledSoundDevice(config.getMotherBoard(), name, "MoonSound FM-part",
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "MoonSound FM-part",
 	                       18, true)
 	, debuggable(config.getMotherBoard(), getName())
 	, timer1(isYMF278_
@@ -1594,12 +1594,12 @@ static enum_string<YMF262::EnvelopeState> envelopeStateInfo[]= {
 SERIALIZE_ENUM(YMF262::EnvelopeState, envelopeStateInfo);
 
 template<typename Archive>
-void YMF262::Slot::serialize(Archive& ar, unsigned /*version*/)
+void YMF262::Slot::serialize(Archive& a, unsigned /*version*/)
 {
 	// wavetable
 	unsigned waveform = unsigned((wavetable - sin_tab) / SIN_LEN);
-	ar.serialize("waveform", waveform);
-	if (ar.isLoader()) {
+	a.serialize("waveform", waveform);
+	if (a.isLoader()) {
 		wavetable = &sin_tab[waveform * SIN_LEN];
 	}
 
@@ -1607,72 +1607,72 @@ void YMF262::Slot::serialize(Archive& ar, unsigned /*version*/)
 	//   connect, fb_shift, CON
 	// TODO handle more state like this
 
-	ar.serialize("Cnt", Cnt);
-	ar.serialize("Incr", Incr);
-	ar.serialize("op1_out", op1_out);
-	ar.serialize("TL", TL);
-	ar.serialize("TLL", TLL);
-	ar.serialize("volume", volume);
-	ar.serialize("sl", sl);
-	ar.serialize("state", state);
-	ar.serialize("eg_m_ar", eg_m_ar);
-	ar.serialize("eg_m_dr", eg_m_dr);
-	ar.serialize("eg_m_rr", eg_m_rr);
-	ar.serialize("eg_sh_ar", eg_sh_ar);
-	ar.serialize("eg_sel_ar", eg_sel_ar);
-	ar.serialize("eg_sh_dr", eg_sh_dr);
-	ar.serialize("eg_sel_dr", eg_sel_dr);
-	ar.serialize("eg_sh_rr", eg_sh_rr);
-	ar.serialize("eg_sel_rr", eg_sel_rr);
-	ar.serialize("key", key);
-	ar.serialize("eg_type", eg_type);
-	ar.serialize("AMmask", AMmask);
-	ar.serialize("vib", vib);
-	ar.serialize("ar", this->ar);
-	ar.serialize("dr", dr);
-	ar.serialize("rr", rr);
-	ar.serialize("KSR", KSR);
-	ar.serialize("ksl", ksl);
-	ar.serialize("ksr", ksr);
-	ar.serialize("mul", mul);
+	a.serialize("Cnt", Cnt);
+	a.serialize("Incr", Incr);
+	a.serialize("op1_out", op1_out);
+	a.serialize("TL", TL);
+	a.serialize("TLL", TLL);
+	a.serialize("volume", volume);
+	a.serialize("sl", sl);
+	a.serialize("state", state);
+	a.serialize("eg_m_ar", eg_m_ar);
+	a.serialize("eg_m_dr", eg_m_dr);
+	a.serialize("eg_m_rr", eg_m_rr);
+	a.serialize("eg_sh_ar", eg_sh_ar);
+	a.serialize("eg_sel_ar", eg_sel_ar);
+	a.serialize("eg_sh_dr", eg_sh_dr);
+	a.serialize("eg_sel_dr", eg_sel_dr);
+	a.serialize("eg_sh_rr", eg_sh_rr);
+	a.serialize("eg_sel_rr", eg_sel_rr);
+	a.serialize("key", key);
+	a.serialize("eg_type", eg_type);
+	a.serialize("AMmask", AMmask);
+	a.serialize("vib", vib);
+	a.serialize("ar", ar);
+	a.serialize("dr", dr);
+	a.serialize("rr", rr);
+	a.serialize("KSR", KSR);
+	a.serialize("ksl", ksl);
+	a.serialize("ksr", ksr);
+	a.serialize("mul", mul);
 }
 
 template<typename Archive>
-void YMF262::Channel::serialize(Archive& ar, unsigned /*version*/)
+void YMF262::Channel::serialize(Archive& a, unsigned /*version*/)
 {
-	ar.serialize("slots", slot);
-	ar.serialize("block_fnum", block_fnum);
-	ar.serialize("fc", fc);
-	ar.serialize("ksl_base", ksl_base);
-	ar.serialize("kcode", kcode);
-	ar.serialize("extended", extended);
+	a.serialize("slots", slot);
+	a.serialize("block_fnum", block_fnum);
+	a.serialize("fc", fc);
+	a.serialize("ksl_base", ksl_base);
+	a.serialize("kcode", kcode);
+	a.serialize("extended", extended);
 }
 
 // version 1: initial version
 // version 2: added alreadySignaledNEW2
 template<typename Archive>
-void YMF262::serialize(Archive& ar, unsigned version)
+void YMF262::serialize(Archive& a, unsigned version)
 {
-	ar.serialize("timer1", *timer1);
-	ar.serialize("timer2", *timer2);
-	ar.serialize("irq", irq);
-	ar.serialize("chanout", chanout);
-	ar.serialize_blob("registers", reg, sizeof(reg));
-	ar.serialize("channels", channel);
-	ar.serialize("eg_cnt", eg_cnt);
-	ar.serialize("noise_rng", noise_rng);
-	ar.serialize("lfo_am_cnt", lfo_am_cnt);
-	ar.serialize("lfo_pm_cnt", lfo_pm_cnt);
-	ar.serialize("lfo_am_depth", lfo_am_depth);
-	ar.serialize("lfo_pm_depth_range", lfo_pm_depth_range);
-	ar.serialize("rhythm", rhythm);
-	ar.serialize("nts", nts);
-	ar.serialize("OPL3_mode", OPL3_mode);
-	ar.serialize("status", status);
-	ar.serialize("status2", status2);
-	ar.serialize("statusMask", statusMask);
-	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("alreadySignaledNEW2", alreadySignaledNEW2);
+	a.serialize("timer1", *timer1);
+	a.serialize("timer2", *timer2);
+	a.serialize("irq", irq);
+	a.serialize("chanout", chanout);
+	a.serialize_blob("registers", reg, sizeof(reg));
+	a.serialize("channels", channel);
+	a.serialize("eg_cnt", eg_cnt);
+	a.serialize("noise_rng", noise_rng);
+	a.serialize("lfo_am_cnt", lfo_am_cnt);
+	a.serialize("lfo_pm_cnt", lfo_pm_cnt);
+	a.serialize("lfo_am_depth", lfo_am_depth);
+	a.serialize("lfo_pm_depth_range", lfo_pm_depth_range);
+	a.serialize("rhythm", rhythm);
+	a.serialize("nts", nts);
+	a.serialize("OPL3_mode", OPL3_mode);
+	a.serialize("status", status);
+	a.serialize("status2", status2);
+	a.serialize("statusMask", statusMask);
+	if (a.versionAtLeast(version, 2)) {
+		a.serialize("alreadySignaledNEW2", alreadySignaledNEW2);
 	}
 
 	// TODO restore more state by rewriting register values
@@ -1689,9 +1689,9 @@ INSTANTIATE_SERIALIZE_METHODS(YMF262);
 
 // YMF262::Debuggable
 
-YMF262::Debuggable::Debuggable(MSXMotherBoard& motherBoard,
-                               const std::string& name)
-	: SimpleDebuggable(motherBoard, name + " regs",
+YMF262::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
+                               const std::string& name_)
+	: SimpleDebuggable(motherBoard_, name_ + " regs",
 	                   "MoonSound FM-part registers", 0x200)
 {
 }

@@ -58,9 +58,9 @@ static const byte ST3_WP  = 0x40; // Write Protect
 static const byte ST3_FLT = 0x80; // Fault
 
 
-TC8566AF::TC8566AF(Scheduler& scheduler, DiskDrive* drv[4], CliComm& cliComm_,
+TC8566AF::TC8566AF(Scheduler& scheduler_, DiskDrive* drv[4], CliComm& cliComm_,
                    EmuTime::param time)
-	: Schedulable(scheduler)
+	: Schedulable(scheduler_)
 	, cliComm(cliComm_)
 	, delayTime(EmuTime::zero)
 	, headUnloadTime(EmuTime::zero) // head not loaded

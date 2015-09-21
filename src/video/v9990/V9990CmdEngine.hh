@@ -254,7 +254,7 @@ private:
 	V9990& vdp;
 	V9990VRAM& vram;
 
-	EmuTime time;
+	EmuTime engineTime;
 
 	/** VRAM read/write address for various commands
 	  */

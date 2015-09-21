@@ -270,11 +270,11 @@ class iterator : public std::iterator<std::bidirectional_iterator_tag, uint32_t>
 public:
 	iterator() {};
 	iterator(const octet_iterator& octet_it,
-	         const octet_iterator& range_start,
-	         const octet_iterator& range_end)
+	         const octet_iterator& range_start_,
+	         const octet_iterator& range_end_)
 		: it(octet_it)
-		, range_start(range_start)
-		, range_end(range_end)
+		, range_start(range_start_)
+		, range_end(range_end_)
 	{
 		if (it < range_start || it > range_end) {
 			throw std::out_of_range("Invalid utf-8 iterator position");

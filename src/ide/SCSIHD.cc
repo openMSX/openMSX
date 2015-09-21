@@ -138,10 +138,10 @@ unsigned SCSIHD::inquiry()
 	}
 
 	if (length > 36) {
-		string filename = FileOperations::getFilename(
+		string imageName = FileOperations::getFilename(
 		                       getImageName().getOriginal()).str();
-		filename.resize(20, ' ');
-		memcpy(buffer + 36, filename.data(), 20);
+		imageName.resize(20, ' ');
+		memcpy(buffer + 36, imageName.data(), 20);
 	}
 	return length;
 }

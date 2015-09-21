@@ -16,7 +16,6 @@ namespace openmsx {
 class VDPVRAM;
 class DisplayMode;
 class CommandController;
-class RenderSettings;
 
 
 /** VDP command engine by Alex Wulms.
@@ -25,8 +24,7 @@ class RenderSettings;
 class VDPCmdEngine : private noncopyable
 {
 public:
-	VDPCmdEngine(VDP& vdp, RenderSettings& renderSettings_,
-	             CommandController& commandController);
+	VDPCmdEngine(VDP& vdp, CommandController& commandController);
 
 	/** Reinitialise Renderer state.
 	  * @param time The moment in time the reset occurs.
@@ -116,19 +114,19 @@ private:
 
 	void calcFinishTime(unsigned NX, unsigned NY, unsigned ticksPerPixel);
 
-	                        void startAbrt(EmuTime::param t);
-	                        void startPoint(EmuTime::param t);
-	                        void startPset(EmuTime::param t);
-	                        void startSrch(EmuTime::param t);
-	                        void startLine(EmuTime::param t);
-	template<typename Mode> void startLmmv(EmuTime::param t);
-	template<typename Mode> void startLmmm(EmuTime::param t);
-	template<typename Mode> void startLmcm(EmuTime::param t);
-	template<typename Mode> void startLmmc(EmuTime::param t);
-	template<typename Mode> void startHmmv(EmuTime::param t);
-	template<typename Mode> void startHmmm(EmuTime::param t);
-	template<typename Mode> void startYmmm(EmuTime::param t);
-	template<typename Mode> void startHmmc(EmuTime::param t);
+	                        void startAbrt(EmuTime::param time);
+	                        void startPoint(EmuTime::param time);
+	                        void startPset(EmuTime::param time);
+	                        void startSrch(EmuTime::param time);
+	                        void startLine(EmuTime::param time);
+	template<typename Mode> void startLmmv(EmuTime::param time);
+	template<typename Mode> void startLmmm(EmuTime::param time);
+	template<typename Mode> void startLmcm(EmuTime::param time);
+	template<typename Mode> void startLmmc(EmuTime::param time);
+	template<typename Mode> void startHmmv(EmuTime::param time);
+	template<typename Mode> void startHmmm(EmuTime::param time);
+	template<typename Mode> void startYmmm(EmuTime::param time);
+	template<typename Mode> void startHmmc(EmuTime::param time);
 
 	template<typename Mode>                 void executePoint(EmuTime::param limit);
 	template<typename Mode, typename LogOp> void executePset(EmuTime::param limit);
@@ -144,14 +142,14 @@ private:
 	template<typename Mode>                 void executeHmmc(EmuTime::param limit);
 
 	inline void nextAccessSlot() {
-		time = vdp.getAccessSlot(time, VDPAccessSlots::DELTA_0);
+		engineTime = vdp.getAccessSlot(engineTime, VDPAccessSlots::DELTA_0);
 	}
 	inline void nextAccessSlot(VDPAccessSlots::Delta delta) {
-		time = vdp.getAccessSlot(time, delta);
+		engineTime = vdp.getAccessSlot(engineTime, delta);
 	}
 	inline VDPAccessSlots::Calculator getSlotCalculator(
 			EmuTime::param limit) const {
-		return vdp.getAccessSlotCalculator(time, limit);
+		return vdp.getAccessSlotCalculator(engineTime, limit);
 	}
 
 	/** Finshed executing graphical operation.
@@ -168,8 +166,6 @@ private:
 	VDP& vdp;
 	VDPVRAM& vram;
 
-	RenderSettings& renderSettings;
-
 	/** Only call reportVdpCommand() when this setting is turned on
 	  */
 	BooleanSetting cmdTraceSetting;
@@ -183,7 +179,7 @@ private:
 	  * explicitly, but for now we use an average execution time per
 	  * cycle.
 	  */
-	EmuTime time;
+	EmuTime engineTime;
 
 	/** Lower bound for the time when the status register will change, IOW
 	  * the status register will not change before this time.

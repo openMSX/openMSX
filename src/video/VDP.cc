@@ -133,15 +133,13 @@ VDP::VDP(const DeviceConfig& config)
 	}
 	vram = make_unique<VDPVRAM>(*this, vramSize * 1024, time);
 
-	RenderSettings& renderSettings = display.getRenderSettings();
-
 	// Create sprite checker.
+	auto& renderSettings = display.getRenderSettings();
 	spriteChecker = make_unique<SpriteChecker>(*this, renderSettings, time);
 	vram->setSpriteChecker(spriteChecker.get());
 
 	// Create command engine.
-	cmdEngine = make_unique<VDPCmdEngine>(
-		*this, renderSettings, getCommandController());
+	cmdEngine = make_unique<VDPCmdEngine>(*this, getCommandController());
 	vram->setCmdEngine(cmdEngine.get());
 
 	// Initialise renderer.
@@ -1398,9 +1396,9 @@ void VDP::VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /
 
 // class Info
 
-VDP::Info::Info(VDP& vdp_, const string& name, string helpText_)
+VDP::Info::Info(VDP& vdp_, const string& name_, string helpText_)
 	: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
-		    vdp_.getName() + '_' + name)
+		    vdp_.getName() + '_' + name_)
 	, vdp(vdp_)
 	, helpText(std::move(helpText_))
 {
@@ -1419,8 +1417,8 @@ string VDP::Info::help(const vector<string>& /*tokens*/) const
 
 // class FrameCountInfo
 
-VDP::FrameCountInfo::FrameCountInfo(VDP& vdp)
-	: Info(vdp, "frame_count",
+VDP::FrameCountInfo::FrameCountInfo(VDP& vdp_)
+	: Info(vdp_, "frame_count",
 	       "The current frame number, starts counting at 0 "
 	       "when MSX is powered up or reset.")
 {
@@ -1434,8 +1432,8 @@ int VDP::FrameCountInfo::calc(const EmuTime& /*time*/) const
 
 // class CycleInFrameInfo
 
-VDP::CycleInFrameInfo::CycleInFrameInfo(VDP& vdp)
-	: Info(vdp, "cycle_in_frame",
+VDP::CycleInFrameInfo::CycleInFrameInfo(VDP& vdp_)
+	: Info(vdp_, "cycle_in_frame",
 	       "The number of VDP cycles since the beginning of "
 	       "the current frame. The VDP runs at 6 times the Z80 "
 	       "clock frequency, so at approximately 21.5MHz.")
@@ -1450,8 +1448,8 @@ int VDP::CycleInFrameInfo::calc(const EmuTime& time) const
 
 // class LineInFrameInfo
 
-VDP::LineInFrameInfo::LineInFrameInfo(VDP& vdp)
-	: Info(vdp, "line_in_frame",
+VDP::LineInFrameInfo::LineInFrameInfo(VDP& vdp_)
+	: Info(vdp_, "line_in_frame",
 	       "The absolute line number since the beginning of "
 	       "the current frame. Goes from 0 till 262 (NTSC) or "
 	       "313 (PAL). Note that this number includes the "
@@ -1468,8 +1466,8 @@ int VDP::LineInFrameInfo::calc(const EmuTime& time) const
 
 // class CycleInLineInfo
 
-VDP::CycleInLineInfo::CycleInLineInfo(VDP& vdp)
-	: Info(vdp, "cycle_in_line",
+VDP::CycleInLineInfo::CycleInLineInfo(VDP& vdp_)
+	: Info(vdp_, "cycle_in_line",
 	       "The number of VDP cycles since the beginning of "
 	       "the current line. See also 'cycle_in_frame'."
 	       "Note that this includes the cycles in the border, "
@@ -1486,8 +1484,8 @@ int VDP::CycleInLineInfo::calc(const EmuTime& time) const
 
 // class MsxYPosInfo
 
-VDP::MsxYPosInfo::MsxYPosInfo(VDP& vdp)
-	: Info(vdp, "msx_y_pos",
+VDP::MsxYPosInfo::MsxYPosInfo(VDP& vdp_)
+	: Info(vdp_, "msx_y_pos",
 	       "Similar to 'line_in_frame', but expressed in MSX "
 	       "coordinates. So lines in the top border have "
 	       "negative coordinates, lines in the bottom border "
@@ -1504,8 +1502,8 @@ int VDP::MsxYPosInfo::calc(const EmuTime& time) const
 
 // class MsxX256PosInfo
 
-VDP::MsxX256PosInfo::MsxX256PosInfo(VDP& vdp)
-	: Info(vdp, "msx_x256_pos",
+VDP::MsxX256PosInfo::MsxX256PosInfo(VDP& vdp_)
+	: Info(vdp_, "msx_x256_pos",
 	       "Similar to 'cycle_in_frame', but expressed in MSX "
 	       "coordinates. So a position in the left border has "
 	       "a negative coordinate and a position in the right "
@@ -1523,8 +1521,8 @@ int VDP::MsxX256PosInfo::calc(const EmuTime& time) const
 
 // class MsxX512PosInfo
 
-VDP::MsxX512PosInfo::MsxX512PosInfo(VDP& vdp)
-	: Info(vdp, "msx_x512_pos",
+VDP::MsxX512PosInfo::MsxX512PosInfo(VDP& vdp_)
+	: Info(vdp_, "msx_x512_pos",
 	       "Similar to 'cycle_in_frame', but expressed in "
 	       "'narrow' (screen 7) MSX coordinates. So a position "
 	       "in the left border has a negative coordinate and "
@@ -1549,11 +1547,11 @@ int VDP::MsxX512PosInfo::calc(const EmuTime& time) const
 // version 7: removed cpuVramReqAddr again, fixed issue in a different way
 // version 8: removed 'userData' from Schedulable
 template<typename Archive>
-void VDP::serialize(Archive& ar, unsigned version)
+void VDP::serialize(Archive& ar, unsigned serVersion)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 
-	if (ar.versionAtLeast(version, 8)) {
+	if (ar.versionAtLeast(serVersion, 8)) {
 		ar.serialize("syncVSync",         syncVSync);
 		ar.serialize("syncDisplayStart",  syncDisplayStart);
 		ar.serialize("syncVScan",         syncVScan);
@@ -1599,7 +1597,7 @@ void VDP::serialize(Archive& ar, unsigned version)
 	ar.serialize("dataLatch", dataLatch);
 	ar.serialize("registerDataStored", registerDataStored);
 	ar.serialize("paletteDataStored", paletteDataStored);
-	if (ar.versionAtLeast(version, 5)) {
+	if (ar.versionAtLeast(serVersion, 5)) {
 		ar.serialize("cpuVramData", cpuVramData);
 		ar.serialize("cpuVramReqIsRead", cpuVramReqIsRead);
 	} else {
@@ -1619,7 +1617,7 @@ void VDP::serialize(Archive& ar, unsigned version)
 		update(tooFastAccess);
 	}
 
-	if (ar.versionAtLeast(version, 2)) {
+	if (ar.versionAtLeast(serVersion, 2)) {
 		ar.serialize("frameCount", frameCount);
 	} else {
 		assert(ar.isLoader());

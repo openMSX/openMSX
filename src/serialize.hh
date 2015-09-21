@@ -797,7 +797,7 @@ public:
 	int countChildren() const;
 
 private:
-	XMLElement elem;
+	XMLElement rootElem;
 	std::vector<std::pair<const XMLElement*, size_t>> elems;
 };
 

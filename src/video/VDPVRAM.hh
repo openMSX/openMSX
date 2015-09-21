@@ -278,8 +278,8 @@ public:
 	  * There can be only one observer per window at any given time.
 	  * @param observer The observer to register.
 	  */
-	inline void setObserver(VRAMObserver* observer) {
-		this->observer = observer;
+	inline void setObserver(VRAMObserver* newObserver) {
+		observer = newObserver;
 	}
 
 	/** Unregister the observer of this VRAM window.
@@ -517,14 +517,14 @@ public:
 
 	/** Necessary because of circular dependencies.
 	  */
-	inline void setSpriteChecker(SpriteChecker* spriteChecker) {
-		this->spriteChecker = spriteChecker;
+	inline void setSpriteChecker(SpriteChecker* newSpriteChecker) {
+		spriteChecker = newSpriteChecker;
 	}
 
 	/** Necessary because of circular dependencies.
 	  */
-	inline void setCmdEngine(VDPCmdEngine* cmdEngine) {
-		this->cmdEngine = cmdEngine;
+	inline void setCmdEngine(VDPCmdEngine* newCmdEngine) {
+		cmdEngine = newCmdEngine;
 	}
 
 	/** TMS99x8 VRAM can be mapped in two ways.

@@ -103,8 +103,8 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 CassettePlayer::~CassettePlayer()
 {
 	unregisterSound();
-	if (Connector* connector = getConnector()) {
-		connector->unplug(getCurrentTime());
+	if (auto* c = getConnector()) {
+		c->unplug(getCurrentTime());
 	}
 	motherBoard.getReactor().getEventDistributor().unregisterEventListener(
 		OPENMSX_BOOT_EVENT, *this);
@@ -523,8 +523,8 @@ void CassettePlayer::flushOutput()
 
 const string& CassettePlayer::getName() const
 {
-	static const string name("cassetteplayer");
-	return name;
+	static const string pluggableName("cassetteplayer");
+	return pluggableName;
 }
 
 string_ref CassettePlayer::getDescription() const
@@ -536,10 +536,10 @@ string_ref CassettePlayer::getDescription() const
 	return "Cassetteplayer, use to read .cas or .wav files.";
 }
 
-void CassettePlayer::plugHelper(Connector& connector, EmuTime::param time)
+void CassettePlayer::plugHelper(Connector& conn, EmuTime::param time)
 {
 	sync(time);
-	lastOutput = static_cast<CassettePort&>(connector).lastOut();
+	lastOutput = static_cast<CassettePort&>(conn).lastOut();
 }
 
 void CassettePlayer::unplugHelper(EmuTime::param time)
@@ -606,11 +606,11 @@ void CassettePlayer::execSyncAudioEmu(EmuTime::param time)
 // class TapeCommand
 
 CassettePlayer::TapeCommand::TapeCommand(
-		CommandController& commandController,
-		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler)
-	: RecordedCommand(commandController, stateChangeDistributor,
-	                  scheduler, "cassetteplayer")
+		CommandController& commandController_,
+		StateChangeDistributor& stateChangeDistributor_,
+		Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+	                  scheduler_, "cassetteplayer")
 {
 }
 

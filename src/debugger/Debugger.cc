@@ -202,11 +202,11 @@ static word getAddress(Interpreter& interp, array_ref<TclObject> tokens)
 	return addr;
 }
 
-Debugger::Cmd::Cmd(CommandController& commandController,
-                   StateChangeDistributor& stateChangeDistributor,
-                   Scheduler& scheduler)
-	: RecordedCommand(commandController, stateChangeDistributor,
-	                  scheduler, "debug")
+Debugger::Cmd::Cmd(CommandController& commandController_,
+                   StateChangeDistributor& stateChangeDistributor_,
+                   Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+	                  scheduler_, "debug")
 {
 }
 
@@ -1083,11 +1083,11 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "probe") &&
 		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
 		     (tokens[2] == "set_bp"))) {
-			std::vector<string_ref> probes;
+			std::vector<string_ref> probeNames;
 			for (auto* p : debugger().probes) {
-				probes.push_back(p->getName());
+				probeNames.push_back(p->getName());
 			}
-			completeString(tokens, probes);
+			completeString(tokens, probeNames);
 		}
 		break;
 	}

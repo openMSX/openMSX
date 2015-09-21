@@ -32,10 +32,10 @@ namespace openmsx {
 
 LaserdiscPlayer::Command::Command(
 		CommandController& commandController_,
-		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler)
-	: RecordedCommand(commandController_, stateChangeDistributor,
-			  scheduler, "laserdiscplayer")
+		StateChangeDistributor& stateChangeDistributor_,
+		Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+			  scheduler_, "laserdiscplayer")
 {
 }
 

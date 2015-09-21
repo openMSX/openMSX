@@ -49,10 +49,10 @@ unique_ptr<EmuTimer> EmuTimer::createOPL4_2(
 }
 
 
-EmuTimer::EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb_,
+EmuTimer::EmuTimer(Scheduler& scheduler_, EmuTimerCallback& cb_,
                    byte flag_, unsigned freq_num, unsigned freq_denom,
                    unsigned maxval_)
-	: Schedulable(scheduler), cb(cb_)
+	: Schedulable(scheduler_), cb(cb_)
 	, clock(EmuTime::dummy())
 	, maxval(maxval_), count(maxval_)
 	, flag(flag_), counting(false)

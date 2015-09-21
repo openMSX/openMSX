@@ -145,12 +145,12 @@ void OSDWidget::addWidget(unique_ptr<OSDWidget> widget)
 	// case a linear search is probably faster than a binary search. Only
 	// when there are many sub-widgets with not all the same Z (and not
 	// created in sorted Z-order) a binary search would be faster.
-	float z = widget->getZ();
-	if (subWidgets.empty() || (subWidgets.back()->getZ() <= z)) {
+	float widgetZ = widget->getZ();
+	if (subWidgets.empty() || (subWidgets.back()->getZ() <= widgetZ)) {
 		subWidgets.push_back(std::move(widget));
 	} else {
 		auto it = begin(subWidgets);
-		while ((*it)->getZ() <= z) ++it;
+		while ((*it)->getZ() <= widgetZ) ++it;
 		subWidgets.insert(it, std::move(widget));
 
 	}
@@ -177,10 +177,10 @@ void OSDWidget::resortUp(OSDWidget* elem)
 	auto it1 = begin(subWidgets);
 	while (it1->get() != elem) ++it1;
 	// next search for the position were it belongs
-	float z = elem->getZ();
+	float elemZ = elem->getZ();
 	auto it2 = it1;
 	++it2;
-	while ((it2 != end(subWidgets)) && ((*it2)->getZ() < z)) ++it2;
+	while ((it2 != end(subWidgets)) && ((*it2)->getZ() < elemZ)) ++it2;
 	// now move elements to correct position
 	rotate(it1, it1 + 1, it2);
 #ifdef DEBUG
@@ -191,8 +191,8 @@ void OSDWidget::resortDown(OSDWidget* elem)
 {
 	// z-coordinate was decreased, first search for new position
 	auto it1 = begin(subWidgets);
-	float z = elem->getZ();
-	while ((*it1)->getZ() <= z) {
+	float elemZ = elem->getZ();
+	while ((*it1)->getZ() <= elemZ) {
 		++it1;
 		if (it1 == end(subWidgets)) return;
 	}
@@ -217,75 +217,75 @@ vector<string_ref> OSDWidget::getProperties() const
 }
 
 void OSDWidget::setProperty(
-	Interpreter& interp, string_ref name, const TclObject& value)
+	Interpreter& interp, string_ref propName, const TclObject& value)
 {
-	if (name == "-type") {
+	if (propName == "-type") {
 		throw CommandException("-type property is readonly");
-	} else if (name == "-mousecoord") {
+	} else if (propName == "-mousecoord") {
 		throw CommandException("-mousecoord property is readonly");
-	} else if (name == "-x") {
+	} else if (propName == "-x") {
 		pos[0] = value.getDouble(interp);
-	} else if (name == "-y") {
+	} else if (propName == "-y") {
 		pos[1] = value.getDouble(interp);
-	} else if (name == "-z") {
+	} else if (propName == "-z") {
 		float z2 = value.getDouble(interp);
 		if (z != z2) {
 			bool up = z2 > z; // was z increased?
 			z = z2;
-			if (OSDWidget* parent = getParent()) {
+			if (auto* p = getParent()) {
 				// TODO no need for a full sort: instead remove and re-insert in the correct place
 				if (up) {
-					parent->resortUp(this);
+					p->resortUp(this);
 				} else {
-					parent->resortDown(this);
+					p->resortDown(this);
 				}
 			}
 		}
-	} else if (name == "-relx") {
+	} else if (propName == "-relx") {
 		relPos[0] = value.getDouble(interp);
-	} else if (name == "-rely") {
+	} else if (propName == "-rely") {
 		relPos[1] = value.getDouble(interp);
-	} else if (name == "-scaled") {
+	} else if (propName == "-scaled") {
 		bool scaled2 = value.getBoolean(interp);
 		if (scaled != scaled2) {
 			scaled = scaled2;
 			invalidateRecursive();
 		}
-	} else if (name == "-clip") {
+	} else if (propName == "-clip") {
 		clip = value.getBoolean(interp);
-	} else if (name == "-suppressErrors") {
+	} else if (propName == "-suppressErrors") {
 		suppressErrors = value.getBoolean(interp);
 	} else {
-		throw CommandException("No such property: " + name);
+		throw CommandException("No such property: " + propName);
 	}
 }
 
-void OSDWidget::getProperty(string_ref name, TclObject& result) const
+void OSDWidget::getProperty(string_ref propName, TclObject& result) const
 {
-	if (name == "-type") {
+	if (propName == "-type") {
 		result.setString(getType());
-	} else if (name == "-x") {
+	} else if (propName == "-x") {
 		result.setDouble(pos[0]);
-	} else if (name == "-y") {
+	} else if (propName == "-y") {
 		result.setDouble(pos[1]);
-	} else if (name == "-z") {
+	} else if (propName == "-z") {
 		result.setDouble(z);
-	} else if (name == "-relx") {
+	} else if (propName == "-relx") {
 		result.setDouble(relPos[0]);
-	} else if (name == "-rely") {
+	} else if (propName == "-rely") {
 		result.setDouble(relPos[1]);
-	} else if (name == "-scaled") {
+	} else if (propName == "-scaled") {
 		result.setBoolean(scaled);
-	} else if (name == "-clip") {
+	} else if (propName == "-clip") {
 		result.setBoolean(clip);
-	} else if (name == "-mousecoord") {
+	} else if (propName == "-mousecoord") {
 		vec2 coord = getMouseCoord();
 		result.addListElement(coord[0]);
 		result.addListElement(coord[1]);
-	} else if (name == "-suppressErrors") {
+	} else if (propName == "-suppressErrors") {
 		result.setBoolean(suppressErrors);
 	} else {
-		throw CommandException("No such property: " + name);
+		throw CommandException("No such property: " + propName);
 	}
 }
 
@@ -310,8 +310,8 @@ void OSDWidget::invalidateChildren()
 bool OSDWidget::needSuppressErrors() const
 {
 	if (suppressErrors) return true;
-	if (const OSDWidget* parent = getParent()) {
-		return parent->needSuppressErrors();
+	if (const auto* p = getParent()) {
+		return p->needSuppressErrors();
 	}
 	return false;
 }
@@ -322,10 +322,10 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 
 	std::unique_ptr<SDLScopedClip> scopedClip;
 	if (clip) {
-		ivec2 pos, size;
-		getBoundingBox(output, pos, size);
+		ivec2 clipPos, size;
+		getBoundingBox(output, clipPos, size);
 		scopedClip = make_unique<SDLScopedClip>(
-			output, pos[0], pos[1], size[0], size[1]);
+			output, clipPos[0], clipPos[1], size[0], size[1]);
 	}
 
 	for (auto& s : subWidgets) {
@@ -341,10 +341,10 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 
 	std::unique_ptr<GLScopedClip> scopedClip;
 	if (clip) {
-		ivec2 pos, size;
-		getBoundingBox(output, pos, size);
+		ivec2 clipPos, size;
+		getBoundingBox(output, clipPos, size);
 		scopedClip = make_unique<GLScopedClip>(
-			output, pos[0], pos[1], size[0], size[1]);
+			output, clipPos[0], clipPos[1], size[0], size[1]);
 	}
 
 	for (auto& s : subWidgets) {
@@ -365,26 +365,26 @@ int OSDWidget::getScaleFactor(const OutputRectangle& output) const
 }
 
 vec2 OSDWidget::transformPos(const OutputRectangle& output,
-                             vec2 pos, vec2 relPos) const
+                             vec2 trPos, vec2 trRelPos) const
 {
-	vec2 out = pos
+	vec2 out = trPos
 	         + (float(getScaleFactor(output)) * getPos())
-		 + (relPos * getSize(output));
-	if (const OSDWidget* parent = getParent()) {
-		out = parent->transformPos(output, out, getRelPos());
+		 + (trRelPos * getSize(output));
+	if (const auto* p = getParent()) {
+		out = p->transformPos(output, out, getRelPos());
 	}
 	return out;
 }
 
-vec2 OSDWidget::transformReverse(const OutputRectangle& output, vec2 pos) const
+vec2 OSDWidget::transformReverse(const OutputRectangle& output, vec2 trPos) const
 {
-	if (const OSDWidget* parent = getParent()) {
-		pos = parent->transformReverse(output, pos);
-		return pos
-		       - (getRelPos() * parent->getSize(output))
+	if (const auto* p = getParent()) {
+		trPos = p->transformReverse(output, trPos);
+		return trPos
+		       - (getRelPos() * p->getSize(output))
 		       - (getPos() * float(getScaleFactor(output)));
 	} else {
-		return pos;
+		return trPos;
 	}
 }
 
@@ -431,12 +431,12 @@ vec2 OSDWidget::getMouseCoord() const
 }
 
 void OSDWidget::getBoundingBox(const OutputRectangle& output,
-                               ivec2& pos, ivec2& size)
+                               ivec2& bbPos, ivec2& bbSize)
 {
 	vec2 topLeft     = transformPos(output, vec2(), vec2(0.0f));
 	vec2 bottomRight = transformPos(output, vec2(), vec2(1.0f));
-	pos  = round(topLeft);
-	size = round(bottomRight - topLeft);
+	bbPos  = round(topLeft);
+	bbSize = round(bottomRight - topLeft);
 }
 
 } // namespace openmsx

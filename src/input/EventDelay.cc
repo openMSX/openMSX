@@ -13,12 +13,12 @@ using std::make_shared;
 
 namespace openmsx {
 
-EventDelay::EventDelay(Scheduler& scheduler,
+EventDelay::EventDelay(Scheduler& scheduler_,
                        CommandController& commandController,
                        EventDistributor& eventDistributor_,
                        MSXEventDistributor& msxEventDistributor_,
                        ReverseManager& reverseManager)
-	: Schedulable(scheduler)
+	: Schedulable(scheduler_)
 	, eventDistributor(eventDistributor_)
 	, msxEventDistributor(msxEventDistributor_)
 	, prevEmu(EmuTime::zero)

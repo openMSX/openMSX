@@ -751,11 +751,11 @@ int SCSILS120::insertDisk(string_ref filename)
 
 // class LSXCommand
 
-LSXCommand::LSXCommand(CommandController& commandController,
-                       StateChangeDistributor& stateChangeDistributor,
-                       Scheduler& scheduler, SCSILS120& ls_)
-	: RecordedCommand(commandController, stateChangeDistributor,
-	                  scheduler, ls_.name)
+LSXCommand::LSXCommand(CommandController& commandController_,
+                       StateChangeDistributor& stateChangeDistributor_,
+                       Scheduler& scheduler_, SCSILS120& ls_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+	                  scheduler_, ls_.name)
 	, ls(ls_)
 {
 }

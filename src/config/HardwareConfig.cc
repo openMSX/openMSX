@@ -295,10 +295,10 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 	const XMLElement* primary, const XMLElement* secondary)
 {
 	for (auto& c : elem.getChildren()) {
-		const auto& name = c.getName();
-		if (name == "primary") {
+		const auto& childName = c.getName();
+		if (childName == "primary") {
 			createDevices(c, &c, secondary);
-		} else if (name == "secondary") {
+		} else if (childName == "secondary") {
 			createDevices(c, primary, &c);
 		} else {
 			auto device = DeviceFactory::create(
@@ -308,7 +308,7 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 			} else {
 				motherBoard.getMSXCliComm().printWarning(
 					"Deprecated device: \"" +
-					name + "\", please upgrade your "
+					childName + "\", please upgrade your "
 					"hardware descriptions.");
 			}
 		}

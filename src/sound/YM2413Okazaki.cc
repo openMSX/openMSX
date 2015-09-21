@@ -304,9 +304,9 @@ void Slot::slotOff()
 
 
 // Change a rhythm voice
-void Slot::setPatch(Patch& patch)
+void Slot::setPatch(const Patch& newPatch)
 {
-	this->patch = patch; // copy data
+	patch = newPatch; // copy data
 	if ((state == SUSHOLD) && (patch.EG == 0)) {
 		setEnvelopeState(SUSTAIN);
 	}

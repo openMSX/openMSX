@@ -86,9 +86,9 @@ string_ref Setting::getDescription() const
 	return description;
 }
 
-void Setting::setValue(const TclObject& value)
+void Setting::setValue(const TclObject& newValue)
 {
-	getInterpreter().setVariable(getFullNameObj(), value);
+	getInterpreter().setVariable(getFullNameObj(), newValue);
 }
 
 void Setting::notify() const
@@ -102,14 +102,14 @@ void Setting::notify() const
 	//  - SettingsConfig (keeps values, also of not yet created settings)
 	// This method takes care of the last 3 in this list.
 	Subject<Setting>::notify();
-	TclObject value = getValue();
+	TclObject val = getValue();
 	commandController.getCliComm().update(
-		CliComm::SETTING, getBaseName(), value.getString());
+		CliComm::SETTING, getBaseName(), val.getString());
 
 	// Always keep SettingsConfig in sync.
 	auto& config = getGlobalCommandController().getSettingsConfig().getXMLElement();
 	auto& settings = config.getCreateChild("settings");
-	if (!needLoadSave() || (value == getDefaultValue())) {
+	if (!needLoadSave() || (val == getDefaultValue())) {
 		// remove setting
 		if (auto* elem = settings.findChildWithAttribute(
 				"setting", "id", getBaseName())) {
@@ -121,8 +121,8 @@ void Setting::notify() const
 				"setting", "id", getBaseName());
 		// check for non-saveable value
 		// (mechanism can be generalize later when needed)
-		if (value == dontSaveValue) value = getRestoreValue();
-		elem.setData(value.getString());
+		if (val == dontSaveValue) val = getRestoreValue();
+		elem.setData(val.getString());
 	}
 }
 

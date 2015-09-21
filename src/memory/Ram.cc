@@ -95,10 +95,10 @@ const string& Ram::getName() const
 	return debuggable->getName();
 }
 
-RamDebuggable::RamDebuggable(MSXMotherBoard& motherBoard,
-                             const string& name,
-                             const string& description, Ram& ram_)
-	: SimpleDebuggable(motherBoard, name, description, ram_.getSize())
+RamDebuggable::RamDebuggable(MSXMotherBoard& motherBoard_,
+                             const string& name_,
+                             const string& description_, Ram& ram_)
+	: SimpleDebuggable(motherBoard_, name_, description_, ram_.getSize())
 	, ram(ram_)
 {
 }

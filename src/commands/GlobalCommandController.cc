@@ -408,13 +408,13 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 				auto begin = list.begin();
 				auto end   = list.end();
 				if (begin != end) {
-					auto it = end; --it;
-					auto back = *it;
+					auto it2 = end; --it2;
+					auto back = *it2;
 					if (back == "false") {
-						end = it;
+						end = it2;
 						sensitive = false;
 					} else if (back == "true") {
-						end = it;
+						end = it2;
 						sensitive = true;
 					}
 				}
@@ -522,8 +522,8 @@ string GlobalCommandController::TabCompletionCmd::help(const vector<string>& /*t
 
 // class UpdateCmd
 
-GlobalCommandController::UpdateCmd::UpdateCmd(CommandController& commandController)
-	: Command(commandController, "openmsx_update")
+GlobalCommandController::UpdateCmd::UpdateCmd(CommandController& commandController_)
+	: Command(commandController_, "openmsx_update")
 {
 }
 
@@ -541,8 +541,8 @@ static GlobalCliComm::UpdateType getType(const TclObject& name)
 CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 {
 	auto& controller = OUTER(GlobalCommandController, updateCmd);
-	if (auto* connection = controller.getConnection()) {
-		return *connection;
+	if (auto* c = controller.getConnection()) {
+		return *c;
 	}
 	throw CommandException("This command only makes sense when "
 	                       "it's used from an external application.");
@@ -586,8 +586,8 @@ void GlobalCommandController::UpdateCmd::tabCompletion(vector<string>& tokens) c
 
 // Platform info
 
-GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoCommand)
-	: InfoTopic(openMSXInfoCommand, "platform")
+GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoCommand_)
+	: InfoTopic(openMSXInfoCommand_, "platform")
 {
 }
 
@@ -604,8 +604,8 @@ string GlobalCommandController::PlatformInfo::help(const vector<string>& /*token
 
 // Version info
 
-GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand)
-	: InfoTopic(openMSXInfoCommand, "version")
+GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand_)
+	: InfoTopic(openMSXInfoCommand_, "version")
 {
 }
 
