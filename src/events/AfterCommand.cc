@@ -406,7 +406,7 @@ template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 
 template<EventType T> struct AfterEventPred {
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
-		return dynamic_cast<AfterEventCmd<T>*>(x.get());
+		return dynamic_cast<AfterEventCmd<T>*>(x.get()) != nullptr;
 	}
 };
 template<EventType T> void AfterCommand::executeEvents()

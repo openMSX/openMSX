@@ -363,7 +363,7 @@ public:
 	         Extractor extract_ = Extractor(),
 	         Hasher hasher_ = Hasher(),
 	         Equal equal_ = Equal())
-		: table(nullptr), allocMask(-1), elemCount(0)
+		: table(nullptr), allocMask(unsigned(-1)), elemCount(0)
 		, extract(extract_), hasher(hasher_), equal(equal_)
 	{
 		reserve(initialSize); // optimized away if initialSize==0
@@ -451,7 +451,7 @@ public:
 	template<typename K>
 	bool contains(const K& key) const
 	{
-		return locateElement(key);
+		return locateElement(key) != 0;
 	}
 
 	template<typename V>

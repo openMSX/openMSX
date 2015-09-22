@@ -45,7 +45,7 @@ enum Register {
 
 // Perlin noise
 
-static float n[256 + 3];
+static float noiseTab[256 + 3];
 
 static void initDetune()
 {
@@ -53,11 +53,11 @@ static void initDetune()
 	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
 
 	for (int i = 0; i < 256; ++i) {
-		n[i] = distribution(generator);
+		noiseTab[i] = distribution(generator);
 	}
-	n[256] = n[0];
-	n[257] = n[1];
-	n[258] = n[2];
+	noiseTab[256] = noiseTab[0];
+	noiseTab[257] = noiseTab[1];
+	noiseTab[258] = noiseTab[2];
 }
 static float noiseValue(float x)
 {
@@ -66,10 +66,10 @@ static float noiseValue(float x)
 	int xi = int(x);
 	float xf = x - xi;
 	xi &= 255;
-	float n0 = n[xi + 0];
-	float n1 = n[xi + 1];
-	float n2 = n[xi + 2];
-	float n3 = n[xi + 3];
+	float n0 = noiseTab[xi + 0];
+	float n1 = noiseTab[xi + 1];
+	float n2 = noiseTab[xi + 2];
+	float n3 = noiseTab[xi + 3];
 	float a = n3 - n2 + n1 - n0;
 	float b = n0 - n1 - a;
 	float c = n2 - n0;
