@@ -153,9 +153,9 @@ private:
 };
 
 template <typename ITER>
-void TclObject::addListElements(ITER begin, ITER end)
+void TclObject::addListElements(ITER first, ITER last)
 {
-	for (ITER it = begin; it != end; ++it) {
+	for (ITER it = first; it != last; ++it) {
 		addListElement(*it);
 	}
 }

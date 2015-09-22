@@ -47,13 +47,13 @@ private:
 DiskChanger::DiskChanger(MSXMotherBoard& board,
                          const string& driveName_,
                          bool createCmd,
-                         bool isDoubleSidedDrive)
+                         bool doubleSidedDrive_)
 	: reactor(board.getReactor())
 	, controller(board.getCommandController())
 	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
 	, driveName(driveName_)
-	, doubleSidedDrive(isDoubleSidedDrive)
+	, doubleSidedDrive(doubleSidedDrive_)
 {
 	init(board.getMachineID() + "::", createCmd);
 }

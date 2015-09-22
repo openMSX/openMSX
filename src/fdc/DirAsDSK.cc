@@ -44,11 +44,11 @@ static unsigned normalizeFAT(unsigned cluster)
 	return (cluster < BAD_FAT) ? cluster : EOF_FAT;
 }
 
-unsigned DirAsDSK::readFATHelper(const SectorBuffer* fat, unsigned cluster) const
+unsigned DirAsDSK::readFATHelper(const SectorBuffer* fatBuf, unsigned cluster) const
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < maxCluster);
-	auto* buf = fat[0].raw;
+	auto* buf = fatBuf[0].raw;
 	auto* p = &buf[(cluster * 3) / 2];
 	unsigned result = (cluster & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
@@ -56,11 +56,11 @@ unsigned DirAsDSK::readFATHelper(const SectorBuffer* fat, unsigned cluster) cons
 	return normalizeFAT(result);
 }
 
-void DirAsDSK::writeFATHelper(SectorBuffer* fat, unsigned cluster, unsigned val) const
+void DirAsDSK::writeFATHelper(SectorBuffer* fatBuf, unsigned cluster, unsigned val) const
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < maxCluster);
-	auto* buf = fat[0].raw;
+	auto* buf = fatBuf[0].raw;
 	auto* p = &buf[(cluster * 3) / 2];
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);

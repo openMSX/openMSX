@@ -94,9 +94,9 @@ public:
 class ParseError
 {
 public:
-	ParseError(const char* what, char* where)
-		: m_what(what)
-		, m_where(where)
+	ParseError(const char* what_, char* where_)
+		: m_what(what_)
+		, m_where(where_)
 	{
 	}
 

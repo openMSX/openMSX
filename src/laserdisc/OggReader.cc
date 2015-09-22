@@ -971,7 +971,7 @@ bool OggReader::stopFrame(size_t frame) const
 	return std::binary_search(begin(stopFrames), end(stopFrames), frame);
 }
 
-size_t OggReader::chapter(int chapterNo) const
+size_t OggReader::getChapter(int chapterNo) const
 {
 	auto it = std::lower_bound(begin(chapters), end(chapters),
 	                           chapterNo, LessTupleElement<0>());

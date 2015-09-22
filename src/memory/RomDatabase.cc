@@ -41,9 +41,9 @@ public:
 	// rapidsax handler interface
 	void start(string_ref name);
 	void attribute(string_ref name, string_ref value);
-	void text(string_ref text);
+	void text(string_ref txt);
 	void stop();
-	void doctype(string_ref text);
+	void doctype(string_ref txt);
 
 	string_ref getSystemID() const { return systemID; }
 
@@ -304,51 +304,51 @@ void DBParser::attribute(string_ref name, string_ref value)
 	}
 }
 
-void DBParser::text(string_ref text)
+void DBParser::text(string_ref txt)
 {
 	if (unknownLevel) return;
 
 	switch (state) {
 	case SYSTEM:
-		system = text;
+		system = txt;
 		break;
 	case TITLE:
-		title = cIndex(text);
+		title = cIndex(txt);
 		break;
 	case COMPANY:
-		company = cIndex(text);
+		company = cIndex(txt);
 		break;
 	case YEAR:
-		year = cIndex(text);
+		year = cIndex(txt);
 		break;
 	case COUNTRY:
-		country = cIndex(text);
+		country = cIndex(txt);
 		break;
 	case GENMSXID:
 		try {
-			genMSXid = fast_stou(text);
+			genMSXid = fast_stou(txt);
 		} catch (std::invalid_argument&) {
 			cliComm.printWarning(StringOp::Builder() <<
 				"Ignoring bad Generation MSX id (genmsxid) "
 				"in entry with title '" << title <<
-				": " << text);
+				": " << txt);
 		}
 		break;
 	case ORIGINAL:
-		dumps.back().origData = cIndex(text);
+		dumps.back().origData = cIndex(txt);
 		break;
 	case TYPE:
-		type = text;
+		type = txt;
 		break;
 	case START:
-		startVal = text;
+		startVal = txt;
 		break;
 	case HASH:
-		dumps.back().hash = Sha1Sum(text);
+		dumps.back().hash = Sha1Sum(txt);
 		break;
 	case DUMP_REMARK:
 	case DUMP_TEXT:
-		dumps.back().remark = cIndex(text);
+		dumps.back().remark = cIndex(txt);
 		break;
 	case BEGIN:
 	case SOFTWAREDB:
@@ -504,15 +504,15 @@ void DBParser::stop()
 		string_ref t = type;
 		char buf[12];
 		if (t == "Mirrored") {
-			if (const char* start = parseStart(startVal)) {
+			if (const char* s = parseStart(startVal)) {
 				memcpy(buf, t.data(), 8);
-				memcpy(buf + 8, start, 4);
+				memcpy(buf + 8, s, 4);
 				t = string_ref(buf, 12);
 			}
 		} else if (t == "Normal") {
-			if (const char* start = parseStart(startVal)) {
+			if (const char* s = parseStart(startVal)) {
 				memcpy(buf, t.data(), 6);
-				memcpy(buf + 6, start, 4);
+				memcpy(buf + 6, s, 4);
 				t = string_ref(buf, 10);
 			}
 		}
@@ -542,11 +542,11 @@ void DBParser::stop()
 	}
 }
 
-void DBParser::doctype(string_ref text)
+void DBParser::doctype(string_ref txt)
 {
-	auto pos1 = text.find(" SYSTEM \"");
+	auto pos1 = txt.find(" SYSTEM \"");
 	if (pos1 == string_ref::npos) return;
-	auto t = text.substr(pos1 + 9);
+	auto t = txt.substr(pos1 + 9);
 	auto pos2 = t.find('"');
 	if (pos2 == string_ref::npos) return;
 	systemID = t.substr(0, pos2);

@@ -28,7 +28,7 @@ public:
 	DiskChanger(MSXMotherBoard& board,
 	            const std::string& driveName,
 	            bool createCommand = true,
-	            bool isDoubleSidedDrive = true);
+	            bool doubleSidedDrive = true);
 	DiskChanger(Reactor& reactor,
 	            const std::string& driveName); // for virtual_drive
 	~DiskChanger();

@@ -320,13 +320,13 @@ void Debugger::Cmd::readBlock(array_ref<TclObject> tokens, TclObject& result)
 	}
 	auto& interp = getInterpreter();
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
-	unsigned size = device.getSize();
+	unsigned devSize = device.getSize();
 	unsigned addr = tokens[3].getInt(interp);
-	if (addr >= size) {
+	if (addr >= devSize) {
 		throw CommandException("Invalid address");
 	}
 	unsigned num = tokens[4].getInt(interp);
-	if (num > (size - addr)) {
+	if (num > (devSize - addr)) {
 		throw CommandException("Invalid size");
 	}
 
@@ -362,14 +362,14 @@ void Debugger::Cmd::writeBlock(array_ref<TclObject> tokens, TclObject& /*result*
 		throw SyntaxError();
 	}
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
-	unsigned size = device.getSize();
+	unsigned devSize = device.getSize();
 	unsigned addr = tokens[3].getInt(getInterpreter());
-	if (addr >= size) {
+	if (addr >= devSize) {
 		throw CommandException("Invalid address");
 	}
 	unsigned num;
 	const byte* buf = tokens[4].getBinary(num);
-	if ((num + addr) > size) {
+	if ((num + addr) > devSize) {
 		throw CommandException("Invalid size");
 	}
 
@@ -694,23 +694,21 @@ void Debugger::Cmd::probeDesc(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	ProbeBase& probe = debugger().getProbe(tokens[3].getString());
-	result.setString(probe.getDescription());
+	result.setString(debugger().getProbe(tokens[3].getString()).getDescription());
 }
 void Debugger::Cmd::probeRead(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	ProbeBase& probe = debugger().getProbe(tokens[3].getString());
-	result.setString(probe.getValue());
+	result.setString(debugger().getProbe(tokens[3].getString()).getValue());
 }
 void Debugger::Cmd::probeSetBreakPoint(
 	array_ref<TclObject> tokens, TclObject& result)
 {
 	TclObject command("debug break");
 	TclObject condition;
-	ProbeBase* probe;
+	ProbeBase* p;
 
 	switch (tokens.size()) {
 	case 6: // command
@@ -720,7 +718,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 		condition = tokens[4];
 		// fall-through
 	case 4: { // probe
-		probe = &debugger().getProbe(tokens[3].getString());
+		p = &debugger().getProbe(tokens[3].getString());
 		break;
 	}
 	default:
@@ -731,7 +729,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 		}
 	}
 
-	unsigned id = debugger().insertProbeBreakPoint(command, condition, *probe);
+	unsigned id = debugger().insertProbeBreakPoint(command, condition, *p);
 	result.setString(StringOp::Builder() << "pp#" << id);
 }
 void Debugger::Cmd::probeRemoveBreakPoint(

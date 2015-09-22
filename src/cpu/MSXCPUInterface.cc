@@ -283,9 +283,9 @@ void MSXCPUInterface::unsetExpanded(int ps)
 	changeExpanded(isExpanded(primarySlotState[3]));
 }
 
-void MSXCPUInterface::changeExpanded(bool isExpanded)
+void MSXCPUInterface::changeExpanded(bool newExpanded)
 {
-	if (isExpanded) {
+	if (newExpanded) {
 		disallowReadCache [0xFF] |=  SECUNDARY_SLOT_BIT;
 		disallowWriteCache[0xFF] |=  SECUNDARY_SLOT_BIT;
 	} else {

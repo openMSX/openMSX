@@ -155,13 +155,13 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 
 	if (subcmd == "export") {
-		string_ref dir = tokens[3].getString();
-		if (!FileOperations::isDirectory(dir)) {
-			throw CommandException(dir + " is not a directory");
+		string_ref directory = tokens[3].getString();
+		if (!FileOperations::isDirectory(directory)) {
+			throw CommandException(directory + " is not a directory");
 		}
 		auto& settings = getDriveSettings(tokens[2].getString());
 		array_ref<TclObject> lists(std::begin(tokens) + 4, std::end(tokens));
-		exprt(settings, dir, lists);
+		exprt(settings, directory, lists);
 
 	} else if (subcmd == "import") {
 		auto& settings = getDriveSettings(tokens[2].getString());

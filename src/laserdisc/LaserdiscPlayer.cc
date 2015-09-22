@@ -370,7 +370,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 		case 0x40:
 			seekState = SEEK_CHAPTER;
 			seekNum = 0;
-			nonseekack = video->chapter(0) != 0;
+			nonseekack = video->getChapter(0) != 0;
 			break;
 		case 0x00:
 		case 0x01:
@@ -400,7 +400,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 				seekState = SEEK_NONE;
 				waitFrame = seekNum % 100000;
 				if (waitFrame >= 101 && waitFrame < 200) {
-					auto frame = video->chapter(
+					auto frame = video->getChapter(
 						int(waitFrame - 100));
 					if (frame) waitFrame = frame;
 				}
@@ -917,7 +917,7 @@ void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 {
 	if ((playerState != PLAYER_STOPPED) && video) {
-		auto frameno = video->chapter(chapter);
+		auto frameno = video->getChapter(chapter);
 		if (!frameno) return;
 		seekFrame(frameno, time);
 	}

@@ -52,7 +52,7 @@ public:
 
 	// metadata
 	bool stopFrame(size_t frame) const;
-	size_t chapter(int chapterNo) const;
+	size_t getChapter(int chapterNo) const;
 
 private:
 	void cleanup();
