@@ -209,10 +209,10 @@ void StdioConnection::close()
 // but that gives a old-style-cast warning
 static const HANDLE OPENMSX_INVALID_HANDLE_VALUE = reinterpret_cast<HANDLE>(-1);
 
-PipeConnection::PipeConnection(CommandController& commandController,
-                               EventDistributor& eventDistributor,
+PipeConnection::PipeConnection(CommandController& commandController_,
+                               EventDistributor& eventDistributor_,
                                string_ref name)
-	: CliConnection(commandController, eventDistributor)
+	: CliConnection(commandController_, eventDistributor_)
 {
 	string pipeName = "\\\\.\\pipe\\" + name;
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, nullptr,
