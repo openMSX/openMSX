@@ -92,14 +92,19 @@ template<typename T, char ...Ns> struct ScVal
 template<char ...Ns> struct SmallCompare {
 	using Loader = SelectLoader<sizeof...(Ns)>;
 	using C = ScVal<typename Loader::type, Ns...>;
-	static const auto value = C::value;
-	static const auto mask  = C::mask;
+	// workaround gcc-4.7 bug
+	//static const auto value = C::value;
+	//static const auto mask  = C::mask;
+	static const typename Loader::type value = C::value;
+	static const typename Loader::type mask  = C::mask;
 };
 
 // The actual small-fixed-string-comparison.
 template<char ...Ns> bool small_compare(const char* p)
 {
-	using SC = SmallCompare<Ns...>;
+	// workaround gcc-4.7 bug
+	//using SC = SmallCompare<Ns...>;
+	typedef SmallCompare<Ns...> SC;
 	typename SC::Loader loader;
 	return (loader(p) & SC::mask) == SC::value;
 }
