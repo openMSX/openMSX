@@ -131,44 +131,43 @@ void DBParser::start(string_ref tag)
 		}
 		break;
 	case SOFTWARE: {
-		char c = tag.front();
-		tag.pop_front();
-		switch (c) {
+		switch (tag.front()) {
 		case 's':
-			if (small_compare<'y','s','t','e','m'>(tag)) {
+			if (small_compare<'s','y','s','t','e','m'>(tag)) {
 				state = SYSTEM;
 				return;
 			}
 			break;
 		case 't':
+			tag.pop_front();
 			if (small_compare<'i','t','l','e'>(tag)) {
 				state = TITLE;
 				return;
 			}
 			break;
 		case 'c':
-			if (small_compare<'o','m','p','a','n','y'>(tag)) {
+			if (small_compare<'c','o','m','p','a','n','y'>(tag)) {
 				state = COMPANY;
 				return;
-			} else if (small_compare<'o','u','n','t','r','y'>(tag)) {
+			} else if (small_compare<'c','o','u','n','t','r','y'>(tag)) {
 				state = COUNTRY;
 				return;
 			}
 			break;
 		case 'y':
-			if (small_compare<'e','a','r'>(tag)) {
+			if (small_compare<'y','e','a','r'>(tag)) {
 				state = YEAR;
 				return;
 			}
 			break;
 		case 'g':
-			if (small_compare<'e','n','m','s','x','i','d'>(tag)) {
+			if (small_compare<'g','e','n','m','s','x','i','d'>(tag)) {
 				state = GENMSXID;
 				return;
 			}
 			break;
 		case 'd':
-			if (small_compare<'u','m','p'>(tag)) {
+			if (small_compare<'d','u','m','p'>(tag)) {
 				dumps.resize(dumps.size() + 1);
 				dumps.back().type = ROM_UNKNOWN;
 				dumps.back().origValue = false;
@@ -182,18 +181,16 @@ void DBParser::start(string_ref tag)
 		break;
 	}
 	case DUMP: {
-		char c = tag.front();
-		tag.pop_front();
-		switch (c) {
+		switch (tag.front()) {
 		case 'o':
-			if (small_compare<'r','i','g','i','n','a','l'>(tag)) {
+			if (small_compare<'o','r','i','g','i','n','a','l'>(tag)) {
 				dumps.back().origValue = false;
 				state = ORIGINAL;
 				return;
 			}
 			break;
 		case 'm':
-			if (small_compare<'e','g','a','r','o','m'>(tag)) {
+			if (small_compare<'m','e','g','a','r','o','m'>(tag)) {
 				type.clear();
 				startVal.clear();
 				state = ROM;
@@ -201,6 +198,7 @@ void DBParser::start(string_ref tag)
 			}
 			break;
 		case 'r':
+			tag.pop_front();
 			if (small_compare<'o','m'>(tag)) {
 				type = "Mirrored";
 				startVal.clear();
@@ -212,29 +210,28 @@ void DBParser::start(string_ref tag)
 		break;
 	}
 	case ROM: {
-		char c = tag.front();
-		tag.pop_front();
-		switch (c) {
+		switch (tag.front()) {
 		case 't':
-			if (small_compare<'y','p','e'>(tag)) {
+			if (small_compare<'t','y','p','e'>(tag)) {
 				state = TYPE;
 				return;
 			}
 			break;
 		case 's':
+			tag.pop_front();
 			if (small_compare<'t','a','r','t'>(tag)) {
 				state = START;
 				return;
 			}
 			break;
 		case 'r':
-			if (small_compare<'e','m','a','r','k'>(tag)) {
+			if (small_compare<'r','e','m','a','r','k'>(tag)) {
 				state = DUMP_REMARK;
 				return;
 			}
 			break;
 		case 'h':
-			if (small_compare<'a','s','h'>(tag)) {
+			if (small_compare<'h','a','s','h'>(tag)) {
 				state = HASH;
 				return;
 			}
