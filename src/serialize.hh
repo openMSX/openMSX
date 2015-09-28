@@ -448,13 +448,6 @@ public:
 		saver(this->self(), t, false);
 		this->self().endTag(tag);
 	}
-	template<typename T, typename ...Args>
-	ALWAYS_INLINE void serialize(const char* tag, const T& t, Args&& ...args)
-	{
-		// by default just repeatedly call the single-pair serialize() variant
-		this->self().serialize(tag, t);
-		this->self().serialize(std::forward<Args>(args)...);
-	}
 	template<typename T> void serializePointerID(const char* tag, const T& t)
 	{
 		this->self().beginTag(tag);
@@ -544,13 +537,6 @@ public:
 		Loader<TNC> loader;
 		loader(this->self(), tnc, std::make_tuple(), -1); // don't load id
 		this->self().endTag(tag);
-	}
-	template<typename T, typename ...Args>
-	ALWAYS_INLINE void serialize(const char* tag, T& t, Args&& ...args)
-	{
-		// by default just repeatedly call the single-pair serialize() variant
-		this->self().serialize(tag, t);
-		this->self().serialize(std::forward<Args>(args)...);
 	}
 	template<typename T> void serializePointerID(const char* tag, const T& t)
 	{
@@ -856,6 +842,17 @@ public:
 	void beginSection() { /*nothing*/ }
 	void endSection()   { /*nothing*/ }
 
+	// workaround(?) for visual studio 2015:
+	//   put the default here instead of in the base class
+	using OutputArchiveBase<XmlOutputArchive>::serialize;
+	template<typename T, typename ...Args>
+	ALWAYS_INLINE void serialize(const char* tag, const T& t, Args&& ...args)
+	{
+		// by default just repeatedly call the single-pair serialize() variant
+		this->self().serialize(tag, t);
+		this->self().serialize(std::forward<Args>(args)...);
+	}
+
 //internal:
 	inline bool translateEnumToString() const { return true; }
 	inline bool canHaveOptionalAttributes() const { return true; }
@@ -915,6 +912,17 @@ public:
 	string_ref loadStr();
 
 	void skipSection(bool /*skip*/) { /*nothing*/ }
+
+	// workaround(?) for visual studio 2015:
+	//   put the default here instead of in the base class
+	using InputArchiveBase<XmlInputArchive>::serialize;
+	template<typename T, typename ...Args>
+	ALWAYS_INLINE void serialize(const char* tag, T& t, Args&& ...args)
+	{
+		// by default just repeatedly call the single-pair serialize() variant
+		this->self().serialize(tag, t);
+		this->self().serialize(std::forward<Args>(args)...);
+	}
 
 //internal:
 	inline bool translateEnumToString() const { return true; }
