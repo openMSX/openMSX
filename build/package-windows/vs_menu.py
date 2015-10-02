@@ -8,8 +8,8 @@ version = 64 	#32 = win32/64 = x64 version
 quit = 0 		#Loop variable keep at 0
 
 #Some standard strings
-location='C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\' #location of Visual Studio 2012 (express) VC files
-title='openMSX build menu for Visual Studio 2015'
+location='C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\' #location of Visual Studio 2015 (Community) VC files
+title=' openMSX build menu for Visual Studio 2015'
 
 menuval = {
 	 '[1] Update from Repository'
@@ -68,7 +68,7 @@ def update3rdparty():
 
 def compile(whattocompile):
 
-	compiler = 'x86' if version == 32 else 'x86_amd64'
+	compiler = 'x86' if version == 32 else 'amd64'
 	support = 'v140' if compileXP == 0 else  'v140_xp'
 	compilefor = 'Win32' if version == 32 else 'x64'
 	compilewhat = 'build\\msvc\\openmsx.sln' if  whattocompile == 'OpenMSX' else 'build\\3rdparty\\3rdparty.sln'
