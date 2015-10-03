@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -35,28 +35,34 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -292,8 +298,8 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_mul_digs.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sqr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sub.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set_int.c" />	
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set_int.c" />			
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set_int.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set_int.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bncore.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regcomp.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regerror.c" />
@@ -399,7 +405,7 @@
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIO.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPlatDecls.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPort.h" />
-	<ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclRegexp.h" />
+    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclRegexp.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTomMath.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTomMathDecls.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinInt.h" />

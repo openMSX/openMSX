@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -35,28 +35,34 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -520,8 +526,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina90in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\SRAM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.cc" />	
-    <ClCompile Include="$(OpenMSXSrcDir)\memory\SdCard.cc" />		
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\SdCard.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomDooly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\BooleanSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\EnumSetting.cc" />
@@ -1240,7 +1246,7 @@
     <None Include="$(OpenMSXSrcDir)\video\Renderer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\RendererFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\video\RenderSettings.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />	
+    <None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\RGBTriplet3xScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\SaI2xScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\SaI3xScaler.hh" />
