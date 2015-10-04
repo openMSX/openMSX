@@ -169,11 +169,11 @@ class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
 	sourceName = 'tcl'
-	version = '8.5.15'
-	fileLength = 4536117
+	version = '8.5.18'
+	fileLength = 4534628
 	checksums = {
 		'sha256':
-			'f24eaae461795e6b09bf54c7e9f38def025892da55f26008c16413cfdda2884e',
+			'032be57a607bdf252135b52fac9e3a7016e526242374ac7637b083ecc4c5d3c9',
 		}
 
 	@classmethod
