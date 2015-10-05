@@ -478,8 +478,8 @@ void CommandConsole::tabCompletion()
 {
 	resetScrollBack();
 	unsigned pl = unsigned(prompt.size());
-	string_ref front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl);
-	string_ref back  = utf8::unchecked::substr(lines[0].str(), cursorPosition);
+	string front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl).str();
+	string back  = utf8::unchecked::substr(lines[0].str(), cursorPosition).str();
 	string newFront = commandController.tabCompletion(front);
 	cursorPosition = pl + unsigned(utf8::unchecked::size(newFront));
 	currentLine = newFront + back;
