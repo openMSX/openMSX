@@ -918,9 +918,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\MemoryOps.cc">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\sdlwin32.cc">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sha1.cc">
       <Filter>utils</Filter>
     </ClCompile>
@@ -1343,6 +1340,12 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\snappy.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\SdCard.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-windowhandle.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
@@ -2811,6 +2814,12 @@
     <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\snappy.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\SdCard.cc.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\GLContext.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
   </ItemGroup>
   <ItemGroup>
