@@ -46,12 +46,12 @@ public:
 	~Texture() { reset(); }
 
 	/** Move constructor and assignment. */
-	Texture(Texture&& other)
+	Texture(Texture&& other) noexcept
 		: textureId(other.textureId)
 	{
 		other.textureId = 0; // 0 is not a valid openGL texture name
 	}
-	Texture& operator=(Texture&& other) {
+	Texture& operator=(Texture&& other) noexcept {
 		std::swap(textureId, other.textureId);
 		return *this;
 	}
@@ -88,8 +88,8 @@ protected:
 
 private:
 	// Disable copy, assign.
-	Texture(const Texture&);
-	Texture& operator=(const Texture&);
+	Texture(const Texture&) = delete;
+	Texture& operator=(const Texture&) = delete;
 
 	friend class FrameBufferObject;
 };
@@ -99,20 +99,6 @@ class ColorTexture : public Texture
 public:
 	/** Default constructor, zero-sized texture. */
 	ColorTexture() : width(0), height(0) {}
-
-	/** Move constructor and assignment. */
-	ColorTexture(ColorTexture&& other)
-		: Texture(std::move(other))
-	{
-		width  = other.width;
-		height = other.height;
-	}
-	ColorTexture& operator=(ColorTexture&& other) {
-		Texture::operator=(std::move(other));
-		width  = other.width;
-		height = other.height;
-		return *this;
-	}
 
 	/** Create color texture with given size.
 	  * Initial content is undefined.
@@ -124,10 +110,6 @@ public:
 	GLsizei getHeight() const { return height; }
 
 private:
-	// Disable copy, assign.
-	ColorTexture(const ColorTexture&);
-	ColorTexture& operator=(const ColorTexture&);
-
 	GLsizei width;
 	GLsizei height;
 };
@@ -137,12 +119,12 @@ class FrameBufferObject //: public noncopyable
 public:
 	FrameBufferObject();
 	explicit FrameBufferObject(Texture& texture);
-	FrameBufferObject(FrameBufferObject&& other)
+	FrameBufferObject(FrameBufferObject&& other) noexcept
 		: bufferId(other.bufferId)
 	{
 		other.bufferId = 0;
 	}
-	FrameBufferObject& operator=(FrameBufferObject&& other) {
+	FrameBufferObject& operator=(FrameBufferObject&& other) noexcept {
 		std::swap(bufferId, other.bufferId);
 		return *this;
 	}
@@ -171,8 +153,8 @@ template <typename T> class PixelBuffer //: public noncopyable
 {
 public:
 	PixelBuffer();
-	PixelBuffer(PixelBuffer&& other);
-	PixelBuffer& operator=(PixelBuffer&& other);
+	PixelBuffer(PixelBuffer&& other) noexcept;
+	PixelBuffer& operator=(PixelBuffer&& other) noexcept;
 	~PixelBuffer();
 
 	/** Are PBOs supported by this openGL implementation?
@@ -254,7 +236,7 @@ PixelBuffer<T>::PixelBuffer()
 }
 
 template <typename T>
-PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other)
+PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other) noexcept
 	: allocated(std::move(other.allocated))
 	, bufferId(other.bufferId)
 	, width(other.width)
@@ -264,7 +246,7 @@ PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other)
 }
 
 template <typename T>
-PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other)
+PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other) noexcept
 {
 	std::swap(allocated, other.allocated);
 	std::swap(bufferId,  other.bufferId);
@@ -475,12 +457,12 @@ class BufferObject //: public noncopyable
 public:
 	BufferObject();
 	~BufferObject();
-	BufferObject(BufferObject&& other)
+	BufferObject(BufferObject&& other) noexcept
 		: bufferId(other.bufferId)
 	{
 		other.bufferId = 0;
 	}
-	BufferObject& operator=(BufferObject&& other) {
+	BufferObject& operator=(BufferObject&& other) noexcept {
 		std::swap(bufferId, other.bufferId);
 		return *this;
 	}

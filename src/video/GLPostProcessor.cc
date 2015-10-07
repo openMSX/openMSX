@@ -21,19 +21,6 @@ using namespace gl;
 
 namespace openmsx {
 
-GLPostProcessor::TextureData::TextureData()
-{
-}
-
-GLPostProcessor::TextureData::TextureData(TextureData&& rhs)
-#if !defined(_MSC_VER)
-	noexcept
-#endif
-	: tex(std::move(rhs.tex))
-	, pbo(std::move(rhs.pbo))
-{
-}
-
 GLPostProcessor::GLPostProcessor(
 	MSXMotherBoard& motherBoard_, Display& display_,
 	OutputSurface& screen_, const std::string& videoSource,

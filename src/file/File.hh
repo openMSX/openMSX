@@ -47,11 +47,11 @@ public:
 	  */
 	File(string_ref         filename, const char* mode);
 	File(const Filename&    filename, const char* mode);
-	File(File&& other);
+	File(File&& other) noexcept;
 
 	~File();
 
-	File& operator=(File&& other);
+	File& operator=(File&& other) noexcept;
 
 	/** Return true iff this file handle refers to an open file. */
 	bool is_open() const { return file.get() != nullptr; }

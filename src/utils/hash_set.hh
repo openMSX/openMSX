@@ -54,15 +54,6 @@ struct Element {
 		// nextIdx left uninitialized
 	{
 	}
-
-	// Move constructor should be auto-generated, but visual studio 2013
-	// is not fully c++11 compliant :(
-	//  TODO remove once we switch to vs2015
-	Element(Element&& source)
-		: value(std::move(source.value))
-		, hash(source.hash), nextIdx(source.nextIdx)
-	{
-	}
 };
 
 
@@ -83,7 +74,7 @@ public:
 	{
 	}
 
-	Pool(Pool&& source)
+	Pool(Pool&& source) noexcept
 		: buf1_    (source.buf1_)
 		, freeIdx_ (source.freeIdx_)
 		, capacity_(source.capacity_)
@@ -93,7 +84,7 @@ public:
 		source.capacity_ = 0;
 	}
 
-	Pool& operator=(Pool&& source)
+	Pool& operator=(Pool&& source) noexcept
 	{
 		buf1_     = source.buf1_;
 		freeIdx_  = source.freeIdx_;
@@ -177,7 +168,7 @@ public:
 		else             growInitial(count);
 	}
 
-	friend void swap(Pool& x, Pool& y)
+	friend void swap(Pool& x, Pool& y) noexcept
 	{
 		using std::swap;
 		swap(x.buf1_,     y.buf1_);
@@ -386,7 +377,7 @@ public:
 		}
 	}
 
-	hash_set(hash_set&& source)
+	hash_set(hash_set&& source) noexcept
 		: table(source.table)
 		, pool(std::move(source.pool))
 		, allocMask(source.allocMask)
@@ -432,7 +423,7 @@ public:
 		return *this;
 	}
 
-	hash_set& operator=(hash_set&& source)
+	hash_set& operator=(hash_set&& source) noexcept
 	{
 		table     = source.table;
 		pool      = std::move(source.pool);
@@ -640,7 +631,7 @@ public:
 		}
 	}
 
-	friend void swap(hash_set& x, hash_set& y)
+	friend void swap(hash_set& x, hash_set& y) noexcept
 	{
 		using std::swap;
 		swap(x.table,     y.table);

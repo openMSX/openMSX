@@ -37,56 +37,6 @@ using std::vector;
 
 namespace openmsx {
 
-MSXMixer::SoundDeviceInfo::SoundDeviceInfo()
-{
-}
-
-MSXMixer::SoundDeviceInfo::SoundDeviceInfo(SoundDeviceInfo&& rhs)
-	: device         (std::move(rhs.device))
-	, defaultVolume  (std::move(rhs.defaultVolume))
-	, volumeSetting  (std::move(rhs.volumeSetting))
-	, balanceSetting (std::move(rhs.balanceSetting))
-	, channelSettings(std::move(rhs.channelSettings))
-	, left1          (std::move(rhs.left1))
-	, right1         (std::move(rhs.right1))
-	, left2          (std::move(rhs.left2))
-	, right2         (std::move(rhs.right2))
-{
-}
-
-MSXMixer::SoundDeviceInfo& MSXMixer::SoundDeviceInfo::operator=(SoundDeviceInfo&& rhs)
-{
-	device          = std::move(rhs.device);
-	defaultVolume   = std::move(rhs.defaultVolume);
-	volumeSetting   = std::move(rhs.volumeSetting);
-	balanceSetting  = std::move(rhs.balanceSetting);
-	channelSettings = std::move(rhs.channelSettings);
-	left1           = std::move(rhs.left1);
-	right1          = std::move(rhs.right1);
-	left2           = std::move(rhs.left2);
-	right2          = std::move(rhs.right2);
-	return *this;
-}
-
-MSXMixer::SoundDeviceInfo::ChannelSettings::ChannelSettings()
-{
-}
-
-MSXMixer::SoundDeviceInfo::ChannelSettings::ChannelSettings(ChannelSettings&& rhs)
-	: recordSetting(std::move(rhs.recordSetting))
-	, muteSetting  (std::move(rhs.muteSetting))
-{
-}
-
-MSXMixer::SoundDeviceInfo::ChannelSettings&
-MSXMixer::SoundDeviceInfo::ChannelSettings::operator=(ChannelSettings&& rhs)
-{
-	recordSetting = std::move(rhs.recordSetting);
-	muteSetting   = std::move(rhs.muteSetting);
-	return *this;
-}
-
-
 MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
                    GlobalSettings& globalSettings)
 	: Schedulable(motherBoard_.getScheduler())

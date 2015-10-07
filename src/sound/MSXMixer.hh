@@ -106,20 +106,11 @@ public:
 
 private:
 	struct SoundDeviceInfo {
-		// TODO use compiler-generated versions once VS supports it
-		SoundDeviceInfo();
-		SoundDeviceInfo(SoundDeviceInfo&& rhs);
-		SoundDeviceInfo& operator=(SoundDeviceInfo&& rhs);
-
 		SoundDevice* device;
 		float defaultVolume;
 		std::unique_ptr<IntegerSetting> volumeSetting;
 		std::unique_ptr<IntegerSetting> balanceSetting;
 		struct ChannelSettings {
-			ChannelSettings();
-			ChannelSettings(ChannelSettings&& rhs);
-			ChannelSettings& operator=(ChannelSettings&& rhs);
-
 			std::unique_ptr<StringSetting> recordSetting;
 			std::unique_ptr<BooleanSetting> muteSetting;
 		};

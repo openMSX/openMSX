@@ -69,7 +69,6 @@ private:
 		TextCacheElement(const std::string& text_, unsigned rgb_,
 		                 std::unique_ptr<BaseImage> image_,
 		                 unsigned width_);
-		TextCacheElement(TextCacheElement&& rhs);
 
 		std::string text;
 		std::unique_ptr<BaseImage> image;

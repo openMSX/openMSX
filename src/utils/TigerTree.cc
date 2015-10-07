@@ -11,17 +11,6 @@ static const size_t BLOCK_SIZE = 1024;
 struct TTCacheEntry
 {
 	TTCacheEntry() : time(-1) {}
-	// TODO use compiler generated versions once VS supports that
-	TTCacheEntry(TTCacheEntry&& other)
-		: hash (std::move(other.hash ))
-		, valid(std::move(other.valid))
-		, time (std::move(other.time )) {}
-	TTCacheEntry& operator=(TTCacheEntry&& other) {
-		hash  = std::move(other.hash );
-		valid = std::move(other.valid);
-		time  = std::move(other.time );
-		return *this;
-	}
 
 	MemBuffer<TigerHash> hash;
 	MemBuffer<bool> valid;

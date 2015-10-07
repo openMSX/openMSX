@@ -63,7 +63,7 @@ public:
 	explicit TclObject(int v)        { init(Tcl_NewIntObj(v)); }
 	explicit TclObject(double v)     { init(Tcl_NewDoubleObj(v)); }
 	TclObject(const TclObject&  o)   { init(o.obj); }
-	TclObject(      TclObject&& o)   { init(o.obj); }
+	TclObject(      TclObject&& o) noexcept { init(o.obj); }
 	~TclObject()                     { Tcl_DecrRefCount(obj); }
 
 	// assignment operator so we can use vector<TclObject>
@@ -74,7 +74,7 @@ public:
 		}
 		return *this;
 	}
-	TclObject& operator=(TclObject&& other) {
+	TclObject& operator=(TclObject&& other) noexcept {
 		std::swap(obj, other.obj);
 		return *this;
 	}
@@ -140,7 +140,7 @@ public:
 	friend bool operator!=(string_ref       x, const TclObject& y) { return !(x == y); }
 
 private:
-	void init(Tcl_Obj* obj_) {
+	void init(Tcl_Obj* obj_) noexcept {
 		obj = obj_;
 		Tcl_IncrRefCount(obj);
 	}

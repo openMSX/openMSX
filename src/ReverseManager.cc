@@ -111,32 +111,6 @@ void ReverseManager::ReverseHistory::clear()
 }
 
 
-// struct ReverseChunk
-
-ReverseManager::ReverseChunk::ReverseChunk()
-	: time(EmuTime::zero)
-{
-}
-
-ReverseManager::ReverseChunk::ReverseChunk(ReverseChunk&& rhs)
-	: time      (move(rhs.time))
-	, savestate (move(rhs.savestate))
-	, size      (move(rhs.size))
-	, eventCount(move(rhs.eventCount))
-{
-}
-
-ReverseManager::ReverseChunk& ReverseManager::ReverseChunk::operator=(
-	ReverseChunk&& rhs)
-{
-	time       = move(rhs.time);
-	savestate  = move(rhs.savestate);
-	size       = move(rhs.size);
-	eventCount = move(rhs.eventCount);
-	return *this;
-}
-
-
 class EndLogEvent final : public StateChange
 {
 public:

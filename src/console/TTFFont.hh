@@ -28,14 +28,14 @@ public:
 	TTFFont(const std::string& font, int ptSize);
 
 	/** Move construct. */
-	TTFFont(TTFFont&& other)
+	TTFFont(TTFFont&& other) noexcept
 		: font(other.font)
 	{
 		other.font = nullptr;
 	}
 
 	/** Move assignment. */
-	TTFFont& operator=(TTFFont&& other)
+	TTFFont& operator=(TTFFont&& other) noexcept
 	{
 		std::swap(font, other.font);
 		return *this;

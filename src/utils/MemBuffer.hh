@@ -59,7 +59,7 @@ public:
 	}
 
 	/** Move constructor. */
-	MemBuffer(MemBuffer&& other)
+	MemBuffer(MemBuffer&& other) noexcept
 		: dat(other.dat)
 #ifdef DEBUG
 		, sz(other.sz)
@@ -69,7 +69,7 @@ public:
 	}
 
 	/** Move assignment. */
-	MemBuffer& operator=(MemBuffer&& other)
+	MemBuffer& operator=(MemBuffer&& other) noexcept
 	{
 		std::swap(dat, other.dat);
 #ifdef DEBUG
@@ -143,7 +143,7 @@ public:
 
 	/** Swap the managed memory block of two MemBuffers.
 	 */
-	void swap(MemBuffer& other)
+	void swap(MemBuffer& other) noexcept
 	{
 		std::swap(dat, other.dat);
 #ifdef DEBUG
@@ -152,17 +152,6 @@ public:
 	}
 
 private:
-#if defined(_MSC_VER)
-	// Make non-copyable/assignable.
-	//  Strictly according to the c++11 standard this is not needed because
-	//  there's a user-defined move-constructor/assignment. Though visual
-	//  studio 2013 isn't fully standard compliant yet (it still provides
-	//  an auto-generated copy-constructor/assignment). Visual studio 2013
-	//  also doesn't support the '=delete' syntax yet.
-	MemBuffer(const MemBuffer&);
-	MemBuffer& operator=(const MemBuffer&);
-#endif
-
 	// If the requested alignment is less or equally strict than the
 	// guaranteed alignment by the standard malloc()-like functions
 	// we use those. Otherwise we use platform specific functions to
@@ -220,7 +209,7 @@ private:
 
 namespace std {
 	template<typename T>
-	void swap(openmsx::MemBuffer<T>& l, openmsx::MemBuffer<T>& r)
+	void swap(openmsx::MemBuffer<T>& l, openmsx::MemBuffer<T>& r) noexcept
 	{
 		l.swap(r);
 	}
