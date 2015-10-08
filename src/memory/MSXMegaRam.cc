@@ -153,10 +153,10 @@ template<typename Archive>
 void MSXMegaRam::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ram",       ram,
-	             "bank",      bank,
-	             "writeMode", writeMode,
-	             "romMode",   romMode);
+	ar.serialize("ram", ram);
+	ar.serialize("bank", bank);
+	ar.serialize("writeMode", writeMode);
+	ar.serialize("romMode", romMode);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMegaRam);
 REGISTER_MSXDEVICE(MSXMegaRam, "MegaRAM");

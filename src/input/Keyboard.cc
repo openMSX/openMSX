@@ -60,9 +60,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("row",     row,
-		             "press",   press,
-		             "release", release);
+		ar.serialize("row", row);
+		ar.serialize("press", press);
+		ar.serialize("release", release);
 	}
 private:
 	byte row, press, release;
@@ -1253,13 +1253,13 @@ template<typename Archive>
 void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
-	ar.serialize("text",              text_utf8,
-	             "last",              last,
-	             "lockKeysMask",      lockKeysMask,
-	             "releaseLast",       releaseLast,
-	             "oldCodeKanaLockOn", oldCodeKanaLockOn,
-	             "oldGraphLockOn",    oldGraphLockOn,
-	             "oldCapsLockOn",     oldCapsLockOn);
+	ar.serialize("text", text_utf8);
+	ar.serialize("last", last);
+	ar.serialize("lockKeysMask", lockKeysMask);
+	ar.serialize("releaseLast", releaseLast);
+	ar.serialize("oldCodeKanaLockOn", oldCodeKanaLockOn);
+	ar.serialize("oldGraphLockOn", oldGraphLockOn);
+	ar.serialize("oldCapsLockOn", oldCapsLockOn);
 }
 
 // version 1: Initial version: {userKeyMatrix, dynKeymap, msxmodifiers,
@@ -1277,17 +1277,17 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Keyboard::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("keyTypeCmd",        keyTypeCmd,
-	             "cmdKeyMatrix",      cmdKeyMatrix,
-	             "msxCapsLockOn",     msxCapsLockOn,
-	             "msxCodeKanaLockOn", msxCodeKanaLockOn,
-	             "msxGraphLockOn",    msxGraphLockOn);
+	ar.serialize("keyTypeCmd", keyTypeCmd);
+	ar.serialize("cmdKeyMatrix", cmdKeyMatrix);
+	ar.serialize("msxCapsLockOn", msxCapsLockOn);
+	ar.serialize("msxCodeKanaLockOn", msxCodeKanaLockOn);
+	ar.serialize("msxGraphLockOn", msxGraphLockOn);
 
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("userKeyMatrix",    userKeyMatrix,
-		             "dynKeymap",        dynKeymap,
-		             "msxmodifiers",     msxmodifiers,
-		             "msxKeyEventQueue", msxKeyEventQueue);
+		ar.serialize("userKeyMatrix", userKeyMatrix);
+		ar.serialize("dynKeymap", dynKeymap);
+		ar.serialize("msxmodifiers", msxmodifiers);
+		ar.serialize("msxKeyEventQueue", msxKeyEventQueue);
 	}
 	// don't serialize hostKeyMatrix
 

@@ -569,12 +569,12 @@ void SCSIHD::serialize(Archive& ar, unsigned /*version*/)
 	// don't serialize SCSIDevice, SectorAccessibleDisk, DiskContainer
 	// base classes
 	ar.template serializeBase<HD>(*this);
-	ar.serialize("keycode",       keycode,
-	             "currentSector", currentSector,
-	             "currentLength", currentLength,
-	             "unitAttention", unitAttention,
-	             "message",       message,
-	             "lun",           lun);
+	ar.serialize("keycode", keycode);
+	ar.serialize("currentSector", currentSector);
+	ar.serialize("currentLength", currentLength);
+	ar.serialize("unitAttention", unitAttention);
+	ar.serialize("message", message);
+	ar.serialize("lun", lun);
 	ar.serialize_blob("cdb", cdb, sizeof(cdb));
 }
 INSTANTIATE_SERIALIZE_METHODS(SCSIHD);

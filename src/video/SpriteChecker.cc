@@ -502,8 +502,8 @@ void SpriteChecker::serialize(Archive& ar, unsigned version)
 		for (auto& c : spriteCount) c = 0;
 		// content of spriteBuffer[] doesn't matter if spriteCount[] is 0
 	}
-	ar.serialize("collisionX", collisionX,
-	             "collisionY", collisionY);
+	ar.serialize("collisionX", collisionX);
+	ar.serialize("collisionY", collisionY);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("currentLine", currentLine);
 	} else {

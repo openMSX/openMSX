@@ -1026,24 +1026,24 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 	// Serialize remote control
 	ar.serialize("RemoteState", remoteState);
 	if (remoteState != REMOTE_IDLE) {
-		ar.serialize("RemoteBitNr", remoteBitNr,
-		             "RemoteBits",  remoteBits);
+		ar.serialize("RemoteBitNr", remoteBitNr);
+		ar.serialize("RemoteBits", remoteBits);
 		if (ar.versionBelow(version, 3)) {
 			assert(ar.isLoader());
 			remoteBits = Math::reverseNBits(remoteBits, remoteBitNr);
 		}
 	}
-	ar.serialize("RemoteLastBit",  remoteLastBit,
-	             "RemoteLastEdge", remoteLastEdge,
-	             "RemoteProtocol", remoteProtocol);
+	ar.serialize("RemoteLastBit", remoteLastBit);
+	ar.serialize("RemoteLastEdge", remoteLastEdge);
+	ar.serialize("RemoteProtocol", remoteProtocol);
 	if (remoteProtocol != IR_NONE) {
 		ar.serialize("RemoteCode", remoteCode);
 		if (ar.versionBelow(version, 3)) {
 			assert(ar.isLoader());
 			remoteCode = Math::reverseByte(remoteCode);
 		}
-		ar.serialize("RemoteExecuteDelayed", remoteExecuteDelayed,
-		             "RemoteVblanksBack",    remoteVblanksBack);
+		ar.serialize("RemoteExecuteDelayed", remoteExecuteDelayed);
+		ar.serialize("RemoteVblanksBack", remoteVblanksBack);
 	}
 
 	// Serialize filename
@@ -1074,8 +1074,8 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 			ar.serialize("StillOnWaitFrame", stillOnWaitFrame);
 		}
 
-		ar.serialize("ACK",          ack,
-		             "PlayingSpeed", playingSpeed);
+		ar.serialize("ACK", ack);
+		ar.serialize("PlayingSpeed", playingSpeed);
 
 		// Frame position
 		ar.serialize("CurrentFrame", currentFrame);
@@ -1084,9 +1084,9 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 		}
 
 		// Audio position
-		ar.serialize("StereoMode",  stereoMode,
-		             "FromSample",  playingFromSample,
-		             "SampleClock", sampleClock);
+		ar.serialize("StereoMode", stereoMode);
+		ar.serialize("FromSample", playingFromSample);
+		ar.serialize("SampleClock", sampleClock);
 
 		if (ar.isLoader()) {
 			// If the samplerate differs, adjust accordingly
@@ -1110,9 +1110,9 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.versionAtLeast(version, 4)) {
-		ar.serialize("syncEven", syncEven,
-		             "syncOdd",  syncOdd,
-		             "syncAck",  syncAck);
+		ar.serialize("syncEven", syncEven);
+		ar.serialize("syncOdd",  syncOdd);
+		ar.serialize("syncAck",  syncAck);
 	} else {
 		Schedulable::restoreOld(ar, {&syncEven, &syncOdd, &syncAck});
 	}

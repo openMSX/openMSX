@@ -198,8 +198,8 @@ template<typename Archive>
 void TurboRFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXFDC>(*this);
-	ar.serialize("TC8566AF", controller,
-	             "bank",     bank);
+	ar.serialize("TC8566AF", controller);
+	ar.serialize("bank", bank);
 	if (ar.isLoader()) {
 		setBank(bank);
 	}

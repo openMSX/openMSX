@@ -994,18 +994,18 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		}
 	}
 
-	ar.serialize("fsmState",      fsmState,
-	             "statusReg",     statusReg,
-	             "commandReg",    commandReg,
-	             "sectorReg",     sectorReg,
-	             "trackReg",      trackReg,
-	             "dataReg",       dataReg,
+	ar.serialize("fsmState", fsmState);
+	ar.serialize("statusReg", statusReg);
+	ar.serialize("commandReg", commandReg);
+	ar.serialize("sectorReg", sectorReg);
+	ar.serialize("trackReg", trackReg);
+	ar.serialize("dataReg", dataReg);
 
-	             "directionIn",   directionIn,
-	             "immediateIRQ",  immediateIRQ,
+	ar.serialize("directionIn", directionIn);
+	ar.serialize("immediateIRQ", immediateIRQ);
 
-	             "dataCurrent",   dataCurrent,
-	             "dataAvailable", dataAvailable);
+	ar.serialize("dataCurrent", dataCurrent);
+	ar.serialize("dataAvailable", dataAvailable);
 
 	if (ar.versionAtLeast(version, 2)) {
 		if (ar.versionAtLeast(version, 4)) {
@@ -1019,11 +1019,11 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		}
 	} else {
 		assert(ar.isLoader());
-		//ar.serialize("commandStart", commandStart,
-		//             "DRQTimer",     DRQTimer,
-		//             "DRQ",          DRQ,
-		//             "transferring", transferring,
-		//             "formatting",   formatting);
+		//ar.serialize("commandStart", commandStart);
+		//ar.serialize("DRQTimer", DRQTimer);
+		//ar.serialize("DRQ", DRQ);
+		//ar.serialize("transferring", transferring);
+		//ar.serialize("formatting", formatting);
 		drqTime.reset(EmuTime::infinity);
 
 		// Compared to version 1, the datatransfer commands are
@@ -1042,8 +1042,8 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.versionAtLeast(version, 3)) {
-		ar.serialize("trackData", trackData,
-		             "lastWasA1", lastWasA1);
+		ar.serialize("trackData", trackData);
+		ar.serialize("lastWasA1", lastWasA1);
 		word crcVal = crc.getValue();
 		ar.serialize("crc", crcVal);
 		crc.init(crcVal);
@@ -1067,8 +1067,8 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.versionAtLeast(version, 5)) {
-		ar.serialize("pulse5",     pulse5,
-		             "sectorInfo", sectorInfo);
+		ar.serialize("pulse5", pulse5);
+		ar.serialize("sectorInfo", sectorInfo);
 	} else {
 		// leave pulse5 at EmuTime::infinity
 		// leave sectorInfo uninitialized

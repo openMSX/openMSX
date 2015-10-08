@@ -174,17 +174,17 @@ void PioneerLDControl::updateVideoSource()
 template<typename Archive>
 void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("clock", clock,
-	             "mutel", mutel,
-	             "muter", muter);
+	ar.serialize("clock", clock);
+	ar.serialize("mutel", mutel);
+	ar.serialize("muter", muter);
 	// videoEnabled is restored from LaserdiscPlayer. Set to false
 	// for now so that the irq does not get changed during load
 	if (ar.isLoader()) {
 		videoEnabled = false;
 	}
-	ar.serialize("superimposing", superimposing,
-	             "extint",        extint,
-	             "irq",           irq);
+	ar.serialize("superimposing", superimposing);
+	ar.serialize("extint", extint);
+	ar.serialize("irq", irq);
 	if (laserdisc) ar.serialize("laserdisc", *laserdisc);
 
 	if (ar.isLoader()) {

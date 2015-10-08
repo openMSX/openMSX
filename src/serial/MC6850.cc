@@ -357,24 +357,24 @@ void MC6850::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 	if (ar.versionAtLeast(version, 3)) {
 		ar.template serializeBase<MidiInConnector>(*this);
-		ar.serialize("outConnector", outConnector,
+		ar.serialize("outConnector", outConnector);
 
-		             "syncRecv",  syncRecv,
-		             "syncTrans", syncTrans,
+		ar.serialize("syncRecv",  syncRecv);
+		ar.serialize("syncTrans", syncTrans);
 
-		             "txClock", txClock,
-		             "rxIRQ", rxIRQ,
-		             "txIRQ", txIRQ,
+		ar.serialize("txClock", txClock);
+		ar.serialize("rxIRQ", rxIRQ);
+		ar.serialize("txIRQ", txIRQ);
 
-		             "rxReady",         rxReady,
-		             "txShiftRegValid", txShiftRegValid,
-		             "pendingOVRN",     pendingOVRN,
+		ar.serialize("rxReady",         rxReady);
+		ar.serialize("txShiftRegValid", txShiftRegValid);
+		ar.serialize("pendingOVRN",     pendingOVRN);
 
-		             "rxDataReg",  rxDataReg,
-		             "txDataReg",  txDataReg,
-		             "txShiftReg", txShiftReg,
-		             "controlReg", controlReg,
-		             "statusReg",  statusReg);
+		ar.serialize("rxDataReg",  rxDataReg);
+		ar.serialize("txDataReg",  txDataReg);
+		ar.serialize("txShiftReg", txShiftReg);
+		ar.serialize("controlReg", controlReg);
+		ar.serialize("statusReg",  statusReg);
 	} else if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("control", controlReg);
 	} else {

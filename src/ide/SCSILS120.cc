@@ -831,13 +831,13 @@ void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 		}
 	}
 
-	ar.serialize("keycode",       keycode,
-	             "currentSector", currentSector,
-	             "currentLength", currentLength,
-	             "unitAttention", unitAttention,
-	             "mediaChanged",  mediaChanged,
-	             "message",       message,
-	             "lun",           lun);
+	ar.serialize("keycode", keycode);
+	ar.serialize("currentSector", currentSector);
+	ar.serialize("currentLength", currentLength);
+	ar.serialize("unitAttention", unitAttention);
+	ar.serialize("mediaChanged", mediaChanged);
+	ar.serialize("message", message);
+	ar.serialize("lun", lun);
 	ar.serialize_blob("cdb", cdb, sizeof(cdb));
 }
 INSTANTIATE_SERIALIZE_METHODS(SCSILS120);

@@ -1204,18 +1204,18 @@ void Y8950::changeStatusMask(byte newMask)
 template<typename Archive>
 void Y8950::Patch::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("AM", AM,
-	             "PM", PM,
-	             "EG", EG,
-	             "KR", KR,
-	             "ML", ML,
-	             "KL", KL,
-	             "TL", TL,
-	             "FB", FB,
-	             "AR", AR,
-	             "DR", DR,
-	             "SL", SL,
-	             "RR", RR);
+	ar.serialize("AM", AM);
+	ar.serialize("PM", PM);
+	ar.serialize("EG", EG);
+	ar.serialize("KR", KR);
+	ar.serialize("ML", ML);
+	ar.serialize("KL", KL);
+	ar.serialize("TL", TL);
+	ar.serialize("FB", FB);
+	ar.serialize("AR", AR);
+	ar.serialize("DR", DR);
+	ar.serialize("SL", SL);
+	ar.serialize("RR", RR);
 }
 
 static enum_string<Y8950::EnvelopeState> envelopeStateInfo[]= {
@@ -1235,11 +1235,11 @@ SERIALIZE_ENUM(Y8950::EnvelopeState, envelopeStateInfo);
 template<typename Archive>
 void Y8950::Slot::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("feedback", feedback,
-	             "output",   output,
-	             "phase",    phase,
-	             "eg_phase", eg_phase,
-	             "patch",    patch);
+	ar.serialize("feedback", feedback);
+	ar.serialize("output", output);
+	ar.serialize("phase", phase);
+	ar.serialize("eg_phase", eg_phase);
+	ar.serialize("patch", patch);
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("eg_mode", eg_mode);
 	} else {
@@ -1265,10 +1265,10 @@ void Y8950::Slot::serialize(Archive& ar, unsigned version)
 template<typename Archive>
 void Y8950::Channel::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mod",  slot[MOD],
-	             "car",  slot[CAR],
-	             "freq", freq,
-	             "alg",  alg);
+	ar.serialize("mod", slot[MOD]);
+	ar.serialize("car", slot[CAR]);
+	ar.serialize("freq", freq);
+	ar.serialize("alg", alg);
 
 	if (ar.isLoader()) {
 		slot[MOD].updateAll(freq);
@@ -1279,26 +1279,26 @@ void Y8950::Channel::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Y8950::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("keyboardConnector", connector,
-	             "adpcm",             adpcm,
-	             "timer1",            *timer1,
-	             "timer2",            *timer2,
-	             "irq",               irq);
+	ar.serialize("keyboardConnector", connector);
+	ar.serialize("adpcm", adpcm);
+	ar.serialize("timer1", *timer1);
+	ar.serialize("timer2", *timer2);
+	ar.serialize("irq", irq);
 	ar.serialize_blob("registers", reg, sizeof(reg));
-	ar.serialize("pm_phase",      pm_phase,
-	             "am_phase",      am_phase,
-	             "noise_seed",    noise_seed,
-	             "noiseA_phase",  noiseA_phase,
-	             "noiseB_phase",  noiseB_phase,
-	             "noiseA_dphase", noiseA_dphase,
-	             "noiseB_dphase", noiseB_dphase,
-	             "channels",      ch,
-	             "status",        status,
-	             "statusMask",    statusMask,
-	             "rythm_mode",    rythm_mode,
-	             "am_mode",       am_mode,
-	             "pm_mode",       pm_mode,
-	             "enabled",       enabled);
+	ar.serialize("pm_phase", pm_phase);
+	ar.serialize("am_phase", am_phase);
+	ar.serialize("noise_seed", noise_seed);
+	ar.serialize("noiseA_phase", noiseA_phase);
+	ar.serialize("noiseB_phase", noiseB_phase);
+	ar.serialize("noiseA_dphase", noiseA_dphase);
+	ar.serialize("noiseB_dphase", noiseB_dphase);
+	ar.serialize("channels", ch);
+	ar.serialize("status", status);
+	ar.serialize("statusMask", statusMask);
+	ar.serialize("rythm_mode", rythm_mode);
+	ar.serialize("am_mode", am_mode);
+	ar.serialize("pm_mode", pm_mode);
+	ar.serialize("enabled", enabled);
 
 	// TODO restore more state from registers
 	static const byte rewriteRegs[] = {

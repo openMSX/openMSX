@@ -1,4 +1,7 @@
 #include "SerializeBuffer.hh"
+#include "likely.hh"
+#include <new> // for bad_alloc
+#include <cstdlib>
 
 namespace openmsx {
 
@@ -30,7 +33,7 @@ OutputBuffer::OutputBuffer()
 #ifdef __GNUC__
 template<size_t LEN> void OutputBuffer::insertN(const void* __restrict data)
 {
-	uint8_t* newEnd = end + LEN;
+	byte* newEnd = end + LEN;
 	if (likely(newEnd <= finish)) {
 		memcpy(end, data, LEN);
 		end = newEnd;
@@ -47,7 +50,7 @@ template void OutputBuffer::insertN<8>(const void* __restrict data);
 
 void OutputBuffer::insertN(const void* __restrict data, size_t len)
 {
-	uint8_t* newEnd = end + len;
+	byte* newEnd = end + len;
 	if (likely(newEnd <= finish)) {
 		memcpy(end, data, len);
 		end = newEnd;
@@ -56,7 +59,7 @@ void OutputBuffer::insertN(const void* __restrict data, size_t len)
 	}
 }
 
-MemBuffer<uint8_t> OutputBuffer::release(size_t& size)
+MemBuffer<byte> OutputBuffer::release(size_t& size)
 {
 	size = end - buf.data();
 
@@ -67,34 +70,26 @@ MemBuffer<uint8_t> OutputBuffer::release(size_t& size)
 	return std::move(buf);
 }
 
-void OutputBuffer::grow(size_t len)
+void OutputBuffer::insertGrow(const void* __restrict data, size_t len)
+{
+	byte* pos = allocateGrow(len);
+	memcpy(pos, data, len);
+}
+
+byte* OutputBuffer::allocateGrow(size_t len)
 {
 	size_t oldSize = end - buf.data();
 	size_t newSize = std::max(oldSize + len, oldSize + oldSize / 2);
 	buf.resize(newSize);
-	end    = buf.data() + oldSize;
+	end = buf.data() + oldSize + len;
 	finish = buf.data() + newSize;
+	return buf.data() + oldSize;
 }
-
-uint8_t* OutputBuffer::allocateGrow(size_t len)
-{
-	grow(len);
-	auto* result = end;
-	end += len;
-	return result;
-}
-
-void OutputBuffer::insertGrow(const void* __restrict data, size_t len)
-{
-	uint8_t* pos = allocateGrow(len);
-	memcpy(pos, data, len);
-}
-
 
 
 // class InputBuffer
 
-InputBuffer::InputBuffer(const uint8_t* data, size_t size)
+InputBuffer::InputBuffer(const byte* data, size_t size)
 	: buf(data)
 #ifndef NDEBUG
 	, finish(buf + size)

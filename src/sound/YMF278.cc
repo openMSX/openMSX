@@ -937,34 +937,34 @@ template<typename Archive>
 void YMF278::Slot::serialize(Archive& ar, unsigned version)
 {
 	// TODO restore more state from registers
-	ar.serialize("startaddr", startaddr,
-	             "loopaddr",  loopaddr,
-	             "endaddr",   endaddr,
-	             "stepptr",   stepptr,
-	             "pos",       pos,
-	             "sample1",   sample1,
-	             "sample2",   sample2,
-	             "env_vol",   env_vol,
-	             "lfo_cnt",   lfo_cnt,
-	             "lfo_step",  lfo_step,
-	             "lfo_max",   lfo_max,
-	             "DL",        DL,
-	             "wave",      wave,
-	             "FN",        FN);
+	ar.serialize("startaddr", startaddr);
+	ar.serialize("loopaddr", loopaddr);
+	ar.serialize("endaddr", endaddr);
+	ar.serialize("stepptr", stepptr);
+	ar.serialize("pos", pos);
+	ar.serialize("sample1", sample1);
+	ar.serialize("sample2", sample2);
+	ar.serialize("env_vol", env_vol);
+	ar.serialize("lfo_cnt", lfo_cnt);
+	ar.serialize("lfo_step", lfo_step);
+	ar.serialize("lfo_max", lfo_max);
+	ar.serialize("DL", DL);
+	ar.serialize("wave", wave);
+	ar.serialize("FN", FN);
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("OCT",  OCT,
-		             "PRVB", PRVB,
-		             "LD",   LD,
-		             "TL",   TL,
-		             "pan",  pan,
-		             "lfo",  lfo,
-		             "vib",  vib,
-		             "AM",   AM,
-		             "AR",   AR,
-		             "D1R",  D1R,
-		             "D2R",  D2R,
-		             "RC",   RC,
-		             "RR",   RR);
+		ar.serialize("OCT", OCT);
+		ar.serialize("PRVB", PRVB);
+		ar.serialize("LD", LD);
+		ar.serialize("TL", TL);
+		ar.serialize("pan", pan);
+		ar.serialize("lfo", lfo);
+		ar.serialize("vib", vib);
+		ar.serialize("AM", AM);
+		ar.serialize("AR", AR);
+		ar.serialize("D1R", D1R);
+		ar.serialize("D2R", D2R);
+		ar.serialize("RC", RC);
+		ar.serialize("RR", RR);
 	} else {
 		ar.serializeChar("OCT", OCT);
 		ar.serializeChar("PRVB", PRVB);
@@ -980,10 +980,10 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 		ar.serializeChar("RC", RC);
 		ar.serializeChar("RR", RR);
 	}
-	ar.serialize("bits",       bits,
-	             "active",     active,
-	             "state",      state,
-	             "lfo_active", lfo_active);
+	ar.serialize("bits", bits);
+	ar.serialize("active", active);
+	ar.serialize("state", state);
+	ar.serialize("lfo_active", lfo_active);
 
 	// Recalculate redundant state
 	if (ar.isLoader()) {
@@ -1008,8 +1008,8 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 template<typename Archive>
 void YMF278::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("slots",  slots,
-	             "eg_cnt", eg_cnt);
+	ar.serialize("slots", slots);
+	ar.serialize("eg_cnt", eg_cnt);
 	ar.serialize_blob("ram", ram.data(), ramSize);
 	ar.serialize_blob("registers", regs, sizeof(regs));
 	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'

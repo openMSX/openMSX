@@ -1,7 +1,6 @@
 #ifndef EMUDUARTION_HH
 #define EMUDUARTION_HH
 
-#include "serialize.hh"
 #include <cassert>
 #include <cstdint>
 
@@ -123,8 +122,6 @@ public:
 private:
 	uint64_t time;
 };
-
-template<> struct SerializeAsMemcpy<EmuDuration> : std::true_type {};
 
 } // namespace openmsx
 

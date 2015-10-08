@@ -319,18 +319,18 @@ template<typename Archive>
 void RealDrive::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 4)) {
-		ar.serialize("syncLoadingTimeout", syncLoadingTimeout,
-		             "syncMotorTimeout",   syncMotorTimeout);
+		ar.serialize("syncLoadingTimeout", syncLoadingTimeout);
+		ar.serialize("syncMotorTimeout",   syncMotorTimeout);
 	} else {
 		Schedulable::restoreOld(ar, {&syncLoadingTimeout, &syncMotorTimeout});
 	}
-	ar.serialize("motorTimer",     motorTimer,
-	             "headLoadTimer",  headLoadTimer,
-	             "changer",        *changer,
-	             "headPos",        headPos,
-	             "side",           side,
-	             "motorStatus",    motorStatus,
-	             "headLoadStatus", headLoadStatus);
+	ar.serialize("motorTimer", motorTimer);
+	ar.serialize("headLoadTimer", headLoadTimer);
+	ar.serialize("changer", *changer);
+	ar.serialize("headPos", headPos);
+	ar.serialize("side", side);
+	ar.serialize("motorStatus", motorStatus);
+	ar.serialize("headLoadStatus", headLoadStatus);
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("startAngle", startAngle);
 	} else {

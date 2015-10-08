@@ -882,34 +882,34 @@ void V9990::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	if (ar.versionAtLeast(version, 4)) {
-		ar.serialize("syncVSync",        syncVSync,
-		             "syncDisplayStart", syncDisplayStart,
-		             "syncVScan",        syncVScan,
-		             "syncHScan",        syncHScan,
-		             "syncSetMode",      syncSetMode);
+		ar.serialize("syncVSync",        syncVSync);
+		ar.serialize("syncDisplayStart", syncDisplayStart);
+		ar.serialize("syncVScan",        syncVScan);
+		ar.serialize("syncHScan",        syncHScan);
+		ar.serialize("syncSetMode",      syncSetMode);
 	} else {
 		Schedulable::restoreOld(ar,
 			{&syncVSync, &syncDisplayStart, &syncVScan,
 			 &syncHScan, &syncSetMode});
 	}
 
-	ar.serialize("vram",           *vram,
-	             "cmdEngine",      *cmdEngine,
-	             "irq",            irq,
-	             "frameStartTime", frameStartTime,
-	             "hScanSyncTime",  hScanSyncTime,
-	             "displayMode",    mode);
+	ar.serialize("vram", *vram);
+	ar.serialize("cmdEngine", *cmdEngine);
+	ar.serialize("irq", irq);
+	ar.serialize("frameStartTime", frameStartTime);
+	ar.serialize("hScanSyncTime", hScanSyncTime);
+	ar.serialize("displayMode", mode);
 	ar.serialize_blob("palette", palette, sizeof(palette));
-	ar.serialize("status",      status,
-	             "pendingIRQs", pendingIRQs);
+	ar.serialize("status", status);
+	ar.serialize("pendingIRQs", pendingIRQs);
 	ar.serialize_blob("registers", regs, sizeof(regs));
-	ar.serialize("regSelect",      regSelect,
-	             "palTiming",      palTiming,
-	             "interlaced",     interlaced,
-	             "isDisplayArea",  isDisplayArea,
-	             "displayEnabled", displayEnabled,
-	             "scrollAYHigh",   scrollAYHigh,
-	             "scrollBYHigh",   scrollBYHigh);
+	ar.serialize("regSelect", regSelect);
+	ar.serialize("palTiming", palTiming);
+	ar.serialize("interlaced", interlaced);
+	ar.serialize("isDisplayArea", isDisplayArea);
+	ar.serialize("displayEnabled", displayEnabled);
+	ar.serialize("scrollAYHigh", scrollAYHigh);
+	ar.serialize("scrollBYHigh", scrollBYHigh);
 
 	if (ar.versionBelow(version, 2)) {
 		systemReset = false;
@@ -922,9 +922,9 @@ void V9990::serialize(Archive& ar, unsigned version)
 		vramWritePtr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
 		vramReadBuffer = vram->readVRAMCPU(vramReadPtr, getCurrentTime());
 	} else {
-		ar.serialize("vramReadPtr",    vramReadPtr,
-		             "vramWritePtr",   vramWritePtr,
-		             "vramReadBuffer", vramReadBuffer);
+		ar.serialize("vramReadPtr", vramReadPtr);
+		ar.serialize("vramWritePtr", vramWritePtr);
+		ar.serialize("vramReadBuffer", vramReadBuffer);
 	}
 
 	// No need to serialize 'externalVideoSource', it will be restored when

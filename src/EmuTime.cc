@@ -1,4 +1,5 @@
 #include "EmuTime.hh"
+#include "serialize.hh"
 #include <limits>
 #include <iostream>
 

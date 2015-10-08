@@ -1,4 +1,5 @@
 #include "EmuDuration.hh"
+#include "serialize.hh"
 #include <limits>
 
 namespace openmsx {

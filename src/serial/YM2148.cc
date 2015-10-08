@@ -229,20 +229,20 @@ void YM2148::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
 		ar.template serializeBase<MidiInConnector>(*this);
-		ar.serialize("outConnector", outConnector,
+		ar.serialize("outConnector", outConnector);
 
-		             "syncRecv",     syncRecv,
-		             "syncTrans",    syncTrans,
+		ar.serialize("syncRecv",  syncRecv);
+		ar.serialize("syncTrans", syncTrans);
 
-		             "rxIRQ",        rxIRQ,
-		             "txIRQ",        txIRQ,
+		ar.serialize("rxIRQ", rxIRQ);
+		ar.serialize("txIRQ", txIRQ);
 
-		             "rxReady",      rxReady,
-		             "rxBuffer",     rxBuffer,
-		             "txBuffer1",    txBuffer1,
-		             "txBuffer2",    txBuffer2,
-		             "status",       status,
-		             "commandReg",   commandReg);
+		ar.serialize("rxReady",    rxReady);
+		ar.serialize("rxBuffer",   rxBuffer);
+		ar.serialize("txBuffer1",  txBuffer1);
+		ar.serialize("txBuffer2",  txBuffer2);
+		ar.serialize("status",     status);
+		ar.serialize("commandReg", commandReg);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(YM2148);
