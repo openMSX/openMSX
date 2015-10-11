@@ -9,34 +9,19 @@
 namespace openmsx {
 namespace Timer {
 
-// non-static to avoid unused function warning
-inline uint64_t getSDLTicks()
-{
-	return static_cast<uint64_t>(SDL_GetTicks()) * 1000;
-}
-
 uint64_t getTime()
 {
 	static uint64_t lastTime = 0;
 	uint64_t now;
 
-#ifndef _MSC_VER
 	using namespace std::chrono;
 	now = duration_cast<microseconds>(
 		steady_clock::now().time_since_epoch()).count();
-#else
-	// Visual studio 2012 does offer std::chrono, but unfortunately it's
-	// buggy and low resolution. So for now we still use SDL. See also:
-	//   http://stackoverflow.com/questions/11488075/vs11-is-steady-clock-steady
-	//   https://connect.microsoft.com/VisualStudio/feedback/details/753115/
-	now = static_cast<uint64_t>(SDL_GetTicks()) * 1000;
-#endif
 
 	// Other parts of openMSX may crash if this function ever returns a
 	// value that is less than a previously returned value. Hence this
 	// extra check.
-	// SDL_GetTicks() is not guaranteed to return monotonic values.
-	// steady_clock OTOH should be monotonic. It's implemented in terms of
+	// Steady_clock _should_ be monotonic. It's implemented in terms of
 	// clock_gettime(CLOCK_MONOTONIC). Unfortunately in older linux
 	// versions we've seen buggy implementation that once in a while did
 	// return time points slightly in the past.
