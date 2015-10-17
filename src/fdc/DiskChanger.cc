@@ -278,7 +278,9 @@ string DiskCommand::help(const vector<string>& /*tokens*/) const
 	       driveName + " ramdsk            : create a virtual disk in RAM\n" +
 	       driveName + " insert <filename> : change the disk file\n" +
 	       driveName + " <filename>        : change the disk file\n" +
-	       driveName + "                   : show which disk image is in drive";
+	       driveName + "                   : show which disk image is in drive\n" +
+	       "The following options are supported when inserting a disk image:\n" +
+	       "-ips <filename> : apply the given IPS patch to the disk image";
 }
 
 void DiskCommand::tabCompletion(vector<string>& tokens) const

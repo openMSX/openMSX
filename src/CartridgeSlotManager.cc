@@ -367,7 +367,10 @@ string CartridgeSlotManager::CartCmd::help(const vector<string>& tokens) const
 	return tokens[0] + " eject              : remove the ROM cartridge from this slot\n" +
 	       tokens[0] + " insert <filename>  : insert ROM cartridge with <filename>\n" +
 	       tokens[0] + " <filename>         : insert ROM cartridge with <filename>\n" +
-	       tokens[0] + "                    : show which ROM cartridge is in this slot";
+	       tokens[0] + "                    : show which ROM cartridge is in this slot\n" +
+	       "The following options are supported when inserting a cartridge:\n" +
+	       "-ips <filename>    : apply the given IPS patch to the ROM image\n" +
+	       "-romtype <romtype> : specify the ROM mapper type\n";
 }
 
 void CartridgeSlotManager::CartCmd::tabCompletion(vector<string>& tokens) const
