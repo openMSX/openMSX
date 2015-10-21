@@ -136,6 +136,20 @@ void AdhocCliCommParser::parse(char c)
 		}
 		break;
 	case H2: // matched &#
+		// This also parses invalid input like '&#12xab;' but let's
+		// ignore that. It also doesn't check for overflow etc.
+		if (c == ';') {
+			utf8::unchecked::append(unicode, back_inserter(command));
+			state = C0;
+		} else if (c == 'x') {
+			state = H3;
+		} else {
+			unicode *= 10;
+			if (('0' <= c) && (c <= '9')) unicode += c - '0';
+			else state = O0;
+		}
+		break;
+	case H3: // matched &#x
 		if (c == ';') {
 			utf8::unchecked::append(unicode, back_inserter(command));
 			state = C0;
@@ -196,7 +210,8 @@ int main()
 	test("<command>&quot;</command>", {"\""});
 	test("<command>&lt;</command>",   {"<"});
 	test("<command>&gt;</command>",   {">"});
-	test("<command>&#41;</command>",  {"A"});
+	test("<command>&#65;</command>",  {"A"});
+	test("<command>&#x41;</command>", {"A"});
 	test("<command>&lt;command&gt;</command>", {"<command>"});
 
 	test("<openmsx-control> <command>foo</command> </openmsx-control>",

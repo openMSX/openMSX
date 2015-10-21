@@ -53,6 +53,7 @@ private:
 		L2, // matched &l
 		L3, //         &lt
 		H2, // matched &#
+		H3, //         &#x
 	} state;
 };
 
