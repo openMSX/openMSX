@@ -14,7 +14,7 @@
   From: http://usbsecretbase.michikusa.jp/px-7_v60/px-v60_pcb.html
   MSX-ENGINE: S3527
   CPU: Sharp LH0080A
-  VDP: TMS9128NL (RGB version has TMS9918)
+  VDP: TMS9128NL (TMS9918 with RGB output)
   -->
 
   <CassettePort/>
