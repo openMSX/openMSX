@@ -706,15 +706,15 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 
 	for (auto& hostName : hostNames) {
 		try {
+			if (StringOp::startsWith(hostName, '.')) {
+				continue;
+			}
 			string fullHostName = hostDir + hostSubDir + hostName;
 			FileOperations::Stat fst;
 			if (!FileOperations::getStat(fullHostName, fst)) {
 				throw MSXException("Error accessing " + fullHostName);
 			}
 			if (FileOperations::isDirectory(fst)) {
-				if ((hostName == "..") || (hostName == ".")) {
-					continue;
-				}
 				addNewDirectory(hostSubDir, hostName, msxDirSector, fst);
 			} else if (FileOperations::isRegularFile(fst)) {
 				addNewHostFile(hostSubDir, hostName, msxDirSector, fst);
