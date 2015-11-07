@@ -442,7 +442,9 @@ void ReverseManager::goTo(
 					(preTarget - newBoard->getCurrentTime()) / 2
 					));
 			newBoard->fastForward(nextTarget, true);
-			if (nextTarget >= preTarget) break;
+			// note: fastForward does not always stop at
+			//       _exactly_ the requested time
+			if (newBoard->getCurrentTime() >= preTarget) break;
 			newBoard->getReverseManager().takeSnapshot(
 				newBoard->getCurrentTime());
 		}
