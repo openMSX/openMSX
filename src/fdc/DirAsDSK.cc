@@ -707,6 +707,8 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 	for (auto& hostName : hostNames) {
 		try {
 			if (StringOp::startsWith(hostName, '.')) {
+				// skip '.' and '..'
+				// also skip hidden files on unix
 				continue;
 			}
 			string fullHostName = hostDir + hostSubDir + hostName;
