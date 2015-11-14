@@ -2,9 +2,9 @@
 
 # Set CXX before including platform-linux.mk (see comments in platform-linux.mk)
 ifeq ($(OPENMSX_TARGET_CPU),mipsel)
-# Automatically select the cross compiler from its default location.
+# Automatically select the cross compiler.
 ifeq ($(origin CXX),default)
-CXX:=/opt/a320-toolchain/usr/bin/mipsel-linux-g++
+CXX:=mipsel-a320-linux-uclibc-g++
 endif
 # Use MIPS32 instruction set.
 TARGET_FLAGS+=-march=mips32
