@@ -10,8 +10,8 @@ bind_default CTRL+PAGEDOWN cycle_back_machine
 
 # osd_keyboard
 if {$is_dingoo} {
-	# for Dingoo assign the start button to show the keyboard
-	bind_default "keyb RETURN" toggle_osd_keyboard
+	# Use the SELECT button.
+	bind_default "keyb ESCAPE" toggle_osd_keyboard
 } elseif {$is_android} {
 	# Android maps one of the virtual keys to WORLD_95
 	# listen to that one in order to show the keyboard
@@ -21,11 +21,18 @@ if {$is_dingoo} {
 # osd_menu
 if {$tcl_platform(os) eq "Darwin"} { ;# Mac
 	bind_default "keyb META+O" main_menu_toggle
-} elseif {$is_dingoo} { ;# Dingoo
-	bind_default "keyb ESCAPE" main_menu_toggle ;# select button
-	bind_default "keyb MENU"   main_menu_toggle ;# default: power+select
+} elseif {$is_dingoo} { ;# OpenDingux
+	bind_default "keyb RETURN" main_menu_toggle ;# START button
+	bind_default "keyb HOME" main_menu_toggle ;# power slider flick
 } else { ;# any other
 	bind_default "keyb MENU"   main_menu_toggle
+}
+
+# pause
+if {$is_dingoo} {
+	# Power slider lock position.
+	bind_default "keyb PAUSE" "set pause on"
+	bind_default "keyb PAUSE,release" "set pause off"
 }
 
 # osd_widgets
