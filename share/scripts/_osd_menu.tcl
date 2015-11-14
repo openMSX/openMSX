@@ -1190,9 +1190,9 @@ proc create_menu_pluggable_list {connector} {
 proc menu_plug_exec {connector pluggable} {
 	set command ""
 	if {$pluggable eq "--unplug--"} {
-		set command "unplug $connector"
+		set command "unplug {$connector}"
 	} else {
-		set command "plug $connector $pluggable"
+		set command "plug {$connector} {$pluggable}"
 	}
 	#note: NO braces around $command
 	if {[catch $command errorText]} {
