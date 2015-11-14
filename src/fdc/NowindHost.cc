@@ -767,7 +767,7 @@ void NowindHost::callImage(const string& filename)
 }
 
 
-static enum_string<NowindHost::State> stateInfo[] = {
+static std::initializer_list<enum_string<NowindHost::State>> stateInfo = {
 	{ "SYNC1",     NowindHost::STATE_SYNC1     },
 	{ "SYNC2",     NowindHost::STATE_SYNC2     },
 	{ "COMMAND",   NowindHost::STATE_COMMAND   },

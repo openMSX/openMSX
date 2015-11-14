@@ -938,7 +938,7 @@ void WD2793::endCmd()
 }
 
 
-static enum_string<WD2793::FSMState> fsmStateInfo[] = {
+static std::initializer_list<enum_string<WD2793::FSMState>> fsmStateInfo = {
 	{ "NONE",            WD2793::FSM_NONE },
 	{ "SEEK",            WD2793::FSM_SEEK },
 	{ "TYPE2_WAIT_LOAD", WD2793::FSM_TYPE2_WAIT_LOAD },

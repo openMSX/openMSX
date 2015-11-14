@@ -82,10 +82,9 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
 
  * example:
  *    enum MyEnum { FOO, BAR };
- *    enum_string<MyEnum> myEnumInfo[] = {
+ *    std::initializer_list<enum_string<MyEnum>> myEnumInfo = {
  *          { "FOO", FOO },
  *          { "BAR", BAR },
- *          { nullptr, FOO } // dummy enum value
  *    };
  *    SERIALIZE_ENUM(MyEnum, myEnumInfo);
  *
@@ -103,26 +102,22 @@ template<typename T> struct enum_string {
 };
 void enumError(const std::string& str);
 template<typename T> struct serialize_as_enum_impl : std::true_type {
-	serialize_as_enum_impl(enum_string<T>* info_) : info(info_) {}
+	serialize_as_enum_impl(std::initializer_list<enum_string<T>> info_) : info(info_) {}
 	std::string toString(T t) const {
-		auto* p = info;
-		while (p->str) {
-			if (p->e == t) return p->str;
-			++p;
+		for (auto& i : info) {
+			if (i.e == t) return i.str;
 		}
-		UNREACHABLE; return "";
+		return "internal-error-unknown-enum-value";
 	}
 	T fromString(const std::string& str) const {
-		auto* p = info;
-		while (p->str) {
-			if (p->str == str) return p->e;
-			++p;
+		for (auto& i : info) {
+			if (i.str == str) return i.e;
 		}
-		enumError(str); // does not return
-		UNREACHABLE; return T(); // avoid warning
+		enumError(str); // does not return (throws)
+		return T(); // avoid warning
 	}
 private:
-	enum_string<T>* info;
+	std::initializer_list<enum_string<T>> info;
 };
 
 #define SERIALIZE_ENUM(TYPE,INFO) \

@@ -1286,7 +1286,7 @@ byte YM2413::peekReg(byte r) const
 
 } // namespace Burczynsk
 
-static enum_string<YM2413Burczynski::Slot::EnvelopeState> envelopeStateInfo[] = {
+static std::initializer_list<enum_string<YM2413Burczynski::Slot::EnvelopeState>> envelopeStateInfo = {
 	{ "DUMP",    YM2413Burczynski::Slot::EG_DUMP    },
 	{ "ATTACK",  YM2413Burczynski::Slot::EG_ATTACK  },
 	{ "DECAY",   YM2413Burczynski::Slot::EG_DECAY   },

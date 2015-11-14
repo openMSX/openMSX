@@ -1305,7 +1305,7 @@ byte YM2413::peekReg(byte r) const
 
 } // namespace YM2413Okazaki
 
-static enum_string<YM2413Okazaki::EnvelopeState> envelopeStateInfo[] = {
+static std::initializer_list<enum_string<YM2413Okazaki::EnvelopeState>> envelopeStateInfo = {
 	{ "ATTACK",  YM2413Okazaki::ATTACK  },
 	{ "DECAY",   YM2413Okazaki::DECAY   },
 	{ "SUSHOLD", YM2413Okazaki::SUSHOLD },

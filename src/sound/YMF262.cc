@@ -1584,7 +1584,7 @@ void YMF262::generateChannels(int** bufs, unsigned num)
 }
 
 
-static enum_string<YMF262::EnvelopeState> envelopeStateInfo[]= {
+static std::initializer_list<enum_string<YMF262::EnvelopeState>> envelopeStateInfo = {
 	{ "ATTACK",  YMF262::EG_ATTACK  },
 	{ "DECAY",   YMF262::EG_DECAY   },
 	{ "SUSTAIN", YMF262::EG_SUSTAIN },

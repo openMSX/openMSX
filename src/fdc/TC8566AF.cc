@@ -811,7 +811,7 @@ EmuDuration TC8566AF::getSeekDelay() const
 }
 
 
-static enum_string<TC8566AF::Command> commandInfo[] = {
+static std::initializer_list<enum_string<TC8566AF::Command>> commandInfo = {
 	{ "UNKNOWN",                TC8566AF::CMD_UNKNOWN                },
 	{ "READ_DATA",              TC8566AF::CMD_READ_DATA              },
 	{ "WRITE_DATA",             TC8566AF::CMD_WRITE_DATA             },
@@ -831,7 +831,7 @@ static enum_string<TC8566AF::Command> commandInfo[] = {
 };
 SERIALIZE_ENUM(TC8566AF::Command, commandInfo);
 
-static enum_string<TC8566AF::Phase> phaseInfo[] = {
+static std::initializer_list<enum_string<TC8566AF::Phase>> phaseInfo = {
 	{ "IDLE",         TC8566AF::PHASE_IDLE         },
 	{ "COMMAND",      TC8566AF::PHASE_COMMAND      },
 	{ "DATATRANSFER", TC8566AF::PHASE_DATATRANSFER },
