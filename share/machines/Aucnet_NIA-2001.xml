@@ -12,7 +12,6 @@
     - modem (there seems to be more than a simple RS-232C, but that is still unknown
     - keyboard details (original keyboard was not available)
     - kanji font ROM is not dumped
-    - the mapper used with the turboR FDC is not emulated separately from the FDC... so this part is not correct
 
     Details and discussion here:
     http://www.msx.org/forum/msx-talk/hardware/unknown-model-msx-turbor-modem-and-serial
@@ -192,15 +191,14 @@
       </secondary>
 
       <secondary slot="2">
-        <!-- actually it does not have this FDC, but we need the mapper mechanism there -->
-        <TC8566AF id="Memory Mapped ">
+        <ROM id="MSX-DOS 2.30">
+          <mappertype>MSXDOS2</mappertype>
           <rom>
             <firstblock>48</firstblock>
             <lastblock>55</lastblock>
           </rom>
-          <drives>0</drives>
-          <mem base="0x4000" size="0x8000"/>
-        </TC8566AF>
+          <mem base="0x0000" size="0xC000"/>
+        </ROM>
       </secondary>
 
       <secondary slot="3">
