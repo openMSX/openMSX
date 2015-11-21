@@ -469,9 +469,9 @@ void MSXMixer::generate(int16_t* output, EmuTime::param time, unsigned samples)
 	// In total emulation time this gave a speedup of about 2%.
 
 	// When samples==0, call updateBuffer() but skip all further processing
-	// (handling this as a special case allows to simply the code below).
+	// (handling this as a special case allows to simplify the code below).
 	if (samples == 0) {
-		int32_t dummyBuf[4];
+		SSE_ALIGNED(int32_t dummyBuf[4]);
 		for (auto& info : infos) {
 			info.device->updateBuffer(0, dummyBuf, time);
 		}
