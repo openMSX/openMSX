@@ -163,14 +163,6 @@ namespace FileOperations {
 	 */
 	std::string getAbsolutePath(string_ref path);
 
-#ifdef _WIN32
-	/**
-	* Checks whether it's a UNC path or not.
-	* @param path The pathname.
-	*/
-	bool isUNCPath(string_ref path);
-#endif
-
 	/**
 	 * Checks whether it's a absolute path or not.
 	 * @param path The pathname.

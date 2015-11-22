@@ -229,6 +229,14 @@ void mkdir(const string& path, mode_t mode)
 	}
 }
 
+#ifdef _WIN32
+static bool isUNCPath(string_ref path)
+{
+	return path.starts_with("//") || path.starts_with("\\\\");
+}
+#endif
+
+
 void mkdirp(string_ref path_)
 {
 	if (path_.empty()) {
@@ -243,8 +251,7 @@ void mkdirp(string_ref path_)
 	do {
 		pos = path.find_first_of('/', pos + 1);
 #ifdef _WIN32
-		if (skip)
-		{
+		if (skip) {
 			skip--;
 			continue;
 		}
@@ -475,17 +482,12 @@ string getAbsolutePath(string_ref path)
 	return join(currentDir, path);
 }
 
-#ifdef _WIN32
-bool isUNCPath(string_ref path)
-{
-	return ((path[0] == '/') && (path[1] == '/')) || ((path[0] == '\\') && (path[1] == '\\'));
-}
-#endif
-
 bool isAbsolutePath(string_ref path)
 {
 #ifdef _WIN32
-	if ((path.size() >= 3) && (((path[1] == ':') && ((path[2] == '/') || (path[2] == '\\'))) || isUNCPath(path))) {
+	if (isUNCPath(path)) return true;
+	if ((path.size() >= 3) && (((path[1] == ':') &&
+	    ((path[2] == '/') || (path[2] == '\\'))))) {
 		char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
 			return true;
