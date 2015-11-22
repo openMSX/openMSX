@@ -204,7 +204,7 @@
       <secondary slot="3">
         <ROM id="NIA-2001">
           <mappertype>PANASONIC</mappertype>
-          <sramsize>16</sramsize>
+          <sramsize>32</sramsize>
           <sram-mirrored>false</sram-mirrored>
           <sramname>nia-2001.sram</sramname>
           <rom>
