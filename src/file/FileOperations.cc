@@ -236,15 +236,24 @@ static bool isUNCPath(string_ref path)
 }
 #endif
 
-
 void mkdirp(string_ref path_)
 {
 	if (path_.empty()) {
 		return;
 	}
-	string path = expandTilde(path_);
+
+	// We may receive platform-specific paths here, so conventionalize early
+	string path = getConventionalPath(expandTilde(path_));
+
+	// If the directory already exists, don't try to recreate it
+	if (isDirectory(path))
+		return;
 
 #ifdef _WIN32
+	assert(isUNCPath(path) || isAbsolutePath(path));
+	// If the path is a UNC path (e.g. \\server\share) then the first two paths in the loop below will be \ and \\server
+	// If the path is an absolute path (e.g. c:\foo\bar) then the first path in the loop will be C:
+	// None of are valid directory paths, so we skip over them and don't call mkdir
 	int skip = isUNCPath(path) ? 2 : 1;
 #endif
 	string::size_type pos = 0;
