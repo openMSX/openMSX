@@ -250,11 +250,15 @@ void mkdirp(string_ref path_)
 		return;
 
 #ifdef _WIN32
-	assert(isUNCPath(path) || isAbsolutePath(path));
 	// If the path is a UNC path (e.g. \\server\share) then the first two paths in the loop below will be \ and \\server
 	// If the path is an absolute path (e.g. c:\foo\bar) then the first path in the loop will be C:
-	// None of are valid directory paths, so we skip over them and don't call mkdir
-	int skip = isUNCPath(path) ? 2 : 1;
+	// None of those are valid directory paths, so we skip over them and don't call mkdir.
+	// Relative paths are fine, since each segment in the path is significant.
+	int skip = 0;
+	if (isUNCPath(path))
+		skip = 2;
+	else if (isAbsolutePath(path))
+		skip = 1;
 #endif
 	string::size_type pos = 0;
 	do {
