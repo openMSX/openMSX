@@ -64,7 +64,7 @@
       <io base="0xA8" num="4"/>
       <keyboard_type>int</keyboard_type>
       <has_keypad>true</has_keypad>
-      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected> <!-- guessed -->
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks> <!-- guessed -->
       <graph_locks>false</graph_locks> <!-- guessed -->
     </PPI>
@@ -96,27 +96,11 @@
         </rom>
         <rom id="firmware">
           <filename>bruc100_2_firmware.rom</filename>
-          <sha1>85ab6946950d4e329d5703b5defcce46cd96a50e</sha1>
+          <sha1>85ab6946950d4e329d5703b5defcce46cd96a50e</sha1> <!-- This is the version 1.3 firmware ROM. -->
+          <sha1>b4c9a06054cda5fd31311a79cc06e6f018cf828f</sha1> <!-- This is the version 1.2 firmware ROM. -->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </FraelSwitchableROM>
-<!--
-The bootlogo+firmware ROM is selected by the bit7 of the I/O
-port 90h. This is the same port that has the strobe bit (bit-1)
-in normal MSX computers. Besides the extra bit, the rest of the
-printer port seems to be pretty ordinary.
-
-Bit7=0: Select Frael MainBIOS ROM on slot-0
-Bit7=1: Select the bootlogo+firmware ROM on slot-0
-
-      <ROM id="Frael boot logo and menu">
-        <rom>
-          <filename>bruc100_2_firmware.rom</filename>
-          <sha1>85ab6946950d4e329d5703b5defcce46cd96a50e</sha1>
-        </rom>
-        <mem base="0x0000" size="0x8000"/>
-      </ROM>
--->
     </primary>
 
     <primary slot="1">
