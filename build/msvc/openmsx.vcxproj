@@ -464,6 +464,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\CheckedRam.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_RAM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_SCC.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\FraelSwitchableROM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXHBI55.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMapperIO.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMegaRam.cc" />
@@ -993,6 +994,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\CheckedRam.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ESE_RAM.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ESE_SCC.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\FraelSwitchableROM.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXHBI55.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXMapperIO.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXMegaRam.hh" />

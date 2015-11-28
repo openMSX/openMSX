@@ -546,6 +546,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_SCC.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\FraelSwitchableROM.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXHBI55.cc">
       <Filter>memory</Filter>
     </ClCompile>
@@ -1871,6 +1874,9 @@
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\ESE_SCC.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\FraelSwitchableROM.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\MSXHBI55.hh">
