@@ -24,13 +24,6 @@ FraelSwitchableROM::FraelSwitchableROM(const DeviceConfig& config)
 	, basicbiosRom(getName() + " BASIC/BIOS", "rom", config, "basicbios")
 	, firmwareRom (getName() + " firmware"  , "rom", config, "firmware" )
 {
-	if (basicbiosRom.getSize() != 0x8000) {
-		throw MSXException("Frael basicbios ROM should be exactly 32kB in size");
-	}
-	if (firmwareRom.getSize() != 0x8000) {
-		throw MSXException("Frael firmware ROM should be exactly 32kB in size");
-	}
-
 	reset(EmuTime::dummy());
 }
 
@@ -56,7 +49,8 @@ byte FraelSwitchableROM::readMem(word address, EmuTime::param /*time*/)
 
 const byte* FraelSwitchableROM::getReadCacheLine(word start) const
 {
-	return firmwareSelected ? &firmwareRom[start & 0x7FFF] : &basicbiosRom[start & 0x7FFF];
+	return firmwareSelected ? &firmwareRom[start & (firmwareRom.getSize() - 1)] :
+		&basicbiosRom[start & (basicbiosRom.getSize() - 1)];
 }
 
 template<typename Archive>
