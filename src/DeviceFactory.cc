@@ -1,6 +1,7 @@
 #include "DeviceFactory.hh"
 #include "XMLElement.hh"
 #include "DeviceConfig.hh"
+#include "FraelSwitchableROM.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
 #include "VDP.hh"
@@ -61,11 +62,11 @@
 #include "MSXDeviceSwitch.hh"
 #include "MSXMapperIO.hh"
 #include "VDPIODelay.hh"
+#include "SensorKid.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "memory.hh"
 #include "components.hh"
-#include "SensorKid.hh"
 
 #if COMPONENT_LASERDISC
 #include "PioneerLDControl.hh"
@@ -233,6 +234,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXMirrorDevice>(conf);
 	} else if (type == "SensorKid") {
 		result = make_unique<SensorKid>(conf);
+	} else if (type == "FraelSwitchableROM") {
+		result = make_unique<FraelSwitchableROM>(conf);
 	} else {
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");
