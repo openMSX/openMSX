@@ -142,7 +142,7 @@ SOCKET CliServer::createSocket()
 	out << portNumber << std::endl;
 	if (!out.good()) {
 		sock_close(sd);
-		throw MSXException("Couldn't open socket.");
+		throw MSXException("Couldn't write socket port file.");
 	}
 
 #else
@@ -158,17 +158,17 @@ SOCKET CliServer::createSocket()
 	addr.sun_family = AF_UNIX;
 	if (bind(sd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
 		sock_close(sd);
-		throw MSXException("Couldn't open socket.");
+		throw MSXException("Couldn't bind socket.");
 	}
 	if (chmod(socketName.c_str(), 0600) == -1) {
 		sock_close(sd);
-		throw MSXException("Couldn't open socket.");
+		throw MSXException("Couldn't set socket permissions.");
 	}
 
 #endif
 	if (!checkSocket(socketName)) {
 		sock_close(sd);
-		throw MSXException("Couldn't open socket.");
+		throw MSXException("Opened socket fails sanity check.");
 	}
 	if (listen(sd, SOMAXCONN) == SOCKET_ERROR) {
 		sock_close(sd);
