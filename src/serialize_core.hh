@@ -107,6 +107,7 @@ template<typename T> struct serialize_as_enum_impl : std::true_type {
 		for (auto& i : info) {
 			if (i.e == t) return i.str;
 		}
+		assert(false);
 		return "internal-error-unknown-enum-value";
 	}
 	T fromString(const std::string& str) const {
