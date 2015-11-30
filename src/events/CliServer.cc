@@ -14,6 +14,9 @@
 #include <ctime>
 #else
 #include <pwd.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <poll.h>
 #endif
 
 using std::string;
@@ -177,35 +180,17 @@ SOCKET CliServer::createSocket()
 	return sd;
 }
 
-// The BSD socket API does not contain a simple way to cancel a call to
-// accept(). As a workaround, we connect to the server socket ourselves.
-bool CliServer::exitAcceptLoop()
+void CliServer::exitAcceptLoop()
 {
+	exitLoop = true;
+	sock_close(listenSock);
 #ifdef _WIN32
-	// Windows application-level firewalls pop up a warning about openMSX
-	// connecting to itself. Since closing the socket is sufficient to make
-	// Windows exit the accept() call, this code is disabled on Windows.
-	return true;
-	/*
-	SOCKET sd = socket(AF_INET, SOCK_STREAM, 0);
-	sockaddr_in addr;
-	memset((char*)&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	addr.sin_port = htons(portNumber);
-	*/
+	// Closing the socket is sufficient to make Windows exit the accept() call.
 #else
-	SOCKET sd = socket(AF_UNIX, SOCK_STREAM, 0);
-	sockaddr_un addr;
-	addr.sun_family = AF_UNIX;
-	strcpy(addr.sun_path, socketName.c_str());
-// Code below is OS-independent, but unreachable on Windows:
-	if (sd == OPENMSX_INVALID_SOCKET) {
-		return false;
-	}
-	int r = connect(sd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
-	close(sd);
-	return r != SOCKET_ERROR;
+	// The BSD socket API does not contain a simple way to cancel a call to
+	// accept(). As a workaround, we look for I/O on an internal pipe.
+	char dummy = 'X';
+	write(wakeupPipe[1], &dummy, sizeof(dummy));
 #endif
 }
 
@@ -217,8 +202,6 @@ static void deleteSocket(const string& socket)
 }
 
 
-volatile bool CliServer::exitLoop;
-
 CliServer::CliServer(CommandController& commandController_,
                      EventDistributor& eventDistributor_,
                      GlobalCliComm& cliComm_)
@@ -229,6 +212,16 @@ CliServer::CliServer(CommandController& commandController_,
 	, listenSock(OPENMSX_INVALID_SOCKET)
 {
 	exitLoop = false;
+#ifndef _WIN32
+	if (pipe(wakeupPipe)) {
+		wakeupPipe[0] = wakeupPipe[1] = -1;
+		cliComm.printWarning(
+				StringOp::Builder() << "Not starting CliServer because "
+				"wakeup pipe could not be created: " << strerror(errno));
+		return;
+	}
+#endif
+
 	sock_startup();
 	try {
 		listenSock = createSocket();
@@ -240,15 +233,15 @@ CliServer::CliServer(CommandController& commandController_,
 
 CliServer::~CliServer()
 {
-	exitLoop = true;
 	if (listenSock != OPENMSX_INVALID_SOCKET) {
-		sock_close(listenSock);
-		if (exitAcceptLoop()) {
-			thread.join();
-		} else {
-			cliComm.printWarning("Could not force socket accept loop to exit");
-		}
+		exitAcceptLoop();
+		thread.join();
 	}
+
+#ifndef _WIN32
+	close(wakeupPipe[0]);
+	close(wakeupPipe[1]);
+#endif
 
 	deleteSocket(socketName);
 	sock_cleanup();
@@ -261,14 +254,39 @@ void CliServer::run()
 
 void CliServer::mainLoop()
 {
+#ifndef _WIN32
+	// Set socket to non-blocking to make sure accept() doesn't hang when
+	// a connection attempt is dropped between poll() and accept().
+	fcntl(listenSock, F_SETFL, O_NONBLOCK);
+#endif
 	while (true) {
 		// wait for incoming connection
+#ifndef _WIN32
+		struct pollfd fds[2] = {
+			{ .fd = listenSock, .events = POLLIN },
+			{ .fd = wakeupPipe[0], .events = POLLIN },
+		};
+		int pollResult = poll(fds, 2, 1000);
+		if (exitLoop) {
+			break;
+		}
+		if (pollResult == -1) { // error
+			break;
+		}
+		if (pollResult == 0) { // timeout
+			continue;
+		}
+#endif
 		SOCKET sd = accept(listenSock, nullptr, nullptr);
 		if (exitLoop) {
 			break;
 		}
 		if (sd == OPENMSX_INVALID_SOCKET) {
-			break;
+			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+				continue;
+			} else {
+				break;
+			}
 		}
 		cliComm.addListener(make_unique<SocketConnection>(
 			commandController, eventDistributor, sd));

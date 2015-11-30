@@ -20,14 +20,12 @@ public:
 	~CliServer();
 
 private:
-	static volatile bool exitLoop;
-
 	// Runnable
 	void run() override;
 
 	void mainLoop();
 	SOCKET createSocket();
-	bool exitAcceptLoop();
+	void exitAcceptLoop();
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
@@ -36,6 +34,10 @@ private:
 	Thread thread;
 	std::string socketName;
 	SOCKET listenSock;
+#ifndef _WIN32
+	int wakeupPipe[2];
+#endif
+	volatile bool exitLoop;
 };
 
 } // namespace openmsx
