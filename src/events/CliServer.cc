@@ -190,7 +190,9 @@ void CliServer::exitAcceptLoop()
 	// The BSD socket API does not contain a simple way to cancel a call to
 	// accept(). As a workaround, we look for I/O on an internal pipe.
 	char dummy = 'X';
-	write(wakeupPipe[1], &dummy, sizeof(dummy));
+	if (write(wakeupPipe[1], &dummy, sizeof(dummy)) == -1) {
+		// Nothing we can do here; we'll have to rely on the poll() timeout.
+	}
 #endif
 }
 

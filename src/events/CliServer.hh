@@ -3,6 +3,7 @@
 
 #include "Thread.hh"
 #include "Socket.hh"
+#include <atomic>
 #include <string>
 
 namespace openmsx {
@@ -37,7 +38,7 @@ private:
 #ifndef _WIN32
 	int wakeupPipe[2];
 #endif
-	volatile bool exitLoop;
+	std::atomic_bool exitLoop;
 };
 
 } // namespace openmsx
