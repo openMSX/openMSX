@@ -241,12 +241,12 @@ CliServer::~CliServer()
 	exitLoop = true;
 	if (listenSock != OPENMSX_INVALID_SOCKET) {
 		sock_close(listenSock);
-		if (!exitAcceptLoop()) {
-			// clean exit failed, try emergency exit
-			thread.stop();
+		if (exitAcceptLoop()) {
+			thread.join();
+		} else {
+			cliComm.printWarning("Could not force socket accept loop to exit");
 		}
 	}
-	thread.join();
 
 	deleteSocket(socketName);
 	sock_cleanup();
