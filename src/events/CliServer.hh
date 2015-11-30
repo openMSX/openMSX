@@ -20,6 +20,8 @@ public:
 	~CliServer();
 
 private:
+	static volatile bool exitLoop;
+
 	// Runnable
 	void run() override;
 
@@ -34,7 +36,6 @@ private:
 	Thread thread;
 	std::string socketName;
 	SOCKET listenSock;
-	bool exitLoop;
 };
 
 } // namespace openmsx

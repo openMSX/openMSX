@@ -217,6 +217,8 @@ static void deleteSocket(const string& socket)
 }
 
 
+volatile bool CliServer::exitLoop;
+
 CliServer::CliServer(CommandController& commandController_,
                      EventDistributor& eventDistributor_,
                      GlobalCliComm& cliComm_)
@@ -259,12 +261,14 @@ void CliServer::run()
 
 void CliServer::mainLoop()
 {
-	while (!exitLoop) {
-		// wait for incomming connection
+	while (true) {
+		// wait for incoming connection
 		SOCKET sd = accept(listenSock, nullptr, nullptr);
+		if (exitLoop) {
+			break;
+		}
 		if (sd == OPENMSX_INVALID_SOCKET) {
-			// sock_close(listenSock);  // hangs on win32
-			return;
+			break;
 		}
 		cliComm.addListener(make_unique<SocketConnection>(
 			commandController, eventDistributor, sd));
