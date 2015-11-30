@@ -119,7 +119,7 @@ static int openPort(SOCKET listenSock)
 }
 #endif
 
-void CliServer::createSocket()
+SOCKET CliServer::createSocket()
 {
 	string dir = FileOperations::getTempDir() + "/openmsx-" + getUserName();
 	FileOperations::mkdir(dir, 0700);
@@ -129,11 +129,11 @@ void CliServer::createSocket()
 	socketName = StringOp::Builder() << dir << "/socket." << int(getpid());
 
 #ifdef _WIN32
-	listenSock = socket(AF_INET, SOCK_STREAM, 0);
-	if (listenSock == OPENMSX_INVALID_SOCKET) {
+	SOCKET sd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sd == OPENMSX_INVALID_SOCKET) {
 		throw MSXException(sock_error());
 	}
-	int portNumber = openPort(listenSock);
+	int portNumber = openPort(sd);
 
 	// write port number to file
 	FileOperations::unlink(socketName); // ignore error
@@ -141,12 +141,13 @@ void CliServer::createSocket()
 	FileOperations::openofstream(out, socketName);
 	out << portNumber << std::endl;
 	if (!out.good()) {
+		sock_close(sd);
 		throw MSXException("Couldn't open socket.");
 	}
 
 #else
-	listenSock = socket(AF_UNIX, SOCK_STREAM, 0);
-	if (listenSock == OPENMSX_INVALID_SOCKET) {
+	SOCKET sd = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (sd == OPENMSX_INVALID_SOCKET) {
 		throw MSXException(sock_error());
 	}
 
@@ -155,18 +156,25 @@ void CliServer::createSocket()
 	sockaddr_un addr;
 	strcpy(addr.sun_path, socketName.c_str());
 	addr.sun_family = AF_UNIX;
-	if (bind(listenSock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
+	if (bind(sd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
+		sock_close(sd);
 		throw MSXException("Couldn't open socket.");
 	}
 	if (chmod(socketName.c_str(), 0600) == -1) {
+		sock_close(sd);
 		throw MSXException("Couldn't open socket.");
 	}
 
 #endif
 	if (!checkSocket(socketName)) {
+		sock_close(sd);
 		throw MSXException("Couldn't open socket.");
 	}
-	listen(listenSock, SOMAXCONN);
+	if (listen(sd, SOMAXCONN) == SOCKET_ERROR) {
+		sock_close(sd);
+		throw MSXException("Couldn't listen to socket: " + sock_error());
+	}
+	return sd;
 }
 
 // The BSD socket API does not contain a simple way to cancel a call to
@@ -221,7 +229,7 @@ CliServer::CliServer(CommandController& commandController_,
 	exitLoop = false;
 	sock_startup();
 	try {
-		createSocket();
+		listenSock = createSocket();
 		thread.start();
 	} catch (MSXException& e) {
 		cliComm.printWarning(e.getMessage());

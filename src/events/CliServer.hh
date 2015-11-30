@@ -24,7 +24,7 @@ private:
 	void run() override;
 
 	void mainLoop();
-	void createSocket();
+	SOCKET createSocket();
 	bool exitAcceptLoop();
 
 	CommandController& commandController;
