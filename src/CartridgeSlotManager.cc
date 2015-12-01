@@ -168,6 +168,27 @@ void CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss) cons
 	ss = slots[slot].ss;
 }
 
+int CartridgeSlotManager::allocateSpecificPrimarySlot(unsigned slot, const HardwareConfig& hwConfig)
+{
+	assert(slot < MAX_SLOTS);
+	if (!slots[slot].exists()) {
+		throw MSXException(StringOp::Builder() <<
+			"slot-" << char('a' + slot) << " not defined.");
+	}
+	if (slots[slot].used()) {
+		throw MSXException(StringOp::Builder() <<
+			"slot-" << char('a' + slot) << " already in use.");
+	}
+	if (slots[slot].ss != -1) {
+		throw MSXException(StringOp::Builder() <<
+			"slot-" << char('a' + slot) << " is not a primary slot.");
+	}
+	assert(slots[slot].useCount == 0);
+	slots[slot].config = &hwConfig;
+	slots[slot].useCount = 1;
+	return slots[slot].ps;
+}
+
 void CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss) const
 {
 	// search for the lowest free slot
@@ -187,17 +208,15 @@ void CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss) const
 	}
 }
 
-void CartridgeSlotManager::allocatePrimarySlot(
-		int& ps, const HardwareConfig& hwConfig)
+int CartridgeSlotManager::allocateAnyPrimarySlot(const HardwareConfig& hwConfig)
 {
 	for (auto slot : xrange(MAX_SLOTS)) {
-		ps = slots[slot].ps;
 		if (slots[slot].exists() && (slots[slot].ss == -1) &&
 		    !slots[slot].used()) {
 			assert(slots[slot].useCount == 0);
 			slots[slot].config = &hwConfig;
 			slots[slot].useCount = 1;
-			return;
+			return slots[slot].ps;
 		}
 	}
 	throw MSXException("No free primary slot");

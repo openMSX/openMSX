@@ -274,7 +274,11 @@ void HardwareConfig::parseSlots()
 				}
 			}
 			if (ps < 0) {
-				ps = getFreePrimarySlot();
+				if (ps == -256) {
+					ps = getAnyFreePrimarySlot();
+				} else {
+					ps = getSpecificFreePrimarySlot(-ps - 1);
+				}
 				auto mutableElem = const_cast<XMLElement*>(psElem);
 				mutableElem->setAttribute("slot", StringOp::toString(ps));
 			}
@@ -337,10 +341,17 @@ void HardwareConfig::createExpandedSlot(int ps)
 	}
 }
 
-int HardwareConfig::getFreePrimarySlot()
+int HardwareConfig::getAnyFreePrimarySlot()
 {
-	int ps;
-	motherBoard.getSlotManager().allocatePrimarySlot(ps, *this);
+	int ps = motherBoard.getSlotManager().allocateAnyPrimarySlot(*this);
+	assert(!allocatedPrimarySlots[ps]);
+	allocatedPrimarySlots[ps] = true;
+	return ps;
+}
+
+int HardwareConfig::getSpecificFreePrimarySlot(unsigned slot)
+{
+	int ps = motherBoard.getSlotManager().allocateSpecificPrimarySlot(slot, *this);
 	assert(!allocatedPrimarySlots[ps]);
 	allocatedPrimarySlots[ps] = true;
 	return ps;

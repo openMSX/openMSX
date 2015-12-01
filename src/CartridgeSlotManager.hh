@@ -34,7 +34,8 @@ public:
 	void freeSlot(int ps, int ss, const HardwareConfig& hwConfig);
 
 	// Allocate/free external primary slots
-	void allocatePrimarySlot(int& ps, const HardwareConfig& hwConfig);
+	int allocateAnyPrimarySlot(const HardwareConfig& hwConfig);
+	int allocateSpecificPrimarySlot(unsigned slot, const HardwareConfig& hwConfig);
 	void freePrimarySlot(int ps, const HardwareConfig& hwConfig);
 
 	bool isExternalSlot(int ps, int ss, bool convert) const;

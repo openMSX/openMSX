@@ -67,7 +67,8 @@ private:
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);
 	void createExpandedSlot(int ps);
-	int getFreePrimarySlot();
+	int getAnyFreePrimarySlot();
+	int getSpecificFreePrimarySlot(unsigned slot);
 	void addDevice(std::unique_ptr<MSXDevice> device);
 	void setName(string_ref proposedName);
 	void setSlot(string_ref slotname);
