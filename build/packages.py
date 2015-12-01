@@ -34,6 +34,25 @@ class DownloadablePackage(Package):
 	def getURL(cls):
 		return urljoin(cls.downloadURL + '/', cls.getTarballName())
 
+class ALSA(DownloadablePackage):
+	downloadURL = 'ftp://ftp.alsa-project.org/pub/lib/'
+	niceName = 'ALSA'
+	sourceName = 'alsa-lib'
+	version = '1.1.0'
+	fileLength = 929874
+	checksums = {
+		'sha256':
+			'dfde65d11e82b68f82e562ab6228c1fb7c78854345d3c57e2c68a9dd3dae1f15',
+		}
+
+	@classmethod
+	def getTarballName(cls):
+		return '%s-%s.tar.bz2' % (cls.sourceName, cls.version)
+
+	@classmethod
+	def getMakeName(cls):
+		return 'ALSA'
+
 class DirectX(DownloadablePackage):
 	downloadURL = 'http://alleg.sourceforge.net/files'
 	niceName = 'DirectX'

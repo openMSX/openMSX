@@ -28,10 +28,16 @@ class Laserdisc(Component):
 	makeName = 'LASERDISC'
 	dependsOn = ('OGG', 'VORBIS', 'THEORA')
 
+class ALSAMIDI(Component):
+	niceName = 'ALSA MIDI'
+	makeName = 'ALSAMIDI'
+	dependsOn = ('ALSA', )
+
 def iterComponents():
 	yield EmulationCore
 	yield GLRenderer
 	yield Laserdisc
+	yield ALSAMIDI
 
 def requiredLibrariesFor(components):
 	'''Compute the library packages required to build the given components.
