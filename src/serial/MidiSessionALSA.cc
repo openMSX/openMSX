@@ -152,10 +152,6 @@ void MidiSessionALSA::registerAll(
 MidiSessionALSA::MidiSessionALSA(
 		PluggingController& controller, CliComm& cliComm)
 {
-	snd_rawmidi_t* rawReader;
-	snd_rawmidi_t* rawWriter;
-	snd_rawmidi_open(&rawReader, &rawWriter, "virtual", 0);
-
 	// Open the sequencer.
 	int err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
 	if (err < 0) {
