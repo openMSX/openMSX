@@ -159,9 +159,39 @@ $(PNG_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_PNG)
 $(FREETYPE_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_FREETYPE)
 $(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
 
+# Configure ALSA.
+$(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_ALSA)
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$</configure \
+		--enable-static \
+		--disable-shared \
+		--enable-symbolic-functions \
+		--disable-debug \
+		--disable-aload \
+		--disable-mixer \
+		--enable-pcm \
+		--disable-rawmidi \
+		--disable-hwdep \
+		--enable-seq \
+		--disable-ucm \
+		--disable-topology \
+		--disable-alisp \
+		--disable-old-symbols \
+		--disable-python \
+		--with-debug=no \
+		--with-libdl=no \
+		--with-pthread=yes \
+		--with-librt=yes \
+		--host=$(TARGET_TRIPLE) \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		CFLAGS="$(_CFLAGS)" \
+		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
+		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
+
 # Configure SDL.
 $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL) $(INSTALL_DIRECTX)
+  $(SOURCE_DIR)/$(PACKAGE_SDL) $(INSTALL_ALSA) $(INSTALL_DIRECTX)
 	mkdir -p $(@D)
 	cd $(@D) && \
 		ac_cv_c_bigendian=$(BIGENDIAN) \
