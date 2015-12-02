@@ -288,6 +288,10 @@ SOURCES_FULL:=$(filter-out src/laserdisc/%.cc,$(SOURCES_FULL))
 SOURCES_FULL:=$(filter-out src/video/ld/%.cc,$(SOURCES_FULL))
 endif
 
+ifneq ($(COMPONENT_ALSAMIDI),true)
+SOURCES_FULL:=$(filter-out src/serial/MidiSessionALSA.cc,$(SOURCES_FULL))
+endif
+
 # Apply subset to sources list.
 SOURCES_FULL:=$(filter $(SOURCES_PATH)/$(OPENMSX_SUBSET)%,$(SOURCES_FULL))
 ifeq ($(SOURCES_FULL),)
@@ -407,6 +411,10 @@ endif
 ifeq ($(COMPONENT_LASERDISC),true)
 COMPILE_FLAGS+=$(OGG_CFLAGS) $(VORBIS_CFLAGS) $(THEORA_CFLAGS)
 LINK_FLAGS+=$(OGG_LDFLAGS) $(VORBIS_LDFLAGS) $(THEORA_LDFLAGS)
+endif
+ifeq ($(COMPONENT_ALSAMIDI),true)
+COMPILE_FLAGS+=$(ALSA_CFLAGS)
+LINK_FLAGS+=$(ALSA_LDFLAGS)
 endif
 
 
