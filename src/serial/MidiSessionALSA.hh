@@ -18,19 +18,17 @@ class PluggingController;
 class MidiSessionALSA final
 {
 public:
-	// TODO: Check which args we actually need.
-	static void registerAll(
-			EventDistributor& eventDistributor, Scheduler& scheduler,
-			PluggingController& controller, CliComm& cliComm);
+	static void registerAll(PluggingController& controller, CliComm& cliComm);
 
 	~MidiSessionALSA();
 
 private:
 	static std::unique_ptr<MidiSessionALSA> instance;
 
-	MidiSessionALSA(PluggingController& controller, CliComm& cliComm);
+	MidiSessionALSA(snd_seq_t& seq);
+	void scanClients(PluggingController& controller);
 
-	snd_seq_t *seq;
+	snd_seq_t& seq;
 };
 
 } // namespace openmsx

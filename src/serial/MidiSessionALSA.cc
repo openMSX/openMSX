@@ -142,30 +142,42 @@ REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutALSA, "MidiOutALSA");
 std::unique_ptr<MidiSessionALSA> MidiSessionALSA::instance;
 
 void MidiSessionALSA::registerAll(
-		EventDistributor& /*eventDistributor*/, Scheduler& /*scheduler*/,
 		PluggingController& controller, CliComm& cliComm)
 {
-	assert(!instance);
-	instance.reset(new MidiSessionALSA(controller, cliComm));
+	if (!instance) {
+		// Open the sequencer.
+		snd_seq_t* seq;
+		int err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
+		if (err < 0) {
+			cliComm.printError(StringOp::Builder() <<
+					"Could not open sequencer: " << snd_strerror(err));
+			return;
+		}
+		snd_seq_set_client_name(seq, "openMSX");
+		instance.reset(new MidiSessionALSA(*seq));
+	}
+	instance->scanClients(controller);
 }
 
-MidiSessionALSA::MidiSessionALSA(
-		PluggingController& controller, CliComm& cliComm)
+MidiSessionALSA::MidiSessionALSA(snd_seq_t& seq_)
+	: seq(seq_)
 {
-	// Open the sequencer.
-	int err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
-	if (err < 0) {
-		cliComm.printError(StringOp::Builder() <<
-				"Could not open sequencer: " << snd_strerror(err));
-		return;
-	}
-	snd_seq_set_client_name(seq, "openMSX");
+}
 
+MidiSessionALSA::~MidiSessionALSA()
+{
+	// While the Pluggables still have a copy of this pointer, they won't
+	// be accessing it anymore when openMSX is exiting.
+	snd_seq_close(&seq);
+}
+
+void MidiSessionALSA::scanClients(PluggingController& controller)
+{
 	// Iterate through all clients.
 	snd_seq_client_info_t* cinfo;
 	snd_seq_client_info_alloca(&cinfo);
 	snd_seq_client_info_set_client(cinfo, -1);
-	while (snd_seq_query_next_client(seq, cinfo) >= 0) {
+	while (snd_seq_query_next_client(&seq, cinfo) >= 0) {
 		int client = snd_seq_client_info_get_client(cinfo);
 		if (client == SND_SEQ_CLIENT_SYSTEM) {
 			continue;
@@ -177,7 +189,7 @@ MidiSessionALSA::MidiSessionALSA(
 		snd_seq_port_info_alloca(&pinfo);
 		snd_seq_port_info_set_client(pinfo, client);
 		snd_seq_port_info_set_port(pinfo, -1);
-		while (snd_seq_query_next_port(seq, pinfo) >= 0) {
+		while (snd_seq_query_next_port(&seq, pinfo) >= 0) {
 			unsigned int type = snd_seq_port_info_get_type(pinfo);
 			if (!(type & SND_SEQ_PORT_TYPE_MIDI_GENERIC)) {
 				continue;
@@ -186,18 +198,11 @@ MidiSessionALSA::MidiSessionALSA(
 					SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE;
 			if ((snd_seq_port_info_get_capability(pinfo) & wrcaps) == wrcaps) {
 				controller.registerPluggable(make_unique<MidiOutALSA>(
-						*seq, *cinfo, *pinfo
+						seq, *cinfo, *pinfo
 						));
 			}
 		}
 	}
-}
-
-MidiSessionALSA::~MidiSessionALSA()
-{
-	// While the Pluggables still have a copy of this pointer, they won't
-	// be accessing it after they are unplugged.
-	snd_seq_close(seq);
 }
 
 } // namespace openmsx

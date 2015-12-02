@@ -111,8 +111,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 	MidiOutCoreMIDI::registerAll(controller);
 #endif
 #if COMPONENT_ALSAMIDI
-	MidiSessionALSA::registerAll(
-		eventDistributor, scheduler, controller, reactor.getCliComm());
+	MidiSessionALSA::registerAll(controller, reactor.getCliComm());
 #endif
 
 	// Printers
