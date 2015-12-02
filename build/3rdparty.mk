@@ -93,6 +93,9 @@ endif
 
 PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE))
 PACKAGES_NOBUILD:=
+ifneq ($(TRIPLE_OS),linux)
+PACKAGES_NOBUILD+=ALSA
+endif
 ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
 PACKAGES_NOBUILD+=DIRECTX
 endif
