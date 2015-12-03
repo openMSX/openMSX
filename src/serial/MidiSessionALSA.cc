@@ -18,6 +18,7 @@ public:
 	MidiOutALSA(
 			snd_seq_t& seq,
 			snd_seq_client_info_t& cinfo, snd_seq_port_info_t& pinfo);
+	~MidiOutALSA();
 
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;
@@ -33,6 +34,9 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void connect();
+	void disconnect();
+
 	snd_seq_t& seq;
 	snd_midi_event_t* event_parser;
 	int sourcePort;
@@ -40,6 +44,7 @@ private:
 	int destPort;
 	std::string name;
 	std::string desc;
+	bool connected;
 };
 
 MidiOutALSA::MidiOutALSA(
@@ -51,10 +56,27 @@ MidiOutALSA::MidiOutALSA(
 	, destPort(snd_seq_port_info_get_port(&pinfo))
 	, name(snd_seq_client_info_get_name(&cinfo))
 	, desc(snd_seq_port_info_get_name(&pinfo))
+	, connected(false)
 {
 }
 
+MidiOutALSA::~MidiOutALSA() {
+	if (connected) {
+		disconnect();
+	}
+}
+
 void MidiOutALSA::plugHelper(Connector& /*connector_*/, EmuTime::param /*time*/)
+{
+	connect();
+}
+
+void MidiOutALSA::unplugHelper(EmuTime::param /*time*/)
+{
+	disconnect();
+}
+
+void MidiOutALSA::connect()
 {
 	sourcePort = snd_seq_create_simple_port(
 			&seq, "MIDI out pluggable",
@@ -74,13 +96,17 @@ void MidiOutALSA::plugHelper(Connector& /*connector_*/, EmuTime::param /*time*/)
 	}
 
 	snd_midi_event_new(MAX_MESSAGE_SIZE, &event_parser);
+
+	connected = true;
 }
 
-void MidiOutALSA::unplugHelper(EmuTime::param /*time*/)
+void MidiOutALSA::disconnect()
 {
 	snd_midi_event_free(event_parser);
 	snd_seq_disconnect_to(&seq, sourcePort, destClient, destPort);
 	snd_seq_delete_simple_port(&seq, sourcePort);
+
+	connected = false;
 }
 
 const std::string& MidiOutALSA::getName() const
@@ -129,9 +155,11 @@ void MidiOutALSA::recvMessage(
 }
 
 template<typename Archive>
-void MidiOutALSA::serialize(Archive& /*ar*/, unsigned /*version*/)
+void MidiOutALSA::serialize(Archive& ar, unsigned /*version*/)
 {
-	// don't restore this after loadstate
+	if (ar.isLoader()) {
+		connect();
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MidiOutALSA);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutALSA, "MidiOutALSA");
