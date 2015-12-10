@@ -8,9 +8,6 @@
 # "Recursive Make Considered Harmful".
 # http://miller.emu.id.au/pmiller/books/rmch/
 
-# TODO:
-# - Move calculation of CFLAGS and LDFLAGS to components2defs.py?
-
 
 # Verbosity
 # =========
@@ -418,23 +415,9 @@ COMPILE_FLAGS+=$(addprefix -I,$(SOURCE_DIRS) $(BUILD_PATH)/config)
 LINK_FLAGS_PREFIX:=-Wl,
 LINK_FLAGS+=$(addprefix $(LINK_FLAGS_PREFIX),$(LDFLAGS))
 
-# Determine component specific compile and link flags.
-ifeq ($(COMPONENT_CORE),true)
-COMPILE_FLAGS+=$(foreach lib,$(CORE_LIBS),$($(lib)_CFLAGS))
-LINK_FLAGS+=$(foreach lib,$(CORE_LIBS),$($(lib)_LDFLAGS))
-endif
-ifeq ($(COMPONENT_GL),true)
-COMPILE_FLAGS+=$(GL_CFLAGS) $(GLEW_CFLAGS) $(GLEW_GL_CFLAGS)
-LINK_FLAGS+=$(GL_LDFLAGS) $(GLEW_LDFLAGS)
-endif
-ifeq ($(COMPONENT_LASERDISC),true)
-COMPILE_FLAGS+=$(OGG_CFLAGS) $(VORBIS_CFLAGS) $(THEORA_CFLAGS)
-LINK_FLAGS+=$(OGG_LDFLAGS) $(VORBIS_LDFLAGS) $(THEORA_LDFLAGS)
-endif
-ifeq ($(COMPONENT_ALSAMIDI),true)
-COMPILE_FLAGS+=$(ALSA_CFLAGS)
-LINK_FLAGS+=$(ALSA_LDFLAGS)
-endif
+# Add compile and link flags for libraries (from COMPONENTS_DEFS).
+COMPILE_FLAGS+=$(LIBRARY_COMPILE_FLAGS)
+LINK_FLAGS+=$(LIBRARY_LINK_FLAGS)
 
 
 # Build Rules

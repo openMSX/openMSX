@@ -34,10 +34,20 @@ class ALSAMIDI(Component):
 	dependsOn = ('ALSA', )
 
 def iterComponents():
+	'''Iterates through all components of openMSX.
+	'''
 	yield EmulationCore
 	yield GLRenderer
 	yield Laserdisc
 	yield ALSAMIDI
+
+def iterBuildableComponents(probeVars):
+	'''Iterates through those components of openMSX that can be built
+	on the probed system.
+	'''
+	for component in iterComponents():
+		if component.canBuild(probeVars):
+			yield component
 
 def requiredLibrariesFor(components):
 	'''Compute the library packages required to build the given components.
