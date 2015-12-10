@@ -12,6 +12,25 @@
 # - Move calculation of CFLAGS and LDFLAGS to components2defs.py?
 
 
+# Verbosity
+# =========
+
+# V=0: Summary only
+# V=1: Command only
+# V=2: Summary + command
+V?=0
+SUM:=@echo
+ifeq ($V,0)
+CMD:=@
+else
+CMD:=
+ifeq ($V,1)
+SUM:=@\#
+else ifneq ($V,2)
+$(warning Unsupported value for verbosity flag "V": $V)
+endif
+endif
+
 # Python Interpreter
 # ==================
 
@@ -430,38 +449,38 @@ endif
 # Probe for headers and functions.
 $(PROBE_MAKE): $(PROBE_SCRIPT) build/custom.mk \
 		build/systemfuncs2code.py build/systemfuncs.py
-	@$(PYTHON) $(PROBE_SCRIPT) \
+	$(CMD)$(PYTHON) $(PROBE_SCRIPT) \
 		"$(COMPILE_ENV) $(CXX) $(TARGET_FLAGS)" \
 		$(@D) $(OPENMSX_TARGET_OS) $(LINK_MODE) "$(3RDPARTY_INSTALL_DIR)"
-	@touch $@
+	$(CMD)touch $@
 
 # Generate configuration header.
 # TODO: One platform file may include another, so the real solution would be
 #       for the Python script to write dependency info.
 $(CONFIG_HEADER): $(BUILDINFO_SCRIPT) \
 		build/custom.mk build/platform-$(OPENMSX_TARGET_OS).mk
-	@$(PYTHON) $(BUILDINFO_SCRIPT) $@ \
+	$(CMD)$(PYTHON) $(BUILDINFO_SCRIPT) $@ \
 		$(OPENMSX_TARGET_OS) $(OPENMSX_TARGET_CPU) $(OPENMSX_FLAVOUR) \
 		$(INSTALL_SHARE_DIR)
-	@touch $@
+	$(CMD)touch $@
 
 # Generate version header.
 .PHONY: forceversionextraction
 forceversionextraction:
 $(VERSION_HEADER): forceversionextraction
-	@$(PYTHON) $(VERSION_SCRIPT) $@
+	$(CMD)$(PYTHON) $(VERSION_SCRIPT) $@
 
 # Generate components header.
 $(COMPONENTS_HEADER): $(COMPONENTS_HEADER_SCRIPT) $(PROBE_MAKE) \
 		build/components.py
-	@$(PYTHON) $(COMPONENTS_HEADER_SCRIPT) $@ $(PROBE_MAKE)
-	@touch $@
+	$(CMD)$(PYTHON) $(COMPONENTS_HEADER_SCRIPT) $@ $(PROBE_MAKE)
+	$(CMD)touch $@
 
 # Generate components Makefile.
 $(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE) \
 		build/components.py
-	@$(PYTHON) $(COMPONENTS_DEFS_SCRIPT) $@ $(PROBE_MAKE)
-	@touch $@
+	$(CMD)$(PYTHON) $(COMPONENTS_DEFS_SCRIPT) $@ $(PROBE_MAKE)
+	$(CMD)touch $@
 
 # Default target.
 ifeq ($(OPENMSX_TARGET_OS),darwin)
@@ -483,7 +502,7 @@ endif
 # files to be considered outdated.
 INIT_DUMMY_FILE:=$(BUILD_PATH)/config/init-dummy-file
 $(INIT_DUMMY_FILE): config $(GENERATED_HEADERS)
-	@touch -a $@
+	$(CMD)touch -a $@
 
 # Print configuration.
 config:
@@ -506,8 +525,8 @@ endif
 
 # Clean up build tree of current flavour.
 clean:
-	@echo "Cleaning up..."
-	@rm -rf $(BUILD_PATH)
+	$(SUM) "Cleaning up..."
+	$(CMD)rm -rf $(BUILD_PATH)
 
 # Create Makefiles in source subdirectories, to conveniently build a subset.
 ifeq ($(MAKECMDGOALS),createsubs)
@@ -520,10 +539,10 @@ RELPATH=$(call JOIN,$(patsubst %,../,$(subst /, ,$(@:%/GNUmakefile=%))))
 SUB_MAKEFILES:=$(addsuffix GNUmakefile,$(sort $(dir $(SOURCES_FULL))))
 createsubs: $(SUB_MAKEFILES)
 $(SUB_MAKEFILES):
-	@echo "Creating $@..."
-	@echo "export OPENMSX_SUBSET=$(@:$(SOURCES_PATH)/%GNUmakefile=%)" > $@
-	@echo "all:" >> $@
-	@echo "	@\$$(MAKE) -C $(RELPATH) -f build/main.mk all" >> $@
+	$(SUM) "Creating $@..."
+	$(CMD)echo "export OPENMSX_SUBSET=$(@:$(SOURCES_PATH)/%GNUmakefile=%)" > $@
+	$(CMD)echo "all:" >> $@
+	$(CMD)echo "	@\$$(MAKE) -C $(RELPATH) -f build/main.mk all" >> $@
 # Force re-creation every time this target is run.
 .PHONY: $(SUB_MAKEFILES)
 endif
@@ -532,13 +551,13 @@ endif
 DEPEND_SUBST=$(patsubst $(SOURCES_PATH)/%.cc,$(DEPEND_PATH)/%.d,$<)
 $(OBJECTS_FULL): $(INIT_DUMMY_FILE)
 $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
-	@echo "Compiling $(patsubst $(SOURCES_PATH)/%,%,$<)..."
-	@mkdir -p $(@D)
-	@mkdir -p $(patsubst $(OBJECTS_PATH)%,$(DEPEND_PATH)%,$(@D))
-	@$(COMPILE_ENV) $(CXX) \
+	$(SUM) "Compiling $(patsubst $(SOURCES_PATH)/%,%,$<)..."
+	$(CMD)mkdir -p $(@D)
+	$(CMD)mkdir -p $(patsubst $(OBJECTS_PATH)%,$(DEPEND_PATH)%,$(@D))
+	$(CMD)$(COMPILE_ENV) $(CXX) \
 		$(DEPEND_FLAGS) -MMD -MF $(DEPEND_SUBST) \
 		-o $@ $(CXXFLAGS) $(COMPILE_FLAGS) -c $<
-	@touch $@ # Force .o file to be newer than .d file.
+	$(CMD)touch $@ # Force .o file to be newer than .d file.
 # Generate dependencies that do not exist yet.
 # This is only in case some .d files have been deleted;
 # in normal operation this rule is never triggered.
@@ -547,11 +566,11 @@ $(DEPEND_FULL):
 # Windows resources that are added to the executable.
 ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
 $(RESOURCE_HEADER): $(INIT_DUMMY_FILE) forceversionextraction
-	@$(PYTHON) $(RESOURCE_SCRIPT) $@
+	$(CMD)$(PYTHON) $(RESOURCE_SCRIPT) $@
 $(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)
-	@echo "Compiling resources..."
-	@mkdir -p $(@D)
-	@$(WINDRES) $(addprefix --include-dir=,$(^D)) -o $@ -i $<
+	$(SUM) "Compiling resources..."
+	$(CMD)mkdir -p $(@D)
+	$(CMD)$(WINDRES) $(addprefix --include-dir=,$(^D)) -o $@ -i $<
 endif
 
 # Link executable.
@@ -561,47 +580,47 @@ SINGLE_CPU_BINARIES=$(foreach CPU,$(CPU_LIST),$(call BINARY_FOR_CPU,$(CPU)))
 
 .PHONY: $(SINGLE_CPU_BINARIES)
 $(SINGLE_CPU_BINARIES):
-	@echo "Start compile for $(firstword $(subst -, ,$(@:derived/%=%))) CPU..."
-	@$(MAKE) -f build/main.mk all \
+	$(SUM) "Start compile for $(firstword $(subst -, ,$(@:derived/%=%))) CPU..."
+	$(CMD)$(MAKE) -f build/main.mk all \
 		OPENMSX_TARGET_CPU=$(firstword $(subst -, ,$(@:derived/%=%))) \
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
 		3RDPARTY_FLAG=$(3RDPARTY_FLAG) \
 		PYTHON=$(PYTHON)
-	@echo "Finished compile for $(firstword $(subst -, ,$(@:derived/%=%))) CPU."
+	$(SUM) "Finished compile for $(firstword $(subst -, ,$(@:derived/%=%))) CPU."
 
 $(BINARY_FULL): $(SINGLE_CPU_BINARIES)
-	@mkdir -p $(@D)
-	@lipo -create $^ -output $@
+	$(CMD)mkdir -p $(@D)
+	$(CMD)lipo -create $^ -output $@
 else
 $(BINARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
 ifeq ($(OPENMSX_SUBSET),)
-	@echo "Linking $(notdir $@)..."
-	@mkdir -p $(@D)
-	@+$(LINK_ENV) $(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
+	$(SUM) "Linking $(notdir $@)..."
+	$(CMD)mkdir -p $(@D)
+	$(CMD)+$(LINK_ENV) $(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
   ifeq ($(STRIP_SEPARATE),true)
-	@echo "Stripping $(notdir $@)..."
-	@strip $@
+	$(SUM) "Stripping $(notdir $@)..."
+	$(CMD)strip $@
   endif
   ifeq ($(USE_SYMLINK),true)
-	@ln -sf $(@:derived/%=%) derived/$(BINARY_FILE)
+	$(CMD)ln -sf $(@:derived/%=%) derived/$(BINARY_FILE)
   else
-	@cp $@ derived/$(BINARY_FILE)
+	$(CMD)cp $@ derived/$(BINARY_FILE)
   endif
 else
-	@echo "Not linking $(notdir $@) because only a subset was built."
+	$(SUM) "Not linking $(notdir $@) because only a subset was built."
 endif # subset
 endif # universal binary
 
 $(LIBRARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
-	@echo "Linking $(notdir $@)..."
-	@mkdir -p $(@D)
-	@$(LINK_ENV) $(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
+	$(SUM) "Linking $(notdir $@)..."
+	$(CMD)mkdir -p $(@D)
+	$(CMD)$(LINK_ENV) $(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
 
 # Run executable.
 run: all
-	@echo "Running $(notdir $(BINARY_FULL))..."
-	@$(BINARY_FULL)
+	$(SUM) "Running $(notdir $(BINARY_FULL))..."
+	$(CMD)$(BINARY_FULL)
 
 
 # Installation and Binary Packaging
@@ -637,10 +656,10 @@ bindist: install
 install: bindistclean
 
 bindistclean: $(BINARY_FULL)
-	@echo "Removing any old binary package..."
-	@rm -rf $(BINDIST_DIR)
-	@$(if $(BINDIST_PACKAGE),rm -f $(BINDIST_PACKAGE),)
-	@echo "Creating binary package:"
+	$(SUM) "Removing any old binary package..."
+	$(CMD)rm -rf $(BINDIST_DIR)
+	$(CMD)$(if $(BINDIST_PACKAGE),rm -f $(BINDIST_PACKAGE),)
+	$(SUM) "Creating binary package:"
 endif
 ifeq ($(OPENMSX_TARGET_OS),darwin)
 # Application directory for Darwin.
@@ -666,7 +685,7 @@ endif
 # DESTDIR is a convention shared by at least GNU and FreeBSD to specify a path
 # prefix that will be used for all installed files.
 install: $(BINARY_FULL)
-	@$(PYTHON) build/install.py "$(DESTDIR)" \
+	$(CMD)$(PYTHON) build/install.py "$(DESTDIR)" \
 		$(INSTALL_BINARY_DIR) $(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR) \
 		$(BINARY_FULL) $(OPENMSX_TARGET_OS) \
 		$(INSTALL_VERBOSE) $(INSTALL_CONTRIB)
@@ -676,7 +695,7 @@ install: $(BINARY_FULL)
 # ================
 
 dist:
-	@$(PYTHON) build/gitdist.py
+	$(CMD)$(PYTHON) build/gitdist.py
 
 
 # Binary Packaging Using 3rd Party Libraries
