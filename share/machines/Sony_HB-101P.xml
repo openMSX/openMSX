@@ -10,12 +10,20 @@
     <type>MSX</type>
   </info>
 
+<!--
+Info from serial 408477, see http://bilgisayarlarim.com/Sony/HB-101P
+CPU: Sharp LH0080A Z80A-CPU-D
+VDP: TMS9129NL
+PPI: NEC D8255AC-5
+PSG: Yamaha YM2149F
+x-tal: single 10.6875
+-->
+
   <CassettePort/>
 
   <devices>
 
     <PPI id="ppi">
-      <key_ghosting>true</key_ghosting>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <sound>
         <volume>16000</volume>

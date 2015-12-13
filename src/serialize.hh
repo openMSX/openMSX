@@ -655,6 +655,7 @@ public:
 		load(c);
 	}
 	void load(std::string& s);
+	string_ref loadStr();
 	void serialize_blob(const char*, void* data, size_t len);
 
 	void skipSection(bool skip)
@@ -756,7 +757,6 @@ public:
 		is >> t;
 	}
 	void loadChar(char& c);
-	void load(std::string& t);
 	void load(bool& b);
 	void load(unsigned char& b);
 	void load(signed char& c);
@@ -764,6 +764,8 @@ public:
 	void load(int& i);                  // these 3 are not strictly needed
 	void load(unsigned& u);             // but having them non-inline
 	void load(unsigned long long& ull); // saves quite a bit of code
+	void load(std::string& t);
+	string_ref loadStr();
 
 	void skipSection(bool /*skip*/) { /*nothing*/ }
 
@@ -795,7 +797,7 @@ public:
 	int countChildren() const;
 
 private:
-	XMLElement elem;
+	XMLElement rootElem;
 	std::vector<std::pair<const XMLElement*, size_t>> elems;
 };
 

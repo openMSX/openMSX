@@ -5,17 +5,23 @@
   <info>
     <manufacturer>Spectravideo</manufacturer>
     <code>SVI-728</code>
-    <release_year>1983?</release_year>
+    <release_year>1983</release_year>
     <description/>
     <type>MSX</type>
   </info>
+
+<!-- 
+Info from serial BI 728053932
+see http://bilgisayarlarim.com/Spectravideo/SVI-728/
+CPU: Zilog
+PSG: GI AY-3-8910
+-->
 
   <CassettePort/>
 
   <devices>
 
     <PPI id="ppi">
-      <key_ghosting>true</key_ghosting>
       <sound>
         <volume>16000</volume>
       </sound>

@@ -22,7 +22,7 @@ class Rom final
 public:
 	Rom(const std::string& name, const std::string& description,
 	    const DeviceConfig& config, const std::string& id = "");
-	Rom(Rom&& other);
+	Rom(Rom&& other) noexcept;
 	~Rom();
 
 	const byte& operator[](unsigned address) const {

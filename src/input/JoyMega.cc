@@ -57,9 +57,9 @@ class JoyMegaState final : public StateChange
 {
 public:
 	JoyMegaState() {} // for serialize
-	JoyMegaState(EmuTime::param time, unsigned joyNum_,
+	JoyMegaState(EmuTime::param time_, unsigned joyNum_,
 	             unsigned press_, unsigned release_)
-		: StateChange(time)
+		: StateChange(time_)
 		, joyNum(joyNum_), press(press_), release(release_)
 	{
 		assert((press != 0) || (release != 0));

@@ -32,14 +32,14 @@ Video9000::Video9000(const DeviceConfig& config)
 void Video9000::init()
 {
 	MSXDevice::init();
-	auto references = getReferences(); // make copy
+	auto refs = getReferences(); // make copy
 	bool error = false;
-	if (references.size() != 2) error = true;
-	if (!error && !dynamic_cast<VDP*>(references[0])) {
-		std::swap(references[0], references[1]); // try reverse order
+	if (refs.size() != 2) error = true;
+	if (!error && !dynamic_cast<VDP*>(refs[0])) {
+		std::swap(refs[0], refs[1]); // try reverse order
 	}
-	if (!error) vdp   = dynamic_cast<VDP*  >(references[0]);
-	if (!error) v9990 = dynamic_cast<V9990*>(references[1]);
+	if (!error) vdp   = dynamic_cast<VDP*  >(refs[0]);
+	if (!error) v9990 = dynamic_cast<V9990*>(refs[1]);
 	if (error || !vdp || !v9990) {
 		throw MSXException(
 			"Invalid Video9000 configuration: "

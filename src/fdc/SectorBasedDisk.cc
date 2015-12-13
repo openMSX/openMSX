@@ -4,8 +4,8 @@
 
 namespace openmsx {
 
-SectorBasedDisk::SectorBasedDisk(const DiskName& name)
-	: Disk(name)
+SectorBasedDisk::SectorBasedDisk(const DiskName& name_)
+	: Disk(name_)
 	, nbSectors(size_t(-1)) // to detect misuse
 	, cachedTrackNum(-1)
 {

@@ -16,6 +16,13 @@ PPI: Mitsubishi M5L8255AP-5
 PSG: Yamaha YM2149 - JIS
 VDP: TI TMS9929ANL
 crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
+
+The machine with serial 711122, see http://bilgisayarlarim.com/Canon/V-20:
+CPU: Zilog Z8400A PS Z80A
+PPI: NEC D8255AC-5
+PSG: YM2149 F
+VDP: TMS9929ANL
+crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
 -->
 
   <CassettePort/>
@@ -51,7 +58,6 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
       <sound>
         <volume>16000</volume>
       </sound>
-      <key_ghosting>true</key_ghosting>
       <keyboard_type>gb</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
@@ -66,7 +72,8 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
     </VDP>
 
     <PSG id="PSG">
-      <type>YM2149</type> <!-- 'hap' checked in his real machine -->
+      <keyboardlayout>JIS</keyboardlayout>
+      <type>YM2149</type>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
       <sound>

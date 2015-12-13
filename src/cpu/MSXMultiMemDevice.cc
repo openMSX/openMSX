@@ -67,7 +67,7 @@ void MSXMultiMemDevice::add(MSXDevice& device, int base, int size)
 
 void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
 {
-	ranges.erase(find_unguarded(ranges, Range(base, size, device)));
+	ranges.erase(rfind_unguarded(ranges, Range(base, size, device)));
 }
 
 std::vector<MSXDevice*> MSXMultiMemDevice::getDevices() const

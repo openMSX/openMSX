@@ -3,7 +3,6 @@
 
 #include "MemBuffer.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include "serialize_meta.hh"
 #include <memory>
 #include <vector>
@@ -15,7 +14,7 @@ class Rom;
 class SRAM;
 class DeviceConfig;
 
-class AmdFlash : private noncopyable
+class AmdFlash
 {
 public:
 	struct SectorInfo {

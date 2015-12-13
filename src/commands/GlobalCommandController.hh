@@ -9,8 +9,8 @@
 #include "HotKey.hh"
 #include "SettingsConfig.hh"
 #include "RomInfoTopic.hh"
-#include "StringMap.hh"
-#include "noncopyable.hh"
+#include "hash_map.hh"
+#include "xxhash.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -28,14 +28,17 @@ class GlobalCommandControllerBase
 protected:
 	~GlobalCommandControllerBase();
 
-	StringMap<Command*> commands;
-	StringMap<CommandCompleter*> commandCompleters;
+	hash_map<std::string, Command*,          XXHasher> commands;
+	hash_map<std::string, CommandCompleter*, XXHasher> commandCompleters;
 };
 
 class GlobalCommandController final : private GlobalCommandControllerBase
-                                    , public CommandController, private noncopyable
+                                    , public CommandController
 {
 public:
+	GlobalCommandController(const GlobalCommandController&) = delete;
+	GlobalCommandController& operator=(const GlobalCommandController&) = delete;
+
 	GlobalCommandController(EventDistributor& eventDistributor,
 	                        GlobalCliComm& cliComm,
 	                        Reactor& reactor);
@@ -54,8 +57,6 @@ public:
 	void registerProxySetting(Setting& setting);
 	void unregisterProxySetting(Setting& setting);
 
-	void changeSetting(const std::string& name, const TclObject& value);
-
 	// CommandController
 	void   registerCompleter(CommandCompleter& completer,
 	                         string_ref str) override;
@@ -70,8 +71,6 @@ public:
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
-	BaseSetting* findSetting(string_ref name) override;
-	void changeSetting(Setting& setting, const TclObject& value) override;
 	CliComm& getCliComm() override;
 	Interpreter& getInterpreter() override;
 
@@ -87,6 +86,7 @@ public:
 	bool isComplete(const std::string& command);
 
 	SettingsConfig& getSettingsConfig() { return settingsConfig; }
+	SettingsManager& getSettingsManager() { return settingsConfig.getSettingsManager(); }
 	CliConnection* getConnection() const { return connection; }
 
 private:
@@ -102,7 +102,7 @@ private:
 
 	using ProxySettings =
 		std::vector<std::pair<std::unique_ptr<ProxySetting>, unsigned>>;
-	ProxySettings::iterator findProxySetting(const std::string& name);
+	ProxySettings::iterator findProxySetting(string_ref name);
 
 	GlobalCliComm& cliComm;
 	CliConnection* connection;
@@ -152,7 +152,13 @@ private:
 
 	RomInfoTopic romInfoTopic;
 
-	StringMap<std::pair<unsigned, std::unique_ptr<ProxyCmd>>> proxyCommandMap;
+	struct NameFromProxy {
+		template<typename Pair>
+		const std::string& operator()(const Pair& p) const {
+			return p.second->getName();
+		}
+	};
+	hash_set<std::pair<unsigned, std::unique_ptr<ProxyCmd>>, NameFromProxy, XXHasher> proxyCommandMap;
 	ProxySettings proxySettings;
 };
 

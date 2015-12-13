@@ -6,7 +6,7 @@
 #include "Observer.hh"
 #include "EventListener.hh"
 #include "sha1.hh"
-#include "noncopyable.hh"
+#include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -21,7 +21,6 @@ class File;
 class CliComm;
 
 class FilePool final : private Observer<Setting>, private EventListener
-                     , private noncopyable
 {
 public:
 	FilePool(CommandController& controler, EventDistributor& distributor);
@@ -42,12 +41,6 @@ public:
 	 * relatively expensive calculation.
 	 */
 	Sha1Sum getSha1Sum(File& file);
-
-	/** Remove sha1sum for this file from the cache.
-	 * When the file was written to, sha1sum changes and it should be
-	 * removed from the cache.
-	 */
-	void removeSha1Sum(File& file);
 
 private:
 	struct ScanProgress {

@@ -34,8 +34,8 @@
 
 namespace openmsx {
 
-SDLVideoSystem::SDLVideoSystem(Reactor& reactor, CommandConsole& console)
-	: reactor(reactor)
+SDLVideoSystem::SDLVideoSystem(Reactor& reactor_, CommandConsole& console)
+	: reactor(reactor_)
 	, display(reactor.getDisplay())
 	, renderSettings(reactor.getDisplay().getRenderSettings())
 {

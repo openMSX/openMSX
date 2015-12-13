@@ -1,94 +1,70 @@
-Release Notes for openMSX 0.11.0 (2014-11-08)
+Release Notes for openMSX 0.12.0 (2015-09-12)
 =============================================
 
-This release brings you the following important new features: VDP access timing
-now also for MSX1 modes (corruption with too fast VRAM access will be visible
-now), implementation of most defailed differences between all used VDP chips
-and emulation of MegaFlashROM SCC+ SD.
-On top of that, there are some important (long standing) bug fixes, like the
-proper implementation of envelopes for MSX-AUDIO, fixing for example "Copy is
-Crime" by Impact.
-And last but not least, a lot of work was done under the bonnet, giving you
-even better performance and preparations for the future.
+This was going to be (mostly) a bug fix release. But at the end we also got
+inspired by Grauw to add a lot of MIDI devices. And, reviewing what we changed
+the last 10 months, we saw that we also got loads of help from several people
+to add many new machine configurations and added some fun stuff like Sensor Kid
+and (experimental) Beer IDE emulation. On the emulator features category we
+give you stuff like triplesize video recording, some TAS enhancements and a
+callback for too fast VRAM access.
+So, enjoy this 'various features and bug fixes' release!
 
-Here's the list with all highlights:
+Here's the list with all highlights and details:
 
 MSX device support:
-- VDP:
-  - implemented access timing also for character and text modes (both for MSX1
-    VDP's and V99x8): too fast VDP access will now cause corruption on openMSX
-    too
-  - added support for specific MSX1 VDP's (mostly thanks to hap for all the
-    research):
-    - the exact VDP type can now be specified in the config file
-    - differences between Toshiba T6950/T7937A, TMS99xx and TMS91xx MSX1 VDP's
-      are now emulated (except sprite cloning)
-    - updated many machine configs with the proper MSX1 VDP type (where known,
-      additions/corrections are welcome!)
-  - implemented that V99x8 does not support undocumented mixed modes
-  - fixed bug in 5/9th sprite detection status register
-  - added I/O port mirroring to machines of which we are certain it exists
-- MSX-AUDIO (Y8950) and related:
-  - fixed envelope for MSX-AUDIO (Y8950), the infamous legato-envelope bug is
-    now finally fixed!
-  - fixed handling of key-off for percussive tones
-  - fixed detection of Philips Music Module in Tetris II Special Edition
-- added emulation of MegaFlashROM SCC+ SD. Note: the implementation is such
-  that existing software works on it, but do not fully rely on it when
-  developing for this cartridge!
-- improved Sony HBI-55 emulation
-- fixed some details in several machine configurations
-- fixed KANA/CODE key not working in CHARACTER input mode
-- added the following machines: Daewoo CPC-51 Zemmix V, Daewoo CPC-300E,
-  Toshiba HX-51I, Yamaha YIS-503IIR, Toshiba FS-TM1, Sanyo MPC-10 (Wavy 10),
-  Yamaha CX5MII, Fujitsu FM-X (thanks to NYYRIKKI, Werner Kai, Maxim Vlasov and
-  Alex Krasivsky)
-- added the Casio KB-7 and KB-10 docking stations (note: these extensions only
-  work with the Casio PV-7 and MX-10 respectively; do not be worried
-  when they appear to be not working according to Catapult!)
-- added the MSX Acid Test machines, contributed by FRS
-- added the Gradiente CT-80E 80 column card extension, thanks to Maurício Braga
-
+- fixed (S)RAM writing on turboR
+- fixed border color in screen 11/12
+- fixed some details of SD card emulation (found with FUZIX)
+- fixed clipping bug in sprite-mode-1 drawing
+- fixed crash in openMSX when using the AVT DPF-550 extension
+- fixed support of 8kB RS-232C ROMs (which is the only correct size!)
+- fixed emulation of joystick mode of the mouse
+- fixed broken MegaFlashROM SCC+ (introduced with openMSX 0.11.0)
+- improved trackball movement emulation so that JoyTest can also detect it like
+  on real hardware
+- fixed touchpad joystick pins (fixing detection in JoyTest)
+- tweaked volumes of SFG-01/05 against the PSG
+- added Panasonic FS-A1WSX/WX variant ot the MSX-MUSIC mapper
+- added proper YM2148 emulation (MIDI in/out for Yamaha SFG modules)
+- added proper MC6850 emulation (MIDI in/out for Philips Music Module)
+- added emulation of FAC MIDI Interface
+- added emulation of Sensor Kid, ported from yayaMSX2SK, which is based on
+  Mr. Takeda's Common Source Code Project
+- added emulation of BeerIDE (experimental)
+- added many new machines: Canon V-25 (thanks to Rudi Westerhof), Canon V-8,
+  Fenner/Samsung SPC-800, Hitachi MB-H1, Toshiba HX-10D (thanks to Ricardo
+  Jurcyk Pinheiro), Canon V-10, Canon V-20 (JP), Spectravideo SVI-728 (ES),
+  Mitsubishi ML-TS2 (partly, it's still work-in-progress), Sony HB-101 (JP),
+  Sony HB-201 (JP), Sanyo MPC-6, Mitsubishi ML-F120 and ML-F110 and Hitachi
+  MB-H3 (thanks to Werner Kai) and Yamaha AX350IIF (thanks to Rudolf Gutlich)
 
 New or improved emulator features:
-- added de-flicker video filter via new 'deflicker' setting. Use this to remove
-  flickering in cases like the dvik demos where 105 colors are simulated on
-  MSX1 by alternating different native colors. It's disabled by default.
-- performance improvements:
-  - speed up execution of Tcl scripts
-  - many various other optimizations
-- fixed auto_enable_reverse (set/unset auto enabling reverse at startup)
-- rewrote most OpenGL 2 code to be more compatible with OpenGL ES
-- improved guessing of mapper type for 64kB ROMs
-- fixed a bug with watch_points affecting the execution flow
-- fixed corruption in XSA disk images
-- added NYYRIKKI's fast CAS loading/saving script, enable with setting the
-  'fast_cas_load_hack_enabled' setting to on
-- joysticks/controllers:
-  - added setting to configure dead zone for joysticks
-  - added support for joystick hats (can be used just like buttons)
-  - improved support in OSD menu (take deadzone into account)
-- added dir-as-disk support for the OSD menu
-- removed experimental libao sound driver
-- added support for R-ALT on Korean keyboard (thanks to Miso Kim)
-- TAS: added possibility to query the length of the current replay (defined as
-  the time stamp of the last input)
-
+- added "too_fast_vram_access_callback": you can now run a Tcl script when the
+  running MSX software accesses VRAM too fast, e.g. break to debug
+- added display of 'movie length' in TAS mode. This is the length of your
+  'movie' if you upload it to tasvideos.org
+- added -triplesize to video recorder: allows creation of video files in
+  960x720 pixels, for which YouTube renders videos at 60 fps.
+- some fixes in keyboard mappings
+- fixed slow console when emulation speed is very low
+- add a snapshot 'near the end' to the OMR when saving it, allowing quicker
+  continuation of the replay after loading it
+- similarly, add snapshots when fast-forwarding to the target time, so they
+  can be used to jump back more quickly
+- show reverse bar in green when replaying in viewonly mode
+- added a converter from/to OMR to/from text, which allows you to more easily
+  edit the OMR outside of openMSX
+- improved implementation of 'auto-save' feature of replays: the setting will
+  now persist over openMSX sessions
+- added an OSD overlay for Metal Gear
 
 Build system, packaging, documentation:
-- even more use of C++11 features, when using gcc use 4.7 or higher
-- removed build dependency on libxml2
-- removed many/all unused features/libs from the build system
-- added support to cross compile with MinGW-w64 for (at least) 32 bit Windows
-  using Linux
-- cleaned up the stuff in the doc directory - you now get what we really wanted
-  you to get :)
-- changed packaging method to include stuff by default instead of exclude stuff
-  by default
-- fixed native compilation on mipsel
-- upgraded C-BIOS to release 0.27
+- replace mingw32 build support with MinGW-w64 build support on Windows
+- updated our website and other URL's to point to http://openmsx.org/ or
+  GitHub
 
-And of course the usual various bug fixes.
+And of course the usual various bug fixes and performance improvements.
 
 In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
 Make sure you read this if you haven't used openMSX before, but also to learn
@@ -107,14 +83,13 @@ compiling on a new platform, please share your experiences (see below for
 contact info), so we can make openMSX more portable.
 
 openMSX Home Page:
-  http://www.openmsx.org/
-Project page on SourceForge:
-  http://sourceforge.net/projects/openmsx/
+  http://openmsx.org/
+Project page on GitHub:
+  https://github.com/openMSX
 Contact options:
 - Talk to us on #openmsx on irc.freenode.net.
 - Use the forum on http://www.msx.org/forum/semi-msx-talk/openmsx
-- Send a message to the openmsx-user mailing list.
-  Go to the SourceForge project page and look under "Lists".
+- File a ticket on https://github.com/openMSX/openMSX/issues
 
 Thanks to all contributors for their feedback, support, bug reports, testing,
 coding and other help!

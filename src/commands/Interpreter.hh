@@ -3,9 +3,7 @@
 
 #include "TclParser.hh"
 #include "TclObject.hh"
-#include "StringMap.hh"
 #include "string_ref.hh"
-#include "noncopyable.hh"
 #include <vector>
 #include <tcl.h>
 
@@ -16,9 +14,12 @@ class Command;
 class BaseSetting;
 class InterpreterOutput;
 
-class Interpreter : private noncopyable
+class Interpreter
 {
 public:
+	Interpreter(const Interpreter&) = delete;
+	Interpreter& operator=(const Interpreter&) = delete;
+
 	explicit Interpreter(EventDistributor& eventDistributor);
 	~Interpreter();
 
@@ -26,16 +27,16 @@ public:
 
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);
-	void unregisterCommand(string_ref name, Command& command);
+	void unregisterCommand(Command& command);
 	TclObject getCommandNames();
 	bool isComplete(const std::string& command) const;
 	TclObject execute(const std::string& command);
 	TclObject executeFile(const std::string& filename);
 
-	void setVariable(const std::string& name, TclObject value);
-	void unsetVariable(const std::string& name);
-	void registerSetting(BaseSetting& variable, const std::string& name);
-	void unregisterSetting(BaseSetting& variable, const std::string& name);
+	void setVariable(const TclObject& name, const TclObject& value);
+	void unsetVariable(const char* name);
+	void registerSetting(BaseSetting& variable);
+	void unregisterSetting(BaseSetting& variable);
 
 	/** Create the global namespace with given name.
 	  * @param name Name of the namespace, should not include '::' prefix.
@@ -63,7 +64,6 @@ private:
 
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;
-	StringMap<Tcl_Command> commandTokenMap;
 	InterpreterOutput* output;
 
 	friend class TclObject;

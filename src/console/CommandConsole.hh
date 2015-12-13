@@ -7,7 +7,6 @@
 #include "IntegerSetting.hh"
 #include "CircularBuffer.hh"
 #include "circular_buffer.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include <vector>
 
@@ -62,7 +61,7 @@ private:
 
 
 class CommandConsole final : private EventListener
-                           , private InterpreterOutput, private noncopyable
+                           , private InterpreterOutput
 {
 public:
 	CommandConsole(GlobalCommandController& commandController,

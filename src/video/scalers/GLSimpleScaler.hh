@@ -2,13 +2,12 @@
 #define GLSIMPLESCALER_HH
 
 #include "GLScaler.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 class RenderSettings;
 
-class GLSimpleScaler final : public GLScaler, private noncopyable
+class GLSimpleScaler final : public GLScaler
 {
 public:
 	GLSimpleScaler(RenderSettings& renderSettings, GLScaler& fallback);

@@ -2,14 +2,13 @@
 #define MSXSWITCHEDDEVICE_HH
 
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
 
 class MSXMotherBoard;
 
-class MSXSwitchedDevice : private noncopyable
+class MSXSwitchedDevice
 {
 public:
 	virtual byte readSwitchedIO(word port, EmuTime::param time) = 0;

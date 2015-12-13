@@ -44,11 +44,11 @@ static unsigned normalizeFAT(unsigned cluster)
 	return (cluster < BAD_FAT) ? cluster : EOF_FAT;
 }
 
-unsigned DirAsDSK::readFATHelper(const SectorBuffer* fat, unsigned cluster) const
+unsigned DirAsDSK::readFATHelper(const SectorBuffer* fatBuf, unsigned cluster) const
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < maxCluster);
-	auto* buf = fat[0].raw;
+	auto* buf = fatBuf[0].raw;
 	auto* p = &buf[(cluster * 3) / 2];
 	unsigned result = (cluster & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
@@ -56,11 +56,11 @@ unsigned DirAsDSK::readFATHelper(const SectorBuffer* fat, unsigned cluster) cons
 	return normalizeFAT(result);
 }
 
-void DirAsDSK::writeFATHelper(SectorBuffer* fat, unsigned cluster, unsigned val) const
+void DirAsDSK::writeFATHelper(SectorBuffer* fatBuf, unsigned cluster, unsigned val) const
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < maxCluster);
-	auto* buf = fat[0].raw;
+	auto* buf = fatBuf[0].raw;
 	auto* p = &buf[(cluster * 3) / 2];
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
@@ -183,7 +183,14 @@ unsigned DirAsDSK::nextMsxDirSector(unsigned sector)
 bool DirAsDSK::checkMSXFileExists(
 	const string& msxFilename, unsigned msxDirSector)
 {
+	vector<bool> visited(nofSectors, false);
 	do {
+		if (visited[msxDirSector]) {
+			// cycle detected, invalid disk, but don't crash on it
+			return false;
+		}
+		visited[msxDirSector] = true;
+
 		for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
 			DirIndex dirIndex(msxDirSector, idx);
 			if (memcmp(msxDir(dirIndex).filename,
@@ -463,7 +470,14 @@ void DirAsDSK::deleteMSXFile(DirIndex dirIndex)
 
 void DirAsDSK::deleteMSXFilesInDir(unsigned msxDirSector)
 {
+	vector<bool> visited(nofSectors, false);
 	do {
+		if (visited[msxDirSector]) {
+			// cycle detected, invalid disk, but don't crash on it
+			return;
+		}
+		visited[msxDirSector] = true;
+
 		for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
 			deleteMSXFile(DirIndex(msxDirSector, idx));
 		}
@@ -692,15 +706,17 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 
 	for (auto& hostName : hostNames) {
 		try {
+			if (StringOp::startsWith(hostName, '.')) {
+				// skip '.' and '..'
+				// also skip hidden files on unix
+				continue;
+			}
 			string fullHostName = hostDir + hostSubDir + hostName;
 			FileOperations::Stat fst;
 			if (!FileOperations::getStat(fullHostName, fst)) {
 				throw MSXException("Error accessing " + fullHostName);
 			}
 			if (FileOperations::isDirectory(fst)) {
-				if ((hostName == "..") || (hostName == ".")) {
-					continue;
-				}
 				addNewDirectory(hostSubDir, hostName, msxDirSector, fst);
 			} else if (FileOperations::isRegularFile(fst)) {
 				addNewHostFile(hostSubDir, hostName, msxDirSector, fst);
@@ -828,7 +844,14 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 
 DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 {
+	vector<bool> visited(nofSectors, false);
 	while (true) {
+		if (visited[msxDirSector]) {
+			// cycle detected, invalid disk, but don't crash on it
+			throw MSXException("cycle in FAT");
+		}
+		visited[msxDirSector] = true;
+
 		for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
 			DirIndex dirIndex(msxDirSector, idx);
 			const char* msxName = msxDir(dirIndex).filename;
@@ -854,7 +877,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	// Extend sub-directory: allocate and clear a new cluster, add this
 	// cluster in the existing FAT chain.
 	unsigned cluster = sectorToCluster(msxDirSector);
-	unsigned newCluster = getFreeCluster();
+	unsigned newCluster = getFreeCluster(); // throws if disk full
 	unsigned sector = clusterToSector(newCluster);
 	memset(&sectors[sector], 0, SECTORS_PER_CLUSTER * SECTOR_SIZE);
 	writeFAT12(cluster, newCluster);
@@ -931,8 +954,15 @@ void DirAsDSK::exportFileFromFATChange(unsigned cluster, SectorBuffer* oldFAT)
 
 	// Copy this whole chain from FAT1 to FAT2 (so that the loop in
 	// writeFATSector() sees this part is already handled).
+	vector<bool> visited(maxCluster, false);
 	unsigned tmp = startCluster;
 	while ((FIRST_CLUSTER <= tmp) && (tmp < maxCluster)) {
+		if (visited[tmp]) {
+			// detected cycle, don't export file
+			return;
+		}
+		visited[tmp] = true;
+
 		unsigned next = readFAT(tmp);
 		writeFATHelper(oldFAT, tmp, next);
 		tmp = next;
@@ -1062,8 +1092,8 @@ struct DirScanner : NullScanner {
 
 // Figure out whether a given sector is part of the msx directory structure.
 struct IsDirSector : DirScanner {
-	IsDirSector(unsigned sector_, DirAsDSK::DirIndex& dirDirIndex)
-		: DirScanner(dirDirIndex)
+	IsDirSector(unsigned sector_, DirAsDSK::DirIndex& dirDirIndex_)
+		: DirScanner(dirDirIndex_)
 		, sector(sector_) {}
 	bool onDirSector(unsigned dirSector) {
 		return sector == dirSector;
@@ -1079,8 +1109,8 @@ bool DirAsDSK::isDirSector(unsigned sector, DirIndex& dirDirIndex)
 struct DirEntryForCluster : DirScanner {
 	DirEntryForCluster(unsigned cluster_,
 	                   DirAsDSK::DirIndex& dirIndex_,
-	                   DirAsDSK::DirIndex& dirDirIndex)
-		: DirScanner(dirDirIndex)
+	                   DirAsDSK::DirIndex& dirDirIndex_)
+		: DirScanner(dirDirIndex_)
 		, cluster(cluster_)
 		, result(dirIndex_) {}
 	bool onDirEntry(DirAsDSK::DirIndex dirIndex, const MSXDirEntry& entry) {
@@ -1185,7 +1215,14 @@ void DirAsDSK::exportToHostDir(DirIndex dirIndex, const string& hostName)
 		FileOperations::mkdirp(fullHostName);
 
 		// Export all the components in this directory.
+		vector<bool> visited(nofSectors, false);
 		do {
+			if (visited[msxDirSector]) {
+				// detected cycle, invalid disk, but don't crash on it
+				return;
+			}
+			visited[msxDirSector] = true;
+
 			if (readFAT(sectorToCluster(msxDirSector)) == FREE_FAT) {
 				// This happens e.g. on a TurboR when a directory
 				// is removed: first the FAT is cleared before
@@ -1216,7 +1253,15 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const string& hostName)
 		string fullHostName = hostDir + hostName;
 		File file(fullHostName, File::TRUNCATE);
 		unsigned offset = 0;
+		vector<bool> visited(maxCluster, false);
+
 		while ((FIRST_CLUSTER <= curCl) && (curCl < maxCluster)) {
+			if (visited[curCl]) {
+				// detected cycle, invalid disk, but don't crash on it
+				return;
+			}
+			visited[curCl] = true;
+
 			unsigned logicalSector = clusterToSector(curCl);
 			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 				if (offset >= msxSize) break;

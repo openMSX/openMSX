@@ -18,8 +18,8 @@ using namespace gl;
 
 namespace openmsx {
 
-OSDRectangle::OSDRectangle(OSDGUI& gui, const string& name)
-	: OSDImageBasedWidget(gui, name)
+OSDRectangle::OSDRectangle(OSDGUI& gui_, const TclObject& name_)
+	: OSDImageBasedWidget(gui_, name_)
 	, scale(1.0), borderSize(0.0), relBorderSize(0.0)
 	, borderRGBA(0x000000ff)
 {
@@ -37,39 +37,39 @@ vector<string_ref> OSDRectangle::getProperties() const
 }
 
 void OSDRectangle::setProperty(
-	Interpreter& interp, string_ref name, const TclObject& value)
+	Interpreter& interp, string_ref propName, const TclObject& value)
 {
-	if (name == "-w") {
+	if (propName == "-w") {
 		float w = value.getDouble(interp);
 		if (size[0] != w) {
 			size[0] = w;
 			invalidateRecursive();
 		}
-	} else if (name == "-h") {
+	} else if (propName == "-h") {
 		float h = value.getDouble(interp);
 		if (size[1] != h) {
 			size[1] = h;
 			invalidateRecursive();
 		}
-	} else if (name == "-relw") {
+	} else if (propName == "-relw") {
 		float relw = value.getDouble(interp);
 		if (relSize[0] != relw) {
 			relSize[0] = relw;
 			invalidateRecursive();
 		}
-	} else if (name == "-relh") {
+	} else if (propName == "-relh") {
 		float relh = value.getDouble(interp);
 		if (relSize[1] != relh) {
 			relSize[1] = relh;
 			invalidateRecursive();
 		}
-	} else if (name == "-scale") {
+	} else if (propName == "-scale") {
 		float scale2 = value.getDouble(interp);
 		if (scale != scale2) {
 			scale = scale2;
 			invalidateRecursive();
 		}
-	} else if (name == "-image") {
+	} else if (propName == "-image") {
 		string val = value.getString().str();
 		if (imageName != val) {
 			if (!val.empty() && !FileOperations::isRegularFile(val)) {
@@ -78,51 +78,51 @@ void OSDRectangle::setProperty(
 			imageName = val;
 			invalidateRecursive();
 		}
-	} else if (name == "-bordersize") {
-		float size = value.getDouble(interp);
-		if (borderSize != size) {
-			borderSize = size;
+	} else if (propName == "-bordersize") {
+		float newSize = value.getDouble(interp);
+		if (borderSize != newSize) {
+			borderSize = newSize;
 			invalidateLocal();
 		}
-	} else if (name == "-relbordersize") {
-		float size = value.getDouble(interp);
-		if (relBorderSize != size) {
-			relBorderSize = size;
+	} else if (propName == "-relbordersize") {
+		float newSize = value.getDouble(interp);
+		if (relBorderSize != newSize) {
+			relBorderSize = newSize;
 			invalidateLocal();
 		}
-	} else if (name == "-borderrgba") {
+	} else if (propName == "-borderrgba") {
 		unsigned newRGBA = value.getInt(interp);
 		if (borderRGBA != newRGBA) {
 			borderRGBA = newRGBA;
 			invalidateLocal();
 		}
 	} else {
-		OSDImageBasedWidget::setProperty(interp, name, value);
+		OSDImageBasedWidget::setProperty(interp, propName, value);
 	}
 }
 
-void OSDRectangle::getProperty(string_ref name, TclObject& result) const
+void OSDRectangle::getProperty(string_ref propName, TclObject& result) const
 {
-	if (name == "-w") {
+	if (propName == "-w") {
 		result.setDouble(size[0]);
-	} else if (name == "-h") {
+	} else if (propName == "-h") {
 		result.setDouble(size[1]);
-	} else if (name == "-relw") {
+	} else if (propName == "-relw") {
 		result.setDouble(relSize[0]);
-	} else if (name == "-relh") {
+	} else if (propName == "-relh") {
 		result.setDouble(relSize[1]);
-	} else if (name == "-scale") {
+	} else if (propName == "-scale") {
 		result.setDouble(scale);
-	} else if (name == "-image") {
+	} else if (propName == "-image") {
 		result.setString(imageName);
-	} else if (name == "-bordersize") {
+	} else if (propName == "-bordersize") {
 		result.setDouble(borderSize);
-	} else if (name == "-relbordersize") {
+	} else if (propName == "-relbordersize") {
 		result.setDouble(relBorderSize);
-	} else if (name == "-borderrgba") {
+	} else if (propName == "-borderrgba") {
 		result.setInt(borderRGBA);
 	} else {
-		OSDImageBasedWidget::getProperty(name, result);
+		OSDImageBasedWidget::getProperty(propName, result);
 	}
 }
 

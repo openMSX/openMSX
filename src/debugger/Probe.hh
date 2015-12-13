@@ -53,9 +53,9 @@ private:
 };
 
 template<typename T>
-Probe<T>::Probe(Debugger& debugger, const std::string& name,
-                const std::string& description, const T& t)
-	: ProbeBase(debugger, name, description)
+Probe<T>::Probe(Debugger& debugger_, const std::string& name_,
+                const std::string& description_, const T& t)
+	: ProbeBase(debugger_, name_, description_)
 	, value(t)
 {
 }

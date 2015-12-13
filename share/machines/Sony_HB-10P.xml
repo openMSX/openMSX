@@ -22,7 +22,6 @@ crystal: 3.579545 and 22.168 near the VDP (PAL = 22.168/5=4.4336).. not synced
   <devices>
 
     <PPI id="ppi">
-      <key_ghosting>true</key_ghosting>
       <sound>
         <volume>16000</volume>
       </sound>

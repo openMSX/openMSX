@@ -63,8 +63,8 @@ class JoyState final : public StateChange
 {
 public:
 	JoyState() {} // for serialize
-	JoyState(EmuTime::param time, unsigned joyNum_, byte press_, byte release_)
-		: StateChange(time)
+	JoyState(EmuTime::param time_, unsigned joyNum_, byte press_, byte release_)
+		: StateChange(time_)
 		, joyNum(joyNum_), press(press_), release(release_)
 	{
 		assert((press != 0) || (release != 0));

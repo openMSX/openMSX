@@ -4,7 +4,6 @@
 #include "SettingsManager.hh"
 #include "Command.hh"
 #include "XMLElement.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include <string>
 
@@ -15,7 +14,7 @@ class HotKey;
 class GlobalCommandController;
 class CommandController;
 
-class SettingsConfig : private noncopyable
+class SettingsConfig
 {
 public:
 	SettingsConfig(GlobalCommandController& globalCommandController,

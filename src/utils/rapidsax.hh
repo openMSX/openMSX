@@ -13,6 +13,7 @@
 //
 // RapidXml produces a DOM-like output. This parser has a SAX-like interface.
 
+#include "small_compare.hh"
 #include "string_ref.hh"
 #include <cassert>
 #include <cstdint>
@@ -31,6 +32,12 @@ namespace rapidsax {
 //   the lifetime of the input XML data (no string copies are made, instead
 //   the XML file is modified in-place and references to this data are passed).
 template<int FLAGS, typename HANDLER> void parse(HANDLER& handler, char* xml);
+
+// When loading an XML file from disk, the buffer needs to be 8 bytes bigger
+// than the filesize. The first of these bytes must be filled with zero
+// (zero-terminate the xml data). The other bytes are only there to allow to
+// read up-to 8 bytes past the end without triggering memory protection errors.
+static const size_t EXTRA_BUFFER_SPACE = 8;
 
 
 // Flags that influence parsing behavior. The flags can be OR'ed together.
@@ -94,9 +101,9 @@ public:
 class ParseError
 {
 public:
-	ParseError(const char* what, char* where)
-		: m_what(what)
-		, m_where(where)
+	ParseError(const char* what_, char* where_)
+		: m_what(what_)
+		, m_where(where_)
 	{
 	}
 
@@ -194,21 +201,20 @@ static inline void insertUTF8char(char*& text, unsigned long code)
 
 template<char C0, char C1> static inline bool next(const char* p)
 {
-	return (p[0] == C0) && (p[1] == C1);
+	return small_compare<C0, C1>(p);
 }
 template<char C0, char C1, char C2> static inline bool next(const char* p)
 {
-	return (p[0] == C0) && (p[1] == C1) && (p[2] == C2);
+	return small_compare<C0, C1, C2>(p);
 }
 template<char C0, char C1, char C2, char C3> static inline bool next(const char* p)
 {
-	return (p[0] == C0) && (p[1] == C1) && (p[2] == C2) && (p[3] == C3);
+	return small_compare<C0, C1, C2, C3>(p);
 }
 template<char C0, char C1, char C2, char C3, char C4, char C5>
 static inline bool next(const char* p)
 {
-	return (p[0] == C0) && (p[1] == C1) && (p[2] == C2) &&
-	       (p[3] == C3) && (p[4] == C4) && (p[5] == C5);
+	return small_compare<C0, C1, C2, C3, C4, C5>(p);
 }
 
 

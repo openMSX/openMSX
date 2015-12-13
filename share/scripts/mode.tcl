@@ -102,14 +102,17 @@ proc leave_tas_mode {} {
 	# restore reversebar_fadeout_time 
 	set ::reversebar_fadeout_time $old_reversebar_fadeout_time
 
-	if {[osd exists lag_counter]} {
-		toggle_lag_counter
-	}
 	if {[osd exists framecount]} {
 		toggle_frame_counter
 	}
+	if {[osd exists lag_counter]} {
+		toggle_lag_counter
+	}
 	if {[osd exists cursors]} {
 		toggle_cursors
+	}
+	if {[osd exists movielength]} {
+		toggle_movie_length_display
 	}
 	# Leave reverse enabled, including bar
 

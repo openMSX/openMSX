@@ -8,7 +8,6 @@
 
 #include "EmuTime.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -18,7 +17,7 @@ class Counter;
 class ClockPin;
 class ClockPinListener;
 
-class I8254 : private noncopyable
+class I8254
 {
 public:
 	I8254(Scheduler& scheduler, ClockPinListener* output0,

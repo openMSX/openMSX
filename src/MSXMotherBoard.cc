@@ -335,9 +335,9 @@ HardwareConfig* MSXMotherBoard::findExtension(string_ref extensionName)
 void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
-	auto it = find_if_unguarded(extensions,
-		[&](Extensions::value_type& v) { return v.get() == &extension; });
 	getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
+	auto it = rfind_if_unguarded(extensions,
+		[&](Extensions::value_type& v) { return v.get() == &extension; });
 	extensions.erase(it);
 }
 
@@ -520,7 +520,7 @@ void MSXMotherBoard::addDevice(MSXDevice& device)
 
 void MSXMotherBoard::removeDevice(MSXDevice& device)
 {
-	availableDevices.erase(find_unguarded(availableDevices, &device));
+	move_pop_back(availableDevices, rfind_unguarded(availableDevices, &device));
 }
 
 void MSXMotherBoard::doReset()
@@ -677,17 +677,15 @@ string MSXMotherBoard::getUserName(const string& hwName)
 	string userName;
 	do {
 		userName = StringOp::Builder() << "untitled" << ++n;
-	} while (s.find(userName) != end(s));
-	s.insert(userName);
+	} while (find(begin(s), end(s), userName) != end(s));
+	s.push_back(userName);
 	return userName;
 }
 
-void MSXMotherBoard::freeUserName(const string& hwName,
-                                      const string& userName)
+void MSXMotherBoard::freeUserName(const string& hwName, const string& userName)
 {
 	auto& s = userNames[hwName];
-	assert(s.find(userName) != end(s));
-	s.erase(userName);
+	move_pop_back(s, rfind_unguarded(s, userName));
 }
 
 // AddRemoveUpdate
@@ -859,15 +857,15 @@ void RemoveExtCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/,
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	string_ref name = tokens[1].getString();
-	HardwareConfig* extension = motherBoard.findExtension(name);
+	string_ref extName = tokens[1].getString();
+	HardwareConfig* extension = motherBoard.findExtension(extName);
 	if (!extension) {
-		throw CommandException("No such extension: " + name);
+		throw CommandException("No such extension: " + extName);
 	}
 	try {
 		motherBoard.removeExtension(*extension);
 	} catch (MSXException& e) {
-		throw CommandException("Can't remove extension '" + name +
+		throw CommandException("Can't remove extension '" + extName +
 		                       "': " + e.getMessage());
 	}
 }
@@ -926,10 +924,10 @@ void DeviceInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 		}
 		break;
 	case 3: {
-		string_ref name = tokens[2].getString();
-		MSXDevice* device = motherBoard.findDevice(name);
+		string_ref deviceName = tokens[2].getString();
+		MSXDevice* device = motherBoard.findDevice(deviceName);
 		if (!device) {
-			throw CommandException("No such device: " + name);
+			throw CommandException("No such device: " + deviceName);
 		}
 		device->getDeviceInfo(result);
 		break;
@@ -979,8 +977,8 @@ void FastForwardHelper::executeUntil(EmuTime::param /*time*/)
 
 // class JoyPortDebuggable
 
-JoyPortDebuggable::JoyPortDebuggable(MSXMotherBoard& motherBoard)
-	: SimpleDebuggable(motherBoard, "joystickports", "MSX Joystick Ports", 2)
+JoyPortDebuggable::JoyPortDebuggable(MSXMotherBoard& motherBoard_)
+	: SimpleDebuggable(motherBoard_, "joystickports", "MSX Joystick Ports", 2)
 {
 }
 

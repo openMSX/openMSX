@@ -33,10 +33,10 @@
     </Kanji>
 
     <PPI id="ppi">
-      <key_ghosting>true</key_ghosting>
       <sound>
         <volume>16000</volume>
       </sound>
+      <key_ghosting>false</key_ghosting>
       <io base="0xA8" num="4"/>
       <keyboard_type>jp_jis</keyboard_type>
       <has_keypad>true</has_keypad>

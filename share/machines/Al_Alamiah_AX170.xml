@@ -13,6 +13,11 @@
   <!-- Thanks to Werner Kai for his information
        Based on serial 02- 58662962
        Mainboard says UF0896B1
+
+       Information from serial 02- 59983501:
+       see: http://bilgisayarlarim.com/alAlamiah/AX_170
+
+       MSX-ENGINE: Toshiba T7937A
   -->
 
   <CassettePort/>
@@ -20,7 +25,6 @@
   <devices>
 
     <PPI id="ppi">
-      <key_ghosting>true</key_ghosting>
       <sound>
         <volume>16000</volume>
       </sound>

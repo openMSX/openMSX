@@ -12,31 +12,31 @@ namespace openmsx {
 
 SDLGLVisibleSurface::SDLGLVisibleSurface(
 		unsigned width, unsigned height,
-		RenderSettings& renderSettings,
-		RTScheduler& rtScheduler,
-		EventDistributor& eventDistributor,
-		InputEventGenerator& inputEventGenerator,
-		CliComm& cliComm,
-		FrameBuffer frameBuffer)
-	: VisibleSurface(renderSettings, rtScheduler, eventDistributor, inputEventGenerator,
-			cliComm)
-	, SDLGLOutputSurface(frameBuffer)
+		RenderSettings& renderSettings_,
+		RTScheduler& rtScheduler_,
+		EventDistributor& eventDistributor_,
+		InputEventGenerator& inputEventGenerator_,
+		CliComm& cliComm_,
+		FrameBuffer frameBuffer_)
+	: VisibleSurface(renderSettings_, rtScheduler_, eventDistributor_, inputEventGenerator_,
+			cliComm_)
+	, SDLGLOutputSurface(frameBuffer_)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF |
-	            (renderSettings.getFullScreen() ? SDL_FULLSCREEN : 0);
+	            (renderSettings_.getFullScreen() ? SDL_FULLSCREEN : 0);
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
 
 	// The created surface may be larger than requested.
 	// If that happens, center the area that we actually use.
-	SDL_Surface* surface = getSDLSurface();
-	unsigned actualWidth  = surface->w;
-	unsigned actualHeight = surface->h;
-	surface->w = width;
-	surface->h = height;
+	SDL_Surface* surf = getSDLSurface();
+	unsigned actualWidth  = surf->w;
+	unsigned actualHeight = surf->h;
+	surf->w = width;
+	surf->h = height;
 	setPosition((actualWidth - width ) / 2, (actualHeight - height) / 2);
 
 	// From the glew documentation:

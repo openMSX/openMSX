@@ -29,9 +29,9 @@ class TouchpadState final : public StateChange
 {
 public:
 	TouchpadState() {} // for serialize
-	TouchpadState(EmuTime::param time,
+	TouchpadState(EmuTime::param time_,
 	              byte x_, byte y_, bool touch_, bool button_)
-		: StateChange(time)
+		: StateChange(time_)
 		, x(x_), y(y_), touch(touch_), button(button_) {}
 	byte getX()      const { return x; }
 	byte getY()      const { return y; }
@@ -136,13 +136,16 @@ void Touchpad::unplugHelper(EmuTime::param /*time*/)
 }
 
 // JoystickDevice
+static const byte SENSE  = JoystickDevice::RD_PIN1;
+static const byte EOC    = JoystickDevice::RD_PIN2;
+static const byte SO     = JoystickDevice::RD_PIN3;
+static const byte BUTTON = JoystickDevice::RD_PIN4;
+static const byte SCK    = JoystickDevice::WR_PIN6;
+static const byte SI     = JoystickDevice::WR_PIN7;
+static const byte CS     = JoystickDevice::WR_PIN8;
+
 byte Touchpad::read(EmuTime::param time)
 {
-	static const byte SENSE  = RD_PIN1;
-	static const byte EOC    = RD_PIN2;
-	static const byte SO     = RD_PIN3;
-	static const byte BUTTON = RD_PIN4;
-
 	byte result = SENSE | BUTTON; // 1-bit means not pressed
 	if (touch)  result &= ~SENSE;
 	if (button) result &= ~BUTTON;
@@ -156,16 +159,13 @@ byte Touchpad::read(EmuTime::param time)
 	}
 
 	if (shift & 0x80) result |= SO;
+	if (last & CS)    result |= SO;
 
-	return result;
+	return result | 0x30;
 }
 
 void Touchpad::write(byte value, EmuTime::param time)
 {
-	static const byte SCK = WR_PIN6;
-	static const byte SI  = WR_PIN7;
-	static const byte CS  = WR_PIN8;
-
 	byte diff = last ^ value;
 	last = value;
 	if (diff & CS) {
@@ -256,10 +256,10 @@ void Touchpad::signalEvent(const shared_ptr<const Event>& event,
 }
 
 void Touchpad::createTouchpadStateChange(
-	EmuTime::param time, byte x, byte y, bool touch, bool button)
+	EmuTime::param time, byte x_, byte y_, bool touch_, bool button_)
 {
 	stateChangeDistributor.distributeNew(std::make_shared<TouchpadState>(
-		time, x, y, touch, button));
+		time, x_, y_, touch_, button_));
 }
 
 // StateChangeListener

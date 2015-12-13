@@ -131,7 +131,7 @@ void Mixer::registerMixer(MSXMixer& mixer)
 
 void Mixer::unregisterMixer(MSXMixer& mixer)
 {
-	msxMixers.erase(find_unguarded(msxMixers, &mixer));
+	move_pop_back(msxMixers, rfind_unguarded(msxMixers, &mixer));
 	muteHelper();
 }
 
@@ -153,14 +153,14 @@ void Mixer::unmute()
 
 void Mixer::muteHelper()
 {
-	bool mute = muteCount || msxMixers.empty();
-	unsigned samples = mute ? 0 : driver->getSamples();
+	bool isMuted = muteCount || msxMixers.empty();
+	unsigned samples = isMuted ? 0 : driver->getSamples();
 	unsigned frequency = driver->getFrequency();
 	for (auto& m : msxMixers) {
 		m->setMixerParams(samples, frequency);
 	}
 
-	if (mute) {
+	if (isMuted) {
 		driver->mute();
 	} else {
 		driver->unmute();

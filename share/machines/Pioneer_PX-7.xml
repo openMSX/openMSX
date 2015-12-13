@@ -10,12 +10,19 @@
     <type>MSX</type>
   </info>
 
+  <!--
+  From: http://usbsecretbase.michikusa.jp/px-7_v60/px-7_pcb.html
+  CPU: NEC D780C -1
+  PSG: YM2149F
+  VDP: TMS9928ANL (TMS9918 with RGB output)
+  PPI: NEC D8255AC-2
+  -->
+
   <CassettePort/>
 
   <devices>
 
     <PPI id="ppi">
-      <key_ghosting>true</key_ghosting>
       <sound>
         <volume>16000</volume>
       </sound>

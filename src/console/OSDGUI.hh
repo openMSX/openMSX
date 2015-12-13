@@ -3,7 +3,6 @@
 
 #include "OSDTopWidget.hh"
 #include "Command.hh"
-#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -11,7 +10,7 @@ namespace openmsx {
 class Display;
 class CommandController;
 
-class OSDGUI : private noncopyable
+class OSDGUI
 {
 public:
 	OSDGUI(CommandController& commandController, Display& display);
@@ -41,7 +40,7 @@ private:
 		void exists   (array_ref<TclObject> tokens, TclObject& result);
 		void configure(array_ref<TclObject> tokens, TclObject& result);
 		std::unique_ptr<OSDWidget> create(
-			string_ref type, const std::string& name) const;
+			string_ref type, const TclObject& name) const;
 		void configure(OSDWidget& widget, array_ref<TclObject> tokens,
 			       unsigned skip);
 

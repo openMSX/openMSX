@@ -5,6 +5,7 @@
 #include "YM2151.hh"
 #include "YM2148.hh"
 #include "Rom.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -33,7 +34,9 @@ private:
 	YM2148 ym2148;
 	int registerLatch;
 	byte irqVector;
+	byte irqVector2148;
 };
+SERIALIZE_CLASS_VERSION(MSXYamahaSFG, 2);
 
 } // namespace openmsx
 

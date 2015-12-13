@@ -11,14 +11,14 @@ namespace openmsx {
 // class WatchIO
 
 WatchIO::WatchIO(MSXMotherBoard& motherboard_,
-                 WatchPoint::Type type,
-                 unsigned beginAddr, unsigned endAddr,
-                 TclObject command, TclObject condition,
+                 WatchPoint::Type type_,
+                 unsigned beginAddr_, unsigned endAddr_,
+                 TclObject command_, TclObject condition_,
                  unsigned newId /*= -1*/)
-	: WatchPoint(command, condition, type, beginAddr, endAddr, newId)
+	: WatchPoint(command_, condition_, type_, beginAddr_, endAddr_, newId)
 	, motherboard(motherboard_)
 {
-	for (unsigned i = byte(beginAddr); i <= byte(endAddr); ++i) {
+	for (unsigned i = byte(beginAddr_); i <= byte(endAddr_); ++i) {
 		ios.push_back(make_unique<MSXWatchIODevice>(
 			*motherboard.getMachineConfig(), *this));
 	}
@@ -41,7 +41,7 @@ void WatchIO::doReadCallback(unsigned port)
 
 	auto& cliComm = motherboard.getReactor().getGlobalCliComm();
 	auto& interp  = motherboard.getReactor().getInterpreter();
-	interp.setVariable("wp_last_address", TclObject(int(port)));
+	interp.setVariable(TclObject("wp_last_address"), TclObject(int(port)));
 
 	// keep this object alive by holding a shared_ptr to it, for the case
 	// this watchpoint deletes itself in checkAndExecute()
@@ -58,8 +58,8 @@ void WatchIO::doWriteCallback(unsigned port, unsigned value)
 
 	auto& cliComm = motherboard.getReactor().getGlobalCliComm();
 	auto& interp  = motherboard.getReactor().getInterpreter();
-	interp.setVariable("wp_last_address", TclObject(int(port)));
-	interp.setVariable("wp_last_value",   TclObject(int(value)));
+	interp.setVariable(TclObject("wp_last_address"), TclObject(int(port)));
+	interp.setVariable(TclObject("wp_last_value"),   TclObject(int(value)));
 
 	// see comment in doReadCallback() above
 	auto keepAlive = shared_from_this();

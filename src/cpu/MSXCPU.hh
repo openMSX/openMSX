@@ -7,7 +7,6 @@
 #include "BooleanSetting.hh"
 #include "EmuTime.hh"
 #include "TclCallback.hh"
-#include "noncopyable.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "array_ref.hh"
@@ -25,7 +24,7 @@ template <typename T> class CPUCore;
 class TclObject;
 class Interpreter;
 
-class MSXCPU final : private Observer<Setting>, private noncopyable
+class MSXCPU final : private Observer<Setting>
 {
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };

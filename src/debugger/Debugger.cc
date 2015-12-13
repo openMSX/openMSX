@@ -1,6 +1,5 @@
 #include "Debugger.hh"
 #include "Debuggable.hh"
-#include "Probe.hh"
 #include "ProbeBreakPoint.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -44,18 +43,17 @@ Debugger::~Debugger()
 	assert(debuggables.empty());
 }
 
-void Debugger::registerDebuggable(string_ref name, Debuggable& debuggable)
+void Debugger::registerDebuggable(string name, Debuggable& debuggable)
 {
-	assert(debuggables.find(name) == end(debuggables));
-	debuggables[name] = &debuggable;
+	assert(!debuggables.contains(name));
+	debuggables.emplace_noDuplicateCheck(std::move(name), &debuggable);
 }
 
 void Debugger::unregisterDebuggable(string_ref name, Debuggable& debuggable)
 {
-	(void)debuggable;
-	auto it = debuggables.find(name);
-	assert(it != end(debuggables) && (it->second == &debuggable));
-	debuggables.erase(it);
+	assert(debuggables.contains(name));
+	assert(debuggables[name.str()] == &debuggable); (void)debuggable;
+	debuggables.erase(name);
 }
 
 Debuggable* Debugger::findDebuggable(string_ref name)
@@ -73,29 +71,27 @@ Debuggable& Debugger::getDebuggable(string_ref name)
 	return *result;
 }
 
-void Debugger::registerProbe(string_ref name, ProbeBase& probe)
+void Debugger::registerProbe(ProbeBase& probe)
 {
-	assert(probes.find(name) == end(probes));
-	probes[name] = &probe;
+	assert(!probes.contains(probe.getName()));
+	probes.insert_noDuplicateCheck(&probe);
 }
 
-void Debugger::unregisterProbe(string_ref name, ProbeBase& probe)
+void Debugger::unregisterProbe(ProbeBase& probe)
 {
-	(void)probe;
-	auto it = probes.find(name);
-	assert(it != end(probes) && (it->second == &probe));
-	probes.erase(it);
+	assert(probes.contains(probe.getName()));
+	probes.erase(probe.getName());
 }
 
 ProbeBase* Debugger::findProbe(string_ref name)
 {
 	auto it = probes.find(name);
-	return (it != end(probes)) ? it->second : nullptr;
+	return (it != end(probes)) ? *it : nullptr;
 }
 
 ProbeBase& Debugger::getProbe(string_ref name)
 {
-	ProbeBase* result = findProbe(name);
+	auto* result = findProbe(name);
 	if (!result) {
 		throw CommandException("No such probe: " + name);
 	}
@@ -125,7 +121,7 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 			if (it == end(probeBreakPoints)) {
 				throw CommandException("No such breakpoint: " + name);
 			}
-			probeBreakPoints.erase(it);
+			move_pop_back(probeBreakPoints, it);
 		} catch (std::invalid_argument&) {
 			// parse error in fast_stou()
 			throw CommandException("No such breakpoint: " + name);
@@ -139,13 +135,13 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 			throw CommandException(
 				"No (unconditional) breakpoint for probe: " + name);
 		}
-		probeBreakPoints.erase(it);
+		move_pop_back(probeBreakPoints, it);
 	}
 }
 
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
-	probeBreakPoints.erase(find_if_unguarded(probeBreakPoints,
+	move_pop_back(probeBreakPoints, rfind_if_unguarded(probeBreakPoints,
 		[&](ProbeBreakPoints::value_type& v) { return v.get() == &bp; }));
 }
 
@@ -206,11 +202,11 @@ static word getAddress(Interpreter& interp, array_ref<TclObject> tokens)
 	return addr;
 }
 
-Debugger::Cmd::Cmd(CommandController& commandController,
-                   StateChangeDistributor& stateChangeDistributor,
-                   Scheduler& scheduler)
-	: RecordedCommand(commandController, stateChangeDistributor,
-	                  scheduler, "debug")
+Debugger::Cmd::Cmd(CommandController& commandController_,
+                   StateChangeDistributor& stateChangeDistributor_,
+                   Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+	                  scheduler_, "debug")
 {
 }
 
@@ -324,13 +320,13 @@ void Debugger::Cmd::readBlock(array_ref<TclObject> tokens, TclObject& result)
 	}
 	auto& interp = getInterpreter();
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
-	unsigned size = device.getSize();
+	unsigned devSize = device.getSize();
 	unsigned addr = tokens[3].getInt(interp);
-	if (addr >= size) {
+	if (addr >= devSize) {
 		throw CommandException("Invalid address");
 	}
 	unsigned num = tokens[4].getInt(interp);
-	if (num > (size - addr)) {
+	if (num > (devSize - addr)) {
 		throw CommandException("Invalid size");
 	}
 
@@ -366,14 +362,14 @@ void Debugger::Cmd::writeBlock(array_ref<TclObject> tokens, TclObject& /*result*
 		throw SyntaxError();
 	}
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
-	unsigned size = device.getSize();
+	unsigned devSize = device.getSize();
 	unsigned addr = tokens[3].getInt(getInterpreter());
-	if (addr >= size) {
+	if (addr >= devSize) {
 		throw CommandException("Invalid address");
 	}
 	unsigned num;
 	const byte* buf = tokens[4].getBinary(num);
-	if ((num + addr) > size) {
+	if ((num + addr) > devSize) {
 		throw CommandException("Invalid size");
 	}
 
@@ -688,30 +684,31 @@ void Debugger::Cmd::probe(array_ref<TclObject> tokens, TclObject& result)
 }
 void Debugger::Cmd::probeList(array_ref<TclObject> /*tokens*/, TclObject& result)
 {
-	result.addListElements(keys(debugger().probes));
+	// TODO use transform_iterator or transform_view
+	for (auto* p : debugger().probes) {
+		result.addListElement(p->getName());
+	}
 }
 void Debugger::Cmd::probeDesc(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	ProbeBase& probe = debugger().getProbe(tokens[3].getString());
-	result.setString(probe.getDescription());
+	result.setString(debugger().getProbe(tokens[3].getString()).getDescription());
 }
 void Debugger::Cmd::probeRead(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	ProbeBase& probe = debugger().getProbe(tokens[3].getString());
-	result.setString(probe.getValue());
+	result.setString(debugger().getProbe(tokens[3].getString()).getValue());
 }
 void Debugger::Cmd::probeSetBreakPoint(
 	array_ref<TclObject> tokens, TclObject& result)
 {
 	TclObject command("debug break");
 	TclObject condition;
-	ProbeBase* probe;
+	ProbeBase* p;
 
 	switch (tokens.size()) {
 	case 6: // command
@@ -721,7 +718,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 		condition = tokens[4];
 		// fall-through
 	case 4: { // probe
-		probe = &debugger().getProbe(tokens[3].getString());
+		p = &debugger().getProbe(tokens[3].getString());
 		break;
 	}
 	default:
@@ -732,7 +729,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 		}
 	}
 
-	unsigned id = debugger().insertProbeBreakPoint(command, condition, *probe);
+	unsigned id = debugger().insertProbeBreakPoint(command, condition, *p);
 	result.setString(StringOp::Builder() << "pp#" << id);
 }
 void Debugger::Cmd::probeRemoveBreakPoint(
@@ -1084,7 +1081,11 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "probe") &&
 		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
 		     (tokens[2] == "set_bp"))) {
-			completeString(tokens, keys(debugger().probes));
+			std::vector<string_ref> probeNames;
+			for (auto* p : debugger().probes) {
+				probeNames.push_back(p->getName());
+			}
+			completeString(tokens, probeNames);
 		}
 		break;
 	}

@@ -43,11 +43,11 @@ public:
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	T getEnum() const;
-	void setEnum(T value);
+	void setEnum(T e);
 	string_ref getString() const;
 
 private:
-	string_ref toString(T value) const;
+	string_ref toString(T e) const;
 };
 
 
@@ -56,13 +56,13 @@ private:
 
 template <typename T>
 EnumSetting<T>::EnumSetting(
-		CommandController& commandController, string_ref name,
-		string_ref description, T initialValue,
-		Map&& map, SaveSetting save)
+		CommandController& commandController_, string_ref name,
+		string_ref description_, T initialValue,
+		Map&& map, SaveSetting save_)
 	: EnumSettingBase(BaseMap(std::make_move_iterator(begin(map)),
 	                          std::make_move_iterator(end(map))))
-	, Setting(commandController, name, description,
-	          TclObject(toString(initialValue)), save)
+	, Setting(commandController_, name, description_,
+	          TclObject(toString(initialValue)), save_)
 {
 	setChecker([this](TclObject& newValue) {
 		fromStringBase(newValue.getString()); // may throw
@@ -100,9 +100,9 @@ template<> inline bool EnumSetting<bool>::getEnum() const
 }
 
 template<typename T>
-void EnumSetting<T>::setEnum(T value)
+void EnumSetting<T>::setEnum(T e)
 {
-	setValue(TclObject(toString(value)));
+	setValue(TclObject(toString(e)));
 }
 
 template<typename T>
@@ -112,9 +112,9 @@ string_ref EnumSetting<T>::getString() const
 }
 
 template<typename T>
-string_ref EnumSetting<T>::toString(T value) const
+string_ref EnumSetting<T>::toString(T e) const
 {
-	return toStringBase(static_cast<int>(value));
+	return toStringBase(static_cast<int>(e));
 }
 
 } // namespace openmsx

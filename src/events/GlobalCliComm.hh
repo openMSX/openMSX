@@ -2,8 +2,8 @@
 #define GLOBALCLICOMM_HH
 
 #include "CliComm.hh"
-#include "StringMap.hh"
-#include "noncopyable.hh"
+#include "hash_map.hh"
+#include "xxhash.hh"
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -12,9 +12,12 @@ namespace openmsx {
 
 class CliListener;
 
-class GlobalCliComm final : public CliComm, private noncopyable
+class GlobalCliComm final : public CliComm
 {
 public:
+	GlobalCliComm(const GlobalCliComm&) = delete;
+	GlobalCliComm& operator=(const GlobalCliComm&) = delete;
+
 	GlobalCliComm();
 	~GlobalCliComm();
 
@@ -34,9 +37,9 @@ private:
 	void updateHelper(UpdateType type, string_ref machine,
 	                  string_ref name, string_ref value);
 
-	StringMap<std::string> prevValues[NUM_UPDATES];
+	hash_map<std::string, std::string, XXHasher> prevValues[NUM_UPDATES];
 
-	std::vector<std::unique_ptr<CliListener>> listeners;
+	std::vector<std::unique_ptr<CliListener>> listeners; // unordered
 	std::mutex mutex; // lock access to listeners member
 	bool delivering;
 	bool allowExternalCommands;

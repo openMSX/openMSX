@@ -9,11 +9,11 @@
 
 namespace openmsx {
 
-SamplePlayer::SamplePlayer(const std::string& name, const std::string& desc,
+SamplePlayer::SamplePlayer(const std::string& name_, const std::string& desc,
                            const DeviceConfig& config,
                            const std::string& samplesBaseName, unsigned numSamples,
                            const std::string& alternativeName)
-	: ResampledSoundDevice(config.getMotherBoard(), name, desc, 1)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1)
 {
 	setInputRate(44100); // Initialize with dummy value
 
@@ -36,7 +36,7 @@ SamplePlayer::SamplePlayer(const std::string& name, const std::string& desc,
 					alreadyWarned = true;
 					// print message from the 1st error
 					config.getCliComm().printWarning(
-						"Couldn't read " + name + " sample data: " +
+						"Couldn't read " + name_ + " sample data: " +
 						e1.getMessage() +
 						". Continuing without sample data.");
 				}
@@ -104,11 +104,11 @@ void SamplePlayer::repeat(unsigned sampleNum)
 	}
 }
 
-inline int SamplePlayer::getSample(unsigned index)
+inline int SamplePlayer::getSample(unsigned idx)
 {
 	return bits8
-	     ? (static_cast<const unsigned char*>(sampBuf)[index] - 0x80) * 256
-	     :  static_cast<const short*        >(sampBuf)[index];
+	     ? (static_cast<const unsigned char*>(sampBuf)[idx] - 0x80) * 256
+	     :  static_cast<const short*        >(sampBuf)[idx];
 }
 
 void SamplePlayer::generateChannels(int** bufs, unsigned num)

@@ -85,7 +85,8 @@ static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
 	if (unlikely(size >= 16)) {
 		const uint8_t* const limit = bEnd - 16;
 
-		uint32_t v1 = SEED + PRIME32_1 + PRIME32_2;
+		// casts to avoid: warning C4307: '+': integral constant overflow
+		uint32_t v1 = uint32_t(SEED + PRIME32_1 + uint64_t(PRIME32_2));
 		uint32_t v2 = SEED + PRIME32_2;
 		uint32_t v3 = SEED + 0;
 		uint32_t v4 = SEED - PRIME32_1;
@@ -109,7 +110,7 @@ static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
 
 	h32 += uint32_t(size);
 
-	while (p <= bEnd - 4) {
+	while ((p + 4) <= bEnd) {
 		uint32_t r = (read32<ALIGNED>(p) & MASK32) * PRIME32_3;
 		h32  = rotl<17>(h32 + r) * PRIME32_4;
 		p += 4;
@@ -147,5 +148,17 @@ inline uint32_t xxhash_case(string_ref key)
 {
 	return xxhash_impl<static_cast<uint8_t>(~('a' - 'A'))>(key);
 }
+
+struct XXHasher {
+	uint32_t operator()(string_ref key) const {
+		return xxhash(key);
+	}
+};
+
+struct XXHasher_IgnoreCase {
+	uint32_t operator()(string_ref key) const {
+		return xxhash_case(key);
+	}
+};
 
 #endif

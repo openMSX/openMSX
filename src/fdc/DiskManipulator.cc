@@ -33,9 +33,9 @@ namespace openmsx {
 const unsigned DiskManipulator::MAX_PARTITIONS;
 #endif
 
-DiskManipulator::DiskManipulator(CommandController& commandController,
+DiskManipulator::DiskManipulator(CommandController& commandController_,
                                  Reactor& reactor_)
-	: Command(commandController, "diskmanipulator")
+	: Command(commandController_, "diskmanipulator")
 	, reactor(reactor_)
 {
 }
@@ -69,7 +69,7 @@ void DiskManipulator::unregisterDrive(DiskContainer& drive)
 {
 	auto it = findDriveSettings(drive);
 	assert(it != end(drives));
-	drives.erase(it);
+	move_pop_back(drives, it);
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
@@ -80,10 +80,10 @@ DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
-	string_ref name)
+	string_ref driveName)
 {
 	return find_if(begin(drives), end(drives),
-	               [&](DriveSettings& ds) { return ds.driveName == name; });
+	               [&](DriveSettings& ds) { return ds.driveName == driveName; });
 }
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
@@ -155,13 +155,13 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 
 	if (subcmd == "export") {
-		string_ref dir = tokens[3].getString();
-		if (!FileOperations::isDirectory(dir)) {
-			throw CommandException(dir + " is not a directory");
+		string_ref directory = tokens[3].getString();
+		if (!FileOperations::isDirectory(directory)) {
+			throw CommandException(directory + " is not a directory");
 		}
 		auto& settings = getDriveSettings(tokens[2].getString());
 		array_ref<TclObject> lists(std::begin(tokens) + 4, std::end(tokens));
-		exprt(settings, dir, lists);
+		exprt(settings, directory, lists);
 
 	} else if (subcmd == "import") {
 		auto& settings = getDriveSettings(tokens[2].getString());
@@ -195,7 +195,7 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 			if (drive == "-dos1") {
 				dos1 = true;
 				drive = tokens[3].getString();
-			} else if (tokens[3].getString() == "-dos1") {
+			} else if (tokens[3] == "-dos1") {
 				dos1 = true;
 			}
 		}
@@ -360,7 +360,7 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 	bool dos1 = false;
 
 	for (unsigned i = 3; i < tokens.size(); ++i) {
-		if (tokens[i].getString() == "-dos1") {
+		if (tokens[i] == "-dos1") {
 			dos1 = true;
 			continue;
 		}

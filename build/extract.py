@@ -6,6 +6,14 @@ try:
 except ImportError:
 	# Platforms that do not define O_BINARY do not need it either.
 	O_BINARY = 0
+try:
+	from os import symlink
+except ImportError:
+	def symlink(source, link_name):
+		raise RuntimeError(
+			'OS does not support symlink creation: %s -> %s'
+			% (link_name, source)
+			)
 from os.path import abspath, isdir, join as joinpath, sep, split as splitpath
 from stat import S_IRWXU, S_IRWXG, S_IRWXO, S_IXUSR, S_IXGRP, S_IXOTH
 import sys
@@ -76,10 +84,12 @@ def extract(archivePath, destDir, rename = None):
 			elif member.isdir():
 				if not isdir(absMemberPath):
 					mkdir(absMemberPath)
+			elif member.issym():
+				symlink(member.linkname, absMemberPath)
 			else:
 				raise ValueError(
 					'Cannot extract tar entry "%s": '
-					'not a regular file or a directory'
+					'not a regular file, symlink or directory'
 					% member.name
 					)
 			# Set file/directory modification time to match the archive.

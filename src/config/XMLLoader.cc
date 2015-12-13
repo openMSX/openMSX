@@ -34,7 +34,7 @@ XMLElement load(string_ref filename, string_ref systemID)
 	try {
 		File file(filename);
 		auto size = file.getSize();
-		buf.resize(size + 1);
+		buf.resize(size + rapidsax::EXTRA_BUFFER_SPACE);
 		file.read(buf.data(), size);
 		buf[size] = 0;
 	} catch (FileException& e) {
@@ -81,9 +81,9 @@ void XMLElementParser::attribute(string_ref name, string_ref value)
 	current.back()->addAttribute(name, value);
 }
 
-void XMLElementParser::text(string_ref text)
+void XMLElementParser::text(string_ref txt)
 {
-	current.back()->setData(text);
+	current.back()->setData(txt);
 }
 
 void XMLElementParser::stop()
@@ -91,13 +91,13 @@ void XMLElementParser::stop()
 	current.pop_back();
 }
 
-void XMLElementParser::doctype(string_ref text)
+void XMLElementParser::doctype(string_ref txt)
 {
-	auto pos1 = text.find(" SYSTEM ");
+	auto pos1 = txt.find(" SYSTEM ");
 	if (pos1 == string_ref::npos) return;
-	char q = text[pos1 + 8];
+	char q = txt[pos1 + 8];
 	if ((q != '"') && (q != '\'')) return;
-	auto t = text.substr(pos1 + 9);
+	auto t = txt.substr(pos1 + 9);
 	auto pos2 = t.find(q);
 	if (pos2 == string_ref::npos) return;
 

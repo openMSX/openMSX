@@ -3,7 +3,6 @@
 
 #include "Probe.hh"
 #include "MSXMotherBoard.hh"
-#include "noncopyable.hh"
 #include "serialize.hh"
 #include <string>
 
@@ -44,9 +43,12 @@ private:
 
 
 // generic implementation
-template <typename SOURCE> class IntHelper : public SOURCE, private noncopyable
+template <typename SOURCE> class IntHelper : public SOURCE
 {
 public:
+	IntHelper(const IntHelper&) = delete;
+	IntHelper& operator=(const IntHelper&) = delete;
+
 	/** Create a new IntHelper.
 	  * Initially there is no interrupt request on the bus.
 	  */
@@ -89,6 +91,16 @@ public:
 		}
 	}
 
+	/** Convenience function: calls set() or reset().
+	  */
+	inline void set(bool s) {
+		if (s) {
+			set();
+		} else {
+			reset();
+		}
+	}
+
 	/** Get the interrupt state.
 	  * @return true iff interrupt request is active.
 	  */
@@ -102,11 +114,7 @@ public:
 		bool pending = request;
 		ar.serialize("pending", pending);
 		if (ar.isLoader()) {
-			if (pending) {
-				set();
-			} else {
-				reset();
-			}
+			set(pending);
 		}
 	}
 

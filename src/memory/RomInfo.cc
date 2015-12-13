@@ -1,7 +1,9 @@
 #include "RomInfo.hh"
-#include "StringMap.hh"
+#include "StringOp.hh"
+#include "hash_map.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include "xxhash.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -28,7 +30,7 @@ static bool isInit = false;
 
 // This maps a name to a RomType. There can be multiple names (aliases) for the
 // same type.
-using RomTypeMap = StringMap<RomType, false>;
+using RomTypeMap = hash_map<string_ref, RomType, XXHasher_IgnoreCase, StringOp::casecmp>;
 static RomTypeMap romTypeMap(256); // initial hashtable size
                                    // (big enough so that no rehash is needed)
 
@@ -45,12 +47,12 @@ static RomTypeInfoMap romTypeInfoMap;
 static void init(RomType type, string_ref name,
                  unsigned blockSize, string_ref description)
 {
-	romTypeMap[name] = type;
+	romTypeMap.emplace_noCapacityCheck_noDuplicateCheck(name, type);
 	romTypeInfoMap.emplace_back(type, description, blockSize);
 }
 static void initAlias(RomType type, string_ref name)
 {
-	romTypeMap[name] = makeAlias(type);
+	romTypeMap.emplace_noCapacityCheck_noDuplicateCheck(name, makeAlias(type));
 }
 static void init()
 {
@@ -187,7 +189,7 @@ string_ref RomInfo::romTypeToName(RomType type)
 	assert(!isAlias(type));
 	for (auto& p : getRomTypeMap()) {
 		if (p.second == type) {
-			return p.first();
+			return p.first;
 		}
 	}
 	UNREACHABLE; return "";
@@ -198,7 +200,7 @@ vector<string_ref> RomInfo::getAllRomTypes()
 	vector<string_ref> result;
 	for (auto& p : getRomTypeMap()) {
 		if (!isAlias(p.second)) {
-			result.push_back(p.first());
+			result.push_back(p.first);
 		}
 	}
 	return result;

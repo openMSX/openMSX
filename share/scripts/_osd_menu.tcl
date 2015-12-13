@@ -1099,7 +1099,8 @@ proc menu_remove_extension_exec {item} {
 }
 
 proc get_pluggable_for_connector {connector} {
-	return [lindex [split [plug $connector] ": "] 2]
+	set t [plug $connector]
+	return [string range $t [string first ": " $t]+2 end]
 }
 
 proc menu_create_connectors_list {} {
@@ -1189,9 +1190,9 @@ proc create_menu_pluggable_list {connector} {
 proc menu_plug_exec {connector pluggable} {
 	set command ""
 	if {$pluggable eq "--unplug--"} {
-		set command "unplug $connector"
+		set command "unplug {$connector}"
 	} else {
-		set command "plug $connector $pluggable"
+		set command "plug {$connector} {$pluggable}"
 	}
 	#note: NO braces around $command
 	if {[catch $command errorText]} {

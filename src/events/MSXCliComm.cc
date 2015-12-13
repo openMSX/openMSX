@@ -25,7 +25,7 @@ void MSXCliComm::update(UpdateType type, string_ref name, string_ref value)
 		}
 		it->second = value.str();
 	} else {
-		prevValues[type][name] = value.str();
+		prevValues[type].emplace_noDuplicateCheck(name.str(), value.str());
 	}
 	cliComm.updateHelper(type, motherBoard.getMachineID(), name, value);
 }

@@ -9,14 +9,13 @@
 
 #include "MemBuffer.hh"
 #include "DiskImageUtils.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 
 namespace openmsx {
 
 class SectorAccessibleDisk;
 
-class MSXtar : private noncopyable
+class MSXtar
 {
 public:
 	explicit MSXtar(SectorAccessibleDisk& disk);

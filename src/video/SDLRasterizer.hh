@@ -7,7 +7,6 @@
 #include "SpriteConverter.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -26,10 +25,13 @@ class PostProcessor;
   * rectangular pixel buffer.
   */
 template <class Pixel>
-class SDLRasterizer final : public Rasterizer, private noncopyable
+class SDLRasterizer final : public Rasterizer
                           , private Observer<Setting>
 {
 public:
+	SDLRasterizer(const SDLRasterizer&) = delete;
+	SDLRasterizer& operator=(const SDLRasterizer&) = delete;
+
 	SDLRasterizer(
 		VDP& vdp, Display& display, VisibleSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);

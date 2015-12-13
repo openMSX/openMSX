@@ -78,7 +78,7 @@ bool SspiNegotiateServer::Authenticate()
 
 		// If we have something for the client, send it
 		if (secServerBuffer.cbBuffer) {
-			bool ret = SendChunk(stream, secServerBuffer.pvBuffer, secServerBuffer.cbBuffer);
+			ret = SendChunk(stream, secServerBuffer.pvBuffer, secServerBuffer.cbBuffer);
 			ClearContextBuffers(&secServerBufferDesc);
 			if (!ret) return false;
 		}

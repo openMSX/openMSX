@@ -8,7 +8,6 @@
 #include "Ram.hh"
 #include "Math.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include "likely.hh"
 #include <cassert>
 
@@ -133,13 +132,12 @@ public:
   *       Maybe have two classes: "Table" for tables, using a mask,
   *       and "Window" for the command engine, using an interval.
   */
-class VRAMWindow : private noncopyable
+class VRAMWindow
 {
-private:
-	inline bool isEnabled() const {
-		return baseAddr != -1;
-	}
 public:
+	VRAMWindow(const VRAMWindow&) = delete;
+	VRAMWindow& operator=(const VRAMWindow&) = delete;
+
 	/** Gets the mask for this window.
 	  * Should only be called if the window is enabled.
 	  * TODO: Only used by dirty checking. Maybe a new dirty checking
@@ -278,8 +276,8 @@ public:
 	  * There can be only one observer per window at any given time.
 	  * @param observer The observer to register.
 	  */
-	inline void setObserver(VRAMObserver* observer) {
-		this->observer = observer;
+	inline void setObserver(VRAMObserver* newObserver) {
+		observer = newObserver;
 	}
 
 	/** Unregister the observer of this VRAM window.
@@ -325,6 +323,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	inline bool isEnabled() const {
+		return baseAddr != -1;
+	}
+
 	/** Only VDPVRAM may construct VRAMWindow objects.
 	  */
 	friend class VDPVRAM;
@@ -340,7 +342,7 @@ private:
 
 	/** Observer associated with this VRAM window.
 	  * It will be called when changes occur within the window.
-	  * If there is no observer, this variable is nullptr.
+	  * If there is no observer, this variable is &dummyObserver.
 	  */
 	VRAMObserver* observer;
 
@@ -379,9 +381,12 @@ private:
   * VDPVRAM does not apply planar remapping to addresses, this is the
   * responsibility of the caller.
   */
-class VDPVRAM : private noncopyable
+class VDPVRAM
 {
 public:
+	VDPVRAM(const VDPVRAM&) = delete;
+	VDPVRAM& operator=(const VDPVRAM&) = delete;
+
 	VDPVRAM(VDP& vdp, unsigned size, EmuTime::param time);
 	~VDPVRAM();
 
@@ -517,14 +522,14 @@ public:
 
 	/** Necessary because of circular dependencies.
 	  */
-	inline void setSpriteChecker(SpriteChecker* spriteChecker) {
-		this->spriteChecker = spriteChecker;
+	inline void setSpriteChecker(SpriteChecker* newSpriteChecker) {
+		spriteChecker = newSpriteChecker;
 	}
 
 	/** Necessary because of circular dependencies.
 	  */
-	inline void setCmdEngine(VDPCmdEngine* cmdEngine) {
-		this->cmdEngine = cmdEngine;
+	inline void setCmdEngine(VDPCmdEngine* newCmdEngine) {
+		cmdEngine = newCmdEngine;
 	}
 
 	/** TMS99x8 VRAM can be mapped in two ways.

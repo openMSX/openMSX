@@ -47,13 +47,13 @@ private:
 DiskChanger::DiskChanger(MSXMotherBoard& board,
                          const string& driveName_,
                          bool createCmd,
-                         bool isDoubleSidedDrive)
+                         bool doubleSidedDrive_)
 	: reactor(board.getReactor())
 	, controller(board.getCommandController())
 	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
 	, driveName(driveName_)
-	, doubleSidedDrive(isDoubleSidedDrive)
+	, doubleSidedDrive(doubleSidedDrive_)
 {
 	init(board.getMachineID() + "::", createCmd);
 }
@@ -139,8 +139,8 @@ void DiskChanger::signalStateChange(const std::shared_ptr<StateChange>& event)
 	if (!commandEvent) return;
 
 	auto& tokens = commandEvent->getTokens();
-	if (tokens[0].getString() == getDriveName()) {
-		if (tokens[1].getString() == "eject") {
+	if (tokens[0] == getDriveName()) {
+		if (tokens[1] == "eject") {
 			ejectDisk();
 		} else {
 			insertDisk(tokens);
@@ -194,9 +194,9 @@ void DiskChanger::changeDisk(std::unique_ptr<Disk> newDisk)
 
 // class DiskCommand
 
-DiskCommand::DiskCommand(CommandController& commandController,
+DiskCommand::DiskCommand(CommandController& commandController_,
                          DiskChanger& diskChanger_)
-	: Command(commandController, diskChanger_.driveName)
+	: Command(commandController_, diskChanger_.driveName)
 	, diskChanger(diskChanger_)
 {
 }
@@ -222,27 +222,27 @@ void DiskCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 			result.addListElement(options);
 		}
 
-	} else if (tokens[1].getString() == "ramdsk") {
+	} else if (tokens[1] == "ramdsk") {
 		string args[] = {
 			diskChanger.getDriveName(), tokens[1].getString().str()
 		};
 		diskChanger.sendChangeDiskEvent(args);
-	} else if (tokens[1].getString() == "-ramdsk") {
+	} else if (tokens[1] == "-ramdsk") {
 		string args[] = {diskChanger.getDriveName(), "ramdsk"};
 		diskChanger.sendChangeDiskEvent(args);
 		result.setString(
 			"Warning: use of '-ramdsk' is deprecated, instead use the 'ramdsk' subcommand");
-	} else if (tokens[1].getString() == "-eject") {
+	} else if (tokens[1] == "-eject") {
 		string args[] = {diskChanger.getDriveName(), "eject"};
 		diskChanger.sendChangeDiskEvent(args);
 		result.setString(
 			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
-	} else if (tokens[1].getString() == "eject") {
+	} else if (tokens[1] == "eject") {
 		string args[] = {diskChanger.getDriveName(), "eject"};
 		diskChanger.sendChangeDiskEvent(args);
 	} else {
 		int firstFileToken = 1;
-		if (tokens[1].getString() == "insert") {
+		if (tokens[1] == "insert") {
 			if (tokens.size() > 2) {
 				firstFileToken = 2; // skip this subcommand as filearg
 			} else {
@@ -273,12 +273,14 @@ void DiskCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 
 string DiskCommand::help(const vector<string>& /*tokens*/) const
 {
-	const string& name = diskChanger.getDriveName();
-	return name + " eject             : remove disk from virtual drive\n" +
-	       name + " ramdsk            : create a virtual disk in RAM\n" +
-	       name + " insert <filename> : change the disk file\n" +
-	       name + " <filename>        : change the disk file\n" +
-	       name + "                   : show which disk image is in drive";
+	const string& driveName = diskChanger.getDriveName();
+	return driveName + " eject             : remove disk from virtual drive\n" +
+	       driveName + " ramdsk            : create a virtual disk in RAM\n" +
+	       driveName + " insert <filename> : change the disk file\n" +
+	       driveName + " <filename>        : change the disk file\n" +
+	       driveName + "                   : show which disk image is in drive\n" +
+	       "The following options are supported when inserting a disk image:\n" +
+	       "-ips <filename> : apply the given IPS patch to the disk image";
 }
 
 void DiskCommand::tabCompletion(vector<string>& tokens) const

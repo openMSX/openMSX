@@ -2,11 +2,11 @@
 
 namespace openmsx {
 
-StringSetting::StringSetting(CommandController& commandController,
-                             string_ref name, string_ref description,
-                             string_ref initialValue, SaveSetting save)
-	: Setting(commandController, name, description,
-	          TclObject(initialValue), save)
+StringSetting::StringSetting(CommandController& commandController_,
+                             string_ref name_, string_ref description_,
+                             string_ref initialValue, SaveSetting save_)
+	: Setting(commandController_, name_, description_,
+	          TclObject(initialValue), save_)
 {
 	init();
 }

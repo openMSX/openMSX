@@ -471,6 +471,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ide\SunriseIDE.cc">
       <Filter>ide</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\ide\BeerIDE.cc">
+      <Filter>ide</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\ide\WD33C93.cc">
       <Filter>ide</Filter>
     </ClCompile>
@@ -541,6 +544,9 @@
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_SCC.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\FraelSwitchableROM.cc">
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXHBI55.cc">
@@ -915,9 +921,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\MemoryOps.cc">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\sdlwin32.cc">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sha1.cc">
       <Filter>utils</Filter>
     </ClCompile>
@@ -1170,6 +1173,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MidiOutWindows.cc">
       <Filter>serial</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXFacMidiInterface.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXMidi.cc">
       <Filter>serial</Filter>
     </ClCompile>
@@ -1236,6 +1242,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXDeviceSwitch.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXE6Timer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXHiResTimer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXException.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXResetStatusRegister.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXKanji.cc" />
@@ -1269,6 +1276,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\SaveStateCLI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Schedulable.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Scheduler.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SensorKid.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_core.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_meta.cc" />
@@ -1287,7 +1295,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoyMega.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomDooly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\StringMap.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\string_ref.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\rapidsax.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.cc" />
@@ -1336,6 +1343,12 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\snappy.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\SdCard.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-windowhandle.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
@@ -1779,6 +1792,9 @@
     <None Include="$(OpenMSXSrcDir)\ide\SunriseIDE.hh">
       <Filter>ide</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\ide\BeerIDE.hh">
+      <Filter>ide</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\ide\WD33C93.hh">
       <Filter>ide</Filter>
     </None>
@@ -1858,6 +1874,9 @@
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\ESE_SCC.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\FraelSwitchableROM.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\MSXHBI55.hh">
@@ -2292,9 +2311,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\my_auto_ptr.hh">
       <Filter>utils</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\utils\noncopyable.hh">
-      <Filter>utils</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\utils\Observer.hh">
       <Filter>utils</Filter>
     </None>
@@ -2625,6 +2641,9 @@
     <None Include="$(OpenMSXSrcDir)\serial\MidiOutWindows.hh">
       <Filter>serial</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\serial\MSXFacMidiInterface.hh">
+      <Filter>serial</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\serial\MSXMidi.hh">
       <Filter>serial</Filter>
     </None>
@@ -2681,6 +2700,7 @@
     <None Include="$(OpenMSXSrcDir)\MSXDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXDeviceSwitch.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXE6Timer.hh" />
+    <None Include="$(OpenMSXSrcDir)\MSXHiResTimer.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXException.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXResetStatusRegister.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXKanji.hh" />
@@ -2715,6 +2735,7 @@
     <None Include="$(OpenMSXSrcDir)\RTScheduler.hh" />
     <None Include="$(OpenMSXSrcDir)\Schedulable.hh" />
     <None Include="$(OpenMSXSrcDir)\Scheduler.hh" />
+    <None Include="$(OpenMSXSrcDir)\SensorKid.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize_constr.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize_core.hh" />
@@ -2738,7 +2759,8 @@
     <None Include="$(OpenMSXSrcDir)\sound\YM2413OkazakiConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YM2413OkazakiTable.ii" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\StringMap.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\hash_map.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\hash_set.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\string_ref.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\rapidsax.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.hh" />
@@ -2795,6 +2817,12 @@
     <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\snappy.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\SdCard.cc.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\GLContext.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
   </ItemGroup>
   <ItemGroup>

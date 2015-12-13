@@ -58,7 +58,6 @@ PSG pin 6/7 quierk: C (YES)
       <sound>
         <volume>16000</volume>
       </sound>
-      <key_ghosting>true</key_ghosting>
       <keyboard_type>gb</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>

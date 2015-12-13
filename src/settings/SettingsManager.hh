@@ -3,9 +3,10 @@
 
 #include "Command.hh"
 #include "InfoTopic.hh"
-#include "StringMap.hh"
+#include "Setting.hh"
+#include "hash_set.hh"
 #include "string_ref.hh"
-#include "noncopyable.hh"
+#include "xxhash.hh"
 
 namespace openmsx {
 
@@ -15,9 +16,12 @@ class XMLElement;
 
 /** Manages all settings.
   */
-class SettingsManager : private noncopyable
+class SettingsManager
 {
 public:
+	SettingsManager(const SettingsManager&) = delete;
+	SettingsManager& operator=(const SettingsManager&) = delete;
+
 	explicit SettingsManager(GlobalCommandController& commandController);
 	~SettingsManager();
 
@@ -25,14 +29,16 @@ public:
 	  * @return The requested setting or nullptr.
 	  */
 	BaseSetting* findSetting(string_ref name) const;
+	BaseSetting* findSetting(string_ref prefix, string_ref baseName) const;
 
 	void loadSettings(const XMLElement& config);
 
-	void registerSetting  (BaseSetting& setting, string_ref name);
-	void unregisterSetting(BaseSetting& setting, string_ref name);
+	void registerSetting  (BaseSetting& setting);
+	void unregisterSetting(BaseSetting& setting);
 
 private:
 	BaseSetting& getByName(string_ref cmd, string_ref name) const;
+	std::vector<std::string> getTabSettingNames() const;
 
 	struct SettingInfo final : InfoTopic {
 		SettingInfo(InfoCommand& openMSXInfoCommand);
@@ -61,7 +67,12 @@ private:
 	SettingCompleter incrCompleter;
 	SettingCompleter unsetCompleter;
 
-	StringMap<BaseSetting*> settingsMap;
+	struct NameFromSetting {
+		const TclObject& operator()(BaseSetting* s) const {
+			return s->getFullNameObj();
+		}
+	};
+	hash_set<BaseSetting*, NameFromSetting, XXTclHasher> settings;
 };
 
 } // namespace openmsx

@@ -133,6 +133,25 @@ class Library(object):
 		else:
 			return '`%s --version`' % configScript
 
+class ALSA(Library):
+	libName = 'asound'
+	makeName = 'ALSA'
+	header = '<alsa/asoundlib.h>'
+	function = 'snd_seq_open'
+
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
+
+	@classmethod
+	def getVersion(cls, platform, linkStatic, distroRoot):
+		def execute(cmd, log):
+			version = cmd.expand(log, cls.getHeaders(platform),
+				'SND_LIB_VERSION_STR'
+				)
+			return None if version is None else version.strip('"')
+		return execute
+
 class FreeType(Library):
 	libName = 'freetype'
 	makeName = 'FREETYPE'

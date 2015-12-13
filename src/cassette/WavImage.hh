@@ -4,14 +4,13 @@
 #include "CassetteImage.hh"
 #include "WavData.hh"
 #include "DynamicClock.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 class Filename;
 class FilePool;
 
-class WavImage final : public CassetteImage, private noncopyable
+class WavImage final : public CassetteImage
 {
 public:
 	explicit WavImage(const Filename& filename, FilePool& filePool);

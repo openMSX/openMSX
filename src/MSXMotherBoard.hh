@@ -3,13 +3,13 @@
 
 #include "EmuTime.hh"
 #include "VideoSourceSetting.hh"
+#include "hash_map.hh"
 #include "serialize_meta.hh"
 #include "string_ref.hh"
+#include "xxhash.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include "RecordedCommand.hh"
 #include <memory>
-#include <set>
 #include <vector>
 
 namespace openmsx {
@@ -55,9 +55,12 @@ class Scheduler;
 class Setting;
 class StateChangeDistributor;
 
-class MSXMotherBoard final : private noncopyable
+class MSXMotherBoard final
 {
 public:
+	MSXMotherBoard(const MSXMotherBoard&) = delete;
+	MSXMotherBoard& operator=(const MSXMotherBoard&) = delete;
+
 	explicit MSXMotherBoard(Reactor& reactor);
 	~MSXMotherBoard();
 
@@ -198,10 +201,10 @@ private:
 	std::string machineID;
 	std::string machineName;
 
-	std::vector<MSXDevice*> availableDevices; // no ownership
+	std::vector<MSXDevice*> availableDevices; // no ownership, no order
 
-	StringMap<std::weak_ptr<void>> sharedStuffMap;
-	StringMap<std::set<std::string>> userNames;
+	hash_map<string_ref, std::weak_ptr<void>,      XXHasher> sharedStuffMap;
+	hash_map<string_ref, std::vector<std::string>, XXHasher> userNames;
 
 	std::unique_ptr<MSXMapperIO> mapperIO;
 	unsigned mapperIOCounter;
@@ -214,7 +217,7 @@ private:
 	std::unique_ptr<HardwareConfig> machineConfig2;
 	HardwareConfig* machineConfig;
 
-	Extensions extensions;
+	Extensions extensions; // order matters: later extension might depend on earlier ones
 
 	// order of unique_ptr's is important!
 	std::unique_ptr<AddRemoveUpdate> addRemoveUpdate;

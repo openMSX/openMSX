@@ -37,56 +37,6 @@ using std::vector;
 
 namespace openmsx {
 
-MSXMixer::SoundDeviceInfo::SoundDeviceInfo()
-{
-}
-
-MSXMixer::SoundDeviceInfo::SoundDeviceInfo(SoundDeviceInfo&& rhs)
-	: device         (std::move(rhs.device))
-	, defaultVolume  (std::move(rhs.defaultVolume))
-	, volumeSetting  (std::move(rhs.volumeSetting))
-	, balanceSetting (std::move(rhs.balanceSetting))
-	, channelSettings(std::move(rhs.channelSettings))
-	, left1          (std::move(rhs.left1))
-	, right1         (std::move(rhs.right1))
-	, left2          (std::move(rhs.left2))
-	, right2         (std::move(rhs.right2))
-{
-}
-
-MSXMixer::SoundDeviceInfo& MSXMixer::SoundDeviceInfo::operator=(SoundDeviceInfo&& rhs)
-{
-	device          = std::move(rhs.device);
-	defaultVolume   = std::move(rhs.defaultVolume);
-	volumeSetting   = std::move(rhs.volumeSetting);
-	balanceSetting  = std::move(rhs.balanceSetting);
-	channelSettings = std::move(rhs.channelSettings);
-	left1           = std::move(rhs.left1);
-	right1          = std::move(rhs.right1);
-	left2           = std::move(rhs.left2);
-	right2          = std::move(rhs.right2);
-	return *this;
-}
-
-MSXMixer::SoundDeviceInfo::ChannelSettings::ChannelSettings()
-{
-}
-
-MSXMixer::SoundDeviceInfo::ChannelSettings::ChannelSettings(ChannelSettings&& rhs)
-	: recordSetting(std::move(rhs.recordSetting))
-	, muteSetting  (std::move(rhs.muteSetting))
-{
-}
-
-MSXMixer::SoundDeviceInfo::ChannelSettings&
-MSXMixer::SoundDeviceInfo::ChannelSettings::operator=(ChannelSettings&& rhs)
-{
-	recordSetting = std::move(rhs.recordSetting);
-	muteSetting   = std::move(rhs.muteSetting);
-	return *this;
-}
-
-
 MSXMixer::MSXMixer(Mixer& mixer_, MSXMotherBoard& motherBoard_,
                    GlobalSettings& globalSettings)
 	: Schedulable(motherBoard_.getScheduler())
@@ -174,7 +124,7 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 
 void MSXMixer::unregisterSound(SoundDevice& device)
 {
-	auto it = find_if_unguarded(infos,
+	auto it = rfind_if_unguarded(infos,
 		[&](const SoundDeviceInfo& i) { return i.device == &device; });
 	it->volumeSetting->detach(*this);
 	it->balanceSetting->detach(*this);
@@ -182,8 +132,7 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 		s.recordSetting->detach(*this);
 		s.muteSetting->detach(*this);
 	}
-	if (it != (end(infos) - 1)) std::swap(*it, *(end(infos) - 1));
-	infos.pop_back();
+	move_pop_back(infos, it);
 	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "remove");
 }
 
@@ -520,9 +469,9 @@ void MSXMixer::generate(int16_t* output, EmuTime::param time, unsigned samples)
 	// In total emulation time this gave a speedup of about 2%.
 
 	// When samples==0, call updateBuffer() but skip all further processing
-	// (handling this as a special case allows to simply the code below).
+	// (handling this as a special case allows to simplify the code below).
 	if (samples == 0) {
-		int32_t dummyBuf[4];
+		SSE_ALIGNED(int32_t dummyBuf[4]);
 		for (auto& info : infos) {
 			info.device->updateBuffer(0, dummyBuf, time);
 		}
@@ -855,15 +804,15 @@ MSXMixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(
 void MSXMixer::SoundDeviceInfoTopic::execute(
 	array_ref<TclObject> tokens, TclObject& result) const
 {
-	auto& mixer = OUTER(MSXMixer, soundDeviceInfo);
+	auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
 	switch (tokens.size()) {
 	case 2:
-		for (auto& info : mixer.infos) {
+		for (auto& info : msxMixer.infos) {
 			result.addListElement(info.device->getName());
 		}
 		break;
 	case 3: {
-		SoundDevice* device = mixer.findDevice(tokens[2].getString());
+		SoundDevice* device = msxMixer.findDevice(tokens[2].getString());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}
@@ -884,8 +833,8 @@ void MSXMixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> devices;
-		auto& mixer = OUTER(MSXMixer, soundDeviceInfo);
-		for (auto& info : mixer.infos) {
+		auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
+		for (auto& info : msxMixer.infos) {
 			devices.push_back(info.device->getName());
 		}
 		completeString(tokens, devices);

@@ -283,9 +283,9 @@ void MSXCPUInterface::unsetExpanded(int ps)
 	changeExpanded(isExpanded(primarySlotState[3]));
 }
 
-void MSXCPUInterface::changeExpanded(bool isExpanded)
+void MSXCPUInterface::changeExpanded(bool newExpanded)
 {
-	if (isExpanded) {
+	if (newExpanded) {
 		disallowReadCache [0xFF] |=  SECUNDARY_SLOT_BIT;
 		disallowWriteCache[0xFF] |=  SECUNDARY_SLOT_BIT;
 	} else {
@@ -512,7 +512,7 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 {
 	GlobalWriteInfo info = { &device, address };
-	globalWrites.erase(find_unguarded(globalWrites, info));
+	move_pop_back(globalWrites, rfind_unguarded(globalWrites, info));
 
 	for (auto& g : globalWrites) {
 		if ((g.addr >> CacheLine::BITS) ==
@@ -697,14 +697,14 @@ void MSXCPUInterface::checkBreakPoints(
 	//  - keeps object alive by holding a shared_ptr to it
 	//  - avoids iterating over a changing collection
 	BreakPoints bpCopy(range.first, range.second);
-	auto& cliComm = motherBoard.getReactor().getGlobalCliComm();
-	auto& interp  = motherBoard.getReactor().getInterpreter();
+	auto& globalCliComm = motherBoard.getReactor().getGlobalCliComm();
+	auto& interp        = motherBoard.getReactor().getInterpreter();
 	for (auto& p : bpCopy) {
-		p.checkAndExecute(cliComm, interp);
+		p.checkAndExecute(globalCliComm, interp);
 	}
 	auto condCopy = conditions;
 	for (auto& c : condCopy) {
-		c.checkAndExecute(cliComm, interp);
+		c.checkAndExecute(globalCliComm, interp);
 	}
 }
 
@@ -765,7 +765,7 @@ void MSXCPUInterface::setCondition(const DebugCondition& cond)
 
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
-	conditions.erase(find_if_unguarded(conditions,
+	conditions.erase(rfind_if_unguarded(conditions,
 		[&](DebugCondition& e) { return &e == &cond; }));
 }
 
@@ -843,11 +843,13 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 	assert(!watchPoints.empty());
 	if (isFastForward()) return;
 
-	auto& cliComm = motherBoard.getReactor().getGlobalCliComm();
-	auto& interp  = motherBoard.getReactor().getInterpreter();
-	interp.setVariable("wp_last_address", TclObject(int(address)));
+	auto& globalCliComm = motherBoard.getReactor().getGlobalCliComm();
+	auto& interp        = motherBoard.getReactor().getInterpreter();
+	interp.setVariable(TclObject("wp_last_address"),
+	                   TclObject(int(address)));
 	if (value != ~0u) {
-		interp.setVariable("wp_last_value", TclObject(int(value)));
+		interp.setVariable(TclObject("wp_last_value"),
+		                   TclObject(int(value)));
 	}
 
 	auto wpCopy = watchPoints;
@@ -855,7 +857,7 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 		if ((w->getBeginAddress() <= address) &&
 		    (w->getEndAddress()   >= address) &&
 		    (w->getType()         == type)) {
-			w->checkAndExecute(cliComm, interp);
+			w->checkAndExecute(globalCliComm, interp);
 		}
 	}
 
@@ -920,8 +922,8 @@ void MSXCPUInterface::cleanup()
 
 // class MemoryDebug
 
-MSXCPUInterface::MemoryDebug::MemoryDebug(MSXMotherBoard& motherBoard)
-	: SimpleDebuggable(motherBoard, "memory",
+MSXCPUInterface::MemoryDebug::MemoryDebug(MSXMotherBoard& motherBoard_)
+	: SimpleDebuggable(motherBoard_, "memory",
 	                   "The memory currently visible for the CPU.", 0x10000)
 {
 }
@@ -943,8 +945,8 @@ void MSXCPUInterface::MemoryDebug::write(unsigned address, byte value,
 // class SlottedMemoryDebug
 
 MSXCPUInterface::SlottedMemoryDebug::SlottedMemoryDebug(
-		MSXMotherBoard& motherBoard)
-	: SimpleDebuggable(motherBoard, "slotted memory",
+		MSXMotherBoard& motherBoard_)
+	: SimpleDebuggable(motherBoard_, "slotted memory",
 	                   "The memory in slots and subslots.", 0x10000 * 4 * 4)
 {
 }
@@ -1069,8 +1071,8 @@ string MSXCPUInterface::ExternalSlotInfo::help(
 
 // class IODebug
 
-MSXCPUInterface::IODebug::IODebug(MSXMotherBoard& motherBoard)
-	: SimpleDebuggable(motherBoard, "ioports", "IO ports.", 0x100)
+MSXCPUInterface::IODebug::IODebug(MSXMotherBoard& motherBoard_)
+	: SimpleDebuggable(motherBoard_, "ioports", "IO ports.", 0x100)
 {
 }
 
@@ -1089,8 +1091,8 @@ void MSXCPUInterface::IODebug::write(unsigned address, byte value, EmuTime::para
 
 // class IOInfo
 
-MSXCPUInterface::IOInfo::IOInfo(InfoCommand& machineInfoCommand, const char* name)
-	: InfoTopic(machineInfoCommand, name)
+MSXCPUInterface::IOInfo::IOInfo(InfoCommand& machineInfoCommand, const char* name_)
+	: InfoTopic(machineInfoCommand, name_)
 {
 }
 

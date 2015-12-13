@@ -2,9 +2,11 @@
 #define MSXCOMMANDCONTROLLER_HH
 
 #include "CommandController.hh"
+#include "Command.hh"
 #include "MSXEventListener.hh"
-#include "StringMap.hh"
-#include "noncopyable.hh"
+#include "Setting.hh"
+#include "hash_set.hh"
+#include "xxhash.hh"
 #include <memory>
 
 namespace openmsx {
@@ -17,9 +19,11 @@ class InfoCommand;
 
 class MSXCommandController final
 	: public CommandController, private MSXEventListener
-	, private noncopyable
 {
 public:
+	MSXCommandController(const MSXCommandController&) = delete;
+	MSXCommandController& operator=(const MSXCommandController&) = delete;
+
 	MSXCommandController(GlobalCommandController& globalCommandController,
 	                     Reactor& reactor, MSXMotherBoard& motherboard,
 	                     MSXEventDistributor& msxEventDistributor,
@@ -34,6 +38,9 @@ public:
 	}
 	MSXMotherBoard& getMSXMotherBoard() const {
 		return motherboard;
+	}
+	const std::string& getPrefix() const {
+		return machineID;
 	}
 
 	Command* findCommand(string_ref name) const;
@@ -61,12 +68,8 @@ public:
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
 	void unregisterSetting(Setting& setting) override;
-	BaseSetting* findSetting(string_ref name) override;
-	void changeSetting(Setting& setting, const TclObject& value) override;
 	CliComm& getCliComm() override;
 	Interpreter& getInterpreter() override;
-
-	const BaseSetting* findSetting(string_ref setting) const;
 
 private:
 	std::string getFullName(string_ref name);
@@ -82,8 +85,14 @@ private:
 	std::string machineID;
 	std::unique_ptr<InfoCommand> machineInfoCommand;
 
-	StringMap<Command*> commandMap;
-	StringMap<Setting*> settingMap;
+	struct NameFromCommand {
+		const std::string& operator()(const Command* c) const {
+			return c->getName();
+		}
+	};
+	hash_set<Command*, NameFromCommand, XXHasher> commandMap;
+
+	std::vector<Setting*> settings; // unordered
 };
 
 } // namespace openmsx

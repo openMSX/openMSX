@@ -5,7 +5,6 @@
 #include "BooleanSetting.hh"
 #include "EventListener.hh"
 #include "Command.hh"
-#include "noncopyable.hh"
 #include "Keys.hh"
 #include <SDL.h>
 #include <memory>
@@ -18,9 +17,11 @@ class GlobalSettings;
 
 class InputEventGenerator final : private Observer<Setting>
                                 , private EventListener
-                                , private noncopyable
 {
 public:
+	InputEventGenerator(const InputEventGenerator&) = delete;
+	InputEventGenerator& operator=(const InputEventGenerator&) = delete;
+
 	InputEventGenerator(CommandController& commandController,
 	                    EventDistributor& eventDistributor,
 	                    GlobalSettings& globalSettings);

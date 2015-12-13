@@ -4,7 +4,6 @@
 #include "EmuTime.hh"
 #include "SchedulerQueue.hh"
 #include "likely.hh"
-#include "noncopyable.hh"
 #include <vector>
 
 namespace openmsx {
@@ -32,7 +31,7 @@ private:
 };
 
 
-class Scheduler : private noncopyable
+class Scheduler
 {
 public:
 	using SyncPoints = std::vector<SynchronizationPoint>;

@@ -3,7 +3,6 @@
 
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -11,7 +10,7 @@ namespace openmsx {
  * These are typically triggered by user input, like keyboard presses. The main
  * reason why these events exist is to be able to record and replay them.
  */
-class StateChange : private noncopyable
+class StateChange
 {
 public:
 	virtual ~StateChange() {} // must be polymorhpic

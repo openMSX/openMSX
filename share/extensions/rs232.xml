@@ -2,12 +2,12 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>Generic MSX RS-232</name>
+    <name>Generic MSX RS-232C</name>
     <manufacturer/>
     <code/>
     <release_year/>
-    <description>Generic MSX RS-232 cartridge.</description>
-    <type>RS-232 cartridge</type>
+    <description>Generic MSX RS-232C (version 1) cartridge.</description>
+    <type>RS-232C cartridge</type>
   </info>
   <devices>
     <primary slot="any">
@@ -17,7 +17,7 @@
           <mem base="0x4000" size="0x4000"/>
           <rom>
                   <sha1>47c78981b5ffbb9e8d9c2145f9c2e642ff0e8193</sha1> <!-- v1.01 -->
-                  <sha1>92a433e877626461a6481ca75c252e643752f0c4</sha1> <!-- v1.00 -->
+                  <sha1>4e9384c9d137f0ab65ffc5a78f04cd8c9df6c8b7</sha1> <!-- v1.00 -->
             <filename>rs232.rom</filename>
           </rom>
         </MSX-RS232>

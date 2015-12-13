@@ -264,8 +264,8 @@ string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const
 
 MSXCPU::CPUFreqInfoTopic::CPUFreqInfoTopic(
 		InfoCommand& machineInfoCommand,
-		const string& name, CPUClock& clock_)
-	: InfoTopic(machineInfoCommand, name)
+		const string& name_, CPUClock& clock_)
+	: InfoTopic(machineInfoCommand, name_)
 	, clock(clock_)
 {
 }
@@ -303,8 +303,8 @@ static const char* const CPU_REGS_DESC =
 	"this effectively indicates that the CPU could accept an interrupt at\n"
 	"the start of the current instruction.\n";
 
-MSXCPU::Debuggable::Debuggable(MSXMotherBoard& motherboard)
-	: SimpleDebuggable(motherboard, "CPU regs", CPU_REGS_DESC, 28)
+MSXCPU::Debuggable::Debuggable(MSXMotherBoard& motherboard_)
+	: SimpleDebuggable(motherboard_, "CPU regs", CPU_REGS_DESC, 28)
 {
 }
 

@@ -168,6 +168,27 @@ void CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss) cons
 	ss = slots[slot].ss;
 }
 
+int CartridgeSlotManager::allocateSpecificPrimarySlot(unsigned slot, const HardwareConfig& hwConfig)
+{
+	assert(slot < MAX_SLOTS);
+	if (!slots[slot].exists()) {
+		throw MSXException(StringOp::Builder() <<
+			"slot-" << char('a' + slot) << " not defined.");
+	}
+	if (slots[slot].used()) {
+		throw MSXException(StringOp::Builder() <<
+			"slot-" << char('a' + slot) << " already in use.");
+	}
+	if (slots[slot].ss != -1) {
+		throw MSXException(StringOp::Builder() <<
+			"slot-" << char('a' + slot) << " is not a primary slot.");
+	}
+	assert(slots[slot].useCount == 0);
+	slots[slot].config = &hwConfig;
+	slots[slot].useCount = 1;
+	return slots[slot].ps;
+}
+
 void CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss) const
 {
 	// search for the lowest free slot
@@ -187,17 +208,15 @@ void CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss) const
 	}
 }
 
-void CartridgeSlotManager::allocatePrimarySlot(
-		int& ps, const HardwareConfig& hwConfig)
+int CartridgeSlotManager::allocateAnyPrimarySlot(const HardwareConfig& hwConfig)
 {
 	for (auto slot : xrange(MAX_SLOTS)) {
-		ps = slots[slot].ps;
 		if (slots[slot].exists() && (slots[slot].ss == -1) &&
 		    !slots[slot].used()) {
 			assert(slots[slot].useCount == 0);
 			slots[slot].config = &hwConfig;
 			slots[slot].useCount = 1;
-			return;
+			return slots[slot].ps;
 		}
 	}
 	throw MSXException("No free primary slot");
@@ -268,14 +287,14 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 
 // CartCmd
 CartridgeSlotManager::CartCmd::CartCmd(
-		CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
+		CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard_,
 		string_ref commandName)
-	: RecordedCommand(motherBoard.getCommandController(),
-	                  motherBoard.getStateChangeDistributor(),
-	                  motherBoard.getScheduler(),
+	: RecordedCommand(motherBoard_.getCommandController(),
+	                  motherBoard_.getStateChangeDistributor(),
+	                  motherBoard_.getScheduler(),
 	                  commandName)
 	, manager(manager_)
-	, cliComm(motherBoard.getMSXCliComm())
+	, cliComm(motherBoard_.getMSXCliComm())
 {
 }
 
@@ -312,10 +331,9 @@ void CartridgeSlotManager::CartCmd::execute(
 			options.addListElement("empty");
 			result.addListElement(options);
 		}
-	} else if ((tokens[1].getString() ==  "eject") ||
-	           (tokens[1].getString() == "-eject")) {
+	} else if ((tokens[1] == "eject") || (tokens[1] == "-eject")) {
 		// remove cartridge (or extension)
-		if (tokens[1].getString() == "-eject") {
+		if (tokens[1] == "-eject") {
 			result.setString(
 				"Warning: use of '-eject' is deprecated, "
 				"instead use the 'eject' subcommand");
@@ -335,7 +353,7 @@ void CartridgeSlotManager::CartCmd::execute(
 			? string(1, cartname[4])
 			: "any";
 		size_t extensionNameToken = 1;
-		if (tokens[1].getString() == "insert") {
+		if (tokens[1] == "insert") {
 			if (tokens.size() > 2) {
 				extensionNameToken = 2;
 			} else {
@@ -368,7 +386,10 @@ string CartridgeSlotManager::CartCmd::help(const vector<string>& tokens) const
 	return tokens[0] + " eject              : remove the ROM cartridge from this slot\n" +
 	       tokens[0] + " insert <filename>  : insert ROM cartridge with <filename>\n" +
 	       tokens[0] + " <filename>         : insert ROM cartridge with <filename>\n" +
-	       tokens[0] + "                    : show which ROM cartridge is in this slot";
+	       tokens[0] + "                    : show which ROM cartridge is in this slot\n" +
+	       "The following options are supported when inserting a cartridge:\n" +
+	       "-ips <filename>    : apply the given IPS patch to the ROM image\n" +
+	       "-romtype <romtype> : specify the ROM mapper type\n";
 }
 
 void CartridgeSlotManager::CartCmd::tabCompletion(vector<string>& tokens) const
@@ -411,17 +432,17 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 	}
 	case 3: {
 		// return info on a particular slot
-		const auto& name = tokens[2].getString();
-		if ((name.size() != 5) || (!name.starts_with("slot"))) {
-			throw CommandException("Invalid slot name: " + name);
+		const auto& slotName = tokens[2].getString();
+		if ((slotName.size() != 5) || (!slotName.starts_with("slot"))) {
+			throw CommandException("Invalid slot name: " + slotName);
 		}
-		unsigned num = name[4] - 'a';
+		unsigned num = slotName[4] - 'a';
 		if (num >= CartridgeSlotManager::MAX_SLOTS) {
-			throw CommandException("Invalid slot name: " + name);
+			throw CommandException("Invalid slot name: " + slotName);
 		}
 		auto& slot = manager.slots[num];
 		if (!slot.exists()) {
-			throw CommandException("Slot '" + name + "' doesn't currently exist in this msx machine.");
+			throw CommandException("Slot '" + slotName + "' doesn't currently exist in this msx machine.");
 		}
 		result.addListElement(slot.ps);
 		if (slot.ss == -1) {

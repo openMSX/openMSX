@@ -82,33 +82,33 @@ const std::string& IDECDROM::getDeviceName()
 	return NAME;
 }
 
-void IDECDROM::fillIdentifyBlock(AlignedBuffer& buffer)
+void IDECDROM::fillIdentifyBlock(AlignedBuffer& buf)
 {
 	// 1... ....: removable media
 	// .10. ....: fast handling of packet command (immediate, in fact)
 	// .... .1..: incomplete response:
 	//            fields that depend on medium are undefined
 	// .... ..00: support for 12-byte packets
-	buffer[0 * 2 + 0] = 0xC4;
+	buf[0 * 2 + 0] = 0xC4;
 	// 10.. ....: ATAPI
 	// ...0 0101: CD-ROM device
-	buffer[0 * 2 + 1] = 0x85;
+	buf[0 * 2 + 1] = 0x85;
 
 	// ...1 ....: Removable Media Status Notification feature set supported
-	buffer[ 83 * 2 + 0] = 0x10;
+	buf[ 83 * 2 + 0] = 0x10;
 	// ...1 ....: Removable Media Status Notification feature set enabled
-	buffer[ 86 * 2 + 0] = remMedStatNotifEnabled * 0x10;
+	buf[ 86 * 2 + 0] = remMedStatNotifEnabled * 0x10;
 	// .... ..01: Removable Media Status Notification feature set supported (again??)
-	buffer[127 * 2 + 0] = 0x01;
+	buf[127 * 2 + 0] = 0x01;
 }
 
-unsigned IDECDROM::readBlockStart(AlignedBuffer& buffer, unsigned count)
+unsigned IDECDROM::readBlockStart(AlignedBuffer& buf, unsigned count)
 {
 	assert(readSectorData);
 	if (file.is_open()) {
 		//fprintf(stderr, "read sector data at %08X\n", transferOffset);
 		file.seek(transferOffset);
-		file.read(buffer, count);
+		file.read(buf, count);
 		transferOffset += count;
 		return count;
 	} else {
@@ -124,12 +124,12 @@ void IDECDROM::readEnd()
 	setInterruptReason(I_O | C_D);
 }
 
-void IDECDROM::writeBlockComplete(AlignedBuffer& buffer, unsigned count)
+void IDECDROM::writeBlockComplete(AlignedBuffer& buf, unsigned count)
 {
 	// Currently, packet writes are the only kind of write transfer.
 	assert(count == 12);
 	(void)count; // avoid warning
-	executePacketCommand(buffer);
+	executePacketCommand(buf);
 }
 
 void IDECDROM::executeCommand(byte cmd)
@@ -228,15 +228,15 @@ void IDECDROM::executePacketCommand(AlignedBuffer& packet)
 
 		const int byteCount = 18;
 		startPacketReadTransfer(byteCount);
-		auto& buffer = startShortReadTransfer(byteCount);
+		auto& buf = startShortReadTransfer(byteCount);
 		for (int i = 0; i < byteCount; i++) {
-			buffer[i] = 0x00;
+			buf[i] = 0x00;
 		}
-		buffer[ 0] = 0xF0;
-		buffer[ 2] = senseKey >> 16; // sense key
-		buffer[12] = (senseKey >> 8) & 0xFF; // ASC
-		buffer[13] = senseKey & 0xFF; // ASQ
-		buffer[ 7] = byteCount - 7;
+		buf[ 0] = 0xF0;
+		buf[ 2] = senseKey >> 16; // sense key
+		buf[12] = (senseKey >> 8) & 0xFF; // ASC
+		buf[13] = senseKey & 0xFF; // ASQ
+		buf[ 7] = byteCount - 7;
 		senseKey = 0;
 		break;
 	}
@@ -322,11 +322,11 @@ void IDECDROM::insert(const string& filename)
 
 // class CDXCommand
 
-CDXCommand::CDXCommand(CommandController& commandController,
-                       StateChangeDistributor& stateChangeDistributor,
-                       Scheduler& scheduler, IDECDROM& cd_)
-	: RecordedCommand(commandController, stateChangeDistributor,
-	                  scheduler, cd_.name)
+CDXCommand::CDXCommand(CommandController& commandController_,
+                       StateChangeDistributor& stateChangeDistributor_,
+                       Scheduler& scheduler_, IDECDROM& cd_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+	                  scheduler_, cd_.name)
 	, cd(cd_)
 {
 }
@@ -340,20 +340,18 @@ void CDXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 		result.addListElement(file.is_open() ? file.getURL() : "");
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) &&
-	           ((tokens[1].getString() == "eject") ||
-		    (tokens[1].getString() == "-eject"))) {
+	           ((tokens[1] == "eject") || (tokens[1] == "-eject"))) {
 		cd.eject();
 		// TODO check for locked tray
-		if (tokens[1].getString() == "-eject") {
+		if (tokens[1] == "-eject") {
 			result.setString(
 				"Warning: use of '-eject' is deprecated, "
 				"instead use the 'eject' subcommand");
 		}
 	} else if ((tokens.size() == 2) ||
-	           ((tokens.size() == 3) &&
-		    (tokens[1].getString() == "insert"))) {
+	           ((tokens.size() == 3) && (tokens[1] == "insert"))) {
 		int fileToken = 1;
-		if (tokens[1].getString() == "insert") {
+		if (tokens[1] == "insert") {
 			if (tokens.size() > 2) {
 				fileToken = 2;
 			} else {

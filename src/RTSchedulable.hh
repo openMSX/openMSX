@@ -1,16 +1,18 @@
 #ifndef RTSCHEDULABLE_HH
 #define RTSCHEDULABLE_HH
 
-#include "noncopyable.hh"
 #include <cstdint>
 
 namespace openmsx {
 
 class RTScheduler;
 
-class RTSchedulable : private noncopyable
+class RTSchedulable
 {
 public:
+	RTSchedulable(const RTSchedulable&) = delete;
+	RTSchedulable& operator=(const RTSchedulable&) = delete;
+
 	virtual void executeRT() = 0;
 
 protected:

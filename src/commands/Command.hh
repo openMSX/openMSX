@@ -17,6 +17,9 @@ class CliComm;
 class CommandCompleter : public Completer
 {
 public:
+	CommandCompleter(const CommandCompleter&) = delete;
+	CommandCompleter& operator=(const CommandCompleter&) = delete;
+
 	CommandController& getCommandController() const { return commandController; }
 	Interpreter& getInterpreter() const;
 
@@ -57,12 +60,17 @@ public:
 	void setAllowedInEmptyMachine(bool value) { allowInEmptyMachine = value; }
 	bool isAllowedInEmptyMachine() const { return allowInEmptyMachine; }
 
+	// used by Interpreter::(un)registerCommand()
+	void setToken(void* token_) { assert(!token); token = token_; }
+	void* getToken() const { return token; }
+
 protected:
 	Command(CommandController& controller, string_ref name);
 	~Command();
 
 private:
 	bool allowInEmptyMachine;
+	void* token;
 };
 
 } // namespace openmsx

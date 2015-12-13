@@ -1,5 +1,4 @@
 #include "InfoCommand.hh"
-#include "InfoTopic.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "KeyRange.hh"
@@ -12,8 +11,8 @@ using std::vector;
 
 namespace openmsx {
 
-InfoCommand::InfoCommand(CommandController& commandController, const string& name)
-	: Command(commandController, name)
+InfoCommand::InfoCommand(CommandController& commandController_, const string& name_)
+	: Command(commandController_, name_)
 {
 }
 
@@ -22,28 +21,26 @@ InfoCommand::~InfoCommand()
 	assert(infoTopics.empty());
 }
 
-void InfoCommand::registerTopic(InfoTopic& topic, string_ref name)
+void InfoCommand::registerTopic(InfoTopic& topic)
 {
 #ifndef NDEBUG
-	if (infoTopics.find(name) != end(infoTopics)) {
-		std::cerr << "INTERNAL ERROR: already have a info topic with "
-		             "name " << name << std::endl;
+	if (infoTopics.contains(topic.getName())) {
+		std::cerr << "INTERNAL ERROR: already have an info topic with "
+		             "name " << topic.getName() << std::endl;
 		UNREACHABLE;
 	}
 #endif
-	infoTopics[name] = &topic;
+	infoTopics.insert_noDuplicateCheck(&topic);
 }
 
-void InfoCommand::unregisterTopic(InfoTopic& topic, string_ref name)
+void InfoCommand::unregisterTopic(InfoTopic& topic)
 {
-	(void)topic;
-	if (infoTopics.find(name) == end(infoTopics)) {
+	if (!infoTopics.contains(topic.getName())) {
 		std::cerr << "INTERNAL ERROR: can't unregister topic with name "
-			"name " << name << ", not found!" << std::endl;
+		          << topic.getName() << ", not found!" << std::endl;
 		UNREACHABLE;
 	}
-	assert(infoTopics[name] == &topic);
-	infoTopics.erase(name);
+	infoTopics.erase(topic.getName());
 }
 
 // Command
@@ -54,8 +51,8 @@ void InfoCommand::execute(array_ref<TclObject> tokens,
 	switch (tokens.size()) {
 	case 1:
 		// list topics
-		for (auto& p : infoTopics) {
-			result.addListElement(p.first());
+		for (auto* t : infoTopics) {
+			result.addListElement(t->getName());
 		}
 		break;
 	default:
@@ -66,7 +63,7 @@ void InfoCommand::execute(array_ref<TclObject> tokens,
 		if (it == end(infoTopics)) {
 			throw CommandException("No info on: " + topic);
 		}
-		it->second->execute(tokens, result);
+		(*it)->execute(tokens, result);
 		break;
 	}
 }
@@ -87,7 +84,7 @@ string InfoCommand::help(const vector<string>& tokens) const
 		if (it == end(infoTopics)) {
 			throw CommandException("No info on: " + tokens[1]);
 		}
-		result = it->second->help(tokens);
+		result = (*it)->help(tokens);
 		break;
 	}
 	return result;
@@ -98,7 +95,11 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete topic
-		completeString(tokens, keys(infoTopics));
+		vector<string_ref> topics;
+		for (auto* t : infoTopics) {
+			topics.push_back(t->getName());
+		}
+		completeString(tokens, topics);
 		break;
 	}
 	default:
@@ -106,7 +107,7 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 		assert(tokens.size() >= 3);
 		auto it = infoTopics.find(tokens[1]);
 		if (it != end(infoTopics)) {
-			it->second->tabCompletion(tokens);
+			(*it)->tabCompletion(tokens);
 		}
 		break;
 	}

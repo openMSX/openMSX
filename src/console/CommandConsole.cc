@@ -136,7 +136,7 @@ CommandConsole::CommandConsole(
 	print(string(fullVersion.size(), '-'));
 	print("\n"
 	      "General information about openMSX is available at "
-	      "http://www.openmsx.org.\n"
+	      "http://openmsx.org.\n"
 	      "\n"
 	      "Type 'help' to see a list of available commands "
 	      "(use <PgUp>/<PgDn> to scroll).\n"
@@ -170,7 +170,7 @@ void CommandConsole::saveHistory()
 				"Error while saving the console history.");
 		}
 		for (auto& s : history) {
-			outputfile << string_ref(s).substr(prompt.size()) << '\n';
+			outputfile << s << '\n';
 		}
 	} catch (FileException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
@@ -186,9 +186,7 @@ void CommandConsole::loadHistory()
 		string line;
 		while (inputfile) {
 			getline(inputfile, line);
-			if (!line.empty()) {
-				putCommandHistory(prompt + line);
-			}
+			putCommandHistory(line);
 		}
 	} catch (FileException&) {
 		// Error while loading the console history, ignore
@@ -390,27 +388,24 @@ void CommandConsole::newLineConsole(ConsoleLine line)
 
 void CommandConsole::putCommandHistory(const string& command)
 {
-	// TODO don't store PROMPT as part of history
-	if (command == prompt) {
-		return;
-	}
-	if (removeDoublesSetting.getBoolean() && !history.empty()
-		&& (history.back() == command)) {
+	if (command.empty()) return;
+	if (removeDoublesSetting.getBoolean() && !history.empty() &&
+	    (history.back() == command)) {
 		return;
 	}
 
 	if (history.full()) history.pop_front();
 	history.push_back(command);
-
 }
 
 void CommandConsole::commandExecute()
 {
 	resetScrollBack();
-	putCommandHistory(lines[0].str());
+	string cmd0 = lines[0].str().substr(prompt.size());
+	putCommandHistory(cmd0);
 	saveHistory(); // save at this point already, so that we don't lose history in case of a crash
 
-	commandBuffer += lines[0].str().substr(prompt.size()) + '\n';
+	commandBuffer += std::move(cmd0) + '\n';
 	newLineConsole(lines[0]);
 	if (commandController.isComplete(commandBuffer)) {
 		// Normally the busy promt is NOT shown (not even very briefly
@@ -441,14 +436,12 @@ void CommandConsole::commandExecute()
 
 ConsoleLine CommandConsole::highLight(string_ref line)
 {
-	assert(line.starts_with(prompt));
-	string_ref command = line.substr(prompt.size());
 	ConsoleLine result;
 	result.addChunk(prompt, 0xffffff);
 
-	TclParser parser = commandController.getInterpreter().parse(command);
+	TclParser parser = commandController.getInterpreter().parse(line);
 	string colors = parser.getColors();
-	assert(colors.size() == command.size());
+	assert(colors.size() == line.size());
 
 	unsigned pos = 0;
 	while (pos != colors.size()) {
@@ -468,7 +461,7 @@ ConsoleLine CommandConsole::highLight(string_ref line)
 		case 'o': rgb = 0x00cdcd; break; // operator
 		default:  rgb = 0xffffff; break; // other
 		}
-		result.addChunk(command.substr(pos2, pos - pos2), rgb);
+		result.addChunk(line.substr(pos2, pos - pos2), rgb);
 	}
 	return result;
 }
@@ -476,7 +469,7 @@ ConsoleLine CommandConsole::highLight(string_ref line)
 void CommandConsole::putPrompt()
 {
 	commandScrollBack = unsigned(history.size());
-	currentLine = prompt;
+	currentLine.clear();
 	lines[0] = highLight(currentLine);
 	cursorPosition = unsigned(prompt.size());
 }
@@ -485,11 +478,11 @@ void CommandConsole::tabCompletion()
 {
 	resetScrollBack();
 	unsigned pl = unsigned(prompt.size());
-	string_ref front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl);
-	string_ref back  = utf8::unchecked::substr(lines[0].str(), cursorPosition);
+	string front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl).str();
+	string back  = utf8::unchecked::substr(lines[0].str(), cursorPosition).str();
 	string newFront = commandController.tabCompletion(front);
 	cursorPosition = pl + unsigned(utf8::unchecked::size(newFront));
-	currentLine = prompt + newFront + back;
+	currentLine = newFront + back;
 	lines[0] = highLight(currentLine);
 }
 
@@ -545,7 +538,7 @@ void CommandConsole::clearCommand()
 	resetScrollBack();
 	commandBuffer.clear();
 	prompt = PROMPT_NEW;
-	currentLine = prompt;
+	currentLine.clear();
 	lines[0] = highLight(currentLine);
 	cursorPosition = unsigned(prompt.size());
 }
@@ -560,6 +553,7 @@ void CommandConsole::backspace()
 		auto e = b;
 		utf8::unchecked::advance(e, 1);
 		currentLine.erase(b, e);
+		currentLine.erase(0, prompt.size());
 		lines[0] = highLight(currentLine);
 		--cursorPosition;
 	}
@@ -575,6 +569,7 @@ void CommandConsole::delete_key()
 		auto e = b;
 		utf8::unchecked::advance(e, 1);
 		currentLine.erase(b, e);
+		currentLine.erase(0, prompt.size());
 		lines[0] = highLight(currentLine);
 	}
 }
@@ -587,6 +582,7 @@ void CommandConsole::normalKey(uint16_t chr)
 	auto pos = begin(currentLine);
 	utf8::unchecked::advance(pos, cursorPosition);
 	utf8::unchecked::append(uint32_t(chr), inserter(currentLine, pos));
+	currentLine.erase(0, prompt.size());
 	lines[0] = highLight(currentLine);
 	++cursorPosition;
 }

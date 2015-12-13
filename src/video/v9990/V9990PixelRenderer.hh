@@ -5,7 +5,6 @@
 #include "Observer.hh"
 #include "RenderSettings.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -23,7 +22,7 @@ class VideoSourceSetting;
   * @see PixelRenderer.cc
   */
 class V9990PixelRenderer final : public V9990Renderer
-                               , private Observer<Setting>, private noncopyable
+                               , private Observer<Setting>
 {
 public:
 	explicit V9990PixelRenderer(V9990& vdp);

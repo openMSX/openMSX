@@ -5,7 +5,6 @@
 #include "MemBuffer.hh"
 #include "InfoTopic.hh"
 #include "sha1.hh"
-#include "noncopyable.hh"
 #include <utility>
 #include <vector>
 
@@ -14,7 +13,7 @@ namespace openmsx {
 class CliComm;
 class GlobalCommandController;
 
-class RomDatabase : private noncopyable
+class RomDatabase
 {
 public:
 	using RomDB = std::vector<std::pair<Sha1Sum, RomInfo>>;

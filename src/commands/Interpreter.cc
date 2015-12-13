@@ -26,7 +26,7 @@ using std::vector;
 namespace openmsx {
 
 // See comments in traceProc()
-static std::vector<std::pair<uintptr_t, BaseSetting*>> traces;
+static std::vector<std::pair<uintptr_t, BaseSetting*>> traces; // sorted on first
 static uintptr_t traceCount = 0;
 
 
@@ -100,8 +100,10 @@ Interpreter::Interpreter(EventDistributor& eventDistributor_)
 	}
 	Tcl_SetStdChannel(channel, TCL_STDOUT);
 
-	setVariable("env(OPENMSX_USER_DATA)",   TclObject(FileOperations::getUserDataDir()));
-	setVariable("env(OPENMSX_SYSTEM_DATA)", TclObject(FileOperations::getSystemDataDir()));
+	setVariable(TclObject("env(OPENMSX_USER_DATA)"),
+	            TclObject(FileOperations::getUserDataDir()));
+	setVariable(TclObject("env(OPENMSX_SYSTEM_DATA)"),
+	            TclObject(FileOperations::getSystemDataDir()));
 }
 
 Interpreter::~Interpreter()
@@ -134,18 +136,15 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 
 void Interpreter::registerCommand(const string& name, Command& command)
 {
-	assert(commandTokenMap.find(name) == end(commandTokenMap));
-	commandTokenMap[name] = Tcl_CreateObjCommand(
+	auto token = Tcl_CreateObjCommand(
 		interp, name.c_str(), commandProc,
 		static_cast<ClientData>(&command), nullptr);
+	command.setToken(token);
 }
 
-void Interpreter::unregisterCommand(string_ref name, Command& /*command*/)
+void Interpreter::unregisterCommand(Command& command)
 {
-	auto it = commandTokenMap.find(name);
-	assert(it != end(commandTokenMap));
-	Tcl_DeleteCommandFromToken(interp, it->second);
-	commandTokenMap.erase(it);
+	Tcl_DeleteCommandFromToken(interp, static_cast<Tcl_Command>(command.getToken()));
 }
 
 int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
@@ -214,30 +213,33 @@ TclObject Interpreter::executeFile(const string& filename)
 	return TclObject(Tcl_GetObjResult(interp));
 }
 
-static void setVar(Tcl_Interp* interp, const char* name, TclObject value)
+static void setVar(Tcl_Interp* interp, const TclObject& name, const TclObject& value)
 {
-	if (!Tcl_SetVar2Ex(interp, name, nullptr, value.getTclObject(),
-		           TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
+	if (!Tcl_ObjSetVar2(interp, name.getTclObjectNonConst(), nullptr,
+		            value.getTclObjectNonConst(),
+		            TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
 		// might contain error message of a trace proc
 		std::cerr << Tcl_GetStringResult(interp) << std::endl;
 	}
 }
-static Tcl_Obj* getVar(Tcl_Interp* interp, const char* name)
+static Tcl_Obj* getVar(Tcl_Interp* interp, const TclObject& name)
 {
-	return Tcl_GetVar2Ex(interp, name, nullptr, TCL_GLOBAL_ONLY);
+	return Tcl_ObjGetVar2(interp, name.getTclObjectNonConst(), nullptr,
+	                      TCL_GLOBAL_ONLY);
 }
 
-void Interpreter::setVariable(const string& name, TclObject value)
+void Interpreter::setVariable(const TclObject& name, const TclObject& value)
 {
-	if (!Tcl_SetVar2Ex(interp, name.c_str(), nullptr, value.getTclObject(),
-		        TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
+	if (!Tcl_ObjSetVar2(interp, name.getTclObjectNonConst(), nullptr,
+		            value.getTclObjectNonConst(),
+		            TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
 		throw CommandException(Tcl_GetStringResult(interp));
 	}
 }
 
-void Interpreter::unsetVariable(const string& name)
+void Interpreter::unsetVariable(const char* name)
 {
-	Tcl_UnsetVar(interp, name.c_str(), TCL_GLOBAL_ONLY);
+	Tcl_UnsetVar(interp, name, TCL_GLOBAL_ONLY);
 }
 
 static TclObject getSafeValue(BaseSetting& setting)
@@ -248,9 +250,10 @@ static TclObject getSafeValue(BaseSetting& setting)
 		return TclObject(0); // 'safe' value, see comment in registerSetting()
 	}
 }
-void Interpreter::registerSetting(BaseSetting& variable, const string& name)
+void Interpreter::registerSetting(BaseSetting& variable)
 {
-	if (Tcl_Obj* tclVarValue = getVar(interp, name.c_str())) {
+	const auto& name = variable.getFullNameObj();
+	if (Tcl_Obj* tclVarValue = getVar(interp, name)) {
 		// Tcl var already existed, use this value
 		try {
 			variable.setValueDirect(TclObject(tclVarValue));
@@ -294,18 +297,19 @@ void Interpreter::registerSetting(BaseSetting& variable, const string& name)
 
 	uintptr_t traceID = traceCount++;
 	traces.emplace_back(traceID, &variable); // still in sorted order
-	Tcl_TraceVar(interp, name.c_str(),
+	Tcl_TraceVar(interp, name.getString().data(), // 0-terminated
 	             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 	             traceProc, reinterpret_cast<ClientData>(traceID));
 }
 
-void Interpreter::unregisterSetting(BaseSetting& variable, const string& name)
+void Interpreter::unregisterSetting(BaseSetting& variable)
 {
-	auto it = find_if_unguarded(traces, EqualTupleValue<1>(&variable));
+	auto it = rfind_if_unguarded(traces, EqualTupleValue<1>(&variable));
 	uintptr_t traceID = it->first;
 	traces.erase(it);
 
-	Tcl_UntraceVar(interp, name.c_str(),
+	const char* name = variable.getFullName().data(); // 0-terminated
+	Tcl_UntraceVar(interp, name,
 	               TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 	               traceProc, reinterpret_cast<ClientData>(traceID));
 	unsetVariable(name);
@@ -318,6 +322,13 @@ static BaseSetting* getTraceSetting(uintptr_t traceID)
 	return ((it != end(traces)) && (it->first == traceID))
 		? it->second : nullptr;
 }
+
+#ifndef NDEBUG
+static string_ref removeColonColon(string_ref s)
+{
+	return s.starts_with("::") ? s.substr(2) : s;
+}
+#endif
 
 char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
                            const char* part1, const char* /*part2*/, int flags)
@@ -357,10 +368,13 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		auto* variable = getTraceSetting(traceID);
 		if (!variable) return nullptr;
 
+		const TclObject& part1Obj = variable->getFullNameObj();
+		assert(removeColonColon(part1) == removeColonColon(part1Obj.getString()));
+
 		static string static_string;
 		if (flags & TCL_TRACE_READS) {
 			try {
-				setVar(interp, part1, variable->getValue());
+				setVar(interp, part1Obj, variable->getValue());
 			} catch (MSXException& e) {
 				static_string = e.getMessage();
 				return const_cast<char*>(static_string.c_str());
@@ -368,15 +382,15 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		}
 		if (flags & TCL_TRACE_WRITES) {
 			try {
-				Tcl_Obj* v = getVar(interp, part1);
+				Tcl_Obj* v = getVar(interp, part1Obj);
 				TclObject newValue(v ? v : Tcl_NewObj());
 				variable->setValueDirect(newValue);
 				const TclObject& newValue2 = variable->getValue();
 				if (newValue != newValue2) {
-					setVar(interp, part1, newValue2);
+					setVar(interp, part1Obj, newValue2);
 				}
 			} catch (MSXException& e) {
-				setVar(interp, part1, getSafeValue(*variable));
+				setVar(interp, part1Obj, getSafeValue(*variable));
 				static_string = e.getMessage();
 				return const_cast<char*>(static_string.c_str());
 			}
@@ -394,7 +408,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				// setting before turning on (set power on) the
 				// MSX machine)
 			}
-			setVar(interp, part1, getSafeValue(*variable));
+			setVar(interp, part1Obj, getSafeValue(*variable));
 			Tcl_TraceVar(interp, part1, TCL_TRACE_READS |
 			                TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 			             traceProc,

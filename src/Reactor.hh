@@ -3,7 +3,6 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include "openmsx.hh"
 #include <string>
@@ -60,7 +59,6 @@ template <typename T> class EnumSetting;
  * main thread.
  */
 class Reactor final : private Observer<Setting>, private EventListener
-                    , private noncopyable
 {
 public:
 	Reactor();
@@ -175,7 +173,7 @@ private:
 	//  - non-main thread can only access activeBoard via specific
 	//    member functions (atm only via enterMainLoop()), it needs to take
 	//    the mbMutex lock
-	Boards boards;
+	Boards boards; // unordered
 	Boards garbageBoards;
 	MSXMotherBoard* activeBoard; // either nullptr or a board inside 'boards'
 
