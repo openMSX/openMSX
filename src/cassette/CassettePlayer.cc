@@ -443,13 +443,13 @@ void CassettePlayer::sync(EmuTime::param time)
 void CassettePlayer::updateTapePosition(
 	EmuDuration::param duration, EmuTime::param time)
 {
-	if (!isRolling()) return;
+	if (!isRolling() || (getState() != PLAY)) return;
 
 	tapePos += duration;
 	assert(tapePos <= playImage->getEndTime());
 
 	// synchronize audio with actual tape position
-	if ((getState() == PLAY) && !syncScheduled) {
+	if (!syncScheduled) {
 		// don't sync too often, this improves sound quality
 		syncScheduled = true;
 		syncAudioEmu.setSyncPoint(time + EmuDuration::sec(1));
