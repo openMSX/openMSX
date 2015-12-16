@@ -504,6 +504,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMajutsushi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomManbow2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXtra.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXWrite.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMitsubishiMLTS2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMultiRom.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraInk.cc" />
@@ -1035,6 +1036,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomManbow2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMitsubishiMLTS2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXtra.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomMSXWrite.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMultiRom.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMatraInk.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.hh" />
