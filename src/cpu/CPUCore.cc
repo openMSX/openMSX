@@ -372,8 +372,6 @@ template<class T> void CPUCore<T>::doReset(EmuTime::param time)
 	setBC2(0xFFFF);
 	setDE2(0xFFFF);
 	setHL2(0xFFFF);
-	clearNextAfter();
-	copyNextAfter();
 	setIFF1(false);
 	setIFF2(false);
 	setHALT(false);
@@ -382,6 +380,7 @@ template<class T> void CPUCore<T>::doReset(EmuTime::param time)
 	setI(0x00);
 	setR(0x00);
 	T::setMemPtr(0xFFFF);
+	clearPrevious();
 	invalidateMemCache(0x0000, 0x10000);
 
 	// We expect this assert to be valid
@@ -845,8 +844,7 @@ template<class T> inline void CPUCore<T>::irq2()
 template<class T>
 void CPUCore<T>::executeInstructions()
 {
-	assert(isNextAfterClear());
-
+	checkNoCurrentFlags();
 #ifdef USE_COMPUTED_GOTO
 	// Addresses of all main-opcode routines,
 	// Note that 40/49/53/5B/64/6D/7F is replaced by 00 (ld r,r == nop)
@@ -2461,9 +2459,9 @@ template<class T> void CPUCore<T>::executeSlow()
 		// Note: NMIs are disabled, see also raiseNMI()
 		nmiEdge = false;
 		nmi(); // NMI occured
-	} else if (unlikely(IRQStatus && getIFF1() && !getAfterEI())) {
+	} else if (unlikely(IRQStatus && getIFF1() && !prevWasEI())) {
 		// normal interrupt
-		if (unlikely(getAfterLDAI())) {
+		if (unlikely(prevWasLDAI())) {
 			// HACK!!!
 			// The 'ld a,i' or 'ld a,r' instruction copies the IFF2
 			// bit to the V flag. Though when the Z80 accepts an
@@ -2500,13 +2498,13 @@ template<class T> void CPUCore<T>::executeSlow()
 		incR(T::advanceHalt(T::haltStates(), scheduler.getNext()));
 		setSlowInstructions();
 	} else {
-		assert(isSameAfter());
-		clearNextAfter();
 		cpuTracePre();
 		assert(T::limitReached()); // we want only one instruction
 		executeInstructions();
+		endInstruction();
+
 		if (T::isR800()) {
-			if (unlikely(getAfterCall()) && likely(!getAfterPopRet())) {
+			if (unlikely(prev2WasCall()) && likely(!prevWasPopRet())) {
 				// On R800 a CALL or RST instruction not _immediately_
 				// followed by a (single-byte) POP or RET instruction
 				// causes an extra cycle in that following instruction.
@@ -2514,13 +2512,12 @@ template<class T> void CPUCore<T>::executeSlow()
 				// for more information.
 				//
 				// TODO this implementation adds the extra cycle at
-				// the end of the instruction. It is not known where
-				// in the instruction the real R800 adds this cycle.
+				// the end of the instruction POP/RET. It is not known
+				// where in the instruction the real R800 adds this cycle.
 				T::add(1);
 			}
 		}
 		cpuTracePost();
-		copyNextAfter();
 	}
 }
 
@@ -2575,9 +2572,10 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 					T::enableLimit(); // does CPUClock::sync()
 					if (likely(!T::limitReached())) {
 						// multiple instructions
-						assert(isSameAfter());
 						executeInstructions();
-						assert(isSameAfter());
+						// note: pipeline only shifted one
+						// step for multiple instructions
+						endInstruction();
 					}
 					scheduler.schedule(T::getTimeFast());
 					if (needExitCPULoop()) return;
@@ -2593,9 +2591,8 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 			if (slowInstructions == 0) {
 				cpuTracePre();
 				assert(T::limitReached()); // only one instruction
-				assert(isSameAfter());
 				executeInstructions();
-				assert(isSameAfter());
+				endInstruction();
 				cpuTracePost();
 			} else {
 				--slowInstructions;
@@ -3813,10 +3810,11 @@ template<class T> template<int EE> inline unsigned CPUCore<T>::POP() {
 	if (T::isR800()) {
 		// handles both POP and RET instructions (RET with condition = true)
 		if (EE == 0) { // not reti/retn, not pop ix/iy
-			setAfterPopRet();
-			// no need for setSlowInstructions()
-			//  -> because of this we need exceptions in
-			//      isSameAfter() and isNextAfterClear()
+			setCurrentPopRet();
+			// No need for setSlowInstructions()
+			// -> this only matters directly after a CALL
+			//    instruction and in that case we're still
+			//    executing slow instructions.
 		}
 	}
 	return RD_WORD(addr, T::CC_POP_1 + EE);
@@ -3834,7 +3832,7 @@ template<class T> template<typename COND> int CPUCore<T>::call(COND cond) {
 		PUSH<T::EE_CALL>(getPC());
 		setPC(addr);
 		if (T::isR800()) {
-			setAfterCall();
+			setCurrentCall();
 			setSlowInstructions();
 		}
 		return T::CC_CALL_A;
@@ -3850,7 +3848,7 @@ template<class T> template<unsigned ADDR> int CPUCore<T>::rst() {
 	T::setMemPtr(ADDR);
 	setPC(ADDR);
 	if (T::isR800()) {
-		setAfterCall();
+		setCurrentCall();
 		setSlowInstructions();
 	}
 	return T::CC_RST;
@@ -4256,7 +4254,7 @@ template<class T> int CPUCore<T>::di() {
 template<class T> int CPUCore<T>::ei() {
 	setIFF1(true);
 	setIFF2(true);
-	setAfterEI(); // no ints directly after this instr
+	setCurrentEI(); // no ints directly after this instr
 	setSlowInstructions();
 	return T::CC_EI;
 }
@@ -4284,7 +4282,7 @@ template<class T> template<Reg8 REG> int CPUCore<T>::ld_a_IR() {
 		f |= getF() & C_FLAG;
 		f |= ZSXYTable[getA()];
 		// see comment in the IRQ acceptance part of executeSlow().
-		setAfterLDAI(); // only Z80 (not R800) has this quirk
+		setCurrentLDAI(); // only Z80 (not R800) has this quirk
 		setSlowInstructions();
 	}
 	setF(f);

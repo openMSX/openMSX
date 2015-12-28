@@ -342,7 +342,7 @@ byte MSXCPU::Debuggable::read(unsigned address)
 	case 26: return regs.getIM();
 	case 27: return 1 *  regs.getIFF1() +
 	                2 *  regs.getIFF2() +
-	                4 * (regs.getIFF1() && !regs.debugGetAfterEI());
+	                4 * (regs.getIFF1() && !regs.prevWasEI());
 	default: UNREACHABLE; return 0;
 	}
 }
