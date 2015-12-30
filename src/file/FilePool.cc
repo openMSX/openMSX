@@ -493,14 +493,6 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	return sum;
 }
 
-void FilePool::removeSha1Sum(File& file)
-{
-	auto it = findInDatabase(file.getURL());
-	if (it != end(pool)) {
-		remove(it);
-	}
-}
-
 int FilePool::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	(void)event; // avoid warning for non-assert compiles

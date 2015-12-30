@@ -3,9 +3,10 @@
 
 #include "Command.hh"
 #include "InfoTopic.hh"
-#include "StringMap.hh"
+#include "hash_map.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
+#include "xxhash.hh"
 
 namespace openmsx {
 
@@ -61,7 +62,8 @@ private:
 	SettingCompleter incrCompleter;
 	SettingCompleter unsetCompleter;
 
-	StringMap<BaseSetting*> settingsMap;
+	// TODO refactor so that we can use Setting::getName()
+	hash_map<std::string, BaseSetting*, XXHasher> settingsMap;
 };
 
 } // namespace openmsx

@@ -6,6 +6,7 @@
 #include "FileOperations.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
+#include <atomic>
 #include <cstdio>
 #include <cerrno>
 #include <cstring>
@@ -13,6 +14,10 @@
 using std::string;
 
 namespace openmsx {
+
+// This only works for one simultaneous instance
+// TODO get rid of helper thread
+static std::atomic<bool> exitLoop(false);
 
 MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_,
@@ -25,10 +30,12 @@ MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
 		"/dev/midi")
 {
 	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
+	exitLoop = false;
 }
 
 MidiInReader::~MidiInReader()
 {
+	exitLoop = true;
 	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
 }
 
@@ -79,6 +86,7 @@ void MidiInReader::run()
 	if (!file) return;
 	while (true) {
 		size_t num = fread(&buf, 1, 1, file.get());
+		if (exitLoop) break;
 		if (num != 1) {
 			continue;
 		}

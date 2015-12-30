@@ -18,7 +18,7 @@ using namespace gl;
 
 namespace openmsx {
 
-OSDRectangle::OSDRectangle(OSDGUI& gui, const string& name)
+OSDRectangle::OSDRectangle(OSDGUI& gui, const TclObject& name)
 	: OSDImageBasedWidget(gui, name)
 	, scale(1.0), borderSize(0.0), relBorderSize(0.0)
 	, borderRGBA(0x000000ff)

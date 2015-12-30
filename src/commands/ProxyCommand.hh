@@ -11,7 +11,7 @@ class Reactor;
 class ProxyCmd final : public Command
 {
 public:
-	ProxyCmd(Reactor& reactor, std::string name_);
+	ProxyCmd(Reactor& reactor, string_ref name);
 	void execute(array_ref<TclObject> tokens,
 	             TclObject& result) override;
 	std::string help(const std::vector<std::string>& tokens) const override;
@@ -19,7 +19,6 @@ public:
 private:
 	Command* getMachineCommand() const;
 	Reactor& reactor;
-	const std::string name;
 };
 
 } // namespace openmsx

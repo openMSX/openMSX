@@ -35,7 +35,6 @@ public:
 	 * pin 9 : GND
 	 */
 
-protected:
 	// use in the read() method
 	static const int JOY_UP      = 0x01;
 	static const int JOY_DOWN    = 0x02;

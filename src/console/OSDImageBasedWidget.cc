@@ -16,7 +16,7 @@ using namespace gl;
 
 namespace openmsx {
 
-OSDImageBasedWidget::OSDImageBasedWidget(OSDGUI& gui_, const string& name)
+OSDImageBasedWidget::OSDImageBasedWidget(OSDGUI& gui_, const TclObject& name)
 	: OSDWidget(name)
 	, gui(gui_)
 	, startFadeTime(0)

@@ -14,6 +14,13 @@ struct LessDeref
 	bool operator()(PTR p1, PTR p2) const { return *p1 < *p2; }
 };
 
+// C++14 has an std::equal_to functor that is very much like this version.
+// TODO remove this version once we switch to C++14.
+struct EqualTo
+{
+       template<typename T1, typename T2>
+       bool operator()(const T1& t1, const T2& t2) const { return t1 == t2; }
+};
 
 // Note: LessTupleElement and CmpTupleElement can be made a lot more general
 // (and uniform). This can be done relatively easily with variadic templates.

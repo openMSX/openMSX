@@ -2,7 +2,9 @@
 #define INFOCOMMAND_HH
 
 #include "Command.hh"
-#include "StringMap.hh"
+#include "InfoTopic.hh"
+#include "hash_set.hh"
+#include "xxhash.hh"
 
 namespace openmsx {
 
@@ -14,8 +16,8 @@ public:
 	InfoCommand(CommandController& commandController, const std::string& name);
 	~InfoCommand();
 
-	void   registerTopic(InfoTopic& topic, string_ref name);
-	void unregisterTopic(InfoTopic& topic, string_ref name);
+	void   registerTopic(InfoTopic& topic);
+	void unregisterTopic(InfoTopic& topic);
 
 private:
 	// Command
@@ -24,7 +26,12 @@ private:
 	std::string help(const std::vector<std::string>& tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
-	StringMap<const InfoTopic*> infoTopics;
+	struct NameFromInfoTopic {
+		const std::string& operator()(const InfoTopic* t) const {
+			return t->getName();
+		}
+	};
+	hash_set<const InfoTopic*, NameFromInfoTopic, XXHasher> infoTopics;
 };
 
 } // namespace openmsx

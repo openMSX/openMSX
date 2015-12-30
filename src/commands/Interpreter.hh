@@ -3,7 +3,6 @@
 
 #include "TclParser.hh"
 #include "TclObject.hh"
-#include "StringMap.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
 #include <vector>
@@ -26,7 +25,7 @@ public:
 
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);
-	void unregisterCommand(string_ref name, Command& command);
+	void unregisterCommand(Command& command);
 	TclObject getCommandNames();
 	bool isComplete(const std::string& command) const;
 	TclObject execute(const std::string& command);
@@ -63,7 +62,6 @@ private:
 
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;
-	StringMap<Tcl_Command> commandTokenMap;
 	InterpreterOutput* output;
 
 	friend class TclObject;

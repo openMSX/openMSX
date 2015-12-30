@@ -84,9 +84,7 @@ byte PioneerLDControl::readMem(word address, EmuTime::param time)
 	byte val = PioneerLDControl::peekMem(address, time);
 	if (address == 0x7fff) {
 		extint = false;
-		if (irq.getState()) {
-			irq.reset();
-		}
+		irq.reset();
 	}
 	return val;
 }
@@ -131,13 +129,7 @@ void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 	if (address == 0x7fff) {
 		// superimpose
 		superimposing = !(value & 1);
-		if (superimposing) {
-			if (extint && !irq.getState()) {
-				irq.set();
-			}
-		} else if (irq.getState()) {
-			irq.reset();
-		}
+		irq.set(superimposing && extint);
 
 		updateVideoSource();
 
@@ -167,9 +159,7 @@ void PioneerLDControl::videoIn(bool enabled)
 	if (videoEnabled && !enabled) {
 		// raise an interrupt when external video goes off
 		extint = true;
-		if (superimposing) {
-			irq.set();
-		}
+		if (superimposing) irq.set();
 	}
 	videoEnabled = enabled;
 	updateVideoSource();

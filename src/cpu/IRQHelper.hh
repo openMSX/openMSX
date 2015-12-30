@@ -89,6 +89,16 @@ public:
 		}
 	}
 
+	/** Convenience function: calls set() or reset().
+	  */
+	inline void set(bool s) {
+		if (s) {
+			set();
+		} else {
+			reset();
+		}
+	}
+
 	/** Get the interrupt state.
 	  * @return true iff interrupt request is active.
 	  */
@@ -102,11 +112,7 @@ public:
 		bool pending = request;
 		ar.serialize("pending", pending);
 		if (ar.isLoader()) {
-			if (pending) {
-				set();
-			} else {
-				reset();
-			}
+			set(pending);
 		}
 	}
 

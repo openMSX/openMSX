@@ -10,6 +10,13 @@
     <type>MSX</type>
   </info>
 
+<!--
+Info from serial 244634, see http://bilgisayarlarim.com/Toshiba/HX-10/
+CPU: Sharp LH0080A Z80A-CPU-D
+PSG: GI AY-3-8910A
+Toshiba TCX-1007
+-->
+
   <CassettePort/>
 
   <devices>

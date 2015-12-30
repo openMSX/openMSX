@@ -1,9 +1,11 @@
 #ifndef OSDWIDGET_HH
 #define OSDWIDGET_HH
 
-#include "StringMap.hh"
-#include "string_ref.hh"
+#include "TclObject.hh"
 #include "gl_vec.hh"
+#include "hash_set.hh"
+#include "string_ref.hh"
+#include "xxhash.hh"
 #include <vector>
 #include <memory>
 
@@ -16,18 +18,18 @@ class Interpreter;
 
 class OSDWidget
 {
+	using SubWidgets = std::vector<std::unique_ptr<OSDWidget>>;
 public:
 	virtual ~OSDWidget();
 
-	const std::string& getName() const { return name; }
+	string_ref getName() const { return name.getString(); }
 	gl::vec2 getPos()    const { return pos; }
 	gl::vec2 getRelPos() const { return relPos; }
 	float    getZ()      const { return z; }
 
 	      OSDWidget* getParent()       { return parent; }
 	const OSDWidget* getParent() const { return parent; }
-	OSDWidget* findSubWidget(string_ref name);
-	const OSDWidget* findSubWidget(string_ref name) const;
+	const SubWidgets& getChildren() const { return subWidgets; }
 	void addWidget(std::unique_ptr<OSDWidget> widget);
 	void deleteWidget(OSDWidget& widget);
 
@@ -49,12 +51,8 @@ public:
 	                    gl::ivec2& pos, gl::ivec2& size);
 	virtual gl::vec2 getSize(const OutputRectangle& output) const = 0;
 
-	// for OSDGUI::OSDCommand
-	void listWidgetNames(const std::string& parentName,
-	                     std::vector<std::string>& result) const;
-
 protected:
-	explicit OSDWidget(const std::string& name);
+	OSDWidget(const TclObject& name);
 	void invalidateChildren();
 	bool needSuppressErrors() const;
 
@@ -72,16 +70,11 @@ private:
 
 	/** Direct child widgets of this widget, sorted by z-coordinate.
 	  */
-	std::vector<std::unique_ptr<OSDWidget>> subWidgets;
-
-	/** Contains the same widgets as "subWidgets", but stored with their name
-	  * the key, so lookup by name is fast.
-	  */
-	StringMap<OSDWidget*> subWidgetsMap;
+	SubWidgets subWidgets;
 
 	OSDWidget* parent;
 
-	const std::string name;
+	TclObject name;
 	gl::vec2 pos;
 	gl::vec2 relPos;
 	float z;

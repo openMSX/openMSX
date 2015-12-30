@@ -9,8 +9,9 @@
 #include "HotKey.hh"
 #include "SettingsConfig.hh"
 #include "RomInfoTopic.hh"
-#include "StringMap.hh"
+#include "hash_map.hh"
 #include "noncopyable.hh"
+#include "xxhash.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -28,8 +29,8 @@ class GlobalCommandControllerBase
 protected:
 	~GlobalCommandControllerBase();
 
-	StringMap<Command*> commands;
-	StringMap<CommandCompleter*> commandCompleters;
+	hash_map<std::string, Command*,          XXHasher> commands;
+	hash_map<std::string, CommandCompleter*, XXHasher> commandCompleters;
 };
 
 class GlobalCommandController final : private GlobalCommandControllerBase
@@ -152,7 +153,13 @@ private:
 
 	RomInfoTopic romInfoTopic;
 
-	StringMap<std::pair<unsigned, std::unique_ptr<ProxyCmd>>> proxyCommandMap;
+	struct NameFromProxy {
+		template<typename Pair>
+		const std::string& operator()(const Pair& p) const {
+			return p.second->getName();
+		}
+	};
+	hash_set<std::pair<unsigned, std::unique_ptr<ProxyCmd>>, NameFromProxy, XXHasher> proxyCommandMap;
 	ProxySettings proxySettings;
 };
 

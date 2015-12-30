@@ -295,7 +295,7 @@ static void parseGoTo(Interpreter& interp, array_ref<TclObject> tokens,
 	novideo = false;
 	bool hasTime = false;
 	for (auto i : xrange(size_t(2), tokens.size())) {
-		if (tokens[i].getString() == "-novideo") {
+		if (tokens[i] == "-novideo") {
 			novideo = true;
 		} else {
 			time = tokens[i].getDouble(interp);
@@ -546,7 +546,7 @@ void ReverseManager::saveReplay(
 	case 5:
 		size_t tn;
 		for (tn = 2; tn < (tokens.size() - 1); ++tn) {
-			if (tokens[tn].getString() == "-maxnofextrasnapshots") {
+			if (tokens[tn] == "-maxnofextrasnapshots") {
 				maxNofExtraSnapshots = tokens[tn + 1].getInt(interp);
 				break;
 			}

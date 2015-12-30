@@ -61,7 +61,7 @@ MSXMidi::~MSXMidi()
 	}
 }
 
-void MSXMidi::reset(EmuTime::param /*time*/)
+void MSXMidi::reset(EmuTime::param time)
 {
 	timerIRQlatch = false;
 	timerIRQenabled = false;
@@ -73,6 +73,7 @@ void MSXMidi::reset(EmuTime::param /*time*/)
 	if (isExternalMSXMIDI) {
 		registerIOports(DISABLED_VALUE | LIMITED_RANGE_VALUE); // also resets state
 	}
+	i8251.reset(time);
 }
 
 byte MSXMidi::readIO(word port, EmuTime::param time)
@@ -216,11 +217,7 @@ void MSXMidi::setTimerIRQ(bool status, EmuTime::param time)
 	if (timerIRQlatch != status) {
 		timerIRQlatch = status;
 		if (timerIRQenabled) {
-			if (timerIRQlatch) {
-				timerIRQ.set();
-			} else {
-				timerIRQ.reset();
-			}
+			timerIRQ.set(timerIRQlatch);
 		}
 		updateEdgeEvents(time);
 	}
@@ -231,11 +228,7 @@ void MSXMidi::enableTimerIRQ(bool enabled, EmuTime::param time)
 	if (timerIRQenabled != enabled) {
 		timerIRQenabled = enabled;
 		if (timerIRQlatch) {
-			if (timerIRQenabled) {
-				timerIRQ.set();
-			} else {
-				timerIRQ.reset();
-			}
+			timerIRQ.set(timerIRQenabled);
 		}
 		updateEdgeEvents(time);
 	}
@@ -252,11 +245,7 @@ void MSXMidi::setRxRDYIRQ(bool status)
 	if (rxrdyIRQlatch != status) {
 		rxrdyIRQlatch = status;
 		if (rxrdyIRQenabled) {
-			if (rxrdyIRQlatch) {
-				rxrdyIRQ.set();
-			} else {
-				rxrdyIRQ.reset();
-			}
+			rxrdyIRQ.set(rxrdyIRQlatch);
 		}
 	}
 }

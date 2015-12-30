@@ -10,6 +10,15 @@
     <type>MSX2</type>
   </info>
 
+<!-- Info from the 8235/20 with serial FF00 632042694
+see http://bilgisayarlarim.com/Philips/VG-8235
+- S3527 MSX-ENGINE
+- TI TMS2793NL FDC
+- Kyocera M60003A gate array
+- Zilog Z8400APS Z80 CPU
+- LVA510 RF encoder
+-->
+
   <MapperReadBackBits>largest</MapperReadBackBits>
 
   <CassettePort/>

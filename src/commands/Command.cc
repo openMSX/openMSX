@@ -2,9 +2,7 @@
 #include "CommandController.hh"
 #include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
-#include "TclObject.hh"
 #include "checked_cast.hh"
-#include "unreachable.hh"
 
 using std::vector;
 using std::string;
@@ -18,16 +16,12 @@ CommandCompleter::CommandCompleter(CommandController& commandController_,
 	: Completer(name)
 	, commandController(commandController_)
 {
-	if (!getName().empty()) {
-		getCommandController().registerCompleter(*this, getName());
-	}
+	getCommandController().registerCompleter(*this, getName());
 }
 
 CommandCompleter::~CommandCompleter()
 {
-	if (!getName().empty()) {
-		getCommandController().unregisterCompleter(*this, getName());
-	}
+	getCommandController().unregisterCompleter(*this, getName());
 }
 
 // TODO: getCommandController(), getGlobalCommandController() and
@@ -59,17 +53,14 @@ CliComm& CommandCompleter::getCliComm() const
 Command::Command(CommandController& commandController, string_ref name)
 	: CommandCompleter(commandController, name)
 	, allowInEmptyMachine(true)
+	, token(nullptr)
 {
-	if (!getName().empty()) {
-		getCommandController().registerCommand(*this, getName());
-	}
+	getCommandController().registerCommand(*this, getName());
 }
 
 Command::~Command()
 {
-	if (!getName().empty()) {
-		getCommandController().unregisterCommand(*this, getName());
-	}
+	getCommandController().unregisterCommand(*this, getName());
 }
 
 void Command::tabCompletion(vector<string>& /*tokens*/) const

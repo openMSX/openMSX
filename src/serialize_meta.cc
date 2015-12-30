@@ -92,8 +92,8 @@ void PolymorphicLoaderRegistry<Archive>::registerHelper(
 	const char* name,
 	std::unique_ptr<PolymorphicLoaderBase<Archive>> loader)
 {
-	assert(loaderMap.find(name) == end(loaderMap));
-	loaderMap[name] = std::move(loader);
+	assert(!loaderMap.contains(name));
+	loaderMap.emplace_noDuplicateCheck(name, std::move(loader));
 }
 
 template<typename Archive>
@@ -141,8 +141,8 @@ void PolymorphicInitializerRegistry<Archive>::registerHelper(
 	const char* name,
 	std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer)
 {
-	assert(initializerMap.find(name) == end(initializerMap));
-	initializerMap[name] = std::move(initializer);
+	assert(!initializerMap.contains(name));
+	initializerMap.emplace_noDuplicateCheck(name, std::move(initializer));
 }
 
 template<typename Archive>

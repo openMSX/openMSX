@@ -22,7 +22,7 @@ using namespace gl;
 
 namespace openmsx {
 
-OSDText::OSDText(OSDGUI& gui, const string& name)
+OSDText::OSDText(OSDGUI& gui, const TclObject& name)
 	: OSDImageBasedWidget(gui, name)
 	, fontfile("skins/Vera.ttf.gz")
 	, size(12)

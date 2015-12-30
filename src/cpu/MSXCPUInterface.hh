@@ -320,13 +320,13 @@ private:
 	};
 	struct IInfo final : IOInfo {
 		IInfo(InfoCommand& machineInfoCommand)
-			: IOInfo(machineInfoCommand, "input ports") {}
+			: IOInfo(machineInfoCommand, "input_port") {}
 		void execute(array_ref<TclObject> tokens,
 		             TclObject& result) const override;
 	} inputPortInfo;
 	struct OInfo final : IOInfo {
 		OInfo(InfoCommand& machineInfoCommand)
-			: IOInfo(machineInfoCommand, "output ports") {}
+			: IOInfo(machineInfoCommand, "output_port") {}
 		void execute(array_ref<TclObject> tokens,
 		             TclObject& result) const override;
 	} outputPortInfo;

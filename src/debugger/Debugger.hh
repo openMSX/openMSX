@@ -1,12 +1,14 @@
 #ifndef DEBUGGER_HH
 #define DEBUGGER_HH
 
+#include "Probe.hh"
 #include "RecordedCommand.hh"
 #include "WatchPoint.hh"
-#include "StringMap.hh"
+#include "hash_map.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
 #include "outer.hh"
+#include "xxhash.hh"
 #include <vector>
 #include <memory>
 
@@ -24,12 +26,12 @@ public:
 	explicit Debugger(MSXMotherBoard& motherBoard);
 	~Debugger();
 
-	void registerDebuggable   (string_ref name, Debuggable& interface);
+	void registerDebuggable   (std::string name, Debuggable& interface);
 	void unregisterDebuggable (string_ref name, Debuggable& interface);
 	Debuggable* findDebuggable(string_ref name);
 
-	void registerProbe  (string_ref name, ProbeBase& probe);
-	void unregisterProbe(string_ref name, ProbeBase& probe);
+	void registerProbe  (ProbeBase& probe);
+	void unregisterProbe(ProbeBase& probe);
 	ProbeBase* findProbe(string_ref name);
 
 	void removeProbeBreakPoint(ProbeBreakPoint& bp);
@@ -97,8 +99,14 @@ private:
 		void probeListBreakPoints(array_ref<TclObject> tokens, TclObject& result);
 	} cmd;
 
-	StringMap<Debuggable*> debuggables;
-	StringMap<ProbeBase*>  probes;
+	struct NameFromProbe {
+		const std::string& operator()(const ProbeBase* p) const {
+			return p->getName();
+		}
+	};
+
+	hash_map<std::string, Debuggable*, XXHasher> debuggables;
+	hash_set<ProbeBase*, NameFromProbe, XXHasher>  probes;
 	using ProbeBreakPoints = std::vector<std::unique_ptr<ProbeBreakPoint>>;
 	ProbeBreakPoints probeBreakPoints;
 	MSXCPU* cpu;

@@ -134,18 +134,15 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 
 void Interpreter::registerCommand(const string& name, Command& command)
 {
-	assert(commandTokenMap.find(name) == end(commandTokenMap));
-	commandTokenMap[name] = Tcl_CreateObjCommand(
+	auto token = Tcl_CreateObjCommand(
 		interp, name.c_str(), commandProc,
 		static_cast<ClientData>(&command), nullptr);
+	command.setToken(token);
 }
 
-void Interpreter::unregisterCommand(string_ref name, Command& /*command*/)
+void Interpreter::unregisterCommand(Command& command)
 {
-	auto it = commandTokenMap.find(name);
-	assert(it != end(commandTokenMap));
-	Tcl_DeleteCommandFromToken(interp, it->second);
-	commandTokenMap.erase(it);
+	Tcl_DeleteCommandFromToken(interp, static_cast<Tcl_Command>(command.getToken()));
 }
 
 int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,

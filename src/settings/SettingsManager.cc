@@ -30,13 +30,13 @@ SettingsManager::~SettingsManager()
 
 void SettingsManager::registerSetting(BaseSetting& setting, string_ref name)
 {
-	assert(settingsMap.find(name) == end(settingsMap));
-	settingsMap[name] = &setting;
+	assert(!settingsMap.contains(name));
+	settingsMap.emplace_noDuplicateCheck(name.str(), &setting);
 }
 
 void SettingsManager::unregisterSetting(BaseSetting& /*setting*/, string_ref name)
 {
-	assert(settingsMap.find(name) != end(settingsMap));
+	assert(settingsMap.contains(name));
 	settingsMap.erase(name);
 }
 
@@ -69,7 +69,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 	auto* settings = config.findChild("settings");
 	if (!settings) return;
 	for (auto& p : settingsMap) {
-		auto name = p.first();
+		auto& name = p.first;
 		auto& setting = *p.second;
 		if (!setting.needLoadSave()) continue;
 		if (auto* elem = settings->findChildWithAttribute(
@@ -99,7 +99,7 @@ void SettingsManager::SettingInfo::execute(
 	switch (tokens.size()) {
 	case 2:
 		for (auto& p : settingsMap) {
-			result.addListElement(p.first());
+			result.addListElement(p.first);
 		}
 		break;
 	case 3: {

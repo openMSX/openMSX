@@ -2,9 +2,12 @@
 #define MSXCOMMANDCONTROLLER_HH
 
 #include "CommandController.hh"
+#include "Command.hh"
 #include "MSXEventListener.hh"
-#include "StringMap.hh"
+#include "Setting.hh"
+#include "hash_set.hh"
 #include "noncopyable.hh"
+#include "xxhash.hh"
 #include <memory>
 
 namespace openmsx {
@@ -82,8 +85,19 @@ private:
 	std::string machineID;
 	std::unique_ptr<InfoCommand> machineInfoCommand;
 
-	StringMap<Command*> commandMap;
-	StringMap<Setting*> settingMap;
+	struct NameFromCommand {
+		const std::string& operator()(const Command* c) const {
+			return c->getName();
+		}
+	};
+	hash_set<Command*, NameFromCommand, XXHasher> commandMap;
+
+	struct NameFromSetting {
+		const std::string& operator()(const Setting* s) const {
+			return s->getName();
+		}
+	};
+	hash_set<Setting*, NameFromSetting, XXHasher> settingMap;
 };
 
 } // namespace openmsx

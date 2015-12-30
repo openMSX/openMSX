@@ -636,11 +636,7 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 			vramReadBuffer = vram->readVRAMCPU(vramReadPtr, time);
 			break;
 		case INTERRUPT_0:
-			if (pendingIRQs & val) {
-				irq.set();
-			} else {
-				irq.reset();
-			}
+			irq.set(pendingIRQs & val);
 			break;
 		case INTERRUPT_1:
 		case INTERRUPT_2:

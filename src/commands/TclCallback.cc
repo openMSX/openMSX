@@ -1,5 +1,4 @@
 #include "TclCallback.hh"
-#include "TclObject.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
@@ -40,56 +39,67 @@ TclObject TclCallback::getValue() const
 	return getSetting().getValue();
 }
 
-void TclCallback::execute()
+TclObject TclCallback::execute()
 {
 	const auto& callback = getValue();
-	if (callback.empty()) return;
+	if (callback.empty()) return TclObject();
 
 	TclObject command;
 	command.addListElement(callback);
-	executeCommon(command);
+	return executeCommon(command);
 }
 
-void TclCallback::execute(int arg1, int arg2)
+TclObject TclCallback::execute(int arg1)
 {
 	const auto& callback = getValue();
-	if (callback.empty()) return;
+	if (callback.empty()) return TclObject();
+
+	TclObject command;
+	command.addListElement(callback);
+	command.addListElement(arg1);
+	return executeCommon(command);
+}
+
+TclObject TclCallback::execute(int arg1, int arg2)
+{
+	const auto& callback = getValue();
+	if (callback.empty()) return TclObject();
 
 	TclObject command;
 	command.addListElement(callback);
 	command.addListElement(arg1);
 	command.addListElement(arg2);
-	executeCommon(command);
+	return executeCommon(command);
 }
 
-void TclCallback::execute(int arg1, string_ref arg2)
+TclObject TclCallback::execute(int arg1, string_ref arg2)
 {
 	const auto& callback = getValue();
-	if (callback.empty()) return;
+	if (callback.empty()) return TclObject();
 
 	TclObject command;
 	command.addListElement(callback);
 	command.addListElement(arg1);
 	command.addListElement(arg2);
-	executeCommon(command);
+	return executeCommon(command);
 }
 
-void TclCallback::execute(string_ref arg1, string_ref arg2)
+TclObject TclCallback::execute(string_ref arg1, string_ref arg2)
 {
 	const auto& callback = getValue();
-	if (callback.empty()) return;
+	if (callback.empty()) return TclObject();
 
 	TclObject command;
 	command.addListElement(callback);
 	command.addListElement(arg1);
 	command.addListElement(arg2);
-	executeCommon(command);
+	return executeCommon(command);
 }
 
-void TclCallback::executeCommon(TclObject& command)
+TclObject TclCallback::executeCommon(TclObject& command)
 {
 	try {
-		command.executeCommand(callbackSetting.getInterpreter());
+		return command.executeCommand(callbackSetting.getInterpreter());
 	} catch (CommandException& e) {
 		string message =
 			"Error executing callback function \"" +
@@ -100,6 +110,7 @@ void TclCallback::executeCommon(TclObject& command)
 		} else {
 			std::cerr << message << std::endl;
 		}
+		return TclObject();
 	}
 }
 

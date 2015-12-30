@@ -1,6 +1,5 @@
 #include "Debugger.hh"
 #include "Debuggable.hh"
-#include "Probe.hh"
 #include "ProbeBreakPoint.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -44,18 +43,17 @@ Debugger::~Debugger()
 	assert(debuggables.empty());
 }
 
-void Debugger::registerDebuggable(string_ref name, Debuggable& debuggable)
+void Debugger::registerDebuggable(string name, Debuggable& debuggable)
 {
-	assert(debuggables.find(name) == end(debuggables));
-	debuggables[name] = &debuggable;
+	assert(!debuggables.contains(name));
+	debuggables.emplace_noDuplicateCheck(std::move(name), &debuggable);
 }
 
 void Debugger::unregisterDebuggable(string_ref name, Debuggable& debuggable)
 {
-	(void)debuggable;
-	auto it = debuggables.find(name);
-	assert(it != end(debuggables) && (it->second == &debuggable));
-	debuggables.erase(it);
+	assert(debuggables.contains(name));
+	assert(debuggables[name.str()] == &debuggable); (void)debuggable;
+	debuggables.erase(name);
 }
 
 Debuggable* Debugger::findDebuggable(string_ref name)
@@ -73,29 +71,27 @@ Debuggable& Debugger::getDebuggable(string_ref name)
 	return *result;
 }
 
-void Debugger::registerProbe(string_ref name, ProbeBase& probe)
+void Debugger::registerProbe(ProbeBase& probe)
 {
-	assert(probes.find(name) == end(probes));
-	probes[name] = &probe;
+	assert(!probes.contains(probe.getName()));
+	probes.insert_noDuplicateCheck(&probe);
 }
 
-void Debugger::unregisterProbe(string_ref name, ProbeBase& probe)
+void Debugger::unregisterProbe(ProbeBase& probe)
 {
-	(void)probe;
-	auto it = probes.find(name);
-	assert(it != end(probes) && (it->second == &probe));
-	probes.erase(it);
+	assert(probes.contains(probe.getName()));
+	probes.erase(probe.getName());
 }
 
 ProbeBase* Debugger::findProbe(string_ref name)
 {
 	auto it = probes.find(name);
-	return (it != end(probes)) ? it->second : nullptr;
+	return (it != end(probes)) ? *it : nullptr;
 }
 
 ProbeBase& Debugger::getProbe(string_ref name)
 {
-	ProbeBase* result = findProbe(name);
+	auto* result = findProbe(name);
 	if (!result) {
 		throw CommandException("No such probe: " + name);
 	}
@@ -688,7 +684,10 @@ void Debugger::Cmd::probe(array_ref<TclObject> tokens, TclObject& result)
 }
 void Debugger::Cmd::probeList(array_ref<TclObject> /*tokens*/, TclObject& result)
 {
-	result.addListElements(keys(debugger().probes));
+	// TODO use transform_iterator or transform_view
+	for (auto* p : debugger().probes) {
+		result.addListElement(p->getName());
+	}
 }
 void Debugger::Cmd::probeDesc(array_ref<TclObject> tokens, TclObject& result)
 {
@@ -1084,7 +1083,11 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "probe") &&
 		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
 		     (tokens[2] == "set_bp"))) {
-			completeString(tokens, keys(debugger().probes));
+			std::vector<string_ref> probes;
+			for (auto* p : debugger().probes) {
+				probes.push_back(p->getName());
+			}
+			completeString(tokens, probes);
 		}
 		break;
 	}

@@ -56,24 +56,22 @@ GlobalCommandControllerBase::~GlobalCommandControllerBase()
 
 void GlobalCommandController::registerProxyCommand(const string& name)
 {
-	auto& p = proxyCommandMap[name];
-	if (p.first == 0) {
-		p.second = make_unique<ProxyCmd>(reactor, name);
-		registerCommand(*p.second, name);
-		registerCompleter(*p.second, name);
+	auto it = proxyCommandMap.find(name);
+	if (it == end(proxyCommandMap)) {
+		it = proxyCommandMap.emplace_noDuplicateCheck(
+			0, make_unique<ProxyCmd>(reactor, name));
 	}
-	++p.first;
+	++it->first;
 }
 
 void GlobalCommandController::unregisterProxyCommand(string_ref name)
 {
-	auto& p = proxyCommandMap[name];
-	assert(p.first > 0);
-	--p.first;
-	if (p.first == 0) {
-		unregisterCompleter(*p.second, name);
-		unregisterCommand(*p.second, name);
-		p.second.reset();
+	auto it = proxyCommandMap.find(name);
+	assert(it != end(proxyCommandMap));
+	assert(it->first > 0);
+	--it->first;
+	if (it->first == 0) {
+		proxyCommandMap.erase(it);
 	}
 }
 
@@ -128,35 +126,34 @@ Interpreter& GlobalCommandController::getInterpreter()
 void GlobalCommandController::registerCommand(
 	Command& command, const string& str)
 {
-	assert(commands.find(str) == end(commands));
-
-	commands[str] = &command;
+	assert(!commands.contains(str));
+	commands.emplace_noDuplicateCheck(str, &command);
 	interpreter.registerCommand(str, command);
 }
 
 void GlobalCommandController::unregisterCommand(
 	Command& command, string_ref str)
 {
-	assert(commands.find(str) != end(commands));
-	assert(commands.find(str)->second == &command);
-
-	interpreter.unregisterCommand(str, command);
+	assert(commands.contains(str));
+	assert(commands[str.str()] == &command);
 	commands.erase(str);
+	interpreter.unregisterCommand(command);
 }
 
 void GlobalCommandController::registerCompleter(
 	CommandCompleter& completer, string_ref str)
 {
-	assert(commandCompleters.find(str) == end(commandCompleters));
-	commandCompleters[str] = &completer;
+	if (str.starts_with("::")) str = str.substr(2); // drop leading ::
+	assert(!commandCompleters.contains(str));
+	commandCompleters.emplace_noDuplicateCheck(str.str(), &completer);
 }
 
 void GlobalCommandController::unregisterCompleter(
 	CommandCompleter& completer, string_ref str)
 {
-	(void)completer;
-	assert(commandCompleters.find(str) != end(commandCompleters));
-	assert(commandCompleters.find(str)->second == &completer);
+	if (str.starts_with("::")) str = str.substr(2); // drop leading ::
+	assert(commandCompleters.contains(str));
+	assert(commandCompleters[str.str()] == &completer); (void)completer;
 	commandCompleters.erase(str);
 }
 
@@ -401,10 +398,23 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 	}
 	if (tokens.size() == 1) {
 		// build a list of all command strings
-		Completer::completeString(tokens,
-		                          interpreter.getCommandNames());
+		TclObject names = interpreter.getCommandNames();
+		vector<string> names2; // each command with and without :: prefix
+		names2.reserve(2 * names.size());
+		for (string_ref n : names) {
+			names2.push_back(n.str());
+			if (n.starts_with("::")) {
+				names2.push_back(n.substr(2).str());
+			} else {
+				names2.push_back("::" + n);
+			}
+		}
+		Completer::completeString(tokens, names2);
 	} else {
-		auto it = commandCompleters.find(tokens.front());
+		string_ref cmd = tokens.front();
+		if (cmd.starts_with("::")) cmd = cmd.substr(2); // drop leading ::
+
+		auto it = commandCompleters.find(cmd);
 		if (it != end(commandCompleters)) {
 			it->second->tabCompletion(tokens);
 		} else {
@@ -455,7 +465,7 @@ void GlobalCommandController::HelpCmd::execute(
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
 		for (auto& p : controller.commandCompleters) {
-			const auto& key = p.first();
+			const auto& key = p.first;
 			text.append(key.data(), key.size());
 			text += '\n';
 		}
@@ -536,7 +546,7 @@ GlobalCommandController::UpdateCmd::UpdateCmd(CommandController& commandControll
 {
 }
 
-static GlobalCliComm::UpdateType getType(string_ref name)
+static GlobalCliComm::UpdateType getType(const TclObject& name)
 {
 	auto updateStr = CliComm::getUpdateStrings();
 	for (auto i : xrange(updateStr.size())) {
@@ -544,7 +554,7 @@ static GlobalCliComm::UpdateType getType(string_ref name)
 			return static_cast<CliComm::UpdateType>(i);
 		}
 	}
-	throw CommandException("No such update type: " + name);
+	throw CommandException("No such update type: " + name.getString());
 }
 
 CliConnection& GlobalCommandController::UpdateCmd::getConnection()
@@ -563,10 +573,10 @@ void GlobalCommandController::UpdateCmd::execute(
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	if (tokens[1].getString() == "enable") {
-		getConnection().setUpdateEnable(getType(tokens[2].getString()), true);
-	} else if (tokens[1].getString() == "disable") {
-		getConnection().setUpdateEnable(getType(tokens[2].getString()), false);
+	if (tokens[1] == "enable") {
+		getConnection().setUpdateEnable(getType(tokens[2]), true);
+	} else if (tokens[1] == "disable") {
+		getConnection().setUpdateEnable(getType(tokens[2]), false);
 	} else {
 		throw SyntaxError();
 	}
