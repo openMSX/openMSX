@@ -74,7 +74,7 @@ private:
 		  */
 		inline void advance(int duration);
 
-		inline void doNextEvent(bool doDetune, AY8910& ay8910);
+		inline void doNextEvent(AY8910& ay8910);
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -86,10 +86,6 @@ private:
 		  */
 		unsigned vibratoCount;
 		unsigned detuneCount;
-
-		// disallow copy (can't use noncopyable utility for some reason)
-		ToneGenerator(const ToneGenerator&);
-		const ToneGenerator& operator=(const ToneGenerator&);
 	};
 
 	class NoiseGenerator : public Generator {

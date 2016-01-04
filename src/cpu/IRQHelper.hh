@@ -3,7 +3,6 @@
 
 #include "Probe.hh"
 #include "MSXMotherBoard.hh"
-#include "noncopyable.hh"
 #include "serialize.hh"
 #include <string>
 
@@ -44,9 +43,12 @@ private:
 
 
 // generic implementation
-template <typename SOURCE> class IntHelper : public SOURCE, private noncopyable
+template <typename SOURCE> class IntHelper : public SOURCE
 {
 public:
+	IntHelper(const IntHelper&) = delete;
+	IntHelper& operator=(const IntHelper&) = delete;
+
 	/** Create a new IntHelper.
 	  * Initially there is no interrupt request on the bus.
 	  */

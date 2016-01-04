@@ -73,11 +73,11 @@ void VDPVRAM::LogicalVRAMDebuggable::write(
 // class PhysicalVRAMDebuggable
 
 VDPVRAM::PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(
-		VDP& vdp, unsigned actualSize)
-	: SimpleDebuggable(vdp.getMotherBoard(), vdp.getName() == "VDP" ?
-			"physical VRAM" : "physical " + vdp.getName() + " VRAM",
+		VDP& vdp_, unsigned actualSize_)
+	: SimpleDebuggable(vdp_.getMotherBoard(), vdp_.getName() == "VDP" ?
+	                   "physical VRAM" : "physical " + vdp_.getName() + " VRAM",
 	                   "VDP-screen-mode-independent view on the video RAM.",
-	                   actualSize)
+	                   actualSize_)
 {
 }
 
@@ -229,9 +229,9 @@ void VDPVRAM::updateVRMode(bool newVRmode, EmuTime::param time)
 	}
 }
 
-void VDPVRAM::setRenderer(Renderer* renderer, EmuTime::param time)
+void VDPVRAM::setRenderer(Renderer* newRenderer, EmuTime::param time)
 {
-	this->renderer = renderer;
+	renderer = newRenderer;
 
 	bitmapVisibleWindow.resetObserver();
 	// Set up bitmapVisibleWindow to full VRAM.

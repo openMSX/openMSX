@@ -1,5 +1,14 @@
 /*
  * Based on code from NLMSX written by Frits Hilderink
+ *
+ * Despite the name, the class implements MSX connection to TC8566AF FDC for
+ * any MSX that uses it. To make reuse possible, it implements two sets of
+ * I/O configurations, one is used on turboR, the other on other machines with
+ * this FDC.
+ * There's also a mapper mechanism implemented. It's only used on the turboR,
+ * but all other machines only have a 16kB diskROM, so it's practically
+ * ineffective there. The mapper has 0x7FF0 as switch address. (Thanks to
+ * NYYRIKKI for this info.)
  */
 
 #include "TurboRFDC.hh"
@@ -146,9 +155,7 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time)
 		// See comment in readMem().
 		getCPU().waitCyclesR800(1);
 	}
-	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
-		// TODO Is this correct? Are these 3 switch addresses used in
-		//      all variants?
+	if (address == 0x7FF0) {
 		setBank(value);
 	} else {
 		if (type != R7FF8) { // turboR or BOTH
@@ -183,9 +190,7 @@ void TurboRFDC::setBank(byte value)
 
 byte* TurboRFDC::getWriteCacheLine(word address) const
 {
-	if ((address == (0x6000 & CacheLine::HIGH)) ||
-	    (address == (0x7FF0 & CacheLine::HIGH)) ||
-	    (address == (0x7FFE & CacheLine::HIGH)) ||
+	if ((address == (0x7FF0 & CacheLine::HIGH)) ||
 	    ((address & 0x3FF0) == (0x3FF0 & CacheLine::HIGH))) {
 		return nullptr;
 	} else {

@@ -1,6 +1,7 @@
 #include "MSXPrinterPort.hh"
 #include "DummyPrinterPortDevice.hh"
 #include "checked_cast.hh"
+#include "outer.hh"
 #include "serialize.hh"
 #include "memory.hh"
 #include "unreachable.hh"
@@ -13,14 +14,11 @@ MSXPrinterPort::MSXPrinterPort(const DeviceConfig& config)
 	: MSXDevice(config)
 	, Connector(MSXDevice::getPluggingController(), "printerport",
 	            make_unique<DummyPrinterPortDevice>())
+	, debuggable(getMotherBoard(), MSXDevice::getName())
 {
 	data = 255;     // != 0;
 	strobe = false; // != true;
 	reset(getCurrentTime());
-}
-
-MSXPrinterPort::~MSXPrinterPort()
-{
 }
 
 void MSXPrinterPort::reset(EmuTime::param time)
@@ -91,6 +89,25 @@ PrinterPortDevice& MSXPrinterPort::getPluggedPrintDev() const
 {
 	return *checked_cast<PrinterPortDevice*>(&getPlugged());
 }
+
+
+MSXPrinterPort::Debuggable::Debuggable(MSXMotherBoard& motherBoard_, const std::string& name_)
+	: SimpleDebuggable(motherBoard_, name_, "Printer Port", 2)
+{
+}
+
+byte MSXPrinterPort::Debuggable::read(unsigned address)
+{
+	auto& pport = OUTER(MSXPrinterPort, debuggable);
+	return (address == 0) ? pport.strobe : pport.data;
+}
+
+void MSXPrinterPort::Debuggable::write(unsigned address, byte value)
+{
+	auto& pport = OUTER(MSXPrinterPort, debuggable);
+	pport.writeIO(address, value, pport.getCurrentTime());
+}
+
 
 template<typename Archive>
 void MSXPrinterPort::serialize(Archive& ar, unsigned /*version*/)

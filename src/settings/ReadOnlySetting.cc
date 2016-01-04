@@ -4,10 +4,10 @@
 namespace openmsx {
 
 ReadOnlySetting::ReadOnlySetting(
-		CommandController& commandController,
-		string_ref name, string_ref description,
+		CommandController& commandController_,
+		string_ref name_, string_ref description_,
 		const TclObject& initialValue)
-	: Setting(commandController, name, description, initialValue,
+	: Setting(commandController_, name_, description_, initialValue,
 	          Setting::DONT_TRANSFER)
 	, roValue(initialValue)
 {
@@ -19,10 +19,10 @@ ReadOnlySetting::ReadOnlySetting(
 	init();
 }
 
-void ReadOnlySetting::setReadOnlyValue(const TclObject& value)
+void ReadOnlySetting::setReadOnlyValue(const TclObject& newValue)
 {
-	roValue = value;
-	setValue(value);
+	roValue = newValue;
+	setValue(newValue);
 }
 
 string_ref ReadOnlySetting::getTypeString() const

@@ -10,6 +10,13 @@
     <type>MSX</type>
   </info>
 
+  <!--
+  From: http://usbsecretbase.michikusa.jp/px-7_v60/px-v60_pcb.html
+  MSX-ENGINE: S3527
+  CPU: Sharp LH0080A
+  VDP: TMS9128NL (TMS9918 with RGB output)
+  -->
+
   <CassettePort/>
 
   <devices>
@@ -32,7 +39,7 @@
 
     <VDP id="VDP">
       <version>TMS9128</version>
-      <io base="0x98" num="2"/>
+      <io base="0x98" num="8"/> <!-- S3527 mirrors -->
     </VDP>
 
     <PSG id="PSG">
@@ -40,6 +47,7 @@
       <sound>
         <volume>21000</volume>
       </sound>
+      <type>YM2149</type> <!-- in S3527 MSX-ENGINE -->
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
     </PSG>

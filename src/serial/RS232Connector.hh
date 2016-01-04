@@ -32,7 +32,7 @@ public:
 protected:
 	RS232Connector(PluggingController& pluggingController,
 	               string_ref name);
-	~RS232Connector();
+	~RS232Connector() {}
 };
 
 REGISTER_BASE_CLASS(RS232Connector, "rs232connector");

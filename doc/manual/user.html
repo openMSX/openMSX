@@ -134,7 +134,7 @@
 The latest version of the openMSX manual can be found on the openMSX home page:
 </p>
 <p>
-<a class="external" href="http://www.openmsx.org/manual/">http://www.openmsx.org/manual/</a>
+<a class="external" href="http://openmsx.org/manual/">http://openmsx.org/manual/</a>
 </p>
 <p>
 You can also use this URL to get up-to-date versions of the hyper links
@@ -146,7 +146,7 @@ if you printed out this manual.
 This manual is about openMSX, the open source MSX emulator that tries to achieve
 near-perfect emulation by using a novel emulation model.
 You can find more information about openMSX on the
-<a class="external" href="http://www.openmsx.org/">openMSX home page</a>.
+<a class="external" href="http://openmsx.org/">openMSX home page</a>.
 You can also download the emulator itself from there.
 </p>
 
@@ -154,7 +154,7 @@ You can also download the emulator itself from there.
 openMSX is not completed yet, which means that most things work but not all
 features are implemented yet.
 Many emulation features are implemented, but in terms of user interface
-it is rather bare bones, unless you use the optional Graphical User Interface dubbed openMSX Catapult, which has separate <a class="external" href="http://www.openmsx.org/catapult-manual/">manuals</a> for now.
+it is rather bare bones, unless you use the optional Graphical User Interface dubbed openMSX Catapult, which has separate <a class="external" href="http://openmsx.org/catapult-manual/">manuals</a> for now.
 However, because the emulation is already pretty good,
 it would be nice if non-insiders would be able to play with it, too.
 For those people, we have written this guide.
@@ -162,7 +162,7 @@ For those people, we have written this guide.
 
 <p>
 This manual tells you how you can use openMSX, once it has been installed and properly set up. You should be able to use most of the features of openMSX if you have read it.
-If you are using using openMSX with Catapult, you don't have to pay attention to the exact command and setting names. However it is still useful to read this document to find out how openMSX works and learn its terminology.
+If you are using openMSX with Catapult, you don't have to pay attention to the exact command and setting names. However it is still useful to read this document to find out how openMSX works and learn its terminology.
 </p>
 
 <p>
@@ -191,7 +191,7 @@ Thanks to all of them!
 
 <p>
 For the revision history, please refer to the <a class="external"
-href="https://sourceforge.net/p/openmsx/openmsx/ci/HEAD/log/?path=doc/manual/user.html">commit log</a>.
+href="https://github.com/openMSX/openMSX/commits/master/doc/manual/user.html">commit log</a>.
 </p>
 
 <h2><a id="starting">2. Starting the Emulator</a></h2>
@@ -256,7 +256,7 @@ openMSX has a built-in command interface called the <em>console</em>,
 which allows you to control almost all aspects of openMSX while it is running.
 You can access the console by pressing F10
 (with default key mapping; Cmd+L on Mac) when the focus is on the emulator window.  This will
-give you a command line in the openMSX window. Note that due to a <a class="external" href="https://sourceforge.net/p/openmsx/bugs/184/">known problem</a>
+give you a command line in the openMSX window. Note that due to a <a class="external" href="https://github.com/openMSX/openMSX/issues/485">known problem</a>
 in SDL on Windows, the console won't come up if you went to fullscreen by using
 ALT-ENTER. Use F12 to go to fullscreen to work around this problem. (See also <a class="internal" href="#settings">Settings</a> and <a class="internal" href="#keymapping">Keymapping</a>.)
 </p>
@@ -388,7 +388,7 @@ To run a disk image, you can type:
 </p>
 <div class="commandline">openmsx relax.dsk</div>
 <p>
-for example. Or, if you use a disk image with an extension that is unknown to openMSX:
+for example. Or, if you use a disk image with a filename extension that is unknown to openMSX:
 </p>
 <div class="commandline">openmsx -diska relax.di</div>
 
@@ -899,7 +899,7 @@ This device is mostly supported by the Philips drawing programs Designer, Design
 </p>
 
 <p>
-Note that the whole openMSX window will function as the surface of the touch pad. This will not align with the actual pixels of the screen in that window...
+Note that the whole openMSX window will function as the surface of the touch pad. This will not align with the actual pixels of the screen in that window, see the <a class="external" href="commands.html#touchpad_transform_matrix">touchpad_transform_matrix</a> setting for more details.
 </p>
 
 <h2><a id="video">6. Video</a></h2>
@@ -1047,7 +1047,7 @@ This algorithm is trying to emulate the fact that on a CRT brighter pixels look 
 </dl>
 
 <p>
-A small (somewhat outdated) demonstration of some of the algorithms can be found on <a class="external" href="http://www.openmsx.org/">the openMSX web site</a>.
+A small (somewhat outdated) demonstration of some of the algorithms can be found on <a class="external" href="http://openmsx.org/">the openMSX web site</a>.
 </p>
 
 <h3><a id="gamma">6.4 Gamma Correction</a></h3>
@@ -1520,6 +1520,9 @@ Go to our IRC channel: <code>#openMSX</code> on <code>irc.freenode.net</code>
 and ask your question there. Also reachable via <a class="external" href="http://webchat.freenode.net/?channels=openMSX">webchat</a>! If you don't get a reply immediately, please stick around for a while, or use one of the other contact options. The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
 </li>
 <li>
+Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a>.
+</li>
+<li>
 Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible problems,
 join our <code>openmsx-user</code> mailing list.
 If you want to address the openMSX developers directly,
@@ -1529,14 +1532,10 @@ More info on the
 including an archive of old messages, can be found at SourceForge.
 </li>
 <li>
-Use one of the
-<a class="external" href="https://sourceforge.net/p/openmsx/_list/tickets">openMSX ticket trackers</a>
-at SourceForge.
-At the moment of writing, there are four ticket trackers:
-Bugs, Support Requests, Patches and Feature Requests. You need a (free) log-in on SourceForge to get access.
-</li>
-<li>
-Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a> or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge.
+Create a new issue in the
+<a class="external" href="https://github.com/openMSX/openMSX/issues">openMSX issue tracker</a>
+on GitHub.
+You need a (free) log-in on GitHub to get access.
 </li>
 </ol>
 

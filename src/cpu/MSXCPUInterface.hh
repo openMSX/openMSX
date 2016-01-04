@@ -8,7 +8,6 @@
 #include "BreakPoint.hh"
 #include "WatchPoint.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include "likely.hh"
 #include <algorithm>
 #include <bitset>
@@ -38,9 +37,12 @@ struct CompareBreakpoints {
 	}
 };
 
-class MSXCPUInterface : private noncopyable
+class MSXCPUInterface
 {
 public:
+	MSXCPUInterface(const MSXCPUInterface&) = delete;
+	MSXCPUInterface& operator=(const MSXCPUInterface&) = delete;
+
 	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);
 	~MSXCPUInterface();
 
@@ -375,9 +377,9 @@ private:
 	bool fastForward; // no need to serialize
 
 	//  All CPUs (Z80 and R800) of all MSX machines share this state.
-	static BreakPoints breakPoints;
-	WatchPoints watchPoints; // TODO must also be static
-	static Conditions conditions;
+	static BreakPoints breakPoints; // sorted on address
+	WatchPoints watchPoints; // ordered in creation order,  TODO must also be static
+	static Conditions conditions; // ordered in creation order
 	static bool breaked;
 	static bool continued;
 	static bool step;

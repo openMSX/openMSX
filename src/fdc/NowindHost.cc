@@ -122,8 +122,8 @@ void NowindHost::write(byte data, unsigned time)
 		extraData[recvCount] = data;
 		if ((data == 0) || (data == ':') ||
 		    (++recvCount == 40)) {
-			auto data = reinterpret_cast<char*>(extraData);
-			callImage(string(data, recvCount));
+			char* eData = reinterpret_cast<char*>(extraData);
+			callImage(string(eData, recvCount));
 			state = STATE_SYNC1;
 		}
 		break;
@@ -656,10 +656,10 @@ void NowindHost::deviceOpen()
 
 	unsigned readLen = 0;
 	bool eof = false;
-	char buffer[256];
+	char buf[256];
 	if (openMode == 1) {
 		// read-only mode, already buffer first 256 bytes
-		readLen = readHelper1(dev, buffer);
+		readLen = readHelper1(dev, buf);
 		assert(readLen <= 256);
 		eof = readLen < 256;
 	}
@@ -679,7 +679,7 @@ void NowindHost::deviceOpen()
 	send(0);
 
 	if (openMode == 1) {
-		readHelper2(readLen, buffer);
+		readHelper2(readLen, buf);
 	}
 }
 
@@ -703,32 +703,32 @@ void NowindHost::deviceRead()
 	int dev = getDeviceNum();
 	if (dev == -1) return;
 
-	char buffer[256];
-	unsigned readLen = readHelper1(dev, buffer);
+	char buf[256];
+	unsigned readLen = readHelper1(dev, buf);
 	bool eof = readLen < 256;
 	send(0xAF);
 	send(0x05);
 	send(0x00); // dummy
 	send16(getFCB() + 9);
 	send16(readLen + (eof ? 1 : 0));
-	readHelper2(readLen, buffer);
+	readHelper2(readLen, buf);
 }
 
-unsigned NowindHost::readHelper1(unsigned dev, char* buffer)
+unsigned NowindHost::readHelper1(unsigned dev, char* buf)
 {
 	assert(dev < MAX_DEVICES);
 	unsigned len = 0;
 	for (/**/; len < 256; ++len) {
-		devices[dev].fs->read(&buffer[len], 1);
+		devices[dev].fs->read(&buf[len], 1);
 		if (devices[dev].fs->eof()) break;
 	}
 	return len;
 }
 
-void NowindHost::readHelper2(unsigned len, const char* buffer)
+void NowindHost::readHelper2(unsigned len, const char* buf)
 {
 	for (unsigned i = 0; i < len; ++i) {
-		send(buffer[i]);
+		send(buf[i]);
 	}
 	if (len < 256) {
 		send(0x1A); // end-of-file
@@ -767,7 +767,7 @@ void NowindHost::callImage(const string& filename)
 }
 
 
-static enum_string<NowindHost::State> stateInfo[] = {
+static std::initializer_list<enum_string<NowindHost::State>> stateInfo = {
 	{ "SYNC1",     NowindHost::STATE_SYNC1     },
 	{ "SYNC2",     NowindHost::STATE_SYNC2     },
 	{ "COMMAND",   NowindHost::STATE_COMMAND   },

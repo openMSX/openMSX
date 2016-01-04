@@ -5,7 +5,6 @@
 #include "DynamicClock.hh"
 #include "EmuTime.hh"
 #include "IntegerSetting.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 
 namespace openmsx {
@@ -20,7 +19,7 @@ class CommandController;
  * There can be multiple autofire circuits. For example, one used
  * by the Ren-Sha Turbo and another one built into a joystick.
  */
-class Autofire final : private Observer<Setting>, private noncopyable
+class Autofire final : private Observer<Setting>
 {
 public:
 	Autofire(CommandController& commandController,

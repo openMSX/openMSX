@@ -422,9 +422,9 @@ static string getBindCmdName(bool defaultCmd)
 	return defaultCmd ? "bind_default" : "bind";
 }
 
-HotKey::BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_,
+HotKey::BindCmd::BindCmd(CommandController& commandController_, HotKey& hotKey_,
                          bool defaultCmd_)
-	: Command(commandController, getBindCmdName(defaultCmd_))
+	: Command(commandController_, getBindCmdName(defaultCmd_))
 	, hotKey(hotKey_)
 	, defaultCmd(defaultCmd_)
 {
@@ -471,7 +471,7 @@ void HotKey::BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 	bool layers;
 	auto tokens = parse(defaultCmd, tokens_, layer, layers);
 
-	auto& cmdMap = defaultCmd
+	auto& cMap = defaultCmd
 		? hotKey.defaultMap
 		: layer.empty() ? hotKey.cmdMap
 		                : hotKey.layerMap[layer];
@@ -491,7 +491,7 @@ void HotKey::BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 	case 0: {
 		// show all bounded keys (for this layer)
 		string r;
-		for (auto& p : cmdMap) {
+		for (auto& p : cMap) {
 			r += formatBinding(p);
 		}
 		result.setString(r);
@@ -499,8 +499,8 @@ void HotKey::BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 	}
 	case 1: {
 		// show bindings for this key (in this layer)
-		auto it = cmdMap.find(createEvent(tokens[0], getInterpreter()));
-		if (it == end(cmdMap)) {
+		auto it = cMap.find(createEvent(tokens[0], getInterpreter()));
+		if (it == end(cMap)) {
 			throw CommandException("Key not bound");
 		}
 		result.setString(formatBinding(*it));
@@ -553,9 +553,9 @@ static string getUnbindCmdName(bool defaultCmd)
 	return defaultCmd ? "unbind_default" : "unbind";
 }
 
-HotKey::UnbindCmd::UnbindCmd(CommandController& commandController,
+HotKey::UnbindCmd::UnbindCmd(CommandController& commandController_,
                              HotKey& hotKey_, bool defaultCmd_)
-	: Command(commandController, getUnbindCmdName(defaultCmd_))
+	: Command(commandController_, getUnbindCmdName(defaultCmd_))
 	, hotKey(hotKey_)
 	, defaultCmd(defaultCmd_)
 {
@@ -604,8 +604,8 @@ string HotKey::UnbindCmd::help(const vector<string>& /*tokens*/) const
 
 // class ActivateCmd
 
-HotKey::ActivateCmd::ActivateCmd(CommandController& commandController)
-	: Command(commandController, "activate_input_layer")
+HotKey::ActivateCmd::ActivateCmd(CommandController& commandController_)
+	: Command(commandController_, "activate_input_layer")
 {
 }
 
@@ -652,8 +652,8 @@ string HotKey::ActivateCmd::help(const vector<string>& /*tokens*/) const
 
 // class DeactivateCmd
 
-HotKey::DeactivateCmd::DeactivateCmd(CommandController& commandController)
-	: Command(commandController, "deactivate_input_layer")
+HotKey::DeactivateCmd::DeactivateCmd(CommandController& commandController_)
+	: Command(commandController_, "deactivate_input_layer")
 {
 }
 

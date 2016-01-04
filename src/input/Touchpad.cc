@@ -29,9 +29,9 @@ class TouchpadState final : public StateChange
 {
 public:
 	TouchpadState() {} // for serialize
-	TouchpadState(EmuTime::param time,
+	TouchpadState(EmuTime::param time_,
 	              byte x_, byte y_, bool touch_, bool button_)
-		: StateChange(time)
+		: StateChange(time_)
 		, x(x_), y(y_), touch(touch_), button(button_) {}
 	byte getX()      const { return x; }
 	byte getY()      const { return y; }
@@ -256,10 +256,10 @@ void Touchpad::signalEvent(const shared_ptr<const Event>& event,
 }
 
 void Touchpad::createTouchpadStateChange(
-	EmuTime::param time, byte x, byte y, bool touch, bool button)
+	EmuTime::param time, byte x_, byte y_, bool touch_, bool button_)
 {
 	stateChangeDistributor.distributeNew(std::make_shared<TouchpadState>(
-		time, x, y, touch, button));
+		time, x_, y_, touch_, button_));
 }
 
 // StateChangeListener

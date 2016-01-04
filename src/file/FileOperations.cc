@@ -229,16 +229,42 @@ void mkdir(const string& path, mode_t mode)
 	}
 }
 
+static bool isUNCPath(string_ref path)
+{
+#ifdef _WIN32
+	return path.starts_with("//") || path.starts_with("\\\\");
+#else
+	(void)path;
+	return false;
+#endif
+}
+
 void mkdirp(string_ref path_)
 {
 	if (path_.empty()) {
 		return;
 	}
-	string path = expandTilde(path_);
 
+	// We may receive platform-specific paths here, so conventionalize early
+	string path = getConventionalPath(expandTilde(path_));
+
+	// If the directory already exists, don't try to recreate it
+	if (isDirectory(path))
+		return;
+
+	// If the path is a UNC path (e.g. \\server\share) then the first two paths in the loop below will be \ and \\server
+	// If the path is an absolute path (e.g. c:\foo\bar) then the first path in the loop will be C:
+	// None of those are valid directory paths, so we skip over them and don't call mkdir.
+	// Relative paths are fine, since each segment in the path is significant.
+	int skip = isUNCPath(path) ? 2 :
+		   isAbsolutePath(path) ? 1 : 0;
 	string::size_type pos = 0;
 	do {
 		pos = path.find_first_of('/', pos + 1);
+		if (skip) {
+			skip--;
+			continue;
+		}
 		mkdir(path.substr(0, pos), 0755);
 	} while (pos != string::npos);
 
@@ -467,9 +493,10 @@ string getAbsolutePath(string_ref path)
 
 bool isAbsolutePath(string_ref path)
 {
+	if (isUNCPath(path)) return true;
 #ifdef _WIN32
-	if ((path.size() >= 3) && (path[1] == ':') &&
-	    ((path[2] == '/') || (path[2] == '\\'))) {
+	if ((path.size() >= 3) && (((path[1] == ':') &&
+	    ((path[2] == '/') || (path[2] == '\\'))))) {
 		char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
 			return true;

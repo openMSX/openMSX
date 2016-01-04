@@ -146,40 +146,40 @@ VisibleSurface::VisibleSurface(
 void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 {
 	// try default bpp
-	SDL_Surface* surface = SDL_SetVideoMode(width, height, 0, flags);
-	int bytepp = (surface ? surface->format->BytesPerPixel : 0);
+	SDL_Surface* surf = SDL_SetVideoMode(width, height, 0, flags);
+	int bytepp = (surf ? surf->format->BytesPerPixel : 0);
 	if (bytepp != 2 && bytepp != 4) {
-		surface = nullptr;
+		surf = nullptr;
 	}
 #if !HAVE_16BPP
 	if (bytepp == 2) {
-		surface = nullptr;
+		surf = nullptr;
 	}
 #endif
 #if !HAVE_32BPP
 	if (bytepp == 4) {
-		surface = nullptr;
+		surf = nullptr;
 	}
 #endif
 	// try supported bpp in order of preference
 #if HAVE_16BPP
-	if (!surface) surface = SDL_SetVideoMode(width, height, 16, flags);
+	if (!surf) surf = SDL_SetVideoMode(width, height, 16, flags);
 #if !PLATFORM_DINGUX
 	// We have a PixelOpBase specialization for Dingux which hardcodes the
 	// RGB565 pixel layout, so don't use 15 bpp there.
-	if (!surface) surface = SDL_SetVideoMode(width, height, 15, flags);
+	if (!surf) surf = SDL_SetVideoMode(width, height, 15, flags);
 #endif
 #endif
 #if HAVE_32BPP
-	if (!surface) surface = SDL_SetVideoMode(width, height, 32, flags);
+	if (!surf) surf = SDL_SetVideoMode(width, height, 32, flags);
 #endif
 
-	if (!surface) {
+	if (!surf) {
 		std::string err = SDL_GetError();
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		throw InitException("Could not open any screen: " + err);
 	}
-	setSDLSurface(surface);
+	setSDLSurface(surf);
 
 #if PLATFORM_MAEMO5
 	setMaemo5WMHints(flags & SDL_FULLSCREEN);
@@ -214,8 +214,8 @@ VisibleSurface::~VisibleSurface()
 
 #ifdef _WIN32
 	// Find our current location.
-	SDL_Surface* surface = getSDLSurface();
-	if (surface && ((surface->flags & SDL_FULLSCREEN) == 0)) {
+	SDL_Surface* surf = getSDLSurface();
+	if (surf && ((surf->flags & SDL_FULLSCREEN) == 0)) {
 		HWND handle = GetActiveWindow();
 		RECT windowRect;
 		GetWindowRect(handle, &windowRect);
@@ -233,8 +233,8 @@ void VisibleSurface::setWindowTitle(const std::string& title)
 
 bool VisibleSurface::setFullScreen(bool wantedState)
 {
-	SDL_Surface* surface = getSDLSurface();
-	bool currentState = (surface->flags & SDL_FULLSCREEN) != 0;
+	SDL_Surface* surf = getSDLSurface();
+	bool currentState = (surf->flags & SDL_FULLSCREEN) != 0;
 	if (currentState == wantedState) {
 		// already wanted stated
 		return true;
@@ -248,8 +248,8 @@ bool VisibleSurface::setFullScreen(bool wantedState)
 
 	/*
 	// try to toggle full screen
-	SDL_WM_ToggleFullScreen(surface);
-	bool newState = (surface->flags & SDL_FULLSCREEN) != 0;
+	SDL_WM_ToggleFullScreen(surf);
+	bool newState = (surf->flags & SDL_FULLSCREEN) != 0;
 	return newState == wantedState;
 	*/
 }

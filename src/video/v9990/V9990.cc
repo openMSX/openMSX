@@ -636,7 +636,7 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 			vramReadBuffer = vram->readVRAMCPU(vramReadPtr, time);
 			break;
 		case INTERRUPT_0:
-			irq.set(pendingIRQs & val);
+			irq.set((pendingIRQs & val) != 0);
 			break;
 		case INTERRUPT_1:
 		case INTERRUPT_2:
@@ -760,31 +760,31 @@ void V9990::setVerticalTiming()
 
 V9990ColorMode V9990::getColorMode(byte pal_ctrl) const
 {
-	V9990ColorMode mode = INVALID_COLOR_MODE;
+	V9990ColorMode cm = INVALID_COLOR_MODE;
 
 	if (!(regs[SCREEN_MODE_0] & 0x80)) {
-		mode = BP4;
+		cm = BP4;
 	} else {
 		switch (regs[SCREEN_MODE_0] & 0x03) {
-			case 0x00: mode = BP2; break;
-			case 0x01: mode = BP4; break;
+			case 0x00: cm = BP2; break;
+			case 0x01: cm = BP4; break;
 			case 0x02:
 				switch (pal_ctrl & 0xC0) {
-					case 0x00: mode = BP6; break;
-					case 0x40: mode = BD8; break;
-					case 0x80: mode = BYJK; break;
-					case 0xC0: mode = BYUV; break;
+					case 0x00: cm = BP6; break;
+					case 0x40: cm = BD8; break;
+					case 0x80: cm = BYJK; break;
+					case 0xC0: cm = BYUV; break;
 					default: UNREACHABLE;
 				}
 				break;
-			case 0x03: mode = BD16; break;
+			case 0x03: cm = BD16; break;
 			default: UNREACHABLE;
 		}
 	}
 
 	// TODO Check
-	if (mode == INVALID_COLOR_MODE) mode = BP4;
-	return mode;
+	if (cm == INVALID_COLOR_MODE) cm = BP4;
+	return cm;
 }
 
 V9990ColorMode V9990::getColorMode() const
@@ -864,7 +864,7 @@ void V9990::scheduleHscan(EmuTime::param time)
 	syncHScan.setSyncPoint(hScanSyncTime);
 }
 
-static enum_string<V9990DisplayMode> displayModeInfo[] = {
+static std::initializer_list<enum_string<V9990DisplayMode>> displayModeInfo = {
 	{ "INVALID", INVALID_DISPLAY_MODE },
 	{ "P1", P1 }, { "P2", P2 },
 	{ "B0", B0 }, { "B1", B1 }, { "B2", B2 }, { "B3", B3 },

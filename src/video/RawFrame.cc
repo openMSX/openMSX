@@ -5,25 +5,25 @@
 namespace openmsx {
 
 RawFrame::RawFrame(
-		const SDL_PixelFormat& format, unsigned maxWidth_, unsigned height)
+		const SDL_PixelFormat& format, unsigned maxWidth_, unsigned height_)
 	: FrameSource(format)
-	, lineWidths(height)
+	, lineWidths(height_)
 	, maxWidth(maxWidth_)
 {
-	setHeight(height);
+	setHeight(height_);
 	unsigned bytesPerPixel = format.BytesPerPixel;
 
 	// Allocate memory, make sure each line starts at a 64 byte boundary:
 	// - SSE instructions need 16 byte aligned data
 	// - cache line size on many CPUs is 64 bytes
 	pitch = ((bytesPerPixel * maxWidth) + 63) & ~63;
-	data.resize(pitch * height);
+	data.resize(pitch * height_);
 
 	maxWidth = pitch / bytesPerPixel; // adjust maxWidth
 
 	// Start with a black frame.
 	init(FIELD_NONINTERLACED);
-	for (unsigned line = 0; line < height; line++) {
+	for (unsigned line = 0; line < height_; line++) {
 		if (bytesPerPixel == 2) {
 			setBlank(line, static_cast<uint16_t>(0));
 		} else {

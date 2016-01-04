@@ -304,9 +304,9 @@ void Slot::slotOff()
 
 
 // Change a rhythm voice
-void Slot::setPatch(Patch& patch)
+void Slot::setPatch(const Patch& newPatch)
 {
-	this->patch = patch; // copy data
+	patch = newPatch; // copy data
 	if ((state == SUSHOLD) && (patch.EG == 0)) {
 		setEnvelopeState(SUSTAIN);
 	}
@@ -1305,7 +1305,7 @@ byte YM2413::peekReg(byte r) const
 
 } // namespace YM2413Okazaki
 
-static enum_string<YM2413Okazaki::EnvelopeState> envelopeStateInfo[] = {
+static std::initializer_list<enum_string<YM2413Okazaki::EnvelopeState>> envelopeStateInfo = {
 	{ "ATTACK",  YM2413Okazaki::ATTACK  },
 	{ "DECAY",   YM2413Okazaki::DECAY   },
 	{ "SUSHOLD", YM2413Okazaki::SUSHOLD },

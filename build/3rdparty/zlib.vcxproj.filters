@@ -31,9 +31,6 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\deflate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\example.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\infback.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,7 +52,16 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\zutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzio.c">
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzlib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzwrite.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzclose.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

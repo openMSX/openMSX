@@ -94,10 +94,10 @@ void HD::openImage()
 	}
 }
 
-void HD::switchImage(const Filename& name)
+void HD::switchImage(const Filename& newFilename)
 {
-	file = File(name);
-	filename = name;
+	file = File(newFilename);
+	filename = newFilename;
 	filesize = file.getSize();
 	tigerTree = make_unique<TigerTree>(*this, filesize,
 	                                   filename.getResolved());
@@ -192,10 +192,10 @@ bool HD::diskChanged()
 	return false; // TODO not implemented
 }
 
-int HD::insertDisk(string_ref filename)
+int HD::insertDisk(string_ref newDisk)
 {
 	try {
-		switchImage(Filename(filename.str()));
+		switchImage(Filename(newDisk.str()));
 		return 0;
 	} catch (MSXException&) {
 		return -1;

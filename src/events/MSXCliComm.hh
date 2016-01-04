@@ -3,7 +3,6 @@
 
 #include "CliComm.hh"
 #include "hash_map.hh"
-#include "noncopyable.hh"
 #include "xxhash.hh"
 
 namespace openmsx {
@@ -11,7 +10,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class GlobalCliComm;
 
-class MSXCliComm final : public CliComm, private noncopyable
+class MSXCliComm final : public CliComm
 {
 public:
 	MSXCliComm(MSXMotherBoard& motherBoard, GlobalCliComm& cliComm);

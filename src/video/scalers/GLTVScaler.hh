@@ -3,13 +3,12 @@
 
 #include "GLScaler.hh"
 #include "GLUtil.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 class RenderSettings;
 
-class GLTVScaler final : public GLScaler, private noncopyable
+class GLTVScaler final : public GLScaler
 {
 public:
 	explicit GLTVScaler(RenderSettings& renderSettings);

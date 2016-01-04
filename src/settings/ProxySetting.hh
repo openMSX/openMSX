@@ -10,7 +10,7 @@ class Reactor;
 class ProxySetting final : public BaseSetting
 {
 public:
-	ProxySetting(Reactor& reactor, string_ref name);
+	ProxySetting(Reactor& reactor, const TclObject& name);
 
 	void setValue(const TclObject& value) override;
 	string_ref getTypeString() const override;

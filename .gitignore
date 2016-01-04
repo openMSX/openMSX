@@ -3,6 +3,9 @@
 /*.log
 *.swp
 *~
+*.suo
+*.sdf
+*.opensdf
 core.*
 core
 .cproject

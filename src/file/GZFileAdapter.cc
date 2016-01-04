@@ -53,15 +53,15 @@ static bool skipHeader(ZlibInflate& zlib, std::string& originalName)
 	return true;
 }
 
-void GZFileAdapter::decompress(FileBase& file, Decompressed& decompressed)
+void GZFileAdapter::decompress(FileBase& f, Decompressed& d)
 {
 	size_t size;
-	const byte* data = file.mmap(size);
+	const byte* data = f.mmap(size);
 	ZlibInflate zlib(data, size);
-	if (!skipHeader(zlib, decompressed.originalName)) {
+	if (!skipHeader(zlib, d.originalName)) {
 		throw FileException("Not a gzip header");
 	}
-	decompressed.size = zlib.inflate(decompressed.buf);
+	d.size = zlib.inflate(d.buf);
 }
 
 } // namespace openmsx

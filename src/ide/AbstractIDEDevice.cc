@@ -429,18 +429,18 @@ static void writeIdentifyString(byte* p, unsigned len, std::string s)
 	}
 }
 
-void AbstractIDEDevice::createIdentifyBlock(AlignedBuffer& buffer)
+void AbstractIDEDevice::createIdentifyBlock(AlignedBuffer& buf)
 {
 	// According to the spec, the combination of model and serial should be
 	// unique. But I don't know any MSX software that cares about this.
-	writeIdentifyString(&buffer[10 * 2], 10, "s00000001"); // serial
-	writeIdentifyString(&buffer[23 * 2], 4,
+	writeIdentifyString(&buf[10 * 2], 10, "s00000001"); // serial
+	writeIdentifyString(&buf[23 * 2], 4,
 		// Use openMSX version as firmware revision, because most of our
 		// IDE emulation code is in fact emulating the firmware.
 		Version::RELEASE ? 'v' + std::string(Version::VERSION)   : 'd' + std::string(Version::REVISION));
-	writeIdentifyString(&buffer[27 * 2], 20, getDeviceName()); // model
+	writeIdentifyString(&buf[27 * 2], 20, getDeviceName()); // model
 
-	fillIdentifyBlock(buffer);
+	fillIdentifyBlock(buf);
 }
 
 

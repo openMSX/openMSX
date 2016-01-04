@@ -22,39 +22,36 @@ struct EqualTo
        bool operator()(const T1& t1, const T2& t2) const { return t1 == t2; }
 };
 
-// Note: LessTupleElement and CmpTupleElement can be made a lot more general
-// (and uniform). This can be done relatively easily with variadic templates.
-// Unfortunately vc++ doesn't support this yet. So for now these classes are
-// 'just enough' to make the current users of these utilities happy.
-
-// Compare the N-th element of a tuple using the less-than operator. Also
-// provides overloads to compare the N-the element with a single value of the
-// same type.
-template<int N> struct LessTupleElement
+// Heterogeneous version of std::less.
+struct LessThan
 {
-	template<typename TUPLE>
-	bool operator()(const TUPLE& x, const TUPLE& y) const {
-		return std::get<N>(x) < std::get<N>(y);
-	}
-
-	template<typename TUPLE>
-	bool operator()(const typename std::tuple_element<N, TUPLE>::type& x,
-	                const TUPLE& y) const {
-		return x < std::get<N>(y);
-	}
-
-	template<typename TUPLE>
-	bool operator()(const TUPLE& x,
-	                const typename std::tuple_element<N, TUPLE>::type& y) const {
-		return std::get<N>(x) < y;
-	}
+	template<typename T1, typename T2>
+	bool operator()(const T1& t1, const T2& t2) const { return t1 < t2; }
 };
 
-// Similar to LessTupleElement, but with a custom comparison functor. ATM the
-// functor cannot take constructor arguments, possibly refactor this in the
-// future.
+
+// Compare the N-th element of two tuples using a custom comparison functor.
+// Also provides overloads to compare the N-the element of a tuple with a
+// single value (of a compatible type).
+// ATM the functor cannot take constructor arguments, possibly refactor this in
+// the future.
 template<int N, typename CMP> struct CmpTupleElement
 {
+	template<typename... Args>
+	bool operator()(const std::tuple<Args...>& x, const std::tuple<Args...>& y) const {
+		return cmp(std::get<N>(x), std::get<N>(y));
+	}
+
+	template<typename T, typename... Args>
+	bool operator()(const T& x, const std::tuple<Args...>& y) const {
+		return cmp(x, std::get<N>(y));
+	}
+
+	template<typename T, typename... Args>
+	bool operator()(const std::tuple<Args...>& x, const T& y) const {
+		return cmp(std::get<N>(x), y);
+	}
+
 	template<typename T1, typename T2>
 	bool operator()(const std::pair<T1, T2>& x, const std::pair<T1, T2>& y) const {
 		return cmp(std::get<N>(x), std::get<N>(y));
@@ -73,6 +70,9 @@ template<int N, typename CMP> struct CmpTupleElement
 private:
 	CMP cmp;
 };
+
+// Similar to CmpTupleElement above, but uses the less-than operator.
+template<int N> using LessTupleElement = CmpTupleElement<N, LessThan>;
 
 
 // Check whether the N-the element of a tuple is equal to the given value.
@@ -134,7 +134,6 @@ inline auto find_unguarded(RANGE& range, const VAL& val)
 	return find_unguarded(std::begin(range), std::end(range), val);
 }
 
-
 /** Faster alternative to 'find_if' when it's guaranteed that the predicate
   * will be true for at least one element in the given range.
   * See also 'find_unguarded'.
@@ -154,6 +153,93 @@ inline auto find_if_unguarded(RANGE& range, PRED pred)
 -> decltype(std::begin(range))
 {
 	return find_if_unguarded(std::begin(range), std::end(range), pred);
+}
+
+/** Similar to the find(_if)_unguarded functions above, but searches from the
+  * back to front.
+  * Note that we only need to provide range versions. Because for the iterator
+  * versions it is already possible to pass reverse iterators.
+  */
+template<typename RANGE, typename VAL>
+inline auto rfind_unguarded(RANGE& range, const VAL& val)
+-> decltype(std::begin(range))
+{
+	//auto it = find_unguarded(std::rbegin(range), std::rend(range), val); // c++14
+	auto it = find_unguarded(range.rbegin(), range.rend(), val);
+	++it;
+	return it.base();
+}
+
+template<typename RANGE, typename PRED>
+inline auto rfind_if_unguarded(RANGE& range, PRED pred)
+-> decltype(std::begin(range))
+{
+	auto it = find_if_unguarded(range.rbegin(), range.rend(), pred);
+	++it;
+	return it.base();
+}
+
+
+/** Erase the pointed to element from the given vector.
+  *
+  * We first move the last element into the indicated position and then pop
+  * the last element.
+  *
+  * If the order of the elements in the vector is allowed to change this may
+  * be a faster alternative than calling 'v.erase(it)'.
+  */
+template<typename VECTOR>
+void move_pop_back(VECTOR& v, typename VECTOR::iterator it)
+{
+	// Check for self-move-assignment.
+	//
+	// This check is only needed in libstdc++ when compiled with
+	// -D_GLIBCXX_DEBUG. In non-debug mode this routine works perfectly
+	// fine without the check.
+	//
+	// See here for a related discussion:
+	//    http://stackoverflow.com/questions/13129031/on-implementing-stdswap-in-terms-of-move-assignment-and-move-constructor
+	// It's not clear whether the assert in libstdc++ is conforming
+	// behavior.
+	if (&*it != &v.back()) {
+		*it = std::move(v.back());
+	}
+	v.pop_back();
+}
+
+
+/** This is like a combination of partition_copy() and remove().
+ *
+  * Each element is tested against the predicate. If it matches, the element is
+  * copied to the output and removed from the input. So the output contains all
+  * elements for which the predicate gives true and the input is modified
+  * in-place to contain the elements for which the predicate gives false. (Like
+  * the remove() algorithm, it's still required to call erase() to also shrink
+  * the input).
+  *
+  * This algorithm returns a pair of iterators.
+  * -first: one past the matching elements (in the output range). Similar to
+  *    the return value of the partition_copy() algorithm.
+  * -second: one past the non-matching elements (in the input range). Similar
+  *    to the return value of the remove() algorithm.
+  */
+template<typename ForwardIt, typename OutputIt, typename UnaryPredicate>
+std::pair<OutputIt, ForwardIt> partition_copy_remove(
+	ForwardIt first, ForwardIt last, OutputIt out_true, UnaryPredicate p)
+{
+	first = std::find_if(first, last, p);
+	auto out_false = first;
+	if (first != last) {
+		goto l_true;
+		while (first != last) {
+			if (p(*first)) {
+l_true:				*out_true++  = std::move(*first++);
+			} else {
+				*out_false++ = std::move(*first++);
+			}
+		}
+	}
+	return std::make_pair(out_true, out_false);
 }
 
 #endif

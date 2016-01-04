@@ -1,0 +1,199 @@
+Some time ago (March 2015) Laurens Holst (aka Grauw) did some measurements
+on the duration of various R800 instructions. For his results see
+   http://map.grauw.nl/resources/z80instr.php
+For the most part he was able to confirm the results we obtained earlier
+(described in the "r800test.txt" document). Though for the CALL
+instruction he 'sometimes' got a 1 cycle difference. Now, half a year
+later, I finally got around to investigate this in more detail.
+
+
+I used the following measuring method. Alex Wulms once created an MSX
+cartridge with a 3.57MHz counter on it. Writing to IO port 0x20 resets the
+counter and reading from IO ports 0x20-0x23 (atomically) reads it. So this
+is much like the MSX-turboR E6-timer, except that it ticks 14x faster. The
+R800 runs at 2 x 3.57MHz, so that means we can still only measure up-to 2
+cycles accurate. To work around this I always repeat the to-be-measured
+sequence twice. Here's an example program.
+
+	org #c000
+
+	di
+	out (#20),a   ; reset timer
+
+	call func     ; repeat to be measured
+	call func     ;   sequence twice
+
+	in a,(#20)    ; read timer
+	ld l,a
+	in a,(#20)
+	ld h,a
+	ret
+
+func:	ret
+
+Initially I run this program without the 2 'call func' instructions. After
+the program returns, register HL contains the value '5'. This is the
+time between reseting and reading the counter. This value should be
+subtracted from all future measurements.
+
+Note: usually these test programs give stable results. But once in a while
+you get a too high value. This can be explained by the R800 refresh stuff
+(see "r800-refresh.txt" for more details). By repeating the same test a
+few times it's often possible to avoid this refresh stuff.
+
+When re-inserting the two 'call func' instructions, I obtain the value
+'17', subtracting 5 gives 12. So executing 2 'call + ret' sequences takes
+2x12 cycles. So a single 'call + ret' sequence takes 12 cycles. Later in
+this text I won't repeat this calculation, I'll directly give the length
+of the (single) sequence.
+
+So this confirms the result of my earlier measurements. See "r800test.txt"
+for details. There I also show that these 12 cycles decompose into 7
+cycles for the "call" instruction and 5 cycles for the "ret" instruction.
+
+The interesting thing is that Laurens 'sometimes' measured 8 cycles for
+the "call" instruction. Let's now make the following change in the program:
+	...
+func:	nop     ; <-- added this nop instruction
+	ret
+
+So the executed sequence is now "call + nop + ret". Naively we'd expect
+this to take only 1 cycle more. Instead we measure 14 cycles (2 more).
+
+I also tested this program:
+	...
+	call func
+	nop
+	call func
+	nop
+	...
+func:	ret
+
+The sequence is now "call + ret + nop". This does take 13 cycles (only 1
+more). So it's really "call" immediately followed by "ret" that is
+special.
+
+I measured a lot of other sequences as well. I'll summarize them in this
+table:
+
+   sequence            measured  decomposed  remark
+a) call, ret               12    7+5         NO penalty, call-ret is special
+b) call, ret, nop          13    7+5+1       NO penalty
+
+c) call, nop, ret          14    7+3+4       penalty on nop
+d) call, nop, nop, ret     15    7+3+1+4     penalty on 1st nop
+
+e) call, reti              15    7+8         penalty on reti, reti is NOT special
+f) call, nop, reti         16    7+3+6       penalty on nop
+
+g) call, pop hl            12    7+5         NO penalty, call-pop is special
+h) call, nop, pop hl       14    7+3+4       penalty on nop
+i) call, nop, nop, pop hl  15    7+3+1+4     penalty on 1st nop
+
+j) call, pop ix            14    7+7         penalty on "pop ix", different from "pop hl"!
+k) call, nop, pop ix       15    7+3+5       penalty on nop
+l) call, nop, nop, pop ix  16    7+3+1+5     penalty on 1st nop
+
+m) push hl, pop hl         11    6+5         no penalty,
+n) push hl, nop, pop hl    12    6+2+4          push-pop is not special
+o) push hl, ret            11    6+5         no penalty,
+p) push hl, nop, ret       12    6+2+4          push-ret is not special
+
+q) rst, ret                11    6+5         NO penalty, rst-ret is special
+r) rst, nop, ret           13    6+3+4       penalty on nop
+s) rst, nop, nop, ret      14    6+3+1+4     penalty on 1st nop
+
+t) rst, reti               14    6+8         penalty on reti, reti is NOT special
+u) rst, nop, reti          15    6+3+6       penalty on nop
+v) rst, nop, nop, reti     16    6+3+1+6     penalty on 1st nop
+
+w) rst, jp(hl)              9    6+3         penalty on jp(hl)
+x) rst, jp(ix)             10    6+4         penalty on jp(ix)
+
+
+Details:
+
+a) For simplicity I've shown the decomposition 12 -> 7+5. In reality the
+situation is more complex. The full sequence in the test-program is
+  out ; call ; ret ; call ; ret ; in
+
+When we take page-breaks into account, we get the following for the 4
+middle instructions (I'm using the notation from the "r800test.txt"
+document):
+   fffWw FRr FffWw FRr + page-break
+So the 1st "call" instruction takes 6 cycles, the 1st "ret" takes 5
+cycles, 2nd "call" takes 7, 2nd "ret" takes 5 and the next "in"
+instruction has a page-break-penalty on fetch. If we simplify this
+(artificially attribute the page-break for "in" to the 1st "call") we can
+say "call" takes 7 and "ret" takes 5 cycles.
+
+Notice that there's an even number of cycles between the "out" and "in"
+operation. So this inserts an IO-penalty on the IN instruction (to align
+the R800 bus at 7MHZ to the external cartridge bus at 3.5MHz, see
+"r800test.txt" for more details). In case of an empty sequence ("out"
+directly followed by "in"), we have zero cycles which is also even. So our
+calibration method (subtract 5 from the measured result) remains valid.
+
+
+d) I'll give another example of the simplified decomposition. The full
+sequence is:
+  (out) ; call ; nop ; nop ; ret ; call ; nop ; nop ; ret ; (in)
+The middle part (without out-in) decomposes to
+  fffWw Fx f fRr FffWw Fx f fWw + page-break
+    6   3  1  4    7   3  1  4    (+1)
+Here 'x' is an extra "call-penalty", see below for more details. So if we
+artificially move the page-break-penalty for "in" to the front we get
+7+3+1+4 for call+nop+nop+ret. This same simplification is made for all
+decompositions in the table.
+
+
+c) Compared to 'a' you'd expect this sequence to take only 1 extra cycle
+(just like sequence b). Instead there's yet 1 more extra cycle. In
+general, when looking at more sequences and/or replacing 'nop' with other
+instructions with known duration (not shown in the table), we see that we
+always get an extra cycle whenever a call instruction is not _immediately_
+followed by a "ret" or "pop" instruction. We'll call this a "call-penalty"
+cycle.
+
+We could attribute this call-penalty cycle to the call instruction itself,
+thus say that the call instruction takes 7 or 8 cycles, depending on what
+instruction follows. For most practical purposes this explanation is good
+enough. Though if you look in detail, the fetch of the next instruction
+has to start 7 (not 8) cycles after the start of the call instruction
+(otherwise we cannot know whether there should be a penalty or not). So
+this call-penalty really happens during the _next_ instruction.
+
+   It's likely that this call-penalty stuff can be explained in a simpler
+   way if you look at the full-pipelined implementation of the R800.
+   _Maybe_ a call somehow/sometimes introduces a late pipeline stall.
+   Though because no details are known about the R800 pipeline, for now,
+   I'll stick to this weird sequential explanation that a "call"
+   instruction somehow induces a stall in the next instruction.
+
+
+e) In sequence 'a' and 'b' we saw that "call" immediately followed by
+"ret" has no call-penalty. This is _not_ the case for "reti" or "retn".
+
+
+g) h) i) A "call" immediately followed by "pop" also has no penalty.
+
+j) k) l) Though "pop" has to be a single-byte instruction ("pop af", "pop
+bc", "pop de" or "pop hl"). "pop ix" or "pop iy" do have the call-penalty.
+This is similar to how a multi-byte return instruction (reti) also gets
+the penalty.
+
+
+m) n) o) p) From a stack-usage point of view a "call" immediately followed
+by a "ret" or "pop" is similar to a "push" immediately followed by "ret"
+or "pop". Though the tests show there's no penalty for push-nop-pop
+compared to push-pop or for push-nop-ret compared to push-ret.
+
+q) r) s) t) u) v) The "rst" instruction behaves similar to "call", so
+there is a penalty on the next instruction except if that next instruction
+is a (single-byte) "ret" or "pop". The only difference is that the "rst"
+instruction itself takes 1 (only 1!) cycles less than a "call"
+instruction.
+
+
+
+TODO implement this stuff in openMSX.

@@ -3,10 +3,10 @@
 
 namespace openmsx {
 
-KeyCodeSetting::KeyCodeSetting(CommandController& commandController,
-                               string_ref name, string_ref description,
+KeyCodeSetting::KeyCodeSetting(CommandController& commandController_,
+                               string_ref name_, string_ref description_,
                                Keys::KeyCode initialValue)
-	: Setting(commandController, name, description,
+	: Setting(commandController_, name_, description_,
 	          TclObject(Keys::getName(initialValue)), SAVE)
 {
 	setChecker([this](TclObject& newValue) {

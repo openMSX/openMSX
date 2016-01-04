@@ -35,8 +35,8 @@ protected:
 	ALWAYS_INLINE unsigned haltStates() const { return 1; } // TODO check this
 	ALWAYS_INLINE bool isR800() const { return true; }
 
-	R800TYPE(EmuTime::param time, Scheduler& scheduler)
-		: CPUClock(time, scheduler)
+	R800TYPE(EmuTime::param time, Scheduler& scheduler_)
+		: CPUClock(time, scheduler_)
 		, lastRefreshTime(time)
 	{
 		R800ForcePageBreak();

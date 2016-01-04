@@ -4,7 +4,6 @@
 #include "V9990CmdEngine.hh"
 #include "Ram.hh"
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -13,7 +12,7 @@ class V9990;
 
 /** Video RAM for the V9990.
   */
-class V9990VRAM : private noncopyable
+class V9990VRAM
 {
 public:
 	/** VRAM Size

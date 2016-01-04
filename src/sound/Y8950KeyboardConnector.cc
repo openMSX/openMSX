@@ -8,8 +8,8 @@
 namespace openmsx {
 
 Y8950KeyboardConnector::Y8950KeyboardConnector(
-	PluggingController& pluggingController)
-	: Connector(pluggingController, "audiokeyboardport",
+	PluggingController& pluggingController_)
+	: Connector(pluggingController_, "audiokeyboardport",
 	            make_unique<DummyY8950KeyboardDevice>())
 	, data(255)
 {

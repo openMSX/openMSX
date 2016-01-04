@@ -61,17 +61,6 @@ private:
 	float noiseX, noiseY;
 
 	struct TextureData {
-		TextureData();
-		TextureData(TextureData&& rhs)
-#if !defined(_MSC_VER)
-			// Visual C++ doesn't support 'noexcept' yet. However,
-			// unless there is a move operation that never throws,
-			// std::vector may require a copy constructor, and in
-			// fact that happens with LLVM's libc++.
-			noexcept
-#endif
-			;
-
 		gl::ColorTexture tex;
 		gl::PixelBuffer<unsigned> pbo;
 	};

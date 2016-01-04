@@ -20,6 +20,7 @@
 #include "Printer.hh"
 #include "RS232Tester.hh"
 #include "WavAudioInput.hh"
+#include "components.hh"
 #if	defined(_WIN32)
 #include "MidiInWindows.hh"
 #include "MidiOutWindows.hh"
@@ -27,6 +28,9 @@
 #if defined(__APPLE__)
 #include "MidiInCoreMIDI.hh"
 #include "MidiOutCoreMIDI.hh"
+#endif
+#if COMPONENT_ALSAMIDI
+#include "MidiSessionALSA.hh"
 #endif
 #include "memory.hh"
 
@@ -105,6 +109,9 @@ void PluggableFactory::createAll(PluggingController& controller,
 	MidiInCoreMIDI::registerAll(eventDistributor, scheduler, controller);
 	controller.registerPluggable(make_unique<MidiOutCoreMIDIVirtual>());
 	MidiOutCoreMIDI::registerAll(controller);
+#endif
+#if COMPONENT_ALSAMIDI
+	MidiSessionALSA::registerAll(controller, reactor.getCliComm());
 #endif
 
 	// Printers

@@ -628,8 +628,8 @@ static const byte MSXFontRaw[256 * 8] = {
 
 static byte MSXFont[256 * 9];
 
-ImagePrinterMSX::ImagePrinterMSX(MSXMotherBoard& motherBoard)
-	: ImagePrinter(motherBoard, true)
+ImagePrinterMSX::ImagePrinterMSX(MSXMotherBoard& motherBoard_)
+	: ImagePrinter(motherBoard_, true)
 {
 	msxPrnSetFont(MSXFontRaw);
 	resetEmulatedPrinter();
@@ -1210,8 +1210,8 @@ static const byte EpsonFontRom[] = {
 	0x8b, 0x1a, 0x24, 0x42, 0x08, 0x92, 0x20, 0x84, 0x48, 0xb0, 0x00, 0x00  // 255
 };
 
-ImagePrinterEpson::ImagePrinterEpson(MSXMotherBoard& motherBoard)
-	: ImagePrinter(motherBoard, false)
+ImagePrinterEpson::ImagePrinterEpson(MSXMotherBoard& motherBoard_)
+	: ImagePrinter(motherBoard_, false)
 {
 	resetEmulatedPrinter();
 }
@@ -1685,10 +1685,10 @@ string Paper::save() const
 	return filename;
 }
 
-void Paper::setDotSize(double sizeX, double sizeY)
+void Paper::setDotSize(double dotSizeX, double dotSizeY)
 {
-	radiusX = sizeX / 2.0;
-	radiusY = sizeY / 2.0;
+	radiusX = dotSizeX / 2.0;
+	radiusY = dotSizeY / 2.0;
 
 	int rx = int(16 * radiusX);
 	int ry = int(16 * radiusY);

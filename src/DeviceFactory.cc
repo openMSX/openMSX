@@ -1,11 +1,13 @@
 #include "DeviceFactory.hh"
 #include "XMLElement.hh"
 #include "DeviceConfig.hh"
+#include "FraelSwitchableROM.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
 #include "MSXFacMidiInterface.hh"
+#include "MSXHiResTimer.hh"
 #include "MSXResetStatusRegister.hh"
 #include "MSXTurboRPause.hh"
 #include "MSXTurboRPCM.hh"
@@ -60,11 +62,11 @@
 #include "MSXDeviceSwitch.hh"
 #include "MSXMapperIO.hh"
 #include "VDPIODelay.hh"
+#include "SensorKid.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "memory.hh"
 #include "components.hh"
-#include "SensorKid.hh"
 
 #if COMPONENT_LASERDISC
 #include "PioneerLDControl.hh"
@@ -115,6 +117,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<VDP>(conf);
 	} else if (type == "E6Timer") {
 		result = make_unique<MSXE6Timer>(conf);
+	} else if (type == "HiResTimer") {
+		result = make_unique<MSXHiResTimer>(conf);
 	} else if (type == "ResetStatusRegister" || type == "F4Device") {
 		result = make_unique<MSXResetStatusRegister>(conf);
 	} else if (type == "TurboRPause") {
@@ -230,6 +234,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXMirrorDevice>(conf);
 	} else if (type == "SensorKid") {
 		result = make_unique<SensorKid>(conf);
+	} else if (type == "FraelSwitchableROM") {
+		result = make_unique<FraelSwitchableROM>(conf);
 	} else {
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");

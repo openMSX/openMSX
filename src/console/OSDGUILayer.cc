@@ -20,8 +20,8 @@ OSDGUILayer::~OSDGUILayer()
 
 // class SDLOSDGUILayer
 
-SDLOSDGUILayer::SDLOSDGUILayer(OSDGUI& gui)
-	: OSDGUILayer(gui)
+SDLOSDGUILayer::SDLOSDGUILayer(OSDGUI& gui_)
+	: OSDGUILayer(gui_)
 {
 	getGUI().setOpenGL(false);
 }
@@ -36,8 +36,8 @@ void SDLOSDGUILayer::paint(OutputSurface& output)
 
 // class GLOSDGUILayer
 
-GLOSDGUILayer::GLOSDGUILayer(OSDGUI& gui)
-	: OSDGUILayer(gui)
+GLOSDGUILayer::GLOSDGUILayer(OSDGUI& gui_)
+	: OSDGUILayer(gui_)
 {
 	getGUI().setOpenGL(true);
 }

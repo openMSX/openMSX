@@ -47,13 +47,13 @@ private:
 DiskChanger::DiskChanger(MSXMotherBoard& board,
                          const string& driveName_,
                          bool createCmd,
-                         bool isDoubleSidedDrive)
+                         bool doubleSidedDrive_)
 	: reactor(board.getReactor())
 	, controller(board.getCommandController())
 	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
 	, driveName(driveName_)
-	, doubleSidedDrive(isDoubleSidedDrive)
+	, doubleSidedDrive(doubleSidedDrive_)
 {
 	init(board.getMachineID() + "::", createCmd);
 }
@@ -194,9 +194,9 @@ void DiskChanger::changeDisk(std::unique_ptr<Disk> newDisk)
 
 // class DiskCommand
 
-DiskCommand::DiskCommand(CommandController& commandController,
+DiskCommand::DiskCommand(CommandController& commandController_,
                          DiskChanger& diskChanger_)
-	: Command(commandController, diskChanger_.driveName)
+	: Command(commandController_, diskChanger_.driveName)
 	, diskChanger(diskChanger_)
 {
 }
@@ -273,12 +273,14 @@ void DiskCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 
 string DiskCommand::help(const vector<string>& /*tokens*/) const
 {
-	const string& name = diskChanger.getDriveName();
-	return name + " eject             : remove disk from virtual drive\n" +
-	       name + " ramdsk            : create a virtual disk in RAM\n" +
-	       name + " insert <filename> : change the disk file\n" +
-	       name + " <filename>        : change the disk file\n" +
-	       name + "                   : show which disk image is in drive";
+	const string& driveName = diskChanger.getDriveName();
+	return driveName + " eject             : remove disk from virtual drive\n" +
+	       driveName + " ramdsk            : create a virtual disk in RAM\n" +
+	       driveName + " insert <filename> : change the disk file\n" +
+	       driveName + " <filename>        : change the disk file\n" +
+	       driveName + "                   : show which disk image is in drive\n" +
+	       "The following options are supported when inserting a disk image:\n" +
+	       "-ips <filename> : apply the given IPS patch to the disk image";
 }
 
 void DiskCommand::tabCompletion(vector<string>& tokens) const

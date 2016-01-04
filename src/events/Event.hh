@@ -1,7 +1,6 @@
 #ifndef EVENT_HH
 #define EVENT_HH
 
-#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
@@ -72,9 +71,12 @@ enum EventType
 	NUM_EVENT_TYPES // must be last
 };
 
-class Event : private noncopyable
+class Event
 {
 public:
+	Event(const Event&) = delete;
+	Event& operator=(const Event&) = delete;
+
 	EventType getType() const { return type; }
 	std::string toString() const;
 	bool operator< (const Event& other) const;
@@ -110,7 +112,7 @@ private:
 class SimpleEvent : public Event
 {
 public:
-	SimpleEvent(EventType type) : Event(type) {}
+	SimpleEvent(EventType type_) : Event(type_) {}
 	void toStringImpl(TclObject& result) const override;
 	bool lessImpl(const Event& other) const override;
 };

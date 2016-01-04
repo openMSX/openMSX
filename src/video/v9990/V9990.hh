@@ -287,8 +287,8 @@ public:
 
 	/** Return the sprite pattern table base address
 	  */
-	inline int getSpritePatternAddress(V9990DisplayMode mode) const {
-		switch (mode) {
+	inline int getSpritePatternAddress(V9990DisplayMode m) const {
+		switch (m) {
 		case P1:
 			return (int(regs[SPRITE_PATTERN_ADDRESS] & 0x0E) << 14);
 		case P2:

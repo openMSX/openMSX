@@ -6,7 +6,7 @@
 #include "Observer.hh"
 #include "EventListener.hh"
 #include "sha1.hh"
-#include "noncopyable.hh"
+#include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -21,7 +21,6 @@ class File;
 class CliComm;
 
 class FilePool final : private Observer<Setting>, private EventListener
-                     , private noncopyable
 {
 public:
 	FilePool(CommandController& controler, EventDistributor& distributor);

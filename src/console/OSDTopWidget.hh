@@ -12,15 +12,6 @@ namespace openmsx {
 
 class OSDGUI;
 
-struct XXTclHasher {
-	uint32_t operator()(string_ref str) const {
-		return xxhash(str);
-	}
-	uint32_t operator()(const TclObject& obj) const {
-		return xxhash(obj.getString());
-	}
-};
-
 class OSDTopWidget final : public OSDWidget
 {
 public:

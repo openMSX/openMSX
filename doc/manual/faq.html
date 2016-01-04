@@ -61,14 +61,14 @@ The easiest way to install openMSX is to use a ready-made package. Whether one i
 <dt>Windows</dt>
 <dd>The easiest way to install openMSX is by running the installer. Download the
 installer from
-<a class="external" href="https://sourceforge.net/projects/openmsx/files/">the downloads section</a> of the openMSX SourceForge.net site,
-unpack the <code>.zip</code>file, and double-click on the resulting <code>.msi</code>
+<a class="external" href="http://openmsx.org/">our website</a> (check out the Download box),
+unpack the <code>.zip</code> file, and double-click on the resulting <code>.msi</code>
 file. After this, you should have a working openMSX and openMSX Catapult.<br />
 <br />
 You can also download the Zip distribution which contains only the emulator
 files (no installer) and unpack it to the directory of your choice.</dd>
 <dt>Mac OS X</dt>
-<dd>The easiest way is to get the universal binary, which is in the <code>.dmg</code> file from <a class="external" href="https://sourceforge.net/projects/openmsx/files/">the downloads section</a> of the openMSX SourceForge.net site. The file name will contain <code>univ</code>. There is no Catapult for OS X yet, but <a class="external" href="http://nekocan.sitemix.jp/?page_id=17">NekoLauncher openMSX</a> is a very good alternative. If this site gives you problems, check <a class="external" href="http://nekocanmac.seesaa.net/">the mirror download site</a>.
+<dd>The easiest way is to get the <code>.dmg</code> file from <a class="external" href="http://openmsx.org/">our website</a> (check the Download box). There is no Catapult for OS X yet, but <a class="external" href="http://nekocan.sitemix.jp/?page_id=17">NekoLauncher openMSX</a> is a very good alternative. If this site gives you problems, check <a class="external" href="http://nekocanmac.seesaa.net/">the mirror download site</a>. And of course you can also use the built-in OSD menu, open it with Cmd+O.
 </dd>
 <dt>Linux</dt>
 <dd><dl>
@@ -139,11 +139,11 @@ The MSX system ROMs are copyrighted. In other words: it's illegal to include the
 <h3><a id="easyuse">Is openMSX easy to use?</a></h3>
 
 <p>
-Ever since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is quite easy to use! The Windows installer installs it by default. For other systems, the same counts as for openMSX itself. Check out the <a class="external" href="http://www.openmsx.org/catapult-manual/">Catapult manual</a> for more information. For basic usage, you just select a machine to run and click on "Start"!
+Ever since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is quite easy to use! The Windows installer installs it by default. For other systems, the same counts as for openMSX itself. Check out the <a class="external" href="http://openmsx.org/catapult-manual/">Catapult manual</a> for more information. For basic usage, you just select a machine to run and click on "Start"!
 </p>
 
 <p>
-An alternative to Catapult, is the built in OSD menu. You can call it by pressing the <a class="external" href="http://en.wikipedia.org/wiki/Menu_key">MENU key</a>. This menu is also used on handhelds, like the Dingoo.
+An alternative to Catapult, is the built in OSD menu. You can call it by pressing the <a class="external" href="http://en.wikipedia.org/wiki/Menu_key">MENU key</a> (or Cmd+O on Mac). This menu is also used on handhelds, like the Dingoo.
 </p>
 
 <p>
@@ -355,7 +355,7 @@ In general people wonder why you need 200MHz+ machines to emulate a computer bas
 <h3><a id="perfect_videos">How do I create perfect play videos, like Vampier's YouTube videos?</a></h3>
 
 <p>
-The trick is to use the <a class="external" href="user.html#reverse">reverse</a> feature to correct any mistake you make during game play. You just play, play, play, correcting all mistakes you make by going back in time a bit (using PageUp) when you (e.g.) die and doing it better.
+The trick is to use the <a class="external" href="user.html#reverse">reverse</a> feature to correct any mistakes you make during game play. You just play, play, play, correcting all mistakes you make by going back in time a bit (using PageUp) when you (e.g.) die and doing it better.
 </p>
 <p>As soon as you get to the end of the game, we recommend to save the whole replay (using the <a class="external" href="commands.html#reverse"><code>reverse savereplay</code></a>), so that you can always load it and play it again (using <a class="external" href="commands.html#reverse"><code>reverse loadreplay</code></a>).
 </p>
@@ -374,7 +374,7 @@ Easy! Now fill up YouTube with MSX material!
 </p>
 
 <p>First of all, the basics are explained in the previous section, of course. But you can get extra tools if you enable the <a class="external" href="commands.html#mode">TAS mode</a>, of which we won't repeat the explanation here.
-If you need also a live RAM watch, check out the <code>ram_watch</code> command. It enables you to add live views of values on multiple addresses with several view options, like titles, formats and data types.
+If you need also a live RAM watch, check out the <code><a class="external" href="commands.html#other">ram_watch</a></code> command. It enables you to add live views of values on multiple addresses with several view options, like titles, formats and data types.
 </p>
 
 <p>For MSX TASing, we recommend to not use the (default) C-BIOS based machines, but real machines, because C-BIOS is still in development and this means your replay (in most other TASing emulators called "movie") won't be easy to get working again once a new version of C-BIOS has been released. Also, MSXturboR machines are not recommended, because it has a relatively large amount of timing inaccuracies. So which machines do we recommend? Here's a table with some very rough directions:</p>
@@ -397,11 +397,11 @@ If you need also a live RAM watch, check out the <code>ram_watch</code> command.
 <h3><a id="codec">What codec do you use to record videos and where do I get it (because I only get blackness in my videos)?</a></h3>
 
 <p>
-The ZMBV (Zip Motion Blocks Video) codec is used, which has been developed in the <a class="external" href="http://dosbox.sourceforge.net/">DosBox project</a>. It enables openMSX to encode video in real time (on most systems), have a very good compression ratio and give excellent video quality, because it is a lossless codec. Razor sharp movies! Also, because the encoder is built in, it doesn't make openMSX depend on an external codec to be installed for recording video.
+The ZMBV (Zip Motion Blocks Video) codec is used, which has been developed in the <a class="external" href="http://dosbox.sourceforge.net/">DosBox project</a>. It enables openMSX to encode video in real time (on most systems), has a very good compression ratio and gives excellent video quality, because it is a lossless codec. Razor sharp movies! Also, because the encoder is built in, it doesn't make openMSX depend on an external codec to be installed for recording video.
 </p>
 
 <p>
-A developer of DosBox built a Win32 binary of the codec for our users. It is included with openMSX 0.6.2 (and up) for Win32. Note that the installer does not install the codec by default, so you will need to enable this option when installing. You can also <a class="external" href="http://www.openmsx.org/util/zmbv_codec_win32.zip">download the codec separately from our web site</a>. After unzipping the file, use the .INF file to install the codec (<code>zmbv.dll</code>) by right-clicking on it and selecting Install. Note that other binaries of this codec that you can find on the internet may not work, as not all of them have support for more than 8 bits per pixel recordings.
+A developer of DosBox built a Win32 binary of the codec for our users. It is included with openMSX 0.6.2 (and up) for Win32. Note that the installer does not install the codec by default, so you will need to enable this option when installing. You can also <a class="external" href="http://openmsx.org/util/zmbv_codec_win32.zip">download the codec separately from our web site</a>. After unzipping the file, use the .INF file to install the codec (<code>zmbv.dll</code>) by right-clicking on it and selecting Install. Note that other binaries of this codec that you can find on the internet may not work, as not all of them have support for more than 8 bits per pixel recordings.
 Also note that this is a 32-bit codec, so it will not run inside 64-bit Windows Media Player or Windows Media Center.</p>
 
 <p>
@@ -434,7 +434,7 @@ You can look in the following places for answers:
 <dt><a class="external" href="index.html">openMSX manuals</a></dt>
 <dd>We have a nice set of manuals describing most of the functionality in openMSX.
 </dd>
-<dt><a class="external" href="http://www.openmsx.org/catapult-manual/">Catapult manuals</a></dt>
+<dt><a class="external" href="http://openmsx.org/catapult-manual/">Catapult manuals</a></dt>
 <dd>The manuals of Catapult, the graphical interface to openMSX.</dd>
 <dt><a class="external" href="http://faq.msxnet.org/">The Ultimate MSX FAQ</a></dt>
 <dd>Look here if you have a question that is not specific to openMSX, but about the MSX system itself.</dd>

@@ -142,10 +142,10 @@ bool operator< (string_ref x, string_ref y)
 
 
 // numeric conversions
-unsigned fast_stou(string_ref str)
+unsigned fast_stou(string_ref s)
 {
 	unsigned result = 0;
-	for (char c : str) {
+	for (char c : s) {
 		unsigned d = c - '0';
 		if (unlikely(d > 9)) {
 			throw std::invalid_argument("fast_stoi");
@@ -185,8 +185,8 @@ std::string operator+(string_ref x, char y)
 }
 
 
-std::ostream& operator<<(std::ostream& os, string_ref str)
+std::ostream& operator<<(std::ostream& os, string_ref s)
 {
-	os.write(str.data(), str.size());
+	os.write(s.data(), s.size());
 	return os;
 }

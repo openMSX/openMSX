@@ -3,18 +3,18 @@
 
 namespace openmsx {
 
-IntegerSetting::IntegerSetting(CommandController& commandController,
-                               string_ref name, string_ref description,
+IntegerSetting::IntegerSetting(CommandController& commandController_,
+                               string_ref name_, string_ref description_,
                                int initialValue, int minValue_, int maxValue_)
-	: Setting(commandController, name, description,
+	: Setting(commandController_, name_, description_,
 	          TclObject(initialValue), SAVE)
 	, minValue(minValue_)
 	, maxValue(maxValue_)
 {
-	auto& interp = commandController.getInterpreter();
+	auto& interp = getInterpreter();
 	setChecker([this, &interp](TclObject& newValue) {
-		int value = newValue.getInt(interp); // may throw
-		int clipped = std::min(std::max(value, minValue), maxValue);
+		int val = newValue.getInt(interp); // may throw
+		int clipped = std::min(std::max(val, minValue), maxValue);
 		newValue.setInt(clipped);
 	});
 	init();

@@ -393,8 +393,8 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
 		     (0xB800 <= addr) && (addr < 0xC000))) {
 			scc.writeMem(addr & 0xFF, value, time);
+			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
 		}
-		return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
 	}
 
 	unsigned subslot = getSubslot(addr);
@@ -450,7 +450,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 			if ((0x6000 <= addr) && (addr < 0x8000)) {
 				byte bank = (addr >> 11) & 0x03;
 				bankRegs[subslot][bank] = value;
-				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+				invalidateMemCache(0x4000 + 0x2000 * bank, 0x2000);
 			}
 			break;
 		case 0xC0:

@@ -470,6 +470,15 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPosixStr.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set_int.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set_int.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cnt_lsb.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tcl.h">

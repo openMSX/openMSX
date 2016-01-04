@@ -137,7 +137,7 @@ public:
 		if (last == stop) last = buf;
 	}
 
-	circular_buffer(circular_buffer&& cb)
+	circular_buffer(circular_buffer&& cb) noexcept
 		: buf(nullptr), stop(nullptr)
 		, first(nullptr), last(nullptr), siz(0)
 	{
@@ -162,13 +162,13 @@ public:
 		return *this;
 	}
 
-	circular_buffer& operator=(circular_buffer&& cb) {
+	circular_buffer& operator=(circular_buffer&& cb) noexcept {
 		cb.swap(*this);
 		circular_buffer().swap(cb);
 		return *this;
 	}
 
-	void swap(circular_buffer& cb) {
+	void swap(circular_buffer& cb) noexcept {
 		std::swap(buf,   cb.buf);
 		std::swap(stop,  cb.stop);
 		std::swap(first, cb.first);

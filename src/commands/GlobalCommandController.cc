@@ -76,21 +76,21 @@ void GlobalCommandController::unregisterProxyCommand(string_ref name)
 }
 
 GlobalCommandController::ProxySettings::iterator
-GlobalCommandController::findProxySetting(const std::string& name)
+GlobalCommandController::findProxySetting(string_ref name)
 {
 	return find_if(begin(proxySettings), end(proxySettings),
-		[&](ProxySettings::value_type& v) { return v.first->getName() == name; });
+		[&](ProxySettings::value_type& v) { return v.first->getFullName() == name; });
 }
 
 void GlobalCommandController::registerProxySetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	auto it = findProxySetting(name);
+	const auto& name = setting.getBaseNameObj();
+	auto it = findProxySetting(name.getString());
 	if (it == end(proxySettings)) {
 		// first occurrence
 		auto proxy = make_unique<ProxySetting>(reactor, name);
-		getSettingsConfig().getSettingsManager().registerSetting(*proxy, name);
-		getInterpreter().registerSetting(*proxy, name);
+		getSettingsManager().registerSetting(*proxy);
+		getInterpreter().registerSetting(*proxy);
 		proxySettings.emplace_back(std::move(proxy), 1);
 	} else {
 		// was already registered
@@ -100,16 +100,15 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 
 void GlobalCommandController::unregisterProxySetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	auto it = findProxySetting(name);
+	auto it = findProxySetting(setting.getBaseName());
 	assert(it != end(proxySettings));
 	assert(it->second);
 	--(it->second);
 	if (it->second == 0) {
 		auto& proxy = *it->first;
-		getInterpreter().unregisterSetting(proxy, name);
-		getSettingsConfig().getSettingsManager().unregisterSetting(proxy, name);
-		proxySettings.erase(it);
+		getInterpreter().unregisterSetting(proxy);
+		getSettingsManager().unregisterSetting(proxy);
+		move_pop_back(proxySettings, it);
 	}
 }
 
@@ -159,32 +158,14 @@ void GlobalCommandController::unregisterCompleter(
 
 void GlobalCommandController::registerSetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	getSettingsConfig().getSettingsManager().registerSetting(setting, name);
-	interpreter.registerSetting(setting, name);
+	getSettingsManager().registerSetting(setting);
+	interpreter.registerSetting(setting);
 }
 
 void GlobalCommandController::unregisterSetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	interpreter.unregisterSetting(setting, name);
-	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
-}
-
-BaseSetting* GlobalCommandController::findSetting(string_ref name)
-{
-	return getSettingsConfig().getSettingsManager().findSetting(name);
-}
-
-void GlobalCommandController::changeSetting(
-	const std::string& name, const TclObject& value)
-{
-	interpreter.setVariable(name, value);
-}
-
-void GlobalCommandController::changeSetting(Setting& setting, const TclObject& value)
-{
-	changeSetting(setting.getName(), value);
+	interpreter.unregisterSetting(setting);
+	getSettingsManager().unregisterSetting(setting);
 }
 
 bool GlobalCommandController::hasCommand(string_ref command) const
@@ -427,13 +408,13 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 				auto begin = list.begin();
 				auto end   = list.end();
 				if (begin != end) {
-					auto it = end; --it;
-					auto back = *it;
+					auto it2 = end; --it2;
+					auto back = *it2;
 					if (back == "false") {
-						end = it;
+						end = it2;
 						sensitive = false;
 					} else if (back == "true") {
-						end = it;
+						end = it2;
 						sensitive = true;
 					}
 				}
@@ -541,8 +522,8 @@ string GlobalCommandController::TabCompletionCmd::help(const vector<string>& /*t
 
 // class UpdateCmd
 
-GlobalCommandController::UpdateCmd::UpdateCmd(CommandController& commandController)
-	: Command(commandController, "openmsx_update")
+GlobalCommandController::UpdateCmd::UpdateCmd(CommandController& commandController_)
+	: Command(commandController_, "openmsx_update")
 {
 }
 
@@ -560,8 +541,8 @@ static GlobalCliComm::UpdateType getType(const TclObject& name)
 CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 {
 	auto& controller = OUTER(GlobalCommandController, updateCmd);
-	if (auto* connection = controller.getConnection()) {
-		return *connection;
+	if (auto* c = controller.getConnection()) {
+		return *c;
 	}
 	throw CommandException("This command only makes sense when "
 	                       "it's used from an external application.");
@@ -605,8 +586,8 @@ void GlobalCommandController::UpdateCmd::tabCompletion(vector<string>& tokens) c
 
 // Platform info
 
-GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoCommand)
-	: InfoTopic(openMSXInfoCommand, "platform")
+GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoCommand_)
+	: InfoTopic(openMSXInfoCommand_, "platform")
 {
 }
 
@@ -623,8 +604,8 @@ string GlobalCommandController::PlatformInfo::help(const vector<string>& /*token
 
 // Version info
 
-GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand)
-	: InfoTopic(openMSXInfoCommand, "version")
+GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand_)
+	: InfoTopic(openMSXInfoCommand_, "version")
 {
 }
 

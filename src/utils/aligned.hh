@@ -40,11 +40,17 @@ template<typename T> static inline void unalignedStore(void* p, T t)
 	}
 }
 
+static inline uint16_t unalignedLoad16(const void* p) {
+	return unalignedLoad<uint16_t>(p);
+}
 static inline uint32_t unalignedLoad32(const void* p) {
 	return unalignedLoad<uint32_t>(p);
 }
 static inline uint64_t unalignedLoad64(const void* p) {
 	return unalignedLoad<uint64_t>(p);
+}
+static inline void unalignedStore16(void* p, uint16_t v) {
+	unalignedStore(p, v);
 }
 static inline void unalignedStore32(void* p, uint32_t v) {
 	unalignedStore(p, v);

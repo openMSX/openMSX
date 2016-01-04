@@ -38,17 +38,8 @@ public:
 	// non-copyable, but moveable
 	LocalFileReference(const LocalFileReference&) = delete;
 	LocalFileReference& operator=(const LocalFileReference&) = delete;
-	// =default is not yet supported in VS2013, or not for move-operations(?)
-	//LocalFileReference(LocalFileReference&&) = default;
-	//LocalFileReference& operator=(LocalFileReference&&) = default;
-	LocalFileReference(LocalFileReference&& other)
-		: tmpFile(std::move(other.tmpFile))
-		, tmpDir (std::move(other.tmpDir)) {}
-	LocalFileReference& operator=(LocalFileReference&& other) {
-		tmpFile = std::move(other.tmpFile);
-		tmpDir  = std::move(other.tmpDir);
-		return *this;
-	}
+	LocalFileReference(LocalFileReference&&) = default;
+	LocalFileReference& operator=(LocalFileReference&&) = default;
 
 	/** Returns path to a local uncompressed version of this file.
 	  * This path only remains valid as long as this object is in scope.

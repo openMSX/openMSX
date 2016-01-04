@@ -1,7 +1,6 @@
 #ifndef COMPLETER_HH
 #define COMPLETER_HH
 
-#include "noncopyable.hh"
 #include "inline.hh"
 #include "string_ref.hh"
 #include <vector>
@@ -11,7 +10,7 @@ namespace openmsx {
 class FileContext;
 class InterpreterOutput;
 
-class Completer : private noncopyable
+class Completer
 {
 public:
 	const std::string& getName() const { return name; }

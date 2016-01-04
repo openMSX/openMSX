@@ -51,9 +51,7 @@ public:
 
 private:
 	struct ReverseChunk {
-		ReverseChunk();
-		ReverseChunk(ReverseChunk&& rhs);
-		ReverseChunk& operator=(ReverseChunk&& rhs);
+		ReverseChunk() : time(EmuTime::zero) {}
 
 		EmuTime time;
 		MemBuffer<uint8_t> savestate;

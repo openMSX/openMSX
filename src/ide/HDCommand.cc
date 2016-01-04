@@ -13,12 +13,12 @@ using std::vector;
 
 // class HDCommand
 
-HDCommand::HDCommand(CommandController& commandController,
-                     StateChangeDistributor& stateChangeDistributor,
-                     Scheduler& scheduler, HD& hd_,
+HDCommand::HDCommand(CommandController& commandController_,
+                     StateChangeDistributor& stateChangeDistributor_,
+                     Scheduler& scheduler_, HD& hd_,
                      BooleanSetting& powerSetting_)
-	: RecordedCommand(commandController, stateChangeDistributor,
-	                  scheduler, hd_.getName())
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+	                  scheduler_, hd_.getName())
 	, hd(hd_)
 	, powerSetting(powerSetting_)
 {

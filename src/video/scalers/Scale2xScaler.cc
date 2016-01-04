@@ -206,8 +206,8 @@ template<bool DOUBLE_X, typename Pixel> static inline void scaleSSE(
 
 
 template <class Pixel>
-Scale2xScaler<Pixel>::Scale2xScaler(const PixelOperations<Pixel>& pixelOps)
-	: Scaler2<Pixel>(pixelOps)
+Scale2xScaler<Pixel>::Scale2xScaler(const PixelOperations<Pixel>& pixelOps_)
+	: Scaler2<Pixel>(pixelOps_)
 {
 }
 

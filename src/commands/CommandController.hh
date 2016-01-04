@@ -48,8 +48,6 @@ public:
 	 */
 	virtual void   registerSetting(Setting& setting) = 0;
 	virtual void unregisterSetting(Setting& setting) = 0;
-	virtual BaseSetting* findSetting(string_ref name) = 0;
-	virtual void changeSetting(Setting& setting, const TclObject& value) = 0;
 
 	virtual CliComm& getCliComm() = 0;
 	virtual Interpreter& getInterpreter() = 0;
