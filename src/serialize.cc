@@ -11,6 +11,7 @@
 #include "FileOperations.hh"
 #include "Version.hh"
 #include "Date.hh"
+#include "cstdiop.hh" // for dup()
 #include <cstring>
 #include <limits>
 
@@ -255,16 +256,24 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 	root.addAttribute("openmsx_version", Version::full());
 	root.addAttribute("date_time", Date::toString(time(nullptr)));
 	root.addAttribute("platform", TARGET_PLATFORM);
-	auto f = FileOperations::openFile(filename, "wb");
-	if (!f) {
-		throw XMLException("Could not open compressed file \"" + filename + "\"");
+	{
+		auto f = FileOperations::openFile(filename, "wb");
+		if (!f) goto error;
+		int duped_fd = dup(fileno(f.get()));
+		if (duped_fd == -1) goto error;
+		file = gzdopen(duped_fd, "wb9");
+		if (!file) {
+			close(duped_fd);
+			goto error;
+		}
+		current.push_back(&root);
+		return; // success
+		// on scope-exit 'File* f' is closed, and 'gzFile file'
+		// uses the dup()'ed file descriptor.
 	}
-	file = gzdopen(fileno(f.get()), "wb9");
-	if (!file) {
-		throw XMLException("Could not open compressed file \"" + filename + "\"");
-	}
-	f.release();
-	current.push_back(&root);
+
+error:
+	throw XMLException("Could not open compressed file \"" + filename + "\"");
 }
 
 XmlOutputArchive::~XmlOutputArchive()
