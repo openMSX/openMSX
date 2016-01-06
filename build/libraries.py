@@ -260,7 +260,7 @@ class GLEW(Library):
 			return flags
 
 class LibPNG(Library):
-	libName = 'png12'
+	libName = 'png16'
 	makeName = 'PNG'
 	header = '<png.h>'
 	configScriptName = 'libpng-config'
