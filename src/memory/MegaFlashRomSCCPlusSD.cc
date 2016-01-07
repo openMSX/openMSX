@@ -53,6 +53,7 @@ MegaFlashROM SCC+ SD Technical Details
  Port #A1 -> #11
  Port #A2 -> #12
 
+ The PSG is read only.
 
 --------------------------------------------------------------------------------
 [Cartridge layout]
@@ -859,19 +860,6 @@ byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot3(word /*addr*/) const
 }
 
 /////////////////////// I/O ////////////////////////////////////////////
-
-byte MegaFlashRomSCCPlusSD::readIO(word port, EmuTime::param time)
-{
-	// Note: it's not possible to read from the Memory Mapper ports
-	assert((port & 0xFF) == 0x12 || (isPSGalsoMappedToNormalPorts() && ((port & 0xFF) == 0xA2))); (void)port;
-	return psg.readRegister(psgLatch, time);
-}
-
-byte MegaFlashRomSCCPlusSD::peekIO(word port, EmuTime::param time) const
-{
-	assert((port & 0xFF) == 0x12 || (isPSGalsoMappedToNormalPorts() && ((port & 0xFF) == 0xA2))); (void)port;
-	return psg.peekRegister(psgLatch, time);
-}
 
 void MegaFlashRomSCCPlusSD::writeIO(word port, byte value, EmuTime::param time)
 {

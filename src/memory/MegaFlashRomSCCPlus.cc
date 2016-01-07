@@ -53,6 +53,7 @@ Main features:
  Port #A1 -> #11
  Port #A2 -> #12
 
+ The PSG is read only.
 
 --------------------------------------------------------------------------------
 [REGISTERS]
@@ -187,14 +188,12 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 
 	getCPUInterface().register_IO_Out(0x10, this);
 	getCPUInterface().register_IO_Out(0x11, this);
-	getCPUInterface().register_IO_In (0x12, this);
 }
 
 MegaFlashRomSCCPlus::~MegaFlashRomSCCPlus()
 {
 	getCPUInterface().unregister_IO_Out(0x10, this);
 	getCPUInterface().unregister_IO_Out(0x11, this);
-	getCPUInterface().unregister_IO_In (0x12, this);
 }
 
 void MegaFlashRomSCCPlus::powerUp(EmuTime::param time)
@@ -489,18 +488,6 @@ byte* MegaFlashRomSCCPlus::getWriteCacheLine(word /*addr*/) const
 	return nullptr;
 }
 
-
-byte MegaFlashRomSCCPlus::readIO(word port, EmuTime::param time)
-{
-	assert((port & 0xFF) == 0x12); (void)port;
-	return psg.readRegister(psgLatch, time);
-}
-
-byte MegaFlashRomSCCPlus::peekIO(word port, EmuTime::param time) const
-{
-	assert((port & 0xFF) == 0x12); (void)port;
-	return psg.peekRegister(psgLatch, time);
-}
 
 void MegaFlashRomSCCPlus::writeIO(word port, byte value, EmuTime::param time)
 {

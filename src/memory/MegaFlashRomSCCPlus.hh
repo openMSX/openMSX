@@ -22,8 +22,6 @@ public:
 	void writeMem(word address, byte value, EmuTime::param time) override;
 	byte* getWriteCacheLine(word address) const override;
 
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
