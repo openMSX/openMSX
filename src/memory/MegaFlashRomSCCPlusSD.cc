@@ -281,7 +281,6 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(
 
 	getCPUInterface().register_IO_Out(0x10, this);
 	getCPUInterface().register_IO_Out(0x11, this);
-	getCPUInterface().register_IO_In (0x12, this);
 
 	if (checkedRam) {
 		getCPUInterface().register_IO_Out(0xFF, this);
@@ -301,7 +300,6 @@ MegaFlashRomSCCPlusSD::~MegaFlashRomSCCPlusSD()
 
 	getCPUInterface().unregister_IO_Out(0x10, this);
 	getCPUInterface().unregister_IO_Out(0x11, this);
-	getCPUInterface().unregister_IO_In (0x12, this);
 
 	if (checkedRam) {
 		getCPUInterface().unregister_IO_Out(0xFF, this);
@@ -503,11 +501,9 @@ void MegaFlashRomSCCPlusSD::updateConfigReg(byte value)
 		if (value & 0x08) {
 			getCPUInterface().register_IO_Out(0xA0, this);
 			getCPUInterface().register_IO_Out(0xA1, this);
-			getCPUInterface().register_IO_In (0xA2, this);
 		} else {
 			getCPUInterface().unregister_IO_Out(0xA0, this);
 			getCPUInterface().unregister_IO_Out(0xA1, this);
-			getCPUInterface().unregister_IO_In (0xA2, this);
 		}
 	}
 	configReg = value;
