@@ -1,6 +1,7 @@
 #include "DeviceFactory.hh"
 #include "XMLElement.hh"
 #include "DeviceConfig.hh"
+#include "ChakkariCopy.hh"
 #include "FraelSwitchableROM.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
@@ -236,6 +237,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<SensorKid>(conf);
 	} else if (type == "FraelSwitchableROM") {
 		result = make_unique<FraelSwitchableROM>(conf);
+	} else if (type == "ChakkariCopy") {
+		result = make_unique<ChakkariCopy>(conf);
 	} else {
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");
