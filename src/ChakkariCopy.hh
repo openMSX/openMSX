@@ -9,12 +9,13 @@
 
 namespace openmsx {
 
-class ChakkariCopy final : public MSXDevice
+class ChakkariCopy final : public MSXDevice, private Observer<Setting>
 {
 public:
 	enum Mode { COPY, RAM };
 
 	explicit ChakkariCopy(const DeviceConfig& config);
+	~ChakkariCopy();
 
 	void reset(EmuTime::param time) override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
@@ -30,15 +31,18 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	// Observer<Setting>
+	void update(const Setting& setting) override;
+
 	Ram biosRam;
 	Ram workRam;
 	Rom rom;
 
-	byte reg;
-
 	BooleanSetting pauseButtonPressedSetting;
 	BooleanSetting copyButtonPressedSetting;
 	EnumSetting<Mode> modeSetting;
+
+	byte reg;
 };
 
 } // namespace openmsx

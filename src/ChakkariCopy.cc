@@ -86,20 +86,26 @@ ChakkariCopy::ChakkariCopy(const DeviceConfig& config)
 	, biosRam(config, getName() + " BIOS RAM", "Chakkari Copy BIOS RAM", 0x4000)
 	, workRam(config, getName() + " work RAM", "Chakkari Copy work RAM", 0x0800)
 	, rom(getName() + " ROM", "rom", config)
-	, reg(0xFF) // avoid UMR in initial writeIO
 	, pauseButtonPressedSetting(getCommandController(),
-	  getName() + " PAUSE button pressed",
-	  "controls the PAUSE button state", false, Setting::DONT_SAVE)
+		getName() + " PAUSE button pressed",
+		"controls the PAUSE button state", false, Setting::DONT_SAVE)
 	, copyButtonPressedSetting(getCommandController(),
-	  getName() + " COPY button pressed",
-	  "controls the COPY button state", false, Setting::DONT_SAVE)
+		getName() + " COPY button pressed",
+		"controls the COPY button state", false, Setting::DONT_SAVE)
 	, modeSetting(getCommandController(), getName() + " mode",
-	  "Sets mode of the cartridge: in COPY mode you can hardcopy MSX1 screens, "
-	  "in RAM mode you just have a 16kB RAM expansion", ChakkariCopy::COPY,
-	  EnumSetting<ChakkariCopy::Mode>::Map{
-		  {"COPY", ChakkariCopy::COPY}, {"RAM", ChakkariCopy::RAM}})
+		"Sets mode of the cartridge: in COPY mode you can hardcopy MSX1 screens, "
+		"in RAM mode you just have a 16kB RAM expansion", ChakkariCopy::COPY,
+		EnumSetting<ChakkariCopy::Mode>::Map{
+			{"COPY", ChakkariCopy::COPY}, {"RAM", ChakkariCopy::RAM}})
+	, reg(0xFF) // avoid UMR in initial writeIO()
 {
 	reset(getCurrentTime());
+	modeSetting.attach(*this);
+}
+
+ChakkariCopy::~ChakkariCopy()
+{
+	modeSetting.detach(*this);
 }
 
 void ChakkariCopy::reset(EmuTime::param time)
@@ -120,6 +126,12 @@ void ChakkariCopy::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 		getCliComm().printInfo(getName() + " PAUSE LED " +
 			(((value & 2) == 0x02) ? "OFF" : "ON"));
 	}
+	if (diff & 0x04) {
+		if (modeSetting.getEnum() == COPY) {
+			// page 0 toggles writable/read-only
+			invalidateMemCache(0x0000, 0x4000);
+		}
+	}
 }
 
 byte ChakkariCopy::readIO(word port, EmuTime::param time)
@@ -130,14 +142,13 @@ byte ChakkariCopy::readIO(word port, EmuTime::param time)
 byte ChakkariCopy::peekIO(word /*port*/, EmuTime::param /*time*/) const
 {
 	byte retVal = 0xFF;
-	if (copyButtonPressedSetting.getBoolean())
-		retVal &= ~0x01;
-	if (pauseButtonPressedSetting.getBoolean())
-		retVal &= ~0x02;
+	if (copyButtonPressedSetting .getBoolean()) retVal &= ~0x01;
+	if (pauseButtonPressedSetting.getBoolean()) retVal &= ~0x02;
 	return retVal;
 }
 
-byte ChakkariCopy::readMem(word address, EmuTime::param time) {
+byte ChakkariCopy::readMem(word address, EmuTime::param time)
+{
 	return peekMem(address, time);
 }
 
@@ -150,18 +161,22 @@ const byte* ChakkariCopy::getReadCacheLine(word address) const
 {
 	if (modeSetting.getEnum() == COPY) {
 		// page 0
-		if ((address < 0x4000) && (modeSetting.getEnum() == COPY))
+		if (address < 0x4000) {
 			return &biosRam[address];
+		}
 		// page 1
-		if ((0x4000 <= address) && (address < 0x6000))
+		if ((0x4000 <= address) && (address < 0x6000)) {
 			return &rom[address & 0x1FFF];
+		}
 		// the work RAM is mirrored in 0x6000-0x8000, see above
-		if ((0x6000 <= address) && (address < 0x8000))
+		if ((0x6000 <= address) && (address < 0x8000)) {
 			return &workRam[address & 0x07FF];
+		}
 	} else {
 		// page 1 RAM mode
-		if ((0x4000 <= address) && (address < 0x8000))
+		if ((0x4000 <= address) && (address < 0x8000)) {
 			return &biosRam[address & 0x3FFF];
+		}
 	}
 	return unmappedRead;
 }
@@ -175,18 +190,27 @@ byte* ChakkariCopy::getWriteCacheLine(word address) const
 {
 	if (modeSetting.getEnum() == COPY) {
 		// page 0
-		if ((address < 0x4000) && ((reg & 0x04) == 0))
+		if ((address < 0x4000) && ((reg & 0x04) == 0)) {
 			return const_cast<byte*>(&biosRam[address & 0x3FFF]);
+		}
 		// page 1
 		// the work RAM is mirrored in 0x6000-0x8000, see above
-		if ((0x6000 <= address) && (address < 0x8000))
+		if ((0x6000 <= address) && (address < 0x8000)) {
 			return const_cast<byte*>(&workRam[address & 0x07FF]);
+		}
 	} else {
 		// page 1 RAM mode
-		if ((0x4000 <= address) && (address < 0x8000))
+		if ((0x4000 <= address) && (address < 0x8000)) {
 			return const_cast<byte*>(&biosRam[address & 0x3FFF]);
+		}
 	}
 	return unmappedWrite;
+}
+
+void ChakkariCopy::update(const Setting& /*setting*/)
+{
+	// switch COPY <-> RAM mode, memory layout changes
+	invalidateMemCache(0x0000, 0x10000);
 }
 
 template<typename Archive>
