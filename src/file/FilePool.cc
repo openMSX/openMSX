@@ -290,7 +290,7 @@ static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distr
 	size_t size;
 	const byte* data = file.mmap(size);
 
-	if (size < 10*1024*1024) {
+	if (size < 512*1024*1024) {
 		// for small files, don't show progress
 		return SHA1::calc(data, size);
 	}
