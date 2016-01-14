@@ -30,6 +30,8 @@
 
 #include "tiger.hh"
 #include "MemBuffer.hh"
+#include "CliComm.hh"
+#include "EventDistributor.hh"
 #include <string>
 #include <cstdint>
 #include <ctime>
@@ -74,7 +76,8 @@ public:
 	/** Create TigerTree calculator for the given (abstract) data block
 	 * of given size.
 	 */
-	TigerTree(TTData& data, size_t dataSize, const std::string& name);
+	TigerTree(TTData& data, size_t dataSize, const std::string& name,
+		EventDistributor& eventDistributor, CliComm& cliComm);
 
 	/** Calculate the hash value.
 	 */
@@ -105,6 +108,11 @@ private:
 	TTData& data;
 	const size_t dataSize;
 	TTCacheEntry& entry;
+	string_ref name;
+	EventDistributor& eventDistributor;
+	CliComm& cliComm;
+	int lastPercentage;
+	bool showProgress;
 };
 
 } // namespace openmsx

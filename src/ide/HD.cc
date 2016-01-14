@@ -45,7 +45,8 @@ HD::HD(const DeviceConfig& config)
 		file = File(filename);
 		filesize = file.getSize();
 		tigerTree = make_unique<TigerTree>(*this, filesize,
-		                                   filename.getResolved());
+				filename.getResolved(), motherBoard.getReactor().getEventDistributor(),
+				motherBoard.getMSXCliComm());
 	} catch (FileException&) {
 		// Image didn't exist yet, but postpone image creation:
 		// we don't want to create images during 'testconfig'
@@ -86,7 +87,8 @@ void HD::openImage()
 		file = File(filename, File::CREATE);
 		file.truncate(filesize);
 		tigerTree = make_unique<TigerTree>(*this, filesize,
-		                                   filename.getResolved());
+				filename.getResolved(), motherBoard.getReactor().getEventDistributor(),
+				motherBoard.getMSXCliComm());
 	} catch (FileException& e) {
 		motherBoard.getMSXCliComm().printWarning(
 			"Couldn't create HD image: " + e.getMessage());
@@ -100,7 +102,8 @@ void HD::switchImage(const Filename& newFilename)
 	filename = newFilename;
 	filesize = file.getSize();
 	tigerTree = make_unique<TigerTree>(*this, filesize,
-	                                   filename.getResolved());
+			filename.getResolved(), motherBoard.getReactor().getEventDistributor(),
+				motherBoard.getMSXCliComm());
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
 	                                   filename.getResolved());
 }

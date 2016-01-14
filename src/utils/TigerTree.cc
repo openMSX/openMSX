@@ -1,5 +1,6 @@
 #include "TigerTree.hh"
 #include "Math.hh"
+#include "StringOp.hh"
 #include <map>
 #include <cstring>
 #include <cassert>
@@ -16,6 +17,7 @@ struct TTCacheEntry
 	MemBuffer<bool> valid;
 	size_t numNodes;
 	time_t time;
+	size_t numNodesValid;
 };
 // Typically contains 0 or 1 element, and only rarely 2 or more. But we need
 // the address of existing elements to remain stable when new elements are
@@ -38,19 +40,30 @@ static TTCacheEntry& getCacheEntry(
 		result.valid.resize(numNodes);
 		result.numNodes = numNodes;
 		memset(result.valid.data(), 0, numNodes); // all invalid
+		result.numNodesValid = 0;
 	}
 	return result;
 }
 
-TigerTree::TigerTree(TTData& data_, size_t dataSize_, const std::string& name)
+TigerTree::TigerTree(TTData& data_, size_t dataSize_, const std::string& name_,
+		EventDistributor& eventDistributor_, CliComm& cliComm_)
 	: data(data_)
 	, dataSize(dataSize_)
-	, entry(getCacheEntry(data, dataSize, name))
+	, entry(getCacheEntry(data, dataSize, name_))
+	, name(name_)
+	, eventDistributor(eventDistributor_)
+	, cliComm(cliComm_)
 {
 }
 
 const TigerHash& TigerTree::calcHash()
 {
+	lastPercentage = -1;
+
+	// calculate progress only for large files which need a large calculation.
+	// 512MB 100% invalid is the minimum.
+	showProgress = dataSize * (1.0f - float(entry.numNodesValid)/entry.numNodes) > (1024 * 1024 * 512);
+
 	return calcHash(getTop());
 }
 
@@ -61,7 +74,10 @@ void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
 	assert((offset + len) <= dataSize);
 	if (len == 0) return;
 
-	entry.valid[getTop().n] = false; // set sentinel
+	if (entry.valid[getTop().n]) {
+		entry.valid[getTop().n] = false; // set sentinel
+		entry.numNodesValid--;
+	}
 	auto first = offset / BLOCK_SIZE;
 	auto last = (offset + len - 1) / BLOCK_SIZE;
 	assert(first <= last); // requires len != 0
@@ -69,6 +85,7 @@ void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
 		auto node = getLeaf(first);
 		while (entry.valid[node.n]) {
 			entry.valid[node.n] = false;
+			entry.numNodesValid--;
 			node = getParent(node);
 		}
 	} while (++first <= last);
@@ -103,6 +120,16 @@ const TigerHash& TigerTree::calcHash(Node node)
 			}
 		}
 		entry.valid[n] = true;
+		entry.numNodesValid++;
+	}
+	if (showProgress) {
+		int percentage = (100 * entry.numNodesValid)/entry.numNodes;
+		if (percentage != lastPercentage) {
+			lastPercentage = percentage;
+			cliComm.printProgress(
+				"Calculating hash for " + name + "... " + StringOp::toString(percentage) + "%");
+			eventDistributor.deliverEvents();
+		}
 	}
 	return entry.hash[n];
 }
