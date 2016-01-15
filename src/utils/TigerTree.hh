@@ -30,11 +30,10 @@
 
 #include "tiger.hh"
 #include "MemBuffer.hh"
-#include "CliComm.hh"
-#include "EventDistributor.hh"
 #include <string>
 #include <cstdint>
 #include <ctime>
+#include <functional>
 
 namespace openmsx {
 
@@ -76,12 +75,11 @@ public:
 	/** Create TigerTree calculator for the given (abstract) data block
 	 * of given size.
 	 */
-	TigerTree(TTData& data, size_t dataSize, const std::string& name,
-		EventDistributor& eventDistributor, CliComm& cliComm);
+	TigerTree(TTData& data, size_t dataSize, const std::string& name);
 
 	/** Calculate the hash value.
 	 */
-	const TigerHash& calcHash();
+	const TigerHash& calcHash(std::function<void(size_t, size_t)> progressCallback);
 
 	/** Inform this calculator about changes in the input data. This is
 	 * used to (not) skip re-calculations on future calcHash() calls. So
@@ -103,16 +101,11 @@ private:
 	Node getLeftChild(Node node) const;
 	Node getRightChild(Node node) const;
 
-	const TigerHash& calcHash(Node node);
+	const TigerHash& calcHash(Node node, std::function<void(size_t, size_t)> progressCallback);
 
 	TTData& data;
 	const size_t dataSize;
 	TTCacheEntry& entry;
-	string_ref name;
-	EventDistributor& eventDistributor;
-	CliComm& cliComm;
-	int lastPercentage;
-	bool showProgress;
 };
 
 } // namespace openmsx

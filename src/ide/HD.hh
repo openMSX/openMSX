@@ -55,6 +55,8 @@ private:
 
 	void openImage();
 
+	void showProgress(size_t position, size_t maxPosition);
+
 	MSXMotherBoard& motherBoard;
 	std::string name;
 	std::unique_ptr<HDCommand> hdCommand;
@@ -68,6 +70,10 @@ private:
 	static const unsigned MAX_HD = 26;
 	using HDInUse = std::bitset<MAX_HD>;
 	std::shared_ptr<HDInUse> hdInUse;
+
+	uint64_t lastProgressTime;
+	size_t lastPosition;
+	bool everDidProgress;
 };
 
 REGISTER_BASE_CLASS(HD, "HD");

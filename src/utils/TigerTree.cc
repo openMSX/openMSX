@@ -1,6 +1,5 @@
 #include "TigerTree.hh"
 #include "Math.hh"
-#include "StringOp.hh"
 #include <map>
 #include <cstring>
 #include <cassert>
@@ -45,26 +44,16 @@ static TTCacheEntry& getCacheEntry(
 	return result;
 }
 
-TigerTree::TigerTree(TTData& data_, size_t dataSize_, const std::string& name_,
-		EventDistributor& eventDistributor_, CliComm& cliComm_)
+TigerTree::TigerTree(TTData& data_, size_t dataSize_, const std::string& name)
 	: data(data_)
 	, dataSize(dataSize_)
-	, entry(getCacheEntry(data, dataSize, name_))
-	, name(name_)
-	, eventDistributor(eventDistributor_)
-	, cliComm(cliComm_)
+	, entry(getCacheEntry(data, dataSize, name))
 {
 }
 
-const TigerHash& TigerTree::calcHash()
+const TigerHash& TigerTree::calcHash(std::function<void(size_t, size_t)> progressCallback)
 {
-	lastPercentage = -1;
-
-	// calculate progress only for large files which need a large calculation.
-	// 512MB 100% invalid is the minimum.
-	showProgress = dataSize * (1.0f - float(entry.numNodesValid)/entry.numNodes) > (1024 * 1024 * 512);
-
-	return calcHash(getTop());
+	return calcHash(getTop(), progressCallback);
 }
 
 void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
@@ -91,7 +80,7 @@ void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
 	} while (++first <= last);
 }
 
-const TigerHash& TigerTree::calcHash(Node node)
+const TigerHash& TigerTree::calcHash(Node node, std::function<void(size_t, size_t)> progressCallback)
 {
 	auto n = node.n;
 	if (!entry.valid[n]) {
@@ -99,8 +88,8 @@ const TigerHash& TigerTree::calcHash(Node node)
 			// interior node
 			auto left  = getLeftChild (node);
 			auto right = getRightChild(node);
-			auto& h1 = calcHash(left);
-			auto& h2 = calcHash(right);
+			auto& h1 = calcHash(left, progressCallback);
+			auto& h2 = calcHash(right, progressCallback);
 			tiger_int(h1, h2, entry.hash[n]);
 		} else {
 			// leaf node
@@ -121,14 +110,8 @@ const TigerHash& TigerTree::calcHash(Node node)
 		}
 		entry.valid[n] = true;
 		entry.numNodesValid++;
-	}
-	if (showProgress) {
-		int percentage = (100 * entry.numNodesValid)/entry.numNodes;
-		if (percentage != lastPercentage) {
-			lastPercentage = percentage;
-			cliComm.printProgress(
-				"Calculating hash for " + name + "... " + StringOp::toString(percentage) + "%");
-			eventDistributor.deliverEvents();
+		if (progressCallback) {
+			progressCallback(entry.numNodesValid, entry.numNodes);
 		}
 	}
 	return entry.hash[n];
