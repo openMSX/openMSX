@@ -152,15 +152,6 @@ void FrameBufferObject::pop()
 
 bool PixelBuffers::enabled = true;
 
-// Utility function used by Shader.
-static string readTextFile(const string& filename)
-{
-	File file(systemFileContext().resolve(filename));
-	size_t size;
-	const byte* data = file.mmap(size);
-	return string(reinterpret_cast<const char*>(data), size);
-}
-
 
 // class Shader
 
@@ -179,7 +170,10 @@ void Shader::init(GLenum type, const string& header, const string& filename)
 	// Load shader source.
 	string source = "#version 110\n" + header;
 	try {
-		source += readTextFile("shaders/" + filename);
+		File file(systemFileContext().resolve(filename));
+		auto mmap = file.mmap();
+		source.append(reinterpret_cast<const char*>(mmap.data()),
+		              mmap.size());
 	} catch (FileException& e) {
 		std::cerr << "Cannot find shader: " << e.getMessage() << std::endl;
 		handle = 0;

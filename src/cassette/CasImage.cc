@@ -130,10 +130,10 @@ void CasImage::writeByte(byte b)
 }
 
 // write data until a header is detected
-bool CasImage::writeData(const byte* buf, size_t size, size_t& pos)
+bool CasImage::writeData(array_ref<byte> buf, size_t& pos)
 {
 	bool eof = false;
-	while ((pos + 8) <= size) {
+	while ((pos + 8) <= buf.size()) {
 		if (memcmp(&buf[pos], CAS_HEADER, 8) == 0) {
 			return eof;
 		}
@@ -143,7 +143,7 @@ bool CasImage::writeData(const byte* buf, size_t size, size_t& pos)
 		}
 		pos++;
 	}
-	while (pos < size) {
+	while (pos < buf.size()) {
 		writeByte(buf[pos++]);
 	}
 	return false;
@@ -152,15 +152,14 @@ bool CasImage::writeData(const byte* buf, size_t size, size_t& pos)
 void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cliComm)
 {
 	File file(filename);
-	size_t size;
-	const byte* buf = file.mmap(size);
+	auto buf = file.mmap();
 
 	// search for a header in the .cas file
 	bool issueWarning = false;
 	bool headerFound = false;
 	bool firstFile = true;
 	size_t pos = 0;
-	while ((pos + 8) <= size) {
+	while ((pos + 8) <= buf.size()) {
 		if (memcmp(&buf[pos], CAS_HEADER, 8) == 0) {
 			// it probably works fine if a long header is used for every
 			// header but since the msx bios makes a distinction between
@@ -169,7 +168,7 @@ void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cl
 			pos += 8;
 			writeSilence(LONG_SILENCE);
 			writeHeader(LONG_HEADER);
-			if ((pos + 10) <= size) {
+			if ((pos + 10) <= buf.size()) {
 				// determine file type
 				FileType type = CassetteImage::UNKNOWN;
 				if (memcmp(&buf[pos], ASCII_HEADER, 10) == 0) {
@@ -182,31 +181,31 @@ void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cl
 				if (firstFile) setFirstFileType(type);
 				switch (type) {
 					case CassetteImage::ASCII:
-						writeData(buf, size, pos);
+						writeData(buf, pos);
 						bool eof;
 						do {
 							pos += 8;
 							writeSilence(SHORT_SILENCE);
 							writeHeader(SHORT_HEADER);
-							eof = writeData(buf, size, pos);
-						} while (!eof && ((pos + 8) <= size));
+							eof = writeData(buf, pos);
+						} while (!eof && ((pos + 8) <= buf.size()));
 						break;
 					case CassetteImage::BINARY:
 					case CassetteImage::BASIC:
-						writeData(buf, size, pos);
+						writeData(buf, pos);
 						writeSilence(SHORT_SILENCE);
 						writeHeader(SHORT_HEADER);
 						pos += 8;
-						writeData(buf, size, pos);
+						writeData(buf, pos);
 						break;
 					default:
 						// unknown file type: using long header
-						writeData(buf, size, pos);
+						writeData(buf, pos);
 						break;
 				}
 			} else {
 				// unknown file type: using long header
-				writeData(buf, size, pos);
+				writeData(buf, pos);
 			}
 			firstFile = false;
 		} else {

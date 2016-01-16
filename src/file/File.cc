@@ -16,12 +16,12 @@ File::File() = default;
 
 static std::unique_ptr<FileBase> init(string_view filename, File::OpenMode mode)
 {
-	static const byte GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
-	static const byte ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
+	static const uint8_t GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
+	static const uint8_t ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
 
 	std::unique_ptr<FileBase> file = std::make_unique<LocalFile>(filename, mode);
 	if (file->getSize() >= 4) {
-		byte buf[4];
+		uint8_t buf[4];
 		file->read(buf, 4);
 		file->seek(0);
 		if (memcmp(buf, GZ_HEADER, 3) == 0) {
@@ -86,9 +86,9 @@ void File::write(const void* buffer, size_t num)
 	file->write(buffer, num);
 }
 
-const byte* File::mmap(size_t& size)
+array_ref<uint8_t> File::mmap()
 {
-	return file->mmap(size);
+	return file->mmap();
 }
 
 void File::munmap()

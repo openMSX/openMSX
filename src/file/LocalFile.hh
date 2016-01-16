@@ -24,7 +24,7 @@ public:
 	void read (void* buffer, size_t num) override;
 	void write(const void* buffer, size_t num) override;
 #if HAVE_MMAP || defined _WIN32
-	const byte* mmap(size_t& size) override;
+	array_ref<uint8_t> mmap() override;
 	void munmap() override;
 #endif
 	size_t getSize() override;
@@ -45,10 +45,10 @@ private:
 	std::string filename;
 	FileOperations::FILE_t file;
 #if HAVE_MMAP
-	byte* mmem;
+	uint8_t* mmem;
 #endif
 #if defined _WIN32
-	byte* mmem;
+	uint8_t* mmem;
 	HANDLE hMmap;
 #endif
 	std::unique_ptr<PreCacheFile> cache;

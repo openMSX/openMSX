@@ -179,12 +179,12 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 				"supported.");
 		}
 		try {
-			size_t size2;
-			rom = file.mmap(size2);
-			if (size2 > std::numeric_limits<decltype(size)>::max()) {
+			auto mmap = file.mmap();
+			if (mmap.size() > std::numeric_limits<decltype(size)>::max()) {
 				throw MSXException("Rom file too big: ", file.getURL());
 			}
-			size = unsigned(size2);
+			rom = mmap.data();
+			size = unsigned(mmap.size());
 		} catch (FileException&) {
 			throw MSXException("Error reading ROM image: ", file.getURL());
 		}

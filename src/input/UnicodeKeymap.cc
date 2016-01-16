@@ -89,10 +89,9 @@ UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 		strCat("unicodemaps/unicodemap.", keyboardType));
 	try {
 		File file(filename);
-		size_t size;
-		const byte* buf = file.mmap(size);
+		auto buf = file.mmap();
 		parseUnicodeKeymapfile(
-			string_view(reinterpret_cast<const char*>(buf), size));
+			string_view(reinterpret_cast<const char*>(buf.data()), buf.size()));
 	} catch (FileException&) {
 		throw MSXException("Couldn't load unicode keymap file: ", filename);
 	}

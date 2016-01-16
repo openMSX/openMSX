@@ -11,9 +11,7 @@ ZipFileAdapter::ZipFileAdapter(std::unique_ptr<FileBase> file_)
 
 void ZipFileAdapter::decompress(FileBase& f, Decompressed& d)
 {
-	size_t size;
-	const byte* data = f.mmap(size);
-	ZlibInflate zlib(data, size);
+	ZlibInflate zlib(f.mmap());
 
 	if (zlib.get32LE() != 0x04034B50) {
 		throw FileException("Invalid ZIP file");

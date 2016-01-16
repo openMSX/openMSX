@@ -7,15 +7,15 @@ using std::string;
 
 namespace openmsx {
 
-const byte* FileBase::mmap(size_t& size)
+array_ref<uint8_t> FileBase::mmap()
 {
+	auto size = getSize();
 	if (mmapBuf.empty()) {
-		size = getSize();
-		MemBuffer<byte> tmpBuf(size);
+		MemBuffer<uint8_t> tmpBuf(size);
 		read(tmpBuf.data(), size);
 		std::swap(mmapBuf, tmpBuf);
 	}
-	return mmapBuf.data();
+	return {mmapBuf.data(), size};
 }
 
 void FileBase::munmap()
@@ -34,7 +34,7 @@ void FileBase::truncate(size_t newSize)
 	seek(oldSize);
 
 	static const size_t BUF_SIZE = 4096;
-	byte buf[BUF_SIZE];
+	uint8_t buf[BUF_SIZE];
 	memset(buf, 0, sizeof(buf));
 	while (remaining) {
 		auto chunkSize = std::min(BUF_SIZE, remaining);

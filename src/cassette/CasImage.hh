@@ -3,6 +3,7 @@
 
 #include "CassetteImage.hh"
 #include "openmsx.hh"
+#include "array_ref.hh"
 #include <vector>
 
 namespace openmsx {
@@ -31,7 +32,7 @@ private:
 	void writeHeader(int s);
 	void writeSilence(int s);
 	void writeByte(byte b);
-	bool writeData(const byte* buf, size_t size, size_t& pos);
+	bool writeData(array_ref<byte> buf, size_t& pos);
 	void convert(const Filename& filename, FilePool& filePool, CliComm& cliComm);
 
 	std::vector<signed char> output;

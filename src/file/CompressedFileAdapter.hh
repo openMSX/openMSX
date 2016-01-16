@@ -11,7 +11,7 @@ class CompressedFileAdapter : public FileBase
 {
 public:
 	struct Decompressed {
-		MemBuffer<byte> buf;
+		MemBuffer<uint8_t> buf;
 		size_t size;
 		std::string originalName;
 		std::string cachedURL;
@@ -20,7 +20,7 @@ public:
 
 	void read(void* buffer, size_t num) final override;
 	void write(const void* buffer, size_t num) final override;
-	const byte* mmap(size_t& size) final override;
+	array_ref<uint8_t> mmap() final override;
 	void munmap() final override;
 	size_t getSize() final override;
 	void seek(size_t pos) final override;

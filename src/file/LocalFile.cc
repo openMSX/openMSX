@@ -125,10 +125,10 @@ void LocalFile::write(const void* buffer, size_t num)
 }
 
 #if defined _WIN32
-const byte* LocalFile::mmap(size_t& size)
+array_ref<uint8_t> LocalFile::mmap()
 {
-	size = getSize();
-	if (size == 0) return nullptr;
+	size_t size = getSize();
+	if (size == 0) return {nullptr, 0};
 
 	if (!mmem) {
 		int fd = _fileno(file.get());
@@ -145,7 +145,7 @@ const byte* LocalFile::mmap(size_t& size)
 			throw FileException(
 				"CreateFileMapping failed: ", GetLastError());
 		}
-		mmem = static_cast<byte*>(MapViewOfFile(hMmap, FILE_MAP_COPY, 0, 0, 0));
+		mmem = static_cast<uint8_t*>(MapViewOfFile(hMmap, FILE_MAP_COPY, 0, 0, 0));
 		if (!mmem) {
 			DWORD gle = GetLastError();
 			CloseHandle(hMmap);
@@ -153,7 +153,7 @@ const byte* LocalFile::mmap(size_t& size)
 			throw FileException("MapViewOfFile failed: ", gle);
 		}
 	}
-	return mmem;
+	return {mmem, size};
 }
 
 void LocalFile::munmap()
@@ -180,13 +180,13 @@ void LocalFile::munmap()
 }
 
 #elif HAVE_MMAP
-const byte* LocalFile::mmap(size_t& size)
+array_ref<uint8_t> LocalFile::mmap()
 {
-	size = getSize();
-	if (size == 0) return nullptr;
+	size_t size = getSize();
+	if (size == 0) return {nullptr, 0};
 
 	if (!mmem) {
-		mmem = static_cast<byte*>(
+		mmem = static_cast<uint8_t*>(
 		          ::mmap(nullptr, size, PROT_READ | PROT_WRITE,
 		                 MAP_PRIVATE, fileno(file.get()), 0));
 		// MAP_FAILED is #define'd using an old-style cast, we
@@ -196,13 +196,13 @@ const byte* LocalFile::mmap(size_t& size)
 			throw FileException("Error mmapping file");
 		}
 	}
-	return mmem;
+	return {mmem, size};
 }
 
 void LocalFile::munmap()
 {
 	if (mmem) {
-		::munmap(const_cast<byte*>(mmem), getSize());
+		::munmap(const_cast<uint8_t*>(mmem), getSize());
 		mmem = nullptr;
 	}
 }

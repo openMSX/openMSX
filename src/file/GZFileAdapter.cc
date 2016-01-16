@@ -4,12 +4,12 @@
 
 namespace openmsx {
 
-static const byte ASCII_FLAG  = 0x01; // bit 0 set: file probably ascii text
-static const byte HEAD_CRC    = 0x02; // bit 1 set: header CRC present
-static const byte EXTRA_FIELD = 0x04; // bit 2 set: extra field present
-static const byte ORIG_NAME   = 0x08; // bit 3 set: original file name present
-static const byte COMMENT     = 0x10; // bit 4 set: file comment present
-static const byte RESERVED    = 0xE0; // bits 5..7: reserved
+static const uint8_t ASCII_FLAG  = 0x01; // bit 0 set: file probably ascii text
+static const uint8_t HEAD_CRC    = 0x02; // bit 1 set: header CRC present
+static const uint8_t EXTRA_FIELD = 0x04; // bit 2 set: extra field present
+static const uint8_t ORIG_NAME   = 0x08; // bit 3 set: original file name present
+static const uint8_t COMMENT     = 0x10; // bit 4 set: file comment present
+static const uint8_t RESERVED    = 0xE0; // bits 5..7: reserved
 
 
 GZFileAdapter::GZFileAdapter(std::unique_ptr<FileBase> file_)
@@ -24,8 +24,8 @@ static bool skipHeader(ZlibInflate& zlib, std::string& originalName)
 		return false;
 	}
 
-	byte method = zlib.getByte();
-	byte flags = zlib.getByte();
+	uint8_t method = zlib.getByte();
+	uint8_t flags = zlib.getByte();
 	if (method != Z_DEFLATED || (flags & RESERVED) != 0) {
 		return false;
 	}
@@ -55,9 +55,7 @@ static bool skipHeader(ZlibInflate& zlib, std::string& originalName)
 
 void GZFileAdapter::decompress(FileBase& f, Decompressed& d)
 {
-	size_t size;
-	const byte* data = f.mmap(size);
-	ZlibInflate zlib(data, size);
+	ZlibInflate zlib(f.mmap());
 	if (!skipHeader(zlib, d.originalName)) {
 		throw FileException("Not a gzip header");
 	}
