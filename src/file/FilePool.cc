@@ -287,36 +287,35 @@ static void reportProgress(const string& filename, size_t percentage,
 
 static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distributor)
 {
+	// Calculate sha1 in several steps so that we can show progress
+	// information. We take a fixed step size for an efficient calculation.
+	static const size_t STEP_SIZE = 1024 * 1024; // 1MB
+
 	size_t size;
 	const byte* data = file.mmap(size);
-
-	// Calculate sha1 in several steps so that we can show progress information
-	// we take a fixed step size, for an efficient calculation
-	static const size_t STEP_SIZE = 1024*1024; // 1MB
-	auto numberOfSteps = size / STEP_SIZE;
-	// calculate in numberOfSteps steps and report progress every step
-	auto remainder = size % numberOfSteps;
-	if (numberOfSteps == 0) {
-		// apparently the file is smaller than STEP_SIZE, so
-		// calculate in one go
-		return SHA1::calc(data, size);
-	}
-	SHA1 sha1;
-	size_t offset = 0;
 	string filename = file.getOriginalName();
+
+	SHA1 sha1;
+	size_t done = 0;
+	size_t remaining = size;
 	auto lastShowedProgress = Timer::getTime();
 	bool everShowedProgress = false;
-	for (size_t step = 0; step < (numberOfSteps - 1); ++step) {
-		sha1.update(&data[offset], STEP_SIZE);
-		offset += STEP_SIZE;
+
+	// Loop over all-but-the last blocks. For small files this loop is skipped.
+	while (remaining > STEP_SIZE) {
+		sha1.update(&data[done], STEP_SIZE);
+		done += STEP_SIZE;
+		remaining -= STEP_SIZE;
+
 		auto now = Timer::getTime();
 		if ((now - lastShowedProgress) > 1000000) {
-			reportProgress(filename, (step * 100.0) / numberOfSteps , cliComm, distributor);
+			reportProgress(filename, (100 * done) / size, cliComm, distributor);
 			lastShowedProgress = now;
 			everShowedProgress = true;
 		}
 	}
-	sha1.update(data + offset, STEP_SIZE + remainder);
+	// last block
+	sha1.update(&data[done], remaining);
 	if (everShowedProgress) {
 		reportProgress(filename, 100, cliComm, distributor);
 	}
