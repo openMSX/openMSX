@@ -281,7 +281,7 @@ static void reportProgress(const string& filename, size_t percentage,
                            CliComm& cliComm, EventDistributor& distributor)
 {
 	cliComm.printProgress(
-		"Calculating SHA1 sum for " + filename + "... " + StringOp::toString(percentage) + "%");
+		"Calculating SHA1 sum for " + filename + "... " + StringOp::toString(percentage) + '%');
 	distributor.deliverEvents();
 }
 

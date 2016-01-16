@@ -147,21 +147,20 @@ Sha1Sum HD::getSha1SumImpl(FilePool& filePool)
 void HD::showProgress(size_t position, size_t maxPosition)
 {
 	// only show progress iff:
-	// - position changed (could repeatedly show progress on maxPosition AND
-	//   - 1 second has passed since last progress OR
-	//   - we reach completion and did progress before (to show the 100%)
+	//  - 1 second has passed since last progress OR
+	//  - we reach completion and did progress before (to show the 100%)
 	// This avoids showing any progress if the operation would take less than 1 second.
 	auto now = Timer::getTime();
-	if ((lastPosition != position) && (((now - lastProgressTime) > 1000000) ||
-			((position == maxPosition) && everDidProgress))) {
+	if (((now - lastProgressTime) > 1000000) ||
+	    ((position == maxPosition) && everDidProgress)) {
 		lastProgressTime = now;
-		int percentage = (100 * position)/maxPosition;
+		int percentage = (100 * position) / maxPosition;
 		motherBoard.getMSXCliComm().printProgress(
-			"Calculating hash for " + filename.getResolved() + "... " + StringOp::toString(percentage) + '%');
+			"Calculating hash for " + filename.getResolved() +
+			"... " + StringOp::toString(percentage) + '%');
 		motherBoard.getReactor().getEventDistributor().deliverEvents();
 		everDidProgress = true;
 	}
-	lastPosition = position;
 }
 
 std::string HD::getTigerTreeHash()
@@ -169,7 +168,8 @@ std::string HD::getTigerTreeHash()
 	openImage();
 	lastProgressTime = Timer::getTime();
 	everDidProgress = false;
-	return tigerTree->calcHash([this](size_t p, size_t t) { showProgress(p, t); }).toString(); // calls HD::getData()
+	auto callback = [this](size_t p, size_t t) { showProgress(p, t); };
+	return tigerTree->calcHash(callback).toString(); // calls HD::getData()
 }
 
 uint8_t* HD::getData(size_t offset, size_t size)

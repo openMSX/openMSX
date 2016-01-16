@@ -72,7 +72,6 @@ private:
 	std::shared_ptr<HDInUse> hdInUse;
 
 	uint64_t lastProgressTime;
-	size_t lastPosition;
 	bool everDidProgress;
 };
 
