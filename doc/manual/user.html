@@ -684,9 +684,14 @@ To change the disk image of the LS-120 device, use the <code>lsa</code> (LS driv
 
 <p>Currently there is only one SD interface emulated: the Mega Flash ROM SCC+ SD. All features of this cartridge are emulated in the sense that all currently working software with it runs on openMSX too. It is not emulated accurately enough to rely on it for development.</p>
 
-<p>Usage is again identical to using the Sunrise hard disk interface: you can use the <a class="external" href="commands.html#hd">hda/hdb</a> commands and the matching command line parameters <code>-hda</code> and <code>-hdb</code> to control which image will be used for the first and second SD card.</p>
+<p>The difference compared to a real Mega Flash ROM SCC+ SD, is that it does not come with anything flashed on the flash ROM by default. So things like Nextor, the rescue menu and the ROM disk have to be flashed manually. This is all described in the manual (see at the end of this section) of the Mega Flash ROM SCC+ SD, because on a real device you may also need to do this.</p>
+
+<p>Once you achieved this, usage is again identical to using the Sunrise hard disk interface: you can use the <a class="external" href="commands.html#hd">hda/hdb</a> commands and the matching command line parameters <code>-hda</code> and <code>-hdb</code> to control which image will be used for the first and second SD card.</p>
 
 <p>Currently, by default, the first SD card is 8MB and the 2nd SD card is 100MB size. You can change these defaults by editing the extension file in <code>share/extensions/MegaFlashROM_SCC+_SD.xml</code>. For formatting and managing the SD cards, please refer to its manual and tools on the Flash part of the <a class="external" href="http://www.msxcartridgeshop.com/">MSX Cartridge Shop</a>.
+</p>
+
+<p>One problem you may encounter compared to a real Mega Flash ROM SCC+ SD is: how to get files on the SD cards... You can't take out the SD cards and put them in a PC or so. Your options are the same as on a real system when you don't have a PC at hand: use the floppy drive of your MSX to transfer files or use another mass storage medium. You can for instance use the Sunrise IDE concurrently with the Mega Flash ROM SCC+ SD. And for the Sunrise IDE partitions, you could use <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> to import a lot of files, as is explained <a class="internal" href="#ide">above at the Sunrise IDE</a> section. Once you have that you can copy these files from MSX-DOS2/Nextor onto the virtual SD card(s).
 </p>
 
 <h3><a id="laserdisc">4.5 Running Laserdisc software</a></h3>
