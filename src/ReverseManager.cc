@@ -12,6 +12,8 @@
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "StateChange.hh"
+#include "Timer.hh"
+#include "CliComm.hh"
 #include "Reactor.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
@@ -324,6 +326,20 @@ void ReverseManager::goTo(EmuTime::param target, bool novideo)
 	goTo(target, novideo, history, true); // move in current time-line
 }
 
+// this function is used below, but factored out, because it's already way too long
+static void reportProgress(Reactor& reactor, const EmuTime& targetTime, int percentage)
+{
+	double targetTimeDisp = (targetTime - EmuTime::zero).toDouble();
+	std::ostringstream sstr;
+	sstr << "Time warping to " <<
+		int(targetTimeDisp / 60) << ':' << std::setfill('0') <<
+		std::setw(2) << std::setprecision(2) << std::fixed <<
+		std::fmod(targetTimeDisp, 60.0) <<
+		"... " << percentage << '%';
+	reactor.getCliComm().printProgress(sstr.str());
+	reactor.getEventDistributor().deliverEvents();
+}
+
 void ReverseManager::goTo(
 	EmuTime::param target, bool novideo, ReverseHistory& hist,
 	bool sameTimeLine)
@@ -434,20 +450,39 @@ void ReverseManager::goTo(
 		// at least the usual interval, but the later, the more: each
 		// time divide the remaining time in half and make a snapshot
 		// there.
+		auto lastProgress = Timer::getTime();
+		auto startMSXTime = newBoard->getCurrentTime();
+		auto lastSnapshotTarget = startMSXTime;
+		bool everShowedProgress = false;
+		syncNewSnapshot.removeSyncPoint(); // don't schedule new snapshot takings during fast forward
 		while (true) {
-			EmuTime nextTarget = std::min(
+			auto currentTimeNewBoard = newBoard->getCurrentTime();
+			auto nextSnapshotTarget = std::min(
 				preTarget,
-				newBoard->getCurrentTime() + std::max(
+				lastSnapshotTarget + std::max(
 					EmuDuration(SNAPSHOT_PERIOD),
-					(preTarget - newBoard->getCurrentTime()) / 2
+					(preTarget - lastSnapshotTarget) / 2
 					));
+			auto nextTarget = std::min(nextSnapshotTarget, currentTimeNewBoard + EmuDuration::sec(1));
 			newBoard->fastForward(nextTarget, true);
+			auto now = Timer::getTime();
+			if (((now - lastProgress) > 1000000) || ((currentTimeNewBoard >= preTarget) && everShowedProgress)) {
+				everShowedProgress = true;
+				lastProgress = now;
+				int percentage = ((currentTimeNewBoard - startMSXTime) * 100u) / (preTarget - startMSXTime);
+				reportProgress(newBoard->getReactor(), targetTime, percentage);
+			}
 			// note: fastForward does not always stop at
 			//       _exactly_ the requested time
-			if (newBoard->getCurrentTime() >= preTarget) break;
-			newBoard->getReverseManager().takeSnapshot(
-				newBoard->getCurrentTime());
+			if (currentTimeNewBoard >= preTarget) break;
+			if (currentTimeNewBoard >= nextSnapshotTarget) {
+				newBoard->getReactor().getEventDistributor().deliverEvents();
+				newBoard->getReverseManager().takeSnapshot(currentTimeNewBoard);
+				lastSnapshotTarget = nextSnapshotTarget;
+			}
 		}
+		// re-enable automatic snapshots
+		schedule(getCurrentTime());
 
 		// switch to the new MSXMotherBoard
 		//  Note: this deletes the current MSXMotherBoard and
