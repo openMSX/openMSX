@@ -2,7 +2,7 @@
 #define WAVDATA_HH
 
 #include "MemBuffer.hh"
-#include "openmsx.hh"
+#include <cstdint>
 #include <string>
 
 namespace openmsx {
@@ -20,15 +20,14 @@ public:
 	unsigned getFreq() const { return freq; }
 	unsigned getBits() const { return bits; }
 	unsigned getSize() const { return length; }
-	unsigned getChannels() const { return channels; }
 	const void* getData() const { return buffer.data(); }
+	      void* getData()       { return buffer.data(); }
 
 private:
-	MemBuffer<byte> buffer;
+	MemBuffer<uint8_t> buffer;
 	unsigned bits;
 	unsigned freq;
 	unsigned length;
-	unsigned channels;
 };
 
 } // namespace openmsx
