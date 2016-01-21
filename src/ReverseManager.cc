@@ -23,6 +23,7 @@
 #include "xrange.hh"
 #include <functional>
 #include <cassert>
+#include <cmath>
 
 using std::string;
 using std::vector;
