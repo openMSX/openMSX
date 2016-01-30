@@ -9,9 +9,11 @@
     
     Not emulated or unknown:
     - superimpose (not supported by openMSX)
-    - modem (there seems to be more than a simple RS-232C, but that is still unknown
+    - modem (there seems to be more than a simple RS-232C, but that is still
+      unknown
     - keyboard details (original keyboard was not available)
-    - kanji font ROM is not dumped
+    - Printer Port is actually non-MSX standard, so perhaps should be removed
+      or changed
 
     Details and discussion here:
     http://www.msx.org/forum/msx-talk/hardware/unknown-model-msx-turbor-modem-and-serial
@@ -45,7 +47,7 @@
     <Kanji id="Kanji ROM">
       <rom>
         <filename>nia-2001_kanjifont.rom</filename>
-        <sha1>5aff2d9b6efc723bc395b0f96f0adfa83cc54a49</sha1> <!-- not dumped, taken from Panasonic FS-A1ST -->
+        <sha1>db03211b7db46899df41db2b1dfbec972109a967</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD9" num="1" type="I"/>
