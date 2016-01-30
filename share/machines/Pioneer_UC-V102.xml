@@ -4,11 +4,15 @@
 
 <!--
      Information provided by http://msxarcheology.blogspot.nl/ (Piter Punk)
+     Serial number JL1000114
+
      - Uses same keyboard as Mitsubishi ML-G30
      - 2 FDD's
      - RS-232C interface
      - superimpose capabilities (not emulated!)
-     - 64kB RAM
+     - 64kB RAM (memory mapped)
+     - Printer port
+     - No cassette port
      - slot layout:        
        - SLOT0-0: MSX-BIOS
        - SLOT0-1: MSX2 SUB-ROM
