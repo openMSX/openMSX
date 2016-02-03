@@ -181,7 +181,10 @@ void MSXMatsushita::writeIO(word port, byte value, EmuTime::param time)
 
 void MSXMatsushita::delay(EmuTime::param time)
 {
-	//cpu.waitCycles(1); // TODO always 1 cycle delay like with S1990?
+	// TODO: confirm the following, it probably is the (fixed) delay from
+	// https://github.com/openMSX/openMSX/issues/563 and
+	// https://github.com/openMSX/openMSX/issues/989
+	cpu.waitCycles(1);
 	if (turboEnabled) {
 		lastTime += 46; // 8us, like in S1990
 		if (time < lastTime.getTime()) {
