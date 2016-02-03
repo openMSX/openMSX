@@ -80,6 +80,7 @@
 
     <Matsushita id="Matsushita">
       <sramname>fs-a1wsx_matsushita.sram</sramname>
+      <device idref="VDP"/>
     </Matsushita>
 
     <primary slot="0">

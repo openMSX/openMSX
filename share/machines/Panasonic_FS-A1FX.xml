@@ -82,6 +82,7 @@
 
     <Matsushita id="Switch">
       <sramname>fs-a1fx.sram</sramname>
+      <device idref="VDP"/>
     </Matsushita>
 
     <primary slot="0">

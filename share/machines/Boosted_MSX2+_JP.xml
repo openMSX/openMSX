@@ -80,6 +80,7 @@
 
     <Matsushita id="Matsushita">
       <sramname>Boosted_MSX2+_JP_matsushita.sram</sramname>
+      <device idref="VDP"/>
     </Matsushita>
 
     <MSX-AUDIO id="Generic MSX-Audio">

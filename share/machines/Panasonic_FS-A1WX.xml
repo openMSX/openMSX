@@ -162,6 +162,7 @@
 
     <Matsushita id="Matsushita">
       <sramname>fs-a1wx_matsushita.sram</sramname>
+      <device idref="VDP"/>
     </Matsushita>
 
   </devices>
