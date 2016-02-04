@@ -98,12 +98,10 @@ BOOLCHECK=$(DEFCHECK)$(strip \
 #       platform specific flags.
 CXXFLAGS:=
 COMPILE_FLAGS:=
-COMPILE_ENV:=
 # Note: LDFLAGS are passed to the linker itself, LINK_FLAGS are passed to the
 #       compiler in the link phase.
 LDFLAGS:=
 LINK_FLAGS:=
-LINK_ENV:=
 # Flags that specify the target platform.
 # These should be inherited by the 3rd party libs Makefile.
 TARGET_FLAGS:=
@@ -433,7 +431,7 @@ endif
 $(PROBE_MAKE): $(PROBE_SCRIPT) build/custom.mk \
 		build/systemfuncs2code.py build/systemfuncs.py
 	$(CMD)$(PYTHON) $(PROBE_SCRIPT) \
-		"$(COMPILE_ENV) $(CXX) $(TARGET_FLAGS)" \
+		"$(CXX) $(TARGET_FLAGS)" \
 		$(@D) $(OPENMSX_TARGET_OS) $(LINK_MODE) "$(3RDPARTY_INSTALL_DIR)"
 	$(CMD)touch $@
 
@@ -537,7 +535,7 @@ $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 	$(SUM) "Compiling $(patsubst $(SOURCES_PATH)/%,%,$<)..."
 	$(CMD)mkdir -p $(@D)
 	$(CMD)mkdir -p $(patsubst $(OBJECTS_PATH)%,$(DEPEND_PATH)%,$(@D))
-	$(CMD)$(COMPILE_ENV) $(CXX) \
+	$(CMD)$(CXX) \
 		$(DEPEND_FLAGS) -MMD -MF $(DEPEND_SUBST) \
 		-o $@ $(CXXFLAGS) $(COMPILE_FLAGS) -c $<
 	$(CMD)touch $@ # Force .o file to be newer than .d file.
@@ -580,7 +578,7 @@ $(BINARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
 ifeq ($(OPENMSX_SUBSET),)
 	$(SUM) "Linking $(notdir $@)..."
 	$(CMD)mkdir -p $(@D)
-	$(CMD)+$(LINK_ENV) $(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
+	$(CMD)+$(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
   ifeq ($(STRIP_SEPARATE),true)
 	$(SUM) "Stripping $(notdir $@)..."
 	$(CMD)strip $@
@@ -598,7 +596,7 @@ endif # universal binary
 $(LIBRARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
 	$(SUM) "Linking $(notdir $@)..."
 	$(CMD)mkdir -p $(@D)
-	$(CMD)$(LINK_ENV) $(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
+	$(CMD)$(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
 
 # Run executable.
 run: all
@@ -709,7 +707,7 @@ run-3rdparty:
 		_CC=$(CC) _CFLAGS="$(TARGET_FLAGS) $(CXXFLAGS)" \
 		_LDFLAGS="$(TARGET_FLAGS)" \
 		WINDRES=$(WINDRES) \
-		LINK_MODE=$(LINK_MODE) $(COMPILE_ENV) \
+		LINK_MODE=$(LINK_MODE) \
 		PYTHON=$(PYTHON)
 
 staticbindist: 3rdparty
