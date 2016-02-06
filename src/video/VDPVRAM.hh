@@ -274,7 +274,7 @@ public:
 	/** Register an observer on this VRAM window.
 	  * It will be called when changes occur within the window.
 	  * There can be only one observer per window at any given time.
-	  * @param observer The observer to register.
+	  * @param newObserver The observer to register.
 	  */
 	inline void setObserver(VRAMObserver* newObserver) {
 		observer = newObserver;

@@ -39,7 +39,7 @@ public:
 	}
 
 	/** Notify SpriteConverter of a display mode change.
-	  * @param mode The new display mode.
+	  * @param newMode The new display mode.
 	  */
 	void setDisplayMode(DisplayMode newMode)
 	{
@@ -49,7 +49,7 @@ public:
 	/** Set palette to use for converting sprites.
 	  * This palette is stored by reference, so any modifications to it
 	  * will be used while drawing.
-	  * @param palette 16-entry array containing the sprite palette.
+	  * @param newPalette 16-entry array containing the sprite palette.
 	  */
 	void setPalette(const Pixel* newPalette)
 	{
