@@ -14,6 +14,7 @@
 #include "StateChange.hh"
 #include "Timer.hh"
 #include "CliComm.hh"
+#include "Display.hh"
 #include "Reactor.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
@@ -338,7 +339,7 @@ static void reportProgress(Reactor& reactor, const EmuTime& targetTime, int perc
 		std::fmod(targetTimeDisp, 60.0) <<
 		"... " << percentage << '%';
 	reactor.getCliComm().printProgress(sstr.str());
-	reactor.getEventDistributor().deliverEvents();
+	reactor.getDisplay().repaint();
 }
 
 void ReverseManager::goTo(

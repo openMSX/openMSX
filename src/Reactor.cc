@@ -203,8 +203,7 @@ void Reactor::init()
 		*globalCommandController, *this);
 	virtualDrive = make_unique<DiskChanger>(
 		*this, "virtual_drive");
-	filePool = make_unique<FilePool>(
-		*globalCommandController, *eventDistributor);
+	filePool = make_unique<FilePool>(*globalCommandController, *this);
 	userSettings = make_unique<UserSettings>(
 		*globalCommandController);
 	softwareDatabase = make_unique<RomDatabase>(

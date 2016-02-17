@@ -16,14 +16,13 @@
 namespace openmsx {
 
 class CommandController;
-class EventDistributor;
+class Reactor;
 class File;
-class CliComm;
 
 class FilePool final : private Observer<Setting>, private EventListener
 {
 public:
-	FilePool(CommandController& controler, EventDistributor& distributor);
+	FilePool(CommandController& controler, Reactor& reactor);
 	~FilePool();
 
 	enum FileType {
@@ -85,8 +84,7 @@ private:
 
 
 	StringSetting filePoolSetting;
-	EventDistributor& distributor;
-	CliComm& cliComm;
+	Reactor& reactor;
 
 	Pool pool;
 	bool quit;

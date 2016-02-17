@@ -3,10 +3,10 @@
 #include "FileException.hh"
 #include "FilePool.hh"
 #include "DeviceConfig.hh"
-#include "EventDistributor.hh"
 #include "CliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
+#include "Display.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "HDCommand.hh"
@@ -158,7 +158,7 @@ void HD::showProgress(size_t position, size_t maxPosition)
 		motherBoard.getMSXCliComm().printProgress(
 			"Calculating hash for " + filename.getResolved() +
 			"... " + StringOp::toString(percentage) + '%');
-		motherBoard.getReactor().getEventDistributor().deliverEvents();
+		motherBoard.getReactor().getDisplay().repaint();
 		everDidProgress = true;
 	}
 }
