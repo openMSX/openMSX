@@ -22,11 +22,13 @@ TODO:
 #include "VDPCmdEngine.hh"
 #include "SpriteChecker.hh"
 #include "Display.hh"
+#include "HardwareConfig.hh"
 #include "RendererFactory.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include "TclObject.hh"
+#include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "MSXException.hh"
@@ -41,6 +43,19 @@ using std::string;
 using std::vector;
 
 namespace openmsx {
+
+static byte getDelayCycles(const XMLElement& devices) {
+	byte cycles = 0;
+	const XMLElement* t9769Dev = devices.findChild("T9769");
+	if (t9769Dev) {
+		if (t9769Dev->getChildData("subtype") == "C") {
+			cycles = 1;
+		} else {
+			cycles = 2;
+		}
+	}
+	return cycles;
+}
 
 VDP::VDP(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -77,6 +92,8 @@ VDP::VDP(const DeviceConfig& config)
 		getName() + ".too_fast_vram_access_callback",
 		"Tcl proc called when the VRAM is read or written too fast")
 	, warningPrinted(false)
+	, cpu(getCPU()) // used frequently, so cache it
+	, fixedVDPIOdelayCycles(getDelayCycles(getMotherBoard().getMachineConfig()->getConfig().getChild("devices")))
 {
 	VDPAccessSlots::initTables();
 
@@ -552,6 +569,16 @@ void VDP::frameStart(EmuTime::param time)
 void VDP::writeIO(word port, byte value, EmuTime::param time)
 {
 	assert(isInsideFrame(time));
+
+	// This is the (fixed) delay from
+	// https://github.com/openMSX/openMSX/issues/563 and
+	// https://github.com/openMSX/openMSX/issues/989
+	// It seems to originate from the T9769x and for x=C the delay is 1
+	// cycle and for other x it seems the delay is 2 cycles
+	if (fixedVDPIOdelayCycles > 0) {
+		cpu.waitCycles(fixedVDPIOdelayCycles);
+	}
+
 	switch (port & (isMSX1VDP() ? 0x01 : 0x03)) {
 	case 0: // VRAM data write
 		vramWrite(value, time);

@@ -239,6 +239,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<FraelSwitchableROM>(conf);
 	} else if (type == "ChakkariCopy") {
 		result = make_unique<ChakkariCopy>(conf);
+	} else if (type == "T9769") {
+		// Ignore for now. We might want to create a real device for it later.
 	} else {
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");

@@ -81,7 +81,12 @@
     <Matsushita id="Matsushita">
       <sramname>fs-a1wsx_matsushita.sram</sramname>
       <device idref="VDP"/>
+      <hasturbo>true</hasturbo>
     </Matsushita>
+
+    <T9769 id="T9769">
+      <subtype>C</subtype>
+    </T9769>
 
     <primary slot="0">
 

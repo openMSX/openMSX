@@ -73,6 +73,15 @@
       <io base="0xF4" num="1"/>
     </ResetStatusRegister>
 
+    <Matsushita id="Matsushita">
+      <device idref="VDP"/>
+      <hasturbo>false</hasturbo>
+    </Matsushita>
+
+    <T9769 id="T9769">
+      <subtype>A</subtype>
+    </T9769>
+
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>

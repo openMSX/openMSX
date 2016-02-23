@@ -17,7 +17,8 @@ MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	, vdp(nullptr)
 	, lastTime(EmuTime::zero)
 	, firmwareSwitch(config)
-	, sram(getName() + " SRAM", 0x800, config)
+	, sram(config.findChild("sramname") ? make_unique<SRAM>(getName() + " SRAM", 0x800, config) : nullptr)
+	, turboAvailable(config.getChildDataAsBool("hasturbo", false))
 	, turboEnabled(false)
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
@@ -102,14 +103,22 @@ byte MSXMatsushita::peekSwitchedIO(word port, EmuTime::param /*time*/) const
 		break;
 	case 1:
 		result = firmwareSwitch.getStatus() ? 0x7F : 0xFF;
+		// bit 0: turbo status, 0=on
+		if (turboEnabled) {
+			result &= ~0x01;
+		}
+		// bit 2: 0 = turbo feature available
+		if (turboAvailable) {
+			result &= ~0x04;
+		}
 		break;
 	case 3:
 		result = (((pattern & 0x80) ? color2 : color1) << 4)
 		        | ((pattern & 0x40) ? color2 : color1);
 		break;
 	case 9:
-		if (address < 0x800) {
-			result = sram[address];
+		if (address < 0x800 && sram) {
+			result = (*sram)[address];
 		} else {
 			result = 0xFF;
 		}
@@ -124,13 +133,18 @@ void MSXMatsushita::writeSwitchedIO(word port, byte value, EmuTime::param /*time
 {
 	switch (port & 0x0F) {
 	case 1:
+		// the turboEnabled flag works even though no turbo is available
 		if (value & 1) {
 			// bit0 = 1 -> 3.5MHz
-			getCPU().setZ80Freq(3579545);
+			if (turboAvailable) {
+				getCPU().setZ80Freq(3579545);
+			}
 			turboEnabled = false;
 		} else {
 			// bit0 = 0 -> 5.3MHz
-			getCPU().setZ80Freq(5369318); // 3579545 * 3/2
+			if (turboAvailable) {
+				getCPU().setZ80Freq(5369318); // 3579545 * 3/2
+			}
 			turboEnabled = true;
 		}
 		break;
@@ -151,8 +165,8 @@ void MSXMatsushita::writeSwitchedIO(word port, byte value, EmuTime::param /*time
 		break;
 	case 9:
 		// write sram
-		if (address < 0x800) {
-			sram.write(address, value);
+		if (address < 0x800 && sram) {
+			sram->write(address, value);
 		}
 		address = (address + 1) & 0x1FFF;
 		break;
@@ -181,11 +195,7 @@ void MSXMatsushita::writeIO(word port, byte value, EmuTime::param time)
 
 void MSXMatsushita::delay(EmuTime::param time)
 {
-	// TODO: confirm the following, it probably is the (fixed) delay from
-	// https://github.com/openMSX/openMSX/issues/563 and
-	// https://github.com/openMSX/openMSX/issues/989
-	cpu.waitCycles(1);
-	if (turboEnabled) {
+	if (turboAvailable && turboEnabled) {
 		lastTime += 46; // 8us, like in S1990
 		if (time < lastTime.getTime()) {
 			cpu.wait(lastTime.getTime());
@@ -201,7 +211,7 @@ void MSXMatsushita::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 	// no need to serialize MSXSwitchedDevice base class
 
-	ar.serialize("SRAM", sram);
+	if (sram) ar.serialize("SRAM", *sram);
 	ar.serialize("address", address);
 	ar.serialize("color1", color1);
 	ar.serialize("color2", color2);

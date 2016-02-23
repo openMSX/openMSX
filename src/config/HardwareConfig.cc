@@ -310,10 +310,7 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 			if (device) {
 				addDevice(move(device));
 			} else {
-				motherBoard.getMSXCliComm().printWarning(
-					"Deprecated device: \"" +
-					childName + "\", please upgrade your "
-					"hardware descriptions.");
+				// device is nullptr, so we are apparently ignoring it on purpose
 			}
 		}
 	}

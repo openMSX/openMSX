@@ -43,10 +43,11 @@ private:
 	Clock<5369318> lastTime; // 5.3MHz = 3.5MHz * 3/2
 
 	FirmwareSwitch firmwareSwitch;
-	SRAM sram;
+	const std::unique_ptr<SRAM> sram; // can be nullptr
 	word address;
 	nibble color1, color2;
 	byte pattern;
+	const bool turboAvailable;
 	bool turboEnabled;
 };
 SERIALIZE_CLASS_VERSION(MSXMatsushita, 2);
