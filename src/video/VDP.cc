@@ -53,6 +53,10 @@ static byte getDelayCycles(const XMLElement& devices) {
 		} else {
 			cycles = 2;
 		}
+	} else if (devices.findChild("S1990")) {
+		// this case is purely there for backwards compatibility for
+		// turboR configs which do not have the T9769 tag yet.
+		cycles = 1;
 	}
 	return cycles;
 }
