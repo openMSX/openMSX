@@ -478,7 +478,12 @@ void ReverseManager::goTo(
 			//       _exactly_ the requested time
 			if (currentTimeNewBoard >= preTarget) break;
 			if (currentTimeNewBoard >= nextSnapshotTarget) {
-				newBoard->getReactor().getEventDistributor().deliverEvents();
+				// NOTE: there used to be
+				//newBoard->getReactor().getEventDistributor().deliverEvents();
+				// here, but that has all kinds of nasty side effects: it enables
+				// processing of hotkeys, which can cause things like the machine
+				// being deleted, causing a crash. TODO: find a better way to support
+				// live updates of the UI whilst being in a reverse action...
 				newBoard->getReverseManager().takeSnapshot(currentTimeNewBoard);
 				lastSnapshotTarget = nextSnapshotTarget;
 			}
