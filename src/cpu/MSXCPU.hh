@@ -110,8 +110,8 @@ public:
 	void setNextSyncPoint(EmuTime::param time);
 
 	void wait(EmuTime::param time);
-	void waitCycles(unsigned cycles);
-	void waitCyclesR800(unsigned cycles);
+	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
+	EmuTime waitCyclesR800(EmuTime::param time, unsigned cycles);
 
 	CPURegs& getRegisters();
 

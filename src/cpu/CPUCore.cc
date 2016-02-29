@@ -501,9 +501,14 @@ template<class T> void CPUCore<T>::wait(EmuTime::param time)
 	T::advanceTime(time);
 }
 
-template<class T> void CPUCore<T>::waitCycles(unsigned cycles)
+template<class T> EmuTime CPUCore<T>::waitCycles(EmuTime::param time, unsigned cycles)
 {
 	T::add(cycles);
+	EmuTime time2 = T::calcTime(time, cycles);
+	// note: time2 is not necessarily equal to T::getTime() because of the
+	// way how WRITE_PORT() is implemented.
+	scheduler.schedule(time2);
+	return time2;
 }
 
 template<class T> void CPUCore<T>::setNextSyncPoint(EmuTime::param time)

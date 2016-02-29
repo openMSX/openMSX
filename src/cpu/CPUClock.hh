@@ -41,6 +41,9 @@ protected:
 	void setTime(EmuTime::param time) { sync(); clock.reset(time); }
 	void setFreq(unsigned freq) { clock.setFreq(freq); }
 	void advanceTime(EmuTime::param time);
+	EmuTime calcTime(EmuTime::param time, unsigned ticks) const {
+		return clock.add(time, ticks);
+	}
 
 	/** Implementation of the HALT instruction timing.
 	  * Advances the clock with an integer multiple of 'hltStates' cycles

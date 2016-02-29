@@ -188,17 +188,16 @@ void MSXCPU::wait(EmuTime::param time)
 	          : r800->wait(time);
 }
 
-void MSXCPU::waitCycles(unsigned cycles)
+EmuTime MSXCPU::waitCycles(EmuTime::param time, unsigned cycles)
 {
-	z80Active ? z80 ->waitCycles(cycles)
-	          : r800->waitCycles(cycles);
+	return z80Active ? z80 ->waitCycles(time, cycles)
+	                 : r800->waitCycles(time, cycles);
 }
 
-void MSXCPU::waitCyclesR800(unsigned cycles)
+EmuTime MSXCPU::waitCyclesR800(EmuTime::param time, unsigned cycles)
 {
-	if (isR800Active()) {
-		r800->waitCycles(cycles);
-	}
+	return z80Active ? time
+	                 : r800->waitCycles(time, cycles);
 }
 
 CPURegs& MSXCPU::getRegisters()

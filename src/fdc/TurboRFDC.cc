@@ -53,14 +53,15 @@ void TurboRFDC::reset(EmuTime::param time)
 	controller.reset(time);
 }
 
-byte TurboRFDC::readMem(word address, EmuTime::param time)
+byte TurboRFDC::readMem(word address, EmuTime::param time_)
 {
+	EmuTime time = time_;
 	if (0x3FF0 <= (address & 0x3FFF)) {
 		// Reading or writing to this region takes 1 extra clock
 		// cycle. But only in R800 mode. Verified on a real turboR
 		// machine, it happens for all 16 positions in this region
 		// and both for reading and writing.
-		getCPU().waitCyclesR800(1);
+		time = getCPU().waitCyclesR800(time, 1);
 		if (type != R7FF8) { // turboR or BOTH
 			switch (address & 0xF) {
 			case 0x1: {
@@ -149,11 +150,12 @@ const byte* TurboRFDC::getReadCacheLine(word start) const
 	}
 }
 
-void TurboRFDC::writeMem(word address, byte value, EmuTime::param time)
+void TurboRFDC::writeMem(word address, byte value, EmuTime::param time_)
 {
+	EmuTime time = time_;
 	if (0x3FF0 <= (address & 0x3FFF)) {
 		// See comment in readMem().
-		getCPU().waitCyclesR800(1);
+		time = getCPU().waitCyclesR800(time, 1);
 	}
 	if (address == 0x7FF0) {
 		setBank(value);

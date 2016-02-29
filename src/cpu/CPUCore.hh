@@ -59,7 +59,7 @@ public:
 	void warp(EmuTime::param time);
 	EmuTime::param getCurrentTime() const;
 	void wait(EmuTime::param time);
-	void waitCycles(unsigned cycles);
+	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
 	void setNextSyncPoint(EmuTime::param time);
 	void invalidateMemCache(unsigned start, unsigned size);
 	bool isM1Cycle(unsigned address) const;

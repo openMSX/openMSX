@@ -570,19 +570,19 @@ void VDP::frameStart(EmuTime::param time)
 
 // The I/O functions.
 
-void VDP::writeIO(word port, byte value, EmuTime::param time)
+void VDP::writeIO(word port, byte value, EmuTime::param time_)
 {
-	assert(isInsideFrame(time));
-
+	EmuTime time = time_;
 	// This is the (fixed) delay from
 	// https://github.com/openMSX/openMSX/issues/563 and
 	// https://github.com/openMSX/openMSX/issues/989
 	// It seems to originate from the T9769x and for x=C the delay is 1
 	// cycle and for other x it seems the delay is 2 cycles
 	if (fixedVDPIOdelayCycles > 0) {
-		cpu.waitCycles(fixedVDPIOdelayCycles);
+		time = cpu.waitCycles(time, fixedVDPIOdelayCycles);
 	}
 
+	assert(isInsideFrame(time));
 	switch (port & (isMSX1VDP() ? 0x01 : 0x03)) {
 	case 0: // VRAM data write
 		vramWrite(value, time);
