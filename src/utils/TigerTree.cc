@@ -32,9 +32,9 @@ static size_t calcNumNodes(size_t dataSize)
 static TTCacheEntry& getCacheEntry(
 	TTData& data, size_t dataSize, const std::string& name)
 {
-	size_t numNodes = calcNumNodes(dataSize);
 	auto& result = ttCache[std::make_pair(dataSize, name)];
-	if ((numNodes != result.numNodes) || !data.isCacheStillValid(result.time)) {
+	if (!data.isCacheStillValid(result.time)) { // note: has side effect
+		size_t numNodes = calcNumNodes(dataSize);
 		result.hash .resize(numNodes);
 		result.valid.resize(numNodes);
 		result.numNodes = numNodes;
