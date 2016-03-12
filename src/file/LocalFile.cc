@@ -19,10 +19,6 @@
 #include <cerrno>
 #include <cassert>
 
-#ifndef EOVERFLOW
-#define EOVERFLOW 0
-#endif
-
 using std::string;
 
 namespace openmsx {
