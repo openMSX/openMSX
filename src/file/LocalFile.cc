@@ -216,6 +216,12 @@ void LocalFile::munmap()
 
 size_t LocalFile::getSize()
 {
+#if defined _WIN32
+	// Normal fstat compiles but doesn't seem to be working the same
+	// as on POSIX, regarding size support.
+	struct _stat64 st;
+	int ret = _fstat64(fileno(file.get()), &st);
+#else
 	struct stat st;
 	int ret = fstat(fileno(file.get()), &st);
 	if (ret && (errno == EOVERFLOW)) {
@@ -224,6 +230,7 @@ size_t LocalFile::getSize()
 		throw FileException("Files >= 2GB are not supported on "
 		                    "32-bit platforms: " + getURL());
 	}
+#endif
 	if (ret) {
 		throw FileException("Cannot get file size");
 	}
@@ -274,8 +281,16 @@ bool LocalFile::isReadOnly() const
 
 time_t LocalFile::getModificationDate()
 {
+#if defined _WIN32
+	// Normal fstat compiles but doesn't seem to be working the same
+	// as on POSIX, regarding size support.
+	struct _stat64 st;
+	int ret = _fstat64(fileno(file.get()), &st);
+#else
 	struct stat st;
-	if (fstat(fileno(file.get()), &st)) {
+	int ret = fstat(fileno(file.get()), &st);
+#endif
+	if (ret) {
 		throw FileException("Cannot stat file");
 	}
 	return st.st_mtime;
