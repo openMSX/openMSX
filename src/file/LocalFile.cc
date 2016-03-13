@@ -235,8 +235,13 @@ size_t LocalFile::getSize()
 
 void LocalFile::seek(size_t pos)
 {
-	if (fseek(file.get(), long(pos), SEEK_SET) != 0) {
-		throw FileException("Error seeking file");
+#if defined WIN32
+  int ret = _fseeki64(file.get(), pos, SEEK_SET);
+#else
+  int ret = fseek(file.get(), long(pos), SEEK_SET);
+#endif
+  if (ret != 0) {
+    throw FileException("Error seeking file");
 	}
 }
 
