@@ -219,8 +219,7 @@ void ReverseManager::status(TclObject& result) const
 	}
 
 	result.addListElement("begin");
-	EmuTime b(isCollecting() ? begin(history.chunks)->second.time
-	                         : EmuTime::zero);
+	EmuTime b((isCollecting() && !history.chunks.empty()) ? begin(history.chunks)->second.time : EmuTime::zero);
 	result.addListElement((b - EmuTime::zero).toDouble());
 
 	result.addListElement("end");
