@@ -128,7 +128,7 @@
                   Name="!(loc.openMSX)"
                   Description="!(loc.TagLine)"
                   Target="[OPENMSXINSTALLDIR]openmsx.exe"
-                  WorkingDirectory="[PersonalFolder]" />
+                   />
         
         <!-- Shortcut to openMSX manual -->
         <Shortcut Id="openMSXManualShortcut"
@@ -169,7 +169,7 @@
                     Name="!(loc.Catapult)"
                     Description="!(loc.CatapultDescription)"
                     Target="[OPENMSXINSTALLDIR]Catapult\bin\catapult.exe"
-                    WorkingDirectory="[PersonalFolder]" />
+                     />
         
         <!-- Shortcut to Catapult manual -->
         <Shortcut Id="CatapultManualShortcut"
