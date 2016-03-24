@@ -2,8 +2,10 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
-<!-- config according to the info from Daniele -->
-<!-- CPU: SHARP LH0080A
+<!-- config according to the info from Daniele
+     Based on machine with serial 14011845.
+
+     CPU: SHARP LH0080A
      MSX-ENGINE: S3527
      3 JVC ROMs
 
