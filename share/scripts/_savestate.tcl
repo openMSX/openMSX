@@ -53,7 +53,13 @@ proc list_savestates_raw {} {
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../savestates]
 	set results [list]
 	foreach f [glob -tails -directory $directory -nocomplain *.xml.gz *.oms] {
-		set name [file rootname [file rootname $f]]
+		if       {[string range $f end-3 end] eq ".oms"} {
+			set name [string range $f 0 end-4]
+		} elseif {[string range $f end-6 end] eq ".xml.gz"} {
+			set name [string range $f 0 end-7]
+		} else {
+			set name $f
+		}
 		set fullname [file join $directory $f]
 		set filetime [file mtime $fullname]
 		lappend results [list $name $filetime]
