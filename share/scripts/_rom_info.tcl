@@ -78,8 +78,8 @@ proc getlist_rom_info {{romdevice ""}} {
 	}
 }
 
-proc rom_info {} {
-	set rominfo [rom_info::getlist_rom_info]
+proc rom_info {{romdevice ""}} {
+	set rominfo [rom_info::getlist_rom_info $romdevice]
 
 	if {$rominfo eq ""} {return "No ROM information available..."}
 
