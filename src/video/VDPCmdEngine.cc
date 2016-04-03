@@ -1211,7 +1211,8 @@ void VDPCmdEngine::startLmmc(EmuTime::param time)
 	ADX = DX;
 	ANX = tmpNX;
 	statusChangeTime = EmuTime::zero;
-	transfer = true;
+	// do not set 'transfer = true', this fixes bug#1014
+	// Baltak Rampage: characters in greetings part are one pixel offset
 	status |= 0x80;
 	engineTime = time; nextAccessSlot();
 }
@@ -1635,7 +1636,7 @@ void VDPCmdEngine::startHmmc(EmuTime::param time)
 	ADX = DX;
 	ANX = tmpNX;
 	statusChangeTime = EmuTime::zero;
-	transfer = true;
+	// do not set 'transfer = true', see startLmmc()
 	status |= 0x80;
 	engineTime = time; nextAccessSlot();
 }
