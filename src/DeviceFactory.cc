@@ -37,6 +37,7 @@
 #include "NationalFDC.hh"
 #include "VictorFDC.hh"
 #include "SanyoFDC.hh"
+#include "SpectravideoFDC.hh"
 #include "TurboRFDC.hh"
 #include "SunriseIDE.hh"
 #include "BeerIDE.hh"
@@ -100,6 +101,8 @@ static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 		return make_unique<NationalFDC>(conf);
 	} else if (type == "Sanyo") {
 		return make_unique<SanyoFDC>(conf);
+	} else if (type == "Spectravideo") {
+		return make_unique<SpectravideoFDC>(conf);
 	} else if (type == "Victor") {
 		return make_unique<VictorFDC>(conf);
 	}
