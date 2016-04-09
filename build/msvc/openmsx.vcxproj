@@ -389,6 +389,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\MSXtar.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NationalFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\SpectravideoFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\VictorFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NowindCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NowindHost.cc" />
@@ -915,6 +916,7 @@
     <None Include="$(OpenMSXSrcDir)\fdc\MSXtar.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\NationalFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\SpectravideoFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\VictorFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\NowindCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\NowindHost.hh" />

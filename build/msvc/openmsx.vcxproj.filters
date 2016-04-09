@@ -336,6 +336,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\SpectravideoFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\VictorFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
