@@ -3,11 +3,13 @@
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
 #include "serialize.hh"
+#include <iostream>
 
 // Note: although this implementation seems to work, it has not been checked on
 // real hardware how the FDC registers are mirrored across the slot, nor how
 // the ROM is visible in the slot. Currently FDC registers are implemented to
-// be not mirrored, and ROM is implemented to be visible in page 1.
+// be mirrored all over the slot (as it seems that the MSX-DOS that came with
+// the SVI-707 needs that), and ROM is implemented to be visible in page 1.
 //
 // This implementation is solely based on the MSX SVI-728 Service and Technical
 // Manual [Vol.1], page 3-7 (memory mapping of registers) and page 3-1 (ROM).
@@ -26,23 +28,35 @@ SpectravideoFDC::SpectravideoFDC(const DeviceConfig& config)
 byte SpectravideoFDC::readMem(word address, EmuTime::param time)
 {
 	byte value;
-	switch (address) {
-	case 0x7FB8:
+	switch (address & 0x3FFF) {
+	case 0x3FB8:
 		value = controller.getStatusReg(time);
 		break;
-	case 0x7FB9:
+	case 0x3FB9:
 		value = controller.getTrackReg(time);
 		break;
-	case 0x7FBA:
+	case 0x3FBA:
 		value = controller.getSectorReg(time);
 		break;
-	case 0x7FBB:
+	case 0x3FBB:
 		value = controller.getDataReg(time);
 		break;
-	case 0x7FBC:
+	case 0x3FBC:
 		value = 0;
 		if ( controller.getIRQ(time))  value |= 0x80;
 		if (!controller.getDTRQ(time)) value |= 0x40;
+		break;
+	case 0x3FBE: // Software switch to turn on CP/M,
+	             // boot ROM and turn off MSX DOS ROM.
+		std::cout << "SpectravideoFDC: enabling CP/M ROM not yet implemented" << std::endl;
+		cpmRomEnabled = true;
+		value = 0xFF;
+		break;
+	case 0x3FBF: // Software switch to turn off CP/M,
+	             // boot ROM and turn on MSX DOS ROM.
+		std::cout << "SpectravideoFDC: enabling MSX-DOS ROM not yet implemented" << std::endl;
+		cpmRomEnabled = false;
+		value = 0xFF;
 		break;
 	default:
 		value = SpectravideoFDC::peekMem(address, time);
@@ -54,20 +68,20 @@ byte SpectravideoFDC::readMem(word address, EmuTime::param time)
 byte SpectravideoFDC::peekMem(word address, EmuTime::param time) const
 {
 	byte value;
-	switch (address) {
-	case 0x7FB8:
+	switch (address & 0x3FFF) {
+	case 0x3FB8:
 		value = controller.peekStatusReg(time);
 		break;
-	case 0x7FB9:
+	case 0x3FB9:
 		value = controller.peekTrackReg(time);
 		break;
-	case 0x7FBA:
+	case 0x3FBA:
 		value = controller.peekSectorReg(time);
 		break;
-	case 0x7FBB:
+	case 0x3FBB:
 		value = controller.peekDataReg(time);
 		break;
-	case 0x7FBC:
+	case 0x3FBC:
 		// Drive control IRQ and DRQ lines are not connected to Z80 interrupt request
 		// bit 7: interrupt of 1793 (1 for interrupt)
 		// bit 6: data request of 1793 (0 for request)
@@ -90,8 +104,8 @@ byte SpectravideoFDC::peekMem(word address, EmuTime::param time) const
 
 const byte* SpectravideoFDC::getReadCacheLine(word start) const
 {
-	if ((start & CacheLine::HIGH) == (0x7FB8 & CacheLine::HIGH)) {
-		// FDC at 0x7FB8-0x7FBF - mirroring behaviour unknown
+	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FB8 & CacheLine::HIGH)) {
+		// FDC at 0x7FB8-0x7FBF, and mirrored in other pages
 		return nullptr;
 	} else if ((0x4000 <= start) && (start < 0x8000)) {
 		// ROM at 0x4000-0x7FFF
@@ -103,20 +117,20 @@ const byte* SpectravideoFDC::getReadCacheLine(word start) const
 
 void SpectravideoFDC::writeMem(word address, byte value, EmuTime::param time)
 {
-	switch (address) {
-	case 0x7FB8:
+	switch (address & 0x3FFF) {
+	case 0x3FB8:
 		controller.setCommandReg(value, time);
 		break;
-	case 0x7FB9:
+	case 0x3FB9:
 		controller.setTrackReg(value, time);
 		break;
-	case 0x7FBA:
+	case 0x3FBA:
 		controller.setSectorReg(value, time);
 		break;
-	case 0x7FBB:
+	case 0x3FBB:
 		controller.setDataReg(value, time);
 		break;
-	case 0x7FBC:
+	case 0x3FBC:
 		// bit 0 -> enable drive (1 for ENABLE)
 		// bit 2 -> side select (0 for side 0)
 		// bit 3 -> motor on (1 for ON)
@@ -124,21 +138,23 @@ void SpectravideoFDC::writeMem(word address, byte value, EmuTime::param time)
 		multiplexer.setSide(    (value & 0x04) != 0);
 		multiplexer.setMotor(   (value & 0x08) != 0, time);
 		break;
-	case 0x7FBE: // Software switch to turn on CP/M,
+	case 0x3FBE: // Software switch to turn on CP/M,
 	             // boot ROM and turn off MSX DOS ROM.
-		     cpmRomEnabled = true;
+		std::cout << "SpectravideoFDC: enabling CP/M ROM not yet implemented" << std::endl;
+		cpmRomEnabled = true;
 		break;
-	case 0x7FBF: // Software switch to turn off CP/M,
+	case 0x3FBF: // Software switch to turn off CP/M,
 	             // boot ROM and turn on MSX DOS ROM.
-		     cpmRomEnabled = false;
+		std::cout << "SpectravideoFDC: enabling MSX-DOS ROM not yet implemented" << std::endl;
+		cpmRomEnabled = false;
 		break;
 	}
 }
 
 byte* SpectravideoFDC::getWriteCacheLine(word address) const
 {
-	if ((address & CacheLine::HIGH) == (0x7FB8 & CacheLine::HIGH)) {
-		// FDC at 0x7FB8-0x7FBF - mirroring behaviour unknown
+	if ((address & 0x3FFF & CacheLine::HIGH) == (0x3FB8 & CacheLine::HIGH)) {
+		// FDC at 0x7FB8-0x7FBF - mirrored
 		return nullptr;
 	} else {
 		return unmappedWrite;

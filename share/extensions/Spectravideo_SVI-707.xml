@@ -14,9 +14,10 @@
       <secondary slot="any">
         <WD2793 id="Spectravideo SVI-707 diskROM/FDC">
           <connectionstyle>Spectravideo</connectionstyle>
-          <mem base="0x4000" size="0x4000"/>
+          <mem base="0x0000" size="0x10000"/> <!-- ROM only in page 1, registers in all pages -->
           <rom>
             <sha1>a337c9aede83cf684339f61a80468e73af31ebeb</sha1>
+            <!-- <sha1>952c02cf180fb5c0384bba96f437d7ec59259c61</sha1> CP/M ROM, but overdumped; not supported yet -->
             <filename>svi-707_disk.rom</filename>
           </rom>
           <drives>1</drives>
