@@ -551,8 +551,10 @@ proc create_main_menu {} {
 		}
 	}
 	if {[info command hda] ne ""} {; # only exists when hard disk extension available
-		lappend items { text "Change hard disk image..."
-			actions { A { osd_menu::menu_create [osd_menu::menu_create_hdd_list $::osd_hdd_path]} }
+		foreach drive [lrange [lsort [info command hd?]] 0 1] {
+			set drive_str [string toupper [string index $drive end]]
+			lappend items [list text "Change HD/SD image... (drive $drive_str)" \
+				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_hdd_list \$::osd_hdd_path $drive\]"]]
 		}
 	}
 	if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
@@ -1099,7 +1101,8 @@ proc menu_remove_extension_exec {item} {
 }
 
 proc get_pluggable_for_connector {connector} {
-	return [lindex [split [plug $connector] ": "] 2]
+	set t [plug $connector]
+	return [string range $t [string first ": " $t]+2 end]
 }
 
 proc menu_create_connectors_list {} {
@@ -1189,9 +1192,9 @@ proc create_menu_pluggable_list {connector} {
 proc menu_plug_exec {connector pluggable} {
 	set command ""
 	if {$pluggable eq "--unplug--"} {
-		set command "unplug $connector"
+		set command "unplug {$connector}"
 	} else {
-		set command "plug $connector $pluggable"
+		set command "plug {$connector} {$pluggable}"
 	}
 	#note: NO braces around $command
 	if {[catch $command errorText]} {
@@ -1525,40 +1528,40 @@ proc menu_free_tape_name {} {
 	}
 }
 
-proc menu_create_hdd_list {path} {
+proc menu_create_hdd_list {path drive} {
 	return [prepare_menu_list [ls $path "dsk|zip|gz"] \
 	                          10 \
-	                          { execute menu_select_hdd
-	                            font-size 8
-	                            border-size 2
-	                            width 200
-	                            xpos 100
-	                            ypos 120
+	                          [list execute [list menu_select_hdd $drive]\
+	                            font-size 8 \
+	                            border-size 2 \
+	                            width 200 \
+	                            xpos 100 \
+	                            ypos 120 \
 	                            header { text "Hard disk images $::osd_hdd_path"
 	                                     font-size 10
-	                                     post-spacing 6 }}]
+	                                     post-spacing 6 }]]
 }
 
-proc menu_select_hdd {item} {
+proc menu_select_hdd {drive item} {
 	set fullname [file join $::osd_hdd_path $item]
 	if {[file isdirectory $fullname]} {
 		menu_close_top
 		set ::osd_hdd_path [file normalize $fullname]
-		menu_create [menu_create_hdd_list $::osd_hdd_path]
+		menu_create [menu_create_hdd_list $::osd_hdd_path $drive]
 	} else {
-		confirm_action "Really power off to change HDD image?" osd_menu::confirm_change_hdd $item
+		confirm_action "Really power off to change HDD image?" osd_menu::confirm_change_hdd [list $item $drive]
 	}
 }
 
 proc confirm_change_hdd {item result} {
 	menu_close_top
 	if {$result eq "Yes"} {
-		set fullname [file join $::osd_hdd_path $item]
-		if {[catch {set ::power off; hda $fullname} errorText]} {
-				osd::display_message "Can't change hard disk image: $errorText" error
-				# TODO: we already powered off even though the file may be invalid... save state first?
+		set fullname [file join $::osd_hdd_path [lindex $item 0]]
+		if {[catch {set ::power off; [lindex $item 1] $fullname} errorText]} {
+			osd::display_message "Can't change hard disk image: $errorText" error
+			# TODO: we already powered off even though the file may be invalid... save state first?
 		} else {
-			osd::display_message "Changed hard disk image to $item!"
+			osd::display_message "Changed hard disk image to [lindex $item 0]!"
 			menu_close_all
 		}
 		set ::power on

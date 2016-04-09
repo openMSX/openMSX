@@ -50,21 +50,6 @@ private:
 	// of step 3 and 4. Though this has the disadvantage that if openMSX
 	// crashes between step 3 and 4 the temp file is still left behind.
 	struct FontInfo {
-		// TODO use compiler generated versions once VS supports this
-		FontInfo() {}
-		FontInfo(FontInfo&& rhs)
-			: file(std::move(rhs.file)), font(std::move(rhs.font))
-			, name(std::move(rhs.name)), size(std::move(rhs.size))
-			, count(std::move(rhs.count)) {}
-		FontInfo& operator=(FontInfo&& rhs) {
-			file  = std::move(rhs.file);
-			font  = std::move(rhs.font);
-			name  = std::move(rhs.name);
-			size  = std::move(rhs.size);
-			count = std::move(rhs.count);
-			return *this;
-		}
-
 		LocalFileReference file;
 		TTF_Font* font;
 		std::string name;
@@ -141,13 +126,12 @@ TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 
 void TTFFontPool::release(TTF_Font* font)
 {
-	auto it = find_if_unguarded(pool,
+	auto it = rfind_if_unguarded(pool,
 		[&](const FontInfo& i) { return i.font == font; });
 	--it->count;
 	if (it->count == 0) {
 		TTF_CloseFont(it->font);
-		if (it != (end(pool) - 1)) std::swap(*it, *(end(pool) - 1));
-		pool.pop_back();
+		move_pop_back(pool, it);
 	}
 }
 

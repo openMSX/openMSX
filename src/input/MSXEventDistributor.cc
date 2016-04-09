@@ -6,10 +6,6 @@
 
 namespace openmsx {
 
-MSXEventDistributor::MSXEventDistributor()
-{
-}
-
 MSXEventDistributor::~MSXEventDistributor()
 {
 	assert(listeners.empty());
@@ -28,7 +24,7 @@ void MSXEventDistributor::registerEventListener(MSXEventListener& listener)
 
 void MSXEventDistributor::unregisterEventListener(MSXEventListener& listener)
 {
-	listeners.erase(find_unguarded(listeners, &listener));
+	move_pop_back(listeners, rfind_unguarded(listeners, &listener));
 }
 
 void MSXEventDistributor::distributeEvent(const EventPtr& event, EmuTime::param time)

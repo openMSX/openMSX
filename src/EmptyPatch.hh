@@ -2,11 +2,10 @@
 #define EMPTYPATCH_HH
 
 #include "PatchInterface.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
-class EmptyPatch final : public PatchInterface, private noncopyable
+class EmptyPatch final : public PatchInterface
 {
 public:
 	EmptyPatch(const byte* block, size_t size);

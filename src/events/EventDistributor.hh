@@ -2,7 +2,6 @@
 #define EVENTDISTRIBUTOR_HH
 
 #include "Event.hh"
-#include "noncopyable.hh"
 #include <condition_variable>
 #include <memory>
 #include <mutex>
@@ -14,7 +13,7 @@ namespace openmsx {
 class Reactor;
 class EventListener;
 
-class EventDistributor : private noncopyable
+class EventDistributor
 {
 public:
 	using EventPtr = std::shared_ptr<const Event>;
@@ -73,7 +72,7 @@ private:
 
 	Reactor& reactor;
 
-	using PriorityMap = std::vector<std::pair<Priority, EventListener*>>;
+	using PriorityMap = std::vector<std::pair<Priority, EventListener*>>; // sorted on priority
 	PriorityMap listeners[NUM_EVENT_TYPES];
 	using EventQueue = std::vector<EventPtr>;
 	EventQueue scheduledEvents;

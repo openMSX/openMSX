@@ -3,7 +3,6 @@
 
 #include "OSDTopWidget.hh"
 #include "Command.hh"
-#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -11,7 +10,7 @@ namespace openmsx {
 class Display;
 class CommandController;
 
-class OSDGUI : private noncopyable
+class OSDGUI
 {
 public:
 	OSDGUI(CommandController& commandController, Display& display);

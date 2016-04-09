@@ -80,8 +80,8 @@ void SettingsConfig::saveSetting(string_ref filename)
 // class SaveSettingsCommand
 
 SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
-		CommandController& commandController)
-	: Command(commandController, "save_settings")
+		CommandController& commandController_)
+	: Command(commandController_, "save_settings")
 {
 }
 
@@ -121,8 +121,8 @@ void SettingsConfig::SaveSettingsCommand::tabCompletion(vector<string>& tokens) 
 // class LoadSettingsCommand
 
 SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
-		CommandController& commandController)
-	: Command(commandController, "load_settings")
+		CommandController& commandController_)
+	: Command(commandController_, "load_settings")
 {
 }
 

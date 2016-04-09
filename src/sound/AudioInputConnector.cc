@@ -7,9 +7,9 @@
 
 namespace openmsx {
 
-AudioInputConnector::AudioInputConnector(PluggingController& pluggingController,
-                                         string_ref name)
-	: Connector(pluggingController, name,
+AudioInputConnector::AudioInputConnector(PluggingController& pluggingController_,
+                                         string_ref name_)
+	: Connector(pluggingController_, name_,
 	            make_unique<DummyAudioInputDevice>())
 {
 }

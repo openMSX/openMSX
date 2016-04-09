@@ -5,7 +5,6 @@
 #include "Layer.hh"
 #include "Observer.hh"
 #include "MSXEventListener.hh"
-#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
@@ -16,9 +15,12 @@ class Setting;
 class BooleanSetting;
 
 class VideoLayer : public Layer, protected Observer<Setting>
-                 , private MSXEventListener, private noncopyable
+                 , private MSXEventListener
 {
 public:
+	VideoLayer(const VideoLayer&) = delete;
+	VideoLayer& operator=(const VideoLayer&) = delete;
+
 	/** Returns the ID for this videolayer.
 	  * These IDs are globally unique. The 'videosource' setting uses
 	  * these IDs as possible values.

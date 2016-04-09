@@ -564,8 +564,8 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 // @throws when file could not be added
 string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 {
-	string_ref dir, hostName;
-	StringOp::splitOnLast(fullname, "/\\", dir, hostName);
+	string_ref directory, hostName;
+	StringOp::splitOnLast(fullname, "/\\", directory, hostName);
 	string msxName = makeSimpleMSXFileName(hostName);
 
 	// first find out if the filename already exists in current dir
@@ -606,8 +606,8 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 string MSXtar::recurseDirFill(string_ref dirName, unsigned sector)
 {
 	string messages;
-	ReadDir dir(dirName.str());
-	while (dirent* d = dir.getEntry()) {
+	ReadDir readDir(dirName.str());
+	while (dirent* d = readDir.getEntry()) {
 		string name(d->d_name);
 		string fullName = dirName + '/' + name;
 

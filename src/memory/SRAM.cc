@@ -23,9 +23,9 @@ namespace openmsx {
  * dynamically need to decide whether load/save is needed.
  */
 SRAM::SRAM(const std::string& name, const std::string& description,
-           int size, const DeviceConfig& config, DontLoad)
-	: RTSchedulable(config.getReactor().getRTScheduler())
-	, ram(config, name, description, size)
+           int size, const DeviceConfig& config_, DontLoad)
+	: RTSchedulable(config_.getReactor().getRTScheduler())
+	, ram(config_, name, description, size)
 	, header(nullptr) // not used
 {
 }

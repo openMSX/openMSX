@@ -26,11 +26,11 @@
 
 namespace openmsx {
 
-PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
+PostProcessor::PostProcessor(MSXMotherBoard& motherBoard_,
 	Display& display_, OutputSurface& screen_, const std::string& videoSource,
 	unsigned maxWidth_, unsigned height_, bool canDoInterlace_)
-	: VideoLayer(motherBoard, videoSource)
-	, Schedulable(motherBoard.getScheduler())
+	: VideoLayer(motherBoard_, videoSource)
+	, Schedulable(motherBoard_.getScheduler())
 	, renderSettings(display_.getRenderSettings())
 	, screen(screen_)
 	, paintFrame(nullptr)
@@ -43,8 +43,8 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	, height(height_)
 	, display(display_)
 	, canDoInterlace(canDoInterlace_)
-	, lastRotate(motherBoard.getCurrentTime())
-	, eventDistributor(motherBoard.getReactor().getEventDistributor())
+	, lastRotate(motherBoard_.getCurrentTime())
+	, eventDistributor(motherBoard_.getReactor().getEventDistributor())
 {
 	if (canDoInterlace) {
 		deinterlacedFrame = make_unique<DeinterlacedFrame>(
@@ -255,17 +255,17 @@ static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
 	}
 }
 
-void PostProcessor::takeRawScreenShot(unsigned height, const std::string& filename)
+void PostProcessor::takeRawScreenShot(unsigned height2, const std::string& filename)
 {
 	if (!paintFrame) {
 		throw CommandException("TODO");
 	}
 
-	VLA(const void*, lines, height);
+	VLA(const void*, lines, height2);
 	WorkBuffer workBuffer;
-	getScaledFrame(*paintFrame, getBpp(), height, lines, workBuffer);
-	unsigned width = (height == 240) ? 320 : 640;
-	PNG::save(width, height, lines, paintFrame->getSDLPixelFormat(), filename);
+	getScaledFrame(*paintFrame, getBpp(), height2, lines, workBuffer);
+	unsigned width = (height2 == 240) ? 320 : 640;
+	PNG::save(width, height2, lines, paintFrame->getSDLPixelFormat(), filename);
 }
 
 unsigned PostProcessor::getBpp() const

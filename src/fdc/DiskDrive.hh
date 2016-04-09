@@ -3,14 +3,13 @@
 
 #include "EmuTime.hh"
 #include "RawTrack.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 /**
  * This (abstract) class defines the DiskDrive interface
  */
-class DiskDrive : private noncopyable
+class DiskDrive
 {
 public:
 	static const unsigned ROTATIONS_PER_SECOND = 5; // 300rpm

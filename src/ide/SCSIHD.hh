@@ -12,15 +12,17 @@
 
 #include "HD.hh"
 #include "SCSIDevice.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 class DeviceConfig;
 
-class SCSIHD final : public HD, public SCSIDevice, private noncopyable
+class SCSIHD final : public HD, public SCSIDevice
 {
 public:
+	SCSIHD(const SCSIHD&) = delete;
+	SCSIHD& operator=(const SCSIHD&) = delete;
+
 	SCSIHD(const DeviceConfig& targetconfig,
 	       AlignedBuffer& buf, unsigned mode);
 

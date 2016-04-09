@@ -32,10 +32,10 @@ namespace openmsx {
 
 LaserdiscPlayer::Command::Command(
 		CommandController& commandController_,
-		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler)
-	: RecordedCommand(commandController_, stateChangeDistributor,
-			  scheduler, "laserdiscplayer")
+		StateChangeDistributor& stateChangeDistributor_,
+		Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+			  scheduler_, "laserdiscplayer")
 {
 }
 
@@ -370,7 +370,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 		case 0x40:
 			seekState = SEEK_CHAPTER;
 			seekNum = 0;
-			nonseekack = video->chapter(0) != 0;
+			nonseekack = video->getChapter(0) != 0;
 			break;
 		case 0x00:
 		case 0x01:
@@ -400,7 +400,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 				seekState = SEEK_NONE;
 				waitFrame = seekNum % 100000;
 				if (waitFrame >= 101 && waitFrame < 200) {
-					auto frame = video->chapter(
+					auto frame = video->getChapter(
 						int(waitFrame - 100));
 					if (frame) waitFrame = frame;
 				}
@@ -917,7 +917,7 @@ void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 {
 	if ((playerState != PLAYER_STOPPED) && video) {
-		auto frameno = video->chapter(chapter);
+		auto frameno = video->getChapter(chapter);
 		if (!frameno) return;
 		seekFrame(frameno, time);
 	}
@@ -977,7 +977,7 @@ void LaserdiscPlayer::createRenderer()
 	renderer = RendererFactory::createLDRenderer(*this, display);
 }
 
-static enum_string<LaserdiscPlayer::RemoteState> RemoteStateInfo[] = {
+static std::initializer_list<enum_string<LaserdiscPlayer::RemoteState>> RemoteStateInfo = {
 	{ "IDLE",		LaserdiscPlayer::REMOTE_IDLE		},
 	{ "HEADER_PULSE",	LaserdiscPlayer::REMOTE_HEADER_PULSE	},
 	{ "NEC_HEADER_SPACE",	LaserdiscPlayer::NEC_HEADER_SPACE	},
@@ -986,7 +986,7 @@ static enum_string<LaserdiscPlayer::RemoteState> RemoteStateInfo[] = {
 };
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteState, RemoteStateInfo);
 
-static enum_string<LaserdiscPlayer::PlayerState> PlayerStateInfo[] = {
+static std::initializer_list<enum_string<LaserdiscPlayer::PlayerState>> PlayerStateInfo = {
 	{ "STOPPED",		LaserdiscPlayer::PLAYER_STOPPED		},
 	{ "PLAYING",		LaserdiscPlayer::PLAYER_PLAYING		},
 	{ "MULTISPEED",		LaserdiscPlayer::PLAYER_MULTISPEED	},
@@ -995,7 +995,7 @@ static enum_string<LaserdiscPlayer::PlayerState> PlayerStateInfo[] = {
 };
 SERIALIZE_ENUM(LaserdiscPlayer::PlayerState, PlayerStateInfo);
 
-static enum_string<LaserdiscPlayer::SeekState> SeekStateInfo[] = {
+static std::initializer_list<enum_string<LaserdiscPlayer::SeekState>> SeekStateInfo = {
 	{ "NONE",		LaserdiscPlayer::SEEK_NONE		},
 	{ "CHAPTER",		LaserdiscPlayer::SEEK_CHAPTER		},
 	{ "FRAME",		LaserdiscPlayer::SEEK_FRAME		},
@@ -1003,14 +1003,14 @@ static enum_string<LaserdiscPlayer::SeekState> SeekStateInfo[] = {
 };
 SERIALIZE_ENUM(LaserdiscPlayer::SeekState, SeekStateInfo);
 
-static enum_string<LaserdiscPlayer::StereoMode> StereoModeInfo[] = {
+static std::initializer_list<enum_string<LaserdiscPlayer::StereoMode>> StereoModeInfo = {
 	{ "LEFT",		LaserdiscPlayer::LEFT			},
 	{ "RIGHT",		LaserdiscPlayer::RIGHT			},
 	{ "STEREO",		LaserdiscPlayer::STEREO			}
 };
 SERIALIZE_ENUM(LaserdiscPlayer::StereoMode, StereoModeInfo);
 
-static enum_string<LaserdiscPlayer::RemoteProtocol> RemoteProtocolInfo[] = {
+static std::initializer_list<enum_string<LaserdiscPlayer::RemoteProtocol>> RemoteProtocolInfo = {
 	{ "NONE",		LaserdiscPlayer::IR_NONE		},
 	{ "NEC",		LaserdiscPlayer::IR_NEC			},
 };

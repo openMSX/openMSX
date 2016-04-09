@@ -42,6 +42,10 @@
       <io base="0xE4" num="2"/>
     </S1990>
 
+    <T9769 id="T9769">
+      <subtype>C</subtype>
+    </T9769>
+
     <PPI id="ppi">
       <sound>
         <volume>16000</volume>

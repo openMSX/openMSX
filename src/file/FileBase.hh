@@ -3,12 +3,11 @@
 
 #include "MemBuffer.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
 
-class FileBase : private noncopyable
+class FileBase
 {
 public:
 	virtual ~FileBase();

@@ -34,34 +34,34 @@ const std::string& IDEHD::getDeviceName()
 	return NAME;
 }
 
-void IDEHD::fillIdentifyBlock(AlignedBuffer& buffer)
+void IDEHD::fillIdentifyBlock(AlignedBuffer& buf)
 {
 	auto totalSectors = getNbSectors();
 	uint16_t heads = 16;
 	uint16_t sectors = 32;
 	uint16_t cylinders = uint16_t(totalSectors / (heads * sectors)); // TODO overflow?
-	Endian::writeL16(&buffer[1 * 2], cylinders);
-	Endian::writeL16(&buffer[3 * 2], heads);
-	Endian::writeL16(&buffer[6 * 2], sectors);
+	Endian::writeL16(&buf[1 * 2], cylinders);
+	Endian::writeL16(&buf[3 * 2], heads);
+	Endian::writeL16(&buf[6 * 2], sectors);
 
-	buffer[47 * 2 + 0] = 16; // max sector transfer per interrupt
-	buffer[47 * 2 + 1] = 0x80; // specced value
+	buf[47 * 2 + 0] = 16; // max sector transfer per interrupt
+	buf[47 * 2 + 1] = 0x80; // specced value
 
 	// .... 1...: IORDY supported (hardware signal used by PIO modes >3)
 	// .... ..1.: LBA supported
-	buffer[49 * 2 + 1] = 0x0A;
+	buf[49 * 2 + 1] = 0x0A;
 
 	// TODO check for overflow
-	Endian::writeL32(&buffer[60 * 2], unsigned(totalSectors));
+	Endian::writeL32(&buf[60 * 2], unsigned(totalSectors));
 }
 
-unsigned IDEHD::readBlockStart(AlignedBuffer& buffer, unsigned count)
+unsigned IDEHD::readBlockStart(AlignedBuffer& buf, unsigned count)
 {
 	try {
 		assert(count >= 512);
 		(void)count; // avoid warning
 		readSector(transferSectorNumber,
-		           *aligned_cast<SectorBuffer*>(buffer));
+		           *aligned_cast<SectorBuffer*>(buf));
 		++transferSectorNumber;
 		return 512;
 	} catch (MSXException&) {
@@ -70,14 +70,14 @@ unsigned IDEHD::readBlockStart(AlignedBuffer& buffer, unsigned count)
 	}
 }
 
-void IDEHD::writeBlockComplete(AlignedBuffer& buffer, unsigned count)
+void IDEHD::writeBlockComplete(AlignedBuffer& buf, unsigned count)
 {
 	try {
 		assert((count % 512) == 0);
 		unsigned num = count / 512;
 		for (unsigned i = 0; i < num; ++i) {
 			writeSector(transferSectorNumber++,
-			            *aligned_cast<SectorBuffer*>(buffer + 512 * i));
+			            *aligned_cast<SectorBuffer*>(buf + 512 * i));
 		}
 	} catch (MSXException&) {
 		abortWriteTransfer(UNC);

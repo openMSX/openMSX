@@ -7,7 +7,6 @@
 #include "BooleanSetting.hh"
 #include "EmuTime.hh"
 #include "TclCallback.hh"
-#include "noncopyable.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "array_ref.hh"
@@ -25,7 +24,7 @@ template <typename T> class CPUCore;
 class TclObject;
 class Interpreter;
 
-class MSXCPU final : private Observer<Setting>, private noncopyable
+class MSXCPU final : private Observer<Setting>
 {
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
@@ -111,8 +110,8 @@ public:
 	void setNextSyncPoint(EmuTime::param time);
 
 	void wait(EmuTime::param time);
-	void waitCycles(unsigned cycles);
-	void waitCyclesR800(unsigned cycles);
+	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
+	EmuTime waitCyclesR800(EmuTime::param time, unsigned cycles);
 
 	CPURegs& getRegisters();
 

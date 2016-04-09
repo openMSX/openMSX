@@ -31,7 +31,7 @@ void StateChangeDistributor::registerListener(StateChangeListener& listener)
 
 void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 {
-	listeners.erase(find_unguarded(listeners, &listener));
+	move_pop_back(listeners, rfind_unguarded(listeners, &listener));
 }
 
 void StateChangeDistributor::registerRecorder(StateChangeRecorder& recorder_)

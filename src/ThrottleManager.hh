@@ -3,7 +3,6 @@
 
 #include "Subject.hh"
 #include "BooleanSetting.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -17,7 +16,6 @@ class CommandController;
  */
 class ThrottleManager final : public Subject<ThrottleManager>
                             , private Observer<Setting>
-                            , private noncopyable
 {
 public:
 	explicit ThrottleManager(CommandController& commandController);

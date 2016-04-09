@@ -11,8 +11,8 @@ using std::vector;
 
 namespace openmsx {
 
-InfoCommand::InfoCommand(CommandController& commandController, const string& name)
-	: Command(commandController, name)
+InfoCommand::InfoCommand(CommandController& commandController_, const string& name_)
+	: Command(commandController_, name_)
 {
 }
 
@@ -35,7 +35,6 @@ void InfoCommand::registerTopic(InfoTopic& topic)
 
 void InfoCommand::unregisterTopic(InfoTopic& topic)
 {
-	(void)topic;
 	if (!infoTopics.contains(topic.getName())) {
 		std::cerr << "INTERNAL ERROR: can't unregister topic with name "
 		          << topic.getName() << ", not found!" << std::endl;

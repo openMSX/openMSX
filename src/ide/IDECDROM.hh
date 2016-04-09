@@ -3,7 +3,6 @@
 
 #include "AbstractIDEDevice.hh"
 #include "File.hh"
-#include "noncopyable.hh"
 #include <bitset>
 #include <memory>
 
@@ -12,9 +11,12 @@ namespace openmsx {
 class DeviceConfig;
 class CDXCommand;
 
-class IDECDROM final : public AbstractIDEDevice, private noncopyable
+class IDECDROM final : public AbstractIDEDevice
 {
 public:
+	IDECDROM(const IDECDROM&) = delete;
+	IDECDROM& operator=(const IDECDROM&) = delete;
+
 	explicit IDECDROM(const DeviceConfig& config);
 	~IDECDROM();
 

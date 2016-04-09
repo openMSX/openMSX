@@ -4,7 +4,6 @@
 #include "RecordedCommand.hh"
 #include "InfoTopic.hh"
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include <vector>
 #include <memory>
@@ -19,7 +18,7 @@ class CliComm;
 /**
  * Central administration of Connectors and Pluggables.
  */
-class PluggingController : private noncopyable
+class PluggingController
 {
 public:
 	explicit PluggingController(MSXMotherBoard& motherBoard);
@@ -57,7 +56,7 @@ private:
 	Pluggable& getPluggable(string_ref name) const;
 
 	MSXMotherBoard& motherBoard;
-	std::vector<Connector*> connectors;
+	std::vector<Connector*> connectors; // no order
 	std::vector<std::unique_ptr<Pluggable>> pluggables;
 
 	struct PlugCmd final : RecordedCommand {

@@ -184,7 +184,7 @@ void V9990P2Converter<Pixel>::renderSprites(
 	int* __restrict visibleSprites, bool front)
 {
 	static const unsigned spriteTable = 0x3FE00;
-	unsigned spritePatternTable = vdp.getSpritePatternAddress(P1);
+	unsigned spritePatternTable = vdp.getSpritePatternAddress(P1); // TODO P2 ???
 
 	for (unsigned sprite = 0; visibleSprites[sprite] != -1; ++sprite) {
 		unsigned addr = spriteTable + 4 * visibleSprites[sprite];

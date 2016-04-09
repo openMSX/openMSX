@@ -2,7 +2,6 @@
 #define LDSDLRASTERIZER_HH
 
 #include "LDRasterizer.hh"
-#include "noncopyable.hh"
 #include <SDL.h>
 #include <memory>
 
@@ -16,7 +15,7 @@ class PostProcessor;
   * rectangular pixel buffer.
   */
 template <class Pixel>
-class LDSDLRasterizer final : public LDRasterizer, private noncopyable
+class LDSDLRasterizer final : public LDRasterizer
 {
 public:
 	LDSDLRasterizer(

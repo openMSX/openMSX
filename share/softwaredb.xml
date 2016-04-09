@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1433089666">
+<softwaredb timestamp="1450299576">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -5647,7 +5647,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>ASCII</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash>4180544158a57c99162269e33e4f2c77c9fce84e</hash><remark>MSX1 Mode/Not Playable/Needs KanjiROM</remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>MSXWrite</type><hash>4180544158a57c99162269e33e4f2c77c9fce84e</hash><remark>Needs KanjiROM</remark></megarom></dump>
 </software>
 <software>
 	<title>Japanese MSX-Write II</title>
@@ -12965,5 +12965,5 @@ Generation MSXIDs by www.generation-msx.nl
 </softwaredb>
 <!--
 Roms in this XML file:3253
-Created on Sun May 31 9:29:08 PDT 2015
+Created on Wed Dec 16 12:59:56 PST 2015
  -->

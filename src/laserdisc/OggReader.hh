@@ -3,7 +3,6 @@
 
 #include "File.hh"
 #include "circular_buffer.hh"
-#include "noncopyable.hh"
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <theora/theoradec.h>
@@ -37,9 +36,12 @@ struct Frame
 	int length;
 };
 
-class OggReader : private noncopyable
+class OggReader
 {
 public:
+	OggReader(const OggReader&) = delete;
+	OggReader& operator=(const OggReader&) = delete;
+
 	OggReader(const Filename& filename, CliComm& cli);
 	~OggReader();
 
@@ -52,7 +54,7 @@ public:
 
 	// metadata
 	bool stopFrame(size_t frame) const;
-	size_t chapter(int chapterNo) const;
+	size_t getChapter(int chapterNo) const;
 
 private:
 	void cleanup();

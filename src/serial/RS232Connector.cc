@@ -7,14 +7,10 @@
 
 namespace openmsx {
 
-RS232Connector::RS232Connector(PluggingController& pluggingController,
-                               string_ref name)
-	: Connector(pluggingController, name,
+RS232Connector::RS232Connector(PluggingController& pluggingController_,
+                               string_ref name_)
+	: Connector(pluggingController_, name_,
 	            make_unique<DummyRS232Device>())
-{
-}
-
-RS232Connector::~RS232Connector()
 {
 }
 

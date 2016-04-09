@@ -2,7 +2,6 @@
 #define LDPIXELRENDERER_HH
 
 #include "LDRenderer.hh"
-#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -16,7 +15,7 @@ class LaserdiscPlayer;
 /** Generic implementation of a pixel-based Renderer.
   * Uses a Rasterizer to plot actual pixels for a specific video system.
   */
-class LDPixelRenderer final : public LDRenderer, private noncopyable
+class LDPixelRenderer final : public LDRenderer
 {
 public:
 	LDPixelRenderer(LaserdiscPlayer& ld, Display& display);

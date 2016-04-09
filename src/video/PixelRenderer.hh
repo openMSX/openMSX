@@ -5,7 +5,6 @@
 #include "Observer.hh"
 #include "RenderSettings.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -25,7 +24,6 @@ class VideoSourceSetting;
   * Uses a Rasterizer to plot actual pixels for a specific video system.
   */
 class PixelRenderer final : public Renderer, private Observer<Setting>
-                          , private noncopyable
 {
 public:
 	PixelRenderer(VDP& vdp, Display& display);

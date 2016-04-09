@@ -53,6 +53,7 @@ MegaFlashROM SCC+ SD Technical Details
  Port #A1 -> #11
  Port #A2 -> #12
 
+ The PSG is read only.
 
 --------------------------------------------------------------------------------
 [Cartridge layout]
@@ -280,7 +281,6 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(
 
 	getCPUInterface().register_IO_Out(0x10, this);
 	getCPUInterface().register_IO_Out(0x11, this);
-	getCPUInterface().register_IO_In (0x12, this);
 
 	if (checkedRam) {
 		getCPUInterface().register_IO_Out(0xFF, this);
@@ -300,7 +300,6 @@ MegaFlashRomSCCPlusSD::~MegaFlashRomSCCPlusSD()
 
 	getCPUInterface().unregister_IO_Out(0x10, this);
 	getCPUInterface().unregister_IO_Out(0x11, this);
-	getCPUInterface().unregister_IO_In (0x12, this);
 
 	if (checkedRam) {
 		getCPUInterface().unregister_IO_Out(0xFF, this);
@@ -502,11 +501,9 @@ void MegaFlashRomSCCPlusSD::updateConfigReg(byte value)
 		if (value & 0x08) {
 			getCPUInterface().register_IO_Out(0xA0, this);
 			getCPUInterface().register_IO_Out(0xA1, this);
-			getCPUInterface().register_IO_In (0xA2, this);
 		} else {
 			getCPUInterface().unregister_IO_Out(0xA0, this);
 			getCPUInterface().unregister_IO_Out(0xA1, this);
-			getCPUInterface().unregister_IO_In (0xA2, this);
 		}
 	}
 	configReg = value;
@@ -699,7 +696,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 			if ((0x6000 <= addr) && (addr < 0x8000)) {
 				byte bank = (addr >> 11) & 0x03;
 				bankRegsSubSlot1[bank] = value;
-				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+				invalidateMemCache(0x4000 + 0x2000 * bank, 0x2000);
 			}
 			break;
 		case 0xC0:
@@ -859,19 +856,6 @@ byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot3(word /*addr*/) const
 }
 
 /////////////////////// I/O ////////////////////////////////////////////
-
-byte MegaFlashRomSCCPlusSD::readIO(word port, EmuTime::param time)
-{
-	// Note: it's not possible to read from the Memory Mapper ports
-	assert((port & 0xFF) == 0x12 || (isPSGalsoMappedToNormalPorts() && ((port & 0xFF) == 0xA2))); (void)port;
-	return psg.readRegister(psgLatch, time);
-}
-
-byte MegaFlashRomSCCPlusSD::peekIO(word port, EmuTime::param time) const
-{
-	assert((port & 0xFF) == 0x12 || (isPSGalsoMappedToNormalPorts() && ((port & 0xFF) == 0xA2))); (void)port;
-	return psg.peekRegister(psgLatch, time);
-}
 
 void MegaFlashRomSCCPlusSD::writeIO(word port, byte value, EmuTime::param time)
 {

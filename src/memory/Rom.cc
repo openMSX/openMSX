@@ -335,7 +335,7 @@ bool Rom::checkSHA1(const XMLElement& config)
 	return false;
 }
 
-Rom::Rom(Rom&& r)
+Rom::Rom(Rom&& r) noexcept
 	: rom          (std::move(r.rom))
 	, extendedRom  (std::move(r.extendedRom))
 	, file         (std::move(r.file))

@@ -372,8 +372,6 @@ template<class T> void CPUCore<T>::doReset(EmuTime::param time)
 	setBC2(0xFFFF);
 	setDE2(0xFFFF);
 	setHL2(0xFFFF);
-	clearNextAfter();
-	copyNextAfter();
 	setIFF1(false);
 	setIFF2(false);
 	setHALT(false);
@@ -382,6 +380,7 @@ template<class T> void CPUCore<T>::doReset(EmuTime::param time)
 	setI(0x00);
 	setR(0x00);
 	T::setMemPtr(0xFFFF);
+	clearPrevious();
 	invalidateMemCache(0x0000, 0x10000);
 
 	// We expect this assert to be valid
@@ -502,9 +501,14 @@ template<class T> void CPUCore<T>::wait(EmuTime::param time)
 	T::advanceTime(time);
 }
 
-template<class T> void CPUCore<T>::waitCycles(unsigned cycles)
+template<class T> EmuTime CPUCore<T>::waitCycles(EmuTime::param time, unsigned cycles)
 {
 	T::add(cycles);
+	EmuTime time2 = T::calcTime(time, cycles);
+	// note: time2 is not necessarily equal to T::getTime() because of the
+	// way how WRITE_PORT() is implemented.
+	scheduler.schedule(time2);
+	return time2;
 }
 
 template<class T> void CPUCore<T>::setNextSyncPoint(EmuTime::param time)
@@ -845,8 +849,7 @@ template<class T> inline void CPUCore<T>::irq2()
 template<class T>
 void CPUCore<T>::executeInstructions()
 {
-	assert(isNextAfterClear());
-
+	checkNoCurrentFlags();
 #ifdef USE_COMPUTED_GOTO
 	// Addresses of all main-opcode routines,
 	// Note that 40/49/53/5B/64/6D/7F is replaced by 00 (ld r,r == nop)
@@ -2461,9 +2464,9 @@ template<class T> void CPUCore<T>::executeSlow()
 		// Note: NMIs are disabled, see also raiseNMI()
 		nmiEdge = false;
 		nmi(); // NMI occured
-	} else if (unlikely(IRQStatus && getIFF1() && !getAfterEI())) {
+	} else if (unlikely(IRQStatus && getIFF1() && !prevWasEI())) {
 		// normal interrupt
-		if (unlikely(getAfterLDAI())) {
+		if (unlikely(prevWasLDAI())) {
 			// HACK!!!
 			// The 'ld a,i' or 'ld a,r' instruction copies the IFF2
 			// bit to the V flag. Though when the Z80 accepts an
@@ -2500,13 +2503,26 @@ template<class T> void CPUCore<T>::executeSlow()
 		incR(T::advanceHalt(T::haltStates(), scheduler.getNext()));
 		setSlowInstructions();
 	} else {
-		assert(isSameAfter());
-		clearNextAfter();
 		cpuTracePre();
 		assert(T::limitReached()); // we want only one instruction
 		executeInstructions();
+		endInstruction();
+
+		if (T::isR800()) {
+			if (unlikely(prev2WasCall()) && likely(!prevWasPopRet())) {
+				// On R800 a CALL or RST instruction not _immediately_
+				// followed by a (single-byte) POP or RET instruction
+				// causes an extra cycle in that following instruction.
+				// No idea why yet. See doc/internal/r800-call.txt
+				// for more information.
+				//
+				// TODO this implementation adds the extra cycle at
+				// the end of the instruction POP/RET. It is not known
+				// where in the instruction the real R800 adds this cycle.
+				T::add(1);
+			}
+		}
 		cpuTracePost();
-		copyNextAfter();
 	}
 }
 
@@ -2561,9 +2577,10 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 					T::enableLimit(); // does CPUClock::sync()
 					if (likely(!T::limitReached())) {
 						// multiple instructions
-						assert(isSameAfter());
 						executeInstructions();
-						assert(isSameAfter());
+						// note: pipeline only shifted one
+						// step for multiple instructions
+						endInstruction();
 					}
 					scheduler.schedule(T::getTimeFast());
 					if (needExitCPULoop()) return;
@@ -2579,9 +2596,8 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 			if (slowInstructions == 0) {
 				cpuTracePre();
 				assert(T::limitReached()); // only one instruction
-				assert(isSameAfter());
 				executeInstructions();
-				assert(isSameAfter());
+				endInstruction();
 				cpuTracePost();
 			} else {
 				--slowInstructions;
@@ -3796,6 +3812,16 @@ template<class T> template<Reg16 REG, int EE> int CPUCore<T>::push_SS() {
 template<class T> template<int EE> inline unsigned CPUCore<T>::POP() {
 	unsigned addr = getSP();
 	setSP(addr + 2);
+	if (T::isR800()) {
+		// handles both POP and RET instructions (RET with condition = true)
+		if (EE == 0) { // not reti/retn, not pop ix/iy
+			setCurrentPopRet();
+			// No need for setSlowInstructions()
+			// -> this only matters directly after a CALL
+			//    instruction and in that case we're still
+			//    executing slow instructions.
+		}
+	}
 	return RD_WORD(addr, T::CC_POP_1 + EE);
 }
 template<class T> template<Reg16 REG, int EE> int CPUCore<T>::pop_SS() {
@@ -3810,6 +3836,10 @@ template<class T> template<typename COND> int CPUCore<T>::call(COND cond) {
 	if (cond(getF())) {
 		PUSH<T::EE_CALL>(getPC());
 		setPC(addr);
+		if (T::isR800()) {
+			setCurrentCall();
+			setSlowInstructions();
+		}
 		return T::CC_CALL_A;
 	} else {
 		return T::CC_CALL_B;
@@ -3822,6 +3852,10 @@ template<class T> template<unsigned ADDR> int CPUCore<T>::rst() {
 	PUSH<0>(getPC());
 	T::setMemPtr(ADDR);
 	setPC(ADDR);
+	if (T::isR800()) {
+		setCurrentCall();
+		setSlowInstructions();
+	}
 	return T::CC_RST;
 }
 
@@ -4225,7 +4259,7 @@ template<class T> int CPUCore<T>::di() {
 template<class T> int CPUCore<T>::ei() {
 	setIFF1(true);
 	setIFF2(true);
-	setAfterEI(); // no ints directly after this instr
+	setCurrentEI(); // no ints directly after this instr
 	setSlowInstructions();
 	return T::CC_EI;
 }
@@ -4253,7 +4287,7 @@ template<class T> template<Reg8 REG> int CPUCore<T>::ld_a_IR() {
 		f |= getF() & C_FLAG;
 		f |= ZSXYTable[getA()];
 		// see comment in the IRQ acceptance part of executeSlow().
-		setAfterLDAI(); // only Z80 (not R800) has this quirk
+		setCurrentLDAI(); // only Z80 (not R800) has this quirk
 		setSlowInstructions();
 	}
 	setF(f);
@@ -4318,15 +4352,16 @@ template<class T> template<Reg16 REG> int CPUCore<T>::muluw_hl_SS() {
 //  1 -> initial version
 //  2 -> moved memptr from here to Z80TYPE (and not to R800TYPE)
 //  3 -> timing of the emulation changed (no changes in serialization)
+//  4 -> timing of the emulation changed again (see doc/internal/r800-call.txt)
 template<class T> template<typename Archive>
 void CPUCore<T>::serialize(Archive& ar, unsigned version)
 {
 	T::serialize(ar, version);
 	ar.serialize("regs", static_cast<CPURegs&>(*this));
 	if (ar.versionBelow(version, 2)) {
-		unsigned memptr = 0; // dummy value (avoid warning)
-		ar.serialize("memptr", memptr);
-		T::setMemPtr(memptr);
+		unsigned mptr = 0; // dummy value (avoid warning)
+		ar.serialize("memptr", mptr);
+		T::setMemPtr(mptr);
 	}
 
 	if (ar.isLoader()) {
@@ -4339,7 +4374,7 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 	//    slowInstructions
 	//    exitLoop
 
-	if (T::isR800() && ar.versionBelow(version, 3)) {
+	if (T::isR800() && ar.versionBelow(version, 4)) {
 		motherboard.getMSXCliComm().printWarning(
 			"Loading an old savestate: the timing of the R800 "
 			"emulation has changed. This may cause synchronization "

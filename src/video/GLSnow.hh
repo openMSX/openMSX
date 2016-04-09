@@ -3,7 +3,6 @@
 
 #include "Layer.hh"
 #include "GLUtil.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -11,7 +10,7 @@ class Display;
 
 /** Snow effect for background layer.
   */
-class GLSnow final : public Layer, private noncopyable
+class GLSnow final : public Layer
 {
 public:
 	GLSnow(Display& display);

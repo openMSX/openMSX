@@ -155,10 +155,13 @@ public:
 		lastTick.time += n * getStep();
 	}
 	EmuTime getFastAdd(unsigned n) const {
+		return add(lastTick, n);
+	}
+	EmuTime add(EmuTime::param time, unsigned n) const {
 		#ifdef DEBUG
 		assert((uint64_t(n) * getStep()) < (1ull << 32));
 		#endif
-		return EmuTime(lastTick.time + n * getStep());
+		return EmuTime(time.time + n * getStep());
 	}
 
 	template<typename Archive>

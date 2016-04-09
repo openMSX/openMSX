@@ -6,7 +6,6 @@
 #include "CacheLine.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <vector>
 #include <bitset>
 
@@ -25,7 +24,7 @@ class Setting;
  * accessed in DRAM mode or via the ROM mapper are unchecked! Note that there
  * is basically no overhead for using CheckedRam over Ram, thanks to Wouter.
  */
-class CheckedRam final : private Observer<Setting>, private noncopyable
+class CheckedRam final : private Observer<Setting>
 {
 public:
 	CheckedRam(const DeviceConfig& config, const std::string& name,

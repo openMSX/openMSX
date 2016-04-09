@@ -78,6 +78,7 @@ chirp 12-..: vokume   0   : silent
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "FileOperations.hh"
+#include "Math.hh"
 #include "serialize.hh"
 #include "random.hh"
 #include <cstring>
@@ -324,13 +325,7 @@ void VLM5030::generateChannels(int** bufs, unsigned length)
 			x[0] = u[0];
 
 			// clipping, buffering
-			if (u[0] > 511) {
-				bufs[0][buf_count] =  511 << 6;
-			} else if (u[0] < -511) {
-				bufs[0][buf_count] = -511 << 6;
-			} else {
-				bufs[0][buf_count] = (u[0] << 6);
-			}
+			bufs[0][buf_count] = Math::clip<-511, 511>(u[0]);
 			++buf_count;
 			--sample_count;
 			++pitch_count;
@@ -366,6 +361,11 @@ phase_stop:
 		bufs[0][buf_count++] = 0;
 		--length;
 	}
+}
+
+int VLM5030::getAmplificationFactor() const
+{
+	return 1 << (15 - 9);
 }
 
 // setup parameteroption when RST=H
@@ -520,10 +520,10 @@ static XMLElement getRomConfig(const std::string& name, const std::string& romFi
 	return voiceROMconfig;
 }
 
-VLM5030::VLM5030(const std::string& name, const std::string& desc,
+VLM5030::VLM5030(const std::string& name_, const std::string& desc,
                  const std::string& romFilename, const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name, desc, 1)
-	, rom(name + " ROM", "rom", DeviceConfig(config, getRomConfig(name, romFilename)))
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1)
+	, rom(name_ + " ROM", "rom", DeviceConfig(config, getRomConfig(name_, romFilename)))
 {
 	// reset input pins
 	pin_RST = pin_ST = pin_VCU = false;

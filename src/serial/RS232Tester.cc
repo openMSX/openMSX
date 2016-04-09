@@ -105,17 +105,17 @@ void RS232Tester::run()
 // input
 void RS232Tester::signal(EmuTime::param time)
 {
-	auto connector = static_cast<RS232Connector*>(getConnector());
-	if (!connector->acceptsData()) {
+	auto* conn = static_cast<RS232Connector*>(getConnector());
+	if (!conn->acceptsData()) {
 		std::lock_guard<std::mutex> lock(mutex);
 		queue.clear();
 		return;
 	}
-	if (!connector->ready()) return;
+	if (!conn->ready()) return;
 
 	std::lock_guard<std::mutex> lock(mutex);
 	if (queue.empty()) return;
-	connector->recvByte(queue.pop_front(), time);
+	conn->recvByte(queue.pop_front(), time);
 }
 
 // EventListener

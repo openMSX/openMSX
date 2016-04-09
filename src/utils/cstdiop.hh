@@ -7,7 +7,8 @@
 #include <io.h>
 
 #define STDIN_FILENO _fileno(stdin)
-#define snprintf _snprintf
+#define dup _dup
+
 #endif
 
 #endif

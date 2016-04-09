@@ -85,7 +85,8 @@ static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
 	if (unlikely(size >= 16)) {
 		const uint8_t* const limit = bEnd - 16;
 
-		uint32_t v1 = SEED + PRIME32_1 + PRIME32_2;
+		// casts to avoid: warning C4307: '+': integral constant overflow
+		uint32_t v1 = uint32_t(SEED + PRIME32_1 + uint64_t(PRIME32_2));
 		uint32_t v2 = SEED + PRIME32_2;
 		uint32_t v3 = SEED + 0;
 		uint32_t v4 = SEED - PRIME32_1;

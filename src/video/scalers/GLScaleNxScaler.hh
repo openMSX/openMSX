@@ -2,11 +2,10 @@
 #define GLSCALENXSCALER_HH
 
 #include "GLScaler.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
-class GLScaleNxScaler final : public GLScaler, private noncopyable
+class GLScaleNxScaler final : public GLScaler
 {
 public:
 	explicit GLScaleNxScaler(GLScaler& fallback);

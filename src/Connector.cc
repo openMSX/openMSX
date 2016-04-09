@@ -1,4 +1,5 @@
 #include "Connector.hh"
+#include "PlugException.hh"
 #include "Pluggable.hh"
 #include "PluggingController.hh"
 #include "serialize.hh"
@@ -59,7 +60,15 @@ void Connector::serialize(Archive& ar, unsigned /*version*/)
 			// the pluggable can test whether it was connected
 			pluggable->setConnector(this);
 			ar.skipSection(false);
-			ar.serializePolymorphic("pluggable", *plugged);
+			try {
+				ar.serializePolymorphic("pluggable", *plugged);
+			} catch (PlugException& e) {
+				pluggingController.getCliComm().printWarning(
+					"Pluggable \"" + plugName + "\" failed to re-plug: " +
+					e.getMessage());
+				pluggable->setConnector(nullptr);
+				plugged = dummy.get();
+			}
 		} else {
 			// was plugged, but we don't have that pluggable anymore
 			pluggingController.getCliComm().printWarning(

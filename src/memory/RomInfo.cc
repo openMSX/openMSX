@@ -105,6 +105,7 @@ static void init()
 	init(ROM_ARC,            "Arc",            0x4000, "Parallax' ARC"); // officially plain 32K
 	init(ROM_DOOLY,          "Dooly",          0x4000, "Baby Dinosaur Dooly"); // officially 32K blocksize, but spread over 2 pages
 	init(ROM_MSXTRA,         "MSXtra",         0x0000, "PTC MSXtra");
+	init(ROM_MSXWRITE,       "MSXWrite",       0x4000, "Japanese MSX Write");
 	init(ROM_MULTIROM,       "MultiRom",       0x0000, "MultiRom Collection");
 	init(ROM_MEGAFLASHROMSCCPLUS,"MegaFlashRomSccPlus",0x0000, "Mega Flash ROM SCC Plus");
 	init(ROM_MEGAFLASHROMSCCPLUSSD,"MegaFlashRomSccPlusSD",0x0000, "Mega Flash ROM SCC Plus SD"); // ****

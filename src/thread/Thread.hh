@@ -1,13 +1,11 @@
 #ifndef THREAD_HH
 #define THREAD_HH
 
-#include "noncopyable.hh"
-
 struct SDL_Thread;
 
 namespace openmsx {
 
-class Runnable : private noncopyable
+class Runnable
 {
 public:
 	virtual void run() = 0;
@@ -16,9 +14,12 @@ protected:
 	~Runnable() {}
 };
 
-class Thread : private noncopyable
+class Thread
 {
 public:
+	Thread(const Thread&) = delete;
+	Thread& operator=(const Thread&) = delete;
+
 	/** Create a new thread.
 	  * @param runnable Object those run() method will be invoked by
 	  *                 the created thread when it starts running.

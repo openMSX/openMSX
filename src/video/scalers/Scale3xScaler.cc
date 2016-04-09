@@ -20,8 +20,8 @@ Visit the Scale2x site for info:
 namespace openmsx {
 
 template <class Pixel>
-Scale3xScaler<Pixel>::Scale3xScaler(const PixelOperations<Pixel>& pixelOps)
-	: Scaler3<Pixel>(pixelOps)
+Scale3xScaler<Pixel>::Scale3xScaler(const PixelOperations<Pixel>& pixelOps_)
+	: Scaler3<Pixel>(pixelOps_)
 {
 }
 

@@ -6,7 +6,6 @@
 #include "WatchPoint.hh"
 #include "hash_map.hh"
 #include "string_ref.hh"
-#include "noncopyable.hh"
 #include "outer.hh"
 #include "xxhash.hh"
 #include <vector>
@@ -20,9 +19,12 @@ class ProbeBase;
 class ProbeBreakPoint;
 class MSXCPU;
 
-class Debugger : private noncopyable
+class Debugger
 {
 public:
+	Debugger(const Debugger&) = delete;
+	Debugger& operator=(const Debugger&) = delete;
+
 	explicit Debugger(MSXMotherBoard& motherBoard);
 	~Debugger();
 
@@ -108,7 +110,7 @@ private:
 	hash_map<std::string, Debuggable*, XXHasher> debuggables;
 	hash_set<ProbeBase*, NameFromProbe, XXHasher>  probes;
 	using ProbeBreakPoints = std::vector<std::unique_ptr<ProbeBreakPoint>>;
-	ProbeBreakPoints probeBreakPoints;
+	ProbeBreakPoints probeBreakPoints; // unordered
 	MSXCPU* cpu;
 };
 

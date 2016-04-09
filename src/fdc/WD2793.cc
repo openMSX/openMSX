@@ -41,9 +41,9 @@ static const int IMM_IRQ    = 0x08;
  * has no ready input signal. (E.g. we don't emulate the WD1770 motor out
  * signal yet).
  */
-WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, CliComm& cliComm_,
+WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, CliComm& cliComm_,
                EmuTime::param time, bool isWD1770_)
-	: Schedulable(scheduler)
+	: Schedulable(scheduler_)
 	, drive(drive_)
 	, cliComm(cliComm_)
 	, drqTime(EmuTime::infinity)
@@ -938,7 +938,7 @@ void WD2793::endCmd()
 }
 
 
-static enum_string<WD2793::FSMState> fsmStateInfo[] = {
+static std::initializer_list<enum_string<WD2793::FSMState>> fsmStateInfo = {
 	{ "NONE",            WD2793::FSM_NONE },
 	{ "SEEK",            WD2793::FSM_SEEK },
 	{ "TYPE2_WAIT_LOAD", WD2793::FSM_TYPE2_WAIT_LOAD },

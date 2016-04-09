@@ -54,15 +54,15 @@ void OSDTopWidget::showAllErrors()
 	errors.clear();
 }
 
-OSDWidget* OSDTopWidget::findByName(string_ref name)
+OSDWidget* OSDTopWidget::findByName(string_ref widgetName)
 {
-	auto it = widgetsByName.find(name);
+	auto it = widgetsByName.find(widgetName);
 	return (it != end(widgetsByName)) ? *it : nullptr;
 }
 
-const OSDWidget* OSDTopWidget::findByName(string_ref name) const
+const OSDWidget* OSDTopWidget::findByName(string_ref widgetName) const
 {
-	return const_cast<OSDTopWidget*>(this)->findByName(name);
+	return const_cast<OSDTopWidget*>(this)->findByName(widgetName);
 }
 
 void OSDTopWidget::addName(OSDWidget& widget)

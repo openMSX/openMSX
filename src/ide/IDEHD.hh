@@ -3,16 +3,18 @@
 
 #include "HD.hh"
 #include "AbstractIDEDevice.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 class DeviceConfig;
 class DiskManipulator;
 
-class IDEHD final : public HD, public AbstractIDEDevice, private noncopyable
+class IDEHD final : public HD, public AbstractIDEDevice
 {
 public:
+	IDEHD(const IDEHD&) = delete;
+	IDEHD& operator=(const IDEHD&) = delete;
+
 	explicit IDEHD(const DeviceConfig& config);
 	~IDEHD();
 

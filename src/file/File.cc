@@ -60,7 +60,7 @@ File::File(const Filename& filename, const char* mode)
 {
 }
 
-File::File(File&& other)
+File::File(File&& other) noexcept
 	: file(std::move(other.file))
 {
 }
@@ -69,7 +69,7 @@ File::~File()
 {
 }
 
-File& File::operator=(File&& other)
+File& File::operator=(File&& other) noexcept
 {
 	file = std::move(other.file);
 	return *this;

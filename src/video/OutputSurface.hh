@@ -3,7 +3,6 @@
 
 #include "OutputRectangle.hh"
 #include "gl_vec.hh"
-#include "noncopyable.hh"
 #include <string>
 #include <cassert>
 #include <SDL.h>
@@ -14,9 +13,12 @@ namespace openmsx {
   * It could be an in-memory buffer or a video buffer visible to the user
   * (see VisibleSurface subclass).
   */
-class OutputSurface : public OutputRectangle, private noncopyable
+class OutputSurface : public OutputRectangle
 {
 public:
+	OutputSurface(const OutputSurface&) = delete;
+	OutputSurface& operator=(const OutputSurface&) = delete;
+
 	virtual ~OutputSurface();
 
 	unsigned getWidth()  const { return surface->w; }

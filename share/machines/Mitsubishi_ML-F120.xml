@@ -13,7 +13,7 @@
   <!-- Based on Werner Kai's machine with serial 1012478
 
        CPU: NEC D780C-1
-       VDP: TMS9918ANL
+       VDP: TMS9918ANL - Note: the ML-F120D with RGB out uses a TMS9928ANL, see https://goo.gl/bxH7nG
        PPI: Mitsubishi M5L8255AP-5
        PSG: GI AY-3-8910A
 

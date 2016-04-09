@@ -3,7 +3,6 @@
 #ifdef _WIN32
 
 #include "SoundDriver.hh"
-#include "noncopyable.hh"
 #ifdef WIN32_LEAN_AND_MEAN
 #undef WIN32_LEAN_AND_MEAN // Needed for <dsound.h>
 #endif
@@ -13,9 +12,12 @@
 
 namespace openmsx {
 
-class DirectXSoundDriver final : public SoundDriver, private noncopyable
+class DirectXSoundDriver final : public SoundDriver
 {
 public:
+	DirectXSoundDriver(const DirectXSoundDriver&) = delete;
+	DirectXSoundDriver& operator=(const DirectXSoundDriver&) = delete;
+
 	DirectXSoundDriver(unsigned sampleRate, unsigned bufferSize);
 	~DirectXSoundDriver();
 

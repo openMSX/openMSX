@@ -36,13 +36,6 @@ class PosixMemAlignFunction(SystemFunction):
 	def iterHeaders(cls, targetPlatform):
 		yield '<stdlib.h>'
 
-class USleepFunction(SystemFunction):
-	name = 'usleep'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<unistd.h>'
-
 class NftwFunction(SystemFunction):
 	name = 'nftw'
 

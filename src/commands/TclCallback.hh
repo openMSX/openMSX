@@ -2,7 +2,6 @@
 #define TCLCALLBACK_HH
 
 #include "TclObject.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include <memory>
 
@@ -11,7 +10,7 @@ namespace openmsx {
 class CommandController;
 class StringSetting;
 
-class TclCallback : private noncopyable
+class TclCallback
 {
 public:
 	TclCallback(CommandController& controller,

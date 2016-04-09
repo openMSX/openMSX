@@ -20,15 +20,15 @@ void ADVram::init()
 {
 	MSXDevice::init();
 
-	const MSXDevice::Devices& references = getReferences();
-	if (references.size() != 1) {
+	auto& refs = getReferences();
+	if (refs.size() != 1) {
 		throw MSXException("Invalid ADVRAM configuration: "
 		                   "need reference to VDP device.");
 	}
-	vdp = dynamic_cast<VDP*>(references[0]);
+	vdp = dynamic_cast<VDP*>(refs[0]);
 	if (!vdp) {
 		throw MSXException("Invalid ADVRAM configuration: device '" +
-			references[0]->getName() + "' is not a VDP device.");
+			refs[0]->getName() + "' is not a VDP device.");
 	}
 	vram = &vdp->getVRAM();
 	mask = std::min(vram->getSize(), 128u * 1024) - 1;

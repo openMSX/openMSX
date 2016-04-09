@@ -27,9 +27,9 @@ class TrackballState final : public StateChange
 {
 public:
 	TrackballState() {} // for serialize
-	TrackballState(EmuTime::param time, int deltaX_, int deltaY_,
-	                                    byte press_, byte release_)
-		: StateChange(time)
+	TrackballState(EmuTime::param time_, int deltaX_, int deltaY_,
+	                                     byte press_, byte release_)
+		: StateChange(time_)
 		, deltaX(deltaX_), deltaY(deltaY_)
 		, press(press_), release(release_) {}
 	int  getDeltaX()  const { return deltaX; }

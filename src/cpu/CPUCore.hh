@@ -59,7 +59,7 @@ public:
 	void warp(EmuTime::param time);
 	EmuTime::param getCurrentTime() const;
 	void wait(EmuTime::param time);
-	void waitCycles(unsigned cycles);
+	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
 	void setNextSyncPoint(EmuTime::param time);
 	void invalidateMemCache(unsigned start, unsigned size);
 	bool isM1Cycle(unsigned address) const;
@@ -459,8 +459,8 @@ private:
 
 class Z80TYPE;
 class R800TYPE;
-SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  3);
-SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 3); // keep these two the same
+SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  4);
+SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 4); // keep these two the same
 
 } // namespace openmsx
 

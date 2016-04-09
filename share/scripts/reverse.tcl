@@ -79,4 +79,4 @@ specified with this setting.
 # triggered when openmsx is started via a replay file from the command line
 # (in such case 'after boot' is skipped).
 
-after time 0 {reverse::after_switch}
+after realtime 0 {reverse::after_switch}

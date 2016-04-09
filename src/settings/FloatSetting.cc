@@ -3,19 +3,19 @@
 
 namespace openmsx {
 
-FloatSetting::FloatSetting(CommandController& commandController,
-                           string_ref name, string_ref description,
+FloatSetting::FloatSetting(CommandController& commandController_,
+                           string_ref name_, string_ref description_,
                            double initialValue,
                            double minValue_, double maxValue_)
-	: Setting(commandController, name, description,
+	: Setting(commandController_, name_, description_,
 	          TclObject(initialValue), SAVE)
 	, minValue(minValue_)
 	, maxValue(maxValue_)
 {
-	auto& interp = commandController.getInterpreter();
+	auto& interp = getInterpreter();
 	setChecker([this, &interp](TclObject& newValue) {
-		double value = newValue.getDouble(interp); // may throw
-		double clipped = std::min(std::max(value, minValue), maxValue);
+		double val = newValue.getDouble(interp); // may throw
+		double clipped = std::min(std::max(val, minValue), maxValue);
 		newValue.setDouble(clipped);
 	});
 	init();

@@ -6,9 +6,11 @@
 #include "CliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
+#include "Display.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "HDCommand.hh"
+#include "Timer.hh"
 #include "serialize.hh"
 #include "memory.hh"
 #include "xrange.hh"
@@ -45,7 +47,7 @@ HD::HD(const DeviceConfig& config)
 		file = File(filename);
 		filesize = file.getSize();
 		tigerTree = make_unique<TigerTree>(*this, filesize,
-		                                   filename.getResolved());
+				filename.getResolved());
 	} catch (FileException&) {
 		// Image didn't exist yet, but postpone image creation:
 		// we don't want to create images during 'testconfig'
@@ -86,7 +88,7 @@ void HD::openImage()
 		file = File(filename, File::CREATE);
 		file.truncate(filesize);
 		tigerTree = make_unique<TigerTree>(*this, filesize,
-		                                   filename.getResolved());
+				filename.getResolved());
 	} catch (FileException& e) {
 		motherBoard.getMSXCliComm().printWarning(
 			"Couldn't create HD image: " + e.getMessage());
@@ -94,13 +96,13 @@ void HD::openImage()
 	}
 }
 
-void HD::switchImage(const Filename& name)
+void HD::switchImage(const Filename& newFilename)
 {
-	file = File(name);
-	filename = name;
+	file = File(newFilename);
+	filename = newFilename;
 	filesize = file.getSize();
 	tigerTree = make_unique<TigerTree>(*this, filesize,
-	                                   filename.getResolved());
+			filename.getResolved());
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
 	                                   filename.getResolved());
 }
@@ -142,10 +144,32 @@ Sha1Sum HD::getSha1SumImpl(FilePool& filePool)
 	return filePool.getSha1Sum(file);
 }
 
+void HD::showProgress(size_t position, size_t maxPosition)
+{
+	// only show progress iff:
+	//  - 1 second has passed since last progress OR
+	//  - we reach completion and did progress before (to show the 100%)
+	// This avoids showing any progress if the operation would take less than 1 second.
+	auto now = Timer::getTime();
+	if (((now - lastProgressTime) > 1000000) ||
+	    ((position == maxPosition) && everDidProgress)) {
+		lastProgressTime = now;
+		int percentage = (100 * position) / maxPosition;
+		motherBoard.getMSXCliComm().printProgress(
+			"Calculating hash for " + filename.getResolved() +
+			"... " + StringOp::toString(percentage) + '%');
+		motherBoard.getReactor().getDisplay().repaint();
+		everDidProgress = true;
+	}
+}
+
 std::string HD::getTigerTreeHash()
 {
 	openImage();
-	return tigerTree->calcHash().toString(); // calls HD::getData()
+	lastProgressTime = Timer::getTime();
+	everDidProgress = false;
+	auto callback = [this](size_t p, size_t t) { showProgress(p, t); };
+	return tigerTree->calcHash(callback).toString(); // calls HD::getData()
 }
 
 uint8_t* HD::getData(size_t offset, size_t size)
@@ -192,10 +216,10 @@ bool HD::diskChanged()
 	return false; // TODO not implemented
 }
 
-int HD::insertDisk(string_ref filename)
+int HD::insertDisk(string_ref newDisk)
 {
 	try {
-		switchImage(Filename(filename.str()));
+		switchImage(Filename(newDisk.str()));
 		return 0;
 	} catch (MSXException&) {
 		return -1;

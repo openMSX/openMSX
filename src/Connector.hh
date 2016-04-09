@@ -2,7 +2,6 @@
 #define CONNECTOR_HH
 
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 #include "serialize_meta.hh"
 #include "string_ref.hh"
 #include <memory>
@@ -18,9 +17,12 @@ class PluggingController;
  * When there is not an actual Pluggable plugged in, a dummy Pluggable
  * is used.
  */
-class Connector : private noncopyable
+class Connector
 {
 public:
+	Connector(const Connector&) = delete;
+	Connector& operator=(const Connector&) = delete;
+
 	/**
 	 * Name that identifies this connector.
 	 */

@@ -4,7 +4,6 @@
 #include "VideoSystem.hh"
 #include "EventListener.hh"
 #include "Observer.hh"
-#include "noncopyable.hh"
 #include "components.hh"
 #include <memory>
 
@@ -19,7 +18,7 @@ class Layer;
 class Setting;
 
 class SDLVideoSystem final : public VideoSystem, private EventListener
-                           , private Observer<Setting>, private noncopyable
+                           , private Observer<Setting>
 {
 public:
 	/** Activates this video system.

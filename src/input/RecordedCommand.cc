@@ -13,11 +13,11 @@ using std::string;
 
 namespace openmsx {
 
-RecordedCommand::RecordedCommand(CommandController& commandController,
+RecordedCommand::RecordedCommand(CommandController& commandController_,
                                  StateChangeDistributor& stateChangeDistributor_,
                                  Scheduler& scheduler_,
-                                 string_ref name)
-	: Command(commandController, name)
+                                 string_ref name_)
+	: Command(commandController_, name_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, scheduler(scheduler_)
 	, currentResultObject(&dummyResultObject)
@@ -86,16 +86,16 @@ void RecordedCommand::stopReplay(EmuTime::param /*time*/)
 
 // class MSXCommandEvent
 
-MSXCommandEvent::MSXCommandEvent(array_ref<string> tokens_, EmuTime::param time)
-	: StateChange(time)
+MSXCommandEvent::MSXCommandEvent(array_ref<string> tokens_, EmuTime::param time_)
+	: StateChange(time_)
 {
 	for (auto& t : tokens_) {
 		tokens.emplace_back(t);
 	}
 }
 
-MSXCommandEvent::MSXCommandEvent(array_ref<TclObject> tokens_, EmuTime::param time)
-	: StateChange(time)
+MSXCommandEvent::MSXCommandEvent(array_ref<TclObject> tokens_, EmuTime::param time_)
+	: StateChange(time_)
 	, tokens(tokens_.begin(), tokens_.end())
 {
 }

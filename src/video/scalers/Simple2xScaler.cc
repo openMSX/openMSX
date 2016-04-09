@@ -112,9 +112,9 @@ static void blur1on2_SSE2(
 			_mm_shuffle_epi32(abab, 0xd8);
 		abcd         = *reinterpret_cast<const __m128i*>(in + x + 16);
 		a0b0         = _mm_unpacklo_epi8(abcd, zero);
-		__m128i d0a0 = shuffle(c0d0, a0b0);
+		__m128i d0a0_= shuffle(c0d0, a0b0);
 		__m128i c2d2 = _mm_mullo_epi16(c2, c0d0);
-		d1a1         = _mm_mullo_epi16(c1, d0a0);
+		d1a1         = _mm_mullo_epi16(c1, d0a0_);
 		__m128i bccd = _mm_srli_epi16(_mm_add_epi16(b1c1, c2d2), 8);
 		__m128i cdda = _mm_srli_epi16(_mm_add_epi16(c2d2, d1a1), 8);
 		__m128i cdcd = _mm_packus_epi16(bccd, cdda);

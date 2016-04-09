@@ -12,6 +12,7 @@
 #include "RomAscii8kB.hh"
 #include "RomAscii8_8.hh"
 #include "RomAscii16kB.hh"
+#include "RomMSXWrite.hh"
 #include "RomPadial8kB.hh"
 #include "RomPadial16kB.hh"
 #include "RomSuperLodeRunner.hh"
@@ -236,6 +237,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case ROM_ASCII16:
 		result = make_unique<RomAscii16kB>(config, move(rom));
+		break;
+	case ROM_MSXWRITE:
+		result = make_unique<RomMSXWrite>(config, move(rom));
 		break;
 	case ROM_PADIAL8:
 		result = make_unique<RomPadial8kB>(config, move(rom));

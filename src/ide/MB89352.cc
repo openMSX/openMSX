@@ -737,7 +737,7 @@ byte MB89352::peekRegister(byte reg) const
 
 
 // TODO duplicated in WD33C93.cc
-static enum_string<SCSI::Phase> phaseInfo[] = {
+static std::initializer_list<enum_string<SCSI::Phase>> phaseInfo = {
 	{ "UNDEFINED",   SCSI::UNDEFINED   },
 	{ "BUS_FREE",    SCSI::BUS_FREE    },
 	{ "ARBITRATION", SCSI::ARBITRATION },

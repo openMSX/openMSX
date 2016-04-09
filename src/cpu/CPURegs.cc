@@ -29,16 +29,21 @@ void CPURegs::serialize(Archive& ar, unsigned version)
 	ar.serialize("iff1", IFF1_);
 	ar.serialize("iff2", IFF2_);
 
-	assert(isSameAfter());
 	if (ar.versionBelow(version, 2)) {
 		bool afterEI = false; // initialize to avoid warning
 		ar.serialize("afterEI", afterEI);
-		clearNextAfter();
-		if (afterEI) setAfterEI();
+		clearPrevious();
+		if (afterEI) setCurrentEI();
+		endInstruction();
+	} else if (ar.versionBelow(version, 3)) {
+		byte after = 0;
+		ar.serialize("after", after);
+		clearPrevious();
+		prev_ = after; // flags still in same position
+		endInstruction();
 	} else {
-		ar.serialize("after", afterNext_);
+		ar.serialize("previous", prev_);
 	}
-	copyNextAfter();
 
 	ar.serialize("halt", HALT_);
 }

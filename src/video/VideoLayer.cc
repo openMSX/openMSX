@@ -64,15 +64,13 @@ void VideoLayer::calcZ()
 
 void VideoLayer::calcCoverage()
 {
-	Coverage coverage;
-
+	Coverage cov;
 	if (!powerSetting.getBoolean() || !motherBoard.isActive()) {
-		coverage = COVER_NONE;
+		cov = COVER_NONE;
 	} else {
-		coverage = COVER_FULL;
+		cov = COVER_FULL;
 	}
-
-	setCoverage(coverage);
+	setCoverage(cov);
 }
 
 void VideoLayer::signalEvent(const std::shared_ptr<const Event>& event,

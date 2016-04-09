@@ -3,15 +3,17 @@
 
 #include "SDLSurfacePtr.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <algorithm>
 #include <string>
 
 namespace openmsx {
 
-class TTFFont : public noncopyable
+class TTFFont
 {
 public:
+	TTFFont(const TTFFont&) = delete;
+	TTFFont& operator=(const TTFFont&) = delete;
+
 	/** Construct an empty font.
 	  * The only valid operations on empty font objects are:
 	  *  - (move)-assign a different value to it
@@ -28,14 +30,14 @@ public:
 	TTFFont(const std::string& font, int ptSize);
 
 	/** Move construct. */
-	TTFFont(TTFFont&& other)
+	TTFFont(TTFFont&& other) noexcept
 		: font(other.font)
 	{
 		other.font = nullptr;
 	}
 
 	/** Move assignment. */
-	TTFFont& operator=(TTFFont&& other)
+	TTFFont& operator=(TTFFont&& other) noexcept
 	{
 		std::swap(font, other.font);
 		return *this;

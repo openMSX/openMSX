@@ -13,12 +13,12 @@ using std::make_shared;
 
 namespace openmsx {
 
-EventDelay::EventDelay(Scheduler& scheduler,
+EventDelay::EventDelay(Scheduler& scheduler_,
                        CommandController& commandController,
                        EventDistributor& eventDistributor_,
                        MSXEventDistributor& msxEventDistributor_,
                        ReverseManager& reverseManager)
-	: Schedulable(scheduler)
+	: Schedulable(scheduler_)
 	, eventDistributor(eventDistributor_)
 	, msxEventDistributor(msxEventDistributor_)
 	, prevEmu(EmuTime::zero)
@@ -148,9 +148,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 						toBeRescheduledEvents.push_back(newKeyupEvent);
 						continue; // continue with next to be scheduled event
 					}
-					auto backIt = end(nonMatchedKeyPresses) - 1;
-					if (it != backIt) std::swap(*it, *backIt);
-					nonMatchedKeyPresses.pop_back();
+					move_pop_back(nonMatchedKeyPresses, it);
 				}
 			}
 		}

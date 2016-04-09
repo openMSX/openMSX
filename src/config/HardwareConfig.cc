@@ -274,7 +274,11 @@ void HardwareConfig::parseSlots()
 				}
 			}
 			if (ps < 0) {
-				ps = getFreePrimarySlot();
+				if (ps == -256) {
+					ps = getAnyFreePrimarySlot();
+				} else {
+					ps = getSpecificFreePrimarySlot(-ps - 1);
+				}
 				auto mutableElem = const_cast<XMLElement*>(psElem);
 				mutableElem->setAttribute("slot", StringOp::toString(ps));
 			}
@@ -295,10 +299,10 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 	const XMLElement* primary, const XMLElement* secondary)
 {
 	for (auto& c : elem.getChildren()) {
-		const auto& name = c.getName();
-		if (name == "primary") {
+		const auto& childName = c.getName();
+		if (childName == "primary") {
 			createDevices(c, &c, secondary);
-		} else if (name == "secondary") {
+		} else if (childName == "secondary") {
 			createDevices(c, primary, &c);
 		} else {
 			auto device = DeviceFactory::create(
@@ -306,10 +310,7 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 			if (device) {
 				addDevice(move(device));
 			} else {
-				motherBoard.getMSXCliComm().printWarning(
-					"Deprecated device: \"" +
-					name + "\", please upgrade your "
-					"hardware descriptions.");
+				// device is nullptr, so we are apparently ignoring it on purpose
 			}
 		}
 	}
@@ -337,10 +338,17 @@ void HardwareConfig::createExpandedSlot(int ps)
 	}
 }
 
-int HardwareConfig::getFreePrimarySlot()
+int HardwareConfig::getAnyFreePrimarySlot()
 {
-	int ps;
-	motherBoard.getSlotManager().allocatePrimarySlot(ps, *this);
+	int ps = motherBoard.getSlotManager().allocateAnyPrimarySlot(*this);
+	assert(!allocatedPrimarySlots[ps]);
+	allocatedPrimarySlots[ps] = true;
+	return ps;
+}
+
+int HardwareConfig::getSpecificFreePrimarySlot(unsigned slot)
+{
+	int ps = motherBoard.getSlotManager().allocateSpecificPrimarySlot(slot, *this);
 	assert(!allocatedPrimarySlots[ps]);
 	allocatedPrimarySlots[ps] = true;
 	return ps;

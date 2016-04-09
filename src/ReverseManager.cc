@@ -12,6 +12,9 @@
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "StateChange.hh"
+#include "Timer.hh"
+#include "CliComm.hh"
+#include "Display.hh"
 #include "Reactor.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
@@ -21,6 +24,7 @@
 #include "xrange.hh"
 #include <functional>
 #include <cassert>
+#include <cmath>
 
 using std::string;
 using std::vector;
@@ -111,38 +115,12 @@ void ReverseManager::ReverseHistory::clear()
 }
 
 
-// struct ReverseChunk
-
-ReverseManager::ReverseChunk::ReverseChunk()
-	: time(EmuTime::zero)
-{
-}
-
-ReverseManager::ReverseChunk::ReverseChunk(ReverseChunk&& rhs)
-	: time      (move(rhs.time))
-	, savestate (move(rhs.savestate))
-	, size      (move(rhs.size))
-	, eventCount(move(rhs.eventCount))
-{
-}
-
-ReverseManager::ReverseChunk& ReverseManager::ReverseChunk::operator=(
-	ReverseChunk&& rhs)
-{
-	time       = move(rhs.time);
-	savestate  = move(rhs.savestate);
-	size       = move(rhs.size);
-	eventCount = move(rhs.eventCount);
-	return *this;
-}
-
-
 class EndLogEvent final : public StateChange
 {
 public:
 	EndLogEvent() {} // for serialize
-	EndLogEvent(EmuTime::param time)
-		: StateChange(time)
+	EndLogEvent(EmuTime::param time_)
+		: StateChange(time_)
 	{
 	}
 
@@ -215,11 +193,11 @@ void ReverseManager::stop()
 	assert(!isReplaying());
 }
 
-EmuTime::param ReverseManager::getEndTime(const ReverseHistory& history) const
+EmuTime::param ReverseManager::getEndTime(const ReverseHistory& hist) const
 {
-	if (!history.events.empty()) {
+	if (!hist.events.empty()) {
 		if (auto* ev = dynamic_cast<const EndLogEvent*>(
-				history.events.back().get())) {
+				hist.events.back().get())) {
 			// last log element is EndLogEvent, use that
 			return ev->getTime();
 		}
@@ -350,8 +328,22 @@ void ReverseManager::goTo(EmuTime::param target, bool novideo)
 	goTo(target, novideo, history, true); // move in current time-line
 }
 
+// this function is used below, but factored out, because it's already way too long
+static void reportProgress(Reactor& reactor, const EmuTime& targetTime, int percentage)
+{
+	double targetTimeDisp = (targetTime - EmuTime::zero).toDouble();
+	std::ostringstream sstr;
+	sstr << "Time warping to " <<
+		int(targetTimeDisp / 60) << ':' << std::setfill('0') <<
+		std::setw(2) << std::setprecision(2) << std::fixed <<
+		std::fmod(targetTimeDisp, 60.0) <<
+		"... " << percentage << '%';
+	reactor.getCliComm().printProgress(sstr.str());
+	reactor.getDisplay().repaint();
+}
+
 void ReverseManager::goTo(
-	EmuTime::param target, bool novideo, ReverseHistory& history,
+	EmuTime::param target, bool novideo, ReverseHistory& hist,
 	bool sameTimeLine)
 {
 	auto& mixer = motherBoard.getMSXMixer();
@@ -367,12 +359,12 @@ void ReverseManager::goTo(
 
 		// -- Locate destination snapshot --
 		// We can't go back further in the past than the first snapshot.
-		assert(!history.chunks.empty());
-		auto it = begin(history.chunks);
+		assert(!hist.chunks.empty());
+		auto it = begin(hist.chunks);
 		EmuTime firstTime = it->second.time;
 		EmuTime targetTime = std::max(target, firstTime);
 		// Also don't go further into the future than 'end time'.
-		targetTime = std::min(targetTime, getEndTime(history));
+		targetTime = std::min(targetTime, getEndTime(hist));
 
 		// Duration of 2 PAL frames. Possible improvement is to use the
 		// actual refresh rate (PAL/NTSC). But it should be the refresh
@@ -388,14 +380,14 @@ void ReverseManager::goTo(
 		// find oldest snapshot that is not newer than requested time
 		// TODO ATM we do a linear search, could be improved to do a binary search.
 		assert(it->second.time <= preTarget); // first one is not newer
-		assert(it != end(history.chunks)); // there are snapshots
+		assert(it != end(hist.chunks)); // there are snapshots
 		do {
 			++it;
-		} while (it != end(history.chunks) &&
+		} while (it != end(hist.chunks) &&
 			 it->second.time <= preTarget);
 		// We found the first one that's newer, previous one is last
 		// one that's not newer (thus older or equal).
-		assert(it != begin(history.chunks));
+		assert(it != begin(hist.chunks));
 		--it;
 		EmuTime snapshotTime = it->second.time;
 		assert(snapshotTime <= preTarget);
@@ -434,9 +426,9 @@ void ReverseManager::goTo(
 			}
 
 			// terminate replay log with EndLogEvent (if not there already)
-			if (history.events.empty() ||
-			    !dynamic_cast<const EndLogEvent*>(history.events.back().get())) {
-				history.events.push_back(
+			if (hist.events.empty() ||
+			    !dynamic_cast<const EndLogEvent*>(hist.events.back().get())) {
+				hist.events.push_back(
 					std::make_shared<EndLogEvent>(currentTime));
 			}
 
@@ -444,7 +436,7 @@ void ReverseManager::goTo(
 			// Also we should stop collecting in this ReverseManager,
 			// and start collecting in the new one.
 			auto& newManager = newBoard->getReverseManager();
-			newManager.transferHistory(history, it->second.eventCount);
+			newManager.transferHistory(hist, it->second.eventCount);
 
 			// transfer (or copy) state from old to new machine
 			transferState(*newBoard);
@@ -460,18 +452,44 @@ void ReverseManager::goTo(
 		// at least the usual interval, but the later, the more: each
 		// time divide the remaining time in half and make a snapshot
 		// there.
+		auto lastProgress = Timer::getTime();
+		auto startMSXTime = newBoard->getCurrentTime();
+		auto lastSnapshotTarget = startMSXTime;
+		bool everShowedProgress = false;
+		syncNewSnapshot.removeSyncPoint(); // don't schedule new snapshot takings during fast forward
 		while (true) {
-			EmuTime nextTarget = std::min(
+			auto currentTimeNewBoard = newBoard->getCurrentTime();
+			auto nextSnapshotTarget = std::min(
 				preTarget,
-				newBoard->getCurrentTime() + std::max(
+				lastSnapshotTarget + std::max(
 					EmuDuration(SNAPSHOT_PERIOD),
-					(preTarget - newBoard->getCurrentTime()) / 2
+					(preTarget - lastSnapshotTarget) / 2
 					));
+			auto nextTarget = std::min(nextSnapshotTarget, currentTimeNewBoard + EmuDuration::sec(1));
 			newBoard->fastForward(nextTarget, true);
-			if (nextTarget >= preTarget) break;
-			newBoard->getReverseManager().takeSnapshot(
-				newBoard->getCurrentTime());
+			auto now = Timer::getTime();
+			if (((now - lastProgress) > 1000000) || ((currentTimeNewBoard >= preTarget) && everShowedProgress)) {
+				everShowedProgress = true;
+				lastProgress = now;
+				int percentage = ((currentTimeNewBoard - startMSXTime) * 100u) / (preTarget - startMSXTime);
+				reportProgress(newBoard->getReactor(), targetTime, percentage);
+			}
+			// note: fastForward does not always stop at
+			//       _exactly_ the requested time
+			if (currentTimeNewBoard >= preTarget) break;
+			if (currentTimeNewBoard >= nextSnapshotTarget) {
+				// NOTE: there used to be
+				//newBoard->getReactor().getEventDistributor().deliverEvents();
+				// here, but that has all kinds of nasty side effects: it enables
+				// processing of hotkeys, which can cause things like the machine
+				// being deleted, causing a crash. TODO: find a better way to support
+				// live updates of the UI whilst being in a reverse action...
+				newBoard->getReverseManager().takeSnapshot(currentTimeNewBoard);
+				lastSnapshotTarget = nextSnapshotTarget;
+			}
 		}
+		// re-enable automatic snapshots
+		schedule(getCurrentTime());
 
 		// switch to the new MSXMotherBoard
 		//  Note: this deletes the current MSXMotherBoard and
@@ -604,9 +622,9 @@ void ReverseManager::saveReplay(
 				if (it != lastAddedIt) {
 					// this is a new one, add it to the list of snapshots
 					Reactor::Board board = reactor.createEmptyMotherBoard();
-					MemInputArchive in(it->second.savestate.data(),
-							   it->second.size);
-					in.serialize("machine", *board);
+					MemInputArchive in2(it->second.savestate.data(),
+							    it->second.size);
+					in2.serialize("machine", *board);
 					replay.motherBoards.push_back(move(board));
 					lastAddedIt = it;
 				}
@@ -742,7 +760,7 @@ void ReverseManager::loadReplay(
 	auto& newEvents = newHistory.events;
 
 	// Restore snapshots
-	unsigned replayIndex = 0;
+	unsigned replayIdx = 0;
 	for (auto& m : replay.motherBoards) {
 		ReverseChunk newChunk;
 		newChunk.time = m->getCurrentTime();
@@ -751,13 +769,13 @@ void ReverseManager::loadReplay(
 		out.serialize("machine", *m);
 		newChunk.savestate = out.releaseBuffer(newChunk.size);
 
-		// update replayIndex
+		// update replayIdx
 		// TODO: should we use <= instead??
-		while (replayIndex < newEvents.size() &&
-		       (newEvents[replayIndex]->getTime() < newChunk.time)) {
-			replayIndex++;
+		while (replayIdx < newEvents.size() &&
+		       (newEvents[replayIdx]->getTime() < newChunk.time)) {
+			replayIdx++;
 		}
-		newChunk.eventCount = replayIndex;
+		newChunk.eventCount = replayIdx;
 
 		newHistory.chunks[newHistory.getNextSeqNum(newChunk.time)] =
 			move(newChunk);

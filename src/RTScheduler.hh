@@ -4,7 +4,6 @@
 #include "SchedulerQueue.hh"
 #include "Timer.hh"
 #include "likely.hh"
-#include "noncopyable.hh"
 #include <cstdint>
 
 namespace openmsx {
@@ -17,7 +16,7 @@ struct RTSyncPoint
 	RTSchedulable* schedulable;
 };
 
-class RTScheduler : private noncopyable
+class RTScheduler
 {
 public:
 	/** Execute all expired RTSchedulables. */

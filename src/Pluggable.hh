@@ -2,14 +2,13 @@
 #define PLUGGABLE_HH
 
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 
 namespace openmsx {
 
 class Connector;
 
-class Pluggable : private noncopyable
+class Pluggable
 {
 public:
 	virtual ~Pluggable() {}

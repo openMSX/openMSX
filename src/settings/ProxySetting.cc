@@ -1,4 +1,5 @@
 #include "ProxySetting.hh"
+#include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
@@ -9,7 +10,7 @@ using std::vector;
 
 namespace openmsx {
 
-ProxySetting::ProxySetting(Reactor& reactor_, string_ref name)
+ProxySetting::ProxySetting(Reactor& reactor_, const TclObject& name)
 	: BaseSetting(name)
 	, reactor(reactor_)
 {
@@ -19,7 +20,9 @@ BaseSetting* ProxySetting::getSetting()
 {
 	auto* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return nullptr;
-	return motherBoard->getMSXCommandController().findSetting(getName());
+	auto& manager = reactor.getGlobalCommandController().getSettingsManager();
+	auto& controller = motherBoard->getMSXCommandController();
+	return manager.findSetting(controller.getPrefix(), getFullName());
 }
 
 const BaseSetting* ProxySetting::getSetting() const
@@ -57,7 +60,7 @@ const TclObject& ProxySetting::getValue() const
 	if (auto* setting = getSetting()) {
 		return setting->getValue();
 	} else {
-		throw MSXException("No setting '" + getName() + "' on current machine.");
+		throw MSXException("No setting '" + getFullName() + "' on current machine.");
 	}
 }
 
@@ -85,7 +88,7 @@ void ProxySetting::setValueDirect(const TclObject& value)
 		// note: not setStringDirect()
 		setting->setValue(value);
 	} else {
-		throw MSXException("No setting '" + getName() + "' on current machine.");
+		throw MSXException("No setting '" + getFullName() + "' on current machine.");
 	}
 }
 

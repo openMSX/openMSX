@@ -30,9 +30,9 @@ class MouseState final : public StateChange
 {
 public:
 	MouseState() {} // for serialize
-	MouseState(EmuTime::param time, int deltaX_, int deltaY_,
+	MouseState(EmuTime::param time_, int deltaX_, int deltaY_,
 	           byte press_, byte release_)
-		: StateChange(time)
+		: StateChange(time_)
 		, deltaX(deltaX_), deltaY(deltaY_)
 		, press(press_), release(release_) {}
 	int  getDeltaX()  const { return deltaX; }

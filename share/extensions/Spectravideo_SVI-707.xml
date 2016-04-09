@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>MSX Disk Drive (320K)</name>
+    <manufacturer>Spectravideo</manufacturer>
+    <code>SVI-707</code>
+    <release_year>1984</release_year>
+    <description>External 5.25" disk drive. Note: CP/M ROM is not emulated yet!</description>
+    <type>external disk drive</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <WD2793 id="Spectravideo SVI-707 diskROM/FDC">
+          <connectionstyle>Spectravideo</connectionstyle>
+          <mem base="0x4000" size="0x4000"/>
+          <rom>
+            <sha1>a337c9aede83cf684339f61a80468e73af31ebeb</sha1>
+            <filename>svi-707_disk.rom</filename>
+          </rom>
+          <drives>1</drives>
+        </WD2793>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
