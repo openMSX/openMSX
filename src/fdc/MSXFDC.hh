@@ -4,6 +4,7 @@
 #include "MSXDevice.hh"
 #include "Rom.hh"
 #include <memory>
+#include <string>
 
 namespace openmsx {
 
@@ -21,7 +22,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	explicit MSXFDC(const DeviceConfig& config);
+	MSXFDC(const DeviceConfig& config, const std::string& romId = "");
 	~MSXFDC();
 
 	Rom rom;

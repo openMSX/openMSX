@@ -4,6 +4,7 @@
 #include "MSXFDC.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+#include <string>
 
 namespace openmsx {
 
@@ -16,7 +17,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	explicit WD2793BasedFDC(const DeviceConfig& config);
+	WD2793BasedFDC(const DeviceConfig& config, const std::string& romId = "");
 	~WD2793BasedFDC() {}
 
 	DriveMultiplexer multiplexer;

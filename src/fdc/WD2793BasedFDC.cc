@@ -4,8 +4,8 @@
 
 namespace openmsx {
 
-WD2793BasedFDC::WD2793BasedFDC(const DeviceConfig& config)
-	: MSXFDC(config)
+WD2793BasedFDC::WD2793BasedFDC(const DeviceConfig& config, const std::string& romId)
+	: MSXFDC(config, romId)
 	, multiplexer(reinterpret_cast<DiskDrive**>(drives))
 	, controller(
 		getScheduler(), multiplexer, getCliComm(), getCurrentTime(),

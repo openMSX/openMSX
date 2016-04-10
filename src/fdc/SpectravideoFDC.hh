@@ -10,6 +10,7 @@ class SpectravideoFDC final : public WD2793BasedFDC
 public:
 	explicit SpectravideoFDC(const DeviceConfig& config);
 
+	void reset(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
@@ -21,6 +22,7 @@ public:
 
 private:
 	bool cpmRomEnabled;
+	Rom cpmRom;
 };
 
 } // namespace openmsx

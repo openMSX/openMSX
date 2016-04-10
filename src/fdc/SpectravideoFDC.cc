@@ -2,27 +2,37 @@
 #include "CacheLine.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
-#include <iostream>
 
 // Note: although this implementation seems to work, it has not been checked on
 // real hardware how the FDC registers are mirrored across the slot, nor how
 // the ROM is visible in the slot. Currently FDC registers are implemented to
 // be mirrored all over the slot (as it seems that the MSX-DOS that came with
-// the SVI-707 needs that), and ROM is implemented to be visible in page 1.
+// the SVI-707 needs that), and ROMs are implemented to be visible in page 1.
 //
 // This implementation is solely based on the MSX SVI-728 Service and Technical
 // Manual [Vol.1], page 3-7 (memory mapping of registers) and page 3-1 (ROM).
-//
-// It seems you can switch between a CP/M and an MSX-DOS ROM. The CP/M ROM is
-// not supported for now.
+// Thanks to Leonard Oliveira for interpreting some of the hardware schematics
+// in that same manual.
+// Thanks to Benoit Delvaux for providing some extra info and software to test
+// with.
 
 namespace openmsx {
 
 SpectravideoFDC::SpectravideoFDC(const DeviceConfig& config)
-	: WD2793BasedFDC(config)
-	, cpmRomEnabled(false)
+	: WD2793BasedFDC(config, "msxdos")
+	, cpmRom(getName() + " CP/M ROM", "rom", config, "cpm")
 {
+	if (cpmRom.getSize() != 0x1000) {
+		throw MSXException("CP/M ROM must be exactly 4kB in size.");
+	}
+	reset(getCurrentTime());
+}
+
+void SpectravideoFDC::reset(EmuTime::param /*time*/)
+{
+	cpmRomEnabled = true;
 }
 
 byte SpectravideoFDC::readMem(word address, EmuTime::param time)
@@ -48,13 +58,11 @@ byte SpectravideoFDC::readMem(word address, EmuTime::param time)
 		break;
 	case 0x3FBE: // Software switch to turn on CP/M,
 	             // boot ROM and turn off MSX DOS ROM.
-		std::cout << "SpectravideoFDC: enabling CP/M ROM not yet implemented" << std::endl;
 		cpmRomEnabled = true;
 		value = 0xFF;
 		break;
 	case 0x3FBF: // Software switch to turn off CP/M,
 	             // boot ROM and turn on MSX DOS ROM.
-		std::cout << "SpectravideoFDC: enabling MSX-DOS ROM not yet implemented" << std::endl;
 		cpmRomEnabled = false;
 		value = 0xFF;
 		break;
@@ -91,9 +99,12 @@ byte SpectravideoFDC::peekMem(word address, EmuTime::param time) const
 		if (!controller.peekDTRQ(time)) value |= 0x40;
 		break;
 	default:
-		if ((0x4000 <= address) && (address < 0x8000)) {
-			// ROM only visible in 0x4000-0x7FFF
+		if ((0x4000 <= address) && (address < 0x8000) && !cpmRomEnabled) {
+			// MSX-DOS ROM only visible in 0x4000-0x7FFF
 			value = MSXFDC::peekMem(address, time);
+		} else if ((0x4000 <= address) && (address < 0x5000) && cpmRomEnabled) {
+			// CP/M ROM only visible in 0x4000-0x4FFF
+			value = cpmRom[address & 0x0FFF];
 		} else {
 			value = 0xFF;
 		}
@@ -107,9 +118,12 @@ const byte* SpectravideoFDC::getReadCacheLine(word start) const
 	if ((start & 0x3FFF & CacheLine::HIGH) == (0x3FB8 & CacheLine::HIGH)) {
 		// FDC at 0x7FB8-0x7FBF, and mirrored in other pages
 		return nullptr;
-	} else if ((0x4000 <= start) && (start < 0x8000)) {
-		// ROM at 0x4000-0x7FFF
+	} else if ((0x4000 <= start) && (start < 0x8000) && !cpmRomEnabled) {
+		// MSX-DOS ROM at 0x4000-0x7FFF
 		return MSXFDC::getReadCacheLine(start);
+	} else if ((0x4000 <= start) && (start < 0x5000) && cpmRomEnabled) {
+		// CP/M ROM at 0x4000-0x4FFF
+		return &cpmRom[start & 0x0FFF];
 	} else {
 		return unmappedRead;
 	}
@@ -140,12 +154,10 @@ void SpectravideoFDC::writeMem(word address, byte value, EmuTime::param time)
 		break;
 	case 0x3FBE: // Software switch to turn on CP/M,
 	             // boot ROM and turn off MSX DOS ROM.
-		std::cout << "SpectravideoFDC: enabling CP/M ROM not yet implemented" << std::endl;
 		cpmRomEnabled = true;
 		break;
 	case 0x3FBF: // Software switch to turn off CP/M,
 	             // boot ROM and turn on MSX DOS ROM.
-		std::cout << "SpectravideoFDC: enabling MSX-DOS ROM not yet implemented" << std::endl;
 		cpmRomEnabled = false;
 		break;
 	}
@@ -160,7 +172,6 @@ byte* SpectravideoFDC::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
-
 
 template<typename Archive>
 void SpectravideoFDC::serialize(Archive& ar, unsigned /*version*/)
