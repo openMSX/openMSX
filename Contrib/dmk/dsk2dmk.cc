@@ -13,6 +13,7 @@ using namespace std;
 typedef unsigned char  byte; //  8 bit
 typedef unsigned short word; // 16 bit
 
+static const unsigned int TRACK_LENGTH = 6250;
 
 struct DiskInfo
 {
@@ -20,7 +21,6 @@ struct DiskInfo
 	int gap2;
 	int gap3;
 	int gap4a;
-	int gap4b;
 	int sectorsPerTrack;
 	int numberCylinders;
 	int sectorSizeCode;
@@ -105,11 +105,11 @@ void convert(const DiskInfo& info, const string& input, const string& output)
 	int rawSectorLen =
 		12 + 10 + info.gap2 + 12 + 4 +
 		sectorSize + 2 + info.gap3;
-	int rawTrackLen =
-		info.gap4a + 12 + 4 + info.gap1 +
-		info.sectorsPerTrack * rawSectorLen + info.gap4b;
-	assert(rawTrackLen == 6250);
-	int dmkTrackLen = rawTrackLen + 128;
+
+	int gap4b = TRACK_LENGTH - (info.gap4a + 12 + 4 + info.gap1 +
+		info.sectorsPerTrack * rawSectorLen);
+	assert(gap4b > 0);
+	int dmkTrackLen = TRACK_LENGTH + 128;
 
 	DmkHeader header;
 	memset(&header, 0, sizeof(header));
@@ -150,7 +150,7 @@ void convert(const DiskInfo& info, const string& input, const string& output)
 		fill(tp,          2, 0x00); // CRC (overwritten later)
 		fill(tp, info.gap3,  0x4e); // gap3
 	}
-	fill(tp, info.gap4b, 0x4e); // gap4b
+	fill(tp, gap4b, 0x4e); // gap4b
 	assert((tp - &buf[0]) == dmkTrackLen);
 
 	for (int cyl = 0; cyl < info.numberCylinders; ++cyl) {
@@ -206,7 +206,6 @@ int main(int argc, char** argv)
 	info.gap2  =  22;
 	info.gap3  =  84;
 	info.gap4a =  80;
-	info.gap4b = 182; // TODO calculate from other values
 	info.sectorsPerTrack = 9;
 	info.numberCylinders = 80;
 	info.sectorSizeCode = 2; // 512 = 128 << 2
