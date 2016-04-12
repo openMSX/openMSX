@@ -675,6 +675,10 @@ using TNotOp = TransparentOp<NotOp>;
 void VDPCmdEngine::calcFinishTime(unsigned nx, unsigned ny, unsigned ticksPerPixel)
 {
 	if (!CMD) return;
+	if (vdp.getBrokenCmdTiming()) {
+		statusChangeTime = EmuTime::zero; // will finish soon
+		return;
+	}
 
 	// Underestimation for when the command will be finished. This assumes
 	// we never have to wait for access slots and that there's no overhead
