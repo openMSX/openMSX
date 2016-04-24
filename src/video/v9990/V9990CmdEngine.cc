@@ -820,8 +820,12 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, EmuTime::param time)
 			case 0x0C: case 0x1C: case 0x2C: case 0x3C: case 0x4C: case 0x5C:
 				startSRCH(time); break;
 
-			case 0x0D: case 0x1D: case 0x2D: case 0x3D: case 0x4D: case 0x5D:
-				startPOINT(time); break;
+			case 0x0D: startPOINT<V9990P1   >(time); break;
+			case 0x1D: startPOINT<V9990P2   >(time); break;
+			case 0x2D: startPOINT<V9990Bpp2 >(time); break;
+			case 0x3D: startPOINT<V9990Bpp4 >(time); break;
+			case 0x4D: startPOINT<V9990Bpp8 >(time); break;
+			case 0x5D: startPOINT<V9990Bpp16>(time); break;
 
 			case 0x0E: startPSET<V9990P1   >(time); break;
 			case 0x1E: startPSET<V9990P2   >(time); break;
@@ -1544,15 +1548,35 @@ void V9990CmdEngine::executeSRCH(EmuTime::param limit)
 }
 
 // POINT
-void V9990CmdEngine::startPOINT(EmuTime::param time)
+template<typename Mode>
+void V9990CmdEngine::startPOINT(EmuTime::param /*time*/)
 {
-	std::cout << "V9990: POINT not yet implemented" << std::endl;
-	cmdReady(time); // TODO dummy implementation
+	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
+	auto d = Mode::point(vram, SX, SY, pitch);
+
+	if (Mode::BITS_PER_PIXEL != 16) {
+		data = byte(d);
+		endAfterRead = true;
+	} else {
+		unsigned tmp = d; // workaround for VC++ warning C4333
+				  // (in case Mode::Type == byte and
+				  //          Mode::BITS_PER_PIXEL == 8)
+		data = tmp & 0xff;
+		partial = tmp >> 8;
+		endAfterRead = false;
+	}
+	status |= TR;
 }
 
+template<typename Mode>
 void V9990CmdEngine::executePOINT(EmuTime::param /*limit*/)
 {
-	UNREACHABLE;
+	if (status & TR) return;
+
+	assert(Mode::BITS_PER_PIXEL == 16);
+	status |= TR;
+	data = partial;
+	endAfterRead = true;
 }
 
 // PSET
@@ -1674,8 +1698,12 @@ void V9990CmdEngine::sync2(EmuTime::param time)
 		case 0x4C: executeSRCH<V9990Bpp8 >(time); break;
 		case 0x5C: executeSRCH<V9990Bpp16>(time); break;
 
-		case 0x0D: case 0x1D: case 0x2D: case 0x3D: case 0x4D: case 0x5D:
-			executePOINT(time); break;
+		case 0x0D: executePOINT<V9990P1   >(time); break;
+		case 0x1D: executePOINT<V9990P2   >(time); break;
+		case 0x2D: executePOINT<V9990Bpp2 >(time); break;
+		case 0x3D: executePOINT<V9990Bpp4 >(time); break;
+		case 0x4D: executePOINT<V9990Bpp8 >(time); break;
+		case 0x5D: executePOINT<V9990Bpp16>(time); break;
 
 		case 0x0E: case 0x1E: case 0x2E: case 0x3E: case 0x4E: case 0x5E:
 			executePSET(time); break;

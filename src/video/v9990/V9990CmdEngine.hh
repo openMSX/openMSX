@@ -221,8 +221,8 @@ private:
 	void startBMLL16(EmuTime::param time);
 	void startLINE  (EmuTime::param time);
 	void startSRCH  (EmuTime::param time);
-	void startPOINT (EmuTime::param time);
-	template<typename Mode> void startPSET(EmuTime::param time);
+	template<typename Mode> void startPOINT(EmuTime::param time);
+	template<typename Mode> void startPSET (EmuTime::param time);
 	void startADVN  (EmuTime::param time);
 
 	                        void executeSTOP (EmuTime::param limit);
@@ -238,7 +238,7 @@ private:
 	template<typename Mode> void executeBMLL (EmuTime::param limit);
 	template<typename Mode> void executeLINE (EmuTime::param limit);
 	template<typename Mode> void executeSRCH (EmuTime::param limit);
-	                        void executePOINT(EmuTime::param limit);
+	template<typename Mode> void executePOINT(EmuTime::param limit);
 	                        void executePSET (EmuTime::param limit);
 	                        void executeADVN (EmuTime::param limit);
 
