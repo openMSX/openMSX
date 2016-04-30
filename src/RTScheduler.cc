@@ -2,6 +2,7 @@
 #include "RTSchedulable.hh"
 #include <algorithm>
 #include <limits>
+#include <iterator>
 
 namespace openmsx {
 
