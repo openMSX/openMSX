@@ -1,68 +1,81 @@
-Release Notes for openMSX 0.12.0 (2015-09-12)
+Release Notes for openMSX 0.12.1 (2015-0x-yz)
 =============================================
 
-This was going to be (mostly) a bug fix release. But at the end we also got
-inspired by Grauw to add a lot of MIDI devices. And, reviewing what we changed
-the last 10 months, we saw that we also got loads of help from several people
-to add many new machine configurations and added some fun stuff like Sensor Kid
-and (experimental) Beer IDE emulation. On the emulator features category we
-give you stuff like triplesize video recording, some TAS enhancements and a
-callback for too fast VRAM access.
-So, enjoy this 'various features and bug fixes' release!
+This is (mostly) a bug fix release, but again it also has some nice additions
+and improvements to enjoy.
 
 Here's the list with all highlights and details:
 
 MSX device support:
-- fixed (S)RAM writing on turboR
-- fixed border color in screen 11/12
-- fixed some details of SD card emulation (found with FUZIX)
-- fixed clipping bug in sprite-mode-1 drawing
-- fixed crash in openMSX when using the AVT DPF-550 extension
-- fixed support of 8kB RS-232C ROMs (which is the only correct size!)
-- fixed emulation of joystick mode of the mouse
-- fixed broken MegaFlashROM SCC+ (introduced with openMSX 0.11.0)
-- improved trackball movement emulation so that JoyTest can also detect it like
-  on real hardware
-- fixed touchpad joystick pins (fixing detection in JoyTest)
-- tweaked volumes of SFG-01/05 against the PSG
-- added Panasonic FS-A1WSX/WX variant ot the MSX-MUSIC mapper
-- added proper YM2148 emulation (MIDI in/out for Yamaha SFG modules)
-- added proper MC6850 emulation (MIDI in/out for Philips Music Module)
-- added emulation of FAC MIDI Interface
-- added emulation of Sensor Kid, ported from yayaMSX2SK, which is based on
-  Mr. Takeda's Common Source Code Project
-- added emulation of BeerIDE (experimental)
-- added many new machines: Canon V-25 (thanks to Rudi Westerhof), Canon V-8,
-  Fenner/Samsung SPC-800, Hitachi MB-H1, Toshiba HX-10D (thanks to Ricardo
-  Jurcyk Pinheiro), Canon V-10, Canon V-20 (JP), Spectravideo SVI-728 (ES),
-  Mitsubishi ML-TS2 (partly, it's still work-in-progress), Sony HB-101 (JP),
-  Sony HB-201 (JP), Sanyo MPC-6, Mitsubishi ML-F120 and ML-F110 and Hitachi
-  MB-H3 (thanks to Werner Kai) and Yamaha AX350IIF (thanks to Rudolf Gutlich)
+- fixed bug in ASCII-8 mapper of MegaFlashROM SCC+ (SD)
+- fixed bug in border drawing in text mode with yJK/YAE bits
+- fixed bug in LMMC VDP command that appeared in Baltak Rampage greetings part
+- improved R800 timing for the CALL instruction
+- added missing hardware VDP delay in turbo mode of MSX2+ machines
+- improved accuracy and completeness of the Matsushita switched I/O ports
+  device:
+  - added bits on turbo status and presence
+  - added the device to the Sanyo MSX2+ machines (without SRAM and turbo)
+  - removed fixed VDP I/O delay (because it is linked to the T9769 engine)
+- added support for the different fixed VDP I/O delays of the different T9769
+  engines and added these to the configuration files of the machine that have
+  these (as far as that is known)
+- added support for Epson Chakkari Copy, thanks to Rudolf Lechleitner and
+  Enrico Barbisan
+- added 2MB MegaRAM extension (thanks to Mauricio Braga)
+- added MIDI Interface 3 extension (cart that implements turboR GT internal
+  MIDI without BIOS ROM)
+- added support for mapper of Japanese MSX Write
+- added support for Spectravideo SVI-707 disk drive
+- added support for the V9990 POINT VDP command
+- added a high-resolution timer extension: a cartridge with a 32-bit counter
+  that counts at 3.57 MHz. Useful for debugging and reverse engineering. Only
+  one such real cartridge exists :)
+- added new machines: Aucnet NIA-2001 MSXturboR (thanks to PiterPunk/NYYRIKKI),
+  Frael BRUC_100 version 1 and 2 (thanks to RJP, FRS, et al), Pioneer UC-V102
+  (thanks to PiterPunk), Victor HC-80 (thanks to Daniele)
 
 New or improved emulator features:
-- added "too_fast_vram_access_callback": you can now run a Tcl script when the
-  running MSX software accesses VRAM too fast, e.g. break to debug
-- added display of 'movie length' in TAS mode. This is the length of your
-  'movie' if you upload it to tasvideos.org
-- added -triplesize to video recorder: allows creation of video files in
-  960x720 pixels, for which YouTube renders videos at 60 fps.
-- some fixes in keyboard mappings
-- fixed slow console when emulation speed is very low
-- add a snapshot 'near the end' to the OMR when saving it, allowing quicker
-  continuation of the replay after loading it
-- similarly, add snapshots when fast-forwarding to the target time, so they
-  can be used to jump back more quickly
-- show reverse bar in green when replaying in viewonly mode
-- added a converter from/to OMR to/from text, which allows you to more easily
-  edit the OMR outside of openMSX
-- improved implementation of 'auto-save' feature of replays: the setting will
-  now persist over openMSX sessions
-- added an OSD overlay for Metal Gear
+- fixed bug in parsing remote command XML (causing e.g. ROM names with special
+  characters not to get communicated to openMSX correctly from Catapult)
+- fixed crash in 'reverse goback'
+- fixed inserting a slotexpander in a specific slot
+- improved DC filter for WAV cassette images: this should allow for more WAV
+  files to load properly in openMSX
+- fixed slowness issue when taking screenshots frame by frame
+- fixed support of files larger than 2GB (e.g. hard disk images) on Windows
+- fixed VDP status flag when using cmdtiming broking (infinitely fast VDP
+  commands)
+- OSD menu:
+  - fixed (un)plugging (connectors)/pluggables with spaces in their name
+  - fixed loading savestate with more than one . in its filename
+  - support up to 2 hard disk images (just like ROMs and disk drives)
+- improved robustness of DirAsDisk
+- added progress update reporting when doing operations that take a lot of time
+  (like calculating a hash of a large file or doing a large step in a replay)
+- fixed unintended extra calulation of hash for hard disk images when reversing
+- made joystickN_deadzone setting's numbering consistent with joystickN_config;
+  both are now 0-based
+- added debuggable for printer port, containing strobe and data byte
+- added experimental support for ALSA MIDI out (Linux): now it's much easier to
+  connect MSX MIDI out devices to a soft synth or other application on Linux
+- improved support for UNC paths on Windows (network drives)
 
 Build system, packaging, documentation:
-- replace mingw32 build support with MinGW-w64 build support on Windows
-- updated our website and other URL's to point to http://openmsx.org/ or
-  GitHub
+- to compile with gcc you now need gcc 4.8 or higher
+- updated Visual Studio projects to Visual Studio 2015
+- dropped support for Windows XP, because it seems Visual Studio 2015 has bugs
+  in supporting it
+- dropped support for Dingoo A320, because its toolchain is now so outdated
+  that it can't compile the openMSX source code any longer
+- dropped support for universal binaries on Mac OS X, as all supported Mac OS X
+  versions require x86-64 CPU's
+- updated Tcl to 8.5.18
+- updated libpng to 1.6.20
+- now optionally link to libasound on Linux (for the ALSA MIDI support)
+- added debug flag to build system that shows which commands are executed:
+  make V=1
+- improved description on how to use MegaFlashROM SCC+ SD
 
 And of course the usual various bug fixes and performance improvements.
 
