@@ -335,7 +335,7 @@ static void reportProgress(Reactor& reactor, const EmuTime& targetTime, int perc
 	std::ostringstream sstr;
 	sstr << "Time warping to " <<
 		int(targetTimeDisp / 60) << ':' << std::setfill('0') <<
-		std::setw(2) << std::setprecision(2) << std::fixed <<
+		std::setw(5) << std::setprecision(2) << std::fixed <<
 		std::fmod(targetTimeDisp, 60.0) <<
 		"... " << percentage << '%';
 	reactor.getCliComm().printProgress(sstr.str());
