@@ -11,6 +11,7 @@ class CLIOption
 public:
 	virtual void parseOption(const std::string& option,
 	                         array_ref<std::string>& cmdLine) = 0;
+	virtual void parseDone() {}
 	virtual string_ref optionHelp() const = 0;
 
 protected:

@@ -268,6 +268,9 @@ void CommandLineParser::parse(int argc, char** argv)
 			break;
 		}
 	}
+	for (auto& p : options) {
+		p.second.option->parseDone();
+	}
 	if (!cmdLine.empty() && (parseStatus != EXIT)) {
 		throw FatalError(
 			"Error parsing command line: " + cmdLine.front() + "\n" +

@@ -4,6 +4,7 @@
 #include "FilePool.hh"
 #include "DeviceConfig.hh"
 #include "CliComm.hh"
+#include "HDImageCLI.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "Display.hh"
@@ -40,19 +41,26 @@ HD::HD(const DeviceConfig& config)
 	// For the initial hd image, savestate should only try exactly this
 	// (resolved) filename. For user-specified hd images (commandline or
 	// via hda command) savestate will try to re-resolve the filename.
-	string original = config.getChildData("filename");
-	string resolved = config.getFileContext().resolveCreate(original);
-	filename = Filename(resolved);
-	try {
-		file = File(filename);
+	auto mode = File::NORMAL;
+	string cliImage = HDImageCLI::getImageForId(id);
+	if (cliImage.empty()) {
+		string original = config.getChildData("filename");
+		string resolved = config.getFileContext().resolveCreate(original);
+		filename = Filename(resolved);
+		mode = File::CREATE;
+	} else {
+		filename = Filename(cliImage, userFileContext());
+	}
+	//try {
+		file = File(filename, mode);
 		filesize = file.getSize();
 		tigerTree = make_unique<TigerTree>(*this, filesize,
 				filename.getResolved());
-	} catch (FileException&) {
-		// Image didn't exist yet, but postpone image creation:
-		// we don't want to create images during 'testconfig'
-		filesize = size_t(config.getChildDataAsInt("size")) * 1024 * 1024;
-	}
+	//} catch (FileException&) {
+	//	// Image didn't exist yet, but postpone image creation:
+	//	// we don't want to create images during 'testconfig'
+	//	filesize = size_t(config.getChildDataAsInt("size")) * 1024 * 1024;
+	//}
 	alreadyTried = false;
 
 	(*hdInUse)[id] = true;
