@@ -51,17 +51,11 @@ HD::HD(const DeviceConfig& config)
 	} else {
 		filename = Filename(cliImage, userFileContext());
 	}
-	//try {
-		file = File(filename, mode);
-		filesize = file.getSize();
-		tigerTree = make_unique<TigerTree>(*this, filesize,
-				filename.getResolved());
-	//} catch (FileException&) {
-	//	// Image didn't exist yet, but postpone image creation:
-	//	// we don't want to create images during 'testconfig'
-	//	filesize = size_t(config.getChildDataAsInt("size")) * 1024 * 1024;
-	//}
-	alreadyTried = false;
+
+	file = File(filename, mode);
+	filesize = file.getSize();
+	tigerTree = make_unique<TigerTree>(
+		*this, filesize, filename.getResolved());
 
 	(*hdInUse)[id] = true;
 	hdCommand = make_unique<HDCommand>(
@@ -83,27 +77,6 @@ HD::~HD()
 	(*hdInUse)[id] = false;
 }
 
-void HD::openImage()
-{
-	if (file.is_open()) return;
-
-	// image didn't exist yet, create new
-	if (alreadyTried) {
-		throw FileException("No HD image");
-	}
-	alreadyTried = true;
-	try {
-		file = File(filename, File::CREATE);
-		file.truncate(filesize);
-		tigerTree = make_unique<TigerTree>(*this, filesize,
-				filename.getResolved());
-	} catch (FileException& e) {
-		motherBoard.getMSXCliComm().printWarning(
-			"Couldn't create HD image: " + e.getMessage());
-		throw;
-	}
-}
-
 void HD::switchImage(const Filename& newFilename)
 {
 	file = File(newFilename);
@@ -117,20 +90,17 @@ void HD::switchImage(const Filename& newFilename)
 
 size_t HD::getNbSectorsImpl() const
 {
-	const_cast<HD&>(*this).openImage();
 	return filesize / sizeof(SectorBuffer);
 }
 
 void HD::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
-	openImage();
 	file.seek(sector * sizeof(buf));
 	file.read(&buf, sizeof(buf));
 }
 
 void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
-	openImage();
 	file.seek(sector * sizeof(buf));
 	file.write(&buf, sizeof(buf));
 	tigerTree->notifyChange(sector * sizeof(buf), sizeof(buf),
@@ -139,13 +109,11 @@ void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 
 bool HD::isWriteProtectedImpl() const
 {
-	const_cast<HD&>(*this).openImage();
 	return file.isReadOnly();
 }
 
 Sha1Sum HD::getSha1SumImpl(FilePool& filePool)
 {
-	openImage();
 	if (hasPatches()) {
 		return SectorAccessibleDisk::getSha1SumImpl(filePool);
 	}
@@ -173,7 +141,6 @@ void HD::showProgress(size_t position, size_t maxPosition)
 
 std::string HD::getTigerTreeHash()
 {
-	openImage();
 	lastProgressTime = Timer::getTime();
 	everDidProgress = false;
 	auto callback = [this](size_t p, size_t t) { showProgress(p, t); };
