@@ -210,12 +210,12 @@ void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output)
 {
 	if (renderSettings.getNoise() == 0.0f) return;
 
-	unsigned height = output.getHeight();
-	unsigned width = output.getWidth();
+	unsigned h = output.getHeight();
+	unsigned w = output.getWidth();
 	output.lock();
-	for (unsigned y = 0; y < height; ++y) {
+	for (unsigned y = 0; y < h; ++y) {
 		Pixel* buf = output.getLinePtrDirect<Pixel>(y);
-		drawNoiseLine(buf, &noiseBuf[noiseShift[y]], width);
+		drawNoiseLine(buf, &noiseBuf[noiseShift[y]], w);
 	}
 }
 
@@ -231,12 +231,12 @@ void FBPostProcessor<Pixel>::update(const Setting& setting)
 
 
 template <class Pixel>
-FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard,
-	Display& display, OutputSurface& screen_, const std::string& videoSource,
-	unsigned maxWidth, unsigned height, bool canDoInterlace)
+FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard_,
+	Display& display_, OutputSurface& screen_, const std::string& videoSource,
+	unsigned maxWidth_, unsigned height_, bool canDoInterlace_)
 	: PostProcessor(
-		motherBoard, display, screen_, videoSource, maxWidth, height,
-		canDoInterlace)
+		motherBoard_, display_, screen_, videoSource, maxWidth_, height_,
+		canDoInterlace_)
 	, noiseShift(screen.getHeight())
 	, pixelOps(screen.getSDLFormat())
 {

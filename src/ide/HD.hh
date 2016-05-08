@@ -53,7 +53,7 @@ private:
 	uint8_t* getData(size_t offset, size_t size) override;
 	bool isCacheStillValid(time_t& time) override;
 
-	void openImage();
+	void showProgress(size_t position, size_t maxPosition);
 
 	MSXMotherBoard& motherBoard;
 	std::string name;
@@ -63,11 +63,13 @@ private:
 	File file;
 	Filename filename;
 	size_t filesize;
-	bool alreadyTried;
 
 	static const unsigned MAX_HD = 26;
 	using HDInUse = std::bitset<MAX_HD>;
 	std::shared_ptr<HDInUse> hdInUse;
+
+	uint64_t lastProgressTime;
+	bool everDidProgress;
 };
 
 REGISTER_BASE_CLASS(HD, "HD");

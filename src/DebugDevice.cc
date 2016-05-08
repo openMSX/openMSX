@@ -158,7 +158,7 @@ void DebugDevice::openOutput(string_ref name)
 	}
 }
 
-static enum_string<DebugDevice::DebugMode> debugModeInfo[] = {
+static std::initializer_list<enum_string<DebugDevice::DebugMode>> debugModeInfo = {
 	{ "OFF",        DebugDevice::OFF },
 	{ "SINGLEBYTE", DebugDevice::SINGLEBYTE },
 	{ "MULTIBYTE",  DebugDevice::MULTIBYTE },

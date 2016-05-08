@@ -15,13 +15,13 @@ namespace openmsx {
 
 SDLVisibleSurface::SDLVisibleSurface(
 		unsigned width, unsigned height,
-		RenderSettings& renderSettings,
-		RTScheduler& rtScheduler,
-		EventDistributor& eventDistributor,
-		InputEventGenerator& inputEventGenerator,
-		CliComm& cliComm)
-	: VisibleSurface(renderSettings, rtScheduler, eventDistributor,
-	                 inputEventGenerator, cliComm)
+		RenderSettings& renderSettings_,
+		RTScheduler& rtScheduler_,
+		EventDistributor& eventDistributor_,
+		InputEventGenerator& inputEventGenerator_,
+		CliComm& cliComm_)
+	: VisibleSurface(renderSettings_, rtScheduler_, eventDistributor_,
+	                 inputEventGenerator_, cliComm_)
 {
 #if PLATFORM_DINGUX
 	// The OpenDingux kernel supports double buffering, while the legacy
@@ -40,22 +40,22 @@ SDLVisibleSurface::SDLVisibleSurface(
 #else
 	int flags = SDL_SWSURFACE; // Why did we use a SW surface again?
 #endif
-	if (renderSettings.getFullScreen()) flags |= SDL_FULLSCREEN;
+	if (renderSettings_.getFullScreen()) flags |= SDL_FULLSCREEN;
 
 	createSurface(width, height, flags);
-	SDL_Surface* surface = getSDLSurface();
-	setSDLFormat(*surface->format);
-	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
+	const SDL_Surface* surf = getSDLSurface();
+	setSDLFormat(*surf->format);
+	setBufferPtr(static_cast<char*>(surf->pixels), surf->pitch);
 }
 
 void SDLVisibleSurface::finish()
 {
 	unlock();
-	SDL_Surface* surface = getSDLSurface();
-	SDL_Flip(surface);
+	SDL_Surface* surf = getSDLSurface();
+	SDL_Flip(surf);
 	// The pixel pointer might be invalidated by the flip.
 	// This is certainly the case when double buffering.
-	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
+	setBufferPtr(static_cast<char*>(surf->pixels), surf->pitch);
 }
 
 std::unique_ptr<Layer> SDLVisibleSurface::createSnowLayer(Display& display)

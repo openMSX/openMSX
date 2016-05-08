@@ -9,10 +9,10 @@
 
 namespace openmsx {
 
-MSXFDC::MSXFDC(const DeviceConfig& config)
+MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId)
 	: MSXDevice(config)
 	, rom(config.findChild("rom")
-		? make_unique<Rom>(getName() + " ROM", "rom", config)
+		? make_unique<Rom>(getName() + " ROM", "rom", config, romId)
 		: nullptr) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
 {
 	bool singleSided = config.findChild("singlesided") != nullptr;

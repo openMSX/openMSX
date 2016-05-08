@@ -13,12 +13,12 @@ using std::vector;
 
 // class HDCommand
 
-HDCommand::HDCommand(CommandController& commandController,
-                     StateChangeDistributor& stateChangeDistributor,
-                     Scheduler& scheduler, HD& hd_,
+HDCommand::HDCommand(CommandController& commandController_,
+                     StateChangeDistributor& stateChangeDistributor_,
+                     Scheduler& scheduler_, HD& hd_,
                      BooleanSetting& powerSetting_)
-	: RecordedCommand(commandController, stateChangeDistributor,
-	                  scheduler, hd_.getName())
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+	                  scheduler_, hd_.getName())
 	, hd(hd_)
 	, powerSetting(powerSetting_)
 {
@@ -37,14 +37,14 @@ void HDCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 			result.addListElement(options);
 		}
 	} else if ((tokens.size() == 2) ||
-	           ((tokens.size() == 3) && tokens[1].getString() == "insert")) {
+	           ((tokens.size() == 3) && tokens[1] == "insert")) {
 		if (powerSetting.getBoolean()) {
 			throw CommandException(
 				"Can only change hard disk image when MSX "
 				"is powered down.");
 		}
 		int fileToken = 1;
-		if (tokens[1].getString() == "insert") {
+		if (tokens[1] == "insert") {
 			if (tokens.size() > 2) {
 				fileToken = 2;
 			} else {

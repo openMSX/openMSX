@@ -2,13 +2,12 @@
 #define GLRGBSCALER_HH
 
 #include "GLScaler.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 class RenderSettings;
 
-class GLRGBScaler final : public GLScaler, private noncopyable
+class GLRGBScaler final : public GLScaler
 {
 public:
 	GLRGBScaler(RenderSettings& renderSettings, GLScaler& fallback);

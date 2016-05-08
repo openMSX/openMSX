@@ -2,7 +2,6 @@
 #define WAVWRITER_HH
 
 #include "File.hh"
-#include "noncopyable.hh"
 #include <cassert>
 #include <cstdint>
 
@@ -12,7 +11,7 @@ class Filename;
 
 /** Base class for writing WAV files.
   */
-class WavWriter : private noncopyable
+class WavWriter
 {
 public:
 	/** Returns false if there has been data written to the wav image.
@@ -39,8 +38,7 @@ class Wav8Writer : public WavWriter
 {
 public:
 	Wav8Writer(const Filename& filename, unsigned channels, unsigned frequency)
-		: WavWriter(filename, channels, 8, frequency)
-	{}
+		: WavWriter(filename, channels, 8, frequency) {}
 
 	void write(const uint8_t* buffer, unsigned stereo, unsigned samples) {
 		assert(stereo == 1 || stereo == 2);
@@ -57,8 +55,7 @@ class Wav16Writer : public WavWriter
 {
 public:
 	Wav16Writer(const Filename& filename, unsigned channels, unsigned frequency)
-		: WavWriter(filename, channels, 16, frequency)
-	{}
+		: WavWriter(filename, channels, 16, frequency) {}
 
 	void write(const int16_t* buffer, unsigned stereo, unsigned samples) {
 		assert(stereo == 1 || stereo == 2);

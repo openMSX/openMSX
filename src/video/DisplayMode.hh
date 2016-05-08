@@ -136,9 +136,10 @@ public:
 	  * @return True iff the current mode is a text mode.
 	  */
 	inline bool isTextMode() const {
-		return (mode == TEXT1) ||
-		       (mode == TEXT2) ||
-		       (mode == TEXT1Q);
+		byte base = getBase();
+		return (base == TEXT1) ||
+		       (base == TEXT2) ||
+		       (base == TEXT1Q);
 	}
 
 	/** Is the current mode a bitmap mode?

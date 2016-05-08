@@ -1,94 +1,83 @@
-Release Notes for openMSX 0.11.0 (2014-11-08)
+Release Notes for openMSX 0.12.1 (2015-0x-yz)
 =============================================
 
-This release brings you the following important new features: VDP access timing
-now also for MSX1 modes (corruption with too fast VRAM access will be visible
-now), implementation of most defailed differences between all used VDP chips
-and emulation of MegaFlashROM SCC+ SD.
-On top of that, there are some important (long standing) bug fixes, like the
-proper implementation of envelopes for MSX-AUDIO, fixing for example "Copy is
-Crime" by Impact.
-And last but not least, a lot of work was done under the bonnet, giving you
-even better performance and preparations for the future.
+This is (mostly) a bug fix release, but again it also has some nice additions
+and improvements to enjoy.
 
-Here's the list with all highlights:
+Here's the list with all highlights and details:
 
 MSX device support:
-- VDP:
-  - implemented access timing also for character and text modes (both for MSX1
-    VDP's and V99x8): too fast VDP access will now cause corruption on openMSX
-    too
-  - added support for specific MSX1 VDP's (mostly thanks to hap for all the
-    research):
-    - the exact VDP type can now be specified in the config file
-    - differences between Toshiba T6950/T7937A, TMS99xx and TMS91xx MSX1 VDP's
-      are now emulated (except sprite cloning)
-    - updated many machine configs with the proper MSX1 VDP type (where known,
-      additions/corrections are welcome!)
-  - implemented that V99x8 does not support undocumented mixed modes
-  - fixed bug in 5/9th sprite detection status register
-  - added I/O port mirroring to machines of which we are certain it exists
-- MSX-AUDIO (Y8950) and related:
-  - fixed envelope for MSX-AUDIO (Y8950), the infamous legato-envelope bug is
-    now finally fixed!
-  - fixed handling of key-off for percussive tones
-  - fixed detection of Philips Music Module in Tetris II Special Edition
-- added emulation of MegaFlashROM SCC+ SD. Note: the implementation is such
-  that existing software works on it, but do not fully rely on it when
-  developing for this cartridge!
-- improved Sony HBI-55 emulation
-- fixed some details in several machine configurations
-- fixed KANA/CODE key not working in CHARACTER input mode
-- added the following machines: Daewoo CPC-51 Zemmix V, Daewoo CPC-300E,
-  Toshiba HX-51I, Yamaha YIS-503IIR, Toshiba FS-TM1, Sanyo MPC-10 (Wavy 10),
-  Yamaha CX5MII, Fujitsu FM-X (thanks to NYYRIKKI, Werner Kai, Maxim Vlasov and
-  Alex Krasivsky)
-- added the Casio KB-7 and KB-10 docking stations (note: these extensions only
-  work with the Casio PV-7 and MX-10 respectively; do not be worried
-  when they appear to be not working according to Catapult!)
-- added the MSX Acid Test machines, contributed by FRS
-- added the Gradiente CT-80E 80 column card extension, thanks to Maurício Braga
-
+- fixed bug in ASCII-8 mapper of MegaFlashROM SCC+ (SD)
+- fixed bug in border drawing in text mode with yJK/YAE bits
+- fixed bug in LMMC VDP command that appeared in Baltak Rampage greetings part
+- improved R800 timing for the CALL instruction
+- added missing hardware VDP delay in turbo mode of MSX2+ machines
+- improved accuracy and completeness of the Matsushita switched I/O ports
+  device:
+  - added bits on turbo status and presence
+  - added the device to the Sanyo MSX2+ machines (without SRAM and turbo)
+  - removed fixed VDP I/O delay (because it is linked to the T9769 engine)
+- added support for the different fixed VDP I/O delays of the different T9769
+  engines and added these to the configuration files of the machine that have
+  these (as far as that is known)
+- added support for Epson Chakkari Copy, thanks to Rudolf Lechleitner and
+  Enrico Barbisan
+- added 2MB MegaRAM extension (thanks to Mauricio Braga)
+- added MIDI Interface 3 extension (cart that implements turboR GT internal
+  MIDI without BIOS ROM)
+- added support for mapper of Japanese MSX Write
+- added support for Spectravideo SVI-707 disk drive
+- added support for the V9990 POINT VDP command
+- added a high-resolution timer extension: a cartridge with a 32-bit counter
+  that counts at 3.57 MHz. Useful for debugging and reverse engineering. Only
+  one such real cartridge exists :)
+- added new machines: Aucnet NIA-2001 MSXturboR (thanks to PiterPunk/NYYRIKKI),
+  Frael BRUC_100 version 1 and 2 (thanks to RJP, FRS, et al), Pioneer UC-V102
+  (thanks to PiterPunk), Victor HC-80 (thanks to Daniele)
 
 New or improved emulator features:
-- added de-flicker video filter via new 'deflicker' setting. Use this to remove
-  flickering in cases like the dvik demos where 105 colors are simulated on
-  MSX1 by alternating different native colors. It's disabled by default.
-- performance improvements:
-  - speed up execution of Tcl scripts
-  - many various other optimizations
-- fixed auto_enable_reverse (set/unset auto enabling reverse at startup)
-- rewrote most OpenGL 2 code to be more compatible with OpenGL ES
-- improved guessing of mapper type for 64kB ROMs
-- fixed a bug with watch_points affecting the execution flow
-- fixed corruption in XSA disk images
-- added NYYRIKKI's fast CAS loading/saving script, enable with setting the
-  'fast_cas_load_hack_enabled' setting to on
-- joysticks/controllers:
-  - added setting to configure dead zone for joysticks
-  - added support for joystick hats (can be used just like buttons)
-  - improved support in OSD menu (take deadzone into account)
-- added dir-as-disk support for the OSD menu
-- removed experimental libao sound driver
-- added support for R-ALT on Korean keyboard (thanks to Miso Kim)
-- TAS: added possibility to query the length of the current replay (defined as
-  the time stamp of the last input)
-
+- fixed bug in parsing remote command XML (causing e.g. ROM names with special
+  characters not to get communicated to openMSX correctly from Catapult)
+- fixed crash in 'reverse goback'
+- fixed inserting a slotexpander in a specific slot
+- improved DC filter for WAV cassette images: this should allow for more WAV
+  files to load properly in openMSX
+- fixed slowness issue when taking screenshots frame by frame
+- fixed support of files larger than 2GB (e.g. hard disk images) on Windows
+- fixed VDP status flag when using cmdtiming broking (infinitely fast VDP
+  commands)
+- OSD menu:
+  - fixed (un)plugging (connectors)/pluggables with spaces in their name
+  - fixed loading savestate with more than one . in its filename
+  - support up to 2 hard disk images (just like ROMs and disk drives)
+- improved robustness of DirAsDisk
+- added progress update reporting when doing operations that take a lot of time
+  (like calculating a hash of a large file or doing a large step in a replay)
+- fixed unintended extra calulation of hash for hard disk images when reversing
+- made joystickN_deadzone setting's numbering consistent with joystickN_config;
+  both are now 0-based
+- added debuggable for printer port, containing strobe and data byte
+- added experimental support for ALSA MIDI out (Linux): now it's much easier to
+  connect MSX MIDI out devices to a soft synth or other application on Linux
+- improved support for UNC paths on Windows (network drives)
 
 Build system, packaging, documentation:
-- even more use of C++11 features, when using gcc use 4.7 or higher
-- removed build dependency on libxml2
-- removed many/all unused features/libs from the build system
-- added support to cross compile with MinGW-w64 for (at least) 32 bit Windows
-  using Linux
-- cleaned up the stuff in the doc directory - you now get what we really wanted
-  you to get :)
-- changed packaging method to include stuff by default instead of exclude stuff
-  by default
-- fixed native compilation on mipsel
-- upgraded C-BIOS to release 0.27
+- to compile with gcc you now need gcc 4.8 or higher
+- updated Visual Studio projects to Visual Studio 2015
+- dropped support for Windows XP, because it seems Visual Studio 2015 has bugs
+  in supporting it
+- dropped support for Dingoo A320, because its toolchain is now so outdated
+  that it can't compile the openMSX source code any longer
+- dropped support for universal binaries on Mac OS X, as all supported Mac OS X
+  versions require x86-64 CPU's
+- updated Tcl to 8.5.18
+- updated libpng to 1.6.20
+- now optionally link to libasound on Linux (for the ALSA MIDI support)
+- added debug flag to build system that shows which commands are executed:
+  make V=1
+- improved description on how to use MegaFlashROM SCC+ SD
 
-And of course the usual various bug fixes.
+And of course the usual various bug fixes and performance improvements.
 
 In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
 Make sure you read this if you haven't used openMSX before, but also to learn
@@ -107,14 +96,13 @@ compiling on a new platform, please share your experiences (see below for
 contact info), so we can make openMSX more portable.
 
 openMSX Home Page:
-  http://www.openmsx.org/
-Project page on SourceForge:
-  http://sourceforge.net/projects/openmsx/
+  http://openmsx.org/
+Project page on GitHub:
+  https://github.com/openMSX
 Contact options:
 - Talk to us on #openmsx on irc.freenode.net.
 - Use the forum on http://www.msx.org/forum/semi-msx-talk/openmsx
-- Send a message to the openmsx-user mailing list.
-  Go to the SourceForge project page and look under "Lists".
+- File a ticket on https://github.com/openMSX/openMSX/issues
 
 Thanks to all contributors for their feedback, support, bug reports, testing,
 coding and other help!

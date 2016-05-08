@@ -11,8 +11,8 @@ namespace openmsx {
 // Debuggable
 
 YM2413::Debuggable::Debuggable(
-		MSXMotherBoard& motherBoard, const std::string& name)
-	: SimpleDebuggable(motherBoard, name + " regs", "MSX-MUSIC", 0x40)
+		MSXMotherBoard& motherBoard_, const std::string& name_)
+	: SimpleDebuggable(motherBoard_, name_ + " regs", "MSX-MUSIC", 0x40)
 {
 }
 
@@ -40,8 +40,8 @@ static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
 	}
 }
 
-YM2413::YM2413(const std::string& name, const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name, "MSX-MUSIC", 9 + 5)
+YM2413::YM2413(const std::string& name_, const DeviceConfig& config)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-MUSIC", 9 + 5)
 	, core(createCore(config))
 	, debuggable(config.getMotherBoard(), getName())
 {

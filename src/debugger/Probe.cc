@@ -18,9 +18,9 @@ ProbeBase::~ProbeBase()
 }
 
 
-Probe<void>::Probe(Debugger& debugger, const std::string& name,
-                   const std::string& description)
-	: ProbeBase(debugger, name, description)
+Probe<void>::Probe(Debugger& debugger_, const std::string& name_,
+                   const std::string& description_)
+	: ProbeBase(debugger_, name_, description_)
 {
 }
 

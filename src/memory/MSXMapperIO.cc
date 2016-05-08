@@ -48,7 +48,7 @@ void MSXMapperIO::registerMapper(unsigned blocks)
 
 void MSXMapperIO::unregisterMapper(unsigned blocks)
 {
-	mapperSizes.erase(find_unguarded(mapperSizes, blocks));
+	mapperSizes.erase(rfind_unguarded(mapperSizes, blocks));
 	updateMask();
 }
 
@@ -86,9 +86,9 @@ void MSXMapperIO::write(unsigned address, byte value)
 
 // SimpleDebuggable
 
-MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard,
-                                    const std::string& name)
-	: SimpleDebuggable(motherBoard, name, "Memory mapper registers", 4)
+MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
+                                    const std::string& name_)
+	: SimpleDebuggable(motherBoard_, name_, "Memory mapper registers", 4)
 {
 }
 

@@ -425,8 +425,8 @@ bool InputEventGenerator::joystickGetButton(SDL_Joystick* joystick, int button)
 // class EscapeGrabCmd
 
 InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(
-		CommandController& commandController)
-	: Command(commandController, "escape_grab")
+		CommandController& commandController_)
+	: Command(commandController_, "escape_grab")
 {
 }
 

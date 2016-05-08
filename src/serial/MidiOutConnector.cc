@@ -9,9 +9,9 @@ using std::string;
 
 namespace openmsx {
 
-MidiOutConnector::MidiOutConnector(PluggingController& pluggingController,
-                                   string_ref name)
-	: Connector(pluggingController, name,
+MidiOutConnector::MidiOutConnector(PluggingController& pluggingController_,
+                                   string_ref name_)
+	: Connector(pluggingController_, name_,
 	            make_unique<DummyMidiOutDevice>())
 {
 }

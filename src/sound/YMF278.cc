@@ -731,14 +731,14 @@ byte YMF278::peekReg(byte reg) const
 	return result;
 }
 
-YMF278::YMF278(const std::string& name, int ramSize_,
+YMF278::YMF278(const std::string& name_, int ramSize_,
                const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name, "MoonSound wave-part",
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "MoonSound wave-part",
 	                       24, true)
 	, motherBoard(config.getMotherBoard())
 	, debugRegisters(motherBoard, getName())
 	, debugMemory   (motherBoard, getName())
-	, rom(name + " ROM", "rom", config)
+	, rom(getName() + " ROM", "rom", config)
 	, ramSize(ramSize_ * 1024) // in kB
 	, ram(ramSize)
 {
@@ -1040,9 +1040,9 @@ INSTANTIATE_SERIALIZE_METHODS(YMF278);
 
 // class DebugRegisters
 
-YMF278::DebugRegisters::DebugRegisters(MSXMotherBoard& motherBoard,
-                                       const std::string& name)
-	: SimpleDebuggable(motherBoard, name + " regs",
+YMF278::DebugRegisters::DebugRegisters(MSXMotherBoard& motherBoard_,
+                                       const std::string& name_)
+	: SimpleDebuggable(motherBoard_, name_ + " regs",
 	                   "OPL4 registers", 0x100)
 {
 }
@@ -1062,9 +1062,9 @@ void YMF278::DebugRegisters::write(unsigned address, byte value, EmuTime::param 
 
 // class DebugMemory
 
-YMF278::DebugMemory::DebugMemory(MSXMotherBoard& motherBoard,
-                                 const std::string& name)
-	: SimpleDebuggable(motherBoard, name + " mem",
+YMF278::DebugMemory::DebugMemory(MSXMotherBoard& motherBoard_,
+                                 const std::string& name_)
+	: SimpleDebuggable(motherBoard_, name_ + " mem",
 	                   "OPL4 memory (includes both ROM and RAM)", 0x400000) // 4MB
 {
 }

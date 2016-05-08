@@ -91,11 +91,11 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 
 template <unsigned CHANNELS>
 ResampleLQUp<CHANNELS>::ResampleLQUp(
-		ResampledSoundDevice& input,
-		const DynamicClock& hostClock, unsigned emuSampleRate)
-	: ResampleLQ<CHANNELS>(input, hostClock, emuSampleRate)
+		ResampledSoundDevice& input_,
+		const DynamicClock& hostClock_, unsigned emuSampleRate)
+	: ResampleLQ<CHANNELS>(input_, hostClock_, emuSampleRate)
 {
-	assert(emuSampleRate < hostClock.getFreq()); // only upsampling
+	assert(emuSampleRate < hostClock_.getFreq()); // only upsampling
 }
 
 template <unsigned CHANNELS>
@@ -131,11 +131,11 @@ bool ResampleLQUp<CHANNELS>::generateOutput(
 
 template <unsigned CHANNELS>
 ResampleLQDown<CHANNELS>::ResampleLQDown(
-		ResampledSoundDevice& input,
-		const DynamicClock& hostClock, unsigned emuSampleRate)
-	: ResampleLQ<CHANNELS>(input, hostClock, emuSampleRate)
+		ResampledSoundDevice& input_,
+		const DynamicClock& hostClock_, unsigned emuSampleRate)
+	: ResampleLQ<CHANNELS>(input_, hostClock_, emuSampleRate)
 {
-	assert(emuSampleRate > hostClock.getFreq()); // can only do downsampling
+	assert(emuSampleRate > hostClock_.getFreq()); // can only do downsampling
 }
 
 template <unsigned CHANNELS>

@@ -21,6 +21,7 @@ class PostProcessor;
 class Renderer;
 class VDPCmdEngine;
 class VDPVRAM;
+class MSXCPU;
 class SpriteChecker;
 class Display;
 class RawFrame;
@@ -1091,6 +1092,10 @@ private:
 	/** Cached version of cmdTiming/tooFastAccess setting. */
 	bool brokenCmdTiming;
 	bool allowTooFastAccess;
+
+	/** Cached CPU reference */
+	MSXCPU& cpu;
+	const byte fixedVDPIOdelayCycles;
 };
 SERIALIZE_CLASS_VERSION(VDP, 8);
 

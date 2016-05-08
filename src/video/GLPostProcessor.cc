@@ -21,25 +21,12 @@ using namespace gl;
 
 namespace openmsx {
 
-GLPostProcessor::TextureData::TextureData()
-{
-}
-
-GLPostProcessor::TextureData::TextureData(TextureData&& rhs)
-#if !defined(_MSC_VER)
-	noexcept
-#endif
-	: tex(std::move(rhs.tex))
-	, pbo(std::move(rhs.pbo))
-{
-}
-
 GLPostProcessor::GLPostProcessor(
-	MSXMotherBoard& motherBoard, Display& display,
-	OutputSurface& screen, const std::string& videoSource,
-	unsigned maxWidth, unsigned height_, bool canDoInterlace)
-	: PostProcessor(motherBoard, display, screen,
-	                videoSource, maxWidth, height_, canDoInterlace)
+	MSXMotherBoard& motherBoard_, Display& display_,
+	OutputSurface& screen_, const std::string& videoSource,
+	unsigned maxWidth_, unsigned height_, bool canDoInterlace_)
+	: PostProcessor(motherBoard_, display_, screen_,
+	                videoSource, maxWidth_, height_, canDoInterlace_)
 	, noiseTextureA(true, true) // interpolate + wrap
 	, noiseTextureB(true, true)
 	, height(height_)
@@ -283,11 +270,11 @@ void GLPostProcessor::uploadFrame()
 	}
 
 	if (superImposeVideoFrame) {
-		int width  = superImposeVideoFrame->getWidth();
-		int height = superImposeVideoFrame->getHeight();
-		if (superImposeTex.getWidth()  != width ||
-		    superImposeTex.getHeight() != height) {
-			superImposeTex.resize(width, height);
+		int w = superImposeVideoFrame->getWidth();
+		int h = superImposeVideoFrame->getHeight();
+		if (superImposeTex.getWidth()  != w ||
+		    superImposeTex.getHeight() != h) {
+			superImposeTex.resize(w, h);
 			superImposeTex.setInterpolation(true);
 		}
 		superImposeTex.bind();
@@ -296,8 +283,8 @@ void GLPostProcessor::uploadFrame()
 			0,                 // level
 			0,                 // offset x
 			0,                 // offset y
-			width,             // width
-			height,            // height
+			w,                 // width
+			h,                 // height
 			GL_BGRA,           // format
 			GL_UNSIGNED_BYTE,  // type
 			const_cast<RawFrame*>(superImposeVideoFrame)->getLinePtrDirect<unsigned>(0)); // data

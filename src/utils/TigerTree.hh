@@ -33,6 +33,7 @@
 #include <string>
 #include <cstdint>
 #include <ctime>
+#include <functional>
 
 namespace openmsx {
 
@@ -78,7 +79,7 @@ public:
 
 	/** Calculate the hash value.
 	 */
-	const TigerHash& calcHash();
+	const TigerHash& calcHash(std::function<void(size_t, size_t)> progressCallback);
 
 	/** Inform this calculator about changes in the input data. This is
 	 * used to (not) skip re-calculations on future calcHash() calls. So
@@ -100,7 +101,7 @@ private:
 	Node getLeftChild(Node node) const;
 	Node getRightChild(Node node) const;
 
-	const TigerHash& calcHash(Node node);
+	const TigerHash& calcHash(Node node, std::function<void(size_t, size_t)> progressCallback);
 
 	TTData& data;
 	const size_t dataSize;

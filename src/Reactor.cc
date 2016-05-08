@@ -203,8 +203,7 @@ void Reactor::init()
 		*globalCommandController, *this);
 	virtualDrive = make_unique<DiskChanger>(
 		*this, "virtual_drive");
-	filePool = make_unique<FilePool>(
-		*globalCommandController, *eventDistributor);
+	filePool = make_unique<FilePool>(*globalCommandController, *this);
 	userSettings = make_unique<UserSettings>(
 		*globalCommandController);
 	softwareDatabase = make_unique<RomDatabase>(
@@ -370,11 +369,8 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 	boards.push_back(move(newBoard_));
 
 	// Lookup old board (it must be present).
-	auto it = begin(boards);
-	while (it->get() != &oldBoard_) {
-		++it;
-		assert(it != end(boards));
-	}
+	auto it = find_if_unguarded(boards,
+		[&](Boards::value_type& b) { return b.get() == &oldBoard_; });
 
 	// If the old board was the active board, then activate the new board
 	if (it->get() == activeBoard) {
@@ -385,7 +381,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 	// Note that we don't use the 'garbageBoards' mechanism as used in
 	// deleteBoard(). This means oldBoard cannot be used  anymore right
 	// after this method returns.
-	boards.erase(it);
+	move_pop_back(boards, it);
 }
 
 void Reactor::switchMachine(const string& machine)
@@ -461,10 +457,10 @@ void Reactor::deleteBoard(MSXMotherBoard* board)
 		// delete active board -> there is no active board anymore
 		switchBoard(nullptr);
 	}
-	auto it = find_if_unguarded(boards,
+	auto it = rfind_if_unguarded(boards,
 		[&](Boards::value_type& b) { return b.get() == board; });
 	auto board_ = move(*it);
-	boards.erase(it);
+	move_pop_back(boards, it);
 	// Don't immediately delete old boards because it's possible this
 	// routine is called via a code path that goes through the old
 	// board. Instead remember this board and delete it at a safe moment
@@ -634,8 +630,10 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 		}
 #endif
 	} else if (type == OPENMSX_DELETE_BOARDS) {
+		// Doesn't really matter which one we delete, just that we do
+		// one per event.
 		assert(!garbageBoards.empty());
-		garbageBoards.erase(begin(garbageBoards));
+		garbageBoards.pop_back();
 	} else {
 		UNREACHABLE; // we didn't subscribe to this event...
 	}
@@ -645,9 +643,9 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 
 // class QuitCommand
 
-QuitCommand::QuitCommand(CommandController& commandController,
+QuitCommand::QuitCommand(CommandController& commandController_,
                          EventDistributor& distributor_)
-	: Command(commandController, "exit")
+	: Command(commandController_, "exit")
 	, distributor(distributor_)
 {
 }
@@ -665,9 +663,9 @@ string QuitCommand::help(const vector<string>& /*tokens*/) const
 
 // class MachineCommand
 
-MachineCommand::MachineCommand(CommandController& commandController,
+MachineCommand::MachineCommand(CommandController& commandController_,
                                Reactor& reactor_)
-	: Command(commandController, "machine")
+	: Command(commandController_, "machine")
 	, reactor(reactor_)
 {
 }
@@ -706,9 +704,9 @@ void MachineCommand::tabCompletion(vector<string>& tokens) const
 
 // class TestMachineCommand
 
-TestMachineCommand::TestMachineCommand(CommandController& commandController,
+TestMachineCommand::TestMachineCommand(CommandController& commandController_,
                                        Reactor& reactor_)
-	: Command(commandController, "test_machine")
+	: Command(commandController_, "test_machine")
 	, reactor(reactor_)
 {
 }
@@ -743,8 +741,8 @@ void TestMachineCommand::tabCompletion(vector<string>& tokens) const
 // class CreateMachineCommand
 
 CreateMachineCommand::CreateMachineCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "create_machine")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "create_machine")
 	, reactor(reactor_)
 {
 }
@@ -775,8 +773,8 @@ string CreateMachineCommand::help(const vector<string>& /*tokens*/) const
 // class DeleteMachineCommand
 
 DeleteMachineCommand::DeleteMachineCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "delete_machine")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "delete_machine")
 	, reactor(reactor_)
 {
 }
@@ -804,8 +802,8 @@ void DeleteMachineCommand::tabCompletion(vector<string>& tokens) const
 // class ListMachinesCommand
 
 ListMachinesCommand::ListMachinesCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "list_machines")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "list_machines")
 	, reactor(reactor_)
 {
 }
@@ -825,8 +823,8 @@ string ListMachinesCommand::help(const vector<string>& /*tokens*/) const
 // class ActivateMachineCommand
 
 ActivateMachineCommand::ActivateMachineCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "activate_machine")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "activate_machine")
 	, reactor(reactor_)
 {
 }
@@ -863,8 +861,8 @@ void ActivateMachineCommand::tabCompletion(vector<string>& tokens) const
 // class StoreMachineCommand
 
 StoreMachineCommand::StoreMachineCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "store_machine")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "store_machine")
 	, reactor(reactor_)
 {
 }
@@ -916,8 +914,8 @@ void StoreMachineCommand::tabCompletion(vector<string>& tokens) const
 // class RestoreMachineCommand
 
 RestoreMachineCommand::RestoreMachineCommand(
-	CommandController& commandController, Reactor& reactor_)
-	: Command(commandController, "restore_machine")
+	CommandController& commandController_, Reactor& reactor_)
+	: Command(commandController_, "restore_machine")
 	, reactor(reactor_)
 {
 }

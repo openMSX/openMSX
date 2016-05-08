@@ -17,6 +17,9 @@ class CliComm;
 class CommandCompleter : public Completer
 {
 public:
+	CommandCompleter(const CommandCompleter&) = delete;
+	CommandCompleter& operator=(const CommandCompleter&) = delete;
+
 	CommandController& getCommandController() const { return commandController; }
 	Interpreter& getInterpreter() const;
 

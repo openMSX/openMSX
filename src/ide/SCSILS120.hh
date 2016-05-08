@@ -14,7 +14,6 @@
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
 #include "File.hh"
-#include "noncopyable.hh"
 #include <bitset>
 #include <memory>
 
@@ -25,9 +24,12 @@ class MSXMotherBoard;
 class LSXCommand;
 
 class SCSILS120 final : public SCSIDevice, public SectorAccessibleDisk
-                      , public DiskContainer, private noncopyable
+                      , public DiskContainer
 {
 public:
+	SCSILS120(const SCSILS120&) = delete;
+	SCSILS120 operator=(const SCSILS120&) = delete;
+
 	SCSILS120(const DeviceConfig& targetconfig,
 	          AlignedBuffer& buf, unsigned mode);
 	~SCSILS120();

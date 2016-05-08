@@ -282,9 +282,9 @@ void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& valu
 		}
 		for (int j = 0; j < 3; ++j) {
 			TclObject element = row.getListIndex(interp, j);
-			float value = element.getDouble(interp);
-			colorMatrix[i][j] = value;
-			identity &= (value == (i == j ? 1.0f : 0.0f));
+			float val = element.getDouble(interp);
+			colorMatrix[i][j] = val;
+			identity &= (val == (i == j ? 1.0f : 0.0f));
 		}
 	}
 	cmIdentity = identity;

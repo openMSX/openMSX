@@ -33,9 +33,9 @@ namespace openmsx {
 const unsigned DiskManipulator::MAX_PARTITIONS;
 #endif
 
-DiskManipulator::DiskManipulator(CommandController& commandController,
+DiskManipulator::DiskManipulator(CommandController& commandController_,
                                  Reactor& reactor_)
-	: Command(commandController, "diskmanipulator")
+	: Command(commandController_, "diskmanipulator")
 	, reactor(reactor_)
 {
 }
@@ -69,7 +69,7 @@ void DiskManipulator::unregisterDrive(DiskContainer& drive)
 {
 	auto it = findDriveSettings(drive);
 	assert(it != end(drives));
-	drives.erase(it);
+	move_pop_back(drives, it);
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
@@ -80,10 +80,10 @@ DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
-	string_ref name)
+	string_ref driveName)
 {
 	return find_if(begin(drives), end(drives),
-	               [&](DriveSettings& ds) { return ds.driveName == name; });
+	               [&](DriveSettings& ds) { return ds.driveName == driveName; });
 }
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
@@ -155,13 +155,13 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 
 	if (subcmd == "export") {
-		string_ref dir = tokens[3].getString();
-		if (!FileOperations::isDirectory(dir)) {
-			throw CommandException(dir + " is not a directory");
+		string_ref directory = tokens[3].getString();
+		if (!FileOperations::isDirectory(directory)) {
+			throw CommandException(directory + " is not a directory");
 		}
 		auto& settings = getDriveSettings(tokens[2].getString());
 		array_ref<TclObject> lists(std::begin(tokens) + 4, std::end(tokens));
-		exprt(settings, dir, lists);
+		exprt(settings, directory, lists);
 
 	} else if (subcmd == "import") {
 		auto& settings = getDriveSettings(tokens[2].getString());
@@ -195,7 +195,7 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 			if (drive == "-dos1") {
 				dos1 = true;
 				drive = tokens[3].getString();
-			} else if (tokens[3].getString() == "-dos1") {
+			} else if (tokens[3] == "-dos1") {
 				dos1 = true;
 			}
 		}
@@ -218,48 +218,44 @@ string DiskManipulator::help(const vector<string>& tokens) const
 	  if (tokens[1] == "import" ) {
 	  helptext=
 	    "diskmanipulator import <disk name> <host directory|host file>\n"
-	    "Import all files and subdirs from the host OS as specified into the\n"
-	    "<disk name> in the current MSX subdirectory as was specified with the\n"
-	    "last chdir command.\n";
+	    "Import all files and subdirs from the host OS as specified into the <disk name> in the\n"
+	    "current MSX subdirectory as was specified with the last chdir command.\n";
 	  } else if (tokens[1] == "export" ) {
 	  helptext=
 	    "diskmanipulator export <disk name> <host directory>\n"
-	    "Extract all files and subdirs from the MSX subdirectory specified with\n"
-	    "the chdir command from <disk name> to the host OS in <host directory>.\n";
+	    "Extract all files and subdirs from the MSX subdirectory specified with the chdir command\n"
+	    "from <disk name> to the host OS in <host directory>.\n";
 	  } else if (tokens[1] == "savedsk") {
 	  helptext=
 	    "diskmanipulator savedsk <disk name> <dskfilename>\n"
-	    "This saves the complete drive content to <dskfilename>, it is not possible to\n"
-	    "save just one partition. The main purpose of this command is to make it\n"
-	    "possible to save a 'ramdsk' into a file and to take 'live backups' of\n"
-	    "dsk-files in use.\n";
+	    "Save the complete drive content to <dskfilename>, it is not possible to save just one\n"
+	    "partition. The main purpose of this command is to make it possible to save a 'ramdsk' into\n"
+	    "a file and to take 'live backups' of dsk-files in use.\n";
 	  } else if (tokens[1] == "chdir") {
 	  helptext=
 	    "diskmanipulator chdir <disk name> <MSX directory>\n"
-	    "Change the working directory on <disk name>. This will be the\n"
-	    "directory were the 'import', 'export' and 'dir' commands will\n"
-	    "work on.\n"
-	    "In case of a partitioned drive, each partition has its own\n"
-	    "working directory.\n";
+	    "Change the working directory on <disk name>. This will be the directory were the 'import',\n"
+	    "'export' and 'dir' commands will work on.\n"
+	    "In case of a partitioned drive, each partition has its own working directory.\n";
 	  } else if (tokens[1] == "mkdir") {
 	  helptext=
 	    "diskmanipulator mkdir <disk name> <MSX directory>\n"
-	    "This creates the directory on <disk name>. If needed, all missing\n"
-	    "parent directories are created at the same time. Accepts both\n"
-	    "absolute and relative pathnames.\n";
+	    "Create the specified directory on <disk name>. If needed, all missing parent directories\n"
+	    "are created at the same time. Accepts both absolute and relative path names.\n";
 	  } else if (tokens[1] == "create") {
 	  helptext=
 	    "diskmanipulator create <dskfilename> <size/option> [<size/option>...]\n"
-	    "Creates a formatted dsk file with the given size.\n"
-	    "If multiple sizes are given, a partitioned disk image will\n"
-	    "be created with each partition having the size as indicated. By\n"
-	    "default the sizes are expressed in kilobyte, add the postfix M\n"
-	    "for megabyte.\n";
+	    "Create a formatted dsk file with the given size.\n"
+	    "If multiple sizes are given, a partitioned disk image will be created with each partition\n"
+	    "having the size as indicated. By default the sizes are expressed in kilobyte, add the\n"
+	    "postfix M for megabyte.\n"
+	    "When using the -dos1 option, the boot sector of the created image will be MSX-DOS1\n"
+	    "compatible.\n";
 	  } else if (tokens[1] == "format") {
 	  helptext=
 	    "diskmanipulator format <disk name>\n"
-	    "formats the current (partition on) <disk name> with a regular\n"
-	    "FAT12 MSX filesystem with an MSX-DOS2 boot sector.\n";
+	    "formats the current (partition on) <disk name> with a regular FAT12 MSX filesystem with an\n"
+	    "MSX-DOS2 boot sector, or, when the -dos1 option is specified, with an MSX-DOS1 boot sector.\n";
 	  } else if (tokens[1] == "dir") {
 	  helptext=
 	    "diskmanipulator dir <disk name>\n"
@@ -360,7 +356,7 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 	bool dos1 = false;
 
 	for (unsigned i = 3; i < tokens.size(); ++i) {
-		if (tokens[i].getString() == "-dos1") {
+		if (tokens[i] == "-dos1") {
 			dos1 = true;
 			continue;
 		}

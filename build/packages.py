@@ -34,6 +34,25 @@ class DownloadablePackage(Package):
 	def getURL(cls):
 		return urljoin(cls.downloadURL + '/', cls.getTarballName())
 
+class ALSA(DownloadablePackage):
+	downloadURL = 'ftp://ftp.alsa-project.org/pub/lib/'
+	niceName = 'ALSA'
+	sourceName = 'alsa-lib'
+	version = '1.1.0'
+	fileLength = 929874
+	checksums = {
+		'sha256':
+			'dfde65d11e82b68f82e562ab6228c1fb7c78854345d3c57e2c68a9dd3dae1f15',
+		}
+
+	@classmethod
+	def getTarballName(cls):
+		return '%s-%s.tar.bz2' % (cls.sourceName, cls.version)
+
+	@classmethod
+	def getMakeName(cls):
+		return 'ALSA'
+
 class DirectX(DownloadablePackage):
 	downloadURL = 'http://alleg.sourceforge.net/files'
 	niceName = 'DirectX'
@@ -90,11 +109,11 @@ class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
 	sourceName = 'libpng'
-	version = '1.2.50'
-	fileLength = 826893
+	version = '1.6.20'
+	fileLength = 1417478
 	checksums = {
 		'sha256':
-			'19f17cd49782fcec8df0f7d1b348448cc3f69ed7e2a59de24bc0907b907f1abc',
+			'3d3bdc16f973a62fb1d26464fe2fe19f51dde9b883feff3e059d18ec1457b199',
 		}
 
 	@classmethod
@@ -169,11 +188,11 @@ class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
 	sourceName = 'tcl'
-	version = '8.5.15'
-	fileLength = 4536117
+	version = '8.5.18'
+	fileLength = 4534628
 	checksums = {
 		'sha256':
-			'f24eaae461795e6b09bf54c7e9f38def025892da55f26008c16413cfdda2884e',
+			'032be57a607bdf252135b52fac9e3a7016e526242374ac7637b083ecc4c5d3c9',
 		}
 
 	@classmethod

@@ -3,13 +3,12 @@
 
 #include "DACSound8U.hh"
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 class DeviceConfig;
 
-class KeyClick : private noncopyable
+class KeyClick
 {
 public:
 	explicit KeyClick(const DeviceConfig& config);

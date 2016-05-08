@@ -4,6 +4,7 @@
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -25,6 +26,8 @@ private:
 	void createTrackballStateChange(EmuTime::param time,
 		int deltaX, int deltaY, byte press, byte release);
 
+	void syncCurrentWithTarget(EmuTime::param time);
+
 	// Pluggable
 	const std::string& getName() const override;
 	string_ref getDescription() const override;
@@ -45,10 +48,14 @@ private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	signed char deltaX, deltaY;
+	EmuTime lastSync; // last time we synced current with target
+	signed char targetDeltaX, targetDeltaY; // immediately follows host events
+	signed char currentDeltaX, currentDeltaY; // follows targetXY with some delay
 	byte lastValue;
 	byte status;
+	bool smooth; // always true, except for bw-compat savestates
 };
+SERIALIZE_CLASS_VERSION(Trackball, 2);
 
 } // namespace openmsx
 

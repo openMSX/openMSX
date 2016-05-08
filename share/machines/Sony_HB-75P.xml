@@ -10,6 +10,13 @@
     <type>MSX</type>
   </info>
 
+<!-- 
+Information from serial 444434 (http://bilgisayarlarim.com/Sony/HB-75P):
+CPU: NEC D780C-1
+PPI: NEC D8255AC-5
+PSG: Yamaha YM2149F
+-->
+
   <CassettePort/>
 
   <devices>
@@ -32,7 +39,7 @@
     </VDP>
 
     <PSG id="PSG">
-      <type>AY8910</type> <!-- probably there are also series with YM2149 -->
+      <type>YM2149</type> <!-- probably there are also series with AY8910 -->
       <sound>
         <volume>21000</volume>
       </sound>

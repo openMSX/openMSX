@@ -11,22 +11,12 @@ static const size_t BLOCK_SIZE = 1024;
 struct TTCacheEntry
 {
 	TTCacheEntry() : time(-1) {}
-	// TODO use compiler generated versions once VS supports that
-	TTCacheEntry(TTCacheEntry&& other)
-		: hash (std::move(other.hash ))
-		, valid(std::move(other.valid))
-		, time (std::move(other.time )) {}
-	TTCacheEntry& operator=(TTCacheEntry&& other) {
-		hash  = std::move(other.hash );
-		valid = std::move(other.valid);
-		time  = std::move(other.time );
-		return *this;
-	}
 
 	MemBuffer<TigerHash> hash;
 	MemBuffer<bool> valid;
 	size_t numNodes;
 	time_t time;
+	size_t numNodesValid;
 };
 // Typically contains 0 or 1 element, and only rarely 2 or more. But we need
 // the address of existing elements to remain stable when new elements are
@@ -42,13 +32,14 @@ static size_t calcNumNodes(size_t dataSize)
 static TTCacheEntry& getCacheEntry(
 	TTData& data, size_t dataSize, const std::string& name)
 {
-	size_t numNodes = calcNumNodes(dataSize);
 	auto& result = ttCache[std::make_pair(dataSize, name)];
-	if ((numNodes != result.numNodes) || !data.isCacheStillValid(result.time)) {
+	if (!data.isCacheStillValid(result.time)) { // note: has side effect
+		size_t numNodes = calcNumNodes(dataSize);
 		result.hash .resize(numNodes);
 		result.valid.resize(numNodes);
 		result.numNodes = numNodes;
 		memset(result.valid.data(), 0, numNodes); // all invalid
+		result.numNodesValid = 0;
 	}
 	return result;
 }
@@ -60,9 +51,9 @@ TigerTree::TigerTree(TTData& data_, size_t dataSize_, const std::string& name)
 {
 }
 
-const TigerHash& TigerTree::calcHash()
+const TigerHash& TigerTree::calcHash(std::function<void(size_t, size_t)> progressCallback)
 {
-	return calcHash(getTop());
+	return calcHash(getTop(), progressCallback);
 }
 
 void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
@@ -72,7 +63,10 @@ void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
 	assert((offset + len) <= dataSize);
 	if (len == 0) return;
 
-	entry.valid[getTop().n] = false; // set sentinel
+	if (entry.valid[getTop().n]) {
+		entry.valid[getTop().n] = false; // set sentinel
+		entry.numNodesValid--;
+	}
 	auto first = offset / BLOCK_SIZE;
 	auto last = (offset + len - 1) / BLOCK_SIZE;
 	assert(first <= last); // requires len != 0
@@ -80,12 +74,13 @@ void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
 		auto node = getLeaf(first);
 		while (entry.valid[node.n]) {
 			entry.valid[node.n] = false;
+			entry.numNodesValid--;
 			node = getParent(node);
 		}
 	} while (++first <= last);
 }
 
-const TigerHash& TigerTree::calcHash(Node node)
+const TigerHash& TigerTree::calcHash(Node node, std::function<void(size_t, size_t)> progressCallback)
 {
 	auto n = node.n;
 	if (!entry.valid[n]) {
@@ -93,8 +88,8 @@ const TigerHash& TigerTree::calcHash(Node node)
 			// interior node
 			auto left  = getLeftChild (node);
 			auto right = getRightChild(node);
-			auto& h1 = calcHash(left);
-			auto& h2 = calcHash(right);
+			auto& h1 = calcHash(left, progressCallback);
+			auto& h2 = calcHash(right, progressCallback);
 			tiger_int(h1, h2, entry.hash[n]);
 		} else {
 			// leaf node
@@ -114,6 +109,10 @@ const TigerHash& TigerTree::calcHash(Node node)
 			}
 		}
 		entry.valid[n] = true;
+		entry.numNodesValid++;
+		if (progressCallback) {
+			progressCallback(entry.numNodesValid, entry.numNodes);
+		}
 	}
 	return entry.hash[n];
 }

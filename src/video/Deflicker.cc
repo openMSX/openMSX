@@ -66,8 +66,8 @@ unsigned Deflicker::getLineWidth(unsigned line) const
 
 template<typename Pixel>
 DeflickerImpl<Pixel>::DeflickerImpl(const SDL_PixelFormat& format,
-                                    std::unique_ptr<RawFrame>* lastFrames)
-	: Deflicker(format, lastFrames)
+                                    std::unique_ptr<RawFrame>* lastFrames_)
+	: Deflicker(format, lastFrames_)
 	, pixelOps(format)
 {
 }

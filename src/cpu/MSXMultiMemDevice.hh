@@ -40,7 +40,7 @@ private:
 	const Range& searchRange(unsigned address) const;
 	MSXDevice* searchDevice(unsigned address) const;
 
-	std::vector<Range> ranges;
+	std::vector<Range> ranges; // ordered (sentinel at the back)
 };
 
 } // namespace openmsx

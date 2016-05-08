@@ -5,10 +5,10 @@
 namespace openmsx {
 
 FilenameSetting::FilenameSetting(
-		CommandController& commandController,
-		string_ref name, string_ref description,
+		CommandController& commandController_,
+		string_ref name_, string_ref description_,
 		string_ref initialValue)
-	: Setting(commandController, name, description,
+	: Setting(commandController_, name_, description_,
 	          TclObject(initialValue), Setting::SAVE)
 {
 	init();

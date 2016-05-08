@@ -46,13 +46,13 @@ RomBlocks<BANK_SIZE>::~RomBlocks()
 template <unsigned BANK_SIZE>
 byte RomBlocks<BANK_SIZE>::readMem(word address, EmuTime::param /*time*/)
 {
-	return bank[address / BANK_SIZE][address & BANK_MASK];
+	return bankPtr[address / BANK_SIZE][address & BANK_MASK];
 }
 
 template <unsigned BANK_SIZE>
 const byte* RomBlocks<BANK_SIZE>::getReadCacheLine(word address) const
 {
-	return &bank[address / BANK_SIZE][address & BANK_MASK];
+	return &bankPtr[address / BANK_SIZE][address & BANK_MASK];
 }
 
 template <unsigned BANK_SIZE>
@@ -64,7 +64,7 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 	        (sram && (&(*sram)[0] <= adr) &&
 	                       (adr <= &(*sram)[sram->getSize() - 1])) ||
 	        ((extraMem <= adr) && (adr <= &extraMem[extraSize - 1]))));
-	bank[region] = adr;
+	bankPtr[region] = adr;
 	blockNr[region] = block; // only for debuggable
 	invalidateMemCache(region * BANK_SIZE, BANK_SIZE);
 }
@@ -113,14 +113,14 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 		ar.serialize("banks", offsets);
 		for (unsigned i = 0; i < NUM_BANKS; ++i) {
 			if (offsets[i] == unsigned(-1)) {
-				bank[i] = unmappedRead;
+				bankPtr[i] = unmappedRead;
 			} else if (offsets[i] < romSize) {
-				bank[i] = &rom[offsets[i]];
+				bankPtr[i] = &rom[offsets[i]];
 			} else if (offsets[i] < (romSize + sramSize)) {
 				assert(sram);
-				bank[i] = &(*sram)[offsets[i] - romSize];
+				bankPtr[i] = &(*sram)[offsets[i] - romSize];
 			} else if (offsets[i] < (romSize + sramSize + extraSize)) {
-				bank[i] = &extraMem[offsets[i] - romSize - sramSize];
+				bankPtr[i] = &extraMem[offsets[i] - romSize - sramSize];
 			} else {
 				// TODO throw
 				UNREACHABLE;
@@ -128,17 +128,17 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 		}
 	} else {
 		for (unsigned i = 0; i < NUM_BANKS; ++i) {
-			if (bank[i] == unmappedRead) {
+			if (bankPtr[i] == unmappedRead) {
 				offsets[i] = unsigned(-1);
-			} else if ((&rom[0] <= bank[i]) &&
-			           (bank[i] <= &rom[romSize - 1])) {
-				offsets[i] = unsigned(bank[i] - &rom[0]);
-			} else if (sram && (&(*sram)[0] <= bank[i]) &&
-			           (bank[i] <= &(*sram)[sramSize - 1])) {
-				offsets[i] = unsigned(bank[i] - &(*sram)[0] + romSize);
-			} else if ((extraMem <= bank[i]) &&
-			           (bank[i] <= &extraMem[extraSize - 1])) {
-				offsets[i] = unsigned(bank[i] - extraMem + romSize + sramSize);
+			} else if ((&rom[0] <= bankPtr[i]) &&
+			           (bankPtr[i] <= &rom[romSize - 1])) {
+				offsets[i] = unsigned(bankPtr[i] - &rom[0]);
+			} else if (sram && (&(*sram)[0] <= bankPtr[i]) &&
+			           (bankPtr[i] <= &(*sram)[sramSize - 1])) {
+				offsets[i] = unsigned(bankPtr[i] - &(*sram)[0] + romSize);
+			} else if ((extraMem <= bankPtr[i]) &&
+			           (bankPtr[i] <= &extraMem[extraSize - 1])) {
+				offsets[i] = unsigned(bankPtr[i] - extraMem + romSize + sramSize);
 			} else {
 				UNREACHABLE;
 			}

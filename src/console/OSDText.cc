@@ -22,8 +22,8 @@ using namespace gl;
 
 namespace openmsx {
 
-OSDText::OSDText(OSDGUI& gui, const string& name)
-	: OSDImageBasedWidget(gui, name)
+OSDText::OSDText(OSDGUI& gui_, const TclObject& name_)
+	: OSDImageBasedWidget(gui_, name_)
 	, fontfile("skins/Vera.ttf.gz")
 	, size(12)
 	, wrapMode(NONE), wrapw(0.0), wraprelw(1.0)
@@ -42,9 +42,9 @@ vector<string_ref> OSDText::getProperties() const
 }
 
 void OSDText::setProperty(
-	Interpreter& interp, string_ref name, const TclObject& value)
+	Interpreter& interp, string_ref propName, const TclObject& value)
 {
-	if (name == "-text") {
+	if (propName == "-text") {
 		string_ref val = value.getString();
 		if (text != val) {
 			text = val.str();
@@ -52,7 +52,7 @@ void OSDText::setProperty(
 			OSDImageBasedWidget::invalidateLocal();
 			invalidateChildren();
 		}
-	} else if (name == "-font") {
+	} else if (propName == "-font") {
 		string val = value.getString().str();
 		if (fontfile != val) {
 			string file = systemFileContext().resolve(val);
@@ -62,13 +62,13 @@ void OSDText::setProperty(
 			fontfile = val;
 			invalidateRecursive();
 		}
-	} else if (name == "-size") {
+	} else if (propName == "-size") {
 		int size2 = value.getInt(interp);
 		if (size != size2) {
 			size = size2;
 			invalidateRecursive();
 		}
-	} else if (name == "-wrap") {
+	} else if (propName == "-wrap") {
 		string_ref val = value.getString();
 		WrapMode wrapMode2;
 		if (val == "none") {
@@ -86,34 +86,34 @@ void OSDText::setProperty(
 			wrapMode = wrapMode2;
 			invalidateRecursive();
 		}
-	} else if (name == "-wrapw") {
+	} else if (propName == "-wrapw") {
 		float wrapw2 = value.getDouble(interp);
 		if (wrapw != wrapw2) {
 			wrapw = wrapw2;
 			invalidateRecursive();
 		}
-	} else if (name == "-wraprelw") {
+	} else if (propName == "-wraprelw") {
 		float wraprelw2 = value.getDouble(interp);
 		if (wraprelw != wraprelw2) {
 			wraprelw = wraprelw2;
 			invalidateRecursive();
 		}
-	} else if (name == "-query-size") {
+	} else if (propName == "-query-size") {
 		throw CommandException("-query-size property is readonly");
 	} else {
-		OSDImageBasedWidget::setProperty(interp, name, value);
+		OSDImageBasedWidget::setProperty(interp, propName, value);
 	}
 }
 
-void OSDText::getProperty(string_ref name, TclObject& result) const
+void OSDText::getProperty(string_ref propName, TclObject& result) const
 {
-	if (name == "-text") {
+	if (propName == "-text") {
 		result.setString(text);
-	} else if (name == "-font") {
+	} else if (propName == "-font") {
 		result.setString(fontfile);
-	} else if (name == "-size") {
+	} else if (propName == "-size") {
 		result.setInt(size);
-	} else if (name == "-wrap") {
+	} else if (propName == "-wrap") {
 		string wrapString;
 		switch (wrapMode) {
 			case NONE: wrapString = "none"; break;
@@ -122,16 +122,16 @@ void OSDText::getProperty(string_ref name, TclObject& result) const
 			default: UNREACHABLE;
 		}
 		result.setString(wrapString);
-	} else if (name == "-wrapw") {
+	} else if (propName == "-wrapw") {
 		result.setDouble(wrapw);
-	} else if (name == "-wraprelw") {
+	} else if (propName == "-wraprelw") {
 		result.setDouble(wraprelw);
-	} else if (name == "-query-size") {
-		vec2 size = getRenderedSize();
-		result.addListElement(size[0]);
-		result.addListElement(size[1]);
+	} else if (propName == "-query-size") {
+		vec2 renderedSize = getRenderedSize();
+		result.addListElement(renderedSize[0]);
+		result.addListElement(renderedSize[1]);
 	} else {
-		OSDImageBasedWidget::getProperty(name, result);
+		OSDImageBasedWidget::getProperty(propName, result);
 	}
 }
 
@@ -187,7 +187,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		maxWidth = std::max(0, maxWidth);
 
 		// TODO gradient???
-		unsigned rgba = getRGBA(0);
+		unsigned textRgba = getRGBA(0);
 		string wrappedText;
 		if (wrapMode == NONE) {
 			wrappedText = text; // don't wrap
@@ -202,7 +202,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		// That way we can avoid StringOp::join() (in the wrap functions)
 		// followed by // StringOp::split() (in TTFFont::render()).
 		SDLSurfacePtr surface(font.render(wrappedText,
-			(rgba >> 24) & 0xff, (rgba >> 16) & 0xff, (rgba >> 8) & 0xff));
+			(textRgba >> 24) & 0xff, (textRgba >> 16) & 0xff, (textRgba >> 8) & 0xff));
 		if (surface) {
 			return make_unique<IMAGE>(std::move(surface));
 		} else {
@@ -363,29 +363,29 @@ size_t OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
 	return split(line, maxWidth, findWordSplitPoint, SplitAtChar(*this), true);
 }
 
-string OSDText::getCharWrappedText(const string& text, unsigned maxWidth) const
+string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 {
 	vector<string_ref> wrappedLines;
-	for (auto& line : StringOp::split(text, '\n')) {
+	for (auto& line : StringOp::split(txt, '\n')) {
 		do {
-			auto pos = splitAtChar(line.str(), maxWidth);
-			wrappedLines.push_back(line.substr(0, pos));
-			line = line.substr(pos);
+			auto p = splitAtChar(line.str(), maxWidth);
+			wrappedLines.push_back(line.substr(0, p));
+			line = line.substr(p);
 		} while (!line.empty());
 	}
 	return StringOp::join(wrappedLines, '\n');
 }
 
-string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
+string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 {
 	vector<string_ref> wrappedLines;
-	for (auto& line : StringOp::split(text, '\n')) {
+	for (auto& line : StringOp::split(txt, '\n')) {
 		do {
-			auto pos = splitAtWord(line.str(), maxWidth);
-			string_ref first = line.substr(0, pos);
+			auto p = splitAtWord(line.str(), maxWidth);
+			string_ref first = line.substr(0, p);
 			StringOp::trimRight(first, ' '); // remove trailing spaces
 			wrappedLines.push_back(first);
-			line = line.substr(pos);
+			line = line.substr(p);
 			StringOp::trimLeft(line, ' '); // remove leading spaces
 		} while (!line.empty());
 	}
@@ -403,8 +403,8 @@ vec2 OSDText::getRenderedSize() const
 	// force creating image (does not yet draw it on screen)
 	const_cast<OSDText*>(this)->createImage(output);
 
-	vec2 size = image ? vec2(image->getSize()) : vec2();
-	return size / float(getScaleFactor(output));
+	vec2 imageSize = image ? vec2(image->getSize()) : vec2();
+	return imageSize / float(getScaleFactor(output));
 }
 
 std::unique_ptr<BaseImage> OSDText::createSDL(OutputRectangle& output)

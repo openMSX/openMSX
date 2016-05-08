@@ -2,7 +2,6 @@
 #define USERSETTINGS_HH
 
 #include "Command.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include <vector>
 #include <memory>
@@ -11,7 +10,7 @@ namespace openmsx {
 
 class Setting;
 
-class UserSettings : private noncopyable
+class UserSettings
 {
 public:
 	using Settings = std::vector<std::unique_ptr<Setting>>;
@@ -45,7 +44,7 @@ private:
 		std::vector<string_ref> getSettingNames() const;
 	} userSettingCommand;
 
-	Settings settings;
+	Settings settings; // unordered
 };
 
 } // namespace openmsx

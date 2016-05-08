@@ -22,9 +22,9 @@ using std::vector;
 namespace openmsx {
 
 NowindCommand::NowindCommand(const string& basename,
-                             CommandController& commandController,
+                             CommandController& commandController_,
                              NowindInterface& interface_)
-	: Command(commandController, basename)
+	: Command(commandController_, basename)
 	, interface(interface_)
 {
 }
@@ -32,8 +32,8 @@ NowindCommand::NowindCommand(const string& basename,
 unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 	const string& basename, unsigned n, MSXMotherBoard& motherBoard) const
 {
-	string name = StringOp::Builder() << basename << n + 1;
-	return make_unique<DiskChanger>(motherBoard, name, false, true);
+	string driveName = StringOp::Builder() << basename << n + 1;
+	return make_unique<DiskChanger>(motherBoard, driveName, false, true);
 }
 
 unsigned NowindCommand::searchRomdisk(const NowindHost::Drives& drives) const

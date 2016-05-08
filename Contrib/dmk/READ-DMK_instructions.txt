@@ -16,7 +16,7 @@ How to make a DMK file (happy flow):
   destination disk to continue.
 * Get the DAT files to your PC. You'll need a PC program to combine the DAT
   files into a single DMK disk image. A Windows binary can be found here:
-  http://openmsx.sf.net/temp/combine-dmk.exe (source code is in this
+  http://openmsx.org/temp/combine-dmk.exe (source code is in this
   directory). Run this tool in a command shell from a directory where you put
   all the DAT files created by the read-dmk tool. It will output the file
   out.dmk, which is the DMK disk image which works in openMSX. If the tool

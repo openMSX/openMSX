@@ -8,7 +8,6 @@
 #include "BreakPoint.hh"
 #include "WatchPoint.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include "likely.hh"
 #include <algorithm>
 #include <bitset>
@@ -38,9 +37,12 @@ struct CompareBreakpoints {
 	}
 };
 
-class MSXCPUInterface : private noncopyable
+class MSXCPUInterface
 {
 public:
+	MSXCPUInterface(const MSXCPUInterface&) = delete;
+	MSXCPUInterface& operator=(const MSXCPUInterface&) = delete;
+
 	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);
 	~MSXCPUInterface();
 
@@ -59,6 +61,24 @@ public:
 	 */
 	void register_IO_Out(byte port, MSXDevice* device);
 	void unregister_IO_Out(byte port, MSXDevice* device);
+
+	/**
+	 * These methods are similar to the (un)register_IO_{In,Out} methods above.
+	 *
+	 * The wrapXX variants register a new device, replacing the previously
+	 * registered device at the same port. The replaced device is returned.
+	 * The unwrapXX variants do the reverse operation.
+	 *
+	 * The intention is that devices using these methods extend (=wrap) the
+	 * functionality of a previously registered device. So they should use
+	 * the pointer returned from wrapXX() and call the various IO handling
+	 * methods of that device from their own corresponding IO handling
+	 * methods.
+	 */
+	MSXDevice* wrap_IO_In (byte port, MSXDevice* device);
+	MSXDevice* wrap_IO_Out(byte port, MSXDevice* device);
+	void unwrap_IO_In (byte port, MSXDevice* device);
+	void unwrap_IO_Out(byte port, MSXDevice* device);
 
 	/**
 	 * Devices can register themself in the MSX slotstructure.
@@ -320,13 +340,13 @@ private:
 	};
 	struct IInfo final : IOInfo {
 		IInfo(InfoCommand& machineInfoCommand)
-			: IOInfo(machineInfoCommand, "input ports") {}
+			: IOInfo(machineInfoCommand, "input_port") {}
 		void execute(array_ref<TclObject> tokens,
 		             TclObject& result) const override;
 	} inputPortInfo;
 	struct OInfo final : IOInfo {
 		OInfo(InfoCommand& machineInfoCommand)
-			: IOInfo(machineInfoCommand, "output ports") {}
+			: IOInfo(machineInfoCommand, "output_port") {}
 		void execute(array_ref<TclObject> tokens,
 		             TclObject& result) const override;
 	} outputPortInfo;
@@ -375,9 +395,9 @@ private:
 	bool fastForward; // no need to serialize
 
 	//  All CPUs (Z80 and R800) of all MSX machines share this state.
-	static BreakPoints breakPoints;
-	WatchPoints watchPoints; // TODO must also be static
-	static Conditions conditions;
+	static BreakPoints breakPoints; // sorted on address
+	WatchPoints watchPoints; // ordered in creation order,  TODO must also be static
+	static Conditions conditions; // ordered in creation order
 	static bool breaked;
 	static bool continued;
 	static bool step;

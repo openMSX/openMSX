@@ -8,6 +8,7 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
+#include <SDL.h>
 
 using std::string;
 using std::min;
@@ -29,9 +30,9 @@ class MouseState final : public StateChange
 {
 public:
 	MouseState() {} // for serialize
-	MouseState(EmuTime::param time, int deltaX_, int deltaY_,
+	MouseState(EmuTime::param time_, int deltaX_, int deltaY_,
 	           byte press_, byte release_)
-		: StateChange(time)
+		: StateChange(time_)
 		, deltaX(deltaX_), deltaY(deltaY_)
 		, press(press_), release(release_) {}
 	int  getDeltaX()  const { return deltaX; }
@@ -88,13 +89,13 @@ string_ref Mouse::getDescription() const
 
 void Mouse::plugHelper(Connector& /*connector*/, EmuTime::param time)
 {
-	if (status & JOY_BUTTONA) {
+	if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+		// left mouse button pressed, joystick emulation mode
+		mouseMode = false;
+	} else {
 		// not pressed, mouse mode
 		mouseMode = true;
 		lastTime = time;
-	} else {
-		// left mouse button pressed, joystick emulation mode
-		mouseMode = false;
 	}
 	plugHelper2();
 }

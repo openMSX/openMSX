@@ -103,8 +103,8 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 CassettePlayer::~CassettePlayer()
 {
 	unregisterSound();
-	if (Connector* connector = getConnector()) {
-		connector->unplug(getCurrentTime());
+	if (auto* c = getConnector()) {
+		c->unplug(getCurrentTime());
 	}
 	motherBoard.getReactor().getEventDistributor().unregisterEventListener(
 		OPENMSX_BOOT_EVENT, *this);
@@ -443,13 +443,13 @@ void CassettePlayer::sync(EmuTime::param time)
 void CassettePlayer::updateTapePosition(
 	EmuDuration::param duration, EmuTime::param time)
 {
-	if (!isRolling()) return;
+	if (!isRolling() || (getState() != PLAY)) return;
 
 	tapePos += duration;
 	assert(tapePos <= playImage->getEndTime());
 
 	// synchronize audio with actual tape position
-	if ((getState() == PLAY) && !syncScheduled) {
+	if (!syncScheduled) {
 		// don't sync too often, this improves sound quality
 		syncScheduled = true;
 		syncAudioEmu.setSyncPoint(time + EmuDuration::sec(1));
@@ -523,8 +523,8 @@ void CassettePlayer::flushOutput()
 
 const string& CassettePlayer::getName() const
 {
-	static const string name("cassetteplayer");
-	return name;
+	static const string pluggableName("cassetteplayer");
+	return pluggableName;
 }
 
 string_ref CassettePlayer::getDescription() const
@@ -536,10 +536,10 @@ string_ref CassettePlayer::getDescription() const
 	return "Cassetteplayer, use to read .cas or .wav files.";
 }
 
-void CassettePlayer::plugHelper(Connector& connector, EmuTime::param time)
+void CassettePlayer::plugHelper(Connector& conn, EmuTime::param time)
 {
 	sync(time);
-	lastOutput = static_cast<CassettePort&>(connector).lastOut();
+	lastOutput = static_cast<CassettePort&>(conn).lastOut();
 }
 
 void CassettePlayer::unplugHelper(EmuTime::param time)
@@ -606,11 +606,11 @@ void CassettePlayer::execSyncAudioEmu(EmuTime::param time)
 // class TapeCommand
 
 CassettePlayer::TapeCommand::TapeCommand(
-		CommandController& commandController,
-		StateChangeDistributor& stateChangeDistributor,
-		Scheduler& scheduler)
-	: RecordedCommand(commandController, stateChangeDistributor,
-	                  scheduler, "cassetteplayer")
+		CommandController& commandController_,
+		StateChangeDistributor& stateChangeDistributor_,
+		Scheduler& scheduler_)
+	: RecordedCommand(commandController_, stateChangeDistributor_,
+	                  scheduler_, "cassetteplayer")
 {
 }
 
@@ -628,7 +628,7 @@ void CassettePlayer::TapeCommand::execute(
 		options.addListElement(cassettePlayer.getStateString());
 		result.addListElement(options);
 
-	} else if (tokens[1].getString() == "new") {
+	} else if (tokens[1] == "new") {
 		string directory = "taperecordings";
 		string prefix = "openmsx";
 		string extension = ".wav";
@@ -639,7 +639,7 @@ void CassettePlayer::TapeCommand::execute(
 		result.setString("Created new cassette image file: " + filename +
 		                 ", inserted it and set recording mode.");
 
-	} else if (tokens[1].getString() == "insert" && tokens.size() == 3) {
+	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
 			result.setString("Changing tape");
 			Filename filename(tokens[2].getString().str(), userFileContext());
@@ -648,11 +648,11 @@ void CassettePlayer::TapeCommand::execute(
 			throw CommandException(e.getMessage());
 		}
 
-	} else if (tokens[1].getString() == "motorcontrol" && tokens.size() == 3) {
-		if (tokens[2].getString() == "on") {
+	} else if (tokens[1] == "motorcontrol" && tokens.size() == 3) {
+		if (tokens[2] == "on") {
 			cassettePlayer.setMotorControl(true, time);
 			result.setString("Motor control enabled.");
-		} else if (tokens[2].getString() == "off") {
+		} else if (tokens[2] == "off") {
 			cassettePlayer.setMotorControl(false, time);
 			result.setString("Motor control disabled.");
 		} else {
@@ -662,14 +662,14 @@ void CassettePlayer::TapeCommand::execute(
 	} else if (tokens.size() != 2) {
 		throw SyntaxError();
 
-	} else if (tokens[1].getString() == "motorcontrol") {
+	} else if (tokens[1] == "motorcontrol") {
 		result.setString(string("Motor control is ") +
 		                 (cassettePlayer.motorControl ? "on" : "off"));
 
-	} else if (tokens[1].getString() == "record") {
+	} else if (tokens[1] == "record") {
 			result.setString("TODO: implement this... (sorry)");
 
-	} else if (tokens[1].getString() == "play") {
+	} else if (tokens[1] == "play") {
 		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
 			try {
 				result.setString("Play mode set, rewinding tape.");
@@ -685,11 +685,11 @@ void CassettePlayer::TapeCommand::execute(
 			result.setString("Already in play mode.");
 		}
 
-	} else if (tokens[1].getString() == "eject") {
+	} else if (tokens[1] == "eject") {
 		result.setString("Tape ejected");
 		cassettePlayer.removeTape(time);
 
-	} else if (tokens[1].getString() == "rewind") {
+	} else if (tokens[1] == "rewind") {
 		string r;
 		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
 			try {
@@ -704,10 +704,10 @@ void CassettePlayer::TapeCommand::execute(
 		r += "Tape rewound";
 		result.setString(r);
 
-	} else if (tokens[1].getString() == "getpos") {
+	} else if (tokens[1] == "getpos") {
 		result.setDouble(cassettePlayer.getTapePos(time));
 
-	} else if (tokens[1].getString() == "getlength") {
+	} else if (tokens[1] == "getlength") {
 		result.setDouble(cassettePlayer.getTapeLength(time));
 
 	} else {
@@ -825,7 +825,7 @@ bool CassettePlayer::TapeCommand::needRecord(array_ref<TclObject> tokens) const
 }
 
 
-static enum_string<CassettePlayer::State> stateInfo[] = {
+static std::initializer_list<enum_string<CassettePlayer::State>> stateInfo = {
 	{ "PLAY",   CassettePlayer::PLAY   },
 	{ "RECORD", CassettePlayer::RECORD },
 	{ "STOP",   CassettePlayer::STOP   }

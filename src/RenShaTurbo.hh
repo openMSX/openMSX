@@ -2,7 +2,6 @@
 #define RENSHATURBO_HH
 
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -18,7 +17,7 @@ class Autofire;
  *
  * It uses one autofire circuit.
  */
-class RenShaTurbo : private noncopyable
+class RenShaTurbo
 {
 public:
 	RenShaTurbo(CommandController& commandController,

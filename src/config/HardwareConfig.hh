@@ -5,7 +5,6 @@
 #include "FileContext.hh"
 #include "serialize_meta.hh"
 #include "serialize_constr.hh"
-#include "noncopyable.hh"
 #include "array_ref.hh"
 #include "string_ref.hh"
 #include <string>
@@ -18,9 +17,12 @@ class MSXMotherBoard;
 class MSXDevice;
 class TclObject;
 
-class HardwareConfig : private noncopyable
+class HardwareConfig
 {
 public:
+	HardwareConfig(const HardwareConfig&) = delete;
+	HardwareConfig& operator=(const HardwareConfig&) = delete;
+
 	static XMLElement loadConfig(string_ref type, string_ref name);
 
 	static std::unique_ptr<HardwareConfig> createMachineConfig(
@@ -65,7 +67,8 @@ private:
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);
 	void createExpandedSlot(int ps);
-	int getFreePrimarySlot();
+	int getAnyFreePrimarySlot();
+	int getSpecificFreePrimarySlot(unsigned slot);
 	void addDevice(std::unique_ptr<MSXDevice> device);
 	void setName(string_ref proposedName);
 	void setSlot(string_ref slotname);

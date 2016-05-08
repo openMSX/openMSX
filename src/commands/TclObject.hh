@@ -3,6 +3,7 @@
 
 #include "string_ref.hh"
 #include "openmsx.hh"
+#include "xxhash.hh"
 #include <tcl.h>
 #include <iterator>
 #include <cassert>
@@ -62,7 +63,7 @@ public:
 	explicit TclObject(int v)        { init(Tcl_NewIntObj(v)); }
 	explicit TclObject(double v)     { init(Tcl_NewDoubleObj(v)); }
 	TclObject(const TclObject&  o)   { init(o.obj); }
-	TclObject(      TclObject&& o)   { init(o.obj); }
+	TclObject(      TclObject&& o) noexcept { init(o.obj); }
 	~TclObject()                     { Tcl_DecrRefCount(obj); }
 
 	// assignment operator so we can use vector<TclObject>
@@ -73,13 +74,14 @@ public:
 		}
 		return *this;
 	}
-	TclObject& operator=(TclObject&& other) {
+	TclObject& operator=(TclObject&& other) noexcept {
 		std::swap(obj, other.obj);
 		return *this;
 	}
 
 	// get underlying Tcl_Obj
 	Tcl_Obj* getTclObject() { return obj; }
+	Tcl_Obj* getTclObjectNonConst() const { return const_cast<Tcl_Obj*>(obj); }
 
 	// value setters
 	void setString(string_ref value);
@@ -123,15 +125,22 @@ public:
 	  */
 	TclObject executeCommand(Interpreter& interp, bool compile = false);
 
-	bool operator==(const TclObject& other) const {
-		return getString() == other.getString();
+	friend bool operator==(const TclObject& x, const TclObject& y) {
+		return x.getString() == y.getString();
 	}
-	bool operator!=(const TclObject& other) const {
-		return !(*this == other);
+	friend bool operator==(const TclObject& x, string_ref y) {
+		return x.getString() == y;
+	}
+	friend bool operator==(string_ref x, const TclObject& y) {
+		return x == y.getString();
 	}
 
+	friend bool operator!=(const TclObject& x, const TclObject& y) { return !(x == y); }
+	friend bool operator!=(const TclObject& x, string_ref       y) { return !(x == y); }
+	friend bool operator!=(string_ref       x, const TclObject& y) { return !(x == y); }
+
 private:
-	void init(Tcl_Obj* obj_) {
+	void init(Tcl_Obj* obj_) noexcept {
 		obj = obj_;
 		Tcl_IncrRefCount(obj);
 	}
@@ -144,9 +153,9 @@ private:
 };
 
 template <typename ITER>
-void TclObject::addListElements(ITER begin, ITER end)
+void TclObject::addListElements(ITER first, ITER last)
 {
-	for (ITER it = begin; it != end; ++it) {
+	for (ITER it = first; it != last; ++it) {
 		addListElement(*it);
 	}
 }
@@ -159,6 +168,16 @@ void TclObject::addListElements(const CONT& container)
 
 // We want to be able to reinterpret_cast a Tcl_Obj* as a TclObject.
 static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*), "");
+
+
+struct XXTclHasher {
+	uint32_t operator()(string_ref str) const {
+		return xxhash(str);
+	}
+	uint32_t operator()(const TclObject& obj) const {
+		return xxhash(obj.getString());
+	}
+};
 
 } // namespace openmsx
 

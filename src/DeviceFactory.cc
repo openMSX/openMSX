@@ -1,11 +1,15 @@
 #include "DeviceFactory.hh"
 #include "XMLElement.hh"
 #include "DeviceConfig.hh"
+#include "ChakkariCopy.hh"
+#include "FraelSwitchableROM.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
 #include "SVIPPI.hh"
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
+#include "MSXFacMidiInterface.hh"
+#include "MSXHiResTimer.hh"
 #include "MSXResetStatusRegister.hh"
 #include "MSXTurboRPause.hh"
 #include "MSXTurboRPCM.hh"
@@ -36,9 +40,11 @@
 #include "NationalFDC.hh"
 #include "VictorFDC.hh"
 #include "SanyoFDC.hh"
+#include "SpectravideoFDC.hh"
 #include "TurboRFDC.hh"
 #include "SVIFDC.hh"
 #include "SunriseIDE.hh"
+#include "BeerIDE.hh"
 #include "GoudaSCSI.hh"
 #include "MegaSCSI.hh"
 #include "ESE_RAM.hh"
@@ -62,6 +68,7 @@
 #include "MSXDeviceSwitch.hh"
 #include "MSXMapperIO.hh"
 #include "VDPIODelay.hh"
+#include "SensorKid.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "memory.hh"
@@ -98,6 +105,8 @@ static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 		return make_unique<NationalFDC>(conf);
 	} else if (type == "Sanyo") {
 		return make_unique<SanyoFDC>(conf);
+	} else if (type == "Spectravideo") {
+		return make_unique<SpectravideoFDC>(conf);
 	} else if (type == "Victor") {
 		return make_unique<VictorFDC>(conf);
 	}
@@ -118,6 +127,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<VDP>(conf);
 	} else if (type == "E6Timer") {
 		result = make_unique<MSXE6Timer>(conf);
+	} else if (type == "HiResTimer") {
+		result = make_unique<MSXHiResTimer>(conf);
 	} else if (type == "ResetStatusRegister" || type == "F4Device") {
 		result = make_unique<MSXResetStatusRegister>(conf);
 	} else if (type == "TurboRPause") {
@@ -142,6 +153,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXAudio>(conf);
 	} else if (type == "MusicModuleMIDI") {
 		result = make_unique<MC6850>(conf);
+	} else if (type == "FACMIDIInterface") {
+		result = make_unique<MSXFacMidiInterface>(conf);
 	} else if (type == "YamahaSFG") {
 		result = make_unique<MSXYamahaSFG>(conf);
 	} else if (type == "MoonSound") {
@@ -185,6 +198,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<TurboRFDC>(conf);
 	} else if (type == "SVIFDC") {
 		result = make_unique<SVIFDC>(conf);
+	} else if (type == "BeerIDE") {
+		result = make_unique<BeerIDE>(conf);
 	} else if (type == "SunriseIDE") {
 		result = make_unique<SunriseIDE>(conf);
 	} else if (type == "GoudaSCSI") {
@@ -233,6 +248,14 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<NowindInterface>(conf);
 	} else if (type == "Mirror") {
 		result = make_unique<MSXMirrorDevice>(conf);
+	} else if (type == "SensorKid") {
+		result = make_unique<SensorKid>(conf);
+	} else if (type == "FraelSwitchableROM") {
+		result = make_unique<FraelSwitchableROM>(conf);
+	} else if (type == "ChakkariCopy") {
+		result = make_unique<ChakkariCopy>(conf);
+	} else if (type == "T9769") {
+		// Ignore for now. We might want to create a real device for it later.
 	} else {
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");

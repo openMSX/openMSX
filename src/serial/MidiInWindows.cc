@@ -164,13 +164,13 @@ void MidiInWindows::run()
 // MidiInDevice
 void MidiInWindows::signal(EmuTime::param time)
 {
-	auto connector = static_cast<MidiInConnector*>(getConnector());
-	if (!connector->acceptsData()) {
+	auto* conn = static_cast<MidiInConnector*>(getConnector());
+	if (!conn->acceptsData()) {
 		std::lock_guard<std::mutex> lock(mutex);
 		queue.clear();
 		return;
 	}
-	if (!connector->ready()) return;
+	if (!conn->ready()) return;
 
 	byte data;
 	{
@@ -178,7 +178,7 @@ void MidiInWindows::signal(EmuTime::param time)
 		if (queue.empty()) return;
 		data = queue.pop_front();
 	}
-	connector->recvByte(data, time);
+	conn->recvByte(data, time);
 }
 
 // EventListener

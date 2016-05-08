@@ -28,16 +28,16 @@ public:
 	// construct/copy/assign
 	string_ref()
 		: dat(nullptr), siz(0) {}
-	string_ref(const string_ref& str)
-		: dat(str.dat), siz(str.siz) {}
-	string_ref(const char* str)
-		: dat(str), siz(str ? size_type(strlen(str)) : 0) {}
-	string_ref(const char* str, size_type len)
-		: dat(str), siz(len) { if (!dat) assert(siz == 0); }
-	string_ref(const char* begin, const char* end)
-		: dat(begin), siz(end - begin) { if (!dat) assert(siz == 0); }
-	string_ref(const std::string& str)
-		: dat(str.data()), siz(str.size()) {}
+	string_ref(const string_ref& s)
+		: dat(s.dat), siz(s.siz) {}
+	string_ref(const char* s)
+		: dat(s), siz(s ? size_type(strlen(s)) : 0) {}
+	string_ref(const char* s, size_type len)
+		: dat(s), siz(len) { if (!dat) assert(siz == 0); }
+	string_ref(const char* first, const char* last)
+		: dat(first), siz(last - first) { if (!dat) assert(siz == 0); }
+	string_ref(const std::string& s)
+		: dat(s.data()), siz(s.size()) {}
 
 	string_ref& operator=(const string_ref& rhs) {
 		dat = rhs.data();
@@ -133,14 +133,14 @@ inline bool operator<=(string_ref x, string_ref y) { return !(y <  x); }
 inline bool operator>=(string_ref x, string_ref y) { return !(x <  y); }
 
 // numeric conversions
-//int                stoi  (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
-//long               stol  (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
-//unsigned long      stoul (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
-//long long          stoll (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
-//unsigned long long stoull(string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
-//float              stof  (string_ref str, string_ref::size_type* idx = nullptr);
-//double             stod  (string_ref str, string_ref::size_type* idx = nullptr);
-//long double        stold (string_ref str, string_ref::size_type* idx = nullptr);
+//int                stoi  (string_ref s, string_ref::size_type* idx = nullptr, int base = 0);
+//long               stol  (string_ref s, string_ref::size_type* idx = nullptr, int base = 0);
+//unsigned long      stoul (string_ref s, string_ref::size_type* idx = nullptr, int base = 0);
+//long long          stoll (string_ref s, string_ref::size_type* idx = nullptr, int base = 0);
+//unsigned long long stoull(string_ref s, string_ref::size_type* idx = nullptr, int base = 0);
+//float              stof  (string_ref s, string_ref::size_type* idx = nullptr);
+//double             stod  (string_ref s, string_ref::size_type* idx = nullptr);
+//long double        stold (string_ref s, string_ref::size_type* idx = nullptr);
 
 
 // Faster than the above, but less general (not part of the std proposal):
@@ -152,7 +152,7 @@ inline bool operator>=(string_ref x, string_ref y) { return !(x <  y); }
 // - Empty string parses as zero.
 // Throws std::invalid_argument if any character is different from [0-9],
 // similar to the error reporting in the std::stoi() (and related) functions.
-unsigned fast_stou(string_ref str);
+unsigned fast_stou(string_ref s);
 
 
 // concatenation (this is not part of the std::string_ref proposal)
@@ -160,7 +160,7 @@ std::string operator+(string_ref x, string_ref y);
 std::string operator+(char x, string_ref y);
 std::string operator+(string_ref x, char y);
 
-std::ostream& operator<<(std::ostream& os, string_ref str);
+std::ostream& operator<<(std::ostream& os, string_ref s);
 
 // begin, end
 inline string_ref::const_iterator begin(const string_ref& x) { return x.begin(); }

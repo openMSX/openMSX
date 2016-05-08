@@ -2,6 +2,14 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
+ <!-- hardware picture info from the ML-G1 with serial SP 00330
+      see http://bilgisayarlarim.com/Mitsubishi/ML-G1
+
+      CPU: NEC D780C-1
+      S3527 MSX-ENGINE
+      RF out via LVA510
+  -->
+
   <info>
     <manufacturer>Mitsubishi</manufacturer>
     <code>ML-G1 (ES)</code>
@@ -31,12 +39,12 @@
     <VDP id="VDP">
       <version>V9938</version>
       <vram>128</vram>
-      <io base="0x98" num="4" type="O"/>
-      <io base="0x98" num="2" type="I"/>
+      <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
     </VDP>
 
     <PSG id="PSG">
-      <type>YM2149</type>
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
       <sound>
         <volume>21000</volume>
       </sound>

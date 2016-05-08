@@ -19,10 +19,6 @@
 #include <cerrno>
 #include <cassert>
 
-#ifndef EOVERFLOW
-#define EOVERFLOW 0
-#endif
-
 using std::string;
 
 namespace openmsx {
@@ -216,6 +212,12 @@ void LocalFile::munmap()
 
 size_t LocalFile::getSize()
 {
+#if defined _WIN32
+	// Normal fstat compiles but doesn't seem to be working the same
+	// as on POSIX, regarding size support.
+	struct _stat64 st;
+	int ret = _fstat64(fileno(file.get()), &st);
+#else
 	struct stat st;
 	int ret = fstat(fileno(file.get()), &st);
 	if (ret && (errno == EOVERFLOW)) {
@@ -224,6 +226,7 @@ size_t LocalFile::getSize()
 		throw FileException("Files >= 2GB are not supported on "
 		                    "32-bit platforms: " + getURL());
 	}
+#endif
 	if (ret) {
 		throw FileException("Cannot get file size");
 	}
@@ -232,7 +235,12 @@ size_t LocalFile::getSize()
 
 void LocalFile::seek(size_t pos)
 {
-	if (fseek(file.get(), long(pos), SEEK_SET) != 0) {
+#if defined _WIN32
+	int ret = _fseeki64(file.get(), pos, SEEK_SET);
+#else
+	int ret = fseek(file.get(), pos, SEEK_SET);
+#endif
+	if (ret != 0) {
 		throw FileException("Error seeking file");
 	}
 }
@@ -274,8 +282,16 @@ bool LocalFile::isReadOnly() const
 
 time_t LocalFile::getModificationDate()
 {
+#if defined _WIN32
+	// Normal fstat compiles but doesn't seem to be working the same
+	// as on POSIX, regarding size support.
+	struct _stat64 st;
+	int ret = _fstat64(fileno(file.get()), &st);
+#else
 	struct stat st;
-	if (fstat(fileno(file.get()), &st)) {
+	int ret = fstat(fileno(file.get()), &st);
+#endif
+	if (ret) {
 		throw FileException("Cannot stat file");
 	}
 	return st.st_mtime;

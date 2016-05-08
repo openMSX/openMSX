@@ -3,13 +3,12 @@
 
 #include "gl_vec.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 class OutputSurface;
 
-class BaseImage : private noncopyable
+class BaseImage
 {
 public:
 	/**

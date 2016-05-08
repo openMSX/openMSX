@@ -75,7 +75,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\scripts\pngw32.rc">
+    <ResourceCompile Include="$(ThirdPartySrcDir)\$(LibNameLibPng)\scripts\pngwin.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

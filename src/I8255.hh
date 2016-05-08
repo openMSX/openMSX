@@ -9,14 +9,13 @@
 
 #include "EmuTime.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 class I8255Interface;
 class CliComm;
 
-class I8255 : private noncopyable
+class I8255
 {
 public:
 	I8255(I8255Interface& interf, EmuTime::param time,

@@ -188,17 +188,16 @@ void MSXCPU::wait(EmuTime::param time)
 	          : r800->wait(time);
 }
 
-void MSXCPU::waitCycles(unsigned cycles)
+EmuTime MSXCPU::waitCycles(EmuTime::param time, unsigned cycles)
 {
-	z80Active ? z80 ->waitCycles(cycles)
-	          : r800->waitCycles(cycles);
+	return z80Active ? z80 ->waitCycles(time, cycles)
+	                 : r800->waitCycles(time, cycles);
 }
 
-void MSXCPU::waitCyclesR800(unsigned cycles)
+EmuTime MSXCPU::waitCyclesR800(EmuTime::param time, unsigned cycles)
 {
-	if (isR800Active()) {
-		r800->waitCycles(cycles);
-	}
+	return z80Active ? time
+	                 : r800->waitCycles(time, cycles);
 }
 
 CPURegs& MSXCPU::getRegisters()
@@ -264,8 +263,8 @@ string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const
 
 MSXCPU::CPUFreqInfoTopic::CPUFreqInfoTopic(
 		InfoCommand& machineInfoCommand,
-		const string& name, CPUClock& clock_)
-	: InfoTopic(machineInfoCommand, name)
+		const string& name_, CPUClock& clock_)
+	: InfoTopic(machineInfoCommand, name_)
 	, clock(clock_)
 {
 }
@@ -303,8 +302,8 @@ static const char* const CPU_REGS_DESC =
 	"this effectively indicates that the CPU could accept an interrupt at\n"
 	"the start of the current instruction.\n";
 
-MSXCPU::Debuggable::Debuggable(MSXMotherBoard& motherboard)
-	: SimpleDebuggable(motherboard, "CPU regs", CPU_REGS_DESC, 28)
+MSXCPU::Debuggable::Debuggable(MSXMotherBoard& motherboard_)
+	: SimpleDebuggable(motherboard_, "CPU regs", CPU_REGS_DESC, 28)
 {
 }
 
@@ -342,7 +341,7 @@ byte MSXCPU::Debuggable::read(unsigned address)
 	case 26: return regs.getIM();
 	case 27: return 1 *  regs.getIFF1() +
 	                2 *  regs.getIFF2() +
-	                4 * (regs.getIFF1() && !regs.debugGetAfterEI());
+	                4 * (regs.getIFF1() && !regs.prevWasEI());
 	default: UNREACHABLE; return 0;
 	}
 }

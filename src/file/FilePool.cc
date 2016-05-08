@@ -8,8 +8,10 @@
 #include "Date.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
+#include "Display.hh"
 #include "EventDistributor.hh"
 #include "CliComm.hh"
+#include "Reactor.hh"
 #include "Timer.hh"
 #include "StringOp.hh"
 #include "memory.hh"
@@ -53,18 +55,17 @@ static string initialFilePoolSettingValue()
 	return result.getString().str();
 }
 
-FilePool::FilePool(CommandController& controller, EventDistributor& distributor_)
+FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 	: filePoolSetting(
 		controller, "__filepool",
 		"This is an internal setting. Don't change this directly, "
 		"instead use the 'filepool' command.",
 		initialFilePoolSettingValue())
-	, distributor(distributor_)
-	, cliComm(controller.getCliComm())
+	, reactor(reactor_)
 	, quit(false)
 {
 	filePoolSetting.attach(*this);
-	distributor.registerEventListener(OPENMSX_QUIT_EVENT, *this);
+	reactor.getEventDistributor().registerEventListener(OPENMSX_QUIT_EVENT, *this);
 	readSha1sums();
 	needWrite = false;
 }
@@ -74,7 +75,7 @@ FilePool::~FilePool()
 	if (needWrite) {
 		writeSha1sums();
 	}
-	distributor.unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
+	reactor.getEventDistributor().unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
 	filePoolSetting.detach(*this);
 }
 
@@ -263,8 +264,8 @@ File FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 	try {
 		directories = getDirectories();
 	} catch (CommandException& e) {
-		cliComm.printWarning("Error while parsing '__filepool' setting" +
-			e.getMessage());
+		reactor.getCliComm().printWarning(
+			"Error while parsing '__filepool' setting" + e.getMessage());
 	}
 	for (auto& d : directories) {
 		if (d.types & fileType) {
@@ -278,39 +279,47 @@ File FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 }
 
 static void reportProgress(const string& filename, size_t percentage,
-                           CliComm& cliComm, EventDistributor& distributor)
+                           Reactor& reactor)
 {
-	cliComm.printProgress(
-		"Calculating SHA1 sum for " + filename + "... " + StringOp::toString(percentage) + "%");
-	distributor.deliverEvents();
+	reactor.getCliComm().printProgress(
+		"Calculating SHA1 sum for " + filename + "... " + StringOp::toString(percentage) + '%');
+	reactor.getDisplay().repaint();
 }
 
-static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distributor)
+static Sha1Sum calcSha1sum(File& file, Reactor& reactor)
 {
+	// Calculate sha1 in several steps so that we can show progress
+	// information. We take a fixed step size for an efficient calculation.
+	static const size_t STEP_SIZE = 1024 * 1024; // 1MB
+
 	size_t size;
 	const byte* data = file.mmap(size);
-
-	if (size < 10*1024*1024) {
-		// for small files, don't show progress
-		return SHA1::calc(data, size);
-	}
-
-	// Calculate sha1 in several steps so that we can show progress information
-	SHA1 sha1;
-	static const size_t NUMBER_OF_STEPS = 100;
-	// calculate in NUMBER_OF_STEPS steps and report progress every step
-	auto stepSize  = size / NUMBER_OF_STEPS;
-	auto remainder = size % NUMBER_OF_STEPS;
-	size_t offset = 0;
 	string filename = file.getOriginalName();
-	reportProgress(filename, 0, cliComm, distributor);
-	for (size_t i = 0; i < (NUMBER_OF_STEPS - 1); ++i) {
-		sha1.update(&data[offset], stepSize);
-		offset += stepSize;
-		reportProgress(filename, i + 1, cliComm, distributor);
+
+	SHA1 sha1;
+	size_t done = 0;
+	size_t remaining = size;
+	auto lastShowedProgress = Timer::getTime();
+	bool everShowedProgress = false;
+
+	// Loop over all-but-the last blocks. For small files this loop is skipped.
+	while (remaining > STEP_SIZE) {
+		sha1.update(&data[done], STEP_SIZE);
+		done += STEP_SIZE;
+		remaining -= STEP_SIZE;
+
+		auto now = Timer::getTime();
+		if ((now - lastShowedProgress) > 1000000) {
+			reportProgress(filename, (100 * done) / size, reactor);
+			lastShowedProgress = now;
+			everShowedProgress = true;
+		}
 	}
-	sha1.update(data + offset, stepSize + remainder);
-	reportProgress(filename, 100, cliComm, distributor);
+	// last block
+	sha1.update(&data[done], remaining);
+	if (everShowedProgress) {
+		reportProgress(filename, 100, reactor);
+	}
 	return sha1.digest();
 }
 
@@ -336,7 +345,7 @@ File FilePool::getFromPool(const Sha1Sum& sha1sum)
 			}
 			time = newTime; // update timestamp
 			needWrite = true;
-			auto newSum = calcSha1sum(file, cliComm, distributor);
+			auto newSum = calcSha1sum(file, reactor);
 			if (newSum == sha1sum) {
 				// Modification time was changed, but
 				// (recalculated) sha1sum is still the same.
@@ -400,7 +409,7 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 	auto now = Timer::getTime();
 	if (now > (progress.lastTime + 250000)) { // 4Hz
 		progress.lastTime = now;
-		cliComm.printProgress("Searching for file with sha1sum " +
+		reactor.getCliComm().printProgress("Searching for file with sha1sum " +
 			sha1sum.toString() + "...\nIndexing filepool " + poolPath +
 			": [" + StringOp::toString(progress.amountScanned) + "]: " +
 			filename.substr(poolPath.size()));
@@ -408,14 +417,14 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 
 	// deliverEvents() is relatively cheap when there are no events to
 	// deliver, so it's ok to call on each file.
-	distributor.deliverEvents();
+	reactor.getEventDistributor().deliverEvents();
 
 	auto it = findInDatabase(filename);
 	if (it == end(pool)) {
 		// not in pool
 		try {
 			File file(filename);
-			auto sum = calcSha1sum(file, cliComm, distributor);
+			auto sum = calcSha1sum(file, reactor);
 			auto time = FileOperations::getModificationDate(st);
 			insert(sum, time, filename);
 			if (sum == sha1sum) {
@@ -437,7 +446,7 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 			} else {
 				// db outdated
 				File file(filename);
-				auto sum = calcSha1sum(file, cliComm, distributor);
+				auto sum = calcSha1sum(file, reactor);
 				get<1>(*it) = time;
 				adjust(it, sum);
 				if (sum == sha1sum) {
@@ -481,7 +490,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	}
 
 	// not in database or timestamp mismatch
-	auto sum = calcSha1sum(file, cliComm, distributor);
+	auto sum = calcSha1sum(file, reactor);
 	if (it == end(pool)) {
 		// was not yet in database, insert new entry
 		insert(sum, time, filename);
@@ -491,14 +500,6 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 		adjust(it, sum);
 	}
 	return sum;
-}
-
-void FilePool::removeSha1Sum(File& file)
-{
-	auto it = findInDatabase(file.getURL());
-	if (it != end(pool)) {
-		remove(it);
-	}
 }
 
 int FilePool::signalEvent(const std::shared_ptr<const Event>& event)

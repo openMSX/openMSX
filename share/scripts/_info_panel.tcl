@@ -25,7 +25,7 @@ proc info_panel_init {} {
 			method guess_title] \
 		mapper [dict create \
 			title "Mapper type" width 170 row 0 \
-			method {set val ""; catch {set val [dict get [openmsx_info romtype [lindex [machine_info device [guess_title]] 1]] description]}; set val}] \
+			method {set val ""; catch {set val [dict get [openmsx_info romtype [lindex [machine_info device [guess_rom_device]] 1]] description]}; set val}] \
 		fps [dict create \
 			title "FPS" width 38 row 1 \
 			method {format "%2.1f" [openmsx_info fps]}] \

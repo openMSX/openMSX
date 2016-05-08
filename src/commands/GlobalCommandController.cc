@@ -76,21 +76,21 @@ void GlobalCommandController::unregisterProxyCommand(string_ref name)
 }
 
 GlobalCommandController::ProxySettings::iterator
-GlobalCommandController::findProxySetting(const std::string& name)
+GlobalCommandController::findProxySetting(string_ref name)
 {
 	return find_if(begin(proxySettings), end(proxySettings),
-		[&](ProxySettings::value_type& v) { return v.first->getName() == name; });
+		[&](ProxySettings::value_type& v) { return v.first->getFullName() == name; });
 }
 
 void GlobalCommandController::registerProxySetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	auto it = findProxySetting(name);
+	const auto& name = setting.getBaseNameObj();
+	auto it = findProxySetting(name.getString());
 	if (it == end(proxySettings)) {
 		// first occurrence
 		auto proxy = make_unique<ProxySetting>(reactor, name);
-		getSettingsConfig().getSettingsManager().registerSetting(*proxy, name);
-		getInterpreter().registerSetting(*proxy, name);
+		getSettingsManager().registerSetting(*proxy);
+		getInterpreter().registerSetting(*proxy);
 		proxySettings.emplace_back(std::move(proxy), 1);
 	} else {
 		// was already registered
@@ -100,16 +100,15 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 
 void GlobalCommandController::unregisterProxySetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	auto it = findProxySetting(name);
+	auto it = findProxySetting(setting.getBaseName());
 	assert(it != end(proxySettings));
 	assert(it->second);
 	--(it->second);
 	if (it->second == 0) {
 		auto& proxy = *it->first;
-		getInterpreter().unregisterSetting(proxy, name);
-		getSettingsConfig().getSettingsManager().unregisterSetting(proxy, name);
-		proxySettings.erase(it);
+		getInterpreter().unregisterSetting(proxy);
+		getSettingsManager().unregisterSetting(proxy);
+		move_pop_back(proxySettings, it);
 	}
 }
 
@@ -143,6 +142,7 @@ void GlobalCommandController::unregisterCommand(
 void GlobalCommandController::registerCompleter(
 	CommandCompleter& completer, string_ref str)
 {
+	if (str.starts_with("::")) str = str.substr(2); // drop leading ::
 	assert(!commandCompleters.contains(str));
 	commandCompleters.emplace_noDuplicateCheck(str.str(), &completer);
 }
@@ -150,6 +150,7 @@ void GlobalCommandController::registerCompleter(
 void GlobalCommandController::unregisterCompleter(
 	CommandCompleter& completer, string_ref str)
 {
+	if (str.starts_with("::")) str = str.substr(2); // drop leading ::
 	assert(commandCompleters.contains(str));
 	assert(commandCompleters[str.str()] == &completer); (void)completer;
 	commandCompleters.erase(str);
@@ -157,32 +158,14 @@ void GlobalCommandController::unregisterCompleter(
 
 void GlobalCommandController::registerSetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	getSettingsConfig().getSettingsManager().registerSetting(setting, name);
-	interpreter.registerSetting(setting, name);
+	getSettingsManager().registerSetting(setting);
+	interpreter.registerSetting(setting);
 }
 
 void GlobalCommandController::unregisterSetting(Setting& setting)
 {
-	const auto& name = setting.getName();
-	interpreter.unregisterSetting(setting, name);
-	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
-}
-
-BaseSetting* GlobalCommandController::findSetting(string_ref name)
-{
-	return getSettingsConfig().getSettingsManager().findSetting(name);
-}
-
-void GlobalCommandController::changeSetting(
-	const std::string& name, const TclObject& value)
-{
-	interpreter.setVariable(name, value);
-}
-
-void GlobalCommandController::changeSetting(Setting& setting, const TclObject& value)
-{
-	changeSetting(setting.getName(), value);
+	interpreter.unregisterSetting(setting);
+	getSettingsManager().unregisterSetting(setting);
 }
 
 bool GlobalCommandController::hasCommand(string_ref command) const
@@ -396,10 +379,23 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 	}
 	if (tokens.size() == 1) {
 		// build a list of all command strings
-		Completer::completeString(tokens,
-		                          interpreter.getCommandNames());
+		TclObject names = interpreter.getCommandNames();
+		vector<string> names2; // each command with and without :: prefix
+		names2.reserve(2 * names.size());
+		for (string_ref n : names) {
+			names2.push_back(n.str());
+			if (n.starts_with("::")) {
+				names2.push_back(n.substr(2).str());
+			} else {
+				names2.push_back("::" + n);
+			}
+		}
+		Completer::completeString(tokens, names2);
 	} else {
-		auto it = commandCompleters.find(tokens.front());
+		string_ref cmd = tokens.front();
+		if (cmd.starts_with("::")) cmd = cmd.substr(2); // drop leading ::
+
+		auto it = commandCompleters.find(cmd);
 		if (it != end(commandCompleters)) {
 			it->second->tabCompletion(tokens);
 		} else {
@@ -412,13 +408,13 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 				auto begin = list.begin();
 				auto end   = list.end();
 				if (begin != end) {
-					auto it = end; --it;
-					auto back = *it;
+					auto it2 = end; --it2;
+					auto back = *it2;
 					if (back == "false") {
-						end = it;
+						end = it2;
 						sensitive = false;
 					} else if (back == "true") {
-						end = it;
+						end = it2;
 						sensitive = true;
 					}
 				}
@@ -526,12 +522,12 @@ string GlobalCommandController::TabCompletionCmd::help(const vector<string>& /*t
 
 // class UpdateCmd
 
-GlobalCommandController::UpdateCmd::UpdateCmd(CommandController& commandController)
-	: Command(commandController, "openmsx_update")
+GlobalCommandController::UpdateCmd::UpdateCmd(CommandController& commandController_)
+	: Command(commandController_, "openmsx_update")
 {
 }
 
-static GlobalCliComm::UpdateType getType(string_ref name)
+static GlobalCliComm::UpdateType getType(const TclObject& name)
 {
 	auto updateStr = CliComm::getUpdateStrings();
 	for (auto i : xrange(updateStr.size())) {
@@ -539,14 +535,14 @@ static GlobalCliComm::UpdateType getType(string_ref name)
 			return static_cast<CliComm::UpdateType>(i);
 		}
 	}
-	throw CommandException("No such update type: " + name);
+	throw CommandException("No such update type: " + name.getString());
 }
 
 CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 {
 	auto& controller = OUTER(GlobalCommandController, updateCmd);
-	if (auto* connection = controller.getConnection()) {
-		return *connection;
+	if (auto* c = controller.getConnection()) {
+		return *c;
 	}
 	throw CommandException("This command only makes sense when "
 	                       "it's used from an external application.");
@@ -558,10 +554,10 @@ void GlobalCommandController::UpdateCmd::execute(
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	if (tokens[1].getString() == "enable") {
-		getConnection().setUpdateEnable(getType(tokens[2].getString()), true);
-	} else if (tokens[1].getString() == "disable") {
-		getConnection().setUpdateEnable(getType(tokens[2].getString()), false);
+	if (tokens[1] == "enable") {
+		getConnection().setUpdateEnable(getType(tokens[2]), true);
+	} else if (tokens[1] == "disable") {
+		getConnection().setUpdateEnable(getType(tokens[2]), false);
 	} else {
 		throw SyntaxError();
 	}
@@ -590,8 +586,8 @@ void GlobalCommandController::UpdateCmd::tabCompletion(vector<string>& tokens) c
 
 // Platform info
 
-GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoCommand)
-	: InfoTopic(openMSXInfoCommand, "platform")
+GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoCommand_)
+	: InfoTopic(openMSXInfoCommand_, "platform")
 {
 }
 
@@ -608,8 +604,8 @@ string GlobalCommandController::PlatformInfo::help(const vector<string>& /*token
 
 // Version info
 
-GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand)
-	: InfoTopic(openMSXInfoCommand, "version")
+GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand_)
+	: InfoTopic(openMSXInfoCommand_, "version")
 {
 }
 

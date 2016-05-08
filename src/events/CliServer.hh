@@ -3,6 +3,7 @@
 
 #include "Thread.hh"
 #include "Socket.hh"
+#include <atomic>
 #include <string>
 
 namespace openmsx {
@@ -24,8 +25,8 @@ private:
 	void run() override;
 
 	void mainLoop();
-	void createSocket();
-	bool exitAcceptLoop();
+	SOCKET createSocket();
+	void exitAcceptLoop();
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
@@ -34,7 +35,10 @@ private:
 	Thread thread;
 	std::string socketName;
 	SOCKET listenSock;
-	bool exitLoop;
+#ifndef _WIN32
+	int wakeupPipe[2];
+#endif
+	std::atomic_bool exitLoop;
 };
 
 } // namespace openmsx

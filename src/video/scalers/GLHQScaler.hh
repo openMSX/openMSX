@@ -2,12 +2,11 @@
 #define GLHQSCALER_HH
 
 #include "GLScaler.hh"
-#include "noncopyable.hh"
 #include <cstdint>
 
 namespace openmsx {
 
-class GLHQScaler final : public GLScaler, private noncopyable
+class GLHQScaler final : public GLScaler
 {
 public:
 	explicit GLHQScaler(GLScaler& fallback);

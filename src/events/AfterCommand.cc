@@ -117,8 +117,8 @@ private:
 
 AfterCommand::AfterCommand(Reactor& reactor_,
                            EventDistributor& eventDistributor_,
-                           CommandController& commandController)
-	: Command(commandController, "after")
+                           CommandController& commandController_)
+	: Command(commandController_, "after")
 	, reactor(reactor_)
 	, eventDistributor(eventDistributor_)
 {
@@ -390,21 +390,23 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 	// TODO : make more complete
 }
 
+// Execute the cmds for which the predicate returns true, and erase those from afterCmds.
 template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 {
-	// predicate should return false on matches
-	auto it = partition(begin(afterCmds), end(afterCmds), pred);
-	AfterCmds tmp(std::make_move_iterator(it),
-	              std::make_move_iterator(end(afterCmds)));
-	afterCmds.erase(it, end(afterCmds));
-	for (auto& c : tmp) {
+	AfterCmds matches;
+	// Usually there are very few matches (typically even 0 or 1), so no
+	// need to reserve() space.
+	auto p = partition_copy_remove(begin(afterCmds), end(afterCmds),
+	                               std::back_inserter(matches), pred);
+	afterCmds.erase(p.second, end(afterCmds));
+	for (auto& c : matches) {
 		c->execute();
 	}
 }
 
 template<EventType T> struct AfterEventPred {
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
-		return !dynamic_cast<AfterEventCmd<T>*>(x.get());
+		return dynamic_cast<AfterEventCmd<T>*>(x.get()) != nullptr;
 	}
 };
 template<EventType T> void AfterCommand::executeEvents()
@@ -416,10 +418,10 @@ struct AfterEmuTimePred {
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterTimedCmd*>(x.get())) {
 			if (cmd->getTime() == 0.0) {
-				return false;
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 };
 
@@ -428,9 +430,9 @@ struct AfterInputEventPred {
 		: event(std::move(event_)) {}
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {
-			if (cmd->getEvent()->matches(*event)) return false;
+			if (cmd->getEvent()->matches(*event)) return true;
 		}
-		return true;
+		return false;
 	}
 	AfterCommand::EventPtr event;
 };
@@ -495,7 +497,7 @@ void AfterCmd::execute()
 
 unique_ptr<AfterCmd> AfterCmd::removeSelf()
 {
-	auto it = find_if_unguarded(afterCommand.afterCmds,
+	auto it = rfind_if_unguarded(afterCommand.afterCmds,
 		[&](std::unique_ptr<AfterCmd>& e) { return e.get() == this; });
 	auto result = move(*it);
 	afterCommand.afterCmds.erase(it);
@@ -506,13 +508,12 @@ unique_ptr<AfterCmd> AfterCmd::removeSelf()
 // class  AfterTimedCmd
 
 AfterTimedCmd::AfterTimedCmd(
-		Scheduler& scheduler,
-		AfterCommand& afterCommand,
-		const TclObject& command, double time_)
-	: AfterCmd(afterCommand, command)
-	, Schedulable(scheduler)
+		Scheduler& scheduler_,
+		AfterCommand& afterCommand_,
+		const TclObject& command_, double time_)
+	: AfterCmd(afterCommand_, command_)
+	, Schedulable(scheduler_)
 	, time(time_)
-
 {
 	reschedule();
 }
@@ -544,10 +545,10 @@ void AfterTimedCmd::schedulerDeleted()
 // class AfterTimeCmd
 
 AfterTimeCmd::AfterTimeCmd(
-		Scheduler& scheduler,
-		AfterCommand& afterCommand,
-		const TclObject& command, double time)
-	: AfterTimedCmd(scheduler, afterCommand, command, time)
+		Scheduler& scheduler_,
+		AfterCommand& afterCommand_,
+		const TclObject& command_, double time_)
+	: AfterTimedCmd(scheduler_, afterCommand_, command_, time_)
 {
 }
 
@@ -560,10 +561,10 @@ string AfterTimeCmd::getType() const
 // class AfterIdleCmd
 
 AfterIdleCmd::AfterIdleCmd(
-		Scheduler& scheduler,
-		AfterCommand& afterCommand,
-		const TclObject& command, double time)
-	: AfterTimedCmd(scheduler, afterCommand, command, time)
+		Scheduler& scheduler_,
+		AfterCommand& afterCommand_,
+		const TclObject& command_, double time_)
+	: AfterTimedCmd(scheduler_, afterCommand_, command_, time_)
 {
 }
 
@@ -577,9 +578,9 @@ string AfterIdleCmd::getType() const
 
 template<EventType T>
 AfterEventCmd<T>::AfterEventCmd(
-		AfterCommand& afterCommand, const TclObject& type_,
-		const TclObject& command)
-	: AfterCmd(afterCommand, command), type(type_.getString().str())
+		AfterCommand& afterCommand_, const TclObject& type_,
+		const TclObject& command_)
+	: AfterCmd(afterCommand_, command_), type(type_.getString().str())
 {
 }
 
@@ -593,10 +594,10 @@ string AfterEventCmd<T>::getType() const
 // AfterInputEventCmd
 
 AfterInputEventCmd::AfterInputEventCmd(
-		AfterCommand& afterCommand,
+		AfterCommand& afterCommand_,
 		AfterCommand::EventPtr event_,
-		const TclObject& command)
-	: AfterCmd(afterCommand, command)
+		const TclObject& command_)
+	: AfterCmd(afterCommand_, command_)
 	, event(std::move(event_))
 {
 }
@@ -609,9 +610,9 @@ string AfterInputEventCmd::getType() const
 // class AfterRealTimeCmd
 
 AfterRealTimeCmd::AfterRealTimeCmd(
-		RTScheduler& rtScheduler, AfterCommand& afterCommand,
-		const TclObject& command, double time)
-	: AfterCmd(afterCommand, command)
+		RTScheduler& rtScheduler, AfterCommand& afterCommand_,
+		const TclObject& command_, double time)
+	: AfterCmd(afterCommand_, command_)
 	, RTSchedulable(rtScheduler)
 {
 	scheduleRT(uint64_t(time * 1e6)); // micro seconds

@@ -3,7 +3,6 @@
 
 #include "MemBuffer.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <string>
 #include <memory>
 
@@ -13,7 +12,7 @@ class XMLElement;
 class DeviceConfig;
 class RamDebuggable;
 
-class Ram : private noncopyable
+class Ram
 {
 public:
 	/** Create Ram object with an associated debuggable. */

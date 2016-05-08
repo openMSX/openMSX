@@ -1,69 +1,79 @@
-/* Ported from:
-** Source: /cvsroot/bluemsx/blueMSX/Src/Memory/romMapperSfg05.c,v
-** Revision: 1.12
-** Date: 2007/04/28 05:06:29
-**
-** More info: http://www.bluemsx.com
-**
-** Copyright (C) 2003-2006 Daniel Vik
-*/
-
-// SFG05 Midi: The MIDI Out is probably buffered. If UART is unbuffered, all
-//             data will not be transmitted correctly. Question is how big
-//             the buffer is.
-//             The command bits are not clear at all. Only known bit is the
-//             reset bit.
-
-// NOTES: Cmd bit 3: seems to be enable/disable something (checked before RX
-//        Cmd bit 4: is set when IM2 is used, cleared when IM1 is used
-
-
 #ifndef YM2148_HH
 #define YM2148_HH
 
+#include "IRQHelper.hh"
+#include "MidiInConnector.hh"
+#include "MidiOutConnector.hh"
+#include "Schedulable.hh"
 #include "openmsx.hh"
+#include "outer.hh"
+
+class MSXMotherBoard;
+class Scheduler;
 
 namespace openmsx {
 
-class YM2148
+class YM2148 : public MidiInConnector
 {
 public:
-	YM2148();
-	~YM2148();
+	YM2148(const std::string& name, MSXMotherBoard& motherBoard);
 	void reset();
 
-	byte readStatus();
-	byte readData();
-	void setVector(byte value);
 	void writeCommand(byte value);
-	void writeData(byte value);
+	void writeData(byte value, EmuTime::param time);
+	byte readStatus(EmuTime::param time);
+	byte readData(EmuTime::param time);
+	byte peekStatus(EmuTime::param time) const;
+	byte peekData(EmuTime::param time) const;
+
+	bool pendingIRQ() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void midiInCallback(byte* buffer, unsigned length);
-	void onRecv();
-	void onTrans();
+	// MidiInConnector
+	bool ready() override;
+	bool acceptsData() override;
+	void setDataBits(DataBits bits) override;
+	void setStopBits(StopBits bits) override;
+	void setParityBit(bool enable, ParityBit parity) override;
+	void recvByte(byte value, EmuTime::param time) override;
 
-	//TODO MidiIO*     midiIo;
-	//TODO BoardTimer* timerRecv;
-	//TODO BoardTimer* timerTrans;
-	//TODO void*       semaphore;
-	static const unsigned RX_QUEUE_SIZE = 256;
-	int      txPending;
-	int      rxPending;
-	int      rxHead;
-	unsigned charTime;
-	unsigned timeRecv;
-	unsigned timeTrans;
-	unsigned status;
-	byte     command;
-	byte     rxData;
-	byte     txBuffer;
-	byte     rxQueue[RX_QUEUE_SIZE];
-	byte     vector;
+	// Schedulable
+	struct SyncRecv : Schedulable {
+		friend class YM2148;
+		SyncRecv(Scheduler& s) : Schedulable(s) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& ym2148 = OUTER(YM2148, syncRecv);
+			ym2148.execRecv(time);
+		}
+	} syncRecv;
+	struct SyncTrans : Schedulable {
+		friend class YM2148;
+		SyncTrans(Scheduler& s) : Schedulable(s) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& ym2148 = OUTER(YM2148, syncTrans);
+			ym2148.execTrans(time);
+		}
+	} syncTrans;
+	void execRecv (EmuTime::param time);
+	void execTrans(EmuTime::param time);
+
+	void send(byte value, EmuTime::param time);
+
+	IRQHelper rxIRQ;
+	IRQHelper txIRQ;
+	bool rxReady;
+	byte rxBuffer;  //<! Byte received from MIDI in connector.
+	byte txBuffer1; //<! The byte currently being send.
+	byte txBuffer2; //<! The next to-be-send byte.
+	byte status;
+	byte commandReg;
+
+	MidiOutConnector outConnector;
 };
+SERIALIZE_CLASS_VERSION(YM2148, 2);
 
 } // namespace openmsx
 
