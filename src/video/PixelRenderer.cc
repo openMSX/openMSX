@@ -224,11 +224,14 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 			skipEvent = true;
 		}
 	}
-	eventDistributor.distributeEvent(
-		std::make_shared<FinishFrameEvent>(
-			rasterizer->getPostProcessor()->getVideoSource(),
-			videoSourceSetting.getSource(),
-			skipEvent));
+	if (vdp.getMotherBoard().isActive() &&
+	    !vdp.getMotherBoard().isFastForwarding()) {
+		eventDistributor.distributeEvent(
+			std::make_shared<FinishFrameEvent>(
+				rasterizer->getPostProcessor()->getVideoSource(),
+				videoSourceSetting.getSource(),
+				skipEvent));
+	}
 }
 
 void PixelRenderer::updateHorizontalScrollLow(
