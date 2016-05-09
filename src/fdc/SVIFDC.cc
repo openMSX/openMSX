@@ -44,7 +44,7 @@ byte SVIFDC::readIO(word port, EmuTime::param time)
 		return controller.getDataReg(time);
 	case 4:
 		return (controller.getIRQ (time) ? 0x80 : 0x00) |
-		       (controller.getDTRQ(time) ? 0x00 : 0x40); // TODO correct?
+		       (controller.getDTRQ(time) ? 0x40 : 0x00);
 	}
 	return 255;
 }
@@ -62,7 +62,7 @@ byte SVIFDC::peekIO(word port, EmuTime::param time) const
 		return controller.peekDataReg(time);
 	case 4:
 		return (controller.peekIRQ (time) ? 0x80 : 0x00) |
-		       (controller.peekDTRQ(time) ? 0x00 : 0x40); // TODO
+		       (controller.peekDTRQ(time) ? 0x40 : 0x00);
 	}
 	return 255;
 }
