@@ -95,7 +95,11 @@ SVIPPI::SVIPPI(const DeviceConfig& config)
 	ports[0] = &getMotherBoard().getJoystickPort(0);
 	ports[1] = &getMotherBoard().getJoystickPort(1);
 
-	reset(getCurrentTime());
+	auto time = getCurrentTime();
+	ports[0]->write(0, time); // TODO correct?  Bit2 must be 0 otherwise
+	ports[1]->write(0, time); //      e.g. KeyJoystick doesn't work
+
+	reset(time);
 }
 
 void SVIPPI::reset(EmuTime::param time)
@@ -159,8 +163,8 @@ void SVIPPI::writeIO(word port, byte value, EmuTime::param time)
 
 byte SVIPPI::readA(EmuTime::param time)
 {
-	byte triggers = ((ports[0]->read(time) & 0x10) ? 0 : 0x10) |
-	                ((ports[1]->read(time) & 0x10) ? 0 : 0x20);
+	byte triggers = ((ports[0]->read(time) & 0x10) ? 0x10 : 0) |
+	                ((ports[1]->read(time) & 0x10) ? 0x20 : 0);
 
 	//byte cassetteReady = cassettePort.Ready() ? 0 : 0x40;
 	byte cassetteReady = 0x40;
