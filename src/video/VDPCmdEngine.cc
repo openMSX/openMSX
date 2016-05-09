@@ -1699,6 +1699,7 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, CommandController& commandController)
 	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
 {
 	status = 0;
+	scrMode = -1;
 	transfer = false;
 	SX = SY = DX = DY = NX = NY = 0;
 	ASX = ADX = ANX = 0;
@@ -1707,11 +1708,11 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, CommandController& commandController)
 
 void VDPCmdEngine::reset(EmuTime::param time)
 {
-	status = 0;
-	scrMode = -1;
-	for (unsigned i = 0; i < 15; ++i) {
+	for (int i = 14; i >= 0; --i) { // start with ABORT
 		setCmdReg(i, 0, time);
 	}
+	status = 0;
+	scrMode = -1;
 
 	updateDisplayMode(vdp.getDisplayMode(), time);
 }
