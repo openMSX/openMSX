@@ -127,11 +127,14 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 		}
 
 	}
-	eventDistributor.distributeEvent(
-		std::make_shared<FinishFrameEvent>(
-			rasterizer->getPostProcessor()->getVideoSource(),
-			videoSourceSetting.getSource(),
-			skipEvent));
+	if (vdp.getMotherBoard().isActive() &&
+	    !vdp.getMotherBoard().isFastForwarding()) {
+		eventDistributor.distributeEvent(
+			std::make_shared<FinishFrameEvent>(
+				rasterizer->getPostProcessor()->getVideoSource(),
+				videoSourceSetting.getSource(),
+				skipEvent));
+	}
 }
 
 void V9990PixelRenderer::sync(EmuTime::param time, bool force)
