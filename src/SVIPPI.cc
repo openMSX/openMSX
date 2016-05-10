@@ -167,7 +167,7 @@ byte SVIPPI::readA(EmuTime::param time)
 	                ((ports[1]->read(time) & 0x10) ? 0x20 : 0);
 
 	//byte cassetteReady = cassettePort.Ready() ? 0 : 0x40;
-	byte cassetteReady = 0x40;
+	byte cassetteReady = 0; // ready
 
 	byte cassetteInput = cassettePort.cassetteIn(time) ? 0x80 : 0x00;
 
