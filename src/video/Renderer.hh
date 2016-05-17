@@ -183,6 +183,12 @@ public:
 	  */
 	static const uint8_t TMS99X8A_PALETTE[16][3];
 
+	/** The MSX1 palette, converted from digital via ITU-R BT.601
+	  * An array of 16 RGB triples.
+	  * Each component ranges from 0 (off) to 255 (full intensity).
+	  */
+	static const uint8_t TMS9X2XABT601_PALETTE[16][3];
+
 	/** The MSX1 palette of the Toshiba T6950 and T7937A.
 	  * An array of 16 RGB triples.
 	  * Each component ranges from 0 (off) to 255 (full intensity).

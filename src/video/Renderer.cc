@@ -72,6 +72,105 @@ const uint8_t Renderer::TMS99X8A_PALETTE[16][3] = {
 };
 
 /*
+TMS9X2X VDP family palette.
+
+This pallette was reverse engineered by FRS:
+1) Convert the YPbPr values from the datasheet to digital 8bit/channel DAC values in YCbCr
+2) Use the official formula from the awarded BT.601 standard to convert the YCbCr to digital 24bit RGB
+
+                          VDP built in palette                       Auxiliary tables                   Digital conversion
+                                                         Digital 8bit/ch           Analog Component
+                Analog levels           Digital 5bit/ch      ITU-R BT.601               Video
+Color           Y       R-Y     B-Y     Y     R-Y   B-Y    Y     Cr     Cb        Y       Pr       Pb   ITU-R BT.601
+Black           0.00    0.47    0.47     0    14    14    16    123    124      0.0    -7.65    -7.65    0      3     0
+Medium green    0.53    0.07    0.20    16     2     6   133     59     90    135.2  -109.65   -76.50   26    174    60
+Light green     0.67    0.17    0.27    20     5     8   162     75     99    170.9   -84.15   -58.65   85    199   112
+Dark blue       0.40    0.40    1.00    12    12    30   104    112    191    102.0   -25.50   127.50   77     96   230
+Light blue      0.53    0.43    0.93    16    13    28   133    117    183    135.2   -17.85   109.65   119   130   247
+Dark red        0.47    0.83    0.30    14    25     9   118    181    103    119.9    84.15   -51.00   203   101    68
+Cyan            0.73    0.00    0.70    22     0    21   177     48    153    186.2  -127.50    51.00   60    217   238
+Medium red      0.53    0.93    0.27    16    28     8   133    197     99    135.2   109.65   -58.65   246   113    78
+Light red       0.67    0.93    0.27    20    28     8   162    197     99    170.9   109.65   -58.65   255   146   112
+Dark yellow     0.73    0.57    0.07    22    17     2   177    139     73    186.2    17.85  -109.65   205   194    77
+Light yellow    0.80    0.57    0.17    24    17     5   191    139     86    204.0    17.85   -84.15   221   208   119
+Dark green      0.47    0.13    0.23    14     4     7   118     69     94    119.9   -94.35   -68.85   25    151    50
+Magenta         0.53    0.73    0.67    16    22    20   133    165    149    135.2    58.65    43.35   195   116   179
+Gray            0.80    0.47    0.47    24    14    14   191    123    124    204.0    -7.65    -7.65   196   207   196
+White           1.00    0.47    0.47    30    14    14   235    123    124    255.0    -7.65    -7.65   247   255   247
+
+
+The first 3 columns are the voltage levels specified in the TMS datasheet.
+
+Many subtleties contained in the datasheet had to be considered:
+
+- Internal digital palette was omitted and had to be inferred
+- Omitted DAC value 1,03 volts is reserved as headroom. It is shown in the
+  LM1889 datasheet, recommended by Texas.
+
+This means that:
+
+- The BT.601 conversion must fit the TMS9918 headroom value inside the BT.601
+  headroom range
+- Proper analog conversions must saturate values of the headroom range. This
+  was implicit when the datasheet mentioned that "1,00" was the max value.
+
+So, of the above table, the next 3 columns is that value converted to digital
+levels using this inferred table:
+
+Step    5bit  Voltage Seen on
+0.033   0     0.00    L&C
+        1     0.03    Unused
+        2     0.07    C
+        3     0.10    Unused
+        4     0.13    C
+        5     0.17    C
+        6     0.20    C
+        7     0.23    C
+        8     0.27    C
+        9     0.30    C
+        10    0.33    Unused
+        11    0.37    Unused
+        12    0.40    L&C
+        13    0.43    C
+        14    0.47    C
+        15    0.50    Unused
+        16    0.53    L
+        17    0.57    C
+        18    0.60    Unused
+        19    0.63    Unused
+        20    0.67    L&C
+        21    0.70    C
+        22    0.73    L&C
+        23    0.77    Unused
+        24    0.80    L
+        25    0.83    C
+        26    0.87    Unused
+        27    0.90    Unused
+        28    0.93    C
+        29    0.97    Unused
+        30    1.00    L&C       <-Artificial max level
+        31    1.03    Unused    <-Headroom
+*/
+const uint8_t Renderer::TMS9X2XABT601_PALETTE[16][3] = {
+	{   0,   0,   0 },
+	{   0,   3,   0 },
+	{  26, 174,  60 },
+	{  85, 199, 112 },
+	{  77,  96, 230 },
+	{ 119, 130, 247 },
+	{ 203, 101,  68 },
+	{  60, 217, 238 },
+	{ 246, 113,  78 },
+	{ 255, 146, 112 },
+	{ 205, 194,  77 },
+	{ 221, 208, 119 },
+	{  25, 151,  50 },
+	{ 195, 116, 179 },
+	{ 196, 207, 196 },
+	{ 247, 255, 247 },
+};
+
+/*
  * Roughly measured RGB values in volts.
  * Voltages were in range of 1.12-5.04, and had 2 digits accuracy (it seems
  * minimum difference was 0.04 V).
