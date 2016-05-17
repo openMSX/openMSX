@@ -195,6 +195,12 @@ public:
 	  */
 	static const uint8_t TOSHIBA_PALETTE[16][3];
 
+	/** The MSX1 palette of the Fujitsu FM-X RGB out
+	  * An array of 16 RGB triples.
+	  * Each component ranges from 0 (off) to 255 (full intensity).
+	  */
+	static const uint8_t FUJITSUFMX_PALETTE[16][3];
+
 	/** Sprite palette in Graphic 7 mode.
 	  * Each palette entry is a word in GRB format:
 	  * bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.

@@ -207,6 +207,32 @@ const uint8_t Renderer::TOSHIBA_PALETTE[16][3] = {
 };
 
 /*
+How come the FM-X has a distinct palette while it clearly has a TMS9928 VDP?
+Because it has an additional circuit that rework the palette for the same one
+used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
+
+This seems to be the 24-bit RGB equivalent to the palette output by the FM-X on its RGB conector:
+*/
+const uint8_t Renderer::FUJITSUFMX_PALETTE[16][3] = {
+	{   0,   0,   0 },
+	{   0,   0,   0 },
+	{   0, 255,   0 },
+	{   0, 255,   0 },
+	{   0,   0, 255 },
+	{   0,   0, 255 },
+	{ 255,   0,   0 },
+	{   0, 255, 255 },
+	{ 255,   0,   0 },
+	{ 255,   0,   0 },
+	{ 255, 255,   0 },
+	{ 255, 255,   0 },
+	{   0, 255,   0 },
+	{ 255,   0, 255 },
+	{ 255, 255, 255 },
+	{ 255, 255, 255 },
+};
+
+/*
 Sprite palette in Graphic 7 mode.
 See page 98 of the V9938 data book.
 */
