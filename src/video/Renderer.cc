@@ -150,7 +150,23 @@ Step    5bit  Voltage Seen on
         29    0.97    Unused
         30    1.00    L&C       <-Artificial max level
         31    1.03    Unused    <-Headroom
+
+The formulas to calculate the RGB values are these:
+
+R=255/219(Y-16)+255/112(1-Kr)(Cr-128)
+G=255/219(Y-16)-255/112(1-Kb)Kb/Kg(Cb-128)-255/112(1-Kr)Kr/Kg(Cr-128)
+B=255/219(Y-16)+255/112(1-Kb)*(Cb-128)
+
+The results must be clipped between 0 and 255.
+
+Kr = 0,299
+Kg = 0,587
+Kb = 0,114
+
+Wikipedia has a simplified version of the formula:
+https://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.601_conversion
 */
+
 const uint8_t Renderer::TMS9X2XABT601_PALETTE[16][3] = {
 	{   0,   0,   0 },
 	{   0,   6,   0 },
