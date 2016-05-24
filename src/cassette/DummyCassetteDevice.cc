@@ -7,9 +7,9 @@ void DummyCassetteDevice::setMotor(bool /*status*/, EmuTime::param /*time*/)
 	// do nothing
 }
 
-short DummyCassetteDevice::readSample(EmuTime::param /*time*/)
+bool DummyCassetteDevice::cassetteIn(EmuTime::param /*time*/)
 {
-	return 32767; // TODO check value
+	return true;
 }
 
 void DummyCassetteDevice::setSignal(bool /*output*/, EmuTime::param /*time*/)

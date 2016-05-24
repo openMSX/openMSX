@@ -413,15 +413,15 @@ void CassettePlayer::setMotorControl(bool status, EmuTime::param time)
 	}
 }
 
-short CassettePlayer::readSample(EmuTime::param time)
+bool CassettePlayer::cassetteIn(EmuTime::param time)
 {
 	if (getState() == PLAY) {
 		// playing
 		sync(time);
-		return isRolling() ? playImage->getSampleAt(tapePos) : 0;
+		return isRolling() ? playImage->cassetteIn(tapePos) : true;
 	} else {
 		// record or stop
-		return 0;
+		return true;
 	}
 }
 

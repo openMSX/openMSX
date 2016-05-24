@@ -10,7 +10,7 @@ class DummyCassetteDevice final : public CassetteDevice
 public:
 	void setMotor(bool status, EmuTime::param time) override;
 	void setSignal(bool output, EmuTime::param time) override;
-	short readSample(EmuTime::param time) override;
+	bool cassetteIn(EmuTime::param time) override;
 
 	string_ref getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;

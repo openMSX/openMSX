@@ -89,16 +89,16 @@ bool CassettePort::cassetteIn(EmuTime::param time)
 	// All analog filtering is ignored for now
 	//   only important component is DC-removal
 	//   we just assume sample has no DC component
-	short sample;
+	bool result;
 #if COMPONENT_LASERDISC
 	if (!motorControl && laserdiscPlayer) {
-		sample = laserdiscPlayer->readSample(time);
+		int16_t sample = laserdiscPlayer->readSample(time);
+		result = (sample >= 0); // comparator
 	} else
 #endif
 	{
-		sample = getPluggedCasDev().readSample(time); // read 1 sample
+		result = getPluggedCasDev().cassetteIn(time); // read 1 sample
 	}
-	bool result = (sample >= 0); // comparator
 	return result;
 }
 

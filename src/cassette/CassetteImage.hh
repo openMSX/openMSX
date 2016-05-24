@@ -14,6 +14,9 @@ public:
 
 	virtual ~CassetteImage() {}
 	virtual short getSampleAt(EmuTime::param time) = 0;
+	virtual bool cassetteIn(EmuTime::param time) {
+		return getSampleAt(time) >= 0;
+	}
 	virtual EmuTime getEndTime() const = 0;
 	virtual unsigned getFrequency() const = 0;
 	virtual void fillBuffer(unsigned pos, int** bufs, unsigned num) const = 0;
