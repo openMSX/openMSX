@@ -103,22 +103,56 @@ VDP::VDP(const DeviceConfig& config)
 
 	interlaced = false;
 
+	// Current general defaults for saturation:
+	// - Any MSX with a TMS9x18 VDP: SatPr=SatPb=100%
+	// - Other machines with a TMS9x2x VDP and RGB output:
+	//   SatPr=SatPr=100%, until someone reports a better value
+	// - Other machines with a TMS9x2x VDP and CVBS only output:
+	//   SatPr=SatPb=54%, until someone reports a better value
+	// At this point we don't know anything about the connector here, so
+	// only the first point can be implemented. The default default is
+	// still 54, which is very similar to the old palette implementation
+
+	int defaultSaturation = 54;
+
 	std::string versionString = config.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
-	else if (versionString == "TMS9918A") version = TMS99X8A;
-	else if (versionString == "TMS9928A") version = TMS99X8A;
+	else if (versionString == "TMS9918A") {
+		version = TMS99X8A;
+		defaultSaturation = 100;
+	} else if (versionString == "TMS9928A") version = TMS99X8A;
 	else if (versionString == "T6950PAL") version = T6950PAL;
 	else if (versionString == "T6950NTSC") version = T6950NTSC;
 	else if (versionString == "T7937APAL") version = T7937APAL;
 	else if (versionString == "T7937ANTSC") version = T7937ANTSC;
 	else if (versionString == "TMS91X8") version = TMS91X8;
-	else if (versionString == "TMS9118") version = TMS91X8;
-	else if (versionString == "TMS9128") version = TMS91X8;
+	else if (versionString == "TMS9118") {
+		version = TMS91X8;
+		defaultSaturation = 100;
+	} else if (versionString == "TMS9128") version = TMS91X8;
 	else if (versionString == "TMS9929A") version = TMS9929A;
 	else if (versionString == "TMS9129") version = TMS9129;
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
 	else throw MSXException("Unknown VDP version \"" + versionString + "\"");
+
+	// saturation parameters only make sense when using TMS VDP's
+	if ((versionString.find("TMS") != 0) && ((config.findChild("saturationPr") != nullptr) || (config.findChild("saturationPb") != nullptr) || (config.findChild("saturation") != nullptr))) {
+		throw MSXException("Specifying saturation parameters only makes sense for TMS VDP's");
+	}
+
+	int saturation = config.getChildDataAsInt("saturation", defaultSaturation);
+	if (!((0 <= saturation) && (saturation <= 100))) {
+		throw MSXException("Saturation percentage is not in range 0..100: " + std::to_string(saturationPr));
+	}
+	saturationPr = config.getChildDataAsInt("saturationPr", saturation);
+	if (!((0 <= saturationPr) && (saturationPr <= 100))) {
+		throw MSXException("Saturation percentage for Pr component is not in range 0..100: " + std::to_string(saturationPr));
+	}
+	saturationPb = config.getChildDataAsInt("saturationPb", saturation);
+	if (!((0 <= saturationPb) && (saturationPb <= 100))) {
+		throw MSXException("Saturation percentage for Pb component is not in range 0..100: " + std::to_string(saturationPr));
+	}
 
 	// Set up control register availability.
 	static const byte VALUE_MASKS_MSX1[32] = {
@@ -1325,27 +1359,6 @@ void VDP::update(const Setting& setting)
 	}
 }
 
-// MSX1 palette
-// This is temporary fixed... will be calculated later on.
-static const std::array<std::array<uint8_t,3>,16> TMS99X8A_PALETTE = {{
-	{   0,   0,   0 },
-	{   0,   0,   0 },
-	{  62, 184,  73 },
-	{ 116, 208, 125 },
-	{  89,  85, 224 },
-	{ 128, 118, 241 },
-	{ 185,  94,  81 },
-	{ 101, 219, 239 },
-	{ 219, 101,  89 },
-	{ 255, 137, 125 },
-	{ 204, 195,  94 },
-	{ 222, 208, 135 },
-	{  58, 162,  65 },
-	{ 183, 102, 181 },
-	{ 204, 204, 204 },
-	{ 255, 255, 255 },
-}};
-
 /*
  * Roughly measured RGB values in volts.
  * Voltages were in range of 1.12-5.04, and had 2 digits accuracy (it seems
@@ -1409,12 +1422,10 @@ static const std::array<std::array<uint8_t,3>,16> FUJITSUFMX_PALETTE = {{
 	{ 255, 255, 255 },
 }};
 
-// Not used yet, will be used to calculate real palette based on saturation
-// values
 // Source: TMS9918/28/29 Data Book, page 2-17.
 
-const float TMS99XXA_ANALOG_OUTPUT[16][3] = {
-//          Y   R-Y    B-Y  voltages
+const float TMS9XXXA_ANALOG_OUTPUT[16][3] = {
+//           Y   R-Y   B-Y  voltages
 	{ 0.00, 0.47, 0.47 },
 	{ 0.00, 0.47, 0.47 },
 	{ 0.53, 0.07, 0.20 },
@@ -1433,21 +1444,42 @@ const float TMS99XXA_ANALOG_OUTPUT[16][3] = {
 	{ 1.00, 0.47, 0.47 },
 };
 
-// This will be used to convert YPbPr to RGB later on:
-/*
-  |R|   | 1  0      1.402 |   |Y |
-  |G| = | 1 -0.344 -0.714 | x |Pb|
-  |B|   | 1  1.722  0     |   |Pr|
-*/
-
-const std::array<std::array<uint8_t,3>,16>& VDP::getMSX1Palette() const
+const std::array<std::array<uint8_t,3>,16> VDP::getMSX1Palette() const
 {
 	assert(isMSX1VDP());
 	if ((version & VM_TOSHIBA_PALETTE) != 0) {
 		return TOSHIBA_PALETTE;
-	} else {
-		return TMS99X8A_PALETTE;
 	}
+	std::array<std::array<uint8_t,3>,16> tmsPalette;
+	for (int color = 0; color < 16; color++) {
+		// convert from analog output to YPbPr
+		float Y  = TMS9XXXA_ANALOG_OUTPUT[color][0];
+		float Pr = TMS9XXXA_ANALOG_OUTPUT[color][1] - 0.5f;
+		float Pb = TMS9XXXA_ANALOG_OUTPUT[color][2] - 0.5f;
+		// apply the saturation
+		Pr *= (saturationPr/100.0f);
+		Pb *= (saturationPb/100.0f);
+		// convert to RGB as follows:
+		/*
+		  |R|   | 1  0      1.402 |   |Y |
+		  |G| = | 1 -0.344 -0.714 | x |Pb|
+		  |B|   | 1  1.722  0     |   |Pr|
+		*/
+		float R = Y +           0 + 1.402f * Pr;
+		float G = Y - 0.344f * Pb - 0.714f * Pr;
+		float B = Y + 1.722f * Pb +           0;
+		// blow up with factor of 255
+		R *= 255;
+		G *= 255;
+		B *= 255;
+		// the final result is that these values
+		// are clipped in the [0:255] range.
+		tmsPalette[color][0] = Math::clipIntToByte(std::round(R));
+		tmsPalette[color][1] = Math::clipIntToByte(std::round(G));
+		tmsPalette[color][2] = Math::clipIntToByte(std::round(B));
+		// std::cerr << color << " " << int(tmsPalette[color][0]) << " " << int(tmsPalette[color][1]) <<" " << int(tmsPalette[color][2]) << std::endl;
+	}
+	return tmsPalette;
 }
 
 // RegDebug

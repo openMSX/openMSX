@@ -132,7 +132,7 @@ public:
 	  * Don't use this if it's not an MSX1 VDP!
 	  * @return an array of 16 RGB triplets
 	  */
-	const std::array<std::array<uint8_t,3>,16>& getMSX1Palette() const;
+	const std::array<std::array<uint8_t,3>,16> getMSX1Palette() const;
 
 	/** Get the display mode the VDP is in.
 	  * @return The current display mode.
@@ -945,6 +945,18 @@ private:
 	/** VDP version.
 	  */
 	VdpVersion version;
+
+	/** Saturation of Pr component of TMS9XXXA output circuitry.
+	  * The output of the VDP and the circuitry between the output and the
+	  * output connector influences this value. Percentage in range [0:100]
+	  */
+	int saturationPr;
+
+	/** Saturation of Pb component of TMS9XXXA output circuitry.
+	  * The output of the VDP and the circuitry between the output and the
+	  * output connector influences this value. Percentage in range [0:100]
+	  */
+	int saturationPb;
 
 	/** The number of already fully rendered frames.
 	  * Not used for actual emulation, only for 'frame_count' info topic.

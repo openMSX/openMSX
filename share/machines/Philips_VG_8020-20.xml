@@ -38,6 +38,8 @@ contains:
     <VDP id="VDP">
       <version>TMS9129</version>
       <io base="0x98" num="8"/> <!-- S-3527 mirrors -->
+      <saturationPr>75</saturationPr>
+      <saturationPb>50</saturationPb>
     </VDP>
 
     <PSG id="PSG">

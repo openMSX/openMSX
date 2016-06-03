@@ -290,8 +290,9 @@ void SDLRasterizer<Pixel>::precalcPalette()
 {
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
+		const auto palette = vdp.getMSX1Palette();
 		for (int i = 0; i < 16; ++i) {
-			const auto rgb = vdp.getMSX1Palette()[i];
+			const auto rgb = palette[i];
 			palFg[i] = palFg[i + 16] = palBg[i] =
 				screen.mapKeyedRGB<Pixel>(
 					renderSettings.transformRGB(
