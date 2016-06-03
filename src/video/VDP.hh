@@ -121,19 +121,18 @@ public:
 		return (version & VM_VRAM_REMAPPING) != 0;
 	}
 
-	/** Is this a VDP with a Toshiba palette?
-	  * @return True iff this VDP has the Toshiba palette
-	  */
-	inline bool hasToshibaPalette() const {
-		return (version & VM_TOSHIBA_PALETTE) != 0;
-	}
-
 	/** Does this VDP support YJK display?
 	  * @return True for V9958, false otherwise.
 	  */
 	inline bool hasYJK() const {
 		return (version & VM_YJK) != 0;
 	}
+
+	/** Get the (fixed) palette for this MSX1 VDP.
+	  * Don't use this if it's not an MSX1 VDP!
+	  * @return an array of 16 RGB triplets
+	  */
+	const std::array<std::array<uint8_t,3>,16>& getMSX1Palette() const;
 
 	/** Get the display mode the VDP is in.
 	  * @return The current display mode.

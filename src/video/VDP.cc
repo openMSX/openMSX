@@ -1325,6 +1325,131 @@ void VDP::update(const Setting& setting)
 	}
 }
 
+// MSX1 palette
+// This is temporary fixed... will be calculated later on.
+static const std::array<std::array<uint8_t,3>,16> TMS99X8A_PALETTE = {{
+	{   0,   0,   0 },
+	{   0,   0,   0 },
+	{  62, 184,  73 },
+	{ 116, 208, 125 },
+	{  89,  85, 224 },
+	{ 128, 118, 241 },
+	{ 185,  94,  81 },
+	{ 101, 219, 239 },
+	{ 219, 101,  89 },
+	{ 255, 137, 125 },
+	{ 204, 195,  94 },
+	{ 222, 208, 135 },
+	{  58, 162,  65 },
+	{ 183, 102, 181 },
+	{ 204, 204, 204 },
+	{ 255, 255, 255 },
+}};
+
+/*
+ * Roughly measured RGB values in volts.
+ * Voltages were in range of 1.12-5.04, and had 2 digits accuracy (it seems
+ * minimum difference was 0.04 V).
+ * Blue component of color 5 and red component of color 9 were higher than
+ * the components for white... There are several methods to handle this...
+ * 1) clip to values of white
+ * 2) scale all colors by min/max of that component (means white is not 3x 255)
+ * 3) scale per color if components for that color are beyond those of white
+ * 4) assume the analog values are output by a DA converter, derive the digital
+ *    values and scale that to the range 0-255 (thanks to FRS for this idea).
+ *    This also results in white not being 3x 255, of course.
+ *
+ * Method 4 results in the table below and seems the most accurate (so far).
+ *
+ * Thanks to Tiago Valença and Carlos Mansur for measuring on a T7937A.
+ */
+static const std::array<std::array<uint8_t,3>,16> TOSHIBA_PALETTE = {{
+	{   0,   0,   0 },
+	{   0,   0,   0 },
+	{ 102, 204, 102 },
+	{ 136, 238, 136 },
+	{  68,  68, 221 },
+	{ 119, 119, 255 },
+	{ 187,  85,  85 },
+	{ 119, 221, 221 },
+	{ 221, 102, 102 },
+	{ 255, 119, 119 },
+	{ 204, 204,  85 },
+	{ 238, 238, 136 },
+	{  85, 170,  85 },
+	{ 187,  85, 187 },
+	{ 204, 204, 204 },
+	{ 238, 238, 238 },
+}};
+
+/*
+How come the FM-X has a distinct palette while it clearly has a TMS9928 VDP?
+Because it has an additional circuit that rework the palette for the same one
+used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
+
+This seems to be the 24-bit RGB equivalent to the palette output by the FM-X on
+its RGB conector:
+*/
+static const std::array<std::array<uint8_t,3>,16> FUJITSUFMX_PALETTE = {{
+	{   0,   0,   0 },
+	{   0,   0,   0 },
+	{   0, 255,   0 },
+	{   0, 255,   0 },
+	{   0,   0, 255 },
+	{   0,   0, 255 },
+	{ 255,   0,   0 },
+	{   0, 255, 255 },
+	{ 255,   0,   0 },
+	{ 255,   0,   0 },
+	{ 255, 255,   0 },
+	{ 255, 255,   0 },
+	{   0, 255,   0 },
+	{ 255,   0, 255 },
+	{ 255, 255, 255 },
+	{ 255, 255, 255 },
+}};
+
+// Not used yet, will be used to calculate real palette based on saturation
+// values
+// Source: TMS9918/28/29 Data Book, page 2-17.
+
+const float TMS99XXA_ANALOG_OUTPUT[16][3] = {
+//          Y   R-Y    B-Y  voltages
+	{ 0.00, 0.47, 0.47 },
+	{ 0.00, 0.47, 0.47 },
+	{ 0.53, 0.07, 0.20 },
+	{ 0.67, 0.17, 0.27 },
+	{ 0.40, 0.40, 1.00 },
+	{ 0.53, 0.43, 0.93 },
+	{ 0.47, 0.83, 0.30 },
+	{ 0.73, 0.00, 0.70 },
+	{ 0.53, 0.93, 0.27 },
+	{ 0.67, 0.93, 0.27 },
+	{ 0.73, 0.57, 0.07 },
+	{ 0.80, 0.57, 0.17 },
+	{ 0.47, 0.13, 0.23 },
+	{ 0.53, 0.73, 0.67 },
+	{ 0.80, 0.47, 0.47 },
+	{ 1.00, 0.47, 0.47 },
+};
+
+// This will be used to convert YPbPr to RGB later on:
+/*
+  |R|   | 1  0      1.402 |   |Y |
+  |G| = | 1 -0.344 -0.714 | x |Pb|
+  |B|   | 1  1.722  0     |   |Pr|
+*/
+
+const std::array<std::array<uint8_t,3>,16>& VDP::getMSX1Palette() const
+{
+	assert(isMSX1VDP());
+	if ((version & VM_TOSHIBA_PALETTE) != 0) {
+		return TOSHIBA_PALETTE;
+	} else {
+		return TMS99X8A_PALETTE;
+	}
+}
+
 // RegDebug
 
 VDP::RegDebug::RegDebug(VDP& vdp_)

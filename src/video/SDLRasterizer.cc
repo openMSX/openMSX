@@ -291,7 +291,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; ++i) {
-			const byte* rgb = vdp.hasToshibaPalette() ? Renderer::TOSHIBA_PALETTE[i] : Renderer::TMS99X8A_PALETTE[i];
+			const auto rgb = vdp.getMSX1Palette()[i];
 			palFg[i] = palFg[i + 16] = palBg[i] =
 				screen.mapKeyedRGB<Pixel>(
 					renderSettings.transformRGB(
