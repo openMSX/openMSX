@@ -14,6 +14,7 @@
 #include "openmsx.hh"
 #include "outer.hh"
 #include <memory>
+#include <array>
 
 namespace openmsx {
 
