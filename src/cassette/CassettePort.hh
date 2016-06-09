@@ -2,6 +2,7 @@
 #define CASSETTEPORT_HH
 
 #include "Connector.hh"
+#include "serialize_meta.hh"
 #include "components.hh"
 
 namespace openmsx {
@@ -9,6 +10,7 @@ namespace openmsx {
 class HardwareConfig;
 class MSXMotherBoard;
 class CassetteDevice;
+class CassettePlayer;
 #if COMPONENT_LASERDISC
 class LaserdiscPlayer;
 #endif
@@ -87,10 +89,12 @@ private:
 #if COMPONENT_LASERDISC
 	LaserdiscPlayer* laserdiscPlayer;
 #endif
+	CassettePlayer* cassettePlayer;
 
 	bool lastOutput;
 	bool motorControl;
 };
+SERIALIZE_CLASS_VERSION(CassettePort, 2);
 
 class DummyCassettePort final : public CassettePortInterface
 {

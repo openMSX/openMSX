@@ -452,6 +452,12 @@ public:
 		              "must be a polymorphic type");
 		PolymorphicSaverRegistry<Derived>::save(tag, this->self(), t);
 	}
+	template<typename T> void serializeOnlyOnce(const char* tag, const T& t)
+	{
+		if (!getId(&t)) {
+			serializeWithID(tag, t);
+		}
+	}
 
 	// You shouldn't use this, it only exists for backwards compatibility
 	void serializeChar(const char* tag, char c)
@@ -484,6 +490,7 @@ public:
 /*internal*/
 	void* getPointer(unsigned id);
 	void addPointer(unsigned id, const void* p);
+	unsigned getId(const void* p) const;
 
 	template<typename T> void resetSharedPtr(std::shared_ptr<T>& s, T* r)
 	{
@@ -543,6 +550,12 @@ public:
 		static_assert(std::is_polymorphic<T>::value,
 		              "must be a polymorphic type");
 		PolymorphicInitializerRegistry<Derived>::init(tag, this->self(), &t);
+	}
+	template<typename T> void serializeOnlyOnce(const char* tag, const T& t)
+	{
+		if (!getId(&t)) {
+			serializeWithID(tag, t);
+		}
 	}
 
 	// You shouldn't use this, it only exists for backwards compatibility

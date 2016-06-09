@@ -125,6 +125,14 @@ void InputArchiveBase2::addPointer(unsigned id, const void* p)
 	idMap[id] = const_cast<void*>(p);
 }
 
+unsigned InputArchiveBase2::getId(const void* ptr) const
+{
+	for (const auto& p : idMap) {
+		if (p.second == ptr) return p.first;
+	}
+	return 0;
+}
+
 template<typename Derived>
 void InputArchiveBase<Derived>::serialize_blob(
 	const char* tag, void* data, size_t len)
