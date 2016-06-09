@@ -1403,7 +1403,7 @@ used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
 This seems to be the 24-bit RGB equivalent to the palette output by the FM-X on
 its RGB conector:
 */
-static const std::array<std::array<uint8_t,3>,16> FUJITSUFMX_PALETTE = {{
+static const std::array<std::array<uint8_t,3>,16> THREE_BIT_RGB_PALETTE = {{
 	{   0,   0,   0 },
 	{   0,   0,   0 },
 	{   0, 255,   0 },
@@ -1447,6 +1447,9 @@ const float TMS9XXXA_ANALOG_OUTPUT[16][3] = {
 const std::array<std::array<uint8_t,3>,16> VDP::getMSX1Palette() const
 {
 	assert(isMSX1VDP());
+	if (MSXDevice::getDeviceConfig().findChild("3bitrgboutput") != nullptr) {
+		return THREE_BIT_RGB_PALETTE;
+	}
 	if ((version & VM_TOSHIBA_PALETTE) != 0) {
 		return TOSHIBA_PALETTE;
 	}
