@@ -383,11 +383,10 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		vector<string> names2; // each command with and without :: prefix
 		names2.reserve(2 * names.size());
 		for (string_ref n : names) {
-			names2.push_back(n.str());
 			if (n.starts_with("::")) {
 				names2.push_back(n.substr(2).str());
 			} else {
-				names2.push_back("::" + n);
+				names2.push_back(n.str());
 			}
 		}
 		Completer::completeString(tokens, names2);
