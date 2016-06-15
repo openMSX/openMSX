@@ -923,7 +923,7 @@ void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 	}
 }
 
-short LaserdiscPlayer::readSample(EmuTime::param time)
+int16_t LaserdiscPlayer::readSample(EmuTime::param time)
 {
 	// Here we should return the value of the sample on the
 	// right audio channel, ignoring muting (this is done in the MSX)

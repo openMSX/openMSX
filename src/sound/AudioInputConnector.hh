@@ -2,6 +2,7 @@
 #define AUDIOINPUTCONNECTOR_HH
 
 #include "Connector.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -19,7 +20,7 @@ public:
 	const std::string getDescription() const final override;
 	string_ref getClass() const final override;
 
-	short readSample(EmuTime::param time) const;
+	int16_t readSample(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

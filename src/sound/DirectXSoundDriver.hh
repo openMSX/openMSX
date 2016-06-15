@@ -27,12 +27,12 @@ public:
 	unsigned getFrequency() const override;
 	unsigned getSamples() const override;
 
-	void uploadBuffer(short* buffer, unsigned len) override;
+	void uploadBuffer(int16_t* buffer, unsigned len) override;
 
 private:
 	void dxClear();
 	int dxCanWrite(unsigned start, unsigned size);
-	void dxWriteOne(short* buffer, unsigned lockSize);
+	void dxWriteOne(int16_t* buffer, unsigned lockSize);
 
 	enum DxState { DX_SOUND_DISABLED, DX_SOUND_ENABLED, DX_SOUND_RUNNING };
 	DxState state;

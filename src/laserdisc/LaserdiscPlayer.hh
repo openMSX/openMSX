@@ -32,7 +32,7 @@ public:
 	~LaserdiscPlayer();
 
 	// Called from CassettePort
-	short readSample(EmuTime::param time);
+	int16_t readSample(EmuTime::param time);
 
 	// Called from PioneerLDControl
 	void setMuting(bool left, bool right, EmuTime::param time);

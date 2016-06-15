@@ -167,7 +167,7 @@ void Mixer::muteHelper()
 	}
 }
 
-void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, short* buffer, unsigned len)
+void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, int16_t* buffer, unsigned len)
 {
 	// can only handle one MSXMixer ATM
 	assert(!msxMixers.empty());

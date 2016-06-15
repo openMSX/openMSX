@@ -4,6 +4,7 @@
 #include "Command.hh"
 #include "EmuTime.hh"
 #include "array_ref.hh"
+#include <cstdint>
 #include <vector>
 #include <memory>
 
@@ -24,7 +25,7 @@ public:
 	explicit AviRecorder(Reactor& reactor);
 	~AviRecorder();
 
-	void addWave(unsigned num, short* data);
+	void addWave(unsigned num, int16_t* data);
 	void addImage(FrameSource* frame, EmuTime::param time);
 	void stop();
 	unsigned getFrameHeight() const;
@@ -47,7 +48,7 @@ private:
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} recordCommand;
 
-	std::vector<short> audioBuf;
+	std::vector<int16_t> audioBuf;
 	std::unique_ptr<AviWriter>   aviWriter; // can be nullptr
 	std::unique_ptr<Wav16Writer> wavWriter; // can be nullptr
 	std::vector<PostProcessor*> postProcessors;

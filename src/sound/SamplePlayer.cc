@@ -107,8 +107,8 @@ void SamplePlayer::repeat(unsigned sampleNum)
 inline int SamplePlayer::getSample(unsigned idx)
 {
 	return bits8
-	     ? (static_cast<const unsigned char*>(sampBuf)[idx] - 0x80) * 256
-	     :  static_cast<const short*        >(sampBuf)[idx];
+	     ? (static_cast<const uint8_t*>(sampBuf)[idx] - 0x80) * 256
+	     :  static_cast<const int16_t*>(sampBuf)[idx];
 }
 
 void SamplePlayer::generateChannels(int** bufs, unsigned num)

@@ -22,7 +22,7 @@ public:
 	string_ref getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
-	short readSample(EmuTime::param time) override;
+	int16_t readSample(EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -44,7 +44,7 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	frequency = audioSpec.freq;
 	fragmentSize = audioSpec.samples;
 
-	mixBufferSize = 3 * (audioSpec.size / sizeof(short)) + 2;
+	mixBufferSize = 3 * (audioSpec.size / sizeof(int16_t)) + 2;
 	mixBuffer.resize(mixBufferSize);
 	reInit();
 }
@@ -94,7 +94,7 @@ void SDLSoundDriver::audioCallbackHelper(void* userdata, byte* strm, int len)
 {
 	assert((len & 3) == 0); // stereo, 16-bit
 	static_cast<SDLSoundDriver*>(userdata)->
-		audioCallback(reinterpret_cast<short*>(strm), len / sizeof(short));
+		audioCallback(reinterpret_cast<int16_t*>(strm), len / sizeof(int16_t));
 }
 
 unsigned SDLSoundDriver::getBufferFilled() const
@@ -116,29 +116,29 @@ unsigned SDLSoundDriver::getBufferFree() const
 	return result;
 }
 
-void SDLSoundDriver::audioCallback(short* stream, unsigned len)
+void SDLSoundDriver::audioCallback(int16_t* stream, unsigned len)
 {
 	assert((len & 1) == 0); // stereo
 	unsigned available = getBufferFilled();
 	unsigned num = std::min(len, available);
 	if ((readIdx + num) < mixBufferSize) {
-		memcpy(stream, &mixBuffer[readIdx], num * sizeof(short));
+		memcpy(stream, &mixBuffer[readIdx], num * sizeof(int16_t));
 		readIdx += num;
 	} else {
 		unsigned len1 = mixBufferSize - readIdx;
-		memcpy(stream, &mixBuffer[readIdx], len1 * sizeof(short));
+		memcpy(stream, &mixBuffer[readIdx], len1 * sizeof(int16_t));
 		unsigned len2 = num - len1;
-		memcpy(&stream[len1], &mixBuffer[0], len2 * sizeof(short));
+		memcpy(&stream[len1], &mixBuffer[0], len2 * sizeof(int16_t));
 		readIdx = len2;
 	}
 	int missing = len - available;
 	if (missing > 0) {
 		// buffer underrun
-		memset(&stream[available], 0, missing * sizeof(short));
+		memset(&stream[available], 0, missing * sizeof(int16_t));
 	}
 }
 
-void SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
+void SDLSoundDriver::uploadBuffer(int16_t* buffer, unsigned len)
 {
 	SDL_LockAudio();
 	len *= 2; // stereo
@@ -161,13 +161,13 @@ void SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 	}
 	assert(len <= free);
 	if ((writeIdx + len) < mixBufferSize) {
-		memcpy(&mixBuffer[writeIdx], buffer, len * sizeof(short));
+		memcpy(&mixBuffer[writeIdx], buffer, len * sizeof(int16_t));
 		writeIdx += len;
 	} else {
 		unsigned len1 = mixBufferSize - writeIdx;
-		memcpy(&mixBuffer[writeIdx], buffer, len1 * sizeof(short));
+		memcpy(&mixBuffer[writeIdx], buffer, len1 * sizeof(int16_t));
 		unsigned len2 = len - len1;
-		memcpy(&mixBuffer[0], &buffer[len1], len2 * sizeof(short));
+		memcpy(&mixBuffer[0], &buffer[len1], len2 * sizeof(int16_t));
 		writeIdx = len2;
 	}
 

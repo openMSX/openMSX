@@ -7,7 +7,7 @@ void DummyCassetteDevice::setMotor(bool /*status*/, EmuTime::param /*time*/)
 	// do nothing
 }
 
-short DummyCassetteDevice::readSample(EmuTime::param /*time*/)
+int16_t DummyCassetteDevice::readSample(EmuTime::param /*time*/)
 {
 	return 32767; // TODO check value
 }

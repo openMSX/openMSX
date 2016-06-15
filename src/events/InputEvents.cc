@@ -323,7 +323,7 @@ void JoystickButtonDownEvent::toStringImpl(TclObject& result) const
 // class JoystickAxisMotionEvent
 
 JoystickAxisMotionEvent::JoystickAxisMotionEvent(
-		unsigned joystick_, unsigned axis_, short value_)
+		unsigned joystick_, unsigned axis_, int value_)
 	: JoystickEvent(OPENMSX_JOY_AXIS_MOTION_EVENT, joystick_)
 	, axis(axis_), value(value_)
 {

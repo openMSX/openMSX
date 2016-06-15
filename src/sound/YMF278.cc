@@ -395,12 +395,12 @@ void YMF278::advance()
 	}
 }
 
-short YMF278::getSample(Slot& op)
+int16_t YMF278::getSample(Slot& op)
 {
 	// TODO How does this behave when R#2 bit 0 = 1?
 	//      As-if read returns 0xff? (Like for CPU memory reads.) Or is
 	//      sound generation blocked at some higher level?
-	short sample;
+	int16_t sample;
 	switch (op.bits) {
 	case 0: {
 		// 8 bit
@@ -463,8 +463,8 @@ void YMF278::generateChannels(int** bufs, unsigned num)
 				continue;
 			}
 
-			short sample = (sl.sample1 * (0x10000 - sl.stepptr) +
-			                sl.sample2 * sl.stepptr) >> 16;
+			int16_t sample = (sl.sample1 * (0x10000 - sl.stepptr) +
+			                  sl.sample2 * sl.stepptr) >> 16;
 			int vol = sl.TL + (sl.env_vol >> 2) + sl.compute_am();
 
 			int volLeft  = vol + pan_left [int(sl.pan)] + vl;

@@ -244,7 +244,7 @@ void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned
 	index[idxSize + 3] = size;
 }
 
-void AviWriter::addFrame(FrameSource* frame, unsigned samples, short* sampleData)
+void AviWriter::addFrame(FrameSource* frame, unsigned samples, int16_t* sampleData)
 {
 	bool keyFrame = (frames++ % 300 == 0);
 	void* buffer;
@@ -263,9 +263,9 @@ void AviWriter::addFrame(FrameSource* frame, unsigned samples, short* sampleData
 			for (unsigned i = 0; i < samples; ++i) {
 				buf[i] = sampleData[i];
 			}
-			addAviChunk("01wb", samples * sizeof(short), buf.data(), 0);
+			addAviChunk("01wb", samples * sizeof(int16_t), buf.data(), 0);
 		} else {
-			addAviChunk("01wb", samples * sizeof(short), sampleData, 0);
+			addAviChunk("01wb", samples * sizeof(int16_t), sampleData, 0);
 		}
 		audiowritten += samples;
 	}

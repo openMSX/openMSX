@@ -2,6 +2,7 @@
 #define AUDIOINPUTDEVICE_HH
 
 #include "Pluggable.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -11,7 +12,7 @@ public:
 	/**
 	 * Read wave data
 	 */
-	virtual short readSample(EmuTime::param time) = 0;
+	virtual int16_t readSample(EmuTime::param time) = 0;
 
 	// Pluggable
 	string_ref getClass() const final override;

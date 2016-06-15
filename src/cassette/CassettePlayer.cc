@@ -413,7 +413,7 @@ void CassettePlayer::setMotorControl(bool status, EmuTime::param time)
 	}
 }
 
-short CassettePlayer::readSample(EmuTime::param time)
+int16_t CassettePlayer::readSample(EmuTime::param time)
 {
 	if (getState() == PLAY) {
 		// playing
