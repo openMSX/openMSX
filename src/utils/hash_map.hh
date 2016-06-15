@@ -44,7 +44,7 @@ public:
 	using       iterator = typename BaseType::      iterator;
 	using const_iterator = typename BaseType::const_iterator;
 
-	hash_map(unsigned initialSize = 0,
+	explicit hash_map(unsigned initialSize = 0,
 	         Hasher hasher_ = Hasher(),
 	         Equal equal_ = Equal())
 		: BaseType(initialSize, hash_set_impl::ExtractFirst(), hasher_, equal_)

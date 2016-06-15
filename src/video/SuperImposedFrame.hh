@@ -19,7 +19,7 @@ public:
 	void init(const FrameSource* top, const FrameSource* bottom);
 
 protected:
-	SuperImposedFrame(const SDL_PixelFormat& format);
+	explicit SuperImposedFrame(const SDL_PixelFormat& format);
 
 	const FrameSource* top;
 	const FrameSource* bottom;

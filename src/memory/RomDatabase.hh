@@ -32,7 +32,7 @@ private:
 	MemBuffer<char> buffer;
 
 	struct SoftwareInfoTopic final : InfoTopic {
-		SoftwareInfoTopic(InfoCommand& openMSXInfoCommand);
+		explicit SoftwareInfoTopic(InfoCommand& openMSXInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;

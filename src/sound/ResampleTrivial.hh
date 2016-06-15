@@ -10,7 +10,7 @@ class ResampledSoundDevice;
 class ResampleTrivial final : public ResampleAlgo
 {
 public:
-	ResampleTrivial(ResampledSoundDevice& input);
+	explicit ResampleTrivial(ResampledSoundDevice& input);
 	bool generateOutput(int* dataOut, unsigned num,
 	                    EmuTime::param time) override;
 

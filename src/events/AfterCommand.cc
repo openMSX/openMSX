@@ -426,7 +426,7 @@ struct AfterEmuTimePred {
 };
 
 struct AfterInputEventPred {
-	AfterInputEventPred(AfterCommand::EventPtr event_)
+	explicit AfterInputEventPred(AfterCommand::EventPtr event_)
 		: event(std::move(event_)) {}
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {

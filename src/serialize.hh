@@ -696,7 +696,7 @@ private:
 class XmlOutputArchive final : public OutputArchiveBase<XmlOutputArchive>
 {
 public:
-	XmlOutputArchive(const std::string& filename);
+	explicit XmlOutputArchive(const std::string& filename);
 	~XmlOutputArchive();
 
 	template <typename T> void saveImpl(const T& t)
@@ -751,7 +751,7 @@ private:
 class XmlInputArchive final : public InputArchiveBase<XmlInputArchive>
 {
 public:
-	XmlInputArchive(const std::string& filename);
+	explicit XmlInputArchive(const std::string& filename);
 
 	inline bool versionAtLeast(unsigned actual, unsigned required) const
 	{

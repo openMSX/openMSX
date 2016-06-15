@@ -16,8 +16,8 @@ class Interpreter;
 class BaseSetting
 {
 protected:
-	BaseSetting(string_ref name);
-	BaseSetting(const TclObject& name);
+	explicit BaseSetting(string_ref name);
+	explicit BaseSetting(const TclObject& name);
 	~BaseSetting() {}
 
 public:

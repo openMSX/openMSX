@@ -73,7 +73,7 @@ private:
 	BooleanSetting grabInput;
 
 	struct EscapeGrabCmd final : Command {
-		EscapeGrabCmd(CommandController& commandController);
+		explicit EscapeGrabCmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} escapeGrabCmd;

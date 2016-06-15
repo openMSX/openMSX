@@ -15,7 +15,7 @@ class OSDGUI;
 class OSDTopWidget final : public OSDWidget
 {
 public:
-	OSDTopWidget(OSDGUI& gui);
+	explicit OSDTopWidget(OSDGUI& gui);
 	string_ref getType() const override;
 	gl::vec2 getSize(const OutputRectangle& output) const override;
 

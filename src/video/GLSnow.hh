@@ -13,7 +13,7 @@ class Display;
 class GLSnow final : public Layer
 {
 public:
-	GLSnow(Display& display);
+	explicit GLSnow(Display& display);
 
 	// Layer interface:
 	void paint(OutputSurface& output) override;

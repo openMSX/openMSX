@@ -15,7 +15,7 @@ public:
 
 	/** Construct from .wav file, optionally convert to a specific
 	 * bit-depth and sample rate. */
-	WavData(const std::string& filename, unsigned bits = 0, unsigned freq = 0);
+	explicit WavData(const std::string& filename, unsigned bits = 0, unsigned freq = 0);
 
 	unsigned getFreq() const { return freq; }
 	unsigned getBits() const { return bits; }

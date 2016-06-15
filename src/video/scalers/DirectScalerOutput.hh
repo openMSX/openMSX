@@ -11,7 +11,7 @@ template<typename Pixel>
 class DirectScalerOutput final : public ScalerOutput<Pixel>
 {
 public:
-	DirectScalerOutput(OutputSurface& output);
+	explicit DirectScalerOutput(OutputSurface& output);
 
 	unsigned getWidth()  const override;
 	unsigned getHeight() const override;

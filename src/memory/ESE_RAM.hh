@@ -10,7 +10,7 @@ namespace openmsx {
 class ESE_RAM final : public MSXDevice
 {
 public:
-	ESE_RAM(const DeviceConfig& config);
+	explicit ESE_RAM(const DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 

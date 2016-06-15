@@ -28,7 +28,7 @@ private:
 
 	class OSDCommand final : public Command {
 	public:
-		OSDCommand(CommandController& commandController);
+		explicit OSDCommand(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;

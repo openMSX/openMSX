@@ -28,7 +28,7 @@ struct AudioFragment
 
 struct Frame
 {
-	Frame(const th_ycbcr_buffer& yuv);
+	explicit Frame(const th_ycbcr_buffer& yuv);
 	~Frame();
 
 	th_ycbcr_buffer buffer;

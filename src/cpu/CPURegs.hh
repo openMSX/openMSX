@@ -19,7 +19,7 @@ union z80regpair {
 class CPURegs
 {
 public:
-	CPURegs(bool r800) : HALT_(0), Rmask(r800 ? 0xff : 0x7f) {}
+	explicit CPURegs(bool r800) : HALT_(0), Rmask(r800 ? 0xff : 0x7f) {}
 	inline byte getA()   const { return AF_.b.h; }
 	inline byte getF()   const { return AF_.b.l; }
 	inline byte getB()   const { return BC_.b.h; }

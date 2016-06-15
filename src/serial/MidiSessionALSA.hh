@@ -25,7 +25,7 @@ public:
 private:
 	static std::unique_ptr<MidiSessionALSA> instance;
 
-	MidiSessionALSA(snd_seq_t& seq);
+	explicit MidiSessionALSA(snd_seq_t& seq);
 	void scanClients(PluggingController& controller);
 
 	snd_seq_t& seq;

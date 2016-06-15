@@ -17,7 +17,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	WD2793BasedFDC(const DeviceConfig& config, const std::string& romId = "");
+	explicit WD2793BasedFDC(const DeviceConfig& config, const std::string& romId = "");
 	~WD2793BasedFDC() {}
 
 	DriveMultiplexer multiplexer;

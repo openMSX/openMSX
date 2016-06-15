@@ -40,9 +40,9 @@ public:
 		: dat(array), siz(length) {}
 	template<typename ITER> array_ref(ITER first, ITER last)
 		: dat(&*first), siz(std::distance(first, last)) {}
-	array_ref(const std::vector<T>& v)
+	/*implicit*/ array_ref(const std::vector<T>& v)
 		: dat(v.data()), siz(v.size()) {}
-	template<size_t N> array_ref(const T(&a)[N])
+	/*implicit*/ template<size_t N> array_ref(const T(&a)[N])
 		: dat(a), siz(N) {}
 
 	array_ref& operator=(const array_ref& rhs) {

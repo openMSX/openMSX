@@ -116,7 +116,7 @@ private:
 	// Schedulable
 	struct SyncEndOfTape : Schedulable {
 		friend class CassettePlayer;
-		SyncEndOfTape(Scheduler& s) : Schedulable(s) {}
+		explicit SyncEndOfTape(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& cp = OUTER(CassettePlayer, syncEndOfTape);
 			cp.execEndOfTape(time);
@@ -124,7 +124,7 @@ private:
 	} syncEndOfTape;
 	struct SyncAudioEmu : Schedulable {
 		friend class CassettePlayer;
-		SyncAudioEmu(Scheduler& s) : Schedulable(s) {}
+		explicit SyncAudioEmu(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& cp = OUTER(CassettePlayer, syncAudioEmu);
 			cp.execSyncAudioEmu(time);

@@ -81,7 +81,7 @@ private:
 	} unplugCmd;
 
 	struct PluggableInfo final : InfoTopic {
-		PluggableInfo(InfoCommand& machineInfoCommand);
+		explicit PluggableInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
@@ -89,7 +89,7 @@ private:
 	} pluggableInfo;
 
 	struct ConnectorInfo final : InfoTopic {
-		ConnectorInfo(InfoCommand& machineInfoCommand);
+		explicit ConnectorInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
@@ -97,7 +97,7 @@ private:
 	} connectorInfo;
 
 	struct ConnectionClassInfo final : InfoTopic {
-		ConnectionClassInfo(InfoCommand& machineInfoCommand);
+		explicit ConnectionClassInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;

@@ -18,7 +18,7 @@ public:
 	            string_ref description,
 	            bool useCliComm = true,
 	            bool save = true);
-	TclCallback(StringSetting& setting);
+	explicit TclCallback(StringSetting& setting);
 	~TclCallback();
 
 	TclObject execute();

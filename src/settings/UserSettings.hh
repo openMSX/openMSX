@@ -25,7 +25,7 @@ public:
 private:
 	class Cmd final : public Command {
 	public:
-		Cmd(CommandController& commandController);
+		explicit Cmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;

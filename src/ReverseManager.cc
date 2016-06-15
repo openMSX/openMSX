@@ -56,7 +56,7 @@ static const char* const REPLAY_DIR = "replays";
 
 struct Replay
 {
-	Replay(Reactor& reactor_)
+	explicit Replay(Reactor& reactor_)
 		: reactor(reactor_), currentTime(EmuTime::dummy()) {}
 
 	Reactor& reactor;
@@ -119,7 +119,7 @@ class EndLogEvent final : public StateChange
 {
 public:
 	EndLogEvent() {} // for serialize
-	EndLogEvent(EmuTime::param time_)
+	explicit EndLogEvent(EmuTime::param time_)
 		: StateChange(time_)
 	{
 	}

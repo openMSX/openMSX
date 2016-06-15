@@ -294,39 +294,39 @@ private:
 	void doContinue2();
 
 	struct MemoryDebug final : SimpleDebuggable {
-		MemoryDebug(MSXMotherBoard& motherBoard);
+		explicit MemoryDebug(MSXMotherBoard& motherBoard);
 		byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} memoryDebug;
 
 	struct SlottedMemoryDebug final : SimpleDebuggable {
-		SlottedMemoryDebug(MSXMotherBoard& motherBoard);
+		explicit SlottedMemoryDebug(MSXMotherBoard& motherBoard);
 		byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} slottedMemoryDebug;
 
 	struct IODebug final : SimpleDebuggable {
-		IODebug(MSXMotherBoard& motherBoard);
+		explicit IODebug(MSXMotherBoard& motherBoard);
 		byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} ioDebug;
 
 	struct SlotInfo final : InfoTopic {
-		SlotInfo(InfoCommand& machineInfoCommand);
+		explicit SlotInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} slotInfo;
 
 	struct SubSlottedInfo final : InfoTopic {
-		SubSlottedInfo(InfoCommand& machineInfoCommand);
+		explicit SubSlottedInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} subSlottedInfo;
 
 	struct ExternalSlotInfo final : InfoTopic {
-		ExternalSlotInfo(InfoCommand& machineInfoCommand);
+		explicit ExternalSlotInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
@@ -339,13 +339,13 @@ private:
 		std::string help(const std::vector<std::string>& tokens) const override;
 	};
 	struct IInfo final : IOInfo {
-		IInfo(InfoCommand& machineInfoCommand)
+		explicit IInfo(InfoCommand& machineInfoCommand)
 			: IOInfo(machineInfoCommand, "input_port") {}
 		void execute(array_ref<TclObject> tokens,
 		             TclObject& result) const override;
 	} inputPortInfo;
 	struct OInfo final : IOInfo {
-		OInfo(InfoCommand& machineInfoCommand)
+		explicit OInfo(InfoCommand& machineInfoCommand)
 			: IOInfo(machineInfoCommand, "output_port") {}
 		void execute(array_ref<TclObject> tokens,
 		             TclObject& result) const override;

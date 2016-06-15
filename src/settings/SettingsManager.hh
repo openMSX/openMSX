@@ -41,7 +41,7 @@ private:
 	std::vector<std::string> getTabSettingNames() const;
 
 	struct SettingInfo final : InfoTopic {
-		SettingInfo(InfoCommand& openMSXInfoCommand);
+		explicit SettingInfo(InfoCommand& openMSXInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
@@ -49,7 +49,7 @@ private:
 	} settingInfo;
 
 	struct SetCompleter final : CommandCompleter {
-		SetCompleter(CommandController& commandController);
+		explicit SetCompleter(CommandController& commandController);
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} setCompleter;

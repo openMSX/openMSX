@@ -26,7 +26,7 @@ class Interpreter;
 class ReverseManager final : private EventListener, private StateChangeRecorder
 {
 public:
-	ReverseManager(MSXMotherBoard& motherBoard);
+	explicit ReverseManager(MSXMotherBoard& motherBoard);
 	~ReverseManager();
 
 	// Keyboard is special because we need to transfer the host keyboard
@@ -103,7 +103,7 @@ private:
 	// Schedulable
 	struct SyncNewSnapshot : Schedulable {
 		friend class ReverseManager;
-		SyncNewSnapshot(Scheduler& s) : Schedulable(s) {}
+		explicit SyncNewSnapshot(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& rm = OUTER(ReverseManager, syncNewSnapshot);
 			rm.execNewSnapshot();
@@ -111,7 +111,7 @@ private:
 	} syncNewSnapshot;
 	struct SyncInputEvent : Schedulable {
 		friend class ReverseManager;
-		SyncInputEvent(Scheduler& s) : Schedulable(s) {}
+		explicit SyncInputEvent(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& rm = OUTER(ReverseManager, syncInputEvent);
 			rm.execInputEvent();
@@ -134,7 +134,7 @@ private:
 	EventDistributor& eventDistributor;
 
 	struct ReverseCmd final : Command {
-		ReverseCmd(CommandController& controller);
+		explicit ReverseCmd(CommandController& controller);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;

@@ -78,7 +78,7 @@ template<int N> using LessTupleElement = CmpTupleElement<N, LessThan>;
 // Check whether the N-the element of a tuple is equal to the given value.
 template<int N, typename T> struct EqualTupleValueImpl
 {
-	EqualTupleValueImpl(const T& t_) : t(t_) {}
+	explicit EqualTupleValueImpl(const T& t_) : t(t_) {}
 	template<typename TUPLE>
 	bool operator()(const TUPLE& tup) const {
 		return std::get<N>(tup) == t;

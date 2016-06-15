@@ -102,7 +102,8 @@ template<typename T> struct enum_string {
 };
 void enumError(const std::string& str);
 template<typename T> struct serialize_as_enum_impl : std::true_type {
-	serialize_as_enum_impl(std::initializer_list<enum_string<T>> info_) : info(info_) {}
+	explicit serialize_as_enum_impl(std::initializer_list<enum_string<T>> info_)
+		: info(info_) {}
 	std::string toString(T t) const {
 		for (auto& i : info) {
 			if (i.e == t) return i.str;

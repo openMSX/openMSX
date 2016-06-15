@@ -9,7 +9,7 @@ namespace openmsx {
 class MSXMultiMemDevice final : public MSXMultiDevice
 {
 public:
-	MSXMultiMemDevice(const HardwareConfig& hwConf);
+	explicit MSXMultiMemDevice(const HardwareConfig& hwConf);
 	~MSXMultiMemDevice();
 
 	bool canAdd(int base, int size);

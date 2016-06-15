@@ -14,7 +14,7 @@ template <typename Pixel>
 class SuperImposedFrameImpl final : public SuperImposedFrame
 {
 public:
-	SuperImposedFrameImpl(const SDL_PixelFormat& format);
+	explicit SuperImposedFrameImpl(const SDL_PixelFormat& format);
 
 private:
 	unsigned getLineWidth(unsigned line) const override;

@@ -152,7 +152,7 @@ private:
 	DynamicClock prevTime;
 
 	struct SoundDeviceInfoTopic final : InfoTopic {
-		SoundDeviceInfoTopic(InfoCommand& machineInfoCommand);
+		explicit SoundDeviceInfoTopic(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;

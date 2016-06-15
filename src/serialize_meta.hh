@@ -160,7 +160,7 @@ template<typename Archive, typename T>
 class PolymorphicSaver : public PolymorphicSaverBase<Archive>
 {
 public:
-	PolymorphicSaver(const char* name_)
+	explicit PolymorphicSaver(const char* name_)
 		: name(name_)
 	{
 	}
@@ -313,7 +313,7 @@ private:
 
 template<typename Archive, typename T> struct RegisterSaverHelper
 {
-	RegisterSaverHelper(const char* name)
+	explicit RegisterSaverHelper(const char* name)
 	{
 		PolymorphicSaverRegistry<Archive>::instance().
 			template registerClass<T>(name);
@@ -321,7 +321,7 @@ template<typename Archive, typename T> struct RegisterSaverHelper
 };
 template<typename Archive, typename T> struct RegisterLoaderHelper
 {
-	RegisterLoaderHelper(const char* name)
+	explicit RegisterLoaderHelper(const char* name)
 	{
 		PolymorphicLoaderRegistry<Archive>::instance().
 			template registerClass<T>(name);
@@ -329,7 +329,7 @@ template<typename Archive, typename T> struct RegisterLoaderHelper
 };
 template<typename Archive, typename T> struct RegisterInitializerHelper
 {
-	RegisterInitializerHelper(const char* name)
+	explicit RegisterInitializerHelper(const char* name)
 	{
 		PolymorphicInitializerRegistry<Archive>::instance().
 			template registerClass<T>(name);

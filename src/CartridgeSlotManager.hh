@@ -61,7 +61,7 @@ private:
 	} cartCmd;
 
 	struct CartridgeSlotInfo final : InfoTopic {
-		CartridgeSlotInfo(InfoCommand& machineInfoCommand);
+		explicit CartridgeSlotInfo(InfoCommand& machineInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
