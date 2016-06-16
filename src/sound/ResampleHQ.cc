@@ -188,12 +188,12 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 }
 
 #ifdef __SSE2__
-static inline void calcSseMono(const float* buf_, const float* tab_, long len, int* out)
+static inline void calcSseMono(const float* buf_, const float* tab_, size_t len, int* out)
 {
 	assert((len % 4) == 0);
 	assert((uintptr_t(tab_) % 16) == 0);
 
-	long x = (len & ~7) * sizeof(float);
+	ssize_t x = (len & ~7) * sizeof(float);
 	assert((x % 32) == 0);
 	const char* buf = reinterpret_cast<const char*>(buf_) + x;
 	const char* tab = reinterpret_cast<const char*>(tab_) + x;
@@ -232,12 +232,12 @@ template<int N> static inline __m128 shuffle(__m128 x)
 {
 	return _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(x), N));
 }
-static inline void calcSseStereo(const float* buf_, const float* tab_, long len, int* out)
+static inline void calcSseStereo(const float* buf_, const float* tab_, size_t len, int* out)
 {
 	assert((len % 4) == 0);
 	assert((uintptr_t(tab_) % 16) == 0);
 
-	long x = (len & ~7) * sizeof(float);
+	ssize_t x = (len & ~7) * sizeof(float);
 	const char* buf = reinterpret_cast<const char*>(buf_) + 2*x;
 	const char* tab = reinterpret_cast<const char*>(tab_) +   x;
 	x = -x;

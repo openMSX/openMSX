@@ -101,7 +101,7 @@ static inline void drawSSE2(
 	const uint32_t* __restrict in2_,
 	      uint32_t* __restrict out_,
 	unsigned factor,
-	unsigned long width,
+	size_t width,
 	PixelOperations<uint32_t>& /*dummy*/,
 	Multiply<uint32_t>& /*dummy*/)
 {
@@ -115,7 +115,7 @@ static inline void drawSSE2(
 	auto* out = reinterpret_cast<      char*>(out_) + width;
 
 	__m128i f = _mm_set1_epi16(factor << 8);
-	long x = -long(width);
+	ssize_t x = -ssize_t(width);
 	do {
 		drawSSE2_1(in1 + x +   0, in2 + x +  0, out + x +  0, f);
 		drawSSE2_1(in1 + x +  16, in2 + x + 16, out + x + 16, f);
@@ -131,7 +131,7 @@ static inline void drawSSE2(
 	const uint16_t* __restrict in2_,
 	      uint16_t* __restrict out_,
 	unsigned factor,
-	unsigned long width,
+	size_t width,
 	PixelOperations<uint16_t>& pixelOps,
 	Multiply<uint16_t>& darkener)
 {
@@ -145,7 +145,7 @@ static inline void drawSSE2(
 	const uint16_t* table = darkener.getTable();
 	__m128i mask = _mm_set1_epi16(pixelOps.getBlendMask());
 
-	long x = -long(width);
+	ssize_t x = -ssize_t(width);
 	do {
 		__m128i a = *reinterpret_cast<const __m128i*>(in1 + x);
 		__m128i b = *reinterpret_cast<const __m128i*>(in2 + x);
@@ -198,7 +198,7 @@ Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps_)
 template <class Pixel>
 void Scanline<Pixel>::draw(
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	Pixel* __restrict dst, unsigned factor, unsigned long width)
+	Pixel* __restrict dst, unsigned factor, size_t width)
 {
 #ifdef __SSE2__
 	drawSSE2(src1, src2, dst, factor, width, pixelOps, darkener);

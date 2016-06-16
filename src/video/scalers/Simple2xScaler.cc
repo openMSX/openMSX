@@ -76,14 +76,14 @@ static inline __m128i shuffle(__m128i x, __m128i y)
 // 32bpp
 static void blur1on2_SSE2(
 	const uint32_t* __restrict in_, uint32_t* __restrict out_,
-	unsigned c1_, unsigned c2_, unsigned long width)
+	unsigned c1_, unsigned c2_, size_t width)
 {
 	width *= sizeof(uint32_t); // in bytes
 	assert(width >= (2 * sizeof(__m128i)));
 	assert((reinterpret_cast<uintptr_t>(in_ ) % sizeof(__m128i)) == 0);
 	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 
-	long x = -long(width - sizeof(__m128i));
+	ssize_t x = -ssize_t(width - sizeof(__m128i));
 	auto* in  = reinterpret_cast<const char*>(in_ ) -     x;
 	auto* out = reinterpret_cast<      char*>(out_) - 2 * x;
 
@@ -143,7 +143,7 @@ static void blur1on2_SSE2(
 
 // no SSE2 16bpp routine yet (probably not worth the effort)
 static void blur1on2_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
-                          unsigned /*c1*/, unsigned /*c2*/, unsigned long /*width*/)
+                          unsigned /*c1*/, unsigned /*c2*/, size_t /*width*/)
 {
 	UNREACHABLE;
 }
@@ -153,7 +153,7 @@ static void blur1on2_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
 template <class Pixel>
 void Simple2xScaler<Pixel>::blur1on2(
 	const Pixel* __restrict pIn, Pixel* __restrict pOut,
-	unsigned alpha, unsigned long srcWidth)
+	unsigned alpha, size_t srcWidth)
 {
 	/* This routine is functionally equivalent to the following:
 	 *
@@ -244,14 +244,14 @@ void Simple2xScaler<Pixel>::blur1on2(
 // 32bpp
 static void blur1on1_SSE2(
 	const uint32_t* __restrict in_, uint32_t* __restrict out_,
-	unsigned c1_, unsigned c2_, unsigned long width)
+	unsigned c1_, unsigned c2_, size_t width)
 {
 	width *= sizeof(uint32_t); // in bytes
 	assert(width >= (2 * sizeof(__m128i)));
 	assert((reinterpret_cast<uintptr_t>(in_ ) % sizeof(__m128i)) == 0);
 	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 
-	long x = -long(width - sizeof(__m128i));
+	ssize_t x = -ssize_t(width - sizeof(__m128i));
 	auto* in  = reinterpret_cast<const char*>(in_ ) - x;
 	auto* out = reinterpret_cast<      char*>(out_) - x;
 
@@ -299,7 +299,7 @@ static void blur1on1_SSE2(
 
 // no SSE2 16bpp routine yet (probably not worth the effort)
 static void blur1on1_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
-                          unsigned /*c1*/, unsigned /*c2*/, unsigned long /*width*/)
+                          unsigned /*c1*/, unsigned /*c2*/, size_t /*width*/)
 {
 	UNREACHABLE;
 }
@@ -308,7 +308,7 @@ static void blur1on1_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
 template <class Pixel>
 void Simple2xScaler<Pixel>::blur1on1(
 	const Pixel* __restrict pIn, Pixel* __restrict pOut,
-	unsigned alpha, unsigned long srcWidth)
+	unsigned alpha, size_t srcWidth)
 {
 	/* This routine is functionally equivalent to the following:
 	 *
