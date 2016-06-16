@@ -88,13 +88,10 @@ byte MSXYamahaSFG::readMem(word address, EmuTime::param time)
 	case 0x3FF1: // OPM STATUS REGISTER
 	case 0x3FF2: // Data buffer for SD0 to SD7 input ports
 		return peekMem(address, time);
-		break;
 	case 0x3FF5: // MIDI standard UART DATA READ BUFFER
 		return ym2148.readData(time);
-		break;
 	case 0x3FF6: // MIDI standard UART STATUS REGISTER
 		return ym2148.readStatus(time);
-		break;
 	}
 	return 0xFF;
 }
@@ -115,10 +112,8 @@ byte MSXYamahaSFG::peekMem(word address, EmuTime::param time) const
 		break;
 	case 0x3FF5: // MIDI standard UART DATA READ BUFFER
 		return ym2148.peekData(time);
-		break;
 	case 0x3FF6: // MIDI standard UART STATUS REGISTER
 		return ym2148.peekStatus(time);
-		break;
 	}
 	return 0xFF;
 }

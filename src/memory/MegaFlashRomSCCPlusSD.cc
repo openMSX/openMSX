@@ -803,9 +803,6 @@ byte MegaFlashRomSCCPlusSD::peekMemSubSlot3(word addr, EmuTime::param /*time*/) 
 		// unmapped read
 		return 0xFF;
 	}
-
-	// no peek possible for SD card
-	return 0xFF;
 }
 
 const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot3(word addr) const
@@ -821,7 +818,6 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot3(word addr) const
 	} else {
 		return unmappedRead;
 	}
-	return nullptr;
 }
 
 void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::param /*time*/)
