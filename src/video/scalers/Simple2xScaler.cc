@@ -7,6 +7,7 @@
 #include "unreachable.hh"
 #include "vla.hh"
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -83,7 +84,7 @@ static void blur1on2_SSE2(
 	assert((reinterpret_cast<uintptr_t>(in_ ) % sizeof(__m128i)) == 0);
 	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 
-	ssize_t x = -ssize_t(width - sizeof(__m128i));
+	ptrdiff_t x = -ptrdiff_t(width - sizeof(__m128i));
 	auto* in  = reinterpret_cast<const char*>(in_ ) -     x;
 	auto* out = reinterpret_cast<      char*>(out_) - 2 * x;
 
@@ -251,7 +252,7 @@ static void blur1on1_SSE2(
 	assert((reinterpret_cast<uintptr_t>(in_ ) % sizeof(__m128i)) == 0);
 	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 
-	ssize_t x = -ssize_t(width - sizeof(__m128i));
+	ptrdiff_t x = -ptrdiff_t(width - sizeof(__m128i));
 	auto* in  = reinterpret_cast<const char*>(in_ ) - x;
 	auto* out = reinterpret_cast<      char*>(out_) - x;
 

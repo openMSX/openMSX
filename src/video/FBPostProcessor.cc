@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <cstddef>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -89,7 +90,7 @@ static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, size_t 
 	//   signed_add_sat(value ^ 128, noise) ^ 128
 	// The follwoing loop does just that, though it processes 64 bytes per
 	// iteration.
-	ssize_t x = width * sizeof(uint32_t);
+	ptrdiff_t x = width * sizeof(uint32_t);
 	assert((x & 63) == 0);
 	assert((uintptr_t(buf_) & 15) == 0);
 

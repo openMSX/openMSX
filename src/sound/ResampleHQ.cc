@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <vector>
 #include <cmath>
+#include <cstddef>
 #include <cstring>
 #include <cassert>
 #ifdef __SSE2__
@@ -193,7 +194,7 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 	assert((len % 4) == 0);
 	assert((uintptr_t(tab_) % 16) == 0);
 
-	ssize_t x = (len & ~7) * sizeof(float);
+	ptrdiff_t x = (len & ~7) * sizeof(float);
 	assert((x % 32) == 0);
 	const char* buf = reinterpret_cast<const char*>(buf_) + x;
 	const char* tab = reinterpret_cast<const char*>(tab_) + x;
@@ -237,7 +238,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 	assert((len % 4) == 0);
 	assert((uintptr_t(tab_) % 16) == 0);
 
-	ssize_t x = (len & ~7) * sizeof(float);
+	ptrdiff_t x = (len & ~7) * sizeof(float);
 	const char* buf = reinterpret_cast<const char*>(buf_) + 2*x;
 	const char* tab = reinterpret_cast<const char*>(tab_) +   x;
 	x = -x;

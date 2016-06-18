@@ -17,6 +17,7 @@ Visit the Scale2x site for info:
 #include "vla.hh"
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #ifdef __SSE2__
 #include "emmintrin.h" // SSE2
@@ -171,7 +172,7 @@ template<bool DOUBLE_X, typename Pixel> static inline void scaleSSE(
 	auto* in2  = reinterpret_cast<const char*>(in2_ ) +         width;
 	auto* out0 = reinterpret_cast<      char*>(out0_) + SCALE * width;
 	auto* out1 = reinterpret_cast<      char*>(out1_) + SCALE * width;
-	ssize_t x = -ssize_t(width);
+	ptrdiff_t x = -ptrdiff_t(width);
 
 	// Setup for first unit
 	__m128i next = *reinterpret_cast<const __m128i*>(in1 + x);

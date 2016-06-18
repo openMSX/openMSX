@@ -2,6 +2,7 @@
 #include "PixelOperations.hh"
 #include "unreachable.hh"
 #include <cassert>
+#include <cstddef>
 #include <cstring>
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -115,7 +116,7 @@ static inline void drawSSE2(
 	auto* out = reinterpret_cast<      char*>(out_) + width;
 
 	__m128i f = _mm_set1_epi16(factor << 8);
-	ssize_t x = -ssize_t(width);
+	ptrdiff_t x = -ptrdiff_t(width);
 	do {
 		drawSSE2_1(in1 + x +   0, in2 + x +  0, out + x +  0, f);
 		drawSSE2_1(in1 + x +  16, in2 + x + 16, out + x + 16, f);
@@ -145,7 +146,7 @@ static inline void drawSSE2(
 	const uint16_t* table = darkener.getTable();
 	__m128i mask = _mm_set1_epi16(pixelOps.getBlendMask());
 
-	ssize_t x = -ssize_t(width);
+	ptrdiff_t x = -ptrdiff_t(width);
 	do {
 		__m128i a = *reinterpret_cast<const __m128i*>(in1 + x);
 		__m128i b = *reinterpret_cast<const __m128i*>(in2 + x);
