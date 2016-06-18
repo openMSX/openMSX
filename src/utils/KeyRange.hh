@@ -21,8 +21,8 @@ public:
 	KeyIterator(map_iter it_) : it(it_) {}
 	reference operator*() const { return std::get<N>(*it); }
 	KeyIterator& operator++() { ++it; return *this; }
-	bool operator==(KeyIterator& other) const { return it == other.it; }
-	bool operator!=(KeyIterator& other) const { return it != other.it; }
+	bool operator==(const KeyIterator& other) const { return it == other.it; }
+	bool operator!=(const KeyIterator& other) const { return it != other.it; }
 private:
 	map_iter it;
 };
