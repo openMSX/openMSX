@@ -1,7 +1,6 @@
 #ifndef ALIGNEDBUFFER_HH
 #define ALIGNEDBUFFER_HH
 
-#include "alignof.hh"
 #include <type_traits>
 #include <cassert>
 #include <cstdint>
@@ -18,7 +17,7 @@ namespace openmsx {
   #endif
 #else
   // This only works starting from gcc-4-9
-  //  #define MAX_ALIGN_V ALIGNOF(MAX_ALIGN_T)
+  //  #define MAX_ALIGN_V alignof(std::max_align_t)
   #ifdef __x86_64
     #define MAX_ALIGN_V 16
   #else
@@ -74,7 +73,7 @@ private:
 __attribute__((__aligned__((MAX_ALIGN_V))))
 #endif
 ;
-static_assert(ALIGNOF(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be aligned");
+static_assert(alignof(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be aligned");
 
 
 // Provide actual storage for the AlignedBuffer
@@ -96,7 +95,7 @@ private:
 __attribute__((__aligned__((MAX_ALIGN_V))))
 #endif
 ;
-static_assert(ALIGNOF(AlignedByteArray<13>) == AlignedBuffer::ALIGNMENT,
+static_assert(alignof(AlignedByteArray<13>) == AlignedBuffer::ALIGNMENT,
               "must be aligned");
 static_assert(sizeof(AlignedByteArray<32>) == 32,
               "we rely on the empty-base optimization");
@@ -111,7 +110,7 @@ template<typename T> static inline T aligned_cast(void* p)
 	static_assert(std::is_pointer<T>::value,
 	              "can only perform aligned_cast on pointers");
 	assert((reinterpret_cast<uintptr_t>(p) %
-	        ALIGNOF(std::remove_pointer_t<T>)) == 0);
+	        alignof(std::remove_pointer_t<T>)) == 0);
 	return reinterpret_cast<T>(p);
 }
 

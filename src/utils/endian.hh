@@ -1,7 +1,6 @@
 #ifndef ENDIAN_HH
 #define ENDIAN_HH
 
-#include "alignof.hh"
 #include "build-info.hh"
 #include <cstdint>
 #include <cstring>
@@ -117,10 +116,10 @@ static_assert(sizeof(B16)  == 2, "must have size 2");
 static_assert(sizeof(L16)  == 2, "must have size 2");
 static_assert(sizeof(B32)  == 4, "must have size 4");
 static_assert(sizeof(L32)  == 4, "must have size 4");
-static_assert(ALIGNOF(B16) <= 2, "may have alignment 2");
-static_assert(ALIGNOF(L16) <= 2, "may have alignment 2");
-static_assert(ALIGNOF(B32) <= 4, "may have alignment 4");
-static_assert(ALIGNOF(L32) <= 4, "may have alignment 4");
+static_assert(alignof(B16) <= 2, "may have alignment 2");
+static_assert(alignof(L16) <= 2, "may have alignment 2");
+static_assert(alignof(B32) <= 4, "may have alignment 4");
+static_assert(alignof(L32) <= 4, "may have alignment 4");
 
 
 // Helper functions to read/write aligned 16/32 bit values.
@@ -266,10 +265,10 @@ static_assert(sizeof(UA_B16)  == 2, "must have size 2");
 static_assert(sizeof(UA_L16)  == 2, "must have size 2");
 static_assert(sizeof(UA_B32)  == 4, "must have size 4");
 static_assert(sizeof(UA_L32)  == 4, "must have size 4");
-static_assert(ALIGNOF(UA_B16) == 1, "must have alignment 1");
-static_assert(ALIGNOF(UA_L16) == 1, "must have alignment 1");
-static_assert(ALIGNOF(UA_B32) == 1, "must have alignment 1");
-static_assert(ALIGNOF(UA_L32) == 1, "must have alignment 1");
+static_assert(alignof(UA_B16) == 1, "must have alignment 1");
+static_assert(alignof(UA_L16) == 1, "must have alignment 1");
+static_assert(alignof(UA_B32) == 1, "must have alignment 1");
+static_assert(alignof(UA_L32) == 1, "must have alignment 1");
 
 // Template meta-programming.
 // Get a type of the same size of the given type that stores the value in a
