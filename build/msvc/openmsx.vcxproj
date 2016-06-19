@@ -1208,9 +1208,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\strCat.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\rapidsax.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Subject.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\tuple.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\type_traits.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\TypeInfo.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\uint128.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\unistdp.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\unreachable.hh" />

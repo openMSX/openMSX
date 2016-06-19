@@ -3,7 +3,6 @@
 
 #include "hash_map.hh"
 #include "likely.hh"
-#include "type_traits.hh"
 #include "xxhash.hh"
 #include <memory>
 #include <tuple>
@@ -122,8 +121,8 @@ template<typename Base, typename Derived> struct MapConstrArgsCopy
  * cases, the user must define a specialization of this class.
  */
 template<typename Base, typename Derived> struct MapConstructorArguments
-	: if_<std::is_same<std::tuple<>,
-	                   typename PolymorphicConstructorArgs<Derived>::type>,
+	: std::conditional_t<std::is_same<std::tuple<>,
+	                     typename PolymorphicConstructorArgs<Derived>::type>::value,
 	      MapConstrArgsEmpty<Base>,
 	      MapConstrArgsCopy<Base, Derived>> {};
 
