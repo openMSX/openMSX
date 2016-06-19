@@ -226,7 +226,6 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 //  - const_iterator begin(...)
 //  - const_iterator end(...)
 //      Returns begin/end iterator for the given collection. Used for saving.
-//  - using output_iterator = ...
 //  - void prepare(..., int n)
 //  - output_iterator output(...)
 //      These are used for loading. The prepare() method should prepare the
@@ -244,7 +243,6 @@ template<typename T, int N> struct serialize_as_collection<T[N]> : std::true_typ
 	static const T* end  (const T (&array)[N]) { return &array[N]; }
 	// load
 	static const bool loadInPlace = true;
-	using output_iterator = T*;
 	static void prepare(T (&/*array*/)[N], int /*n*/) { }
 	static T* output(T (&array)[N]) { return &array[0]; }
 };

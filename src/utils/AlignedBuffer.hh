@@ -26,27 +26,27 @@ namespace openmsx {
 //   }
 class alignas(std::max_align_t) AlignedBuffer
 {
+private:
+	auto* p()       { return reinterpret_cast<      uint8_t*>(this); }
+	auto* p() const { return reinterpret_cast<const uint8_t*>(this); }
+
 public:
 	static const size_t ALIGNMENT = alignof(std::max_align_t);
 
 	operator       uint8_t*()       { return p(); }
 	operator const uint8_t*() const { return p(); }
 
-	      uint8_t* operator+(ptrdiff_t i)       { return p() + i; }
-	const uint8_t* operator+(ptrdiff_t i) const { return p() + i; }
+	auto* operator+(ptrdiff_t i)       { return p() + i; }
+	auto* operator+(ptrdiff_t i) const { return p() + i; }
 
-	      uint8_t& operator[](int           i)       { return *(p() + i); }
-	const uint8_t& operator[](int           i) const { return *(p() + i); }
-	      uint8_t& operator[](unsigned int  i)       { return *(p() + i); }
-	const uint8_t& operator[](unsigned int  i) const { return *(p() + i); }
-	      uint8_t& operator[](long          i)       { return *(p() + i); }
-	const uint8_t& operator[](long          i) const { return *(p() + i); }
-	      uint8_t& operator[](unsigned long i)       { return *(p() + i); }
-	const uint8_t& operator[](unsigned long i) const { return *(p() + i); }
-
-private:
-	      uint8_t* p()       { return reinterpret_cast<      uint8_t*>(this); }
-	const uint8_t* p() const { return reinterpret_cast<const uint8_t*>(this); }
+	auto& operator[](int           i)       { return *(p() + i); }
+	auto& operator[](int           i) const { return *(p() + i); }
+	auto& operator[](unsigned int  i)       { return *(p() + i); }
+	auto& operator[](unsigned int  i) const { return *(p() + i); }
+	auto& operator[](long          i)       { return *(p() + i); }
+	auto& operator[](long          i) const { return *(p() + i); }
+	auto& operator[](unsigned long i)       { return *(p() + i); }
+	auto& operator[](unsigned long i) const { return *(p() + i); }
 };
 static_assert(alignof(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be aligned");
 
@@ -57,8 +57,8 @@ template<size_t N> class AlignedByteArray : public AlignedBuffer
 {
 public:
 	size_t size() const { return N; }
-	      uint8_t* data()       { return dat; }
-	const uint8_t* data() const { return dat; }
+	auto* data()       { return dat; }
+	auto* data() const { return dat; }
 
 private:
 	uint8_t dat[N];

@@ -43,10 +43,10 @@ public:
 	}
 
 	// iterators
-	const_iterator begin() const { return dat; }
-	const_iterator end()   const { return dat + siz; }
-	const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
-	const_reverse_iterator rend()   const { return const_reverse_iterator(begin()); }
+	auto begin() const { return dat; }
+	auto end()   const { return dat + siz; }
+	auto rbegin() const { return const_reverse_iterator(end()); }
+	auto rend()   const { return const_reverse_iterator(begin()); }
 
 	// capacity
 	size_type size()  const { return siz; }
@@ -149,7 +149,7 @@ unsigned fast_stou(string_view s);
 std::ostream& operator<<(std::ostream& os, string_view s);
 
 // begin, end
-inline string_view::const_iterator begin(const string_view& x) { return x.begin(); }
-inline string_view::const_iterator end  (const string_view& x) { return x.end();   }
+inline auto begin(const string_view& x) { return x.begin(); }
+inline auto end  (const string_view& x) { return x.end();   }
 
 #endif

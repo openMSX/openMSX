@@ -62,7 +62,7 @@ template<typename C>
 constexpr auto size(const C& c) -> decltype(c.size()) { return c.size(); }
 
 template<typename T, size_t N>
-constexpr size_t size(const T (&)[N]) noexcept { return N; }
+constexpr auto size(const T (&)[N]) noexcept { return N; }
 
 
 template<typename C>
@@ -342,10 +342,10 @@ public:
     constexpr const_iterator cbegin() const noexcept { return begin(); }
     constexpr const_iterator cend()   const noexcept { return end(); }
 
-    /*constexpr*/ reverse_iterator rbegin() const noexcept { return reverse_iterator(end()); }
-    /*constexpr*/ reverse_iterator rend()   const noexcept { return reverse_iterator(begin()); }
-    /*constexpr*/ const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(cend()); }
-    /*constexpr*/ const_reverse_iterator crend()   const noexcept { return const_reverse_iterator(cbegin()); }
+    /*constexpr*/ auto rbegin()  const noexcept { return reverse_iterator(end()); }
+    /*constexpr*/ auto rend()    const noexcept { return reverse_iterator(begin()); }
+    /*constexpr*/ auto crbegin() const noexcept { return const_reverse_iterator(cend()); }
+    /*constexpr*/ auto crend()   const noexcept { return const_reverse_iterator(cbegin()); }
 
 private:
     storage_type storage;

@@ -87,7 +87,7 @@ private:
 	const T& t;
 };
 template<int N, typename T>
-EqualTupleValueImpl<N, T> EqualTupleValue(const T& t) {
+auto EqualTupleValue(const T& t) {
 	return EqualTupleValueImpl<N, T>(t);
 }
 
@@ -129,7 +129,6 @@ inline ITER find_unguarded(ITER first, ITER last, const VAL& val)
 }
 template<typename RANGE, typename VAL>
 inline auto find_unguarded(RANGE& range, const VAL& val)
--> decltype(std::begin(range))
 {
 	return find_unguarded(std::begin(range), std::end(range), val);
 }
@@ -150,7 +149,6 @@ inline ITER find_if_unguarded(ITER first, ITER last, PRED pred)
 }
 template<typename RANGE, typename PRED>
 inline auto find_if_unguarded(RANGE& range, PRED pred)
--> decltype(std::begin(range))
 {
 	return find_if_unguarded(std::begin(range), std::end(range), pred);
 }
@@ -162,7 +160,6 @@ inline auto find_if_unguarded(RANGE& range, PRED pred)
   */
 template<typename RANGE, typename VAL>
 inline auto rfind_unguarded(RANGE& range, const VAL& val)
--> decltype(std::begin(range))
 {
 	//auto it = find_unguarded(std::rbegin(range), std::rend(range), val); // c++14
 	auto it = find_unguarded(range.rbegin(), range.rend(), val);
@@ -172,7 +169,6 @@ inline auto rfind_unguarded(RANGE& range, const VAL& val)
 
 template<typename RANGE, typename PRED>
 inline auto rfind_if_unguarded(RANGE& range, PRED pred)
--> decltype(std::begin(range))
 {
 	auto it = find_if_unguarded(range.rbegin(), range.rend(), pred);
 	++it;

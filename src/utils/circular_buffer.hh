@@ -171,26 +171,26 @@ public:
 		std::swap(siz,   cb.siz);
 	}
 
-	iterator begin() {
+	auto begin() {
 		return iterator(this, empty() ? nullptr : first);
 	}
-	const_iterator begin() const {
+	auto begin() const {
 		return const_iterator(this, empty() ? nullptr : first);
 	}
-	iterator       end()       { return iterator      (this, nullptr); }
-	const_iterator end() const { return const_iterator(this, nullptr); }
-	      reverse_iterator rbegin()       { return       reverse_iterator(end()); }
-	const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
-	      reverse_iterator rend()       { return       reverse_iterator(begin()); }
-	const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
+	auto end()          { return iterator      (this, nullptr); }
+	auto end()    const { return const_iterator(this, nullptr); }
+	auto rbegin()       { return       reverse_iterator(end()); }
+	auto rbegin() const { return const_reverse_iterator(end()); }
+	auto rend()         { return       reverse_iterator(begin()); }
+	auto rend()   const { return const_reverse_iterator(begin()); }
 
-	      T& operator[](size_t i)       { return *add(first, i); }
-	const T& operator[](size_t i) const { return *add(first, i); }
+	auto& operator[](size_t i)       { return *add(first, i); }
+	auto& operator[](size_t i) const { return *add(first, i); }
 
-	      T& front()       { return *first; }
-	const T& front() const { return *first; }
-	      T& back()       { return *((last == buf ? stop : last) - 1); }
-	const T& back() const { return *((last == buf ? stop : last) - 1); }
+	auto& front()       { return *first; }
+	auto& front() const { return *first; }
+	auto& back()       { return *((last == buf ? stop : last) - 1); }
+	auto& back() const { return *((last == buf ? stop : last) - 1); }
 
 	size_t size() const { return siz; }
 	bool empty() const { return size() == 0; }
@@ -372,21 +372,21 @@ public:
 	const T& back() const  { return buf.back();  }
 	const T& operator[](size_t i) const { return buf[i]; }
 
-	      iterator          begin()       { return buf.begin();  }
-	      iterator          end()         { return buf.end();    }
-	const_iterator          begin() const { return buf.begin();  }
-	const_iterator          end()   const { return buf.end();    }
-	      reverse_iterator rbegin()       { return buf.rbegin(); }
-	const_reverse_iterator rbegin() const { return buf.rbegin(); }
-	      reverse_iterator rend()         { return buf.rend();   }
-	const_reverse_iterator rend()   const { return buf.rend();   }
+	auto  begin()       { return buf.begin();  }
+	auto  end()         { return buf.end();    }
+	auto  begin() const { return buf.begin();  }
+	auto  end()   const { return buf.end();    }
+	auto rbegin()       { return buf.rbegin(); }
+	auto rbegin() const { return buf.rbegin(); }
+	auto rend()         { return buf.rend();   }
+	auto rend()   const { return buf.rend();   }
 
 	size_t size() const { return buf.size(); }
 	bool empty() const { return buf.empty(); }
 	void clear() { buf.clear(); }
 
-	      circular_buffer<T>& getBuffer()       { return buf; }
-	const circular_buffer<T>& getBuffer() const { return buf; }
+	auto& getBuffer()       { return buf; }
+	auto& getBuffer() const { return buf; }
 
 private:
 	void checkGrow() {

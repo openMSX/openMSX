@@ -649,10 +649,10 @@ public:
 		swap(x.equal    , y.equal);
 	}
 
-	friend       iterator begin(      hash_set& s) { return s.begin(); }
-	friend const_iterator begin(const hash_set& s) { return s.begin(); }
-	friend       iterator end  (      hash_set& s) { return s.end();   }
-	friend const_iterator end  (const hash_set& s) { return s.end();   }
+	friend auto begin(      hash_set& s) { return s.begin(); }
+	friend auto begin(const hash_set& s) { return s.begin(); }
+	friend auto end  (      hash_set& s) { return s.end();   }
+	friend auto end  (const hash_set& s) { return s.end();   }
 
 private:
 	// Returns the smallest value that is >= x that is also a power of 2.

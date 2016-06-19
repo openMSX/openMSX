@@ -80,26 +80,19 @@ public:
 	{
 	}
 
-	XRangeIter begin() const
-	{
-		return XRangeIter(b);
-	}
-
-	XRangeIter end() const
-	{
-		return XRangeIter(e);
-	}
+	auto begin() const { return XRangeIter(b); }
+	auto end()   const { return XRangeIter(e); }
 
 private:
 	const T b;
 	const T e;
 };
 
-template<typename T> inline XRange<T> xrange(T e)
+template<typename T> inline auto xrange(T e)
 {
 	return XRange<T>(e);
 }
-template<typename T> inline XRange<T> xrange(T b, T e)
+template<typename T> inline auto xrange(T b, T e)
 {
 	return XRange<T>(b, e);
 }

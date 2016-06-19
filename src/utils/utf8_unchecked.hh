@@ -114,8 +114,7 @@ void advance(octet_iterator& it, distance_type n)
 }
 
 template <typename octet_iterator>
-typename std::iterator_traits<octet_iterator>::difference_type
-distance(octet_iterator first, octet_iterator last)
+auto distance(octet_iterator first, octet_iterator last)
 {
 	typename std::iterator_traits<octet_iterator>::difference_type dist;
 	for (dist = 0; first < last; ++dist) {
