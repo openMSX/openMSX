@@ -13,13 +13,7 @@ namespace hash_set_impl {
 // Takes any (const or non-const) pair reference and returns a reference to
 // the first element of the pair.
 struct ExtractFirst {
-	// c++14:  template<typename Pair> auto& operator()(Pair&& p) const { return p.first; }
-
-	template<typename First, typename Second>
-	inline       First& operator()(      std::pair<First, Second>& p) const { return p.first; }
-
-	template<typename First, typename Second>
-	inline const First& operator()(const std::pair<First, Second>& p) const { return p.first; }
+	template<typename Pair> auto& operator()(Pair&& p) const { return p.first; }
 };
 
 } // namespace hash_set_impl

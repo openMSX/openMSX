@@ -14,8 +14,7 @@ struct LessDeref
 	bool operator()(PTR p1, PTR p2) const { return *p1 < *p2; }
 };
 
-// C++14 has an std::equal_to functor that is very much like this version.
-// TODO remove this version once we switch to C++14.
+// Heterogeneous version of std::equal_to.
 struct EqualTo
 {
        template<typename T1, typename T2>
