@@ -171,7 +171,7 @@ HardwareConfig::~HardwareConfig()
 void HardwareConfig::testRemove() const
 {
 	std::vector<MSXDevice*> alreadyRemoved;
-	for (auto it = devices.rbegin(); it != devices.rend(); ++it) {
+	for (auto it = rbegin(devices); it != rend(devices); ++it) {
 		(*it)->testRemove(alreadyRemoved);
 		alreadyRemoved.push_back(it->get());
 	}

@@ -237,7 +237,7 @@ OggReader::~OggReader()
 void OggReader::vorbisFoundPosition()
 {
 	auto last = vorbisPos;
-	for (auto it = audioList.rbegin(); it != audioList.rend(); ++it) {
+	for (auto it = rbegin(audioList); it != rend(audioList); ++it) {
 		last -= (*it)->length;
 		(*it)->position = last;
 	}
@@ -601,8 +601,8 @@ void OggReader::readTheora(ogg_packet* packet)
 	// numbers correctly
 	if (!frameList.empty() && (frameno != size_t(-1)) &&
 	    (frameList[0]->no == size_t(-1))) {
-		for (auto it = frameList.rbegin();
-		     it != frameList.rend(); ++it) {
+		for (auto it = rbegin(frameList);
+		     it != rend(frameList); ++it) {
 			frameno -= (*it)->length;
 			(*it)->no = frameno;
 		}

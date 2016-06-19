@@ -335,7 +335,7 @@ void HotKey::deactivateLayer(string_view layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
-	auto it = std::find_if(activeLayers.rbegin(), activeLayers.rend(),
+	auto it = std::find_if(rbegin(activeLayers), rend(activeLayers),
 		[&](const LayerInfo& info) { return info.layer == layer; });
 	if (it != activeLayers.rend()) {
 		// 'reverse_iterator' -> 'iterator' conversion is a bit tricky
@@ -377,7 +377,7 @@ int HotKey::executeEvent(const EventPtr& event)
 {
 	// First search in active layers (from back to front)
 	bool blocking = false;
-	for (auto it = activeLayers.rbegin(); it != activeLayers.rend(); ++it) {
+	for (auto it = rbegin(activeLayers); it != rend(activeLayers); ++it) {
 		auto& cmap = layerMap[it->layer]; // ok, if this entry doesn't exist yet
 		auto it2 = findMatch(cmap, *event);
 		if (it2 != end(cmap)) {
@@ -668,8 +668,8 @@ void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& resul
 	string r;
 	auto& hotKey = OUTER(HotKey, activateCmd);
 	if (layer.empty()) {
-		for (auto it = hotKey.activeLayers.rbegin();
-		     it != hotKey.activeLayers.rend(); ++it) {
+		for (auto it = rbegin(hotKey.activeLayers);
+		     it != rend(hotKey.activeLayers); ++it) {
 			r += it->layer;
 			if (it->blocking) {
 				r += " -blocking";

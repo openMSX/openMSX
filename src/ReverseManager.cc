@@ -240,11 +240,11 @@ void ReverseManager::status(TclObject& result) const
 	result.addListElement(snapshots);
 
 	result.addListElement("last_event");
-	auto lastEvent = history.events.rbegin();
-	if (lastEvent != history.events.rend() && dynamic_cast<const EndLogEvent*>(lastEvent->get())) {
+	auto lastEvent = rbegin(history.events);
+	if (lastEvent != rend(history.events) && dynamic_cast<const EndLogEvent*>(lastEvent->get())) {
 		++lastEvent;
 	}
-	EmuTime le(isCollecting() && (lastEvent != history.events.rend()) ? (*lastEvent)->getTime() : EmuTime::zero);
+	EmuTime le(isCollecting() && (lastEvent != rend(history.events)) ? (*lastEvent)->getTime() : EmuTime::zero);
 	result.addListElement((le - EmuTime::zero).toDouble());
 }
 
@@ -609,7 +609,7 @@ void ReverseManager::saveReplay(
 		// seconds before the normal end time so that we get an extra snapshot
 		// at that point, which is comfortable if you want to reverse from the
 		// last snapshot after loading the replay.
-		const auto& lastChunkTime = chunks.rbegin()->second.time;
+		const auto& lastChunkTime = rbegin(chunks)->second.time;
 		const auto& endTime   = ((startTime + MAX_DIST_1_BEFORE_LAST_SNAPSHOT) < lastChunkTime) ? lastChunkTime - MAX_DIST_1_BEFORE_LAST_SNAPSHOT : lastChunkTime;
 		EmuDuration totalLength = endTime - startTime;
 		EmuDuration partitionLength = totalLength.divRoundUp(maxNofExtraSnapshots);

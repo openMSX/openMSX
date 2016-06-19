@@ -160,8 +160,7 @@ inline auto find_if_unguarded(RANGE& range, PRED pred)
 template<typename RANGE, typename VAL>
 inline auto rfind_unguarded(RANGE& range, const VAL& val)
 {
-	//auto it = find_unguarded(std::rbegin(range), std::rend(range), val); // c++14
-	auto it = find_unguarded(range.rbegin(), range.rend(), val);
+	auto it = find_unguarded(std::rbegin(range), std::rend(range), val);
 	++it;
 	return it.base();
 }
@@ -169,7 +168,7 @@ inline auto rfind_unguarded(RANGE& range, const VAL& val)
 template<typename RANGE, typename PRED>
 inline auto rfind_if_unguarded(RANGE& range, PRED pred)
 {
-	auto it = find_if_unguarded(range.rbegin(), range.rend(), pred);
+	auto it = find_if_unguarded(std::rbegin(range), std::rend(range), pred);
 	++it;
 	return it.base();
 }
