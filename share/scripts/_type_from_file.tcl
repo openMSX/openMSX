@@ -124,9 +124,8 @@ proc handleinterrupt {fid} {
 	if {[peek16 $PUTPNT] == [peek16 $GETPNT]} {
 		# keyboard buffer is processed
 
-		set addr $KEYBUF
-		
 		# poke the buffer (almost!) full with the next file content
+		set addr $KEYBUF
 		while {$addr < $BUFEND - 1} {
 			set char [read $fid 1]
 			if {$char eq ""} {
