@@ -86,8 +86,72 @@ proc type_password_from_file {filename {index 1}} {
 	if {!$found} { error "No line found at index $index" }
 }
 
+# type_from_file_via_keybuf
+# Based on NYYRIKKI's code found here:
+# https://www.msx.org/forum/msx-talk/openmsx/lost-somewhere-inside-openmsx-please-save-me?page=0
+
+proc tabcompletion_type_from_file_via_keybuf {args} {
+	utils::file_completion {*}$args
+}
+
+set_tabcompletion_proc type_from_file_via_keybuf [namespace code tabcompletion_type_from_file_via_keybuf]
+
+set_help_text type_from_file_via_keybuf \
+{This is an alternative to type_from_file. It's a lot faster, but it only works
+in software that reads the input from the keyboard buffer area in the RAM. In
+MSX-BASIC, this one works very well. It simply pokes the bytes from the file
+directly into the keyboard buffer.
+}
+
+variable bp_id
+
+proc type_from_file_via_keybuf {filename} {
+	variable bp_id
+
+	set fid [open $filename r]
+	fconfigure $fid -translation binary -encoding binary
+	set bp_id [debug set_bp 0x38 {} "type_from_file::handleinterrupt $fid"]
+	return ""
+}
+
+
+proc handleinterrupt {fid} {
+	set PUTPNT 0xF3F8
+	set GETPNT 0xF3FA
+	set KEYBUF 0xFBF0
+	set BUFEND 0xFC18
+
+	if {[peek16 $PUTPNT] == [peek16 $GETPNT]} {
+		# keyboard buffer is processed
+
+		set addr $KEYBUF
+		
+		# poke the buffer (almost!) full with the next file content
+		while {$addr < $BUFEND - 1} {
+			set char [read $fid 1]
+			if {$char eq ""} {
+				# apparently eof reached, clean up
+				variable bp_id
+				debug remove_bp $bp_id
+				close $fid
+				break
+			}
+			# skip newlines
+			if {$char ne "\x0A"} {
+				poke $addr [scan $char "%c"]
+				incr addr
+			}
+		}
+		# put the end of the data pointer to addr
+		poke16 $PUTPNT $addr
+		# put read pointer at start of keyboard buffer
+		poke16 $GETPNT $KEYBUF
+	}	
+}
+
 namespace export type_from_file
 namespace export type_password_from_file
+namespace export type_from_file_via_keybuf
 
 } ;# namespace type_from_file
 
