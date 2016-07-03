@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.12.1 (2015-0x-yz)
+Release Notes for openMSX 0.12.1 (2016-0x-yz)
 =============================================
 
 This is (mostly) a bug fix release, but again it also has some nice additions
@@ -28,28 +28,35 @@ MSX device support:
 - added support for mapper of Japanese MSX Write
 - added support for Spectravideo SVI-707 disk drive
 - added support for the V9990 POINT VDP command
+- added support for more realistic TMS VDP pallettes: it's now possible to
+  specify the saturation for the Pb and Pr channel (this is dependent on the
+  analog electronics in the MSX video circuit) which affects the palette. E.g.
+  all machines with TMS9x2x have a brighter palette now, as they should.
+- added weird color palette of the Fujitsu FM-X RGB output (3 bit RGB)
 - added a high-resolution timer extension: a cartridge with a 32-bit counter
   that counts at 3.57 MHz. Useful for debugging and reverse engineering. Only
   one such real cartridge exists :)
 - added new machines: Aucnet NIA-2001 MSXturboR (thanks to PiterPunk/NYYRIKKI),
   Frael BRUC_100 version 1 and 2 (thanks to RJP, FRS, et al), Pioneer UC-V102
   (thanks to PiterPunk), Victor HC-80 (thanks to Daniele)
+- added new extension: Sanyo MRS-001 RS-232C cartridge (thanks to mtn)
 
 New or improved emulator features:
 - fixed bug in parsing remote command XML (causing e.g. ROM names with special
   characters not to get communicated to openMSX correctly from Catapult)
 - fixed crash in 'reverse goback'
 - fixed inserting a slotexpander in a specific slot
-- improved DC filter for WAV cassette images: this should allow for more WAV
-  files to load properly in openMSX
 - fixed slowness issue when taking screenshots frame by frame
 - fixed support of files larger than 2GB (e.g. hard disk images) on Windows
 - fixed VDP status flag when using cmdtiming broking (infinitely fast VDP
   commands)
+- fixed excessive delay on 'reverse goto' with ram watch enabled
 - OSD menu:
   - fixed (un)plugging (connectors)/pluggables with spaces in their name
   - fixed loading savestate with more than one . in its filename
   - support up to 2 hard disk images (just like ROMs and disk drives)
+- fixed bug that cassette image was removed when doing reverse goto 0
+- fixed save_msx_screen for 2nd page of screen 7-12 (thanks to FRS)
 - improved robustness of DirAsDisk
 - added progress update reporting when doing operations that take a lot of time
   (like calculating a hash of a large file or doing a large step in a replay)
