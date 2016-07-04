@@ -11,13 +11,38 @@ proc tabcompletion_normal {args} {
 set_tabcompletion_proc type_from_file [namespace code tabcompletion_normal]
 
 set_help_text type_from_file \
-{type_from_file filename <type args>
-Types the content of the indicated file into the MSX.
-If you want to specify extra arguments for the normal type command,
-you have to specify them after the filename.
+{type_from_file <type args> filename
+Types the content of the indicated file into the MSX. You can use the same
+arguments as for the type command.
 }
 
-proc type_from_file {filename args} {
+proc type_from_file {args} {
+	set options [list]
+	set filename ""
+	# parse arguments (duplicated from C++)
+	while {[llength $args] > 0} {
+		set option [lindex $args 0]
+		switch -- $option {
+			"-release" {
+				lappend options $option
+				set args [lrange $args 1 end]
+			}
+			"-freq" {
+				lappend options {*}[lrange $args 0 1]
+				set args [lrange $args 2 end]
+			}
+			default {
+				if {$filename ne ""} {
+					error "You can only specify one file name to type."
+				}
+				set filename $option
+				set args [lrange $args 1 end]
+			}
+		}
+	}
+	if {$filename eq ""} {
+		error "No filename given..."
+	}
 
 	# open file
 	set f [open $filename "r"]
@@ -25,7 +50,8 @@ proc type_from_file {filename args} {
 
 	set the_text [read $f]
 	close $f
-	type {*}$args [string map {"\x0A" ""} $the_text]
+
+	type {*}$options [string map {"\x0A" ""} $the_text]
 }
 
 proc tabcompletion_password {args} {
@@ -117,8 +143,24 @@ variable bp_id "invalid"
 variable the_text
 variable index
 
-proc type_via_keybuf {text args} {
-	# note: ignore args to be able to be an alias for the original type command
+proc type_via_keybuf {args} {
+	set text ""
+	# note: ignore extra args to be able to be an alias for the original type command
+	while {[llength $args] > 0} {
+		set option [lindex $args 0]
+		switch -- $option {
+			"-release" {
+				set args [lrange $args 1 end]
+			}
+			"-freq" {
+				set args [lrange $args 2 end]
+			}
+			default {
+				append text $option
+				set args [lrange $args 1 end]
+			}
+		}
+	}
 	variable bp_id
 
 	if {$bp_id ne "invalid"} {
