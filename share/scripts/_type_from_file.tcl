@@ -21,13 +21,11 @@ proc type_from_file {filename args} {
 
 	# open file
 	set f [open $filename "r"]
+	fconfigure $f -translation binary -encoding binary
 
-	# process all lines in the file
-	while {[gets $f line] >= 0} {
-		type {*}$args "$line\r"
-	}
-
+	set the_text [read $f]
 	close $f
+	type {*}$args [string map {"\x0A" ""} $the_text]
 }
 
 proc tabcompletion_password {args} {
