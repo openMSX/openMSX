@@ -1014,7 +1014,7 @@ void Keyboard::KeyInserter::execute(
 			if (++i == tokens.size()) {
 				throw CommandException("Missing argument");
 			}
-			int tmp = tokens[1].getInt(getInterpreter());
+			int tmp = tokens[i].getInt(getInterpreter());
 			if (tmp <= 0) {
 				throw CommandException("Wrong argument for -freq (should be a positive number)");
 			}
