@@ -975,7 +975,7 @@ Keyboard::KeyInserter::KeyInserter(
 		StateChangeDistributor& stateChangeDistributor_,
 		Scheduler& scheduler_)
 	: RecordedCommand(commandController_, stateChangeDistributor_,
-		scheduler_, "type")
+		scheduler_, "type_via_keyboard")
 	, Schedulable(scheduler_)
 	, lockKeysMask(0)
 	, releaseLast(false)
