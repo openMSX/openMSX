@@ -108,12 +108,36 @@ proc type_from_file_via_keybuf {filename} {
 
 	set fid [open $filename r]
 	fconfigure $fid -translation binary -encoding binary
-	set bp_id [debug set_bp 0x38 {} "type_from_file::handleinterrupt $fid"]
+	set file_text [read $fid]
+	type_via_keybuf [string map {"\x0A" ""} $file_text]
+	close $fid
+}
+
+variable bp_id "invalid"
+variable the_text
+variable index
+
+proc type_via_keybuf {text args} {
+	# note: ignore args to be able to be an alias for the original type command
+	variable bp_id
+
+	if {$bp_id ne "invalid"} {
+		# already typing going on, so append
+		variable the_text
+		append the_text $text
+		return ""
+	}
+
+	variable the_text
+	variable index
+
+	set index 0
+	set the_text $text
+	set bp_id [debug set_bp 0x38 {} "type_from_file::handleinterrupt"]
 	return ""
 }
 
-
-proc handleinterrupt {fid} {
+proc handleinterrupt {} {
 	set PUTPNT 0xF3F8
 	set GETPNT 0xF3FA
 	set KEYBUF 0xFBF0
@@ -125,19 +149,20 @@ proc handleinterrupt {fid} {
 		# poke the buffer (almost!) full with the next file content
 		set addr $KEYBUF
 		while {$addr < $BUFEND - 1} {
-			set char [read $fid 1]
+			variable index
+			variable the_text
+			set char [string index $the_text $index]
 			if {$char eq ""} {
-				# apparently eof reached, clean up
+				# apparently end of string reached, clean up
 				variable bp_id
 				debug remove_bp $bp_id
-				close $fid
+				set bp_id "invalid"
 				break
 			}
-			# skip newlines
-			if {$char ne "\x0A"} {
-				poke $addr [scan $char "%c"]
-				incr addr
-			}
+			# do not skip newlines, similar to normal type command
+			poke $addr [scan $char "%c"]
+			incr addr
+			incr index
 		}
 		# put the end of the data pointer to addr
 		poke16 $PUTPNT $addr
