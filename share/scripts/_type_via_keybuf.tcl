@@ -27,7 +27,10 @@ proc type_via_keybuf {args} {
 				set args [lrange $args 2 end]
 			}
 			default {
-				append text $option
+				if {$text ne ""} {
+					error "Syntax error"
+				}
+				set text $option
 				set args [lrange $args 1 end]
 			}
 		}
