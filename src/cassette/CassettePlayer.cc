@@ -148,7 +148,7 @@ void CassettePlayer::autoRun()
 
 		// Without the 0.1s delay here, the type command gets messed up
 		// on MSX1 machines for some reason (starting to type too early?)
-		"    after time 0.1 \"type [lindex $args 0]\\\\r\"\n"
+		"    after time 0.1 \"type_via_keyboard [lindex $args 0]\\\\r\"\n"
 
 		"    set next [lrange $args 1 end]\n"
 		"    if {[llength $next] == 0} return\n"
@@ -167,7 +167,7 @@ void CassettePlayer::autoRun()
 		"  }]\n"
 
 		// re-trigger hook(s), needed when already booted in BASIC
-		"  type \'\\r\n"
+		"  type_via_keyboard \'\\r\n"
 		"}";
 	try {
 		motherBoard.getCommandController().executeCommand(command);
