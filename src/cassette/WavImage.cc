@@ -13,7 +13,7 @@ namespace openmsx {
 // see comments in MSXMixer.cc for more details
 static void filter(float sampleFreq, int16_t* begin, int16_t* end)
 {
-	const float cuttOffFreq = 1400.0f; // trial-and-error
+	const float cuttOffFreq = 800.0f; // trial-and-error
 	float R = 1.0f - ((float(2 * M_PI) * cuttOffFreq) / sampleFreq);
 
 	float t0 = 0.0f;
