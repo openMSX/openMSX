@@ -38,7 +38,8 @@ MSX device support:
   one such real cartridge exists :)
 - added new machines: Aucnet NIA-2001 MSXturboR (thanks to PiterPunk/NYYRIKKI),
   Frael BRUC_100 version 1 and 2 (thanks to RJP, FRS, et al), Pioneer UC-V102
-  (thanks to PiterPunk), Victor HC-80 (thanks to Daniele)
+  (thanks to PiterPunk), Victor HC-80 (thanks to Daniele), Toshiba HX-23F and
+  HX-23 (thanks to FRS)
 - added new extension: Sanyo MRS-001 RS-232C cartridge (thanks to mtn)
 
 New or improved emulator features:
@@ -67,6 +68,9 @@ New or improved emulator features:
 - added experimental support for ALSA MIDI out (Linux): now it's much easier to
   connect MSX MIDI out devices to a soft synth or other application on Linux
 - improved support for UNC paths on Windows (network drives)
+- added a script to speed up the type command: type_via_keybuf (thanks to
+  NYYRIKKI for the initial version). Default type implementation can now be
+  tuned with the new default_type_proc setting.
 
 Build system, packaging, documentation:
 - to compile with gcc you now need gcc 4.8 or higher
