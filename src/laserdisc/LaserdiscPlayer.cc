@@ -655,7 +655,7 @@ void LaserdiscPlayer::autoRun()
 		"if ![info exists " + var + "] { set " + var + " 0 }\n"
 		"incr " + var + "\n"
 		"after time 2 \"if $" + var + "==\\$" + var + " { "
-		"type 1CALLLD\\\\r }\"";
+		"type_via_keyboard 1CALLLD\\\\r }\"";
 
 	try {
 		motherBoard.getCommandController().executeCommand(command);
