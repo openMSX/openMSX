@@ -558,14 +558,13 @@ Now that all the necessary tools and libraries are installed,
 you are almost ready to start the actual compilation of openMSX.
 </p>
 
-<h4>GCC</h4>
+<h4>GCC / clang</h4>
 
 <p>
 The first thing you may want to know is that you can build openMSX in
 different flavours. The default flavour depends on the CPU, but is always one that is optimized for performance. For example for x86 processors the default
 flavour is "i686": i.e., with optimisations for Pentium II and higher,
-without any debugging stuff. Note: On an older VIA Epia (with the Samuel 2 CPU at least), a binary built with "i686" flavour will not run. Please
-use the "opt" flavour for that platform.
+without any debugging stuff. The generic optimized flavour "opt" should work for all CPUs.
 </p>
 <p>
 If you are testing new openMSX developments or making changes in openMSX, you can benefit from asserts and debug symbols. To get those, you should select the "devel" flavour, like this:
@@ -578,13 +577,19 @@ Although the default flavours will probably be OK for most cases, you may want t
 </p>
 
 <p>
-You can select the C++ compiler to be used like this:
+You can select the C++ compiler to be used by setting the <code>CXX</code> environment variable like this:
 </p>
 <div class="commandline">
 export CXX=g++-4.7
 </div>
 <p>
-This can be useful if the default compiler on your system is an old GCC version which is either not capable of compiling openMSX, or generates less efficient code.
+or:
+</p>
+<div class="commandline">
+export CXX=clang++
+</div>
+<p>
+This can be useful if the default compiler on your system is an old version which is either not capable of compiling openMSX, or generates less efficient code.
 </p>
 
 <p>
@@ -644,12 +649,8 @@ If that doesn't help, or we forgot to list a library openMSX depends on,
 Make sure you provide us with the error message you got.
 </p>
 
-<h4>clang</h4>
-
-<h5>Linux and BSD</h5>
-
 <p>
-Add <code>CXX=clang++</code> as an argument to the <code>make</code> command to select clang as the compiler instead of GCC.
+If you want to debug openMSX compilation problems yourself, you can add <code>V=1</code> (verbose) to the Make command line to see all build commands as they are executed.
 </p>
 
 <h5>Mac OS X</h5>
