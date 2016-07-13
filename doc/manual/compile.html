@@ -197,9 +197,9 @@ Install Xcode from Apple, which you can find in the Mac App Store. Start Xcode a
 
 <h4>Visual C++</h4>
 
-<p>To build with Visual C++ you need to have the latest version of it installed. Currently, this is 2015 update 1.</p>
+<p>To build with Visual C++ you need to have the latest version of it installed. Currently, this is 2015 update 3.</p>
 
-<p>There are three different ways to obtain the Visual C++ compiler:</p>
+<p>There are two different ways to obtain the Visual C++ compiler:</p>
 <dl>
 
 <dt>
@@ -209,26 +209,17 @@ purchase or via an MSDN subscription.</dd>
 
 	<dt><a class="external" href="http://www.visualstudio.com/downloads/download-visual-studio-vs#d-express-windows-desktop">Visual Studio Express for Windows Desktop</a></dt>
 	<dd>This is a free (as in beer) IDE and development environment. It builds 32 and 64-bit binaries out of the box. Make sure you download the latest version. </dd>
-	<dt>If you require the resulting binaries to run on Windows XP, the <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a>
-	is required. To generate an MSI installation package,
-	<a class="external" href="http://wixtoolset.org/">WiX</a> package must
-	be installed.</dt>
 
 </dl>
 
-<dl>
+<p>To generate an MSI installation package, you also need:</p>
 
-<dt>
-<a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a></dt>
-<dd>This is the SDK that contains DirectX headers, libs, samples, documentation,
-etc. We recommend using the <a href="http://go.microsoft.com/fwlink/?LinkId=271274">
-June 2010</a> version. This is a large download, about 580MB. To build
-openMSX, only the headers and libs are truly required. Download only when you want the resulting binaries to run on Windows XP as well.</dd>
+<dl>
 
 <dt> <a class="external" href="http://wixtoolset.org/">WiX</a></dt>
 <dd>This is a tool that generates MSI installer packages. We recommend using
-version 3.0 or later. If you see a message that the &quot;Votive&quot; component won't install, that's not
-a problem, just continue.</dd>
+version 3.0 or later. If you see a message that the &quot;Votive&quot;
+component won't install, that's not a problem, just continue.</dd>
 
 </dl>
 
