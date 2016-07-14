@@ -543,7 +543,7 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 				// registers, their value actually has changed.
 				writeRegDirect(8 + snum + (i - 2) * 24, buf[i], time);
 			}
-			if ((regs[reg + 4] & 0x080)) {
+			if ((regs[reg + 0x60] & 0x080)) {
 				keyOnHelper(slot);
 			}
 			break;
