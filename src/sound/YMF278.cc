@@ -600,7 +600,14 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 				}
 				break;
 			case 2: // tone on, no damp
-				if (!(regs[reg] & 0x080)) {
+				// 'Life on Mars' bug fix:
+				//    In case KEY=ON + DAMP (value 0xc0) and we reach
+				//    'env_vol == MAX_ATT_INDEX' (-> slot.active = false)
+				//    we didn't trigger keyOnHelper() because KEY didn't
+				//    change OFF->ON. Fixed by also checking slot.state.
+				// TODO real HW is probably simpler because EG_DMP is not
+				// an actual state, nor is 'slot.active' stored.
+				if (!slot.active || !(regs[reg] & 0x080)) {
 					keyOnHelper(slot);
 				}
 				break;
