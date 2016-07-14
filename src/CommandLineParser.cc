@@ -329,16 +329,8 @@ void CommandLineParser::ControlOption::parseOption(
 			controller, distributor);
 #ifdef _WIN32
 	} else if (type == "pipe") {
-		OSVERSIONINFO info;
-		info.dwOSVersionInfoSize = sizeof(info);
-		GetVersionEx(&info);
-		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-			connection = make_unique<PipeConnection>(
-				controller, distributor, arguments);
-		} else {
-			throw FatalError("Pipes are not supported on this "
-			                 "version of Windows");
-		}
+		connection = make_unique<PipeConnection>(
+			controller, distributor, arguments);
 #endif
 	} else {
 		throw FatalError("Unknown control type: '"  + type + '\'');
