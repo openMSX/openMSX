@@ -10,6 +10,7 @@
 #include "SettingsManager.hh"
 #include "TclObject.hh"
 #include "Version.hh"
+#include "KeyRange.hh"
 #include "ScopedAssign.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
@@ -444,9 +445,11 @@ void GlobalCommandController::HelpCmd::execute(
 		string text =
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
-		for (auto& p : controller.commandCompleters) {
-			const auto& key = p.first;
-			text.append(key.data(), key.size());
+		const auto& k = keys(controller.commandCompleters);
+		vector<string_ref> cmds(begin(k), end(k));
+		std::sort(begin(cmds), end(cmds));
+		for (auto& line : formatListInColumns(cmds)) {
+			text += line;
 			text += '\n';
 		}
 		result.setString(text);
