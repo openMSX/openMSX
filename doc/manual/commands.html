@@ -900,6 +900,8 @@
   <p>Insert an MSX extension in a running MSX machine. The <code>ext</code> command inserts the extension in the first available slot. The <code>exta</code>, <code>extb</code> etc. commands insert it in the specified slot. The extension can be removed again with the <code><a class="internal" href="#remove_extension">remove_extension</a></code>
   command. See also the commands <code><a class="internal" href="#cart">cart</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code> and <code><a class="internal" href="#remove_extension">remove_extension</a></code>.</p>
 
+  <p>To get a list of possible extensions it's convenient to use the tab-completetion feature, i.e. type '<code>ext&lt;space&gt;&lt;tab&gt;</code>'. Alternatively the command '<code><a class="internal" href="#openmsx_info">openmsx_info</a> extensions</code>' gives you the same information (and is easier to use in a scripting context).</p>
+
   <p>Note that some extensions (i.e. those without any memory) will not physically occupy any slot when inserted, even when they were inserted in a specific slot.</p>
 
   <div class="subsectiontitle">

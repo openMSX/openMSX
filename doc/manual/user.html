@@ -278,7 +278,7 @@ One very practical feature of the console command line is that you can use "comp
 <h3><a id="importantconsole">3.2 Some Simple Console Commands</a></h3>
 
 <p>
-You can reset your MSX with the Console command <code><a class="external" href="commands.html#reset">reset</a></code> and exit openMSX with the command <code>exit</code>. As is explained in the previous chapter, you can change machines with the <code><a class="external" href="commands.html#machine">machine</a></code> command and you can insert extensions with the <code><a class="external" href="commands.html#ext">ext</a></code> command. Remove extensions with the <code><a class="external" href="commands.html#remove_extension">remove_extension</a></code> command or list them with the <code><a class="external" href="commands.html#list_extensions">list_extensions</a></code> command. Other commands will be discussed later on in this manual.
+You can reset your MSX with the Console command <code><a class="external" href="commands.html#reset">reset</a></code> and exit openMSX with the command <code><a class="external" href="commands.html#exit">exit</a></code>. As is explained in the previous chapter, you can change machines with the <code><a class="external" href="commands.html#machine">machine</a></code> command and you can insert extensions with the <code><a class="external" href="commands.html#ext">ext</a></code> command (use tab-completion to see the list of possible extension names). Remove extensions with the <code><a class="external" href="commands.html#remove_extension">remove_extension</a></code> command or get a list of the currently inserted extensions with the <code><a class="external" href="commands.html#list_extensions">list_extensions</a></code> command. Other commands will be discussed later on in this manual.
 </p>
 
 <h3><a id="settings">3.3 Settings</a></h3>
@@ -564,7 +564,7 @@ openMSX supports mostly the emulation of the Sunrise IDE interface, but there is
 <p>
 The extensions that enable this have a built in harddisk
 configuration, in the form of a 100MB sized disk image. This is the default size: if the harddisk image is
-not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/NAME/untitled1/IMAGENAME.dsk</code>, where NAME is the name of the extension used and IMAGENAME is a name that is configured in the extension's XML file.
+not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/NAME/untitled1/IMAGENAME.dsk</code>, where NAME is the name of the extension used and IMAGENAME is a name that is configured in the extension's XML file (default <code>hd.dsk</code>).
 </p>
 
 <p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to initialise them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, but only supports hard disk images with a partition table format compatible with the Sunrise IDE at the moment.
@@ -1317,7 +1317,7 @@ A feature of emulators which is particularly useful is saving the state of the e
 </p>
 
 <p>
-The easiest way to use it is by using the keyboard shortcuts for quickly saving and loading a state, see the <a class="internal" href="#keymapping">key mapping section</a>. These shortcuts basically use the <a class="external" href="commands.html#savestate">savestate</a> and loadstate commands, with the parameter <code>quicksave</code>, i.e. they use a savestate file with the name 'quicksave'. You can also use the commands directly yourself, with the argument as the name of the slot you save the state to (use TAB or the <code>list_savestates</code> command to see your previously saved states). Without having to browse the file system of your computer, you can also conveniently delete existing save games with the <code>delete_savestate</code> command.
+The easiest way to use it is by using the keyboard shortcuts for quickly saving and loading a state, see the <a class="internal" href="#keymapping">key mapping section</a>. These shortcuts basically use the <a class="external" href="commands.html#savestate">savestate</a> and loadstate commands, with the parameter <code>quicksave</code>, i.e. they use a savestate file with the name 'quicksave'. You can also use the commands directly yourself, with the argument as the name of the slot you save the state to (use TAB or the <code><a class="external" href="commands.html#savestate">list_savestates</a></code> command to see your previously saved states). Without having to browse the file system of your computer, you can also conveniently delete existing save games with the <code><a class="external" href="commands.html#savestate">delete_savestate</a></code> command.
 </p>
 
 <p>Note that when saving the state of the machine, a screenshot will also be saved with it, so that those could be used for save state browsing. (Currently only used on the On-Screen-Display and in a prototype version of a new Catapult.)
@@ -1351,7 +1351,7 @@ openMSX includes a game trainer system. Although it has to be used from the cons
 </p>
 
 <p>
-Suppose you want to cheat on Metal Gear. Then it would be useful to type: <code>trainer Metal[TAB]</code>, which will expand to: <code>trainer Metal\ Gear</code>. When you then press enter, you see which cheats are available in the Metal Gear trainer. You can active them by typing e.g.: <code>trainer Metal\ Gear 1 2 3 4</code>. This will activate (toggle) the first 4 cheats (as the list will tell you which is printed after the command: the crosses mean an active cheat). You can also use the descriptions instead of the numbers: <code>trainer Metal\ Gear "enemy 1 gone" "enemy 2 gone"</code>. Or, if you want to activate all cheats, as was default in the old cheat system, you could simply type: <code>trainer Metal\ Gear all</code>.
+Suppose you want to cheat on Metal Gear. Then it would be useful to type: <code>trainer Metal[TAB]</code>, which will expand to: <code>trainer Metal\ Gear</code>. When you then press enter, you see which cheats are available in the Metal Gear trainer. You can active them by typing e.g.: <code>trainer Metal\ Gear 1 2 3 4</code>. This will activate (toggle) the first 4 cheats (as the list will tell you which is printed after the command: the crosses mean an active cheat). You can also use the descriptions instead of the numbers: <code>trainer Metal\ Gear "enemy 1 gone" "enemy 2 gone"</code>. Or, if you want to activate all cheats you can simply type: <code>trainer Metal\ Gear all</code>.
 </p>
 
 <p>
