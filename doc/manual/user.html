@@ -338,7 +338,7 @@ Add the complete list of pluggables here.
 <h2><a id="media">4. Running MSX Software and Using Media</a></h2>
 
 <p>
-With this information, you can run most of the existing MSX software.
+With this information, you can run most of the existing MSX software. For all supported media, there is a list of extensions that are recognized by openMSX. If you run openMSX from the command line, adding a file name (with path if necessary) as a command line option, openMSX will insert the file as the proper type of media. The list of supported extensions for each media type can be easily retrieved with <code>-h</code> option on the command line. For some media examples of command line usage are given below.
 </p>
 
 <h3><a id="roms">4.1 Running ROM software</a></h3>
@@ -535,8 +535,8 @@ You can also use the so-called CAS files. Use them exactly as you would use WAV 
 </p>
 
 <p>
-We don't support using CAS files anymore by patching a BIOS, because it is not really something we want: we prefer a more authentic emulation without hacks like this.
-So, nowadays, the CAS files are automatically
+We don't support using CAS files by patching a BIOS natively, because it is not really something we want: we prefer a more authentic emulation without hacks like this.
+So, the CAS files are automatically
 converted to WAV files, internally. Note that the loading time is drastically
 longer this way (but: doing a <code>set <a class="external" href="commands.html#fullspeedwhenloading">fullspeedwhenloading</a> on</code> will help a lot). On the other hand, you will be able to hear the cassette
 sounds now also with the CAS files... What is using cassettes with an MSX
@@ -553,7 +553,6 @@ To make it even more comfortable to run software from CAS images, try the follow
 <p>
 Note that saving to CAS files (new or existing ones) is not possible; one can only save to new cassette images in WAV format.
 </p>
-
 
 <h3><a id="harddisks">4.4 Emulating MSX Harddisks and CD-ROM</a></h3>
 
@@ -616,8 +615,8 @@ The initialisation of a Sunrise IDE harddisk is described in the text files that
 program for IDE, downloadable from the <a class="external"
 href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web
 site</a>. There are also <a class="external"
-href="http://www.msx.org/forumtopic6184.html">some</a> <a class="external"
-href="http://www.msx.org/forumtopic3015p15.html">threads</a> on the MSX Resource
+href="https://www.msx.org/forum/semi-msx-talk/emulation/how-get-sunrise-ide-working-openmsx">some</a> <a class="external"
+href="https://www.msx.org/forum/semi-msx-talk/emulation/openmsx-harddisk-emulation">threads</a> on the MSX Resource
 Center forum that may give you valuable hints.
 </p>
 <p>
