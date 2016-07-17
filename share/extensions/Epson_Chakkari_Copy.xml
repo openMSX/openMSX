@@ -6,7 +6,7 @@
     <manufacturer>Epson</manufacturer>
     <code></code>
     <release_year>1985</release_year>
-    <description>Epson screen dumping cartridge</description>
+    <description>Screen dumping cartridge. This extension makes 3 settings available to operate its two physical buttons and switch: "Chakkari Copy COPY button pressed", "Chakkary Copy PAUSE button pressed" and "Chakkari Copy mode".</description>
     <type>screen dump cartridge</type>
   </info>
 
