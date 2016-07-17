@@ -72,7 +72,7 @@
         <li><a class="internal" href="#test_machine">test_machine</a></li>
         <li><a class="internal" href="#toggle">toggle</a></li>
         <li><a class="internal" href="#trainer">trainer</a></li>
-        <li><a class="internal" href="#type">type</a></li>
+        <li><a class="internal" href="#type">type / type_via_keyboard</a></li>
         <li><a class="internal" href="#unset">unset</a></li>
         <li><a class="internal" href="#user_setting">user_setting</a></li>
         <li><a class="internal" href="#vdpregs">vdpregs</a></li>
@@ -2187,7 +2187,7 @@
     <code>trainer Pippols lives "jump shoes"</code>
   </div>
 
-  <h3><a id="type">type</a></h3>
+  <h3><a id="type">type / type_via_keyboard</a></h3>
 
   <p>Type a string in the emulated MSX. This command automatically presses and
   releases keys in the simulated MSX keyboard matrix. This command is useful
@@ -2201,6 +2201,15 @@
   how long the keys will be pressed (and released if the <code>-release</code>
   option is used). Keys will be typed at the given frequency and will remain
   pressed/released for 1/freq seconds.</p>
+
+  <p>This command should always work, because it is just like as if a user was
+  actually typing on the MSX keyboard. It is therefore a bit slow, though.
+  Check out the <code>type_via_keybuf</a></code> command if you're looking for
+  something faster (but more limited in where it works). With the
+  <code>default_type_proc</code> setting you can even make
+  <code>type_via_keybuf</code> the standard implementation for the
+  <code>type</code> command. Only do this if you really know what you're
+  doing!</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2402,6 +2411,10 @@
       <td>Save the (partial) content of a debuggable to a file</td>
     </tr>
     <tr>
+      <td><code>save_msx_screen</code></td>
+      <td>Saves the current MSX screen into an MSX compatible binary file (BLOAD format).</td>
+    </tr>
+    <tr>
       <td><code>save_to_file</code></td>
       <td>Helper function to save data (e.g. the output of another command) to a file.</td>
     </tr>
@@ -2536,6 +2549,10 @@
     <tr>
       <td><code>toggle_vu_meters</code></td>
       <td>Show (or hide) a graphical view of the volumes of the sound channels of several sound chips</td>
+    </tr>
+    <tr>
+      <td><code>type_via_keybuf</code></td>
+      <td>Alternative to the <code>type_via_keyboard</code> (the default <code><a class="internal" href="#type">type</a></code> command), that uses the keyboard buffer; only works if the running software uses the standard keyboard buffer functions to get keyboard input, but is much faster</td>
     </tr>
     <tr>
       <td><code>umrcallback</code></td>
