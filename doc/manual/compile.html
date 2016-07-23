@@ -177,14 +177,10 @@ Version 4.8 or later is required to build openMSX.
 <p>You can download the latest version of <code>mingw-get-inst</code> from <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=2435">the download page</a> of the MinGW project (it's the default download if you're on Windows). Double click on this installer after downloading. Click Next, Next, select "Download latest repository catalogues" and click Next again. Accept the license agreement and click Next. Use the default installation directory (<code>C:\MinGW</code>), or at least a <strong>clean and empty</strong> (e.g. non-existing) directory without spaces and <strong>not</strong> a network folder (i.e. shared folder on another computer) and click Next. Click Next again. In the "Select Components" step, make sure to check "C++ Compiler" and "MSYS Basic System" and click Next. Then click Install. This will then update the package repositories first, which takes a while. After this, it will download all the MinGW packages and install them.
 </p>
 
-<h5>Dingux</h5>
+<h5>OpenDingux</h5>
 
-<p>For compilation for Dingux (Linux for Dingoo), you need to install the
-OpenDingux toolchain. This toolchain is for x86
-Linux; if you have an x86 machine but no Linux, you can install Linux in a
-virtual machine. Extract the toolchain to <code>/opt</code>; anywhere else
-won't work. It can be downloaded from the <a class="external"
-href="http://www.treewalker.org/opendingux/">OpenDingux Releases</a> page.
+<p>For compilation for OpenDingux to run on GCW Zero, you need to install the
+GCW Zero toolchain. This toolchain is for x86 Linux; if you have an x86 machine but no Linux, you can install Linux in a virtual machine. You can find the toolchain and installation instructions in the <a href="http://www.gcw-zero.com/develop">development section of the GCW Zero web site</a>.
 </p>
 
 <h4>clang</h4>
@@ -344,7 +340,7 @@ sudo apt-get build-dep openmsx
 Do note that if the Debian/Ubuntu package that is in the version of the distribution you are currently running is older than the openMSX version you are trying to compile (which is typically so), you might miss some dependencies that were added in the newer version. The build system will complain and you will have to install the remaining (missing) packages manually. Read on to get some tips about that.
 </p>
 
-<h5>Dingux</h5>
+<h5>OpenDingux</h5>
 
 <p>We only support the <a class="internal" href="#standalone">Stand-alone
 Binary</a> method, which means the openMSX build system will download
@@ -753,7 +749,7 @@ If you additionally want to build an (by current developers unused) openMSX inst
 Note: on a 64-bit Windows system, MinGW will pretend to have built 64-bit binaries (target directory is <code>derived\x86_64-mingw32-opt-3rd\bindist\install</code>), but they're actually just 32-bit.
 </p>
 
-<h5>Dingux</h5>
+<h5>OpenDingux</h5>
 
 <p>After having the toolchain installed, you can simply compile openMSX with
 this command:</p>
@@ -761,7 +757,7 @@ this command:</p>
 make staticbindist OPENMSX_TARGET_CPU=mipsel OPENMSX_TARGET_OS=dingux OPENMSX_FLAVOUR=opt
 </div>
 
-<p>When this is done, you have a ready to use ZIP file for distribution in the folder <code>derived/mipsel-dingux-opt-3rd/</code>.</p>
+<p>When this is done, you have a ready to use OPK file for distribution in the folder <code>derived/mipsel-dingux-opt-3rd/</code>.</p>
 
 <h4>Visual C++</h4>
 
@@ -827,21 +823,9 @@ The following step creates .zip and .msi installation packages for openMSX on Wi
 
 <p>The resulting package files can be found in <code>derived\x64-VC-Release\package-windows.</code></p>
 
-<h4>Dingux</h4>
+<h4>OpenDingux</h4>
 
-<p>From the ZIP created in the previous step (or downloaded from the openMSX
-download site), copy the directory named <code>local</code> to the root of the
-Dingux miniSD card. If you have run Dingux from the miniSD card before, there
-will already be a directory named <code>local</code>. You can safely merge both
-directories.
-</p>
-
-<p>
-To get it in your own menu, you'll have to add the openMSX entry to it
-yourself. Use the start up script <code>openmsx-start.sh</code> for this, which
-is installed in <code>local/bin</code>. Even without the menu, you
-will have to use this script to start openMSX, it won't work otherwise.
-</p>
+<p>Just copy the OPK file into the <code>apps</code> directory.</p>
 
 <h2><a id="androidbuild">6. Android build</a></h2>
 
