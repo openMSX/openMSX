@@ -1477,9 +1477,13 @@ const std::array<std::array<uint8_t,3>,16> VDP::getMSX1Palette() const
 		B *= 255;
 		// the final result is that these values
 		// are clipped in the [0:255] range.
-		tmsPalette[color][0] = Math::clipIntToByte(std::round(R));
-		tmsPalette[color][1] = Math::clipIntToByte(std::round(G));
-		tmsPalette[color][2] = Math::clipIntToByte(std::round(B));
+		// Note: Using roundf instead of std::round because libstdc++ when
+		//       built on top of uClibc lacks std::round; uClibc does provide
+		//       roundf, but lacks other C99 math functions and that makes
+		//       libstdc++ disable all wrappers for C99 math functions.
+		tmsPalette[color][0] = Math::clipIntToByte(roundf(R));
+		tmsPalette[color][1] = Math::clipIntToByte(roundf(G));
+		tmsPalette[color][2] = Math::clipIntToByte(roundf(B));
 		// std::cerr << color << " " << int(tmsPalette[color][0]) << " " << int(tmsPalette[color][1]) <<" " << int(tmsPalette[color][2]) << std::endl;
 	}
 	return tmsPalette;
