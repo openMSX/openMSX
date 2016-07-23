@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.12.1 (2016-0x-yz)
+Release Notes for openMSX 0.12.1 (2016-07-yz)
 =============================================
 
 This is (mostly) a bug fix release, but again it also has some nice additions
@@ -86,6 +86,7 @@ Build system, packaging, documentation:
   in supporting it
 - dropped support for Dingoo A320, because its toolchain is now so outdated
   that it can't compile the openMSX source code any longer
+- added build, packaging and documentation support for GCW Zero
 - dropped support for universal binaries on Mac OS X, as all supported Mac OS X
   versions require x86-64 CPU's
 - updated Tcl to 8.5.18
