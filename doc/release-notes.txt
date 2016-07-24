@@ -16,6 +16,7 @@ MSX device support:
 - fixed bug in ASCII-8 mapper of MegaFlashROM SCC+ (SD)
 - fixed bug in border drawing in text mode with YJK/YAE bits
 - fixed bug in LMMC VDP command that appeared in Baltak Rampage greetings part
+- fixed bug in YMF278 (OPL4 wave part) preventing samples to be played sometimes
 - improved R800 timing for the CALL instruction
 - added missing hardware VDP delay in turbo mode of MSX2+ machines
 - improved accuracy and completeness of the Matsushita switched I/O ports
