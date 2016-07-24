@@ -1,14 +1,15 @@
-Release Notes for openMSX 0.12.1 (2016-07-yz)
+Release Notes for openMSX 0.13.0 (2016-07-24)
 =============================================
 
-This is (mostly) a bug fix release, but again it also has some nice additions
-and improvements to enjoy. Important improvements are much better support for
-VDP I/O delay in turbo machines (fixing graphics issues due to too fast VDP
-access there), more accurate MSX1 color palette, progress reporting for long
-operations and ALSA MIDI-out support for Linux. This is also one of the first
-releases that drops support for older platforms: Windows XP, Dingoo A320 and
-non-64-bit MacOSX. If you still want to run openMSX on these, you'll be stuck
-on using a previous release or start maintaining these platforms yourself.
+This again was meant to be (mostly) a bug fix release, but again it also has
+some nice additions and improvements to enjoy. Important improvements are much
+better support for VDP I/O delay in turbo machines (fixing graphics issues due
+to too fast VDP access there), more accurate MSX1 color palette, progress
+reporting for long operations and ALSA MIDI-out support for Linux. This is also
+one of the first releases that drops support for older platforms: Windows XP,
+Dingoo A320 (but introducing support for GCW Zero) and non-64-bit MacOSX. If
+you still want to run openMSX on these, you'll be stuck on using a previous
+release or start maintaining these platforms yourself.
 
 Here's the list with all highlights and details:
 
