@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1450299576">
+<softwaredb timestamp="1469673558">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
 
 Copyright 2003 Nicolas Beyaert (Initial Database)
 Copyright 2004-2013 BlueMSX Team
-Copyright 2005-2015 openMSX Team
+Copyright 2005-2016 openMSX Team
 Generation MSXIDs by www.generation-msx.nl
 
 ]]>
@@ -300,6 +300,16 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash>19022db5f9d229e9b5f38ba02d7478ad3310d4c8</hash><remark>French Translation</remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash>ac2210f984a0054c112d56676d22b5fac8f916cd</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>72b00f0a63ad6233557d681d60cd002a9b395344</hash></megarom></dump>
+</software>
+<software>
+	<title>Aleste 2</title>
+	<genmsxid>1246</genmsxid>
+	<system>MSX</system>
+	<company>Compile</company>
+	<year></year>
+	<country>JP</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>e93d0840c59c6eba273df546d22148d486a150a6</hash><remark>v8 by Ricbit / ROM Version</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>075eaf508e5d8b4131453bf9c452cfd28f34389e</hash><remark>v6 by Ricbit / ROM Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Aleste 2 Theme</title>
@@ -1093,6 +1103,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>013fe787d071c64d7d2692b984734c5812a483c2</hash></rom></dump>
 </software>
 <software>
+	<title>BitLogic a Cyberpunk Arcade Adventure</title>
+	<system>MSX</system>
+	<company>The Pets Mode</company>
+	<year>2015</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>fce65889dc551c83638f2e2ade1fd61dd44d6f58</hash><remark>MSXDev2015 Winner</remark></rom></dump>
+</software>
+<software>
 	<title>Black Onyx 1, The</title>
 	<genmsxid>625</genmsxid>
 	<system>MSX</system>
@@ -1490,6 +1508,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1992</year>
 	<country>JP</country>
 		<dump><megarom><type>KonamiSCC</type><hash>27731d0f0900ad900cd229d69e9bc4eab6ea4135</hash></megarom></dump>
+</software>
+<software>
+	<title>Bubbo World</title>
+	<system>MSX</system>
+	<company>N.I</company>
+	<year>2016</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>c84d6b04725676b7162a0b9a23e8d94ed0e81495</hash><remark>MSXDev2015 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Burger Time</title>
@@ -8213,6 +8239,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>152e4edc0cadeab783f4724c6539875d9c6ca018</hash><remark>Ulver crack</remark></rom></dump>
 </software>
 <software>
+	<title>Ninja Savior</title>
+	<system>MSX</system>
+	<company>RELEVO Videogames</company>
+	<year>2015</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>0a8c3bbe9ed26e25658ec99192056b5a50571041</hash><remark>RLV921 / MSXDev2015 Entry</remark></rom></dump>
+</software>
+<software>
 	<title>Ninjya Kage</title>
 	<genmsxid>255</genmsxid>
 	<system>MSX</system>
@@ -11965,6 +11999,15 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>e0276e9d898b8e78a81986dc1a7bc34ca381d61e</hash></megarom></dump>
 </software>
 <software>
+	<title>Transball</title>
+	<system>MSX</system>
+	<company>Brain Games</company>
+	<year>2016</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>59999f6849ccf7640bef75c999c4d83224220545</hash><remark>v1.1.1 / English Version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>bc25847221db30d3475fd92d29bc6dd5f0224c06</hash><remark>v1.1.1 / Spanish Version</remark></rom></dump>
+</software>
+<software>
 	<title>Treasure Of Usas, The</title>
 	<genmsxid>895</genmsxid>
 	<system>MSX</system>
@@ -12489,6 +12532,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>818d91505ad39bba2eaf7f4857c7d41e95fcb233</hash></megarom></dump>
 </software>
 <software>
+	<title>Wing Warriors</title>
+	<system>MSX</system>
+	<company>Kitmaker Entertaining Inc</company>
+	<year>2016</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>4b934f0c383136ff315d04a56d2a8631169f9628</hash><remark>MSXDev2015 Entry</remark></rom></dump>
+</software>
+<software>
 	<title>Wizardry</title>
 	<genmsxid>893</genmsxid>
 	<system>MSX</system>
@@ -12964,6 +13015,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:3253
-Created on Wed Dec 16 12:59:56 PST 2015
+Roms in this XML file:3261
+Created on Wed Jul 27 19:39:30 PDT 2016
  -->
