@@ -143,15 +143,20 @@ VDP::VDP(const DeviceConfig& config)
 
 	int saturation = config.getChildDataAsInt("saturation", defaultSaturation);
 	if (!((0 <= saturation) && (saturation <= 100))) {
-		throw MSXException("Saturation percentage is not in range 0..100: " + std::to_string(saturationPr));
+		throw MSXException(StringOp::Builder() <<
+			"Saturation percentage is not in range 0..100: " << saturationPr);
 	}
 	saturationPr = config.getChildDataAsInt("saturationPr", saturation);
 	if (!((0 <= saturationPr) && (saturationPr <= 100))) {
-		throw MSXException("Saturation percentage for Pr component is not in range 0..100: " + std::to_string(saturationPr));
+		throw MSXException(StringOp::Builder() <<
+			"Saturation percentage for Pr component is not in range 0..100: " <<
+			saturationPr);
 	}
 	saturationPb = config.getChildDataAsInt("saturationPb", saturation);
 	if (!((0 <= saturationPb) && (saturationPb <= 100))) {
-		throw MSXException("Saturation percentage for Pb component is not in range 0..100: " + std::to_string(saturationPr));
+		throw MSXException(StringOp::Builder() <<
+			"Saturation percentage for Pb component is not in range 0..100: " <<
+			saturationPr);
 	}
 
 	// Set up control register availability.
