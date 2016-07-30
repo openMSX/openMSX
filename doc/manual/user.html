@@ -213,7 +213,7 @@ To select a different MSX machine, you can use the <code>-machine</code> command
     openmsx -machine Panasonic_FS-A1GT
 </div>
 <p>
-But, you can also use the <code><a class="external" href="commands.html#machine">machine</a></code> command to switch at run time in the console, which is explained in the next chapter.
+But, you can also use the <code><a class="external" href="commands.html#machine">machine</a></code> command to switch at run time in the <a class="internal" href="#console">console</a>, which is explained in the next chapter.
 </p>
 
 <p>
@@ -255,7 +255,7 @@ Often used other command line options will be discussed later in this manual. Fo
 openMSX has a built-in command interface called the <em>console</em>,
 which allows you to control almost all aspects of openMSX while it is running.
 You can access the console by pressing F10
-(with default key mapping; Cmd+L on Mac) when the focus is on the emulator window.  This will
+(with <a class="internal" href="#keymapping">default key mapping</a>; Cmd+L on Mac) when the focus is on the emulator window.  This will
 give you a command line in the openMSX window. Note that due to a <a class="external" href="https://github.com/openMSX/openMSX/issues/485">known problem</a>
 in SDL on Windows, the console won't come up if you went to fullscreen by using
 ALT-ENTER. Use F12 to go to fullscreen to work around this problem. (See also <a class="internal" href="#settings">Settings</a> and <a class="internal" href="#keymapping">Keymapping</a>.)
@@ -376,7 +376,7 @@ As with the <code>-romtype</code> option, the <code>-ips</code> option on the co
 </p>
 
 <p>
-If you already have openMSX running and want to insert cartridges at run time (maybe even when the MSX is powered on), you can use the <code><a class="external" href="commands.html#cart">carta</a></code> command in the console as well, which is just as powerful.
+If you already have openMSX running and want to insert cartridges at run time (maybe even when the MSX is powered on), you can use the <code><a class="external" href="commands.html#cart">carta</a></code> command in the <a class="internal" href="#console">console</a> as well, which is just as powerful.
 </p>
 
 <h3><a id="disks">4.2 Running Disk Software</a></h3>
@@ -399,7 +399,7 @@ You can also change disks at run time of course. Just type
     <a class="external" href="commands.html#disk">diska</a> &lt;diskimage&gt;
 </div>
 <p>
-in the console to put the specified disk image in drive A. To eject the disk from drive A, use:
+in the <a class="internal" href="#console">console</a> to put the specified disk image in drive A. To eject the disk from drive A, use:
 </p>
 <div class="commandline">
     <a class="external" href="commands.html#disk">diska</a> eject
@@ -494,7 +494,7 @@ openMSX supports WAV files for tape emulation! Just use an MSX with a
 cassette port (at least any MSX1 or MSX2 machine will do) and it should be available.
 </p>
 <p>
-Then type in the console:
+Then type in the <a class="internal" href="#console">console</a>:
 </p>
 <div class="commandline">
      <a class="external" href="commands.html#cassetteplayer">cassetteplayer</a> insert &lt;file&gt;.wav
@@ -597,7 +597,7 @@ If you don't want to use the default harddisk image as is described above, you c
 </p>
 <div class="commandline">openmsx -ext ide -hda symbos.dsk</div>
 <p>
-This means that you're using the ide extension with symbos.dsk as harddisk image. You can also change the harddisk image at run time in the console (only when the MSX is powered off via the <code><a class="external" href="commands.html#power">power</a></code> setting). This works the same as the <code><a class="external" href="commands.html#disk">diska</a></code> command:
+This means that you're using the ide extension with symbos.dsk as harddisk image. You can also change the harddisk image at run time in the <a class="internal" href="#console">console</a> (only when the MSX is powered off via the <code><a class="external" href="commands.html#power">power</a></code> setting). This works the same as the <code><a class="external" href="commands.html#disk">diska</a></code> command:
 </p>
 <div class="commandline">
     <a class="external" href="commands.html#hd">hda</a> &lt;diskimage&gt;
@@ -627,7 +627,7 @@ subdirectories on it. For instance to create a hard disk with 3 partitions of
 you can do the following:
 </p>
 <p>
-Start openMSX with the ide extension, then type in the console:
+Start openMSX with the ide extension, then type in the <a class="internal" href="#console">console</a>:
 </p>
 <div class="commandline">
 set <a class="external" href="commands.html#power">power</a> off<br/>
@@ -700,7 +700,7 @@ In order to run Laserdisc software, you need to have this optional feature compi
 </p>
 
 <p>
-In the console, type:
+In the <a class="internal" href="#console">console</a>, type:
 </p>
 
 <div class="commandline">
@@ -736,7 +736,7 @@ The program is encoded on the right audio channel which will not be audible. Wit
 <h4><a id="keymapping">5.1.1 Key Mapping</a></h4>
 
 <p>
-This subsection lists the default key mapping of openMSX. The mapping of the special MSX keys is hardcoded, but the mapping of the keys for emulator functions is fully customisable using the <a class="external" href="commands.html#bind"><code>bind</code></a> command in the console. Your customised key bindings are saved together with the settings.
+This subsection lists the default key mapping of openMSX. The mapping of the special MSX keys is hardcoded, but the mapping of the keys for emulator functions is fully customisable using the <a class="external" href="commands.html#bind"><code>bind</code></a> command in the <a class="internal" href="#console">console</a>. Your customised key bindings are saved together with the settings.
 </p>
 
 <p>The special MSX keys are mapped as follows, the first column for PCs (running Windows, Linux or BSD), the second column for Apple Macintosh computers:
@@ -1240,7 +1240,7 @@ of the Philips Music Module (NMS 1205), the MIDI interface of the Yamaha SFG-01
 and SFG-05 module (also present in the Yamaha CX5M series of machines) and the
 FAC MIDI Interface.
 </p>
-<p>To use MIDI, start openMSX with a machine that has a MIDI interface built in, or add one of the mentioned MIDI interface extensions. Then plug a MIDI out and/or MIDI in device into that MSX MIDI interface using the openMSX OSD console.
+<p>To use MIDI, start openMSX with a machine that has a MIDI interface built in, or add one of the mentioned MIDI interface extensions. Then plug a MIDI out and/or MIDI in device into that MSX MIDI interface using the openMSX <a class="internal" href="#console">console</a>.
 </p>
 
 <h4>MIDI Out</h4>
@@ -1340,7 +1340,7 @@ Inspired by the meisei MSX emulator, openMSX now also has a reverse feature. Thi
 <h3><a id="trainer">8.3 Game Trainer</a></h3>
 
 <p>
-openMSX includes a game trainer system. Although it has to be used from the console, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
+openMSX includes a game trainer system. Although it has to be used from the <a class="internal" href="#console">console</a>, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
 </p>
 
 <p>
