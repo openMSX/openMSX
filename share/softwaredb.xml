@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1469673558">
+<softwaredb timestamp="1469850051">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -97,10 +97,10 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>A B C</title>
-	<genmsxid>1907</genmsxid>
+	<genmsxid>1987</genmsxid>
 	<system>MSX</system>
 	<company>Al Alamiah</company>
-	<year>1987</year>
+	<year>1989</year>
 	<country>KW</country>
 		<dump><rom><hash>5bd09e5a9669c58365c87f32a0e9a8e59680d5c9</hash></rom></dump>
 </software>
@@ -245,6 +245,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>aa13b346e11644f8426fc546b359bc6fd7c6b357</hash><remark>[RC-744]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>bf0e576c84efc27941a378b6c77d3a999bac9bb1</hash><remark>[RC-744] / ProSoft rip</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>971241cc529d06281f26c3b7438ed59a3d63aa4f</hash><remark>[RC-744]</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>d8d8fc9cc46eda73724a2f869808773ba241c6b3</hash><remark>[RC-744] / Mpazos and Imanok Castlevania romhack</remark></megarom></dump>
 </software>
 <software>
 	<title>Albatros</title>
@@ -306,10 +307,10 @@ Generation MSXIDs by www.generation-msx.nl
 	<genmsxid>1246</genmsxid>
 	<system>MSX</system>
 	<company>Compile</company>
-	<year></year>
+	<year>1989</year>
 	<country>JP</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>e93d0840c59c6eba273df546d22148d486a150a6</hash><remark>v8 by Ricbit / ROM Version</remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>075eaf508e5d8b4131453bf9c452cfd28f34389e</hash><remark>v6 by Ricbit / ROM Version</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>e93d0840c59c6eba273df546d22148d486a150a6</hash><remark>v8 by Ricbit / ROM Version</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>075eaf508e5d8b4131453bf9c452cfd28f34389e</hash><remark>v6 by Ricbit / ROM Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Aleste 2 Theme</title>
@@ -1514,7 +1515,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<system>MSX</system>
 	<company>N.I</company>
 	<year>2016</year>
-	<country>ES</country>
+	<country>JP</country>
 		<dump><original value="true">Author</original><rom><hash>c84d6b04725676b7162a0b9a23e8d94ed0e81495</hash><remark>MSXDev2015 Entry</remark></rom></dump>
 </software>
 <software>
@@ -5481,6 +5482,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>3e7b4374cd6c08182f968328888d1cb3fd1c7dd7</hash><remark>[b]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>aa68633ff1afd385535b2abd7c8756b6cf79256a</hash></rom></dump>
 		<dump><rom><hash>71139e82cf55450d0b48f124bc95fbe1ce5dabaf</hash></rom></dump>
+</software>
+<software>
+	<title>Inferno Demo</title>
+	<system>MSX</system>
+	<company>Aetherbyte</company>
+	<year>2015</year>
+	<country>UK</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>785433a8064bd48a47a53c4e77a54a85e45f5899</hash><remark>Demo</remark></megarom></dump>
 </software>
 <software>
 	<title>Information Rivalry</title>
@@ -12534,7 +12543,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Wing Warriors</title>
 	<system>MSX</system>
-	<company>Kitmaker Entertaining Inc</company>
+	<company>Kitmaker Entertainment Inc</company>
 	<year>2016</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>4b934f0c383136ff315d04a56d2a8631169f9628</hash><remark>MSXDev2015 Entry</remark></rom></dump>
@@ -13015,6 +13024,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:3261
-Created on Wed Jul 27 19:39:30 PDT 2016
+Roms in this XML file:3263
+Created on Fri Jul 29 20:41:03 PDT 2016
  -->
