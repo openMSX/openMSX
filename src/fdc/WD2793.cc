@@ -812,6 +812,12 @@ void WD2793::type3Loaded(EmuTime::param time)
 		// read/write track
 		// wait till next index pulse
 		next = drive.getTimeTillIndexPulse(time);
+		if (next == EmuTime::infinity) {
+			// drive became not ready since the command was started,
+			// how does a real WD2793 handle this?
+			endCmd();
+			return;
+		}
 	}
 	schedule(FSM_TYPE3_ROTATED, next);
 }
