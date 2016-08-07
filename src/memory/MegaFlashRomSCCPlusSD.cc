@@ -662,7 +662,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 				sccBanks[page8kB] = value;
 				// Masking of the mapper bits is done on
 				// write (and only in Konami(-scc) mode)
-				byte mask = areKonamiMapperLimitsEnabled() ? 0x3F : 0x7F;
+				byte mask = areKonamiMapperLimitsEnabled() ? 0x3F : 0xFF;
 				bankRegsSubSlot1[page8kB] = value & mask;
 				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			}
@@ -679,7 +679,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 			// Making of the mapper bits is done on
 			// write (and only in Konami(-scc) mode)
 			if ((addr < 0x5000) || ((0x5800 <= addr) && (addr < 0x6000))) break; // only SCC range works
-			byte mask = areKonamiMapperLimitsEnabled() ? 0x1F : 0x7F;
+			byte mask = areKonamiMapperLimitsEnabled() ? 0x1F : 0xFF;
 			bankRegsSubSlot1[page8kB] = value & mask;
 			invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			break;
