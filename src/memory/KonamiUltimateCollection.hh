@@ -5,7 +5,6 @@
 #include "AmdFlash.hh"
 #include "SCC.hh"
 #include "DACSound8U.hh"
-#include <memory>
 
 namespace openmsx {
 
@@ -13,7 +12,6 @@ class KonamiUltimateCollection final : public MSXRom
 {
 public:
 	KonamiUltimateCollection(const DeviceConfig& config, Rom&& rom);
-	~KonamiUltimateCollection();
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;

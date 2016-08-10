@@ -1,8 +1,5 @@
 #include "KonamiUltimateCollection.hh"
-#include "CacheLine.hh"
 #include "serialize.hh"
-#include "memory.hh"
-#include <cassert>
 #include <vector>
 
 /******************************************************************************
@@ -47,10 +44,6 @@ KonamiUltimateCollection::KonamiUltimateCollection(
 	, dac("KUC DAC", "Konami Ultimate Collection DAC", config)
 {
 	powerUp(getCurrentTime());
-}
-
-KonamiUltimateCollection::~KonamiUltimateCollection()
-{
 }
 
 void KonamiUltimateCollection::powerUp(EmuTime::param time)
