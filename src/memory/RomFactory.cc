@@ -42,6 +42,7 @@
 #include "RomArc.hh"
 #include "MegaFlashRomSCCPlus.hh"
 #include "MegaFlashRomSCCPlusSD.hh"
+#include "KonamiUltimateCollection.hh"
 #include "RomDooly.hh"
 #include "RomMSXtra.hh"
 #include "RomMultiRom.hh"
@@ -356,6 +357,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case ROM_MEGAFLASHROMSCCPLUSSD:
 		result = make_unique<MegaFlashRomSCCPlusSD>(config, move(rom));
+		break;
+	case ROM_KONAMI_ULTIMATE_COLLECTION:
+		result = make_unique<KonamiUltimateCollection>(config, move(rom));
 		break;
 	case ROM_DOOLY:
 		result = make_unique<RomDooly>(config, move(rom));
