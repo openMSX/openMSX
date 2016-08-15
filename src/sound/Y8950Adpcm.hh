@@ -1,7 +1,7 @@
 #ifndef Y8950ADPCM_HH
 #define Y8950ADPCM_HH
 
-#include "Ram.hh"
+#include "TrackedRam.hh"
 #include "Schedulable.hh"
 #include "Clock.hh"
 #include "serialize_meta.hh"
@@ -61,7 +61,7 @@ private:
 	int calcSample(bool doEmu);
 
 	Y8950& y8950;
-	Ram ram;
+	TrackedRam ram;
 
 	// copy/pasted from Y8950.hh
 	static const int CLOCK_FREQ     = 3579545;
