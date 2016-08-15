@@ -1,6 +1,8 @@
 #ifndef DELTA_BLOCK_HH
 #define DELTA_BLOCK_HH
 
+#define STATISTICS 0
+
 #include "MemBuffer.hh"
 #include <cstdint>
 #include <memory>
@@ -14,7 +16,11 @@ namespace openmsx {
 class DeltaBlock
 {
 public:
+#if STATISTICS
+	virtual ~DeltaBlock();
+#else
 	virtual ~DeltaBlock() = default;
+#endif
 	virtual void apply(uint8_t* dst, size_t size) const = 0;
 
 protected:
@@ -23,6 +29,12 @@ protected:
 #ifdef DEBUG
 public:
 	Sha1Sum sha1;
+#endif
+
+#if STATISTICS
+protected:
+	static size_t globalAllocSize;
+	size_t allocSize;
 #endif
 };
 

@@ -5,6 +5,9 @@
 #include <cassert>
 #include <cstring>
 #include <tuple>
+#if STATISTICS
+#include <iostream>
+#endif
 
 namespace openmsx {
 
@@ -257,6 +260,20 @@ static void applyDeltaInPlace(uint8_t* buf, size_t size, const uint8_t* delta)
 	}
 }
 
+#if STATISTICS
+
+// class DeltaBlock
+
+size_t DeltaBlock::globalAllocSize = 0;
+
+DeltaBlock::~DeltaBlock()
+{
+	globalAllocSize -= allocSize;
+	std::cout << "stat: ~DeltaBlock " << globalAllocSize
+	          << " (-" << allocSize << ')' << std::endl;
+}
+
+#endif
 
 // class DeltaBlockCopy
 
@@ -269,6 +286,12 @@ DeltaBlockCopy::DeltaBlockCopy(const uint8_t* data, size_t size)
 #endif
 	memcpy(block.data(), data, size);
 	assert(!compressed());
+#if STATISTICS
+	allocSize = size;
+	globalAllocSize += allocSize;
+	std::cout << "stat: DeltaBlockCopy " << globalAllocSize
+	          << " (+" << allocSize << ')' << std::endl;
+#endif
 }
 
 void DeltaBlockCopy::apply(uint8_t* dst, size_t size) const
@@ -306,6 +329,13 @@ void DeltaBlockCopy::compress(size_t size)
 	apply(buf3.data(), size);
 	assert(memcmp(buf3.data(), buf2.data(), size) == 0);
 #endif
+#if STATISTICS
+	int delta = compressedSize - allocSize;
+	allocSize = compressedSize;
+	globalAllocSize += delta;
+	std::cout << "stat: compress " << globalAllocSize
+	          << " (" << delta << ')' << std::endl;
+#endif
 }
 
 const uint8_t* DeltaBlockCopy::getData()
@@ -329,6 +359,12 @@ DeltaBlockDiff::DeltaBlockDiff(
 	MemBuffer<uint8_t> buf(size);
 	apply(buf.data(), size);
 	assert(memcmp(buf.data(), data, size) == 0);
+#endif
+#if STATISTICS
+	allocSize = delta.size();
+	globalAllocSize += allocSize;
+	std::cout << "stat: DeltaBlockDiff " << globalAllocSize
+	          << " (+" << allocSize << ')' << std::endl;
 #endif
 }
 
