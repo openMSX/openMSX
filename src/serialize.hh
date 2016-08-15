@@ -20,6 +20,9 @@
 
 namespace openmsx {
 
+class LastDeltaBlocks;
+class DeltaBlock;
+
 template<typename T> struct SerializeClassVersion;
 
 // In this section, the archive classes are defined.
@@ -587,7 +590,10 @@ protected:
 class MemOutputArchive final : public OutputArchiveBase<MemOutputArchive>
 {
 public:
-	MemOutputArchive()
+	MemOutputArchive(LastDeltaBlocks& lastDeltaBlocks_,
+	                 std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks_)
+		: lastDeltaBlocks(lastDeltaBlocks_)
+		, deltaBlocks(deltaBlocks_)
 	{
 	}
 
@@ -639,13 +645,17 @@ private:
 
 	OutputBuffer buffer;
 	std::vector<size_t> openSections;
+	LastDeltaBlocks& lastDeltaBlocks;
+	std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks;
 };
 
 class MemInputArchive final : public InputArchiveBase<MemInputArchive>
 {
 public:
-	MemInputArchive(const byte* data, size_t size)
+	MemInputArchive(const byte* data, size_t size,
+	                const std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks_)
 		: buffer(data, size)
+		, deltaBlocks(deltaBlocks_)
 	{
 	}
 
@@ -689,6 +699,7 @@ private:
 	}
 
 	InputBuffer buffer;
+	const std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks;
 };
 
 ////

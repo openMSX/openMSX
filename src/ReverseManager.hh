@@ -7,6 +7,7 @@
 #include "Command.hh"
 #include "EmuTime.hh"
 #include "MemBuffer.hh"
+#include "DeltaBlock.hh"
 #include "array_ref.hh"
 #include "outer.hh"
 #include <vector>
@@ -54,6 +55,7 @@ private:
 		ReverseChunk() : time(EmuTime::zero) {}
 
 		EmuTime time;
+		std::vector<std::shared_ptr<DeltaBlock>> deltaBlocks;
 		MemBuffer<uint8_t> savestate;
 		size_t size;
 
@@ -72,6 +74,7 @@ private:
 
 		Chunks chunks;
 		Events events;
+		LastDeltaBlocks lastDeltaBlocks;
 	};
 
 	bool isCollecting() const { return collecting; }

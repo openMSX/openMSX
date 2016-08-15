@@ -5,7 +5,7 @@
 #include "XMLElement.hh"
 #include "ConfigException.hh"
 #include "XMLException.hh"
-#include "snappy.hh"
+#include "DeltaBlock.hh"
 #include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "FileOperations.hh"
@@ -209,33 +209,19 @@ string_ref MemInputArchive::loadStr()
 ////
 
 // Too small inputs don't compress very well (often the compressed size is even
-// bigger than the input). It also takes a relatively long time (because snappy
-// has a relatively large setup time). I choose this value semi-arbitrary. I
-// only made it >= 52 so that the (incompressible) RP5C01 registers won't be
-// compressed.
-static const size_t SMALL_SIZE = 100;
+// bigger than the input). It also takes a relatively long time (because often
+// compression has a relatively large setup time). I choose this value
+// semi-arbitrary. I only made it >= 52 so that the (incompressible) RP5C01
+// registers won't be compressed.
+static const size_t SMALL_SIZE = 64;
 void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len)
 {
-	// Compress in-memory blobs:
-	//
-	// This is a bit slower than memcpy, but it uses a lot less memory.
-	// Memory usage is important for the reverse feature, where we keep a
-	// lot of savestates in memory.
-	//
-	// I compared 'gzip level=1' (fastest version with lowest compression
-	// ratio) with 'lzo'. lzo was considerably faster. Compression ratio
-	// was about the same (maybe lzo was slightly better (OTOH on higher
-	// levels gzip compresses better)). So I decided to go with lzo.
-	//
-	// Later I compared 'lzo' with 'snappy', lzo compresses 6-25% better,
-	// but 'snappy' is about twice as fast. So I switched to 'snappy'.
-	if (len >= SMALL_SIZE) {
-		size_t dstLen = snappy::maxCompressedLength(len);
-		byte* buf = buffer.allocate(sizeof(dstLen) + dstLen);
-		snappy::compress(static_cast<const char*>(data), len,
-		                 reinterpret_cast<char*>(&buf[sizeof(dstLen)]), dstLen);
-		memcpy(buf, &dstLen, sizeof(dstLen)); // fill-in actual size
-		buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
+	// Delta-compress in-memory blobs, see DeltaBlock.hh for more details.
+	if (len > SMALL_SIZE) {
+		unsigned deltaBlockIdx = deltaBlocks.size();
+		save(deltaBlockIdx); // see comment below in MemInputArchive
+		deltaBlocks.push_back(lastDeltaBlocks.createNew(
+			data, static_cast<const uint8_t*>(data), len));
 	} else {
 		byte* buf = buffer.allocate(len);
 		memcpy(buf, data, len);
@@ -245,11 +231,17 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len)
 
 void MemInputArchive::serialize_blob(const char*, void* data, size_t len)
 {
-	if (len >= SMALL_SIZE) {
-		size_t srcLen; load(srcLen);
-		snappy::uncompress(reinterpret_cast<const char*>(buffer.getCurrentPos()),
-		                   srcLen, reinterpret_cast<char*>(data), len);
-		buffer.skip(srcLen);
+	if (len > SMALL_SIZE) {
+		// Usually blobs are saved in the same order as they are loaded
+		// (via the serialize_blob() methods in respectively
+		// MemOutputArchive and MemInputArchive). In that case keeping
+		// track of the deltaBlockIdx in the savestate itself is
+		// redundant (it will simply be an increasing value). However
+		// in rare cases, via the {begin,end,skip)Section() methods, it
+		// is possible that certain blobs are stored in the savestate,
+		// but skipped while loading. That's why we do need the index.
+		unsigned deltaBlockIdx; load(deltaBlockIdx);
+		deltaBlocks[deltaBlockIdx]->apply(static_cast<uint8_t*>(data), len);
 	} else {
 		memcpy(data, buffer.getCurrentPos(), len);
 		buffer.skip(len);
