@@ -5,6 +5,9 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#ifdef DEBUG
+#include "sha1.hh"
+#endif
 
 namespace openmsx {
 
@@ -16,6 +19,11 @@ public:
 
 protected:
 	DeltaBlock() = default;
+
+#ifdef DEBUG
+public:
+	Sha1Sum sha1;
+#endif
 };
 
 
