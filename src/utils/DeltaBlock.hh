@@ -24,10 +24,14 @@ class DeltaBlockCopy final : public DeltaBlock
 public:
 	DeltaBlockCopy(const uint8_t* data, size_t size);
 	void apply(uint8_t* dst, size_t size) const override;
+	void compress(size_t size);
 	const uint8_t* getData();
 
 private:
+	bool compressed() const { return compressedSize != 0; }
+
 	MemBuffer<uint8_t> block;
+	size_t compressedSize;
 };
 
 

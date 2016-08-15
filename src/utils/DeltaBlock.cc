@@ -1,4 +1,5 @@
 #include "DeltaBlock.hh"
+#include "snappy.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -102,17 +103,44 @@ static void applyDeltaInPlace(uint8_t* buf, size_t size, const uint8_t* delta)
 
 DeltaBlockCopy::DeltaBlockCopy(const uint8_t* data, size_t size)
 	: block(size)
+	, compressedSize(0)
 {
 	memcpy(block.data(), data, size);
+	assert(!compressed());
 }
 
 void DeltaBlockCopy::apply(uint8_t* dst, size_t size) const
 {
-	memcpy(dst, block.data(), size);
+	if (compressed()) {
+		snappy::uncompress(
+			reinterpret_cast<const char*>(block.data()), compressedSize,
+			reinterpret_cast<char*>(dst), size);
+	} else {
+		memcpy(dst, block.data(), size);
+	}
+}
+
+void DeltaBlockCopy::compress(size_t size)
+{
+	if (compressed()) return;
+
+	size_t dstLen = snappy::maxCompressedLength(size);
+	MemBuffer<uint8_t> buf2(dstLen);
+	snappy::compress(reinterpret_cast<const char*>(block.data()), size,
+	                 reinterpret_cast<char*>(buf2.data()), dstLen);
+	if (dstLen >= size) {
+		// compression isn't beneficial
+		return;
+	}
+	compressedSize = dstLen;
+	block.swap(buf2);
+	block.resize(compressedSize); // shrink to fit
+	assert(compressed());
 }
 
 const uint8_t* DeltaBlockCopy::getData()
 {
+	assert(!compressed());
 	return block.data();
 }
 
@@ -155,6 +183,11 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 
 	auto ref = it->ref.lock();
 	if (it->accSize >= size || !ref) {
+		if (ref) {
+			// We will switch to a new DeltaBlockCopy object. So
+			// now is a good time to compress the old one.
+			ref->compress(size);
+		}
 		// Heuristic: create a new block when too many small
 		// differences have accumulated.
 		auto b = std::make_shared<DeltaBlockCopy>(data, size);
@@ -172,6 +205,11 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 
 void LastDeltaBlocks::clear()
 {
+	for (const Info& info : infos) {
+		if (auto ref = info.ref.lock()) {
+			ref->compress(info.size);
+		}
+	}
 	infos.clear();
 }
 
