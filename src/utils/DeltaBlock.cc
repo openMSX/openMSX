@@ -1,8 +1,10 @@
 #include "DeltaBlock.hh"
 #include "snappy.hh"
+#include "likely.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <tuple>
 
 namespace openmsx {
 
@@ -35,6 +37,163 @@ static size_t loadUleb(const uint8_t*& data)
 }
 
 
+// --- Optimized scan_{mis,}match functions ---
+
+// This is much like the function std::mismatch(). You pass in two buffers,
+// the corresponding elements of both buffers are compared and the first
+// position where the elements no longer match is returned.
+//
+// Here we have buffers of bytes and the criteria for 'match' are 'the bytes
+// are equal' or 'the bytes are not equal'. In other words, we pass two buffers
+// and as a result we get the (first) position where the bytes are different or
+// equal.
+//
+// Compared to the std::mismatch() this implementation is faster because:
+//  - We make use of sentinels (this requires to temporary change the content
+//    of the buffer).
+//  - We compare words-at-a-time instead of element-at-a-time and in
+//    doing so possibly read a bit beyond the end of the buffer (more on this
+//    below).
+// The generic std implementation is usually not allowed to exploit these
+// properties. (And the libstdc++ version indeed doesn't).
+
+
+// Scan 2 buffers for the first difference. We require there is a difference
+// before the end of the buffer(s) is reached.
+static std::pair<const uint8_t*, const uint8_t*> scan_mismatch_unguarded_simple(
+	const uint8_t* p, const uint8_t* q)
+{
+	while (*p == *q) { ++p; ++q; }
+	return {p, q};
+}
+
+// Same as the function above but tries to compare both buffers word-at-a-time
+// instead of byte-at-a-time. This is only possible when both buffers have the
+// same alignment (this is almost always the case). In case they have different
+// alignment this function falls back to the slower version above.
+//
+// In case the buffers don't end on a word-boundary this routine might read some
+// bytes beyond the end of the buffer, but:
+//  - Those bytes don't influence the result (because we require there's a
+//    difference before the end of the buffer).
+//  - Because we only read aligned words an we never read more than one word
+//    past the end we never read from the next memory page, so we won't trigger
+//    any memory protection mechanisms.
+static std::pair<const uint8_t*, const uint8_t*> scan_mismatch_unguarded(
+	const uint8_t* p, const uint8_t* q)
+{
+	if (unlikely((reinterpret_cast<uintptr_t>(p) & 7) !=
+	             (reinterpret_cast<uintptr_t>(q) & 7))) {
+		return scan_mismatch_unguarded_simple(p, q);
+	}
+
+	if (reinterpret_cast<uintptr_t>(p) & 1) {
+		if (*reinterpret_cast<const uint8_t*>(p) !=
+		    *reinterpret_cast<const uint8_t*>(q)) {
+			goto end1;
+		}
+		p += 1; q += 1;
+	}
+	if (reinterpret_cast<uintptr_t>(p) & 2) {
+		if (*reinterpret_cast<const uint16_t*>(p) !=
+		    *reinterpret_cast<const uint16_t*>(q)) {
+			goto end2;
+		}
+		p += 2; q += 2;
+	}
+	if (reinterpret_cast<uintptr_t>(p) & 4) {
+		if (*reinterpret_cast<const uint32_t*>(p) !=
+		    *reinterpret_cast<const uint32_t*>(q)) {
+			goto end4;
+		}
+		p += 4; q += 4;
+	}
+
+	while (*reinterpret_cast<const uint64_t*>(p) ==
+	       *reinterpret_cast<const uint64_t*>(q)) {
+		p += 8; q += 8;
+	}
+
+	if (*reinterpret_cast<const uint32_t*>(p) ==
+	    *reinterpret_cast<const uint32_t*>(q)) {
+		p += 4; q += 4;
+	}
+end4:	if (*reinterpret_cast<const uint16_t*>(p) ==
+	    *reinterpret_cast<const uint16_t*>(q)) {
+		p += 2; q += 2;
+	}
+end2:	if (*reinterpret_cast<const uint8_t*>(p) ==
+	    *reinterpret_cast<const uint8_t*>(q)) {
+		p += 1; q += 1;
+	}
+
+end1:	return {p, q};
+
+}
+
+// Similar as above, but scan for equal bytes. We require there is a pair of
+// equal bytes before the end of the buffer(s) is reached.
+static std::pair<const uint8_t*, const uint8_t*> scan_match_unguarded(
+	const uint8_t* p, const uint8_t* q)
+{
+	while (*p != *q) { ++p; ++q; }
+	return {p, q};
+}
+
+// As above, but does allow two fully equal buffers. In that case the pointers
+// immediately past the end of the buffers are returned. Both buffers must have
+// the same size.
+//
+// Internally this function will place a sentinel in the buffers (and restore
+// it afterwards). So even though this function takes 'const pointers' it does
+// temporarily write to the buffer (and it will crash when you pass pointers to
+// read-only memory).
+static std::pair<const uint8_t*, const uint8_t*> scan_mismatch(
+	const uint8_t* p, const uint8_t* p_end, const uint8_t* q, const uint8_t* q_end)
+{
+	assert((p_end - p) == (q_end - q));
+
+	// Code below is functionally equivalent to:
+	//   while ((q != q_end) && (*p == *q)) { ++p; ++q; }
+	//   return {p, q};
+
+	if (p == p_end) return {p, q};
+
+	auto* p_last = const_cast<uint8_t*>(p_end - 1);
+	auto save = *p_last;
+	*p_last = ~q_end[-1]; // make p_end[-1] != q_end[-1]
+
+	std::tie(p, q) = scan_mismatch_unguarded(p, q);
+
+	*p_last = save;
+	if ((p == p_last) && (*p == *q)) { ++p; ++q; }
+	return {p, q};
+}
+
+// As above, but searches for equal corresponding bytes.
+static std::pair<const uint8_t*, const uint8_t*> scan_match(
+	const uint8_t* p, const uint8_t* p_end, const uint8_t* q, const uint8_t* q_end)
+{
+	assert((p_end - p) == (q_end - q));
+
+	// Code below is functionally equivalent to:
+	//   while ((q != q_end) && (*p != *q)) { ++p; ++q; }
+	//   return {p, q};
+
+	if (p == p_end) return {p, q};
+
+	auto* p_last = const_cast<uint8_t*>(p_end - 1);
+	auto save = *p_last;
+	*p_last = q_end[-1]; // make p_end[-1] == q_end[-1]
+
+	std::tie(p, q) = scan_match_unguarded(p, q);
+
+	*p_last = save;
+	if ((p == p_last) && (*p != *q)) { ++p; ++q; }
+	return {p, q};
+}
+
+
 // --- delta (de)compression routines ---
 
 // Calculate a 'delta' between two binary buffers of equal size.
@@ -45,31 +204,31 @@ static size_t loadUleb(const uint8_t*& data)
 //   ...
 static vector<uint8_t> calcDelta(const uint8_t* oldBuf, const uint8_t* newBuf, size_t size)
 {
-	// TODO possible optimization: use sentinels, scan words-at-a-time
 	vector<uint8_t> result;
 
 	auto* p = oldBuf;
 	auto* q = newBuf;
-	auto* end = q + size;
+	auto* p_end = p + size;
+	auto* q_end = q + size;
 
 	// scan equal bytes (possibly zero)
 	auto* q1 = q;
-	while ((q != end) && (*p == *q)) { ++p; ++q; }
+	std::tie(p, q) = scan_mismatch(p, p_end, q, q_end);
 	auto n1 = q - q1;
 	storeUleb(result, n1);
 
-	while (q != end) {
+	while (q != q_end) {
 		assert(*p != *q);
 
 		auto* q2 = q;
 	different:
-		do { ++p; ++q; } while ((q != end) && (*p != *q));
+		std::tie(p, q) = scan_match(p + 1, p_end, q + 1, q_end);
 		auto n2 = q - q2;
 
 		auto* q3 = q;
-		while ((q != end) && (*p == *q)) { ++p; ++q; }
+		std::tie(p, q) = scan_mismatch(p, p_end, q, q_end);
 		auto n3 = q - q3;
-		if ((q != end) && (n3 <= 2)) goto different;
+		if ((q != q_end) && (n3 <= 2)) goto different;
 
 		storeUleb(result, n2);
 		result.insert(result.end(), q2, q3);
