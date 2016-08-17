@@ -2,7 +2,8 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
-  <!-- Info as provided by alshamaa:
+  <!-- Info as provided by alshamaa's machine with Korean serial 9900901018
+       (Bawareth serial number is on a sticker, and not clear.)
        CPU: GS Z8400 PS Z80A CPU
        VDP: not visible due to cooler, but see ident.bas below
        Engine: DW64MX1
@@ -18,7 +19,7 @@
   <info>
     <manufacturer>Bawareth Ent. for Trade/Daewoo</manufacturer>
     <code>Perfect MSX1</code>
-    <release_year>1984</release_year>
+    <release_year>1986/1987</release_year>
     <description>A Daewoo CPC-200 based Arabic MSX.</description>
     <type>MSX</type>
   </info>
