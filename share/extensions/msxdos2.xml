@@ -17,6 +17,7 @@
           <rom>
             <sha1>c36c9e0f96738a340381e23b4f97245388801a46</sha1>
             <sha1>51a1467d73d26c91aab7923e3be66490daaffdee</sha1>
+            <sha1>0e253ee076eff37f7ee450c0b10c71763fac990b</sha1> <!-- MK DOS2.20 cartridge -->
             <filename>msxdos22.rom</filename>
           </rom>
           <mappertype>MSXDOS2</mappertype>
