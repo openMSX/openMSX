@@ -4,7 +4,7 @@
 #include "ResampledSoundDevice.hh"
 #include "SimpleDebuggable.hh"
 #include "Rom.hh"
-#include "Ram.hh"
+#include "TrackedRam.hh"
 #include "EmuTime.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
@@ -121,7 +121,7 @@ private:
 	int pcm_l, pcm_r;
 
 	Rom rom;
-	Ram ram;
+	TrackedRam ram;
 
 	/** Precalculated attenuation values with some margin for
 	  * envelope and pan levels.

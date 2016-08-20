@@ -928,7 +928,7 @@ void YMF278::writeMem(unsigned address, byte value)
 	} else {
 		unsigned ramAddr = getRamAddress(address);
 		if (ramAddr < ram.getSize()) {
-			ram[ramAddr] = value;
+			ram.write(ramAddr, value);
 		} else {
 			// can't write to unmapped memory
 		}
@@ -1021,7 +1021,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 4)) {
 		ar.serialize("ram", ram);
 	} else {
-		ar.serialize_blob("ram", &ram[0], ram.getSize());
+		ar.serialize_blob("ram", ram.getWriteBackdoor(), ram.getSize());
 	}
 	ar.serialize_blob("registers", regs, sizeof(regs));
 	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'
