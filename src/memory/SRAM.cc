@@ -61,7 +61,7 @@ void SRAM::write(unsigned addr, byte value)
 		scheduleRT(5000000); // sync to disk after 5s
 	}
 	assert(addr < getSize());
-	ram[addr] = value;
+	ram.write(addr, value);
 }
 
 void SRAM::memset(unsigned addr, byte c, unsigned size)
@@ -70,7 +70,7 @@ void SRAM::memset(unsigned addr, byte c, unsigned size)
 		scheduleRT(5000000); // sync to disk after 5s
 	}
 	assert((addr + size) <= getSize());
-	::memset(&ram[addr], c, size);
+	::memset(ram.getWriteBackdoor() + addr, c, size);
 }
 
 void SRAM::load(bool* loaded)
@@ -91,7 +91,7 @@ void SRAM::load(bool* loaded)
 			}
 		}
 		if (headerOk) {
-			file.read(&ram[0], getSize());
+			file.read(ram.getWriteBackdoor(), getSize());
 			if (loaded) *loaded = true;
 		} else {
 			config.getCliComm().printWarning(
