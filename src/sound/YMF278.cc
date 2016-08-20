@@ -746,8 +746,8 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 	, debugRegisters(motherBoard, getName())
 	, debugMemory   (motherBoard, getName())
 	, rom(getName() + " ROM", "rom", config)
-	, ramSize(ramSize_ * 1024) // in kB
-	, ram(ramSize)
+	, ram(config, getName() + " RAM", "YMF278 sample RAM",
+	      ramSize_ * 1024) // size in kB
 {
 	if (rom.getSize() != 0x200000) { // 2MB
 		throw MSXException(
@@ -790,7 +790,7 @@ YMF278::~YMF278()
 
 void YMF278::clearRam()
 {
-	memset(ram.data(), 0, ramSize);
+	ram.clear(0);
 }
 
 void YMF278::reset(EmuTime::param time)
@@ -869,7 +869,7 @@ unsigned YMF278::getRamAddress(unsigned addr) const
 				// 1st 128kB of SRAM1
 				break;
 			case 0x020000: // [0x3A0000-0x3BFFFF]
-				if (ramSize == 256 * 1024) {
+				if (ram.getSize() == 256 * 1024) {
 					// 2nd 128kB SRAM chip
 				} else {
 					// 2nd block of 128kB in SRAM2
@@ -890,7 +890,7 @@ unsigned YMF278::getRamAddress(unsigned addr) const
 			addr = unsigned(-1); // unmapped
 		}
 	}
-	if (ramSize == 640 * 1024) {
+	if (ram.getSize() == 640 * 1024) {
 		// Verified on real MoonSound cartridge (v2.0): In case of
 		// 640kB (1x512kB + 1x128kB), the 128kB SRAM chip is 4 times
 		// visible. None of the other SRAM configurations show similar
@@ -911,7 +911,7 @@ byte YMF278::readMem(unsigned address) const
 		return rom[address];
 	} else {
 		unsigned ramAddr = getRamAddress(address);
-		if (ramAddr < ramSize) {
+		if (ramAddr < ram.getSize()) {
 			return ram[ramAddr];
 		} else {
 			// unmapped region
@@ -927,7 +927,7 @@ void YMF278::writeMem(unsigned address, byte value)
 		// can't write to ROM
 	} else {
 		unsigned ramAddr = getRamAddress(address);
-		if (ramAddr < ramSize) {
+		if (ramAddr < ram.getSize()) {
 			ram[ramAddr] = value;
 		} else {
 			// can't write to unmapped memory
@@ -1012,12 +1012,17 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 // version 1: initial version
 // version 2: loadTime and busyTime moved to MSXMoonSound class
 // version 3: memadr cannot be restored from register values
+// version 4: implement ram via Ram class
 template<typename Archive>
 void YMF278::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("slots", slots);
 	ar.serialize("eg_cnt", eg_cnt);
-	ar.serialize_blob("ram", ram.data(), ramSize);
+	if (ar.versionAtLeast(version, 4)) {
+		ar.serialize("ram", ram);
+	} else {
+		ar.serialize_blob("ram", &ram[0], ram.getSize());
+	}
 	ar.serialize_blob("registers", regs, sizeof(regs));
 	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'
 		ar.serialize("memadr", memadr);

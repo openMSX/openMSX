@@ -4,7 +4,7 @@
 #include "ResampledSoundDevice.hh"
 #include "SimpleDebuggable.hh"
 #include "Rom.hh"
-#include "MemBuffer.hh"
+#include "Ram.hh"
 #include "EmuTime.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
@@ -121,8 +121,7 @@ private:
 	int pcm_l, pcm_r;
 
 	Rom rom;
-	const unsigned ramSize;
-	MemBuffer<byte> ram;
+	Ram ram;
 
 	/** Precalculated attenuation values with some margin for
 	  * envelope and pan levels.
@@ -132,7 +131,7 @@ private:
 	byte regs[256];
 };
 SERIALIZE_CLASS_VERSION(YMF278::Slot, 3);
-SERIALIZE_CLASS_VERSION(YMF278, 3);
+SERIALIZE_CLASS_VERSION(YMF278, 4);
 
 } // namespace openmsx
 
