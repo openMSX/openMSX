@@ -54,6 +54,8 @@ class LastDeltaBlocks
 public:
 	std::shared_ptr<DeltaBlock> createNew(
 		const void* id, const uint8_t* data, size_t size);
+	std::shared_ptr<DeltaBlock> createNullDiff(
+		const void* id, const uint8_t* data, size_t size);
 	void clear();
 
 private:
@@ -64,6 +66,7 @@ private:
 		const void* id;
 		size_t size;
 		std::weak_ptr<DeltaBlockCopy> ref;
+		std::weak_ptr<DeltaBlock> last;
 		size_t accSize;
 	};
 

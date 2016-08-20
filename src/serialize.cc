@@ -75,7 +75,7 @@ unsigned OutputArchiveBase2::getID2(
 
 template<typename Derived>
 void OutputArchiveBase<Derived>::serialize_blob(
-	const char* tag, const void* data_, size_t len)
+	const char* tag, const void* data_, size_t len, bool /*diff*/)
 {
 	auto* data = static_cast<const uint8_t*>(data_);
 
@@ -135,7 +135,7 @@ unsigned InputArchiveBase2::getId(const void* ptr) const
 
 template<typename Derived>
 void InputArchiveBase<Derived>::serialize_blob(
-	const char* tag, void* data, size_t len)
+	const char* tag, void* data, size_t len, bool /*diff*/)
 {
 	this->self().beginTag(tag);
 	string encoding;
@@ -214,14 +214,18 @@ string_ref MemInputArchive::loadStr()
 // semi-arbitrary. I only made it >= 52 so that the (incompressible) RP5C01
 // registers won't be compressed.
 static const size_t SMALL_SIZE = 64;
-void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len)
+void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len,
+                                      bool diff)
 {
 	// Delta-compress in-memory blobs, see DeltaBlock.hh for more details.
 	if (len > SMALL_SIZE) {
 		unsigned deltaBlockIdx = deltaBlocks.size();
 		save(deltaBlockIdx); // see comment below in MemInputArchive
-		deltaBlocks.push_back(lastDeltaBlocks.createNew(
-			data, static_cast<const uint8_t*>(data), len));
+		deltaBlocks.push_back(diff
+			? lastDeltaBlocks.createNew(
+				data, static_cast<const uint8_t*>(data), len)
+			: lastDeltaBlocks.createNullDiff(
+				data, static_cast<const uint8_t*>(data), len));
 	} else {
 		byte* buf = buffer.allocate(len);
 		memcpy(buf, data, len);
@@ -229,7 +233,7 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len)
 
 }
 
-void MemInputArchive::serialize_blob(const char*, void* data, size_t len)
+void MemInputArchive::serialize_blob(const char*, void* data, size_t len, bool /*diff*/)
 {
 	if (len > SMALL_SIZE) {
 		// Usually blobs are saved in the same order as they are loaded

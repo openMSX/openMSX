@@ -351,14 +351,40 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 		// differences have accumulated.
 		auto b = std::make_shared<DeltaBlockCopy>(data, size);
 		it->ref = b;
+		it->last = b;
 		it->accSize = 0;
 		return b;
 	} else {
 		// Create diff based on earlier reference block.
 		// Reference remains unchanged.
 		auto b = std::make_shared<DeltaBlockDiff>(ref, data, size);
+		it->last = b;
 		it->accSize += b->getDeltaSize();
 		return b;
+	}
+}
+
+std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNullDiff(
+		const void* id, const uint8_t* data, size_t size)
+{
+	auto it = std::lower_bound(begin(infos), end(infos), id,
+		[](const Info& info, const void* id2) {
+			return info.id < id2; });
+	if ((it == end(infos)) || (it->id != id)) {
+		// no previous block yet
+		it = infos.emplace(it, id, size);
+	}
+	assert(it->size == size);
+
+	auto last = it->last.lock();
+	if (!last) {
+		auto b = std::make_shared<DeltaBlockCopy>(data, size);
+		it->ref = b;
+		it->last = b;
+		it->accSize = 0;
+		return b;
+	} else {
+		return last;
 	}
 }
 

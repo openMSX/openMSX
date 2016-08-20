@@ -770,7 +770,7 @@ void ReverseManager::loadReplay(
 		newChunk.time = m->getCurrentTime();
 
 		MemOutputArchive out(newHistory.lastDeltaBlocks,
-		                     newChunk.deltaBlocks);
+		                     newChunk.deltaBlocks, false);
 		out.serialize("machine", *m);
 		newChunk.savestate = out.releaseBuffer(newChunk.size);
 
@@ -912,7 +912,7 @@ void ReverseManager::takeSnapshot(EmuTime::param time)
 	// actually create new snapshot
 	ReverseChunk& newChunk = history.chunks[seqNum];
 	newChunk.deltaBlocks.clear();
-	MemOutputArchive out(history.lastDeltaBlocks, newChunk.deltaBlocks);
+	MemOutputArchive out(history.lastDeltaBlocks, newChunk.deltaBlocks, true);
 	out.serialize("machine", motherBoard);
 	newChunk.time = time;
 	newChunk.savestate = out.releaseBuffer(newChunk.size);
