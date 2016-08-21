@@ -469,6 +469,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\AmdFlash.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\CheckedRam.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\TrackedRam.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_RAM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_SCC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\FraelSwitchableROM.cc" />
@@ -599,6 +600,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Thread.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Timer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\DeltaBlock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.cc" />
@@ -1003,6 +1005,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\AmdFlash.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\CheckedRam.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\TrackedRam.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ESE_RAM.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ESE_SCC.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\FraelSwitchableROM.hh" />
@@ -1148,6 +1151,7 @@
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\hash_map.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\hash_set.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\DeltaBlock.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.hh" />
