@@ -41,6 +41,7 @@ static const int INDEX_INC = 128;
 static const int COEFF_LEN = countof(coeffs);
 static const int COEFF_HALF_LEN = COEFF_LEN - 1;
 static const unsigned TAB_LEN = 4096;
+static const unsigned HALF_TAB_LEN = TAB_LEN / 2;
 
 class ResampleCoeffs
 {
@@ -129,10 +130,10 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLe
 	int idx_cnt = max_idx - min_idx + 1;
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
 	min_idx -= (filterLen - idx_cnt) / 2;
-	Table table(TAB_LEN * filterLen);
-	memset(table.data(), 0, TAB_LEN * filterLen * sizeof(float));
+	Table table(HALF_TAB_LEN * filterLen);
+	memset(table.data(), 0, HALF_TAB_LEN * filterLen * sizeof(float));
 
-	for (unsigned t = 0; t < TAB_LEN; ++t) {
+	for (unsigned t = 0; t < HALF_TAB_LEN; ++t) {
 		float* tab = &table[t * filterLen];
 		double lastPos = (double(t) + 0.5) / TAB_LEN;
 		FilterIndex startFilterIndex(lastPos * floatIncr);
@@ -159,17 +160,6 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLe
 			bufIndex -= 1;
 		} while (filterIndex > FilterIndex(0));
 	}
-#ifdef DEBUG
-	for (unsigned i = 0; i < TAB_LEN; ++i) {
-		const float* row1 = &table[               i  * filterLen];
-		const float* row2 = &table[(TAB_LEN - 1 - i) * filterLen];
-		for (unsigned j = 0; j < filterLen; ++j) {
-			auto f1 = row1[j];
-			auto f2 = row2[filterLen - 1 - j];
-			assert(fabsf(f1 - f2) < 1e-6f);
-		}
-	}
-#endif
 	return table;
 }
 
@@ -201,6 +191,7 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 }
 
 #ifdef __SSE2__
+template<bool REVERSE>
 static inline void calcSseMono(const float* buf_, const float* tab_, size_t len, int* out)
 {
 	assert((len % 4) == 0);
@@ -209,7 +200,7 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 	ptrdiff_t x = (len & ~7) * sizeof(float);
 	assert((x % 32) == 0);
 	const char* buf = reinterpret_cast<const char*>(buf_) + x;
-	const char* tab = reinterpret_cast<const char*>(tab_) + x;
+	const char* tab = reinterpret_cast<const char*>(tab_) + (REVERSE ? -x : x);
 	x = -x;
 
 	__m128 a0 = _mm_setzero_ps();
@@ -217,8 +208,14 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 	do {
 		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x +  0));
 		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 16));
-		__m128 t0 = _mm_load_ps (reinterpret_cast<const float*>(tab + x +  0));
-		__m128 t1 = _mm_load_ps (reinterpret_cast<const float*>(tab + x + 16));
+		__m128 t0, t1;
+		if (REVERSE) {
+			t0 = _mm_loadr_ps(reinterpret_cast<const float*>(tab - x - 16));
+			t1 = _mm_loadr_ps(reinterpret_cast<const float*>(tab - x - 32));
+		} else {
+			t0 = _mm_load_ps (reinterpret_cast<const float*>(tab + x +  0));
+			t1 = _mm_load_ps (reinterpret_cast<const float*>(tab + x + 16));
+		}
 		__m128 m0 = _mm_mul_ps(b0, t0);
 		__m128 m1 = _mm_mul_ps(b1, t1);
 		a0 = _mm_add_ps(a0, m0);
@@ -227,13 +224,18 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 	} while (x < 0);
 	if (len & 4) {
 		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf));
-		__m128 t0 = _mm_load_ps (reinterpret_cast<const float*>(tab));
+		__m128 t0;
+		if (REVERSE) {
+			t0 = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 16));
+		} else {
+			t0 = _mm_load_ps (reinterpret_cast<const float*>(tab));
+		}
 		__m128 m0 = _mm_mul_ps(b0, t0);
 		a0 = _mm_add_ps(a0, m0);
 	}
 
 	__m128 a = _mm_add_ps(a0, a1);
-	// The following can be _slighly_ faster by using the SSE3 _mm_hadd_ps()
+	// The following can be _slightly_ faster by using the SSE3 _mm_hadd_ps()
 	// intrinsic, but not worth the trouble.
 	__m128 t = _mm_add_ps(a, _mm_movehl_ps(a, a));
 	__m128 s = _mm_add_ss(t, _mm_shuffle_ps(t, t, 1));
@@ -245,14 +247,14 @@ template<int N> static inline __m128 shuffle(__m128 x)
 {
 	return _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(x), N));
 }
-static inline void calcSseStereo(const float* buf_, const float* tab_, size_t len, int* out)
+template<bool REVERSE>
+static inline void calcSseStereo(const float* buf_, const float* tab, size_t len, int* out)
 {
 	assert((len % 4) == 0);
-	assert((uintptr_t(tab_) % 16) == 0);
+	assert((uintptr_t(tab) % 16) == 0);
 
-	ptrdiff_t x = (len & ~7) * sizeof(float);
-	const char* buf = reinterpret_cast<const char*>(buf_) + 2*x;
-	const char* tab = reinterpret_cast<const char*>(tab_) +   x;
+	ptrdiff_t x = 2 * (len & ~7) * sizeof(float);
+	const char* buf = reinterpret_cast<const char*>(buf_) + x;
 	x = -x;
 
 	__m128 a0 = _mm_setzero_ps();
@@ -260,12 +262,20 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 	__m128 a2 = _mm_setzero_ps();
 	__m128 a3 = _mm_setzero_ps();
 	do {
-		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 2*x +  0));
-		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 2*x + 16));
-		__m128 b2 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 2*x + 32));
-		__m128 b3 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 2*x + 48));
-		__m128 ta = _mm_load_ps (reinterpret_cast<const float*>(tab +   x +  0));
-		__m128 tb = _mm_load_ps (reinterpret_cast<const float*>(tab +   x + 16));
+		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x +  0));
+		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 16));
+		__m128 b2 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 32));
+		__m128 b3 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 48));
+		__m128 ta, tb;
+		if (REVERSE) {
+			ta = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 16));
+			tb = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 32));
+			tab -= 2 * sizeof(__m128);
+		} else {
+			ta = _mm_load_ps (reinterpret_cast<const float*>(tab +  0));
+			tb = _mm_load_ps (reinterpret_cast<const float*>(tab + 16));
+			tab += 2 * sizeof(__m128);
+		}
 		__m128 t0 = shuffle<0x50>(ta);
 		__m128 t1 = shuffle<0xFA>(ta);
 		__m128 t2 = shuffle<0x50>(tb);
@@ -278,12 +288,17 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 		a1 = _mm_add_ps(a1, m1);
 		a2 = _mm_add_ps(a2, m2);
 		a3 = _mm_add_ps(a3, m3);
-		x += 2 * sizeof(__m128);
+		x += 4 * sizeof(__m128);
 	} while (x < 0);
 	if (len & 4) {
 		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf +  0));
 		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 16));
-		__m128 ta = _mm_load_ps (reinterpret_cast<const float*>(tab));
+		__m128 ta;
+		if (REVERSE) {
+			ta = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 16));
+		} else {
+			ta = _mm_load_ps (reinterpret_cast<const float*>(tab +  0));
+		}
 		__m128 t0 = shuffle<0x50>(ta);
 		__m128 t1 = shuffle<0xFA>(ta);
 		__m128 m0 = _mm_mul_ps(b0, t0);
@@ -305,6 +320,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 	out[1] = _mm_cvtsi128_si32(_mm_shuffle_epi32(si, 0x55));
 #endif
 }
+
 #endif
 
 template <unsigned CHANNELS>
@@ -313,37 +329,68 @@ void ResampleHQ<CHANNELS>::calcOutput(
 {
 	assert((filterLen & 3) == 0);
 
-	int t = int(pos * TAB_LEN + 0.5f) % TAB_LEN;
-	const float* tab = &table[t * filterLen];
-
 	int bufIdx = int(pos) + bufStart;
 	assert((bufIdx + filterLen) <= bufEnd);
 	bufIdx *= CHANNELS;
 	const float* buf = &buffer[bufIdx];
 
+	int t = unsigned(int(pos * TAB_LEN + 0.5f)) % TAB_LEN;
+	if (!(t & HALF_TAB_LEN)) {
+		// first half, begin of row 't'
+		const float* tab = &table[t * filterLen];
+
 #ifdef __SSE2__
-	if (CHANNELS == 1) {
-		calcSseMono  (buf, tab, filterLen, output);
-	} else {
-		calcSseStereo(buf, tab, filterLen, output);
-	}
-	return;
+		if (CHANNELS == 1) {
+			calcSseMono  <false>(buf, tab, filterLen, output);
+		} else {
+			calcSseStereo<false>(buf, tab, filterLen, output);
+		}
+		return;
 #endif
 
-	// c++ version, both mono and stereo
-	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
-		float r0 = 0.0f;
-		float r1 = 0.0f;
-		float r2 = 0.0f;
-		float r3 = 0.0f;
-		for (unsigned i = 0; i < filterLen; i += 4) {
-			r0 += tab[i + 0] * buf[CHANNELS * (i + 0)];
-			r1 += tab[i + 1] * buf[CHANNELS * (i + 1)];
-			r2 += tab[i + 2] * buf[CHANNELS * (i + 2)];
-			r3 += tab[i + 3] * buf[CHANNELS * (i + 3)];
+		// c++ version, both mono and stereo
+		for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+			float r0 = 0.0f;
+			float r1 = 0.0f;
+			float r2 = 0.0f;
+			float r3 = 0.0f;
+			for (unsigned i = 0; i < filterLen; i += 4) {
+				r0 += tab[i + 0] * buf[CHANNELS * (i + 0)];
+				r1 += tab[i + 1] * buf[CHANNELS * (i + 1)];
+				r2 += tab[i + 2] * buf[CHANNELS * (i + 2)];
+				r3 += tab[i + 3] * buf[CHANNELS * (i + 3)];
+			}
+			output[ch] = lrint(r0 + r1 + r2 + r3);
+			++buf;
 		}
-		output[ch] = lrint(r0 + r1 + r2 + r3);
-		++buf;
+	} else {
+		// 2nd half, end of row 'TAB_LEN - 1 - t'
+		const float* tab = &table[(TAB_LEN - t) * filterLen];
+
+#ifdef __SSE2__
+		if (CHANNELS == 1) {
+			calcSseMono  <true>(buf, tab, filterLen, output);
+		} else {
+			calcSseStereo<true>(buf, tab, filterLen, output);
+		}
+		return;
+#endif
+
+		// c++ version, both mono and stereo
+		for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+			float r0 = 0.0f;
+			float r1 = 0.0f;
+			float r2 = 0.0f;
+			float r3 = 0.0f;
+			for (unsigned i = 0; i < filterLen; i += 4) {
+				r0 += tab[-i - 1] * buf[CHANNELS * (i + 0)];
+				r1 += tab[-i - 2] * buf[CHANNELS * (i + 1)];
+				r2 += tab[-i - 3] * buf[CHANNELS * (i + 2)];
+				r3 += tab[-i - 4] * buf[CHANNELS * (i + 3)];
+			}
+			output[ch] = lrint(r0 + r1 + r2 + r3);
+			++buf;
+		}
 	}
 }
 
