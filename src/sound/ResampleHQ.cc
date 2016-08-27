@@ -128,12 +128,13 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLe
 	int max_idx = 1 + (maxFilterIndex - (increment - FilterIndex(floatIncr))).divAsInt(increment);
 	int idx_cnt = max_idx - min_idx + 1;
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
-	min_idx -= (filterLen - idx_cnt);
+	min_idx -= (filterLen - idx_cnt) / 2;
 	Table table(TAB_LEN * filterLen);
 	memset(table.data(), 0, TAB_LEN * filterLen * sizeof(float));
 
 	for (unsigned t = 0; t < TAB_LEN; ++t) {
-		double lastPos = double(t) / TAB_LEN;
+		float* tab = &table[t * filterLen];
+		double lastPos = (double(t) + 0.5) / TAB_LEN;
 		FilterIndex startFilterIndex(lastPos * floatIncr);
 
 		FilterIndex filterIndex(startFilterIndex);
@@ -141,7 +142,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLe
 		filterIndex += increment * coeffCount;
 		int bufIndex = -coeffCount;
 		do {
-			table[t * filterLen + bufIndex - min_idx] =
+			tab[bufIndex - min_idx] =
 				float(getCoeff(filterIndex) * normFactor);
 			filterIndex -= increment;
 			bufIndex += 1;
@@ -152,12 +153,23 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLe
 		filterIndex += increment * coeffCount;
 		bufIndex = 1 + coeffCount;
 		do {
-			table[t * filterLen + bufIndex - min_idx] =
+			tab[bufIndex - min_idx] =
 				float(getCoeff(filterIndex) * normFactor);
 			filterIndex -= increment;
 			bufIndex -= 1;
 		} while (filterIndex > FilterIndex(0));
 	}
+#ifdef DEBUG
+	for (unsigned i = 0; i < TAB_LEN; ++i) {
+		const float* row1 = &table[               i  * filterLen];
+		const float* row2 = &table[(TAB_LEN - 1 - i) * filterLen];
+		for (unsigned j = 0; j < filterLen; ++j) {
+			auto f1 = row1[j];
+			auto f2 = row2[filterLen - 1 - j];
+			assert(fabsf(f1 - f2) < 1e-6f);
+		}
+	}
+#endif
 	return table;
 }
 
