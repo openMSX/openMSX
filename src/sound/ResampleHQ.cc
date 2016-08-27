@@ -37,6 +37,8 @@ static const float coeffs[] = {
 	#include "ResampleCoeffs.ii"
 };
 
+using FilterIndex = FixedPoint<16>;
+
 static const int INDEX_INC = 128;
 static const int COEFF_LEN = countof(coeffs);
 static const int COEFF_HALF_LEN = COEFF_LEN - 1;
@@ -47,31 +49,26 @@ class ResampleCoeffs
 {
 public:
 	static ResampleCoeffs& instance();
-	void getCoeffs(double ratio, float*& table, unsigned& filterLen);
+	void getCoeffs(double ratio, int16_t*& permute, float*& table, unsigned& filterLen);
 	void releaseCoeffs(double ratio);
 
 private:
-	using FilterIndex = FixedPoint<16>;
 	using Table = MemBuffer<float, SSE2_ALIGNMENT>;
 
-	ResampleCoeffs();
+	ResampleCoeffs() = default;
 	~ResampleCoeffs();
 
-	double getCoeff(FilterIndex index);
-	Table calcTable(double ratio, unsigned& filterLen);
+	Table calcTable(double ratio, int16_t* permute, unsigned& filterLen);
 
 	struct Element {
 		double ratio;
+		int16_t permute[HALF_TAB_LEN];
 		Table table;
 		unsigned filterLen;
 		unsigned count;
 	};
 	std::vector<Element> cache; // typically 1-4 entries -> unsorted vector
 };
-
-ResampleCoeffs::ResampleCoeffs()
-{
-}
 
 ResampleCoeffs::~ResampleCoeffs()
 {
@@ -85,19 +82,25 @@ ResampleCoeffs& ResampleCoeffs::instance()
 }
 
 void ResampleCoeffs::getCoeffs(
-	double ratio, float*& table, unsigned& filterLen)
+	double ratio, int16_t*& permute, float*& table, unsigned& filterLen)
 {
 	auto it = find_if(begin(cache), end(cache),
 		[=](const Element& e) { return e.ratio == ratio; });
 	if (it != end(cache)) {
+		permute   = it->permute;
 		table     = it->table.data();
 		filterLen = it->filterLen;
 		it->count++;
 		return;
 	}
-	Table tab = calcTable(ratio, filterLen);
-	table = tab.data();
-	cache.push_back({ratio, std::move(tab), filterLen, 1});
+	Element elem;
+	elem.ratio = ratio;
+	elem.count = 1;
+	elem.table = calcTable(ratio, elem.permute, elem.filterLen);
+	permute   = elem.permute;
+	table     = elem.table.data();
+	filterLen = elem.filterLen;
+	cache.push_back(std::move(elem));
 }
 
 void ResampleCoeffs::releaseCoeffs(double ratio)
@@ -110,7 +113,204 @@ void ResampleCoeffs::releaseCoeffs(double ratio)
 	}
 }
 
-double ResampleCoeffs::getCoeff(FilterIndex index)
+// -- Permutation stuff --
+//
+// The rows in the resample coefficient table are not visited sequentially.
+// Instead, depending on the resample-ratio, we take fixed non-integer jumps
+// from one row to the next.
+//
+// In reality the table has 4096 rows (of which only 2048 are actually stored).
+// But for simplicity I'll here work out examples for a table with only 16 rows
+// (of which 8 are stored).
+//
+// Let's first assume a jump of '5.2'. This means that after we've used row
+// 'r', the next row we need is 'r + 5.2'. Of course row numbers must be
+// integers, so a jump of 5.2 actually means that 80% of the time we advance 5
+// rows and 20% of the time we advance 6 rows.
+//
+// The rows in the (full) table are circular. This means that once we're past
+// row 15 (in this example) we restart at row 0. So rows 'wrap' past the end
+// (modulo arithmetic). We also only store the 1st half of the table, the
+// entries for the 2nd half are 'folded' back to the 1st half according to the
+// formula: y = 15 - x.
+//
+// Let's now calculate the possible transitions. If we're currently on row '0',
+// the next row will be either '5' (80% chance) or row '6' (20% chance). When
+// we're on row '5' the next most likely row will be '10', but after folding
+// '10' becomes '15-10 = 5' (so 5 goes to itself (80% chance)). Row '10' most
+// likely goes to '15', after folding we get that '5' goes to '0'. Row '15'
+// most likely goes to '20', and after wrapping and folding that becomes '0'
+// goes to '4'. Calculating this for all rows gives:
+//   0 -> 5 or 4 (80%)   0 -> 6 or 5 (20%)
+//   1 -> 6 or 3         1 -> 7 or 4
+//   2 -> 7 or 2         2 -> 7 or 3
+//   3 -> 7 or 1         3 -> 6 or 2
+//   4 -> 6 or 0         4 -> 5 or 1
+//   5 -> 5 or 0         5 -> 4 or 0
+//   6 -> 4 or 1         6 -> 3 or 0
+//   7 -> 3 or 2         7 -> 2 or 1
+// So every row has 4 possible successors (2 more and 2 less likely). Possibly
+// some of these 4 are the same, or even the same as the starting row. Note
+// that if row x goes to row y (x->y) then also y->x, this turns out to be true
+// in general.
+//
+// For cache efficiency it's best if rows that are needed after each other in
+// time are also stored sequentially in memory (both before or after is fine).
+// Clearly storing the rows in numeric order will not read the memory
+// sequentially. For this specific example we could stores the rows in the
+// order:
+//    2, 7, 3, 1, 6, 4, 0, 5
+// With this order all likely transitions are sequential. The less likely
+// transitions are not. But I don't believe there exists an order that's good
+// for both the likely and the unlikely transitions. Do let me know if I'm
+// wrong.
+//
+// In this example the transitions form a single chain (it turns out this is
+// often the case). But for example for a step-size of 4.3 we get
+//   0 -> 4 or 3 (70%)   0 -> 5 or 4 (30%)
+//   1 -> 5 or 2         1 -> 6 or 3
+//   2 -> 6 or 1         2 -> 7 or 2
+//   3 -> 7 or 0         3 -> 7 or 1
+//   4 -> 7 or 0         4 -> 6 or 0
+//   5 -> 6 or 1         5 -> 5 or 0
+//   6 -> 5 or 2         6 -> 4 or 1
+//   7 -> 4 or 3         7 -> 3 or 2
+// Only looking at the more likely transitions, we get 2 cycles of length 4:
+//   0, 4, 7, 3
+//   1, 5, 6, 2
+//
+// So the previous example gave a single chain with 2 clear end-points. Now we
+// have 2 separate cycles. It turns out that for any possible step-size we
+// either get a single chain or k cycles of size N/k. (So e.g. a chain of
+// length 5 plus a cycle of length 3 is impossible. Also 1 cycle of length 4
+// plus 2 cycles of length 2 is impossible). To be honest I've only partially
+// mathematically proven this, but at least I've verified it for N=16 and
+// N=4096 for all possible step-sizes.
+//
+// To linearise a chain in memory there are only 2 (good) possibilities: start
+// at either end-point. But to store a cycle any point is as good as any other.
+// Also the order in which to store the cycles themselves can still be chosen.
+//
+// Let's come back to the example with step-size 4.3. If we linearise this as
+//   | 0, 4, 7, 3 | 1, 5, 6, 2 |
+// then most of the more likely transitions are sequential. The exceptions are
+//     0 <-> 3   and   1 <-> 2
+// but those are unavoidable with cycles. In return 2 of the less likely
+// transitions '3 <-> 1' are now sequential. I believe this is the best
+// possible linearization (better said: there are other linearizations that are
+// equally good, but none is better). But do let me know if you find a better
+// one!
+//
+// For step-size '8.4' an optimal(?) linearization seems to be
+//   | 0, 7 | 1, 6 | 2, 5 | 3, 4 |
+// For step-size '7.9' the order is:
+//   | 7, 0 | 6, 1 | 5, 2 | 4, 3 |
+// And for step-size '3.8':
+//   | 7, 4, 0, 3 | 6, 5, 1, 2 |
+//
+// I've again not (fully) mathematically proven it, but it seems we can
+// optimally(?) linearise cycles by:
+// * if likely step < unlikely step:
+//    pick unassigned rows from 0 to N/2-1, and complete each cycle
+// * if likely step > unlikely step:
+//    pick unassigned rows from N/2-1 to 0, and complete each cycle
+//
+// The routine calcPermute() below calculates these optimal(?) linearizations.
+// More in detail it calculates a permutation table: the i-th element in this
+// table tells where in memory the i-th logical row of the original (half)
+// resample coefficient table is physically stored.
+
+static const unsigned N = TAB_LEN;
+static const unsigned N1 = N - 1;
+static const unsigned N2 = N / 2;
+
+static unsigned mapIdx(unsigned x)
+{
+	unsigned t = x & N1; // first wrap
+	return (t < N2) ? t : N1 - t; // then fold
+}
+
+static std::pair<unsigned, unsigned> next(unsigned x, unsigned step)
+{
+	return {mapIdx(x + step), mapIdx(N1 - x + step)};
+}
+
+static void calcPermute(double ratio, int16_t* permute)
+{
+	double r2 = ratio * N;
+	double fract = r2 - floor(r2);
+	unsigned step = floor(r2);
+	bool incr;
+	if (fract > 0.5) {
+		// mostly (> 50%) take steps of 'floor(r2) + 1'
+		step += 1;
+		incr = false; // assign from high to low
+	} else {
+		// mostly take steps of 'floor(r2)'
+		incr = true; // assign from low to high
+	}
+
+	// initially set all as unassigned
+	for (unsigned i = 0; i < N2; ++i) {
+		permute[i] = -1;
+	}
+
+	unsigned nxt1, nxt2;
+	unsigned restart = incr ? 0 : N2 - 1;
+	unsigned curr = restart;
+	// check for chain (instead of cycles)
+	if (incr) {
+		for (unsigned i = 0; i < N2; ++i) {
+			std::tie(nxt1, nxt2) = next(i, step);
+			if ((nxt1 == i) || (nxt2 == i)) { curr = i; break; }
+		}
+	} else {
+		for (unsigned i = N2 - 1; int(i) >= 0; --i) {
+			std::tie(nxt1, nxt2) = next(i, step);
+			if ((nxt1 == i) || (nxt2 == i)) { curr = i; break; }
+		}
+	}
+
+	// assign all rows (in chain of cycle(s))
+	unsigned cnt = 0;
+	while (true) {
+		assert(permute[curr] == -1);
+		assert(cnt < N2);
+		permute[curr] = cnt++;
+
+		std::tie(nxt1, nxt2) = next(curr, step);
+		if (permute[nxt1] == -1) {
+			curr = nxt1;
+			continue;
+		} else if (permute[nxt2] == -1) {
+			curr = nxt2;
+			continue;
+		}
+
+		// finished chain or cycle
+		if (cnt == N2) break; // done
+
+		// continue with next cycle
+		while (permute[restart] != -1) {
+			if (incr) {
+				++restart;
+				assert(restart != N2);
+			} else {
+				assert(restart != 0);
+				--restart;
+			}
+		}
+		curr = restart;
+	}
+
+#ifdef DEBUG
+	int16_t testPerm[N2];
+	for (unsigned i = 0; i < N2; ++i) testPerm[i] = i;
+	assert(std::is_permutation(permute, permute + N2, testPerm));
+#endif
+}
+
+static double getCoeff(FilterIndex index)
 {
 	double fraction = index.fractionAsDouble();
 	int indx = index.toInt();
@@ -118,8 +318,11 @@ double ResampleCoeffs::getCoeff(FilterIndex index)
 	       fraction * (double(coeffs[indx + 1]) - double(coeffs[indx]));
 }
 
-ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLen)
+ResampleCoeffs::Table ResampleCoeffs::calcTable(
+	double ratio, int16_t* permute, unsigned& filterLen)
 {
+	calcPermute(ratio, permute);
+
 	double floatIncr = (ratio > 1.0) ? INDEX_INC / ratio : INDEX_INC;
 	double normFactor = floatIncr / INDEX_INC;
 	FilterIndex increment = FilterIndex(floatIncr);
@@ -134,7 +337,7 @@ ResampleCoeffs::Table ResampleCoeffs::calcTable(double ratio, unsigned& filterLe
 	memset(table.data(), 0, HALF_TAB_LEN * filterLen * sizeof(float));
 
 	for (unsigned t = 0; t < HALF_TAB_LEN; ++t) {
-		float* tab = &table[t * filterLen];
+		float* tab = &table[permute[t] * filterLen];
 		double lastPos = (double(t) + 0.5) / TAB_LEN;
 		FilterIndex startFilterIndex(lastPos * floatIncr);
 
@@ -173,7 +376,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	, emuClock(hostClock.getTime(), emuSampleRate)
 	, ratio(float(emuSampleRate) / hostClock.getFreq())
 {
-	ResampleCoeffs::instance().getCoeffs(ratio, table, filterLen);
+	ResampleCoeffs::instance().getCoeffs(ratio, permute, table, filterLen);
 
 	// fill buffer with 'enough' zero's
 	unsigned extra = int(filterLen + 1 + ratio + 1);
@@ -337,6 +540,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 	int t = unsigned(int(pos * TAB_LEN + 0.5f)) % TAB_LEN;
 	if (!(t & HALF_TAB_LEN)) {
 		// first half, begin of row 't'
+		t = permute[t];
 		const float* tab = &table[t * filterLen];
 
 #ifdef __SSE2__
@@ -365,7 +569,8 @@ void ResampleHQ<CHANNELS>::calcOutput(
 		}
 	} else {
 		// 2nd half, end of row 'TAB_LEN - 1 - t'
-		const float* tab = &table[(TAB_LEN - t) * filterLen];
+		t = permute[TAB_LEN - 1 - t];
+		const float* tab = &table[(t + 1) * filterLen];
 
 #ifdef __SSE2__
 		if (CHANNELS == 1) {
