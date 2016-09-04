@@ -33,20 +33,23 @@ static const int TICKS_LEFT_BORDER = 100 + 102;
 static const int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
 
-template <class Pixel>
-inline int SDLRasterizer<Pixel>::translateX(int absoluteX, bool narrow)
+/** Translate from absolute VDP coordinates to screen coordinates:
+  * Note: In reality, there are only 569.5 visible pixels on a line.
+  *       Because it looks better, the borders are extended to 640.
+  * @param absoluteX Absolute VDP coordinate.
+  * @param narrow Is this a narrow (512 pixels wide) display mode?
+  */
+static inline int translateX(int absoluteX, bool narrow)
 {
 	int maxX = narrow ? 640 : 320;
 	if (absoluteX == VDP::TICKS_PER_LINE) return maxX;
 
 	// Note: The ROUND_MASK forces the ticks to a pixel (2-tick) boundary.
 	//       If this is not done, rounding errors will occur.
-	//       This is especially tricky because division of a negative number
-	//       is rounded towards zero instead of down.
 	const int ROUND_MASK = narrow ? ~1 : ~3;
 	int screenX =
-		((absoluteX & ROUND_MASK) - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
-		/ (narrow ? 2 : 4)
+		((absoluteX - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
+		>> (narrow ? 1 : 2))
 		+ maxX / 2;
 	return std::max(screenX, 0);
 }
