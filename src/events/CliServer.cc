@@ -290,6 +290,11 @@ void CliServer::mainLoop()
 				break;
 			}
 		}
+#ifndef _WIN32
+		// The BSD/OSX sockets implementation inherits O_NONBLOCK, while Linux
+		// does not. To be on the safe side, we explicitly reset file flags.
+		fcntl(sd, F_SETFL, 0);
+#endif
 		cliComm.addListener(make_unique<SocketConnection>(
 			commandController, eventDistributor, sd));
 	}
