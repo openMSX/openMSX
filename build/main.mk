@@ -617,7 +617,7 @@ include build/package-darwin/app.mk
 else
 ifeq ($(OPENMSX_TARGET_OS),dingux)
 # ZIP file package for Dingux.
-include build/package-dingux/zip.mk
+include build/package-dingux/opk.mk
 else
 # Note: Use OPENMSX_INSTALL only to create binary packages.
 #       To change installation dir for actual installations, edit "custom.mk".

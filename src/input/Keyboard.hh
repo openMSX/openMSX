@@ -204,7 +204,7 @@ private:
 	} msxKeyEventQueue;
 
 	struct KeybDebuggable final : SimpleDebuggable {
-		KeybDebuggable(MSXMotherBoard& motherBoard);
+		explicit KeybDebuggable(MSXMotherBoard& motherBoard);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
 	} keybDebuggable;

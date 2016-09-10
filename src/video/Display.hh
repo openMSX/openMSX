@@ -96,14 +96,14 @@ private:
 	uint64_t prevTimeStamp;
 
 	struct ScreenShotCmd final : Command {
-		ScreenShotCmd(CommandController& commandController);
+		explicit ScreenShotCmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} screenShotCmd;
 
 	struct FpsInfoTopic final : InfoTopic {
-		FpsInfoTopic(InfoCommand& openMSXInfoCommand);
+		explicit FpsInfoTopic(InfoCommand& openMSXInfoCommand);
 		void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;

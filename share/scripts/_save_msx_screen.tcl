@@ -87,8 +87,8 @@ proc save_msx_screen {basename} {
 	"7" - "8" - "11" - "12" {
 		set lines1 [expr {[vdpreg 23] > 16 ? 256 - [vdpreg 23] : 240}] ;# Store 240 lines, even
 		set lines2 [expr {240 - $lines1}]                              ;# though only 212 are visible
-		set base1 [expr {$name_base_bitmap + [vdpreg 23] * 256}]
-		set base2        $name_base_bitmap
+		set base1 [expr {($name_base_bitmap * 2) & 0x10000 + [vdpreg 23] * 256}]
+		set base2 [expr {($name_base_bitmap * 2) & 0x10000 }]
 		lappend sections "VRAM" $base1 [expr {$lines1 * 256}]       ;# Bitmap (part 1)
 		lappend sections "VRAM" $base2 [expr {$lines2 * 256}]       ;# Bitmap (part 2)
 		lappend sections "VRAM" $spr_pat_base 0x800                 ;# Sprite character patterns

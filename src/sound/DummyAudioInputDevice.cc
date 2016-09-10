@@ -16,7 +16,7 @@ void DummyAudioInputDevice::unplugHelper(EmuTime::param /*time*/)
 {
 }
 
-short DummyAudioInputDevice::readSample(EmuTime::param /*time*/)
+int16_t DummyAudioInputDevice::readSample(EmuTime::param /*time*/)
 {
 	return 0; // silence
 }

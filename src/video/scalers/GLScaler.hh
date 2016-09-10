@@ -42,7 +42,7 @@ public:
 		unsigned lineWidth, FrameSource& paintFrame);
 
 protected:
-	GLScaler(const std::string& progName);
+	explicit GLScaler(const std::string& progName);
 	void setup(bool superImpose);
 
 	/** Helper method to draw a rectangle with multiple texture coordinates.

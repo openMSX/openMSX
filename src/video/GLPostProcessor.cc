@@ -16,6 +16,7 @@
 #include "vla.hh"
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 
 using namespace gl;
 
@@ -529,9 +530,9 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	}
 
 	// calculate indices
-	unsigned short indices[NUM_INDICES];
+	uint16_t indices[NUM_INDICES];
 
-	unsigned short* ind = indices;
+	uint16_t* ind = indices;
 	for (int y = 0; y < GRID_SIZE; ++y) {
 		for (int x = 0; x < GRID_SIZE1; ++x) {
 			*ind++ = (y + 0) * GRID_SIZE1 + x;

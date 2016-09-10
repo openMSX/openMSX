@@ -52,7 +52,7 @@ public:
 	virtual gl::vec2 getSize(const OutputRectangle& output) const = 0;
 
 protected:
-	OSDWidget(const TclObject& name);
+	explicit OSDWidget(const TclObject& name);
 	void invalidateChildren();
 	bool needSuppressErrors() const;
 

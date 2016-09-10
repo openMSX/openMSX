@@ -153,7 +153,7 @@ private:
 template <typename Pixel> class Scale_2on9
 {
 public:
-	Scale_2on9(PixelOperations<Pixel> pixelOps);
+	explicit Scale_2on9(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in, Pixel* out, size_t width);
 private:
 	PixelOperations<Pixel> pixelOps;

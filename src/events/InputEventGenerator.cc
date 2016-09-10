@@ -136,7 +136,7 @@ void InputEventGenerator::setNewOsdControlButtonState(
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
-	unsigned axis, short value, const EventPtr& origEvent)
+	unsigned axis, int value, const EventPtr& origEvent)
 {
 	unsigned neg_button, pos_button;
 	switch (axis) {

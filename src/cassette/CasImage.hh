@@ -20,7 +20,7 @@ public:
 	CasImage(const Filename& fileName, FilePool& filePool, CliComm& cliComm);
 
 	// CassetteImage
-	short getSampleAt(EmuTime::param time) override;
+	int16_t getSampleAt(EmuTime::param time) override;
 	EmuTime getEndTime() const override;
 	unsigned getFrequency() const override;
 	void fillBuffer(unsigned pos, int** bufs, unsigned num) const override;

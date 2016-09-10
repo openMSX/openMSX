@@ -174,7 +174,7 @@ struct AttPurePred2 {
 };
 
 // Insert coded character, using UTF8
-static inline void insertUTF8char(char*& text, unsigned long code)
+static inline void insertUTF8char(char*& text, uint32_t code)
 {
 	if (code < 0x80) { // 1 byte sequence
 		text[0] = char(code);
@@ -297,7 +297,7 @@ static inline char* skipAndExpand(char*& text)
 
 			case '#': // &#...; - assumes ASCII
 				if (src[2] == 'x') {
-					unsigned long code = 0;
+					uint32_t code = 0;
 					src += 3; // skip &#x
 					while (true) {
 						uint8_t digit = lutDigits[uint8_t(*src)];
@@ -307,7 +307,7 @@ static inline char* skipAndExpand(char*& text)
 					}
 					insertUTF8char(dest, code);
 				} else {
-					unsigned long code = 0;
+					uint32_t code = 0;
 					src += 2; // skip &#
 					while (1) {
 						   uint8_t digit = lutDigits[uint8_t(*src)];

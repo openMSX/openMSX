@@ -112,7 +112,7 @@ private:
 class SimpleEvent : public Event
 {
 public:
-	SimpleEvent(EventType type_) : Event(type_) {}
+	explicit SimpleEvent(EventType type_) : Event(type_) {}
 	void toStringImpl(TclObject& result) const override;
 	bool lessImpl(const Event& other) const override;
 };

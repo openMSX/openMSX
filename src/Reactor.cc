@@ -163,7 +163,7 @@ private:
 class RealTimeInfo final : public InfoTopic
 {
 public:
-	RealTimeInfo(InfoCommand& openMSXInfoCommand);
+	explicit RealTimeInfo(InfoCommand& openMSXInfoCommand);
 	void execute(array_ref<TclObject> tokens,
 	             TclObject& result) const override;
 	string help(const vector<string>& tokens) const override;

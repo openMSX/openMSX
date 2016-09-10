@@ -655,7 +655,7 @@ void LaserdiscPlayer::autoRun()
 		"if ![info exists " + var + "] { set " + var + " 0 }\n"
 		"incr " + var + "\n"
 		"after time 2 \"if $" + var + "==\\$" + var + " { "
-		"type 1CALLLD\\\\r }\"";
+		"type_via_keyboard 1CALLLD\\\\r }\"";
 
 	try {
 		motherBoard.getCommandController().executeCommand(command);
@@ -923,7 +923,7 @@ void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 	}
 }
 
-short LaserdiscPlayer::readSample(EmuTime::param time)
+int16_t LaserdiscPlayer::readSample(EmuTime::param time)
 {
 	// Here we should return the value of the sample on the
 	// right audio channel, ignoring muting (this is done in the MSX)

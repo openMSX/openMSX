@@ -1,7 +1,7 @@
 #ifndef SRAM_HH
 #define SRAM_HH
 
-#include "Ram.hh"
+#include "TrackedRam.hh"
 #include "DeviceConfig.hh"
 #include "RTSchedulable.hh"
 
@@ -43,7 +43,7 @@ private:
 	void save();
 
 	const DeviceConfig config;
-	Ram ram;
+	TrackedRam ram;
 	const char* const header;
 };
 

@@ -352,7 +352,7 @@ size_t OSDText::splitAtChar(const std::string& line, unsigned maxWidth) const
 }
 
 struct SplitAtChar {
-	SplitAtChar(const OSDText& osdText_) : osdText(osdText_) {}
+	explicit SplitAtChar(const OSDText& osdText_) : osdText(osdText_) {}
 	size_t operator()(const string& line, unsigned maxWidth) {
 		return osdText.splitAtChar(line, maxWidth);
 	}

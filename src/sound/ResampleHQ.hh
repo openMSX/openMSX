@@ -3,6 +3,7 @@
 
 #include "ResampleAlgo.hh"
 #include "DynamicClock.hh"
+#include <cstdint>
 #include <vector>
 
 namespace openmsx {
@@ -35,6 +36,7 @@ private:
 	unsigned filterLen;
 	std::vector<float> buffer;
 	float* table;
+	int16_t* permute;
 };
 
 } // namespace openmsx

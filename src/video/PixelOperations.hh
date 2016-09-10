@@ -102,7 +102,7 @@ private:
 // Specialization for dingoo (16bpp)
 //   We know the exact pixel format for this platform. No need for any
 //   members in this class. All values can also be compile-time constant.
-template<> class PixelOpBase<unsigned short>
+template<> class PixelOpBase<uint16_t>
 {
 public:
 	explicit PixelOpBase(const SDL_PixelFormat& /*format*/) {}
@@ -141,7 +141,7 @@ public:
 	inline int getBloss()  const { return 3; }
 	inline int getAloss()  const { return 8; }
 
-	inline unsigned short getBlendMask() const { return 0xF7DE; }
+	inline uint16_t getBlendMask() const { return 0xF7DE; }
 
 	static const bool IS_RGB565 = true;
 };

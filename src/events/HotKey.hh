@@ -25,7 +25,7 @@ class HotKey final : public RTSchedulable, public EventListener
 public:
 	struct HotKeyInfo {
 		HotKeyInfo() {} // for map::operator[]
-		HotKeyInfo(std::string command_, bool repeat_ = false)
+		explicit HotKeyInfo(std::string command_, bool repeat_ = false)
 			: command(std::move(command_)), repeat(repeat_) {}
 		std::string command;
 		bool repeat;
@@ -99,13 +99,13 @@ private:
 	UnbindCmd unbindDefaultCmd;
 
 	struct ActivateCmd final : Command {
-		ActivateCmd(CommandController& commandController);
+		explicit ActivateCmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} activateCmd;
 
 	struct DeactivateCmd final : Command {
-		DeactivateCmd(CommandController& commandController);
+		explicit DeactivateCmd(CommandController& commandController);
 		void execute(array_ref<TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} deactivateCmd;

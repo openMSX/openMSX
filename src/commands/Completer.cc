@@ -56,6 +56,11 @@ static vector<string> format(const vector<string_ref>& input, size_t columnLimit
 	return result;
 }
 
+vector<string> Completer::formatListInColumns(const vector<string_ref>& input)
+{
+	return format(input, output->getOutputColumns() - 1);
+}
+
 bool Completer::equalHead(string_ref s1, string_ref s2, bool caseSensitive)
 {
 	if (s2.size() < s1.size()) return false;
@@ -115,7 +120,7 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 	out:
 	if (!expanded && output) {
 		// print all possibilities
-		for (auto& line : format(matches, output->getOutputColumns() - 1)) {
+		for (auto& line : formatListInColumns(matches)) {
 			output->output(line);
 		}
 	}

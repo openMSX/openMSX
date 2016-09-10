@@ -3,6 +3,7 @@
 
 #include "EmuTime.hh"
 #include "sha1.hh"
+#include <cstdint>
 #include <string>
 
 namespace openmsx {
@@ -13,7 +14,7 @@ public:
 	enum FileType { ASCII, BINARY, BASIC, UNKNOWN };
 
 	virtual ~CassetteImage() {}
-	virtual short getSampleAt(EmuTime::param time) = 0;
+	virtual int16_t getSampleAt(EmuTime::param time) = 0;
 	virtual EmuTime getEndTime() const = 0;
 	virtual unsigned getFrequency() const = 0;
 	virtual void fillBuffer(unsigned pos, int** bufs, unsigned num) const = 0;

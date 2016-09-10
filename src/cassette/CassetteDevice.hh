@@ -2,6 +2,7 @@
 #define CASSETTEDEVICE_HH
 
 #include "Pluggable.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -17,7 +18,7 @@ public:
 	/**
 	 * Read wave data from cassette device
 	 */
-	virtual short readSample(EmuTime::param time) = 0;
+	virtual int16_t readSample(EmuTime::param time) = 0;
 
 	/**
 	 * Sets the cassette output signal

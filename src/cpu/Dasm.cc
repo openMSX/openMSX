@@ -58,13 +58,13 @@ unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
 		case 'B':
 			buf[i] = interf.peekMem(pc + i, time);
 			dest += '#' + StringOp::toHexString(
-				static_cast<unsigned short>(buf[i]), 2);
+				static_cast<uint16_t>(buf[i]), 2);
 			i += 1;
 			break;
 		case 'R':
 			buf[i] = interf.peekMem(pc + i, time);
 			dest += '#' + StringOp::toHexString(
-				(pc + 2 + static_cast<signed char>(buf[i])) & 0xFFFF, 4);
+				(pc + 2 + static_cast<int8_t>(buf[i])) & 0xFFFF, 4);
 			i += 1;
 			break;
 		case 'W':

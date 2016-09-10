@@ -237,7 +237,7 @@ void JoyMega::signalEvent(const shared_ptr<const Event>& event, EmuTime::param t
 	switch (event->getType()) {
 	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
 		auto& mev = checked_cast<const JoystickAxisMotionEvent&>(*event);
-		short value = mev.getValue();
+		int value = mev.getValue();
 		switch (mev.getAxis() & 1) {
 		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
 			if (value < -THRESHOLD) {

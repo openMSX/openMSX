@@ -357,12 +357,12 @@ private:
 
 	// Scheduler stuff
 	struct SyncBase : Schedulable {
-		SyncBase(V9990& v9990) : Schedulable(v9990.getScheduler()) {}
+		explicit SyncBase(V9990& v9990) : Schedulable(v9990.getScheduler()) {}
 		friend class V9990;
 	};
 
 	struct SyncVSync : SyncBase {
-		SyncVSync(V9990& v9990) : SyncBase(v9990) {}
+		explicit SyncVSync(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncVSync);
 			v9990.execVSync(time);
@@ -370,7 +370,7 @@ private:
 	} syncVSync;
 
 	struct SyncDisplayStart : SyncBase {
-		SyncDisplayStart(V9990& v9990) : SyncBase(v9990) {}
+		explicit SyncDisplayStart(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncDisplayStart);
 			v9990.execDisplayStart(time);
@@ -378,7 +378,7 @@ private:
 	} syncDisplayStart;
 
 	struct SyncVScan : SyncBase {
-		SyncVScan(V9990& v9990) : SyncBase(v9990) {}
+		explicit SyncVScan(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncVScan);
 			v9990.execVScan(time);
@@ -386,7 +386,7 @@ private:
 	} syncVScan;
 
 	struct SyncHScan : SyncBase {
-		SyncHScan(V9990& v9990) : SyncBase(v9990) {}
+		explicit SyncHScan(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& v9990 = OUTER(V9990, syncHScan);
 			v9990.execHScan();
@@ -394,7 +394,7 @@ private:
 	} syncHScan;
 
 	struct SyncSetMode : SyncBase {
-		SyncSetMode(V9990& v9990) : SyncBase(v9990) {}
+		explicit SyncSetMode(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncSetMode);
 			v9990.execSetMode(time);

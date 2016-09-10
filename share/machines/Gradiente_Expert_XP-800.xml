@@ -30,6 +30,7 @@
     <VDP id="VDP">
       <version>TMS9128</version>
       <io base="0x98" num="2"/>
+      <saturation>95</saturation>
     </VDP>
 
     <PSG id="PSG">

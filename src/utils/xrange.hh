@@ -45,7 +45,7 @@ public:
 		using reference  = T&;
 		using iterator_category = std::forward_iterator_tag;
 
-		XRangeIter(T x_)
+		explicit XRangeIter(T x_)
 			: x(x_)
 		{
 		}
@@ -70,7 +70,7 @@ public:
 		T x;
 	};
 
-	XRange(T e_)
+	explicit XRange(T e_)
 		: b(0), e(e_)
 	{
 	}

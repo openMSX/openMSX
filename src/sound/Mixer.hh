@@ -43,7 +43,7 @@ public:
 
 	/** Upload new sample data
 	 */
-	void uploadBuffer(MSXMixer& msxMixer, short* buffer, unsigned len);
+	void uploadBuffer(MSXMixer& msxMixer, int16_t* buffer, unsigned len);
 
 	IntegerSetting& getMasterVolume() { return masterVolume; }
 

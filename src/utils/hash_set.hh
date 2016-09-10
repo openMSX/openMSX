@@ -48,7 +48,7 @@ struct Element {
 	}
 
 	template<typename... Args>
-	Element(Args&&... args)
+	explicit Element(Args&&... args)
 		: value(std::forward<Args>(args)...)
 		// hash    left uninitialized
 		// nextIdx left uninitialized
@@ -288,7 +288,7 @@ public:
 			: hashSet(nullptr), elemIdx(0) {}
 
 		template<typename HashSet2, typename IValue2>
-		Iter(const Iter<HashSet2, IValue2>& other)
+		explicit Iter(const Iter<HashSet2, IValue2>& other)
 			: hashSet(other.hashSet), elemIdx(other.elemIdx) {}
 
 		template<typename HashSet2, typename IValue2>
@@ -350,7 +350,7 @@ public:
 	using const_iterator = Iter<const hash_set, const Value>;
 
 public:
-	hash_set(unsigned initialSize = 0,
+	explicit hash_set(unsigned initialSize = 0,
 	         Extractor extract_ = Extractor(),
 	         Hasher hasher_ = Hasher(),
 	         Equal equal_ = Equal())
@@ -391,7 +391,7 @@ public:
 		source.elemCount = 0;
 	}
 
-	hash_set(std::initializer_list<Value> args)
+	explicit hash_set(std::initializer_list<Value> args)
 		: table(nullptr), allocMask(-1), elemCount(0)
 	{
 		reserve(args.size());

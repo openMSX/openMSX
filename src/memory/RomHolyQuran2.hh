@@ -23,7 +23,7 @@ public:
 
 private:
 	struct Blocks final : RomBlockDebuggableBase {
-		Blocks(RomHolyQuran2& device);
+		explicit Blocks(RomHolyQuran2& device);
 		byte read(unsigned address) override;
 	} romBlocks;
 

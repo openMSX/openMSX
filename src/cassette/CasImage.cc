@@ -54,7 +54,7 @@ CasImage::CasImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 	convert(filename, filePool, cliComm);
 }
 
-short CasImage::getSampleAt(EmuTime::param time)
+int16_t CasImage::getSampleAt(EmuTime::param time)
 {
 	static const Clock<OUTPUT_FREQUENCY> zero(EmuTime::zero);
 	unsigned pos = zero.getTicksTill(time);

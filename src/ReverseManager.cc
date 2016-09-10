@@ -56,7 +56,7 @@ static const char* const REPLAY_DIR = "replays";
 
 struct Replay
 {
-	Replay(Reactor& reactor_)
+	explicit Replay(Reactor& reactor_)
 		: reactor(reactor_), currentTime(EmuTime::dummy()) {}
 
 	Reactor& reactor;
@@ -119,7 +119,7 @@ class EndLogEvent final : public StateChange
 {
 public:
 	EndLogEvent() {} // for serialize
-	EndLogEvent(EmuTime::param time_)
+	explicit EndLogEvent(EmuTime::param time_)
 		: StateChange(time_)
 	{
 	}
@@ -389,7 +389,8 @@ void ReverseManager::goTo(
 		// one that's not newer (thus older or equal).
 		assert(it != begin(hist.chunks));
 		--it;
-		EmuTime snapshotTime = it->second.time;
+		ReverseChunk& chunk = it->second;
+		EmuTime snapshotTime = chunk.time;
 		assert(snapshotTime <= preTarget);
 
 		// IF current time is before the wanted time AND either
@@ -414,8 +415,9 @@ void ReverseManager::goTo(
 			// -- restore old snapshot --
 			newBoard_ = reactor.createEmptyMotherBoard();
 			newBoard = newBoard_.get();
-			MemInputArchive in(it->second.savestate.data(),
-					   it->second.size);
+			MemInputArchive in(chunk.savestate.data(),
+					   chunk.size,
+					   chunk.deltaBlocks);
 			in.serialize("machine", *newBoard);
 
 			if (eventDelay) {
@@ -436,7 +438,7 @@ void ReverseManager::goTo(
 			// Also we should stop collecting in this ReverseManager,
 			// and start collecting in the new one.
 			auto& newManager = newBoard->getReverseManager();
-			newManager.transferHistory(hist, it->second.eventCount);
+			newManager.transferHistory(hist, chunk.eventCount);
 
 			// transfer (or copy) state from old to new machine
 			transferState(*newBoard);
@@ -595,7 +597,8 @@ void ReverseManager::saveReplay(
 	// restore first snapshot to be able to serialize it to a file
 	auto initialBoard = reactor.createEmptyMotherBoard();
 	MemInputArchive in(begin(chunks)->second.savestate.data(),
-	                   begin(chunks)->second.size);
+	                   begin(chunks)->second.size,
+			   begin(chunks)->second.deltaBlocks);
 	in.serialize("machine", *initialBoard);
 	replay.motherBoards.push_back(move(initialBoard));
 
@@ -623,7 +626,8 @@ void ReverseManager::saveReplay(
 					// this is a new one, add it to the list of snapshots
 					Reactor::Board board = reactor.createEmptyMotherBoard();
 					MemInputArchive in2(it->second.savestate.data(),
-							    it->second.size);
+							    it->second.size,
+							    it->second.deltaBlocks);
 					in2.serialize("machine", *board);
 					replay.motherBoards.push_back(move(board));
 					lastAddedIt = it;
@@ -765,7 +769,8 @@ void ReverseManager::loadReplay(
 		ReverseChunk newChunk;
 		newChunk.time = m->getCurrentTime();
 
-		MemOutputArchive out;
+		MemOutputArchive out(newHistory.lastDeltaBlocks,
+		                     newChunk.deltaBlocks, false);
 		out.serialize("machine", *m);
 		newChunk.savestate = out.releaseBuffer(newChunk.size);
 
@@ -795,6 +800,9 @@ void ReverseManager::transferHistory(ReverseHistory& oldHistory,
 {
 	assert(!isCollecting());
 	assert(history.chunks.empty());
+
+	// 'ids' for old and new serialize blobs don't match, so cleanup old cache
+	oldHistory.lastDeltaBlocks.clear();
 
 	// actual history transfer
 	history.swap(oldHistory);
@@ -902,9 +910,10 @@ void ReverseManager::takeSnapshot(EmuTime::param time)
 	// the same moment in time).
 
 	// actually create new snapshot
-	MemOutputArchive out;
-	out.serialize("machine", motherBoard);
 	ReverseChunk& newChunk = history.chunks[seqNum];
+	newChunk.deltaBlocks.clear();
+	MemOutputArchive out(history.lastDeltaBlocks, newChunk.deltaBlocks, true);
+	out.serialize("machine", motherBoard);
 	newChunk.time = time;
 	newChunk.savestate = out.releaseBuffer(newChunk.size);
 	newChunk.eventCount = replayIndex;

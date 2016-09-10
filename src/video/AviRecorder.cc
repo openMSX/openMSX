@@ -115,7 +115,7 @@ void AviRecorder::stop()
 	wavWriter.reset();
 }
 
-void AviRecorder::addWave(unsigned num, short* data)
+void AviRecorder::addWave(unsigned num, int16_t* data)
 {
 	if (!warnedSampleRate && (mixer->getSampleRate() != sampleRate)) {
 		warnedSampleRate = true;
@@ -132,7 +132,7 @@ void AviRecorder::addWave(unsigned num, short* data)
 			audioBuf.insert(end(audioBuf), data, data + 2 * num);
 		}
 	} else {
-		VLA(short, buf, num);
+		VLA(int16_t, buf, num);
 		unsigned i = 0;
 		for (/**/; !warnedStereo && i < num; ++i) {
 			if (data[2 * i + 0] != data[2 * i + 1]) {

@@ -41,6 +41,9 @@ public:
 	static void completeFileName(std::vector<std::string>& tokens,
 	                             const FileContext& context);
 
+	static std::vector<std::string> formatListInColumns(
+		const std::vector<string_ref>& input);
+
 	// should only be called by CommandConsole
 	static void setOutput(InterpreterOutput* output_) { output = output_; }
 

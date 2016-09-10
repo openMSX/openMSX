@@ -976,7 +976,7 @@ Keyboard::KeyInserter::KeyInserter(
 		StateChangeDistributor& stateChangeDistributor_,
 		Scheduler& scheduler_)
 	: RecordedCommand(commandController_, stateChangeDistributor_,
-		scheduler_, "type")
+		scheduler_, "type_via_keyboard")
 	, Schedulable(scheduler_)
 	, lockKeysMask(0)
 	, releaseLast(false)
@@ -1015,7 +1015,7 @@ void Keyboard::KeyInserter::execute(
 			if (++i == tokens.size()) {
 				throw CommandException("Missing argument");
 			}
-			int tmp = tokens[1].getInt(getInterpreter());
+			int tmp = tokens[i].getInt(getInterpreter());
 			if (tmp <= 0) {
 				throw CommandException("Wrong argument for -freq (should be a positive number)");
 			}

@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <cstddef>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -74,7 +75,7 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 }
 
 #ifdef __SSE2__
-static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, long width)
+static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, size_t width)
 {
 	// To each of the RGBA color components (a value in range [0..255]) we
 	// want to add a signed noise value (in range [-128..127]) and also clip
@@ -89,7 +90,7 @@ static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, long wi
 	//   signed_add_sat(value ^ 128, noise) ^ 128
 	// The follwoing loop does just that, though it processes 64 bytes per
 	// iteration.
-	long x = width * sizeof(uint32_t);
+	ptrdiff_t x = width * sizeof(uint32_t);
 	assert((x & 63) == 0);
 	assert((uintptr_t(buf_) & 15) == 0);
 
@@ -164,7 +165,7 @@ static inline uint32_t addNoise4(uint32_t p, uint32_t n)
 
 template <class Pixel>
 void FBPostProcessor<Pixel>::drawNoiseLine(
-		Pixel* buf, signed char* noise, unsigned long width)
+		Pixel* buf, signed char* noise, size_t width)
 {
 #ifdef __SSE2__
 	if (sizeof(Pixel) == 4) {

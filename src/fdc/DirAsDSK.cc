@@ -1076,7 +1076,7 @@ struct NullScanner {
 // Base class for the IsDirSector and DirEntryForCluster scanner algorithms
 // below. This class remembers the directory entry of the last visited subdir.
 struct DirScanner : NullScanner {
-	DirScanner(DirAsDSK::DirIndex& dirDirIndex_)
+	explicit DirScanner(DirAsDSK::DirIndex& dirDirIndex_)
 		: dirDirIndex(dirDirIndex_)
 	{
 		dirDirIndex = DirAsDSK::DirIndex(0, 0); // represents entry for root dir
@@ -1142,7 +1142,7 @@ DirAsDSK::DirIndex DirAsDSK::getDirEntryForCluster(unsigned cluster)
 // Remove the mapping between the msx and host for all the files/dirs in the
 // given msx directory (+ subdirectories).
 struct UnmapHostFiles : NullScanner {
-	UnmapHostFiles(DirAsDSK::MapDirs& mapDirs_)
+	explicit UnmapHostFiles(DirAsDSK::MapDirs& mapDirs_)
 		: mapDirs(mapDirs_) {}
 	bool onDirEntry(DirAsDSK::DirIndex dirIndex,
 	                const MSXDirEntry& /*entry*/) {

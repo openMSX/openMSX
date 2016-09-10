@@ -72,12 +72,12 @@ void WavAudioInput::update(const Setting& setting)
 	}
 }
 
-short WavAudioInput::readSample(EmuTime::param time)
+int16_t WavAudioInput::readSample(EmuTime::param time)
 {
 	if (wav.getSize()) {
 		unsigned pos = (time - reference).getTicksAt(wav.getFreq());
 		if (pos < wav.getSize()) {
-			auto buf = static_cast<const short*>(wav.getData());
+			auto buf = static_cast<const int16_t*>(wav.getData());
 			return buf[pos];
 		}
 	}

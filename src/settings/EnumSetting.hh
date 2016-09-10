@@ -16,7 +16,7 @@ class EnumSettingBase
 protected:
 	// cannot be string_ref because of the 'default_machine' setting
 	using BaseMap = std::vector<std::pair<std::string, int>>;
-	EnumSettingBase(BaseMap&& m);
+	explicit EnumSettingBase(BaseMap&& m);
 
 	int fromStringBase(string_ref str) const;
 	string_ref toStringBase(int value) const;

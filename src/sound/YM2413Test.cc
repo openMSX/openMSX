@@ -4,6 +4,7 @@
 #include "WavData.hh"
 #include "Filename.hh"
 #include "StringOp.hh"
+#include <cstdint>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -55,7 +56,7 @@ static void loadWav(const string& filename, Samples& data)
 	assert(wav.getBits() == 16);
 	assert(wav.getChannels() == 1);
 
-	auto rawData = reinterpret_cast<const short*>(wav.getData());
+	auto rawData = reinterpret_cast<const int16_t*>(wav.getData());
 	data.assign(rawData, rawData + wav.getSize());
 }
 
@@ -109,7 +110,7 @@ static void test(YM2413Core& core, const Log& log,
 		for (unsigned j = 0; j < generatedSamples[i].size(); ++j) {
 			int s = generatedSamples[i][j];
 			s *= factor;
-			assert(s == short(s)); // shouldn't overflow 16-bit
+			assert(s == int16_t(s)); // shouldn't overflow 16-bit
 			generatedSamples[i][j] = s;
 		}
 	}

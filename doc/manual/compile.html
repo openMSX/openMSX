@@ -177,14 +177,10 @@ Version 4.8 or later is required to build openMSX.
 <p>You can download the latest version of <code>mingw-get-inst</code> from <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=2435">the download page</a> of the MinGW project (it's the default download if you're on Windows). Double click on this installer after downloading. Click Next, Next, select "Download latest repository catalogues" and click Next again. Accept the license agreement and click Next. Use the default installation directory (<code>C:\MinGW</code>), or at least a <strong>clean and empty</strong> (e.g. non-existing) directory without spaces and <strong>not</strong> a network folder (i.e. shared folder on another computer) and click Next. Click Next again. In the "Select Components" step, make sure to check "C++ Compiler" and "MSYS Basic System" and click Next. Then click Install. This will then update the package repositories first, which takes a while. After this, it will download all the MinGW packages and install them.
 </p>
 
-<h5>Dingux</h5>
+<h5>OpenDingux</h5>
 
-<p>For compilation for Dingux (Linux for Dingoo), you need to install the
-OpenDingux toolchain. This toolchain is for x86
-Linux; if you have an x86 machine but no Linux, you can install Linux in a
-virtual machine. Extract the toolchain to <code>/opt</code>; anywhere else
-won't work. It can be downloaded from the <a class="external"
-href="http://www.treewalker.org/opendingux/">OpenDingux Releases</a> page.
+<p>For compilation for OpenDingux to run on GCW Zero, you need to install the
+GCW Zero toolchain. This toolchain is for x86 Linux; if you have an x86 machine but no Linux, you can install Linux in a virtual machine. You can find the toolchain and installation instructions in the <a href="http://www.gcw-zero.com/develop">development section of the GCW Zero web site</a>.
 </p>
 
 <h4>clang</h4>
@@ -192,14 +188,14 @@ href="http://www.treewalker.org/opendingux/">OpenDingux Releases</a> page.
 <h5>Mac OS X</h5>
 
 <p>
-Install Xcode from Apple, which you can find in the Mac App Store. Start Xcode and from the menu select Xcode &gt; Preferences... &gt; Downloads and install the "Command Line Tools" component. The openMSX build is not done inside the Xcode IDE, but it uses the SDK and command line tools that are provided by Xcode.
+Install Xcode from Apple, which you can find in the Mac App Store. The openMSX build is not done inside the Xcode IDE, but it uses the SDK and command line tools that are provided by Xcode.
 </p>
 
 <h4>Visual C++</h4>
 
-<p>To build with Visual C++ you need to have the latest version of it installed. Currently, this is 2015 update 1.</p>
+<p>To build with Visual C++ you need to have the latest version of it installed. Currently, this is 2015 update 3.</p>
 
-<p>There are three different ways to obtain the Visual C++ compiler:</p>
+<p>There are two different ways to obtain the Visual C++ compiler:</p>
 <dl>
 
 <dt>
@@ -209,26 +205,17 @@ purchase or via an MSDN subscription.</dd>
 
 	<dt><a class="external" href="http://www.visualstudio.com/downloads/download-visual-studio-vs#d-express-windows-desktop">Visual Studio Express for Windows Desktop</a></dt>
 	<dd>This is a free (as in beer) IDE and development environment. It builds 32 and 64-bit binaries out of the box. Make sure you download the latest version. </dd>
-	<dt>If you require the resulting binaries to run on Windows XP, the <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a>
-	is required. To generate an MSI installation package,
-	<a class="external" href="http://wixtoolset.org/">WiX</a> package must
-	be installed.</dt>
 
 </dl>
 
-<dl>
+<p>To generate an MSI installation package, you also need:</p>
 
-<dt>
-<a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a></dt>
-<dd>This is the SDK that contains DirectX headers, libs, samples, documentation,
-etc. We recommend using the <a href="http://go.microsoft.com/fwlink/?LinkId=271274">
-June 2010</a> version. This is a large download, about 580MB. To build
-openMSX, only the headers and libs are truly required. Download only when you want the resulting binaries to run on Windows XP as well.</dd>
+<dl>
 
 <dt> <a class="external" href="http://wixtoolset.org/">WiX</a></dt>
 <dd>This is a tool that generates MSI installer packages. We recommend using
-version 3.0 or later. If you see a message that the &quot;Votive&quot; component won't install, that's not
-a problem, just continue.</dd>
+version 3.0 or later. If you see a message that the &quot;Votive&quot;
+component won't install, that's not a problem, just continue.</dd>
 
 </dl>
 
@@ -353,7 +340,7 @@ sudo apt-get build-dep openmsx
 Do note that if the Debian/Ubuntu package that is in the version of the distribution you are currently running is older than the openMSX version you are trying to compile (which is typically so), you might miss some dependencies that were added in the newer version. The build system will complain and you will have to install the remaining (missing) packages manually. Read on to get some tips about that.
 </p>
 
-<h5>Dingux</h5>
+<h5>OpenDingux</h5>
 
 <p>We only support the <a class="internal" href="#standalone">Stand-alone
 Binary</a> method, which means the openMSX build system will download
@@ -558,14 +545,13 @@ Now that all the necessary tools and libraries are installed,
 you are almost ready to start the actual compilation of openMSX.
 </p>
 
-<h4>GCC</h4>
+<h4>GCC / clang</h4>
 
 <p>
 The first thing you may want to know is that you can build openMSX in
 different flavours. The default flavour depends on the CPU, but is always one that is optimized for performance. For example for x86 processors the default
 flavour is "i686": i.e., with optimisations for Pentium II and higher,
-without any debugging stuff. Note: On an older VIA Epia (with the Samuel 2 CPU at least), a binary built with "i686" flavour will not run. Please
-use the "opt" flavour for that platform.
+without any debugging stuff. The generic optimized flavour "opt" should work for all CPUs.
 </p>
 <p>
 If you are testing new openMSX developments or making changes in openMSX, you can benefit from asserts and debug symbols. To get those, you should select the "devel" flavour, like this:
@@ -578,13 +564,19 @@ Although the default flavours will probably be OK for most cases, you may want t
 </p>
 
 <p>
-You can select the C++ compiler to be used like this:
+You can select the C++ compiler to be used by setting the <code>CXX</code> environment variable like this:
 </p>
 <div class="commandline">
-export CXX=g++-4.7
+export CXX=g++-5
 </div>
 <p>
-This can be useful if the default compiler on your system is an old GCC version which is either not capable of compiling openMSX, or generates less efficient code.
+or:
+</p>
+<div class="commandline">
+export CXX=clang++
+</div>
+<p>
+This can be useful if the default compiler on your system is an old version which is either not capable of compiling openMSX, or generates less efficient code.
 </p>
 
 <p>
@@ -644,12 +636,8 @@ If that doesn't help, or we forgot to list a library openMSX depends on,
 Make sure you provide us with the error message you got.
 </p>
 
-<h4>clang</h4>
-
-<h5>Linux and BSD</h5>
-
 <p>
-Add <code>CXX=clang++</code> as an argument to the <code>make</code> command to select clang as the compiler instead of GCC.
+If you want to debug openMSX compilation problems yourself, you can add <code>V=1</code> (verbose) to the Make command line to see all build commands as they are executed.
 </p>
 
 <h5>Mac OS X</h5>
@@ -761,7 +749,7 @@ If you additionally want to build an (by current developers unused) openMSX inst
 Note: on a 64-bit Windows system, MinGW will pretend to have built 64-bit binaries (target directory is <code>derived\x86_64-mingw32-opt-3rd\bindist\install</code>), but they're actually just 32-bit.
 </p>
 
-<h5>Dingux</h5>
+<h5>OpenDingux</h5>
 
 <p>After having the toolchain installed, you can simply compile openMSX with
 this command:</p>
@@ -769,7 +757,7 @@ this command:</p>
 make staticbindist OPENMSX_TARGET_CPU=mipsel OPENMSX_TARGET_OS=dingux OPENMSX_FLAVOUR=opt
 </div>
 
-<p>When this is done, you have a ready to use ZIP file for distribution in the folder <code>derived/mipsel-dingux-opt-3rd/</code>.</p>
+<p>When this is done, you have a ready to use OPK file for distribution in the folder <code>derived/mipsel-dingux-opt-3rd/</code>.</p>
 
 <h4>Visual C++</h4>
 
@@ -786,7 +774,7 @@ dynamic library dependencies. Two platforms are supported:</p>
 	<li><strong>Developer</strong>: assertions enabled, debug prints disabled, no optimization</li>
 	<li><strong>Release</strong>: assertions disabled, debug prints disabled, full optimization</li>
 </ul>
-<p>When building with Visual C++, you can either use the IDE or build from the command line using <code>msbuild</code>. To do the latter, you need to open a Visual Studio command prompt. A shortcut to a Visual Studio command prompt can usually be found in your start menu. For Visual Studio (Express) 2013, it will be in &quot;Microsoft Visual Studio 2013\Visual Studio Tools&quot; as the &quot;Visual Studio Command Prompt&quot;.</p>
+<p>When building with Visual C++, you can either use the IDE or build from the command line using <code>msbuild</code>. To do the latter, you need to open a Visual Studio command prompt. A shortcut to a Visual Studio command prompt can usually be found in your start menu. For Visual Studio (Express) 2015, it will be in &quot;Microsoft Visual Studio 2015\Visual Studio Tools&quot; as the &quot;Visual Studio Command Prompt&quot;.</p>
 <!-- TODO - Replace this section when we have integration with the broader 3rd party system -->
 <p>In order to build openMSX, the libraries it depends on need to be
 downloaded and unpacked:</p>
@@ -835,21 +823,9 @@ The following step creates .zip and .msi installation packages for openMSX on Wi
 
 <p>The resulting package files can be found in <code>derived\x64-VC-Release\package-windows.</code></p>
 
-<h4>Dingux</h4>
+<h4>OpenDingux</h4>
 
-<p>From the ZIP created in the previous step (or downloaded from the openMSX
-download site), copy the directory named <code>local</code> to the root of the
-Dingux miniSD card. If you have run Dingux from the miniSD card before, there
-will already be a directory named <code>local</code>. You can safely merge both
-directories.
-</p>
-
-<p>
-To get it in your own menu, you'll have to add the openMSX entry to it
-yourself. Use the start up script <code>openmsx-start.sh</code> for this, which
-is installed in <code>local/bin</code>. Even without the menu, you
-will have to use this script to start openMSX, it won't work otherwise.
-</p>
+<p>Just copy the OPK file into the <code>apps</code> directory.</p>
 
 <h2><a id="androidbuild">6. Android build</a></h2>
 
@@ -1024,6 +1000,12 @@ and ask your question there. Also reachable via <a class="external" href="http:/
 Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a>.
 </li>
 <li>
+Create a new issue in the
+<a class="external" href="https://github.com/openMSX/openMSX/issues">openMSX issue tracker</a>
+on GitHub.
+You need a (free) log-in on GitHub to get access.
+</li>
+<li>
 Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible problems,
 join our <code>openmsx-user</code> mailing list.
 If you want to address the openMSX developers directly,
@@ -1031,12 +1013,6 @@ post a message to the <code>openmsx-devel</code> mailing list.
 More info on the
 <a class="external" href="https://sourceforge.net/p/openmsx/mailman">openMSX mailing lists</a>,
 including an archive of old messages, can be found at SourceForge.
-</li>
-<li>
-Create a new issue in the
-<a class="external" href="https://github.com/openMSX/openMSX/issues">openMSX issue tracker</a>
-on GitHub.
-You need a (free) log-in on GitHub to get access.
 </li>
 </ol>
 

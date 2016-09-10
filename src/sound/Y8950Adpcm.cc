@@ -408,7 +408,7 @@ void Y8950Adpcm::writeMemory(unsigned memPntr, byte value)
 {
 	unsigned addr = (memPntr / 2) & addrMask;
 	if ((addr < ram.getSize()) && !romBank) {
-		ram[addr] = value;
+		ram.write(addr, value);
 	}
 }
 byte Y8950Adpcm::readMemory(unsigned memPntr) const

@@ -10,7 +10,7 @@
     <type>MSX2</type>
   </info>
 
-<!-- Note: I'm not 100% sure the mentioned SHA1 sums are of correct dumps -->
+<!-- ROM dumps and initial content verified on George van Halderen's machine -->
 
   <MapperReadBackBits>largest</MapperReadBackBits>
 
@@ -94,8 +94,7 @@
           <drives>1</drives>
           <rom>
             <filename>hb-f700d_disk.rom</filename>
-            <sha1>0e081572f84555dc13bdb0c7044a19d6c164d985</sha1>
-            <sha1>7dcd434d9a244e23afd212d3fea4c3bf3fe2a300</sha1> <!-- This seems to be some kind of faster disk ROM, certainly not original! -->
+            <sha1>0e081572f84555dc13bdb0c7044a19d6c164d985</sha1> <!-- Except for register area of course, verified by George -->
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </WD2793>
@@ -104,6 +103,7 @@
       <secondary slot="3">
         <MemoryMapper id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJxjYBhY8H+AAQAioH+B</initialContent> <!-- ((chr(0) * 128) + (chr(255) * 128)) -->
           <size>256</size>
         </MemoryMapper>
       </secondary>

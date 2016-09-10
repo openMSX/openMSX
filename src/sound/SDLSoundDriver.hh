@@ -25,17 +25,17 @@ public:
 	unsigned getFrequency() const override;
 	unsigned getSamples() const override;
 
-	void uploadBuffer(short* buffer, unsigned len) override;
+	void uploadBuffer(int16_t* buffer, unsigned len) override;
 
 private:
 	void reInit();
 	unsigned getBufferFilled() const;
 	unsigned getBufferFree() const;
 	static void audioCallbackHelper(void* userdata, byte* strm, int len);
-	void audioCallback(short* stream, unsigned len);
+	void audioCallback(int16_t* stream, unsigned len);
 
 	Reactor& reactor;
-	MemBuffer<short> mixBuffer;
+	MemBuffer<int16_t> mixBuffer;
 	unsigned mixBufferSize;
 	unsigned frequency;
 	unsigned fragmentSize;

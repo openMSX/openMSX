@@ -14,6 +14,7 @@
 #include "openmsx.hh"
 #include "outer.hh"
 #include <memory>
+#include <array>
 
 namespace openmsx {
 
@@ -121,19 +122,18 @@ public:
 		return (version & VM_VRAM_REMAPPING) != 0;
 	}
 
-	/** Is this a VDP with a Toshiba palette?
-	  * @return True iff this VDP has the Toshiba palette
-	  */
-	inline bool hasToshibaPalette() const {
-		return (version & VM_TOSHIBA_PALETTE) != 0;
-	}
-
 	/** Does this VDP support YJK display?
 	  * @return True for V9958, false otherwise.
 	  */
 	inline bool hasYJK() const {
 		return (version & VM_YJK) != 0;
 	}
+
+	/** Get the (fixed) palette for this MSX1 VDP.
+	  * Don't use this if it's not an MSX1 VDP!
+	  * @return an array of 16 RGB triplets
+	  */
+	const std::array<std::array<uint8_t,3>,16> getMSX1Palette() const;
 
 	/** Get the display mode the VDP is in.
 	  * @return The current display mode.
@@ -578,12 +578,12 @@ private:
 	};
 
 	struct SyncBase : public Schedulable {
-		SyncBase(VDP& vdp_) : Schedulable(vdp_.getScheduler()) {}
+		explicit SyncBase(VDP& vdp_) : Schedulable(vdp_.getScheduler()) {}
 		friend class VDP;
 	};
 
 	struct SyncVSync : public SyncBase {
-		SyncVSync(VDP& vdp) : SyncBase(vdp) {}
+		explicit SyncVSync(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncVSync);
 			vdp.execVSync(time);
@@ -591,7 +591,7 @@ private:
 	} syncVSync;
 
 	struct SyncDisplayStart : public SyncBase {
-		SyncDisplayStart(VDP& vdp) : SyncBase(vdp) {}
+		explicit SyncDisplayStart(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncDisplayStart);
 			vdp.execDisplayStart(time);
@@ -599,7 +599,7 @@ private:
 	} syncDisplayStart;
 
 	struct SyncVScan : public SyncBase {
-		SyncVScan(VDP& vdp) : SyncBase(vdp) {}
+		explicit SyncVScan(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncVScan);
 			vdp.execVScan(time);
@@ -607,7 +607,7 @@ private:
 	} syncVScan;
 
 	struct SyncHScan : public SyncBase {
-		SyncHScan(VDP& vdp) : SyncBase(vdp) {}
+		explicit SyncHScan(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& vdp = OUTER(VDP, syncHScan);
 			vdp.execHScan();
@@ -615,7 +615,7 @@ private:
 	} syncHScan;
 
 	struct SyncHorAdjust : public SyncBase {
-		SyncHorAdjust(VDP& vdp) : SyncBase(vdp) {}
+		explicit SyncHorAdjust(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncHorAdjust);
 			vdp.execHorAdjust(time);
@@ -623,7 +623,7 @@ private:
 	} syncHorAdjust;
 
 	struct SyncSetMode : public SyncBase {
-		SyncSetMode(VDP& vdp) : SyncBase(vdp) {}
+		explicit SyncSetMode(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncSetMode);
 			vdp.execSetMode(time);
@@ -631,7 +631,7 @@ private:
 	} syncSetMode;
 
 	struct SyncSetBlank : public SyncBase {
-		SyncSetBlank(VDP& vdp) : SyncBase(vdp) {}
+		explicit SyncSetBlank(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncSetBlank);
 			vdp.execSetBlank(time);
@@ -639,7 +639,7 @@ private:
 	} syncSetBlank;
 
 	struct SyncCpuVramAccess : public SyncBase {
-		SyncCpuVramAccess(VDP& vdp) : SyncBase(vdp) {}
+		explicit SyncCpuVramAccess(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncCpuVramAccess);
 			vdp.execCpuVramAccess(time);
@@ -855,37 +855,37 @@ private:
 	};
 
 	struct FrameCountInfo final : Info {
-		FrameCountInfo(VDP& vdp);
+		explicit FrameCountInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} frameCountInfo;
 
 	struct CycleInFrameInfo final : Info {
-		CycleInFrameInfo(VDP& vdp);
+		explicit CycleInFrameInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} cycleInFrameInfo;
 
 	struct LineInFrameInfo final : Info {
-		LineInFrameInfo(VDP& vdp);
+		explicit LineInFrameInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} lineInFrameInfo;
 
 	struct CycleInLineInfo final : Info {
-		CycleInLineInfo(VDP& vdp);
+		explicit CycleInLineInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} cycleInLineInfo;
 
 	struct MsxYPosInfo final : Info {
-		MsxYPosInfo(VDP& vdp);
+		explicit MsxYPosInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} msxYPosInfo;
 
 	struct MsxX256PosInfo final : Info {
-		MsxX256PosInfo(VDP& vdp);
+		explicit MsxX256PosInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} msxX256PosInfo;
 
 	struct MsxX512PosInfo final : Info {
-		MsxX512PosInfo(VDP& vdp);
+		explicit MsxX512PosInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} msxX512PosInfo;
 
@@ -946,6 +946,18 @@ private:
 	/** VDP version.
 	  */
 	VdpVersion version;
+
+	/** Saturation of Pr component of TMS9XXXA output circuitry.
+	  * The output of the VDP and the circuitry between the output and the
+	  * output connector influences this value. Percentage in range [0:100]
+	  */
+	int saturationPr;
+
+	/** Saturation of Pb component of TMS9XXXA output circuitry.
+	  * The output of the VDP and the circuitry between the output and the
+	  * output connector influences this value. Percentage in range [0:100]
+	  */
+	int saturationPb;
 
 	/** The number of already fully rendered frames.
 	  * Not used for actual emulation, only for 'frame_count' info topic.

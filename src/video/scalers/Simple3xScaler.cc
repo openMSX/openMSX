@@ -17,7 +17,7 @@ namespace openmsx {
 template <class Pixel> class Blur_1on3
 {
 public:
-	Blur_1on3(const PixelOperations<Pixel>& pixelOps);
+	explicit Blur_1on3(const PixelOperations<Pixel>& pixelOps);
 	inline void setBlur(unsigned blur_) { blur = blur_; }
 	void operator()(const Pixel* in, Pixel* out, size_t dstWidth);
 private:

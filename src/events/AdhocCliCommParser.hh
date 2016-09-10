@@ -8,7 +8,7 @@
 class AdhocCliCommParser
 {
 public:
-	AdhocCliCommParser(std::function<void(const std::string&)> callback);
+	explicit AdhocCliCommParser(std::function<void(const std::string&)> callback);
 	void parse(const char* buf, size_t n);
 
 private:

@@ -28,7 +28,7 @@ public:
 
 protected:
 	StateChange() : time(EmuTime::zero) {} // for serialize
-	StateChange(EmuTime::param time_)
+	explicit StateChange(EmuTime::param time_)
 		: time(time_)
 	{
 	}

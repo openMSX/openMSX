@@ -3,6 +3,106 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.13.0 (2016-07-31)
+---------------------------
+
+This again was meant to be (mostly) a bug fix release, but again it also has
+some nice additions and improvements to enjoy. Important improvements are much
+better support for VDP I/O delay in turbo machines (fixing graphics issues due
+to too fast VDP access there), more accurate MSX1 color palette, progress
+reporting for long operations and ALSA MIDI-out support for Linux. This is also
+one of the first releases that drops support for older platforms: Windows XP,
+Dingoo A320 (but introducing support for GCW Zero) and non-64-bit MacOSX. If
+you still want to run openMSX on these, you'll be stuck on using a previous
+release or start maintaining these platforms yourself.
+
+Here's the list with all highlights and details:
+
+MSX device support:
+- fixed bug in ASCII-8 mapper of MegaFlashROM SCC+ (SD)
+- fixed bug in border drawing in text mode with YJK/YAE bits
+- fixed bug in LMMC VDP command that appeared in Baltak Rampage greetings part
+- fixed bug in YMF278 (OPL4 wave part) preventing samples to be played sometimes
+- improved R800 timing for the CALL instruction
+- added missing hardware VDP delay in turbo mode of MSX2+ machines
+- improved accuracy and completeness of the Matsushita switched I/O ports
+  device:
+  - added bits on turbo status and presence
+  - added the device to the Sanyo MSX2+ machines (without SRAM and turbo)
+  - removed fixed VDP I/O delay (because it is linked to the T9769 engine)
+- added support for the different fixed VDP I/O delays of the different T9769
+  engines and added these to the configuration files of the machine that have
+  these (as far as that is known)
+- added support for Epson Chakkari Copy, thanks to Rudolf Lechleitner and
+  Enrico Barbisan
+- added 2MB MegaRAM extension (thanks to Mauricio Braga)
+- added MIDI Interface 3 extension (cart that implements turboR GT internal
+  MIDI without BIOS ROM)
+- added support for mapper of Japanese MSX Write
+- added support for Spectravideo SVI-707 disk drive
+- added support for the V9990 POINT VDP command
+- added support for more realistic TMS VDP pallettes: it's now possible to
+  specify the saturation for the Pb and Pr channel (this is dependent on the
+  analog electronics in the MSX video circuit) which affects the palette. E.g.
+  all machines with TMS9x2x have a brighter palette now, as they should.
+- added weird color palette of the Fujitsu FM-X RGB output (3 bit RGB)
+- added a high-resolution timer extension: a cartridge with a 32-bit counter
+  that counts at 3.57 MHz. Useful for debugging and reverse engineering. Only
+  one such real cartridge exists :)
+- added new machines: Aucnet NIA-2001 MSXturboR (thanks to PiterPunk/NYYRIKKI),
+  Frael BRUC_100 version 1 and 2 (thanks to RJP, FRS, et al), Pioneer UC-V102
+  (thanks to PiterPunk), Victor HC-80 (thanks to Daniele), Toshiba HX-23F and
+  HX-23 (thanks to FRS)
+- added new extension: Sanyo MRS-001 RS-232C cartridge (thanks to mtn)
+
+New or improved emulator features:
+- fixed bug in parsing remote command XML (causing e.g. ROM names with special
+  characters not to get communicated to openMSX correctly from Catapult)
+- fixed crash in 'reverse goback'
+- fixed inserting a slotexpander in a specific slot
+- fixed slowness issue when taking screenshots frame by frame
+- fixed support of files larger than 2GB (e.g. hard disk images) on Windows
+- fixed VDP status flag when using cmdtiming broking (infinitely fast VDP
+  commands)
+- fixed excessive delay on 'reverse goto' with ram watch enabled
+- OSD menu:
+  - fixed (un)plugging (connectors)/pluggables with spaces in their name
+  - fixed loading savestate with more than one . in its filename
+  - support up to 2 hard disk images (just like ROMs and disk drives)
+- fixed bug that cassette image was removed when doing reverse goto 0
+- fixed save_msx_screen for 2nd page of screen 7-12 (thanks to FRS)
+- improved robustness of DirAsDisk
+- added progress update reporting when doing operations that take a lot of time
+  (like calculating a hash of a large file or doing a large step in a replay)
+- fixed unintended extra calculation of hash for hard disk images when
+  reversing
+- made joystickN_deadzone setting's numbering consistent with joystickN_config;
+  both are now 0-based
+- added debuggable for printer port, containing strobe and data byte
+- added experimental support for ALSA MIDI out (Linux): now it's much easier to
+  connect MSX MIDI out devices to a soft synth or other application on Linux
+- improved support for UNC paths on Windows (network drives)
+- added a script to speed up the type command: type_via_keybuf (thanks to
+  NYYRIKKI for the initial version). Default type implementation can now be
+  tuned with the new default_type_proc setting.
+
+Build system, packaging, documentation:
+- to compile with gcc you now need gcc 4.8 or higher
+- updated Visual Studio projects to Visual Studio 2015
+- dropped support for Windows XP, because it seems Visual Studio 2015 has bugs
+  in supporting it
+- dropped support for Dingoo A320, because its toolchain is now so outdated
+  that it can't compile the openMSX source code any longer
+- added build, packaging and documentation support for GCW Zero
+- dropped support for universal binaries on Mac OS X, as all supported Mac OS X
+  versions require x86-64 CPU's
+- updated Tcl to 8.5.18
+- updated libpng to 1.6.20
+- now optionally link to libasound on Linux (for the ALSA MIDI support)
+- added debug flag to build system that shows which commands are executed:
+  make V=1
+- improved description on how to use MegaFlashROM SCC+ SD
+
 openMSX 0.12.0 (2015-09-12)
 ---------------------------
 

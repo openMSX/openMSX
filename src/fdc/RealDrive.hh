@@ -50,7 +50,7 @@ public:
 private:
 	struct SyncLoadingTimeout : Schedulable {
 		friend class RealDrive;
-		SyncLoadingTimeout(Scheduler& s) : Schedulable(s) {}
+		explicit SyncLoadingTimeout(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& drive = OUTER(RealDrive, syncLoadingTimeout);
 			drive.execLoadingTimeout();
@@ -59,7 +59,7 @@ private:
 
 	struct SyncMotorTimeout : Schedulable {
 		friend class RealDrive;
-		SyncMotorTimeout(Scheduler& s) : Schedulable(s) {}
+		explicit SyncMotorTimeout(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& drive = OUTER(RealDrive, syncMotorTimeout);
 			drive.execMotorTimeout(time);

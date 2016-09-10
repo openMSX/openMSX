@@ -4,7 +4,7 @@
 #include "ResampledSoundDevice.hh"
 #include "SimpleDebuggable.hh"
 #include "Rom.hh"
-#include "MemBuffer.hh"
+#include "TrackedRam.hh"
 #include "EmuTime.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
@@ -54,7 +54,7 @@ private:
 				     // invariant: step == calcStep(OCT, FN)
 		unsigned stepptr;    // fixed-point pointer into the sample
 		unsigned pos;
-		short sample1, sample2;
+		int16_t sample1, sample2;
 
 		int env_vol;
 
@@ -63,8 +63,8 @@ private:
 		int lfo_max;
 
 		int DL;
-		short wave;		// wavetable number
-		short FN;		// f-number         TODO store 'FN | 1024'?
+		int16_t wave;		// wavetable number
+		int16_t FN;		// f-number         TODO store 'FN | 1024'?
 		char OCT;		// octave [0..15]   TODO store sign-extended?
 		char PRVB;		// pseudo-reverb
 		char LD;		// level direct
@@ -91,7 +91,7 @@ private:
 
 	void writeRegDirect(byte reg, byte data, EmuTime::param time);
 	unsigned getRamAddress(unsigned addr) const;
-	short getSample(Slot& op);
+	int16_t getSample(Slot& op);
 	void advance();
 	bool anyActive();
 	void keyOnHelper(Slot& slot);
@@ -121,8 +121,7 @@ private:
 	int pcm_l, pcm_r;
 
 	Rom rom;
-	const unsigned ramSize;
-	MemBuffer<byte> ram;
+	TrackedRam ram;
 
 	/** Precalculated attenuation values with some margin for
 	  * envelope and pan levels.
@@ -132,7 +131,7 @@ private:
 	byte regs[256];
 };
 SERIALIZE_CLASS_VERSION(YMF278::Slot, 3);
-SERIALIZE_CLASS_VERSION(YMF278, 3);
+SERIALIZE_CLASS_VERSION(YMF278, 4);
 
 } // namespace openmsx
 

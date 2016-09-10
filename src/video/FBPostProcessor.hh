@@ -34,7 +34,7 @@ private:
 	void preCalcNoise(float factor);
 	void drawNoise(OutputSurface& output);
 	void drawNoiseLine(Pixel* buf, signed char* noise,
-	                   unsigned long width);
+	                   size_t width);
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;

@@ -30,13 +30,13 @@ public:
 		: dat(nullptr), siz(0) {}
 	string_ref(const string_ref& s)
 		: dat(s.dat), siz(s.siz) {}
-	string_ref(const char* s)
+	/*implicit*/ string_ref(const char* s)
 		: dat(s), siz(s ? size_type(strlen(s)) : 0) {}
 	string_ref(const char* s, size_type len)
 		: dat(s), siz(len) { if (!dat) assert(siz == 0); }
 	string_ref(const char* first, const char* last)
 		: dat(first), siz(last - first) { if (!dat) assert(siz == 0); }
-	string_ref(const std::string& s)
+	/*implicit*/ string_ref(const std::string& s)
 		: dat(s.data()), siz(s.size()) {}
 
 	string_ref& operator=(const string_ref& rhs) {

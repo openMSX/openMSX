@@ -173,7 +173,7 @@ int DirectXSoundDriver::dxCanWrite(unsigned start, unsigned size)
 	}
 }
 
-void DirectXSoundDriver::dxWriteOne(short* buffer, unsigned lockSize)
+void DirectXSoundDriver::dxWriteOne(int16_t* buffer, unsigned lockSize)
 {
 	void *audioBuffer1, *audioBuffer2;
 	DWORD audioSize1, audioSize2;
@@ -200,7 +200,7 @@ void DirectXSoundDriver::dxWriteOne(short* buffer, unsigned lockSize)
 	bufferOffset %= bufferSize;
 }
 
-void DirectXSoundDriver::uploadBuffer(short* buffer, unsigned count)
+void DirectXSoundDriver::uploadBuffer(int16_t* buffer, unsigned count)
 {
 	if (state == DX_SOUND_DISABLED) return;
 

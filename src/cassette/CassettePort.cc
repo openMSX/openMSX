@@ -55,8 +55,9 @@ CassettePort::CassettePort(const HardwareConfig& hwConf)
 	, lastOutput(false)
 	, motorControl(false)
 {
-	getPluggingController().registerPluggable(
-		make_unique<CassettePlayer>(hwConf));
+	auto player = make_unique<CassettePlayer>(hwConf);
+	cassettePlayer = player.get();
+	getPluggingController().registerPluggable(std::move(player));
 }
 
 CassettePort::~CassettePort()
@@ -89,7 +90,7 @@ bool CassettePort::cassetteIn(EmuTime::param time)
 	// All analog filtering is ignored for now
 	//   only important component is DC-removal
 	//   we just assume sample has no DC component
-	short sample;
+	int16_t sample;
 #if COMPONENT_LASERDISC
 	if (!motorControl && laserdiscPlayer) {
 		sample = laserdiscPlayer->readSample(time);
@@ -130,10 +131,17 @@ CassetteDevice& CassettePort::getPluggedCasDev() const
 }
 
 template<typename Archive>
-void CassettePort::serialize(Archive& ar, unsigned /*version*/)
+void CassettePort::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<Connector>(*this);
 	// don't serialize 'lastOutput', done via MSXPPI
+
+	// Must come after serialization of the connector because that one
+	// potentionally serializes the CassettePlayer.
+	if (ar.versionAtLeast(version, 2)) {
+		// always serialize CassettePlayer, even if it's not plugged in.
+		ar.serializeOnlyOnce("cassettePlayer", *cassettePlayer);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(CassettePort);
 

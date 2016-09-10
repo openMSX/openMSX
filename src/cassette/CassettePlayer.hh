@@ -31,7 +31,7 @@ public:
 
 	// CassetteDevice
 	void setMotor(bool status, EmuTime::param time) override;
-	short readSample(EmuTime::param time) override;
+	int16_t readSample(EmuTime::param time) override;
 	void setSignal(bool output, EmuTime::param time) override;
 
 	// Pluggable
@@ -116,7 +116,7 @@ private:
 	// Schedulable
 	struct SyncEndOfTape : Schedulable {
 		friend class CassettePlayer;
-		SyncEndOfTape(Scheduler& s) : Schedulable(s) {}
+		explicit SyncEndOfTape(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& cp = OUTER(CassettePlayer, syncEndOfTape);
 			cp.execEndOfTape(time);
@@ -124,7 +124,7 @@ private:
 	} syncEndOfTape;
 	struct SyncAudioEmu : Schedulable {
 		friend class CassettePlayer;
-		SyncAudioEmu(Scheduler& s) : Schedulable(s) {}
+		explicit SyncAudioEmu(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& cp = OUTER(CassettePlayer, syncAudioEmu);
 			cp.execSyncAudioEmu(time);

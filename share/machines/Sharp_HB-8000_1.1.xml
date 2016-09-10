@@ -29,6 +29,7 @@
     <VDP id="VDP">
       <version>TMS9128</version>
       <io base="0x98" num="2"/>
+      <saturation>50</saturation> <!-- LM1889 encoder -->
     </VDP>
 
     <PSG id="PSG">

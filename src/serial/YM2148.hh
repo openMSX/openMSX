@@ -43,7 +43,7 @@ private:
 	// Schedulable
 	struct SyncRecv : Schedulable {
 		friend class YM2148;
-		SyncRecv(Scheduler& s) : Schedulable(s) {}
+		explicit SyncRecv(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& ym2148 = OUTER(YM2148, syncRecv);
 			ym2148.execRecv(time);
@@ -51,7 +51,7 @@ private:
 	} syncRecv;
 	struct SyncTrans : Schedulable {
 		friend class YM2148;
-		SyncTrans(Scheduler& s) : Schedulable(s) {}
+		explicit SyncTrans(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& ym2148 = OUTER(YM2148, syncTrans);
 			ym2148.execTrans(time);

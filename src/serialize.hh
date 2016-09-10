@@ -20,6 +20,9 @@
 
 namespace openmsx {
 
+class LastDeltaBlocks;
+class DeltaBlock;
+
 template<typename T> struct SerializeClassVersion;
 
 // In this section, the archive classes are defined.
@@ -122,7 +125,8 @@ public:
 	//        (polymorphic) constructors are also described.
 	//
 	//
-	// void serialize_blob(const char* tag, const void* data, size_t len)
+	// void serialize_blob(const char* tag, const void* data, size_t len,
+	//                     bool diff = true)
 	//
 	//   Serialize the given data as a binary blob.
 	//   This cannot be part of the serialize() method above because we
@@ -190,6 +194,9 @@ public:
 
 	/** Does this archive store version information. */
 	bool needVersion() const { return true; }
+
+	/** Is this a reverse-snapshot? */
+	bool isReverseSnapshot() const { return false; }
 
 	/** Does this archive store enums as strings.
 	 * See also struct serialize_as_enum.
@@ -430,7 +437,8 @@ public:
 
 	// Default implementation is to base64-encode the blob and serialize
 	// the resulting string. But memory archives will memcpy the blob.
-	void serialize_blob(const char* tag, const void* data, size_t len);
+	void serialize_blob(const char* tag, const void* data, size_t len,
+	                    bool diff = true);
 
 	template<typename T> void serialize(const char* tag, const T& t)
 	{
@@ -451,6 +459,12 @@ public:
 		static_assert(std::is_polymorphic<T>::value,
 		              "must be a polymorphic type");
 		PolymorphicSaverRegistry<Derived>::save(tag, this->self(), t);
+	}
+	template<typename T> void serializeOnlyOnce(const char* tag, const T& t)
+	{
+		if (!getId(&t)) {
+			serializeWithID(tag, t);
+		}
 	}
 
 	// You shouldn't use this, it only exists for backwards compatibility
@@ -484,6 +498,7 @@ public:
 /*internal*/
 	void* getPointer(unsigned id);
 	void addPointer(unsigned id, const void* p);
+	unsigned getId(const void* p) const;
 
 	template<typename T> void resetSharedPtr(std::shared_ptr<T>& s, T* r)
 	{
@@ -517,7 +532,8 @@ public:
 	{
 		doSerialize(tag, t, std::tuple<Args...>(args...));
 	}
-	void serialize_blob(const char* tag, void* data, size_t len);
+	void serialize_blob(const char* tag, void* data, size_t len,
+	                    bool diff = true);
 
 	template<typename T>
 	void serialize(const char* tag, T& t)
@@ -543,6 +559,12 @@ public:
 		static_assert(std::is_polymorphic<T>::value,
 		              "must be a polymorphic type");
 		PolymorphicInitializerRegistry<Derived>::init(tag, this->self(), &t);
+	}
+	template<typename T> void serializeOnlyOnce(const char* tag, const T& t)
+	{
+		if (!getId(&t)) {
+			serializeWithID(tag, t);
+		}
 	}
 
 	// You shouldn't use this, it only exists for backwards compatibility
@@ -574,7 +596,12 @@ protected:
 class MemOutputArchive final : public OutputArchiveBase<MemOutputArchive>
 {
 public:
-	MemOutputArchive()
+	MemOutputArchive(LastDeltaBlocks& lastDeltaBlocks_,
+	                 std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks_,
+			 bool reverseSnapshot_)
+		: lastDeltaBlocks(lastDeltaBlocks_)
+		, deltaBlocks(deltaBlocks_)
+		, reverseSnapshot(reverseSnapshot_)
 	{
 	}
 
@@ -584,6 +611,7 @@ public:
 	}
 
 	bool needVersion() const { return false; }
+	bool isReverseSnapshot() const { return reverseSnapshot; }
 
 	template <typename T> void save(const T& t)
 	{
@@ -594,7 +622,8 @@ public:
 		save(c);
 	}
 	void save(const std::string& s);
-	void serialize_blob(const char*, const void* data, size_t len);
+	void serialize_blob(const char*, const void* data, size_t len,
+	                    bool diff = true);
 
 	void beginSection()
 	{
@@ -626,13 +655,18 @@ private:
 
 	OutputBuffer buffer;
 	std::vector<size_t> openSections;
+	LastDeltaBlocks& lastDeltaBlocks;
+	std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks;
+	const bool reverseSnapshot;
 };
 
 class MemInputArchive final : public InputArchiveBase<MemInputArchive>
 {
 public:
-	MemInputArchive(const byte* data, size_t size)
+	MemInputArchive(const byte* data, size_t size,
+	                const std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks_)
 		: buffer(data, size)
+		, deltaBlocks(deltaBlocks_)
 	{
 	}
 
@@ -656,7 +690,8 @@ public:
 	}
 	void load(std::string& s);
 	string_ref loadStr();
-	void serialize_blob(const char*, void* data, size_t len);
+	void serialize_blob(const char*, void* data, size_t len,
+	                    bool diff = true);
 
 	void skipSection(bool skip)
 	{
@@ -676,6 +711,7 @@ private:
 	}
 
 	InputBuffer buffer;
+	const std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks;
 };
 
 ////
@@ -683,7 +719,7 @@ private:
 class XmlOutputArchive final : public OutputArchiveBase<XmlOutputArchive>
 {
 public:
-	XmlOutputArchive(const std::string& filename);
+	explicit XmlOutputArchive(const std::string& filename);
 	~XmlOutputArchive();
 
 	template <typename T> void saveImpl(const T& t)
@@ -738,7 +774,7 @@ private:
 class XmlInputArchive final : public InputArchiveBase<XmlInputArchive>
 {
 public:
-	XmlInputArchive(const std::string& filename);
+	explicit XmlInputArchive(const std::string& filename);
 
 	inline bool versionAtLeast(unsigned actual, unsigned required) const
 	{

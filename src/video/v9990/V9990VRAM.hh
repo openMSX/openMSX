@@ -2,7 +2,7 @@
 #define V9990VRAM_HH
 
 #include "V9990CmdEngine.hh"
-#include "Ram.hh"
+#include "TrackedRam.hh"
 #include "EmuTime.hh"
 #include "openmsx.hh"
 
@@ -62,20 +62,20 @@ public:
 	}
 
 	inline void writeVRAMBx(unsigned address, byte value) {
-		data[transformBx(address)] = value;
+		data.write(transformBx(address), value);
 	}
 	inline void writeVRAMP1(unsigned address, byte value) {
-		data[transformP1(address)] = value;
+		data.write(transformP1(address), value);
 	}
 	inline void writeVRAMP2(unsigned address, byte value) {
-		data[transformP2(address)] = value;
+		data.write(transformP2(address), value);
 	}
 
 	inline byte readVRAMDirect(unsigned address) {
 		return data[address];
 	}
 	inline void writeVRAMDirect(unsigned address, byte value) {
-		data[address] = value;
+		data.write(address, value);
 	}
 
 	byte readVRAMCPU(unsigned address, EmuTime::param time);
@@ -97,7 +97,7 @@ private:
 
 	/** V9990 VRAM data.
 	  */
-	Ram data;
+	TrackedRam data;
 };
 
 } // namespace openmsx

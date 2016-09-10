@@ -15,7 +15,7 @@ class HD;
 class SdCard
 {
 public:
-	SdCard(const DeviceConfig& config);
+	explicit SdCard(const DeviceConfig& config);
 	~SdCard();
 
 	byte transfer(byte value, bool cs);

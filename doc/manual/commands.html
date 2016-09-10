@@ -16,8 +16,8 @@
   <h1>openMSX Console Command Reference</h1>
 
   <ol class="inlinetoccat">
-    <li>Introduction</li>
-    <li>Commands
+    <li><a class="internal" href="#introduction">Introduction</a></li>
+    <li><a class="internal" href="#commands">Commands</a>
 
       <ol class="inlinetoc">
         <li><a class="internal" href="#after">after</a></li>
@@ -72,7 +72,7 @@
         <li><a class="internal" href="#test_machine">test_machine</a></li>
         <li><a class="internal" href="#toggle">toggle</a></li>
         <li><a class="internal" href="#trainer">trainer</a></li>
-        <li><a class="internal" href="#type">type</a></li>
+        <li><a class="internal" href="#type">type / type_via_keyboard</a></li>
         <li><a class="internal" href="#unset">unset</a></li>
         <li><a class="internal" href="#user_setting">user_setting</a></li>
         <li><a class="internal" href="#vdpregs">vdpregs</a></li>
@@ -80,7 +80,7 @@
       </ol>
     </li>
 
-    <li>Settings
+    <li><a class="internal" href="#settings">Settings</a>
 
       <ol class="inlinetoc">
         <li><a class="internal" href="#accuracy">accuracy</a></li>
@@ -759,7 +759,7 @@
     </tr>
     <tr>
       <td><code>debug probe set_bp &lt;probe&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
-      <td>Set a breakpoint of a probe. Like in the 'set_bp' subcommand you can optionally specify a condition and a command.</td>
+      <td>Set a breakpoint on a probe. Like in the 'set_bp' subcommand you can optionally specify a condition and a command.</td>
     </tr>
     <tr>
       <td><code>debug probe remove_bp &lt;id&gt;</code></td>
@@ -899,6 +899,8 @@
 
   <p>Insert an MSX extension in a running MSX machine. The <code>ext</code> command inserts the extension in the first available slot. The <code>exta</code>, <code>extb</code> etc. commands insert it in the specified slot. The extension can be removed again with the <code><a class="internal" href="#remove_extension">remove_extension</a></code>
   command. See also the commands <code><a class="internal" href="#cart">cart</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code> and <code><a class="internal" href="#remove_extension">remove_extension</a></code>.</p>
+
+  <p>To get a list of possible extensions it's convenient to use the tab-completetion feature, i.e. type '<code>ext&lt;space&gt;&lt;tab&gt;</code>'. Alternatively the command '<code><a class="internal" href="#openmsx_info">openmsx_info</a> extensions</code>' gives you the same information (and is easier to use in a scripting context).</p>
 
   <p>Note that some extensions (i.e. those without any memory) will not physically occupy any slot when inserted, even when they were inserted in a specific slot.</p>
 
@@ -1067,7 +1069,7 @@
     <tr>
       <td><code>incr &lt;setting&gt; &lt;num&gt;</code></td>
 
-      <td>Increment the specified setting by the given amount</td>
+      <td>Increment the specified setting by the given amount (can be negative)</td>
     </tr>
   </table>
 
@@ -1130,7 +1132,7 @@
 
   <p>Controls the Laserdisc player; a Laserdisc can be inserted or ejected. When a real Laserdisc player is connected to an MSX, no other controls are available either.</p>
 
-  <p>Note that this command is only available when the Pioneer PX-7 or Pioneer PX-V60 is being emulated</p>
+  <p>Note that this command is only available when the Pioneer PX-7 or Pioneer PX-V60 MSX machine is being emulated</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1242,11 +1244,11 @@
   <table>
     <tr>
       <td><code>diska &lt;diskimage&gt;</code></td>
-      <td>execute diska command in the active machine</td>
+      <td>execute the diska command in the active machine</td>
     </tr>
     <tr>
       <td><code>&lt;machine-ID&gt;::diska &lt;diskimage&gt;</code></td>
-      <td>execute diska command in the specified machine</td>
+      <td>execute the diska command in the specified machine</td>
     </tr>
   </table>
 
@@ -1963,7 +1965,7 @@
     </tr>
   </table>
 
-  <p>The settings that can be adjusted with this command are listed and explained at the end of this document.</p>
+  <p>The settings that can be adjusted with this command are listed and explained <a class="internal" href="#settings">later</a> in this document.</p>
 
   <div class="subsectiontitle">
     examples:
@@ -2185,7 +2187,7 @@
     <code>trainer Pippols lives "jump shoes"</code>
   </div>
 
-  <h3><a id="type">type</a></h3>
+  <h3><a id="type">type / type_via_keyboard</a></h3>
 
   <p>Type a string in the emulated MSX. This command automatically presses and
   releases keys in the simulated MSX keyboard matrix. This command is useful
@@ -2199,6 +2201,15 @@
   how long the keys will be pressed (and released if the <code>-release</code>
   option is used). Keys will be typed at the given frequency and will remain
   pressed/released for 1/freq seconds.</p>
+
+  <p>This command should always work, because it is just like as if a user was
+  actually typing on the MSX keyboard. It is therefore a bit slow, though.
+  Check out the <code>type_via_keybuf</a></code> command if you're looking for
+  something faster (but more limited in where it works). With the
+  <code>default_type_proc</code> setting you can even make
+  <code>type_via_keybuf</code> the standard implementation for the
+  <code>type</code> command. Only do this if you really know what you're
+  doing!</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2293,11 +2304,11 @@
   <table>
     <tr>
       <td><code>about</code></td>
-      <td>Search command and setting help-texts for given keyword</td>
+      <td>Search command and setting help-texts for the given keyword</td>
     </tr>
     <tr>
       <td><code>cpuregs</code></td>
-      <td>Gives overview of the CPU registers</td>
+      <td>Gives an overview of the CPU registers</td>
     </tr>
     <tr>
       <td><code>data_file</code></td>
@@ -2305,7 +2316,7 @@
     </tr>
     <tr>
       <td><code>disasm</code></td>
-      <td>Print disassembled instructions at given memory location</td>
+      <td>Print disassembled instructions at the given memory location</td>
     </tr>
     <tr>
       <td><code>getcolor</code></td>
@@ -2357,19 +2368,19 @@
     </tr>
     <tr>
       <td><code>peek</code></td>
-      <td>Read a byte from given memory location</td>
+      <td>Read a byte from the given memory location</td>
     </tr>
     <tr>
       <td><code>peek16</code></td>
-      <td>Read a 16 bit word from given memory location</td>
+      <td>Read a 16 bit word from the given memory location</td>
     </tr>
     <tr>
       <td><code>poke</code></td>
-      <td>Write a byte to given memory location. Use <code>dpoke</code> to only write if the to be written value is different than the current value.</td>
+      <td>Write a byte to the given memory location. Use <code>dpoke</code> to only write if the to be written value is different from the current value.</td>
     </tr>
     <tr>
       <td><code>poke16</code></td>
-      <td>Write a 16 bit word to given memory location</td>
+      <td>Write a 16 bit word to the given memory location</td>
     </tr>
     <tr>
       <td><code>psg_log</code></td>
@@ -2393,11 +2404,15 @@
     </tr>
     <tr>
       <td><code>run_to</code></td>
-      <td>Execute instructions until PC reaches specified address</td>
+      <td>Execute instructions until the PC reaches the specified address</td>
     </tr>
     <tr>
       <td><code>save_debuggable</code></td>
       <td>Save the (partial) content of a debuggable to a file</td>
+    </tr>
+    <tr>
+      <td><code>save_msx_screen</code></td>
+      <td>Saves the current MSX screen into an MSX compatible binary file (BLOAD format).</td>
     </tr>
     <tr>
       <td><code>save_to_file</code></td>
@@ -2465,7 +2480,7 @@
     </tr>
     <tr>
       <td><code>toggle_fps</code></td>
-      <td>Show (or hide) an fps indicator</td>
+      <td>Show (or hide) a frames-per-second (fps) indicator</td>
     </tr>
     <tr>
       <td><code>toggle_frame_counter</code></td>
@@ -2497,7 +2512,7 @@
     </tr>
     <tr>
       <td><code>toggle_osd_keyboard</code></td>
-      <td>Show (or hide) an on-screen keyboard (mostly useful for devices without physical keyboard); only supports an international layout for now</td>
+      <td>Show (or hide) an on-screen keyboard (mostly useful for devices without physical keyboard); only supports an international keyboard-layout for now</td>
     </tr>
     <tr>
       <td><code>toggle_psg2scc</code></td>
@@ -2534,6 +2549,10 @@
     <tr>
       <td><code>toggle_vu_meters</code></td>
       <td>Show (or hide) a graphical view of the volumes of the sound channels of several sound chips</td>
+    </tr>
+    <tr>
+      <td><code>type_via_keybuf</code></td>
+      <td>Alternative to the <code>type_via_keyboard</code> (the default <code><a class="internal" href="#type">type</a></code> command), that uses the keyboard buffer; only works if the running software uses the standard keyboard buffer functions to get keyboard input, but is much faster</td>
     </tr>
     <tr>
       <td><code>umrcallback</code></td>
@@ -2967,7 +2986,7 @@
   <h3><a id="consolefont">consolefont</a></h3>
 
   <p>Change the console font. This should be the filename of a True Type Font. The default value is <code>skins/VeraMono.ttf.gz</code>.</p>
-  <p>Font files of other types than True Type Fonts (TTF) are not supported.</p>
+  <p>Font files of other types than True Type Fonts (TTF) are not supported. The font must also be monospaced.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3071,7 +3090,7 @@
     <tr>
       <td><code>set consolerows &lt;value&gt;</code></td>
 
-      <td>Set the specified width</td>
+      <td>Set the specified number of rows</td>
     </tr>
   </table>
 
@@ -3522,7 +3541,7 @@
 
   <p>Sets the amount of gamma correction. A value of 1.0 will turn off gamma correction. Lower values will result in a darker image, higher values in a brighter image.</p>
 
-  <p>If you want to get a realistic picture, set the openMSX gamma correction to <i>PC gamma / MSX gamma</i>. TVs use a standardised gamma of 2.5, let's take that as the value of <i>MSX gamma</i>. You can measure the gamma of your PC screen with a simple test such as the Gamma Measurement Image in <a class="external" href="http://www.bberger.net/rwb/gamma.html">Robert W. Berger's "An Explanation of Monitor Gamma"</a>. If your <i>PC gamma</i> would be for example 2.0, the most realistic value for gamma correction would be 2.0 / 2.5 = 0.8.</p>
+  <p>If you want to get a realistic picture, set the openMSX gamma correction to <i>PC gamma / MSX gamma</i>. TVs use a standardised gamma of 2.5, let's take that as the value of <i>MSX gamma</i>. You can measure the gamma of your PC screen with a simple test such as the Gamma Measurement Image in <a class="external" href="https://web.archive.org/web/20150714015749/http://www.bberger.net/rwb/gamma.html">Robert W. Berger's "An Explanation of Monitor Gamma"</a>. If your <i>PC gamma</i> would be for example 2.0, the most realistic value for gamma correction would be 2.0 / 2.5 = 0.8.</p>
 
   <p>Alternatively, you can just try a few values and see what you like.</p>
 

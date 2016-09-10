@@ -167,15 +167,15 @@ public:
 	static const unsigned X_AXIS = 0;
 	static const unsigned Y_AXIS = 1;
 
-	JoystickAxisMotionEvent(unsigned joystick, unsigned axis, short value);
+	JoystickAxisMotionEvent(unsigned joystick, unsigned axis, int value);
 	unsigned getAxis() const { return axis; }
-	short getValue() const { return value; }
+	int getValue() const { return value; }
 
 private:
 	void toStringImpl(TclObject& result) const override;
 	bool lessImpl(const JoystickEvent& other) const override;
 	const unsigned axis;
-	const short value;
+	const int value;
 };
 
 class JoystickHatEvent : public JoystickEvent

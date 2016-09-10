@@ -17,6 +17,7 @@ Visit the Scale2x site for info:
 #include "vla.hh"
 #include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #ifdef __SSE2__
 #include "emmintrin.h" // SSE2
@@ -145,7 +146,7 @@ template<bool DOUBLE_X, typename Pixel> static inline void scaleSSE(
 	const Pixel* __restrict in0_,   // top input line
 	const Pixel* __restrict in1_,   // middle output line
 	const Pixel* __restrict in2_,   // bottom output line
-	unsigned long width)
+	size_t width)
 {
 	// Must be properly aligned.
 	assert((reinterpret_cast<uintptr_t>(in0_ ) % sizeof(__m128i)) == 0);
@@ -161,7 +162,7 @@ template<bool DOUBLE_X, typename Pixel> static inline void scaleSSE(
 	width -= sizeof(__m128i); // handle last unit special
 
 	static const int SHIFT = sizeof(__m128i) - sizeof(Pixel);
-	static const unsigned long SCALE = DOUBLE_X ? 2 : 1;
+	static const size_t SCALE = DOUBLE_X ? 2 : 1;
 
 	// Generated code seems more efficient when all address calculations
 	// are done in bytes. Negative loop counter allows for a more efficient
@@ -171,7 +172,7 @@ template<bool DOUBLE_X, typename Pixel> static inline void scaleSSE(
 	auto* in2  = reinterpret_cast<const char*>(in2_ ) +         width;
 	auto* out0 = reinterpret_cast<      char*>(out0_) + SCALE * width;
 	auto* out1 = reinterpret_cast<      char*>(out1_) + SCALE * width;
-	long x = -long(width);
+	ptrdiff_t x = -ptrdiff_t(width);
 
 	// Setup for first unit
 	__m128i next = *reinterpret_cast<const __m128i*>(in1 + x);
@@ -215,7 +216,7 @@ template <class Pixel>
 inline void Scale2xScaler<Pixel>::scaleLine_1on2(
 	Pixel* __restrict dst0, Pixel* __restrict dst1,
 	const Pixel* __restrict src0, const Pixel* __restrict src1,
-	const Pixel* __restrict src2, unsigned long srcWidth) __restrict
+	const Pixel* __restrict src2, size_t srcWidth) __restrict
 {
 	// For some reason, for the c++ version, processing the two output
 	// lines separately is faster than merging them in a single loop (even
@@ -234,7 +235,7 @@ template <class Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	unsigned long srcWidth) __restrict
+	size_t srcWidth) __restrict
 {
 	//   n      m is expaned to a b
 	// w m e                    c d
@@ -272,7 +273,7 @@ template <class Pixel>
 inline void Scale2xScaler<Pixel>::scaleLine_1on1(
 	Pixel* __restrict dst0, Pixel* __restrict dst1,
 	const Pixel* __restrict src0, const Pixel* __restrict src1,
-	const Pixel* __restrict src2, unsigned long srcWidth) __restrict
+	const Pixel* __restrict src2, size_t srcWidth) __restrict
 {
 #ifdef __SSE2__
 	scaleSSE<false>(dst0, dst1, src0, src1, src2, srcWidth);
@@ -286,7 +287,7 @@ template <class Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 	Pixel* __restrict dst, const Pixel* __restrict src0,
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
-	unsigned long srcWidth) __restrict
+	size_t srcWidth) __restrict
 {
 	//    ab ef
 	// x0 12 34 5x

@@ -18,11 +18,11 @@ public:
 	using difference_type   = typename std::iterator_traits<map_iter>::difference_type;
 	using iterator_category = std::forward_iterator_tag;
 
-	KeyIterator(map_iter it_) : it(it_) {}
+	/*implicit*/ KeyIterator(map_iter it_) : it(it_) {}
 	reference operator*() const { return std::get<N>(*it); }
 	KeyIterator& operator++() { ++it; return *this; }
-	bool operator==(KeyIterator& other) const { return it == other.it; }
-	bool operator!=(KeyIterator& other) const { return it != other.it; }
+	bool operator==(const KeyIterator& other) const { return it == other.it; }
+	bool operator!=(const KeyIterator& other) const { return it != other.it; }
 private:
 	map_iter it;
 };
@@ -30,7 +30,7 @@ private:
 template<typename MAP, size_t N> class KeyRange
 {
 public:
-	KeyRange(const MAP& map_)
+	explicit KeyRange(const MAP& map_)
 		: map(map_) {}
 
 	KeyIterator<MAP, N> begin() const { return map.begin(); }

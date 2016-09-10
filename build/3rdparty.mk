@@ -30,7 +30,6 @@ SYSTEM_LIBS:=$(shell $(PYTHON) build/list_system_libs.py $(OPENMSX_TARGET_OS))
 # These variables are already exported, but we make it explicit here.
 export CC
 export NEXT_ROOT
-export MACOSX_DEPLOYMENT_TARGET
 
 CC=$(_CC)
 

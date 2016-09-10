@@ -58,7 +58,7 @@ namespace openmsx {
 class AddRemoveUpdate
 {
 public:
-	AddRemoveUpdate(MSXMotherBoard& motherBoard);
+	explicit AddRemoveUpdate(MSXMotherBoard& motherBoard);
 	~AddRemoveUpdate();
 private:
 	MSXMotherBoard& motherBoard;
@@ -67,7 +67,7 @@ private:
 class ResetCmd final : public RecordedCommand
 {
 public:
-	ResetCmd(MSXMotherBoard& motherBoard);
+	explicit ResetCmd(MSXMotherBoard& motherBoard);
 	void execute(array_ref<TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
 	string help(const vector<string>& tokens) const override;
@@ -78,7 +78,7 @@ private:
 class LoadMachineCmd final : public Command
 {
 public:
-	LoadMachineCmd(MSXMotherBoard& motherBoard);
+	explicit LoadMachineCmd(MSXMotherBoard& motherBoard);
 	void execute(array_ref<TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
@@ -89,7 +89,7 @@ private:
 class ListExtCmd final : public Command
 {
 public:
-	ListExtCmd(MSXMotherBoard& motherBoard);
+	explicit ListExtCmd(MSXMotherBoard& motherBoard);
 	void execute(array_ref<TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 private:
@@ -99,7 +99,7 @@ private:
 class RemoveExtCmd final : public RecordedCommand
 {
 public:
-	RemoveExtCmd(MSXMotherBoard& motherBoard);
+	explicit RemoveExtCmd(MSXMotherBoard& motherBoard);
 	void execute(array_ref<TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
 	string help(const vector<string>& tokens) const override;
@@ -111,7 +111,7 @@ private:
 class MachineNameInfo final : public InfoTopic
 {
 public:
-	MachineNameInfo(MSXMotherBoard& motherBoard);
+	explicit MachineNameInfo(MSXMotherBoard& motherBoard);
 	void execute(array_ref<TclObject> tokens,
 	             TclObject& result) const override;
 	string help(const vector<string>& tokens) const override;
@@ -122,7 +122,7 @@ private:
 class DeviceInfo final : public InfoTopic
 {
 public:
-	DeviceInfo(MSXMotherBoard& motherBoard);
+	explicit DeviceInfo(MSXMotherBoard& motherBoard);
 	void execute(array_ref<TclObject> tokens,
 	             TclObject& result) const override;
 	string help(const vector<string>& tokens) const override;
@@ -134,7 +134,7 @@ private:
 class FastForwardHelper final : private Schedulable
 {
 public:
-	FastForwardHelper(MSXMotherBoard& msxMotherBoardImpl);
+	explicit FastForwardHelper(MSXMotherBoard& msxMotherBoardImpl);
 	void setTarget(EmuTime::param targetTime);
 private:
 	void executeUntil(EmuTime::param time) override;
@@ -144,7 +144,7 @@ private:
 class JoyPortDebuggable final : public SimpleDebuggable
 {
 public:
-	JoyPortDebuggable(MSXMotherBoard& motherBoard);
+	explicit JoyPortDebuggable(MSXMotherBoard& motherBoard);
 	byte read(unsigned address, EmuTime::param time) override;
 	void write(unsigned address, byte value) override;
 };
@@ -152,7 +152,7 @@ public:
 class SettingObserver final : public Observer<Setting>
 {
 public:
-	SettingObserver(MSXMotherBoard& motherBoard);
+	explicit SettingObserver(MSXMotherBoard& motherBoard);
 	void update(const Setting& setting) override;
 private:
 	MSXMotherBoard& motherBoard;

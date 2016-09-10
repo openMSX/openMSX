@@ -2,6 +2,7 @@
 #define OPENMSX_HH
 
 #include "build-info.hh"
+#include <cstdint>
 
 #if PLATFORM_ANDROID
 #include <android/log.h>
@@ -19,13 +20,13 @@
 namespace openmsx {
 
 /** 4 bit integer */
-using nibble = unsigned char;
+using nibble = uint8_t;
 
 /** 8 bit unsigned integer */
-using byte = unsigned char;
+using byte = uint8_t;
 
 /** 16 bit unsigned integer */
-using word = unsigned short;
+using word = uint16_t;
 
 
 #if defined(__GNUC__) && \
