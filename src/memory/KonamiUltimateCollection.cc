@@ -16,11 +16,11 @@
 7     A21 \
 6     A20 / FlashROM address lines to switch 2 MB banks.
 5     Mapper mode  :   Select Konami mapper (0=SCC or 1=normal). [1]
-4     Write enable
+4     Flash write enable
 3     Disable #4000-#5FFF mapper in Konami mode, Enable DAC (works like the DAC of Synthesizer or Majutsushi)
 2     Disable mapper register
-1     Disable mapper
-0     Enable 512K mapper limit in SCC mapper or 256K limit in Konami mapper
+1     Disable mapper (bank switching)
+0     no function anymore (was mapper limits)
 
 [1] bit 5 only changes the address range of the mapper (Konami or Konami SCC)
 but the SCC is always available.  This feature is inherited from MFC SCC+ subslot
@@ -63,62 +63,51 @@ void KonamiUltimateCollection::reset(EmuTime::param time)
 {
 	mapperReg = 0;
 	offsetReg = 0;
+	sccMode = 0;
 	for (int bank = 0; bank < 4; ++bank) {
 		bankRegs[bank] = bank;
 	}
 
-	sccMode = 0;
-	for (int i = 0; i < 4; ++i) {
-		sccBanks[i] = i;
-	}
 	scc.reset(time);
 	dac.reset(time);
 
 	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
 }
 
-void KonamiUltimateCollection::writeToFlash(unsigned addr, byte value)
-{
-	if (isFlashRomWriteEnabled()) {
-		flash.write(addr, value);
-	} else {
-		// flash is write protected, this is implemented by not passing
-		// writes to flash at all.
-	}
-}
-
-KonamiUltimateCollection::SCCEnable KonamiUltimateCollection::getSCCEnable() const
-{
-	if ((sccMode & 0x20) && (sccBanks[3] & 0x80)) {
-		return EN_SCCPLUS;
-	} else if ((!(sccMode & 0x20)) && ((sccBanks[2] & 0x3F) == 0x3F)) {
-		return EN_SCC;
-	} else {
-		return EN_NONE;
-	}
-}
-
 unsigned KonamiUltimateCollection::getFlashAddr(unsigned addr) const
 {
-	unsigned page = ((addr >> 13) - 2);
-	unsigned size = 0x2000;
+	unsigned page8kB = (addr >> 13) - 2;
+	if (page8kB >= 4) return unsigned(-1); // outside [0x4000, 0xBFFF]
 
-	if (page >= 4) return unsigned(-1); // outside [0x4000, 0xBFFF]
+	byte bank = bankRegs[page8kB] + offsetReg; // wrap at 8 bit
+	return ((mapperReg & 0xC0) << (21 - 6)) | (bank << 13) | (addr & 0x1FFF);
+}
 
-	unsigned bank = bankRegs[page];
-	bank += offsetReg;
+bool KonamiUltimateCollection::isSCCAccess(word addr) const
+{
+	if (sccMode & 0x10) return false;
 
-	unsigned tmp = (bank * size) + (addr & (size - 1));
-	return tmp & 0x7FFFFF; // wrap at 8MB
+	if (addr & 0x0100) {
+		// Address bit 8 must be zero, this is different from a real
+		// SCC/SCC+. According to Manuel Pazos this is a leftover from
+		// an earlier version that had 2 SCCs: the SCC on the left or
+		// right channel reacts when address bit 8 is respectively 0/1.
+		return false;
+	}
+
+	if (sccMode & 0x20) {
+		// SCC+   range: 0xB800..0xBFFF,  excluding 0xBFFE-0xBFFF
+		return  (bankRegs[3] & 0x80)          && (0xB800 <= addr) && (addr < 0xBFFE);
+	} else {
+		// SCC    range: 0x9800..0x9FFF,  excluding 0x9FFE-0x9FFF
+		return ((bankRegs[2] & 0x3F) == 0x3F) && (0x9800 <= addr) && (addr < 0x9FFE);
+	}
 }
 
 byte KonamiUltimateCollection::readMem(word addr, EmuTime::param time)
 {
-	SCCEnable enable = getSCCEnable();
-	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
-	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-		byte val = scc.readMem(addr & 0xFF, time);
-		return val;
+	if (isSCCAccess(addr)) {
+		return scc.readMem(addr & 0xFF, time);
 	}
 
 	unsigned flashAddr = getFlashAddr(addr);
@@ -129,11 +118,8 @@ byte KonamiUltimateCollection::readMem(word addr, EmuTime::param time)
 
 byte KonamiUltimateCollection::peekMem(word addr, EmuTime::param time) const
 {
-	SCCEnable enable = getSCCEnable();
-	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
-	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-		byte val = scc.peekMem(addr & 0xFF, time);
-		return val;
+	if (isSCCAccess(addr)) {
+		return scc.peekMem(addr & 0xFF, time);
 	}
 
 	unsigned flashAddr = getFlashAddr(addr);
@@ -144,11 +130,7 @@ byte KonamiUltimateCollection::peekMem(word addr, EmuTime::param time) const
 
 const byte* KonamiUltimateCollection::getReadCacheLine(word addr) const
 {
-	SCCEnable enable = getSCCEnable();
-	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
-	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-		return nullptr;
-	}
+	if (isSCCAccess(addr)) return nullptr;
 
 	unsigned flashAddr = getFlashAddr(addr);
 	return (flashAddr != unsigned(-1))
@@ -158,8 +140,8 @@ const byte* KonamiUltimateCollection::getReadCacheLine(word addr) const
 
 void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param time)
 {
-	// address is calculated before writes to other regions take effect
-	unsigned flashAddr = getFlashAddr(addr);
+	unsigned page8kB = (addr >> 13) - 2;
+	if (page8kB >= 4) return; // outside [0x4000, 0xBFFF]
 
 	// There are several overlapping functional regions in the address
 	// space. A single write can trigger behaviour in multiple regions. In
@@ -168,92 +150,76 @@ void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param ti
 	// This only goes for places where the flash is 'seen', so not for the
 	// SCC registers
 
-	if (!isMapperRegisterDisabled() && (addr == 0x7FFF)) {
-		// write mapper register
-		mapperReg = value;
-		// write offset register high part (bit 8 and 9)
-		offsetReg = (offsetReg & 0xFF) + (((value & 0xC0) >> 6) << 8);
+	if (isSCCAccess(addr)) {
+		scc.writeMem(addr & 0xFF, value, time);
+		return; // write to SCC blocks write to other functions
+	}
 
+	// address is calculated before writes to other regions take effect
+	unsigned flashAddr = getFlashAddr(addr);
+
+	// Mapper and offset registers
+	if (isMapperRegisterEnabled()) {
+		if (addr == 0x7FFF) {
+			mapperReg = value;
+		} else if (addr == 0x7FFE) {
+			offsetReg = value;
+		}
 		invalidateMemCache(0x0000, 0x10000); // flush all to be sure
 	}
 
-	if (!areBankRegsAndOffsetRegsDisabled() && (addr == 0x7FFE)) {
-		// write offset register low part
-		offsetReg = (offsetReg & 0x300) | value;
-		invalidateMemCache(0x0000, 0x10000);
-	}
 
-	// Konami-SCC
-	if ((addr & 0xFFFE) == 0xBFFE) {
-		sccMode = value;
-		scc.setChipMode((value & 0x20) ? SCC::SCC_plusmode
-					       : SCC::SCC_Compatible);
-		invalidateMemCache(0x9800, 0x800);
-		invalidateMemCache(0xB800, 0x800);
-	}
-	SCCEnable enable = getSCCEnable();
-	bool isRamSegment2 = ((sccMode & 0x24) == 0x24) ||
-			     ((sccMode & 0x10) == 0x10);
-	bool isRamSegment3 = ((sccMode & 0x10) == 0x10);
-	if (((enable == EN_SCC)     && !isRamSegment2 &&
-	     (0x9800 <= addr) && (addr < 0xA000)) ||
-	    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
-	     (0xB800 <= addr) && (addr < 0xC000))) {
-		scc.writeMem(addr & 0xFF, value, time);
-		return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
-	}
-
-	if (isWritingKonamiBankRegisterDisabled() && (addr < 0x6000)) {
+	// DAC
+	if (isBank0Disabled() && (addr < 0x6000) && ((addr & 0x0010) == 0)) {
 		dac.writeDAC(value, time);
 	}
 
-	unsigned page8kB = (addr >> 13) - 2;
-	if (!areBankRegsAndOffsetRegsDisabled() && (page8kB < 4)) {
-		// (possibly) write to bank registers
-		// Konami-SCC
-		if ((addr & 0x1800) == 0x1000) {
-			// Storing 'sccBanks' may seem redundant at
-			// first, but it's required to calculate
-			// whether the SCC is enabled or not.
-			sccBanks[page8kB] = value;
-			if (isKonamiSCCmapperConfigured()) {
-				// Masking of the mapper bits is done on
-				// write (and only in Konami(-scc) mode)
-				byte mask = areKonamiMapperLimitsEnabled() ? 0x3F : 0xFF;
-				bankRegs[page8kB] = value & mask;
+	if (areBankRegsEnabled()) {
+		// Bank-switching
+		if (isKonamiSCCmode()) {
+			// Konami-SCC
+			if ((addr & 0x1800) == 0x1000) {
+				// [0x5000,0x57FF] [0x7000,0x77FF]
+				// [0x9000,0x97FF] [0xB000,0xB7FF]
+				// Masking of the mapper bits is done on write
+				bankRegs[page8kB] = value;
+				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			}
-			invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
-		}
-		// Konami
-		if (!isKonamiSCCmapperConfigured()) {
-			if (isWritingKonamiBankRegisterDisabled() && (addr < 0x6000)) {
-				// Switching 0x4000-0x5FFF disabled.
-				// This bit blocks writing to the bank register
-				// (an alternative was forcing a 0 on read).
-				// It only has effect in Konami mode.
-				// DAC is already handled above.
+		} else {
+			// Konami
+			if (isBank0Disabled() && (addr < 0x6000)) {
+				// Switching 0x4000-0x5FFF disabled (only Konami mode).
 			} else {
-				// Masking of the mapper bits is done on
-				// write (and only in Konami(-scc) mode)
-				if (!((addr < 0x5000) || ((0x5800 <= addr) && (addr < 0x6000))))
-				{
-					// only SCC range works
-					byte mask = areKonamiMapperLimitsEnabled() ? 0x1F : 0xFF;
-					bankRegs[page8kB] = value & mask;
+				// [0x5000,0x57FF] asymmetric!!!
+				// [0x6000,0x7FFF] [0x8000,0x9FFF] [0xA000,0xBFFF]
+				if (!((addr < 0x5000) || ((0x5800 <= addr) && (addr < 0x6000)))) {
+					// Masking of the mapper bits is done on write
+					bankRegs[page8kB] = value;
 					invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
 				}
 			}
 		}
+
+		// SCC mode register
+		if ((addr & 0xFFFE) == 0xBFFE) {
+			sccMode = value;
+			scc.setChipMode((value & 0x20) ? SCC::SCC_plusmode
+						       : SCC::SCC_Compatible);
+			invalidateMemCache(0x9800, 0x800);
+			invalidateMemCache(0xB800, 0x800);
+		}
 	}
 
-	if (flashAddr != unsigned(-1)) {
-		writeToFlash(flashAddr, value);
+	if ((flashAddr != unsigned(-1)) && isFlashRomWriteEnabled()) {
+		flash.write(flashAddr, value);
 	}
 }
 
-byte* KonamiUltimateCollection::getWriteCacheLine(word /*addr*/) const
+byte* KonamiUltimateCollection::getWriteCacheLine(word addr) const
 {
-	return nullptr; // flash isn't cacheable
+	return ((0x4000 <= addr) && (addr < 0xC000))
+	       ? nullptr        // [0x4000,0xBFFF] isn't cacheable
+	       : unmappedWrite;
 }
 
 template<typename Archive>
@@ -265,10 +231,9 @@ void KonamiUltimateCollection::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("flash", flash);
 	ar.serialize("scc", scc);
 	ar.serialize("DAC", dac);
-	ar.serialize("sccMode", sccMode);
-	ar.serialize("sccBanks", sccBanks);
 	ar.serialize("mapperReg", mapperReg);
 	ar.serialize("offsetReg", offsetReg);
+	ar.serialize("sccMode", sccMode);
 	ar.serialize("bankRegs", bankRegs);
 }
 INSTANTIATE_SERIALIZE_METHODS(KonamiUltimateCollection);

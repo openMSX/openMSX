@@ -25,31 +25,24 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	enum SCCEnable { EN_NONE, EN_SCC, EN_SCCPLUS };
-	SCCEnable getSCCEnable() const;
-
-	/**
-	 * Writes to flash only if it was not write protected.
-	 */
-	void writeToFlash(unsigned addr, byte value);
-	AmdFlash flash;
+	bool isSCCAccess(word addr) const;
         unsigned getFlashAddr(unsigned addr) const;
 
+	bool isKonamiSCCmode()         const { return (mapperReg & 0x20) == 0; }
+	bool isFlashRomWriteEnabled()  const { return (mapperReg & 0x10) != 0; }
+	bool isBank0Disabled()         const { return (mapperReg & 0x08) != 0; }
+	bool isMapperRegisterEnabled() const { return (mapperReg & 0x04) == 0; }
+	bool areBankRegsEnabled()      const { return (mapperReg & 0x02) == 0; }
+
+private:
+	AmdFlash flash;
 	SCC scc;
 	DACSound8U dac;
 
 	byte mapperReg;
-	bool isKonamiSCCmapperConfigured()         const { return (mapperReg & 0x20) == 0; }
-	bool isFlashRomWriteEnabled()              const { return (mapperReg & 0x10) != 0; }
-	bool isWritingKonamiBankRegisterDisabled() const { return (mapperReg & 0x08) != 0; }
-	bool isMapperRegisterDisabled()            const { return (mapperReg & 0x04) != 0; }
-	bool areBankRegsAndOffsetRegsDisabled()    const { return (mapperReg & 0x02) != 0; }
-	bool areKonamiMapperLimitsEnabled()        const { return (mapperReg & 0x01) != 0; }
-	unsigned offsetReg;
-
-	byte bankRegs[4];
+	byte offsetReg;
 	byte sccMode;
-	byte sccBanks[4];
+	byte bankRegs[4];
 };
 
 } // namespace openmsx
