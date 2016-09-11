@@ -2761,8 +2761,8 @@
     <None Include="$(OpenMSXSrcDir)\serialize_stl.hh" />
     <None Include="$(OpenMSXSrcDir)\ThrottleManager.hh" />
     <None Include="$(OpenMSXSrcDir)\Version.hh" />
-	<None Include="$(OpenMSXSrcDir)\SVIPSG.hh" />
-	<None Include="$(OpenMSXSrcDir)\SVIFDC.hh" />
+	<None Include="$(OpenMSXSrcDir)\sound\SVIPSG.hh" />
+	<None Include="$(OpenMSXSrcDir)\fdc\SVIFDC.hh" />
 	<None Include="$(OpenMSXSrcDir)\SVIPrinterPort.hh" />
 	<None Include="$(OpenMSXSrcDir)\SVIPPI.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.hh">
