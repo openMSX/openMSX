@@ -37,8 +37,9 @@ public:
 		PHASE_INIT,              // calls Reactor::init()
 		PHASE_BEFORE_SETTINGS,   // -setting, -nommx, ...
 		PHASE_LOAD_SETTINGS,     // loads settings.xml
-		PHASE_BEFORE_MACHINE,    // -machine
-		PHASE_LOAD_MACHINE,      // loads machine hardwareconfig.xml
+		PHASE_BEFORE_MACHINE,    // before -machine
+		PHASE_LOAD_MACHINE,      // -machine
+		PHASE_DEFAULT_MACHINE,   // default machine
 		PHASE_LAST,              // all the rest
 	};
 

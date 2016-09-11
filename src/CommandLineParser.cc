@@ -71,7 +71,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	#endif
 	registerOption("-testconfig", testConfigOption, PHASE_BEFORE_SETTINGS, 1);
 
-	registerOption("-machine",    machineOption, PHASE_BEFORE_MACHINE);
+	registerOption("-machine",    machineOption, PHASE_LOAD_MACHINE);
 
 	registerFileType("tcl", scriptOption);
 
@@ -213,7 +213,7 @@ void CommandLineParser::parse(int argc, char** argv)
 				settingsConfig.setSaveFilename(context, filename);
 			}
 			break;
-		case PHASE_LOAD_MACHINE: {
+		case PHASE_DEFAULT_MACHINE: {
 			if (!haveConfig) {
 				// load default config file in case the user didn't specify one
 				const auto& machine =
