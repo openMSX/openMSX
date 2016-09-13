@@ -31,6 +31,18 @@ using std::unique_ptr;
 
 namespace openmsx {
 
+class Sha1SumCommand final : public Command
+{
+public:
+	Sha1SumCommand(CommandController& commandController, FilePool& filePool);
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
+private:
+	FilePool& filePool;
+};
+
+
 const char* const FILE_CACHE = "/.filecache";
 
 static string initialFilePoolSettingValue()
@@ -68,6 +80,8 @@ FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 	reactor.getEventDistributor().registerEventListener(OPENMSX_QUIT_EVENT, *this);
 	readSha1sums();
 	needWrite = false;
+
+	sha1SumCommand = make_unique<Sha1SumCommand>(controller, *this);
 }
 
 FilePool::~FilePool()
@@ -508,6 +522,34 @@ int FilePool::signalEvent(const std::shared_ptr<const Event>& event)
 	assert(event->getType() == OPENMSX_QUIT_EVENT);
 	quit = true;
 	return 0;
+}
+
+
+// class Sha1SumCommand
+
+Sha1SumCommand::Sha1SumCommand(
+		CommandController& commandController_, FilePool& filePool_)
+	: Command(commandController_, "sha1sum")
+	, filePool(filePool_)
+{
+}
+
+void Sha1SumCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+{
+	if (tokens.size() != 2) throw SyntaxError();
+	File file(tokens[1].getString());
+	result.setString(filePool.getSha1Sum(file).toString());
+}
+
+string Sha1SumCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Calculate sha1 value for the given file. If the file is "
+	       "(g)zipped the sha1 is calculated on the unzipped version.";
+}
+
+void Sha1SumCommand::tabCompletion(vector<string>& tokens) const
+{
+	completeFileName(tokens, userFileContext());
 }
 
 } // namespace openmsx

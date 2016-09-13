@@ -18,6 +18,7 @@ namespace openmsx {
 class CommandController;
 class Reactor;
 class File;
+class Sha1SumCommand;
 
 class FilePool final : private Observer<Setting>, private EventListener
 {
@@ -89,6 +90,8 @@ private:
 	Pool pool;
 	bool quit;
 	bool needWrite;
+
+	std::unique_ptr<Sha1SumCommand> sha1SumCommand;
 };
 
 } // namespace openmsx
