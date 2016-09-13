@@ -1329,47 +1329,89 @@ proc menu_select_rom {slot item} {
 			set ::osd_rom_path [file normalize $fullname]
 			menu_create [menu_create_ROM_list $::osd_rom_path $slot]
 		} else {
-			if {[catch {$slot $fullname} errorText]} {
-				osd::display_message "Can't insert ROM: $errorText" error
+			set mappertype ""
+			set hash [sha1sum $fullname]
+			if {[catch {set mappertype [dict get [openmsx_info software $hash] mapper_type_name]}]} {
+				# not in the database, execute after selecting mapper type
+				menu_create [menu_create_mappertype_list $slot $fullname]
 			} else {
-				menu_close_all
-
-				set rominfo [getlist_rom_info]
-
-				if {$rominfo eq ""} {
-					osd::display_message "No ROM information available..."
-				} else {
-					osd::display_message "Now running ROM:\nTitle:\nYear:\nCompany:\nCountry:\nStatus:\nRemark:"
-
-					append result " \n" \
-								  "[dict get $rominfo title]\n" \
-								  "[dict get $rominfo year]\n" \
-								  "[dict get $rominfo company]\n" \
-								  "[dict get $rominfo country]\n" \
-								  "[dict get $rominfo status]\n"
-
-					if {[dict get $rominfo remark] ne ""} {
-						append result [dict get $rominfo remark]
-					} else {
-						append result "None"
-					}
-
-					set txt_size 6
-					set xpos 35
-
-					# TODO: prevent this from being duplicated from osd_widgets::text_box
-					if {$::scale_factor == 1} {
-						set txt_size 9
-						set xpos 53
-					}
-
-					# TODO: this code knows the internal name of the widget of osd::display_message proc... it shouldn't need to.
-					osd create text osd_display_message.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$result"
-				}
-				reset
+				# in the database, so just execute
+				menu_rom_with_mappertype_exec $slot $fullname $mappertype
 			}
 		}
 	}
+}
+
+proc menu_rom_with_mappertype_exec {slot fullname mappertype} {
+	if {[catch {$slot $fullname -romtype $mappertype} errorText]} {
+		osd::display_message "Can't insert ROM: $errorText" error
+	} else {
+		menu_close_all
+
+		set rominfo [getlist_rom_info]
+
+		if {$rominfo eq ""} {
+			osd::display_message "No ROM information available..."
+		} else {
+			osd::display_message "Now running ROM:\nTitle:\nYear:\nCompany:\nCountry:\nStatus:\nRemark:"
+
+			append result " \n" \
+						  "[dict get $rominfo title]\n" \
+						  "[dict get $rominfo year]\n" \
+						  "[dict get $rominfo company]\n" \
+						  "[dict get $rominfo country]\n" \
+						  "[dict get $rominfo status]\n"
+
+			if {[dict get $rominfo remark] ne ""} {
+				append result [dict get $rominfo remark]
+			} else {
+				append result "None"
+			}
+
+			set txt_size 6
+			set xpos 35
+
+			# TODO: prevent this from being duplicated from osd_widgets::text_box
+			if {$::scale_factor == 1} {
+				set txt_size 9
+				set xpos 53
+			}
+
+			# TODO: this code knows the internal name of the widget of osd::display_message proc... it shouldn't need to.
+			osd create text osd_display_message.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$result"
+		}
+		reset
+	}
+}
+
+proc menu_create_mappertype_list {slot fullname} {
+	set menu_def [list execute [list menu_rom_with_mappertype_exec $slot $fullname] \
+	         font-size 8 \
+	         border-size 2 \
+	         width 200 \
+	         xpos 100 \
+	         ypos 120 \
+	         header { text "Select mapper type" \
+	                  font-size 10 \
+	                  post-spacing 6 }]
+
+	set items [openmsx_info romtype]
+	set presentation [list]
+
+	foreach i $items {
+		lappend presentation "[dict get [openmsx_info romtype $i] description]"
+	}
+
+	set items_sorted [list "auto"]
+	set presentation_sorted [list "Auto-detect (guess)"]
+
+	foreach i [lsort -dictionary -indices $presentation] {
+		lappend presentation_sorted [lindex $presentation $i]
+		lappend items_sorted [lindex $items $i]
+	}
+
+	lappend menu_def presentation $presentation_sorted
+	return [prepare_menu_list $items_sorted 10 $menu_def]
 }
 
 proc menu_create_disk_list {path drive} {
