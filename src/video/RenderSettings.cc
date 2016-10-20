@@ -107,7 +107,12 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, rendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-		SDL, getRendererMap())
+#if COMPONENT_GL
+		SDLGL_PP,
+#else
+		SDL,
+#endif
+		getRendererMap())
 
 	, horizontalBlurSetting(commandController,
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
