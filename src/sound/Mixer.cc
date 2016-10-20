@@ -23,15 +23,6 @@ static const int defaultsamples = 2560;
 static const int defaultsamples = 1024;
 #endif
 
-static Mixer::SoundDriverType getDefaultSoundDriver()
-{
-#ifdef _WIN32
-	return Mixer::SND_DIRECTX;
-#else
-	return Mixer::SND_SDL;
-#endif
-}
-
 static EnumSetting<Mixer::SoundDriverType>::Map getSoundDriverMap()
 {
 	EnumSetting<Mixer::SoundDriverType>::Map soundDriverMap = {
@@ -49,7 +40,7 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	, soundDriverSetting(
 		commandController, "sound_driver",
 		"select the sound output driver",
-		getDefaultSoundDriver(), getSoundDriverMap())
+		Mixer::SND_SDL, getSoundDriverMap())
 	, muteSetting(
 		commandController, "mute",
 		"(un)mute the emulation sound", false, Setting::DONT_SAVE)
