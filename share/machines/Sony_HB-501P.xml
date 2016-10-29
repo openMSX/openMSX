@@ -27,7 +27,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS9929A</version>
+      <version>T6950PAL</version> <!-- P version has T6950, F version has TMS9129 -->
       <io base="0x98" num="2"/>
     </VDP>
 
