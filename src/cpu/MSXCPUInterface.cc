@@ -564,8 +564,8 @@ void MSXCPUInterface::updateVisible(int page)
 
 void MSXCPUInterface::reset()
 {
-	for (auto& reg : subSlotRegister) {
-		reg = 0;
+	for (int i = 0; i < 4; ++i) {
+		setSubSlot(i, 0);
 	}
 	setPrimarySlots(0);
 }
