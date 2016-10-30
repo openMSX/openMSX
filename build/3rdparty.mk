@@ -184,6 +184,7 @@ $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
 		--with-librt=yes \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
@@ -207,6 +208,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
@@ -223,6 +225,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--with-sdl-prefix=$(PWD)/$(INSTALL_DIR) \
 		--with-freetype-prefix=$(PWD)/$(INSTALL_DIR) \
 		--$(subst disable,without,$(subst enable,with,$(USE_VIDEO_X11)))-x \
@@ -239,6 +242,7 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
@@ -252,6 +256,7 @@ $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
 		--without-zlib \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
 		LDFLAGS="$(_LDFLAGS)"
 
@@ -265,6 +270,7 @@ $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
 	cp -r $< $(@D)
 	cd $(@D) && ./configure \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--static
 # It is not possible to pass CFLAGS to zlib's configure.
 MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
@@ -304,6 +310,7 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 	cd $(@D) && $(PWD)/$</$(TCL_OS)/configure \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--disable-shared \
 		--disable-threads \
 		--without-tzdata \
@@ -319,6 +326,7 @@ $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
 		LDFLAGS="$(_LDFLAGS)" \
 		PKG_CONFIG=/nowhere
@@ -332,6 +340,7 @@ $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
 		--disable-oggtest \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
 		LDFLAGS="$(_LDFLAGS)" \
@@ -354,6 +363,7 @@ $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
 		--disable-examples \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
 		--with-vorbis=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
