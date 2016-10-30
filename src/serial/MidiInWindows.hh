@@ -62,10 +62,10 @@ private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	Thread thread;
-	unsigned devidx;
-	DWORD thrdid;
+	unsigned devIdx;
+	DWORD threadId;
 	cb_queue<byte> queue;
-	std::mutex mutex; // to protect queue
+	std::mutex queueMutex;
 	std::string name;
 	std::string desc;
 };

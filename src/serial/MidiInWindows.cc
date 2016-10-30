@@ -38,7 +38,7 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
 MidiInWindows::MidiInWindows(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_, unsigned num)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), devidx(unsigned(-1))
+	, thread(this), devIdx(unsigned(-1))
 {
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);
@@ -56,8 +56,8 @@ MidiInWindows::~MidiInWindows()
 // Pluggable
 void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
-	devidx = w32_midiInOpen(name.c_str(), thrdid);
-	if (devidx == unsigned(-1)) {
+	devIdx = w32_midiInOpen(name.c_str(), threadId);
+	if (devIdx == unsigned(-1)) {
 		throw PlugException("Failed to open " + name);
 	}
 
@@ -73,11 +73,11 @@ void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 void MidiInWindows::unplugHelper(EmuTime::param /*time*/)
 {
-	std::lock_guard<std::mutex> lock(mutex);
+	std::lock_guard<std::mutex> lock(queueMutex);
 	thread.stop();
-	if (devidx != unsigned(-1)) {
-		w32_midiInClose(devidx);
-		devidx = unsigned(-1);
+	if (devIdx != unsigned(-1)) {
+		w32_midiInClose(devIdx);
+		devIdx = unsigned(-1);
 	}
 }
 
@@ -95,7 +95,7 @@ void MidiInWindows::procLongMsg(LPMIDIHDR p)
 {
 	if (p->dwBytesRecorded) {
 		{
-			std::lock_guard<std::mutex> lock(mutex);
+			std::lock_guard<std::mutex> lock(queueMutex);
 			for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
 				queue.push_back(p->lpData[i]);
 			}
@@ -116,7 +116,7 @@ void MidiInWindows::procShortMsg(DWORD param)
 		default:
 			num = 1; break;
 	}
-	std::lock_guard<std::mutex> lock(mutex);
+	std::lock_guard<std::mutex> lock(queueMutex);
 	while (num--) {
 		queue.push_back(param & 0xFF);
 		param >>= 8;
@@ -129,7 +129,7 @@ void MidiInWindows::procShortMsg(DWORD param)
 void MidiInWindows::run()
 {
 	assert(isPluggedIn());
-	thrdid = GetCurrentThreadId();
+	threadId = GetCurrentThreadId();
 
 	MSG msg;
 	bool fexit = false;
@@ -158,7 +158,7 @@ void MidiInWindows::run()
 				break;
 		}
 	}
-	thrdid = 0;
+	threadId = 0;
 }
 
 // MidiInDevice
@@ -166,7 +166,7 @@ void MidiInWindows::signal(EmuTime::param time)
 {
 	auto* conn = static_cast<MidiInConnector*>(getConnector());
 	if (!conn->acceptsData()) {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(queueMutex);
 		queue.clear();
 		return;
 	}
@@ -174,7 +174,7 @@ void MidiInWindows::signal(EmuTime::param time)
 
 	byte data;
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(queueMutex);
 		if (queue.empty()) return;
 		data = queue.pop_front();
 	}
@@ -187,7 +187,7 @@ int MidiInWindows::signalEvent(const std::shared_ptr<const Event>& /*event*/)
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());
 	} else {
-		std::lock_guard<std::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(queueMutex);
 		queue.clear();
 	}
 	return 0;
