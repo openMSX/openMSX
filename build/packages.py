@@ -54,7 +54,7 @@ class ALSA(DownloadablePackage):
 		return 'ALSA'
 
 class DirectX(DownloadablePackage):
-	downloadURL = 'http://alleg.sourceforge.net/files'
+	downloadURL = 'http://download.gna.org/allegro/files'
 	niceName = 'DirectX'
 	sourceName = 'dx'
 	version = '70'
