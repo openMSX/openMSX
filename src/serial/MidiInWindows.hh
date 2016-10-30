@@ -16,6 +16,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include <mutex>
+#include <condition_variable>
 
 namespace openmsx {
 
@@ -62,7 +63,11 @@ private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	Thread thread;
+	std::mutex devIdxMutex;
+	std::condition_variable devIdxCond;
 	unsigned devIdx;
+	std::mutex threadIdMutex;
+	std::condition_variable threadIdCond;
 	DWORD threadId;
 	cb_queue<byte> queue;
 	std::mutex queueMutex;

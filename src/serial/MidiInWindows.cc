@@ -56,11 +56,6 @@ MidiInWindows::~MidiInWindows()
 // Pluggable
 void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
-	devIdx = w32_midiInOpen(name.c_str(), threadId);
-	if (devIdx == unsigned(-1)) {
-		throw PlugException("Failed to open " + name);
-	}
-
 	auto& midiConnector = static_cast<MidiInConnector&>(connector_);
 	midiConnector.setDataBits(SerialDataInterface::DATA_8); // 8 data bits
 	midiConnector.setStopBits(SerialDataInterface::STOP_1); // 1 stop bit
@@ -69,16 +64,27 @@ void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
 	thread.start();
+
+	{
+		std::unique_lock<std::mutex> threadIdLock(threadIdMutex);
+		threadIdCond.wait(threadIdLock);
+	}
+	{
+		std::lock_guard<std::mutex> devIdxLock(devIdxMutex);
+		devIdx = w32_midiInOpen(name.c_str(), threadId);
+	}
+	devIdxCond.notify_all();
+	if (devIdx == unsigned(-1)) {
+		throw PlugException("Failed to open " + name);
+	}
 }
 
 void MidiInWindows::unplugHelper(EmuTime::param /*time*/)
 {
-	std::lock_guard<std::mutex> lock(queueMutex);
-	thread.stop();
-	if (devIdx != unsigned(-1)) {
-		w32_midiInClose(devIdx);
-		devIdx = unsigned(-1);
-	}
+	assert(devIdx != unsigned(-1));
+	w32_midiInClose(devIdx);
+	devIdx = unsigned(-1);
+	thread.join();
 }
 
 const string& MidiInWindows::getName() const
@@ -129,13 +135,22 @@ void MidiInWindows::procShortMsg(DWORD param)
 void MidiInWindows::run()
 {
 	assert(isPluggedIn());
-	threadId = GetCurrentThreadId();
 
-	MSG msg;
-	bool fexit = false;
-	int gmer;
+	{
+		std::lock_guard<std::mutex> threadIdLock(threadIdMutex);
+		threadId = GetCurrentThreadId();
+	}
+	threadIdCond.notify_all();
+
+	{
+		std::unique_lock<std::mutex> devIdxLock(devIdxMutex);
+		devIdxCond.wait(devIdxLock);
+	}
+
+	bool fexit = devIdx == unsigned(-1);
 	while (!fexit) {
-		gmer = GetMessage(&msg, nullptr, 0, 0);
+		MSG msg;
+		int gmer = GetMessage(&msg, nullptr, 0, 0);
 		if (gmer == 0 || gmer == -1) {
 			break;
 		}
