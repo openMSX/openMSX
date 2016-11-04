@@ -8,6 +8,7 @@
 #include "FileOperations.hh"
 #include "openmsx.hh"
 #include "circular_buffer.hh"
+#include "Poller.hh"
 #include <cstdio>
 #include <mutex>
 
@@ -50,6 +51,7 @@ private:
 	FileOperations::FILE_t file;
 	cb_queue<byte> queue;
 	std::mutex mutex; // to protect queue
+	Poller poller;
 
 	FilenameSetting readFilenameSetting;
 };
