@@ -97,8 +97,13 @@ void PluggableFactory::createAll(PluggingController& controller,
 		commandController));
 
 	// MIDI:
+#if !defined(_WIN32)
+	// Devices and pipes are not usable as files on Windows, and MidiInReader
+	// reads all data as soon as it becomes available, so this pluggable is
+	// not useful on Windows.
 	controller.registerPluggable(make_unique<MidiInReader>(
 		eventDistributor, scheduler, commandController));
+#endif
 #if defined(_WIN32)
 	MidiInWindows::registerAll(eventDistributor, scheduler, controller);
 	MidiOutWindows::registerAll(controller);
