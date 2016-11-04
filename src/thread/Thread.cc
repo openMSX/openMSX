@@ -31,7 +31,6 @@ Thread::Thread(Runnable* runnable_)
 
 Thread::~Thread()
 {
-	stop();
 }
 
 void Thread::start()
@@ -42,14 +41,6 @@ void Thread::start()
 		throw FatalError(StringOp::Builder() <<
 			"Unable to create thread: " << SDL_GetError());
     }
-}
-
-void Thread::stop()
-{
-	if (thread) {
-		SDL_KillThread(thread);
-		thread = nullptr;
-	}
 }
 
 // TODO: A version with timeout would be useful.
