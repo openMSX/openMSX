@@ -65,8 +65,8 @@ void RS232Tester::unplugHelper(EmuTime::param /*time*/)
 	outFile.close();
 
 	// input
-	std::lock_guard<std::mutex> lock(mutex);
-	thread.stop();
+	poller.abort();
+	thread.join();
 	inFile.reset();
 }
 
@@ -90,7 +90,15 @@ void RS232Tester::run()
 	byte buf;
 	if (!inFile) return;
 	while (!feof(inFile.get())) {
+#ifndef _WIN32
+		if (poller.poll(fileno(inFile.get()))) {
+			break;
+		}
+#endif
 		size_t num = fread(&buf, 1, 1, inFile.get());
+		if (poller.aborted()) {
+			break;
+		}
 		if (num != 1) {
 			continue;
 		}
