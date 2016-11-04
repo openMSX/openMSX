@@ -623,6 +623,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\utf8_checked.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-arggen.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-dirent.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\Poller.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\ADVram.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\AviRecorder.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\AviWriter.cc" />
@@ -1203,6 +1204,7 @@
     <None Include="$(OpenMSXSrcDir)\utils\vla.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\win32-arggen.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\win32-dirent.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\Poller.hh" />
     <None Include="$(OpenMSXSrcDir)\video\ADVram.hh" />
     <None Include="$(OpenMSXSrcDir)\video\AviRecorder.hh" />
     <None Include="$(OpenMSXSrcDir)\video\AviWriter.hh" />

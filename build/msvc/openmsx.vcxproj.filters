@@ -945,6 +945,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-dirent.cc">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\Poller.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\ADVram.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -2395,6 +2398,9 @@
       <Filter>utils</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\utils\win32-dirent.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\utils\Poller.hh">
       <Filter>utils</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\ADVram.hh">

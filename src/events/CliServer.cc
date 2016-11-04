@@ -16,7 +16,6 @@
 #include <pwd.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <poll.h>
 #endif
 
 using std::string;
@@ -182,18 +181,8 @@ SOCKET CliServer::createSocket()
 
 void CliServer::exitAcceptLoop()
 {
-	exitLoop = true;
 	sock_close(listenSock);
-#ifdef _WIN32
-	// Closing the socket is sufficient to make Windows exit the accept() call.
-#else
-	// The BSD socket API does not contain a simple way to cancel a call to
-	// accept(). As a workaround, we look for I/O on an internal pipe.
-	char dummy = 'X';
-	if (write(wakeupPipe[1], &dummy, sizeof(dummy)) == -1) {
-		// Nothing we can do here; we'll have to rely on the poll() timeout.
-	}
-#endif
+	poller.abort();
 }
 
 static void deleteSocket(const string& socket)
@@ -213,17 +202,6 @@ CliServer::CliServer(CommandController& commandController_,
 	, thread(this)
 	, listenSock(OPENMSX_INVALID_SOCKET)
 {
-	exitLoop = false;
-#ifndef _WIN32
-	if (pipe(wakeupPipe)) {
-		wakeupPipe[0] = wakeupPipe[1] = -1;
-		cliComm.printWarning(
-				StringOp::Builder() << "Not starting CliServer because "
-				"wakeup pipe could not be created: " << strerror(errno));
-		return;
-	}
-#endif
-
 	sock_startup();
 	try {
 		listenSock = createSocket();
@@ -239,11 +217,6 @@ CliServer::~CliServer()
 		exitAcceptLoop();
 		thread.join();
 	}
-
-#ifndef _WIN32
-	close(wakeupPipe[0]);
-	close(wakeupPipe[1]);
-#endif
 
 	deleteSocket(socketName);
 	sock_cleanup();
@@ -263,24 +236,15 @@ void CliServer::mainLoop()
 #endif
 	while (true) {
 		// wait for incoming connection
+		// Note: On Windows, closing the socket is sufficient to exit the
+		//       accept() call.
 #ifndef _WIN32
-		struct pollfd fds[2] = {
-			{ .fd = listenSock, .events = POLLIN },
-			{ .fd = wakeupPipe[0], .events = POLLIN },
-		};
-		int pollResult = poll(fds, 2, 1000);
-		if (exitLoop) {
+		if (poller.poll(listenSock)) {
 			break;
-		}
-		if (pollResult == -1) { // error
-			break;
-		}
-		if (pollResult == 0) { // timeout
-			continue;
 		}
 #endif
 		SOCKET sd = accept(listenSock, nullptr, nullptr);
-		if (exitLoop) {
+		if (poller.aborted()) {
 			break;
 		}
 		if (sd == OPENMSX_INVALID_SOCKET) {

@@ -2,8 +2,8 @@
 #define CLISERVER_HH
 
 #include "Thread.hh"
+#include "Poller.hh"
 #include "Socket.hh"
-#include <atomic>
 #include <string>
 
 namespace openmsx {
@@ -35,10 +35,7 @@ private:
 	Thread thread;
 	std::string socketName;
 	SOCKET listenSock;
-#ifndef _WIN32
-	int wakeupPipe[2];
-#endif
-	std::atomic_bool exitLoop;
+	Poller poller;
 };
 
 } // namespace openmsx
