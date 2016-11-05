@@ -1,61 +1,65 @@
 #include "Thread.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 #include <iostream>
 #include <cassert>
-#include <SDL_thread.h>
+#include <system_error>
+#include <thread>
 
 namespace openmsx {
 
-static unsigned mainThreadId = unsigned(-1);
+static std::thread::id mainThreadId;
 
 void Thread::setMainThread()
 {
-	assert(mainThreadId == unsigned(-1));
-	mainThreadId = SDL_ThreadID();
+	assert(mainThreadId == std::thread::id());
+	mainThreadId = std::this_thread::get_id();
 }
 
 bool Thread::isMainThread()
 {
-	assert(mainThreadId != unsigned(-1));
-	return mainThreadId == SDL_ThreadID();
+	assert(mainThreadId != std::thread::id());
+	return mainThreadId == std::this_thread::get_id();
 }
 
 
 Thread::Thread(Runnable* runnable_)
 	: runnable(runnable_)
-	, thread(nullptr)
 {
 }
 
 Thread::~Thread()
 {
+	// Our join() resets the thread pointer, so if the pointer is non-null,
+	// we have a running thread. If we do nothing, std::thread will terminate
+	// the process, but this assert is easier to debug.
+	assert(!thread);
 }
 
 void Thread::start()
 {
 	assert(!thread);
-	thread = SDL_CreateThread(startThread, runnable);
-	if (!thread) {
+	try {
+		thread = make_unique<std::thread>(startThread, runnable);
+	} catch (const std::system_error& e) {
 		throw FatalError(StringOp::Builder() <<
-			"Unable to create thread: " << SDL_GetError());
+			"Unable to create thread: " << e.what());
     }
 }
 
 // TODO: A version with timeout would be useful.
 //       After the timeout expires, the method would return false.
-//       Alternatively, stop() is called if the thread does not end
-//       within the given timeout.
 void Thread::join()
 {
 	if (thread) {
-		SDL_WaitThread(thread, nullptr);
-		thread = nullptr;
+		thread->join();
+		thread.reset();
 	}
 }
 
-int Thread::startThread(void* runnable)
+int Thread::startThread(Runnable* runnable)
 {
 	try {
 		static_cast<Runnable*>(runnable)->run();

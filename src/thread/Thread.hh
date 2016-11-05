@@ -1,7 +1,11 @@
 #ifndef THREAD_HH
 #define THREAD_HH
 
-struct SDL_Thread;
+#include <memory>
+
+namespace std {
+	class thread;
+};
 
 namespace openmsx {
 
@@ -34,6 +38,8 @@ public:
 	void start();
 
 	/** Waits for this thread to terminate.
+	  * This method must be called on a started thread before it can be
+	  * destructed.
 	  */
 	void join();
 
@@ -48,12 +54,12 @@ public:
 	static bool isMainThread();
 
 private:
-	/** Helper function to start a thread (SDL is plain C).
+	/** Helper function to start a thread.
 	  */
-	static int startThread(void* runnable);
+	static int startThread(Runnable* runnable);
 
 	Runnable* runnable;
-	SDL_Thread* thread;
+	std::unique_ptr<std::thread> thread;
 };
 
 } // namespace openmsx
