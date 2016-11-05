@@ -56,6 +56,7 @@ void PluggingController::registerConnector(Connector& connector)
 
 void PluggingController::unregisterConnector(Connector& connector)
 {
+	connector.unplug(motherBoard.getCurrentTime());
 	move_pop_back(connectors, rfind_unguarded(connectors, &connector));
 	getCliComm().update(CliComm::CONNECTOR, connector.getName(), "remove");
 }
