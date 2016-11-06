@@ -1,7 +1,6 @@
 #ifndef THREAD_HH
 #define THREAD_HH
 
-#include <memory>
 #include <thread>
 
 namespace openmsx {
@@ -53,10 +52,10 @@ public:
 private:
 	/** Helper function to start a thread.
 	  */
-	static int startThread(Runnable* runnable);
+	static void startThread(Runnable* runnable);
 
 	Runnable* runnable;
-	std::unique_ptr<std::thread> thread;
+	std::thread thread;
 };
 
 } // namespace openmsx

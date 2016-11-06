@@ -1,8 +1,6 @@
 #include "Thread.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "memory.hh"
-#include "unreachable.hh"
 #include <iostream>
 #include <cassert>
 #include <system_error>
@@ -31,47 +29,45 @@ Thread::Thread(Runnable* runnable_)
 
 Thread::~Thread()
 {
-	// Our join() resets the thread pointer, so if the pointer is non-null,
-	// we have a running thread. If we do nothing, std::thread will terminate
-	// the process, but this assert is easier to debug.
-	assert(!thread);
+	// Thread must be join()ed before it's destructed. If not
+	// std::terminate() will be called, but this assert might be easier to
+	// debug.
+	assert(!thread.joinable());
 }
 
 void Thread::start()
 {
-	assert(!thread);
+	assert(!thread.joinable());
 	try {
-		thread = make_unique<std::thread>(startThread, runnable);
+		thread = std::thread(startThread, runnable);
 	} catch (const std::system_error& e) {
 		throw FatalError(StringOp::Builder() <<
 			"Unable to create thread: " << e.what());
     }
 }
 
-// TODO: A version with timeout would be useful.
-//       After the timeout expires, the method would return false.
 void Thread::join()
 {
-	if (thread) {
-		thread->join();
-		thread.reset();
-	}
+	thread.join();
 }
 
-int Thread::startThread(Runnable* runnable)
+void Thread::startThread(Runnable* runnable)
 {
 	try {
-		static_cast<Runnable*>(runnable)->run();
+		runnable->run();
 	} catch (FatalError& e) {
 		std::cerr << "Fatal error in subthread: "
 		     << e.getMessage() << std::endl;
-		UNREACHABLE;
 	} catch (MSXException& e) {
 		std::cerr << "Uncaught exception in subthread: "
 		     << e.getMessage() << std::endl;
-		UNREACHABLE;
-	} // don't catch(..), thread cancelation seems to depend on it
-	return 0;
+	} catch (...) {
+		// If any exception escapes std::terminate() is called. Possibly
+		// this extra print helps to locate the problem.
+		std::cerr << "unknown exception in subthread"
+		     << std::endl;
+		throw; // calls std::terminate()
+	}
 }
 
 } // namespace openmsx
