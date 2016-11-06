@@ -18,7 +18,6 @@ MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_,
                            CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this)
 	, readFilenameSetting(
 		commandController, "midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
@@ -48,7 +47,7 @@ void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
-	thread.start();
+	thread = std::thread([this]() { run(); });
 }
 
 void MidiInReader::unplugHelper(EmuTime::param /*time*/)
@@ -72,7 +71,6 @@ string_ref MidiInReader::getDescription() const
 }
 
 
-// Runnable
 void MidiInReader::run()
 {
 	byte buf;
