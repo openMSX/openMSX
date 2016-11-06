@@ -175,10 +175,10 @@ void StdioConnection::run()
 {
 	// runs in helper thread
 	while (true) {
-#ifndef _WIN32
-		if (poller.poll(STDIN_FILENO)) {
-			break;
-		}
+#ifdef _WIN32
+		if (poller.aborted()) break;
+#else
+		if (poller.poll(STDIN_FILENO)) break;
 #endif
 		char buf[BUF_SIZE];
 		int n = read(STDIN_FILENO, buf, sizeof(buf));
