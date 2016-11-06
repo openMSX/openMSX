@@ -340,7 +340,7 @@ void SocketConnection::run()
 		ok = server.Authenticate() && server.Authorize();
 	}
 	if (!ok) {
-		close();
+		closeSocket();
 		return;
 	}
 #endif
@@ -353,15 +353,20 @@ void SocketConnection::run()
 	// and 'sd' only gets written to in this thread.
 	while (true) {
 		if (sd == OPENMSX_INVALID_SOCKET) return;
+#ifndef _WIN32
+		if (poller.poll(sd)) {
+			break;
+		}
+#endif
 		char buf[BUF_SIZE];
 		int n = sock_recv(sd, buf, BUF_SIZE);
 		if (n > 0) {
 			parser.parse(buf, n);
 		} else if (n < 0) {
-			close();
 			break;
 		}
 	}
+	closeSocket();
 }
 
 void SocketConnection::output(string_ref message)
@@ -391,7 +396,7 @@ void SocketConnection::output(string_ref message)
 	}
 }
 
-void SocketConnection::close()
+void SocketConnection::closeSocket()
 {
 	std::lock_guard<std::mutex> lock(sdMutex);
 	if (sd != OPENMSX_INVALID_SOCKET) {
@@ -399,6 +404,14 @@ void SocketConnection::close()
 		sd = OPENMSX_INVALID_SOCKET;
 		sock_close(_sd);
 	}
+}
+
+void SocketConnection::close()
+{
+	// Note: On Windows we rely on closing the socket to wake up the worker
+	//       thread, on other platforms we rely on Poller.
+	closeSocket();
+	poller.abort();
 	thread.join();
 }
 

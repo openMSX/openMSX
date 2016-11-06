@@ -129,9 +129,11 @@ public:
 private:
 	void close() override;
 	void run() override;
+	void closeSocket();
 
 	std::mutex sdMutex;
 	SOCKET sd;
+	Poller poller;
 	bool established;
 };
 
