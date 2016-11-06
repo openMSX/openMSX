@@ -130,7 +130,7 @@ private:
 	void close() override;
 	void run() override;
 
-	std::mutex mutex;
+	std::mutex sdMutex;
 	SOCKET sd;
 	bool established;
 };
