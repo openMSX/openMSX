@@ -6,7 +6,6 @@
 #include <iostream>
 #include <cassert>
 #include <system_error>
-#include <thread>
 
 namespace openmsx {
 

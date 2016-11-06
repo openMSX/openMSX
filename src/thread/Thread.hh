@@ -2,10 +2,7 @@
 #define THREAD_HH
 
 #include <memory>
-
-namespace std {
-	class thread;
-};
+#include <thread>
 
 namespace openmsx {
 
