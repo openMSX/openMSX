@@ -199,13 +199,12 @@ CliServer::CliServer(CommandController& commandController_,
 	: commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, cliComm(cliComm_)
-	, thread(this)
 	, listenSock(OPENMSX_INVALID_SOCKET)
 {
 	sock_startup();
 	try {
 		listenSock = createSocket();
-		thread.start();
+		thread = std::thread([this]() { mainLoop(); });
 	} catch (MSXException& e) {
 		cliComm.printWarning(e.getMessage());
 	}
@@ -220,11 +219,6 @@ CliServer::~CliServer()
 
 	deleteSocket(socketName);
 	sock_cleanup();
-}
-
-void CliServer::run()
-{
-	mainLoop();
 }
 
 void CliServer::mainLoop()
