@@ -6,6 +6,7 @@
 #include "Socket.hh"
 #include "CliComm.hh"
 #include "AdhocCliCommParser.hh"
+#include "Poller.hh"
 #include <mutex>
 #include <string>
 #include <thread>
@@ -92,7 +93,7 @@ private:
 	void close() override;
 	void run() override;
 
-	bool ok;
+	Poller poller;
 };
 
 #ifdef _WIN32

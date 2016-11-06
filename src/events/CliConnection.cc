@@ -162,7 +162,6 @@ static const int BUF_SIZE = 4096;
 StdioConnection::StdioConnection(CommandController& commandController_,
                                  EventDistributor& eventDistributor_)
 	: CliConnection(commandController_, eventDistributor_)
-	, ok(true)
 {
 	startOutput();
 }
@@ -175,13 +174,17 @@ StdioConnection::~StdioConnection()
 void StdioConnection::run()
 {
 	// runs in helper thread
-	while (ok) {
+	while (true) {
+#ifndef _WIN32
+		if (poller.poll(STDIN_FILENO)) {
+			break;
+		}
+#endif
 		char buf[BUF_SIZE];
 		int n = read(STDIN_FILENO, buf, sizeof(buf));
 		if (n > 0) {
 			parser.parse(buf, n);
 		} else if (n < 0) {
-			close();
 			break;
 		}
 	}
@@ -189,15 +192,13 @@ void StdioConnection::run()
 
 void StdioConnection::output(string_ref message)
 {
-	if (ok) {
-		std::cout << message << std::flush;
-	}
+	std::cout << message << std::flush;
 }
 
 void StdioConnection::close()
 {
 	// don't close stdin/out/err
-	ok = false;
+	poller.abort();
 	thread.join();
 }
 
