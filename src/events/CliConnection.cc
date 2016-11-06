@@ -68,7 +68,6 @@ private:
 CliConnection::CliConnection(CommandController& commandController_,
                              EventDistributor& eventDistributor_)
 	: parser([this](const std::string& cmd) { execute(cmd); })
-	, thread(this)
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
@@ -118,7 +117,7 @@ void CliConnection::startOutput()
 
 void CliConnection::start()
 {
-	thread.start();
+	thread = std::thread([this]() { run(); });
 }
 
 void CliConnection::end()
@@ -199,6 +198,7 @@ void StdioConnection::close()
 {
 	// don't close stdin/out/err
 	ok = false;
+	thread.join();
 }
 
 
@@ -398,6 +398,7 @@ void SocketConnection::close()
 		sd = OPENMSX_INVALID_SOCKET;
 		sock_close(_sd);
 	}
+	thread.join();
 }
 
 } // namespace openmsx
