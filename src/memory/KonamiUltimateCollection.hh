@@ -1,5 +1,5 @@
 #ifndef KONAMIULTIMATECOLLECTION_HH
-#define kONAMIULTIMATECOLLECTION_HH
+#define KONAMIULTIMATECOLLECTION_HH
 
 #include "MSXRom.hh"
 #include "AmdFlash.hh"
