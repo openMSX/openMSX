@@ -9,7 +9,6 @@
 
 #include "openmsx.hh"
 #include "MidiInDevice.hh"
-#include "Thread.hh"
 #include "EventListener.hh"
 #include "serialize_meta.hh"
 #include "circular_buffer.hh"
@@ -17,6 +16,7 @@
 #include <mmsystem.h>
 #include <mutex>
 #include <condition_variable>
+#include <thread>
 
 namespace openmsx {
 
@@ -24,8 +24,7 @@ class EventDistributor;
 class Scheduler;
 class PluggingController;
 
-class MidiInWindows final : public MidiInDevice, private Runnable
-                          , private EventListener
+class MidiInWindows final : public MidiInDevice, private EventListener
 {
 public:
 	/** Register all available native Windows midi in devices
@@ -51,8 +50,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	// Runnable
-	void run() override;
+	void run();
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
@@ -62,7 +60,7 @@ private:
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	Thread thread;
+	std::thread thread;
 	std::mutex devIdxMutex;
 	std::condition_variable devIdxCond;
 	unsigned devIdx;

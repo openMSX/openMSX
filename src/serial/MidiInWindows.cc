@@ -38,7 +38,7 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
 MidiInWindows::MidiInWindows(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_, unsigned num)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), devIdx(unsigned(-1))
+	, devIdx(unsigned(-1))
 {
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);
@@ -63,7 +63,7 @@ void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
-	thread.start();
+	thread = std::thread([this]() { run(); });
 
 	{
 		std::unique_lock<std::mutex> threadIdLock(threadIdMutex);
@@ -131,7 +131,6 @@ void MidiInWindows::procShortMsg(DWORD param)
 		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_WINDOWS_EVENT));
 }
 
-// Runnable
 void MidiInWindows::run()
 {
 	assert(isPluggedIn());
