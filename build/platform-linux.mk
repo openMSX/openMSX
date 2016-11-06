@@ -14,5 +14,5 @@ LIBRARYEXT:=.so
 # the compiler executable name (e.g. for Dingoo we don't need to link against
 # librt).
 ifeq (,$(findstring uclibc,$(CXX)))
-	LINK_FLAGS:=-lrt
+	LINK_FLAGS+=-lrt
 endif
