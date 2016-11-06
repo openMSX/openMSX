@@ -12,7 +12,6 @@ RS232Tester::RS232Tester(EventDistributor& eventDistributor_,
                          Scheduler& scheduler_,
                          CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this)
 	, rs232InputFilenameSetting(
 	        commandController, "rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
@@ -56,7 +55,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
-	thread.start();
+	thread = std::thread([this]() { run(); });
 }
 
 void RS232Tester::unplugHelper(EmuTime::param /*time*/)
@@ -84,7 +83,6 @@ string_ref RS232Tester::getDescription() const
 		"setting.";
 }
 
-// Runnable
 void RS232Tester::run()
 {
 	byte buf;

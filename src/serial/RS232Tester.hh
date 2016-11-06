@@ -2,7 +2,6 @@
 #define RS232TESTER_HH
 
 #include "RS232Device.hh"
-#include "Thread.hh"
 #include "EventListener.hh"
 #include "FilenameSetting.hh"
 #include "FileOperations.hh"
@@ -11,6 +10,7 @@
 #include "Poller.hh"
 #include <fstream>
 #include <mutex>
+#include <thread>
 #include <cstdio>
 
 namespace openmsx {
@@ -19,8 +19,7 @@ class EventDistributor;
 class Scheduler;
 class CommandController;
 
-class RS232Tester final : public RS232Device, private Runnable
-                        , private EventListener
+class RS232Tester final : public RS232Device, private EventListener
 {
 public:
 	RS232Tester(EventDistributor& eventDistributor, Scheduler& scheduler,
@@ -43,15 +42,14 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	// Runnable
-	void run() override;
+	void run();
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	Thread thread;
+	std::thread thread;
 	FileOperations::FILE_t inFile;
 	cb_queue<byte> queue;
 	std::mutex mutex; // to protect queue
