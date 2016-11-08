@@ -160,34 +160,39 @@ inline mat4 rotateZ(const mat4& A, float angle)
 	            A[3]);
 }
 
+// Note: Don't use "near" or "far" as names since those are macros on Windows.
+
 // Returns a 4x4 orthographic projection matrix. Comparable to
 // the glOrtho() function.
-inline mat4 ortho(float left,   float right,
-                  float bottom, float top,
-                  float near,   float far)
+inline mat4 ortho(float left,    float right,
+                  float bottom,  float top,
+                  float nearVal, float farVal)
 {
 	return mat4(vec4(-2.0f / (left - right),  0.0f, 0.0f, 0.0f),
 	            vec4( 0.0f, -2.0f / (bottom - top), 0.0f, 0.0f),
-	            vec4( 0.0f,  0.0f,  2.0f / (near - far),  0.0f),
-	            vec4((left + right) / (left - right),
-	                 (bottom + top) / (bottom - top),
-	                 (near   + far) / (near   - far),
+	            vec4( 0.0f,  0.0f,  2.0f / (nearVal - farVal),  0.0f),
+	            vec4((left    + right ) / (left    - right ),
+	                 (bottom  + top   ) / (bottom  - top   ),
+	                 (nearVal + farVal) / (nearVal - farVal),
 	                 1.0f));
 }
 
 // Returns a 4x4 frustum projection matrix. Comparable to
 // the glFrustum() function.
-inline mat4 frustum(float left,   float right,
-                    float bottom, float top,
-                    float near,   float far)
+inline mat4 frustum(float left,    float right,
+                    float bottom,  float top,
+                    float nearVal, float farVal)
 {
-	return mat4(vec4((2.0f * near) / (right - left), 0.0f, 0.0f, 0.0f),
-	            vec4(0.0f, (2.0f * near) / (top - bottom), 0.0f, 0.0f),
-	            vec4((right + left) / (right - left),
-	                 (top + bottom) / (top - bottom),
-	                 (near + far  ) / (near - far  ),
+	return mat4(vec4((2.0f * nearVal) / (right - left), 0.0f, 0.0f, 0.0f),
+	            vec4(0.0f, (2.0f * nearVal) / (top - bottom), 0.0f, 0.0f),
+	            vec4((right   + left  ) / (right   - left  ),
+	                 (top     + bottom) / (top     - bottom),
+	                 (nearVal + farVal) / (nearVal - farVal),
 	                 -1.0f),
-	            vec4(0.0f,  0.0f,  (2.0f * far * near) / (near - far),  0.0f));
+	            vec4(0.0f,
+                         0.0f,
+                         (2.0f * farVal * nearVal) / (nearVal - farVal),
+                         0.0f));
 }
 
 } // namespace gl
