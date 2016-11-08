@@ -90,21 +90,6 @@ class FreeType(DownloadablePackage):
 			'9755806ff72cba095aad47dce6f0ad66bd60fee2a90323707d2cac5c526066f0',
 		}
 
-class GLEW(DownloadablePackage):
-	downloadURL = 'http://downloads.sourceforge.net/glew'
-	niceName = 'GLEW'
-	sourceName = 'glew'
-	version = '1.9.0'
-	fileLength = 544440
-	checksums = {
-		'sha256':
-			'9b36530e414c95d6624be9d6815a5be1531d1986300ae5903f16977ab8aeb787',
-		}
-
-	@classmethod
-	def getTarballName(cls):
-		return '%s-%s.tgz' % (cls.sourceName, cls.version)
-
 class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'

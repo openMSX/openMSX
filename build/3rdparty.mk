@@ -110,10 +110,6 @@ else
 INSTALL_DIRECTX:=$(TIMESTAMP_DIR)/install-$(PACKAGE_DIRECTX)
 endif
 
-INSTALL_PARAMS_GLEW:=\
-	GLEW_DEST=$(PWD)/$(INSTALL_DIR) \
-	LIBDIR=$(PWD)/$(INSTALL_DIR)/lib
-
 # Function which, given a variable name prefix and the variable's value,
 # returns the name of the package.
 findpackage=$(strip $(foreach PACKAGE,$(PACKAGES_3RD),$(if $(filter $(2),$($(1)_$(PACKAGE))),$(PACKAGE),)))
@@ -276,23 +272,6 @@ $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
 MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
 # Note: zlib's Makefile uses LDFLAGS to link its examples, not the library
 #       itself. If we mess with it, the build breaks.
-
-# Don't configure GLEW.
-# GLEW does not support building outside of the source tree, so just copy
-# everything over (it's a small package).
-$(BUILD_DIR)/$(PACKAGE_GLEW)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_GLEW)
-	mkdir -p $(dir $(@D))
-	rm -rf $(@D)
-	cp -r $< $(@D)
-# GLEW does not have a configure script to pass CFLAGS to.
-MAKEVAR_OVERRIDE_GLEW:=CC="$(_CC) $(_CFLAGS)" LD="$(_CC) $(_LDFLAGS)"
-# Tell GLEW to cross compile.
-ifeq ($(TRIPLE_OS),mingw32)
-MAKEVAR_OVERRIDE_GLEW+=SYSTEM=mingw
-else
-MAKEVAR_OVERRIDE_GLEW+=SYSTEM=$(TRIPLE_OS)
-endif
 
 # Configure Tcl.
 # Note: Tcl seems to build either dynamic libs or static libs, which is why we

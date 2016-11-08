@@ -10,11 +10,6 @@
 #include <cstring>
 #include <cstdio>
 
-#ifndef glGetShaderiv
-#error The version of GLEW you have installed is missing some OpenGL 2.0 entry points. \
-       Please upgrade to GLEW 1.3.2 or higher.
-#endif
-
 using std::string;
 using namespace openmsx;
 
@@ -106,14 +101,14 @@ FrameBufferObject::FrameBufferObject()
 
 FrameBufferObject::FrameBufferObject(Texture& texture)
 {
-	glGenFramebuffersEXT(1, &bufferId);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferId);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-	                          GL_COLOR_ATTACHMENT0_EXT,
-	                          GL_TEXTURE_2D, texture.textureId, 0);
-	bool success = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) ==
-	               GL_FRAMEBUFFER_COMPLETE_EXT;
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+	glGenFramebuffers(1, &bufferId);
+	glBindFramebuffer(GL_FRAMEBUFFER, bufferId);
+	glFramebufferTexture2D(GL_FRAMEBUFFER,
+	                       GL_COLOR_ATTACHMENT0,
+	                       GL_TEXTURE_2D, texture.textureId, 0);
+	bool success = glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
+	               GL_FRAMEBUFFER_COMPLETE;
+	glBindFramebuffer(GL_FRAMEBUFFER, currentId);
 	if (!success) {
 		throw InitException(
 			"Your OpenGL implementation support for "
@@ -130,14 +125,14 @@ FrameBufferObject::~FrameBufferObject()
 	if (currentId == bufferId) {
 		pop();
 	}
-	glDeleteFramebuffersEXT(1, &bufferId);
+	glDeleteFramebuffers(1, &bufferId);
 }
 
 void FrameBufferObject::push()
 {
 	stack.push_back(currentId);
 	currentId = bufferId;
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+	glBindFramebuffer(GL_FRAMEBUFFER, currentId);
 }
 
 void FrameBufferObject::pop()
@@ -146,7 +141,7 @@ void FrameBufferObject::pop()
 	assert(!stack.empty());
 	currentId = stack.back();
 	stack.pop_back();
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+	glBindFramebuffer(GL_FRAMEBUFFER, currentId);
 }
 
 

@@ -32,15 +32,6 @@ GLPostProcessor::GLPostProcessor(
 	, noiseTextureB(true, true)
 	, height(height_)
 {
-	if (!glewIsSupported("GL_EXT_framebuffer_object")) {
-		throw InitException(
-			"The OpenGL framebuffer object is not supported by "
-			"this glew library. Please upgrade your glew library.\n"
-			"It's also possible (but less likely) your video card "
-			"or video card driver doesn't support framebuffer "
-			"objects.");
-	}
-
 	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
 
 	frameCounter = 0;
