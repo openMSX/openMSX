@@ -94,6 +94,7 @@ static void initialize()
 		{ "Z",		K_Z },
 		{ "DELETE",	K_DELETE },
 
+/*
 		{ "WORLD_0",	K_WORLD_0 },
 		{ "WORLD_1",	K_WORLD_1 },
 		{ "WORLD_2",	K_WORLD_2 },
@@ -190,6 +191,7 @@ static void initialize()
 		{ "WORLD_93",	K_WORLD_93 },
 		{ "WORLD_94",	K_WORLD_94 },
 		{ "WORLD_95",	K_WORLD_95 },
+*/
 
 		// Numeric keypad
 		{ "KP0",	K_KP0 },
@@ -248,21 +250,21 @@ static void initialize()
 		{ "LCTRL",	K_LCTRL },
 		{ "RALT",	K_RALT },
 		{ "LALT",	K_LALT },
-		{ "RMETA",	K_RMETA },
-		{ "LMETA",	K_LMETA },
+//		{ "RMETA",	K_RMETA },
+//		{ "LMETA",	K_LMETA },
 		{ "LSUPER",	K_LSUPER },	// Left "Windows" key
 		{ "RSUPER",	K_RSUPER },	// Right "Windows" key
 		{ "RMODE",	K_MODE },	// "Alt Gr" key
-		{ "COMPOSE",	K_COMPOSE },	// Multi-key compose key
+//		{ "COMPOSE",	K_COMPOSE },	// Multi-key compose key
 
 		// Miscellaneous function keys
 		{ "HELP",	K_HELP },
 		{ "PRINT",	K_PRINT },
 		{ "SYSREQ",	K_SYSREQ },
-		{ "BREAK",	K_BREAK },
+//		{ "BREAK",	K_BREAK },
 		{ "MENU",	K_MENU },
 		{ "POWER",	K_POWER },	// Power Macintosh power key
-		{ "EURO",	K_EURO },	// Some european keyboards
+//		{ "EURO",	K_EURO },	// Some european keyboards
 		{ "UNDO",	K_UNDO },
 
 		// Japanese keyboard special keys
@@ -315,14 +317,14 @@ KeyCode getCode(string_ref name)
 	return result;
 }
 
-KeyCode getCode(SDLKey key, SDLMod mod, Uint8 scancode, bool release)
+KeyCode getCode(SDL_Keycode key, SDL_Keymod mod, Uint8 scancode, bool release)
 {
 	auto result = static_cast<KeyCode>(key);
 	if (result == 0) {
 		// Assume it is a Japanese keyboard and check
 		// scancode to recognize a few japanese
 		// specific keys for which SDL does not have an
-		// SDLKey keysym definition.
+		// SDL_Keycode keysym definition.
 		switch (scancode) {
 		case 49:
 			result = static_cast<KeyCode>(K_ZENKAKU_HENKAKU);
@@ -358,7 +360,7 @@ KeyCode getCode(SDLKey key, SDLMod mod, Uint8 scancode, bool release)
 	if (mod & KMOD_ALT) {
 		result = static_cast<KeyCode>(result | KM_ALT);
 	}
-	if (mod & KMOD_META) {
+	if (mod & KMOD_GUI) {
 		result = static_cast<KeyCode>(result | KM_META);
 	}
 	if (mod & KMOD_MODE) {

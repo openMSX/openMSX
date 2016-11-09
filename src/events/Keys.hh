@@ -3,7 +3,7 @@
 
 #include "string_ref.hh"
 #include <SDL_stdinc.h>
-#include <SDL_keysym.h> // TODO
+#include <SDL_keycode.h>
 #include <string>
 
 namespace openmsx {
@@ -99,6 +99,7 @@ enum KeyCode {
 	K_Z		= SDLK_z,
 	K_DELETE	= SDLK_DELETE,
 
+/*
 	K_WORLD_0	= SDLK_WORLD_0,
 	K_WORLD_1	= SDLK_WORLD_1,
 	K_WORLD_2	= SDLK_WORLD_2,
@@ -195,18 +196,19 @@ enum KeyCode {
 	K_WORLD_93	= SDLK_WORLD_93,
 	K_WORLD_94	= SDLK_WORLD_94,
 	K_WORLD_95	= SDLK_WORLD_95,
+*/
 
 	// Numeric keypad
-	K_KP0		= SDLK_KP0,
-	K_KP1		= SDLK_KP1,
-	K_KP2		= SDLK_KP2,
-	K_KP3		= SDLK_KP3,
-	K_KP4		= SDLK_KP4,
-	K_KP5		= SDLK_KP5,
-	K_KP6		= SDLK_KP6,
-	K_KP7		= SDLK_KP7,
-	K_KP8		= SDLK_KP8,
-	K_KP9		= SDLK_KP9,
+	K_KP0		= SDLK_KP_0,
+	K_KP1		= SDLK_KP_1,
+	K_KP2		= SDLK_KP_2,
+	K_KP3		= SDLK_KP_3,
+	K_KP4		= SDLK_KP_4,
+	K_KP5		= SDLK_KP_5,
+	K_KP6		= SDLK_KP_6,
+	K_KP7		= SDLK_KP_7,
+	K_KP8		= SDLK_KP_8,
+	K_KP9		= SDLK_KP_9,
 	K_KP_PERIOD	= SDLK_KP_PERIOD,
 	K_KP_DIVIDE	= SDLK_KP_DIVIDE,
 	K_KP_MULTIPLY	= SDLK_KP_MULTIPLY,
@@ -244,40 +246,40 @@ enum KeyCode {
 	K_F15		= SDLK_F15,
 
 	// Key state modifier keys
-	K_NUMLOCK	= SDLK_NUMLOCK,
+	K_NUMLOCK	= SDLK_NUMLOCKCLEAR,
 	K_CAPSLOCK	= SDLK_CAPSLOCK,
-	K_SCROLLOCK	= SDLK_SCROLLOCK,
+	K_SCROLLOCK	= SDLK_SCROLLLOCK,
 	K_RSHIFT	= SDLK_RSHIFT,
 	K_LSHIFT	= SDLK_LSHIFT,
 	K_RCTRL		= SDLK_RCTRL,
 	K_LCTRL		= SDLK_LCTRL,
 	K_RALT		= SDLK_RALT,
 	K_LALT		= SDLK_LALT,
-	K_RMETA		= SDLK_RMETA,
-	K_LMETA		= SDLK_LMETA,
-	K_LSUPER	= SDLK_LSUPER,	// Left "Windows" key
-	K_RSUPER	= SDLK_RSUPER,	// Right "Windows" key
+//	K_RMETA		= SDLK_RMETA,
+//	K_LMETA		= SDLK_LMETA,
+	K_LSUPER	= SDLK_LGUI,	// Left "Windows" key
+	K_RSUPER	= SDLK_RGUI,	// Right "Windows" key
 	K_MODE		= SDLK_MODE,	// "Alt Gr" key
-	K_COMPOSE	= SDLK_COMPOSE,	// Multi-key compose key
+//	K_COMPOSE	= SDLK_COMPOSE,	// Multi-key compose key
 
 	// Miscellaneous function keys
 	K_HELP		= SDLK_HELP,
-	K_PRINT		= SDLK_PRINT,
+	K_PRINT		= SDLK_PRINTSCREEN,
 	K_SYSREQ	= SDLK_SYSREQ,
-	K_BREAK		= SDLK_BREAK,
+//	K_BREAK		= SDLK_BREAK,
 	K_MENU		= SDLK_MENU,
 	K_POWER		= SDLK_POWER,	// Power Macintosh power key
-	K_EURO		= SDLK_EURO,	// Some european keyboards
+//	K_EURO		= SDLK_EURO,	// Some european keyboards
 	K_UNDO		= SDLK_UNDO,
 
 	// Some japanese keyboard keys are unknown to SDL.
-	// That is; they are all mapped to SDLKey=0
+	// That is; they are all mapped to SDL_Keycode=0
 	// However, they can recognized on their scancode
 	// These keys are usefull for Japanese users who want to map
 	// their host keyboard to the Japanese MSX keyboard
 	// (e.g. the MSX turbo R keyboard)
-	// Define some codes above suspected SDLKey value range, to
-	// avoid clash with SDLKey values
+	// Define some codes above suspected SDL_Keycode value range, to
+	// avoid clash with SDL_Keycode values
 	K_ZENKAKU_HENKAKU   = 0x10000, // Enables EMI mode (MSX does this with CTRL+SPACE)
 	K_MUHENKAN          = 0x10001, // ???
 	K_HENKAN_MODE       = 0x10002, // Similar to kanalock on MSX
@@ -303,7 +305,7 @@ enum KeyCode {
  */
 KeyCode getCode(string_ref name);
 
-KeyCode getCode(SDLKey key, SDLMod mod = KMOD_NONE, Uint8 scancode = 0, bool release = false);
+KeyCode getCode(SDL_Keycode key, SDL_Keymod mod = KMOD_NONE, Uint8 scancode = 0, bool release = false);
 
 /**
  * Translate key code to key name.
