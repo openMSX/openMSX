@@ -96,6 +96,11 @@ static int main(int argc, char **argv)
 
 	int err = 0;
 	try {
+/*
+ * TODO how does the CAPS lock event behave with SDL2?
+ *
+ * it seems the SDL_putenv() function doesn't exit anymore.
+ *
 		// Constructing Reactor already causes parts of SDL to be used
 		// and initialized. If we want to set environment variables
 		// before this, we have to do it here...
@@ -120,6 +125,7 @@ static int main(int argc, char **argv)
 #endif
 			));
 #endif
+*/
 		randomize(); // seed global random generator
 		initializeSDL();
 
