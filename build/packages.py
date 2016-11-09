@@ -150,6 +150,17 @@ class SDL(DownloadablePackage):
 			'd6d316a793e5e348155f0dd93b979798933fb98aa1edebcc108829d6474aad00',
 		}
 
+class SDL2(DownloadablePackage):
+	downloadURL = 'http://www.libsdl.org/release'
+	niceName = 'SDL2'
+	sourceName = 'SDL2'
+	version = '2.0.5'
+	fileLength = 4209352
+	checksums = {
+		'sha256':
+			'442038cf55965969f2ff06d976031813de643af9c9edc9e331bd761c242e8785',
+		}
+
 class SDL_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	niceName = 'SDL_ttf'
@@ -159,6 +170,17 @@ class SDL_ttf(DownloadablePackage):
 	checksums = {
 		'sha256':
 			'724cd895ecf4da319a3ef164892b72078bd92632a5d812111261cde248ebcdb7',
+		}
+
+class SDL2_ttf(DownloadablePackage):
+	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
+	niceName = 'SDL2_ttf'
+	sourceName = 'SDL2_ttf'
+	version = '2.0.14'
+	fileLength = 4147462
+	checksums = {
+		'sha256':
+			'34db5e20bcf64e7071fe9ae25acaa7d72bdc4f11ab3ce59acc768ab62fe39276',
 		}
 
 class TCL_ANDROID(DownloadablePackage):

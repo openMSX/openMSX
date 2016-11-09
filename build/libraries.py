@@ -294,6 +294,24 @@ class SDL(Library):
 	def isSystemLibrary(cls, platform):
 		return platform in ('android', 'dingux')
 
+class SDL2(Library):
+	libName = 'SDL2'
+	makeName = 'SDL2'
+	configScriptName = 'sdl2-config'
+	staticLibsOption = '--static-libs'
+	function = 'SDL_Init'
+
+	@classmethod
+	def getHeaders(cls, platform):
+		if platform == 'darwin':
+			return ('<SDL2/SDL.h>', )
+		else:
+			return ('<SDL.h>', )
+
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('android', 'dingux')
+
 class SDL_ttf(Library):
 	libName = 'SDL_ttf'
 	makeName = 'SDL_TTF'
@@ -314,6 +332,39 @@ class SDL_ttf(Library):
 			# Because of the SDLmain trickery, we need SDL's link flags too
 			# on some platforms even though we're linking dynamically.
 			flags += ' ' + SDL.getLinkFlags(platform, linkStatic, distroRoot)
+		return flags
+
+	@classmethod
+	def getVersion(cls, platform, linkStatic, distroRoot):
+		def execute(cmd, log):
+			version = cmd.expand(log, cls.getHeaders(platform),
+				'SDL_TTF_MAJOR_VERSION',
+				'SDL_TTF_MINOR_VERSION',
+				'SDL_TTF_PATCHLEVEL',
+				)
+			return None if None in version else '%s.%s.%s' % version
+		return execute
+
+class SDL2_ttf(Library):
+	libName = 'SDL2_ttf'
+	makeName = 'SDL2_TTF'
+	header = '<SDL_ttf.h>'
+	function = 'TTF_OpenFont'
+	dependsOn = ('SDL2', 'FREETYPE')
+
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('android', 'dingux')
+
+	@classmethod
+	def getLinkFlags(cls, platform, linkStatic, distroRoot):
+		flags = super(SDL2_ttf, cls).getLinkFlags(
+			platform, linkStatic, distroRoot
+			)
+		if not linkStatic:
+			# Because of the SDLmain trickery, we need SDL's link flags too
+			# on some platforms even though we're linking dynamically.
+			flags += ' ' + SDL2.getLinkFlags(platform, linkStatic, distroRoot)
 		return flags
 
 	@classmethod
