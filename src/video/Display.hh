@@ -11,6 +11,7 @@
 #include "RTSchedulable.hh"
 #include "Observer.hh"
 #include "CircularBuffer.hh"
+#include "gl_vec.hh"
 #include <memory>
 #include <vector>
 #include <cstdint>
@@ -59,6 +60,9 @@ public:
 
 	Layer* findActiveLayer() const;
 	const Layers& getAllLayers() const { return layers; }
+
+	gl::ivec2 getOutputScreenResolution() const { return resolution; }
+	void setOutputScreenResolution(gl::ivec2 r) { resolution = r; }
 
 private:
 	void resetVideoSystem();
@@ -117,6 +121,8 @@ private:
 
 	// the current renderer
 	RenderSettings::RendererID currentRenderer;
+
+	gl::ivec2 resolution;
 
 	bool renderFrozen;
 	bool switchInProgress;

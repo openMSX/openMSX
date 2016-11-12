@@ -2,6 +2,7 @@
 #include "TTFFont.hh"
 #include "SDLImage.hh"
 #include "OutputRectangle.hh"
+#include "Display.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
@@ -22,8 +23,8 @@ using namespace gl;
 
 namespace openmsx {
 
-OSDText::OSDText(OSDGUI& gui_, const TclObject& name_)
-	: OSDImageBasedWidget(gui_, name_)
+OSDText::OSDText(Display& display_, const TclObject& name_)
+	: OSDImageBasedWidget(display_, name_)
 	, fontfile("skins/Vera.ttf.gz")
 	, size(12)
 	, wrapMode(NONE), wrapw(0.0), wraprelw(1.0)
@@ -158,7 +159,7 @@ vec2 OSDText::getSize(const OutputRectangle& /*output*/) const
 	}
 }
 
-byte OSDText::getFadedAlpha() const
+uint8_t OSDText::getFadedAlpha() const
 {
 	return byte((getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
@@ -394,12 +395,12 @@ string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 
 vec2 OSDText::getRenderedSize() const
 {
-	SDL_Surface* surface = SDL_GetVideoSurface();
-	if (!surface) {
+	auto resolution = getDisplay().getOutputScreenResolution();
+	if (resolution[0] < 0) {
 		throw CommandException(
 			"Can't query size: no window visible");
 	}
-	DummyOutputRectangle output(surface->w, surface->h);
+	DummyOutputRectangle output(resolution);
 	// force creating image (does not yet draw it on screen)
 	const_cast<OSDText*>(this)->createImage(output);
 

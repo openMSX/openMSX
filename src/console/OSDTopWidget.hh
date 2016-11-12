@@ -10,12 +10,10 @@
 
 namespace openmsx {
 
-class OSDGUI;
-
 class OSDTopWidget final : public OSDWidget
 {
 public:
-	explicit OSDTopWidget(OSDGUI& gui);
+	explicit OSDTopWidget(Display& display);
 	string_ref getType() const override;
 	gl::vec2 getSize(const OutputRectangle& output) const override;
 
@@ -34,7 +32,6 @@ protected:
 	void paintGL (OutputSurface& output) override;
 
 private:
-	OSDGUI& gui;
 	std::vector<std::string> errors;
 
 	struct NameFromWidget {

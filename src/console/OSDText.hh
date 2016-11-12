@@ -3,7 +3,6 @@
 
 #include "OSDImageBasedWidget.hh"
 #include "TTFFont.hh"
-#include "openmsx.hh"
 #include <memory>
 
 namespace openmsx {
@@ -11,7 +10,7 @@ namespace openmsx {
 class OSDText final : public OSDImageBasedWidget
 {
 public:
-	OSDText(OSDGUI& gui, const TclObject& name);
+	OSDText(Display& display, const TclObject& name);
 
 	std::vector<string_ref> getProperties() const override;
 	void setProperty(Interpreter& interp,
@@ -22,7 +21,7 @@ public:
 private:
 	void invalidateLocal() override;
 	gl::vec2 getSize(const OutputRectangle& output) const override;
-	byte getFadedAlpha() const override;
+	uint8_t getFadedAlpha() const override;
 	std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) override;
 	std::unique_ptr<BaseImage> createGL (OutputRectangle& output) override;
 	template <typename IMAGE> std::unique_ptr<BaseImage> create(

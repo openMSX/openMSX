@@ -1,5 +1,6 @@
 #include "OSDWidget.hh"
 #include "OutputSurface.hh"
+#include "Display.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
@@ -119,8 +120,9 @@ GLScopedClip::~GLScopedClip()
 
 ////
 
-OSDWidget::OSDWidget(const TclObject& name_)
-	: parent(nullptr)
+OSDWidget::OSDWidget(Display& display_, const TclObject& name_)
+	: display(display_)
+	, parent(nullptr)
 	, name(name_)
 	, z(0.0)
 	, scaled(false)
@@ -356,7 +358,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 int OSDWidget::getScaleFactor(const OutputRectangle& output) const
 {
 	if (scaled) {
-		return output.getOutputWidth() / 320;;
+		return output.getOutputSize()[0] / 320;;
 	} else if (getParent()) {
 		return getParent()->getScaleFactor(output);
 	} else {
@@ -409,12 +411,12 @@ vec2 OSDWidget::getMouseCoord() const
 		return vec2(std::numeric_limits<float>::infinity());
 	}
 
-	SDL_Surface* surface = SDL_GetVideoSurface();
-	if (!surface) {
+	auto resolution = getDisplay().getOutputScreenResolution();
+	if (resolution[0] < 0) {
 		throw CommandException(
 			"Can't get mouse coordinates: no window visible");
 	}
-	DummyOutputRectangle output(surface->w, surface->h);
+	DummyOutputRectangle output(resolution);
 
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);

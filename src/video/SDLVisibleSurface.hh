@@ -9,7 +9,7 @@ class SDLVisibleSurface final : public VisibleSurface
 {
 public:
 	SDLVisibleSurface(unsigned width, unsigned height,
-	                  RenderSettings& renderSettings,
+	                  Display& display,
 	                  RTScheduler& rtScheduler,
 	                  EventDistributor& eventDistributor,
 	                  InputEventGenerator& inputEventGenerator,
@@ -22,7 +22,7 @@ private:
 
 	// VisibleSurface
 	void finish() override;
-	std::unique_ptr<Layer> createSnowLayer(Display& display) override;
+	std::unique_ptr<Layer> createSnowLayer() override;
 	std::unique_ptr<Layer> createConsoleLayer(
 		Reactor& reactor, CommandConsole& console) override;
 	std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) override;

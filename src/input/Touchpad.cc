@@ -10,6 +10,7 @@
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
+#include "Display.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "Clock.hh"
@@ -18,7 +19,6 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include <iostream>
-#include <SDL.h>
 
 using std::shared_ptr;
 using namespace gl;
@@ -55,9 +55,11 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, TouchpadState, "TouchpadState");
 
 Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
+                   Display& display_,
                    CommandController& commandController)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
+	, display(display_)
 	, transformSetting(commandController,
 		"touchpad_transform_matrix",
 		"2x3 matrix to transform host mouse coordinates to "
@@ -192,8 +194,9 @@ void Touchpad::write(byte value, EmuTime::param time)
 
 ivec2 Touchpad::transformCoords(ivec2 xy)
 {
-	if (SDL_Surface* surf = SDL_GetVideoSurface()) {
-		vec2 uv = vec2(xy) / vec2(surf->w, surf->h);
+	auto size = display.getOutputScreenResolution();
+	if (size[0] > 0) {
+		vec2 uv = vec2(xy) / vec2(size);
 		xy = ivec2(m * vec3(uv, 1.0f));
 	}
 	return clamp(xy, 0, 255);

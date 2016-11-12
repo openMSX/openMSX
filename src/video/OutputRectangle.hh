@@ -1,13 +1,14 @@
 #ifndef OUTPUTRECTANGLE_HH
 #define OUTPUTRECTANGLE_HH
 
+#include "gl_vec.hh"
+
 namespace openmsx {
 
 class OutputRectangle
 {
 public:
-	virtual unsigned getOutputWidth()  const = 0;
-	virtual unsigned getOutputHeight() const = 0;
+	virtual gl::ivec2 getOutputSize() const = 0;
 
 protected:
 	~OutputRectangle() {}
@@ -17,16 +18,13 @@ protected:
 class DummyOutputRectangle final : public OutputRectangle
 {
 public:
-	DummyOutputRectangle(unsigned width_, unsigned height_)
-		: width(width_), height(height_)
-	{
-	}
-	unsigned getOutputWidth()  const override { return width;  }
-	unsigned getOutputHeight() const override { return height; }
+	explicit DummyOutputRectangle(gl::ivec2 size_)
+		: size(size_) {}
+
+	gl::ivec2 getOutputSize() const override { return size; }
 
 private:
-	const unsigned width;
-	const unsigned height;
+	const gl::ivec2 size;
 };
 
 } // namespace openmsx

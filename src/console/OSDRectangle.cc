@@ -18,8 +18,8 @@ using namespace gl;
 
 namespace openmsx {
 
-OSDRectangle::OSDRectangle(OSDGUI& gui_, const TclObject& name_)
-	: OSDImageBasedWidget(gui_, name_)
+OSDRectangle::OSDRectangle(Display& display_, const TclObject& name_)
+	: OSDImageBasedWidget(display_, name_)
 	, scale(1.0), borderSize(0.0), relBorderSize(0.0)
 	, borderRGBA(0x000000ff)
 {
@@ -147,9 +147,9 @@ vec2 OSDRectangle::getSize(const OutputRectangle& output) const
 	//std::cout << "rectangle getWH " << getName() << "  " << width << " x " << height << std::endl;
 }
 
-byte OSDRectangle::getFadedAlpha() const
+uint8_t OSDRectangle::getFadedAlpha() const
 {
-	return byte(255 * getRecursiveFadeValue());
+	return uint8_t(255 * getRecursiveFadeValue());
 }
 
 template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
