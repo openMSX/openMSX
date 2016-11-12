@@ -42,7 +42,7 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_, CommandConsole& console)
 	resize();
 
 	consoleLayer = screen->createConsoleLayer(reactor, console);
-	snowLayer = screen->createSnowLayer(display);
+	snowLayer = screen->createSnowLayer();
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
 	display.addLayer(*consoleLayer);
 	display.addLayer(*snowLayer);
@@ -292,27 +292,27 @@ void SDLVideoSystem::resize()
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
 		screen = make_unique<SDLVisibleSurface>(
-			width, height, renderSettings, rtScheduler,
+			width, height, display, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm());
 		break;
 #if COMPONENT_GL
 	case RenderSettings::SDLGL_PP:
 		screen = make_unique<SDLGLVisibleSurface>(
-			width, height, renderSettings, rtScheduler,
+			width, height, display, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm());
 		break;
 	case RenderSettings::SDLGL_FB16:
 		screen = make_unique<SDLGLVisibleSurface>(
-			width, height, renderSettings, rtScheduler,
+			width, height, display, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm(),
 			SDLGLVisibleSurface::FB_16BPP);
 		break;
 	case RenderSettings::SDLGL_FB32:
 		screen = make_unique<SDLGLVisibleSurface>(
-			width, height, renderSettings, rtScheduler,
+			width, height, display, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm(),
 			SDLGLVisibleSurface::FB_32BPP);

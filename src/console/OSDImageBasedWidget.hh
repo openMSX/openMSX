@@ -2,13 +2,12 @@
 #define OSDIMAGEBASEDWIDGET_HH
 
 #include "OSDWidget.hh"
-#include "openmsx.hh"
 #include <cstdint>
 
 namespace openmsx {
 
-class OSDGUI;
 class BaseImage;
+class Display;
 
 class OSDImageBasedWidget : public OSDWidget
 {
@@ -16,7 +15,7 @@ public:
 	unsigned getRGBA(unsigned corner) const { return rgba[corner]; }
 	const unsigned* getRGBA4() const { return rgba; }
 
-	virtual byte getFadedAlpha() const = 0;
+	virtual uint8_t getFadedAlpha() const = 0;
 
 	std::vector<string_ref> getProperties() const override;
 	void setProperty(Interpreter& interp,
@@ -25,7 +24,7 @@ public:
 	float getRecursiveFadeValue() const override;
 
 protected:
-	OSDImageBasedWidget(OSDGUI& gui, const TclObject& name);
+	OSDImageBasedWidget(Display& display, const TclObject& name);
 	~OSDImageBasedWidget();
 	bool hasConstantAlpha() const;
 	void createImage(OutputRectangle& output);
@@ -50,7 +49,6 @@ private:
 	void paint(OutputSurface& output, bool openGL);
 	gl::vec2 getTransformedPos(const OutputRectangle& output) const;
 
-	OSDGUI& gui;
 	uint64_t startFadeTime;
 	float fadePeriod;
 	float fadeTarget;

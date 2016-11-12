@@ -12,21 +12,20 @@ namespace openmsx {
 
 SDLGLVisibleSurface::SDLGLVisibleSurface(
 		unsigned width, unsigned height,
-		RenderSettings& renderSettings_,
+		Display& display_,
 		RTScheduler& rtScheduler_,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
 		CliComm& cliComm_,
 		FrameBuffer frameBuffer_)
-	: VisibleSurface(renderSettings_, rtScheduler_, eventDistributor_, inputEventGenerator_,
+	: VisibleSurface(display_, rtScheduler_, eventDistributor_, inputEventGenerator_,
 			cliComm_)
 	, SDLGLOutputSurface(frameBuffer_)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
-	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF |
-	            (renderSettings_.getFullScreen() ? SDL_FULLSCREEN : 0);
+	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF;
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
 
@@ -106,9 +105,9 @@ void SDLGLVisibleSurface::finish()
 	SDL_GL_SwapBuffers();
 }
 
-std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer(Display& display)
+std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
 {
-	return make_unique<GLSnow>(display);
+	return make_unique<GLSnow>(getDisplay());
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(

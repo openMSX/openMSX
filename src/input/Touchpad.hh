@@ -11,6 +11,7 @@ namespace openmsx {
 
 class MSXEventDistributor;
 class StateChangeDistributor;
+class Display;
 class CommandController;
 class TclObject;
 class Interpreter;
@@ -21,6 +22,7 @@ class Touchpad final : public JoystickDevice, private MSXEventListener
 public:
 	Touchpad(MSXEventDistributor& eventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
+	         Display& display,
 	         CommandController& commandController);
 	~Touchpad();
 
@@ -52,6 +54,7 @@ private:
 
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
+	Display& display;
 
 	StringSetting transformSetting;
 	gl::matMxN<2, 3, float> m; // transformation matrix

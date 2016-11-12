@@ -139,8 +139,7 @@ protected:
 
 private:
 	// OutputRectangle
-	unsigned getOutputWidth()  const override { return getWidth(); }
-	unsigned getOutputHeight() const override { return getHeight(); }
+	gl::ivec2 getOutputSize() const override { return gl::ivec2(getWidth(), getHeight()); }
 
 	SDL_Surface* surface;
 	SDL_PixelFormat format;

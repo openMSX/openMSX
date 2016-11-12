@@ -2,6 +2,7 @@
 #include "OSDTopWidget.hh"
 #include "OSDGUI.hh"
 #include "BaseImage.hh"
+#include "Display.hh"
 #include "OutputSurface.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
@@ -16,9 +17,8 @@ using namespace gl;
 
 namespace openmsx {
 
-OSDImageBasedWidget::OSDImageBasedWidget(OSDGUI& gui_, const TclObject& name_)
-	: OSDWidget(name_)
-	, gui(gui_)
+OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& name_)
+	: OSDWidget(display_, name_)
 	, startFadeTime(0)
 	, fadePeriod(0.0)
 	, fadeTarget(1.0)
@@ -231,7 +231,7 @@ void OSDImageBasedWidget::setError(string message)
 	// the OSD widgets get created, but only the next frame, when this new
 	// widget is actually drawn the next error occurs.
 	if (!needSuppressErrors()) {
-		gui.getTopWidget().queueError(std::move(message));
+		getDisplay().getOSDGUI().getTopWidget().queueError(std::move(message));
 	}
 }
 
@@ -249,7 +249,7 @@ void OSDImageBasedWidget::createImage(OutputRectangle& output)
 {
 	if (!image && !hasError()) {
 		try {
-			if (gui.isOpenGL()) {
+			if (getDisplay().getOSDGUI().isOpenGL()) {
 				image = createGL(output);
 			} else {
 				image = createSDL(output);
@@ -265,16 +265,16 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 	// Note: Even when alpha == 0 we still create the image:
 	//    It may be needed to get the dimensions to be able to position
 	//    child widgets.
-	assert(openGL == gui.isOpenGL()); (void)openGL;
+	assert(openGL == getDisplay().getOSDGUI().isOpenGL()); (void)openGL;
 	createImage(output);
 
-	byte fadedAlpha = getFadedAlpha();
+	auto fadedAlpha = getFadedAlpha();
 	if ((fadedAlpha != 0) && image) {
 		ivec2 drawPos = round(getTransformedPos(output));
 		image->draw(output, drawPos, fadedAlpha);
 	}
 	if (isFading()) {
-		gui.refresh();
+		getDisplay().getOSDGUI().refresh();
 	}
 }
 

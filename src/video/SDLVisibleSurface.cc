@@ -15,12 +15,12 @@ namespace openmsx {
 
 SDLVisibleSurface::SDLVisibleSurface(
 		unsigned width, unsigned height,
-		RenderSettings& renderSettings_,
+		Display& display_,
 		RTScheduler& rtScheduler_,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
 		CliComm& cliComm_)
-	: VisibleSurface(renderSettings_, rtScheduler_, eventDistributor_,
+	: VisibleSurface(display_, rtScheduler_, eventDistributor_,
 	                 inputEventGenerator_, cliComm_)
 {
 #if PLATFORM_DINGUX
@@ -40,7 +40,6 @@ SDLVisibleSurface::SDLVisibleSurface(
 #else
 	int flags = SDL_SWSURFACE; // Why did we use a SW surface again?
 #endif
-	if (renderSettings_.getFullScreen()) flags |= SDL_FULLSCREEN;
 
 	createSurface(width, height, flags);
 	const SDL_Surface* surf = getSDLSurface();
@@ -58,16 +57,16 @@ void SDLVisibleSurface::finish()
 	setBufferPtr(static_cast<char*>(surf->pixels), surf->pitch);
 }
 
-std::unique_ptr<Layer> SDLVisibleSurface::createSnowLayer(Display& display)
+std::unique_ptr<Layer> SDLVisibleSurface::createSnowLayer()
 {
 	switch (getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 	case 2:
-		return make_unique<SDLSnow<uint16_t>>(*this, display);
+		return make_unique<SDLSnow<uint16_t>>(*this, getDisplay());
 #endif
 #if HAVE_32BPP
 	case 4:
-		return make_unique<SDLSnow<uint32_t>>(*this, display);
+		return make_unique<SDLSnow<uint32_t>>(*this, getDisplay());
 #endif
 	default:
 		UNREACHABLE; return nullptr;

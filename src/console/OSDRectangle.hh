@@ -2,7 +2,6 @@
 #define OSDRECTANGLE_HH
 
 #include "OSDImageBasedWidget.hh"
-#include "openmsx.hh"
 #include <memory>
 
 namespace openmsx {
@@ -12,7 +11,7 @@ class BaseImage;
 class OSDRectangle final : public OSDImageBasedWidget
 {
 public:
-	OSDRectangle(OSDGUI& gui, const TclObject& name);
+	OSDRectangle(Display& display, const TclObject& name);
 
 	std::vector<string_ref> getProperties() const override;
 	void setProperty(Interpreter& interp,
@@ -24,7 +23,7 @@ private:
 	bool takeImageDimensions() const;
 
 	gl::vec2 getSize(const OutputRectangle& output) const override;
-	byte getFadedAlpha() const override;
+	uint8_t getFadedAlpha() const override;
 	std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) override;
 	std::unique_ptr<BaseImage> createGL (OutputRectangle& output) override;
 	template <typename IMAGE> std::unique_ptr<BaseImage> create(

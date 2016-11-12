@@ -22,7 +22,7 @@ namespace openmsx {
 OSDGUI::OSDGUI(CommandController& commandController, Display& display_)
 	: display(display_)
 	, osdCommand(commandController)
-	, topWidget(*this)
+	, topWidget(display_)
 {
 }
 
@@ -104,9 +104,9 @@ unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (type == "rectangle") {
-		return make_unique<OSDRectangle>(gui, newName);
+		return make_unique<OSDRectangle>(gui.display, newName);
 	} else if (type == "text") {
-		return make_unique<OSDText>(gui, newName);
+		return make_unique<OSDText>(gui.display, newName);
 	} else {
 		throw CommandException(
 			"Invalid widget type '" + type + "', expected "

@@ -11,6 +11,7 @@
 
 namespace openmsx {
 
+class Display;
 class OutputRectangle;
 class OutputSurface;
 class TclObject;
@@ -51,8 +52,10 @@ public:
 	                    gl::ivec2& pos, gl::ivec2& size);
 	virtual gl::vec2 getSize(const OutputRectangle& output) const = 0;
 
+	Display& getDisplay() const { return display; }
+
 protected:
-	explicit OSDWidget(const TclObject& name);
+	OSDWidget(Display& display, const TclObject& name);
 	void invalidateChildren();
 	bool needSuppressErrors() const;
 
@@ -72,6 +75,7 @@ private:
 	  */
 	SubWidgets subWidgets;
 
+	Display& display;
 	OSDWidget* parent;
 
 	TclObject name;

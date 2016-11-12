@@ -1,6 +1,7 @@
 #include "VisibleSurface.hh"
 #include "InitException.hh"
 #include "Icon.hh"
+#include "Display.hh"
 #include "RenderSettings.hh"
 #include "SDLSurfacePtr.hh"
 #include "FloatSetting.hh"
@@ -79,13 +80,13 @@ static void setMaemo5WMHints(bool fullscreen)
 #endif
 
 VisibleSurface::VisibleSurface(
-		RenderSettings& renderSettings_,
+		Display& display_,
 		RTScheduler& rtScheduler,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
 		CliComm& cliComm)
 	: RTSchedulable(rtScheduler)
-	, renderSettings(renderSettings_)
+	, display(display_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
 {
@@ -126,6 +127,7 @@ VisibleSurface::VisibleSurface(
 	// on Mac it seems to be necessary to grab input in full screen
 	// Note: this is duplicated from InputEventGenerator::setGrabInput
 	// in order to keep the settings in sync (grab when fullscreen)
+	auto& renderSettings = display.getRenderSettings();
 	SDL_WM_GrabInput((inputEventGenerator_.getGrabInput().getBoolean() ||
 			  renderSettings.getFullScreen())
 			?  SDL_GRAB_ON : SDL_GRAB_OFF);
@@ -145,6 +147,8 @@ VisibleSurface::VisibleSurface(
 
 void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 {
+	if (getDisplay().getRenderSettings().getFullScreen()) flags |= SDL_FULLSCREEN;
+
 	// try default bpp
 	SDL_Surface* surf = SDL_SetVideoMode(width, height, 0, flags);
 	int bytepp = (surf ? surf->format->BytesPerPixel : 0);
@@ -179,6 +183,7 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		throw InitException("Could not open any screen: " + err);
 	}
+	getDisplay().setOutputScreenResolution(gl::ivec2(width, height));
 	setSDLSurface(surf);
 
 #if PLATFORM_MAEMO5
@@ -202,6 +207,8 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 
 VisibleSurface::~VisibleSurface()
 {
+	getDisplay().setOutputScreenResolution({-1, -1});
+
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -209,6 +216,7 @@ VisibleSurface::~VisibleSurface()
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
 	inputEventGenerator.getGrabInput().detach(*this);
+	auto& renderSettings = display.getRenderSettings();
 	renderSettings.getPointerHideDelaySetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
 
@@ -279,6 +287,7 @@ int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event)
 void VisibleSurface::updateCursor()
 {
 	cancelRT();
+	auto& renderSettings = display.getRenderSettings();
 	if (renderSettings.getFullScreen() ||
 	    inputEventGenerator.getGrabInput().getBoolean()) {
 		// always hide cursor in fullscreen or grabinput mode

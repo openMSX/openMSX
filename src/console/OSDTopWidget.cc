@@ -7,9 +7,8 @@
 
 namespace openmsx {
 
-OSDTopWidget::OSDTopWidget(OSDGUI& gui_)
-	: OSDWidget(TclObject())
-	, gui(gui_)
+OSDTopWidget::OSDTopWidget(Display& display_)
+	: OSDWidget(display_, TclObject())
 {
 	addName(*this);
 }
@@ -21,8 +20,7 @@ string_ref OSDTopWidget::getType() const
 
 gl::vec2 OSDTopWidget::getSize(const OutputRectangle& output) const
 {
-	return gl::vec2(output.getOutputWidth(),
-	                output.getOutputHeight());
+	return gl::vec2(output.getOutputSize()); // int -> float
 }
 
 void OSDTopWidget::invalidateLocal()
@@ -47,7 +45,7 @@ void OSDTopWidget::queueError(std::string message)
 
 void OSDTopWidget::showAllErrors()
 {
-	auto& cliComm = gui.getDisplay().getCliComm();
+	auto& cliComm = getDisplay().getCliComm();
 	for (const auto& message : errors) {
 		cliComm.printWarning(std::move(message));
 	}
