@@ -33,14 +33,11 @@ public:
 	void wait();
 
 	/**
-	 * Enable or disable keyboard event repeats
-	 */
-	void setKeyRepeat(bool enable);
-
-	/**
 	 * This functions shouldn't be needed, but in the SDL library input
 	 * and video or closely coupled (sigh). For example when the video mode
 	 * is changed we need to reset the keyrepeat and unicode settings.
+	 *
+	 * TODO is this still needed with SDL2?  ATM it's an empty function
 	 */
 	void reinit();
 
@@ -99,7 +96,6 @@ private:
 		Keys::KeyCode keyCode, bool up, const EventPtr& origEvent);
 
 
-	bool keyRepeat;
 	unsigned osdControlButtonsState; // 0 is pressed, 1 is released
 
 	// only for Android

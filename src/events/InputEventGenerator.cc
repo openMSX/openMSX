@@ -32,7 +32,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		false, Setting::DONT_SAVE)
 	, escapeGrabCmd(commandController)
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
-	, keyRepeat(false)
 {
 	setGrabInput(grabInput.getBoolean());
 	grabInput.attach(*this);
@@ -55,8 +54,8 @@ InputEventGenerator::~InputEventGenerator()
 
 void InputEventGenerator::reinit()
 {
-	SDL_EnableUNICODE(1);
-	setKeyRepeat(keyRepeat);
+	//SDL_EnableUNICODE(1); // TODO implement this in some other way
+	//setKeyRepeat(keyRepeat); TODO not supported anymore in SDL2 9was used by console)
 }
 
 void InputEventGenerator::wait()
@@ -99,17 +98,6 @@ void InputEventGenerator::poll()
 		std::cerr << "SDL event received, type: " << t << std::endl;
 #endif
 		handle(event);
-	}
-}
-
-void InputEventGenerator::setKeyRepeat(bool enable)
-{
-	keyRepeat = enable;
-	if (keyRepeat) {
-		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-		                    SDL_DEFAULT_REPEAT_INTERVAL);
-	} else {
-		SDL_EnableKeyRepeat(0, 0);
 	}
 }
 
@@ -240,7 +228,8 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		// will be mapped to keys SDLK_WORLD_93 and 94 and are
 		// interpeted here as joystick buttons (respectively button 0
 		// and 1).
-		if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
+		// TODO Android code should be rewritten for SDL2
+		/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
 			event = make_shared<JoystickButtonUpEvent>(0, 0);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				0, true, event);
@@ -250,17 +239,18 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				1, true, event);
 			androidButtonB = false;
-		} else {
+		} else*/ {
 			auto keyCode = Keys::getCode(
 				evt.key.keysym.sym, evt.key.keysym.mod,
 				evt.key.keysym.scancode, true);
+			int dummyUnicode = 0; // TODO different in SDL2, was evt.key.keysym.unicode
 			event = make_shared<KeyUpEvent>(
-				keyCode, evt.key.keysym.unicode);
+				keyCode, dummyUnicode);
 			triggerOsdControlEventsFromKeyEvent(keyCode, true, event);
 		}
 		break;
 	case SDL_KEYDOWN:
-		if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
+		/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
 			event = make_shared<JoystickButtonDownEvent>(0, 0);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				0, false, event);
@@ -270,12 +260,13 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				1, false, event);
 			androidButtonB = true;
-		} else {
+		} else*/ {
 			auto keyCode = Keys::getCode(
 				evt.key.keysym.sym, evt.key.keysym.mod,
 				evt.key.keysym.scancode, false);
+			int dummyUnicode = 0; // TODO different in SDL2, was evt.key.keysym.unicode
 			event = make_shared<KeyDownEvent>(
-				keyCode, evt.key.keysym.unicode);
+				keyCode, dummyUnicode);
 			triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
 		}
 		break;
@@ -322,16 +313,24 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		triggerOsdControlEventsFromJoystickHat(evt.jhat.value, event);
 		break;
 
-	case SDL_ACTIVEEVENT:
-		event = make_shared<FocusEvent>(evt.active.gain != 0);
-		break;
-
-	case SDL_VIDEORESIZE:
-		event = make_shared<ResizeEvent>(evt.resize.w, evt.resize.h);
-		break;
-
-	case SDL_VIDEOEXPOSE:
-		event = make_shared<SimpleEvent>(OPENMSX_EXPOSE_EVENT);
+	case SDL_WINDOWEVENT:
+		switch (evt.window.event) {
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+			event = make_shared<FocusEvent>(true);
+			break;
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+			event = make_shared<FocusEvent>(false);
+			break;
+		case SDL_WINDOWEVENT_RESIZED:
+			event = make_shared<ResizeEvent>(
+				evt.window.data1, evt.window.data2);
+			break;
+		case SDL_WINDOWEVENT_EXPOSED:
+			event = make_shared<SimpleEvent>(OPENMSX_EXPOSE_EVENT);
+			break;
+		default:
+			break;
+		}
 		break;
 
 	case SDL_QUIT:
@@ -392,7 +391,12 @@ void InputEventGenerator::setGrabInput(bool grab)
 	// It's not worth it to get that exactly right here, because here
 	// we don't have easy access to renderer settings and it may only
 	// go wrong if you explicitly change grab input at full screen (on Mac)
-	SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
+	//SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
+
+	// TODO is this still the correct place in SDL2
+	// TODO get the SDL_window
+	//SDL_Window* window = ...;
+	//SDL_SetWindowGrab(window, grab ? SDL_TRUE : SDL_FALSE);
 }
 
 

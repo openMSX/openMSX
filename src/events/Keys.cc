@@ -317,7 +317,7 @@ KeyCode getCode(string_ref name)
 	return result;
 }
 
-KeyCode getCode(SDL_Keycode key, SDL_Keymod mod, Uint8 scancode, bool release)
+KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release)
 {
 	auto result = static_cast<KeyCode>(key);
 	if (result == 0) {
@@ -338,6 +338,8 @@ KeyCode getCode(SDL_Keycode key, SDL_Keymod mod, Uint8 scancode, bool release)
 		case 208:
 			result = static_cast<KeyCode>(K_HIRAGANA_KATAKANA);
 			break;
+		default:
+			break; // nothing, silence compiler warning
 		}
 	}
 	if (result == 0) {
@@ -345,10 +347,8 @@ KeyCode getCode(SDL_Keycode key, SDL_Keymod mod, Uint8 scancode, bool release)
 		// for scancode 56; on Korean keyboard it is used
 		// for R-ALT key but SDL does not seem to recognize it,
 		// as reported by Miso Kim
-		switch (scancode) {
-		case 56:
+		if  (scancode == 56) {
 			result = static_cast<KeyCode>(K_RALT);
-			break;
 		}
 	}	
 	if (mod & KMOD_CTRL) {

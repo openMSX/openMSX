@@ -11,8 +11,8 @@ static EnumSetting<Keys::KeyCode>::Map getAllowedKeysMap()
 		{"RCTRL",       Keys::K_RCTRL},
 		{"HENKAN_MODE", Keys::K_HENKAN_MODE},
 		{"RSHIFT",      Keys::K_RSHIFT},
-		{"RMETA",       Keys::K_RMETA},
-		{"LMETA",       Keys::K_LMETA},
+		{"RMETA",       Keys::K_RSUPER}, // TODO correct???
+		{"LMETA",       Keys::K_LSUPER}, //
 		{"LSUPER",      Keys::K_LSUPER},
 		{"RSUPER",      Keys::K_RSUPER},
 		{"HELP",        Keys::K_HELP},

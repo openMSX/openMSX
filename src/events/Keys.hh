@@ -305,7 +305,7 @@ enum KeyCode {
  */
 KeyCode getCode(string_ref name);
 
-KeyCode getCode(SDL_Keycode key, SDL_Keymod mod = KMOD_NONE, Uint8 scancode = 0, bool release = false);
+KeyCode getCode(SDL_Keycode key, Uint16 mod = KMOD_NONE, SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN, bool release = false);
 
 /**
  * Translate key code to key name.
