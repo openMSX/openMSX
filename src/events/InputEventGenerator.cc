@@ -32,12 +32,11 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		false, Setting::DONT_SAVE)
 	, escapeGrabCmd(commandController)
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
+	, keyRepeat(false)
 {
 	setGrabInput(grabInput.getBoolean());
 	grabInput.attach(*this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
-
-	reinit();
 
 	osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
 
@@ -50,12 +49,6 @@ InputEventGenerator::~InputEventGenerator()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	grabInput.detach(*this);
-}
-
-void InputEventGenerator::reinit()
-{
-	//SDL_EnableUNICODE(1); // TODO implement this in some other way
-	//setKeyRepeat(keyRepeat); TODO not supported anymore in SDL2 9was used by console)
 }
 
 void InputEventGenerator::wait()
@@ -101,6 +94,10 @@ void InputEventGenerator::poll()
 	}
 }
 
+void InputEventGenerator::setKeyRepeat(bool enable)
+{
+	keyRepeat = enable;
+}
 
 void InputEventGenerator::setNewOsdControlButtonState(
 		unsigned newState, const EventPtr& origEvent)

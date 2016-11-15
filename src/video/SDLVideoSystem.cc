@@ -321,7 +321,6 @@ void SDLVideoSystem::resize()
 	default:
 		UNREACHABLE;
 	}
-	inputEventGenerator.reinit();
 }
 
 void SDLVideoSystem::update(const Setting& subject)
