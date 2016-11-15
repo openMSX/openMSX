@@ -72,15 +72,12 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
 
 static bool checkSDLReleasesCapslock()
 {
-	const SDL_version* v = SDL_Linked_Version();
-	if (SDL_VERSIONNUM(v->major, v->minor, v->patch) < SDL_VERSIONNUM(1, 2, 14)) {
-		// Feature was introduced in SDL 1.2.14.
-		return false;
-	} else {
-		// Check whether feature was enabled by envvar.
-		char *val = SDL_getenv("SDL_DISABLE_LOCK_KEYS");
-		return val && (strcmp(val, "1") == 0 || strcmp(val, "2") == 0);
-	}
+	// TODO: SDL_DISABLE_LOCK_KEYS no longer exists in SDL2.
+	//       According to a post on the bug report linked below,
+	//       SDL2's behavior corresponds to SDL_DISABLE_LOCK_KEYS=1.
+	//       If that is the case, this method can be removed.
+	//       https://bugzilla.icculus.org/show_bug.cgi?id=6070
+	return true;
 }
 
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
