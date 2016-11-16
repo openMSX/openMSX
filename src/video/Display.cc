@@ -185,7 +185,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 	} else if (event->getType() == OPENMSX_SWITCH_RENDERER_EVENT) {
 		doRendererSwitch();
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
-		setWindowTitle();
+		videoSystem->setWindowTitle(getWindowTitle());
 	} else if (event->getType() == OPENMSX_EXPOSE_EVENT) {
 		// Don't render too often, and certainly not when the screen
 		// will anyway soon be rendered.
@@ -213,7 +213,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 	return 0;
 }
 
-void Display::setWindowTitle()
+string Display::getWindowTitle()
 {
 	string title = Version::full();
 	if (!Version::RELEASE) {
@@ -229,7 +229,7 @@ void Display::setWindowTitle()
 			    config.getChild("info").getChildData("code");
 		}
 	}
-	videoSystem->setWindowTitle(title);
+	return title;
 }
 
 void Display::update(const Setting& setting)
@@ -308,7 +308,7 @@ void Display::doRendererSwitch2()
 
 	resetVideoSystem();
 	videoSystem = RendererFactory::createVideoSystem(reactor);
-	setWindowTitle();
+	videoSystem->setWindowTitle(getWindowTitle());
 
 	for (auto& l : listeners) {
 		l->postVideoSystemChange();
