@@ -234,9 +234,9 @@ VisibleSurface::~VisibleSurface()
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
-void VisibleSurface::setWindowTitle(const std::string& title)
+void VisibleSurface::updateWindowTitle()
 {
-	SDL_WM_SetCaption(title.c_str(), nullptr);
+	SDL_WM_SetCaption(display.getWindowTitle().c_str(), nullptr);
 }
 
 bool VisibleSurface::setFullScreen(bool wantedState)

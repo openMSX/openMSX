@@ -30,7 +30,7 @@ class VisibleSurface : public OutputSurface, public EventListener,
 {
 public:
 	virtual ~VisibleSurface();
-	void setWindowTitle(const std::string& title);
+	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
 
 	/** When a complete frame is finished, call this method.
