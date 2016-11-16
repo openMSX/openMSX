@@ -308,7 +308,6 @@ void Display::doRendererSwitch2()
 
 	resetVideoSystem();
 	videoSystem = RendererFactory::createVideoSystem(reactor);
-	videoSystem->updateWindowTitle();
 
 	for (auto& l : listeners) {
 		l->postVideoSystemChange();

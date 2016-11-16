@@ -190,6 +190,8 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 	setMaemo5WMHints(flags & SDL_FULLSCREEN);
 #endif
 
+	updateWindowTitle();
+
 #ifdef _WIN32
 	// find our current location...
 	HWND handle = GetActiveWindow();
