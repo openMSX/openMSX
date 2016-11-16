@@ -388,7 +388,7 @@ void InputEventGenerator::setGrabInput(bool grab)
 	// It's not worth it to get that exactly right here, because here
 	// we don't have easy access to renderer settings and it may only
 	// go wrong if you explicitly change grab input at full screen (on Mac)
-	//SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
+	SDL_SetRelativeMouseMode(grab ? SDL_TRUE : SDL_FALSE);
 
 	// TODO is this still the correct place in SDL2
 	// TODO get the SDL_window
