@@ -16,11 +16,6 @@
 #include "memory.hh"
 #include "build-info.hh"
 
-#if PLATFORM_MAEMO5
-#include <SDL_syswm.h>
-#define _NET_WM_STATE_ADD 1
-#endif
-
 #ifdef _WIN32
 #include <windows.h>
 static int lastWindowX = 0;
@@ -28,56 +23,6 @@ static int lastWindowY = 0;
 #endif
 
 namespace openmsx {
-
-#if PLATFORM_MAEMO5
-static void setMaemo5WMHints(bool fullscreen)
-{
-	if (!fullscreen) {
-		// In windowed mode, stick with default settings.
-		return;
-	}
-	SDL_SysWMinfo info;
-	SDL_VERSION(&info.version);
-	// In SDL 1.2.14, the header states that 0 is returned for all failures,
-	// but the implementation returns 0 for not implemented and -1 for invalid
-	// version. Reported as bug 957:
-	//   http://bugzilla.libsdl.org/show_bug.cgi?id=957
-	if (SDL_GetWMInfo(&info) > 0) {
-		::Display* dpy = info.info.x11.display;
-		Window win = info.info.x11.fswindow;
-		if (win) {
-			// Tell the SDL event thread not to touch the X server until we are
-			// done with it.
-			info.info.x11.lock_func();
-			// Fetch atoms; create them if necessary.
-			Atom wmStateAtom =
-				XInternAtom(dpy, "_NET_WM_STATE", False);
-			Atom fullscreenAtom =
-				XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
-			Atom nonCompositedAtom =
-				XInternAtom(dpy, "_HILDON_NON_COMPOSITED_WINDOW", False);
-			// Unmap window, so we can remap it when properly configured.
-			XUnmapWindow(dpy, win);
-			// Tell window manager that we are running fullscreen.
-			// TODO: Wouldn't it be better if SDL did this?
-			XChangeProperty(
-				dpy, win, wmStateAtom, XA_ATOM, 32, PropModeReplace,
-				(unsigned char *)&fullscreenAtom, 1
-				);
-			// Disable compositor to improve painting performance.
-			int one = 1;
-			XChangeProperty(
-				dpy, win, nonCompositedAtom, XA_INTEGER, 32, PropModeReplace,
-				(unsigned char *)&one, 1
-				);
-			// Remap the window with the new settings.
-			XMapWindow(dpy, win);
-			// Resume the SDL event thread.
-			info.info.x11.unlock_func();
-		}
-	}
-}
-#endif
 
 VisibleSurface::VisibleSurface(
 		Display& display_,
@@ -185,10 +130,6 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 	}
 	getDisplay().setOutputScreenResolution(gl::ivec2(width, height));
 	setSDLSurface(surf);
-
-#if PLATFORM_MAEMO5
-	setMaemo5WMHints(flags & SDL_FULLSCREEN);
-#endif
 
 	updateWindowTitle();
 
