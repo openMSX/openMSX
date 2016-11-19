@@ -48,11 +48,9 @@ namespace openmsx {
 static void initializeSDL()
 {
 	int flags = 0;
-#ifndef SDL_JOYSTICK_DISABLED
+//#ifndef SDL_JOYSTICK_DISABLED
+#if 0
 	flags |= SDL_INIT_JOYSTICK;
-#endif
-#ifndef NDEBUG
-	flags |= SDL_INIT_NOPARACHUTE;
 #endif
 	if (SDL_Init(flags) < 0) {
 		throw FatalError(StringOp::Builder() <<

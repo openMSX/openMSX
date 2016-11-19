@@ -27,7 +27,8 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
                            StateChangeDistributor& stateChangeDistributor,
                            PluggingController& controller)
 {
-#ifdef SDL_JOYSTICK_DISABLED
+//#ifdef SDL_JOYSTICK_DISABLED
+#if 1
 	(void)eventDistributor;
 	(void)stateChangeDistributor;
 	(void)controller;
@@ -82,7 +83,8 @@ private:
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyMegaState, "JoyMegaState");
 
-#ifndef SDL_JOYSTICK_DISABLED
+//#ifndef SDL_JOYSTICK_DISABLED
+#if 0
 // Note: It's OK to open/close the same SDL_Joystick multiple times (we open it
 // once per MSX machine). The SDL documentation doesn't state this, but I
 // checked the implementation and a SDL_Joystick uses a 'reference count' on
