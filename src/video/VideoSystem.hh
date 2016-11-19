@@ -68,9 +68,9 @@ public:
 	  */
 	virtual void takeScreenShot(const std::string& filename, bool withOsd);
 
-	/** Change the window title.
+	/** Called when the window title string has changed.
 	  */
-	virtual void setWindowTitle(const std::string& title);
+	virtual void updateWindowTitle();
 
 	/** TODO */
 	virtual OutputSurface* getOutputSurface() = 0;

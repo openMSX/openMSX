@@ -54,6 +54,7 @@ public:
 
 private:
 	using Table = MemBuffer<float, SSE2_ALIGNMENT>;
+	using PermuteTable = MemBuffer<int16_t>;
 
 	ResampleCoeffs() = default;
 	~ResampleCoeffs();
@@ -62,7 +63,7 @@ private:
 
 	struct Element {
 		double ratio;
-		int16_t permute[HALF_TAB_LEN];
+		PermuteTable permute;
 		Table table;
 		unsigned filterLen;
 		unsigned count;
@@ -87,7 +88,7 @@ void ResampleCoeffs::getCoeffs(
 	auto it = find_if(begin(cache), end(cache),
 		[=](const Element& e) { return e.ratio == ratio; });
 	if (it != end(cache)) {
-		permute   = it->permute;
+		permute   = it->permute.data();
 		table     = it->table.data();
 		filterLen = it->filterLen;
 		it->count++;
@@ -96,8 +97,9 @@ void ResampleCoeffs::getCoeffs(
 	Element elem;
 	elem.ratio = ratio;
 	elem.count = 1;
-	elem.table = calcTable(ratio, elem.permute, elem.filterLen);
-	permute   = elem.permute;
+	elem.permute = PermuteTable(HALF_TAB_LEN);
+	elem.table = calcTable(ratio, elem.permute.data(), elem.filterLen);
+	permute   = elem.permute.data();
 	table     = elem.table.data();
 	filterLen = elem.filterLen;
 	cache.push_back(std::move(elem));
@@ -451,13 +453,14 @@ template<int N> static inline __m128 shuffle(__m128 x)
 	return _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(x), N));
 }
 template<bool REVERSE>
-static inline void calcSseStereo(const float* buf_, const float* tab, size_t len, int* out)
+static inline void calcSseStereo(const float* buf_, const float* tab_, size_t len, int* out)
 {
 	assert((len % 4) == 0);
-	assert((uintptr_t(tab) % 16) == 0);
+	assert((uintptr_t(tab_) % 16) == 0);
 
 	ptrdiff_t x = 2 * (len & ~7) * sizeof(float);
 	const char* buf = reinterpret_cast<const char*>(buf_) + x;
+	const char* tab = reinterpret_cast<const char*>(tab_);
 	x = -x;
 
 	__m128 a0 = _mm_setzero_ps();
@@ -587,7 +590,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 			float r1 = 0.0f;
 			float r2 = 0.0f;
 			float r3 = 0.0f;
-			for (unsigned i = 0; i < filterLen; i += 4) {
+			for (int i = 0; i < int(filterLen); i += 4) {
 				r0 += tab[-i - 1] * buf[CHANNELS * (i + 0)];
 				r1 += tab[-i - 2] * buf[CHANNELS * (i + 1)];
 				r2 += tab[-i - 3] * buf[CHANNELS * (i + 2)];

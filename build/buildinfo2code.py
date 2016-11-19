@@ -20,7 +20,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 
 	# TODO: Add support for device-specific configuration.
 	platformDingux = targetPlatform == 'dingux'
-	platformMaemo5 = targetPlatform == 'maemo5'
 	platformPandora = targetPlatform == 'pandora'
 	platformAndroid = targetPlatform == 'android'
 
@@ -39,12 +38,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 		# so that people with a powerfull enough android device can use a higher scale factor
 		have32BPP = False
 		maxScaleFactor = 1
-	elif platformMaemo5:
-		# TODO: These are in fact N900 specific settings, but we have no
-		#       support yet for device specific configuration and the N900
-		#       is the most popular Maemo device currently.
-		have32BPP = False
-		maxScaleFactor = 2
 	elif platformPandora:
 		have32BPP = False
 		maxScaleFactor = 3
@@ -71,7 +64,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	# Use a macro iso integer because we really need to exclude code sections
 	# based on this.
 	yield '#define PLATFORM_DINGUX %d' % platformDingux
-	yield '#define PLATFORM_MAEMO5 %d' % platformMaemo5
 	yield '#define PLATFORM_ANDROID %d' % platformAndroid
 	yield '#define HAVE_16BPP %d' % have16BPP
 	yield '#define HAVE_32BPP %d' % have32BPP

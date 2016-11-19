@@ -64,9 +64,10 @@ public:
 	gl::ivec2 getOutputScreenResolution() const { return resolution; }
 	void setOutputScreenResolution(gl::ivec2 r) { resolution = r; }
 
+	std::string getWindowTitle();
+
 private:
 	void resetVideoSystem();
-	void setWindowTitle();
 
 	// EventListener interface
 	int signalEvent(const std::shared_ptr<const Event>& event) override;

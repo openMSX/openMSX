@@ -41,7 +41,7 @@ public:
 	bool checkSettings() override;
 	void flush() override;
 	void takeScreenShot(const std::string& filename, bool withOsd) override;
-	void setWindowTitle(const std::string& title) override;
+	void updateWindowTitle() override;
 	OutputSurface* getOutputSurface() override;
 
 private:

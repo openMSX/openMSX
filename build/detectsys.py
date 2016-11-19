@@ -91,19 +91,6 @@ def getCompilerMachine():
 			return machineParts[0], machineParts[2]
 	return None, None
 
-def detectMaemo5():
-	try:
-		proc = Popen(
-			["pkg-config", "--silence-errors", "--modversion", "maemo-version"],
-			stdin = None,
-			stdout = PIPE,
-			stderr = None);
-	except OSError:
-		return False
-
-	stdoutdata, stderrdata = proc.communicate()
-	return proc.returncode == 0 and stdoutdata.startswith("5.0")
-
 if __name__ == '__main__':
 	try:
 		hostCPU = detectCPU()
@@ -131,10 +118,6 @@ if __name__ == '__main__':
 			# safer, but will fail if using MacPorts on a 64-bit capable system.
 			if architecture()[0] == '64bit':
 				hostCPU = 'x86_64'
-		elif hostOS == 'linux' and hostCPU == 'arm':
-			# Detect maemo5 environment, e.g. Nokia N900
-			if detectMaemo5():
-				hostOS = 'maemo5'
 
 		print hostCPU, hostOS
 	except ValueError, ex:

@@ -268,9 +268,9 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 	}
 }
 
-void SDLVideoSystem::setWindowTitle(const std::string& title)
+void SDLVideoSystem::updateWindowTitle()
 {
-	screen->setWindowTitle(title);
+	screen->updateWindowTitle();
 }
 
 OutputSurface* SDLVideoSystem::getOutputSurface()

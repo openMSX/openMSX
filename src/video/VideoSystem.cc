@@ -15,7 +15,7 @@ void VideoSystem::takeScreenShot(
 		"Taking screenshot not possible with current renderer.");
 }
 
-void VideoSystem::setWindowTitle(const std::string& /*title*/)
+void VideoSystem::updateWindowTitle()
 {
 	// ignore
 }
