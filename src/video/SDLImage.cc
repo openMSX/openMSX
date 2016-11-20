@@ -55,7 +55,8 @@ static std::tuple<int, Uint32, Uint32, Uint32, Uint32, Uint32> getCurrentModeMas
 	Uint32 format = currentMode.format;
 	SDL_PixelFormatEnumToMasks(
 		format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
-	return {bpp, Rmask, Gmask, Bmask, Amask, format};
+	return std::tuple<int, Uint32, Uint32, Uint32, Uint32, Uint32>(
+		bpp, Rmask, Gmask, Bmask, Amask, format);
 }
 
 static SDLSurfacePtr convertToDisplayFormat(SDLSurfacePtr input)
