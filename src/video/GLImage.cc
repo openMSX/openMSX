@@ -31,7 +31,7 @@ static gl::Texture loadTexture(
 	area.y = 0;
 	area.w = size[0];
 	area.h = size[1];
-	SDL_SetAlpha(surface.get(), 0, 0);
+	SDL_SetSurfaceBlendMode(surface.get(), SDL_BLENDMODE_NONE);
 	SDL_BlitSurface(surface.get(), &area, image2.get(), &area);
 
 	gl::Texture texture(true); // enable interpolation

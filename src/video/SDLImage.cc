@@ -5,6 +5,7 @@
 #include "MSXException.hh"
 #include <cassert>
 #include <cstdlib>
+#include <tuple>
 #include <SDL.h>
 
 using std::string;
@@ -41,36 +42,58 @@ static bool hasConstantAlpha(const SDL_Surface& surface, byte& alpha)
 	return true;
 }
 
+// returns <bpp, Rmask, Gmask, Bmask, Amask, SDL_PixelFormatEnum>
+static std::tuple<int, Uint32, Uint32, Uint32, Uint32, Uint32> getCurrentModeMasks()
+{
+	int displayIndex = 0;
+	SDL_DisplayMode currentMode;
+	if (SDL_GetCurrentDisplayMode(displayIndex, &currentMode) != 0) {
+		// Error. Can this happen? Anything we can do?
+		assert(false);
+	}
+	int bpp; Uint32 Rmask, Gmask, Bmask, Amask;
+	Uint32 format = currentMode.format;
+	SDL_PixelFormatEnumToMasks(
+		format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
+	return {bpp, Rmask, Gmask, Bmask, Amask, format};
+}
+
 static SDLSurfacePtr convertToDisplayFormat(SDLSurfacePtr input)
 {
 	auto& inFormat  = *input->format;
-	auto& outFormat = *SDL_GetVideoSurface()->format;
 	assert((inFormat.BitsPerPixel == 24) || (inFormat.BitsPerPixel == 32));
+
+	int outBitsPerPixel;
+	Uint32 outRmask, outGmask, outBmask, outAmask, outFormat;
+	std::tie(outBitsPerPixel, outRmask, outGmask, outBmask, outAmask, outFormat) =
+		getCurrentModeMasks();
 
 	byte alpha;
 	if (hasConstantAlpha(*input, alpha)) {
-		Uint32 flags = (alpha == SDL_ALPHA_OPAQUE) ? 0 : SDL_SRCALPHA;
-		SDL_SetAlpha(input.get(), flags, alpha);
-		if ((inFormat.BitsPerPixel == outFormat.BitsPerPixel) &&
-		    (inFormat.Rmask == outFormat.Rmask) &&
-		    (inFormat.Gmask == outFormat.Gmask) &&
-		    (inFormat.Bmask == outFormat.Bmask)) {
+		SDL_SetSurfaceBlendMode(
+			input.get(),
+			(alpha == SDL_ALPHA_OPAQUE) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+		SDL_SetSurfaceAlphaMod(input.get(), alpha);
+		if ((inFormat.BitsPerPixel == outBitsPerPixel) &&
+		    (inFormat.Rmask == outRmask) &&
+		    (inFormat.Gmask == outGmask) &&
+		    (inFormat.Bmask == outBmask)) {
 			// Already in the correct format.
 			return input;
 		}
 		// 32bpp should rarely need this conversion (only for exotic
 		// pixel formats, not one of RGBA BGRA ARGB ABGR).
-		return SDLSurfacePtr(SDL_DisplayFormat(input.get()));
+		return SDLSurfacePtr(SDL_ConvertSurfaceFormat(input.get(), outFormat, 0));
 	} else {
 		assert(inFormat.Amask != 0);
 		assert(inFormat.BitsPerPixel == 32);
-		if (outFormat.BitsPerPixel != 32) {
+		if (outBitsPerPixel != 32) {
 			// We need an alpha channel, so leave the image in 32bpp format.
 			return input;
 		}
-		if ((inFormat.Rmask == outFormat.Rmask) &&
-		    (inFormat.Gmask == outFormat.Gmask) &&
-		    (inFormat.Bmask == outFormat.Bmask)) {
+		if ((inFormat.Rmask == outRmask) &&
+		    (inFormat.Gmask == outGmask) &&
+		    (inFormat.Bmask == outBmask)) {
 			// Both input and output are 32bpp and both have already
 			// the same pixel format (should almost always be the
 			// case for 32bpp output)
@@ -78,7 +101,9 @@ static SDLSurfacePtr convertToDisplayFormat(SDLSurfacePtr input)
 		}
 		// An exotic 32bpp pixel format (not one of RGBA, BGRA, ARGB,
 		// ABGR). Convert to display format with alpha channel.
-		return SDLSurfacePtr(SDL_DisplayFormatAlpha(input.get()));
+		// TODO correct? does this ensure there's an alpha channel?
+		// TODO in the future we should switch to SDL_Texture instead of SDL_Surface and then this doesn't matter anymore.
+		return SDLSurfacePtr(SDL_ConvertSurfaceFormat(input.get(), outFormat, 0));
 	}
 }
 
@@ -137,7 +162,7 @@ static void zoomSurface(const SDL_Surface* src, SDL_Surface* dst,
 
 static void getRGBAmasks32(Uint32& rmask, Uint32& gmask, Uint32& bmask, Uint32& amask)
 {
-	auto& format = *SDL_GetVideoSurface()->format;
+	/*auto& format = *SDL_GetVideoSurface()->format;
 	if ((format.BitsPerPixel == 32) && (format.Rloss == 0) &&
 	    (format.Gloss == 0) && (format.Bloss == 0)) {
 		rmask = format.Rmask;
@@ -151,6 +176,15 @@ static void getRGBAmasks32(Uint32& rmask, Uint32& gmask, Uint32& bmask, Uint32& 
 		       (amask == 0x00ff0000) || (amask == 0xff000000));
 	} else {
 		// ARGB8888 (this seems to be the 'default' format in SDL)
+		amask = 0xff000000;
+		rmask = 0x00ff0000;
+		gmask = 0x0000ff00;
+		bmask = 0x000000ff;
+	}*/
+	int bpp;
+	std::tie(bpp, rmask, gmask, bmask, amask, std::ignore) = getCurrentModeMasks();
+	if (bpp != 32) { // TODO should we also check {R,G,B}_loss == 0?
+		// Use ARGB8888 as a fallback
 		amask = 0xff000000;
 		rmask = 0x00ff0000;
 		gmask = 0x0000ff00;
@@ -173,7 +207,10 @@ static SDLSurfacePtr loadImage(const string& filename)
 {
 	// If the output surface is 32bpp, then always load the PNG as
 	// 32bpp (even if it has no alpha channel).
-	bool want32bpp = SDL_GetVideoSurface()->format->BitsPerPixel == 32;
+	int bpp;
+	std::tie(bpp, std::ignore, std::ignore, std::ignore, std::ignore, std::ignore) =
+		getCurrentModeMasks();
+	bool want32bpp = bpp == 32;
 	return convertToDisplayFormat(PNG::load(filename, want32bpp));
 }
 
@@ -483,14 +520,10 @@ void SDLImage::initSolid(ivec2 size, unsigned rgba,
 		getRGBAmasks32(rmask, gmask, bmask, amask);
 	} else {
 		// No alpha channel, copy format of the display surface.
-		SDL_Surface* videoSurface = SDL_GetVideoSurface();
-		assert(videoSurface);
-		auto& format = *videoSurface->format;
-		bpp   = format.BitsPerPixel;
-		rmask = format.Rmask;
-		gmask = format.Gmask;
-		bmask = format.Bmask;
-		amask = 0;
+		std::tie(std::ignore, rmask, gmask, bmask, amask, std::ignore) =
+			getCurrentModeMasks();
+		// TODO Old code set amask = 0, is that needed?
+		//      Now we just take the display format value.
 	}
 
 	// Create surface with correct size/masks.
@@ -546,15 +579,17 @@ void SDLImage::initGradient(ivec2 size, const unsigned* rgba_,
 	gradient(rgba, *tmp32, borderSize);
 	drawBorder(*tmp32, borderSize, borderRGBA);
 
-	auto& outFormat = *SDL_GetVideoSurface()->format;
-	if ((outFormat.BitsPerPixel == 32) || needAlphaChannel) {
-		if (outFormat.BitsPerPixel == 32) {
+	int bpp; Uint32 Rmask, Gmask, Bmask, Amask, outFormat;
+	std::tie(bpp, Rmask, Gmask, Bmask, Amask, std::ignore) =
+		getCurrentModeMasks();
+	if ((bpp == 32) || needAlphaChannel) {
+		if (bpp == 32) {
 			// for 32bpp the format must match
 			SDL_PixelFormat& inFormat  = *tmp32->format;
 			(void)&inFormat;
-			assert(inFormat.Rmask == outFormat.Rmask);
-			assert(inFormat.Gmask == outFormat.Gmask);
-			assert(inFormat.Bmask == outFormat.Bmask);
+			assert(inFormat.Rmask == Rmask);
+			assert(inFormat.Gmask == Gmask);
+			assert(inFormat.Bmask == Bmask);
 			// don't compare Amask
 		} else {
 			// For 16bpp with alpha channel, also create a 32bpp
@@ -562,7 +597,7 @@ void SDLImage::initGradient(ivec2 size, const unsigned* rgba_,
 		}
 		image = std::move(tmp32);
 	} else {
-		image.reset(SDL_DisplayFormat(tmp32.get()));
+		image.reset(SDL_ConvertSurfaceFormat(tmp32.get(), outFormat, 0));
 	}
 }
 
@@ -601,6 +636,7 @@ void SDLImage::draw(OutputSurface& output, gl::ivec2 pos, byte r, byte g, byte b
 	rect.y = pos[1];
 	if (a == -1) {
 		if (alpha == 255) {
+			SDL_SetSurfaceBlendMode(image.get(), SDL_BLENDMODE_NONE);
 			SDL_BlitSurface(image.get(), nullptr, outputSurface, &rect);
 		} else {
 			if (!workImage) allocateWorkImage();
@@ -608,11 +644,15 @@ void SDLImage::draw(OutputSurface& output, gl::ivec2 pos, byte r, byte g, byte b
 			rect.h = image->h;
 			SDL_BlitSurface(outputSurface, &rect, workImage.get(), nullptr);
 			SDL_BlitSurface(image.get(),   nullptr,  workImage.get(), nullptr);
-			SDL_SetAlpha(workImage.get(), SDL_SRCALPHA, alpha);
+			SDL_SetSurfaceBlendMode(workImage.get(), SDL_BLENDMODE_BLEND);
+			SDL_SetSurfaceAlphaMod(workImage.get(), alpha);
 			SDL_BlitSurface(workImage.get(), nullptr, outputSurface, &rect);
 		}
 	} else {
-		SDL_SetAlpha(image.get(), SDL_SRCALPHA, (a * alpha) / 256);
+		auto alpha2 = (a * alpha) / 256; // TODO should this be '/ 255'?
+		SDL_SetSurfaceBlendMode(image.get(),
+			(alpha2 == SDL_ALPHA_OPAQUE) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+		SDL_SetSurfaceAlphaMod(image.get(), alpha);
 		SDL_BlitSurface(image.get(), nullptr, outputSurface, &rect);
 	}
 }
