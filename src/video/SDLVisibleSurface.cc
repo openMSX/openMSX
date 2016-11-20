@@ -51,10 +51,10 @@ void SDLVisibleSurface::finish()
 {
 	unlock();
 	SDL_Surface* surf = getSDLSurface();
-	SDL_Flip(surf);
-	// The pixel pointer might be invalidated by the flip.
-	// This is certainly the case when double buffering.
-	setBufferPtr(static_cast<char*>(surf->pixels), surf->pitch);
+	SDL_UpdateTexture(texture, nullptr, surf->pixels, surf->pitch);
+	SDL_RenderClear(renderer);
+	SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+	SDL_RenderPresent(renderer);
 }
 
 std::unique_ptr<Layer> SDLVisibleSurface::createSnowLayer()

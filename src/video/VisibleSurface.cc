@@ -15,6 +15,7 @@
 #include "CliComm.hh"
 #include "memory.hh"
 #include "build-info.hh"
+#include <cassert>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -31,6 +32,9 @@ VisibleSurface::VisibleSurface(
 		InputEventGenerator& inputEventGenerator_,
 		CliComm& cliComm)
 	: RTSchedulable(rtScheduler)
+	, window(nullptr)
+	, renderer(nullptr)
+	, surface(nullptr)
 	, display(display_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
@@ -65,8 +69,8 @@ VisibleSurface::VisibleSurface(
 #ifndef _WIN32
 		}
 #endif
-		SDL_SetColorKey(iconSurf.get(), SDL_SRCCOLORKEY, 0);
-		SDL_WM_SetIcon(iconSurf.get(), nullptr);
+		SDL_SetColorKey(iconSurf.get(), SDL_TRUE, 0);
+		SDL_SetWindowIcon(window, iconSurf.get());
 	}
 
 	// on Mac it seems to be necessary to grab input in full screen
@@ -92,49 +96,61 @@ VisibleSurface::VisibleSurface(
 	updateCursor();
 }
 
-void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
+// TODO: The video subsystem is not de-inited on errors.
+//       While it would be consistent to do so, doing it in this class is
+//       not ideal since the init doesn't happen here.
+void VisibleSurface::createSurface(int width, int height, unsigned flags)
 {
-	if (getDisplay().getRenderSettings().getFullScreen()) flags |= SDL_FULLSCREEN;
+	if (getDisplay().getRenderSettings().getFullScreen()) {
+		flags |= SDL_WINDOW_FULLSCREEN;
+	}
 
-	// try default bpp
-	SDL_Surface* surf = SDL_SetVideoMode(width, height, 0, flags);
-	int bytepp = (surf ? surf->format->BytesPerPixel : 0);
-	if (bytepp != 2 && bytepp != 4) {
-		surf = nullptr;
-	}
-#if !HAVE_16BPP
-	if (bytepp == 2) {
-		surf = nullptr;
-	}
-#endif
-#if !HAVE_32BPP
-	if (bytepp == 4) {
-		surf = nullptr;
-	}
-#endif
-	// try supported bpp in order of preference
-#if HAVE_16BPP
-	if (!surf) surf = SDL_SetVideoMode(width, height, 16, flags);
-#if !PLATFORM_DINGUX
-	// We have a PixelOpBase specialization for Dingux which hardcodes the
-	// RGB565 pixel layout, so don't use 15 bpp there.
-	if (!surf) surf = SDL_SetVideoMode(width, height, 15, flags);
-#endif
-#endif
-#if HAVE_32BPP
-	if (!surf) surf = SDL_SetVideoMode(width, height, 32, flags);
-#endif
-
-	if (!surf) {
+	assert(!window);
+	window = SDL_CreateWindow(
+			display.getWindowTitle().c_str(),
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+			width, height,
+			flags);
+	if (!window) {
 		std::string err = SDL_GetError();
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		throw InitException("Could not open any screen: " + err);
+		throw InitException("Could not create window: " + err);
 	}
-	getDisplay().setOutputScreenResolution(gl::ivec2(width, height));
-	setSDLSurface(surf);
 
 	updateWindowTitle();
 
+	renderer = SDL_CreateRenderer(window, -1, 0);
+	if (!renderer) {
+		std::string err = SDL_GetError();
+		SDL_DestroyWindow(window);
+		throw InitException("Could not create renderer: " + err);
+	}
+
+	surface = SDL_CreateRGBSurface(
+			0, width, height, 32,
+			0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+	if (!surface) {
+		std::string err = SDL_GetError();
+		SDL_DestroyRenderer(renderer);
+		SDL_DestroyWindow(window);
+		throw InitException("Could not create surface: " + err);
+	}
+
+	texture = SDL_CreateTexture(
+			renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+			width, height);
+	if (!texture) {
+		std::string err = SDL_GetError();
+		SDL_FreeSurface(surface);
+		SDL_DestroyRenderer(renderer);
+		SDL_DestroyWindow(window);
+		throw InitException("Could not create texture: " + err);
+	}
+
+	setSDLSurface(surface);
+	SDL_RenderSetLogicalSize(renderer, width, height);
+	getDisplay().setOutputScreenResolution(gl::ivec2(width, height));
+
+	// TODO: SDL_CreateWindow accepts positioning arguments.
 #ifdef _WIN32
 	// find our current location...
 	HWND handle = GetActiveWindow();
@@ -176,18 +192,25 @@ VisibleSurface::~VisibleSurface()
 		lastWindowY = windowRect.top;
 	}
 #endif
+	assert(texture); SDL_DestroyTexture(texture);
+	assert(surface); SDL_FreeSurface(surface);
+	assert(renderer); SDL_DestroyRenderer(renderer);
+	assert(window); SDL_DestroyWindow(window);
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 void VisibleSurface::updateWindowTitle()
 {
-	SDL_WM_SetCaption(display.getWindowTitle().c_str(), nullptr);
+	assert(window);
+	SDL_SetWindowTitle(window, display.getWindowTitle().c_str());
 }
 
 bool VisibleSurface::setFullScreen(bool wantedState)
 {
-	SDL_Surface* surf = getSDLSurface();
-	bool currentState = (surf->flags & SDL_FULLSCREEN) != 0;
+	Uint32 flags = SDL_GetWindowFlags(window);
+	// Note: SDL_WINDOW_FULLSCREEN_DESKTOP also has the SDL_WINDOW_FULLSCREEN
+	//       bit set.
+	bool currentState = (flags & SDL_WINDOW_FULLSCREEN) != 0;
 	if (currentState == wantedState) {
 		// already wanted stated
 		return true;
@@ -201,6 +224,7 @@ bool VisibleSurface::setFullScreen(bool wantedState)
 
 	/*
 	// try to toggle full screen
+	SDL_Surface* surf = getSDLSurface();
 	SDL_WM_ToggleFullScreen(surf);
 	bool newState = (surf->flags & SDL_FULLSCREEN) != 0;
 	return newState == wantedState;

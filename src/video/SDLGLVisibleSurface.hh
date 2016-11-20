@@ -34,6 +34,8 @@ private:
 		Reactor& reactor, CommandConsole& console) override;
 	std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) override;
 	std::unique_ptr<OutputSurface> createOffScreenSurface() override;
+
+	SDL_GLContext glContext;
 };
 
 } // namespace openmsx

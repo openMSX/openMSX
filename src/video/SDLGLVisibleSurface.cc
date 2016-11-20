@@ -25,9 +25,10 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
-	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF;
+	int flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
+	glContext = SDL_GL_CreateContext(window);
 
 	// The created surface may be larger than requested.
 	// If that happens, center the area that we actually use.
@@ -82,7 +83,9 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
+	// TODO: Move context creation/deletion into Context class?
 	gl::context.reset();
+	SDL_GL_DeleteContext(glContext);
 }
 
 void SDLGLVisibleSurface::flushFrameBuffer()
@@ -102,7 +105,7 @@ void SDLGLVisibleSurface::saveScreenshot(const std::string& filename)
 
 void SDLGLVisibleSurface::finish()
 {
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(window);
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
