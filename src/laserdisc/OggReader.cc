@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cstring> // for memcpy, memcmp
 #include <cstdlib> // for atoi
+#include <cctype> // for isspace
 
 // TODO
 // - Improve error handling
@@ -450,6 +451,9 @@ void OggReader::readMetadata(th_comment& tc)
 	// Maybe there is a better way of doing this parsing in C++
 	char* p = metadata;
 	while (p) {
+		while (isspace(*p)) {
+			p++;
+		}
 		if (strncasecmp(p, "chapter: ", 9) == 0) {
 			int chapter = atoi(p + 9);
 			p = strchr(p, ',');
