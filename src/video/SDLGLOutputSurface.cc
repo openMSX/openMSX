@@ -33,7 +33,7 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 	SDL_PixelFormat* format = SDL_AllocFormat(
 		(frameBuffer == FB_16BPP) ? SDL_PIXELFORMAT_RGB24 :
 		        OPENMSX_BIGENDIAN ? SDL_PIXELFORMAT_RGBA8888 :
-		                            SDL_PIXELFORMAT_BGRA8888);
+		                            SDL_PIXELFORMAT_ARGB8888);
 	output.setSDLFormat(*format);
 
 	if (frameBuffer == FB_NONE) {
