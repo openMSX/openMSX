@@ -149,7 +149,7 @@ enum KeyCode {
 	// Key state modifier keys
 	K_NUMLOCK = 0x12C,
 	K_CAPSLOCK = 0x12D,
-	K_SCROLLOCK = 0x12E,
+	K_SCROLLLOCK = 0x12E,
 	K_RSHIFT = 0x12F,
 	K_LSHIFT = 0x130,
 	K_RCTRL = 0x131,

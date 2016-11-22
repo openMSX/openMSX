@@ -243,7 +243,12 @@ static void initialize()
 		// Key state modifier keys
 		{ "NUMLOCK",	K_NUMLOCK },
 		{ "CAPSLOCK",	K_CAPSLOCK },
-		{ "SCROLLOCK",	K_SCROLLOCK },
+		// Note: Older openMSX releases duplicated the SDL 1.2 spelling mistake
+		//       in the scroll lock key symbol. Since the wrong spelling comes
+		//       alphabetically after the right one, our to-string conversion
+		//       will pick the right one.
+		{ "SCROLLLOCK",	K_SCROLLLOCK },
+		{ "SCROLLOCK",	K_SCROLLLOCK }, // backwards compat
 		{ "RSHIFT",	K_RSHIFT },
 		{ "LSHIFT",	K_LSHIFT },
 		{ "RCTRL",	K_RCTRL },
@@ -444,7 +449,7 @@ KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release
 	// Key state modifier keys
 	case SDLK_NUMLOCKCLEAR:   result = K_NUMLOCK;           break;
 	case SDLK_CAPSLOCK:       result = K_CAPSLOCK;          break;
-	case SDLK_SCROLLLOCK:     result = K_SCROLLOCK;         break;
+	case SDLK_SCROLLLOCK:     result = K_SCROLLLOCK;        break;
 	case SDLK_RSHIFT:         result = K_RSHIFT;            break;
 	case SDLK_LSHIFT:         result = K_LSHIFT;            break;
 	case SDLK_RCTRL:          result = K_RCTRL;             break;
