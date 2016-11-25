@@ -12,7 +12,6 @@
 namespace openmsx {
 
 class Display;
-class OutputRectangle;
 class OutputSurface;
 class TclObject;
 class Interpreter;
@@ -45,12 +44,12 @@ public:
 	void paintSDLRecursive(OutputSurface& output);
 	void paintGLRecursive (OutputSurface& output);
 
-	int getScaleFactor(const OutputRectangle& surface) const;
-	gl::vec2 transformPos(const OutputRectangle& output,
+	int getScaleFactor(const OutputSurface& surface) const;
+	gl::vec2 transformPos(const OutputSurface& output,
 	                      gl::vec2 pos, gl::vec2 relPos) const;
-	void getBoundingBox(const OutputRectangle& output,
+	void getBoundingBox(const OutputSurface& output,
 	                    gl::ivec2& pos, gl::ivec2& size);
-	virtual gl::vec2 getSize(const OutputRectangle& output) const = 0;
+	virtual gl::vec2 getSize(const OutputSurface& output) const = 0;
 
 	Display& getDisplay() const { return display; }
 
@@ -65,7 +64,7 @@ protected:
 
 private:
 	gl::vec2 getMouseCoord() const;
-	gl::vec2 transformReverse(const OutputRectangle& output,
+	gl::vec2 transformReverse(const OutputSurface& output,
 	                          gl::vec2 pos) const;
 	void setParent(OSDWidget* parent_) { parent = parent_; }
 	void resortUp  (OSDWidget* elem);

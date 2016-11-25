@@ -1,6 +1,6 @@
 #include "OSDTopWidget.hh"
 #include "OSDGUI.hh"
-#include "OutputRectangle.hh"
+#include "OutputSurface.hh"
 #include "Display.hh"
 #include "CliComm.hh"
 #include "KeyRange.hh"
@@ -18,7 +18,7 @@ string_ref OSDTopWidget::getType() const
 	return "top";
 }
 
-gl::vec2 OSDTopWidget::getSize(const OutputRectangle& output) const
+gl::vec2 OSDTopWidget::getSize(const OutputSurface& output) const
 {
 	return gl::vec2(output.getOutputSize()); // int -> float
 }

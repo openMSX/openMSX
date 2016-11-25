@@ -148,7 +148,7 @@ string_ref OSDText::getType() const
 	return "text";
 }
 
-vec2 OSDText::getSize(const OutputRectangle& /*output*/) const
+vec2 OSDText::getSize(const OutputSurface& /*output*/) const
 {
 	if (image) {
 		return vec2(image->getSize());

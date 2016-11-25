@@ -1,7 +1,6 @@
 #ifndef OUTPUTSURFACE_HH
 #define OUTPUTSURFACE_HH
 
-#include "OutputRectangle.hh"
 #include "gl_vec.hh"
 #include <string>
 #include <cassert>
@@ -13,7 +12,7 @@ namespace openmsx {
   * It could be an in-memory buffer or a video buffer visible to the user
   * (see VisibleSurface subclass).
   */
-class OutputSurface : public OutputRectangle
+class OutputSurface
 {
 public:
 	OutputSurface(const OutputSurface&) = delete;
@@ -23,7 +22,7 @@ public:
 
 	unsigned getWidth()  const { return surface->w; }
 	unsigned getHeight() const { return surface->h; }
-	gl::ivec2 getOutputSize() const override { return gl::ivec2(getWidth(), getHeight()); }
+	gl::ivec2 getOutputSize() const { return gl::ivec2(getWidth(), getHeight()); }
 
 	int getX() const { return xOffset; }
 	int getY() const { return yOffset; }

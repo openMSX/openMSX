@@ -213,7 +213,7 @@ void OSDImageBasedWidget::invalidateLocal()
 	image.reset();
 }
 
-vec2 OSDImageBasedWidget::getTransformedPos(const OutputRectangle& output) const
+vec2 OSDImageBasedWidget::getTransformedPos(const OutputSurface& output) const
 {
 	return getParent()->transformPos(
 		output, float(getScaleFactor(output)) * getPos(), getRelPos());

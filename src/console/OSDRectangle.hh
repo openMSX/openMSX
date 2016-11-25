@@ -22,7 +22,7 @@ public:
 private:
 	bool takeImageDimensions() const;
 
-	gl::vec2 getSize(const OutputRectangle& output) const override;
+	gl::vec2 getSize(const OutputSurface& output) const override;
 	uint8_t getFadedAlpha() const override;
 	std::unique_ptr<BaseImage> createSDL(OutputSurface& output) override;
 	std::unique_ptr<BaseImage> createGL (OutputSurface& output) override;

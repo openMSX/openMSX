@@ -355,7 +355,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 #endif
 }
 
-int OSDWidget::getScaleFactor(const OutputRectangle& output) const
+int OSDWidget::getScaleFactor(const OutputSurface& output) const
 {
 	if (scaled) {
 		return output.getOutputSize()[0] / 320;;
@@ -366,7 +366,7 @@ int OSDWidget::getScaleFactor(const OutputRectangle& output) const
 	}
 }
 
-vec2 OSDWidget::transformPos(const OutputRectangle& output,
+vec2 OSDWidget::transformPos(const OutputSurface& output,
                              vec2 trPos, vec2 trRelPos) const
 {
 	vec2 out = trPos
@@ -378,7 +378,7 @@ vec2 OSDWidget::transformPos(const OutputRectangle& output,
 	return out;
 }
 
-vec2 OSDWidget::transformReverse(const OutputRectangle& output, vec2 trPos) const
+vec2 OSDWidget::transformReverse(const OutputSurface& output, vec2 trPos) const
 {
 	if (const auto* p = getParent()) {
 		trPos = p->transformReverse(output, trPos);
@@ -431,7 +431,7 @@ vec2 OSDWidget::getMouseCoord() const
 	return out / size;
 }
 
-void OSDWidget::getBoundingBox(const OutputRectangle& output,
+void OSDWidget::getBoundingBox(const OutputSurface& output,
                                ivec2& bbPos, ivec2& bbSize)
 {
 	vec2 topLeft     = transformPos(output, vec2(), vec2(0.0f));

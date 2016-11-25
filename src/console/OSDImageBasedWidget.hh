@@ -47,7 +47,7 @@ private:
 	void updateCurrentFadeValue();
 
 	void paint(OutputSurface& output, bool openGL);
-	gl::vec2 getTransformedPos(const OutputRectangle& output) const;
+	gl::vec2 getTransformedPos(const OutputSurface& output) const;
 
 	uint64_t startFadeTime;
 	float fadePeriod;

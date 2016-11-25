@@ -137,7 +137,7 @@ bool OSDRectangle::takeImageDimensions() const
 	return (size == vec2()) && (relSize == vec2());
 }
 
-vec2 OSDRectangle::getSize(const OutputRectangle& output) const
+vec2 OSDRectangle::getSize(const OutputSurface& output) const
 {
 	if (!imageName.empty() && image && takeImageDimensions()) {
 		return vec2(image->getSize());
