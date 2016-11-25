@@ -146,7 +146,6 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 
 	setSDLSurface(surface.get());
 	SDL_RenderSetLogicalSize(render, width, height);
-	getDisplay().setOutputScreenResolution(gl::ivec2(width, height));
 
 	// TODO: SDL_CreateWindow accepts positioning arguments.
 #ifdef _WIN32
@@ -168,8 +167,6 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 
 VisibleSurface::~VisibleSurface()
 {
-	getDisplay().setOutputScreenResolution({-1, -1});
-
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT, *this);
 	eventDistributor.unregisterEventListener(

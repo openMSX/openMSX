@@ -11,6 +11,7 @@
 #include "InputEvents.hh"
 #include "StateChange.hh"
 #include "Display.hh"
+#include "OutputSurface.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "Clock.hh"
@@ -194,9 +195,8 @@ void Touchpad::write(byte value, EmuTime::param time)
 
 ivec2 Touchpad::transformCoords(ivec2 xy)
 {
-	auto size = display.getOutputScreenResolution();
-	if (size[0] > 0) {
-		vec2 uv = vec2(xy) / vec2(size);
+	if (auto* output = display.getOutputSurface()) {
+		vec2 uv = vec2(xy) / vec2(output->getOutputSize());
 		xy = ivec2(m * vec3(uv, 1.0f));
 	}
 	return clamp(xy, 0, 255);

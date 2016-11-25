@@ -411,19 +411,18 @@ vec2 OSDWidget::getMouseCoord() const
 		return vec2(std::numeric_limits<float>::infinity());
 	}
 
-	auto resolution = getDisplay().getOutputScreenResolution();
-	if (resolution[0] < 0) {
+	auto* output = getDisplay().getOutputSurface();
+	if (!output) {
 		throw CommandException(
 			"Can't get mouse coordinates: no window visible");
 	}
-	DummyOutputRectangle output(resolution);
 
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	vec2 out = transformReverse(output, vec2(mouseX, mouseY));
+	vec2 out = transformReverse(*output, vec2(mouseX, mouseY));
 
-	vec2 size = getSize(output);
+	vec2 size = getSize(*output);
 	if ((size[0] == 0.0f) || (size[1] == 0.0f)) {
 		throw CommandException(
 			"-can't get mouse coordinates: "

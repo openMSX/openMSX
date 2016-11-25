@@ -44,7 +44,6 @@ Display::Display(Reactor& reactor_)
 	, commandConsole(reactor.getGlobalCommandController(),
 	                 reactor.getEventDistributor(), *this)
 	, currentRenderer(RenderSettings::UNINITIALIZED)
-	, resolution(-1, -1)
 	, switchInProgress(false)
 {
 	frameDurationSum = 0;

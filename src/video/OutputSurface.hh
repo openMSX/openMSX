@@ -23,6 +23,8 @@ public:
 
 	unsigned getWidth()  const { return surface->w; }
 	unsigned getHeight() const { return surface->h; }
+	gl::ivec2 getOutputSize() const override { return gl::ivec2(getWidth(), getHeight()); }
+
 	int getX() const { return xOffset; }
 	int getY() const { return yOffset; }
 
@@ -140,9 +142,6 @@ protected:
 	void setBufferPtr(char* data, unsigned pitch);
 
 private:
-	// OutputRectangle
-	gl::ivec2 getOutputSize() const override { return gl::ivec2(getWidth(), getHeight()); }
-
 	SDL_Surface* surface = nullptr;
 	SDL_Renderer* renderer = nullptr;
 	SDL_PixelFormat format;
