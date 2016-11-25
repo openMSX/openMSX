@@ -13,9 +13,11 @@ if {$is_dingoo} {
 	# Use the SELECT button.
 	bind_default "keyb ESCAPE" toggle_osd_keyboard
 } elseif {$is_android} {
+	# TODO: This key code no longer exists.
+	#       We probably should create our own virtual keyboard anyway.
 	# Android maps one of the virtual keys to WORLD_95
 	# listen to that one in order to show the keyboard
-	bind_default "keyb WORLD_95" toggle_osd_keyboard
+	#bind_default "keyb WORLD_95" toggle_osd_keyboard
 }
 
 # osd_menu
