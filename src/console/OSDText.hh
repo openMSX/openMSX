@@ -22,10 +22,10 @@ private:
 	void invalidateLocal() override;
 	gl::vec2 getSize(const OutputRectangle& output) const override;
 	uint8_t getFadedAlpha() const override;
-	std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) override;
-	std::unique_ptr<BaseImage> createGL (OutputRectangle& output) override;
+	std::unique_ptr<BaseImage> createSDL(OutputSurface& output) override;
+	std::unique_ptr<BaseImage> createGL (OutputSurface& output) override;
 	template <typename IMAGE> std::unique_ptr<BaseImage> create(
-		OutputRectangle& output);
+		OutputSurface& output);
 
 	template<typename FindSplitPointFunc, typename CantSplitFunc>
 	size_t split(const std::string& line, unsigned maxWidth,

@@ -162,6 +162,8 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 		             0, 0, SWP_NOSIZE);
 	}
 #endif
+	// prefer linear filtering (instead of nearest neighbour)
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 }
 
 VisibleSurface::~VisibleSurface()

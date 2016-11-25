@@ -245,7 +245,7 @@ void OSDImageBasedWidget::paintGL(OutputSurface& output)
 	paint(output, true);
 }
 
-void OSDImageBasedWidget::createImage(OutputRectangle& output)
+void OSDImageBasedWidget::createImage(OutputSurface& output)
 {
 	if (!image && !hasError()) {
 		try {

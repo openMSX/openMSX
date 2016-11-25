@@ -283,13 +283,18 @@ void OSDConsoleRenderer::loadBackground(string_ref value)
 		backgroundImage.reset();
 		return;
 	}
+	auto* output = reactor.getDisplay().getOutputSurface();
+	if (!output) {
+		backgroundImage.reset();
+		return;
+	}
 	string filename = systemFileContext().resolve(value);
 	if (!openGL) {
-		backgroundImage = make_unique<SDLImage>(filename, bgSize);
+		backgroundImage = make_unique<SDLImage>(*output, filename, bgSize);
 	}
 #if COMPONENT_GL
 	else {
-		backgroundImage = make_unique<GLImage>(filename, bgSize);
+		backgroundImage = make_unique<GLImage>(*output, filename, bgSize);
 	}
 #endif
 }
@@ -335,11 +340,11 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 		if (!surf) {
 			// nothing was rendered, so do nothing
 		} else if (!openGL) {
-			image2 = make_unique<SDLImage>(std::move(surf));
+			image2 = make_unique<SDLImage>(output, std::move(surf));
 		}
 #if COMPONENT_GL
 		else {
-			image2 = make_unique<GLImage>(std::move(surf));
+			image2 = make_unique<GLImage>(output, std::move(surf));
 		}
 #endif
 		image = image2.get();
@@ -440,12 +445,12 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		try {
 			if (!openGL) {
 				backgroundImage = make_unique<SDLImage>(
-					bgSize, CONSOLE_ALPHA);
+					output, bgSize, CONSOLE_ALPHA);
 			}
 #if COMPONENT_GL
 			else {
 				backgroundImage = make_unique<GLImage>(
-					bgSize, CONSOLE_ALPHA);
+					output, bgSize, CONSOLE_ALPHA);
 			}
 #endif
 		} catch (MSXException&) {

@@ -64,6 +64,8 @@ public:
 	gl::ivec2 getOutputScreenResolution() const { return resolution; }
 	void setOutputScreenResolution(gl::ivec2 r) { resolution = r; }
 
+	OutputSurface* getOutputSurface();
+
 	std::string getWindowTitle();
 
 private:

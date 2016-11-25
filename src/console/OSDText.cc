@@ -1,7 +1,7 @@
 #include "OSDText.hh"
 #include "TTFFont.hh"
 #include "SDLImage.hh"
-#include "OutputRectangle.hh"
+#include "OutputSurface.hh"
 #include "Display.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
@@ -165,10 +165,10 @@ uint8_t OSDText::getFadedAlpha() const
 }
 
 template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
-	OutputRectangle& output)
+	OutputSurface& output)
 {
 	if (text.empty()) {
-		return make_unique<IMAGE>(ivec2(), 0);
+		return make_unique<IMAGE>(output, ivec2(), 0);
 	}
 	int scale = getScaleFactor(output);
 	if (font.empty()) {
@@ -205,9 +205,9 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		SDLSurfacePtr surface(font.render(wrappedText,
 			(textRgba >> 24) & 0xff, (textRgba >> 16) & 0xff, (textRgba >> 8) & 0xff));
 		if (surface) {
-			return make_unique<IMAGE>(std::move(surface));
+			return make_unique<IMAGE>(output, std::move(surface));
 		} else {
-			return make_unique<IMAGE>(ivec2(), 0);
+			return make_unique<IMAGE>(output, ivec2(), 0);
 		}
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't render text: " + e.getMessage());
@@ -395,25 +395,24 @@ string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 
 vec2 OSDText::getRenderedSize() const
 {
-	auto resolution = getDisplay().getOutputScreenResolution();
-	if (resolution[0] < 0) {
+	auto* output = getDisplay().getOutputSurface();
+	if (!output) {
 		throw CommandException(
 			"Can't query size: no window visible");
 	}
-	DummyOutputRectangle output(resolution);
 	// force creating image (does not yet draw it on screen)
-	const_cast<OSDText*>(this)->createImage(output);
+	const_cast<OSDText*>(this)->createImage(*output);
 
 	vec2 imageSize = image ? vec2(image->getSize()) : vec2();
-	return imageSize / float(getScaleFactor(output));
+	return imageSize / float(getScaleFactor(*output));
 }
 
-std::unique_ptr<BaseImage> OSDText::createSDL(OutputRectangle& output)
+std::unique_ptr<BaseImage> OSDText::createSDL(OutputSurface& output)
 {
 	return create<SDLImage>(output);
 }
 
-std::unique_ptr<BaseImage> OSDText::createGL(OutputRectangle& output)
+std::unique_ptr<BaseImage> OSDText::createGL(OutputSurface& output)
 {
 #if COMPONENT_GL
 	return create<GLImage>(output);

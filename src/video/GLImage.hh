@@ -13,16 +13,16 @@ namespace openmsx {
 class GLImage final : public BaseImage
 {
 public:
-	explicit GLImage(const std::string& filename);
-	explicit GLImage(SDLSurfacePtr image);
-	GLImage(const std::string& filename, float scaleFactor);
-	GLImage(const std::string& filename, gl::ivec2 size);
-	GLImage(gl::ivec2 size, unsigned rgba);
-	GLImage(gl::ivec2 size, const unsigned* rgba,
+	GLImage(OutputSurface& output, const std::string& filename);
+	GLImage(OutputSurface& output, SDLSurfacePtr image);
+	GLImage(OutputSurface& output, const std::string& filename, float scaleFactor);
+	GLImage(OutputSurface& output, const std::string& filename, gl::ivec2 size);
+	GLImage(OutputSurface& output, gl::ivec2 size, unsigned rgba);
+	GLImage(OutputSurface& output, gl::ivec2 size, const unsigned* rgba,
 	        int borderSize, unsigned borderRGBA);
 
 	void draw(OutputSurface& output, gl::ivec2 pos,
-	          byte r, byte g, byte b, byte alpha) override;
+	          uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) override;
 	gl::ivec2 getSize() const override { return size; }
 
 private:
@@ -31,8 +31,8 @@ private:
 	gl::Texture texture; // must come after size and texCoord
 	int borderSize;
 	int bgA[4], borderA;
-	byte bgR[4], bgG[4], bgB[4];
-	byte borderR, borderG, borderB;
+	uint8_t bgR[4], bgG[4], bgB[4];
+	uint8_t borderR, borderG, borderB;
 };
 
 } // namespace openmsx

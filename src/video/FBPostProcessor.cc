@@ -328,7 +328,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 
 	drawNoise(output);
 
-	output.flushFrameBuffer(); // for SDLGL-FBxx
+	output.flushFrameBuffer();
 }
 
 template <class Pixel>

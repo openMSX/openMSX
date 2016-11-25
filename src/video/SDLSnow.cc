@@ -36,6 +36,7 @@ void SDLSnow<Pixel>::paint(OutputSurface& output)
 		}
 		memcpy(p1, p0, width * sizeof(Pixel));
 	}
+	output.flushFrameBuffer();
 
 	display.repaintDelayed(100 * 1000); // 10fps
 }

@@ -21,6 +21,7 @@ private:
 	void clearScreen() override;
 
 	// VisibleSurface
+	void flushFrameBuffer() override;
 	void finish() override;
 	std::unique_ptr<Layer> createSnowLayer() override;
 	std::unique_ptr<Layer> createConsoleLayer(

@@ -47,7 +47,7 @@ SDLVisibleSurface::SDLVisibleSurface(
 	setBufferPtr(static_cast<char*>(surf->pixels), surf->pitch);
 }
 
-void SDLVisibleSurface::finish()
+void SDLVisibleSurface::flushFrameBuffer()
 {
 	unlock();
 	SDL_Surface* surf = getSDLSurface();
@@ -55,7 +55,11 @@ void SDLVisibleSurface::finish()
 	SDL_UpdateTexture(texture.get(), nullptr, surf->pixels, surf->pitch);
 	SDL_RenderClear(render);
 	SDL_RenderCopy(render, texture.get(), nullptr, nullptr);
-	SDL_RenderPresent(render);
+}
+
+void SDLVisibleSurface::finish()
+{
+	SDL_RenderPresent(getSDLRenderer());
 }
 
 std::unique_ptr<Layer> SDLVisibleSurface::createSnowLayer()

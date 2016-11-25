@@ -114,6 +114,11 @@ VideoSystem& Display::getVideoSystem()
 	return *videoSystem;
 }
 
+OutputSurface* Display::getOutputSurface()
+{
+	return videoSystem ? videoSystem->getOutputSurface() : nullptr;
+}
+
 void Display::resetVideoSystem()
 {
 	videoSystem.reset();

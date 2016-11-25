@@ -27,12 +27,12 @@ protected:
 	OSDImageBasedWidget(Display& display, const TclObject& name);
 	~OSDImageBasedWidget();
 	bool hasConstantAlpha() const;
-	void createImage(OutputRectangle& output);
+	void createImage(OutputSurface& output);
 	void invalidateLocal() override;
 	void paintSDL(OutputSurface& output) override;
 	void paintGL (OutputSurface& output) override;
-	virtual std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) = 0;
-	virtual std::unique_ptr<BaseImage> createGL (OutputRectangle& output) = 0;
+	virtual std::unique_ptr<BaseImage> createSDL(OutputSurface& output) = 0;
+	virtual std::unique_ptr<BaseImage> createGL (OutputSurface& output) = 0;
 
 	void setError(std::string message);
 	bool hasError() const { return error; }
