@@ -20,7 +20,6 @@ public:
 
 	void draw(OutputSurface& output, gl::ivec2 pos,
 	          uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) override;
-	gl::ivec2 getSize() const override { return size; }
 
 private:
 	SDLTexturePtr toTexture(OutputSurface& output, SDL_Surface& surface);
@@ -30,9 +29,9 @@ private:
 	void initGradient(OutputSurface& output, gl::ivec2 size, const unsigned* rgba,
 	                  unsigned borderSize, unsigned borderRGBA);
 
-	gl::ivec2 size; // always positive size
-	SDLTexturePtr texture; // can be nullptr (must come after size)
-	const bool flipX, flipY; // true when original size was negative
+	SDLTexturePtr texture; // can be nullptr
+	const bool flipX, flipY; // 'size' is always positive, there are true
+	                         // when the original size was negative
 };
 
 } // namespace openmsx

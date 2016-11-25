@@ -23,10 +23,8 @@ public:
 
 	void draw(OutputSurface& output, gl::ivec2 pos,
 	          uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) override;
-	gl::ivec2 getSize() const override { return size; }
 
 private:
-	gl::ivec2 size;
 	gl::vec2 texCoord;
 	gl::Texture texture; // must come after size and texCoord
 	int borderSize;
