@@ -267,21 +267,17 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		// Once that is done, debug(...) can pass the c_str() version of that string
 		// to ad_printf(...) so that I don't have to make an explicit ad_printf(...)
 		// invocation for each debug(...) invocation
-		ad_printf("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
-		      keyEvent.getUnicode(),
+		ad_printf("Key pressed, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
-		debug("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
-		      keyEvent.getUnicode(),
+		debug("Key pressed, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	} else {
-		ad_printf("Key released, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
-		      keyEvent.getUnicode(),
+		ad_printf("Key released, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
-		debug("Key released, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
-		      keyEvent.getUnicode(),
+		debug("Key released, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	}
@@ -506,7 +502,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			unicode = 0;
 #endif
 		} else {
-			unicode = keyEvent.getUnicode();
+			unicode = 0; // TODO: SDL2 key events don't have a unicode value.
 			if ((unicode < 0x20) || ((0x7F <= unicode) && (unicode < 0xA0))) {
 				// Control character in C0 or C1 range.
 				// Use SDL's interpretation instead.

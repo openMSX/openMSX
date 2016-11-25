@@ -25,95 +25,15 @@ TimedEvent::TimedEvent(EventType type_)
 
 // class KeyEvent
 
-#if PLATFORM_ANDROID
-// The unicode support in the SDL Android port is currently broken.
-// It always sets the unicode value to 0 while on other platforms,
-// unicode is set to non-zero for character keys on keypress.
-// As a workaround, set unicode to keycode for character keys on keypress
-// until SDL Android port has been fixed.
-// Furthermore, try to set unicode value to correct character, taking into consideration
-// the modifier keys. The assumption is that Android has a qwerty keyboard, which is
-// true for the standard virtual keyboard of android 4.0, 4.1 and 4.2 and also true
-// for the more convenient "hackers keyboard" app.
-// However, some Android devices with a physical keyboard might have an Azerty keyboard
-// I don't know what the SDL layer does with the key events received from such Azerty
-// keyboard. Probably it won't work well with this work-around code. Must eventually fix
-// the unicode support in the SDL Android port, together with the main developer of the port.
-// Note that in an older version od SDL Android port, the unicode was always set to the
-// keycode (for all key presses and releases so even for non character keys)
-// Simulate this old broken behaviour and then "fix" the unicode
-static uint16_t fixUnicode(Keys::KeyCode keyCode, uint16_t brokenUnicode)
-{
-	brokenUnicode = keyCode;
-	Keys::KeyCode maskedKeyCode = (Keys::KeyCode)(int(brokenUnicode) & int(Keys::K_MASK));
-	if (brokenUnicode & Keys::KD_RELEASE) {
-		return 0;
-	}
-	if (maskedKeyCode >= Keys::K_UP) {
-		return 0;
-	}
-	if (maskedKeyCode >= Keys::K_WORLD_90 && maskedKeyCode <= Keys::K_WORLD_95) {
-		return 0;
-	}
-
-	if ((keyCode & Keys::KM_SHIFT) == Keys::KM_SHIFT) {
-		if (maskedKeyCode >= Keys::K_A && maskedKeyCode <= Keys::K_Z) {
-			// Convert lowercase character into uppercase
-			return brokenUnicode - 32;
-		}
-		// Convert several characters, assuming user has a qwerty keyboard on the Android or that Android has translated everything
-		// to qwerty keyboard combinations before passing the events to the SDL layer.
-		// Note that the 'rows' mentioned in below mapping table are based on the "hackers keyboard" app. Though
-		// this mapping turns out to work fine with the standard Android 4.x keyboard app as well.
-		switch (maskedKeyCode) {
-			// row 1
-			case Keys::K_1:            return uint16_t('!');
-			case Keys::K_2:            return uint16_t('@');
-			case Keys::K_3:            return uint16_t('#');
-			case Keys::K_4:            return uint16_t('$');
-			case Keys::K_5:            return uint16_t('%');
-			case Keys::K_6:            return uint16_t('^');
-			case Keys::K_7:            return uint16_t('&');
-			case Keys::K_8:            return uint16_t('*');
-			case Keys::K_9:            return uint16_t('(');
-			case Keys::K_0:            return uint16_t(')');
-			case Keys::K_MINUS:        return uint16_t('_');
-			case Keys::K_EQUALS:       return uint16_t('+');
-			// row 2
-			case Keys::K_LEFTBRACKET:  return uint16_t('{');
-			case Keys::K_RIGHTBRACKET: return uint16_t('}');
-			case Keys::K_BACKSLASH:    return uint16_t('|');
-			// row 3
-			case Keys::K_SEMICOLON:    return uint16_t(':');
-			case Keys::K_QUOTE:        return uint16_t('"');
-			// row 4
-			case Keys::K_COMMA:        return uint16_t('<');
-			case Keys::K_PERIOD:       return uint16_t('>');
-			case Keys::K_SLASH:        return uint16_t('?');
-		}
-	}
-	return brokenUnicode;
-}
-
-KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, uint16_t unicode_)
-	: TimedEvent(type), keyCode(keyCode_), unicode(fixUnicode(keyCode_, unicode_))
+KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_)
+	: TimedEvent(type_), keyCode(keyCode_)
 {
 }
-#else
-KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, uint16_t unicode_)
-	: TimedEvent(type_), keyCode(keyCode_), unicode(unicode_)
-{
-}
-#endif
 
 void KeyEvent::toStringImpl(TclObject& result) const
 {
 	result.addListElement("keyb");
 	result.addListElement(Keys::getName(getKeyCode()));
-	if (getUnicode() != 0) {
-		result.addListElement(StringOp::Builder() <<
-			"unicode" << getUnicode());
-	}
 }
 
 bool KeyEvent::lessImpl(const Event& other) const
@@ -127,12 +47,7 @@ bool KeyEvent::lessImpl(const Event& other) const
 // class KeyUpEvent
 
 KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode_)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, uint16_t(0))
-{
-}
-
-KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode_, uint16_t unicode_)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, unicode_)
+	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_)
 {
 }
 
@@ -140,12 +55,7 @@ KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode_, uint16_t unicode_)
 // class KeyDownEvent
 
 KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, uint16_t(0))
-{
-}
-
-KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_, uint16_t unicode_)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, unicode_)
+	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_)
 {
 }
 

@@ -325,7 +325,7 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		break;
 	}
 
-	uint16_t unicode = keyEvent.getUnicode();
+	uint16_t unicode = 0; // TODO: SDL2 key events don't have a unicode value.
 	if (!unicode || (mod & Keys::KM_META)) {
 		// Disallow META modifer for 'normal' key presses because on
 		// MacOSX Cmd+L is used as a hotkey to toggle the console.

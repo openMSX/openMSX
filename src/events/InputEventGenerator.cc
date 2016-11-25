@@ -280,9 +280,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			auto keyCode = Keys::getCode(
 				evt.key.keysym.sym, evt.key.keysym.mod,
 				evt.key.keysym.scancode, true);
-			int dummyUnicode = 0; // TODO different in SDL2, was evt.key.keysym.unicode
-			event = make_shared<KeyUpEvent>(
-				keyCode, dummyUnicode);
+			event = make_shared<KeyUpEvent>(keyCode);
 			triggerOsdControlEventsFromKeyEvent(keyCode, true, event);
 		}
 		break;
@@ -301,9 +299,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			auto keyCode = Keys::getCode(
 				evt.key.keysym.sym, evt.key.keysym.mod,
 				evt.key.keysym.scancode, false);
-			int dummyUnicode = 0; // TODO different in SDL2, was evt.key.keysym.unicode
-			event = make_shared<KeyDownEvent>(
-				keyCode, dummyUnicode);
+			event = make_shared<KeyDownEvent>(keyCode);
 			triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
 		}
 		break;

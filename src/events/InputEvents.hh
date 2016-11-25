@@ -25,30 +25,26 @@ class KeyEvent : public TimedEvent
 {
 public:
 	Keys::KeyCode getKeyCode() const { return keyCode; }
-	uint16_t getUnicode() const { return unicode; }
 
 protected:
-	KeyEvent(EventType type, Keys::KeyCode keyCode, uint16_t unicode);
+	KeyEvent(EventType type, Keys::KeyCode keyCode);
 
 private:
 	void toStringImpl(TclObject& result) const override;
 	bool lessImpl(const Event& other) const override;
 	const Keys::KeyCode keyCode;
-	const uint16_t unicode;
 };
 
 class KeyUpEvent : public KeyEvent
 {
 public:
 	explicit KeyUpEvent(Keys::KeyCode keyCode);
-	KeyUpEvent(Keys::KeyCode keyCode, uint16_t unicode);
 };
 
 class KeyDownEvent : public KeyEvent
 {
 public:
 	explicit KeyDownEvent(Keys::KeyCode keyCode);
-	KeyDownEvent(Keys::KeyCode keyCode, uint16_t unicode);
 };
 
 
