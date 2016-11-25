@@ -350,6 +350,10 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		triggerOsdControlEventsFromJoystickHat(evt.jhat.value, event);
 		break;
 
+	case SDL_TEXTINPUT:
+		event = make_shared<TextEvent>(string(evt.text.text));
+		break;
+
 	case SDL_WINDOWEVENT:
 		switch (evt.window.event) {
 		case SDL_WINDOWEVENT_FOCUS_GAINED:

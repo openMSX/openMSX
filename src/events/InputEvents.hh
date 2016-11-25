@@ -5,6 +5,7 @@
 #include "Keys.hh"
 #include <cstdint>
 #include <memory>
+#include <string>
 
 namespace openmsx {
 
@@ -190,6 +191,18 @@ private:
 	bool lessImpl(const JoystickEvent& other) const override;
 	const unsigned hat;
 	const unsigned value;
+};
+
+
+class TextEvent : public Event
+{
+public:
+	explicit TextEvent(const std::string& text_);
+	const std::string& getText() const { return text; }
+private:
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const Event& other) const override;
+	const std::string text;
 };
 
 
