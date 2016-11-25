@@ -14,6 +14,8 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 	// Of course it would be better to get rid of SDL_Surface in the
 	// OutputSurface interface.
 
+	// TODO SDL_renderer .. probably use SDL_CreateSoftwareRenderer()
+	//
 	setSDLFormat(*proto.format);
 	const SDL_PixelFormat& frmt = getSDLFormat();
 

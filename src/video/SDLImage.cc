@@ -580,7 +580,7 @@ void SDLImage::initGradient(ivec2 size, const unsigned* rgba_,
 	gradient(rgba, *tmp32, borderSize);
 	drawBorder(*tmp32, borderSize, borderRGBA);
 
-	int bpp; Uint32 Rmask, Gmask, Bmask, Amask, outFormat;
+	int bpp; Uint32 Rmask, Gmask, Bmask, Amask, outFormat = 0;
 	std::tie(bpp, Rmask, Gmask, Bmask, Amask, std::ignore) =
 		getCurrentModeMasks();
 	if ((bpp == 32) || needAlphaChannel) {
