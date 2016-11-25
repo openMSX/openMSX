@@ -33,7 +33,6 @@ VisibleSurface::VisibleSurface(
 		CliComm& cliComm)
 	: RTSchedulable(rtScheduler)
 	, window(nullptr)
-	, surface(nullptr)
 	, display(display_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
@@ -125,9 +124,9 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 	}
 	setSDLRenderer(render);
 
-	surface = SDL_CreateRGBSurface(
+	surface.reset(SDL_CreateRGBSurface(
 			0, width, height, 32,
-			0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+			0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
 	if (!surface) {
 		std::string err = SDL_GetError();
 		SDL_DestroyRenderer(render);
@@ -135,18 +134,17 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 		throw InitException("Could not create surface: " + err);
 	}
 
-	texture = SDL_CreateTexture(
+	texture.reset(SDL_CreateTexture(
 			render, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-			width, height);
+			width, height));
 	if (!texture) {
 		std::string err = SDL_GetError();
-		SDL_FreeSurface(surface);
 		SDL_DestroyRenderer(render);
 		SDL_DestroyWindow(window);
 		throw InitException("Could not create texture: " + err);
 	}
 
-	setSDLSurface(surface);
+	setSDLSurface(surface.get());
 	SDL_RenderSetLogicalSize(render, width, height);
 	getDisplay().setOutputScreenResolution(gl::ivec2(width, height));
 
@@ -192,8 +190,6 @@ VisibleSurface::~VisibleSurface()
 		lastWindowY = windowRect.top;
 	}
 #endif
-	assert(texture); SDL_DestroyTexture(texture);
-	assert(surface); SDL_FreeSurface(surface);
 	auto* render = getSDLRenderer();
 	assert(render); SDL_DestroyRenderer(render);
 	assert(window); SDL_DestroyWindow(window);

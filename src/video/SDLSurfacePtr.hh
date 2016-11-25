@@ -132,4 +132,80 @@ private:
 	openmsx::MemBuffer<char> buffer;
 };
 
+
+class SDLTexturePtr
+{
+public:
+	SDLTexturePtr(const SDLTexturePtr&) = delete;
+	SDLTexturePtr& operator=(const SDLTexturePtr&) = delete;
+
+	explicit SDLTexturePtr(SDL_Texture* texture_ = nullptr)
+		: texture(texture_)
+	{
+	}
+
+	SDLTexturePtr(SDLTexturePtr&& other) noexcept
+		: texture(other.texture)
+	{
+		other.texture = nullptr;
+	}
+
+	~SDLTexturePtr()
+	{
+		if (texture) SDL_DestroyTexture(texture);
+	}
+
+	void reset(SDL_Texture* texture_ = nullptr)
+	{
+		SDLTexturePtr temp(texture_);
+		temp.swap(*this);
+	}
+
+	SDL_Texture* get()
+	{
+		return texture;
+	}
+	const SDL_Texture* get() const
+	{
+		return texture;
+	}
+
+	void swap(SDLTexturePtr& other) noexcept
+	{
+		std::swap(texture, other.texture);
+	}
+
+	SDLTexturePtr& operator=(SDLTexturePtr&& other) noexcept
+	{
+		std::swap(texture, other.texture);
+		return *this;
+	}
+
+	SDL_Texture& operator*()
+	{
+		return *texture;
+	}
+	const SDL_Texture& operator*() const
+	{
+		return *texture;
+	}
+
+	SDL_Texture* operator->()
+	{
+		return texture;
+	}
+	const SDL_Texture* operator->() const
+	{
+		return texture;
+	}
+
+	explicit operator bool() const
+	{
+		return get() != nullptr;
+	}
+
+private:
+	SDL_Texture* texture;
+};
+
 #endif

@@ -52,9 +52,9 @@ void SDLVisibleSurface::finish()
 	unlock();
 	SDL_Surface* surf = getSDLSurface();
 	SDL_Renderer* render = getSDLRenderer();
-	SDL_UpdateTexture(texture, nullptr, surf->pixels, surf->pitch);
+	SDL_UpdateTexture(texture.get(), nullptr, surf->pixels, surf->pitch);
 	SDL_RenderClear(render);
-	SDL_RenderCopy(render, texture, nullptr, nullptr);
+	SDL_RenderCopy(render, texture.get(), nullptr, nullptr);
 	SDL_RenderPresent(render);
 }
 

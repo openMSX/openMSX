@@ -5,6 +5,7 @@
 #include "Observer.hh"
 #include "EventListener.hh"
 #include "RTSchedulable.hh"
+#include "SDLSurfacePtr.hh"
 #include <string>
 #include <memory>
 
@@ -61,8 +62,8 @@ protected:
 	void createSurface(int width, int height, unsigned flags);
 
 	SDL_Window* window;
-	SDL_Surface* surface;
-	SDL_Texture* texture;
+	SDLSurfacePtr surface;
+	SDLTexturePtr texture;
 
 private:
 	void updateCursor();
