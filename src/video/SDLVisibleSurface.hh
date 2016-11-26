@@ -15,6 +15,9 @@ public:
 	                  InputEventGenerator& inputEventGenerator,
 	                  CliComm& cliComm);
 
+	static void saveScreenshotSDL(OutputSurface& output,
+	                              const std::string& filename);
+
 private:
 	// OutputSurface
 	void saveScreenshot(const std::string& filename) override;

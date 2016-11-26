@@ -367,7 +367,7 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 	}
 }
 
-void save(SDL_Surface* surface, const std::string& filename)
+static void save(SDL_Surface* surface, const std::string& filename)
 {
 	SDL_PixelFormat* frmt24 = SDL_AllocFormat(
 		OPENMSX_BIGENDIAN ? SDL_PIXELFORMAT_BGR24 : SDL_PIXELFORMAT_RGB24);

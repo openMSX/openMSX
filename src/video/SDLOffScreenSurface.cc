@@ -1,5 +1,5 @@
 #include "SDLOffScreenSurface.hh"
-#include "PNG.hh"
+#include "SDLVisibleSurface.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -41,8 +41,7 @@ SDLOffScreenSurface::~SDLOffScreenSurface()
 
 void SDLOffScreenSurface::saveScreenshot(const std::string& filename)
 {
-	lock();
-	PNG::save(getSDLSurface(), filename);
+	SDLVisibleSurface::saveScreenshotSDL(*this, filename);
 }
 
 void SDLOffScreenSurface::clearScreen()

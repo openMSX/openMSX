@@ -101,16 +101,22 @@ std::unique_ptr<OutputSurface> SDLVisibleSurface::createOffScreenSurface()
 
 void SDLVisibleSurface::saveScreenshot(const std::string& filename)
 {
-	unsigned width = getWidth();
-	unsigned height = getHeight();
+	saveScreenshotSDL(*this, filename);
+}
+
+void SDLVisibleSurface::saveScreenshotSDL(
+	OutputSurface& output, const std::string& filename)
+{
+	unsigned width = output.getWidth();
+	unsigned height = output.getHeight();
 	VLA(const void*, rowPointers, height);
 	MemBuffer<uint8_t> buffer(width * height * 3);
 	for (unsigned i = 0; i < height; ++i) {
 		rowPointers[i] = &buffer[width * 3 * i];
 	}
 	if (SDL_RenderReadPixels(
-			getSDLRenderer(), nullptr, SDL_PIXELFORMAT_RGB24,
-			buffer.data(), width * 3)) {
+			output.getSDLRenderer(), nullptr,
+			SDL_PIXELFORMAT_RGB24, buffer.data(), width * 3)) {
 		throw MSXException(StringOp::Builder() <<
 			"Couldn't acquire screenshot pixels: " <<
 			SDL_GetError());
