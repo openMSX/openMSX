@@ -23,7 +23,11 @@ static SDLSurfacePtr getTempSurface(ivec2 size_)
 	Uint32 rmask, gmask, bmask, amask;
 	SDL_PixelFormatEnumToMasks(
 		currentMode.format, &bpp, &rmask, &gmask, &bmask, &amask);
-	if (bpp != 32) { // TODO should we also check {R,G,B}_loss == 0?
+	if (bpp == 32) {
+		if (amask == 0) {
+			amask = ~(rmask | gmask | bmask);
+		}
+	} else { // TODO should we also check {R,G,B}_loss == 0?
 		// Use ARGB8888 as a fallback
 		amask = 0xff000000;
 		rmask = 0x00ff0000;
@@ -245,7 +249,7 @@ SDLTexturePtr SDLImage::toTexture(OutputSurface& output, SDL_Surface& surface)
 	SDLTexturePtr result(SDL_CreateTextureFromSurface(
 		output.getSDLRenderer(), &surface));
 	SDL_SetTextureBlendMode(result.get(), SDL_BLENDMODE_BLEND);
-	SDL_QueryTexture(texture.get(), nullptr, nullptr, &size[0], &size[1]);
+	SDL_QueryTexture(result.get(), nullptr, nullptr, &size[0], &size[1]);
 	return result;
 }
 
