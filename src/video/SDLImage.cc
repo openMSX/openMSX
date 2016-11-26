@@ -3,6 +3,7 @@
 #include "OutputSurface.hh"
 #include <cassert>
 #include <cstdlib>
+#include <cmath>
 #include <SDL.h>
 
 using std::string;
@@ -202,7 +203,7 @@ SDLImage::SDLImage(OutputSurface& output, const std::string& filename, float sca
 	: texture(loadImage(output, filename))
 	, flipX(scaleFactor < 0.0f), flipY(scaleFactor < 0.0f)
 {
-	size = trunc(vec2(size) * abs(scaleFactor)); // scale image size
+	size = trunc(vec2(size) * std::abs(scaleFactor)); // scale image size
 }
 
 // TODO get rid of this constructor, see above
