@@ -6,8 +6,11 @@
 #include "OSDGUILayer.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
+#include "MSXException.hh"
+#include "StringOp.hh"
 #include "memory.hh"
 #include "unreachable.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <cstdint>
 
@@ -98,8 +101,21 @@ std::unique_ptr<OutputSurface> SDLVisibleSurface::createOffScreenSurface()
 
 void SDLVisibleSurface::saveScreenshot(const std::string& filename)
 {
-	lock();
-	PNG::save(getSDLSurface(), filename);
+	unsigned width = getWidth();
+	unsigned height = getHeight();
+	VLA(const void*, rowPointers, height);
+	MemBuffer<uint8_t> buffer(width * height * 3);
+	for (unsigned i = 0; i < height; ++i) {
+		rowPointers[i] = &buffer[width * 3 * i];
+	}
+	if (SDL_RenderReadPixels(
+			getSDLRenderer(), nullptr, SDL_PIXELFORMAT_RGB24,
+			buffer.data(), width * 3)) {
+		throw MSXException(StringOp::Builder() <<
+			"Couldn't acquire screenshot pixels: " <<
+			SDL_GetError());
+	}
+	PNG::save(width, height, rowPointers, filename);
 }
 
 void SDLVisibleSurface::clearScreen()
