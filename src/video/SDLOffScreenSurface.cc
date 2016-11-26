@@ -14,8 +14,6 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 	// Of course it would be better to get rid of SDL_Surface in the
 	// OutputSurface interface.
 
-	// TODO SDL_renderer .. probably use SDL_CreateSoftwareRenderer()
-	//
 	setSDLFormat(*proto.format);
 	const SDL_PixelFormat& frmt = getSDLFormat();
 
@@ -30,6 +28,15 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 
 	setSDLSurface(surface.get());
 	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
+
+	// Used (only?) by 'screenshow -with-osd'.
+	auto* render = SDL_CreateSoftwareRenderer(surface.get());
+	setSDLRenderer(render);
+}
+
+SDLOffScreenSurface::~SDLOffScreenSurface()
+{
+	SDL_DestroyRenderer(getSDLRenderer());
 }
 
 void SDLOffScreenSurface::saveScreenshot(const std::string& filename)

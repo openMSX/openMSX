@@ -8,9 +8,9 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	: SDLGLOutputSurface(output.getFrameBufferType())
 	, fboTex(true) // enable interpolation   TODO why?
 {
-	// TODO SDL_renderer .. probably reuse existing one
 	// only used for width and height
 	setSDLSurface(const_cast<SDL_Surface*>(output.getSDLSurface()));
+	setSDLRenderer(output.getSDLRenderer());
 
 	fboTex.bind();
 	glTexImage2D(GL_TEXTURE_2D,    // target

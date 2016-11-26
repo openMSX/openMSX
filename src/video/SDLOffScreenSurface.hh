@@ -11,6 +11,7 @@ class SDLOffScreenSurface final : public OutputSurface
 {
 public:
 	explicit SDLOffScreenSurface(const SDL_Surface& prototype);
+	~SDLOffScreenSurface();
 
 private:
 	// OutputSurface
