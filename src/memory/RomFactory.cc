@@ -273,6 +273,10 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		result = make_unique<RomAscii8_8>(
 			config, move(rom), RomAscii8_8::ASCII8_8);
 		break;
+	case ROM_ASCII8_32:
+		result = make_unique<RomAscii8_8>(
+			config, move(rom), RomAscii8_8::ASCII8_32);
+		break;
 	case ROM_ASCII8_2:
 		result = make_unique<RomAscii8_8>(
 			config, move(rom), RomAscii8_8::ASCII8_2);
