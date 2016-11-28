@@ -95,20 +95,11 @@ ifneq ($(TRIPLE_OS),linux)
 PACKAGES_BUILD:=$(filter-out ALSA,$(PACKAGES_BUILD))
 endif
 PACKAGES_NOBUILD:=
-ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
-PACKAGES_NOBUILD+=DIRECTX
-endif
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
 
 BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
 INSTALL_BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 INSTALL_NOBUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_NOBUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
-
-ifeq ($(filter $(PACKAGES_3RD),DIRECTX),)
-INSTALL_DIRECTX:=
-else
-INSTALL_DIRECTX:=$(TIMESTAMP_DIR)/install-$(PACKAGE_DIRECTX)
-endif
 
 INSTALL_PARAMS_GLEW:=\
 	GLEW_DEST=$(PWD)/$(INSTALL_DIR) \
@@ -134,15 +125,6 @@ $(INSTALL_BUILD_TARGETS): $(TIMESTAMP_DIR)/install-%: $(TIMESTAMP_DIR)/build-%
 		$(INSTALL_PARAMS_$(call findpackage,PACKAGE,$*))
 	mkdir -p $(@D)
 	touch $@
-
-ifneq ($(INSTALL_DIRECTX),)
-# Install DirectX headers.
-$(INSTALL_DIRECTX): $(TARBALL_DIRECTX)
-	mkdir -p $(INSTALL_DIR)
-	tar -zxf $< -C $(INSTALL_DIR)
-	mkdir -p $(@D)
-	touch $@
-endif
 
 # Build.
 $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
@@ -191,7 +173,7 @@ $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
 
 # Configure SDL.
 $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL) $(INSTALL_ALSA) $(INSTALL_DIRECTX)
+  $(SOURCE_DIR)/$(PACKAGE_SDL) $(INSTALL_ALSA)
 	mkdir -p $(@D)
 	cd $(@D) && \
 		ac_cv_c_bigendian=$(BIGENDIAN) \

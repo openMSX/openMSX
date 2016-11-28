@@ -53,32 +53,6 @@ class ALSA(DownloadablePackage):
 	def getMakeName(cls):
 		return 'ALSA'
 
-class DirectX(DownloadablePackage):
-	downloadURL = 'http://download.gna.org/allegro/files'
-	niceName = 'DirectX'
-	sourceName = 'dx'
-	version = '70'
-	fileLength = 236675
-	checksums = {
-		'sha256':
-			'59f489a7d9f51c70fe37fbb5a6225d4716a97ab774c58138f1dc4661a80356f0',
-		}
-
-	@classmethod
-	def getMakeName(cls):
-		return 'DIRECTX'
-
-	@classmethod
-	def getSourceDirName(cls):
-		# Note: The tarball does not contain a source dir.
-		#       We only redefine this to keep the name of the install
-		#       timestamp the same.
-		return '%s%s' % (cls.sourceName, cls.version)
-
-	@classmethod
-	def getTarballName(cls):
-		return '%s%s_mgw.tar.gz' % (cls.sourceName, cls.version)
-
 class FreeType(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/freetype'
 	niceName = 'FreeType'
