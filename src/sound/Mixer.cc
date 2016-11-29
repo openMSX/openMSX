@@ -2,7 +2,6 @@
 #include "MSXMixer.hh"
 #include "NullSoundDriver.hh"
 #include "SDLSoundDriver.hh"
-#include "DirectXSoundDriver.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
@@ -28,9 +27,6 @@ static EnumSetting<Mixer::SoundDriverType>::Map getSoundDriverMap()
 	EnumSetting<Mixer::SoundDriverType>::Map soundDriverMap = {
 		{ "null", Mixer::SND_NULL },
 		{ "sdl",  Mixer::SND_SDL } };
-#ifdef _WIN32
-	soundDriverMap.emplace_back("directx", Mixer::SND_DIRECTX);
-#endif
 	return soundDriverMap;
 }
 
@@ -96,13 +92,6 @@ void Mixer::reloadDriver()
 				frequencySetting.getInt(),
 				samplesSetting.getInt());
 			break;
-#ifdef _WIN32
-		case SND_DIRECTX:
-			driver = make_unique<DirectXSoundDriver>(
-				frequencySetting.getInt(),
-				samplesSetting.getInt());
-			break;
-#endif
 		default:
 			UNREACHABLE;
 		}

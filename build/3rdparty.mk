@@ -95,20 +95,11 @@ ifneq ($(TRIPLE_OS),linux)
 PACKAGES_BUILD:=$(filter-out ALSA,$(PACKAGES_BUILD))
 endif
 PACKAGES_NOBUILD:=
-ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
-PACKAGES_NOBUILD+=DIRECTX
-endif
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
 
 BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
 INSTALL_BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 INSTALL_NOBUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_NOBUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
-
-ifeq ($(filter $(PACKAGES_3RD),DIRECTX),)
-INSTALL_DIRECTX:=
-else
-INSTALL_DIRECTX:=$(TIMESTAMP_DIR)/install-$(PACKAGE_DIRECTX)
-endif
 
 INSTALL_PARAMS_GLEW:=\
 	GLEW_DEST=$(PWD)/$(INSTALL_DIR) \
@@ -135,15 +126,6 @@ $(INSTALL_BUILD_TARGETS): $(TIMESTAMP_DIR)/install-%: $(TIMESTAMP_DIR)/build-%
 	mkdir -p $(@D)
 	touch $@
 
-ifneq ($(INSTALL_DIRECTX),)
-# Install DirectX headers.
-$(INSTALL_DIRECTX): $(TARBALL_DIRECTX)
-	mkdir -p $(INSTALL_DIR)
-	tar -zxf $< -C $(INSTALL_DIR)
-	mkdir -p $(@D)
-	touch $@
-endif
-
 # Build.
 $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 	$(MAKE) -C $(<D) $(MAKEVAR_OVERRIDE_$(call findpackage,PACKAGE,$*))
@@ -160,9 +142,9 @@ $(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
 
 # Configure ALSA.
 $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_ALSA)
+  $(SOURCE_DIR)/$(PACKAGE_ALSA)/.extracted
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--enable-static \
 		--disable-shared \
 		--enable-symbolic-functions \
@@ -191,11 +173,12 @@ $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
 
 # Configure SDL.
 $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL) $(INSTALL_ALSA) $(INSTALL_DIRECTX)
+  $(SOURCE_DIR)/$(PACKAGE_SDL)/.extracted \
+  $(foreach PACKAGE,$(filter ALSA,$(PACKAGES_3RD)),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 	mkdir -p $(@D)
 	cd $(@D) && \
 		ac_cv_c_bigendian=$(BIGENDIAN) \
-		$(PWD)/$</configure \
+		$(PWD)/$(<D)/configure \
 		--$(USE_VIDEO_X11)-video-x11 \
 		--disable-video-dga \
 		--disable-video-directfb \
@@ -217,10 +200,10 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 
 # Configure SDL_ttf.
 $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL_TTF) \
+  $(SOURCE_DIR)/$(PACKAGE_SDL_TTF)/.extracted \
   $(FREETYPE_CONFIG_SCRIPT) $(SDL_CONFIG_SCRIPT)
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-sdltest \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
@@ -235,10 +218,10 @@ $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_PNG) \
+  $(SOURCE_DIR)/$(PACKAGE_PNG)/.extracted \
   $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
@@ -249,9 +232,9 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 
 # Configure FreeType.
 $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_FREETYPE)
+  $(SOURCE_DIR)/$(PACKAGE_FREETYPE)/.extracted
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
 		--without-zlib \
 		--host=$(TARGET_TRIPLE) \
@@ -264,10 +247,10 @@ $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
 # Although it uses "configure", zlib does not support building outside of the
 # source tree, so just copy everything over (it's a small package).
 $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_ZLIB)
+  $(SOURCE_DIR)/$(PACKAGE_ZLIB)/.extracted
 	mkdir -p $(dir $(@D))
 	rm -rf $(@D)
-	cp -r $< $(@D)
+	cp -r $(<D) $(@D)
 	cd $(@D) && ./configure \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
@@ -281,10 +264,10 @@ MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
 # GLEW does not support building outside of the source tree, so just copy
 # everything over (it's a small package).
 $(BUILD_DIR)/$(PACKAGE_GLEW)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_GLEW)
+  $(SOURCE_DIR)/$(PACKAGE_GLEW)/.extracted
 	mkdir -p $(dir $(@D))
 	rm -rf $(@D)
-	cp -r $< $(@D)
+	cp -r $(<D) $(@D)
 # GLEW does not have a configure script to pass CFLAGS to.
 MAKEVAR_OVERRIDE_GLEW:=CC="$(_CC) $(_CFLAGS)" LD="$(_CC) $(_LDFLAGS)"
 # Tell GLEW to cross compile.
@@ -305,9 +288,9 @@ else
 TCL_OS:=unix
 endif
 $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_TCL)
+  $(SOURCE_DIR)/$(PACKAGE_TCL)/.extracted
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</$(TCL_OS)/configure \
+	cd $(@D) && $(PWD)/$(<D)/$(TCL_OS)/configure \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
@@ -320,9 +303,9 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 # Configure Ogg, Vorbis and Theora for Laserdisc emulation.
 
 $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_OGG)
+  $(SOURCE_DIR)/$(PACKAGE_OGG)/.extracted
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
@@ -332,10 +315,10 @@ $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
 		PKG_CONFIG=/nowhere
 
 $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_VORBIS) \
+  $(SOURCE_DIR)/$(PACKAGE_VORBIS)/.extracted \
   $(TIMESTAMP_DIR)/install-$(PACKAGE_OGG)
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
 		--disable-oggtest \
 		--host=$(TARGET_TRIPLE) \
@@ -350,11 +333,11 @@ $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
 #       Ogg and Vorbis, a runtime dependency on Vorbis and a development
 #       package dependency on Ogg.
 $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_THEORA) \
+  $(SOURCE_DIR)/$(PACKAGE_THEORA)/.extracted \
   $(TIMESTAMP_DIR)/install-$(PACKAGE_OGG) \
   $(TIMESTAMP_DIR)/install-$(PACKAGE_VORBIS)
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
 		--disable-oggtest \
 		--disable-vorbistest \

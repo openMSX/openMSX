@@ -39,7 +39,8 @@ def printPackagesMake():
 			)
 		print '\ttouch %s' % verifyMarker
 		print '# Extract:'
-		print '%s: %s' % (packageSourceDir, verifyMarker)
+		extractMarker = '%s/.extracted' % packageSourceDir
+		print '%s: %s $(wildcard %s)' % (extractMarker, verifyMarker, patchFile)
 		print '\trm -rf %s' % packageSourceDir
 		print '\tmkdir -p %s' % sourceDir
 		print '\t$(PYTHON) build/extract.py %s %s %s' % (
@@ -48,7 +49,7 @@ def printPackagesMake():
 		print '\ttest ! -e %s || $(PYTHON) build/patch.py %s %s' % (
 			patchFile, patchFile, sourceDir
 			)
-		print '\ttouch %s' % sourceDir
+		print '\ttouch %s' % extractMarker
 		print
 
 	print '# Convenience target to download all source packages.'
