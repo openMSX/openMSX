@@ -1357,7 +1357,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\KonamiUltimateCollection.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\SdCard.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-windowhandle.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
   </ItemGroup>

@@ -612,7 +612,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Math.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\SerializeBuffer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\MemoryOps.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-windowhandle.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sha1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\StringOp.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\string_ref.cc" />
