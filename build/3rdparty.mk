@@ -183,7 +183,6 @@ $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
 		--disable-file \
 		--disable-filesystem \
 		--disable-timers \
-		--disable-loadso \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
@@ -193,6 +192,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
 # Some modules are enabled because of internal SDL2 dependencies:
 # - "audio" depends on "atomic" and "threads"
 # - "joystick" depends on "haptic" (at least in the Windows back-end)
+# - OpenGL on Windows depends on "loadso"
 
 # Configure SDL2_ttf.
 $(BUILD_DIR)/$(PACKAGE_SDL2_TTF)/Makefile: \
