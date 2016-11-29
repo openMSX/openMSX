@@ -20,7 +20,7 @@ all: default
 # Get information about packages.
 -include derived/3rdparty/packages.mk
 
-ifneq ($(origin PACKAGE_SDL),undefined)
+ifneq ($(origin PACKAGE_SDL2),undefined)
 
 # These libraries are part of the base system, therefore we do not need to
 # link them statically for building a redistributable binary.
@@ -73,13 +73,6 @@ ifeq ($(TRIPLE_OS),mingw32)
 # SDL calls it WINDRES, Tcl calls it RC; provide both.
 export WINDRES
 export RC:=$(WINDRES)
-endif
-
-# Work around some autoconf versions returning "universal" for endianess when
-# compiling with "-arch" in the CFLAGS, even in a single arch compile.
-BIGENDIAN:=$(shell PYTHONPATH=build/ $(PYTHON) -c 'from cpu import getCPU ; print "yes" if getCPU("$(OPENMSX_TARGET_CPU)").bigEndian else "no"')
-ifeq ($(BIGENDIAN),)
-$(error Could not determine endianess of "$(OPENMSX_TARGET_CPU)")
 endif
 
 # Although X11 is available on Windows and Mac OS X, most people do not have
@@ -135,10 +128,10 @@ $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 # Configuration of a lib can depend on the lib-config script of another lib.
 PNG_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/libpng-config
 FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
-SDL_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl-config
+SDL2_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl2-config
 $(PNG_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_PNG)
 $(FREETYPE_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_FREETYPE)
-$(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
+$(SDL2_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL2)
 
 # Configure ALSA.
 $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
@@ -171,37 +164,40 @@ $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 
-# Configure SDL.
-$(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL)/.extracted \
+# Configure SDL2.
+$(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_SDL2)/.extracted \
   $(foreach PACKAGE,$(filter ALSA,$(PACKAGES_3RD)),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 	mkdir -p $(@D)
 	cd $(@D) && \
-		ac_cv_c_bigendian=$(BIGENDIAN) \
 		$(PWD)/$(<D)/configure \
 		--$(USE_VIDEO_X11)-video-x11 \
-		--disable-video-dga \
 		--disable-video-directfb \
-		--disable-video-svga \
+		--disable-video-opengles1 \
 		--disable-nas \
 		--disable-esd \
-		--disable-directx \
-		--disable-cdrom \
-		--disable-stdio-redirect \
+		--disable-arts \
 		--disable-shared \
+		--disable-cpuinfo \
+		--disable-power \
+		--disable-file \
+		--disable-filesystem \
+		--disable-timers \
+		--disable-loadso \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
-# While openMSX does not use "cpuinfo", "endian" and "file" modules, other
-# modules do and if we disable them, SDL will not link.
+# Some modules are enabled because of internal SDL2 dependencies:
+# - "audio" depends on "atomic" and "threads"
+# - "joystick" depends on "haptic" (at least in the Windows back-end)
 
-# Configure SDL_ttf.
-$(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL_TTF)/.extracted \
-  $(FREETYPE_CONFIG_SCRIPT) $(SDL_CONFIG_SCRIPT)
+# Configure SDL2_ttf.
+$(BUILD_DIR)/$(PACKAGE_SDL2_TTF)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_SDL2_TTF)/.extracted \
+  $(FREETYPE_CONFIG_SCRIPT) $(SDL2_CONFIG_SCRIPT)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-sdltest \
