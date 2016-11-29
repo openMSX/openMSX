@@ -173,7 +173,8 @@ $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
 
 # Configure SDL.
 $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL) $(INSTALL_ALSA)
+  $(SOURCE_DIR)/$(PACKAGE_SDL) \
+  $(foreach PACKAGE,$(filter ALSA,$(PACKAGES_3RD)),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 	mkdir -p $(@D)
 	cd $(@D) && \
 		ac_cv_c_bigendian=$(BIGENDIAN) \
