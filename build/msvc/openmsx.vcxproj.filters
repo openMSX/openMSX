@@ -897,9 +897,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Timer.cc">
       <Filter>thread</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.cc">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Base64.cc">
       <Filter>utils</Filter>
     </ClCompile>
@@ -2266,9 +2263,6 @@
       <Filter>thread</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh">
-      <Filter>utils</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.hh">
       <Filter>utils</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\utils\Base64.hh">

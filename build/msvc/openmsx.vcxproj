@@ -602,7 +602,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\DeltaBlock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Base64.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\CircularBuffer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\CRC16.cc" />
@@ -1157,7 +1156,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\DeltaBlock.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Base64.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\checked_cast.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\CircularBuffer.hh" />

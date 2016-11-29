@@ -18,10 +18,6 @@
 #include "memory.hh"
 #include <cassert>
 
-#ifdef _WIN32
-#include "AltSpaceSuppressor.hh"
-#include "win32-windowhandle.hh"
-#endif
 #include "components.hh"
 #if COMPONENT_GL
 #include "SDLGLVisibleSurface.hh"
@@ -52,22 +48,10 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor_, CommandConsole& console)
 
 	reactor.getEventDistributor().registerEventListener(
 		OPENMSX_RESIZE_EVENT, *this);
-
-#ifdef _WIN32
-	HWND hWnd = getWindowHandle();
-	assert(hWnd);
-	AltSpaceSuppressor::Start(hWnd);
-#endif
 }
 
 SDLVideoSystem::~SDLVideoSystem()
 {
-#ifdef _WIN32
-	// This needs to be done while the SDL window handle is still valid
-	assert(getWindowHandle());
-	AltSpaceSuppressor::Stop();
-#endif
-
 	reactor.getEventDistributor().unregisterEventListener(
 		OPENMSX_RESIZE_EVENT, *this);
 
