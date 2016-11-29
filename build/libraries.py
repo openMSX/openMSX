@@ -144,6 +144,13 @@ class ALSA(Library):
 		return platform in ('dingux',)
 
 	@classmethod
+	def getLinkFlags(cls, platform, linkStatic, distroRoot):
+		flags = super(ALSA, cls).getLinkFlags(platform, linkStatic, distroRoot)
+		if linkStatic:
+			flags += ' -lpthread'
+		return flags
+
+	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
 		def execute(cmd, log):
 			version = cmd.expand(log, cls.getHeaders(platform),
