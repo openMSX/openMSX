@@ -17,12 +17,6 @@
 #include "build-info.hh"
 #include <cassert>
 
-#ifdef _WIN32
-#include <windows.h>
-static int lastWindowX = 0;
-static int lastWindowY = 0;
-#endif
-
 namespace openmsx {
 
 VisibleSurface::VisibleSurface(
@@ -147,20 +141,6 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 	setSDLSurface(surface.get());
 	SDL_RenderSetLogicalSize(render, width, height);
 
-	// TODO: SDL_CreateWindow accepts positioning arguments.
-#ifdef _WIN32
-	// find our current location...
-	HWND handle = GetActiveWindow();
-	RECT windowRect;
-	GetWindowRect(handle, &windowRect);
-	// ...and adjust if needed
-	// HWND_TOP is #defined as ((HWND)0)
-	auto OPENMSX_HWND_TOP = static_cast<HWND>(nullptr);
-	if ((windowRect.right < 0) || (windowRect.bottom < 0)) {
-		SetWindowPos(handle, OPENMSX_HWND_TOP, lastWindowX, lastWindowY,
-		             0, 0, SWP_NOSIZE);
-	}
-#endif
 	// prefer linear filtering (instead of nearest neighbour)
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 }
@@ -178,17 +158,6 @@ VisibleSurface::~VisibleSurface()
 	renderSettings.getPointerHideDelaySetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
 
-#ifdef _WIN32
-	// Find our current location.
-	SDL_Surface* surf = getSDLSurface();
-	if (surf && ((surf->flags & SDL_FULLSCREEN) == 0)) {
-		HWND handle = GetActiveWindow();
-		RECT windowRect;
-		GetWindowRect(handle, &windowRect);
-		lastWindowX = windowRect.left;
-		lastWindowY = windowRect.top;
-	}
-#endif
 	auto* render = getSDLRenderer();
 	assert(render); SDL_DestroyRenderer(render);
 	assert(window); SDL_DestroyWindow(window);
