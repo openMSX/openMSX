@@ -26,7 +26,6 @@ VisibleSurface::VisibleSurface(
 		InputEventGenerator& inputEventGenerator_,
 		CliComm& cliComm)
 	: RTSchedulable(rtScheduler)
-	, window(nullptr)
 	, display(display_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
@@ -62,7 +61,7 @@ VisibleSurface::VisibleSurface(
 		}
 #endif
 		SDL_SetColorKey(iconSurf.get(), SDL_TRUE, 0);
-		SDL_SetWindowIcon(window, iconSurf.get());
+		SDL_SetWindowIcon(window.get(), iconSurf.get());
 	}
 
 	// on Mac it seems to be necessary to grab input in full screen
@@ -98,11 +97,11 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 	}
 
 	assert(!window);
-	window = SDL_CreateWindow(
+	window.reset(SDL_CreateWindow(
 			display.getWindowTitle().c_str(),
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			width, height,
-			flags);
+			flags));
 	if (!window) {
 		std::string err = SDL_GetError();
 		throw InitException("Could not create window: " + err);
@@ -110,10 +109,9 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 
 	updateWindowTitle();
 
-	renderer.reset(SDL_CreateRenderer(window, -1, 0));
+	renderer.reset(SDL_CreateRenderer(window.get(), -1, 0));
 	if (!renderer) {
 		std::string err = SDL_GetError();
-		SDL_DestroyWindow(window);
 		throw InitException("Could not create renderer: " + err);
 	}
 	SDL_RenderSetLogicalSize(renderer.get(), width, height);
@@ -124,20 +122,18 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 			0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
 	if (!surface) {
 		std::string err = SDL_GetError();
-		SDL_DestroyWindow(window);
 		throw InitException("Could not create surface: " + err);
 	}
+	setSDLSurface(surface.get());
 
 	texture.reset(SDL_CreateTexture(
 			renderer.get(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
 			width, height));
 	if (!texture) {
 		std::string err = SDL_GetError();
-		SDL_DestroyWindow(window);
 		throw InitException("Could not create texture: " + err);
 	}
 
-	setSDLSurface(surface.get());
 
 	// prefer linear filtering (instead of nearest neighbour)
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
@@ -156,19 +152,18 @@ VisibleSurface::~VisibleSurface()
 	renderSettings.getPointerHideDelaySetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
 
-	assert(window); SDL_DestroyWindow(window);
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 void VisibleSurface::updateWindowTitle()
 {
 	assert(window);
-	SDL_SetWindowTitle(window, display.getWindowTitle().c_str());
+	SDL_SetWindowTitle(window.get(), display.getWindowTitle().c_str());
 }
 
 bool VisibleSurface::setFullScreen(bool wantedState)
 {
-	Uint32 flags = SDL_GetWindowFlags(window);
+	Uint32 flags = SDL_GetWindowFlags(window.get());
 	// Note: SDL_WINDOW_FULLSCREEN_DESKTOP also has the SDL_WINDOW_FULLSCREEN
 	//       bit set.
 	bool currentState = (flags & SDL_WINDOW_FULLSCREEN) != 0;

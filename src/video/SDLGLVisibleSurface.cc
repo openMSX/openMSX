@@ -28,7 +28,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	int flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
-	glContext = SDL_GL_CreateContext(window);
+	glContext = SDL_GL_CreateContext(window.get());
 
 	// The created surface may be larger than requested.
 	// If that happens, center the area that we actually use.
@@ -105,7 +105,7 @@ void SDLGLVisibleSurface::saveScreenshot(const std::string& filename)
 
 void SDLGLVisibleSurface::finish()
 {
-	SDL_GL_SwapWindow(window);
+	SDL_GL_SwapWindow(window.get());
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()

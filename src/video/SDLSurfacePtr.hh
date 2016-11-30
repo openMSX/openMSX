@@ -145,4 +145,10 @@ struct SDLDestroyRenderer {
 };
 using SDLRendererPtr = std::unique_ptr<SDL_Renderer, SDLDestroyRenderer>;
 
+
+struct SDLDestroyWindow {
+	void operator()(SDL_Window* w) { SDL_DestroyWindow(w); }
+};
+using SDLWindowPtr = std::unique_ptr<SDL_Window, SDLDestroyWindow>;
+
 #endif

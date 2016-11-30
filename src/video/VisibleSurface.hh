@@ -61,7 +61,7 @@ protected:
 	               CliComm& cliComm);
 	void createSurface(int width, int height, unsigned flags);
 
-	SDL_Window* window;
+	SDLWindowPtr window;
 	SDLRendererPtr renderer;
 	SDLSurfacePtr surface;
 	SDLTexturePtr texture;
