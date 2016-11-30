@@ -369,10 +369,9 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 
 static void save(SDL_Surface* surface, const std::string& filename)
 {
-	SDL_PixelFormat* frmt24 = SDL_AllocFormat(
-		OPENMSX_BIGENDIAN ? SDL_PIXELFORMAT_BGR24 : SDL_PIXELFORMAT_RGB24);
-	SDLSurfacePtr surf24(SDL_ConvertSurface(surface, frmt24, 0));
-	SDL_FreeFormat(frmt24);
+	SDLAllocFormatPtr frmt24(SDL_AllocFormat(
+		OPENMSX_BIGENDIAN ? SDL_PIXELFORMAT_BGR24 : SDL_PIXELFORMAT_RGB24));
+	SDLSurfacePtr surf24(SDL_ConvertSurface(surface, frmt24.get(), 0));
 
 	// Create the array of pointers to image data
 	VLA(const void*, row_pointers, surface->h);

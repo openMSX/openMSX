@@ -30,10 +30,10 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 	// openGL context). So we split the constructor in two parts, the
 	// child class is responsible for calling this second part.
 
-	SDL_PixelFormat* format = SDL_AllocFormat(
+	SDLAllocFormatPtr format(SDL_AllocFormat(
 		(frameBuffer == FB_16BPP) ? SDL_PIXELFORMAT_RGB24 :
 		        OPENMSX_BIGENDIAN ? SDL_PIXELFORMAT_RGBA8888 :
-		                            SDL_PIXELFORMAT_ARGB8888);
+		                            SDL_PIXELFORMAT_ARGB8888));
 	output.setSDLFormat(*format);
 
 	if (frameBuffer == FB_NONE) {
@@ -62,7 +62,6 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 			             GL_BGRA, GL_UNSIGNED_BYTE, fbBuf.data());
 		}
 	}
-	SDL_FreeFormat(format);
 }
 
 void SDLGLOutputSurface::flushFrameBuffer(unsigned width, unsigned height)
