@@ -62,6 +62,7 @@ protected:
 	void createSurface(int width, int height, unsigned flags);
 
 	SDL_Window* window;
+	SDLRendererPtr renderer;
 	SDLSurfacePtr surface;
 	SDLTexturePtr texture;
 

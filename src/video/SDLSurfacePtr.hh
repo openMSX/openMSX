@@ -139,4 +139,10 @@ struct SDLDestroyTexture {
 };
 using SDLTexturePtr = std::unique_ptr<SDL_Texture, SDLDestroyTexture>;
 
+
+struct SDLDestroyRenderer {
+	void operator()(SDL_Renderer* r) { SDL_DestroyRenderer(r); }
+};
+using SDLRendererPtr = std::unique_ptr<SDL_Renderer, SDLDestroyRenderer>;
+
 #endif

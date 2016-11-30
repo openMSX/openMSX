@@ -110,36 +110,34 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 
 	updateWindowTitle();
 
-	auto* render = SDL_CreateRenderer(window, -1, 0);
-	if (!render) {
+	renderer.reset(SDL_CreateRenderer(window, -1, 0));
+	if (!renderer) {
 		std::string err = SDL_GetError();
 		SDL_DestroyWindow(window);
 		throw InitException("Could not create renderer: " + err);
 	}
-	setSDLRenderer(render);
+	SDL_RenderSetLogicalSize(renderer.get(), width, height);
+	setSDLRenderer(renderer.get());
 
 	surface.reset(SDL_CreateRGBSurface(
 			0, width, height, 32,
 			0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
 	if (!surface) {
 		std::string err = SDL_GetError();
-		SDL_DestroyRenderer(render);
 		SDL_DestroyWindow(window);
 		throw InitException("Could not create surface: " + err);
 	}
 
 	texture.reset(SDL_CreateTexture(
-			render, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+			renderer.get(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
 			width, height));
 	if (!texture) {
 		std::string err = SDL_GetError();
-		SDL_DestroyRenderer(render);
 		SDL_DestroyWindow(window);
 		throw InitException("Could not create texture: " + err);
 	}
 
 	setSDLSurface(surface.get());
-	SDL_RenderSetLogicalSize(render, width, height);
 
 	// prefer linear filtering (instead of nearest neighbour)
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
@@ -158,8 +156,6 @@ VisibleSurface::~VisibleSurface()
 	renderSettings.getPointerHideDelaySetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
 
-	auto* render = getSDLRenderer();
-	assert(render); SDL_DestroyRenderer(render);
 	assert(window); SDL_DestroyWindow(window);
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }

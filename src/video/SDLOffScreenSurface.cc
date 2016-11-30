@@ -30,13 +30,8 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
 
 	// Used (only?) by 'screenshow -with-osd'.
-	auto* render = SDL_CreateSoftwareRenderer(surface.get());
-	setSDLRenderer(render);
-}
-
-SDLOffScreenSurface::~SDLOffScreenSurface()
-{
-	SDL_DestroyRenderer(getSDLRenderer());
+	renderer.reset(SDL_CreateSoftwareRenderer(surface.get()));
+	setSDLRenderer(renderer.get());
 }
 
 void SDLOffScreenSurface::saveScreenshot(const std::string& filename)
