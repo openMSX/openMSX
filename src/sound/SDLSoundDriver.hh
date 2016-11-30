@@ -2,6 +2,7 @@
 #define SDLSOUNDDRIVER_HH
 
 #include "SoundDriver.hh"
+#include "SDLSurfacePtr.hh"
 #include "MemBuffer.hh"
 #include "openmsx.hh"
 
@@ -41,6 +42,7 @@ private:
 	unsigned fragmentSize;
 	unsigned readIdx, writeIdx;
 	bool muted;
+	SDLSubSystemInitializer<SDL_INIT_AUDIO> audioInitializer;
 };
 
 } // namespace openmsx

@@ -29,14 +29,8 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	desired.callback = audioCallbackHelper; // must be a static method
 	desired.userdata = this;
 
-	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
-		throw MSXException(StringOp::Builder()
-			<< "Unable to initialize SDL audio subsystem: "
-			<< SDL_GetError());
-	}
 	SDL_AudioSpec audioSpec;
 	if (SDL_OpenAudio(&desired, &audioSpec) != 0) {
-		SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		throw MSXException(StringOp::Builder()
 			<< "Unable to open SDL audio: " << SDL_GetError());
 	}
@@ -52,7 +46,6 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 SDLSoundDriver::~SDLSoundDriver()
 {
 	SDL_CloseAudio();
-	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 void SDLSoundDriver::reInit()

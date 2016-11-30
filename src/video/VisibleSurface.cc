@@ -11,7 +11,6 @@
 #include "InputEventGenerator.hh"
 #include "PNG.hh"
 #include "FileContext.hh"
-#include "StringOp.hh"
 #include "CliComm.hh"
 #include "memory.hh"
 #include "build-info.hh"
@@ -31,12 +30,6 @@ VisibleSurface::VisibleSurface(
 	, inputEventGenerator(inputEventGenerator_)
 {
 	(void)cliComm; // avoid unused parameter warning on _WIN32
-
-	if (!SDL_WasInit(SDL_INIT_VIDEO) &&
-	    SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
-		throw InitException(StringOp::Builder() <<
-			"SDL video init failed: " << SDL_GetError());
-	}
 
 	// set icon
 	if (OPENMSX_SET_WINDOW_ICON) {
@@ -134,7 +127,6 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 		throw InitException("Could not create texture: " + err);
 	}
 
-
 	// prefer linear filtering (instead of nearest neighbour)
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 }
@@ -151,8 +143,6 @@ VisibleSurface::~VisibleSurface()
 	auto& renderSettings = display.getRenderSettings();
 	renderSettings.getPointerHideDelaySetting().detach(*this);
 	renderSettings.getFullScreenSetting().detach(*this);
-
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 void VisibleSurface::updateWindowTitle()

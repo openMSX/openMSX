@@ -2,6 +2,8 @@
 #define SDLSURFACEPTR
 
 #include "MemBuffer.hh"
+#include "InitException.hh"
+#include "StringOp.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <memory>
@@ -162,5 +164,26 @@ struct SDLFreeWav {
 	void operator()(Uint8* w) { SDL_FreeWAV(w); }
 };
 using SDLWavPtr = std::unique_ptr<Uint8, SDLFreeWav>;
+
+
+template<Uint32 FLAGS>
+class SDLSubSystemInitializer
+{
+public:
+	SDLSubSystemInitializer(const SDLSubSystemInitializer&) = delete;
+	SDLSubSystemInitializer& operator=(const SDLSubSystemInitializer&) = delete;
+
+	SDLSubSystemInitializer() {
+		// SDL internally ref-counts sub-system initialization, so we
+		// don't need to worry about it here.
+		if (SDL_InitSubSystem(FLAGS) < 0) {
+			throw openmsx::InitException(StringOp::Builder() <<
+				"SDL init failed (" << FLAGS << "): " << SDL_GetError());
+		}
+	}
+	~SDLSubSystemInitializer() {
+		SDL_QuitSubSystem(FLAGS);
+	}
+};
 
 #endif

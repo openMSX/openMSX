@@ -61,6 +61,7 @@ protected:
 	               CliComm& cliComm);
 	void createSurface(int width, int height, unsigned flags);
 
+	SDLSubSystemInitializer<SDL_INIT_VIDEO> videoSubSystem;
 	SDLWindowPtr window;
 	SDLRendererPtr renderer;
 	SDLSurfacePtr surface;
