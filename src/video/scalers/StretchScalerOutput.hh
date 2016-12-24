@@ -14,7 +14,7 @@ struct StretchScalerOutputFactory
 {
 	static std::unique_ptr<ScalerOutput<Pixel>> create(
 		OutputSurface& output,
-		const PixelOperations<Pixel>& pixelOps,
+		PixelOperations<Pixel> pixelOps,
 		unsigned inWidth);
 };
 

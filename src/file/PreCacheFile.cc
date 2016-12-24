@@ -6,8 +6,8 @@
 
 namespace openmsx {
 
-PreCacheFile::PreCacheFile(const std::string& name_)
-	: name(name_), exitLoop(false)
+PreCacheFile::PreCacheFile(std::string name_)
+	: name(std::move(name_)), exitLoop(false)
 {
 	thread = std::thread([this]() { run(); });
 }

@@ -12,7 +12,7 @@ class MidiOutConnector final : public Connector, public SerialDataInterface
 {
 public:
 	MidiOutConnector(PluggingController& pluggingController,
-	                 string_ref name);
+	                 std::string name);
 
 	MidiOutDevice& getPluggedMidiOutDev() const;
 

@@ -31,7 +31,7 @@ public:
 
 protected:
 	RS232Connector(PluggingController& pluggingController,
-	               string_ref name);
+	               std::string name);
 	~RS232Connector() {}
 };
 

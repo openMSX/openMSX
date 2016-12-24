@@ -15,7 +15,7 @@ namespace openmsx {
 class PreCacheFile final
 {
 public:
-	explicit PreCacheFile(const std::string& name);
+	explicit PreCacheFile(std::string name);
 	~PreCacheFile();
 
 private:

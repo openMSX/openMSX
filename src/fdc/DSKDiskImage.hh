@@ -12,7 +12,7 @@ class DSKDiskImage final : public SectorBasedDisk
 {
 public:
 	explicit DSKDiskImage(const Filename& filename);
-	DSKDiskImage(const Filename& filename, const std::shared_ptr<File>& file);
+	DSKDiskImage(const Filename& filename, std::shared_ptr<File> file);
 
 private:
 	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;

@@ -16,7 +16,7 @@ class File;
 class DMKDiskImage final : public Disk
 {
 public:
-	DMKDiskImage(Filename& filename, const std::shared_ptr<File>& file);
+	DMKDiskImage(Filename filename, std::shared_ptr<File> file);
 
 	void readTrack(byte track, byte side, RawTrack& output) override;
 	void writeTrackImpl(byte track, byte side, const RawTrack& input) override;

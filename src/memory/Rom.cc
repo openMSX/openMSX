@@ -43,9 +43,9 @@ private:
 };
 
 
-Rom::Rom(const string& name_, const string& description_,
+Rom::Rom(string name_, string description_,
          const DeviceConfig& config, const string& id /*= ""*/)
-	: name(name_), description(description_)
+	: name(std::move(name_)), description(std::move(description_))
 {
 	// Try all <rom> tags with matching "id" attribute.
 	string errors;
@@ -236,9 +236,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 				make_unique<EmptyPatch>(rom, size);
 
 			for (auto& p : patchesElem->getChildren("ips")) {
-				Filename filename(p->getData(), context);
 				patch = make_unique<IPSPatch>(
-					filename, std::move(patch));
+					Filename(p->getData(), context),
+					std::move(patch));
 			}
 			auto patchSize = unsigned(patch->getSize());
 			if (patchSize <= size) {

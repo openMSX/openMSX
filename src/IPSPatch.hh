@@ -14,7 +14,7 @@ class IPSPatch final : public PatchInterface
 public:
 	using PatchMap = std::vector<std::pair<size_t, std::vector<byte>>>;
 
-	IPSPatch(const Filename& filename,
+	IPSPatch(Filename filename,
 	         std::unique_ptr<const PatchInterface> parent);
 
 	void copyBlock(size_t src, byte* dst, size_t num) const override;

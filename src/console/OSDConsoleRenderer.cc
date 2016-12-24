@@ -38,9 +38,9 @@ static const int CHAR_BORDER = 4;
 // class OSDConsoleRenderer::TextCacheElement
 
 OSDConsoleRenderer::TextCacheElement::TextCacheElement(
-		const std::string& text_, unsigned rgb_,
+		std::string&& text_, unsigned rgb_,
 		std::unique_ptr<BaseImage> image_, unsigned width_)
-	: text(text_), image(std::move(image_)), rgb(rgb_), width(width_)
+	: text(std::move(text_)), image(std::move(image_)), rgb(rgb_), width(width_)
 {
 }
 
@@ -343,7 +343,7 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 		}
 #endif
 		image = image2.get();
-		insertInCache(textStr, rgb, std::move(image2), width);
+		insertInCache(std::move(textStr), rgb, std::move(image2), width);
 	}
 	if (image) {
 		if (openGL) {
@@ -391,7 +391,7 @@ found:		image = it->image.get();
 }
 
 void OSDConsoleRenderer::insertInCache(
-	const string& text, unsigned rgb, std::unique_ptr<BaseImage> image,
+	string&& text, unsigned rgb, std::unique_ptr<BaseImage> image,
 	unsigned width)
 {
 	static const unsigned MAX_TEXT_CACHE_SIZE = 250;
@@ -404,7 +404,7 @@ void OSDConsoleRenderer::insertInCache(
 		}
 		textCache.pop_back();
 	}
-	textCache.emplace_front(text, rgb, std::move(image), width);
+	textCache.emplace_front(std::move(text), rgb, std::move(image), width);
 }
 
 void OSDConsoleRenderer::clearCache()

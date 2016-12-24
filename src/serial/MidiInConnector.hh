@@ -26,7 +26,7 @@ public:
 
 protected:
 	MidiInConnector(PluggingController& pluggingController,
-	                string_ref name);
+	                std::string name);
 	~MidiInConnector() = default;
 };
 

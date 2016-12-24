@@ -5,8 +5,8 @@ using std::string;
 
 namespace openmsx {
 
-Disk::Disk(const DiskName& name_)
-	: name(name_), nbSides(0)
+Disk::Disk(DiskName name_)
+	: name(std::move(name_)), nbSides(0)
 {
 }
 

@@ -16,9 +16,9 @@ static size_t getStop(const IPSPatch::PatchMap::const_iterator& it)
 	return it->first + it->second.size();
 }
 
-IPSPatch::IPSPatch(const Filename& filename_,
+IPSPatch::IPSPatch(Filename filename_,
                    std::unique_ptr<const PatchInterface> parent_)
-	: filename(filename_)
+	: filename(std::move(filename_))
 	, parent(std::move(parent_))
 {
 	File ipsFile(filename);

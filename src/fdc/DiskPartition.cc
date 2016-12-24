@@ -19,10 +19,10 @@ static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 }
 
 DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
-                             const std::shared_ptr<SectorAccessibleDisk>& owned_)
+                             std::shared_ptr<SectorAccessibleDisk> owned_)
 	: SectorBasedDisk(getDiskName(&disk, partition))
 	, parent(disk)
-	, owned(owned_)
+	, owned(std::move(owned_))
 {
 	assert(!owned || (owned.get() == &disk));
 

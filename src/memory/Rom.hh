@@ -20,7 +20,7 @@ class RomDebuggable;
 class Rom final
 {
 public:
-	Rom(const std::string& name, const std::string& description,
+	Rom(std::string name, std::string description,
 	    const DeviceConfig& config, const std::string& id = "");
 	Rom(Rom&& other) noexcept;
 	~Rom();

@@ -53,7 +53,7 @@ private:
 
 	bool getFromCache(string_ref text, unsigned rgb,
 	                  BaseImage*& image, unsigned& width);
-	void insertInCache(const std::string& text, unsigned rgb,
+	void insertInCache(std::string&& text, unsigned rgb,
 	                   std::unique_ptr<BaseImage> image, unsigned width);
 	void clearCache();
 
@@ -64,7 +64,7 @@ private:
 	};
 
 	struct TextCacheElement {
-		TextCacheElement(const std::string& text_, unsigned rgb_,
+		TextCacheElement(std::string&& text_, unsigned rgb_,
 		                 std::unique_ptr<BaseImage> image_,
 		                 unsigned width_);
 

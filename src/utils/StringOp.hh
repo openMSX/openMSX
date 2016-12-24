@@ -50,8 +50,9 @@ namespace StringOp
 		}*/
 
 		//operator std::string() const;
-		operator std::string() const { return buf; }
-		operator string_ref()  const { return buf; }
+		operator std::string() const &  { return           buf ; }
+		operator std::string() const && { return std::move(buf); }
+		operator string_ref()  const    { return           buf ; }
 
 	private:
 		std::string buf;

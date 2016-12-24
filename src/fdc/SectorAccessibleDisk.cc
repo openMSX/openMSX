@@ -63,9 +63,9 @@ size_t SectorAccessibleDisk::getNbSectors() const
 	return getNbSectorsImpl();
 }
 
-void SectorAccessibleDisk::applyPatch(const Filename& patchFile)
+void SectorAccessibleDisk::applyPatch(Filename patchFile)
 {
-	patch = make_unique<IPSPatch>(patchFile, std::move(patch));
+	patch = make_unique<IPSPatch>(std::move(patchFile), std::move(patch));
 }
 
 std::vector<Filename> SectorAccessibleDisk::getPatches() const

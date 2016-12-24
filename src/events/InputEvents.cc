@@ -441,8 +441,8 @@ bool QuitEvent::lessImpl(const Event& /*other*/) const
 
 OsdControlEvent::OsdControlEvent(
 		EventType type_, unsigned button_,
-		const std::shared_ptr<const Event>& origEvent_)
-	: TimedEvent(type_), origEvent(origEvent_), button(button_)
+		std::shared_ptr<const Event> origEvent_)
+	: TimedEvent(type_), origEvent(std::move(origEvent_)), button(button_)
 {
 }
 

@@ -45,25 +45,25 @@ private:
 };
 
 DiskChanger::DiskChanger(MSXMotherBoard& board,
-                         const string& driveName_,
+                         string driveName_,
                          bool createCmd,
                          bool doubleSidedDrive_)
 	: reactor(board.getReactor())
 	, controller(board.getCommandController())
 	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
-	, driveName(driveName_)
+	, driveName(std::move(driveName_))
 	, doubleSidedDrive(doubleSidedDrive_)
 {
 	init(board.getMachineID() + "::", createCmd);
 }
 
-DiskChanger::DiskChanger(Reactor& reactor_, const string& driveName_)
+DiskChanger::DiskChanger(Reactor& reactor_, string driveName_)
 	: reactor(reactor_)
 	, controller(reactor.getCommandController())
 	, stateChangeDistributor(nullptr)
 	, scheduler(nullptr)
-	, driveName(driveName_)
+	, driveName(std::move(driveName_))
 	, doubleSidedDrive(true) // irrelevant, but needs a value
 {
 	init("", true);
@@ -170,8 +170,8 @@ void DiskChanger::insertDisk(array_ref<TclObject> args)
 	auto& diskFactory = reactor.getDiskFactory();
 	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
 	for (unsigned i = 2; i < args.size(); ++i) {
-		Filename filename(args[i].getString().str(), userFileContext());
-		newDisk->applyPatch(filename);
+		newDisk->applyPatch(Filename(
+			args[i].getString().str(), userFileContext()));
 	}
 
 	// no errors, only now replace original disk
