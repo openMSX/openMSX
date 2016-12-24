@@ -123,10 +123,10 @@ void CassettePlayer::autoRun()
 	string instr1, instr2;
 	switch (type) {
 		case CassetteImage::ASCII:
-			instr1 = "RUN\\\"CAS:\\\"";
+			instr1 = R"(RUN\"CAS:\")";
 			break;
 		case CassetteImage::BINARY:
-			instr1 = "BLOAD\\\"CAS:\\\",R";
+			instr1 = R"(BLOAD\"CAS:\",R)";
 			break;
 		case CassetteImage::BASIC:
 			// Note that CLOAD:RUN won't work: BASIC ignores stuff

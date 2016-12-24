@@ -730,7 +730,7 @@ void MSXtar::mkdir(string_ref newRootDir)
 
 void MSXtar::chroot(string_ref newRootDir, bool createDir)
 {
-	if (newRootDir.starts_with("/") || newRootDir.starts_with("\\")) {
+	if (newRootDir.starts_with('/') || newRootDir.starts_with('\\')) {
 		// absolute path, reset chrootSector
 		chrootSector = rootDirStart;
 		StringOp::trimLeft(newRootDir, "/\\");
