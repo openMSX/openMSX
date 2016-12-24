@@ -18,7 +18,7 @@ class StretchScalerOutputBase : public ScalerOutput<Pixel>
 public:
 	StretchScalerOutputBase(unique_ptr<ScalerOutput<Pixel>> output,
 	                        const PixelOperations<Pixel>& pixelOps);
-	~StretchScalerOutputBase();
+	~StretchScalerOutputBase() override;
 
 	unsigned getWidth()  const override;
 	unsigned getHeight() const override;
