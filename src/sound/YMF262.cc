@@ -527,8 +527,7 @@ void YMF262::advance()
 
 	++eg_cnt;
 	for (auto& ch : channel) {
-		for (int s = 0; s < 2; ++s) {
-			auto& op = ch.slot[s];
+		for (auto& op : ch.slot) {
 			op.advanceEnvelopeGenerator(eg_cnt);
 			op.advancePhaseGenerator(ch, lfo_pm);
 		}
@@ -1428,9 +1427,9 @@ void YMF262::reset(EmuTime::param time)
 
 	// reset operator parameters
 	for (auto& ch : channel) {
-		for (int s = 0; s < 2; s++) {
-			ch.slot[s].state  = EG_OFF;
-			ch.slot[s].volume = MAX_ATT_INDEX;
+		for (auto& sl : ch.slot) {
+			sl.state  = EG_OFF;
+			sl.volume = MAX_ATT_INDEX;
 		}
 	}
 }
@@ -1493,8 +1492,7 @@ bool YMF262::checkMuteHelper()
 {
 	// TODO this doesn't always mute when possible
 	for (auto& ch : channel) {
-		for (int j = 0; j < 2; j++) {
-			auto& sl = ch.slot[j];
+		for (auto& sl : ch.slot) {
 			if (!((sl.state == EG_OFF) ||
 			      ((sl.state == EG_RELEASE) &&
 			       ((sl.TLL + sl.volume) >= ENV_QUIET)))) {

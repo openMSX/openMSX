@@ -691,8 +691,7 @@ string MSXtar::dir()
 	for (unsigned sector = chrootSector; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
-		for (unsigned i = 0; i < 16; ++i) {
-			auto& dirEntry = buf.dirEntry[i];
+		for (auto& dirEntry : buf.dirEntry) {
 			if ((dirEntry.filename[0] == char(0xe5)) ||
 			    (dirEntry.filename[0] == char(0x00)) ||
 			    (dirEntry.attrib == T_MSX_LFN)) continue;
@@ -822,8 +821,7 @@ void MSXtar::recurseDirExtract(string_ref dirName, unsigned sector)
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
-		for (unsigned i = 0; i < 16; ++i) {
-			auto& dirEntry = buf.dirEntry[i];
+		for (auto& dirEntry : buf.dirEntry) {
 			if ((dirEntry.filename[0] == char(0xe5)) ||
 			    (dirEntry.filename[0] == char(0x00)) ||
 			    (dirEntry.filename[0] == '.')) continue;

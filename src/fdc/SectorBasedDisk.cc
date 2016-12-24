@@ -111,7 +111,7 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 			auto logicalSector = physToLog(track, side, j + 1);
 			SectorBuffer buf;
 			readSector(logicalSector, buf);
-			for (int i = 0; i < 512; ++i) output.write(idx++, buf.raw[i]);
+			for (auto& r : buf.raw) output.write(idx++, r);
 
 			word dataCrc = output.calcCrc(idx - (512 + 4), 512 + 4);
 			output.write(idx++, dataCrc >> 8);   // CRC (high byte)
