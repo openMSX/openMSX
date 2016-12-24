@@ -16,8 +16,8 @@
 #include <cstring>
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <sys/stat.h>
-#include <ctype.h>
 
 using std::string;
 

@@ -8,10 +8,10 @@
 #include <fstream>
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <cstdio>
-#include <ctype.h>
-#include <time.h>
-#include <stdarg.h>
+#include <cstdarg>
+#include <ctime>
 
 using std::string;
 using std::vector;

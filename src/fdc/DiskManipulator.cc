@@ -18,7 +18,7 @@
 #include "memory.hh"
 #include "xrange.hh"
 #include <cassert>
-#include <ctype.h>
+#include <cctype>
 #include <stdexcept>
 
 using std::string;
