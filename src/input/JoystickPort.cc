@@ -18,10 +18,6 @@ JoystickPort::JoystickPort(PluggingController& pluggingController_,
 {
 }
 
-JoystickPort::~JoystickPort()
-{
-}
-
 const string JoystickPort::getDescription() const
 {
 	return description;

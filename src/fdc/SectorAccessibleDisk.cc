@@ -22,9 +22,7 @@ SectorAccessibleDisk::SectorAccessibleDisk()
 {
 }
 
-SectorAccessibleDisk::~SectorAccessibleDisk()
-{
-}
+SectorAccessibleDisk::~SectorAccessibleDisk() = default;
 
 void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf)
 {

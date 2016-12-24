@@ -20,9 +20,7 @@ LDSDLRasterizer<Pixel>::LDSDLRasterizer(
 }
 
 template <class Pixel>
-LDSDLRasterizer<Pixel>::~LDSDLRasterizer()
-{
-}
+LDSDLRasterizer<Pixel>::~LDSDLRasterizer() = default;
 
 template <class Pixel>
 PostProcessor* LDSDLRasterizer<Pixel>::getPostProcessor() const

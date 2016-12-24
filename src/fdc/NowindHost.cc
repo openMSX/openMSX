@@ -45,9 +45,7 @@ NowindHost::NowindHost(const Drives& drives_)
 {
 }
 
-NowindHost::~NowindHost()
-{
-}
+NowindHost::~NowindHost() = default;
 
 byte NowindHost::peek() const
 {

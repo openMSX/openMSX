@@ -8,10 +8,6 @@ Layer::Layer(Coverage coverage_, ZIndex z_)
 {
 }
 
-Layer::~Layer()
-{
-}
-
 void Layer::setZ(ZIndex z_)
 {
 	z = z_;

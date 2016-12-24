@@ -146,10 +146,6 @@ WD33C93::WD33C93(const DeviceConfig& config)
 	targetId = 0;
 }
 
-WD33C93::~WD33C93()
-{
-}
-
 void WD33C93::disconnect()
 {
 	if (phase != SCSI::BUS_FREE) {

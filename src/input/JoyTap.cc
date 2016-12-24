@@ -16,9 +16,7 @@ JoyTap::JoyTap(PluggingController& pluggingController_,
 {
 }
 
-JoyTap::~JoyTap()
-{
-}
+JoyTap::~JoyTap() = default;
 
 void JoyTap::createPorts(const string& baseDescription) {
 	for (int i = 0; i < 4; ++i) {

@@ -9,7 +9,6 @@ class MSXCielTurbo final : public MSXDevice
 {
 public:
 	explicit MSXCielTurbo(const DeviceConfig& config);
-	~MSXCielTurbo();
 
 	// MSXDevice
 	void reset(EmuTime::param time) override;

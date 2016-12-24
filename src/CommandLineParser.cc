@@ -80,10 +80,6 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	sort(begin(fileTypes), end(fileTypes), CmpFileTypes());
 }
 
-CommandLineParser::~CommandLineParser()
-{
-}
-
 void CommandLineParser::registerOption(
 	const char* str, CLIOption& cliOption, ParsePhase phase, unsigned length)
 {

@@ -14,9 +14,7 @@ PrinterPortSimpl::PrinterPortSimpl(const HardwareConfig& hwConf_)
 {
 }
 
-PrinterPortSimpl::~PrinterPortSimpl()
-{
-}
+PrinterPortSimpl::~PrinterPortSimpl() = default;
 
 bool PrinterPortSimpl::getStatus(EmuTime::param /*time*/)
 {

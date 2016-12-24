@@ -13,10 +13,6 @@ RamDSKDiskImage::RamDSKDiskImage(size_t size)
 	DiskImageUtils::format(*this);
 }
 
-RamDSKDiskImage::~RamDSKDiskImage()
-{
-}
-
 void RamDSKDiskImage::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
 	memcpy(&buf, &data[sector], sizeof(buf));

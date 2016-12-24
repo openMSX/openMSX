@@ -54,9 +54,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	powerUp(time);
 }
 
-MSXRS232::~MSXRS232()
-{
-}
+MSXRS232::~MSXRS232() = default;
 
 void MSXRS232::powerUp(EmuTime::param time)
 {

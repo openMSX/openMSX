@@ -10,17 +10,6 @@
 namespace openmsx {
 
 template<typename Archive>
-PolymorphicSaverRegistry<Archive>::PolymorphicSaverRegistry()
-	: initialized(false)
-{
-}
-
-template<typename Archive>
-PolymorphicSaverRegistry<Archive>::~PolymorphicSaverRegistry()
-{
-}
-
-template<typename Archive>
 PolymorphicSaverRegistry<Archive>& PolymorphicSaverRegistry<Archive>::instance()
 {
 	static PolymorphicSaverRegistry oneInstance;
@@ -71,16 +60,6 @@ template class PolymorphicSaverRegistry<XmlOutputArchive>;
 ////
 
 template<typename Archive>
-PolymorphicLoaderRegistry<Archive>::PolymorphicLoaderRegistry()
-{
-}
-
-template<typename Archive>
-PolymorphicLoaderRegistry<Archive>::~PolymorphicLoaderRegistry()
-{
-}
-
-template<typename Archive>
 PolymorphicLoaderRegistry<Archive>& PolymorphicLoaderRegistry<Archive>::instance()
 {
 	static PolymorphicLoaderRegistry oneInstance;
@@ -117,16 +96,6 @@ void polyInitError(const char* expected, const char* actual)
 {
 	throw MSXException(StringOp::Builder() <<
 		"Expected type: " << expected << " but got: " << actual << '.');
-}
-
-template<typename Archive>
-PolymorphicInitializerRegistry<Archive>::PolymorphicInitializerRegistry()
-{
-}
-
-template<typename Archive>
-PolymorphicInitializerRegistry<Archive>::~PolymorphicInitializerRegistry()
-{
 }
 
 template<typename Archive>

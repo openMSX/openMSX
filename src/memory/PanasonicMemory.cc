@@ -32,9 +32,7 @@ PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 {
 }
 
-PanasonicMemory::~PanasonicMemory()
-{
-}
+PanasonicMemory::~PanasonicMemory() = default;
 
 void PanasonicMemory::registerRam(Ram& ram_)
 {

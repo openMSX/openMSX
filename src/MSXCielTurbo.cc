@@ -11,10 +11,6 @@ MSXCielTurbo::MSXCielTurbo(const DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-MSXCielTurbo::~MSXCielTurbo()
-{
-}
-
 void MSXCielTurbo::reset(EmuTime::param time)
 {
 	word port = 0; // dummy

@@ -67,10 +67,6 @@ RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, Rom&& rom_)
 	}
 }
 
-RomFSA1FM1::~RomFSA1FM1()
-{
-}
-
 void RomFSA1FM1::reset(EmuTime::param /*time*/)
 {
 	// initial rom bank is undefined
@@ -166,10 +162,6 @@ RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, Rom&& rom_)
 	, fsSram(getSram(config))
 {
 	reset(EmuTime::dummy());
-}
-
-RomFSA1FM2::~RomFSA1FM2()
-{
 }
 
 void RomFSA1FM2::reset(EmuTime::param /*time*/)

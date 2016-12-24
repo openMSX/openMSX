@@ -131,10 +131,6 @@ OSDWidget::OSDWidget(Display& display_, const TclObject& name_)
 {
 }
 
-OSDWidget::~OSDWidget()
-{
-}
-
 void OSDWidget::addWidget(unique_ptr<OSDWidget> widget)
 {
 	widget->setParent(this);

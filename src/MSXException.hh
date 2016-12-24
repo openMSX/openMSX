@@ -9,7 +9,6 @@ class MSXException
 {
 public:
 	explicit MSXException(string_ref message);
-	~MSXException();
 
 	const std::string& getMessage() const {
 		return message;
@@ -23,7 +22,6 @@ class FatalError
 {
 public:
 	explicit FatalError(string_ref message);
-	~FatalError();
 
 	const std::string& getMessage() const {
 		return message;

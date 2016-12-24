@@ -22,7 +22,7 @@ class RawFrame;
 class Renderer : public VRAMObserver
 {
 public:
-	virtual ~Renderer();
+	virtual ~Renderer() = default;
 
 	/** See VDP::getPostProcessor. */
 	virtual PostProcessor* getPostProcessor() const = 0;
@@ -184,7 +184,7 @@ public:
 	static const uint16_t GRAPHIC7_SPRITE_PALETTE[16];
 
 protected:
-	Renderer();
+	Renderer() = default;
 };
 
 } // namespace openmsx

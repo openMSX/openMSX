@@ -19,10 +19,6 @@ DSKDiskImage::DSKDiskImage(const Filename& fileName,
 	setNbSectors(file->getSize() / sizeof(SectorBuffer));
 }
 
-DSKDiskImage::~DSKDiskImage()
-{
-}
-
 void DSKDiskImage::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
 	file->seek(sector * sizeof(buf));

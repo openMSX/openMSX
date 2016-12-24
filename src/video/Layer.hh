@@ -39,7 +39,7 @@ public:
 		COVER_NONE
 	};
 
-	virtual ~Layer();
+	virtual ~Layer() = default;
 
 	/** Paint this layer.
 	  */

@@ -12,14 +12,6 @@ const char* const CliComm::updateStr[CliComm::NUM_UPDATES] = {
 };
 
 
-CliComm::CliComm()
-{
-}
-
-CliComm::~CliComm()
-{
-}
-
 void CliComm::printInfo(string_ref message)
 {
 	log(INFO, message);

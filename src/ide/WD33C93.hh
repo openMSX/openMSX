@@ -24,7 +24,6 @@ class WD33C93
 {
 public:
 	explicit WD33C93(const DeviceConfig& config);
-	~WD33C93();
 
 	void reset(bool scsireset);
 

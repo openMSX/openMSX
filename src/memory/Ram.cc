@@ -46,9 +46,7 @@ Ram::Ram(const DeviceConfig& config, unsigned size_)
 	clear();
 }
 
-Ram::~Ram()
-{
-}
+Ram::~Ram() = default;
 
 void Ram::clear(byte c)
 {

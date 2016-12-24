@@ -17,7 +17,6 @@ class Y8950Adpcm final : public Schedulable
 public:
 	Y8950Adpcm(Y8950& y8950, const DeviceConfig& config,
 	           const std::string& name, unsigned sampleRam);
-	~Y8950Adpcm();
 
 	void clearRam();
 	void reset(EmuTime::param time);

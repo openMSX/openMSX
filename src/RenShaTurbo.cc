@@ -16,9 +16,7 @@ RenShaTurbo::RenShaTurbo(CommandController& commandController,
 	}
 }
 
-RenShaTurbo::~RenShaTurbo()
-{
-}
+RenShaTurbo::~RenShaTurbo() = default;
 
 bool RenShaTurbo::getSignal(EmuTime::param time)
 {

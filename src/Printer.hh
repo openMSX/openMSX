@@ -35,14 +35,14 @@ public:
 	void unplugHelper(EmuTime::param time) override;
 
 protected:
-	PrinterCore();
-	~PrinterCore();
+	PrinterCore() = default;
+	~PrinterCore() = default;
 	virtual void write(byte data) = 0;
 	virtual void forceFormFeed() = 0;
 
 private:
-	byte toPrint;
-	bool prevStrobe;
+	byte toPrint = 0;
+	bool prevStrobe = true;
 };
 
 /*

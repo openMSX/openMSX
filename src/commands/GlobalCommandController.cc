@@ -43,9 +43,7 @@ GlobalCommandController::GlobalCommandController(
 {
 }
 
-GlobalCommandController::~GlobalCommandController()
-{
-}
+GlobalCommandController::~GlobalCommandController() = default;
 
 GlobalCommandControllerBase::~GlobalCommandControllerBase()
 {

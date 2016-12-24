@@ -25,7 +25,7 @@ public:
 
 protected:
 	explicit SDLGLOutputSurface(FrameBuffer frameBuffer = FB_NONE);
-	~SDLGLOutputSurface();
+	~SDLGLOutputSurface() = default;
 
 	void init(OutputSurface& output);
 	void flushFrameBuffer(unsigned width, unsigned height);

@@ -30,9 +30,7 @@ OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& nam
 	}
 }
 
-OSDImageBasedWidget::~OSDImageBasedWidget()
-{
-}
+OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 
 vector<string_ref> OSDImageBasedWidget::getProperties() const
 {

@@ -9,19 +9,11 @@ MSXException::MSXException(string_ref message_)
 {
 }
 
-MSXException::~MSXException()
-{
-}
-
 
 // class FatalError
 
 FatalError::FatalError(string_ref message_)
 	: message(message_.str())
-{
-}
-
-FatalError::~FatalError()
 {
 }
 

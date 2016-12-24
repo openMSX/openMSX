@@ -102,9 +102,7 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<SectorInfo>& sectorInfo_,
 	reset();
 }
 
-AmdFlash::~AmdFlash()
-{
-}
+AmdFlash::~AmdFlash() = default;
 
 void AmdFlash::getSectorInfo(unsigned address, unsigned& sector,
                              unsigned& sectorSize, unsigned& offset) const

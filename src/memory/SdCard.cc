@@ -45,9 +45,7 @@ SdCard::SdCard(const DeviceConfig& config)
 {
 }
 
-SdCard::~SdCard()
-{
-}
+SdCard::~SdCard() = default;
 
 // helper methods for 'transfer' to avoid duplication
 byte SdCard::readCurrentByteFromCurrentSector() {

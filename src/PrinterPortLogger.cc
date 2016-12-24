@@ -21,10 +21,6 @@ PrinterPortLogger::PrinterPortLogger(CommandController& commandController)
 {
 }
 
-PrinterPortLogger::~PrinterPortLogger()
-{
-}
-
 bool PrinterPortLogger::getStatus(EmuTime::param /*time*/)
 {
 	return false; // false = low = ready

@@ -4,15 +4,6 @@
 
 namespace openmsx {
 
-OutputSurface::OutputSurface()
-	: surface(nullptr), xOffset(0), yOffset(0), locked(false)
-{
-}
-
-OutputSurface::~OutputSurface()
-{
-}
-
 void OutputSurface::lock()
 {
 	if (isLocked()) return;

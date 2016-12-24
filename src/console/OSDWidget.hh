@@ -21,7 +21,7 @@ class OSDWidget
 {
 	using SubWidgets = std::vector<std::unique_ptr<OSDWidget>>;
 public:
-	virtual ~OSDWidget();
+	virtual ~OSDWidget() = default;
 
 	string_ref getName() const { return name.getString(); }
 	gl::vec2 getPos()    const { return pos; }

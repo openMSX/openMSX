@@ -25,9 +25,7 @@ MSXS1985::MSXS1985(const DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-MSXS1985::~MSXS1985()
-{
-}
+MSXS1985::~MSXS1985() = default;
 
 void MSXS1985::reset(EmuTime::param /*time*/)
 {

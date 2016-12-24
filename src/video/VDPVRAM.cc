@@ -137,10 +137,6 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	bitmapCacheWindow.setMask(0x1FFFF, ~0u << 17, EmuTime::zero);
 }
 
-VDPVRAM::~VDPVRAM()
-{
-}
-
 void VDPVRAM::clear()
 {
 	// Initialise VRAM data array.

@@ -17,13 +17,9 @@ namespace StringOp {
 
 // class Builder
 
-Builder::Builder()
-{
-}
+Builder::Builder() = default;
 
-Builder::~Builder()
-{
-}
+Builder::~Builder() = default;
 
 Builder& Builder::operator<<(const std::string& t)
 {

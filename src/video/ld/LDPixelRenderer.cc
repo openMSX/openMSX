@@ -19,9 +19,7 @@ LDPixelRenderer::LDPixelRenderer(LaserdiscPlayer& ld, Display& display)
 {
 }
 
-LDPixelRenderer::~LDPixelRenderer()
-{
-}
+LDPixelRenderer::~LDPixelRenderer() = default;
 
 void LDPixelRenderer::frameStart(EmuTime::param time)
 {

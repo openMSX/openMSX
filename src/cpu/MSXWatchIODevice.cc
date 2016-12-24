@@ -24,10 +24,6 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard_,
 	}
 }
 
-WatchIO::~WatchIO()
-{
-}
-
 MSXWatchIODevice& WatchIO::getDevice(byte port)
 {
 	byte begin = getBeginAddress();

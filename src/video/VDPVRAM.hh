@@ -388,7 +388,6 @@ public:
 	VDPVRAM& operator=(const VDPVRAM&) = delete;
 
 	VDPVRAM(VDP& vdp, unsigned size, EmuTime::param time);
-	~VDPVRAM();
 
 	/** Initialize VRAM content to power-up state.
 	 */

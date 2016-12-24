@@ -348,9 +348,7 @@ Rom::Rom(Rom&& r) noexcept
 	if (romDebuggable) romDebuggable->moved(*this);
 }
 
-Rom::~Rom()
-{
-}
+Rom::~Rom() = default;
 
 string Rom::getFilename() const
 {

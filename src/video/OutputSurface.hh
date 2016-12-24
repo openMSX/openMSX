@@ -19,7 +19,7 @@ public:
 	OutputSurface(const OutputSurface&) = delete;
 	OutputSurface& operator=(const OutputSurface&) = delete;
 
-	virtual ~OutputSurface();
+	virtual ~OutputSurface() = default;
 
 	unsigned getWidth()  const { return surface->w; }
 	unsigned getHeight() const { return surface->h; }
@@ -131,7 +131,8 @@ public:
 	virtual void clearScreen() = 0;
 
 protected:
-	OutputSurface();
+	OutputSurface() = default;
+
 	void setPosition(int x, int y);
 	void setSDLSurface(SDL_Surface* surface_) { surface = surface_; }
 	void setSDLFormat(const SDL_PixelFormat& format);
@@ -141,13 +142,13 @@ private:
 	// OutputRectangle
 	gl::ivec2 getOutputSize() const override { return gl::ivec2(getWidth(), getHeight()); }
 
-	SDL_Surface* surface;
+	SDL_Surface* surface = nullptr;
 	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;
-	int xOffset, yOffset;
+	int xOffset = 0, yOffset = 0;
 
-	bool locked;
+	bool locked = false;
 
 	friend class SDLGLOutputSurface; // for setBufferPtr()
 };

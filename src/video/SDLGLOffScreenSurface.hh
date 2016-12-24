@@ -16,7 +16,6 @@ class SDLGLOffScreenSurface final : public OutputSurface, private SDLGLOutputSur
 {
 public:
 	explicit SDLGLOffScreenSurface(const SDLGLVisibleSurface& output);
-	~SDLGLOffScreenSurface();
 
 private:
 	// OutputSurface

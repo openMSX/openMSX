@@ -36,9 +36,7 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId)
 	}
 }
 
-MSXFDC::~MSXFDC()
-{
-}
+MSXFDC::~MSXFDC() = default;
 
 void MSXFDC::powerDown(EmuTime::param time)
 {
