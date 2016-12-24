@@ -340,7 +340,7 @@ vector<string_ref> Reactor::getMachineIDs() const
 {
 	vector<string_ref> result;
 	for (auto& b : boards) {
-		result.push_back(b->getMachineID());
+		result.emplace_back(b->getMachineID());
 	}
 	return result;
 }

@@ -140,7 +140,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 		// complete connector
 		vector<string_ref> connectorNames;
 		for (auto& c : pluggingController.connectors) {
-			connectorNames.push_back(c->getName());
+			connectorNames.emplace_back(c->getName());
 		}
 		completeString(tokens, connectorNames);
 	} else if (tokens.size() == 3) {
@@ -150,7 +150,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 		string_ref className = connector ? connector->getClass() : "";
 		for (auto& p : pluggingController.pluggables) {
 			if (p->getClass() == className) {
-				pluggableNames.push_back(p->getName());
+				pluggableNames.emplace_back(p->getName());
 			}
 		}
 		completeString(tokens, pluggableNames);
@@ -200,7 +200,7 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 		vector<string_ref> connectorNames;
 		auto& pluggingController = OUTER(PluggingController, unplugCmd);
 		for (auto& c : pluggingController.connectors) {
-			connectorNames.push_back(c->getName());
+			connectorNames.emplace_back(c->getName());
 		}
 		completeString(tokens, connectorNames);
 	}
@@ -294,7 +294,7 @@ void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) co
 		vector<string_ref> pluggableNames;
 		auto& pluggingController = OUTER(PluggingController, pluggableInfo);
 		for (auto& p : pluggingController.pluggables) {
-			pluggableNames.push_back(p->getName());
+			pluggableNames.emplace_back(p->getName());
 		}
 		completeString(tokens, pluggableNames);
 	}
@@ -339,7 +339,7 @@ void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) co
 		vector<string_ref> connectorNames;
 		auto& pluggingController = OUTER(PluggingController, connectorInfo);
 		for (auto& c : pluggingController.connectors) {
-			connectorNames.push_back(c->getName());
+			connectorNames.emplace_back(c->getName());
 		}
 		completeString(tokens, connectorNames);
 	}
@@ -398,10 +398,10 @@ void PluggingController::ConnectionClassInfo::tabCompletion(vector<string>& toke
 		vector<string_ref> names;
 		auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
 		for (auto& c : pluggingController.connectors) {
-			names.push_back(c->getName());
+			names.emplace_back(c->getName());
 		}
 		for (auto& p : pluggingController.pluggables) {
-			names.push_back(p->getName());
+			names.emplace_back(p->getName());
 		}
 		completeString(tokens, names);
 	}

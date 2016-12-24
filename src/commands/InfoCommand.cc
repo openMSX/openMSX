@@ -97,7 +97,7 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 		// complete topic
 		vector<string_ref> topics;
 		for (auto* t : infoTopics) {
-			topics.push_back(t->getName());
+			topics.emplace_back(t->getName());
 		}
 		completeString(tokens, topics);
 		break;

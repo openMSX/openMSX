@@ -295,7 +295,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 	} else if (tokens.size() == 3) {
 		vector<string> names;
 		if ((tokens[1] == "format") || (tokens[1] == "create")) {
-			names.push_back("-dos1");
+			names.emplace_back("-dos1");
 		}
 		for (auto& d : drives) {
 			const auto& name1 = d.driveName; // with prexix

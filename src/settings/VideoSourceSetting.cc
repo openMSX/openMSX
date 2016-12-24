@@ -74,11 +74,11 @@ std::vector<string_ref> VideoSourceSetting::getPossibleValues() const
 	std::vector<string_ref> result;
 	if (sources.size() == 1) {
 		assert(sources.front().first == "none");
-		result.push_back("none");
+		result.emplace_back("none");
 	} else {
 		for (auto& p : sources) {
 			if (p.second != 0) {
-				result.push_back(p.first);
+				result.emplace_back(p.first);
 			}
 		}
 	}

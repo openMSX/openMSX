@@ -116,7 +116,7 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		assert(tokens.empty());
 		for (auto& s : str) {
-			tokens.push_back(TclObject(s));
+			tokens.emplace_back(s);
 		}
 	}
 }
