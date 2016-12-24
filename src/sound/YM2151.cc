@@ -892,8 +892,8 @@ void YM2151::reset(EmuTime::param time)
 	test = 0;
 
 	irq_enable = 0;
-	timer1->setStart(0, time);
-	timer2->setStart(0, time);
+	timer1->setStart(false, time);
+	timer2->setStart(false, time);
 
 	noise     = 0;
 	noise_rng = 0;

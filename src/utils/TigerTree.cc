@@ -174,7 +174,7 @@ TigerTree::Node TigerTree::getLeftChild(Node node) const
 TigerTree::Node TigerTree::getRightChild(Node node) const
 {
 	assert(node.n < entry.numNodes);
-	while (1) {
+	while (true) {
 		assert(node.l > 1);
 		node.l /= 2;
 		auto r = node.n + node.l;
