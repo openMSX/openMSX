@@ -382,7 +382,7 @@ void CommandConsole::newLineConsole(ConsoleLine line)
 		lines.removeBack();
 	}
 	ConsoleLine tmp = lines[0];
-	lines[0] = line;
+	lines[0] = std::move(line);
 	lines.addFront(tmp);
 }
 
