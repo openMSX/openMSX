@@ -931,7 +931,7 @@ void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
 		// load last saved entry
 		struct stat st;
 		string dirName = FileOperations::getUserOpenMSXDir() + "/savestates/";
-		string lastEntry = "";
+		string lastEntry;
 		time_t lastTime = 0;
 		ReadDir dir(dirName);
 		while (dirent* d = dir.getEntry()) {
@@ -944,7 +944,7 @@ void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
 				}
 			}
 		}
-		if (lastEntry == "") {
+		if (lastEntry.empty()) {
 			throw CommandException("Can't find last saved state.");
 		}
 		filename = dirName + lastEntry;

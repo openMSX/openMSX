@@ -1104,7 +1104,7 @@ void Keyboard::KeyInserter::executeUntil(EmuTime::param time)
 	try {
 		auto it = begin(text_utf8);
 		unsigned current = utf8::next(it, end(text_utf8));
-		if (releaseLast == true && (releaseBeforePress || keyboard.commonKeys(last, current))) {
+		if (releaseLast && (releaseBeforePress || keyboard.commonKeys(last, current))) {
 			// There are common keys between previous and current character
 			// Do not immediately press again but give MSX the time to notice
 			// that the keys have been released
