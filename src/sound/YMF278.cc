@@ -55,7 +55,7 @@ static const int mix_level[8] = {
 
 // decay level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(db) unsigned(db * (2.0f / ENV_STEP))
+#define SC(db) unsigned((db) * (2.0f / ENV_STEP))
 static const unsigned dl_tab[16] = {
  SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
  SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
@@ -85,7 +85,7 @@ static const byte eg_inc[15 * RATE_STEPS] = {
 	0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
 };
 
-#define O(a) (a * RATE_STEPS)
+#define O(a) ((a) * RATE_STEPS)
 static const byte eg_rate_select[64] = {
 	O( 0),O( 1),O( 2),O( 3),
 	O( 0),O( 1),O( 2),O( 3),
@@ -133,7 +133,7 @@ static const byte eg_rate_shift[64] = {
 
 // number of steps to take in quarter of lfo frequency
 // TODO check if frequency matches real chip
-#define O(a) int((EG_TIMER_OVERFLOW / a) / 6)
+#define O(a) int((EG_TIMER_OVERFLOW / (a)) / 6)
 static const int lfo_period[8] = {
 	O(0.168f), O(2.019f), O(3.196f), O(4.206f),
 	O(5.215f), O(5.888f), O(6.224f), O(7.066f)
@@ -141,7 +141,7 @@ static const int lfo_period[8] = {
 #undef O
 
 
-#define O(a) int(a * 65536)
+#define O(a) int((a) * 65536)
 static const int vib_depth[8] = {
 	O( 0.0f  ), O( 3.378f), O( 5.065f), O( 6.750f),
 	O(10.114f), O(20.170f), O(40.106f), O(79.307f)
@@ -149,7 +149,7 @@ static const int vib_depth[8] = {
 #undef O
 
 
-#define SC(db) int(db * (2.0f / ENV_STEP))
+#define SC(db) int((db) * (2.0f / ENV_STEP))
 static const int am_depth[8] = {
 	SC(0.0f  ), SC(1.781f), SC(2.906f), SC( 3.656f),
 	SC(4.406f), SC(5.906f), SC(7.406f), SC(11.91f )

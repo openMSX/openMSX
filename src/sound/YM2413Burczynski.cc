@@ -46,7 +46,7 @@ static const int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 // table is 3dB/octave, DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
-#define DV(x) int(x / 0.1875)
+#define DV(x) int((x) / 0.1875)
 static const int ksl_tab[8 * 16] =
 {
 	// OCT 0
@@ -199,7 +199,7 @@ static const byte eg_rate_shift[16 + 64 + 16] =
 };
 
 // multiple table
-#define ML(x) byte(2 * x)
+#define ML(x) byte(2 * (x))
 static const byte mul_tab[16] =
 {
 	ML( 0.50), ML( 1.00), ML( 2.00), ML( 3.00),

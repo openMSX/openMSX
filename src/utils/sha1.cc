@@ -224,7 +224,7 @@ void SHA1::update(const uint8_t* data, size_t len)
 
 	m_count += uint64_t(len) << 3;
 
-	uint32_t i;
+	size_t i;
 	if ((j + len) > 63) {
 		memcpy(&m_buffer[j], data, (i = 64 - j));
 		transform(m_buffer);

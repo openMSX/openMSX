@@ -25,25 +25,25 @@ public:
 	/** Construct empty line. */
 	ConsoleLine();
 	/** Construct line with a single color (by default white). */
-	explicit ConsoleLine(string_ref line, unsigned rgb = 0xffffff);
+	explicit ConsoleLine(string_ref line, uint32_t rgb = 0xffffff);
 
 	/** Append a chunk with a (different) color. This is currently the
 	  * only way to construct a multi-colored line/ */
-	void addChunk(string_ref text, unsigned rgb);
+	void addChunk(string_ref text, uint32_t rgb);
 
 	/** Get the number of UTF8 characters in this line. So multi-byte
 	  * characters are counted as a single character. */
-	unsigned numChars() const;
+	size_t numChars() const;
 	/** Get the total string, ignoring color differences. */
 	const std::string& str() const { return line; }
 
 	/** Get the number of different chunks. Each chunk is a a part of the
 	  * line that has the same color. */
-	unsigned numChunks() const { return unsigned(chunks.size()); }
+	size_t numChunks() const { return chunks.size(); }
 	/** Get the color for the i-th chunk. */
-	unsigned chunkColor(unsigned i) const;
+	uint32_t chunkColor(size_t i) const;
 	/** Get the text for the i-th chunk. */
-	string_ref chunkText(unsigned i) const;
+	string_ref chunkText(size_t i) const;
 
 	/** Get a part of total line. The result keeps the same colors as this
 	  * line. E.g. used to get part of (long) line that should be wrapped
@@ -52,11 +52,11 @@ public:
 	  *            character).
 	  * @param len Length of the substring, also counted in characters
 	  */
-	ConsoleLine substr(unsigned pos, unsigned len) const;
+	ConsoleLine substr(size_t pos, size_t len) const;
 
 private:
 	std::string line;
-	std::vector<std::pair<unsigned, string_ref::size_type>> chunks;
+	std::vector<std::pair<uint32_t, string_ref::size_type>> chunks; // [rgb, pos]
 };
 
 

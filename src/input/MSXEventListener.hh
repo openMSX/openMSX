@@ -17,8 +17,8 @@ public:
 	                         EmuTime::param time) = 0;
 
 protected:
-	MSXEventListener() {}
-	~MSXEventListener() {}
+	MSXEventListener() = default;
+	~MSXEventListener() = default;
 };
 
 } // namespace openmsx

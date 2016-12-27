@@ -619,7 +619,7 @@ unsigned Y8950::Slot::calc_phase(int lfo_pm)
 	return phase >> DP_BASE_BITS;
 }
 
-#define S2E(x) Y8950::EnvPhaseIndex(int(x / EG_STEP))
+#define S2E(x) Y8950::EnvPhaseIndex(int((x) / EG_STEP))
 static const Y8950::EnvPhaseIndex SL[16] = {
 	S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 	S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)

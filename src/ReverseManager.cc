@@ -638,7 +638,7 @@ void ReverseManager::saveReplay(
 				}
 			}
 		}
-		assert(lastAddedIt == --end(chunks)); // last snapshot must be included
+		assert(lastAddedIt == std::prev(end(chunks))); // last snapshot must be included
 	}
 
 	// add sentinel when there isn't one yet
