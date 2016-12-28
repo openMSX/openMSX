@@ -79,7 +79,7 @@
     <primary external="true" slot="2"/> <!-- back slot -->
 
     <primary slot="3">
-      <ROM id="MSX BIOS with BASIC ROM">
+      <ROM id="ML-F120 firmware ROM">
         <rom>
           <filename>ml-f120_firmware.rom</filename>
           <sha1>21a9f60cb6370d0617ce54c42bb7d8e40a4ab560</sha1>
