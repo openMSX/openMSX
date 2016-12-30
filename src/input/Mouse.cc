@@ -11,8 +11,6 @@
 #include <SDL.h>
 
 using std::string;
-using std::min;
-using std::max;
 using std::shared_ptr;
 
 namespace openmsx {

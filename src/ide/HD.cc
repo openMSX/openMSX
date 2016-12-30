@@ -20,7 +20,6 @@
 namespace openmsx {
 
 using std::string;
-using std::vector;
 
 HD::HD(const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())

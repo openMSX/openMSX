@@ -6,8 +6,6 @@
 #include <cstdlib>
 #include <stdexcept>
 
-using std::advance;
-using std::equal;
 using std::string;
 using std::transform;
 using std::vector;

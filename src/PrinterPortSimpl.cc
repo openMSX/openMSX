@@ -5,8 +5,6 @@
 #include "serialize.hh"
 #include "memory.hh"
 
-using std::unique_ptr;
-
 namespace openmsx {
 
 PrinterPortSimpl::PrinterPortSimpl(const HardwareConfig& hwConf_)

@@ -18,7 +18,6 @@
 #include <iterator> // for back_inserter
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 

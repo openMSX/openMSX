@@ -31,7 +31,6 @@
 #include "emmintrin.h"
 #endif
 
-using std::remove;
 using std::string;
 using std::vector;
 

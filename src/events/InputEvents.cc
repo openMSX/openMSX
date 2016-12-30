@@ -10,7 +10,6 @@
 
 using std::make_tuple;
 using std::string;
-using std::vector;
 
 namespace openmsx {
 

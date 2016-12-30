@@ -36,8 +36,6 @@
 
 namespace openmsx {
 
-using std::unique_ptr;
-
 void PluggableFactory::createAll(PluggingController& controller,
                                  MSXMotherBoard& motherBoard)
 {
