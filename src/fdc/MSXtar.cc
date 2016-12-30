@@ -654,12 +654,12 @@ string MSXtar::condensName(const MSXDirEntry& dirEntry)
 {
 	string result;
 	for (unsigned i = 0; (i < 8) && (dirEntry.name.base[i] != ' '); ++i) {
-		result += tolower(dirEntry.name.base[i]);
+		result += char(tolower(dirEntry.name.base[i]));
 	}
 	if (dirEntry.name.ext[0] != ' ') {
 		result += '.';
 		for (unsigned i = 0; (i < 3) && (dirEntry.name.ext[i] != ' '); ++i) {
-			result += tolower(dirEntry.name.ext[i]);
+			result += char(tolower(dirEntry.name.ext[i]));
 		}
 	}
 	return result;

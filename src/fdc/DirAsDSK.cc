@@ -245,12 +245,12 @@ static string msxToHostName(const char* msxName)
 {
 	string result;
 	for (unsigned i = 0; (i < 8) && (msxName[i] != ' '); ++i) {
-		result += tolower(msxName[i]);
+		result += char(tolower(msxName[i]));
 	}
 	if (msxName[8] != ' ') {
 		result += '.';
 		for (unsigned i = 8; (i < (8 + 3)) && (msxName[i] != ' '); ++i) {
-			result += tolower(msxName[i]);
+			result += char(tolower(msxName[i]));
 		}
 	}
 	return result;

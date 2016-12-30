@@ -568,7 +568,7 @@ string NowindHost::extractName(int begin, int end) const
 	for (int i = begin; i < end; ++i) {
 		char c = extraData[i];
 		if (c == ' ') break;
-		result += toupper(c);
+		result += char(toupper(c));
 	}
 	return result;
 }
