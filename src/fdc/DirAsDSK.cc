@@ -923,7 +923,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 {
 	// Create copy of old FAT (to be able to detect changes).
 	vector<SectorBuffer> oldFAT(nofSectorsPerFat);
-	memcpy(&oldFAT[0], fat(), sizeof(oldFAT));
+	memcpy(&oldFAT[0], fat(), SECTOR_SIZE * nofSectorsPerFat);
 
 	// Update current FAT with new data.
 	memcpy(&sectors[sector], &buf, sizeof(buf));
