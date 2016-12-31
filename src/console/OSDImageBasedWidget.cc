@@ -30,9 +30,7 @@ OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& nam
 	}
 }
 
-OSDImageBasedWidget::~OSDImageBasedWidget()
-{
-}
+OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 
 vector<string_ref> OSDImageBasedWidget::getProperties() const
 {
@@ -45,15 +43,15 @@ vector<string_ref> OSDImageBasedWidget::getProperties() const
 	return result;
 }
 
-static void get4(Interpreter& interp, const TclObject& value, unsigned* result)
+static void get4(Interpreter& interp, const TclObject& value, uint32_t* result)
 {
-	unsigned len = value.getListLength(interp);
+	auto len = value.getListLength(interp);
 	if (len == 4) {
 		for (auto i : xrange(4)) {
 			result[i] = value.getListIndex(interp, i).getInt(interp);
 		}
 	} else if (len == 1) {
-		unsigned val = value.getInt(interp);
+		uint32_t val = value.getInt(interp);
 		for (auto i : xrange(4)) {
 			result[i] = val;
 		}
@@ -65,22 +63,22 @@ void OSDImageBasedWidget::setProperty(
 	Interpreter& interp, string_ref propName, const TclObject& value)
 {
 	if (propName == "-rgba") {
-		unsigned newRGBA[4];
+		uint32_t newRGBA[4];
 		get4(interp, value, newRGBA);
 		setRGBA(newRGBA);
 	} else if (propName == "-rgb") {
-		unsigned newRGB[4];
+		uint32_t newRGB[4];
 		get4(interp, value, newRGB);
-		unsigned newRGBA[4];
+		uint32_t newRGBA[4];
 		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]          & 0x000000ff) |
 			             ((newRGB[i] << 8) & 0xffffff00);
 		}
 		setRGBA(newRGBA);
 	} else if (propName == "-alpha") {
-		unsigned newAlpha[4];
+		uint32_t newAlpha[4];
 		get4(interp, value, newAlpha);
-		unsigned newRGBA[4];
+		uint32_t newRGBA[4];
 		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]     & 0xffffff00) |
 			             (newAlpha[i] & 0x000000ff);
@@ -100,7 +98,7 @@ void OSDImageBasedWidget::setProperty(
 	}
 }
 
-void OSDImageBasedWidget::setRGBA(const unsigned newRGBA[4])
+void OSDImageBasedWidget::setRGBA(const uint32_t newRGBA[4])
 {
 	if ((rgba[0] == newRGBA[0]) &&
 	    (rgba[1] == newRGBA[1]) &&
@@ -115,7 +113,7 @@ void OSDImageBasedWidget::setRGBA(const unsigned newRGBA[4])
 	}
 }
 
-static void set4(const unsigned rgba[4], unsigned mask, unsigned shift, TclObject& result)
+static void set4(const uint32_t rgba[4], uint32_t mask, unsigned shift, TclObject& result)
 {
 	if ((rgba[0] == rgba[1]) && (rgba[0] == rgba[2]) && (rgba[0] == rgba[3])) {
 		result.setInt((rgba[0] & mask) >> shift);
@@ -145,7 +143,7 @@ void OSDImageBasedWidget::getProperty(string_ref propName, TclObject& result) co
 	}
 }
 
-static bool constantAlpha(const unsigned rgba[4])
+static bool constantAlpha(const uint32_t rgba[4])
 {
 	return ((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
 	       ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&

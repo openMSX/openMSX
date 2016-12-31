@@ -42,7 +42,7 @@ std::vector<string_ref> EnumSettingBase::getPossibleValues() const
 {
 	std::vector<string_ref> result;
 	for (auto& p : baseMap) {
-		result.push_back(p.first);
+		result.emplace_back(p.first);
 	}
 	return result;
 }

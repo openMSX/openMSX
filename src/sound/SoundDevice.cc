@@ -61,9 +61,7 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, string_ref name_,
 	}
 }
 
-SoundDevice::~SoundDevice()
-{
-}
+SoundDevice::~SoundDevice() = default;
 
 bool SoundDevice::isStereo() const
 {

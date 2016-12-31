@@ -29,7 +29,7 @@ public:
 	virtual bool isDummyDisk() const;
 
 	// patch stuff
-	void applyPatch(const Filename& patchFile);
+	void applyPatch(Filename patchFile);
 	std::vector<Filename> getPatches() const;
 	bool hasPatches() const;
 

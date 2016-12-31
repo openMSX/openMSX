@@ -16,8 +16,8 @@
 #include <cstring>
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <sys/stat.h>
-#include <ctype.h>
 
 using std::string;
 
@@ -654,12 +654,12 @@ string MSXtar::condensName(const MSXDirEntry& dirEntry)
 {
 	string result;
 	for (unsigned i = 0; (i < 8) && (dirEntry.name.base[i] != ' '); ++i) {
-		result += tolower(dirEntry.name.base[i]);
+		result += char(tolower(dirEntry.name.base[i]));
 	}
 	if (dirEntry.name.ext[0] != ' ') {
 		result += '.';
 		for (unsigned i = 0; (i < 3) && (dirEntry.name.ext[i] != ' '); ++i) {
-			result += tolower(dirEntry.name.ext[i]);
+			result += char(tolower(dirEntry.name.ext[i]));
 		}
 	}
 	return result;
@@ -691,8 +691,7 @@ string MSXtar::dir()
 	for (unsigned sector = chrootSector; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
-		for (unsigned i = 0; i < 16; ++i) {
-			auto& dirEntry = buf.dirEntry[i];
+		for (auto& dirEntry : buf.dirEntry) {
 			if ((dirEntry.filename[0] == char(0xe5)) ||
 			    (dirEntry.filename[0] == char(0x00)) ||
 			    (dirEntry.attrib == T_MSX_LFN)) continue;
@@ -730,7 +729,7 @@ void MSXtar::mkdir(string_ref newRootDir)
 
 void MSXtar::chroot(string_ref newRootDir, bool createDir)
 {
-	if (newRootDir.starts_with("/") || newRootDir.starts_with("\\")) {
+	if (newRootDir.starts_with('/') || newRootDir.starts_with('\\')) {
 		// absolute path, reset chrootSector
 		chrootSector = rootDirStart;
 		StringOp::trimLeft(newRootDir, "/\\");
@@ -822,8 +821,7 @@ void MSXtar::recurseDirExtract(string_ref dirName, unsigned sector)
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
-		for (unsigned i = 0; i < 16; ++i) {
-			auto& dirEntry = buf.dirEntry[i];
+		for (auto& dirEntry : buf.dirEntry) {
 			if ((dirEntry.filename[0] == char(0xe5)) ||
 			    (dirEntry.filename[0] == char(0x00)) ||
 			    (dirEntry.filename[0] == '.')) continue;

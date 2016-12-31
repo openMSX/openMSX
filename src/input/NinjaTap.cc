@@ -4,9 +4,8 @@
 
 namespace openmsx {
 
-NinjaTap::NinjaTap(PluggingController& pluggingController_,
-                   const std::string& name_)
-	: JoyTap(pluggingController_, name_)
+NinjaTap::NinjaTap(PluggingController& pluggingController_, std::string name_)
+	: JoyTap(pluggingController_, std::move(name_))
 {
 	status = 0x3F; // TODO check initial value
 	previous = 0;

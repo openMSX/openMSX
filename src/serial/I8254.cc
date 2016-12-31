@@ -81,9 +81,7 @@ I8254::I8254(Scheduler& scheduler, ClockPinListener* output0,
 	counter[2] = make_unique<Counter>(scheduler, output2, time);
 }
 
-I8254::~I8254()
-{
-}
+I8254::~I8254() = default;
 
 void I8254::reset(EmuTime::param time)
 {

@@ -86,7 +86,7 @@ void MSXS1990::setCPUStatus(byte value)
 	cpuStatus = value & 0x60;
 	getCPU().setActiveCPU((cpuStatus & 0x20) ? MSXCPU::CPU_Z80 :
 	                                           MSXCPU::CPU_R800);
-	bool dram = (cpuStatus & 0x40) ? false : true;
+	bool dram = (cpuStatus & 0x40) == 0;
 	getCPU().setDRAMmode(dram);
 	getMotherBoard().getPanasonicMemory().setDRAM(dram);
 	// TODO bit 7 -> reset MSX ?????

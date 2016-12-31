@@ -45,9 +45,7 @@ Simple3xScaler<Pixel>::Simple3xScaler(
 }
 
 template <class Pixel>
-Simple3xScaler<Pixel>::~Simple3xScaler()
-{
-}
+Simple3xScaler<Pixel>::~Simple3xScaler() = default;
 
 template <typename Pixel>
 void Simple3xScaler<Pixel>::doScale1(FrameSource& src,

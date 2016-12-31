@@ -134,6 +134,7 @@ public:
 
 protected:
 	OutputSurface() = default;
+
 	void setPosition(int x, int y);
 	void setSDLSurface(SDL_Surface* surface_) { surface = surface_; }
 	void setSDLRenderer(SDL_Renderer* r) { renderer = r; }

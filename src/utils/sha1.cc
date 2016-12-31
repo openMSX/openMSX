@@ -114,13 +114,13 @@ static inline unsigned hex(char x, const char* str)
 void Sha1Sum::parse40(const char* str)
 {
 	const char* p = str;
-	for (int i = 0; i < 5; ++i) {
+	for (auto& ai : a) {
 		unsigned t = 0;
 		for (int j = 0; j < 8; ++j) {
 			t <<= 4;
 			t |= hex(*p++, str);
 		}
-		a[i] = t;
+		ai = t;
 	}
 }
 
@@ -132,9 +132,9 @@ std::string Sha1Sum::toString() const
 {
 	char buf[40];
 	char* p = buf;
-	for (int i = 0; i < 5; ++i) {
+	for (const auto& ai : a) {
 		for (int j = 28; j >= 0; j -= 4) {
-			*p++ = digit((a[i] >> j) & 0xf);
+			*p++ = digit((ai >> j) & 0xf);
 		}
 	}
 	return string(buf, 40);
@@ -142,16 +142,14 @@ std::string Sha1Sum::toString() const
 
 bool Sha1Sum::empty() const
 {
-	for (int i = 0; i < 5; ++i) {
-		if (a[i] != 0) return false;
+	for (const auto& ai : a) {
+		if (ai != 0) return false;
 	}
 	return true;
 }
 void Sha1Sum::clear()
 {
-	for (int i = 0; i < 5; ++i) {
-		a[i] = 0;
-	}
+	for (auto& ai : a) ai = 0;
 }
 
 
@@ -226,7 +224,7 @@ void SHA1::update(const uint8_t* data, size_t len)
 
 	m_count += uint64_t(len) << 3;
 
-	uint32_t i;
+	size_t i;
 	if ((j + len) > 63) {
 		memcpy(&m_buffer[j], data, (i = 64 - j));
 		transform(m_buffer);

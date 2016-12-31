@@ -19,10 +19,6 @@ SDLGLOutputSurface::SDLGLOutputSurface(FrameBuffer frameBuffer_)
 {
 }
 
-SDLGLOutputSurface::~SDLGLOutputSurface()
-{
-}
-
 void SDLGLOutputSurface::init(OutputSurface& output)
 {
 	// This is logically a part of the constructor, but the constructor

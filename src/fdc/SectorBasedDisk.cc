@@ -4,8 +4,8 @@
 
 namespace openmsx {
 
-SectorBasedDisk::SectorBasedDisk(const DiskName& name_)
-	: Disk(name_)
+SectorBasedDisk::SectorBasedDisk(DiskName name_)
+	: Disk(std::move(name_))
 	, nbSectors(size_t(-1)) // to detect misuse
 	, cachedTrackNum(-1)
 {
@@ -111,7 +111,7 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 			auto logicalSector = physToLog(track, side, j + 1);
 			SectorBuffer buf;
 			readSector(logicalSector, buf);
-			for (int i = 0; i < 512; ++i) output.write(idx++, buf.raw[i]);
+			for (auto& r : buf.raw) output.write(idx++, r);
 
 			word dataCrc = output.calcCrc(idx - (512 + 4), 512 + 4);
 			output.write(idx++, dataCrc >> 8);   // CRC (high byte)

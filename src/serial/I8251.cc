@@ -7,43 +7,43 @@ using std::string;
 
 namespace openmsx {
 
-const byte STAT_TXRDY   = 0x01;
-const byte STAT_RXRDY   = 0x02;
-const byte STAT_TXEMPTY = 0x04;
-const byte STAT_PE      = 0x08;
-const byte STAT_OE      = 0x10;
-const byte STAT_FE      = 0x20;
-const byte STAT_SYNBRK  = 0x40;
-const byte STAT_DSR     = 0x80;
+static const byte STAT_TXRDY   = 0x01;
+static const byte STAT_RXRDY   = 0x02;
+static const byte STAT_TXEMPTY = 0x04;
+static const byte STAT_PE      = 0x08;
+static const byte STAT_OE      = 0x10;
+static const byte STAT_FE      = 0x20;
+static const byte STAT_SYNBRK  = 0x40;
+static const byte STAT_DSR     = 0x80;
 
-const byte MODE_BAUDRATE    = 0x03;
-const byte MODE_SYNCHRONOUS = 0x00;
-const byte MODE_RATE1       = 0x01;
-const byte MODE_RATE16      = 0x02;
-const byte MODE_RATE64      = 0x03;
-const byte MODE_WORDLENGTH  = 0x0C;
-const byte MODE_5BIT        = 0x00;
-const byte MODE_6BIT        = 0x04;
-const byte MODE_7BIT        = 0x08;
-const byte MODE_8BIT        = 0x0C;
-const byte MODE_PARITYEN    = 0x10;
-const byte MODE_PARITODD    = 0x00;
-const byte MODE_PARITEVEN   = 0x20;
-const byte MODE_STOP_BITS   = 0xC0;
-const byte MODE_STOP_INV    = 0x00;
-const byte MODE_STOP_1      = 0x40;
-const byte MODE_STOP_15     = 0x80;
-const byte MODE_STOP_2      = 0xC0;
-const byte MODE_SINGLESYNC  = 0x80;
+static const byte MODE_BAUDRATE    = 0x03;
+static const byte MODE_SYNCHRONOUS = 0x00;
+static const byte MODE_RATE1       = 0x01;
+static const byte MODE_RATE16      = 0x02;
+static const byte MODE_RATE64      = 0x03;
+static const byte MODE_WORDLENGTH  = 0x0C;
+static const byte MODE_5BIT        = 0x00;
+static const byte MODE_6BIT        = 0x04;
+static const byte MODE_7BIT        = 0x08;
+static const byte MODE_8BIT        = 0x0C;
+static const byte MODE_PARITYEN    = 0x10;
+static const byte MODE_PARITODD    = 0x00;
+static const byte MODE_PARITEVEN   = 0x20;
+static const byte MODE_STOP_BITS   = 0xC0;
+static const byte MODE_STOP_INV    = 0x00;
+static const byte MODE_STOP_1      = 0x40;
+static const byte MODE_STOP_15     = 0x80;
+static const byte MODE_STOP_2      = 0xC0;
+static const byte MODE_SINGLESYNC  = 0x80;
 
-const byte CMD_TXEN   = 0x01;
-const byte CMD_DTR    = 0x02;
-const byte CMD_RXE    = 0x04;
-const byte CMD_SBRK   = 0x08;
-const byte CMD_RSTERR = 0x10;
-const byte CMD_RTS    = 0x20;
-const byte CMD_RESET  = 0x40;
-const byte CMD_HUNT   = 0x80;
+static const byte CMD_TXEN   = 0x01;
+static const byte CMD_DTR    = 0x02;
+static const byte CMD_RXE    = 0x04;
+static const byte CMD_SBRK   = 0x08;
+static const byte CMD_RSTERR = 0x10;
+static const byte CMD_RTS    = 0x20;
+static const byte CMD_RESET  = 0x40;
+static const byte CMD_HUNT   = 0x80;
 
 
 I8251::I8251(Scheduler& scheduler, I8251Interface& interf_, EmuTime::param time)

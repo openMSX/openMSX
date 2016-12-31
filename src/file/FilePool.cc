@@ -24,10 +24,8 @@ using std::ifstream;
 using std::get;
 using std::make_tuple;
 using std::ofstream;
-using std::pair;
 using std::string;
 using std::vector;
-using std::unique_ptr;
 
 namespace openmsx {
 

@@ -14,7 +14,6 @@ class RomFSA1FM1 final : public MSXRom
 {
 public:
 	RomFSA1FM1(const DeviceConfig& config, Rom&& rom);
-	~RomFSA1FM1();
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;
@@ -36,7 +35,6 @@ class RomFSA1FM2 final : public Rom8kBBlocks
 {
 public:
 	RomFSA1FM2(const DeviceConfig& config, Rom&& rom);
-	~RomFSA1FM2();
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;

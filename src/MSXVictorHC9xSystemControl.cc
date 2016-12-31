@@ -24,10 +24,6 @@ MSXVictorHC9xSystemControl::MSXVictorHC9xSystemControl(const DeviceConfig& confi
 	systemControlRegister = 0x80;
 }
 
-MSXVictorHC9xSystemControl::~MSXVictorHC9xSystemControl()
-{
-}
-
 byte MSXVictorHC9xSystemControl::readMem(word address, EmuTime::param time)
 {
 	return peekMem(address, time);

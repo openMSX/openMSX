@@ -16,7 +16,6 @@
 #include <iostream>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 

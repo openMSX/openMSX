@@ -44,7 +44,6 @@ public:
 	};
 
 	explicit CommandLineParser(Reactor& reactor);
-	~CommandLineParser();
 	void registerOption(const char* str, CLIOption& cliOption,
 		ParsePhase phase = PHASE_LAST, unsigned length = 2);
 	void registerFileType(string_ref extensions, CLIFileType& cliFileType);

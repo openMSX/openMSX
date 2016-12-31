@@ -14,7 +14,7 @@ class MSXMotherBoard;
 class DiskContainer
 {
 public:
-	virtual ~DiskContainer();
+	virtual ~DiskContainer() = default;
 
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk() = 0;
 	virtual const std::string& getContainerName() const = 0;

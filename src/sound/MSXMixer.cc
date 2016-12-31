@@ -31,7 +31,6 @@
 #include "emmintrin.h"
 #endif
 
-using std::remove;
 using std::string;
 using std::vector;
 
@@ -835,7 +834,7 @@ void MSXMixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 		vector<string_ref> devices;
 		auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
 		for (auto& info : msxMixer.infos) {
-			devices.push_back(info.device->getName());
+			devices.emplace_back(info.device->getName());
 		}
 		completeString(tokens, devices);
 	}

@@ -8,8 +8,8 @@
 namespace openmsx {
 
 RS232Connector::RS232Connector(PluggingController& pluggingController_,
-                               string_ref name_)
-	: Connector(pluggingController_, name_,
+                               std::string name_)
+	: Connector(pluggingController_, std::move(name_),
 	            make_unique<DummyRS232Device>())
 {
 }

@@ -11,12 +11,4 @@ const uint16_t Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 	0x472, 0x007, 0x070, 0x077, 0x700, 0x707, 0x770, 0x777
 };
 
-Renderer::Renderer()
-{
-}
-
-Renderer::~Renderer()
-{
-}
-
 } // namespace openmsx

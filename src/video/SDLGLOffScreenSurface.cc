@@ -28,10 +28,6 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	SDLGLOutputSurface::init(*this);
 }
 
-SDLGLOffScreenSurface::~SDLGLOffScreenSurface()
-{
-}
-
 void SDLGLOffScreenSurface::flushFrameBuffer()
 {
 	SDLGLOutputSurface::flushFrameBuffer(getWidth(), getHeight());

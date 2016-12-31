@@ -26,7 +26,6 @@ class Paper
 {
 public:
 	Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY);
-	~Paper();
 
 	std::string save() const;
 	void setDotSize(double sizeX, double sizeY);
@@ -46,15 +45,6 @@ private:
 	unsigned sizeY;
 };
 
-
-PrinterCore::PrinterCore()
-	: toPrint(0), prevStrobe(true)
-{
-}
-
-PrinterCore::~PrinterCore()
-{
-}
 
 bool PrinterCore::getStatus(EmuTime::param /*time*/)
 {
@@ -1667,10 +1657,6 @@ Paper::Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY)
 {
 	memset(buf.data(), 255, x * y);
 	setDotSize(dotSizeX, dotSizeY);
-}
-
-Paper::~Paper()
-{
 }
 
 string Paper::save() const

@@ -268,7 +268,7 @@ public:
 
 protected:
 	OsdControlEvent(EventType type, unsigned button_,
-	                const std::shared_ptr<const Event>& origEvent);
+	                std::shared_ptr<const Event> origEvent);
 	void toStringHelper(TclObject& result) const;
 
 private:

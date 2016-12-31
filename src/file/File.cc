@@ -12,9 +12,7 @@ using std::string;
 
 namespace openmsx {
 
-File::File()
-{
-}
+File::File() = default;
 
 static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
 {
@@ -65,9 +63,7 @@ File::File(File&& other) noexcept
 {
 }
 
-File::~File()
-{
-}
+File::~File() = default;
 
 File& File::operator=(File&& other) noexcept
 {

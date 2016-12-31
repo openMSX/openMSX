@@ -1107,9 +1107,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990PixelRenderer.cc">
       <Filter>video\v9990</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990Renderer.cc">
-      <Filter>video\v9990</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990SDLRasterizer.cc">
       <Filter>video\v9990</Filter>
     </ClCompile>
@@ -1120,9 +1117,6 @@
       <Filter>video\ld</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\ld\LDPixelRenderer.cc">
-      <Filter>video\ld</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\ld\LDRenderer.cc">
       <Filter>video\ld</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\ld\LDSDLRasterizer.cc">

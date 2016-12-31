@@ -50,8 +50,8 @@ public:
 	}
 
 protected:
-	CliComm();
-	~CliComm();
+	CliComm() = default;
+	~CliComm() = default;
 
 private:
 	static const char* const levelStr [NUM_LEVELS];

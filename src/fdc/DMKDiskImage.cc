@@ -34,18 +34,18 @@ static bool isValidDmkHeader(const DmkHeader& header)
 	if (trackLen >= 0x4000) return false; // too large track length
 	if (trackLen <= 128)    return false; // too small
 	if (header.flags & ~0xd0) return false; // unknown flag set
-	for (int i = 0; i < 7; ++i) {
-		if (header.reserved[i] != 0) return false;
+	for (auto& r : header.reserved) {
+		if (r != 0) return false;
 	}
-	for (int i = 0; i < 4; ++i) {
-		if (header.format[i] != 0) return false;
+	for (auto& f : header.format) {
+		if (f != 0) return false;
 	}
 	return true;
 }
 
-DMKDiskImage::DMKDiskImage(Filename& filename, const std::shared_ptr<File>& file_)
-	: Disk(filename)
-	, file(file_)
+DMKDiskImage::DMKDiskImage(Filename filename, std::shared_ptr<File> file_)
+	: Disk(std::move(filename))
+	, file(std::move(file_))
 {
 	DmkHeader header;
 	file->seek(0);

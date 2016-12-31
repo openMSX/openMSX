@@ -123,15 +123,15 @@ INSTANTIATE_SERIALIZE_METHODS(FileContext);
 
 static string backSubstSymbols(const string& path)
 {
-	string systemData = FileOperations::getSystemDataDir();
+	const string& systemData = FileOperations::getSystemDataDir();
 	if (StringOp::startsWith(path, systemData)) {
 		return subst(path, systemData, SYSTEM_DATA);
 	}
-	string userData = FileOperations::getSystemDataDir();
+	const string& userData = FileOperations::getSystemDataDir();
 	if (StringOp::startsWith(path, userData)) {
 		return subst(path, userData, SYSTEM_DATA);
 	}
-	string userDir = FileOperations::getUserOpenMSXDir();
+	const string& userDir = FileOperations::getUserOpenMSXDir();
 	if (StringOp::startsWith(path, userDir)) {
 		return subst(path, userDir, USER_OPENMSX);
 	}

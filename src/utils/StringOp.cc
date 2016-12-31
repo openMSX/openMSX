@@ -6,8 +6,6 @@
 #include <cstdlib>
 #include <stdexcept>
 
-using std::advance;
-using std::equal;
 using std::string;
 using std::transform;
 using std::vector;
@@ -17,13 +15,9 @@ namespace StringOp {
 
 // class Builder
 
-Builder::Builder()
-{
-}
+Builder::Builder() = default;
 
-Builder::~Builder()
-{
-}
+Builder::~Builder() = default;
 
 Builder& Builder::operator<<(const std::string& t)
 {

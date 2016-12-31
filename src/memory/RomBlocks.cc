@@ -39,9 +39,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 }
 
 template <unsigned BANK_SIZE>
-RomBlocks<BANK_SIZE>::~RomBlocks()
-{
-}
+RomBlocks<BANK_SIZE>::~RomBlocks() = default;
 
 template <unsigned BANK_SIZE>
 byte RomBlocks<BANK_SIZE>::readMem(word address, EmuTime::param /*time*/)

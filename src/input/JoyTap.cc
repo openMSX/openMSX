@@ -9,16 +9,13 @@ namespace openmsx {
 
 using std::string;
 
-JoyTap::JoyTap(PluggingController& pluggingController_,
-               const string& name_)
+JoyTap::JoyTap(PluggingController& pluggingController_, string name_)
 	: pluggingController(pluggingController_)
-	, name(name_)
+	, name(std::move(name_))
 {
 }
 
-JoyTap::~JoyTap()
-{
-}
+JoyTap::~JoyTap() = default;
 
 void JoyTap::createPorts(const string& baseDescription) {
 	for (int i = 0; i < 4; ++i) {

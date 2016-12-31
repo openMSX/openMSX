@@ -51,7 +51,7 @@ TigerTree::TigerTree(TTData& data_, size_t dataSize_, const std::string& name)
 {
 }
 
-const TigerHash& TigerTree::calcHash(std::function<void(size_t, size_t)> progressCallback)
+const TigerHash& TigerTree::calcHash(const std::function<void(size_t, size_t)>& progressCallback)
 {
 	return calcHash(getTop(), progressCallback);
 }
@@ -80,7 +80,7 @@ void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
 	} while (++first <= last);
 }
 
-const TigerHash& TigerTree::calcHash(Node node, std::function<void(size_t, size_t)> progressCallback)
+const TigerHash& TigerTree::calcHash(Node node, const std::function<void(size_t, size_t)>& progressCallback)
 {
 	auto n = node.n;
 	if (!entry.valid[n]) {
@@ -174,7 +174,7 @@ TigerTree::Node TigerTree::getLeftChild(Node node) const
 TigerTree::Node TigerTree::getRightChild(Node node) const
 {
 	assert(node.n < entry.numNodes);
-	while (1) {
+	while (true) {
 		assert(node.l > 1);
 		node.l /= 2;
 		auto r = node.n + node.l;

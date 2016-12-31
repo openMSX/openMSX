@@ -12,8 +12,8 @@ class Display;
 class OSDImageBasedWidget : public OSDWidget
 {
 public:
-	unsigned getRGBA(unsigned corner) const { return rgba[corner]; }
-	const unsigned* getRGBA4() const { return rgba; }
+	uint32_t getRGBA(uint32_t corner) const { return rgba[corner]; }
+	const uint32_t* getRGBA4() const { return rgba; }
 
 	virtual uint8_t getFadedAlpha() const = 0;
 
@@ -40,7 +40,7 @@ protected:
 	std::unique_ptr<BaseImage> image;
 
 private:
-	void setRGBA(const unsigned newRGBA[4]);
+	void setRGBA(const uint32_t newRGBA[4]);
 	bool isFading() const;
 	float getCurrentFadeValue() const;
 	float getCurrentFadeValue(uint64_t) const;
@@ -53,7 +53,7 @@ private:
 	float fadePeriod;
 	float fadeTarget;
 	mutable float startFadeValue;
-	unsigned rgba[4];
+	uint32_t rgba[4];
 	bool error;
 };
 

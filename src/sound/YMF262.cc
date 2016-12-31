@@ -89,7 +89,7 @@ static const int slot_array[32] = {
 // table is 3dB/octave , DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
-#define DV(x) int(x / (0.1875 / 2.0))
+#define DV(x) int((x) / (0.1875 / 2.0))
 static const unsigned ksl_tab[8 * 16] = {
 	// OCT 0
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
@@ -136,7 +136,7 @@ static const unsigned ksl_tab[8 * 16] = {
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(db) unsigned(db * (2.0f / ENV_STEP))
+#define SC(db) unsigned((db) * (2.0f / ENV_STEP))
 static const unsigned sl_tab[16] = {
 	SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
 	SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
@@ -168,7 +168,7 @@ static const byte eg_inc[15 * RATE_STEPS] = {
 };
 
 
-#define O(a) (a * RATE_STEPS)
+#define O(a) ((a) * RATE_STEPS)
 // note that there is no O(13) in this table - it's directly in the code
 static const byte eg_rate_select[16 + 64 + 16] = {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
@@ -209,7 +209,7 @@ static const byte eg_rate_select[16 + 64 + 16] = {
 // rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
 // shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
 // mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
-#define O(a) (a * 1)
+#define O(a) ((a) * 1)
 static const byte eg_rate_shift[16 + 64 + 16] =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
@@ -243,7 +243,7 @@ static const byte eg_rate_shift[16 + 64 + 16] =
 
 
 // multiple table
-#define ML(x) byte(2 * x)
+#define ML(x) byte(2 * (x))
 static const byte mul_tab[16] = {
 	// 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,10,12,12,15,15
 	ML( 0.5), ML( 1.0), ML( 2.0), ML( 3.0),
@@ -527,8 +527,7 @@ void YMF262::advance()
 
 	++eg_cnt;
 	for (auto& ch : channel) {
-		for (int s = 0; s < 2; ++s) {
-			auto& op = ch.slot[s];
+		for (auto& op : ch.slot) {
 			op.advanceEnvelopeGenerator(eg_cnt);
 			op.advancePhaseGenerator(ch, lfo_pm);
 		}
@@ -1428,9 +1427,9 @@ void YMF262::reset(EmuTime::param time)
 
 	// reset operator parameters
 	for (auto& ch : channel) {
-		for (int s = 0; s < 2; s++) {
-			ch.slot[s].state  = EG_OFF;
-			ch.slot[s].volume = MAX_ATT_INDEX;
+		for (auto& sl : ch.slot) {
+			sl.state  = EG_OFF;
+			sl.volume = MAX_ATT_INDEX;
 		}
 	}
 }
@@ -1493,8 +1492,7 @@ bool YMF262::checkMuteHelper()
 {
 	// TODO this doesn't always mute when possible
 	for (auto& ch : channel) {
-		for (int j = 0; j < 2; j++) {
-			auto& sl = ch.slot[j];
+		for (auto& sl : ch.slot) {
 			if (!((sl.state == EG_OFF) ||
 			      ((sl.state == EG_RELEASE) &&
 			       ((sl.TLL + sl.volume) >= ENV_QUIET)))) {

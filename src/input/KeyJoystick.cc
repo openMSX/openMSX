@@ -40,10 +40,10 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, KeyJoyState, "KeyJoyState");
 KeyJoystick::KeyJoystick(CommandController& commandController,
                          MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_,
-                         const string& name_)
+                         std::string name_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, name(name_)
+	, name(std::move(name_))
 	, up   (commandController, name + ".up",
 		"key for direction up",    Keys::K_UP)
 	, down (commandController, name + ".down",

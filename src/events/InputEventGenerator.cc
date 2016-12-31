@@ -405,12 +405,12 @@ int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
 			// nothing
 			break;
 		case ESCAPE_GRAB_WAIT_LOST:
-			if (focusEvent.getGain() == false) {
+			if (!focusEvent.getGain()) {
 				escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
 			}
 			break;
 		case ESCAPE_GRAB_WAIT_GAIN:
-			if (focusEvent.getGain() == true) {
+			if (focusEvent.getGain()) {
 				escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
 			}
 			setGrabInput(true);

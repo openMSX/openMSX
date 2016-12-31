@@ -17,10 +17,10 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 	: GLScaler("hqlite")
 	, fallback(fallback_)
 {
-	for (int i = 0; i < 2; ++i) {
-		program[i].activate();
-		glUniform1i(program[i].getUniformLocation("edgeTex"),   2);
-		glUniform1i(program[i].getUniformLocation("offsetTex"), 3);
+	for (auto& p : program) {
+		p.activate();
+		glUniform1i(p.getUniformLocation("edgeTex"),   2);
+		glUniform1i(p.getUniformLocation("offsetTex"), 3);
 	}
 
 	edgeTexture.bind();

@@ -28,7 +28,7 @@ namespace openmsx {
 class AfterCmd
 {
 public:
-	virtual ~AfterCmd() {}
+	virtual ~AfterCmd() = default;
 	string_ref getCommand() const;
 	const string& getId() const;
 	virtual string getType() const = 0;

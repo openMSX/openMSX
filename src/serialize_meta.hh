@@ -238,8 +238,8 @@ public:
 	}
 
 private:
-	PolymorphicSaverRegistry();
-	~PolymorphicSaverRegistry();
+	PolymorphicSaverRegistry() = default;
+	~PolymorphicSaverRegistry() = default;
 	void registerHelper(const std::type_info& type,
 	                    std::unique_ptr<PolymorphicSaverBase<Archive>> saver);
 	static void save(Archive& ar, const void* t,
@@ -249,7 +249,7 @@ private:
 
 	std::vector<std::pair<std::type_index,
 	                      std::unique_ptr<PolymorphicSaverBase<Archive>>>> saverMap;
-	bool initialized;
+	bool initialized = false;
 };
 
 template<typename Archive>
@@ -271,8 +271,8 @@ public:
 	static void* load(Archive& ar, unsigned id, const void* args);
 
 private:
-	PolymorphicLoaderRegistry();
-	~PolymorphicLoaderRegistry();
+	PolymorphicLoaderRegistry() = default;
+	~PolymorphicLoaderRegistry() = default;
 	void registerHelper(
 		const char* name,
 		std::unique_ptr<PolymorphicLoaderBase<Archive>> loader);
@@ -300,8 +300,8 @@ public:
 	static void init(const char* tag, Archive& ar, void* t);
 
 private:
-	PolymorphicInitializerRegistry();
-	~PolymorphicInitializerRegistry();
+	PolymorphicInitializerRegistry() = default;
+	~PolymorphicInitializerRegistry() = default;
 	void registerHelper(
 		const char* name,
 		std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer);

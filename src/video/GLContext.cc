@@ -37,9 +37,7 @@ Context::Context(int width, int height)
 	pixelMvp = ortho(0, width, height, 0, -1, 1);
 }
 
-Context::~Context()
-{
-}
+Context::~Context() = default;
 
 openmsx::GLScaler& Context::getFallbackScaler()
 {

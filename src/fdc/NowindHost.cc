@@ -8,10 +8,10 @@
 #include <fstream>
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <cstdio>
-#include <ctype.h>
-#include <time.h>
-#include <stdarg.h>
+#include <cstdarg>
+#include <ctime>
 
 using std::string;
 using std::vector;
@@ -45,9 +45,7 @@ NowindHost::NowindHost(const Drives& drives_)
 {
 }
 
-NowindHost::~NowindHost()
-{
-}
+NowindHost::~NowindHost() = default;
 
 byte NowindHost::peek() const
 {
@@ -570,7 +568,7 @@ string NowindHost::extractName(int begin, int end) const
 	for (int i = begin; i < end; ++i) {
 		char c = extraData[i];
 		if (c == ' ') break;
-		result += toupper(c);
+		result += char(toupper(c));
 	}
 	return result;
 }

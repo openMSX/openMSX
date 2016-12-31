@@ -23,10 +23,6 @@ AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
 	transferCount = 0;
 }
 
-AbstractIDEDevice::~AbstractIDEDevice()
-{
-}
-
 byte AbstractIDEDevice::diagnostic()
 {
 	// The Execute Device Diagnostic command is executed by both devices in

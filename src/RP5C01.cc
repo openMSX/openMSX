@@ -9,24 +9,24 @@ namespace openmsx {
 // TODO  ALARM is not implemented        (not connected on MSX)
 // TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
-const nibble MODE_REG  = 13;
-const nibble TEST_REG  = 14;
-const nibble RESET_REG = 15;
+static const nibble MODE_REG  = 13;
+static const nibble TEST_REG  = 14;
+static const nibble RESET_REG = 15;
 
-const nibble TIME_BLOCK  = 0;
-const nibble ALARM_BLOCK = 1;
+static const nibble TIME_BLOCK  = 0;
+static const nibble ALARM_BLOCK = 1;
 
-const nibble MODE_BLOKSELECT  = 0x3;
-const nibble MODE_ALARMENABLE = 0x4;
-const nibble MODE_TIMERENABLE = 0x8;
+static const nibble MODE_BLOKSELECT  = 0x3;
+static const nibble MODE_ALARMENABLE = 0x4;
+static const nibble MODE_TIMERENABLE = 0x8;
 
-const nibble TEST_SECONDS = 0x1;
-const nibble TEST_MINUTES = 0x2;
-const nibble TEST_DAYS    = 0x4;
-const nibble TEST_YEARS   = 0x8;
+static const nibble TEST_SECONDS = 0x1;
+static const nibble TEST_MINUTES = 0x2;
+static const nibble TEST_DAYS    = 0x4;
+static const nibble TEST_YEARS   = 0x8;
 
-const nibble RESET_ALARM    = 0x1;
-const nibble RESET_FRACTION = 0x2;
+static const nibble RESET_ALARM    = 0x1;
+static const nibble RESET_FRACTION = 0x2;
 
 
 // 0-bits are ignored on writing and return 0 on reading

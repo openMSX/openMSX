@@ -13,7 +13,6 @@
 #include <cstring>
 #include <vector>
 
-using std::map;
 using std::string;
 using std::vector;
 
@@ -245,12 +244,12 @@ static string msxToHostName(const char* msxName)
 {
 	string result;
 	for (unsigned i = 0; (i < 8) && (msxName[i] != ' '); ++i) {
-		result += tolower(msxName[i]);
+		result += char(tolower(msxName[i]));
 	}
 	if (msxName[8] != ' ') {
 		result += '.';
 		for (unsigned i = 8; (i < (8 + 3)) && (msxName[i] != ' '); ++i) {
-			result += tolower(msxName[i]);
+			result += char(tolower(msxName[i]));
 		}
 	}
 	return result;
@@ -923,7 +922,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 {
 	// Create copy of old FAT (to be able to detect changes).
 	vector<SectorBuffer> oldFAT(nofSectorsPerFat);
-	memcpy(&oldFAT[0], fat(), sizeof(oldFAT));
+	memcpy(&oldFAT[0], fat(), SECTOR_SIZE * nofSectorsPerFat);
 
 	// Update current FAT with new data.
 	memcpy(&sectors[sector], &buf, sizeof(buf));

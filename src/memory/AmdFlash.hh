@@ -37,7 +37,7 @@ public:
 	 * @param config The motherboard this flash belongs to
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
-	AmdFlash(const Rom& rom, const std::vector<SectorInfo>& sectorInfo,
+	AmdFlash(const Rom& rom, std::vector<SectorInfo> sectorInfo,
 	         word ID, bool use12bitAddressing,
 	         const DeviceConfig& config, bool load = true);
 	~AmdFlash();

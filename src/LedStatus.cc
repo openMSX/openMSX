@@ -34,9 +34,7 @@ LedStatus::LedStatus(
 	}
 }
 
-LedStatus::~LedStatus()
-{
-}
+LedStatus::~LedStatus() = default;
 
 void LedStatus::setLed(Led led, bool status)
 {

@@ -6,7 +6,7 @@
 namespace openmsx {
 
 BreakPointBase::BreakPointBase(TclObject command_, TclObject condition_)
-	: command(command_), condition(condition_)
+	: command(std::move(command_)), condition(std::move(condition_))
 	, executing(false)
 {
 }

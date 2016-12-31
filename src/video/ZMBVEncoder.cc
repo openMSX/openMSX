@@ -145,10 +145,6 @@ ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)
 	// Level 6 seems a good compromise between size/speed for THIS test.
 }
 
-ZMBVEncoder::~ZMBVEncoder()
-{
-}
-
 void ZMBVEncoder::setupBuffers(unsigned bpp)
 {
 	switch (bpp) {

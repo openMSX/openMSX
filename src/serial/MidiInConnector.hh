@@ -26,8 +26,8 @@ public:
 
 protected:
 	MidiInConnector(PluggingController& pluggingController,
-	                string_ref name);
-	~MidiInConnector();
+	                std::string name);
+	~MidiInConnector() = default;
 };
 
 REGISTER_BASE_CLASS(MidiInConnector, "inConnector");

@@ -100,8 +100,8 @@ LocalFile::~LocalFile()
 
 void LocalFile::preCacheFile()
 {
-	string name = FileOperations::getNativePath(filename);
-	cache = make_unique<PreCacheFile>(name);
+	cache = make_unique<PreCacheFile>(
+		FileOperations::getNativePath(filename));
 }
 
 void LocalFile::read(void* buffer, size_t num)

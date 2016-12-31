@@ -9,7 +9,6 @@ class MSXVictorHC9xSystemControl final : public MSXDevice
 {
 public:
 	explicit MSXVictorHC9xSystemControl(const DeviceConfig& config);
-	~MSXVictorHC9xSystemControl();
 
 	byte readMem(word address, EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;

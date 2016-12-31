@@ -8,8 +8,7 @@ namespace openmsx {
 class NinjaTap final : public JoyTap
 {
 public:
-	NinjaTap(PluggingController& pluggingController,
-	         const std::string& name);
+	NinjaTap(PluggingController& pluggingController, std::string name);
 
 	// Pluggable
 	string_ref getDescription() const override;

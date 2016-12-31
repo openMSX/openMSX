@@ -226,7 +226,7 @@ void V9990BitmapConverter<Pixel>::rasterBP2(
 		byte data = vram.readVRAMBx(address++);
 		if ((x & 3) <= 1) *pixelPtr++ = pal[(data & 0x30) >> 4];
 		if ((x & 3) <= 2) *pixelPtr++ = pal[(data & 0x0C) >> 2];
-		if (1)            *pixelPtr++ = pal[(data & 0x03) >> 0];
+		if (true)         *pixelPtr++ = pal[(data & 0x03) >> 0];
 		nrPixels -= 4 - (x & 3);
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
@@ -254,7 +254,7 @@ void V9990BitmapConverter<Pixel>::rasterBP2HiRes(
 		byte data = vram.readVRAMBx(address++);
 		if ((x & 3) <= 1) *pixelPtr++ = pal2[(data & 0x30) >> 4];
 		if ((x & 3) <= 2) *pixelPtr++ = pal1[(data & 0x0C) >> 2];
-		if (1)            *pixelPtr++ = pal2[(data & 0x03) >> 0];
+		if (true)         *pixelPtr++ = pal2[(data & 0x03) >> 0];
 		nrPixels -= 4 - (x & 3);
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {

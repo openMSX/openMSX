@@ -68,7 +68,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 			// DMK didn't work, still no problem
 		}
 		// next try normal DSK
-		return make_unique<DSKDiskImage>(filename, file);
+		return make_unique<DSKDiskImage>(filename, std::move(file));
 
 	} catch (MSXException& e) {
 		// File could not be opened or (very rare) something is wrong
@@ -100,7 +100,8 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 			// not a valid partion number, throw previous exception
 			throw e;
 		}
-		return make_unique<DiskPartition>(*wholeDisk, num, wholeDisk);
+		SectorAccessibleDisk& disk = *wholeDisk;
+		return make_unique<DiskPartition>(disk, num, std::move(wholeDisk));
 	}
 }
 

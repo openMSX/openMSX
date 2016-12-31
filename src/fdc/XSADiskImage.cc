@@ -4,7 +4,6 @@
 #include <cstring>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 

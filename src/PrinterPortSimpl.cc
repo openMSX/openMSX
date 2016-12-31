@@ -5,8 +5,6 @@
 #include "serialize.hh"
 #include "memory.hh"
 
-using std::unique_ptr;
-
 namespace openmsx {
 
 PrinterPortSimpl::PrinterPortSimpl(const HardwareConfig& hwConf_)
@@ -14,9 +12,7 @@ PrinterPortSimpl::PrinterPortSimpl(const HardwareConfig& hwConf_)
 {
 }
 
-PrinterPortSimpl::~PrinterPortSimpl()
-{
-}
+PrinterPortSimpl::~PrinterPortSimpl() = default;
 
 bool PrinterPortSimpl::getStatus(EmuTime::param /*time*/)
 {

@@ -54,10 +54,6 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const DeviceConfig& config,
 	clearRam();
 }
 
-Y8950Adpcm::~Y8950Adpcm()
-{
-}
-
 void Y8950Adpcm::clearRam()
 {
 	ram.clear(0xFF);

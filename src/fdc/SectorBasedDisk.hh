@@ -13,14 +13,14 @@ namespace openmsx {
 class SectorBasedDisk : public Disk
 {
 protected:
-	explicit SectorBasedDisk(const DiskName& name);
+	explicit SectorBasedDisk(DiskName name);
 	void detectGeometry() override;
 	void flushCaches() override;
 
 	void setNbSectors(size_t num);
 
 protected:
-	~SectorBasedDisk() {}
+	~SectorBasedDisk() = default;
 
 private:
 	// Disk

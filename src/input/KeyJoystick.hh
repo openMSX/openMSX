@@ -20,7 +20,7 @@ public:
 	KeyJoystick(CommandController& commandController,
 	            MSXEventDistributor& eventDistributor,
 	            StateChangeDistributor& stateChangeDistributor,
-	            const std::string& name);
+	            std::string name);
 	~KeyJoystick();
 
 	template<typename Archive>

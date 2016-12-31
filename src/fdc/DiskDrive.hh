@@ -14,7 +14,7 @@ class DiskDrive
 public:
 	static const unsigned ROTATIONS_PER_SECOND = 5; // 300rpm
 
-	virtual ~DiskDrive();
+	virtual ~DiskDrive() = default;
 
 	/** Is drive ready?
 	 */

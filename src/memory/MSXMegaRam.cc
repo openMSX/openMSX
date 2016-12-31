@@ -43,9 +43,7 @@ MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	powerUp(EmuTime::dummy());
 }
 
-MSXMegaRam::~MSXMegaRam()
-{
-}
+MSXMegaRam::~MSXMegaRam() = default;
 
 void MSXMegaRam::powerUp(EmuTime::param time)
 {

@@ -880,7 +880,7 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		vector<string_ref> names;
 		for (auto& e : motherBoard.getExtensions()) {
-			names.push_back(e->getName());
+			names.emplace_back(e->getName());
 		}
 		completeString(tokens, names);
 	}

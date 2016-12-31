@@ -16,9 +16,7 @@ BeerIDE::BeerIDE(const DeviceConfig& config)
 	powerUp(getCurrentTime());
 }
 
-BeerIDE::~BeerIDE()
-{
-}
+BeerIDE::~BeerIDE() = default;
 
 void BeerIDE::reset(EmuTime::param time)
 {

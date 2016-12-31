@@ -149,10 +149,10 @@ void SCC::powerUp(EmuTime::param time)
 	// Initialize ch_enable, deform (initialize this before period)
 	reset(time);
 
-	// Initialize waveform (initialize before volumes)
-	for (unsigned i = 0; i < 5; ++i) {
-		for (unsigned j = 0; j < 32; ++j) {
-			wave[i][j] = ~0;
+	// Initialize waveforms (initialize before volumes)
+	for (auto& w1 : wave) {
+		for (auto& w2 : w1) {
+			w2 = ~0;
 		}
 	}
 	// Initialize volume (initialize this before period)

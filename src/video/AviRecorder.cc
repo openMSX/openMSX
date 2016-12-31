@@ -203,7 +203,7 @@ void AviRecorder::processStart(array_ref<TclObject> tokens, TclObject& result)
 	vector<string> arguments;
 	for (unsigned i = 2; i < tokens.size(); ++i) {
 		string_ref token = tokens[i].getString();
-		if (token.starts_with("-")) {
+		if (token.starts_with('-')) {
 			if (token == "--") {
 				for (auto it = std::begin(tokens) + i + 1;
 				     it != std::end(tokens); ++it) {

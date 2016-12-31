@@ -18,12 +18,12 @@ using std::vector;
 namespace openmsx {
 
 // writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
-AmdFlash::AmdFlash(const Rom& rom_, const vector<SectorInfo>& sectorInfo_,
+AmdFlash::AmdFlash(const Rom& rom_, vector<SectorInfo> sectorInfo_,
                    word ID_, bool use12bitAddressing_,
                    const DeviceConfig& config, bool load)
 	: motherBoard(config.getMotherBoard())
 	, rom(rom_)
-	, sectorInfo(sectorInfo_)
+	, sectorInfo(std::move(sectorInfo_))
 	, size(std::accumulate(begin(sectorInfo), end(sectorInfo), 0, [](int t, SectorInfo i) { return t + i.size;}))
 	, ID(ID_)
 	, use12bitAddressing(use12bitAddressing_)
@@ -102,9 +102,7 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<SectorInfo>& sectorInfo_,
 	reset();
 }
 
-AmdFlash::~AmdFlash()
-{
-}
+AmdFlash::~AmdFlash() = default;
 
 void AmdFlash::getSectorInfo(unsigned address, unsigned& sector,
                              unsigned& sectorSize, unsigned& offset) const

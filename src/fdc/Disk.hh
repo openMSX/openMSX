@@ -25,7 +25,7 @@ public:
 	bool isDoubleSided();
 
 protected:
-	explicit Disk(const DiskName& name);
+	explicit Disk(DiskName name);
 	size_t physToLog(byte track, byte side, byte sector);
 	void logToPhys(size_t log, byte& track, byte& side, byte& sector);
 

@@ -5,9 +5,14 @@ using std::string;
 
 namespace openmsx {
 
-DiskName::DiskName(const Filename& name_, const string& extra_)
-	: name(name_)
-	, extra(extra_)
+DiskName::DiskName(Filename name_)
+	: name(std::move(name_))
+{
+}
+
+DiskName::DiskName(Filename name_, string extra_)
+	: name(std::move(name_))
+	, extra(std::move(extra_))
 {
 }
 

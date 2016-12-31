@@ -63,9 +63,7 @@ void PioneerLDControl::init()
 	}
 }
 
-PioneerLDControl::~PioneerLDControl()
-{
-}
+PioneerLDControl::~PioneerLDControl() = default;
 
 void PioneerLDControl::reset(EmuTime::param time)
 {

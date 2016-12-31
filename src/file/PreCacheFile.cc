@@ -6,8 +6,8 @@
 
 namespace openmsx {
 
-PreCacheFile::PreCacheFile(const std::string& name_)
-	: name(name_), exitLoop(false)
+PreCacheFile::PreCacheFile(std::string name_)
+	: name(std::move(name_)), exitLoop(false)
 {
 	thread = std::thread([this]() { run(); });
 }
@@ -35,7 +35,7 @@ void PreCacheFile::run()
 	if (size < 1024 * 1024) {
 		// only pre-cache small files
 
-		const unsigned BLOCK_SIZE = 4096;
+		const size_t BLOCK_SIZE = 4096;
 		unsigned block = 0;
 		unsigned repeat = 0;
 		while (true) {

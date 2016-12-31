@@ -12,19 +12,18 @@ class PluggingController;
 class JoystickPortIf
 {
 public:
-	virtual ~JoystickPortIf() {}
+	virtual ~JoystickPortIf() = default;
 	virtual byte read(EmuTime::param time) = 0;
 	virtual void write(byte value, EmuTime::param time) = 0;
 protected:
-	JoystickPortIf() {}
+	JoystickPortIf() = default;
 };
 
 class JoystickPort final : public JoystickPortIf, public Connector
 {
 public:
 	JoystickPort(PluggingController& pluggingController,
-	             string_ref name, const std::string& description);
-	~JoystickPort();
+	             std::string name, std::string description);
 
 	JoystickDevice& getPluggedJoyDev() const;
 

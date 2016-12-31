@@ -20,8 +20,7 @@ class JoystickPort;
 class JoyTap : public JoystickDevice
 {
 public:
-	JoyTap(PluggingController& pluggingController,
-	       const std::string& name);
+	JoyTap(PluggingController& pluggingController, std::string name);
 	virtual ~JoyTap();
 
 	// Pluggable

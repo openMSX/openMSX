@@ -168,7 +168,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 		}
 	}
 	for (auto& f : filenames) {
-		matches.push_back(f);
+		matches.emplace_back(f);
 	}
 	bool t = completeImpl(filename, matches, true);
 	if (t && !filename.empty() && (filename.back() != '/')) {

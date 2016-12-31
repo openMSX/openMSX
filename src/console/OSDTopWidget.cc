@@ -46,7 +46,7 @@ void OSDTopWidget::queueError(std::string message)
 void OSDTopWidget::showAllErrors()
 {
 	auto& cliComm = getDisplay().getCliComm();
-	for (const auto& message : errors) {
+	for (auto& message : errors) {
 		cliComm.printWarning(std::move(message));
 	}
 	errors.clear();

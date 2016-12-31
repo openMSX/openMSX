@@ -3,13 +3,6 @@
 
 namespace openmsx {
 
-// class DiskDrive
-
-DiskDrive::~DiskDrive()
-{
-}
-
-
 // class DummyDrive
 
 bool DummyDrive::isDiskInserted() const

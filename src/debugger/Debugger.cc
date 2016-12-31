@@ -1083,7 +1083,7 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 		     (tokens[2] == "set_bp"))) {
 			std::vector<string_ref> probeNames;
 			for (auto* p : debugger().probes) {
-				probeNames.push_back(p->getName());
+				probeNames.emplace_back(p->getName());
 			}
 			completeString(tokens, probeNames);
 		}

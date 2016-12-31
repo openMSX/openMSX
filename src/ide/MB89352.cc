@@ -134,10 +134,6 @@ MB89352::MB89352(const DeviceConfig& config)
 	targetId = 0;
 }
 
-MB89352::~MB89352()
-{
-}
-
 void MB89352::disconnect()
 {
 	if (phase != SCSI::BUS_FREE) {

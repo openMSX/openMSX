@@ -13,7 +13,6 @@ class PrinterPortLogger final : public PrinterPortDevice
 {
 public:
 	explicit PrinterPortLogger(CommandController& commandController);
-	~PrinterPortLogger();
 
 	// PrinterPortDevice
 	bool getStatus(EmuTime::param time) override;

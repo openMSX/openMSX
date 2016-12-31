@@ -11,7 +11,6 @@
 #include <cassert>
 #include <chrono>
 
-using std::pair;
 using std::string;
 
 namespace openmsx {

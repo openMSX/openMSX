@@ -710,12 +710,10 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990P1Converter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990P2Converter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990PixelRenderer.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990Renderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990SDLRasterizer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990VRAM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\ld\LDDummyRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\ld\LDPixelRenderer.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\ld\LDRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\ld\LDSDLRasterizer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\ClockPin.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\DummyMidiInDevice.cc" />

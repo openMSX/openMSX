@@ -30,9 +30,7 @@ TclCallback::TclCallback(StringSetting& setting)
 {
 }
 
-TclCallback::~TclCallback()
-{
-}
+TclCallback::~TclCallback() = default;
 
 TclObject TclCallback::getValue() const
 {

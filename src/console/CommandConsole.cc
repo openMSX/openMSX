@@ -33,30 +33,30 @@ ConsoleLine::ConsoleLine()
 {
 }
 
-ConsoleLine::ConsoleLine(string_ref line_, unsigned rgb)
+ConsoleLine::ConsoleLine(string_ref line_, uint32_t rgb)
 	: line(line_.str())
 	, chunks(1, {rgb, 0})
 {
 }
 
-void ConsoleLine::addChunk(string_ref text, unsigned rgb)
+void ConsoleLine::addChunk(string_ref text, uint32_t rgb)
 {
 	chunks.emplace_back(rgb, line.size());
 	line.append(text.data(), text.size());
 }
 
-unsigned ConsoleLine::numChars() const
+size_t ConsoleLine::numChars() const
 {
-	return unsigned(utf8::unchecked::size(line));
+	return utf8::unchecked::size(line);
 }
 
-unsigned ConsoleLine::chunkColor(unsigned i) const
+uint32_t ConsoleLine::chunkColor(size_t i) const
 {
 	assert(i < chunks.size());
 	return chunks[i].first;
 }
 
-string_ref ConsoleLine::chunkText(unsigned i) const
+string_ref ConsoleLine::chunkText(size_t i) const
 {
 	assert(i < chunks.size());
 	auto pos = chunks[i].second;
@@ -66,7 +66,7 @@ string_ref ConsoleLine::chunkText(unsigned i) const
 	return string_ref(line).substr(pos, len);
 }
 
-ConsoleLine ConsoleLine::substr(unsigned pos, unsigned len) const
+ConsoleLine ConsoleLine::substr(size_t pos, size_t len) const
 {
 	ConsoleLine result;
 	if (chunks.empty()) {
@@ -377,7 +377,7 @@ void CommandConsole::newLineConsole(ConsoleLine line)
 		lines.removeBack();
 	}
 	ConsoleLine tmp = lines[0];
-	lines[0] = line;
+	lines[0] = std::move(line);
 	lines.addFront(tmp);
 }
 

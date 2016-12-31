@@ -12,7 +12,6 @@
 #include "memory.hh"
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 

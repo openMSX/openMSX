@@ -24,9 +24,7 @@ SunriseIDE::SunriseIDE(const DeviceConfig& config)
 	powerUp(getCurrentTime());
 }
 
-SunriseIDE::~SunriseIDE()
-{
-}
+SunriseIDE::~SunriseIDE() = default;
 
 void SunriseIDE::powerUp(EmuTime::param time)
 {

@@ -15,9 +15,7 @@ MSXRam::MSXRam(const DeviceConfig& config)
 	// are not yet processed.
 }
 
-MSXRam::~MSXRam()
-{
-}
+MSXRam::~MSXRam() = default;
 
 void MSXRam::init()
 {
