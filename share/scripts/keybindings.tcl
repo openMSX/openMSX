@@ -1,7 +1,7 @@
 # Since we are now supporting specific platforms we need a
 # solution to support key bindings for multiple devices.
 
-variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
+variable is_dingux [string match dingux "[openmsx_info platform]"]
 variable is_android [string match android "[openmsx_info platform]"]
 
 # cycle_machine
@@ -9,7 +9,7 @@ bind_default CTRL+PAGEUP cycle_machine
 bind_default CTRL+PAGEDOWN cycle_back_machine
 
 # osd_keyboard
-if {$is_dingoo} {
+if {$is_dingux} {
 	# Use the SELECT button.
 	bind_default "keyb ESCAPE" toggle_osd_keyboard
 } elseif {$is_android} {
@@ -21,7 +21,7 @@ if {$is_dingoo} {
 # osd_menu
 if {$tcl_platform(os) eq "Darwin"} { ;# Mac
 	bind_default "keyb META+O" main_menu_toggle
-} elseif {$is_dingoo} { ;# OpenDingux
+} elseif {$is_dingux} { ;# OpenDingux
 	bind_default "keyb RETURN" main_menu_toggle ;# START button
 	bind_default "keyb HOME" main_menu_toggle ;# power slider flick
 } else { ;# any other
@@ -29,14 +29,14 @@ if {$tcl_platform(os) eq "Darwin"} { ;# Mac
 }
 
 # pause
-if {$is_dingoo} {
+if {$is_dingux} {
 	# Power slider lock position.
 	bind_default "keyb PAUSE" "set pause on"
 	bind_default "keyb PAUSE,release" "set pause off"
 }
 
 # osd_widgets
-if {$is_dingoo} {
+if {$is_dingux} {
 	bind_default TAB -repeat "volume_control -2"
 	bind_default BACKSPACE -repeat "volume_control +2"
 }
