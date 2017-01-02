@@ -2,7 +2,7 @@
 # solution to support key bindings for multiple devices.
 
 variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
-variable is_android true ;# TODO
+variable is_android [string match android "[openmsx_info platform]"]
 
 # cycle_machine
 bind_default CTRL+PAGEUP cycle_machine
