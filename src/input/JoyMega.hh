@@ -13,8 +13,7 @@ class StateChangeDistributor;
 class PluggingController;
 
 class JoyMega final
-//#ifndef SDL_JOYSTICK_DISABLED
-#if 0
+#ifndef SDL_JOYSTICK_DISABLED
 	: public JoystickDevice, private MSXEventListener, private StateChangeListener
 #endif
 {
@@ -28,8 +27,7 @@ public:
 	         SDL_Joystick* joystick);
 	~JoyMega();
 
-//#ifndef SDL_JOYSTICK_DISABLED
-#if 0
+#ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable
 	const std::string& getName() const override;
 	string_ref getDescription() const override;

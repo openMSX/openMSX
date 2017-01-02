@@ -28,8 +28,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
                            GlobalSettings& globalSettings,
                            PluggingController& controller)
 {
-//#ifdef SDL_JOYSTICK_DISABLED
-#if 1
+#ifdef SDL_JOYSTICK_DISABLED
 	(void)eventDistributor;
 	(void)stateChangeDistributor;
 	(void)controller;
@@ -89,8 +88,7 @@ private:
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
 
 
-//#ifndef SDL_JOYSTICK_DISABLED
-#if 0
+#ifndef SDL_JOYSTICK_DISABLED
 static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 {
 	unsigned n = newValue.getListLength(interp);
