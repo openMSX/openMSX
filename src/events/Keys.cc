@@ -272,6 +272,9 @@ static void initialize()
 //		{ "EURO",	K_EURO },	// Some european keyboards
 		{ "UNDO",	K_UNDO },
 
+		// Application Control keys
+		{ "BACK",	K_BACK },
+
 		// Japanese keyboard special keys
 		{ "ZENKAKU_HENKAKU",	K_ZENKAKU_HENKAKU },
 		{ "MUHENKAN",		K_MUHENKAN },
@@ -472,6 +475,9 @@ KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release
 	case SDLK_POWER:          result = K_POWER;             break; // Power Macintosh power key
 //	case SDLK_EURO:           result = K_EURO;              break; // Some european keyboards
 	case SDLK_UNDO:           result = K_UNDO;              break;
+
+	// Application Control keys
+	case SDLK_AC_BACK:        result = K_BACK;              break;
 
 	default:                  result = K_UNKNOWN;           break;
 	}

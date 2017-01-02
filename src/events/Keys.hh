@@ -173,6 +173,9 @@ enum KeyCode {
 //	K_EURO = 0x141,    // Some european keyboards
 	K_UNDO = 0x142,
 
+	// Application Control keys
+	K_BACK = 0x143,
+
 	// Some japanese keyboard keys are unknown to SDL.
 	// That is; they are all mapped to SDL_Keycode=0
 	// However, they can recognized on their scancode
