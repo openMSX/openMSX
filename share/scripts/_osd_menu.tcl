@@ -11,7 +11,7 @@ variable default_text_color 0x000000ff
 variable default_select_color "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
 variable default_header_text_color 0xff9020ff
 
-variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
+variable is_dingux [string match dingux "[openmsx_info platform]"]
 variable scaling_available [expr {[lindex [lindex [openmsx_info setting scale_factor] 2] 1] > 1}]
 
 proc get_optional {dict_name key default} {
@@ -329,7 +329,7 @@ proc main_menu_open {} {
 }
 
 proc do_menu_open {top_menu} {
-	variable is_dingoo
+	variable is_dingux
 
 	# close console, because the menu interferes with it
 	set ::console off
@@ -355,7 +355,7 @@ proc do_menu_open {top_menu} {
 	bind -layer osd_menu "mouse motion"       {osd_menu::menu_mouse_motion}
 	bind -layer osd_menu "mouse button4 down" {osd_menu::menu_action UP   }
 	bind -layer osd_menu "mouse button5 down" {osd_menu::menu_action DOWN }
-	if {$is_dingoo} {
+	if {$is_dingux} {
 		bind -layer osd_menu "keyb LCTRL"  {osd_menu::menu_action A    }
 		bind -layer osd_menu "keyb LALT"   {osd_menu::menu_action B    }
 	} else {
@@ -383,7 +383,7 @@ proc main_menu_toggle {} {
 }
 
 proc menu_last_closed {} {
-	variable is_dingoo
+	variable is_dingux
 
 	set ::pause false
 	deactivate_input_layer osd_menu

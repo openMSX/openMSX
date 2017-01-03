@@ -5,7 +5,7 @@ namespace eval osd_keyboard {
 #   that are not on the same position in the matrix for all machines
 # * lots more? :P
 
-variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
+variable is_dingux [string match dingux "[openmsx_info platform]"]
 
 #init vars
 variable mouse1_pressed false
@@ -53,7 +53,7 @@ proc disable_osd_keyboard {} {
 }
 
 proc enable_osd_keyboard {} {
-	variable is_dingoo
+	variable is_dingux
 	variable mouse1_pressed false
 	variable keys_held [list]
 	variable row_starts [list]
@@ -78,7 +78,7 @@ proc enable_osd_keyboard {} {
 	bind -layer osd_keyboard "OSDcontrol DOWN PRESS"   -repeat {osd_keyboard::selection_row +1}
 	bind -layer osd_keyboard "OSDcontrol LEFT PRESS"   -repeat {osd_keyboard::selection_col -1}
 	bind -layer osd_keyboard "OSDcontrol RIGHT PRESS"  -repeat {osd_keyboard::selection_col +1}
-	if {$is_dingoo} {
+	if {$is_dingux} {
 		bind -layer osd_keyboard "keyb LCTRL,PRESS"   {osd_keyboard::selection_press  }
 		bind -layer osd_keyboard "keyb LCTRL,RELEASE" {osd_keyboard::selection_release}
 		bind -layer osd_keyboard "keyb LALT"          {osd_keyboard::key_hold_toggle true }
