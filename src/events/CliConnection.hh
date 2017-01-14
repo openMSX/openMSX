@@ -59,7 +59,6 @@ protected:
 	void startOutput();
 
 	AdhocCliCommParser parser;
-	std::thread thread; // TODO: Possible to make this private?
 
 private:
 	virtual void run() = 0;
@@ -76,6 +75,8 @@ private:
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
+
+	std::thread thread;
 
 	bool updateEnabled[CliComm::NUM_UPDATES];
 };

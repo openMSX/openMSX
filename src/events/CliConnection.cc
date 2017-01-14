@@ -124,6 +124,11 @@ void CliConnection::end()
 {
 	output("</openmsx-output>\n");
 	close();
+
+	// Thread might not be running if start() was never called.
+	if (thread.joinable()) {
+		thread.join();
+	}
 }
 
 void CliConnection::execute(const string& command)
@@ -199,7 +204,6 @@ void StdioConnection::close()
 {
 	// don't close stdin/out/err
 	poller.abort();
-	thread.join();
 }
 
 
@@ -238,6 +242,7 @@ PipeConnection::~PipeConnection()
 {
 	end();
 
+	assert(pipeHandle == OPENMSX_INVALID_HANDLE_VALUE);
 	CloseHandle(shutdownEvent);
 }
 
@@ -306,8 +311,6 @@ void PipeConnection::output(string_ref message)
 void PipeConnection::close()
 {
 	SetEvent(shutdownEvent);
-	thread.join();
-	assert(pipeHandle == OPENMSX_INVALID_HANDLE_VALUE);
 }
 #endif // _WIN32
 
@@ -412,7 +415,6 @@ void SocketConnection::close()
 	//       thread, on other platforms we rely on Poller.
 	closeSocket();
 	poller.abort();
-	thread.join();
 }
 
 } // namespace openmsx
