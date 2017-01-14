@@ -59,6 +59,7 @@ protected:
 	void startOutput();
 
 	AdhocCliCommParser parser;
+	Poller poller;
 
 private:
 	virtual void run() = 0;
@@ -93,8 +94,6 @@ public:
 private:
 	void close() override;
 	void run() override;
-
-	Poller poller;
 };
 
 #ifdef _WIN32
@@ -134,7 +133,6 @@ private:
 
 	std::mutex sdMutex;
 	SOCKET sd;
-	Poller poller;
 	bool established;
 };
 
