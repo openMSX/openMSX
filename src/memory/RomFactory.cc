@@ -45,6 +45,7 @@
 #include "KonamiUltimateCollection.hh"
 #include "RomDooly.hh"
 #include "RomMSXtra.hh"
+#include "RomRamFile.hh"
 #include "RomMultiRom.hh"
 #include "Rom.hh"
 #include "Reactor.hh"
@@ -373,6 +374,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case ROM_MULTIROM:
 		result = make_unique<RomMultiRom>(config, move(rom));
+		break;
+	case ROM_RAMFILE:
+		result = make_unique<RomRamFile>(config, move(rom));
 		break;
 	default:
 		throw MSXException("Unknown ROM type");
