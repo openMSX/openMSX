@@ -406,9 +406,9 @@ string_ref getExtension(string_ref path)
 	string_ref filename = getFilename(path);
 	auto pos = filename.rfind('.');
 	if (pos == string_ref::npos) {
-		return "";
+		return string_ref();
 	} else {
-		return filename.substr(pos + 1);
+		return filename.substr(pos);
 	}
 }
 
