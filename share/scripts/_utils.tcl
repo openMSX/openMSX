@@ -120,6 +120,25 @@ proc filename_clean {path} {
 	return [regsub -all $_filename_clean_disallowed $path _]
 }
 
+# Gets you a filename with numbers in it to avoid overwriting
+# an existing file with the same name. Especially useful for
+# cases with automatically generated filenames
+proc get_next_numbered_filename {directory prefix suffix} {
+	set pattern "${prefix}\[0-9\]\[0-9\]\[0-9\]\[0-9\]${suffix}"
+	set files [glob -directory $directory -tails -nocomplain $pattern]
+	if {[llength $files] == 0} {
+		set num "0001"
+	} else {
+		set name [lindex [lsort $files] end]
+		scan [string range $name [string length $prefix] end] "%4d" n
+		if {$n == 9999} {
+			error "Can't create new filename"
+		}
+		set num [format "%04d" [expr {$n + 1}]]
+	}
+	file join $directory "${prefix}${num}${suffix}"
+}
+
 namespace export get_machine_display_name
 namespace export get_machine_display_name_by_config_name
 namespace export get_extension_display_name_by_config_name
@@ -131,6 +150,7 @@ namespace export get_random_number
 namespace export clip
 namespace export file_completion
 namespace export filename_clean
+namespace export get_next_numbered_filename
 
 } ;# namespace utils
 

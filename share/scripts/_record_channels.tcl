@@ -216,7 +216,7 @@ proc record_channels {args} {
 				if {$software_section ne ""} {
 					set software_section "${software_section}-"
 				}
-				set $var [file join $directory ${software_section}${device}-ch${ch}.wav]
+				set $var [utils::get_next_numbered_filename $directory "${software_section}${device}-ch${ch}_" ".wav"]
 				append retval "Recording $device channel $ch to [set $var]...\n"
 			} else {
 				if {[set $var] ne ""} {
