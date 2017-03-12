@@ -46,7 +46,29 @@ set_help_text listing \
 }
 
 proc listing {} {
-	set tokens1 [list \
+
+	set tokens1SVI [list \
+		"" "END" "FOR" "NEXT" "DATA" "INPUT" "DIM" "READ" "LET" \
+		"GOTO" "RUN" "IF" "RESTORE" "GOSUB" "RETURN" "REM" "STOP" \
+		"PRINT" "CLEAR" "LIST" "NEW" "ON" "WAIT" "DEF" "POKE" "CONT" \
+		"CSAVE" "CLOAD" "OUT" "LPRINT" "LLIST" "CLS" "WIDTH" "ELSE" \
+		"TRON" "TROFF" "SWAP" "ERASE" "ERROR" "RESUME" "DELETE" \
+		"AUTO" "RENUM" "DEFSTR" "DEFINT" "DEFSNG" "DEFDBL" "LINE" \
+		"OPEN" "FIELD" "GET" "PUT" "CLOSE" "LOAD" "MERGE" "FILES" \
+		"LSET" "RSET" "SAVE" "LFILES" "CIRCLE" "COLOR" "DRAW" "PAINT" \
+		"BEEP" "PLAY" "PSET" "PRESET" "SOUND" "SCREEN" "VPOKE" \
+		"SPRITE" "VDP" "BASE" "CALL" "TIME" "KEY" "MAX" "MOTOR" \
+		"BLOAD" "BSAVE" "DSKO$" "SET" "NAME" "KILL" "IPL" "COPY" "CMD" \
+		"LOCATE" "TO" "THEN" "TAB(" "STEP" "USR" "FN" "SPC(" "NOT" \
+		"ERL" "ERR" "STRING$" "USING" "INSTR" "" "VARPTR" "CSRLIN" \
+		"ATTR$" "DSKI$" "OFF" "INKEY$" "POINT" "" "" ">" "=" "<" "+" "-" "*" \
+		"/" "^" "AND" "OR" "XOR" "EQV" "IMP" "MOD" "\\" \
+		"{escape-code}"]
+
+	# TODO: reduce duplication, difference seems only in last couple of
+	# lines
+
+	set tokens1MSX [list \
 		"" "END" "FOR" "NEXT" "DATA" "INPUT" "DIM" "READ" "LET" \
 		"GOTO" "RUN" "IF" "RESTORE" "GOSUB" "RETURN" "REM" "STOP" \
 		"PRINT" "CLEAR" "LIST" "NEW" "ON" "WAIT" "DEF" "POKE" "CONT" \
@@ -63,6 +85,7 @@ proc listing {} {
 		"ATTR$" "DSKI$" "OFF" "INKEY$" "POINT" ">" "=" "<" "+" "-" "*" \
 		"/" "^" "AND" "OR" "XOR" "EQV" "IMP" "MOD" "\\" "" "" \
 		"{escape-code}"]
+
 	set tokens2 [list \
 		"" "LEFT$" "RIGHT$" "MID$" "SGN" "INT" "ABS" "SQR" "RND" "SIN" \
 		"LOG" "EXP" "COS" "TAN" "ATN" "FRE" "INP" "POS" "LEN" "STR$" \
@@ -74,9 +97,17 @@ proc listing {} {
 		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" \
 		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""]
 
+	if {[machine_info type] eq "SVI"} {
+		set TXTTAB 0xF54A
+		set tokens1 $tokens1SVI
+	} else {
+		set TXTTAB 0xF676
+		set tokens1 $tokens1MSX
+	}
+
 	# Loop over all lines
 	set listing ""
-	for {set addr [peek16 0xf676]} {[peek16 $addr] != 0} {} {
+	for {set addr [peek16 $TXTTAB]} {[peek16 $addr] != 0} {} {
 		append listing [format "0x%x > " $addr]
 		incr addr 2
 		append listing "[peek16 $addr] "
