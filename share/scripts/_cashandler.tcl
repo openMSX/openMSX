@@ -302,7 +302,7 @@ proc typeload {type} {
 
 ######################################################
 proc tapedeck {args} {
-	if {[string toupper [file extension [lindex $args end]]]==".CAS"} {
+	if {[string toupper [file extension [lindex $args end]]] eq ".CAS"} {
 
 		switch [lindex $args 0] {
 			eject         {caseject}
