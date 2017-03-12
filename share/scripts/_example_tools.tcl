@@ -117,11 +117,35 @@ proc listing {} {
 				set t [format "%d" [peek16 $addr]]
 				incr addr 2
 			} elseif {$token == 0x1D} {
-				set t "(TODO: Single)"
+				set exp [peek $addr]
 				incr addr
+				set t [format "%02X" [peek $addr]]
+				incr addr
+				set t "$t[format "%02X" [peek $addr]]"
+				incr addr
+				set t "$t[format "%02X" [peek $addr]]"
+				incr addr
+				set exp "E[expr {($exp & 0x7f) - 70}]"
+				set t [format "%.6G" $t$exp]
 			} elseif {$token == 0x1F} {
-				set t "(TODO: Double)"
+				set exp [peek $addr]
 				incr addr
+				set t [format "%02X" [peek $addr]]
+				incr addr
+				set t "$t[format "%02X" [peek $addr]]"
+				incr addr
+				set t "$t[format "%02X" [peek $addr]]"
+				incr addr
+				set t "$t[format "%02X" [peek $addr]]"
+				incr addr
+				set t "$t[format "%02X" [peek $addr]]"
+				incr addr
+				set t "$t[format "%02X" [peek $addr]]"
+				incr addr
+				set t "$t[format "%02X" [peek $addr]]"
+				incr addr
+				set exp "E[expr {($exp & 0x7f) - 78}]"
+				set t [format "%.14G" $t$exp]
 			} elseif {0x11 <= $token && $token <= 0x1a} {
 				set t [expr {$token - 0x11}]
 			} else {
