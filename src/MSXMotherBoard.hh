@@ -33,6 +33,7 @@ class LedStatus;
 class ListExtCmd;
 class LoadMachineCmd;
 class MachineNameInfo;
+class MachineTypeInfo;
 class MSXCliComm;
 class MSXCommandController;
 class MSXCPU;
@@ -250,6 +251,7 @@ private:
 	std::unique_ptr<ExtCmd>       extCommand;
 	std::unique_ptr<RemoveExtCmd> removeExtCommand;
 	std::unique_ptr<MachineNameInfo> machineNameInfo;
+	std::unique_ptr<MachineTypeInfo> machineTypeInfo;
 	std::unique_ptr<DeviceInfo>   deviceInfo;
 	friend class DeviceInfo;
 

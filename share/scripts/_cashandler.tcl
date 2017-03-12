@@ -315,7 +315,7 @@ proc tapedeck {args} {
 			getpos        {}
 			getlength     {}
 			""            {}
-			default       {casload $args}
+			default       {casload {*}$args}
 		}
 	} else {
 		caseject
