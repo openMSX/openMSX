@@ -54,10 +54,17 @@ proc type_via_keybuf {args} {
 }
 
 proc handleinterrupt {} {
-	set PUTPNT 0xF3F8
-	set GETPNT 0xF3FA
-	set KEYBUF 0xFBF0
-	set BUFEND 0xFC18
+	if {[machine_info type] eq "SVI"} {
+	       set PUTPNT 0xFA1A
+	       set GETPNT 0xFA1C
+	       set KEYBUF 0xFD8B
+	       set BUFEND 0xFDB3
+	} else {
+	       set PUTPNT 0xF3F8
+	       set GETPNT 0xF3FA
+	       set KEYBUF 0xFBF0
+	       set BUFEND 0xFC18
+	}
 
 	if {[peek16 $PUTPNT] == [peek16 $GETPNT]} {
 		# keyboard buffer is processed
