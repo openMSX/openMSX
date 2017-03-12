@@ -119,6 +119,17 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
+class MachineTypeInfo final : public InfoTopic
+{
+public:
+	explicit MachineTypeInfo(MSXMotherBoard& motherBoard);
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
+private:
+	MSXMotherBoard& motherBoard;
+};
+
 class DeviceInfo final : public InfoTopic
 {
 public:
@@ -192,6 +203,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	extCommand = make_unique<ExtCmd>(*this, "ext");
 	removeExtCommand = make_unique<RemoveExtCmd>(*this);
 	machineNameInfo = make_unique<MachineNameInfo>(*this);
+	machineTypeInfo = make_unique<MachineTypeInfo>(*this);
 	deviceInfo = make_unique<DeviceInfo>(*this);
 	debugger = make_unique<Debugger>(*this);
 
@@ -904,6 +916,28 @@ void MachineNameInfo::execute(array_ref<TclObject> /*tokens*/,
 string MachineNameInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns the configuration name for this machine.";
+}
+
+// MachineTypeInfo
+
+MachineTypeInfo::MachineTypeInfo(MSXMotherBoard& motherBoard_)
+	: InfoTopic(motherBoard_.getMachineInfoCommand(), "type")
+	, motherBoard(motherBoard_)
+{
+}
+
+void MachineTypeInfo::execute(array_ref<TclObject> /*tokens*/,
+                              TclObject& result) const
+{
+	const HardwareConfig* machine = motherBoard.getMachineConfig();
+	if (machine) {
+		result.setString(machine->getConfig().getChild("info").getChildData("type"));
+	}
+}
+
+string MachineTypeInfo::help(const vector<string>& /*tokens*/) const
+{
+	return "Returns the machine type for this machine.";
 }
 
 
