@@ -4,9 +4,9 @@
 
   <info>
     <manufacturer>Spectravideo</manufacturer>
-    <code>SVI-328</code>
+    <code>SVI-328 Superexpanded</code>
     <release_year>1983</release_year>
-    <description>Non-MSX machine, which was heavy inspiration for the MSX standard.</description>
+    <description>Non-MSX machine, which was heavy inspiration for the MSX standard. This configuraiton is superexpanded with 2x 64kB RAM, a printer port and a built in floppy disk controller.</description>
     <type>SVI</type>
   </info>
 
@@ -44,6 +44,17 @@
       <io base="0x90" num="1" type="I"/>
     </SVIPSG>
 
+    <SVIPrinterPort id="Printer Port"> <!-- from superexpander -->
+      <io base="0x10" num="2" type="O"/>
+      <io base="0x12" num="1" type="I"/>
+    </SVIPrinterPort>
+
+    <SVIFDC id="FDC"> <!-- from superexpander -->
+      <io base="0x30" num="5"/>
+      <io base="0x38" num="1" type="O"/>
+      <drives>2</drives>
+    </SVIFDC>
+
     <primary slot="0">
       <ROM id="Spectravideo SVI-328 BASIC v1.11">
         <rom>
@@ -60,8 +71,14 @@
     <primary external="true" slot="1"/>
 
     <primary slot="2">
-      <RAM id="Main RAM 2">
-        <mem base="0x0000" size="0x8000"/>
+      <RAM id="Main RAM 2"> <!-- SV-807 1 with S2 ON, and all other OFF -->
+        <mem base="0x0000" size="0x10000"/>
+      </RAM>
+    </primary>
+
+    <primary slot="3">
+      <RAM id="Main RAM 3"> <!-- SV-807 2 with S3 and S4 ON, and all other off -->
+        <mem base="0x0000" size="0x10000"/>
       </RAM>
     </primary>
 
