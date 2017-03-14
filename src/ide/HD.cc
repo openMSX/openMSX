@@ -129,7 +129,7 @@ void HD::showProgress(size_t position, size_t maxPosition)
 	if (((now - lastProgressTime) > 1000000) ||
 	    ((position == maxPosition) && everDidProgress)) {
 		lastProgressTime = now;
-		int percentage = (100 * position) / maxPosition;
+		int percentage = int((100 * position) / maxPosition);
 		motherBoard.getMSXCliComm().printProgress(
 			"Calculating hash for " + filename.getResolved() +
 			"... " + StringOp::toString(percentage) + '%');
