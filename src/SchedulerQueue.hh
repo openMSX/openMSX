@@ -125,8 +125,6 @@ private:
 	}
 	void insertRealloc(T* it, const T& t)
 	{
-		static const int SPARE_FRONT = 1;
-
 		size_t oldSize = storageEnd - storage.data();
 		size_t newSize = oldSize * 2;
 
