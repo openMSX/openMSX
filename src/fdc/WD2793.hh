@@ -133,10 +133,11 @@ private:
 	bool directionIn;
 	bool immediateIRQ;
 	bool lastWasA1;
+	bool trackDataValid;
 
 	const bool isWD1770;
 };
-SERIALIZE_CLASS_VERSION(WD2793, 8);
+SERIALIZE_CLASS_VERSION(WD2793, 9);
 
 } // namespace openmsx
 

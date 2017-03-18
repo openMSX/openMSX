@@ -56,6 +56,7 @@ WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, CliComm& cliComm_,
 	dataCurrent = 0;
 	dataAvailable = 0;
 	lastWasA1 = false;
+	trackDataValid = false;
 	setDrqRate();
 
 	reset(time);
@@ -114,7 +115,17 @@ bool WD2793::isReady() const
 
 void WD2793::setCommandReg(byte value, EmuTime::param time)
 {
+	if (((commandReg & 0xE0) == 0xA0) || // write sector
+	    ((commandReg & 0xF0) == 0xF0)) { // write track
+		// If a write sector/track command is cancelled, still flush
+		// the partially written data to disk.
+		if (trackDataValid) {
+			drive.writeTrack(trackData);
+		}
+	}
+
 	removeSyncPoint();
+	trackDataValid = false;
 
 	commandReg = value;
 	irqTime = EmuTime::infinity; // INTRQ = false;
@@ -244,6 +255,7 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 			// handle lost bytes
 			drqTime += 1; // time when next byte will be accepted
 			while (dataAvailable && unlikely(getDTRQ(time))) {
+				assert(trackDataValid);
 				statusReg |= LOST_DATA;
 				drqTime += 1;
 				trackData.write(dataCurrent++, 0);
@@ -277,6 +289,7 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 				// write 2 CRC bytes, big endian
 				word crcVal = crc.getValue();
 				if (dataAvailable) {
+					assert(trackDataValid);
 					drqTime += 1;
 					trackData.write(dataCurrent++, crcVal >> 8);
 					dataAvailable--;
@@ -291,6 +304,7 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 			}
 		}
 		if (dataAvailable) {
+			assert(trackDataValid);
 			trackData.write(dataCurrent++, write, idam);
 			crc.update(write);
 			dataAvailable--;
@@ -307,6 +321,7 @@ byte WD2793::getDataReg(EmuTime::param time)
 	    getDTRQ(time)) {
 		assert(statusReg & BUSY);
 
+		assert(trackDataValid);
 		dataReg = trackData.read(dataCurrent++);
 		crc.update(dataReg);
 		dataAvailable--;
@@ -360,6 +375,7 @@ byte WD2793::peekDataReg(EmuTime::param time) const
 	     ((commandReg & 0xF0) == 0xC0) ||   // read address
 	     ((commandReg & 0xF0) == 0xE0)) &&  // read track
 	    peekDTRQ(time)) {
+		assert(trackDataValid);
 		return trackData.read(dataCurrent);
 	} else {
 		return dataReg;
@@ -597,6 +613,7 @@ void WD2793::type2Search(EmuTime::param time)
 	// Locate (next) sector on disk.
 	try {
 		EmuTime next = drive.getNextSector(time, trackData, sectorInfo);
+		trackDataValid = true;
 		setDrqRate();
 		if (next < pulse5) {
 			// Wait till sector is actually rotated under head
@@ -664,6 +681,7 @@ void WD2793::startReadSector(EmuTime::param time)
 	} else {
 		crc.init<0xA1, 0xA1, 0xA1, 0xFB>();
 	}
+	assert(trackDataValid);
 	unsigned gapLength = trackData.wrapIndex(
 		sectorInfo.dataIdx - sectorInfo.addrIdx);
 	drqTime.reset(time);
@@ -721,6 +739,9 @@ void WD2793::checkStartWrite(EmuTime::param time)
 	dataCurrent = sectorInfo.addrIdx
 	            + 6 // C H R N CRC1 CRC2
 		    + 22;
+	// TODO to be really accurate be should write these one byte at a time
+	// to allow to cancel the write sector command at any moment.
+	assert(trackDataValid);
 	for (int i = 0; i < 12; ++i) trackData.write(dataCurrent++, 0x00);
 	for (int i = 0; i <  3; ++i) trackData.write(dataCurrent++, 0xA1);
 	crc.init<0xA1, 0xA1, 0xA1>();
@@ -741,13 +762,17 @@ void WD2793::checkStartWrite(EmuTime::param time)
 	// Moment in time when the sector is fully written. At that time we
 	// will write the collected data to the disk image (whether the
 	// CPU wrote all required data or not).
+	// We schedule this right after the 2 CRC bytes and the final 'FE' byte
+	// are written. This allows to cancel the write sector command after
+	// all data bytes but before the CRC bytes are written.
 	assert((dataAvailable & 0x7F) == 0x7F); // already decreased by one.
-	schedule(FSM_WRITE_SECTOR, drqTime + (dataAvailable + 1));
+	schedule(FSM_WRITE_SECTOR, drqTime + (dataAvailable + 1 + 3));
 }
 
 void WD2793::doneWriteSector()
 {
 	try {
+		assert(trackDataValid);
 		// any lost data?
 		while (dataAvailable) {
 			statusReg |= LOST_DATA;
@@ -825,6 +850,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 			// wait till next sector header
 			RawTrack::Sector sector;
 			next = drive.getNextSector(time, trackData, sector);
+			trackDataValid = true;
 			setDrqRate();
 			if (next == EmuTime::infinity) {
 				// TODO wait for 5 revolutions
@@ -879,6 +905,7 @@ void WD2793::readTrackCmd(EmuTime::param time)
 {
 	try {
 		drive.readTrack(trackData);
+		trackDataValid = true;
 		setDrqRate();
 		dataCurrent = 0;
 		dataAvailable = trackData.getLength();
@@ -899,16 +926,19 @@ void WD2793::writeTrackCmd(EmuTime::param time)
 	// TODO By now the CPU should already have written the first byte,
 	// otherwise the write track command doesn't even start. This is not
 	// yet implemented.
+
+	// Start by reading the existing track. There are two reasons for this:
+	// - We want to get the length of the existing track. Ideally we should
+	//   just overwrite the track with another length. But the DMK file
+	//   format cannot handle tracks with different lengths.
+	// - In case the write track command gets cancelled we want to keep the
+	//   last part of the track unchanged instead of clearing it.
 	try {
-		// The _only_ reason we call readTrack() is to get the track
-		// length of the existing track. Ideally we should just
-		// overwrite the track with another length. But the DMK file
-		// format cannot handle tracks with different lengths.
 		drive.readTrack(trackData);
 	} catch (MSXException& /*e*/) {
 		endCmd();
 	}
-	trackData.clear(trackData.getLength());
+	trackDataValid = true;
 	setDrqRate();
 	dataCurrent = 0;
 	dataAvailable = trackData.getLength();
@@ -923,6 +953,7 @@ void WD2793::writeTrackCmd(EmuTime::param time)
 void WD2793::doneWriteTrack()
 {
 	try {
+		assert(trackDataValid);
 		// any lost data?
 		while (dataAvailable) {
 			statusReg |= LOST_DATA;
@@ -973,6 +1004,7 @@ void WD2793::endCmd()
 	drqTime.reset(EmuTime::infinity); // DRQ   = false
 	irqTime = EmuTime::zero;          // INTRQ = true;
 	statusReg &= ~BUSY;
+	trackDataValid = false;
 }
 
 
@@ -1012,6 +1044,7 @@ SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 // version 6: no layout changes, only added new enum value 'FSM_CHECK_WRITE'
 // version 7: replaced 'bool INTRQ' with 'EmuTime irqTime'
 // version 8: removed 'userData' from Schedulable
+// version 9: added 'trackDataValid'
 template<typename Archive>
 void WD2793::serialize(Archive& ar, unsigned version)
 {
@@ -1122,6 +1155,13 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		if (bw_irqTime != EmuTime::zero) {
 			irqTime = bw_irqTime;
 		}
+	}
+
+	if (ar.versionAtLeast(version, 9)) {
+		ar.serialize("trackDataValid", trackDataValid);
+	} else {
+		assert(ar.isLoader());
+		trackDataValid = true; // only really matters to cancel an in-progress write command
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(WD2793);
