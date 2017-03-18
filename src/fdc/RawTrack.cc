@@ -38,6 +38,24 @@ void RawTrack::addIdam(unsigned idx)
 	idam.push_back(idx);
 }
 
+void RawTrack::write(int idx, byte val, bool addIdam)
+{
+	unsigned i2 = wrapIndex(idx);
+	auto it = lower_bound(begin(idam), end(idam), i2);
+	if (addIdam) {
+		// add idam (if not already present)
+		if ((it == end(idam)) || (*it != i2)) {
+			idam.insert(it, i2);
+		}
+	} else {
+		// remove idam (if present)
+		if ((it != end(idam)) && (*it == i2)) {
+			idam.erase(it);
+		}
+	}
+	data[i2] = val;
+}
+
 bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 {
 	// read (and check) address mark

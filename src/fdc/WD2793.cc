@@ -30,6 +30,7 @@ static const int E_FLAG     = 0x04;
 static const int H_FLAG     = 0x08;
 static const int T_FLAG     = 0x10;
 static const int M_FLAG     = 0x10;
+static const int A0_FLAG    = 0x01;
 static const int N2R_IRQ    = 0x01;
 static const int R2N_IRQ    = 0x02;
 static const int IDX_IRQ    = 0x04;
@@ -237,6 +238,8 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 			// 1st byte of a write sector command,
 			// don't automatically re-activate DTRQ
 			drqTime.reset(EmuTime::infinity); // DRQ = false
+			// do not yet write this byte to disk
+			return;
 		} else {
 			// handle lost bytes
 			drqTime += 1; // time when next byte will be accepted
@@ -250,6 +253,7 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 		}
 
 		byte write = value; // written value not always same as given value
+		bool idam = false;
 		if ((commandReg & 0xF0) == 0xF0) {
 			// write track, handle chars with special meaning
 			bool prevA1 = lastWasA1;
@@ -283,13 +287,11 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 				// transition) followed by 0xFE. The FE byte has
 				// no special meaning for the WD2793 itself,
 				// but it does for the DMK file format.
-				if (prevA1) {
-					trackData.addIdam(dataCurrent);
-				}
+				if (prevA1) idam = true;
 			}
 		}
 		if (dataAvailable) {
-			trackData.write(dataCurrent++, write);
+			trackData.write(dataCurrent++, write, idam);
 			crc.update(write);
 			dataAvailable--;
 		}
@@ -327,6 +329,13 @@ byte WD2793::getDataReg(EmuTime::param time)
 					statusReg &= ~CRC_ERROR;
 				} else {
 					statusReg |=  CRC_ERROR;
+				}
+				if (sectorInfo.deleted) {
+					// TODO datasheet isn't clear about this:
+					// Set this flag at the end of the
+					// command or as soon as the marker is
+					// encountered on the disk?
+					statusReg |= RECORD_TYPE;
 				}
 				if (!(commandReg & M_FLAG)) {
 					endCmd();
@@ -630,9 +639,6 @@ void WD2793::type2Rotated(EmuTime::param time)
 	//   sizecode=255 results in a sector size of 1024 bytes,
 	// This suggests the WD2793 only looks at the lower 2 bits.
 	dataAvailable = 128 << (sectorInfo.sizeCode & 3);
-	dataCurrent = sectorInfo.dataIdx;
-
-	crc.init<0xA1, 0xA1, 0xA1, 0xFB>(); // TODO possibly A1 A1 A1 F8
 
 	switch (commandReg & 0xE0) {
 	case 0x80: // read sector  or  read sector multi
@@ -653,10 +659,16 @@ void WD2793::type2NotFound()
 
 void WD2793::startReadSector(EmuTime::param time)
 {
+	if (sectorInfo.deleted) {
+		crc.init<0xA1, 0xA1, 0xA1, 0xF8>();
+	} else {
+		crc.init<0xA1, 0xA1, 0xA1, 0xFB>();
+	}
 	unsigned gapLength = trackData.wrapIndex(
 		sectorInfo.dataIdx - sectorInfo.addrIdx);
 	drqTime.reset(time);
 	drqTime += gapLength + 1 + 1; // (first) byte can be read in a moment
+	dataCurrent = sectorInfo.dataIdx;
 }
 
 void WD2793::startWriteSector(EmuTime::param time)
@@ -676,12 +688,8 @@ void WD2793::startWriteSector(EmuTime::param time)
 	//   will also activate DRQ to receive the 2nd byte from the CPU.
 	//
 	// Note that between the 1st and 2nd activation of DRQ is a longer
-	// durtaion than between all later DRQ activations. The write-sector
+	// duration than between all later DRQ activations. The write-sector
 	// routine in Microsol_CDX-2 depends on this.
-	//
-	// TODO after the address header, the WD2793 skips 22 bytes and then
-	// starts writing. The current code instead reuses the location of
-	// the existing data block.
 
 	drqTime.reset(time);
 	drqTime += 7 + 2; // activate DRQ 2 bytes after end of address header
@@ -700,6 +708,30 @@ void WD2793::checkStartWrite(EmuTime::param time)
 		endCmd();
 		return;
 	}
+
+	// From this point onwards the FDC will write a full sector to the disk
+	// (including markers and CRC). If the CPU doesn't supply data bytes in
+	// a timely manner, the missing bytes are filled with zero.
+	//
+	// But it is possible to cancel the write sector command to only write
+	// a partial sector (e.g. without CRC bytes). See cbsfox' comment in
+	// this forum thread:
+	//    https://www.msx.org/forum/msx-talk/software/pdi-to-dmk-using-dsk-pro-104-with-openmsx
+	assert((dataAvailable & 0x7F) == 0x00); // no data has been written yet
+	dataCurrent = sectorInfo.addrIdx
+	            + 6 // C H R N CRC1 CRC2
+		    + 22;
+	for (int i = 0; i < 12; ++i) trackData.write(dataCurrent++, 0x00);
+	for (int i = 0; i <  3; ++i) trackData.write(dataCurrent++, 0xA1);
+	crc.init<0xA1, 0xA1, 0xA1>();
+
+	byte mark = (commandReg & A0_FLAG) ? 0xF8 : 0xFB;
+	trackData.write(dataCurrent++, mark);
+	crc.update(mark);
+
+	trackData.write(dataCurrent++, dataReg); // first data byte
+	crc.update(dataReg);
+	dataAvailable--;
 
 	// Moment in time when the first data byte will be written (and when
 	// DRQ will be re-activated for the 2nd byte).
