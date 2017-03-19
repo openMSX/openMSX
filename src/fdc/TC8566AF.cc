@@ -615,8 +615,8 @@ void TC8566AF::formatSector()
 	for (int i = 0; i < 12; ++i) trackData.write(dataCurrent++, 0x00); // sync
 
 	for (int i = 0; i <  3; ++i) trackData.write(dataCurrent++, 0xA1); // addr mark
-	trackData.addIdam(dataCurrent);
-	for (int i = 0; i <  1; ++i) trackData.write(dataCurrent++, 0xFE); //  "    "
+	for (int i = 0; i <  1; ++i) trackData.write(dataCurrent, 0xFE);   //  "    "
+	trackData.addIdam(dataCurrent++);
 	trackData.write(dataCurrent++, currentTrack); // C: Cylinder number
 	trackData.write(dataCurrent++, headNumber);   // H: Head Address
 	trackData.write(dataCurrent++, sectorNumber); // R: Record
