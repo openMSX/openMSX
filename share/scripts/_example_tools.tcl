@@ -368,3 +368,32 @@ proc get_color_count {args} {
 	}
 	return $result
 }
+
+variable tron_bp
+
+proc toggle_tron {} {
+	variable tron_bp
+
+	if {[osd exists tron]} {
+		osd destroy tron
+		debug remove_bp $tron_bp
+		return "Off"
+	}
+
+	set tron_bp [debug set_bp 0xFF43 {} {update_tron}]
+
+	osd create rectangle tron \
+		-x 269 -y 220 -h 7 -w 42 -scaled true \
+		-borderrgba 0x00000040 -bordersize 0.5
+	osd create text tron.text -x 3 -y 1 -size 4 -rgba 0xffffffff
+	return "On"
+}
+
+proc update_tron {} {
+	if {![osd exists tron]} return
+	set tron ""
+	if {[peek16 0xF41C] != 0xFFFF} {
+		set tron "Line: [peek16 0xF41C]"
+	}
+	osd configure tron.text -text ${tron}
+}
