@@ -202,6 +202,10 @@ unsigned RealDrive::getCurrentAngle(EmuTime::param time) const
 
 void RealDrive::doSetMotor(bool status, EmuTime::param time)
 {
+	if (!status) {
+		invalidateTrack(); // flush and ignore further writes
+	}
+
 	startAngle = getCurrentAngle(time);
 	motorStatus = status;
 	motorTimer.advance(time);
@@ -278,6 +282,11 @@ void RealDrive::invalidateTrack()
 
 void RealDrive::getTrack()
 {
+	if (!motorStatus) {
+		// cannot read track when disk isn't rotating
+		assert(!trackValid);
+		return;
+	}
 	if (!trackValid) {
 		changer->getDisk().readTrack(headPos, side, track);
 		trackValid = true;
@@ -294,6 +303,8 @@ unsigned RealDrive::getTrackLength()
 void RealDrive::writeTrackByte(int idx, byte val, bool addIdam)
 {
 	getTrack();
+	// It's possible 'trackValid==false', but that's fine because in that
+	// case track won't be flushed to disk anyway.
 	track.write(idx, val, addIdam);
 	trackDirty = true;
 }
@@ -301,7 +312,7 @@ void RealDrive::writeTrackByte(int idx, byte val, bool addIdam)
 byte RealDrive::readTrackByte(int idx)
 {
 	getTrack();
-	return track.read(idx);
+	return trackValid ? track.read(idx) : 0;
 }
 
 static inline unsigned divUp(unsigned a, unsigned b)
