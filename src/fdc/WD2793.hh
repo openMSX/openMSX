@@ -97,7 +97,7 @@ private:
 
 	void endCmd();
 
-	void setDrqRate();
+	void setDrqRate(unsigned trackLength);
 	bool isReady() const;
 
 	void schedule(FSMState state, EmuTime::param time);
@@ -116,7 +116,6 @@ private:
 
 	EmuTime pulse5; // time at which the 5th index pulse will be received
 
-	RawTrack trackData;
 	RawTrack::Sector sectorInfo;
 	int dataCurrent;   // which byte in track is next to be read/write
 	int dataAvailable; // how many bytes left to read/write
@@ -133,11 +132,10 @@ private:
 	bool directionIn;
 	bool immediateIRQ;
 	bool lastWasA1;
-	bool trackDataValid;
 
 	const bool isWD1770;
 };
-SERIALIZE_CLASS_VERSION(WD2793, 9);
+SERIALIZE_CLASS_VERSION(WD2793, 10);
 
 } // namespace openmsx
 

@@ -36,10 +36,12 @@ public:
 	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
 	void setHeadLoaded(bool status, EmuTime::param time) override;
 	bool headLoaded(EmuTime::param time) override;
-	void writeTrack(const RawTrack& track) override;
-	void readTrack (      RawTrack& track) override;
-	EmuTime getNextSector(EmuTime::param time, RawTrack& track,
-	                      RawTrack::Sector& sector) override;
+
+	unsigned getTrackLength() override;
+	void writeTrackByte(int idx, byte val, bool addIdam) override;
+	byte  readTrackByte(int idx) override;
+	EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) override;
+	void flushTrack() override;
 	bool diskChanged() override;
 	bool peekDiskChanged() const override;
 	bool isDummyDrive() const override;
@@ -74,6 +76,9 @@ private:
 	void setLoading(EmuTime::param time);
 	unsigned getCurrentAngle(EmuTime::param time) const;
 
+	void getTrack();
+	void invalidateTrack();
+
 	static const unsigned MAX_TRACK = 85;
 	static const unsigned TICKS_PER_ROTATION = 200000;
 	static const unsigned INDEX_DURATION = TICKS_PER_ROTATION / 50;
@@ -97,8 +102,12 @@ private:
 	static const unsigned MAX_DRIVES = 26; // a-z
 	using DrivesInUse = std::bitset<MAX_DRIVES>;
 	std::shared_ptr<DrivesInUse> drivesInUse;
+
+	RawTrack track;
+	bool trackValid;
+	bool trackDirty;
 };
-SERIALIZE_CLASS_VERSION(RealDrive, 4);
+SERIALIZE_CLASS_VERSION(RealDrive, 5);
 
 } // namespace openmsx
 

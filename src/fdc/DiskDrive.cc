@@ -60,20 +60,29 @@ bool DummyDrive::headLoaded(EmuTime::param /*time*/)
 	return false;
 }
 
-void DummyDrive::writeTrack(const RawTrack& /*track*/)
+unsigned DummyDrive::getTrackLength()
+{
+	return RawTrack::STANDARD_SIZE;
+}
+
+void DummyDrive::writeTrackByte(int /*idx*/, byte /*val*/, bool /*addIdam*/)
 {
 	throw DriveEmptyException("No drive selected");
 }
 
-void DummyDrive::readTrack(RawTrack& /*track*/)
+byte DummyDrive::readTrackByte(int /*idx*/)
 {
 	throw DriveEmptyException("No drive selected");
 }
 
-EmuTime DummyDrive::getNextSector(EmuTime::param /*time*/, RawTrack& /*track*/,
-                                  RawTrack::Sector& /*sector*/)
+EmuTime DummyDrive::getNextSector(EmuTime::param /*time*/, RawTrack::Sector& /*sector*/)
 {
 	return EmuTime::infinity;
+}
+
+void DummyDrive::flushTrack()
+{
+	// ignore
 }
 
 bool DummyDrive::diskChanged()

@@ -82,20 +82,29 @@ bool DriveMultiplexer::headLoaded(EmuTime::param time)
 	return drive[selected]->headLoaded(time);
 }
 
-void DriveMultiplexer::writeTrack(const RawTrack& track)
+unsigned DriveMultiplexer::getTrackLength()
 {
-	drive[selected]->writeTrack(track);
+	return drive[selected]->getTrackLength();
 }
 
-void DriveMultiplexer::readTrack(RawTrack& track)
+void DriveMultiplexer::writeTrackByte(int idx, byte val, bool addIdam)
 {
-	drive[selected]->readTrack(track);
+	drive[selected]->writeTrackByte(idx, val, addIdam);
 }
 
-EmuTime DriveMultiplexer::getNextSector(EmuTime::param time, RawTrack& track,
-                                        RawTrack::Sector& sector)
+byte DriveMultiplexer::readTrackByte(int idx)
 {
-	return drive[selected]->getNextSector(time, track, sector);
+	return drive[selected]->readTrackByte(idx);
+}
+
+EmuTime DriveMultiplexer::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
+{
+	return drive[selected]->getNextSector(time, sector);
+}
+
+void DriveMultiplexer::flushTrack()
+{
+	drive[selected]->flushTrack();
 }
 
 bool DriveMultiplexer::diskChanged()

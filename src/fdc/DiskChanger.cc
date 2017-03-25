@@ -47,11 +47,13 @@ private:
 DiskChanger::DiskChanger(MSXMotherBoard& board,
                          string driveName_,
                          bool createCmd,
-                         bool doubleSidedDrive_)
+                         bool doubleSidedDrive_,
+                         std::function<void()> preChangeCallback_)
 	: reactor(board.getReactor())
 	, controller(board.getCommandController())
 	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
+	, preChangeCallback(preChangeCallback_)
 	, driveName(std::move(driveName_))
 	, doubleSidedDrive(doubleSidedDrive_)
 {
@@ -185,6 +187,7 @@ void DiskChanger::ejectDisk()
 
 void DiskChanger::changeDisk(std::unique_ptr<Disk> newDisk)
 {
+	if (preChangeCallback) preChangeCallback();
 	disk = std::move(newDisk);
 	diskChangedFlag = true;
 	controller.getCliComm().update(CliComm::MEDIA, getDriveName(),

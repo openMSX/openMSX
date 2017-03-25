@@ -29,6 +29,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	, motorStatus(false), headLoadStatus(false)
 	, doubleSizedDrive(doubleSided)
 	, signalsNeedMotorOn(signalsNeedMotorOn_)
+	, trackValid(false), trackDirty(false)
 {
 	drivesInUse = motherBoard.getSharedStuff<DrivesInUse>("drivesInUse");
 
@@ -45,11 +46,13 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 		throw MSXException("Duplicated drive name: " + driveName);
 	}
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
-	changer = make_unique<DiskChanger>(motherBoard, driveName, true, doubleSizedDrive);
+	changer = make_unique<DiskChanger>(motherBoard, driveName, true, doubleSizedDrive,
+	                                   [this]() { invalidateTrack(); });
 }
 
 RealDrive::~RealDrive()
 {
+	flushTrack();
 	doSetMotor(false, getCurrentTime()); // to send LED event
 
 	const auto& driveName = changer->getDriveName();
@@ -95,11 +98,14 @@ bool RealDrive::isDoubleSided() const
 
 void RealDrive::setSide(bool side_)
 {
+	invalidateTrack();
 	side = side_ ? 1 : 0; // also for single-sided drives
 }
 
 void RealDrive::step(bool direction, EmuTime::param time)
 {
+	invalidateTrack();
+
 	if (direction) {
 		// step in
 		if (headPos < MAX_TRACK) {
@@ -264,25 +270,48 @@ bool RealDrive::headLoaded(EmuTime::param time)
 	       (headLoadTimer.getTicksTill(time) > 10);
 }
 
-void RealDrive::writeTrack(const RawTrack& track)
+void RealDrive::invalidateTrack()
 {
-	changer->getDisk().writeTrack(headPos, side, track);
+	flushTrack();
+	trackValid = false;
 }
 
-void RealDrive::readTrack(RawTrack& track)
+void RealDrive::getTrack()
 {
-	changer->getDisk().readTrack(headPos, side, track);
+	if (!trackValid) {
+		changer->getDisk().readTrack(headPos, side, track);
+		trackValid = true;
+		trackDirty = false;
+	}
+}
+
+unsigned RealDrive::getTrackLength()
+{
+	getTrack();
+	return track.getLength();
+}
+
+void RealDrive::writeTrackByte(int idx, byte val, bool addIdam)
+{
+	getTrack();
+	track.write(idx, val, addIdam);
+	trackDirty = true;
+}
+
+byte RealDrive::readTrackByte(int idx)
+{
+	getTrack();
+	return track.read(idx);
 }
 
 static inline unsigned divUp(unsigned a, unsigned b)
 {
 	return (a + b - 1) / b;
 }
-EmuTime RealDrive::getNextSector(
-	EmuTime::param time, RawTrack& track, RawTrack::Sector& sector)
+EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 {
+	getTrack();
 	int currentAngle = getCurrentAngle(time);
-	changer->getDisk().readTrack(headPos, side, track);
 	unsigned trackLen = track.getLength();
 	unsigned idx = divUp(currentAngle * trackLen, TICKS_PER_ROTATION);
 	if (!track.decodeNextSector(idx, sector)) {
@@ -293,6 +322,14 @@ EmuTime RealDrive::getNextSector(
 	if (delta < 0) delta += TICKS_PER_ROTATION;
 	assert(0 <= delta); assert(unsigned(delta) < TICKS_PER_ROTATION);
 	return time + MotorClock::duration(delta);
+}
+
+void RealDrive::flushTrack()
+{
+	if (trackValid && trackDirty) {
+		changer->getDisk().writeTrack(headPos, side, track);
+		trackDirty = false;
+	}
 }
 
 bool RealDrive::diskChanged()
@@ -314,6 +351,7 @@ bool RealDrive::isDummyDrive() const
 // version 2: removed 'timeOut', added MOTOR_TIMEOUT schedulable
 // version 3: added 'startAngle'
 // version 4: removed 'userData' from Schedulable
+// version 5: added 'track', 'trackValid', 'trackDirty'
 template<typename Archive>
 void RealDrive::serialize(Archive& ar, unsigned version)
 {
@@ -335,6 +373,11 @@ void RealDrive::serialize(Archive& ar, unsigned version)
 	} else {
 		assert(ar.isLoader());
 		startAngle = 0;
+	}
+	if (ar.versionAtLeast(version, 5)) {
+		ar.serialize("track", track);
+		ar.serialize("trackValid" ,trackValid);
+		ar.serialize("trackDirty", trackDirty);
 	}
 	if (ar.isLoader()) {
 		// Right after a loadstate, the 'loading indicator' state may

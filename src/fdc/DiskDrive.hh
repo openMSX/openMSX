@@ -76,10 +76,11 @@ public:
 	 */
 	virtual bool headLoaded(EmuTime::param time) = 0;
 
-	virtual void writeTrack(const RawTrack& track) = 0;
-	virtual void readTrack (      RawTrack& track) = 0;
-	virtual EmuTime getNextSector(EmuTime::param time, RawTrack& track,
-	                              RawTrack::Sector& sector) = 0;
+	virtual unsigned getTrackLength() = 0;
+	virtual void writeTrackByte(int idx, byte val, bool addIdam = false) = 0;
+	virtual byte  readTrackByte(int idx) = 0;
+	virtual EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) = 0;
+	virtual void flushTrack() = 0;
 
 	/** Is disk changed?
 	 */
@@ -109,10 +110,11 @@ public:
 	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
 	void setHeadLoaded(bool status, EmuTime::param time) override;
 	bool headLoaded(EmuTime::param time) override;
-	void writeTrack(const RawTrack& track) override;
-	void readTrack (      RawTrack& track) override;
-	EmuTime getNextSector(EmuTime::param time, RawTrack& track,
-	                      RawTrack::Sector& sector) override;
+	unsigned getTrackLength() override;
+	void writeTrackByte(int idx, byte val, bool addIdam) override;
+	byte  readTrackByte(int idx) override;
+	EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) override;
+	void flushTrack() override;
 	bool diskChanged() override;
 	bool peekDiskChanged() const override;
 	bool isDummyDrive() const override;
