@@ -147,6 +147,82 @@ proc record_next_part {} {
 
 namespace export record_chunks
 
+set_help_text record_chunks_on_framerate_changes \
+{Records videos as with the normal record command, but starts recording to a
+new video file if the framerate of the VDP changes.
+Note that this will only work properly if you use the -prefix option for
+the command, otherwise openMSX will record to the same file name over and
+over.
+
+Stop recording with the "record_chunks_on_framerate_changes stop" command.
+
+Examples:
+    record_chunks_on_framerate_changes start -triplesize -prefix UR
+        Records a movie in triplesize in files UR0001.avi, UR0002.avi etc.
+        Each subsequent AVI has a different frame rate.
+    record_chunks_on_framerate_changes stop
+        Stop recording and clean up frame rate detection stuff internally.
+}
+
+
+variable cur_wp ""
+variable prev_was_ntsc_mode true
+variable record_args ""
+
+proc vdp_write {} {
+	variable prev_was_ntsc_mode
+	variable record_args
+
+	if {[dict get [record status] status] eq "idle"} {
+		# oh, we weren't even recording... let's shut down
+		disable_watchpoint
+		return "Stopped recording chunks by frame rate changes. I found out late, please use record_chunks_on_framerate_changes stop next time, so I'll find out sooner..."
+	}
+
+	set ntsc_mode [expr {([vdpreg 9] & 2) == 0}]
+	if {$ntsc_mode != $prev_was_ntsc_mode} {
+		puts "Frame rate change detected from [expr {$prev_was_ntsc_mode ? 60 : 50}] to [expr {$ntsc_mode ? 60 : 50}] Hz. Starting recording of next video file."
+		set prev_was_ntsc_mode $ntsc_mode
+		record stop
+		puts [eval [linsert $record_args 0 record]]
+	}
+}
+
+proc enable_watchpoint {} {
+	variable cur_wp
+
+	set cur_wp [debug set_watchpoint write_io 0x99 1 {
+		record_chunks::vdp_write
+	}]
+}
+
+proc disable_watchpoint {} {
+	variable cur_wp
+	debug remove_watchpoint $cur_wp
+	set cur_wp ""
+}
+
+proc record_chunks_on_framerate_changes { args } {
+	variable record_args
+	variable cur_wp
+
+	if {$args eq "stop" && $cur_wp ne ""} {
+		disable_watchpoint
+		record stop
+		return "Stopped recording by chunks on framerate changes."
+	}
+
+	set record_args $args
+	set response [eval [linsert $record_args 0 record]]
+	if {$cur_wp eq "" && [dict get [record status] status] eq "recording"} {
+		set prev_was_ntsc_mode [expr {([vdpreg 9] & 2) == 0}]
+		enable_watchpoint
+		return "Started recording by chunks on framerate changes...\n$response"
+	}
+}
+
+namespace export record_chunks_on_framerate_changes
+
 } ;# namespace record_chunks
 
 namespace import record_chunks::*

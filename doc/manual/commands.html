@@ -1684,6 +1684,7 @@
   You can also force a mono recording with <code>-mono</code> to save space.</p>
   <p>The <code><a class="internal" href="#soundlog">soundlog</a></code> command is a shorthand for <code>record -audioonly</code>.</p>
   <p>Use <code>record_chunks</code> if you want some extra options. You can control the maximum length (in seconds) to record and also set up multiple recordings of a certain length. This is very useful if you want to record for e.g. YouTube. The default length is 14:59 (to make sure YouTube will accept it). Using this command implies <code>-doublesize</code>.</p>
+  <p>Use <code>record_chunks_on_framerate_changes</code> if you want to split up the recording in several files, whenever the frame rate of the MSX changes. An AVI file cannot contain video of multiple frame rates, so sound and video will get out of sync if that happens without using this special version of the command.</p>
 
   <h3><a id="record_channels">record_channels</a></h3>
 

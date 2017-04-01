@@ -36,7 +36,8 @@ register_lazy "_psg_profile.tcl" psg_profile
 register_lazy "_quitmenu.tcl" quit_menu
 register_lazy "_record_channels.tcl" {
 	record_channels mute_channels unmute_channels solo}
-register_lazy "_record_chunks.tcl" record_chunks
+register_lazy "_record_chunks.tcl" {
+	record_chunks record_chunks_on_framerate_changes}
 register_lazy "_reg_log.tcl" reg_log
 register_lazy "_reverse.tcl" {
 	reverse_prev reverse_next goto_time_delta go_back_one_step
