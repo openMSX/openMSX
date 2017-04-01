@@ -54,7 +54,9 @@ public:
 		FSM_TYPE2_NOT_FOUND,
 		FSM_TYPE2_ROTATED,
 		FSM_CHECK_WRITE,
+		FSM_PRE_WRITE_SECTOR,
 		FSM_WRITE_SECTOR,
+		FSM_POST_WRITE_SECTOR,
 		FSM_TYPE3_WAIT_LOAD,
 		FSM_TYPE3_LOADED,
 		FSM_TYPE3_ROTATED,
@@ -82,16 +84,18 @@ private:
 	void startReadSector (EmuTime::param time);
 	void startWriteSector(EmuTime::param time);
 	void checkStartWrite (EmuTime::param time);
-	void doneWriteSector();
+	void preWriteSector  (EmuTime::param time);
+	void writeSectorData (EmuTime::param time);
+	void postWriteSector (EmuTime::param time);
 
-	void startType3Cmd (EmuTime::param time);
-	void type3WaitLoad (EmuTime::param time);
-	void type3Loaded   (EmuTime::param time);
-	void type3Rotated  (EmuTime::param time);
-	void readAddressCmd(EmuTime::param time);
-	void readTrackCmd  (EmuTime::param time);
-	void writeTrackCmd (EmuTime::param time);
-	void doneWriteTrack();
+	void startType3Cmd   (EmuTime::param time);
+	void type3WaitLoad   (EmuTime::param time);
+	void type3Loaded     (EmuTime::param time);
+	void type3Rotated    (EmuTime::param time);
+	void readAddressCmd  (EmuTime::param time);
+	void readTrackCmd    (EmuTime::param time);
+	void startWriteTrack (EmuTime::param time);
+	void writeTrackData  (EmuTime::param time);
 
 	void startType4Cmd(EmuTime::param time);
 
@@ -128,14 +132,17 @@ private:
 	byte sectorReg;
 	byte trackReg;
 	byte dataReg;
+	byte dataOutReg;
 
 	bool directionIn;
 	bool immediateIRQ;
 	bool lastWasA1;
+	bool dataRegWritten;
+	bool lastWasCRC;
 
 	const bool isWD1770;
 };
-SERIALIZE_CLASS_VERSION(WD2793, 10);
+SERIALIZE_CLASS_VERSION(WD2793, 11);
 
 } // namespace openmsx
 
