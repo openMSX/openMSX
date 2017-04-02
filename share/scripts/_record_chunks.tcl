@@ -166,53 +166,83 @@ Examples:
 }
 
 
-variable cur_wp ""
+variable vdp_write_watchpoint ""
+variable after_reset_id ""
 variable prev_was_ntsc_mode true
 variable record_args ""
 
-proc vdp_write {} {
+proc vdp_write_check {} {
 	variable prev_was_ntsc_mode
-	variable record_args
 
-	if {[dict get [record status] status] eq "idle"} {
-		# oh, we weren't even recording... let's shut down
-		disable_watchpoint
-		return "Stopped recording chunks on frame rate changes. I found out late, please use record_chunks_on_framerate_changes stop next time, so I'll find out sooner..."
+	set safety_check_output [safety_check]
+	if {$safety_check_output ne ""} {
+		puts $safety_check_output
+		return
 	}
 
 	set ntsc_mode [expr {([vdpreg 9] & 2) == 0}]
 	if {$ntsc_mode != $prev_was_ntsc_mode} {
-		puts "Frame rate change detected from [expr {$prev_was_ntsc_mode ? 60 : 50}] to [expr {$ntsc_mode ? 60 : 50}] Hz. Starting recording of next video file."
+		restart_recording "from [expr {$prev_was_ntsc_mode ? 60 : 50}] to [expr {$ntsc_mode ? 60 : 50}] Hz"
 		set prev_was_ntsc_mode $ntsc_mode
-		record stop
-		puts [eval [linsert $record_args 0 record]]
 	}
 }
 
-proc disable_watchpoint {} {
-	variable cur_wp
-	debug remove_watchpoint $cur_wp
-	set cur_wp ""
+proc safety_check {} {
+	if {[dict get [record status] status] eq "idle"} {
+		# oh, we weren't even recording... let's shut down
+		disable_monitoring
+		return "Stopped recording chunks on frame rate changes. I found out late, please use record_chunks_on_framerate_changes stop next time, so I'll find out sooner..."
+	}
+	return ""
+}
+
+proc restart_recording { reason } {
+	variable record_args
+	puts "Frame rate change detected $reason. Starting recording to next video file."
+	record stop
+	puts [eval [linsert $record_args 0 record]]
+}
+
+proc on_reset {} {
+	variable after_reset_id
+	set after_reset_id [after boot [namespace code on_reset]]
+	set safety_check_output [safety_check]
+	if {$safety_check_output ne ""} {
+		puts $safety_check_output
+		return
+	}
+	restart_recording "due to a reset"
+}
+
+proc disable_monitoring {} {
+	variable vdp_write_watchpoint
+	variable after_reset_id
+	debug remove_watchpoint $vdp_write_watchpoint
+	set vdp_write_watchpoint ""
+	after cancel $after_reset_id
+	set after_reset_id ""
 }
 
 proc record_chunks_on_framerate_changes { args } {
 	variable record_args
-	variable cur_wp
+	variable vdp_write_watchpoint
+	variable after_reset_id
 	variable prev_was_ntsc_mode
 
-	if {$args eq "stop" && $cur_wp ne ""} {
-		disable_watchpoint
+	if {$args eq "stop" && $vdp_write_watchpoint ne ""} {
+		disable_monitoring
 		record stop
 		return "Stopped recording chunks on framerate changes."
 	}
 
 	set record_args $args
 	set response [eval [linsert $record_args 0 record]]
-	if {$cur_wp eq "" && [dict get [record status] status] eq "recording"} {
+	if {$vdp_write_watchpoint eq "" && [dict get [record status] status] eq "recording"} {
 		set prev_was_ntsc_mode [expr {([vdpreg 9] & 2) == 0}]
-		set cur_wp [debug set_watchpoint write_io 0x99 1 {
-			record_chunks::vdp_write
+		set vdp_write_watchpoint [debug set_watchpoint write_io 0x99 1 {
+			record_chunks::vdp_write_check
 		}]
+		set after_reset_id [after boot [namespace code on_reset]]
 		return "Started recording chunks on framerate changes...\n$response"
 	}
 }
