@@ -20,9 +20,9 @@ namespace openmsx {
 const unsigned RawTrack::STANDARD_SIZE;
 #endif
 
-RawTrack::RawTrack()
+RawTrack::RawTrack(unsigned size)
 {
-	clear(STANDARD_SIZE);
+	clear(size);
 }
 
 void RawTrack::clear(unsigned size)

@@ -87,7 +87,7 @@ public:
 	};
 
 	/* Construct a (cleared) track. */
-	RawTrack();
+	explicit RawTrack(unsigned size = STANDARD_SIZE);
 
 	/** Clear track data. Also sets the track length. */
 	void clear(unsigned size);

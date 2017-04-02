@@ -3,6 +3,7 @@
 #include "DiskExceptions.hh"
 #include "File.hh"
 #include "FilePool.hh"
+#include "likely.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -125,14 +126,19 @@ void DMKDiskImage::readTrack(byte track, byte side, RawTrack& output)
 void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 {
 	assert(side < 2);
-	if ((singleSided && side) || (track >= numTracks)) {
-		// no such side/track, ignore write
-		// TODO a possible enhancement is to extend the file with
-		//      extra tracks (or even convert from single sided to
-		//      double sided)
+	if (singleSided && (side != 0)) {
+		// second side on a single-side image, ignore write.
+		// TODO possible enhancement:  convert to double sided
 		return;
 	}
+	if (unlikely(numTracks <= track)) {
+		extendImageToTrack(track);
+	}
+	doWriteTrack(track, side, input);
+}
 
+void DMKDiskImage::doWriteTrack(byte track, byte side, const RawTrack& input)
+{
 	seekTrack(track, side);
 
 	// Write idam table.
@@ -148,6 +154,24 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 	// Write raw track data.
 	assert(input.getLength() == dmkTrackLen);
 	file->write(input.getRawBuffer(), dmkTrackLen);
+}
+
+void DMKDiskImage::extendImageToTrack(byte track)
+{
+	// extend image with empty tracks
+	RawTrack emptyTrack(dmkTrackLen);
+	byte numSides = singleSided ? 1 : 2;
+	while (numTracks <= track) {
+		for (byte side = 0; side < numSides; ++side) {
+			doWriteTrack(numTracks, side, emptyTrack);
+		}
+		++numTracks;
+	}
+
+	// update header
+	file->seek(1); // position in header where numTracks is stored
+	byte numTracksByte = numTracks;
+	file->write(&numTracksByte, sizeof(numTracksByte));
 }
 
 
