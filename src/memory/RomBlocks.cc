@@ -1,6 +1,7 @@
 #include "RomBlocks.hh"
 #include "SRAM.hh"
 #include "MSXException.hh"
+#include "Math.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -21,6 +22,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 		*this,  blockNr, 0x0000, 0x10000,
 		log2<BANK_SIZE>::value, debugBankSizeShift)
 {
+	static_assert(Math::isPowerOfTwo(BANK_SIZE));
 	auto extendedSize = (rom.getSize() + BANK_SIZE - 1) & ~(BANK_SIZE - 1);
 	rom.addPadding(extendedSize);
 	nrBlocks = rom.getSize() / BANK_SIZE;
