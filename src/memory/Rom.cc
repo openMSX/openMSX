@@ -363,6 +363,20 @@ const Sha1Sum& Rom::getOriginalSHA1() const
 	return originalSha1;
 }
 
+void Rom::addPadding(unsigned newSize, byte filler)
+{
+	assert(newSize >= size);
+	if (newSize == size) return;
+
+	MemBuffer<byte> tmp(newSize);
+	auto* newData = tmp.data();
+	memcpy(newData, rom, size);
+	memset(newData + size, filler, newSize - size);
+
+	extendedRom = std::move(tmp);
+	rom = newData;
+	size = newSize;
+}
 
 RomDebuggable::RomDebuggable(Debugger& debugger_, Rom& rom_)
 	: debugger(debugger_), rom(&rom_)

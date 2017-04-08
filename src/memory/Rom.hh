@@ -36,6 +36,8 @@ public:
 	const std::string& getDescription() const { return description; }
 	const Sha1Sum& getOriginalSHA1() const;
 
+	void addPadding(unsigned newSize, byte filler = 0xff);
+
 private:
 	void init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	          const FileContext& context);

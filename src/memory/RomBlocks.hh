@@ -85,7 +85,7 @@ private:
 	RomBlockDebuggable romBlockDebug;
 	const byte* extraMem;
 	unsigned extraSize;
-	const int nrBlocks;
+	/*const*/ int nrBlocks;
 	int blockMask;
 };
 

@@ -20,13 +20,12 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 	, romBlockDebug(
 		*this,  blockNr, 0x0000, 0x10000,
 		log2<BANK_SIZE>::value, debugBankSizeShift)
-	, nrBlocks(rom.getSize() / BANK_SIZE)
 {
-	if ((nrBlocks * BANK_SIZE) != rom.getSize()) {
-		throw MSXException(StringOp::Builder() <<
-			"(uncompressed) ROM image filesize must be a multiple of " <<
-			BANK_SIZE / 1024 << " kB (for this mapper type).");
-	}
+	auto extendedSize = (rom.getSize() + BANK_SIZE - 1) & ~(BANK_SIZE - 1);
+	rom.addPadding(extendedSize);
+	nrBlocks = rom.getSize() / BANK_SIZE;
+	assert((nrBlocks * BANK_SIZE) == rom.getSize());
+
 	// by default no extra mappable memory block
 	extraMem = nullptr;
 	extraSize = 0;
