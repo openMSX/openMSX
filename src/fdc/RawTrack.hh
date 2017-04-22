@@ -134,6 +134,8 @@ public:
 	word calcCrc(int idx, int length) const;
 	void updateCrc(CRC16& crc, int idx, int size) const;
 
+	void applyWd2793ReadTrackQuirck();
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

@@ -121,6 +121,7 @@ void DMKDiskImage::readTrack(byte track, byte side, RawTrack& output)
 		output.addIdam(idx);
 		lastIdam = idx;
 	}
+	output.applyWd2793ReadTrackQuirck();
 }
 
 void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
