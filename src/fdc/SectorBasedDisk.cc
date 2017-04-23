@@ -121,7 +121,7 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 
 		for (int i = 0; i < 182; ++i) output.write(idx++, 0x4E); // gap4b
 		assert(idx == RawTrack::STANDARD_SIZE);
-		output.applyWd2793ReadTrackQuirck();
+		output.applyWd2793ReadTrackQuirk();
 	} catch (MSXException& /*e*/) {
 		// There was an error while reading the actual sector data.
 		// Most likely this is because we're reading the 81th track on

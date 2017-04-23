@@ -80,7 +80,7 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 	// position (that's what the WD2793 does).
 	for (int i = 0; i < 43; ++i) {
 		int idx2 = idx + i;
-		int j = 1; // skip first A1 becuase of applyWd2793ReadTrackQuirck()
+		int j = 1; // skip first A1 becuase of applyWd2793ReadTrackQuirk()
 		for (; j < 3; ++j) {
 			if (read(idx2 + j) != 0xA1) break;
 		}
@@ -192,7 +192,7 @@ word RawTrack::calcCrc(int idx, int size) const
 	return crc.getValue();
 }
 
-void RawTrack::applyWd2793ReadTrackQuirck()
+void RawTrack::applyWd2793ReadTrackQuirk()
 {
 	// Tests on a real WD2793 have shown that the first 'A1' byte in a
 	// sequence of 3 'special' A1 bytes gets systematically read as a
