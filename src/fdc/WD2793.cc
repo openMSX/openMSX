@@ -296,6 +296,9 @@ byte WD2793::getDataReg(EmuTime::param time)
 				}
 			} else {
 				// read track, read address
+				if ((commandReg & 0xF0) == 0xE0) { // read track
+					drive.invalidateWd2793ReadTrackQuirk();
+				}
 				// TODO check CRC error on 'read address'
 				endCmd();
 			}
@@ -413,6 +416,7 @@ void WD2793::executeUntil(EmuTime::param time)
 		case FSM_READ_TRACK:
 			if ((commandReg & 0xF0) == 0xE0) {
 				// read track command
+				drive.invalidateWd2793ReadTrackQuirk();
 				endCmd(); // TODO check this (e.g. DRQ)
 			}
 			break;
@@ -903,6 +907,7 @@ void WD2793::readTrackCmd(EmuTime::param time)
 {
 	try {
 		unsigned trackLength = drive.getTrackLength();
+		drive.applyWd2793ReadTrackQuirk();
 		setDrqRate(trackLength);
 		dataCurrent = 0;
 		dataAvailable = trackLength;
@@ -914,6 +919,7 @@ void WD2793::readTrackCmd(EmuTime::param time)
 		drqTime += 1; // (first) byte can be read in a moment
 	} catch (MSXException&) {
 		// read track failed, TODO status bits?
+		drive.invalidateWd2793ReadTrackQuirk();
 		endCmd();
 	}
 }

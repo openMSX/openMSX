@@ -46,6 +46,9 @@ public:
 	bool peekDiskChanged() const override;
 	bool isDummyDrive() const override;
 
+	void applyWd2793ReadTrackQuirk() override;
+	void invalidateWd2793ReadTrackQuirk() override;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

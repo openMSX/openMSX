@@ -122,6 +122,16 @@ bool DriveMultiplexer::isDummyDrive() const
 	return drive[selected]->isDummyDrive();
 }
 
+void DriveMultiplexer::applyWd2793ReadTrackQuirk()
+{
+	drive[selected]->applyWd2793ReadTrackQuirk();
+}
+
+void DriveMultiplexer::invalidateWd2793ReadTrackQuirk()
+{
+	drive[selected]->invalidateWd2793ReadTrackQuirk();
+}
+
 
 static std::initializer_list<enum_string<DriveMultiplexer::DriveNum>> driveNumInfo = {
 	{ "A",    DriveMultiplexer::DRIVE_A },

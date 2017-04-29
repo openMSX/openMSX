@@ -90,6 +90,10 @@ public:
 	/** Is there a dummy (unconncted) drive?
 	 */
 	virtual bool isDummyDrive() const = 0;
+
+	/** See RawTrack::applyWd2793ReadTrackQuirk() */
+	virtual void applyWd2793ReadTrackQuirk() = 0;
+	virtual void invalidateWd2793ReadTrackQuirk() = 0;
 };
 
 
@@ -118,6 +122,8 @@ public:
 	bool diskChanged() override;
 	bool peekDiskChanged() const override;
 	bool isDummyDrive() const override;
+	void applyWd2793ReadTrackQuirk() override;
+	void invalidateWd2793ReadTrackQuirk() override;
 };
 
 } // namespace openmsx

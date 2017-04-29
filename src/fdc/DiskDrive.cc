@@ -100,4 +100,14 @@ bool DummyDrive::isDummyDrive() const
 	return true;
 }
 
+void DummyDrive::applyWd2793ReadTrackQuirk()
+{
+	// nothing
+}
+
+void DummyDrive::invalidateWd2793ReadTrackQuirk()
+{
+	// nothing
+}
+
 } // namespace openmsx

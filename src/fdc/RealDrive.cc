@@ -358,6 +358,17 @@ bool RealDrive::isDummyDrive() const
 	return false;
 }
 
+void RealDrive::applyWd2793ReadTrackQuirk()
+{
+	track.applyWd2793ReadTrackQuirk();
+}
+
+void RealDrive::invalidateWd2793ReadTrackQuirk()
+{
+	trackValid = false;
+}
+
+
 // version 1: initial version
 // version 2: removed 'timeOut', added MOTOR_TIMEOUT schedulable
 // version 3: added 'startAngle'
