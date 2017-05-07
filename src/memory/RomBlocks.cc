@@ -1,3 +1,4 @@
+#include "CliComm.hh"
 #include "RomBlocks.hh"
 #include "SRAM.hh"
 #include "MSXException.hh"
@@ -13,6 +14,9 @@ template<        class T, class F> struct if_log2_<true, T, F> : T {};
 template<unsigned A, unsigned R = 0> struct log2
 	: if_log2_<A == 1, std::integral_constant<int, R>, log2<A / 2, R + 1>> {};
 
+// minimal attempt to avoid seeing this warning too often
+static Sha1Sum alreadyWarnedForSha1Sum;
+
 template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::RomBlocks(
 		const DeviceConfig& config, Rom&& rom_,
@@ -24,6 +28,17 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 {
 	static_assert(Math::isPowerOfTwo(BANK_SIZE), "BANK_SIZE must be a power of two");
 	auto extendedSize = (rom.getSize() + BANK_SIZE - 1) & ~(BANK_SIZE - 1);
+	if (extendedSize != rom.getSize() && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
+		config.getCliComm().printWarning(
+			"(uncompressed) ROM image filesize was not a multiple "
+			"of " + std::to_string(BANK_SIZE / 1024) + "kB (which "
+			"is required for mapper type " +
+			config.findChild("mappertype")->getData() + "), so we "
+			"padded it to be correct. But if the ROM you are "
+			"running was just dumped, the dump is probably not "
+			"complete/correct!");
+		alreadyWarnedForSha1Sum = rom.getOriginalSHA1();
+	}
 	rom.addPadding(extendedSize);
 	nrBlocks = rom.getSize() / BANK_SIZE;
 	assert((nrBlocks * BANK_SIZE) == rom.getSize());

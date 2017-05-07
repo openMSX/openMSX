@@ -178,6 +178,15 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		type = RomInfo::nameToRomType(typestr);
 	}
 
+	// Store actual detected mapper type in config (override the possible
+	// 'auto' value). This way we're sure that on savestate/loadstate we're
+	// using the same mapper type (for example when the user's rom-database
+	// was updated).
+	// We do it at this point so that constructors used below can use this
+	// information for warning messages etc.
+	auto& writableConfig = const_cast<XMLElement&>(*config.getXML());
+	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type));
+
 	unique_ptr<MSXRom> result;
 	switch (type) {
 	case ROM_MIRRORED:
@@ -381,13 +390,6 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	default:
 		throw MSXException("Unknown ROM type");
 	}
-
-	// Store actual detected mapper type in config (override the possible
-	// 'auto' value). This way we're sure that on savestate/loadstate we're
-	// using the same mapper type (for example when the user's rom-database
-	// was updated).
-	auto& writableConfig = const_cast<XMLElement&>(*config.getXML());
-	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type));
 
 	return move(result);
 }
