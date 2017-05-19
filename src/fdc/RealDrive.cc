@@ -329,9 +329,11 @@ EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 		return EmuTime::infinity;
 	}
 	int sectorAngle = divUp(sector.addrIdx * TICKS_PER_ROTATION, trackLen);
+	// note that if there is only one sector in this track, we have
+	// to do a full rotation.
 	int delta = sectorAngle - currentAngle;
-	if (delta < 0) delta += TICKS_PER_ROTATION;
-	assert(0 <= delta); assert(unsigned(delta) < TICKS_PER_ROTATION);
+	if (delta <= 0) delta += TICKS_PER_ROTATION;
+	assert(0 < delta); assert(unsigned(delta) <= TICKS_PER_ROTATION);
 	return time + MotorClock::duration(delta);
 }
 
