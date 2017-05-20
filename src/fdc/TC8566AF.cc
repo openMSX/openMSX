@@ -449,6 +449,7 @@ EmuTime TC8566AF::locateSector(EmuTime::param time)
 		if (sectorInfo.track  != cylinderNumber) continue;
 		if (sectorInfo.head   != headNumber)     continue;
 		if (sectorInfo.sector != sectorNumber)   continue;
+		if (sectorInfo.dataIdx == -1)            continue;
 		break;
 	}
 	// TODO does TC8566AF look at lower 3 bits?

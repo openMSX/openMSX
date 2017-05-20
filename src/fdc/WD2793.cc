@@ -599,6 +599,13 @@ void WD2793::type2Rotated(EmuTime::param time)
 		type2Search(time);
 		return;
 	}
+	if (sectorInfo.dataIdx == -1) {
+		// Sector header without accompanying data block.
+		// TODO we should actually wait for the disk to rotate before
+		// we can check this.
+		type2Search(time);
+		return;
+	}
 
 	// Ok, found matching sector.
 	switch (commandReg & 0xE0) {

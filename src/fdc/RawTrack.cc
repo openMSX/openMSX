@@ -61,67 +61,69 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 	// read (and check) address mark
 	// assume addr mark starts with three A1 bytes (should be
 	// located right before the current 'idx' position)
-	if (read(idx) != 0xFE) return false;
+	if (read(idx) != 0xFE) return false; // 'sector'-data not filled in
 
 	++idx;
-	int addrIdx = idx;
+	sector.addrIdx = idx;
 	CRC16 addrCrc;
 	addrCrc.init<0xA1, 0xA1, 0xA1, 0xFE>();
-	updateCrc(addrCrc, addrIdx, 4);
-	byte trackNum = read(idx++);
-	byte headNum = read(idx++);
-	byte secNum = read(idx++);
-	byte sizeCode = read(idx++);
+	updateCrc(addrCrc, sector.addrIdx, 4);
+	sector.track    = read(idx++);
+	sector.head     = read(idx++);
+	sector.sector   = read(idx++);
+	sector.sizeCode = read(idx++);
 	byte addrCrc1 = read(idx++);
 	byte addrCrc2 = read(idx++);
-	bool addrCrcErr = (256 * addrCrc1 + addrCrc2) != addrCrc.getValue();
+	sector.addrCrcErr = (256 * addrCrc1 + addrCrc2) != addrCrc.getValue();
 
-	// Locate data mark, should starts within 43 bytes from current
-	// position (that's what the WD2793 does).
-	for (int i = 0; i < 43; ++i) {
-		int idx2 = idx + i;
-		int j = 0;
-		for (; j < 3; ++j) {
-			if (read(idx2 + j) != 0xA1) break;
+	sector.dataIdx = -1; // (for now) no data block found
+	sector.deleted = false;   // dummy
+	sector.dataCrcErr = true; // dummy
+
+	if (!sector.addrCrcErr) {
+		// Locate data mark, should starts within 43 bytes from current
+		// position (that's what the WD2793 does).
+		for (int i = 0; i < 43; ++i) {
+			int idx2 = idx + i;
+			int j = 0;
+			for (; j < 3; ++j) {
+				if (read(idx2 + j) != 0xA1) break;
+			}
+			if (j != 3) continue; // didn't find 3 x 0xA1
+
+			byte type = read(idx2 + 3);
+			if (!((type == 0xfb) || (type == 0xf8))) continue;
+
+			CRC16 dataCrc;
+			dataCrc.init<0xA1, 0xA1, 0xA1>();
+			dataCrc.update(type);
+
+			// OK, found start of data, calculate CRC.
+			int dataIdx = idx2 + 4;
+			unsigned sectorSize = 128 << (sector.sizeCode & 7);
+			updateCrc(dataCrc, dataIdx, sectorSize);
+			byte dataCrc1 = read(dataIdx + sectorSize + 0);
+			byte dataCrc2 = read(dataIdx + sectorSize + 1);
+			bool dataCrcErr = (256 * dataCrc1 + dataCrc2) != dataCrc.getValue();
+
+			// store result
+			sector.dataIdx    = dataIdx;
+			sector.deleted    = type == 0xf8;
+			sector.dataCrcErr = dataCrcErr;
+			break;
 		}
-		if (j != 3) continue; // didn't find 3 x 0xA1
-
-		byte type = read(idx2 + 3);
-		if (!((type == 0xfb) || (type == 0xf8))) continue;
-
-		CRC16 dataCrc;
-		dataCrc.init<0xA1, 0xA1, 0xA1>();
-		dataCrc.update(type);
-
-		// OK, found start of data, calculate CRC.
-		int dataIdx = idx2 + 4;
-		unsigned sectorSize = 128 << (sizeCode & 7);
-		updateCrc(dataCrc, dataIdx, sectorSize);
-		byte dataCrc1 = read(dataIdx + sectorSize + 0);
-		byte dataCrc2 = read(dataIdx + sectorSize + 1);
-		bool dataCrcErr = (256 * dataCrc1 + dataCrc2) != dataCrc.getValue();
-
-		// store result
-		sector.addrIdx    = addrIdx;
-		sector.dataIdx    = dataIdx;
-		sector.track      = trackNum;
-		sector.head       = headNum;
-		sector.sector     = secNum;
-		sector.sizeCode   = sizeCode;
-		sector.deleted    = type == 0xf8;
-		sector.addrCrcErr = addrCrcErr;
-		sector.dataCrcErr = dataCrcErr;
-		return true;
 	}
-	return false;
+	return true;
 }
 
 vector<RawTrack::Sector> RawTrack::decodeAll() const
 {
+	// only complete sectors (header + data block)
 	vector<Sector> result;
 	for (auto& i : idam) {
 		Sector sector;
-		if (decodeSectorImpl(i, sector)) {
+		if (decodeSectorImpl(i, sector) &&
+		    (sector.dataIdx != -1)) {
 			result.push_back(sector);
 		}
 	}
@@ -139,7 +141,7 @@ static vector<unsigned> rotateIdam(vector<unsigned> idam, unsigned startIdx)
 
 bool RawTrack::decodeNextSector(unsigned startIdx, Sector& sector) const
 {
-	// get first valid sector
+	// get first valid sector-header
 	for (auto& i : rotateIdam(idam, startIdx)) {
 		if (decodeSectorImpl(i, sector)) {
 			return true;
@@ -150,9 +152,11 @@ bool RawTrack::decodeNextSector(unsigned startIdx, Sector& sector) const
 
 bool RawTrack::decodeSector(byte sectorNum, Sector& sector) const
 {
+	// only complete sectors (header + data block)
 	for (auto& i : idam) {
 		if (decodeSectorImpl(i, sector) &&
-		    (sector.sector == sectorNum)) {
+		    (sector.sector == sectorNum) &&
+		    (sector.dataIdx != -1)) {
 			return true;
 		}
 	}
@@ -253,7 +257,8 @@ void RawTrack::applyWd2793ReadTrackQuirk()
 		write(i - 3, 0x14);
 
 		Sector sector;
-		if (decodeSectorImpl(i, sector)) {
+		if (decodeSectorImpl(i, sector) &&
+		    (sector.dataIdx != -1)) {
 			int d = sector.dataIdx;
 			if ((read(d - 4) != 0xA1) ||
 			    (read(d - 3) != 0xA1) ||
