@@ -299,7 +299,13 @@ byte WD2793::getDataReg(EmuTime::param time)
 				if ((commandReg & 0xF0) == 0xE0) { // read track
 					drive.invalidateWd2793ReadTrackQuirk();
 				}
-				// TODO check CRC error on 'read address'
+				if ((commandReg & 0xF0) == 0xC0) { // read address
+					if (sectorInfo.addrCrcErr) {
+						statusReg |=  CRC_ERROR;
+					} else {
+						statusReg &= ~CRC_ERROR;
+					}
+				}
 				endCmd();
 			}
 		}
@@ -859,15 +865,14 @@ void WD2793::type3Loaded(EmuTime::param time)
 		try {
 			// wait till next sector header
 			setDrqRate(drive.getTrackLength());
-			RawTrack::Sector sector;
-			next = drive.getNextSector(time, sector);
+			next = drive.getNextSector(time, sectorInfo);
 			if (next == EmuTime::infinity) {
 				// TODO wait for 5 revolutions
 				statusReg |= RECORD_NOT_FOUND;
 				endCmd();
 				return;
 			}
-			dataCurrent = sector.addrIdx;
+			dataCurrent = sectorInfo.addrIdx;
 			dataAvailable = 6;
 		} catch (MSXException&) {
 			// read addr failed
