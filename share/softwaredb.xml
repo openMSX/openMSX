@@ -1,17 +1,19 @@
+
+
+
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1469850051">
+<softwaredb timestamp="1496214123">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
 
 Copyright 2003 Nicolas Beyaert (Initial Database)
 Copyright 2004-2013 BlueMSX Team
-Copyright 2005-2016 openMSX Team
+Copyright 2005-2017 openMSX Team
 Generation MSXIDs by www.generation-msx.nl
 
 ]]>
-<!-- MSX Rom Info -->
 <software>
 	<title>1 2 3</title>
 	<genmsxid>1903</genmsxid>
@@ -71,7 +73,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>3D Golf Simulation - High-speed</title>
 	<genmsxid>196</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash>9a63d48c4fc05e76c9de25e5c5f2a0c99b5d1be4</hash></rom></dump>
@@ -80,7 +82,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>3D Golf Simulation - Normal</title>
 	<genmsxid>44</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1983</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash>f8164d3872b5d54eaeafc6de3bb98a472f0c828d</hash></rom></dump>
@@ -149,6 +151,39 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>KonamiSCC</type><hash>937464eb371c68add2236bcef91d24a8ce7c4ed1</hash><remark>[RC-752]</remark></megarom></dump>
+</software>
+<software>
+	<title>ARC</title>
+	<genmsxid>2865</genmsxid>
+	<system>MSX</system>
+	<company>Parallax</company>
+	<year>1990</year>
+	<country>NL</country>
+		<dump><megarom><type>Arc</type><hash>ac43445c9e0a097b6d8116017645fe96b054a111</hash><remark>Original, confirmed by dumps from 2 different sources</remark></megarom></dump>
+</software>
+<software>
+	<title>ASM Cocar</title>
+	<system>MSX</system>
+	<company>MSX Informatica</company>
+	<year>1987</year>
+	<country>BR</country>
+		<dump><rom><hash>194ff03c3063a852c831b034fe215208802b64cf</hash></rom></dump>
+</software>
+<software>
+	<title>ASMSX Demo 1 - Fixed Point Arithmetic</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2004</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>66acd2f8ef08dd4cb0dc7ef5176650fbf5828acf</hash></rom></dump>
+</software>
+<software>
+	<title>ASMSX Demo 2 - TV</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2004</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>87eb1620474039740bfe0e7e3bea09085d85f247</hash></rom></dump>
 </software>
 <software>
 	<title>Aacko Presto</title>
@@ -359,7 +394,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Alien 8 Remake</title>
 	<system>MSX</system>
-	<company>Manuel Pazos &#38; LordFred</company>
+	<company>Manuel Pazos &amp; LordFred</company>
 	<year>2009</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>4a3069426214aeecac1a57632a9978cbfb2acc21</hash></rom></dump>
@@ -381,7 +416,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Aliens Sound Demo</title>
 	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions</company>
+	<company>DVIK &amp; Joyrex productions</company>
 	<year>2008</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>91d3f1463dac4d5fed8d4ff34bed0d388c61f164</hash><remark>Please run on msx2 for better graphics</remark></megarom></dump>
@@ -579,15 +614,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Normal</type><hash>c6683bcf9934d695d5ef828e11cb36eb4d86a7b5</hash></megarom></dump>
 </software>
 <software>
-	<title>ARC</title>
-	<genmsxid>2865</genmsxid>
-	<system>MSX</system>
-	<company>Parallax</company>
-	<year>1990</year>
-	<country>NL</country>
-		<dump><megarom><type>Arc</type><hash>ac43445c9e0a097b6d8116017645fe96b054a111</hash><remark>Original, confirmed by dumps from 2 different sources</remark></megarom></dump>
-</software>
-<software>
 	<title>Arctic</title>
 	<genmsxid>1342</genmsxid>
 	<system>MSX</system>
@@ -682,7 +708,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Ashguine 2</title>
 	<genmsxid>883</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>efdf63f01293251dc593163a42f31556fd042282</hash></megarom></dump>
@@ -703,30 +729,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>GenericKonami</type><hash>32210a9cbbb51e30ff59ed44bf32e628fdf6c42c</hash></megarom></dump>
 		<dump><megarom><type>GenericKonami</type><hash>2e388978f765bc5fe1fa9a42e1f059de5053721d</hash><remark>Ulver crack</remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>7c7701eee4c5904cb325453b387e3674ee8db95a</hash></megarom></dump>
-</software>
-<software>
-	<title>ASM Cocar</title>
-	<system>MSX</system>
-	<company>MSX Informatica</company>
-	<year>1987</year>
-	<country>BR</country>
-		<dump><rom><hash>194ff03c3063a852c831b034fe215208802b64cf</hash></rom></dump>
-</software>
-<software>
-	<title>ASMSX Demo 1 - Fixed Point Arithmetic</title>
-	<system>MSX</system>
-	<company>Karoshi Corporation</company>
-	<year>2004</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>66acd2f8ef08dd4cb0dc7ef5176650fbf5828acf</hash></rom></dump>
-</software>
-<software>
-	<title>ASMSX Demo 2 - TV</title>
-	<system>MSX</system>
-	<company>Karoshi Corporation</company>
-	<year>2004</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>87eb1620474039740bfe0e7e3bea09085d85f247</hash></rom></dump>
 </software>
 <software>
 	<title>Astro Marine Corps</title>
@@ -793,6 +795,24 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII8</type><hash>7a155d6302a522372ba7a13962f053592fd49996</hash></megarom></dump>
 </software>
 <software>
+	<title>BASIC Nyuumon 1 - Basic Lessons</title>
+	<genmsxid>306</genmsxid>
+	<system>MSX</system>
+	<company>Casio</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>9f0cbb1191235ecca4985de976a0993744b57930</hash></rom></dump>
+</software>
+<software>
+	<title>BASIC Nyuumon 2 - Basic Lessons 2</title>
+	<genmsxid>638</genmsxid>
+	<system>MSX</system>
+	<company>Casio</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>01cf858888f5a0d3aee08f42a66c515ab0d06400</hash></rom></dump>
+</software>
+<software>
 	<title>Back To The Future</title>
 	<genmsxid>827</genmsxid>
 	<system>MSX</system>
@@ -805,6 +825,15 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Backgammon</title>
+	<genmsxid>2950</genmsxid>
+	<system>MSX</system>
+	<company>Electric Software</company>
+	<year>1984</year>
+	<country>UK</country>
+		<dump><rom><hash>363b5a8c94cdb63a7ee72b9d25f7b5053cab319a</hash></rom></dump>
+</software>
+<software>
+	<title>Backgammon</title>
 	<genmsxid>593</genmsxid>
 	<system>MSX</system>
 	<company>Tecno Soft</company>
@@ -812,15 +841,6 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>c345357e71d1b8f2c9663bf28abb5a3a2957d49f</hash><remark>[a1]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>2b8878609bcc0d1555ae250d621ba6e9df4afc52</hash></rom></dump>
-</software>
-<software>
-	<title>Backgammon</title>
-	<genmsxid>2950</genmsxid>
-	<system>MSX</system>
-	<company>Electric Software</company>
-	<year>1984</year>
-	<country>UK</country>
-		<dump><rom><hash>363b5a8c94cdb63a7ee72b9d25f7b5053cab319a</hash></rom></dump>
 </software>
 <software>
 	<title>Baduk</title>
@@ -844,7 +864,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>AG Software</company>
 	<year>2008</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>619a2d42263da74a723cceead5a19e0e0dd86c6f</hash><remark>MSX-DEV08</remark></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>BASIC</type><hash>619a2d42263da74a723cceead5a19e0e0dd86c6f</hash><remark>MSX-DEV08</remark></megarom></dump>
 </software>
 <software>
 	<title>Balance</title>
@@ -917,24 +937,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>f3dbd4bca83cb9edc364ca49d440f1642e1e2f20</hash></rom></dump>
 </software>
 <software>
-	<title>BASIC Nyuumon 1 - Basic Lessons</title>
-	<genmsxid>306</genmsxid>
-	<system>MSX</system>
-	<company>Casio</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>9f0cbb1191235ecca4985de976a0993744b57930</hash></rom></dump>
-</software>
-<software>
-	<title>BASIC Nyuumon 2 - Basic Lessons 2</title>
-	<genmsxid>638</genmsxid>
-	<system>MSX</system>
-	<company>Casio</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>01cf858888f5a0d3aee08f42a66c515ab0d06400</hash></rom></dump>
-</software>
-<software>
 	<title>Basic Tutor</title>
 	<system>MSX</system>
 	<company>Idea Logic</company>
@@ -988,13 +990,24 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Battle Ship Clapton 2</title>
 	<genmsxid>58</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1983</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>59bc608b1cb5bde2230bca0eb045cd6c58650774</hash></rom></dump>
 		<dump><rom><hash>8e2a2837c48bc8e2d2478043c728a4630982ba87</hash></rom></dump>
 		<dump><rom><hash>532037fd92f7f1d34a47767416ce5c979a0694ad</hash></rom></dump>
 		<dump><rom><hash>0f214ea9e8d673ee0c66cb6615032e57920d588b</hash><remark>[a]</remark></rom></dump>
+</software>
+<software>
+	<title>BeTiled!</title>
+	<system>MSX</system>
+	<company>CEZ Games Studio</company>
+	<year>2007</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>afe11b840b7bf0243b1c4f98309e274a3ddde35f</hash><remark>SCC supported / MSX-DEV07</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>8a3749af3d6ff88404df59da9d9ac7990bbc318d</hash><remark>SCC supported / MSX-DEV07</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>9267ea63e1d32095868eec1347a4eafbdfb5ef7e</hash><remark>Fixed - SCC supported / MSX-DEV07</remark></rom></dump>
+		<dump><rom><type>Normal</type><hash>3e219e8205a3a4867c307601683d96bc53ac4c8e</hash><remark>SCC supported / Retail</remark></rom></dump>
 </software>
 <software>
 	<title>Beach Head</title>
@@ -1041,20 +1054,20 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>a2de457567e87c794fba8e35c992eac352da78be</hash></rom></dump>
 </software>
 <software>
-	<title>Beepertron</title>
-	<system>MSX</system>
-	<company>Dioniso</company>
-	<year>2006</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash><remark>MSX-DEV06</remark></rom></dump>
-</software>
-<software>
 	<title>BeeZ</title>
 	<system>MSX</system>
 	<company>Darkstone</company>
 	<year>2006</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><rom><hash>bd44cc152851d9f3827fb304f3e4780ee607f896</hash><remark>MSX-DEV06</remark></rom></dump>
+</software>
+<software>
+	<title>Beepertron</title>
+	<system>MSX</system>
+	<company>Dioniso</company>
+	<year>2006</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash><remark>MSX-DEV06</remark></rom></dump>
 </software>
 <software>
 	<title>Bengan</title>
@@ -1071,17 +1084,6 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2010</year>
 	<country>NL</country>
 		<dump><megarom><type>HamarajaNight</type><hash>b30b17f28e3a3f981cc48102e5c58151ea3fb05c</hash></megarom></dump>
-</software>
-<software>
-	<title>BeTiled!</title>
-	<system>MSX</system>
-	<company>CEZ Games Studio</company>
-	<year>2007</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>afe11b840b7bf0243b1c4f98309e274a3ddde35f</hash><remark>SCC supported / MSX-DEV07</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>8a3749af3d6ff88404df59da9d9ac7990bbc318d</hash><remark>SCC supported / MSX-DEV07</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>9267ea63e1d32095868eec1347a4eafbdfb5ef7e</hash><remark>Fixed - SCC supported / MSX-DEV07</remark></rom></dump>
-		<dump><rom><type>Normal</type><hash>3e219e8205a3a4867c307601683d96bc53ac4c8e</hash><remark>SCC supported / Retail</remark></rom></dump>
 </software>
 <software>
 	<title>Bifamu</title>
@@ -1272,7 +1274,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>64781236e70cf5dd530a420305533ff55db0e4ad</hash></rom></dump>
 		<dump><rom><hash>8976f8b8ab2a82f626a73c781d0a21899ae68dae</hash><remark>[a]</remark></rom></dump>
 		<dump><rom><hash>2c0e3d130a1655617f9f80836f4b8b606f0774f2</hash><remark>[o]</remark></rom></dump>
-		<dump><rom><hash>b0d384ec10f59d201f346a3cd7eb31b9a80c28ca</hash><remark>Eric And The Floaters version</remark></rom></dump>
+		<dump><rom><hash>b0d384ec10f59d201f346a3cd7eb31b9a80c28ca</hash><remark>Eric And The Floaters version\r\n</remark></rom></dump>
 		<dump><rom><hash>1c6d69fbc7a8fea434b871bdd1aa7d816c48ac44</hash></rom></dump>
 		<dump><rom><hash>40217fbafa2af3bcf34f80dd215eee22d86d83ac</hash></rom></dump>
 		<dump><rom><hash>f54243e461cd8852fbe5e612bbe0ab71cf6ee524</hash></rom></dump>
@@ -1520,20 +1522,20 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Burger Time</title>
-	<system>MSX</system>
-	<company>Coleco</company>
-	<year>1982</year>
-	<country>US</country>
-		<dump><megarom><type>KonamiSCC</type><hash>ccf2bdb5cbdfae61d810a096ba48569e41873940</hash></megarom></dump>
-</software>
-<software>
-	<title>Burger Time</title>
 	<genmsxid>822</genmsxid>
 	<system>MSX</system>
 	<company>Radio Wave Newspaper Publisher Company</company>
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>ce1376941359471cae41887fe11f10d3b696a926</hash></rom></dump>
+</software>
+<software>
+	<title>Burger Time</title>
+	<system>MSX</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><megarom><type>KonamiSCC</type><hash>ccf2bdb5cbdfae61d810a096ba48569e41873940</hash></megarom></dump>
 </software>
 <software>
 	<title>Buru To Marty Kikiippatsu - Inspecteur Z</title>
@@ -1579,6 +1581,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>22183520d99924a4185c5572a3cf948f4f0f04b5</hash></rom></dump>
 		<dump><rom><hash>a84e89769160ea86bcd0e9a0ad2421e17eb1deaa</hash></rom></dump>
 		<dump><rom><hash>49a49a932754b6d59f1840b8b274c103aca10d11</hash></rom></dump>
+</software>
+<software>
+	<title>CMJN</title>
+	<system>MSX</system>
+	<company>Paulo Silva</company>
+	<year></year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>01135411960ef84cc93a56d15060c5edf4ed00bd</hash><remark>MSXDev2014 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Cabbage Patch Kids</title>
@@ -1762,7 +1772,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Caverns of Titan</title>
 	<system>MSX</system>
-	<company>Jos&#233; Luis Tur</company>
+	<company>José Luis Tur</company>
 	<year>2005</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>6aa9f75720bb38e410d751225d18e8985ab4d61f</hash></rom></dump>
@@ -1954,7 +1964,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Chuckie Egg</title>
 	<genmsxid>2660</genmsxid>
 	<system>MSX</system>
-	<company>A&#38;F Software</company>
+	<company>A&amp;F Software</company>
 	<year>1984</year>
 	<country>UK</country>
 		<dump><rom><hash>53ed25cf66a6ed4b432fa7e4f10a6730ce6923be</hash></rom></dump>
@@ -2001,14 +2011,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>92727e6ecc52dfeca071673f0d58e964746899d2</hash><remark>1st Version</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>59a124ed38869892496fc12f14af404a422e162a</hash><remark>2nd Version</remark></rom></dump>
 		<dump><rom><hash>fee6b1579f08ca6a7376cb6db44e7aaead237464</hash></rom></dump>
-</software>
-<software>
-	<title>CMJN</title>
-	<system>MSX</system>
-	<company>Paulo Silva</company>
-	<year></year>
-	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash>01135411960ef84cc93a56d15060c5edf4ed00bd</hash><remark>MSXDev2014 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Coaster Race</title>
@@ -2311,7 +2313,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Crazy MSX Frenchies</title>
 	<system>MSX</system>
-	<company>Jipe of the MSX Caf&#233;</company>
+	<company>Jipe of the MSX Café</company>
 	<year>2007</year>
 	<country>FR</country>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>484a21c62bde3eab537f394bc270ac7c1c557f7c</hash><remark>MSX-DEV07</remark></rom></dump>
@@ -2415,6 +2417,35 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>6eeead7af376794ddb549998ecac9668215eaf54</hash></rom></dump>
 </software>
 <software>
+	<title>DAQ Lord of Idar</title>
+	<system>MSX</system>
+	<company>Darkstone</company>
+	<year>2010</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><hash>9be7612db1f968455dcd0b115239efcb91474e91</hash><remark>MSXDev10 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>053c7ff78dce7c3b24250f64ca6b139182e14844</hash><remark>Flashrom Version / MSXDev10 Entry</remark></rom></dump>
+</software>
+<software>
+	<title>DX7 Voicing Program</title>
+	<genmsxid>219</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>20c24130b7a9d50b5cede80f1638b686c2778800</hash><remark>YRM-103 / (no disk support)</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>c20def84efe71efdf91df3100919d151b2e7bdc1</hash><remark>YRM-103 / Needs FM Sound Synthesizer Unit / no disk support</remark></rom></dump>
+</software>
+<software>
+	<title>DX7 Voicing Program II YRM-304</title>
+	<genmsxid>795</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>c79626eddf8bc390d64ada99ad6da32dfd52d086</hash></rom></dump>
+		<dump><rom><hash>265261c8fc05741437f53244699d0dded09f27f7</hash></rom></dump>
+</software>
+<software>
 	<title>Daedalian Opus</title>
 	<system>MSX</system>
 	<company>Karoshi Corporation</company>
@@ -2454,7 +2485,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Daiva Story 4</title>
 	<genmsxid>971</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>2418c0302abbce8b0f8556b63169c60a849f60ee</hash></megarom></dump>
@@ -2497,15 +2528,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><start>0x8000</start><type>Normal</type><hash>7c618058809302bc3553d6189bcf310f2e5b0e08</hash></rom></dump>
 		<dump><rom><start>0x8000</start><type>Normal</type><hash>50eafa5d735af5b34d14f9f6b8c2d9cd2f0441db</hash><remark>[a2]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash>6a4e8325d2174747d56cbe4c6803cbf40eb40a62</hash></rom></dump>
-</software>
-<software>
-	<title>DAQ Lord of Idar</title>
-	<system>MSX</system>
-	<company>Darkstone</company>
-	<year>2010</year>
-	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash>9be7612db1f968455dcd0b115239efcb91474e91</hash><remark>MSXDev10 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>053c7ff78dce7c3b24250f64ca6b139182e14844</hash><remark>Flashrom Version / MSXDev10 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Darwin 4078</title>
@@ -2724,14 +2746,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Donkey Kong</title>
-	<system>MSX</system>
-	<company>Coleco</company>
-	<year>1981</year>
-	<country>US</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>f90c58b78d46faac333e0560676473d48c03b5af</hash><remark>GDX Conversion</remark></megarom></dump>
-</software>
-<software>
-	<title>Donkey Kong</title>
 	<genmsxid>2918</genmsxid>
 	<system>MSX</system>
 	<company>Nintendo</company>
@@ -2739,6 +2753,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><megarom><type>GenericKonami</type><hash>86fdfe9e26d6e77f41cbcb47e10e2f32e5518549</hash><remark>[cr Dr. Jekyl and Mr. Hyde]</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>f503c092f96a26ca31620d79d3e4ac81e5ca69bd</hash></megarom></dump>
+</software>
+<software>
+	<title>Donkey Kong</title>
+	<system>MSX</system>
+	<company>Coleco</company>
+	<year>1981</year>
+	<country>US</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>f90c58b78d46faac333e0560676473d48c03b5af</hash><remark>GDX Conversion</remark></megarom></dump>
 </software>
 <software>
 	<title>Donkey Kong Jr.</title>
@@ -3101,26 +3123,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII16</type><hash>43ea1152883b57316fb0ebdd06472035fa753a7f</hash></megarom></dump>
 </software>
 <software>
-	<title>DX7 Voicing Program</title>
-	<genmsxid>219</genmsxid>
-	<system>MSX</system>
-	<company>YAMAHA</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><rom><hash>20c24130b7a9d50b5cede80f1638b686c2778800</hash><remark>YRM-103 / (no disk support)</remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>c20def84efe71efdf91df3100919d151b2e7bdc1</hash><remark>YRM-103 / Needs FM Sound Synthesizer Unit / no disk support</remark></rom></dump>
-</software>
-<software>
-	<title>DX7 Voicing Program II YRM-304</title>
-	<genmsxid>795</genmsxid>
-	<system>MSX</system>
-	<company>YAMAHA</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><rom><hash>c79626eddf8bc390d64ada99ad6da32dfd52d086</hash></rom></dump>
-		<dump><rom><hash>265261c8fc05741437f53244699d0dded09f27f7</hash></rom></dump>
-</software>
-<software>
 	<title>Dynamite Bowl - MSX1</title>
 	<genmsxid>3211</genmsxid>
 	<system>MSX</system>
@@ -3288,7 +3290,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>98f6769741a1c9df4fd203ed19d70b283c94e41a</hash></megarom></dump>
 </software>
 <software>
-	<title>Est&#225; en el Pantano</title>
+	<title>Est&#195;&#131;&#194;&#161; en el Pantano</title>
 	<system>MSX</system>
 	<company>RELEVO Videogames</company>
 	<year>2010</year>
@@ -3296,7 +3298,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>f1550e958a0664f5966568e2677c3a041ba940d5</hash><remark>RLV905</remark></rom></dump>
 </software>
 <software>
-	<title>Est&#225; en la Caja</title>
+	<title>Est&#195;&#131;&#194;&#161; en la Caja</title>
 	<system>MSX</system>
 	<company>RELEVO Videogames</company>
 	<year>2009</year>
@@ -3313,6 +3315,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash>475c3af7495922759a5f424d2e22d7e4073d5992</hash></megarom></dump>
 </software>
 <software>
+	<title>ExChess</title>
+	<system>MSX</system>
+	<company>GarlicSoft</company>
+	<year>2012</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>5d6861cfa10dd57315956e25a3c302a711605e44</hash><remark>MSXDev11 Entry</remark></rom></dump>
+</software>
+<software>
 	<title>Exchanger</title>
 	<genmsxid>107</genmsxid>
 	<system>MSX</system>
@@ -3322,14 +3332,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><start>0x8000</start><type>Normal</type><hash>b5b28f53b16d43742d9d7daf5ee7dcf74b80e6c8</hash><remark>[a]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash>ded8d969542b7be02524037fa244e6648c3f4e03</hash></rom></dump>
 		<dump><rom><start>0x8000</start><type>Normal</type><hash>a059f6fb5ffd3762010b9743518833499fe2205f</hash></rom></dump>
-</software>
-<software>
-	<title>ExChess</title>
-	<system>MSX</system>
-	<company>GarlicSoft</company>
-	<year>2012</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>5d6861cfa10dd57315956e25a3c302a711605e44</hash><remark>MSXDev11 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Exciting Jockey</title>
@@ -3404,7 +3406,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>F&#38;M Direct Assembler System</title>
 	<system>MSX</system>
-	<company>F&#38;M</company>
+	<company>F&amp;M</company>
 	<year>198x</year>
 	<country>SE</country>
 		<dump><rom><hash>39e858422a865af991f5dae97fbfbb3d7e1ca69a</hash></rom></dump>
@@ -3442,6 +3444,78 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>5c7a13b64b48065231f05c35b4c8b209534f3a8b</hash></rom></dump>
 		<dump><rom><hash>b11b93add30086ce00d2126252893700ca6fd82b</hash></rom></dump>
+</software>
+<software>
+	<title>FM Auto Arranger CMP-01</title>
+	<genmsxid>393</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><rom><hash>971da55e92167674628a12c443efc43bafcfb6b4</hash></rom></dump>
+		<dump><rom><hash>1f0cb04f1dad8943684423c69a11433279b76def</hash></rom></dump>
+</software>
+<software>
+	<title>FM Music Composer</title>
+	<genmsxid>110</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>337087199d58666029f00e08ca82b1917ab58c80</hash><remark>YRM-101</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>39c12004adb3442f2c43aade8a0be420d59eefb1</hash><remark>YRM-101 / Needs FM Sound Synthesizer Unit / No disk support</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>7c2743df543c0d8a4ba7e42bf7db580b996d102e</hash><remark>YRM-104 / Needs FM Sound Synthesizer Unit / No disk support</remark></rom></dump>
+</software>
+<software>
+	<title>FM Music Composer II</title>
+	<genmsxid>111</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>e60e2abf907b66f5b275c7b7b710439adae58d37</hash><remark>YRM-505 / Needs FM Sound Synthesizer Unit</remark></rom></dump>
+		<dump><rom><hash>24287956e5bfafc49335eadd16b457293e3e35e5</hash><remark>YRM-501</remark></rom></dump>
+</software>
+<software>
+	<title>FM Music Macro</title>
+	<genmsxid>112</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1986</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>e7c800fa576b3a9554836aa9c5eaa3ae893805d4</hash><remark>YRM-303 / YRM-303 Needs FMSound Synthesizer Unit</remark></rom></dump>
+		<dump><rom><hash>4a5cf6fffaa793eca8583ac8b2ba71bf993cccb4</hash><remark>YRM-303</remark></rom></dump>
+</software>
+<software>
+	<title>FM Music Macro II</title>
+	<genmsxid>339</genmsxid>
+	<system>MSX</system>
+	<company>Arrow Soft</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><rom><hash>f5e2e4aacd44739d3a0c1ea4ecb87da385ce89dc</hash><remark>YRM-504</remark></rom></dump>
+</software>
+<software>
+	<title>FM Voicing Program</title>
+	<genmsxid>396</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash>e4c8f3b87d755c21572040c51cec1431ae59a0be</hash><remark>YRM-102 / Needs FM Sound Synthesizer Unit / No disk support</remark></rom></dump>
+		<dump><megarom><type>Normal</type><hash>057238307d93a8c2cbb2a296b9dc2f4585315af1</hash><remark>YRM-102</remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>43dbcc9536fe61c8172eceeec1481778f7a2b9bd</hash><remark>YRM-506 / Needs FM Sound Synthesizer Unit / FB-01</remark></rom></dump>
+</software>
+<software>
+	<title>FM Voicing Program II YRM-502</title>
+	<genmsxid>397</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><megarom><type>Normal</type><hash>2a4b4a4657e3077df8a88f98210b76883d3702b1</hash></megarom></dump>
+		<dump><megarom><type>Normal</type><hash>7b1798561ee1844a7d6432924fbee9b4fc591c19</hash></megarom></dump>
+		<dump><megarom><type>Normal</type><hash>30747a56f45389be76362f7fc55d673f1bff8312</hash></megarom></dump>
 </software>
 <software>
 	<title>Fa Tetris</title>
@@ -3782,78 +3856,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>5ff0ca4d961c5e674d0a10f808515136751513f6</hash></rom></dump>
 </software>
 <software>
-	<title>FM Auto Arranger CMP-01</title>
-	<genmsxid>393</genmsxid>
-	<system>MSX</system>
-	<company>YAMAHA</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><rom><hash>971da55e92167674628a12c443efc43bafcfb6b4</hash></rom></dump>
-		<dump><rom><hash>1f0cb04f1dad8943684423c69a11433279b76def</hash></rom></dump>
-</software>
-<software>
-	<title>FM Music Composer</title>
-	<genmsxid>110</genmsxid>
-	<system>MSX</system>
-	<company>YAMAHA</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><rom><hash>337087199d58666029f00e08ca82b1917ab58c80</hash><remark>YRM-101</remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>39c12004adb3442f2c43aade8a0be420d59eefb1</hash><remark>YRM-101 / Needs FM Sound Synthesizer Unit / No disk support</remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>7c2743df543c0d8a4ba7e42bf7db580b996d102e</hash><remark>YRM-104 / Needs FM Sound Synthesizer Unit / No disk support</remark></rom></dump>
-</software>
-<software>
-	<title>FM Music Composer II</title>
-	<genmsxid>111</genmsxid>
-	<system>MSX</system>
-	<company>YAMAHA</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>e60e2abf907b66f5b275c7b7b710439adae58d37</hash><remark>YRM-505 / Needs FM Sound Synthesizer Unit</remark></rom></dump>
-		<dump><rom><hash>24287956e5bfafc49335eadd16b457293e3e35e5</hash><remark>YRM-501</remark></rom></dump>
-</software>
-<software>
-	<title>FM Music Macro</title>
-	<genmsxid>112</genmsxid>
-	<system>MSX</system>
-	<company>YAMAHA</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>e7c800fa576b3a9554836aa9c5eaa3ae893805d4</hash><remark>YRM-303 / YRM-303 Needs FMSound Synthesizer Unit</remark></rom></dump>
-		<dump><rom><hash>4a5cf6fffaa793eca8583ac8b2ba71bf993cccb4</hash><remark>YRM-303</remark></rom></dump>
-</software>
-<software>
-	<title>FM Music Macro II</title>
-	<genmsxid>339</genmsxid>
-	<system>MSX</system>
-	<company>Arrow Soft</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><rom><hash>f5e2e4aacd44739d3a0c1ea4ecb87da385ce89dc</hash><remark>YRM-504</remark></rom></dump>
-</software>
-<software>
-	<title>FM Voicing Program</title>
-	<genmsxid>396</genmsxid>
-	<system>MSX</system>
-	<company>YAMAHA</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash>e4c8f3b87d755c21572040c51cec1431ae59a0be</hash><remark>YRM-102 / Needs FM Sound Synthesizer Unit / No disk support</remark></rom></dump>
-		<dump><megarom><type>Normal</type><hash>057238307d93a8c2cbb2a296b9dc2f4585315af1</hash><remark>YRM-102</remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>43dbcc9536fe61c8172eceeec1481778f7a2b9bd</hash><remark>YRM-506 / Needs FM Sound Synthesizer Unit / FB-01</remark></rom></dump>
-</software>
-<software>
-	<title>FM Voicing Program II YRM-502</title>
-	<genmsxid>397</genmsxid>
-	<system>MSX</system>
-	<company>YAMAHA</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><megarom><type>Normal</type><hash>2a4b4a4657e3077df8a88f98210b76883d3702b1</hash></megarom></dump>
-		<dump><megarom><type>Normal</type><hash>7b1798561ee1844a7d6432924fbee9b4fc591c19</hash></megarom></dump>
-		<dump><megarom><type>Normal</type><hash>30747a56f45389be76362f7fc55d673f1bff8312</hash></megarom></dump>
-</software>
-<software>
 	<title>Formation Z</title>
 	<genmsxid>623</genmsxid>
 	<system>MSX</system>
@@ -3869,7 +3871,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>robylu</company>
 	<year>2009</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>5c3ccb1681fbf63ebe318d05616eebace91b5ed9</hash></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>BASIC</type><hash>5c3ccb1681fbf63ebe318d05616eebace91b5ed9</hash></megarom></dump>
 </software>
 <software>
 	<title>Four battle Mah-jong</title>
@@ -3982,6 +3984,17 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>affc4dcc0b2c8846202cd99a2f0ef27fc705d96d</hash></rom></dump>
 </software>
 <software>
+	<title>GP World</title>
+	<genmsxid>496</genmsxid>
+	<system>MSX</system>
+	<company>Sega</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>eadf124b91b996b890b1ae84b75b21ee6568d1f3</hash></rom></dump>
+		<dump><rom><hash>dc49e2ac9985a417078412cc09fe7270033ffb17</hash></rom></dump>
+		<dump><rom><hash>e25401f0423cf11e62c955b47887cc3e036f087d</hash></rom></dump>
+</software>
+<software>
 	<title>Gakuen Monogatari - High School Story</title>
 	<genmsxid>1086</genmsxid>
 	<system>MSX</system>
@@ -4011,14 +4024,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Galaxian</title>
-	<system>MSX</system>
-	<company>Atari</company>
-	<year>1983</year>
-	<country>US</country>
-		<dump><megarom><type>KonamiSCC</type><hash>356c2ae4fc06a73449283146332b3a3d7f5fb2fc</hash><remark>Conversion by GDX</remark></megarom></dump>
-</software>
-<software>
-	<title>Galaxian</title>
 	<genmsxid>142</genmsxid>
 	<system>MSX</system>
 	<company>NAMCO</company>
@@ -4032,6 +4037,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>d357b635ae007609718d21f0e22ea486f4eac2bd</hash></rom></dump>
 		<dump><rom><hash>307f5680290a88400126010ab26cbc87fb85913c</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>a2816649eac034d3b068678860ace2b94d4c1def</hash><remark>GDX SCC Version</remark></megarom></dump>
+</software>
+<software>
+	<title>Galaxian</title>
+	<system>MSX</system>
+	<company>Atari</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><megarom><type>KonamiSCC</type><hash>356c2ae4fc06a73449283146332b3a3d7f5fb2fc</hash><remark>Conversion by GDX</remark></megarom></dump>
 </software>
 <software>
 	<title>Gall Force - Defence Of Chaos</title>
@@ -4427,17 +4440,6 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>8bd874aa854cc26d7fc48e7d2de60dbbee681721</hash><remark>[a1]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>d6b6cb3d85b991f8adf2e07a0e8e74b586741d12</hash></rom></dump>
-</software>
-<software>
-	<title>GP World</title>
-	<genmsxid>496</genmsxid>
-	<system>MSX</system>
-	<company>Sega</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>eadf124b91b996b890b1ae84b75b21ee6568d1f3</hash></rom></dump>
-		<dump><rom><hash>dc49e2ac9985a417078412cc09fe7270033ffb17</hash></rom></dump>
-		<dump><rom><hash>e25401f0423cf11e62c955b47887cc3e036f087d</hash></rom></dump>
 </software>
 <software>
 	<title>GraCo</title>
@@ -5204,7 +5206,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Hydlide 1</title>
 	<genmsxid>577</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>9dcb43b654a08de2c52147f4a2e628b5fe3761c8</hash></rom></dump>
@@ -5214,7 +5216,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Hydlide 2 - Shine Of Darkness</title>
 	<genmsxid>825</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16SRAM2</type><hash>da4b44c734029f60388b7cea4ab97c3d5c6a09e9</hash></megarom></dump>
@@ -5228,7 +5230,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Hydlide 3 - The Space Memories MSX1 Version</title>
 	<genmsxid>991</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>74e9ea381e2fed07d989d1056002de5737125aaf</hash></megarom></dump>
@@ -5237,7 +5239,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Hydlide 3 - The Space Memories MSX2 Version</title>
 	<genmsxid>992</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>f182d4785e3eed00292f7ff4795c9dcc6c990a0a</hash></megarom></dump>
@@ -5362,6 +5364,15 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2006</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>a53610adcf84bdb1b84d94d4c6d1f0a7d45e9ddd</hash><remark>MSX-DEV06</remark></rom></dump>
+</software>
+<software>
+	<title>INK - Exxon Surfing</title>
+	<genmsxid>3605</genmsxid>
+	<system>MSX</system>
+	<company>Matra</company>
+	<year>2005</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><type>MatraInk</type><hash>df505aecddb20171cafd06351e0b7d208365e708</hash></rom></dump>
 </software>
 <software>
 	<title>Ibn Maleck</title>
@@ -5508,16 +5519,15 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1991</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash>0cc6c30c6918fcf780e57d40f58a4cf2a82225cd</hash></megarom></dump>
-		<dump><megarom><type>KoeiSRAM32</type><hash>97f2cc1cd4c51dc20b86cd190016b8f0c006a968</hash></megarom></dump>
 </software>
 <software>
-	<title>INK - Exxon Surfing</title>
-	<genmsxid>3605</genmsxid>
+	<title>Inindo Tado Nobunaga</title>
+	<genmsxid>1545</genmsxid>
 	<system>MSX</system>
-	<company>Matra</company>
-	<year>2005</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><type>MatraInk</type><hash>df505aecddb20171cafd06351e0b7d208365e708</hash></rom></dump>
+	<company>KOEI</company>
+	<year>1991</year>
+	<country>JP</country>
+		<dump><megarom><type>KoeiSRAM32</type><hash>97f2cc1cd4c51dc20b86cd190016b8f0c006a968</hash></megarom></dump>
 </software>
 <software>
 	<title>Intruder + SCC PCM Replayer</title>
@@ -5812,15 +5822,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>4e09d61162c3dd957d59ece0aa5d7222294b5c5a</hash><remark>muffie conversion (beta)</remark></rom></dump>
 </software>
 <software>
-	<title>junior high school english grammar</title>
-	<genmsxid>217</genmsxid>
-	<system>MSX</system>
-	<company>Stratford Computer Center</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>20ce189d670c0fe5f2a945d73107df7d83070ff7</hash></rom></dump>
-</software>
-<software>
 	<title>Juno First</title>
 	<genmsxid>177</genmsxid>
 	<system>MSX</system>
@@ -5926,7 +5927,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Konami</company>
 	<year>1984</year>
 	<country>JP</country>
-		<dump><rom><type>Keyboardmaster</type><hash>2308dd0f15fb5395a1d8a08489daff65ead8e0f2</hash><remark>the _voice ROM should always be with the ROM image</remark></rom></dump>
+		<dump><rom><hash>2308dd0f15fb5395a1d8a08489daff65ead8e0f2</hash><remark>the _voice ROM should always be with the ROM image</remark></rom></dump>
 		<dump><rom><start>0x4000</start><type>Normal</type><hash>4f36d139ee4baa7d5980f765de9895570ee05f40</hash><remark>the _voice ROM should always be with the ROM image</remark></rom></dump>
 </software>
 <software>
@@ -6008,8 +6009,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>c6d2aa3e7303e0e2244256bfcfc113bafe2d6b59</hash><remark>[RC-745]</remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash>2b4c386a56dddd2a3354bdf1a0041d3faa0ccc72</hash><remark>[RC-745] / English Translation</remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash>e178917d1974ac85fd58cb93b936eb9a6f44ba0d</hash><remark>[RC-745] / English Translation</remark></megarom></dump>
-		<dump><original value="false">translated</original><megarom><type>Konami</type><hash>502d7cf7bc2595af6f83bb2b95baa4db5b0f6a4d</hash><remark>[RC-745] / English Translation \ cheat version</remark></megarom></dump>
-		<dump><original value="false">translated</original><megarom><type>Konami</type><hash>de2349227d765db73cdc44efc6338f6b530eb133</hash><remark>[RC-745] / English Translation \ Ulver crack</remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash>502d7cf7bc2595af6f83bb2b95baa4db5b0f6a4d</hash><remark>[RC-745] / English Translation \\ cheat version</remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash>de2349227d765db73cdc44efc6338f6b530eb133</hash><remark>[RC-745] / English Translation \\ Ulver crack</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>a5963fa6c95fbe34482862b0f7221b7766e3a194</hash><remark>[RC-745]</remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash>bd9852ea114e8b8ff781115d1d6e6da6f8dfafff</hash><remark>[RC-745] / English Translation</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>65a5bda34d1e1b22cfa697e4e7fdf1829cf2238d</hash><remark>[RC-745]</remark></megarom></dump>
@@ -6131,7 +6132,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Knight&#39;08</title>
 	<system>MSX</system>
-	<company>Jos&#39;b</company>
+	<company>Jos'b</company>
 	<year>2008</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>0f298581b85e838c1fbaa24273d292217f81662c</hash></megarom></dump>
@@ -6139,7 +6140,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Knightlore Remake</title>
 	<system>MSX</system>
-	<company>Manuel Pazos &#38; LordFred</company>
+	<company>Manuel Pazos &amp; LordFred</company>
 	<year>2009</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>d4a188a7ee514c18dc65f3c6dea7668b6cedc374</hash></rom></dump>
@@ -6374,10 +6375,10 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Konami</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><type>Synthesizer</type><hash>2feff37d593683ce1c7dfac33ed3207895e01a03</hash><remark>[RC-741]</remark></rom></dump>
-		<dump><rom><type>Synthesizer</type><hash>6a7faa122454ba34cbdb9f1a75a111a1a4763a56</hash><remark>[RC-741][b]</remark></rom></dump>
-		<dump><rom><type>Synthesizer</type><hash>f25c416869372ac07abefad131fc732dfbe33a45</hash><remark>[RC-741] / Sample Version</remark></rom></dump>
-		<dump><rom><type>Synthesizer</type><hash>73a40e7d6da2bc8489297fd57b7b93b2aa5a6440</hash><remark>[RC-741]</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Synthesizer</type><type>Synthesizer</type><hash>2feff37d593683ce1c7dfac33ed3207895e01a03</hash><remark>[RC-741]</remark></megarom></dump>
+		<dump><megarom><type>Synthesizer</type><type>Synthesizer</type><hash>6a7faa122454ba34cbdb9f1a75a111a1a4763a56</hash><remark>[RC-741][b]</remark></megarom></dump>
+		<dump><megarom><type>Synthesizer</type><type>Synthesizer</type><hash>f25c416869372ac07abefad131fc732dfbe33a45</hash><remark>[RC-741] / Sample Version</remark></megarom></dump>
+		<dump><megarom><type>Synthesizer</type><type>Synthesizer</type><hash>73a40e7d6da2bc8489297fd57b7b93b2aa5a6440</hash><remark>[RC-741]</remark></megarom></dump>
 </software>
 <software>
 	<title>Konami&#39;s Tennis</title>
@@ -6601,7 +6602,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Leila K</title>
 	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions</company>
+	<company>DVIK &amp; Joyrex productions</company>
 	<year>2008</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>e4401a78869ffa879a55f239e5da4990cb6797a6</hash><remark>Sound Demo - Please run on msx2 for good graphics</remark></megarom></dump>
@@ -6610,7 +6611,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Leonard</title>
 	<genmsxid>3224</genmsxid>
 	<system>MSX</system>
-	<company>Mind Games Espa&#241;a</company>
+	<company>Mind Games España</company>
 	<year>1986</year>
 	<country>ES</country>
 		<dump><rom><hash>3103f0170bae627bdeb77108e0e782284e4581c9</hash><remark>Mindgames Espana S.A.</remark></rom></dump>
@@ -6727,7 +6728,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Lotus F3</title>
 	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions</company>
+	<company>DVIK &amp; Joyrex productions</company>
 	<year>2007</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash>0f2c5a7c6cc9ff591c911e4f3f204e425bd3cf50</hash><remark>MSX-DEV07</remark></megarom></dump>
@@ -6756,11 +6757,236 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>M.A.Z.E</title>
 	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions</company>
+	<company>DVIK &amp; Joyrex productions</company>
 	<year>2008</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><rom><hash>e738a8e4e09b508167b552e9e4350c041ca68c20</hash><remark>2kbos entry</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>763a0c9e1f2f847d79e60da4c6251ce0ad80cb70</hash></rom></dump>
+</software>
+<software>
+	<title>MIDI Recorder YRM-301</title>
+	<genmsxid>662</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1986</year>
+	<country>JP</country>
+		<dump><rom><hash>0e24c5c4f16d5f9564d1bcbf29e4187cb6ad9701</hash></rom></dump>
+		<dump><rom><hash>6ad2c394f8e3ace4c30c7b751fc2cf2c78f47bb4</hash></rom></dump>
+</software>
+<software>
+	<title>MSX Baseball 1</title>
+	<genmsxid>272</genmsxid>
+	<system>MSX</system>
+	<company>Panasoft</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>b00fde7473740966c0713ed2e6043b2cd6d9262b</hash></rom></dump>
+		<dump><rom><hash>158cc62b46b51016194176fd805e767c2ad3dc6c</hash><remark>[b]</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>76d488497d9ba54b302a4326f45909f643bdcd7a</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>85a3842eabac50c4e1332666c161541be3508249</hash></rom></dump>
+</software>
+<software>
+	<title>MSX Baseball 2</title>
+	<genmsxid>830</genmsxid>
+	<system>MSX</system>
+	<company>Panasoft</company>
+	<year>1986</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>ac150939558ec4e56446be9502177f28a29881eb</hash></rom></dump>
+</software>
+<software>
+	<title>MSX Derby</title>
+	<genmsxid>11</genmsxid>
+	<system>MSX</system>
+	<company>ASCII</company>
+	<year>1983</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash>c1c350c719236af5eef8798c4532351befcfd348</hash></rom></dump>
+</software>
+<software>
+	<title>MSX Eiwa Jiten</title>
+	<system>MSX</system>
+	<company>Eng-Jap Dictionary</company>
+	<year>1988</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>473bc0ea85ed1b218974796d819416e711ac193f</hash><remark>Hi-Score</remark></megarom></dump>
+</software>
+<software>
+	<title>MSX Home Writer</title>
+	<genmsxid>267</genmsxid>
+	<system>MSX</system>
+	<company>Sony</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><rom><hash>cc06d65a9aba634e3ad75675b960140932506ffe</hash></rom></dump>
+</software>
+<software>
+	<title>MSX Rugby</title>
+	<genmsxid>596</genmsxid>
+	<system>MSX</system>
+	<company>Panasoft</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>35abd4a14033710730da72edf278aad42d641621</hash></rom></dump>
+		<dump><rom><hash>3d107526c16ebbd43bb0e9e5be030531d5466ab0</hash></rom></dump>
+</software>
+<software>
+	<title>MSX Shogi Game</title>
+	<genmsxid>403</genmsxid>
+	<system>MSX</system>
+	<company>Alpha Denshi</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>299e52dfbbb94ace4fd1ef59ece45364ce0bb450</hash></rom></dump>
+		<dump><rom><hash>910acb8a6cc7fc4857fcbaf6a5fb9561cd6b5097</hash></rom></dump>
+		<dump><rom><hash>166f4a8d0f8f6faf23e55120dc8b238b9a1b134a</hash></rom></dump>
+</software>
+<software>
+	<title>MSX Soccer</title>
+	<genmsxid>595</genmsxid>
+	<system>MSX</system>
+	<company>Panasoft</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>d2aa1605a6b56c118e18b385ab879536d74cc355</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>c76ca96ed23621a6267d9906cc4a1ee428677f98</hash><remark>[a1]</remark></rom></dump>
+		<dump><rom><hash>556071f03bfddef1bc84ae311ba286ad849868ad</hash></rom></dump>
+</software>
+<software>
+	<title>MSX Swimming Game</title>
+	<system>MSX</system>
+	<company>Unknown</company>
+	<year>19xx</year>
+	<country></country>
+		<dump><rom><hash>a3a502afd3e65b1605260b3739b196f6fd0931e2</hash></rom></dump>
+</software>
+<software>
+	<title>MSX Unleashed</title>
+	<genmsxid>3462</genmsxid>
+	<system>MSX</system>
+	<company>DVIK &amp; Joyrex productions</company>
+	<year>2006</year>
+	<country>US</country>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>5d55fc272184d160af6318855c9d2f728b3f25c0</hash><remark>Demo</remark></megarom></dump>
+</software>
+<software>
+	<title>MSX Wars: Scorched Battles</title>
+	<system>MSX</system>
+	<company>The Pets Mode</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>1a3b400513ac85a8f0dffb2a602a9fc7cdec10c1</hash><remark>Konamito 2010 Basic Contest Entry</remark></rom></dump>
+</software>
+<software>
+	<title>MSX-Aid</title>
+	<genmsxid>718</genmsxid>
+	<system>MSX</system>
+	<company>ASCII</company>
+	<year>1987</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>d4edb2af4170fd4069960ad61d3f664462bef568</hash></rom></dump>
+</software>
+<software>
+	<title>MSX-FAN Fandom Library 1</title>
+	<genmsxid>1780</genmsxid>
+	<system>MSX</system>
+	<company>Tokuma Shoten Publishing Co., Ltd.</company>
+	<year>1988</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>8557dcdb4cf1e15180d17acc8e6d515bf7bf7e7c</hash></megarom></dump>
+</software>
+<software>
+	<title>MSX-FAN Fandom Library 2</title>
+	<genmsxid>1995</genmsxid>
+	<system>MSX</system>
+	<company>Tokuma Shoten Publishing Co., Ltd.</company>
+	<year>1988</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>7752b6624fb80d9499aaad28dd5776ec74565576</hash><remark>MSX1 Mode</remark></megarom></dump>
+</software>
+<software>
+	<title>MSX-FAN Fandom Library 3</title>
+	<genmsxid>1996</genmsxid>
+	<system>MSX</system>
+	<company>Tokuma Shoten Publishing Co., Ltd.</company>
+	<year>1988</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>c2f4df1bd91f7dee1536774b9d7089086b9bf835</hash><remark>MSX1 Mode</remark></megarom></dump>
+		<dump><rom><hash>e45ddc5bf1a1e63756d11fb43fc50276ca35cab0</hash></rom></dump>
+		<dump><rom><hash>c07f47c59f83038c16d6d5052aaf6c271bff4334</hash></rom></dump>
+		<dump><rom><hash>4141eb7540003f4abd31dee14fa1ee8be1b01a97</hash></rom></dump>
+</software>
+<software>
+	<title>MSX-Logo</title>
+	<genmsxid>724</genmsxid>
+	<system>MSX</system>
+	<company>Promotic International</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><rom><hash>47663f883f98ab9ddaa0bf0c2831c567919f56f1</hash><remark>Logo Computer Systems Inc.</remark></rom></dump>
+</software>
+<software>
+	<title>MSX-Modem TM-2 + Videotexto</title>
+	<system>MSX</system>
+	<company>Gradiente</company>
+	<year>1989</year>
+	<country>BR</country>
+		<dump><rom><hash>2b80f46d1c40aede85a60e53ddcfcc0cbb6d6d5b</hash></rom></dump>
+		<dump><rom><hash>6de80e863cdd7856ab7aac4c238224a5352bda3b</hash></rom></dump>
+</software>
+<software>
+	<title>MSX-PLAN</title>
+	<genmsxid>719</genmsxid>
+	<system>MSX</system>
+	<company>Microsoft</company>
+	<year>1986</year>
+	<country>US</country>
+		<dump><rom><hash>61d99816055858b3bcde3416eed30fd86390393d</hash></rom></dump>
+</software>
+<software>
+	<title>MSX-VTX Datagame</title>
+	<system>MSX</system>
+	<company>Unknown</company>
+	<year>19xx</year>
+	<country></country>
+		<dump><rom><hash>08524fbea56885120124fbeeb6e47bc07aea4c30</hash></rom></dump>
+</software>
+<software>
+	<title>MSX21</title>
+	<genmsxid>12</genmsxid>
+	<system>MSX</system>
+	<company>ASCII</company>
+	<year>1983</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash>ca05a183f4e7e56102706d1b9b852ad4350264ba</hash></rom></dump>
+</software>
+<software>
+	<title>MT-Base</title>
+	<genmsxid>2074</genmsxid>
+	<system>MSX</system>
+	<company>Micro Technology</company>
+	<year>1987</year>
+	<country>NL</country>
+		<dump><rom><hash>4c921e31137d167976fb654e03d36ef133701936</hash><remark>[cr Speedy-Hacking No]</remark></rom></dump>
+		<dump><rom><hash>7439f276169555293c367ba692fb644d9ff58058</hash></rom></dump>
+</software>
+<software>
+	<title>MT-Debug</title>
+	<genmsxid>2079</genmsxid>
+	<system>MSX</system>
+	<company>Micro Technology</company>
+	<year>1985</year>
+	<country>NL</country>
+		<dump><rom><hash>5dacde48fed402b1ce9d0a41b2c126417bf5436b</hash></rom></dump>
+</software>
+<software>
+	<title>MT-Display</title>
+	<genmsxid>2519</genmsxid>
+	<system>MSX</system>
+	<company>Micro Technology</company>
+	<year>19xx</year>
+	<country>NL</country>
+		<dump><rom><hash>32c06b6247a40863458481df60a8111551dbaefb</hash></rom></dump>
 </software>
 <software>
 	<title>Mac Attack</title>
@@ -7124,7 +7350,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Maziacs</title>
 	<genmsxid>3222</genmsxid>
 	<system>MSX</system>
-	<company>DK&#180;Tronics</company>
+	<company>DK´Tronics</company>
 	<year>1985</year>
 	<country>UK</country>
 		<dump><rom><hash>7f26383fc61af7beb0176a64eb936bccee0d7a3b</hash></rom></dump>
@@ -7133,7 +7359,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Mecha 8</title>
 	<system>MSX</system>
-	<company>Oscar Toledo Guti&#233;rrez</company>
+	<company>Oscar Toledo Gutiérrez</company>
 	<year>2012</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>42d4cd136018252bffa0af09115fe9613c94118b</hash><remark>MSXDev11 Entry</remark></rom></dump>
@@ -7312,16 +7538,6 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>abeccfe49a6874702d65eb4d06a970d8fcf55123</hash></megarom></dump>
 		<dump><rom><hash>70b5bcd6c3fb0eab8b500d93a16dfa3f7e6694e8</hash></rom></dump>
-</software>
-<software>
-	<title>MIDI Recorder YRM-301</title>
-	<genmsxid>662</genmsxid>
-	<system>MSX</system>
-	<company>YAMAHA</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><rom><hash>0e24c5c4f16d5f9564d1bcbf29e4187cb6ad9701</hash></rom></dump>
-		<dump><rom><hash>6ad2c394f8e3ace4c30c7b751fc2cf2c78f47bb4</hash></rom></dump>
 </software>
 <software>
 	<title>Midnight Brothers</title>
@@ -7732,221 +7948,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><sccpluscart><boot>scc</boot><hash>168d59fca3170f56858f39d0b53067c0c0d414a8</hash><remark>SCC Version / MSX-DEV07</remark></sccpluscart></dump>
 </software>
 <software>
-	<title>MSX Baseball 1</title>
-	<genmsxid>272</genmsxid>
-	<system>MSX</system>
-	<company>Panasoft</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><rom><hash>b00fde7473740966c0713ed2e6043b2cd6d9262b</hash></rom></dump>
-		<dump><rom><hash>158cc62b46b51016194176fd805e767c2ad3dc6c</hash><remark>[b]</remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>76d488497d9ba54b302a4326f45909f643bdcd7a</hash></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>85a3842eabac50c4e1332666c161541be3508249</hash></rom></dump>
-</software>
-<software>
-	<title>MSX Baseball 2</title>
-	<genmsxid>830</genmsxid>
-	<system>MSX</system>
-	<company>Panasoft</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>ac150939558ec4e56446be9502177f28a29881eb</hash></rom></dump>
-</software>
-<software>
-	<title>MSX Derby</title>
-	<genmsxid>11</genmsxid>
-	<system>MSX</system>
-	<company>ASCII</company>
-	<year>1983</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash>c1c350c719236af5eef8798c4532351befcfd348</hash></rom></dump>
-</software>
-<software>
-	<title>MSX Eiwa Jiten</title>
-	<system>MSX</system>
-	<company>Eng-Jap Dictionary</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>473bc0ea85ed1b218974796d819416e711ac193f</hash><remark>Hi-Score</remark></megarom></dump>
-</software>
-<software>
-	<title>MSX Home Writer</title>
-	<genmsxid>267</genmsxid>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><rom><hash>cc06d65a9aba634e3ad75675b960140932506ffe</hash></rom></dump>
-</software>
-<software>
-	<title>MSX Rugby</title>
-	<genmsxid>596</genmsxid>
-	<system>MSX</system>
-	<company>Panasoft</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>35abd4a14033710730da72edf278aad42d641621</hash></rom></dump>
-		<dump><rom><hash>3d107526c16ebbd43bb0e9e5be030531d5466ab0</hash></rom></dump>
-</software>
-<software>
-	<title>MSX Shogi Game</title>
-	<genmsxid>403</genmsxid>
-	<system>MSX</system>
-	<company>Alpha Denshi</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>299e52dfbbb94ace4fd1ef59ece45364ce0bb450</hash></rom></dump>
-		<dump><rom><hash>910acb8a6cc7fc4857fcbaf6a5fb9561cd6b5097</hash></rom></dump>
-		<dump><rom><hash>166f4a8d0f8f6faf23e55120dc8b238b9a1b134a</hash></rom></dump>
-</software>
-<software>
-	<title>MSX Soccer</title>
-	<genmsxid>595</genmsxid>
-	<system>MSX</system>
-	<company>Panasoft</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>d2aa1605a6b56c118e18b385ab879536d74cc355</hash></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>c76ca96ed23621a6267d9906cc4a1ee428677f98</hash><remark>[a1]</remark></rom></dump>
-		<dump><rom><hash>556071f03bfddef1bc84ae311ba286ad849868ad</hash></rom></dump>
-</software>
-<software>
-	<title>MSX Swimming Game</title>
-	<system>MSX</system>
-	<company>Unknown</company>
-	<year>19xx</year>
-	<country></country>
-		<dump><rom><hash>a3a502afd3e65b1605260b3739b196f6fd0931e2</hash></rom></dump>
-</software>
-<software>
-	<title>MSX Unleashed</title>
-	<genmsxid>3462</genmsxid>
-	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions</company>
-	<year>2006</year>
-	<country>US</country>
-		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>5d55fc272184d160af6318855c9d2f728b3f25c0</hash><remark>Demo</remark></megarom></dump>
-</software>
-<software>
-	<title>MSX Wars: Scorched Battles</title>
-	<system>MSX</system>
-	<company>The Pets Mode</company>
-	<year>2010</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>1a3b400513ac85a8f0dffb2a602a9fc7cdec10c1</hash><remark>Konamito 2010 Basic Contest Entry</remark></rom></dump>
-</software>
-<software>
-	<title>MSX-Aid</title>
-	<genmsxid>718</genmsxid>
-	<system>MSX</system>
-	<company>ASCII</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>d4edb2af4170fd4069960ad61d3f664462bef568</hash></rom></dump>
-</software>
-<software>
-	<title>MSX-FAN Fandom Library 1</title>
-	<genmsxid>1780</genmsxid>
-	<system>MSX</system>
-	<company>Tokuma Shoten Publishing Co., Ltd.</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>8557dcdb4cf1e15180d17acc8e6d515bf7bf7e7c</hash></megarom></dump>
-</software>
-<software>
-	<title>MSX-FAN Fandom Library 2</title>
-	<genmsxid>1995</genmsxid>
-	<system>MSX</system>
-	<company>Tokuma Shoten Publishing Co., Ltd.</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>7752b6624fb80d9499aaad28dd5776ec74565576</hash><remark>MSX1 Mode</remark></megarom></dump>
-</software>
-<software>
-	<title>MSX-FAN Fandom Library 3</title>
-	<genmsxid>1996</genmsxid>
-	<system>MSX</system>
-	<company>Tokuma Shoten Publishing Co., Ltd.</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>c2f4df1bd91f7dee1536774b9d7089086b9bf835</hash><remark>MSX1 Mode</remark></megarom></dump>
-		<dump><rom><hash>e45ddc5bf1a1e63756d11fb43fc50276ca35cab0</hash></rom></dump>
-		<dump><rom><hash>c07f47c59f83038c16d6d5052aaf6c271bff4334</hash></rom></dump>
-		<dump><rom><hash>4141eb7540003f4abd31dee14fa1ee8be1b01a97</hash></rom></dump>
-</software>
-<software>
-	<title>MSX-Logo</title>
-	<genmsxid>724</genmsxid>
-	<system>MSX</system>
-	<company>Promotic International</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><rom><hash>47663f883f98ab9ddaa0bf0c2831c567919f56f1</hash><remark>Logo Computer Systems Inc.</remark></rom></dump>
-</software>
-<software>
-	<title>MSX-Modem TM-2 + Videotexto</title>
-	<system>MSX</system>
-	<company>Gradiente</company>
-	<year>1989</year>
-	<country>BR</country>
-		<dump><rom><hash>2b80f46d1c40aede85a60e53ddcfcc0cbb6d6d5b</hash></rom></dump>
-		<dump><rom><hash>6de80e863cdd7856ab7aac4c238224a5352bda3b</hash></rom></dump>
-</software>
-<software>
-	<title>MSX-PLAN</title>
-	<genmsxid>719</genmsxid>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>US</country>
-		<dump><rom><hash>61d99816055858b3bcde3416eed30fd86390393d</hash></rom></dump>
-</software>
-<software>
-	<title>MSX-VTX Datagame</title>
-	<system>MSX</system>
-	<company>Unknown</company>
-	<year>19xx</year>
-	<country></country>
-		<dump><rom><hash>08524fbea56885120124fbeeb6e47bc07aea4c30</hash></rom></dump>
-</software>
-<software>
-	<title>MSX21</title>
-	<genmsxid>12</genmsxid>
-	<system>MSX</system>
-	<company>ASCII</company>
-	<year>1983</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash>ca05a183f4e7e56102706d1b9b852ad4350264ba</hash></rom></dump>
-</software>
-<software>
-	<title>MT-Base</title>
-	<genmsxid>2074</genmsxid>
-	<system>MSX</system>
-	<company>Micro Technology</company>
-	<year>1987</year>
-	<country>NL</country>
-		<dump><rom><hash>4c921e31137d167976fb654e03d36ef133701936</hash><remark>[cr Speedy-Hacking No]</remark></rom></dump>
-		<dump><rom><hash>7439f276169555293c367ba692fb644d9ff58058</hash></rom></dump>
-</software>
-<software>
-	<title>MT-Debug</title>
-	<genmsxid>2079</genmsxid>
-	<system>MSX</system>
-	<company>Micro Technology</company>
-	<year>1985</year>
-	<country>NL</country>
-		<dump><rom><hash>5dacde48fed402b1ce9d0a41b2c126417bf5436b</hash></rom></dump>
-</software>
-<software>
-	<title>MT-Display</title>
-	<genmsxid>2519</genmsxid>
-	<system>MSX</system>
-	<company>Micro Technology</company>
-	<year>19xx</year>
-	<country>NL</country>
-		<dump><rom><hash>32c06b6247a40863458481df60a8111551dbaefb</hash></rom></dump>
-</software>
-<software>
 	<title>Multi Cartridge</title>
 	<system>MSX</system>
 	<company>Marcos Daniel</company>
@@ -8031,6 +8032,24 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>d9195b9a24f6e7c5b99eca046908915bfe369d46</hash></rom></dump>
 </software>
 <software>
+	<title>NGA</title>
+	<system>MSX</system>
+	<company>The Links</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>bc76a04970c547b7c080e747d393d13c87e82e7d</hash></rom></dump>
+</software>
+<software>
+	<title>NGA II</title>
+	<system>MSX</system>
+	<company>The Links</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>88f3a72513b04459212289797942c4d76f495a05</hash></rom></dump>
+		<dump><rom><hash>5dd2ac08fd05a1e091c7c6ecb6c10b49992bdd46</hash><remark>[Kanji]</remark></rom></dump>
+		<dump><rom><hash>5b20c3e0b9f1f29149039d5246be881a6b0dfdb1</hash><remark>[Kanji]</remark></rom></dump>
+</software>
+<software>
 	<title>Namake`s Bridgedrome</title>
 	<system>MSX</system>
 	<company>Buresto Faiya</company>
@@ -8084,7 +8103,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Nestor Cartridge</title>
 	<system>MSX</system>
-	<company>N&#233;stor Soriano</company>
+	<company>Néstor Soriano</company>
 	<year>19xx</year>
 	<country>ES</country>
 		<dump><rom><hash>f6314590061a6b44c5ed24f60ded13d8f2f7d95b</hash></rom></dump>
@@ -8108,24 +8127,6 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>ec1bb5c36952b12e6c0805e9a8d5bf31c20a68c4</hash></megarom></dump>
-</software>
-<software>
-	<title>NGA</title>
-	<system>MSX</system>
-	<company>The Links</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>bc76a04970c547b7c080e747d393d13c87e82e7d</hash></rom></dump>
-</software>
-<software>
-	<title>NGA II</title>
-	<system>MSX</system>
-	<company>The Links</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>88f3a72513b04459212289797942c4d76f495a05</hash></rom></dump>
-		<dump><rom><hash>5dd2ac08fd05a1e091c7c6ecb6c10b49992bdd46</hash><remark>[Kanji]</remark></rom></dump>
-		<dump><rom><hash>5b20c3e0b9f1f29149039d5246be881a6b0dfdb1</hash><remark>[Kanji]</remark></rom></dump>
 </software>
 <software>
 	<title>Nice Soccer World Cup</title>
@@ -8451,7 +8452,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Othello Competicao</title>
 	<system>MSX</system>
-	<company>A&#38;L Soft</company>
+	<company>A&amp;L Soft</company>
 	<year>2003</year>
 	<country>BR</country>
 		<dump><original value="true">Author</original><rom><hash>bb8f2d98925c0d407c78b88f77a9c0e3a759c021</hash></rom></dump>
@@ -8487,6 +8488,74 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>04084dbc6cbb9f674ebbd9f07900deab995a1d97</hash></rom></dump>
 		<dump><rom><hash>bfc23e42039b70b53584bfdbdc90d5afbfc0090f</hash></rom></dump>
 		<dump><rom><hash>30a58ac784f56a7aa0d23125e89b8a3d6c129580</hash></rom></dump>
+</software>
+<software>
+	<title>PIHKAL</title>
+	<system>MSX</system>
+	<company>Hackers</company>
+	<year>2009</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>65fa1c37e541d66398a2786a8baadecb363a1565</hash><remark>Wild Demo Entry</remark></rom></dump>
+		<dump><rom><hash>eb164a0a65077687c6e71f3ba2f3956f3aea6bb3</hash></rom></dump>
+</software>
+<software>
+	<title>PSG Music Writer</title>
+	<genmsxid>602</genmsxid>
+	<system>MSX</system>
+	<company>Rittor Music / MCS</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>fc4c05ca47c94df877bed2e02307bd6307f738a6</hash></rom></dump>
+		<dump><rom><hash>c2a1ea76f3e3517f9952e495395b8fcc820c7420</hash></rom></dump>
+</software>
+<software>
+	<title>PSG Sampler</title>
+	<genmsxid>2517</genmsxid>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2004</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>9c26a5a89f543050db2d614f8405c659f5baae08</hash><remark>1st version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>c80228bd14f149dbccf57bf9c00f34a4df953d85</hash><remark>2nd version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>f6eb344408fbf69332fdf865a8c213455f0a024c</hash><remark>[NEW]</remark></rom></dump>
+</software>
+<software>
+	<title>PSG Sound Test</title>
+	<system>MSX</system>
+	<company>Manuel Pazos</company>
+	<year>2004</year>
+	<country>ES</country>
+		<dump><rom><hash>f36af9ea08780ebfb194337ccc869aebab65ac66</hash><remark>[NEW]</remark></rom></dump>
+		<dump><rom><hash>22702ff548fea5a02532d567f89e807cadf67386</hash></rom></dump>
+</software>
+<software>
+	<title>PT3 + AYFX Replayer Demo</title>
+	<system>MSX</system>
+	<company>Shiru and AlCo</company>
+	<year>2007</year>
+	<country>RU</country>
+		<dump><original value="true">Author</original><rom><hash>eb5ed1fd10bbdd6853f595f748f92841de3f55f9</hash></rom></dump>
+		<dump><rom><hash>16b7c35288744b94fa06ccc404e7f119ddefcc54</hash></rom></dump>
+</software>
+<software>
+	<title>PWND - of je worst lust (special edition)</title>
+	<system>MSX</system>
+	<company>Metal Soft (Vampier)</company>
+	<year>2009</year>
+	<country>US</country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>681c30c7539ec738be2e36ddca408eed392f3b6d</hash><remark>After MSX-DEV08 Version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>2164c6ee1819f7fe763dbcc9ef366b62bf04aec6</hash><remark>MSX-DEV08</remark></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>Normal</type><hash>1eb9f2bd558dd8ecafcde3ce61881bfa27f70f1f</hash></megarom></dump>
+		<dump><rom><hash>2edbf1b6207884f04fca9e561743d84380b01801</hash></rom></dump>
+</software>
+<software>
+	<title>PWND 2 - Of Je Assembly Lust</title>
+	<system>MSX</system>
+	<company>Metal Soft (Vampier)</company>
+	<year>2011</year>
+	<country>US</country>
+		<dump><original value="true">Author</original><rom><hash>6ac076f0c5dd09186fef2ebbee2b74221882538f</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>478a75ad54417b1abf95be7a706d971a0d6cff0f</hash><remark>MSX.org Donation</remark></rom></dump>
 </software>
 <software>
 	<title>Pac-Man</title>
@@ -8665,7 +8734,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Peek-a-boo</title>
 	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions</company>
+	<company>DVIK &amp; Joyrex productions</company>
 	<year>2008</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><rom><hash>d92c82e155cb34f65587d472d4eb5ed1b9e68018</hash><remark>MSX-DEV08</remark></rom></dump>
@@ -8705,7 +8774,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Penguin Cafe</title>
 	<system>MSX</system>
-	<company>The MSX Caf&#233;</company>
+	<company>The MSX Café</company>
 	<year>2006</year>
 	<country>FR</country>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>058af0079b868387ad39c6b8a390b18b936d0e48</hash><remark>MSX-DEV06</remark></rom></dump>
@@ -8714,7 +8783,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Penguin Mind</title>
 	<system>MSX</system>
-	<company>The MSX Caf&#233;</company>
+	<company>The MSX Café</company>
 	<year>2007</year>
 	<country>FR</country>
 		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash>8c218c317e1e213e1c5e9439870929009d645a47</hash><remark>MSX-DEV07</remark></megarom></dump>
@@ -8758,7 +8827,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Pepper 2</title>
 	<system>MSX</system>
-	<company>Exidy&#39;s</company>
+	<company>Exidy's</company>
 	<year>2008</year>
 	<country>JP</country>
 		<dump><rom><hash>479100e82d3f25bbeb9a291163945d2f5bd62f74</hash><remark>[b1] / Muffie Version</remark></rom></dump>
@@ -8801,7 +8870,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Ola Andersson</company>
 	<year>2009</year>
 	<country>SE</country>
-		<dump><original value="true">Author</original><rom><hash>c10d2a3dc77816cfb5b5d4b983323284f4a4aef5</hash></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>Auto</type><hash>c10d2a3dc77816cfb5b5d4b983323284f4a4aef5</hash></megarom></dump>
 </software>
 <software>
 	<title>Pickup</title>
@@ -8823,15 +8892,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Picture Puzzle</title>
-	<system>MSX</system>
-	<company>Karoshi Corporation</company>
-	<year>2004</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>9c9da64f7b0ad20b0d699bbb254ae20666867176</hash><remark>1st version</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>27e56fbec7fa39ce19d045b0dbc4217d290f92e2</hash><remark>2nd version</remark></rom></dump>
-</software>
-<software>
-	<title>Picture Puzzle</title>
 	<genmsxid>60</genmsxid>
 	<system>MSX</system>
 	<company>HAL Laboratory</company>
@@ -8841,6 +8901,15 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>336a7c451a03c9a55726d171603b54628ad832c8</hash></rom></dump>
 </software>
 <software>
+	<title>Picture Puzzle</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2004</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>9c9da64f7b0ad20b0d699bbb254ae20666867176</hash><remark>1st version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>27e56fbec7fa39ce19d045b0dbc4217d290f92e2</hash><remark>2nd version</remark></rom></dump>
+</software>
+<software>
 	<title>Pictures and Words</title>
 	<genmsxid>1978</genmsxid>
 	<system>MSX</system>
@@ -8848,15 +8917,6 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1990</year>
 	<country>KW</country>
 		<dump><megarom><type>ASCII8</type><hash>5b25d93259a358f2064adc44f6382c91c9394861</hash></megarom></dump>
-</software>
-<software>
-	<title>PIHKAL</title>
-	<system>MSX</system>
-	<company>Hackers</company>
-	<year>2009</year>
-	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash>65fa1c37e541d66398a2786a8baadecb363a1565</hash><remark>Wild Demo Entry</remark></rom></dump>
-		<dump><rom><hash>eb164a0a65077687c6e71f3ba2f3956f3aea6bb3</hash></rom></dump>
 </software>
 <software>
 	<title>Pillars of Islam</title>
@@ -8976,7 +9036,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>8161d9b325c708af463c5622bd89ca94754cfdef</hash><remark>UPA-01 / Includes I/O-accessed Device/Needs FMSound Synthesizer Unit</remark></rom></dump>
-		<dump><rom><type>Playball</type><hash>3a6aae59ec0d1f542ad3c1c59e0bfc89440be88a</hash></rom></dump>
+		<dump><megarom><type>Playball</type><type>Playball</type><hash>3a6aae59ec0d1f542ad3c1c59e0bfc89440be88a</hash></megarom></dump>
 </software>
 <software>
 	<title>Playball</title>
@@ -8985,7 +9045,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Sony</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><type>Playball</type><hash>e6fbfb4b10dc393953211dda4b114080a08302a1</hash><remark>Uses a sample player chip with built-in ROM</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>e6fbfb4b10dc393953211dda4b114080a08302a1</hash><remark>Uses a sample player chip with built-in ROM</remark></rom></dump>
 </software>
 <software>
 	<title>Plumber</title>
@@ -9208,36 +9268,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>b186d547c0b79612bffb63dd49c3230f156c2bbe</hash></rom></dump>
 </software>
 <software>
-	<title>PSG Music Writer</title>
-	<genmsxid>602</genmsxid>
-	<system>MSX</system>
-	<company>Rittor Music / MCS</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>fc4c05ca47c94df877bed2e02307bd6307f738a6</hash></rom></dump>
-		<dump><rom><hash>c2a1ea76f3e3517f9952e495395b8fcc820c7420</hash></rom></dump>
-</software>
-<software>
-	<title>PSG Sampler</title>
-	<genmsxid>2517</genmsxid>
-	<system>MSX</system>
-	<company>Karoshi Corporation</company>
-	<year>2004</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>9c26a5a89f543050db2d614f8405c659f5baae08</hash><remark>1st version</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>c80228bd14f149dbccf57bf9c00f34a4df953d85</hash><remark>2nd version</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>f6eb344408fbf69332fdf865a8c213455f0a024c</hash><remark>[NEW]</remark></rom></dump>
-</software>
-<software>
-	<title>PSG Sound Test</title>
-	<system>MSX</system>
-	<company>Manuel Pazos</company>
-	<year>2004</year>
-	<country>ES</country>
-		<dump><rom><hash>f36af9ea08780ebfb194337ccc869aebab65ac66</hash><remark>[NEW]</remark></rom></dump>
-		<dump><rom><hash>22702ff548fea5a02532d567f89e807cadf67386</hash></rom></dump>
-</software>
-<software>
 	<title>Psychedelia</title>
 	<genmsxid>2807</genmsxid>
 	<system>MSX</system>
@@ -9254,15 +9284,6 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>16c692a2c9babfdadd8408d2f0f8fae3a8d96fd5</hash></megarom></dump>
-</software>
-<software>
-	<title>PT3 + AYFX Replayer Demo</title>
-	<system>MSX</system>
-	<company>Shiru and AlCo</company>
-	<year>2007</year>
-	<country>RU</country>
-		<dump><original value="true">Author</original><rom><hash>eb5ed1fd10bbdd6853f595f748f92841de3f55f9</hash></rom></dump>
-		<dump><rom><hash>16b7c35288744b94fa06ccc404e7f119ddefcc54</hash></rom></dump>
 </software>
 <software>
 	<title>Punchy</title>
@@ -9284,20 +9305,20 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Puzzle</title>
-	<system>MSX</system>
-	<company>German Gomez Herrera</company>
-	<year>2008</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>4e864cc0045c85c4f5c5c0efcdf26340a178686a</hash></megarom></dump>
-</software>
-<software>
-	<title>Puzzle</title>
 	<genmsxid>1967</genmsxid>
 	<system>MSX</system>
 	<company>Al Alamiah</company>
 	<year>1987</year>
 	<country>KW</country>
 		<dump><rom><hash>0dfe92b48e99bed4cd879e4026d036f94c826ce8</hash></rom></dump>
+</software>
+<software>
+	<title>Puzzle</title>
+	<system>MSX</system>
+	<company>German Gomez Herrera</company>
+	<year>2008</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>4e864cc0045c85c4f5c5c0efcdf26340a178686a</hash></megarom></dump>
 </software>
 <software>
 	<title>Puzzle Panic</title>
@@ -9310,30 +9331,10 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>3767aa91950e1ecc02b2d768dd2d5cf637fccb92</hash><remark>GDX fix</remark></rom></dump>
 </software>
 <software>
-	<title>PWND - of je worst lust (special edition)</title>
-	<system>MSX</system>
-	<company>Metal Soft (Vampier)</company>
-	<year>2009</year>
-	<country>US</country>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>681c30c7539ec738be2e36ddca408eed392f3b6d</hash><remark>After MSX-DEV08 Version</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>2164c6ee1819f7fe763dbcc9ef366b62bf04aec6</hash><remark>MSX-DEV08</remark></rom></dump>
-		<dump><original value="true">Author</original><megarom><type>Normal</type><hash>1eb9f2bd558dd8ecafcde3ce61881bfa27f70f1f</hash></megarom></dump>
-		<dump><rom><hash>2edbf1b6207884f04fca9e561743d84380b01801</hash></rom></dump>
-</software>
-<software>
-	<title>PWND 2 - Of Je Assembly Lust</title>
-	<system>MSX</system>
-	<company>Metal Soft (Vampier)</company>
-	<year>2011</year>
-	<country>US</country>
-		<dump><original value="true">Author</original><rom><hash>6ac076f0c5dd09186fef2ebbee2b74221882538f</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>478a75ad54417b1abf95be7a706d971a0d6cff0f</hash><remark>MSX.org Donation</remark></rom></dump>
-</software>
-<software>
 	<title>Pyramid Warp</title>
 	<genmsxid>64</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1983</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>1ad2178c27874704b395ab250200d9acb7d3de9c</hash></rom></dump>
@@ -9444,10 +9445,29 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>5d1a8d29debb38ced76d9944c5b939c9edd6dd72</hash><remark>Bifi&#39;s R-Type Rom add on</remark></rom></dump>
 </software>
 <software>
+	<title>RSC Ensemblador</title>
+	<genmsxid>3338</genmsxid>
+	<system>MSX</system>
+	<company>Manhattan Transfer</company>
+	<year>19xx</year>
+	<country>ES</country>
+		<dump><rom><hash>993ba63b06e855ba7294bea25b4250bf2a63fab5</hash></rom></dump>
+		<dump><rom><hash>877e8a60ee1658634124db023b50bf5dfa93624b</hash></rom></dump>
+</software>
+<software>
+	<title>RX Editor YRM-302</title>
+	<genmsxid>363</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1986</year>
+	<country>JP</country>
+		<dump><rom><hash>e03ec3a6bb6d8b1bc6eab349c7675cb72aa47d57</hash></rom></dump>
+</software>
+<software>
 	<title>Raid On Bungeling Bay</title>
 	<genmsxid>599</genmsxid>
 	<system>MSX</system>
-	<company>Br&#248;derbund Software</company>
+	<company>Brøderbund Software</company>
 	<year>1984</year>
 	<country>US</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>636eb837c5d80fb6b0692a72954ca91291ba831b</hash></rom></dump>
@@ -9742,7 +9762,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Robots</title>
 	<system>MSX</system>
-	<company>Michel d&#39;Alger</company>
+	<company>Michel d'Alger</company>
 	<year>2011</year>
 	<country>EU</country>
 		<dump><original value="true">Author</original><rom><hash>c1577863c6ac7aab87cc0c2d64cc0577e2e5e360</hash><remark>MSXDev11 Entry</remark></rom></dump>
@@ -9831,16 +9851,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash>522a53034cf40448d441683f3308fcb4b65e6d7c</hash></megarom></dump>
 </software>
 <software>
-	<title>RSC Ensemblador</title>
-	<genmsxid>3338</genmsxid>
-	<system>MSX</system>
-	<company>Manhattan Transfer</company>
-	<year>19xx</year>
-	<country>ES</country>
-		<dump><rom><hash>993ba63b06e855ba7294bea25b4250bf2a63fab5</hash></rom></dump>
-		<dump><rom><hash>877e8a60ee1658634124db023b50bf5dfa93624b</hash></rom></dump>
-</software>
-<software>
 	<title>Running Naked in a field of flowers</title>
 	<system>MSX</system>
 	<company>Infinite</company>
@@ -9851,13 +9861,71 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>d98ab2e25b738f956b4240a96360b88ab6f72093</hash></rom></dump>
 </software>
 <software>
-	<title>RX Editor YRM-302</title>
-	<genmsxid>363</genmsxid>
+	<title>SCC PCM Demo 1</title>
 	<system>MSX</system>
-	<company>YAMAHA</company>
-	<year>1986</year>
+	<company>Manuel Pazos</company>
+	<year>2007</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>84831671935bf80c250aff223a99684669a0ce72</hash></megarom></dump>
+</software>
+<software>
+	<title>SCC PCM Demo 2</title>
+	<system>MSX</system>
+	<company>Manuel Pazos</company>
+	<year>2007</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>1ec94d049fcbf59c5493d5de76bdfb891d24249e</hash></megarom></dump>
+</software>
+<software>
+	<title>SCC PCM Replayer 1</title>
+	<system>MSX</system>
+	<company>Artrag</company>
+	<year>2007</year>
+	<country>IT</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>54a1d356fd7bc6098f5c3d94f9d8bfcc2c6d5935</hash></megarom></dump>
+</software>
+<software>
+	<title>SCC PCM Replayer 2</title>
+	<system>MSX</system>
+	<company>Artrag</company>
+	<year>2008</year>
+	<country>IT</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>0b3f5dbdbf5636e22b3a6bc12eeb4ac64b0501e5</hash></megarom></dump>
+</software>
+<software>
+	<title>SCC fake cartridge</title>
+	<system>MSX</system>
+	<company>Konami</company>
+	<year>2003</year>
 	<country>JP</country>
-		<dump><rom><hash>e03ec3a6bb6d8b1bc6eab349c7675cb72aa47d57</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>fd0e46e4aef2d9713d20b51d2ba57d55bde7dcee</hash></megarom></dump>
+</software>
+<software>
+	<title>SCC+ fake cartridge</title>
+	<system>MSX</system>
+	<company>Konami</company>
+	<year>2003</year>
+	<country>JP</country>
+		<dump><megarom><type>KonamiSCC</type><hash>3b4143e5769d6235bca8977b41241295493eaf5e</hash></megarom></dump>
+		<dump><rom><hash>33dd59c9bbd2aa19affdab3bc2dd1ff662cbc8b0</hash></rom></dump>
+</software>
+<software>
+	<title>SHM</title>
+	<genmsxid>3490</genmsxid>
+	<system>MSX</system>
+	<company>NAMCO</company>
+	<year>1989</year>
+	<country>JP</country>
+		<dump><megarom><type>ASCII8</type><hash>cadb57400c45135f15b2709ddcc897aedfb7aec3</hash></megarom></dump>
+		<dump><megarom><type>GenericKonami</type><hash>c74325fbeaa7293b46766c99a2dd8bd57db3a7e9</hash></megarom></dump>
+</software>
+<software>
+	<title>SHMUP!</title>
+	<system>MSX</system>
+	<company>Imanok</company>
+	<year>2013</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>87694fc3e9be68a46c7e32ae643634e8c7b1000b</hash><remark>MSXDev13 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Saimazoom</title>
@@ -9989,55 +10057,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>73f2ddb61f15fcbd143e20e3520df8d73e98dedb</hash></rom></dump>
 		<dump><rom><hash>1709541ac30634323392e5098d47d1f644dbfc09</hash><remark>[b]</remark></rom></dump>
 		<dump><rom><hash>817bebb1be373e9c1bae4850a2bc1daec5586a91</hash><remark>Crack FM</remark></rom></dump>
-</software>
-<software>
-	<title>SCC fake cartridge</title>
-	<system>MSX</system>
-	<company>Konami</company>
-	<year>2003</year>
-	<country>JP</country>
-		<dump><megarom><type>KonamiSCC</type><hash>fd0e46e4aef2d9713d20b51d2ba57d55bde7dcee</hash></megarom></dump>
-</software>
-<software>
-	<title>SCC PCM Demo 1</title>
-	<system>MSX</system>
-	<company>Manuel Pazos</company>
-	<year>2007</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>84831671935bf80c250aff223a99684669a0ce72</hash></megarom></dump>
-</software>
-<software>
-	<title>SCC PCM Demo 2</title>
-	<system>MSX</system>
-	<company>Manuel Pazos</company>
-	<year>2007</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>1ec94d049fcbf59c5493d5de76bdfb891d24249e</hash></megarom></dump>
-</software>
-<software>
-	<title>SCC PCM Replayer 1</title>
-	<system>MSX</system>
-	<company>Artrag</company>
-	<year>2007</year>
-	<country>IT</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>54a1d356fd7bc6098f5c3d94f9d8bfcc2c6d5935</hash></megarom></dump>
-</software>
-<software>
-	<title>SCC PCM Replayer 2</title>
-	<system>MSX</system>
-	<company>Artrag</company>
-	<year>2008</year>
-	<country>IT</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>0b3f5dbdbf5636e22b3a6bc12eeb4ac64b0501e5</hash></megarom></dump>
-</software>
-<software>
-	<title>SCC+ fake cartridge</title>
-	<system>MSX</system>
-	<company>Konami</company>
-	<year>2003</year>
-	<country>JP</country>
-		<dump><megarom><type>KonamiSCC</type><hash>3b4143e5769d6235bca8977b41241295493eaf5e</hash></megarom></dump>
-		<dump><rom><hash>33dd59c9bbd2aa19affdab3bc2dd1ff662cbc8b0</hash></rom></dump>
 </software>
 <software>
 	<title>Scion</title>
@@ -10257,24 +10276,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash>16351e6a7d7fc38c23b54ee15ac6f0275621ba96</hash></megarom></dump>
 </software>
 <software>
-	<title>SHM</title>
-	<genmsxid>3490</genmsxid>
-	<system>MSX</system>
-	<company>NAMCO</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><megarom><type>ASCII8</type><hash>cadb57400c45135f15b2709ddcc897aedfb7aec3</hash></megarom></dump>
-		<dump><megarom><type>GenericKonami</type><hash>c74325fbeaa7293b46766c99a2dd8bd57db3a7e9</hash></megarom></dump>
-</software>
-<software>
-	<title>SHMUP!</title>
-	<system>MSX</system>
-	<company>Imanok</company>
-	<year>2013</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>87694fc3e9be68a46c7e32ae643634e8c7b1000b</hash><remark>MSXDev13 Entry</remark></rom></dump>
-</software>
-<software>
 	<title>Shouganai</title>
 	<system>MSX</system>
 	<company>Paxanga Soft</company>
@@ -10489,7 +10490,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>1e5f04e72c092140d69c29a9e2826d7326f8ea54</hash><remark>MSXDev13 Entry</remark></rom></dump>
 </software>
 <software>
-	<title>Smurf Rescue In Gargamel&#146;s Castle</title>
+	<title>Smurf Rescue In Gargamel&#195;&#162;&#194;&#128;&#194;&#153;s Castle</title>
 	<system>MSX</system>
 	<company>Coleco</company>
 	<year>1982</year>
@@ -10529,7 +10530,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Snow Climber</title>
 	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions</company>
+	<company>DVIK &amp; Joyrex productions</company>
 	<year>2008</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><rom><hash>5dbff5d70978482fd5b79c02715bec1ed463e6bf</hash><remark>2kbos entry</remark></rom></dump>
@@ -10580,14 +10581,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Soukoban</title>
-	<system>MSX</system>
-	<company>Qnix</company>
-	<year>1984</year>
-	<country>KR</country>
-		<dump><rom><hash>6ec24f574a8e40d8785b3e721b1605e1984c5834</hash></rom></dump>
-</software>
-<software>
-	<title>Soukoban</title>
 	<genmsxid>203</genmsxid>
 	<system>MSX</system>
 	<company>ASCII/Thinking Rabbit</company>
@@ -10597,6 +10590,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>2338946a671d31d12360ace4eeb33f7bc7db56f1</hash><remark>[Kanji]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>04bd78730b100dd879e2fbd3fe646d2bc9bbc46b</hash></rom></dump>
 		<dump><rom><hash>5cacfb40c99a9e66e068a15b5d22cbc7ab90cb65</hash><remark>Korean Dump</remark></rom></dump>
+</software>
+<software>
+	<title>Soukoban</title>
+	<system>MSX</system>
+	<company>Qnix</company>
+	<year>1984</year>
+	<country>KR</country>
+		<dump><rom><hash>6ec24f574a8e40d8785b3e721b1605e1984c5834</hash></rom></dump>
 </software>
 <software>
 	<title>Soukoban Pocket Edition</title>
@@ -10688,7 +10689,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>fbbd9a77004f9bdbcfc292f85c32106faa18cfa6</hash></rom></dump>
 		<dump><rom><hash>a00f9e66f1fa3de15b028e0fbfed636e194bb967</hash><remark>[a]</remark></rom></dump>
 		<dump><rom><hash>6580f0c72bac8d2e2ca14b9676452184bddd952e</hash><remark>[o]</remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>93bf6725a3c1b7071064a01884e1b6e8c6f8b579</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Auto</type><hash>93bf6725a3c1b7071064a01884e1b6e8c6f8b579</hash></megarom></dump>
 </software>
 <software>
 	<title>Space Scape !</title>
@@ -10807,7 +10808,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Square Dancer</title>
 	<genmsxid>188</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>18b90aaa2284eb46233e9203af1e8cf1922c417c</hash></rom></dump>
@@ -11002,7 +11003,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Sudoku</title>
 	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions</company>
+	<company>DVIK &amp; Joyrex productions</company>
 	<year>2006</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>c44cccb53e2f0cc8560c288354744f29d2488850</hash><remark>MSX-DEV06</remark></rom></dump>
@@ -11033,7 +11034,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Unknown</company>
 	<year>19xx</year>
 	<country></country>
-		<dump><rom><hash>89e71e7446589f4fa320f94b771cc1a0756ce196</hash><remark>Jos&#233; &#39;Alvaro Toledo Jr.</remark></rom></dump>
+		<dump><rom><hash>89e71e7446589f4fa320f94b771cc1a0756ce196</hash><remark>Jos&#195;&#131;&#194;&#169; &#39;Alvaro Toledo Jr.</remark></rom></dump>
 </software>
 <software>
 	<title>Super Billiards</title>
@@ -11173,7 +11174,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Super Laydock - Mission Striker</title>
 	<genmsxid>954</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>2dfbca8f5cc3a9e9d151382ebe0da410f5393eaf</hash></megarom></dump>
@@ -11362,6 +11363,15 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>ff999ca3e78c347bdbd23cb4c7adbfc02c20a397</hash><remark>2nd version</remark></rom></dump>
 </software>
 <software>
+	<title>TZR Grand Prix Rider</title>
+	<genmsxid>796</genmsxid>
+	<system>MSX</system>
+	<company>ASCII</company>
+	<year>1986</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>f3c0c1f0ec3e10cd4a5eaae26d593198b1a5ab9a</hash></rom></dump>
+</software>
+<software>
 	<title>Taiyou no Shinden - Asteka II</title>
 	<genmsxid>1155</genmsxid>
 	<system>MSX</system>
@@ -11523,6 +11533,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash>936f9ba82c7cdb703a4b1fffce75b03508008e12</hash><remark>English Translation - Speed Boost / MSX Translations (Trainer Only)</remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash>807ccf770ea07edd4f9d0bc2ab68db607650f741</hash><remark>English Translation - Speed Boost / MSX Translations</remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash>f194d9d7c632acfcc37b8438854551bfd88c2490</hash><remark>English Translation - Speed Boost / MSX Translations [Trained]</remark></megarom></dump>
+</software>
+<software>
+	<title>Tengoku Yoitoko - Heaven</title>
+	<genmsxid>976</genmsxid>
+	<system>MSX</system>
+	<company>TAITO</company>
+	<year>1987</year>
+	<country>JP</country>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash>b1469b65b102a31fad91fc60960f243b626f4fe0</hash><remark>English Translation - Speed Boost / MSX Translations - Trained</remark></megarom></dump>
 </software>
 <software>
@@ -11630,11 +11648,13 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tetris</title>
+	<genmsxid>3236</genmsxid>
 	<system>MSX</system>
-	<company>German Gomez Herrera</company>
-	<year>2008</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>fd1eecd9c89f47741276433b99b75eca2930b58d</hash></megarom></dump>
+	<company>Uttum</company>
+	<year>1987</year>
+	<country>KR</country>
+		<dump><rom><hash>e9398aceb9f8a648e4bcebe02e5d7b14a3744c7d</hash></rom></dump>
+		<dump><rom><hash>90df63292fc2f210b88cc8ec284391423d21c917</hash></rom></dump>
 </software>
 <software>
 	<title>Tetris</title>
@@ -11647,13 +11667,11 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tetris</title>
-	<genmsxid>3236</genmsxid>
 	<system>MSX</system>
-	<company>Uttum</company>
-	<year>1987</year>
-	<country>KR</country>
-		<dump><rom><hash>e9398aceb9f8a648e4bcebe02e5d7b14a3744c7d</hash></rom></dump>
-		<dump><rom><hash>90df63292fc2f210b88cc8ec284391423d21c917</hash></rom></dump>
+	<company>German Gomez Herrera</company>
+	<year>2008</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>fd1eecd9c89f47741276433b99b75eca2930b58d</hash></megarom></dump>
 </software>
 <software>
 	<title>Tetsuman</title>
@@ -11839,7 +11857,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Tiles of Shalom</title>
 	<system>MSX</system>
-	<company>Jipe of the MSX Caf&#233;</company>
+	<company>Jipe of the MSX Café</company>
 	<year>2007</year>
 	<country>FR</country>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>43c6a757ce5ec5a221e6c0e922638f688de8fd8b</hash><remark>MSX-DEV07</remark></rom></dump>
@@ -12044,7 +12062,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Trick Boy</title>
 	<genmsxid>235</genmsxid>
 	<system>MSX</system>
-	<company>T&#38;ESOFT</company>
+	<company>T&amp;ESOFT</company>
 	<year>1984</year>
 	<country>JP</country>
 		<dump><rom><hash>e93da3d1910d513dbb78ad599adbb05eb92b5930</hash></rom></dump>
@@ -12187,15 +12205,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>f01f75f814447316ffe25ce9fc0928de8622c850</hash></rom></dump>
 </software>
 <software>
-	<title>TZR Grand Prix Rider</title>
-	<genmsxid>796</genmsxid>
-	<system>MSX</system>
-	<company>ASCII</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>f3c0c1f0ec3e10cd4a5eaae26d593198b1a5ab9a</hash></rom></dump>
-</software>
-<software>
 	<title>U-Do</title>
 	<system>MSX</system>
 	<company>MSX-FAN</company>
@@ -12262,10 +12271,29 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Utopia</title>
 	<genmsxid>3463</genmsxid>
 	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions/Joyrex</company>
+	<company>DVIK &amp; Joyrex productions/Joyrex</company>
 	<year>2008</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>b550757c8f5b55dbde16b4a7888f10999f01acfd</hash><remark>Demo</remark></megarom></dump>
+</software>
+<software>
+	<title>VDP Pirates Demo</title>
+	<system>MSX</system>
+	<company>WYZ</company>
+	<year>2006</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>6a5e4d81ddc779e6289987da4a4ad4c20461cef0</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>d198fda8238f80607818c41c86455e1ae29f9a3b</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>3cffef3cadd60fa354da6a349bf970bc1db15915</hash></rom></dump>
+</software>
+<software>
+	<title>VTSCC Demo</title>
+	<system>MSX</system>
+	<company>WYZ</company>
+	<year>2007</year>
+	<country>ES</country>
+		<dump><rom><hash>8bd0de57be23b8d38a7901196f06050bfaf48980</hash></rom></dump>
+		<dump><rom><hash>aa471caed495eb52396903af4371177cb3c86236</hash></rom></dump>
 </software>
 <software>
 	<title>Vampire</title>
@@ -12284,16 +12312,6 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash>4340a2580c949d498d2c8e71699fff860214e9ea</hash></megarom></dump>
-</software>
-<software>
-	<title>VDP Pirates Demo</title>
-	<system>MSX</system>
-	<company>WYZ</company>
-	<year>2006</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>6a5e4d81ddc779e6289987da4a4ad4c20461cef0</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>d198fda8238f80607818c41c86455e1ae29f9a3b</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>3cffef3cadd60fa354da6a349bf970bc1db15915</hash></rom></dump>
 </software>
 <software>
 	<title>VeejingSX</title>
@@ -12375,7 +12393,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>e7af21424b22233188335fa82e212438054ae377</hash></rom></dump>
 </software>
 <software>
-	<title>Videotexto + Cirand&#227;o - Sharp HB3000</title>
+	<title>Videotexto + Cirand&#195;&#131;&#194;&#163;o - Sharp HB3000</title>
 	<system>MSX</system>
 	<company>Epcom</company>
 	<year>1986</year>
@@ -12402,7 +12420,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Viking</title>
 	<system>MSX</system>
-	<company>Jos&#233; Luis Tur</company>
+	<company>José Luis Tur</company>
 	<year>2005</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><type>Normal</type><hash>91186f361c8323605c79dc4551a768a4b9c5a320</hash><remark>MSX-DEV05</remark></rom></dump>
@@ -12427,15 +12445,6 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1985</year>
 	<country>KW</country>
 		<dump><rom><hash>09d2563fd5d9df095aa48be5ead7771c23c50ad2</hash></rom></dump>
-</software>
-<software>
-	<title>VTSCC Demo</title>
-	<system>MSX</system>
-	<company>WYZ</company>
-	<year>2007</year>
-	<country>ES</country>
-		<dump><rom><hash>8bd0de57be23b8d38a7901196f06050bfaf48980</hash></rom></dump>
-		<dump><rom><hash>aa471caed495eb52396903af4371177cb3c86236</hash></rom></dump>
 </software>
 <software>
 	<title>Warp &#38; Warp</title>
@@ -12483,7 +12492,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Waves</title>
 	<genmsxid>3461</genmsxid>
 	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions</company>
+	<company>DVIK &amp; Joyrex productions</company>
 	<year>2005</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash>f50d0c66b08c47b59925952276243e2008668185</hash><remark>Version 1.3 Demo</remark></megarom></dump>
@@ -12670,7 +12679,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Yahtzee</title>
 	<system>MSX</system>
-	<company>DVIK &#38; Joyrex productions</company>
+	<company>DVIK &amp; Joyrex productions</company>
 	<year>2007</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>720054d7ab4da46db8c9fb47d17fb7e0aa79d25b</hash><remark>MSX-DEV07</remark></rom></dump>
@@ -12832,6 +12841,15 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>2724871629b46e05a0c8b5554a962211e700de0e</hash></megarom></dump>
 </software>
 <software>
+	<title>ZERO and the Castle of Infinite Sadness</title>
+	<system>MSX</system>
+	<company>Dioniso</company>
+	<year>2014</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>a44934434a761721f70873b1851de2dfca19bd99</hash><remark>MSXDev2014 Entry - with bug</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>a1fe1f9489ab188561beb2816a83a7a9fc347623</hash><remark>MSXDev2014 Entry</remark></rom></dump>
+</software>
+<software>
 	<title>Zaider - Battle of Peguss</title>
 	<genmsxid>793</genmsxid>
 	<system>MSX</system>
@@ -12926,15 +12944,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>af61fac3f158abe5fd00d4166130942e4852db8c</hash></rom></dump>
 </software>
 <software>
-	<title>ZERO and the Castle of Infinite Sadness</title>
-	<system>MSX</system>
-	<company>Dioniso</company>
-	<year>2014</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>a44934434a761721f70873b1851de2dfca19bd99</hash><remark>MSXDev2014 Entry - with bug</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>a1fe1f9489ab188561beb2816a83a7a9fc347623</hash><remark>MSXDev2014 Entry</remark></rom></dump>
-</software>
-<software>
 	<title>Zexas Limited</title>
 	<genmsxid>533</genmsxid>
 	<system>MSX</system>
@@ -12987,7 +12996,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Zombie Near</title>
 	<system>MSX</system>
-	<company>Oscar Toledo Guti&#233;rrez</company>
+	<company>Oscar Toledo Gutiérrez</company>
 	<year>2011</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>ecfc5f25368c3eb9ba827f920822c047d9e1128a</hash><remark>Version 1.0 / MSXDev10 Entry</remark></megarom></dump>
@@ -13022,8 +13031,15 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>06c527db4fbe929b4da005e7463078c05944f477</hash><remark>[a1]</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>094d11ebf8a20b6bfc07902c7f136bdd18b1e7ca</hash></megarom></dump>
 </software>
+<software>
+	<title>junior high school english grammar</title>
+	<genmsxid>217</genmsxid>
+	<system>MSX</system>
+	<company>Stratford Computer Center</company>
+	<year>1986</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>20ce189d670c0fe5f2a945d73107df7d83070ff7</hash></rom></dump>
+</software>
 </softwaredb>
-<!--
-Roms in this XML file:3263
-Created on Fri Jul 29 20:41:03 PDT 2016
- -->
+<!-- Roms in this XML file:3263 - Created on Wed May 31 2017 - 0:02:28 PDT-->
+
