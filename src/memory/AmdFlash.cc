@@ -17,18 +17,19 @@ using std::vector;
 
 namespace openmsx {
 
-// writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
-AmdFlash::AmdFlash(const Rom& rom_, vector<SectorInfo> sectorInfo_,
+AmdFlash::AmdFlash(const Rom& rom, vector<SectorInfo> sectorInfo_,
                    word ID_, bool use12bitAddressing_,
                    const DeviceConfig& config, bool load)
 	: motherBoard(config.getMotherBoard())
-	, rom(rom_)
 	, sectorInfo(std::move(sectorInfo_))
 	, size(std::accumulate(begin(sectorInfo), end(sectorInfo), 0, [](int t, SectorInfo i) { return t + i.size;}))
 	, ID(ID_)
 	, use12bitAddressing(use12bitAddressing_)
-	, state(ST_IDLE)
-	, vppWpPinLow(false)
+{
+	init(rom, config, load);
+}
+
+void AmdFlash::init(const Rom& rom, const DeviceConfig& config, bool load)
 {
 	assert(Math::isPowerOfTwo(getSize()));
 

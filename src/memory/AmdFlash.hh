@@ -72,6 +72,7 @@ public:
 	enum State { ST_IDLE, ST_IDENT };
 
 private:
+	void init(const Rom& rom, const DeviceConfig& config, bool load);
 	void getSectorInfo(unsigned address, unsigned& sector,
                            unsigned& sectorSize, unsigned& offset) const;
 
@@ -88,7 +89,6 @@ private:
 	bool isSectorWritable(unsigned sector) const;
 
 	MSXMotherBoard& motherBoard;
-	const Rom& rom;
 	std::unique_ptr<SRAM> ram;
 	MemBuffer<int> writeAddress;
 	MemBuffer<const byte*> readAddress;
@@ -100,8 +100,8 @@ private:
 	static const unsigned MAX_CMD_SIZE = 8;
 	AmdCmd cmd[MAX_CMD_SIZE];
 	unsigned cmdIdx;
-	State state;
-	bool vppWpPinLow; // true = protection on
+	State state = ST_IDLE;
+	bool vppWpPinLow = false; // true = protection on
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 2);
 
