@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+    <info>
+        <name>Expansão de Memória RAM 64Kb</name>
+        <manufacturer>Sharp</manufacturer>
+        <code>HB-4100</code>
+        <release_year>1987</release_year>
+        <description>Sharp 64Kb expansion RAM cartridge</description>
+        <type>RAM expansion</type>
+    </info>
+    <devices>
+        <primary slot="any">
+            <secondary slot="any">
+                <RAM id="HB-4100">
+                    <mem base="0x0000" size="0x10000"/>
+                </RAM>
+            </secondary>
+        </primary>
+    </devices>
+</msxconfig>
