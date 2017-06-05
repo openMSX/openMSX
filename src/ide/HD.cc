@@ -53,6 +53,12 @@ HD::HD(const DeviceConfig& config)
 
 	file = File(filename, mode);
 	filesize = file.getSize();
+	if (mode == File::CREATE && filesize == 0) {
+		// OK, the file was just newly created. Now make sure the file
+		// is of the right (default) size
+		file.truncate(size_t(config.getChildDataAsInt("size")) * 1024 * 1024);
+		filesize = file.getSize();
+	}
 	tigerTree = make_unique<TigerTree>(
 		*this, filesize, filename.getResolved());
 
