@@ -4,13 +4,14 @@
 #include "Math.hh"
 #include "serialize.hh"
 #include "memory.hh"
+#include "outer.hh"
 
 namespace openmsx {
 
 SunriseIDE::SunriseIDE(const DeviceConfig& config)
 	: MSXDevice(config)
+	, romBlockDebug(*this)
 	, rom(getName() + " ROM", "rom", config)
-	, romBlockDebug(*this, &control, 0x4000, 0x4000, 14)
 {
 	device[0] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("master")));
@@ -100,6 +101,15 @@ void SunriseIDE::writeMem(word address, byte value, EmuTime::param time)
 	// all other writes ignored
 }
 
+byte SunriseIDE::getBank() const
+{
+	byte bank = Math::reverseByte(control & 0xF8);
+	if (bank >= (rom.getSize() / 0x4000)) {
+		bank &= ((rom.getSize() / 0x4000) - 1);
+	}
+	return bank;
+}
+
 void SunriseIDE::writeControl(byte value)
 {
 	control = value;
@@ -111,10 +121,7 @@ void SunriseIDE::writeControl(byte value)
 		invalidateMemCache(0xFC00, 0x0300);
 	}
 
-	byte bank = Math::reverseByte(control & 0xF8);
-	if (bank >= (rom.getSize() / 0x4000)) {
-		bank &= ((rom.getSize() / 0x4000) - 1);
-	}
+	byte bank = getBank();
 	if (internalBank != &rom[0x4000 * bank]) {
 		internalBank = &rom[0x4000 * bank];
 		invalidateMemCache(0x4000, 0x4000);
@@ -226,5 +233,18 @@ void SunriseIDE::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(SunriseIDE);
 REGISTER_MSXDEVICE(SunriseIDE, "SunriseIDE");
+
+
+SunriseIDE::Blocks::Blocks(SunriseIDE& device)
+	: RomBlockDebuggableBase(device)
+{
+}
+
+byte SunriseIDE::Blocks::read(unsigned address)
+{
+	if ((address < 0x4000) || (address >= 0x8000)) return 255;
+	auto& device = OUTER(SunriseIDE, romBlockDebug);
+	return device.getBank();
+}
 
 } // namespace openmsx
