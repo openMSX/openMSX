@@ -72,16 +72,6 @@ EmuTime DriveMultiplexer::getTimeTillIndexPulse(EmuTime::param time, int count)
 	return drive[selected]->getTimeTillIndexPulse(time, count);
 }
 
-void DriveMultiplexer::setHeadLoaded(bool status, EmuTime::param time)
-{
-	drive[selected]->setHeadLoaded(status, time);
-}
-
-bool DriveMultiplexer::headLoaded(EmuTime::param time)
-{
-	return drive[selected]->headLoaded(time);
-}
-
 unsigned DriveMultiplexer::getTrackLength()
 {
 	return drive[selected]->getTrackLength();

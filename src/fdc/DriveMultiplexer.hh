@@ -34,8 +34,6 @@ public:
 	void setMotor(bool status, EmuTime::param time) override;
 	bool indexPulse(EmuTime::param time) override;
 	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
-	void setHeadLoaded(bool status, EmuTime::param time) override;
-	bool headLoaded(EmuTime::param time) override;
 	unsigned getTrackLength() override;
 	void writeTrackByte(int idx, byte val, bool addIdam) override;
 	byte  readTrackByte(int idx) override;

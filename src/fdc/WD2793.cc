@@ -36,6 +36,8 @@ static const int R2N_IRQ    = 0x02;
 static const int IDX_IRQ    = 0x04;
 static const int IMM_IRQ    = 0x08;
 
+// HLD/HLT timing constants
+const EmuDuration WD2793::IDLE = EmuDuration::sec(3);
 
 /** This class has emulation for WD1770, WD1793, WD2793. Though at the moment
  * the only emulated difference between WD1770 and WD{12}793 is that WD1770
@@ -50,6 +52,7 @@ WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, CliComm& cliComm_,
 	, drqTime(EmuTime::infinity)
 	, irqTime(EmuTime::infinity)
 	, pulse5(EmuTime::infinity)
+	, hldTime(EmuTime::infinity) // HLD=false
 	, isWD1770(isWD1770_)
 {
 	// avoid (harmless) UMR in serialize()
@@ -170,7 +173,7 @@ byte WD2793::getStatusReg(EmuTime::param time)
 		if (drive.isTrack00()) {
 			statusReg |=  TRACK00;
 		}
-		if (drive.headLoaded(time)) {
+		if ((hldTime <= time) && (time < (hldTime + IDLE))) {
 			statusReg |=  HEAD_LOADED;
 		}
 		if (drive.isWriteProtected()) {
@@ -288,11 +291,11 @@ byte WD2793::getDataReg(EmuTime::param time)
 					statusReg |= RECORD_TYPE;
 				}
 				if (!(commandReg & M_FLAG)) {
-					endCmd();
+					endCmd(time);
 				} else {
 					// TODO multi sector read
 					sectorReg++;
-					endCmd();
+					endCmd(time);
 				}
 			} else {
 				// read track, read address
@@ -306,7 +309,7 @@ byte WD2793::getDataReg(EmuTime::param time)
 						statusReg &= ~CRC_ERROR;
 					}
 				}
-				endCmd();
+				endCmd(time);
 			}
 		}
 	}
@@ -344,12 +347,6 @@ void WD2793::executeUntil(EmuTime::param time)
 				seekNext(time);
 			}
 			break;
-		case FSM_TYPE2_WAIT_LOAD:
-			if ((commandReg & 0xC0) == 0x80)  {
-				// Type II command
-				type2WaitLoad(time);
-			}
-			break;
 		case FSM_TYPE2_LOADED:
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
@@ -359,7 +356,7 @@ void WD2793::executeUntil(EmuTime::param time)
 		case FSM_TYPE2_NOT_FOUND:
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
-				type2NotFound();
+				type2NotFound(time);
 			}
 			break;
 		case FSM_TYPE2_ROTATED:
@@ -392,13 +389,6 @@ void WD2793::executeUntil(EmuTime::param time)
 				postWriteSector(time);
 			}
 			break;
-		case FSM_TYPE3_WAIT_LOAD:
-			if (((commandReg & 0xC0) == 0xC0) &&
-			    ((commandReg & 0xF0) != 0xD0)) {
-				// Type III command
-				type3WaitLoad(time);
-			}
-			break;
 		case FSM_TYPE3_LOADED:
 			if (((commandReg & 0xC0) == 0xC0) &&
 			    ((commandReg & 0xF0) != 0xD0)) {
@@ -423,7 +413,7 @@ void WD2793::executeUntil(EmuTime::param time)
 			if ((commandReg & 0xF0) == 0xE0) {
 				// read track command
 				drive.invalidateWd2793ReadTrackQuirk();
-				endCmd(); // TODO check this (e.g. DRQ)
+				endCmd(time); // TODO check this (e.g. DRQ)
 			}
 			break;
 		default:
@@ -436,7 +426,15 @@ void WD2793::startType1Cmd(EmuTime::param time)
 	statusReg &= ~(SEEK_ERROR | CRC_ERROR);
 	statusReg |= BUSY;
 
-	drive.setHeadLoaded((commandReg & H_FLAG) != 0, time);
+	if (commandReg & H_FLAG) {
+		// Activate HLD, WD2793 now waits for the HLT response. But on
+		// all MSX machines I checked HLT is just stubbed to +5V. So
+		// from a WD2793 point of view the head is loaded immediately.
+		hldTime = time;
+	} else {
+		// deactivate HLD
+		hldTime = EmuTime::infinity;
+	}
 
 	switch (commandReg & 0xF0) {
 		case 0x00: // restore
@@ -471,7 +469,7 @@ void WD2793::startType1Cmd(EmuTime::param time)
 void WD2793::seek(EmuTime::param time)
 {
 	if (trackReg == dataReg) {
-		endType1Cmd();
+		endType1Cmd(time);
 	} else {
 		directionIn = (dataReg > trackReg);
 		step(time);
@@ -495,7 +493,7 @@ void WD2793::step(EmuTime::param time)
 	}
 	if (!directionIn && drive.isTrack00()) {
 		trackReg = 0;
-		endType1Cmd();
+		endType1Cmd(time);
 	} else {
 		drive.step(directionIn, time);
 		schedule(FSM_SEEK,
@@ -509,17 +507,17 @@ void WD2793::seekNext(EmuTime::param time)
 		// Restore or seek
 		seek(time);
 	} else {
-		endType1Cmd();
+		endType1Cmd(time);
 	}
 }
 
-void WD2793::endType1Cmd()
+void WD2793::endType1Cmd(EmuTime::param time)
 {
 	if (commandReg & V_FLAG) {
 		// verify sequence
 		// TODO verify sequence
 	}
-	endCmd();
+	endCmd(time);
 }
 
 
@@ -531,24 +529,18 @@ void WD2793::startType2Cmd(EmuTime::param time)
 	dataRegWritten = false;
 
 	if (!isReady()) {
-		endCmd();
+		endCmd(time);
 	} else {
 		// WD2795/WD2797 would now set SSO output
-		drive.setHeadLoaded(true, time);
+		hldTime = time; // see comment in startType1Cmd
 
 		if (commandReg & E_FLAG) {
-			schedule(FSM_TYPE2_WAIT_LOAD,
+			schedule(FSM_TYPE2_LOADED,
 			         time + EmuDuration::msec(30)); // when 1MHz clock
 		} else {
-			type2WaitLoad(time);
+			type2Loaded(time);
 		}
 	}
-}
-
-void WD2793::type2WaitLoad(EmuTime::param time)
-{
-	// TODO wait till head loaded, I arbitrarily took 1ms delay
-	schedule(FSM_TYPE2_LOADED, time + EmuDuration::msec(1));
 }
 
 void WD2793::type2Loaded(EmuTime::param time)
@@ -556,7 +548,7 @@ void WD2793::type2Loaded(EmuTime::param time)
 	if (((commandReg & 0xE0) == 0xA0) && (drive.isWriteProtected())) {
 		// write command and write protected
 		statusReg |= WRITE_PROTECTED;
-		endCmd();
+		endCmd(time);
 		return;
 	}
 
@@ -585,7 +577,7 @@ void WD2793::type2Search(EmuTime::param time)
 		schedule(FSM_TYPE2_NOT_FOUND, pulse5);
 	} else {
 		// Drive not rotating. How does a real WD293 handle this?
-		type2NotFound();
+		type2NotFound(time);
 	}
 }
 
@@ -625,10 +617,10 @@ void WD2793::type2Rotated(EmuTime::param time)
 	}
 }
 
-void WD2793::type2NotFound()
+void WD2793::type2NotFound(EmuTime::param time)
 {
 	statusReg |= RECORD_NOT_FOUND;
-	endCmd();
+	endCmd(time);
 }
 
 void WD2793::startReadSector(EmuTime::param time)
@@ -687,7 +679,7 @@ void WD2793::checkStartWrite(EmuTime::param time)
 	// the write sector command doesn't even start.
 	if (!dataRegWritten) {
 		statusReg |= LOST_DATA;
-		endCmd();
+		endCmd(time);
 		return;
 	}
 
@@ -745,7 +737,7 @@ void WD2793::preWriteSector(EmuTime::param time)
 		}
 	} catch (MSXException&) {
 		statusReg |= NOT_READY; // TODO which status bit should be set?
-		endCmd();
+		endCmd(time);
 	}
 }
 
@@ -779,7 +771,7 @@ void WD2793::writeSectorData(EmuTime::param time)
 		}
 	} catch (MSXException&) {
 		statusReg |= NOT_READY; // TODO which status bit should be set?
-		endCmd();
+		endCmd(time);
 	}
 }
 
@@ -803,17 +795,17 @@ void WD2793::postWriteSector(EmuTime::param time)
 			drive.flushTrack();
 
 			if (!(commandReg & M_FLAG)) {
-				endCmd();
+				endCmd(time);
 			} else {
 				// TODO multi sector write
 				sectorReg++;
-				endCmd();
+				endCmd(time);
 			}
 		}
 	} catch (MSXException&) {
 		// e.g. triggers when a different drive was selected during write
 		statusReg |= NOT_READY; // TODO which status bit should be set?
-		endCmd();
+		endCmd(time);
 	}
 }
 
@@ -824,29 +816,23 @@ void WD2793::startType3Cmd(EmuTime::param time)
 	statusReg |= BUSY;
 
 	if (!isReady()) {
-		endCmd();
+		endCmd(time);
 	} else {
 		if ((commandReg & 0xF0) == 0xF0) { // write track
 			// immediately activate DRQ
 			drqTime.reset(time); // DRQ = true
 		}
 
-		drive.setHeadLoaded(true, time);
+		hldTime = time; // see comment in startType1Cmd
 		// WD2795/WD2797 would now set SSO output
 
 		if (commandReg & E_FLAG) {
-			schedule(FSM_TYPE3_WAIT_LOAD,
+			schedule(FSM_TYPE3_LOADED,
 			         time + EmuDuration::msec(30)); // when 1MHz clock
 		} else {
-			type3WaitLoad(time);
+			type3Loaded(time);
 		}
 	}
-}
-
-void WD2793::type3WaitLoad(EmuTime::param time)
-{
-	// TODO wait till head loaded, I arbitrarily took 1ms delay
-	schedule(FSM_TYPE3_LOADED, time + EmuDuration::msec(1));
 }
 
 void WD2793::type3Loaded(EmuTime::param time)
@@ -855,7 +841,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 	if (((commandReg & 0xF0) == 0xF0) && (drive.isWriteProtected())) {
 		// write track command and write protected
 		statusReg |= WRITE_PROTECTED;
-		endCmd();
+		endCmd(time);
 		return;
 	}
 
@@ -869,7 +855,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 			if (next == EmuTime::infinity) {
 				// TODO wait for 5 revolutions
 				statusReg |= RECORD_NOT_FOUND;
-				endCmd();
+				endCmd(time);
 				return;
 			}
 			dataCurrent = sectorInfo.addrIdx;
@@ -877,7 +863,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 		} catch (MSXException&) {
 			// read addr failed
 			statusReg |= RECORD_NOT_FOUND;
-			endCmd();
+			endCmd(time);
 			return;
 		}
 	} else {
@@ -887,7 +873,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 		if (next == EmuTime::infinity) {
 			// drive became not ready since the command was started,
 			// how does a real WD2793 handle this?
-			endCmd();
+			endCmd(time);
 			return;
 		}
 	}
@@ -932,7 +918,7 @@ void WD2793::readTrackCmd(EmuTime::param time)
 	} catch (MSXException&) {
 		// read track failed, TODO status bits?
 		drive.invalidateWd2793ReadTrackQuirk();
-		endCmd();
+		endCmd(time);
 	}
 }
 
@@ -942,7 +928,7 @@ void WD2793::startWriteTrack(EmuTime::param time)
 	// the write track command doesn't even start.
 	if (!dataRegWritten) {
 		statusReg |= LOST_DATA;
-		endCmd();
+		endCmd(time);
 		return;
 	}
 	try {
@@ -959,7 +945,7 @@ void WD2793::startWriteTrack(EmuTime::param time)
 		// Moment in time when first track byte gets written
 		schedule(FSM_WRITE_TRACK, drqTime + 1);
 	} catch (MSXException& /*e*/) {
-		endCmd();
+		endCmd(time);
 	}
 }
 
@@ -1030,11 +1016,11 @@ void WD2793::writeTrackData(EmuTime::param time)
 		} else {
 			// Write track done
 			drive.flushTrack();
-			endCmd();
+			endCmd(time);
 		}
 	} catch (MSXException&) {
 		statusReg |= NOT_READY; // TODO which status bit should be set?
-		endCmd();
+		endCmd(time);
 	}
 }
 
@@ -1065,8 +1051,14 @@ void WD2793::startType4Cmd(EmuTime::param time)
 	statusReg &= ~BUSY; // reset status on Busy
 }
 
-void WD2793::endCmd()
+void WD2793::endCmd(EmuTime::param time)
 {
+	if ((hldTime <= time) && (time < (hldTime + IDLE))) {
+		// HLD was active, start timeout period
+		// Real WD2793 waits for 15 index pulses. We approximate that
+		// here by waiting for 3s.
+		hldTime = time;
+	}
 	drqTime.reset(EmuTime::infinity); // DRQ   = false
 	irqTime = EmuTime::zero;          // INTRQ = true;
 	statusReg &= ~BUSY;
@@ -1076,7 +1068,6 @@ void WD2793::endCmd()
 static std::initializer_list<enum_string<WD2793::FSMState>> fsmStateInfo = {
 	{ "NONE",              WD2793::FSM_NONE },
 	{ "SEEK",              WD2793::FSM_SEEK },
-	{ "TYPE2_WAIT_LOAD",   WD2793::FSM_TYPE2_WAIT_LOAD },
 	{ "TYPE2_LOADED",      WD2793::FSM_TYPE2_LOADED },
 	{ "TYPE2_NOT_FOUND",   WD2793::FSM_TYPE2_NOT_FOUND },
 	{ "TYPE2_ROTATED",     WD2793::FSM_TYPE2_ROTATED },
@@ -1084,12 +1075,14 @@ static std::initializer_list<enum_string<WD2793::FSMState>> fsmStateInfo = {
 	{ "PRE_WRITE_SECTOR",  WD2793::FSM_PRE_WRITE_SECTOR },
 	{ "WRITE_SECTOR",      WD2793::FSM_WRITE_SECTOR },
 	{ "POST_WRITE_SECTOR", WD2793::FSM_POST_WRITE_SECTOR },
-	{ "TYPE3_WAIT_LOAD",   WD2793::FSM_TYPE3_WAIT_LOAD },
 	{ "TYPE3_LOADED",      WD2793::FSM_TYPE3_LOADED },
 	{ "TYPE3_ROTATED",     WD2793::FSM_TYPE3_ROTATED },
 	{ "WRITE_TRACK",       WD2793::FSM_WRITE_TRACK },
 	{ "READ_TRACK",        WD2793::FSM_READ_TRACK },
-	{ "IDX_IRQ",           WD2793::FSM_IDX_IRQ }
+	{ "IDX_IRQ",           WD2793::FSM_IDX_IRQ },
+	// for bw-compat savestate
+	{ "TYPE2_WAIT_LOAD",   WD2793::FSM_TYPE2_LOADED }, // was FSM_TYPE2_WAIT_LOAD
+	{ "TYPE3_WAIT_LOAD",   WD2793::FSM_TYPE3_LOADED }, // was FSM_TYPE3_WAIT_LOAD
 };
 SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 
@@ -1114,6 +1107,7 @@ SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 // version 9: added 'trackDataValid'
 // version 10: removed 'trackData' and 'trackDataValid' (moved to RealDrive)
 // version 11: added 'dataOutReg', 'dataRegWritten', 'lastWasCRC'
+// version 12: added 'hldTime'
 template<typename Archive>
 void WD2793::serialize(Archive& ar, unsigned version)
 {
@@ -1218,6 +1212,15 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		}
 	}
 
+	if (ar.versionAtLeast(version, 12)) {
+		ar.serialize("hldTime", hldTime);
+	} else {
+		if (statusReg & BUSY) {
+			hldTime = getCurrentTime();
+		} else {
+			hldTime = EmuTime::infinity;
+		}
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(WD2793);
 

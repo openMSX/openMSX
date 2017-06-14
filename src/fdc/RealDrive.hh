@@ -34,8 +34,6 @@ public:
 	void setMotor(bool status, EmuTime::param time) override;
 	bool indexPulse(EmuTime::param time) override;
 	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
-	void setHeadLoaded(bool status, EmuTime::param time) override;
-	bool headLoaded(EmuTime::param time) override;
 
 	unsigned getTrackLength() override;
 	void writeTrackByte(int idx, byte val, bool addIdam) override;
@@ -92,13 +90,11 @@ private:
 
 	using MotorClock = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>;
 	MotorClock motorTimer;
-	Clock<1000> headLoadTimer; // ms
 	std::unique_ptr<DiskChanger> changer;
 	unsigned headPos;
 	unsigned side;
 	unsigned startAngle;
 	bool motorStatus;
-	bool headLoadStatus;
 	const bool doubleSizedDrive;
 	const bool signalsNeedMotorOn;
 
@@ -110,7 +106,7 @@ private:
 	bool trackValid;
 	bool trackDirty;
 };
-SERIALIZE_CLASS_VERSION(RealDrive, 5);
+SERIALIZE_CLASS_VERSION(RealDrive, 6);
 
 } // namespace openmsx
 

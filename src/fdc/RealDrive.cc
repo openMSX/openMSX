@@ -24,9 +24,8 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager())
 	, motorTimeout(motorTimeout_)
 	, motorTimer(getCurrentTime())
-	, headLoadTimer(getCurrentTime())
 	, headPos(0), side(0), startAngle(0)
-	, motorStatus(false), headLoadStatus(false)
+	, motorStatus(false)
 	, doubleSizedDrive(doubleSided)
 	, signalsNeedMotorOn(signalsNeedMotorOn_)
 	, trackValid(false), trackDirty(false)
@@ -260,20 +259,6 @@ EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time, int count)
 	return time + dur1 + dur2;
 }
 
-void RealDrive::setHeadLoaded(bool status, EmuTime::param time)
-{
-	if (headLoadStatus != status) {
-		headLoadStatus = status;
-		headLoadTimer.advance(time);
-	}
-}
-
-bool RealDrive::headLoaded(EmuTime::param time)
-{
-	return headLoadStatus &&
-	       (headLoadTimer.getTicksTill(time) > 10);
-}
-
 void RealDrive::invalidateTrack()
 {
 	flushTrack();
@@ -376,6 +361,7 @@ void RealDrive::invalidateWd2793ReadTrackQuirk()
 // version 3: added 'startAngle'
 // version 4: removed 'userData' from Schedulable
 // version 5: added 'track', 'trackValid', 'trackDirty'
+// version 6: removed 'headLoadStatus' and 'headLoadTimer'
 template<typename Archive>
 void RealDrive::serialize(Archive& ar, unsigned version)
 {
@@ -386,12 +372,10 @@ void RealDrive::serialize(Archive& ar, unsigned version)
 		Schedulable::restoreOld(ar, {&syncLoadingTimeout, &syncMotorTimeout});
 	}
 	ar.serialize("motorTimer", motorTimer);
-	ar.serialize("headLoadTimer", headLoadTimer);
 	ar.serialize("changer", *changer);
 	ar.serialize("headPos", headPos);
 	ar.serialize("side", side);
 	ar.serialize("motorStatus", motorStatus);
-	ar.serialize("headLoadStatus", headLoadStatus);
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("startAngle", startAngle);
 	} else {

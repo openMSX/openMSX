@@ -50,16 +50,6 @@ EmuTime DummyDrive::getTimeTillIndexPulse(EmuTime::param /*time*/, int /*count*/
 	return EmuTime::infinity;
 }
 
-void DummyDrive::setHeadLoaded(bool /*status*/, EmuTime::param /*time*/)
-{
-	// ignore
-}
-
-bool DummyDrive::headLoaded(EmuTime::param /*time*/)
-{
-	return false;
-}
-
 unsigned DummyDrive::getTrackLength()
 {
 	return RawTrack::STANDARD_SIZE;
