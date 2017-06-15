@@ -110,7 +110,6 @@ static void init()
 	init(ROM_MULTIROM,       "MultiRom",       0x0000, "MultiRom Collection");
 	init(ROM_RAMFILE,        "RAMFILE",        0x0000, "Tecall MSX RAMFILE");
 	init(ROM_MEGAFLASHROMSCCPLUS,"MegaFlashRomSccPlus",0x0000, "Mega Flash ROM SCC Plus");
-	init(ROM_MEGAFLASHROMSCCPLUSSD,"MegaFlashRomSccPlusSD",0x0000, "Mega Flash ROM SCC Plus SD"); // ****
 	init(ROM_KONAMI_ULTIMATE_COLLECTION,"KonamiUltimateCollection",0x0000, "Konami Ultimate Collection");
 
 	// ROM mapper types used for system ROMs in machines

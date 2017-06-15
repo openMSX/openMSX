@@ -265,10 +265,9 @@ static std::vector<AmdFlash::SectorInfo> getSectorInfo()
 	return sectorInfo;
 }
 
-MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(
-		const DeviceConfig& config, Rom&& rom_)
-	: MSXRom(config, std::move(rom_))
-	, flash(rom, getSectorInfo(), 0x207E, true, config)
+MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
+	: MSXDevice(config)
+	, flash("MFR SCC+ SD flash", getSectorInfo(), 0x207E, true, config)
 	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg("MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())

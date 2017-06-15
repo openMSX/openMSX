@@ -40,6 +40,9 @@ public:
 	AmdFlash(const Rom& rom, std::vector<SectorInfo> sectorInfo,
 	         word ID, bool use12bitAddressing,
 	         const DeviceConfig& config, bool load = true);
+	AmdFlash(const std::string& name, std::vector<SectorInfo> sectorInfo,
+	         word ID, bool use12bitAddressing,
+		 const DeviceConfig& config);
 	~AmdFlash();
 
 	void reset();
@@ -72,7 +75,7 @@ public:
 	enum State { ST_IDLE, ST_IDENT };
 
 private:
-	void init(const Rom& rom, const DeviceConfig& config, bool load);
+	void init(const std::string& name, const DeviceConfig& config, bool load, const Rom* rom);
 	void getSectorInfo(unsigned address, unsigned& sector,
                            unsigned& sectorSize, unsigned& offset) const;
 

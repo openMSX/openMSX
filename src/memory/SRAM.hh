@@ -31,6 +31,9 @@ public:
 	unsigned getSize() const {
 		return ram.getSize();
 	}
+	const std::string& getLoadedFilename() const {
+		return loadedFilename;
+	}
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -45,6 +48,8 @@ private:
 	const DeviceConfig config;
 	TrackedRam ram;
 	const char* const header;
+
+	std::string loadedFilename;
 };
 
 } // namespace openmsx

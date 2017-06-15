@@ -4,6 +4,9 @@
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "MSXDevice.hh"
+#include "CliComm.hh"
+#include "HardwareConfig.hh"
+#include "MSXException.hh"
 #include "Math.hh"
 #include "serialize.hh"
 #include "memory.hh"
@@ -26,31 +29,54 @@ AmdFlash::AmdFlash(const Rom& rom, vector<SectorInfo> sectorInfo_,
 	, ID(ID_)
 	, use12bitAddressing(use12bitAddressing_)
 {
-	init(rom, config, load);
+	init(rom.getName() + "_flash", config, load, &rom);
 }
 
-void AmdFlash::init(const Rom& rom, const DeviceConfig& config, bool load)
+AmdFlash::AmdFlash(const std::string& name, vector<SectorInfo> sectorInfo_,
+                   word ID_, bool use12bitAddressing_,
+                   const DeviceConfig& config)
+	: motherBoard(config.getMotherBoard())
+	, sectorInfo(std::move(sectorInfo_))
+	, size(std::accumulate(begin(sectorInfo), end(sectorInfo), 0, [](int t, SectorInfo i) { return t + i.size;}))
+	, ID(ID_)
+	, use12bitAddressing(use12bitAddressing_)
+{
+	init(name, config, true, nullptr);
+}
+
+static bool sramEmpty(const SRAM& ram)
+{
+	for (auto i : xrange(ram.getSize())) {
+		if (ram[i] != 0xFF) return false;
+	}
+	return true;
+}
+
+void AmdFlash::init(const std::string& name, const DeviceConfig& config, bool load, const Rom* rom)
 {
 	assert(Math::isPowerOfTwo(getSize()));
 
 	auto numSectors = sectorInfo.size();
 
 	unsigned writableSize = 0;
+	unsigned readOnlySize = 0;
 	writeAddress.resize(numSectors);
 	for (auto i : xrange(numSectors)) {
 		if (sectorInfo[i].writeProtected) {
 			writeAddress[i] = -1;
+			readOnlySize += sectorInfo[i].size;
 		} else {
 			writeAddress[i] = writableSize;
 			writableSize += sectorInfo[i].size;
 		}
 	}
+	assert((writableSize + readOnlySize) == getSize());
 
 	bool loaded = false;
 	if (writableSize) {
 		if (load) {
 			ram = make_unique<SRAM>(
-				rom.getName() + "_flash", "flash rom",
+				name, "flash rom",
 				writableSize, config, nullptr, &loaded);
 		} else {
 			// Hack for 'Matra INK', flash chip is wired-up so that
@@ -58,13 +84,64 @@ void AmdFlash::init(const Rom& rom, const DeviceConfig& config, bool load)
 			// is not made write-protected). In this case it doesn't
 			// make sense to load/save the SRAM file.
 			ram = make_unique<SRAM>(
-				rom.getName() + "_flash", "flash rom",
+				name, "flash rom",
 				writableSize, config, SRAM::DONT_LOAD);
+		}
+	}
+	if (readOnlySize) {
+		// If some part of the flash is read-only we require a ROM
+		// constructor parameter.
+		assert(rom);
+	}
+
+	auto* romTag = config.getXML()->findChild("rom");
+	bool initialContentSpecified = romTag && romTag->findChild("sha1");
+
+	// check whether the loaded SRAM is empty, whilst initial content was speciied
+	if (!rom && loaded && initialContentSpecified && sramEmpty(*ram)) {
+		config.getCliComm().printInfo(
+			"You specified initial content for this flash device (" +
+			config.getHardwareConfig().getName() + "), but this "
+			"was not loaded, because there was already content found "
+			"and loaded from persistent storage. However, this "
+			"content is blank (it was probably created automatically "
+			"when the specified initial content could not be loaded "
+			"when you first used this device). If you wish to load "
+			"the specified initial content afterall, please remove "
+			"the blank persistent storage file: " +
+			ram->getLoadedFilename());
+	}
+
+	std::unique_ptr<Rom> rom_;
+	if (!rom && !loaded) {
+		// If we don't have a ROM constructor parameter and there was
+		// no sram content loaded (= previous persistent flash
+		// content), then try to load some initial content. This
+		// represents the original content of the flash when the device
+		// ships. This ROM is optional, if it's not found, then the
+		// initial flash content is all 0xFF.
+		try {
+			rom_ = make_unique<Rom>(
+				"", "", // dummy name and description
+				config);
+			rom = rom_.get();
+			config.getCliComm().printInfo(
+				"Loaded initial content for flash ROM from " +
+				rom->getFilename());
+		} catch (MSXException& e) {
+			// ignore error
+			assert(rom == nullptr); // 'rom' remains nullptr
+			// only if an actual sha1sum was given, tell the user we failed to use it
+			if (initialContentSpecified) {
+				config.getCliComm().printWarning(
+					"Could not load specified initial content "
+					"for flash ROM: " + e.getMessage());
+			}
 		}
 	}
 
 	readAddress.resize(numSectors);
-	unsigned romSize = rom.getSize();
+	unsigned romSize = rom ? rom->getSize() : 0;
 	unsigned offset = 0;
 	for (auto i : xrange(numSectors)) {
 		unsigned sectorSize = sectorInfo[i].size;
@@ -80,18 +157,19 @@ void AmdFlash::init(const Rom& rom, const DeviceConfig& config, bool load)
 					// partial overlap
 					unsigned last = romSize - offset;
 					unsigned missing = sectorSize - last;
-					const byte* romPtr = &rom[offset];
+					const byte* romPtr = &(*rom)[offset];
 					memcpy(ramPtr, romPtr, last);
 					memset(ramPtr + last, 0xFF, missing);
 				} else {
 					// completely before end of rom
-					const byte* romPtr = &rom[offset];
+					const byte* romPtr = &(*rom)[offset];
 					memcpy(ramPtr, romPtr, sectorSize);
 				}
 			}
 		} else {
+			assert(rom); // must have rom constructor parameter
 			if ((offset + sectorSize) <= romSize) {
-				readAddress[i] = &rom[offset];
+				readAddress[i] = &(*rom)[offset];
 			} else {
 				readAddress[i] = nullptr;
 			}

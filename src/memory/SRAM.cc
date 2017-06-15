@@ -92,6 +92,7 @@ void SRAM::load(bool* loaded)
 		}
 		if (headerOk) {
 			file.read(ram.getWriteBackdoor(), getSize());
+			loadedFilename = file.getURL();
 			if (loaded) *loaded = true;
 		} else {
 			config.getCliComm().printWarning(
