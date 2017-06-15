@@ -97,18 +97,18 @@ void AmdFlash::init(const std::string& name, const DeviceConfig& config, bool lo
 	auto* romTag = config.getXML()->findChild("rom");
 	bool initialContentSpecified = romTag && romTag->findChild("sha1");
 
-	// check whether the loaded SRAM is empty, whilst initial content was speciied
+	// check whether the loaded SRAM is empty, whilst initial content was specified
 	if (!rom && loaded && initialContentSpecified && sramEmpty(*ram)) {
 		config.getCliComm().printInfo(
-			"You specified initial content for this flash device (" +
-			config.getHardwareConfig().getName() + "), but this "
+			"This flash device (" + config.getHardwareConfig().getName() +
+			") has initial content specified, but this content "
 			"was not loaded, because there was already content found "
 			"and loaded from persistent storage. However, this "
 			"content is blank (it was probably created automatically "
 			"when the specified initial content could not be loaded "
-			"when you first used this device). If you wish to load "
-			"the specified initial content afterall, please remove "
-			"the blank persistent storage file: " +
+			"when this device was used for the first time). If you "
+			"still wish to load the specified initial content, "
+			"please remove the blank persistent storage file: " +
 			ram->getLoadedFilename());
 	}
 
