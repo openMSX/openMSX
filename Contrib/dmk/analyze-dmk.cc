@@ -53,9 +53,22 @@ private:
 // global variables for circular buffer
 vector<byte> buffer;
 int dmkTrackLen;
-byte readCircular(int idx)
+
+static int modulo(int x, int y)
 {
-	return buffer[128 + idx % (dmkTrackLen - 128)];
+	int z = x % y; // this calculates the remainder, not modulo!
+	if (z < 0) z += y;
+	return z;
+}
+
+static int trackIdx(int idx)
+{
+	return modulo(idx, dmkTrackLen - 128);
+}
+
+static byte readCircular(int idx)
+{
+	return buffer[128 + trackIdx(idx)];
 }
 
 static void updateCrc(word& crc, byte val)
@@ -65,7 +78,7 @@ static void updateCrc(word& crc, byte val)
 	}
 }
 
-bool isValidDmkHeader(const DmkHeader& header)
+static bool isValidDmkHeader(const DmkHeader& header)
 {
 	if (!((header.writeProtected == 0x00) ||
 	      (header.writeProtected == 0xff))) {
@@ -83,7 +96,7 @@ bool isValidDmkHeader(const DmkHeader& header)
 }
 
 
-void analyzeTrack()
+static void analyzeTrack()
 {
 	for (int i = 0; i < 64; ++i) {
 		// Get (and check) pointer into track data
@@ -105,7 +118,7 @@ void analyzeTrack()
 		dmkIdx -= 128;
 
 		// read (and check) address mark
-		int addrIdx = dmkIdx - 3; // might be negative
+		int addrIdx = trackIdx(dmkIdx - 3);
 		byte d0 = readCircular(addrIdx + 0);
 		byte d1 = readCircular(addrIdx + 1);
 		byte d2 = readCircular(addrIdx + 2);
@@ -189,7 +202,7 @@ void analyzeTrack()
 	}
 }
 
-void analyzeDisk(const string& input)
+static void analyzeDisk(const string& input)
 {
 	File inf(input, "rb");
 	DmkHeader header;
