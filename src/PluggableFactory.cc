@@ -13,6 +13,7 @@
 #include "MidiInReader.hh"
 #include "MidiOutLogger.hh"
 #include "Mouse.hh"
+#include "Paddle.hh"
 #include "Trackball.hh"
 #include "Touchpad.hh"
 #include "PrinterPortLogger.hh"
@@ -54,6 +55,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(make_unique<ArkanoidPad>(
 		msxEventDistributor, stateChangeDistributor));
 	controller.registerPluggable(make_unique<Mouse>(
+		msxEventDistributor, stateChangeDistributor));
+	controller.registerPluggable(make_unique<Paddle>(
 		msxEventDistributor, stateChangeDistributor));
 	controller.registerPluggable(make_unique<Trackball>(
 		msxEventDistributor, stateChangeDistributor));
