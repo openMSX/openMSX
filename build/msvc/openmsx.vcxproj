@@ -460,6 +460,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\Mouse.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\MSXEventDistributor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\NinjaTap.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\Paddle.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\RecordedCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\SETetrisDongle.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\StateChangeDistributor.cc" />
@@ -997,6 +998,7 @@
     <None Include="$(OpenMSXSrcDir)\input\MSXEventDistributor.hh" />
     <None Include="$(OpenMSXSrcDir)\input\MSXEventListener.hh" />
     <None Include="$(OpenMSXSrcDir)\input\NinjaTap.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\Paddle.hh" />
     <None Include="$(OpenMSXSrcDir)\input\RecordedCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\input\SETetrisDongle.hh" />
     <None Include="$(OpenMSXSrcDir)\input\StateChange.hh" />

@@ -522,6 +522,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\NinjaTap.cc">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\Paddle.cc">
+      <Filter>input</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\RecordedCommand.cc">
       <Filter>input</Filter>
     </ClCompile>
@@ -1852,6 +1855,9 @@
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\NinjaTap.hh">
+      <Filter>input</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\input\Paddle.hh">
       <Filter>input</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\input\RecordedCommand.hh">
