@@ -252,7 +252,7 @@ parse_end
 		ld	a,'S'
 		call	debug_log
 		call	print_pc
-		db	"Read-DMK version 0.38",13,10
+		db	"Read-DMK version 0.39",13,10
 		db	13,10
 		db	"Insert source      disk in drive A",13,10
 		db      "Insert destination disk in drive B",13,10
@@ -2096,7 +2096,7 @@ phil_select	ld	a,(#f348)
 		call	#0024		; select FDC slot in page 1
 		ld	a,(side)
 		ld	(phil_control1),a
-		ld	a,#c2		; motor on, led on, drive A
+		ld	a,#c0		; motor on, led on, drive A
 		ld	(phil_control2),a
 		ret
 
