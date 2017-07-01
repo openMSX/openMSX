@@ -310,15 +310,25 @@ EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 	int currentAngle = getCurrentAngle(time);
 	unsigned trackLen = track.getLength();
 	unsigned idx = divUp(currentAngle * trackLen, TICKS_PER_ROTATION);
-	if (!track.decodeNextSector(idx, sector)) {
+
+	// 'addrIdx' points to the 'FE' byte in the 'A1 A1 A1 FE' sequence.
+	// This method also returns the moment in time when this 'FE' byte is
+	// located below the drive head. But when searching for the next sector
+	// header, the FDC needs to see this full sequence. So if the rotation
+	// distance is only 3 bytes or less we need to skip to the next sector
+	// header. IOW we need a sector header that's at least 4 bytes removed
+	// from the current position.
+	if (!track.decodeNextSector(idx + 4, sector)) {
 		return EmuTime::infinity;
 	}
 	int sectorAngle = divUp(sector.addrIdx * TICKS_PER_ROTATION, trackLen);
+
 	// note that if there is only one sector in this track, we have
 	// to do a full rotation.
 	int delta = sectorAngle - currentAngle;
-	if (delta <= 0) delta += TICKS_PER_ROTATION;
-	assert(0 < delta); assert(unsigned(delta) <= TICKS_PER_ROTATION);
+	if (delta < 4) delta += TICKS_PER_ROTATION;
+	assert(4 <= delta); assert(unsigned(delta) < (TICKS_PER_ROTATION + 4));
+
 	return time + MotorClock::duration(delta);
 }
 
