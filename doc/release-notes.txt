@@ -18,6 +18,7 @@ MSX device support:
 - fixed VDP type of Sony HB-501P
 - fixed a bug that caused hangups on some machines when resetting during the
   logo animation
+- fixed ROM block debuggable for Sunrise IDE
 - improved accuracy of WD2793 FDC and disk drive emulation
 - added support for Spectravideo SVI-318 and SVI-328 pre-MSX computers:
   - most SVI support was implemented by Tomas Karlsson. With NYYRIKKI's help
@@ -35,6 +36,7 @@ MSX device support:
       we rely on contributions from others for the SVI support.
 - added accurate M1 cycle emulation
 - added support for ASCII8 mapper with 32kB SRAM
+- added initial support for the ASCII paddle input device (paddle 1 and 2 only)
 - added new machines: Bawareth Perfect MSX1, Al Alamiah AX370 (thanks to
   alshamaa), and as already mentioned: Spectravideo SVI-318, SVI-328 and a
   superexpanded SVI-328.
@@ -48,10 +50,14 @@ New or improved emulator features:
 - fixed issue with remote connections on Mac OS X/FreeBSD
 - changed default sound driver on Windows to SDL, because the DirectX sound
   driver has been removed
+- fixed creation of new HD images
 - changed the default renderer to SDLGL-PP
 - (probably!) fixed stability of MIDI-in on Windows. Unfortunately we didn't
   find someone to help us test this properly
 - also improved stability on external connections in general
+- allow to specify initial content for flash ROMs. This way it is possible to
+  use MegaFlashROMSCC+SD like how the actual hardware is also shipped:
+  preflashed.
 - several improvements on the listing command (thanks to NYYRIKKI)
 - added automatic file numbering for record_channels
 - added a tron script (thanks to NYYRIKKI)
