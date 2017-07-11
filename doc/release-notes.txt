@@ -10,7 +10,8 @@ now put the SDLGL-PP renderer as the default, so let us know how that works for
 you. You can of course always set the old default setting for your system if
 you don't like SDLGL-PP. But then we would really like to know why... We also
 removed the Windows DirectX sound driver, as it was buggy and caused a lot of
-complaints.
+complaints. And finally, we added a button in the top left corner to easily
+invoke the OSD menu.
 
 Here's the list with all highlights and details:
 
@@ -66,6 +67,7 @@ New or improved emulator features:
 - added mapper selection to OSD menu for unknown ROMs
 - automatically pad ROM files if they are not a multiple of the block size,
   instead of refusing to run that ROM
+- added OSD button to invoke OSD menu
 
 Build system, packaging, documentation:
 - migrated from SDL threads to C++11 threads
