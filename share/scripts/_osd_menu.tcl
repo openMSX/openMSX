@@ -4,13 +4,6 @@ set_help_text main_menu_open   "Show the OSD menu."
 set_help_text main_menu_close  "Remove the OSD menu."
 set_help_text main_menu_toggle "Toggle the OSD menu."
 
-# default colors defined here, for easy global tweaking
-variable default_bg_color "0x7090aae8 0xa0c0dde8 0x90b0cce8 0xc0e0ffe8"
-variable default_text_color 0x000000ff
-variable default_text_color 0x000000ff
-variable default_select_color "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
-variable default_header_text_color 0xff9020ff
-
 variable is_dingux [string match dingux "[openmsx_info platform]"]
 variable scaling_available [expr {[lindex [lindex [openmsx_info setting scale_factor] 2] 1] > 1}]
 
