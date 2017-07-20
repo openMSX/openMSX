@@ -63,7 +63,7 @@
 					<li><a class="internal" href="#ide">4.4.1 Sunrise IDE</a></li>
 					<li><a class="internal" href="#beeride">4.4.2 Beer IDE</a></li>
 					<li><a class="internal" href="#scsi">4.4.3 SCSI devices</a></li>
-					<li><a class="internal" href="#sd">4.4.4 Mega Flash ROM SCC+ SD</a></li>
+					<li><a class="internal" href="#sd">4.4.4 MegaFlashROM SCC+ SD</a></li>
 				</ol>
 
 			</li>
@@ -679,18 +679,18 @@ To change the disk image of the LS-120 device, use the <code>lsa</code> (LS driv
 <p>For the Gouda (Novaxis) SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://msx.hansotten.com/index.php?page=msxscsi">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
 </p>
 
-<h4><a id="sd">4.4.4 Mega Flash ROM SCC+ SD</a></h4>
+<h4><a id="sd">4.4.4 MegaFlashROM SCC+ SD</a></h4>
 
-<p>Currently there is only one SD interface emulated: the Mega Flash ROM SCC+ SD. All features of this cartridge are emulated in the sense that all currently working software with it runs on openMSX too. It is not emulated accurately enough to rely on it for development.</p>
+<p>Currently there is only one SD interface emulated: the MegaFlashROM SCC+ SD. All features of this cartridge are emulated in the sense that all currently working software with it runs on openMSX too. It is not emulated accurately enough to rely on it for development.</p>
 
-<p>The difference compared to a real Mega Flash ROM SCC+ SD, is that it does not come with anything flashed on the flash ROM by default. So things like Nextor, the rescue menu and the ROM disk have to be flashed manually. This is all described in the manual (see at the end of this section) of the Mega Flash ROM SCC+ SD, because on a real device you may also need to do this.</p>
+<p>The difference compared to a real MegaFlashROM SCC+ SD, is that it does not come with anything flashed on the flash ROM by default. There are two ways to overcome that. The first one is to download the preflashed ROM content (for URL see below) and install it into your systemroms folder, like any usual system ROM. This only works if you use the extension for the first time, unless you manually delete the persistent file for the flash ROM chip (typically in your openMSX user directory<code>/persistent/MegaFlashROM_SCC+_SD/untitled1/megaflashromsccplussd.sram</code>). Only if no such file is found, openMSX will load the content of that ROM file into the flash ROM of the MegaFlashROM SCC+ SD. The second way is manually flashing things like Nextor, the rescue menu and the ROM disk. This is all described in the manual (see at the end of this section) of the MegaFlashROM SCC+ SD, because on a real device you may also need to do this.</p>
 
 <p>Once you achieved this, usage is again identical to using the Sunrise hard disk interface: you can use the <a class="external" href="commands.html#hd">hda/hdb</a> commands and the matching command line parameters <code>-hda</code> and <code>-hdb</code> to control which image will be used for the first and second SD card.</p>
 
-<p>Currently, by default, the first SD card is 8MB and the 2nd SD card is 100MB size. You can change these defaults by editing the extension file in <code>share/extensions/MegaFlashROM_SCC+_SD.xml</code>. For formatting and managing the SD cards, please refer to its manual and tools on the Flash part of the <a class="external" href="http://www.msxcartridgeshop.com/">MSX Cartridge Shop</a>.
+<p>Currently, by default, the first SD card is 8MB and the 2nd SD card is 100MB size. You can change these defaults by editing the extension file in <code>share/extensions/MegaFlashROM_SCC+_SD.xml</code>. For formatting and managing the SD cards, please refer to its manual and tools on the Flash part of the <a class="external" href="http://www.msxcartridgeshop.com/">MSX Cartridge Shop</a>. It also provides the ROM file with the initial content of the flash ROM as it is shipped on real MegaFlashROM SCC+ SD cartridges.
 </p>
 
-<p>One problem you may encounter compared to a real Mega Flash ROM SCC+ SD is: how to get files on the SD cards... You can't take out the SD cards and put them in a PC or so. Your options are the same as on a real system when you don't have a PC at hand: use the floppy drive of your MSX to transfer files or use another mass storage medium. You can for instance use the Sunrise IDE concurrently with the Mega Flash ROM SCC+ SD. And for the Sunrise IDE partitions, you could use <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> to import a lot of files, as is explained <a class="internal" href="#ide">above at the Sunrise IDE</a> section. Once you have that you can copy these files from MSX-DOS2/Nextor onto the virtual SD card(s).
+<p>One problem you may encounter compared to a real MegaFlashROM SCC+ SD is: how to get files on the SD cards... You can't take out the SD cards and put them in a PC or so. Your options are the same as on a real system when you don't have a PC at hand: use the floppy drive of your MSX to transfer files or use another mass storage medium. You can for instance use the Sunrise IDE concurrently with the MegaFlashROM SCC+ SD. And for the Sunrise IDE partitions, you could use <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> to import a lot of files, as is explained <a class="internal" href="#ide">above at the Sunrise IDE</a> section. Once you have that you can copy these files from MSX-DOS2/Nextor onto the virtual SD card(s).
 </p>
 
 <h3><a id="laserdisc">4.5 Running Laserdisc software</a></h3>
