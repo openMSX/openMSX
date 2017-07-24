@@ -899,19 +899,19 @@ A renderer is a part of the emulator that generates the graphical part of the em
 
 <dt>SDL</dt>
 <dd>
-This is the default renderer. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be relatively high though, as all graphics are calculated on the CPU.
+This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be relatively high though, as all graphics are calculated on the CPU.
 </dd>
 
 <dt>SDLGL-PP</dt>
 <dd>
 This renderer uses the OpenGL graphics library for all post processing (hence the PP), which includes scalers and other effects.
 Because part of the rendering is done by the graphics hardware,
-the CPU load can vary a lot.
+the CPU load can vary a lot, but it is usually a lot less than with the SDL renderer.
 The SDLGL-PP renderer is only useful if you have a hardware accelerated
 OpenGL library; a software GL implementation will be very slow.
 See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
-If your card supports it, we recommend to use this renderer. Note that this renderer requires both your video card and video driver to support OpenGL 2.0. Sometimes you need to upgrade your driver to make it work. If your videocard or driver don't support OpenGL 2.0, openMSX will switch back to the SDL renderer if you try to select SDLGL-PP.
+If your card supports it, we recommend to use this renderer. Note that this renderer requires both your video card and video driver to support OpenGL 2.0. Sometimes you need to upgrade your driver to make it work. If your videocard or driver don't support OpenGL 2.0, openMSX will switch back to the SDL renderer if you try to select SDLGL-PP. Because almost all modern systems have OpenGL 2.0 capable hardware and drivers, this is now the default renderer.
 </dd>
 
 
@@ -922,7 +922,7 @@ You can set the renderer with the <code><a class="external" href="commands.html#
 </p>
 
 <p>
-Note that openMSX can be compiled without the SDLGL-PP renderer; if that is true for the build you're using, you will not be able to switch to the SDLGL-PP renderer.
+Note that openMSX can be compiled without the SDLGL-PP renderer; if that is true for the build you're using, you will not be able to switch to the SDLGL-PP renderer and the default renderer will be SDL.
 </p>
 
 <h3><a id="accuracy">6.2 Accuracy</a></h3>
@@ -972,7 +972,7 @@ Most MSX screen modes are only 256&times;212 pixels big. This is quite small for
 </p>
 
 <p>
-An exception to all of this is the SDLGL-PP renderer. With this renderer (when using a suitable video card and driver), scaling is done on the graphics card hardware and will not take extra CPU power. This renderer also gives you the possibility to use a <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> of 4. The down side is that not all scalers have been implemented for this renderer. See also below.
+With the SDLGL-PP renderer (when using a suitable video card and driver), scaling is done on the graphics card hardware and will not take extra CPU power. This renderer also gives you the possibility to use a <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> of 4. The down side is that not all scalers have been implemented for this renderer. See also below.
 </p>
 
 <p>
@@ -986,7 +986,7 @@ openMSX contains the following scaling algorithms:
 This algorithm simply expands each MSX pixel to a square of (scale_factor)&times;(scale_factor) PC pixels.
 This is the default scaler and it is fast.
 The image looks blocky, especially diagonal edges, but it does support scanlines and blur for scale factors of 2 and higher. In combination with a scale factor of 1, you get what was
-previously the SDLLo renderer, which is the fastest scaling method available.
+once known as the SDLLo renderer, which is the fastest scaling method available.
 </dd>
 
 <dt><a class="external" href="http://scale2x.sourceforge.net/">ScaleNx</a></dt>
