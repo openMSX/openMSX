@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.14.0 (2017-05-xx)
+Release Notes for openMSX 0.14.0 (2017-07-xx)
 =============================================
 
 This release is another mix of some new features and additions and a lot of
@@ -67,7 +67,7 @@ New or improved emulator features:
 - added mapper selection to OSD menu for unknown ROMs
 - automatically pad ROM files if they are not a multiple of the block size,
   instead of refusing to run that ROM
-- added OSD button to invoke OSD menu
+- added OSD button to invoke OSD menu in the top left corner
 
 Build system, packaging, documentation:
 - migrated from SDL threads to C++11 threads
