@@ -68,6 +68,8 @@ New or improved emulator features:
 - automatically pad ROM files if they are not a multiple of the block size,
   instead of refusing to run that ROM
 - added OSD button to invoke OSD menu in the top left corner
+- added VGM recorder script (by Niek Vlessert) to help you record MSX songs
+  into VGM files, supporting PSG, MSX-MUSIC, MSX-AUDIO, OPL4 and SCC
 
 Build system, packaging, documentation:
 - migrated from SDL threads to C++11 threads
