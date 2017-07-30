@@ -28,6 +28,7 @@
 		<li><a class="internal" href="#easyuse">Is openMSX easy to use?</a></li>
 		<li><a class="internal" href="#c-bios">All I get is "Cartridge not found." What's wrong?</a></li>
 		<li><a class="internal" href="#nodrive">I get "Fatal error: No drive named 'diska'." What's wrong?</a></li>
+		<li><a class="internal" href="#rundiskstapes">It looks like only ROMs are supported. How can I run disk and tape software?</a></li>
 		<li><a class="internal" href="#savegame">How do I save my game?</a></li>
 		<li><a class="internal" href="#harddisk">What is the openMSX harddisk support?</a></li>
 		<li><a class="internal" href="#videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></li>
@@ -180,11 +181,19 @@ So, the message is not from openMSX, but from C-BIOS, an MSX program which tries
 
 <p>You are probably using Catapult with C-BIOS and you're trying to run a program on a disk image.</p>
 
-<p>Unfortunately, the C-BIOS machines that come with openMSX do not support disk or tape usage, see previous question. Please see the <a class="external" href="setup.html#cbios">Setup Guide</a>.</p>
+<p>Unfortunately, the C-BIOS machines that come with openMSX do not support disk or tape usage. Please see the <a class="external" href="setup.html#cbios">Setup Guide</a>.</p>
 
 <p>The tricky thing is that the old (current) version of Catapult always shows the disk, tape and cartridge controls, independent whether the machine you're emulating actually supports them. This will be greatly improved in the new (upcoming, but not finished) Catapult.</p>
 
 <p>If you want to use disks or tapes with your emulated MSX, you will have to install the system ROMs of a real MSX (one with a disk drive!) to emulate that one, until C-BIOS supports this as well. More about this in the <a class="external" href="setup.html#systemroms">Setup Guide</a>.</p>
+
+<h3><a id="rundiskstapes">It looks like only ROMs are supported. How can I run disk and tape software?</a></h3>
+
+<p>You probably are running the C-BIOS machines that came with openMSX and did not install any system ROMs of other machines (or did not choose to emulate another machine). The C-BIOS machines rely on the freely available C-BIOS ROMs and that's why we can ship them with openMSX. However, C-BIOS only supports ROM images for now. More information about that in the <a class="external" href="setup.html#cbios">C-BIOS section of the Setup Guide</a>.
+</p>
+
+<p>If you want to run software from other media (disks, tapes, etc.), you will have to install other system ROMs, which are from real, existing MSX machines. Then you can run other MSX machines than the C-BIOS machines, which do support tape and/or disk software (depending on the emulated MSX model). More about this in the <a class="external" href="setup.html#systemroms">Setup Guide</a>.
+</p>
 
 <h3><a id="savegame">How do I save my game?</a></h3>
 
@@ -224,7 +233,7 @@ You've been playing a game and want to continue another time, so you want to sav
 <h4><a id="savegame-mg">In Metal Gear</a></h4>
 
 <p>
-Many people wonder how to save in Metal Gear. Here we will explain how that is done on a real MSX, which is also the way to work in openMSX.
+Many people wonder how to save in Metal Gear. Here we will explain how that is done on a real MSX, which is also the way to work if you don't want to use the built in <a class="external" href="user.html#savestate">save state mechanism</a> of openMSX.
 </p>
 
 <p>
