@@ -25,7 +25,7 @@ packageVersionSuffix = '-rc1'
 packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").
-releaseFlag = False
+releaseFlag = True
 
 def _extractRevisionFromStdout(log, command, regex):
 	text = captureStdout(log, command)
