@@ -3,6 +3,84 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.14.0 (2017-07-30)
+---------------------------
+
+This release is another mix of some new features and additions and a lot of
+smaller fixes and improvements. This release adds support for Konami Ultimate
+Collection and basic emulation for the Spectravideo SVI-318 and SVI-328 pre-MSX
+computers, increases FDC accuracy in such a way that we think all copy
+protections (captured in a DMK file) should now run in openMSX. Moreover, we
+now put the SDLGL-PP renderer as the default, so let us know how that works for
+you. You can of course always set the old default setting for your system if
+you don't like SDLGL-PP. But then we would really like to know why... We also
+removed the Windows DirectX sound driver, as it was buggy and caused a lot of
+complaints. And finally, we added a button in the top left corner to easily
+invoke the OSD menu.
+
+Here's the list with all highlights and details:
+
+MSX device support:
+- fixed VDP type of Sony HB-501P
+- fixed a bug that caused hangups on some machines when resetting during the
+  logo animation
+- fixed ROM block debuggable for Sunrise IDE
+- improved accuracy of WD2793 FDC and disk drive emulation
+- added support for Spectravideo SVI-318 and SVI-328 pre-MSX computers:
+  - most SVI support was implemented by Tomas Karlsson. With NYYRIKKI's help
+    we fixed most last details
+  - added in Contrib a tool to convert SVI disk images to DMK so they can be
+    used in openMSX
+  - added SVI support to several scripts (thanks to NYYRIKKI): cashandler,
+    type_via_keybuf, listing
+  - note the following limitations:
+    - only WAV images are supported for cassettes. The stereo feature
+      (music/sound on the other channel) is not supported.
+    - only DMK disk images can be used
+    - nothing is done to prevent the user to mix MSX and SVI hardware/software.
+      This will not work, of course. As we are not SVI enthusiasts ourselves,
+      we rely on contributions from others for the SVI support.
+- added accurate M1 cycle emulation
+- added support for ASCII8 mapper with 32kB SRAM
+- added initial support for the ASCII paddle input device (paddle 1 and 2 only)
+- added new machines: Bawareth Perfect MSX1, Al Alamiah AX370 (thanks to
+  alshamaa), and as already mentioned: Spectravideo SVI-318, SVI-328 and a
+  superexpanded SVI-328.
+- added new extensions: Konami Ultimate Collection, ASCII Japanese MSX-Write,
+  ASCII Japanese MSX-Write II and Tecall TM220 MSX-RAMFILE
+
+New or improved emulator features:
+- performance improvements:
+  - reverse feature
+  - hq resampler
+- fixed issue with remote connections on Mac OS X/FreeBSD
+- changed default sound driver on Windows to SDL, because the DirectX sound
+  driver has been removed
+- fixed creation of new HD images
+- changed the default renderer to SDLGL-PP
+- (probably!) fixed stability of MIDI-in on Windows. Unfortunately we didn't
+  find someone to help us test this properly
+- also improved stability on external connections in general
+- allow to specify initial content for flash ROMs. This way it is possible to
+  use MegaFlashROMSCC+SD like how the actual hardware is also shipped:
+  preflashed.
+- several improvements on the listing command (thanks to NYYRIKKI)
+- added automatic file numbering for record_channels
+- added a tron script (thanks to NYYRIKKI)
+- added script that records to a new AVI file if the framerate changes (thanks
+  to BiFi and FiXato for their initial version)
+- added mapper selection to OSD menu for unknown ROMs
+- automatically pad ROM files if they are not a multiple of the block size,
+  instead of refusing to run that ROM
+- added OSD button to invoke OSD menu in the top left corner
+- added VGM recorder script (by Niek Vlessert) to help you record MSX songs
+  into VGM files, supporting PSG, MSX-MUSIC, MSX-AUDIO, OPL4 and SCC
+
+Build system, packaging, documentation:
+- migrated from SDL threads to C++11 threads
+- removed support for Maemo5
+- moved Windows build to Visual Studio 2017
+
 openMSX 0.13.0 (2016-07-31)
 ---------------------------
 
