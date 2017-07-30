@@ -12,7 +12,7 @@ import re
 packageName = 'openmsx'
 
 # Version number.
-packageVersionNumber = '0.14.0-rc1'
+packageVersionNumber = '0.14.0'
 
 # Version code for Android must be an incremental number
 # Increase this number for each release build. For a dev build, the
