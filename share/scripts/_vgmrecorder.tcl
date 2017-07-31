@@ -95,7 +95,7 @@ proc vgm_rec {args} {
 
 	if {[llength $args] == 0} {
 		variable supported_chips
-		error "Please specify one or more music chips you want to record VGM data from. Options are:\nvgm_rec \[-prefix filename_prefix\] $supported_chips"
+		error "Please specify one or more music chips you want to record VGM data from:\nvgm_rec \[-prefix filename_prefix\] $supported_chips"
 	}
 
 	foreach a $args {
