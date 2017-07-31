@@ -80,6 +80,7 @@ Build system, packaging, documentation:
 - migrated from SDL threads to C++11 threads
 - removed support for Maemo5
 - moved Windows build to Visual Studio 2017
+- upgraded C-BIOS to release 0.28
 
 openMSX 0.13.0 (2016-07-31)
 ---------------------------
