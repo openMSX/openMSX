@@ -70,8 +70,7 @@ MSX-Music), Y8950 (Music Module, MSX-Audio), YMF278B (OPL4, Moonsound) and
 Konami SCC(+).
 Files will be stored in the openMSX home directory in a subdirectory vgm_recordings
 Optional parameters (use tab completion): vgm_rec [tab_vgmrec]
-Defaults: Record to music0001.vgm or music0002.vgm if that exists etc., PSG and
-MSX-Music enabled.
+Defaults: Record to music0001.vgm or music0002.vgm if that exists etc.
 You may specify a -prefix parameter to change the music file name prefix to
 something else.
 You must end any recording with vgm_rec_end, otherwise the file will be empty.
@@ -94,6 +93,11 @@ proc vgm_rec {args} {
 		vgm_rec_set_filename $prefix
 	}
 
+	if {[llength $args] == 0} {
+		variable supported_chips
+		error "Please specify one or more music chips you want to record VGM data from. Options are:\nvgm_rec \[-prefix filename_prefix\] $supported_chips"
+	}
+
 	foreach a $args {
 		if     {[string compare -nocase $a "PSG"      ] == 0} {set psg_logged       true} \
 		elseif {[string compare -nocase $a "MSX-Music"] == 0} {set fm_logged        true} \
@@ -101,11 +105,6 @@ proc vgm_rec {args} {
 		elseif {[string compare -nocase $a "Moonsound"] == 0} {set moonsound_logged true} \
 		elseif {[string compare -nocase $a "SCC"      ] == 0} {set scc_logged       true} \
 		else {error "Unrecognized argument: $a"}
-	}
-
-	if {!$psg_logged & !$fm_logged & !$y8950_logged & !$moonsound_logged & !$scc_logged} {
-		set psg_logged true
-		set fm_logged  true
 	}
 
 	vgm_rec_start
