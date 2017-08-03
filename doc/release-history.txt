@@ -3,7 +3,7 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 0.14.0 (2017-07-30)
+openMSX 0.14.0 (2017-08-03)
 ---------------------------
 
 This release is another mix of some new features and additions and a lot of
