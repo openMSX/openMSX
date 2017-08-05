@@ -196,13 +196,13 @@ void CommandConsole::loadHistory()
 void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
 {
 	xPosition = cursorPosition % getColumns();
-	unsigned num = lines[0].numChars() / getColumns();
-	yPosition = num - (cursorPosition / getColumns());
+	auto num = lines[0].numChars() / getColumns();
+	yPosition = unsigned(num - (cursorPosition / getColumns()));
 }
 
 ConsoleLine CommandConsole::getLine(unsigned line) const
 {
-	unsigned count = 0;
+	size_t count = 0;
 	for (auto buf : xrange(lines.size())) {
 		count += (lines[buf].numChars() / getColumns()) + 1;
 		if (count > line) {
@@ -260,7 +260,7 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			cursorPosition = unsigned(prompt.size());
 			return true;
 		case Keys::K_E:
-			cursorPosition = lines[0].numChars();
+			cursorPosition = unsigned(lines[0].numChars());
 			return true;
 		case Keys::K_C:
 			clearCommand();
@@ -319,7 +319,7 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			cursorPosition = unsigned(prompt.size());
 			return true;
 		case Keys::K_END:
-			cursorPosition = lines[0].numChars();
+			cursorPosition = unsigned(lines[0].numChars());
 			return true;
 		}
 		break;
@@ -507,7 +507,7 @@ void CommandConsole::prevCommand()
 	if (match) {
 		commandScrollBack = tmp;
 		lines[0] = highLight(history[commandScrollBack]);
-		cursorPosition = lines[0].numChars();
+		cursorPosition = unsigned(lines[0].numChars());
 	}
 }
 
@@ -530,7 +530,7 @@ void CommandConsole::nextCommand()
 		commandScrollBack = unsigned(history.size());
 		lines[0] = highLight(currentLine);
 	}
-	cursorPosition = lines[0].numChars();
+	cursorPosition = unsigned(lines[0].numChars());
 }
 
 void CommandConsole::clearCommand()

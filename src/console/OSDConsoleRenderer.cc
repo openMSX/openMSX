@@ -297,9 +297,8 @@ void OSDConsoleRenderer::loadBackground(string_ref value)
 void OSDConsoleRenderer::drawText(OutputSurface& output, const ConsoleLine& line,
                                   ivec2 pos, byte alpha)
 {
-	unsigned chunks = line.numChunks();
-	for (unsigned i = 0; i < chunks; ++i) {
-		unsigned rgb = line.chunkColor(i);
+	for (auto i : xrange(line.numChunks())) {
+		auto rgb = line.chunkColor(i);
 		string_ref text = line.chunkText(i);
 		drawText2(output, text, pos[0], pos[1], alpha, rgb);
 	}

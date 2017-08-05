@@ -243,8 +243,8 @@ SunriseIDE::Blocks::Blocks(SunriseIDE& device)
 byte SunriseIDE::Blocks::read(unsigned address)
 {
 	if ((address < 0x4000) || (address >= 0x8000)) return 255;
-	auto& device = OUTER(SunriseIDE, romBlockDebug);
-	return device.getBank();
+	auto& ide = OUTER(SunriseIDE, romBlockDebug);
+	return ide.getBank();
 }
 
 } // namespace openmsx
