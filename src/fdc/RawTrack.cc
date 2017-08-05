@@ -38,11 +38,11 @@ void RawTrack::addIdam(unsigned idx)
 	idam.push_back(idx);
 }
 
-void RawTrack::write(int idx, byte val, bool addIdam)
+void RawTrack::write(int idx, byte val, bool setIdam)
 {
 	unsigned i2 = wrapIndex(idx);
 	auto it = lower_bound(begin(idam), end(idam), i2);
-	if (addIdam) {
+	if (setIdam) {
 		// add idam (if not already present)
 		if ((it == end(idam)) || (*it != i2)) {
 			idam.insert(it, i2);

@@ -101,7 +101,7 @@ public:
 	// it will wrap like in a circular buffer.
 
 	byte read(int idx) const { return data[wrapIndex(idx)]; }
-	void write(int idx, byte val, bool addIdam = false);
+	void write(int idx, byte val, bool setIdam = false);
 	int wrapIndex(int idx) const {
 		// operator% is not a modulo but a remainder operation (makes a
 		// difference for negative inputs). Hence the extra test.
