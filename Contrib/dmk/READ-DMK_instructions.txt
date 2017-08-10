@@ -46,7 +46,7 @@ Command line options:
 * stop=NN: specify stop cylinder (use if you don't need the whole disk dumped,
   stop earlier than end-of-disk detection finds)
 
-Example: read-dmk type=national debug=1 start=38 end=38
+Example: read-dmk type=national debug=1 start=38 stop=38
 This will dump only cylinder 38 (for both sides, so 2 DAT files) with debug
 enabled and for national-type disk drives (see above). Usually you don't
 specify any options, except for the type if you don't have a Philips-like

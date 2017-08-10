@@ -252,7 +252,7 @@ parse_end
 		ld	a,'S'
 		call	debug_log
 		call	print_pc
-		db	"Read-DMK version 0.39",13,10
+		db	"Read-DMK version 0.40",13,10
 		db	13,10
 		db	"Insert source      disk in drive A",13,10
 		db      "Insert destination disk in drive B",13,10
@@ -821,6 +821,12 @@ data_mark_found
 		dec	hl
 		dec	hl
 		dec	hl		; points to start of A1 A1 A1 FB sequence
+		ld	de,(track_stop)
+		or	a
+		sbc	hl,de
+		jr	c,data_mark_4
+		ld	de,trck_buffer
+data_mark_4	add	hl,de
 		ex	de,hl
 		ld	hl,(ofst_buf_ptr)
 		inc	hl
