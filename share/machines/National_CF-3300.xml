@@ -69,7 +69,6 @@
       <secondary slot="1">
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>National</connectionstyle>
-          <singlesided/>
           <drives>1</drives>
           <rom>
             <filename>cf-3300_disk.rom</filename>
