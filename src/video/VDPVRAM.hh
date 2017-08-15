@@ -487,9 +487,10 @@ public:
 	  * checker of this change.
 	  * TODO: Does this belong in VDPVRAM?
 	  * @param mode The new display mode.
+	  * @param cmdBit Are VDP commands allowed in non-bitmap mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayMode(DisplayMode mode, EmuTime::param time);
+	void updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param time);
 
 	/** Used by the VDP to signal display enabled changes.
 	  * Both the regular border start/end and forced blanking by clearing

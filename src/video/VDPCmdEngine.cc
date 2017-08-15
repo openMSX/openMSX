@@ -1714,7 +1714,7 @@ void VDPCmdEngine::reset(EmuTime::param time)
 	status = 0;
 	scrMode = -1;
 
-	updateDisplayMode(vdp.getDisplayMode(), time);
+	updateDisplayMode(vdp.getDisplayMode(), vdp.getCmdBit(), time);
 }
 
 void VDPCmdEngine::setCmdReg(byte index, byte value, EmuTime::param time)
@@ -1810,7 +1810,7 @@ byte VDPCmdEngine::peekCmdReg(byte index)
 	}
 }
 
-void VDPCmdEngine::updateDisplayMode(DisplayMode mode, EmuTime::param time)
+void VDPCmdEngine::updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param time)
 {
 	int newScrMode;
 	switch (mode.getBase()) {
@@ -1827,7 +1827,7 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, EmuTime::param time)
 		newScrMode = 3;
 		break;
 	default:
-		if (vdp.getCmdBit()) {
+		if (cmdBit) {
 			newScrMode = 3; // like GRAPHIC7
 			                // TODO timing might be different
 		} else {
