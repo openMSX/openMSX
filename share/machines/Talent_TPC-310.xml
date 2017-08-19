@@ -10,6 +10,8 @@
     <type>MSX2</type>
   </info>
 
+  <!-- Note: also has an expansion bus slot, but it is not known to which MSX slot it maps. -->
+
   <MapperReadBackBits>largest</MapperReadBackBits>
 
   <CassettePort/>
