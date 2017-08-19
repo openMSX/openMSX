@@ -886,7 +886,7 @@ void ImagePrinterMSX::processCharacter(byte data)
 					hpos = leftBorder;
 				}
 				break;
-			case 9: { // HAT: Horizontal tabulator
+			case 9: // HAT: Horizontal tabulator
 				// TODO: fix for other font-sizes
 				hpos = ((unsigned(hpos) + 64 - leftBorder) & ~63)
 				     + leftBorder;
@@ -894,8 +894,7 @@ void ImagePrinterMSX::processCharacter(byte data)
 					break;
 				}
 				hpos = leftBorder;
-				// fall thru: CR/LF
-			}
+				// fall-through
 			case 10: // LF: Carriage return + Line feed
 			case 11: // VT: Vertical tabulator (like LF)
 				//hpos = leftBorder;
@@ -1582,7 +1581,7 @@ void ImagePrinterEpson::processCharacter(byte data)
 				hpos = leftBorder;
 			}
 			break;
-		case 9: { // Horizontal TAB
+		case 9: // Horizontal TAB
 			// TODO: fix for other font-sizes
 			hpos = ((unsigned(hpos) + 64 - leftBorder) & ~63)
 			     + leftBorder;
@@ -1590,8 +1589,7 @@ void ImagePrinterEpson::processCharacter(byte data)
 				break;
 			}
 			hpos = leftBorder;
-			// fall thru: CR/LF
-		}
+			// fall-through
 		case 10: // Line Feed
 		case 11: // Vertical TAB
 			vpos += lineFeed;
