@@ -11,6 +11,14 @@
     <type>sound expansion</type>
   </info>
 
+<!-- Note that actually this device has a non-standard 60-pin female connector,
+incompatible with the MSX cartridge slot, but suitable for the side slot of the
+Yamaha CX5M series. However, a separate Yamaha UCN-01 Unit Connector can be
+bought which makes it possible to connect this device to any MSX. The unit is
+nothing more than a rewiring of the same signals to a standard cartridge slot
+connector. In openMSX we do not model these different slot connectors, so
+consider this device to have built in the Unit Connector. -->
+
   <devices>
     <primary slot="any">
       <secondary slot="any">

@@ -5,10 +5,13 @@
   <info>
     <manufacturer>Yamaha</manufacturer>
     <code>YIS-503IIR</code>
-    <release_year>?</release_year>
+    <release_year>1985</release_year>
     <description>Russian MSX</description>
     <type>MSX</type>
   </info>
+
+<!-- Note that the network module is not emulated. It's a module similar to the
+Yamaha SFG-01/05 regarding physical shape and how it connects to the MSX. -->
 
   <CassettePort/>
 
