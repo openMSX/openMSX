@@ -150,10 +150,10 @@ void VDPVRAM::clear()
 	}
 }
 
-void VDPVRAM::updateDisplayMode(DisplayMode mode, EmuTime::param time)
+void VDPVRAM::updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param time)
 {
 	assert(vdp.isInsideFrame(time));
-	cmdEngine->updateDisplayMode(mode, time);
+	cmdEngine->updateDisplayMode(mode, cmdBit, time);
 	renderer->updateDisplayMode(mode, time);
 	spriteChecker->updateDisplayMode(mode, time);
 }

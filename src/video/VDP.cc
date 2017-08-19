@@ -410,6 +410,7 @@ void VDP::execSetMode(EmuTime::param time)
 {
 	updateDisplayMode(
 		DisplayMode(controlRegs[0], controlRegs[1], controlRegs[25]),
+		getCmdBit(),
 		time);
 }
 
@@ -1069,8 +1070,9 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		renderer->updateVerticalScroll(val, time);
 		break;
 	case 25:
-		if (change & DisplayMode::REG25_MASK) {
+		if (change & (DisplayMode::REG25_MASK | 0x40)) {
 			updateDisplayMode(getDisplayMode().updateReg25(val),
+			                  val & 0x40,
 			                  time);
 		}
 		if (change & 0x08) {
@@ -1309,10 +1311,10 @@ void VDP::updateSpritePatternBase(EmuTime::param time)
 	vram->spritePatternTable.setMask(baseMask, indexMask, time);
 }
 
-void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
+void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time)
 {
 	// Synchronise subsystems.
-	vram->updateDisplayMode(newMode, time);
+	vram->updateDisplayMode(newMode, cmdBit, time);
 
 	// TODO: Is this a useful optimisation, or doesn't it help
 	//       in practice?

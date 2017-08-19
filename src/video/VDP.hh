@@ -801,7 +801,7 @@ private:
 	/** Display mode has changed.
 	  * Update displayMode's value and inform the Renderer.
 	  */
-	void updateDisplayMode(DisplayMode newMode, EmuTime::param time);
+	void updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time);
 
 	/** Sets a palette entry.
 	  * @param index The index [0..15] in the palette.

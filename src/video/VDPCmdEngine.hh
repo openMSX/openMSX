@@ -99,9 +99,10 @@ public:
 
 	/** Informs the command engine of a VDP display mode change.
 	  * @param mode The new display mode.
+	  * @param cmdBit Are VDP commands allowed in non-bitmap mode.
 	  * @param time The moment in emulated time this change occurs.
 	  */
-	void updateDisplayMode(DisplayMode mode, EmuTime::param time);
+	void updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param time);
 
 	/** Interface for logical operations.
 	  */
@@ -194,6 +195,7 @@ private:
 
 	/** Current screen mode.
 	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
+	  * 4 -> Non-BitMap mode (like SCREEN8 but non-planar addressing)
 	  * -1 -> other.
 	  */
 	int scrMode;
