@@ -934,10 +934,21 @@
     <dd>There exists a list of file pools, which are searched in order of their position.</dd>
 
     <dt>type(s)</dt>
-    <dd>A file pool can serve specific types. Currently, the valid types are <code>system_rom</code> (for system ROMs, you are probably using this one already if you installed your system ROMs in the recommended place, <code>share/systemroms</code>), <code>rom</code> (for other ROM files), <code>disk</code> (for disk images) and <code>tape</code> for cassette/tape images.</dd>
+    <dd>A file pool can serve specific types. Currently, the valid types are
+      <dl>
+        <dt><code>system_rom</code></dt>
+        <dd>for system ROMs, you are probably using this one already if you installed your system ROMs in the recommended place <code>share/systemroms</code>,</dd>
+        <dt><code>rom</code></dt>
+        <dd>for other ROM files,</dd>
+        <dt><code>disk</code></dt>
+        <dd>for disk images and</dd>
+        <dt><code>tape</code></dt>
+        <dd>for cassette/tape images.</dd>
+      </dl>
+    </dd>
   </dl>
 
-  <p>Apart from the default sytem ROM file pool as mentioned above, the other default file pool is <code>share/software</code>, where openMSX will search for other (than system ROM) software.</p>
+  <p>Apart from the default system ROM file pool as mentioned above, the other default file pool is <code>share/software</code>, which is configured for all other (than type <code>system_rom</code>) software files.</p>
 
   <div class="subsectiontitle">
     usage:
