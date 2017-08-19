@@ -211,7 +211,7 @@ AviWriter::~AviWriter()
 	try {
 		// First add the index table to the end
 		unsigned idxSize = unsigned(index.size()) * sizeof(Endian::L32);
-		memcpy(&index[0], "idx1", 4);
+		index[0] = ('i' << 0) | ('d' << 8) | ('x' << 16) | ('1' << 24);
 		index[1] = idxSize - 8;
 		file.write(&index[0], idxSize);
 		file.seek(0);
