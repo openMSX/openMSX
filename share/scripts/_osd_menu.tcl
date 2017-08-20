@@ -1484,7 +1484,7 @@ proc menu_create_tape_list {path} {
 		header { text "Tapes $::osd_tape_path"
 			font-size 10
 			post-spacing 6 }}
-	set extensions "cas|wav|zip|gz"
+	set extensions "cas|wav|tsx|zip|gz"
 
 	set items [list]
 	set presentation [list]

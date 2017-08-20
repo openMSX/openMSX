@@ -32,6 +32,7 @@
 #include "File.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"
+#include "TsxImage.hh"
 #include "CliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -322,11 +323,20 @@ void CassettePlayer::insertTape(const Filename& filename)
 					filename, filePool,
 					motherBoard.getMSXCliComm());
 			} catch (MSXException& e2) {
-				throw MSXException(
-					"Failed to insert WAV image: \"" +
-					e.getMessage() +
-					"\" and also failed to insert CAS image: \"" +
-					e2.getMessage() + '\"');
+				try {
+					// if that fails use TSX
+					playImage = make_unique<TsxImage>(
+						filename, filePool,
+						motherBoard.getMSXCliComm());
+				} catch (MSXException& e3) {
+					throw MSXException(
+						"Failed to insert WAV image: \"" +
+						e.getMessage() +
+						"\", also failed to insert CAS image: \"" +
+						e2.getMessage() +
+						"\" and also failed to insert TSX image: \"" +
+						e3.getMessage() + '\"');
+				}
 			}
 		}
 	} else {
@@ -533,7 +543,7 @@ string_ref CassettePlayer::getDescription() const
 	// as an identifier for this audio device in e.g. Catapult. We should
 	// use another way to identify audio devices A.S.A.P.!
 
-	return "Cassetteplayer, use to read .cas or .wav files.";
+	return "Cassetteplayer, use to read .cas, .tsx, or .wav files.";
 }
 
 void CassettePlayer::plugHelper(Connector& conn, EmuTime::param time)

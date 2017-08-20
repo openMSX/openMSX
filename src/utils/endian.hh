@@ -5,6 +5,7 @@
 #include "build-info.hh"
 #include <cstdint>
 #include <cstring>
+#include "uint24.hh"
 
 namespace Endian {
 
@@ -18,6 +19,14 @@ static inline uint16_t bswap16(uint16_t x)
 	// doesn't generate better code (and is less portable).
 	return ((x & 0x00FF) << 8) | ((x & 0xFF00) >> 8);
 	//return (x << 8) | (x >> 8);
+}
+
+// Revese bytes in a 24-bit number: 0x123456 becomes 0x563412
+static inline uint24_t bswap24(uint24_t x)
+{
+	return  (x << 16)       |
+	        (x  & 0x00ff00) |
+	        (x >> 16);
 }
 
 // Revese bytes in a 32-bit number: 0x12345678 becomes 0x78563412
@@ -50,6 +59,7 @@ static inline uint64_t bswap64(uint64_t x)
 
 // Use overloading to get a (statically) polymorphic bswap() function.
 static inline uint16_t bswap(uint16_t x) { return bswap16(x); }
+static inline uint24_t bswap(uint24_t x) { return bswap24(x); }
 static inline uint32_t bswap(uint32_t x) { return bswap32(x); }
 static inline uint64_t bswap(uint64_t x) { return bswap64(x); }
 
@@ -111,19 +121,25 @@ template<> struct ConvLittle<true > : BSwap {};
 template<> struct ConvLittle<false> : Ident {};
 using B16 = EndianT<uint16_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
 using L16 = EndianT<uint16_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
+using B24 = EndianT<uint24_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
+using L24 = EndianT<uint24_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
 using B32 = EndianT<uint32_t, ConvBig   <openmsx::OPENMSX_BIGENDIAN>>;
 using L32 = EndianT<uint32_t, ConvLittle<openmsx::OPENMSX_BIGENDIAN>>;
 static_assert(sizeof(B16)  == 2, "must have size 2");
 static_assert(sizeof(L16)  == 2, "must have size 2");
+static_assert(sizeof(B24)  == 3, "must have size 3");
+static_assert(sizeof(L24)  == 3, "must have size 3");
 static_assert(sizeof(B32)  == 4, "must have size 4");
 static_assert(sizeof(L32)  == 4, "must have size 4");
 static_assert(ALIGNOF(B16) <= 2, "may have alignment 2");
 static_assert(ALIGNOF(L16) <= 2, "may have alignment 2");
+static_assert(ALIGNOF(B24) <= 3, "may have alignment 3");
+static_assert(ALIGNOF(L24) <= 3, "may have alignment 3");
 static_assert(ALIGNOF(B32) <= 4, "may have alignment 4");
 static_assert(ALIGNOF(L32) <= 4, "may have alignment 4");
 
 
-// Helper functions to read/write aligned 16/32 bit values.
+// Helper functions to read/write aligned 16/24/32 bit values.
 static inline void writeB16(void* p, uint16_t x)
 {
 	*reinterpret_cast<B16*>(p) = x;
@@ -131,6 +147,14 @@ static inline void writeB16(void* p, uint16_t x)
 static inline void writeL16(void* p, uint16_t x)
 {
 	*reinterpret_cast<L16*>(p) = x;
+}
+static inline void writeB24(void* p, uint24_t x)
+{
+	*reinterpret_cast<B24*>(p) = x;
+}
+static inline void writeL24(void* p, uint24_t x)
+{
+	*reinterpret_cast<L24*>(p) = x;
 }
 static inline void writeB32(void* p, uint32_t x)
 {
@@ -149,6 +173,14 @@ static inline uint16_t readL16(const void* p)
 {
 	return *reinterpret_cast<const L16*>(p);
 }
+static inline uint24_t readB24(const void* p)
+{
+	return *reinterpret_cast<const B24*>(p);
+}
+static inline uint24_t readL24(const void* p)
+{
+	return *reinterpret_cast<const L24*>(p);
+}
 static inline uint32_t readB32(const void* p)
 {
 	return *reinterpret_cast<const B32*>(p);
@@ -158,7 +190,7 @@ static inline uint32_t readL32(const void* p)
 	return *reinterpret_cast<const L32*>(p);
 }
 
-// Read/write big/little 16/32/64-bit values to/from a (possibly) unaligned
+// Read/write big/little 16/24/32/64-bit values to/from a (possibly) unaligned
 // memory location. If the host architecture supports unaligned load/stores
 // (e.g. x86), these functions perform a single load/store (with possibly an
 // adjust operation on the value if the endianess is different from the host
@@ -175,6 +207,14 @@ static inline void write_UA_B16(void* p, uint16_t x)
 	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
 static inline void write_UA_L16(void* p, uint16_t x)
+{
+	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
+}
+static inline void write_UA_B24(void* p, uint24_t x)
+{
+	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
+}
+static inline void write_UA_L24(void* p, uint24_t x)
 {
 	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
@@ -209,6 +249,14 @@ static inline uint16_t read_UA_B16(const void* p)
 static inline uint16_t read_UA_L16(const void* p)
 {
 	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint16_t>(p);
+}
+static inline uint24_t read_UA_B24(const void* p)
+{
+	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint24_t>(p);
+}
+static inline uint24_t read_UA_L24(const void* p)
+{
+	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint24_t>(p);
 }
 static inline uint32_t read_UA_B32(const void* p)
 {
@@ -246,6 +294,22 @@ private:
 	uint8_t x[2];
 };
 
+class UA_B24 {
+public:
+	inline operator uint24_t() const     { return read_UA_B24(x); }
+	inline UA_B24& operator=(uint24_t a) { write_UA_B24(x, a); return *this; }
+private:
+	uint8_t x[3];
+};
+
+class UA_L24 {
+public:
+	inline operator uint24_t() const     { return read_UA_L24(x); }
+	inline UA_L24& operator=(uint24_t a) { write_UA_L24(x, a); return *this; }
+private:
+	uint8_t x[3];
+};
+
 class UA_B32 {
 public:
 	inline operator uint32_t() const     { return read_UA_B32(x); }
@@ -264,17 +328,21 @@ private:
 
 static_assert(sizeof(UA_B16)  == 2, "must have size 2");
 static_assert(sizeof(UA_L16)  == 2, "must have size 2");
+static_assert(sizeof(UA_B24)  == 3, "must have size 3");
+static_assert(sizeof(UA_L24)  == 3, "must have size 3");
 static_assert(sizeof(UA_B32)  == 4, "must have size 4");
 static_assert(sizeof(UA_L32)  == 4, "must have size 4");
 static_assert(ALIGNOF(UA_B16) == 1, "must have alignment 1");
 static_assert(ALIGNOF(UA_L16) == 1, "must have alignment 1");
+static_assert(ALIGNOF(UA_B24) == 1, "must have alignment 1");
+static_assert(ALIGNOF(UA_L24) == 1, "must have alignment 1");
 static_assert(ALIGNOF(UA_B32) == 1, "must have alignment 1");
 static_assert(ALIGNOF(UA_L32) == 1, "must have alignment 1");
 
 // Template meta-programming.
 // Get a type of the same size of the given type that stores the value in a
 // specific endianess. Typically used in template functions that can work on
-// either 16 or 32 bit values.
+// either 16, 24 or 32 bit values.
 //  usage:
 //    using LE_T = typename Endian::Little<T>::type;
 //  The type LE_T is now a type that stores values of the same size as 'T'
@@ -282,10 +350,12 @@ static_assert(ALIGNOF(UA_L32) == 1, "must have alignment 1");
 template<typename> struct Little;
 template<> struct Little<uint8_t > { using type = uint8_t; };
 template<> struct Little<uint16_t> { using type = L16; };
+template<> struct Little<uint24_t> { using type = L24; };
 template<> struct Little<uint32_t> { using type = L32; };
 template<typename> struct Big;
 template<> struct Big<uint8_t > { using type = uint8_t; };
 template<> struct Big<uint16_t> { using type = B16; };
+template<> struct Big<uint24_t> { using type = B24; };
 template<> struct Big<uint32_t> { using type = B32; };
 
 } // namespace Endian

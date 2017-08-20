@@ -12,7 +12,7 @@ CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-cassetteplayer", *this);
-	parser.registerFileType("cas,wav", *this);
+	parser.registerFileType("cas,wav,tsx,tzx", *this);
 }
 
 void CassettePlayerCLI::parseOption(const string& option, array_ref<string>& cmdLine)
@@ -40,7 +40,7 @@ void CassettePlayerCLI::parseFileType(const string& filename,
 
 string_ref CassettePlayerCLI::fileTypeHelp() const
 {
-	return "Cassette image, raw recording or fMSX CAS image";
+	return "Cassette image, raw recording, fMSX CAS image or TSX file";
 }
 
 } // namespace openmsx
