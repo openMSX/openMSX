@@ -252,7 +252,7 @@ parse_end
 		ld	a,'S'
 		call	debug_log
 		call	print_pc
-		db	"Read-DMK version 0.40",13,10
+		db	"Read-DMK version 0.41",13,10
 		db	13,10
 		db	"Insert source      disk in drive A",13,10
 		db      "Insert destination disk in drive B",13,10
@@ -1333,6 +1333,27 @@ fixup_next	ld	hl,(ofst_buf_ptr)
 ; again and hope we get the correct relative distance on the next attempt.
 ; On a real machine I found that trying 3-4 times is enough to get the correct
 ; data. Here we try up to 20 times.
+;
+; ... And it gets even more complicated. Compjoetania disks (e.g. Pixess or
+; NoiseDisk(?)) contain a track with a sector with the 'wrong' sectorsize. I
+; mean in the track layout that sector completely looks like a 512 byte sector
+; (so stuff like headers, gaps, CRC, ...). Only the sector size field has the
+; value 255 instead of 2. The WD2793 only looks at the lowest 2 bits of this
+; field, so for the WD2793 this is a 1024 byte sector. But with this larger
+; size the sector actually overlaps with the next sector. And because only the
+; size field was changed, the CRC of the sector is wrong (there's no correct
+; CRC 1024 bytes after the start of the sector). And to make it even more
+; complex: the distance between both sectors is not a multiple of 8 bits (I
+; think). At least if you read the 1024-byte sector, the last part of that data
+; does not show the sector headers etc of the next sector. The DMK file format
+; cannot represent non-integer byte offsets. But luckily the content of that
+; 1024 byte sector isn't checked by the software. That is the MSX software, but
+; it was checked in earlier versions of READ-DMK in this verify step. And
+; verification then failed.
+;
+; So what we do now is skip verification for overlapping sectors that have a
+; CRC error. So for sunrise disks we do verify the (overlapping) sector, but
+; for Compjoetania disks we don't. Non-overlapping sectors are always verified.
 
 		ld	a,'V'
 		call	debug_log
@@ -1375,10 +1396,16 @@ verify_loop	ld	(sector_cntr),a
 		ld	c,(hl)
 		inc	hl
 		ld	b,(hl)		; bc = sector data
+		inc	hl
 		push	bc
 		pop	ix		; ix = sector data
+		ld	c,(hl)
+		inc	hl
+		ld	b,(hl)
+		push	bc
+		pop	iy		; iy = addr mark of next sector
 
-		ld	b,4		; length of data mark
+verify_mark	ld	b,4		; length of data mark
 		ld	hl,#ffff	; initialize CRC
 circular_crc1	ld	a,(de)
 		inc	de
@@ -1397,6 +1424,36 @@ circ_crc_next1	djnz	circular_crc1
 		ld	a,'w'
 		call	debug_log
 		pop	bc		; bc = sector length
+
+check_overlap	push	hl
+		push	de
+		push	bc
+		push	iy
+		pop	hl		; hl = addr mark of next sector
+		or	a
+		sbc	hl,de		; hl = distance between this sector data and next sector header
+		jr	nc,check_overlap1
+		ld	de,(track_len)
+		add	hl,de		; handle wrapping
+check_overlap1	inc	bc
+		inc	bc		; 2 CRC bytes
+		or	a
+		sbc	hl,bc		; distance smaller than sector size?
+		pop	bc
+		pop	de
+		pop	hl
+		jr	nc,verify_content ; not smaller -> no overlap
+
+overlap		ld	a,'0'
+		call	debug_log
+		ld	a,(crc_status)
+		and	8
+		jr	z,verify_content ; no CRC error -> verify sector content
+		ld	a,'C'
+		call	debug_log
+		jp	verify_next	; overlap with CRC error -> skip verify
+
+verify_content
 circular_crc	ld	a,(de)
 		cp	(ix+0)
 		jr	nz,verify_data
