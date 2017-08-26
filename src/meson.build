@@ -72,6 +72,8 @@ sources = files(
     'cassette/CassettePlayerCLI.cc',
     'cassette/CassettePort.cc',
     'cassette/DummyCassetteDevice.cc',
+    'cassette/TsxImage.cc',
+    'cassette/TsxParser.cc',
     'cassette/WavImage.cc',
     'commands/Command.cc',
     'commands/CommandException.cc',
