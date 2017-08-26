@@ -33,6 +33,7 @@
 #include "ReverseManager.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"
+#include "TsxImage.hh"
 #include "MSXCliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -348,23 +349,43 @@ void CassettePlayer::insertTape(const Filename& filename, EmuTime::param time)
 {
 	if (!filename.empty()) {
 		FilePool& filePool = motherBoard.getReactor().getFilePool();
-		try {
-			// first try WAV
-			playImage = std::make_unique<WavImage>(filename, filePool);
-		} catch (MSXException& e) {
+		string msgWav, msgCas, msgTsx;
+		std::unique_ptr<CassetteImage> newImage;
+		if (!newImage) {
 			try {
-				// if that fails use CAS
-				playImage = std::make_unique<CasImage>(
-					filename, filePool,
-					motherBoard.getMSXCliComm());
-			} catch (MSXException& e2) {
-				throw MSXException(
-					"Failed to insert WAV image: \"",
-					e.getMessage(),
-					"\" and also failed to insert CAS image: \"",
-					e2.getMessage(), '\"');
+				// first try WAV
+				newImage = std::make_unique<WavImage>(filename, filePool);
+			} catch (MSXException& e) {
+				msgWav = e.getMessage();
 			}
 		}
+		if (!newImage) {
+			try {
+				// if that fails use CAS
+				newImage = std::make_unique<CasImage>(filename, filePool,
+					motherBoard.getMSXCliComm());
+			} catch (MSXException& e) {
+				msgCas = e.getMessage();
+			}
+		}
+		if (!newImage) {
+			try {
+				// if that fails use TSX
+				newImage = std::make_unique<TsxImage>(
+					filename, filePool,
+					motherBoard.getMSXCliComm());
+			} catch (MSXException& e) {
+				msgTsx = e.getMessage();
+			}
+		}
+		if (!newImage) {
+			throw MSXException(
+				"Failed to insert image: "
+				"tried WAV: \"", msgWav + "\""
+				", CAS: \"", msgCas + "\""
+				" and TSX: \"", msgTsx, "\".");
+		}
+		playImage = std::move(newImage);
 	} else {
 		// This is a bit tricky, consider this scenario: we switch from
 		// RECORD->PLAY, but we didn't actually record anything: The
