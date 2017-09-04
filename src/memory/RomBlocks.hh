@@ -18,6 +18,7 @@ public:
 	static const unsigned BANK_MASK = BANK_SIZE - 1;
 
 	byte readMem(word address, EmuTime::param time) override;
+	byte peekMem(word address, EmuTime::param time) const override;
 	const byte* getReadCacheLine(word start) const override;
 
 	template<typename Archive>

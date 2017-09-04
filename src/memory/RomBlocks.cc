@@ -58,9 +58,15 @@ template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::~RomBlocks() = default;
 
 template <unsigned BANK_SIZE>
-byte RomBlocks<BANK_SIZE>::readMem(word address, EmuTime::param /*time*/)
+byte RomBlocks<BANK_SIZE>::peekMem(word address, EmuTime::param /*time*/) const
 {
 	return bankPtr[address / BANK_SIZE][address & BANK_MASK];
+}
+
+template <unsigned BANK_SIZE>
+byte RomBlocks<BANK_SIZE>::readMem(word address, EmuTime::param time)
+{
+	return RomBlocks<BANK_SIZE>::peekMem(address, time);
 }
 
 template <unsigned BANK_SIZE>
