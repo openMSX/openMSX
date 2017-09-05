@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <cstring>
 #include <cassert>
-#include "uint24.hh"
 
 namespace Endian {
 
