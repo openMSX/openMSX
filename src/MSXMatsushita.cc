@@ -202,7 +202,7 @@ void MSXMatsushita::delay(EmuTime::param time)
 			return;
 		}
 	}
-	lastTime.advance(time);
+	lastTime.reset(time);
 }
 
 template<typename Archive>
