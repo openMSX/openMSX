@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1505008050">
+<softwaredb timestamp="1505106483">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -111,6 +111,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>6bde4e6761286a2909858ecef04155e17072996e</hash></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>dc2d11c53a973f1be8b26ff7317cfaf66614d99e</hash><remark>Bug Fixes / http://forgottenkings.tripod.com/m36.html</remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>307cd28662f2c960fa54dcf08c33d8a25be2a2f7</hash><remark>No Bug Fixes / http://forgottenkings.tripod.com/m36.html</remark></megarom></dump>
 </software>
 <software>
 	<title>A-Class Mahjong</title>
@@ -1112,6 +1114,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>013fe787d071c64d7d2692b984734c5812a483c2</hash></rom></dump>
 </software>
 <software>
+	<title>Bird and Chairs</title>
+	<system>MSX</system>
+	<company>NYYRIKKI</company>
+	<year>2017</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>ed0b859afd5cb5ab66fd2b1122ed83682b0f3ea1</hash></rom></dump>
+</software>
+<software>
 	<title>BitLogic a Cyberpunk Arcade Adventure</title>
 	<system>MSX</system>
 	<company>The Pets Mode</company>
@@ -1249,6 +1259,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><rom><hash>cef76580a01cc8e16704590d0d884d7eeadaa3a8</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>5c904e7d202d9df2ff2ef9c8300f00d207670e82</hash><remark>Kralizec MSX2 Version</remark></rom></dump>
+</software>
+<software>
+	<title>Bomb Jack</title>
+	<system>MSX</system>
+	<company>Kralizec</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>aacdfbd5eda687377e66df2e376bd28679fbc160</hash></rom></dump>
 </software>
 <software>
 	<title>Bomb Man</title>
@@ -3757,6 +3775,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>9dcd8d6a89618401da9f1df566a98914a6be4dea</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
+	<title>FlappY Bird</title>
+	<system>MSX</system>
+	<company>dot Gear</company>
+	<year>2014</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>bfec80f1c35293f31be8b34058e2e0e6da9aef09</hash></rom></dump>
+</software>
+<software>
 	<title>Flappy Limited</title>
 	<genmsxid>626</genmsxid>
 	<system>MSX</system>
@@ -5512,12 +5538,13 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>71139e82cf55450d0b48f124bc95fbe1ce5dabaf</hash></rom></dump>
 </software>
 <software>
-	<title>Inferno Demo</title>
+	<title>Inferno</title>
 	<system>MSX</system>
 	<company>Aetherbyte</company>
 	<year>2015</year>
 	<country>UK</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>785433a8064bd48a47a53c4e77a54a85e45f5899</hash><remark>Demo</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>42a05d3f93ce7e7469cc992f37558350faaefa8a</hash><remark>MSXDev2013 (the Channel)</remark></megarom></dump>
 </software>
 <software>
 	<title>Information Rivalry</title>
@@ -5853,6 +5880,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>846bd4d89bd034ac5346cbc559752635ad2bda6b</hash></rom></dump>
 		<dump><rom><hash>4a92ec1be15c45ee98c08ac96191a369d562181b</hash></rom></dump>
 		<dump><rom><hash>a54c4244526051d887f9d74a767c254c08d47ad4</hash></rom></dump>
+</software>
+<software>
+	<title>Just Another Snake Game</title>
+	<system>MSX</system>
+	<company>Nitrofurano</company>
+	<year>2013</year>
+	<country>PT</country>
+		<dump><original value="false">Translated</original><rom><hash>67b007d9e0ee76ad3ed03083459d050386a05134</hash><remark>MSXDev2013 (the Channel)</remark></rom></dump>
 </software>
 <software>
 	<title>Jyan Friend</title>
@@ -7375,6 +7410,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>1ce6eb24004089dd4122c1effde0f97f371085ed</hash></rom></dump>
 </software>
 <software>
+	<title>Mazogs</title>
+	<system>MSX</system>
+	<company>Eduardo Adrian Varoni</company>
+	<year>2017</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>0d121629ca241219b1ebe27ca9302f45576fc6df</hash><remark>MSXDev 2017</remark></rom></dump>
+</software>
+<software>
 	<title>Mecha 8</title>
 	<system>MSX</system>
 	<company>Oscar Toledo Gutiérrez</company>
@@ -7887,6 +7930,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>7b6029bfd7cb4b9d4c5ec5b9b3e3c93d00558b5e</hash></rom></dump>
 </software>
 <software>
+	<title>Mr. Balloon</title>
+	<system>MSX</system>
+	<company>Mapax</company>
+	<year>2014</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>1a1d4f63751c3d4d208638eb37f48b3c1657f8c8</hash><remark>MSXDev2014 (The Channel) entry</remark></rom></dump>
+</software>
+<software>
 	<title>Mr. Chef And The Sausages</title>
 	<system>MSX</system>
 	<company>Paxanga Soft</company>
@@ -8339,6 +8390,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1984</year>
 	<country>UK</country>
 		<dump><rom><hash>be7cfd5ca5d78b99c05dbda1e26f4afbddb50c48</hash><remark>[b]</remark></rom></dump>
+</software>
+<software>
+	<title>Nothing Thing</title>
+	<system>MSX</system>
+	<company>Nitrofurano</company>
+	<year>2013</year>
+	<country>PT</country>
+		<dump><original value="true">Author</original><rom><hash>08bd42d445b0357da6c8b034875a2704ad8e9cce</hash><remark>MSXDev2013 - MSX2+ or Higher</remark></rom></dump>
 </software>
 <software>
 	<title>Number and Target</title>
@@ -9083,6 +9142,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1989</year>
 	<country>KW</country>
 		<dump><megarom><type>ASCII8</type><hash>b20e02cbffef692c7aee6281eb36729ee1e928ef</hash></megarom></dump>
+</software>
+<software>
+	<title>Pointless Fighting - Baka-Yo!</title>
+	<system>MSX</system>
+	<company>SoftCorp</company>
+	<year>2014</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>f026d150f97a1c9a13a5d5ce3e2621f7214b9dbb</hash><remark>Street Fighter Clone</remark></megarom></dump>
 </software>
 <software>
 	<title>Pointless Platform</title>
@@ -9947,6 +10014,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>87694fc3e9be68a46c7e32ae643634e8c7b1000b</hash><remark>MSXDev13 Entry</remark></rom></dump>
 </software>
 <software>
+	<title>SKULLrs</title>
+	<system>MSX</system>
+	<company>Digiconcrete</company>
+	<year>2017</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>05108215d0f46fa9a369da35d4c8dec2d3c9366d</hash><remark>MSXDev 2017</remark></rom></dump>
+</software>
+<software>
 	<title>Saimazoom</title>
 	<system>MSX</system>
 	<company>Karoshi Corporation</company>
@@ -10793,7 +10868,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Brain Games</company>
 	<year>2017</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>6e82d8031c3a4569964ec1f4d48af13cfcf945fe</hash><remark>MSXDev 2017</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>6e82d8031c3a4569964ec1f4d48af13cfcf945fe</hash><remark>v1.4 / MSXDev 2017</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>252b744bf5d852c37daa85fa5c353ef392ca4f68</hash><remark>v1.4.1 / MSXDev 2017</remark></rom></dump>
 </software>
 <software>
 	<title>Sphere Redux</title>
@@ -11231,6 +11307,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>e171d0cec1d32aaf084e3c8150705c177522cbe6</hash></megarom></dump>
 		<dump><megarom><type>SuperLodeRunner</type><hash>ef6c6cde14eb551b74640ed6b38660572f121b86</hash></megarom></dump>
 		<dump><megarom><type>SuperLodeRunner</type><hash>b9d46267d081882dfd89342d3e09b82d7e8f618d</hash></megarom></dump>
+</software>
+<software>
+	<title>Super Mario World</title>
+	<system>MSX</system>
+	<company>Daemos et al.</company>
+	<year>2016</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>77b37d7028d5f657239eb24f0c16097a6e183f8d</hash><remark>https://www.msx.org/forum/development/msx-development/supermario-world-msx</remark></megarom></dump>
 </software>
 <software>
 	<title>Super Monitor</title>
@@ -12576,6 +12660,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>b815cb222a6314c1adad0945af7be759a14c200a</hash></rom></dump>
 </software>
 <software>
+	<title>Wild Puzzle</title>
+	<system>MSX</system>
+	<company>Mapax</company>
+	<year>2016</year>
+	<country>ES</country>
+		<dump><original value="false">0</original><megarom><type>ASCII16</type><hash>de5ab36ed1c91d94dd08cd74a3e2bc2eb90da3d6</hash></megarom></dump>
+</software>
+<software>
 	<title>Window On The World</title>
 	<genmsxid>1971</genmsxid>
 	<system>MSX</system>
@@ -13094,4 +13186,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>20ce189d670c0fe5f2a945d73107df7d83070ff7</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:3277 - Created on Sat Sep 9 2017 - 18:47:32 PDT-->
+<!-- Roms in this XML file:3292 - Created on Sun Sep 10 2017 - 22:08:05 PDT-->
