@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1505106483">
+<softwaredb timestamp="1505712050">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -43,6 +43,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>ba07b1b585386f887d4c7e457210b3fce819709a</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>dd1e87a16e5fb38d9d729ef7edc6da21146a99fe</hash><remark>[a]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>9c544426a02312b7148249ef20ae6e2021b45db4</hash></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>061ac6c59e0bcf4d315cb7329bccb955f6af4001</hash><remark>Zemina Hack</remark></megarom></dump>
 </software>
 <software>
 	<title>1942 - MSX2 Version</title>
@@ -335,6 +336,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="false">Translated</original><megarom><type>ASCII16</type><hash>19022db5f9d229e9b5f38ba02d7478ad3310d4c8</hash><remark>French Translation</remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash>ac2210f984a0054c112d56676d22b5fac8f916cd</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>72b00f0a63ad6233557d681d60cd002a9b395344</hash></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>1fd3a268067fd5b9e84fef3013c7759de611a861</hash><remark>English Translation</remark></megarom></dump>
 </software>
 <software>
 	<title>Aleste 2</title>
@@ -1378,6 +1380,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>451cbb072011b26a7e0bc9931e67995a71f5fd6f</hash></rom></dump>
 		<dump><rom><hash>30161382e2410a72ece072719a561ec550256c7c</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>6f50ab2e4b4f40aa78e3d52ea3a1d6bace3ad361</hash><remark>GDX SCC Version</remark></megarom></dump>
+		<dump><rom><hash>ad84cdb17d242f3d44c54f490d32f3006e96276c</hash></rom></dump>
 </software>
 <software>
 	<title>Bouken Roman - Dota</title>
@@ -1459,6 +1462,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1987</year>
 	<country>NL</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>bcfdb43b275c62a76856aab94fb1b53bd92b2db2</hash></rom></dump>
+		<dump><megarom><type>ASCII16</type><hash>be08ec5c848c1378ca954ade9065b850c6ce1660</hash></megarom></dump>
 </software>
 <software>
 	<title>Break Out</title>
@@ -3029,7 +3033,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII16</type><hash>d4b2a8f726271c3d771933820a311463c71873e2</hash></megarom></dump>
 </software>
 <software>
-	<title>Dragon Slayer 4 - MSX1</title>
+	<title>Dragon Slayer 4 - MSX1 Version</title>
 	<genmsxid>1377</genmsxid>
 	<system>MSX</system>
 	<company>Falcom</company>
@@ -3050,6 +3054,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>fa2d5f56273a0faa5b39096448f82998655de60d</hash></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>73ad5a90a963f7963a404816e8d6616bbe386ce2</hash><remark>Kralizec's Dragon Slayer 4 improved password readability patch</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>9bdd6b4212468e07be25bd43e94b50d2ea1fe9dc</hash><remark>Translated by MSX Translations</remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>806020de7d645b148674186782e59435b07f6675</hash><remark>Translated by MSX Translations</remark></megarom></dump>
 </software>
 <software>
 	<title>Drainer</title>
@@ -4349,6 +4354,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>6da3d46fa71415962004b3b13a2bac2dd513958a</hash><remark>[SCC]</remark></megarom></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>2c4f9305d160b9a0fbc3ee4226983750ee5f1952</hash><remark>[SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>461c581ebc43b47c54a6d706a03c462bf7d1ef75</hash><remark>[The Snatcher RAM SCC+]</remark></sccpluscart></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>82bbe05b539bf5463738f8b246c09c67ab9bf65d</hash><remark>Game Collection</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>e6d2f6f6f6b478656585835c596b4b98cb3f87f0</hash><remark>Game Collection</remark></megarom></dump>
 </software>
 <software>
 	<title>Gofer no Yabou Episode 2 - Nemesis 3 The Eve Of Destruction</title>
@@ -5039,6 +5046,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>8a2b89e20c4d26d274ace6e14ec106e25099768b</hash></rom></dump>
 </software>
 <software>
+	<title>Highway Fighter</title>
+	<system>MSX</system>
+	<company>Kai Magazine</company>
+	<year>2017</year>
+	<country>ES</country>
+		<dump><megarom><type>KonamiSCC</type><hash>6b907ffd8b06ee6e6863b8595975e89cc6afd7dc</hash></megarom></dump>
+</software>
+<software>
 	<title>Hinotori - Firebird</title>
 	<genmsxid>1002</genmsxid>
 	<system>MSX</system>
@@ -5389,6 +5404,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>6842fb21abb2531c17fe0687d77e012348d3dc2c</hash><remark>[RC-733]</remark></rom></dump>
 		<dump><rom><hash>3d45014accbee7c0df798a7c77771666f863dfd5</hash><remark>[RC-733]</remark></rom></dump>
 		<dump><rom><hash>00f6e7efbb5a50b66723a3130009a96d8a588363</hash><remark>Konami Antiques MSX Collection 2</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>ae1255a46f7c25cecafbd46bc5257234c307d900</hash><remark>Game Collection</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>b488bf3639d1fbf0d5aa837a5f4b3edbfb7459e7</hash><remark>Game Collection</remark></megarom></dump>
 </software>
 <software>
 	<title>I need speed</title>
@@ -6263,6 +6280,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><megarom><type>KonamiSCC</type><hash>728340e95ad58ab989a59f61317a45ab1f6b0bdc</hash><remark>[h Thevma]</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>d2d5c5a0731278d9e0a35997eaa64317636ab832</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>0fc4ea16ae7259d561eb936d6a14e997b7f8cfc1</hash></megarom></dump>
 </software>
 <software>
 	<title>Konami Game Collection - Volume #2</title>
@@ -6273,6 +6291,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><megarom><type>GenericKonami</type><hash>ee533b8e4bdd6cdf2c273f7c80753cf8db60f545</hash><remark>[h Thevma]</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>1674e0d766d47579a8c07d5bc98cabd7b5093043</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>695866bc9ba0f6ef3b6ee3c75eee70ea3e80d045</hash></megarom></dump>
 </software>
 <software>
 	<title>Konami Game Collection - Volume #3</title>
@@ -6284,6 +6303,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>51b24ab4846758a8b6dc6b15e21b0baa70c8a650</hash></rom></dump>
 		<dump><rom><hash>58132c6ff44095b1598f267b2bdca432d3178ec9</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>b4c475c91e82390a1d21480a0d70fc4b0c48f49d</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>54e6e3475bf89fa09a392d59d6dcf8cf24b55f9d</hash></megarom></dump>
 </software>
 <software>
 	<title>Konami Game Collection - Volume #4</title>
@@ -6294,6 +6314,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><megarom><type>KonamiSCC</type><hash>f2eef7402d2e6e7f7c15a1f3d8bd251603eabf12</hash><remark>[h Thevma]</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>287d196973d5c5f53562e6573c20c66304c0e83f</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>ce227d7932847b7f0db39ca85ea3fa0e3c22a692</hash></megarom></dump>
 </software>
 <software>
 	<title>Konami Game Collection Special</title>
@@ -6303,6 +6324,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1989</year>
 	<country>JP</country>
 		<dump><megarom><type>KonamiSCC</type><hash>f90064fe4ffed170f9e9c79196aa0b17e0bbd86b</hash><remark>[h Thevma]</remark></megarom></dump>
+</software>
+<software>
+	<title>Konami ultimate collection</title>
+	<system>MSX</system>
+	<company>Konami</company>
+	<year></year>
+	<country>JP</country>
+		<dump><original value="false">0</original><megarom><type>KonamiUltimateCollection</type><hash>3d94e0998690325bcb3640e1646d8e4e13f652cf</hash></megarom></dump>
 </software>
 <software>
 	<title>Konami's Baseball</title>
@@ -6333,6 +6362,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><sccpluscart><boot>scc+</boot><hash>7768195d49ad389d388468c4f24a53a5f53e3c5d</hash><remark>[SD Snatcher RAM SCC+][RC-736]</remark></sccpluscart></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>ae24f03a969bfc7394b9620c8f227ae97627a7ce</hash><remark>[The Snatcher RAM SCC+][RC-736]</remark></sccpluscart></dump>
 		<dump><rom><hash>4569c02e59fb9d7a42d6a0296d821bc7ae7e338d</hash><remark>Konami Antiques MSX Collection 1</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>4eb8014e54d20f4b337a39b960813009b41dd82a</hash><remark>Game Collection</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>06fdd50fcb9147e6ab94cc32c841424d9ec4f1c7</hash><remark>Game Collection</remark></megarom></dump>
 </software>
 <software>
 	<title>Konami's Game Master</title>
@@ -6420,6 +6451,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>79c1bf77c08b733ae04e069deaf25fd24b28beb7</hash><remark>[RC-732]</remark></rom></dump>
 		<dump><rom><hash>34019d5bc3687ec1255fd7ad7571830a67241ddd</hash><remark>[RC-732] / Konami Antiques MSX Collection 3</remark></rom></dump>
 		<dump><rom><hash>5bef9572d71848966222819c3a1dd954994a4028</hash><remark>[RC-732] / enhancement patch</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>10c31f1327d047a08a99f6bcad5f7c4910385012</hash><remark>Game Collection</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>c0961ba9186523a19465de88167fedb3ce622e1f</hash><remark>Game Collection</remark></megarom></dump>
 </software>
 <software>
 	<title>Konami's Synthesizer</title>
@@ -7227,6 +7260,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>e234060800fdcca41eb3f7019edd21c28c9ce223</hash><remark>[RC-739]</remark></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>df203139ad0cd2357f3125417a4157e701dbacf6</hash><remark>[RC-739] / SCC Enhanced</remark></megarom></dump>
 		<dump><rom><hash>f2a4b562aa40eb09bfac436af20a31d04a4d1823</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>2b36169693227eb2b53e1961191991453f9f27f1</hash><remark>Game Collection</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>299249b75b61ecc26bbec06228c8fd5cbcc0d2d6</hash><remark>Game Collection</remark></megarom></dump>
 </software>
 <software>
 	<title>Makaijima - Higemaru</title>
@@ -9728,11 +9763,12 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Return of Jelda</title>
 	<genmsxid>1035</genmsxid>
 	<system>MSX</system>
-	<company>Softmen</company>
+	<company>Softmen/Carry Lab</company>
 	<year>1987</year>
 	<country>KR</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>59f679c5ebf75de98b5e909da9182dbd80413364</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>a80b5426fd0f4ab19eba1c06620f5efb8fbade3a</hash></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>71ab2743532a56df2f3e8ca0d0312acbd4950479</hash></megarom></dump>
 </software>
 <software>
 	<title>Revenge Of The Boing Ball</title>
@@ -9752,6 +9788,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>2f6e0a02fcc3d368db142ac837304c18c5226e2f</hash><remark>[SCC]</remark></megarom></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>4524768e575298cee3b7eee09b3caab784ca3bb7</hash><remark>[SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>e9b5b79f434b1c5bdb47f3ffece3ad42e489e20b</hash><remark>[The Snatcher RAM SCC+]</remark></sccpluscart></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>53bb7651ec2aafe9fbc4b4b6bc47580861d1cf2d</hash><remark>Game Collection</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>b0e526b6ea68cc53f116846d8decafc698448d0d</hash><remark>Game Collection</remark></megarom></dump>
 </software>
 <software>
 	<title>Rice 2</title>
@@ -9763,6 +9801,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>3f20b96149f58b86d1f0e79483d5ddf402191ec9</hash><remark>[SCC]</remark></megarom></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>0a0203d69b68e1c636fdb78934ae7fb5b4d88179</hash><remark>[SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>04a564958ea71653f87a8aa51b84aa567c73a8bd</hash><remark>[The Snatcher RAM SCC+]</remark></sccpluscart></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>90f380debf7ee409a49d4894dc8467bf06039067</hash><remark>Game Collection</remark></megarom></dump>
 </software>
 <software>
 	<title>Rick &amp; Mick's Adventure</title>
@@ -10259,6 +10298,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>fdc3cc10b4821ea5169c817fcbd6e99fac464feb</hash></rom></dump>
 </software>
 <software>
+	<title>Sector 88</title>
+	<system>MSX</system>
+	<company>Kai Magazine</company>
+	<year>2016</year>
+	<country>ES</country>
+		<dump><megarom><type>KonamiSCC</type><hash>0d8bf2f88162d4a32c1b85dbf519b94e6ec6abda</hash></megarom></dump>
+</software>
+<software>
 	<title>Seiken Acho - Kung-Fu Master Taekwondo</title>
 	<genmsxid>531</genmsxid>
 	<system>MSX</system>
@@ -10307,11 +10354,12 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Senjyo no Ookami - Commando</title>
 	<genmsxid>778</genmsxid>
 	<system>MSX</system>
-	<company>Capcom</company>
+	<company>Capcom/ASCII</company>
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>2b255c3e5615b2f5e2365419a35e4115a060e93c</hash></megarom></dump>
 		<dump><rom><hash>7c811f87fc2c61b5622b75ffa37fa43b9f2a1503</hash></rom></dump>
+		<dump><megarom><type>ASCII8</type><hash>ffeda3b3cd9ff1ebbfb28a7d02373e4af6468793</hash></megarom></dump>
 </software>
 <software>
 	<title>Sets</title>
@@ -10564,6 +10612,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><sccpluscart><boot>scc+</boot><hash>ac4facb517e2383b4cb22504cda961b15af0a83e</hash><remark>[RC-721] / [SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><rom><hash>c55b0daf698d93b8278a9d89f38272064d1594bd</hash><remark>[RC-721] / Konami Antiques MSX Collection 1</remark></rom></dump>
 		<dump><rom><hash>e8d2f130b0937d1baced5a3996b78f163d4fa70a</hash><remark>[RC-721]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>26e30161be01a0e8f6835468f876d82c89742ac9</hash><remark>Game Collection</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>b2268ac565d86ec0059b0f642115bfee8e36409c</hash><remark>Game Collection</remark></megarom></dump>
 </software>
 <software>
 	<title>Slapshot</title>
@@ -10870,6 +10920,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>6e82d8031c3a4569964ec1f4d48af13cfcf945fe</hash><remark>v1.4 / MSXDev 2017</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>252b744bf5d852c37daa85fa5c353ef392ca4f68</hash><remark>v1.4.1 / MSXDev 2017</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>2b2818e56243caf7713442dc9f54f67a780b6ff6</hash><remark>v1.4.2 / MSXDev 2017</remark></rom></dump>
 </software>
 <software>
 	<title>Sphere Redux</title>
@@ -11293,6 +11344,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>244399d67d7851f3daa9bb87a14f5b8ef6d8c160</hash></megarom></dump>
 		<dump><megarom><type>GenericKonami</type><hash>81b85b1152a59bb10d0e0118f80f0a4ed363c785</hash></megarom></dump>
 		<dump><megarom><type>GenericKonami</type><hash>cf6fe49b28fcf81511f39fdf68f37af82bd724c0</hash><remark>Ulver crack</remark></megarom></dump>
+		<dump><megarom><type>ASCII8</type><hash>83d7dfc1693e73d2a6ef597a67e091071c479298</hash></megarom></dump>
 </software>
 <software>
 	<title>Super Lode Runner</title>
@@ -12020,6 +12072,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>ee267ee21f5753130af665435d4e1ce84a6256f1</hash><remark>[SCC]</remark></megarom></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>8ac11431e32e23919a2ea37d5b2ef472d634921a</hash><remark>[SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>a031ff5aeafb7d470e810bd6cd08c92394f66295</hash><remark>[The Snatcher RAM SCC+]</remark></sccpluscart></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>9d08e499ee38bd4a350bbea766a355140c56878a</hash><remark>Game Collection</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>091d23d69f214f220f45dce9bd739bb73625734d</hash><remark>Game Collection</remark></megarom></dump>
 </software>
 <software>
 	<title>Tomb of Genghis Khan</title>
@@ -12665,7 +12719,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Mapax</company>
 	<year>2016</year>
 	<country>ES</country>
-		<dump><original value="false">0</original><megarom><type>ASCII16</type><hash>de5ab36ed1c91d94dd08cd74a3e2bc2eb90da3d6</hash></megarom></dump>
+		<dump><megarom><type>ASCII16</type><hash>de5ab36ed1c91d94dd08cd74a3e2bc2eb90da3d6</hash></megarom></dump>
+		<dump><megarom><type>ASCII16</type><hash>718b1cdecc61ec28ce4e739793852b9a863863ad</hash></megarom></dump>
 </software>
 <software>
 	<title>Window On The World</title>
@@ -12892,6 +12947,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>b0e20c6e5eb91aeaa7fc354eb0a054f480e5197e</hash><remark>[RC-737] / SCC Enhanced</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>128e94fb7968291496761b6b949c612d2190a569</hash><remark>[RC-737] / SCC+ Enhanced</remark></megarom></dump>
 		<dump><rom><hash>3acba00fa8fd1a9f794adc0850a867fb51a48e64</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>70e04b521d7cebfad745228b64e1c85aa5cc2e99</hash><remark>Game Collection</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>634e12492e083edc378f5857fd25ef921ada26d1</hash><remark>Game Collection</remark></megarom></dump>
 </software>
 <software>
 	<title>Yokai Tanken Chima Chima</title>
@@ -13033,6 +13090,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>ffa8fc5756f7e1d1ef168618f5606aca10f8b2c7</hash><remark>[a]</remark></rom></dump>
 		<dump><rom><hash>a9d371c0eec519c48af880df540e03da572f263d</hash><remark>[h Krull Software]</remark></rom></dump>
 		<dump><rom><hash>65ef88e469848c38c4595cbca82992fcf8dc7ed2</hash><remark>Starts at stage 00</remark></rom></dump>
+		<dump><rom><hash>f4a57faaadb248a502249d40196237d9dd802eea</hash></rom></dump>
 </software>
 <software>
 	<title>Zanac-Ex</title>
@@ -13186,4 +13244,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>20ce189d670c0fe5f2a945d73107df7d83070ff7</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:3292 - Created on Sun Sep 10 2017 - 22:08:05 PDT-->
+<!-- Roms in this XML file:3329 - Created on Sun Sep 17 2017 - 22:20:53 PDT-->
