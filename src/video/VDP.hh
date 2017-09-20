@@ -521,11 +521,6 @@ public:
 	VDPAccessSlots::Calculator getAccessSlotCalculator(
 		EmuTime::param time, EmuTime::param limit) const;
 
-	/** Is there a CPU-VRAM access scheduled. */
-	bool cpuAccessScheduled() const {
-		return pendingCpuAccess; // pendingSyncPoint(CPU_VRAM_ACCESS)
-	}
-
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

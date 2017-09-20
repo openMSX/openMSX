@@ -40,6 +40,17 @@ public:
 	}
 	void sync2(EmuTime::param time);
 
+	/** Steal a VRAM access slot from the CmdEngine.
+	 * Used when the CPU reads/writes VRAM.
+	 * @param time The moment in time the CPU read/write is performed.
+	 */
+	void stealAccessSlot(EmuTime::param time) {
+		if (!CMD) return;
+		engineTime = time;
+		nextAccessSlot(VDPAccessSlots::DELTA_1); // skip one slot
+		assert(engineTime > time);
+	}
+
 	/** Gets the command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
 	  * a pixel transfer.
@@ -141,9 +152,12 @@ private:
 	template<typename Mode>                 void executeYmmm(EmuTime::param limit);
 	template<typename Mode>                 void executeHmmc(EmuTime::param limit);
 
-	inline void nextAccessSlot() {
-		engineTime = vdp.getAccessSlot(engineTime, VDPAccessSlots::DELTA_0);
+	// Advance to the next access slot at or past the given time.
+	inline void nextAccessSlot(EmuTime::param time) {
+		engineTime = vdp.getAccessSlot(time, VDPAccessSlots::DELTA_0);
 	}
+	// Advance to the next access slot that is at least 'delta' cycles past
+	// the current one.
 	inline void nextAccessSlot(VDPAccessSlots::Delta delta) {
 		engineTime = vdp.getAccessSlot(engineTime, delta);
 	}
@@ -171,13 +185,8 @@ private:
 	BooleanSetting cmdTraceSetting;
 	TclCallback cmdInProgressCallback;
 
-	/** Time at which the next operation cycle starts.
-	  * A cycle consists of reading source VRAM (if applicable),
-	  * reading destination VRAM (if applicable),
-	  * writing destination VRAM and updating coordinates.
-	  * For perfect timing each phase within a cycle should be timed
-	  * explicitly, but for now we use an average execution time per
-	  * cycle.
+	/** Time at which the next vram access slot is available.
+	  * Only valid when a command is executing.
 	  */
 	EmuTime engineTime;
 

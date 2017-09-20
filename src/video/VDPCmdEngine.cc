@@ -749,7 +749,7 @@ void VDPCmdEngine::startPoint(EmuTime::param time)
 {
 	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 	statusChangeTime = EmuTime::zero; // will finish soon
 }
 
@@ -770,7 +770,7 @@ void VDPCmdEngine::startPset(EmuTime::param time)
 {
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 	statusChangeTime = EmuTime::zero; // will finish soon
 	phase = 0;
 }
@@ -810,7 +810,7 @@ void VDPCmdEngine::startSrch(EmuTime::param time)
 	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
 	ASX = SX;
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 	statusChangeTime = EmuTime::zero; // we can find it any moment
 }
 
@@ -856,7 +856,7 @@ void VDPCmdEngine::startLine(EmuTime::param time)
 	ASX = ((NX - 1) >> 1);
 	ADX = DX;
 	ANX = 0;
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 	statusChangeTime = EmuTime::zero; // TODO can still be optimized
 	phase = 0;
 }
@@ -946,7 +946,7 @@ void VDPCmdEngine::startLmmv(EmuTime::param time)
 	unsigned tmpNY = clipNY_1(DY, NY, ARG);
 	ADX = DX;
 	ANX = tmpNX;
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 	calcFinishTime(tmpNX, tmpNY, 72 + 24);
 	phase = 0;
 }
@@ -1071,7 +1071,7 @@ void VDPCmdEngine::startLmmm(EmuTime::param time)
 	ASX = SX;
 	ADX = DX;
 	ANX = tmpNX;
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 	calcFinishTime(tmpNX, tmpNY, 64 + 32 + 24);
 	phase = 0;
 }
@@ -1214,7 +1214,7 @@ void VDPCmdEngine::startLmcm(EmuTime::param time)
 	ANX = tmpNX;
 	transfer = true;
 	status |= 0x80;
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 	statusChangeTime = EmuTime::zero;
 }
 
@@ -1248,7 +1248,7 @@ void VDPCmdEngine::executeLmcm(EmuTime::param limit)
 			commandDone(engineTime);
 		}
 	}
-	engineTime = limit; nextAccessSlot(); // TODO
+	nextAccessSlot(limit); // TODO
 }
 
 /** Logical move CPU -> VRAM.
@@ -1266,7 +1266,7 @@ void VDPCmdEngine::startLmmc(EmuTime::param time)
 	// do not set 'transfer = true', this fixes bug#1014
 	// Baltak Rampage: characters in greetings part are one pixel offset
 	status |= 0x80;
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 }
 
 template<typename Mode, typename LogOp>
@@ -1309,7 +1309,7 @@ void VDPCmdEngine::executeLmmc(EmuTime::param limit)
 			}
 		}
 	}
-	engineTime = limit; nextAccessSlot(); // inaccurate, but avoid assert
+	nextAccessSlot(limit); // inaccurate, but avoid assert
 }
 
 /** High-speed move VDP -> VRAM.
@@ -1324,7 +1324,7 @@ void VDPCmdEngine::startHmmv(EmuTime::param time)
 	unsigned tmpNY = clipNY_1(DY, NY, ARG);
 	ADX = DX;
 	ANX = tmpNX;
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 	calcFinishTime(tmpNX, tmpNY, 48);
 }
 
@@ -1429,7 +1429,7 @@ void VDPCmdEngine::startHmmm(EmuTime::param time)
 	ASX = SX;
 	ADX = DX;
 	ANX = tmpNX;
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 	calcFinishTime(tmpNX, tmpNY, 24 + 64);
 	phase = 0;
 }
@@ -1561,7 +1561,7 @@ void VDPCmdEngine::startYmmm(EmuTime::param time)
 	unsigned tmpNY = clipNY_2(SY, DY, NY, ARG);
 	ADX = DX;
 	ANX = tmpNX;
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 	calcFinishTime(tmpNX, tmpNY, 24 + 40);
 	phase = 0;
 }
@@ -1690,7 +1690,7 @@ void VDPCmdEngine::startHmmc(EmuTime::param time)
 	statusChangeTime = EmuTime::zero;
 	// do not set 'transfer = true', see startLmmc()
 	status |= 0x80;
-	engineTime = time; nextAccessSlot();
+	nextAccessSlot(time);
 }
 
 template<typename Mode>
@@ -1726,7 +1726,7 @@ void VDPCmdEngine::executeHmmc(EmuTime::param limit)
 			}
 		}
 	}
-	engineTime = limit; nextAccessSlot(); // inaccurate, but avoid assert
+	nextAccessSlot(limit); // inaccurate, but avoid assert
 }
 
 
@@ -2542,13 +2542,6 @@ void VDPCmdEngine::sync2(EmuTime::param time)
 
 	default:
 		UNREACHABLE;
-	}
-
-	if (CMD && unlikely(vdp.cpuAccessScheduled())) {
-		// If there's a CPU access scheduled, then the next slot will
-		// be used by the CPU. So we take a later slot.
-		nextAccessSlot(VDPAccessSlots::DELTA_1); // skip one slot
-		assert(engineTime > time);
 	}
 }
 

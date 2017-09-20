@@ -459,8 +459,9 @@ public:
 		    cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
-
 		writeCommon(address, value, time);
+
+		cmdEngine->stealAccessSlot(time);
 	}
 
 	/** Read a byte from VRAM though the CPU interface.
@@ -479,6 +480,11 @@ public:
 		if (cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
+		cmdEngine->stealAccessSlot(time);
+
+		#ifdef DEBUG
+		vramTime = time;
+		#endif
 		return data[address];
 	}
 
@@ -544,6 +550,11 @@ private:
 	/* Common code of cmdWrite() and cpuWrite()
 	 */
 	inline void writeCommon(unsigned address, byte value, EmuTime::param time) {
+		#ifdef DEBUG
+		assert(time >= vramTime);
+		vramTime = time;
+		#endif
+
 		// Check that VRAM will actually be changed.
 		// A lot of costly syncs can be saved if the same value is written.
 		// For example Penguin Adventure always uploads the whole frame,
@@ -557,9 +568,6 @@ private:
 		spritePatternTable.notify(address, time);
 
 		data[address] = value;
-		#ifdef DEBUG
-		vramTime = time;
-		#endif
 
 		// Cache dirty marking should happen after the commit,
 		// otherwise the cache could be re-validated based on old state.
@@ -629,8 +637,9 @@ private:
 	VDPCmdEngine* cmdEngine;
 	SpriteChecker* spriteChecker;
 
-	/** Current time: the moment up until when the VRAM is updated.
-	  * Note: This is only used for debugging.
+	/** The last time a CmdEngine write or a CPU read/write occured.
+	  * This is only used in a debug build to check if read/writes come
+	  * in the correct order.
 	  */
 	#ifdef DEBUG
 	EmuTime vramTime;
