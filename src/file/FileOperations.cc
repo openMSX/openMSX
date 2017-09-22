@@ -391,7 +391,7 @@ string_ref getFilename(string_ref path)
 	}
 }
 
-string_ref getBaseName(string_ref path)
+string_ref getDirName(string_ref path)
 {
 	auto pos = path.rfind('/');
 	if (pos == string_ref::npos) {
@@ -732,7 +732,7 @@ string parseCommandFileArgument(
 	}
 
 	string filename = argument.str();
-	if (getBaseName(filename).empty()) {
+	if (getDirName(filename).empty()) {
 		// no dir given, use standard dir (and create it)
 		string dir = getUserOpenMSXDir() + '/' + directory;
 		mkdirp(dir);

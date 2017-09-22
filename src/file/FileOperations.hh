@@ -104,7 +104,7 @@ namespace FileOperations {
 	 *         If path doesn't have a directory portion the result
 	 *         is an empty string.
 	 */
-	string_ref getBaseName(string_ref path);
+	string_ref getDirName(string_ref path);
 
 	/**
 	 * Returns the extension portion of a path.

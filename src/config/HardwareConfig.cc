@@ -240,8 +240,8 @@ void HardwareConfig::load(string_ref type)
 	setConfig(loadConfig(filename));
 
 	assert(!userName.empty());
-	const auto& baseName = FileOperations::getBaseName(filename);
-	setFileContext(configFileContext(baseName, hwName, userName));
+	const auto& dirname = FileOperations::getDirName(filename);
+	setFileContext(configFileContext(dirname, hwName, userName));
 }
 
 void HardwareConfig::parseSlots()

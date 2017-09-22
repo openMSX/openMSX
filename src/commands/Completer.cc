@@ -140,7 +140,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 	string& filename = tokens.back();
 	filename = FileOperations::expandTilde(filename);
 	filename = FileOperations::expandCurrentDirFromDrive(filename);
-	string_ref basename = FileOperations::getBaseName(filename);
+	string_ref dirname1 = FileOperations::getDirName(filename);
 
 	vector<string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {
@@ -151,12 +151,12 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 
 	vector<string> filenames;
 	for (auto& p : paths) {
-		string dirname = FileOperations::join(p, basename);
+		string dirname = FileOperations::join(p, dirname1);
 		ReadDir dir(FileOperations::getNativePath(dirname));
 		while (dirent* de = dir.getEntry()) {
 			string name = FileOperations::join(dirname, de->d_name);
 			if (FileOperations::exists(name)) {
-				string nm = FileOperations::join(basename, de->d_name);
+				string nm = FileOperations::join(dirname1, de->d_name);
 				if (FileOperations::isDirectory(name)) {
 					nm += '/';
 				}
