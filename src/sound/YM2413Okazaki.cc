@@ -835,9 +835,9 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 			lfo_am = lfo_am_table[tmp_am_phase / 64];
 		}
 		int fm = ch.mod.calc_slot_mod<HAS_MOD_AM, HAS_MOD_FB, HAS_MOD_FIXED_ENV>(
-		                      lfo_pm, lfo_am, mod_fixed_env);
+		                      HAS_MOD_PM ? lfo_pm : 0, lfo_am, mod_fixed_env);
 		buf[sample] += ch.car.calc_slot_car<HAS_CAR_AM, HAS_CAR_FIXED_ENV>(
-		                      lfo_pm, lfo_am, fm, car_fixed_env);
+		                      HAS_CAR_PM ? lfo_pm : 0, lfo_am, fm, car_fixed_env);
 		++sample;
 	} while (sample < num);
 }
