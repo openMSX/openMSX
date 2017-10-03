@@ -181,6 +181,18 @@ proc vgm_rec_start {} {
 		lappend watchpoints [debug set_watchpoint write_io 0xC5 {} {vgm::write_opl4_data}]
 		lappend watchpoints [debug set_watchpoint write_io 0xC6 {} {vgm::write_opl4_address_2}]
 		lappend watchpoints [debug set_watchpoint write_io 0xC7 {} {vgm::write_opl4_data}]
+
+		set moonsound_ram [concat [machine_info output_port 0x7E] {wave RAM}]
+		if {[lsearch -exact [debug list] $moonsound_ram] >= 0} {
+			set moonsound_ram_size [debug size $moonsound_ram]
+			if {$moonsound_ram_size > 0} {
+				append music_data [binary format ccc 0x67 0x66 0x87]
+				append music_data [little_endian_32 [expr $moonsound_ram_size + 8]]
+				append music_data [little_endian_32 $moonsound_ram_size]
+				append music_data [zeros 4]
+				append music_data [debug read_block $moonsound_ram 0 $moonsound_ram_size]
+			}
+		}
 	}
 
 	variable scc_logged
