@@ -443,7 +443,7 @@ void TsxImage::convert(const Filename& filename, FilePool& filePool, CliComm& cl
 			} else
 			if (bid == B21_GRP_START) {
 				cliComm.printWarning("Block#21 Unsupported yet!");
-				pos += *((uint8_t*)&buf[pos+1]) + 1;
+				pos += *((uint8_t*)&buf[pos+1]) + 2;
 			} else
 			if (bid == B22_GRP_END) {
 				cliComm.printWarning("Block#22 Unsupported yet!");
