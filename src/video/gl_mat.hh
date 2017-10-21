@@ -19,6 +19,7 @@
 // likely not).
 
 #include "gl_vec.hh"
+#include <cassert>
 
 namespace gl {
 
@@ -84,8 +85,18 @@ public:
 	// Access the i-the column of the matrix.
 	// Vectors are also indexable, so 'A[i][j]' returns the element
 	// at the i-th column, j-th row.
-	const vecN<M, T>& operator[](int i) const { return c[i]; }
-	      vecN<M, T>& operator[](int i)       { return c[i]; }
+	const vecN<M, T>& operator[](unsigned i) const {
+		#ifdef DEBUG
+		assert(i < N);
+		#endif
+		return c[i];
+	}
+	vecN<M, T>& operator[](unsigned i) {
+		#ifdef DEBUG
+		assert(i < N);
+		#endif
+		return c[i];
+	}
 
 	// Assignment version of the +,-,* operations defined below.
 	matMxN& operator+=(const matMxN& x) { *this = *this + x; return *this; }
