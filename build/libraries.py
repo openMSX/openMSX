@@ -359,6 +359,12 @@ class TCL(Library):
 			return cls.tclConfig
 
 		def iterLocations():
+			# Allow the user to specify the location we should search first,
+			# by setting an environment variable.
+			tclpath = environ.get('TCL_CONFIG')
+			if tclpath is not None:
+				yield tclpath
+
 			if platform == 'android':
 				# Under Android, the tcl set-up apparently differs from
 				# other cross-platform setups. the search algorithm to find the
