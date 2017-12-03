@@ -108,6 +108,16 @@ public: // Will be called by Mixer:
 	                          EmuTime::param time) = 0;
 
 protected:
+	/** Adds a number of samples that all have the same value.
+	  * Can be used to synthesize the high half of a square wave cycle.
+	  * @param buffer Pointer to the position in a sample buffer where the
+	  *               samples should be added. This pointer is updated to
+	  *               the position right after the written samples.
+	  * @param value Sample value (amplitude).
+	  * @param num The number of samples.
+	  */
+	static void addFill(int*& buffer, int value, unsigned num);
+
 	/** Abstract method to generate the actual sound data.
 	  * @param buffers An array of pointer to buffers. Each buffer must
 	  *                be big enough to hold 'num' samples.
