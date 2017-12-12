@@ -48,10 +48,10 @@ void MSXMemoryMapper::reset(EmuTime::param time)
 
 unsigned MSXMemoryMapper::calcAddress(word address) const
 {
-	unsigned page = mapperIO.getSelectedPage(address >> 14);
-	unsigned nbBlocks = checkedRam.getSize() / 0x4000;
-	page = (page < nbBlocks) ? page : page & (nbBlocks - 1);
-	return (page << 14) | (address & 0x3FFF);
+	unsigned segment = mapperIO.getSelectedSegment(address >> 14);
+	unsigned numSegments = checkedRam.getSize() / 0x4000;
+	segment = (segment < numSegments) ? segment : segment & (numSegments - 1);
+	return (segment << 14) | (address & 0x3FFF);
 }
 
 byte MSXMemoryMapper::peekMem(word address, EmuTime::param /*time*/) const

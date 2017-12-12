@@ -25,9 +25,10 @@ public:
 	void unregisterMapper(unsigned blocks);
 
 	/**
-	 * Returns the actual selected page for the given bank.
+	 * Returns the currently selected segment for the given page.
+	 * @param page Z80 address page (0-3).
 	 */
-	byte getSelectedPage(byte bank) const {	return registers[bank]; }
+	byte getSelectedSegment(byte page) const { return registers[page]; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

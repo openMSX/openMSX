@@ -75,7 +75,7 @@ byte MSXMapperIO::readIO(word port, EmuTime::param time)
 
 byte MSXMapperIO::peekIO(word port, EmuTime::param /*time*/) const
 {
-	return getSelectedPage(port & 0x03) | mask;
+	return getSelectedSegment(port & 0x03) | mask;
 }
 
 void MSXMapperIO::writeIO(word port, byte value, EmuTime::param /*time*/)
@@ -101,7 +101,7 @@ MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 byte MSXMapperIO::Debuggable::read(unsigned address)
 {
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
-	return mapperIO.getSelectedPage(address);
+	return mapperIO.getSelectedSegment(address);
 }
 
 void MSXMapperIO::Debuggable::write(unsigned address, byte value)
