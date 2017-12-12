@@ -6,6 +6,7 @@
 #include "serialize.hh"
 #include "memory.hh"
 #include "Ram.hh" // because we serialize Ram instead of CheckedRam
+#include "Math.hh"
 
 namespace openmsx {
 
@@ -50,6 +51,7 @@ unsigned MSXMemoryMapper::calcAddress(word address) const
 {
 	unsigned segment = mapperIO.getSelectedSegment(address >> 14);
 	unsigned numSegments = checkedRam.getSize() / 0x4000;
+	segment &= Math::powerOfTwo(numSegments) - 1;
 	segment = (segment < numSegments) ? segment : segment & (numSegments - 1);
 	return (segment << 14) | (address & 0x3FFF);
 }
