@@ -4,6 +4,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "Math.hh"
+#include "StringOp.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "stl.hh"
@@ -14,13 +15,18 @@ static byte calcEngineMask(MSXMotherBoard& motherBoard)
 {
 	string_ref type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
-	if (type == "5") {
-		return 0xE0; // upper 3 bits always read "1"
-	} else if (type == "largest") {
+	if (type == "largest") {
 		return 0x00; // all bits can be read
-	} else {
+	}
+	std::string str = type.str();
+	int bits;
+	if (!StringOp::stringToInt(str, bits)) {
 		throw FatalError("Unknown mapper type: \"" + type + "\".");
 	}
+	if (bits < 0 || bits > 8) {
+		throw FatalError("MapperReadBackBits out of range: \"" + type + "\".");
+	}
+	return -1 << bits;
 }
 
 MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
