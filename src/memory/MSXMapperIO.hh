@@ -25,11 +25,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	/**
-	 * Updates the "mask" field after a mapper was registered or unregistered.
-	 */
-	void updateMask();
-
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		byte read(unsigned address, EmuTime::param time) override;
@@ -39,15 +34,8 @@ private:
 	std::vector<MSXMemoryMapper*> mappers;
 
 	/**
-	 * The limit on which bits can be read back as imposed by the engine.
-	 * The S1990 engine of the MSX turbo R has such a limit, but other engines
-	 * do not.
-	 */
-	byte engineMask;
-
-	/**
-	 * Effective read mask: a combination of engineMask and the limit imposed
-	 * by the sizes of the inserted mappers.
+	 * OR-mask that limits which bits can be read back.
+	 * This is set using the MapperReadBackBits tag in the machine config.
 	 */
 	byte mask;
 };
