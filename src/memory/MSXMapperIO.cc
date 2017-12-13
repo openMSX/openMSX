@@ -13,7 +13,7 @@
 
 namespace openmsx {
 
-static byte calcEngineMask(MSXMotherBoard& motherBoard)
+static byte calcReadBackMask(MSXMotherBoard& motherBoard)
 {
 	string_ref type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
@@ -34,32 +34,19 @@ static byte calcEngineMask(MSXMotherBoard& motherBoard)
 MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
 	: MSXDevice(config)
 	, debuggable(getMotherBoard(), getName())
-	, engineMask(calcEngineMask(getMotherBoard()))
+	, mask(calcReadBackMask(getMotherBoard()))
 {
-	updateMask();
 	reset(EmuTime::dummy());
-}
-
-void MSXMapperIO::updateMask()
-{
-	unsigned largest = 1;
-	for (auto* mapper : mappers) {
-		largest = std::max(largest, mapper->getSizeInBlocks());
-	}
-	// unused bits always read "1"
-	mask = ((256 - Math::powerOfTwo(largest)) & 255) | engineMask;
 }
 
 void MSXMapperIO::registerMapper(MSXMemoryMapper* mapper)
 {
 	mappers.push_back(mapper);
-	updateMask();
 }
 
 void MSXMapperIO::unregisterMapper(MSXMemoryMapper* mapper)
 {
 	mappers.erase(rfind_unguarded(mappers, mapper));
-	updateMask();
 }
 
 byte MSXMapperIO::readIO(word port, EmuTime::param time)
