@@ -3,6 +3,7 @@
 
 #include "MSXDevice.hh"
 #include "CheckedRam.hh"
+#include "SimpleDebuggable.hh"
 
 namespace openmsx {
 
@@ -36,6 +37,12 @@ protected:
 
 private:
 	unsigned getRamSize() const;
+
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value) override;
+	} debuggable;
 
 	MSXMapperIO& mapperIO;
 };
