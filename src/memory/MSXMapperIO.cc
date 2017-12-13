@@ -62,35 +62,30 @@ void MSXMapperIO::unregisterMapper(MSXMemoryMapper* mapper)
 	updateMask();
 }
 
-void MSXMapperIO::reset(EmuTime::param /*time*/)
-{
-	// TODO in what state is mapper after reset?
-	// Zeroed is most likely.
-	// To find out for real, insert an external memory mapper on an MSX1.
-	for (auto& reg : registers) {
-		reg = 0;
-	}
-}
-
 byte MSXMapperIO::readIO(word port, EmuTime::param time)
 {
-	return peekIO(port, time);
+	byte result = 0xFF;
+	for (auto* mapper : mappers) {
+		result &= mapper->readIO(port, time);
+	}
+	return result | mask;
 }
 
-byte MSXMapperIO::peekIO(word port, EmuTime::param /*time*/) const
+byte MSXMapperIO::peekIO(word port, EmuTime::param time) const
 {
-	return getSelectedSegment(port & 0x03) | mask;
+	byte result = 0xFF;
+	for (auto* mapper : mappers) {
+		result &= mapper->peekIO(port, time);
+	}
+	return result | mask;
 }
 
-void MSXMapperIO::writeIO(word port, byte value, EmuTime::param /*time*/)
+void MSXMapperIO::writeIO(word port, byte value, EmuTime::param time)
 {
-	write(port & 0x03, value);
-}
-
-void MSXMapperIO::write(unsigned address, byte value)
-{
-	registers[address] = value;
-	invalidateMemCache(0x4000 * address, 0x4000);
+	for (auto* mapper : mappers) {
+		mapper->writeIO(port, value, time);
+	}
+	invalidateMemCache(0x4000 * (port & 0x03), 0x4000);
 }
 
 
@@ -102,24 +97,33 @@ MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 {
 }
 
-byte MSXMapperIO::Debuggable::read(unsigned address)
+byte MSXMapperIO::Debuggable::read(unsigned address, EmuTime::param time)
 {
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
-	return mapperIO.getSelectedSegment(address);
+	return mapperIO.peekIO(address, time);
 }
 
-void MSXMapperIO::Debuggable::write(unsigned address, byte value)
+void MSXMapperIO::Debuggable::write(unsigned address, byte value,
+                                    EmuTime::param time)
 {
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
-	mapperIO.write(address, value);
+	mapperIO.writeIO(address, value, time);
 }
 
 
 template<typename Archive>
-void MSXMapperIO::serialize(Archive& ar, unsigned /*version*/)
+void MSXMapperIO::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("registers", registers);
-	// all other state is reconstructed in another way
+	if (ar.versionBelow(version, 2)) {
+		// In version 1 we stored the mapper state in MSXMapperIO instead of
+		// in the individual mappers, so distribute the state to them.
+		assert(ar.isLoader());
+		byte registers[4];
+		ar.serialize("registers", registers);
+		for (int page = 0; page < 4; page++) {
+			writeIO(page, registers[page], EmuTime::dummy());
+		}
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMapperIO);
 

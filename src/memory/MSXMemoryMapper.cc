@@ -42,16 +42,36 @@ void MSXMemoryMapper::powerUp(EmuTime::param time)
 	reset(time);
 }
 
-void MSXMemoryMapper::reset(EmuTime::param time)
+void MSXMemoryMapper::reset(EmuTime::param /*time*/)
 {
-	mapperIO.reset(time);
+	// Most mappers initialize to segment 0 for all pages.
+	// On MSX2 and higher, the BIOS will select segments 3..0 for pages 0..3.
+	for (auto& reg : registers) {
+		reg = 0;
+	}
+}
+
+byte MSXMemoryMapper::readIO(word port, EmuTime::param time)
+{
+	return peekIO(port, time);
+}
+
+byte MSXMemoryMapper::peekIO(word port, EmuTime::param /*time*/) const
+{
+	unsigned numSegments = checkedRam.getSize() / 0x4000;
+	return registers[port & 0x03] | ~(Math::powerOfTwo(numSegments) - 1);
+}
+
+void MSXMemoryMapper::writeIO(word port, byte value, EmuTime::param /*time*/)
+{
+	unsigned numSegments = checkedRam.getSize() / 0x4000;
+	registers[port & 0x03] = value & (Math::powerOfTwo(numSegments) - 1);
 }
 
 unsigned MSXMemoryMapper::calcAddress(word address) const
 {
-	unsigned segment = mapperIO.getSelectedSegment(address >> 14);
+	unsigned segment = registers[address >> 14];
 	unsigned numSegments = checkedRam.getSize() / 0x4000;
-	segment &= Math::powerOfTwo(numSegments) - 1;
 	segment = (segment < numSegments) ? segment : segment & (numSegments - 1);
 	return (segment << 14) | (address & 0x3FFF);
 }
@@ -94,20 +114,23 @@ MSXMemoryMapper::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 byte MSXMemoryMapper::Debuggable::read(unsigned address)
 {
 	auto& mapper = OUTER(MSXMemoryMapper, debuggable);
-	return mapper.mapperIO.getSelectedSegment(address);
+	return mapper.registers[address];
 }
 
 void MSXMemoryMapper::Debuggable::write(unsigned address, byte value)
 {
 	auto& mapper = OUTER(MSXMemoryMapper, debuggable);
-	mapper.mapperIO.writeIO(address, value, EmuTime::dummy());
+	mapper.writeIO(address, value, EmuTime::dummy());
 }
 
 
 template<typename Archive>
-void MSXMemoryMapper::serialize(Archive& ar, unsigned /*version*/)
+void MSXMemoryMapper::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("registers", registers);
+	}
 	// TODO ar.serialize("checkedRam", checkedRam);
 	ar.serialize("ram", checkedRam.getUncheckedRam());
 }
