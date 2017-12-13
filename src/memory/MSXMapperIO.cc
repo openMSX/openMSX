@@ -1,4 +1,5 @@
 #include "MSXMapperIO.hh"
+#include "MSXMemoryMapper.hh"
 #include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
@@ -8,6 +9,7 @@
 #include "outer.hh"
 #include "serialize.hh"
 #include "stl.hh"
+#include <algorithm>
 
 namespace openmsx {
 
@@ -40,21 +42,23 @@ MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
 
 void MSXMapperIO::updateMask()
 {
+	unsigned largest = 1;
+	for (auto* mapper : mappers) {
+		largest = std::max(largest, mapper->getSizeInBlocks());
+	}
 	// unused bits always read "1"
-	unsigned largest = (mapperSizes.empty()) ? 1 : mapperSizes.back();
 	mask = ((256 - Math::powerOfTwo(largest)) & 255) | engineMask;
 }
 
-void MSXMapperIO::registerMapper(unsigned blocks)
+void MSXMapperIO::registerMapper(MSXMemoryMapper* mapper)
 {
-	auto it = upper_bound(begin(mapperSizes), end(mapperSizes), blocks);
-	mapperSizes.insert(it, blocks);
+	mappers.push_back(mapper);
 	updateMask();
 }
 
-void MSXMapperIO::unregisterMapper(unsigned blocks)
+void MSXMapperIO::unregisterMapper(MSXMemoryMapper* mapper)
 {
-	mapperSizes.erase(rfind_unguarded(mapperSizes, blocks));
+	mappers.erase(rfind_unguarded(mappers, mapper));
 	updateMask();
 }
 

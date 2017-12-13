@@ -7,6 +7,8 @@
 
 namespace openmsx {
 
+class MSXMemoryMapper;
+
 class MSXMapperIO final : public MSXDevice
 {
 public:
@@ -17,12 +19,8 @@ public:
 	byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
-	/**
-	 * Every MSXMemoryMapper must (un)register its size.
-	 * This is used to influence the result returned in readIO().
-	 */
-	void registerMapper(unsigned blocks);
-	void unregisterMapper(unsigned blocks);
+	void registerMapper(MSXMemoryMapper* mapper);
+	void unregisterMapper(MSXMemoryMapper* mapper);
 
 	/**
 	 * Returns the currently selected segment for the given page.
@@ -47,7 +45,7 @@ private:
 		void write(unsigned address, byte value) override;
 	} debuggable;
 
-	std::vector<unsigned> mapperSizes; // sorted
+	std::vector<MSXMemoryMapper*> mappers;
 	byte registers[4];
 
 	/**

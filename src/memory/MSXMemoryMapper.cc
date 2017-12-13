@@ -27,14 +27,12 @@ MSXMemoryMapper::MSXMemoryMapper(const DeviceConfig& config)
 	, debuggable(getMotherBoard(), getName())
 	, mapperIO(*getMotherBoard().createMapperIO())
 {
-	unsigned nbBlocks = checkedRam.getSize() / 0x4000;
-	mapperIO.registerMapper(nbBlocks);
+	mapperIO.registerMapper(this);
 }
 
 MSXMemoryMapper::~MSXMemoryMapper()
 {
-	unsigned nbBlocks = checkedRam.getSize() / 0x4000;
-	mapperIO.unregisterMapper(nbBlocks);
+	mapperIO.unregisterMapper(this);
 	getMotherBoard().destroyMapperIO();
 }
 

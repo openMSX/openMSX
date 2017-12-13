@@ -15,6 +15,8 @@ public:
 	explicit MSXMemoryMapper(const DeviceConfig& config);
 	virtual ~MSXMemoryMapper();
 
+	unsigned getSizeInBlocks() { return checkedRam.getSize() / 0x4000; }
+
 	void reset(EmuTime::param time) override;
 	void powerUp(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;
