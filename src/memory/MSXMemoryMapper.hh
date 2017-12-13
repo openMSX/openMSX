@@ -19,6 +19,9 @@ public:
 
 	void reset(EmuTime::param time) override;
 	void powerUp(EmuTime::param time) override;
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
 	const byte* getReadCacheLine(word start) const override;
@@ -47,7 +50,9 @@ private:
 	} debuggable;
 
 	MSXMapperIO& mapperIO;
+	byte registers[4];
 };
+SERIALIZE_CLASS_VERSION(MSXMemoryMapper, 2);
 
 REGISTER_BASE_NAME_HELPER(MSXMemoryMapper, "MemoryMapper");
 
