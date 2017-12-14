@@ -15,6 +15,12 @@ public:
 	explicit MSXMemoryMapper(const DeviceConfig& config);
 	virtual ~MSXMemoryMapper();
 
+	/**
+	 * Returns the currently selected segment for the given page.
+	 * @param page Z80 address page (0-3).
+	 */
+	byte getSelectedSegment(byte page) const { return registers[page]; }
+
 	unsigned getSizeInBlocks() { return checkedRam.getSize() / 0x4000; }
 
 	void reset(EmuTime::param time) override;

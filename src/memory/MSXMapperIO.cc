@@ -77,6 +77,8 @@ void MSXMapperIO::writeIO(word port, byte value, EmuTime::param time)
 
 
 // SimpleDebuggable
+// This debuggable is here for backwards compatibility. For more accurate
+// results, use the debuggable belonging to a specific mapper.
 
 MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
                                     const std::string& name_)
@@ -84,10 +86,14 @@ MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 {
 }
 
-byte MSXMapperIO::Debuggable::read(unsigned address, EmuTime::param time)
+byte MSXMapperIO::Debuggable::read(unsigned address)
 {
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
-	return mapperIO.peekIO(address, time);
+	byte result = 0;
+	for (auto* mapper : mapperIO.mappers) {
+		result = std::max(result, mapper->getSelectedSegment(address));
+	}
+	return result;
 }
 
 void MSXMapperIO::Debuggable::write(unsigned address, byte value,

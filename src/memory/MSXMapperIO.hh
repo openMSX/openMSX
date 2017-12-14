@@ -27,7 +27,7 @@ public:
 private:
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
-		byte read(unsigned address, EmuTime::param time) override;
+		byte read(unsigned address) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
 
