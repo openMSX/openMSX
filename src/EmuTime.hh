@@ -7,19 +7,24 @@
 
 namespace openmsx {
 
+// EmuTime is only a very small class (one 64-bit member). On 64-bit CPUs
+// it's cheaper to pass this by value. On 32-bit CPUs pass-by-reference
+// is cheaper.
+template <typename T, bool C = sizeof(void*) < 8> struct EmuTime_param_impl;
+template <typename T> struct EmuTime_param_impl<T, true> { // pass by reference
+	using param = const T&;
+	static param dummy() { return T::zero; }
+};
+template <typename T> struct EmuTime_param_impl<T, false> { // pass by value
+	using param = const T;
+	static param dummy() { return T(); }
+};
+
 class EmuTime
 {
 public:
-	// This is only a very small class (one 64-bit member). On 64-bit CPUs
-	// it's cheaper to pass this by value. On 32-bit CPUs pass-by-reference
-	// is cheaper.
-#ifdef __x86_64
-	using param = const EmuTime;
-	static param dummy() { return EmuTime(); }
-#else
-	using param = const EmuTime&;
-	static param dummy() { return zero; }
-#endif
+	using param = EmuTime_param_impl<EmuTime>::param;
+	static param dummy() { return EmuTime_param_impl<EmuTime>::dummy(); }
 
 	// Note: default copy constructor and assigment operator are ok.
 
@@ -67,6 +72,7 @@ private:
 	uint64_t time;
 
 	// friends
+	friend EmuTime_param_impl<EmuTime>;
 	friend std::ostream& operator<<(std::ostream& os, EmuTime::param time);
 	template<unsigned, unsigned> friend class Clock;
 	friend class DynamicClock;
