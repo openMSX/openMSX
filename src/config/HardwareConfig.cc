@@ -259,6 +259,13 @@ void HardwareConfig::parseSlots()
 				    "Cannot mark unspecified primary slot '" +
 				    primSlot + "' as external");
 			}
+			if (psElem->hasChildren()) {
+				throw MSXException(
+					"Primary slot " + StringOp::toString(ps) +
+					" is marked as external, but that would only "
+					"make sense if its <primary> tag would be "
+					"empty.");
+			}
 			createExternalSlot(ps);
 			continue;
 		}
@@ -284,6 +291,13 @@ void HardwareConfig::parseSlots()
 			}
 			createExpandedSlot(ps);
 			if (ssElem->getAttributeAsBool("external", false)) {
+				if (ssElem->hasChildren()) {
+					throw MSXException(
+						"Secondary slot " + StringOp::toString(ps) +
+						"-" + StringOp::toString(ss) + " is marked "
+						"as external, but that would only make sense "
+						"if its <secondary> tag would be empty.");
+				}
 				createExternalSlot(ps, ss);
 			}
 		}
