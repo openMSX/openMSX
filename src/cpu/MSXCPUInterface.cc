@@ -51,7 +51,7 @@ static unsigned breakedSettingCount = 0;
 
 
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
-static const byte SECUNDARY_SLOT_BIT = 0x01;
+static const byte SECONDARY_SLOT_BIT = 0x01;
 static const byte MEMORY_WATCH_BIT   = 0x02;
 static const byte GLOBAL_WRITE_BIT   = 0x04;
 
@@ -286,11 +286,11 @@ void MSXCPUInterface::unsetExpanded(int ps)
 void MSXCPUInterface::changeExpanded(bool newExpanded)
 {
 	if (newExpanded) {
-		disallowReadCache [0xFF] |=  SECUNDARY_SLOT_BIT;
-		disallowWriteCache[0xFF] |=  SECUNDARY_SLOT_BIT;
+		disallowReadCache [0xFF] |=  SECONDARY_SLOT_BIT;
+		disallowWriteCache[0xFF] |=  SECONDARY_SLOT_BIT;
 	} else {
-		disallowReadCache [0xFF] &= ~SECUNDARY_SLOT_BIT;
-		disallowWriteCache[0xFF] &= ~SECUNDARY_SLOT_BIT;
+		disallowReadCache [0xFF] &= ~SECONDARY_SLOT_BIT;
+		disallowWriteCache[0xFF] &= ~SECONDARY_SLOT_BIT;
 	}
 	msxcpu.invalidateMemCache(0xFFFF & CacheLine::HIGH, 0x100);
 }
@@ -1156,7 +1156,7 @@ void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
 {
 	// TODO watchPoints ???
 
-	// primary and 4 secundary slot select registers
+	// primary and 4 secondary slot select registers
 	byte prim = 0;
 	if (!ar.isLoader()) {
 		for (int i = 0; i < 4; ++i) {
