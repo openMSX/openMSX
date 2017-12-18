@@ -17,6 +17,7 @@
 #include "MSXS1990.hh"
 #include "MSXPSG.hh"
 #include "SVIPSG.hh"
+#include "SNPSG.hh"
 #include "MSXMusic.hh"
 #include "MSXFmPac.hh"
 #include "MSXAudio.hh"
@@ -144,6 +145,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXPSG>(conf);
 	} else if (type == "SVIPSG") {
 		result = make_unique<SVIPSG>(conf);
+	} else if (type == "SNPSG") {
+		result = make_unique<SNPSG>(conf);
 	} else if (type == "MSX-MUSIC") {
 		result = make_unique<MSXMusic>(conf);
 	} else if (type == "MSX-MUSIC-WX") {
