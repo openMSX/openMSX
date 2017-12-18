@@ -29,6 +29,7 @@
 #include "MSXBunsetsu.hh"
 #include "MSXMemoryMapper.hh"
 #include "MegaFlashRomSCCPlusSD.hh"
+#include "MusicalMemoryMapper.hh"
 #include "PanasonicRam.hh"
 #include "MSXRTC.hh"
 #include "PasswordCart.hh"
@@ -260,6 +261,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<ChakkariCopy>(conf);
 	} else if (type == "MegaFlashRomSCCPlusSD") {
 		result = make_unique<MegaFlashRomSCCPlusSD>(conf);
+	} else if (type == "MusicalMemoryMapper") {
+		result = make_unique<MusicalMemoryMapper>(conf);
 	} else if (type == "T9769") {
 		// Ignore for now. We might want to create a real device for it later.
 	} else {

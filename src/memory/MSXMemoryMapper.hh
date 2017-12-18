@@ -45,6 +45,7 @@ protected:
 	unsigned calcAddress(word address) const;
 
 	CheckedRam checkedRam;
+	byte registers[4];
 
 private:
 	unsigned getRamSize() const;
@@ -56,7 +57,6 @@ private:
 	} debuggable;
 
 	MSXMapperIO& mapperIO;
-	byte registers[4];
 };
 SERIALIZE_CLASS_VERSION(MSXMemoryMapper, 2);
 
