@@ -28,7 +28,7 @@ static byte calcReadBackMask(MSXMotherBoard& motherBoard)
 	if (bits < 0 || bits > 8) {
 		throw FatalError("MapperReadBackBits out of range: \"" + type + "\".");
 	}
-	return -1 << bits;
+	return unsigned(-1) << bits;
 }
 
 MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
