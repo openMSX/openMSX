@@ -175,6 +175,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	} else {
 		// Use mapper type from config, even if this overrides DB.
 		type = RomInfo::nameToRomType(typestr);
+		if (type == ROM_UNKNOWN) {
+			throw MSXException("Unknown mappertype: " + typestr);
+		}
 	}
 
 	// Store actual detected mapper type in config (override the possible
