@@ -477,6 +477,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\Paddle.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\RecordedCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\SETetrisDongle.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\SG1000JoystickIO.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\StateChangeDistributor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Trackball.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.cc" />
@@ -1028,6 +1029,7 @@
     <None Include="$(OpenMSXSrcDir)\input\Paddle.hh" />
     <None Include="$(OpenMSXSrcDir)\input\RecordedCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\input\SETetrisDongle.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\SG1000JoystickIO.hh" />
     <None Include="$(OpenMSXSrcDir)\input\StateChange.hh" />
     <None Include="$(OpenMSXSrcDir)\input\StateChangeDistributor.hh" />
     <None Include="$(OpenMSXSrcDir)\input\StateChangeListener.hh" />

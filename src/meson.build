@@ -229,6 +229,7 @@ sources = files(
     'input/Paddle.cc',
     'input/RecordedCommand.cc',
     'input/SETetrisDongle.cc',
+    'input/SG1000JoystickIO.cc',
     'input/StateChangeDistributor.cc',
     'input/Touchpad.cc',
     'input/Trackball.cc',
