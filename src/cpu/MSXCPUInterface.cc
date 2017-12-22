@@ -16,6 +16,7 @@
 #include "CartridgeSlotManager.hh"
 #include "EventDistributor.hh"
 #include "Event.hh"
+#include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
 #include "ReadOnlySetting.hh"
 #include "serialize.hh"
@@ -95,6 +96,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	memset(disallowReadCache,  0, sizeof(disallowReadCache));
 	memset(disallowWriteCache, 0, sizeof(disallowWriteCache));
 
+	initialPrimarySlots = motherBoard.getMachineConfig()->parseSlotMap();
 	// Note: SlotState is initialised at reset
 
 	msxcpu.setInterface(this);
@@ -568,7 +570,7 @@ void MSXCPUInterface::reset()
 	for (int i = 0; i < 4; ++i) {
 		setSubSlot(i, 0);
 	}
-	setPrimarySlots(0);
+	setPrimarySlots(initialPrimarySlots);
 }
 
 byte MSXCPUInterface::readIRQVector()

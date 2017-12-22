@@ -390,6 +390,7 @@ private:
 	byte subSlotRegister[4];
 	byte primarySlotState[4];
 	byte secondarySlotState[4];
+	byte initialPrimarySlots;
 	unsigned expanded[4];
 
 	bool fastForward; // no need to serialize

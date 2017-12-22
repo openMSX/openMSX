@@ -3,6 +3,7 @@
 
 #include "XMLElement.hh"
 #include "FileContext.hh"
+#include "openmsx.hh"
 #include "serialize_meta.hh"
 #include "serialize_constr.hh"
 #include "array_ref.hh"
@@ -43,6 +44,12 @@ public:
 
 	const XMLElement& getConfig() const { return config; }
 	const std::string& getName() const { return name; }
+
+	/** Parses a slot mapping.
+	  * Returns the slot selection: two bits per page for the slot to be
+	  * selected in that page, like MSX port 0xA8.
+	  */
+	byte parseSlotMap() const;
 
 	void parseSlots();
 	void createDevices();
