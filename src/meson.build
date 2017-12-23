@@ -54,6 +54,7 @@ sources = files(
     'RenShaTurbo.cc',
     'ReplayCLI.cc',
     'ReverseManager.cc',
+    'SG1000Pause.cc',
     'SVIPPI.cc',
     'SVIPrinterPort.cc',
     'SaveStateCLI.cc',
