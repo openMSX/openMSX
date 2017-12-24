@@ -483,6 +483,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXRam.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXRom.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXRomCLI.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\MusicalMemoryMapper.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\PanasonicMemory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\PanasonicRam.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\Ram.cc" />
@@ -583,6 +584,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SamplePlayer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SCC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SDLSoundDriver.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\SN76489.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\SNPSG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SoundDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\VLM5030.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavAudioInput.cc" />
@@ -1023,6 +1026,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\MSXRam.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXRom.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXRomCLI.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\MusicalMemoryMapper.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\PanasonicMemory.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\PanasonicRam.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\Ram.hh" />
@@ -1132,6 +1136,8 @@
     <None Include="$(OpenMSXSrcDir)\sound\SamplePlayer.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\SCC.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\SDLSoundDriver.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\SN76489.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\SNPSG.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\SoundDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\SoundDriver.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\VLM5030.hh" />
