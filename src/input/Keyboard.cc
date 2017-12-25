@@ -90,6 +90,7 @@ constexpr const char* const defaultKeymapForMatrix[] = {
 	"int", // MATRIX_MSX
 	"svi", // MATRIX_SVI
 	"cvjoy", // MATRIX_CVJOY
+	"sega_int", // MATRIX_SEGA
 };
 
 constexpr std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>
@@ -109,6 +110,13 @@ constexpr std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>
 		KeyMatrixPosition(6, 3), // RGRAPH
 	},
 	{ // MATRIX_CVJOY
+	},
+	{ // MATRIX_SEGA
+		KeyMatrixPosition(13, 3), // SHIFT
+		KeyMatrixPosition(13, 2), // CTRL
+		KeyMatrixPosition(13, 1), // GRAPH
+		KeyMatrixPosition(),      // CAPS
+		KeyMatrixPosition( 0, 4), // ENG/DIER'S
 	},
 };
 
@@ -236,6 +244,54 @@ static constexpr KeyMatrixPosition keyTabs[][Keyboard::MAX_KEYSYM] = {
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x07, //120
   0x17,0x06,0x16,0x07,0x07, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
+  },
+  {
+// Sega SC-3000 / SK-1100 Keyboard Matrix
+//
+// row/bit  7     6     5     4     3     2     1     0
+//       +-----+-----+-----+-----+-----+-----+-----+-----+  PPI
+//   0   |  I  |  K  |  ,  | eng |  Z  |  A  |  Q  |  1  |  A0
+//   1   |  O  |  L  |  .  |space|  X  |  S  |  W  |  2  |  A1
+//   2   |  P  |  ;  |  /  |home |  C  |  D  |  E  |  3  |  A2
+//   3   |  @  |  :  | pi  |ins  |  V  |  F  |  R  |  4  |  A3
+//   4   |  [  |  ]  |down |     |  B  |  G  |  T  |  5  |  A4
+//   5   |     | cr  |left |     |  N  |  H  |  Y  |  6  |  A5
+//   6   |     | up  |right|     |  M  |  J  |  U  |  7  |  A6
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+//   7   |     |     |     |     |     |     |     |  8  |  B0
+//   8   |     |     |     |     |     |     |     |  9  |  B1
+//   9   |     |     |     |     |     |     |     |  0  |  B2
+//   A   |     |     |     |     |     |     |     |  -  |  B3
+//   B   |     |     |     |     |     |     |     |  ^  |  B4
+//   C   |     |     |     |     |func |     |     | cur |  B5
+//   D   |     |     |     |     |shift|ctrl |graph|break|  B6
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+//
+// Issues:
+// - graph is a lock key and gets pressed when using alt-tab
+// - alt-F7 is bound to quickload
+// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
+   x  , x  , x  , x  , x  , x  , x  , x  ,0x34,0xC3, x  , x  , x  ,0x56, x  , x  , //000
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0xD0, x  , x  , x  , x  , //010
+  0x14, x  , x  , x  , x  , x  , x  ,0x36, x  , x  , x  , x  ,0x05,0xA0,0x15,0x25, //020
+  0x90,0x00,0x10,0x20,0x30,0x40,0x50,0x60,0x70,0x80,0x36,0x26, x  ,0xB0, x  , x  , //030
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
+   x  ,0x55,0x66,0x65,0x45, x  , x  , x  , x  , x  , x  ,0x47,0xC0,0x46, x  , x  , //050
+  0x37,0x02,0x43,0x23,0x22,0x21,0x32,0x42,0x52,0x07,0x62,0x06,0x16,0x63,0x53,0x17, //060
+  0x27,0x01,0x31,0x12,0x41,0x61,0x33,0x11,0x13,0x51,0x03, x  , x  , x  , x  ,0x34, //070
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
+  0x90,0x00,0x10,0x20,0x30,0x40,0x50,0x60,0x70,0x80,0x15,0x25,0x36,0xA0,0x26,0x56, //100
+   x  ,0x66,0x45,0x65,0x55,0x34,0x24, x  , x  , x  , x  , x  , x  , x  , x  , x  , //110
+  0x35,0xD0, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0xD3, //120
+  0xD3, x  ,0xD2,0x04,0xD1, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
   }
 };
 
@@ -318,6 +374,9 @@ static constexpr void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
 	bool changedSomething = false;
 	do {
 		changedSomething = false;
+		// TODO: On Sega keyboards, ghosting should probably be done separately
+		//       for rows 0..6 and 7..14, since they're connected to different
+		//       PPI ports.
 		for (auto i : xrange(NUM_ROWS - 1)) {
 			auto row1 = matrix[i];
 			for (auto j : xrange(i + 1, NUM_ROWS)) {
