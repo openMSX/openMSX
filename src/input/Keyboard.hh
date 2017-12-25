@@ -36,7 +36,7 @@ class Keyboard final : private MSXEventListener, private StateChangeListener
                      , private Schedulable
 {
 public:
-	enum MatrixType { MATRIX_MSX, MATRIX_SVI, MATRIX_CVJOY };
+	enum MatrixType { MATRIX_MSX, MATRIX_SVI, MATRIX_CVJOY, MATRIX_SEGA };
 
 	/** Constructs a new Keyboard object.
 	 * @param motherBoard ref to the motherBoard
