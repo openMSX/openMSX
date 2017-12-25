@@ -22,13 +22,7 @@ MSXPPI::MSXPPI(const DeviceConfig& config)
 		config.getMotherBoard().getReactor().getEventDistributor(),
 		config.getMotherBoard().getMSXEventDistributor(),
 		config.getMotherBoard().getStateChangeDistributor(),
-		config.getChildData("keyboard_type", "int"),                   // keyboardType
-		config.getChildDataAsBool("has_keypad", true),                 // hasKeypad
-		config.getChildDataAsBool("has_yesno_keys", false),            // hasYesNoKeys
-		config.getChildDataAsBool("key_ghosting", true),               // keyGhosting
-		config.getChildDataAsBool("key_ghosting_sgc_protected", true), // keyGhostingSGCprotected,
-		config.getChildDataAsBool("code_kana_locks", false),           // codeKanaLocks,
-		config.getChildDataAsBool("graph_locks", false))               // graphLocks
+		Keyboard::MATRIX_MSX, config)
 	, prevBits(15)
 	, selectedRow(0)
 {

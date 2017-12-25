@@ -22,6 +22,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class Scheduler;
 class CommandController;
+class DeviceConfig;
 class EventDistributor;
 class MSXEventDistributor;
 class StateChangeDistributor;
@@ -34,6 +35,8 @@ class Keyboard final : private MSXEventListener, private StateChangeListener
                      , private Schedulable
 {
 public:
+	enum MatrixType { MATRIX_MSX, MATRIX_SVI };
+
 	/** Constructs a new Keyboard object.
 	 * @param motherBoard ref to the motherBoard
 	 * @param scheduler ref to the scheduler
@@ -41,23 +44,15 @@ public:
 	 * @param eventDistributor ref to the emu event distributor
 	 * @param msxEventDistributor ref to the user input event distributor
 	 * @param stateChangeDistributor ref to the state change distributor
-	 * @param keyboardType contains filename extension of unicode keymap file
-	 * @param hasKeypad turn MSX keypad on/off
-	 * @param hasYesNoKeys this keyboard has (Japanese) Yes/No keys
-	 * @param keyGhosting turn keyGhosting on/off
-	 * @param keyGhostingSGCprotected Shift, Graph and Code are keyGhosting protected
-	 * @param codeKanaLocks CodeKana key behave as a lock key on this machine
-	 * @param graphLocks Graph key behave as a lock key on this machine
+	 * @param layout which keyboard matrix to use
+	 * @param config ref to the device configuration
 	 */
 	Keyboard(MSXMotherBoard& motherBoard, Scheduler& scheduler,
 	         CommandController& commandController,
 	         EventDistributor& eventDistributor,
 	         MSXEventDistributor& msxEventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
-	         string_ref keyboardType, bool hasKeypad,
-	         bool hasYesNoKeys, bool keyGhosting,
-	         bool keyGhostingSGCprotected, bool codeKanaLocks,
-	         bool graphLocks);
+	         MatrixType matrix, const DeviceConfig& config);
 
 	~Keyboard();
 
@@ -113,8 +108,7 @@ private:
 	StateChangeDistributor& stateChangeDistributor;
 
 	static const int MAX_KEYSYM = 0x150;
-	static const KeyMatrixPosition msxKeyTab[MAX_KEYSYM];
-	static const KeyMatrixPosition sviKeyTab[MAX_KEYSYM];
+	static const KeyMatrixPosition keyTabs[][MAX_KEYSYM];
 	const KeyMatrixPosition* keyTab;
 
 	struct KeyMatrixUpCmd final : RecordedCommand {
@@ -226,11 +220,18 @@ private:
 	byte keyMatrix[KeyMatrixPosition::NUM_ROWS];
 
 	byte msxmodifiers;
+
+	/** True iff keyboard includes a numeric keypad. */
 	const bool hasKeypad;
+	/** True iff keyboard includes (Japanese) Yes/No keys. */
 	const bool hasYesNoKeys;
+	/** True iff pressing multiple keys at once can add ghost key presses. */
 	const bool keyGhosting;
+	/** True iff Shift, Graph and Code are protected against key ghosting. */
 	const bool keyGhostingSGCprotected;
+	/** True iff the CodeKana key behaves as a lock key. */
 	const bool codeKanaLocks;
+	/** True iff the Graph key behaves as a lock key. */
 	const bool graphLocks;
 	const bool sdlReleasesCapslock;
 	bool keysChanged;

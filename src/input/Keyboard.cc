@@ -1,5 +1,6 @@
 #include "Keyboard.hh"
 #include "Keys.hh"
+#include "DeviceConfig.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
 #include "MSXEventDistributor.hh"
@@ -85,14 +86,13 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
-                   string_ref keyboardType, bool hasKP, bool hasYNKeys,
-                   bool keyGhosting_, bool keyGhostSGCprotected,
-                   bool codeKanaLocks_, bool graphLocks_)
+                   MatrixType matrix,
+                   const DeviceConfig& config)
 	: Schedulable(scheduler_)
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, keyTab((keyboardType == "svi") ? sviKeyTab : msxKeyTab)
+	, keyTab(keyTabs[matrix])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
@@ -100,13 +100,15 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyboardSettings(commandController)
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
-	, unicodeKeymap(keyboardType)
-	, hasKeypad(hasKP)
-	, hasYesNoKeys(hasYNKeys)
-	, keyGhosting(keyGhosting_)
-	, keyGhostingSGCprotected(keyGhostSGCprotected)
-	, codeKanaLocks(codeKanaLocks_)
-	, graphLocks(graphLocks_)
+	, unicodeKeymap(config.getChildData(
+		"keyboard_type", matrix == MATRIX_SVI ? "svi" : "int"))
+	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
+	, hasYesNoKeys(config.getChildDataAsBool("has_yesno_keys", false))
+	, keyGhosting(config.getChildDataAsBool("key_ghosting", true))
+	, keyGhostingSGCprotected(config.getChildDataAsBool(
+		"key_ghosting_sgc_protected", true))
+	, codeKanaLocks(config.getChildDataAsBool("code_kana_locks", false))
+	, graphLocks(config.getChildDataAsBool("graph_locks", false))
 	, sdlReleasesCapslock(checkSDLReleasesCapslock())
 {
 	// SDL version >= 1.2.14 releases caps-lock key when SDL_DISABLED_LOCK_KEYS
@@ -1308,6 +1310,10 @@ INSTANTIATE_SERIALIZE_METHODS(Keyboard::MsxKeyEventQueue);
 
 /** Keyboard bindings ****************************************/
 
+// Mapping from SDL keys to emulated keys, ordered by MatrixType
+static const KeyMatrixPosition x = KeyMatrixPosition();
+const KeyMatrixPosition Keyboard::keyTabs[][MAX_KEYSYM] = {
+  {
 // MSX Key-Matrix table
 //
 // row/bit  7     6     5     4     3     2     1     0
@@ -1325,10 +1331,6 @@ INSTANTIATE_SERIALIZE_METHODS(Keyboard::MsxKeyEventQueue);
 //  10   |  .  |  ,  |  -  |  9  |  8  |  7  |  6  |  5  |
 //  11   |     |     |     |     | 'NO'|     |'YES'|     |
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
-
-// Mapping from SDL keys to MSX keys
-static const KeyMatrixPosition x = KeyMatrixPosition();
-const KeyMatrixPosition Keyboard::msxKeyTab[MAX_KEYSYM] = {
 // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
    x  , x  , x  , x  , x  , x  , x  , x  ,0x75,0x73, x  , x  , x  ,0x77, x  , x  , //000
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x72, x  , x  , x  , x  , //010
@@ -1351,8 +1353,8 @@ const KeyMatrixPosition Keyboard::msxKeyTab[MAX_KEYSYM] = {
   0x76,0x74, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x63, x  ,0x60, //120
   0x60,0x25,0x61,0x64,0x62,0xB3,0xB1,0xB3,0xB1,0xB1,0xB3, x  , x  , x  , x  , x  , //130
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
-};
-
+  },
+  {
 // SVI Keyboard Matrix
 //
 // row/bit  7     6     5     4     3     2     1     0
@@ -1369,7 +1371,6 @@ const KeyMatrixPosition Keyboard::msxKeyTab[MAX_KEYSYM] = {
 //   9   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  Numerical keypad
 //  10   |  ,  |  .  |  /  |  *  |  -  |  +  |  9  |  8  |   SVI-328 only
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
-const KeyMatrixPosition Keyboard::sviKeyTab[MAX_KEYSYM] = {
 // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
    x  , x  , x  , x  , x  , x  , x  , x  ,0x56,0x81, x  , x  , x  ,0x66, x  , x  , //000
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x64, x  , x  , x  , x  , //010
@@ -1392,6 +1393,7 @@ const KeyMatrixPosition Keyboard::sviKeyTab[MAX_KEYSYM] = {
   0x75,0x65, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x83, x  ,0x60, //120
   0x60, x  ,0x61, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
+  }
 };
 
 } // namespace openmsx

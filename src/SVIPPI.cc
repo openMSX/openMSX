@@ -78,16 +78,7 @@ SVIPPI::SVIPPI(const DeviceConfig& config)
 		config.getMotherBoard().getReactor().getEventDistributor(),
 		config.getMotherBoard().getMSXEventDistributor(),
 		config.getMotherBoard().getStateChangeDistributor(),
-		// TODO Do (all of) these need to be configurable? E.g. I don't think
-		//      'hasYesNoKeys' and 'codeKanaLocks' make sense for SVI. Instead
-		//      hardcode them?
-		config.getChildData("keyboard_type", "svi"),                   // keyboardType
-		config.getChildDataAsBool("has_keypad", true),                 // hasKeypad
-		config.getChildDataAsBool("has_yesno_keys", false),            // hasYesNoKeys
-		config.getChildDataAsBool("key_ghosting", true),               // keyGhosting
-		config.getChildDataAsBool("key_ghosting_sgc_protected", true), // keyGhostingSGCprotected,
-		config.getChildDataAsBool("code_kana_locks", false),           // codeKanaLocks,
-		config.getChildDataAsBool("graph_locks", false))               // graphLocks
+		Keyboard::MATRIX_SVI, config)
 	, prevBits(15)
 	, selectedRow(0)
 {
