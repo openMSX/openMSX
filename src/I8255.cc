@@ -1,6 +1,7 @@
 #include "I8255.hh"
 #include "I8255Interface.hh"
 #include "serialize.hh"
+#include "unreachable.hh"
 #include "CliComm.hh"
 
 namespace openmsx {
@@ -37,6 +38,60 @@ void I8255::reset(EmuTime::param time)
 	latchPortC = 0;
 	writeControlPort(SET_MODE | DIRECTION_A | DIRECTION_B |
 	                            DIRECTION_C0 | DIRECTION_C1, time); // all input
+}
+
+byte I8255::read(byte port, EmuTime::param time)
+{
+	switch (port) {
+	case 0:
+		return readPortA(time);
+	case 1:
+		return readPortB(time);
+	case 2:
+		return readPortC(time);
+	case 3:
+		return readControlPort(time);
+	default:
+		UNREACHABLE;
+		return 0; // avoid warning
+	}
+}
+
+byte I8255::peek(byte port, EmuTime::param time) const
+{
+	switch (port) {
+	case 0:
+		return peekPortA(time);
+	case 1:
+		return peekPortB(time);
+	case 2:
+		return peekPortC(time);
+	case 3:
+		return readControlPort(time);
+	default:
+		UNREACHABLE;
+		return 0; // avoid warning
+	}
+}
+
+void I8255::write(byte port, byte value, EmuTime::param time)
+{
+	switch (port) {
+	case 0:
+		writePortA(value, time);
+		break;
+	case 1:
+		writePortB(value, time);
+		break;
+	case 2:
+		writePortC(value, time);
+		break;
+	case 3:
+		writeControlPort(value, time);
+		break;
+	default:
+		UNREACHABLE;
+	}
 }
 
 byte I8255::readPortA(EmuTime::param time)
