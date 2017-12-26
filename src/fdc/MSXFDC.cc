@@ -9,12 +9,16 @@
 
 namespace openmsx {
 
-MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId)
+MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needROM)
 	: MSXDevice(config)
-	, rom(config.findChild("rom")
+	, rom(needROM
 		? make_unique<Rom>(getName() + " ROM", "rom", config, romId)
 		: nullptr) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
 {
+	if (needROM && (rom->getSize() == 0)) {
+		throw MSXException(
+			"Empty ROM not allowed for \"" + getName() + "\".");
+	}
 	bool singleSided = config.findChild("singlesided") != nullptr;
 	int numDrives = config.getChildDataAsInt("drives", 1);
 	if ((0 > numDrives) || (numDrives >= 4)) {
