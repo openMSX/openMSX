@@ -486,8 +486,6 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	// (lazily) initialize detune stuff
 	detuneInitialized = false;
 	update(vibratoPercent);
-	vibratoPercent.attach(*this);
-	detunePercent .attach(*this);
 
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
@@ -496,13 +494,18 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 
 	reset(time);
 	registerSound(config);
+
+	// only attach once all initialization is successful
+	vibratoPercent.attach(*this);
+	detunePercent .attach(*this);
 }
 
 AY8910::~AY8910()
 {
-	unregisterSound();
 	vibratoPercent.detach(*this);
 	detunePercent .detach(*this);
+
+	unregisterSound();
 }
 
 void AY8910::reset(EmuTime::param time)
