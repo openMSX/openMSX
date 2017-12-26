@@ -197,7 +197,13 @@ void MSXDevice::registerSlots()
 		throw MSXException("Invalid memory specification");
 	}
 	if (secondaryConfig) {
-		ss = slotManager.getSlotNum(secondaryConfig->getAttribute("slot"));
+		const auto& ss_str = secondaryConfig->getAttribute("slot");
+		ss = slotManager.getSlotNum(ss_str);
+		if ((-16 <= ss) && (ss <= -1) && (ss != ps)) {
+			throw MSXException(
+				"Invalid secundary slot specification: \"" +
+				ss_str + "\".");
+		}
 	} else {
 		ss = 0;
 	}
