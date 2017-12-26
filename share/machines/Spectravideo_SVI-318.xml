@@ -20,7 +20,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0x94" num="4" type="O"/>
-      <io base="0x98" num="3" type="I"/>
+      <io base="0x98" num="4" type="I"/>
       <keyboard_type>svi</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
