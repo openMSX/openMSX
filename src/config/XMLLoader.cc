@@ -83,6 +83,12 @@ void XMLElementParser::attribute(string_ref name, string_ref value)
 
 void XMLElementParser::text(string_ref txt)
 {
+	if (current.back()->hasChildren()) {
+		// no mixed-content elements
+		throw XMLException(
+			"Mixed text+subtags in <" + current.back()->getName() +
+			">: \"" + txt + "\".");
+	}
 	current.back()->setData(txt);
 }
 
