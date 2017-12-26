@@ -78,6 +78,11 @@ void XMLElementParser::start(string_ref name)
 
 void XMLElementParser::attribute(string_ref name, string_ref value)
 {
+	if (current.back()->hasAttribute(name)) {
+		throw XMLException(
+			"Found duplicate attribute \"" + name + "\" in <" +
+			current.back()->getName() + ">.");
+	}
 	current.back()->addAttribute(name, value);
 }
 
