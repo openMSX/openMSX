@@ -175,7 +175,7 @@ void MSXDevice::registerSlots()
 	for (auto& m : getDeviceConfig().getChildren("mem")) {
 		unsigned base = m->getAttributeAsInt("base");
 		unsigned size = m->getAttributeAsInt("size");
-		if ((base >= 0x10000) || (size > 0x10000)) {
+		if ((base >= 0x10000) || (size > 0x10000) || ((base + size) > 0x10000)) {
 			throw MSXException(
 				"Invalid memory specification for device " +
 				getName() + " should be in range "
