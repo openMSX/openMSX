@@ -1,4 +1,5 @@
 #include "MSXMultiIODevice.hh"
+#include "MSXException.hh"
 #include "TclObject.hh"
 #include "stl.hh"
 #include <algorithm>
@@ -18,7 +19,11 @@ MSXMultiIODevice::~MSXMultiIODevice()
 
 void MSXMultiIODevice::addDevice(MSXDevice* device)
 {
-	assert(!contains(devices, device));
+	if (contains(devices, device)) {
+		throw MSXException(
+			"Overlapping IO-port ranges for \"" +
+			device->getName() + "\".");
+	}
 	devices.push_back(device);
 }
 
