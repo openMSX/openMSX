@@ -380,29 +380,27 @@ void MSXCPUInterface::unregister_IO(MSXDevice*& devicePtr, MSXDevice* device)
 	}
 }
 
-MSXDevice* MSXCPUInterface::wrap_IO_In(byte port, MSXDevice* device)
+bool MSXCPUInterface::replace_IO_In(
+	byte port, MSXDevice* oldDevice, MSXDevice* newDevice)
 {
 	MSXDevice*& devicePtr = getDevicePtr(port, true); // in
-	MSXDevice* result = devicePtr;
-	devicePtr = device;
-	return result;
+	if (devicePtr != oldDevice) {
+		// error, this was not the expected device
+		return false;
+	}
+	devicePtr = newDevice;
+	return true;
 }
-MSXDevice* MSXCPUInterface::wrap_IO_Out(byte port, MSXDevice* device)
+bool MSXCPUInterface::replace_IO_Out(
+	byte port, MSXDevice* oldDevice, MSXDevice* newDevice)
 {
 	MSXDevice*& devicePtr = getDevicePtr(port, false); // out
-	MSXDevice* result = devicePtr;
-	devicePtr = device;
-	return result;
-}
-void MSXCPUInterface::unwrap_IO_In(byte port, MSXDevice* device)
-{
-	MSXDevice*& devicePtr = getDevicePtr(port, true); // in
-	devicePtr = device;
-}
-void MSXCPUInterface::unwrap_IO_Out(byte port, MSXDevice* device)
-{
-	MSXDevice*& devicePtr = getDevicePtr(port, false); // out
-	devicePtr = device;
+	if (devicePtr != oldDevice) {
+		// error, this was not the expected device
+		return false;
+	}
+	devicePtr = newDevice;
+	return true;
 }
 
 static void reportMemOverlap(int ps, int ss, MSXDevice& dev1, MSXDevice& dev2)

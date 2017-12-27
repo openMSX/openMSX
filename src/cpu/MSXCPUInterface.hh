@@ -63,22 +63,22 @@ public:
 	void unregister_IO_Out(byte port, MSXDevice* device);
 
 	/**
-	 * These methods are similar to the (un)register_IO_{In,Out} methods above.
+	 * These methods replace a previously registered device with a new one.
 	 *
-	 * The wrapXX variants register a new device, replacing the previously
-	 * registered device at the same port. The replaced device is returned.
-	 * The unwrapXX variants do the reverse operation.
+	 * This method checks whether the current device is the same as the
+	 * 'oldDevice' parameter.
+	 * - If it's the same, the current device is replace with 'newDevice'
+	 *   and this method returns true.
+	 * - If it's not the same, then no changes are made and this method
+	 *   returns false.
 	 *
 	 * The intention is that devices using these methods extend (=wrap) the
-	 * functionality of a previously registered device. So they should use
-	 * the pointer returned from wrapXX() and call the various IO handling
-	 * methods of that device from their own corresponding IO handling
-	 * methods.
+	 * functionality of a previously registered device. Typically the
+	 * destructor of the wrapping device will perform the inverse
+	 * replacement.
 	 */
-	MSXDevice* wrap_IO_In (byte port, MSXDevice* device);
-	MSXDevice* wrap_IO_Out(byte port, MSXDevice* device);
-	void unwrap_IO_In (byte port, MSXDevice* device);
-	void unwrap_IO_Out(byte port, MSXDevice* device);
+	bool replace_IO_In (byte port, MSXDevice* oldDevice, MSXDevice* newDevice);
+	bool replace_IO_Out(byte port, MSXDevice* oldDevice, MSXDevice* newDevice);
 
 	/**
 	 * Devices can register themself in the MSX slotstructure.

@@ -35,6 +35,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void unwrap();
 	void delay(EmuTime::param time);
 
 	MSXCPU& cpu;
