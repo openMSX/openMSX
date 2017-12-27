@@ -274,8 +274,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 	}
 
+	// Make name unique wrt all registered debuggables.
+	auto& debugger = motherBoard.getDebugger();
 	if (size) {
-		auto& debugger = motherBoard.getDebugger();
 		if (debugger.findDebuggable(name)) {
 			unsigned n = 0;
 			string tmp;
@@ -284,7 +285,6 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			} while (debugger.findDebuggable(tmp));
 			name = tmp;
 		}
-		romDebuggable = make_unique<RomDebuggable>(debugger, *this);
 	}
 
 	if (checkResolvedSha1) {
@@ -317,6 +317,11 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 		rom = &rom[windowBase];
 		size = windowSize;
+	}
+
+	// Only create the debuggable once all checks succeeded.
+	if (size) {
+		romDebuggable = make_unique<RomDebuggable>(debugger, *this);
 	}
 }
 
