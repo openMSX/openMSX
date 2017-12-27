@@ -106,6 +106,7 @@ void XMLElementParser::doctype(string_ref txt)
 {
 	auto pos1 = txt.find(" SYSTEM ");
 	if (pos1 == string_ref::npos) return;
+	if ((pos1 + 8) >= txt.size()) return;
 	char q = txt[pos1 + 8];
 	if ((q != '"') && (q != '\'')) return;
 	auto t = txt.substr(pos1 + 9);
