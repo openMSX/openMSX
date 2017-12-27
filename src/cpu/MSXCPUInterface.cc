@@ -245,13 +245,16 @@ void MSXCPUInterface::testUnsetExpanded(
 		for (int page = 0; page < 4; ++page) {
 			MSXDevice* device = slotLayout[ps][ss][page];
 			std::vector<MSXDevice*> devices;
+			std::vector<MSXDevice*>::iterator end_devices;
 			if (auto memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
 				devices = memDev->getDevices();
 				sort(begin(devices), end(devices)); // for set_difference()
+				end_devices = unique(begin(devices), end(devices));
 			} else {
 				devices.push_back(device);
+				end_devices = end(devices);
 			}
-			std::set_difference(begin(devices), end(devices),
+			std::set_difference(begin(devices), end_devices,
 			                    begin(allowed), end(allowed),
 			                    std::inserter(inUse, end(inUse)));
 
