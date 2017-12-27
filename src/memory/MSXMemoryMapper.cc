@@ -18,6 +18,9 @@ unsigned MSXMemoryMapper::getRamSize() const
 		throw MSXException(StringOp::Builder() <<
 			"Mapper size is not a multiple of 16K: " << kSize);
 	}
+	if (kSize == 0) {
+		throw MSXException("Mapper size must be at least 16kB.");
+	}
 	return kSize * 1024; // in bytes
 }
 
