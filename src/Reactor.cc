@@ -206,8 +206,6 @@ void Reactor::init()
 	filePool = make_unique<FilePool>(*globalCommandController, *this);
 	userSettings = make_unique<UserSettings>(
 		*globalCommandController);
-	softwareDatabase = make_unique<RomDatabase>(
-		*globalCommandController, *globalCliComm);
 	afterCommand = make_unique<AfterCommand>(
 		*this, *eventDistributor, *globalCommandController);
 	quitCommand = make_unique<QuitCommand>(
@@ -260,6 +258,15 @@ Reactor::~Reactor()
 	eventDistributor->unregisterEventListener(OPENMSX_DELETE_BOARDS, *this);
 
 	getGlobalSettings().getPauseSetting().detach(*this);
+}
+
+RomDatabase& Reactor::getSoftwareDatabase()
+{
+	if (!softwareDatabase) {
+		softwareDatabase = make_unique<RomDatabase>(
+		        *globalCommandController, *globalCliComm);
+	}
+	return *softwareDatabase;
 }
 
 CliComm& Reactor::getCliComm()

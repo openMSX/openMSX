@@ -10,6 +10,8 @@
 #include <mutex>
 #include <vector>
 
+#include <iostream>
+
 namespace openmsx {
 
 class RTScheduler;
@@ -82,8 +84,9 @@ public:
 	DiskFactory& getDiskFactory() { return *diskFactory; }
 	DiskManipulator& getDiskManipulator() { return *diskManipulator; }
 	EnumSetting<int>& getMachineSetting() { return *machineSetting; }
-	RomDatabase& getSoftwareDatabase() { return *softwareDatabase; }
 	FilePool& getFilePool() { return *filePool; }
+
+	RomDatabase& getSoftwareDatabase();
 
 	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
