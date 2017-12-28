@@ -133,7 +133,7 @@ bool FilePool::adjust(Pool::iterator it, const Sha1Sum& newSum)
 	}
 }
 
-static bool parse(const string& line, Sha1Sum& sha1, time_t& time, string& filename)
+static bool parse(const string& line, Sha1Sum& sha1, time_t& time, string_ref& filename)
 {
 	if (line.size() <= 68) return false;
 
@@ -146,7 +146,7 @@ static bool parse(const string& line, Sha1Sum& sha1, time_t& time, string& filen
 	time = Date::fromString(line.data() + 42);
 	if (time == time_t(-1)) return false;
 
-	filename.assign(line, 68, line.size());
+	filename = string_ref(line.data() + 68, line.data() + line.size());
 	return true;
 }
 
@@ -158,12 +158,12 @@ void FilePool::readSha1sums()
 	ifstream file(cacheFile.c_str());
 	string line;
 	Sha1Sum sum;
-	string filename;
+	string_ref filename;
 	time_t time;
 	while (file.good()) {
 		getline(file, line);
 		if (parse(line, sum, time, filename)) {
-			pool.emplace_back(sum, time, filename);
+			pool.emplace_back(sum, time, filename.str());
 		}
 	}
 
