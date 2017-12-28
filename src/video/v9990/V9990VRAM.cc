@@ -1,6 +1,7 @@
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "serialize.hh"
+#include <cstring>
 
 namespace openmsx {
 
@@ -14,9 +15,13 @@ V9990VRAM::V9990VRAM(V9990& vdp_, EmuTime::param /*time*/)
 void V9990VRAM::clear()
 {
 	// Initialize memory. Alternate 0x00/0xff every 512 bytes.
+	auto size = data.getSize();
+	assert((size % 1024) == 0);
 	auto* d = data.getWriteBackdoor();
-	for (unsigned i = 0; i < data.getSize(); ++i) {
-		d[i] = (i & 0x200) ? 0xff : 0;
+	auto* e = d + size;
+	while (d != e) {
+		memset(d, 0x00, 512); d += 512;
+		memset(d, 0xff, 512); d += 512;
 	}
 }
 
