@@ -99,8 +99,6 @@ VDP::VDP(const DeviceConfig& config)
 	, cpu(getCPU()) // used frequently, so cache it
 	, fixedVDPIOdelayCycles(getDelayCycles(getMotherBoard().getMachineConfig()->getConfig().getChild("devices")))
 {
-	VDPAccessSlots::initTables();
-
 	interlaced = false;
 
 	// Current general defaults for saturation:
