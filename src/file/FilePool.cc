@@ -133,7 +133,7 @@ bool FilePool::adjust(Pool::iterator it, const Sha1Sum& newSum)
 	}
 }
 
-static bool parse(const string& line, Sha1Sum& sha1, time_t& time, string_ref& filename)
+static bool parse(string_ref line, Sha1Sum& sha1, time_t& time, string_ref& filename)
 {
 	if (line.size() <= 68) return false;
 
@@ -154,17 +154,29 @@ void FilePool::readSha1sums()
 {
 	assert(pool.empty());
 
-	string cacheFile = FileOperations::getUserDataDir() + FILE_CACHE;
-	ifstream file(cacheFile.c_str());
-	string line;
-	Sha1Sum sum;
-	string_ref filename;
-	time_t time;
-	while (file.good()) {
-		getline(file, line);
-		if (parse(line, sum, time, filename)) {
+	File file(FileOperations::getUserDataDir() + FILE_CACHE);
+	size_t size;
+	auto* data = reinterpret_cast<const char*>(file.mmap(size));
+	auto* data_end = data + size;
+
+	// Process each line.
+	// Assume lines are separated by "\n", "\r\n" or "\n\r" (but not "\r").
+	while (data != data_end) {
+		// memchr() seems better optimized than std::find_if()
+		auto* it = static_cast<const char*>(memchr(data, '\n', data_end - data));
+		if (it == nullptr) it = data_end;
+		if ((it != data) && (it[-1] == '\r')) --it;
+
+		Sha1Sum sum;
+		string_ref filename;
+		time_t time;
+		if (parse(string_ref(data, it), sum, time, filename)) {
 			pool.emplace_back(sum, time, filename.str());
 		}
+
+		data = std::find_if(it, data_end, [](byte c) {
+			return !(c == '\n' || c == '\r');
+		});
 	}
 
 	if (!std::is_sorted(begin(pool), end(pool), LessTupleElement<0>())) {
