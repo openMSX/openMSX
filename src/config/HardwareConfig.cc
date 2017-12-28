@@ -272,6 +272,11 @@ void HardwareConfig::parseSlots()
 		for (auto& ssElem : psElem->getChildren("secondary")) {
 			const auto& secSlot = ssElem->getAttribute("slot");
 			int ss = CartridgeSlotManager::getSlotNum(secSlot);
+			if ((-16 <= ss) && (ss <= -1) && (ss != ps)) {
+				throw MSXException(
+					"Invalid secundary slot specification: \"" +
+					secSlot + "\".");
+			}
 			if (ss < 0) {
 				if ((ss >= -128) && (0 <= ps) && (ps < 4) &&
 				    motherBoard.getCPUInterface().isExpanded(ps)) {
