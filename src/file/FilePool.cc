@@ -18,10 +18,8 @@
 #include "sha1.hh"
 #include "stl.hh"
 #include <fstream>
-#include <cassert>
 
 using std::ifstream;
-using std::get;
 using std::make_tuple;
 using std::ofstream;
 using std::string;
@@ -76,7 +74,11 @@ FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 {
 	filePoolSetting.attach(*this);
 	reactor.getEventDistributor().registerEventListener(OPENMSX_QUIT_EVENT, *this);
-	readSha1sums();
+	try {
+		readSha1sums();
+	} catch (MSXException&) {
+		// ignore, probably .filecache doesn't exist yet
+	}
 	needWrite = false;
 
 	sha1SumCommand = make_unique<Sha1SumCommand>(controller, *this);
@@ -94,8 +96,9 @@ FilePool::~FilePool()
 void FilePool::insert(const Sha1Sum& sum, time_t time, const string& filename)
 {
 	auto it = upper_bound(begin(pool), end(pool), sum,
-	                      LessTupleElement<0>());
-	pool.insert(it, make_tuple(sum, time, filename));
+	                      ComparePool());
+	stringBuffer.push_back(filename);
+	pool.emplace(it, sum, time, stringBuffer.back().c_str());
 	needWrite = true;
 }
 
@@ -114,8 +117,8 @@ bool FilePool::adjust(Pool::iterator it, const Sha1Sum& newSum)
 {
 	needWrite = true;
 	auto newIt = upper_bound(begin(pool), end(pool), newSum,
-	                         LessTupleElement<0>());
-	get<0>(*it) = newSum; // update sum
+	                         ComparePool());
+	it->sum = newSum; // update sum
 	if (newIt > it) {
 		// move to back
 		rotate(it, it + 1, newIt);
@@ -133,58 +136,90 @@ bool FilePool::adjust(Pool::iterator it, const Sha1Sum& newSum)
 	}
 }
 
-static bool parse(string_ref line, Sha1Sum& sha1, time_t& time, string_ref& filename)
+time_t FilePool::PoolEntry::getTime()
 {
-	if (line.size() <= 68) return false;
+	if (time == time_t(-1)) {
+		time = Date::fromString(timeStr);
+	}
+	return time;
+}
+
+void FilePool::PoolEntry::setTime(time_t t)
+{
+	time = t;
+	timeStr = nullptr;
+}
+
+static bool parse(char* line, char* line_end,
+                  Sha1Sum& sha1, const char*& timeStr, const char*& filename)
+{
+	if ((line_end - line) <= 68) return false; // minumum length (only filename is variable)
+
+	// only perform quick sanity check on date/time format
+	if (line[40] != ' ') return false; // two space between sha1sum and date
+	if (line[41] != ' ') return false;
+	if (line[45] != ' ') return false; // space between day-of-week and month
+	if (line[49] != ' ') return false; // space between month and day of month
+	if (line[52] != ' ') return false; // space between day of month and hour
+	if (line[55] != ':') return false; // colon between hour and minutes
+	if (line[58] != ':') return false; // colon between minutes and seconds
+	if (line[61] != ' ') return false; // space between seconds and year
+	if (line[66] != ' ') return false; // two spaces between date and filename
+	if (line[67] != ' ') return false;
 
 	try {
-		sha1.parse40(line.data());
+		sha1.parse40(line);
 	} catch (MSXException& /*e*/) {
 		return false;
 	}
 
-	time = Date::fromString(line.data() + 42);
-	if (time == time_t(-1)) return false;
+	timeStr = line + 42; // not guaranteed to be a correct date/time
+	line[66] = '\0'; // zero-terminate timeStr, so that it can be printed
 
-	filename = string_ref(line.data() + 68, line.data() + line.size());
+	filename = line + 68;
+	*line_end = '\0'; // ok because there is certainly a '\n' after this line
 	return true;
 }
 
 void FilePool::readSha1sums()
 {
 	assert(pool.empty());
+	assert(fileMem.empty());
 
 	File file(FileOperations::getUserDataDir() + FILE_CACHE);
-	size_t size;
-	auto* data = reinterpret_cast<const char*>(file.mmap(size));
-	auto* data_end = data + size;
+	auto size = file.getSize();
+	fileMem.resize(size + 1);
+	file.read(fileMem.data(), size);
+	fileMem[size] = '\n'; // ensure there's always a '\n' at the end
 
 	// Process each line.
 	// Assume lines are separated by "\n", "\r\n" or "\n\r" (but not "\r").
+	char* data = fileMem.data();
+	char* data_end = data + size + 1;
 	while (data != data_end) {
 		// memchr() seems better optimized than std::find_if()
-		auto* it = static_cast<const char*>(memchr(data, '\n', data_end - data));
+		char* it = static_cast<char*>(memchr(data, '\n', data_end - data));
 		if (it == nullptr) it = data_end;
 		if ((it != data) && (it[-1] == '\r')) --it;
 
-		Sha1Sum sum;
-		string_ref filename;
-		time_t time;
-		if (parse(string_ref(data, it), sum, time, filename)) {
-			pool.emplace_back(sum, time, filename.str());
+		Sha1Sum sum(Sha1Sum::UninitializedTag{});
+		const char* timeStr;
+		const char* filename;
+		if (parse(data, it, sum, timeStr, filename)) {
+			pool.emplace_back(sum, timeStr, filename);
 		}
 
-		data = std::find_if(it, data_end, [](byte c) {
+		data = std::find_if(it + 1, data_end, [](byte c) {
 			return !(c == '\n' || c == '\r');
 		});
 	}
 
-	if (!std::is_sorted(begin(pool), end(pool), LessTupleElement<0>())) {
+	if (!std::is_sorted(begin(pool), end(pool), ComparePool())) {
 		// This should _rarely_ happen. In fact it should only happen
 		// when .filecache was manually edited. Though because it's
 		// very important that pool is indeed sorted I've added this
 		// safety mechanism.
-		sort(begin(pool), end(pool), LessTupleElement<0>());
+		sort(begin(pool), end(pool), ComparePool());
 	}
 }
 
@@ -197,10 +232,14 @@ void FilePool::writeSha1sums()
 		return;
 	}
 	for (auto& p : pool) {
-		file << get<0>(p).toString()      << "  " // sum
-		     << Date::toString(get<1>(p)) << "  " // date
-		     << get<2>(p)                         // filename
-		     << '\n';
+		file << p.sum.toString() << "  ";
+		if (p.timeStr) {
+			file << p.timeStr;
+		} else {
+			assert(p.time != time_t(-1));
+			file << Date::toString(p.time);
+		}
+		file << "  " << p.filename << '\n';
 	}
 }
 
@@ -350,24 +389,29 @@ static Sha1Sum calcSha1sum(File& file, Reactor& reactor)
 File FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
 	auto bound = equal_range(begin(pool), end(pool), sha1sum,
-	                         LessTupleElement<0>());
+	                         ComparePool());
 	// use indices instead of iterators
 	auto i    = distance(begin(pool), bound.first);
 	auto last = distance(begin(pool), bound.second);
 	while (i != last) {
 		auto it = begin(pool) + i;
-		auto& time           = get<1>(*it);
-		const auto& filename = get<2>(*it);
+		if (it->getTime() == time_t(-1)) {
+			// Invalid time/date format. Remove from
+			// database and continue searching.
+			remove(it);
+			--last;
+			continue;
+		}
 		try {
-			File file(filename);
+			File file(it->filename);
 			auto newTime = file.getModificationDate();
-			if (time == newTime) {
+			if (it->time == newTime) {
 				// When modification time is unchanged, assume
 				// sha1sum is also unchanged. So avoid
 				// expensive sha1sum calculation.
 				return file;
 			}
-			time = newTime; // update timestamp
+			it->setTime(newTime); // update timestamp
 			needWrite = true;
 			auto newSum = calcSha1sum(file, reactor);
 			if (newSum == sha1sum) {
@@ -459,19 +503,20 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 		}
 	} else {
 		// already in pool
-		assert(filename == get<2>(*it));
+		assert(filename == it->filename);
+		assert(it->time != time_t(-1));
 		try {
 			auto time = FileOperations::getModificationDate(st);
-			if (time == get<1>(*it)) {
+			if (it->time == time) {
 				// db is still up to date
-				if (get<0>(*it) == sha1sum) {
+				if (it->sum == sha1sum) {
 					return File(filename);
 				}
 			} else {
 				// db outdated
 				File file(filename);
 				auto sum = calcSha1sum(file, reactor);
-				get<1>(*it) = time;
+				it->setTime(time);
 				adjust(it, sum);
 				if (sum == sha1sum) {
 					return file;
@@ -493,9 +538,19 @@ FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
 	// shifting all elements in the vector starting from a certain
 	// position. Starting the search from the back increases the likelihood
 	// that the to-be-shifted elements are already in the memory cache.
-	for (auto it = pool.rbegin(); it != pool.rend(); ++it) {
-		if (get<2>(*it) == filename) {
-			return it.base() - 1;
+	auto i = pool.size();
+	while (i) {
+		--i;
+		auto it = begin(pool) + i;
+		if (it->filename == filename) {
+			// ensure 'time' is valid
+			if (it->getTime() == time_t(-1)) {
+				// invalid time/date format, remove from db
+				// and continue searching
+				pool.erase(it);
+				continue;
+			}
+			return it;
 		}
 	}
 	return end(pool); // not found
@@ -507,10 +562,11 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	const auto& filename = file.getURL();
 
 	auto it = findInDatabase(filename);
-	if ((it != end(pool)) && (get<1>(*it) == time)) {
+	assert(it->time != time_t(-1));
+	if ((it != end(pool)) && (it->time == time)) {
 		// in database and modification time matches,
 		// assume sha1sum also matches
-		return get<0>(*it);
+		return it->sum;
 	}
 
 	// not in database or timestamp mismatch
@@ -520,7 +576,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 		insert(sum, time, filename);
 	} else {
 		// was already in database, but with wrong timestamp (and sha1sum)
-		get<1>(*it) = time;
+		it->setTime(time);
 		adjust(it, sum);
 	}
 	return sum;

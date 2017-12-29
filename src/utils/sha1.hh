@@ -19,6 +19,9 @@ namespace openmsx {
 class Sha1Sum
 {
 public:
+	struct UninitializedTag {};
+	Sha1Sum(UninitializedTag) {}
+
 	// note: default copy and assign are ok
 	Sha1Sum();
 	/** Construct from string, throws when string is malformed. */
