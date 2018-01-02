@@ -246,23 +246,6 @@ static const byte ZSPXY0  = Z_FLAG | V_FLAG;
 static const byte ZS255   = S_FLAG;
 static const byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
 
-// Global variable, because it should be shared between Z80 and R800.
-// It must not be shared between the CPUs of different MSX machines, but
-// the (logical) lifetime of this variable cannot overlap between execution
-// of two MSX machines.
-static word start_pc;
-
-// conditions
-struct CondC  { bool operator()(byte f) const { return  (f & C_FLAG) != 0; } };
-struct CondNC { bool operator()(byte f) const { return !(f & C_FLAG); } };
-struct CondZ  { bool operator()(byte f) const { return  (f & Z_FLAG) != 0; } };
-struct CondNZ { bool operator()(byte f) const { return !(f & Z_FLAG); } };
-struct CondM  { bool operator()(byte f) const { return  (f & S_FLAG) != 0; } };
-struct CondP  { bool operator()(byte f) const { return !(f & S_FLAG); } };
-struct CondPE { bool operator()(byte f) const { return  (f & V_FLAG) != 0; } };
-struct CondPO { bool operator()(byte f) const { return !(f & V_FLAG); } };
-struct CondTrue { bool operator()(byte) const { return true; } };
-
 static void initTables()
 {
 	static bool alreadyInit = false;
@@ -291,6 +274,23 @@ static void initTables()
 	assert(ZSTable   [255] == ZS255);
 	assert(ZSXYTable [255] == ZSXY255);
 }
+
+// Global variable, because it should be shared between Z80 and R800.
+// It must not be shared between the CPUs of different MSX machines, but
+// the (logical) lifetime of this variable cannot overlap between execution
+// of two MSX machines.
+static word start_pc;
+
+// conditions
+struct CondC  { bool operator()(byte f) const { return  (f & C_FLAG) != 0; } };
+struct CondNC { bool operator()(byte f) const { return !(f & C_FLAG); } };
+struct CondZ  { bool operator()(byte f) const { return  (f & Z_FLAG) != 0; } };
+struct CondNZ { bool operator()(byte f) const { return !(f & Z_FLAG); } };
+struct CondM  { bool operator()(byte f) const { return  (f & S_FLAG) != 0; } };
+struct CondP  { bool operator()(byte f) const { return !(f & S_FLAG); } };
+struct CondPE { bool operator()(byte f) const { return  (f & V_FLAG) != 0; } };
+struct CondPO { bool operator()(byte f) const { return !(f & V_FLAG); } };
+struct CondTrue { bool operator()(byte) const { return true; } };
 
 template<class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
