@@ -124,6 +124,11 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
 	return deadKeys[n];
 }
 
+bool UnicodeKeymap::needsLockToggle(const KeyInfo& keyInfo, byte modmask, bool lockOn) const
+{
+	return lockOn != ((keyInfo.modmask & modmask) == modmask) && keyInfo.row < 6;
+}
+
 void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 {
 	b = skipSep(b, e);

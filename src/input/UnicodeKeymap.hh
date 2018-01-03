@@ -33,6 +33,15 @@ public:
 	KeyInfo get(int unicode) const;
 	KeyInfo getDeadkey(unsigned n) const;
 
+	/** Checks whether the given key press needs a different lock key state.
+	  * @param keyInfo The key to be pressed.
+	  * @param modmask The mask that identifies the lock key: CODE/GRAPH/CAPS.
+	  * @param lockOn The current state of the lock key.
+	  * @return True if the lock key state needs to be toggled, false if the
+	  *         lock key state is as required or does not matter.
+	  */
+	bool needsLockToggle(const KeyInfo& keyInfo, byte modmask, bool lockOn) const;
+
 private:
 	static const unsigned NUM_DEAD_KEYS = 3;
 

@@ -704,8 +704,7 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 	if (down) {
 		if (codeKanaLocks &&
 		    keyboardSettings.getAutoToggleCodeKanaLock() &&
-		    msxCodeKanaLockOn != ((keyInfo.modmask & CODE_MASK) == CODE_MASK) &&
-		    keyInfo.row < 6) { // only toggle CODE lock for 'normal' characters
+		    unicodeKeymap.needsLockToggle(keyInfo, CODE_MASK, msxCodeKanaLockOn)) {
 			// Code Kana locks, is in wrong state and must be auto-toggled:
 			// Toggle it by pressing the lock key and scheduling a
 			// release event
@@ -781,23 +780,20 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	}
 	if (down) {
 		if (codeKanaLocks &&
-		    msxCodeKanaLockOn != ((keyInfo.modmask & CODE_MASK) == CODE_MASK) &&
-		    keyInfo.row < 6) { // only toggle CODE lock for 'normal' characters
+		    unicodeKeymap.needsLockToggle(keyInfo, CODE_MASK, msxCodeKanaLockOn)) {
 			debug("Toggling CODE/KANA lock\n");
 			msxCodeKanaLockOn = !msxCodeKanaLockOn;
 			cmdKeyMatrix[6] &= (~CODE_MASK);
 			releaseMask = CODE_MASK;
 		}
 		if (graphLocks &&
-		    msxGraphLockOn != ((keyInfo.modmask & GRAPH_MASK) == GRAPH_MASK) &&
-		    keyInfo.row < 6) { // only toggle GRAPH lock for 'normal' characters
+		    unicodeKeymap.needsLockToggle(keyInfo, GRAPH_MASK, msxGraphLockOn)) {
 			debug("Toggling GRAPH lock\n");
 			msxGraphLockOn = !msxGraphLockOn;
 			cmdKeyMatrix[6] &= (~GRAPH_MASK);
 			releaseMask |= GRAPH_MASK;
 		}
-		if (msxCapsLockOn != ((keyInfo.modmask & CAPS_MASK) == CAPS_MASK) &&
-		    keyInfo.row < 6) { // only toggle CAPS lock for 'normal' characters
+		if (unicodeKeymap.needsLockToggle(keyInfo, CAPS_MASK, msxCapsLockOn)) {
 			debug("Toggling CAPS lock\n");
 			msxCapsLockOn = !msxCapsLockOn;
 			cmdKeyMatrix[6] &= (~CAPS_MASK);
