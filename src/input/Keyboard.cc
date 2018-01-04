@@ -478,17 +478,14 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 	}
 
 	if (down) {
-		if (/*___(userKeyMatrix[6] & 2) == 0 || */
-		    isOnKeypad ||
+		if (isOnKeypad ||
 		    keyboardSettings.getMappingMode() == KeyboardSettings::KEY_MAPPING) {
-			// /*CTRL-key is active,*/ user entered a key on numeric
-			// keypad or the driver is in KEY mapping mode.
-			// First /*two*/ option/*s*/ (/*CTRL key active,*/ keypad keypress) maps
-			// to same unicode as some other key combinations (e.g. digit
-			// on main keyboard or TAB/DEL)
-			// Use unicode to handle the more common combination
-			// and use direct matrix to matrix mapping for the exceptional
-			// cases (/*CTRL+character or*/ numeric keypad usage)
+			// User entered a key on numeric keypad or the driver is in KEY
+			// mapping mode.
+			// First option (keypad) maps to same unicode as some other key
+			// combinations (e.g. digit on main keyboard or TAB/DEL).
+			// Use unicode to handle the more common combination and use direct
+			// matrix to matrix mapping for the exceptional cases (keypad).
 			unicode = 0;
 #if defined(__APPLE__)
 		} else if ((keyCode & (Keys::K_MASK | Keys::KM_META))
