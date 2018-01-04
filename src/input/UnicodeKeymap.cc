@@ -17,6 +17,10 @@ namespace openmsx {
   */
 static unsigned parseHex(const char* begin, const char* end, bool& ok)
 {
+	if (begin == end) {
+		ok = false;
+		return 0;
+	}
 	unsigned value = 0;
 	for (; begin != end; begin++) {
 		value *= 16;
