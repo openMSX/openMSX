@@ -92,7 +92,7 @@ private:
 	void processCodeKanaChange(EmuTime::param time, bool down);
 	void processGraphChange(EmuTime::param time, bool down);
 	void processKeypadEnterKey(EmuTime::param time, bool down);
-	void processSdlKey(EmuTime::param time, bool down, int key);
+	void processSdlKey(EmuTime::param time, bool down, Keys::KeyCode key);
 	bool processQueuedEvent(const Event& event, EmuTime::param time);
 	bool processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(EmuTime::param time, bool down, int row, byte mask);

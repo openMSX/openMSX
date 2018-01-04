@@ -317,7 +317,7 @@ void Keyboard::processCodeKanaChange(EmuTime::param time, bool down)
 	if (down) {
 		msxCodeKanaLockOn = !msxCodeKanaLockOn;
 	}
-	updateKeyMatrix(time, down, 6, KeyInfo::CODE_MASK);
+	processSdlKey(time, down, Keys::K_RALT);
 }
 
 /*
@@ -330,7 +330,7 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
 	if (down) {
 		msxGraphLockOn = !msxGraphLockOn;
 	}
-	updateKeyMatrix(time, down, 6, KeyInfo::GRAPH_MASK);
+	processSdlKey(time, down, Keys::K_LALT);
 }
 
 /*
@@ -372,11 +372,11 @@ void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 		if (down) {
 			msxCapsLockOn = !msxCapsLockOn;
 		}
-		updateKeyMatrix(time, down, 6, KeyInfo::CAPS_MASK);
+		processSdlKey(time, down, Keys::K_CAPSLOCK);
 	} else {
 		debug("Pressing CAPS lock and scheduling a release\n");
 		msxCapsLockOn = !msxCapsLockOn;
-		updateKeyMatrix(time, true, 6, KeyInfo::CAPS_MASK);
+		processSdlKey(time, true, Keys::K_CAPSLOCK);
 		setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (in MSX time)
 	}
 }
@@ -384,7 +384,7 @@ void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 void Keyboard::executeUntil(EmuTime::param time)
 {
 	debug("Releasing CAPS lock\n");
-	updateKeyMatrix(time, false, 6, KeyInfo::CAPS_MASK);
+	processSdlKey(time, false, Keys::K_CAPSLOCK);
 }
 
 void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
@@ -394,16 +394,9 @@ void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
 		// Ignore the keypress/release
 		return;
 	}
-	int row;
-	byte mask;
-	if (keyboardSettings.getKpEnterMode() == KeyboardSettings::MSX_KP_COMMA) {
-		row = 10;
-		mask = 0x40;
-	} else {
-		row = 7;
-		mask = 0x80;
-	}
-	updateKeyMatrix(time, down, row, mask);
+	processSdlKey(time, down,
+		keyboardSettings.getKpEnterMode() == KeyboardSettings::MSX_KP_COMMA
+		? Keys::K_KP_ENTER : Keys::K_RETURN);
 }
 
 /*
@@ -412,7 +405,7 @@ void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
  * be unambiguously derived from a unicode character;
  *  Map the SDL key to an equivalent MSX key press/release event
  */
-void Keyboard::processSdlKey(EmuTime::param time, bool down, int key)
+void Keyboard::processSdlKey(EmuTime::param time, bool down, Keys::KeyCode key)
 {
 	if (key < MAX_KEYSYM) {
 		int row   = keyTab[key] >> 4;
