@@ -126,11 +126,25 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
 
 bool UnicodeKeymap::needsLockToggle(const KeyInfo& keyInfo, byte modmask, bool lockOn) const
 {
-	return lockOn != ((keyInfo.modmask & modmask) == modmask) && keyInfo.row < 6;
+	if (keyInfo.keymask == 0) {
+		// No key.
+		return false;
+	}
+	if (lockOn == ((keyInfo.modmask & modmask) == modmask)) {
+		// Lock key state matches modifiers needed.
+		return false;
+	}
+	// Check whether key is affected by lock.
+	byte column = keyInfo.keymask < 0x10
+		? ((0x30210 >> ((keyInfo.keymask << 1) & 0x1E)) & 0x3)
+		: ((0x30210 >> ((keyInfo.keymask >> 3) & 0x1E)) & 0x3) + 4;
+	byte rowcol = keyInfo.row << 4 | column;
+	return relevantMods[rowcol] & modmask;
 }
 
 void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 {
+	memset(relevantMods, 0, sizeof(relevantMods));
 	b = skipSep(b, e);
 	while (true) {
 		// Find a line containing tokens.
@@ -222,6 +236,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 				(rowcol >> 4) & 0x0f, // row
 				1 << (rowcol & 7),    // keymask
 				modmask));            // modmask
+			relevantMods[rowcol] |= modmask;
 		}
 	}
 	sort(begin(mapdata), end(mapdata), LessTupleElement<0>());

@@ -48,6 +48,10 @@ private:
 	void parseUnicodeKeymapfile(const char* begin, const char* end);
 
 	std::vector<std::pair<int, KeyInfo>> mapdata;
+	/** Contains a mask for each key matrix position, which for each modifier
+	  * has the corresponding bit set if that modifier that affects the key.
+	  */
+	byte relevantMods[0x100];
 	KeyInfo deadKeys[NUM_DEAD_KEYS];
 	const KeyInfo emptyInfo;
 };
