@@ -208,15 +208,15 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 		while (b != e && *b != '\n') {
 			tokenEnd = findSep(b, e);
 			if (segmentEquals(b, tokenEnd, "SHIFT")) {
-				modmask |= 1;
+				modmask |= KeyInfo::SHIFT_MASK;
 			} else if (segmentEquals(b, tokenEnd, "CTRL")) {
-				modmask |= 2;
+				modmask |= KeyInfo::CTRL_MASK;
 			} else if (segmentEquals(b, tokenEnd, "GRAPH")) {
-				modmask |= 4;
+				modmask |= KeyInfo::GRAPH_MASK;
 			} else if (segmentEquals(b, tokenEnd, "CAPSLOCK")) {
-				modmask |= 8;
+				modmask |= KeyInfo::CAPS_MASK;
 			} else if (segmentEquals(b, tokenEnd, "CODE")) {
-				modmask |= 16;
+				modmask |= KeyInfo::CODE_MASK;
 			} else {
 				throw MSXException(StringOp::Builder()
 					<< "Invalid modifier \""

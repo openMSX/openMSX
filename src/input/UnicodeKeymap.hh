@@ -13,6 +13,13 @@ class UnicodeKeymap
 {
 public:
 	struct KeyInfo {
+		// Modifier masks:
+		static constexpr byte SHIFT_MASK = 0x01;
+		static constexpr byte CTRL_MASK  = 0x02;
+		static constexpr byte GRAPH_MASK = 0x04;
+		static constexpr byte CAPS_MASK  = 0x08;
+		static constexpr byte CODE_MASK  = 0x10;
+
 		KeyInfo(byte row_, byte keymask_, byte modmask_)
 			: row(row_), keymask(keymask_), modmask(modmask_)
 		{
