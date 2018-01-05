@@ -129,7 +129,7 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
 
 bool UnicodeKeymap::needsLockToggle(const KeyInfo& keyInfo, byte modmask, bool lockOn) const
 {
-	if (keyInfo.keymask == 0) {
+	if (!keyInfo.isValid()) {
 		// No key.
 		return false;
 	}
@@ -138,11 +138,7 @@ bool UnicodeKeymap::needsLockToggle(const KeyInfo& keyInfo, byte modmask, bool l
 		return false;
 	}
 	// Check whether key is affected by lock.
-	byte column = keyInfo.keymask < 0x10
-		? ((0x30210 >> ((keyInfo.keymask << 1) & 0x1E)) & 0x3)
-		: ((0x30210 >> ((keyInfo.keymask >> 3) & 0x1E)) & 0x3) + 4;
-	byte rowcol = keyInfo.row << 4 | column;
-	return relevantMods[rowcol] & modmask;
+	return relevantMods[keyInfo.pos.getRowCol()] & modmask;
 }
 
 void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
@@ -204,6 +200,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 		if ((rowcol & 0x0F) >= 8) {
 			throw MSXException("Too high column value in keymap file");
 		}
+		auto pos = KeyMatrixPosition(rowcol);
 		b = skipSep(tokenEnd, e);
 
 		// Parse remaining tokens. It is an optional list of modifier keywords.
@@ -234,15 +231,9 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 				throw MSXException(
 					"DEADKEY entry in keymap file cannot have modifiers");
 			}
-			deadKeys[deadKeyIndex] = KeyInfo(
-				(rowcol >> 4) & 0x0f, // row
-				1 << (rowcol & 7),    // keymask
-				0);                   // modmask
+			deadKeys[deadKeyIndex] = KeyInfo(pos, 0);
 		} else {
-			mapdata.emplace_back(unicode, KeyInfo(
-				(rowcol >> 4) & 0x0f, // row
-				1 << (rowcol & 7),    // keymask
-				modmask));            // modmask
+			mapdata.emplace_back(unicode, KeyInfo(pos, modmask));
 			relevantMods[rowcol] |= modmask;
 		}
 	}

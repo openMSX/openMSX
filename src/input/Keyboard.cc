@@ -143,8 +143,8 @@ const byte* Keyboard::getKeys()
 {
 	if (keysChanged) {
 		keysChanged = false;
-		for (unsigned i = 0; i < NR_KEYROWS; ++i) {
-			keyMatrix[i] = cmdKeyMatrix[i] & userKeyMatrix[i];
+		for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
+			keyMatrix[row] = cmdKeyMatrix[row] & userKeyMatrix[row];
 		}
 		if (keyGhosting) {
 			doKeyGhosting();
@@ -170,7 +170,7 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
 	// When replay is stopped we restore this host keyboard state, see
 	// stopReplay().
 
-	for (unsigned row = 0; row < NR_KEYROWS; ++row) {
+	for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
 		hostKeyMatrix[row] = source.hostKeyMatrix[row];
 	}
 }
@@ -206,7 +206,7 @@ void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
 
 void Keyboard::stopReplay(EmuTime::param time)
 {
-	for (unsigned row = 0; row < NR_KEYROWS; ++row) {
+	for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
 		changeKeyMatrixEvent(time, row, hostKeyMatrix[row]);
 	}
 	msxmodifiers = 0xff;
@@ -340,8 +340,8 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
 void Keyboard::processDeadKeyEvent(unsigned n, EmuTime::param time, bool down)
 {
 	UnicodeKeymap::KeyInfo deadkey = unicodeKeymap.getDeadkey(n);
-	if (deadkey.keymask) {
-		updateKeyMatrix(time, down, deadkey.row, deadkey.keymask);
+	if (deadkey.isValid()) {
+		updateKeyMatrix(time, down, deadkey.pos);
 	}
 }
 
@@ -408,16 +408,13 @@ void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
 void Keyboard::processSdlKey(EmuTime::param time, bool down, Keys::KeyCode key)
 {
 	if (key < MAX_KEYSYM) {
-		int row   = keyTab[key] >> 4;
-		byte mask = 1 << (keyTab[key] & 0xf);
-		if (keyTab[key] == 0xff) assert(mask == 0);
-
-		if ((row == 11) && !hasYesNoKeys) {
-			// do not process row 11 if we have no Yes/No keys
-			return;
-		}
-		if (mask) {
-			updateKeyMatrix(time, down, row, mask);
+		auto pos = keyTab[key];
+		if (pos.isValid()) {
+			if (pos.getRow() == 11 && !hasYesNoKeys) {
+				// do not process row 11 if we have no Yes/No keys
+				return;
+			}
+			updateKeyMatrix(time, down, pos);
 		}
 	}
 }
@@ -425,23 +422,23 @@ void Keyboard::processSdlKey(EmuTime::param time, bool down, Keys::KeyCode key)
 /*
  * Update the MSX keyboard matrix
  */
-void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, int row, byte mask)
+void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition pos)
 {
-	assert(mask);
+	assert(pos.isValid());
 	if (down) {
-		pressKeyMatrixEvent(time, row, mask);
-		if (row == 6) {
+		pressKeyMatrixEvent(time, pos);
+		if (pos.getRow() == 6) {
 			// Keep track of the MSX modifiers (CTRL, GRAPH, CODE, SHIFT)
 			// The MSX modifiers in row 6 of the matrix sometimes get
 			// overruled by the unicode character processing, in
 			// which case the unicode processing must be able to restore
 			// them to the real key-combinations pressed by the user
-			msxmodifiers &= ~(mask & 0x17);
+			msxmodifiers &= ~(pos.getMask() & 0x17);
 		}
 	} else {
-		releaseKeyMatrixEvent(time, row, mask);
-		if (row == 6) {
-			msxmodifiers |= (mask & 0x17);
+		releaseKeyMatrixEvent(time, pos);
+		if (pos.getRow() == 6) {
+			msxmodifiers |= (pos.getMask() & 0x17);
 		}
 	}
 }
@@ -586,9 +583,9 @@ void Keyboard::doKeyGhosting()
 	bool changedSomething;
 	do {
 		changedSomething = false;
-		for (unsigned i = 0; i < NR_KEYROWS - 1; i++) {
+		for (unsigned i = 0; i < KeyMatrixPosition::NUM_ROWS - 1; i++) {
 			byte row1 = keyMatrix[i];
-			for (unsigned j = i + 1; j < NR_KEYROWS; j++) {
+			for (unsigned j = i + 1; j < KeyMatrixPosition::NUM_ROWS; j++) {
 				byte row2 = keyMatrix[j];
 				if ((row1 != row2) && ((row1 | row2) != 0xff)) {
 					byte rowIold = keyMatrix[i];
@@ -628,7 +625,7 @@ void Keyboard::processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool
 	}
 	unsigned row  = tokens[1].getInt(interp);
 	unsigned mask = tokens[2].getInt(interp);
-	if (row >= NR_KEYROWS) {
+	if (row >= KeyMatrixPosition::NUM_ROWS) {
 		throw CommandException("Invalid row");
 	}
 	if (mask >= 256) {
@@ -684,7 +681,7 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 {
 	bool insertCodeKanaRelease = false;
 	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap.get(unicode);
-	if (keyInfo.keymask == 0) {
+	if (!keyInfo.isValid()) {
 		return insertCodeKanaRelease;
 	}
 	if (down) {
@@ -705,8 +702,7 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 			// Always ignore CAPSLOCK mask (assume that user will
 			// use real CAPS lock to switch/ between hiragana and
 			// katanana on japanese model)
-			assert(keyInfo.keymask);
-			pressKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
+			pressKeyMatrixEvent(time, keyInfo.pos);
 
 			byte modmask = keyInfo.modmask & ~KeyInfo::CAPS_MASK;
 			if (codeKanaLocks) modmask &= ~KeyInfo::CODE_MASK;
@@ -730,8 +726,7 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 			}
 		}
 	} else {
-		assert(keyInfo.keymask);
-		releaseKeyMatrixEvent(time, keyInfo.row, keyInfo.keymask);
+		releaseKeyMatrixEvent(time, keyInfo.pos);
 
 		// Do not simply unpress graph, ctrl, code and shift but
 		// restore them to the values currently pressed by the user
@@ -786,13 +781,13 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 			releaseMask |= KeyInfo::CAPS_MASK;
 		}
 		if (releaseMask == 0) {
-			debug("Key pasted, unicode: 0x%04x, row: %02d, mask: %02x, modmask: %02x\n",
-			      unicode, keyInfo.row, keyInfo.keymask, modmask);
-			cmdKeyMatrix[keyInfo.row] &= ~keyInfo.keymask;
+			debug("Key pasted, unicode: 0x%04x, row: %02d, col: %d, modmask: %02x\n",
+			      unicode, keyInfo.pos.getRow(), keyInfo.pos.getColumn(), modmask);
+			cmdKeyMatrix[keyInfo.pos.getRow()] &= ~keyInfo.pos.getMask();
 			cmdKeyMatrix[6] &= ~modmask;
 		}
 	} else {
-		cmdKeyMatrix[keyInfo.row] |= keyInfo.keymask;
+		cmdKeyMatrix[keyInfo.pos.getRow()] |= keyInfo.pos.getMask();
 		cmdKeyMatrix[6] |= modmask;
 	}
 	keysChanged = true;
@@ -827,11 +822,10 @@ void Keyboard::pressLockKeys(int lockKeysMask, bool down)
 bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2)
 {
 	// get row / mask of key (note: ignore modifier mask)
-	UnicodeKeymap::KeyInfo keyInfo1 = unicodeKeymap.get(unicode1);
-	UnicodeKeymap::KeyInfo keyInfo2 = unicodeKeymap.get(unicode2);
+	auto keyPos1 = unicodeKeymap.get(unicode1).pos;
+	auto keyPos2 = unicodeKeymap.get(unicode2).pos;
 
-	return ((keyInfo1.row == keyInfo2.row) &&
-	        (keyInfo1.keymask & keyInfo2.keymask));
+	return keyPos1 == keyPos2 && keyPos1.isValid();
 }
 
 void Keyboard::debug(const char* format, ...)
@@ -1216,7 +1210,7 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 
 Keyboard::KeybDebuggable::KeybDebuggable(MSXMotherBoard& motherBoard_)
 	: SimpleDebuggable(motherBoard_, "keymatrix", "MSX Keyboard Matrix",
-	                   Keyboard::NR_KEYROWS)
+	                   KeyMatrixPosition::NUM_ROWS)
 {
 }
 
@@ -1333,8 +1327,8 @@ INSTANTIATE_SERIALIZE_METHODS(Keyboard::MsxKeyEventQueue);
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
 
 // Mapping from SDL keys to MSX keys
-static const byte x = 0xff;
-const byte Keyboard::msxKeyTab[MAX_KEYSYM] = {
+static const KeyMatrixPosition x = KeyMatrixPosition();
+const KeyMatrixPosition Keyboard::msxKeyTab[MAX_KEYSYM] = {
 // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
    x  , x  , x  , x  , x  , x  , x  , x  ,0x75,0x73, x  , x  , x  ,0x77, x  , x  , //000
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x72, x  , x  , x  , x  , //010
@@ -1375,7 +1369,7 @@ const byte Keyboard::msxKeyTab[MAX_KEYSYM] = {
 //   9   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  Numerical keypad
 //  10   |  ,  |  .  |  /  |  *  |  -  |  +  |  9  |  8  |   SVI-328 only
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
-const byte Keyboard::sviKeyTab[MAX_KEYSYM] = {
+const KeyMatrixPosition Keyboard::sviKeyTab[MAX_KEYSYM] = {
 // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
    x  , x  , x  , x  , x  , x  , x  , x  ,0x56,0x81, x  , x  , x  ,0x66, x  , x  , //000
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x64, x  , x  , x  , x  , //010

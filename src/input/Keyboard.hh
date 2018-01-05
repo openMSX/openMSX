@@ -34,8 +34,6 @@ class Keyboard final : private MSXEventListener, private StateChangeListener
                      , private Schedulable
 {
 public:
-	static const unsigned NR_KEYROWS = 16;
-
 	/** Constructs a new Keyboard object.
 	 * @param motherBoard ref to the motherBoard
 	 * @param scheduler ref to the scheduler
@@ -83,8 +81,14 @@ private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
-	void pressKeyMatrixEvent  (EmuTime::param time, byte row, byte press);
+	void pressKeyMatrixEvent(EmuTime::param time, byte row, byte press);
+	void pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos) {
+		pressKeyMatrixEvent(time, pos.getRow(), pos.getMask());
+	}
 	void releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release);
+	void releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos) {
+		releaseKeyMatrixEvent(time, pos.getRow(), pos.getMask());
+	}
 	void changeKeyMatrixEvent (EmuTime::param time, byte row, byte newValue);
 
 	void processDeadKeyEvent(unsigned n, EmuTime::param time, bool down);
@@ -95,7 +99,7 @@ private:
 	void processSdlKey(EmuTime::param time, bool down, Keys::KeyCode key);
 	bool processQueuedEvent(const Event& event, EmuTime::param time);
 	bool processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent);
-	void updateKeyMatrix(EmuTime::param time, bool down, int row, byte mask);
+	void updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition pos);
 	void doKeyGhosting();
 	void processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool up);
 	bool pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool down);
@@ -109,9 +113,9 @@ private:
 	StateChangeDistributor& stateChangeDistributor;
 
 	static const int MAX_KEYSYM = 0x150;
-	static const byte msxKeyTab[MAX_KEYSYM];
-	static const byte sviKeyTab[MAX_KEYSYM];
-	const byte* keyTab;
+	static const KeyMatrixPosition msxKeyTab[MAX_KEYSYM];
+	static const KeyMatrixPosition sviKeyTab[MAX_KEYSYM];
+	const KeyMatrixPosition* keyTab;
 
 	struct KeyMatrixUpCmd final : RecordedCommand {
 		KeyMatrixUpCmd(CommandController& commandController,
@@ -211,10 +215,16 @@ private:
 
 	UnicodeKeymap unicodeKeymap;
 	unsigned dynKeymap[MAX_KEYSYM];
-	byte cmdKeyMatrix [NR_KEYROWS]; // for keymatrix/type command
-	byte userKeyMatrix[NR_KEYROWS]; // pressed user keys (live or replay)
-	byte hostKeyMatrix[NR_KEYROWS]; // always in sync with host keyb, also during replay
-	byte keyMatrix    [NR_KEYROWS]; // combination of cmdKeyMatrix and userKeyMatrix
+
+	/** Keyboard matrix state for keymatrix/type command. */
+	byte cmdKeyMatrix [KeyMatrixPosition::NUM_ROWS];
+	/** Keyboard matrix state for pressed user keys (live or replay). */
+	byte userKeyMatrix[KeyMatrixPosition::NUM_ROWS];
+	/** Keyboard matrix state that is always in sync with host keyb, also during replay. */
+	byte hostKeyMatrix[KeyMatrixPosition::NUM_ROWS];
+	/** Combination of cmdKeyMatrix and userKeyMatrix. */
+	byte keyMatrix[KeyMatrixPosition::NUM_ROWS];
+
 	byte msxmodifiers;
 	const bool hasKeypad;
 	const bool hasYesNoKeys;

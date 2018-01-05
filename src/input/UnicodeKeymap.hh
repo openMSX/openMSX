@@ -9,6 +9,92 @@
 
 namespace openmsx {
 
+/** A position (row, column) in a keyboard matrix.
+  */
+class KeyMatrixPosition final {
+	static constexpr unsigned INVALID = 0xFF;
+
+public:
+	/** Rows are in the range [0..NUM_ROWS). */
+	static constexpr unsigned NUM_ROWS = 16;
+	/** Columns are in the range [0..NUM_COLS). */
+	static constexpr unsigned NUM_COLS = 8;
+	/** Combined row and column values are in the range [0..NUM_ROWCOL). */
+	static constexpr unsigned NUM_ROWCOL = 1 << 8;
+
+	/** Creates an invalid key matrix position, which can be used when
+	  * a key does not exist on a particular keyboard.
+	  */
+	KeyMatrixPosition()
+		: rowCol(INVALID)
+	{
+	}
+
+	/** Creates a key matrix position from a byte: the row is stored in
+	  * the high nibble, the column is stored in the low nibble.
+	  */
+	KeyMatrixPosition(byte rowCol_)
+		: rowCol(rowCol_)
+	{
+		assert(isValid());
+	}
+
+	/** Creates a key matrix position with a given row and column.
+	  */
+	KeyMatrixPosition(unsigned row, unsigned col)
+		: rowCol((row << 4) | col)
+	{
+		assert(isValid());
+	}
+
+	/** Returns true iff this position is valid.
+	  */
+	bool isValid() const {
+		return rowCol != INVALID;
+	}
+
+	/** Returns the matrix row.
+	  * Must only be called on valid positions.
+	  */
+	unsigned getRow() const {
+		assert(isValid());
+		return rowCol >> 4;
+	}
+
+	/** Returns the matrix column.
+	  * Must only be called on valid positions.
+	  */
+	unsigned getColumn() const {
+		assert(isValid());
+		return rowCol & 0x0F;
+	}
+
+	/** Returns the matrix row and column combined in a single byte: the row
+	  * is stored in the high nibble, the column is stored in the low nibble.
+	  * Must only be called on valid positions.
+	  */
+	byte getRowCol() const {
+		assert(isValid());
+		return rowCol;
+	}
+
+	/** Returns a mask with the bit corresponding to this position's
+	  * column set, all other bits clear.
+	  * Must only be called on valid positions.
+	  */
+	unsigned getMask() const {
+		assert(isValid());
+		return 1 << getColumn();
+	}
+
+	bool operator==(const KeyMatrixPosition& other) const {
+		return rowCol == other.rowCol;
+	}
+
+private:
+	byte rowCol;
+};
+
 class UnicodeKeymap
 {
 public:
@@ -20,19 +106,20 @@ public:
 		static constexpr byte CAPS_MASK  = 0x08;
 		static constexpr byte CODE_MASK  = 0x10;
 
-		KeyInfo(byte row_, byte keymask_, byte modmask_)
-			: row(row_), keymask(keymask_), modmask(modmask_)
+		KeyInfo(KeyMatrixPosition pos_, byte modmask_)
+			: pos(pos_), modmask(modmask_)
 		{
-			if (keymask == 0) {
-				assert(row     == 0);
-				assert(modmask == 0);
-			}
+			assert(pos.isValid());
 		}
 		KeyInfo()
-			: row(0), keymask(0), modmask(0)
+			: pos(), modmask(0)
 		{
 		}
-		byte row, keymask, modmask;
+		bool isValid() const {
+			return pos.isValid();
+		}
+		KeyMatrixPosition pos;
+		byte modmask;
 	};
 
 	explicit UnicodeKeymap(string_ref keyboardType);
@@ -58,7 +145,7 @@ private:
 	/** Contains a mask for each key matrix position, which for each modifier
 	  * has the corresponding bit set if that modifier that affects the key.
 	  */
-	byte relevantMods[0x100];
+	byte relevantMods[KeyMatrixPosition::NUM_ROWCOL];
 	KeyInfo deadKeys[NUM_DEAD_KEYS];
 };
 
