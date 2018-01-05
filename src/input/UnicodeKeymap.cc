@@ -98,7 +98,6 @@ static bool segmentStartsWith(const char* begin, const char* end, const char (&s
 
 
 UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
-	: emptyInfo(KeyInfo())
 {
 	auto filename = systemFileContext().resolve(
 		"unicodemaps/unicodemap." + keyboardType);
@@ -119,7 +118,7 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::get(int unicode) const
 	auto it = lower_bound(begin(mapdata), end(mapdata), unicode,
 	                      LessTupleElement<0>());
 	return ((it != end(mapdata)) && (it->first == unicode))
-		? it->second : emptyInfo;
+		? it->second : KeyInfo();
 }
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const

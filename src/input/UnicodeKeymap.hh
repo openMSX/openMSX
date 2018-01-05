@@ -60,7 +60,6 @@ private:
 	  */
 	byte relevantMods[0x100];
 	KeyInfo deadKeys[NUM_DEAD_KEYS];
-	const KeyInfo emptyInfo;
 };
 
 } // namespace openmsx
