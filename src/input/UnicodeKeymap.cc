@@ -191,7 +191,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 		// Parse second token. It must be <ROW><COL>
 		tokenEnd = findSep(b, e);
 		if (tokenEnd == e) {
-			throw MSXException("Missing <ROW><COL> in unicode file");
+			throw MSXException("Missing <ROW><COL> in keymap file");
 		}
 		bool ok;
 		int rowcol = parseHex(b, tokenEnd, ok);
