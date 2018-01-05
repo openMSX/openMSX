@@ -230,6 +230,10 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 		}
 
 		if (isDeadKey) {
+			if (modmask != 0) {
+				throw MSXException(
+					"DEADKEY entry in keymap file cannot have modifiers");
+			}
 			deadKeys[deadKeyIndex] = KeyInfo(
 				(rowcol >> 4) & 0x0f, // row
 				1 << (rowcol & 7),    // keymask
