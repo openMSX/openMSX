@@ -113,7 +113,7 @@ UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 	}
 }
 
-UnicodeKeymap::KeyInfo UnicodeKeymap::get(int unicode) const
+UnicodeKeymap::KeyInfo UnicodeKeymap::get(unsigned unicode) const
 {
 	auto it = lower_bound(begin(mapdata), end(mapdata), unicode,
 	                      LessTupleElement<0>());
@@ -156,7 +156,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 
 		// Parse first token: a unicode value or the keyword DEADKEY.
 		const char* tokenEnd = findSep(b, e);
-		int unicode = 0;
+		unsigned unicode = 0;
 		unsigned deadKeyIndex = 0;
 		bool isDeadKey = segmentStartsWith(b, tokenEnd, "DEADKEY");
 		if (isDeadKey) {

@@ -126,7 +126,7 @@ public:
 
 	explicit UnicodeKeymap(string_ref keyboardType);
 
-	KeyInfo get(int unicode) const;
+	KeyInfo get(unsigned unicode) const;
 	KeyInfo getDeadkey(unsigned n) const;
 
 	/** Checks whether the given key press needs a different lock key state.
@@ -143,7 +143,7 @@ private:
 
 	void parseUnicodeKeymapfile(const char* begin, const char* end);
 
-	std::vector<std::pair<int, KeyInfo>> mapdata;
+	std::vector<std::pair<unsigned, KeyInfo>> mapdata;
 	/** Contains a mask for each key matrix position, which for each modifier
 	  * has the corresponding bit set if that modifier that affects the key.
 	  */
