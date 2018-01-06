@@ -235,7 +235,8 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 			deadKeys[deadKeyIndex] = KeyInfo(pos, 0);
 		} else {
 			mapdata.emplace_back(unicode, KeyInfo(pos, modmask));
-			relevantMods[rowcol] |= modmask;
+			// Note: getRowCol() uses 3 bits for column, rowcol uses 4.
+			relevantMods[pos.getRowCol()] |= modmask;
 		}
 	}
 	sort(begin(mapdata), end(mapdata), LessTupleElement<0>());

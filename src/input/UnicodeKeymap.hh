@@ -20,7 +20,7 @@ public:
 	/** Columns are in the range [0..NUM_COLS). */
 	static constexpr unsigned NUM_COLS = 8;
 	/** Combined row and column values are in the range [0..NUM_ROWCOL). */
-	static constexpr unsigned NUM_ROWCOL = 1 << 8;
+	static constexpr unsigned NUM_ROWCOL = 1 << 7;
 
 	/** Creates an invalid key matrix position, which can be used when
 	  * a key does not exist on a particular keyboard.
@@ -34,16 +34,17 @@ public:
 	  * the high nibble, the column is stored in the low nibble.
 	  */
 	KeyMatrixPosition(byte rowCol_)
-		: rowCol(rowCol_)
+		: KeyMatrixPosition(rowCol_ >> 4, rowCol_ & 0x0F)
 	{
-		assert(isValid());
 	}
 
 	/** Creates a key matrix position with a given row and column.
 	  */
 	KeyMatrixPosition(unsigned row, unsigned col)
-		: rowCol((row << 4) | col)
+		: rowCol((row << 3) | col)
 	{
+		assert(row < NUM_ROWS);
+		assert(col < NUM_COLS);
 		assert(isValid());
 	}
 
@@ -58,7 +59,7 @@ public:
 	  */
 	unsigned getRow() const {
 		assert(isValid());
-		return rowCol >> 4;
+		return rowCol >> 3;
 	}
 
 	/** Returns the matrix column.
@@ -66,11 +67,11 @@ public:
 	  */
 	unsigned getColumn() const {
 		assert(isValid());
-		return rowCol & 0x0F;
+		return rowCol & 0x07;
 	}
 
-	/** Returns the matrix row and column combined in a single byte: the row
-	  * is stored in the high nibble, the column is stored in the low nibble.
+	/** Returns the matrix row and column combined in a single byte: the column
+	  * is stored in the lower 3 bits, the row is stored in the higher bits.
 	  * Must only be called on valid positions.
 	  */
 	byte getRowCol() const {
