@@ -141,7 +141,7 @@ public:
 private:
 	static const unsigned NUM_DEAD_KEYS = 3;
 
-	void parseUnicodeKeymapfile(const char* begin, const char* end);
+	void parseUnicodeKeymapfile(string_ref data);
 
 	std::vector<std::pair<unsigned, KeyInfo>> mapdata;
 	/** Contains a mask for each key matrix position, which for each modifier

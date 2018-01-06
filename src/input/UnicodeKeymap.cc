@@ -10,21 +10,19 @@
 
 namespace openmsx {
 
-/** Parses the string given by the inclusive begin point and exclusive end
-  * pointer as a hexadecimal integer.
+/** Parses the given string reference as a hexadecimal integer.
   * If successful, returns the parsed value and sets "ok" to true.
   * If unsuccessful, returns 0 and sets "ok" to false.
   */
-static unsigned parseHex(const char* begin, const char* end, bool& ok)
+static unsigned parseHex(string_ref str, bool& ok)
 {
-	if (begin == end) {
+	if (str.empty()) {
 		ok = false;
 		return 0;
 	}
 	unsigned value = 0;
-	for (; begin != end; begin++) {
+	for (const char c : str) {
 		value *= 16;
-		const char c = *begin;
 		if ('0' <= c && c <= '9') {
 			value += c - '0';
 		} else if ('A' <= c && c <= 'F') {
@@ -42,6 +40,7 @@ static unsigned parseHex(const char* begin, const char* end, bool& ok)
 
 /** Returns true iff the given character is a separator.
   * Separators are: comma, whitespace and hash mark.
+  * Newline (\n) is not considered a separator.
   */
 static inline bool isSep(char c)
 {
@@ -50,50 +49,35 @@ static inline bool isSep(char c)
 	    || c == '#';                          // comment
 }
 
-/** Returns a pointer to the first separator character in the given string,
-  * or a pointer to the end of the line if no separator is found.
-  */
-static const char* findSep(const char* begin, const char* end)
-{
-	while (begin != end && *begin != '\n' && !isSep(*begin)) begin++;
-	return begin;
-}
-
-/** Returns a pointer to the first non-separator character in the given string,
-  * or a pointer to the end of the line if only separators are found.
+/** Removes separator characters at the start of the given string reference.
   * Characters between a hash mark and the following newline are also skipped.
   */
-static const char* skipSep(const char* begin, const char* end)
+static void skipSep(string_ref& str)
 {
-	while (begin != end) {
-		const char c = *begin;
+	while (!str.empty()) {
+		const char c = str.front();
 		if (!isSep(c)) break;
-		begin++;
 		if (c == '#') {
 			// Skip till end of line.
-			while (begin != end && *begin != '\n') begin++;
+			while (!str.empty() && str.front() != '\n') str.pop_front();
 			break;
 		}
+		str.pop_front();
 	}
-	return begin;
 }
 
-/** Return true iff the substring [begin, end) equals the given string literal
- */
-template<int N>
-static bool segmentEquals(const char* begin, const char* end, const char (&string)[N])
+/** Returns the next token in the given string.
+  * The token and any separators preceding it are removed from the string.
+  */
+static string_ref nextToken(string_ref& str)
 {
-	return ((end - begin) == (N - 1)) &&
-	       (strncmp(begin, string, N - 1) == 0);
-}
-
-/** Return true iff the substring [begin, end) starts with the given string literal
- */
-template<int N>
-static bool segmentStartsWith(const char* begin, const char* end, const char (&string)[N])
-{
-	return ((end - begin) >= (N - 1)) &&
-	       (strncmp(begin, string, N - 1) == 0);
+	skipSep(str);
+	auto tokenBegin = str.begin();
+	while (!str.empty() && str.front() != '\n' && !isSep(str.front())) {
+		// Pop non-separator character.
+		str.pop_front();
+	}
+	return string_ref(tokenBegin, str.begin());
 }
 
 
@@ -106,8 +90,7 @@ UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 		size_t size;
 		const byte* buf = file.mmap(size);
 		parseUnicodeKeymapfile(
-			reinterpret_cast<const char*>(buf),
-			reinterpret_cast<const char*>(buf + size));
+			string_ref(reinterpret_cast<const char*>(buf), size));
 	} catch (FileException&) {
 		throw MSXException("Couldn't load unicode keymap file: " + filename);
 	}
@@ -142,33 +125,36 @@ bool UnicodeKeymap::needsLockToggle(
 	return (relevantMods[keyInfo.pos.getRowCol()] >> mod) & 1;
 }
 
-void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
+void UnicodeKeymap::parseUnicodeKeymapfile(string_ref data)
 {
 	memset(relevantMods, 0, sizeof(relevantMods));
-	b = skipSep(b, e);
-	while (true) {
-		// Find a line containing tokens.
-		while (b != e && *b == '\n') {
+
+	while (!data.empty()) {
+		if (data.starts_with('\n')) {
 			// Next line.
-			b = skipSep(b + 1, e);
+			data.pop_front();
 		}
-		if (b == e) break;
+
+		string_ref token = nextToken(data);
+		if (token.empty()) {
+			// Skip empty line.
+			continue;
+		}
 
 		// Parse first token: a unicode value or the keyword DEADKEY.
-		const char* tokenEnd = findSep(b, e);
 		unsigned unicode = 0;
 		unsigned deadKeyIndex = 0;
-		bool isDeadKey = segmentStartsWith(b, tokenEnd, "DEADKEY");
+		bool isDeadKey = token.starts_with("DEADKEY");
 		if (isDeadKey) {
-			const char* begin2 = b + strlen("DEADKEY");
-			if (begin2 == tokenEnd) {
+			token.remove_prefix(strlen("DEADKEY"));
+			if (token.empty()) {
 				// The normal keywords are
 				//    DEADKEY1  DEADKEY2  DEADKEY3
 				// but for backwards compatibility also still recognize
 				//    DEADKEY
 			} else {
 				bool ok;
-				deadKeyIndex = parseHex(begin2, tokenEnd, ok);
+				deadKeyIndex = parseHex(token, ok);
 				deadKeyIndex--; // Make index 0 based instead of 1 based
 				if (!ok || deadKeyIndex >= NUM_DEAD_KEYS) {
 					throw MSXException(StringOp::Builder() <<
@@ -178,22 +164,20 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 			}
 		} else {
 			bool ok;
-			unicode = parseHex(b, tokenEnd, ok);
+			unicode = parseHex(token, ok);
 			if (!ok || unicode > 0xFFFF) {
 				throw MSXException("Wrong unicode value in keymap file");
 			}
 		}
-		b = skipSep(tokenEnd, e);
 
 		// Parse second token. It must be <ROW><COL>
-		tokenEnd = findSep(b, e);
-		if (tokenEnd == e) {
-			throw MSXException("Missing <ROW><COL> in keymap file");
-		}
+		token = nextToken(data);
 		bool ok;
-		unsigned rowcol = parseHex(b, tokenEnd, ok);
+		unsigned rowcol = parseHex(token, ok);
 		if (!ok || rowcol >= 0x100) {
-			throw MSXException("Wrong rowcol value in keymap file");
+			throw MSXException(StringOp::Builder()
+				<< (token.empty() ? "Missing" : "Wrong")
+				<< " <ROW><COL> value in keymap file");
 		}
 		if ((rowcol >> 4) >= KeyMatrixPosition::NUM_ROWS) {
 			throw MSXException("Too high row value in keymap file");
@@ -202,29 +186,27 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 			throw MSXException("Too high column value in keymap file");
 		}
 		auto pos = KeyMatrixPosition(rowcol);
-		b = skipSep(tokenEnd, e);
 
 		// Parse remaining tokens. It is an optional list of modifier keywords.
 		byte modmask = 0;
-		while (b != e && *b != '\n') {
-			tokenEnd = findSep(b, e);
-			if (segmentEquals(b, tokenEnd, "SHIFT")) {
+		while (true) {
+			token = nextToken(data);
+			if (token.empty()) {
+				break;
+			} else if (token == "SHIFT") {
 				modmask |= KeyInfo::SHIFT_MASK;
-			} else if (segmentEquals(b, tokenEnd, "CTRL")) {
+			} else if (token == "CTRL") {
 				modmask |= KeyInfo::CTRL_MASK;
-			} else if (segmentEquals(b, tokenEnd, "GRAPH")) {
+			} else if (token == "GRAPH") {
 				modmask |= KeyInfo::GRAPH_MASK;
-			} else if (segmentEquals(b, tokenEnd, "CAPSLOCK")) {
+			} else if (token == "CAPSLOCK") {
 				modmask |= KeyInfo::CAPS_MASK;
-			} else if (segmentEquals(b, tokenEnd, "CODE")) {
+			} else if (token == "CODE") {
 				modmask |= KeyInfo::CODE_MASK;
 			} else {
 				throw MSXException(StringOp::Builder()
-					<< "Invalid modifier \""
-					<< string_ref(b, tokenEnd)
-					<< "\" in keymap file");
+					<< "Invalid modifier \"" << token << "\" in keymap file");
 			}
-			b = skipSep(tokenEnd, e);
 		}
 
 		if (isDeadKey) {
@@ -239,6 +221,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 			relevantMods[pos.getRowCol()] |= modmask;
 		}
 	}
+
 	sort(begin(mapdata), end(mapdata), LessTupleElement<0>());
 }
 
