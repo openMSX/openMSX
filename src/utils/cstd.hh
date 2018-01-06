@@ -1,6 +1,13 @@
 #ifndef CSTD_HH
 #define CSTD_HH
 
+#include "string_ref.hh"
+#include <cmath>
+#include <functional>
+#include <utility>
+
+namespace cstd {
+
 #if __cplusplus < 201402
 // We don't try to provide constexpr algorithms in C++11, only in C++14. It
 // should be theoretically possible in C++11, but C++14 lifts some restrictions
@@ -16,17 +23,12 @@
 // Inspired by this post:
 //    http://tristanbrindle.com/posts/a-more-useful-compile-time-quicksort
 
-#include "string_ref.hh"
-#include <functional>
-#include <utility>
-
 // Constexpr reimplementations of standard algorithms or data-structures.
 //
 // Everything implemented in 'cstd' will very likely become part of standard
 // C++ in the future. Or it already is part of C++17. So in the future we can
 // remove our (re)implementation and change the callers from 'cstd::xxx()' to
 // 'std::xxx()'.
-namespace cstd {
 
 //
 // Various constexpr reimplementation of STL algorithms.
@@ -281,8 +283,91 @@ private:
 	size_t sz;
 };
 
-} // namespace cstd
+#endif
+
+// Reimplementation of various mathematical functions. You must specify an
+// iteration count, this controls how accurate the result will be.
+#if (__cplusplus < 201402) || (defined(__GNUC__) && !defined(__clang__))
+
+// Ignore the iteration template arguments and call the standard function.
+// We do this when:
+// - In c++11 mode when we evaluate at run-time.
+// - When using gcc which has constexpr versions of most mathematical functions
+//   (this is a non-standard extension).
+template<int>      CONSTEXPR double exp (double x) { return std::exp (x); }
+template<int>      CONSTEXPR double sin (double x) { return std::sin (x); }
+template<int, int> CONSTEXPR double log (double x) { return std::log (x); }
+template<int, int> CONSTEXPR double log2(double x) { return std::log2(x); }
+template<int>      CONSTEXPR double exp2(double x) { return std::exp2(x); }
+
+#else
+
+template<int ITERATIONS>
+constexpr double exp(double x)
+{
+	double sum = 1.0;
+	double n = 1.0;
+	double t = x;
+	for (int i = 2; i < (2 + ITERATIONS); ++i) {
+		sum += t / n;
+		n *= i;
+		t *= x;
+	}
+	return sum;
+}
+
+template<int ITERATIONS>
+constexpr double sin(double x)
+{
+	const double x2 = x * x;
+	double sum = x;
+	double t = x;
+	double n = 1.0;
+	for (int i = 1; i < (1 + 4 * ITERATIONS); /**/) {
+		t *= x2;
+		n *= ++i;
+		n *= ++i;
+		sum -= t / n;
+
+		t *= x2;
+		n *= ++i;
+		n *= ++i;
+		sum += t / n;
+	}
+	return sum;
+}
+
+// https://en.wikipedia.org/wiki/Natural_logarithm#High_precision
+template<int E_ITERATIONS, int L_ITERATIONS>
+constexpr double log(double x)
+{
+	int a = 0;
+	while (x <= 0.25) {
+		x *= M_E;
+		++a;
+	}
+	double y = 0.0;
+	for (int i = 0; i < L_ITERATIONS; ++i) {
+		auto ey = cstd::exp<E_ITERATIONS>(y);
+		y = y + 2.0 * (x - ey) / (x + ey);
+	}
+	return y - a;
+}
+
+template<int E_ITERATIONS, int L_ITERATIONS>
+constexpr double log2(double x)
+{
+	return cstd::log<E_ITERATIONS, L_ITERATIONS>(x) / M_LN2;
+}
+
+template<int ITERATIONS>
+constexpr double exp2(double x)
+{
+	return cstd::exp<ITERATIONS>(M_LN2 * x);
+}
 
 #endif
+
+} // namespace cstd
 
 #endif

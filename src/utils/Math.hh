@@ -6,10 +6,17 @@
 #include <cmath>
 #include <cstdint>
 
-// M_PI is a very common extension, but not guaranteed to be defined by <cmath>
-// when compiling in a strict standards compliant mode.
+// These constants are very common extensions, but not guaranteed to be defined
+// by <cmath> when compiling in a strict standards compliant mode. Also e.g.
+// visual studio does not provide them.
+#ifndef M_E
+#define M_E   2.7182818284590452354
+#endif
+#ifndef M_LN2
+#define M_LN2 0.69314718055994530942 // log_e 2
+#endif
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI  3.14159265358979323846
 #endif
 
 namespace Math {
