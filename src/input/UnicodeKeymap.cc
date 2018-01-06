@@ -191,14 +191,14 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 			throw MSXException("Missing <ROW><COL> in keymap file");
 		}
 		bool ok;
-		int rowcol = parseHex(b, tokenEnd, ok);
+		unsigned rowcol = parseHex(b, tokenEnd, ok);
 		if (!ok || rowcol >= 0x100) {
 			throw MSXException("Wrong rowcol value in keymap file");
 		}
-		if ((rowcol >> 4) >= 11) {
+		if ((rowcol >> 4) >= KeyMatrixPosition::NUM_ROWS) {
 			throw MSXException("Too high row value in keymap file");
 		}
-		if ((rowcol & 0x0F) >= 8) {
+		if ((rowcol & 0x0F) >= KeyMatrixPosition::NUM_COLS) {
 			throw MSXException("Too high column value in keymap file");
 		}
 		auto pos = KeyMatrixPosition(rowcol);
