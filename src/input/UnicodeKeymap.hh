@@ -99,12 +99,13 @@ class UnicodeKeymap
 {
 public:
 	struct KeyInfo {
+		enum Modifier { SHIFT, CTRL, GRAPH, CAPS, CODE, NUM_MODIFIERS };
 		// Modifier masks:
-		static constexpr byte SHIFT_MASK = 0x01;
-		static constexpr byte CTRL_MASK  = 0x02;
-		static constexpr byte GRAPH_MASK = 0x04;
-		static constexpr byte CAPS_MASK  = 0x08;
-		static constexpr byte CODE_MASK  = 0x10;
+		static constexpr byte SHIFT_MASK = 1 << SHIFT;
+		static constexpr byte CTRL_MASK  = 1 << CTRL;
+		static constexpr byte GRAPH_MASK = 1 << GRAPH;
+		static constexpr byte CAPS_MASK  = 1 << CAPS;
+		static constexpr byte CODE_MASK  = 1 << CODE;
 
 		KeyInfo(KeyMatrixPosition pos_, byte modmask_)
 			: pos(pos_), modmask(modmask_)
@@ -129,12 +130,12 @@ public:
 
 	/** Checks whether the given key press needs a different lock key state.
 	  * @param keyInfo The key to be pressed.
-	  * @param modmask The mask that identifies the lock key: CODE/GRAPH/CAPS.
+	  * @param mod The modifier that identifies the lock key: CODE/GRAPH/CAPS.
 	  * @param lockOn The current state of the lock key.
 	  * @return True if the lock key state needs to be toggled, false if the
 	  *         lock key state is as required or does not matter.
 	  */
-	bool needsLockToggle(const KeyInfo& keyInfo, byte modmask, bool lockOn) const;
+	bool needsLockToggle(const KeyInfo& keyInfo, KeyInfo::Modifier mod, bool lockOn) const;
 
 private:
 	static const unsigned NUM_DEAD_KEYS = 3;

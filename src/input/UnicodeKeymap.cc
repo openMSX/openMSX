@@ -127,18 +127,19 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
 	return deadKeys[n];
 }
 
-bool UnicodeKeymap::needsLockToggle(const KeyInfo& keyInfo, byte modmask, bool lockOn) const
+bool UnicodeKeymap::needsLockToggle(
+		const KeyInfo& keyInfo, KeyInfo::Modifier mod, bool lockOn) const
 {
 	if (!keyInfo.isValid()) {
 		// No key.
 		return false;
 	}
-	if (lockOn == ((keyInfo.modmask & modmask) == modmask)) {
+	if (lockOn == ((keyInfo.modmask >> mod) & 1)) {
 		// Lock key state matches modifiers needed.
 		return false;
 	}
 	// Check whether key is affected by lock.
-	return relevantMods[keyInfo.pos.getRowCol()] & modmask;
+	return (relevantMods[keyInfo.pos.getRowCol()] >> mod) & 1;
 }
 
 void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
