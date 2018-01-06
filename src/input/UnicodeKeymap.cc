@@ -130,7 +130,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_ref data)
 	memset(relevantMods, 0, sizeof(relevantMods));
 
 	while (!data.empty()) {
-		if (data.starts_with('\n')) {
+		if (data.front() == '\n') {
 			// Next line.
 			data.pop_front();
 		}
