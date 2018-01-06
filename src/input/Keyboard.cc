@@ -216,9 +216,10 @@ void Keyboard::stopReplay(EmuTime::param time)
 	memset(dynKeymap, 0, sizeof(dynKeymap));
 }
 
-void Keyboard::pressKeyMatrixEvent(EmuTime::param time, byte row, byte press)
+void Keyboard::pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
 {
-	assert(press);
+	auto row = pos.getRow();
+	auto press = pos.getMask();
 	if (((hostKeyMatrix[row] & press) == 0) &&
 	    ((userKeyMatrix[row] & press) == 0)) {
 		// Won't have any effect, ignore.
@@ -226,6 +227,7 @@ void Keyboard::pressKeyMatrixEvent(EmuTime::param time, byte row, byte press)
 	}
 	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] & ~press);
 }
+
 void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
 {
 	auto row = pos.getRow();
@@ -695,7 +697,7 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 			// Toggle it by pressing the lock key and scheduling a
 			// release event
 			msxCodeKanaLockOn = !msxCodeKanaLockOn;
-			pressKeyMatrixEvent(time, 6, KeyInfo::CODE_MASK);
+			pressKeyMatrixEvent(time, KeyMatrixPosition(6, KeyInfo::CODE));
 			insertCodeKanaRelease = true;
 		} else {
 			// Press the character key and related modifiers

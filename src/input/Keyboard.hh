@@ -76,10 +76,7 @@ private:
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
 
-	void pressKeyMatrixEvent(EmuTime::param time, byte row, byte press);
-	void pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos) {
-		pressKeyMatrixEvent(time, pos.getRow(), pos.getMask());
-	}
+	void pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos);
 	void releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos);
 	void changeKeyMatrixEvent (EmuTime::param time, byte row, byte newValue);
 
