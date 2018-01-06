@@ -711,21 +711,23 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 			if (codeKanaLocks) modmask &= ~KeyInfo::CODE_MASK;
 			if (graphLocks)    modmask &= ~KeyInfo::GRAPH_MASK;
 			if (('A' <= unicode && unicode <= 'Z') || ('a' <= unicode && unicode <= 'z')) {
-				// for a-z and A-Z, leave shift unchanged, this to cater
+				// For a-z and A-Z, leave SHIFT unchanged, this to cater
 				// for difference in behaviour between host and emulated
 				// machine with respect to how the combination of CAPSLOCK
-				// and shift-key is interpreted for these characters.
-				// Note that other modifiers are only pressed, never released
-				byte press = modmask & ~KeyInfo::SHIFT_MASK;
-				if (press) {
-					pressKeyMatrixEvent(time, 6, press);
-				}
+				// and SHIFT is interpreted for these characters.
+				modmask &= ~KeyInfo::SHIFT_MASK;
 			} else {
-				// for other keys, set shift according to modmask
-				// so also release shift when required (other
-				// modifiers are only pressed, never released)
-				byte newRow = (userKeyMatrix[6] | KeyInfo::SHIFT_MASK) & ~modmask;
-				changeKeyMatrixEvent(time, 6, newRow);
+				// Release SHIFT if our character does not require it.
+				if (~modmask & KeyInfo::SHIFT_MASK) {
+					releaseKeyMatrixEvent(time, KeyMatrixPosition(6, KeyInfo::SHIFT));
+				}
+			}
+			// Press required modifiers for our character.
+			// Note that these modifiers are only pressed, never released.
+			for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+				if ((modmask >> i) & 1) {
+					pressKeyMatrixEvent(time, KeyMatrixPosition(6, i));
+				}
 			}
 		}
 	} else {
