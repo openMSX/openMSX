@@ -44,7 +44,7 @@ public:
 	 * @param eventDistributor ref to the emu event distributor
 	 * @param msxEventDistributor ref to the user input event distributor
 	 * @param stateChangeDistributor ref to the state change distributor
-	 * @param layout which keyboard matrix to use
+	 * @param matrix which system's keyboard matrix to use
 	 * @param config ref to the device configuration
 	 */
 	Keyboard(MSXMotherBoard& motherBoard, Scheduler& scheduler,
