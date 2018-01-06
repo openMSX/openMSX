@@ -4,9 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <utility>
-#if __cplusplus >= 201402
 #include "cstd.hh"
-#endif
 
 using std::string;
 
@@ -14,7 +12,7 @@ namespace openmsx {
 
 namespace Keys {
 
-#if __cplusplus >= 201402
+#if HAS_CPP14_CONSTEXPR
 
 // can be std::pair in C++17
 struct P {
@@ -37,7 +35,7 @@ struct CmpKeys {
 	}
 };
 
-constexpr auto getSortedKeys()
+static constexpr auto getSortedKeys()
 {
 	auto keys = cstd::array_of<P>(
 #else
@@ -309,22 +307,19 @@ static std::vector<P> getSortedKeys()
 		// Direction modifiers
 		P("PRESS",	KD_PRESS),
 		P("RELEASE",	KD_RELEASE)
-#if __cplusplus >= 201402
+#if HAS_CPP14_CONSTEXPR
 	);
 	cstd::sort(cstd::begin(keys), cstd::end(keys), CmpKeys());
 	return keys;
 }
-
-constexpr auto keys = getSortedKeys();
-
 #else
 	};
 	std::sort(begin(keys), end(keys), CmpKeys());
 	return keys;
 }
-
-static auto keys = getSortedKeys();
 #endif
+
+static CONSTEXPR auto keys = getSortedKeys();
 
 KeyCode getCode(string_ref name)
 {

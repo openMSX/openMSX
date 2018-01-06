@@ -1,6 +1,7 @@
 #include "yuv2rgb.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
+#include "cstd.hh"
 #include <cassert>
 #include <cstdint>
 #include <SDL.h>
@@ -253,12 +254,12 @@ static inline void convertHelperSSE2(
 
 #endif // __SSE2__
 
-constexpr int PREC = 15;
-constexpr int COEF_Y  = int(1.164 * (1 << PREC) + 0.5);
-constexpr int COEF_RV = int(1.596 * (1 << PREC) + 0.5);
-constexpr int COEF_GU = int(0.391 * (1 << PREC) + 0.5);
-constexpr int COEF_GV = int(0.813 * (1 << PREC) + 0.5);
-constexpr int COEF_BU = int(2.018 * (1 << PREC) + 0.5);
+static constexpr int PREC = 15;
+static constexpr int COEF_Y  = int(1.164 * (1 << PREC) + 0.5);
+static constexpr int COEF_RV = int(1.596 * (1 << PREC) + 0.5);
+static constexpr int COEF_GU = int(0.391 * (1 << PREC) + 0.5);
+static constexpr int COEF_GV = int(0.813 * (1 << PREC) + 0.5);
+static constexpr int COEF_BU = int(2.018 * (1 << PREC) + 0.5);
 
 struct Coefs {
 	int gu[256];
@@ -268,14 +269,7 @@ struct Coefs {
 	int y [256];
 };
 
-// We optionally use c++14 constexpr, remove this macro once we require c++14.
-#if __cplusplus >= 201402
-#define CONSTEXPR constexpr
-#else
-#define CONSTEXPR static const
-#endif
-
-CONSTEXPR Coefs getCoefs()
+static CONSTEXPR Coefs getCoefs()
 {
 	Coefs coefs = {};
 	for (int i = 0; i < 256; ++i) {
@@ -309,7 +303,7 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
 	assert(buffer[1].width  * 2 == buffer[0].width);
 	assert(buffer[1].height * 2 == buffer[0].height);
 
-	CONSTEXPR Coefs coefs = getCoefs();
+	static CONSTEXPR Coefs coefs = getCoefs();
 
 	const int width      = buffer[0].width;
 	const int y_stride   = buffer[0].stride;

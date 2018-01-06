@@ -1,6 +1,18 @@
 #ifndef CSTD_HH
 #define CSTD_HH
 
+#if __cplusplus < 201402
+// We don't try to provide constexpr algorithms in C++11, only in C++14. It
+// should be theoretically possible in C++11, but C++14 lifts some restrictions
+// on the use of constexpr that makes this much easier.
+#define HAS_CPP14_CONSTEXPR 0
+#define CONSTEXPR /**/
+
+#else
+
+#define HAS_CPP14_CONSTEXPR 1
+#define CONSTEXPR constexpr
+
 // Inspired by this post:
 //    http://tristanbrindle.com/posts/a-more-useful-compile-time-quicksort
 
@@ -270,5 +282,7 @@ private:
 };
 
 } // namespace cstd
+
+#endif
 
 #endif

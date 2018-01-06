@@ -1,11 +1,5 @@
 #include "VDPAccessSlots.hh"
-
-// We optionally use c++14 constexpr, remove this macro once we require c++14.
-#if __cplusplus >= 201402
-#define CONSTEXPR constexpr
-#else
-#define CONSTEXPR
-#endif
+#include "cstd.hh"
 
 namespace openmsx {
 namespace VDPAccessSlots {
@@ -16,7 +10,7 @@ namespace VDPAccessSlots {
 // Screen rendering disabled (or vertical border).
 // This is correct (measured on real V9938) for bitmap and character mode.
 // TODO also correct for text mode? See 'vdp-timing-2.html for more details.
-constexpr int16_t slotsScreenOff[154 + 17] = {
+static constexpr int16_t slotsScreenOff[154 + 17] = {
 	   0,    8,   16,   24,   32,   40,   48,   56,   64,   72,
 	  80,   88,   96,  104,  112,  120,  164,  172,  180,  188,
 	 196,  204,  212,  220,  228,  236,  244,  252,  260,  268,
@@ -40,7 +34,7 @@ constexpr int16_t slotsScreenOff[154 + 17] = {
 };
 
 // Bitmap mode, sprites disabled.
-constexpr int16_t slotsSpritesOff[88 + 16] = {
+static constexpr int16_t slotsSpritesOff[88 + 16] = {
 	   6,   14,   22,   30,   38,   46,   54,   62,   70,   78,
 	  86,   94,  102,  110,  118,  162,  170,  182,  188,  214,
 	 220,  246,  252,  278,  310,  316,  342,  348,  374,  380,
@@ -61,7 +55,7 @@ constexpr int16_t slotsSpritesOff[88 + 16] = {
 //  [166,1212] is likely correct
 //  [1270,122] is an educated guess, the amount of slots is likely correct,
 //             but they might be shifted a few cycles forwards or backwards.
-constexpr int16_t slotsCharSpritesOff[88 + 17] = {
+static constexpr int16_t slotsCharSpritesOff[88 + 17] = {
 	   2,   10,   18,   26,   34,   42,   50,   58,   66,   74,
 	  82,   90,   98,  106,  114,  122,  166,  174,  188,  194,
 	 220,  226,  252,  258,  290,  316,  322,  348,  354,  380,
@@ -78,7 +72,7 @@ constexpr int16_t slotsCharSpritesOff[88 + 17] = {
 };
 
 // Bitmap mode, sprites enabled.
-constexpr int16_t slotsSpritesOn[31 + 3] = {
+static constexpr int16_t slotsSpritesOn[31 + 3] = {
 	  28,   92,  162,  170,  188,  220,  252,  316,  348,  380,
 	 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
 	 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1264,
@@ -87,7 +81,7 @@ constexpr int16_t slotsSpritesOn[31 + 3] = {
 };
 
 // Character mode, sprites enabled.
-constexpr int16_t slotsCharSpritesOn[31 + 3] = {
+static constexpr int16_t slotsCharSpritesOn[31 + 3] = {
 	  32,   96,  166,  174,  188,  220,  252,  316,  348,  380,
 	 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
 	 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1268,
@@ -96,7 +90,7 @@ constexpr int16_t slotsCharSpritesOn[31 + 3] = {
 };
 
 // Text mode.
-constexpr int16_t slotsText[47 + 10] = {
+static constexpr int16_t slotsText[47 + 10] = {
 	   2,   10,   18,   26,   34,   42,   50,   58,   66,  166,
 	 174,  182,  190,  198,  206,  214,  222,  312,  408,  504,
 	 600,  696,  792,  888,  984, 1080, 1176, 1206, 1214, 1222,
@@ -109,7 +103,7 @@ constexpr int16_t slotsText[47 + 10] = {
 
 // TMS9918 (MSX1) cycle numbers translated to V99x8 cycles (multiplied by 4).
 // MSX1 screen off.
-constexpr int16_t slotsMsx1ScreenOff[107 + 18] = {
+static constexpr int16_t slotsMsx1ScreenOff[107 + 18] = {
 	   4,   12,   20,   28,   36,   44,   52,   60,   68,   76,
 	  84,   92,  100,  108,  116,  124,  132,  140,  148,  156,
 	 164,  172,  180,  188,  196,  204,  220,  236,  252,  268,
@@ -128,7 +122,7 @@ constexpr int16_t slotsMsx1ScreenOff[107 + 18] = {
 };
 
 // MSX1 graphic mode 1 and 2 (aka screen 1 and 2).
-constexpr int16_t slotsMsx1Gfx12[19 + 8] = {
+static constexpr int16_t slotsMsx1Gfx12[19 + 8] = {
 	   4,   12,   20,   28,  116,  124,  132,  140,  220,  348,
 	 476,  604,  732,  860,  988, 1116, 1236, 1244, 1364,
 	1368+  4, 1368+ 12, 1368+ 20, 1368+ 28, 1368+116,
@@ -136,7 +130,7 @@ constexpr int16_t slotsMsx1Gfx12[19 + 8] = {
 };
 
 // MSX1 graphic mode 3 (aka screen 3).
-constexpr int16_t slotsMsx1Gfx3[51 + 8] = {
+static constexpr int16_t slotsMsx1Gfx3[51 + 8] = {
 	   4,   12,   20,   28,  116,  124,  132,  140,  220,  228,
 	 260,  292,  324,  348,  356,  388,  420,  452,  476,  484,
 	 516,  548,  580,  604,  612,  644,  676,  708,  732,  740,
@@ -149,7 +143,7 @@ constexpr int16_t slotsMsx1Gfx3[51 + 8] = {
 
 
 // MSX1 text mode 1 (aka screen 0 width 40).
-constexpr int16_t slotsMsx1Text[91 + 18] = {
+static constexpr int16_t slotsMsx1Text[91 + 18] = {
 	   4,   12,   20,   28,   36,   44,   52,   60,   68,   76,
 	  84,   92,  100,  108,  116,  124,  132,  140,  148,  156,
 	 164,  172,  180,  188,  196,  204,  212,  220,  228,  244,
@@ -215,17 +209,17 @@ struct ZeroTable : AccessTable
 };
 
 // In c++14 these tables are calculated at compile-time.
-CONSTEXPR CycleTable tabSpritesOn     (false, slotsSpritesOn);
-CONSTEXPR CycleTable tabSpritesOff    (false, slotsSpritesOff);
-CONSTEXPR CycleTable tabCharSpritesOn (false, slotsCharSpritesOn);
-CONSTEXPR CycleTable tabCharSpritesOff(false, slotsCharSpritesOff);
-CONSTEXPR CycleTable tabText          (false, slotsText);
-CONSTEXPR CycleTable tabScreenOff     (false, slotsScreenOff);
-CONSTEXPR CycleTable tabMsx1Gfx12     (true,  slotsMsx1Gfx12);
-CONSTEXPR CycleTable tabMsx1Gfx3      (true,  slotsMsx1Gfx3);
-CONSTEXPR CycleTable tabMsx1Text      (true,  slotsMsx1Text);
-CONSTEXPR CycleTable tabMsx1ScreenOff (true,  slotsMsx1ScreenOff);
-CONSTEXPR ZeroTable  tabBroken;
+static CONSTEXPR CycleTable tabSpritesOn     (false, slotsSpritesOn);
+static CONSTEXPR CycleTable tabSpritesOff    (false, slotsSpritesOff);
+static CONSTEXPR CycleTable tabCharSpritesOn (false, slotsCharSpritesOn);
+static CONSTEXPR CycleTable tabCharSpritesOff(false, slotsCharSpritesOff);
+static CONSTEXPR CycleTable tabText          (false, slotsText);
+static CONSTEXPR CycleTable tabScreenOff     (false, slotsScreenOff);
+static CONSTEXPR CycleTable tabMsx1Gfx12     (true,  slotsMsx1Gfx12);
+static CONSTEXPR CycleTable tabMsx1Gfx3      (true,  slotsMsx1Gfx3);
+static CONSTEXPR CycleTable tabMsx1Text      (true,  slotsMsx1Text);
+static CONSTEXPR CycleTable tabMsx1ScreenOff (true,  slotsMsx1ScreenOff);
+static CONSTEXPR ZeroTable  tabBroken;
 
 
 static inline const uint8_t* getTab(const VDP& vdp)

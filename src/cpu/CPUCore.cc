@@ -168,6 +168,7 @@
 #include "Z80.hh"
 #include "R800.hh"
 #include "Thread.hh"
+#include "cstd.hh"
 #include "endian.hh"
 #include "likely.hh"
 #include "inline.hh"
@@ -232,12 +233,14 @@ static const byte P_FLAG = V_FLAG;
 static const byte N_FLAG = 0x02;
 static const byte C_FLAG = 0x01;
 
-// flag-register tables, initialized at run-time
-static byte ZSTable[256];
-static byte ZSXYTable[256];
-static byte ZSPTable[256];
-static byte ZSPXYTable[256];
-static byte ZSPHTable[256];
+// flag-register lookup tables
+struct Table {
+	byte ZS   [256];
+	byte ZSXY [256];
+	byte ZSP  [256];
+	byte ZSPXY[256];
+	byte ZSPH [256];
+};
 
 static const byte ZS0     = Z_FLAG;
 static const byte ZSXY0   = Z_FLAG;
@@ -246,11 +249,9 @@ static const byte ZSPXY0  = Z_FLAG | V_FLAG;
 static const byte ZS255   = S_FLAG;
 static const byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
 
-static void initTables()
+static CONSTEXPR Table initTables()
 {
-	static bool alreadyInit = false;
-	if (alreadyInit) return;
-	alreadyInit = true;
+	Table table = {};
 
 	for (int i = 0; i < 256; ++i) {
 		byte zFlag = (i == 0) ? Z_FLAG : 0;
@@ -261,19 +262,23 @@ static void initTables()
 		for (int v = 128; v != 0; v >>= 1) {
 			if (i & v) vFlag ^= V_FLAG;
 		}
-		ZSTable   [i] = zFlag | sFlag;
-		ZSXYTable [i] = zFlag | sFlag | xFlag | yFlag;
-		ZSPTable  [i] = zFlag | sFlag |                 vFlag;
-		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | vFlag;
-		ZSPHTable [i] = zFlag | sFlag |                 vFlag | H_FLAG;
+		table.ZS   [i] = zFlag | sFlag;
+		table.ZSXY [i] = zFlag | sFlag | xFlag | yFlag;
+		table.ZSP  [i] = zFlag | sFlag |                 vFlag;
+		table.ZSPXY[i] = zFlag | sFlag | xFlag | yFlag | vFlag;
+		table.ZSPH [i] = zFlag | sFlag |                 vFlag | H_FLAG;
 	}
-	assert(ZSTable   [  0] == ZS0);
-	assert(ZSXYTable [  0] == ZSXY0);
-	assert(ZSPTable  [  0] == ZSP0);
-	assert(ZSPXYTable[  0] == ZSPXY0);
-	assert(ZSTable   [255] == ZS255);
-	assert(ZSXYTable [255] == ZSXY255);
+	assert(table.ZS   [  0] == ZS0);
+	assert(table.ZSXY [  0] == ZSXY0);
+	assert(table.ZSP  [  0] == ZSP0);
+	assert(table.ZSPXY[  0] == ZSPXY0);
+	assert(table.ZS   [255] == ZS255);
+	assert(table.ZSXY [255] == ZSXY255);
+
+	return table;
 }
+
+static CONSTEXPR Table table = initTables();
 
 // Global variable, because it should be shared between Z80 and R800.
 // It must not be shared between the CPUs of different MSX machines, but
@@ -330,8 +335,6 @@ template<class T> CPUCore<T>::CPUCore(
 		"keep CPUCore non-virtual to keep PC at offset 0");
 	doSetFreq();
 	doReset(time);
-
-	initTables();
 }
 
 template<class T> void CPUCore<T>::warp(EmuTime::param time)
@@ -2831,10 +2834,10 @@ template<class T> inline void CPUCore<T>::ADC(byte reg) {
 	         (((getA() ^ res) & (reg ^ res) & 0x80) >> 5) | // V_FLAG
 	         0; // N_FLAG
 	if (T::isR800()) {
-		f |= ZSTable[res & 0xFF];
+		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSXYTable[res & 0xFF];
+		f |= table.ZSXY[res & 0xFF];
 	}
 	setF(f);
 	setA(res);
@@ -2846,10 +2849,10 @@ template<class T> inline II CPUCore<T>::adc_a_a() {
 	         (((getA() ^ res) & 0x80) >> 5) | // V_FLAG
 	         0; // N_FLAG
 	if (T::isR800()) {
-		f |= ZSTable[res & 0xFF];
+		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSXYTable[res & 0xFF];
+		f |= table.ZSXY[res & 0xFF];
 	}
 	setF(f);
 	setA(res);
@@ -2880,10 +2883,10 @@ template<class T> inline void CPUCore<T>::ADD(byte reg) {
 	         (((getA() ^ res) & (reg ^ res) & 0x80) >> 5) | // V_FLAG
 	         0; // N_FLAG
 	if (T::isR800()) {
-		f |= ZSTable[res & 0xFF];
+		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSXYTable[res & 0xFF];
+		f |= table.ZSXY[res & 0xFF];
 	}
 	setF(f);
 	setA(res);
@@ -2895,10 +2898,10 @@ template<class T> inline II CPUCore<T>::add_a_a() {
 	         (((getA() ^ res) & 0x80) >> 5) | // V_FLAG
 	         0; // N_FLAG
 	if (T::isR800()) {
-		f |= ZSTable[res & 0xFF];
+		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSXYTable[res & 0xFF];
+		f |= table.ZSXY[res & 0xFF];
 	}
 	setF(f);
 	setA(res);
@@ -2926,20 +2929,20 @@ template<class T> inline void CPUCore<T>::AND(byte reg) {
 	setA(getA() & reg);
 	byte f = 0;
 	if (T::isR800()) {
-		f |= ZSPHTable[getA()];
+		f |= table.ZSPH[getA()];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[getA()] | H_FLAG;
+		f |= table.ZSPXY[getA()] | H_FLAG;
 	}
 	setF(f);
 }
 template<class T> II CPUCore<T>::and_a() {
 	byte f = 0;
 	if (T::isR800()) {
-		f |= ZSPHTable[getA()];
+		f |= table.ZSPH[getA()];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[getA()] | H_FLAG;
+		f |= table.ZSPXY[getA()] | H_FLAG;
 	}
 	setF(f);
 	return {1, T::CC_CP_R};
@@ -2964,7 +2967,7 @@ template<class T> template<Reg16 IXY> II CPUCore<T>::and_xix() {
 // CP r
 template<class T> inline void CPUCore<T>::CP(byte reg) {
 	unsigned q = getA() - reg;
-	byte f = ZSTable[q & 0xFF] |
+	byte f = table.ZS[q & 0xFF] |
 	         ((q & 0x100) ? C_FLAG : 0) |
 	         N_FLAG |
 	         ((getA() ^ q ^ reg) & H_FLAG) |
@@ -3008,20 +3011,20 @@ template<class T> inline void CPUCore<T>::OR(byte reg) {
 	setA(getA() | reg);
 	byte f = 0;
 	if (T::isR800()) {
-		f |= ZSPTable[getA()];
+		f |= table.ZSP[getA()];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[getA()];
+		f |= table.ZSPXY[getA()];
 	}
 	setF(f);
 }
 template<class T> II CPUCore<T>::or_a() {
 	byte f = 0;
 	if (T::isR800()) {
-		f |= ZSPTable[getA()];
+		f |= table.ZSP[getA()];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[getA()];
+		f |= table.ZSPXY[getA()];
 	}
 	setF(f);
 	return {1, T::CC_CP_R};
@@ -3051,10 +3054,10 @@ template<class T> inline void CPUCore<T>::SBC(byte reg) {
 	         ((getA() ^ res ^ reg) & H_FLAG) |
 	         (((reg ^ getA()) & (getA() ^ res) & 0x80) >> 5); // V_FLAG
 	if (T::isR800()) {
-		f |= ZSTable[res & 0xFF];
+		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSXYTable[res & 0xFF];
+		f |= table.ZSXY[res & 0xFF];
 	}
 	setF(f);
 	setA(res);
@@ -3097,10 +3100,10 @@ template<class T> inline void CPUCore<T>::SUB(byte reg) {
 	         ((getA() ^ res ^ reg) & H_FLAG) |
 	         (((reg ^ getA()) & (getA() ^ res) & 0x80) >> 5); // V_FLAG
 	if (T::isR800()) {
-		f |= ZSTable[res & 0xFF];
+		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSXYTable[res & 0xFF];
+		f |= table.ZSXY[res & 0xFF];
 	}
 	setF(f);
 	setA(res);
@@ -3136,10 +3139,10 @@ template<class T> inline void CPUCore<T>::XOR(byte reg) {
 	setA(getA() ^ reg);
 	byte f = 0;
 	if (T::isR800()) {
-		f |= ZSPTable[getA()];
+		f |= table.ZSP[getA()];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[getA()];
+		f |= table.ZSPXY[getA()];
 	}
 	setF(f);
 }
@@ -3178,10 +3181,10 @@ template<class T> inline byte CPUCore<T>::DEC(byte reg) {
 	         N_FLAG;
 	if (T::isR800()) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
-		f |= ZSTable[res];
+		f |= table.ZS[res];
 	} else {
 		f |= getF() & C_FLAG;
-		f |= ZSXYTable[res];
+		f |= table.ZSXY[res];
 	}
 	setF(f);
 	return res;
@@ -3213,10 +3216,10 @@ template<class T> inline byte CPUCore<T>::INC(byte reg) {
 		 0; // N_FLAG
 	if (T::isR800()) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
-		f |= ZSTable[reg];
+		f |= table.ZS[reg];
 	} else {
 		f |= getF() & C_FLAG;
-		f |= ZSXYTable[reg];
+		f |= table.ZSXY[reg];
 	}
 	setF(f);
 	return reg;
@@ -3400,7 +3403,7 @@ template<class T> template<unsigned N, Reg8 REG> II CPUCore<T>::bit_N_R() {
 		f |= H_FLAG;
 		f |= (reg & (1 << N)) ? 0 : Z_FLAG;
 	} else {
-		f |= ZSPHTable[reg & (1 << N)];
+		f |= table.ZSPH[reg & (1 << N)];
 		f |= getF() & C_FLAG;
 		f |= reg & (X_FLAG | Y_FLAG);
 	}
@@ -3415,7 +3418,7 @@ template<class T> template<unsigned N> inline II CPUCore<T>::bit_N_xhl() {
 		f |= H_FLAG;
 		f |= m ? 0 : Z_FLAG;
 	} else {
-		f |= ZSPHTable[m];
+		f |= table.ZSPH[m];
 		f |= getF() & C_FLAG;
 		f |= (T::getMemPtr() >> 8) & (X_FLAG | Y_FLAG);
 	}
@@ -3431,7 +3434,7 @@ template<class T> template<unsigned N> inline II CPUCore<T>::bit_N_xix(unsigned 
 		f |= H_FLAG;
 		f |= m ? 0 : Z_FLAG;
 	} else {
-		f |= ZSPHTable[m];
+		f |= table.ZSPH[m];
 		f |= getF() & C_FLAG;
 		f |= (addr >> 8) & (X_FLAG | Y_FLAG);
 	}
@@ -3487,10 +3490,10 @@ template<class T> inline byte CPUCore<T>::RL(byte reg) {
 	reg = (reg << 1) | ((getF() & C_FLAG) ? 0x01 : 0);
 	byte f = c ? C_FLAG : 0;
 	if (T::isR800()) {
-		f |= ZSPTable[reg];
+		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[reg];
+		f |= table.ZSPXY[reg];
 	}
 	setF(f);
 	return reg;
@@ -3518,10 +3521,10 @@ template<class T> inline byte CPUCore<T>::RLC(byte reg) {
 	reg = (reg << 1) | c;
 	byte f = c ? C_FLAG : 0;
 	if (T::isR800()) {
-		f |= ZSPTable[reg];
+		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[reg];
+		f |= table.ZSPXY[reg];
 	}
 	setF(f);
 	return reg;
@@ -3549,10 +3552,10 @@ template<class T> inline byte CPUCore<T>::RR(byte reg) {
 	reg = (reg >> 1) | ((getF() & C_FLAG) << 7);
 	byte f = c ? C_FLAG : 0;
 	if (T::isR800()) {
-		f |= ZSPTable[reg];
+		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[reg];
+		f |= table.ZSPXY[reg];
 	}
 	setF(f);
 	return reg;
@@ -3580,10 +3583,10 @@ template<class T> inline byte CPUCore<T>::RRC(byte reg) {
 	reg = (reg >> 1) | (c << 7);
 	byte f = c ? C_FLAG : 0;
 	if (T::isR800()) {
-		f |= ZSPTable[reg];
+		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[reg];
+		f |= table.ZSPXY[reg];
 	}
 	setF(f);
 	return reg;
@@ -3611,10 +3614,10 @@ template<class T> inline byte CPUCore<T>::SLA(byte reg) {
 	reg <<= 1;
 	byte f = c ? C_FLAG : 0;
 	if (T::isR800()) {
-		f |= ZSPTable[reg];
+		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[reg];
+		f |= table.ZSPXY[reg];
 	}
 	setF(f);
 	return reg;
@@ -3642,7 +3645,7 @@ template<class T> inline byte CPUCore<T>::SLL(byte reg) {
 	byte c = reg >> 7;
 	reg = (reg << 1) | 1;
 	byte f = c ? C_FLAG : 0;
-	f |= ZSPXYTable[reg];
+	f |= table.ZSPXY[reg];
 	setF(f);
 	return reg;
 }
@@ -3677,10 +3680,10 @@ template<class T> inline byte CPUCore<T>::SRA(byte reg) {
 	reg = (reg >> 1) | (reg & 0x80);
 	byte f = c ? C_FLAG : 0;
 	if (T::isR800()) {
-		f |= ZSPTable[reg];
+		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[reg];
+		f |= table.ZSPXY[reg];
 	}
 	setF(f);
 	return reg;
@@ -3708,10 +3711,10 @@ template<class T> inline byte CPUCore<T>::SRL(byte reg) {
 	reg >>= 1;
 	byte f = c ? C_FLAG : 0;
 	if (T::isR800()) {
-		f |= ZSPTable[reg];
+		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSPXYTable[reg];
+		f |= table.ZSPXY[reg];
 	}
 	setF(f);
 	return reg;
@@ -3802,10 +3805,10 @@ template<class T> II CPUCore<T>::rld() {
 	byte f = 0;
 	if (T::isR800()) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
-		f |= ZSPTable[getA()];
+		f |= table.ZSP[getA()];
 	} else {
 		f |= getF() & C_FLAG;
-		f |= ZSPXYTable[getA()];
+		f |= table.ZSPXY[getA()];
 	}
 	setF(f);
 	return {1, T::CC_RLD};
@@ -3820,10 +3823,10 @@ template<class T> II CPUCore<T>::rrd() {
 	byte f = 0;
 	if (T::isR800()) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
-		f |= ZSPTable[getA()];
+		f |= table.ZSP[getA()];
 	} else {
 		f |= getF() & C_FLAG;
-		f |= ZSPXYTable[getA()];
+		f |= table.ZSPXY[getA()];
 	}
 	setF(f);
 	return {1, T::CC_RLD};
@@ -4010,10 +4013,10 @@ template<class T> template<Reg8 REG> II CPUCore<T>::in_R_c() {
 	byte f = 0;
 	if (T::isR800()) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
-		f |= ZSPTable[res];
+		f |= table.ZSP[res];
 	} else {
 		f |= getF() & C_FLAG;
-		f |= ZSPXYTable[res];
+		f |= table.ZSPXY[res];
 	}
 	setF(f);
 	set8<REG>(res);
@@ -4064,7 +4067,7 @@ template<class T> inline II CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
 	setHL(getHL() + increase);
 	setBC(getBC() - 1);
 	byte f = ((getA() ^ val ^ res) & H_FLAG) |
-	         ZSTable[res] |
+	         table.ZS[res] |
 	         N_FLAG |
 	         (getBC() ? V_FLAG : 0);
 	if (T::isR800()) {
@@ -4133,8 +4136,8 @@ template<class T> inline II CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
 	byte b = getB();
 	setF(((val & S_FLAG) >> 6) | // N_FLAG
 	       ((k & 0x100) ? (H_FLAG | C_FLAG) : 0) |
-	       ZSXYTable[b] |
-	       (ZSPXYTable[(k & 0x07) ^ b] & P_FLAG));
+	       table.ZSXY[b] |
+	       (table.ZSPXY[(k & 0x07) ^ b] & P_FLAG));
 	if (repeat && b) {
 		//setPC(getPC() - 2);
 		return {-1/*1*/, T::CC_INIR};
@@ -4161,8 +4164,8 @@ template<class T> inline II CPUCore<T>::BLOCK_OUT(int increase, bool repeat) {
 	byte b = getB();
 	setF(((val & S_FLAG) >> 6) | // N_FLAG
 	       ((k & 0x100) ? (H_FLAG | C_FLAG) : 0) |
-	       ZSXYTable[b] |
-	       (ZSPXYTable[(k & 0x07) ^ b] & P_FLAG));
+	       table.ZSXY[b] |
+	       (table.ZSPXY[(k & 0x07) ^ b] & P_FLAG));
 	if (repeat && b) {
 		//setPC(getPC() - 2);
 		return {-1/*1*/, T::CC_OTIR};
@@ -4220,10 +4223,10 @@ template<class T> II CPUCore<T>::daa() {
 	if (f & N_FLAG) a -= adjust; else a += adjust;
 	if (T::isR800()) {
 		f &= C_FLAG | N_FLAG | X_FLAG | Y_FLAG;
-		f |= ZSPTable[a];
+		f |= table.ZSP[a];
 	} else {
 		f &= C_FLAG | N_FLAG;
-		f |= ZSPXYTable[a];
+		f |= table.ZSPXY[a];
 	}
 	f |= (getA() > 0x99) | ((getA() ^ a) & H_FLAG);
 	setA(a);
@@ -4239,10 +4242,10 @@ template<class T> II CPUCore<T>::neg() {
 	         ((res ^ a) & H_FLAG) |
 	         ((a & res & 0x80) >> 5); // V_FLAG
 	if (T::isR800()) {
-		f |= ZSTable[res & 0xFF];
+		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
-		f |= ZSXYTable[res & 0xFF];
+		f |= table.ZSXY[res & 0xFF];
 	}
 	setF(f);
 	setA(res);
@@ -4313,10 +4316,10 @@ template<class T> template<Reg8 REG> II CPUCore<T>::ld_a_IR() {
 	byte f = getIFF2() ? V_FLAG : 0;
 	if (T::isR800()) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
-		f |= ZSTable[getA()];
+		f |= table.ZS[getA()];
 	} else {
 		f |= getF() & C_FLAG;
-		f |= ZSXYTable[getA()];
+		f |= table.ZSXY[getA()];
 		// see comment in the IRQ acceptance part of executeSlow().
 		setCurrentLDAI(); // only Z80 (not R800) has this quirk
 		setSlowInstructions();
