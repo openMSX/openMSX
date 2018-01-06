@@ -80,10 +80,7 @@ private:
 	void pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos) {
 		pressKeyMatrixEvent(time, pos.getRow(), pos.getMask());
 	}
-	void releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release);
-	void releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos) {
-		releaseKeyMatrixEvent(time, pos.getRow(), pos.getMask());
-	}
+	void releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos);
 	void changeKeyMatrixEvent (EmuTime::param time, byte row, byte newValue);
 
 	void processDeadKeyEvent(unsigned n, EmuTime::param time, bool down);

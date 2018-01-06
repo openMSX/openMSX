@@ -226,9 +226,10 @@ void Keyboard::pressKeyMatrixEvent(EmuTime::param time, byte row, byte press)
 	}
 	changeKeyMatrixEvent(time, row, hostKeyMatrix[row] & ~press);
 }
-void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release)
+void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
 {
-	assert(release);
+	auto row = pos.getRow();
+	auto release = pos.getMask();
 	if (((hostKeyMatrix[row] & release) == release) &&
 	    ((userKeyMatrix[row] & release) == release)) {
 		// Won't have any effect, ignore.
