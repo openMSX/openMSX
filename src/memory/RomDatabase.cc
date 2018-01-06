@@ -14,6 +14,7 @@
 #include "unreachable.hh"
 #include "stl.hh"
 #include "xxhash.hh"
+#include <cassert>
 #include <stdexcept>
 
 using std::string;
@@ -110,6 +111,7 @@ void DBParser::start(string_ref tag)
 		return;
 	}
 
+	assert(!tag.empty()); // rapidsax will reject empty tags
 	switch (state) {
 	case BEGIN:
 		if (tag == "softwaredb") {

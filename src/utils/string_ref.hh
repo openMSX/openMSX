@@ -74,19 +74,13 @@ public:
 	// mutators
 	void clear() { siz = 0; } // no need to change 'dat'
 	void remove_prefix(size_type n) {
-		if (n <= siz) {
-			dat += n;
-			siz -= n;
-		} else {
-			clear();
-		}
+		assert(n <= siz);
+		dat += n;
+		siz -= n;
 	}
 	void remove_suffix(size_type n) {
-		if (n <= siz) {
-			siz -= n;
-		} else {
-			clear();
-		}
+		assert(n <= siz);
+		siz -= n;
 	}
 	void pop_back()  { remove_suffix(1); }
 	void pop_front() { remove_prefix(1); }
