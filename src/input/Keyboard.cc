@@ -755,25 +755,14 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap.get(unicode);
 	byte modmask = keyInfo.modmask & ~modifierIsLock;
 	if (down) {
-		if ((modifierIsLock & KeyInfo::CODE_MASK) &&
-		    unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::CODE, locksOn & KeyInfo::CODE_MASK)) {
-			debug("Toggling CODE/KANA lock\n");
-			locksOn ^= KeyInfo::CODE_MASK;
-			cmdKeyMatrix[6] &= ~KeyInfo::CODE_MASK;
-			releaseMask = KeyInfo::CODE_MASK;
-		}
-		if ((modifierIsLock & KeyInfo::GRAPH_MASK) &&
-		    unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::GRAPH, locksOn & KeyInfo::GRAPH_MASK)) {
-			debug("Toggling GRAPH lock\n");
-			locksOn ^= KeyInfo::GRAPH_MASK;
-			cmdKeyMatrix[6] &= ~KeyInfo::GRAPH_MASK;
-			releaseMask |= KeyInfo::GRAPH_MASK;
-		}
-		if (unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::CAPS, locksOn & KeyInfo::CAPS_MASK)) {
-			debug("Toggling CAPS lock\n");
-			locksOn ^= KeyInfo::CAPS_MASK;
-			cmdKeyMatrix[6] &= ~KeyInfo::CAPS_MASK;
-			releaseMask |= KeyInfo::CAPS_MASK;
+		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+			if (((modifierIsLock >> i) & 1) && unicodeKeymap.needsLockToggle(
+					keyInfo, KeyInfo::Modifier(i), (locksOn >> 1) & 1)) {
+				debug("Toggling lock %d\n", i);
+				locksOn ^= 1 << i;
+				cmdKeyMatrix[6] &= ~(1 << i);
+				releaseMask |= 1 << i;
+			}
 		}
 		if (releaseMask == 0) {
 			debug("Key pasted, unicode: 0x%04x, row: %02d, col: %d, modmask: %02x\n",
@@ -1044,26 +1033,13 @@ void Keyboard::KeyInserter::executeUntil(EmuTime::param time)
 	}
 	if (text_utf8.empty()) {
 		releaseLast = false;
-		lockKeysMask = 0;
+		keyboard.debug("Restoring locks: %02X -> %02X\n", keyboard.locksOn, oldLocksOn);
 		auto diff = oldLocksOn ^ keyboard.locksOn;
-		if (diff & KeyInfo::CODE_MASK) {
-			keyboard.debug("Restoring CODE/KANA lock\n");
-			lockKeysMask = KeyInfo::CODE_MASK;
-			keyboard.locksOn ^= KeyInfo::CODE_MASK;
-		}
-		if (diff & KeyInfo::GRAPH_MASK) {
-			keyboard.debug("Restoring GRAPH lock\n");
-			lockKeysMask |= KeyInfo::GRAPH_MASK;
-			keyboard.locksOn ^= KeyInfo::GRAPH_MASK;
-		}
-		if (diff & KeyInfo::CAPS_MASK) {
-			keyboard.debug("Restoring CAPS lock\n");
-			lockKeysMask |= KeyInfo::CAPS_MASK;
-			keyboard.locksOn ^= KeyInfo::CAPS_MASK;
-		}
-		if (lockKeysMask != 0) {
+		lockKeysMask = diff;
+		if (diff != 0) {
 			// press CAPS, GRAPH and/or Code/Kana Lock keys
-			keyboard.pressLockKeys(lockKeysMask, true);
+			keyboard.locksOn ^= diff;
+			keyboard.pressLockKeys(diff, true);
 			reschedule(time);
 		}
 		return;
