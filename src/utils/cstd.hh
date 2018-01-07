@@ -297,8 +297,8 @@ private:
 template<int>      CONSTEXPR double exp (double x) { return std::exp (x); }
 template<int>      CONSTEXPR double sin (double x) { return std::sin (x); }
 template<int, int> CONSTEXPR double log (double x) { return std::log (x); }
-template<int, int> CONSTEXPR double log2(double x) { return std::log2(x); }
-template<int>      CONSTEXPR double exp2(double x) { return std::exp2(x); }
+template<int, int> CONSTEXPR double log2(double x) { return    ::log2(x); } // sthould be std:: but this doesn't seem to compile in g++-4.8/g++-4.9 (bug?)
+template<int>      CONSTEXPR double exp2(double x) { return    ::exp2(x); } // see log2
 
 #else
 
