@@ -431,18 +431,21 @@ void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition
 	assert(pos.isValid());
 	if (down) {
 		pressKeyMatrixEvent(time, pos);
-		if (pos.getRow() == 6) {
-			// Keep track of the MSX modifiers (CTRL, GRAPH, CODE, SHIFT)
-			// The MSX modifiers in row 6 of the matrix sometimes get
-			// overruled by the unicode character processing, in
-			// which case the unicode processing must be able to restore
-			// them to the real key-combinations pressed by the user
-			msxmodifiers &= ~(pos.getMask() & 0x17);
+		// Keep track of the MSX modifiers.
+		// The MSX modifiers sometimes get overruled by the unicode character
+		// processing, in which case the unicode processing must be able to
+		// restore them to the real key-combinations pressed by the user.
+		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+			if (pos == KeyMatrixPosition(6, i)) {
+				msxmodifiers &= ~(1 << i);
+			}
 		}
 	} else {
 		releaseKeyMatrixEvent(time, pos);
-		if (pos.getRow() == 6) {
-			msxmodifiers |= (pos.getMask() & 0x17);
+		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+			if (pos == KeyMatrixPosition(6, i)) {
+				msxmodifiers |= 1 << i;
+			}
 		}
 	}
 }
