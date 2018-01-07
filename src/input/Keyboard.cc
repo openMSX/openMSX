@@ -93,6 +93,13 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, keyTab(keyTabs[matrix])
+	, modifierPos {
+		KeyMatrixPosition(6, 0), // SHIFT
+		KeyMatrixPosition(6, 1), // CTRL
+		KeyMatrixPosition(6, 2), // (L)GRAPH
+		KeyMatrixPosition(matrix == MATRIX_SVI ? 8 : 6, 3), // CAPS
+		KeyMatrixPosition(6, matrix == MATRIX_SVI ? 3 : 4) // CODE/RGRAPH
+		}
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
@@ -436,14 +443,14 @@ void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition
 		// processing, in which case the unicode processing must be able to
 		// restore them to the real key-combinations pressed by the user.
 		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
-			if (pos == KeyMatrixPosition(6, i)) {
+			if (pos == modifierPos[i]) {
 				msxmodifiers &= ~(1 << i);
 			}
 		}
 	} else {
 		releaseKeyMatrixEvent(time, pos);
 		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
-			if (pos == KeyMatrixPosition(6, i)) {
+			if (pos == modifierPos[i]) {
 				msxmodifiers |= 1 << i;
 			}
 		}
@@ -597,6 +604,8 @@ void Keyboard::doKeyGhosting()
 				if ((row1 != row2) && ((row1 | row2) != 0xff)) {
 					byte rowIold = keyMatrix[i];
 					byte rowJold = keyMatrix[j];
+					// TODO: The shift/graph/code key ghosting protection
+					//       implementation is only correct for MSX.
 					if (keyGhostingSGCprotected && i == 6) {
 						keyMatrix[i] = row1 & row2;
 						keyMatrix[j] = (row1 | 0x15) & row2;
@@ -699,7 +708,7 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 			// Toggle it by pressing the lock key and scheduling a
 			// release event
 			locksOn ^= KeyInfo::CODE_MASK;
-			pressKeyMatrixEvent(time, KeyMatrixPosition(6, KeyInfo::CODE));
+			pressKeyMatrixEvent(time, modifierPos[KeyInfo::CODE]);
 			insertCodeKanaRelease = true;
 		} else {
 			// Press the character key and related modifiers
@@ -721,14 +730,14 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 			} else {
 				// Release SHIFT if our character does not require it.
 				if (~modmask & KeyInfo::SHIFT_MASK) {
-					releaseKeyMatrixEvent(time, KeyMatrixPosition(6, KeyInfo::SHIFT));
+					releaseKeyMatrixEvent(time, modifierPos[KeyInfo::SHIFT]);
 				}
 			}
 			// Press required modifiers for our character.
 			// Note that these modifiers are only pressed, never released.
 			for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 				if ((modmask >> i) & 1) {
-					pressKeyMatrixEvent(time, KeyMatrixPosition(6, i));
+					pressKeyMatrixEvent(time, modifierPos[i]);
 				}
 			}
 		}
@@ -741,9 +750,9 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 				// Do not simply unpress graph, ctrl, code and shift but
 				// restore them to the values currently pressed by the user.
 				if ((msxmodifiers >> i) & 1) {
-					releaseKeyMatrixEvent(time, KeyMatrixPosition(6, i));
+					releaseKeyMatrixEvent(time, modifierPos[i]);
 				} else {
-					pressKeyMatrixEvent(time, KeyMatrixPosition(6, i));
+					pressKeyMatrixEvent(time, modifierPos[i]);
 				}
 			}
 		}
@@ -769,8 +778,9 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 					keyInfo, KeyInfo::Modifier(i), (locksOn >> 1) & 1)) {
 				debug("Toggling lock %d\n", i);
 				locksOn ^= 1 << i;
-				cmdKeyMatrix[6] &= ~(1 << i);
 				releaseMask |= 1 << i;
+				auto lockPos = modifierPos[i];
+				cmdKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();
 			}
 		}
 		if (releaseMask == 0) {
@@ -779,7 +789,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 			cmdKeyMatrix[keyInfo.pos.getRow()] &= ~keyInfo.pos.getMask();
 			for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 				if ((modmask >> i) & 1) {
-					auto modPos = KeyMatrixPosition(6, i);
+					auto modPos = modifierPos[i];
 					cmdKeyMatrix[modPos.getRow()] &= ~modPos.getMask();
 				}
 			}
@@ -788,7 +798,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 		cmdKeyMatrix[keyInfo.pos.getRow()] |= keyInfo.pos.getMask();
 		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 			if ((modmask >> i) & 1) {
-				auto modPos = KeyMatrixPosition(6, i);
+				auto modPos = modifierPos[i];
 				cmdKeyMatrix[modPos.getRow()] |= modPos.getMask();
 			}
 		}
@@ -807,7 +817,7 @@ void Keyboard::pressLockKeys(byte lockKeysMask, bool down)
 {
 	for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 		if ((lockKeysMask >> i) & 1) {
-			auto lockPos = KeyMatrixPosition(6, i);
+			auto lockPos = modifierPos[i];
 			if (down) {
 				// press lock key
 				cmdKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();

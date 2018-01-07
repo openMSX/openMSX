@@ -13,6 +13,7 @@
 #include "array_ref.hh"
 #include "string_ref.hh"
 #include "openmsx.hh"
+#include <array>
 #include <deque>
 #include <vector>
 #include <memory>
@@ -104,6 +105,8 @@ private:
 	static const int MAX_KEYSYM = 0x150;
 	static const KeyMatrixPosition keyTabs[][MAX_KEYSYM];
 	const KeyMatrixPosition* keyTab;
+
+	const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS> modifierPos;
 
 	struct KeyMatrixUpCmd final : RecordedCommand {
 		KeyMatrixUpCmd(CommandController& commandController,
