@@ -792,12 +792,17 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
  */
 void Keyboard::pressLockKeys(byte lockKeysMask, bool down)
 {
-	if (down) {
-		// press CAPS and/or CODE/KANA lock key
-		cmdKeyMatrix[6] &= ~lockKeysMask;
-	} else {
-		// release CAPS and/or CODE/KANA lock key
-		cmdKeyMatrix[6] |= lockKeysMask;
+	for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+		if ((lockKeysMask >> i) & 1) {
+			auto lockPos = KeyMatrixPosition(6, i);
+			if (down) {
+				// press lock key
+				cmdKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();
+			} else {
+				// release lock key
+				cmdKeyMatrix[lockPos.getRow()] |= lockPos.getMask();
+			}
+		}
 	}
 	keysChanged = true;
 }
