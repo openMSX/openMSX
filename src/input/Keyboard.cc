@@ -774,11 +774,21 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 			debug("Key pasted, unicode: 0x%04x, row: %02d, col: %d, modmask: %02x\n",
 			      unicode, keyInfo.pos.getRow(), keyInfo.pos.getColumn(), modmask);
 			cmdKeyMatrix[keyInfo.pos.getRow()] &= ~keyInfo.pos.getMask();
-			cmdKeyMatrix[6] &= ~modmask;
+			for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+				if ((modmask >> i) & 1) {
+					auto modPos = KeyMatrixPosition(6, i);
+					cmdKeyMatrix[modPos.getRow()] &= ~modPos.getMask();
+				}
+			}
 		}
 	} else {
 		cmdKeyMatrix[keyInfo.pos.getRow()] |= keyInfo.pos.getMask();
-		cmdKeyMatrix[6] |= modmask;
+		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+			if ((modmask >> i) & 1) {
+				auto modPos = KeyMatrixPosition(6, i);
+				cmdKeyMatrix[modPos.getRow()] |= modPos.getMask();
+			}
+		}
 	}
 	keysChanged = true;
 	return releaseMask;
