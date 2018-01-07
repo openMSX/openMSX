@@ -223,10 +223,10 @@ private:
 	const bool keyGhosting;
 	/** True iff Shift, Graph and Code are protected against key ghosting. */
 	const bool keyGhostingSGCprotected;
-	/** True iff the CodeKana key behaves as a lock key. */
-	const bool codeKanaLocks;
-	/** True iff the Graph key behaves as a lock key. */
-	const bool graphLocks;
+	/** Bit vector where each modifier's bit (using KeyInfo::Modifier's
+	  * numbering) is set iff it is a lock key.
+	  */
+	const byte modifierIsLock;
 	const bool sdlReleasesCapslock;
 	bool keysChanged;
 	bool msxCapsLockOn;
