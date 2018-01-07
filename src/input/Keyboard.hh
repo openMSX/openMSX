@@ -93,7 +93,7 @@ private:
 	void processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool up);
 	bool pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool down);
 	int pressAscii(unsigned unicode, bool down);
-	void pressLockKeys(int lockKeysMask, bool down);
+	void pressLockKeys(byte lockKeysMask, bool down);
 	bool commonKeys(unsigned unicode1, unsigned unicode2);
 	void debug(const char* format, ...);
 
@@ -146,7 +146,7 @@ private:
 
 		std::string text_utf8;
 		unsigned last;
-		int lockKeysMask;
+		byte lockKeysMask;
 		bool releaseLast;
 		byte oldLocksOn;
 

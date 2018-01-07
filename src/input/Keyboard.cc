@@ -790,7 +790,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
  * The characters are inserted in a separate keyboard matrix, to prevent
  * interference with the keypresses of the user on the MSX itself
  */
-void Keyboard::pressLockKeys(int lockKeysMask, bool down)
+void Keyboard::pressLockKeys(byte lockKeysMask, bool down)
 {
 	if (down) {
 		// press CAPS and/or CODE/KANA lock key
