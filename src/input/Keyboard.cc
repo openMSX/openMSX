@@ -111,15 +111,13 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 		| (config.getChildDataAsBool("code_kana_locks", false) ? KeyInfo::CODE_MASK : 0)
 		| (config.getChildDataAsBool("graph_locks", false) ? KeyInfo::GRAPH_MASK : 0))
 	, sdlReleasesCapslock(checkSDLReleasesCapslock())
+	, locksOn(0)
 {
 	// SDL version >= 1.2.14 releases caps-lock key when SDL_DISABLED_LOCK_KEYS
 	// environment variable is already set in main.cc (because here it
 	// would be too late)
 
 	keysChanged = false;
-	msxCapsLockOn = false;
-	msxCodeKanaLockOn = false;
-	msxGraphLockOn = false;
 	msxmodifiers = 0xff;
 	memset(keyMatrix,     255, sizeof(keyMatrix));
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
@@ -321,7 +319,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 void Keyboard::processCodeKanaChange(EmuTime::param time, bool down)
 {
 	if (down) {
-		msxCodeKanaLockOn = !msxCodeKanaLockOn;
+		locksOn ^= KeyInfo::CODE_MASK;
 	}
 	processSdlKey(time, down, Keys::K_RALT);
 }
@@ -334,7 +332,7 @@ void Keyboard::processCodeKanaChange(EmuTime::param time, bool down)
 void Keyboard::processGraphChange(EmuTime::param time, bool down)
 {
 	if (down) {
-		msxGraphLockOn = !msxGraphLockOn;
+		locksOn ^= KeyInfo::GRAPH_MASK;
 	}
 	processSdlKey(time, down, Keys::K_LALT);
 }
@@ -376,12 +374,12 @@ void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 	if (sdlReleasesCapslock) {
 		debug("Changing CAPS lock state according to SDL request\n");
 		if (down) {
-			msxCapsLockOn = !msxCapsLockOn;
+			locksOn ^= KeyInfo::CAPS_MASK;
 		}
 		processSdlKey(time, down, Keys::K_CAPSLOCK);
 	} else {
 		debug("Pressing CAPS lock and scheduling a release\n");
-		msxCapsLockOn = !msxCapsLockOn;
+		locksOn ^= KeyInfo::CAPS_MASK;
 		processSdlKey(time, true, Keys::K_CAPSLOCK);
 		setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (in MSX time)
 	}
@@ -693,11 +691,11 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 	if (down) {
 		if ((modifierIsLock & KeyInfo::CODE_MASK) &&
 		    keyboardSettings.getAutoToggleCodeKanaLock() &&
-		    unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::CODE, msxCodeKanaLockOn)) {
+		    unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::CODE, locksOn & KeyInfo::CODE_MASK)) {
 			// Code Kana locks, is in wrong state and must be auto-toggled:
 			// Toggle it by pressing the lock key and scheduling a
 			// release event
-			msxCodeKanaLockOn = !msxCodeKanaLockOn;
+			locksOn ^= KeyInfo::CODE_MASK;
 			pressKeyMatrixEvent(time, KeyMatrixPosition(6, KeyInfo::CODE));
 			insertCodeKanaRelease = true;
 		} else {
@@ -758,22 +756,22 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	byte modmask = keyInfo.modmask & ~modifierIsLock;
 	if (down) {
 		if ((modifierIsLock & KeyInfo::CODE_MASK) &&
-		    unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::CODE, msxCodeKanaLockOn)) {
+		    unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::CODE, locksOn & KeyInfo::CODE_MASK)) {
 			debug("Toggling CODE/KANA lock\n");
-			msxCodeKanaLockOn = !msxCodeKanaLockOn;
+			locksOn ^= KeyInfo::CODE_MASK;
 			cmdKeyMatrix[6] &= ~KeyInfo::CODE_MASK;
 			releaseMask = KeyInfo::CODE_MASK;
 		}
 		if ((modifierIsLock & KeyInfo::GRAPH_MASK) &&
-		    unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::GRAPH, msxGraphLockOn)) {
+		    unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::GRAPH, locksOn & KeyInfo::GRAPH_MASK)) {
 			debug("Toggling GRAPH lock\n");
-			msxGraphLockOn = !msxGraphLockOn;
+			locksOn ^= KeyInfo::GRAPH_MASK;
 			cmdKeyMatrix[6] &= ~KeyInfo::GRAPH_MASK;
 			releaseMask |= KeyInfo::GRAPH_MASK;
 		}
-		if (unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::CAPS, msxCapsLockOn)) {
+		if (unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::CAPS, locksOn & KeyInfo::CAPS_MASK)) {
 			debug("Toggling CAPS lock\n");
-			msxCapsLockOn = !msxCapsLockOn;
+			locksOn ^= KeyInfo::CAPS_MASK;
 			cmdKeyMatrix[6] &= ~KeyInfo::CAPS_MASK;
 			releaseMask |= KeyInfo::CAPS_MASK;
 		}
@@ -956,9 +954,7 @@ Keyboard::KeyInserter::KeyInserter(
 {
 	// avoid UMR
 	last = 0;
-	oldCodeKanaLockOn = false;
-	oldGraphLockOn = false;
-	oldCapsLockOn = false;
+	oldLocksOn = 0;
 	releaseBeforePress = false;
 	typingFrequency = 15;
 }
@@ -1029,9 +1025,7 @@ void Keyboard::KeyInserter::type(string_ref str)
 		return;
 	}
 	auto& keyboard = OUTER(Keyboard, keyTypeCmd);
-	oldCodeKanaLockOn = keyboard.msxCodeKanaLockOn;
-	oldGraphLockOn = keyboard.msxGraphLockOn;
-	oldCapsLockOn = keyboard.msxCapsLockOn;
+	oldLocksOn = keyboard.locksOn;
 	if (text_utf8.empty()) {
 		reschedule(getCurrentTime());
 	}
@@ -1051,20 +1045,21 @@ void Keyboard::KeyInserter::executeUntil(EmuTime::param time)
 	if (text_utf8.empty()) {
 		releaseLast = false;
 		lockKeysMask = 0;
-		if (oldCodeKanaLockOn != keyboard.msxCodeKanaLockOn) {
+		auto diff = oldLocksOn ^ keyboard.locksOn;
+		if (diff & KeyInfo::CODE_MASK) {
 			keyboard.debug("Restoring CODE/KANA lock\n");
 			lockKeysMask = KeyInfo::CODE_MASK;
-			keyboard.msxCodeKanaLockOn = !keyboard.msxCodeKanaLockOn;
+			keyboard.locksOn ^= KeyInfo::CODE_MASK;
 		}
-		if (oldGraphLockOn != keyboard.msxGraphLockOn) {
+		if (diff & KeyInfo::GRAPH_MASK) {
 			keyboard.debug("Restoring GRAPH lock\n");
 			lockKeysMask |= KeyInfo::GRAPH_MASK;
-			keyboard.msxGraphLockOn = !keyboard.msxGraphLockOn;
+			keyboard.locksOn ^= KeyInfo::GRAPH_MASK;
 		}
-		if (oldCapsLockOn != keyboard.msxCapsLockOn) {
+		if (diff & KeyInfo::CAPS_MASK) {
 			keyboard.debug("Restoring CAPS lock\n");
 			lockKeysMask |= KeyInfo::CAPS_MASK;
-			keyboard.msxCapsLockOn = !keyboard.msxCapsLockOn;
+			keyboard.locksOn ^= KeyInfo::CAPS_MASK;
 		}
 		if (lockKeysMask != 0) {
 			// press CAPS, GRAPH and/or Code/Kana Lock keys
@@ -1184,7 +1179,7 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 {
 	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
 	auto& keyboard = OUTER(Keyboard, capsLockAligner);
-	if (keyboard.msxCapsLockOn != hostCapsLockOn) {
+	if (bool(keyboard.locksOn & KeyInfo::CAPS_MASK) != hostCapsLockOn) {
 		keyboard.debug("Resyncing host and MSX CAPS lock\n");
 		// note: send out another event iso directly calling
 		// processCapslockEvent() because we want this to be recorded
@@ -1231,9 +1226,21 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("last", last);
 	ar.serialize("lockKeysMask", lockKeysMask);
 	ar.serialize("releaseLast", releaseLast);
+
+	bool oldCodeKanaLockOn, oldGraphLockOn, oldCapsLockOn;
+	if (!ar.isLoader()) {
+		oldCodeKanaLockOn = oldLocksOn & KeyInfo::CODE_MASK;
+		oldGraphLockOn = oldLocksOn & KeyInfo::GRAPH_MASK;
+		oldCapsLockOn = oldLocksOn & KeyInfo::CAPS_MASK;
+	}
 	ar.serialize("oldCodeKanaLockOn", oldCodeKanaLockOn);
 	ar.serialize("oldGraphLockOn", oldGraphLockOn);
 	ar.serialize("oldCapsLockOn", oldCapsLockOn);
+	if (ar.isLoader()) {
+		oldLocksOn = (oldCodeKanaLockOn ? KeyInfo::CODE_MASK : 0)
+		           | (oldGraphLockOn ? KeyInfo::GRAPH_MASK : 0)
+		           | (oldCapsLockOn ? KeyInfo::CAPS_MASK : 0);
+	}
 }
 
 // version 1: Initial version: {userKeyMatrix, dynKeymap, msxmodifiers,
@@ -1253,9 +1260,21 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("keyTypeCmd", keyTypeCmd);
 	ar.serialize("cmdKeyMatrix", cmdKeyMatrix);
+
+	bool msxCapsLockOn, msxCodeKanaLockOn, msxGraphLockOn;
+	if (!ar.isLoader()) {
+		msxCapsLockOn = locksOn & KeyInfo::CAPS_MASK;
+		msxCodeKanaLockOn = locksOn & KeyInfo::CODE_MASK;
+		msxGraphLockOn = locksOn & KeyInfo::GRAPH_MASK;
+	}
 	ar.serialize("msxCapsLockOn", msxCapsLockOn);
 	ar.serialize("msxCodeKanaLockOn", msxCodeKanaLockOn);
 	ar.serialize("msxGraphLockOn", msxGraphLockOn);
+	if (ar.isLoader()) {
+		locksOn = (msxCapsLockOn ? KeyInfo::CAPS_MASK : 0)
+		        | (msxCodeKanaLockOn ? KeyInfo::CODE_MASK : 0)
+		        | (msxGraphLockOn ? KeyInfo::GRAPH_MASK : 0);
+	}
 
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("userKeyMatrix", userKeyMatrix);

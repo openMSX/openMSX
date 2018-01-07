@@ -148,9 +148,7 @@ private:
 		unsigned last;
 		int lockKeysMask;
 		bool releaseLast;
-		bool oldCodeKanaLockOn;
-		bool oldGraphLockOn;
-		bool oldCapsLockOn;
+		byte oldLocksOn;
 
 		bool releaseBeforePress;
 		unsigned typingFrequency;
@@ -229,9 +227,11 @@ private:
 	const byte modifierIsLock;
 	const bool sdlReleasesCapslock;
 	bool keysChanged;
-	bool msxCapsLockOn;
-	bool msxCodeKanaLockOn;
-	bool msxGraphLockOn;
+	/** Bit vector where each modifier's bit (using KeyInfo::Modifier's
+	  * numbering) is set iff it is a lock key that is currently on in
+	  * the emulated machine.
+	  */
+	byte locksOn;
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 2);
 
