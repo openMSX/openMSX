@@ -732,12 +732,18 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 	} else {
 		releaseKeyMatrixEvent(time, keyInfo.pos);
 
-		// Do not simply unpress graph, ctrl, code and shift but
-		// restore them to the values currently pressed by the user
-		byte newRow = userKeyMatrix[6];
-		newRow &= msxmodifiers | ~modifierIsLock;
-		newRow |= msxmodifiers &  modifierIsLock;
-		changeKeyMatrixEvent(time, 6, newRow);
+		// Restore non-lock modifier keys.
+		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
+			if (!((modifierIsLock >> i) & 1)) {
+				// Do not simply unpress graph, ctrl, code and shift but
+				// restore them to the values currently pressed by the user.
+				if ((msxmodifiers >> i) & 1) {
+					releaseKeyMatrixEvent(time, KeyMatrixPosition(6, i));
+				} else {
+					pressKeyMatrixEvent(time, KeyMatrixPosition(6, i));
+				}
+			}
+		}
 	}
 	keysChanged = true;
 	return insertCodeKanaRelease;
