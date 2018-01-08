@@ -298,7 +298,7 @@ template<int>      CONSTEXPR double exp (double x) { return std::exp (x); }
 template<int>      CONSTEXPR double sin (double x) { return std::sin (x); }
 template<int, int> CONSTEXPR double log (double x) { return std::log (x); }
 template<int, int> CONSTEXPR double log2(double x) { return    ::log(x) / ::log(2); } // should be std::log2(x) but this doesn't seem to compile in g++-4.8/g++-4.9 (bug?)
-template<int>      CONSTEXPR double exp2(double x) { return    ::exp2(x); } // see log2, but apparently no need to use exp(x)/exp(2) here?!
+template<int>      CONSTEXPR double exp2(double x) { return    ::exp2(x); } // see log2, but apparently no need to use exp(log(2) * x) here?!
 
 #else
 
