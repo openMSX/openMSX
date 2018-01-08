@@ -14,6 +14,7 @@
 #include "serialize.hh"
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 namespace openmsx {
 
@@ -497,9 +498,54 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	makeDB2LinTable();
 	makeTllTable();
 	makeSinTable();
-
 	makeDphaseARTable();
 	makeDphaseDRTable();
+
+	// For debugging: print out tables to be able to compare before/after
+	// when the calculation changes.
+	if (0) {
+		for (int i = 0; i < PM_PG_WIDTH; ++i) {
+			std::cout << pmtable[0][i] << ' '
+			          << pmtable[1][i] << '\n';
+		}
+		std::cout << '\n';
+
+		for (unsigned i = 0; i < EG_MUTE; ++i) {
+			std::cout << RA_ADJUST_TABLE[i] << ' '
+			          << AR_ADJUST_TABLE[i] << '\n';
+		}
+		std::cout << RA_ADJUST_TABLE[EG_MUTE] << "\n\n";
+
+		for (auto& e : dB2LinTab) std::cout << e << '\n';
+		std::cout << '\n';
+
+		for (int i = 0; i < (16 * 8); ++i) {
+			for (int j = 0; j < 4; ++j) {
+				std::cout << tllTable[i][j] << ' ';
+			}
+			std::cout << '\n';
+		}
+		std::cout << '\n';
+
+		for (auto& e : sintable) std::cout << e << '\n';
+		std::cout << '\n';
+
+		for (int i = 0; i < 16; ++i) {
+			for (int j = 0; j < 16; ++j) {
+				std::cout << dphaseARTable[i][j].getRawValue() << ' ';
+			}
+			std::cout << '\n';
+		}
+		std::cout << '\n';
+
+		for (int i = 0; i < 16; ++i) {
+			for (int j = 0; j < 16; ++j) {
+				std::cout << dphaseDRTable[i][j].getRawValue() << ' ';
+			}
+			std::cout << '\n';
+		}
+		std::cout << '\n';
+	}
 
 	float input = Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV);
 	setInputRate(int(input + 0.5f));
