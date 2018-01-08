@@ -775,7 +775,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	if (down) {
 		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 			if (((modifierIsLock >> i) & 1) && unicodeKeymap.needsLockToggle(
-					keyInfo, KeyInfo::Modifier(i), (locksOn >> 1) & 1)) {
+					keyInfo, KeyInfo::Modifier(i), (locksOn >> i) & 1)) {
 				debug("Toggling lock %d\n", i);
 				locksOn ^= 1 << i;
 				releaseMask |= 1 << i;
