@@ -205,7 +205,7 @@ static void makeAdjustTable()
 	RA_ADJUST_TABLE[0] = EG_MUTE;
 	for (int i = 1; i < int(EG_MUTE); ++i) {
 		AR_ADJUST_TABLE[i] = (EG_MUTE - 1 - EG_MUTE * log<EG_MUTE>(i)) / 2;
-		RA_ADJUST_TABLE[i] = powf(EG_MUTE, float(EG_MUTE - 1 - 2 * i) / EG_MUTE);
+		RA_ADJUST_TABLE[i] = powf(EG_MUTE, (float(EG_MUTE) - 1 - 2 * i) / EG_MUTE);
 		assert(0 <= int(AR_ADJUST_TABLE[i]));
 		assert(0 <= int(RA_ADJUST_TABLE[i]));
 		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
