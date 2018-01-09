@@ -25,10 +25,10 @@ static constexpr Y8950::EnvPhaseIndex EG_DP_MAX = Y8950::EnvPhaseIndex(EG_MUTE);
 static constexpr unsigned MOD = 0;
 static constexpr unsigned CAR = 1;
 
-static constexpr float EG_STEP = 0.1875f; //  3/16
-static constexpr float SL_STEP = 3.0f;
-static constexpr float TL_STEP = 0.75f;   // 12/16
-static constexpr float DB_STEP = 0.1875f; //  3/16
+static constexpr double EG_STEP = 0.1875f; //  3/16
+static constexpr double SL_STEP = 3.0f;
+static constexpr double TL_STEP = 0.75f;   // 12/16
+static constexpr double DB_STEP = 0.1875; //  3/16
 
 static constexpr unsigned SL_PER_EG = 16; // SL_STEP / EG_STEP
 static constexpr unsigned TL_PER_EG =  4; // TL_STEP / EG_STEP
@@ -49,11 +49,6 @@ static constexpr int PG_MASK = PG_WIDTH - 1;
 // Phase increment counter
 static constexpr int DP_BITS = 19;
 static constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
-
-// WaveTable for each envelope amp.
-//  values are in range[        0,   DB_MUTE)   (for positive values)
-//                  or [2*DB_MUTE, 3*DB_MUTE)   (for negative values)
-static unsigned sintable[PG_WIDTH];
 
 // Phase incr table for Attack.
 static Y8950::EnvPhaseIndex dphaseARTable[16][16];
@@ -222,7 +217,7 @@ static CONSTEXPR Db2LinTab makeDB2LinTable()
 
 	for (int i = 0; i < DB_MUTE; ++i) {
 		dB2Lin.tab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
-		                   cstd::pow<7, 3>(10, -double(i) * double(DB_STEP) / 20.0));
+		                   cstd::pow<7, 3>(10, -double(i) * DB_STEP / 20.0));
 	}
 	assert(dB2Lin.tab[DB_MUTE - 1] == 0);
 	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
@@ -237,32 +232,40 @@ static CONSTEXPR Db2LinTab makeDB2LinTable()
 static CONSTEXPR Db2LinTab dB2Lin = makeDB2LinTable();
 
 // Liner(+0.0 - +1.0) to dB(DB_MUTE-1 -- 0)
-static unsigned lin2db(float d)
+static CONSTEXPR unsigned lin2db(double d)
 {
-	if (d < 1e-4f) {
+	if (d < 1e-4) {
 		// (almost) zero
 		return DB_MUTE - 1;
 	}
-	int tmp = -int(20.0f * log10f(d) / DB_STEP);
+	int tmp = -int(20.0 * cstd::log10<6, 2>(d) / DB_STEP);
 	int result = std::min(tmp, DB_MUTE - 1);
 	assert(result >= 0);
 	assert(result <= DB_MUTE - 1);
 	return result;
 }
 
-// Sin Table
-static void makeSinTable()
+// WaveTable for each envelope amp.
+//  values are in range[        0,   DB_MUTE)   (for positive values)
+//                  or [2*DB_MUTE, 3*DB_MUTE)   (for negative values)
+struct SinTable {
+	unsigned table[PG_WIDTH];
+};
+static CONSTEXPR SinTable makeSinTable()
 {
+	SinTable sin = {};
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		sintable[i] = lin2db(sinf(float(2.0 * M_PI) * i / PG_WIDTH));
+		sin.table[i] = lin2db(cstd::sin<2>(2.0 * M_PI * i / PG_WIDTH));
 	}
 	for (int i = 0; i < PG_WIDTH / 4; i++) {
-		sintable[PG_WIDTH / 2 - 1 - i] = sintable[i];
+		sin.table[PG_WIDTH / 2 - 1 - i] = sin.table[i];
 	}
 	for (int i = 0; i < PG_WIDTH / 2; i++) {
-		sintable[PG_WIDTH / 2 + i] = 2 * DB_MUTE + sintable[i];
+		sin.table[PG_WIDTH / 2 + i] = 2 * DB_MUTE + sin.table[i];
 	}
+	return sin;
 }
+static CONSTEXPR SinTable sin = makeSinTable();
 
 // Table for Pitch Modulator
 struct PmTable {
@@ -511,7 +514,6 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	, irq(motherBoard, getName() + ".IRQ")
 	, enabled(true)
 {
-	makeSinTable();
 	makeDphaseARTable();
 	makeDphaseDRTable();
 
@@ -541,7 +543,7 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 		}
 		std::cout << '\n';
 
-		for (auto& e : sintable) std::cout << e << '\n';
+		for (auto& e : sin.table) std::cout << e << '\n';
 		std::cout << '\n';
 
 		for (int i = 0; i < 16; ++i) {
@@ -748,7 +750,7 @@ int Y8950::Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	int pgout = calc_phase(lfo_pm) + wave2_8pi(fm);
-	return dB2Lin.tab[sintable[pgout & PG_MASK] + egout];
+	return dB2Lin.tab[sin.table[pgout & PG_MASK] + egout];
 }
 
 int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
@@ -759,7 +761,7 @@ int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	if (patch.FB != 0) {
 		pgout += wave2_8pi(feedback) >> patch.FB;
 	}
-	int newOutput = dB2Lin.tab[sintable[pgout & PG_MASK] + egout];
+	int newOutput = dB2Lin.tab[sin.table[pgout & PG_MASK] + egout];
 	feedback = (output + newOutput) >> 1;
 	output = newOutput;
 	return feedback;
@@ -769,7 +771,7 @@ int Y8950::Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
-	return dB2Lin.tab[sintable[pgout & PG_MASK] + egout];
+	return dB2Lin.tab[sin.table[pgout & PG_MASK] + egout];
 }
 
 int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
