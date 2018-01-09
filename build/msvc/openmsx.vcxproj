@@ -837,6 +837,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serialize.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_core.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_meta.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SC3000PPI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SG1000Pause.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SpeedManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ThrottleManager.cc" />
@@ -1587,6 +1588,7 @@ popd</Command>
     <None Include="$(OpenMSXSrcDir)\serialize_core.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize_meta.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize_stl.hh" />
+    <None Include="$(OpenMSXSrcDir)\SC3000PPI.hh" />
     <None Include="$(OpenMSXSrcDir)\SG1000Pause.hh" />
     <None Include="$(OpenMSXSrcDir)\SpeedManager.hh" />
     <None Include="$(OpenMSXSrcDir)\ThrottleManager.hh" />
