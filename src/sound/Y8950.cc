@@ -87,9 +87,6 @@ static constexpr int AM_DP_WIDTH = 1 << AM_DP_BITS;
 // LFO Table
 static constexpr unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV)));
 
-// dB to Liner table
-static int dB2LinTab[(2 * DB_MUTE) * 2];
-
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 // 27 output levels (triangle waveform);
@@ -219,20 +216,28 @@ static CONSTEXPR AdjustTables makeAdjustTables()
 static CONSTEXPR AdjustTables adjust = makeAdjustTables();
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
-static void makeDB2LinTable()
+struct Db2LinTab {
+	int tab[(2 * DB_MUTE) * 2];
+};
+static CONSTEXPR Db2LinTab makeDB2LinTable()
 {
+	Db2LinTab dB2Lin = {};
+
 	for (int i = 0; i < DB_MUTE; ++i) {
-		dB2LinTab[i] = int(float((1 << DB2LIN_AMP_BITS) - 1) *
-		                   powf(10, -float(i) * DB_STEP / 20));
+		dB2Lin.tab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
+		                   cstd::pow<7, 3>(10, -double(i) * double(DB_STEP) / 20.0));
 	}
-	assert(dB2LinTab[DB_MUTE - 1] == 0);
+	assert(dB2Lin.tab[DB_MUTE - 1] == 0);
 	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
-		dB2LinTab[i] = 0;
+		dB2Lin.tab[i] = 0;
 	}
 	for (int i = 0; i < 2 * DB_MUTE; ++i) {
-		dB2LinTab[i + 2 * DB_MUTE] = -dB2LinTab[i];
+		dB2Lin.tab[i + 2 * DB_MUTE] = -dB2Lin.tab[i];
 	}
+
+	return dB2Lin;
 }
+static CONSTEXPR Db2LinTab dB2Lin = makeDB2LinTable();
 
 // Liner(+0.0 - +1.0) to dB(DB_MUTE-1 -- 0)
 static unsigned lin2db(float d)
@@ -500,7 +505,6 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	, irq(motherBoard, getName() + ".IRQ")
 	, enabled(true)
 {
-	makeDB2LinTable();
 	makeTllTable();
 	makeSinTable();
 	makeDphaseARTable();
@@ -521,7 +525,7 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 		}
 		std::cout << adjust.ra[EG_MUTE] << "\n\n";
 
-		for (auto& e : dB2LinTab) std::cout << e << '\n';
+		for (auto& e : dB2Lin.tab) std::cout << e << '\n';
 		std::cout << '\n';
 
 		for (int i = 0; i < (16 * 8); ++i) {
@@ -739,7 +743,7 @@ int Y8950::Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	int pgout = calc_phase(lfo_pm) + wave2_8pi(fm);
-	return dB2LinTab[sintable[pgout & PG_MASK] + egout];
+	return dB2Lin.tab[sintable[pgout & PG_MASK] + egout];
 }
 
 int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
@@ -750,7 +754,7 @@ int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	if (patch.FB != 0) {
 		pgout += wave2_8pi(feedback) >> patch.FB;
 	}
-	int newOutput = dB2LinTab[sintable[pgout & PG_MASK] + egout];
+	int newOutput = dB2Lin.tab[sintable[pgout & PG_MASK] + egout];
 	feedback = (output + newOutput) >> 1;
 	output = newOutput;
 	return feedback;
@@ -760,7 +764,7 @@ int Y8950::Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
-	return dB2LinTab[sintable[pgout & PG_MASK] + egout];
+	return dB2Lin.tab[sintable[pgout & PG_MASK] + egout];
 }
 
 int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
@@ -768,22 +772,22 @@ int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
 	unsigned tmp = (pgout & (1 << (PG_BITS - 1))) ? 0 : 2 * DB_MUTE;
-	return (dB2LinTab[tmp + egout] + dB2LinTab[egout + whitenoise]) >> 1;
+	return (dB2Lin.tab[tmp + egout] + dB2Lin.tab[egout + whitenoise]) >> 1;
 }
 
 int Y8950::Slot::calc_slot_cym(int lfo_am, int a, int b)
 {
 	unsigned egout = calc_envelope(lfo_am);
-	return (dB2LinTab[egout + a] + dB2LinTab[egout + b]) >> 1;
+	return (dB2Lin.tab[egout + a] + dB2Lin.tab[egout + b]) >> 1;
 }
 
 // HI-HAT
 int Y8950::Slot::calc_slot_hat(int lfo_am, int a, int b, int whitenoise)
 {
 	unsigned egout = calc_envelope(lfo_am);
-	return (dB2LinTab[egout + whitenoise] +
-	        dB2LinTab[egout + a] +
-	        dB2LinTab[egout + b]) >> 2;
+	return (dB2Lin.tab[egout + whitenoise] +
+	        dB2Lin.tab[egout + a] +
+	        dB2Lin.tab[egout + b]) >> 2;
 }
 
 int Y8950::getAmplificationFactor() const
