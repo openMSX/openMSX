@@ -18,6 +18,7 @@
 #include "ColecoJoystickIO.hh"
 #include "SG1000JoystickIO.hh"
 #include "SG1000Pause.hh"
+#include "SC3000PPI.hh"
 #include "MSXPSG.hh"
 #include "SVIPSG.hh"
 #include "SNPSG.hh"
@@ -151,6 +152,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<SG1000JoystickIO>(conf);
 	} else if (type == "SG1000Pause") {
 		result = make_unique<SG1000Pause>(conf);
+	} else if (type == "SC3000PPI") {
+		result = make_unique<SC3000PPI>(conf);
 	} else if (type == "PSG") {
 		result = make_unique<MSXPSG>(conf);
 	} else if (type == "SVIPSG") {
