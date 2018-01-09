@@ -170,8 +170,8 @@ private:
 		unsigned dphase;	// Phase increment amount
 
 		// for Envelope Generator (EG)
-		EnvPhaseIndex* dphaseARTableRks;
-		EnvPhaseIndex* dphaseDRTableRks;
+		const EnvPhaseIndex* dphaseARTableRks;
+		const EnvPhaseIndex* dphaseDRTableRks;
 		int tll;		// Total Level + Key scale level
 		EnvelopeState eg_mode;  // Current state
 		EnvPhaseIndex eg_phase;	// Phase

@@ -50,11 +50,6 @@ static constexpr int PG_MASK = PG_WIDTH - 1;
 static constexpr int DP_BITS = 19;
 static constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
 
-// Phase incr table for Attack.
-static Y8950::EnvPhaseIndex dphaseARTable[16][16];
-// Phase incr table for Decay and Release.
-static Y8950::EnvPhaseIndex dphaseDRTable[16][16];
-
 // Dynamic range
 static constexpr int DB_BITS = 9;
 static constexpr int DB_MUTE = 1 << DB_BITS;
@@ -312,34 +307,43 @@ static CONSTEXPR TllTable makeTllTable()
 }
 static CONSTEXPR TllTable tllTable = makeTllTable();
 
-// Rate Table for Attack
-static void makeDphaseARTable()
+// Phase incr table for Attack.
+struct DPhaseTable {
+	Y8950::EnvPhaseIndex table[16][16];
+};
+static CONSTEXPR DPhaseTable makeDphaseARTable()
 {
+	DPhaseTable dphaseAR;
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseARTable[Rks][0] = Y8950::EnvPhaseIndex(0);
+		dphaseAR.table[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (unsigned AR = 1; AR < 15; ++AR) {
 			unsigned RM = std::min(AR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
-			dphaseARTable[Rks][AR] =
+			dphaseAR.table[Rks][AR] =
 				Y8950::EnvPhaseIndex(12 * (RL + 4)) >> (15 - RM);
 		}
-		dphaseARTable[Rks][15] = EG_DP_MAX;
+		dphaseAR.table[Rks][15] = EG_DP_MAX;
 	}
+	return dphaseAR;
 }
+static CONSTEXPR DPhaseTable dphaseAR = makeDphaseARTable();
 
-// Rate Table for Decay
-static void makeDphaseDRTable()
+// Phase incr table for Decay and Release.
+static CONSTEXPR DPhaseTable makeDphaseDRTable()
 {
+	DPhaseTable dphaseDR;
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseDRTable[Rks][0] = Y8950::EnvPhaseIndex(0);
+		dphaseDR.table[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (unsigned DR = 1; DR < 16; ++DR) {
 			unsigned RM = std::min(DR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
-			dphaseDRTable[Rks][DR] =
+			dphaseDR.table[Rks][DR] =
 				Y8950::EnvPhaseIndex(RL + 4) >> (15 - RM);
 		}
 	}
+	return dphaseDR;
 }
+static CONSTEXPR DPhaseTable dphaseDR = makeDphaseDRTable();
 
 
 // class Y8950::Patch
@@ -404,8 +408,8 @@ void Y8950::Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
-	dphaseARTableRks = dphaseARTable[rks];
-	dphaseDRTableRks = dphaseDRTable[rks];
+	dphaseARTableRks = dphaseAR.table[rks];
+	dphaseDRTableRks = dphaseDR.table[rks];
 }
 
 void Y8950::Slot::updateEG()
@@ -514,9 +518,6 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	, irq(motherBoard, getName() + ".IRQ")
 	, enabled(true)
 {
-	makeDphaseARTable();
-	makeDphaseDRTable();
-
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.
 	if (0) {
@@ -548,7 +549,7 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 
 		for (int i = 0; i < 16; ++i) {
 			for (int j = 0; j < 16; ++j) {
-				std::cout << dphaseARTable[i][j].getRawValue() << ' ';
+				std::cout << dphaseAR.table[i][j].getRawValue() << ' ';
 			}
 			std::cout << '\n';
 		}
@@ -556,7 +557,7 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 
 		for (int i = 0; i < 16; ++i) {
 			for (int j = 0; j < 16; ++j) {
-				std::cout << dphaseDRTable[i][j].getRawValue() << ' ';
+				std::cout << dphaseDR.table[i][j].getRawValue() << ' ';
 			}
 			std::cout << '\n';
 		}
