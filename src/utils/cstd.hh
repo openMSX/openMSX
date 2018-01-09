@@ -294,26 +294,62 @@ private:
 // - In c++11 mode when we evaluate at run-time.
 // - When using gcc which has constexpr versions of most mathematical functions
 //   (this is a non-standard extension).
-template<int>      CONSTEXPR double exp (double x) { return std::exp (x); }
-template<int>      CONSTEXPR double sin (double x) { return std::sin (x); }
-template<int, int> CONSTEXPR double log (double x) { return std::log (x); }
-template<int, int> CONSTEXPR double log2(double x) { return    ::log(x) / ::log(2); } // should be std::log2(x) but this doesn't seem to compile in g++-4.8/g++-4.9 (bug?)
-template<int>      CONSTEXPR double exp2(double x) { return    ::exp2(x); } // see log2, but apparently no need to use exp(log(2) * x) here?!
+template<int>      CONSTEXPR double sin  (double x) { return std::sin  (x); }
+template<int, int> CONSTEXPR double log  (double x) { return std::log  (x); }
+template<int, int> CONSTEXPR double log2 (double x) { return    ::log  (x) / ::log(2); } // should be std::log2(x) but this doesn't seem to compile in g++-4.8/g++-4.9 (bug?)
+template<int, int> CONSTEXPR double log10(double x) { return std::log10(x); }
+template<int>      CONSTEXPR double exp  (double x) { return std::exp  (x); }
+template<int>      CONSTEXPR double exp2 (double x) { return    ::exp2 (x); } // see log2, but apparently no need to use exp(log(2) * x) here?!
+template<int, int> CONSTEXPR double pow(double x, double y) { return std::pow(x, y); }
 
 #else
+
+constexpr double upow(double x, unsigned u)
+{
+    double y = 1.0;
+    while (u) {
+        if (u & 1) y *= x;
+        x *= x;
+        u >>= 1;
+    }
+    return y;
+}
+
+constexpr double ipow(double x, int i)
+{
+	return (i >= 0) ? upow(x, i) : upow(x, -i);
+}
 
 template<int ITERATIONS>
 constexpr double exp(double x)
 {
-	double sum = 1.0;
-	double n = 1.0;
-	double t = x;
-	for (int i = 2; i < (2 + ITERATIONS); ++i) {
-		sum += t / n;
-		n *= i;
-		t *= x;
-	}
-	return sum;
+    // Split x into integral and fractional part:
+    //   exp(x) = exp(i + f) = exp(i) * exp(f)
+    //   with: i an int     (undefined if out of range)
+    //         -1 < f < 1
+    int i = int(x);
+    double f = x - i;
+
+    // Approximate exp(f) with Taylor series.
+    double y = 1.0;
+    double t = f;
+    double n = 1.0;
+    for (int k = 2; k < (2 + ITERATIONS); ++k) {
+        y += t / n;
+        t *= f;
+        n *= k;
+    }
+
+    // Approximate exp(i) by squaring.
+    int p = (i >= 0) ? i : -i; // abs(i);
+    double s = upow(M_E, p);
+
+    // Combine the results.
+    if (i >= 0) {
+        return y * s;
+    } else {
+        return y / s;
+    }
 }
 
 template<int ITERATIONS>
@@ -358,6 +394,18 @@ template<int E_ITERATIONS, int L_ITERATIONS>
 constexpr double log2(double x)
 {
 	return cstd::log<E_ITERATIONS, L_ITERATIONS>(x) / M_LN2;
+}
+
+template<int E_ITERATIONS, int L_ITERATIONS>
+constexpr double log10(double x)
+{
+	return cstd::log<E_ITERATIONS, L_ITERATIONS>(x) / M_LN10;
+}
+
+template<int E_ITERATIONS, int L_ITERATIONS>
+constexpr double pow(double x, double y)
+{
+	return cstd::exp<E_ITERATIONS>(cstd::log<E_ITERATIONS, L_ITERATIONS>(x) * y);
 }
 
 template<int ITERATIONS>
