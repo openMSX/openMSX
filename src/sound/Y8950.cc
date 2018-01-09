@@ -63,11 +63,6 @@ static Y8950::EnvPhaseIndex dphaseDRTable[16][16];
 // TL Table.
 static int tllTable[16 * 8][4];
 
-// Linear to Log curve conversion table (for Attack rate) and vice versa.
-//   values are in the range [0 .. EG_MUTE]
-static unsigned AR_ADJUST_TABLE[EG_MUTE];
-static unsigned RA_ADJUST_TABLE[EG_MUTE + 1];
-
 // Dynamic range
 static constexpr int DB_BITS = 9;
 static constexpr int DB_MUTE = 1 << DB_BITS;
@@ -192,31 +187,36 @@ static inline unsigned DB_NEG(int x)
 //                                                  //
 //**************************************************//
 
-// Return log_BASE(x)  IOW the value y so that pow(BASE, y) == x.
-template<int BASE> static inline float log(float x)
+// Linear to Log curve conversion table (for Attack rate) and vice versa.
+//   values are in the range [0 .. EG_MUTE]
+struct AdjustTables {
+	unsigned ar[EG_MUTE];
+	unsigned ra[EG_MUTE + 1];
+};
+static CONSTEXPR AdjustTables makeAdjustTables()
 {
-	return ::logf(x) / ::logf(float(BASE));
-}
+	AdjustTables adjust = {};
 
-// Table for AR to LogCurve and vice versa.
-static void makeAdjustTable()
-{
-	AR_ADJUST_TABLE[0] = EG_MUTE;
-	RA_ADJUST_TABLE[0] = EG_MUTE;
+	adjust.ar[0] = EG_MUTE;
+	adjust.ra[0] = EG_MUTE;
+	auto log_eg_mute = cstd::log<6, 5>(EG_MUTE);
 	for (int i = 1; i < int(EG_MUTE); ++i) {
-		AR_ADJUST_TABLE[i] = (EG_MUTE - 1 - EG_MUTE * log<EG_MUTE>(i)) / 2;
-		RA_ADJUST_TABLE[i] = powf(EG_MUTE, (float(EG_MUTE) - 1 - 2 * i) / EG_MUTE);
-		assert(0 <= int(AR_ADJUST_TABLE[i]));
-		assert(0 <= int(RA_ADJUST_TABLE[i]));
-		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
-		assert(RA_ADJUST_TABLE[i] <= EG_MUTE);
+		adjust.ar[i] = (EG_MUTE - 1 - EG_MUTE * cstd::log<6, 5>(i) / log_eg_mute) / 2;
+		adjust.ra[i] = cstd::pow<6, 5>(EG_MUTE, (double(EG_MUTE) - 1 - 2 * i) / EG_MUTE);
+		assert(0 <= int(adjust.ar[i]));
+		assert(0 <= int(adjust.ra[i]));
+		assert(adjust.ar[i] <= EG_MUTE);
+		assert(adjust.ra[i] <= EG_MUTE);
 	}
-	RA_ADJUST_TABLE[EG_MUTE] = 0;
+	adjust.ra[EG_MUTE] = 0;
 
-	// AR_ADJUST_TABLE[] and RA_ADJUST_TABLE[] are each others inverse, IOW
-	//   RA_ADJUST_TABLE[AR_ADJUST_TABLE[x]] == x
+	return adjust;
+
+	// adjust.ar[] and adjust.ra[] are each others inverse, IOW
+	//   adjust.ra[adjust.ar[x]] == x
 	// (except for rounding errors).
 }
+static CONSTEXPR AdjustTables adjust = makeAdjustTables();
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
 static void makeDB2LinTable()
@@ -432,7 +432,7 @@ void Y8950::Slot::slotOn(KeyPart part)
 	if (!key) {
 		eg_mode = ATTACK;
 		phase = 0;
-		eg_phase = Y8950::EnvPhaseIndex(RA_ADJUST_TABLE[eg_phase.toInt()]);
+		eg_phase = Y8950::EnvPhaseIndex(adjust.ra[eg_phase.toInt()]);
 	}
 	key |= part;
 }
@@ -444,7 +444,7 @@ void Y8950::Slot::slotOff(KeyPart part)
 		key &= ~part;
 		if (!key) {
 			if (eg_mode == ATTACK) {
-				eg_phase = Y8950::EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
+				eg_phase = Y8950::EnvPhaseIndex(adjust.ar[eg_phase.toInt()]);
 			}
 			eg_mode = RELEASE;
 		}
@@ -500,7 +500,6 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	, irq(motherBoard, getName() + ".IRQ")
 	, enabled(true)
 {
-	makeAdjustTable();
 	makeDB2LinTable();
 	makeTllTable();
 	makeSinTable();
@@ -517,10 +516,10 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 		std::cout << '\n';
 
 		for (unsigned i = 0; i < EG_MUTE; ++i) {
-			std::cout << RA_ADJUST_TABLE[i] << ' '
-			          << AR_ADJUST_TABLE[i] << '\n';
+			std::cout << adjust.ra[i] << ' '
+			          << adjust.ar[i] << '\n';
 		}
-		std::cout << RA_ADJUST_TABLE[EG_MUTE] << "\n\n";
+		std::cout << adjust.ra[EG_MUTE] << "\n\n";
 
 		for (auto& e : dB2LinTab) std::cout << e << '\n';
 		std::cout << '\n';
@@ -688,7 +687,7 @@ unsigned Y8950::Slot::calc_envelope(int lfo_am)
 			eg_mode = DECAY;
 			updateEG();
 		} else {
-			egout = AR_ADJUST_TABLE[eg_phase.toInt()];
+			egout = adjust.ar[eg_phase.toInt()];
 		}
 		break;
 
