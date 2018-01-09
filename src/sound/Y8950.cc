@@ -10,6 +10,7 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
+#include "cstd.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include <algorithm>
@@ -18,36 +19,36 @@
 
 namespace openmsx {
 
-static const unsigned EG_MUTE = 1 << Y8950::EG_BITS;
-static const Y8950::EnvPhaseIndex EG_DP_MAX = Y8950::EnvPhaseIndex(EG_MUTE);
+static constexpr unsigned EG_MUTE = 1 << Y8950::EG_BITS;
+static constexpr Y8950::EnvPhaseIndex EG_DP_MAX = Y8950::EnvPhaseIndex(EG_MUTE);
 
-static const unsigned MOD = 0;
-static const unsigned CAR = 1;
+static constexpr unsigned MOD = 0;
+static constexpr unsigned CAR = 1;
 
-static const float EG_STEP = 0.1875f; //  3/16
-static const float SL_STEP = 3.0f;
-static const float TL_STEP = 0.75f;   // 12/16
-static const float DB_STEP = 0.1875f; //  3/16
+static constexpr float EG_STEP = 0.1875f; //  3/16
+static constexpr float SL_STEP = 3.0f;
+static constexpr float TL_STEP = 0.75f;   // 12/16
+static constexpr float DB_STEP = 0.1875f; //  3/16
 
-static const unsigned SL_PER_EG = 16; // SL_STEP / EG_STEP
-static const unsigned TL_PER_EG =  4; // TL_STEP / EG_STEP
-static const unsigned EG_PER_DB =  1; // EG_STEP / DB_STEP
+static constexpr unsigned SL_PER_EG = 16; // SL_STEP / EG_STEP
+static constexpr unsigned TL_PER_EG =  4; // TL_STEP / EG_STEP
+static constexpr unsigned EG_PER_DB =  1; // EG_STEP / DB_STEP
 
 // PM speed(Hz) and depth(cent)
-static const float PM_SPEED  = 6.4f;
-static const float PM_DEPTH  = 13.75f / 2;
-static const float PM_DEPTH2 = 13.75f;
+static constexpr float PM_SPEED  = 6.4f;
+static constexpr double PM_DEPTH  = 13.75f / 2;
+static constexpr double PM_DEPTH2 = 13.75f;
 
 // Dynamic range of sustine level
-static const int SL_BITS = 4;
-static const int SL_MUTE = 1 << SL_BITS;
+static constexpr int SL_BITS = 4;
+static constexpr int SL_MUTE = 1 << SL_BITS;
 // Size of Sintable ( 1 -- 18 can be used, but 7 -- 14 recommended.)
-static const int PG_BITS = 10;
-static const int PG_WIDTH = 1 << PG_BITS;
-static const int PG_MASK = PG_WIDTH - 1;
+static constexpr int PG_BITS = 10;
+static constexpr int PG_WIDTH = 1 << PG_BITS;
+static constexpr int PG_MASK = PG_WIDTH - 1;
 // Phase increment counter
-static const int DP_BITS = 19;
-static const int DP_BASE_BITS = DP_BITS - PG_BITS;
+static constexpr int DP_BITS = 19;
+static constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
 
 // WaveTable for each envelope amp.
 //  values are in range[        0,   DB_MUTE)   (for positive values)
@@ -68,29 +69,28 @@ static unsigned AR_ADJUST_TABLE[EG_MUTE];
 static unsigned RA_ADJUST_TABLE[EG_MUTE + 1];
 
 // Dynamic range
-static const int DB_BITS = 9;
-static const int DB_MUTE = 1 << DB_BITS;
+static constexpr int DB_BITS = 9;
+static constexpr int DB_MUTE = 1 << DB_BITS;
 // PM table is calcurated by PM_AMP * exp2(PM_DEPTH * sin(x) / 1200)
-static const int PM_AMP_BITS = 8;
-static const int PM_AMP = 1 << PM_AMP_BITS;
+static constexpr int PM_AMP_BITS = 8;
+static constexpr int PM_AMP = 1 << PM_AMP_BITS;
 
 // Bits for liner value
-static const int DB2LIN_AMP_BITS = 11;
-static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
+static constexpr int DB2LIN_AMP_BITS = 11;
+static constexpr int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
 // Bits for Pitch and Amp modulator
-static const int PM_PG_BITS = 8;
-static const int PM_PG_WIDTH = 1 << PM_PG_BITS;
-static const int PM_DP_BITS = 16;
-static const int PM_DP_WIDTH = 1 << PM_DP_BITS;
-static const int AM_PG_BITS = 8;
-static const int AM_PG_WIDTH = 1 << AM_PG_BITS;
-static const int AM_DP_BITS = 16;
-static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
+static constexpr int PM_PG_BITS = 8;
+static constexpr int PM_PG_WIDTH = 1 << PM_PG_BITS;
+static constexpr int PM_DP_BITS = 16;
+static constexpr int PM_DP_WIDTH = 1 << PM_DP_BITS;
+static constexpr int AM_PG_BITS = 8;
+static constexpr int AM_PG_WIDTH = 1 << AM_PG_BITS;
+static constexpr int AM_DP_BITS = 16;
+static constexpr int AM_DP_WIDTH = 1 << AM_DP_BITS;
 
 // LFO Table
-static const unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV)));
-static int pmtable[2][PM_PG_WIDTH];
+static constexpr unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV)));
 
 // dB to Liner table
 static int dB2LinTab[(2 * DB_MUTE) * 2];
@@ -111,8 +111,8 @@ static int dB2LinTab[(2 * DB_MUTE) * 2];
 //    depth = 4.875dB
 // Also this approch can be easily implemented in HW, the previous one (see SVN
 // history) could not.
-static const unsigned LFO_AM_TAB_ELEMENTS = 210;
-static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
+static constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
+static constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
@@ -263,13 +263,20 @@ static void makeSinTable()
 }
 
 // Table for Pitch Modulator
-static void makePmTable()
+struct PmTable {
+	int table[2][PM_PG_WIDTH];
+};
+static CONSTEXPR PmTable makePmTable()
 {
+	PmTable pm = {};
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
-		pmtable[0][i] = int(float(PM_AMP) * exp2f(float(PM_DEPTH)  * sinf(float(2.0 * M_PI) * i / PM_PG_WIDTH) / 1200));
-		pmtable[1][i] = int(float(PM_AMP) * exp2f(float(PM_DEPTH2) * sinf(float(2.0 * M_PI) * i / PM_PG_WIDTH) / 1200));
+		auto s = cstd::sin<5>(2.0 * M_PI * i / PM_PG_WIDTH) / 1200;
+		pm.table[0][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH  * s));
+		pm.table[1][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH2 * s));
 	}
+	return pm;
 }
+static CONSTEXPR PmTable pm = makePmTable();
 
 static void makeTllTable()
 {
@@ -493,7 +500,6 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	, irq(motherBoard, getName() + ".IRQ")
 	, enabled(true)
 {
-	makePmTable();
 	makeAdjustTable();
 	makeDB2LinTable();
 	makeTllTable();
@@ -505,8 +511,8 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	// when the calculation changes.
 	if (0) {
 		for (int i = 0; i < PM_PG_WIDTH; ++i) {
-			std::cout << pmtable[0][i] << ' '
-			          << pmtable[1][i] << '\n';
+			std::cout << pm.table[0][i] << ' '
+			          << pm.table[1][i] << '\n';
 		}
 		std::cout << '\n';
 
@@ -666,7 +672,7 @@ unsigned Y8950::Slot::calc_phase(int lfo_pm)
 }
 
 #define S2E(x) Y8950::EnvPhaseIndex(int((x) / EG_STEP))
-static const Y8950::EnvPhaseIndex SL[16] = {
+static constexpr Y8950::EnvPhaseIndex SL[16] = {
 	S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 	S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
 };
@@ -839,7 +845,7 @@ void Y8950::generateChannels(int** bufs, unsigned num)
 		int lfo_am = am_mode ? tmp : tmp / 4;
 
 		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
-		int lfo_pm = pmtable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
+		int lfo_pm = pm.table[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
 
 		if (noise_seed & 1) {
 			noise_seed ^= 0x24000;
