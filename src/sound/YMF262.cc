@@ -46,6 +46,7 @@
 #include "serialize.hh"
 #include <cmath>
 #include <cstring>
+#include <iostream>
 
 namespace openmsx {
 
@@ -1477,6 +1478,14 @@ YMF262::YMF262(const std::string& name_,
 	// avoid (harmless) UMR in serialize()
 	memset(chanout, 0, sizeof(chanout));
 	memset(reg, 0, sizeof(reg));
+
+	// For debugging: print out tables to be able to compare before/after
+	// when the calculation changes.
+	if (0) {
+		for (auto& e : tl.tab) std::cout << e << '\n';
+		std::cout << '\n';
+		for (auto& e : sin.tab) std::cout << e << '\n';
+	}
 
 	float input = isYMF278
 	            ?    33868800.0f / (19 * 36)
