@@ -218,8 +218,10 @@ private:
 
 	/** True iff keyboard includes a numeric keypad. */
 	const bool hasKeypad;
-	/** True iff keyboard includes (Japanese) Yes/No keys. */
-	const bool hasYesNoKeys;
+	/** True iff changes to keyboard row 11 must be rejected.
+	  * On MSX, row 11 contains the (Japanese) Yes/No keys.
+	  */
+	const bool blockRow11;
 	/** True iff pressing multiple keys at once can add ghost key presses. */
 	const bool keyGhosting;
 	/** True iff Shift, Graph and Code are protected against key ghosting. */

@@ -110,7 +110,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, unicodeKeymap(config.getChildData(
 		"keyboard_type", matrix == MATRIX_SVI ? "svi" : "int"))
 	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
-	, hasYesNoKeys(config.getChildDataAsBool("has_yesno_keys", false))
+	, blockRow11(matrix == MATRIX_MSX
+		&& !config.getChildDataAsBool("has_yesno_keys", false))
 	, keyGhosting(config.getChildDataAsBool("key_ghosting", true))
 	, keyGhostingSGCprotected(config.getChildDataAsBool(
 		"key_ghosting_sgc_protected", true))
@@ -421,7 +422,7 @@ void Keyboard::processSdlKey(EmuTime::param time, bool down, Keys::KeyCode key)
 	if (key < MAX_KEYSYM) {
 		auto pos = keyTab[key];
 		if (pos.isValid()) {
-			if (pos.getRow() == 11 && !hasYesNoKeys) {
+			if (pos.getRow() == 11 && blockRow11) {
 				// do not process row 11 if we have no Yes/No keys
 				return;
 			}
