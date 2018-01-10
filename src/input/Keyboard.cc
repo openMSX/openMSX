@@ -772,6 +772,9 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 {
 	int releaseMask = 0;
 	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap.get(unicode);
+	if (!keyInfo.isValid()) {
+		return releaseMask;
+	}
 	byte modmask = keyInfo.modmask & ~modifierIsLock;
 	if (down) {
 		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
