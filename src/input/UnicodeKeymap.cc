@@ -110,21 +110,6 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
 	return deadKeys[n];
 }
 
-bool UnicodeKeymap::needsLockToggle(
-		const KeyInfo& keyInfo, KeyInfo::Modifier mod, bool lockOn) const
-{
-	if (!keyInfo.isValid()) {
-		// No key.
-		return false;
-	}
-	if (lockOn == ((keyInfo.modmask >> mod) & 1)) {
-		// Lock key state matches modifiers needed.
-		return false;
-	}
-	// Check whether key is affected by lock.
-	return (relevantMods[keyInfo.pos.getRowCol()] >> mod) & 1;
-}
-
 void UnicodeKeymap::parseUnicodeKeymapfile(string_ref data)
 {
 	memset(relevantMods, 0, sizeof(relevantMods));

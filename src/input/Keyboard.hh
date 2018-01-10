@@ -98,6 +98,12 @@ private:
 	bool commonKeys(unsigned unicode1, unsigned unicode2);
 	void debug(const char* format, ...);
 
+	/** Returns a bit vector in which the bit for a modifier is set iff that
+	  * modifier is a lock key and must be toggled before the given key input
+	  * can be produced.
+	  */
+	byte needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const;
+
 	CommandController& commandController;
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;

@@ -129,14 +129,15 @@ public:
 	KeyInfo get(unsigned unicode) const;
 	KeyInfo getDeadkey(unsigned n) const;
 
-	/** Checks whether the given key press needs a different lock key state.
-	  * @param keyInfo The key to be pressed.
-	  * @param mod The modifier that identifies the lock key: CODE/GRAPH/CAPS.
-	  * @param lockOn The current state of the lock key.
-	  * @return True if the lock key state needs to be toggled, false if the
-	  *         lock key state is as required or does not matter.
+	/** Returns a mask in which a bit is set iff the corresponding modifier
+	  * is relevant for the given key. A modifier is considered relevant if
+	  * there is at least one mapping entry for the key that requires the
+	  * modifier to be active.
+	  * Must only be called on valid KeyInfos.
 	  */
-	bool needsLockToggle(const KeyInfo& keyInfo, KeyInfo::Modifier mod, bool lockOn) const;
+	byte getRelevantMods(const KeyInfo& keyInfo) const {
+		return relevantMods[keyInfo.pos.getRowCol()];
+	}
 
 private:
 	static const unsigned NUM_DEAD_KEYS = 3;

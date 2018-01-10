@@ -223,6 +223,13 @@ void Keyboard::stopReplay(EmuTime::param time)
 	memset(dynKeymap, 0, sizeof(dynKeymap));
 }
 
+byte Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
+{
+	return modifierIsLock
+	     & (locksOn ^ keyInfo.modmask)
+	     & unicodeKeymap.getRelevantMods(keyInfo);
+}
+
 void Keyboard::pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
 {
 	auto row = pos.getRow();
@@ -702,9 +709,8 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 		return insertCodeKanaRelease;
 	}
 	if (down) {
-		if ((modifierIsLock & KeyInfo::CODE_MASK) &&
-		    keyboardSettings.getAutoToggleCodeKanaLock() &&
-		    unicodeKeymap.needsLockToggle(keyInfo, KeyInfo::CODE, locksOn & KeyInfo::CODE_MASK)) {
+		if ((needsLockToggle(keyInfo) & KeyInfo::CODE_MASK) &&
+				keyboardSettings.getAutoToggleCodeKanaLock()) {
 			// Code Kana locks, is in wrong state and must be auto-toggled:
 			// Toggle it by pressing the lock key and scheduling a
 			// release event
@@ -777,9 +783,9 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	}
 	byte modmask = keyInfo.modmask & ~modifierIsLock;
 	if (down) {
+		byte toggleLocks = needsLockToggle(keyInfo);
 		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
-			if (((modifierIsLock >> i) & 1) && unicodeKeymap.needsLockToggle(
-					keyInfo, KeyInfo::Modifier(i), (locksOn >> i) & 1)) {
+			if ((toggleLocks >> i) & 1) {
 				debug("Toggling lock %d\n", i);
 				locksOn ^= 1 << i;
 				releaseMask |= 1 << i;
