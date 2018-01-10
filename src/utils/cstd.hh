@@ -301,6 +301,7 @@ template<int, int> CONSTEXPR double log10(double x) { return std::log10(x); }
 template<int>      CONSTEXPR double exp  (double x) { return std::exp  (x); }
 template<int>      CONSTEXPR double exp2 (double x) { return    ::exp2 (x); } // see log2, but apparently no need to use exp(log(2) * x) here?!
 template<int, int> CONSTEXPR double pow(double x, double y) { return std::pow(x, y); }
+inline CONSTEXPR double round(double x) { return std::round(x); }
 
 #else
 
@@ -412,6 +413,12 @@ template<int ITERATIONS>
 constexpr double exp2(double x)
 {
 	return cstd::exp<ITERATIONS>(M_LN2 * x);
+}
+
+constexpr double round(double x)
+{
+	return (x >= 0) ?  int( x + 0.5)
+	                : -int(-x + 0.5);
 }
 
 #endif
