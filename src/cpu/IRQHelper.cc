@@ -1,6 +1,8 @@
 #include "IRQHelper.hh"
-#include "MSXCPU.hh"
 #include "DeviceConfig.hh"
+#include "MSXCPU.hh"
+#include "MSXException.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -22,21 +24,51 @@ void IRQSource::lower()
 }
 
 
+// IRQ sinks (used to implement OptionalIRQ)
+
+class NotConnectedIRQSink : public IRQSink
+{
+public:
+	void raise() override {}
+	void lower() override {}
+};
+
+class MaskableIRQSink : public IRQSink
+{
+public:
+	MaskableIRQSink(MSXCPU& cpu_) : cpu(cpu_) {}
+	void raise() override { cpu.raiseIRQ(); }
+	void lower() override { cpu.lowerIRQ(); }
+private:
+	MSXCPU& cpu;
+};
+
+class NonMaskableIRQSink : public IRQSink
+{
+public:
+	NonMaskableIRQSink(MSXCPU& cpu_) : cpu(cpu_) {}
+	void raise() override { cpu.raiseNMI(); }
+	void lower() override { cpu.lowerNMI(); }
+private:
+	MSXCPU& cpu;
+};
+
+
 // class OptionalIRQ
 
-OptionalIRQ::OptionalIRQ(MSXCPU& cpu_, const DeviceConfig& config)
-	: cpu(config.getChildDataAsBool("irq_connected", true) ? &cpu_ : nullptr)
+OptionalIRQ::OptionalIRQ(MSXCPU& cpu, const DeviceConfig& config)
 {
-}
-
-void OptionalIRQ::raise()
-{
-	if (cpu) cpu->raiseIRQ();
-}
-
-void OptionalIRQ::lower()
-{
-	if (cpu) cpu->lowerIRQ();
+	auto connected = config.getChildData("irq_connected", "irq");
+	if (connected == "irq" || connected == "true") {
+		sink = make_unique<MaskableIRQSink>(cpu);
+	} else if (connected == "nmi") {
+		sink = make_unique<NonMaskableIRQSink>(cpu);
+	} else if (connected == "false") {
+		sink = make_unique<NotConnectedIRQSink>();
+	} else {
+		throw MSXException(
+			"Unknown IRQ sink \"" + connected + "\" in <irq_connected>");
+	}
 }
 
 } // namespace openmsx
