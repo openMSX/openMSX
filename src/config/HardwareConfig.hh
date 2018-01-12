@@ -43,6 +43,7 @@ public:
 	void setFileContext(FileContext&& ctxt) { context = std::move(ctxt); }
 
 	const XMLElement& getConfig() const { return config; }
+	const XMLElement& getDevices() const;
 	const std::string& getName() const { return name; }
 
 	/** Parses a slot mapping.
@@ -68,7 +69,6 @@ private:
 	void setConfig(XMLElement config_) { config = std::move(config_); }
 	void load(string_ref type);
 
-	const XMLElement& getDevices() const;
 	void createDevices(const XMLElement& elem,
 	                   const XMLElement* primary, const XMLElement* secondary);
 	void createExternalSlot(int ps);

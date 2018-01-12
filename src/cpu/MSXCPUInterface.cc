@@ -355,10 +355,13 @@ void MSXCPUInterface::register_IO(int port, bool isIn,
 			devicePtr = multi;
 		}
 		if (isIn) {
-			cliComm.printWarning(
-				"Conflicting input port 0x" +
-				StringOp::toHexString(port, 2) +
-				" for devices " + devicePtr->getName());
+			if (motherBoard.getMachineConfig()->getDevices().getAttributeAsBool(
+					"overlap_warning", true)) {
+				cliComm.printWarning(
+					"Conflicting input port 0x" +
+					StringOp::toHexString(port, 2) +
+					" for devices " + devicePtr->getName());
+			}
 		}
 	}
 }
