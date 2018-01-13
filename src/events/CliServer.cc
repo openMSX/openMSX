@@ -239,6 +239,9 @@ void CliServer::mainLoop()
 #endif
 		SOCKET sd = accept(listenSock, nullptr, nullptr);
 		if (poller.aborted()) {
+			if (sd != OPENMSX_INVALID_SOCKET) {
+				sock_close(sd);
+			}
 			break;
 		}
 		if (sd == OPENMSX_INVALID_SOCKET) {
