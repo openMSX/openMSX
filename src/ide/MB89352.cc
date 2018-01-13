@@ -502,14 +502,16 @@ void MB89352::writeRegister(byte reg, byte value)
 			int x = regs[REG_BDID] & regs[REG_TEMPWR];
 			if (phase == SCSI::BUS_FREE && x && x != regs[REG_TEMPWR]) {
 				x = regs[REG_TEMPWR] & ~regs[REG_BDID];
+				assert(x != 0); // because of the check 2 lines above
 
 				// the targetID is calculated.
 				// It is given priority that the number is large.
-				for (targetId = 0; targetId < MAX_DEV; ++targetId) {
+				targetId = 0;
+				while (true) {
 					x >>= 1;
-					if (x == 0) {
-						break;
-					}
+					if (x == 0) break;
+					++targetId;
+					assert(targetId < MAX_DEV);
 				}
 
 				if (/*!TODO: devBusy &&*/ dev[targetId]->isSelected()) {
