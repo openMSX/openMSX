@@ -3,6 +3,7 @@
 
 #include "string_ref.hh"
 #include <cmath>
+#include <cstddef>
 #include <functional>
 #include <utility>
 
@@ -295,6 +296,7 @@ private:
 // - When using gcc which has constexpr versions of most mathematical functions
 //   (this is a non-standard extension).
 template<int>      CONSTEXPR double sin  (double x) { return std::sin  (x); }
+template<int>      CONSTEXPR double cos  (double x) { return std::cos  (x); }
 template<int, int> CONSTEXPR double log  (double x) { return std::log  (x); }
 template<int, int> CONSTEXPR double log2 (double x) { return    ::log  (x) / ::log(2); } // should be std::log2(x) but this doesn't seem to compile in g++-4.8/g++-4.9 (bug?)
 template<int, int> CONSTEXPR double log10(double x) { return std::log10(x); }
@@ -353,26 +355,121 @@ constexpr double exp(double x)
     }
 }
 
+constexpr double simple_fmod(double x, double y)
+{
+    assert(y > 0.0);
+    return x - int(x / y) * y;
+}
+
+template<int ITERATIONS>
+constexpr double sin_iter(double x)
+{
+    double x2 = x * x;
+    double y = 0.0;
+    double t = x;
+    double n = 1.0;
+    for (int k = 1; k < (1 + 4 * ITERATIONS); /**/) {
+        y += t / n;
+        t *= x2;
+        n *= ++k;
+        n *= ++k;
+
+        y -= t / n;
+        t *= x2;
+        n *= ++k;
+        n *= ++k;
+    }
+    return y;
+}
+
+template<int ITERATIONS>
+constexpr double cos_iter(double x)
+{
+    double x2 = x * x;
+    double y = 1.0;
+    double t = x2;
+    double n = 2.0;
+    for (int k = 2; k < (2 + 4 * ITERATIONS); /**/) {
+        y -= t / n;
+        t *= x2;
+        n *= ++k;
+        n *= ++k;
+
+        y += t / n;
+        t *= x2;
+        n *= ++k;
+        n *= ++k;
+    }
+    return y;
+}
+
 template<int ITERATIONS>
 constexpr double sin(double x)
 {
-	const double x2 = x * x;
-	double sum = x;
-	double t = x;
-	double n = 1.0;
-	for (int i = 1; i < (1 + 4 * ITERATIONS); /**/) {
-		t *= x2;
-		n *= ++i;
-		n *= ++i;
-		sum -= t / n;
+    double sign = 1.0;
 
-		t *= x2;
-		n *= ++i;
-		n *= ++i;
-		sum += t / n;
-	}
-	return sum;
+    // reduce to [0, +inf)
+    if (x < 0.0) {
+        sign = -1.0;
+        x = -x;
+    }
+
+    // reduce to [0, 2pi)
+    x = simple_fmod(x, 2 * M_PI);
+
+    // reduce to [0, pi]
+    if (x > M_PI) {
+        sign = -sign;
+        x -= M_PI;
+    }
+
+    // reduce to [0, pi/2]
+    if (x > M_PI/2) {
+        x = M_PI - x;
+    }
+
+    // reduce to [0, pi/4]
+    if (x > M_PI/4) {
+        x = M_PI/2 - x;
+        return sign * cos_iter<ITERATIONS>(x);
+    } else {
+        return sign * sin_iter<ITERATIONS>(x);
+    }
 }
+
+template<int ITERATIONS>
+constexpr double cos(double x)
+{
+    double sign = 1.0;
+
+    // reduce to [0, +inf)
+    if (x < 0.0) {
+        x = -x;
+    }
+
+    // reduce to [0, 2pi)
+    x = simple_fmod(x, 2 * M_PI);
+
+    // reduce to [0, pi]
+    if (x > M_PI) {
+        x = 2.0 * M_PI - x;
+    }
+
+    // reduce to [0, pi/2]
+    if (x > M_PI/2) {
+        sign = -sign;
+        x = M_PI - x;
+    }
+
+    // reduce to [0, pi/4]
+    if (x > M_PI/4) {
+        x = M_PI/2 - x;
+        return sign * sin_iter<ITERATIONS>(x);
+    } else {
+        return sign * cos_iter<ITERATIONS>(x);
+    }
+}
+
 
 // https://en.wikipedia.org/wiki/Natural_logarithm#High_precision
 template<int E_ITERATIONS, int L_ITERATIONS>
