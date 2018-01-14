@@ -112,7 +112,7 @@ private:
 	static const KeyMatrixPosition keyTabs[][MAX_KEYSYM];
 	const KeyMatrixPosition* keyTab;
 
-	const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS> modifierPos;
+	const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>& modifierPos;
 
 	struct KeyMatrixUpCmd final : RecordedCommand {
 		KeyMatrixUpCmd(CommandController& commandController,

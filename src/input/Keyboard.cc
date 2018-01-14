@@ -80,6 +80,29 @@ static bool checkSDLReleasesCapslock()
 	}
 }
 
+static const char* defaultKeymapForMatrix[] = {
+	"int", // MATRIX_MSX
+	"svi", // MATRIX_SVI
+};
+
+static const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>
+		modifierPosForMatrix[] = {
+	{ // MATRIX_MSX
+		KeyMatrixPosition(6, 0), // SHIFT
+		KeyMatrixPosition(6, 1), // CTRL
+		KeyMatrixPosition(6, 2), // GRAPH
+		KeyMatrixPosition(6, 3), // CAPS
+		KeyMatrixPosition(6, 4), // CODE
+	},
+	{ // MATRIX_SVI
+		KeyMatrixPosition(6, 0), // SHIFT
+		KeyMatrixPosition(6, 1), // CTRL
+		KeyMatrixPosition(6, 2), // LGRAPH
+		KeyMatrixPosition(8, 3), // CAPS
+		KeyMatrixPosition(6, 3), // RGRAPH
+	},
+};
+
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    Scheduler& scheduler_,
                    CommandController& commandController_,
@@ -93,13 +116,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, keyTab(keyTabs[matrix])
-	, modifierPos {
-		KeyMatrixPosition(6, 0), // SHIFT
-		KeyMatrixPosition(6, 1), // CTRL
-		KeyMatrixPosition(6, 2), // (L)GRAPH
-		KeyMatrixPosition(matrix == MATRIX_SVI ? 8 : 6, 3), // CAPS
-		KeyMatrixPosition(6, matrix == MATRIX_SVI ? 3 : 4) // CODE/RGRAPH
-		}
+	, modifierPos(modifierPosForMatrix[matrix])
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler_)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler_)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler_)
@@ -108,7 +125,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, msxKeyEventQueue(scheduler_, commandController.getInterpreter())
 	, keybDebuggable(motherBoard)
 	, unicodeKeymap(config.getChildData(
-		"keyboard_type", matrix == MATRIX_SVI ? "svi" : "int"))
+		"keyboard_type", defaultKeymapForMatrix[matrix]))
 	, hasKeypad(config.getChildDataAsBool("has_keypad", true))
 	, blockRow11(matrix == MATRIX_MSX
 		&& !config.getChildDataAsBool("has_yesno_keys", false))
