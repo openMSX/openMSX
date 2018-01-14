@@ -1752,6 +1752,7 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, CommandController& commandController)
 	SX = SY = DX = DY = NX = NY = 0;
 	ASX = ADX = ANX = 0;
 	COL = ARG = CMD = 0;
+	phase = tmpSrc = tmpDst = 0; // not strictly needed, but avoid UMR in serialize
 }
 
 void VDPCmdEngine::reset(EmuTime::param time)
