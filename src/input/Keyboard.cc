@@ -83,6 +83,7 @@ static bool checkSDLReleasesCapslock()
 static const char* defaultKeymapForMatrix[] = {
 	"int", // MATRIX_MSX
 	"svi", // MATRIX_SVI
+	"cvjoy", // MATRIX_CVJOY
 };
 
 static const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>
@@ -100,6 +101,8 @@ static const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS
 		KeyMatrixPosition(6, 2), // LGRAPH
 		KeyMatrixPosition(8, 3), // CAPS
 		KeyMatrixPosition(6, 3), // RGRAPH
+	},
+	{ // MATRIX_CVJOY
 	},
 };
 
@@ -1456,6 +1459,45 @@ const KeyMatrixPosition Keyboard::keyTabs[][MAX_KEYSYM] = {
    x  ,0x57,0x77,0x87,0x67,0x76, x  , x  , x  , x  ,0x70,0x71,0x72,0x73,0x74, x  , //110
   0x75,0x65, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x83, x  ,0x60, //120
   0x60, x  ,0x61, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
+  },
+  {
+// ColecoVision Joystick "Matrix"
+//
+// The hardware consists of 2 controllers that each have 2 triggers
+// and a 12-key keypad. They're not actually connected in a matrix,
+// but a ghosting-free matrix is the easiest way to model it in openMSX.
+//
+// row/bit  7     6     5     4     3     2     1     0
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+//   0   |TRIGB|TRIGA|     |     |LEFT |DOWN |RIGHT| UP  |  controller 1
+//   1   |TRIGB|TRIGA|     |     |LEFT |DOWN |RIGHT| UP  |  controller 2
+//   2   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  controller 1
+//   3   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 1
+//   4   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  controller 2
+//   5   |     |     |     |     |  #  |  *  |  9  |  8  |  controller 2
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //000
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //010
+  0x06, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x32, x  , x  , //020
+  0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31, x  , x  , x  ,0x33, x  , x  , //030
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //050
+   x  ,0x13,0x42, x  ,0x11, x  ,0x44,0x45,0x46, x  ,0x52, x  , x  ,0x53,0x43, x  , //060
+   x  , x  ,0x47,0x12,0x50,0x40,0x41,0x10, x  ,0x51, x  , x  , x  , x  , x  , x  , //070
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
+  0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31, x  ,0x33,0x32,0x32,0x33, x  , //100
+   x  ,0x00,0x02,0x01,0x03, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //110
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x07, //120
+  0x17,0x06,0x16,0x07,0x07, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
   }
 };
