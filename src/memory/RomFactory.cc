@@ -48,6 +48,7 @@
 #include "RomMultiRom.hh"
 #include "Rom.hh"
 #include "Reactor.hh"
+#include "MSXMotherBoard.hh"
 #include "RomDatabase.hh"
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
@@ -168,7 +169,12 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		// Guess mapper type, if it was not in DB.
 		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getOriginalSHA1());
 		if (!romInfo) {
-			type = guessRomType(rom);
+			auto machineType = config.getMotherBoard().getMachineType();
+			if (machineType == "Coleco") {
+				type = ROM_PAGE23;
+			} else {
+				type = guessRomType(rom);
+			}
 		} else {
 			type = romInfo->getRomType();
 		}
