@@ -55,7 +55,9 @@ set invalid_psg_directions_callback psgdirectioncallback
 
 # Callback on DI;HALT.
 proc dihaltcallback {} {
-	message "DI; HALT detected, which means a hang. You can just as well reset the MSX now..." warning
+	if {[string match "MSX*" [machine_info type]]} { # MSX does not use NMI.
+		message "DI; HALT detected, which means a hang. You can just as well reset the MSX now..." warning
+	}
 }
 set di_halt_callback dihaltcallback
 
