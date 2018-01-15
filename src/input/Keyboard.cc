@@ -249,6 +249,10 @@ byte Keyboard::needsLockToggle(const UnicodeKeymap::KeyInfo& keyInfo) const
 
 void Keyboard::pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
 {
+	if (!pos.isValid()) {
+		// No such key.
+		return;
+	}
 	auto row = pos.getRow();
 	auto press = pos.getMask();
 	if (((hostKeyMatrix[row] & press) == 0) &&
@@ -261,6 +265,10 @@ void Keyboard::pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
 
 void Keyboard::releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos)
 {
+	if (!pos.isValid()) {
+		// No such key.
+		return;
+	}
 	auto row = pos.getRow();
 	auto release = pos.getMask();
 	if (((hostKeyMatrix[row] & release) == release) &&
