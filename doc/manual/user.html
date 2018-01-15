@@ -76,8 +76,10 @@
 		<ol class="toc">
 			<li><a class="internal" href="#keyboard">5.1 Keyboard</a>
 				<ol class="toc">
-					<li><a class="internal" href="#keymapping">5.1.1 Key Mapping</a></li>
-					<li><a class="internal" href="#keyboardlayouts">5.1.2 Keyboard Layouts</a></li>
+					<li><a class="internal" href="#msxkeymapping">5.1.1 MSX Key Mapping</a></li>
+					<li><a class="internal" href="#cvkeymapping">5.1.2 ColecoVision Key Mapping</a></li>
+					<li><a class="internal" href="#emukeymapping">5.1.3 Emulator Functions Key Mapping</a></li>
+					<li><a class="internal" href="#keyboardlayouts">5.1.4 Keyboard Layouts</a></li>
 				</ol>
 			</li>
 			<li><a class="internal" href="#joystick">5.2 Joystick</a></li>
@@ -733,11 +735,8 @@ The program is encoded on the right audio channel which will not be audible. Wit
 
 <h3><a id="keyboard">5.1 Keyboard</a></h3>
 
-<h4><a id="keymapping">5.1.1 Key Mapping</a></h4>
-
-<p>
-This subsection lists the default key mapping of openMSX. The mapping of the special MSX keys is hardcoded, but the mapping of the keys for emulator functions is fully customisable using the <a class="external" href="commands.html#bind"><code>bind</code></a> command in the <a class="internal" href="#console">console</a>. Your customised key bindings are saved together with the settings.
-</p>
+<a id="keymapping"><!--backwards compat--></a>
+<h4><a id="msxkeymapping">5.1.1 MSX Key Mapping</a></h4>
 
 <p>The special MSX keys are mapped as follows, the first column for PCs (running Windows, Linux or BSD), the second column for Apple Macintosh computers:
 </p>
@@ -755,8 +754,38 @@ This subsection lists the default key mapping of openMSX. The mapping of the spe
   <tr> <td>INS key</td>           <td>Insert</td>    <td>Cmd+I</td>      </tr>
 </table>
 
+<h4><a id="cvkeymapping">5.1.2 ColecoVision Key Mapping</a></h4>
+
+<p>The ColecoVision controllers are mapped as follows:</p>
+
+<table>
+  <tr> <th>direction/key</th>  <th>player 1</th>                <th>player 2</th>    </tr>
+  <tr> <td>up</td>             <td>cursor up</td>               <td>W</td>           </tr>
+  <tr> <td>down</td>           <td>cursor down</td>             <td>S</td>           </tr>
+  <tr> <td>left</td>           <td>cursor left</td>             <td>A</td>           </tr>
+  <tr> <td>right</td>          <td>cursor right</td>            <td>D</td>           </tr>
+  <tr> <td>fire left</td>      <td>space, R-CTRL</td>           <td>L-CTRL</td>      </tr>
+  <tr> <td>fire right</td>     <td>L-ALT, R-ALT, R-SHIFT</td>   <td>L-SHIFT</td>     </tr>
+  <tr> <td>1</td>              <td>1, numpad 1</td>             <td>R</td>           </tr>
+  <tr> <td>2</td>              <td>2, numpad 2</td>             <td>T</td>           </tr>
+  <tr> <td>3</td>              <td>3, numpad 3</td>             <td>Y</td>           </tr>
+  <tr> <td>4</td>              <td>4, numpad 4</td>             <td>F</td>           </tr>
+  <tr> <td>5</td>              <td>5, numpad 5</td>             <td>G</td>           </tr>
+  <tr> <td>6</td>              <td>6, numpad 6</td>             <td>H</td>           </tr>
+  <tr> <td>7</td>              <td>7, numpad 7</td>             <td>V</td>           </tr>
+  <tr> <td>8</td>              <td>8, numpad 8</td>             <td>B</td>           </tr>
+  <tr> <td>9</td>              <td>9, numpad 9</td>             <td>N</td>           </tr>
+  <tr> <td>0</td>              <td>0, numpad 0</td>             <td>U</td>           </tr>
+  <tr> <td>*</td>              <td>-, numpad *, numpad -</td>   <td>J</td>           </tr>
+  <tr> <td>#</td>              <td>=, numpad /, numpad +</td>   <td>M</td>           </tr>
+</table>
+
+<p>Host joysticks can also be used for directions and the fire buttons, but the keys from the telephone-style keypad can only be entered via the host keyboard.</p>
+
+<h4><a id="emukeymapping">5.1.3 Emulator Functions Key Mapping</a></h4>
+
 <p>
-Several emulator functions are available under keys as well (which can be changed with the <code><a class="external" href="commands.html#bind">bind</a></code> command):
+The mapping of the keys for emulator functions is fully customisable using the <a class="external" href="commands.html#bind"><code>bind</code></a> command in the <a class="internal" href="#console">console</a>. Your customised key bindings are saved together with the settings. This subsection lists the default key mapping.
 </p>
 
 <table>
@@ -786,7 +815,7 @@ Note for Mac users: if you want to bind your custom keys on the console, use <co
 
 <p>For handheld devices, most of these functions can only be used via the On-Screen-Display menu and the On-Screen-Keyboard.</p>
 
-<h4><a id="keyboardlayouts">5.1.2 Keyboard Layouts</a></h4>
+<h4><a id="keyboardlayouts">5.1.4 Keyboard Layouts</a></h4>
 
 <p>
 This section is about how keyboard layouts from host computers are mapped to keyboard layouts of MSX computers. This is mostly interesting if those differ (a lot). For example, you have a US-English keyboard on your PC and you are emulating a Japanese MSX computer. Or, you have a Japanese Mac and you are emulating a Spanish MSX computer.
