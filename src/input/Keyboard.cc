@@ -165,7 +165,7 @@ Keyboard::~Keyboard()
 }
 
 
-const byte* Keyboard::getKeys()
+const byte* Keyboard::getKeys() const
 {
 	if (keysChanged) {
 		keysChanged = false;
@@ -616,7 +616,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 	}
 }
 
-void Keyboard::doKeyGhosting()
+void Keyboard::doKeyGhosting() const
 {
 	// This routine enables keyghosting as seen on a real MSX
 	//

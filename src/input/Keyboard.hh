@@ -59,7 +59,7 @@ public:
 
 	/** Returns a pointer to the current KeyBoard matrix
 	 */
-	const byte* getKeys();
+	const byte* getKeys() const;
 
 	void transferHostKeyMatrix(const Keyboard& source);
 
@@ -89,7 +89,7 @@ private:
 	bool processQueuedEvent(const Event& event, EmuTime::param time);
 	bool processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition pos);
-	void doKeyGhosting();
+	void doKeyGhosting() const;
 	void processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool up);
 	bool pressUnicodeByUser(
 			EmuTime::param time, UnicodeKeymap::KeyInfo keyInfo, unsigned unicode,
@@ -219,7 +219,7 @@ private:
 	/** Keyboard matrix state that is always in sync with host keyb, also during replay. */
 	byte hostKeyMatrix[KeyMatrixPosition::NUM_ROWS];
 	/** Combination of cmdKeyMatrix and userKeyMatrix. */
-	byte keyMatrix[KeyMatrixPosition::NUM_ROWS];
+	mutable byte keyMatrix[KeyMatrixPosition::NUM_ROWS];
 
 	byte msxmodifiers;
 
@@ -238,7 +238,7 @@ private:
 	  */
 	const byte modifierIsLock;
 	const bool sdlReleasesCapslock;
-	bool keysChanged;
+	mutable bool keysChanged;
 	/** Bit vector where each modifier's bit (using KeyInfo::Modifier's
 	  * numbering) is set iff it is a lock key that is currently on in
 	  * the emulated machine.
