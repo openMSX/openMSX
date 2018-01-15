@@ -497,10 +497,10 @@ void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition
  *  Otherwise, retrieve the unicode character value for the event
  *  and map the unicode character to the key-combination that must
  *  be pressed to generate the equivalent character on the MSX
+ * @return True iff a release event for the CODE/KANA key must be scheduled.
  */
 bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent)
 {
-	bool insertCodeKanaRelease = false;
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
 	auto key = static_cast<Keys::KeyCode>(
 		int(keyCode) & int(Keys::K_MASK));
@@ -577,9 +577,10 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			if ((keyCode & Keys::KM_MODE) == 0) {
 				processSdlKey(time, down, key);
 			}
+			return false;
 		} else {
 			// It is a unicode character; map it to the right key-combination
-			insertCodeKanaRelease = pressUnicodeByUser(time, unicode, true);
+			return pressUnicodeByUser(time, unicode, true);
 		}
 	} else {
 		// key was released
@@ -605,8 +606,8 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			// It was a unicode character; map it to the right key-combination
 			pressUnicodeByUser(time, unicode, false);
 		}
+		return false;
 	}
-	return insertCodeKanaRelease;
 }
 
 void Keyboard::doKeyGhosting()
