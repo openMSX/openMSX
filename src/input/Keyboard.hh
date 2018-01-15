@@ -81,7 +81,6 @@ private:
 	void releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos);
 	void changeKeyMatrixEvent (EmuTime::param time, byte row, byte newValue);
 
-	void processDeadKeyEvent(unsigned n, EmuTime::param time, bool down);
 	void processCapslockEvent(EmuTime::param time, bool down);
 	void processCodeKanaChange(EmuTime::param time, bool down);
 	void processGraphChange(EmuTime::param time, bool down);

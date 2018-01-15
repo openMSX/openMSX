@@ -296,9 +296,11 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 		time, row, press, release));
 }
 
+/*
+ * @return True iff a release event for the CODE/KANA key must be scheduled.
+ */
 bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 {
-	bool insertCodeKanaRelease = false;
 	auto& keyEvent = checked_cast<const KeyEvent&>(event);
 	bool down = event.getType() == OPENMSX_KEY_DOWN_EVENT;
 	auto key = static_cast<Keys::KeyCode>(
@@ -328,27 +330,35 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	}
-	if (key == keyboardSettings.getDeadkeyHostKey(0) &&
-	    keyboardSettings.getMappingMode() == KeyboardSettings::CHARACTER_MAPPING) {
-		processDeadKeyEvent(0, time, down);
-	} else if (key == keyboardSettings.getDeadkeyHostKey(1) &&
-	    keyboardSettings.getMappingMode() == KeyboardSettings::CHARACTER_MAPPING) {
-		processDeadKeyEvent(1, time, down);
-	} else if (key == keyboardSettings.getDeadkeyHostKey(2) &&
-	    keyboardSettings.getMappingMode() == KeyboardSettings::CHARACTER_MAPPING) {
-		processDeadKeyEvent(2, time, down);
-	} else if (key == Keys::K_CAPSLOCK) {
+
+	// Process deadkeys.
+	if (keyboardSettings.getMappingMode() == KeyboardSettings::CHARACTER_MAPPING) {
+		for (unsigned n = 0; n < 3; n++) {
+			if (key == keyboardSettings.getDeadkeyHostKey(n)) {
+				UnicodeKeymap::KeyInfo deadkey = unicodeKeymap.getDeadkey(n);
+				if (deadkey.isValid()) {
+					updateKeyMatrix(time, down, deadkey.pos);
+					return false;
+				}
+			}
+		}
+	}
+
+	if (key == Keys::K_CAPSLOCK) {
 		processCapslockEvent(time, down);
+		return false;
 	} else if (key == keyboardSettings.getCodeKanaHostKey()) {
 		processCodeKanaChange(time, down);
+		return false;
 	} else if (key == Keys::K_LALT) {
 		processGraphChange(time, down);
+		return false;
 	} else if (key == Keys::K_KP_ENTER) {
 		processKeypadEnterKey(time, down);
+		return false;
 	} else {
-		insertCodeKanaRelease = processKeyEvent(time, down, keyEvent);
+		return processKeyEvent(time, down, keyEvent);
 	}
-	return insertCodeKanaRelease;
 }
 
 /*
@@ -375,18 +385,6 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
 		locksOn ^= KeyInfo::GRAPH_MASK;
 	}
 	processSdlKey(time, down, Keys::K_LALT);
-}
-
-/*
- * Process deadkey N by pressing or releasing the deadkey
- * at the correct location in the keyboard matrix
- */
-void Keyboard::processDeadKeyEvent(unsigned n, EmuTime::param time, bool down)
-{
-	UnicodeKeymap::KeyInfo deadkey = unicodeKeymap.getDeadkey(n);
-	if (deadkey.isValid()) {
-		updateKeyMatrix(time, down, deadkey.pos);
-	}
 }
 
 /*
