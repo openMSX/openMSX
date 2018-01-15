@@ -92,7 +92,9 @@ private:
 	void updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition pos);
 	void doKeyGhosting();
 	void processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool up);
-	bool pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool down);
+	bool pressUnicodeByUser(
+			EmuTime::param time, UnicodeKeymap::KeyInfo keyInfo, unsigned unicode,
+			bool down);
 	int pressAscii(unsigned unicode, bool down);
 	void pressLockKeys(byte lockKeysMask, bool down);
 	bool commonKeys(unsigned unicode1, unsigned unicode2);

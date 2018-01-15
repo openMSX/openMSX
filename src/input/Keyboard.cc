@@ -522,6 +522,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 	}
 
 	if (down) {
+		UnicodeKeymap::KeyInfo keyInfo;
 		if (isOnKeypad ||
 		    keyboardSettings.getMappingMode() == KeyboardSettings::KEY_MAPPING) {
 			// User entered a key on numeric keypad or the driver is in KEY
@@ -549,6 +550,13 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 				// so we rely on SDL's interpretation instead.
 				// For example the Mac's cursor keys are in this range.
 				unicode = 0;
+			} else {
+				keyInfo = unicodeKeymap.get(unicode);
+				if (!keyInfo.isValid()) {
+					// Unicode does not exist in our mapping; try to process
+					// the key using its keycode instead.
+					unicode = 0;
+				}
 			}
 		}
 		if (key < MAX_KEYSYM) {
@@ -580,7 +588,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			return false;
 		} else {
 			// It is a unicode character; map it to the right key-combination
-			return pressUnicodeByUser(time, unicode, true);
+			return pressUnicodeByUser(time, keyInfo, unicode, true);
 		}
 	} else {
 		// key was released
@@ -604,7 +612,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			}
 		} else {
 			// It was a unicode character; map it to the right key-combination
-			pressUnicodeByUser(time, unicode, false);
+			pressUnicodeByUser(time, unicodeKeymap.get(unicode), unicode, false);
 		}
 		return false;
 	}
@@ -727,13 +735,11 @@ void Keyboard::processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool
  *              7    6     5     4    3      2     1    0
  * row  6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
  */
-bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool down)
+bool Keyboard::pressUnicodeByUser(
+		EmuTime::param time, UnicodeKeymap::KeyInfo keyInfo, unsigned unicode,
+		bool down)
 {
 	bool insertCodeKanaRelease = false;
-	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap.get(unicode);
-	if (!keyInfo.isValid()) {
-		return insertCodeKanaRelease;
-	}
 	if (down) {
 		if ((needsLockToggle(keyInfo) & KeyInfo::CODE_MASK) &&
 				keyboardSettings.getAutoToggleCodeKanaLock()) {
