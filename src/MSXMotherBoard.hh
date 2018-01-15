@@ -99,6 +99,7 @@ public:
 
 	const HardwareConfig* getMachineConfig() const { return machineConfig; }
 	void setMachineConfig(HardwareConfig* machineConfig);
+	std::string getMachineType() const;
 	bool isTurboR() const;
 
 	std::string loadMachine(const std::string& machine);

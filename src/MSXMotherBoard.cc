@@ -267,6 +267,16 @@ void MSXMotherBoard::setMachineConfig(HardwareConfig* machineConfig_)
 	msxCpuInterface = make_unique<MSXCPUInterface>(*this);
 }
 
+std::string MSXMotherBoard::getMachineType() const
+{
+	const HardwareConfig* machine = getMachineConfig();
+	if (machine) {
+		return machine->getConfig().getChild("info").getChildData("type");
+	} else {
+		return "";
+	}
+}
+
 bool MSXMotherBoard::isTurboR() const
 {
 	const HardwareConfig* config = getMachineConfig();
@@ -929,10 +939,7 @@ MachineTypeInfo::MachineTypeInfo(MSXMotherBoard& motherBoard_)
 void MachineTypeInfo::execute(array_ref<TclObject> /*tokens*/,
                               TclObject& result) const
 {
-	const HardwareConfig* machine = motherBoard.getMachineConfig();
-	if (machine) {
-		result.setString(machine->getConfig().getChild("info").getChildData("type"));
-	}
+	result.setString(motherBoard.getMachineType());
 }
 
 string MachineTypeInfo::help(const vector<string>& /*tokens*/) const
