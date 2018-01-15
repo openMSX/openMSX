@@ -631,7 +631,7 @@ void WD2793::startReadSector(EmuTime::param time)
 		crc.init<0xA1, 0xA1, 0xA1, 0xFB>();
 	}
 	unsigned trackLength = drive.getTrackLength();
-	int tmp = sectorInfo.dataIdx >= sectorInfo.addrIdx;
+	int tmp = sectorInfo.dataIdx - sectorInfo.addrIdx;
 	unsigned gapLength = (tmp >= 0) ? tmp : (tmp + trackLength);
 	assert(gapLength < trackLength);
 	drqTime.reset(time);
