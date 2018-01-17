@@ -118,6 +118,7 @@ REGISTER_MSXDEVICE(MSXMusic, "MSX-Music");
 MSXMusicWX::MSXMusicWX(const DeviceConfig& config)
 	: MSXMusicBase(config)
 {
+	reset(getCurrentTime());
 }
 
 void MSXMusicWX::reset(EmuTime::param time)
