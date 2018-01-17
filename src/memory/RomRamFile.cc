@@ -35,6 +35,7 @@ RomRamFile::RomRamFile(const DeviceConfig& config, Rom&& rom_)
 	, cpu(getCPU())
 {
 	sram = make_unique<SRAM>(getName() + " SRAM", 0x4000, config);
+	reset(EmuTime::dummy());
 }
 
 void RomRamFile::reset(EmuTime::param /*time*/)
