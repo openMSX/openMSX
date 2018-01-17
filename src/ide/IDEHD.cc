@@ -15,6 +15,7 @@ IDEHD::IDEHD(const DeviceConfig& config)
 	, AbstractIDEDevice(config.getMotherBoard())
 	, diskManipulator(config.getReactor().getDiskManipulator())
 {
+	transferSectorNumber = 0; // avoid UMR is serialize()
 	diskManipulator.registerDrive(*this, config.getMotherBoard().getMachineID() + "::");
 }
 
