@@ -223,6 +223,7 @@ private:
 
 template <typename T>
 PixelBuffer<T>::PixelBuffer()
+	: width(0), height(0)
 {
 	if (PixelBuffers::enabled && GLEW_ARB_pixel_buffer_object) {
 		glGenBuffers(1, &bufferId);
