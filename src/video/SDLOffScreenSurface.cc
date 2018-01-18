@@ -38,7 +38,7 @@ void SDLOffScreenSurface::saveScreenshot(const std::string& filename)
 
 void SDLOffScreenSurface::clearScreen()
 {
-	memset(surface->pixels, 0, surface->pitch * surface->h);
+	memset(surface->pixels, 0, uint32_t(surface->pitch) * surface->h);
 }
 
 } // namespace openmsx
