@@ -59,6 +59,10 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 	remMedStatNotifEnabled = false;
 	mediaChanged = false;
 
+	byteCountLimit = 0; // avoid UMR in serialize()
+	transferOffset = 0;
+	readSectorData = false;
+
 	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
