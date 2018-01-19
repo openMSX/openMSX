@@ -374,11 +374,6 @@ String32 DBParser::cIndex(string_ref str)
 // called on </software>
 void DBParser::addEntries()
 {
-	if (!system.empty() && !small_compare<'M','S','X'>(system)) {
-		// skip non-MSX entries
-		return;
-	}
-
 	for (auto& d : dumps) {
 		db.emplace_back(d.hash, RomInfo(
 			title, year, company, country,
