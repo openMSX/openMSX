@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1505712050">
+<softwaredb timestamp="1516339596">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
 
 Copyright 2003 Nicolas Beyaert (Initial Database)
 Copyright 2004-2013 BlueMSX Team
-Copyright 2005-2017 openMSX Team
+Copyright 2005-2018 openMSX Team
 Generation MSXIDs by www.generation-msx.nl
 
 ]]>
@@ -281,6 +281,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>bf0e576c84efc27941a378b6c77d3a999bac9bb1</hash><remark>[RC-744] / ProSoft rip</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>971241cc529d06281f26c3b7438ed59a3d63aa4f</hash><remark>[RC-744]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>d8d8fc9cc46eda73724a2f869808773ba241c6b3</hash><remark>[RC-744] / Mpazos and Imanok Castlevania romhack</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>ac571b218a07e9ec511a4994276cf6e90e5259c3</hash><remark>[RC-744] / Jan van Valburg SCC version</remark></megarom></dump>
 </software>
 <software>
 	<title>Albatros</title>
@@ -525,7 +526,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<system>MSX</system>
 	<company>joesg</company>
 	<year>2017</year>
-	<country>SP</country>
+	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>28d987178af4bf7161670342201686a3d6f1d009</hash><remark>MSXDev 2017 - English Version</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>6ad320178c79806d7febefa84c07e6176f1cb75e</hash><remark>MSXDev 2017 - Spanish Version</remark></rom></dump>
 </software>
@@ -3055,6 +3056,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII8</type><hash>73ad5a90a963f7963a404816e8d6616bbe386ce2</hash><remark>Kralizec's Dragon Slayer 4 improved password readability patch</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>9bdd6b4212468e07be25bd43e94b50d2ea1fe9dc</hash><remark>Translated by MSX Translations</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>806020de7d645b148674186782e59435b07f6675</hash><remark>Translated by MSX Translations</remark></megarom></dump>
+		<dump><original value="false">Bad</original><megarom><type>Konami</type><hash>668116067d00cee2e4b088223c2972f88e46893e</hash><remark>Corrupted Sprites</remark></megarom></dump>
 </software>
 <software>
 	<title>Drainer</title>
@@ -4086,7 +4088,7 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Galaxian</title>
 	<system>MSX</system>
-	<company>Atari</company>
+	<company>Atarisoft</company>
 	<year>1983</year>
 	<country>US</country>
 		<dump><megarom><type>KonamiSCC</type><hash>356c2ae4fc06a73449283146332b3a3d7f5fb2fc</hash><remark>Conversion by GDX</remark></megarom></dump>
@@ -5075,7 +5077,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>ed67e8266c152f3020543fb5b3061c9a57a3ca1f</hash><remark>[RC-747]</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>Konami</type><hash>7b0b379c6f46552a6f5a0408b8182e8e79540f7f</hash><remark>[RC-747]</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>Konami</type><hash>581eac8e476e2c95aae88befddef1ff3dc81c872</hash><remark>[RC-747] / fully patched (Turbo and speed fix)</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>633184362698e1de7208bbaad9f3173c582ef666</hash><remark>RC-747</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>633184362698e1de7208bbaad9f3173c582ef666</hash><remark>[RC-747]</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>6b9263e6c5047b70d2c6e6ad896262aae73a3447</hash><remark>[RC-747] / Víctor Martínez version</remark></megarom></dump>
 </software>
 <software>
 	<title>Hisha</title>
@@ -6329,9 +6332,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Konami ultimate collection</title>
 	<system>MSX</system>
 	<company>Konami</company>
-	<year></year>
+	<year>2014</year>
 	<country>JP</country>
-		<dump><original value="false">0</original><megarom><type>KonamiUltimateCollection</type><hash>3d94e0998690325bcb3640e1646d8e4e13f652cf</hash></megarom></dump>
+		<dump><megarom><type>KonamiUltimateCollection</type><hash>3d94e0998690325bcb3640e1646d8e4e13f652cf</hash><remark>M. Pazos collection of MSX games</remark></megarom></dump>
 </software>
 <software>
 	<title>Konami's Baseball</title>
@@ -6727,6 +6730,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2014</year>
 	<country>EU</country>
 		<dump><original value="true">Author</original><rom><hash>be95c417ac1500e6127c57d0adedce6a99117b0e</hash><remark>MSXDev14 Entry</remark></rom></dump>
+</software>
+<software>
+	<title>Life On Mars</title>
+	<system>MSX</system>
+	<company>Kai Magazine</company>
+	<year>2015</year>
+	<country>ES</country>
+		<dump><original value="false">0</original><megarom><type>KonamiSCC</type><hash>5ef21f8be4bbbb1d2288489dde46507df2e68a2d</hash></megarom></dump>
 </software>
 <software>
 	<title>Limaribu</title>
@@ -7573,7 +7584,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>bd819202a90aae4d5ef0c590757db34e47a74234</hash><remark>[RC-750] / Turbo Fix V2</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>238cddaf5f8566cf042530333ccbbdaef84a8799</hash><remark>[RC-750] / Turbo Fix V1</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>Konami</type><hash>cd115914f7e9515eabaaeed1c8c480a09bd82887</hash><remark>[RC-750] / Turbo Fix V2</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>6228aef9c26276b9ed4157d1c5b3912d27ee6ce5</hash><remark>Wii VC Version</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>6228aef9c26276b9ed4157d1c5b3912d27ee6ce5</hash><remark>[RC-750] / Wii VC Version</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>8c26cd111acf57443b7f2918f8d74e857c02d789</hash><remark>[RC-750] / TFH SCC version</remark></megarom></dump>
 </software>
 <software>
 	<title>Metal Gear 2 - Solid Snake</title>
@@ -8642,6 +8654,16 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>22702ff548fea5a02532d567f89e807cadf67386</hash></rom></dump>
 </software>
 <software>
+	<title>PSGed</title>
+	<system>MSX</system>
+	<company>aorante/303bcn</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>f848ad905a22e177b80069f0497bb60ff4205485</hash><remark>V0.4b</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>23af545a914a061d9bae22542e480139b4a60ec9</hash><remark>V0.8b</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>a84dff41ba8980590941f77e27e74df457eb2ba6</hash><remark>v0.82b</remark></rom></dump>
+</software>
+<software>
 	<title>PT3 + AYFX Replayer Demo</title>
 	<system>MSX</system>
 	<company>Shiru and AlCo</company>
@@ -9310,6 +9332,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII16</type><hash>ac109dac24df4dae813ca5d9f0938cc48a162bb1</hash></megarom></dump>
 </software>
 <software>
+	<title>Princess Quest</title>
+	<system>MSX</system>
+	<company>Oscar Toledo Gutiérrez</company>
+	<year>2012</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>405db36a0b57fa4871a7991ebe72695793d3b7c9</hash></rom></dump>
+</software>
+<software>
 	<title>Pro Baseball Fan</title>
 	<genmsxid>1013</genmsxid>
 	<system>MSX</system>
@@ -9976,6 +10006,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash>522a53034cf40448d441683f3308fcb4b65e6d7c</hash></megarom></dump>
 </software>
 <software>
+	<title>Ruin Master</title>
+	<system>MSX</system>
+	<company>Kai Magazine</company>
+	<year>2016</year>
+	<country>ES</country>
+		<dump><megarom><type>KonamiSCC</type><hash>329bf506c012cafde6fce8b196b2f8e45f803bfc</hash></megarom></dump>
+</software>
+<software>
 	<title>Running Naked in a field of flowers</title>
 	<system>MSX</system>
 	<company>Infinite</company>
@@ -10304,6 +10342,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2016</year>
 	<country>ES</country>
 		<dump><megarom><type>KonamiSCC</type><hash>0d8bf2f88162d4a32c1b85dbf519b94e6ec6abda</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>7912c35396604c1a67843778d235871a52fd5588</hash></megarom></dump>
 </software>
 <software>
 	<title>Seiken Acho - Kung-Fu Master Taekwondo</title>
@@ -11958,7 +11997,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>7d07fdf58c7a86d9f93af35a35acf2d7ded02ff1</hash><remark>[RC-749]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>0c425d8fc1ad36c9b8e248e477b1796cd62d9bed</hash><remark>[RC-749]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>e87e5431ea2ba6cd367ad8bfaa859dae5b297ad4</hash><remark>[RC-749] / FRS patch</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>bb100a4bf1dbcae82ddecaeb7ca519fc2dd8a5e7</hash></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>bb100a4bf1dbcae82ddecaeb7ca519fc2dd8a5e7</hash><remark>[RC-749]</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>0027cd087f77e7d4b9b1821d6de9e32678b8820c</hash><remark>[RC-749] / TFH SCC version</remark></megarom></dump>
 </software>
 <software>
 	<title>The Painter</title>
@@ -12228,7 +12268,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>4ff2aad8371e382e203c7f29b665612a8c9d937c</hash><remark>[RC-753] / [a2]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>7c7d0bff4a51bb0f1f0cdb4132fdb11f8a71c623</hash><remark>[RC-753] / cheat version</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>216b2c181c9ee0fb48e2d9efdb88ea918c8ff04f</hash><remark>[RC-753]</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>5b545569a2d0452b9317490636c08a3221208961</hash><remark>[RC-753]  / Icon Patch</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>5b545569a2d0452b9317490636c08a3221208961</hash><remark>[RC-753] / Icon Patch</remark></megarom></dump>
+		<dump><rom><hash>5ef92707dcb9d3ce4c7571f6cbe23b7f61c24c2d</hash><remark>[RC-753] / TFH SCC version</remark></rom></dump>
 </software>
 <software>
 	<title>Trial Ski</title>
@@ -12274,6 +12315,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>8547ae0fa25b9f3e26b90d4f3e1a4325b9248549</hash></rom></dump>
+</software>
+<software>
+	<title>Trun</title>
+	<system>MSX</system>
+	<company>The Pets Mode</company>
+	<year>2016</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>fd38936e9023936f22f1fae49f2746622acb1e97</hash><remark>Demo Version http://trun.vgsource.net/</remark></rom></dump>
 </software>
 <software>
 	<title>Tumego 120</title>
@@ -12821,6 +12870,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII16</type><hash>bba3af72eaaf31e786fff3e9b9c016f4ec526790</hash></megarom></dump>
 </software>
 <software>
+	<title>Xenon</title>
+	<system>MSX</system>
+	<company>Melbourne House</company>
+	<year>1988</year>
+	<country>UK</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>710b6b047b640993d0241ece73b27dd07344ba2d</hash><remark>Conversion Animagic</remark></megarom></dump>
+</software>
+<software>
 	<title>Xevious - Fardraut Saga</title>
 	<genmsxid>1148</genmsxid>
 	<system>MSX</system>
@@ -13078,6 +13135,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>4cede7637930829474e0bd2b640b328a41b51a5c</hash></rom></dump>
 		<dump><rom><hash>e5f138be98b4ff18e8bc3bafbdbb65f4fdbc378b</hash></rom></dump>
 		<dump><rom><hash>3d36aaa58909b813bff34b4b1b738dbcf807b86a</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>4c0aba37a8f1e8be0314c80a26f503a79c240bd4</hash><remark>TFH SCC version</remark></megarom></dump>
 </software>
 <software>
 	<title>Zanac A.I. - 2nd Version</title>
@@ -13105,6 +13163,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII16</type><hash>36eda820b734ac7a42653af370a475f36bd36b1b</hash><remark>cheat version</remark></megarom></dump>
 		<dump><rom><hash>76cf87f9fb8f70918df1aefb470d82d0caa41175</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>8618e2ac27fce4a904dfb9b2cc96610bf8d38d65</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>6bc79eaa65bd2cdee0286ee914dcef285f774728</hash><remark>TFH SCC version</remark></megarom></dump>
 </software>
 <software>
 	<title>Zaxxon</title>
@@ -13145,6 +13204,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2017</year>
 	<country>JP</country>
 		<dump><original value="true">Author</original><rom><hash>d7c9253056f7079c4e36f76f163c0a7ce3fc01e3</hash><remark>MSXDev 2017</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>514621d3295e8c51cd53617e6a3be9255fa9729f</hash><remark>v1.00 / MSXDev 2017</remark></rom></dump>
 </software>
 <software>
 	<title>Zexas Limited</title>
@@ -13214,6 +13274,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>6414563c0dd0e9b3cf093d37cfb4ab5eca06f322</hash><remark>MSXDev11 Entry</remark></megarom></dump>
 </software>
 <software>
+	<title>Zone Terra</title>
+	<system>MSX</system>
+	<company>Quadrivium</company>
+	<year>1994</year>
+	<country>NL</country>
+		<dump><megarom><type>KonamiSCC</type><hash>554ab47e0cf4c2946b86c6256b5c9a6f5ec37f33</hash></megarom></dump>
+</software>
+<software>
 	<title>Zoom 909</title>
 	<genmsxid>521</genmsxid>
 	<system>MSX</system>
@@ -13243,5 +13311,1368 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>20ce189d670c0fe5f2a945d73107df7d83070ff7</hash></rom></dump>
 </software>
+<software>
+	<title>2010 The Graphic Action Game</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>b1621d39a2a6d1cda7eceb882a612a4baf3da70c</hash></rom></dump>
+		<dump><rom><hash>bebedac4df5348e91122972fcc4259a7d1f7fc0f</hash><remark>Prototype v54</remark></rom></dump>
+</software>
+<software>
+	<title>A.E.</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>9e331ac982a848988264f705b6de4c0a8f5f1264</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Alcazar The Forgotten Fortress</title>
+	<system>ColecoVision</system>
+	<company>Telegames</company>
+	<year>1985</year>
+	<country>US</country>
+		<dump><rom><hash>c3a820e6a73ef42dc88982d835c60c36b4b9505f</hash></rom></dump>
+</software>
+<software>
+	<title>Alphabet Zoo</title>
+	<system>ColecoVision</system>
+	<company>Spinnaker</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>d1aa4aff55e9febaa3e7577ffcc381fee0f8e241</hash></rom></dump>
+</software>
+<software>
+	<title>Amazing Bumpman</title>
+	<system>ColecoVision</system>
+	<company>Telegames</company>
+	<year>1986</year>
+	<country>US</country>
+		<dump><rom><hash>733f8395d102f6849f58627d06655119062b97f8</hash></rom></dump>
+</software>
+<software>
+	<title>Antarctic Adventure</title>
+	<system>ColecoVision</system>
+	<company>Konami</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>00db7cf9bd66aecac3d9368dd205680781b2e542</hash></rom></dump>
+		<dump><rom><hash>be8a7df4f3e1e1001785eb2326c26b4c301b4dbe</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Aquattack</title>
+	<system>ColecoVision</system>
+	<company>Interphase</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>4782f1d6225d9b6501a9ab1ab72f9e66f3ff66d8</hash></rom></dump>
+</software>
+<software>
+	<title>Artillery Duel</title>
+	<system>ColecoVision</system>
+	<company>Xonox</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>a2494b1ade772fe45779bd500139ff847dfe7afa</hash></rom></dump>
+</software>
+<software>
+	<title>BC's Quest For Tires</title>
+	<system>ColecoVision</system>
+	<company>Sierra On Line</company>
+	<year>1983</year>
+	<country>UK</country>
+		<dump><rom><hash>05ffcf0c84381fa26f504cb163b25a8670c6c4ac</hash></rom></dump>
+		<dump><rom><hash>683973d7e24cb0383132acf2562d3ebef739018f</hash></rom></dump>
+</software>
+<software>
+	<title>BC's Quest For Tires II Grog's Revenge</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>57b145e2b88e29c6284754d3da16e1cffbab38a5</hash></rom></dump>
+		<dump><rom><hash>6c7c8cd782eb5a27dc5224679d4563978cb3280c</hash></rom></dump>
+</software>
+<software>
+	<title>Beamrider</title>
+	<system>ColecoVision</system>
+	<company>Activision</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>9e18d51855b721298cc4efad0786df65e8ed6fd7</hash></rom></dump>
+</software>
+<software>
+	<title>Berenstain Bears, The</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>cb68d5a70ca0567060eddfd0b7783cbeeffb399e</hash><remark>Demo</remark></rom></dump>
+</software>
+<software>
+	<title>Blockade Runner</title>
+	<system>ColecoVision</system>
+	<company>Interphase</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>28fc9bf517bce3d901c61d6fd1e297d2af421c70</hash></rom></dump>
+</software>
+<software>
+	<title>Boulder Dash</title>
+	<system>ColecoVision</system>
+	<company>Telegames</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>bad7a976f37df875f4fa9646e5426c45344ec102</hash></rom></dump>
+		<dump><rom><hash>ad266ca4d270ea35def306381eaf05d36c811218</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Brain Strainers</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>fe6235b99889388ff858c19eae7337dd0b75944a</hash></rom></dump>
+</software>
+<software>
+	<title>Buck Rogers Planet Of Zoom</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>2e1fa3bc105b0fd8d10a5195fed63b9cb2773444</hash></rom></dump>
+</software>
+<software>
+	<title>Bump 'N' Jump</title>
+	<system>ColecoVision</system>
+	<company>Mattel</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>8df20c9c151b01b0d859c0ab4753d5cce3956224</hash></rom></dump>
+		<dump><rom><hash>158f666aac5cf48c77b62beb77310a45f6c7e2ea</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>BurgerTime</title>
+	<system>ColecoVision</system>
+	<company>Mattel</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>b455e48f5462c8b27dd693e25113a8a28c28014b</hash><remark>Prototype</remark></rom></dump>
+		<dump><rom><hash>6ebf0d23f2d7cf60897ba6fe13b2293421c0a589</hash></rom></dump>
+</software>
+<software>
+	<title>Cabbage Patch Kids Adventures In The Park</title>
+	<system>ColecoVision</system>
+	<company>Konami</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>cbe10b2ac6045e3aeb276e6457a243e0d02c810c</hash><remark>Enhanced Prototype</remark></rom></dump>
+		<dump><rom><hash>6dcf2f3acc4b221666defc6ebbc09286238e7a1b</hash><remark>Prototype</remark></rom></dump>
+		<dump><rom><hash>ca240633ec6ecf732cbc28c9394459a722d6edcb</hash></rom></dump>
+		<dump><rom><hash>5384b63f91ca773df2e271fe6c9246c93998a40e</hash><remark>Enhanced Prototype</remark></rom></dump>
+		<dump><rom><hash>57b4b045797b1f18ce22759d2ed1acc36a2e2207</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Cabbage Patch Kids Picture Show</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>e083b81f7a5d47571214eac56b352e5a8a2b08b5</hash></rom></dump>
+</software>
+<software>
+	<title>Campaign '84</title>
+	<system>ColecoVision</system>
+	<company>Sunrise</company>
+	<year>1983</year>
+	<country>NL</country>
+		<dump><rom><hash>2e08245802c4c5aa87774ad3740fd56ac5b25bd1</hash></rom></dump>
+</software>
+<software>
+	<title>Carnival</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><rom><hash>d4f34382d43897774101e3620384a402dd3d2ec1</hash></rom></dump>
+</software>
+<software>
+	<title>Castelo</title>
+	<system>ColecoVision</system>
+	<company>SpliceVision</company>
+	<year>1985</year>
+	<country>BR</country>
+		<dump><rom><hash>0406ad601be68014820c77eda4491bfb4ea5c402</hash></rom></dump>
+</software>
+<software>
+	<title>Centipede</title>
+	<system>ColecoVision</system>
+	<company>Atarisoft</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>d89c49bbbf002e075c5964ca74d7c94a502740ff</hash></rom></dump>
+</software>
+<software>
+	<title>Choplifter!</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>3a7e5ea50495a666bac8df0b3b2c82b5be65ad18</hash></rom></dump>
+</software>
+<software>
+	<title>Chuck Norris Superkicks</title>
+	<system>ColecoVision</system>
+	<company>Xonox</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>e9ccabc76be96279b322586f5a569d7fe3b0fa25</hash></rom></dump>
+</software>
+<software>
+	<title>ColecoVision Final Test</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><rom><hash>cef53b9eae8dfbd877e18277980975f862f95f9d</hash></rom></dump>
+</software>
+<software>
+	<title>Congo Bongo</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>4ad44dbf2651415f68c5e82289ecbc0122c51a19</hash></rom></dump>
+</software>
+<software>
+	<title>Cosmic Avenger</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><rom><hash>c8c2a70d3eab8a68ab1db04e766a6c70f02f02ca</hash></rom></dump>
+</software>
+<software>
+	<title>Cosmic Crisis</title>
+	<system>ColecoVision</system>
+	<company>Bit Corp</company>
+	<year>1983</year>
+	<country>TW</country>
+		<dump><rom><hash>081a40414021a51b3219e8957e948163680a9ada</hash><remark>EU</remark></rom></dump>
+</software>
+<software>
+	<title>Dam Busters, The</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>84b3631078575c5fd490426271b7fc5941d38fc3</hash></rom></dump>
+		<dump><rom><hash>bcb8c003a5c8acdf62105c15d25163dff017d6c3</hash></rom></dump>
+</software>
+<software>
+	<title>Dance Fantasy</title>
+	<system>ColecoVision</system>
+	<company>Fisher-Price</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>6f65bbe13f13a70aee79ce7970095aef280abeaa</hash></rom></dump>
+</software>
+<software>
+	<title>Decathlon</title>
+	<system>ColecoVision</system>
+	<company>Activision</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>b011b213bd86317a4a06b565d3c193a562f67c84</hash></rom></dump>
+</software>
+<software>
+	<title>Defender</title>
+	<system>ColecoVision</system>
+	<company>Atarisoft</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>12b1fb517d8f7308d18f355e0c54796e4b5225a0</hash></rom></dump>
+		<dump><rom><hash>6a640c652378950f4f0b95e38cb1e4ba003e3f3a</hash><remark>PAL &amp; ADAM Patch by Nanochess</remark></rom></dump>
+</software>
+<software>
+	<title>Destructor</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>35283c51f448d877625049266c0c4687bf57ab42</hash></rom></dump>
+</software>
+<software>
+	<title>Dig Dug</title>
+	<system>ColecoVision</system>
+	<company>Atarisoft</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>04bce7d5ebd54f094d5f9f9b1880ae6507a5450d</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Donkey Kong</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><rom><hash>46b7aa1cedac273f2b96bad4a0768554733972bf</hash><remark>16K</remark></rom></dump>
+		<dump><rom><hash>795a63360e71e3a51317f108f504b21f5b11c3c9</hash><remark>24K</remark></rom></dump>
+</software>
+<software>
+	<title>Donkey Kong Junior</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>113c1ead67b2679ddad9b99506e801526245af05</hash></rom></dump>
+</software>
+<software>
+	<title>Dr. Seuss Fix-Up The Mix-Up Puzzler</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>978eb1bf1a0393087cb639adbd4e6575d1725581</hash></rom></dump>
+</software>
+<software>
+	<title>Dragon's Lair</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>e398ec4a225e470afde625945abed8fb264453a1</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>DragonFire</title>
+	<system>ColecoVision</system>
+	<company>Imagic</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>b623a970164d9739c0135d0cf37f9f0b3c67b17c</hash></rom></dump>
+</software>
+<software>
+	<title>Dukes Of Hazzard, The</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>162c7ad3266e02aa88983fa4ece7a77bc1cb9c7a</hash></rom></dump>
+</software>
+<software>
+	<title>Escape From The Mind Master</title>
+	<system>ColecoVision</system>
+	<company>Epyx</company>
+	<year>1983</year>
+	<country>UK</country>
+		<dump><rom><hash>00c157e87a8f85ede84b26bfab018c50678f88e4</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Evolution</title>
+	<system>ColecoVision</system>
+	<company>Coleco Canada</company>
+	<year>1983</year>
+	<country>CA</country>
+		<dump><rom><hash>809befaad2bb341241d58fcd4e0409d690e4b6ce</hash></rom></dump>
+		<dump><rom><hash>5c775dd65722be72436d0b6dd99bd0143c938b33</hash></rom></dump>
+</software>
+<software>
+	<title>Facemaker</title>
+	<system>ColecoVision</system>
+	<company>Spinnaker</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>490ce706697c0b370a6a2fe65ccaada2bac0a946</hash><remark>aka Make-A-Face</remark></rom></dump>
+</software>
+<software>
+	<title>Fall Guy, The</title>
+	<system>ColecoVision</system>
+	<company>20th Century Fox</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>0e5c84d8fb8a9428aed399f4a9f9309b26bce990</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Fathom</title>
+	<system>ColecoVision</system>
+	<company>Imagic</company>
+	<year>1983</year>
+	<country>JP</country>
+		<dump><rom><hash>145d1758347306e36a8039671a1088841bccaad5</hash></rom></dump>
+</software>
+<software>
+	<title>Fireman</title>
+	<system>ColecoVision</system>
+	<company>Nice Ideas</company>
+	<year>1984</year>
+	<country>FR</country>
+		<dump><rom><hash>077182c21b67182b334d4a6b69aab44eb3eecda9</hash><remark>Prototype published by David Hill</remark></rom></dump>
+</software>
+<software>
+	<title>Flipper Slipper</title>
+	<system>ColecoVision</system>
+	<company>Spectravideo</company>
+	<year>1983</year>
+	<country>UK</country>
+		<dump><rom><hash>e78e370fc7b3138010606f2eb9db1ea40fc37c5c</hash></rom></dump>
+		<dump><rom><hash>65b532fe1f0d249e97117580638083731e1ff767</hash></rom></dump>
+</software>
+<software>
+	<title>Fortune Builder</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>dd3461f5b79fe581b8e14685a5b8810b18d84dfe</hash></rom></dump>
+</software>
+<software>
+	<title>Fraction Fever</title>
+	<system>ColecoVision</system>
+	<company>Spinnaker</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>7cac4c6f685f35adba50e37356df974977d6ddec</hash></rom></dump>
+</software>
+<software>
+	<title>Frantic Freddy</title>
+	<system>ColecoVision</system>
+	<company>Spectravideo</company>
+	<year>1983</year>
+	<country>UK</country>
+		<dump><rom><hash>4f4ef29dbb730583bdf6da75aa7fe7b4f144216a</hash></rom></dump>
+</software>
+<software>
+	<title>Frenzy</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>9fae20696149c1dba5203e1600565917c8981d81</hash></rom></dump>
+</software>
+<software>
+	<title>Frogger</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>c808284b8a161e8405da093884e861fcde4220e9</hash></rom></dump>
+</software>
+<software>
+	<title>Frogger II Threeedeep!</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>c899debdda6bfb7e2ed0d1c327ab574b9cbc70ae</hash></rom></dump>
+</software>
+<software>
+	<title>Front Line</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>68889d9410be82ce20f1eedfb5861dce4bd270d0</hash><remark>Green Version</remark></rom></dump>
+</software>
+<software>
+	<title>Frontline</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>62ca275776e4184032224e61b6d01d0636d7e846</hash></rom></dump>
+</software>
+<software>
+	<title>GORF</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>f0406171923072e75d89ae43621ec18bbd9f154c</hash></rom></dump>
+</software>
+<software>
+	<title>Galaxian</title>
+	<system>ColecoVision</system>
+	<company>Atarisoft</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>287013140f2896516acb095157389f681d9c5150</hash></rom></dump>
+</software>
+<software>
+	<title>Gateway To Apshai</title>
+	<system>ColecoVision</system>
+	<company>Epyx</company>
+	<year>1984</year>
+	<country>UK</country>
+		<dump><rom><hash>837a192ee27ab78c4ab914b45b9ba55e5847cf37</hash></rom></dump>
+</software>
+<software>
+	<title>Gust Buster</title>
+	<system>ColecoVision</system>
+	<company>Sunrise</company>
+	<year>1983</year>
+	<country>NL</country>
+		<dump><rom><hash>c6506f48a4f33761d0a39c65f0fd092429756f2b</hash></rom></dump>
+</software>
+<software>
+	<title>Gyruss</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>54279c45a95294626b7586f5110015b5d1fb94e6</hash><remark>Prototype</remark></rom></dump>
+		<dump><rom><hash>9d34b9a55f9b6c8443696114a8e69724e5106b5a</hash></rom></dump>
+</software>
+<software>
+	<title>H.E.R.O.</title>
+	<system>ColecoVision</system>
+	<company>Activision</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>1febd0de031402c2d2dc88f0c60d18c35feee6f3</hash></rom></dump>
+</software>
+<software>
+	<title>Heist, The</title>
+	<system>ColecoVision</system>
+	<company>Micro Fun</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>55cce8d6a61c1b028555ae0da8cdf629a3b19982</hash></rom></dump>
+</software>
+<software>
+	<title>Illusions</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>314be140b495de538ffdf01c9faee4aeef1ecb83</hash></rom></dump>
+</software>
+<software>
+	<title>It's Only Rock 'N' Roll</title>
+	<system>ColecoVision</system>
+	<company>Xonox</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>96be6f4a0818a94dfa5ea9cb01928a66f755c278</hash></rom></dump>
+</software>
+<software>
+	<title>James Bond 007</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>23823b4f564cb916ab411d8822531eb3a1a57346</hash></rom></dump>
+</software>
+<software>
+	<title>Joust</title>
+	<system>ColecoVision</system>
+	<company>Atarisoft</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>551a87b925595e7a465d669e96e11cba0266663a</hash><remark>Prototype No Sound</remark></rom></dump>
+</software>
+<software>
+	<title>Jukebox</title>
+	<system>ColecoVision</system>
+	<company>Spinnaker</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>16f08d667334332a69cc09762dea5bb2a06ac82b</hash></rom></dump>
+</software>
+<software>
+	<title>Jumpman Junior</title>
+	<system>ColecoVision</system>
+	<company>Epyx</company>
+	<year>1984</year>
+	<country>UK</country>
+		<dump><rom><hash>b79d4312e2d5fc30e37ee46916dc31908c84590e</hash></rom></dump>
+</software>
+<software>
+	<title>Jungle Hunt</title>
+	<system>ColecoVision</system>
+	<company>Atarisoft</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>8271203fa88e36dbee9423981f580c11b110001a</hash></rom></dump>
+</software>
+<software>
+	<title>Ken Uston Blackjack-Poker</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>282c8b5186a7dbbb69b4b7dacd2095e1eaa5b4cd</hash></rom></dump>
+</software>
+<software>
+	<title>Keystone Kapers</title>
+	<system>ColecoVision</system>
+	<company>Activision</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>4591c2927131338ff2f602fc8aebb2dda0407a8c</hash></rom></dump>
+</software>
+<software>
+	<title>Lady Bug</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><rom><hash>afa8e2f119d63463dbdd0c88be6873b0c6a27594</hash></rom></dump>
+</software>
+<software>
+	<title>Learning With Leeper</title>
+	<system>ColecoVision</system>
+	<company>Sierra On Line</company>
+	<year>1984</year>
+	<country>UK</country>
+		<dump><rom><hash>0ce165b3c2a9e60964d33f37e8aec7cbf9e9d00f</hash></rom></dump>
+</software>
+<software>
+	<title>Linking Logic</title>
+	<system>ColecoVision</system>
+	<company>Fisher-Price</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>198767e1c8794f974f3434674cb0e542108d0011</hash></rom></dump>
+</software>
+<software>
+	<title>Logic Levels</title>
+	<system>ColecoVision</system>
+	<company>Fisher-Price</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>77c46391de8073f6af9754f2b4eba150f258b182</hash></rom></dump>
+</software>
+<software>
+	<title>Looping</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>83ee624c22dd42650bcd585b9cc8cc87da6811d5</hash></rom></dump>
+</software>
+<software>
+	<title>Lord Of The Dungeon</title>
+	<system>ColecoVision</system>
+	<company>NAP</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>681fa9f5c4130f65616c11ad7c598b667a3177f4</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>M.A.S.H.</title>
+	<system>ColecoVision</system>
+	<company>20th Century Fox</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>06513b0f49a86784b54dbd8abf8ef8eae934e3c4</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Matt Patrol</title>
+	<system>ColecoVision</system>
+	<company>Matt Householder</company>
+	<year>198X</year>
+	<country>US</country>
+		<dump><rom><hash>a801f587360782afe7ac1bb7a9b08525a8363531</hash><remark>Moon Patrol Hack</remark></rom></dump>
+</software>
+<software>
+	<title>Memory Manor</title>
+	<system>ColecoVision</system>
+	<company>Fisher-Price</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>06f3fd038fa903597bec67cdc5c9ab9572c9c799</hash></rom></dump>
+</software>
+<software>
+	<title>Meteoric Shower</title>
+	<system>ColecoVision</system>
+	<company>Bit Corp</company>
+	<year>1983</year>
+	<country>TW</country>
+		<dump><rom><hash>36ddc3d1805e1f03ac8a23ede247e33114b0a106</hash><remark>EU</remark></rom></dump>
+</software>
+<software>
+	<title>Miner 2049er</title>
+	<system>ColecoVision</system>
+	<company>Micro Fun</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>b29cd441e9edebc37abc08c3fd932f1d4185bacd</hash></rom></dump>
+		<dump><rom><hash>591a08c17bbd716e13770e3b14e57a0c21229fc4</hash><remark>Alternate ROM Dump</remark></rom></dump>
+</software>
+<software>
+	<title>Monkey Academy</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>ac51f1a107b962e9322411d6233b3ce922e0fc15</hash></rom></dump>
+		<dump><rom><hash>5de6442754c639c77045ce9f18d1b59f38ab07b3</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Montezuma's Revenge</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>44862334e171bccd80d41a2afbc5d7af46d68d07</hash></rom></dump>
+</software>
+<software>
+	<title>Moon Patrol</title>
+	<system>ColecoVision</system>
+	<company>Atarisoft</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>8a1e2db621b84e630960b2341ac459af2723a3f6</hash><remark>Prototype A1</remark></rom></dump>
+		<dump><rom><hash>a801f587360782afe7ac1bb7a9b08525a8363531</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Moonsweeper</title>
+	<system>ColecoVision</system>
+	<company>Imagic</company>
+	<year>1983</year>
+	<country>JP</country>
+		<dump><rom><hash>eeccf73225e03ce10f6f6a02a808dc04f5bb0242</hash></rom></dump>
+</software>
+<software>
+	<title>Motocross Racer</title>
+	<system>ColecoVision</system>
+	<company>Xonox</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>89b6f5f482f8f79c10ef9d3ffdeac1ded47a2362</hash></rom></dump>
+</software>
+<software>
+	<title>Mountain King</title>
+	<system>ColecoVision</system>
+	<company>Sunrise</company>
+	<year>1984</year>
+	<country>NL</country>
+		<dump><rom><hash>46602df46117513d7166eba81e2e3546246adf94</hash></rom></dump>
+</software>
+<software>
+	<title>Mouse Trap</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><rom><hash>36686b5f84c8ecfe9e6468ca0f2402ce0c03150c</hash></rom></dump>
+</software>
+<software>
+	<title>Mr. Do!</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>d40a69f4d010636de50fdc1d43a0682141286cbd</hash></rom></dump>
+</software>
+<software>
+	<title>Mr. Do!'s Castle</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>e94e5d8dd549cae8b70d02170502eca4e90a3c30</hash></rom></dump>
+</software>
+<software>
+	<title>Nova Blast</title>
+	<system>ColecoVision</system>
+	<company>Imagic</company>
+	<year>1983</year>
+	<country>JP</country>
+		<dump><rom><hash>2c35f5b2eb5914a14e544e00c67d4cb5582832d8</hash></rom></dump>
+</software>
+<software>
+	<title>Number Bumper</title>
+	<system>ColecoVision</system>
+	<company>Sunrise</company>
+	<year>1984</year>
+	<country>NL</country>
+		<dump><rom><hash>50d40fa769c3b92fe7d4eae23c15c429e020e023</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Oil's Well</title>
+	<system>ColecoVision</system>
+	<company>Sierra On Line</company>
+	<year>1984</year>
+	<country>UK</country>
+		<dump><rom><hash>779e43f183dbdb692dc26ae41dde6b35891f8f8b</hash></rom></dump>
+</software>
+<software>
+	<title>Omega Race</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>d0b00ee7b4368ef3dbd74fbace4f8e061ed632f4</hash></rom></dump>
+</software>
+<software>
+	<title>One-On-One</title>
+	<system>ColecoVision</system>
+	<company>Micro Fun</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>2c59bcd829c97948b88b45f447c4c57870d6bd77</hash></rom></dump>
+</software>
+<software>
+	<title>Orbit</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>bcb3d6845b09adc1adf842cba1ca12f57aa47d79</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Pac-Man</title>
+	<system>ColecoVision</system>
+	<company>Atarisoft</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>4d724d40c389cdb62929aa69bc76466c3bcb5bcd</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Pepper II</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>0983d0a562ccb3d4ac88d8ae26cf29a465075067</hash></rom></dump>
+</software>
+<software>
+	<title>Pitfall II Lost Caverns</title>
+	<system>ColecoVision</system>
+	<company>Activision</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>2642c458899c1cafa2f3b9e0959b9ead5829aa68</hash></rom></dump>
+</software>
+<software>
+	<title>Pitfall!</title>
+	<system>ColecoVision</system>
+	<company>Activision</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>964a3551121cd33ce72624c5414d1406ee75ca35</hash></rom></dump>
+</software>
+<software>
+	<title>Pitstop</title>
+	<system>ColecoVision</system>
+	<company>Epyx</company>
+	<year>1983</year>
+	<country>UK</country>
+		<dump><rom><hash>bc449bf923cc6b1695598b1ffa7a328618a4ad85</hash><remark>CA-EU-US</remark></rom></dump>
+		<dump><rom><hash>f5a649238057fb354512da2f5336bcb4b09216e5</hash><remark>US] [Imagic Cart Shell</remark></rom></dump>
+</software>
+<software>
+	<title>Popeye</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>f54f110ba5864bb3418f84e1c2cdc5c856dda771</hash></rom></dump>
+</software>
+<software>
+	<title>Porky's</title>
+	<system>ColecoVision</system>
+	<company>20th Century Fox</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>4471f402c0cb8be232ece0ea84dcaef9ee002398</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Power Lords Quest For Volcan</title>
+	<system>ColecoVision</system>
+	<company>NAP</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>bf81f1254f0c5eb11d46ef5e8b8c03e8b02801b4</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Q-Bert</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>6243fc5593f40d7285ea6b69c541307d3fc583ac</hash></rom></dump>
+</software>
+<software>
+	<title>Q-Bert's QUBES</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>523fd9fce7047ae76dd4219cdb89a4f298fe14ab</hash></rom></dump>
+</software>
+<software>
+	<title>Quest For Quintana Roo</title>
+	<system>ColecoVision</system>
+	<company>Sunrise</company>
+	<year>1983</year>
+	<country>NL</country>
+		<dump><rom><hash>1aef03f7d0bdaa701517a1ad6a75ab8820674f15</hash></rom></dump>
+</software>
+<software>
+	<title>River Raid</title>
+	<system>ColecoVision</system>
+	<company>Activision</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>00a5b9dc41e3a684a874b65cf29121984f10f327</hash></rom></dump>
+</software>
+<software>
+	<title>Robin Hood</title>
+	<system>ColecoVision</system>
+	<company>Xonox</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>f987591f915eb0d3547b85f3767fff2d4fd0540f</hash></rom></dump>
+</software>
+<software>
+	<title>Roc'N Rope</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>6598592f1f4debccce5bccfff406bf10970ffdac</hash></rom></dump>
+</software>
+<software>
+	<title>Rock 'N Bolt</title>
+	<system>ColecoVision</system>
+	<company>Telegames</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>2b2f337ba597af5eee2b10e70a129638b4679c9e</hash></rom></dump>
+</software>
+<software>
+	<title>Rocky Super Action Boxing</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>11def2adb622bbf62bfd2ac14d8151c8f2f772eb</hash></rom></dump>
+</software>
+<software>
+	<title>Rolloverture</title>
+	<system>ColecoVision</system>
+	<company>Sunrise</company>
+	<year>1983</year>
+	<country>NL</country>
+		<dump><rom><hash>5bd7c21d64eee044c88ae438479d22802a510677</hash></rom></dump>
+</software>
+<software>
+	<title>Root Beer Tapper</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>bbb25e64aefa3adaff9f864713ecabe3b6f0316b</hash></rom></dump>
+</software>
+<software>
+	<title>Sammy Lightfoot</title>
+	<system>ColecoVision</system>
+	<company>Sierra On Line</company>
+	<year>1983</year>
+	<country>UK</country>
+		<dump><rom><hash>b011dc446bb20bcdf5ee8404919d039b690d976b</hash></rom></dump>
+</software>
+<software>
+	<title>Sector Alpha</title>
+	<system>ColecoVision</system>
+	<company>Spectravideo</company>
+	<year>1983</year>
+	<country>UK</country>
+		<dump><rom><hash>990967a4ef5795733a29efbacddb23e4d4dd3c15</hash></rom></dump>
+</software>
+<software>
+	<title>Sewer Sam</title>
+	<system>ColecoVision</system>
+	<company>Interphase</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>407c2a1bef81522dfd88ace7abd7d80c0f7de357</hash></rom></dump>
+</software>
+<software>
+	<title>Sir Lancelot</title>
+	<system>ColecoVision</system>
+	<company>Xonox</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>15e6f8197caee5a500c6ce33952d51beca6a43cc</hash></rom></dump>
+</software>
+<software>
+	<title>Skiing</title>
+	<system>ColecoVision</system>
+	<company>Telegames</company>
+	<year>1986</year>
+	<country>US</country>
+		<dump><rom><hash>2cfd62a4b403fc2f5344d0e095d1028cc11e4ecc</hash></rom></dump>
+</software>
+<software>
+	<title>Slither</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>b11de2476f867c7c4efb2977777e12fcb454f10b</hash></rom></dump>
+</software>
+<software>
+	<title>Slurpy</title>
+	<system>ColecoVision</system>
+	<company>Xonox</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>b56ccdd5a6df3ad753b3f552daad70e1d7bd7e4d</hash></rom></dump>
+</software>
+<software>
+	<title>Smurf Paint 'N' Play Workshop</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>d46d6e0edeaf6f76430d4800caa7a6af291cb199</hash></rom></dump>
+</software>
+<software>
+	<title>Smurf Rescue In Gargamel's Castle</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><rom><hash>f0740e1916d2351537c6725b37ba3c1b321f15eb</hash></rom></dump>
+</software>
+<software>
+	<title>Smurfs Save the Day</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>198X</year>
+	<country>US</country>
+		<dump><rom><hash>68f07f5387425f0c656e9c0dddd88be903cee7a9</hash><remark>Demo</remark></rom></dump>
+</software>
+<software>
+	<title>Space Fury</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>f400e1e368ae420a97015674a28db91b4bea15a6</hash></rom></dump>
+</software>
+<software>
+	<title>Space Panic</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>530870501f322f1d72e820a722790d300f43a6de</hash></rom></dump>
+</software>
+<software>
+	<title>Spectron</title>
+	<system>ColecoVision</system>
+	<company>Spectravideo</company>
+	<year>1983</year>
+	<country>UK</country>
+		<dump><rom><hash>fb092284a0a6cdabd1b10e6c4127125fe74c7b96</hash></rom></dump>
+</software>
+<software>
+	<title>Spy Hunter</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>f95fb554b211bde690a85d1f14ff5501cbcaf8bd</hash><remark>Prototype</remark></rom></dump>
+		<dump><rom><hash>97865d067bd531209857c3c8502c1260e0a30366</hash></rom></dump>
+</software>
+<software>
+	<title>Squish'em Featuring Sam</title>
+	<system>ColecoVision</system>
+	<company>Interphase</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>ae25507b840b15ca3a832ba0bd8e1cbfdf4634a6</hash></rom></dump>
+</software>
+<software>
+	<title>Star Trek Strategic Operations Simulator</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>d37140e1abd1a0402af5c9e02ab3e4d0c6afe598</hash></rom></dump>
+</software>
+<software>
+	<title>Star Wars The Arcade Game</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>da0567bee88bd1991481a755ac8292a115ed15ac</hash></rom></dump>
+</software>
+<software>
+	<title>Steamroller</title>
+	<system>ColecoVision</system>
+	<company>Activision</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>9b0da21d8e6e9a762c578f989d90dd057fea2b5a</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Strike It!</title>
+	<system>ColecoVision</system>
+	<company>Telegames</company>
+	<year>1986</year>
+	<country>US</country>
+		<dump><rom><hash>a455e93e5ce6e562092d2c0b06070a746296395b</hash></rom></dump>
+</software>
+<software>
+	<title>SubRoc</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>d3dca3dab60a386156d823bf1905e5542ac1aa21</hash></rom></dump>
+</software>
+<software>
+	<title>Super Action Baseball</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>4829d304cbb752031bf5b4b1d48eed2ad06f222e</hash></rom></dump>
+</software>
+<software>
+	<title>Super Action Football</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>4c16f4e233db50e3d9b3a191f4f408338640ac19</hash><remark>CA-US</remark></rom></dump>
+		<dump><rom><hash>5f43180c243039eecef024ab1f4e70a2e2502fc1</hash><remark>EU</remark></rom></dump>
+</software>
+<software>
+	<title>Super Cobra</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>d5fe20060be49cfbda2742460e64e4cafa07a937</hash><remark>ADAM Patch</remark></rom></dump>
+		<dump><rom><hash>3bf730acbfb0404d2e2411169c8fc6a81b907053</hash></rom></dump>
+</software>
+<software>
+	<title>Super Cross Force</title>
+	<system>ColecoVision</system>
+	<company>Spectravideo</company>
+	<year>1983</year>
+	<country>UK</country>
+		<dump><rom><hash>42a22d2314081450e8cb2a5e8ba4aa0987971063</hash></rom></dump>
+</software>
+<software>
+	<title>Super Donkey Kong</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>b1ac18780e36821a8d41fc4410e14ab0ce80ac91</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Super Donkey Kong Junior</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>44a22e508002a069f7953668f2e8a3c901c677d6</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Super Sketch Sketch-Master</title>
+	<system>ColecoVision</system>
+	<company>Personal Peripherals</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>3acbae2580c38bfea9ce7ec06274edd39607016d</hash></rom></dump>
+</software>
+<software>
+	<title>Sword And The Sorcerer, The</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>461a3715416a1b9f71b1af1dfc531a8f77862645</hash><remark>Demo</remark></rom></dump>
+</software>
+<software>
+	<title>TOMARC The Barbarian</title>
+	<system>ColecoVision</system>
+	<company>Xonox</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>44b285d438854dfa0186c7fe6e21872e2dde13f1</hash></rom></dump>
+</software>
+<software>
+	<title>Tank Wars</title>
+	<system>ColecoVision</system>
+	<company>Bit Corp</company>
+	<year>1983</year>
+	<country>TW</country>
+		<dump><rom><hash>0a32a17a3e5e6c220de91e4dcf036d7d02ad8e30</hash><remark>EU</remark></rom></dump>
+</software>
+<software>
+	<title>Tarzan</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>59cb8dec033c3b1df476c7c93109aba9562ba3d4</hash></rom></dump>
+</software>
+<software>
+	<title>Telly Turtle</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>c0157c0622a751f8eb7ff19b83f521c107f7a7ce</hash></rom></dump>
+</software>
+<software>
+	<title>Threshold</title>
+	<system>ColecoVision</system>
+	<company>Sierra On Line</company>
+	<year>1983</year>
+	<country>UK</country>
+		<dump><rom><hash>7f71c024d7d85627b893d28131d284dde25577b8</hash></rom></dump>
+</software>
+<software>
+	<title>Time Pilot</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>3b7cbc5c0d47027ecd5e6f5d1485af436ab02ad1</hash></rom></dump>
+</software>
+<software>
+	<title>Tournament Tennis</title>
+	<system>ColecoVision</system>
+	<company>Imagic</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>0f113cda3b12253d1d42e994896db3f88a5b884d</hash></rom></dump>
+</software>
+<software>
+	<title>Tunnels &amp; Trolls</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>0f5b61f650e26e681d7b8a28fcb9d2db7c3bcddb</hash><remark>Demo</remark></rom></dump>
+</software>
+<software>
+	<title>Turbo</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><rom><hash>27f39b9e42cce0cead88c0d0691d56ce46b97111</hash></rom></dump>
+</software>
+<software>
+	<title>Tutankham</title>
+	<system>ColecoVision</system>
+	<company>Parker Brothers</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>a668ff92e6f83e37f44178260618bbc650ca61c9</hash></rom></dump>
+</software>
+<software>
+	<title>Up'n Down</title>
+	<system>ColecoVision</system>
+	<company>Sega</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>96d83945d041f6f795a3107904a9986de86df8a6</hash></rom></dump>
+</software>
+<software>
+	<title>Venture</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><rom><hash>9cf7e7439d1719152ed28c1123ae8ad68175412f</hash></rom></dump>
+</software>
+<software>
+	<title>Victory</title>
+	<system>ColecoVision</system>
+	<company>Sunrise</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>589b130410faadcb3f6cdb68a58353f4fb3a7e5f</hash><remark>EU</remark></rom></dump>
+		<dump><rom><hash>7144c65cb57eeb846f4771aeb402469494f8f56f</hash><remark>CA-US</remark></rom></dump>
+</software>
+<software>
+	<title>Video Hustler</title>
+	<system>ColecoVision</system>
+	<company>Konami</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>08172d85140c004241ab585fc41cdc7841f8290b</hash><remark>Prototype</remark></rom></dump>
+		<dump><rom><hash>5f481ff47762a812c73bb120e60f31ee99fd6b5f</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>War Room</title>
+	<system>ColecoVision</system>
+	<company>Probe 2000</company>
+	<year>1983</year>
+	<country></country>
+		<dump><rom><hash>031eaec9188105150460ff354fe50e22ce738c53</hash></rom></dump>
+</software>
+<software>
+	<title>WarGames</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>1e3b525f2d895105727fee76076dd5ecccbf1778</hash></rom></dump>
+		<dump><rom><hash>1e3b525f2d895105727fee76076dd5ecccbf1778</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Wing War</title>
+	<system>ColecoVision</system>
+	<company>Imagic</company>
+	<year>1983</year>
+	<country>JP</country>
+		<dump><rom><hash>eb7764ef6f50885e2eaffaff42ab9fcf760a77e1</hash></rom></dump>
+</software>
+<software>
+	<title>Wizard Of Id's Wizmath</title>
+	<system>ColecoVision</system>
+	<company>Sierra On Line</company>
+	<year>1984</year>
+	<country>UK</country>
+		<dump><rom><hash>dc89ba95d30e9e46ab77506e700b9d5e264b90a7</hash></rom></dump>
+</software>
+<software>
+	<title>Word Feud</title>
+	<system>ColecoVision</system>
+	<company>Xonox</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>9a6188511ae54e6886222b84185714d2ead8cfbc</hash></rom></dump>
+</software>
+<software>
+	<title>Yolks On You, The</title>
+	<system>ColecoVision</system>
+	<company>20th Century Fox</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash>9b5bfb69d37042d131a5c9576f927e09f44f9666</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Zaxxon</title>
+	<system>ColecoVision</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><rom><hash>1733b3407939f5c37e39d5494abfa4137f500707</hash></rom></dump>
+</software>
+<software>
+	<title>Zenji</title>
+	<system>ColecoVision</system>
+	<company>Activision</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><rom><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
+</software>
 </softwaredb>
-<!-- Roms in this XML file:3329 - Created on Sun Sep 17 2017 - 22:20:53 PDT-->
+<!-- Roms in this XML file:3542 - Created on Thu Jan 18 2018 - 21:26:38 PST-->
