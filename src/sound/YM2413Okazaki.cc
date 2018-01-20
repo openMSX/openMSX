@@ -10,6 +10,7 @@
 #include "unreachable.hh"
 #include <cstring>
 #include <cassert>
+#include <iostream>
 
 namespace openmsx {
 namespace YM2413Okazaki {
@@ -410,6 +411,38 @@ static byte inst_data[16 + 3][8] = {
 
 YM2413::YM2413()
 {
+	if (0) {
+		for (auto& e : dB2LinTab) std::cout << e << ' ';
+		std::cout << '\n';
+
+		for (auto& e : AR_ADJUST_TABLE) std::cout << e << ' ';
+		std::cout << '\n';
+
+		for (int i = 0; i < 4; ++i) {
+			for (int j = 0; j < 16 * 8; ++j) {
+				std::cout << int(tllTable[i][j]) << ' ';
+			}
+			std::cout << '\n';
+		}
+		std::cout << '\n';
+
+		for (auto& e : fullsintable) std::cout << e << ' ';
+		std::cout << '\n';
+		for (auto& e : halfsintable) std::cout << e << ' ';
+		std::cout << '\n';
+
+		for (int i = 0; i < 16; ++i) {
+			for (int j = 0; j < 16; ++j) {
+				std::cout << dphaseDRTable[i][j] << ' ';
+			}
+			std::cout << '\n';
+		}
+		std::cout << '\n';
+
+		for (auto& e : slTable) std::cout << e << ' ';
+		std::cout << '\n';
+	}
+
 	memset(reg, 0, sizeof(reg)); // avoid UMR
 
 	for (unsigned i = 0; i < 16 + 3; ++i) {
