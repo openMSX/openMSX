@@ -195,6 +195,8 @@ TARGET_FLAGS+=$(shell $(PYTHON) build/cpu2flags.py $(OPENMSX_TARGET_CPU))
 # Load flavour specific settings.
 include build/flavour-$(OPENMSX_FLAVOUR).mk
 
+UNITTEST?=false
+
 
 # Paths
 # =====
@@ -291,6 +293,12 @@ endif
 
 ifneq ($(COMPONENT_ALSAMIDI),true)
 SOURCES_FULL:=$(filter-out src/serial/MidiSessionALSA.cc,$(SOURCES_FULL))
+endif
+
+ifeq ($(UNITTEST),true)
+SOURCES_FULL:=$(filter-out src/main.cc,$(SOURCES_FULL))
+else
+SOURCES_FULL:=$(filter-out src/unittest/%.cc,$(SOURCES_FULL))
 endif
 
 # Apply subset to sources list.
