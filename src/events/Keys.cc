@@ -18,6 +18,14 @@ namespace Keys {
 struct P {
 	constexpr P(cstd::string s, KeyCode k)
 		: first(s), second(k) {}
+
+	// Needed for gcc-6.3. Compiler bug?
+	constexpr P& operator=(const P& o) {
+		first = o.first;
+		second = o.second;
+		return *this;
+	}
+
 	cstd::string first;
 	KeyCode second;
 };
