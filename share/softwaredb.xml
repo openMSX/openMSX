@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1516560688">
+<softwaredb timestamp="1517768480">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -13090,6 +13090,10 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII8</type><hash>9347890b025cc8c521a4abbff309ffc0466f22b3</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>c570eccb1bf0c993e375e094d803ef112d0763ad</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>2724871629b46e05a0c8b5554a962211e700de0e</hash></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>6efee5794635d9eee6db6e5942b4e70e34c39bbc</hash><remark>English Translation by MSX Translations - Alt Logo - Trained</remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>eb0f0ac78a73655ada27f2c4ab5f77033a6ac7af</hash><remark>English Translation by MSX Translations - Alt Logo</remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>45e722488e4ff27bc8243fafc0eda7ad9ce74cb0</hash><remark>English Translation by MSX Translations - Trained</remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>c0d9b7ca46e4c6a96961a18550ef2c71545ac6a5</hash><remark>English Translation by MSX Translations</remark></megarom></dump>
 </software>
 <software>
 	<title>ZERO and the Castle of Infinite Sadness</title>
@@ -15659,4 +15663,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:3854 - Created on Sun Jan 21 2018 - 10:51:30 PST-->
+<!-- Roms in this XML file:3858 - Created on Sun Feb 4 2018 - 10:21:22 PST-->
