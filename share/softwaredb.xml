@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1517768480">
+<softwaredb timestamp="1517945260">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -13453,7 +13453,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>57b145e2b88e29c6284754d3da16e1cffbab38a5</hash></rom></dump>
 		<dump><rom><type>page23</type><hash>6c7c8cd782eb5a27dc5224679d4563978cb3280c</hash></rom></dump>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>8a059d608adf892f3b13e99fb0ab8a10be745380</hash><remark>[o1][b1]</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>8a059d608adf892f3b13e99fb0ab8a10be745380</hash><remark>broken / [o1][b1]</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9fdd739a05f496837946f42c3ef08ebe7df142dc</hash><remark>[a1]</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>f95e3e05818be44f792d24a93fd27e0a9f542de5</hash><remark>[o1]</remark></rom></dump>
 </software>
@@ -13572,7 +13572,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1984</year>
 	<country>US</country>
 		<dump><rom><type>page23</type><hash>8df20c9c151b01b0d859c0ab4753d5cce3956224</hash></rom></dump>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>158f666aac5cf48c77b62beb77310a45f6c7e2ea</hash><remark>Prototype</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>158f666aac5cf48c77b62beb77310a45f6c7e2ea</hash><remark>broken / Prototype</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>efeb5031064061e2f02eb442ff0857fa21ee042d</hash></rom></dump>
 </software>
 <software>
@@ -13716,7 +13716,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>5d0c451744b714514c3113a44320019c2457e52c</hash></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>5d0c451744b714514c3113a44320019c2457e52c</hash><remark>broken</remark></rom></dump>
 </software>
 <software>
 	<title>ColecoVision Noise Generator</title>
@@ -13899,7 +13899,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>35283c51f448d877625049266c0c4687bf57ab42</hash></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>35283c51f448d877625049266c0c4687bf57ab42</hash><remark>broken</remark></rom></dump>
 </software>
 <software>
 	<title>Diamond Dash</title>
@@ -13934,9 +13934,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Eduardo Mello</company>
 	<year>2005</year>
 	<country>US</country>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>073525003507a51dcdfe9f42dcde24b7e069a75d</hash><remark>(oct 19)</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>073525003507a51dcdfe9f42dcde24b7e069a75d</hash><remark>broken / (oct 19)</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>6c92ca2db96f88bc3a74a498b399066b97eceb27</hash><remark>(oct 20)</remark></rom></dump>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>b05a47ace42f47338ef0e0339089c76faf49cab0</hash><remark>(oct 21)</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>b05a47ace42f47338ef0e0339089c76faf49cab0</hash><remark>broken / (oct 21)</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>cd39628b09070ddad383a1cf95edf14e30cd56a1</hash><remark>(oct 22)</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>6a754455ec9f6f9811f2fb947c5ac750474dc8e8</hash><remark>(oct 25)</remark></rom></dump>
 </software>
@@ -14022,7 +14022,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1983</year>
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>490ce706697c0b370a6a2fe65ccaada2bac0a946</hash><remark>aka Make-A-Face</remark></rom></dump>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>2cb0f3e63a6a0f754738d3306ae5ffe05ae6511d</hash><remark>[b1]</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>2cb0f3e63a6a0f754738d3306ae5ffe05ae6511d</hash><remark>broken / [b1]</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>4ac1b2b462aeba09aa9fa119430c0bb009a3be2e</hash><remark>[o1]</remark></rom></dump>
 </software>
 <software>
@@ -14172,7 +14172,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2002</year>
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>33731751df3cefe7c9ad1f9ba2d4fc6b638fd356</hash><remark>(May 20) - Demo 1</remark></rom></dump>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>6b38dd9bc21a34ad0edc9e7f47e6168835d2a2bd</hash><remark>Demo 2</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>6b38dd9bc21a34ad0edc9e7f47e6168835d2a2bd</hash><remark>broken / Demo 2</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>e9ce28fd2370d1b6660d5e13682af8fff24f1667</hash><remark>(Jun 18)  VIC-20 Demo</remark></rom></dump>
 </software>
 <software>
@@ -14206,7 +14206,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Guy Foster</company>
 	<year>2006</year>
 	<country>US</country>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>4ca9b0ad2f13f71a127be835b806bb4dd158d7d0</hash></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>4ca9b0ad2f13f71a127be835b806bb4dd158d7d0</hash><remark>broken</remark></rom></dump>
 </software>
 <software>
 	<title>Gust Buster</title>
@@ -14608,7 +14608,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>0f79cd544bab92f6a3ceb93de6f4534925126b9f</hash><remark>[b1] (Nov 03)</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>0f79cd544bab92f6a3ceb93de6f4534925126b9f</hash><remark>broken / [b1] (Nov 03)</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9ee8bee2b5f4c9f72dc07bba72b2d974473774d9</hash><remark>(Nov 03)</remark></rom></dump>
 </software>
 <software>
@@ -14645,7 +14645,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Guy Foster</company>
 	<year>2005</year>
 	<country>US</country>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>4c720a1f498996938f8eb0d595de4345927961c2</hash><remark>(May 30)</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>4c720a1f498996938f8eb0d595de4345927961c2</hash><remark>broken /  (May 30)</remark></rom></dump>
 </software>
 <software>
 	<title>Omega Race</title>
@@ -14914,8 +14914,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Sierra On Line</company>
 	<year>1983</year>
 	<country>UK</country>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>b011dc446bb20bcdf5ee8404919d039b690d976b</hash></rom></dump>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>88fa56b294294110a4cc2c0f109e09e8c1cdeae9</hash></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>b011dc446bb20bcdf5ee8404919d039b690d976b</hash><remark>broken</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>88fa56b294294110a4cc2c0f109e09e8c1cdeae9</hash><remark>broken</remark></rom></dump>
 </software>
 <software>
 	<title>Schlange CV Demo</title>
@@ -15093,7 +15093,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Scott Huggins</company>
 	<year>2004</year>
 	<country>US</country>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>0278de7c17064ded63e373443fa10cd468b6ea6f</hash><remark>Prototype</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>0278de7c17064ded63e373443fa10cd468b6ea6f</hash><remark>broken / Prototype</remark></rom></dump>
 </software>
 <software>
 	<title>Space Fury</title>
@@ -15102,7 +15102,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1983</year>
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>f400e1e368ae420a97015674a28db91b4bea15a6</hash></rom></dump>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>68a2532a516873e44c66355097ef15972a5e135f</hash><remark>[b1]</remark></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>68a2532a516873e44c66355097ef15972a5e135f</hash><remark>broken / [b1]</remark></rom></dump>
 </software>
 <software>
 	<title>Space Hunter</title>
@@ -15315,7 +15315,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Nuvatec</company>
 	<year>1983</year>
 	<country>US</country>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>0c6840b7bc24a36529f0a80ccef85ee9f409a972</hash></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>0c6840b7bc24a36529f0a80ccef85ee9f409a972</hash><remark>broken</remark></rom></dump>
 </software>
 <software>
 	<title>Super Action Football</title>
@@ -15504,7 +15504,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1982</year>
 	<country>US</country>
 		<dump><rom><type>page23</type><hash>27f39b9e42cce0cead88c0d0691d56ce46b97111</hash></rom></dump>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>732d1f3b2f24895a1f79d15d830aa989ea12fe5e</hash></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>732d1f3b2f24895a1f79d15d830aa989ea12fe5e</hash><remark>broken</remark></rom></dump>
 </software>
 <software>
 	<title>Tutankham</title>
@@ -15663,4 +15663,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:3858 - Created on Sun Feb 4 2018 - 10:21:22 PST-->
+<!-- Roms in this XML file:3858 - Created on Tue Feb 6 2018 - 11:27:42 PST-->
