@@ -4383,6 +4383,7 @@ template<class T> template<Reg16 REG> II CPUCore<T>::muluw_hl_SS() {
 //  2 -> moved memptr from here to Z80TYPE (and not to R800TYPE)
 //  3 -> timing of the emulation changed (no changes in serialization)
 //  4 -> timing of the emulation changed again (see doc/internal/r800-call.txt)
+//  5 -> added serialization of nmiEdge
 template<class T> template<typename Archive>
 void CPUCore<T>::serialize(Archive& ar, unsigned version)
 {
@@ -4394,15 +4395,27 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 		T::setMemPtr(mptr);
 	}
 
+	if (ar.versionBelow(version, 5)) {
+		// NMI is unused on MSX and even on systems where it is used nmiEdge
+		// is true only between the moment the NMI request comes in and the
+		// moment the Z80 jumps to the NMI handler, so defaulting to false
+		// is pretty safe.
+		nmiEdge = false;
+	} else {
+		// CPU is deserialized after devices, so nmiEdge is restored to the
+		// saved version even if IRQHelpers set it on deserialization.
+		ar.serialize("nmiEdge", nmiEdge);
+	}
+
 	if (ar.isLoader()) {
 		invalidateMemCache(0x0000, 0x10000);
 	}
 
-	// don't serialize
-	//    IRQStatus
-	//    NMIStatus, nmiEdge
-	//    slowInstructions
-	//    exitLoop
+	// Don't serialize:
+	// - IRQStatus, NMIStatus:
+	//     the IRQHelper deserialization makes sure these get the right value
+	// - slowInstructions, exitLoop:
+	//     serialization happens outside the CPU emulation loop
 
 	if (T::isR800() && ar.versionBelow(version, 4)) {
 		motherboard.getMSXCliComm().printWarning(
