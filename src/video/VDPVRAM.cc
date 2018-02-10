@@ -109,7 +109,7 @@ static unsigned bufferSize(unsigned size)
 
 VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	: vdp(vdp_)
-	, data(vdp_.getDeviceConfig2(), bufferSize(size))
+	, data(*vdp_.getDeviceConfig2().getXML(), bufferSize(size))
 	, logicalVRAMDebug (vdp)
 	, physicalVRAMDebug(vdp, size)
 	#ifdef DEBUG

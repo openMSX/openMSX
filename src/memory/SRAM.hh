@@ -4,13 +4,15 @@
 #include "TrackedRam.hh"
 #include "DeviceConfig.hh"
 #include "RTSchedulable.hh"
+#include <memory>
 
 namespace openmsx {
 
-class SRAM final : private RTSchedulable
+class SRAM final
 {
 public:
 	enum DontLoad { DONT_LOAD };
+	SRAM(int size, const XMLElement& xml, DontLoad);
 	SRAM(const std::string& name, const std::string& description,
 	     int size, const DeviceConfig& config, DontLoad);
 	SRAM(const std::string& name,
@@ -39,8 +41,14 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	// RTSchedulable
-	void executeRT() override;
+	struct SRAMSchedulable : public RTSchedulable {
+		explicit SRAMSchedulable(RTScheduler& scheduler_, SRAM& sram_)
+			: RTSchedulable(scheduler_), sram(sram_) {}
+		void executeRT() override;
+	private:
+		SRAM& sram;
+	};
+	std::unique_ptr<SRAMSchedulable> schedulable;
 
 	void load(bool* loaded);
 	void save();

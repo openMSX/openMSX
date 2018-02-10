@@ -20,7 +20,7 @@ public:
 	    const std::string& description, unsigned size);
 
 	/** Create Ram object without debuggable. */
-	Ram(const DeviceConfig& config, unsigned size);
+	Ram(const XMLElement& xml, unsigned size);
 
 	~Ram();
 

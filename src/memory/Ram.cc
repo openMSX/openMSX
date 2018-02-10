@@ -38,8 +38,8 @@ Ram::Ram(const DeviceConfig& config, const string& name,
 	clear();
 }
 
-Ram::Ram(const DeviceConfig& config, unsigned size_)
-	: xml(*config.getXML())
+Ram::Ram(const XMLElement& xml_, unsigned size_)
+	: xml(xml_)
 	, ram(size_)
 	, size(size_)
 {
