@@ -2,7 +2,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
-<!-- config according to this info: http://www.msx.org/forumtopicl9138.html -->
+<!-- config according to this info: https://www.msx.org/forum/msx-talk/trading-and-collecting/msx-junk-sale?page=1 -->
 <!-- CPU: NEC D780C-1, MSX-ENGINE: S3527 -->
 
   <info>
@@ -69,15 +69,13 @@
     <primary external="true" slot="1"/>
 
     <primary slot="2">
-      <secondary slot="3">
-        <ROM id="MSX Sub ROM">
-          <rom>
-            <filename>mpc-25fd_msx2sub.rom</filename>
-            <sha1>b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</sha1>
-          </rom>
-          <mem base="0x0000" size="0x4000"/>
-        </ROM>
-      </secondary>
+      <ROM id="MSX Sub ROM">
+        <rom>
+          <filename>mpc-25fd_msx2sub.rom</filename>
+          <sha1>b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</sha1>
+        </rom>
+        <mem base="0x0000" size="0x10000"/>
+      </ROM>
     </primary>
 
     <primary slot="3">
