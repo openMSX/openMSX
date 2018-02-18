@@ -4,10 +4,10 @@
 
   <info>
     <manufacturer>C-BIOS</manufacturer>
-    <code>MSX2+ JP</code>
-    <release_year>2010</release_year>
-    <description>An MSX2+ machine using C-BIOS, with MSX-MUSIC, a Japanese keyboard layout and 60Hz interrupt frequency.</description>
-    <type>MSX2+</type>
+    <code>MSX2</code>
+    <release_year>2003</release_year>
+    <description>An MSX2 machine using C-BIOS, with an international keyboard layout and 50Hz interrupt frequency.</description>
+    <type>MSX2</type>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>
@@ -17,19 +17,19 @@
   <devices>
 
     <primary slot="0">
-      <ROM id="C-BIOS Main ROM JP">
+      <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>a5b02ea4a1530f2b96f0f4f4e2049f0de4a31e5a</sha1>
-          <filename>cbios_main_msx2+_jp.rom</filename>
+          <sha1>d6aad8b5f84fe1dcd3f9018b81aa0ff3e30e4886</sha1>
+          <filename>cbios_main_msx2_eu.rom</filename>
         </rom>
       </ROM>
 
       <ROM id="C-BIOS Logo ROM">
         <mem base="0x8000" size="0x4000"/>
         <rom>
-          <sha1>db2635ef7e3f8589518dca65f2e3b515edc5372d</sha1>
-          <filename>cbios_logo_msx2+.rom</filename>
+          <sha1>d4e5b98ce23573669fb44447582d656e390791c0</sha1>
+          <filename>cbios_logo_msx2.rom</filename>
         </rom>
       </ROM>
     </primary>
@@ -50,20 +50,6 @@
         </ROM>
       </secondary>
 
-      <secondary slot="1">
-        <MSX-MUSIC id="C-BIOS MSX-MUSIC">
-          <mem base="0x4000" size="0x4000"/>
-          <io base="0x7C" num="2" type="O"/>
-          <rom>
-            <sha1>5c5eb001e6a1fe29edb7abd428a3967bb388e5db</sha1>
-            <filename>cbios_music.rom</filename>
-          </rom>
-          <sound>
-            <volume>9000</volume>
-          </sound>
-        </MSX-MUSIC>
-      </secondary>
-
       <secondary slot="2">
         <MemoryMapper id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
@@ -79,22 +65,21 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>false</key_ghosting>
-      <keyboard_type>jp_ansi</keyboard_type>
+      <keyboard_type>int</keyboard_type>
       <has_keypad>true</has_keypad>
-      <code_kana_locks>true</code_kana_locks>
+      <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
 
     <VDP id="VDP">
       <io base="0x98" num="4" type="O"/>
       <io base="0x98" num="2" type="I"/>
-      <version>V9958</version>
+      <version>V9938</version>
       <vram>128</vram>
     </VDP>
 
     <PSG id="PSG">
       <type>YM2149</type>
-      <keyboardlayout>50on</keyboardlayout>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
       <sound>
@@ -105,17 +90,12 @@
     <RTC id="Real time clock">
       <io base="0xB4" num="2" type="O"/>
       <io base="0xB5" num="1" type="I"/>
-      <sramname>cbios-msx2+_jp.cmos</sramname>
+      <sramname>cbios-msx2.cmos</sramname>
     </RTC>
 
     <PrinterPort id="Printer Port">
       <io base="0x90" num="2"/>
     </PrinterPort>
-
-    <ResetStatusRegister id="Reset Status register">
-      <io base="0xF4" num="1"/>
-      <inverted>true</inverted>
-    </ResetStatusRegister>
 
   </devices>
 

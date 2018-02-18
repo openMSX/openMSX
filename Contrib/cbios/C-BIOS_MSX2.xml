@@ -6,7 +6,7 @@
     <manufacturer>C-BIOS</manufacturer>
     <code>MSX2</code>
     <release_year>2003</release_year>
-    <description>An MSX2 machine using C-BIOS, with an international keyboard layout and 50Hz interrupt frequency.</description>
+    <description>An MSX2 machine using C-BIOS, with an international keyboard layout and 60Hz interrupt frequency.</description>
     <type>MSX2</type>
   </info>
 
@@ -20,7 +20,7 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>8339f5f2be69a166af128ceb0c9c7799f25a6f35</sha1>
+          <sha1>f929bd1d720b0ef7092c9add8accd0d56fc9c8a3</sha1>
           <filename>cbios_main_msx2.rom</filename>
         </rom>
       </ROM>
@@ -28,7 +28,7 @@
       <ROM id="C-BIOS Logo ROM">
         <mem base="0x8000" size="0x4000"/>
         <rom>
-          <sha1>bf7cbbfdf68aeeb9dc0ff925fe4f631df172775e</sha1>
+          <sha1>d4e5b98ce23573669fb44447582d656e390791c0</sha1>
           <filename>cbios_logo_msx2.rom</filename>
         </rom>
       </ROM>

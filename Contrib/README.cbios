@@ -1,4 +1,4 @@
-C-BIOS 0.28
+C-BIOS 0.29
 ===========
 
 This software is a substitute BIOS which is can be used for running MSX
@@ -211,6 +211,10 @@ ver 0.27  2014-11-05(CET)
 ver 0.28  2017-07-30(CEST)
           * Fixed bug that prevented brackets and a few other keys from
             generating characters when pressed
+ver 0.29  2018-02-18(CET)
+          * Removed NLMSX configs. We don't think anyone is interested anymore
+          * Made generic international ROM config 60Hz and added an EU variant
+            at 50Hz default interrupt frequency
 
 Special Thanks
 --------------

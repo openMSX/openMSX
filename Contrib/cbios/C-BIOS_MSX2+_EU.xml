@@ -4,9 +4,9 @@
 
   <info>
     <manufacturer>C-BIOS</manufacturer>
-    <code>MSX2+ JP</code>
-    <release_year>2010</release_year>
-    <description>An MSX2+ machine using C-BIOS, with MSX-MUSIC, a Japanese keyboard layout and 60Hz interrupt frequency.</description>
+    <code>MSX2+</code>
+    <release_year>2005</release_year>
+    <description>An MSX2+ machine using C-BIOS, with MSX-MUSIC, an international keyboard layout and 50Hz interrupt frequency.</description>
     <type>MSX2+</type>
   </info>
 
@@ -17,11 +17,11 @@
   <devices>
 
     <primary slot="0">
-      <ROM id="C-BIOS Main ROM JP">
+      <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>a5b02ea4a1530f2b96f0f4f4e2049f0de4a31e5a</sha1>
-          <filename>cbios_main_msx2+_jp.rom</filename>
+          <sha1>49f1cc4b387ec870bc39646f84bec921ca076c5d</sha1>
+          <filename>cbios_main_msx2+_eu.rom</filename>
         </rom>
       </ROM>
 
@@ -79,9 +79,9 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>false</key_ghosting>
-      <keyboard_type>jp_ansi</keyboard_type>
+      <keyboard_type>int</keyboard_type>
       <has_keypad>true</has_keypad>
-      <code_kana_locks>true</code_kana_locks>
+      <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
 
@@ -94,7 +94,6 @@
 
     <PSG id="PSG">
       <type>YM2149</type>
-      <keyboardlayout>50on</keyboardlayout>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
       <sound>
@@ -105,7 +104,7 @@
     <RTC id="Real time clock">
       <io base="0xB4" num="2" type="O"/>
       <io base="0xB5" num="1" type="I"/>
-      <sramname>cbios-msx2+_jp.cmos</sramname>
+      <sramname>cbios-msx2+.cmos</sramname>
     </RTC>
 
     <PrinterPort id="Printer Port">

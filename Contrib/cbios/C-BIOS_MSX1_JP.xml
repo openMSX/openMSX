@@ -18,7 +18,7 @@
       <ROM id="C-BIOS Main ROM JP">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>6a2868faf6c3de590fa86a911dbc6e051680cf3a</sha1>
+          <sha1>933719a975a62395068b0a251dd4395b67217630</sha1>
           <filename>cbios_main_msx1_jp.rom</filename>
         </rom>
       </ROM>
@@ -26,7 +26,7 @@
       <ROM id="C-BIOS Logo ROM">
         <mem base="0x8000" size="0x4000"/>
         <rom>
-          <sha1>52250a895fb6e7440e076d59c22ca40f039d591e</sha1>
+          <sha1>9fbbe400dbaf186aeba42e170d9424b032412c42</sha1>
           <filename>cbios_logo_msx1.rom</filename>
         </rom>
       </ROM>
