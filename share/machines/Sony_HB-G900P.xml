@@ -100,7 +100,7 @@
       <secondary slot="3">
         <ROM id="Video Utility">
           <rom>
-            <sha1>8779b004e7605a3c419825f0373a5d8fa84e1d5b</sha1>
+            <sha1>8779b004e7605a3c419825f0373a5d8fa84e1d5b</sha1> <!-- Although the 2nd half of the ROM is empty, it is actually a 16kB ROM. On the HB-G900AP, the code is just a bit longer and there the first few bytes of the 2nd half are used. Also the Service Manual clearly states that it's a 16kB ROM. -->
             <filename>hb-g900p_video-utility.rom</filename>
           </rom>
           <mem base="0x4000" size="0x4000"/>
