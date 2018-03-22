@@ -117,7 +117,7 @@ bool SoundDevice::isStereo() const
 	return stereo == 2 || !balanceCenter;
 }
 
-int SoundDevice::getAmplificationFactor() const
+int SoundDevice::getAmplificationFactorImpl() const
 {
 	return 1;
 }
@@ -172,6 +172,13 @@ void SoundDevice::unregisterSound()
 void SoundDevice::updateStream(EmuTime::param time)
 {
 	mixer.updateStream(time);
+}
+
+void SoundDevice::setSoftwareVolume(VolumeType volume, EmuTime::param time)
+{
+	updateStream(time);
+	softwareVolume = volume;
+	mixer.updateSoftwareVolume(*this);
 }
 
 void SoundDevice::recordChannel(unsigned channel, const Filename& filename)
@@ -273,7 +280,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 			assert(bufs[i] != dataOut);
 			if (bufs[i]) {
 				writer[i]->write(
-					bufs[i], stereo, samples, getAmplificationFactor());
+					bufs[i], stereo, samples, getAmplificationFactor().toInt());
 			} else {
 				writer[i]->writeSilence(stereo, samples);
 			}

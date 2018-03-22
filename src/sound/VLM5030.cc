@@ -363,7 +363,7 @@ phase_stop:
 	}
 }
 
-int VLM5030::getAmplificationFactor() const
+int VLM5030::getAmplificationFactorImpl() const
 {
 	return 1 << (15 - 9);
 }

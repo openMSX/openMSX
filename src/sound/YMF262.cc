@@ -1529,7 +1529,7 @@ bool YMF262::checkMuteHelper()
 	return true;
 }
 
-int YMF262::getAmplificationFactor() const
+int YMF262::getAmplificationFactorImpl() const
 {
 	return 1 << 2;
 }

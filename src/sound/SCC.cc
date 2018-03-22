@@ -340,7 +340,7 @@ void SCC::writeMem(byte address, byte value, EmuTime::param time)
 	}
 }
 
-int SCC::getAmplificationFactor() const
+int SCC::getAmplificationFactorImpl() const
 {
 	return 256;
 }

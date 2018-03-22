@@ -798,7 +798,7 @@ int Y8950::Slot::calc_slot_hat(int lfo_am, int a, int b, int whitenoise)
 	        dB2Lin.tab[egout + b]) >> 2;
 }
 
-int Y8950::getAmplificationFactor() const
+int Y8950::getAmplificationFactorImpl() const
 {
 	return 1 << (15 - DB2LIN_AMP_BITS);
 }

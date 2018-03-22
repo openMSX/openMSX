@@ -30,7 +30,7 @@ public:
 
 private:
 	// SoundDevice
-	int getAmplificationFactor() const override;
+	int getAmplificationFactorImpl() const override;
 	void generateChannels(int** bufs, unsigned num) override;
 
 	inline int adjust(signed char wav, byte vol);

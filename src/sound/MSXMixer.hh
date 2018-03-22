@@ -28,6 +28,11 @@ class MSXMixer final : private Schedulable, private Observer<Setting>
                      , private Observer<ThrottleManager>
 {
 public:
+	// See SoundDevice::getAmplificationFactor()
+	// and MSXMixer::updateVolumeParams()
+	static constexpr int AMP_BITS = 9;
+
+public:
 	MSXMixer(Mixer& mixer, MSXMotherBoard& motherBoard,
 	         GlobalSettings& globalSettings);
 	~MSXMixer();
@@ -53,6 +58,11 @@ public:
 	 * updateBuffer() methods.
 	 */
 	void updateStream(EmuTime::param time);
+
+	/**
+	 * Used by SoundDevice::setSoftwareVolume()
+	 */
+	void updateSoftwareVolume(SoundDevice& device);
 
 	/** Returns the ratio of emutime-speed per realtime-speed.
 	 * In other words how many times faster emutime goes compared to

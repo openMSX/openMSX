@@ -159,6 +159,9 @@ public:
 	constexpr friend FixedPoint operator*(FixedPoint x, int y) {
 		return create(x.value * y);
 	}
+	constexpr friend FixedPoint operator*(int x, FixedPoint y) {
+		return create(x * y.value);
+	}
 	/**
 	 * Divides two fixed point numbers.
 	 * The fractional part is rounded down.

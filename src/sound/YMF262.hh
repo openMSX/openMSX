@@ -140,7 +140,7 @@ private:
 	};
 
 	// SoundDevice
-	int getAmplificationFactor() const override;
+	int getAmplificationFactorImpl() const override;
 	void generateChannels(int** bufs, unsigned num) override;
 
 	void callback(byte flag) override;

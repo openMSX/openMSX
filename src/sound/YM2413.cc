@@ -73,7 +73,7 @@ void YM2413::generateChannels(int** bufs, unsigned num)
 	core->generateChannels(bufs, num);
 }
 
-int YM2413::getAmplificationFactor() const
+int YM2413::getAmplificationFactorImpl() const
 {
 	return core->getAmplificationFactor();
 }
