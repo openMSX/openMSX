@@ -54,7 +54,7 @@ static unsigned breakedSettingCount = 0;
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
 static const byte SECONDARY_SLOT_BIT = 0x01;
 static const byte MEMORY_WATCH_BIT   = 0x02;
-static const byte GLOBAL_WRITE_BIT   = 0x04;
+static const byte GLOBAL_RW_BIT      = 0x04;
 
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
@@ -178,6 +178,14 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 {
 	// something special in this region?
 	if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
+		// slot-select-ignore reads (e.g. used in 'Carnivore2')
+		for (auto& g : globalReads) {
+			// very primitive address selection mechanism,
+			// but more than enough for now
+			if (unlikely(g.addr == address)) {
+				g.device->globalRead(address, time);
+			}
+		}
 		// execute read watches before actual read
 		if (readWatchSet[address >> CacheLine::BITS]
 		                [address &  CacheLine::LOW]) {
@@ -532,13 +540,13 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 {
 	globalWrites.push_back({&device, address});
 
-	disallowWriteCache[address >> CacheLine::BITS] |= GLOBAL_WRITE_BIT;
+	disallowWriteCache[address >> CacheLine::BITS] |= GLOBAL_RW_BIT;
 	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 {
-	GlobalWriteInfo info = { &device, address };
+	GlobalRwInfo info = { &device, address };
 	move_pop_back(globalWrites, rfind_unguarded(globalWrites, info));
 
 	for (auto& g : globalWrites) {
@@ -548,7 +556,31 @@ void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 			return;
 		}
 	}
-	disallowWriteCache[address >> CacheLine::BITS] &= ~GLOBAL_WRITE_BIT;
+	disallowWriteCache[address >> CacheLine::BITS] &= ~GLOBAL_RW_BIT;
+	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+}
+
+void MSXCPUInterface::registerGlobalRead(MSXDevice& device, word address)
+{
+	globalReads.push_back({&device, address});
+
+	disallowReadCache[address >> CacheLine::BITS] |= GLOBAL_RW_BIT;
+	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+}
+
+void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
+{
+	GlobalRwInfo info = { &device, address };
+	move_pop_back(globalReads, rfind_unguarded(globalReads, info));
+
+	for (auto& g : globalReads) {
+		if ((g.addr >> CacheLine::BITS) ==
+		    (address  >> CacheLine::BITS)) {
+			// there is still a global write in this region
+			return;
+		}
+	}
+	disallowReadCache[address >> CacheLine::BITS] &= ~GLOBAL_RW_BIT;
 	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
 }
 

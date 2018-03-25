@@ -97,6 +97,12 @@ public:
 	void   registerGlobalWrite(MSXDevice& device, word address);
 	void unregisterGlobalWrite(MSXDevice& device, word address);
 
+	/** (Un)register global read.
+	  * @see MSXDevice::globalRead()
+	  */
+	void   registerGlobalRead(MSXDevice& device, word address);
+	void unregisterGlobalRead(MSXDevice& device, word address);
+
 	/**
 	 * Reset (the slot state)
 	 */
@@ -373,15 +379,16 @@ private:
 	std::bitset<CacheLine::SIZE> readWatchSet [CacheLine::NUM];
 	std::bitset<CacheLine::SIZE> writeWatchSet[CacheLine::NUM];
 
-	struct GlobalWriteInfo {
+	struct GlobalRwInfo {
 		MSXDevice* device;
 		word addr;
-		bool operator==(const GlobalWriteInfo& rhs) const {
+		bool operator==(const GlobalRwInfo& rhs) const {
 			return (device == rhs.device) &&
 			       (addr   == rhs.addr);
 		}
 	};
-	std::vector<GlobalWriteInfo> globalWrites;
+	std::vector<GlobalRwInfo> globalReads;
+	std::vector<GlobalRwInfo> globalWrites;
 
 	MSXDevice* IO_In [256];
 	MSXDevice* IO_Out[256];
