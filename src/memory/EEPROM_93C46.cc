@@ -121,7 +121,7 @@ void EEPROM_93C46::clockEvent(EmuTime::param time)
 		break;
 
 	case WAIT_FOR_COMMAND:
-		shiftRegister = (shiftRegister << 1) | pinDI;
+		shiftRegister = (shiftRegister << 1) | int(pinDI);
 		++bits;
 		if (bits == (2 + ADDRESS_BITS)) {
 			execute_command(time);
@@ -140,7 +140,7 @@ void EEPROM_93C46::clockEvent(EmuTime::param time)
 		break;
 
 	case WAIT_FOR_WRITE:
-		shiftRegister = (shiftRegister << 1) | pinDI;
+		shiftRegister = (shiftRegister << 1) | int(pinDI);
 		++bits;
 		if (bits == DATA_BITS) {
 			if (writeProtected) {
@@ -153,7 +153,7 @@ void EEPROM_93C46::clockEvent(EmuTime::param time)
 		break;
 
 	case WAIT_FOR_WRITEALL:
-		shiftRegister = (shiftRegister << 1) | pinDI;
+		shiftRegister = (shiftRegister << 1) | int(pinDI);
 		++bits;
 		if (bits == DATA_BITS) {
 			if (writeProtected) {

@@ -129,7 +129,7 @@ byte Carnivore2::getSubSlot(word address) const
 		for (int i = 0; i < 4; ++i) {
 			if (subSlotEnabled(i)) return i;
 		}
-		return -1;
+		return byte(-1);
 	}
 }
 
@@ -196,7 +196,7 @@ byte Carnivore2::peekConfigRegister(word address, EmuTime::param time) const
 			case 0x04: return flash.peek(getDirectFlashAddr());
 			case 0x1f: return configRegs[0x00]; // mirror 'CardMDR' register
 			case 0x23: return configRegs[address] |
-					  eeprom.read_DO(time);
+					  int(eeprom.read_DO(time));
 			default:   return configRegs[address];
 		}
 	}
