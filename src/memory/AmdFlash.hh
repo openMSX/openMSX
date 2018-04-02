@@ -85,6 +85,7 @@ private:
 	bool checkCommandEraseChip();
 	bool checkCommandProgramHelper(unsigned, const byte*, size_t cmdLen);
 	bool checkCommandProgram();
+	bool checkCommandDoubleByteProgram();
 	bool checkCommandQuadrupleByteProgram();
 	bool checkCommandManifacturer();
 	bool partialMatch(size_t len, const byte* dataSeq) const;
