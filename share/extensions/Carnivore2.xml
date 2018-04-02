@@ -3,11 +3,11 @@
 <msxconfig>
   <info>
     <name>Carnivore2</name>
-    <manufacturer></manufacturer>
+    <manufacturer>RBSC</manufacturer>
     <code/>
-    <release_year></release_year>
-    <description></description>
-    <type></type>
+    <release_year>2017</release_year>
+    <description>Carnivore2 is a multi-device MSX cartridge created by the Russian Bear Service Crew in 2017 that incorporates 1Mb of RAM with mapper, 1Mb of shadow RAM (with FMPAC SRAM emulation), IDE controller with Nextor BIOS, emulated FMPAC, SCC/SCC+ and PSG devices as well as 8Mb FlashROM. The cartridge uses CF cards as IDE media.</description>
+    <type>Flash cartridge</type>
   </info>
   <devices>
     <primary slot="any">
