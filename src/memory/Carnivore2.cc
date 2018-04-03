@@ -590,7 +590,7 @@ byte Carnivore2::readFmPacSlot(word address)
 		return fmPacEnable; // enable
 	} else if (address == 0x7ff7) {
 		return fmPacBank; // bank
-	} else if ((address <= 0x4000) && (address < 0x8000)) {
+	} else if ((0x4000 <= address) && (address < 0x8000)) {
 		if (fmPacSramEnabled()) {
 			if (address < 0x5ffe) {
 				return ram[(address & 0x1fff) | 0xfe000];
@@ -619,7 +619,7 @@ byte Carnivore2::peekFmPacSlot(word address) const
 		return fmPacEnable; // enable
 	} else if (address == 0x7ff7) {
 		return fmPacBank; // bank
-	} else if ((address <= 0x4000) && (address < 0x8000)) {
+	} else if ((0x4000 <= address) && (address < 0x8000)) {
 		if (fmPacSramEnabled()) {
 			if (address < 0x5ffe) {
 				return ram[(address & 0x1fff) | 0xfe000];
@@ -644,7 +644,7 @@ byte Carnivore2::peekFmPacSlot(word address) const
 
 void Carnivore2::writeFmPacSlot(word address, byte value, EmuTime::param time)
 {
-	if ((address <= 0x4000) && (address < 0x5ffe)) {
+	if ((0x4000 <= address) && (address < 0x5ffe)) {
 		if (fmPacSramEnabled()) {
 			ram[(address & 0x1fff) | 0xfe000] = value;
 		}
