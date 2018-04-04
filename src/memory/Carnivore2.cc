@@ -239,7 +239,7 @@ void Carnivore2::writeConfigRegister(word address, byte value, EmuTime::param ti
 	if ((0x05 <= address) && (address <= 0x1e)) {
 		// shadow registers
 		if (address == 0x05) value &= 0x7f;
-		if ((address == 0x1e) && ((value & 0x8f) != 0x0f)) return; // ignore write
+		if ((address == 0x1e) && ((value & 0x8f) == 0x0f)) return; // ignore write
 
 		shadowConfigRegs[address] = value;
 		if (!delayedConfig()) configRegs[address] = value;
