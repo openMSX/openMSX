@@ -7,7 +7,16 @@
 
 namespace openmsx {
 
-class MSXMemoryMapperInterface;
+struct MSXMemoryMapperInterface
+{
+	virtual byte readIO(word port, EmuTime::param time) = 0;
+	virtual byte peekIO(word port, EmuTime::param time) const = 0;
+	virtual void writeIO(word port, byte value, EmuTime::param time) = 0;
+	virtual byte getSelectedSegment(byte page) const = 0;
+protected:
+	~MSXMemoryMapperInterface() = default;
+};
+
 
 class MSXMapperIO final : public MSXDevice
 {
@@ -40,6 +49,33 @@ private:
 	byte mask;
 };
 SERIALIZE_CLASS_VERSION(MSXMapperIO, 2);
+
+
+template<typename MSXDEVICE>
+class MSXMapperIOClient : public MSXMemoryMapperInterface
+{
+public:
+	MSXMapperIOClient()
+	{
+		auto& mb = self().getMotherBoard();
+		auto& mapperIO = mb.createMapperIO();
+		mapperIO.registerMapper(this);
+	}
+
+	~MSXMapperIOClient()
+	{
+		auto& mb = self().getMotherBoard();
+		auto& mapperIO = mb.getMapperIO();
+		mapperIO.unregisterMapper(this);
+		mb.destroyMapperIO();
+	}
+
+private:
+	MSXDEVICE& self()
+	{
+		return static_cast<MSXDEVICE&>(*this);
+	}
+};
 
 } // namespace openmsx
 

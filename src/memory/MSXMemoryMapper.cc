@@ -1,5 +1,4 @@
 #include "MSXMemoryMapper.hh"
-#include "MSXMapperIO.hh"
 #include "MSXMotherBoard.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
@@ -28,15 +27,11 @@ MSXMemoryMapper::MSXMemoryMapper(const DeviceConfig& config)
 	: MSXDevice(config)
 	, checkedRam(config, getName(), "memory mapper", getRamSize())
 	, debuggable(getMotherBoard(), getName())
-	, mapperIO(*getMotherBoard().createMapperIO())
 {
-	mapperIO.registerMapper(this);
 }
 
 MSXMemoryMapper::~MSXMemoryMapper()
 {
-	mapperIO.unregisterMapper(this);
-	getMotherBoard().destroyMapperIO();
 }
 
 void MSXMemoryMapper::powerUp(EmuTime::param time)

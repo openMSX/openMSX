@@ -3,7 +3,6 @@
 #include "IDEDeviceFactory.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXMapperIO.hh"
 #include "MSXMotherBoard.hh"
 
 namespace openmsx {
@@ -25,11 +24,8 @@ Carnivore2::Carnivore2(const DeviceConfig& config)
 	, eeprom(getName() + " eeprom",
 	         DeviceConfig(config, config.getChild("eeprom")))
 	, scc(getName() + " scc", config, getCurrentTime(), SCC::SCC_Compatible)
-	, mapperIO(*getMotherBoard().createMapperIO())
 	, ym2413(getName() + " ym2413", config)
 {
-	mapperIO.registerMapper(this);
-
 	auto& cpuInterface = getCPUInterface();
 	cpuInterface.registerGlobalRead(*this, 0x0000);
 	for (int i = 0; i < 16; ++i) {
@@ -49,9 +45,6 @@ Carnivore2::~Carnivore2()
 		cpuInterface.unregisterGlobalRead(*this, 0x4000 + i);
 	}
 	cpuInterface.unregisterGlobalRead(*this, 0x0000);
-
-	mapperIO.unregisterMapper(this);
-	getMotherBoard().destroyMapperIO();
 }
 
 void Carnivore2::powerUp(EmuTime::param time)

@@ -2,7 +2,7 @@
 #define CARNIVORE2_HH
 
 #include "MSXDevice.hh"
-#include "MSXMemoryMapper.hh"
+#include "MSXMapperIO.hh"
 #include "AmdFlash.hh"
 #include "EEPROM_93C46.hh"
 #include "Math.hh"
@@ -13,11 +13,9 @@
 
 namespace openmsx {
 
-class MSXMapperIO;
-
 class IDEDevice;
 
-class Carnivore2 final : public MSXDevice, public MSXMemoryMapperInterface
+class Carnivore2 final : public MSXDevice, public MSXMapperIOClient<Carnivore2>
 {
 public:
 	Carnivore2(const DeviceConfig& config);
@@ -127,7 +125,6 @@ private:
 	byte ideWrite;
 
 	// memory-mapper
-	MSXMapperIO& mapperIO;
 	byte memMapRegs[4]; // only stores 6 lower bits
 	
 	// fm-pac

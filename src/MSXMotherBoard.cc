@@ -653,7 +653,7 @@ MSXDevice* MSXMotherBoard::findDevice(string_ref name)
 	return nullptr;
 }
 
-MSXMapperIO* MSXMotherBoard::createMapperIO()
+MSXMapperIO& MSXMotherBoard::createMapperIO()
 {
 	if (mapperIOCounter == 0) {
 		mapperIO = DeviceFactory::createMapperIO(*getMachineConfig());
@@ -669,7 +669,7 @@ MSXMapperIO* MSXMotherBoard::createMapperIO()
 		cpuInterface.register_IO_In (0xFF, mapperIO.get());
 	}
 	++mapperIOCounter;
-	return mapperIO.get();
+	return *mapperIO;
 }
 
 void MSXMotherBoard::destroyMapperIO()

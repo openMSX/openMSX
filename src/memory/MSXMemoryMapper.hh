@@ -2,24 +2,13 @@
 #define MSXMEMORYMAPPER_HH
 
 #include "MSXDevice.hh"
+#include "MSXMapperIO.hh"
 #include "CheckedRam.hh"
 #include "SimpleDebuggable.hh"
 
 namespace openmsx {
 
-class MSXMapperIO;
-
-struct MSXMemoryMapperInterface
-{
-	virtual byte readIO(word port, EmuTime::param time) = 0;
-	virtual byte peekIO(word port, EmuTime::param time) const = 0;
-	virtual void writeIO(word port, byte value, EmuTime::param time) = 0;
-	virtual byte getSelectedSegment(byte page) const = 0;
-protected:
-	~MSXMemoryMapperInterface() = default;
-};
-
-class MSXMemoryMapper : public MSXDevice, public MSXMemoryMapperInterface
+class MSXMemoryMapper : public MSXDevice, public MSXMapperIOClient<MSXMemoryMapper>
 {
 public:
 	explicit MSXMemoryMapper(const DeviceConfig& config);
@@ -65,8 +54,6 @@ private:
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
 	} debuggable;
-
-	MSXMapperIO& mapperIO;
 };
 SERIALIZE_CLASS_VERSION(MSXMemoryMapper, 2);
 

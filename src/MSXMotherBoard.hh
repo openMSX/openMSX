@@ -9,6 +9,7 @@
 #include "xxhash.hh"
 #include "openmsx.hh"
 #include "RecordedCommand.hh"
+#include <cassert>
 #include <memory>
 #include <vector>
 
@@ -179,7 +180,12 @@ public:
 	/** All memory mappers in one MSX machine share the same four (logical)
 	 * memory mapper registers. These two methods handle this sharing.
 	 */
-	MSXMapperIO* createMapperIO();
+	MSXMapperIO& createMapperIO();
+	MSXMapperIO& getMapperIO() const
+	{
+		assert(mapperIOCounter);
+		return *mapperIO;
+	}
 	void destroyMapperIO();
 
 	/** Keep track of which 'usernames' are in use.
