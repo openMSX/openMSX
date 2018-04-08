@@ -15,7 +15,6 @@
         <mem base="0x0000" size="0x10000"/>
         <io base="0x3C" num="1" type="O"/>
         <io base="0x7C" num="2" type="O"/>
-        <io base="0xFC" num="4" type="IO"/>
         <rom>
           <sha1>1ad39f7bfa384b8940073bf0c5ad0bff95aee004</sha1>
         </rom>

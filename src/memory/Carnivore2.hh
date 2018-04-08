@@ -2,6 +2,7 @@
 #define CARNIVORE2_HH
 
 #include "MSXDevice.hh"
+#include "MSXMemoryMapper.hh"
 #include "AmdFlash.hh"
 #include "EEPROM_93C46.hh"
 #include "Math.hh"
@@ -12,9 +13,11 @@
 
 namespace openmsx {
 
+class MSXMapperIO;
+
 class IDEDevice;
 
-class Carnivore2 final : public MSXDevice
+class Carnivore2 final : public MSXDevice, public MSXMemoryMapperInterface
 {
 public:
 	Carnivore2(const DeviceConfig& config);
@@ -29,7 +32,9 @@ public:
 	void globalRead(word address, EmuTime::param time) override;
 
 	byte readIO(word address, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word address, byte value, EmuTime::param time) override;
+	byte getSelectedSegment(byte page) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -122,6 +127,7 @@ private:
 	byte ideWrite;
 
 	// memory-mapper
+	MSXMapperIO& mapperIO;
 	byte memMapRegs[4]; // only stores 6 lower bits
 	
 	// fm-pac

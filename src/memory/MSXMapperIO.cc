@@ -39,12 +39,12 @@ MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
 	reset(EmuTime::dummy());
 }
 
-void MSXMapperIO::registerMapper(MSXMemoryMapper* mapper)
+void MSXMapperIO::registerMapper(MSXMemoryMapperInterface* mapper)
 {
 	mappers.push_back(mapper);
 }
 
-void MSXMapperIO::unregisterMapper(MSXMemoryMapper* mapper)
+void MSXMapperIO::unregisterMapper(MSXMemoryMapperInterface* mapper)
 {
 	mappers.erase(rfind_unguarded(mappers, mapper));
 }

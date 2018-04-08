@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class MSXMemoryMapper;
+class MSXMemoryMapperInterface;
 
 class MSXMapperIO final : public MSXDevice
 {
@@ -18,8 +18,8 @@ public:
 	byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
-	void registerMapper(MSXMemoryMapper* mapper);
-	void unregisterMapper(MSXMemoryMapper* mapper);
+	void registerMapper(MSXMemoryMapperInterface* mapper);
+	void unregisterMapper(MSXMemoryMapperInterface* mapper);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -31,7 +31,7 @@ private:
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
 
-	std::vector<MSXMemoryMapper*> mappers;
+	std::vector<MSXMemoryMapperInterface*> mappers;
 
 	/**
 	 * OR-mask that limits which bits can be read back.

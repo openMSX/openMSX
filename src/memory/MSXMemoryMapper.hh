@@ -9,7 +9,17 @@ namespace openmsx {
 
 class MSXMapperIO;
 
-class MSXMemoryMapper : public MSXDevice
+struct MSXMemoryMapperInterface
+{
+	virtual byte readIO(word port, EmuTime::param time) = 0;
+	virtual byte peekIO(word port, EmuTime::param time) const = 0;
+	virtual void writeIO(word port, byte value, EmuTime::param time) = 0;
+	virtual byte getSelectedSegment(byte page) const = 0;
+protected:
+	~MSXMemoryMapperInterface() = default;
+};
+
+class MSXMemoryMapper : public MSXDevice, public MSXMemoryMapperInterface
 {
 public:
 	explicit MSXMemoryMapper(const DeviceConfig& config);
@@ -19,7 +29,7 @@ public:
 	 * Returns the currently selected segment for the given page.
 	 * @param page Z80 address page (0-3).
 	 */
-	byte getSelectedSegment(byte page) const { return registers[page]; }
+	byte getSelectedSegment(byte page) const override { return registers[page]; }
 
 	unsigned getSizeInBlocks() { return checkedRam.getSize() / 0x4000; }
 

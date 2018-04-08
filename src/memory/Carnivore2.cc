@@ -3,6 +3,8 @@
 #include "IDEDeviceFactory.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXMapperIO.hh"
+#include "MSXMotherBoard.hh"
 
 namespace openmsx {
 
@@ -23,9 +25,11 @@ Carnivore2::Carnivore2(const DeviceConfig& config)
 	, eeprom(getName() + " eeprom",
 	         DeviceConfig(config, config.getChild("eeprom")))
 	, scc(getName() + " scc", config, getCurrentTime(), SCC::SCC_Compatible)
+	, mapperIO(*getMotherBoard().createMapperIO())
 	, ym2413(getName() + " ym2413", config)
 {
-	// TODO handle ports fc-ff so that they don't generate a warning
+	mapperIO.registerMapper(this);
+
 	auto& cpuInterface = getCPUInterface();
 	cpuInterface.registerGlobalRead(*this, 0x0000);
 	for (int i = 0; i < 16; ++i) {
@@ -45,6 +49,9 @@ Carnivore2::~Carnivore2()
 		cpuInterface.unregisterGlobalRead(*this, 0x4000 + i);
 	}
 	cpuInterface.unregisterGlobalRead(*this, 0x0000);
+
+	mapperIO.unregisterMapper(this);
+	getMotherBoard().destroyMapperIO();
 }
 
 void Carnivore2::powerUp(EmuTime::param time)
@@ -663,22 +670,27 @@ void Carnivore2::writeFmPacSlot(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte Carnivore2::readIO(word address, EmuTime::param /*time*/)
+byte Carnivore2::readIO(word port, EmuTime::param time)
+{
+	return peekIO(port, time);
+}
+
+byte Carnivore2::peekIO(word port, EmuTime::param /*time*/) const
 {
 	// reading ports 0x3c, 0x7c, 0x7d has no effect
-	if (memMapReadEnabled() && ((address & 0xfc) == 0xfc)) {
+	if (memMapReadEnabled() && ((port & 0xfc) == 0xfc)) {
 		// memory mapper registers
-		return memMapRegs[address & 3];
+		return getSelectedSegment(port & 3);
 	}
 	return 0xff;
 }
 
-void Carnivore2::writeIO(word address, byte value, EmuTime::param time)
+void Carnivore2::writeIO(word port, byte value, EmuTime::param time)
 {
-	if (((address & 0xfe) == 0x7c) &&
+	if (((port & 0xfe) == 0x7c) &&
 	    (fmPacPortEnabled1() || fmPacPortEnabled2())) {
 		// fm-pac registers
-		switch (address & 1) {
+		switch (port & 1) {
 		case 0:
 			fmPacRegSelect = value & 0x3f;
 			break;
@@ -687,14 +699,19 @@ void Carnivore2::writeIO(word address, byte value, EmuTime::param time)
 			break;
 		}
 
-	} else if (((address & 0xff) == 0x3c) && writePort3cEnabled()) {
+	} else if (((port & 0xff) == 0x3c) && writePort3cEnabled()) {
 		// only change bit 7
 		port3C = (port3C & 0x7F) | (value & 0x80);
 
-	} else if ((address & 0xfc) == 0xfc) {
+	} else if ((port & 0xfc) == 0xfc) {
 		// memory mapper registers
-		memMapRegs[address & 0x03] = value & 0x3f;
+		memMapRegs[port & 0x03] = value & 0x3f;
 	}
+}
+
+byte Carnivore2::getSelectedSegment(byte page) const
+{
+	return memMapRegs[page];
 }
 
 template<typename Archive>
