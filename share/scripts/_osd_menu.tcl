@@ -731,12 +731,18 @@ proc create_video_setting_menu {} {
 		border-size 2
 		width 210
 		xpos 100
-		ypos 120
+		ypos 110
 	}
 	lappend items { text "Video Settings"
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
+	if {[expr {[lindex [lindex [openmsx_info setting videosource] 2] 1] > 1}]} {
+		lappend items { text "Video source: $videosource"
+			actions { LEFT  { osd_menu::menu_setting [cycle_back videosource] }
+			          RIGHT { osd_menu::menu_setting [cycle      videosource] }}
+				  post-spacing 6}
+	}
 	if {$scaling_available} {
 		lappend items { text "Scaler: $scale_algorithm"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back scale_algorithm] }
