@@ -120,6 +120,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 			"breaked", "Similar to 'debug breaked'",
 			TclObject("false"));
 	}
+	reset();
 }
 
 MSXCPUInterface::~MSXCPUInterface()
