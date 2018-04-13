@@ -411,6 +411,82 @@ private:
 	static bool step;
 };
 
+
+// Compile-Time Interval (half-open).
+//   TODO possibly move this to utils/
+template<unsigned BEGIN, unsigned END = BEGIN + 1>
+struct CT_Interval
+{
+	unsigned begin() const { return BEGIN; } // inclusive
+	unsigned end()   const { return END; }   // exclusive
+};
+
+// Execute an 'action' for every element in the given interval(s).
+template<typename ACTION, typename CT_INTERVAL>
+inline void foreach_ct_interval(ACTION action, CT_INTERVAL interval)
+{
+	for (auto i = interval.begin(); i != interval.end(); ++i) {
+		action(i);
+	}
+}
+template<typename ACTION, typename CT_INTERVAL, typename... CT_INTERVALS>
+inline void foreach_ct_interval(ACTION action, CT_INTERVAL front, CT_INTERVALS... tail)
+{
+	foreach_ct_interval(action, front);
+	foreach_ct_interval(action, tail...);
+}
+
+
+template<typename MSXDEVICE, typename... CT_INTERVALS>
+struct GlobalRWHelper
+{
+	template<typename ACTION>
+	void execute(ACTION action)
+	{
+		auto& dev = static_cast<MSXDEVICE&>(*this);
+		auto& cpu = dev.getCPUInterface();
+		foreach_ct_interval(
+			[&](unsigned addr) { action(cpu, dev, addr); },
+			CT_INTERVALS()...);
+	}
+};
+
+template<typename MSXDEVICE, typename... CT_INTERVALS>
+struct GlobalWriteClient : GlobalRWHelper<MSXDEVICE, CT_INTERVALS...>
+{
+	GlobalWriteClient()
+	{
+		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
+			cpu.registerGlobalWrite(dev, addr);
+		});
+	}
+
+	~GlobalWriteClient()
+	{
+		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
+			cpu.unregisterGlobalWrite(dev, addr);
+		});
+	}
+};
+
+template<typename MSXDEVICE, typename... CT_INTERVALS>
+struct GlobalReadClient : GlobalRWHelper<MSXDEVICE, CT_INTERVALS...>
+{
+	GlobalReadClient()
+	{
+		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
+			cpu.registerGlobalRead(dev, addr);
+		});
+	}
+
+	~GlobalReadClient()
+	{
+		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
+			cpu.unregisterGlobalRead(dev, addr);
+		});
+	}
+};
+
 } // namespace openmsx
 
 #endif

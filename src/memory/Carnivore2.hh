@@ -3,6 +3,7 @@
 
 #include "MSXDevice.hh"
 #include "MSXMapperIO.hh"
+#include "MSXCPUInterface.hh"
 #include "AmdFlash.hh"
 #include "EEPROM_93C46.hh"
 #include "Math.hh"
@@ -15,7 +16,10 @@ namespace openmsx {
 
 class IDEDevice;
 
-class Carnivore2 final : public MSXDevice, public MSXMapperIOClient<Carnivore2>
+class Carnivore2 final
+	: public MSXDevice
+	, public MSXMapperIOClient<Carnivore2>
+	, public GlobalReadClient<Carnivore2, CT_Interval<0x0000>, CT_Interval<0x4000, 0x4010>>
 {
 public:
 	Carnivore2(const DeviceConfig& config);

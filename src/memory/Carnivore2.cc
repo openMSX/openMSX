@@ -2,7 +2,6 @@
 #include "IDEDevice.hh"
 #include "IDEDeviceFactory.hh"
 #include "MSXCPU.hh"
-#include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 
 namespace openmsx {
@@ -26,12 +25,6 @@ Carnivore2::Carnivore2(const DeviceConfig& config)
 	, scc(getName() + " scc", config, getCurrentTime(), SCC::SCC_Compatible)
 	, ym2413(getName() + " ym2413", config)
 {
-	auto& cpuInterface = getCPUInterface();
-	cpuInterface.registerGlobalRead(*this, 0x0000);
-	for (int i = 0; i < 16; ++i) {
-		cpuInterface.registerGlobalRead(*this, 0x4000 + i);
-	}
-
 	ideDevices[0] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("master")));
 	ideDevices[1] = IDEDeviceFactory::create(
@@ -40,11 +33,6 @@ Carnivore2::Carnivore2(const DeviceConfig& config)
 
 Carnivore2::~Carnivore2()
 {
-	auto& cpuInterface = getCPUInterface();
-	for (int i = 0; i < 16; ++i) {
-		cpuInterface.unregisterGlobalRead(*this, 0x4000 + i);
-	}
-	cpuInterface.unregisterGlobalRead(*this, 0x0000);
 }
 
 void Carnivore2::powerUp(EmuTime::param time)
