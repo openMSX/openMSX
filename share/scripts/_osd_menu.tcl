@@ -1099,11 +1099,6 @@ proc menu_remove_extension_exec {item} {
 	remove_extension $item
 }
 
-proc get_pluggable_for_connector {connector} {
-	set t [plug $connector]
-	return [string range $t [string first ": " $t]+2 end]
-}
-
 proc menu_create_connectors_list {} {
 	set menu_def {
 	         execute menu_connector_exec
@@ -1122,7 +1117,7 @@ proc menu_create_connectors_list {} {
 	foreach item $items {
 		set plugged [get_pluggable_for_connector $item]
 		set plugged_presentation ""
-		if {$plugged ne "--empty--"} {
+		if {$plugged ne ""} {
 			set plugged_presentation "  ([machine_info pluggable $plugged])"
 		}
 		lappend presentation "[machine_info connector $item]: $plugged$plugged_presentation"
@@ -1158,7 +1153,7 @@ proc create_menu_pluggable_list {connector} {
 	set already_plugged [list]
 	foreach other_connector [machine_info connector] {
 		set other_plugged [get_pluggable_for_connector $other_connector]
-		if {$other_plugged ne "--empty--" && $other_connector ne $connector} {
+		if {$other_plugged ne "" && $other_connector ne $connector} {
 			lappend already_plugged $other_plugged
 		}
 	}
@@ -1177,8 +1172,7 @@ proc create_menu_pluggable_list {connector} {
 	}
 
 	set plugged [get_pluggable_for_connector $connector]
-
-	if {$plugged ne "--empty--"} {
+	if {$plugged ne ""} {
 		set items [linsert $items 0 "--unplug--"]
 		set presentation [linsert $presentation 0 "Nothing, unplug $plugged ([machine_info pluggable $plugged])"]
 	}

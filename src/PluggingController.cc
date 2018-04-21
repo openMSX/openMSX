@@ -184,7 +184,7 @@ void PluggingController::UnplugCmd::execute(
 	string_ref connName = tokens[1].getString();
 	auto& connector = pluggingController.getConnector(connName);
 	connector.unplug(time);
-	pluggingController.getCliComm().update(CliComm::UNPLUG, connName, {});
+	pluggingController.getCliComm().update(CliComm::PLUG, connName, {});
 }
 
 string PluggingController::UnplugCmd::help(const vector<string>& /*tokens*/) const

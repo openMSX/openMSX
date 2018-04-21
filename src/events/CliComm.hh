@@ -22,7 +22,6 @@ public:
 		SETTINGINFO,
 		HARDWARE,
 		PLUG,
-		UNPLUG,
 		MEDIA,
 		STATUS,
 		EXTENSION,

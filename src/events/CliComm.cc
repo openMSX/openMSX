@@ -7,7 +7,7 @@ const char* const CliComm::levelStr[CliComm::NUM_LEVELS] = {
 };
 
 const char* const CliComm::updateStr[CliComm::NUM_UPDATES] = {
-	"led", "setting", "setting-info", "hardware", "plug", "unplug",
+	"led", "setting", "setting-info", "hardware", "plug",
 	"media", "status", "extension", "sounddevice", "connector"
 };
 
