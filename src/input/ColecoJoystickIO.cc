@@ -87,10 +87,13 @@ void ColecoJoystickIO::writeIO(word port, byte /*value*/, EmuTime::param /*time*
 }
 
 template<typename Archive>
-void ColecoJoystickIO::serialize(Archive& ar, unsigned /*version*/)
+void ColecoJoystickIO::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("joyMode", joyMode);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("keyboard", keyboard);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(ColecoJoystickIO);
 REGISTER_MSXDEVICE(ColecoJoystickIO, "ColecoJoystick");

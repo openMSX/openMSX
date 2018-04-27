@@ -29,6 +29,7 @@ private:
 	JoystickPortIf* ports[2];
 	Keyboard keyboard;
 };
+SERIALIZE_CLASS_VERSION(ColecoJoystickIO, 2);
 
 } // namespace openmsx
 
