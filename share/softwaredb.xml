@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1517945260">
+<softwaredb timestamp="1526331548">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -824,6 +824,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>01cf858888f5a0d3aee08f42a66c515ab0d06400</hash></rom></dump>
 </software>
 <software>
+	<title>BUDDHAGILLIE</title>
+	<system>MSX</system>
+	<company>GWʼs-Workshop</company>
+	<year>2018</year>
+	<country>JP</country>
+		<dump><original value="true">Author</original><rom><hash>461e50c7372490a453a6cb04bfacf72253c32509</hash><remark>Version 1.00 / MSXDev2018 Entry</remark></rom></dump>
+</software>
+<software>
 	<title>Back To The Future</title>
 	<genmsxid>827</genmsxid>
 	<system>MSX</system>
@@ -1466,6 +1474,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII16</type><hash>be08ec5c848c1378ca954ade9065b850c6ce1660</hash></megarom></dump>
 </software>
 <software>
+	<title>Break It</title>
+	<system>MSX</system>
+	<company>Martin vd Graaf</company>
+	<year>1987</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><hash>e85138db78459856dcfdac10bfd737ac90f3ad09</hash></rom></dump>
+</software>
+<software>
 	<title>Break Out</title>
 	<genmsxid>299</genmsxid>
 	<system>MSX</system>
@@ -1565,6 +1581,15 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1982</year>
 	<country>US</country>
 		<dump><megarom><type>KonamiSCC</type><hash>ccf2bdb5cbdfae61d810a096ba48569e41873940</hash></megarom></dump>
+</software>
+<software>
+	<title>Burn Us</title>
+	<system>MSX</system>
+	<company>CARAMBALAN Studios</company>
+	<year>2018</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>3dfd447efc149ab463575b7368c487777e409517</hash><remark>v1.0 / MSXDev2018 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>c4dfda5c87c132830b6d776dde4de82fe6ec2865</hash><remark>v2.0 / MSXDev2018 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Buru To Marty Kikiippatsu - Inspecteur Z</title>
@@ -5565,6 +5590,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>UK</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>785433a8064bd48a47a53c4e77a54a85e45f5899</hash><remark>Demo</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>42a05d3f93ce7e7469cc992f37558350faaefa8a</hash><remark>MSXDev2013 (the Channel)</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash>b47f6feaaf1c14d144d237782c414cc1ad98ae81</hash><remark>Full version (2017)</remark></megarom></dump>
 </software>
 <software>
 	<title>Information Rivalry</title>
@@ -6048,9 +6074,9 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Kinasai</title>
 	<system>MSX</system>
-	<company>Unknown</company>
-	<year>1984</year>
-	<country></country>
+	<company>Hudson Soft</company>
+	<year>1983</year>
+	<country>JP</country>
 		<dump><rom><hash>f772396becdbd15ba0648bf1aef8ccb155e1adad</hash></rom></dump>
 		<dump><rom><hash>4732da69df21dabf958ae181ef21f38c6f173881</hash></rom></dump>
 </software>
@@ -7176,6 +7202,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>38a3c6659080b38d9a2655e869e9fc0ce3e26c5e</hash><remark>8Kb Version / MSX-DEV05</remark></rom></dump>
 </software>
 <software>
+	<title>Magical Tower Adventure Mini Edition</title>
+	<system>MSX</system>
+	<company>Timmy Jahr</company>
+	<year>2017</year>
+	<country>SE</country>
+		<dump><original value="true">Author</original><rom><hash>50cc78e08fcb36ce9fb1c57d77c8758f439ba525</hash></rom></dump>
+</software>
+<software>
 	<title>Magical Tree</title>
 	<genmsxid>655</genmsxid>
 	<system>MSX</system>
@@ -7715,13 +7749,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>1c17e58f1a602e07f185bce1aa8589fae76e8b44</hash></megarom></dump>
 </software>
 <software>
-	<title>Mission to MIR</title>
+	<title>Mission2MIR</title>
 	<system>MSX</system>
 	<company>Ray2day</company>
 	<year>2010</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>812c3fcf4f5e0d99cbf44e0bcb33241625cafd00</hash><remark>Version 1.0 / MSXDev2010 Entry</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>0834b48ccd64668292d1319fe70781bb8cd15ccd</hash><remark>Version 1.2 / MSXDev2010 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>18bc2ca5c36184a9b54426440f2a914126d82f79</hash><remark>Version 1.1 / MSXDev2010 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Missisippi Satsujin Jiken</title>
@@ -8563,6 +8598,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1985</year>
 	<country>KW</country>
 		<dump><rom><hash>3c9301eea142857ee5e9e04d0caebbc5a4245715</hash></rom></dump>
+</software>
+<software>
+	<title>Orguss</title>
+	<system>MSX</system>
+	<company>Sega</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><original value="true">Author</original><rom><hash>9a1f1935825f22a55b0b4179c611e4a436094f04</hash><remark>Icon Games Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Othello</title>
@@ -10550,6 +10593,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>fc6292d49736e4f986d2f44eae19a2e0e3185f45</hash><remark>Guzuta Raster Leisure</remark></rom></dump>
 </software>
 <software>
+	<title>Sink King</title>
+	<system>MSX</system>
+	<company>Guzuta Raster Leisure</company>
+	<year>2004</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>fc6292d49736e4f986d2f44eae19a2e0e3185f45</hash><remark>MSXDev2014</remark></rom></dump>
+</software>
+<software>
 	<title>Sirius' Squish'em</title>
 	<genmsxid>186</genmsxid>
 	<system>MSX</system>
@@ -11953,6 +12004,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>00d7e55053f990110086bb9481d19a5576e1169b</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>a73f674ef23c86d8a6ad11c56a3935856b6c5c0d</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>7f912a38001fd880dc58c7d3da5e603c1de59c08</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>a02e6fd739474c1681a702ca2bfab898f6291425</hash><remark>[a1] / Muffie Hack</remark></megarom></dump>
 </software>
 <software>
 	<title>The Karuizawa Kidnapping Guidance</title>
@@ -12020,6 +12072,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>cd2557fe39ba4dced3219152c6a6d02c2219b360</hash><remark>Muffie Version</remark></rom></dump>
 		<dump><rom><hash>49e2331f97ea9352329dafbe0627a238063ce6b7</hash><remark>Muffie Version</remark></rom></dump>
 		<dump><rom><hash>972ccf1b2672f4f6fbb015c288056c3997fa62df</hash><remark>MSX2 Palette fix</remark></rom></dump>
+</software>
+<software>
+	<title>The Word of Ianna</title>
+	<system>MSX</system>
+	<company>Retroworks</company>
+	<year>2017</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>82cf4caa78571a750403e592e3ac87c249ac4604</hash></megarom></dump>
 </software>
 <software>
 	<title>The Zoo</title>
@@ -12659,6 +12719,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>4db63ea453df9d17cf84a0f977f4768438ec9c45</hash><remark>MSX-DEV05</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>17315e6b40f89c2cd0d8929eefcb9394b04e4cc6</hash><remark>MSX-DEV05</remark></rom></dump>
 		<dump><megarom><type>Normal</type><hash>c5de32b837d16a066542e0ce36d5e85bd4931d49</hash></megarom></dump>
+</software>
+<software>
+	<title>Virus LQP-79</title>
+	<system>MSX</system>
+	<company>Pentacour</company>
+	<year>2018</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>f474c68a6d5b91c98fba2e922f09e3dcc6e0494c</hash><remark>Version 1.00 / MSXDev2018 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Volguard</title>
@@ -13373,7 +13441,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>b3f191439440e9682183e703f9018f29fd1355f0</hash><remark>(July 10)</remark></rom></dump>
 </software>
 <software>
-	<title>Alcazar The Forgotten Fortress</title>
+	<title>Alcazar - The Forgotten Fortress</title>
 	<system>ColecoVision</system>
 	<company>Telegames/Activision</company>
 	<year>1985</year>
@@ -15663,4 +15731,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:3858 - Created on Tue Feb 6 2018 - 11:27:42 PST-->
+<!-- Roms in this XML file:3870 - Created on Mon May 14 2018 - 13:59:13 PDT-->
