@@ -562,7 +562,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	const auto& filename = file.getURL();
 
 	auto it = findInDatabase(filename);
-	assert(it->time != time_t(-1));
+	assert((it == end(pool)) || (it->time != time_t(-1)));
 	if ((it != end(pool)) && (it->time == time)) {
 		// in database and modification time matches,
 		// assume sha1sum also matches
