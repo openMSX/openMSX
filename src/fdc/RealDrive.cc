@@ -265,7 +265,11 @@ EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time, int count)
 
 void RealDrive::invalidateTrack()
 {
-	flushTrack();
+	try {
+		flushTrack();
+	} catch (MSXException&) {
+		// ignore
+	}
 	trackValid = false;
 }
 
