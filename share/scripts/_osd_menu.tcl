@@ -1564,7 +1564,7 @@ proc menu_free_tape_name {} {
 }
 
 proc menu_create_hdd_list {path drive} {
-	return [prepare_menu_list [ls $path "dsk|zip|gz"] \
+	return [prepare_menu_list [ls $path "dsk|zip|gz|hdd"] \
 	                          10 \
 	                          [list execute [list menu_select_hdd $drive]\
 	                            font-size 8 \
