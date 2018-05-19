@@ -33,15 +33,12 @@ namespace openmsx {
 // Take an (unaligned) word from a certain position out of two adjacent
 // (aligned) words. This either maps directly to the _mm_alignr_epi8()
 // intrinsic or emulates that behavior.
-template<int BYTES> static inline __m128i align(__m128i high, __m128i low)
+template<int BYTES, int TMP = sizeof(__m128i) - BYTES>
+static inline __m128i align(__m128i high, __m128i low)
 {
 #ifdef __SSSE3__
 	return _mm_alignr_epi8(high, low, BYTES);
 #else
-	// Workaround gcc-4.8 bug: calculate 'sizeof(__m128i) - BYTES' in a
-	// separate expression. See
-	//   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=59071
-	static const int TMP = sizeof(__m128i) - BYTES;
 	return _mm_or_si128(
 		_mm_slli_si128(high, TMP),
 		_mm_srli_si128(low, BYTES));
@@ -140,7 +137,9 @@ template<typename Pixel, bool DOUBLE_X> static inline void scale1(
 
 // Scale 1 input line (plus the line above and below) to 2 output lines,
 // optionally doubling the amount of pixels within the output lines.
-template<bool DOUBLE_X, typename Pixel> static inline void scaleSSE(
+template<bool DOUBLE_X, typename Pixel,
+         int SHIFT = sizeof(__m128i) - sizeof(Pixel)>
+static inline void scaleSSE(
 	      Pixel* __restrict out0_,  // top output line
 	      Pixel* __restrict out1_,  // bottom output line
 	const Pixel* __restrict in0_,   // top input line
@@ -161,7 +160,6 @@ template<bool DOUBLE_X, typename Pixel> static inline void scaleSSE(
 	assert(width > 1);
 	width -= sizeof(__m128i); // handle last unit special
 
-	static const int SHIFT = sizeof(__m128i) - sizeof(Pixel);
 	static const size_t SCALE = DOUBLE_X ? 2 : 1;
 
 	// Generated code seems more efficient when all address calculations
