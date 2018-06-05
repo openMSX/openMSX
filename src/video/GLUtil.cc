@@ -177,7 +177,7 @@ Shader::Shader(GLenum type, const string& header, const string& filename)
 void Shader::init(GLenum type, const string& header, const string& filename)
 {
 	// Load shader source.
-	string source = header;
+	string source = "#version 110\n" + header;
 	try {
 		source += readTextFile("shaders/" + filename);
 	} catch (FileException& e) {
