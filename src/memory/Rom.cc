@@ -209,7 +209,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 				file.getURL() << "'.");
 		}
 
-		// We loaded an extrenal file, so check.
+		// We loaded an external file, so check.
 		checkResolvedSha1 = true;
 
 	} else {
@@ -259,7 +259,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	// TODO fix this, this is a hack that depends heavily on
-	//      HardwareConig::createRomConfig
+	//      HardwareConfig::createRomConfig
 	if (StringOp::startsWith(name, "MSXRom")) {
 		auto& db = motherBoard.getReactor().getSoftwareDatabase();
 		string_ref title;
