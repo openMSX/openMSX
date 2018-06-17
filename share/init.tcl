@@ -9,7 +9,7 @@ variable help_proc
 variable lazy [dict create]
 
 # Only execute this script once. Below we source other Tcl script,
-# so this makes sure we don't get in an infinte loop.
+# so this makes sure we don't get in an infinite loop.
 if {$init_tcl_executed} return
 set init_tcl_executed true
 
