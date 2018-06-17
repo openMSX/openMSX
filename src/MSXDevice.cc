@@ -201,7 +201,7 @@ void MSXDevice::registerSlots()
 		ss = slotManager.getSlotNum(ss_str);
 		if ((-16 <= ss) && (ss <= -1) && (ss != ps)) {
 			throw MSXException(
-				"Invalid secundary slot specification: \"" +
+				"Invalid secondary slot specification: \"" +
 				ss_str + "\".");
 		}
 	} else {
