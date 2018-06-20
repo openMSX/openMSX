@@ -30,6 +30,7 @@
     <ProjectGuid>{653F3841-3F26-49B9-AFCF-091DB4B67031}</ProjectGuid>
     <RootNamespace>libtheora</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'" Label="Configuration">

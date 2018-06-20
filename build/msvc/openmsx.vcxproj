@@ -30,6 +30,7 @@
     <ProjectGuid>{9563D96E-BBDC-410C-8BED-189102B0866F}</ProjectGuid>
     <RootNamespace>openmsx</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup>
@@ -467,7 +468,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\Trackball.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Touchpad.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.cc" />	
+    <ClCompile Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\AmdFlash.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\EEPROM_93C46.cc" />
@@ -1013,7 +1014,7 @@
     <None Include="$(OpenMSXSrcDir)\input\Trackball.hh" />
     <None Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Touchpad.hh" />
-    <None Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.hh" />	
+    <None Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\AmdFlash.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\EEPROM_93C46.hh" />

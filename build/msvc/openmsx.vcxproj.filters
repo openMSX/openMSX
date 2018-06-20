@@ -1378,6 +1378,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SVIPSG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SVIFDC.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
@@ -2886,6 +2887,8 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\SpectravideoFDC.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
   </ItemGroup>
   <ItemGroup>
