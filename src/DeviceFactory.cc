@@ -16,6 +16,7 @@
 #include "MSXS1985.hh"
 #include "MSXS1990.hh"
 #include "ColecoJoystickIO.hh"
+#include "ColecoSuperGameModule.hh"
 #include "MSXPSG.hh"
 #include "SVIPSG.hh"
 #include "SNPSG.hh"
@@ -146,6 +147,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXS1990>(conf);
 	} else if (type == "ColecoJoystick") {
 		result = make_unique<ColecoJoystickIO>(conf);
+	} else if (type == "SuperGameModule") {
+		result = make_unique<ColecoSuperGameModule>(conf);
 	} else if (type == "PSG") {
 		result = make_unique<MSXPSG>(conf);
 	} else if (type == "SVIPSG") {
