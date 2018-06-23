@@ -474,6 +474,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\EEPROM_93C46.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\Carnivore2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\CheckedRam.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\ColecoSuperGameModule.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\TrackedRam.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_RAM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_SCC.cc" />
@@ -1020,6 +1021,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\EEPROM_93C46.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\Carnivore2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\CheckedRam.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\ColecoSuperGameModule.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\TrackedRam.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ESE_RAM.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ESE_SCC.hh" />
