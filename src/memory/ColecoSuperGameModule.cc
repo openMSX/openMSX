@@ -6,12 +6,17 @@
 
 namespace openmsx {
 
+// TODO: does disabling the SGM RAM have effect on 0-0x7FFF or only on
+// 0x2000-0x7FFF? So, if the BIOS is disabled to show RAM and the SGM RAM
+// is disabled, is there SGM RAM on 0-0x2000 or nothing?
+
 ColecoSuperGameModule::ColecoSuperGameModule(const DeviceConfig& config)
 	: MSXDevice(config)
-	, sgmRam(config, getName() + " RAM", "SGM RAM", 32*1024)
+	, sgmRam(config, getName() + " RAM", "SGM RAM", 0x8000)
 	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config, getCurrentTime())
 	, mainRam(config, "Main RAM", "Main RAM", 1024)
 	, biosRom(getName(), "BIOS ROM", config)
+	, mainRamAreaStart(0x6000)
 {
 	if (biosRom.getSize() != 0x2000) {
 		throw MSXException(
@@ -36,9 +41,8 @@ ColecoSuperGameModule::~ColecoSuperGameModule()
 
 unsigned ColecoSuperGameModule::translateMainRamAddress(unsigned address) const
 {
-	const unsigned base(0x6000);
-	const unsigned size(1024);
-	address -= base;
+	const unsigned size(mainRam.getSize());
+	address -= mainRamAreaStart;
 	if (address >= size) address &= (size - 1);
 	return address;
 }
@@ -79,11 +83,11 @@ void ColecoSuperGameModule::writeIO(word port, byte value, EmuTime::param time)
 			break;
 		case 0x53: // bit0=1 means enable SGM RAM in 0x2000-0x7FFF range
 			ramEnabled = (value & 1) != 0;
-			invalidateMemCache(0x0000, 0x8000); // just flush
+			invalidateMemCache(0x0000, 0x8000); // just flush the whole area
 			break;
 		case 0x7F: // bit1=0 means enable SGM RAM in BIOS area (0-0x1FFF), 1 means BIOS
 			ramAtBiosEnabled = (value & 2) == 0;
-			invalidateMemCache(0x0000, 0x8000); // just flush 
+			invalidateMemCache(0x0000, biosRom.getSize());
 			break;
 		default:
 			// ignore
@@ -93,12 +97,12 @@ void ColecoSuperGameModule::writeIO(word port, byte value, EmuTime::param time)
 
 byte ColecoSuperGameModule::peekMem(word address, EmuTime::param /*time*/) const
 {
-	if (address < 0x2000) {
+	if (address < biosRom.getSize()) {
 		return ramAtBiosEnabled ? sgmRam.peek(address) : biosRom[address];
 	} else if (address < 0x8000) {
 		if (ramEnabled) {
 			return sgmRam.peek(address);
-		} else if (address >= 0x6000) {
+		} else if (address >= mainRamAreaStart) {
 			return mainRam.peek(translateMainRamAddress(address));
 		}
 	}
@@ -107,12 +111,12 @@ byte ColecoSuperGameModule::peekMem(word address, EmuTime::param /*time*/) const
 
 byte ColecoSuperGameModule::readMem(word address, EmuTime::param /*time*/)
 {
-	if (address < 0x2000) {
+	if (address < biosRom.getSize()) {
 		return ramAtBiosEnabled ? sgmRam.read(address) : biosRom[address];
 	} else if (address < 0x8000) {
 		if (ramEnabled) {
 			return sgmRam.read(address);
-		} else if (address >= 0x6000) {
+		} else if (address >= mainRamAreaStart) {
 			return mainRam.read(translateMainRamAddress(address));
 		}
 	}
@@ -121,14 +125,14 @@ byte ColecoSuperGameModule::readMem(word address, EmuTime::param /*time*/)
 
 void ColecoSuperGameModule::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
-	if ((address < 0x2000)) {
+	if ((address < biosRom.getSize())) {
 		if (ramAtBiosEnabled) {
 			sgmRam.write(address, value);
 		}
 	} else if (address < 0x8000) {
 		if (ramEnabled) {
 			sgmRam.write(address, value);
-		} else if (address >= 0x6000) {
+		} else if (address >= mainRamAreaStart) {
 			mainRam.write(translateMainRamAddress(address), value);
 		}
 	}
@@ -136,12 +140,12 @@ void ColecoSuperGameModule::writeMem(word address, byte value, EmuTime::param /*
 
 const byte* ColecoSuperGameModule::getReadCacheLine(word start) const
 {
-	if (start < 0x2000) {
+	if (start < biosRom.getSize()) {
 		return ramAtBiosEnabled ? sgmRam.getReadCacheLine(start) : &biosRom[start];
 	} else if (start < 0x8000) {
 		if (ramEnabled) {
 			return sgmRam.getReadCacheLine(start);
-		} else if (start >= 0x6000) {
+		} else if (start >= mainRamAreaStart) {
 			return mainRam.getReadCacheLine(translateMainRamAddress(start));
 		}
 	}
@@ -150,14 +154,14 @@ const byte* ColecoSuperGameModule::getReadCacheLine(word start) const
 
 byte* ColecoSuperGameModule::getWriteCacheLine(word start) const
 {
-	if (start < 0x2000) {
+	if (start < biosRom.getSize()) {
 		if (ramAtBiosEnabled) {
 			return sgmRam.getWriteCacheLine(start);
 		}
 	} else if (start < 0x8000) {
 		if (ramEnabled) {
 			return sgmRam.getWriteCacheLine(start);
-		} else if (start >= 0x6000) {
+		} else if (start >= mainRamAreaStart) {
 			return mainRam.getWriteCacheLine(translateMainRamAddress(start));
 		}
 	}

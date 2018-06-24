@@ -38,6 +38,8 @@ private:
 
 	bool ramEnabled;
 	bool ramAtBiosEnabled;
+
+	const unsigned mainRamAreaStart;
 };
 
 } // namespace openmsx
