@@ -11,17 +11,19 @@ namespace openmsx {
 // is disabled, is there SGM RAM on 0-0x2000 or nothing?
 
 static const unsigned MAIN_RAM_AREA_START = 0x6000;
+static const unsigned MAIN_RAM_SIZE = 0x400; // 1kB
+static const unsigned SGM_RAM_SIZE = 0x8000; // 32kB
+static const unsigned BIOS_ROM_SIZE = 0x2000; // 8kB
 
 ColecoSuperGameModule::ColecoSuperGameModule(const DeviceConfig& config)
 	: MSXDevice(config)
-	, sgmRam(config, getName() + " RAM", "SGM RAM", 0x8000)
 	, psg(getName() + " PSG", DummyAY8910Periphery::instance(), config, getCurrentTime())
-	, mainRam(config, "Main RAM", "Main RAM", 1024)
+	, sgmRam(config, getName() + " RAM", "SGM RAM", SGM_RAM_SIZE)
+	, mainRam(config, "Main RAM", "Main RAM", MAIN_RAM_SIZE)
 	, biosRom(getName(), "BIOS ROM", config)
 {
-	if (biosRom.getSize() != 0x2000) {
-		throw MSXException(
-				"ColecoVision BIOS ROM must be exactly 8kB in size.");
+	if (biosRom.getSize() != BIOS_ROM_SIZE) {
+		throw MSXException("ColecoVision BIOS ROM must be exactly 8kB in size.");
 	}
 	getCPUInterface().register_IO_Out(0x50, this);
 	getCPUInterface().register_IO_Out(0x51, this);
@@ -42,10 +44,7 @@ ColecoSuperGameModule::~ColecoSuperGameModule()
 
 unsigned ColecoSuperGameModule::translateMainRamAddress(unsigned address) const
 {
-	const unsigned size(mainRam.getSize());
-	address -= MAIN_RAM_AREA_START;
-	if (address >= size) address &= (size - 1);
-	return address;
+	return address & (MAIN_RAM_SIZE - 1);
 }
 
 void ColecoSuperGameModule::reset(EmuTime::param time)
@@ -84,11 +83,11 @@ void ColecoSuperGameModule::writeIO(word port, byte value, EmuTime::param time)
 			break;
 		case 0x53: // bit0=1 means enable SGM RAM in 0x2000-0x7FFF range
 			ramEnabled = (value & 1) != 0;
-			invalidateMemCache(0x0000, 0x8000); // just flush the whole area
+			invalidateMemCache(0x0000, SGM_RAM_SIZE); // just flush the whole area
 			break;
 		case 0x7F: // bit1=0 means enable SGM RAM in BIOS area (0-0x1FFF), 1 means BIOS
 			ramAtBiosEnabled = (value & 2) == 0;
-			invalidateMemCache(0x0000, biosRom.getSize());
+			invalidateMemCache(0x0000, BIOS_ROM_SIZE);
 			break;
 		default:
 			// ignore
@@ -98,9 +97,9 @@ void ColecoSuperGameModule::writeIO(word port, byte value, EmuTime::param time)
 
 byte ColecoSuperGameModule::peekMem(word address, EmuTime::param /*time*/) const
 {
-	if (address < biosRom.getSize()) {
+	if (address < BIOS_ROM_SIZE) {
 		return ramAtBiosEnabled ? sgmRam.peek(address) : biosRom[address];
-	} else if (address < 0x8000) {
+	} else if (address < SGM_RAM_SIZE) {
 		if (ramEnabled) {
 			return sgmRam.peek(address);
 		} else if (address >= MAIN_RAM_AREA_START) {
@@ -112,9 +111,9 @@ byte ColecoSuperGameModule::peekMem(word address, EmuTime::param /*time*/) const
 
 byte ColecoSuperGameModule::readMem(word address, EmuTime::param /*time*/)
 {
-	if (address < biosRom.getSize()) {
+	if (address < BIOS_ROM_SIZE) {
 		return ramAtBiosEnabled ? sgmRam.read(address) : biosRom[address];
-	} else if (address < 0x8000) {
+	} else if (address < SGM_RAM_SIZE) {
 		if (ramEnabled) {
 			return sgmRam.read(address);
 		} else if (address >= MAIN_RAM_AREA_START) {
@@ -126,11 +125,11 @@ byte ColecoSuperGameModule::readMem(word address, EmuTime::param /*time*/)
 
 void ColecoSuperGameModule::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
-	if ((address < biosRom.getSize())) {
+	if (address < BIOS_ROM_SIZE) {
 		if (ramAtBiosEnabled) {
 			sgmRam.write(address, value);
 		}
-	} else if (address < 0x8000) {
+	} else if (address < SGM_RAM_SIZE) {
 		if (ramEnabled) {
 			sgmRam.write(address, value);
 		} else if (address >= MAIN_RAM_AREA_START) {
@@ -141,9 +140,9 @@ void ColecoSuperGameModule::writeMem(word address, byte value, EmuTime::param /*
 
 const byte* ColecoSuperGameModule::getReadCacheLine(word start) const
 {
-	if (start < biosRom.getSize()) {
+	if (start < BIOS_ROM_SIZE) {
 		return ramAtBiosEnabled ? sgmRam.getReadCacheLine(start) : &biosRom[start];
-	} else if (start < 0x8000) {
+	} else if (start < SGM_RAM_SIZE) {
 		if (ramEnabled) {
 			return sgmRam.getReadCacheLine(start);
 		} else if (start >= MAIN_RAM_AREA_START) {
@@ -155,11 +154,11 @@ const byte* ColecoSuperGameModule::getReadCacheLine(word start) const
 
 byte* ColecoSuperGameModule::getWriteCacheLine(word start) const
 {
-	if (start < biosRom.getSize()) {
+	if (start < BIOS_ROM_SIZE) {
 		if (ramAtBiosEnabled) {
 			return sgmRam.getWriteCacheLine(start);
 		}
-	} else if (start < 0x8000) {
+	} else if (start < SGM_RAM_SIZE) {
 		if (ramEnabled) {
 			return sgmRam.getWriteCacheLine(start);
 		} else if (start >= MAIN_RAM_AREA_START) {

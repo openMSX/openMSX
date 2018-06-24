@@ -5,7 +5,6 @@
 #include "AY8910.hh"
 #include "Rom.hh"
 #include "CheckedRam.hh"
-#include <memory>
 
 namespace openmsx {
 
@@ -30,12 +29,12 @@ public:
 
 private:
 	unsigned translateMainRamAddress(unsigned address) const;
-	CheckedRam sgmRam;
+
 	AY8910 psg;
-	byte psgLatch;
+	CheckedRam sgmRam;
 	CheckedRam mainRam;
 	Rom biosRom;
-
+	byte psgLatch;
 	bool ramEnabled;
 	bool ramAtBiosEnabled;
 };
