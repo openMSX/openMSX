@@ -60,7 +60,7 @@ protected:
 	  * @param block number of 8kB block in the ROM image
 	  *   (block i starts at ROM image offset i * 0x2000)
 	  */
-	void setRom(byte region, int block);
+	void setRom(byte region, unsigned block);
 
 	/** Sets a mask for the block numbers.
 	  * On every call to setRom, the given block number is AND-ed with this
@@ -86,7 +86,7 @@ private:
 	RomBlockDebuggable romBlockDebug;
 	const byte* extraMem;
 	unsigned extraSize;
-	/*const*/ int nrBlocks;
+	/*const*/ unsigned nrBlocks;
 	int blockMask;
 };
 

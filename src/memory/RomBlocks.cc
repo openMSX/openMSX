@@ -103,7 +103,7 @@ void RomBlocks<BANK_SIZE>::setExtraMemory(const byte* mem, unsigned size)
 }
 
 template <unsigned BANK_SIZE>
-void RomBlocks<BANK_SIZE>::setRom(byte region, int block)
+void RomBlocks<BANK_SIZE>::setRom(byte region, unsigned block)
 {
 	// Note: Some cartridges have a number of blocks that is not a power of 2,
 	//       for those we have to make an exception for "block < nrBlocks".
