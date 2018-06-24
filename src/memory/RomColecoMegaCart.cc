@@ -4,6 +4,9 @@
 #include "StringOp.hh"
 #include "CacheLine.hh"
 
+// information source:
+// https://github.com/openMSX/openMSX/files/2118720/MegaCart.FAQ.V1-2.pdf
+
 namespace openmsx {
 
 RomColecoMegaCart::RomColecoMegaCart(const DeviceConfig& config, Rom&& rom_)
