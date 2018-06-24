@@ -499,6 +499,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii8_8.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomAscii8kB.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomBlocks.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomColecoMegaCart.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomCrossBlaim.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomDatabase.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomDRAM.cc" />
@@ -1046,6 +1047,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomAscii8_8.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomAscii8kB.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomBlocks.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomColecoMegaCart.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomCrossBlaim.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomDatabase.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomDRAM.hh" />

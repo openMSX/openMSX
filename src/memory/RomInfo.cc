@@ -109,6 +109,7 @@ static void init()
 	init(ROM_MSXWRITE,       "MSXWrite",       0x4000, "Japanese MSX Write");
 	init(ROM_MULTIROM,       "MultiRom",       0x0000, "MultiRom Collection");
 	init(ROM_RAMFILE,        "RAMFILE",        0x0000, "Tecall MSX RAMFILE");
+	init(ROM_COLECOMEGACART, "ColecoMegaCart", 0x4000, "ColecoVision MegaCart");
 	init(ROM_MEGAFLASHROMSCCPLUS,"MegaFlashRomSccPlus",0x0000, "Mega Flash ROM SCC Plus");
 	init(ROM_KONAMI_ULTIMATE_COLLECTION,"KonamiUltimateCollection",0x0000, "Konami Ultimate Collection");
 
