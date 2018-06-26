@@ -6,9 +6,9 @@
 
 namespace openmsx {
 
-// TODO: does disabling the SGM RAM have effect on 0-0x7FFF or only on
-// 0x2000-0x7FFF? So, if the BIOS is disabled to show RAM and the SGM RAM
-// is disabled, is there SGM RAM on 0-0x2000 or nothing?
+// Disabling the SGM RAM has no effect on 0-0x1FFF, according to Oscar Toledo.
+// So, if the BIOS is disabled to show RAM and the SGM RAM is disabled, is
+// there is 8kB SGM RAM on 0-0x1FFF.
 
 static const unsigned MAIN_RAM_AREA_START = 0x6000;
 static const unsigned MAIN_RAM_SIZE = 0x400; // 1kB
