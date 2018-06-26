@@ -189,7 +189,7 @@ proc get_frequency_expr {soundchip channel} {
 				# noise channel not supported
 				return "x"
 			} else {
-				return "set period \[expr {\[debug read $regs $addr\] + (\[debug read $regs $next_addr\] << 4)}\]; expr {\$period == 0 ? 0 : ($basefreq / (2*\$period))}"
+				return "set period \[expr {\[debug read $regs $addr\] + (\[debug read $regs $next_addr\] << 4)}\]; if {\$period == 0} {set period 1024}; expr {$basefreq / (2*\$period)}"
 			}
 		}
 		default {
