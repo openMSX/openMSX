@@ -41,13 +41,13 @@ proc keyboard_init {} {
 	variable machine_switch_trigger_id
 
 	foreach soundchip [machine_info sounddevice] {
-		# skip devices which don't have freq expressions (not implemented yet)
-		if {[soundchip_utils::get_frequency_expr $soundchip 0] eq "x"} continue
-
 		set channel_count [soundchip_utils::get_num_channels $soundchip]
 		for {set channel 0} {$channel < $channel_count} {incr channel} {
+			set freq_expr [soundchip_utils::get_frequency_expr $soundchip $channel]
+			# skip devices/channels which don't have freq expressions (not implemented yet)
+			if {$freq_expr eq "x"} continue
 			dict set keyb_dict $soundchip $channel [dict create \
-				freq_expr [soundchip_utils::get_frequency_expr $soundchip $channel] \
+				freq_expr $freq_expr \
 				vol_expr  [soundchip_utils::get_volume_expr    $soundchip $channel] \
 				prev_note 0]
 		}
