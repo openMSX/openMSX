@@ -69,7 +69,7 @@ public:
 	void cassetteOut(bool output, EmuTime::param time) override;
 	bool cassetteIn(EmuTime::param time) override;
 #if COMPONENT_LASERDISC
-	void setLaserdiscPlayer(LaserdiscPlayer *laserdisc) override;
+	void setLaserdiscPlayer(LaserdiscPlayer* laserdisc) override;
 #endif
 	bool lastOut() const override;
 

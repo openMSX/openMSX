@@ -134,7 +134,7 @@ bool CasImage::writeData(const byte* buf, size_t size, size_t& pos)
 {
 	bool eof = false;
 	while ((pos + 8) <= size) {
-		if (!memcmp(&buf[pos], CAS_HEADER, 8)) {
+		if (memcmp(&buf[pos], CAS_HEADER, 8) == 0) {
 			return eof;
 		}
 		writeByte(buf[pos]);
@@ -161,7 +161,7 @@ void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cl
 	bool firstFile = true;
 	size_t pos = 0;
 	while ((pos + 8) <= size) {
-		if (!memcmp(&buf[pos], CAS_HEADER, 8)) {
+		if (memcmp(&buf[pos], CAS_HEADER, 8) == 0) {
 			// it probably works fine if a long header is used for every
 			// header but since the msx bios makes a distinction between
 			// them, we do also (hence a lot of code).
@@ -172,11 +172,11 @@ void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cl
 			if ((pos + 10) <= size) {
 				// determine file type
 				FileType type = CassetteImage::UNKNOWN;
-				if (!memcmp(&buf[pos], ASCII_HEADER, 10)) {
+				if (memcmp(&buf[pos], ASCII_HEADER, 10) == 0) {
 					type = CassetteImage::ASCII;
-				} else if (!memcmp(&buf[pos], BINARY_HEADER, 10)) {
+				} else if (memcmp(&buf[pos], BINARY_HEADER, 10) == 0) {
 					type = CassetteImage::BINARY;
-				} else if (!memcmp(&buf[pos], BASIC_HEADER, 10)) {
+				} else if (memcmp(&buf[pos], BASIC_HEADER, 10) == 0) {
 					type = CassetteImage::BASIC;
 				}
 				if (firstFile) setFirstFileType(type);
