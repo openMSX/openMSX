@@ -31,7 +31,7 @@ namespace openmsx {
 
 // class CliCommandEvent
 
-class CliCommandEvent : public Event
+class CliCommandEvent final : public Event
 {
 public:
 	CliCommandEvent(string command_, const CliConnection* id_)

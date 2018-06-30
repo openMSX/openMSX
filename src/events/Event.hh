@@ -109,7 +109,7 @@ private:
 };
 
 // implementation for events that don't need additional data
-class SimpleEvent : public Event
+class SimpleEvent final : public Event
 {
 public:
 	explicit SimpleEvent(EventType type_) : Event(type_) {}

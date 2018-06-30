@@ -41,7 +41,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	struct SRAMSchedulable : public RTSchedulable {
+	struct SRAMSchedulable final : public RTSchedulable {
 		explicit SRAMSchedulable(RTScheduler& scheduler_, SRAM& sram_)
 			: RTSchedulable(scheduler_), sram(sram_) {}
 		void executeRT() override;
