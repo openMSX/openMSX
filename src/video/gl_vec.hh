@@ -356,7 +356,9 @@ template<int N, typename T>
 inline vecN<N, int> round(const vecN<N, T>& x)
 {
 	vecN<N, int> r;
-	for (int i = 0; i < N; ++i) r[i] = std::lrint(x[i]);
+	// note: std::lrint() is more generic (e.g. also works with double),
+	// but Dingux doesn't seem to have std::lrint().
+	for (int i = 0; i < N; ++i) r[i] = lrintf(x[i]);
 	return r;
 }
 

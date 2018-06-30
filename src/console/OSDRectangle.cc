@@ -168,7 +168,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 		}
 		ivec2 iSize = round(getSize(output));
 		float factor = getScaleFactor(output) * scale;
-		int bs = std::lrint(factor * borderSize + iSize[0] * relBorderSize);
+		int bs = lrintf(factor * borderSize + iSize[0] * relBorderSize);
 		assert(bs >= 0);
 		return make_unique<IMAGE>(iSize, getRGBA4(), bs, borderRGBA);
 	} else {
