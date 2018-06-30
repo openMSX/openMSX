@@ -11,7 +11,7 @@ BooleanSetting::BooleanSetting(
 	          TclObject(toString(initialValue)), save_)
 {
 	auto& interp = getInterpreter();
-	setChecker([this, &interp](TclObject& newValue) {
+	setChecker([&interp](TclObject& newValue) {
 		// May throw.
 		// Re-set the queried value to get a normalized value.
 		newValue.setString(toString(newValue.getBoolean(interp)));

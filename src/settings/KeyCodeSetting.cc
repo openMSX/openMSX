@@ -9,7 +9,7 @@ KeyCodeSetting::KeyCodeSetting(CommandController& commandController_,
 	: Setting(commandController_, name_, description_,
 	          TclObject(Keys::getName(initialValue)), SAVE)
 {
-	setChecker([this](TclObject& newValue) {
+	setChecker([](TclObject& newValue) {
 		const auto& str = newValue.getString();
 		if (Keys::getCode(str) == Keys::K_NONE) {
 			throw CommandException("Not a valid key: " + str);
