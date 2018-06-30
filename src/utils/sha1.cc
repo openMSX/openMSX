@@ -107,15 +107,6 @@ Sha1Sum::Sha1Sum(string_ref str)
 	parse40(str.data());
 }
 
-static inline unsigned hex(char x, const char* str)
-{
-	if (('0' <= x) && (x <= '9')) return x - '0';
-	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;
-	if (('A' <= x) && (x <= 'F')) return x - 'A' + 10;
-	throw MSXException("Invalid sha1, digits should be 0-9, a-f: " +
-	                   string(str, 40));
-}
-
 #ifdef __SSE2__
 // emulate some missing unsigned-8-bit comparison functions
 static inline __m128i _mm_cmpge_epu8(__m128i a, __m128i b)
@@ -132,6 +123,17 @@ static inline __m128i _mm_cmple_epu8(__m128i a, __m128i b)
 static inline uint64_t loadSwap64(const char* s)
 {
 	return Endian::bswap64(*reinterpret_cast<const uint64_t*>(s));
+}
+
+#else
+
+static inline unsigned hex(char x, const char* str)
+{
+	if (('0' <= x) && (x <= '9')) return x - '0';
+	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;
+	if (('A' <= x) && (x <= 'F')) return x - 'A' + 10;
+	throw MSXException("Invalid sha1, digits should be 0-9, a-f: " +
+	                   string(str, 40));
 }
 #endif
 
