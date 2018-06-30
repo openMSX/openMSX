@@ -52,8 +52,8 @@ public:
 
 	explicit constexpr FixedPoint(int i)      : value(i << FRACTION_BITS) {}
 	explicit constexpr FixedPoint(unsigned i) : value(i << FRACTION_BITS) {}
-	explicit FixedPoint(float  f) : value(lrintf(f * ONE)) {}
-	explicit FixedPoint(double d) : value(lrint (d * ONE)) {}
+	explicit FixedPoint(float  f) : value(std::lrintf(f * ONE)) {}
+	explicit FixedPoint(double d) : value(std::lrint (d * ONE)) {}
 
 	static constexpr FixedPoint roundRatioDown(unsigned n, unsigned d) {
 		return create((static_cast<uint64_t>(n) << FRACTION_BITS) / d);

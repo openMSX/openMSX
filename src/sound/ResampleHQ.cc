@@ -567,7 +567,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 				r2 += tab[i + 2] * buf[CHANNELS * (i + 2)];
 				r3 += tab[i + 3] * buf[CHANNELS * (i + 3)];
 			}
-			output[ch] = lrint(r0 + r1 + r2 + r3);
+			output[ch] = std::lrint(r0 + r1 + r2 + r3);
 			++buf;
 		}
 	} else {
@@ -596,7 +596,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 				r2 += tab[-i - 3] * buf[CHANNELS * (i + 2)];
 				r3 += tab[-i - 4] * buf[CHANNELS * (i + 3)];
 			}
-			output[ch] = lrint(r0 + r1 + r2 + r3);
+			output[ch] = std::lrint(r0 + r1 + r2 + r3);
 			++buf;
 		}
 	}

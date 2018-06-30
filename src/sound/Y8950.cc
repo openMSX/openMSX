@@ -25,9 +25,9 @@ static constexpr Y8950::EnvPhaseIndex EG_DP_MAX = Y8950::EnvPhaseIndex(EG_MUTE);
 static constexpr unsigned MOD = 0;
 static constexpr unsigned CAR = 1;
 
-static constexpr double EG_STEP = 0.1875f; //  3/16
-static constexpr double SL_STEP = 3.0f;
-static constexpr double TL_STEP = 0.75f;   // 12/16
+static constexpr double EG_STEP = 0.1875; //  3/16
+static constexpr double SL_STEP = 3.0;
+static constexpr double TL_STEP = 0.75;   // 12/16
 static constexpr double DB_STEP = 0.1875; //  3/16
 
 static constexpr unsigned SL_PER_EG = 16; // SL_STEP / EG_STEP
@@ -35,9 +35,9 @@ static constexpr unsigned TL_PER_EG =  4; // TL_STEP / EG_STEP
 static constexpr unsigned EG_PER_DB =  1; // EG_STEP / DB_STEP
 
 // PM speed(Hz) and depth(cent)
-static constexpr float PM_SPEED  = 6.4f;
-static constexpr double PM_DEPTH  = 13.75f / 2;
-static constexpr double PM_DEPTH2 = 13.75f;
+static constexpr double PM_SPEED  = 6.4;
+static constexpr double PM_DEPTH  = 13.75 / 2;
+static constexpr double PM_DEPTH2 = 13.75;
 
 // Dynamic range of sustine level
 static constexpr int SL_BITS = 4;
@@ -72,7 +72,7 @@ static constexpr int AM_DP_BITS = 16;
 static constexpr int AM_DP_WIDTH = 1 << AM_DP_BITS;
 
 // LFO Table
-static constexpr unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV)));
+static constexpr unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
 
 
 // LFO Amplitude Modulation table (verified on real YM3812)

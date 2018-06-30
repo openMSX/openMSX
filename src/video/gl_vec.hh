@@ -356,7 +356,7 @@ template<int N, typename T>
 inline vecN<N, int> round(const vecN<N, T>& x)
 {
 	vecN<N, int> r;
-	for (int i = 0; i < N; ++i) r[i] = int(roundf(x[i]));
+	for (int i = 0; i < N; ++i) r[i] = std::lrint(x[i]);
 	return r;
 }
 

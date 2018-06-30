@@ -7,11 +7,6 @@ using std::string;
 
 namespace openmsx {
 
-FileBase::~FileBase()
-{
-	munmap();
-}
-
 const byte* FileBase::mmap(size_t& size)
 {
 	if (mmapBuf.empty()) {

@@ -10,7 +10,7 @@ namespace openmsx {
 class FileBase
 {
 public:
-	virtual ~FileBase();
+	virtual ~FileBase() = default;
 
 	virtual void read(void* buffer, size_t num) = 0;
 	virtual void write(const void* buffer, size_t num) = 0;

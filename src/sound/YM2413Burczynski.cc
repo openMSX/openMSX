@@ -31,7 +31,7 @@ namespace YM2413Burczynski {
 
 // envelope output entries
 static constexpr int ENV_BITS = 10;
-static constexpr double ENV_STEP = 128.0f / (1 << ENV_BITS);
+static constexpr double ENV_STEP = 128.0 / (1 << ENV_BITS);
 
 static constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
 static constexpr int MIN_ATT_INDEX = 0;
