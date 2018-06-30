@@ -1297,7 +1297,7 @@ void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
 void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
                              const MSXDirEntry& newEntry)
 {
-	if (memcmp(msxDir(dirIndex).filename, newEntry.filename, 8 + 3) ||
+	if (memcmp(msxDir(dirIndex).filename, newEntry.filename, 8 + 3) != 0 ||
 	    ((msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) !=
 	     (        newEntry.attrib & MSXDirEntry::ATT_DIRECTORY))) {
 		// Name or file-type in the direntry was changed.

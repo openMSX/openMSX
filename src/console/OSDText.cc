@@ -13,6 +13,7 @@
 #include "memory.hh"
 #include "components.hh"
 #include <cassert>
+#include <cmath>
 #if COMPONENT_GL
 #include "GLImage.hh"
 #endif
@@ -182,7 +183,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	}
 	try {
 		vec2 pSize = getParent()->getSize(output);
-		int maxWidth = int(wrapw * scale + wraprelw * pSize[0] + 0.5f);
+		int maxWidth = lrintf(wrapw * scale + wraprelw * pSize[0]);
 		// Width can't be negative, if it is make it zero instead.
 		// This will put each character on a different line.
 		maxWidth = std::max(0, maxWidth);

@@ -5,6 +5,7 @@
 #include "serialize.hh"
 #include "memory.hh"
 #include "outer.hh"
+#include <cmath>
 
 namespace openmsx {
 
@@ -46,7 +47,7 @@ YM2413::YM2413(const std::string& name_, const DeviceConfig& config)
 	, debuggable(config.getMotherBoard(), getName())
 {
 	float input = YM2413Core::CLOCK_FREQ / 72.0f;
-	setInputRate(int(input + 0.5f));
+	setInputRate(lrintf(input));
 
 	registerSound(config);
 }

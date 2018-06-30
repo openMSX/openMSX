@@ -540,7 +540,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 	bufIdx *= CHANNELS;
 	const float* buf = &buffer[bufIdx];
 
-	int t = unsigned(int(pos * TAB_LEN + 0.5f)) % TAB_LEN;
+	int t = unsigned(lrintf(pos * TAB_LEN)) % TAB_LEN;
 	if (!(t & HALF_TAB_LEN)) {
 		// first half, begin of row 't'
 		t = permute[t];

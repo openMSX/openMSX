@@ -893,7 +893,7 @@ unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime::param time) cons
 	}
 	const auto& startTime = begin(chunks)->second.time;
 	double duration = (time - startTime).toDouble();
-	return unsigned(duration / SNAPSHOT_PERIOD + 0.5);
+	return lrint(duration / SNAPSHOT_PERIOD);
 }
 
 void ReverseManager::takeSnapshot(EmuTime::param time)

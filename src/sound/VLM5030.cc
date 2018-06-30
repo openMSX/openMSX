@@ -81,6 +81,7 @@ chirp 12-..: vokume   0   : silent
 #include "Math.hh"
 #include "serialize.hh"
 #include "random.hh"
+#include <cmath>
 #include <cstring>
 #include <cstdint>
 
@@ -536,7 +537,7 @@ VLM5030::VLM5030(const std::string& name_, const std::string& desc,
 
 	const int CLOCK_FREQ = 3579545;
 	float input = CLOCK_FREQ / 440.0f;
-	setInputRate(int(input + 0.5f));
+	setInputRate(lrintf(input));
 
 	registerSound(config);
 }

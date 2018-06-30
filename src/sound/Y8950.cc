@@ -565,7 +565,7 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	}
 
 	float input = Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV);
-	setInputRate(int(input + 0.5f));
+	setInputRate(lrintf(input));
 
 	reset(time);
 	registerSound(config);

@@ -255,9 +255,9 @@ static inline void convertHelperSSE2(
 #endif // __SSE2__
 
 static constexpr int PREC = 15;
-static constexpr int COEF_Y  = int(1.164 * (1 << PREC) + 0.5);
-static constexpr int COEF_RV = int(1.596 * (1 << PREC) + 0.5);
-static constexpr int COEF_GU = int(0.391 * (1 << PREC) + 0.5);
+static constexpr int COEF_Y  = int(1.164 * (1 << PREC) + 0.5); // prefer to use lrint() to round
+static constexpr int COEF_RV = int(1.596 * (1 << PREC) + 0.5); // but that's not (yet) constexpr
+static constexpr int COEF_GU = int(0.391 * (1 << PREC) + 0.5); // in current versions of c++
 static constexpr int COEF_GV = int(0.813 * (1 << PREC) + 0.5);
 static constexpr int COEF_BU = int(2.018 * (1 << PREC) + 0.5);
 

@@ -16,6 +16,7 @@
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <cstddef>
 #ifdef __SSE2__
@@ -312,7 +313,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		//	srcStartY, srcEndY, lineWidth );
 		output.lock();
 		float horStretch = renderSettings.getHorizontalStretch();
-		unsigned inWidth = unsigned(horStretch + 0.5f);
+		unsigned inWidth = lrintf(horStretch);
 		std::unique_ptr<ScalerOutput<Pixel>> dst(
 			StretchScalerOutputFactory<Pixel>::create(
 				output, pixelOps, inWidth));

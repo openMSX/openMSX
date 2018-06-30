@@ -1490,7 +1490,7 @@ YMF262::YMF262(const std::string& name_,
 	float input = isYMF278
 	            ?    33868800.0f / (19 * 36)
 	            : 4 * 3579545.0f / ( 8 * 36);
-	setInputRate(int(input + 0.5f));
+	setInputRate(lrintf(input));
 
 	reset(config.getMotherBoard().getCurrentTime());
 	registerSound(config);

@@ -6,6 +6,7 @@
 #include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 
 using std::string;
 
@@ -14,7 +15,7 @@ namespace openmsx {
 // The SN76489 divides the clock input by 8, but all users of the clock apply
 // another divider of 2.
 static const float NATIVE_FREQ_FLOAT = (3579545.0f / 8) / 2;
-static const int NATIVE_FREQ_INT = int(NATIVE_FREQ_FLOAT + 0.5f);
+static const int NATIVE_FREQ_INT = lrintf(NATIVE_FREQ_FLOAT);
 
 // NoiseShifter:
 
@@ -93,7 +94,7 @@ void SN76489::initVolumeTable(int volume)
 	// 2dB per step -> 0.2f, sqrt for amplitude -> 0.5f
 	float factor = powf(0.1f, 0.2f * 0.5f);
 	for (int i = 0; i < 15; i++) {
-		volTable[i] = unsigned(out + 0.5f);
+		volTable[i] = lrintf(out);
 		out *= factor;
 	}
 	volTable[15] = 0;

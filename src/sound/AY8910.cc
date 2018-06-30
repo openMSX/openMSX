@@ -31,7 +31,7 @@ namespace openmsx {
 // divided by 8; for the envelope generator of the AY-3-8910, it is half
 // that much (clock/16).
 static const float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
-static const int NATIVE_FREQ_INT = int(NATIVE_FREQ_FLOAT + 0.5f);
+static const int NATIVE_FREQ_INT = lrintf(NATIVE_FREQ_FLOAT);
 
 static const int PORT_A_DIRECTION = 0x40;
 static const int PORT_B_DIRECTION = 0x80;
@@ -302,7 +302,7 @@ inline void AY8910::Amplitude::setMasterVolume(int volume)
 	float out = volume; // avoid clipping
 	float factor = powf(0.5f, 0.25f); // 1/sqrt(sqrt(2)) ~= 1/(1.5dB)
 	for (int i = 31; i > 0; --i) {
-		envVolTable[i] = unsigned(out + 0.5f); // round to nearest;
+		envVolTable[i] = lrintf(out); // round to nearest;
 		out *= factor;
 	}
 	envVolTable[0] = 0;
