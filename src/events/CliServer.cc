@@ -156,8 +156,10 @@ SOCKET CliServer::createSocket()
 	FileOperations::unlink(socketName); // ignore error
 
 	sockaddr_un addr;
-	strcpy(addr.sun_path, socketName.c_str());
+	strncpy(addr.sun_path, socketName.c_str(), sizeof(addr.sun_path) - 1);
+	addr.sun_path[sizeof(addr.sun_path) - 1] = '\0';
 	addr.sun_family = AF_UNIX;
+
 	if (bind(sd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
 		sock_close(sd);
 		throw MSXException("Couldn't bind socket.");
