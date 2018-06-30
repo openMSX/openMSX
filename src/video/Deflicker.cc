@@ -112,7 +112,7 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 	// Prefer to write directly to the output buffer, if that's not
 	// possible store the intermediate result in a temp buffer.
 	VLA_SSE_ALIGNED(Pixel, buf2, width0);
-	Pixel* buf = static_cast<Pixel*>(buf_);
+	auto* buf = static_cast<Pixel*>(buf_);
 	Pixel* out = (width0 <= bufWidth) ? buf : buf2;
 
 	// Detect pixels that alternate between two different color values and

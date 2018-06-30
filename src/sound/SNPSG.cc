@@ -4,17 +4,13 @@
 
 namespace openmsx {
 
-// MSXDevice
-
 SNPSG::SNPSG(const DeviceConfig& config)
 	: MSXDevice(config)
+	, sn76489(make_unique<SN76489>(config))
 {
-	sn76489 = make_unique<SN76489>(config);
 }
 
-SNPSG::~SNPSG()
-{
-}
+SNPSG::~SNPSG() = default;
 
 void SNPSG::reset(EmuTime::param time)
 {

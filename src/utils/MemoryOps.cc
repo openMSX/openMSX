@@ -281,7 +281,7 @@ public:
 	}
 
 private:
-	AllocMap() {}
+	AllocMap() = default;
 	~AllocMap() {
 		assert(allocMap.empty());
 	}

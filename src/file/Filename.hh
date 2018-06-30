@@ -17,7 +17,9 @@ class FileContext;
 class Filename
 {
 public:
-	Filename();
+	// dummy constructor, to be able to serialize vector<Filename>
+	Filename() = default;
+
 	explicit Filename(std::string filename);
 	Filename(std::string filename, const FileContext& context);
 

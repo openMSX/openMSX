@@ -269,9 +269,9 @@ vec3 RenderSettings::transformRGB(vec3 rgb) const
 {
 	vec3 t = colorMatrix * (rgb * contrast + vec3(brightness));
 	float gamma = 1.0f / getGamma();
-	return vec3(conv2(t[0], gamma),
-	            conv2(t[1], gamma),
-	            conv2(t[2], gamma));
+	return {conv2(t[0], gamma),
+	        conv2(t[1], gamma),
+	        conv2(t[2], gamma)};
 }
 
 void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& value)

@@ -213,7 +213,7 @@ DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(const string& hostName)
 			return p.first;
 		}
 	}
-	return DirIndex(unsigned(-1), unsigned(-1));
+	return {unsigned(-1), unsigned(-1)};
 }
 
 // Check if a host file is already mapped in the virtual disk.
@@ -883,7 +883,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	writeFAT12(newCluster, EOF_FAT);
 
 	// First entry in this newly allocated cluster is free. Return it.
-	return DirIndex(sector, 0);
+	return {sector, 0};
 }
 
 void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
@@ -1134,7 +1134,7 @@ DirAsDSK::DirIndex DirAsDSK::getDirEntryForCluster(unsigned cluster)
 	if (getDirEntryForCluster(cluster, dirIndex, dirDirIndex)) {
 		return dirIndex;
 	} else {
-		return DirIndex(unsigned(-1), unsigned(-1)); // not found
+		return {unsigned(-1), unsigned(-1)}; // not found
 	}
 }
 

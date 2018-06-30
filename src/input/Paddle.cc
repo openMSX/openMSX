@@ -13,7 +13,7 @@ namespace openmsx {
 class PaddleState final : public StateChange
 {
 public:
-	PaddleState() {} // for serialize
+	PaddleState() = default; // for serialize
 	PaddleState(EmuTime::param time_, int delta_)
 		: StateChange(time_), delta(delta_) {}
 	int getDelta() const { return delta; }

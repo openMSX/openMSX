@@ -29,10 +29,6 @@ namespace openmsx {
 
 // class ConsoleLine
 
-ConsoleLine::ConsoleLine()
-{
-}
-
 ConsoleLine::ConsoleLine(string_ref line_, uint32_t rgb)
 	: line(line_.str())
 	, chunks(1, {rgb, 0})

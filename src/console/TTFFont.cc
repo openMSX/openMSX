@@ -32,7 +32,7 @@ public:
 	void release(TTF_Font* font);
 
 private:
-	TTFFontPool();
+	TTFFontPool() = default;
 	~TTFFontPool();
 
 	// We want to keep the LocalFileReference object alive for as long as
@@ -83,10 +83,6 @@ SDLTTF& SDLTTF::instance()
 
 
 // class TTFFontPool
-
-TTFFontPool::TTFFontPool()
-{
-}
 
 TTFFontPool::~TTFFontPool()
 {

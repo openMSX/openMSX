@@ -31,9 +31,7 @@ Carnivore2::Carnivore2(const DeviceConfig& config)
 		DeviceConfig(config, config.findChild("slave")));
 }
 
-Carnivore2::~Carnivore2()
-{
-}
+Carnivore2::~Carnivore2() = default;
 
 void Carnivore2::powerUp(EmuTime::param time)
 {

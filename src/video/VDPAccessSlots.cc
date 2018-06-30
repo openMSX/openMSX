@@ -165,15 +165,10 @@ static constexpr int16_t slotsMsx1Text[91 + 18] = {
 
 struct AccessTable
 {
-	CONSTEXPR AccessTable()
-		: values() // zero initialize
-	{
-	}
-
 	operator const uint8_t*() const { return values; }
 
 protected:
-	uint8_t values[NUM_DELTAS * TICKS];
+	uint8_t values[NUM_DELTAS * TICKS] = {};
 };
 
 struct CycleTable : AccessTable

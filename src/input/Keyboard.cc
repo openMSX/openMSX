@@ -33,12 +33,12 @@ using std::make_shared;
 
 namespace openmsx {
 
-typedef UnicodeKeymap::KeyInfo KeyInfo;
+using KeyInfo = UnicodeKeymap::KeyInfo;
 
 class KeyMatrixState final : public StateChange
 {
 public:
-	KeyMatrixState() {} // for serialize
+	KeyMatrixState() = default; // for serialize
 	KeyMatrixState(EmuTime::param time_, byte row_, byte press_, byte release_)
 		: StateChange(time_)
 		, row(row_), press(press_), release(release_)

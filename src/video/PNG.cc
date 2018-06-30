@@ -74,11 +74,6 @@ imported from SDL_image 1.2.10, file "IMG_png.c", function "IMG_LoadPNG_RW".
 */
 
 struct PNGReadHandle {
-	PNGReadHandle()
-		: ptr(nullptr), info(nullptr)
-	{
-	}
-
 	~PNGReadHandle()
 	{
 		if (ptr) {
@@ -86,8 +81,8 @@ struct PNGReadHandle {
 		}
 	}
 
-	png_structp ptr;
-	png_infop info;
+	png_structp ptr = nullptr;
+	png_infop info = nullptr;
 };
 
 static void readData(png_structp ctx, png_bytep area, png_size_t size)
@@ -277,11 +272,6 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 /* heavily modified for openMSX by Joost Damad joost@lumatec.be */
 
 struct PNGWriteHandle {
-	PNGWriteHandle()
-		: ptr(nullptr), info(nullptr)
-	{
-	}
-
 	~PNGWriteHandle()
 	{
 		if (ptr) {
@@ -289,8 +279,8 @@ struct PNGWriteHandle {
 		}
 	}
 
-	png_structp ptr;
-	png_infop info;
+	png_structp ptr = nullptr;
+	png_infop info = nullptr;
 };
 
 static void writeData(png_structp ctx, png_bytep area, png_size_t size)

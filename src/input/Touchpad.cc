@@ -28,7 +28,7 @@ namespace openmsx {
 class TouchpadState final : public StateChange
 {
 public:
-	TouchpadState() {} // for serialize
+	TouchpadState() = default; // for serialize
 	TouchpadState(EmuTime::param time_,
 	              byte x_, byte y_, bool touch_, bool button_)
 		: StateChange(time_)

@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cstring>
 #include <tuple>
+#include <utility>
 #if STATISTICS
 #include <iostream>
 #endif
@@ -324,9 +325,9 @@ const uint8_t* DeltaBlockCopy::getData()
 // class DeltaBlockDiff
 
 DeltaBlockDiff::DeltaBlockDiff(
-		const std::shared_ptr<DeltaBlockCopy>& prev_,
+		std::shared_ptr<DeltaBlockCopy> prev_,
 		const uint8_t* data, size_t size)
-	: prev(prev_)
+	: prev(std::move(prev_))
 	, delta(calcDelta(prev->getData(), data, size))
 {
 #ifdef DEBUG

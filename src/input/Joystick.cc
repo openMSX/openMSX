@@ -62,7 +62,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 class JoyState final : public StateChange
 {
 public:
-	JoyState() {} // for serialize
+	JoyState() = default; // for serialize
 	JoyState(EmuTime::param time_, unsigned joyNum_, byte press_, byte release_)
 		: StateChange(time_)
 		, joyNum(joyNum_), press(press_), release(release_)

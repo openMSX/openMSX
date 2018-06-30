@@ -155,7 +155,7 @@ vec2 OSDText::getSize(const OutputRectangle& /*output*/) const
 	} else {
 		// we don't know the dimensions, must be because of an error
 		assert(hasError());
-		return vec2();
+		return {};
 	}
 }
 

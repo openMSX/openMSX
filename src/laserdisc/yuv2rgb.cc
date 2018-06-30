@@ -233,8 +233,8 @@ static inline void convertHelperSSE2(
 		const uint8_t* pY2 = buffer[0].data + (y + 1) * y_stride;
 		const uint8_t* pCb = buffer[1].data + y * uv_stride2;
 		const uint8_t* pCr = buffer[2].data + y * uv_stride2;
-		uint32_t* out0 = output.getLinePtrDirect<uint32_t>(y + 0);
-		uint32_t* out1 = output.getLinePtrDirect<uint32_t>(y + 1);
+		auto* out0 = output.getLinePtrDirect<uint32_t>(y + 0);
+		auto* out1 = output.getLinePtrDirect<uint32_t>(y + 1);
 
 		for (int x = 0; x < width; x += 32) {
 			// convert a block of (32 x 2) pixels
@@ -313,8 +313,8 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
 		const uint8_t* pY  = buffer[0].data + y * y_stride;
 		const uint8_t* pCb = buffer[1].data + y * uv_stride2;
 		const uint8_t* pCr = buffer[2].data + y * uv_stride2;
-		Pixel* out0 = output.getLinePtrDirect<Pixel>(y + 0);
-		Pixel* out1 = output.getLinePtrDirect<Pixel>(y + 1);
+		auto* out0 = output.getLinePtrDirect<Pixel>(y + 0);
+		auto* out1 = output.getLinePtrDirect<Pixel>(y + 1);
 
 		for (int x = 0; x < width;
 		     x += 2, pY += 2, ++pCr, ++pCb, out0 += 2, out1 += 2) {

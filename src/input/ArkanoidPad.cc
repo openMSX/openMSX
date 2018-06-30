@@ -32,7 +32,7 @@ static const int SCALE = 2;
 class ArkanoidState final : public StateChange
 {
 public:
-	ArkanoidState() {} // for serialize
+	ArkanoidState() = default; // for serialize
 	ArkanoidState(EmuTime::param time_, int delta_, bool press_, bool release_)
 		: StateChange(time_)
 		, delta(delta_), press(press_), release(release_) {}

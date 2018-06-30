@@ -30,9 +30,7 @@ MSXMemoryMapper::MSXMemoryMapper(const DeviceConfig& config)
 {
 }
 
-MSXMemoryMapper::~MSXMemoryMapper()
-{
-}
+MSXMemoryMapper::~MSXMemoryMapper() = default;
 
 void MSXMemoryMapper::powerUp(EmuTime::param time)
 {

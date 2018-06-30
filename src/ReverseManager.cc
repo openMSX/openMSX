@@ -118,7 +118,7 @@ void ReverseManager::ReverseHistory::clear()
 class EndLogEvent final : public StateChange
 {
 public:
-	EndLogEvent() {} // for serialize
+	EndLogEvent() = default; // for serialize
 	explicit EndLogEvent(EmuTime::param time_)
 		: StateChange(time_)
 	{

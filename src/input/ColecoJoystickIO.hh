@@ -13,7 +13,6 @@ class ColecoJoystickIO final : public MSXDevice
 {
 public:
 	explicit ColecoJoystickIO(const DeviceConfig& config);
-	~ColecoJoystickIO();
 
 	// MSXDevice:
 	void reset(EmuTime::param time) override;

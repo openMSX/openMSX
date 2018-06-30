@@ -10,12 +10,10 @@ static const size_t BLOCK_SIZE = 1024;
 
 struct TTCacheEntry
 {
-	TTCacheEntry() : time(-1) {}
-
 	MemBuffer<TigerHash> hash;
 	MemBuffer<bool> valid;
 	size_t numNodes;
-	time_t time;
+	time_t time = -1;
 	size_t numNodesValid;
 };
 // Typically contains 0 or 1 element, and only rarely 2 or more. But we need
@@ -143,13 +141,13 @@ const TigerHash& TigerTree::calcHash(Node node, const std::function<void(size_t,
 TigerTree::Node TigerTree::getTop() const
 {
 	auto n = Math::floodRight(entry.numNodes / 2);
-	return Node(n, n + 1);
+	return {n, n + 1};
 }
 
 TigerTree::Node TigerTree::getLeaf(size_t block) const
 {
 	assert((2 * block) < entry.numNodes);
-	return Node(2 * block, 1);
+	return {2 * block, 1};
 }
 
 TigerTree::Node TigerTree::getParent(Node node) const
@@ -178,7 +176,7 @@ TigerTree::Node TigerTree::getRightChild(Node node) const
 		assert(node.l > 1);
 		node.l /= 2;
 		auto r = node.n + node.l;
-		if (r < entry.numNodes) return Node(r, node.l);
+		if (r < entry.numNodes) return {r, node.l};
 	}
 }
 

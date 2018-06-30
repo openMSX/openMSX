@@ -29,8 +29,8 @@ void SDLSnow<Pixel>::paint(OutputSurface& output)
 	const unsigned width = output.getWidth();
 	const unsigned height = output.getHeight();
 	for (unsigned y = 0; y < height; y += 2) {
-		Pixel* p0 = output.getLinePtrDirect<Pixel>(y + 0);
-		Pixel* p1 = output.getLinePtrDirect<Pixel>(y + 1);
+		auto* p0 = output.getLinePtrDirect<Pixel>(y + 0);
+		auto* p1 = output.getLinePtrDirect<Pixel>(y + 1);
 		for (unsigned x = 0; x < width; x += 2) {
 			p0[x + 0] = p0[x + 1] = gray[distribution(generator)];
 		}

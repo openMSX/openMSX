@@ -24,6 +24,7 @@
 #include "serialize_constr.hh"
 #include "memory.hh"
 #include <functional>
+#include <utility>
 
 using std::string;
 using std::vector;
@@ -53,7 +54,7 @@ DiskChanger::DiskChanger(MSXMotherBoard& board,
 	, controller(board.getCommandController())
 	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
-	, preChangeCallback(preChangeCallback_)
+	, preChangeCallback(std::move(preChangeCallback_))
 	, driveName(std::move(driveName_))
 	, doubleSidedDrive(doubleSidedDrive_)
 {

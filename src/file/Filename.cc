@@ -9,11 +9,6 @@ using std::string;
 
 namespace openmsx {
 
-// dummy constructor, to be able to serialize vector<Filename>
-Filename::Filename()
-{
-}
-
 Filename::Filename(string filename)
 	: originalFilename(std::move(filename))
 	, resolvedFilename(originalFilename)

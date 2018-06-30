@@ -29,10 +29,6 @@ ColecoJoystickIO::ColecoJoystickIO(const DeviceConfig& config)
 	reset(time);
 }
 
-ColecoJoystickIO::~ColecoJoystickIO()
-{
-}
-
 void ColecoJoystickIO::reset(EmuTime::param /*time*/)
 {
 	joyMode = 0;

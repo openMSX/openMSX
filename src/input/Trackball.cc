@@ -26,7 +26,7 @@ namespace openmsx {
 class TrackballState final : public StateChange
 {
 public:
-	TrackballState() {} // for serialize
+	TrackballState() = default; // for serialize
 	TrackballState(EmuTime::param time_, int deltaX_, int deltaY_,
 	                                     byte press_, byte release_)
 		: StateChange(time_)

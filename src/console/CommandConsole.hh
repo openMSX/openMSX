@@ -23,7 +23,8 @@ class ConsoleLine
 {
 public:
 	/** Construct empty line. */
-	ConsoleLine();
+	ConsoleLine() = default;
+
 	/** Construct line with a single color (by default white). */
 	explicit ConsoleLine(string_ref line, uint32_t rgb = 0xffffff);
 

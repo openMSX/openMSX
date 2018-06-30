@@ -15,7 +15,7 @@ namespace openmsx {
 class KeyJoyState final : public StateChange
 {
 public:
-	KeyJoyState() {} // for serialize
+	KeyJoyState() = default; // for serialize
 	KeyJoyState(EmuTime::param time_, string name_,
 	            byte press_, byte release_)
 		: StateChange(time_)
