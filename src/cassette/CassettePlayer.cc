@@ -32,6 +32,7 @@
 #include "File.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"
+#include "TsxImage.hh"
 #include "CliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -312,22 +313,43 @@ void CassettePlayer::insertTape(const Filename& filename)
 {
 	if (!filename.empty()) {
 		FilePool& filePool = motherBoard.getReactor().getFilePool();
-		try {
-			// first try WAV
-			playImage = make_unique<WavImage>(filename, filePool);
-		} catch (MSXException& e) {
+		string msg1, msg2, msg3;
+		playImage = NULL;
+		if (!playImage) {
+			try {
+				// first try WAV
+				playImage = make_unique<WavImage>(filename, filePool);
+			} catch (MSXException& e1) {
+				msg1 = e1.getMessage();
+			}
+		}
+		if (!playImage) {
 			try {
 				// if that fails use CAS
-				playImage = make_unique<CasImage>(
-					filename, filePool,
+				playImage = make_unique<CasImage>(filename, filePool, 
 					motherBoard.getMSXCliComm());
 			} catch (MSXException& e2) {
-				throw MSXException(
-					"Failed to insert WAV image: \"" +
-					e.getMessage() +
-					"\" and also failed to insert CAS image: \"" +
-					e2.getMessage() + '\"');
+				msg2 = e2.getMessage();
 			}
+		}
+		if (!playImage) {
+			try {
+				// if that fails use TSX
+				playImage = make_unique<TsxImage>(
+					filename, filePool,
+					motherBoard.getMSXCliComm());
+			} catch (MSXException& e3) {
+				msg3 = e3.getMessage();
+			}
+		}
+		if (!playImage) {
+			throw MSXException(
+				"Failed to insert WAV image: \"" +
+				msg1 +
+				"\", also failed to insert CAS image: \"" +
+				msg2 +
+				"\" and also failed to insert TSX image: \"" +
+				msg3 + '\"');
 		}
 	} else {
 		// This is a bit tricky, consider this scenario: we switch from
@@ -533,7 +555,7 @@ string_ref CassettePlayer::getDescription() const
 	// as an identifier for this audio device in e.g. Catapult. We should
 	// use another way to identify audio devices A.S.A.P.!
 
-	return "Cassetteplayer, use to read .cas or .wav files.";
+	return "Cassetteplayer, use to read .cas, .tsx, or .wav files.";
 }
 
 void CassettePlayer::plugHelper(Connector& conn, EmuTime::param time)
