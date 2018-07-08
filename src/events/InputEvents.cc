@@ -1,9 +1,9 @@
 #include "InputEvents.hh"
 #include "Keys.hh"
 #include "TclObject.hh"
-#include "StringOp.hh"
 #include "Timer.hh"
 #include "checked_cast.hh"
+#include "strCat.hh"
 #include <string>
 #include <tuple>
 #include <SDL.h>
@@ -110,8 +110,7 @@ void KeyEvent::toStringImpl(TclObject& result) const
 	result.addListElement("keyb");
 	result.addListElement(Keys::getName(getKeyCode()));
 	if (getUnicode() != 0) {
-		result.addListElement(StringOp::Builder() <<
-			"unicode" << getUnicode());
+		result.addListElement(strCat("unicode", getUnicode()));
 	}
 }
 
@@ -159,7 +158,7 @@ MouseButtonEvent::MouseButtonEvent(EventType type_, unsigned button_)
 void MouseButtonEvent::toStringHelper(TclObject& result) const
 {
 	result.addListElement("mouse");
-	result.addListElement(StringOp::Builder() << "button" << getButton());
+	result.addListElement(strCat("button", getButton()));
 }
 
 bool MouseButtonEvent::lessImpl(const Event& other) const
@@ -258,7 +257,7 @@ JoystickEvent::JoystickEvent(EventType type_, unsigned joystick_)
 
 void JoystickEvent::toStringHelper(TclObject& result) const
 {
-	result.addListElement(StringOp::Builder() << "joy" << getJoystick() + 1);
+	result.addListElement(strCat("joy", getJoystick() + 1));
 }
 
 bool JoystickEvent::lessImpl(const Event& other) const
@@ -281,7 +280,7 @@ JoystickButtonEvent::JoystickButtonEvent(
 void JoystickButtonEvent::toStringHelper(TclObject& result) const
 {
 	JoystickEvent::toStringHelper(result);
-	result.addListElement(StringOp::Builder() << "button" << getButton());
+	result.addListElement(strCat("button", getButton()));
 }
 
 bool JoystickButtonEvent::lessImpl(const JoystickEvent& other) const
@@ -331,7 +330,7 @@ JoystickAxisMotionEvent::JoystickAxisMotionEvent(
 void JoystickAxisMotionEvent::toStringImpl(TclObject& result) const
 {
 	toStringHelper(result);
-	result.addListElement(StringOp::Builder() << "axis" << getAxis());
+	result.addListElement(strCat("axis", getAxis()));
 	result.addListElement(getValue());
 }
 
@@ -354,7 +353,7 @@ JoystickHatEvent::JoystickHatEvent(unsigned joystick_, unsigned hat_, unsigned v
 void JoystickHatEvent::toStringImpl(TclObject& result) const
 {
 	toStringHelper(result);
-	result.addListElement(StringOp::Builder() << "hat" << getHat());
+	result.addListElement(strCat("hat", getHat()));
 	const char* str;
 	switch (getValue()) {
 		case SDL_HAT_UP:        str = "up";        break;

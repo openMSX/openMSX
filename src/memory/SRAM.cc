@@ -105,16 +105,16 @@ void SRAM::load(bool* loaded)
 			if (loaded) *loaded = true;
 		} else {
 			config.getCliComm().printWarning(
-				"Warning no correct SRAM file: " + filename);
+				"Warning no correct SRAM file: ", filename);
 		}
 	} catch (FileNotFoundException& /*e*/) {
 		config.getCliComm().printInfo(
-			"SRAM file " + filename + " not found" +
-			", assuming blank SRAM content.");
+			"SRAM file ", filename, " not found, "
+			"assuming blank SRAM content.");
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
-			"Couldn't load SRAM " + filename +
-			" (" + e.getMessage() + ").");
+			"Couldn't load SRAM ", filename,
+			" (", e.getMessage(), ").");
 	}
 }
 
@@ -132,8 +132,8 @@ void SRAM::save()
 		file.write(&ram[0], getSize());
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
-			"Couldn't save SRAM " + filename +
-			" (" + e.getMessage() + ").");
+			"Couldn't save SRAM ", filename,
+			" (", e.getMessage(), ").");
 	}
 }
 

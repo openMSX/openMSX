@@ -3,7 +3,6 @@
 #include "WavWriter.hh"
 #include "WavData.hh"
 #include "Filename.hh"
-#include "StringOp.hh"
 #include <cstdint>
 #include <vector>
 #include <string>
@@ -117,22 +116,21 @@ static void test(YM2413Core& core, const Log& log,
 
 	// verify generated samples
 	for (unsigned i = 0; i < CHANNELS; ++i) {
-		StringOp::Builder msg;
-		msg << "Error in channel " << i << ": ";
+		string msg = strCat("Error in channel ", i, ": ");
 		bool err = false;
 		if (generatedSamples[i].size() != expectedSamples[i]->size()) {
-			msg << "wrong size, expected " << expectedSamples[i]->size()
-			    << " but got " << generatedSamples[i].size();
+			strAppend(msg, "wrong size, expected ", expectedSamples[i]->size(),
+			          " but got ", generatedSamples[i].size());
 			err = true;
 		} else if (generatedSamples[i] != *expectedSamples[i]) {
-			msg << "Wrong data";
+			strAppend(msg, "Wrong data");
 			err = true;
 		}
 		if (err) {
-			StringOp::Builder filename;
-			filename << "bad-" << coreName << '-' << testName
-			         << "-ch" << i << ".wav";
-			msg << " writing data to " << std::string(filename);
+			string filename = strCat(
+                                "bad-", coreName, '-', testName,
+			         "-ch", i, ".wav");
+			strAppend(msg, " writing data to ", filename);
 			error(msg);
 			saveWav(filename, generatedSamples[i]);
 		}

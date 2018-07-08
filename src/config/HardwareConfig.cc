@@ -12,7 +12,6 @@
 #include "CliComm.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "StringOp.hh"
 #include "memory.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -50,7 +49,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 {
 	auto result = make_unique<HardwareConfig>(motherBoard, "rom");
 	const auto& sramfile = FileOperations::getFilename(romfile);
-	auto context = userFileContext("roms/" + sramfile);
+	auto context = userFileContext(strCat("roms/", sramfile));
 
 	vector<string_ref> ipsfiles;
 	string_ref mapper;
@@ -62,13 +61,13 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		string_ref option = it->getString();
 		++it;
 		if (it == std::end(options)) {
-			throw MSXException("Missing argument for option \"" +
-			                   option + '\"');
+			throw MSXException("Missing argument for option \"",
+			                   option, '\"');
 		}
 		string_ref arg = it->getString();
 		if (option == "-ips") {
 			if (!FileOperations::isRegularFile(context.resolve(arg))) {
-				throw MSXException("Invalid IPS file: " + arg);
+				throw MSXException("Invalid IPS file: ", arg);
 			}
 			ipsfiles.push_back(arg);
 		} else if (option == "-romtype") {
@@ -79,14 +78,14 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 				throw MSXException("Only one -romtype option is allowed");
 			}
 		} else {
-			throw MSXException("Invalid option \"" + option + '\"');
+			throw MSXException("Invalid option \"", option, '\"');
 		}
 	}
 
 	string resolvedFilename = FileOperations::getAbsolutePath(
 		context.resolve(romfile));
 	if (!FileOperations::isRegularFile(resolvedFilename)) {
-		throw MSXException("Invalid ROM file: " + resolvedFilename);
+		throw MSXException("Invalid ROM file: ", resolvedFilename);
 	}
 
 	XMLElement extension("extension");
@@ -111,7 +110,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	}
 	device.addChild("sound").addChild("volume", "9000");
 	device.addChild("mappertype", mapper.empty() ? "auto" : mapper);
-	device.addChild("sramname", sramfile + ".SRAM");
+	device.addChild("sramname", strCat(sramfile, ".SRAM"));
 
 	result->setConfig(move(extension));
 	result->setName(romfile);
@@ -210,7 +209,7 @@ XMLElement HardwareConfig::loadConfig(const string& filename)
 		return XMLLoader::load(fileRef.getFilename(), "msxconfig2.dtd");
 	} catch (XMLException& e) {
 		throw MSXException(
-			"Loading of hardware configuration failed: " +
+			"Loading of hardware configuration failed: ",
 			e.getMessage());
 	}
 }
@@ -221,7 +220,7 @@ string HardwareConfig::getFilename(string_ref type, string_ref name)
 	try {
 		// try <name>.xml
 		return context.resolve(FileOperations::join(
-			type, name + ".xml"));
+			type, strCat(name, ".xml")));
 	} catch (MSXException& e) {
 		// backwards-compatibility:
 		//  also try <name>/hardwareconfig.xml
@@ -256,12 +255,12 @@ void HardwareConfig::parseSlots()
 		if (psElem->getAttributeAsBool("external", false)) {
 			if (ps < 0) {
 				throw MSXException(
-				    "Cannot mark unspecified primary slot '" +
-				    primSlot + "' as external");
+					"Cannot mark unspecified primary slot '",
+					primSlot, "' as external");
 			}
 			if (psElem->hasChildren()) {
 				throw MSXException(
-					"Primary slot " + StringOp::toString(ps) +
+					"Primary slot ", ps,
 					" is marked as external, but that would only "
 					"make sense if its <primary> tag would be "
 					"empty.");
@@ -274,8 +273,8 @@ void HardwareConfig::parseSlots()
 			int ss = CartridgeSlotManager::getSlotNum(secSlot);
 			if ((-16 <= ss) && (ss <= -1) && (ss != ps)) {
 				throw MSXException(
-					"Invalid secundary slot specification: \"" +
-					secSlot + "\".");
+					"Invalid secundary slot specification: \"",
+					secSlot, "\".");
 			}
 			if (ss < 0) {
 				if ((ss >= -128) && (0 <= ps) && (ps < 4) &&
@@ -292,16 +291,16 @@ void HardwareConfig::parseSlots()
 					ps = getSpecificFreePrimarySlot(-ps - 1);
 				}
 				auto mutableElem = const_cast<XMLElement*>(psElem);
-				mutableElem->setAttribute("slot", StringOp::toString(ps));
+				mutableElem->setAttribute("slot", strCat(ps));
 			}
 			createExpandedSlot(ps);
 			if (ssElem->getAttributeAsBool("external", false)) {
 				if (ssElem->hasChildren()) {
 					throw MSXException(
-						"Secondary slot " + StringOp::toString(ps) +
-						"-" + StringOp::toString(ss) + " is marked "
-						"as external, but that would only make sense "
-						"if its <secondary> tag would be empty.");
+						"Secondary slot ", ps, '-', ss,
+						" is marked as external, but that would "
+						"only make sense if its <secondary> tag "
+						"would be empty.");
 				}
 				createExternalSlot(ps, ss);
 			}
@@ -407,7 +406,7 @@ void HardwareConfig::setName(string_ref proposedName)
 	} else {
 		unsigned n = 0;
 		do {
-			name = StringOp::Builder() << proposedName << " (" << ++n << ')';
+			name = strCat(proposedName, " (", ++n, ')');
 		} while (motherBoard.findExtension(name));
 	}
 }

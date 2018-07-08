@@ -25,7 +25,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 			auto size = std::min<size_t>(file.getSize(), ram.getSize());
 			file.read(&ram[0], size);
 		} catch (FileException&) {
-			throw MSXException("Error reading file: " + filename);
+			throw MSXException("Error reading file: ", filename);
 		}
 	}
 	string_ref subtype = config.getChildData("subtype", "expanded");

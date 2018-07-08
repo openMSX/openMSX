@@ -5,8 +5,8 @@
 #include "SerializeBuffer.hh"
 #include "XMLElement.hh"
 #include "MemBuffer.hh"
-#include "StringOp.hh"
 #include "inline.hh"
+#include "strCat.hh"
 #include "unreachable.hh"
 #include <zlib.h>
 #include <string>
@@ -726,7 +726,7 @@ public:
 	{
 		// TODO make sure floating point is printed with enough digits
 		//      maybe print as hex?
-		save(StringOp::toString(t));
+		save(strCat(t));
 	}
 	template <typename T> void save(const T& t)
 	{
@@ -755,7 +755,7 @@ public:
 
 	template<typename T> void attributeImpl(const char* name, const T& t)
 	{
-		attribute(name, StringOp::toString(t));
+		attribute(name, strCat(t));
 	}
 	template<typename T> void attribute(const char* name, const T& t)
 	{

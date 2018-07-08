@@ -41,7 +41,6 @@
  */
 
 #include "MegaSCSI.hh"
-#include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include <cassert>
@@ -54,10 +53,10 @@ unsigned MegaSCSI::getSramSize() const
 {
 	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 1024); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
-		throw MSXException(StringOp::Builder() <<
-			"SRAM size for " << getName() <<
-			" should be 128, 256, 512 or 1024kB and not " <<
-			sramSize << "kB!");
+		throw MSXException(
+			"SRAM size for ", getName(),
+			" should be 128, 256, 512 or 1024kB and not ",
+			sramSize, "kB!");
 	}
 	return sramSize * 1024; // in bytes
 }

@@ -99,9 +99,9 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 
 	auto it = findDriveSettings(tmp2);
 	if (it == end(drives)) {
-		it = findDriveSettings(getMachinePrefix() + tmp2);
+		it = findDriveSettings(strCat(getMachinePrefix(), tmp2));
 		if (it == end(drives)) {
-			throw CommandException("Unknown drive: " + tmp2);
+			throw CommandException("Unknown drive: ", tmp2);
 		}
 	}
 
@@ -157,7 +157,7 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 	if (subcmd == "export") {
 		string_ref directory = tokens[3].getString();
 		if (!FileOperations::isDirectory(directory)) {
-			throw CommandException(directory + " is not a directory");
+			throw CommandException(directory, " is not a directory");
 		}
 		auto& settings = getDriveSettings(tokens[2].getString());
 		array_ref<TclObject> lists(std::begin(tokens) + 4, std::end(tokens));
@@ -207,7 +207,7 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 		result.setString(dir(settings));
 
 	} else {
-		throw CommandException("Unknown subcommand: " + subcmd);
+		throw CommandException("Unknown subcommand: ", subcmd);
 	}
 }
 
@@ -308,8 +308,8 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 					try {
 						DiskImageUtils::checkFAT12Partition(*disk, i);
 						names.insert(end(names), {
-							name1 + StringOp::toString(i),
-							name2 + StringOp::toString(i)});
+							strCat(name1, i),
+							strCat(name2, i)});
 					} catch (MSXException&) {
 						// skip invalid partition
 					}
@@ -362,8 +362,8 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 		}
 
 		if (sizes.size() >= MAX_PARTITIONS) {
-			throw CommandException(StringOp::Builder() <<
-				"Maximum number of partitions is " << MAX_PARTITIONS);
+			throw CommandException(
+				"Maximum number of partitions is ", MAX_PARTITIONS);
 		}
 		string tok = tokens[i].getString().str();
 		char* q;
@@ -371,7 +371,7 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 		int scale = 1024; // default is kilobytes
 		if (*q) {
 			if ((q == tok.c_str()) || *(q + 1)) {
-				throw CommandException("Invalid size: " + tok);
+				throw CommandException("Invalid size: ", tok);
 			}
 			switch (tolower(*q)) {
 				case 'b':
@@ -387,8 +387,7 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 					scale = SectorBasedDisk::SECTOR_SIZE;
 					break;
 				default:
-					throw CommandException(
-					    string("Invalid postfix: ") + q);
+					throw CommandException("Invalid suffix: ", q);
 			}
 		}
 		sectors = (sectors * scale) / SectorBasedDisk::SECTOR_SIZE;
@@ -421,7 +420,7 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 		File file(filename, File::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
 	} catch (FileException& e) {
-		throw CommandException("Couldn't create image: " + e.getMessage());
+		throw CommandException("Couldn't create image: ", e.getMessage());
 	}
 
 	// initialize (create partition tables and format partitions)
@@ -445,8 +444,7 @@ unique_ptr<MSXtar> DiskManipulator::getMSXtar(
 	SectorAccessibleDisk& disk, DriveSettings& driveData)
 {
 	if (DiskImageUtils::hasPartitionTable(disk)) {
-		throw CommandException(
-			"Please select partition number.");
+		throw CommandException("Please select partition number.");
 	}
 
 	auto result = make_unique<MSXtar>(disk);
@@ -455,9 +453,9 @@ unique_ptr<MSXtar> DiskManipulator::getMSXtar(
 	} catch (MSXException&) {
 		driveData.workingDir[driveData.partition] = '/';
 		throw CommandException(
-		    "Directory " + driveData.workingDir[driveData.partition] +
-		    " doesn't exist anymore. Went back to root "
-		    "directory. Command aborted, please retry.");
+			"Directory ", driveData.workingDir[driveData.partition],
+			" doesn't exist anymore. Went back to root "
+			"directory. Command aborted, please retry.");
 	}
 	return result;
 }
@@ -476,7 +474,7 @@ string DiskManipulator::chdir(DriveSettings& driveData, string_ref filename)
 	try {
 		workhorse->chdir(filename);
 	} catch (MSXException& e) {
-		throw CommandException("chdir failed: " + e.getMessage());
+		throw CommandException("chdir failed: ", e.getMessage());
 	}
 	// TODO clean-up this temp hack, used to enable relative paths
 	string& cwd = driveData.workingDir[driveData.partition];
@@ -515,7 +513,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 				FileOperations::Stat st;
 				if (!FileOperations::getStat(s, st)) {
 					throw CommandException(
-						"Non-existing file " + s);
+						"Non-existing file ", s);
 				}
 				if (FileOperations::isDirectory(st)) {
 					messages += workhorse->addDir(s);
@@ -523,7 +521,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 					messages += workhorse->addFile(s.str());
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
-					messages += "Ignoring " + s + '\n';
+					strAppend(messages, "Ignoring ", s, '\n');
 				}
 			} catch (MSXException& e) {
 				throw CommandException(e.getMessage());

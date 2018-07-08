@@ -125,7 +125,7 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 
 static string getJoystickName(unsigned joyNum)
 {
-	return string("joystick") + char('1' + joyNum);
+	return strCat("joystick", char('1' + joyNum));
 }
 
 static TclObject getConfigValue(SDL_Joystick* joystick)
@@ -137,7 +137,7 @@ static TclObject getConfigValue(SDL_Joystick* joystick)
 	value.addListElement("DOWN" ); value.addListElement("+axis1");
 	TclObject listA, listB;
 	for (auto i : xrange(InputEventGenerator::joystickNumButtons(joystick))) {
-		string button = "button" + StringOp::toString(i);
+		string button = strCat("button", i);
 		if (i & 1) {
 			listB.addListElement(button);
 		} else {

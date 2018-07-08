@@ -38,7 +38,7 @@ void ProxyCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 		}
 		command->execute(tokens, result);
 	} else {
-		throw CommandException("Invalid command name \"" + getName() + '"');
+		throw CommandException("Invalid command name \"", getName(), '"');
 	}
 }
 

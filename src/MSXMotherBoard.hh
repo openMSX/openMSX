@@ -277,7 +277,7 @@ SERIALIZE_CLASS_VERSION(MSXMotherBoard, 4);
 class ExtCmd final : public RecordedCommand
 {
 public:
-	ExtCmd(MSXMotherBoard& motherBoard, string_ref commandName);
+	ExtCmd(MSXMotherBoard& motherBoard, std::string commandName);
 	void execute(array_ref<TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
 	std::string help(const std::vector<std::string>& tokens) const override;

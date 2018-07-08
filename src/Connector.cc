@@ -64,7 +64,7 @@ void Connector::serialize(Archive& ar, unsigned /*version*/)
 				ar.serializePolymorphic("pluggable", *plugged);
 			} catch (PlugException& e) {
 				pluggingController.getCliComm().printWarning(
-					"Pluggable \"" + plugName + "\" failed to re-plug: " +
+					"Pluggable \"", plugName, "\" failed to re-plug: ",
 					e.getMessage());
 				pluggable->setConnector(nullptr);
 				plugged = dummy.get();
@@ -72,7 +72,7 @@ void Connector::serialize(Archive& ar, unsigned /*version*/)
 		} else {
 			// was plugged, but we don't have that pluggable anymore
 			pluggingController.getCliComm().printWarning(
-				"Pluggable \"" + plugName + "\" was plugged in, "
+				"Pluggable \"", plugName, "\" was plugged in, "
 				"but is not available anymore on this system, "
 				"so it will be ignored.");
 			ar.skipSection(true);

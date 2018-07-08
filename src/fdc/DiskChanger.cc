@@ -260,7 +260,7 @@ void DiskCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 				if (option == "-ips") {
 					if (++i == tokens.size()) {
 						throw MSXException(
-							"Missing argument for option \"" + option + '\"');
+							"Missing argument for option \"", option, '\"');
 					}
 					args.push_back(tokens[i].getString().str());
 				} else {
@@ -278,13 +278,14 @@ void DiskCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 string DiskCommand::help(const vector<string>& /*tokens*/) const
 {
 	const string& driveName = diskChanger.getDriveName();
-	return driveName + " eject             : remove disk from virtual drive\n" +
-	       driveName + " ramdsk            : create a virtual disk in RAM\n" +
-	       driveName + " insert <filename> : change the disk file\n" +
-	       driveName + " <filename>        : change the disk file\n" +
-	       driveName + "                   : show which disk image is in drive\n" +
-	       "The following options are supported when inserting a disk image:\n" +
-	       "-ips <filename> : apply the given IPS patch to the disk image";
+	return strCat(
+		driveName, " eject             : remove disk from virtual drive\n",
+		driveName, " ramdsk            : create a virtual disk in RAM\n",
+		driveName, " insert <filename> : change the disk file\n",
+		driveName, " <filename>        : change the disk file\n",
+		driveName, "                   : show which disk image is in drive\n"
+		"The following options are supported when inserting a disk image:\n"
+		"-ips <filename> : apply the given IPS patch to the disk image");
 }
 
 void DiskCommand::tabCompletion(vector<string>& tokens) const
@@ -368,8 +369,8 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 				insertDisk(args);
 			} catch (MSXException& e) {
 				throw MSXException(
-					"Couldn't reinsert disk in drive " +
-					getDriveName() + ": " + e.getMessage());
+					"Couldn't reinsert disk in drive ",
+					getDriveName(), ": ", e.getMessage());
 				// Alternative: Print warning and continue
 				//   without diskimage. Is this better?
 			}
@@ -378,8 +379,8 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 		string newChecksum = calcSha1(getSectorAccessibleDisk(), filePool);
 		if (oldChecksum != newChecksum) {
 			controller.getCliComm().printWarning(
-				"The content of the diskimage " +
-				diskname.getResolved() +
+				"The content of the diskimage ",
+				diskname.getResolved(),
 				" has changed since the time this savestate was "
 				"created. This might result in emulation problems "
 				"or even diskcorruption. To prevent the latter, "

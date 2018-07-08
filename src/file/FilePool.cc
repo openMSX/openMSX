@@ -13,7 +13,6 @@
 #include "CliComm.hh"
 #include "Reactor.hh"
 #include "Timer.hh"
-#include "StringOp.hh"
 #include "memory.hh"
 #include "sha1.hh"
 #include "stl.hh"
@@ -257,7 +256,7 @@ static int parseTypes(Interpreter& interp, const TclObject& list)
 		} else if (elem == "tape") {
 			result |= FilePool::TAPE;
 		} else {
-			throw CommandException("Unknown type: " + elem);
+			throw CommandException("Unknown type: ", elem);
 		}
 	}
 	return result;
@@ -284,7 +283,7 @@ FilePool::Directories FilePool::getDirectories() const
 		if (numItems & 1) {
 			throw CommandException(
 				"Expected a list with an even number "
-				"of elements, but got " + line.getString());
+				"of elements, but got ", line.getString());
 		}
 		for (unsigned j = 0; j < numItems; j += 2) {
 			string_ref name  = line.getListIndex(interp, j + 0).getString();
@@ -295,17 +294,16 @@ FilePool::Directories FilePool::getDirectories() const
 			} else if (name == "-types") {
 				entry.types = parseTypes(interp, value);
 			} else {
-				throw CommandException(
-					"Unknown item: " + name);
+				throw CommandException("Unknown item: ", name);
 			}
 		}
 		if (!hasPath) {
 			throw CommandException(
-				"Missing -path item: " + line.getString());
+				"Missing -path item: ", line.getString());
 		}
 		if (entry.types == 0) {
 			throw CommandException(
-				"Missing -types item: " + line.getString());
+				"Missing -types item: ", line.getString());
 		}
 		result.push_back(entry);
 	}
@@ -327,7 +325,7 @@ File FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 		directories = getDirectories();
 	} catch (CommandException& e) {
 		reactor.getCliComm().printWarning(
-			"Error while parsing '__filepool' setting" + e.getMessage());
+			"Error while parsing '__filepool' setting", e.getMessage());
 	}
 	for (auto& d : directories) {
 		if (d.types & fileType) {
@@ -344,7 +342,7 @@ static void reportProgress(const string& filename, size_t percentage,
                            Reactor& reactor)
 {
 	reactor.getCliComm().printProgress(
-		"Calculating SHA1 sum for " + filename + "... " + StringOp::toString(percentage) + '%');
+		"Calculating SHA1 sum for ", filename, "... ", percentage, '%');
 	reactor.getDisplay().repaint();
 }
 
@@ -450,7 +448,7 @@ File FilePool::scanDirectory(
 			return File();
 		}
 		string file = d->d_name;
-		string path = directory + '/' + file;
+		string path = strCat(directory, '/', file);
 		FileOperations::Stat st;
 		if (FileOperations::getStat(path, st)) {
 			File result;
@@ -476,10 +474,11 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 	auto now = Timer::getTime();
 	if (now > (progress.lastTime + 250000)) { // 4Hz
 		progress.lastTime = now;
-		reactor.getCliComm().printProgress("Searching for file with sha1sum " +
-			sha1sum.toString() + "...\nIndexing filepool " + poolPath +
-			": [" + StringOp::toString(progress.amountScanned) + "]: " +
-			filename.substr(poolPath.size()));
+		reactor.getCliComm().printProgress(
+                        "Searching for file with sha1sum ",
+			sha1sum.toString(), "...\nIndexing filepool ", poolPath,
+			": [", progress.amountScanned, "]: ",
+			string_ref(filename).substr(poolPath.size()));
 	}
 
 	// deliverEvents() is relatively cheap when there are no events to

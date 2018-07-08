@@ -12,7 +12,6 @@
 #include "Version.hh"
 #include "KeyRange.hh"
 #include "ScopedAssign.hh"
-#include "StringOp.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
 #include "outer.hh"
@@ -141,7 +140,7 @@ void GlobalCommandController::unregisterCommand(
 void GlobalCommandController::registerCompleter(
 	CommandCompleter& completer, string_ref str)
 {
-	if (str.starts_with("::")) str = str.substr(2); // drop leading ::
+	if (str.starts_with("::")) str.remove_prefix(2); // drop leading ::
 	assert(!commandCompleters.contains(str));
 	commandCompleters.emplace_noDuplicateCheck(str.str(), &completer);
 }
@@ -149,7 +148,7 @@ void GlobalCommandController::registerCompleter(
 void GlobalCommandController::unregisterCompleter(
 	CommandCompleter& completer, string_ref str)
 {
-	if (str.starts_with("::")) str = str.substr(2); // drop leading ::
+	if (str.starts_with("::")) str.remove_prefix(2); // drop leading ::
 	assert(commandCompleters.contains(str));
 	assert(commandCompleters[str.str()] == &completer); (void)completer;
 	commandCompleters.erase(str);
@@ -279,7 +278,7 @@ string GlobalCommandController::addEscaping(const string& str, bool quote,
 	}
 	string result = escapeChars(str, "$[]");
 	if (quote) {
-		result = '"' + result;
+                result.insert(result.begin(), '"');
 		if (finished) {
 			result += '"';
 		}
@@ -292,14 +291,14 @@ string GlobalCommandController::addEscaping(const string& str, bool quote,
 string GlobalCommandController::join(
 	const vector<string>& tokens, char delimiter)
 {
-	StringOp::Builder result;
+	string result;
 	bool first = true;
 	for (auto& t : tokens) {
 		if (!first) {
-			result << delimiter;
+			result += delimiter;
 		}
 		first = false;
-		result << t;
+		result += t;
 	}
 	return result;
 }
@@ -323,7 +322,7 @@ void GlobalCommandController::source(const string& script)
 		interpreter.executeFile(file.getFilename());
 	} catch (CommandException& e) {
 		getCliComm().printWarning(
-			 "While executing " + script + ": " + e.getMessage());
+			 "While executing ", script, ": ", e.getMessage());
 	}
 }
 
@@ -367,7 +366,7 @@ string GlobalCommandController::tabCompletion(string_ref command)
 	}
 
 	// rebuild command string
-	return pre + join(originalTokens, ' ');
+	return strCat(pre, join(originalTokens, ' '));
 }
 
 void GlobalCommandController::tabCompletion(vector<string>& tokens)
@@ -403,12 +402,12 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 			auto p2 = n2.find("::");
 			auto n3 = (p2 == string_ref::npos) ? n1 : n1.substr(0, ns.size() + p2 + 2);
 			// don't care about adding the same string multiple times
-			names2.push_back(leadingNs + n3);
+			names2.push_back(strCat(leadingNs, n3));
 		}
 		Completer::completeString(tokens, names2);
 	} else {
 		string_ref cmd = tokens.front();
-		if (cmd.starts_with("::")) cmd = cmd.substr(2); // drop leading ::
+		if (cmd.starts_with("::")) cmd.remove_prefix(2); // drop leading ::
 
 		auto it = commandCompleters.find(cmd);
 		if (it != end(commandCompleters)) {
@@ -437,7 +436,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 			} catch (CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "
-					"proc: " + e.getMessage());
+					"proc: ", e.getMessage());
 			}
 		}
 	}
@@ -464,8 +463,7 @@ void GlobalCommandController::HelpCmd::execute(
 		vector<string_ref> cmds(begin(k), end(k));
 		std::sort(begin(cmds), end(cmds));
 		for (auto& line : formatListInColumns(cmds)) {
-			text += line;
-			text += '\n';
+			strAppend(text, line, '\n');
 		}
 		result.setString(text);
 		break;
@@ -552,7 +550,7 @@ static GlobalCliComm::UpdateType getType(const TclObject& name)
 			return static_cast<CliComm::UpdateType>(i);
 		}
 	}
-	throw CommandException("No such update type: " + name.getString());
+	throw CommandException("No such update type: ", name.getString());
 }
 
 CliConnection& GlobalCommandController::UpdateCmd::getConnection()

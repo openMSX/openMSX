@@ -23,10 +23,10 @@ static byte calcReadBackMask(MSXMotherBoard& motherBoard)
 	std::string str = type.str();
 	int bits;
 	if (!StringOp::stringToInt(str, bits)) {
-		throw FatalError("Unknown mapper type: \"" + type + "\".");
+		throw FatalError("Unknown mapper type: \"", type, "\".");
 	}
 	if (bits < 0 || bits > 8) {
-		throw FatalError("MapperReadBackBits out of range: \"" + type + "\".");
+		throw FatalError("MapperReadBackBits out of range: \"", type, "\".");
 	}
 	return unsigned(-1) << bits;
 }

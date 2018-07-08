@@ -38,7 +38,7 @@ void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf)
 		// in the end this calls readSectorImpl()
 		patch->copyBlock(sector * sizeof(buf), buf.raw, sizeof(buf));
 	} catch (MSXException& e) {
-		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
+		throw DiskIOErrorException("Disk I/O error: ", e.getMessage());
 	}
 }
 
@@ -53,7 +53,7 @@ void SectorAccessibleDisk::writeSector(size_t sector, const SectorBuffer& buf)
 	try {
 		writeSectorImpl(sector, buf);
 	} catch (MSXException& e) {
-		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
+		throw DiskIOErrorException("Disk I/O error: ", e.getMessage());
 	}
 	flushCaches();
 }

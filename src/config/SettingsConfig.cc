@@ -35,7 +35,7 @@ SettingsConfig::~SettingsConfig()
 			saveSetting();
 		} catch (FileException& e) {
 			commandController.getCliComm().printWarning(
-				"Auto-saving of settings failed: " + e.getMessage() );
+				"Auto-saving of settings failed: ", e.getMessage());
 		}
 	}
 }

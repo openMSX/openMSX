@@ -85,7 +85,7 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 				filename, frameWidth, frameHeight, bpp,
 				(recordAudio && stereo) ? 2 : 1, sampleRate);
 		} catch (MSXException& e) {
-			throw CommandException("Can't start recording: " +
+			throw CommandException("Can't start recording: ",
 			                       e.getMessage());
 		}
 	} else {
@@ -231,7 +231,7 @@ void AviRecorder::processStart(array_ref<TclObject> tokens, TclObject& result)
 				frameWidth = 960;
 				frameHeight = 720;
 			} else {
-				throw CommandException("Invalid option: " + token);
+				throw CommandException("Invalid option: ", token);
 			}
 		} else {
 			arguments.push_back(token.str());

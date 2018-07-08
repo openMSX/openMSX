@@ -794,8 +794,8 @@ void LSXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 			ls.insert(filename);
 			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {
-			throw CommandException("Can't change disk image: " +
-					e.getMessage());
+			throw CommandException("Can't change disk image: ",
+			                       e.getMessage());
 		}
 	} else {
 		throw CommandException("Too many or wrong arguments.");
@@ -804,10 +804,11 @@ void LSXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 
 string LSXCommand::help(const vector<string>& /*tokens*/) const
 {
-	return ls.name + "                   : display the disk image for this LS-120 drive\n" +
-	       ls.name + " eject             : eject the disk image from this LS-120 drive\n" +
-	       ls.name + " insert <filename> : change the disk image for this LS-120 drive\n" +
-	       ls.name + " <filename>        : change the disk image for this LS-120 drive\n";
+	return strCat(
+		ls.name, "                   : display the disk image for this LS-120 drive\n",
+		ls.name, " eject             : eject the disk image from this LS-120 drive\n",
+		ls.name, " insert <filename> : change the disk image for this LS-120 drive\n",
+		ls.name, " <filename>        : change the disk image for this LS-120 drive\n");
 }
 
 void LSXCommand::tabCompletion(vector<string>& tokens) const

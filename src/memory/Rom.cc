@@ -65,12 +65,11 @@ Rom::Rom(string name_, string description_,
 	}
 	if (errors.empty()) {
 		// No matching <rom> tag.
-		StringOp::Builder err;
-		err << "Missing <rom> tag";
+		string err = "Missing <rom> tag";
 		if (!id.empty()) {
-			err << " with id=\"" << id << '"';
+			strAppend(err, " with id=\"", id, '"');
 		}
-		throw ConfigException(err);
+		throw ConfigException(std::move(err));
 	} else {
 		// We got at least one matching <rom>, but it failed to load.
 		// Report error messages of all failed attempts.
@@ -158,19 +157,17 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 		// .. still no file, then error
 		if (!file.is_open()) {
-			StringOp::Builder error;
-			error << "Couldn't find ROM file for \""
-			      << name << '"';
+			string error = strCat("Couldn't find ROM file for \"", name, '"');
 			if (!filenames.empty()) {
-				error << ' ' << filenames.front()->getData();
+				strAppend(error, ' ', filenames.front()->getData());
 			}
 			if (resolvedSha1Elem) {
-				error << " (sha1: " << resolvedSha1Elem->getData() << ')';
+				strAppend(error, " (sha1: ", resolvedSha1Elem->getData(), ')');
 			} else if (!sums.empty()) {
-                               error << " (sha1: " << sums.front()->getData() << ')';
+                               strAppend(error, " (sha1: ", sums.front()->getData(), ')');
 			}
-			error << '.';
-			throw MSXException(error);
+			strAppend(error, '.');
+			throw MSXException(std::move(error));
 		}
 
 		// actually read file content
@@ -185,13 +182,11 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			size_t size2;
 			rom = file.mmap(size2);
 			if (size2 > std::numeric_limits<decltype(size)>::max()) {
-				throw MSXException("Rom file too big: " +
-				                   file.getURL());
+				throw MSXException("Rom file too big: ", file.getURL());
 			}
 			size = unsigned(size2);
 		} catch (FileException&) {
-			throw MSXException("Error reading ROM image: " +
-					   file.getURL());
+			throw MSXException("Error reading ROM image: ", file.getURL());
 		}
 
 		// For file-based roms, calc sha1 via File::getSha1Sum(). It can
@@ -203,10 +198,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// verify SHA1
 		if (!checkSHA1(config)) {
 			motherBoard.getMSXCliComm().printWarning(
-				StringOp::Builder() <<
-				"SHA1 sum for '" << name <<
-				"' does not match with sum of '" <<
-				file.getURL() << "'.");
+				"SHA1 sum for '", name,
+				"' does not match with sum of '",
+				file.getURL(), "'.");
 		}
 
 		// We loaded an external file, so check.
@@ -281,9 +275,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			unsigned n = 0;
 			string tmp;
 			do {
-				tmp = StringOp::Builder() << name << " (" << ++n << ')';
+				tmp = strCat(name, " (", ++n, ')');
 			} while (debugger.findDebuggable(tmp));
-			name = tmp;
+			name = std::move(tmp);
 		}
 	}
 
@@ -297,7 +291,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			string tmp = file.is_open() ? file.getURL() : name;
 			// can only happen in case of loadstate
 			motherBoard.getMSXCliComm().printWarning(
-				"The content of the rom " + tmp + " has "
+				"The content of the rom ", tmp, " has "
 				"changed since the time this savestate was "
 				"created. This might result in emulation "
 				"problems.");
@@ -310,10 +304,10 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		unsigned windowBase = windowElem->getAttributeAsInt("base", 0);
 		unsigned windowSize = windowElem->getAttributeAsInt("size", size);
 		if ((windowBase + windowSize) > size) {
-			throw MSXException(StringOp::Builder() <<
-				"The specified window [" << windowBase << ',' <<
-				windowBase + windowSize << ") falls outside "
-				"the rom (with size " << size << ").");
+			throw MSXException(
+				"The specified window [", windowBase, ',',
+				windowBase + windowSize, ") falls outside "
+				"the rom (with size ", size, ").");
 		}
 		rom = &rom[windowBase];
 		size = windowSize;

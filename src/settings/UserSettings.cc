@@ -70,8 +70,8 @@ void UserSettings::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
 		info(tokens, result);
 	} else {
 		throw CommandException(
-			"Invalid subcommand '" + subCommand + "', expected "
-			"'create', 'destroy' or 'info'.");
+			"Invalid subcommand '", subCommand,
+			"', expected 'create', 'destroy' or 'info'.");
 	}
 }
 
@@ -86,7 +86,7 @@ void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
 	auto& controller = checked_cast<GlobalCommandController&>(getCommandController());
 	if (controller.getSettingsManager().findSetting(settingName)) {
 		throw CommandException(
-			"There already exists a setting with this name: " + settingName);
+			"There already exists a setting with this name: ", settingName);
 	}
 
 	unique_ptr<Setting> setting;
@@ -100,7 +100,7 @@ void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
 		setting = createFloat(tokens);
 	} else {
 		throw CommandException(
-			"Invalid setting type '" + type + "', expected "
+			"Invalid setting type '", type, "', expected "
 			"'string', 'boolean', 'integer' or 'float'.");
 	}
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
@@ -174,7 +174,7 @@ void UserSettings::Cmd::destroy(array_ref<TclObject> tokens, TclObject& /*result
 	auto* setting = userSettings.findSetting(settingName);
 	if (!setting) {
 		throw CommandException(
-			"There is no user setting with this name: " + settingName);
+			"There is no user setting with this name: ", settingName);
 	}
 	userSettings.deleteSetting(*setting);
 }

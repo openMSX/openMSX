@@ -60,7 +60,7 @@ const TclObject& ProxySetting::getValue() const
 	if (auto* setting = getSetting()) {
 		return setting->getValue();
 	} else {
-		throw MSXException("No setting '" + getFullName() + "' on current machine.");
+		throw MSXException("No setting '", getFullName(), "' on current machine.");
 	}
 }
 
@@ -88,7 +88,7 @@ void ProxySetting::setValueDirect(const TclObject& value)
 		// note: not setStringDirect()
 		setting->setValue(value);
 	} else {
-		throw MSXException("No setting '" + getFullName() + "' on current machine.");
+		throw MSXException("No setting '", getFullName(), "' on current machine.");
 	}
 }
 

@@ -129,8 +129,8 @@ int OSDConsoleRenderer::initFontAndGetColumns()
 		// This will happen when you upgrade from the old .png based
 		// fonts to the new .ttf fonts. So provide a smooth upgrade path.
 		reactor.getCliComm().printWarning(
-			"Loading selected font (" + fontSetting.getString() +
-			") failed. Reverting to default font (" + defaultFont + ").");
+			"Loading selected font (", fontSetting.getString(),
+			") failed. Reverting to default font (", defaultFont, ").");
 		fontSetting.setString(defaultFont);
 		if (font.empty()) {
 			// we can't continue without font
@@ -271,7 +271,7 @@ void OSDConsoleRenderer::loadFont(string_ref value)
 	string filename = systemFileContext().resolve(value);
 	auto newFont = TTFFont(filename, fontSizeSetting.getInt());
 	if (!newFont.isFixedWidth()) {
-		throw MSXException(value + " is not a monospaced font");
+		throw MSXException(value, " is not a monospaced font");
 	}
 	font = std::move(newFont);
 	clearCache();
@@ -325,7 +325,7 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 			if (!alreadyPrinted) {
 				alreadyPrinted = true;
 				reactor.getCliComm().printWarning(
-					"Invalid console text (invalid UTF-8): " +
+					"Invalid console text (invalid UTF-8): ",
 					e.getMessage());
 			}
 			return; // don't cache negative results

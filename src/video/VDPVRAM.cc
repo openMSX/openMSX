@@ -75,7 +75,7 @@ void VDPVRAM::LogicalVRAMDebuggable::write(
 VDPVRAM::PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(
 		VDP& vdp_, unsigned actualSize_)
 	: SimpleDebuggable(vdp_.getMotherBoard(), vdp_.getName() == "VDP" ?
-	                   "physical VRAM" : "physical " + vdp_.getName() + " VRAM",
+	                   "physical VRAM" : strCat("physical ", vdp_.getName(), " VRAM"),
 	                   "VDP-screen-mode-independent view on the video RAM.",
 	                   actualSize_)
 {

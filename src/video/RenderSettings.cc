@@ -197,7 +197,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 			parseColorMatrix(interp, newValue);
 		} catch (CommandException& e) {
 			throw CommandException(
-				"Invalid color matrix: " + e.getMessage());
+				"Invalid color matrix: ", e.getMessage());
 		}
 	});
 	try {

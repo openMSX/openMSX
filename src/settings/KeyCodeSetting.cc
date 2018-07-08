@@ -12,7 +12,7 @@ KeyCodeSetting::KeyCodeSetting(CommandController& commandController_,
 	setChecker([](TclObject& newValue) {
 		const auto& str = newValue.getString();
 		if (Keys::getCode(str) == Keys::K_NONE) {
-			throw CommandException("Not a valid key: " + str);
+			throw CommandException("Not a valid key: ", str);
 		}
 	});
 	init();

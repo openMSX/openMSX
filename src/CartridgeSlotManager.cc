@@ -5,7 +5,6 @@
 #include "FileContext.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "CliComm.hh"
 #include "unreachable.hh"
 #include "memory.hh"
@@ -76,7 +75,7 @@ int CartridgeSlotManager::getSlotNum(string_ref slot)
 	} else if (slot == "any") {
 		return -256;
 	}
-	throw MSXException("Invalid slot specification: " + slot);
+	throw MSXException("Invalid slot specification: ", slot);
 }
 
 void CartridgeSlotManager::createExternalSlot(int ps)
@@ -157,12 +156,10 @@ void CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss) cons
 {
 	assert(slot < MAX_SLOTS);
 	if (!slots[slot].exists()) {
-		throw MSXException(StringOp::Builder() <<
-			"slot-" << char('a' + slot) << " not defined.");
+		throw MSXException("slot-", char('a' + slot), " not defined.");
 	}
 	if (slots[slot].used()) {
-		throw MSXException(StringOp::Builder() <<
-			"slot-" << char('a' + slot) << " already in use.");
+		throw MSXException("slot-", char('a' + slot), " already in use.");
 	}
 	ps = slots[slot].ps;
 	ss = slots[slot].ss;
@@ -172,16 +169,13 @@ int CartridgeSlotManager::allocateSpecificPrimarySlot(unsigned slot, const Hardw
 {
 	assert(slot < MAX_SLOTS);
 	if (!slots[slot].exists()) {
-		throw MSXException(StringOp::Builder() <<
-			"slot-" << char('a' + slot) << " not defined.");
+		throw MSXException("slot-", char('a' + slot), " not defined.");
 	}
 	if (slots[slot].used()) {
-		throw MSXException(StringOp::Builder() <<
-			"slot-" << char('a' + slot) << " already in use.");
+		throw MSXException("slot-", char('a' + slot), " already in use.");
 	}
 	if (slots[slot].ss != -1) {
-		throw MSXException(StringOp::Builder() <<
-			"slot-" << char('a' + slot) << " is not a primary slot.");
+		throw MSXException("slot-", char('a' + slot), " is not a primary slot.");
 	}
 	assert(slots[slot].useCount == 0);
 	slots[slot].config = &hwConfig;
@@ -242,10 +236,10 @@ void CartridgeSlotManager::allocateSlot(
 				slots[slot].config = &hwConfig;
 			} else {
 				if (slots[slot].config != &hwConfig) {
-					throw MSXException(StringOp::Builder()
-						<< "Slot " << ps << '-' << ss
-						<< " already in use by "
-						<< slots[slot].config->getName());
+					throw MSXException(
+						"Slot ", ps, '-', ss,
+						" already in use by ",
+						slots[slot].config->getName());
 				}
 			}
 			++slots[slot].useCount;
@@ -324,7 +318,7 @@ void CartridgeSlotManager::CartCmd::execute(
 	if (tokens.size() == 1) {
 		// query name of cartridge
 		auto* extConf = getExtensionConfig(cartname);
-		result.addListElement(cartname + ':');
+		result.addListElement(strCat(cartname, ':'));
 		result.addListElement(extConf ? extConf->getName() : string{});
 		if (!extConf) {
 			TclObject options;
@@ -343,14 +337,14 @@ void CartridgeSlotManager::CartCmd::execute(
 				manager.motherBoard.removeExtension(*extConf);
 				cliComm.update(CliComm::MEDIA, cartname, {});
 			} catch (MSXException& e) {
-				throw CommandException("Can't remove cartridge: " +
+				throw CommandException("Can't remove cartridge: ",
 				                       e.getMessage());
 			}
 		}
 	} else {
 		// insert cartridge
 		auto slotname = (cartname.size() == 5)
-			? string(1, cartname[4])
+			? cartname.substr(4, 1)
 			: "any";
 		size_t extensionNameToken = 1;
 		if (tokens[1] == "insert") {
@@ -383,13 +377,14 @@ void CartridgeSlotManager::CartCmd::execute(
 
 string CartridgeSlotManager::CartCmd::help(const vector<string>& tokens) const
 {
-	return tokens[0] + " eject              : remove the ROM cartridge from this slot\n" +
-	       tokens[0] + " insert <filename>  : insert ROM cartridge with <filename>\n" +
-	       tokens[0] + " <filename>         : insert ROM cartridge with <filename>\n" +
-	       tokens[0] + "                    : show which ROM cartridge is in this slot\n" +
-	       "The following options are supported when inserting a cartridge:\n" +
-	       "-ips <filename>    : apply the given IPS patch to the ROM image\n" +
-	       "-romtype <romtype> : specify the ROM mapper type\n";
+	return strCat(
+		tokens[0], " eject              : remove the ROM cartridge from this slot\n",
+		tokens[0], " insert <filename>  : insert ROM cartridge with <filename>\n",
+		tokens[0], " <filename>         : insert ROM cartridge with <filename>\n",
+		tokens[0], "                    : show which ROM cartridge is in this slot\n",
+		"The following options are supported when inserting a cartridge:\n"
+		"-ips <filename>    : apply the given IPS patch to the ROM image\n"
+		"-romtype <romtype> : specify the ROM mapper type\n");
 }
 
 void CartridgeSlotManager::CartCmd::tabCompletion(vector<string>& tokens) const
@@ -434,15 +429,15 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 		// return info on a particular slot
 		const auto& slotName = tokens[2].getString();
 		if ((slotName.size() != 5) || (!slotName.starts_with("slot"))) {
-			throw CommandException("Invalid slot name: " + slotName);
+			throw CommandException("Invalid slot name: ", slotName);
 		}
 		unsigned num = slotName[4] - 'a';
 		if (num >= CartridgeSlotManager::MAX_SLOTS) {
-			throw CommandException("Invalid slot name: " + slotName);
+			throw CommandException("Invalid slot name: ", slotName);
 		}
 		auto& slot = manager.slots[num];
 		if (!slot.exists()) {
-			throw CommandException("Slot '" + slotName + "' doesn't currently exist in this msx machine.");
+			throw CommandException("Slot '", slotName, "' doesn't currently exist in this msx machine.");
 		}
 		result.addListElement(slot.ps);
 		if (slot.ss == -1) {

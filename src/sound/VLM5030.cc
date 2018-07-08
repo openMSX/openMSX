@@ -515,7 +515,7 @@ static XMLElement getRomConfig(const std::string& name, const std::string& romFi
 	romElement.addChild( // load by sha1sum
 		"sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40");
 	romElement.addChild( // load by predefined filename in software rom's dir
-		"filename", FileOperations::stripExtension(romFilename) + "_voice.rom");
+		"filename", strCat(FileOperations::stripExtension(romFilename), "_voice.rom"));
 	romElement.addChild( // or hardcoded filename in ditto dir
 		"filename", "keyboardmaster/voice.rom");
 	return voiceROMconfig;

@@ -70,7 +70,8 @@ void Ram::clear(byte c)
 			done = std::min(size_t(size), p.second);
 			memcpy(ram.data(), p.first.data(), done);
 		} else {
-			throw MSXException("Unsupported encoding \"" + encoding + "\" for initialContent");
+			throw MSXException("Unsupported encoding \"", encoding,
+			                   "\" for initialContent");
 		}
 
 		// repeat pattern over whole ram

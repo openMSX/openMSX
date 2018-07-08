@@ -24,8 +24,8 @@ void Pluggable::plug(Connector& newConnector, EmuTime::param time)
 	assert(getClass() == newConnector.getClass());
 
 	if (connector) {
-		throw PlugException(getName() + " already plugged in " +
-		                    connector->getName() + '.');
+		throw PlugException(getName(), " already plugged in ",
+		                    connector->getName(), '.');
 	}
 	plugHelper(newConnector, time);
 	setConnector(&newConnector);

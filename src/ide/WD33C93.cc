@@ -19,7 +19,6 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
 #include "memory.hh"
 #include <cassert>
@@ -111,13 +110,11 @@ WD33C93::WD33C93(const DeviceConfig& config)
 	for (auto* t : config.getXML()->getChildren("target")) {
 		unsigned id = t->getAttributeAsInt("id");
 		if (id >= MAX_DEV) {
-			throw MSXException(StringOp::Builder() <<
-				"Invalid SCSI id: " << id <<
-				" (should be 0.." << MAX_DEV - 1 << ')');
+			throw MSXException("Invalid SCSI id: ", id,
+			                   " (should be 0..", MAX_DEV - 1, ')');
 		}
 		if (dev[id]) {
-			throw MSXException(StringOp::Builder() <<
-				"Duplicate SCSI id: " << id);
+			throw MSXException("Duplicate SCSI id: ", id);
 		}
 		DeviceConfig conf(config, *t);
 		auto& type = t->getChild("type").getData();
@@ -130,7 +127,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
 			        SCSIDevice::MODE_NOVAXIS);
 		} else {
-			throw MSXException("Unknown SCSI device: " + type);
+			throw MSXException("Unknown SCSI device: ", type);
 		}
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes

@@ -1,6 +1,5 @@
 #include "MSXMemoryMapper.hh"
 #include "MSXMotherBoard.hh"
-#include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "memory.hh"
@@ -14,8 +13,7 @@ unsigned MSXMemoryMapper::getRamSize() const
 {
 	int kSize = getDeviceConfig().getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
-		throw MSXException(StringOp::Builder() <<
-			"Mapper size is not a multiple of 16K: " << kSize);
+		throw MSXException("Mapper size is not a multiple of 16K: ", kSize);
 	}
 	if (kSize == 0) {
 		throw MSXException("Mapper size must be at least 16kB.");

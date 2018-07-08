@@ -65,8 +65,7 @@ private:
 SDLTTF::SDLTTF()
 {
 	if (TTF_Init() < 0) {
-		throw FatalError(StringOp::Builder() <<
-			"Couldn't initialize SDL_ttf: " << TTF_GetError());
+		throw FatalError("Couldn't initialize SDL_ttf: ", TTF_GetError());
 	}
 }
 

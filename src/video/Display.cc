@@ -217,16 +217,14 @@ string Display::getWindowTitle()
 {
 	string title = Version::full();
 	if (!Version::RELEASE) {
-		title += " [";
-		title += BUILD_FLAVOUR;
-		title += ']';
+		strAppend(title, " [", BUILD_FLAVOUR, ']');
 	}
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
 		if (const HardwareConfig* machine = motherboard->getMachineConfig()) {
 			const XMLElement& config = machine->getConfig();
-			title += " - " +
-			    config.getChild("info").getChildData("manufacturer") + ' ' +
-			    config.getChild("info").getChildData("code");
+			strAppend(title, " - ",
+			          config.getChild("info").getChildData("manufacturer"), ' ',
+			          config.getChild("info").getChildData("code"));
 		}
 	}
 	return title;
@@ -278,9 +276,10 @@ void Display::doRendererSwitch()
 			success = true;
 		} catch (MSXException& e) {
 			auto& rendererSetting = renderSettings.getRendererSetting();
-			string errorMsg = "Couldn't activate renderer " +
-				rendererSetting.getString() +
-				": " + e.getMessage();
+			string errorMsg = strCat(
+				"Couldn't activate renderer ",
+				rendererSetting.getString(),
+				": ", e.getMessage());
 			// now try some things that might work against this:
 			if (rendererSetting.getEnum() != RenderSettings::SDL) {
 				errorMsg += "\nTrying to switch to SDL renderer instead...";
@@ -289,8 +288,13 @@ void Display::doRendererSwitch()
 			} else {
 				auto& scaleFactorSetting = renderSettings.getScaleFactorSetting();
 				unsigned curval = scaleFactorSetting.getInt();
-				if (curval == 1) throw MSXException(e.getMessage() + " (and I have no other ideas to try...)"); // give up and die... :(
-				errorMsg += "\nTrying to decrease scale_factor setting from " + StringOp::toString(curval) + " to " + StringOp::toString(curval - 1) + "...";
+				if (curval == 1) {
+					throw MSXException(
+						e.getMessage(),
+						" (and I have no other ideas to try...)"); // give up and die... :(
+				}
+				strAppend(errorMsg, "\nTrying to decrease scale_factor setting from ",
+                                          curval, " to ", curval - 1, "...");
 				scaleFactorSetting.setInt(curval - 1);
 			}
 			getCliComm().printWarning(errorMsg);
@@ -427,7 +431,7 @@ void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& res
 			} else if (tok == "-with-osd") {
 				withOsd = true;
 			} else {
-				throw CommandException("Invalid option: " + tok);
+				throw CommandException("Invalid option: ", tok);
 			}
 		} else {
 			arguments.push_back(tokens[i]);
@@ -462,7 +466,7 @@ void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& res
 			display.getVideoSystem().takeScreenShot(filename, withOsd);
 		} catch (MSXException& e) {
 			throw CommandException(
-				"Failed to take screenshot: " + e.getMessage());
+				"Failed to take screenshot: ", e.getMessage());
 		}
 	} else {
 		auto videoLayer = dynamic_cast<VideoLayer*>(
@@ -476,25 +480,24 @@ void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& res
 			videoLayer->takeRawScreenShot(height, filename);
 		} catch (MSXException& e) {
 			throw CommandException(
-				"Failed to take screenshot: " + e.getMessage());
+				"Failed to take screenshot: ", e.getMessage());
 		}
 	}
 
-	display.getCliComm().printInfo("Screen saved to " + filename);
+	display.getCliComm().printInfo("Screen saved to ", filename);
 	result.setString(filename);
 }
 
 string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 {
 	// Note: -no-sprites option is implemented in Tcl
-	return
-		"screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
-		"screenshot <filename>        Write screenshot to indicated file\n"
-		"screenshot -prefix foo       Write screenshot to file \"fooNNNN.png\"\n"
-		"screenshot -raw              320x240 raw screenshot (of MSX screen only)\n"
-		"screenshot -raw -doublesize  640x480 raw screenshot (of MSX screen only)\n"
-		"screenshot -with-osd         Include OSD elements in the screenshot\n"
-		"screenshot -no-sprites       Don't include sprites in the screenshot\n";
+	return "screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
+	       "screenshot <filename>        Write screenshot to indicated file\n"
+	       "screenshot -prefix foo       Write screenshot to file \"fooNNNN.png\"\n"
+	       "screenshot -raw              320x240 raw screenshot (of MSX screen only)\n"
+	       "screenshot -raw -doublesize  640x480 raw screenshot (of MSX screen only)\n"
+	       "screenshot -with-osd         Include OSD elements in the screenshot\n"
+	       "screenshot -no-sprites       Don't include sprites in the screenshot\n";
 }
 
 void Display::ScreenShotCmd::tabCompletion(vector<string>& tokens) const

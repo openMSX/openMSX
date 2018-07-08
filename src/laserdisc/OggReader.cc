@@ -3,7 +3,6 @@
 #include "yuv2rgb.hh"
 #include "likely.hh"
 #include "CliComm.hh"
-#include "StringOp.hh"
 #include "MemoryOps.hh"
 #include "memory.hh"
 #include "stl.hh"
@@ -408,12 +407,9 @@ void OggReader::readVorbis(ogg_packet* packet)
 			vorbisFoundPosition();
 		} else {
 			if (vorbisPos != size_t(packet->granulepos)) {
-				cli.printWarning("vorbis audio out of sync, "
-					"expected " +
-					StringOp::toString(vorbisPos) +
-					", got " +
-					StringOp::toString(packet->granulepos));
-
+				cli.printWarning(
+                                        "vorbis audio out of sync, expected ",
+					vorbisPos, ", got ", packet->granulepos);
 				vorbisPos = packet->granulepos;
 			}
 		}
@@ -550,8 +546,7 @@ void OggReader::readTheora(ogg_packet* packet)
 	case 0:
 		break;
 	default:
-		cli.printWarning("Theora error: unknown error " +
-					StringOp::toString(rc));
+		cli.printWarning("Theora error: unknown error ", rc);
 		break;
 	}
 
@@ -640,9 +635,9 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 		if (!frameList.empty() && frameList[0]->no > frameno) {
 			// we're missing frames!
 			frame = frameList[0].get();
-			cli.printWarning("Cannot find frame " +
-				StringOp::toString(frameno) + " using " +
-				StringOp::toString(frame->no) + " instead");
+			cli.printWarning(
+                                "Cannot find frame ", frameno, " using ",
+			        frame->no, " instead");
 			break;
 		}
 
@@ -664,8 +659,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 		if (frameList.size() > (size_t(2) << granuleShift)) {
 			// We've got more than twice as many frames
 			// as the maximum distance between key frames.
-			cli.printWarning("Cannot find frame " +
-				StringOp::toString(frameno));
+			cli.printWarning("Cannot find frame ", frameno);
 			return;
 		}
 
@@ -765,8 +759,8 @@ bool OggReader::nextPacket()
 				cli.printWarning("Failed to submit theora page");
 			}
 		} else if (serial != skeletonSerial) {
-			cli.printWarning("Unexpected stream with serial " +
-				StringOp::toString(serial) + " in ogg file");
+			cli.printWarning("Unexpected stream with serial ",
+			                 serial, " in ogg file");
 		}
 	}
 }

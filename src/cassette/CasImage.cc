@@ -216,11 +216,10 @@ void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cl
 		}
 	}
 	if (!headerFound) {
-		throw MSXException(filename.getOriginal() +
-		                   ": not a valid CAS image");
+		throw MSXException(filename.getOriginal(), ": not a valid CAS image");
 	}
 	if (issueWarning) {
-		 cliComm.printWarning("Skipped unhandled data in " +
+		 cliComm.printWarning("Skipped unhandled data in ",
 		                      filename.getOriginal());
 	}
 

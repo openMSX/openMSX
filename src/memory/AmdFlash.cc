@@ -101,7 +101,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 	// check whether the loaded SRAM is empty, whilst initial content was specified
 	if (!rom && loaded && initialContentSpecified && sramEmpty(*ram)) {
 		config.getCliComm().printInfo(
-			"This flash device (" + config.getHardwareConfig().getName() +
+			"This flash device (", config.getHardwareConfig().getName(),
 			") has initial content specified, but this content "
 			"was not loaded, because there was already content found "
 			"and loaded from persistent storage. However, this "
@@ -109,7 +109,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 			"when the specified initial content could not be loaded "
 			"when this device was used for the first time). If you "
 			"still wish to load the specified initial content, "
-			"please remove the blank persistent storage file: " +
+			"please remove the blank persistent storage file: ",
 			ram->getLoadedFilename());
 	}
 
@@ -127,7 +127,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 				config);
 			rom = rom_.get();
 			config.getCliComm().printInfo(
-				"Loaded initial content for flash ROM from " +
+				"Loaded initial content for flash ROM from ",
 				rom->getFilename());
 		} catch (MSXException& e) {
 			// ignore error
@@ -136,7 +136,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 			if (initialContentSpecified) {
 				config.getCliComm().printWarning(
 					"Could not load specified initial content "
-					"for flash ROM: " + e.getMessage());
+					"for flash ROM: ", e.getMessage());
 			}
 		}
 	}

@@ -2,7 +2,6 @@
 #include "SDLSurfacePtr.hh"
 #include "MSXException.hh"
 #include "File.hh"
-#include "StringOp.hh"
 #include "build-info.hh"
 #include "Version.hh"
 #include "vla.hh"
@@ -22,8 +21,7 @@ static void handleError(png_structp png_ptr, png_const_charp error_msg)
 {
 	auto operation = reinterpret_cast<const char*>(
 		png_get_error_ptr(png_ptr));
-	throw MSXException(StringOp::Builder() <<
-		"Error while " << operation << " PNG: " << error_msg);
+	throw MSXException("Error while ", operation, " PNG: ", error_msg);
 }
 
 static void handleWarning(png_structp png_ptr, png_const_charp warning_msg)
@@ -190,14 +188,14 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		// Allocate the SDL surface to hold the image.
 		static const unsigned MAX_SIZE = 2048;
 		if (width > MAX_SIZE) {
-			throw MSXException(StringOp::Builder() <<
-				"Attempted to create a surface with excessive width: "
-				<< width << ", max " << MAX_SIZE);
+			throw MSXException(
+				"Attempted to create a surface with excessive width: ",
+				width, ", max ", MAX_SIZE);
 		}
 		if (height > MAX_SIZE) {
-			throw MSXException(StringOp::Builder() <<
-				"Attempted to create a surface with excessive height: "
-				<< height << ", max " << MAX_SIZE);
+			throw MSXException(
+				"Attempted to create a surface with excessive height: ",
+				height, ", max ", MAX_SIZE);
 		}
 		int bpp = png_get_channels(png.ptr, png.info) * 8;
 		assert(bpp == 24 || bpp == 32);
@@ -261,9 +259,9 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 
 		return surface;
 	} catch (MSXException& e) {
-		throw MSXException(StringOp::Builder() <<
-			"Error while loading PNG file \"" << filename <<
-			"\": " << e.getMessage());
+		throw MSXException(
+			"Error while loading PNG file \"", filename, "\": ",
+			e.getMessage());
 	}
 }
 
@@ -351,7 +349,7 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 		png_write_end(png.ptr, png.info);
 	} catch (MSXException& e) {
 		throw MSXException(
-			"Error while writing PNG file \"" + filename + "\": " +
+			"Error while writing PNG file \"", filename, "\": ",
 			e.getMessage());
 	}
 }

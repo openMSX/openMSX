@@ -99,9 +99,9 @@ TclObject TclCallback::executeCommon(TclObject& command)
 	try {
 		return command.executeCommand(callbackSetting.getInterpreter());
 	} catch (CommandException& e) {
-		string message =
-			"Error executing callback function \"" +
-			getSetting().getFullName() + "\": " + e.getMessage();
+		string message = strCat(
+			"Error executing callback function \"",
+			getSetting().getFullName(), "\": ", e.getMessage());
 		if (useCliComm) {
 			getSetting().getCommandController().getCliComm().printWarning(
 				message);

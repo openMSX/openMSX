@@ -613,8 +613,7 @@ void NowindHost::deviceOpen()
 	string filename = extractName(0, 8);
 	string ext      = extractName(8, 11);
 	if (!ext.empty()) {
-		filename += '.';
-		filename += ext;
+		strAppend(filename, '.', ext);
 	}
 
 	unsigned fcb = getFCB();
@@ -736,7 +735,7 @@ void NowindHost::readHelper2(unsigned len, const char* buf)
 
 // strips a string from outer double-quotes and anything outside them
 // ie: 'pre("foo")bar' will result in 'foo'
-static string stripquotes(const string& str)
+static string_ref stripquotes(string_ref str)
 {
 	auto first = str.find_first_of('\"');
 	if (first == string::npos) {

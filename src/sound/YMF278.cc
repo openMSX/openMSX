@@ -10,7 +10,6 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
 #include "likely.hh"
 #include "outer.hh"
@@ -761,9 +760,9 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 	    (ramSize_ !=  640) &&  // 512kB  128kB
 	    (ramSize_ != 1024) &&  // 512kB  512kB
 	    (ramSize_ != 2048)) {  // 512kB  512kB  512kB  512kB
-		throw MSXException(StringOp::Builder() <<
+		throw MSXException(
 			"Wrong sampleram size for MoonSound (YMF278). "
-			"Got " << ramSize_ << ", but must be one of "
+			"Got ", ramSize_, ", but must be one of "
 			"0, 128, 256, 512, 640, 1024 or 2048.");
 	}
 

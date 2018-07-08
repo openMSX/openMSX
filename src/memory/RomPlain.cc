@@ -1,7 +1,6 @@
 #include "RomPlain.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -15,8 +14,8 @@ static inline bool isInside(unsigned x, unsigned start, unsigned len)
 
 static std::string toString(unsigned start, unsigned len)
 {
-	return "[0x" + StringOp::toHexString(start, 4) + ", " +
-	        "0x" + StringOp::toHexString(start + len, 4) + ']';
+	return strCat("[0x", hex_string<4>(start), ", "
+	               "0x", hex_string<4>(start + len), ')');
 }
 
 RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_,
@@ -32,9 +31,9 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_,
 
 	unsigned romSize = rom.getSize();
 	if ((romSize > 0x10000) || (romSize & 0x1FFF)) {
-		throw MSXException(StringOp::Builder() << rom.getName() <<
-		    ": invalid rom size: must be smaller than or equal to 64kB "
-		    "and must be a multiple of 8kB.");
+		throw MSXException(rom.getName(),
+			": invalid rom size: must be smaller than or equal to 64kB "
+			"and must be a multiple of 8kB.");
 	}
 
 	unsigned romBase = (start == -1)
@@ -46,14 +45,14 @@ RomPlain::RomPlain(const DeviceConfig& config, Rom&& rom_,
 		// ROM must fall inside the boundaries given by the <mem>
 		// tag (this code only looks at one <mem> tag), but only
 		// check when the start address was not explicitly specified
-		throw MSXException(StringOp::Builder() << rom.getName() <<
-		    ": invalid rom position: interval " <<
-		    toString(romBase, romSize) << " must fit in " <<
-		    toString(windowBase, windowSize) << '.');
+		throw MSXException(rom.getName(),
+			": invalid rom position: interval ",
+			toString(romBase, romSize), " must fit in ",
+			toString(windowBase, windowSize), '.');
 	}
 	if ((romBase & 0x1FFF)) {
-		throw MSXException(StringOp::Builder() << rom.getName() <<
-		    ": invalid rom position: must start at a 8kB boundary.");
+		throw MSXException(rom.getName(),
+			": invalid rom position: must start at a 8kB boundary.");
 	}
 
 	unsigned firstPage = romBase / 0x2000;

@@ -1,6 +1,5 @@
 #include "WavData.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include <SDL.h>
 #include <cassert>
 
@@ -19,8 +18,7 @@ WavData::WavData(const string& filename, unsigned wantedBits, unsigned wantedFre
 	Uint8* wavBuf;
 	Uint32 wavLen;
 	if (!SDL_LoadWAV(filename.c_str(), &wavSpec, &wavBuf, &wavLen)) {
-		throw MSXException(StringOp::Builder() <<
-			"WavData error: " << SDL_GetError());
+		throw MSXException("WavData error: ", SDL_GetError());
 	}
 
 	freq = (wantedFreq == 0) ? unsigned(wavSpec.freq) : wantedFreq;

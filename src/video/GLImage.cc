@@ -47,8 +47,8 @@ static gl::Texture loadTexture(
 	try {
 		return loadTexture(std::move(surface), size, texCoord);
 	} catch (MSXException& e) {
-		throw MSXException("Error loading image " + filename +
-		                   ": " + e.getMessage());
+		throw MSXException("Error loading image ", filename, ": ",
+		                   e.getMessage());
 	}
 }
 

@@ -23,7 +23,7 @@ int EnumSettingBase::fromStringBase(string_ref str) const
 	auto it = lower_bound(begin(baseMap), end(baseMap), str, Comp());
 	StringOp::casecmp cmp;
 	if ((it == end(baseMap)) || !cmp(it->first, str)) {
-		throw CommandException("not a valid value: " + str);
+		throw CommandException("not a valid value: ", str);
 	}
 	return it->second;
 }

@@ -332,7 +332,7 @@ std::unique_ptr<Y8950Periphery> Y8950PeripheryFactory::create(
 	} else if (type == "toshiba") {
 		return make_unique<ToshibaAudioPeriphery>(audio);
 	} else {
-		throw MSXException("Unknown MSX-AUDIO type: " + type);
+		throw MSXException("Unknown MSX-AUDIO type: ", type);
 	}
 }
 

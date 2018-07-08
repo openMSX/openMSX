@@ -261,7 +261,7 @@ void DBParser::start(string_ref tag)
 		break;
 
 	case END:
-		throw MSXException("Unexpected opening tag: " + tag);
+		throw MSXException("Unexpected opening tag: ", tag);
 
 	default:
 		UNREACHABLE;
@@ -327,10 +327,10 @@ void DBParser::text(string_ref txt)
 		try {
 			genMSXid = fast_stou(txt);
 		} catch (std::invalid_argument&) {
-			cliComm.printWarning(StringOp::Builder() <<
+			cliComm.printWarning(
 				"Ignoring bad Generation MSX id (genmsxid) "
-				"in entry with title '" << title <<
-				": " << txt);
+				"in entry with title '", title,
+				": ", txt);
 		}
 		break;
 	case ORIGINAL:
@@ -410,7 +410,7 @@ void DBParser::addAllEntries()
 	while (it2 != last) {
 		if (it1->first == it2->first) {
 			cliComm.printWarning(
-				"duplicate softwaredb entry SHA1: " +
+				"duplicate softwaredb entry SHA1: ",
 				it2->first.toString());
 		} else {
 			++it1;
@@ -592,8 +592,8 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 
 			parseDB(cliComm, buf, buffer.data(), db, unknownTypes);
 		} catch (rapidsax::ParseError& e) {
-			cliComm.printWarning(StringOp::Builder() <<
-				"Rom database parsing failed: " << e.what());
+			cliComm.printWarning(
+				"Rom database parsing failed: ", e.what());
 		} catch (MSXException& /*e*/) {
 			// Ignore, see above
 		}
@@ -605,10 +605,9 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 			"This may cause incorrect ROM mapper types to be used.");
 	}
 	if (!unknownTypes.empty()) {
-		StringOp::Builder output;
-		output << "Unknown mapper types in software database: ";
+		string output = "Unknown mapper types in software database: ";
 		for (auto& p : unknownTypes) {
-			output << p.first << " (" << p.second << "x); ";
+			strAppend(output, p.first, " (", p.second, "x); ");
 		}
 		cliComm.printWarning(output);
 	}
@@ -644,7 +643,7 @@ void RomDatabase::SoftwareInfoTopic::execute(
 	if (!romInfo) {
 		// no match found
 		throw CommandException(
-			"Software with sha1sum " + sha1sum.toString() + " not found");
+			"Software with sha1sum ", sha1sum.toString(), " not found");
 	}
 
 	const char* bufStart = romDatabase.buffer.data();

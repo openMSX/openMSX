@@ -7,7 +7,6 @@
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
-#include "StringOp.hh"
 #include "outer.hh"
 #include "stl.hh"
 #include <cassert>
@@ -83,19 +82,19 @@ PluggingController::PlugCmd::PlugCmd(
 void PluggingController::PlugCmd::execute(
 	array_ref<TclObject> tokens, TclObject& result_, EmuTime::param time)
 {
-	StringOp::Builder result;
+	string result;
 	auto& pluggingController = OUTER(PluggingController, plugCmd);
 	switch (tokens.size()) {
 	case 1:
 		for (auto& c : pluggingController.connectors) {
-			result << c->getName() << ": "
-			       << c->getPlugged().getName() << '\n';
+			strAppend(result, c->getName(), ": ",
+			          c->getPlugged().getName(), '\n');
 		}
 		break;
 	case 2: {
 		auto& connector = pluggingController.getConnector(tokens[1].getString());
-		result << connector.getName() << ": "
-		       << connector.getPlugged().getName();
+		strAppend(result, connector.getName(), ": ",
+		          connector.getPlugged().getName());
 		break;
 	}
 	case 3: {
@@ -108,8 +107,8 @@ void PluggingController::PlugCmd::execute(
 			break;
 		}
 		if (connector.getClass() != pluggable.getClass()) {
-			throw CommandException("plug: " + plugName +
-					   " doesn't fit in " + connName);
+			throw CommandException("plug: ", plugName,
+			                       " doesn't fit in ", connName);
 		}
 		connector.unplug(time);
 		try {
@@ -117,7 +116,7 @@ void PluggingController::PlugCmd::execute(
 			pluggingController.getCliComm().update(
 				CliComm::PLUG, connName, plugName);
 		} catch (PlugException& e) {
-			throw CommandException("plug: plug failed: " + e.getMessage());
+			throw CommandException("plug: plug failed: ", e.getMessage());
 		}
 		break;
 	}
@@ -221,7 +220,7 @@ Connector& PluggingController::getConnector(string_ref name) const
 	if (auto* result = findConnector(name)) {
 		return *result;
 	}
-	throw CommandException("No such connector: " + name);
+	throw CommandException("No such connector: ", name);
 }
 
 Pluggable* PluggingController::findPluggable(string_ref name) const
@@ -239,7 +238,7 @@ Pluggable& PluggingController::getPluggable(string_ref name) const
 	if (auto* result = findPluggable(name)) {
 		return *result;
 	}
-	throw CommandException("No such pluggable: " + name);
+	throw CommandException("No such pluggable: ", name);
 }
 
 CliComm& PluggingController::getCliComm()

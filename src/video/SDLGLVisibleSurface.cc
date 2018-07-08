@@ -57,9 +57,9 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	GLenum glew_error = glewInit();
 	if (glew_error != GLEW_OK) {
 		throw InitException(
-			"Failed to init GLEW: " + std::string(
-				reinterpret_cast<const char*>(
-					glewGetErrorString(glew_error))));
+			"Failed to init GLEW: ",
+			reinterpret_cast<const char*>(
+				glewGetErrorString(glew_error)));
 	}
 	if (!GLEW_VERSION_2_0) {
 		throw InitException("Need at least openGL version 2.0.");

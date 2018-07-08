@@ -29,7 +29,7 @@ MSXCommandController::MSXCommandController(
 	, reactor(reactor_)
 	, motherboard(motherboard_)
 	, msxEventDistributor(msxEventDistributor_)
-	, machineID("::" + machineID_ + "::")
+	, machineID(strCat("::", machineID_, "::"))
 {
 	globalCommandController.getInterpreter().createNamespace(machineID);
 
@@ -61,7 +61,7 @@ MSXCommandController::~MSXCommandController()
 
 string MSXCommandController::getFullName(string_ref name)
 {
-	return machineID + name;
+	return strCat(machineID, name);
 }
 
 void MSXCommandController::registerCommand(Command& command, const string& str)

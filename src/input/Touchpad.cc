@@ -76,7 +76,7 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 			parseTransformMatrix(interp, newValue);
 		} catch (CommandException& e) {
 			throw CommandException(
-				"Invalid transformation matrix: " + e.getMessage());
+				"Invalid transformation matrix: ", e.getMessage());
 		}
 	});
 	try {

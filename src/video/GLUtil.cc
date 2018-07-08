@@ -338,7 +338,7 @@ void ShaderProgram::validate()
 	VLA(GLchar, infoLog, infoLogLength);
 	glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog);
 	std::cout << "Validate "
-	          << ((validateStatus == GL_TRUE) ? string("OK") : string("FAIL"))
+	          << ((validateStatus == GL_TRUE) ? "OK" : "FAIL")
 	          << ": " << infoLog << std::endl;
 }
 

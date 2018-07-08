@@ -615,14 +615,14 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 			}
 		}
 		if (remainingSize != 0) {
-			cliComm.printWarning("Virtual diskimage full: " +
-			                     mapDir.hostName + " truncated.");
+			cliComm.printWarning("Virtual diskimage full: ",
+			                     mapDir.hostName, " truncated.");
 		}
 	} catch (FileException& e) {
 		// Error opening or reading host file.
-		cliComm.printWarning("Error reading host file: " +
-				mapDir.hostName + ": " + e.getMessage() +
-				" Truncated file on MSX disk.");
+		cliComm.printWarning("Error reading host file: ",
+		                     mapDir.hostName, ": ", e.getMessage(),
+		                     " Truncated file on MSX disk.");
 	}
 
 	// In all cases (no error / image full / host read error) we need to
@@ -710,18 +710,17 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 				// also skip hidden files on unix
 				continue;
 			}
-			string fullHostName = hostDir + hostSubDir + hostName;
+			string fullHostName = strCat(hostDir, hostSubDir, hostName);
 			FileOperations::Stat fst;
 			if (!FileOperations::getStat(fullHostName, fst)) {
-				throw MSXException("Error accessing " + fullHostName);
+				throw MSXException("Error accessing ", fullHostName);
 			}
 			if (FileOperations::isDirectory(fst)) {
 				addNewDirectory(hostSubDir, hostName, msxDirSector, fst);
 			} else if (FileOperations::isRegularFile(fst)) {
 				addNewHostFile(hostSubDir, hostName, msxDirSector, fst);
 			} else {
-				throw MSXException("Not a regular file: " +
-				                   fullHostName);
+				throw MSXException("Not a regular file: ", fullHostName);
 			}
 		} catch (MSXException& e) {
 			cliComm.printWarning(e.getMessage());
@@ -789,7 +788,7 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 	}
 
 	// Recursively process this directory.
-	addNewHostFiles(hostSubDir + hostName + '/', newMsxDirSector);
+	addNewHostFiles(strCat(hostSubDir, hostName, '/'), newMsxDirSector);
 }
 
 void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
@@ -805,7 +804,7 @@ void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
 	// TODO check for available free space on disk instead of max free space
 	static const int DISK_SPACE = (nofSectors - firstDataSector) * SECTOR_SIZE;
 	if (fst.st_size > DISK_SPACE) {
-		cliComm.printWarning("File too large: " + fullHostName);
+		cliComm.printWarning("File too large: ", fullHostName);
 		return;
 	}
 
@@ -826,7 +825,8 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		if (checkMSXFileExists(msxFilename, msxDirSector)) {
 			// TODO: actually should increase vfat abrev if possible!!
 			throw MSXException(
-				"MSX name " + msxToHostName(msxFilename.c_str()) + " already exists");
+				"MSX name ", msxToHostName(msxFilename.c_str()),
+				" already exists");
 		}
 
 		// Fill in hostName / msx filename.
@@ -836,7 +836,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		memcpy(msxDir(dirIndex).filename, msxFilename.data(), 8 + 3);
 		return dirIndex;
 	} catch (MSXException& e) {
-		throw MSXException("Couldn't add " + hostPath + ": " +
+		throw MSXException("Couldn't add ", hostPath, ": ",
 		                   e.getMessage());
 	}
 }
@@ -1234,8 +1234,8 @@ void DirAsDSK::exportToHostDir(DirIndex dirIndex, const string& hostName)
 			msxDirSector = nextMsxDirSector(msxDirSector);
 		} while (msxDirSector != unsigned(-1));
 	} catch (FileException& e) {
-		cliComm.printWarning("Error while syncing host directory: " +
-			hostName + ": " + e.getMessage());
+		cliComm.printWarning("Error while syncing host directory: ",
+		                     hostName, ": ", e.getMessage());
 	}
 }
 
@@ -1274,8 +1274,8 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const string& hostName)
 			curCl = readFAT(curCl);
 		}
 	} catch (FileException& e) {
-		cliComm.printWarning("Error while syncing host file: " +
-			hostName + ": " + e.getMessage());
+		cliComm.printWarning("Error while syncing host file: ",
+		                     hostName, ": ", e.getMessage());
 	}
 }
 
@@ -1363,8 +1363,8 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 			file.write(&buf, writeSize);
 		}
 	} catch (FileException& e) {
-		cliComm.printWarning("Couldn't write to file " + fullHostName +
-		                     ": " + e.getMessage());
+		cliComm.printWarning("Couldn't write to file ", fullHostName,
+		                     ": ", e.getMessage());
 	}
 }
 

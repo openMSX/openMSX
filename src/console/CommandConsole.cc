@@ -401,7 +401,7 @@ void CommandConsole::commandExecute()
 	putCommandHistory(cmd0);
 	saveHistory(); // save at this point already, so that we don't lose history in case of a crash
 
-	commandBuffer += std::move(cmd0) + '\n';
+	strAppend(commandBuffer, cmd0, '\n');
 	newLineConsole(lines[0]);
 	if (commandController.isComplete(commandBuffer)) {
 		// Normally the busy promt is NOT shown (not even very briefly

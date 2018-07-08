@@ -2,7 +2,6 @@
 #include "RealDrive.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
-#include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "memory.hh"
@@ -17,13 +16,12 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
 {
 	if (needROM && (rom->getSize() == 0)) {
 		throw MSXException(
-			"Empty ROM not allowed for \"" + getName() + "\".");
+			"Empty ROM not allowed for \"", getName(), "\".");
 	}
 	bool singleSided = config.findChild("singlesided") != nullptr;
 	int numDrives = config.getChildDataAsInt("drives", 1);
 	if ((0 > numDrives) || (numDrives >= 4)) {
-		throw MSXException(StringOp::Builder() <<
-			"Invalid number of drives: " << numDrives);
+		throw MSXException("Invalid number of drives: ", numDrives);
 	}
 	unsigned timeout = config.getChildDataAsInt("motor_off_timeout_ms", 0);
 	const XMLElement* styleEl = config.findChild("connectionstyle");

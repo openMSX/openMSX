@@ -3,7 +3,6 @@
 #include "Display.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "StringOp.hh"
 #include "GLUtil.hh"
 #include "memory.hh"
 #include "stl.hh"
@@ -254,7 +253,7 @@ void OSDWidget::setProperty(
 	} else if (propName == "-suppressErrors") {
 		suppressErrors = value.getBoolean(interp);
 	} else {
-		throw CommandException("No such property: " + propName);
+		throw CommandException("No such property: ", propName);
 	}
 }
 
@@ -283,7 +282,7 @@ void OSDWidget::getProperty(string_ref propName, TclObject& result) const
 	} else if (propName == "-suppressErrors") {
 		result.setBoolean(suppressErrors);
 	} else {
-		throw CommandException("No such property: " + propName);
+		throw CommandException("No such property: ", propName);
 	}
 }
 

@@ -29,7 +29,7 @@ string_ref DiskImageCLI::optionHelp() const
 
 void DiskImageCLI::parseFileType(const string& filename, array_ref<string>& cmdLine)
 {
-	parse(string("disk") + driveLetter, filename, cmdLine);
+	parse(strCat("disk", driveLetter), filename, cmdLine);
 	++driveLetter;
 }
 
@@ -42,7 +42,7 @@ void DiskImageCLI::parse(string_ref drive, string_ref image,
                          array_ref<string>& cmdLine)
 {
 	if (!parser.getGlobalCommandController().hasCommand(drive)) { // TODO WIP
-		throw MSXException("No drive named '" + drive + "'.");
+		throw MSXException("No drive named '", drive, "'.");
 	}
 	TclObject command;
 	command.addListElement(drive);

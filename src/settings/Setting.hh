@@ -3,6 +3,7 @@
 
 #include "Subject.hh"
 #include "TclObject.hh"
+#include "strCat.hh"
 #include "string_ref.hh"
 #include <functional>
 #include <vector>
@@ -37,7 +38,7 @@ public:
 	 */
 	void setPrefix(string_ref prefix) {
 		assert(prefix.starts_with("::"));
-		fullName.setString(prefix + getBaseName());
+		fullName.setString(strCat(prefix, getBaseName()));
 	}
 
 	/** For SettingInfo

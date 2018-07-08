@@ -1,7 +1,6 @@
 #include "CliServer.hh"
 #include "GlobalCliComm.hh"
 #include "CliConnection.hh"
-#include "StringOp.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "memory.hh"
@@ -123,12 +122,12 @@ static int openPort(SOCKET listenSock)
 
 SOCKET CliServer::createSocket()
 {
-	string dir = FileOperations::getTempDir() + "/openmsx-" + getUserName();
+	string dir = strCat(FileOperations::getTempDir(), "/openmsx-", getUserName());
 	FileOperations::mkdir(dir, 0700);
 	if (!checkSocketDir(dir)) {
 		throw MSXException("Couldn't create socket directory.");
 	}
-	socketName = StringOp::Builder() << dir << "/socket." << int(getpid());
+	socketName = strCat(dir, "/socket.", int(getpid()));
 
 #ifdef _WIN32
 	SOCKET sd = socket(AF_INET, SOCK_STREAM, 0);
@@ -176,7 +175,7 @@ SOCKET CliServer::createSocket()
 	}
 	if (listen(sd, SOMAXCONN) == SOCKET_ERROR) {
 		sock_close(sd);
-		throw MSXException("Couldn't listen to socket: " + sock_error());
+		throw MSXException("Couldn't listen to socket: ", sock_error());
 	}
 	return sd;
 }

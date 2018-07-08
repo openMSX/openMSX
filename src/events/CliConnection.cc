@@ -16,7 +16,6 @@
 #include "cstdiop.hh"
 #include "unistdp.hh"
 #include "openmsx.hh"
-#include "StringOp.hh"
 #include <cassert>
 #include <iostream>
 
@@ -86,9 +85,8 @@ CliConnection::~CliConnection()
 void CliConnection::log(CliComm::LogLevel level, string_ref message)
 {
 	auto levelStr = CliComm::getLevelStrings();
-	output(StringOp::Builder() <<
-		"<log level=\"" << levelStr[level] << "\">" <<
-		XMLElement::XMLEscape(message.str()) << "</log>\n");
+	output(strCat("<log level=\"", levelStr[level], "\">",
+	              XMLElement::XMLEscape(message.str()), "</log>\n"));
 }
 
 void CliConnection::update(CliComm::UpdateType type, string_ref machine,
@@ -97,15 +95,14 @@ void CliConnection::update(CliComm::UpdateType type, string_ref machine,
 	if (!getUpdateEnable(type)) return;
 
 	auto updateStr = CliComm::getUpdateStrings();
-	StringOp::Builder tmp;
-	tmp << "<update type=\"" << updateStr[type] << '\"';
+	string tmp = strCat("<update type=\"", updateStr[type], '\"');
 	if (!machine.empty()) {
-		tmp << " machine=\"" << machine << '\"';
+		strAppend(tmp, " machine=\"", machine, '\"');
 	}
 	if (!name.empty()) {
-		tmp << " name=\"" << XMLElement::XMLEscape(name.str()) << '\"';
+		strAppend(tmp, " name=\"", XMLElement::XMLEscape(name.str()), '\"');
 	}
-	tmp << '>' << XMLElement::XMLEscape(value.str()) << "</update>\n";
+	strAppend(tmp, '>', XMLElement::XMLEscape(value.str()), "</update>\n");
 
 	output(tmp);
 }
@@ -140,9 +137,8 @@ void CliConnection::execute(const string& command)
 
 static string reply(const string& message, bool status)
 {
-	return StringOp::Builder() <<
-		"<reply result=\"" << (status ? "ok" : "nok") << "\">" <<
-		XMLElement::XMLEscape(message) << "</reply>\n";
+	return strCat("<reply result=\"", (status ? "ok" : "nok"), "\">",
+	              XMLElement::XMLEscape(message), "</reply>\n");
 }
 
 int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
@@ -223,16 +219,13 @@ PipeConnection::PipeConnection(CommandController& commandController_,
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, nullptr,
 	                         OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr);
 	if (pipeHandle == OPENMSX_INVALID_HANDLE_VALUE) {
-		char msg[256];
-		snprintf(msg, 255, "Error reopening pipefile '%s': error %u",
-		         pipeName.c_str(), unsigned(GetLastError()));
-		throw FatalError(msg);
+		throw FatalError("Error reopening pipefile '", pipeName, "': error ",
+		                 unsigned(GetLastError()));
 	}
 
 	shutdownEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 	if (!shutdownEvent) {
-		throw FatalError(StringOp::Builder() <<
-			"Error creating shutdown event: " << GetLastError());
+		throw FatalError("Error creating shutdown event: ", GetLastError());
 	}
 
 	startOutput();
@@ -251,8 +244,7 @@ static void InitOverlapped(LPOVERLAPPED overlapped)
 	ZeroMemory(overlapped, sizeof(*overlapped));
 	overlapped->hEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 	if (!overlapped->hEvent) {
-		throw FatalError(StringOp::Builder() <<
-			"Error creating overlapped event: " << GetLastError());
+		throw FatalError("Error creating overlapped event: ", GetLastError());
 	}
 }
 
@@ -284,13 +276,11 @@ void PipeConnection::run()
 				break; // Pipe broke
 			}
 			parser.parse(buf, bytesRead);
-		}
-		else if (wait == WAIT_OBJECT_0) {
+		} else if (wait == WAIT_OBJECT_0) {
 			break; // Shutdown
-		}
-		else {
-			throw FatalError(StringOp::Builder() <<
-				"WaitForMultipleObjects returned unexpectedly: " << wait);
+		} else {
+			throw FatalError(
+				"WaitForMultipleObjects returned unexpectedly: ", wait);
 		}
 	}
 

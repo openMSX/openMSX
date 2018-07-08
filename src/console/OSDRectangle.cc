@@ -73,7 +73,7 @@ void OSDRectangle::setProperty(
 		string val = value.getString().str();
 		if (imageName != val) {
 			if (!val.empty() && !FileOperations::isRegularFile(val)) {
-				throw CommandException("Not a valid image file: " + val);
+				throw CommandException("Not a valid image file: ", val);
 			}
 			imageName = val;
 			invalidateRecursive();

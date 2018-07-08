@@ -261,7 +261,7 @@ static bool checkAY8910(const DeviceConfig& config)
 	} else if (type == "ym2149") {
 		return false;
 	} else {
-		throw FatalError("Unknown PSG type: " + type);
+		throw FatalError("Unknown PSG type: ", type);
 	}
 }
 

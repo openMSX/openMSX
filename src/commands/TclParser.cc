@@ -1,5 +1,6 @@
 #include "TclParser.hh"
 #include "ScopedAssign.hh"
+#include "strCat.hh"
 #include <algorithm>
 #include <iostream>
 #include <cassert>
@@ -235,7 +236,7 @@ TclParser::ParseType TclParser::guessSubType(Tcl_Token* tokens, int i)
 
 bool TclParser::isProc(Tcl_Interp* interp, string_ref str)
 {
-	string command = "openmsx::is_command_name {" + str + '}';
+	string command = strCat("openmsx::is_command_name {", str, '}');
 	if (Tcl_Eval(interp, command.c_str()) != TCL_OK) return false;
 	int result;
 	if (Tcl_GetBooleanFromObj(interp, Tcl_GetObjResult(interp), &result)

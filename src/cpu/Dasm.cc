@@ -1,7 +1,7 @@
 #include "Dasm.hh"
 #include "DasmTables.hh"
 #include "MSXCPUInterface.hh"
-#include "StringOp.hh"
+#include "strCat.hh"
 
 namespace openmsx {
 
@@ -57,46 +57,46 @@ unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
 		switch (s[j]) {
 		case 'B':
 			buf[i] = interf.peekMem(pc + i, time);
-			dest += '#' + StringOp::toHexString(
-				static_cast<uint16_t>(buf[i]), 2);
+			strAppend(dest, '#', hex_string<2>(
+				static_cast<uint16_t>(buf[i])));
 			i += 1;
 			break;
 		case 'R':
 			buf[i] = interf.peekMem(pc + i, time);
-			dest += '#' + StringOp::toHexString(
-				(pc + 2 + static_cast<int8_t>(buf[i])) & 0xFFFF, 4);
+			strAppend(dest, '#', hex_string<4>(
+				pc + 2 + static_cast<int8_t>(buf[i])));
 			i += 1;
 			break;
 		case 'W':
 			buf[i + 0] = interf.peekMem(pc + i + 0, time);
 			buf[i + 1] = interf.peekMem(pc + i + 1, time);
-			dest += '#' + StringOp::toHexString(buf[i] + buf[i + 1] * 256, 4);
+			strAppend(dest, '#', hex_string<4>(buf[i] + buf[i + 1] * 256));
 			i += 2;
 			break;
 		case 'X':
 			buf[i] = interf.peekMem(pc + i, time);
-			dest += '(' + std::string(r) + sign(buf[i]) + '#'
-			     + StringOp::toHexString(abs(buf[i]), 2) + ')';
+			strAppend(dest, '(', r, sign(buf[i]), '#',
+			     hex_string<2>(abs(buf[i])), ')');
 			i += 1;
 			break;
 		case 'Y':
-			dest += std::string(r) + sign(buf[2]) + '#' + StringOp::toHexString(abs(buf[2]), 2);
+			strAppend(dest, r, sign(buf[2]), '#', hex_string<2>(abs(buf[2])));
 			break;
 		case 'I':
 			dest += r;
 			break;
 		case '!':
-			dest = "db     #ED,#" + StringOp::toHexString(buf[1], 2) +
-			       "     ";
+			dest = strCat("db     #ED,#", hex_string<2>(buf[1]),
+			              "     ");
 			return 2;
 		case '@':
-			dest = "db     #" + StringOp::toHexString(buf[0], 2) +
-			       "         ";
+			dest = strCat("db     #", hex_string<2>(buf[0]),
+			              "         ");
 			return 1;
 		case '#':
-			dest = "db     #" + StringOp::toHexString(buf[0], 2) +
-			         ",#CB,#" + StringOp::toHexString(buf[2], 2) +
-			         ' ';
+			dest = strCat("db     #", hex_string<2>(buf[0]),
+			              ",#CB,#", hex_string<2>(buf[2]),
+			              ' ');
 			return 2;
 		case ' ': {
 			dest.resize(7, ' ');

@@ -14,7 +14,6 @@
 #include "Filename.hh"
 #include "CliComm.hh"
 #include "Math.hh"
-#include "StringOp.hh"
 #include "memory.hh"
 #include "stl.hh"
 #include "aligned.hh"
@@ -97,7 +96,7 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 
 	for (unsigned i = 0; i < numChannels; ++i) {
 		SoundDeviceInfo::ChannelSettings channelSettings;
-		string ch_name = StringOp::Builder() << name << "_ch" << i + 1;
+		string ch_name = strCat(name, "_ch", i + 1);
 
 		channelSettings.recordSetting = make_unique<StringSetting>(
 			commandController, ch_name + "_record",

@@ -15,7 +15,7 @@ static EventPtr parseKeyEvent(string_ref str, unsigned unicode)
 {
 	auto keyCode = Keys::getCode(str);
 	if (keyCode == Keys::K_NONE) {
-		throw CommandException("Invalid keycode: " + str);
+		throw CommandException("Invalid keycode: ", str);
 	}
 	if (keyCode & Keys::KD_RELEASE) {
 		return make_shared<KeyUpEvent  >(keyCode, unicode);
@@ -42,7 +42,7 @@ static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
 			}
 		}
 	}
-	throw CommandException("Invalid keyboard event: " + str.getString());
+	throw CommandException("Invalid keyboard event: ", str.getString());
 }
 
 static bool upDown(string_ref str)
@@ -53,7 +53,7 @@ static bool upDown(string_ref str)
 		return false;
 	}
 	throw CommandException(
-		"Invalid direction (expected 'up' or 'down'): " + str);
+		"Invalid direction (expected 'up' or 'down'): ", str);
 }
 
 static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
@@ -90,7 +90,7 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 			}
 		}
 	}
-	throw CommandException("Invalid mouse event: " + str.getString());
+	throw CommandException("Invalid mouse event: ", str.getString());
 }
 
 static EventPtr parseOsdControlEvent(const TclObject& str, Interpreter& interp)
@@ -120,7 +120,7 @@ static EventPtr parseOsdControlEvent(const TclObject& str, Interpreter& interp)
 			return make_shared<OsdControlPressEvent>  (button, nullptr);
 		}
 	}
-error:	throw CommandException("Invalid OSDcontrol event: " + str.getString());
+error:	throw CommandException("Invalid OSDcontrol event: ", str.getString());
 }
 
 static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
@@ -158,20 +158,20 @@ static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
 			else if (valueStr == "leftdown")  value = SDL_HAT_LEFTDOWN;
 			else if (valueStr == "center")    value = SDL_HAT_CENTERED;
 			else {
-				throw CommandException("Invalid hat value: " + valueStr);
+				throw CommandException("Invalid hat value: ", valueStr);
 			}
 			return make_shared<JoystickHatEvent>(joystick, hat, value);
 		}
 	} catch (std::invalid_argument&) {
 		// parse error in fast_stou()
 	}
-error:	throw CommandException("Invalid joystick event: " + str.getString());
+error:	throw CommandException("Invalid joystick event: ", str.getString());
 }
 
 static EventPtr parseFocusEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 2) {
-		throw CommandException("Invalid focus event: " + str.getString());
+		throw CommandException("Invalid focus event: ", str.getString());
 	}
 	return make_shared<FocusEvent>(str.getListIndex(interp, 1).getBoolean(interp));
 }
@@ -179,7 +179,7 @@ static EventPtr parseFocusEvent(const TclObject& str, Interpreter& interp)
 static EventPtr parseResizeEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 3) {
-		throw CommandException("Invalid resize event: " + str.getString());
+		throw CommandException("Invalid resize event: ", str.getString());
 	}
 	return make_shared<ResizeEvent>(
 		str.getListIndex(interp, 1).getInt(interp),
@@ -189,7 +189,7 @@ static EventPtr parseResizeEvent(const TclObject& str, Interpreter& interp)
 static EventPtr parseQuitEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 1) {
-		throw CommandException("Invalid quit event: " + str.getString());
+		throw CommandException("Invalid quit event: ", str.getString());
 	}
 	return make_shared<QuitEvent>();
 }
@@ -197,7 +197,7 @@ static EventPtr parseQuitEvent(const TclObject& str, Interpreter& interp)
 EventPtr createInputEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) == 0) {
-		throw CommandException("Invalid event: " + str.getString());
+		throw CommandException("Invalid event: ", str.getString());
 	}
 	auto type = str.getListIndex(interp, 0).getString();
 	if (type == "keyb") {

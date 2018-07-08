@@ -60,7 +60,7 @@ void HDCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 			// so this has not been converted to TclObject style here
 			// return filename;
 		} catch (FileException& e) {
-			throw CommandException("Can't change hard disk image: " +
+			throw CommandException("Can't change hard disk image: ",
 			                       e.getMessage());
 		}
 	} else {

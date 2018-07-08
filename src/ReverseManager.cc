@@ -18,13 +18,13 @@
 #include "Reactor.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "xrange.hh"
-#include <functional>
 #include <cassert>
 #include <cmath>
+#include <functional>
+#include <iomanip>
 
 using std::string;
 using std::vector;
@@ -252,19 +252,19 @@ void ReverseManager::debugInfo(TclObject& result) const
 {
 	// TODO this is useful during development, but for the end user this
 	// information means nothing. We should remove this later.
-	StringOp::Builder res;
+	string res;
 	size_t totalSize = 0;
 	for (auto& p : history.chunks) {
 		auto& chunk = p.second;
-		res << p.first << ' '
-		    << (chunk.time - EmuTime::zero).toDouble() << ' '
-		    << ((chunk.time - EmuTime::zero).toDouble() / (getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
-		    << " (" << chunk.size << ')'
-		    << " (next event index: " << chunk.eventCount << ")\n";
+		strAppend(res, p.first, ' ',
+		          (chunk.time - EmuTime::zero).toDouble(), ' ',
+		          ((chunk.time - EmuTime::zero).toDouble() / (getCurrentTime() - EmuTime::zero).toDouble()) * 100, "%"
+		          " (", chunk.size, ")"
+		          " (next event index: ", chunk.eventCount, ")\n");
 		totalSize += chunk.size;
 	}
-	res << "total size: " << totalSize << '\n';
-	result.setString(string(res));
+	strAppend(res, "total size: ", totalSize, '\n');
+	result.setString(res);
 }
 
 static void parseGoTo(Interpreter& interp, array_ref<TclObject> tokens,
@@ -724,9 +724,10 @@ void ReverseManager::loadReplay(
 		XmlInputArchive in(filename);
 		in.serialize("replay", replay);
 	} catch (XMLException& e) {
-		throw CommandException("Cannot load replay, bad file format: " + e.getMessage());
+		throw CommandException("Cannot load replay, bad file format: ",
+		                       e.getMessage());
 	} catch (MSXException& e) {
-		throw CommandException("Cannot load replay: " + e.getMessage());
+		throw CommandException("Cannot load replay: ", e.getMessage());
 	}
 
 	// get destination time index
@@ -1050,7 +1051,7 @@ void ReverseManager::ReverseCmd::execute(array_ref<TclObject> tokens, TclObject&
 			manager.signalStopReplay(manager.getCurrentTime());
 		}
 	} else {
-		throw CommandException("Invalid subcommand: " + subcommand);
+		throw CommandException("Invalid subcommand: ", subcommand);
 	}
 }
 

@@ -22,7 +22,6 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 #ifdef _WIN32
@@ -30,7 +29,6 @@
 #include "Midi_w32.hh"
 #include "MSXException.hh"
 #include "MemBuffer.hh"
-#include "StringOp.hh"
 #include "cstdiop.hh"
 
 #include <cstring>
@@ -200,12 +198,10 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 	buf_out[idx].header.dwBufferLength = buf_out[idx].longmes_cnt;
 	buf_out[idx].header.dwFlags = 0;
 	if ((i = midiOutPrepareHeader(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
-		throw FatalError(StringOp::Builder() <<
-			"midiOutPrepareHeader() returned " << i);
+		throw FatalError("midiOutPrepareHeader() returned ", i);
 	}
 	if ((i = midiOutLongMsg(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
-		throw FatalError(StringOp::Builder() <<
-			"midiOutLongMsg() returned " << i);
+		throw FatalError("midiOutLongMsg() returned ", i);
 	}
 	// Wait sending in driver.
 	// This may take long...
@@ -214,8 +210,7 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 	}
 	// Sending Exclusive done.
 	if ((i = midiOutUnprepareHeader(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
-		throw FatalError(StringOp::Builder() <<
-			"midiOutUnPrepareHeader() returned " << i);
+		throw FatalError("midiOutUnPrepareHeader() returned ", i);
 	}
 	buf_out[idx].longmes_cnt = 0;
 	return 0;

@@ -1,8 +1,8 @@
 #include "GlobalSettings.hh"
 #include "SettingsConfig.hh"
 #include "GlobalCommandController.hh"
-#include "StringOp.hh"
 #include "memory.hh"
+#include "strCat.hh"
 #include "xrange.hh"
 #include "build-info.hh"
 #include <SDL.h>
@@ -46,7 +46,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	, throttleManager(commandController)
 {
 	for (auto i : xrange(SDL_NumJoysticks())) {
-		std::string name = "joystick" + StringOp::toString(i + 1) + "_deadzone";
+		std::string name = strCat("joystick", i + 1, "_deadzone");
 		deadzoneSettings.emplace_back(make_unique<IntegerSetting>(
 			commandController, name,
 			"size (as a percentage) of the dead center zone",

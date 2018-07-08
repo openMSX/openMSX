@@ -21,8 +21,8 @@ void MSXMultiIODevice::addDevice(MSXDevice* device)
 {
 	if (contains(devices, device)) {
 		throw MSXException(
-			"Overlapping IO-port ranges for \"" +
-			device->getName() + "\".");
+			"Overlapping IO-port ranges for \"",
+			device->getName(), "\".");
 	}
 	devices.push_back(device);
 }

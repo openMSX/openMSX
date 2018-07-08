@@ -20,7 +20,6 @@
 #include "DeviceFactory.hh"
 #include "ReadOnlySetting.hh"
 #include "serialize.hh"
-#include "StringOp.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
 #include "outer.hh"
@@ -273,14 +272,13 @@ void MSXCPUInterface::testUnsetExpanded(
 	}
 	if (inUse.empty()) return; // ok, no more devices in use
 
-	StringOp::Builder msg;
-	msg << "Can't remove slot expander from slot " << ps
-	    << " because the following devices are still inserted:";
+	string msg = strCat("Can't remove slot expander from slot ", ps,
+	                    " because the following devices are still inserted:");
 	for (auto& d : inUse) {
-		msg << " " << d->getName();
+		strAppend(msg, ' ', d->getName());
 	}
-	msg << '.';
-	throw MSXException(msg);
+	strAppend(msg, '.');
+	throw MSXException(std::move(msg));
 }
 
 void MSXCPUInterface::unsetExpanded(int ps)
@@ -365,9 +363,9 @@ void MSXCPUInterface::register_IO(int port, bool isIn,
 		}
 		if (isIn) {
 			cliComm.printWarning(
-				"Conflicting input port 0x" +
-				StringOp::toHexString(port, 2) +
-				" for devices " + devicePtr->getName());
+				"Conflicting input port 0x",
+				hex_string<2>(port),
+				" for devices ", devicePtr->getName());
 		}
 	}
 }
@@ -416,9 +414,9 @@ bool MSXCPUInterface::replace_IO_Out(
 
 static void reportMemOverlap(int ps, int ss, MSXDevice& dev1, MSXDevice& dev2)
 {
-	throw MSXException(StringOp::Builder() <<
-		"Overlapping memory devices in slot " << ps << '.' << ss <<
-		": " << dev1.getName() << " and " << dev2.getName() << '.');
+	throw MSXException(
+		"Overlapping memory devices in slot ", ps, '.', ss,
+		": ", dev1.getName(), " and ", dev2.getName(), '.');
 }
 
 void MSXCPUInterface::testRegisterSlot(
@@ -499,8 +497,8 @@ void MSXCPUInterface::registerMemDevice(
 	MSXDevice& device, int ps, int ss, int base_, int size_)
 {
 	if (!isExpanded(ps) && (ss != 0)) {
-		throw MSXException(StringOp::Builder() <<
-			"Slot " << ps << '.' << ss <<
+		throw MSXException(
+			"Slot ", ps, '.', ss,
 			" does not exist because slot is not expanded.");
 	}
 
@@ -1032,7 +1030,7 @@ static unsigned getSlot(
 {
 	unsigned slot = token.getInt(interp);
 	if (slot >= 4) {
-		throw CommandException(itemName + " must be in range 0..3");
+		throw CommandException(itemName, " must be in range 0..3");
 	}
 	return slot;
 }

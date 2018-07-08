@@ -3,12 +3,14 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "StringOp.hh"
 #include "stl.hh"
 #include <algorithm>
 #include <cstring>
 
 namespace openmsx {
+
+const unsigned UnicodeKeymap::NUM_DEAD_KEYS;
+
 
 /** Parses the given string reference as a hexadecimal integer.
   * If successful, returns the parsed value and sets "ok" to true.
@@ -84,7 +86,7 @@ static string_ref nextToken(string_ref& str)
 UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 {
 	auto filename = systemFileContext().resolve(
-		"unicodemaps/unicodemap." + keyboardType);
+		strCat("unicodemaps/unicodemap.", keyboardType));
 	try {
 		File file(filename);
 		size_t size;
@@ -92,7 +94,7 @@ UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 		parseUnicodeKeymapfile(
 			string_ref(reinterpret_cast<const char*>(buf), size));
 	} catch (FileException&) {
-		throw MSXException("Couldn't load unicode keymap file: " + filename);
+		throw MSXException("Couldn't load unicode keymap file: ", filename);
 	}
 }
 
@@ -142,9 +144,9 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_ref data)
 				deadKeyIndex = parseHex(token, ok);
 				deadKeyIndex--; // Make index 0 based instead of 1 based
 				if (!ok || deadKeyIndex >= NUM_DEAD_KEYS) {
-					throw MSXException(StringOp::Builder() <<
+					throw MSXException(
 						"Wrong deadkey number in keymap file. "
-						"It must be 1.." << NUM_DEAD_KEYS);
+						"It must be 1..", NUM_DEAD_KEYS);
 				}
 			}
 		} else {
@@ -160,9 +162,9 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_ref data)
 		bool ok;
 		unsigned rowcol = parseHex(token, ok);
 		if (!ok || rowcol >= 0x100) {
-			throw MSXException(StringOp::Builder()
-				<< (token.empty() ? "Missing" : "Wrong")
-				<< " <ROW><COL> value in keymap file");
+			throw MSXException(
+				(token.empty() ? "Missing" : "Wrong"),
+				" <ROW><COL> value in keymap file");
 		}
 		if ((rowcol >> 4) >= KeyMatrixPosition::NUM_ROWS) {
 			throw MSXException("Too high row value in keymap file");
@@ -189,8 +191,8 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_ref data)
 			} else if (token == "CODE") {
 				modmask |= KeyInfo::CODE_MASK;
 			} else {
-				throw MSXException(StringOp::Builder()
-					<< "Invalid modifier \"" << token << "\" in keymap file");
+				throw MSXException(
+					"Invalid modifier \"", token, "\" in keymap file");
 			}
 		}
 

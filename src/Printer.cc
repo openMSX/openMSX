@@ -272,10 +272,10 @@ void ImagePrinter::flushEmulatedPrinter()
 			try {
 				string filename = paper->save();
 				motherBoard.getMSXCliComm().printInfo(
-					"Printed to " + filename);
+					"Printed to ", filename);
 			} catch (MSXException& e) {
 				motherBoard.getMSXCliComm().printWarning(
-					"Failed to print: " + e.getMessage());
+					"Failed to print: ", e.getMessage());
 			}
 			printAreaTop = -1.0;
 			printAreaBottom = 0.0;

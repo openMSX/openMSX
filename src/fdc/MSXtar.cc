@@ -12,6 +12,7 @@
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "strCat.hh"
 #include "File.hh"
 #include <cstring>
 #include <algorithm>
@@ -65,28 +66,28 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	sectorsPerCluster = boot.spCluster;
 
 	if (boot.nrSectors == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number of sectors: " << boot.nrSectors);
+		throw MSXException(
+			"Illegal number of sectors: ", boot.nrSectors);
 	}
 	if (boot.nrSides == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number of sides: " << boot.nrSides);
+		throw MSXException(
+			"Illegal number of sides: ", boot.nrSides);
 	}
 	if (boot.nrFats == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number of FATs: " << boot.nrFats);
+		throw MSXException(
+			"Illegal number of FATs: ", boot.nrFats);
 	}
 	if (sectorsPerFat == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number sectors per FAT: " << sectorsPerFat);
+		throw MSXException(
+			"Illegal number sectors per FAT: ", sectorsPerFat);
 	}
 	if (nbRootDirSectors == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number of root dir sectors: " << nbRootDirSectors);
+		throw MSXException(
+			"Illegal number of root dir sectors: ", nbRootDirSectors);
 	}
 	if (sectorsPerCluster == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number of sectors per cluster: " << sectorsPerCluster);
+		throw MSXException(
+			"Illegal number of sectors per cluster: ", sectorsPerCluster);
 	}
 
 	rootDirStart = 1 + boot.nrFats * sectorsPerFat;
@@ -139,7 +140,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 		disk.readSector(0, buf);
 		parseBootSector(buf.bootSector);
 	} catch (MSXException& e) {
-		throw MSXException("Bad disk image: " + e.getMessage());
+		throw MSXException("Bad disk image: ", e.getMessage());
 	}
 
 	// cache complete FAT
@@ -469,7 +470,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	// get host file size
 	struct stat st;
 	if (stat(hostName.c_str(), &st)) {
-		throw MSXException("Error reading host file: " + hostName);
+		throw MSXException("Error reading host file: ", hostName);
 	}
 	unsigned hostSize = st.st_size;
 	unsigned remaining = hostSize;
@@ -532,7 +533,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	msxDirEntry.size = hostSize - remaining;
 
 	if (remaining) {
-		throw MSXException("Disk full, " + hostName + " truncated.");
+		throw MSXException("Disk full, ", hostName, " truncated.");
 	}
 }
 
@@ -573,7 +574,7 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 	DirEntry fullMsxDirEntry = findEntryInDir(msxName, rootSector, dummy);
 	if (fullMsxDirEntry.sector != 0) {
 		// TODO implement overwrite option
-		return "Warning: preserving entry " + hostName + '\n';
+		return strCat("Warning: preserving entry ", hostName, '\n');
 	}
 
 	SectorBuffer buf;
@@ -609,7 +610,7 @@ string MSXtar::recurseDirFill(string_ref dirName, unsigned sector)
 	ReadDir readDir(dirName.str());
 	while (dirent* d = readDir.getEntry()) {
 		string name(d->d_name);
-		string fullName = dirName + '/' + name;
+		string fullName = strCat(dirName, '/', name);
 
 		FileOperations::Stat st;
 		if (!FileOperations::getStat(fullName, st)) {
@@ -636,8 +637,9 @@ string MSXtar::recurseDirFill(string_ref dirName, unsigned sector)
 					messages += recurseDirFill(fullName, nextSector);
 				} else {
 					// .. but is NOT a directory
-					messages += "MSX file " + msxFileName +
-					            " is not a directory.\n";
+					strAppend(messages,
+					          "MSX file ", msxFileName,
+					          " is not a directory.\n");
 				}
 			} else {
 				// add new directory
@@ -687,7 +689,7 @@ void MSXtar::changeTime(const string& resultFile, const MSXDirEntry& dirEntry)
 
 string MSXtar::dir()
 {
-	StringOp::Builder result;
+	string result;
 	for (unsigned sector = chrootSector; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
@@ -699,16 +701,16 @@ string MSXtar::dir()
 			// filename first (in condensed form for human readablitly)
 			string tmp = condensName(dirEntry);
 			tmp.resize(13, ' ');
-			result << tmp;
-			// attributes
-			result << (dirEntry.attrib & T_MSX_DIR  ? 'd' : '-')
-			       << (dirEntry.attrib & T_MSX_READ ? 'r' : '-')
-			       << (dirEntry.attrib & T_MSX_HID  ? 'h' : '-')
-			       << (dirEntry.attrib & T_MSX_VOL  ? 'v' : '-') // TODO check if this is the output of files,l
-			       << (dirEntry.attrib & T_MSX_ARC  ? 'a' : '-') // TODO check if this is the output of files,l
-			       << "  ";
-			// filesize
-			result << dirEntry.size << '\n';
+			strAppend(result, tmp,
+			          // attributes
+			          (dirEntry.attrib & T_MSX_DIR  ? 'd' : '-'),
+			          (dirEntry.attrib & T_MSX_READ ? 'r' : '-'),
+			          (dirEntry.attrib & T_MSX_HID  ? 'h' : '-'),
+			          (dirEntry.attrib & T_MSX_VOL  ? 'v' : '-'), // TODO check if this is the output of files,l
+			          (dirEntry.attrib & T_MSX_ARC  ? 'a' : '-'), // TODO check if this is the output of files,l
+			          "  ",
+			          // filesize
+			          dirEntry.size << '\n');
 		}
 	}
 	return result;
@@ -747,7 +749,7 @@ void MSXtar::chroot(string_ref newRootDir, bool createDir)
 		DirEntry entry = findEntryInDir(simple, chrootSector, buf);
 		if (entry.sector == 0) {
 			if (!createDir) {
-				throw MSXException("Subdirectory " + firstPart +
+				throw MSXException("Subdirectory ", firstPart,
 				                   " not found.");
 			}
 			// creat new subdir
@@ -759,7 +761,7 @@ void MSXtar::chroot(string_ref newRootDir, bool createDir)
 		} else {
 			auto& dirEntry = buf.dirEntry[entry.index];
 			if (!(dirEntry.attrib & T_MSX_DIR)) {
-				throw MSXException(firstPart + " is not a directory.");
+				throw MSXException(firstPart, " is not a directory.");
 			}
 			chrootSector = clusterToSector(getStartCluster(dirEntry));
 		}
@@ -793,12 +795,12 @@ string MSXtar::singleItemExtract(string_ref dirName, string_ref itemName,
 	string msxName = makeSimpleMSXFileName(itemName);
 	DirEntry entry = findEntryInDir(msxName, sector, buf);
 	if (entry.sector == 0) {
-		return itemName + " not found!\n";
+		return strCat(itemName, " not found!\n");
 	}
 
 	auto& msxDirEntry = buf.dirEntry[entry.index];
 	// create full name for loacl filesystem
-	string fullName = dirName + '/' + condensName(msxDirEntry);
+	string fullName = strCat(dirName, '/', condensName(msxDirEntry));
 
 	// ...and extract
 	if  (msxDirEntry.attrib & T_MSX_DIR) {
@@ -829,7 +831,7 @@ void MSXtar::recurseDirExtract(string_ref dirName, unsigned sector)
 			string filename = condensName(dirEntry);
 			string fullName = filename;
 			if (!dirName.empty()) {
-				fullName = dirName + '/' + filename;
+				fullName = strCat(dirName, '/', filename);
 			}
 			if (dirEntry.attrib != T_MSX_DIR) { // TODO
 				fileExtract(fullName, dirEntry);

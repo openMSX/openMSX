@@ -49,7 +49,7 @@ void PrinterPortLogger::plugHelper(
 		file = File(logFilenameSetting.getString(),
 		            File::TRUNCATE);
 	} catch (FileException& e) {
-		throw PlugException("Couldn't plug printer logger: " +
+		throw PlugException("Couldn't plug printer logger: ",
 		                    e.getMessage());
 	}
 }

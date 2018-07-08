@@ -161,8 +161,7 @@ XMLElement& XMLElement::getChild(string_ref childName)
 	if (auto* elem = findChild(childName)) {
 		return *elem;
 	}
-	throw ConfigException(StringOp::Builder() <<
-		"Missing tag \"" << childName << "\".");
+	throw ConfigException("Missing tag \"", childName, "\".");
 }
 const XMLElement& XMLElement::getChild(string_ref childName) const
 {
@@ -237,8 +236,7 @@ const string& XMLElement::getAttribute(string_ref attName) const
 {
 	auto it = findAttribute(attName);
 	if (it == end(attributes)) {
-		throw ConfigException("Missing attribute \"" +
-		                      attName + "\".");
+		throw ConfigException("Missing attribute \"", attName, "\".");
 	}
 	return it->second;
 }
@@ -280,32 +278,31 @@ bool XMLElement::findAttributeInt(string_ref attName,
 
 string XMLElement::dump() const
 {
-	StringOp::Builder result;
+	string result;
 	dump(result, 0);
 	return result;
 }
 
-void XMLElement::dump(StringOp::Builder& result, unsigned indentNum) const
+void XMLElement::dump(string& result, unsigned indentNum) const
 {
-	string indent(indentNum, ' ');
-	result << indent << '<' << getName();
+	strAppend(result, spaces(indentNum), '<', getName());
 	for (auto& p : attributes) {
-		result << ' ' << p.first
-		       << "=\"" << XMLEscape(p.second) << '"';
+		strAppend(result, ' ', p.first,
+		          "=\"", XMLEscape(p.second), '"');
 	}
 	if (children.empty()) {
 		if (data.empty()) {
-			result << "/>\n";
+			strAppend(result, "/>\n");
 		} else {
-			result << '>' << XMLEscape(data) << "</"
-			       << getName() << ">\n";
+			strAppend(result, '>', XMLEscape(data), "</",
+			          getName(), ">\n");
 		}
 	} else {
-		result << ">\n";
+		strAppend(result, ">\n");
 		for (auto& c : children) {
 			c.dump(result, indentNum + 2);
 		}
-		result << indent << "</" << getName() << ">\n";
+		strAppend(result, spaces(indentNum), "</", getName(), ">\n");
 	}
 }
 
@@ -326,7 +323,7 @@ string XMLElement::XMLEscape(const string& s)
 	result.reserve(s.size() + 10); // extra space for at least 2 substitutions
 	size_t pos = 0;
 	do {
-		result += s.substr(pos, i - pos);
+		strAppend(result, string_ref(s).substr(pos, i - pos));
 		switch (s[i]) {
 		case '<' : result += "&lt;";   break;
 		case '>' : result += "&gt;";   break;
@@ -338,7 +335,7 @@ string XMLElement::XMLEscape(const string& s)
 		pos = i + 1;
 		i = s.find_first_of(CHARS, pos);
 	} while (i != string::npos);
-	result += s.substr(pos);
+	strAppend(result, string_ref(s).substr(pos));
 	return result;
 }
 

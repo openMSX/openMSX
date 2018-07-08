@@ -37,7 +37,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	FileOperations::openofstream(outFile, outName.str());
 	if (outFile.fail()) {
 		outFile.clear();
-		throw PlugException("Error opening output file: " + outName);
+		throw PlugException("Error opening output file: ", outName);
 	}
 
 	// input
@@ -45,7 +45,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	inFile = FileOperations::openFile(inName.str(), "rb");
 	if (!inFile) {
 		outFile.close();
-		throw PlugException("Error opening input file: " + inName);
+		throw PlugException("Error opening input file: ", inName);
 	}
 
 	auto& rs232Connector = static_cast<RS232Connector&>(connector_);

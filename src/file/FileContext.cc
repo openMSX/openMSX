@@ -23,7 +23,7 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 static string subst(string_ref path, string_ref before, string_ref after)
 {
 	assert(path.starts_with(before));
-	return after + path.substr(before.size());
+	return strCat(after, path.substr(before.size()));
 }
 
 static vector<string> getPathsHelper(const vector<string>& input)
@@ -66,7 +66,7 @@ static string resolveHelper(const vector<string>& pathList,
 		}
 	}
 	// not found in any path
-	throw FileException(filename + " not found in this context");
+	throw FileException(filename, " not found in this context");
 }
 
 FileContext::FileContext(vector<string>&& paths_, vector<string>&& savePaths_)
@@ -170,7 +170,7 @@ FileContext userFileContext(string_ref savePath)
 
 FileContext userDataFileContext(string_ref subDir)
 {
-	return { { string{}, USER_OPENMSX + '/' + subDir },
+	return { { string{}, strCat(USER_OPENMSX, '/', subDir) },
 	         {} };
 }
 

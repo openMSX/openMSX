@@ -11,7 +11,9 @@ RomMSXDOS2::RomMSXDOS2(const DeviceConfig& config, Rom&& rom_)
 	, range(rom[0x94])
 {
 	if ((range != 0x00) && (range != 0x60) && (range != 0x7f)) {
-		throw MSXException("Invalid rom with for MSXDOS2 mapper: unsupported range 0x" + StringOp::toHexString(range, 2));
+		throw MSXException(
+			"Invalid rom with for MSXDOS2 mapper: unsupported range 0x",
+			hex_string<2>(range));
 	}
 	reset(EmuTime::dummy());
 }

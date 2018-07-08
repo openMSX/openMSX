@@ -46,7 +46,7 @@ void HDImageCLI::parseDone()
 	if (!images.empty()) {
 		string hd = "hdX";
 		hd[2] = 'a' + images.front().first;
-		throw MSXException("No hard disk named '" + hd + "'.");
+		throw MSXException("No hard disk named '", hd, "'.");
 	}
 }
 

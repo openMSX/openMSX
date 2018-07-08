@@ -59,7 +59,7 @@ void OSDText::setProperty(
 		if (fontfile != val) {
 			string file = systemFileContext().resolve(val);
 			if (!FileOperations::isRegularFile(file)) {
-				throw CommandException("Not a valid font file: " + val);
+				throw CommandException("Not a valid font file: ", val);
 			}
 			fontfile = val;
 			invalidateRecursive();
@@ -81,8 +81,8 @@ void OSDText::setProperty(
 			wrapMode2 = CHAR;
 		} else {
 			throw CommandException("Not a valid value for -wrap, "
-				"expected one of 'none word char', but got '" +
-				val + "'.");
+				"expected one of 'none word char', but got '",
+				val, "'.");
 		}
 		if (wrapMode != wrapMode2) {
 			wrapMode = wrapMode2;
@@ -178,7 +178,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 			int ptSize = size * scale;
 			font = TTFFont(file, ptSize);
 		} catch (MSXException& e) {
-			throw MSXException("Couldn't open font: " + e.getMessage());
+			throw MSXException("Couldn't open font: ", e.getMessage());
 		}
 	}
 	try {
@@ -211,7 +211,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 			return make_unique<IMAGE>(ivec2(), 0);
 		}
 	} catch (MSXException& e) {
-		throw MSXException("Couldn't render text: " + e.getMessage());
+		throw MSXException("Couldn't render text: ", e.getMessage());
 	}
 }
 

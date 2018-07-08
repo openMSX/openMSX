@@ -326,7 +326,8 @@ static BaseSetting* getTraceSetting(uintptr_t traceID)
 #ifndef NDEBUG
 static string_ref removeColonColon(string_ref s)
 {
-	return s.starts_with("::") ? s.substr(2) : s;
+	if (s.starts_with("::")) s.remove_prefix(2);
+	return s;
 }
 #endif
 
@@ -422,7 +423,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 
 void Interpreter::createNamespace(const std::string& name)
 {
-	execute("namespace eval " + name + " {}");
+	execute(strCat("namespace eval ", name, " {}"));
 }
 
 void Interpreter::deleteNamespace(const std::string& name)

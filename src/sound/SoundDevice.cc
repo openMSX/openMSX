@@ -34,7 +34,7 @@ static string makeUnique(MSXMixer& mixer, string_ref name)
 	if (mixer.findDevice(result)) {
 		unsigned n = 0;
 		do {
-			result = StringOp::Builder() << name << " (" << ++n << ')';
+			result = strCat(name, " (", ++n, ')');
 		} while (mixer.findDevice(result));
 	}
 	return result;
@@ -135,7 +135,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 	} else if (mode == "right") {
 		devBalance = 100;
 	} else {
-		throw MSXException("balance \"" + mode + "\" illegal");
+		throw MSXException("balance \"", mode, "\" illegal");
 	}
 
 	for (auto& b : soundConfig.getChildren("balance")) {
@@ -148,8 +148,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 
 		// TODO Support other balances
 		if (balance != 0 && balance != -100 && balance != 100) {
-			throw MSXException(StringOp::Builder() <<
-			                   "balance " << balance << " illegal");
+			throw MSXException("balance ", balance, " illegal");
 		}
 		if (balance != 0) {
 			balanceCenter = false;

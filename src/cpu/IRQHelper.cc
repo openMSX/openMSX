@@ -67,7 +67,7 @@ OptionalIRQ::OptionalIRQ(MSXCPU& cpu, const DeviceConfig& config)
 		sink = make_unique<NotConnectedIRQSink>();
 	} else {
 		throw MSXException(
-			"Unknown IRQ sink \"" + connected + "\" in <irq_connected>");
+			"Unknown IRQ sink \"", connected, "\" in <irq_connected>");
 	}
 }
 

@@ -7,7 +7,6 @@
 #include "XMLException.hh"
 #include "DeltaBlock.hh"
 #include "MemBuffer.hh"
-#include "StringOp.hh"
 #include "FileOperations.hh"
 #include "Version.hh"
 #include "Date.hh"
@@ -158,12 +157,12 @@ void InputArchiveBase<Derived>::serialize_blob(
 		        ? HexDump::decode_inplace(tmp, static_cast<uint8_t*>(data), len)
 		        : Base64 ::decode_inplace(tmp, static_cast<uint8_t*>(data), len);
 		if (!ok) {
-			throw XMLException(StringOp::Builder()
-				<< "Length of decoded blob different from "
-				   "expected value (" << len << ')');
+			throw XMLException(
+				"Length of decoded blob different from "
+				"expected value (", len, ')');
 		}
 	} else {
-		throw XMLException("Unsupported encoding \"" + encoding + "\" for blob");
+		throw XMLException("Unsupported encoding \"", encoding, "\" for blob");
 	}
 }
 
@@ -277,7 +276,7 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 	}
 
 error:
-	throw XMLException("Could not open compressed file \"" + filename + "\"");
+	throw XMLException("Could not open compressed file \"", filename, "\"");
 }
 
 XmlOutputArchive::~XmlOutputArchive()
@@ -395,7 +394,7 @@ void XmlInputArchive::load(bool& b)
 	} else if ((s == "false") || (s == "0")) {
 		b = false;
 	} else {
-		throw XMLException("Bad value found for boolean: " + s);
+		throw XMLException("Bad value found for boolean: ", s);
 	}
 }
 
@@ -441,7 +440,7 @@ template<typename T> static inline void fastAtoi(string_ref str, T& t)
 	for (/**/; i < l; ++i) {
 		unsigned d = str[i] - '0';
 		if (unlikely(d > 9)) {
-			throw XMLException("Invalid integer: " + str);
+			throw XMLException("Invalid integer: ", str);
 		}
 		t = 10 * t + d;
 	}
@@ -493,11 +492,10 @@ void XmlInputArchive::beginTag(const char* tag)
 	if (!child) {
 		string path;
 		for (auto& e : elems) {
-			path += e.first->getName() + '/';
+			strAppend(path, e.first->getName(), '/');
 		}
-		throw XMLException(StringOp::Builder() <<
-			"No child tag \"" << tag <<
-			"\" found at location \"" << path << '\"');
+		throw XMLException("No child tag \"", tag,
+		                   "\" found at location \"", path, '\"');
 	}
 	elems.emplace_back(child, 0);
 }
@@ -505,8 +503,8 @@ void XmlInputArchive::endTag(const char* tag)
 {
 	const auto& elem = *elems.back().first;
 	if (elem.getName() != tag) {
-		throw XMLException("End tag \"" + elem.getName() +
-			"\" not equal to begin tag \"" + tag + "\"");
+		throw XMLException("End tag \"", elem.getName(),
+		                   "\" not equal to begin tag \"", tag, "\"");
 	}
 	auto& elem2 = const_cast<XMLElement&>(elem);
 	elem2.clearName(); // mark this elem for later beginTag() calls
@@ -517,8 +515,8 @@ void XmlInputArchive::attribute(const char* name, string& t)
 {
 	try {
 		t = elems.back().first->getAttribute(name);
-	} catch (ConfigException& ex) {
-		throw XMLException(ex.getMessage());
+	} catch (ConfigException& e) {
+		throw XMLException(e.getMessage());
 	}
 }
 void XmlInputArchive::attribute(const char* name, int& i)

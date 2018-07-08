@@ -33,7 +33,7 @@ static TurboRFDC::Type parseType(const DeviceConfig& config)
 	} else {
 		throw MSXException(
 			"Invalid 'io_regs' specification: expected one of "
-			"'7FF2' or '7FF8', but got: " + ioregs);
+			"'7FF2' or '7FF8', but got: ", ioregs);
 	}
 }
 

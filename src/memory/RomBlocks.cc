@@ -3,7 +3,6 @@
 #include "SRAM.hh"
 #include "MSXException.hh"
 #include "Math.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 
@@ -31,9 +30,8 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 	if (extendedSize != rom.getSize() && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
 		config.getCliComm().printWarning(
 			"(uncompressed) ROM image filesize was not a multiple "
-			"of " + StringOp::toString(BANK_SIZE / 1024) + "kB "
-			"(which is required for mapper type " +
-			config.findChild("mappertype")->getData() + "), so we "
+			"of ", BANK_SIZE / 1024, "kB (which is required for mapper type ",
+			config.findChild("mappertype")->getData(), "), so we "
 			"padded it to be correct. But if the ROM you are "
 			"running was just dumped, the dump is probably not "
 			"complete/correct!");

@@ -4,6 +4,7 @@
 #include "FileOperations.hh"
 #include "ReadDir.hh"
 #include "utf8_unchecked.hh"
+#include "strCat.hh"
 #include "stringsp.hh"
 #include <algorithm>
 
@@ -30,8 +31,7 @@ static bool formatHelper(const vector<string_ref>& input, size_t columnLimit,
 		for (size_t i = 0; (i < result.size()) && (it != end(input));
 		     ++i, ++it) {
 			auto curSize = utf8::unchecked::size(result[i]);
-			result[i] += string(column - curSize, ' ');
-			result[i] += it->str();
+			strAppend(result[i], spaces(column - curSize), it->str());
 			maxcolumn = std::max(maxcolumn,
 			                     utf8::unchecked::size(result[i]));
 			if (maxcolumn > columnLimit) return false;

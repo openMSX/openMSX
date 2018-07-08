@@ -61,7 +61,7 @@ void OSDGUI::OSDCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 		gui.refresh();
 	} else {
 		throw CommandException(
-			"Invalid subcommand '" + subCommand + "', expected "
+			"Invalid subcommand '", subCommand, "', expected "
 			"'create', 'destroy', 'info', 'exists' or 'configure'.");
 	}
 }
@@ -79,7 +79,7 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 	auto& top = gui.getTopWidget();
 	if (top.findByName(fullnameStr)) {
 		throw CommandException(
-			"There already exists a widget with this name: " +
+			"There already exists a widget with this name: ",
 			fullnameStr);
 	}
 
@@ -88,7 +88,7 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 	auto* parent = childName.empty() ? &top : top.findByName(parentname);
 	if (!parent) {
 		throw CommandException(
-			"Parent widget doesn't exist yet:" + parentname);
+			"Parent widget doesn't exist yet:", parentname);
 	}
 
 	auto widget = create(type, fullname);
@@ -109,7 +109,7 @@ unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
 		return make_unique<OSDText>(gui.display, newName);
 	} else {
 		throw CommandException(
-			"Invalid widget type '" + type + "', expected "
+			"Invalid widget type '", type, "', expected "
 			"'rectangle' or 'text'.");
 	}
 }
@@ -191,7 +191,7 @@ void OSDGUI::OSDCommand::configure(OSDWidget& widget, array_ref<TclObject> token
 	if ((tokens.size() - skip) & 1) {
 		// odd number of extra arguments
 		throw CommandException(
-			"Missing value for '" + tokens.back().getString() + "'.");
+			"Missing value for '", tokens.back().getString(), "'.");
 	}
 
 	auto& interp = getInterpreter();
@@ -301,7 +301,7 @@ OSDWidget& OSDGUI::OSDCommand::getWidget(string_ref widgetName) const
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findByName(widgetName);
 	if (!widget) {
-		throw CommandException("No widget with name " + widgetName);
+		throw CommandException("No widget with name ", widgetName);
 	}
 	return *widget;
 }

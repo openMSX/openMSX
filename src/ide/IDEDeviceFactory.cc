@@ -22,7 +22,7 @@ unique_ptr<IDEDevice> create(const DeviceConfig& config)
 	} else if (type == "IDECDROM") {
 		return make_unique<IDECDROM>(config);
 	}
-	throw MSXException("Unknown IDE device: " + type);
+	throw MSXException("Unknown IDE device: ", type);
 }
 
 } // namespace IDEDeviceFactory

@@ -1,5 +1,6 @@
 #include "HexDump.hh"
 #include "likely.hh"
+#include "strCat.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -14,10 +15,7 @@ static char encode2(uint8_t x)
 }
 static string encode(uint8_t x)
 {
-	string result;
-	result += encode2(x >> 4);
-	result += encode2(x & 15);
-	return result;
+	return strCat(encode2(x >> 4), encode2(x & 15));
 }
 string encode(const uint8_t* input, size_t len, bool newlines)
 {

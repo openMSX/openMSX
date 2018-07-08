@@ -13,7 +13,6 @@
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "Thread.hh"
 #include "build-info.hh"
 #include "random.hh"
@@ -55,8 +54,7 @@ static void initializeSDL()
 	flags |= SDL_INIT_NOPARACHUTE;
 #endif
 	if (SDL_Init(flags) < 0) {
-		throw FatalError(StringOp::Builder() <<
-			"Couldn't init SDL: " << SDL_GetError());
+		throw FatalError("Couldn't init SDL: ", SDL_GetError());
 	}
 
 // In SDL 1.2.9 and before SDL_putenv has different semantics and is not

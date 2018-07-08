@@ -359,7 +359,7 @@ MSXMotherBoard& Reactor::getMachine(string_ref machineID) const
 			return *b;
 		}
 	}
-	throw CommandException("No machine with ID: " + machineID);
+	throw CommandException("No machine with ID: ", machineID);
 }
 
 Reactor::Board Reactor::createEmptyMotherBoard()
@@ -510,7 +510,7 @@ void Reactor::run(CommandLineParser& parser)
 		try {
 			commandController.source(userFileContext().resolve(s));
 		} catch (FileException& e) {
-			throw FatalError("Couldn't execute script: " +
+			throw FatalError("Couldn't execute script: ",
 			                 e.getMessage());
 		}
 	}
@@ -687,7 +687,7 @@ void MachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 		try {
 			reactor.switchMachine(tokens[1].getString().str());
 		} catch (MSXException& e) {
-			throw CommandException("Machine switching failed: " +
+			throw CommandException("Machine switching failed: ",
 			                       e.getMessage());
 		}
 		break;
@@ -942,7 +942,7 @@ void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
 		time_t lastTime = 0;
 		ReadDir dir(dirName);
 		while (dirent* d = dir.getEntry()) {
-			int res = stat((dirName + string(d->d_name)).c_str(), &st);
+			int res = stat(strCat(dirName, d->d_name).c_str(), &st);
 			if ((res == 0) && S_ISREG(st.st_mode)) {
 				time_t modTime = st.st_mtime;
 				if (modTime > lastTime) {
@@ -969,9 +969,10 @@ void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
 		XmlInputArchive in(filename);
 		in.serialize("machine", *newBoard);
 	} catch (XMLException& e) {
-		throw CommandException("Cannot load state, bad file format: " + e.getMessage());
+		throw CommandException("Cannot load state, bad file format: ",
+		                       e.getMessage());
 	} catch (MSXException& e) {
-		throw CommandException("Cannot load state: " + e.getMessage());
+		throw CommandException("Cannot load state: ", e.getMessage());
 	}
 
 	// Savestate also contains stuff like the keyboard state at the moment
@@ -985,11 +986,10 @@ void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
 
 string RestoreMachineCommand::help(const vector<string>& /*tokens*/) const
 {
-	return
-		"restore_machine                       Load state from last saved state in default directory\n"
-		"restore_machine <filename>            Load state from indicated file\n"
-		"\n"
-		"This is a low-level command, the 'loadstate' script is easier to use.";
+	return "restore_machine                       Load state from last saved state in default directory\n"
+	       "restore_machine <filename>            Load state from indicated file\n"
+	       "\n"
+	       "This is a low-level command, the 'loadstate' script is easier to use.";
 }
 
 void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
@@ -1028,7 +1028,7 @@ void ConfigInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 			}
 		} catch (MSXException& e) {
 			throw CommandException(
-				"Couldn't get config info: " + e.getMessage());
+				"Couldn't get config info: ", e.getMessage());
 		}
 		break;
 	}
@@ -1039,8 +1039,8 @@ void ConfigInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 
 string ConfigInfo::help(const vector<string>& /*tokens*/) const
 {
-	return "Shows a list of available " + configName + ", "
-	       "or get meta information about the selected item.\n";
+	return strCat("Shows a list of available ", configName, ", "
+	              "or get meta information about the selected item.\n");
 }
 
 void ConfigInfo::tabCompletion(vector<string>& tokens) const

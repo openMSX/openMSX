@@ -63,7 +63,7 @@ BaseSetting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 	if (auto* setting = findSetting(name)) {
 		return *setting;
 	}
-	throw CommandException(cmd + ": " + name + ": no such setting");
+	throw CommandException(cmd, ": ", name, ": no such setting");
 }
 
 vector<string> SettingsManager::getTabSettingNames() const
@@ -76,7 +76,7 @@ vector<string> SettingsManager::getTabSettingNames() const
 		if (name.starts_with("::")) {
 			result.push_back(name.substr(2).str());
 		} else {
-			result.push_back("::" + name);
+			result.push_back(strCat("::", name));
 		}
 	}
 	return result;
@@ -129,7 +129,7 @@ void SettingsManager::SettingInfo::execute(
 		const auto& settingName = tokens[2].getString();
 		auto it = manager.settings.find(settingName);
 		if (it == end(manager.settings)) {
-			throw CommandException("No such setting: " + settingName);
+			throw CommandException("No such setting: ", settingName);
 		}
 		(*it)->info(result);
 		break;

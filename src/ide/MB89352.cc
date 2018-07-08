@@ -20,7 +20,6 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
 #include "memory.hh"
 #include <cassert>
@@ -100,13 +99,12 @@ MB89352::MB89352(const DeviceConfig& config)
 	for (auto* t : config.getXML()->getChildren("target")) {
 		unsigned id = t->getAttributeAsInt("id");
 		if (id >= MAX_DEV) {
-			throw MSXException(StringOp::Builder() <<
-				"Invalid SCSI id: " << id <<
-				" (should be 0.." + MAX_DEV - 1 << ')');
+			throw MSXException(
+				"Invalid SCSI id: ", id,
+				" (should be 0..", MAX_DEV - 1, ')');
 		}
 		if (dev[id]) {
-			throw MSXException(StringOp::Builder() <<
-				"Duplicate SCSI id: " << id);
+			throw MSXException("Duplicate SCSI id: ", id);
 		}
 		DeviceConfig conf(config, *t);
 		auto& type = t->getChild("type").getData();
@@ -117,7 +115,7 @@ MB89352::MB89352(const DeviceConfig& config)
 			dev[id] = make_unique<SCSILS120>(conf, buffer,
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);
 		} else {
-			throw MSXException("Unknown SCSI device: " + type);
+			throw MSXException("Unknown SCSI device: ", type);
 		}
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes

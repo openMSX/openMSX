@@ -33,7 +33,6 @@ TODO:
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
-#include "StringOp.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <cstring>
@@ -132,7 +131,7 @@ VDP::VDP(const DeviceConfig& config)
 	else if (versionString == "TMS9129") version = TMS9129;
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
-	else throw MSXException("Unknown VDP version \"" + versionString + "\"");
+	else throw MSXException("Unknown VDP version \"", versionString, '"');
 
 	// saturation parameters only make sense when using TMS VDP's
 	if ((versionString.find("TMS") != 0) && ((config.findChild("saturationPr") != nullptr) || (config.findChild("saturationPb") != nullptr) || (config.findChild("saturation") != nullptr))) {
@@ -141,19 +140,19 @@ VDP::VDP(const DeviceConfig& config)
 
 	int saturation = config.getChildDataAsInt("saturation", defaultSaturation);
 	if (!((0 <= saturation) && (saturation <= 100))) {
-		throw MSXException(StringOp::Builder() <<
-			"Saturation percentage is not in range 0..100: " << saturationPr);
+		throw MSXException(
+			"Saturation percentage is not in range 0..100: ", saturationPr);
 	}
 	saturationPr = config.getChildDataAsInt("saturationPr", saturation);
 	if (!((0 <= saturationPr) && (saturationPr <= 100))) {
-		throw MSXException(StringOp::Builder() <<
-			"Saturation percentage for Pr component is not in range 0..100: " <<
+		throw MSXException(
+			"Saturation percentage for Pr component is not in range 0..100: ",
 			saturationPr);
 	}
 	saturationPb = config.getChildDataAsInt("saturationPb", saturation);
 	if (!((0 <= saturationPb) && (saturationPb <= 100))) {
-		throw MSXException(StringOp::Builder() <<
-			"Saturation percentage for Pb component is not in range 0..100: " <<
+		throw MSXException(
+			"Saturation percentage for Pb component is not in range 0..100: ",
 			saturationPr);
 	}
 
@@ -186,8 +185,8 @@ VDP::VDP(const DeviceConfig& config)
 		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
 	if ((vramSize !=  16) && (vramSize !=  64) &&
 	    (vramSize != 128) && (vramSize != 192)) {
-		throw MSXException(StringOp::Builder() <<
-			"VRAM size of " << vramSize << "kB is not supported!");
+		throw MSXException(
+			"VRAM size of ", vramSize, "kB is not supported!");
 	}
 	vram = make_unique<VDPVRAM>(*this, vramSize * 1024, time);
 
@@ -1147,10 +1146,10 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	case 9:
 		if ((val & 1) && ! warningPrinted) {
 			warningPrinted = true;
-			getCliComm().printWarning
-				("The running MSX software has set bit 0 of VDP register 9 "
-				 "(dot clock direction) to one. In an ordinary MSX, "
-				 "the screen would go black and the CPU would stop running.");
+			getCliComm().printWarning(
+				"The running MSX software has set bit 0 of VDP register 9 "
+				"(dot clock direction) to one. In an ordinary MSX, "
+				"the screen would go black and the CPU would stop running.");
 			// TODO: Emulate such behaviour.
 		}
 		if (change & 0x80) {
@@ -1598,7 +1597,7 @@ void VDP::VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /
 
 VDP::Info::Info(VDP& vdp_, const string& name_, string helpText_)
 	: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
-		    vdp_.getName() + '_' + name_)
+		    strCat(vdp_.getName(), '_', name_))
 	, vdp(vdp_)
 	, helpText(std::move(helpText_))
 {

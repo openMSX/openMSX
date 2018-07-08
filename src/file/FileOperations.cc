@@ -225,7 +225,7 @@ void mkdir(const string& path, mode_t mode)
 	int result = ::mkdir(path.c_str(), mode);
 #endif
 	if (result && (errno != EEXIST)) {
-		throw FileException("Error creating dir " + path);
+		throw FileException("Error creating dir ", path);
 	}
 }
 
@@ -269,7 +269,7 @@ void mkdirp(string_ref path_)
 	} while (pos != string::npos);
 
 	if (!isDirectory(path)) {
-		throw FileException("Error creating dir " + path);
+		throw FileException("Error creating dir ", path);
 	}
 }
 
@@ -428,9 +428,9 @@ string join(string_ref part1, string_ref part2)
 		return part2.str();
 	}
 	if (part1.back() == '/') {
-		return part1 + part2;
+		return strCat(part1, part2);
 	}
-	return part1 + '/' + part2;
+	return strCat(part1, '/', part2);
 }
 string join(string_ref part1, string_ref part2, string_ref part3)
 {
@@ -513,8 +513,8 @@ string getUserHomeDir(string_ref username)
 
 	wchar_t bufW[MAXPATHLEN + 1];
 	if (!SHGetSpecialFolderPathW(nullptr, bufW, CSIDL_PERSONAL, TRUE)) {
-		throw FatalError(StringOp::Builder() <<
-			"SHGetSpecialFolderPathW failed: " << GetLastError());
+		throw FatalError(
+			"SHGetSpecialFolderPathW failed: ", GetLastError());
 	}
 
 	return getConventionalPath(utf16to8(bufW));
@@ -567,8 +567,8 @@ string getSystemDataDir()
 	wchar_t bufW[MAXPATHLEN + 1];
 	int res = GetModuleFileNameW(nullptr, bufW, countof(bufW));
 	if (!res) {
-		throw FatalError(StringOp::Builder() <<
-			"Cannot detect openMSX directory. GetModuleFileNameW failed: " <<
+		throw FatalError(
+			"Cannot detect openMSX directory. GetModuleFileNameW failed: ",
 			GetLastError());
 	}
 
@@ -702,7 +702,7 @@ string getNextNumberedFileName(
 
 	unsigned max_num = 0;
 
-	string dirName = getUserOpenMSXDir() + '/' + directory;
+	string dirName = strCat(getUserOpenMSXDir(), '/', directory);
 	try {
 		mkdirp(dirName);
 	} catch (FileException&) {
@@ -734,9 +734,9 @@ string parseCommandFileArgument(
 	string filename = argument.str();
 	if (getDirName(filename).empty()) {
 		// no dir given, use standard dir (and create it)
-		string dir = getUserOpenMSXDir() + '/' + directory;
+		string dir = strCat(getUserOpenMSXDir(), '/', directory);
 		mkdirp(dir);
-		filename = dir + '/' + filename;
+		filename = strCat(dir, '/', filename);
 	} else {
 		filename = expandTilde(filename);
 	}
@@ -767,8 +767,7 @@ string getTempDir()
 			return utf16to8(bufW);
 		}
 	}
-	throw FatalError(StringOp::Builder() <<
-		"GetTempPathW failed: " << GetLastError());
+	throw FatalError("GetTempPathW failed: ", GetLastError());
 #elif PLATFORM_ANDROID
 	string result = getSystemDataDir() + "/tmp";
 	return result;
@@ -790,8 +789,7 @@ FILE_t openUniqueFile(const std::string& directory, std::string& filename)
 	std::wstring directoryW = utf8to16(directory);
 	wchar_t filenameW[MAX_PATH];
 	if (!GetTempFileNameW(directoryW.c_str(), L"msx", 0, filenameW)) {
-		throw FileException(StringOp::Builder() <<
-			"GetTempFileNameW failed: " << GetLastError());
+		throw FileException("GetTempFileNameW failed: ", GetLastError());
 	}
 	filename = utf16to8(filenameW);
 	return FILE_t(_wfopen(filenameW, L"wb"));

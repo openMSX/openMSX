@@ -46,8 +46,7 @@ MidiInCoreMIDI::MidiInCoreMIDI(EventDistributor& eventDistributor_,
 	if (status) {
 		name = "Nameless endpoint";
 	} else {
-		name = StringOp::Builder() << StringOp::fromCFString(midiDeviceName)
-		                           << " IN";
+		name = strCat(StringOp::fromCFString(midiDeviceName), " IN");
 		CFRelease(midiDeviceName);
 	}
 
@@ -66,16 +65,14 @@ void MidiInCoreMIDI::plugHelper(Connector& /*connector*/, EmuTime::param /*time*
 	// Create client.
 	if (OSStatus status = MIDIClientCreate(
 			CFSTR("openMSX"), nullptr, nullptr, &client)) {
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI client (" << status << ")");
+		throw PlugException("Failed to create MIDI client (", status, ')');
 	}
 	// Create input port.
 	if (OSStatus status = MIDIInputPortCreate(
 			client, CFSTR("Input"), sendPacketList, this, &port)) {
 		MIDIClientDispose(client);
 		client = 0;
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI port (" << status << ")");
+		throw PlugException("Failed to create MIDI port (", status, ')');
 	}
 
 	MIDIPortConnectSource(port, endpoint, nullptr);
@@ -191,16 +188,14 @@ void MidiInCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
 	// Create client.
 	if (OSStatus status = MIDIClientCreate(CFSTR("openMSX"),
 	                                       nullptr, nullptr, &client)) {
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI client (" << status << ")");
+		throw PlugException("Failed to create MIDI client (", status, ')');
 	}
 	// Create endpoint.
 	if (OSStatus status = MIDIDestinationCreate(client, CFSTR("openMSX"),
 	                                            sendPacketList, this,
 	                                            &endpoint)) {
 		MIDIClientDispose(client);
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI endpoint (" << status << ")");
+		throw PlugException("Failed to create MIDI endpoint (", status, ')');
 	}
 }
 

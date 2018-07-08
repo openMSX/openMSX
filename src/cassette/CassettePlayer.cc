@@ -43,7 +43,6 @@
 #include "TclObject.hh"
 #include "DynamicClock.hh"
 #include "EmuDuration.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "memory.hh"
@@ -137,7 +136,7 @@ void CassettePlayer::autoRun()
 		default:
 			UNREACHABLE; // Shouldn't be possible
 	}
-	string command =
+	string command = strCat(
 		"namespace eval ::openmsx {\n"
 		"  variable auto_run_bp\n"
 
@@ -163,18 +162,19 @@ void CassettePlayer::autoRun()
 
 		"  if {[info exists auto_run_bp]} {debug remove_bp $auto_run_bp\n}\n"
 		"  set auto_run_bp [debug set_bp 0xFF07 1 {\n" // H_READ
-		"    openmsx::auto_run_cb " + instr1 + " " + instr2 + "\n"
+		"    openmsx::auto_run_cb ", instr1, ' ', instr2, "\n"
 		"  }]\n"
 
 		// re-trigger hook(s), needed when already booted in BASIC
 		"  type_via_keyboard \'\\r\n"
-		"}";
+		"}");
 	try {
 		motherBoard.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {
 		motherBoard.getMSXCliComm().printWarning(
-			"Error executing loading instruction using command \"" + command + "\" for AutoRun: " +
-			e.getMessage() + "\n Please report a bug.");
+			"Error executing loading instruction using command \"",
+                        command, "\" for AutoRun: ",
+			e.getMessage(), "\n Please report a bug.");
 	}
 }
 
@@ -323,10 +323,10 @@ void CassettePlayer::insertTape(const Filename& filename)
 					motherBoard.getMSXCliComm());
 			} catch (MSXException& e2) {
 				throw MSXException(
-					"Failed to insert WAV image: \"" +
-					e.getMessage() +
-					"\" and also failed to insert CAS image: \"" +
-					e2.getMessage() + '\"');
+					"Failed to insert WAV image: \"",
+					e.getMessage(),
+					"\" and also failed to insert CAS image: \"",
+					e2.getMessage(), '\"');
 			}
 		}
 	} else {
@@ -516,7 +516,7 @@ void CassettePlayer::flushOutput()
 		recordImage->flush(); // update wav header
 	} catch (MSXException& e) {
 		motherBoard.getMSXCliComm().printWarning(
-			"Failed to write to tape: " + e.getMessage());
+			"Failed to write to tape: ", e.getMessage());
 	}
 }
 
@@ -570,7 +570,7 @@ int CassettePlayer::signalEvent(const std::shared_ptr<const Event>& event)
 				playTape(getImageName(), getCurrentTime());
 			} catch (MSXException& e) {
 				motherBoard.getMSXCliComm().printWarning(
-					"Failed to insert tape: " + e.getMessage());
+					"Failed to insert tape: ", e.getMessage());
 			}
 		}
 	}
@@ -636,8 +636,9 @@ void CassettePlayer::TapeCommand::execute(
 			(tokens.size() == 3) ? tokens[2].getString() : string{},
 			directory, prefix, extension);
 		cassettePlayer.recordTape(Filename(filename), time);
-		result.setString("Created new cassette image file: " + filename +
-		                 ", inserted it and set recording mode.");
+		result.setString(strCat(
+                        "Created new cassette image file: ", filename,
+		        ", inserted it and set recording mode."));
 
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
@@ -663,8 +664,8 @@ void CassettePlayer::TapeCommand::execute(
 		throw SyntaxError();
 
 	} else if (tokens[1] == "motorcontrol") {
-		result.setString(string("Motor control is ") +
-		                 (cassettePlayer.motorControl ? "on" : "off"));
+		result.setString(strCat("Motor control is ",
+		                 (cassettePlayer.motorControl ? "on" : "off")));
 
 	} else if (tokens[1] == "record") {
 			result.setString("TODO: implement this... (sorry)");
@@ -891,8 +892,8 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 			Sha1Sum newChecksum = playImage->getSha1Sum();
 			if (oldChecksum != newChecksum) {
 				motherBoard.getMSXCliComm().printWarning(
-					"The content of the tape " +
-					casImage.getResolved() +
+					"The content of the tape ",
+					casImage.getResolved(),
 					" has changed since the time this "
 					"savestate was created. This might "
 					"result in emulation problems.");

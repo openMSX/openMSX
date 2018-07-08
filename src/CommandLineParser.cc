@@ -193,14 +193,14 @@ void CommandLineParser::parse(int argc, char** argv)
 					settingsConfig.loadSetting(context, filename);
 				} catch (XMLException& e) {
 					reactor.getCliComm().printWarning(
-						"Loading of settings failed: " +
-						e.getMessage() + "\n"
+						"Loading of settings failed: ",
+						e.getMessage(), "\n"
 						"Reverting to default settings.");
 				} catch (FileException&) {
 					// settings.xml not found
 				} catch (ConfigException& e) {
-					throw FatalError("Error in default settings: "
-						+ e.getMessage());
+					throw FatalError("Error in default settings: ",
+					                 e.getMessage());
 				}
 				// Consider an attempt to load the settings good enough.
 				haveSettings = true;
@@ -218,11 +218,13 @@ void CommandLineParser::parse(int argc, char** argv)
 					reactor.switchMachine(machine.str());
 				} catch (MSXException& e) {
 					reactor.getCliComm().printInfo(
-						"Failed to initialize default machine: " + e.getMessage());
+						"Failed to initialize default machine: ",
+						e.getMessage());
 					// Default machine is broken; fall back to C-BIOS config.
 					const auto& fallbackMachine =
 						reactor.getMachineSetting().getRestoreValue().getString();
-					reactor.getCliComm().printInfo("Using fallback machine: " + fallbackMachine);
+					reactor.getCliComm().printInfo(
+						"Using fallback machine: ", fallbackMachine);
 					try {
 						reactor.switchMachine(fallbackMachine.str());
 					} catch (MSXException& e2) {
@@ -269,8 +271,8 @@ void CommandLineParser::parse(int argc, char** argv)
 	}
 	if (!cmdLine.empty() && (parseStatus != EXIT)) {
 		throw FatalError(
-			"Error parsing command line: " + cmdLine.front() + "\n" +
-			"Use \"openmsx -h\" to see a list of available options" );
+			"Error parsing command line: ", cmdLine.front(), "\n"
+			"Use \"openmsx -h\" to see a list of available options");
 	}
 }
 
@@ -329,7 +331,7 @@ void CommandLineParser::ControlOption::parseOption(
 			controller, distributor, arguments);
 #endif
 	} else {
-		throw FatalError("Unknown control type: '"  + type + '\'');
+		throw FatalError("Unknown control type: '", type, '\'');
 	}
 	cliComm.addListener(std::move(connection));
 
@@ -371,26 +373,26 @@ string_ref CommandLineParser::ScriptOption::fileTypeHelp() const
 
 static string formatSet(const vector<string_ref>& inputSet, string::size_type columns)
 {
-	StringOp::Builder outString;
+	string outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now
 	for (auto& temp : inputSet) {
 		if (totalLength == 0) {
 			// first element ?
-			outString << "    " << temp;
+			strAppend(outString, "    ", temp);
 			totalLength = temp.size();
 		} else {
-			outString << ", ";
+			outString += ", ";
 			if ((totalLength + temp.size()) > columns) {
-				outString << "\n    " << temp;
+				strAppend(outString, "\n    ", temp);
 				totalLength = temp.size();
 			} else {
-				outString << temp;
+				strAppend(outString, temp);
 				totalLength += 2 + temp.size();
 			}
 		}
 	}
 	if (totalLength < columns) {
-		outString << string(columns - totalLength, ' ');
+		outString.append(columns - totalLength, ' ');
 	}
 	return outString;
 }
@@ -408,12 +410,11 @@ static string formatHelptext(string_ref helpText,
 				pos = helpText.substr(index).size();
 			}
 		}
-		outText += helpText.substr(index, index + pos) + '\n' +
-		           string(indent, ' ');
+		strAppend(outText, helpText.substr(index, index + pos), '\n',
+		          string(indent, ' '));
 		index = pos + 1;
 	}
-	string_ref t = helpText.substr(index);
-	outText.append(t.data(), t.size());
+	strAppend(outText, helpText.substr(index));
 	return outText;
 }
 
@@ -423,8 +424,8 @@ static void printItemMap(const GroupedItems& itemMap)
 {
 	vector<string> printSet;
 	for (auto& p : itemMap) {
-		printSet.push_back(formatSet(p.second, 15) + ' ' +
-		                   formatHelptext(p.first, 50, 20));
+		printSet.push_back(strCat(formatSet(p.second, 15), ' ',
+		                          formatHelptext(p.first, 50, 20)));
 	}
 	sort(begin(printSet), end(printSet));
 	for (auto& s : printSet) {

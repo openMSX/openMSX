@@ -95,7 +95,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		}
 		unsigned num;
 		try {
-			num = fast_stou(diskImage.substr(pos + 1));
+			num = fast_stou(string_ref(diskImage).substr(pos + 1));
 		} catch (std::invalid_argument&) {
 			// not a valid partion number, throw previous exception
 			throw e;

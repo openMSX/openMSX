@@ -119,11 +119,11 @@ void ChakkariCopy::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 	reg = value;
 
 	if (diff & 0x01) {
-		getCliComm().printInfo(getName() + " COPY LED " +
+		getCliComm().printInfo(getName(), " COPY LED ",
 			(((value & 1) == 0x01) ? "OFF" : "ON"));
 	}
 	if (diff & 0x02) {
-		getCliComm().printInfo(getName() + " PAUSE LED " +
+		getCliComm().printInfo(getName(), " PAUSE LED ",
 			(((value & 2) == 0x02) ? "OFF" : "ON"));
 	}
 	if (diff & 0x04) {
