@@ -2,6 +2,7 @@
 #define CLICOMM_HH
 
 #include "array_ref.hh"
+#include "strCat.hh"
 #include "string_ref.hh"
 
 namespace openmsx {
@@ -39,6 +40,39 @@ public:
 	void printWarning (string_ref message);
 	void printError   (string_ref message);
 	void printProgress(string_ref message);
+
+	// These overloads are (only) needed for efficiency, because otherwise
+	// the templated overload below is a better match than the 'string_ref'
+	// overload above (and we don't want to construct a temp string).
+	void printInfo(const char* message) {
+		printInfo(string_ref(message));
+	}
+	void printWarning(const char* message) {
+		printWarning(string_ref(message));
+	}
+	void printError(const char* message) {
+		printError(string_ref(message));
+	}
+	void printProgress(const char* message) {
+		printProgress(string_ref(message));
+	}
+
+	template<typename... Args>
+	void printInfo(Args&& ...args) {
+		printInfo(string_ref(strCat(std::forward<Args>(args)...)));
+	}
+	template<typename... Args>
+	void printWarning(Args&& ...args) {
+		printWarning(string_ref(strCat(std::forward<Args>(args)...)));
+	}
+	template<typename... Args>
+	void printError(Args&& ...args) {
+		printError(string_ref(strCat(std::forward<Args>(args)...)));
+	}
+	template<typename... Args>
+	void printProgress(Args&& ...args) {
+		printProgress(string_ref(strCat(std::forward<Args>(args)...)));
+	}
 
 	// string representations of the LogLevel and UpdateType enums
 	static array_ref<const char*> getLevelStrings()  {
