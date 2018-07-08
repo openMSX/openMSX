@@ -11,8 +11,7 @@ namespace openmsx {
 class InitException final : public MSXException
 {
 public:
-	explicit InitException(string_ref message_)
-		: MSXException(message_) {}
+	using MSXException::MSXException;
 };
 
 } // namespace openmsx

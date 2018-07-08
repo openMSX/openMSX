@@ -8,8 +8,7 @@ namespace openmsx {
 class ConfigException : public MSXException
 {
 public:
-	explicit ConfigException(string_ref message_)
-		: MSXException(message_) {}
+        using MSXException::MSXException;
 };
 
 } // namespace openmsx
