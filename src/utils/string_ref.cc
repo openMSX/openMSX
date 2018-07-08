@@ -157,34 +157,6 @@ unsigned fast_stou(string_ref s)
 }
 
 
-// concatenation
-// TODO make s1 + s2 + s3 also efficient
-string operator+(string_ref x, string_ref y)
-{
-	string result;
-	result.reserve(x.size() + y.size());
-	result.append(x.data(), x.size());
-	result.append(y.data(), y.size());
-	return result;
-}
-std::string operator+(char x, string_ref y)
-{
-	string result;
-	result.reserve(1 + y.size());
-	result.append(&x, 1);
-	result.append(y.data(), y.size());
-	return result;
-}
-std::string operator+(string_ref x, char y)
-{
-	string result;
-	result.reserve(x.size() + 1);
-	result.append(x.data(), x.size());
-	result.append(&y, 1);
-	return result;
-}
-
-
 std::ostream& operator<<(std::ostream& os, string_ref s)
 {
 	os.write(s.data(), s.size());

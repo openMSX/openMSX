@@ -149,11 +149,6 @@ inline bool operator>=(string_ref x, string_ref y) { return !(x <  y); }
 unsigned fast_stou(string_ref s);
 
 
-// concatenation (this is not part of the std::string_ref proposal)
-std::string operator+(string_ref x, string_ref y);
-std::string operator+(char x, string_ref y);
-std::string operator+(string_ref x, char y);
-
 std::ostream& operator<<(std::ostream& os, string_ref s);
 
 // begin, end
