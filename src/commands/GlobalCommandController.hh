@@ -52,21 +52,21 @@ public:
 	void source(const std::string& script);
 
 	void registerProxyCommand(const std::string& name);
-	void unregisterProxyCommand(string_ref name);
+	void unregisterProxyCommand(string_view name);
 
 	void registerProxySetting(Setting& setting);
 	void unregisterProxySetting(Setting& setting);
 
 	// CommandController
 	void   registerCompleter(CommandCompleter& completer,
-	                         string_ref str) override;
+	                         string_view str) override;
 	void unregisterCompleter(CommandCompleter& completer,
-	                         string_ref str) override;
+	                         string_view str) override;
 	void   registerCommand(Command& command,
 	                       const std::string& str) override;
 	void unregisterCommand(Command& command,
-	                       string_ref str) override;
-	bool hasCommand(string_ref command) const override;
+	                       string_view str) override;
+	bool hasCommand(string_view command) const override;
 	TclObject executeCommand(const std::string& command,
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
@@ -77,7 +77,7 @@ public:
 	/**
 	 * Complete the given command.
 	 */
-	std::string tabCompletion(string_ref command);
+	std::string tabCompletion(string_view command);
 
 	/**
 	 * Returns true iff the command is complete (all braces, quotes etc. are
@@ -90,7 +90,7 @@ public:
 	CliConnection* getConnection() const { return connection; }
 
 private:
-	void split(string_ref str,
+	void split(string_view str,
 	           std::vector<std::string>& tokens, char delimiter);
 	std::string join(const std::vector<std::string>& tokens, char delimiter);
 	std::string removeEscaping(const std::string& str);
@@ -102,7 +102,7 @@ private:
 
 	using ProxySettings =
 		std::vector<std::pair<std::unique_ptr<ProxySetting>, unsigned>>;
-	ProxySettings::iterator findProxySetting(string_ref name);
+	ProxySettings::iterator findProxySetting(string_view name);
 
 	GlobalCliComm& cliComm;
 	CliConnection* connection;

@@ -1,7 +1,7 @@
 #ifndef KEYS_HH
 #define KEYS_HH
 
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <SDL_stdinc.h>
 #include <SDL_keysym.h> // TODO
 #include <string>
@@ -301,7 +301,7 @@ enum KeyCode {
  * Translate key name to key code.
  * Returns K_NONE when the name is unknown.
  */
-KeyCode getCode(string_ref name);
+KeyCode getCode(string_view name);
 
 KeyCode getCode(SDLKey key, SDLMod mod = KMOD_NONE, Uint8 scancode = 0, bool release = false);
 

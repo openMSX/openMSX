@@ -16,7 +16,7 @@ public:
 
 	// Connector
 	const std::string getDescription() const final override;
-	string_ref getClass() const final override;
+	string_view getClass() const final override;
 
 	// input (SerialDataInterface)
 	void setDataBits(DataBits bits) override = 0;

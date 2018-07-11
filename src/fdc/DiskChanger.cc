@@ -156,7 +156,7 @@ void DiskChanger::stopReplay(EmuTime::param /*time*/)
 	// nothing
 }
 
-int DiskChanger::insertDisk(string_ref filename)
+int DiskChanger::insertDisk(string_view filename)
 {
 	TclObject args[] = { TclObject("dummy"), TclObject(filename) };
 	try {
@@ -256,7 +256,7 @@ void DiskCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 		try {
 			vector<string> args = { diskChanger.getDriveName() };
 			for (unsigned i = firstFileToken; i < tokens.size(); ++i) {
-				string_ref option = tokens[i].getString();
+				string_view option = tokens[i].getString();
 				if (option == "-ips") {
 					if (++i == tokens.size()) {
 						throw MSXException(

@@ -58,7 +58,7 @@ CartridgeSlotManager::~CartridgeSlotManager()
 	}
 }
 
-int CartridgeSlotManager::getSlotNum(string_ref slot)
+int CartridgeSlotManager::getSlotNum(string_view slot)
 {
 	if (slot.size() == 1) {
 		if (('0' <= slot[0]) && (slot[0] <= '3')) {
@@ -282,7 +282,7 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 // CartCmd
 CartridgeSlotManager::CartCmd::CartCmd(
 		CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard_,
-		string_ref commandName)
+		string_view commandName)
 	: RecordedCommand(motherBoard_.getCommandController(),
 	                  motherBoard_.getStateChangeDistributor(),
 	                  motherBoard_.getScheduler(),
@@ -293,7 +293,7 @@ CartridgeSlotManager::CartCmd::CartCmd(
 }
 
 const HardwareConfig* CartridgeSlotManager::CartCmd::getExtensionConfig(
-	string_ref cartname)
+	string_view cartname)
 {
 	if (cartname.size() != 5) {
 		throw SyntaxError();
@@ -305,14 +305,14 @@ const HardwareConfig* CartridgeSlotManager::CartCmd::getExtensionConfig(
 void CartridgeSlotManager::CartCmd::execute(
 	array_ref<TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
 {
-	string_ref cartname = tokens[0].getString();
+	string_view cartname = tokens[0].getString();
 
 	// strip namespace qualification
 	//  TODO investigate whether it's a good idea to strip namespace at a
 	//       higher level for all commands. How does that interact with
 	//       the event recording feature?
 	auto pos = cartname.rfind("::");
-	if (pos != string_ref::npos) {
+	if (pos != string_view::npos) {
 		cartname = cartname.substr(pos + 2);
 	}
 	if (tokens.size() == 1) {
@@ -357,7 +357,7 @@ void CartridgeSlotManager::CartCmd::execute(
 		array_ref<TclObject> options(std::begin(tokens) + extensionNameToken + 1,
 		                             std::end(tokens));
 		try {
-			string_ref romname = tokens[extensionNameToken].getString();
+			string_view romname = tokens[extensionNameToken].getString();
 			auto extension = HardwareConfig::createRomConfig(
 				manager.motherBoard, romname, slotname, options);
 			if (slotname != "any") {
@@ -448,7 +448,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 		if (slot.config) {
 			result.addListElement(slot.config->getName());
 		} else {
-			result.addListElement(string_ref{});
+			result.addListElement(string_view{});
 		}
 		break;
 	}

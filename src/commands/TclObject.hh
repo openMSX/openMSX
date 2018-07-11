@@ -1,7 +1,7 @@
 #ifndef TCLOBJECT_HH
 #define TCLOBJECT_HH
 
-#include "string_ref.hh"
+#include "string_view.hh"
 #include "openmsx.hh"
 #include "xxhash.hh"
 #include <tcl.h>
@@ -29,7 +29,7 @@ class TclObject
 			return !(*this == other);
 		}
 
-		string_ref operator*() const {
+		string_view operator*() const {
 			return obj->getListIndexUnchecked(i).getString();
 		}
 
@@ -59,7 +59,7 @@ class TclObject
 public:
 	TclObject()                      { init(Tcl_NewObj()); }
 	explicit TclObject(Tcl_Obj* o)   { init(o); }
-	explicit TclObject(string_ref v) { init(Tcl_NewStringObj(v.data(), int(v.size()))); }
+	explicit TclObject(string_view v) { init(Tcl_NewStringObj(v.data(), int(v.size()))); }
 	explicit TclObject(int v)        { init(Tcl_NewIntObj(v)); }
 	explicit TclObject(double v)     { init(Tcl_NewDoubleObj(v)); }
 	TclObject(const TclObject&  o)   { init(o.obj); }
@@ -84,12 +84,12 @@ public:
 	Tcl_Obj* getTclObjectNonConst() const { return const_cast<Tcl_Obj*>(obj); }
 
 	// value setters
-	void setString(string_ref value);
+	void setString(string_view value);
 	void setInt(int value);
 	void setBoolean(bool value);
 	void setDouble(double value);
 	void setBinary(byte* buf, unsigned length);
-	void addListElement(string_ref element);
+	void addListElement(string_view element);
 	void addListElement(int value);
 	void addListElement(double value);
 	void addListElement(const TclObject& element);
@@ -97,7 +97,7 @@ public:
 	template <typename CONT> void addListElements(const CONT& container);
 
 	// value getters
-	string_ref getString() const;
+	string_view getString() const;
 	int getInt      (Interpreter& interp) const;
 	bool getBoolean (Interpreter& interp) const;
 	double getDouble(Interpreter& interp) const;
@@ -128,16 +128,16 @@ public:
 	friend bool operator==(const TclObject& x, const TclObject& y) {
 		return x.getString() == y.getString();
 	}
-	friend bool operator==(const TclObject& x, string_ref y) {
+	friend bool operator==(const TclObject& x, string_view y) {
 		return x.getString() == y;
 	}
-	friend bool operator==(string_ref x, const TclObject& y) {
+	friend bool operator==(string_view x, const TclObject& y) {
 		return x == y.getString();
 	}
 
 	friend bool operator!=(const TclObject& x, const TclObject& y) { return !(x == y); }
-	friend bool operator!=(const TclObject& x, string_ref       y) { return !(x == y); }
-	friend bool operator!=(string_ref       x, const TclObject& y) { return !(x == y); }
+	friend bool operator!=(const TclObject& x, string_view       y) { return !(x == y); }
+	friend bool operator!=(string_view       x, const TclObject& y) { return !(x == y); }
 
 private:
 	void init(Tcl_Obj* obj_) noexcept {
@@ -171,7 +171,7 @@ static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*), "");
 
 
 struct XXTclHasher {
-	uint32_t operator()(string_ref str) const {
+	uint32_t operator()(string_view str) const {
 		return xxhash(str);
 	}
 	uint32_t operator()(const TclObject& obj) const {

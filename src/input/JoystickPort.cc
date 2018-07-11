@@ -23,7 +23,7 @@ const string JoystickPort::getDescription() const
 	return description;
 }
 
-string_ref JoystickPort::getClass() const
+string_view JoystickPort::getClass() const
 {
 	return "Joystick Port";
 }

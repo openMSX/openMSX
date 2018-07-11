@@ -246,7 +246,7 @@ static int parseTypes(Interpreter& interp, const TclObject& list)
 	int result = 0;
 	unsigned num = list.getListLength(interp);
 	for (unsigned i = 0; i < num; ++i) {
-		string_ref elem = list.getListIndex(interp, i).getString();
+		string_view elem = list.getListIndex(interp, i).getString();
 		if (elem == "system_rom") {
 			result |= FilePool::SYSTEM_ROM;
 		} else if (elem == "rom") {
@@ -286,7 +286,7 @@ FilePool::Directories FilePool::getDirectories() const
 				"of elements, but got ", line.getString());
 		}
 		for (unsigned j = 0; j < numItems; j += 2) {
-			string_ref name  = line.getListIndex(interp, j + 0).getString();
+			string_view name  = line.getListIndex(interp, j + 0).getString();
 			TclObject value = line.getListIndex(interp, j + 1);
 			if (name == "-path") {
 				entry.path = value.getString().str();
@@ -478,7 +478,7 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
                         "Searching for file with sha1sum ",
 			sha1sum.toString(), "...\nIndexing filepool ", poolPath,
 			": [", progress.amountScanned, "]: ",
-			string_ref(filename).substr(poolPath.size()));
+			string_view(filename).substr(poolPath.size()));
 	}
 
 	// deliverEvents() is relatively cheap when there are no events to

@@ -1,7 +1,7 @@
 #ifndef MSXEXCEPTION_HH
 #define MSXEXCEPTION_HH
 
-#include "string_ref.hh"
+#include "string_view.hh"
 #include "strCat.hh"
 
 namespace openmsx {

@@ -3,7 +3,7 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include "openmsx.hh"
 #include <string>
 #include <memory>
@@ -91,7 +91,7 @@ public:
 	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
 
-	static std::vector<std::string> getHwConfigs(string_ref type);
+	static std::vector<std::string> getHwConfigs(string_view type);
 
 	void block();
 	void unblock();
@@ -114,8 +114,8 @@ private:
 	void createMachineSetting();
 	void switchBoard(MSXMotherBoard* newBoard);
 	void deleteBoard(MSXMotherBoard* board);
-	MSXMotherBoard& getMachine(string_ref machineID) const;
-	std::vector<string_ref> getMachineIDs() const;
+	MSXMotherBoard& getMachine(string_view machineID) const;
+	std::vector<string_view> getMachineIDs() const;
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;

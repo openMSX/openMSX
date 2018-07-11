@@ -25,7 +25,7 @@ OSDRectangle::OSDRectangle(Display& display_, const TclObject& name_)
 {
 }
 
-vector<string_ref> OSDRectangle::getProperties() const
+vector<string_view> OSDRectangle::getProperties() const
 {
 	auto result = OSDImageBasedWidget::getProperties();
 	static const char* const vals[] = {
@@ -37,7 +37,7 @@ vector<string_ref> OSDRectangle::getProperties() const
 }
 
 void OSDRectangle::setProperty(
-	Interpreter& interp, string_ref propName, const TclObject& value)
+	Interpreter& interp, string_view propName, const TclObject& value)
 {
 	if (propName == "-w") {
 		float w = value.getDouble(interp);
@@ -101,7 +101,7 @@ void OSDRectangle::setProperty(
 	}
 }
 
-void OSDRectangle::getProperty(string_ref propName, TclObject& result) const
+void OSDRectangle::getProperty(string_view propName, TclObject& result) const
 {
 	if (propName == "-w") {
 		result.setDouble(size[0]);
@@ -126,7 +126,7 @@ void OSDRectangle::getProperty(string_ref propName, TclObject& result) const
 	}
 }
 
-string_ref OSDRectangle::getType() const
+string_view OSDRectangle::getType() const
 {
 	return "rectangle";
 }

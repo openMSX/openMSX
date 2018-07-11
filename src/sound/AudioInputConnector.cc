@@ -19,7 +19,7 @@ const std::string AudioInputConnector::getDescription() const
 	return "Audio input connector";
 }
 
-string_ref AudioInputConnector::getClass() const
+string_view AudioInputConnector::getClass() const
 {
 	return "Audio Input Port";
 }

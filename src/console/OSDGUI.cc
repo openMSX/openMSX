@@ -45,7 +45,7 @@ void OSDGUI::OSDCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 		throw SyntaxError();
 	}
 	auto& gui = OUTER(OSDGUI, osdCommand);
-	string_ref subCommand = tokens[1].getString();
+	string_view subCommand = tokens[1].getString();
 	if (subCommand == "create") {
 		create(tokens, result);
 		gui.refresh();
@@ -71,7 +71,7 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() < 4) {
 		throw SyntaxError();
 	}
-	string_ref type = tokens[2].getString();
+	string_view type = tokens[2].getString();
 	auto& fullname = tokens[3];
 	auto fullnameStr = fullname.getString();
 
@@ -83,7 +83,7 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 			fullnameStr);
 	}
 
-	string_ref parentname, childName;
+	string_view parentname, childName;
 	StringOp::splitOnLast(fullnameStr, '.', parentname, childName);
 	auto* parent = childName.empty() ? &top : top.findByName(parentname);
 	if (!parent) {
@@ -100,7 +100,7 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 }
 
 unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
-	string_ref type, const TclObject& newName) const
+	string_view type, const TclObject& newName) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (type == "rectangle") {
@@ -280,7 +280,7 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, gui.getTopWidget().getAllWidgetNames());
 	} else {
 		try {
-			vector<string_ref> properties;
+			vector<string_view> properties;
 			if (tokens[1] == "create") {
 				auto widget = create(tokens[2], TclObject());
 				properties = widget->getProperties();
@@ -296,7 +296,7 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-OSDWidget& OSDGUI::OSDCommand::getWidget(string_ref widgetName) const
+OSDWidget& OSDGUI::OSDCommand::getWidget(string_view widgetName) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findByName(widgetName);

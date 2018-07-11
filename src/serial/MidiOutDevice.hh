@@ -21,7 +21,7 @@ public:
 	static constexpr size_t MAX_MESSAGE_SIZE = 256;
 
 	// Pluggable (part)
-	string_ref getClass() const final override;
+	string_view getClass() const final override;
 
 	// SerialDataInterface (part)
 	void recvByte(byte value, EmuTime::param time) override;

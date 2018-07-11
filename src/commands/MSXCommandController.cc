@@ -59,7 +59,7 @@ MSXCommandController::~MSXCommandController()
 	globalCommandController.getInterpreter().deleteNamespace(machineID);
 }
 
-string MSXCommandController::getFullName(string_ref name)
+string MSXCommandController::getFullName(string_view name)
 {
 	return strCat(machineID, name);
 }
@@ -77,7 +77,7 @@ void MSXCommandController::registerCommand(Command& command, const string& str)
 	command.setAllowedInEmptyMachine(false);
 }
 
-void MSXCommandController::unregisterCommand(Command& command, string_ref str)
+void MSXCommandController::unregisterCommand(Command& command, string_view str)
 {
 	assert(hasCommand(str));
 	assert(command.getName() == str);
@@ -89,14 +89,14 @@ void MSXCommandController::unregisterCommand(Command& command, string_ref str)
 }
 
 void MSXCommandController::registerCompleter(CommandCompleter& completer,
-                                             string_ref str)
+                                             string_view str)
 {
 	string fullname = getFullName(str);
 	globalCommandController.registerCompleter(completer, fullname);
 }
 
 void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
-                                               string_ref str)
+                                               string_view str)
 {
 	string fullname = getFullName(str);
 	globalCommandController.unregisterCompleter(completer, fullname);
@@ -122,13 +122,13 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	globalCommandController.getSettingsManager().unregisterSetting(setting);
 }
 
-Command* MSXCommandController::findCommand(string_ref name) const
+Command* MSXCommandController::findCommand(string_view name) const
 {
 	auto it = commandMap.find(name);
 	return (it != end(commandMap)) ? *it : nullptr;
 }
 
-bool MSXCommandController::hasCommand(string_ref command) const
+bool MSXCommandController::hasCommand(string_view command) const
 {
 	return findCommand(command) != nullptr;
 }

@@ -34,7 +34,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
 }
 
 unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
-	MSXMotherBoard& motherBoard, string_ref extensionName, string_ref slotname)
+	MSXMotherBoard& motherBoard, string_view extensionName, string_view slotname)
 {
 	auto result = make_unique<HardwareConfig>(motherBoard, extensionName.str());
 	result->load("extensions");
@@ -44,27 +44,27 @@ unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
 }
 
 unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
-	MSXMotherBoard& motherBoard, string_ref romfile,
-	string_ref slotname, array_ref<TclObject> options)
+	MSXMotherBoard& motherBoard, string_view romfile,
+	string_view slotname, array_ref<TclObject> options)
 {
 	auto result = make_unique<HardwareConfig>(motherBoard, "rom");
 	const auto& sramfile = FileOperations::getFilename(romfile);
 	auto context = userFileContext(strCat("roms/", sramfile));
 
-	vector<string_ref> ipsfiles;
-	string_ref mapper;
+	vector<string_view> ipsfiles;
+	string_view mapper;
 
 	bool romTypeOptionFound = false;
 
 	// parse options
 	for (auto it = std::begin(options); it != std::end(options); ++it) {
-		string_ref option = it->getString();
+		string_view option = it->getString();
 		++it;
 		if (it == std::end(options)) {
 			throw MSXException("Missing argument for option \"",
 			                   option, '\"');
 		}
-		string_ref arg = it->getString();
+		string_view arg = it->getString();
 		if (option == "-ips") {
 			if (!FileOperations::isRegularFile(context.resolve(arg))) {
 				throw MSXException("Invalid IPS file: ", arg);
@@ -197,7 +197,7 @@ const XMLElement& HardwareConfig::getDevices() const
 	return getConfig().getChild("devices");
 }
 
-XMLElement HardwareConfig::loadConfig(string_ref type, string_ref name)
+XMLElement HardwareConfig::loadConfig(string_view type, string_view name)
 {
 	return loadConfig(getFilename(type, name));
 }
@@ -214,7 +214,7 @@ XMLElement HardwareConfig::loadConfig(const string& filename)
 	}
 }
 
-string HardwareConfig::getFilename(string_ref type, string_ref name)
+string HardwareConfig::getFilename(string_view type, string_view name)
 {
 	auto context = systemFileContext();
 	try {
@@ -233,7 +233,7 @@ string HardwareConfig::getFilename(string_ref type, string_ref name)
 	}
 }
 
-void HardwareConfig::load(string_ref type)
+void HardwareConfig::load(string_view type)
 {
 	string filename = getFilename(type, hwName);
 	setConfig(loadConfig(filename));
@@ -399,7 +399,7 @@ void HardwareConfig::addDevice(std::unique_ptr<MSXDevice> device)
 	devices.push_back(move(device));
 }
 
-void HardwareConfig::setName(string_ref proposedName)
+void HardwareConfig::setName(string_view proposedName)
 {
 	if (!motherBoard.findExtension(proposedName)) {
 		name = proposedName.str();
@@ -411,7 +411,7 @@ void HardwareConfig::setName(string_ref proposedName)
 	}
 }
 
-void HardwareConfig::setSlot(string_ref slotname)
+void HardwareConfig::setSlot(string_view slotname)
 {
 	for (auto& psElem : getDevices().getChildren("primary")) {
 		const auto& primSlot = psElem->getAttribute("slot");

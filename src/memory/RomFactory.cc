@@ -165,7 +165,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	RomType type;
 	// if no type is mentioned, we assume 'mirrored' which works for most
 	// plain ROMs...
-	string_ref typestr = config.getChildData("mappertype", "Mirrored");
+	string_view typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
 		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getOriginalSHA1());

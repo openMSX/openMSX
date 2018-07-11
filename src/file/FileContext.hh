@@ -1,7 +1,7 @@
 #ifndef FILECONTEXT_HH
 #define FILECONTEXT_HH
 
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <vector>
 
 namespace openmsx {
@@ -13,8 +13,8 @@ public:
 	FileContext(std::vector<std::string>&& paths,
 	            std::vector<std::string>&& savePaths);
 
-	const std::string resolve      (string_ref filename) const;
-	const std::string resolveCreate(string_ref filename) const;
+	const std::string resolve      (string_view filename) const;
+	const std::string resolveCreate(string_view filename) const;
 
 	std::vector<std::string> getPaths() const;
 	bool isUserContext() const;
@@ -27,11 +27,11 @@ private:
 	std::vector<std::string> savePaths;
 };
 
-FileContext configFileContext(string_ref path, string_ref hwDescr, string_ref userName);
+FileContext configFileContext(string_view path, string_view hwDescr, string_view userName);
 FileContext systemFileContext();
 FileContext preferSystemFileContext();
-FileContext userFileContext(string_ref savePath = {});
-FileContext userDataFileContext(string_ref subdir);
+FileContext userFileContext(string_view savePath = {});
+FileContext userDataFileContext(string_view subdir);
 FileContext currentDirFileContext();
 
 } // namespace openmsx

@@ -476,7 +476,7 @@ void SCSILS120::eject()
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, {});
 }
 
-void SCSILS120::insert(string_ref filename)
+void SCSILS120::insert(string_view filename)
 {
 	file = File(filename);
 	mediaChanged = true;
@@ -738,7 +738,7 @@ bool SCSILS120::diskChanged()
 	return mediaChanged; // TODO not reset on read
 }
 
-int SCSILS120::insertDisk(string_ref filename)
+int SCSILS120::insertDisk(string_view filename)
 {
 	try {
 		insert(filename);

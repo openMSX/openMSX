@@ -6,15 +6,15 @@ namespace openmsx {
 
 FilenameSetting::FilenameSetting(
 		CommandController& commandController_,
-		string_ref name_, string_ref description_,
-		string_ref initialValue)
+		string_view name_, string_view description_,
+		string_view initialValue)
 	: Setting(commandController_, name_, description_,
 	          TclObject(initialValue), Setting::SAVE)
 {
 	init();
 }
 
-string_ref FilenameSetting::getTypeString() const
+string_view FilenameSetting::getTypeString() const
 {
 	return "filename";
 }

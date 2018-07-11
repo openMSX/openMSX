@@ -87,7 +87,7 @@ void CommandLineParser::registerOption(
 }
 
 void CommandLineParser::registerFileType(
-	string_ref extensions, CLIFileType& cliFileType)
+	string_view extensions, CLIFileType& cliFileType)
 {
 	for (auto& ext: StringOp::split(extensions, ',')) {
 		fileTypes.emplace_back(ext, &cliFileType);
@@ -134,7 +134,7 @@ bool CommandLineParser::parseFileName(const string& arg, array_ref<string>& cmdL
 
 bool CommandLineParser::parseFileNameInner(const string& name, const string& originalPath, array_ref<string>& cmdLine)
 {
-	string_ref extension = FileOperations::getExtension(name).substr(1);
+	string_view extension = FileOperations::getExtension(name).substr(1);
 	if (extension.empty()) {
 		return false; // no extension
 	}
@@ -314,7 +314,7 @@ void CommandLineParser::ControlOption::parseOption(
 	const string& option, array_ref<string>& cmdLine)
 {
 	const auto& fullType = getArgument(option, cmdLine);
-	string_ref type, arguments;
+	string_view type, arguments;
 	StringOp::splitOnFirst(fullType, ':', type, arguments);
 
 	auto& parser = OUTER(CommandLineParser, controlOption);
@@ -338,7 +338,7 @@ void CommandLineParser::ControlOption::parseOption(
 	parser.parseStatus = CommandLineParser::CONTROL;
 }
 
-string_ref CommandLineParser::ControlOption::optionHelp() const
+string_view CommandLineParser::ControlOption::optionHelp() const
 {
 	return "Enable external control of openMSX process";
 }
@@ -352,7 +352,7 @@ void CommandLineParser::ScriptOption::parseOption(
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_ref CommandLineParser::ScriptOption::optionHelp() const
+string_view CommandLineParser::ScriptOption::optionHelp() const
 {
 	return "Run extra startup script";
 }
@@ -363,7 +363,7 @@ void CommandLineParser::ScriptOption::parseFileType(
 	scripts.push_back(filename);
 }
 
-string_ref CommandLineParser::ScriptOption::fileTypeHelp() const
+string_view CommandLineParser::ScriptOption::fileTypeHelp() const
 {
 	return "Extra Tcl script to run at startup";
 }
@@ -371,7 +371,7 @@ string_ref CommandLineParser::ScriptOption::fileTypeHelp() const
 
 // Help option
 
-static string formatSet(const vector<string_ref>& inputSet, string::size_type columns)
+static string formatSet(const vector<string_view>& inputSet, string::size_type columns)
 {
 	string outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now
@@ -397,16 +397,16 @@ static string formatSet(const vector<string_ref>& inputSet, string::size_type co
 	return outString;
 }
 
-static string formatHelptext(string_ref helpText,
+static string formatHelptext(string_view helpText,
 	                     unsigned maxLength, unsigned indent)
 {
 	string outText;
-	string_ref::size_type index = 0;
+	string_view::size_type index = 0;
 	while (helpText.substr(index).size() > maxLength) {
 		auto pos = helpText.substr(index, maxLength).rfind(' ');
-		if (pos == string_ref::npos) {
+		if (pos == string_view::npos) {
 			pos = helpText.substr(maxLength).find(' ');
-			if (pos == string_ref::npos) {
+			if (pos == string_view::npos) {
 				pos = helpText.substr(index).size();
 			}
 		}
@@ -419,7 +419,7 @@ static string formatHelptext(string_ref helpText,
 }
 
 // items grouped per common help-text
-using GroupedItems = hash_map<string_ref, vector<string_ref>, XXHasher>;
+using GroupedItems = hash_map<string_view, vector<string_view>, XXHasher>;
 static void printItemMap(const GroupedItems& itemMap)
 {
 	vector<string> printSet;
@@ -470,7 +470,7 @@ void CommandLineParser::HelpOption::parseOption(
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_ref CommandLineParser::HelpOption::optionHelp() const
+string_view CommandLineParser::HelpOption::optionHelp() const
 {
 	return "Shows this text";
 }
@@ -488,7 +488,7 @@ void CommandLineParser::VersionOption::parseOption(
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_ref CommandLineParser::VersionOption::optionHelp() const
+string_view CommandLineParser::VersionOption::optionHelp() const
 {
 	return "Prints openMSX version and exits";
 }
@@ -511,7 +511,7 @@ void CommandLineParser::MachineOption::parseOption(
 	parser.haveConfig = true;
 }
 
-string_ref CommandLineParser::MachineOption::optionHelp() const
+string_view CommandLineParser::MachineOption::optionHelp() const
 {
 	return "Use machine specified in argument";
 }
@@ -538,7 +538,7 @@ void CommandLineParser::SettingOption::parseOption(
 	}
 }
 
-string_ref CommandLineParser::SettingOption::optionHelp() const
+string_view CommandLineParser::SettingOption::optionHelp() const
 {
 	return "Load an alternative settings file";
 }
@@ -555,7 +555,7 @@ void CommandLineParser::NoPBOOption::parseOption(
 	#endif
 }
 
-string_ref CommandLineParser::NoPBOOption::optionHelp() const
+string_view CommandLineParser::NoPBOOption::optionHelp() const
 {
 	return "Disables usage of openGL PBO (for debugging)";
 }
@@ -570,7 +570,7 @@ void CommandLineParser::TestConfigOption::parseOption(
 	parser.parseStatus = CommandLineParser::TEST;
 }
 
-string_ref CommandLineParser::TestConfigOption::optionHelp() const
+string_view CommandLineParser::TestConfigOption::optionHelp() const
 {
 	return "Test if the specified config works and exit";
 }
@@ -581,7 +581,7 @@ void CommandLineParser::BashOption::parseOption(
 	const string& /*option*/, array_ref<string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, bashOption);
-	string_ref last = cmdLine.empty() ? string_ref{} : cmdLine.front();
+	string_view last = cmdLine.empty() ? string_view{} : cmdLine.front();
 	cmdLine.clear(); // eat all remaining parameters
 
 	if (last == "-machine") {
@@ -604,7 +604,7 @@ void CommandLineParser::BashOption::parseOption(
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_ref CommandLineParser::BashOption::optionHelp() const
+string_view CommandLineParser::BashOption::optionHelp() const
 {
 	return {}; // don't include this option in --help
 }

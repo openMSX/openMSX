@@ -13,22 +13,22 @@ class XMLElementParser : public rapidsax::NullHandler
 {
 public:
 	// rapidsax handler interface
-	void start(string_ref name);
-	void attribute(string_ref name, string_ref value);
-	void text(string_ref text);
+	void start(string_view name);
+	void attribute(string_view name, string_view value);
+	void text(string_view text);
 	void stop();
-	void doctype(string_ref text);
+	void doctype(string_view text);
 
-	string_ref getSystemID() const { return systemID; }
+	string_view getSystemID() const { return systemID; }
 	XMLElement& getRoot() { return root; }
 
 private:
 	XMLElement root;
 	std::vector<XMLElement*> current;
-	string_ref systemID;
+	string_view systemID;
 };
 
-XMLElement load(string_ref filename, string_ref systemID)
+XMLElement load(string_view filename, string_view systemID)
 {
 	MemBuffer<char> buf;
 	try {
@@ -64,7 +64,7 @@ XMLElement load(string_ref filename, string_ref systemID)
 	return std::move(root);
 }
 
-void XMLElementParser::start(string_ref name)
+void XMLElementParser::start(string_view name)
 {
 	XMLElement* newElem;
 	if (!current.empty()) {
@@ -76,7 +76,7 @@ void XMLElementParser::start(string_ref name)
 	current.push_back(newElem);
 }
 
-void XMLElementParser::attribute(string_ref name, string_ref value)
+void XMLElementParser::attribute(string_view name, string_view value)
 {
 	if (current.back()->hasAttribute(name)) {
 		throw XMLException(
@@ -86,7 +86,7 @@ void XMLElementParser::attribute(string_ref name, string_ref value)
 	current.back()->addAttribute(name, value);
 }
 
-void XMLElementParser::text(string_ref txt)
+void XMLElementParser::text(string_view txt)
 {
 	if (current.back()->hasChildren()) {
 		// no mixed-content elements
@@ -102,16 +102,16 @@ void XMLElementParser::stop()
 	current.pop_back();
 }
 
-void XMLElementParser::doctype(string_ref txt)
+void XMLElementParser::doctype(string_view txt)
 {
 	auto pos1 = txt.find(" SYSTEM ");
-	if (pos1 == string_ref::npos) return;
+	if (pos1 == string_view::npos) return;
 	if ((pos1 + 8) >= txt.size()) return;
 	char q = txt[pos1 + 8];
 	if ((q != '"') && (q != '\'')) return;
 	auto t = txt.substr(pos1 + 9);
 	auto pos2 = t.find(q);
-	if (pos2 == string_ref::npos) return;
+	if (pos2 == string_view::npos) return;
 
 	systemID = t.substr(0, pos2);
 }

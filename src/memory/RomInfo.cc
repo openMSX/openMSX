@@ -30,7 +30,7 @@ static bool isInit = false;
 
 // This maps a name to a RomType. There can be multiple names (aliases) for the
 // same type.
-using RomTypeMap = hash_map<string_ref, RomType, XXHasher_IgnoreCase, StringOp::casecmp>;
+using RomTypeMap = hash_map<string_view, RomType, XXHasher_IgnoreCase, StringOp::casecmp>;
 static RomTypeMap romTypeMap(256); // initial hashtable size
                                    // (big enough so that no rehash is needed)
 
@@ -38,19 +38,19 @@ static RomTypeMap romTypeMap(256); // initial hashtable size
 // contains the primary (non-alias) romtypes.
 using RomTypeInfo = std::tuple<
 	RomType,    // rom type
-	string_ref, // description
+	string_view, // description
 	unsigned>;  // blockSize
 using RomTypeInfoMap = vector<RomTypeInfo>;
 using RomTypeInfoMapLess = LessTupleElement<0>;
 static RomTypeInfoMap romTypeInfoMap;
 
-static void init(RomType type, string_ref name,
-                 unsigned blockSize, string_ref description)
+static void init(RomType type, string_view name,
+                 unsigned blockSize, string_view description)
 {
 	romTypeMap.emplace_noCapacityCheck_noDuplicateCheck(name, type);
 	romTypeInfoMap.emplace_back(type, description, blockSize);
 }
-static void initAlias(RomType type, string_ref name)
+static void initAlias(RomType type, string_view name)
 {
 	romTypeMap.emplace_noCapacityCheck_noDuplicateCheck(name, makeAlias(type));
 }
@@ -181,14 +181,14 @@ static const RomTypeInfoMap& getRomTypeInfoMap()
 	return romTypeInfoMap;
 }
 
-RomType RomInfo::nameToRomType(string_ref name)
+RomType RomInfo::nameToRomType(string_view name)
 {
 	auto& m = getRomTypeMap();
 	auto it = m.find(name);
 	return (it != end(m)) ? removeAlias(it->second) : ROM_UNKNOWN;
 }
 
-string_ref RomInfo::romTypeToName(RomType type)
+string_view RomInfo::romTypeToName(RomType type)
 {
 	assert(!isAlias(type));
 	for (auto& p : getRomTypeMap()) {
@@ -199,9 +199,9 @@ string_ref RomInfo::romTypeToName(RomType type)
 	UNREACHABLE; return {};
 }
 
-vector<string_ref> RomInfo::getAllRomTypes()
+vector<string_view> RomInfo::getAllRomTypes()
 {
-	vector<string_ref> result;
+	vector<string_view> result;
 	for (auto& p : getRomTypeMap()) {
 		if (!isAlias(p.second)) {
 			result.push_back(p.first);
@@ -210,7 +210,7 @@ vector<string_ref> RomInfo::getAllRomTypes()
 	return result;
 }
 
-string_ref RomInfo::getDescription(RomType type)
+string_view RomInfo::getDescription(RomType type)
 {
 	auto& m = getRomTypeInfoMap();
 	auto it = lower_bound(begin(m), end(m), type, RomTypeInfoMapLess());

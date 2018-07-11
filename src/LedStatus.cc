@@ -61,9 +61,9 @@ void LedStatus::setLed(Led led, bool status)
 
 void LedStatus::handleEvent(Led led)
 {
-	static const string_ref ON  = "on";
-	static const string_ref OFF = "off";
-	const string_ref& str = ledValue[led] ? ON : OFF;
+	static const string_view ON  = "on";
+	static const string_view OFF = "off";
+	const string_view& str = ledValue[led] ? ON : OFF;
 
 	ledStatus[led]->setReadOnlyValue(TclObject(str));
 	msxCliComm.update(CliComm::LED, getLedName(led), str);

@@ -98,8 +98,8 @@ void PluggingController::PlugCmd::execute(
 		break;
 	}
 	case 3: {
-		string_ref connName = tokens[1].getString();
-		string_ref plugName = tokens[2].getString();
+		string_view connName = tokens[1].getString();
+		string_view plugName = tokens[2].getString();
 		auto& connector = pluggingController.getConnector(connName);
 		auto& pluggable = pluggingController.getPluggable(plugName);
 		if (&connector.getPlugged() == &pluggable) {
@@ -137,16 +137,16 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 	auto& pluggingController = OUTER(PluggingController, plugCmd);
 	if (tokens.size() == 2) {
 		// complete connector
-		vector<string_ref> connectorNames;
+		vector<string_view> connectorNames;
 		for (auto& c : pluggingController.connectors) {
 			connectorNames.emplace_back(c->getName());
 		}
 		completeString(tokens, connectorNames);
 	} else if (tokens.size() == 3) {
 		// complete pluggable
-		vector<string_ref> pluggableNames;
+		vector<string_view> pluggableNames;
 		auto* connector = pluggingController.findConnector(tokens[1]);
-		string_ref className = connector ? connector->getClass() : string_ref{};
+		string_view className = connector ? connector->getClass() : string_view{};
 		for (auto& p : pluggingController.pluggables) {
 			if (p->getClass() == className) {
 				pluggableNames.emplace_back(p->getName());
@@ -180,7 +180,7 @@ void PluggingController::UnplugCmd::execute(
 		throw SyntaxError();
 	}
 	auto& pluggingController = OUTER(PluggingController, unplugCmd);
-	string_ref connName = tokens[1].getString();
+	string_view connName = tokens[1].getString();
 	auto& connector = pluggingController.getConnector(connName);
 	connector.unplug(time);
 	pluggingController.getCliComm().update(CliComm::PLUG, connName, {});
@@ -196,7 +196,7 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete connector
-		vector<string_ref> connectorNames;
+		vector<string_view> connectorNames;
 		auto& pluggingController = OUTER(PluggingController, unplugCmd);
 		for (auto& c : pluggingController.connectors) {
 			connectorNames.emplace_back(c->getName());
@@ -205,7 +205,7 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-Connector* PluggingController::findConnector(string_ref name) const
+Connector* PluggingController::findConnector(string_view name) const
 {
 	for (auto& c : connectors) {
 		if (c->getName() == name) {
@@ -215,7 +215,7 @@ Connector* PluggingController::findConnector(string_ref name) const
 	return nullptr;
 }
 
-Connector& PluggingController::getConnector(string_ref name) const
+Connector& PluggingController::getConnector(string_view name) const
 {
 	if (auto* result = findConnector(name)) {
 		return *result;
@@ -223,7 +223,7 @@ Connector& PluggingController::getConnector(string_ref name) const
 	throw CommandException("No such connector: ", name);
 }
 
-Pluggable* PluggingController::findPluggable(string_ref name) const
+Pluggable* PluggingController::findPluggable(string_view name) const
 {
 	for (auto& p : pluggables) {
 		if (p->getName() == name) {
@@ -233,7 +233,7 @@ Pluggable* PluggingController::findPluggable(string_ref name) const
 	return nullptr;
 }
 
-Pluggable& PluggingController::getPluggable(string_ref name) const
+Pluggable& PluggingController::getPluggable(string_view name) const
 {
 	if (auto* result = findPluggable(name)) {
 		return *result;
@@ -290,7 +290,7 @@ string PluggingController::PluggableInfo::help(const vector<string>& /*tokens*/)
 void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string_ref> pluggableNames;
+		vector<string_view> pluggableNames;
 		auto& pluggingController = OUTER(PluggingController, pluggableInfo);
 		for (auto& p : pluggingController.pluggables) {
 			pluggableNames.emplace_back(p->getName());
@@ -335,7 +335,7 @@ string PluggingController::ConnectorInfo::help(const vector<string>& /*tokens*/)
 void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string_ref> connectorNames;
+		vector<string_view> connectorNames;
 		auto& pluggingController = OUTER(PluggingController, connectorInfo);
 		for (auto& c : pluggingController.connectors) {
 			connectorNames.emplace_back(c->getName());
@@ -358,7 +358,7 @@ void PluggingController::ConnectionClassInfo::execute(
 	auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
 	switch (tokens.size()) {
 	case 2: {
-		std::set<string_ref> classes; // filter duplicates
+		std::set<string_view> classes; // filter duplicates
 		for (auto& c : pluggingController.connectors) {
 			classes.insert(c->getClass());
 		}
@@ -394,7 +394,7 @@ string PluggingController::ConnectionClassInfo::help(const vector<string>& /*tok
 void PluggingController::ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string_ref> names;
+		vector<string_view> names;
 		auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
 		for (auto& c : pluggingController.connectors) {
 			names.emplace_back(c->getName());

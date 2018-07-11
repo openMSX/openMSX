@@ -40,7 +40,7 @@ uint64_t stringToUint64(const string& str)
        return strtoull(str.c_str(), nullptr, 0);
 }
 
-bool stringToBool(string_ref str)
+bool stringToBool(string_view str)
 {
 	if (str == "1") return true;
 	if ((str.size() == 4) && (strncasecmp(str.data(), "true", 4) == 0))
@@ -61,27 +61,27 @@ bool stringToDouble(const string& str, double& result)
 	return *endptr == '\0';
 }
 
-string toLower(string_ref str)
+string toLower(string_view str)
 {
 	string result = str.str();
 	transform(begin(result), end(result), begin(result), ::tolower);
 	return result;
 }
 
-bool startsWith(string_ref total, string_ref part)
+bool startsWith(string_view total, string_view part)
 {
 	return total.starts_with(part);
 }
-bool startsWith(string_ref total, char part)
+bool startsWith(string_view total, char part)
 {
 	return !total.empty() && (total.front() == part);
 }
 
-bool endsWith(string_ref total, string_ref part)
+bool endsWith(string_view total, string_view part)
 {
 	return total.ends_with(part);
 }
-bool endsWith(string_ref total, char part)
+bool endsWith(string_view total, char part)
 {
 	return !total.empty() && (total.back() == part);
 }
@@ -104,13 +104,13 @@ void trimRight(string& str, char chars)
 		str.clear();
 	}
 }
-void trimRight(string_ref& str, string_ref chars)
+void trimRight(string_view& str, string_view chars)
 {
-	while (!str.empty() && (chars.find(str.back()) != string_ref::npos)) {
+	while (!str.empty() && (chars.find(str.back()) != string_view::npos)) {
 		str.pop_back();
 	}
 }
-void trimRight(string_ref& str, char chars)
+void trimRight(string_view& str, char chars)
 {
 	while (!str.empty() && (str.back() == chars)) {
 		str.pop_back();
@@ -125,35 +125,35 @@ void trimLeft(string& str, char chars)
 {
 	str.erase(0, str.find_first_not_of(chars));
 }
-void trimLeft(string_ref& str, string_ref chars)
+void trimLeft(string_view& str, string_view chars)
 {
-	while (!str.empty() && (chars.find(str.front()) != string_ref::npos)) {
+	while (!str.empty() && (chars.find(str.front()) != string_view::npos)) {
 		str.pop_front();
 	}
 }
-void trimLeft(string_ref& str, char chars)
+void trimLeft(string_view& str, char chars)
 {
 	while (!str.empty() && (str.front() == chars)) {
 		str.pop_front();
 	}
 }
 
-void trim(string_ref& str, string_ref chars)
+void trim(string_view& str, string_view chars)
 {
 	trimRight(str, chars);
 	trimLeft (str, chars);
 }
 
-void trim(string_ref& str, char chars)
+void trim(string_view& str, char chars)
 {
 	trimRight(str, chars);
 	trimLeft (str, chars);
 }
 
-void splitOnFirst(string_ref str, string_ref chars, string_ref& first, string_ref& last)
+void splitOnFirst(string_view str, string_view chars, string_view& first, string_view& last)
 {
 	auto pos = str.find_first_of(chars);
-	if (pos == string_ref::npos) {
+	if (pos == string_view::npos) {
 		first = str;
 		last.clear();
 	} else {
@@ -161,10 +161,10 @@ void splitOnFirst(string_ref str, string_ref chars, string_ref& first, string_re
 		last  = str.substr(pos + 1);
 	}
 }
-void splitOnFirst(string_ref str, char chars, string_ref& first, string_ref& last)
+void splitOnFirst(string_view str, char chars, string_view& first, string_view& last)
 {
 	auto pos = str.find_first_of(chars);
-	if (pos == string_ref::npos) {
+	if (pos == string_view::npos) {
 		first = str;
 		last.clear();
 	} else {
@@ -173,10 +173,10 @@ void splitOnFirst(string_ref str, char chars, string_ref& first, string_ref& las
 	}
 }
 
-void splitOnLast(string_ref str, string_ref chars, string_ref& first, string_ref& last)
+void splitOnLast(string_view str, string_view chars, string_view& first, string_view& last)
 {
 	auto pos = str.find_last_of(chars);
-	if (pos == string_ref::npos) {
+	if (pos == string_view::npos) {
 		first.clear();
 		last = str;
 	} else {
@@ -184,10 +184,10 @@ void splitOnLast(string_ref str, string_ref chars, string_ref& first, string_ref
 		last  = str.substr(pos + 1);
 	}
 }
-void splitOnLast(string_ref str, char chars, string_ref& first, string_ref& last)
+void splitOnLast(string_view str, char chars, string_view& first, string_view& last)
 {
 	auto pos = str.find_last_of(chars);
-	if (pos == string_ref::npos) {
+	if (pos == string_view::npos) {
 		first.clear();
 		last = str;
 	} else {
@@ -196,11 +196,11 @@ void splitOnLast(string_ref str, char chars, string_ref& first, string_ref& last
 	}
 }
 
-vector<string_ref> split(string_ref str, char chars)
+vector<string_view> split(string_view str, char chars)
 {
-	vector<string_ref> result;
+	vector<string_view> result;
 	while (!str.empty()) {
-		string_ref first, last;
+		string_view first, last;
 		splitOnFirst(str, chars, first, last);
 		result.push_back(first);
 		str = last;
@@ -208,7 +208,7 @@ vector<string_ref> split(string_ref str, char chars)
 	return result;
 }
 
-string join(const vector<string_ref>& elems, char separator)
+string join(const vector<string_view>& elems, char separator)
 {
 	if (elems.empty()) return {};
 
@@ -220,7 +220,7 @@ string join(const vector<string_ref>& elems, char separator)
 	return result;
 }
 
-static unsigned parseNumber(string_ref str)
+static unsigned parseNumber(string_view str)
 {
 	trim(str, " \t");
 	if (!str.empty()) {
@@ -241,7 +241,7 @@ static void insert(unsigned x, set<unsigned>& result, unsigned min, unsigned max
 	result.insert(x);
 }
 
-static void parseRange2(string_ref str, set<unsigned>& result,
+static void parseRange2(string_view str, set<unsigned>& result,
                         unsigned min, unsigned max)
 {
 	// trimRight only: here we only care about all spaces
@@ -249,7 +249,7 @@ static void parseRange2(string_ref str, set<unsigned>& result,
 	if (str.empty()) return;
 
 	auto pos = str.find('-');
-	if (pos == string_ref::npos) {
+	if (pos == string_view::npos) {
 		insert(parseNumber(str), result, min, max);
 	} else {
 		unsigned begin = parseNumber(str.substr(0, pos));
@@ -263,16 +263,16 @@ static void parseRange2(string_ref str, set<unsigned>& result,
 	}
 }
 
-set<unsigned> parseRange(string_ref str, unsigned min, unsigned max)
+set<unsigned> parseRange(string_view str, unsigned min, unsigned max)
 {
 	set<unsigned> result;
 	while (true) {
 		auto next = str.find(',');
-		string_ref sub = (next == string_ref::npos)
+		string_view sub = (next == string_view::npos)
 		               ? str
 		               : str.substr(0, next++);
 		parseRange2(sub, result, min, max);
-		if (next == string_ref::npos) break;
+		if (next == string_view::npos) break;
 		str = str.substr(next);
 	}
 	return result;

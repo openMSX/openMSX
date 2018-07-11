@@ -4,7 +4,7 @@
 #include "MSXMixer.hh"
 #include "EmuTime.hh"
 #include "FixedPoint.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <memory>
 
 namespace openmsx {
@@ -74,7 +74,7 @@ protected:
 	  * @param numChannels The number of channels for this device
 	  * @param stereo Is this a stereo device
 	  */
-	SoundDevice(MSXMixer& mixer, string_ref name, string_ref description,
+	SoundDevice(MSXMixer& mixer, string_view name, string_view description,
 	            unsigned numChannels, bool stereo = false);
 	~SoundDevice();
 

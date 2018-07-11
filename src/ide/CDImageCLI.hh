@@ -13,7 +13,7 @@ public:
 	explicit CDImageCLI(CommandLineParser& cmdLineParser);
 	void parseOption(const std::string& option,
 	                 array_ref<std::string>& cmdLine) override;
-	string_ref optionHelp() const override;
+	string_view optionHelp() const override;
 
 private:
 	CommandLineParser& parser;

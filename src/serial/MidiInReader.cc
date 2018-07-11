@@ -61,7 +61,7 @@ const string& MidiInReader::getName() const
 	return name;
 }
 
-string_ref MidiInReader::getDescription() const
+string_view MidiInReader::getDescription() const
 {
 	return "MIDI in file reader. Sends data from an input file to the "
 	       "MIDI port it is connected to. The filename is set with "

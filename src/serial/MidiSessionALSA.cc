@@ -23,7 +23,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 
 	// MidiOutDevice
 	void recvMessage(
@@ -113,7 +113,7 @@ const std::string& MidiOutALSA::getName() const
 	return name;
 }
 
-string_ref MidiOutALSA::getDescription() const
+string_view MidiOutALSA::getDescription() const
 {
 	return desc;
 }

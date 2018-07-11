@@ -13,13 +13,13 @@ public:
 	explicit DiskImageCLI(CommandLineParser& cmdLineParser);
 	void parseOption(const std::string& option,
 	                 array_ref<std::string>& cmdLine) override;
-	string_ref optionHelp() const override;
+	string_view optionHelp() const override;
 	void parseFileType(const std::string& filename,
 	                   array_ref<std::string>& cmdLine) override;
-	string_ref fileTypeHelp() const override;
+	string_view fileTypeHelp() const override;
 
 private:
-	void parse(string_ref drive, string_ref image,
+	void parse(string_view drive, string_view image,
 	           array_ref<std::string>& cmdLine);
 
 	CommandLineParser& parser;

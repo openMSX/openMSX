@@ -140,7 +140,7 @@ void InputArchiveBase<Derived>::serialize_blob(
 	string encoding;
 	this->self().attribute("encoding", encoding);
 
-	string_ref tmp = this->self().loadStr();
+	string_view tmp = this->self().loadStr();
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {
@@ -196,13 +196,13 @@ void MemInputArchive::load(std::string& s)
 	}
 }
 
-string_ref MemInputArchive::loadStr()
+string_view MemInputArchive::loadStr()
 {
 	size_t length;
 	load(length);
 	const byte* p = buffer.getCurrentPos();
 	buffer.skip(length);
-	return string_ref(reinterpret_cast<const char*>(p), length);
+	return string_view(reinterpret_cast<const char*>(p), length);
 }
 
 ////
@@ -368,7 +368,7 @@ XmlInputArchive::XmlInputArchive(const string& filename)
 	elems.emplace_back(&rootElem, 0);
 }
 
-string_ref XmlInputArchive::loadStr()
+string_view XmlInputArchive::loadStr()
 {
 	if (!elems.back().first->getChildren().empty()) {
 		throw XMLException("No child tags expected for primitive type");
@@ -388,7 +388,7 @@ void XmlInputArchive::loadChar(char& c)
 }
 void XmlInputArchive::load(bool& b)
 {
-	string_ref s = loadStr();
+	string_view s = loadStr();
 	if ((s == "true") || (s == "1")) {
 		b = true;
 	} else if ((s == "false") || (s == "0")) {
@@ -422,7 +422,7 @@ template<> struct ConditionalNegate<false> {
 		assert(!negate); (void)negate; // can't negate unsigned type
 	}
 };
-template<typename T> static inline void fastAtoi(string_ref str, T& t)
+template<typename T> static inline void fastAtoi(string_view str, T& t)
 {
 	t = 0;
 	bool neg = false;
@@ -453,17 +453,17 @@ template<typename T> static inline void fastAtoi(string_ref str, T& t)
 }
 void XmlInputArchive::load(int& i)
 {
-	string_ref str = loadStr();
+	string_view str = loadStr();
 	fastAtoi(str, i);
 }
 void XmlInputArchive::load(unsigned& u)
 {
-	string_ref str = loadStr();
+	string_view str = loadStr();
 	fastAtoi(str, u);
 }
 void XmlInputArchive::load(unsigned long long& ull)
 {
-	string_ref str = loadStr();
+	string_view str = loadStr();
 	fastAtoi(str, ull);
 }
 void XmlInputArchive::load(unsigned char& b)

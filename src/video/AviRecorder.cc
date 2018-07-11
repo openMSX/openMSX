@@ -202,7 +202,7 @@ void AviRecorder::processStart(array_ref<TclObject> tokens, TclObject& result)
 
 	vector<string> arguments;
 	for (unsigned i = 2; i < tokens.size(); ++i) {
-		string_ref token = tokens[i].getString();
+		string_view token = tokens[i].getString();
 		if (token.starts_with('-')) {
 			if (token == "--") {
 				for (auto it = std::begin(tokens) + i + 1;
@@ -316,7 +316,7 @@ void AviRecorder::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
 		throw CommandException("Missing argument");
 	}
 	auto& recorder = OUTER(AviRecorder, recordCommand);
-	const string_ref subcommand = tokens[1].getString();
+	const string_view subcommand = tokens[1].getString();
 	if (subcommand == "start") {
 		recorder.processStart(tokens, result);
 	} else if (subcommand == "stop") {

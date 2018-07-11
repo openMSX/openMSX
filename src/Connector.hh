@@ -3,7 +3,7 @@
 
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <memory>
 
 namespace openmsx {
@@ -37,7 +37,7 @@ public:
 	 * A Connector belong to a certain class.
 	 * Only Pluggables of this class can be plugged in this Connector.
 	 */
-	virtual string_ref getClass() const = 0;
+	virtual string_view getClass() const = 0;
 
 	/**
 	 * This plugs a Pluggable in this Connector.

@@ -38,7 +38,7 @@ void UserSettings::deleteSetting(Setting& setting)
 		[&](unique_ptr<Setting>& p) { return p.get() == &setting; }));
 }
 
-Setting* UserSettings::findSetting(string_ref name) const
+Setting* UserSettings::findSetting(string_view name) const
 {
 	for (auto& s : settings) {
 		if (s->getFullName() == name) {
@@ -255,9 +255,9 @@ void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-vector<string_ref> UserSettings::Cmd::getSettingNames() const
+vector<string_view> UserSettings::Cmd::getSettingNames() const
 {
-	vector<string_ref> result;
+	vector<string_view> result;
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
 	for (auto& s : userSettings.getSettings()) {
 		result.push_back(s->getFullName());

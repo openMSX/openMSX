@@ -40,16 +40,16 @@ public:
 	}
 
 	// rapidsax handler interface
-	void start(string_ref name);
-	void attribute(string_ref name, string_ref value);
-	void text(string_ref txt);
+	void start(string_view name);
+	void attribute(string_view name, string_view value);
+	void text(string_view txt);
 	void stop();
-	void doctype(string_ref txt);
+	void doctype(string_view txt);
 
-	string_ref getSystemID() const { return systemID; }
+	string_view getSystemID() const { return systemID; }
 
 private:
-	String32 cIndex(string_ref str);
+	String32 cIndex(string_view str);
 	void addEntries();
 	void addAllEntries();
 
@@ -87,12 +87,12 @@ private:
 	CliComm& cliComm;
 	char* bufStart;
 
-	string_ref systemID;
-	string_ref type;
-	string_ref startVal;
+	string_view systemID;
+	string_view type;
+	string_view startVal;
 
 	vector<Dump> dumps;
-	string_ref system;
+	string_view system;
 	String32 title;
 	String32 company;
 	String32 year;
@@ -104,7 +104,7 @@ private:
 	size_t initialSize;
 };
 
-void DBParser::start(string_ref tag)
+void DBParser::start(string_view tag)
 {
 	if (unknownLevel) {
 		++unknownLevel;
@@ -270,7 +270,7 @@ void DBParser::start(string_ref tag)
 	++unknownLevel;
 }
 
-void DBParser::attribute(string_ref name, string_ref value)
+void DBParser::attribute(string_view name, string_view value)
 {
 	if (unknownLevel) return;
 
@@ -303,7 +303,7 @@ void DBParser::attribute(string_ref name, string_ref value)
 	}
 }
 
-void DBParser::text(string_ref txt)
+void DBParser::text(string_view txt)
 {
 	if (unknownLevel) return;
 
@@ -361,7 +361,7 @@ void DBParser::text(string_ref txt)
 	}
 }
 
-String32 DBParser::cIndex(string_ref str)
+String32 DBParser::cIndex(string_view str)
 {
 	auto* begin = const_cast<char*>(str.data());
 	auto* end = begin + str.size();
@@ -454,7 +454,7 @@ void DBParser::addAllEntries()
 	swap(result, db);
 }
 
-static const char* parseStart(string_ref s)
+static const char* parseStart(string_view s)
 {
 	// we expect "0x0000", "0x4000", "0x8000", "0xc000" or ""
 	return ((s.size() == 6) && s.starts_with("0x")) ? (s.data() + 2) : nullptr;
@@ -495,19 +495,19 @@ void DBParser::stop()
 		state = DUMP;
 		break;
 	case ROM: {
-		string_ref t = type;
+		string_view t = type;
 		char buf[12];
 		if (small_compare<'M','i','r','r','o','r','e','d'>(t)) {
 			if (const char* s = parseStart(startVal)) {
 				memcpy(buf, t.data(), 8);
 				memcpy(buf + 8, s, 4);
-				t = string_ref(buf, 12);
+				t = string_view(buf, 12);
 			}
 		} else if (small_compare<'N','o','r','m','a','l'>(t)) {
 			if (const char* s = parseStart(startVal)) {
 				memcpy(buf, t.data(), 6);
 				memcpy(buf + 6, s, 4);
-				t = string_ref(buf, 10);
+				t = string_view(buf, 10);
 			}
 		}
 		RomType romType = RomInfo::nameToRomType(t);
@@ -536,13 +536,13 @@ void DBParser::stop()
 	}
 }
 
-void DBParser::doctype(string_ref txt)
+void DBParser::doctype(string_view txt)
 {
 	auto pos1 = txt.find(" SYSTEM \"");
-	if (pos1 == string_ref::npos) return;
+	if (pos1 == string_view::npos) return;
 	auto t = txt.substr(pos1 + 9);
 	auto pos2 = t.find('"');
-	if (pos2 == string_ref::npos) return;
+	if (pos2 == string_view::npos) return;
 	systemID = t.substr(0, pos2);
 }
 

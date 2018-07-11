@@ -29,13 +29,13 @@ namespace openmsx {
 
 // class ConsoleLine
 
-ConsoleLine::ConsoleLine(string_ref line_, uint32_t rgb)
+ConsoleLine::ConsoleLine(string_view line_, uint32_t rgb)
 	: line(line_.str())
 	, chunks(1, {rgb, 0})
 {
 }
 
-void ConsoleLine::addChunk(string_ref text, uint32_t rgb)
+void ConsoleLine::addChunk(string_view text, uint32_t rgb)
 {
 	chunks.emplace_back(rgb, line.size());
 	line.append(text.data(), text.size());
@@ -52,14 +52,14 @@ uint32_t ConsoleLine::chunkColor(size_t i) const
 	return chunks[i].first;
 }
 
-string_ref ConsoleLine::chunkText(size_t i) const
+string_view ConsoleLine::chunkText(size_t i) const
 {
 	assert(i < chunks.size());
 	auto pos = chunks[i].second;
 	auto len = ((i + 1) == chunks.size())
-	         ? string_ref::npos
+	         ? string_view::npos
 	         : chunks[i + 1].second - pos;
-	return string_ref(line).substr(pos, len);
+	return string_view(line).substr(pos, len);
 }
 
 ConsoleLine ConsoleLine::substr(size_t pos, size_t len) const
@@ -346,7 +346,7 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 	return true;
 }
 
-void CommandConsole::output(string_ref text)
+void CommandConsole::output(string_view text)
 {
 	print(text);
 }
@@ -356,18 +356,18 @@ unsigned CommandConsole::getOutputColumns() const
 	return getColumns();
 }
 
-void CommandConsole::print(string_ref text, unsigned rgb)
+void CommandConsole::print(string_view text, unsigned rgb)
 {
 	while (true) {
 		auto pos = text.find('\n');
 		newLineConsole(ConsoleLine(text.substr(0, pos), rgb));
-		if (pos == string_ref::npos) return;
+		if (pos == string_view::npos) return;
 		text = text.substr(pos + 1); // skip newline
 		if (text.empty()) return;
 	}
 }
 
-void CommandConsole::newLineConsole(string_ref line)
+void CommandConsole::newLineConsole(string_view line)
 {
 	newLineConsole(ConsoleLine(line));
 }
@@ -430,7 +430,7 @@ void CommandConsole::commandExecute()
 	putPrompt();
 }
 
-ConsoleLine CommandConsole::highLight(string_ref line)
+ConsoleLine CommandConsole::highLight(string_view line)
 {
 	ConsoleLine result;
 	result.addChunk(prompt, 0xffffff);

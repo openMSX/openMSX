@@ -15,7 +15,7 @@ namespace openmsx {
 
 static byte calcReadBackMask(MSXMotherBoard& motherBoard)
 {
-	string_ref type = motherBoard.getMachineConfig()->getConfig().getChildData(
+	string_view type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
 	if (type == "largest") {
 		return 0x00; // all bits can be read

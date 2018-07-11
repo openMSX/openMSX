@@ -63,7 +63,7 @@ protected:
 	RecordedCommand(CommandController& commandController,
 	                StateChangeDistributor& stateChangeDistributor,
 	                Scheduler& scheduler,
-	                string_ref name);
+	                string_view name);
 	~RecordedCommand();
 
 private:

@@ -26,7 +26,7 @@ void JoyTap::createPorts(const string& baseDescription) {
 	}
 }
 
-string_ref JoyTap::getDescription() const
+string_view JoyTap::getDescription() const
 {
 	return "MSX Joy Tap device";
 }

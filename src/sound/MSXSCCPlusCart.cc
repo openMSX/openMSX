@@ -28,7 +28,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 			throw MSXException("Error reading file: ", filename);
 		}
 	}
-	string_ref subtype = config.getChildData("subtype", "expanded");
+	string_view subtype = config.getChildData("subtype", "expanded");
 	if (subtype == "Snatcher") {
 		mapperMask = 0x0F;
 		lowRAM  = true;

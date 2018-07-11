@@ -47,7 +47,7 @@ OSDConsoleRenderer::TextCacheElement::TextCacheElement(
 
 // class OSDConsoleRenderer
 
-static const string_ref defaultFont = "skins/VeraMono.ttf.gz";
+static const string_view defaultFont = "skins/VeraMono.ttf.gz";
 
 OSDConsoleRenderer::OSDConsoleRenderer(
 		Reactor& reactor_, CommandConsole& console_,
@@ -266,7 +266,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	return result;
 }
 
-void OSDConsoleRenderer::loadFont(string_ref value)
+void OSDConsoleRenderer::loadFont(string_view value)
 {
 	string filename = systemFileContext().resolve(value);
 	auto newFont = TTFFont(filename, fontSizeSetting.getInt());
@@ -277,7 +277,7 @@ void OSDConsoleRenderer::loadFont(string_ref value)
 	clearCache();
 }
 
-void OSDConsoleRenderer::loadBackground(string_ref value)
+void OSDConsoleRenderer::loadBackground(string_view value)
 {
 	if (value.empty()) {
 		backgroundImage.reset();
@@ -299,12 +299,12 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, const ConsoleLine& line
 {
 	for (auto i : xrange(line.numChunks())) {
 		auto rgb = line.chunkColor(i);
-		string_ref text = line.chunkText(i);
+		string_view text = line.chunkText(i);
 		drawText2(output, text, pos[0], pos[1], alpha, rgb);
 	}
 }
 
-void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
+void OSDConsoleRenderer::drawText2(OutputSurface& output, string_view text,
                                    int& x, int y, byte alpha, unsigned rgb)
 {
 	unsigned width;
@@ -357,7 +357,7 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 	x += width; // in case of trailing whitespace width != image->getWidth()
 }
 
-bool OSDConsoleRenderer::getFromCache(string_ref text, unsigned rgb,
+bool OSDConsoleRenderer::getFromCache(string_view text, unsigned rgb,
                                       BaseImage*& image, unsigned& width)
 {
 	// Items are LRU sorted, so the next requested items will often be

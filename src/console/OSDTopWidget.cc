@@ -13,7 +13,7 @@ OSDTopWidget::OSDTopWidget(Display& display_)
 	addName(*this);
 }
 
-string_ref OSDTopWidget::getType() const
+string_view OSDTopWidget::getType() const
 {
 	return "top";
 }
@@ -52,13 +52,13 @@ void OSDTopWidget::showAllErrors()
 	errors.clear();
 }
 
-OSDWidget* OSDTopWidget::findByName(string_ref widgetName)
+OSDWidget* OSDTopWidget::findByName(string_view widgetName)
 {
 	auto it = widgetsByName.find(widgetName);
 	return (it != end(widgetsByName)) ? *it : nullptr;
 }
 
-const OSDWidget* OSDTopWidget::findByName(string_ref widgetName) const
+const OSDWidget* OSDTopWidget::findByName(string_view widgetName) const
 {
 	return const_cast<OSDTopWidget*>(this)->findByName(widgetName);
 }
@@ -79,9 +79,9 @@ void OSDTopWidget::removeName(OSDWidget& widget)
 	widgetsByName.erase(it);
 }
 
-std::vector<string_ref> OSDTopWidget::getAllWidgetNames() const
+std::vector<string_view> OSDTopWidget::getAllWidgetNames() const
 {
-	std::vector<string_ref> result;
+	std::vector<string_view> result;
 	for (auto* p : widgetsByName) {
 		result.push_back(p->getName());
 	}

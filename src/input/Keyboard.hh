@@ -11,7 +11,7 @@
 #include "EventListener.hh"
 #include "serialize_meta.hh"
 #include "array_ref.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include "openmsx.hh"
 #include <array>
 #include <deque>
@@ -142,7 +142,7 @@ private:
 		void serialize(Archive& ar, unsigned version);
 
 	private:
-		void type(string_ref str);
+		void type(string_view str);
 		void reschedule(EmuTime::param time);
 
 		// Command

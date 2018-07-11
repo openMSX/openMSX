@@ -4,7 +4,7 @@
 // small_compare utility function
 //
 // This can be used to replace
-//   string_ref s1 = ...
+//   string_view s1 = ...
 //   if (s1 == "foo") { ... }
 // with
 //   if (small_compare<'f','o','o'>(s1)) { ... }
@@ -32,7 +32,7 @@
 
 #include "aligned.hh"
 #include "build-info.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include "type_traits.hh"
 #include <cstdint>
 #include <cstring>
@@ -109,7 +109,7 @@ template<char ...Ns> bool small_compare(const char* p)
 	return (loader(p) & SC::mask) == SC::value;
 }
 
-template<char ...Ns> bool small_compare(string_ref str)
+template<char ...Ns> bool small_compare(string_view str)
 {
 	if (str.size() != sizeof...(Ns)) return false;
 	return small_compare<Ns...>(str.data());

@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-string_ref MidiInDevice::getClass() const
+string_view MidiInDevice::getClass() const
 {
 	return "midi in";
 }

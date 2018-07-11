@@ -20,7 +20,7 @@ VideoSourceSetting::VideoSourceSetting(CommandController& commandController_)
 	init();
 }
 
-void VideoSourceSetting::checkSetValue(string_ref newValue) const
+void VideoSourceSetting::checkSetValue(string_view newValue) const
 {
 	// Special case: in case there are no videosources registered (yet),
 	// the only allowed value is "none". In case there is at least one
@@ -34,7 +34,7 @@ void VideoSourceSetting::checkSetValue(string_ref newValue) const
 int VideoSourceSetting::getSource()
 {
 	// Always try to find a better value than "none".
-	string_ref str = getValue().getString();
+	string_view str = getValue().getString();
 	if (str != "none") {
 		// If current value is allowed, then keep it.
 		if (int id = has(str)) {
@@ -64,14 +64,14 @@ void VideoSourceSetting::setSource(int id)
 	setValue(TclObject(it->first));
 }
 
-string_ref VideoSourceSetting::getTypeString() const
+string_view VideoSourceSetting::getTypeString() const
 {
 	return "enumeration";
 }
 
-std::vector<string_ref> VideoSourceSetting::getPossibleValues() const
+std::vector<string_view> VideoSourceSetting::getPossibleValues() const
 {
-	std::vector<string_ref> result;
+	std::vector<string_view> result;
 	if (sources.size() == 1) {
 		assert(sources.front().first == "none");
 		result.emplace_back("none");
@@ -129,7 +129,7 @@ bool VideoSourceSetting::has(int val) const
 	return contains(values(sources), val);
 }
 
-int VideoSourceSetting::has(string_ref val) const
+int VideoSourceSetting::has(string_view val) const
 {
 	auto it = find_if(begin(sources), end(sources),
 		[&](const Sources::value_type& p) {

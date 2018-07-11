@@ -58,7 +58,7 @@ void GlobalCliComm::setAllowExternalCommands()
 	}
 }
 
-void GlobalCliComm::log(LogLevel level, string_ref message)
+void GlobalCliComm::log(LogLevel level, string_view message)
 {
 	assert(Thread::isMainThread());
 
@@ -86,7 +86,7 @@ void GlobalCliComm::log(LogLevel level, string_ref message)
 	}
 }
 
-void GlobalCliComm::update(UpdateType type, string_ref name, string_ref value)
+void GlobalCliComm::update(UpdateType type, string_view name, string_view value)
 {
 	assert(type < NUM_UPDATES);
 	auto it = prevValues[type].find(name);
@@ -101,8 +101,8 @@ void GlobalCliComm::update(UpdateType type, string_ref name, string_ref value)
 	updateHelper(type, {}, name, value);
 }
 
-void GlobalCliComm::updateHelper(UpdateType type, string_ref machine,
-                                 string_ref name, string_ref value)
+void GlobalCliComm::updateHelper(UpdateType type, string_view machine,
+                                 string_view name, string_view value)
 {
 	assert(Thread::isMainThread());
 	std::lock_guard<std::mutex> lock(mutex);

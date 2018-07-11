@@ -3,7 +3,7 @@
 
 #include "array_ref.hh"
 #include "strCat.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 
 namespace openmsx {
 
@@ -31,47 +31,47 @@ public:
 		NUM_UPDATES // must be last
 	};
 
-	virtual void log(LogLevel level, string_ref message) = 0;
-	virtual void update(UpdateType type, string_ref name,
-	                    string_ref value) = 0;
+	virtual void log(LogLevel level, string_view message) = 0;
+	virtual void update(UpdateType type, string_view name,
+	                    string_view value) = 0;
 
 	// convenience methods (shortcuts for log())
-	void printInfo    (string_ref message);
-	void printWarning (string_ref message);
-	void printError   (string_ref message);
-	void printProgress(string_ref message);
+	void printInfo    (string_view message);
+	void printWarning (string_view message);
+	void printError   (string_view message);
+	void printProgress(string_view message);
 
 	// These overloads are (only) needed for efficiency, because otherwise
-	// the templated overload below is a better match than the 'string_ref'
+	// the templated overload below is a better match than the 'string_view'
 	// overload above (and we don't want to construct a temp string).
 	void printInfo(const char* message) {
-		printInfo(string_ref(message));
+		printInfo(string_view(message));
 	}
 	void printWarning(const char* message) {
-		printWarning(string_ref(message));
+		printWarning(string_view(message));
 	}
 	void printError(const char* message) {
-		printError(string_ref(message));
+		printError(string_view(message));
 	}
 	void printProgress(const char* message) {
-		printProgress(string_ref(message));
+		printProgress(string_view(message));
 	}
 
 	template<typename... Args>
 	void printInfo(Args&& ...args) {
-		printInfo(string_ref(strCat(std::forward<Args>(args)...)));
+		printInfo(string_view(strCat(std::forward<Args>(args)...)));
 	}
 	template<typename... Args>
 	void printWarning(Args&& ...args) {
-		printWarning(string_ref(strCat(std::forward<Args>(args)...)));
+		printWarning(string_view(strCat(std::forward<Args>(args)...)));
 	}
 	template<typename... Args>
 	void printError(Args&& ...args) {
-		printError(string_ref(strCat(std::forward<Args>(args)...)));
+		printError(string_view(strCat(std::forward<Args>(args)...)));
 	}
 	template<typename... Args>
 	void printProgress(Args&& ...args) {
-		printProgress(string_ref(strCat(std::forward<Args>(args)...)));
+		printProgress(string_view(strCat(std::forward<Args>(args)...)));
 	}
 
 	// string representations of the LogLevel and UpdateType enums

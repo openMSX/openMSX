@@ -12,22 +12,22 @@ const char* const CliComm::updateStr[CliComm::NUM_UPDATES] = {
 };
 
 
-void CliComm::printInfo(string_ref message)
+void CliComm::printInfo(string_view message)
 {
 	log(INFO, message);
 }
 
-void CliComm::printWarning(string_ref message)
+void CliComm::printWarning(string_view message)
 {
 	log(WARNING, message);
 }
 
-void CliComm::printError(string_ref message)
+void CliComm::printError(string_view message)
 {
 	log(LOGLEVEL_ERROR, message);
 }
 
-void CliComm::printProgress(string_ref message)
+void CliComm::printProgress(string_view message)
 {
 	log(PROGRESS, message);
 }

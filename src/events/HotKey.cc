@@ -292,7 +292,7 @@ void HotKey::activateLayer(std::string layer, bool blocking)
 	activeLayers.push_back({std::move(layer), blocking});
 }
 
-void HotKey::deactivateLayer(string_ref layer)
+void HotKey::deactivateLayer(string_view layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
@@ -417,7 +417,7 @@ void HotKey::stopRepeat()
 
 // class BindCmd
 
-static string_ref getBindCmdName(bool defaultCmd)
+static string_view getBindCmdName(bool defaultCmd)
 {
 	return defaultCmd ? "bind_default" : "bind";
 }
@@ -517,7 +517,7 @@ void HotKey::BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 		}
 		for (unsigned i = start; i < tokens.size(); ++i) {
 			if (i != start) command += ' ';
-			string_ref t = tokens[i].getString();
+			string_view t = tokens[i].getString();
 			command.append(t.data(), t.size());
 		}
 		HotKey::HotKeyInfo info(command, repeat);
@@ -613,7 +613,7 @@ HotKey::ActivateCmd::ActivateCmd(CommandController& commandController_)
 
 void HotKey::ActivateCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
-	string_ref layer;
+	string_view layer;
 	bool blocking = false;
 	for (size_t i = 1; i < tokens.size(); ++i) {
 		if (tokens[i] == "-blocking") {

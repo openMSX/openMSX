@@ -29,7 +29,7 @@ public:
 
 	// Connector
 	const std::string getDescription() const override;
-	string_ref getClass() const override;
+	string_view getClass() const override;
 	void plug(Pluggable& device, EmuTime::param time) override;
 
 	byte read(EmuTime::param time) override;

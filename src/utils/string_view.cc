@@ -1,4 +1,4 @@
-#include "string_ref.hh"
+#include "string_view.hh"
 #include "likely.hh"
 #include <algorithm>
 #include <iostream>
@@ -9,7 +9,7 @@ using std::string;
 
 // Outgoing conversion operators
 
-string string_ref::str() const
+string string_view::str() const
 {
 	return siz ? string(dat, siz)
 	           : string();
@@ -18,7 +18,7 @@ string string_ref::str() const
 
 // string operations with the same semantics as std::string
 
-int string_ref::compare(string_ref rhs) const
+int string_view::compare(string_view rhs) const
 {
 	// Check prefix.
 	if (int r = memcmp(dat, rhs.dat, std::min(siz, rhs.siz))) {
@@ -29,13 +29,13 @@ int string_ref::compare(string_ref rhs) const
 }
 
 
-string_ref string_ref::substr(size_type pos, size_type n) const
+string_view string_view::substr(size_type pos, size_type n) const
 {
-	if (pos >= siz) return string_ref();
-	return string_ref(dat + pos, std::min(n, siz - pos));
+	if (pos >= siz) return string_view();
+	return string_view(dat + pos, std::min(n, siz - pos));
 }
 
-string_ref::size_type string_ref::find(string_ref s) const
+string_view::size_type string_view::find(string_view s) const
 {
 	// Simple string search algorithm O(size() * s.size()). An algorithm
 	// like Boyer–Moore has better time complexity and will run a lot
@@ -56,13 +56,13 @@ string_ref::size_type string_ref::find(string_ref s) const
 	return npos;
 }
 
-string_ref::size_type string_ref::find(char c) const
+string_view::size_type string_view::find(char c) const
 {
 	auto it = std::find(begin(), end(), c);
 	return (it == end()) ? npos : it - begin();
 }
 
-string_ref::size_type string_ref::rfind(string_ref s) const
+string_view::size_type string_view::rfind(string_view s) const
 {
 	// see comment in find()
 	if (s.empty()) return siz;
@@ -78,71 +78,71 @@ string_ref::size_type string_ref::rfind(string_ref s) const
 	return npos;
 }
 
-string_ref::size_type string_ref::rfind(char c) const
+string_view::size_type string_view::rfind(char c) const
 {
 	auto it = std::find(rbegin(), rend(), c);
 	return (it == rend()) ? npos : (it.base() - begin() - 1);
 }
 
-string_ref::size_type string_ref::find_first_of(string_ref s) const
+string_view::size_type string_view::find_first_of(string_view s) const
 {
 	auto it = std::find_first_of(begin(), end(), s.begin(), s.end());
 	return (it == end()) ? npos : it - begin();
 }
 
-string_ref::size_type string_ref::find_first_of(char c) const
+string_view::size_type string_view::find_first_of(char c) const
 {
 	return find(c);
 }
 
-//string_ref::size_type string_ref::find_first_not_of(string_ref s) const;
-//string_ref::size_type string_ref::find_first_not_of(char c) const;
+//string_view::size_type string_view::find_first_not_of(string_view s) const;
+//string_view::size_type string_view::find_first_not_of(char c) const;
 
-string_ref::size_type string_ref::find_last_of(string_ref s) const
+string_view::size_type string_view::find_last_of(string_view s) const
 {
 	auto it = std::find_first_of(rbegin(), rend(), s.begin(), s.end());
 	return (it == rend()) ? npos : (it.base() - begin() - 1);
 }
 
-string_ref::size_type string_ref::find_last_of(char c) const
+string_view::size_type string_view::find_last_of(char c) const
 {
 	return rfind(c);
 }
 
-//string_ref::size_type string_ref::find_last_not_of(string_ref s) const;
-//string_ref::size_type string_ref::find_last_not_of(char c) const;
+//string_view::size_type string_view::find_last_not_of(string_view s) const;
+//string_view::size_type string_view::find_last_not_of(char c) const;
 
 // new string operations (not part of std::string)
-bool string_ref::starts_with(string_ref x) const
+bool string_view::starts_with(string_view x) const
 {
 	return (siz >= x.size()) &&
 	       (memcmp(dat, x.data(), x.size()) == 0);
 }
-bool string_ref::starts_with(char x) const
+bool string_view::starts_with(char x) const
 {
 	return !empty() && (front() == x);
 }
 
-bool string_ref::ends_with(string_ref x) const
+bool string_view::ends_with(string_view x) const
 {
 	return (siz >= x.size()) &&
 	       (memcmp(dat + siz - x.size(), x.data(), x.size()) == 0);
 }
-bool string_ref::ends_with(char x) const
+bool string_view::ends_with(char x) const
 {
 	return !empty() && (back() == x);
 }
 
 
 // Comparison operators
-bool operator< (string_ref x, string_ref y)
+bool operator< (string_view x, string_view y)
 {
 	return x.compare(y) < 0;
 }
 
 
 // numeric conversions
-unsigned fast_stou(string_ref s)
+unsigned fast_stou(string_view s)
 {
 	unsigned result = 0;
 	for (char c : s) {
@@ -157,7 +157,7 @@ unsigned fast_stou(string_ref s)
 }
 
 
-std::ostream& operator<<(std::ostream& os, string_ref s)
+std::ostream& operator<<(std::ostream& os, string_view s)
 {
 	os.write(s.data(), s.size());
 	return os;

@@ -6,7 +6,7 @@
 namespace openmsx {
 namespace XMLLoader {
 
-	XMLElement load(string_ref filename, string_ref systemID);
+	XMLElement load(string_view filename, string_view systemID);
 
 } // namespace XMLLoader
 } // namespace openmsx

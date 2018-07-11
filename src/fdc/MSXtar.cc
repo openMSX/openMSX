@@ -330,9 +330,9 @@ static char toMSXChr(char a)
 
 // Transform a long hostname in a 8.3 uppercase filename as used in the
 // direntries on an MSX
-static string makeSimpleMSXFileName(string_ref fullFilename)
+static string makeSimpleMSXFileName(string_view fullFilename)
 {
-	string_ref dir, fullFile;
+	string_view dir, fullFile;
 	StringOp::splitOnLast(fullFilename, '/', dir, fullFile);
 
 	// handle speciale case '.' and '..' first
@@ -342,7 +342,7 @@ static string makeSimpleMSXFileName(string_ref fullFilename)
 		return result;
 	}
 
-	string_ref file, ext;
+	string_view file, ext;
 	StringOp::splitOnLast(fullFile, '.', file, ext);
 	if (file.empty()) std::swap(file, ext);
 
@@ -565,7 +565,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 // @throws when file could not be added
 string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 {
-	string_ref directory, hostName;
+	string_view directory, hostName;
 	StringOp::splitOnLast(fullname, "/\\", directory, hostName);
 	string msxName = makeSimpleMSXFileName(hostName);
 
@@ -604,7 +604,7 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 
 // Transfer directory and all its subdirectories to the MSX diskimage
 // @throws when an error occurs
-string MSXtar::recurseDirFill(string_ref dirName, unsigned sector)
+string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 {
 	string messages;
 	ReadDir readDir(dirName.str());
@@ -717,19 +717,19 @@ string MSXtar::dir()
 }
 
 // routines to update the global vars: chrootSector
-void MSXtar::chdir(string_ref newRootDir)
+void MSXtar::chdir(string_view newRootDir)
 {
 	chroot(newRootDir, false);
 }
 
-void MSXtar::mkdir(string_ref newRootDir)
+void MSXtar::mkdir(string_view newRootDir)
 {
 	unsigned tmpMSXchrootSector = chrootSector;
 	chroot(newRootDir, true);
 	chrootSector = tmpMSXchrootSector;
 }
 
-void MSXtar::chroot(string_ref newRootDir, bool createDir)
+void MSXtar::chroot(string_view newRootDir, bool createDir)
 {
 	if (newRootDir.starts_with('/') || newRootDir.starts_with('\\')) {
 		// absolute path, reset chrootSector
@@ -738,7 +738,7 @@ void MSXtar::chroot(string_ref newRootDir, bool createDir)
 	}
 
 	while (!newRootDir.empty()) {
-		string_ref firstPart, lastPart;
+		string_view firstPart, lastPart;
 		StringOp::splitOnFirst(newRootDir, "/\\", firstPart, lastPart);
 		newRootDir = lastPart;
 		StringOp::trimLeft(newRootDir, "/\\");
@@ -787,7 +787,7 @@ void MSXtar::fileExtract(const string& resultFile, const MSXDirEntry& dirEntry)
 }
 
 // extracts a single item (file or directory) from the msximage to the host OS
-string MSXtar::singleItemExtract(string_ref dirName, string_ref itemName,
+string MSXtar::singleItemExtract(string_view dirName, string_view itemName,
                                  unsigned sector)
 {
 	// first find out if the filename exists in current dir
@@ -818,7 +818,7 @@ string MSXtar::singleItemExtract(string_ref dirName, string_ref itemName,
 
 
 // extracts the contents of the directory (at sector) and all its subdirs to the host OS
-void MSXtar::recurseDirExtract(string_ref dirName, unsigned sector)
+void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 {
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
@@ -848,7 +848,7 @@ void MSXtar::recurseDirExtract(string_ref dirName, unsigned sector)
 	}
 }
 
-string MSXtar::addDir(string_ref rootDirName)
+string MSXtar::addDir(string_view rootDirName)
 {
 	return recurseDirFill(rootDirName, chrootSector);
 }
@@ -858,12 +858,12 @@ string MSXtar::addFile(const string& filename)
 	return addFileToDSK(filename, chrootSector);
 }
 
-string MSXtar::getItemFromDir(string_ref rootDirName, string_ref itemName)
+string MSXtar::getItemFromDir(string_view rootDirName, string_view itemName)
 {
 	return singleItemExtract(rootDirName, itemName, chrootSector);
 }
 
-void MSXtar::getDir(string_ref rootDirName)
+void MSXtar::getDir(string_view rootDirName)
 {
 	recurseDirExtract(rootDirName, chrootSector);
 }

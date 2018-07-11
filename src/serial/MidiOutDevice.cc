@@ -51,7 +51,7 @@ MidiOutDevice::MidiOutDevice()
 {
 }
 
-string_ref MidiOutDevice::getClass() const
+string_view MidiOutDevice::getClass() const
 {
 	return "midi out";
 }

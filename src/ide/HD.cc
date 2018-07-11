@@ -196,7 +196,7 @@ bool HD::diskChanged()
 	return false; // TODO not implemented
 }
 
-int HD::insertDisk(string_ref newDisk)
+int HD::insertDisk(string_view newDisk)
 {
 	try {
 		switchImage(Filename(newDisk.str()));

@@ -96,7 +96,7 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 		throw CommandException("Need an even number of elements");
 	}
 	for (unsigned i = 0; i < n; i += 2) {
-		string_ref key  = newValue.getListIndex(interp, i + 0).getString();
+		string_view key  = newValue.getListIndex(interp, i + 0).getString();
 		TclObject value = newValue.getListIndex(interp, i + 1);
 		if ((key != "A"   ) && (key != "B"    ) &&
 		    (key != "LEFT") && (key != "RIGHT") &&
@@ -106,7 +106,7 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 				"'A', 'B', 'LEFT', 'RIGHT', 'UP', 'DOWN'.");
 		}
 		for (auto j : xrange(value.getListLength(interp))) {
-			string_ref host = value.getListIndex(interp, j).getString();
+			string_view host = value.getListIndex(interp, j).getString();
 			if (!host.starts_with("button") &&
 			    !host.starts_with("+axis") &&
 			    !host.starts_with("-axis") &&
@@ -191,7 +191,7 @@ const string& Joystick::getName() const
 	return name;
 }
 
-string_ref Joystick::getDescription() const
+string_view Joystick::getDescription() const
 {
 	return desc;
 }
@@ -248,7 +248,7 @@ byte Joystick::calcState()
 }
 
 bool Joystick::getState(Interpreter& interp, const TclObject& dict,
-                        string_ref key, int threshold)
+                        string_view key, int threshold)
 {
 	try {
 		const auto& list = dict.getDictValue(interp, TclObject(key));

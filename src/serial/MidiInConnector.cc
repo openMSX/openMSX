@@ -19,7 +19,7 @@ const std::string MidiInConnector::getDescription() const
 	return "MIDI-in connector";
 }
 
-string_ref MidiInConnector::getClass() const
+string_view MidiInConnector::getClass() const
 {
 	return "midi in";
 }

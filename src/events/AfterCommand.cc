@@ -29,7 +29,7 @@ class AfterCmd
 {
 public:
 	virtual ~AfterCmd() = default;
-	string_ref getCommand() const;
+	string_view getCommand() const;
 	const string& getId() const;
 	virtual string getType() const = 0;
 	void execute();
@@ -195,7 +195,7 @@ void AfterCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
-	string_ref subCmd = tokens[1].getString();
+	string_view subCmd = tokens[1].getString();
 	if (subCmd == "time") {
 		afterTime(tokens, result);
 	} else if (subCmd == "realtime") {
@@ -351,7 +351,7 @@ void AfterCommand::afterCancel(array_ref<TclObject> tokens, TclObject& /*result*
 	}
 	TclObject command;
 	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
-	string_ref cmdStr = command.getString();
+	string_view cmdStr = command.getString();
 	auto it = find_if(begin(afterCmds), end(afterCmds),
 		[&](std::unique_ptr<AfterCmd>& e) { return e->getCommand() == cmdStr; });
 	if (it != end(afterCmds)) {
@@ -475,7 +475,7 @@ AfterCmd::AfterCmd(AfterCommand& afterCommand_, const TclObject& command_)
 	id = str.str();
 }
 
-string_ref AfterCmd::getCommand() const
+string_view AfterCmd::getCommand() const
 {
 	return command.getString();
 }

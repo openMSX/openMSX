@@ -75,7 +75,7 @@ const string& KeyJoystick::getName() const
 	return name;
 }
 
-string_ref KeyJoystick::getDescription() const
+string_view KeyJoystick::getDescription() const
 {
 	return "Key-Joystick, use your keyboard to emulate an MSX joystick. "
 		"See manual for information on how to configure this.";

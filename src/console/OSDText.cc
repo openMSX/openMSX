@@ -32,7 +32,7 @@ OSDText::OSDText(Display& display_, const TclObject& name_)
 {
 }
 
-vector<string_ref> OSDText::getProperties() const
+vector<string_view> OSDText::getProperties() const
 {
 	auto result = OSDImageBasedWidget::getProperties();
 	static const char* const vals[] = {
@@ -44,10 +44,10 @@ vector<string_ref> OSDText::getProperties() const
 }
 
 void OSDText::setProperty(
-	Interpreter& interp, string_ref propName, const TclObject& value)
+	Interpreter& interp, string_view propName, const TclObject& value)
 {
 	if (propName == "-text") {
-		string_ref val = value.getString();
+		string_view val = value.getString();
 		if (text != val) {
 			text = val.str();
 			// note: don't invalidate font (don't reopen font file)
@@ -71,7 +71,7 @@ void OSDText::setProperty(
 			invalidateRecursive();
 		}
 	} else if (propName == "-wrap") {
-		string_ref val = value.getString();
+		string_view val = value.getString();
 		WrapMode wrapMode2;
 		if (val == "none") {
 			wrapMode2 = NONE;
@@ -107,7 +107,7 @@ void OSDText::setProperty(
 	}
 }
 
-void OSDText::getProperty(string_ref propName, TclObject& result) const
+void OSDText::getProperty(string_view propName, TclObject& result) const
 {
 	if (propName == "-text") {
 		result.setString(text);
@@ -144,7 +144,7 @@ void OSDText::invalidateLocal()
 }
 
 
-string_ref OSDText::getType() const
+string_view OSDText::getType() const
 {
 	return "text";
 }
@@ -243,7 +243,7 @@ static size_t findCharSplitPoint(const string& line, size_t min, size_t max)
 // exits, this function returns 'min'.
 // This function works correctly with multi-byte utf8-encoding as long as
 // all delimiter characters are single byte chars.
-static size_t findWordSplitPoint(string_ref line, size_t min, size_t max)
+static size_t findWordSplitPoint(string_view line, size_t min, size_t max)
 {
 	static const char* const delimiters = " -/";
 
@@ -258,7 +258,7 @@ static size_t findWordSplitPoint(string_ref line, size_t min, size_t max)
 	// try searching backward (this also checks current position)
 	assert(pos > min);
 	auto pos2 = line.substr(min, pos - min).find_last_of(delimiters);
-	if (pos2 != string_ref::npos) {
+	if (pos2 != string_view::npos) {
 		pos2 += min + 1;
 		assert(min < pos2);
 		assert(pos2 <= pos);
@@ -267,7 +267,7 @@ static size_t findWordSplitPoint(string_ref line, size_t min, size_t max)
 
 	// try searching forward
 	auto pos3 = line.substr(pos, max - pos).find_first_of(delimiters);
-	if (pos3 != string_ref::npos) {
+	if (pos3 != string_view::npos) {
 		pos3 += pos;
 		assert(pos3 < max);
 		pos3 += 1; // char directly after a delimiter;
@@ -367,7 +367,7 @@ size_t OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
 
 string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 {
-	vector<string_ref> wrappedLines;
+	vector<string_view> wrappedLines;
 	for (auto& line : StringOp::split(txt, '\n')) {
 		do {
 			auto p = splitAtChar(line.str(), maxWidth);
@@ -380,11 +380,11 @@ string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 
 string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 {
-	vector<string_ref> wrappedLines;
+	vector<string_view> wrappedLines;
 	for (auto& line : StringOp::split(txt, '\n')) {
 		do {
 			auto p = splitAtWord(line.str(), maxWidth);
-			string_ref first = line.substr(0, p);
+			string_view first = line.substr(0, p);
 			StringOp::trimRight(first, ' '); // remove trailing spaces
 			wrappedLines.push_back(first);
 			line = line.substr(p);

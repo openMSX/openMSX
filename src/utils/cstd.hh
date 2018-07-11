@@ -1,7 +1,7 @@
 #ifndef CSTD_HH
 #define CSTD_HH
 
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -246,7 +246,7 @@ constexpr cstd::array<V, sizeof...(Ts)> array_of(Ts&& ...ts)
 //
 // Reimplementation of (a very small subset of) C++17 std::string_view.
 //
-// The main difference with our string_ref class is that cstd::string offers
+// The main difference with our string_view class is that cstd::string offers
 // a constexpr constructor.
 //
 
@@ -274,9 +274,9 @@ public:
 		                                     y.begin(), y.end());
 	}
 
-	operator string_ref() const
+	operator string_view() const
 	{
-		return string_ref(dat, sz);
+		return string_view(dat, sz);
 	}
 
 private:

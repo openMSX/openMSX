@@ -186,27 +186,27 @@ static std::string findShareDir()
 
 #endif // __APPLE__
 
-string expandTilde(string_ref path)
+string expandTilde(string_view path)
 {
 	if (path.empty() || path[0] != '~') {
 		return path.str();
 	}
 	auto pos = path.find_first_of('/');
-	string_ref user = ((path.size() == 1) || (pos == 1))
-	                ? string_ref{}
-	                : path.substr(1, (pos == string_ref::npos) ? pos : pos - 1);
+	string_view user = ((path.size() == 1) || (pos == 1))
+	                ? string_view{}
+	                : path.substr(1, (pos == string_view::npos) ? pos : pos - 1);
 	string result = getUserHomeDir(user);
 	if (result.empty()) {
 		// failed to find homedir, return the path unchanged
 		return path.str();
 	}
-	if (pos == string_ref::npos) {
+	if (pos == string_view::npos) {
 		return result;
 	}
 	if (result.back() != '/') {
 		result += '/';
 	}
-	string_ref last = path.substr(pos + 1);
+	string_view last = path.substr(pos + 1);
 	result.append(last.data(), last.size());
 	return result;
 }
@@ -229,7 +229,7 @@ void mkdir(const string& path, mode_t mode)
 	}
 }
 
-static bool isUNCPath(string_ref path)
+static bool isUNCPath(string_view path)
 {
 #ifdef _WIN32
 	return path.starts_with("//") || path.starts_with("\\\\");
@@ -239,7 +239,7 @@ static bool isUNCPath(string_ref path)
 #endif
 }
 
-void mkdirp(string_ref path_)
+void mkdirp(string_view path_)
 {
 	if (path_.empty()) {
 		return;
@@ -381,48 +381,48 @@ void openofstream(std::ofstream& stream, const std::string& filename,
 #endif
 }
 
-string_ref getFilename(string_ref path)
+string_view getFilename(string_view path)
 {
 	auto pos = path.rfind('/');
-	if (pos == string_ref::npos) {
+	if (pos == string_view::npos) {
 		return path;
 	} else {
 		return path.substr(pos + 1);
 	}
 }
 
-string_ref getDirName(string_ref path)
+string_view getDirName(string_view path)
 {
 	auto pos = path.rfind('/');
-	if (pos == string_ref::npos) {
+	if (pos == string_view::npos) {
 		return {};
 	} else {
 		return path.substr(0, pos + 1);
 	}
 }
 
-string_ref getExtension(string_ref path)
+string_view getExtension(string_view path)
 {
-	string_ref filename = getFilename(path);
+	string_view filename = getFilename(path);
 	auto pos = filename.rfind('.');
-	if (pos == string_ref::npos) {
-		return string_ref();
+	if (pos == string_view::npos) {
+		return string_view();
 	} else {
 		return filename.substr(pos);
 	}
 }
 
-string_ref stripExtension(string_ref path)
+string_view stripExtension(string_view path)
 {
 	auto pos = path.rfind('.');
-	if (pos == string_ref::npos) {
+	if (pos == string_view::npos) {
 		return path;
 	} else {
 		return path.substr(0, pos);
 	}
 }
 
-string join(string_ref part1, string_ref part2)
+string join(string_view part1, string_view part2)
 {
 	if (part1.empty() || isAbsolutePath(part2)) {
 		return part2.str();
@@ -432,18 +432,18 @@ string join(string_ref part1, string_ref part2)
 	}
 	return strCat(part1, '/', part2);
 }
-string join(string_ref part1, string_ref part2, string_ref part3)
+string join(string_view part1, string_view part2, string_view part3)
 {
 	return join(part1, join(part2, part3));
 }
 
-string join(string_ref part1, string_ref part2,
-            string_ref part3, string_ref part4)
+string join(string_view part1, string_view part2,
+            string_view part3, string_view part4)
 {
 	return join(part1, join(part2, join(part3, part4)));
 }
 
-string getNativePath(string_ref path)
+string getNativePath(string_view path)
 {
 	string result = path.str();
 #ifdef _WIN32
@@ -452,7 +452,7 @@ string getNativePath(string_ref path)
 	return result;
 }
 
-string getConventionalPath(string_ref path)
+string getConventionalPath(string_view path)
 {
 	string result = path.str();
 #ifdef _WIN32
@@ -480,7 +480,7 @@ string getCurrentWorkingDirectory()
 	return buf;
 }
 
-string getAbsolutePath(string_ref path)
+string getAbsolutePath(string_view path)
 {
 	// In rare cases getCurrentWorkingDirectory() can throw,
 	// so only call it when really necessary.
@@ -491,7 +491,7 @@ string getAbsolutePath(string_ref path)
 	return join(currentDir, path);
 }
 
-bool isAbsolutePath(string_ref path)
+bool isAbsolutePath(string_view path)
 {
 	if (isUNCPath(path)) return true;
 #ifdef _WIN32
@@ -506,7 +506,7 @@ bool isAbsolutePath(string_ref path)
 	return !path.empty() && (path[0] == '/');
 }
 
-string getUserHomeDir(string_ref username)
+string getUserHomeDir(string_view username)
 {
 #ifdef _WIN32
 	(void)(&username); // ignore parameter, avoid warning
@@ -598,7 +598,7 @@ static bool driveExists(char driveLetter)
 }
 #endif
 
-string expandCurrentDirFromDrive(string_ref path)
+string expandCurrentDirFromDrive(string_view path)
 {
 	string result = path.str();
 #ifdef _WIN32
@@ -615,7 +615,7 @@ string expandCurrentDirFromDrive(string_ref path)
 					result += '/';
 				}
 				if (path.size() > 2) {
-					string_ref tmp = path.substr(2);
+					string_view tmp = path.substr(2);
 					result.append(tmp.data(), tmp.size());
 				}
 			}
@@ -625,7 +625,7 @@ string expandCurrentDirFromDrive(string_ref path)
 	return result;
 }
 
-bool getStat(string_ref filename_, Stat& st)
+bool getStat(string_view filename_, Stat& st)
 {
 	string filename = expandTilde(filename_);
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
@@ -648,7 +648,7 @@ bool isRegularFile(const Stat& st)
 {
 	return S_ISREG(st.st_mode);
 }
-bool isRegularFile(string_ref filename)
+bool isRegularFile(string_view filename)
 {
 	Stat st;
 	return getStat(filename, st) && isRegularFile(st);
@@ -659,13 +659,13 @@ bool isDirectory(const Stat& st)
 	return S_ISDIR(st.st_mode);
 }
 
-bool isDirectory(string_ref directory)
+bool isDirectory(string_view directory)
 {
 	Stat st;
 	return getStat(directory, st) && isDirectory(st);
 }
 
-bool exists(string_ref filename)
+bool exists(string_view filename)
 {
 	Stat st; // dummy
 	return getStat(filename, st);
@@ -676,12 +676,12 @@ time_t getModificationDate(const Stat& st)
 	return st.st_mtime;
 }
 
-static unsigned getNextNum(dirent* d, string_ref prefix, string_ref extension,
+static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
                            unsigned nofdigits)
 {
 	auto extensionLen = extension.size();
 	auto prefixLen = prefix.size();
-	string_ref name(d->d_name);
+	string_view name(d->d_name);
 
 	if ((name.size() != (prefixLen + nofdigits + extensionLen)) ||
 	    (name.substr(0, prefixLen) != prefix) ||
@@ -696,7 +696,7 @@ static unsigned getNextNum(dirent* d, string_ref prefix, string_ref extension,
 }
 
 string getNextNumberedFileName(
-	string_ref directory, string_ref prefix, string_ref extension)
+	string_view directory, string_view prefix, string_view extension)
 {
 	const unsigned nofdigits = 4;
 
@@ -723,8 +723,8 @@ string getNextNumberedFileName(
 }
 
 string parseCommandFileArgument(
-	string_ref argument, string_ref directory,
-	string_ref prefix,   string_ref extension)
+	string_view argument, string_view directory,
+	string_view prefix,   string_view extension)
 {
 	if (argument.empty()) {
 		// directory is also created when needed

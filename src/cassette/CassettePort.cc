@@ -120,7 +120,7 @@ const string CassettePort::getDescription() const
 	return "MSX Cassette port";
 }
 
-string_ref CassettePort::getClass() const
+string_view CassettePort::getClass() const
 {
 	return "Cassette Port";
 }

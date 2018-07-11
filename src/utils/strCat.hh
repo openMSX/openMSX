@@ -1,7 +1,7 @@
 #ifndef STRCAT_H
 #define STRCAT_H
 
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <climits>
 #include <cstring>
 #include <limits>
@@ -52,7 +52,7 @@ std::string strCat(Ts&& ...ts);
 // limitation). So the following is invalid:
 //     strAppend(s, s); // INVALID, append s to itself
 //
-//     string_ref v = s;
+//     string_view v = s;
 //     v.substr(10, 20);
 //     strAppend(s, v); // INVALID, append part of s to itself
 template<typename... Ts>
@@ -148,11 +148,11 @@ struct ConcatUnit : ConcatViaString
 };
 
 
-// ConcatUnit<string_ref>:
+// ConcatUnit<string_view>:
 //   store the string view (copies the view, not the string)
-template<> struct ConcatUnit<string_ref>
+template<> struct ConcatUnit<string_view>
 {
-	ConcatUnit(const string_ref v_)
+	ConcatUnit(const string_view v_)
 		: v(v_)
 	{
 	}
@@ -170,7 +170,7 @@ template<> struct ConcatUnit<string_ref>
 	}
 
 private:
-	string_ref v;
+	string_view v;
 };
 
 
@@ -425,17 +425,17 @@ inline auto makeConcatUnit(const T& t)
 // Overloads for various cases (strings, integers, floats, ...).
 inline auto makeConcatUnit(const std::string& s)
 {
-	return ConcatUnit<string_ref>(s);
+	return ConcatUnit<string_view>(s);
 }
 
 inline auto makeConcatUnit(const char* s)
 {
-	return ConcatUnit<string_ref>(s);
+	return ConcatUnit<string_view>(s);
 }
 
 inline auto makeConcatUnit(char* s)
 {
-	return ConcatUnit<string_ref>(s);
+	return ConcatUnit<string_view>(s);
 }
 
 // Note: no ConcatIntegral<char> because that is printed as a single character
@@ -604,7 +604,7 @@ inline std::string strCat(const std::string& x) { return x; }
 inline std::string strCat(std::string&&      x) { return std::move(x); }
 inline std::string strCat(const char*        x) { return std::string(x); }
 inline std::string strCat(char               x) { return std::string(1, x); }
-inline std::string strCat(string_ref         x) { return std::string(x.data(), x.size()); }
+inline std::string strCat(string_view         x) { return std::string(x.data(), x.size()); }
 
 inline std::string strCat(signed char        x) { return strCatImpl::to_string(x); }
 inline std::string strCat(unsigned char      x) { return strCatImpl::to_string(x); }
@@ -655,7 +655,7 @@ inline void strAppend(std::string&)
 // Extra overloads, see strCat().
 inline void strAppend(std::string& x, const std::string& y) { x += y; }
 inline void strAppend(std::string& x, const char*        y) { x += y; }
-inline void strAppend(std::string& x, string_ref         y) { x.append(y.data(), y.size()); }
+inline void strAppend(std::string& x, string_view         y) { x.append(y.data(), y.size()); }
 
 
 template<size_t N, typename T>

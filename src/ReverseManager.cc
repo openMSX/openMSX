@@ -681,7 +681,7 @@ void ReverseManager::loadReplay(
 	bool enableViewOnly = false;
 
 	for (size_t i = 2; i < tokens.size(); ++i) {
-		string_ref token = tokens[i].getString();
+		string_view token = tokens[i].getString();
 		if (token == "-viewonly") {
 			enableViewOnly = true;
 		} else if (token == "-goto") {
@@ -732,7 +732,7 @@ void ReverseManager::loadReplay(
 
 	// get destination time index
 	auto destination = EmuTime::zero;
-	string_ref where = whereArg ? whereArg->getString() : "begin";
+	string_view where = whereArg ? whereArg->getString() : "begin";
 	if (where == "begin") {
 		destination = EmuTime::zero;
 	} else if (where == "end") {
@@ -1017,7 +1017,7 @@ void ReverseManager::ReverseCmd::execute(array_ref<TclObject> tokens, TclObject&
 	}
 	auto& manager = OUTER(ReverseManager, reverseCmd);
 	auto& interp = getInterpreter();
-	string_ref subcommand = tokens[1].getString();
+	string_view subcommand = tokens[1].getString();
 	if        (subcommand == "start") {
 		manager.start();
 	} else if (subcommand == "stop") {

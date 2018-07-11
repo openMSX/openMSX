@@ -9,7 +9,7 @@ class DummyMidiInDevice final : public MidiInDevice
 {
 public:
 	void signal(EmuTime::param time) override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 };

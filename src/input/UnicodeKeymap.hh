@@ -2,7 +2,7 @@
 #define UNICODEKEYMAP_HH
 
 #include "openmsx.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <vector>
 #include <utility>
 #include <cassert>
@@ -124,7 +124,7 @@ public:
 		byte modmask;
 	};
 
-	explicit UnicodeKeymap(string_ref keyboardType);
+	explicit UnicodeKeymap(string_view keyboardType);
 
 	KeyInfo get(unsigned unicode) const;
 	KeyInfo getDeadkey(unsigned n) const;
@@ -142,7 +142,7 @@ public:
 private:
 	static const unsigned NUM_DEAD_KEYS = 3;
 
-	void parseUnicodeKeymapfile(string_ref data);
+	void parseUnicodeKeymapfile(string_view data);
 
 	std::vector<std::pair<unsigned, KeyInfo>> mapdata;
 	/** Contains a mask for each key matrix position, which for each modifier

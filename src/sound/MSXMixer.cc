@@ -101,7 +101,7 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 		channelSettings.recordSetting = make_unique<StringSetting>(
 			commandController, ch_name + "_record",
 			"filename to record this channel to",
-			string_ref{}, Setting::DONT_SAVE);
+			string_view{}, Setting::DONT_SAVE);
 		channelSettings.recordSetting->attach(*this);
 
 		channelSettings.muteSetting = make_unique<BooleanSetting>(
@@ -793,7 +793,7 @@ void MSXMixer::executeUntil(EmuTime::param time)
 
 // Sound device info
 
-SoundDevice* MSXMixer::findDevice(string_ref name) const
+SoundDevice* MSXMixer::findDevice(string_view name) const
 {
 	auto it = find_if(begin(infos), end(infos),
 		[&](const SoundDeviceInfo& i) {
@@ -838,7 +838,7 @@ string MSXMixer::SoundDeviceInfoTopic::help(const vector<string>& /*tokens*/) co
 void MSXMixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string_ref> devices;
+		vector<string_view> devices;
 		auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
 		for (auto& info : msxMixer.infos) {
 			devices.emplace_back(info.device->getName());

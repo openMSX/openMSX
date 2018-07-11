@@ -16,7 +16,7 @@ const unsigned UnicodeKeymap::NUM_DEAD_KEYS;
   * If successful, returns the parsed value and sets "ok" to true.
   * If unsuccessful, returns 0 and sets "ok" to false.
   */
-static unsigned parseHex(string_ref str, bool& ok)
+static unsigned parseHex(string_view str, bool& ok)
 {
 	if (str.empty()) {
 		ok = false;
@@ -54,7 +54,7 @@ static inline bool isSep(char c)
 /** Removes separator characters at the start of the given string reference.
   * Characters between a hash mark and the following newline are also skipped.
   */
-static void skipSep(string_ref& str)
+static void skipSep(string_view& str)
 {
 	while (!str.empty()) {
 		const char c = str.front();
@@ -71,7 +71,7 @@ static void skipSep(string_ref& str)
 /** Returns the next token in the given string.
   * The token and any separators preceding it are removed from the string.
   */
-static string_ref nextToken(string_ref& str)
+static string_view nextToken(string_view& str)
 {
 	skipSep(str);
 	auto tokenBegin = str.begin();
@@ -79,11 +79,11 @@ static string_ref nextToken(string_ref& str)
 		// Pop non-separator character.
 		str.pop_front();
 	}
-	return string_ref(tokenBegin, str.begin());
+	return string_view(tokenBegin, str.begin());
 }
 
 
-UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
+UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 {
 	auto filename = systemFileContext().resolve(
 		strCat("unicodemaps/unicodemap.", keyboardType));
@@ -92,7 +92,7 @@ UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 		size_t size;
 		const byte* buf = file.mmap(size);
 		parseUnicodeKeymapfile(
-			string_ref(reinterpret_cast<const char*>(buf), size));
+			string_view(reinterpret_cast<const char*>(buf), size));
 	} catch (FileException&) {
 		throw MSXException("Couldn't load unicode keymap file: ", filename);
 	}
@@ -112,7 +112,7 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
 	return deadKeys[n];
 }
 
-void UnicodeKeymap::parseUnicodeKeymapfile(string_ref data)
+void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 {
 	memset(relevantMods, 0, sizeof(relevantMods));
 
@@ -122,7 +122,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_ref data)
 			data.pop_front();
 		}
 
-		string_ref token = nextToken(data);
+		string_view token = nextToken(data);
 		if (token.empty()) {
 			// Skip empty line.
 			continue;

@@ -15,7 +15,7 @@ public:
 class JniException final : public MSXException
 {
 public:
-	explicit JniException(string_ref message)
+	explicit JniException(string_view message)
 		: MSXException(message) {}
 };
 

@@ -4,7 +4,7 @@
 #include "SettingsManager.hh"
 #include "Command.hh"
 #include "XMLElement.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <string>
 
 namespace openmsx {
@@ -21,10 +21,10 @@ public:
 	               HotKey& hotKey);
 	~SettingsConfig();
 
-	void loadSetting(const FileContext& context, string_ref filename);
-	void saveSetting(string_ref filename = {});
+	void loadSetting(const FileContext& context, string_view filename);
+	void saveSetting(string_view filename = {});
 	void setSaveSettings(bool save) { mustSaveSettings = save; }
-	void setSaveFilename(const FileContext& context, string_ref filename);
+	void setSaveFilename(const FileContext& context, string_view filename);
 
 	SettingsManager& getSettingsManager() { return settingsManager; }
 	XMLElement& getXMLElement() { return xmlElement; }

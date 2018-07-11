@@ -21,7 +21,7 @@ const string MidiOutConnector::getDescription() const
 	return "MIDI-out connector";
 }
 
-string_ref MidiOutConnector::getClass() const
+string_view MidiOutConnector::getClass() const
 {
 	return "midi out";
 }

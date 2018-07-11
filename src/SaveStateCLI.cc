@@ -18,7 +18,7 @@ void SaveStateCLI::parseOption(const string& option, array_ref<string>& cmdLine)
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_ref SaveStateCLI::optionHelp() const
+string_view SaveStateCLI::optionHelp() const
 {
 	return "Load savestate and start emulation from there";
 }
@@ -52,7 +52,7 @@ void SaveStateCLI::parseFileType(const string& filename,
 	command4.executeCommand(interp);
 }
 
-string_ref SaveStateCLI::fileTypeHelp() const
+string_view SaveStateCLI::fileTypeHelp() const
 {
 	return "openMSX savestate";
 }

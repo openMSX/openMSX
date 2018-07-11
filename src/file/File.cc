@@ -14,7 +14,7 @@ namespace openmsx {
 
 File::File() = default;
 
-static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
+static std::unique_ptr<FileBase> init(string_view url, File::OpenMode mode)
 {
 	static const byte GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
 	static const byte ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
@@ -43,12 +43,12 @@ File::File(const Filename& filename, OpenMode mode)
 {
 }
 
-File::File(string_ref url, OpenMode mode)
+File::File(string_view url, OpenMode mode)
 	: file(init(url, mode))
 {
 }
 
-File::File(string_ref filename, const char* mode)
+File::File(string_view filename, const char* mode)
 	: file(make_unique<LocalFile>(filename, mode))
 {
 }

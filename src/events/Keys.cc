@@ -37,7 +37,7 @@ struct CmpKeys {
 	}
 
 	// for std::lower_bound
-	bool operator()(const P& x, string_ref y) const {
+	bool operator()(const P& x, string_view y) const {
 		StringOp::caseless cmp;
 		return cmp(x.first, y);
 	}
@@ -48,7 +48,7 @@ static constexpr auto getSortedKeys()
 	auto keys = cstd::array_of<P>(
 #else
 
-using P = std::pair<string_ref, KeyCode>;
+using P = std::pair<string_view, KeyCode>;
 using CmpKeys = CmpTupleElement<0, StringOp::caseless>;
 
 static std::vector<P> getSortedKeys()
@@ -329,13 +329,13 @@ static std::vector<P> getSortedKeys()
 
 static CONSTEXPR auto keys = getSortedKeys();
 
-KeyCode getCode(string_ref name)
+KeyCode getCode(string_view name)
 {
 	auto result = static_cast<KeyCode>(0);
-	string_ref::size_type lastPos = 0;
-	while (lastPos != string_ref::npos) {
+	string_view::size_type lastPos = 0;
+	while (lastPos != string_view::npos) {
 		auto pos = name.substr(lastPos).find_first_of(",+/");
-		auto part = (pos != string_ref::npos)
+		auto part = (pos != string_view::npos)
 		          ? name.substr(lastPos, pos)
 		          : name.substr(lastPos);
 		auto it = std::lower_bound(begin(keys), end(keys), part, CmpKeys());
@@ -350,9 +350,9 @@ KeyCode getCode(string_ref name)
 			return K_NONE;
 		}
 		result = static_cast<KeyCode>(result | partCode);
-		lastPos = (pos != string_ref::npos)
+		lastPos = (pos != string_view::npos)
 		        ? lastPos + pos + 1
-		        : string_ref::npos;
+		        : string_view::npos;
 	}
 	return result;
 }
@@ -417,7 +417,7 @@ const string getName(KeyCode keyCode)
 	string result;
 	for (auto& p : keys) {
 		if (p.second == (keyCode & K_MASK)) {
-			result = string_ref(p.first).str();
+			result = string_view(p.first).str();
 			break;
 		}
 	}

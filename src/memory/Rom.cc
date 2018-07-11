@@ -256,7 +256,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	//      HardwareConfig::createRomConfig
 	if (StringOp::startsWith(name, "MSXRom")) {
 		auto& db = motherBoard.getReactor().getSoftwareDatabase();
-		string_ref title;
+		string_view title;
 		if (const auto* romInfo = db.fetchRomInfo(getOriginalSHA1())) {
 			title = romInfo->getTitle(db.getBufferStart());
 		}

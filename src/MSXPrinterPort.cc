@@ -73,7 +73,7 @@ const string MSXPrinterPort::getDescription() const
 	return "MSX Printer port";
 }
 
-string_ref MSXPrinterPort::getClass() const
+string_view MSXPrinterPort::getClass() const
 {
 	return "Printer Port";
 }

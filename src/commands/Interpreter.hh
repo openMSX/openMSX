@@ -3,7 +3,7 @@
 
 #include "TclParser.hh"
 #include "TclObject.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <vector>
 #include <tcl.h>
 
@@ -48,7 +48,7 @@ public:
 	  */
 	void deleteNamespace(const std::string& name);
 
-	TclParser parse(string_ref command);
+	TclParser parse(string_view command);
 
 	void poll();
 

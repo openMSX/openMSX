@@ -48,20 +48,20 @@ void Debugger::registerDebuggable(string name, Debuggable& debuggable)
 	debuggables.emplace_noDuplicateCheck(std::move(name), &debuggable);
 }
 
-void Debugger::unregisterDebuggable(string_ref name, Debuggable& debuggable)
+void Debugger::unregisterDebuggable(string_view name, Debuggable& debuggable)
 {
 	assert(debuggables.contains(name));
 	assert(debuggables[name.str()] == &debuggable); (void)debuggable;
 	debuggables.erase(name);
 }
 
-Debuggable* Debugger::findDebuggable(string_ref name)
+Debuggable* Debugger::findDebuggable(string_view name)
 {
 	auto it = debuggables.find(name);
 	return (it != end(debuggables)) ? it->second : nullptr;
 }
 
-Debuggable& Debugger::getDebuggable(string_ref name)
+Debuggable& Debugger::getDebuggable(string_view name)
 {
 	Debuggable* result = findDebuggable(name);
 	if (!result) {
@@ -82,13 +82,13 @@ void Debugger::unregisterProbe(ProbeBase& probe)
 	probes.erase(probe.getName());
 }
 
-ProbeBase* Debugger::findProbe(string_ref name)
+ProbeBase* Debugger::findProbe(string_view name)
 {
 	auto it = probes.find(name);
 	return (it != end(probes)) ? *it : nullptr;
 }
 
-ProbeBase& Debugger::getProbe(string_ref name)
+ProbeBase& Debugger::getProbe(string_view name)
 {
 	auto* result = findProbe(name);
 	if (!result) {
@@ -108,7 +108,7 @@ unsigned Debugger::insertProbeBreakPoint(
 	return result;
 }
 
-void Debugger::removeProbeBreakPoint(string_ref name)
+void Debugger::removeProbeBreakPoint(string_view name)
 {
 	if (name.starts_with("pp#")) {
 		// remove by id
@@ -216,7 +216,7 @@ bool Debugger::Cmd::needRecord(array_ref<TclObject> tokens) const
 	// example would allow to set a callback that can execute arbitrary Tcl
 	// code. See comments in RecordedCommand for more details.
 	if (tokens.size() < 2) return false;
-	string_ref subCmd = tokens[1].getString();
+	string_view subCmd = tokens[1].getString();
 	return (subCmd == "write") || (subCmd == "write_block");
 }
 
@@ -226,7 +226,7 @@ void Debugger::Cmd::execute(
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
-	string_ref subCmd = tokens[1].getString();
+	string_view subCmd = tokens[1].getString();
 	if (subCmd == "read") {
 		read(tokens, result);
 	} else if (subCmd == "read_block") {
@@ -414,7 +414,7 @@ void Debugger::Cmd::removeBreakPoint(
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	auto& breakPoints = interface.getBreakPoints();
 
-	string_ref tmp = tokens[2].getString();
+	string_view tmp = tokens[2].getString();
 	if (tmp.starts_with("bp#")) {
 		// remove by id
 		try {
@@ -477,7 +477,7 @@ void Debugger::Cmd::setWatchPoint(array_ref<TclObject> tokens, TclObject& result
 		condition = tokens[4];
 		// fall-through
 	case 4: { // address + type
-		string_ref typeStr = tokens[2].getString();
+		string_view typeStr = tokens[2].getString();
 		unsigned max;
 		if (typeStr == "read_io") {
 			type = WatchPoint::READ_IO;
@@ -529,7 +529,7 @@ void Debugger::Cmd::removeWatchPoint(
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	string_ref tmp = tokens[2].getString();
+	string_view tmp = tokens[2].getString();
 	try {
 		if (tmp.starts_with("wp#")) {
 			// remove by id
@@ -624,7 +624,7 @@ void Debugger::Cmd::removeCondition(
 		throw SyntaxError();
 	}
 
-	string_ref tmp = tokens[2].getString();
+	string_view tmp = tokens[2].getString();
 	try {
 		if (tmp.starts_with("cond#")) {
 			// remove by id
@@ -664,7 +664,7 @@ void Debugger::Cmd::probe(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() < 3) {
 		throw CommandException("Missing argument");
 	}
-	string_ref subCmd = tokens[2].getString();
+	string_view subCmd = tokens[2].getString();
 	if (subCmd == "list") {
 		probeList(tokens, result);
 	} else if (subCmd == "desc") {
@@ -1080,7 +1080,7 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "probe") &&
 		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
 		     (tokens[2] == "set_bp"))) {
-			std::vector<string_ref> probeNames;
+			std::vector<string_view> probeNames;
 			for (auto* p : debugger().probes) {
 				probeNames.emplace_back(p->getName());
 			}

@@ -1,7 +1,7 @@
 #ifndef SHA1_HH
 #define SHA1_HH
 
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <ostream>
 #include <string>
 #include <cstdint>
@@ -25,7 +25,7 @@ public:
 	// note: default copy and assign are ok
 	Sha1Sum();
 	/** Construct from string, throws when string is malformed. */
-	explicit Sha1Sum(string_ref hex);
+	explicit Sha1Sum(string_view hex);
 
 	/** Parse from a 40-character long buffer.
 	 * @pre: 'str' points to a buffer of at least 40 characters

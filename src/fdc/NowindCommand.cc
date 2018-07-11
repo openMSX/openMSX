@@ -49,7 +49,7 @@ unsigned NowindCommand::searchRomdisk(const NowindHost::Drives& drives) const
 }
 
 void NowindCommand::processHdimage(
-	string_ref hdimage, NowindHost::Drives& drives) const
+	string_view hdimage, NowindHost::Drives& drives) const
 {
 	MSXMotherBoard& motherboard = interface.getMotherBoard();
 
@@ -141,9 +141,9 @@ void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	array_ref<TclObject> args(&tokens[1], tokens.size() - 1);
 	while (error.empty() && !args.empty()) {
 		bool createDrive = false;
-		string_ref image;
+		string_view image;
 
-		string_ref arg = args.front().getString();
+		string_view arg = args.front().getString();
 		args.pop_front();
 		if        ((arg == "--ctrl")    || (arg == "-c")) {
 			enablePhantom  = false;
@@ -181,7 +181,7 @@ void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 				error = strCat("Missing argument for option: ", arg);
 			} else {
 				try {
-					string_ref hdimage = args.front().getString();
+					string_view hdimage = args.front().getString();
 					args.pop_front();
 					processHdimage(hdimage, tmpDrives);
 					changeDrives = true;

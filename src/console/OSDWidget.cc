@@ -204,17 +204,17 @@ void OSDWidget::resortDown(OSDWidget* elem)
 #endif
 }
 
-vector<string_ref> OSDWidget::getProperties() const
+vector<string_view> OSDWidget::getProperties() const
 {
 	static const char* const vals[] = {
 		"-type", "-x", "-y", "-z", "-relx", "-rely", "-scaled",
 		"-clip", "-mousecoord", "-suppressErrors",
 	};
-	return vector<string_ref>(std::begin(vals), std::end(vals));
+	return vector<string_view>(std::begin(vals), std::end(vals));
 }
 
 void OSDWidget::setProperty(
-	Interpreter& interp, string_ref propName, const TclObject& value)
+	Interpreter& interp, string_view propName, const TclObject& value)
 {
 	if (propName == "-type") {
 		throw CommandException("-type property is readonly");
@@ -257,7 +257,7 @@ void OSDWidget::setProperty(
 	}
 }
 
-void OSDWidget::getProperty(string_ref propName, TclObject& result) const
+void OSDWidget::getProperty(string_view propName, TclObject& result) const
 {
 	if (propName == "-type") {
 		result.setString(getType());

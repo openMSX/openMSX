@@ -631,7 +631,7 @@ const string& ImagePrinterMSX::getName() const
 	return name;
 }
 
-string_ref ImagePrinterMSX::getDescription() const
+string_view ImagePrinterMSX::getDescription() const
 {
 	// TODO which printer type
 	return "Emulate MSX printer, prints to image.";
@@ -1211,7 +1211,7 @@ const string& ImagePrinterEpson::getName() const
 	return name;
 }
 
-string_ref ImagePrinterEpson::getDescription() const
+string_view ImagePrinterEpson::getDescription() const
 {
 	return "Emulate Epson FX80 printer, prints to image.";
 }

@@ -82,15 +82,15 @@ CliConnection::~CliConnection()
 	eventDistributor.unregisterEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
 }
 
-void CliConnection::log(CliComm::LogLevel level, string_ref message)
+void CliConnection::log(CliComm::LogLevel level, string_view message)
 {
 	auto levelStr = CliComm::getLevelStrings();
 	output(strCat("<log level=\"", levelStr[level], "\">",
 	              XMLElement::XMLEscape(message.str()), "</log>\n"));
 }
 
-void CliConnection::update(CliComm::UpdateType type, string_ref machine,
-                              string_ref name, string_ref value)
+void CliConnection::update(CliComm::UpdateType type, string_view machine,
+                              string_view name, string_view value)
 {
 	if (!getUpdateEnable(type)) return;
 
@@ -192,7 +192,7 @@ void StdioConnection::run()
 	}
 }
 
-void StdioConnection::output(string_ref message)
+void StdioConnection::output(string_view message)
 {
 	std::cout << message << std::flush;
 }
@@ -212,7 +212,7 @@ static const HANDLE OPENMSX_INVALID_HANDLE_VALUE = reinterpret_cast<HANDLE>(-1);
 
 PipeConnection::PipeConnection(CommandController& commandController_,
                                EventDistributor& eventDistributor_,
-                               string_ref name)
+                               string_view name)
 	: CliConnection(commandController_, eventDistributor_)
 {
 	string pipeName = "\\\\.\\pipe\\" + name;
@@ -291,7 +291,7 @@ void PipeConnection::run()
 	pipeHandle = OPENMSX_INVALID_HANDLE_VALUE;
 }
 
-void PipeConnection::output(string_ref message)
+void PipeConnection::output(string_view message)
 {
 	if (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
 		std::cout << message << std::flush;
@@ -362,7 +362,7 @@ void SocketConnection::run()
 	closeSocket();
 }
 
-void SocketConnection::output(string_ref message)
+void SocketConnection::output(string_view message)
 {
 	if (!established) { // TODO needs locking?
 		// Connection isn't authorized yet (and opening tag is not

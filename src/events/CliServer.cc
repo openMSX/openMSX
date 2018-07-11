@@ -59,7 +59,7 @@ static bool checkSocketDir(const string& dir)
 
 static bool checkSocket(const string& socket)
 {
-	string_ref name = FileOperations::getFilename(socket);
+	string_view name = FileOperations::getFilename(socket);
 	if (!name.starts_with("socket.")) {
 		return false; // wrong name
 	}

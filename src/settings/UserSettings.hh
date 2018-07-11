@@ -2,7 +2,7 @@
 #define USERSETTINGS_HH
 
 #include "Command.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <vector>
 #include <memory>
 
@@ -19,7 +19,7 @@ public:
 
 	void addSetting(std::unique_ptr<Setting> setting);
 	void deleteSetting(Setting& setting);
-	Setting* findSetting(string_ref name) const;
+	Setting* findSetting(string_view name) const;
 	const Settings& getSettings() const { return settings; }
 
 private:
@@ -41,7 +41,7 @@ private:
 		std::unique_ptr<Setting> createInteger(array_ref<TclObject> tokens);
 		std::unique_ptr<Setting> createFloat  (array_ref<TclObject> tokens);
 
-		std::vector<string_ref> getSettingNames() const;
+		std::vector<string_view> getSettingNames() const;
 	} userSettingCommand;
 
 	Settings settings; // unordered

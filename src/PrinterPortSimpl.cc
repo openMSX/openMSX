@@ -59,7 +59,7 @@ const std::string& PrinterPortSimpl::getName() const
 	return name;
 }
 
-string_ref PrinterPortSimpl::getDescription() const
+string_view PrinterPortSimpl::getDescription() const
 {
 	return "Play samples via your printer port.";
 }

@@ -11,7 +11,7 @@ using std::make_shared;
 namespace openmsx {
 namespace InputEventFactory {
 
-static EventPtr parseKeyEvent(string_ref str, unsigned unicode)
+static EventPtr parseKeyEvent(string_view str, unsigned unicode)
 {
 	auto keyCode = Keys::getCode(str);
 	if (keyCode == Keys::K_NONE) {
@@ -45,7 +45,7 @@ static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
 	throw CommandException("Invalid keyboard event: ", str.getString());
 }
 
-static bool upDown(string_ref str)
+static bool upDown(string_view str)
 {
 	if (str == "up") {
 		return true;
@@ -222,7 +222,7 @@ EventPtr createInputEvent(const TclObject& str, Interpreter& interp)
 		return parseKeyEvent(type, 0);
 	}
 }
-EventPtr createInputEvent(string_ref str, Interpreter& interp)
+EventPtr createInputEvent(string_view str, Interpreter& interp)
 {
 	return createInputEvent(TclObject(str), interp);
 }

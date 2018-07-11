@@ -62,7 +62,7 @@ void GlobalCommandController::registerProxyCommand(const string& name)
 	++it->first;
 }
 
-void GlobalCommandController::unregisterProxyCommand(string_ref name)
+void GlobalCommandController::unregisterProxyCommand(string_view name)
 {
 	auto it = proxyCommandMap.find(name);
 	assert(it != end(proxyCommandMap));
@@ -74,7 +74,7 @@ void GlobalCommandController::unregisterProxyCommand(string_ref name)
 }
 
 GlobalCommandController::ProxySettings::iterator
-GlobalCommandController::findProxySetting(string_ref name)
+GlobalCommandController::findProxySetting(string_view name)
 {
 	return find_if(begin(proxySettings), end(proxySettings),
 		[&](ProxySettings::value_type& v) { return v.first->getFullName() == name; });
@@ -129,7 +129,7 @@ void GlobalCommandController::registerCommand(
 }
 
 void GlobalCommandController::unregisterCommand(
-	Command& command, string_ref str)
+	Command& command, string_view str)
 {
 	assert(commands.contains(str));
 	assert(commands[str.str()] == &command);
@@ -138,7 +138,7 @@ void GlobalCommandController::unregisterCommand(
 }
 
 void GlobalCommandController::registerCompleter(
-	CommandCompleter& completer, string_ref str)
+	CommandCompleter& completer, string_view str)
 {
 	if (str.starts_with("::")) str.remove_prefix(2); // drop leading ::
 	assert(!commandCompleters.contains(str));
@@ -146,7 +146,7 @@ void GlobalCommandController::registerCompleter(
 }
 
 void GlobalCommandController::unregisterCompleter(
-	CommandCompleter& completer, string_ref str)
+	CommandCompleter& completer, string_view str)
 {
 	if (str.starts_with("::")) str.remove_prefix(2); // drop leading ::
 	assert(commandCompleters.contains(str));
@@ -166,12 +166,12 @@ void GlobalCommandController::unregisterSetting(Setting& setting)
 	getSettingsManager().unregisterSetting(setting);
 }
 
-bool GlobalCommandController::hasCommand(string_ref command) const
+bool GlobalCommandController::hasCommand(string_view command) const
 {
 	return commands.find(command) != end(commands);
 }
 
-void GlobalCommandController::split(string_ref str, vector<string>& tokens,
+void GlobalCommandController::split(string_view str, vector<string>& tokens,
                                     const char delimiter)
 {
 	enum ParseState {Alpha, BackSlash, Quote};
@@ -326,7 +326,7 @@ void GlobalCommandController::source(const string& script)
 	}
 }
 
-string GlobalCommandController::tabCompletion(string_ref command)
+string GlobalCommandController::tabCompletion(string_view command)
 {
 	// split on 'active' command (the command that should actually be
 	// completed). Some examples:
@@ -335,8 +335,8 @@ string GlobalCommandController::tabCompletion(string_ref command)
 	//    bind F6 { cycl<tab> <-- should complete 'cycle' instead of 'bind'
 	TclParser parser = interpreter.parse(command);
 	int last = parser.getLast();
-	string_ref pre  = command.substr(0, last);
-	string_ref post = command.substr(last);
+	string_view pre  = command.substr(0, last);
+	string_view post = command.substr(last);
 
 	// split command string in tokens
 	vector<string> originalTokens;
@@ -376,8 +376,8 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		return;
 	}
 	if (tokens.size() == 1) {
-		string_ref cmd = tokens[0];
-		string_ref leadingNs;
+		string_view cmd = tokens[0];
+		string_view leadingNs;
 		// remove leading ::
 		if (cmd.starts_with("::")) {
 			cmd.remove_prefix(2);
@@ -385,28 +385,28 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		}
 		// get current (typed) namespace
 		auto p1 = cmd.rfind("::");
-		string_ref ns = (p1 == string_ref::npos) ? cmd : cmd.substr(0, p1 + 2);
+		string_view ns = (p1 == string_view::npos) ? cmd : cmd.substr(0, p1 + 2);
 
 		// build a list of all command strings
 		TclObject names = interpreter.getCommandNames();
 		vector<string> names2;
 		names2.reserve(names.size());
-		for (string_ref n1 : names) {
+		for (string_view n1 : names) {
 			// remove leading ::
 			if (n1.starts_with("::")) n1.remove_prefix(2);
 			// initial namespace part must match
 			if (!n1.starts_with(ns)) continue;
 			// the part following the initial namespace
-			string_ref n2 = n1.substr(ns.size());
+			string_view n2 = n1.substr(ns.size());
 			// only keep upto the next namespace portion,
 			auto p2 = n2.find("::");
-			auto n3 = (p2 == string_ref::npos) ? n1 : n1.substr(0, ns.size() + p2 + 2);
+			auto n3 = (p2 == string_view::npos) ? n1 : n1.substr(0, ns.size() + p2 + 2);
 			// don't care about adding the same string multiple times
 			names2.push_back(strCat(leadingNs, n3));
 		}
 		Completer::completeString(tokens, names2);
 	} else {
-		string_ref cmd = tokens.front();
+		string_view cmd = tokens.front();
 		if (cmd.starts_with("::")) cmd.remove_prefix(2); // drop leading ::
 
 		auto it = commandCompleters.find(cmd);
@@ -460,7 +460,7 @@ void GlobalCommandController::HelpCmd::execute(
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
 		const auto& k = keys(controller.commandCompleters);
-		vector<string_ref> cmds(begin(k), end(k));
+		vector<string_view> cmds(begin(k), end(k));
 		std::sort(begin(cmds), end(cmds));
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');

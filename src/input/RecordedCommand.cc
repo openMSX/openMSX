@@ -16,7 +16,7 @@ namespace openmsx {
 RecordedCommand::RecordedCommand(CommandController& commandController_,
                                  StateChangeDistributor& stateChangeDistributor_,
                                  Scheduler& scheduler_,
-                                 string_ref name_)
+                                 string_view name_)
 	: Command(commandController_, name_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, scheduler(scheduler_)
@@ -47,10 +47,10 @@ bool RecordedCommand::needRecord(array_ref<TclObject> /*tokens*/) const
 	return true;
 }
 
-static string_ref getBaseName(string_ref str)
+static string_view getBaseName(string_view str)
 {
 	auto pos = str.rfind("::");
-	return (pos == string_ref::npos) ? str : str.substr(pos + 2);
+	return (pos == string_view::npos) ? str : str.substr(pos + 2);
 }
 
 void RecordedCommand::signalStateChange(const std::shared_ptr<StateChange>& event)

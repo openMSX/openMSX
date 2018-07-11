@@ -124,7 +124,7 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 {
 	try {
 		auto* output = static_cast<Interpreter*>(clientData)->output;
-		string_ref text(buf, toWrite);
+		string_view text(buf, toWrite);
 		if (!text.empty() && output) {
 			output->output(text);
 		}
@@ -324,7 +324,7 @@ static BaseSetting* getTraceSetting(uintptr_t traceID)
 }
 
 #ifndef NDEBUG
-static string_ref removeColonColon(string_ref s)
+static string_view removeColonColon(string_view s)
 {
 	if (s.starts_with("::")) s.remove_prefix(2);
 	return s;
@@ -437,7 +437,7 @@ void Interpreter::poll()
 	Tcl_DoOneEvent(TCL_DONT_WAIT);
 }
 
-TclParser Interpreter::parse(string_ref command)
+TclParser Interpreter::parse(string_view command)
 {
 	return TclParser(interp, command);
 }

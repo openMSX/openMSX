@@ -2,7 +2,7 @@
 #define FILEMANIPULATOR_HH
 
 #include "Command.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <vector>
 #include <memory>
 
@@ -45,8 +45,8 @@ private:
 
 	std::string getMachinePrefix() const;
 	Drives::iterator findDriveSettings(DiskContainer& drive);
-	Drives::iterator findDriveSettings(string_ref name);
-	DriveSettings& getDriveSettings(string_ref diskname);
+	Drives::iterator findDriveSettings(string_view name);
+	DriveSettings& getDriveSettings(string_view diskname);
 	std::unique_ptr<DiskPartition> getPartition(
 		const DriveSettings& driveData);
 	std::unique_ptr<MSXtar> getMSXtar(SectorAccessibleDisk& disk,
@@ -54,14 +54,14 @@ private:
 
 	void create(array_ref<TclObject> tokens);
 	void savedsk(const DriveSettings& driveData,
-	             string_ref filename);
+	             string_view filename);
 	void format(DriveSettings& driveData, bool dos1);
-	std::string chdir(DriveSettings& driveData, string_ref filename);
-	void mkdir(DriveSettings& driveData, string_ref filename);
+	std::string chdir(DriveSettings& driveData, string_view filename);
+	void mkdir(DriveSettings& driveData, string_view filename);
 	std::string dir(DriveSettings& driveData);
 	std::string import(DriveSettings& driveData,
 	                   array_ref<TclObject> lists);
-	void exprt(DriveSettings& driveData, string_ref dirname,
+	void exprt(DriveSettings& driveData, string_view dirname,
 	           array_ref<TclObject> lists);
 
 	Reactor& reactor;

@@ -76,7 +76,7 @@ const std::string SVIPrinterPort::getDescription() const
 	return "Spectravideo SVI-328 Printer port";
 }
 
-string_ref SVIPrinterPort::getClass() const
+string_view SVIPrinterPort::getClass() const
 {
 	return "Printer Port";
 }

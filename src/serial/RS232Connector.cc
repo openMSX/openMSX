@@ -19,7 +19,7 @@ const std::string RS232Connector::getDescription() const
 	return "Serial RS232 connector";
 }
 
-string_ref RS232Connector::getClass() const
+string_view RS232Connector::getClass() const
 {
 	return "RS232";
 }

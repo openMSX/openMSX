@@ -16,12 +16,12 @@ namespace openmsx {
 InterpreterOutput* Completer::output = nullptr;
 
 
-Completer::Completer(string_ref name_)
+Completer::Completer(string_view name_)
 	: name(name_.str())
 {
 }
 
-static bool formatHelper(const vector<string_ref>& input, size_t columnLimit,
+static bool formatHelper(const vector<string_view>& input, size_t columnLimit,
                          vector<string>& result)
 {
 	size_t column = 0;
@@ -41,7 +41,7 @@ static bool formatHelper(const vector<string_ref>& input, size_t columnLimit,
 	return true;
 }
 
-static vector<string> format(const vector<string_ref>& input, size_t columnLimit)
+static vector<string> format(const vector<string_view>& input, size_t columnLimit)
 {
 	vector<string> result;
 	for (size_t lines = 1; lines < input.size(); ++lines) {
@@ -56,12 +56,12 @@ static vector<string> format(const vector<string_ref>& input, size_t columnLimit
 	return result;
 }
 
-vector<string> Completer::formatListInColumns(const vector<string_ref>& input)
+vector<string> Completer::formatListInColumns(const vector<string_view>& input)
 {
 	return format(input, output->getOutputColumns() - 1);
 }
 
-bool Completer::equalHead(string_ref s1, string_ref s2, bool caseSensitive)
+bool Completer::equalHead(string_view s1, string_view s2, bool caseSensitive)
 {
 	if (s2.size() < s1.size()) return false;
 	if (caseSensitive) {
@@ -71,7 +71,7 @@ bool Completer::equalHead(string_ref s1, string_ref s2, bool caseSensitive)
 	}
 }
 
-bool Completer::completeImpl(string& str, vector<string_ref> matches,
+bool Completer::completeImpl(string& str, vector<string_view> matches,
                              bool caseSensitive)
 {
 	for (auto& m : matches) {
@@ -107,7 +107,7 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 		auto b = begin(*it);
 		auto e = b + str.size();
 		utf8::unchecked::next(e); // one more utf8 char
-		string_ref string2(b, e);
+		string_view string2(b, e);
 		for (/**/; it != end(matches); ++it) {
 			if (!equalHead(string2, *it, caseSensitive)) {
 				goto out; // TODO rewrite this
@@ -130,17 +130,17 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 void Completer::completeFileName(vector<string>& tokens,
                                  const FileContext& context)
 {
-	completeFileNameImpl(tokens, context, vector<string_ref>());
+	completeFileNameImpl(tokens, context, vector<string_view>());
 }
 
 void Completer::completeFileNameImpl(vector<string>& tokens,
                                      const FileContext& context,
-                                     vector<string_ref> matches)
+                                     vector<string_view> matches)
 {
 	string& filename = tokens.back();
 	filename = FileOperations::expandTilde(filename);
 	filename = FileOperations::expandCurrentDirFromDrive(filename);
-	string_ref dirname1 = FileOperations::getDirName(filename);
+	string_view dirname1 = FileOperations::getDirName(filename);
 
 	vector<string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {

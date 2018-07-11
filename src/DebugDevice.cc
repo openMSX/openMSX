@@ -143,7 +143,7 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 	}
 }
 
-void DebugDevice::openOutput(string_ref name)
+void DebugDevice::openOutput(string_view name)
 {
 	fileNameString = name.str();
 	debugOut.close();

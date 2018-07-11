@@ -403,10 +403,10 @@ void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& res
 	bool rawShot = false;
 	bool withOsd = false;
 	bool doubleSize = false;
-	string_ref prefix = "openmsx";
+	string_view prefix = "openmsx";
 	vector<TclObject> arguments;
 	for (unsigned i = 1; i < tokens.size(); ++i) {
-		string_ref tok = tokens[i].getString();
+		string_view tok = tokens[i].getString();
 		if (StringOp::startsWith(tok, '-')) {
 			if (tok == "--") {
 				arguments.insert(end(arguments),
@@ -446,7 +446,7 @@ void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& res
 		                       "combination with -raw");
 	}
 
-	string_ref fname;
+	string_view fname;
 	switch (arguments.size()) {
 	case 0:
 		// nothing

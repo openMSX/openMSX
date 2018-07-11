@@ -289,14 +289,14 @@ InfoCommand& Reactor::getOpenMSXInfoCommand()
 	return globalCommandController->getOpenMSXInfoCommand();
 }
 
-vector<string> Reactor::getHwConfigs(string_ref type)
+vector<string> Reactor::getHwConfigs(string_view type)
 {
 	vector<string> result;
 	for (auto& p : systemFileContext().getPaths()) {
 		const auto& path = FileOperations::join(p, type);
 		ReadDir configsDir(path);
 		while (auto* entry = configsDir.getEntry()) {
-			string_ref name = entry->d_name;
+			string_view name = entry->d_name;
 			const auto& fullname = FileOperations::join(path, name);
 			if (name.ends_with(".xml") &&
 			    FileOperations::isRegularFile(fullname)) {
@@ -343,16 +343,16 @@ string Reactor::getMachineID() const
 	return activeBoard ? activeBoard->getMachineID() : string{};
 }
 
-vector<string_ref> Reactor::getMachineIDs() const
+vector<string_view> Reactor::getMachineIDs() const
 {
-	vector<string_ref> result;
+	vector<string_view> result;
 	for (auto& b : boards) {
 		result.emplace_back(b->getMachineID());
 	}
 	return result;
 }
 
-MSXMotherBoard& Reactor::getMachine(string_ref machineID) const
+MSXMotherBoard& Reactor::getMachine(string_view machineID) const
 {
 	for (auto& b : boards) {
 		if (b->getMachineID() == machineID) {
@@ -877,7 +877,7 @@ StoreMachineCommand::StoreMachineCommand(
 void StoreMachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	string filename;
-	string_ref machineID;
+	string_view machineID;
 	switch (tokens.size()) {
 	case 1:
 		machineID = reactor.getMachineID();
