@@ -1325,7 +1325,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoyMega.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomDooly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\string_ref.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\string_view.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\rapidsax.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.cc" />
@@ -2829,7 +2829,8 @@
     <None Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\hash_map.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\hash_set.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\string_ref.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\string_view.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\strCat.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\rapidsax.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.hh" />
