@@ -215,7 +215,7 @@ PipeConnection::PipeConnection(CommandController& commandController_,
                                string_view name)
 	: CliConnection(commandController_, eventDistributor_)
 {
-	string pipeName = "\\\\.\\pipe\\" + name;
+	string pipeName = strCat("\\\\.\\pipe\\", name);
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, nullptr,
 	                         OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr);
 	if (pipeHandle == OPENMSX_INVALID_HANDLE_VALUE) {

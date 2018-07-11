@@ -785,7 +785,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXDeviceSwitch.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXE6Timer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXHiResTimer.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\MSXException.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXResetStatusRegister.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXKanji.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXKanji12.cc" />
