@@ -8,6 +8,7 @@
 #include "Scheduler.hh"
 #include "serialize.hh"
 #include "memory.hh"
+#include "StringOp.hh"
 #include <mach/mach_time.h>
 
 
