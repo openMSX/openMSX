@@ -6,6 +6,7 @@
 #include "serialize.hh"
 #include "memory.hh"
 #include "openmsx.hh"
+#include "StringOp.hh"
 
 #include <mach/mach_time.h>
 #include <cassert>
