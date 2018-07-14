@@ -335,10 +335,8 @@ template<class T> void CPUCore<T>::invalidateMemCache(unsigned start, unsigned s
 	if (interface) interface->tick(CacheLineCounters::InvalidateCache);
 	unsigned first = start / CacheLine::SIZE;
 	unsigned num = (size + CacheLine::SIZE - 1) / CacheLine::SIZE;
-	memset(&readCacheLine  [first], 0, num * sizeof(byte*)); // nullptr
-	memset(&writeCacheLine [first], 0, num * sizeof(byte*)); //
-	memset(&readCacheTried [first], 0, num * sizeof(bool));  // FALSE
-	memset(&writeCacheTried[first], 0, num * sizeof(bool));  //
+	memset(&readCacheLine  [first], 0, num * sizeof(byte*)); // nullptr: means not a valid entry and not
+	memset(&writeCacheLine [first], 0, num * sizeof(byte*)); //   yet attempted to fill this entry
 }
 
 template<class T> void CPUCore<T>::doReset(EmuTime::param time)
@@ -588,8 +586,8 @@ NEVER_INLINE byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
 	interface->tick(CacheLineCounters::NonCachedRead);
 	// not cached
 	unsigned high = address >> CacheLine::BITS;
-	if (!readCacheTried[high]) {
-		// try to cache now
+        if (readCacheLine[high] == nullptr) {
+		// try to cache now (not a valid entry, and not yet tried)
 		unsigned addrBase = address & CacheLine::HIGH;
 		if (const byte* line = interface->getReadCacheLine(addrBase)) {
 			// cached ok
@@ -600,7 +598,7 @@ NEVER_INLINE byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
 		}
 	}
 	// uncacheable
-	readCacheTried[high] = true;
+	readCacheLine[high] = reinterpret_cast<const byte*>(1);
 	T::template PRE_MEM<PRE_PB, POST_PB>(address);
 	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
@@ -612,7 +610,7 @@ template<class T> template<bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE byte CPUCore<T>::RDMEM_impl2(unsigned address, unsigned cc)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
-	if (likely(line != nullptr)) {
+	if (likely(uintptr_t(line) > 1)) {
 		// cached, fast path
 		T::template PRE_MEM<PRE_PB, POST_PB>(address);
 		T::template POST_MEM<       POST_PB>(address);
@@ -658,7 +656,7 @@ template<class T> template<bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl2(unsigned address, unsigned cc)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
-	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && line)) {
+	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && (uintptr_t(line) > 1))) {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<PRE_PB, POST_PB>(address);
 		T::template POST_WORD<       POST_PB>(address);
@@ -692,7 +690,7 @@ NEVER_INLINE void CPUCore<T>::WRMEMslow(unsigned address, byte value, unsigned c
 	interface->tick(CacheLineCounters::NonCachedWrite);
 	// not cached
 	unsigned high = address >> CacheLine::BITS;
-	if (!writeCacheTried[high]) {
+	if (writeCacheLine[high] == nullptr) {
 		// try to cache now
 		unsigned addrBase = address & CacheLine::HIGH;
 		if (byte* line = interface->getWriteCacheLine(addrBase)) {
@@ -705,7 +703,7 @@ NEVER_INLINE void CPUCore<T>::WRMEMslow(unsigned address, byte value, unsigned c
 		}
 	}
 	// uncacheable
-	writeCacheTried[high] = true;
+	writeCacheLine[high] = reinterpret_cast<byte*>(1);
 	T::template PRE_MEM<PRE_PB, POST_PB>(address);
 	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
@@ -717,7 +715,7 @@ ALWAYS_INLINE void CPUCore<T>::WRMEM_impl2(
 	unsigned address, byte value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely(line != nullptr)) {
+	if (likely(uintptr_t(line) > 1)) {
 		// cached, fast path
 		T::template PRE_MEM<PRE_PB, POST_PB>(address);
 		T::template POST_MEM<       POST_PB>(address);
@@ -750,7 +748,7 @@ template<class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(
 	unsigned address, unsigned value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && line)) {
+	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && (uintptr_t(line) > 1))) {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<true, true>(address);
 		T::template POST_WORD<     true>(address);
@@ -774,7 +772,7 @@ ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev2(
 	unsigned address, unsigned value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && line)) {
+	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && (uintptr_t(line) > 1))) {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<PRE_PB, POST_PB>(address);
 		T::template POST_WORD<       POST_PB>(address);
@@ -900,7 +898,7 @@ void CPUCore<T>::executeInstructions()
 		incR(1); \
 		unsigned address = getPC(); \
 		const byte* line = readCacheLine[address >> CacheLine::BITS]; \
-		if (likely(line != nullptr)) { \
+		if (likely(uintptr_t(line) > 1)) { \
 			T::template PRE_MEM<false, false>(address); \
 			T::template POST_MEM<      false>(address); \
 			byte op = line[address]; \

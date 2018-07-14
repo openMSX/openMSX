@@ -130,8 +130,6 @@ private:
 	// memory cache
 	const byte* readCacheLine[CacheLine::NUM];
 	byte* writeCacheLine[CacheLine::NUM];
-	bool readCacheTried [CacheLine::NUM];
-	bool writeCacheTried[CacheLine::NUM];
 
 	MSXMotherBoard& motherboard;
 	Scheduler& scheduler;
