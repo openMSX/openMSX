@@ -73,8 +73,6 @@ class Library(object):
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
-		if platform == 'android':
-			return environ['ANDROID_CXXFLAGS']
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is not None:
 			flags = [ '`%s --cflags`' % configScript ]
@@ -92,8 +90,6 @@ class Library(object):
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		if platform == 'android':
-			return environ['ANDROID_LDFLAGS']
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is not None:
 			libsOption = (
@@ -447,13 +443,6 @@ class TCL(Library):
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
-		if platform == 'android':
-			# Use the current ANDROID cross-compilation flags and not the TCL flags. Otherwise, the
-			# wrong version of libstdc++ will end-up on the include path; the minimal Android NDK
-			# version instead of the more complete GNU version. This is because TCL for Android has
-			# been configured with the minimal libstdc++ on the include path in the C(XX) flags and
-			# not with the more complete GNU version
-			return environ['ANDROID_CXXFLAGS']
 		wantShared = not linkStatic or cls.isSystemLibrary(platform)
 		# The -DSTATIC_BUILD is a hack to avoid including the complete
 		# TCL_DEFS (see 9f1dbddda2) but still being able to link on
@@ -467,10 +456,6 @@ class TCL(Library):
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		if platform == 'android':
-			# Use the current ANDROID cross-compilation flags and not the TCL flags to
-			# prevent issues with libstdc++ version. See also getCompileFlags()
-			return environ['ANDROID_LDFLAGS']
 		# Tcl can be built as a shared or as a static library, but not both.
 		# Check whether the library type of Tcl matches the one we want.
 		wantShared = not linkStatic or cls.isSystemLibrary(platform)

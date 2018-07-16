@@ -69,8 +69,6 @@ echo "AB:INFO Detected ${cpu_count} CPUs for parallel build"
 
 echo "AB:INFO Making this app for CPU architecture ${CPU_ARCH}"
 export SDL_ANDROID_PORT_PATH="${sdl_android_port_path}"
-export CXXFLAGS='-frtti -fexceptions -marm'
-export LDFLAGS='-lpng'
 unset BUILD_EXECUTABLE
 
 #"${set_sdl_app_environment}" /bin/bash -c "set"
@@ -78,11 +76,8 @@ unset BUILD_EXECUTABLE
     echo \"AB:INFO entering openMSX home directory: ${my_home_dir}\"; \
     cd ${my_home_dir};\
     echo \"AB:INFO CXX: \${CXX}\";\
-    echo \"AB:INFO CXXFLAGS: \${CXXFLAGS}\";\
     export _CC=\${CC};\
     export _LD=\${LD};\
-    export ANDROID_LDFLAGS=\${LDFLAGS};\
-    export ANDROID_CXXFLAGS=\${CXXFLAGS};\
     unset CXXFLAGS;\
     make -k -j ${cpu_count} staticbindist\
          OPENMSX_TARGET_CPU=${openmsx_target_cpu}\
