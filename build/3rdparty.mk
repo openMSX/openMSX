@@ -52,7 +52,7 @@ TRIPLE_MACHINE:=$(OPENMSX_TARGET_CPU)
 endif
 endif
 endif
-ifeq ($(OPENMSX_TARGET_OS),dingux)
+ifneq ($(filter android dingux,$(OPENMSX_TARGET_OS)),)
 TRIPLE_OS:=linux
 else
 TRIPLE_OS:=$(OPENMSX_TARGET_OS)
