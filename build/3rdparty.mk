@@ -131,11 +131,15 @@ $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 
 # Configuration of a lib can depend on the lib-config script of another lib.
 PNG_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/libpng-config
-FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
-SDL_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl-config
 $(PNG_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_PNG)
+FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
 $(FREETYPE_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_FREETYPE)
+ifeq ($(OPENMSX_TARGET_OS),android)
+SDL_CONFIG_SCRIPT:=$(SDL_ANDROID_PORT_PATH)/project/jni/application/sdl-config
+else
+SDL_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl-config
 $(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
+endif
 
 # Configure ALSA.
 $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
