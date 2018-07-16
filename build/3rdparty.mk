@@ -216,6 +216,10 @@ $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS)"
+# Disable building of example programs.
+# This build fails on Android (SDL main issues), but on other platforms
+# we don't need these programs either.
+MAKEVAR_OVERRIDE_SDL_TTF:=noinst_PROGRAMS=""
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
