@@ -91,9 +91,6 @@ USE_VIDEO_X11:=enable
 endif
 
 PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE))
-ifneq ($(TRIPLE_OS),linux)
-PACKAGES_BUILD:=$(filter-out ALSA,$(PACKAGES_BUILD))
-endif
 PACKAGES_NOBUILD:=
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
 
