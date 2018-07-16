@@ -214,19 +214,20 @@ class TargetSystem(object):
 		sourcePath = self.outDir + '/' + makeName + '.cc'
 		objectPath = self.outDir + '/' + makeName + '.o'
 		binaryPath = self.outDir + '/' + makeName + '.bin'
-		if self.platform == 'android':
-			binaryPath = self.outDir + '/' + makeName + '.so'
 
 		funcName = library.function
 		headers = library.getHeaders(self.platform)
 		def takeFuncAddr():
+			# Define main() first, in case headers try to intercept it,
+			# like SDL does on some platforms. To avoid link conflicts
+			# in such cases, make the symbol weak.
+			yield '__attribute__((weak)) int main(int argc, char** argv) {'
+			yield '  return 0;'
+			yield '}'
 			# Try to include the necessary headers and get the function address.
 			for header in headers:
 				yield '#include %s' % header
 			yield 'void (*f)() = reinterpret_cast<void (*)()>(%s);' % funcName
-			yield 'int main(int argc, char** argv) {'
-			yield '  return 0;'
-			yield '}'
 		writeFile(sourcePath, takeFuncAddr())
 		try:
 			compileOK = compileCommand.compile(self.log, sourcePath, objectPath)
