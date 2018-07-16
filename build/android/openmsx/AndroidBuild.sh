@@ -2,8 +2,7 @@
 #set -xv
 
 # TODO: find out if flavour can be passed from SDL build environment
-#openmsx_flavour="android-debug"
-openmsx_flavour="android"
+openmsx_flavour="opt"
 
 echo "AB:INFO Starting AndroidBuild.sh, #params: $#, params: $*"
 echo "AB:INFO pwd: $(pwd)"
@@ -66,15 +65,6 @@ export CXXFLAGS='-frtti -fexceptions -marm'
 export LDFLAGS='-lpng'
 unset BUILD_EXECUTABLE
 
-if [ $openmsx_flavour = "android" ]; then
-    CXX_FLAGS_FILTER="sed -e 's/\\-mthumb//'"
-elif [ $openmsx_flavour = "android-debug" ]; then
-    CXX_FLAGS_FILTER="sed -e 's/\\-mthumb//' -e 's/\\-DNDEBUG//g'"
-else
-	echo "AB:ERROR Unknown openmsx_flavour: $openmsx_flavour"
-fi
-echo "AB:DEBUG CXX_FLAGS_FILTER: $CXX_FLAGS_FILTER"
-
 #"${set_sdl_app_environment}" /bin/bash -c "set"
 "${set_sdl_app_environment}" /bin/bash -c "\
     echo \"AB:INFO entering openMSX home directory: ${my_home_dir}\"; \
@@ -84,8 +74,7 @@ echo "AB:DEBUG CXX_FLAGS_FILTER: $CXX_FLAGS_FILTER"
     export _CC=\${CC};\
     export _LD=\${LD};\
     export ANDROID_LDFLAGS=\${LDFLAGS};\
-    export ANDROID_CXXFLAGS=\$(echo \${CXXFLAGS} | $CXX_FLAGS_FILTER);\
-    echo \"AB:INFO ANDROID_CXXFLAGS: \${ANDROID_CXXFLAGS}\";\
+    export ANDROID_CXXFLAGS=\${CXXFLAGS};\
     unset CXXFLAGS;\
     make -k -j ${cpu_count} all\
          OPENMSX_TARGET_CPU=${openmsx_target_cpu}\
