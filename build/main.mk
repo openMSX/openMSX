@@ -232,6 +232,12 @@ LIBRARY_FILE:=openmsx$(LIBRARYEXT)
 LIBRARY_PATH:=$(BUILD_PATH)/lib
 LIBRARY_FULL:=$(LIBRARY_PATH)/$(LIBRARY_FILE)
 
+ifeq ($(OPENMSX_TARGET_OS),android)
+MAIN_EXECUTABLE:=$(LIBRARY_FULL)
+else
+MAIN_EXECUTABLE:=$(BINARY_FULL)
+endif
+
 BUILDINFO_SCRIPT:=build/buildinfo2code.py
 CONFIG_HEADER:=$(BUILD_PATH)/config/build-info.hh
 PROBE_SCRIPT:=build/probe.py
@@ -468,11 +474,7 @@ $(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE) \
 ifeq ($(OPENMSX_TARGET_OS),darwin)
 all: app
 else
-ifeq ($(OPENMSX_TARGET_OS),android)
-all: $(LIBRARY_FULL)
-else
-all: $(BINARY_FULL)
-endif
+all: $(MAIN_EXECUTABLE)
 endif
 
 # This is a workaround for the lack of order-only dependencies in GNU Make
@@ -617,7 +619,7 @@ bindist: install
 # Force removal of old destination dir before installing to new dir.
 install: bindistclean
 
-bindistclean: $(BINARY_FULL)
+bindistclean: $(MAIN_EXECUTABLE)
 	$(SUM) "Removing any old binary package..."
 	$(CMD)rm -rf $(BINDIST_DIR)
 	$(CMD)$(if $(BINDIST_PACKAGE),rm -f $(BINDIST_PACKAGE),)
@@ -646,10 +648,10 @@ endif
 
 # DESTDIR is a convention shared by at least GNU and FreeBSD to specify a path
 # prefix that will be used for all installed files.
-install: $(BINARY_FULL)
+install: $(MAIN_EXECUTABLE)
 	$(CMD)$(PYTHON) build/install.py "$(DESTDIR)" \
 		$(INSTALL_BINARY_DIR) $(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR) \
-		$(BINARY_FULL) $(OPENMSX_TARGET_OS) \
+		$(MAIN_EXECUTABLE) $(OPENMSX_TARGET_OS) \
 		$(INSTALL_VERBOSE) $(INSTALL_CONTRIB)
 
 
