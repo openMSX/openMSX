@@ -11,7 +11,7 @@ if [ ! -f environment.props ]; then
 fi
 . ./environment.props
 
-export GCCVER=4.8
+export GCCVER=4.9
 export NDK_TOOLCHAIN_VERSION=${GCCVER}
 ./generate_AndroidAppSettings.sh
 if [ $? -ne 0 ]; then

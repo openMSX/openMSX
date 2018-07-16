@@ -21,7 +21,7 @@ fi
 my_app_android_dir="$(pwd)"
 
 
-# Use latest version of the setEnvironment script; it is the one that uses GCC 4.6
+# Use latest version of the setEnvironment script; it is the one that uses GCC 4.9
 set_sdl_app_environment="${sdl_android_port_path}/project/jni/application/setEnvironment.sh"
 
 # Parsing the CPU architecture information
