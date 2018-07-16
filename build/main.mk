@@ -579,7 +579,7 @@ endif # subset
 $(LIBRARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
 	$(SUM) "Linking $(notdir $@)..."
 	$(CMD)mkdir -p $(@D)
-	$(CMD)$(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
+	$(CMD)$(CXX) -shared -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
 
 # Run executable.
 run: all
