@@ -168,7 +168,7 @@ class FreeType(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):
@@ -277,7 +277,7 @@ class LibPNG(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 class OGG(Library):
 	libName = 'ogg'
@@ -287,7 +287,7 @@ class OGG(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 class SDL(Library):
 	libName = 'SDL'
@@ -310,7 +310,7 @@ class SDL_ttf(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
@@ -341,10 +341,6 @@ class TCL(Library):
 	function = 'Tcl_CreateInterp'
 
 	@classmethod
-	def isSystemLibrary(cls, platform):
-		return platform in ('android',)
-
-	@classmethod
 	def getTclConfig(cls, platform, distroRoot):
 		'''Tcl has a config script that is unlike the typical lib-config script.
 		Information is gathered by sourcing the config script, instead of
@@ -365,36 +361,24 @@ class TCL(Library):
 			if tclpath is not None:
 				yield tclpath
 
-			if platform == 'android':
-				# Under Android, the tcl set-up apparently differs from
-				# other cross-platform setups. the search algorithm to find the
-				# directory that will contain the tclConfig.sh script and the shared libs
-				# is not applicable to Android. Instead, immediately return the correct
-				# subdirectories to the routine that invokes iterLocations()
-				sdl_android_port_path = environ['SDL_ANDROID_PORT_PATH']
-				libpath = sdl_android_port_path + '/project/libs/armeabi'
-				yield libpath
-				tclpath = sdl_android_port_path + '/project/jni/tcl8.5/unix'
-				yield tclpath
-			else:
-				if distroRoot is None or cls.isSystemLibrary(platform):
-					if msysActive():
-						roots = (msysPathToNative('/mingw32'), )
-					else:
-						roots = ('/usr/local', '/usr')
+			if distroRoot is None or cls.isSystemLibrary(platform):
+				if msysActive():
+					roots = (msysPathToNative('/mingw32'), )
 				else:
-					roots = (distroRoot, )
-				for root in roots:
-					if isdir(root):
-						for libdir in ('lib', 'lib64', 'lib/tcl'):
-							libpath = root + '/' + libdir
-							if isdir(libpath):
-								yield libpath
-								for entry in listdir(libpath):
-									if entry.startswith('tcl8.'):
-										tclpath = libpath + '/' + entry
-										if isdir(tclpath):
-											yield tclpath
+					roots = ('/usr/local', '/usr')
+			else:
+				roots = (distroRoot, )
+			for root in roots:
+				if isdir(root):
+					for libdir in ('lib', 'lib64', 'lib/tcl'):
+						libpath = root + '/' + libdir
+						if isdir(libpath):
+							yield libpath
+							for entry in listdir(libpath):
+								if entry.startswith('tcl8.'):
+									tclpath = libpath + '/' + entry
+									if isdir(tclpath):
+										yield tclpath
 
 		tclConfigs = {}
 		log = open('derived/tcl-search.log', 'w')
@@ -555,7 +539,7 @@ class Theora(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 class Vorbis(Library):
 	libName = 'vorbis'
@@ -566,7 +550,7 @@ class Vorbis(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 class ZLib(Library):
 	libName = 'z'
@@ -576,7 +560,7 @@ class ZLib(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):

@@ -76,7 +76,7 @@ unset BUILD_EXECUTABLE
     export ANDROID_LDFLAGS=\${LDFLAGS};\
     export ANDROID_CXXFLAGS=\${CXXFLAGS};\
     unset CXXFLAGS;\
-    make -k -j ${cpu_count} all\
+    make -k -j ${cpu_count} staticbindist\
          OPENMSX_TARGET_CPU=${openmsx_target_cpu}\
          OPENMSX_TARGET_OS=android\
          OPENMSX_FLAVOUR=${openmsx_flavour}\
@@ -92,7 +92,7 @@ cd "${my_app_android_dir}"
 
 # Copy the shared library overhere
 echo "AB:INFO Copying output file into android directory $(pwd)"
-cp "${my_home_dir}/derived/${openmsx_target_cpu}-android-${openmsx_flavour}/lib/openmsx.so" "${so_file}"
+cp "${my_home_dir}/derived/${openmsx_target_cpu}-android-${openmsx_flavour}-3rd/lib/openmsx.so" "${so_file}"
 if [ $? -ne 0 ]; then
     echo "AB:ERROR Copy failed"
 fi
