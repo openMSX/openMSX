@@ -297,6 +297,16 @@ class SDL(Library):
 	def isSystemLibrary(cls, platform):
 		return platform in ('android', 'dingux')
 
+	@classmethod
+	def getConfigScript(cls, platform, linkStatic, distroRoot):
+		if platform == 'android':
+			return environ['SDL_ANDROID_PORT_PATH'] \
+				+ '/project/jni/application/sdl-config'
+		else:
+			return super(SDL, cls).getConfigScript(
+				platform, linkStatic, distroRoot
+				)
+
 class SDL_ttf(Library):
 	libName = 'SDL_ttf'
 	makeName = 'SDL_TTF'
@@ -317,6 +327,17 @@ class SDL_ttf(Library):
 			# Because of the SDLmain trickery, we need SDL's link flags too
 			# on some platforms even though we're linking dynamically.
 			flags += ' ' + SDL.getLinkFlags(platform, linkStatic, distroRoot)
+		return flags
+
+	@classmethod
+	def getCompileFlags(cls, platform, linkStatic, distroRoot):
+		flags = super(SDL_ttf, cls).getCompileFlags(
+				platform, linkStatic, distroRoot
+				)
+		if platform == 'android':
+			# On Android, we don't share an install location with SDL,
+			# so SDL's compile flags are insufficient.
+			flags += ' -I%s/include/SDL' % distroRoot
 		return flags
 
 	@classmethod
