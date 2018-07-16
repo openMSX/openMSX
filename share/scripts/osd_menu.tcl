@@ -45,7 +45,7 @@ proc update_button_fade {} {
 	after "mouse motion" [namespace code update_button_fade]
 }
 
-if {![regexp android|dingux "[openmsx_info platform]"]} {
+if {![regexp dingux "[openmsx_info platform]"]} {
 	# add a button to pop up the menu
 	osd create rectangle main_menu_pop_up_button -z 0 -x 0 -y 0 -w 35 -h 16 -rgba $default_bg_color -fadePeriod $button_fadeout_time
 	osd create text main_menu_pop_up_button.text -z 0 -x 0 -y 0 -rgba $default_text_color -text "menu"
