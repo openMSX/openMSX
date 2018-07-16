@@ -206,6 +206,12 @@ class TargetSystem(object):
 				self.platform, self.configuration.linkStatic(), self.distroRoot
 				)
 			)
+		if self.platform == 'android':
+			# This works around SDL 1.2's trickery with main().
+			# If also weakens the probe considerably, since missing symbols
+			# are no longer considered errors.
+			# Remove this when we migrate to SDL2.
+			ldflags += ' -shared'
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
 		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
 		self.outVars['%s_CFLAGS' % makeName] = cflags
