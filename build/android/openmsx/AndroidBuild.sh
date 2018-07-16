@@ -50,6 +50,14 @@ unset MAKEOVERRIDES
 unset MFLAGS
 unset V
 
+# The commandergenius build will modify the PATH.
+# Pick the right compiler now and store its absolute path.
+CXX=$(which arm-linux-androideabi-g++)
+if [ $? -ne 0 ]; then
+    echo "AB:ERROR Could not find compiler"
+    exit 1
+fi
+
 cpu_count=1
 if [ -f /proc/cpuinfo ]; then
 	cpu_count=$(grep "processor[[:space:]]*:" /proc/cpuinfo | wc -l)
@@ -80,6 +88,7 @@ unset BUILD_EXECUTABLE
          OPENMSX_TARGET_CPU=${openmsx_target_cpu}\
          OPENMSX_TARGET_OS=android\
          OPENMSX_FLAVOUR=${openmsx_flavour}\
+         CXX=${CXX}\
 "
 if [ $? -ne 0 ]; then
     echo "AB:ERROR Make failed"
