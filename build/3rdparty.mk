@@ -206,9 +206,9 @@ $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
-		--with-sdl-prefix=$(PWD)/$(INSTALL_DIR) \
-		--with-freetype-prefix=$(PWD)/$(INSTALL_DIR) \
 		--$(subst disable,without,$(subst enable,with,$(USE_VIDEO_X11)))-x \
+		FREETYPE_CONFIG=$(FREETYPE_CONFIG_SCRIPT) \
+		SDL_CONFIG=$(SDL_CONFIG_SCRIPT) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS)"
