@@ -65,11 +65,6 @@ def evalMakeExpr(expr, makeVars):
 			elif name.startswith('shell '):
 				# Unsupported; assume result is never used.
 				value = '?'
-			elif name.startswith('call DIR_IF_EXISTS,'):
-				# This is our function, not a Make function, but the goal is
-				# not to emulate Make, so we emulate our function instead.
-				path = name[len('call DIR_IF_EXISTS,'): ]
-				value = path if isdir(path) else ''
 			elif name.isdigit():
 				# This is a function argument; assume the evaluated result is
 				# never used.
