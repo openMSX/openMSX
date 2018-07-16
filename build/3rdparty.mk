@@ -211,11 +211,12 @@ $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--$(subst disable,without,$(subst enable,with,$(USE_VIDEO_X11)))-x \
-		FREETYPE_CONFIG=$(FREETYPE_CONFIG_SCRIPT) \
-		SDL_CONFIG=$(SDL_CONFIG_SCRIPT) \
+		ac_cv_path_FREETYPE_CONFIG=$(PWD)/$(FREETYPE_CONFIG_SCRIPT) \
+		ac_cv_path_SDL_CONFIG=$(PWD)/$(SDL_CONFIG_SCRIPT) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="$(_LDFLAGS)"
+		LDFLAGS="$(_LDFLAGS)" \
+		PKG_CONFIG=/nowhere
 # Disable building of example programs.
 # This build fails on Android (SDL main issues), but on other platforms
 # we don't need these programs either.
