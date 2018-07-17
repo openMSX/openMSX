@@ -11,6 +11,8 @@ LIBRARYEXT:=.so
 
 TARGET_FLAGS:=-DANDROID -D__ANDROID_API__=14
 
+LINK_FLAGS+=-llog
+
 # Build a maximum set of components.
 # See configure.py for LINK_MODE definition and usage
 LINK_MODE:=3RD_STA_GLES
