@@ -211,8 +211,8 @@ $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--$(subst disable,without,$(subst enable,with,$(USE_VIDEO_X11)))-x \
-		ac_cv_path_FREETYPE_CONFIG=$(PWD)/$(FREETYPE_CONFIG_SCRIPT) \
-		ac_cv_path_SDL_CONFIG=$(PWD)/$(SDL_CONFIG_SCRIPT) \
+		ac_cv_path_FREETYPE_CONFIG=$(abspath $(FREETYPE_CONFIG_SCRIPT)) \
+		ac_cv_path_SDL_CONFIG=$(abspath $(SDL_CONFIG_SCRIPT)) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS)" \
