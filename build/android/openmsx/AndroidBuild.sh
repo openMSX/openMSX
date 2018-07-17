@@ -107,29 +107,17 @@ echo "AB:INFO Copying icon file"
 openmsx_icon_file="${my_home_dir}/share/icons/openMSX-logo-256.png"
 cp -p "${openmsx_icon_file}" icon.png
 
-echo "AB:INFO Validating if appdata.zip must be rebuild"
-if [ ! -f AndroidData/appdata.zip ]; then
-	newfiles=1
-else
-	newfiles=$(find ${my_home_dir}/share ${my_home_dir}/Contrib/cbios ${my_app_android_dir}/AndroidBuild.sh -newer AndroidData/appdata.zip | wc -l)
-fi
-if [ ${newfiles} -gt 0 ]; then
-	echo "AB:INFO Rebuilding appdata.zip"
-	rm -f AndroidData/appdata.zip
-	rm -rf AndroidData/appdata
-	mkdir -p AndroidData/appdata/openmsx_system
-	cd "${my_home_dir}"/share
-	tar -c --exclude-vcs -f - . | ( cd "${my_app_android_dir}"/AndroidData/appdata/openmsx_system ; tar xf - )
-	cd "${my_home_dir}"/Contrib/cbios
-	tar -c --exclude-vcs -f - . | ( cd "${my_app_android_dir}"/AndroidData/appdata/openmsx_system/machines ; tar xf - )
-	cd "${my_app_android_dir}"/AndroidData/appdata
-	zip -r ../appdata.zip * > /dev/null
-	cd ..
-	rm -rf appdata
-	echo "AB:INFO Done rebuilding appdata.zip"
-else
-	echo "AB/INFO appdata.zip is still fine"
-fi
+echo "AB:INFO Building appdata.zip"
+rm -f AndroidData/appdata.zip
+rm -rf AndroidData/appdata
+mkdir -p AndroidData/appdata/openmsx_system
+cd "${my_home_dir}"/derived/${openmsx_target_cpu}-android-${openmsx_flavour}-3rd/bindist/install/share
+tar -c --exclude-vcs -f - . | ( cd "${my_app_android_dir}"/AndroidData/appdata/openmsx_system ; tar xf - )
+cd "${my_app_android_dir}"/AndroidData/appdata
+zip -r ../appdata.zip * > /dev/null
+cd ..
+rm -rf appdata
+echo "AB:INFO Done rebuilding appdata.zip"
 
 MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
 
