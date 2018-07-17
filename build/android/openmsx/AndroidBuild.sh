@@ -112,7 +112,7 @@ rm -f AndroidData/appdata.zip
 rm -rf AndroidData/appdata
 mkdir -p AndroidData/appdata/openmsx_system
 cd "${my_home_dir}"/derived/${openmsx_target_cpu}-android-${openmsx_flavour}-3rd/bindist/install/share
-tar -c --exclude-vcs -f - . | ( cd "${my_app_android_dir}"/AndroidData/appdata/openmsx_system ; tar xf - )
+tar -c -f - . | ( cd "${my_app_android_dir}"/AndroidData/appdata/openmsx_system ; tar xf - )
 cd "${my_app_android_dir}"/AndroidData/appdata
 zip -r ../appdata.zip * > /dev/null
 cd ..
