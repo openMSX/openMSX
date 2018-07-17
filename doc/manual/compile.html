@@ -216,6 +216,7 @@ component won't install, that's not a problem, just continue.</dd>
 <h4>Android</h4>
 <p><strong>Warning:</strong> the build of the Android version is only supported on a Linux or Unix host platform. If you want
 to build the Android version on a Windows host, then you must install a virtual machine with a Linux distribution on it. This is because the Android build depends on the "commandergenius" SDL Android port, which can only be build on Linux and Unix platforms.</p>
+<p><strong>Warning 2:</strong> the build of the Android version is currently extremely fragile. YMMV.</p>
 
 <p>The Android build depends on the following toolkits and libraries that must first be installed:</p>
 <dl>
@@ -227,7 +228,7 @@ to build the Android version on a Windows host, then you must install a virtual 
 	variable: <code>${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools:${ANDROID_SDK}/build-tools/${ANDROID_SDK_VERSION}</code>.
 	It is advisable to do this in your <code>~/.profile</code>
 	script so that the setting remains available on each login. Note that <code>${ANDROID_SDK}</code> stands for the
-	directory in which you installed the Android SDK, for example <code>/opt/android/android-sdk-linux</code> 
+	directory in which you installed the Android SDK, for example <code>/opt/android/android-sdk-linux</code>
 	and <code>${ANDROID_SDK_VERSION}</code> stands for the version of the SDK, for example <code>20.0.0</code>.
 	See the README in the ${ANDROID-SDK} directory for further instructions on how to download extra tools and libraries.</dd>
 	<dt>The Android NDK</dt>
@@ -235,23 +236,23 @@ to build the Android version on a Windows host, then you must install a virtual 
 	unpack it to your favourite location and add the following Android NDK directory to your PATH environment
 	variable: <code>${ANDROID_NDK_HOME}</code>. It is advisable to do this in your <code>~/.profile</code>
 	script so that the setting remains available on each login. Note that <code>${ANDROID_NDK_HOME}</code> stands for the
-	directory in which you installed the Android NDK, for example <code>/opt/android/android-ndk-r9c</code>.</dd>
+	directory in which you installed the Android NDK, for example <code>/opt/android/android-ndk-r16b</code>. We currently only support Android NDK 16b!</dd>
 	<dt>The "commandergenius" SDL Android port</dt>
 	<dd>Download the SDL Android port from the git repository to your favourite location. You can download it
 	into the current directory with the following command: <code>git clone https://github.com/pelya/commandergenius.git</code>. Once that is done, you must set-up an environment variable called SDL_ANDROID_PORT_PATH with the location
-	of the SDL android port. For example <code>/opt/android/commandergenius</code></dd>
+	of the SDL android port. For example <code>/opt/android/commandergenius</code>. You must also make sure to put it on to the revision that we are currently supporting, including all subprojects. Set it to 93c39846150628ffc09647300444d53ca7ea1b88. TODO: explain all the changes you need to do to this clone make the compilation work.</dd>
 	<dt>Java Development Kit</dt>
-	<dd>Make sure you install the JDK from your distro. Example packages: <code>openjdk-6-jdk</code> (Debian Wheezy), <code>java-1.7.0-openjdk</code> (SuSE 12.2).</dd>
+	<dd>Make sure you install the JDK from your distro. Example packages: <code>openjdk-8-jdk</code> (Debian), <code>java-1.7.0-openjdk</code> (SuSE 12.2).</dd>
 	<dt>Ant</dt>
-	<dd>Make sure you install Ant build tool from your distro. Example packages: <code>ant</code> (Debian Squeeze/6.0), <code>ant-1.8.2-11.1.1.noarch</code> (SuSE 12.2).</dd>
+	<dd>Make sure you install Ant build tool from your distro. Example packages: <code>ant</code> (Debian), <code>ant-1.8.2-11.1.1.noarch</code> (SuSE 12.2).</dd>
 	<dt>Ant-optional</dt>
-	<dd>Make sure you install Ant-optional extensions from your distro. Example packages: <code>ant-optional</code> (Debian Squeeze/6.0). Note that this seems to be not applicable for SuSE 12.2; apparently everything is bundled in the ant package.</dd>
+	<dd>Make sure you install Ant-optional extensions from your distro. Example packages: <code>ant-optional</code> (Debian). Note that this seems to be not applicable for SuSE 12.2; apparently everything is bundled in the ant package.</dd>
 	<dt>zip</dt>
 	<dd>Make sure you install the zip command line tool from your distro. Example packages: <code>zip</code> (Debian Squeeze/6.0), <code>zip</code> (SuSE 12.2).</dd>
 	<dt>libz 32-bit</dt>
-	<dd>Make sure that if you have a 64-bit distro, you (also) install the 32-bit version of libz (it is required by the Android NDK). Example packages: <code>lib32z1</code> (Debian Squeeze/6.0), <code>zlib-32bit</code> (SuSE 12.2).</dd>
+	<dd>Make sure that if you have a 64-bit distro, you (also) install the 32-bit version of libz (it is required by the Android NDK). Example packages: <code>lib32z1</code> (Debian), <code>zlib-32bit</code> (SuSE 12.2).</dd>
 	<dt>libstdc++6 32-bit</dt>
-	<dd>Make sure that if you have a 64-bit distro, you (also) install the 32-bit version of libstdc++6 (it is required by the Android NDK). Example packages: <code>lib32stdc++6</code> (Debian Squeeze/6.0), <code>libstdc++47-32bit</code> (SuSE 12.2).</dd>
+	<dd>Make sure that if you have a 64-bit distro, you (also) install the 32-bit version of libstdc++6 (it is required by the Android NDK). Example packages: <code>lib32stdc++6</code> (Debian), <code>libstdc++47-32bit</code> (SuSE 12.2).</dd>
 </dl>
 
 <p>
@@ -260,13 +261,11 @@ After you installed the Android SDK, you actually only installed the "Android SD
 <p>Once you have the list of packages, you must select the following options for installation:</p>
 <ul>
 	<li> Tools -&gt; Android SDK Platform-tools
-		<ul>
-			<li>Android 4.4 (API 19) -&gt; SDK platform</li>
-			<li>Android 2.3.3 (API 10) -&gt; SDK Platform</li>
-		</ul>
+	</li>
+	<li> Tools -&gt; Android SDK Build-tools 26.0.1
 	</li>
 </ul>
-<p>It may be possible that by default another version of the Android API is pre-selected. You may unselect it in order to save download time and diskspace. (You also don't need the Android Support Package, so if it gets selected, you can also unselect that one.) Next step is to click the "Install N packages" button (N seems to vary a bit... it may be like 12) to install the packages (accept the license terms). After downloading and installing, you can close the Android SDK Manager.</p>
+<p>It may be possible that by default another version of the Android API is pre-selected. We're at least trying to target API 14 with this build. You may unselect other APIs in order to save download time and diskspace. (You also don't need the Android Support Package, so if it gets selected, you can also unselect that one.) Next step is to click the "Install N packages" button (N seems to vary a bit... it may be like 12) to install the packages (accept the license terms). After downloading and installing, you can close the Android SDK Manager.</p>
 
 <h3><a id="libs">2.2 Libraries</a></h3>
 
@@ -866,7 +865,7 @@ previous step with the following commands:</p>
 <div class="commandline">
 <pre>
 	cd $SDL_ANDROID_PORT_PATH
-	adb install -r project/bin/MainActivity-debug.apk
+	adb install -r project/app/build/outputs/apk/app-release.apk
 </pre>
 </div>
 
@@ -884,7 +883,6 @@ In order to build and directly install the Android version, you must enter the f
 <p>
 Note that this only works when the "Developer options" -&gt; "USB debugging" setting has been enabled
 on the Android device.</p>
-
 
 <h2><a id="next">7. Next Steps</a></h2>
 
