@@ -201,6 +201,11 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 					// very briefly and only on R800.
 					ymf278BusyTime = time + WAVE_REG_WRITE_DELAY;
 				}
+				if (opl4latch == 0xf8) {
+					ymf262.setMixLevel(value, time);
+				} else if (opl4latch == 0xf9) {
+					ymf278.setMixLevel(value, time);
+				}
 				ymf278.writeReg(opl4latch, value, time);
 				break;
 			default:

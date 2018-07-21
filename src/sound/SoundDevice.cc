@@ -175,8 +175,14 @@ void SoundDevice::updateStream(EmuTime::param time)
 
 void SoundDevice::setSoftwareVolume(VolumeType volume, EmuTime::param time)
 {
+	setSoftwareVolume(volume, volume, time);
+}
+
+void SoundDevice::setSoftwareVolume(VolumeType left, VolumeType right, EmuTime::param time)
+{
 	updateStream(time);
-	softwareVolume = volume;
+	softwareVolumeLeft  = left;
+	softwareVolumeRight = right;
 	mixer.updateSoftwareVolume(*this);
 }
 
@@ -278,8 +284,11 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		if (writer[i]) {
 			assert(bufs[i] != dataOut);
 			if (bufs[i]) {
+				auto amp = getAmplificationFactor();
 				writer[i]->write(
-					bufs[i], stereo, samples, getAmplificationFactor().toInt());
+					bufs[i], stereo, samples,
+					amp.first.toFloat(),
+					amp.second.toFloat());
 			} else {
 				writer[i]->writeSilence(stereo, samples);
 			}

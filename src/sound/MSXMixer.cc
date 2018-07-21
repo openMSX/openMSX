@@ -754,11 +754,13 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info)
 	// 512 (9 bits) because in the DC filter we also have a factor 512, and
 	// using the same allows to fold both (later) divisions into one.
 	static_assert((1 << AMP_BITS) == 512, "");
-	int amp = info.device->getAmplificationFactor().getRawValue();
-	info.left1  = int(l1 * amp);
-	info.right1 = int(r1 * amp);
-	info.left2  = int(l2 * amp);
-	info.right2 = int(r2 * amp);
+	auto amp = info.device->getAmplificationFactor();
+	auto ampL = amp.first .getRawValue();
+	auto ampR = amp.second.getRawValue();
+	info.left1  = lrintf(l1 * ampL);
+	info.right1 = lrintf(r1 * ampR);
+	info.left2  = lrintf(l2 * ampL);
+	info.right2 = lrintf(r2 * ampR);
 }
 
 void MSXMixer::updateMasterVolume()

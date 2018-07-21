@@ -31,6 +31,8 @@ public:
 	byte readStatus();
 	byte peekStatus() const;
 
+	void setMixLevel(uint8_t x, EmuTime::param time);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

@@ -47,8 +47,10 @@ public:
 	  * The influence of the different volume settings is not part of this
 	  * factor.
 	  */
-	VolumeType getAmplificationFactor() const {
-		return getAmplificationFactorImpl() * softwareVolume;
+	std::pair<VolumeType, VolumeType> getAmplificationFactor() const {
+		auto f = getAmplificationFactorImpl();
+		return std::make_pair(f * softwareVolumeLeft,
+		                      f * softwareVolumeRight);
 	}
 
 	/** Change the 'software volume' of this sound device.
@@ -62,6 +64,7 @@ public:
 	  * This method allows to change that per-chip volume.
 	  */
 	void setSoftwareVolume(VolumeType volume, EmuTime::param time);
+	void setSoftwareVolume(VolumeType left, VolumeType right, EmuTime::param time);
 
 	void recordChannel(unsigned channel, const Filename& filename);
 	void muteChannel  (unsigned channel, bool muted);
@@ -188,7 +191,8 @@ private:
 
 	std::unique_ptr<Wav16Writer> writer[MAX_CHANNELS];
 
-	VolumeType softwareVolume{1};
+	VolumeType softwareVolumeLeft{1};
+	VolumeType softwareVolumeRight{1};
 	unsigned inputSampleRate;
 	const unsigned numChannels;
 	const unsigned stereo;

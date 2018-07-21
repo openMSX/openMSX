@@ -67,11 +67,6 @@ static const uint8_t pan_right[16] = {
 	0, 0,  0,  0,  0,  0,  0,   0, 255, 255, 48, 40, 32, 24, 16, 8
 };
 
-// Mixing levels, units are -3dB, and add some marging to avoid clipping
-static const uint8_t mix_level[8] = {
-	0, 8, 16, 24, 32, 40, 48, 255
-};
-
 // decay level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
 #define SC(dB) unsigned((dB) / 3 * 0x20)
@@ -448,6 +443,22 @@ static int vol_factor(int x, unsigned envVol)
 	return (x * ((0x8000 * vol_mul) >> vol_shift)) >> 15;
 }
 
+void YMF278::setMixLevel(uint8_t x, EmuTime::param time)
+{
+	using T = SoundDevice::VolumeType;
+	static const T level[8] = {
+		T(1.00 / 1), //   0dB
+		T(0.75 / 1), //  -3dB (approx)
+		T(1.00 / 2), //  -6dB
+		T(0.75 / 2), //  -9dB (approx)
+		T(1.00 / 4), // -12dB
+		T(0.75 / 4), // -15dB (approx)
+		T(1.00 / 8), // -18dB
+		T(0.0     ), // -inf dB
+	};
+	setSoftwareVolume(level[x & 7], level[(x >> 3) & 7], time);
+}
+
 void YMF278::generateChannels(int** bufs, unsigned num)
 {
 	if (!anyActive()) {
@@ -459,8 +470,6 @@ void YMF278::generateChannels(int** bufs, unsigned num)
 		return;
 	}
 
-	int vl = mix_level[pcm_l];
-	int vr = mix_level[pcm_r];
 	for (unsigned j = 0; j < num; ++j) {
 		for (int i = 0; i < 24; ++i) {
 			auto& sl = slots[i];
@@ -484,13 +493,12 @@ void YMF278::generateChannels(int** bufs, unsigned num)
 			// Panning is also done separately. (low-volume TL + low-volume panning goes below -60dB)
 			// I'll be taking wild guess and assume that -3dB is approximated with 75%. (same as with TL and envelope levels)
 			// The same applies to the PCM mix level.
-			int volLeft  = pan_left [sl.pan] + vl;
-			int volRight = pan_right[sl.pan] + vr;
+			int volLeft  = pan_left [sl.pan]; // note: register 0xF9 is handled externally
+			int volRight = pan_right[sl.pan];
 			// 0 -> 0x20, 8 -> 0x18, 16 -> 0x10, 24 -> 0x0C, etc. (not using vol_factor here saves array boundary checks)
 			volLeft  = (0x20 - (volLeft  & 0x0f)) >> (volLeft  >> 4);
 			volRight = (0x20 - (volRight & 0x0f)) >> (volRight >> 4);
 
-			smplOut = (smplOut * 0xb505) >> 15; // TODO move this elsewhere, increase volume by +3dB, for balance with FM part
 			bufs[i][2 * j + 0] += (smplOut * volLeft ) >> 5;
 			bufs[i][2 * j + 1] += (smplOut * volRight) >> 5;
 
@@ -699,15 +707,8 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			}
 			break;
 
-		case 0xF8:
-			// TODO use these
-			fm_l = data & 0x7;
-			fm_r = (data >> 3) & 0x7;
-			break;
-
-		case 0xF9:
-			pcm_l = data & 0x7;
-			pcm_r = (data >> 3) & 0x7;
+		case 0xf8: // These are implemented in MSXMoonSound.cc
+		case 0xf9:
 			break;
 		}
 	}
@@ -787,8 +788,8 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 
 	setInputRate(44100);
 
-	reset(motherBoard.getCurrentTime());
 	registerSound(config);
+	reset(motherBoard.getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()
 }
 
 YMF278::~YMF278()
@@ -811,12 +812,11 @@ void YMF278::reset(EmuTime::param time)
 		op.reset();
 	}
 	regs[2] = 0; // avoid UMR
-	for (int i = 255; i >= 0; --i) { // reverse order to avoid UMR
+	for (int i = 0xf7; i >= 0; --i) { // reverse order to avoid UMR
 		writeRegDirect(i, 0, time);
 	}
 	memadr = 0;
-	fm_l = fm_r = 3; // default is -9dB    TODO use this
-	pcm_l = pcm_r = 0;
+	setMixLevel(0, time);
 }
 
 // This routine translates an address from the (upper) MoonSound address space
@@ -1066,15 +1066,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 	}
 
 	// TODO restore more state from registers
-	static const byte rewriteRegs[] = {
-		0xf8,    // fm_l, fm_r
-		0xf9,    // pcm_l, pcm_r
-	};
 	if (ar.isLoader()) {
-		EmuTime::param time = motherBoard.getCurrentTime();
-		for (auto r : rewriteRegs) {
-			writeRegDirect(r, regs[r], time);
-		}
 		for (int i = 0; i < 24; ++i) {
 			Slot& sl = slots[i];
 

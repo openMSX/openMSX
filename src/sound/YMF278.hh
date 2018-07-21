@@ -29,6 +29,8 @@ public:
 	byte readMem(unsigned address) const;
 	void writeMem(unsigned address, byte value);
 
+	void setMixLevel(uint8_t x, EmuTime::param time);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -117,9 +119,6 @@ private:
 	unsigned eg_cnt;
 
 	int memadr;
-
-	int fm_l, fm_r;
-	int pcm_l, pcm_r;
 
 	Rom rom;
 	TrackedRam ram;
