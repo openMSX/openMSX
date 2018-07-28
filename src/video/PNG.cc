@@ -325,13 +325,22 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 		text[0].text = const_cast<char*>(version.c_str());
 		text[1].compression = PNG_TEXT_COMPRESSION_NONE;
 		text[1].key  = const_cast<char*>("Creation Time");
+
+		// A buffer size of 20 characters is large enough till the year
+		// 9999. But the compiler doesn't understand calendars and
+		// warns that the snprintf output could be truncated (e.g.
+		// because the year is -2147483647). To silence this warning
+		// (and also to work around the windows _snprintf stuff) we add
+		// some extra buffer space.
+		static constexpr size_t size = (10 + 1 + 8 + 1) + 44;
 		time_t now = time(nullptr);
 		struct tm* tm = localtime(&now);
-		char timeStr[10 + 1 + 8 + 1];
+		char timeStr[size];
 		snprintf(timeStr, sizeof(timeStr), "%04d-%02d-%02d %02d:%02d:%02d",
 				1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
 				tm->tm_hour, tm->tm_min, tm->tm_sec);
 		text[1].text = timeStr;
+
 		png_set_text(png.ptr, png.info, text, 2);
 
 		png_set_IHDR(png.ptr, png.info, width, height, 8,
