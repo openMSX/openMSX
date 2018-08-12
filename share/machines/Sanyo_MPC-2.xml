@@ -10,7 +10,7 @@
     <type>MSX</type>
   </info>
 
-  <!-- This config is based on Alexandre Souzo's machine with serial number 11248522
+  <!-- This config is based on Alexandre Souza's machine with serial number 11248522
 
        Z80 scf: 01ED09ED01FC09FC (turboR)
        Z80 cpl: 3AFF12D7 (standard)
