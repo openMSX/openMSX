@@ -62,6 +62,7 @@ WD2793::WD2793(Scheduler& scheduler_, DiskDrive& drive_, CliComm& cliComm_,
 	dataRegWritten = false;
 	lastWasA1 = false;
 	lastWasCRC = false;
+	commandReg = 0;
 	setDrqRate(RawTrack::STANDARD_SIZE);
 
 	reset(time);
