@@ -279,9 +279,7 @@ def iterProbeResults(probeVars, configuration, logPath):
 	'''
 	desiredComponents = set(configuration.iterDesiredComponents())
 	requiredComponents = set(configuration.iterRequiredComponents())
-	buildableComponents = set(
-		comp for comp in desiredComponents if comp.canBuild(probeVars)
-		)
+	buildableComponents = set(configuration.iterBuildableComponents(probeVars))
 	packages = sorted(
 		(	getPackage(makeName)
 			for makeName in requiredLibrariesFor(desiredComponents)

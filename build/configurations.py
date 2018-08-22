@@ -18,6 +18,11 @@ class Configuration(object):
 	def iterDesiredComponents(self):
 		return iter(self.__requiredComponents | self.__optionalComponents)
 
+	def iterBuildableComponents(self, probeVars):
+		for component in self.iterDesiredComponents():
+			if component.canBuild(probeVars):
+				yield component
+
 	def linkStatic(self):
 		'''Returns True iff static linking should be used for non-system libs.
 		'''
