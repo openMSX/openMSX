@@ -477,19 +477,20 @@ else
 all: $(MAIN_EXECUTABLE)
 endif
 
+ifeq ($(COMPONENT_CORE),false)
+# Force new probe.
+config: $(PROBE_MAKE)
+	$(CMD)mv $(PROBE_MAKE) $(PROBE_MAKE).failed
+	@false
+else
 # Print configuration.
 config:
-ifeq ($(COMPONENT_CORE),false)
-# Do not build if core component dependencies are not met.
-	@echo 'Cannot build openMSX because essential libraries are unavailable.'
-	@echo 'Please install the needed libraries and their header files and rerun "configure"'
-	@false
-endif
 	@echo "Build configuration:"
 	@echo "  Platform: $(PLATFORM)"
 	@echo "  Flavour:  $(OPENMSX_FLAVOUR)"
 	@echo "  Compiler: $(CXX)"
 	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET)*,full build)"
+endif
 
 # Include dependency files.
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
