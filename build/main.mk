@@ -587,7 +587,8 @@ BINDIST_DIR:=$(BUILD_PATH)/bindist
 BINDIST_PACKAGE:=
 
 # Override install locations.
-INSTALL_ROOT:=$(BINDIST_DIR)/install
+DESTDIR:=$(BINDIST_DIR)/install
+INSTALL_ROOT:=
 ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
 # In Windows the "share" dir is expected at the same level as the executable,
 # so do not put the executable in "bin".
