@@ -236,7 +236,7 @@ to build the Android version on a Windows host, then you must install a virtual 
 	unpack it to your favourite location and add the following Android NDK directory to your PATH environment
 	variable: <code>${ANDROID_NDK_HOME}</code>. It is advisable to do this in your <code>~/.profile</code>
 	script so that the setting remains available on each login. Note that <code>${ANDROID_NDK_HOME}</code> stands for the
-	directory in which you installed the Android NDK, for example <code>/opt/android/android-ndk-r16b</code>. We currently only support Android NDK 16b!</dd>
+	directory in which you installed the Android NDK, for example <code>/opt/android/android-ndk-r16b</code>. We currently only support Android NDK 16b! On top of that, it is also necessary to create a stand-alone toolchain from this NDK. The following works: <code>$ANDROID_NDK_HOME/build/tools/make_standalone_toolchain.py --arch arm --install-dir /opt/Android_NDK/r16b-android14-arm-standalone-toolchain</code>. The destination dir here is just an example. You must add the <code>bin</code> subdir to your <code>PATH</code> environment variable, e.g.: <code>/opt/Android_NDK/r16b-android14-arm-standalone-toolchain/bin/</code></dd>
 	<dt>The "commandergenius" SDL Android port</dt>
 	<dd>Download the SDL Android port from the git repository to your favourite location. You can download it
 	into the current directory with the following command: <code>git clone https://github.com/pelya/commandergenius.git</code>. Once that is done, you must set-up an environment variable called SDL_ANDROID_PORT_PATH with the location
