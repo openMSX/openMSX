@@ -477,17 +477,6 @@ else
 all: $(MAIN_EXECUTABLE)
 endif
 
-# This is a workaround for the lack of order-only dependencies in GNU Make
-# versions older than 3.80 (for example Mac OS X 10.3 still ships with 3.79).
-# It creates a dummy file, which is never modified after its initial creation.
-# If a rule that produces a file does not modify that file, Make considers the
-# target to be up-to-date. That way, the targets "init-dummy-file" depends on
-# will always be checked before compilation, but they will not cause all object
-# files to be considered outdated.
-INIT_DUMMY_FILE:=$(BUILD_PATH)/config/init-dummy-file
-$(INIT_DUMMY_FILE): config $(GENERATED_HEADERS)
-	$(CMD)touch -a $@
-
 # Print configuration.
 config:
 ifeq ($(COMPONENT_CORE),false)
@@ -533,8 +522,8 @@ endif
 
 # Compile and generate dependency files in one go.
 DEPEND_SUBST=$(patsubst $(SOURCES_PATH)/%.cc,$(DEPEND_PATH)/%.d,$<)
-$(OBJECTS_FULL): $(INIT_DUMMY_FILE)
-$(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
+$(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d \
+		| config $(GENERATED_HEADERS)
 	$(SUM) "Compiling $(patsubst $(SOURCES_PATH)/%,%,$<)..."
 	$(CMD)mkdir -p $(@D)
 	$(CMD)mkdir -p $(patsubst $(OBJECTS_PATH)%,$(DEPEND_PATH)%,$(@D))
@@ -549,7 +538,7 @@ $(DEPEND_FULL):
 
 # Windows resources that are added to the executable.
 ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
-$(RESOURCE_HEADER): $(INIT_DUMMY_FILE) forceversionextraction
+$(RESOURCE_HEADER): forceversionextraction | config
 	$(CMD)$(PYTHON) $(RESOURCE_SCRIPT) $@
 $(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)
 	$(SUM) "Compiling resources..."
