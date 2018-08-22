@@ -641,7 +641,7 @@ endif
 # prefix that will be used for all installed files.
 install: $(MAIN_EXECUTABLE)
 	$(CMD)$(PYTHON) build/install.py "$(DESTDIR)" \
-		$(INSTALL_BINARY_DIR) $(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR) \
+		"$(INSTALL_BINARY_DIR)" "$(INSTALL_SHARE_DIR)" "$(INSTALL_DOC_DIR)" \
 		$(MAIN_EXECUTABLE) $(OPENMSX_TARGET_OS) \
 		$(INSTALL_VERBOSE) $(INSTALL_CONTRIB)
 
