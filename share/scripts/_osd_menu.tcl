@@ -747,9 +747,13 @@ proc create_video_setting_menu {} {
 		lappend items { text "Scaler: $scale_algorithm"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back scale_algorithm] }
 			          RIGHT { osd_menu::menu_setting [cycle      scale_algorithm] }}}
-		lappend items { text "Scale Factor: ${scale_factor}x"
-			actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
-			          RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
+		# only add scale factor setting if it can actually be changed
+		set scale_minmax [lindex [openmsx_info setting scale_factor] 2]
+		if {[expr {[lindex $scale_minmax 0] != [lindex $scale_minmax 1]}]} {
+			lappend items { text "Scale Factor: ${scale_factor}x"
+				actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
+				          RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
+		}
 	}
 	lappend items { text "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $horizontal_stretch]"
 	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $horizontal_stretch }}
