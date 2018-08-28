@@ -108,6 +108,19 @@ proc menu_create {menudef} {
 
 	set lst [get_optional menudef "lst" ""]
 	set menu_len [get_optional menudef "menu_len" 0]
+	if {[llength $lst] > $menu_len} {
+		set startheight 0
+		if {[llength $selectinfo] > 0} {
+			# there are selectable items. Start the scrollbar
+			# at the top of the first selectable item
+			# (skipping headers and stuff)
+			set startheight [lindex $selectinfo 0 0]
+		}
+		osd create rectangle "${name}.scrollbar" -z -1 -rgba 0x00000010 \
+		   -relx 1.0 -x -6 -w 6 -relh 1.0 -h -$startheight -y $startheight -borderrgba 0x00000070 -bordersize 0.5
+		osd create rectangle "${name}.scrollbar.thumb" -z -1 -rgba $default_select_color \
+		   -relw 1.0 -w -2 -x 1
+	}
 	set presentation [get_optional menudef "presentation" ""]
 	set selectidx 0
 	set scrollidx 0
@@ -117,6 +130,25 @@ proc menu_create {menudef} {
 	menu_on_select $selectinfo $selectidx
 
 	menu_refresh_top
+	menu_update_scrollbar
+}
+
+proc menu_update_scrollbar {} {
+	peek_menu_info
+	set name [dict get $menuinfo name]
+	if {[osd exists ${name}.scrollbar]} {
+		set menu_len   [dict get $menuinfo menu_len]
+		set scrollidx  [dict get $menuinfo scrollidx]
+		set selectidx  [dict get $menuinfo selectidx]
+		set totalitems [llength [dict get $menuinfo lst]]
+		set height [expr {1.0*$menu_len/$totalitems}]
+		set minheight 0.05 ;# TODO: derive from width of bar
+		set height [expr {$height > $minheight ? $height : $minheight}]
+		set pos [expr {1.0*($scrollidx+$selectidx)/($totalitems-1)}]
+		# scale the pos to the usable range
+		set pos [expr {$pos*(1.0-$height)}]
+		osd configure "${name}.scrollbar.thumb" -relh $height -rely $pos
+	}
 }
 
 proc menu_refresh_top {} {
@@ -495,6 +527,7 @@ proc select_menu_idx {itemidx} {
 	set_scrollidx $scrollidx
 	menu_on_select $selectinfo $selectidx
 	menu_refresh_top
+	menu_update_scrollbar
 }
 
 proc select_menu_item {item} {
