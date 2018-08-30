@@ -7,6 +7,7 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+#include "Math.hh"
 #include "unreachable.hh"
 #include <SDL.h>
 
@@ -217,8 +218,21 @@ void Mouse::write(byte value, EmuTime::param time)
 		case PHASE_YLOW:
 			if ((value & STROBE) != 0) {
 				phase = PHASE_XHIGH;
+#if 0
+				// Real MSX mice don't have overflow protection,
+				// verified on a Philips SBC3810 MSX mouse.
 				xrel = curxrel; yrel = curyrel;
 				curxrel = 0; curyrel = 0;
+#else
+				// Nevertheless we do emulate it here. See
+				// sdsnatcher's post of 30 aug 2018 for a
+				// motivation for this difference:
+				//   https://github.com/openMSX/openMSX/issues/892
+				xrel = Math::clip<-128, 127>(curxrel);
+				yrel = Math::clip<-128, 127>(curyrel);
+				curxrel -= xrel;
+				curyrel -= yrel;
+#endif
 			}
 			break;
 		}
