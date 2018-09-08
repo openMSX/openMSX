@@ -18,7 +18,7 @@ AppVersionName="VERSION_NAME_PLACEHOLDER"
 # If the URL does not contain 'http://' it is treated as file from 'project/jni/application/src/AndroidData' dir -
 # these files are put inside .apk package by build system
 # Also please avoid 'https://' URLs, many Android devices do not have trust certificates and will fail to connect to SF.net over HTTPS
-AppDataDownloadUrl="Application data|appdata.zip"
+AppDataDownloadUrl="!!Application data|appdata.zip"
 
 # Reset SDL config when updating application to the new version (y) / (n)
 ResetSdlConfigForThisVersion=y
