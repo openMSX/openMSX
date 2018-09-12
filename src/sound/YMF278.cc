@@ -2,7 +2,7 @@
 
 // Improved by Valley Bell, 2018
 // Thanks to niekniek and l_oliveira for providing recordings from OPL4 hardware.
-// Thanks to superctr for discussing changes.
+// Thanks to superctr and wouterv for discussing changes.
 //
 // Improvements:
 // - added TL interpolation, recordings show that internal TL levels are 0x00..0xff
@@ -15,11 +15,10 @@
 // - made octave -8 freeze the sample
 // - verified that TL and envelope levels are applied separately, both go silent at -60dB
 // - implemented pseudo-reverb and damping according to manual
+// - made pseudo-reverb ignore Rate Correction (real hardware ignores it)
 //
 // Known issues:
 // - Octave -8 was only tested with fnum 0. Other fnum values might behave differently.
-// - pseudo reverb needs testing
-// - damping needs testing (affected by Rate Correction or not?)
 // - LFO stuff needs testing
 
 // This class doesn't model a full YMF278b chip. Instead it only models the
@@ -69,8 +68,8 @@ static const uint8_t pan_right[16] = {
 
 // decay level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(dB) unsigned((dB) / 3 * 0x20)
-static const unsigned dl_tab[16] = {
+#define SC(dB) int16_t((dB) / 3 * 0x20)
+static const int16_t dl_tab[16] = {
  SC( 0), SC( 3), SC( 6), SC( 9), SC(12), SC(15), SC(18), SC(21),
  SC(24), SC(27), SC(30), SC(33), SC(36), SC(39), SC(42), SC(93)
 };
@@ -246,7 +245,8 @@ int YMF278::Slot::compute_decay_rate(int val) const
 		// -12dB .. -48dB:  96 samples (2.18ms) ->  16 samples per -6dB = rate 63
 		// -48dB .. -72dB:  64 samples (1.45ms) ->  16 samples per -6dB = rate 63
 		// -72dB .. -96dB:  64 samples (1.45ms) ->  16 samples per -6dB = rate 63
-		if (env_vol < int(dl_tab[4])) {
+		// Damping was verified to ignore rate correction.
+		if (env_vol < dl_tab[4]) {
 			return 48; //   0dB .. -12dB
 		} else {
 			return 63; // -12dB .. -96dB
@@ -255,8 +255,15 @@ int YMF278::Slot::compute_decay_rate(int val) const
 	if (PRVB) {
 		// pseudo reverb
 		// activated when reaching -18dB, overrides D1R/D2R/RR with reverb rate 5
-		if (env_vol >= int(dl_tab[6])) {
-			return compute_rate(5);
+		//
+		// The manual is actually a bit unclear and just says "RATE=5",
+		// referring to the D1R/D2R/RR register value. However, later
+		// pages use "RATE" to refer to the "internal" rate, which is
+		// (register * 4) + rate correction. HW recordings prove that
+		// Rate Correction is ignored, so pseudo reverb just sets the
+		// "internal" rate to a value of 4*5 = 20.
+		if (env_vol >= dl_tab[6]) {
+			return 20;
 		}
 	}
 	return compute_rate(val);
@@ -324,6 +331,12 @@ void YMF278::advance()
 		switch (op.state) {
 		case EG_ATT: { // attack phase
 			uint8_t rate = op.compute_rate(op.AR);
+			// Verified by HW recording (and matches Nemesis' tests of the YM2612):
+			// AR = 0xF during KeyOn results in instant switch to EG_DEC. (see keyOnHelper)
+			// Setting AR = 0xF while the attack phase is in progress freezes the envelope.
+			if (rate >= 63) {
+				break;
+			}
 			uint8_t shift = eg_rate_shift[rate];
 			if (!(eg_cnt & ((1 << shift) - 1))) {
 				uint8_t select = eg_rate_select[rate];
@@ -331,8 +344,9 @@ void YMF278::advance()
 				op.env_vol += (~op.env_vol * eg_inc[select + ((eg_cnt >> shift) & 7)]) >> 4;
 				if (op.env_vol <= MIN_ATT_INDEX) {
 					op.env_vol = MIN_ATT_INDEX;
-					//op.state = op.DL ? EG_DEC : EG_SUS;
-					op.state = EG_DEC;
+					// TODO does the real HW skip EG_DEC completely,
+					//      or is it active for 1 sample?
+					op.state = op.DL ? EG_DEC : EG_SUS;
 				}
 			}
 			break;
@@ -344,7 +358,7 @@ void YMF278::advance()
 				uint8_t select = eg_rate_select[rate];
 				op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
 				if (op.env_vol >= op.DL) {
-					op.state = EG_SUS;
+					op.state = (op.env_vol < MAX_ATT_INDEX) ? EG_SUS : EG_OFF;
 				}
 			}
 			break;
@@ -526,14 +540,16 @@ void YMF278::generateChannels(int** bufs, unsigned num)
 
 void YMF278::keyOnHelper(YMF278::Slot& slot)
 {
+	// Unlike FM, the envelope level is reset. (And it makes sense, because you restart the sample.)
+	slot.env_vol = MAX_ATT_INDEX;
 	if (slot.compute_rate(slot.AR) < 63) {
 		slot.state = EG_ATT;
 	} else {
 		// Nuke.YKT verified that the FM part does it exactly this way,
 		// and the OPL4 manual says it's instant as well.
 		slot.env_vol = MIN_ATT_INDEX;
-		//slot.state = slot.DL ? EG_DEC : EG_SUS;
-		slot.state = EG_DEC;
+		// see comment in 'case EG_ATT' in YMF278::advance()
+		slot.state = slot.DL ? EG_DEC : EG_SUS;
 	}
 	slot.stepptr = 0;
 	slot.pos = 0;
