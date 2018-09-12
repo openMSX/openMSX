@@ -16,8 +16,11 @@
 // - verified that TL and envelope levels are applied separately, both go silent at -60dB
 // - implemented pseudo-reverb and damping according to manual
 // - made pseudo-reverb ignore Rate Correction (real hardware ignores it)
+// - reimplemented LFO, speed exactly matches the formulas that were probably used when creating the manual
+// - fixed LFO (tremolo) amplitude modulation
 //
 // Known issues:
+// - LFO vibrato range is not quite right yet
 // - Octave -8 was only tested with fnum 0. Other fnum values might behave differently.
 // - LFO stuff needs testing
 
@@ -39,14 +42,14 @@
 
 namespace openmsx {
 
-static const int EG_SH = 16; // 16.16 fixed point (EG timing)
-static const unsigned EG_TIMER_OVERFLOW = 1 << EG_SH;
-
 // envelope output entries
 // fixed to match recordings from actual OPL4 -Valley Bell
 static const int MAX_ATT_INDEX = 0x280; // makes attack phase right and also goes well with "envelope stops at -60dB"
 static const int MIN_ATT_INDEX = 0;
 static const int TL_SHIFT      = 2; // envelope values are 4x as fine as TL levels
+
+static const unsigned LFO_SHIFT = 18; // LFO period of up to 0x40000 sample
+static const unsigned LFO_PERIOD = 1 << LFO_SHIFT;
 
 // Envelope Generator phases
 static const int EG_ATT = 4;
@@ -146,17 +149,23 @@ static const byte eg_rate_shift[64] = {
 
 // number of steps to take in quarter of lfo frequency
 // TODO check if frequency matches real chip
-#define O(a) int((EG_TIMER_OVERFLOW / (a)) / 6)
+#define O(a) int((LFO_PERIOD * (a)) / 44100.0 + 0.5)  // LFO frequency (Hz) -> LFO counter steps per sample
 static const int lfo_period[8] = {
-	O(0.168), O(2.019), O(3.196), O(4.206),
-	O(5.215), O(5.888), O(6.224), O(7.066)
+	O(0.168), // step:  1, period: 262144 samples
+	O(2.019), // step: 12, period:  21845 samples
+	O(3.196), // step: 19, period:  13797 samples
+	O(4.206), // step: 25, period:  10486 samples
+	O(5.215), // step: 31, period:   8456 samples
+	O(5.888), // step: 35, period:   7490 samples
+	O(6.224), // step: 37, period:   7085 samples
+	O(7.066), // step: 42, period:   6242 samples
 };
 #undef O
 
 
-#define O(a) int((a) * 65536)
+#define O(a) int((a) / 100.0 * 0x10000)
 static const int vib_depth[8] = {
-	O( 0.0  ), O( 3.378), O( 5.065), O( 6.750),
+	O( 0.000), O( 3.378), O( 5.065), O( 6.750),
 	O(10.114), O(20.170), O(40.106), O(79.307)
 };
 #undef O
@@ -206,8 +215,7 @@ void YMF278::Slot::reset()
 	env_vol = MAX_ATT_INDEX;
 
 	lfo_active = false;
-	lfo_cnt = lfo_step = 0;
-	lfo_max = lfo_period[0];
+	lfo_cnt = 0;
 
 	state = EG_OFF;
 
@@ -271,25 +279,26 @@ int YMF278::Slot::compute_decay_rate(int val) const
 
 int YMF278::Slot::compute_vib() const
 {
-	return (((lfo_step << 8) / lfo_max) * vib_depth[vib]) >> 24;
-}
+	// LFO vibrato counter (0..+255, +255..0, 0..-255, -255..0)
+	int32_t lfo_fm_cnt = lfo_cnt / (LFO_PERIOD / 0x400);
+	if (0x100 <= lfo_fm_cnt && lfo_fm_cnt < 0x300) {
+		lfo_fm_cnt = 0x1ff - lfo_fm_cnt;
+	} else if (0x300 <= lfo_fm_cnt) {
+		lfo_fm_cnt = lfo_fm_cnt - 0x400;
+	}
 
+	return (lfo_fm_cnt * vib_depth[vib]) >> 18;
+}
 
 int YMF278::Slot::compute_am() const
 {
-	if (lfo_active && AM) {
-		return (((lfo_step << 8) / lfo_max) * am_depth[AM]) >> (12 - TL_SHIFT);
-	} else {
-		return 0;
+	// LFO tremolo counter (0..255, 255..0)
+	uint32_t lfo_am_cnt = lfo_cnt / (LFO_PERIOD / 0x200);
+	if (0x100 <= lfo_am_cnt) {
+		lfo_am_cnt ^= 0x1ff;
 	}
-}
 
-void YMF278::Slot::set_lfo(int lfo)
-{
-	lfo_step = (((lfo_step << 8) / lfo_max) * lfo) >> 8;
-	lfo_cnt  = (((lfo_cnt  << 8) / lfo_max) * lfo) >> 8;
-
-	lfo_max = lfo_period[lfo];
+	return (lfo_am_cnt * am_depth[AM]) >> 8;
 }
 
 
@@ -314,17 +323,7 @@ void YMF278::advance()
 		}
 
 		if (op.lfo_active) {
-			op.lfo_cnt++;
-			if (op.lfo_cnt < op.lfo_max) {
-				op.lfo_step++;
-			} else if (op.lfo_cnt < (op.lfo_max * 3)) {
-				op.lfo_step--;
-			} else {
-				op.lfo_step++;
-				if (op.lfo_cnt == (op.lfo_max * 4)) {
-					op.lfo_cnt = 0;
-				}
-			}
+			op.lfo_cnt = (op.lfo_cnt + lfo_period[op.lfo]) & (LFO_PERIOD - 1);
 		}
 
 		// Envelope Generator
@@ -501,7 +500,8 @@ void YMF278::generateChannels(int** bufs, unsigned num)
 			// A volume of -60dB or lower results in silence. (value 0x280..0x3FF).
 			// Recordings from actual hardware indicate that TL level and envelope level are applied separarely.
 			// Each of them is clipped to silence below -60dB, but TL+envelope might result in a lower volume. -Valley Bell
-			int envVol = Math::clip<0, MAX_ATT_INDEX>(sl.env_vol + sl.compute_am()); // clip negative values (can occour due to AM ?)
+			uint16_t envVol = std::min(sl.env_vol + ((sl.lfo_active && sl.AM) ? sl.compute_am() : 0),
+			                           MAX_ATT_INDEX);
 			int smplOut = vol_factor(vol_factor(sample, envVol), sl.TL << TL_SHIFT);
 
 			// Panning is also done separately. (low-volume TL + low-volume panning goes below -60dB)
@@ -636,8 +636,6 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 				// LFO reset
 				slot.lfo_active = false;
 				slot.lfo_cnt = 0;
-				slot.lfo_max = lfo_period[slot.vib];
-				slot.lfo_step = 0;
 			} else {
 				// LFO activate
 				slot.lfo_active = true;
@@ -658,8 +656,8 @@ void YMF278::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			}
 			break;
 		case 5:
+			slot.lfo = (data >> 3) & 0x7;
 			slot.vib = data & 0x7;
-			slot.set_lfo((data >> 3) & 0x7);
 			break;
 		case 6:
 			slot.AR  = data >> 4;
@@ -971,6 +969,11 @@ void YMF278::writeMem(unsigned address, byte value)
 //  - store 'OCT' sign-extended
 //  - store 'endaddr' as 2s complement
 //  - removed EG_DMP and EG_REV enum values from 'state'
+// version 5:
+//  - re-added 'lfo' member. This is not stored in the savestate, instead it's
+//    restored from register values in YMF278::serialize()
+//  - removed members 'lfo_step' and ' 'lfo_max'
+//  - 'lfo_cnt' has changed meaning (but we don't try to translate old to new meaning)
 template<typename Archive>
 void YMF278::Slot::serialize(Archive& ar, unsigned version)
 {
@@ -983,8 +986,6 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 	ar.serialize("sample2", sample2);
 	ar.serialize("env_vol", env_vol);
 	ar.serialize("lfo_cnt", lfo_cnt);
-	ar.serialize("lfo_step", lfo_step);
-	ar.serialize("lfo_max", lfo_max);
 	ar.serialize("DL", DL);
 	ar.serialize("wave", wave);
 	ar.serialize("FN", FN);
@@ -1091,6 +1092,7 @@ void YMF278::serialize(Archive& ar, unsigned version)
 
 			sl.keyon = (regs[0x68 + i] & 0x80) != 0;
 			sl.DAMP  = (regs[0x68 + i] & 0x40) != 0;
+			sl.lfo   = (regs[0x80 + i] >> 3) & 7;
 		}
 	}
 }

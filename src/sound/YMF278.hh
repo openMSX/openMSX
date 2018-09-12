@@ -43,9 +43,8 @@ private:
 		int compute_decay_rate(int val) const;
 		unsigned decay_rate(int num, int sample_rate);
 		void envelope_next(int sample_rate);
-		inline int compute_vib() const;
-		inline int compute_am() const;
-		void set_lfo(int newlfo);
+		int compute_vib() const;
+		int compute_am() const;
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -61,13 +60,11 @@ private:
 
 		int32_t env_vol;
 
-		int32_t lfo_cnt;
-		int32_t lfo_step;
-		int32_t lfo_max;
+		uint32_t lfo_cnt;
 
 		int32_t DL;
-		int16_t wave;		// wavetable number
-		int16_t FN;		// f-number         TODO store 'FN | 1024'?
+		uint16_t wave;		// wavetable number
+		uint16_t FN;		// f-number         TODO store 'FN | 1024'?
 		int8_t OCT;		// octave [-8..+7]
 		bool PRVB;		// pseudo-reverb
 		uint8_t TLdest;		// destination total level
@@ -75,6 +72,7 @@ private:
 		uint8_t pan;		// panpot 0..15
 		bool keyon;		// slot keyed on
 		bool DAMP;
+		uint8_t lfo;            // LFO speed 0..7
 		uint8_t vib;		// vibrato 0..7
 		uint8_t AM;		// AM level 0..7
 		uint8_t AR;		// 0..15
@@ -125,7 +123,7 @@ private:
 
 	byte regs[256];
 };
-SERIALIZE_CLASS_VERSION(YMF278::Slot, 4);
+SERIALIZE_CLASS_VERSION(YMF278::Slot, 5);
 SERIALIZE_CLASS_VERSION(YMF278, 4);
 
 } // namespace openmsx
