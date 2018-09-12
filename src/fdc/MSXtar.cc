@@ -338,7 +338,7 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 	// handle speciale case '.' and '..' first
 	string result(8 + 3, ' ');
 	if ((fullFile == ".") || (fullFile == "..")) {
-		memcpy(&*begin(result), fullFile.data(), fullFile.size());
+		memcpy(&*begin(result), fullFile.data(), fullFile.size()); // c++17: result.data()
 		return result;
 	}
 
@@ -356,7 +356,7 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 	transform_in_place(extS,  toMSXChr);
 
 	// add correct number of spaces
-	memcpy(&*begin(result) + 0, fileS.data(), fileS.size());
+	memcpy(&*begin(result) + 0, fileS.data(), fileS.size()); // c++17: result.data()
 	memcpy(&*begin(result) + 8, extS .data(), extS .size());
 	return result;
 }

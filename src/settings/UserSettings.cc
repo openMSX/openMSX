@@ -9,7 +9,7 @@
 #include "FloatSetting.hh"
 #include "checked_cast.hh"
 #include "outer.hh"
-#include "stl.hh"
+#include "ranges.hh"
 #include "view.hh"
 #include <cassert>
 #include <memory>
@@ -41,12 +41,9 @@ void UserSettings::deleteSetting(Setting& setting)
 
 Setting* UserSettings::findSetting(string_view name) const
 {
-	for (auto& s : settings) {
-		if (s->getFullName() == name) {
-			return s.get();
-		}
-	}
-	return nullptr;
+	auto it = ranges::find_if(
+	        settings, [&](auto& s) { return s->getFullName() == name; });
+	return (it != end(settings)) ? it->get() : nullptr;
 }
 
 

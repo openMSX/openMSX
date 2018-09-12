@@ -5,7 +5,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "stl.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -107,12 +107,9 @@ std::vector<const XMLElement*> XMLElement::getChildren(string_view childName) co
 
 XMLElement* XMLElement::findChild(string_view childName)
 {
-	for (auto& c : children) {
-		if (c.getName() == childName) {
-			return &c;
-		}
-	}
-	return nullptr;
+	auto it = ranges::find_if(
+	        children, [&](auto& c) { return c.getName() == childName; });
+	return (it != end(children)) ? &*it : nullptr;
 }
 const XMLElement* XMLElement::findChild(string_view childName) const
 {
@@ -140,13 +137,11 @@ const XMLElement* XMLElement::findNextChild(string_view childName,
 XMLElement* XMLElement::findChildWithAttribute(string_view childName,
 	string_view attName, string_view attValue)
 {
-	for (auto& c : children) {
-		if ((c.getName() == childName) &&
-		    (c.getAttribute(attName) == attValue)) {
-			return &c;
-		}
-	}
-	return nullptr;
+	auto it = ranges::find_if(children, [&](auto& c) {
+		return (c.getName() == childName) &&
+		       (c.getAttribute(attName) == attValue);
+	});
+	return (it != end(children)) ? &*it : nullptr;
 }
 
 const XMLElement* XMLElement::findChildWithAttribute(string_view childName,

@@ -48,10 +48,8 @@ AmdFlash::AmdFlash(const string& name, vector<SectorInfo> sectorInfo_,
 
 static bool sramEmpty(const SRAM& ram)
 {
-	for (auto i : xrange(ram.getSize())) {
-		if (ram[i] != 0xFF) return false;
-	}
-	return true;
+	return ranges::all_of(xrange(ram.getSize()),
+	                      [&](auto i) { return ram[i] == 0xFF; });
 }
 
 void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, const Rom* rom)

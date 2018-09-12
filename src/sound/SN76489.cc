@@ -49,7 +49,7 @@ inline void SN76489::NoiseShifter::queueAdvance(unsigned steps)
 
 void SN76489::NoiseShifter::catchUp()
 {
-	for (; stepsBehind; stepsBehind--) {
+	for (/**/; stepsBehind; stepsBehind--) {
 		advance();
 	}
 }

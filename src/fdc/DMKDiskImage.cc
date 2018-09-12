@@ -4,7 +4,7 @@
 #include "File.hh"
 #include "FilePool.hh"
 #include "likely.hh"
-#include <algorithm>
+#include "ranges.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -35,13 +35,8 @@ static bool isValidDmkHeader(const DmkHeader& header)
 	if (trackLen >= 0x4000) return false; // too large track length
 	if (trackLen <= 128)    return false; // too small
 	if (header.flags & ~0xd0) return false; // unknown flag set
-	for (auto& r : header.reserved) {
-		if (r != 0) return false;
-	}
-	for (auto& f : header.format) {
-		if (f != 0) return false;
-	}
-	return true;
+	return ranges::all_of(header.reserved, [](auto& r) { return r == 0; }) &&
+	       ranges::all_of(header.format,   [](auto& f) { return f == 0; });
 }
 
 DMKDiskImage::DMKDiskImage(Filename filename, std::shared_ptr<File> file_)

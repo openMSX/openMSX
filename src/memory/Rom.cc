@@ -17,6 +17,7 @@
 #include "EmptyPatch.hh"
 #include "IPSPatch.hh"
 #include "StringOp.hh"
+#include "ranges.hh"
 #include "sha1.hh"
 #include <cstring>
 #include <limits>
@@ -326,12 +327,9 @@ bool Rom::checkSHA1(const XMLElement& config)
 		return true;
 	}
 	auto& sha1sum = getOriginalSHA1();
-	for (auto& s : sums) {
-		if (Sha1Sum(s->getData()) == sha1sum) {
-			return true;
-		}
-	}
-	return false;
+	return ranges::any_of(sums, [&](auto& s) {
+		return Sha1Sum(s->getData()) == sha1sum;
+	});
 }
 
 Rom::Rom(Rom&& r) noexcept

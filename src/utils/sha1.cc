@@ -22,6 +22,7 @@ A million repetitions of "a"
 #include "MSXException.hh"
 #include "endian.hh"
 #include "likely.hh"
+#include "ranges.hh"
 #include <cassert>
 #include <cstring>
 #ifdef __SSE2__
@@ -242,14 +243,11 @@ std::string Sha1Sum::toString() const
 
 bool Sha1Sum::empty() const
 {
-	for (const auto& ai : a) {
-		if (ai != 0) return false;
-	}
-	return true;
+	return ranges::all_of(a, [](auto& e) { return e == 0; });
 }
 void Sha1Sum::clear()
 {
-	for (auto& ai : a) ai = 0;
+	ranges::fill(a, 0);
 }
 
 

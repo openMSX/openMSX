@@ -647,12 +647,9 @@ void MSXMotherBoard::exitCPULoopSync()
 
 MSXDevice* MSXMotherBoard::findDevice(string_view name)
 {
-	for (auto& d : availableDevices) {
-		if (d->getName() == name) {
-			return d;
-		}
-	}
-	return nullptr;
+	auto it = ranges::find_if(availableDevices,
+	                          [&](auto* d) { return d->getName() == name; });
+	return (it != end(availableDevices)) ? *it : nullptr;
 }
 
 MSXMapperIO& MSXMotherBoard::createMapperIO()

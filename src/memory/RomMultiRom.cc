@@ -11,13 +11,17 @@ RomMultiRom::RomMultiRom(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 {
 	counter = 0;
-	for (int i=0; i<4; i++) setRom(i, counter * 4 + i);
+	for (int i = 0; i < 4; ++i) {
+		setRom(i, counter * 4 + i);
+	}
 }
 
 void RomMultiRom::reset(EmuTime::param /*time*/)
 {
 	++counter &= 7;
-	for (int i=0; i<4; i++) setRom(i, counter * 4 + i);
+	for (int i = 0; i < 4; ++i) {
+		setRom(i, counter * 4 + i);
+	}
 }
 
 template<typename Archive>

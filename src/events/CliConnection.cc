@@ -14,8 +14,9 @@
 #include "XMLElement.hh"
 #include "checked_cast.hh"
 #include "cstdiop.hh"
-#include "unistdp.hh"
 #include "openmsx.hh"
+#include "ranges.hh"
+#include "unistdp.hh"
 #include <cassert>
 #include <iostream>
 
@@ -70,9 +71,7 @@ CliConnection::CliConnection(CommandController& commandController_,
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
-	for (auto& en : updateEnabled) {
-		en = false;
-	}
+	ranges::fill(updateEnabled, false);
 
 	eventDistributor.registerEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
 }

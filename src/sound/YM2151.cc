@@ -7,6 +7,7 @@
 #include "YM2151.hh"
 #include "DeviceConfig.hh"
 #include "Math.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include <cmath>
 #include <cstring>
@@ -862,10 +863,7 @@ YM2151::~YM2151()
 
 bool YM2151::checkMuteHelper()
 {
-	for (auto& op : oper) {
-		if (op.state != EG_OFF) return false;
-	}
-	return true;
+	return ranges::all_of(oper, [](auto& op) { return op.state == EG_OFF; });
 }
 
 void YM2151::reset(EmuTime::param time)

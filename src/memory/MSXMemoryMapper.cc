@@ -1,10 +1,11 @@
 #include "MSXMemoryMapper.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
-#include "serialize.hh"
-#include "outer.hh"
 #include "Ram.hh" // because we serialize Ram instead of CheckedRam
 #include "Math.hh"
+#include "outer.hh"
+#include "ranges.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -40,9 +41,7 @@ void MSXMemoryMapper::reset(EmuTime::param /*time*/)
 {
 	// Most mappers initialize to segment 0 for all pages.
 	// On MSX2 and higher, the BIOS will select segments 3..0 for pages 0..3.
-	for (auto& reg : registers) {
-		reg = 0;
-	}
+	ranges::fill(registers, 0);
 }
 
 byte MSXMemoryMapper::readIO(word port, EmuTime::param time)

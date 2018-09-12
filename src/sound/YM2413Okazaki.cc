@@ -5,11 +5,12 @@
  */
 
 #include "YM2413Okazaki.hh"
-#include "serialize.hh"
+#include "Math.hh"
 #include "cstd.hh"
 #include "inline.hh"
+#include "ranges.hh"
+#include "serialize.hh"
 #include "unreachable.hh"
-#include "Math.hh"
 #include <cstring>
 #include <cassert>
 #include <iostream>
@@ -424,7 +425,7 @@ void Patch::setSL(byte value)
 void Slot::reset()
 {
 	cphase = 0;
-	for (auto& dp : dphase) dp = 0;
+	ranges::fill(dphase, 0);
 	output = 0;
 	feedback = 0;
 	setEnvelopeState(FINISH);

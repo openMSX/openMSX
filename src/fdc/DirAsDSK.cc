@@ -234,6 +234,7 @@ static string hostToMsxName(string hostName)
 	if (file.empty()) std::swap(file, ext);
 
 	string result(8 + 3, ' ');
+	// c++17: use result.data()
 	memcpy(&*begin(result) + 0, file.data(), std::min<size_t>(8, file.size()));
 	memcpy(&*begin(result) + 8, ext .data(), std::min<size_t>(3, ext .size()));
 	ranges::replace(result, '.', '_');

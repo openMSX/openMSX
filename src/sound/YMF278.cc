@@ -33,11 +33,11 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
-#include "serialize.hh"
-#include "likely.hh"
 #include "Math.hh"
+#include "likely.hh"
 #include "outer.hh"
-#include <algorithm>
+#include "ranges.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -458,10 +458,7 @@ int16_t YMF278::getSample(Slot& op)
 
 bool YMF278::anyActive()
 {
-	for (auto& op : slots) {
-		if (op.state != EG_OFF) return true;
-	}
-	return false;
+	return ranges::any_of(slots, [](auto& op) { return op.state != EG_OFF; });
 }
 
 // In: 'envVol', 0=max volume, others -> -3/32 = -0.09375 dB/step

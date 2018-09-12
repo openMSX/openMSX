@@ -9,7 +9,9 @@
 #include "MemBuffer.hh"
 #include "MSXException.hh"
 #include "likely.hh"
+#include "ranges.hh"
 #include "vla.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <memory>
 
@@ -68,10 +70,8 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, string_view name_,
 	assert(stereo == 1 || stereo == 2);
 
 	// initially no channels are muted
-	for (unsigned i = 0; i < numChannels; ++i) {
-		channelMuted[i] = false;
-		channelBalance[i] = 0;
-	}
+	ranges::fill(channelMuted, false);
+	ranges::fill(channelBalance, 0);
 }
 
 SoundDevice::~SoundDevice() = default;
@@ -235,12 +235,8 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	generateChannels(bufs, samples);
 
 	if (separateChannels == 0) {
-		for (unsigned i = 0; i < numChannels; ++i) {
-			if (bufs[i]) {
-				return true;
-			}
-		}
-		return false;
+		return ranges::any_of(xrange(numChannels),
+		                      [&bufs](auto i) { return bufs[i]; });
 	}
 
 	// record channels

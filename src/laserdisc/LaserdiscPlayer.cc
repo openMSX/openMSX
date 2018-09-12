@@ -713,9 +713,11 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 			if (pos == 0) {
 				buffers[0] = nullptr;
 				break;
-			} else for (/**/; pos < num; ++pos) {
-				buffers[0][pos * 2 + 0] = 0;
-				buffers[0][pos * 2 + 1] = 0;
+			} else {
+				for (/**/; pos < num; ++pos) {
+					buffers[0][pos * 2 + 0] = 0;
+					buffers[0][pos * 2 + 1] = 0;
+				}
 			}
 		} else {
 			auto offset = unsigned(lastPlayedSample - audio->position);

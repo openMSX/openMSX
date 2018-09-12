@@ -98,9 +98,10 @@
 
 #include "SCC.hh"
 #include "DeviceConfig.hh"
-#include "serialize.hh"
 #include "likely.hh"
 #include "outer.hh"
+#include "ranges.hh"
+#include "serialize.hh"
 #include "unreachable.hh"
 #include <cmath>
 
@@ -122,7 +123,7 @@ SCC::SCC(const string& name_, const DeviceConfig& config,
 	, currentChipMode(mode)
 {
 	// Make valgrind happy
-	for (auto& op : orgPeriod) op = 0;
+	ranges::fill(orgPeriod, 0);
 
 	float input = 3579545.0f / 32;
 	setInputRate(lrintf(input));
@@ -152,9 +153,7 @@ void SCC::powerUp(EmuTime::param time)
 
 	// Initialize waveforms (initialize before volumes)
 	for (auto& w1 : wave) {
-		for (auto& w2 : w1) {
-			w2 = ~0;
-		}
+		ranges::fill(w1, ~0);
 	}
 	// Initialize volume (initialize this before period)
 	for (int i = 0; i < 5; ++i) {
@@ -162,7 +161,7 @@ void SCC::powerUp(EmuTime::param time)
 	}
 	// Actual initial value is difficult to measure, assume zero
 	// (initialize before period)
-	for (auto& p : pos) p = 0;
+	ranges::fill(pos, 0);
 
 	// Initialize period (sets members orgPeriod, period, incr, count, out)
 	for (int i = 0; i < 2 * 5; ++i) {
@@ -429,16 +428,12 @@ void SCC::setDeformRegHelper(byte value)
 	}
 	switch (value & 0xC0) {
 	case 0x00:
-		for (unsigned i = 0; i < 5; ++i) {
-			rotate[i] = false;
-			readOnly[i] = false;
-		}
+		ranges::fill(rotate, false);
+		ranges::fill(readOnly, false);
 		break;
 	case 0x40:
-		for (unsigned i = 0; i < 5; ++i) {
-			rotate[i] = true;
-			readOnly[i] = true;
-		}
+		ranges::fill(rotate, true);
+		ranges::fill(readOnly, true);
 		break;
 	case 0x80:
 		for (unsigned i = 0; i < 3; ++i) {

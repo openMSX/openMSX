@@ -401,8 +401,7 @@ void OSDConsoleRenderer::insertInCache(
 	static const unsigned MAX_TEXT_CACHE_SIZE = 250;
 	if (textCache.size() == MAX_TEXT_CACHE_SIZE) {
 		// flush the least recently used entry
-		auto it = end(textCache);
-		--it;
+		auto it = std::prev(std::end(textCache));
 		if (it == cacheHint) {
 			cacheHint = begin(textCache);
 		}

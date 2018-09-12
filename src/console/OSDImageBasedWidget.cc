@@ -7,6 +7,7 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Timer.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "view.hh"
 #include "xrange.hh"
@@ -27,9 +28,7 @@ OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& nam
 	, startFadeValue(1.0)
 	, error(false)
 {
-	for (auto i : xrange(4)) {
-		rgba[i] = 0x000000ff;
-	}
+	ranges::fill(rgba, 0x000000ff);
 }
 
 OSDImageBasedWidget::~OSDImageBasedWidget() = default;

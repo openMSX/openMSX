@@ -1,8 +1,8 @@
 #include "ResampleBlip.hh"
 #include "ResampledSoundDevice.hh"
 #include "likely.hh"
+#include "ranges.hh"
 #include "vla.hh"
-#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -16,7 +16,7 @@ ResampleBlip<CHANNELS>::ResampleBlip(
 	, emuClock(hostClock.getTime(), emuSampleRate)
 	, step(FP::roundRatioDown(hostClock.getFreq(), emuSampleRate))
 {
-	for (auto& l : lastInput) l = 0;
+	ranges::fill(lastInput, 0);
 }
 
 template <unsigned CHANNELS>

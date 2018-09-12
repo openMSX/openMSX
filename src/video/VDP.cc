@@ -33,6 +33,7 @@ TODO:
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
 #include <cstring>
 #include <cassert>
@@ -246,9 +247,7 @@ void VDP::resetInit()
 {
 	// note: vram, spriteChecker, cmdEngine, renderer may not yet be
 	//       created at this point
-	for (auto& reg : controlRegs) {
-		reg = 0;
-	}
+	ranges::fill(controlRegs, 0);
 	if (isVDPwithPALonly()) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;

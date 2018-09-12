@@ -1,5 +1,6 @@
 #include "NinjaTap.hh"
 #include "JoystickPort.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -9,9 +10,7 @@ NinjaTap::NinjaTap(PluggingController& pluggingController_, std::string name_)
 {
 	status = 0x3F; // TODO check initial value
 	previous = 0;
-	for (auto& b : buf) {
-		b = 0xFF;
-	}
+	ranges::fill(buf, 0xFF);
 }
 
 string_view NinjaTap::getDescription() const

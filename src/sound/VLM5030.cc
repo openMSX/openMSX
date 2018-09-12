@@ -81,6 +81,7 @@ chirp 12-..: vokume   0   : silent
 #include "Math.hh"
 #include "serialize.hh"
 #include "random.hh"
+#include "ranges.hh"
 #include <cmath>
 #include <cstring>
 #include <cstdint>
@@ -199,9 +200,7 @@ int VLM5030::parseFrame()
 	if (cmd & 0x01) {
 		// extend frame
 		new_energy = new_pitch = 0;
-		for (int i = 0; i <= 9; ++i) {
-			new_k[i] = 0;
-		}
+		ranges::fill(new_k, 0);
 		++address;
 		if (cmd & 0x02) {
 			// end of speech

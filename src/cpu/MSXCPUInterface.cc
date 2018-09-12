@@ -73,23 +73,19 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	, motherBoard(motherBoard_)
 	, fastForward(false)
 {
-	for (int port = 0; port < 256; ++port) {
-		IO_In [port] = dummyDevice.get();
-		IO_Out[port] = dummyDevice.get();
-	}
+	ranges::fill(primarySlotState, 0);
+	ranges::fill(secondarySlotState, 0);
+	ranges::fill(expanded, 0);
+	ranges::fill(subSlotRegister, 0);
+	ranges::fill(IO_In,  dummyDevice.get());
+	ranges::fill(IO_Out, dummyDevice.get());
+	ranges::fill(visibleDevices, dummyDevice.get());
 	for (int primSlot = 0; primSlot < 4; ++primSlot) {
-		primarySlotState[primSlot] = 0;
-		secondarySlotState[primSlot] = 0;
-		expanded[primSlot] = 0;
-		subSlotRegister[primSlot] = 0;
 		for (int secSlot = 0; secSlot < 4; ++secSlot) {
 			for (int page = 0; page < 4; ++page) {
 				slotLayout[primSlot][secSlot][page] = dummyDevice.get();
 			}
 		}
-	}
-	for (auto& dev : visibleDevices) {
-		dev = dummyDevice.get();
 	}
 
 	// initially allow all regions to be cached
@@ -791,26 +787,24 @@ void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
 	// Pass shared_ptr by value to keep the object alive for the duration
 	// of this function, otherwise it gets deleted as soon as it's removed
 	// from the watchPoints collection.
-	for (auto it = begin(watchPoints); it != end(watchPoints); ++it) {
-		if (*it == watchPoint) {
-			// remove before calling updateMemWatch()
-			watchPoints.erase(it);
-			WatchPoint::Type type = watchPoint->getType();
-			switch (type) {
-			case WatchPoint::READ_IO:
-				unregisterIOWatch(*watchPoint, IO_In);
-				break;
-			case WatchPoint::WRITE_IO:
-				unregisterIOWatch(*watchPoint, IO_Out);
-				break;
-			case WatchPoint::READ_MEM:
-			case WatchPoint::WRITE_MEM:
-				updateMemWatch(type);
-				break;
-			default:
-				UNREACHABLE; break;
-			}
+	auto it = ranges::find(watchPoints, watchPoint);
+	if (it != end(watchPoints)) {
+		// remove before calling updateMemWatch()
+		watchPoints.erase(it);
+		WatchPoint::Type type = watchPoint->getType();
+		switch (type) {
+		case WatchPoint::READ_IO:
+			unregisterIOWatch(*watchPoint, IO_In);
 			break;
+		case WatchPoint::WRITE_IO:
+			unregisterIOWatch(*watchPoint, IO_Out);
+			break;
+		case WatchPoint::READ_MEM:
+		case WatchPoint::WRITE_MEM:
+			updateMemWatch(type);
+			break;
+		default:
+			UNREACHABLE; break;
 		}
 	}
 }

@@ -8,7 +8,7 @@
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "outer.hh"
-#include "stl.hh"
+#include "ranges.hh"
 #include "view.hh"
 #include <cassert>
 #include <iostream>
@@ -204,12 +204,9 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 
 Connector* PluggingController::findConnector(string_view name) const
 {
-	for (auto& c : connectors) {
-		if (c->getName() == name) {
-			return c;
-		}
-	}
-	return nullptr;
+	auto it = ranges::find_if(connectors,
+	                          [&](auto* c) { return c->getName() == name; });
+	return (it != end(connectors)) ? *it : nullptr;
 }
 
 Connector& PluggingController::getConnector(string_view name) const
@@ -222,12 +219,9 @@ Connector& PluggingController::getConnector(string_view name) const
 
 Pluggable* PluggingController::findPluggable(string_view name) const
 {
-	for (auto& p : pluggables) {
-		if (p->getName() == name) {
-			return p.get();
-		}
-	}
-	return nullptr;
+	auto it = ranges::find_if(pluggables,
+	                          [&](auto& p) { return p->getName() == name; });
+	return (it != end(pluggables)) ? it->get() : nullptr;
 }
 
 Pluggable& PluggingController::getPluggable(string_view name) const

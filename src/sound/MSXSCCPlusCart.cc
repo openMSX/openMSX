@@ -7,6 +7,7 @@
 #include "FileException.hh"
 #include "XMLElement.hh"
 #include "CacheLine.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -49,10 +50,8 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	}
 
 	// make valgrind happy
-	for (int i = 0; i < 4; ++i) {
-		isRamSegment[i] = true;
-		mapper[i] = 0;
-	}
+	ranges::fill(isRamSegment, true);
+	ranges::fill(mapper, 0);
 
 	powerUp(getCurrentTime());
 }

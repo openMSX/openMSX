@@ -12,6 +12,7 @@
 #include "Math.hh"
 #include "cstd.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <cmath>
@@ -599,7 +600,7 @@ void Y8950::reset(EmuTime::param time)
 
 	// update the output buffer before changing the register
 	updateStream(time);
-	for (auto& r : reg) r = 0x00;
+	ranges::fill(reg, 0x00);
 
 	reg[0x04] = 0x18;
 	reg[0x19] = 0x0F; // fixes 'Thunderbirds are Go'
