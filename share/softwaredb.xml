@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1535866916">
+<softwaredb timestamp="1537130838">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -837,7 +837,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>GWʼs-Workshop</company>
 	<year>2018</year>
 	<country>JP</country>
-		<dump><original value="true">Author</original><rom><hash>461e50c7372490a453a6cb04bfacf72253c32509</hash><remark>Version 1.00 / MSXDev2018 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>461e50c7372490a453a6cb04bfacf72253c32509</hash><remark>v1.00 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>139be74cb58224eb6e405741d19a4a16c6adb553</hash><remark>v1.10 / MSXDev2018</remark></rom></dump>
 </software>
 <software>
 	<title>Back To The Future</title>
@@ -1531,7 +1532,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>RELEVO Videogames</company>
 	<year>2009</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>e45af2f15327dfdc1b1250ddab97b7f28801d5ca</hash><remark>MSXDev09 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>e45af2f15327dfdc1b1250ddab97b7f28801d5ca</hash><remark>MSXDev09</remark></rom></dump>
 		<dump><rom><hash>f2dd846532d2244d67bb1959cf9ac5642a6381fa</hash></rom></dump>
 </software>
 <software>
@@ -1582,7 +1583,16 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>N.I</company>
 	<year>2016</year>
 	<country>JP</country>
-		<dump><original value="true">Author</original><rom><hash>c84d6b04725676b7162a0b9a23e8d94ed0e81495</hash><remark>MSXDev2015 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>c84d6b04725676b7162a0b9a23e8d94ed0e81495</hash><remark>MSXDev2015</remark></rom></dump>
+</software>
+<software>
+	<title>Buck Rogers - Planet of Zoom</title>
+	<genmsxid>1797</genmsxid>
+	<system>MSX</system>
+	<company>Sega</company>
+	<year>1983</year>
+	<country>JP</country>
+		<dump><rom><hash>25ccc462ab7ecbe9f8e63e931840d6164b9cc4c1</hash><remark>cas2rom</remark></rom></dump>
 </software>
 <software>
 	<title>Burger Time</title>
@@ -1607,8 +1617,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>CARAMBALAN Studios</company>
 	<year>2018</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>3dfd447efc149ab463575b7368c487777e409517</hash><remark>v1.0 / MSXDev2018 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>c4dfda5c87c132830b6d776dde4de82fe6ec2865</hash><remark>v2.0 / MSXDev2018 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>3dfd447efc149ab463575b7368c487777e409517</hash><remark>v1.0 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>c4dfda5c87c132830b6d776dde4de82fe6ec2865</hash><remark>v2.0 / MSXDev2018</remark></rom></dump>
 </software>
 <software>
 	<title>Buru To Marty Kikiippatsu - Inspecteur Z</title>
@@ -1656,12 +1666,23 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>49a49a932754b6d59f1840b8b274c103aca10d11</hash></rom></dump>
 </software>
 <software>
+	<title>C.C.R. Anexo 1 El Algoritmo</title>
+	<system>MSX</system>
+	<company>joesg</company>
+	<year>2018</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>b8ca3873eb5d089567fb71f9860310bfcbc2d5f7</hash><remark>v1.0 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>a2327e1ae71b431282bfadeb0db4339c884933d7</hash><remark>v1.2 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>ac5befd00528117995e2693872c4f260ea5d09b2</hash><remark>v1.1 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>4454e9aab3d6efb7ff5cca0956205f46a9db8194</hash><remark>English / MSXDev2018</remark></rom></dump>
+</software>
+<software>
 	<title>CMJN</title>
 	<system>MSX</system>
 	<company>Paulo Silva</company>
 	<year></year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash>01135411960ef84cc93a56d15060c5edf4ed00bd</hash><remark>MSXDev2014 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>01135411960ef84cc93a56d15060c5edf4ed00bd</hash><remark>MSXDev2014</remark></rom></dump>
 </software>
 <software>
 	<title>Cabbage Patch Kids</title>
@@ -1828,7 +1849,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>AG Software</company>
 	<year>2009</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><megarom><type>Normal</type><hash>902d109e4ff452471b11936039a472cbee81a902</hash><remark>MSXDev09 Entry</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Normal</type><hash>902d109e4ff452471b11936039a472cbee81a902</hash><remark>MSXDev09</remark></megarom></dump>
 </software>
 <software>
 	<title>Castle, The</title>
@@ -2163,8 +2184,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Idealogic</company>
 	<year>19xx</year>
 	<country>ES</country>
-		<dump><rom><hash>546aaf36ee78717fe06125185f0d420fdff0d34c</hash></rom></dump>
-		<dump><rom><hash>62a4853598e663046a926ddeb269cbf520ab75ab</hash></rom></dump>
+		<dump><rom><hash>546aaf36ee78717fe06125185f0d420fdff0d34c</hash><remark>cas2rom</remark></rom></dump>
+		<dump><rom><hash>62a4853598e663046a926ddeb269cbf520ab75ab</hash><remark>cas2rom</remark></rom></dump>
+		<dump><rom><hash>34015cdcf6c1a3755d8267e37f3ef00d8cea44ce</hash><remark>cas2rom</remark></rom></dump>
 </software>
 <software>
 	<title>Comet Tail</title>
@@ -2349,8 +2371,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Paxanga Soft</company>
 	<year>2009</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>9d87ba5ac3b9a865f2dd93d239e9cdaf6e48dff5</hash><remark>MSXDev09 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>4528654ce1a4d286b19ab5e3730d70598db63d11</hash><remark>MSXDev09 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>9d87ba5ac3b9a865f2dd93d239e9cdaf6e48dff5</hash><remark>MSXDev09</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>4528654ce1a4d286b19ab5e3730d70598db63d11</hash><remark>MSXDev09</remark></rom></dump>
 </software>
 <software>
 	<title>Craze</title>
@@ -2503,8 +2525,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Darkstone</company>
 	<year>2010</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash>9be7612db1f968455dcd0b115239efcb91474e91</hash><remark>MSXDev10 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>053c7ff78dce7c3b24250f64ca6b139182e14844</hash><remark>Flashrom Version / MSXDev10 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>9be7612db1f968455dcd0b115239efcb91474e91</hash><remark>MSXDev10</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>053c7ff78dce7c3b24250f64ca6b139182e14844</hash><remark>Flashrom Version / MSXDev10</remark></rom></dump>
 </software>
 <software>
 	<title>DX7 Voicing Program</title>
@@ -2740,7 +2762,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Retroworks</company>
 	<year>2014</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>b1cb1eef123cd685dd22738cebeee4b67d00710b</hash><remark>Final / MSXDev14 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>b1cb1eef123cd685dd22738cebeee4b67d00710b</hash><remark>Final / MSXDev14</remark></rom></dump>
 </software>
 <software>
 	<title>Devil Zone</title>
@@ -2792,8 +2814,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Retroworks</company>
 	<year>2012</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>3302b30e24374a668c85744849ad9af3657f47ad</hash><remark>v1.0 / MSXDev12 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>007c2b7d2f640a9fdc295cb2c65efd89574afb43</hash><remark>v2.0 / MSXDev12 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>3302b30e24374a668c85744849ad9af3657f47ad</hash><remark>v1.0 / MSXDev12</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>007c2b7d2f640a9fdc295cb2c65efd89574afb43</hash><remark>v2.0 / MSXDev12</remark></rom></dump>
 </software>
 <software>
 	<title>Dip-Dip</title>
@@ -2961,7 +2983,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Infinite</company>
 	<year>2009</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>fe192b900c12b5dfaf59f022e57e17a4d2738623</hash><remark>MSXDev09 Entry</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>fe192b900c12b5dfaf59f022e57e17a4d2738623</hash><remark>MSXDev09</remark></megarom></dump>
 </software>
 <software>
 	<title>Dr.Copy</title>
@@ -3136,6 +3158,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>e34161034364ef03df907d62976c2ac8f551404f</hash></rom></dump>
+</software>
+<software>
+	<title>Dream Puzzle</title>
+	<system>MSX</system>
+	<company>Mapax</company>
+	<year>2018</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>ddeb8d9903c2ef90360fcf385e20e4e02e334b76</hash><remark>GFX9000 needed / MSXDev2018</remark></megarom></dump>
 </software>
 <software>
 	<title>Driller Tanks</title>
@@ -3430,7 +3460,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>GarlicSoft</company>
 	<year>2012</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>5d6861cfa10dd57315956e25a3c302a711605e44</hash><remark>MSXDev11 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>5d6861cfa10dd57315956e25a3c302a711605e44</hash><remark>MSXDev11</remark></rom></dump>
 </software>
 <software>
 	<title>Exchanger</title>
@@ -4512,8 +4542,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Retroworks/Dimension Z</company>
 	<year>2013</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>da3555f2f6fd6341ef4c5bc878b45581101a1126</hash><remark>MSXDev13 Entry - English Version</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>ed73332e7053aab6471f9eb3fea00be25923641f</hash><remark>MSXDev13 Entry - Spanish Version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>da3555f2f6fd6341ef4c5bc878b45581101a1126</hash><remark>MSXDev13  - English Version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>ed73332e7053aab6471f9eb3fea00be25923641f</hash><remark>MSXDev13  - Spanish Version</remark></rom></dump>
 </software>
 <software>
 	<title>Gomok Narabe - Omo Go</title>
@@ -4554,8 +4584,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Impulse9</company>
 	<year>2014</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>d85298a9cdd9bcb4a546cb020ebaccd3c4281f07</hash><remark>MSXDev14 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>bc56324cb10a1fc2ec5094812f6ffebf481d97f6</hash><remark>Final / MSXDev14 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>d85298a9cdd9bcb4a546cb020ebaccd3c4281f07</hash><remark>MSXDev14</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>bc56324cb10a1fc2ec5094812f6ffebf481d97f6</hash><remark>Final / MSXDev14</remark></rom></dump>
 </software>
 <software>
 	<title>Gozilla Kun</title>
@@ -4972,8 +5002,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>The Pets Mode</company>
 	<year>2010</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>9c6c43af0516e7232a7aaafee5a47235232cf7f9</hash><remark>Version 1.0 / MSXDev10 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>6835f0aba6c95a106309129f90f58adf04994f14</hash><remark>Version 1.1 / MSXDev10 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>9c6c43af0516e7232a7aaafee5a47235232cf7f9</hash><remark>Version 1.0 / MSXDev10</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>6835f0aba6c95a106309129f90f58adf04994f14</hash><remark>Version 1.1 / MSXDev10</remark></rom></dump>
 </software>
 <software>
 	<title>Happy Fret</title>
@@ -5094,9 +5124,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Heroes Arena</title>
 	<system>MSX</system>
 	<company>Imanok</company>
-	<year>2011</year>
+	<year>2010</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>fa6172ba3a78c03ed6194dee6e26a1dc3adb939f</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>fa6172ba3a78c03ed6194dee6e26a1dc3adb939f</hash><remark>MSXDev 2010</remark></rom></dump>
 </software>
 <software>
 	<title>Heroes of The Lance</title>
@@ -5200,6 +5230,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="false">Translated</original><rom><hash>3beb85d30e3e7319c719e0a290096fb8aa9ff3bc</hash><remark>[tr En]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>bbca0b00374ba5366ba53b380285d38857450a7d</hash></rom></dump>
+		<dump><rom><hash>b4c199296b76aee56224860ee7b68e8c7645ca43</hash></rom></dump>
 </software>
 <software>
 	<title>Hole In One</title>
@@ -5345,6 +5376,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1984</year>
 	<country>UK</country>
 		<dump><rom><hash>9ae54a8a5badd3edbcb6b693df1821d15efbd9c9</hash></rom></dump>
+		<dump><rom><hash>93847a349c92880152c8eaad0aeaac68e7eebd2f</hash><remark>[a1]</remark></rom></dump>
 </software>
 <software>
 	<title>Hydlide 1</title>
@@ -5630,6 +5662,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>f9201b7b99a6cb4d8c847e30dc2617d4243be8e7</hash></rom></dump>
 </software>
 <software>
+	<title>Inca 1</title>
+	<system>MSX</system>
+	<company>The Bytebusters/Double Brain!</company>
+	<year>1987</year>
+	<country>NL</country>
+		<dump><megarom><type>ASCII16</type><hash>7745786b4e9fa9064db562540e181359fed0c4ab</hash><remark>cas2rom</remark></megarom></dump>
+</software>
+<software>
 	<title>Indian No Bouken</title>
 	<genmsxid>101</genmsxid>
 	<system>MSX</system>
@@ -5857,7 +5897,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Magoo</company>
 	<year>2014</year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash>ae3eb3af124b36878ab4f189abfc3737bfd3d56a</hash><remark>MSXDev14 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>ae3eb3af124b36878ab4f189abfc3737bfd3d56a</hash><remark>MSXDev14</remark></rom></dump>
 </software>
 <software>
 	<title>Jet Bomber</title>
@@ -5946,9 +5986,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Dimension Z</company>
 	<year>2011</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>a0643d70c853d667eb680c82b9b5f0a2322a7809</hash><remark>Demo Version / MSXDev11 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>dbea257c0f3cc4d46a94d2db30370df64eb02221</hash><remark>English Version / MSXDev11 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>74f7fba8a016e4ead892c2db5970028ed1aa4fa2</hash><remark>Spanish Version / MSXDev11 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>a0643d70c853d667eb680c82b9b5f0a2322a7809</hash><remark>Demo Version / MSXDev11</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>dbea257c0f3cc4d46a94d2db30370df64eb02221</hash><remark>English Version / MSXDev11</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>74f7fba8a016e4ead892c2db5970028ed1aa4fa2</hash><remark>Spanish Version / MSXDev11</remark></rom></dump>
 </software>
 <software>
 	<title>Jumping Rabbit</title>
@@ -6136,7 +6176,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>AG Software</company>
 	<year>2011</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>5bf2b21a9b97e744cef71f2f6e9cacbbf695f3f6</hash><remark>MSXDev11 Entry</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>5bf2b21a9b97e744cef71f2f6e9cacbbf695f3f6</hash><remark>MSXDev11</remark></megarom></dump>
 </software>
 <software>
 	<title>Kinasai</title>
@@ -6757,6 +6797,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII8</type><hash>0a7bed652592ed6325acd037f1f5bbbd1d31b239</hash></megarom></dump>
 </software>
 <software>
+	<title>Language of Numbers</title>
+	<system>MSX</system>
+	<company>Al Alamiah</company>
+	<year>1989</year>
+	<country>KW</country>
+		<dump><rom><hash>fea0a6406b22aa67dfbf6985e18dd7a0a6f071a6</hash><remark>Needs arabic machine</remark></rom></dump>
+</software>
+<software>
 	<title>Laptick 2</title>
 	<genmsxid>875</genmsxid>
 	<system>MSX</system>
@@ -6837,8 +6885,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Paulo Silva</company>
 	<year>2014</year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash>be95c417ac1500e6127c57d0adedce6a99117b0e</hash><remark>MSXDev14 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>054efaa9369fd7d74c149ef3778fcb554b0b4394</hash><remark>Final / MSXDev14 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>be95c417ac1500e6127c57d0adedce6a99117b0e</hash><remark>MSXDev14</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>054efaa9369fd7d74c149ef3778fcb554b0b4394</hash><remark>Final / MSXDev14</remark></rom></dump>
 </software>
 <software>
 	<title>Life On Mars</title>
@@ -6958,7 +7006,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>ASMSoft</company>
 	<year>2012</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>93f1783d04aa0511130afed8cfd2b4417fe86b3e</hash><remark>MSXDev11 Entry</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>93f1783d04aa0511130afed8cfd2b4417fe86b3e</hash><remark>MSXDev11</remark></megarom></dump>
 </software>
 <software>
 	<title>M.A.Z.E</title>
@@ -7408,9 +7456,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>RELEVO Videogames</company>
 	<year>2013</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>5d379dd826d0a8870d72ce5bef0afe2b04ba212a</hash><remark>RLV914 / MSXDev13 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>526ae4d65717df1ec2440f1d38149d325cbb6bcc</hash><remark>RLV914 R1 / MSXDev13 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>211c341896ab97eaf0f653fcb1b0f0421520328a</hash><remark>RLV914 Final / MSXDev13 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>5d379dd826d0a8870d72ce5bef0afe2b04ba212a</hash><remark>RLV914 / MSXDev13</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>526ae4d65717df1ec2440f1d38149d325cbb6bcc</hash><remark>RLV914 R1 / MSXDev13</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>211c341896ab97eaf0f653fcb1b0f0421520328a</hash><remark>RLV914 Final / MSXDev13</remark></rom></dump>
 </software>
 <software>
 	<title>Malaika - Prehistoric Quest</title>
@@ -7587,7 +7635,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Oscar Toledo Gutiérrez</company>
 	<year>2012</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>42d4cd136018252bffa0af09115fe9613c94118b</hash><remark>MSXDev11 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>42d4cd136018252bffa0af09115fe9613c94118b</hash><remark>MSXDev11</remark></rom></dump>
 </software>
 <software>
 	<title>Mecha Taisen on planet Oldskool</title>
@@ -7614,6 +7662,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>BR</country>
 		<dump><rom><hash>5628514e2488ccb15ae464e7f210dcabbb782b91</hash><remark>Version 1.0</remark></rom></dump>
 		<dump><rom><hash>778472f9113eb6a80144cc717151eb48474b9d34</hash><remark>Version 1.0</remark></rom></dump>
+</software>
+<software>
+	<title>Mega Phoenix</title>
+	<system>MSX</system>
+	<company>Dinamic</company>
+	<year>1991</year>
+	<country>ES</country>
+		<dump><rom><hash>0eb171271aa03e6fda9df8367f186c93db3dd313</hash><remark>cas2rom</remark></rom></dump>
 </software>
 <software>
 	<title>Mega Twince</title>
@@ -7674,7 +7730,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>The New Image</company>
 	<year>2009</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash>c6429707d07eaaa68887d31f3813324871b64e10</hash><remark>MSXDev09 Entry - bug fix</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>c6429707d07eaaa68887d31f3813324871b64e10</hash><remark>MSXDev09  - bug fix</remark></rom></dump>
 		<dump><megarom><type>Konami</type><hash>96da54fd442f03b22dd75d0cffebd1a131173032</hash></megarom></dump>
 </software>
 <software>
@@ -7839,9 +7895,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Ray2day</company>
 	<year>2010</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>812c3fcf4f5e0d99cbf44e0bcb33241625cafd00</hash><remark>Version 1.0 / MSXDev2010 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>0834b48ccd64668292d1319fe70781bb8cd15ccd</hash><remark>Version 1.2 / MSXDev2010 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>18bc2ca5c36184a9b54426440f2a914126d82f79</hash><remark>Version 1.1 / MSXDev2010 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>812c3fcf4f5e0d99cbf44e0bcb33241625cafd00</hash><remark>Version 1.0 / MSXDev2010</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>0834b48ccd64668292d1319fe70781bb8cd15ccd</hash><remark>Version 1.2 / MSXDev2010</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>18bc2ca5c36184a9b54426440f2a914126d82f79</hash><remark>Version 1.1 / MSXDev2010</remark></rom></dump>
 </software>
 <software>
 	<title>Missisippi Satsujin Jiken</title>
@@ -8080,6 +8136,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash>74ace233682d2e4355a02e52bbd078358811a35b</hash><remark>Passion MSX2 Contest Entry</remark></megarom></dump>
 </software>
 <software>
+	<title>Mortadelo y Filemón 1 &amp; 2</title>
+	<system>MSX</system>
+	<company>Animagic</company>
+	<year>1990</year>
+	<country>ES</country>
+		<dump><megarom><type>ASCII16</type><hash>477cfd7d29843223dc096e84e87ae4a4cfb0b379</hash><remark>cas2rom</remark></megarom></dump>
+</software>
+<software>
 	<title>Mouser</title>
 	<genmsxid>73</genmsxid>
 	<system>MSX</system>
@@ -8102,7 +8166,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Mapax</company>
 	<year>2014</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>1a1d4f63751c3d4d208638eb37f48b3c1657f8c8</hash><remark>MSXDev2014 (The Channel) entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>1a1d4f63751c3d4d208638eb37f48b3c1657f8c8</hash><remark>MSXDev2014 (The Channel)</remark></rom></dump>
 </software>
 <software>
 	<title>Mr. Chef And The Sausages</title>
@@ -8135,7 +8199,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>RELEVO Videogames</company>
 	<year>2013</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>32e006436b49ed518f9594dc69d5afe123e701f4</hash><remark>MSXDev2014 entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>32e006436b49ed518f9594dc69d5afe123e701f4</hash><remark>MSXDev2014</remark></rom></dump>
 </software>
 <software>
 	<title>Mr. Do Vs Unicorns</title>
@@ -8330,8 +8394,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Z80ST</company>
 	<year>2010</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>328bf269bc38a706f1b6dec688d4f47e4a830199</hash><remark>v1.0 / MSXDev10 entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>e110e7165e571c64d268efa1f811d62f1a8da769</hash><remark>v1.1 / MSXDev10 entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>328bf269bc38a706f1b6dec688d4f47e4a830199</hash><remark>v1.0 / MSXDev10</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>e110e7165e571c64d268efa1f811d62f1a8da769</hash><remark>v1.1 / MSXDev10</remark></rom></dump>
 </software>
 <software>
 	<title>Nessen Koushiyen - Casio Baseball</title>
@@ -8407,7 +8471,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>AG Software</company>
 	<year>2011</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><hash>1ebbc94d106c995ad9499a4e1ff5848ffe3b509a</hash><remark>MSXDev11 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>1ebbc94d106c995ad9499a4e1ff5848ffe3b509a</hash><remark>MSXDev11</remark></rom></dump>
 </software>
 <software>
 	<title>Night Pursuit</title>
@@ -8499,7 +8563,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>RELEVO Videogames</company>
 	<year>2015</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>0a8c3bbe9ed26e25658ec99192056b5a50571041</hash><remark>RLV921 / MSXDev2015 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>0a8c3bbe9ed26e25658ec99192056b5a50571041</hash><remark>RLV921 / MSXDev2015</remark></rom></dump>
 </software>
 <software>
 	<title>Ninjya Kage</title>
@@ -8937,6 +9001,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>7e64658b7a4fd451b2f2aaef409953e3e4f1b033</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.3</remark></rom></dump>
 </software>
 <software>
+	<title>Panic Junction</title>
+	<system>MSX</system>
+	<company>Morwood Software</company>
+	<year>1984</year>
+	<country>UK</country>
+		<dump><rom><hash>0b757465c44345f16a55cdb6a3ef9b4eeaafbe03</hash><remark>cas2rom</remark></rom></dump>
+</software>
+<software>
 	<title>Panther</title>
 	<genmsxid>1813</genmsxid>
 	<system>MSX</system>
@@ -9324,8 +9396,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>AG Software</company>
 	<year>2009</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><megarom><type>Normal</type><hash>23a05191102459579aee8af4527d6998912f0f80</hash><remark>MSXDev09 Entry</remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>Normal</type><hash>788ce4ba8d7e881dd2d3cc697c2dd88f44e27798</hash><remark>MSXDev09 Entry</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Normal</type><hash>23a05191102459579aee8af4527d6998912f0f80</hash><remark>MSXDev09</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Normal</type><hash>788ce4ba8d7e881dd2d3cc697c2dd88f44e27798</hash><remark>MSXDev09</remark></megarom></dump>
 </software>
 <software>
 	<title>Poetry</title>
@@ -9455,8 +9527,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Nerlaska Studio</company>
 	<year>2014</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>cb07324ae94c2546156badbcb5c1ff3c5ff4d041</hash><remark>v1 / MSXDev14 Entry - NLK006</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>bb23232a5d3d4c1d78647cce520a9accecb3cb4f</hash><remark>v2 / MSXDev14 Entry - NLK006</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>cb07324ae94c2546156badbcb5c1ff3c5ff4d041</hash><remark>v1 / MSXDev14  - NLK006</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>bb23232a5d3d4c1d78647cce520a9accecb3cb4f</hash><remark>v2 / MSXDev14  - NLK006</remark></rom></dump>
 </software>
 <software>
 	<title>Price Of Magik, The</title>
@@ -9656,9 +9728,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Z80ST</company>
 	<year>2010</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>a7a2a867f7e90458f3e8614e8c227da944a6092c</hash><remark>v1.0 / MSXDev2010 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>4921e9ed9455e56371fb14481f1963957b1caeb1</hash><remark>v1.1 / MSXDev2010 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>680be3a41a605ff95a4f5a8d6d1b79714439e1ae</hash><remark>v1.2 / Post MSXDev2010 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>a7a2a867f7e90458f3e8614e8c227da944a6092c</hash><remark>v1.0 / MSXDev2010</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>4921e9ed9455e56371fb14481f1963957b1caeb1</hash><remark>v1.1 / MSXDev2010</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>680be3a41a605ff95a4f5a8d6d1b79714439e1ae</hash><remark>v1.2 / Post MSXDev2010</remark></rom></dump>
 </software>
 <software>
 	<title>Quarth</title>
@@ -9889,6 +9961,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>02c3ec94190c6fce6fa4984d92be48b2697e7706</hash></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>4bd533cd7859489a3b26787fb5c7e4d8662cc420</hash></megarom></dump>
 		<dump><megarom><type>GenericKonami</type><hash>b5749b4cac530e261da9acc0d494a81766d2acc3</hash><remark>[a2]</remark></megarom></dump>
+		<dump><original value="false">Bad</original><megarom><type>Konami</type><hash>453ee2fbef4c08b21b45b994261f022670c131f5</hash><remark>Corrupt</remark></megarom></dump>
 </software>
 <software>
 	<title>Renju &amp; Ojama Dogs</title>
@@ -9915,7 +9988,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Video Hazard</company>
 	<year>2009</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>e27b938a60081c8aba7ad5741aea79f8e33fa8e2</hash><remark>MSXDev09 Entry</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>e27b938a60081c8aba7ad5741aea79f8e33fa8e2</hash><remark>MSXDev09</remark></megarom></dump>
 </software>
 <software>
 	<title>Return of Ishtar, The</title>
@@ -10057,7 +10130,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Michel d'Alger</company>
 	<year>2011</year>
 	<country>EU</country>
-		<dump><original value="true">Author</original><rom><hash>c1577863c6ac7aab87cc0c2d64cc0577e2e5e360</hash><remark>MSXDev11 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>c1577863c6ac7aab87cc0c2d64cc0577e2e5e360</hash><remark>MSXDev11</remark></rom></dump>
 </software>
 <software>
 	<title>Robowres 2001</title>
@@ -10225,8 +10298,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Imanok</company>
 	<year>2013</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>87694fc3e9be68a46c7e32ae643634e8c7b1000b</hash><remark>MSXDev13 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>363943c6acffbd026e906e9cb2690bfab2658cc9</hash><remark>Final / MSXDev13 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>87694fc3e9be68a46c7e32ae643634e8c7b1000b</hash><remark>MSXDev13</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>363943c6acffbd026e906e9cb2690bfab2658cc9</hash><remark>Final / MSXDev13</remark></rom></dump>
 </software>
 <software>
 	<title>SKULLrs</title>
@@ -10254,6 +10327,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>KW</country>
 		<dump><megarom><type>ASCII8</type><hash>64c49fdabbdd5e13c4310b03a183ea1a018154a4</hash></megarom></dump>
 		<dump><rom><hash>e99855e38e3568d6657063c02fe7b64f3b9dae52</hash></rom></dump>
+</software>
+<software>
+	<title>Sakhr Files</title>
+	<system>MSX</system>
+	<company>Al Alamiah</company>
+	<year>1987</year>
+	<country>KW</country>
+		<dump><megarom><type>ASCII8</type><hash>14e499f0c51953f00fd3c15aab194208b3576fad</hash></megarom></dump>
 </software>
 <software>
 	<title>Sakhr Logo</title>
@@ -10294,6 +10375,22 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>700ddd976240239d1f36a4f59c19d09ab59ce4a5</hash><remark>[RC-758] / Turbo</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>c1a41b603da044ab34f85dc77e86c9c2f2d86222</hash><remark>[RC-758] / Smooth Scroll V1.0</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>1ecc78df5cf86154dd1c61ab4cf54bbf175f5ba9</hash><remark>[RC-758] / Trainer</remark></megarom></dump>
+</software>
+<software>
+	<title>Sandgame 1</title>
+	<system>MSX</system>
+	<company>Joris and Maarten</company>
+	<year>1989</year>
+	<country>NL</country>
+		<dump><rom><hash>1de291da3f7a934d6c951fa2ceba985d9734a1c5</hash></rom></dump>
+</software>
+<software>
+	<title>Sandgame 2</title>
+	<system>MSX</system>
+	<company>Joris and Maarten</company>
+	<year>1989</year>
+	<country>NL</country>
+		<dump><rom><hash>72b90bda4ad401636f31e2609effe533ab8ab889</hash></rom></dump>
 </software>
 <software>
 	<title>Sangokushi 1 - Romance Of Three Kingdoms - MSX1 Version</title>
@@ -10604,8 +10701,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Paxanga Soft</company>
 	<year>2013</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>1d798b8bba3beca92949170741ea34f4b166d067</hash><remark>MSXDev13 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>2e22ee1a9ece11d008f7dd1e0893d1d859b4cc7f</hash><remark>Final / MSXDev13 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>1d798b8bba3beca92949170741ea34f4b166d067</hash><remark>MSXDev13</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>2e22ee1a9ece11d008f7dd1e0893d1d859b4cc7f</hash><remark>Final / MSXDev13</remark></rom></dump>
 </software>
 <software>
 	<title>Shougi Meijin</title>
@@ -10813,8 +10910,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Pentacour</company>
 	<year>2013</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>1e5f04e72c092140d69c29a9e2826d7326f8ea54</hash><remark>MSXDev13 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>316ebbfeba86114add978e4341f9817c8693d4dc</hash><remark>Final / MSXDev13 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>1e5f04e72c092140d69c29a9e2826d7326f8ea54</hash><remark>MSXDev13</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>316ebbfeba86114add978e4341f9817c8693d4dc</hash><remark>Final / MSXDev13</remark></rom></dump>
 </software>
 <software>
 	<title>Slime Center</title>
@@ -11164,7 +11261,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>The Pets Mode</company>
 	<year>2013</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>933bc34f20d5740cac949cd7257b44974199d9eb</hash><remark>MSXDev13 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>933bc34f20d5740cac949cd7257b44974199d9eb</hash><remark>MSXDev13</remark></rom></dump>
 </software>
 <software>
 	<title>Star Battle</title>
@@ -11324,7 +11421,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Imanok</company>
 	<year>2009</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>c939da3791a6772b48be24553689ba4998244fe4</hash><remark>MSXDev09 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>c939da3791a6772b48be24553689ba4998244fe4</hash><remark>MSXDev09</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>cc39392b47f34dee1358d30fbdc4d613dc412f7c</hash><remark>Retail</remark></rom></dump>
 </software>
 <software>
@@ -11528,6 +11625,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>GenericKonami</type><hash>81b85b1152a59bb10d0e0118f80f0a4ed363c785</hash></megarom></dump>
 		<dump><megarom><type>GenericKonami</type><hash>cf6fe49b28fcf81511f39fdf68f37af82bd724c0</hash><remark>Ulver crack</remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>83d7dfc1693e73d2a6ef597a67e091071c479298</hash></megarom></dump>
+		<dump><original value="false">Bad</original><megarom><type>Konami</type><hash>25564ca65cd9eaa0dca4399edfb047fba7877488</hash><remark>Zemina hack / Corrupt Intro</remark></megarom></dump>
 </software>
 <software>
 	<title>Super Lode Runner</title>
@@ -11942,8 +12040,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Retroworks/Dimension Z</company>
 	<year>2012</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>ae04c82e2ecde28bfcd19dc39b6c4978410aa908</hash><remark>English version / MSXDev12 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>6e44688cd709dc551fc51b6322f49333c4673dfd</hash><remark>Spanish version / MSXDev12 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>ae04c82e2ecde28bfcd19dc39b6c4978410aa908</hash><remark>English version / MSXDev12</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>6e44688cd709dc551fc51b6322f49333c4673dfd</hash><remark>Spanish version / MSXDev12</remark></rom></dump>
 </software>
 <software>
 	<title>Tertis</title>
@@ -12390,7 +12488,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2006</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>0f7f55fe448d20fc65dc03c2a4f1717761671e43</hash><remark>MSX-DEV06</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>e6af71c99290b6ff2da9d3667e2046651e2c9fca</hash><remark>MSX-DEV06</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>e6af71c99290b6ff2da9d3667e2046651e2c9fca</hash><remark>FM-Pac Support / Website Version</remark></rom></dump>
 </software>
 <software>
 	<title>Traga Perras</title>
@@ -12662,10 +12760,10 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Trilobyte</company>
 	<year>2014</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash>2451a8027bff9d88edb61651a95d69d54cf06d7a</hash><remark>for real CRTs / MSXDev14 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>7c732955507df1eb292184d9648814786819cc0a</hash><remark>MSXDev14 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>2451a8027bff9d88edb61651a95d69d54cf06d7a</hash><remark>for real CRTs / MSXDev14</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>7c732955507df1eb292184d9648814786819cc0a</hash><remark>MSXDev14</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>6636cf35f9524e1cce77caf6511995fa5ae924e1</hash><remark>Commercial Release</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>8c61f4bd9b6116c9ab6e5485472eab7f297c0a68</hash><remark>MSXDev14 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>8c61f4bd9b6116c9ab6e5485472eab7f297c0a68</hash><remark>MSXDev14</remark></rom></dump>
 </software>
 <software>
 	<title>Urusei Yatsura</title>
@@ -12741,7 +12839,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Gremlin Graphics</company>
 	<year>1988</year>
 	<country>UK</country>
-		<dump><megarom><type>ASCII16</type><hash>f4b0e84d11e094e8342ea84927483b518c6884d9</hash></megarom></dump>
+		<dump><megarom><type>ASCII16</type><hash>f4b0e84d11e094e8342ea84927483b518c6884d9</hash><remark>Cassette to ROM conversion</remark></megarom></dump>
 </software>
 <software>
 	<title>Venture</title>
@@ -12852,7 +12950,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Pentacour</company>
 	<year>2018</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>f474c68a6d5b91c98fba2e922f09e3dcc6e0494c</hash><remark>Version 1.00 / MSXDev2018 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>f474c68a6d5b91c98fba2e922f09e3dcc6e0494c</hash><remark>v1.00 / MSXDev2018</remark></rom></dump>
 </software>
 <software>
 	<title>Volguard</title>
@@ -12990,7 +13088,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Kitmaker Entertainment Inc</company>
 	<year>2016</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>4b934f0c383136ff315d04a56d2a8631169f9628</hash><remark>MSXDev2015 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>4b934f0c383136ff315d04a56d2a8631169f9628</hash><remark>MSXDev2015</remark></rom></dump>
 </software>
 <software>
 	<title>Wizardry</title>
@@ -13059,8 +13157,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Metal Soft (Vampier)</company>
 	<year>2009</year>
 	<country>US</country>
-		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>607059ef3247771f1bbee5c38d4f43cef8856712</hash><remark>MSXDev09 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>58d510e572130db643b6115da40edcdd33280017</hash><remark>MSXDev09 Entry - bug fix</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>607059ef3247771f1bbee5c38d4f43cef8856712</hash><remark>MSXDev09</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>58d510e572130db643b6115da40edcdd33280017</hash><remark>MSXDev09  - bug fix</remark></rom></dump>
 		<dump><megarom><type>ASCII16</type><hash>bba3af72eaaf31e786fff3e9b9c016f4ec526790</hash></megarom></dump>
 </software>
 <software>
@@ -13298,9 +13396,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Dioniso</company>
 	<year>2014</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>a44934434a761721f70873b1851de2dfca19bd99</hash><remark>MSXDev2014 Entry - with bug</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>a1fe1f9489ab188561beb2816a83a7a9fc347623</hash><remark>MSXDev2014 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>b61b66e14574b683f75807a6aa18b7868cd628d8</hash><remark>MSXDev2014 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>a44934434a761721f70873b1851de2dfca19bd99</hash><remark>MSXDev2014  - with bug</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>a1fe1f9489ab188561beb2816a83a7a9fc347623</hash><remark>MSXDev2014</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>b61b66e14574b683f75807a6aa18b7868cd628d8</hash><remark>MSXDev2014</remark></rom></dump>
 </software>
 <software>
 	<title>Zaider - Battle of Peguss</title>
@@ -13426,6 +13524,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>9d5f6098b71712e9d9e386739b82fc484380f114</hash></rom></dump>
 		<dump><rom><hash>71442ac703c2966142b04071fedf180e81daab9a</hash><remark>[a2]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>a87971b9df0de44644c2188f5f475aef7ae85304</hash></rom></dump>
+		<dump><rom><hash>309456c6bff62851047069d2ec9d2e20fe90c91b</hash><remark>[b1]</remark></rom></dump>
 </software>
 <software>
 	<title>Zippy Race (aka Traverse USA)</title>
@@ -13462,10 +13561,10 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Nenefranz</company>
 	<year>2012</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash>daf6574ea74d44a98a02e3ee25994f9779a9e65c</hash><remark>Version 1.1 / MSXDev11 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>bfc22015dcedf9100647869dbaf36f0d6165bf3a</hash><remark>Version 1.0 / MSXDev11 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>612995a27340c4d3adbd7e402a2c3b0cf2b42e34</hash><remark>Version 1.2 / MSXDev11 Entry</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>f9bdee10f019d8cd06b5a9dcb39fa5d10a62687e</hash><remark>Version 1.3 / MSXDev11 Entry</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>daf6574ea74d44a98a02e3ee25994f9779a9e65c</hash><remark>Version 1.1 / MSXDev11</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>bfc22015dcedf9100647869dbaf36f0d6165bf3a</hash><remark>Version 1.0 / MSXDev11</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>612995a27340c4d3adbd7e402a2c3b0cf2b42e34</hash><remark>Version 1.2 / MSXDev11</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>f9bdee10f019d8cd06b5a9dcb39fa5d10a62687e</hash><remark>Version 1.3 / MSXDev11</remark></rom></dump>
 </software>
 <software>
 	<title>Zombie Near</title>
@@ -13473,8 +13572,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Oscar Toledo Gutiérrez</company>
 	<year>2011</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>ecfc5f25368c3eb9ba827f920822c047d9e1128a</hash><remark>Version 1.0 / MSXDev10 Entry</remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>32c84735c30e0679733d5d1918ccec9a625c4d3b</hash><remark>Version 1.1 / MSXDev10 Entry</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>ecfc5f25368c3eb9ba827f920822c047d9e1128a</hash><remark>Version 1.0 / MSXDev10</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash>32c84735c30e0679733d5d1918ccec9a625c4d3b</hash><remark>Version 1.1 / MSXDev10</remark></megarom></dump>
 </software>
 <software>
 	<title>Zone TNT</title>
@@ -13482,7 +13581,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>AG Software</company>
 	<year></year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>6414563c0dd0e9b3cf093d37cfb4ab5eca06f322</hash><remark>MSXDev11 Entry</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>6414563c0dd0e9b3cf093d37cfb4ab5eca06f322</hash><remark>MSXDev11</remark></megarom></dump>
 </software>
 <software>
 	<title>Zone Terra</title>
@@ -15984,4 +16083,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:3951 - Created on Sat Sep 1 2018 - 22:42:02 PDT-->
+<!-- Roms in this XML file:3972 - Created on Sun Sep 16 2018 - 13:47:20 PDT-->
