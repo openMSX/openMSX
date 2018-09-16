@@ -43,8 +43,8 @@ private:
 		int compute_decay_rate(int val) const;
 		unsigned decay_rate(int num, int sample_rate);
 		void envelope_next(int sample_rate);
-		int compute_vib() const;
-		int compute_am() const;
+		int16_t compute_vib() const;
+		uint16_t compute_am() const;
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -58,11 +58,11 @@ private:
 		uint16_t pos;
 		int16_t sample1, sample2;
 
-		int32_t env_vol;
+		int16_t env_vol;
 
 		uint32_t lfo_cnt;
 
-		int32_t DL;
+		int16_t DL;
 		uint16_t wave;		// wavetable number
 		uint16_t FN;		// f-number         TODO store 'FN | 1024'?
 		int8_t OCT;		// octave [-8..+7]

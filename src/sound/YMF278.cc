@@ -18,11 +18,10 @@
 // - made pseudo-reverb ignore Rate Correction (real hardware ignores it)
 // - reimplemented LFO, speed exactly matches the formulas that were probably used when creating the manual
 // - fixed LFO (tremolo) amplitude modulation
+// - made LFO vibrato and tremolo accurate to hardware
 //
 // Known issues:
-// - LFO vibrato range is not quite right yet
 // - Octave -8 was only tested with fnum 0. Other fnum values might behave differently.
-// - LFO stuff needs testing
 
 // This class doesn't model a full YMF278b chip. Instead it only models the
 // wave part. The FM part in modeled in YMF262 (it's almost 100% compatible,
@@ -147,8 +146,7 @@ static const byte eg_rate_shift[64] = {
 #undef O
 
 
-// number of steps to take in quarter of lfo frequency
-// TODO check if frequency matches real chip
+// number of steps the LFO counter advances per sample
 #define O(a) int((LFO_PERIOD * (a)) / 44100.0 + 0.5)  // LFO frequency (Hz) -> LFO counter steps per sample
 static const int lfo_period[8] = {
 	O(0.168), // step:  1, period: 262144 samples
@@ -163,20 +161,36 @@ static const int lfo_period[8] = {
 #undef O
 
 
-#define O(a) int((a) / 100.0 * 0x10000)
-static const int vib_depth[8] = {
-	O( 0.000), O( 3.378), O( 5.065), O( 6.750),
-	O(10.114), O(20.170), O(40.106), O(79.307)
+// formula used by Yamaha docs:
+//     vib_depth_cents(x) = (log2(0x400 + x) - 10) * 1200
+static const int16_t vib_depth[8] = {
+	0,      //  0.000 cents
+	2,      //  3.378 cents
+	3,      //  5.065 cents
+	4,      //  6.750 cents
+	6,      // 10.114 cents
+	12,     // 20.170 cents
+	24,     // 40.106 cents
+	48,     // 79.307 cents
 };
-#undef O
 
 
-#define SC(dB) int((dB) / 3 * 0x20 + 0.5)
-static const int am_depth[8] = {
-	SC(0.000), SC(1.781), SC(2.906), SC( 3.656),
-	SC(4.406), SC(5.906), SC(7.406), SC(11.91 )
+// formula used by Yamaha docs:
+//     am_depth_db(x) = (x-1) / 0x40 * 6.0
+//     They use (x-1), because the depth is multiplied with the AM counter, which has a range of 0..0x7F.
+//     Thus the maximum attenuation with x=0x80 is (0x7F * 0x80) >> 7 = 0x7F.
+// reversed formula:
+//     am_depth(dB) = round(dB / 6.0 * 0x40) + 1
+static const uint8_t am_depth[8] = {
+	0x00,   //  0.000 dB
+	0x14,   //  1.781 dB
+	0x20,   //  2.906 dB
+	0x28,   //  3.656 dB
+	0x30,   //  4.406 dB
+	0x40,   //  5.906 dB
+	0x50,   //  7.406 dB
+	0x80,   // 11.910 dB
 };
-#undef SC
 
 
 YMF278::Slot::Slot()
@@ -186,7 +200,7 @@ YMF278::Slot::Slot()
 
 // Sign extend a 4-bit value to int (32-bit)
 // require: x in range [0..15]
-static inline int sign_extend_4(int x)
+static int sign_extend_4(int x)
 {
 	return (x ^ 8) - 8;
 }
@@ -197,7 +211,7 @@ static inline int sign_extend_4(int x)
 //    ((fn | 1024) + vib) << (5 + sign_extend_4(oct))
 // Though in this formula the shift can go over a negative distance (in that
 // case we should shift in the other direction).
-static inline unsigned calcStep(int oct, unsigned fn, unsigned vib = 0)
+static unsigned calcStep(int8_t oct, uint16_t fn, int16_t vib = 0)
 {
 	if (oct == -8) return 0;
 	unsigned t = (fn + 1024 + vib) << (8 + oct); // use '+' iso '|' (generates slightly better code)
@@ -207,7 +221,7 @@ static inline unsigned calcStep(int oct, unsigned fn, unsigned vib = 0)
 void YMF278::Slot::reset()
 {
 	wave = FN = OCT = TLdest = TL = pan = vib = AM = 0;
-	AR = D1R = DL = D2R = RC = RR = 0;
+	DL = AR = D1R = D2R = RC = RR = 0;
 	PRVB = keyon = DAMP = false;
 	stepptr = 0;
 	step = calcStep(OCT, FN);
@@ -277,28 +291,34 @@ int YMF278::Slot::compute_decay_rate(int val) const
 	return compute_rate(val);
 }
 
-int YMF278::Slot::compute_vib() const
+int16_t YMF278::Slot::compute_vib() const
 {
-	// LFO vibrato counter (0..+255, +255..0, 0..-255, -255..0)
-	int32_t lfo_fm_cnt = lfo_cnt / (LFO_PERIOD / 0x400);
-	if (0x100 <= lfo_fm_cnt && lfo_fm_cnt < 0x300) {
-		lfo_fm_cnt = 0x1ff - lfo_fm_cnt;
-	} else if (0x300 <= lfo_fm_cnt) {
-		lfo_fm_cnt = lfo_fm_cnt - 0x400;
-	}
+	// verified via hardware recording:
+	//  With LFO speed 0 (period 262144 samples), each vibrato step takes
+	//  4096 samples.
+	//  -> 64 steps total
+	//  Also, with vibrato depth 7 (80 cents) and an F-Num of 0x400, the
+	//  final F-Nums are: 0x400 .. 0x43C, 0x43C .. 0x400, 0x400 .. 0x3C4,
+	//  0x3C4 .. 0x400
+	int16_t lfo_fm = lfo_cnt / (LFO_PERIOD / 0x40);
+	// results in +0x00..+0x0F, +0x0F..+0x00, -0x00..-0x0F, -0x0F..-0x00
+	if (lfo_fm & 0x10) lfo_fm ^= 0x1F;
+	if (lfo_fm & 0x20) lfo_fm = -(lfo_fm & 0x0F);
 
-	return (lfo_fm_cnt * vib_depth[vib]) >> 18;
+	return (lfo_fm * vib_depth[vib]) / 12;
 }
 
-int YMF278::Slot::compute_am() const
+uint16_t YMF278::Slot::compute_am() const
 {
-	// LFO tremolo counter (0..255, 255..0)
-	uint32_t lfo_am_cnt = lfo_cnt / (LFO_PERIOD / 0x200);
-	if (0x100 <= lfo_am_cnt) {
-		lfo_am_cnt ^= 0x1ff;
-	}
+	// verified via hardware recording:
+	//  With LFO speed 0 (period 262144 samples), each tremolo step takes
+	//  1024 samples.
+	//  -> 256 steps total
+	uint16_t lfo_am = lfo_cnt / (LFO_PERIOD / 0x100);
+	// results in 0x00..0x7F, 0x7F..0x00
+	if (lfo_am >= 0x80) lfo_am ^= 0xFF;
 
-	return (lfo_am_cnt * am_depth[AM]) >> 8;
+	return (lfo_am * am_depth[AM]) >> 7;
 }
 
 
@@ -507,8 +527,8 @@ void YMF278::generateChannels(int** bufs, unsigned num)
 			// Panning is also done separately. (low-volume TL + low-volume panning goes below -60dB)
 			// I'll be taking wild guess and assume that -3dB is approximated with 75%. (same as with TL and envelope levels)
 			// The same applies to the PCM mix level.
-			int volLeft  = pan_left [sl.pan]; // note: register 0xF9 is handled externally
-			int volRight = pan_right[sl.pan];
+			int32_t volLeft  = pan_left [sl.pan]; // note: register 0xF9 is handled externally
+			int32_t volRight = pan_right[sl.pan];
 			// 0 -> 0x20, 8 -> 0x18, 16 -> 0x10, 24 -> 0x0C, etc. (not using vol_factor here saves array boundary checks)
 			volLeft  = (0x20 - (volLeft  & 0x0f)) >> (volLeft  >> 4);
 			volRight = (0x20 - (volRight & 0x0f)) >> (volRight >> 4);
