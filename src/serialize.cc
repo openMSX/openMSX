@@ -10,6 +10,7 @@
 #include "FileOperations.hh"
 #include "Version.hh"
 #include "Date.hh"
+#include "stl.hh"
 #include "cstdiop.hh" // for dup()
 #include <cstring>
 #include <limits>
@@ -36,7 +37,7 @@ unsigned OutputArchiveBase2::generateID1(const void* p)
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	assert(polyIdMap.find(p) == end(polyIdMap));
+	assert(!polyIdMap.count(p)); // c++20 contains()
 	polyIdMap[p] = lastId;
 	return lastId;
 }
@@ -49,21 +50,21 @@ unsigned OutputArchiveBase2::generateID2(
 	#endif
 	++lastId;
 	auto key = std::make_pair(p, std::type_index(typeInfo));
-	assert(idMap.find(key) == end(idMap));
+	assert(!idMap.count(key)); // c++20 contains()
 	idMap[key] = lastId;
 	return lastId;
 }
 
 unsigned OutputArchiveBase2::getID1(const void* p)
 {
-	auto it = polyIdMap.find(p);
-	return it != end(polyIdMap) ? it->second : 0;
+	auto v = lookup(polyIdMap, p);
+	return v ? *v : 0;
 }
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	auto it = idMap.find({p, std::type_index(typeInfo)});
-	return it != end(idMap) ? it->second : 0;
+	auto v = lookup(idMap, std::make_pair(p, std::type_index(typeInfo)));
+	return v ? *v : 0;
 }
 
 
@@ -109,13 +110,13 @@ template class OutputArchiveBase<XmlOutputArchive>;
 
 void* InputArchiveBase2::getPointer(unsigned id)
 {
-	auto it = idMap.find(id);
-	return it != end(idMap) ? it->second : nullptr;
+	auto v = lookup(idMap, id);
+	return v ? *v : nullptr;
 }
 
 void InputArchiveBase2::addPointer(unsigned id, const void* p)
 {
-	assert(idMap.find(id) == end(idMap));
+	assert(!idMap.count(id)); // c++20 contains()
 	idMap[id] = const_cast<void*>(p);
 }
 

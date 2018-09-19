@@ -509,7 +509,7 @@ public:
 		auto it = sharedPtrMap.find(r);
 		if (it == end(sharedPtrMap)) {
 			s.reset(r);
-			sharedPtrMap[r] = s;
+			sharedPtrMap[r] = s; // TODO use c++17 try_emplace()
 		} else {
 			s = std::static_pointer_cast<T>(it->second);
 		}

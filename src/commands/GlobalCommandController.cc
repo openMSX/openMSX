@@ -171,7 +171,7 @@ void GlobalCommandController::unregisterSetting(Setting& setting)
 
 bool GlobalCommandController::hasCommand(string_view command) const
 {
-	return commands.find(command) != end(commands);
+	return commands.contains(command);
 }
 
 void GlobalCommandController::split(string_view str, vector<string>& tokens,
@@ -412,9 +412,8 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		string_view cmd = tokens.front();
 		if (cmd.starts_with("::")) cmd.remove_prefix(2); // drop leading ::
 
-		auto it = commandCompleters.find(cmd);
-		if (it != end(commandCompleters)) {
-			it->second->tabCompletion(tokens);
+		if (auto v = lookup(commandCompleters, cmd)) {
+			(*v)->tabCompletion(tokens);
 		} else {
 			TclObject command;
 			command.addListElement("openmsx::tabcompletion");
@@ -472,12 +471,11 @@ void GlobalCommandController::HelpCmd::execute(
 		break;
 	}
 	default: {
-		auto it = controller.commandCompleters.find(tokens[1].getString());
-		if (it != end(controller.commandCompleters)) {
+		if (auto v = lookup(controller.commandCompleters, tokens[1].getString())) {
 			auto tokens2 = to_vector(view::transform(
 				view::drop(tokens, 1),
 				[](auto& t) { return t.getString().str(); }));
-			result.setString(it->second->help(tokens2));
+			result.setString((*v)->help(tokens2));
 		} else {
 			TclObject command;
 			command.addListElement("openmsx::help");

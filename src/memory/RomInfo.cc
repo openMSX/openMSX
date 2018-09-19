@@ -183,9 +183,8 @@ static const RomTypeInfoMap& getRomTypeInfoMap()
 
 RomType RomInfo::nameToRomType(string_view name)
 {
-	auto& m = getRomTypeMap();
-	auto it = m.find(name);
-	return (it != end(m)) ? removeAlias(it->second) : ROM_UNKNOWN;
+	auto v = lookup(getRomTypeMap(), name);
+	return v ? removeAlias(*v) : ROM_UNKNOWN;
 }
 
 string_view RomInfo::romTypeToName(RomType type)

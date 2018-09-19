@@ -83,12 +83,11 @@ void GlobalCliComm::log(LogLevel level, string_view message)
 void GlobalCliComm::update(UpdateType type, string_view name, string_view value)
 {
 	assert(type < NUM_UPDATES);
-	auto it = prevValues[type].find(name);
-	if (it != end(prevValues[type])) {
-		if (it->second == value) {
+	if (auto v = lookup(prevValues[type], name)) {
+		if (*v == value) {
 			return;
 		}
-		it->second = value.str();
+		*v = value.str();
 	} else {
 		prevValues[type].emplace_noDuplicateCheck(name.str(), value.str());
 	}

@@ -78,6 +78,27 @@ public:
 			return std::make_pair(it, false);
 		}
 	}
+
+	template<typename K>
+	bool contains(const K& k) const
+	{
+		return this->find(k) != this->end();
+	}
 };
+
+
+template<typename Key, typename Value, typename Hasher, typename Equal, typename Key2>
+const Value* lookup(const hash_map<Key, Value, Hasher, Equal>& map, const Key2& key)
+{
+	auto it = map.find(key);
+	return (it != map.end()) ? &it->second : nullptr;
+}
+
+template<typename Key, typename Value, typename Hasher, typename Equal, typename Key2>
+Value* lookup(hash_map<Key, Value, Hasher, Equal>& map, const Key2& key)
+{
+	auto it = map.find(key);
+	return (it != map.end()) ? &it->second : nullptr;
+}
 
 #endif

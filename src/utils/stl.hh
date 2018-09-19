@@ -5,6 +5,7 @@
 #include <cassert>
 #include <iterator>
 #include <initializer_list>
+#include <map>
 #include <numeric>
 #include <tuple>
 #include <utility>
@@ -436,6 +437,22 @@ std::vector<T> concat(std::vector<T>&& v, Tail&&... tail)
 {
     append(v, std::forward<Tail>(tail)...);
     return std::move(v);
+}
+
+
+// lookup in std::map
+template<typename Key, typename Value>
+const Value* lookup(const std::map<Key, Value>& m, const Key& k)
+{
+	auto it = m.find(k);
+	return (it != m.end()) ? &it->second : nullptr;
+}
+
+template<typename Key, typename Value>
+Value* lookup(std::map<Key, Value>& m, const Key& k)
+{
+	auto it = m.find(k);
+	return (it != m.end()) ? &it->second : nullptr;
 }
 
 #endif

@@ -79,9 +79,9 @@ void* PolymorphicLoaderRegistry<Archive>::load(
 	std::string type;
 	ar.attribute("type", type);
 	auto& reg = PolymorphicLoaderRegistry<Archive>::instance();
-	auto it = reg.loaderMap.find(type);
-	assert(it != end(reg.loaderMap));
-	return it->second->load(ar, id, args);
+	auto v = lookup(reg.loaderMap, type);
+	assert(v);
+	return (*v)->load(ar, id, args);
 }
 
 template class PolymorphicLoaderRegistry<MemInputArchive>;
@@ -122,9 +122,9 @@ void PolymorphicInitializerRegistry<Archive>::init(
 	ar.attribute("type", type);
 
 	auto& reg = PolymorphicInitializerRegistry<Archive>::instance();
-	auto it = reg.initializerMap.find(type);
-	assert(it != end(reg.initializerMap));
-	it->second->init(ar, t, id);
+	auto v = lookup(reg.initializerMap, type);
+	assert(v);
+	(*v)->init(ar, t, id);
 
 	ar.endTag(tag);
 }

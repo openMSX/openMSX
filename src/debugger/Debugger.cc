@@ -58,8 +58,8 @@ void Debugger::unregisterDebuggable(string_view name, Debuggable& debuggable)
 
 Debuggable* Debugger::findDebuggable(string_view name)
 {
-	auto it = debuggables.find(name);
-	return (it != end(debuggables)) ? it->second : nullptr;
+	auto v = lookup(debuggables, name);
+	return v ? *v : nullptr;
 }
 
 Debuggable& Debugger::getDebuggable(string_view name)
