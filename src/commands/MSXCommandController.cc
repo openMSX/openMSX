@@ -11,9 +11,9 @@
 #include "Event.hh"
 #include "MSXException.hh"
 #include "KeyRange.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include <iostream>
+#include <memory>
 
 using std::string;
 
@@ -33,7 +33,7 @@ MSXCommandController::MSXCommandController(
 {
 	globalCommandController.getInterpreter().createNamespace(machineID);
 
-	machineInfoCommand = make_unique<InfoCommand>(*this, "machine_info");
+	machineInfoCommand = std::make_unique<InfoCommand>(*this, "machine_info");
 	machineInfoCommand->setAllowedInEmptyMachine(true);
 
 	msxEventDistributor.registerEventListener(*this);

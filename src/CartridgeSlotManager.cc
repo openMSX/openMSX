@@ -7,10 +7,10 @@
 #include "MSXException.hh"
 #include "CliComm.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "xrange.hh"
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -98,9 +98,9 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			extName[3] += slot;
 			motherBoard.getMSXCliComm().update(
 				CliComm::HARDWARE, slotName, "add");
-			slots[slot].cartCommand = make_unique<CartCmd>(
+			slots[slot].cartCommand = std::make_unique<CartCmd>(
 				*this, motherBoard, slotName);
-			slots[slot].extCommand = make_unique<ExtCmd>(
+			slots[slot].extCommand = std::make_unique<ExtCmd>(
 				motherBoard, extName);
 			return;
 		}

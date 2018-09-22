@@ -13,10 +13,10 @@
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
 #include "PreCacheFile.hh"
-#include "memory.hh"
 #include <cstring> // for strchr, strerror
 #include <cerrno>
 #include <cassert>
+#include <memory>
 
 using std::string;
 
@@ -99,7 +99,7 @@ LocalFile::~LocalFile()
 
 void LocalFile::preCacheFile()
 {
-	cache = make_unique<PreCacheFile>(
+	cache = std::make_unique<PreCacheFile>(
 		FileOperations::getNativePath(filename));
 }
 

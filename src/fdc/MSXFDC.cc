@@ -4,14 +4,14 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
 MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needROM)
 	: MSXDevice(config)
 	, rom(needROM
-		? make_unique<Rom>(getName() + " ROM", "rom", config, romId)
+		? std::make_unique<Rom>(getName() + " ROM", "rom", config, romId)
 		: nullptr) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
 {
 	if (needROM && (rom->getSize() == 0)) {
@@ -29,12 +29,12 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needRO
 	EmuDuration motorTimeout = EmuDuration::msec(timeout);
 	int i = 0;
 	for ( ; i < numDrives; ++i) {
-		drives[i] = make_unique<RealDrive>(
+		drives[i] = std::make_unique<RealDrive>(
 			getMotherBoard(), motorTimeout, signalsNeedMotorOn,
 			!singleSided);
 	}
 	for ( ; i < 4; ++i) {
-		drives[i] = make_unique<DummyDrive>();
+		drives[i] = std::make_unique<DummyDrive>();
 	}
 }
 

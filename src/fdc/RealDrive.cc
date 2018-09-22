@@ -9,7 +9,7 @@
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 using std::string;
 
@@ -45,8 +45,8 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 		throw MSXException("Duplicated drive name: ", driveName);
 	}
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
-	changer = make_unique<DiskChanger>(motherBoard, driveName, true, doubleSizedDrive,
-	                                   [this]() { invalidateTrack(); });
+	changer = std::make_unique<DiskChanger>(motherBoard, driveName, true, doubleSizedDrive,
+	                                        [this]() { invalidateTrack(); });
 }
 
 RealDrive::~RealDrive()

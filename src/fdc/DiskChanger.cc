@@ -22,8 +22,8 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "serialize_constr.hh"
-#include "memory.hh"
 #include <functional>
+#include <memory>
 #include <utility>
 
 using std::string;
@@ -86,7 +86,7 @@ void DiskChanger::init(const string& prefix, bool createCmd)
 void DiskChanger::createCommand()
 {
 	if (diskCommand) return;
-	diskCommand = make_unique<DiskCommand>(controller, *this);
+	diskCommand = std::make_unique<DiskCommand>(controller, *this);
 }
 
 DiskChanger::~DiskChanger()
@@ -183,7 +183,7 @@ void DiskChanger::insertDisk(array_ref<TclObject> args)
 
 void DiskChanger::ejectDisk()
 {
-	changeDisk(make_unique<DummyDisk>());
+	changeDisk(std::make_unique<DummyDisk>());
 }
 
 void DiskChanger::changeDisk(std::unique_ptr<Disk> newDisk)

@@ -6,8 +6,8 @@
 #include "CheckedRam.hh"
 #include "SdCard.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
+#include <memory>
 #include <vector>
 
 /******************************************************************************
@@ -273,7 +273,7 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
 	      getCurrentTime())
 	, configReg(3) // avoid UMR
 	, checkedRam(config.getChildDataAsBool("hasmemorymapper", true) ?
-		make_unique<CheckedRam>(config, getName() + " memory mapper", "memory mapper", MEMORY_MAPPER_SIZE * 1024)
+		std::make_unique<CheckedRam>(config, getName() + " memory mapper", "memory mapper", MEMORY_MAPPER_SIZE * 1024)
 		: nullptr)
 {
 	powerUp(getCurrentTime());
@@ -288,8 +288,8 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
 		getCPUInterface().register_IO_Out(0xFC, this);
 	}
 
-	sdCard[0] = make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard1")));
-	sdCard[1] = make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard2")));
+	sdCard[0] = std::make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard1")));
+	sdCard[1] = std::make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard2")));
 }
 
 MegaFlashRomSCCPlusSD::~MegaFlashRomSCCPlusSD()

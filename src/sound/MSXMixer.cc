@@ -14,17 +14,17 @@
 #include "Filename.hh"
 #include "CliComm.hh"
 #include "Math.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include "aligned.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include "vla.hh"
 #include <algorithm>
-#include <tuple>
+#include <cassert>
 #include <cmath>
 #include <cstring>
-#include <cassert>
+#include <memory>
+#include <tuple>
 
 #ifdef __SSE2__
 #include "emmintrin.h"
@@ -84,10 +84,10 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 	SoundDeviceInfo info;
 	info.device = &device;
 	info.defaultVolume = volume;
-	info.volumeSetting = make_unique<IntegerSetting>(
+	info.volumeSetting = std::make_unique<IntegerSetting>(
 		commandController, name + "_volume",
 		"the volume of this sound chip", 75, 0, 100);
-	info.balanceSetting = make_unique<IntegerSetting>(
+	info.balanceSetting = std::make_unique<IntegerSetting>(
 		commandController, name + "_balance",
 		"the balance of this sound chip", balance, -100, 100);
 
@@ -98,13 +98,13 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 		SoundDeviceInfo::ChannelSettings channelSettings;
 		string ch_name = strCat(name, "_ch", i + 1);
 
-		channelSettings.recordSetting = make_unique<StringSetting>(
+		channelSettings.recordSetting = std::make_unique<StringSetting>(
 			commandController, ch_name + "_record",
 			"filename to record this channel to",
 			string_view{}, Setting::DONT_SAVE);
 		channelSettings.recordSetting->attach(*this);
 
-		channelSettings.muteSetting = make_unique<BooleanSetting>(
+		channelSettings.muteSetting = std::make_unique<BooleanSetting>(
 			commandController, ch_name + "_mute",
 			"sets mute-status of individual sound channels",
 			false, Setting::DONT_SAVE);

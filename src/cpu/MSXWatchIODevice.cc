@@ -5,6 +5,7 @@
 #include "TclObject.hh"
 #include "Interpreter.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
@@ -19,7 +20,7 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard_,
 	, motherboard(motherboard_)
 {
 	for (unsigned i = byte(beginAddr_); i <= byte(endAddr_); ++i) {
-		ios.push_back(make_unique<MSXWatchIODevice>(
+		ios.push_back(std::make_unique<MSXWatchIODevice>(
 			*motherboard.getMachineConfig(), *this));
 	}
 }

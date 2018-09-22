@@ -13,9 +13,9 @@
 #include "CommandException.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
-#include "memory.hh"
 #include "xrange.hh"
 #include "build-info.hh"
+#include <memory>
 
 using std::string;
 using std::shared_ptr;
@@ -46,7 +46,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 			// practice.
 			if (InputEventGenerator::joystickNumButtons(joystick) != 0) {
 				controller.registerPluggable(
-					make_unique<Joystick>(
+					std::make_unique<Joystick>(
 						eventDistributor,
 						stateChangeDistributor,
 						commandController,

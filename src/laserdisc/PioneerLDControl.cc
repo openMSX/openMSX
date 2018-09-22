@@ -5,7 +5,7 @@
 #include "MSXPPI.hh"
 #include "MSXException.hh"
 #include "VDP.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -39,7 +39,7 @@ PioneerLDControl::PioneerLDControl(const DeviceConfig& config)
 	, videoEnabled(false)
 {
 	if (config.getChildDataAsBool("laserdisc", true)) {
-		laserdisc = make_unique<LaserdiscPlayer>(
+		laserdisc = std::make_unique<LaserdiscPlayer>(
 			getHardwareConfig(), *this);
 	}
 	reset(getCurrentTime());

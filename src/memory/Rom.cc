@@ -18,9 +18,9 @@
 #include "IPSPatch.hh"
 #include "StringOp.hh"
 #include "sha1.hh"
-#include "memory.hh"
-#include <limits>
 #include <cstring>
+#include <limits>
+#include <memory>
 
 using std::string;
 using std::unique_ptr;
@@ -227,10 +227,10 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			getOriginalSHA1();
 
 			unique_ptr<PatchInterface> patch =
-				make_unique<EmptyPatch>(rom, size);
+				std::make_unique<EmptyPatch>(rom, size);
 
 			for (auto& p : patchesElem->getChildren("ips")) {
-				patch = make_unique<IPSPatch>(
+				patch = std::make_unique<IPSPatch>(
 					Filename(p->getData(), context),
 					std::move(patch));
 			}
@@ -315,7 +315,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// Only create the debuggable once all checks succeeded.
 	if (size) {
-		romDebuggable = make_unique<RomDebuggable>(debugger, *this);
+		romDebuggable = std::make_unique<RomDebuggable>(debugger, *this);
 	}
 }
 

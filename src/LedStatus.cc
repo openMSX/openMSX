@@ -3,7 +3,7 @@
 #include "ReadOnlySetting.hh"
 #include "CommandController.hh"
 #include "Timer.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -27,7 +27,7 @@ LedStatus::LedStatus(
 	for (int i = 0; i < NUM_LEDS; ++i) {
 		ledValue[i] = false;
 		std::string name = getLedName(static_cast<Led>(i));
-		ledStatus[i] = make_unique<ReadOnlySetting>(
+		ledStatus[i] = std::make_unique<ReadOnlySetting>(
 			commandController, "led_" + name,
 			"Current status for LED: " + name,
 			TclObject("off"));

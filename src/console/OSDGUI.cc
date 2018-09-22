@@ -6,10 +6,10 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include <algorithm>
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::unique_ptr;
@@ -104,9 +104,9 @@ unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (type == "rectangle") {
-		return make_unique<OSDRectangle>(gui.display, newName);
+		return std::make_unique<OSDRectangle>(gui.display, newName);
 	} else if (type == "text") {
-		return make_unique<OSDText>(gui.display, newName);
+		return std::make_unique<OSDText>(gui.display, newName);
 	} else {
 		throw CommandException(
 			"Invalid widget type '", type, "', expected "

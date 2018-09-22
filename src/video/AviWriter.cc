@@ -3,13 +3,12 @@
 #include "AviWriter.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
-#include "memory.hh"
 #include "build-info.hh"
 #include "Version.hh"
 #include "cstdiop.hh" // for snprintf
+#include <cassert>
 #include <cstring>
 #include <ctime>
-#include <cassert>
 
 namespace openmsx {
 

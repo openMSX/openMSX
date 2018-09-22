@@ -4,12 +4,12 @@
 #include "PluggingController.hh"
 #include "PlugException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include "openmsx.hh"
 #include "StringOp.hh"
 
 #include <mach/mach_time.h>
 #include <cassert>
+#include <memory>
 
 
 namespace openmsx {
@@ -45,7 +45,7 @@ void MidiOutCoreMIDI::registerAll(PluggingController& controller)
 		MIDIEndpointRef endpoint = MIDIGetDestination(i);
 		if (endpoint) {
 			controller.registerPluggable(
-				make_unique<MidiOutCoreMIDI>(endpoint));
+				std::make_unique<MidiOutCoreMIDI>(endpoint));
 		}
 	}
 }

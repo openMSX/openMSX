@@ -27,6 +27,7 @@
 #include "RomRamFile.hh"
 #include "MSXCPU.hh"
 #include "serialize.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -34,7 +35,7 @@ RomRamFile::RomRamFile(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, cpu(getCPU())
 {
-	sram = make_unique<SRAM>(getName() + " SRAM", 0x4000, config);
+	sram = std::make_unique<SRAM>(getName() + " SRAM", 0x4000, config);
 	reset(EmuTime::dummy());
 }
 

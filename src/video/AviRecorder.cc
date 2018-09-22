@@ -12,10 +12,10 @@
 #include "CliComm.hh"
 #include "FileOperations.hh"
 #include "TclObject.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "vla.hh"
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -81,7 +81,7 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 		prevTime = EmuTime::infinity;
 
 		try {
-			aviWriter = make_unique<AviWriter>(
+			aviWriter = std::make_unique<AviWriter>(
 				filename, frameWidth, frameHeight, bpp,
 				(recordAudio && stereo) ? 2 : 1, sampleRate);
 		} catch (MSXException& e) {
@@ -90,7 +90,7 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 		}
 	} else {
 		assert(recordAudio);
-		wavWriter = make_unique<Wav16Writer>(
+		wavWriter = std::make_unique<Wav16Writer>(
 			filename, stereo ? 2 : 1, sampleRate);
 	}
 	// only set recorders when all errors are checked for

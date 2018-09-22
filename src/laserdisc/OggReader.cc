@@ -4,13 +4,13 @@
 #include "likely.hh"
 #include "CliComm.hh"
 #include "MemoryOps.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include "stringsp.hh" // for strncasecmp
 #include <algorithm>
 #include <cstring> // for memcpy, memcmp
 #include <cstdlib> // for atoi
 #include <cctype> // for isspace
+#include <memory>
 
 // TODO
 // - Improve error handling
@@ -361,7 +361,7 @@ void OggReader::readVorbis(ogg_packet* packet)
 	while (pos < decoded)  {
 		// Find memory to copy PCM into
 		if (recycleAudioList.empty()) {
-			auto audio = make_unique<AudioFragment>();
+			auto audio = std::make_unique<AudioFragment>();
 			audio->length = 0;
 			recycleAudioList.push_back(std::move(audio));
 		}
@@ -568,7 +568,7 @@ void OggReader::readTheora(ogg_packet* packet)
 
 	std::unique_ptr<Frame> frame;
 	if (recycleFrameList.empty()) {
-		frame = make_unique<Frame>(yuv);
+		frame = std::make_unique<Frame>(yuv);
 	} else {
 		frame = std::move(recycleFrameList.back());
 		recycleFrameList.pop_back();

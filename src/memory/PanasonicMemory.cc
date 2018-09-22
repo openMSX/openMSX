@@ -7,7 +7,7 @@
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -19,7 +19,7 @@ static std::unique_ptr<Rom> createRom(MSXMotherBoard& motherBoard)
 
 	const HardwareConfig* hwConf = motherBoard.getMachineConfig();
 	assert(hwConf);
-	return make_unique<Rom>(
+	return std::make_unique<Rom>(
 		"PanasonicRom", "Turbor-R main ROM",
 		DeviceConfig(*hwConf, *elem));
 }

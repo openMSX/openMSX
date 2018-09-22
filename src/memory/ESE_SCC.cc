@@ -49,7 +49,7 @@
 #include "MB89352.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -72,7 +72,7 @@ ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	: MSXDevice(config)
 	, sram(getName() + " SRAM", getSramSize(withSCSI), config)
 	, scc(getName(), config, getCurrentTime())
-	, spc(withSCSI ? make_unique<MB89352>(config) : nullptr)
+	, spc(withSCSI ? std::make_unique<MB89352>(config) : nullptr)
 	, romBlockDebug(*this, mapper, 0x4000, 0x8000, 13)
 	, mapperMask((sram.getSize() / 0x2000) - 1)
 {

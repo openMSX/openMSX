@@ -2,11 +2,11 @@
 #include "DeviceConfig.hh"
 #include "HD.hh"
 #include "MSXException.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "endian.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include <memory>
 #include <string>
 
 // TODO:
@@ -36,7 +36,7 @@ static const byte R1_ILLEGAL_COMMAND = 0x04;
 static const byte R1_PARAMETER_ERROR = 0x80;
 
 SdCard::SdCard(const DeviceConfig& config)
-	: hd(config.getXML() ? make_unique<HD>(config) : nullptr)
+	: hd(config.getXML() ? std::make_unique<HD>(config) : nullptr)
 	, cmdIdx(0)
 	, transferDelayCounter(0)
 	, mode(COMMAND)

@@ -34,10 +34,10 @@
 #include "FileContext.hh"
 #include "endian.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <algorithm>
-#include <vector>
 #include <cstring>
+#include <memory>
+#include <vector>
 
 using std::string;
 using std::vector;
@@ -113,7 +113,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	}
 	name[2] = char('a' + id);
 	(*lsInUse)[id] = true;
-	lsxCommand = make_unique<LSXCommand>(
+	lsxCommand = std::make_unique<LSXCommand>(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(), *this);

@@ -38,10 +38,9 @@ TODO:
 #include "VDPVRAM.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
-#include <iostream>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <iostream>
 
 using std::min;
 using std::max;

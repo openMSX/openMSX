@@ -8,13 +8,13 @@
 #include "Math.hh"
 #include "MemBuffer.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include "vla.hh"
 #include <algorithm>
-#include <vector>
 #include <cassert>
 #include <cmath>
 #include <cstring>
+#include <memory>
+#include <vector>
 
 using std::max;
 using std::min;
@@ -260,8 +260,8 @@ void ImagePrinter::ensurePrintPage()
 		pixelSizeX = double(paperSizeX) / dotsX;
 		pixelSizeY = double(paperSizeY) / dotsY;
 
-		paper = make_unique<Paper>(paperSizeX, paperSizeY,
-		                           pixelSizeX, pixelSizeY);
+		paper = std::make_unique<Paper>(paperSizeX, paperSizeY,
+		                                pixelSizeX, pixelSizeY);
 	}
 }
 

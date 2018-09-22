@@ -38,7 +38,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 

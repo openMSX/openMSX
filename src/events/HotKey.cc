@@ -8,12 +8,12 @@
 #include "XMLElement.hh"
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;

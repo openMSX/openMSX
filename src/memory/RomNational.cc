@@ -2,14 +2,14 @@
 #include "CacheLine.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
 RomNational::RomNational(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 {
-	sram = make_unique<SRAM>(getName() + " SRAM", 0x1000, config);
+	sram = std::make_unique<SRAM>(getName() + " SRAM", 0x1000, config);
 	reset(EmuTime::dummy());
 }
 

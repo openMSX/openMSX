@@ -3,7 +3,6 @@
 #include "File.hh"
 #include "FilePool.hh"
 #include "Math.hh"
-#include "memory.hh"
 #include "xrange.hh"
 
 namespace openmsx {

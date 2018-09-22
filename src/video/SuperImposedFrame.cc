@@ -1,12 +1,12 @@
 #include "SuperImposedFrame.hh"
 #include "PixelOperations.hh"
 #include "LineScalers.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cstdint>
+#include <memory>
 
 namespace openmsx {
 
@@ -33,12 +33,12 @@ std::unique_ptr<SuperImposedFrame> SuperImposedFrame::create(
 {
 #if HAVE_16BPP
 	if (format.BitsPerPixel == 15 || format.BitsPerPixel == 16) {
-		return make_unique<SuperImposedFrameImpl<uint16_t>>(format);
+		return std::make_unique<SuperImposedFrameImpl<uint16_t>>(format);
 	}
 #endif
 #if HAVE_32BPP
 	if (format.BitsPerPixel == 32) {
-		return make_unique<SuperImposedFrameImpl<uint32_t>>(format);
+		return std::make_unique<SuperImposedFrameImpl<uint32_t>>(format);
 	}
 #endif
 	UNREACHABLE; return nullptr; // avoid warning

@@ -5,7 +5,7 @@
 #include "SRAM.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -18,7 +18,7 @@ RomPanasonic::RomPanasonic(const DeviceConfig& config, Rom&& rom_)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {
-		sram = make_unique<SRAM>(
+		sram = std::make_unique<SRAM>(
 			getName() + " SRAM", sramSize * 1024, config);
 	}
 

@@ -5,9 +5,9 @@
 #include "FileOperations.hh"
 #include "TclObject.hh"
 #include "components.hh"
-#include "memory.hh"
 #include <cassert>
 #include <cmath>
+#include <memory>
 #if COMPONENT_GL
 #include "GLImage.hh"
 #endif
@@ -170,15 +170,15 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 		float factor = getScaleFactor(output) * scale;
 		int bs = lrintf(factor * borderSize + iSize[0] * relBorderSize);
 		assert(bs >= 0);
-		return make_unique<IMAGE>(iSize, getRGBA4(), bs, borderRGBA);
+		return std::make_unique<IMAGE>(iSize, getRGBA4(), bs, borderRGBA);
 	} else {
 		string file = systemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
 			float factor = getScaleFactor(output) * scale;
-			return make_unique<IMAGE>(file, factor);
+			return std::make_unique<IMAGE>(file, factor);
 		} else {
 			ivec2 iSize = round(getSize(output));
-			return make_unique<IMAGE>(file, iSize);
+			return std::make_unique<IMAGE>(file, iSize);
 		}
 	}
 }

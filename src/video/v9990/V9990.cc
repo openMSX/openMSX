@@ -7,9 +7,9 @@
 #include "Reactor.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cassert>
 #include <cstring>
+#include <memory>
 
 namespace openmsx {
 
@@ -81,10 +81,10 @@ V9990::V9990(const DeviceConfig& config)
 
 	// create VRAM
 	EmuTime::param time = getCurrentTime();
-	vram = make_unique<V9990VRAM>(*this, time);
+	vram = std::make_unique<V9990VRAM>(*this, time);
 
 	// create Command Engine
-	cmdEngine = make_unique<V9990CmdEngine>(
+	cmdEngine = std::make_unique<V9990CmdEngine>(
 		*this, time, display.getRenderSettings());
 	vram->setCmdEngine(*cmdEngine);
 

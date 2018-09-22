@@ -14,8 +14,8 @@
 #include "KeyRange.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cassert>
+#include <memory>
 #include <stdexcept>
 
 using std::shared_ptr;
@@ -101,7 +101,7 @@ unsigned Debugger::insertProbeBreakPoint(
 	TclObject command, TclObject condition,
 	ProbeBase& probe, unsigned newId /*= -1*/)
 {
-	auto bp = make_unique<ProbeBreakPoint>(
+	auto bp = std::make_unique<ProbeBreakPoint>(
 		command, condition, *this, probe, newId);
 	unsigned result = bp->getId();
 	probeBreakPoints.push_back(std::move(bp));

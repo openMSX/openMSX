@@ -6,10 +6,10 @@
 #include "OSDGUILayer.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <cstdint>
+#include <memory>
 
 namespace openmsx {
 
@@ -62,11 +62,11 @@ std::unique_ptr<Layer> SDLVisibleSurface::createSnowLayer()
 	switch (getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 	case 2:
-		return make_unique<SDLSnow<uint16_t>>(*this, getDisplay());
+		return std::make_unique<SDLSnow<uint16_t>>(*this, getDisplay());
 #endif
 #if HAVE_32BPP
 	case 4:
-		return make_unique<SDLSnow<uint32_t>>(*this, getDisplay());
+		return std::make_unique<SDLSnow<uint32_t>>(*this, getDisplay());
 #endif
 	default:
 		UNREACHABLE; return nullptr;
@@ -77,18 +77,18 @@ std::unique_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
 		Reactor& reactor, CommandConsole& console)
 {
 	const bool openGL = false;
-	return make_unique<OSDConsoleRenderer>(
+	return std::make_unique<OSDConsoleRenderer>(
 		reactor, console, getWidth(), getHeight(), openGL);
 }
 
 std::unique_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
-	return make_unique<SDLOSDGUILayer>(gui);
+	return std::make_unique<SDLOSDGUILayer>(gui);
 }
 
 std::unique_ptr<OutputSurface> SDLVisibleSurface::createOffScreenSurface()
 {
-	return make_unique<SDLOffScreenSurface>(*getSDLSurface());
+	return std::make_unique<SDLOffScreenSurface>(*getSDLSurface());
 }
 
 void SDLVisibleSurface::saveScreenshot(const std::string& filename)

@@ -19,13 +19,13 @@
 #include "Reactor.hh"
 #include "RomInfo.hh"
 #include "hash_map.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "stl.hh"
 #include "xxhash.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <iostream>
+#include <memory>
 
 using std::cout;
 using std::endl;
@@ -180,7 +180,7 @@ void CommandLineParser::parse(int argc, char** argv)
 				// if there already is a XML-StdioConnection, we
 				// can't also show plain messages on stdout
 				auto& cliComm = reactor.getGlobalCliComm();
-				cliComm.addListener(make_unique<StdioMessages>());
+				cliComm.addListener(std::make_unique<StdioMessages>());
 			}
 			if (!haveSettings) {
 				auto& settingsConfig =
@@ -323,11 +323,11 @@ void CommandLineParser::ControlOption::parseOption(
 	auto& cliComm     = parser.reactor.getGlobalCliComm();
 	std::unique_ptr<CliListener> connection;
 	if (type == "stdio") {
-		connection = make_unique<StdioConnection>(
+		connection = std::make_unique<StdioConnection>(
 			controller, distributor);
 #ifdef _WIN32
 	} else if (type == "pipe") {
-		connection = make_unique<PipeConnection>(
+		connection = std::make_unique<PipeConnection>(
 			controller, distributor, arguments);
 #endif
 	} else {

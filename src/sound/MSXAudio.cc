@@ -3,7 +3,7 @@
 #include "DACSound8U.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 using std::string;
 
@@ -20,7 +20,7 @@ MSXAudio::MSXAudio(const DeviceConfig& config)
 {
 	string type(StringOp::toLower(config.getChildData("type", "philips")));
 	if (type == "philips") {
-		dac = make_unique<DACSound8U>(
+		dac = std::make_unique<DACSound8U>(
 			getName() + " 8-bit DAC", "MSX-AUDIO 8-bit DAC",
 			config);
 	}

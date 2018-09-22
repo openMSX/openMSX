@@ -4,7 +4,7 @@
 #include "DiskExceptions.hh"
 #include "sha1.hh"
 #include "xrange.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -16,7 +16,7 @@ const size_t SectorAccessibleDisk::SECTOR_SIZE;
 #endif
 
 SectorAccessibleDisk::SectorAccessibleDisk()
-	: patch(make_unique<EmptyDiskPatch>(*this))
+	: patch(std::make_unique<EmptyDiskPatch>(*this))
 	, forcedWriteProtect(false)
 	, peekMode(false)
 {
@@ -65,7 +65,7 @@ size_t SectorAccessibleDisk::getNbSectors() const
 
 void SectorAccessibleDisk::applyPatch(Filename patchFile)
 {
-	patch = make_unique<IPSPatch>(std::move(patchFile), std::move(patch));
+	patch = std::make_unique<IPSPatch>(std::move(patchFile), std::move(patch));
 }
 
 std::vector<Filename> SectorAccessibleDisk::getPatches() const

@@ -1,10 +1,10 @@
 #include "GlobalSettings.hh"
 #include "SettingsConfig.hh"
 #include "GlobalCommandController.hh"
-#include "memory.hh"
 #include "strCat.hh"
 #include "xrange.hh"
 #include "build-info.hh"
+#include <memory>
 #include <SDL.h>
 
 namespace openmsx {
@@ -47,7 +47,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 {
 	for (auto i : xrange(SDL_NumJoysticks())) {
 		std::string name = strCat("joystick", i + 1, "_deadzone");
-		deadzoneSettings.emplace_back(make_unique<IntegerSetting>(
+		deadzoneSettings.emplace_back(std::make_unique<IntegerSetting>(
 			commandController, name,
 			"size (as a percentage) of the dead center zone",
 			25, 0, 100));

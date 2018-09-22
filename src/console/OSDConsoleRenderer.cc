@@ -10,11 +10,11 @@
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
+#include <memory>
 
 #include "components.hh"
 #if COMPONENT_GL
@@ -285,11 +285,11 @@ void OSDConsoleRenderer::loadBackground(string_view value)
 	}
 	string filename = systemFileContext().resolve(value);
 	if (!openGL) {
-		backgroundImage = make_unique<SDLImage>(filename, bgSize);
+		backgroundImage = std::make_unique<SDLImage>(filename, bgSize);
 	}
 #if COMPONENT_GL
 	else {
-		backgroundImage = make_unique<GLImage>(filename, bgSize);
+		backgroundImage = std::make_unique<GLImage>(filename, bgSize);
 	}
 #endif
 }
@@ -334,11 +334,11 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_view text,
 		if (!surf) {
 			// nothing was rendered, so do nothing
 		} else if (!openGL) {
-			image2 = make_unique<SDLImage>(std::move(surf));
+			image2 = std::make_unique<SDLImage>(std::move(surf));
 		}
 #if COMPONENT_GL
 		else {
-			image2 = make_unique<GLImage>(std::move(surf));
+			image2 = std::make_unique<GLImage>(std::move(surf));
 		}
 #endif
 		image = image2.get();
@@ -438,12 +438,12 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		// no background image, try to create an empty one
 		try {
 			if (!openGL) {
-				backgroundImage = make_unique<SDLImage>(
+				backgroundImage = std::make_unique<SDLImage>(
 					bgSize, CONSOLE_ALPHA);
 			}
 #if COMPONENT_GL
 			else {
-				backgroundImage = make_unique<GLImage>(
+				backgroundImage = std::make_unique<GLImage>(
 					bgSize, CONSOLE_ALPHA);
 			}
 #endif

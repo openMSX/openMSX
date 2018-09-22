@@ -10,8 +10,8 @@
 #include "MSXException.hh"
 #include "likely.hh"
 #include "vla.hh"
-#include "memory.hh"
 #include <cassert>
+#include <memory>
 
 using std::string;
 
@@ -191,7 +191,7 @@ void SoundDevice::recordChannel(unsigned channel, const Filename& filename)
 	assert(channel < numChannels);
 	bool wasRecording = writer[channel] != nullptr;
 	if (!filename.empty()) {
-		writer[channel] = make_unique<Wav16Writer>(
+		writer[channel] = std::make_unique<Wav16Writer>(
 			filename, stereo, inputSampleRate);
 	} else {
 		writer[channel].reset();

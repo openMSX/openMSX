@@ -10,10 +10,10 @@
 #include "StringOp.hh"
 #include "utf8_core.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include "components.hh"
 #include <cassert>
 #include <cmath>
+#include <memory>
 #if COMPONENT_GL
 #include "GLImage.hh"
 #endif
@@ -169,7 +169,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	OutputRectangle& output)
 {
 	if (text.empty()) {
-		return make_unique<IMAGE>(ivec2(), 0);
+		return std::make_unique<IMAGE>(ivec2(), 0);
 	}
 	int scale = getScaleFactor(output);
 	if (font.empty()) {
@@ -206,9 +206,9 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		SDLSurfacePtr surface(font.render(wrappedText,
 			(textRgba >> 24) & 0xff, (textRgba >> 16) & 0xff, (textRgba >> 8) & 0xff));
 		if (surface) {
-			return make_unique<IMAGE>(std::move(surface));
+			return std::make_unique<IMAGE>(std::move(surface));
 		} else {
-			return make_unique<IMAGE>(ivec2(), 0);
+			return std::make_unique<IMAGE>(ivec2(), 0);
 		}
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't render text: ", e.getMessage());

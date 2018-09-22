@@ -3,14 +3,14 @@
 #include "DummyY8950KeyboardDevice.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
 Y8950KeyboardConnector::Y8950KeyboardConnector(
 	PluggingController& pluggingController_)
 	: Connector(pluggingController_, "audiokeyboardport",
-	            make_unique<DummyY8950KeyboardDevice>())
+	            std::make_unique<DummyY8950KeyboardDevice>())
 	, data(255)
 {
 }

@@ -9,12 +9,12 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include "xrange.hh"
 #include "countof.hh"
-#include <numeric>
 #include <cstring>
 #include <cassert>
+#include <memory>
+#include <numeric>
 
 using std::string;
 using std::vector;
@@ -76,7 +76,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 	bool loaded = false;
 	if (writableSize) {
 		if (load) {
-			ram = make_unique<SRAM>(
+			ram = std::make_unique<SRAM>(
 				name, "flash rom",
 				writableSize, config, nullptr, &loaded);
 		} else {
@@ -84,7 +84,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 			// writes are never visible to the MSX (but the flash
 			// is not made write-protected). In this case it doesn't
 			// make sense to load/save the SRAM file.
-			ram = make_unique<SRAM>(
+			ram = std::make_unique<SRAM>(
 				name, "flash rom",
 				writableSize, config, SRAM::DONT_LOAD);
 		}
@@ -122,7 +122,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 		// ships. This ROM is optional, if it's not found, then the
 		// initial flash content is all 0xFF.
 		try {
-			rom_ = make_unique<Rom>(
+			rom_ = std::make_unique<Rom>(
 				string{}, string{}, // dummy name and description
 				config);
 			rom = rom_.get();

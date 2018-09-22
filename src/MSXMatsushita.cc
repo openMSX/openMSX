@@ -17,7 +17,7 @@ MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	, vdp(nullptr)
 	, lastTime(EmuTime::zero)
 	, firmwareSwitch(config)
-	, sram(config.findChild("sramname") ? make_unique<SRAM>(getName() + " SRAM", 0x800, config) : nullptr)
+	, sram(config.findChild("sramname") ? std::make_unique<SRAM>(getName() + " SRAM", 0x800, config) : nullptr)
 	, turboAvailable(config.getChildDataAsBool("hasturbo", false))
 	, turboEnabled(false)
 {

@@ -3,7 +3,7 @@
 #include "DummyMidiOutDevice.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 using std::string;
 
@@ -12,7 +12,7 @@ namespace openmsx {
 MidiOutConnector::MidiOutConnector(PluggingController& pluggingController_,
                                    std::string name_)
 	: Connector(pluggingController_, std::move(name_),
-	            make_unique<DummyMidiOutDevice>())
+	            std::make_unique<DummyMidiOutDevice>())
 {
 }
 

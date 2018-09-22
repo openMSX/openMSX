@@ -4,11 +4,11 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "GLUtil.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <limits>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -321,7 +321,7 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 	if (clip) {
 		ivec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
-		scopedClip = make_unique<SDLScopedClip>(
+		scopedClip = std::make_unique<SDLScopedClip>(
 			output, clipPos[0], clipPos[1], size[0], size[1]);
 	}
 
@@ -340,7 +340,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 	if (clip) {
 		ivec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
-		scopedClip = make_unique<GLScopedClip>(
+		scopedClip = std::make_unique<GLScopedClip>(
 			output, clipPos[0], clipPos[1], size[0], size[1]);
 	}
 

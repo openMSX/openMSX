@@ -2,7 +2,6 @@
 #include "MidiInDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"

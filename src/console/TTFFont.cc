@@ -2,13 +2,12 @@
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include "xrange.hh"
 #include <SDL_ttf.h>
 #include <algorithm>
-#include <vector>
 #include <cassert>
+#include <vector>
 
 using std::string;
 

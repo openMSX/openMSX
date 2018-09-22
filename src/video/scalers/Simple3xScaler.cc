@@ -6,8 +6,8 @@
 #include "RenderSettings.hh"
 #include "Multiply32.hh"
 #include "vla.hh"
-#include "memory.hh"
 #include <cstdint>
+#include <memory>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -39,7 +39,7 @@ Simple3xScaler<Pixel>::Simple3xScaler(
 	: Scaler3<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 	, scanline(pixelOps_)
-	, blur_1on3(make_unique<Blur_1on3<Pixel>>(pixelOps_))
+	, blur_1on3(std::make_unique<Blur_1on3<Pixel>>(pixelOps_))
 	, settings(settings_)
 {
 }

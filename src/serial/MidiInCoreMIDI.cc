@@ -7,9 +7,9 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include "StringOp.hh"
 #include <mach/mach_time.h>
+#include <memory>
 
 
 namespace openmsx {
@@ -24,7 +24,7 @@ void MidiInCoreMIDI::registerAll(EventDistributor& eventDistributor,
 	for (ItemCount i = 0; i < numberOfEndpoints; i++) {
 		MIDIEndpointRef endpoint = MIDIGetSource(i);
 		if (endpoint) {
-			controller.registerPluggable(make_unique<MidiInCoreMIDI>(
+			controller.registerPluggable(std::make_unique<MidiInCoreMIDI>(
 					eventDistributor, scheduler, endpoint));
 		}
 	}

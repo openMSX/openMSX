@@ -45,9 +45,9 @@
 #include "EmuDuration.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <algorithm>
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -314,11 +314,11 @@ void CassettePlayer::insertTape(const Filename& filename)
 		FilePool& filePool = motherBoard.getReactor().getFilePool();
 		try {
 			// first try WAV
-			playImage = make_unique<WavImage>(filename, filePool);
+			playImage = std::make_unique<WavImage>(filename, filePool);
 		} catch (MSXException& e) {
 			try {
 				// if that fails use CAS
-				playImage = make_unique<CasImage>(
+				playImage = std::make_unique<CasImage>(
 					filename, filePool,
 					motherBoard.getMSXCliComm());
 			} catch (MSXException& e2) {
@@ -382,7 +382,7 @@ void CassettePlayer::rewind(EmuTime::param time)
 void CassettePlayer::recordTape(const Filename& filename, EmuTime::param time)
 {
 	removeTape(time); // flush (possible) previous recording
-	recordImage = make_unique<Wav8Writer>(filename, 1, RECORD_FREQ);
+	recordImage = std::make_unique<Wav8Writer>(filename, 1, RECORD_FREQ);
 	tapePos = EmuTime::zero;
 	setState(RECORD, filename, time);
 }

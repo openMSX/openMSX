@@ -12,8 +12,8 @@
 #include "PNG.hh"
 #include "FileContext.hh"
 #include "CliComm.hh"
-#include "memory.hh"
 #include "build-info.hh"
+#include <memory>
 
 #ifdef _WIN32
 #include <windows.h>

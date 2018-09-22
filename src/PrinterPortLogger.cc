@@ -2,7 +2,6 @@
 #include "PlugException.hh"
 #include "FileException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 

@@ -4,14 +4,14 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
-#include "memory.hh"
-#include <fstream>
 #include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <cstdio>
 #include <cstdarg>
 #include <ctime>
+#include <fstream>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -618,7 +618,7 @@ void NowindHost::deviceOpen()
 
 	unsigned fcb = getFCB();
 	unsigned dev = getFreeDeviceNum();
-	devices[dev].fs = make_unique<fstream>(); // takes care of deleting old fs
+	devices[dev].fs = std::make_unique<fstream>(); // takes care of deleting old fs
 	devices[dev].fcb = fcb;
 
 	sendHeader();

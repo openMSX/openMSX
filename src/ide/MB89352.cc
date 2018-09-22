@@ -21,10 +21,10 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
 #include <string>
 #include <cstring>
+#include <memory>
 
 using std::string;
 
@@ -109,10 +109,10 @@ MB89352::MB89352(const DeviceConfig& config)
 		DeviceConfig conf(config, *t);
 		auto& type = t->getChild("type").getData();
 		if (type == "SCSIHD") {
-			dev[id] = make_unique<SCSIHD>(conf, buffer,
+			dev[id] = std::make_unique<SCSIHD>(conf, buffer,
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);
 		} else if (type == "SCSILS120") {
-			dev[id] = make_unique<SCSILS120>(conf, buffer,
+			dev[id] = std::make_unique<SCSILS120>(conf, buffer,
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);
 		} else {
 			throw MSXException("Unknown SCSI device: ", type);
@@ -120,7 +120,7 @@ MB89352::MB89352(const DeviceConfig& config)
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes
 	for (auto& d : dev) {
-		if (!d) d = make_unique<DummySCSIDevice>();
+		if (!d) d = std::make_unique<DummySCSIDevice>();
 	}
 	reset(false);
 

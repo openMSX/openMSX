@@ -2,7 +2,7 @@
 #include "XMLElement.hh"
 #include "Autofire.hh"
 #include "MSXException.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -17,7 +17,7 @@ RenShaTurbo::RenShaTurbo(CommandController& commandController,
 				"Error in RenShaTurbo speed settings: "
 				"1 <= min_ints <= max_ints <= 6000.");
 		}
-		autofire = make_unique<Autofire>(
+		autofire = std::make_unique<Autofire>(
 			commandController, min_ints, max_ints, "renshaturbo");
 	}
 }

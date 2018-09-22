@@ -15,10 +15,10 @@
 #include "SectorBasedDisk.hh"
 #include "StringOp.hh"
 #include "TclObject.hh"
-#include "memory.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cctype>
+#include <memory>
 #include <stdexcept>
 
 using std::string;
@@ -132,7 +132,7 @@ unique_ptr<DiskPartition> DiskManipulator::getPartition(
 {
 	auto* disk = driveData.drive->getSectorAccessibleDisk();
 	assert(disk);
-	return make_unique<DiskPartition>(*disk, driveData.partition);
+	return std::make_unique<DiskPartition>(*disk, driveData.partition);
 }
 
 
@@ -447,7 +447,7 @@ unique_ptr<MSXtar> DiskManipulator::getMSXtar(
 		throw CommandException("Please select partition number.");
 	}
 
-	auto result = make_unique<MSXtar>(disk);
+	auto result = std::make_unique<MSXtar>(disk);
 	try {
 		result->chdir(driveData.workingDir[driveData.partition]);
 	} catch (MSXException&) {

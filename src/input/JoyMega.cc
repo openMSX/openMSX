@@ -8,9 +8,9 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include <memory>
 
 using std::string;
 using std::shared_ptr;
@@ -43,7 +43,7 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 			// practice.
 			if (InputEventGenerator::joystickNumButtons(joystick) != 0) {
 				controller.registerPluggable(
-					make_unique<JoyMega>(
+					std::make_unique<JoyMega>(
 						eventDistributor,
 						stateChangeDistributor,
 						joystick));

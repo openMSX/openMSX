@@ -3,7 +3,6 @@
 #include "IDEDevice.hh"
 #include "Math.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include "outer.hh"
 
 namespace openmsx {

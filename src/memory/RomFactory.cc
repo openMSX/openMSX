@@ -54,11 +54,12 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
-#include "memory.hh"
+#include <memory>
 
-using std::unique_ptr;
+using std::make_unique;
 using std::move;
 using std::string;
+using std::unique_ptr;
 
 namespace openmsx {
 namespace RomFactory {

@@ -13,10 +13,10 @@
 #include "KeyRange.hh"
 #include "ScopedAssign.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "xrange.hh"
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -57,7 +57,7 @@ void GlobalCommandController::registerProxyCommand(const string& name)
 	auto it = proxyCommandMap.find(name);
 	if (it == end(proxyCommandMap)) {
 		it = proxyCommandMap.emplace_noDuplicateCheck(
-			0, make_unique<ProxyCmd>(reactor, name));
+			0, std::make_unique<ProxyCmd>(reactor, name));
 	}
 	++it->first;
 }
@@ -86,7 +86,7 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 	auto it = findProxySetting(name.getString());
 	if (it == end(proxySettings)) {
 		// first occurrence
-		auto proxy = make_unique<ProxySetting>(reactor, name);
+		auto proxy = std::make_unique<ProxySetting>(reactor, name);
 		getSettingsManager().registerSetting(*proxy);
 		getInterpreter().registerSetting(*proxy);
 		proxySettings.emplace_back(std::move(proxy), 1);

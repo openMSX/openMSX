@@ -41,16 +41,17 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "ScopedAssign.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include <memory>
 
+using std::make_unique;
 using std::string;
-using std::vector;
 using std::unique_ptr;
+using std::vector;
 
 namespace openmsx {
 

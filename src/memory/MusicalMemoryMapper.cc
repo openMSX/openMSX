@@ -1,6 +1,7 @@
 #include "MusicalMemoryMapper.hh"
 #include "SN76489.hh"
 #include "serialize.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -12,7 +13,7 @@ static const byte WRITE_PROTECT = 0x0F;
 
 MusicalMemoryMapper::MusicalMemoryMapper(const DeviceConfig& config)
 	: MSXMemoryMapper(config)
-	, sn76489(make_unique<SN76489>(config))
+	, sn76489(std::make_unique<SN76489>(config))
 	, controlReg(0x00)
 {
 }

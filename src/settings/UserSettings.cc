@@ -8,10 +8,10 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "stl.hh"
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -117,7 +117,7 @@ unique_ptr<Setting> UserSettings::Cmd::createString(array_ref<TclObject> tokens)
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getString();
-	return make_unique<StringSetting>(
+	return std::make_unique<StringSetting>(
 		getCommandController(), sName, desc, initVal);
 }
 
@@ -129,7 +129,7 @@ unique_ptr<Setting> UserSettings::Cmd::createBoolean(array_ref<TclObject> tokens
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getBoolean(getInterpreter());
-	return make_unique<BooleanSetting>(
+	return std::make_unique<BooleanSetting>(
 		getCommandController(), sName, desc, initVal);
 }
 
@@ -144,7 +144,7 @@ unique_ptr<Setting> UserSettings::Cmd::createInteger(array_ref<TclObject> tokens
 	const auto& initVal = tokens[5].getInt(interp);
 	const auto& minVal  = tokens[6].getInt(interp);
 	const auto& maxVal  = tokens[7].getInt(interp);
-	return make_unique<IntegerSetting>(
+	return std::make_unique<IntegerSetting>(
 		getCommandController(), sName, desc, initVal, minVal, maxVal);
 }
 
@@ -159,7 +159,7 @@ unique_ptr<Setting> UserSettings::Cmd::createFloat(array_ref<TclObject> tokens)
 	const auto& initVal = tokens[5].getDouble(interp);
 	const auto& minVal  = tokens[6].getDouble(interp);
 	const auto& maxVal  = tokens[7].getDouble(interp);
-	return make_unique<FloatSetting>(
+	return std::make_unique<FloatSetting>(
 		getCommandController(), sName, desc, initVal, minVal, maxVal);
 }
 

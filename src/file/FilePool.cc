@@ -13,10 +13,10 @@
 #include "CliComm.hh"
 #include "Reactor.hh"
 #include "Timer.hh"
-#include "memory.hh"
 #include "sha1.hh"
 #include "stl.hh"
 #include <fstream>
+#include <memory>
 
 using std::ifstream;
 using std::ofstream;
@@ -79,7 +79,7 @@ FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 	}
 	needWrite = false;
 
-	sha1SumCommand = make_unique<Sha1SumCommand>(controller, *this);
+	sha1SumCommand = std::make_unique<Sha1SumCommand>(controller, *this);
 }
 
 FilePool::~FilePool()

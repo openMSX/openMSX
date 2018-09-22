@@ -21,15 +21,15 @@
 #include "ReadOnlySetting.hh"
 #include "serialize.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <iomanip>
 #include <algorithm>
-#include <iostream>
 #include <cstring>
+#include <iomanip>
+#include <iostream>
 #include <iterator>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -114,7 +114,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 
 	if (breakedSettingCount++ == 0) {
 		assert(!breakedSetting);
-		breakedSetting = make_unique<ReadOnlySetting>(
+		breakedSetting = std::make_unique<ReadOnlySetting>(
 			motherBoard.getReactor().getCommandController(),
 			"breaked", "Similar to 'debug breaked'",
 			TclObject("false"));

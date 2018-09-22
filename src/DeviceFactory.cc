@@ -77,13 +77,14 @@
 #include "SensorKid.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
-#include "memory.hh"
 #include "components.hh"
+#include <memory>
 
 #if COMPONENT_LASERDISC
 #include "PioneerLDControl.hh"
 #endif
 
+using std::make_unique;
 using std::unique_ptr;
 
 namespace openmsx {

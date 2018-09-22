@@ -42,13 +42,14 @@
 #include "statp.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <memory>
 
+using std::make_shared;
+using std::make_unique;
 using std::string;
 using std::vector;
-using std::make_shared;
 
 namespace openmsx {
 

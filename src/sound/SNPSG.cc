@@ -1,12 +1,13 @@
 #include "SNPSG.hh"
 #include "SN76489.hh"
 #include "serialize.hh"
+#include <memory>
 
 namespace openmsx {
 
 SNPSG::SNPSG(const DeviceConfig& config)
 	: MSXDevice(config)
-	, sn76489(make_unique<SN76489>(config))
+	, sn76489(std::make_unique<SN76489>(config))
 {
 }
 

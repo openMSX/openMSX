@@ -17,7 +17,7 @@
 #include "RomAscii16_2.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -26,7 +26,7 @@ RomAscii16_2::RomAscii16_2(const DeviceConfig& config, Rom&& rom_, SubType subTy
 {
 	unsigned size = (subType == ASCII16_8) ? 0x2000 // 8kB
 					       : 0x0800; // 2kB
-	sram = make_unique<SRAM>(getName() + " SRAM", size, config);
+	sram = std::make_unique<SRAM>(getName() + " SRAM", size, config);
 	reset(EmuTime::dummy());
 }
 

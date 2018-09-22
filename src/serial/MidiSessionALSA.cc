@@ -6,6 +6,7 @@
 #include "serialize.hh"
 
 #include <iostream>
+#include <memory>
 
 
 namespace openmsx {
@@ -224,7 +225,7 @@ void MidiSessionALSA::scanClients(PluggingController& controller)
 			constexpr unsigned int wrcaps =
 					SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE;
 			if ((snd_seq_port_info_get_capability(pinfo) & wrcaps) == wrcaps) {
-				controller.registerPluggable(make_unique<MidiOutALSA>(
+				controller.registerPluggable(std::make_unique<MidiOutALSA>(
 						seq, *cinfo, *pinfo
 						));
 			}

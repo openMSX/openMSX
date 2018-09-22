@@ -34,9 +34,9 @@ TODO:
 #include "MSXException.hh"
 #include "CliComm.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cstring>
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -188,15 +188,15 @@ VDP::VDP(const DeviceConfig& config)
 		throw MSXException(
 			"VRAM size of ", vramSize, "kB is not supported!");
 	}
-	vram = make_unique<VDPVRAM>(*this, vramSize * 1024, time);
+	vram = std::make_unique<VDPVRAM>(*this, vramSize * 1024, time);
 
 	// Create sprite checker.
 	auto& renderSettings = display.getRenderSettings();
-	spriteChecker = make_unique<SpriteChecker>(*this, renderSettings, time);
+	spriteChecker = std::make_unique<SpriteChecker>(*this, renderSettings, time);
 	vram->setSpriteChecker(spriteChecker.get());
 
 	// Create command engine.
-	cmdEngine = make_unique<VDPCmdEngine>(*this, getCommandController());
+	cmdEngine = std::make_unique<VDPCmdEngine>(*this, getCommandController());
 	vram->setCmdEngine(cmdEngine.get());
 
 	// Initialise renderer.

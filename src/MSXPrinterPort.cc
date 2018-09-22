@@ -3,8 +3,8 @@
 #include "checked_cast.hh"
 #include "outer.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include "unreachable.hh"
+#include <memory>
 
 using std::string;
 
@@ -13,7 +13,7 @@ namespace openmsx {
 MSXPrinterPort::MSXPrinterPort(const DeviceConfig& config)
 	: MSXDevice(config)
 	, Connector(MSXDevice::getPluggingController(), "printerport",
-	            make_unique<DummyPrinterPortDevice>())
+	            std::make_unique<DummyPrinterPortDevice>())
 	, debuggable(getMotherBoard(), MSXDevice::getName())
 {
 	data = 255;     // != 0;

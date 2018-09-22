@@ -8,8 +8,8 @@
 #include "GlobalSettings.hh"
 #include "EnumSetting.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
@@ -60,15 +60,15 @@ void ResampledSoundDevice::createResampler()
 	unsigned inputRate  = getInputRate() / getEffectiveSpeed();
 
 	if (outputRate == inputRate) {
-		algo = make_unique<ResampleTrivial>(*this);
+		algo = std::make_unique<ResampleTrivial>(*this);
 	} else {
 		switch (resampleSetting.getEnum()) {
 		case RESAMPLE_HQ:
 			if (!isStereo()) {
-				algo = make_unique<ResampleHQ<1>>(
+				algo = std::make_unique<ResampleHQ<1>>(
 					*this, hostClock, inputRate);
 			} else {
-				algo = make_unique<ResampleHQ<2>>(
+				algo = std::make_unique<ResampleHQ<2>>(
 					*this, hostClock, inputRate);
 			}
 			break;
@@ -83,10 +83,10 @@ void ResampledSoundDevice::createResampler()
 			break;
 		case RESAMPLE_BLIP:
 			if (!isStereo()) {
-				algo = make_unique<ResampleBlip<1>>(
+				algo = std::make_unique<ResampleBlip<1>>(
 					*this, hostClock, inputRate);
 			} else {
-				algo = make_unique<ResampleBlip<2>>(
+				algo = std::make_unique<ResampleBlip<2>>(
 					*this, hostClock, inputRate);
 			}
 			break;

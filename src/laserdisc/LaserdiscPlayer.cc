@@ -18,10 +18,10 @@
 #include "RendererFactory.hh"
 #include "Math.hh"
 #include "likely.hh"
-#include "memory.hh"
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -628,7 +628,7 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 {
 	stop(time);
 	oggImage = Filename(std::move(newImage), userFileContext());
-	video = make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
+	video = std::make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
 
 	unsigned inputRate = video->getSampleRate();
 	sampleClock.setFreq(inputRate);

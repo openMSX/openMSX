@@ -2,10 +2,10 @@
 #include "RawFrame.hh"
 #include "PostProcessor.hh"
 #include "VisibleSurface.hh"
-#include "memory.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <cstdint>
+#include <memory>
 
 namespace openmsx {
 
@@ -14,7 +14,7 @@ LDSDLRasterizer<Pixel>::LDSDLRasterizer(
 		VisibleSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: postProcessor(std::move(postProcessor_))
-	, workFrame(make_unique<RawFrame>(screen.getSDLFormat(), 640, 480))
+	, workFrame(std::make_unique<RawFrame>(screen.getSDLFormat(), 640, 480))
 	, pixelFormat(screen.getSDLFormat())
 {
 }

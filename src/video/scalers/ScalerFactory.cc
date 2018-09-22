@@ -15,10 +15,10 @@
 #include "RGBTriplet3xScaler.hh"
 #include "MLAAScaler.hh"
 #include "Scaler1.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <cstdint>
+#include <memory>
 
 using std::unique_ptr;
 
@@ -31,28 +31,28 @@ unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
 	switch (renderSettings.getScaleFactor()) {
 #if (MIN_SCALE_FACTOR <= 1) && (MAX_SCALE_FACTOR >= 1)
 	case 1:
-		return make_unique<Scaler1<Pixel>>(pixelOps);
+		return std::make_unique<Scaler1<Pixel>>(pixelOps);
 #endif
 #if (MIN_SCALE_FACTOR <= 2) && (MAX_SCALE_FACTOR >= 2)
 	case 2:
 		switch (renderSettings.getScaleAlgorithm()) {
 		case RenderSettings::SCALER_SIMPLE:
-			return make_unique<Simple2xScaler<Pixel>>(
+			return std::make_unique<Simple2xScaler<Pixel>>(
 				pixelOps, renderSettings);
 		case RenderSettings::SCALER_SAI:
-			return make_unique<SaI2xScaler<Pixel>>(pixelOps);
+			return std::make_unique<SaI2xScaler<Pixel>>(pixelOps);
 		case RenderSettings::SCALER_SCALE:
-			return make_unique<Scale2xScaler<Pixel>>(pixelOps);
+			return std::make_unique<Scale2xScaler<Pixel>>(pixelOps);
 		case RenderSettings::SCALER_HQ:
-			return make_unique<HQ2xScaler<Pixel>>(pixelOps);
+			return std::make_unique<HQ2xScaler<Pixel>>(pixelOps);
 		case RenderSettings::SCALER_HQLITE:
-			return make_unique<HQ2xLiteScaler<Pixel>>(pixelOps);
+			return std::make_unique<HQ2xLiteScaler<Pixel>>(pixelOps);
 		case RenderSettings::SCALER_RGBTRIPLET:
 		case RenderSettings::SCALER_TV: // fallback
-			return make_unique<Simple2xScaler<Pixel>>(
+			return std::make_unique<Simple2xScaler<Pixel>>(
 				pixelOps, renderSettings);
 		case RenderSettings::SCALER_MLAA:
-			return make_unique<MLAAScaler<Pixel>>(640, pixelOps);
+			return std::make_unique<MLAAScaler<Pixel>>(640, pixelOps);
 		default:
 			UNREACHABLE;
 		}
@@ -62,22 +62,22 @@ unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
 	case 4: // fallback
 		switch (renderSettings.getScaleAlgorithm()) {
 		case RenderSettings::SCALER_SIMPLE:
-			return make_unique<Simple3xScaler<Pixel>>(
+			return std::make_unique<Simple3xScaler<Pixel>>(
 				pixelOps, renderSettings);
 		case RenderSettings::SCALER_SAI:
-			return make_unique<SaI3xScaler<Pixel>>(pixelOps);
+			return std::make_unique<SaI3xScaler<Pixel>>(pixelOps);
 		case RenderSettings::SCALER_SCALE:
-			return make_unique<Scale3xScaler<Pixel>>(pixelOps);
+			return std::make_unique<Scale3xScaler<Pixel>>(pixelOps);
 		case RenderSettings::SCALER_HQ:
-			return make_unique<HQ3xScaler<Pixel>>(pixelOps);
+			return std::make_unique<HQ3xScaler<Pixel>>(pixelOps);
 		case RenderSettings::SCALER_HQLITE:
-			return make_unique<HQ3xLiteScaler<Pixel>>(pixelOps);
+			return std::make_unique<HQ3xLiteScaler<Pixel>>(pixelOps);
 		case RenderSettings::SCALER_RGBTRIPLET:
 		case RenderSettings::SCALER_TV: // fallback
-			return make_unique<RGBTriplet3xScaler<Pixel>>(
+			return std::make_unique<RGBTriplet3xScaler<Pixel>>(
 				pixelOps, renderSettings);
 		case RenderSettings::SCALER_MLAA:
-			return make_unique<MLAAScaler<Pixel>>(960, pixelOps);
+			return std::make_unique<MLAAScaler<Pixel>>(960, pixelOps);
 		default:
 			UNREACHABLE;
 		}

@@ -2,7 +2,7 @@
 #include "DeviceConfig.hh"
 #include "MSXCPU.hh"
 #include "MSXException.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -60,11 +60,11 @@ OptionalIRQ::OptionalIRQ(MSXCPU& cpu, const DeviceConfig& config)
 {
 	auto connected = config.getChildData("irq_connected", "irq");
 	if (connected == "irq" || connected == "true") {
-		sink = make_unique<MaskableIRQSink>(cpu);
+		sink = std::make_unique<MaskableIRQSink>(cpu);
 	} else if (connected == "nmi") {
-		sink = make_unique<NonMaskableIRQSink>(cpu);
+		sink = std::make_unique<NonMaskableIRQSink>(cpu);
 	} else if (connected == "false") {
-		sink = make_unique<NotConnectedIRQSink>();
+		sink = std::make_unique<NotConnectedIRQSink>();
 	} else {
 		throw MSXException(
 			"Unknown IRQ sink \"", connected, "\" in <irq_connected>");

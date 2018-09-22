@@ -5,7 +5,6 @@
 #include "build-info.hh"
 #include "Math.hh"
 #include "MemBuffer.hh"
-#include "memory.hh"
 #include "vla.hh"
 #include <SDL.h>
 

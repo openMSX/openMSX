@@ -10,9 +10,9 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "array_ref.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include <cassert>
+#include <memory>
 
 using std::unique_ptr;
 using std::set;
@@ -32,7 +32,7 @@ NowindCommand::NowindCommand(const string& basename,
 unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 	const string& basename, unsigned n, MSXMotherBoard& motherBoard) const
 {
-	return make_unique<DiskChanger>(
+	return std::make_unique<DiskChanger>(
 			motherBoard,
 			strCat(basename, n + 1),
 			false, true);
@@ -80,7 +80,7 @@ void NowindCommand::processHdimage(
 			// Explicit conversion to shared_ptr<SectorAccessibleDisk> is
 			// for some reason needed in 32-bit vs2013 build (not in 64-bit
 			// and not in vs2012, nor gcc/clang). Compiler bug???
-			auto partition = make_unique<DiskPartition>(
+			auto partition = std::make_unique<DiskPartition>(
 				*wholeDisk, p,
 				std::shared_ptr<SectorAccessibleDisk>(wholeDisk));
 			auto drive = createDiskChanger(
@@ -163,7 +163,7 @@ void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 				error = "Can only have one romdisk";
 			} else {
 				romdisk = unsigned(tmpDrives.size());
-				tmpDrives.push_back(make_unique<NowindRomDisk>());
+				tmpDrives.push_back(std::make_unique<NowindRomDisk>());
 				changeDrives = true;
 			}
 

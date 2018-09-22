@@ -9,10 +9,10 @@
 #include "CliComm.hh"
 #include "endian.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -49,7 +49,7 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 	}
 	name[2] = char('a' + id);
 	(*cdInUse)[id] = true;
-	cdxCommand = make_unique<CDXCommand>(
+	cdxCommand = std::make_unique<CDXCommand>(
 		getMotherBoard().getCommandController(),
 		getMotherBoard().getStateChangeDistributor(),
 		getMotherBoard().getScheduler(), *this);

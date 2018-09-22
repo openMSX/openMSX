@@ -6,6 +6,7 @@
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
 #include "checked_cast.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -20,7 +21,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 {
 	ports[0] = &getMotherBoard().getJoystickPort(0);
 	ports[1] = &getMotherBoard().getJoystickPort(1);
-	ay8910 = make_unique<AY8910>("PSG", *this, config, getCurrentTime());
+	ay8910 = std::make_unique<AY8910>("PSG", *this, config, getCurrentTime());
 
 	reset(getCurrentTime());
 }
