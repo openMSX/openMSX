@@ -282,20 +282,9 @@ const uint16_t CRC16::tab[8][256] = {
 } // namespace openmsx
 
 #if 0
-#include <cassert>
-int main()
-{
-	openmsx::CRC16 crc;
-	assert(crc.getValue() == 0xFFFF);
-	crc.update(0xA1);
-	crc.update(0xA1);
-	crc.update(0xA1);
-	assert(crc.getValue() == 0xCDB4);
-}
-#endif
-
-#if 0
 // Generator for the table above
+// TODO use 'constexpr' to replace the above table with the code below.
+
 #include <cstdio>
 using namespace openmsx;
 int main()
