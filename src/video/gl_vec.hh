@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <iostream>
 
 namespace gl {
 
@@ -370,6 +371,18 @@ inline vecN<N, int> trunc(const vecN<N, T>& x)
 	vecN<N, int> r;
 	for (int i = 0; i < N; ++i) r[i] = int(x[i]);
 	return r;
+}
+
+// Textual representation. (Only) used to debug unittest.
+template<int N, typename T>
+std::ostream& operator<<(std::ostream& os, const vecN<N, T>& x)
+{
+	os << "[ ";
+	for (int i = 0; i < N; ++i) {
+		os << x[i] << ' ';
+	}
+	os << ']';
+	return os;
 }
 
 } // namespace gl
