@@ -5306,7 +5306,7 @@
 
   <h3><a id="throttle">throttle</a></h3>
 
-  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible.</p>
+  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible. The speed may be limited to the framerate of your monitor (e.g. 60fps) due to how the OpenGL driver works, when using the (default) SDLGL-PP renderer. To increase the speed, set the <a class="internal" href="#maxframeskip">maxframeskip</a> setting to a high value (e.g. 100).</p>
 
   <div class="subsectiontitle">
     usage:
