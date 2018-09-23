@@ -66,7 +66,7 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 	++idx;
 	sector.addrIdx = idx;
 	CRC16 addrCrc;
-	addrCrc.init<0xA1, 0xA1, 0xA1, 0xFE>();
+	addrCrc.init({0xA1, 0xA1, 0xA1, 0xFE});
 	updateCrc(addrCrc, sector.addrIdx, 4);
 	sector.track    = read(idx++);
 	sector.head     = read(idx++);
@@ -95,7 +95,7 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 			if (!((type == 0xfb) || (type == 0xf8))) continue;
 
 			CRC16 dataCrc;
-			dataCrc.init<0xA1, 0xA1, 0xA1>();
+			dataCrc.init({0xA1, 0xA1, 0xA1});
 			dataCrc.update(type);
 
 			// OK, found start of data, calculate CRC.

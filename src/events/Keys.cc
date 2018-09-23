@@ -12,8 +12,6 @@ namespace openmsx {
 
 namespace Keys {
 
-#if HAS_CPP14_CONSTEXPR
-
 // can be std::pair in C++17
 struct P {
 	constexpr P(cstd::string s, KeyCode k)
@@ -46,15 +44,6 @@ struct CmpKeys {
 static constexpr auto getSortedKeys()
 {
 	auto keys = cstd::array_of<P>(
-#else
-
-using P = std::pair<string_view, KeyCode>;
-using CmpKeys = CmpTupleElement<0, StringOp::caseless>;
-
-static std::vector<P> getSortedKeys()
-{
-	auto keys = std::vector<P>{
-#endif
 		P("BACKSPACE",	K_BACKSPACE),
 		P("TAB",	K_TAB),
 		P("CLEAR",	K_CLEAR),
@@ -325,19 +314,12 @@ static std::vector<P> getSortedKeys()
 		// Direction modifiers
 		P("PRESS",	KD_PRESS),
 		P("RELEASE",	KD_RELEASE)
-#if HAS_CPP14_CONSTEXPR
 	);
 	cstd::sort(cstd::begin(keys), cstd::end(keys), CmpKeys());
 	return keys;
 }
-#else
-	};
-	std::sort(begin(keys), end(keys), CmpKeys());
-	return keys;
-}
-#endif
 
-static CONSTEXPR auto keys = getSortedKeys();
+static constexpr auto keys = getSortedKeys();
 
 KeyCode getCode(string_view name)
 {

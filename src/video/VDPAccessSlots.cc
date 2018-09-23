@@ -1,5 +1,4 @@
 #include "VDPAccessSlots.hh"
-#include "cstd.hh"
 
 namespace openmsx {
 namespace VDPAccessSlots {
@@ -173,10 +172,10 @@ protected:
 
 struct CycleTable : AccessTable
 {
-	CONSTEXPR CycleTable(bool msx1, const int16_t* slots)
+	constexpr CycleTable(bool msx1, const int16_t* slots)
 	{
 		// !!! Keep this in sync with the 'Delta' enum !!!
-		CONSTEXPR int delta[NUM_DELTAS] = {
+		constexpr int delta[NUM_DELTAS] = {
 			0, 1, 16, 24, 28, 32, 40, 48, 64, 72, 88, 104, 120, 128, 136
 		};
 
@@ -204,17 +203,17 @@ struct ZeroTable : AccessTable
 };
 
 // In c++14 these tables are calculated at compile-time.
-static CONSTEXPR CycleTable tabSpritesOn     (false, slotsSpritesOn);
-static CONSTEXPR CycleTable tabSpritesOff    (false, slotsSpritesOff);
-static CONSTEXPR CycleTable tabCharSpritesOn (false, slotsCharSpritesOn);
-static CONSTEXPR CycleTable tabCharSpritesOff(false, slotsCharSpritesOff);
-static CONSTEXPR CycleTable tabText          (false, slotsText);
-static CONSTEXPR CycleTable tabScreenOff     (false, slotsScreenOff);
-static CONSTEXPR CycleTable tabMsx1Gfx12     (true,  slotsMsx1Gfx12);
-static CONSTEXPR CycleTable tabMsx1Gfx3      (true,  slotsMsx1Gfx3);
-static CONSTEXPR CycleTable tabMsx1Text      (true,  slotsMsx1Text);
-static CONSTEXPR CycleTable tabMsx1ScreenOff (true,  slotsMsx1ScreenOff);
-static CONSTEXPR ZeroTable  tabBroken;
+static constexpr CycleTable tabSpritesOn     (false, slotsSpritesOn);
+static constexpr CycleTable tabSpritesOff    (false, slotsSpritesOff);
+static constexpr CycleTable tabCharSpritesOn (false, slotsCharSpritesOn);
+static constexpr CycleTable tabCharSpritesOff(false, slotsCharSpritesOff);
+static constexpr CycleTable tabText          (false, slotsText);
+static constexpr CycleTable tabScreenOff     (false, slotsScreenOff);
+static constexpr CycleTable tabMsx1Gfx12     (true,  slotsMsx1Gfx12);
+static constexpr CycleTable tabMsx1Gfx3      (true,  slotsMsx1Gfx3);
+static constexpr CycleTable tabMsx1Text      (true,  slotsMsx1Text);
+static constexpr CycleTable tabMsx1ScreenOff (true,  slotsMsx1ScreenOff);
+static constexpr ZeroTable  tabBroken;
 
 
 static inline const uint8_t* getTab(const VDP& vdp)

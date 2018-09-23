@@ -512,7 +512,7 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 			}
 			// Initialize crc
 			// TODO 0xFB vs 0xF8 depends on deleted vs normal data
-			crc.init<0xA1, 0xA1, 0xA1, 0xFB>();
+			crc.init({0xA1, 0xA1, 0xA1, 0xFB});
 
 			// first byte is available when it's rotated below the
 			// drive-head
@@ -619,7 +619,7 @@ void TC8566AF::formatSector()
 
 	for (int i = 0; i <  3; ++i) drv->writeTrackByte(dataCurrent++, 0xA1); // addr mark
 	drv->writeTrackByte(dataCurrent++, 0xFE, true); // addr mark + add idam
-	crc.init<0xA1, 0xA1, 0xA1, 0xFE>();
+	crc.init({0xA1, 0xA1, 0xA1, 0xFE});
 	drv->writeTrackByte(dataCurrent++, currentTrack); // C: Cylinder number
 	crc.update(currentTrack);
 	drv->writeTrackByte(dataCurrent++, headNumber);   // H: Head Address
@@ -636,7 +636,7 @@ void TC8566AF::formatSector()
 
 	for (int i = 0; i <  3; ++i) drv->writeTrackByte(dataCurrent++, 0xA1); // data mark
 	for (int i = 0; i <  1; ++i) drv->writeTrackByte(dataCurrent++, 0xFB); //  "    "
-	crc.init<0xA1, 0xA1, 0xA1, 0xFB>();
+	crc.init({0xA1, 0xA1, 0xA1, 0xFB});
 	for (int i = 0; i < (128 << (number & 7)); ++i) {
 		drv->writeTrackByte(dataCurrent++, fillerByte);
 		crc.update(fillerByte);

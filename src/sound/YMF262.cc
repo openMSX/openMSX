@@ -373,7 +373,7 @@ struct TlTab {
 	int tab[TL_TAB_LEN];
 };
 
-static CONSTEXPR TlTab getTlTab()
+static constexpr TlTab getTlTab()
 {
 	TlTab t = {};
 	// this _is_ different from OPL2 (verified on real YMF262)
@@ -400,7 +400,7 @@ static CONSTEXPR TlTab getTlTab()
 	return t;
 }
 
-static CONSTEXPR TlTab tl = getTlTab();
+static constexpr TlTab tl = getTlTab();
 
 
 // sin waveform table in 'decibel' scale
@@ -409,7 +409,7 @@ struct SinTab {
 	unsigned tab[SIN_LEN * 8];
 };
 
-static CONSTEXPR SinTab getSinTab()
+static constexpr SinTab getSinTab()
 {
 	SinTab sin = {};
 
@@ -489,7 +489,7 @@ static CONSTEXPR SinTab getSinTab()
 	return sin;
 }
 
-static CONSTEXPR SinTab sin = getSinTab();
+static constexpr SinTab sin = getSinTab();
 
 
 // TODO clean this up

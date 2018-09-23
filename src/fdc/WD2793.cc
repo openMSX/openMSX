@@ -627,9 +627,9 @@ void WD2793::type2NotFound(EmuTime::param time)
 void WD2793::startReadSector(EmuTime::param time)
 {
 	if (sectorInfo.deleted) {
-		crc.init<0xA1, 0xA1, 0xA1, 0xF8>();
+		crc.init({0xA1, 0xA1, 0xA1, 0xF8});
 	} else {
-		crc.init<0xA1, 0xA1, 0xA1, 0xFB>();
+		crc.init({0xA1, 0xA1, 0xA1, 0xFB});
 	}
 	unsigned trackLength = drive.getTrackLength();
 	int tmp = sectorInfo.dataIdx - sectorInfo.addrIdx;
@@ -720,7 +720,7 @@ void WD2793::preWriteSector(EmuTime::param time)
 			drqTime.reset(EmuTime::infinity); // DRQ = false
 		} else {
 			// and finally a single F8/FB byte
-			crc.init<0xA1, 0xA1, 0xA1>();
+			crc.init({0xA1, 0xA1, 0xA1});
 			byte mark = (commandReg & A0_FLAG) ? 0xF8 : 0xFB;
 			drive.writeTrackByte(dataCurrent++, mark);
 			crc.update(mark);
@@ -972,7 +972,7 @@ void WD2793::writeTrackData(EmuTime::param time)
 			// 3rd A1 byte. Though what we do instead is on
 			// each A1 byte initialize the value as if
 			// there were already 2 A1 bytes written.
-			crc.init<0xA1, 0xA1>();
+			crc.init({0xA1, 0xA1});
 		} else if (dataOutReg == 0xF6) {
 			// write C2 with missing clock transitions
 			dataOutReg = 0xC2;

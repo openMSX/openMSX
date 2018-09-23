@@ -19,7 +19,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0xCDB4);
 	}
 	SECTION("'3 x A1' via init") {
-		crc.init<0xA1, 0xA1, 0xA1>();
+		crc.init({0xA1, 0xA1, 0xA1});
 		CHECK(crc.getValue() == 0xCDB4);
 	}
 
@@ -62,7 +62,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0xE3E0);
 	}
 	SECTION("'11' via init") {
-		crc.init<0x11>();
+		crc.init({0x11});
 		CHECK(crc.getValue() == 0xE3E0);
 	}
 
@@ -76,7 +76,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0x296D);
 	}
 	SECTION("'11 22' via init") {
-		crc.init<0x11, 0x22>();
+		crc.init({0x11, 0x22});
 		CHECK(crc.getValue() == 0x296D);
 	}
 
@@ -90,7 +90,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0xDE7B);
 	}
 	SECTION("'11 22 33' via init") {
-		crc.init<0x11, 0x22, 0x33>();
+		crc.init({0x11, 0x22, 0x33});
 		CHECK(crc.getValue() == 0xDE7B);
 	}
 
@@ -104,7 +104,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0x59F3);
 	}
 	SECTION("'11 22 33 44' via init") {
-		crc.init<0x11, 0x22, 0x33, 0x44>();
+		crc.init({0x11, 0x22, 0x33, 0x44});
 		CHECK(crc.getValue() == 0x59F3);
 	}
 }
@@ -112,12 +112,13 @@ TEST_CASE("CRC16")
 
 #if 0
 
-// Functions to inspect quality of the generated code.
+// Functions to inspect the quality of the generated code
 
 uint16_t test_init()
 {
+	// I verified that gcc is capable of optimizing this to 'return 0xcdb4'.
 	CRC16 crc;
-	crc.init<0xA1, 0xA1, 0xA1>();
+	crc.init({0xA1, 0xA1, 0xA1});
 	return crc.getValue();
 }
 

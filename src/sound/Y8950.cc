@@ -177,7 +177,7 @@ struct AdjustTables {
 	unsigned ar[EG_MUTE];
 	unsigned ra[EG_MUTE + 1];
 };
-static CONSTEXPR AdjustTables makeAdjustTables()
+static constexpr AdjustTables makeAdjustTables()
 {
 	AdjustTables adjust = {};
 
@@ -200,13 +200,13 @@ static CONSTEXPR AdjustTables makeAdjustTables()
 	//   adjust.ra[adjust.ar[x]] == x
 	// (except for rounding errors).
 }
-static CONSTEXPR AdjustTables adjust = makeAdjustTables();
+static constexpr AdjustTables adjust = makeAdjustTables();
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
 struct Db2LinTab {
 	int tab[(2 * DB_MUTE) * 2];
 };
-static CONSTEXPR Db2LinTab makeDB2LinTable()
+static constexpr Db2LinTab makeDB2LinTable()
 {
 	Db2LinTab dB2Lin = {};
 
@@ -224,10 +224,10 @@ static CONSTEXPR Db2LinTab makeDB2LinTable()
 
 	return dB2Lin;
 }
-static CONSTEXPR Db2LinTab dB2Lin = makeDB2LinTable();
+static constexpr Db2LinTab dB2Lin = makeDB2LinTable();
 
 // Liner(+0.0 - +1.0) to dB(DB_MUTE-1 -- 0)
-static CONSTEXPR unsigned lin2db(double d)
+static constexpr unsigned lin2db(double d)
 {
 	if (d < 1e-4) {
 		// (almost) zero
@@ -246,7 +246,7 @@ static CONSTEXPR unsigned lin2db(double d)
 struct SinTable {
 	unsigned table[PG_WIDTH];
 };
-static CONSTEXPR SinTable makeSinTable()
+static constexpr SinTable makeSinTable()
 {
 	SinTable sin = {};
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
@@ -260,13 +260,13 @@ static CONSTEXPR SinTable makeSinTable()
 	}
 	return sin;
 }
-static CONSTEXPR SinTable sin = makeSinTable();
+static constexpr SinTable sin = makeSinTable();
 
 // Table for Pitch Modulator
 struct PmTable {
 	int table[2][PM_PG_WIDTH];
 };
-static CONSTEXPR PmTable makePmTable()
+static constexpr PmTable makePmTable()
 {
 	PmTable pm = {};
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
@@ -276,13 +276,13 @@ static CONSTEXPR PmTable makePmTable()
 	}
 	return pm;
 }
-static CONSTEXPR PmTable pm = makePmTable();
+static constexpr PmTable pm = makePmTable();
 
 // TL Table.
 struct TllTable {
 	int table[16 * 8][4];
 };
-static CONSTEXPR TllTable makeTllTable()
+static constexpr TllTable makeTllTable()
 {
 	TllTable tll = {};
 
@@ -305,13 +305,13 @@ static CONSTEXPR TllTable makeTllTable()
 
 	return tll;
 }
-static CONSTEXPR TllTable tllTable = makeTllTable();
+static constexpr TllTable tllTable = makeTllTable();
 
 // Phase incr table for Attack.
 struct DPhaseTable {
 	Y8950::EnvPhaseIndex table[16][16];
 };
-static CONSTEXPR DPhaseTable makeDphaseARTable()
+static constexpr DPhaseTable makeDphaseARTable()
 {
 	DPhaseTable dphaseAR;
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
@@ -326,10 +326,10 @@ static CONSTEXPR DPhaseTable makeDphaseARTable()
 	}
 	return dphaseAR;
 }
-static CONSTEXPR DPhaseTable dphaseAR = makeDphaseARTable();
+static constexpr DPhaseTable dphaseAR = makeDphaseARTable();
 
 // Phase incr table for Decay and Release.
-static CONSTEXPR DPhaseTable makeDphaseDRTable()
+static constexpr DPhaseTable makeDphaseDRTable()
 {
 	DPhaseTable dphaseDR;
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
@@ -343,7 +343,7 @@ static CONSTEXPR DPhaseTable makeDphaseDRTable()
 	}
 	return dphaseDR;
 }
-static CONSTEXPR DPhaseTable dphaseDR = makeDphaseDRTable();
+static constexpr DPhaseTable dphaseDR = makeDphaseDRTable();
 
 
 // class Y8950::Patch

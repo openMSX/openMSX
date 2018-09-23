@@ -1,7 +1,6 @@
 #include "yuv2rgb.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
-#include "cstd.hh"
 #include <cassert>
 #include <cstdint>
 #include <SDL.h>
@@ -269,7 +268,7 @@ struct Coefs {
 	int y [256];
 };
 
-static CONSTEXPR Coefs getCoefs()
+static constexpr Coefs getCoefs()
 {
 	Coefs coefs = {};
 	for (int i = 0; i < 256; ++i) {
@@ -303,7 +302,7 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
 	assert(buffer[1].width  * 2 == buffer[0].width);
 	assert(buffer[1].height * 2 == buffer[0].height);
 
-	static CONSTEXPR Coefs coefs = getCoefs();
+	static constexpr Coefs coefs = getCoefs();
 
 	const int width      = buffer[0].width;
 	const int y_stride   = buffer[0].stride;

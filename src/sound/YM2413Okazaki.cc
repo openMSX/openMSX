@@ -157,7 +157,7 @@ static const byte mlTable[16] = {
 struct Db2LinTab {
 	int tab[2 * DBTABLEN];
 };
-static CONSTEXPR Db2LinTab makeDB2LinTable()
+static constexpr Db2LinTab makeDB2LinTable()
 {
 	Db2LinTab dB2Lin = {};
 
@@ -175,18 +175,18 @@ static CONSTEXPR Db2LinTab makeDB2LinTable()
 
 	return dB2Lin;
 }
-static CONSTEXPR Db2LinTab dB2Lin = makeDB2LinTable();
+static constexpr Db2LinTab dB2Lin = makeDB2LinTable();
 
 // Linear to Log curve conversion table (for Attack rate)
 struct ArAdjustTable {
 	unsigned tab[1 << EG_BITS];
 };
-static CONSTEXPR ArAdjustTable makeAdjustTable()
+static constexpr ArAdjustTable makeAdjustTable()
 {
 	ArAdjustTable arAdjust = {};
 
 	arAdjust.tab[0] = (1 << EG_BITS) - 1;
-	CONSTEXPR double l127 = cstd::log<5, 4>(127.0);
+	constexpr double l127 = cstd::log<5, 4>(127.0);
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
 		arAdjust.tab[i] = unsigned(double(1 << EG_BITS) - 1 -
 		         ((1 << EG_BITS) - 1) * cstd::log<5, 4>(double(i)) / l127);
@@ -194,18 +194,18 @@ static CONSTEXPR ArAdjustTable makeAdjustTable()
 
 	return arAdjust;
 }
-static CONSTEXPR ArAdjustTable arAdjust = makeAdjustTable();
+static constexpr ArAdjustTable arAdjust = makeAdjustTable();
 
 // KSL + TL Table   values are in range [0, 112]
 struct TllTable {
 	byte tab[4][16 * 8];
 };
-static CONSTEXPR TllTable makeTllTable()
+static constexpr TllTable makeTllTable()
 {
 	TllTable tll = {};
 
 	// Processed version of Table III-5 from the Application Manual.
-	CONSTEXPR unsigned kltable[16] = {
+	constexpr unsigned kltable[16] = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
 	// Note: KL [0..3] results in {0.0, 1.5, 3.0, 6.0} dB/oct.
@@ -225,7 +225,7 @@ static CONSTEXPR TllTable makeTllTable()
 
 	return tll;
 }
-static CONSTEXPR TllTable tll = makeTllTable();
+static constexpr TllTable tll = makeTllTable();
 
 // WaveTable for each envelope amp
 //  values are in range [0, DB_MUTE)             (for positive values)
@@ -234,14 +234,14 @@ struct SinTable {
 	unsigned full[PG_WIDTH];
 	unsigned half[PG_WIDTH];
 };
-static CONSTEXPR int lin2db(double d)
+static constexpr int lin2db(double d)
 {
 	// lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)
 	return (d == 0)
 		? DB_MUTE - 1
 		: std::min(-int(20.0 * cstd::log10<5, 2>(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
 }
-static CONSTEXPR SinTable makeSinTable()
+static constexpr SinTable makeSinTable()
 {
 	SinTable sinTable = {};
 
@@ -264,8 +264,8 @@ static CONSTEXPR SinTable makeSinTable()
 
 	return sinTable;
 }
-static CONSTEXPR SinTable sinTable = makeSinTable();
-static CONSTEXPR unsigned const * const waveform[2] = {sinTable.full, sinTable.half};
+static constexpr SinTable sinTable = makeSinTable();
+static constexpr unsigned const * const waveform[2] = {sinTable.full, sinTable.half};
 
 // Phase incr table for attack, decay and release
 //  note: original code had indices swapped. It also had
@@ -274,7 +274,7 @@ static CONSTEXPR unsigned const * const waveform[2] = {sinTable.full, sinTable.h
 struct DphaseDRTable {
 	int tab[16][16];
 };
-static CONSTEXPR DphaseDRTable makeDphaseDRTable()
+static constexpr DphaseDRTable makeDphaseDRTable()
 {
 	DphaseDRTable dphaseDR = {};
 
@@ -290,13 +290,13 @@ static CONSTEXPR DphaseDRTable makeDphaseDRTable()
 
 	return dphaseDR;
 }
-static CONSTEXPR DphaseDRTable dphaseDR = makeDphaseDRTable();
+static constexpr DphaseDRTable dphaseDR = makeDphaseDRTable();
 
 // Sustain level (17.15 fixed point)
 struct SlTable {
 	unsigned tab[16];
 };
-static CONSTEXPR SlTable makeSusLevTable()
+static constexpr SlTable makeSusLevTable()
 {
 	SlTable sl = {};
 
@@ -307,34 +307,34 @@ static CONSTEXPR SlTable makeSusLevTable()
 
 	return sl;
 }
-static CONSTEXPR SlTable sl = makeSusLevTable();
+static constexpr SlTable sl = makeSusLevTable();
 
 //
 // Helper functions
 //
-static CONSTEXPR int EG2DB(int d)
+static constexpr int EG2DB(int d)
 {
 	return d * int(EG_STEP / DB_STEP);
 }
-static CONSTEXPR unsigned TL2EG(unsigned d)
+static constexpr unsigned TL2EG(unsigned d)
 {
 	assert(d < 64); // input is in range [0..63]
 	return d * int(TL_STEP / EG_STEP);
 }
 
-static CONSTEXPR unsigned DB_POS(double x)
+static constexpr unsigned DB_POS(double x)
 {
 	int result = int(x / DB_STEP);
 	assert(0 <= result);
 	assert(result < DB_MUTE);
 	return result;
 }
-static CONSTEXPR unsigned DB_NEG(double x)
+static constexpr unsigned DB_NEG(double x)
 {
 	return DBTABLEN + DB_POS(x);
 }
 
-static CONSTEXPR bool BIT(unsigned s, unsigned b)
+static constexpr bool BIT(unsigned s, unsigned b)
 {
 	return (s >> b) & 1;
 }
@@ -911,7 +911,7 @@ void YM2413::update_key_status()
 }
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI)
-static CONSTEXPR int wave2_8pi(int e)
+static constexpr int wave2_8pi(int e)
 {
 	int shift = SLOT_AMP_BITS - PG_BITS - 2;
 	if (shift > 0) {

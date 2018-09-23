@@ -9,18 +9,6 @@
 
 namespace cstd {
 
-#if __cplusplus < 201402
-// We don't try to provide constexpr algorithms in C++11, only in C++14. It
-// should be theoretically possible in C++11, but C++14 lifts some restrictions
-// on the use of constexpr that makes this much easier.
-#define HAS_CPP14_CONSTEXPR 0
-#define CONSTEXPR /**/
-
-#else
-
-#define HAS_CPP14_CONSTEXPR 1
-#define CONSTEXPR constexpr
-
 // Inspired by this post:
 //    http://tristanbrindle.com/posts/a-more-useful-compile-time-quicksort
 
@@ -284,26 +272,21 @@ private:
 	size_t sz;
 };
 
-#endif
-
 // Reimplementation of various mathematical functions. You must specify an
 // iteration count, this controls how accurate the result will be.
-#if (__cplusplus < 201402) || (defined(__GNUC__) && !defined(__clang__))
+#if (defined(__GNUC__) && !defined(__clang__))
 
-// Ignore the iteration template arguments and call the standard function.
-// We do this when:
-// - In c++11 mode when we evaluate at run-time.
-// - When using gcc which has constexpr versions of most mathematical functions
-//   (this is a non-standard extension).
-template<int>      CONSTEXPR double sin  (double x) { return std::sin  (x); }
-template<int>      CONSTEXPR double cos  (double x) { return std::cos  (x); }
-template<int, int> CONSTEXPR double log  (double x) { return std::log  (x); }
-template<int, int> CONSTEXPR double log2 (double x) { return    ::log  (x) / ::log(2); } // should be std::log2(x) but this doesn't seem to compile in g++-4.8/g++-4.9 (bug?)
-template<int, int> CONSTEXPR double log10(double x) { return std::log10(x); }
-template<int>      CONSTEXPR double exp  (double x) { return std::exp  (x); }
-template<int>      CONSTEXPR double exp2 (double x) { return    ::exp2 (x); } // see log2, but apparently no need to use exp(log(2) * x) here?!
-template<int, int> CONSTEXPR double pow(double x, double y) { return std::pow(x, y); }
-inline CONSTEXPR double round(double x) { return ::round(x); } // should be std::round(), see above
+// Gcc has constexpr versions of most mathematical functions (this is a
+// non-standard extension). Prefer those over our implementations.
+template<int>      constexpr double sin  (double x) { return std::sin  (x); }
+template<int>      constexpr double cos  (double x) { return std::cos  (x); }
+template<int, int> constexpr double log  (double x) { return std::log  (x); }
+template<int, int> constexpr double log2 (double x) { return    ::log  (x) / ::log(2); } // should be std::log2(x) but this doesn't seem to compile in g++-4.8/g++-4.9 (bug?)
+template<int, int> constexpr double log10(double x) { return std::log10(x); }
+template<int>      constexpr double exp  (double x) { return std::exp  (x); }
+template<int>      constexpr double exp2 (double x) { return    ::exp2 (x); } // see log2, but apparently no need to use exp(log(2) * x) here?!
+template<int, int> constexpr double pow(double x, double y) { return std::pow(x, y); }
+inline constexpr double round(double x) { return ::round(x); } // should be std::round(), see above
 
 #else
 
