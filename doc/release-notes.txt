@@ -3,7 +3,9 @@ Release Notes for openMSX 0.15.0 (2018-10-xx)
 
 Again a release, because we did quite a lot, so it's due! Major new stuff is
 support for ColecoVision (including Super Game Module and MegaCart mapper),
-Musical Memory Mapper and Carnivore 2.
+Musical Memory Mapper and Carnivore 2. And we have fixed a lot of long-standing
+OPL4 emulation issues, thanks to Valley Bell. Furthermore, we overhauled the
+Android port, but you'll mostly notice the scale factor 2 there.
 
 Here's the list with all highlights and details:
 
