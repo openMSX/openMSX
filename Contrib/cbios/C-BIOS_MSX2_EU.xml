@@ -4,7 +4,7 @@
 
   <info>
     <manufacturer>C-BIOS</manufacturer>
-    <code>MSX2</code>
+    <code>MSX2 EU</code>
     <release_year>2003</release_year>
     <description>An MSX2 machine using C-BIOS, with an international keyboard layout and 50Hz interrupt frequency.</description>
     <type>MSX2</type>

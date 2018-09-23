@@ -4,7 +4,7 @@
 
   <info>
     <manufacturer>C-BIOS</manufacturer>
-    <code>MSX1</code>
+    <code>MSX1 EU</code>
     <release_year>2003</release_year>
     <description>An MSX1 machine using C-BIOS, with an international keyboard layout and 50Hz interrupt frequency.</description>
     <type>MSX</type>
