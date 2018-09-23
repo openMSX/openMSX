@@ -539,7 +539,7 @@ public:
 	void serialize(const char* tag, T& t)
 	{
 		this->self().beginTag(tag);
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, std::make_tuple(), -1); // don't load id
@@ -548,7 +548,7 @@ public:
 	template<typename T> void serializePointerID(const char* tag, const T& t)
 	{
 		this->self().beginTag(tag);
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		IDLoader<TNC> loader;
 		loader(this->self(), tnc);
@@ -581,7 +581,7 @@ public:
 	void doSerialize(const char* tag, T& t, TUPLE args, int id = 0)
 	{
 		this->self().beginTag(tag);
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, args, id);

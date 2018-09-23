@@ -12,7 +12,7 @@ template<typename MAP, size_t N> class KeyIterator
 	using pair_type = typename std::iterator_traits<map_iter>::value_type;
 public:
 
-	using value_type        = const typename std::tuple_element<N, pair_type>::type;
+	using value_type        = const std::tuple_element_t<N, pair_type>;
 	using pointer           = value_type*;
 	using reference         = value_type&;
 	using difference_type   = typename std::iterator_traits<map_iter>::difference_type;

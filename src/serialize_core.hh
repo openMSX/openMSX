@@ -354,7 +354,7 @@ template<typename T> struct ClassSaver
 			constrArgs.save(ar, t);
 		}
 
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
@@ -531,7 +531,7 @@ template<typename T> struct ClassLoader
 			version = loadVersion<T>(ar);
 		}
 
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
@@ -544,7 +544,7 @@ template<typename T> struct NonPolymorphicPointerLoader
 		int version = loadVersion<T>(ar);
 
 		// load (local) constructor args (if any)
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		using ConstrArgs = SerializeConstructorArgs<TNC>;
 		ConstrArgs constrArgs;
 		auto localArgs = constrArgs.load(ar, version);

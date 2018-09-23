@@ -111,7 +111,7 @@ template<typename T> static inline T aligned_cast(void* p)
 	static_assert(std::is_pointer<T>::value,
 	              "can only perform aligned_cast on pointers");
 	assert((reinterpret_cast<uintptr_t>(p) %
-	        ALIGNOF(typename std::remove_pointer<T>::type)) == 0);
+	        ALIGNOF(std::remove_pointer_t<T>)) == 0);
 	return reinterpret_cast<T>(p);
 }
 
