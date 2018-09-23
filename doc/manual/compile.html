@@ -240,7 +240,7 @@ to build the Android version on a Windows host, then you must install a virtual 
 	<dt>The "commandergenius" SDL Android port</dt>
 	<dd>Download the SDL Android port from the git repository to your favourite location. You can download it
 	into the current directory with the following command: <code>git clone https://github.com/pelya/commandergenius.git</code>. Once that is done, you must set-up an environment variable called SDL_ANDROID_PORT_PATH with the location
-	of the SDL android port. For example <code>/opt/android/commandergenius</code>. You must also make sure to put it on to the revision that we are currently supporting, including all subprojects. Set it to 93c39846150628ffc09647300444d53ca7ea1b88. TODO: explain all the changes you need to do to this clone make the compilation work.</dd>
+	of the SDL android port. For example <code>/opt/android/commandergenius</code>. You must also make sure to put it on to the revision that we are currently supporting, including all subprojects. Set it to 93c39846150628ffc09647300444d53ca7ea1b88. You also need a recent fix on top of that: <code>git cherry-pick bef5f545c5ae38b47f52d6c1e55281c882c9d385</code> (this will give a harmless conflict). TODO: explain all the changes you need to do to this clone make the compilation work.</dd>
 	<dt>Java Development Kit</dt>
 	<dd>Make sure you install the JDK from your distro. Example packages: <code>openjdk-8-jdk</code> (Debian), <code>java-1.7.0-openjdk</code> (SuSE 12.2).</dd>
 	<dt>Ant</dt>
