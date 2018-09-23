@@ -1287,7 +1287,10 @@ proc ls {directory extensions} {
 	set extra_entries [list]
 	set volumes [file volumes]
 	if {$directory ni $volumes} {
-		lappend extra_entries ".."
+		# check whether .. is readable (it's not always so on Android)
+		if {[file readable [file join $directory ..]]} {
+			lappend extra_entries ".."
+		}
 	} else {
 		if {[llength $volumes] > 1} {
 			set extra_entries $volumes
