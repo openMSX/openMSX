@@ -30,24 +30,25 @@ MSX device support:
   Dragon MSX (thanks to MAME), Yamaha CX7/128 and CX7M/128 (thanks to Peter
   Hanraets), Al Alamiah Sakhr AX230, Sanyo MPC-2, Yamaha CX11 (thanks to
   Tabajara Labs) and Toshiba HX-32 (thanks to Jorge Janaite Neto)
-- added new extensions: Musical Memory Mapper, Carnivore 2
+- added new extensions: Musical Memory Mapper, Carnivore 2 and SN76489 (on the
+  same I/O port as PlaySoniq)
 
 New or improved emulator features:
 - fixed some crashes when using very high Z80 frequencies
-- improved tab-completion to initially hide internal procs
+- improved tab-completion to initially hide internal procs, until you specify
+  the namespace
 - many updates to the software database
 - improved the VGM recorder script: record sample RAM content before logging
-- changed default machines to JP machines
+- changed default machine symlinks to JP machines (for applicable systems)
 - many robustness fixes against bad XML config files
 - added videosource setting to OSD menu, GFX9000 is getting more popular
-- performance improvements:
-  - several fixes to improve start-up time
+- fixed reverse bug in GFX9000
+- performance improvements: several fixes to improve start-up time
 - added support for DCSG in the music keyboard and vu meters script
 - changed events about unplugging to an empty plug-event
 - changed fixed scale factor from 1 to 2 on Android
-- fixed reverse bug in GFX9000
 - added scrollbar when showing lists in OSD menu, as a visual cue on the length
-  of a list. The scrollbar cannot be dragged.
+  of a list; the scrollbar cannot be dragged
 
 Build system, packaging, documentation:
 - migrated from SDL threads to C++11 threads
@@ -58,10 +59,9 @@ Build system, packaging, documentation:
 - put several pieces of code under unit-test with the Catch2 framework
 - added svicpm2dmk utility so disk images from the web can be converted to a
   suitable DMK file for use with the SVI-707 drive with CP/M ROM
-- reworked complete Android port build. Was needed to upgrade the compiler. Now
-  uses NDK 16 and recent version of commandergenius Android SDL port and all
-  other 3rd party libraries are built by the openMSX build system. Now the menu
-  button is also used on Android.
+- reworked complete Android port build. Now uses NDK 16b and recent version of
+  commandergenius Android SDL port and all other 3rd party libraries are built
+  by the openMSX build system. Now the menu button is also used on Android.
 
 And of course the usual various bug fixes and performance improvements.
 
@@ -75,7 +75,7 @@ and the MSX hardware and software you're emulating. Some things run fine on a
 tips, see the Setup Guide.
 
 openMSX is confirmed to run on the following operating systems: Linux, Windows,
-Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, PPC, ARM, MIPS and Sparc
+macOS, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, PPC, ARM, MIPS and Sparc
 CPU's. Running on other operating systems (wherever SDL runs) or CPU's should
 be possible, but may require some modifications to the build system. If you are
 compiling on a new platform, please share your experiences (see below for
