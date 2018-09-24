@@ -270,7 +270,7 @@ void DiskCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 			}
 			diskChanger.sendChangeDiskEvent(args);
 		} catch (FileException& e) {
-			throw CommandException(e.getMessage());
+			throw CommandException(std::move(e).getMessage());
 		}
 	}
 }

@@ -56,7 +56,7 @@ void LaserdiscPlayer::Command::execute(
 			result.setString("Changing laserdisc.");
 			laserdiscPlayer.setImageName(tokens[2].getString().str(), time);
 		} catch (MSXException& e) {
-			throw CommandException(e.getMessage());
+			throw CommandException(std::move(e).getMessage());
 		}
 	} else {
 		throw SyntaxError();

@@ -20,12 +20,11 @@ public:
         {
         }
 
-	const std::string& getMessage() const {
-		return message;
-	}
+	const std::string& getMessage() const &  { return message; }
+	      std::string  getMessage()       && { return std::move(message); }
 
 private:
-	const std::string message;
+	std::string message;
 };
 
 class FatalError
@@ -40,12 +39,11 @@ public:
         {
         }
 
-	const std::string& getMessage() const {
-		return message;
-	}
+	const std::string& getMessage() const &  { return message; }
+	      std::string  getMessage()       && { return std::move(message); }
 
 private:
-	const std::string message;
+	std::string message;
 };
 
 } // namespace openmsx

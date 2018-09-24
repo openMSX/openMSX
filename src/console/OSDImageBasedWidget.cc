@@ -253,7 +253,7 @@ void OSDImageBasedWidget::createImage(OutputRectangle& output)
 				image = createSDL(output);
 			}
 		} catch (MSXException& e) {
-			setError(e.getMessage());
+			setError(std::move(e).getMessage());
 		}
 	}
 }

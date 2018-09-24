@@ -186,7 +186,7 @@ void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 					processHdimage(hdimage, tmpDrives);
 					changeDrives = true;
 				} catch (MSXException& e) {
-					error = e.getMessage();
+					error = std::move(e).getMessage();
 				}
 			}
 

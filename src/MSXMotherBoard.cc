@@ -847,7 +847,7 @@ void ExtCmd::execute(array_ref<TclObject> tokens, TclObject& result,
 		result.setString(motherBoard.loadExtension(
 			tokens[1].getString(), slotname));
 	} catch (MSXException& e) {
-		throw CommandException(e.getMessage());
+		throw CommandException(std::move(e).getMessage());
 	}
 }
 

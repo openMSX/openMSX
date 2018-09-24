@@ -494,7 +494,7 @@ void DiskManipulator::mkdir(DriveSettings& driveData, string_view filename)
 	try {
 		workhorse->mkdir(filename);
 	} catch (MSXException& e) {
-		throw CommandException(e.getMessage());
+		throw CommandException(std::move(e).getMessage());
 	}
 }
 
@@ -524,7 +524,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 					strAppend(messages, "Ignoring ", s, '\n');
 				}
 			} catch (MSXException& e) {
-				throw CommandException(e.getMessage());
+				throw CommandException(std::move(e).getMessage());
 			}
 		}
 	}
@@ -546,7 +546,7 @@ void DiskManipulator::exprt(DriveSettings& driveData, string_view dirname,
 			}
 		}
 	} catch (MSXException& e) {
-		throw CommandException(e.getMessage());
+		throw CommandException(std::move(e).getMessage());
 	}
 }
 

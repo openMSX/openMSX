@@ -370,7 +370,7 @@ void CartridgeSlotManager::CartCmd::execute(
 				"ROM", std::move(extension)));
 			cliComm.update(CliComm::MEDIA, cartname, romname);
 		} catch (MSXException& e) {
-			throw CommandException(e.getMessage());
+			throw CommandException(std::move(e).getMessage());
 		}
 	}
 }

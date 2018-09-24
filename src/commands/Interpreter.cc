@@ -377,7 +377,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			try {
 				setVar(interp, part1Obj, variable->getValue());
 			} catch (MSXException& e) {
-				static_string = e.getMessage();
+				static_string = std::move(e).getMessage();
 				return const_cast<char*>(static_string.c_str());
 			}
 		}
@@ -392,7 +392,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				}
 			} catch (MSXException& e) {
 				setVar(interp, part1Obj, getSafeValue(*variable));
-				static_string = e.getMessage();
+				static_string = std::move(e).getMessage();
 				return const_cast<char*>(static_string.c_str());
 			}
 		}

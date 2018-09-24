@@ -516,7 +516,7 @@ void XmlInputArchive::attribute(const char* name, string& t)
 	try {
 		t = elems.back().first->getAttribute(name);
 	} catch (ConfigException& e) {
-		throw XMLException(e.getMessage());
+		throw XMLException(std::move(e).getMessage());
 	}
 }
 void XmlInputArchive::attribute(const char* name, int& i)

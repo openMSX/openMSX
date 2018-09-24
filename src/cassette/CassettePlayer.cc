@@ -646,7 +646,7 @@ void CassettePlayer::TapeCommand::execute(
 			Filename filename(tokens[2].getString().str(), userFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
-			throw CommandException(e.getMessage());
+			throw CommandException(std::move(e).getMessage());
 		}
 
 	} else if (tokens[1] == "motorcontrol" && tokens.size() == 3) {
@@ -677,7 +677,7 @@ void CassettePlayer::TapeCommand::execute(
 				cassettePlayer.playTape(
 					cassettePlayer.getImageName(), time);
 			} catch (MSXException& e) {
-				throw CommandException(e.getMessage());
+				throw CommandException(std::move(e).getMessage());
 			}
 		} else if (cassettePlayer.getState() == CassettePlayer::STOP) {
 			throw CommandException("No tape inserted or tape at end!");
@@ -698,7 +698,7 @@ void CassettePlayer::TapeCommand::execute(
 				cassettePlayer.playTape(
 					cassettePlayer.getImageName(), time);
 			} catch (MSXException& e) {
-				throw CommandException(e.getMessage());
+				throw CommandException(std::move(e).getMessage());
 			}
 		}
 		cassettePlayer.rewind(time);
@@ -717,7 +717,7 @@ void CassettePlayer::TapeCommand::execute(
 			Filename filename(tokens[1].getString().str(), userFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
-			throw CommandException(e.getMessage());
+			throw CommandException(std::move(e).getMessage());
 		}
 	}
 	//if (!cassettePlayer.getConnector()) {

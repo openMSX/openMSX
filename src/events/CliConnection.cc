@@ -150,7 +150,7 @@ int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 				commandEvent.getCommand(), this).getString().str();
 			output(reply(result, true));
 		} catch (CommandException& e) {
-			string result = e.getMessage() + '\n';
+			string result = std::move(e).getMessage() + '\n';
 			output(reply(result, false));
 		}
 	}

@@ -105,7 +105,7 @@ bool CommandLineParser::parseOption(
 				it->second.option->parseOption(arg, cmdLine);
 				return true;
 			} catch (MSXException& e) {
-				throw FatalError(e.getMessage());
+				throw FatalError(std::move(e).getMessage());
 			}
 		}
 	}
@@ -151,7 +151,7 @@ bool CommandLineParser::parseFileNameInner(const string& name, const string& ori
 		it->second->parseFileType(originalPath, cmdLine);
 		return true; // file processed
 	} catch (MSXException& e) {
-		throw FatalError(e.getMessage());
+		throw FatalError(std::move(e).getMessage());
 	}
 }
 
@@ -229,7 +229,7 @@ void CommandLineParser::parse(int argc, char** argv)
 						reactor.switchMachine(fallbackMachine.str());
 					} catch (MSXException& e2) {
 						// Fallback machine failed as well; we're out of options.
-						throw FatalError(e2.getMessage());
+						throw FatalError(std::move(e2).getMessage());
 					}
 				}
 				haveConfig = true;
@@ -506,7 +506,7 @@ void CommandLineParser::MachineOption::parseOption(
 	try {
 		parser.reactor.switchMachine(getArgument(option, cmdLine));
 	} catch (MSXException& e) {
-		throw FatalError(e.getMessage());
+		throw FatalError(std::move(e).getMessage());
 	}
 	parser.haveConfig = true;
 }
@@ -532,9 +532,9 @@ void CommandLineParser::SettingOption::parseOption(
 			currentDirFileContext(), getArgument(option, cmdLine));
 		parser.haveSettings = true;
 	} catch (FileException& e) {
-		throw FatalError(e.getMessage());
+		throw FatalError(std::move(e).getMessage());
 	} catch (ConfigException& e) {
-		throw FatalError(e.getMessage());
+		throw FatalError(std::move(e).getMessage());
 	}
 }
 

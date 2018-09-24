@@ -101,7 +101,7 @@ void SettingsConfig::SaveSettingsCommand::execute(
 			throw SyntaxError();
 		}
 	} catch (FileException& e) {
-		throw CommandException(e.getMessage());
+		throw CommandException(std::move(e).getMessage());
 	}
 }
 
