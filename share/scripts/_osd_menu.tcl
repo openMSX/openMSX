@@ -865,7 +865,7 @@ set advanced_menu {
 	         selectable false }
 	       { text "Manage Running Machines..."
 	         actions { A { osd_menu::menu_create $osd_menu::running_machines_menu }}}
-	       { text "Toys..."
+	       { text "Toys and Utilities..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_toys_list] }}}}}
 
 set running_machines_menu {
@@ -1246,7 +1246,7 @@ proc menu_create_toys_list {} {
 	         width 200
 	         xpos 100
 	         ypos 120
-	         header { text "Toys"
+	         header { text "Toys and Utilities"
 	                  font-size 10
 	                  post-spacing 6 }}
 
