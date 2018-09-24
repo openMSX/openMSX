@@ -830,7 +830,7 @@ ExtCmd::ExtCmd(MSXMotherBoard& motherBoard_, std::string commandName_)
 	                  motherBoard_.getScheduler(),
 	                  commandName_)
 	, motherBoard(motherBoard_)
-	, commandName(std::move(commandName))
+	, commandName(std::move(commandName_))
 {
 }
 
