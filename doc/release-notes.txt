@@ -53,9 +53,6 @@ New or improved emulator features:
   of a list; the scrollbar cannot be dragged
 
 Build system, packaging, documentation:
-- migrated from SDL threads to C++11 threads
-- removed support for Maemo5
-- moved Windows build to Visual Studio 2017
 - upgraded C-BIOS to release 0.29a: default to 60Hz generic international
   config
 - put several pieces of code under unit-test with the Catch2 framework
