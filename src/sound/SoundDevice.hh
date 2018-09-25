@@ -169,8 +169,8 @@ protected:
 	/** Calls generateChannels() and combines the output to a single
 	  * channel.
 	  * @param dataOut Output buffer, must be big enough to hold
-	  *                'num' samples
-	  * @param num The number of samples
+	  *                'samples' number of samples
+	  * @param samples The number of samples
 	  * @result true iff at least one channel was unmuted
 	  *
 	  * Note: To enable various optimizations (like SSE), this method can
@@ -178,7 +178,7 @@ protected:
 	  * samples should be ignored, though the caller must make sure the
 	  * buffer has enough space to hold them.
 	  */
-	bool mixChannels(int* dataOut, unsigned num);
+	bool mixChannels(int* dataOut, unsigned samples);
 
 	/** See MSXMixer::getHostSampleClock(). */
 	const DynamicClock& getHostSampleClock() const;

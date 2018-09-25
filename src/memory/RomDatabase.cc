@@ -40,7 +40,7 @@ public:
 	}
 
 	// rapidsax handler interface
-	void start(string_view name);
+	void start(string_view tag);
 	void attribute(string_view name, string_view value);
 	void text(string_view txt);
 	void stop();

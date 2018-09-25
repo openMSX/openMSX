@@ -149,9 +149,9 @@ void I8251::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-void I8251::setMode(byte value)
+void I8251::setMode(byte newMode)
 {
-	mode = value;
+	mode = newMode;
 
 	SerialDataInterface::DataBits dataBits;
 	switch (mode & MODE_WORDLENGTH) {

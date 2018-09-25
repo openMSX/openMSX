@@ -16,7 +16,7 @@ public:
 	                 array_ref<std::string>& cmdLine) override;
 	string_view optionHelp() const override;
 
-	void parseFileType(const std::string& filename,
+	void parseFileType(const std::string& arg,
 	                   array_ref<std::string>& cmdLine) override;
 	string_view fileTypeHelp() const override;
 

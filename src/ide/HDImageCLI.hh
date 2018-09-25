@@ -10,7 +10,7 @@ class CommandLineParser;
 class HDImageCLI final : public CLIOption
 {
 public:
-	explicit HDImageCLI(CommandLineParser& cmdLineParser);
+	explicit HDImageCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
 	                 array_ref<std::string>& cmdLine) override;
 	void parseDone() override;

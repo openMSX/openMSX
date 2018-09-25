@@ -132,7 +132,7 @@ private:
 	void updateMasterVolume();
 	void reschedule();
 	void reschedule2();
-	void generate(int16_t* buffer, EmuTime::param time, unsigned samples);
+	void generate(int16_t* output, EmuTime::param time, unsigned samples);
 
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;

@@ -19,7 +19,7 @@ public:
 
 	byte readMem(word address, EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;
-	const byte* getReadCacheLine(word start) const override;
+	const byte* getReadCacheLine(word address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

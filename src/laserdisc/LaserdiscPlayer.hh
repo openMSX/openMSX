@@ -107,7 +107,7 @@ private:
 	void createRenderer();
 
 	// SoundDevice
-	void generateChannels(int** bufs, unsigned num) override;
+	void generateChannels(int** buffers, unsigned num) override;
 	bool updateBuffer(unsigned length, int* buffer,
 	                  EmuTime::param time) override;
 

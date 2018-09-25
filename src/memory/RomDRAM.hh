@@ -13,7 +13,7 @@ public:
 	RomDRAM(const DeviceConfig& config, Rom&& rom);
 
 	byte readMem(word address, EmuTime::param time) override;
-	const byte* getReadCacheLine(word start) const override;
+	const byte* getReadCacheLine(word address) const override;
 
 private:
 	PanasonicMemory& panasonicMemory;

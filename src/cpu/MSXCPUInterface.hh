@@ -87,9 +87,9 @@ public:
 	 * get called.
 	 */
 	void registerMemDevice(MSXDevice& device,
-	                       int primSl, int secSL, int base, int size);
+	                       int ps, int ss, int base, int size);
 	void unregisterMemDevice(MSXDevice& device,
-	                         int primSl, int secSL, int base, int size);
+	                         int ps, int ss, int base, int size);
 
 	/** (Un)register global writes.
 	  * @see MSXDevice::globalWrite()
@@ -209,7 +209,7 @@ public:
 	void unsetExpanded(int ps);
 	void testUnsetExpanded(int ps, std::vector<MSXDevice*> allowed) const;
 	inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
-	void changeExpanded(bool isExpanded);
+	void changeExpanded(bool newExpanded);
 
 	DummyDevice& getDummyDevice() { return *dummyDevice; }
 

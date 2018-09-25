@@ -131,7 +131,7 @@ public:
 	void writeBlock(int idx, unsigned size, const byte* source);
 
 	/** Convenience method to calculate CRC for part of this track. */
-	word calcCrc(int idx, int length) const;
+	word calcCrc(int idx, int size) const;
 	void updateCrc(CRC16& crc, int idx, int size) const;
 
 	void applyWd2793ReadTrackQuirk();

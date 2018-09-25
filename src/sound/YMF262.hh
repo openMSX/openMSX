@@ -53,7 +53,7 @@ private:
 		inline int op_calc(unsigned phase, unsigned lfo_am) const;
 		inline void FM_KEYON(byte key_set);
 		inline void FM_KEYOFF(byte key_clr);
-		inline void advanceEnvelopeGenerator(unsigned eg_cnt);
+		inline void advanceEnvelopeGenerator(unsigned egCnt);
 		inline void advancePhaseGenerator(Channel& ch, unsigned lfo_pm);
 		void update_ar_dr();
 		void update_rr();

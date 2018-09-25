@@ -10,7 +10,7 @@ class CommandLineParser;
 class DiskImageCLI final : public CLIOption, public CLIFileType
 {
 public:
-	explicit DiskImageCLI(CommandLineParser& cmdLineParser);
+	explicit DiskImageCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
 	                 array_ref<std::string>& cmdLine) override;
 	string_view optionHelp() const override;

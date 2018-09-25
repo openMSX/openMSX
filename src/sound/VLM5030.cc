@@ -234,7 +234,7 @@ int VLM5030::parseFrame()
 }
 
 // decode and buffering data
-void VLM5030::generateChannels(int** bufs, unsigned length)
+void VLM5030::generateChannels(int** bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
 	if (phase == PH_IDLE) {
@@ -247,7 +247,7 @@ void VLM5030::generateChannels(int** bufs, unsigned length)
 	// running
 	if (phase == PH_RUN || phase == PH_STOP) {
 		// playing speech
-		while (length > 0) {
+		while (num > 0) {
 			int current_val;
 			// check new interpolator or new frame
 			if (sample_count == 0) {
@@ -333,34 +333,34 @@ void VLM5030::generateChannels(int** bufs, unsigned length)
 			if (pitch_count >= current_pitch) {
 				pitch_count = 0;
 			}
-			--length;
+			--num;
 		}
 	// return;
 	}
 phase_stop:
 	switch (phase) {
 	case PH_SETUP:
-		if (sample_count <= length) {
+		if (sample_count <= num) {
 			sample_count = 0;
 			// pin_BSY = true;
 			phase = PH_WAIT;
 		} else {
-			sample_count -= length;
+			sample_count -= num;
 		}
 		break;
 	case PH_END:
-		if (sample_count <= length) {
+		if (sample_count <= num) {
 			sample_count = 0;
 			pin_BSY = false;
 			phase = PH_IDLE;
 		} else {
-			sample_count -= length;
+			sample_count -= num;
 		}
 	}
 	// silent buffering
-	while (length > 0) {
+	while (num > 0) {
 		bufs[0][buf_count++] = 0;
-		--length;
+		--num;
 	}
 }
 

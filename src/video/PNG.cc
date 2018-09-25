@@ -363,7 +363,7 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 	}
 }
 
-void save(SDL_Surface* surface, const std::string& filename)
+void save(SDL_Surface* image, const std::string& filename)
 {
 	SDL_PixelFormat frmt24;
 	frmt24.palette = nullptr;
@@ -383,15 +383,15 @@ void save(SDL_Surface* surface, const std::string& filename)
 	frmt24.Aloss = 8;
 	frmt24.colorkey = 0;
 	frmt24.alpha = 0;
-	SDLSurfacePtr surf24(SDL_ConvertSurface(surface, &frmt24, 0));
+	SDLSurfacePtr surf24(SDL_ConvertSurface(image, &frmt24, 0));
 
 	// Create the array of pointers to image data
-	VLA(const void*, row_pointers, surface->h);
-	for (int i = 0; i < surface->h; ++i) {
+	VLA(const void*, row_pointers, image->h);
+	for (int i = 0; i < image->h; ++i) {
 		row_pointers[i] = surf24.getLinePtr(i);
 	}
 
-	IMG_SavePNG_RW(surface->w, surface->h, row_pointers, filename, true);
+	IMG_SavePNG_RW(image->w, image->h, row_pointers, filename, true);
 }
 
 void save(unsigned width, unsigned height, const void** rowPointers,

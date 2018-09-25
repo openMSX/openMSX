@@ -57,9 +57,9 @@ public:
 	void setEnabled(bool enabled, EmuTime::param time);
 	void clearRam();
 	void reset(EmuTime::param time);
-	void writeReg(byte reg, byte data, EmuTime::param time);
-	byte readReg(byte reg, EmuTime::param time);
-	byte peekReg(byte reg, EmuTime::param time) const;
+	void writeReg(byte rg, byte data, EmuTime::param time);
+	byte readReg(byte rg, EmuTime::param time);
+	byte peekReg(byte rg, EmuTime::param time) const;
 	byte readStatus(EmuTime::param time);
 	byte peekStatus(EmuTime::param time) const;
 

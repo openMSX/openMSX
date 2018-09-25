@@ -17,7 +17,7 @@ class Simple3xScaler final : public Scaler3<Pixel>
 {
 public:
 	Simple3xScaler(const PixelOperations<Pixel>& pixelOps,
-	               const RenderSettings& renderSettings);
+	               const RenderSettings& settings);
 	~Simple3xScaler();
 
 private:

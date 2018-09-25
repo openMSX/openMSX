@@ -56,7 +56,7 @@ private:
 	                   const std::string& msxName, unsigned sector);
 	DirEntry findEntryInDir(const std::string& name, unsigned sector,
 	                        SectorBuffer& sectorBuf);
-	std::string addFileToDSK(const std::string& hostName, unsigned sector);
+	std::string addFileToDSK(const std::string& fullHostName, unsigned sector);
 	std::string recurseDirFill(string_view dirName, unsigned sector);
 	std::string condensName(const MSXDirEntry& dirEntry);
 	void changeTime (const std::string& resultFile, const MSXDirEntry& dirEntry);

@@ -99,12 +99,12 @@ Sha1Sum::Sha1Sum()
 	clear();
 }
 
-Sha1Sum::Sha1Sum(string_view str)
+Sha1Sum::Sha1Sum(string_view hex)
 {
-	if (str.size() != 40) {
-		throw MSXException("Invalid sha1, should be exactly 40 digits long: ", str);
+	if (hex.size() != 40) {
+		throw MSXException("Invalid sha1, should be exactly 40 digits long: ", hex);
 	}
-	parse40(str.data());
+	parse40(hex.data());
 }
 
 #ifdef __SSE2__

@@ -28,8 +28,8 @@ public:
 	explicit Debugger(MSXMotherBoard& motherBoard);
 	~Debugger();
 
-	void registerDebuggable   (std::string name, Debuggable& interface);
-	void unregisterDebuggable (string_view name, Debuggable& interface);
+	void registerDebuggable   (std::string name, Debuggable& debuggable);
+	void unregisterDebuggable (string_view name, Debuggable& debuggable);
 	Debuggable* findDebuggable(string_view name);
 
 	void registerProbe  (ProbeBase& probe);

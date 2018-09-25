@@ -45,7 +45,7 @@ private:
 	void loadFont      (string_view value);
 	void loadBackground(string_view value);
 	byte getVisibility() const;
-	void drawText(OutputSurface& output, const ConsoleLine& text,
+	void drawText(OutputSurface& output, const ConsoleLine& line,
 	              gl::ivec2 pos, byte alpha);
 	void drawText2(OutputSurface& output, string_view text,
                        int& x, int y, byte alpha, unsigned rgb);

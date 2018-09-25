@@ -59,7 +59,7 @@ public:
 private:
 	using EventPtr = std::shared_ptr<const Event>;
 
-	void handle(const SDL_Event& event);
+	void handle(const SDL_Event& evt);
 	void setGrabInput(bool grab);
 
 	// Observer<Setting>

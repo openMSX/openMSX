@@ -15,9 +15,9 @@ public:
 	// rapidsax handler interface
 	void start(string_view name);
 	void attribute(string_view name, string_view value);
-	void text(string_view text);
+	void text(string_view txt);
 	void stop();
-	void doctype(string_view text);
+	void doctype(string_view txt);
 
 	string_view getSystemID() const { return systemID; }
 	XMLElement& getRoot() { return root; }

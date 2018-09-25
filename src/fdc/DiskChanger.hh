@@ -26,7 +26,7 @@ class DiskChanger final : public DiskContainer, private StateChangeListener
 public:
 	DiskChanger(MSXMotherBoard& board,
 	            std::string driveName,
-	            bool createCommand = true,
+	            bool createCmd = true,
 	            bool doubleSidedDrive = true,
 	            std::function<void()> preChangeCallback = {});
 	DiskChanger(Reactor& reactor,

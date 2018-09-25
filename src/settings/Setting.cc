@@ -38,11 +38,11 @@ void BaseSetting::info(TclObject& result) const
 // class Setting
 
 Setting::Setting(CommandController& commandController_,
-                 string_view name_, string_view desc_,
+                 string_view name_, string_view description_,
                  const TclObject& initialValue, SaveSetting save_)
 	: BaseSetting(name_)
 	, commandController(commandController_)
-	, description(desc_.str())
+	, description(description_.str())
 	, value(initialValue)
 	, defaultValue(initialValue)
 	, restoreValue(initialValue)

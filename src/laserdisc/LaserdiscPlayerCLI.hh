@@ -10,7 +10,7 @@ class CommandLineParser;
 class LaserdiscPlayerCLI final : public CLIOption, public CLIFileType
 {
 public:
-	explicit LaserdiscPlayerCLI(CommandLineParser& commandLineParser);
+	explicit LaserdiscPlayerCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
 	                 array_ref<std::string>& cmdLine) override;
 	string_view optionHelp() const override;

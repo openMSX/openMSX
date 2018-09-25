@@ -45,7 +45,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	inline int getSample(unsigned index);
+	int getSample(unsigned idx);
 	void setWavParams();
 	void doRepeat();
 

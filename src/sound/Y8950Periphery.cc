@@ -53,8 +53,8 @@ public:
 
 	byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word start) const override;
-	byte* getWriteCacheLine(word start) const override;
+	const byte* getReadCacheLine(word address) const override;
+	byte* getWriteCacheLine(word address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -117,11 +117,11 @@ void Y8950Periphery::writeMem(word /*address*/, byte /*value*/, EmuTime::param /
 {
 	// nothing
 }
-const byte* Y8950Periphery::getReadCacheLine(word /*start*/) const
+const byte* Y8950Periphery::getReadCacheLine(word /*address*/) const
 {
 	return MSXDevice::unmappedRead;
 }
-byte* Y8950Periphery::getWriteCacheLine(word /*start*/) const
+byte* Y8950Periphery::getWriteCacheLine(word /*address*/) const
 {
 	return MSXDevice::unmappedWrite;
 }

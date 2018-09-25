@@ -642,7 +642,7 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 	}
 }
 
-void AY8910::generateChannels(int** bufs, unsigned length)
+void AY8910::generateChannels(int** bufs, unsigned num)
 {
 	// Disable channels with volume 0: since the sample value doesn't matter,
 	// we can use the fastest path.
@@ -654,13 +654,13 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		     !envelope.isChanging() &&
 		     (envelope.getVolume() == 0))) {
 			bufs[chan] = nullptr;
-			tone[chan].advance(length);
+			tone[chan].advance(num);
 			chanEnable |= 0x09 << chan;
 		}
 	}
 	// Noise disabled on all channels?
 	if ((chanEnable & 0x38) == 0x38) {
-		noise.advance(length);
+		noise.advance(num);
 	}
 
 	// Calculate samples.
@@ -686,7 +686,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			if ((chanEnable & 0x09) == 0x08) {
 				// no noise, square wave: alternating between 0 and 1.
 				unsigned val = t.getOutput() * envelope.getVolume();
-				unsigned remaining = length;
+				unsigned remaining = num;
 				unsigned nextE = envelope.getNextEventTime();
 				unsigned nextT = t.getNextEventTime();
 				while ((nextT <= remaining) || (nextE <= remaining)) {
@@ -725,7 +725,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			} else if ((chanEnable & 0x09) == 0x09) {
 				// no noise, channel disabled: always 1.
 				unsigned val = envelope.getVolume();
-				unsigned remaining = length;
+				unsigned remaining = num;
 				unsigned next = envelope.getNextEventTime();
 				while (next <= remaining) {
 					addFill(buf, val, next);
@@ -739,13 +739,13 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 					addFill(buf, val, remaining);
 					envelope.advanceFast(remaining);
 				}
-				t.advance(length);
+				t.advance(num);
 
 			} else if ((chanEnable & 0x09) == 0x00) {
 				// noise enabled, tone enabled
 				noise = initialNoise;
 				unsigned val = noise.getOutput() * t.getOutput() * envelope.getVolume();
-				unsigned remaining = length;
+				unsigned remaining = num;
 				unsigned nextT = t.getNextEventTime();
 				unsigned nextN = noise.getNextEventTime();
 				unsigned nextE = envelope.getNextEventTime();
@@ -789,7 +789,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				// noise enabled, tone disabled
 				noise = initialNoise;
 				unsigned val = noise.getOutput() * envelope.getVolume();
-				unsigned remaining = length;
+				unsigned remaining = num;
 				unsigned nextE = envelope.getNextEventTime();
 				unsigned nextN = noise.getNextEventTime();
 				while ((nextN <= remaining) || (nextE <= remaining)) {
@@ -824,7 +824,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 					noise.advanceFast(remaining);
 					envelope.advanceFast(remaining);
 				}
-				t.advance(length);
+				t.advance(num);
 			}
 		} else {
 			// no (changing) envelope on this channel
@@ -834,7 +834,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			if ((chanEnable & 0x09) == 0x08) {
 				// no noise, square wave: alternating between 0 and 1.
 				unsigned val = t.getOutput() * volume;
-				unsigned remaining = length;
+				unsigned remaining = num;
 				unsigned next = t.getNextEventTime();
 				while (next <= remaining) {
 					addFill(buf, val, next);
@@ -851,15 +851,15 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 
 			} else if ((chanEnable & 0x09) == 0x09) {
 				// no noise, channel disabled: always 1.
-				addFill(buf, volume, length);
-				t.advance(length);
+				addFill(buf, volume, num);
+				t.advance(num);
 
 			} else if ((chanEnable & 0x09) == 0x00) {
 				// noise enabled, tone enabled
 				noise = initialNoise;
 				unsigned val1 = t.getOutput() * volume;
 				unsigned val2 = val1 * noise.getOutput();
-				unsigned remaining = length;
+				unsigned remaining = num;
 				unsigned nextN = noise.getNextEventTime();
 				unsigned nextT = t.getNextEventTime();
 				while ((nextN <= remaining) || (nextT <= remaining)) {
@@ -902,7 +902,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			} else {
 				// noise enabled, tone disabled
 				noise = initialNoise;
-				unsigned remaining = length;
+				unsigned remaining = num;
 				unsigned val = noise.getOutput() * volume;
 				unsigned next = noise.getNextEventTime();
 				while (next <= remaining) {
@@ -917,14 +917,14 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 					addFill(buf, val, remaining);
 					noise.advanceFast(remaining);
 				}
-				t.advance(length);
+				t.advance(num);
 			}
 		}
 	}
 
 	// Envelope not yet updated?
 	if (envelope.isChanging() && !envelopeUpdated) {
-		envelope.advance(length);
+		envelope.advance(num);
 	}
 }
 

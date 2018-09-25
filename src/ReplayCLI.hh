@@ -10,7 +10,7 @@ class CommandLineParser;
 class ReplayCLI final : public CLIOption, public CLIFileType
 {
 public:
-	explicit ReplayCLI(CommandLineParser& commandLineParser);
+	explicit ReplayCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
 	                 array_ref<std::string>& cmdLine) override;
 	string_view optionHelp() const override;

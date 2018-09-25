@@ -104,7 +104,7 @@ private:
 	void newLineConsole(ConsoleLine line);
 	void putPrompt();
 	void resetScrollBack();
-	ConsoleLine highLight(string_view command);
+	ConsoleLine highLight(string_view line);
 
 	/** Prints a string on the console.
 	  */

@@ -39,7 +39,7 @@ private:
 	/** Rastering method for the current color mode
 	  */
 	using RasterMethod = void (V9990BitmapConverter<Pixel>::*)
-	             (Pixel* pixelPtr, unsigned x, unsigned y, int nrPixels);
+	             (Pixel* out, unsigned x, unsigned y, int nrPixels);
 	RasterMethod rasterMethod;
 
 	/** The 64 color palette for P1, P2 and BP* modes
@@ -58,18 +58,18 @@ private:
 	const Pixel* const palette32768;
 
 	/* private Raster methods */
-	void rasterP       (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBYUV    (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBYUVP   (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBYJK    (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBYJKP   (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBD16    (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBD8     (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBP6     (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBP4     (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBP2     (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBP4HiRes(Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBP2HiRes(Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
+	void rasterP       (Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBYUV    (Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBYUVP   (Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBYJK    (Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBYJKP   (Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBD16    (Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBD8     (Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBP6     (Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBP4     (Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBP2     (Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBP4HiRes(Pixel* out, unsigned x, unsigned y, int nrPixels);
+	void rasterBP2HiRes(Pixel* out, unsigned x, unsigned y, int nrPixels);
 
 	/* Cursor drawing methods */
 	void drawCursor(Pixel* buffer, int displayY,

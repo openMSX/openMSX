@@ -10,7 +10,7 @@ class CommandLineParser;
 class CassettePlayerCLI final : public CLIOption, public CLIFileType
 {
 public:
-	explicit CassettePlayerCLI(CommandLineParser& commandLineParser);
+	explicit CassettePlayerCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
 	                 array_ref<std::string>& cmdLine) override;
 	string_view optionHelp() const override;

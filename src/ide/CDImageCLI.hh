@@ -10,7 +10,7 @@ class CommandLineParser;
 class CDImageCLI final : public CLIOption
 {
 public:
-	explicit CDImageCLI(CommandLineParser& cmdLineParser);
+	explicit CDImageCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
 	                 array_ref<std::string>& cmdLine) override;
 	string_view optionHelp() const override;

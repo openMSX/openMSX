@@ -153,11 +153,11 @@ public:
 	}
 
 	// BaseSetting
-	void setValue(const TclObject& value) final override;
+	void setValue(const TclObject& newValue) final override;
 	string_view getDescription() const final override;
 	TclObject getDefaultValue() const final override { return defaultValue; }
 	TclObject getRestoreValue() const final override { return restoreValue; }
-	void setValueDirect(const TclObject& value) final override;
+	void setValueDirect(const TclObject& newValue) final override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 	bool needLoadSave() const final override;
 	void additionalInfo(TclObject& result) const override;

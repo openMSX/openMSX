@@ -28,7 +28,7 @@ public:
 
 	// Read the given amount of samples into destination buffer.
 	template <unsigned PITCH>
-	bool readSamples(int* dest, unsigned samples);
+	bool readSamples(int* out, unsigned samples);
 
 private:
 	template <unsigned PITCH>

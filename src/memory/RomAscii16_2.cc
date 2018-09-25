@@ -30,10 +30,10 @@ RomAscii16_2::RomAscii16_2(const DeviceConfig& config, Rom&& rom_, SubType subTy
 	reset(EmuTime::dummy());
 }
 
-void RomAscii16_2::reset(EmuTime::param dummy)
+void RomAscii16_2::reset(EmuTime::param time)
 {
 	sramEnabled = 0;
-	RomAscii16kB::reset(dummy);
+	RomAscii16kB::reset(time);
 }
 
 byte RomAscii16_2::readMem(word address, EmuTime::param time)

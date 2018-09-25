@@ -45,7 +45,7 @@ public:
 	void paintSDLRecursive(OutputSurface& output);
 	void paintGLRecursive (OutputSurface& output);
 
-	int getScaleFactor(const OutputRectangle& surface) const;
+	int getScaleFactor(const OutputRectangle& output) const;
 	gl::vec2 transformPos(const OutputRectangle& output,
 	                      gl::vec2 pos, gl::vec2 relPos) const;
 	void getBoundingBox(const OutputRectangle& output,

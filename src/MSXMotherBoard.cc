@@ -145,7 +145,7 @@ private:
 class FastForwardHelper final : private Schedulable
 {
 public:
-	explicit FastForwardHelper(MSXMotherBoard& msxMotherBoardImpl);
+	explicit FastForwardHelper(MSXMotherBoard& motherBoard);
 	void setTarget(EmuTime::param targetTime);
 private:
 	void executeUntil(EmuTime::param time) override;

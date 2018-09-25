@@ -23,11 +23,11 @@ public:
 	TTFFont() : font(nullptr) {}
 
 	/** Construct new TTFFont object.
-	  * @param font Filename of font (.fft file, possibly (g)zipped).
+	  * @param filename Filename of font (.fft file, possibly (g)zipped).
 	  * @param ptSize Point size (based on 72DPI) to load font as.
 	  * post-condition: !empty()
 	  */
-	TTFFont(const std::string& font, int ptSize);
+	TTFFont(const std::string& filename, int ptSize);
 
 	/** Move construct. */
 	TTFFont(TTFFont&& other) noexcept

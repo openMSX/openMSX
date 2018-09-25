@@ -182,11 +182,11 @@ void VisibleSurface::updateWindowTitle()
 	SDL_WM_SetCaption(display.getWindowTitle().c_str(), nullptr);
 }
 
-bool VisibleSurface::setFullScreen(bool wantedState)
+bool VisibleSurface::setFullScreen(bool fullscreen)
 {
 	SDL_Surface* surf = getSDLSurface();
 	bool currentState = (surf->flags & SDL_FULLSCREEN) != 0;
-	if (currentState == wantedState) {
+	if (currentState == fullscreen) {
 		// already wanted stated
 		return true;
 	}
@@ -201,7 +201,7 @@ bool VisibleSurface::setFullScreen(bool wantedState)
 	// try to toggle full screen
 	SDL_WM_ToggleFullScreen(surf);
 	bool newState = (surf->flags & SDL_FULLSCREEN) != 0;
-	return newState == wantedState;
+	return newState == fullscreen;
 	*/
 }
 

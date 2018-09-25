@@ -16,7 +16,7 @@ namespace MemoryOps {
 	};
 
 	void* mallocAligned(size_t alignment, size_t size);
-	void freeAligned(void* ptr);
+	void freeAligned(void* aligned);
 
 } // namespace MemoryOps
 } // namespace openmsx

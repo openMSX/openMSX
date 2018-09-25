@@ -33,8 +33,8 @@ private:
 		bool removeTrailingSpaces) const;
 	size_t splitAtChar(const std::string& line, unsigned maxWidth) const;
 	size_t splitAtWord(const std::string& line, unsigned maxWidth) const;
-	std::string getCharWrappedText(const std::string& text, unsigned maxWidth) const;
-	std::string getWordWrappedText(const std::string& text, unsigned maxWidth) const;
+	std::string getCharWrappedText(const std::string& txt, unsigned maxWidth) const;
+	std::string getWordWrappedText(const std::string& txt, unsigned maxWidth) const;
 
 	gl::vec2 getRenderedSize() const;
 

@@ -563,10 +563,10 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 
 // Add file to the MSX disk in the subdir pointed to by 'sector'
 // @throws when file could not be added
-string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
+string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 {
 	string_view directory, hostName;
-	StringOp::splitOnLast(fullname, "/\\", directory, hostName);
+	StringOp::splitOnLast(fullHostName, "/\\", directory, hostName);
 	string msxName = makeSimpleMSXFileName(hostName);
 
 	// first find out if the filename already exists in current dir
@@ -587,12 +587,12 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 
 	// compute time/date stamps
 	unsigned time, date;
-	getTimeDate(fullname, time, date);
+	getTimeDate(fullHostName, time, date);
 	dirEntry.time = time;
 	dirEntry.date = date;
 
 	try {
-		alterFileInDSK(dirEntry, fullname);
+		alterFileInDSK(dirEntry, fullHostName);
 	} catch (MSXException&) {
 		// still write directory entry
 		writeLogicalSector(entry.sector, buf);

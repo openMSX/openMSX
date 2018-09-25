@@ -16,7 +16,7 @@ class CliComm;
 class TC8566AF final : public Schedulable
 {
 public:
-	TC8566AF(Scheduler& scheduler, DiskDrive* drive[4], CliComm& cliComm,
+	TC8566AF(Scheduler& scheduler, DiskDrive* drv[4], CliComm& cliComm,
 	         EmuTime::param time);
 
 	void reset(EmuTime::param time);

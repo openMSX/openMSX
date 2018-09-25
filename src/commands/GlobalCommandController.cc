@@ -309,10 +309,10 @@ bool GlobalCommandController::isComplete(const string& command)
 }
 
 TclObject GlobalCommandController::executeCommand(
-	const string& cmd, CliConnection* connection_)
+	const string& command, CliConnection* connection_)
 {
 	ScopedAssign<CliConnection*> sa(connection, connection_);
-	return interpreter.execute(cmd);
+	return interpreter.execute(command);
 }
 
 void GlobalCommandController::source(const string& script)

@@ -36,91 +36,91 @@ static inline __m128i _mm_set1_epi64x(uint64_t val)
 #endif
 
 static inline void memset_64_SSE(
-	uint64_t* dest, size_t num64, uint64_t val64)
+	uint64_t* out, size_t num64, uint64_t val64)
 {
 	if (unlikely(num64 == 0)) return;
 
 	// Align at 16-byte boundary.
-	if (unlikely(size_t(dest) & 8)) {
-		dest[0] = val64;
-		++dest; --num64;
+	if (unlikely(size_t(out) & 8)) {
+		out[0] = val64;
+		++out; --num64;
 	}
 
 	__m128i val128 = _mm_set1_epi64x(val64);
-	uint64_t* e = dest + num64 - 3;
-	for (/**/; dest < e; dest += 4) {
-		_mm_store_si128(reinterpret_cast<__m128i*>(dest + 0), val128);
-		_mm_store_si128(reinterpret_cast<__m128i*>(dest + 2), val128);
+	uint64_t* e = out + num64 - 3;
+	for (/**/; out < e; out += 4) {
+		_mm_store_si128(reinterpret_cast<__m128i*>(out + 0), val128);
+		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2), val128);
 	}
 	if (unlikely(num64 & 2)) {
-		_mm_store_si128(reinterpret_cast<__m128i*>(dest), val128);
-		dest += 2;
+		_mm_store_si128(reinterpret_cast<__m128i*>(out), val128);
+		out += 2;
 	}
 	if (unlikely(num64 & 1)) {
-		dest[0] = val64;
+		out[0] = val64;
 	}
 }
 #endif
 
 static inline void memset_64(
-        uint64_t* dest, size_t num64, uint64_t val64)
+        uint64_t* out, size_t num64, uint64_t val64)
 {
-	assert((size_t(dest) % 8) == 0); // must be 8-byte aligned
+	assert((size_t(out) % 8) == 0); // must be 8-byte aligned
 
 #ifdef __SSE2__
-	memset_64_SSE(dest, num64, val64);
+	memset_64_SSE(out, num64, val64);
 	return;
 #endif
-	uint64_t* e = dest + num64 - 3;
-	for (/**/; dest < e; dest += 4) {
-		dest[0] = val64;
-		dest[1] = val64;
-		dest[2] = val64;
-		dest[3] = val64;
+	uint64_t* e = out + num64 - 3;
+	for (/**/; out < e; out += 4) {
+		out[0] = val64;
+		out[1] = val64;
+		out[2] = val64;
+		out[3] = val64;
 	}
 	if (unlikely(num64 & 2)) {
-		dest[0] = val64;
-		dest[1] = val64;
-		dest += 2;
+		out[0] = val64;
+		out[1] = val64;
+		out += 2;
 	}
 	if (unlikely(num64 & 1)) {
-		dest[0] = val64;
+		out[0] = val64;
 	}
 }
 
 static inline void memset_32_2(
-	uint32_t* dest, size_t num32, uint32_t val0, uint32_t val1)
+	uint32_t* out, size_t num32, uint32_t val0, uint32_t val1)
 {
-	assert((size_t(dest) % 4) == 0); // must be 4-byte aligned
+	assert((size_t(out) % 4) == 0); // must be 4-byte aligned
 	if (unlikely(num32 == 0)) return;
 
 	// Align at 8-byte boundary.
-	if (unlikely(size_t(dest) & 4)) {
-		dest[0] = val1; // start at odd pixel
-		++dest; --num32;
+	if (unlikely(size_t(out) & 4)) {
+		out[0] = val1; // start at odd pixel
+		++out; --num32;
 	}
 
 	uint64_t val64 = OPENMSX_BIGENDIAN ? (uint64_t(val0) << 32) | val1
 	                                   : val0 | (uint64_t(val1) << 32);
-	memset_64(reinterpret_cast<uint64_t*>(dest), num32 / 2, val64);
+	memset_64(reinterpret_cast<uint64_t*>(out), num32 / 2, val64);
 
 	if (unlikely(num32 & 1)) {
-		dest[num32 - 1] = val0;
+		out[num32 - 1] = val0;
 	}
 }
 
-static inline void memset_32(uint32_t* dest, size_t num32, uint32_t val32)
+static inline void memset_32(uint32_t* out, size_t num32, uint32_t val32)
 {
-	assert((size_t(dest) % 4) == 0); // must be 4-byte aligned
+	assert((size_t(out) % 4) == 0); // must be 4-byte aligned
 
 #if ASM_X86
 #if defined _MSC_VER
 	// VC++'s __stosd intrinsic results in emulator benchmarks
 	// running about 7% faster than with memset_32_2, streaming or not,
 	// and about 3% faster than the C code below.
-	__stosd(reinterpret_cast<unsigned long*>(dest), val32, num32);
+	__stosd(reinterpret_cast<unsigned long*>(out), val32, num32);
 #else
-	memset_32_2(dest, num32, val32, val32);
+	memset_32_2(out, num32, val32, val32);
 #endif
 #elif defined __arm__
 	// Ideally the first mov(*) instruction could be omitted (and then
@@ -140,103 +140,103 @@ static inline void memset_32(uint32_t* dest, size_t num32, uint32_t val32)
 		"mov     r10,r3\n\t"
 		"mov     r12,r3\n\t"
 	"0:\n\t"
-		"stmia   %[dest]!,{r3,r4,r5,r6,r8,r9,r10,r12}\n\t"
+		"stmia   %[out]!,{r3,r4,r5,r6,r8,r9,r10,r12}\n\t"
 		"subs    %[num],%[num],#8\n\t"
 		"bpl     0b\n\t"
 	"1:\n\t"
 		"tst     %[num],#4\n\t"
 		"it      ne\n\t"
-		"stmne   %[dest]!,{r3,r4,r5,r6}\n\t"
+		"stmne   %[out]!,{r3,r4,r5,r6}\n\t"
 		"tst     %[num],#2\n\t"
 		"it      ne\n\t"
-		"stmne   %[dest]!,{r3,r4}\n\t"
+		"stmne   %[out]!,{r3,r4}\n\t"
 		"tst     %[num],#1\n\t"
 		"it      ne\n\t"
-		"strne   r3,[%[dest]]\n\t"
+		"strne   r3,[%[out]]\n\t"
 
-		: [dest] "=r"    (dest)
-		, [num] "=r"     (num32)
-		:       "[dest]" (dest)
-		,       "[num]"  (num32)
-		, [val] "r"      (val32)
+		: [out] "=r"    (out)
+		, [num] "=r"    (num32)
+		:       "[out]" (out)
+		,       "[num]" (num32)
+		, [val] "r"     (val32)
 		: "memory"
 		, "r3","r4","r5","r6","r8","r9","r10","r12"
 	);
 	return;
 #else
-	uint32_t* e = dest + num32 - 7;
-	for (/**/; dest < e; dest += 8) {
-		dest[0] = val32;
-		dest[1] = val32;
-		dest[2] = val32;
-		dest[3] = val32;
-		dest[4] = val32;
-		dest[5] = val32;
-		dest[6] = val32;
-		dest[7] = val32;
+	uint32_t* e = out + num32 - 7;
+	for (/**/; out < e; out += 8) {
+		out[0] = val32;
+		out[1] = val32;
+		out[2] = val32;
+		out[3] = val32;
+		out[4] = val32;
+		out[5] = val32;
+		out[6] = val32;
+		out[7] = val32;
 	}
 	if (unlikely(num32 & 4)) {
-		dest[0] = val32;
-		dest[1] = val32;
-		dest[2] = val32;
-		dest[3] = val32;
-		dest += 4;
+		out[0] = val32;
+		out[1] = val32;
+		out[2] = val32;
+		out[3] = val32;
+		out += 4;
 	}
 	if (unlikely(num32 & 2)) {
-		dest[0] = val32;
-		dest[1] = val32;
-		dest += 2;
+		out[0] = val32;
+		out[1] = val32;
+		out += 2;
 	}
 	if (unlikely(num32 & 1)) {
-		dest[0] = val32;
+		out[0] = val32;
 	}
 #endif
 }
 
 static inline void memset_16_2(
-	uint16_t* dest, size_t num16, uint16_t val0, uint16_t val1)
+	uint16_t* out, size_t num16, uint16_t val0, uint16_t val1)
 {
 	if (unlikely(num16 == 0)) return;
 
 	// Align at 4-byte boundary.
-	if (unlikely(size_t(dest) & 2)) {
-		dest[0] = val1; // start at odd pixel
-		++dest; --num16;
+	if (unlikely(size_t(out) & 2)) {
+		out[0] = val1; // start at odd pixel
+		++out; --num16;
 	}
 
 	uint32_t val32 = OPENMSX_BIGENDIAN ? (uint32_t(val0) << 16) | val1
 	                                   : val0 | (uint32_t(val1) << 16);
-	memset_32(reinterpret_cast<uint32_t*>(dest), num16 / 2, val32);
+	memset_32(reinterpret_cast<uint32_t*>(out), num16 / 2, val32);
 
 	if (unlikely(num16 & 1)) {
-		dest[num16 - 1] = val0;
+		out[num16 - 1] = val0;
 	}
 }
 
-static inline void memset_16(uint16_t* dest, size_t num16, uint16_t val16)
+static inline void memset_16(uint16_t* out, size_t num16, uint16_t val16)
 {
-	memset_16_2(dest, num16, val16, val16);
+	memset_16_2(out, num16, val16, val16);
 }
 
 template<typename Pixel> void MemSet<Pixel>::operator()(
-	Pixel* dest, size_t num, Pixel val) const
+	Pixel* out, size_t num, Pixel val) const
 {
 	if (sizeof(Pixel) == 2) {
-		memset_16(reinterpret_cast<uint16_t*>(dest), num, val);
+		memset_16(reinterpret_cast<uint16_t*>(out), num, val);
 	} else if (sizeof(Pixel) == 4) {
-		memset_32(reinterpret_cast<uint32_t*>(dest), num, val);
+		memset_32(reinterpret_cast<uint32_t*>(out), num, val);
 	} else {
 		UNREACHABLE;
 	}
 }
 
 template<typename Pixel> void MemSet2<Pixel>::operator()(
-	Pixel* dest, size_t num, Pixel val0, Pixel val1) const
+	Pixel* out, size_t num, Pixel val0, Pixel val1) const
 {
 	if (sizeof(Pixel) == 2) {
-		memset_16_2(reinterpret_cast<uint16_t*>(dest), num, val0, val1);
+		memset_16_2(reinterpret_cast<uint16_t*>(out), num, val0, val1);
 	} else if (sizeof(Pixel) == 4) {
-		memset_32_2(reinterpret_cast<uint32_t*>(dest), num, val0, val1);
+		memset_32_2(reinterpret_cast<uint32_t*>(out), num, val0, val1);
 	} else {
 		UNREACHABLE;
 	}

@@ -132,9 +132,9 @@ bool CommandLineParser::parseFileName(const string& arg, array_ref<string>& cmdL
 	return processed;
 }
 
-bool CommandLineParser::parseFileNameInner(const string& name, const string& originalPath, array_ref<string>& cmdLine)
+bool CommandLineParser::parseFileNameInner(const string& arg, const string& originalPath, array_ref<string>& cmdLine)
 {
-	string_view extension = FileOperations::getExtension(name).substr(1);
+	string_view extension = FileOperations::getExtension(arg).substr(1);
 	if (extension.empty()) {
 		return false; // no extension
 	}

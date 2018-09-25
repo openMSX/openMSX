@@ -67,7 +67,7 @@ public:
 	inline void slotOn2();
 	inline void slotOff();
 	inline void setPatch(const Patch& patch);
-	inline void setVolume(unsigned volume);
+	inline void setVolume(unsigned value);
 
 	inline unsigned calc_phase(unsigned lfo_pm);
 	template <bool HAS_AM, bool FIXED_ENV>
@@ -118,8 +118,8 @@ public:
 class Channel {
 public:
 	Channel();
-	void reset(YM2413& global);
-	inline void setPatch(unsigned num, YM2413& global);
+	void reset(YM2413& ym2413);
+	inline void setPatch(unsigned num, YM2413& ym2413);
 	inline void setSustain(bool sustain, bool modActAsCarrier);
 	inline void keyOn();
 	inline void keyOff();
@@ -160,7 +160,7 @@ public:
 private:
 	// YM2413Core
 	void reset() override;
-	void writeReg(byte reg, byte value) override;
+	void writeReg(byte reg, byte data) override;
 	byte peekReg(byte reg) const override;
 	void generateChannels(int* bufs[9 + 5], unsigned num) override;
 	int getAmplificationFactor() const override;

@@ -23,7 +23,7 @@ public:
 	byte readMem(word address, EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word start) const override;
+	const byte* getReadCacheLine(word address) const override;
 	byte* getWriteCacheLine(word address) const override;
 	void init() override;
 

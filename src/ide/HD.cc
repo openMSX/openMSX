@@ -196,10 +196,10 @@ bool HD::diskChanged()
 	return false; // TODO not implemented
 }
 
-int HD::insertDisk(string_view newDisk)
+int HD::insertDisk(string_view newFilename)
 {
 	try {
-		switchImage(Filename(newDisk.str()));
+		switchImage(Filename(newFilename.str()));
 		return 0;
 	} catch (MSXException&) {
 		return -1;

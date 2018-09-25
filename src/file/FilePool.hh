@@ -25,7 +25,7 @@ class Sha1SumCommand;
 class FilePool final : private Observer<Setting>, private EventListener
 {
 public:
-	FilePool(CommandController& controler, Reactor& reactor);
+	FilePool(CommandController& controller, Reactor& reactor);
 	~FilePool();
 
 	enum FileType {

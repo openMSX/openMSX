@@ -23,9 +23,9 @@ namespace PNG {
 	void save(SDL_Surface* image, const std::string& filename);
 	void save(unsigned width, unsigned height, const void** rowPointers,
 	          const SDL_PixelFormat& format, const std::string& filename);
-	void save(unsigned witdh, unsigned height, const void** rowPointers,
+	void save(unsigned width, unsigned height, const void** rowPointers,
 	          const std::string& filename);
-	void saveGrayscale(unsigned witdh, unsigned height,
+	void saveGrayscale(unsigned width, unsigned height,
 	                   const void** rowPointers, const std::string& filename);
 
 } // namespace PNG

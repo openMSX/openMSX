@@ -47,7 +47,7 @@ template<> class Multiply32<uint16_t>
 	}
 
 public:
-	explicit Multiply32(const PixelOperations<uint16_t>& format);
+	explicit Multiply32(const PixelOperations<uint16_t>& pixelOps);
 
 	void setFactor32(unsigned factor);
 
