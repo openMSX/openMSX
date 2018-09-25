@@ -19,11 +19,20 @@ static constexpr int BLIP_IMPULSE_WIDTH = 16;
 static constexpr int BLIP_RES = 1 << BlipBuffer::BLIP_PHASE_BITS;
 
 
+#if defined(__GNUC__) && (__GNUC__ < 6)
+  // gcc-5.5 fails to compile the calcImpulses() code below when we use
+  // constexpr, it works with gcc-6.
+  // TODO require gcc-6 for the next release and drop this workaround.
+  #define BLIP_CONSTEXPR
+#else
+  #define BLIP_CONSTEXPR CONSTEXPR
+#endif
+
 // Precalculated impulse table.
 struct Impulses {
 	int a[BLIP_RES][BLIP_IMPULSE_WIDTH];
 };
-static CONSTEXPR Impulses calcImpulses()
+static BLIP_CONSTEXPR Impulses calcImpulses()
 {
 	constexpr int HALF_SIZE = BLIP_RES / 2 * (BLIP_IMPULSE_WIDTH - 1);
 	double fimpulse[HALF_SIZE + 2 * BLIP_RES] = {};
@@ -93,7 +102,7 @@ static CONSTEXPR Impulses calcImpulses()
 	}
 	return impulses;
 }
-static CONSTEXPR Impulses impulses = calcImpulses();
+static BLIP_CONSTEXPR Impulses impulses = calcImpulses();
 
 
 BlipBuffer::BlipBuffer()
