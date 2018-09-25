@@ -213,7 +213,7 @@ void V9990P1Converter<Pixel>::determineVisibleSprites(
 template <class Pixel>
 void V9990P1Converter<Pixel>::renderSprites(
 	Pixel* __restrict buffer, int displayX, int displayEnd, unsigned displayY,
-	int* __restrict visibleSprites, bool front)
+	const int* __restrict visibleSprites, bool front)
 {
 	static const unsigned spriteTable = 0x3FE00;
 	unsigned spritePatternTable = vdp.getSpritePatternAddress(P1);
