@@ -213,8 +213,8 @@ string_view MemInputArchive::loadStr()
 // semi-arbitrary. I only made it >= 52 so that the (incompressible) RP5C01
 // registers won't be compressed.
 static const size_t SMALL_SIZE = 64;
-void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len,
-                                      bool diff)
+void MemOutputArchive::serialize_blob(const char* /*tag*/, const void* data,
+                                      size_t len, bool diff)
 {
 	// Delta-compress in-memory blobs, see DeltaBlock.hh for more details.
 	if (len > SMALL_SIZE) {
@@ -232,7 +232,8 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len,
 
 }
 
-void MemInputArchive::serialize_blob(const char*, void* data, size_t len, bool /*diff*/)
+void MemInputArchive::serialize_blob(const char* /*tag*/, void* data,
+                                     size_t len, bool /*diff*/)
 {
 	if (len > SMALL_SIZE) {
 		// Usually blobs are saved in the same order as they are loaded

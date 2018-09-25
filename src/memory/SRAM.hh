@@ -11,10 +11,10 @@ namespace openmsx {
 class SRAM final
 {
 public:
-	enum DontLoad { DONT_LOAD };
-	SRAM(int size, const XMLElement& xml, DontLoad);
+	struct DontLoadTag {};
+	SRAM(int size, const XMLElement& xml, DontLoadTag);
 	SRAM(const std::string& name, const std::string& description,
-	     int size, const DeviceConfig& config, DontLoad);
+	     int size, const DeviceConfig& config, DontLoadTag);
 	SRAM(const std::string& name,
 	     int size, const DeviceConfig& config, const char* header = nullptr,
 	     bool* loaded = nullptr);

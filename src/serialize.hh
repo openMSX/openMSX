@@ -622,7 +622,7 @@ public:
 		save(c);
 	}
 	void save(const std::string& s);
-	void serialize_blob(const char*, const void* data, size_t len,
+	void serialize_blob(const char* tag, const void* data, size_t len,
 	                    bool diff = true);
 
 	void beginSection()
@@ -690,7 +690,7 @@ public:
 	}
 	void load(std::string& s);
 	string_view loadStr();
-	void serialize_blob(const char*, void* data, size_t len,
+	void serialize_blob(const char* tag, void* data, size_t len,
 	                    bool diff = true);
 
 	void skipSection(bool skip)

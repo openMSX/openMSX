@@ -5,7 +5,7 @@
 namespace openmsx {
 
 EEPROM_93C46::EEPROM_93C46(const XMLElement& xml)
-	: sram(NUM_ADDRESSES, xml, SRAM::DONT_LOAD)
+	: sram(NUM_ADDRESSES, xml, SRAM::DontLoadTag{})
 {
 }
 

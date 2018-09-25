@@ -16,7 +16,7 @@ MSXS1985::MSXS1985(const DeviceConfig& config)
 		// always have SRAM in its config...)
 		sram = std::make_unique<SRAM>(
 			getName() + " SRAM", "S1985 Backup RAM",
-			0x10, config, SRAM::DONT_LOAD);
+			0x10, config, SRAM::DontLoadTag{});
 	} else {
 		sram = std::make_unique<SRAM>(
 			getName() + " SRAM", "S1985 Backup RAM",

@@ -20,7 +20,7 @@ namespace openmsx {
 
 // Like the constructor below, but doesn't create a debuggable.
 // For use in unittests.
-SRAM::SRAM(int size, const XMLElement& xml, DontLoad)
+SRAM::SRAM(int size, const XMLElement& xml, DontLoadTag)
 	: ram(xml, size)
 	, header(nullptr) // not used
 {
@@ -31,7 +31,7 @@ SRAM::SRAM(int size, const XMLElement& xml, DontLoad)
  * dynamically need to decide whether load/save is needed.
  */
 SRAM::SRAM(const std::string& name, const std::string& description,
-           int size, const DeviceConfig& config_, DontLoad)
+           int size, const DeviceConfig& config_, DontLoadTag)
 	: ram(config_, name, description, size)
 	, header(nullptr) // not used
 {

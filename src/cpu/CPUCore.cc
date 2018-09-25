@@ -295,7 +295,7 @@ struct CondM  { bool operator()(byte f) const { return  (f & S_FLAG) != 0; } };
 struct CondP  { bool operator()(byte f) const { return !(f & S_FLAG); } };
 struct CondPE { bool operator()(byte f) const { return  (f & V_FLAG) != 0; } };
 struct CondPO { bool operator()(byte f) const { return !(f & V_FLAG); } };
-struct CondTrue { bool operator()(byte) const { return true; } };
+struct CondTrue { bool operator()(byte /*f*/) const { return true; } };
 
 template<class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,

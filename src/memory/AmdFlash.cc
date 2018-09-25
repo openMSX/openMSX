@@ -86,7 +86,7 @@ void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, c
 			// make sense to load/save the SRAM file.
 			ram = std::make_unique<SRAM>(
 				name, "flash rom",
-				writableSize, config, SRAM::DONT_LOAD);
+				writableSize, config, SRAM::DontLoadTag{});
 		}
 	}
 	if (readOnlySize) {
