@@ -37,11 +37,6 @@
 #define LOG_TO_FILE 0
 #endif
 
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::string;
-
 namespace openmsx {
 
 static void initializeSDL()
@@ -76,20 +71,20 @@ static int main(int argc, char **argv)
 
 	if (!freopen(STDOUT_LOG_FILE_NAME, "a", stdout)) {
 		ad_printf("Couldn't redirect stdout to logfile, aborting\n");
-		cerr << "Couldn't redirect stdout to "
-		        STDOUT_LOG_FILE_NAME << endl;
+		std::cerr << "Couldn't redirect stdout to "
+		             STDOUT_LOG_FILE_NAME "\n";
 		exit(1);
 	}
 	if (!freopen(STDERR_LOG_FILE_NAME, "a", stderr)) {
 		ad_printf("Couldn't redirect stderr to logfile, aborting\n");
-		cout << "Couldn't redirect stderr to "
-		        STDERR_LOG_FILE_NAME << endl;
+		std::cout << "Couldn't redirect stderr to "
+		             STDERR_LOG_FILE_NAME "\n";
 		exit(1);
 	}
 
-	string msg = Date::toString(time(nullptr)) + ": starting openMSX";
-	cout << msg << endl;
-	cerr << msg << endl;
+	std::string msg = Date::toString(time(nullptr)) + ": starting openMSX";
+	std::cout << msg << '\n';
+	std::cerr << msg << '\n';
 #endif
 
 	int err = 0;
@@ -151,16 +146,16 @@ static int main(int argc, char **argv)
 			}
 		}
 	} catch (FatalError& e) {
-		cerr << "Fatal error: " << e.getMessage() << endl;
+		std::cerr << "Fatal error: " << e.getMessage() << '\n';
 		err = 1;
 	} catch (MSXException& e) {
-		cerr << "Uncaught exception: " << e.getMessage() << endl;
+		std::cerr << "Uncaught exception: " << e.getMessage() << '\n';
 		err = 1;
 	} catch (std::exception& e) {
-		cerr << "Uncaught std::exception: " << e.what() << endl;
+		std::cerr << "Uncaught std::exception: " << e.what() << '\n';
 		err = 1;
 	} catch (...) {
-		cerr << "Uncaught exception of unexpected type." << endl;
+		std::cerr << "Uncaught exception of unexpected type." << '\n';
 		err = 1;
 	}
 	// Clean up.

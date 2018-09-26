@@ -9,7 +9,6 @@
 #include "stl.hh"
 #include <cassert>
 
-using std::make_shared;
 
 namespace openmsx {
 
@@ -144,7 +143,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 						// Reschedule it for the next sync, with the realTime updated to now, so that it seems like the
 						// key was released now and not when android released it.
 						// Otherwise, the offset calculation for the emutime further down below will go wrong on the next sync
-						EventPtr newKeyupEvent = make_shared<KeyUpEvent>(keyEvent->getKeyCode(), keyEvent->getUnicode());
+						EventPtr newKeyupEvent = std::make_shared<KeyUpEvent>(keyEvent->getKeyCode(), keyEvent->getUnicode());
 						toBeRescheduledEvents.push_back(newKeyupEvent);
 						continue; // continue with next to be scheduled event
 					}
