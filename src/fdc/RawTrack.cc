@@ -274,7 +274,7 @@ template<typename Archive>
 void RawTrack::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("idam", idam);
-	unsigned len = unsigned(data.size());
+	auto len = unsigned(data.size());
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("trackLength", len);
 	} else {

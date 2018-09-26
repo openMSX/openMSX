@@ -151,7 +151,7 @@ unsigned SCSIHD::modeSense()
 	byte* pBuffer = buffer;
 	if ((currentLength > 0) && (cdb[2] == 3)) {
 		// TODO check for too many sectors
-		unsigned total   = unsigned(getNbSectors());
+		auto total       = unsigned(getNbSectors());
 		byte media       = MT_UNKNOWN;
 		byte sectors     = 64;
 		byte blockLength = SECTOR_SIZE >> 8;
@@ -235,7 +235,7 @@ bool SCSIHD::checkReadOnly()
 unsigned SCSIHD::readCapacity()
 {
 	// TODO check for overflow
-	unsigned block = unsigned(getNbSectors());
+	auto block = unsigned(getNbSectors());
 
 	if (block == 0) {
 		// drive not ready
@@ -251,7 +251,7 @@ unsigned SCSIHD::readCapacity()
 
 bool SCSIHD::checkAddress()
 {
-	unsigned total = unsigned(getNbSectors());
+	auto total = unsigned(getNbSectors());
 	if (total == 0) {
 		// drive not ready
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;

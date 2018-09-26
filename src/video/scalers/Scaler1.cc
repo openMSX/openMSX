@@ -36,7 +36,7 @@ void Scaler1<Pixel>::scaleBlank1to1(
 {
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
-		Pixel color = src.getLineColor<Pixel>(srcY);
+		auto color = src.getLineColor<Pixel>(srcY);
 		dst.fillLine(dstY, color);
 	}
 }
@@ -48,8 +48,8 @@ void Scaler1<Pixel>::scaleBlank2to1(
 {
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
-		Pixel color0 = src.getLineColor<Pixel>(srcY + 0);
-		Pixel color1 = src.getLineColor<Pixel>(srcY + 1);
+		auto color0 = src.getLineColor<Pixel>(srcY + 0);
+		auto color1 = src.getLineColor<Pixel>(srcY + 1);
 		Pixel color01 = pixelOps.template blend<1, 1>(color0, color1);
 		dst.fillLine(dstY, color01);
 	}

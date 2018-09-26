@@ -218,7 +218,7 @@ void MemOutputArchive::serialize_blob(const char* /*tag*/, const void* data,
 {
 	// Delta-compress in-memory blobs, see DeltaBlock.hh for more details.
 	if (len > SMALL_SIZE) {
-		unsigned deltaBlockIdx = unsigned(deltaBlocks.size());
+		auto deltaBlockIdx = unsigned(deltaBlocks.size());
 		save(deltaBlockIdx); // see comment below in MemInputArchive
 		deltaBlocks.push_back(diff
 			? lastDeltaBlocks.createNew(

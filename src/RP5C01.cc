@@ -200,7 +200,7 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 {
 	if (modeSetting.getEnum() == EMUTIME) {
 		// sync with EmuTime, perfect emulation
-		unsigned elapsed = unsigned(reference.getTicksTill(time));
+		auto elapsed = unsigned(reference.getTicksTill(time));
 		reference.advance(time);
 
 		// in test mode increase sec/min/.. at a rate of 16384Hz

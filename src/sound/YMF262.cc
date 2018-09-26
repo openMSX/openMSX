@@ -1641,7 +1641,7 @@ template<typename Archive>
 void YMF262::Slot::serialize(Archive& a, unsigned /*version*/)
 {
 	// wavetable
-	unsigned waveform = unsigned((wavetable - sin.tab) / SIN_LEN);
+	auto waveform = unsigned((wavetable - sin.tab) / SIN_LEN);
 	a.serialize("waveform", waveform);
 	if (a.isLoader()) {
 		wavetable = &sin.tab[waveform * SIN_LEN];

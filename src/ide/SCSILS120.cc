@@ -343,7 +343,7 @@ bool SCSILS120::checkReadOnly()
 
 unsigned SCSILS120::readCapacity()
 {
-	unsigned block = unsigned(getNbSectors());
+	auto block = unsigned(getNbSectors());
 
 	if (block == 0) {
 		// drive not ready
@@ -360,7 +360,7 @@ unsigned SCSILS120::readCapacity()
 
 bool SCSILS120::checkAddress()
 {
-	unsigned total = unsigned(getNbSectors());
+	auto total = unsigned(getNbSectors());
 	if (total == 0) {
 		// drive not ready
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;

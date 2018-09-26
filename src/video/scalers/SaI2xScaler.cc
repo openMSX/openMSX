@@ -31,7 +31,7 @@ void SaI2xScaler<Pixel>::scaleBlank1to2(
 	                  ? dstEndY : dstEndY - 2;
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 2) {
-		Pixel color = src.getLineColor<Pixel>(srcY);
+		auto color = src.getLineColor<Pixel>(srcY);
 		dst.fillLine(dstY + 0, color);
 		dst.fillLine(dstY + 1, color);
 	}

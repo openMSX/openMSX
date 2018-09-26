@@ -473,7 +473,7 @@ void CommandConsole::putPrompt()
 void CommandConsole::tabCompletion()
 {
 	resetScrollBack();
-	unsigned pl = unsigned(prompt.size());
+	auto pl = unsigned(prompt.size());
 	string front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl).str();
 	string back  = utf8::unchecked::substr(lines[0].str(), cursorPosition).str();
 	string newFront = commandController.tabCompletion(front);

@@ -99,7 +99,7 @@ void EventDistributor::deliverEvents()
 			auto type = event->getType();
 			auto priorityMapCopy = listeners[type];
 			lock.unlock();
-			unsigned blockPriority = unsigned(-1); // allow all
+			auto blockPriority = unsigned(-1); // allow all
 			for (auto& p : priorityMapCopy) {
 				// It's possible delivery to one of the previous
 				// Listeners unregistered the current Listener.

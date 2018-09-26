@@ -47,8 +47,8 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 		// alternative is to turn noiseBuf into an array of ints (it's
 		// now bytes) and in the 16bpp code extract R,G,B components
 		// from those ints
-		const Pixel p = Pixel(OPENMSX_BIGENDIAN ? 0x00010203
-		                                        : 0x03020100);
+		const auto p = Pixel(OPENMSX_BIGENDIAN ? 0x00010203
+		                                       : 0x03020100);
 		// TODO we can also fill the array with 'factor' and only set
 		// 'alpha' to 0.0. But PixelOperations doesn't offer a simple
 		// way to get the position of the alpha byte (yet).

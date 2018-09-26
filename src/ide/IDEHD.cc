@@ -40,7 +40,7 @@ void IDEHD::fillIdentifyBlock(AlignedBuffer& buf)
 	auto totalSectors = getNbSectors();
 	uint16_t heads = 16;
 	uint16_t sectors = 32;
-	uint16_t cylinders = uint16_t(totalSectors / (heads * sectors)); // TODO overflow?
+	auto cylinders = uint16_t(totalSectors / (heads * sectors)); // TODO overflow?
 	Endian::writeL16(&buf[1 * 2], cylinders);
 	Endian::writeL16(&buf[3 * 2], heads);
 	Endian::writeL16(&buf[6 * 2], sectors);

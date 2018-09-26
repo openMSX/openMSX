@@ -252,8 +252,8 @@ void ImagePrinter::ensurePrintPage()
 		// A4 paper format (210mm x 297mm) at 300dpi
 		// TODO make this configurable
 		int dpi = dpiSetting->getInt();
-		unsigned paperSizeX = unsigned((210 / 25.4) * dpi);
-		unsigned paperSizeY = unsigned((297 / 25.4) * dpi);
+		auto paperSizeX = unsigned((210 / 25.4) * dpi);
+		auto paperSizeY = unsigned((297 / 25.4) * dpi);
 
 		unsigned dotsX, dotsY;
 		getNumberOfDots(dotsX, dotsY);
