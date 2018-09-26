@@ -8,7 +8,7 @@
 #include "EmuTime.hh"
 #include "MemBuffer.hh"
 #include "DeltaBlock.hh"
-#include "array_ref.hh"
+#include "span.hh"
 #include "outer.hh"
 #include <vector>
 #include <map>
@@ -83,12 +83,12 @@ private:
 	void stop();
 	void status(TclObject& result) const;
 	void debugInfo(TclObject& result) const;
-	void goBack(array_ref<TclObject> tokens);
-	void goTo(array_ref<TclObject> tokens);
+	void goBack(span<const TclObject> tokens);
+	void goTo(span<const TclObject> tokens);
 	void saveReplay(Interpreter& interp,
-	                array_ref<TclObject> tokens, TclObject& result);
+	                span<const TclObject> tokens, TclObject& result);
 	void loadReplay(Interpreter& interp,
-	                array_ref<TclObject> tokens, TclObject& result);
+	                span<const TclObject> tokens, TclObject& result);
 
 	void signalStopReplay(EmuTime::param time);
 	EmuTime::param getEndTime(const ReverseHistory& history) const;
@@ -138,7 +138,7 @@ private:
 
 	struct ReverseCmd final : Command {
 		explicit ReverseCmd(CommandController& controller);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} reverseCmd;

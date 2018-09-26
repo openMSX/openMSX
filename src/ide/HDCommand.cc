@@ -24,7 +24,7 @@ HDCommand::HDCommand(CommandController& commandController_,
 {
 }
 
-void HDCommand::execute(array_ref<TclObject> tokens, TclObject& result,
+void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
                         EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
@@ -82,7 +82,7 @@ void HDCommand::tabCompletion(vector<string>& tokens) const
 	completeFileName(tokens, userFileContext(), extra);
 }
 
-bool HDCommand::needRecord(array_ref<TclObject> tokens) const
+bool HDCommand::needRecord(span<const TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }

@@ -74,7 +74,7 @@ private:
 	public:
 		BindCmd(CommandController& commandController, HotKey& hotKey,
 			bool defaultCmd);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	private:
 		std::string formatBinding(const HotKey::BindMap::value_type& p);
@@ -89,7 +89,7 @@ private:
 	public:
 		UnbindCmd(CommandController& commandController, HotKey& hotKey,
 			  bool defaultCmd);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	private:
 		HotKey& hotKey;
@@ -100,13 +100,13 @@ private:
 
 	struct ActivateCmd final : Command {
 		explicit ActivateCmd(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} activateCmd;
 
 	struct DeactivateCmd final : Command {
 		explicit DeactivateCmd(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} deactivateCmd;
 

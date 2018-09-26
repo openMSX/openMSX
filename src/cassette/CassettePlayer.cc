@@ -615,7 +615,7 @@ CassettePlayer::TapeCommand::TapeCommand(
 }
 
 void CassettePlayer::TapeCommand::execute(
-	array_ref<TclObject> tokens, TclObject& result, EmuTime::param time)
+	span<const TclObject> tokens, TclObject& result, EmuTime::param time)
 {
 	auto& cassettePlayer = OUTER(CassettePlayer, tapeCommand);
 	if (tokens.size() == 1) {
@@ -820,7 +820,7 @@ void CassettePlayer::TapeCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-bool CassettePlayer::TapeCommand::needRecord(array_ref<TclObject> tokens) const
+bool CassettePlayer::TapeCommand::needRecord(span<const TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }

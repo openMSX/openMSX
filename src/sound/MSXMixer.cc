@@ -759,7 +759,7 @@ MSXMixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(
 }
 
 void MSXMixer::SoundDeviceInfoTopic::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+	span<const TclObject> tokens, TclObject& result) const
 {
 	auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
 	switch (tokens.size()) {

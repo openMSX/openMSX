@@ -189,7 +189,7 @@ unsigned AviRecorder::getFrameHeight() const {
 	return frameHeight;
 }
 
-void AviRecorder::processStart(array_ref<TclObject> tokens, TclObject& result)
+void AviRecorder::processStart(span<const TclObject> tokens, TclObject& result)
 {
 	string filename;
 	string prefix = "openmsx";
@@ -271,7 +271,7 @@ void AviRecorder::processStart(array_ref<TclObject> tokens, TclObject& result)
 	}
 }
 
-void AviRecorder::processStop(array_ref<TclObject> tokens)
+void AviRecorder::processStop(span<const TclObject> tokens)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -279,17 +279,17 @@ void AviRecorder::processStop(array_ref<TclObject> tokens)
 	stop();
 }
 
-void AviRecorder::processToggle(array_ref<TclObject> tokens, TclObject& result)
+void AviRecorder::processToggle(span<const TclObject> tokens, TclObject& result)
 {
 	if (aviWriter || wavWriter) {
 		// drop extra tokens
-		processStop(make_array_ref(tokens.data(), 2));
+		processStop(tokens.first<2>());
 	} else {
 		processStart(tokens, result);
 	}
 }
 
-void AviRecorder::status(array_ref<TclObject> tokens, TclObject& result) const
+void AviRecorder::status(span<const TclObject> tokens, TclObject& result) const
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -310,7 +310,7 @@ AviRecorder::Cmd::Cmd(CommandController& commandController_)
 {
 }
 
-void AviRecorder::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void AviRecorder::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");

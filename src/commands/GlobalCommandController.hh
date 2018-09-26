@@ -116,20 +116,20 @@ private:
 
 	struct HelpCmd final : Command {
 		explicit HelpCmd(GlobalCommandController& controller);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} helpCmd;
 
 	struct TabCompletionCmd final : Command {
 		explicit TabCompletionCmd(GlobalCommandController& controller);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} tabCompletionCmd;
 
 	struct UpdateCmd final : Command {
 		explicit UpdateCmd(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	private:
@@ -138,14 +138,14 @@ private:
 
 	struct PlatformInfo final : InfoTopic {
 		explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} platformInfo;
 
 	struct VersionInfo final : InfoTopic {
 		explicit VersionInfo(InfoCommand& openMSXInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} versionInfo;

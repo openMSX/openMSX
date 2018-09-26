@@ -21,7 +21,7 @@ public:
 
 private:
 	// Command
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 	             TclObject& result) override;
 	std::string help(const std::vector<std::string>& tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;

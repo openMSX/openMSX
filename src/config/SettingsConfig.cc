@@ -86,7 +86,7 @@ SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
 }
 
 void SettingsConfig::SaveSettingsCommand::execute(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
 	auto& settingsConfig = OUTER(SettingsConfig, saveSettingsCommand);
 	try {
@@ -127,7 +127,7 @@ SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
 }
 
 void SettingsConfig::LoadSettingsCommand::execute(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();

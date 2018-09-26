@@ -130,7 +130,7 @@ void CasImage::writeByte(byte b)
 }
 
 // write data until a header is detected
-bool CasImage::writeData(array_ref<byte> buf, size_t& pos)
+bool CasImage::writeData(span<byte> buf, size_t& pos)
 {
 	bool eof = false;
 	while ((pos + 8) <= buf.size()) {

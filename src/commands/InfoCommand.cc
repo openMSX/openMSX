@@ -45,7 +45,7 @@ void InfoCommand::unregisterTopic(InfoTopic& topic)
 
 // Command
 
-void InfoCommand::execute(array_ref<TclObject> tokens,
+void InfoCommand::execute(span<const TclObject> tokens,
                           TclObject& result)
 {
 	switch (tokens.size()) {

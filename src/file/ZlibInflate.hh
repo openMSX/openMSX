@@ -1,8 +1,8 @@
 #ifndef ZLIBINFLATE_HH
 #define ZLIBINFLATE_HH
 
-#include "array_ref.hh"
 #include "MemBuffer.hh"
+#include "span.hh"
 #include <cstdint>
 #include <string>
 #include <zlib.h>
@@ -12,7 +12,7 @@ namespace openmsx {
 class ZlibInflate
 {
 public:
-	ZlibInflate(array_ref<uint8_t> input);
+	ZlibInflate(span<uint8_t> input);
 	~ZlibInflate();
 
 	void skip(size_t num);

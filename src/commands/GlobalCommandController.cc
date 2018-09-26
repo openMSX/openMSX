@@ -451,7 +451,7 @@ GlobalCommandController::HelpCmd::HelpCmd(GlobalCommandController& controller_)
 }
 
 void GlobalCommandController::HelpCmd::execute(
-	array_ref<TclObject> tokens, TclObject& result)
+	span<const TclObject> tokens, TclObject& result)
 {
 	auto& controller = OUTER(GlobalCommandController, helpCmd);
 	switch (tokens.size()) {
@@ -512,7 +512,7 @@ GlobalCommandController::TabCompletionCmd::TabCompletionCmd(
 }
 
 void GlobalCommandController::TabCompletionCmd::execute(
-	array_ref<TclObject> tokens, TclObject& result)
+	span<const TclObject> tokens, TclObject& result)
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -564,7 +564,7 @@ CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 }
 
 void GlobalCommandController::UpdateCmd::execute(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -607,7 +607,7 @@ GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoComm
 }
 
 void GlobalCommandController::PlatformInfo::execute(
-	array_ref<TclObject> /*tokens*/, TclObject& result) const
+	span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result.setString(TARGET_PLATFORM);
 }
@@ -625,7 +625,7 @@ GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoComman
 }
 
 void GlobalCommandController::VersionInfo::execute(
-	array_ref<TclObject> /*tokens*/, TclObject& result) const
+	span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result.setString(Version::full());
 }

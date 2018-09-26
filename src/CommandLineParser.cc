@@ -95,7 +95,7 @@ void CommandLineParser::registerFileType(
 }
 
 bool CommandLineParser::parseOption(
-	const string& arg, array_ref<string>& cmdLine, ParsePhase phase)
+	const string& arg, span<string>& cmdLine, ParsePhase phase)
 {
 	auto it = lower_bound(begin(options), end(options), arg, CmpOptions());
 	if ((it != end(options)) && (it->first == arg)) {
@@ -112,7 +112,7 @@ bool CommandLineParser::parseOption(
 	return false; // unknown
 }
 
-bool CommandLineParser::parseFileName(const string& arg, array_ref<string>& cmdLine)
+bool CommandLineParser::parseFileName(const string& arg, span<string>& cmdLine)
 {
 	// First try the fileName as we get it from the commandline. This may
 	// be more interesting than the original fileName of a (g)zipped file:
@@ -132,7 +132,7 @@ bool CommandLineParser::parseFileName(const string& arg, array_ref<string>& cmdL
 	return processed;
 }
 
-bool CommandLineParser::parseFileNameInner(const string& arg, const string& originalPath, array_ref<string>& cmdLine)
+bool CommandLineParser::parseFileNameInner(const string& arg, const string& originalPath, span<string>& cmdLine)
 {
 	string_view extension = FileOperations::getExtension(arg).substr(1);
 	if (extension.empty()) {
@@ -163,7 +163,7 @@ void CommandLineParser::parse(int argc, char** argv)
 	for (auto i : xrange(1, argc)) {
 		cmdLineBuf.push_back(FileOperations::getConventionalPath(argv[i]));
 	}
-	array_ref<string> cmdLine(cmdLineBuf);
+	span<string> cmdLine(cmdLineBuf);
 	vector<string> backupCmdLine;
 
 	for (ParsePhase phase = PHASE_BEFORE_INIT;
@@ -240,7 +240,7 @@ void CommandLineParser::parse(int argc, char** argv)
 			// iterate over all arguments
 			while (!cmdLine.empty()) {
 				string arg = std::move(cmdLine.front());
-				cmdLine.pop_front();
+				cmdLine = cmdLine.subspan(1);
 				// first try options
 				if (!parseOption(arg, cmdLine, phase)) {
 					// next try the registered filetypes (xml)
@@ -253,7 +253,7 @@ void CommandLineParser::parse(int argc, char** argv)
 							for (unsigned i = 0; i < it->second.length - 1; ++i) {
 								if (!cmdLine.empty()) {
 									backupCmdLine.push_back(std::move(cmdLine.front()));
-									cmdLine.pop_front();
+									cmdLine = cmdLine.subspan(1);
 								}
 							}
 						}
@@ -311,7 +311,7 @@ Interpreter& CommandLineParser::getInterpreter() const
 // Control option
 
 void CommandLineParser::ControlOption::parseOption(
-	const string& option, array_ref<string>& cmdLine)
+	const string& option, span<string>& cmdLine)
 {
 	const auto& fullType = getArgument(option, cmdLine);
 	string_view type, arguments;
@@ -347,7 +347,7 @@ string_view CommandLineParser::ControlOption::optionHelp() const
 // Script option
 
 void CommandLineParser::ScriptOption::parseOption(
-	const string& option, array_ref<string>& cmdLine)
+	const string& option, span<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -358,7 +358,7 @@ string_view CommandLineParser::ScriptOption::optionHelp() const
 }
 
 void CommandLineParser::ScriptOption::parseFileType(
-	const string& filename, array_ref<std::string>& /*cmdLine*/)
+	const string& filename, span<std::string>& /*cmdLine*/)
 {
 	scripts.push_back(filename);
 }
@@ -437,7 +437,7 @@ static void printItemMap(const GroupedItems& itemMap)
 // class HelpOption
 
 void CommandLineParser::HelpOption::parseOption(
-	const string& /*option*/, array_ref<string>& /*cmdLine*/)
+	const string& /*option*/, span<string>& /*cmdLine*/)
 {
 	auto& parser = OUTER(CommandLineParser, helpOption);
 	const auto& fullVersion = Version::full();
@@ -479,7 +479,7 @@ string_view CommandLineParser::HelpOption::optionHelp() const
 // class VersionOption
 
 void CommandLineParser::VersionOption::parseOption(
-	const string& /*option*/, array_ref<string>& /*cmdLine*/)
+	const string& /*option*/, span<string>& /*cmdLine*/)
 {
 	cout << Version::full() << endl;
 	cout << "flavour: " << BUILD_FLAVOUR << endl;
@@ -497,7 +497,7 @@ string_view CommandLineParser::VersionOption::optionHelp() const
 // Machine option
 
 void CommandLineParser::MachineOption::parseOption(
-	const string& option, array_ref<string>& cmdLine)
+	const string& option, span<string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, machineOption);
 	if (parser.haveConfig) {
@@ -520,7 +520,7 @@ string_view CommandLineParser::MachineOption::optionHelp() const
 // class SettingOption
 
 void CommandLineParser::SettingOption::parseOption(
-	const string& option, array_ref<string>& cmdLine)
+	const string& option, span<string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, settingOption);
 	if (parser.haveSettings) {
@@ -547,7 +547,7 @@ string_view CommandLineParser::SettingOption::optionHelp() const
 // class NoPBOOption
 
 void CommandLineParser::NoPBOOption::parseOption(
-	const string& /*option*/, array_ref<string>& /*cmdLine*/)
+	const string& /*option*/, span<string>& /*cmdLine*/)
 {
 	#if COMPONENT_GL
 	cout << "Disabling PBO" << endl;
@@ -564,7 +564,7 @@ string_view CommandLineParser::NoPBOOption::optionHelp() const
 // class TestConfigOption
 
 void CommandLineParser::TestConfigOption::parseOption(
-	const string& /*option*/, array_ref<string>& /*cmdLine*/)
+	const string& /*option*/, span<string>& /*cmdLine*/)
 {
 	auto& parser = OUTER(CommandLineParser, testConfigOption);
 	parser.parseStatus = CommandLineParser::TEST;
@@ -578,11 +578,11 @@ string_view CommandLineParser::TestConfigOption::optionHelp() const
 // class BashOption
 
 void CommandLineParser::BashOption::parseOption(
-	const string& /*option*/, array_ref<string>& cmdLine)
+	const string& /*option*/, span<string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, bashOption);
 	string_view last = cmdLine.empty() ? string_view{} : cmdLine.front();
-	cmdLine.clear(); // eat all remaining parameters
+	cmdLine = cmdLine.subspan(0, 0); // eat all remaining parameters
 
 	if (last == "-machine") {
 		for (auto& s : Reactor::getHwConfigs("machines")) {

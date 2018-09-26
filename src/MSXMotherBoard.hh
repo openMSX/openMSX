@@ -278,7 +278,7 @@ class ExtCmd final : public RecordedCommand
 {
 public:
 	ExtCmd(MSXMotherBoard& motherBoard, std::string commandName);
-	void execute(array_ref<TclObject> tokens, TclObject& result,
+	void execute(span<const TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
 	std::string help(const std::vector<std::string>& tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;

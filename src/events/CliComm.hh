@@ -1,7 +1,7 @@
 #ifndef CLICOMM_HH
 #define CLICOMM_HH
 
-#include "array_ref.hh"
+#include "span.hh"
 #include "strCat.hh"
 #include "string_view.hh"
 
@@ -75,11 +75,11 @@ public:
 	}
 
 	// string representations of the LogLevel and UpdateType enums
-	static array_ref<const char*> getLevelStrings()  {
-		return make_array_ref(levelStr);
+	static span<const char* const> getLevelStrings()  {
+		return levelStr;
 	}
-	static array_ref<const char*> getUpdateStrings() {
-		return make_array_ref(updateStr);
+	static span<const char* const> getUpdateStrings() {
+		return updateStr;
 	}
 
 protected:

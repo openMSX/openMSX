@@ -86,7 +86,7 @@ void File::write(const void* buffer, size_t num)
 	file->write(buffer, num);
 }
 
-array_ref<uint8_t> File::mmap()
+span<uint8_t> File::mmap()
 {
 	return file->mmap();
 }

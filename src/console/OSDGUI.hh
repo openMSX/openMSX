@@ -29,20 +29,19 @@ private:
 	class OSDCommand final : public Command {
 	public:
 		explicit OSDCommand(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	private:
-		void create   (array_ref<TclObject> tokens, TclObject& result);
-		void destroy  (array_ref<TclObject> tokens, TclObject& result);
-		void info     (array_ref<TclObject> tokens, TclObject& result);
-		void exists   (array_ref<TclObject> tokens, TclObject& result);
-		void configure(array_ref<TclObject> tokens, TclObject& result);
+		void create   (span<const TclObject> tokens, TclObject& result);
+		void destroy  (span<const TclObject> tokens, TclObject& result);
+		void info     (span<const TclObject> tokens, TclObject& result);
+		void exists   (span<const TclObject> tokens, TclObject& result);
+		void configure(span<const TclObject> tokens, TclObject& result);
 		std::unique_ptr<OSDWidget> create(
 			string_view type, const TclObject& name) const;
-		void configure(OSDWidget& widget, array_ref<TclObject> tokens,
-			       unsigned skip);
+		void configure(OSDWidget& widget, span<const TclObject> tokens);
 
 		OSDWidget& getWidget(string_view name) const;
 	} osdCommand;

@@ -116,7 +116,7 @@ SettingsManager::SettingInfo::SettingInfo(InfoCommand& openMSXInfoCommand)
 }
 
 void SettingsManager::SettingInfo::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+	span<const TclObject> tokens, TclObject& result) const
 {
 	auto& manager = OUTER(SettingsManager, settingInfo);
 	switch (tokens.size()) {

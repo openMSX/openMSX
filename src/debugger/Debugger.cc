@@ -189,7 +189,7 @@ void Debugger::transfer(Debugger& other)
 
 // class Debugger::Cmd
 
-static word getAddress(Interpreter& interp, array_ref<TclObject> tokens)
+static word getAddress(Interpreter& interp, span<const TclObject> tokens)
 {
 	if (tokens.size() < 3) {
 		throw CommandException("Missing argument");
@@ -209,7 +209,7 @@ Debugger::Cmd::Cmd(CommandController& commandController_,
 {
 }
 
-bool Debugger::Cmd::needRecord(array_ref<TclObject> tokens) const
+bool Debugger::Cmd::needRecord(span<const TclObject> tokens) const
 {
 	// Note: it's crucial for security that only the write and write_block
 	// subcommands are recorded and replayed. The 'set_bp' command for
@@ -221,7 +221,7 @@ bool Debugger::Cmd::needRecord(array_ref<TclObject> tokens) const
 }
 
 void Debugger::Cmd::execute(
-	array_ref<TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
+	span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
@@ -281,7 +281,7 @@ void Debugger::Cmd::list(TclObject& result)
 	result.addListElements(keys(debugger().debuggables));
 }
 
-void Debugger::Cmd::desc(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::desc(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -290,7 +290,7 @@ void Debugger::Cmd::desc(array_ref<TclObject> tokens, TclObject& result)
 	result.setString(device.getDescription());
 }
 
-void Debugger::Cmd::size(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::size(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -299,7 +299,7 @@ void Debugger::Cmd::size(array_ref<TclObject> tokens, TclObject& result)
 	result.setInt(device.getSize());
 }
 
-void Debugger::Cmd::read(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::read(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
@@ -312,7 +312,7 @@ void Debugger::Cmd::read(array_ref<TclObject> tokens, TclObject& result)
 	result.setInt(device.read(addr));
 }
 
-void Debugger::Cmd::readBlock(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::readBlock(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 5) {
 		throw SyntaxError();
@@ -336,7 +336,7 @@ void Debugger::Cmd::readBlock(array_ref<TclObject> tokens, TclObject& result)
 	result.setBinary(buf.data(), num);
 }
 
-void Debugger::Cmd::write(array_ref<TclObject> tokens, TclObject& /*result*/)
+void Debugger::Cmd::write(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 5) {
 		throw SyntaxError();
@@ -355,7 +355,7 @@ void Debugger::Cmd::write(array_ref<TclObject> tokens, TclObject& /*result*/)
 	device.write(addr, value);
 }
 
-void Debugger::Cmd::writeBlock(array_ref<TclObject> tokens, TclObject& /*result*/)
+void Debugger::Cmd::writeBlock(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 5) {
 		throw SyntaxError();
@@ -377,7 +377,7 @@ void Debugger::Cmd::writeBlock(array_ref<TclObject> tokens, TclObject& /*result*
 	}
 }
 
-void Debugger::Cmd::setBreakPoint(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::setBreakPoint(span<const TclObject> tokens, TclObject& result)
 {
 	TclObject command("debug break");
 	TclObject condition;
@@ -406,7 +406,7 @@ void Debugger::Cmd::setBreakPoint(array_ref<TclObject> tokens, TclObject& result
 }
 
 void Debugger::Cmd::removeBreakPoint(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -446,7 +446,7 @@ void Debugger::Cmd::removeBreakPoint(
 }
 
 void Debugger::Cmd::listBreakPoints(
-	array_ref<TclObject> /*tokens*/, TclObject& result)
+	span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
@@ -462,7 +462,7 @@ void Debugger::Cmd::listBreakPoints(
 }
 
 
-void Debugger::Cmd::setWatchPoint(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& result)
 {
 	TclObject command("debug break");
 	TclObject condition;
@@ -524,7 +524,7 @@ void Debugger::Cmd::setWatchPoint(array_ref<TclObject> tokens, TclObject& result
 }
 
 void Debugger::Cmd::removeWatchPoint(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -549,7 +549,7 @@ void Debugger::Cmd::removeWatchPoint(
 }
 
 void Debugger::Cmd::listWatchPoints(
-	array_ref<TclObject> /*tokens*/, TclObject& result)
+	span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
@@ -592,7 +592,7 @@ void Debugger::Cmd::listWatchPoints(
 }
 
 
-void Debugger::Cmd::setCondition(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::setCondition(span<const TclObject> tokens, TclObject& result)
 {
 	TclObject command("debug break");
 	TclObject condition;
@@ -618,7 +618,7 @@ void Debugger::Cmd::setCondition(array_ref<TclObject> tokens, TclObject& result)
 }
 
 void Debugger::Cmd::removeCondition(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -644,7 +644,7 @@ void Debugger::Cmd::removeCondition(
 }
 
 void Debugger::Cmd::listConditions(
-	array_ref<TclObject> /*tokens*/, TclObject& result)
+	span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
@@ -659,7 +659,7 @@ void Debugger::Cmd::listConditions(
 }
 
 
-void Debugger::Cmd::probe(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::probe(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 3) {
 		throw CommandException("Missing argument");
@@ -681,21 +681,21 @@ void Debugger::Cmd::probe(array_ref<TclObject> tokens, TclObject& result)
 		throw SyntaxError();
 	}
 }
-void Debugger::Cmd::probeList(array_ref<TclObject> /*tokens*/, TclObject& result)
+void Debugger::Cmd::probeList(span<const TclObject> /*tokens*/, TclObject& result)
 {
 	// TODO use transform_iterator or transform_view
 	for (auto* p : debugger().probes) {
 		result.addListElement(p->getName());
 	}
 }
-void Debugger::Cmd::probeDesc(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::probeDesc(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
 	result.setString(debugger().getProbe(tokens[3].getString()).getDescription());
 }
-void Debugger::Cmd::probeRead(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::probeRead(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
@@ -703,7 +703,7 @@ void Debugger::Cmd::probeRead(array_ref<TclObject> tokens, TclObject& result)
 	result.setString(debugger().getProbe(tokens[3].getString()).getValue());
 }
 void Debugger::Cmd::probeSetBreakPoint(
-	array_ref<TclObject> tokens, TclObject& result)
+	span<const TclObject> tokens, TclObject& result)
 {
 	TclObject command("debug break");
 	TclObject condition;
@@ -732,7 +732,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 	result.setString(strCat("pp#", id));
 }
 void Debugger::Cmd::probeRemoveBreakPoint(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
@@ -740,7 +740,7 @@ void Debugger::Cmd::probeRemoveBreakPoint(
 	debugger().removeProbeBreakPoint(tokens[3].getString());
 }
 void Debugger::Cmd::probeListBreakPoints(
-	array_ref<TclObject> /*tokens*/, TclObject& result)
+	span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	for (auto& p : debugger().probeBreakPoints) {

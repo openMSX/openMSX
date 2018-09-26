@@ -22,7 +22,7 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerFileType("ri,rom", *this);
 }
 
-void MSXRomCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void MSXRomCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
 	string slotname;
@@ -39,7 +39,7 @@ string_view MSXRomCLI::optionHelp() const
 	return "Insert the ROM file (cartridge) specified in argument";
 }
 
-void MSXRomCLI::parseFileType(const string& arg, array_ref<string>& cmdLine)
+void MSXRomCLI::parseFileType(const string& arg, span<string>& cmdLine)
 {
 	parse(arg, "any", cmdLine);
 }
@@ -51,7 +51,7 @@ string_view MSXRomCLI::fileTypeHelp() const
 }
 
 void MSXRomCLI::parse(const string& arg, const string& slotname,
-                      array_ref<string>& cmdLine)
+                      span<string>& cmdLine)
 {
 	// parse extra options  -ips  and  -romtype
 	std::vector<TclObject> options;
@@ -59,7 +59,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 		string option = peekArgument(cmdLine);
 		if ((option == "-ips") || (option == "-romtype")) {
 			options.emplace_back(option);
-			cmdLine.pop_front();
+			cmdLine = cmdLine.subspan(1);
 			options.emplace_back(getArgument(option, cmdLine));
 		} else {
 			break;
@@ -72,7 +72,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 }
 
 void MSXRomCLI::IpsOption::parseOption(const string& /*option*/,
-                                       array_ref<string>& /*cmdLine*/)
+                                       span<string>& /*cmdLine*/)
 {
 	throw FatalError(
 		"-ips options should immediately follow a ROM or disk image.");
@@ -85,7 +85,7 @@ string_view MSXRomCLI::IpsOption::optionHelp() const
 }
 
 void MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
-                                           array_ref<string>& /*cmdLine*/)
+                                           span<string>& /*cmdLine*/)
 {
 	throw FatalError("-romtype options should immediately follow a ROM.");
 }

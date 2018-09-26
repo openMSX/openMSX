@@ -160,11 +160,11 @@ private:
 		TapeCommand(CommandController& commandController,
 			    StateChangeDistributor& stateChangeDistributor,
 			    Scheduler& scheduler);
-		void execute(array_ref<TclObject> tokens, TclObject& result,
+		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-		bool needRecord(array_ref<TclObject> tokens) const override;
+		bool needRecord(span<const TclObject> tokens) const override;
 	} tapeCommand;
 
 	LoadingIndicator loadingIndicator;

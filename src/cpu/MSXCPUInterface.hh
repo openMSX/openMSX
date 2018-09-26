@@ -319,41 +319,41 @@ private:
 
 	struct SlotInfo final : InfoTopic {
 		explicit SlotInfo(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} slotInfo;
 
 	struct SubSlottedInfo final : InfoTopic {
 		explicit SubSlottedInfo(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} subSlottedInfo;
 
 	struct ExternalSlotInfo final : InfoTopic {
 		explicit ExternalSlotInfo(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} externalSlotInfo;
 
 	struct IOInfo : InfoTopic {
 		IOInfo(InfoCommand& machineInfoCommand, const char* name);
-		void helper(array_ref<TclObject> tokens,
+		void helper(span<const TclObject> tokens,
 		            TclObject& result, MSXDevice** devices) const;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	};
 	struct IInfo final : IOInfo {
 		explicit IInfo(InfoCommand& machineInfoCommand)
 			: IOInfo(machineInfoCommand, "input_port") {}
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 		             TclObject& result) const override;
 	} inputPortInfo;
 	struct OInfo final : IOInfo {
 		explicit OInfo(InfoCommand& machineInfoCommand)
 			: IOInfo(machineInfoCommand, "output_port") {}
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 		             TclObject& result) const override;
 	} outputPortInfo;
 

@@ -80,7 +80,7 @@ PluggingController::PlugCmd::PlugCmd(
 }
 
 void PluggingController::PlugCmd::execute(
-	array_ref<TclObject> tokens, TclObject& result_, EmuTime::param time)
+	span<const TclObject> tokens, TclObject& result_, EmuTime::param time)
 {
 	string result;
 	auto& pluggingController = OUTER(PluggingController, plugCmd);
@@ -156,7 +156,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-bool PluggingController::PlugCmd::needRecord(array_ref<TclObject> tokens) const
+bool PluggingController::PlugCmd::needRecord(span<const TclObject> tokens) const
 {
 	return tokens.size() == 3;
 }
@@ -174,7 +174,7 @@ PluggingController::UnplugCmd::UnplugCmd(
 }
 
 void PluggingController::UnplugCmd::execute(
-	array_ref<TclObject> tokens, TclObject& /*result*/, EmuTime::param time)
+	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param time)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -261,7 +261,7 @@ PluggingController::PluggableInfo::PluggableInfo(
 }
 
 void PluggingController::PluggableInfo::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+	span<const TclObject> tokens, TclObject& result) const
 {
 	auto& pluggingController = OUTER(PluggingController, pluggableInfo);
 	switch (tokens.size()) {
@@ -308,7 +308,7 @@ PluggingController::ConnectorInfo::ConnectorInfo(
 }
 
 void PluggingController::ConnectorInfo::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+	span<const TclObject> tokens, TclObject& result) const
 {
 	auto& pluggingController = OUTER(PluggingController, connectorInfo);
 	switch (tokens.size()) {
@@ -353,7 +353,7 @@ PluggingController::ConnectionClassInfo::ConnectionClassInfo(
 }
 
 void PluggingController::ConnectionClassInfo::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+	span<const TclObject> tokens, TclObject& result) const
 {
 	auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
 	switch (tokens.size()) {

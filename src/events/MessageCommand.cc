@@ -22,7 +22,7 @@ static CliComm::LogLevel getLevel(string_view level)
 	throw CommandException("Unknown level string: ", level);
 }
 
-void MessageCommand::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
+void MessageCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	CliComm& cliComm = getCliComm();
 	CliComm::LogLevel level = CliComm::INFO;

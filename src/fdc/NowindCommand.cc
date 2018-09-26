@@ -9,7 +9,7 @@
 #include "FileOperations.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "array_ref.hh"
+#include "span.hh"
 #include "unreachable.hh"
 #include <cassert>
 #include <memory>
@@ -94,7 +94,7 @@ void NowindCommand::processHdimage(
 	}
 }
 
-void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	auto& host = interface.host;
 	auto& drives = interface.drives;
@@ -138,13 +138,13 @@ void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	string error;
 
 	// actually parse the commandline
-	array_ref<TclObject> args(&tokens[1], tokens.size() - 1);
+	span<const TclObject> args(&tokens[1], tokens.size() - 1);
 	while (error.empty() && !args.empty()) {
 		bool createDrive = false;
 		string_view image;
 
 		string_view arg = args.front().getString();
-		args.pop_front();
+		args = args.subspan(1);
 		if        ((arg == "--ctrl")    || (arg == "-c")) {
 			enablePhantom  = false;
 			disablePhantom = true;
@@ -172,7 +172,7 @@ void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 				error = strCat("Missing argument for option: ", arg);
 			} else {
 				image = args.front().getString();
-				args.pop_front();
+				args = args.subspan(1);
 				createDrive = true;
 			}
 
@@ -182,7 +182,7 @@ void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 			} else {
 				try {
 					string_view hdimage = args.front().getString();
-					args.pop_front();
+					args = args.subspan(1);
 					processHdimage(hdimage, tmpDrives);
 					changeDrives = true;
 				} catch (MSXException& e) {

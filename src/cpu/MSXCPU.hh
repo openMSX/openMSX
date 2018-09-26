@@ -9,7 +9,7 @@
 #include "TclCallback.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "array_ref.hh"
+#include "span.hh"
 #include <memory>
 
 namespace openmsx {
@@ -100,7 +100,7 @@ public:
 	void setInterface(MSXCPUInterface* interf);
 
 	void disasmCommand(Interpreter& interp,
-	                   array_ref<TclObject> tokens,
+	                   span<const TclObject> tokens,
                            TclObject& result) const;
 
 	/** (un)pause CPU. During pause the CPU executes NOP instructions
@@ -141,7 +141,7 @@ private:
 
 	struct TimeInfoTopic final : InfoTopic {
 		explicit TimeInfoTopic(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help (const std::vector<std::string>& tokens) const override;
 	} timeInfo;
@@ -150,7 +150,7 @@ private:
 	public:
 		CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
 				 const std::string& name, CPUClock& clock);
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help (const std::vector<std::string>& tokens) const override;
 	private:

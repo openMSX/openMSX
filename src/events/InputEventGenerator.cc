@@ -474,7 +474,7 @@ InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(
 }
 
 void InputEventGenerator::EscapeGrabCmd::execute(
-	array_ref<TclObject> /*tokens*/, TclObject& /*result*/)
+	span<const TclObject> /*tokens*/, TclObject& /*result*/)
 {
 	auto& inputEventGenerator = OUTER(InputEventGenerator, escapeGrabCmd);
 	if (inputEventGenerator.grabInput.getBoolean()) {

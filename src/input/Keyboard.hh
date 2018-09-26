@@ -10,7 +10,7 @@
 #include "SimpleDebuggable.hh"
 #include "EventListener.hh"
 #include "serialize_meta.hh"
-#include "array_ref.hh"
+#include "span.hh"
 #include "string_view.hh"
 #include "openmsx.hh"
 #include <array>
@@ -86,7 +86,7 @@ private:
 	bool processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition pos);
 	void doKeyGhosting() const;
-	void processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool up);
+	void processCmd(Interpreter& interp, span<const TclObject> tokens, bool up);
 	bool pressUnicodeByUser(
 			EmuTime::param time, UnicodeKeymap::KeyInfo keyInfo, unsigned unicode,
 			bool down);
@@ -115,7 +115,7 @@ private:
 		KeyMatrixUpCmd(CommandController& commandController,
 			       StateChangeDistributor& stateChangeDistributor,
 			       Scheduler& scheduler);
-		void execute(array_ref<TclObject> tokens, TclObject& result,
+		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} keyMatrixUpCmd;
@@ -124,7 +124,7 @@ private:
 		KeyMatrixDownCmd(CommandController& commandController,
 				 StateChangeDistributor& stateChangeDistributor,
 				 Scheduler& scheduler);
-		void execute(array_ref<TclObject> tokens, TclObject& result,
+		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} keyMatrixDownCmd;
@@ -142,7 +142,7 @@ private:
 		void reschedule(EmuTime::param time);
 
 		// Command
-		void execute(array_ref<TclObject> tokens, TclObject& result,
+		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;

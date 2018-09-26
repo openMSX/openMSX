@@ -1,7 +1,7 @@
 #ifndef FILE_HH
 #define FILE_HH
 
-#include "array_ref.hh"
+#include "span.hh"
 #include "string_view.hh"
 #include <cstdint>
 #include <ctime>
@@ -80,7 +80,7 @@ public:
 	 * @result Pointer/size to/of memory block.
 	 * @throws FileException
 	 */
-	array_ref<uint8_t> mmap();
+	span<uint8_t> mmap();
 
 	/** Unmap file from memory.
 	 */

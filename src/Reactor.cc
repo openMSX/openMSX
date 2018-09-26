@@ -60,7 +60,7 @@ class ExitCommand final : public Command
 {
 public:
 	ExitCommand(CommandController& commandController, EventDistributor& distributor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 private:
 	EventDistributor& distributor;
@@ -70,7 +70,7 @@ class MachineCommand final : public Command
 {
 public:
 	MachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -81,7 +81,7 @@ class TestMachineCommand final : public Command
 {
 public:
 	TestMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -92,7 +92,7 @@ class CreateMachineCommand final : public Command
 {
 public:
 	CreateMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
@@ -102,7 +102,7 @@ class DeleteMachineCommand final : public Command
 {
 public:
 	DeleteMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -113,7 +113,7 @@ class ListMachinesCommand final : public Command
 {
 public:
 	ListMachinesCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
@@ -123,7 +123,7 @@ class ActivateMachineCommand final : public Command
 {
 public:
 	ActivateMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -134,7 +134,7 @@ class StoreMachineCommand final : public Command
 {
 public:
 	StoreMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -145,7 +145,7 @@ class RestoreMachineCommand final : public Command
 {
 public:
 	RestoreMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -156,7 +156,7 @@ class ConfigInfo final : public InfoTopic
 {
 public:
 	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
@@ -168,7 +168,7 @@ class RealTimeInfo final : public InfoTopic
 {
 public:
 	explicit RealTimeInfo(InfoCommand& openMSXInfoCommand);
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
 	string help(const vector<string>& tokens) const override;
 private:
@@ -179,7 +179,7 @@ class SoftwareInfoTopic final : InfoTopic
 {
 public:
 	SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
 	std::string help(const std::vector<std::string>& tokens) const override;
 private:
@@ -658,7 +658,7 @@ ExitCommand::ExitCommand(CommandController& commandController_,
 {
 }
 
-void ExitCommand::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
+void ExitCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	switch (tokens.size()) {
 	case 1:
@@ -689,7 +689,7 @@ MachineCommand::MachineCommand(CommandController& commandController_,
 {
 }
 
-void MachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void MachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	switch (tokens.size()) {
 	case 1: // get current machine
@@ -730,7 +730,7 @@ TestMachineCommand::TestMachineCommand(CommandController& commandController_,
 {
 }
 
-void TestMachineCommand::execute(array_ref<TclObject> tokens,
+void TestMachineCommand::execute(span<const TclObject> tokens,
                                  TclObject& result)
 {
 	if (tokens.size() != 2) {
@@ -766,7 +766,7 @@ CreateMachineCommand::CreateMachineCommand(
 {
 }
 
-void CreateMachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void CreateMachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 1) {
 		throw SyntaxError();
@@ -798,7 +798,7 @@ DeleteMachineCommand::DeleteMachineCommand(
 {
 }
 
-void DeleteMachineCommand::execute(array_ref<TclObject> tokens,
+void DeleteMachineCommand::execute(span<const TclObject> tokens,
                                    TclObject& /*result*/)
 {
 	if (tokens.size() != 2) {
@@ -827,7 +827,7 @@ ListMachinesCommand::ListMachinesCommand(
 {
 }
 
-void ListMachinesCommand::execute(array_ref<TclObject> /*tokens*/,
+void ListMachinesCommand::execute(span<const TclObject> /*tokens*/,
                                   TclObject& result)
 {
 	result.addListElements(reactor.getMachineIDs());
@@ -848,7 +848,7 @@ ActivateMachineCommand::ActivateMachineCommand(
 {
 }
 
-void ActivateMachineCommand::execute(array_ref<TclObject> tokens,
+void ActivateMachineCommand::execute(span<const TclObject> tokens,
                                      TclObject& result)
 {
 	switch (tokens.size()) {
@@ -886,7 +886,7 @@ StoreMachineCommand::StoreMachineCommand(
 {
 }
 
-void StoreMachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void StoreMachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	string filename;
 	string_view machineID;
@@ -939,7 +939,7 @@ RestoreMachineCommand::RestoreMachineCommand(
 {
 }
 
-void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
+void RestoreMachineCommand::execute(span<const TclObject> tokens,
                                     TclObject& result)
 {
 	auto newBoard = reactor.createEmptyMotherBoard();
@@ -1020,7 +1020,7 @@ ConfigInfo::ConfigInfo(InfoCommand& openMSXInfoCommand,
 {
 }
 
-void ConfigInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
+void ConfigInfo::execute(span<const TclObject> tokens, TclObject& result) const
 {
 	// TODO make meta info available through this info topic
 	switch (tokens.size()) {
@@ -1069,7 +1069,7 @@ RealTimeInfo::RealTimeInfo(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void RealTimeInfo::execute(array_ref<TclObject> /*tokens*/,
+void RealTimeInfo::execute(span<const TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	auto delta = Timer::getTime() - reference;
@@ -1091,7 +1091,7 @@ SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, Reactor& r
 }
 
 void SoftwareInfoTopic::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+	span<const TclObject> tokens, TclObject& result) const
 {
 	if (tokens.size() != 3) {
 		throw CommandException("Wrong number of parameters");

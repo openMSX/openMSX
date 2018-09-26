@@ -2,7 +2,7 @@
 #define FILEBASE_HH
 
 #include "MemBuffer.hh"
-#include "array_ref.hh"
+#include "span.hh"
 #include <cstdint>
 #include <string>
 
@@ -18,7 +18,7 @@ public:
 
 	// If you override mmap(), make sure to call munmap() in
 	// your destructor.
-	virtual array_ref<uint8_t> mmap();
+	virtual span<uint8_t> mmap();
 	virtual void munmap();
 
 	virtual size_t getSize() = 0;

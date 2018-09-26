@@ -401,7 +401,7 @@ Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController_)
 {
 }
 
-void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	auto& display = OUTER(Display, screenShotCmd);
 	bool rawShot = false;
@@ -520,7 +520,7 @@ Display::FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void Display::FpsInfoTopic::execute(array_ref<TclObject> /*tokens*/,
+void Display::FpsInfoTopic::execute(span<const TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	auto& display = OUTER(Display, fpsInfo);

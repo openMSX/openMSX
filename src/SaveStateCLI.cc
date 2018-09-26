@@ -13,7 +13,7 @@ SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
 	parser.registerFileType("oms", *this);
 }
 
-void SaveStateCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void SaveStateCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -24,7 +24,7 @@ string_view SaveStateCLI::optionHelp() const
 }
 
 void SaveStateCLI::parseFileType(const string& filename,
-                                 array_ref<string>& /*cmdLine*/)
+                                 span<string>& /*cmdLine*/)
 {
 	// TODO: this is basically a C++ version of a part of savestate.tcl.
 	// Can that be improved?

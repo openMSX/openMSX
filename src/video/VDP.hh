@@ -839,7 +839,7 @@ private:
 
 	class Info : public InfoTopic {
 	public:
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 		             TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		virtual int calc(const EmuTime& time) const = 0;

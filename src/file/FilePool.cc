@@ -29,7 +29,7 @@ class Sha1SumCommand final : public Command
 {
 public:
 	Sha1SumCommand(CommandController& commandController, FilePool& filePool);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -598,7 +598,7 @@ Sha1SumCommand::Sha1SumCommand(
 {
 }
 
-void Sha1SumCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 2) throw SyntaxError();
 	File file(tokens[1].getString());

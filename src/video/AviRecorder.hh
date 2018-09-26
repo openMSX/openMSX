@@ -3,7 +3,7 @@
 
 #include "Command.hh"
 #include "EmuTime.hh"
-#include "array_ref.hh"
+#include "span.hh"
 #include <cstdint>
 #include <vector>
 #include <memory>
@@ -33,17 +33,17 @@ public:
 private:
 	void start(bool recordAudio, bool recordVideo, bool recordMono,
 		   bool recordStereo, const Filename& filename);
-	void status(array_ref<TclObject> tokens, TclObject& result) const;
+	void status(span<const TclObject> tokens, TclObject& result) const;
 
-	void processStart (array_ref<TclObject> tokens, TclObject& result);
-	void processStop  (array_ref<TclObject> tokens);
-	void processToggle(array_ref<TclObject> tokens, TclObject& result);
+	void processStart (span<const TclObject> tokens, TclObject& result);
+	void processStop  (span<const TclObject> tokens);
+	void processToggle(span<const TclObject> tokens, TclObject& result);
 
 	Reactor& reactor;
 
 	struct Cmd final : Command {
 		explicit Cmd(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} recordCommand;

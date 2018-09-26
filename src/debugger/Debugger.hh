@@ -64,8 +64,8 @@ private:
 		Cmd(CommandController& commandController,
 		    StateChangeDistributor& stateChangeDistributor,
 		    Scheduler& scheduler);
-		bool needRecord(array_ref<TclObject> tokens) const override;
-		void execute(array_ref<TclObject> tokens,
+		bool needRecord(span<const TclObject> tokens) const override;
+		void execute(span<const TclObject> tokens,
 			     TclObject& result, EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
@@ -74,31 +74,31 @@ private:
 		      Debugger& debugger()       { return OUTER(Debugger, cmd); }
 		const Debugger& debugger() const { return OUTER(Debugger, cmd); }
 		void list(TclObject& result);
-		void desc(array_ref<TclObject> tokens, TclObject& result);
-		void size(array_ref<TclObject> tokens, TclObject& result);
-		void read(array_ref<TclObject> tokens, TclObject& result);
-		void readBlock(array_ref<TclObject> tokens, TclObject& result);
-		void write(array_ref<TclObject> tokens, TclObject& result);
-		void writeBlock(array_ref<TclObject> tokens, TclObject& result);
-		void setBreakPoint(array_ref<TclObject> tokens, TclObject& result);
-		void removeBreakPoint(array_ref<TclObject> tokens, TclObject& result);
-		void listBreakPoints(array_ref<TclObject> tokens, TclObject& result);
+		void desc(span<const TclObject> tokens, TclObject& result);
+		void size(span<const TclObject> tokens, TclObject& result);
+		void read(span<const TclObject> tokens, TclObject& result);
+		void readBlock(span<const TclObject> tokens, TclObject& result);
+		void write(span<const TclObject> tokens, TclObject& result);
+		void writeBlock(span<const TclObject> tokens, TclObject& result);
+		void setBreakPoint(span<const TclObject> tokens, TclObject& result);
+		void removeBreakPoint(span<const TclObject> tokens, TclObject& result);
+		void listBreakPoints(span<const TclObject> tokens, TclObject& result);
 		std::vector<std::string> getBreakPointIds() const;
 		std::vector<std::string> getWatchPointIds() const;
 		std::vector<std::string> getConditionIds() const;
-		void setWatchPoint(array_ref<TclObject> tokens, TclObject& result);
-		void removeWatchPoint(array_ref<TclObject> tokens, TclObject& result);
-		void listWatchPoints(array_ref<TclObject> tokens, TclObject& result);
-		void setCondition(array_ref<TclObject> tokens, TclObject& result);
-		void removeCondition(array_ref<TclObject> tokens, TclObject& result);
-		void listConditions(array_ref<TclObject> tokens, TclObject& result);
-		void probe(array_ref<TclObject> tokens, TclObject& result);
-		void probeList(array_ref<TclObject> tokens, TclObject& result);
-		void probeDesc(array_ref<TclObject> tokens, TclObject& result);
-		void probeRead(array_ref<TclObject> tokens, TclObject& result);
-		void probeSetBreakPoint(array_ref<TclObject> tokens, TclObject& result);
-		void probeRemoveBreakPoint(array_ref<TclObject> tokens, TclObject& result);
-		void probeListBreakPoints(array_ref<TclObject> tokens, TclObject& result);
+		void setWatchPoint(span<const TclObject> tokens, TclObject& result);
+		void removeWatchPoint(span<const TclObject> tokens, TclObject& result);
+		void listWatchPoints(span<const TclObject> tokens, TclObject& result);
+		void setCondition(span<const TclObject> tokens, TclObject& result);
+		void removeCondition(span<const TclObject> tokens, TclObject& result);
+		void listConditions(span<const TclObject> tokens, TclObject& result);
+		void probe(span<const TclObject> tokens, TclObject& result);
+		void probeList(span<const TclObject> tokens, TclObject& result);
+		void probeDesc(span<const TclObject> tokens, TclObject& result);
+		void probeRead(span<const TclObject> tokens, TclObject& result);
+		void probeSetBreakPoint(span<const TclObject> tokens, TclObject& result);
+		void probeRemoveBreakPoint(span<const TclObject> tokens, TclObject& result);
+		void probeListBreakPoints(span<const TclObject> tokens, TclObject& result);
 	} cmd;
 
 	struct NameFromProbe {

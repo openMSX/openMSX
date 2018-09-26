@@ -267,16 +267,16 @@ void ReverseManager::debugInfo(TclObject& result) const
 	result.setString(res);
 }
 
-static void parseGoTo(Interpreter& interp, array_ref<TclObject> tokens,
+static void parseGoTo(Interpreter& interp, span<const TclObject> tokens,
                       bool& novideo, double& time)
 {
 	novideo = false;
 	bool hasTime = false;
-	for (auto i : xrange(size_t(2), tokens.size())) {
-		if (tokens[i] == "-novideo") {
+        for (auto& token : tokens.subspan(2)) {
+		if (token == "-novideo") {
 			novideo = true;
 		} else {
-			time = tokens[i].getDouble(interp);
+			time = token.getDouble(interp);
 			hasTime = true;
 		}
 	}
@@ -285,7 +285,7 @@ static void parseGoTo(Interpreter& interp, array_ref<TclObject> tokens,
 	}
 }
 
-void ReverseManager::goBack(array_ref<TclObject> tokens)
+void ReverseManager::goBack(span<const TclObject> tokens)
 {
 	bool novideo;
 	double t;
@@ -307,7 +307,7 @@ void ReverseManager::goBack(array_ref<TclObject> tokens)
 	goTo(target, novideo);
 }
 
-void ReverseManager::goTo(array_ref<TclObject> tokens)
+void ReverseManager::goTo(span<const TclObject> tokens)
 {
 	bool novideo;
 	double t;
@@ -546,7 +546,7 @@ void ReverseManager::transferState(MSXMotherBoard& newBoard)
 }
 
 void ReverseManager::saveReplay(
-	Interpreter& interp, array_ref<TclObject> tokens, TclObject& result)
+	Interpreter& interp, span<const TclObject> tokens, TclObject& result)
 {
 	const auto& chunks = history.chunks;
 	if (chunks.empty()) {
@@ -672,7 +672,7 @@ void ReverseManager::saveReplay(
 }
 
 void ReverseManager::loadReplay(
-	Interpreter& interp, array_ref<TclObject> tokens, TclObject& result)
+	Interpreter& interp, span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 3) throw SyntaxError();
 
@@ -1010,7 +1010,7 @@ ReverseManager::ReverseCmd::ReverseCmd(CommandController& controller)
 {
 }
 
-void ReverseManager::ReverseCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void ReverseManager::ReverseCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing subcommand");

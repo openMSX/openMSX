@@ -25,7 +25,7 @@ public:
 	CDXCommand(CommandController& commandController,
 	           StateChangeDistributor& stateChangeDistributor,
 	           Scheduler& scheduler, IDECDROM& cd);
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 		TclObject& result, EmuTime::param time) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
@@ -335,7 +335,7 @@ CDXCommand::CDXCommand(CommandController& commandController_,
 {
 }
 
-void CDXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
+void CDXCommand::execute(span<const TclObject> tokens, TclObject& result,
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {

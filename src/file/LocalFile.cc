@@ -125,7 +125,7 @@ void LocalFile::write(const void* buffer, size_t num)
 }
 
 #if defined _WIN32
-array_ref<uint8_t> LocalFile::mmap()
+span<uint8_t> LocalFile::mmap()
 {
 	size_t size = getSize();
 	if (size == 0) return {nullptr, 0};
@@ -180,10 +180,10 @@ void LocalFile::munmap()
 }
 
 #elif HAVE_MMAP
-array_ref<uint8_t> LocalFile::mmap()
+span<uint8_t> LocalFile::mmap()
 {
 	size_t size = getSize();
-	if (size == 0) return {nullptr, 0};
+	if (size == 0) return {static_cast<uint8_t*>(nullptr), size};
 
 	if (!mmem) {
 		mmem = static_cast<uint8_t*>(

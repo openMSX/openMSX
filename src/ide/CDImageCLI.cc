@@ -15,7 +15,7 @@ CDImageCLI::CDImageCLI(CommandLineParser& parser_)
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
-void CDImageCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void CDImageCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	string_view cd = string_view(option).substr(1); // cda
 	string filename = getArgument(option, cmdLine);

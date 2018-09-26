@@ -430,7 +430,7 @@ string HotKey::BindCmd::formatBinding(const HotKey::BindMap::value_type& p)
 	              ":  ", info.command, '\n');
 }
 
-static vector<TclObject> parse(bool defaultCmd, array_ref<TclObject> tokens_,
+static vector<TclObject> parse(bool defaultCmd, span<const TclObject> tokens_,
                                string& layer, bool& layers)
 {
 	layers = false;
@@ -458,7 +458,7 @@ static vector<TclObject> parse(bool defaultCmd, array_ref<TclObject> tokens_,
 	return tokens;
 }
 
-void HotKey::BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
+void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
 {
 	string layer;
 	bool layers;
@@ -555,7 +555,7 @@ HotKey::UnbindCmd::UnbindCmd(CommandController& commandController_,
 {
 }
 
-void HotKey::UnbindCmd::execute(array_ref<TclObject> tokens_, TclObject& /*result*/)
+void HotKey::UnbindCmd::execute(span<const TclObject> tokens_, TclObject& /*result*/)
 {
 	string layer;
 	bool layers;
@@ -604,18 +604,18 @@ HotKey::ActivateCmd::ActivateCmd(CommandController& commandController_)
 {
 }
 
-void HotKey::ActivateCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	string_view layer;
 	bool blocking = false;
-	for (size_t i = 1; i < tokens.size(); ++i) {
-		if (tokens[i] == "-blocking") {
+        for (auto& t : tokens.subspan(1)) {
+		if (t == "-blocking") {
 			blocking = true;
 		} else {
 			if (!layer.empty()) {
 				throw SyntaxError();
 			}
-			layer = tokens[i].getString();
+			layer = t.getString();
 		}
 	}
 
@@ -652,7 +652,7 @@ HotKey::DeactivateCmd::DeactivateCmd(CommandController& commandController_)
 {
 }
 
-void HotKey::DeactivateCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
+void HotKey::DeactivateCmd::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();

@@ -49,11 +49,11 @@ private:
 	public:
 		CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
 			string_view commandName);
-		void execute(array_ref<TclObject> tokens, TclObject& result,
+		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-		bool needRecord(array_ref<TclObject> tokens) const override;
+		bool needRecord(span<const TclObject> tokens) const override;
 	private:
 		const HardwareConfig* getExtensionConfig(string_view cartname);
 		CartridgeSlotManager& manager;
@@ -62,7 +62,7 @@ private:
 
 	struct CartridgeSlotInfo final : InfoTopic {
 		explicit CartridgeSlotInfo(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} extSlotInfo;

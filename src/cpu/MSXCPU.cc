@@ -219,7 +219,7 @@ void MSXCPU::update(const Setting& setting)
 // Command
 
 void MSXCPU::disasmCommand(
-	Interpreter& interp, array_ref<TclObject> tokens,
+	Interpreter& interp, span<const TclObject> tokens,
 	TclObject& result) const
 {
 	z80Active ? z80 ->disasmCommand(interp, tokens, result)
@@ -246,7 +246,7 @@ MSXCPU::TimeInfoTopic::TimeInfoTopic(InfoCommand& machineInfoCommand)
 }
 
 void MSXCPU::TimeInfoTopic::execute(
-	array_ref<TclObject> /*tokens*/, TclObject& result) const
+	span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	auto& cpu = OUTER(MSXCPU, timeInfo);
 	EmuDuration dur = cpu.getCurrentTime() - cpu.reference;
@@ -270,7 +270,7 @@ MSXCPU::CPUFreqInfoTopic::CPUFreqInfoTopic(
 }
 
 void MSXCPU::CPUFreqInfoTopic::execute(
-	array_ref<TclObject> /*tokens*/, TclObject& result) const
+	span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	result.setInt(clock.getFreq());
 }

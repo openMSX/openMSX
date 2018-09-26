@@ -15,7 +15,7 @@ CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& parser_)
 	parser.registerFileType("cas,wav", *this);
 }
 
-void CassettePlayerCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void CassettePlayerCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -27,7 +27,7 @@ string_view CassettePlayerCLI::optionHelp() const
 }
 
 void CassettePlayerCLI::parseFileType(const string& filename,
-                                      array_ref<string>& /*cmdLine*/)
+                                      span<string>& /*cmdLine*/)
 {
 	if (!parser.getGlobalCommandController().hasCommand("cassetteplayer")) {
 		throw MSXException("No cassetteplayer.");

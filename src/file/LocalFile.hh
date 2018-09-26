@@ -24,7 +24,7 @@ public:
 	void read (void* buffer, size_t num) override;
 	void write(const void* buffer, size_t num) override;
 #if HAVE_MMAP || defined _WIN32
-	array_ref<uint8_t> mmap() override;
+	span<uint8_t> mmap() override;
 	void munmap() override;
 #endif
 	size_t getSize() override;

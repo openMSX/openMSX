@@ -20,7 +20,7 @@ public:
 
 	void read(void* buffer, size_t num) final override;
 	void write(const void* buffer, size_t num) final override;
-	array_ref<uint8_t> mmap() final override;
+	span<uint8_t> mmap() final override;
 	void munmap() final override;
 	size_t getSize() final override;
 	void seek(size_t pos) final override;

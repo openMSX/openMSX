@@ -1043,7 +1043,7 @@ MSXCPUInterface::SlotInfo::SlotInfo(
 {
 }
 
-void MSXCPUInterface::SlotInfo::execute(array_ref<TclObject> tokens,
+void MSXCPUInterface::SlotInfo::execute(span<const TclObject> tokens,
                        TclObject& result) const
 {
 	if (tokens.size() != 5) {
@@ -1075,7 +1075,7 @@ MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(
 {
 }
 
-void MSXCPUInterface::SubSlottedInfo::execute(array_ref<TclObject> tokens,
+void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
                              TclObject& result) const
 {
 	if (tokens.size() != 3) {
@@ -1102,7 +1102,7 @@ MSXCPUInterface::ExternalSlotInfo::ExternalSlotInfo(
 }
 
 void MSXCPUInterface::ExternalSlotInfo::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+	span<const TclObject> tokens, TclObject& result) const
 {
 	int ps = 0;
 	int ss = 0;
@@ -1157,7 +1157,7 @@ MSXCPUInterface::IOInfo::IOInfo(InfoCommand& machineInfoCommand, const char* nam
 }
 
 void MSXCPUInterface::IOInfo::helper(
-	array_ref<TclObject> tokens, TclObject& result, MSXDevice** devices) const
+	span<const TclObject> tokens, TclObject& result, MSXDevice** devices) const
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -1169,13 +1169,13 @@ void MSXCPUInterface::IOInfo::helper(
 	result.setString(devices[port]->getName());
 }
 void MSXCPUInterface::IInfo::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+	span<const TclObject> tokens, TclObject& result) const
 {
 	auto& interface = OUTER(MSXCPUInterface, inputPortInfo);
 	helper(tokens, result, interface.IO_In);
 }
 void MSXCPUInterface::OInfo::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+	span<const TclObject> tokens, TclObject& result) const
 {
 	auto& interface = OUTER(MSXCPUInterface, outputPortInfo);
 	helper(tokens, result, interface.IO_Out);

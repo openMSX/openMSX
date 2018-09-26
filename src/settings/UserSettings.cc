@@ -56,7 +56,7 @@ UserSettings::Cmd::Cmd(CommandController& commandController_)
 {
 }
 
-void UserSettings::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void UserSettings::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw SyntaxError();
@@ -75,7 +75,7 @@ void UserSettings::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 }
 
-void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
+void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 5) {
 		throw SyntaxError();
@@ -109,7 +109,7 @@ void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
 	result.setString(tokens[3].getString()); // name
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createString(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createString(span<const TclObject> tokens)
 {
 	if (tokens.size() != 6) {
 		throw SyntaxError();
@@ -121,7 +121,7 @@ unique_ptr<Setting> UserSettings::Cmd::createString(array_ref<TclObject> tokens)
 		getCommandController(), sName, desc, initVal);
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createBoolean(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createBoolean(span<const TclObject> tokens)
 {
 	if (tokens.size() != 6) {
 		throw SyntaxError();
@@ -133,7 +133,7 @@ unique_ptr<Setting> UserSettings::Cmd::createBoolean(array_ref<TclObject> tokens
 		getCommandController(), sName, desc, initVal);
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createInteger(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createInteger(span<const TclObject> tokens)
 {
 	if (tokens.size() != 8) {
 		throw SyntaxError();
@@ -148,7 +148,7 @@ unique_ptr<Setting> UserSettings::Cmd::createInteger(array_ref<TclObject> tokens
 		getCommandController(), sName, desc, initVal, minVal, maxVal);
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createFloat(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createFloat(span<const TclObject> tokens)
 {
 	if (tokens.size() != 8) {
 		throw SyntaxError();
@@ -163,7 +163,7 @@ unique_ptr<Setting> UserSettings::Cmd::createFloat(array_ref<TclObject> tokens)
 		getCommandController(), sName, desc, initVal, minVal, maxVal);
 }
 
-void UserSettings::Cmd::destroy(array_ref<TclObject> tokens, TclObject& /*result*/)
+void UserSettings::Cmd::destroy(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -179,7 +179,7 @@ void UserSettings::Cmd::destroy(array_ref<TclObject> tokens, TclObject& /*result
 	userSettings.deleteSetting(*setting);
 }
 
-void UserSettings::Cmd::info(array_ref<TclObject> /*tokens*/, TclObject& result)
+void UserSettings::Cmd::info(span<const TclObject> /*tokens*/, TclObject& result)
 {
 	result.addListElements(getSettingNames());
 }

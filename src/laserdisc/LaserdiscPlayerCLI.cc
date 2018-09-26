@@ -15,7 +15,7 @@ LaserdiscPlayerCLI::LaserdiscPlayerCLI(CommandLineParser& parser_)
 	parser.registerFileType("ogv", *this);
 }
 
-void LaserdiscPlayerCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void LaserdiscPlayerCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -27,7 +27,7 @@ string_view LaserdiscPlayerCLI::optionHelp() const
 }
 
 void LaserdiscPlayerCLI::parseFileType(const string& filename,
-                                       array_ref<string>& /*cmdLine*/)
+                                       span<string>& /*cmdLine*/)
 {
 	if (!parser.getGlobalCommandController().hasCommand("laserdiscplayer")) {
 		throw MSXException("No laserdiscplayer.");

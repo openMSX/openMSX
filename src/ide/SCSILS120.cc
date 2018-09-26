@@ -86,7 +86,7 @@ public:
 	LSXCommand(CommandController& commandController,
 	           StateChangeDistributor& stateChangeDistributor,
 	           Scheduler& scheduler, SCSILS120& ls);
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 	             TclObject& result, EmuTime::param time) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
@@ -760,7 +760,7 @@ LSXCommand::LSXCommand(CommandController& commandController_,
 {
 }
 
-void LSXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
+void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {

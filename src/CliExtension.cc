@@ -18,7 +18,7 @@ CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerOption("-extd", *this);
 }
 
-void CliExtension::parseOption(const string& option, array_ref<string>& cmdLine)
+void CliExtension::parseOption(const string& option, span<string>& cmdLine)
 {
 	try {
 		string extensionName = getArgument(option, cmdLine);

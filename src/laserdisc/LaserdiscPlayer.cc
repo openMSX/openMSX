@@ -40,7 +40,7 @@ LaserdiscPlayer::Command::Command(
 }
 
 void LaserdiscPlayer::Command::execute(
-	array_ref<TclObject> tokens, TclObject& result, EmuTime::param time)
+	span<const TclObject> tokens, TclObject& result, EmuTime::param time)
 {
 	auto& laserdiscPlayer = OUTER(LaserdiscPlayer, laserdiscCommand);
 	if (tokens.size() == 1) {

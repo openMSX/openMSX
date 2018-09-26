@@ -13,7 +13,7 @@ ReplayCLI::ReplayCLI(CommandLineParser& parser_)
 	parser.registerFileType("omr", *this);
 }
 
-void ReplayCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void ReplayCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -24,7 +24,7 @@ string_view ReplayCLI::optionHelp() const
 }
 
 void ReplayCLI::parseFileType(const string& filename,
-                              array_ref<string>& /*cmdLine*/)
+                              span<string>& /*cmdLine*/)
 {
 	TclObject command;
 	command.addListElement("reverse");

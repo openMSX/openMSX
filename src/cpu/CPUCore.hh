@@ -9,7 +9,7 @@
 #include "IntegerSetting.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "array_ref.hh"
+#include "span.hh"
 #include <atomic>
 #include <string>
 #include <memory>
@@ -78,7 +78,7 @@ public:
 	bool isM1Cycle(unsigned address) const;
 
 	void disasmCommand(Interpreter& interp,
-	                   array_ref<TclObject> tokens,
+	                   span<const TclObject> tokens,
                            TclObject& result) const;
 
 	/**

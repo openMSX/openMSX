@@ -100,14 +100,14 @@ private:
 
 	struct ScreenShotCmd final : Command {
 		explicit ScreenShotCmd(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} screenShotCmd;
 
 	struct FpsInfoTopic final : InfoTopic {
 		explicit FpsInfoTopic(InfoCommand& openMSXInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} fpsInfo;

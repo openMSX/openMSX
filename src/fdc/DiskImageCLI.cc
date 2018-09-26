@@ -17,7 +17,7 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
 	driveLetter = 'a';
 }
 
-void DiskImageCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void DiskImageCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	string filename = getArgument(option, cmdLine);
 	parse(string_view(option).substr(1), filename, cmdLine);
@@ -27,7 +27,7 @@ string_view DiskImageCLI::optionHelp() const
 	return "Insert the disk image specified in argument";
 }
 
-void DiskImageCLI::parseFileType(const string& filename, array_ref<string>& cmdLine)
+void DiskImageCLI::parseFileType(const string& filename, span<string>& cmdLine)
 {
 	parse(strCat("disk", driveLetter), filename, cmdLine);
 	++driveLetter;
@@ -39,7 +39,7 @@ string_view DiskImageCLI::fileTypeHelp() const
 }
 
 void DiskImageCLI::parse(string_view drive, string_view image,
-                         array_ref<string>& cmdLine)
+                         span<string>& cmdLine)
 {
 	if (!parser.getGlobalCommandController().hasCommand(drive)) { // TODO WIP
 		throw MSXException("No drive named '", drive, "'.");
@@ -48,7 +48,7 @@ void DiskImageCLI::parse(string_view drive, string_view image,
 	command.addListElement(drive);
 	command.addListElement(image);
 	while (peekArgument(cmdLine) == "-ips") {
-		cmdLine.pop_front();
+		cmdLine = cmdLine.subspan(1);
 		command.addListElement(getArgument("-ips", cmdLine));
 	}
 	command.executeCommand(parser.getInterpreter());

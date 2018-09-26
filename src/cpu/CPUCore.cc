@@ -537,7 +537,7 @@ static void toHex(byte x, char* buf)
 }
 
 template<class T> void CPUCore<T>::disasmCommand(
-	Interpreter& interp, array_ref<TclObject> tokens, TclObject& result) const
+	Interpreter& interp, span<const TclObject> tokens, TclObject& result) const
 {
 	word address = (tokens.size() < 3) ? getPC() : tokens[2].getInt(interp);
 	byte outBuf[4];

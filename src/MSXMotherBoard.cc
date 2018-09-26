@@ -68,7 +68,7 @@ class ResetCmd final : public RecordedCommand
 {
 public:
 	explicit ResetCmd(MSXMotherBoard& motherBoard);
-	void execute(array_ref<TclObject> tokens, TclObject& result,
+	void execute(span<const TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
 	string help(const vector<string>& tokens) const override;
 private:
@@ -79,7 +79,7 @@ class LoadMachineCmd final : public Command
 {
 public:
 	explicit LoadMachineCmd(MSXMotherBoard& motherBoard);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -90,7 +90,7 @@ class ListExtCmd final : public Command
 {
 public:
 	explicit ListExtCmd(MSXMotherBoard& motherBoard);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
@@ -100,7 +100,7 @@ class RemoveExtCmd final : public RecordedCommand
 {
 public:
 	explicit RemoveExtCmd(MSXMotherBoard& motherBoard);
-	void execute(array_ref<TclObject> tokens, TclObject& result,
+	void execute(span<const TclObject> tokens, TclObject& result,
 	             EmuTime::param time) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
@@ -112,7 +112,7 @@ class MachineNameInfo final : public InfoTopic
 {
 public:
 	explicit MachineNameInfo(MSXMotherBoard& motherBoard);
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
 	string help(const vector<string>& tokens) const override;
 private:
@@ -123,7 +123,7 @@ class MachineTypeInfo final : public InfoTopic
 {
 public:
 	explicit MachineTypeInfo(MSXMotherBoard& motherBoard);
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
 	string help(const vector<string>& tokens) const override;
 private:
@@ -134,7 +134,7 @@ class DeviceInfo final : public InfoTopic
 {
 public:
 	explicit DeviceInfo(MSXMotherBoard& motherBoard);
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
@@ -736,7 +736,7 @@ ResetCmd::ResetCmd(MSXMotherBoard& motherBoard_)
 {
 }
 
-void ResetCmd::execute(array_ref<TclObject> /*tokens*/, TclObject& /*result*/,
+void ResetCmd::execute(span<const TclObject> /*tokens*/, TclObject& /*result*/,
                        EmuTime::param /*time*/)
 {
 	motherBoard.doReset();
@@ -780,7 +780,7 @@ LoadMachineCmd::LoadMachineCmd(MSXMotherBoard& motherBoard_)
 	setAllowedInEmptyMachine(true);
 }
 
-void LoadMachineCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void LoadMachineCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -810,7 +810,7 @@ ListExtCmd::ListExtCmd(MSXMotherBoard& motherBoard_)
 {
 }
 
-void ListExtCmd::execute(array_ref<TclObject> /*tokens*/, TclObject& result)
+void ListExtCmd::execute(span<const TclObject> /*tokens*/, TclObject& result)
 {
 	for (auto& e : motherBoard.getExtensions()) {
 		result.addListElement(e->getName());
@@ -834,7 +834,7 @@ ExtCmd::ExtCmd(MSXMotherBoard& motherBoard_, std::string commandName_)
 {
 }
 
-void ExtCmd::execute(array_ref<TclObject> tokens, TclObject& result,
+void ExtCmd::execute(span<const TclObject> tokens, TclObject& result,
                      EmuTime::param /*time*/)
 {
 	if (tokens.size() != 2) {
@@ -873,7 +873,7 @@ RemoveExtCmd::RemoveExtCmd(MSXMotherBoard& motherBoard_)
 {
 }
 
-void RemoveExtCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/,
+void RemoveExtCmd::execute(span<const TclObject> tokens, TclObject& /*result*/,
                            EmuTime::param /*time*/)
 {
 	if (tokens.size() != 2) {
@@ -917,7 +917,7 @@ MachineNameInfo::MachineNameInfo(MSXMotherBoard& motherBoard_)
 {
 }
 
-void MachineNameInfo::execute(array_ref<TclObject> /*tokens*/,
+void MachineNameInfo::execute(span<const TclObject> /*tokens*/,
                               TclObject& result) const
 {
 	result.setString(motherBoard.getMachineName());
@@ -936,7 +936,7 @@ MachineTypeInfo::MachineTypeInfo(MSXMotherBoard& motherBoard_)
 {
 }
 
-void MachineTypeInfo::execute(array_ref<TclObject> /*tokens*/,
+void MachineTypeInfo::execute(span<const TclObject> /*tokens*/,
                               TclObject& result) const
 {
 	result.setString(motherBoard.getMachineType());
@@ -956,7 +956,7 @@ DeviceInfo::DeviceInfo(MSXMotherBoard& motherBoard_)
 {
 }
 
-void DeviceInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
+void DeviceInfo::execute(span<const TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:

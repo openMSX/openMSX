@@ -298,7 +298,7 @@ const HardwareConfig* CartridgeSlotManager::CartCmd::getExtensionConfig(
 }
 
 void CartridgeSlotManager::CartCmd::execute(
-	array_ref<TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
+	span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
 {
 	string_view cartname = tokens[0].getString();
 
@@ -349,8 +349,7 @@ void CartridgeSlotManager::CartCmd::execute(
 				throw CommandException("Missing argument to insert subcommand");
 			}
 		}
-		array_ref<TclObject> options(std::begin(tokens) + extensionNameToken + 1,
-		                             std::end(tokens));
+                auto options = tokens.subspan(extensionNameToken + 1);
 		try {
 			string_view romname = tokens[extensionNameToken].getString();
 			auto extension = HardwareConfig::createRomConfig(
@@ -391,7 +390,7 @@ void CartridgeSlotManager::CartCmd::tabCompletion(vector<string>& tokens) const
 	completeFileName(tokens, userFileContext(), extra);
 }
 
-bool CartridgeSlotManager::CartCmd::needRecord(array_ref<TclObject> tokens) const
+bool CartridgeSlotManager::CartCmd::needRecord(span<const TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }
@@ -406,7 +405,7 @@ CartridgeSlotManager::CartridgeSlotInfo::CartridgeSlotInfo(
 }
 
 void CartridgeSlotManager::CartridgeSlotInfo::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
+	span<const TclObject> tokens, TclObject& result) const
 {
 	auto& manager = OUTER(CartridgeSlotManager, extSlotInfo);
 	switch (tokens.size()) {

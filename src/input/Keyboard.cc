@@ -628,7 +628,7 @@ void Keyboard::doKeyGhosting() const
 	} while (changedSomething);
 }
 
-void Keyboard::processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool up)
+void Keyboard::processCmd(Interpreter& interp, span<const TclObject> tokens, bool up)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -863,7 +863,7 @@ Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(
 }
 
 void Keyboard::KeyMatrixUpCmd::execute(
-	array_ref<TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
+	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	auto& keyboard = OUTER(Keyboard, keyMatrixUpCmd);
 	return keyboard.processCmd(getInterpreter(), tokens, true);
@@ -887,7 +887,7 @@ Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandControlle
 {
 }
 
-void Keyboard::KeyMatrixDownCmd::execute(array_ref<TclObject> tokens,
+void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
                                TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	auto& keyboard = OUTER(Keyboard, keyMatrixDownCmd);
@@ -977,7 +977,7 @@ Keyboard::KeyInserter::KeyInserter(
 }
 
 void Keyboard::KeyInserter::execute(
-	array_ref<TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
+	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	if (tokens.size() < 2) {
 		throw SyntaxError();

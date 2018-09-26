@@ -45,7 +45,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
 
 unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	MSXMotherBoard& motherBoard, string_view romfile,
-	string_view slotname, array_ref<TclObject> options)
+	string_view slotname, span<const TclObject> options)
 {
 	auto result = std::make_unique<HardwareConfig>(motherBoard, "rom");
 	const auto& sramfile = FileOperations::getFilename(romfile);
