@@ -29,7 +29,7 @@ namespace openmsx {
 class TouchpadState final : public StateChange
 {
 public:
-	TouchpadState() {} // for serialize
+	TouchpadState() = default; // for serialize
 	TouchpadState(EmuTime::param time_,
 	              byte x_, byte y_, bool touch_, bool button_)
 		: StateChange(time_)
@@ -77,7 +77,7 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 			parseTransformMatrix(interp, newValue);
 		} catch (CommandException& e) {
 			throw CommandException(
-				"Invalid transformation matrix: " + e.getMessage());
+				"Invalid transformation matrix: ", e.getMessage());
 		}
 	});
 	try {
@@ -86,8 +86,8 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 		// should only happen when settings.xml was manually edited
 		std::cerr << e.getMessage() << std::endl;
 		// fill in safe default values
-		m[0][0] = 256.0f; m[0][1] =   0.0f; m[0][2] = 0.0f;
-		m[1][0] =   0.0f; m[1][1] = 256.0f; m[1][2] = 0.0f;
+		m[0][0] = 256.0f; m[1][0] =   0.0f; m[2][0] = 0.0f;
+		m[0][1] =   0.0f; m[1][1] = 256.0f; m[2][1] = 0.0f;
 	}
 }
 
@@ -109,7 +109,7 @@ void Touchpad::parseTransformMatrix(Interpreter& interp, const TclObject& value)
 			throw CommandException("each row must have 3 elements");
 		}
 		for (int j = 0; j < 3; ++j) {
-			m[i][j] = row.getListIndex(interp, j).getDouble(interp);
+			m[j][i] = row.getListIndex(interp, j).getDouble(interp);
 		}
 	}
 }
@@ -121,7 +121,7 @@ const std::string& Touchpad::getName() const
 	return name;
 }
 
-string_ref Touchpad::getDescription() const
+string_view Touchpad::getDescription() const
 {
 	return "MSX Touchpad";
 }

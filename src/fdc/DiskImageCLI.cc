@@ -20,29 +20,29 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
 void DiskImageCLI::parseOption(const string& option, array_ref<string>& cmdLine)
 {
 	string filename = getArgument(option, cmdLine);
-	parse(string_ref(option).substr(1), filename, cmdLine);
+	parse(string_view(option).substr(1), filename, cmdLine);
 }
-string_ref DiskImageCLI::optionHelp() const
+string_view DiskImageCLI::optionHelp() const
 {
 	return "Insert the disk image specified in argument";
 }
 
 void DiskImageCLI::parseFileType(const string& filename, array_ref<string>& cmdLine)
 {
-	parse(string("disk") + driveLetter, filename, cmdLine);
+	parse(strCat("disk", driveLetter), filename, cmdLine);
 	++driveLetter;
 }
 
-string_ref DiskImageCLI::fileTypeHelp() const
+string_view DiskImageCLI::fileTypeHelp() const
 {
 	return "Disk image";
 }
 
-void DiskImageCLI::parse(string_ref drive, string_ref image,
+void DiskImageCLI::parse(string_view drive, string_view image,
                          array_ref<string>& cmdLine)
 {
 	if (!parser.getGlobalCommandController().hasCommand(drive)) { // TODO WIP
-		throw MSXException("No drive named '" + drive + "'.");
+		throw MSXException("No drive named '", drive, "'.");
 	}
 	TclObject command;
 	command.addListElement(drive);

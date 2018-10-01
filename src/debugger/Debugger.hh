@@ -5,7 +5,7 @@
 #include "RecordedCommand.hh"
 #include "WatchPoint.hh"
 #include "hash_map.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include "outer.hh"
 #include "xxhash.hh"
 #include <vector>
@@ -28,13 +28,13 @@ public:
 	explicit Debugger(MSXMotherBoard& motherBoard);
 	~Debugger();
 
-	void registerDebuggable   (std::string name, Debuggable& interface);
-	void unregisterDebuggable (string_ref name, Debuggable& interface);
-	Debuggable* findDebuggable(string_ref name);
+	void registerDebuggable   (std::string name, Debuggable& debuggable);
+	void unregisterDebuggable (string_view name, Debuggable& debuggable);
+	Debuggable* findDebuggable(string_view name);
 
 	void registerProbe  (ProbeBase& probe);
 	void unregisterProbe(ProbeBase& probe);
-	ProbeBase* findProbe(string_ref name);
+	ProbeBase* findProbe(string_view name);
 
 	void removeProbeBreakPoint(ProbeBreakPoint& bp);
 	void setCPU(MSXCPU* cpu_) { cpu = cpu_; }
@@ -44,13 +44,13 @@ public:
 	MSXMotherBoard& getMotherBoard() { return motherBoard; }
 
 private:
-	Debuggable& getDebuggable(string_ref name);
-	ProbeBase& getProbe(string_ref name);
+	Debuggable& getDebuggable(string_view name);
+	ProbeBase& getProbe(string_view name);
 
 	unsigned insertProbeBreakPoint(
 		TclObject command, TclObject condition,
 		ProbeBase& probe, unsigned newId = -1);
-	void removeProbeBreakPoint(string_ref name);
+	void removeProbeBreakPoint(string_view name);
 
 	unsigned setWatchPoint(TclObject command, TclObject condition,
 	                       WatchPoint::Type type,

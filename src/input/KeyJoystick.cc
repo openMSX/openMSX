@@ -15,7 +15,7 @@ namespace openmsx {
 class KeyJoyState final : public StateChange
 {
 public:
-	KeyJoyState() {} // for serialize
+	KeyJoyState() = default; // for serialize
 	KeyJoyState(EmuTime::param time_, string name_,
 	            byte press_, byte release_)
 		: StateChange(time_)
@@ -75,7 +75,7 @@ const string& KeyJoystick::getName() const
 	return name;
 }
 
-string_ref KeyJoystick::getDescription() const
+string_view KeyJoystick::getDescription() const
 {
 	return "Key-Joystick, use your keyboard to emulate an MSX joystick. "
 		"See manual for information on how to configure this.";

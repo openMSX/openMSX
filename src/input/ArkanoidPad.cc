@@ -32,7 +32,7 @@ static const int SCALE = 2;
 class ArkanoidState final : public StateChange
 {
 public:
-	ArkanoidState() {} // for serialize
+	ArkanoidState() = default; // for serialize
 	ArkanoidState(EmuTime::param time_, int delta_, bool press_, bool release_)
 		: StateChange(time_)
 		, delta(delta_), press(press_), release(release_) {}
@@ -79,7 +79,7 @@ const string& ArkanoidPad::getName() const
 	return name;
 }
 
-string_ref ArkanoidPad::getDescription() const
+string_view ArkanoidPad::getDescription() const
 {
 	return "Arkanoid pad";
 }

@@ -206,6 +206,12 @@ class TargetSystem(object):
 				self.platform, self.configuration.linkStatic(), self.distroRoot
 				)
 			)
+		if self.platform == 'android':
+			# This works around SDL 1.2's trickery with main().
+			# If also weakens the probe considerably, since missing symbols
+			# are no longer considered errors.
+			# Remove this when we migrate to SDL2.
+			ldflags += ' -shared'
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
 		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
 		self.outVars['%s_CFLAGS' % makeName] = cflags
@@ -273,9 +279,7 @@ def iterProbeResults(probeVars, configuration, logPath):
 	'''
 	desiredComponents = set(configuration.iterDesiredComponents())
 	requiredComponents = set(configuration.iterRequiredComponents())
-	buildableComponents = set(
-		comp for comp in desiredComponents if comp.canBuild(probeVars)
-		)
+	buildableComponents = set(configuration.iterBuildableComponents(probeVars))
 	packages = sorted(
 		(	getPackage(makeName)
 			for makeName in requiredLibrariesFor(desiredComponents)
@@ -333,19 +337,18 @@ def iterProbeResults(probeVars, configuration, logPath):
 
 		if buildableComponents == desiredComponents:
 			yield 'All required and optional components can be built.'
+		elif requiredComponents.issubset(buildableComponents):
+			yield 'If you are satisfied with the probe results, ' \
+				'run "make" to start the build.'
+			yield 'Otherwise, install some libraries and headers ' \
+				'and rerun "configure".'
 		else:
-			if requiredComponents.issubset(buildableComponents):
-				yield 'If you are satisfied with the probe results, ' \
-					'run "make" to start the build.'
-				yield 'Otherwise, install some libraries and headers ' \
-					'and rerun "configure".'
-			else:
-				yield 'Please install missing libraries and headers ' \
-					'and rerun "configure".'
-			yield ''
-			yield 'If the detected libraries differ from what you think ' \
-				'is installed on this system, please check the log file: %s' \
-				% logPath
+			yield 'Please install missing libraries and headers ' \
+				'and rerun "configure".'
+		yield ''
+		yield 'If the detected libraries differ from what you think ' \
+			'is installed on this system, please check the log file: %s' \
+			% logPath
 		yield ''
 
 def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):

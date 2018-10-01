@@ -5,12 +5,12 @@
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "components.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
@@ -79,15 +79,15 @@ void Mixer::reloadDriver()
 	// this means we end up without driver if creating the new one failed
 	// for some reason.
 
-	driver = make_unique<NullSoundDriver>();
+	driver = std::make_unique<NullSoundDriver>();
 
 	try {
 		switch (soundDriverSetting.getEnum()) {
 		case SND_NULL:
-			driver = make_unique<NullSoundDriver>();
+			driver = std::make_unique<NullSoundDriver>();
 			break;
 		case SND_SDL:
-			driver = make_unique<SDLSoundDriver>(
+			driver = std::make_unique<SDLSoundDriver>(
 				reactor,
 				frequencySetting.getInt(),
 				samplesSetting.getInt());

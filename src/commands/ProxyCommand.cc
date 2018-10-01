@@ -12,7 +12,7 @@ using std::string;
 
 namespace openmsx {
 
-ProxyCmd::ProxyCmd(Reactor& reactor_, string_ref name_)
+ProxyCmd::ProxyCmd(Reactor& reactor_, string_view name_)
 	: Command(reactor_.getGlobalCommandController(), name_)
 	, reactor(reactor_)
 {
@@ -38,7 +38,7 @@ void ProxyCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 		}
 		command->execute(tokens, result);
 	} else {
-		throw CommandException("Invalid command name \"" + getName() + '"');
+		throw CommandException("Invalid command name \"", getName(), '"');
 	}
 }
 

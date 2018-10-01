@@ -26,9 +26,9 @@ RomCrossBlaim::RomCrossBlaim(const DeviceConfig& config, Rom&& rom_)
 	reset(EmuTime::dummy());
 }
 
-void RomCrossBlaim::reset(EmuTime::param dummy)
+void RomCrossBlaim::reset(EmuTime::param time)
 {
-	writeMem(0, 0, dummy);
+	writeMem(0, 0, time);
 }
 
 void RomCrossBlaim::writeMem(word /*address*/, byte value, EmuTime::param /*time*/)

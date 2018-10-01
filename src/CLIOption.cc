@@ -11,7 +11,7 @@ namespace openmsx {
 string CLIOption::getArgument(const string& option, array_ref<string>& cmdLine) const
 {
 	if (cmdLine.empty()) {
-		throw FatalError("Missing argument for option \"" + option + '\"');
+		throw FatalError("Missing argument for option \"", option, '\"');
 	}
 	string argument = std::move(cmdLine.front());
 	cmdLine.pop_front();
@@ -20,7 +20,7 @@ string CLIOption::getArgument(const string& option, array_ref<string>& cmdLine) 
 
 string CLIOption::peekArgument(const array_ref<string>& cmdLine) const
 {
-	return cmdLine.empty() ? "" : cmdLine.front();
+	return cmdLine.empty() ? string{} : cmdLine.front();
 }
 
 } // namespace openmsx

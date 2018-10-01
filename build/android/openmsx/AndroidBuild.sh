@@ -2,8 +2,7 @@
 #set -xv
 
 # TODO: find out if flavour can be passed from SDL build environment
-#openmsx_flavour="android-debug"
-openmsx_flavour="android"
+openmsx_flavour="opt"
 
 echo "AB:INFO Starting AndroidBuild.sh, #params: $#, params: $*"
 echo "AB:INFO pwd: $(pwd)"
@@ -22,7 +21,7 @@ fi
 my_app_android_dir="$(pwd)"
 
 
-# Use latest version of the setEnvironment script; it is the one that uses GCC 4.6
+# Use latest version of the setEnvironment script; it is the one that uses GCC 4.9
 set_sdl_app_environment="${sdl_android_port_path}/project/jni/application/setEnvironment.sh"
 
 # Parsing the CPU architecture information
@@ -51,6 +50,14 @@ unset MAKEOVERRIDES
 unset MFLAGS
 unset V
 
+# The commandergenius build will modify the PATH.
+# Pick the right compiler now and store its absolute path.
+CXX=$(which arm-linux-androideabi-g++)
+if [ $? -ne 0 ]; then
+    echo "AB:ERROR Could not find compiler"
+    exit 1
+fi
+
 cpu_count=1
 if [ -f /proc/cpuinfo ]; then
 	cpu_count=$(grep "processor[[:space:]]*:" /proc/cpuinfo | wc -l)
@@ -62,35 +69,21 @@ echo "AB:INFO Detected ${cpu_count} CPUs for parallel build"
 
 echo "AB:INFO Making this app for CPU architecture ${CPU_ARCH}"
 export SDL_ANDROID_PORT_PATH="${sdl_android_port_path}"
-export CXXFLAGS='-frtti -fexceptions -marm'
-export LDFLAGS='-lpng'
 unset BUILD_EXECUTABLE
-
-if [ $openmsx_flavour = "android" ]; then
-    CXX_FLAGS_FILTER="sed -e 's/\\-mthumb//'"
-elif [ $openmsx_flavour = "android-debug" ]; then
-    CXX_FLAGS_FILTER="sed -e 's/\\-mthumb//' -e 's/\\-DNDEBUG//g'"
-else
-	echo "AB:ERROR Unknown openmsx_flavour: $openmsx_flavour"
-fi
-echo "AB:DEBUG CXX_FLAGS_FILTER: $CXX_FLAGS_FILTER"
 
 #"${set_sdl_app_environment}" /bin/bash -c "set"
 "${set_sdl_app_environment}" /bin/bash -c "\
     echo \"AB:INFO entering openMSX home directory: ${my_home_dir}\"; \
     cd ${my_home_dir};\
     echo \"AB:INFO CXX: \${CXX}\";\
-    echo \"AB:INFO CXXFLAGS: \${CXXFLAGS}\";\
     export _CC=\${CC};\
     export _LD=\${LD};\
-    export ANDROID_LDFLAGS=\${LDFLAGS};\
-    export ANDROID_CXXFLAGS=\$(echo \${CXXFLAGS} | $CXX_FLAGS_FILTER);\
-    echo \"AB:INFO ANDROID_CXXFLAGS: \${ANDROID_CXXFLAGS}\";\
     unset CXXFLAGS;\
-    make -k -j ${cpu_count} all\
+    make -k -j ${cpu_count} staticbindist\
          OPENMSX_TARGET_CPU=${openmsx_target_cpu}\
          OPENMSX_TARGET_OS=android\
          OPENMSX_FLAVOUR=${openmsx_flavour}\
+         CXX=${CXX}\
 "
 if [ $? -ne 0 ]; then
     echo "AB:ERROR Make failed"
@@ -103,7 +96,7 @@ cd "${my_app_android_dir}"
 
 # Copy the shared library overhere
 echo "AB:INFO Copying output file into android directory $(pwd)"
-cp "${my_home_dir}/derived/${openmsx_target_cpu}-android-${openmsx_flavour}/lib/openmsx.so" "${so_file}"
+cp "${my_home_dir}/derived/${openmsx_target_cpu}-android-${openmsx_flavour}-3rd/lib/openmsx.so" "${so_file}"
 if [ $? -ne 0 ]; then
     echo "AB:ERROR Copy failed"
 fi
@@ -114,29 +107,17 @@ echo "AB:INFO Copying icon file"
 openmsx_icon_file="${my_home_dir}/share/icons/openMSX-logo-256.png"
 cp -p "${openmsx_icon_file}" icon.png
 
-echo "AB:INFO Validating if appdata.zip must be rebuild"
-if [ ! -f AndroidData/appdata.zip ]; then
-	newfiles=1
-else
-	newfiles=$(find ${my_home_dir}/share ${my_home_dir}/Contrib/cbios ${my_app_android_dir}/AndroidBuild.sh -newer AndroidData/appdata.zip | wc -l)
-fi
-if [ ${newfiles} -gt 0 ]; then
-	echo "AB:INFO Rebuilding appdata.zip"
-	rm -f AndroidData/appdata.zip
-	rm -rf AndroidData/appdata
-	mkdir -p AndroidData/appdata/openmsx_system
-	cd "${my_home_dir}"/share
-	tar -c --exclude-vcs -f - . | ( cd "${my_app_android_dir}"/AndroidData/appdata/openmsx_system ; tar xf - )
-	cd "${my_home_dir}"/Contrib/cbios
-	tar -c --exclude-vcs -f - . | ( cd "${my_app_android_dir}"/AndroidData/appdata/openmsx_system/machines ; tar xf - )
-	cd "${my_app_android_dir}"/AndroidData/appdata
-	zip -r ../appdata.zip * > /dev/null
-	cd ..
-	rm -rf appdata
-	echo "AB:INFO Done rebuilding appdata.zip"
-else
-	echo "AB/INFO appdata.zip is still fine"
-fi
+echo "AB:INFO Building appdata.zip"
+rm -f AndroidData/appdata.zip
+rm -rf AndroidData/appdata
+mkdir -p AndroidData/appdata/openmsx_system
+cd "${my_home_dir}"/derived/${openmsx_target_cpu}-android-${openmsx_flavour}-3rd/bindist/install/share
+tar -c -f - . | ( cd "${my_app_android_dir}"/AndroidData/appdata/openmsx_system ; tar xf - )
+cd "${my_app_android_dir}"/AndroidData/appdata
+zip -r ../appdata.zip * > /dev/null
+cd ..
+rm -rf appdata
+echo "AB:INFO Done rebuilding appdata.zip"
 
 MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
 

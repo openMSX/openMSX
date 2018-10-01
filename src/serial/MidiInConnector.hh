@@ -16,7 +16,7 @@ public:
 
 	// Connector
 	const std::string getDescription() const final override;
-	string_ref getClass() const final override;
+	string_view getClass() const final override;
 
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;

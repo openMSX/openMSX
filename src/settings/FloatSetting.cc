@@ -4,7 +4,7 @@
 namespace openmsx {
 
 FloatSetting::FloatSetting(CommandController& commandController_,
-                           string_ref name_, string_ref description_,
+                           string_view name_, string_view description_,
                            double initialValue,
                            double minValue_, double maxValue_)
 	: Setting(commandController_, name_, description_,
@@ -21,7 +21,7 @@ FloatSetting::FloatSetting(CommandController& commandController_,
 	init();
 }
 
-string_ref FloatSetting::getTypeString() const
+string_view FloatSetting::getTypeString() const
 {
 	return "float";
 }

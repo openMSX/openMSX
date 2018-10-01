@@ -30,12 +30,12 @@ public:
 
 private:
 	// SoundDevice
-	int getAmplificationFactor() const override;
+	int getAmplificationFactorImpl() const override;
 	void generateChannels(int** bufs, unsigned num) override;
 
 	inline int adjust(signed char wav, byte vol);
 	byte readWave(unsigned channel, unsigned address, EmuTime::param time) const;
-	void writeWave(unsigned channel, unsigned offset, byte value);
+	void writeWave(unsigned channel, unsigned address, byte value);
 	void setDeformReg(byte value, EmuTime::param time);
 	void setDeformRegHelper(byte value);
 	void setFreqVol(unsigned address, byte value, EmuTime::param time);

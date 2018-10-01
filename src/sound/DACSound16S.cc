@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-DACSound16S::DACSound16S(string_ref name_, string_ref desc,
+DACSound16S::DACSound16S(string_view name_, string_view desc,
                          const DeviceConfig& config)
 	: SoundDevice(config.getMotherBoard().getMSXMixer(), name_, desc, 1)
 	, lastWrittenValue(0)

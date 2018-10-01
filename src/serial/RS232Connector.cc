@@ -3,14 +3,14 @@
 #include "DummyRS232Device.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
 RS232Connector::RS232Connector(PluggingController& pluggingController_,
                                std::string name_)
 	: Connector(pluggingController_, std::move(name_),
-	            make_unique<DummyRS232Device>())
+	            std::make_unique<DummyRS232Device>())
 {
 }
 
@@ -19,7 +19,7 @@ const std::string RS232Connector::getDescription() const
 	return "Serial RS232 connector";
 }
 
-string_ref RS232Connector::getClass() const
+string_view RS232Connector::getClass() const
 {
 	return "RS232";
 }

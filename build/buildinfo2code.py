@@ -9,7 +9,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 		'build/platform-%s.mk' % targetPlatform,
 		dict.fromkeys(
 			('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS',
-				'ANDROID_LDFLAGS', 'ANDROID_CXXFLAGS',
 				'OPENMSX_TARGET_CPU'),
 			''
 			)
@@ -37,7 +36,8 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 		# TODO: debug why it crashes and then change the maxScaleFactor parameter here
 		# so that people with a powerfull enough android device can use a higher scale factor
 		have32BPP = False
-		maxScaleFactor = 1
+		minScaleFactor = 2
+		maxScaleFactor = 2
 	elif platformPandora:
 		have32BPP = False
 		maxScaleFactor = 3

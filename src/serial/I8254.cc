@@ -3,8 +3,8 @@
 #include "ClockPin.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
@@ -76,9 +76,9 @@ I8254::I8254(Scheduler& scheduler, ClockPinListener* output0,
              ClockPinListener* output1, ClockPinListener* output2,
              EmuTime::param time)
 {
-	counter[0] = make_unique<Counter>(scheduler, output0, time);
-	counter[1] = make_unique<Counter>(scheduler, output1, time);
-	counter[2] = make_unique<Counter>(scheduler, output2, time);
+	counter[0] = std::make_unique<Counter>(scheduler, output0, time);
+	counter[1] = std::make_unique<Counter>(scheduler, output1, time);
+	counter[2] = std::make_unique<Counter>(scheduler, output2, time);
 }
 
 I8254::~I8254() = default;

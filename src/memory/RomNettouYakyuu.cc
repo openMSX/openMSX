@@ -49,7 +49,7 @@ RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, Rom&& rom_)
 	, samplePlayer(
 		"Nettou Yakyuu-DAC",
 		"Jaleco Moero!! Nettou Yakuu '88 DAC", config,
-		FileOperations::stripExtension(rom.getFilename()) + '_',
+		strCat(FileOperations::stripExtension(rom.getFilename()), '_'),
 		16, "nettou_yakyuu/nettou_yakyuu_")
 {
 	reset(EmuTime::dummy());

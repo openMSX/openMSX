@@ -19,13 +19,13 @@
 #include "Reactor.hh"
 #include "RomInfo.hh"
 #include "hash_map.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "stl.hh"
 #include "xxhash.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <iostream>
+#include <memory>
 
 using std::cout;
 using std::endl;
@@ -87,7 +87,7 @@ void CommandLineParser::registerOption(
 }
 
 void CommandLineParser::registerFileType(
-	string_ref extensions, CLIFileType& cliFileType)
+	string_view extensions, CLIFileType& cliFileType)
 {
 	for (auto& ext: StringOp::split(extensions, ',')) {
 		fileTypes.emplace_back(ext, &cliFileType);
@@ -105,7 +105,7 @@ bool CommandLineParser::parseOption(
 				it->second.option->parseOption(arg, cmdLine);
 				return true;
 			} catch (MSXException& e) {
-				throw FatalError(e.getMessage());
+				throw FatalError(std::move(e).getMessage());
 			}
 		}
 	}
@@ -132,9 +132,9 @@ bool CommandLineParser::parseFileName(const string& arg, array_ref<string>& cmdL
 	return processed;
 }
 
-bool CommandLineParser::parseFileNameInner(const string& name, const string& originalPath, array_ref<string>& cmdLine)
+bool CommandLineParser::parseFileNameInner(const string& arg, const string& originalPath, array_ref<string>& cmdLine)
 {
-	string_ref extension = FileOperations::getExtension(name);
+	string_view extension = FileOperations::getExtension(arg).substr(1);
 	if (extension.empty()) {
 		return false; // no extension
 	}
@@ -151,7 +151,7 @@ bool CommandLineParser::parseFileNameInner(const string& name, const string& ori
 		it->second->parseFileType(originalPath, cmdLine);
 		return true; // file processed
 	} catch (MSXException& e) {
-		throw FatalError(e.getMessage());
+		throw FatalError(std::move(e).getMessage());
 	}
 }
 
@@ -180,7 +180,7 @@ void CommandLineParser::parse(int argc, char** argv)
 				// if there already is a XML-StdioConnection, we
 				// can't also show plain messages on stdout
 				auto& cliComm = reactor.getGlobalCliComm();
-				cliComm.addListener(make_unique<StdioMessages>());
+				cliComm.addListener(std::make_unique<StdioMessages>());
 			}
 			if (!haveSettings) {
 				auto& settingsConfig =
@@ -193,14 +193,14 @@ void CommandLineParser::parse(int argc, char** argv)
 					settingsConfig.loadSetting(context, filename);
 				} catch (XMLException& e) {
 					reactor.getCliComm().printWarning(
-						"Loading of settings failed: " +
-						e.getMessage() + "\n"
+						"Loading of settings failed: ",
+						e.getMessage(), "\n"
 						"Reverting to default settings.");
 				} catch (FileException&) {
 					// settings.xml not found
 				} catch (ConfigException& e) {
-					throw FatalError("Error in default settings: "
-						+ e.getMessage());
+					throw FatalError("Error in default settings: ",
+					                 e.getMessage());
 				}
 				// Consider an attempt to load the settings good enough.
 				haveSettings = true;
@@ -218,16 +218,18 @@ void CommandLineParser::parse(int argc, char** argv)
 					reactor.switchMachine(machine.str());
 				} catch (MSXException& e) {
 					reactor.getCliComm().printInfo(
-						"Failed to initialize default machine: " + e.getMessage());
+						"Failed to initialize default machine: ",
+						e.getMessage());
 					// Default machine is broken; fall back to C-BIOS config.
 					const auto& fallbackMachine =
 						reactor.getMachineSetting().getRestoreValue().getString();
-					reactor.getCliComm().printInfo("Using fallback machine: " + fallbackMachine);
+					reactor.getCliComm().printInfo(
+						"Using fallback machine: ", fallbackMachine);
 					try {
 						reactor.switchMachine(fallbackMachine.str());
 					} catch (MSXException& e2) {
 						// Fallback machine failed as well; we're out of options.
-						throw FatalError(e2.getMessage());
+						throw FatalError(std::move(e2).getMessage());
 					}
 				}
 				haveConfig = true;
@@ -269,8 +271,8 @@ void CommandLineParser::parse(int argc, char** argv)
 	}
 	if (!cmdLine.empty() && (parseStatus != EXIT)) {
 		throw FatalError(
-			"Error parsing command line: " + cmdLine.front() + "\n" +
-			"Use \"openmsx -h\" to see a list of available options" );
+			"Error parsing command line: ", cmdLine.front(), "\n"
+			"Use \"openmsx -h\" to see a list of available options");
 	}
 }
 
@@ -312,7 +314,7 @@ void CommandLineParser::ControlOption::parseOption(
 	const string& option, array_ref<string>& cmdLine)
 {
 	const auto& fullType = getArgument(option, cmdLine);
-	string_ref type, arguments;
+	string_view type, arguments;
 	StringOp::splitOnFirst(fullType, ':', type, arguments);
 
 	auto& parser = OUTER(CommandLineParser, controlOption);
@@ -321,22 +323,22 @@ void CommandLineParser::ControlOption::parseOption(
 	auto& cliComm     = parser.reactor.getGlobalCliComm();
 	std::unique_ptr<CliListener> connection;
 	if (type == "stdio") {
-		connection = make_unique<StdioConnection>(
+		connection = std::make_unique<StdioConnection>(
 			controller, distributor);
 #ifdef _WIN32
 	} else if (type == "pipe") {
-		connection = make_unique<PipeConnection>(
+		connection = std::make_unique<PipeConnection>(
 			controller, distributor, arguments);
 #endif
 	} else {
-		throw FatalError("Unknown control type: '"  + type + '\'');
+		throw FatalError("Unknown control type: '", type, '\'');
 	}
 	cliComm.addListener(std::move(connection));
 
 	parser.parseStatus = CommandLineParser::CONTROL;
 }
 
-string_ref CommandLineParser::ControlOption::optionHelp() const
+string_view CommandLineParser::ControlOption::optionHelp() const
 {
 	return "Enable external control of openMSX process";
 }
@@ -350,7 +352,7 @@ void CommandLineParser::ScriptOption::parseOption(
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_ref CommandLineParser::ScriptOption::optionHelp() const
+string_view CommandLineParser::ScriptOption::optionHelp() const
 {
 	return "Run extra startup script";
 }
@@ -361,7 +363,7 @@ void CommandLineParser::ScriptOption::parseFileType(
 	scripts.push_back(filename);
 }
 
-string_ref CommandLineParser::ScriptOption::fileTypeHelp() const
+string_view CommandLineParser::ScriptOption::fileTypeHelp() const
 {
 	return "Extra Tcl script to run at startup";
 }
@@ -369,62 +371,61 @@ string_ref CommandLineParser::ScriptOption::fileTypeHelp() const
 
 // Help option
 
-static string formatSet(const vector<string_ref>& inputSet, string::size_type columns)
+static string formatSet(const vector<string_view>& inputSet, string::size_type columns)
 {
-	StringOp::Builder outString;
+	string outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now
 	for (auto& temp : inputSet) {
 		if (totalLength == 0) {
 			// first element ?
-			outString << "    " << temp;
+			strAppend(outString, "    ", temp);
 			totalLength = temp.size();
 		} else {
-			outString << ", ";
+			outString += ", ";
 			if ((totalLength + temp.size()) > columns) {
-				outString << "\n    " << temp;
+				strAppend(outString, "\n    ", temp);
 				totalLength = temp.size();
 			} else {
-				outString << temp;
+				strAppend(outString, temp);
 				totalLength += 2 + temp.size();
 			}
 		}
 	}
 	if (totalLength < columns) {
-		outString << string(columns - totalLength, ' ');
+		outString.append(columns - totalLength, ' ');
 	}
 	return outString;
 }
 
-static string formatHelptext(string_ref helpText,
+static string formatHelptext(string_view helpText,
 	                     unsigned maxLength, unsigned indent)
 {
 	string outText;
-	string_ref::size_type index = 0;
+	string_view::size_type index = 0;
 	while (helpText.substr(index).size() > maxLength) {
 		auto pos = helpText.substr(index, maxLength).rfind(' ');
-		if (pos == string_ref::npos) {
+		if (pos == string_view::npos) {
 			pos = helpText.substr(maxLength).find(' ');
-			if (pos == string_ref::npos) {
+			if (pos == string_view::npos) {
 				pos = helpText.substr(index).size();
 			}
 		}
-		outText += helpText.substr(index, index + pos) + '\n' +
-		           string(indent, ' ');
+		strAppend(outText, helpText.substr(index, index + pos), '\n',
+		          string(indent, ' '));
 		index = pos + 1;
 	}
-	string_ref t = helpText.substr(index);
-	outText.append(t.data(), t.size());
+	strAppend(outText, helpText.substr(index));
 	return outText;
 }
 
 // items grouped per common help-text
-using GroupedItems = hash_map<string_ref, vector<string_ref>, XXHasher>;
+using GroupedItems = hash_map<string_view, vector<string_view>, XXHasher>;
 static void printItemMap(const GroupedItems& itemMap)
 {
 	vector<string> printSet;
 	for (auto& p : itemMap) {
-		printSet.push_back(formatSet(p.second, 15) + ' ' +
-		                   formatHelptext(p.first, 50, 20));
+		printSet.push_back(strCat(formatSet(p.second, 15), ' ',
+		                          formatHelptext(p.first, 50, 20)));
 	}
 	sort(begin(printSet), end(printSet));
 	for (auto& s : printSet) {
@@ -469,7 +470,7 @@ void CommandLineParser::HelpOption::parseOption(
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_ref CommandLineParser::HelpOption::optionHelp() const
+string_view CommandLineParser::HelpOption::optionHelp() const
 {
 	return "Shows this text";
 }
@@ -487,7 +488,7 @@ void CommandLineParser::VersionOption::parseOption(
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_ref CommandLineParser::VersionOption::optionHelp() const
+string_view CommandLineParser::VersionOption::optionHelp() const
 {
 	return "Prints openMSX version and exits";
 }
@@ -505,12 +506,12 @@ void CommandLineParser::MachineOption::parseOption(
 	try {
 		parser.reactor.switchMachine(getArgument(option, cmdLine));
 	} catch (MSXException& e) {
-		throw FatalError(e.getMessage());
+		throw FatalError(std::move(e).getMessage());
 	}
 	parser.haveConfig = true;
 }
 
-string_ref CommandLineParser::MachineOption::optionHelp() const
+string_view CommandLineParser::MachineOption::optionHelp() const
 {
 	return "Use machine specified in argument";
 }
@@ -531,13 +532,13 @@ void CommandLineParser::SettingOption::parseOption(
 			currentDirFileContext(), getArgument(option, cmdLine));
 		parser.haveSettings = true;
 	} catch (FileException& e) {
-		throw FatalError(e.getMessage());
+		throw FatalError(std::move(e).getMessage());
 	} catch (ConfigException& e) {
-		throw FatalError(e.getMessage());
+		throw FatalError(std::move(e).getMessage());
 	}
 }
 
-string_ref CommandLineParser::SettingOption::optionHelp() const
+string_view CommandLineParser::SettingOption::optionHelp() const
 {
 	return "Load an alternative settings file";
 }
@@ -554,7 +555,7 @@ void CommandLineParser::NoPBOOption::parseOption(
 	#endif
 }
 
-string_ref CommandLineParser::NoPBOOption::optionHelp() const
+string_view CommandLineParser::NoPBOOption::optionHelp() const
 {
 	return "Disables usage of openGL PBO (for debugging)";
 }
@@ -569,7 +570,7 @@ void CommandLineParser::TestConfigOption::parseOption(
 	parser.parseStatus = CommandLineParser::TEST;
 }
 
-string_ref CommandLineParser::TestConfigOption::optionHelp() const
+string_view CommandLineParser::TestConfigOption::optionHelp() const
 {
 	return "Test if the specified config works and exit";
 }
@@ -580,7 +581,7 @@ void CommandLineParser::BashOption::parseOption(
 	const string& /*option*/, array_ref<string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, bashOption);
-	string last = cmdLine.empty() ? "" : cmdLine.front();
+	string_view last = cmdLine.empty() ? string_view{} : cmdLine.front();
 	cmdLine.clear(); // eat all remaining parameters
 
 	if (last == "-machine") {
@@ -603,9 +604,9 @@ void CommandLineParser::BashOption::parseOption(
 	parser.parseStatus = CommandLineParser::EXIT;
 }
 
-string_ref CommandLineParser::BashOption::optionHelp() const
+string_view CommandLineParser::BashOption::optionHelp() const
 {
-	return ""; // don't include this option in --help
+	return {}; // don't include this option in --help
 }
 
 } // namespace openmsx

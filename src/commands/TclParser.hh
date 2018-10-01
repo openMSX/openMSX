@@ -1,7 +1,7 @@
 #ifndef TCLPARSER_HH
 #define TCLPARSER_HH
 
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <vector>
 #include <tcl.h>
 
@@ -11,7 +11,7 @@ class TclParser
 {
 public:
 	/** Input: Tcl interpreter and command to parse	 */
-	TclParser(Tcl_Interp* interp, string_ref input);
+	TclParser(Tcl_Interp* interp, string_view input);
 
 	/** Ouput: a string of equal length of the input command where
 	  * each character indicates the type of the corresponding
@@ -32,7 +32,7 @@ public:
 
 	/** Is the given string a valid Tcl command. This also takes the
 	  * 'lazy' Tcl scripts into account. */
-	static bool isProc(Tcl_Interp* interp, string_ref str);
+	static bool isProc(Tcl_Interp* interp, string_view str);
 
 private:
 	enum ParseType { COMMAND, EXPRESSION, OTHER };

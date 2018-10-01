@@ -31,7 +31,7 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_UNCHECKED_HH
 
 #include "utf8_core.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 
 namespace utf8 {
 namespace unchecked {
@@ -226,17 +226,17 @@ public:
 };
 
 // convenience functions
-inline size_t size(string_ref utf8)
+inline size_t size(string_view utf8)
 {
 	return utf8::unchecked::distance(begin(utf8), end(utf8));
 }
-inline string_ref substr(string_ref utf8, string_ref::size_type first = 0,
-                         string_ref::size_type len = string_ref::npos)
+inline string_view substr(string_view utf8, string_view::size_type first = 0,
+                         string_view::size_type len = string_view::npos)
 {
 	auto b = begin(utf8);
 	utf8::unchecked::advance(b, first);
-	string_ref::const_iterator e;
-	if (len != string_ref::npos) {
+	string_view::const_iterator e;
+	if (len != string_view::npos) {
 		e = b;
 		while (len && (e != end(utf8))) {
 			unchecked::next(e); --len;
@@ -244,7 +244,7 @@ inline string_ref substr(string_ref utf8, string_ref::size_type first = 0,
 	} else {
 		e = end(utf8);
 	}
-	return string_ref(b, e);
+	return string_view(b, e);
 }
 
 } // namespace unchecked

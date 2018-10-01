@@ -1,7 +1,6 @@
 #include "DiskImageUtils.hh"
 #include "DiskPartition.hh"
 #include "CommandException.hh"
-#include "StringOp.hh"
 #include "BootBlocks.hh"
 #include "endian.hh"
 #include "random.hh"
@@ -45,8 +44,7 @@ static Partition& checkImpl(SectorAccessibleDisk& disk, unsigned partition,
 	// check valid partition number
 	auto& p = buf.pt.part[31 - partition];
 	if (p.start == 0) {
-		throw CommandException(StringOp::Builder() <<
-			"No partition number " << partition);
+		throw CommandException("No partition number ", partition);
 	}
 	return p;
 }

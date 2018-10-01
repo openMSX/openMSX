@@ -4,7 +4,6 @@
 #include "openmsx.hh"
 #include "AlignedBuffer.hh"
 #include "endian.hh"
-#include "alignof.hh"
 #include <vector>
 
 namespace openmsx {
@@ -71,7 +70,7 @@ struct Partition {
 	Endian::UA_L32 size;       // +12 nr of sectors in partition
 };
 static_assert(sizeof(Partition) == 16, "must be size 16");
-static_assert(ALIGNOF(Partition) == 1, "must not have alignment requirements");
+static_assert(alignof(Partition) == 1, "must not have alignment requirements");
 
 struct PartitionTable {
 	char        header[11]; // +  0

@@ -16,7 +16,7 @@
 #include "RomAscii8_8.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -31,7 +31,7 @@ RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
 	unsigned size = (subType == KOEI_32 || subType == ASCII8_32) ? 0x8000  // 32kB
 	              : (subType == ASCII8_2) ? 0x0800  //  2kB
 	                                      : 0x2000; //  8kB
-	sram = make_unique<SRAM>(getName() + " SRAM", size, config);
+	sram = std::make_unique<SRAM>(getName() + " SRAM", size, config);
 	reset(EmuTime::dummy());
 }
 

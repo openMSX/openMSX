@@ -16,6 +16,7 @@ public:
 		const SDL_PixelFormat& format,
 		std::unique_ptr<RawFrame>* lastFrames);
 	void init();
+	virtual ~Deflicker() = default;
 
 protected:
 	Deflicker(const SDL_PixelFormat& format,

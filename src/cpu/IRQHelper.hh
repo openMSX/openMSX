@@ -4,6 +4,7 @@
 #include "Probe.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
+#include <memory>
 #include <string>
 
 namespace openmsx {
@@ -31,14 +32,23 @@ private:
 };
 
 // supports <optional_irq> tag in hardware config
+
+class IRQSink
+{
+public:
+	virtual ~IRQSink() = default;
+	virtual void raise() = 0;
+	virtual void lower() = 0;
+};
+
 class OptionalIRQ
 {
 protected:
 	OptionalIRQ(MSXCPU& cpu, const DeviceConfig& config);
-	void raise();
-	void lower();
+	void raise() { sink->raise(); }
+	void lower() { sink->lower(); }
 private:
-	MSXCPU* const cpu;
+	std::unique_ptr<IRQSink> sink;
 };
 
 

@@ -13,8 +13,8 @@ public:
 	ProxySetting(Reactor& reactor, const TclObject& name);
 
 	void setValue(const TclObject& value) override;
-	string_ref getTypeString() const override;
-	string_ref getDescription() const override;
+	string_view getTypeString() const override;
+	string_view getDescription() const override;
 	const TclObject& getValue() const override;
 	TclObject getDefaultValue() const override;
 	TclObject getRestoreValue() const override;

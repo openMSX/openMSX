@@ -17,7 +17,7 @@ MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	, vdp(nullptr)
 	, lastTime(EmuTime::zero)
 	, firmwareSwitch(config)
-	, sram(config.findChild("sramname") ? make_unique<SRAM>(getName() + " SRAM", 0x800, config) : nullptr)
+	, sram(config.findChild("sramname") ? std::make_unique<SRAM>(getName() + " SRAM", 0x800, config) : nullptr)
 	, turboAvailable(config.getChildDataAsBool("hasturbo", false))
 	, turboEnabled(false)
 {
@@ -42,35 +42,36 @@ void MSXMatsushita::init()
 
 	// Wrap the VDP ports.
 	auto& cpuInterface = getCPUInterface();
+	bool error = false;
 	for (int i = 0; i < 2; ++i) {
-		MSXDevice* in  = cpuInterface.wrap_IO_In (0x98 + i, this);
-		if (in != vdp) {
-			throw MSXException(
-				"Invalid Matsushita configuration: "
-				"VDP not on input ports 0x98-0x99.");
-		}
+		error |= !cpuInterface.replace_IO_In (0x98 + i, vdp, this);
 	}
 	for (int i = 0; i < 4; ++i) {
-		MSXDevice* out = cpuInterface.wrap_IO_Out(0x98 + i, this);
-		if (out != vdp) {
-			throw MSXException(
-				"Invalid Matsushita configuration: "
-				"VDP not on output ports 0x98-0x9B.");
-		}
+		error |= !cpuInterface.replace_IO_Out(0x98 + i, vdp, this);
+	}
+	if (error) {
+		unwrap();
+		throw MSXException(
+			"Invalid Matsushita configuration: "
+			"VDP not on IO-ports 0x98-0x9B.");
 	}
 }
 
 MSXMatsushita::~MSXMatsushita()
 {
 	if (!vdp) return;
+	unwrap();
+}
 
+void MSXMatsushita::unwrap()
+{
 	// Unwrap the VDP ports.
 	auto& cpuInterface = getCPUInterface();
 	for (int i = 0; i < 2; ++i) {
-		cpuInterface.unwrap_IO_In (0x98 + i, vdp);
+		cpuInterface.replace_IO_In (0x98 + i, this, vdp);
 	}
 	for (int i = 0; i < 4; ++i) {
-		cpuInterface.unwrap_IO_Out(0x98 + i, vdp);
+		cpuInterface.replace_IO_Out(0x98 + i, this, vdp);
 	}
 }
 
@@ -202,7 +203,7 @@ void MSXMatsushita::delay(EmuTime::param time)
 			return;
 		}
 	}
-	lastTime.advance(time);
+	lastTime.reset(time);
 }
 
 template<typename Archive>

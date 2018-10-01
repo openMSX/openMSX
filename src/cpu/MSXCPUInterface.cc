@@ -16,20 +16,20 @@
 #include "CartridgeSlotManager.hh"
 #include "EventDistributor.hh"
 #include "Event.hh"
+#include "HardwareConfig.hh"
 #include "DeviceFactory.hh"
 #include "ReadOnlySetting.hh"
 #include "serialize.hh"
-#include "StringOp.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <iomanip>
 #include <algorithm>
-#include <iostream>
 #include <cstring>
+#include <iomanip>
+#include <iostream>
 #include <iterator>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -51,9 +51,9 @@ static unsigned breakedSettingCount = 0;
 
 
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
-static const byte SECUNDARY_SLOT_BIT = 0x01;
+static const byte SECONDARY_SLOT_BIT = 0x01;
 static const byte MEMORY_WATCH_BIT   = 0x02;
-static const byte GLOBAL_WRITE_BIT   = 0x04;
+static const byte GLOBAL_RW_BIT      = 0x04;
 
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
@@ -95,6 +95,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	memset(disallowReadCache,  0, sizeof(disallowReadCache));
 	memset(disallowWriteCache, 0, sizeof(disallowWriteCache));
 
+	initialPrimarySlots = motherBoard.getMachineConfig()->parseSlotMap();
 	// Note: SlotState is initialised at reset
 
 	msxcpu.setInterface(this);
@@ -113,11 +114,12 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 
 	if (breakedSettingCount++ == 0) {
 		assert(!breakedSetting);
-		breakedSetting = make_unique<ReadOnlySetting>(
+		breakedSetting = std::make_unique<ReadOnlySetting>(
 			motherBoard.getReactor().getCommandController(),
 			"breaked", "Similar to 'debug breaked'",
 			TclObject("false"));
 	}
+	reset();
 }
 
 MSXCPUInterface::~MSXCPUInterface()
@@ -176,6 +178,14 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 {
 	// something special in this region?
 	if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
+		// slot-select-ignore reads (e.g. used in 'Carnivore2')
+		for (auto& g : globalReads) {
+			// very primitive address selection mechanism,
+			// but more than enough for now
+			if (unlikely(g.addr == address)) {
+				g.device->globalRead(address, time);
+			}
+		}
 		// execute read watches before actual read
 		if (readWatchSet[address >> CacheLine::BITS]
 		                [address &  CacheLine::LOW]) {
@@ -245,13 +255,16 @@ void MSXCPUInterface::testUnsetExpanded(
 		for (int page = 0; page < 4; ++page) {
 			MSXDevice* device = slotLayout[ps][ss][page];
 			std::vector<MSXDevice*> devices;
+			std::vector<MSXDevice*>::iterator end_devices;
 			if (auto memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
 				devices = memDev->getDevices();
 				sort(begin(devices), end(devices)); // for set_difference()
+				end_devices = unique(begin(devices), end(devices));
 			} else {
 				devices.push_back(device);
+				end_devices = end(devices);
 			}
-			std::set_difference(begin(devices), end(devices),
+			std::set_difference(begin(devices), end_devices,
 			                    begin(allowed), end(allowed),
 			                    std::inserter(inUse, end(inUse)));
 
@@ -259,14 +272,13 @@ void MSXCPUInterface::testUnsetExpanded(
 	}
 	if (inUse.empty()) return; // ok, no more devices in use
 
-	StringOp::Builder msg;
-	msg << "Can't remove slot expander from slot " << ps
-	    << " because the following devices are still inserted:";
+	string msg = strCat("Can't remove slot expander from slot ", ps,
+	                    " because the following devices are still inserted:");
 	for (auto& d : inUse) {
-		msg << " " << d->getName();
+		strAppend(msg, ' ', d->getName());
 	}
-	msg << '.';
-	throw MSXException(msg);
+	strAppend(msg, '.');
+	throw MSXException(std::move(msg));
 }
 
 void MSXCPUInterface::unsetExpanded(int ps)
@@ -286,11 +298,11 @@ void MSXCPUInterface::unsetExpanded(int ps)
 void MSXCPUInterface::changeExpanded(bool newExpanded)
 {
 	if (newExpanded) {
-		disallowReadCache [0xFF] |=  SECUNDARY_SLOT_BIT;
-		disallowWriteCache[0xFF] |=  SECUNDARY_SLOT_BIT;
+		disallowReadCache [0xFF] |=  SECONDARY_SLOT_BIT;
+		disallowWriteCache[0xFF] |=  SECONDARY_SLOT_BIT;
 	} else {
-		disallowReadCache [0xFF] &= ~SECUNDARY_SLOT_BIT;
-		disallowWriteCache[0xFF] &= ~SECUNDARY_SLOT_BIT;
+		disallowReadCache [0xFF] &= ~SECONDARY_SLOT_BIT;
+		disallowWriteCache[0xFF] &= ~SECONDARY_SLOT_BIT;
 	}
 	msxcpu.invalidateMemCache(0xFFFF & CacheLine::HIGH, 0x100);
 }
@@ -351,9 +363,9 @@ void MSXCPUInterface::register_IO(int port, bool isIn,
 		}
 		if (isIn) {
 			cliComm.printWarning(
-				"Conflicting input port 0x" +
-				StringOp::toHexString(port, 2) +
-				" for devices " + devicePtr->getName());
+				"Conflicting input port 0x",
+				hex_string<2>(port),
+				" for devices ", devicePtr->getName());
 		}
 	}
 }
@@ -377,36 +389,34 @@ void MSXCPUInterface::unregister_IO(MSXDevice*& devicePtr, MSXDevice* device)
 	}
 }
 
-MSXDevice* MSXCPUInterface::wrap_IO_In(byte port, MSXDevice* device)
+bool MSXCPUInterface::replace_IO_In(
+	byte port, MSXDevice* oldDevice, MSXDevice* newDevice)
 {
 	MSXDevice*& devicePtr = getDevicePtr(port, true); // in
-	MSXDevice* result = devicePtr;
-	devicePtr = device;
-	return result;
+	if (devicePtr != oldDevice) {
+		// error, this was not the expected device
+		return false;
+	}
+	devicePtr = newDevice;
+	return true;
 }
-MSXDevice* MSXCPUInterface::wrap_IO_Out(byte port, MSXDevice* device)
+bool MSXCPUInterface::replace_IO_Out(
+	byte port, MSXDevice* oldDevice, MSXDevice* newDevice)
 {
 	MSXDevice*& devicePtr = getDevicePtr(port, false); // out
-	MSXDevice* result = devicePtr;
-	devicePtr = device;
-	return result;
-}
-void MSXCPUInterface::unwrap_IO_In(byte port, MSXDevice* device)
-{
-	MSXDevice*& devicePtr = getDevicePtr(port, true); // in
-	devicePtr = device;
-}
-void MSXCPUInterface::unwrap_IO_Out(byte port, MSXDevice* device)
-{
-	MSXDevice*& devicePtr = getDevicePtr(port, false); // out
-	devicePtr = device;
+	if (devicePtr != oldDevice) {
+		// error, this was not the expected device
+		return false;
+	}
+	devicePtr = newDevice;
+	return true;
 }
 
 static void reportMemOverlap(int ps, int ss, MSXDevice& dev1, MSXDevice& dev2)
 {
-	throw MSXException(StringOp::Builder() <<
-		"Overlapping memory devices in slot " << ps << '.' << ss <<
-		": " << dev1.getName() << " and " << dev2.getName() << '.');
+	throw MSXException(
+		"Overlapping memory devices in slot ", ps, '.', ss,
+		": ", dev1.getName(), " and ", dev2.getName(), '.');
 }
 
 void MSXCPUInterface::testRegisterSlot(
@@ -487,8 +497,8 @@ void MSXCPUInterface::registerMemDevice(
 	MSXDevice& device, int ps, int ss, int base_, int size_)
 {
 	if (!isExpanded(ps) && (ss != 0)) {
-		throw MSXException(StringOp::Builder() <<
-			"Slot " << ps << '.' << ss <<
+		throw MSXException(
+			"Slot ", ps, '.', ss,
 			" does not exist because slot is not expanded.");
 	}
 
@@ -529,13 +539,13 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 {
 	globalWrites.push_back({&device, address});
 
-	disallowWriteCache[address >> CacheLine::BITS] |= GLOBAL_WRITE_BIT;
+	disallowWriteCache[address >> CacheLine::BITS] |= GLOBAL_RW_BIT;
 	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 {
-	GlobalWriteInfo info = { &device, address };
+	GlobalRwInfo info = { &device, address };
 	move_pop_back(globalWrites, rfind_unguarded(globalWrites, info));
 
 	for (auto& g : globalWrites) {
@@ -545,7 +555,31 @@ void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 			return;
 		}
 	}
-	disallowWriteCache[address >> CacheLine::BITS] &= ~GLOBAL_WRITE_BIT;
+	disallowWriteCache[address >> CacheLine::BITS] &= ~GLOBAL_RW_BIT;
+	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+}
+
+void MSXCPUInterface::registerGlobalRead(MSXDevice& device, word address)
+{
+	globalReads.push_back({&device, address});
+
+	disallowReadCache[address >> CacheLine::BITS] |= GLOBAL_RW_BIT;
+	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+}
+
+void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
+{
+	GlobalRwInfo info = { &device, address };
+	move_pop_back(globalReads, rfind_unguarded(globalReads, info));
+
+	for (auto& g : globalReads) {
+		if ((g.addr >> CacheLine::BITS) ==
+		    (address  >> CacheLine::BITS)) {
+			// there is still a global write in this region
+			return;
+		}
+	}
+	disallowReadCache[address >> CacheLine::BITS] &= ~GLOBAL_RW_BIT;
 	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
 }
 
@@ -567,7 +601,7 @@ void MSXCPUInterface::reset()
 	for (int i = 0; i < 4; ++i) {
 		setSubSlot(i, 0);
 	}
-	setPrimarySlots(0);
+	setPrimarySlots(initialPrimarySlots);
 }
 
 byte MSXCPUInterface::readIRQVector()
@@ -996,7 +1030,7 @@ static unsigned getSlot(
 {
 	unsigned slot = token.getInt(interp);
 	if (slot >= 4) {
-		throw CommandException(itemName + " must be in range 0..3");
+		throw CommandException(itemName, " must be in range 0..3");
 	}
 	return slot;
 }
@@ -1156,7 +1190,7 @@ void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
 {
 	// TODO watchPoints ???
 
-	// primary and 4 secundary slot select registers
+	// primary and 4 secondary slot select registers
 	byte prim = 0;
 	if (!ar.isLoader()) {
 		for (int i = 0; i < 4; ++i) {

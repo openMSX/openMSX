@@ -5,8 +5,8 @@
 #include "SerializeBuffer.hh"
 #include "XMLElement.hh"
 #include "MemBuffer.hh"
-#include "StringOp.hh"
 #include "inline.hh"
+#include "strCat.hh"
 #include "unreachable.hh"
 #include <zlib.h>
 #include <string>
@@ -539,7 +539,7 @@ public:
 	void serialize(const char* tag, T& t)
 	{
 		this->self().beginTag(tag);
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, std::make_tuple(), -1); // don't load id
@@ -548,7 +548,7 @@ public:
 	template<typename T> void serializePointerID(const char* tag, const T& t)
 	{
 		this->self().beginTag(tag);
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		IDLoader<TNC> loader;
 		loader(this->self(), tnc);
@@ -581,7 +581,7 @@ public:
 	void doSerialize(const char* tag, T& t, TUPLE args, int id = 0)
 	{
 		this->self().beginTag(tag);
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, args, id);
@@ -622,7 +622,7 @@ public:
 		save(c);
 	}
 	void save(const std::string& s);
-	void serialize_blob(const char*, const void* data, size_t len,
+	void serialize_blob(const char* tag, const void* data, size_t len,
 	                    bool diff = true);
 
 	void beginSection()
@@ -689,8 +689,8 @@ public:
 		load(c);
 	}
 	void load(std::string& s);
-	string_ref loadStr();
-	void serialize_blob(const char*, void* data, size_t len,
+	string_view loadStr();
+	void serialize_blob(const char* tag, void* data, size_t len,
 	                    bool diff = true);
 
 	void skipSection(bool skip)
@@ -726,7 +726,7 @@ public:
 	{
 		// TODO make sure floating point is printed with enough digits
 		//      maybe print as hex?
-		save(StringOp::toString(t));
+		save(strCat(t));
 	}
 	template <typename T> void save(const T& t)
 	{
@@ -755,7 +755,7 @@ public:
 
 	template<typename T> void attributeImpl(const char* name, const T& t)
 	{
-		attribute(name, StringOp::toString(t));
+		attribute(name, strCat(t));
 	}
 	template<typename T> void attribute(const char* name, const T& t)
 	{
@@ -801,7 +801,7 @@ public:
 	void load(unsigned& u);             // but having them non-inline
 	void load(unsigned long long& ull); // saves quite a bit of code
 	void load(std::string& t);
-	string_ref loadStr();
+	string_view loadStr();
 
 	void skipSection(bool /*skip*/) { /*nothing*/ }
 

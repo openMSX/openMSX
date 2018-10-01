@@ -6,10 +6,10 @@
 #include "HexDump.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <zlib.h>
 #include <algorithm>
 #include <cstring>
-#include <zlib.h>
+#include <memory>
 
 using std::string;
 
@@ -32,14 +32,14 @@ Ram::Ram(const DeviceConfig& config, const string& name,
 	: xml(*config.getXML())
 	, ram(size_)
 	, size(size_)
-	, debuggable(make_unique<RamDebuggable>(
+	, debuggable(std::make_unique<RamDebuggable>(
 		config.getMotherBoard(), name, description, *this))
 {
 	clear();
 }
 
-Ram::Ram(const DeviceConfig& config, unsigned size_)
-	: xml(*config.getXML())
+Ram::Ram(const XMLElement& xml_, unsigned size_)
+	: xml(xml_)
 	, ram(size_)
 	, size(size_)
 {
@@ -70,7 +70,8 @@ void Ram::clear(byte c)
 			done = std::min(size_t(size), p.second);
 			memcpy(ram.data(), p.first.data(), done);
 		} else {
-			throw MSXException("Unsupported encoding \"" + encoding + "\" for initialContent");
+			throw MSXException("Unsupported encoding \"", encoding,
+			                   "\" for initialContent");
 		}
 
 		// repeat pattern over whole ram

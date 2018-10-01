@@ -13,9 +13,9 @@
 #include "HDCommand.hh"
 #include "Timer.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include "xrange.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
@@ -53,11 +53,17 @@ HD::HD(const DeviceConfig& config)
 
 	file = File(filename, mode);
 	filesize = file.getSize();
-	tigerTree = make_unique<TigerTree>(
+	if (mode == File::CREATE && filesize == 0) {
+		// OK, the file was just newly created. Now make sure the file
+		// is of the right (default) size
+		file.truncate(size_t(config.getChildDataAsInt("size")) * 1024 * 1024);
+		filesize = file.getSize();
+	}
+	tigerTree = std::make_unique<TigerTree>(
 		*this, filesize, filename.getResolved());
 
 	(*hdInUse)[id] = true;
-	hdCommand = make_unique<HDCommand>(
+	hdCommand = std::make_unique<HDCommand>(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(),
@@ -81,7 +87,7 @@ void HD::switchImage(const Filename& newFilename)
 	file = File(newFilename);
 	filename = newFilename;
 	filesize = file.getSize();
-	tigerTree = make_unique<TigerTree>(*this, filesize,
+	tigerTree = std::make_unique<TigerTree>(*this, filesize,
 			filename.getResolved());
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
 	                                   filename.getResolved());
@@ -129,10 +135,10 @@ void HD::showProgress(size_t position, size_t maxPosition)
 	if (((now - lastProgressTime) > 1000000) ||
 	    ((position == maxPosition) && everDidProgress)) {
 		lastProgressTime = now;
-		int percentage = (100 * position) / maxPosition;
+		int percentage = int((100 * position) / maxPosition);
 		motherBoard.getMSXCliComm().printProgress(
-			"Calculating hash for " + filename.getResolved() +
-			"... " + StringOp::toString(percentage) + '%');
+			"Calculating hash for ", filename.getResolved(),
+			"... ", percentage, '%');
 		motherBoard.getReactor().getDisplay().repaint();
 		everDidProgress = true;
 	}
@@ -190,10 +196,10 @@ bool HD::diskChanged()
 	return false; // TODO not implemented
 }
 
-int HD::insertDisk(string_ref newDisk)
+int HD::insertDisk(string_view newFilename)
 {
 	try {
-		switchImage(Filename(newDisk.str()));
+		switchImage(Filename(newFilename.str()));
 		return 0;
 	} catch (MSXException&) {
 		return -1;
@@ -239,7 +245,7 @@ void HD::serialize(Archive& ar, unsigned version)
 
 		if (ar.versionAtLeast(version, 2)) {
 			// use tiger-tree-hash
-			string oldTiger = ar.isLoader() ? "" : getTigerTreeHash();
+			string oldTiger = ar.isLoader() ? string{} : getTigerTreeHash();
 			ar.serialize("tthsum", oldTiger);
 			if (ar.isLoader()) {
 				string newTiger = getTigerTreeHash();
@@ -253,7 +259,7 @@ void HD::serialize(Archive& ar, unsigned version)
 				oldChecksum = getSha1Sum(filepool);
 			}
 			string oldChecksumStr = oldChecksum.empty()
-					      ? ""
+					      ? string{}
 					      : oldChecksum.toString();
 			ar.serialize("checksum", oldChecksumStr);
 			oldChecksum = oldChecksumStr.empty()
@@ -268,12 +274,12 @@ void HD::serialize(Archive& ar, unsigned version)
 
 		if (ar.isLoader() && mismatch) {
 			motherBoard.getMSXCliComm().printWarning(
-			    "The content of the harddisk " +
-			    tmp.getResolved() +
-			    " has changed since the time this savestate was "
-			    "created. This might result in emulation problems "
-			    "or even diskcorruption. To prevent the latter, "
-			    "the harddisk is now write-protected.");
+				"The content of the harddisk ",
+				tmp.getResolved(),
+				" has changed since the time this savestate was "
+				"created. This might result in emulation problems "
+				"or even diskcorruption. To prevent the latter, "
+				"the harddisk is now write-protected.");
 			forceWriteProtect();
 		}
 	}

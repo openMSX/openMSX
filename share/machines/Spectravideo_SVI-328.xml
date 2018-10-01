@@ -6,7 +6,7 @@
     <manufacturer>Spectravideo</manufacturer>
     <code>SVI-328</code>
     <release_year>1983</release_year>
-    <description>Non-MSX machine, which was heavy inspiration for the MSX standard. This configuraiton is boosted with 2x 64kB RAM and a built in floppy disk controller.</description>
+    <description>Non-MSX machine, which was heavy inspiration for the MSX standard.</description>
     <type>SVI</type>
   </info>
 
@@ -20,7 +20,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0x94" num="4" type="O"/>
-      <io base="0x98" num="3" type="I"/>
+      <io base="0x98" num="4" type="I"/>
       <keyboard_type>svi</keyboard_type>
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
@@ -44,17 +44,6 @@
       <io base="0x90" num="1" type="I"/>
     </SVIPSG>
 
-    <SVIPrinterPort id="SVI-328 Printer Port">
-      <io base="0x10" num="2" type="O"/>
-      <io base="0x12" num="1" type="I"/>
-    </SVIPrinterPort>
-
-    <SVIFDC id="SVI-328 FDC">
-      <io base="0x30" num="5"/>
-      <io base="0x38" num="1" type="O"/>
-      <drives>2</drives>
-    </SVIFDC>
-
     <primary slot="0">
       <ROM id="Spectravideo SVI-328 BASIC v1.11">
         <rom>
@@ -63,7 +52,7 @@
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
-      <RAM id="Main RAM">
+      <RAM id="Main RAM 1">
         <mem base="0x8000" size="0x8000"/>
       </RAM>
     </primary>
@@ -71,14 +60,8 @@
     <primary external="true" slot="1"/>
 
     <primary slot="2">
-      <RAM id="Main RAM">
-        <mem base="0x0000" size="0x10000"/>
-      </RAM>
-    </primary>
-
-    <primary slot="3">
-      <RAM id="Main RAM">
-        <mem base="0x0000" size="0x10000"/>
+      <RAM id="Main RAM 2">
+        <mem base="0x0000" size="0x8000"/>
       </RAM>
     </primary>
 

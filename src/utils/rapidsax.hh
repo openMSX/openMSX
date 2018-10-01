@@ -14,7 +14,7 @@
 // RapidXml produces a DOM-like output. This parser has a SAX-like interface.
 
 #include "small_compare.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <cassert>
 #include <cstdint>
 
@@ -28,7 +28,7 @@ namespace rapidsax {
 // - The behavior of the parser can be fine-tuned with the FLAGS parameter,
 //   see below for more details.
 // - When a parse error is encounter, an instance of ParseError is thrown.
-// - The lifetime of the string_ref's in the callback handler is the same as
+// - The lifetime of the string_view's in the callback handler is the same as
 //   the lifetime of the input XML data (no string copies are made, instead
 //   the XML file is modified in-place and references to this data are passed).
 template<int FLAGS, typename HANDLER> void parse(HANDLER& handler, char* xml);
@@ -58,7 +58,7 @@ class NullHandler
 public:
 	// Called when an opening XML tag is encountered.
 	// 'name' is the name of the XML tag.
-	void start(string_ref /*name*/) {}
+	void start(string_view /*name*/) {}
 
 	// Called when a XML tag is closed.
 	// Note: the parser does currently not check whether the name of the
@@ -72,29 +72,29 @@ public:
 	// (Unlike other SAX parsers) the whole text string is always
 	// passed in a single chunk (so no need to concatenate this text
 	// with previous chunks in the callback).
-	void text(string_ref /*text*/) {}
+	void text(string_view /*text*/) {}
 
 	// Called for each parsed attribute.
 	// Attributes can occur inside xml tags or inside XML declarations.
-	void attribute(string_ref /*name*/, string_ref /*value*/) {}
+	void attribute(string_view /*name*/, string_view /*value*/) {}
 
 	// Called for parsed CDATA sections.
-	void cdata(string_ref /*value*/) {}
+	void cdata(string_view /*value*/) {}
 
 	// Called when a XML comment (<!-- ... -->) is parsed.
-	void comment(string_ref /*value*/) {}
+	void comment(string_view /*value*/) {}
 
 	// Called when XML declaration (<?xml .. ?>) is parsed.
 	// Inside a XML declaration there can be attributes.
 	void declarationStart() {}
-	void declAttribute(string_ref /*name*/, string_ref /*value*/) {}
+	void declAttribute(string_view /*name*/, string_view /*value*/) {}
 	void declarationStop() {}
 
 	// Called when the <!DOCTYPE ..> is parsed.
-	void doctype(string_ref /*text*/) {}
+	void doctype(string_view /*text*/) {}
 
 	// Called when XML processing instructions (<? .. ?>) are parsed.
-	void procInstr(string_ref /*target*/, string_ref /*instr*/) {}
+	void procInstr(string_view /*target*/, string_view /*instr*/) {}
 };
 
 
@@ -405,7 +405,7 @@ private:
 			}
 			++text;
 		}
-		handler.comment(string_ref(value, text));
+		handler.comment(string_view(value, text));
 		text += 3; // skip '-->'
 	}
 
@@ -442,7 +442,7 @@ private:
 			}
 		}
 
-		handler.doctype(string_ref(value, text));
+		handler.doctype(string_view(value, text));
 		text += 1; // skip '>'
 	}
 
@@ -468,8 +468,8 @@ private:
 			++text;
 		}
 		// Set pi value (verbatim, no entity expansion or ws normalization)
-		handler.procInstr(string_ref(name,  nameEnd),
-			          string_ref(value, text));
+		handler.procInstr(string_view(name,  nameEnd),
+			          string_view(value, text));
 		text += 2; // skip '?>'
 	}
 
@@ -512,7 +512,7 @@ private:
 
 		// Handle text, but only if non-empty.
 		auto len = end - value;
-		if (len) handler.text(string_ref(value, len));
+		if (len) handler.text(string_view(value, len));
 	}
 
 	void parseCdata(char*& text)
@@ -525,7 +525,7 @@ private:
 			}
 			++text;
 		}
-		handler.cdata(string_ref(value, text));
+		handler.cdata(string_view(value, text));
 		text += 3; // skip ]]>
 	}
 
@@ -538,7 +538,7 @@ private:
 		if (name == nameEnd) {
 			throw ParseError("expected element name", text);
 		}
-		handler.start(string_ref(name, nameEnd));
+		handler.start(string_view(name, nameEnd));
 
 		skip<WhitespacePred>(text); // skip ws before attributes or >
 		parseAttributes(text, false);
@@ -711,11 +711,11 @@ afterText:		// After parseText() jump here instead of continuing
 			++text; // skip quote
 
 			if (!declaration) {
-				handler.attribute(string_ref(name, nameEnd),
-				                  string_ref(value, valueEnd));
+				handler.attribute(string_view(name, nameEnd),
+				                  string_view(value, valueEnd));
 			} else {
-				handler.declAttribute(string_ref(name, nameEnd),
-				                      string_ref(value, valueEnd));
+				handler.declAttribute(string_view(name, nameEnd),
+				                      string_view(value, valueEnd));
 			}
 
 			skip<WhitespacePred>(text); // skip ws after value

@@ -38,7 +38,7 @@ private:
 
 	// SoundDevice
 	void generateChannels(int** bufs, unsigned num) override;
-	int getAmplificationFactor() const override;
+	int getAmplificationFactorImpl() const override;
 
 	void setupParameter(byte param);
 	int getBits(unsigned sbit, unsigned bits);

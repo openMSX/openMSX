@@ -9,7 +9,7 @@
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 using std::string;
 
@@ -24,11 +24,11 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager())
 	, motorTimeout(motorTimeout_)
 	, motorTimer(getCurrentTime())
-	, headLoadTimer(getCurrentTime())
 	, headPos(0), side(0), startAngle(0)
-	, motorStatus(false), headLoadStatus(false)
+	, motorStatus(false)
 	, doubleSizedDrive(doubleSided)
 	, signalsNeedMotorOn(signalsNeedMotorOn_)
+	, trackValid(false), trackDirty(false)
 {
 	drivesInUse = motherBoard.getSharedStuff<DrivesInUse>("drivesInUse");
 
@@ -42,14 +42,20 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	string driveName = "diskX"; driveName[4] = char('a' + i);
 
 	if (motherBoard.getCommandController().hasCommand(driveName)) {
-		throw MSXException("Duplicated drive name: " + driveName);
+		throw MSXException("Duplicated drive name: ", driveName);
 	}
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
-	changer = make_unique<DiskChanger>(motherBoard, driveName, true, doubleSizedDrive);
+	changer = std::make_unique<DiskChanger>(motherBoard, driveName, true, doubleSizedDrive,
+	                                        [this]() { invalidateTrack(); });
 }
 
 RealDrive::~RealDrive()
 {
+	try {
+		flushTrack();
+	} catch (MSXException&) {
+		// ignore
+	}
 	doSetMotor(false, getCurrentTime()); // to send LED event
 
 	const auto& driveName = changer->getDriveName();
@@ -95,11 +101,14 @@ bool RealDrive::isDoubleSided() const
 
 void RealDrive::setSide(bool side_)
 {
+	invalidateTrack();
 	side = side_ ? 1 : 0; // also for single-sided drives
 }
 
 void RealDrive::step(bool direction, EmuTime::param time)
 {
+	invalidateTrack();
+
 	if (direction) {
 		// step in
 		if (headPos < MAX_TRACK) {
@@ -196,6 +205,10 @@ unsigned RealDrive::getCurrentAngle(EmuTime::param time) const
 
 void RealDrive::doSetMotor(bool status, EmuTime::param time)
 {
+	if (!status) {
+		invalidateTrack(); // flush and ignore further writes
+	}
+
 	startAngle = getCurrentAngle(time);
 	motorStatus = status;
 	motorTimer.advance(time);
@@ -250,49 +263,89 @@ EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time, int count)
 	return time + dur1 + dur2;
 }
 
-void RealDrive::setHeadLoaded(bool status, EmuTime::param time)
+void RealDrive::invalidateTrack()
 {
-	if (headLoadStatus != status) {
-		headLoadStatus = status;
-		headLoadTimer.advance(time);
+	try {
+		flushTrack();
+	} catch (MSXException&) {
+		// ignore
+	}
+	trackValid = false;
+}
+
+void RealDrive::getTrack()
+{
+	if (!motorStatus) {
+		// cannot read track when disk isn't rotating
+		assert(!trackValid);
+		return;
+	}
+	if (!trackValid) {
+		changer->getDisk().readTrack(headPos, side, track);
+		trackValid = true;
+		trackDirty = false;
 	}
 }
 
-bool RealDrive::headLoaded(EmuTime::param time)
+unsigned RealDrive::getTrackLength()
 {
-	return headLoadStatus &&
-	       (headLoadTimer.getTicksTill(time) > 10);
+	getTrack();
+	return track.getLength();
 }
 
-void RealDrive::writeTrack(const RawTrack& track)
+void RealDrive::writeTrackByte(int idx, byte val, bool addIdam)
 {
-	changer->getDisk().writeTrack(headPos, side, track);
+	getTrack();
+	// It's possible 'trackValid==false', but that's fine because in that
+	// case track won't be flushed to disk anyway.
+	track.write(idx, val, addIdam);
+	trackDirty = true;
 }
 
-void RealDrive::readTrack(RawTrack& track)
+byte RealDrive::readTrackByte(int idx)
 {
-	changer->getDisk().readTrack(headPos, side, track);
+	getTrack();
+	return trackValid ? track.read(idx) : 0;
 }
 
 static inline unsigned divUp(unsigned a, unsigned b)
 {
 	return (a + b - 1) / b;
 }
-EmuTime RealDrive::getNextSector(
-	EmuTime::param time, RawTrack& track, RawTrack::Sector& sector)
+EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 {
+	getTrack();
 	int currentAngle = getCurrentAngle(time);
-	changer->getDisk().readTrack(headPos, side, track);
 	unsigned trackLen = track.getLength();
 	unsigned idx = divUp(currentAngle * trackLen, TICKS_PER_ROTATION);
-	if (!track.decodeNextSector(idx, sector)) {
+
+	// 'addrIdx' points to the 'FE' byte in the 'A1 A1 A1 FE' sequence.
+	// This method also returns the moment in time when this 'FE' byte is
+	// located below the drive head. But when searching for the next sector
+	// header, the FDC needs to see this full sequence. So if the rotation
+	// distance is only 3 bytes or less we need to skip to the next sector
+	// header. IOW we need a sector header that's at least 4 bytes removed
+	// from the current position.
+	if (!track.decodeNextSector(idx + 4, sector)) {
 		return EmuTime::infinity;
 	}
 	int sectorAngle = divUp(sector.addrIdx * TICKS_PER_ROTATION, trackLen);
+
+	// note that if there is only one sector in this track, we have
+	// to do a full rotation.
 	int delta = sectorAngle - currentAngle;
-	if (delta < 0) delta += TICKS_PER_ROTATION;
-	assert(0 <= delta); assert(unsigned(delta) < TICKS_PER_ROTATION);
+	if (delta < 4) delta += TICKS_PER_ROTATION;
+	assert(4 <= delta); assert(unsigned(delta) < (TICKS_PER_ROTATION + 4));
+
 	return time + MotorClock::duration(delta);
+}
+
+void RealDrive::flushTrack()
+{
+	if (trackValid && trackDirty) {
+		changer->getDisk().writeTrack(headPos, side, track);
+		trackDirty = false;
+	}
 }
 
 bool RealDrive::diskChanged()
@@ -310,10 +363,23 @@ bool RealDrive::isDummyDrive() const
 	return false;
 }
 
+void RealDrive::applyWd2793ReadTrackQuirk()
+{
+	track.applyWd2793ReadTrackQuirk();
+}
+
+void RealDrive::invalidateWd2793ReadTrackQuirk()
+{
+	trackValid = false;
+}
+
+
 // version 1: initial version
 // version 2: removed 'timeOut', added MOTOR_TIMEOUT schedulable
 // version 3: added 'startAngle'
 // version 4: removed 'userData' from Schedulable
+// version 5: added 'track', 'trackValid', 'trackDirty'
+// version 6: removed 'headLoadStatus' and 'headLoadTimer'
 template<typename Archive>
 void RealDrive::serialize(Archive& ar, unsigned version)
 {
@@ -324,17 +390,20 @@ void RealDrive::serialize(Archive& ar, unsigned version)
 		Schedulable::restoreOld(ar, {&syncLoadingTimeout, &syncMotorTimeout});
 	}
 	ar.serialize("motorTimer", motorTimer);
-	ar.serialize("headLoadTimer", headLoadTimer);
 	ar.serialize("changer", *changer);
 	ar.serialize("headPos", headPos);
 	ar.serialize("side", side);
 	ar.serialize("motorStatus", motorStatus);
-	ar.serialize("headLoadStatus", headLoadStatus);
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("startAngle", startAngle);
 	} else {
 		assert(ar.isLoader());
 		startAngle = 0;
+	}
+	if (ar.versionAtLeast(version, 5)) {
+		ar.serialize("track", track);
+		ar.serialize("trackValid" ,trackValid);
+		ar.serialize("trackDirty", trackDirty);
 	}
 	if (ar.isLoader()) {
 		// Right after a loadstate, the 'loading indicator' state may

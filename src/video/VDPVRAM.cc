@@ -75,7 +75,7 @@ void VDPVRAM::LogicalVRAMDebuggable::write(
 VDPVRAM::PhysicalVRAMDebuggable::PhysicalVRAMDebuggable(
 		VDP& vdp_, unsigned actualSize_)
 	: SimpleDebuggable(vdp_.getMotherBoard(), vdp_.getName() == "VDP" ?
-	                   "physical VRAM" : "physical " + vdp_.getName() + " VRAM",
+	                   "physical VRAM" : strCat("physical ", vdp_.getName(), " VRAM"),
 	                   "VDP-screen-mode-independent view on the video RAM.",
 	                   actualSize_)
 {
@@ -109,7 +109,7 @@ static unsigned bufferSize(unsigned size)
 
 VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	: vdp(vdp_)
-	, data(vdp_.getDeviceConfig2(), bufferSize(size))
+	, data(*vdp_.getDeviceConfig2().getXML(), bufferSize(size))
 	, logicalVRAMDebug (vdp)
 	, physicalVRAMDebug(vdp, size)
 	#ifdef DEBUG
@@ -150,10 +150,10 @@ void VDPVRAM::clear()
 	}
 }
 
-void VDPVRAM::updateDisplayMode(DisplayMode mode, EmuTime::param time)
+void VDPVRAM::updateDisplayMode(DisplayMode mode, bool cmdBit, EmuTime::param time)
 {
 	assert(vdp.isInsideFrame(time));
-	cmdEngine->updateDisplayMode(mode, time);
+	cmdEngine->updateDisplayMode(mode, cmdBit, time);
 	renderer->updateDisplayMode(mode, time);
 	spriteChecker->updateDisplayMode(mode, time);
 }

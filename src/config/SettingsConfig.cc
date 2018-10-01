@@ -35,12 +35,12 @@ SettingsConfig::~SettingsConfig()
 			saveSetting();
 		} catch (FileException& e) {
 			commandController.getCliComm().printWarning(
-				"Auto-saving of settings failed: " + e.getMessage() );
+				"Auto-saving of settings failed: ", e.getMessage());
 		}
 	}
 }
 
-void SettingsConfig::loadSetting(const FileContext& context, string_ref filename)
+void SettingsConfig::loadSetting(const FileContext& context, string_view filename)
 {
 	LocalFileReference file(context.resolve(filename));
 	xmlElement = XMLLoader::load(file.getFilename(), "settings.dtd");
@@ -51,14 +51,14 @@ void SettingsConfig::loadSetting(const FileContext& context, string_ref filename
 	setSaveFilename(context, filename);
 }
 
-void SettingsConfig::setSaveFilename(const FileContext& context, string_ref filename)
+void SettingsConfig::setSaveFilename(const FileContext& context, string_view filename)
 {
 	saveName = context.resolveCreate(filename);
 }
 
-void SettingsConfig::saveSetting(string_ref filename)
+void SettingsConfig::saveSetting(string_view filename)
 {
-	string_ref name = filename.empty() ? saveName : filename;
+	string_view name = filename.empty() ? saveName : filename;
 	if (name.empty()) return;
 
 	// Normally the following isn't needed. Only when there was no
@@ -101,7 +101,7 @@ void SettingsConfig::SaveSettingsCommand::execute(
 			throw SyntaxError();
 		}
 	} catch (FileException& e) {
-		throw CommandException(e.getMessage());
+		throw CommandException(std::move(e).getMessage());
 	}
 }
 

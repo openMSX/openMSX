@@ -1,7 +1,7 @@
 #include "GLContext.hh"
 #include "GLDefaultScaler.hh"
 #include "gl_transform.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace gl {
 
@@ -42,7 +42,7 @@ Context::~Context() = default;
 openmsx::GLScaler& Context::getFallbackScaler()
 {
 	if (!fallbackScaler) {
-		fallbackScaler = make_unique<openmsx::GLDefaultScaler>();
+		fallbackScaler = std::make_unique<openmsx::GLDefaultScaler>();
 	}
 	return *fallbackScaler;
 }

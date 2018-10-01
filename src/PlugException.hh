@@ -10,8 +10,7 @@ namespace openmsx {
 class PlugException final : public MSXException
 {
 public:
-	explicit PlugException(string_ref message_)
-		: MSXException(message_) {}
+	using MSXException::MSXException;
 };
 
 } // namespace openmsx

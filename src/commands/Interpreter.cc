@@ -124,7 +124,7 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 {
 	try {
 		auto* output = static_cast<Interpreter*>(clientData)->output;
-		string_ref text(buf, toWrite);
+		string_view text(buf, toWrite);
 		if (!text.empty() && output) {
 			output->output(text);
 		}
@@ -324,9 +324,10 @@ static BaseSetting* getTraceSetting(uintptr_t traceID)
 }
 
 #ifndef NDEBUG
-static string_ref removeColonColon(string_ref s)
+static string_view removeColonColon(string_view s)
 {
-	return s.starts_with("::") ? s.substr(2) : s;
+	if (s.starts_with("::")) s.remove_prefix(2);
+	return s;
 }
 #endif
 
@@ -376,7 +377,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			try {
 				setVar(interp, part1Obj, variable->getValue());
 			} catch (MSXException& e) {
-				static_string = e.getMessage();
+				static_string = std::move(e).getMessage();
 				return const_cast<char*>(static_string.c_str());
 			}
 		}
@@ -391,7 +392,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				}
 			} catch (MSXException& e) {
 				setVar(interp, part1Obj, getSafeValue(*variable));
-				static_string = e.getMessage();
+				static_string = std::move(e).getMessage();
 				return const_cast<char*>(static_string.c_str());
 			}
 		}
@@ -422,7 +423,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 
 void Interpreter::createNamespace(const std::string& name)
 {
-	execute("namespace eval " + name + " {}");
+	execute(strCat("namespace eval ", name, " {}"));
 }
 
 void Interpreter::deleteNamespace(const std::string& name)
@@ -436,7 +437,7 @@ void Interpreter::poll()
 	Tcl_DoOneEvent(TCL_DONT_WAIT);
 }
 
-TclParser Interpreter::parse(string_ref command)
+TclParser Interpreter::parse(string_view command)
 {
 	return TclParser(interp, command);
 }

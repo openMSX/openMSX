@@ -72,30 +72,29 @@ EmuTime DriveMultiplexer::getTimeTillIndexPulse(EmuTime::param time, int count)
 	return drive[selected]->getTimeTillIndexPulse(time, count);
 }
 
-void DriveMultiplexer::setHeadLoaded(bool status, EmuTime::param time)
+unsigned DriveMultiplexer::getTrackLength()
 {
-	drive[selected]->setHeadLoaded(status, time);
+	return drive[selected]->getTrackLength();
 }
 
-bool DriveMultiplexer::headLoaded(EmuTime::param time)
+void DriveMultiplexer::writeTrackByte(int idx, byte val, bool addIdam)
 {
-	return drive[selected]->headLoaded(time);
+	drive[selected]->writeTrackByte(idx, val, addIdam);
 }
 
-void DriveMultiplexer::writeTrack(const RawTrack& track)
+byte DriveMultiplexer::readTrackByte(int idx)
 {
-	drive[selected]->writeTrack(track);
+	return drive[selected]->readTrackByte(idx);
 }
 
-void DriveMultiplexer::readTrack(RawTrack& track)
+EmuTime DriveMultiplexer::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 {
-	drive[selected]->readTrack(track);
+	return drive[selected]->getNextSector(time, sector);
 }
 
-EmuTime DriveMultiplexer::getNextSector(EmuTime::param time, RawTrack& track,
-                                        RawTrack::Sector& sector)
+void DriveMultiplexer::flushTrack()
 {
-	return drive[selected]->getNextSector(time, track, sector);
+	drive[selected]->flushTrack();
 }
 
 bool DriveMultiplexer::diskChanged()
@@ -111,6 +110,16 @@ bool DriveMultiplexer::peekDiskChanged() const
 bool DriveMultiplexer::isDummyDrive() const
 {
 	return drive[selected]->isDummyDrive();
+}
+
+void DriveMultiplexer::applyWd2793ReadTrackQuirk()
+{
+	drive[selected]->applyWd2793ReadTrackQuirk();
+}
+
+void DriveMultiplexer::invalidateWd2793ReadTrackQuirk()
+{
+	drive[selected]->invalidateWd2793ReadTrackQuirk();
 }
 
 

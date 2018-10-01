@@ -8,7 +8,7 @@ namespace openmsx {
 class CommandException : public MSXException
 {
 public:
-	explicit CommandException(string_ref message);
+	using MSXException::MSXException;
 };
 
 class SyntaxError final : public CommandException

@@ -15,13 +15,13 @@ public:
 
 	virtual void executeRT() = 0;
 
-protected:
-	explicit RTSchedulable(RTScheduler& scheduler);
-	~RTSchedulable();
-
 	void scheduleRT(uint64_t delta);
 	bool cancelRT();
 	bool isPendingRT() const;
+
+protected:
+	explicit RTSchedulable(RTScheduler& scheduler);
+	~RTSchedulable();
 
 private:
 	RTScheduler& scheduler;

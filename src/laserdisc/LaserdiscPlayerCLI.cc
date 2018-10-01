@@ -20,7 +20,7 @@ void LaserdiscPlayerCLI::parseOption(const string& option, array_ref<string>& cm
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_ref LaserdiscPlayerCLI::optionHelp() const
+string_view LaserdiscPlayerCLI::optionHelp() const
 {
 	return "Put laserdisc image specified in argument in "
 	       "virtual laserdiscplayer";
@@ -39,7 +39,7 @@ void LaserdiscPlayerCLI::parseFileType(const string& filename,
 	command.executeCommand(parser.getInterpreter());
 }
 
-string_ref LaserdiscPlayerCLI::fileTypeHelp() const
+string_view LaserdiscPlayerCLI::fileTypeHelp() const
 {
 	return "Laserdisc image, Ogg Vorbis/Theora";
 }

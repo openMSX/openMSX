@@ -6,9 +6,9 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "memory.hh"
 #include <cassert>
 #include <functional>
+#include <memory>
 
 using std::string;
 
@@ -33,7 +33,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	(*nowindsInUse)[i] = true;
 	basename[6] = char('a' + i);
 
-	command = make_unique<NowindCommand>(
+	command = std::make_unique<NowindCommand>(
 		basename, getCommandController(), *this);
 
 	// start with one (empty) drive

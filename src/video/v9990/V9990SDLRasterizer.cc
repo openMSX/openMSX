@@ -10,11 +10,11 @@
 #include "VisibleSurface.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
-#include "memory.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
 #include <cstdint>
+#include <memory>
 
 using std::min;
 using std::max;
@@ -27,7 +27,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
-	, workFrame(make_unique<RawFrame>(screen.getSDLFormat(), 1280, 240))
+	, workFrame(std::make_unique<RawFrame>(screen.getSDLFormat(), 1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, displayMode(P1) // dummy value
 	, colorMode(PP)   //   avoid UMR

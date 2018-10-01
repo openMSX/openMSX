@@ -3,13 +3,12 @@
 #include "Display.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "StringOp.hh"
 #include "GLUtil.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <limits>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -205,17 +204,17 @@ void OSDWidget::resortDown(OSDWidget* elem)
 #endif
 }
 
-vector<string_ref> OSDWidget::getProperties() const
+vector<string_view> OSDWidget::getProperties() const
 {
 	static const char* const vals[] = {
 		"-type", "-x", "-y", "-z", "-relx", "-rely", "-scaled",
 		"-clip", "-mousecoord", "-suppressErrors",
 	};
-	return vector<string_ref>(std::begin(vals), std::end(vals));
+	return vector<string_view>(std::begin(vals), std::end(vals));
 }
 
 void OSDWidget::setProperty(
-	Interpreter& interp, string_ref propName, const TclObject& value)
+	Interpreter& interp, string_view propName, const TclObject& value)
 {
 	if (propName == "-type") {
 		throw CommandException("-type property is readonly");
@@ -254,11 +253,11 @@ void OSDWidget::setProperty(
 	} else if (propName == "-suppressErrors") {
 		suppressErrors = value.getBoolean(interp);
 	} else {
-		throw CommandException("No such property: " + propName);
+		throw CommandException("No such property: ", propName);
 	}
 }
 
-void OSDWidget::getProperty(string_ref propName, TclObject& result) const
+void OSDWidget::getProperty(string_view propName, TclObject& result) const
 {
 	if (propName == "-type") {
 		result.setString(getType());
@@ -283,7 +282,7 @@ void OSDWidget::getProperty(string_ref propName, TclObject& result) const
 	} else if (propName == "-suppressErrors") {
 		result.setBoolean(suppressErrors);
 	} else {
-		throw CommandException("No such property: " + propName);
+		throw CommandException("No such property: ", propName);
 	}
 }
 
@@ -322,7 +321,7 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 	if (clip) {
 		ivec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
-		scopedClip = make_unique<SDLScopedClip>(
+		scopedClip = std::make_unique<SDLScopedClip>(
 			output, clipPos[0], clipPos[1], size[0], size[1]);
 	}
 
@@ -341,7 +340,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 	if (clip) {
 		ivec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
-		scopedClip = make_unique<GLScopedClip>(
+		scopedClip = std::make_unique<GLScopedClip>(
 			output, clipPos[0], clipPos[1], size[0], size[1]);
 	}
 

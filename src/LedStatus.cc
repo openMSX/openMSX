@@ -3,7 +3,7 @@
 #include "ReadOnlySetting.hh"
 #include "CommandController.hh"
 #include "Timer.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -27,7 +27,7 @@ LedStatus::LedStatus(
 	for (int i = 0; i < NUM_LEDS; ++i) {
 		ledValue[i] = false;
 		std::string name = getLedName(static_cast<Led>(i));
-		ledStatus[i] = make_unique<ReadOnlySetting>(
+		ledStatus[i] = std::make_unique<ReadOnlySetting>(
 			commandController, "led_" + name,
 			"Current status for LED: " + name,
 			TclObject("off"));
@@ -61,9 +61,9 @@ void LedStatus::setLed(Led led, bool status)
 
 void LedStatus::handleEvent(Led led)
 {
-	static const string_ref ON  = "on";
-	static const string_ref OFF = "off";
-	const string_ref& str = ledValue[led] ? ON : OFF;
+	static const string_view ON  = "on";
+	static const string_view OFF = "off";
+	const string_view& str = ledValue[led] ? ON : OFF;
 
 	ledStatus[led]->setReadOnlyValue(TclObject(str));
 	msxCliComm.update(CliComm::LED, getLedName(led), str);

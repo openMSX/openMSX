@@ -7,7 +7,7 @@ namespace openmsx {
 MSXKanji::MSXKanji(const DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(getName(), "Kanji ROM", config)
-	, isLascom(config.getChildData("type", "") == "lascom")
+	, isLascom(config.getChildData("type", {}) == "lascom")
 {
 	int size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
@@ -49,6 +49,7 @@ byte MSXKanji::readIO(word port, EmuTime::param time)
 		if (!isLascom) {
 			break;
 		}
+		// fall-through
 	case 1:
 		adr1 = (adr1 & ~0x1f) | ((adr1 + 1) & 0x1f);
 		break;
@@ -67,6 +68,7 @@ byte MSXKanji::peekIO(word port, EmuTime::param /*time*/) const
 		if (!isLascom) {
 			break;
 		}
+		// fall-through
 	case 1:
 		result = rom[adr1];
 		break;

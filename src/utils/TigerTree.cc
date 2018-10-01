@@ -10,12 +10,10 @@ static const size_t BLOCK_SIZE = 1024;
 
 struct TTCacheEntry
 {
-	TTCacheEntry() : time(-1) {}
-
 	MemBuffer<TigerHash> hash;
 	MemBuffer<bool> valid;
 	size_t numNodes;
-	time_t time;
+	time_t time = -1;
 	size_t numNodesValid;
 };
 // Typically contains 0 or 1 element, and only rarely 2 or more. But we need
@@ -143,13 +141,13 @@ const TigerHash& TigerTree::calcHash(Node node, const std::function<void(size_t,
 TigerTree::Node TigerTree::getTop() const
 {
 	auto n = Math::floodRight(entry.numNodes / 2);
-	return Node(n, n + 1);
+	return {n, n + 1};
 }
 
 TigerTree::Node TigerTree::getLeaf(size_t block) const
 {
 	assert((2 * block) < entry.numNodes);
-	return Node(2 * block, 1);
+	return {2 * block, 1};
 }
 
 TigerTree::Node TigerTree::getParent(Node node) const
@@ -178,76 +176,8 @@ TigerTree::Node TigerTree::getRightChild(Node node) const
 		assert(node.l > 1);
 		node.l /= 2;
 		auto r = node.n + node.l;
-		if (r < entry.numNodes) return Node(r, node.l);
+		if (r < entry.numNodes) return {r, node.l};
 	}
 }
 
 } // namespace openmsx
-
-
-#if 0
-
-// Unittest
-
-class TTTestData : public openmsx::TTData
-{
-public:
-	uint8_t* getData(size_t offset, size_t size) override
-	{
-		return buffer + offset;
-	}
-	uint8_t* buffer;
-};
-
-int main()
-{
-	uint8_t buffer_[8192 + 1];
-	uint8_t* buffer = buffer_ + 1;
-	TTTestData data;
-	data.buffer = buffer;
-
-	// zero sized buffer
-	openmsx::TigerTree tt0(data, 0);
-	assert(tt0.calcHash().toString() ==
-	       "LWPNACQDBZRYXW3VHJVCJ64QBZNGHOHHHZWCLNQ");
-
-	// size less than one block
-	openmsx::TigerTree tt1(data, 100);
-	memset(buffer, 0, 100);
-	assert(tt1.calcHash().toString() ==
-	       "EOIEKIQO6BSNCNRX2UB2MB466INV6LICZ6MPUWQ");
-	memset(buffer + 20, 1, 10);
-	tt1.notifyChange(20, 10);
-	assert(tt1.calcHash().toString() ==
-	       "GOTZVYW3WIE37XFCDOY66PLLXWGP6DPN3CQRHWA");
-
-	// 3 full and one partial block
-	openmsx::TigerTree tt2(data, 4000);
-	memset(buffer, 0, 4000);
-	assert(tt2.calcHash().toString() ==
-	       "YC44NFWFCN3QWFRSS6ICGUJDLH7F654RCKVT7VY");
-	memset(buffer + 1500, 1, 10);
-	tt2.notifyChange(1500, 10); // change a single block
-	assert(tt2.calcHash().toString() ==
-	       "JU5RYR446PVZSPMOJML4IQ2FXLDDKE522CEYIBA");
-	memset(buffer + 2000, 1, 100);
-	tt2.notifyChange(2000, 100); // change two blocks
-	assert(tt2.calcHash().toString() ==
-	       "IPV53CDVB2I63HXIXVK2OUPNS26YB7V7G2Y7XIA");
-
-	// 7 full blocks (unbalanced internal binary tree)
-	openmsx::TigerTree tt3(data, 7 * 1024);
-	memset(buffer, 0, 7 * 1024);
-	assert(tt3.calcHash().toString() ==
-	       "FPSZ35773WS4WGBVXM255KWNETQZXMTEJGFMLTA");
-	memset(buffer + 512, 1, 512);
-	tt3.notifyChange(512, 512); // part of block-0
-	assert(tt3.calcHash().toString() ==
-	       "Z32BC2WSHPW5DYUSNSZGLDIFTEIP3DBFJ7MG2MQ");
-	memset(buffer + 3*1024, 1, 4*1024);
-	tt3.notifyChange(3*1024, 4*1024); // blocks 3-6
-	assert(tt3.calcHash().toString() ==
-	       "SJUYB3QVIJXNKZMSQZGIMHA7GA2MYU2UECDA26A");
-}
-
-#endif

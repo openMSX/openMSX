@@ -5,8 +5,9 @@
 #include "StateChangeListener.hh"
 #include "serialize_meta.hh"
 #include "array_ref.hh"
-#include <string>
+#include <functional>
 #include <memory>
+#include <string>
 
 namespace openmsx {
 
@@ -25,8 +26,9 @@ class DiskChanger final : public DiskContainer, private StateChangeListener
 public:
 	DiskChanger(MSXMotherBoard& board,
 	            std::string driveName,
-	            bool createCommand = true,
-	            bool doubleSidedDrive = true);
+	            bool createCmd = true,
+	            bool doubleSidedDrive = true,
+	            std::function<void()> preChangeCallback = {});
 	DiskChanger(Reactor& reactor,
 	            std::string driveName); // for virtual_drive
 	~DiskChanger();
@@ -43,7 +45,7 @@ public:
 	SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	const std::string& getContainerName() const override;
 	bool diskChanged() override;
-	int insertDisk(string_ref filename) override;
+	int insertDisk(string_view filename) override;
 
 	// for NowindCommand
 	void changeDisk(std::unique_ptr<Disk> newDisk);
@@ -69,6 +71,7 @@ private:
 	CommandController& controller;
 	StateChangeDistributor* stateChangeDistributor;
 	Scheduler* scheduler;
+	std::function<void()> preChangeCallback;
 
 	const std::string driveName;
 	std::unique_ptr<Disk> disk;

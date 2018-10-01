@@ -34,7 +34,7 @@ public:
 	// Write one byte of command-data to the host   (msx -> pc)
 	// Time parameter is in milliseconds. Emulators can pass emulation
 	// time, usbhost can pass real time.
-	void write(byte value, unsigned time);
+	void write(byte data, unsigned time);
 
 	void setAllowOtherDiskroms(bool allow) { allowOtherDiskroms = allow; }
 	bool getAllowOtherDiskroms() const { return allowOtherDiskroms; }

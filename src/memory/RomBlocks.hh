@@ -18,7 +18,8 @@ public:
 	static const unsigned BANK_MASK = BANK_SIZE - 1;
 
 	byte readMem(word address, EmuTime::param time) override;
-	const byte* getReadCacheLine(word start) const override;
+	byte peekMem(word address, EmuTime::param time) const override;
+	const byte* getReadCacheLine(word address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -59,7 +60,7 @@ protected:
 	  * @param block number of 8kB block in the ROM image
 	  *   (block i starts at ROM image offset i * 0x2000)
 	  */
-	void setRom(byte region, int block);
+	void setRom(byte region, unsigned block);
 
 	/** Sets a mask for the block numbers.
 	  * On every call to setRom, the given block number is AND-ed with this
@@ -85,7 +86,7 @@ private:
 	RomBlockDebuggable romBlockDebug;
 	const byte* extraMem;
 	unsigned extraSize;
-	const int nrBlocks;
+	/*const*/ unsigned nrBlocks;
 	int blockMask;
 };
 

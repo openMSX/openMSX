@@ -9,7 +9,7 @@ class MidiInDevice : public Pluggable
 {
 public:
 	// Pluggable (part)
-	string_ref getClass() const final override;
+	string_view getClass() const final override;
 
 	virtual void signal(EmuTime::param time) = 0;
 };

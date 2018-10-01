@@ -49,7 +49,7 @@ private:
 	SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	const std::string& getContainerName() const override;
 	bool diskChanged() override;
-	int insertDisk(string_ref filename) override;
+	int insertDisk(string_view filename) override;
 
 	// SCSI Device
 	void reset() override;
@@ -65,7 +65,7 @@ private:
 	unsigned dataOut(unsigned& blocks) override;
 
 	void eject();
-	void insert(string_ref filename);
+	void insert(string_view filename);
 
 	bool getReady();
 	void testUnitReady();

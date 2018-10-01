@@ -21,7 +21,7 @@ class Rom final
 {
 public:
 	Rom(std::string name, std::string description,
-	    const DeviceConfig& config, const std::string& id = "");
+	    const DeviceConfig& config, const std::string& id = {});
 	Rom(Rom&& other) noexcept;
 	~Rom();
 
@@ -35,6 +35,8 @@ public:
 	const std::string& getName() const { return name; }
 	const std::string& getDescription() const { return description; }
 	const Sha1Sum& getOriginalSHA1() const;
+
+	void addPadding(unsigned newSize, byte filler = 0xff);
 
 private:
 	void init(MSXMotherBoard& motherBoard, const XMLElement& config,

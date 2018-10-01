@@ -8,12 +8,12 @@
 #include "XMLElement.hh"
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -189,7 +189,7 @@ void HotKey::loadBindings(const XMLElement& config)
 			}
 		} catch (MSXException& e) {
 			commandController.getCliComm().printWarning(
-				"Error while loading key bindings: " + e.getMessage());
+				"Error while loading key bindings: ", e.getMessage());
 		}
 	}
 }
@@ -285,7 +285,7 @@ void HotKey::activateLayer(std::string layer, bool blocking)
 	activeLayers.push_back({std::move(layer), blocking});
 }
 
-void HotKey::deactivateLayer(string_ref layer)
+void HotKey::deactivateLayer(string_view layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
@@ -379,7 +379,7 @@ void HotKey::executeBinding(const EventPtr& event, const HotKeyInfo& info)
 		commandController.executeCommand(copy);
 	} catch (CommandException& e) {
 		commandController.getCliComm().printWarning(
-			"Error executing hot key command: " + e.getMessage());
+			"Error executing hot key command: ", e.getMessage());
 	}
 }
 
@@ -410,7 +410,7 @@ void HotKey::stopRepeat()
 
 // class BindCmd
 
-static string getBindCmdName(bool defaultCmd)
+static string_view getBindCmdName(bool defaultCmd)
 {
 	return defaultCmd ? "bind_default" : "bind";
 }
@@ -426,8 +426,8 @@ HotKey::BindCmd::BindCmd(CommandController& commandController_, HotKey& hotKey_,
 string HotKey::BindCmd::formatBinding(const HotKey::BindMap::value_type& p)
 {
 	auto& info = p.second;
-	return p.first->toString() + (info.repeat ? " [repeat]" : "") +
-	       ":  " + info.command + '\n';
+	return strCat(p.first->toString(), (info.repeat ? " [repeat]" : ""),
+	              ":  ", info.command, '\n');
 }
 
 static vector<TclObject> parse(bool defaultCmd, array_ref<TclObject> tokens_,
@@ -510,7 +510,7 @@ void HotKey::BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 		}
 		for (unsigned i = start; i < tokens.size(); ++i) {
 			if (i != start) command += ' ';
-			string_ref t = tokens[i].getString();
+			string_view t = tokens[i].getString();
 			command.append(t.data(), t.size());
 		}
 		HotKey::HotKeyInfo info(command, repeat);
@@ -528,14 +528,15 @@ void HotKey::BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 }
 string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
 {
-	string cmd = getBindCmdName(defaultCmd);
-	return cmd + "                       : show all bounded keys\n" +
-	       cmd + " <key>                 : show binding for this key\n" +
-	       cmd + " <key> [-repeat] <cmd> : bind key to command, optionally "
-	       "repeat command while key remains pressed\n"
-	       "These 3 take an optional '-layer <layername>' option, "
-	       "see activate_input_layer." +
-	       cmd + " -layers               : show a list of layers with bound keys\n";
+	auto cmd = getBindCmdName(defaultCmd);
+	return strCat(
+		cmd, "                       : show all bounded keys\n",
+		cmd, " <key>                 : show binding for this key\n",
+		cmd, " <key> [-repeat] <cmd> : bind key to command, optionally "
+		"repeat command while key remains pressed\n"
+		"These 3 take an optional '-layer <layername>' option, "
+		"see activate_input_layer.",
+		cmd, " -layers               : show a list of layers with bound keys\n");
 }
 
 
@@ -588,10 +589,11 @@ void HotKey::UnbindCmd::execute(array_ref<TclObject> tokens_, TclObject& /*resul
 }
 string HotKey::UnbindCmd::help(const vector<string>& /*tokens*/) const
 {
-	string cmd = getUnbindCmdName(defaultCmd);
-	return cmd + " <key>                    : unbind this key\n" +
-	       cmd + " -layer <layername> <key> : unbind key in a specific layer\n" +
-	       cmd + " -layer <layername>       : unbind all keys in this layer\n";
+	auto cmd = getUnbindCmdName(defaultCmd);
+	return strCat(
+		cmd, " <key>                    : unbind this key\n",
+		cmd, " -layer <layername> <key> : unbind key in a specific layer\n",
+		cmd, " -layer <layername>       : unbind all keys in this layer\n");
 }
 
 
@@ -604,7 +606,7 @@ HotKey::ActivateCmd::ActivateCmd(CommandController& commandController_)
 
 void HotKey::ActivateCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
-	string_ref layer;
+	string_view layer;
 	bool blocking = false;
 	for (size_t i = 1; i < tokens.size(); ++i) {
 		if (tokens[i] == "-blocking") {

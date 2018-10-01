@@ -5,13 +5,13 @@
 namespace openmsx {
 
 BooleanSetting::BooleanSetting(
-		CommandController& commandController_, string_ref name,
-		string_ref description_, bool initialValue, SaveSetting save_)
+		CommandController& commandController_, string_view name,
+		string_view description_, bool initialValue, SaveSetting save_)
 	: Setting(commandController_, name, description_,
 	          TclObject(toString(initialValue)), save_)
 {
 	auto& interp = getInterpreter();
-	setChecker([this, &interp](TclObject& newValue) {
+	setChecker([&interp](TclObject& newValue) {
 		// May throw.
 		// Re-set the queried value to get a normalized value.
 		newValue.setString(toString(newValue.getBoolean(interp)));
@@ -19,7 +19,7 @@ BooleanSetting::BooleanSetting(
 	init();
 }
 
-string_ref BooleanSetting::getTypeString() const
+string_view BooleanSetting::getTypeString() const
 {
 	return "boolean";
 }

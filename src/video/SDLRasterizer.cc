@@ -11,12 +11,12 @@
 #include "StringSetting.hh"
 #include "MemoryOps.hh"
 #include "VisibleSurface.hh"
-#include "memory.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <memory>
 
 using namespace gl;
 
@@ -77,7 +77,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, postProcessor(std::move(postProcessor_))
-	, workFrame(make_unique<RawFrame>(screen.getSDLFormat(), 640, 240))
+	, workFrame(std::make_unique<RawFrame>(screen.getSDLFormat(), 640, 240))
 	, renderSettings(display.getRenderSettings())
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLORS)

@@ -58,6 +58,8 @@
       </secondary>
 
 <!-- not working, because of missing network chip YM3802 emulation in openMSX
+Note that this slot is the same 60 pin edge connector that is also used to
+connect other Yamaha "units", like the SFG-01/05 modules.
       <secondary slot="3">
         <ROM id="NetROM">
           <mem base="0x4000" size="0x8000"/>

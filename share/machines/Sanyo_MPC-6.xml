@@ -76,7 +76,8 @@
 
     <primary external="true" slot="1"/>
 
-    <!-- slot 2 is the expansion slot -->
+    <!-- Note: this connector is actually a non-standard expansion connector on the back -->
+    <primary external="true" slot="2"/>
 
     <primary slot="3">
       <RAM id="Main RAM">

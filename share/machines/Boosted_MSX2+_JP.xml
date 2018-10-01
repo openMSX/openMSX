@@ -112,7 +112,7 @@
         <filename>yrw801.rom</filename>
       </rom>
       <sound>
-        <volume>12000</volume>
+        <volume>17000</volume>
       </sound>
       <sampleram>640</sampleram>
     </MoonSound>

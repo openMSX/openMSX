@@ -21,33 +21,34 @@
 
 #include "YM2413Burczynski.hh"
 #include "Math.hh"
+#include "cstd.hh"
 #include "serialize.hh"
-#include <cmath>
 #include <cstring>
+#include <iostream>
 
 namespace openmsx {
 namespace YM2413Burczynski {
 
 // envelope output entries
-static const int ENV_BITS = 10;
-static const float ENV_STEP = 128.0f / (1 << ENV_BITS);
+static constexpr int ENV_BITS = 10;
+static constexpr double ENV_STEP = 128.0 / (1 << ENV_BITS);
 
-static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
-static const int MIN_ATT_INDEX = 0;
+static constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
+static constexpr int MIN_ATT_INDEX = 0;
 
 // sinwave entries
-static const int SIN_BITS = 10;
-static const int SIN_LEN  = 1 << SIN_BITS;
-static const int SIN_MASK = SIN_LEN - 1;
+static constexpr int SIN_BITS = 10;
+static constexpr int SIN_LEN  = 1 << SIN_BITS;
+static constexpr int SIN_MASK = SIN_LEN - 1;
 
-static const int TL_RES_LEN = 256; // 8 bits addressing (real chip)
+static constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // key scale level
 // table is 3dB/octave, DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
 #define DV(x) int((x) / 0.1875)
-static const int ksl_tab[8 * 16] =
+static constexpr int ksl_tab[8 * 16] =
 {
 	// OCT 0
 	DV( 0.000),DV( 0.000),DV( 0.000),DV( 0.000),
@@ -94,14 +95,14 @@ static const int ksl_tab[8 * 16] =
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,45 (dB)
-#define SC(db) int((float(db)) / ENV_STEP)
-static const int sl_tab[16] = {
+#define SC(db) int((double(db)) / ENV_STEP)
+static constexpr int sl_tab[16] = {
 	SC( 0),SC( 1),SC( 2),SC(3 ),SC(4 ),SC(5 ),SC(6 ),SC( 7),
 	SC( 8),SC( 9),SC(10),SC(11),SC(12),SC(13),SC(14),SC(15)
 };
 #undef SC
 
-static const byte eg_inc[15][8] =
+static constexpr byte eg_inc[15][8] =
 {
 	// cycle: 0 1  2 3  4 5  6 7
 
@@ -126,7 +127,7 @@ static const byte eg_inc[15][8] =
 };
 
 // note that there is no value 13 in this table - it's directly in the code
-static const byte eg_rate_select[16 + 64 + 16] =
+static constexpr byte eg_rate_select[16 + 64 + 16] =
 {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -164,7 +165,7 @@ static const byte eg_rate_select[16 + 64 + 16] =
 // shift 13,   12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0
 // mask  8191, 4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0
 
-static const byte eg_rate_shift[16 + 64 + 16] =
+static constexpr byte eg_rate_shift[16 + 64 + 16] =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -200,7 +201,7 @@ static const byte eg_rate_shift[16 + 64 + 16] =
 
 // multiple table
 #define ML(x) byte(2 * (x))
-static const byte mul_tab[16] =
+static constexpr byte mul_tab[16] =
 {
 	ML( 0.50), ML( 1.00), ML( 2.00), ML( 3.00),
 	ML( 4.00), ML( 5.00), ML( 6.00), ML( 7.00),
@@ -213,12 +214,61 @@ static const byte mul_tab[16] =
 //  11 - sinus amplitude bits     (Y axis)
 //  2  - sinus sign bit           (Y axis)
 //  TL_RES_LEN - sinus resolution (X axis)
-const int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
-static int tl_tab[TL_TAB_LEN];
+static constexpr int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
+struct TlTab {
+	int tab[TL_TAB_LEN];
+};
+static CONSTEXPR TlTab makeTlTab()
+{
+	TlTab tl = {};
+	for (int x = 0; x < TL_RES_LEN; ++x) {
+		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
+
+		// we never reach (1 << 16) here due to the (x + 1)
+		// result fits within 16 bits at maximum
+		int n = int(m); // 16 bits here
+		n >>= 4;        // 12 bits here
+		n = (n >> 1) + (n & 1); // round to nearest
+		// 11 bits here (rounded)
+		for (int i = 0; i < 11; ++i) {
+			tl.tab[x * 2 + 0 + i * 2 * TL_RES_LEN] = n >> i;
+			tl.tab[x * 2 + 1 + i * 2 * TL_RES_LEN] = -(n >> i);
+		}
+	}
+	return tl;
+}
+static CONSTEXPR TlTab tl = makeTlTab();
 
 // sin waveform table in 'decibel' scale
 // two waveforms on OPLL type chips
-static unsigned sin_tab[SIN_LEN * 2];
+struct SinTab {
+	unsigned tab[SIN_LEN * 2];
+};
+static CONSTEXPR SinTab makeSinTab()
+{
+	SinTab sin = {};
+	for (int i = 0; i < SIN_LEN / 4; ++i) {
+		// checked on real hardware, see also
+		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
+		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN);
+		int n = int(cstd::round(cstd::log2<8, 3>(m) * -256.0));
+		sin.tab[i] = 2 * n;
+	}
+	for (int i = 0; i < SIN_LEN / 4; ++i) {
+		sin.tab[SIN_LEN / 4 + i] = sin.tab[SIN_LEN / 4 - 1 - i];
+	}
+	for (int i = 0; i < SIN_LEN / 2; ++i) {
+		sin.tab[SIN_LEN / 2 + i] = sin.tab[i] | 1;
+	}
+	for (int i = 0; i < SIN_LEN / 2; ++i) {
+		sin.tab[i + SIN_LEN] = sin.tab[i];
+	}
+	for (int i = 0; i < SIN_LEN / 2; ++i) {
+		sin.tab[i + SIN_LEN + SIN_LEN / 2] = TL_TAB_LEN;
+	}
+	return sin;
+}
+static CONSTEXPR SinTab sin = makeSinTab();
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 // 27 output levels (triangle waveform);
@@ -232,8 +282,8 @@ static unsigned sin_tab[SIN_LEN * 2];
 //
 // We use data>>1, until we find what it really is on real chip...
 
-static const int LFO_AM_TAB_ELEMENTS = 210;
-static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
+static constexpr int LFO_AM_TAB_ELEMENTS = 210;
+static constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
@@ -290,7 +340,7 @@ static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 };
 
 // LFO Phase Modulation table (verified on real YM2413)
-static const signed char lfo_pm_table[8][8] =
+static constexpr signed char lfo_pm_table[8][8] =
 {
 	// FNUM2/FNUM = 0 00xxxxxx (0x0000)
 	{ 0, 0, 0, 0, 0, 0, 0, 0, },
@@ -322,7 +372,7 @@ static const signed char lfo_pm_table[8][8] =
 // - multi parameters are 100% correct (instruments and drums)
 // - LFO PM and AM enable are 100% correct
 // - waveform DC and DM select are 100% correct
-static const byte table[16 + 3][8] = {
+static constexpr byte table[16 + 3][8] = {
 	// MULT  MULT modTL DcDmFb AR/DR AR/DR SL/RR SL/RR
 	//   0     1     2     3     4     5     6     7
 	{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, // user instrument
@@ -496,7 +546,7 @@ inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
 	int egout2 = calc_envelope(channel, eg_cnt, carrier);
 	int env = (TLL + egout2 + (lfo_am & AMmask)) << 5;
 	int p = env + wavetable[phase2 & SIN_MASK];
-	return p < TL_TAB_LEN ? tl_tab[p] : 0;
+	return p < TL_TAB_LEN ? tl.tab[p] : 0;
 }
 
 inline int Slot::calc_slot_mod(Channel& channel, unsigned eg_cnt, bool carrier,
@@ -604,48 +654,6 @@ static inline int genPhaseCymbal(int phaseM7, int phaseC8)
 	}
 }
 
-static void initTables()
-{
-	static bool alreadyInit = false;
-	if (alreadyInit) return;
-	alreadyInit = true;
-
-	for (int x = 0; x < TL_RES_LEN; ++x) {
-		float m = (1 << 16) / exp2f((x + 1) * (ENV_STEP / 4.0f) / 8.0f);
-		m = floorf(m);
-
-		// we never reach (1 << 16) here due to the (x + 1)
-		// result fits within 16 bits at maximum
-		int n = int(m); // 16 bits here
-		n >>= 4;        // 12 bits here
-		n = (n >> 1) + (n & 1); // round to nearest
-		// 11 bits here (rounded)
-		for (int i = 0; i < 11; ++i) {
-			tl_tab[x * 2 + 0 + i * 2 * TL_RES_LEN] = n >> i;
-			tl_tab[x * 2 + 1 + i * 2 * TL_RES_LEN] = -(n >> i);
-		}
-	}
-
-	unsigned* full = &sin_tab[0 * SIN_LEN]; // waveform 0: standard sinus
-	unsigned* half = &sin_tab[1 * SIN_LEN]; // waveform 1: positive part of sinus
-	static const float LOG2 = logf(2.0f);
-	for (int i = 0; i < SIN_LEN / 4; ++i) {
-		// checked on real hardware, see also
-		//   http://docs.google.com/Doc?id=dd8kqn9f_13cqjkf4gp
-		float m = sinf(((i * 2) + 1) * M_PI / SIN_LEN);
-		int n = int(roundf(logf(m) / LOG2 * -256.0f));
-		full[i] = half[i] = 2 * n;
-	}
-	for (int i = 0; i < SIN_LEN / 4; ++i) {
-		full[SIN_LEN / 4 + i] =
-		half[SIN_LEN / 4 + i] = full[SIN_LEN / 4 - 1 - i];
-	}
-	for (int i = 0; i < SIN_LEN / 2; ++i) {
-		full[SIN_LEN / 2 + i] = full[i] | 1;
-		half[SIN_LEN / 2 + i] = TL_TAB_LEN;
-	}
-}
-
 
 Slot::Slot()
 	: phase(0), freq(0)
@@ -659,7 +667,7 @@ Slot::Slot()
 	eg_sustain = false;
 	setEnvelopeState(EG_OFF);
 	key = AMmask = vib = 0;
-	wavetable = &sin_tab[0 * SIN_LEN];
+	wavetable = &sin.tab[0 * SIN_LEN];
 }
 
 void Slot::setKeyOn(KeyPart part)
@@ -741,7 +749,7 @@ void Slot::setKeyScaleLevel(Channel& channel, byte value)
 
 void Slot::setWaveform(byte value)
 {
-	wavetable = &sin_tab[value * SIN_LEN];
+	wavetable = &sin.tab[value * SIN_LEN];
 }
 
 void Slot::setFeedbackShift(byte value)
@@ -783,7 +791,7 @@ void Slot::updateFrequency(Channel& channel)
 
 void Slot::resetOperators()
 {
-	wavetable = &sin_tab[0 * SIN_LEN];
+	wavetable = &sin.tab[0 * SIN_LEN];
 	setEnvelopeState(EG_OFF);
 	egout = MAX_ATT_INDEX;
 }
@@ -930,7 +938,11 @@ void Channel::updateInstrument(const byte* inst)
 YM2413::YM2413()
 	: lfo_am_cnt(0), lfo_pm_cnt(0)
 {
-	initTables();
+	if (0) {
+		for (auto& e : tl.tab) std::cout << e << '\n';
+		std::cout << '\n';
+		for (auto& e : sin.tab) std::cout << e << '\n';
+	}
 
 	memset(reg, 0, sizeof(reg)); // avoid UMR
 	eg_cnt = 0;
@@ -1307,7 +1319,7 @@ void Slot::serialize(Archive& a, unsigned /*version*/)
 {
 	// TODO some of the serialized members here could be calculated from
 	//      other members
-	int waveform = (wavetable == &sin_tab[0]) ? 0 : 1;
+	int waveform = (wavetable == &sin.tab[0]) ? 0 : 1;
 	a.serialize("waveform", waveform);
 	if (a.isLoader()) {
 		setWaveform(waveform);

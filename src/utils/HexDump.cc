@@ -1,5 +1,6 @@
 #include "HexDump.hh"
 #include "likely.hh"
+#include "strCat.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -14,10 +15,7 @@ static char encode2(uint8_t x)
 }
 static string encode(uint8_t x)
 {
-	string result;
-	result += encode2(x >> 4);
-	result += encode2(x & 15);
-	return result;
+	return strCat(encode2(x >> 4), encode2(x & 15));
 }
 string encode(const uint8_t* input, size_t len, bool newlines)
 {
@@ -46,7 +44,7 @@ static int decode(char x)
 		return -1;
 	}
 }
-std::pair<MemBuffer<uint8_t>, size_t> decode(string_ref input)
+std::pair<MemBuffer<uint8_t>, size_t> decode(string_view input)
 {
 	auto inSize = input.size();
 	auto outSize = inSize / 2; // overestimation
@@ -71,7 +69,7 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(string_ref input)
 	return std::make_pair(std::move(ret), out);
 }
 
-bool decode_inplace(string_ref input, uint8_t* output, size_t outSize)
+bool decode_inplace(string_view input, uint8_t* output, size_t outSize)
 {
 	size_t out = 0;
 	bool flip = true;

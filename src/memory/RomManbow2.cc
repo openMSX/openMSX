@@ -3,8 +3,8 @@
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
+#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -34,7 +34,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
 	: MSXRom(config, std::move(rom_))
 	, scc(getName() + " SCC", config, getCurrentTime())
 	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT))
-		? make_unique<AY8910>(
+		? std::make_unique<AY8910>(
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())
 		: nullptr)

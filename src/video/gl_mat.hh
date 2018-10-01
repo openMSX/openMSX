@@ -5,20 +5,21 @@
 // and syntax to the matrix types in GLSL. 
 // 
 // The code was tuned for 4x4 matrixes, but when it didn't complicate the
-// code other sizes (even non-square) are supported as well.
+// code, other sizes (even non-square) are supported as well.
 //
 // The functionality of this code is focused on openGL(ES). So only the
 // operation 'matrix x column-vector' is supported and not e.g. 'row-vector x
 // matrix'. The internal layout is also compatible with openGL(ES).
 //
-// This code itself doesn't have many SSE optimizations but because it is built
+// This code itself doesn't have many SSE optimizations, but because it is built
 // on top of an optimized vector type the generated code for 4x4 matrix
-// multiplication is as efficient as hand-written SSE assembly routine
+// multiplication is as efficient as a hand-written SSE assembly routine
 // (verified with gcc-4.8 on x86_64). The efficiency for other matrix sizes was
 // not a goal for this code (smaller sizes might be ok, bigger sizes most
 // likely not).
 
 #include "gl_vec.hh"
+#include <cassert>
 
 namespace gl {
 
@@ -84,8 +85,18 @@ public:
 	// Access the i-the column of the matrix.
 	// Vectors are also indexable, so 'A[i][j]' returns the element
 	// at the i-th column, j-th row.
-	const vecN<M, T>& operator[](int i) const { return c[i]; }
-	      vecN<M, T>& operator[](int i)       { return c[i]; }
+	const vecN<M, T>& operator[](unsigned i) const {
+		#ifdef DEBUG
+		assert(i < N);
+		#endif
+		return c[i];
+	}
+	vecN<M, T>& operator[](unsigned i) {
+		#ifdef DEBUG
+		assert(i < N);
+		#endif
+		return c[i];
+	}
 
 	// Assignment version of the +,-,* operations defined below.
 	matMxN& operator+=(const matMxN& x) { *this = *this + x; return *this; }
@@ -367,6 +378,19 @@ inline T norm2_2(const matMxN<M, N, T>& A)
 	vecN<M, T> t;
 	for (int i = 0; i < N; ++i) t += A[i] * A[i];
 	return sum(t);
+}
+
+// Textual representation. (Only) used to debug unittest.
+template<int M, int N, typename T>
+std::ostream& operator<<(std::ostream& os, const matMxN<M, N, T>& A)
+{
+	for (int j = 0; j < M; ++j) {
+		for (int i = 0; i < N; ++i) {
+			os << A[i][j] << ' ';
+		}
+		os << '\n';
+	}
+	return os;
 }
 
 } // namespace gl

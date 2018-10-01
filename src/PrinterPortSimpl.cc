@@ -3,7 +3,7 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -39,8 +39,8 @@ static XMLElement createXML()
 void PrinterPortSimpl::createDAC()
 {
 	static XMLElement xml = createXML();
-	dac = make_unique<DACSound8U>("simpl", getDescription(),
-	                              DeviceConfig(hwConf, xml));
+	dac = std::make_unique<DACSound8U>("simpl", getDescription(),
+	                                   DeviceConfig(hwConf, xml));
 }
 
 void PrinterPortSimpl::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
@@ -59,7 +59,7 @@ const std::string& PrinterPortSimpl::getName() const
 	return name;
 }
 
-string_ref PrinterPortSimpl::getDescription() const
+string_view PrinterPortSimpl::getDescription() const
 {
 	return "Play samples via your printer port.";
 }

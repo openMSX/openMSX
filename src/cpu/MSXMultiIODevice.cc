@@ -1,4 +1,5 @@
 #include "MSXMultiIODevice.hh"
+#include "MSXException.hh"
 #include "TclObject.hh"
 #include "stl.hh"
 #include <algorithm>
@@ -18,7 +19,11 @@ MSXMultiIODevice::~MSXMultiIODevice()
 
 void MSXMultiIODevice::addDevice(MSXDevice* device)
 {
-	assert(!contains(devices, device));
+	if (contains(devices, device)) {
+		throw MSXException(
+			"Overlapping IO-port ranges for \"",
+			device->getName(), "\".");
+	}
 	devices.push_back(device);
 }
 
@@ -45,28 +50,30 @@ void MSXMultiIODevice::getNameList(TclObject& result) const
 
 byte MSXMultiIODevice::readIO(word port, EmuTime::param time)
 {
-	// conflict: return the result from the first device, call readIO()
-	//           also on all other devices, but discard result
-	assert(!devices.empty());
-	auto it = begin(devices);
-	byte result = (*it)->readIO(port, time);
-	for (++it; it != end(devices); ++it) {
-		(*it)->readIO(port, time);
+	// conflict: In practice, pull down seems to win over pull up,
+	//           so a logical AND over the read values most accurately
+	//           resembles what real hardware does.
+	byte result = 0xFF;
+	for (auto& dev : devices) {
+		result &= dev->readIO(port, time);
 	}
 	return result;
 }
 
 byte MSXMultiIODevice::peekIO(word port, EmuTime::param time) const
 {
-	// conflict: just peek first device
-	assert(!devices.empty());
-	return devices.front()->peekIO(port, time);
+	// conflict: Handle this in the same way as readIO.
+	byte result = 0xFF;
+	for (auto& dev : devices) {
+		result &= dev->peekIO(port, time);
+	}
+	return result;
 }
 
 void MSXMultiIODevice::writeIO(word port, byte value, EmuTime::param time)
 {
-	for (auto& d : devices) {
-		d->writeIO(port, value, time);
+	for (auto& dev : devices) {
+		dev->writeIO(port, value, time);
 	}
 }
 

@@ -9,8 +9,8 @@
 #include "serialize.hh"
 #include "openmsx.hh"
 #include "vla.hh"
-#include "memory.hh"
 #include <cstring>
+#include <memory>
 
 using std::string;
 
@@ -18,21 +18,28 @@ namespace openmsx {
 
 // class SRAM
 
+// Like the constructor below, but doesn't create a debuggable.
+// For use in unittests.
+SRAM::SRAM(int size, const XMLElement& xml, DontLoadTag)
+	: ram(xml, size)
+	, header(nullptr) // not used
+{
+}
+
 /* Creates a SRAM that is not loaded from or saved to a file.
  * The only reason to use this (instead of a plain Ram object) is when you
  * dynamically need to decide whether load/save is needed.
  */
 SRAM::SRAM(const std::string& name, const std::string& description,
-           int size, const DeviceConfig& config_, DontLoad)
-	: RTSchedulable(config_.getReactor().getRTScheduler())
-	, ram(config_, name, description, size)
+           int size, const DeviceConfig& config_, DontLoadTag)
+	: ram(config_, name, description, size)
 	, header(nullptr) // not used
 {
 }
 
 SRAM::SRAM(const string& name, int size,
            const DeviceConfig& config_, const char* header_, bool* loaded)
-	: RTSchedulable(config_.getReactor().getRTScheduler())
+	: schedulable(std::make_unique<SRAMSchedulable>(config_.getReactor().getRTScheduler(), *this))
 	, config(config_)
 	, ram(config, name, "sram", size)
 	, header(header_)
@@ -42,7 +49,7 @@ SRAM::SRAM(const string& name, int size,
 
 SRAM::SRAM(const string& name, const string& description, int size,
 	   const DeviceConfig& config_, const char* header_, bool* loaded)
-	: RTSchedulable(config_.getReactor().getRTScheduler())
+	: schedulable(std::make_unique<SRAMSchedulable>(config_.getReactor().getRTScheduler(), *this))
 	, config(config_)
 	, ram(config, name, description, size)
 	, header(header_)
@@ -52,13 +59,15 @@ SRAM::SRAM(const string& name, const string& description, int size,
 
 SRAM::~SRAM()
 {
-	save();
+	if (schedulable) {
+		save();
+	}
 }
 
 void SRAM::write(unsigned addr, byte value)
 {
-	if (!isPendingRT()) {
-		scheduleRT(5000000); // sync to disk after 5s
+	if (schedulable && !schedulable->isPendingRT()) {
+		schedulable->scheduleRT(5000000); // sync to disk after 5s
 	}
 	assert(addr < getSize());
 	ram.write(addr, value);
@@ -66,8 +75,8 @@ void SRAM::write(unsigned addr, byte value)
 
 void SRAM::memset(unsigned addr, byte c, unsigned size)
 {
-	if (!isPendingRT()) {
-		scheduleRT(5000000); // sync to disk after 5s
+	if (schedulable && !schedulable->isPendingRT()) {
+		schedulable->scheduleRT(5000000); // sync to disk after 5s
 	}
 	assert((addr + size) <= getSize());
 	::memset(ram.getWriteBackdoor() + addr, c, size);
@@ -92,25 +101,26 @@ void SRAM::load(bool* loaded)
 		}
 		if (headerOk) {
 			file.read(ram.getWriteBackdoor(), getSize());
+			loadedFilename = file.getURL();
 			if (loaded) *loaded = true;
 		} else {
 			config.getCliComm().printWarning(
-				"Warning no correct SRAM file: " + filename);
+				"Warning no correct SRAM file: ", filename);
 		}
 	} catch (FileNotFoundException& /*e*/) {
 		config.getCliComm().printInfo(
-			"SRAM file " + filename + " not found" +
-			", assuming blank SRAM content.");
+			"SRAM file ", filename, " not found, "
+			"assuming blank SRAM content.");
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
-			"Couldn't load SRAM " + filename +
-			" (" + e.getMessage() + ").");
+			"Couldn't load SRAM ", filename,
+			" (", e.getMessage(), ").");
 	}
 }
 
 void SRAM::save()
 {
-	if (!config.getXML()) return;
+	assert(config.getXML());
 	const string& filename = config.getChildData("sramname");
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
@@ -122,14 +132,14 @@ void SRAM::save()
 		file.write(&ram[0], getSize());
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
-			"Couldn't save SRAM " + filename +
-			" (" + e.getMessage() + ").");
+			"Couldn't save SRAM ", filename,
+			" (", e.getMessage(), ").");
 	}
 }
 
-void SRAM::executeRT()
+void SRAM::SRAMSchedulable::executeRT()
 {
-	save();
+	sram.save();
 }
 
 template<typename Archive>

@@ -7,7 +7,7 @@
 #include "IntegerSetting.hh"
 #include "CircularBuffer.hh"
 #include "circular_buffer.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <vector>
 
 namespace openmsx {
@@ -24,13 +24,14 @@ class ConsoleLine
 {
 public:
 	/** Construct empty line. */
-	ConsoleLine();
+	ConsoleLine() = default;
+
 	/** Construct line with a single color (by default white). */
-	explicit ConsoleLine(string_ref line, uint32_t rgb = 0xffffff);
+	explicit ConsoleLine(string_view line, uint32_t rgb = 0xffffff);
 
 	/** Append a chunk with a (different) color. This is currently the
 	  * only way to construct a multi-colored line/ */
-	void addChunk(string_ref text, uint32_t rgb);
+	void addChunk(string_view text, uint32_t rgb);
 
 	/** Get the number of UTF8 characters in this line. So multi-byte
 	  * characters are counted as a single character. */
@@ -44,7 +45,7 @@ public:
 	/** Get the color for the i-th chunk. */
 	uint32_t chunkColor(size_t i) const;
 	/** Get the text for the i-th chunk. */
-	string_ref chunkText(size_t i) const;
+	string_view chunkText(size_t i) const;
 
 	/** Get a part of total line. The result keeps the same colors as this
 	  * line. E.g. used to get part of (long) line that should be wrapped
@@ -57,7 +58,7 @@ public:
 
 private:
 	std::string line;
-	std::vector<std::pair<uint32_t, string_ref::size_type>> chunks; // [rgb, pos]
+	std::vector<std::pair<uint32_t, string_view::size_type>> chunks; // [rgb, pos]
 };
 
 
@@ -83,7 +84,7 @@ public:
 
 private:
 	// InterpreterOutput
-	void output(string_ref text) override;
+	void output(string_view text) override;
 	unsigned getOutputColumns() const override;
 
 	// EventListener
@@ -101,15 +102,15 @@ private:
 	void delete_key();
 	void normalKey(uint32_t chr);
 	void putCommandHistory(const std::string& command);
-	void newLineConsole(string_ref line);
+	void newLineConsole(string_view line);
 	void newLineConsole(ConsoleLine line);
 	void putPrompt();
 	void resetScrollBack();
-	ConsoleLine highLight(string_ref command);
+	ConsoleLine highLight(string_view line);
 
 	/** Prints a string on the console.
 	  */
-	void print(string_ref text, unsigned rgb = 0xffffff);
+	void print(string_view text, unsigned rgb = 0xffffff);
 
 	void loadHistory();
 	void saveHistory();

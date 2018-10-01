@@ -5,8 +5,12 @@
 #include <cassert>
 #include <cstring>
 #include <tuple>
+#include <utility>
 #if STATISTICS
 #include <iostream>
+#endif
+#ifdef __SSE2__
+#include <emmintrin.h>
 #endif
 
 namespace openmsx {
@@ -40,147 +44,120 @@ static size_t loadUleb(const uint8_t*& data)
 }
 
 
-// --- Optimized scan_{mis,}match functions ---
+// --- Helper functions to compare {4,8,16} bytes at aligned memory locations ---
+
+template<int N> bool comp(const uint8_t* p, const uint8_t* q);
+
+template<> bool comp<4>(const uint8_t* p, const uint8_t* q)
+{
+	return *reinterpret_cast<const uint32_t*>(p) ==
+	       *reinterpret_cast<const uint32_t*>(q);
+}
+
+template<> bool comp<8>(const uint8_t* p, const uint8_t* q)
+{
+	return *reinterpret_cast<const uint64_t*>(p) ==
+	       *reinterpret_cast<const uint64_t*>(q);
+}
+
+#ifdef __SSE2__
+template<> bool comp<16>(const uint8_t* p, const uint8_t* q)
+{
+	// Tests show that (on my machine) using 1 128-bit load is faster than
+	// 2 64-bit loads. Even though the actual comparison is slightly more
+	// complicated with SSE instructions.
+	__m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(p));
+	__m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(q));
+	__m128i d = _mm_cmpeq_epi8(a, b);
+	return _mm_movemask_epi8(d) == 0xffff;
+}
+#endif
+
+
+// --- Optimized mismatch function ---
 
 // This is much like the function std::mismatch(). You pass in two buffers,
 // the corresponding elements of both buffers are compared and the first
 // position where the elements no longer match is returned.
 //
-// Here we have buffers of bytes and the criteria for 'match' are 'the bytes
-// are equal' or 'the bytes are not equal'. In other words, we pass two buffers
-// and as a result we get the (first) position where the bytes are different or
-// equal.
-//
 // Compared to the std::mismatch() this implementation is faster because:
-//  - We make use of sentinels (this requires to temporary change the content
-//    of the buffer).
-//  - We compare words-at-a-time instead of element-at-a-time and in
-//    doing so possibly read a bit beyond the end of the buffer (more on this
-//    below).
-// The generic std implementation is usually not allowed to exploit these
-// properties. (And the libstdc++ version indeed doesn't).
-
-
-// Scan 2 buffers for the first difference. We require there is a difference
-// before the end of the buffer(s) is reached.
-static std::pair<const uint8_t*, const uint8_t*> scan_mismatch_unguarded_simple(
-	const uint8_t* p, const uint8_t* q)
-{
-	while (*p == *q) { ++p; ++q; }
-	return {p, q};
-}
-
-// Same as the function above but tries to compare both buffers word-at-a-time
-// instead of byte-at-a-time. This is only possible when both buffers have the
-// same alignment (this is almost always the case). In case they have different
-// alignment this function falls back to the slower version above.
-//
-// In case the buffers don't end on a word-boundary this routine might read some
-// bytes beyond the end of the buffer, but:
-//  - Those bytes don't influence the result (because we require there's a
-//    difference before the end of the buffer).
-//  - Because we only read aligned words an we never read more than one word
-//    past the end we never read from the next memory page, so we won't trigger
-//    any memory protection mechanisms.
-static std::pair<const uint8_t*, const uint8_t*> scan_mismatch_unguarded(
-	const uint8_t* p, const uint8_t* q)
-{
-	if (unlikely((reinterpret_cast<uintptr_t>(p) & 7) !=
-	             (reinterpret_cast<uintptr_t>(q) & 7))) {
-		return scan_mismatch_unguarded_simple(p, q);
-	}
-
-	if (reinterpret_cast<uintptr_t>(p) & 1) {
-		if (*reinterpret_cast<const uint8_t*>(p) !=
-		    *reinterpret_cast<const uint8_t*>(q)) {
-			goto end1;
-		}
-		p += 1; q += 1;
-	}
-	if (reinterpret_cast<uintptr_t>(p) & 2) {
-		if (*reinterpret_cast<const uint16_t*>(p) !=
-		    *reinterpret_cast<const uint16_t*>(q)) {
-			goto end2;
-		}
-		p += 2; q += 2;
-	}
-	if (reinterpret_cast<uintptr_t>(p) & 4) {
-		if (*reinterpret_cast<const uint32_t*>(p) !=
-		    *reinterpret_cast<const uint32_t*>(q)) {
-			goto end4;
-		}
-		p += 4; q += 4;
-	}
-
-	while (*reinterpret_cast<const uint64_t*>(p) ==
-	       *reinterpret_cast<const uint64_t*>(q)) {
-		p += 8; q += 8;
-	}
-
-	if (*reinterpret_cast<const uint32_t*>(p) ==
-	    *reinterpret_cast<const uint32_t*>(q)) {
-		p += 4; q += 4;
-	}
-end4:	if (*reinterpret_cast<const uint16_t*>(p) ==
-	    *reinterpret_cast<const uint16_t*>(q)) {
-		p += 2; q += 2;
-	}
-end2:	if (*reinterpret_cast<const uint8_t*>(p) ==
-	    *reinterpret_cast<const uint8_t*>(q)) {
-		p += 1; q += 1;
-	}
-
-end1:	return {p, q};
-
-}
-
-// Similar as above, but scan for equal bytes. We require there is a pair of
-// equal bytes before the end of the buffer(s) is reached.
-static std::pair<const uint8_t*, const uint8_t*> scan_match_unguarded(
-	const uint8_t* p, const uint8_t* q)
-{
-	while (*p != *q) { ++p; ++q; }
-	return {p, q};
-}
-
-// As above, but does allow two fully equal buffers. In that case the pointers
-// immediately past the end of the buffers are returned. Both buffers must have
-// the same size.
-//
-// Internally this function will place a sentinel in the buffers (and restore
-// it afterwards). So even though this function takes 'const pointers' it does
-// temporarily write to the buffer (and it will crash when you pass pointers to
-// read-only memory).
+// - We make use of sentinels. This requires to temporarily change the content
+//   of the buffer. So it won't work with read-only-memory.
+// - We compare words-at-a-time instead of byte-at-a-time.
 static std::pair<const uint8_t*, const uint8_t*> scan_mismatch(
 	const uint8_t* p, const uint8_t* p_end, const uint8_t* q, const uint8_t* q_end)
 {
 	assert((p_end - p) == (q_end - q));
 
-	// Code below is functionally equivalent to:
-	//   while ((q != q_end) && (*p == *q)) { ++p; ++q; }
-	//   return {p, q};
+	// When SSE is available, work with 16-byte words, otherwise 4 or 8
+	// bytes. This routine also benefits from AVX2 instructions. Though not
+	// all x86_64 CPUs have AVX2 (all have SSE2), so using them requires
+	// extra run-time checks and that's not worth it at this point.
+	static const int WORD_SIZE =
+#ifdef __SSE2__
+		sizeof(__m128i);
+#else
+		sizeof(void*);
+#endif
 
-	if (p == p_end) return {p, q};
+	// Region too small or
+	// both buffers are differently aligned.
+	if (unlikely((p_end - p) < (2 * WORD_SIZE)) ||
+	    unlikely((reinterpret_cast<uintptr_t>(p) & (WORD_SIZE - 1)) !=
+	             (reinterpret_cast<uintptr_t>(q) & (WORD_SIZE - 1)))) {
+		goto end;
+	}
 
-	auto* p_last = const_cast<uint8_t*>(p_end - 1);
-	auto save = *p_last;
-	*p_last = ~q_end[-1]; // make p_end[-1] != q_end[-1]
+	// Align to WORD_SIZE boundary. No need for end-of-buffer checks.
+	if (unlikely(reinterpret_cast<uintptr_t>(p) & (WORD_SIZE - 1))) {
+		do {
+			if (*p != *q) return {p, q};
+			p += 1; q += 1;
+		} while (reinterpret_cast<uintptr_t>(p) & (WORD_SIZE - 1));
+	}
 
-	std::tie(p, q) = scan_mismatch_unguarded(p, q);
+	// Fast path. Compare words-at-a-time.
+	{
+		// Place a sentinel in the last full word. This ensures we'll
+		// find a mismatch within the buffer, and so we can omit the
+		// end-of-buffer checks.
+		auto* sentinel = &const_cast<uint8_t*>(p_end)[-WORD_SIZE];
+		auto save = *sentinel;
+		*sentinel = ~q_end[-WORD_SIZE];
 
-	*p_last = save;
-	if ((p == p_last) && (*p == *q)) { ++p; ++q; }
-	return {p, q};
+		while (comp<WORD_SIZE>(p, q)) {
+			p += WORD_SIZE; q += WORD_SIZE;
+		}
+
+		// Restore sentinel.
+		*sentinel = save;
+	}
+
+	// Slow path. This handles:
+	// - Small or differently aligned buffers.
+	// - The bytes at and after the (restored) sentinel.
+end:	return std::mismatch(p, p_end, q);
 }
 
-// As above, but searches for equal corresponding bytes.
+
+// --- Optimized scan_match function ---
+
+// Like scan_mismatch() above, but searches two buffers for the first
+// corresponding equal (instead of not-equal) bytes.
+//
+// Like scan_mismatch(), this places a temporary sentinel in the buffer, so the
+// buffer cannot be read-only memory.
+//
+// Unlike scan_mismatch() it's less obvious how to perform this function
+// word-at-a-time (it's possible with some bit hacks). Though luckily this
+// function is also less performance critical.
 static std::pair<const uint8_t*, const uint8_t*> scan_match(
 	const uint8_t* p, const uint8_t* p_end, const uint8_t* q, const uint8_t* q_end)
 {
 	assert((p_end - p) == (q_end - q));
 
 	// Code below is functionally equivalent to:
-	//   while ((q != q_end) && (*p != *q)) { ++p; ++q; }
+	//   while ((p != p_end) && (*p != *q)) { ++p; ++q; }
 	//   return {p, q};
 
 	if (p == p_end) return {p, q};
@@ -189,7 +166,7 @@ static std::pair<const uint8_t*, const uint8_t*> scan_match(
 	auto save = *p_last;
 	*p_last = q_end[-1]; // make p_end[-1] == q_end[-1]
 
-	std::tie(p, q) = scan_match_unguarded(p, q);
+	while (*p != *q) { ++p; ++q; }
 
 	*p_last = save;
 	if ((p == p_last) && (*p != *q)) { ++p; ++q; }
@@ -348,9 +325,9 @@ const uint8_t* DeltaBlockCopy::getData()
 // class DeltaBlockDiff
 
 DeltaBlockDiff::DeltaBlockDiff(
-		const std::shared_ptr<DeltaBlockCopy>& prev_,
+		std::shared_ptr<DeltaBlockCopy> prev_,
 		const uint8_t* data, size_t size)
-	: prev(prev_)
+	: prev(std::move(prev_))
 	, delta(calcDelta(prev->getData(), data, size))
 {
 #ifdef DEBUG
@@ -388,13 +365,14 @@ size_t DeltaBlockDiff::getDeltaSize() const
 std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 		const void* id, const uint8_t* data, size_t size)
 {
-	auto it = std::lower_bound(begin(infos), end(infos), id,
-		[](const Info& info, const void* id2) {
-			return info.id < id2; });
-	if ((it == end(infos)) || (it->id != id)) {
+	auto it = std::lower_bound(begin(infos), end(infos), std::make_tuple(id, size),
+		[](const Info& info, const std::tuple<const void*, size_t>& info2) {
+			return std::make_tuple(info.id, info.size) < info2; });
+	if ((it == end(infos)) || (it->id != id) || (it->size != size)) {
 		// no previous info yet
 		it = infos.emplace(it, id, size);
 	}
+	assert(it->id   == id);
 	assert(it->size == size);
 
 	auto ref = it->ref.lock();

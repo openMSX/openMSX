@@ -18,10 +18,10 @@
 #include "RendererFactory.hh"
 #include "Math.hh"
 #include "likely.hh"
-#include "memory.hh"
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -56,7 +56,7 @@ void LaserdiscPlayer::Command::execute(
 			result.setString("Changing laserdisc.");
 			laserdiscPlayer.setImageName(tokens[2].getString().str(), time);
 		} catch (MSXException& e) {
-			throw CommandException(e.getMessage());
+			throw CommandException(std::move(e).getMessage());
 		}
 	} else {
 		throw SyntaxError();
@@ -472,7 +472,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 		default:
 			motherBoard.getMSXCliComm().printWarning(
 				"The Laserdisc player received an unknown "
-				"command 0x" + StringOp::toHexString(code, 2));
+				"command 0x", hex_string<2>(code));
 			nonseekack = false;
 			break;
 		}
@@ -628,7 +628,7 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 {
 	stop(time);
 	oggImage = Filename(std::move(newImage), userFileContext());
-	video = make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
+	video = std::make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
 
 	unsigned inputRate = video->getSampleRate();
 	sampleClock.setFreq(inputRate);
@@ -651,18 +651,17 @@ void LaserdiscPlayer::autoRun()
 	if (!autoRunSetting.getBoolean()) return;
 
 	string var = "::auto_run_ld_counter";
-	string command =
-		"if ![info exists " + var + "] { set " + var + " 0 }\n"
-		"incr " + var + "\n"
-		"after time 2 \"if $" + var + "==\\$" + var + " { "
-		"type_via_keyboard 1CALLLD\\\\r }\"";
-
+	string command = strCat(
+		"if ![info exists ", var, "] { set ", var, " 0 }\n"
+		"incr ", var, "\n"
+		"after time 2 \"if $", var, "==\\$", var, " { "
+		"type_via_keyboard 1CALLLD\\\\r }\"");
 	try {
 		motherBoard.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {
 		motherBoard.getMSXCliComm().printWarning(
-			"Error executing loading instruction for AutoRun: " +
-			e.getMessage() + "\n Please report a bug.");
+			"Error executing loading instruction for AutoRun: ",
+			e.getMessage(), "\n Please report a bug.");
 	}
 }
 

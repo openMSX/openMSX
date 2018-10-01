@@ -6,10 +6,10 @@
 #include "BooleanSetting.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
@@ -22,11 +22,11 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	, i8254(getScheduler(), &cntr0, &cntr1, nullptr, getCurrentTime())
 	, i8251(getScheduler(), interf, getCurrentTime())
 	, rom(config.findChild("rom")
-		? make_unique<Rom>(
+		? std::make_unique<Rom>(
 			MSXDevice::getName() + " ROM", "rom", config)
 		: nullptr) // when the ROM is already mapped, you don't want to specify it again here
 	, ram(config.getChildDataAsBool("ram", false)
-		? make_unique<Ram>(
+		? std::make_unique<Ram>(
 			config, MSXDevice::getName() + " RAM",
 	                "RS232 RAM", RAM_SIZE)
 		: nullptr)
@@ -36,7 +36,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	, hasMemoryBasedIo(config.getChildDataAsBool("memorybasedio", false))
 	, ioAccessEnabled(!hasMemoryBasedIo)
 	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch",
-		false) ? make_unique<BooleanSetting>(getCommandController(),
+		false) ? std::make_unique<BooleanSetting>(getCommandController(),
 		"toshiba_rs232c_switch", "status of the RS-232C enable switch",
 		true) : nullptr)
 {

@@ -46,11 +46,11 @@ void HDImageCLI::parseDone()
 	if (!images.empty()) {
 		string hd = "hdX";
 		hd[2] = 'a' + images.front().first;
-		throw MSXException("No hard disk named '" + hd + "'.");
+		throw MSXException("No hard disk named '", hd, "'.");
 	}
 }
 
-string_ref HDImageCLI::optionHelp() const
+string_view HDImageCLI::optionHelp() const
 {
 	return "Use hard disk image in argument for the IDE or SCSI extensions";
 }

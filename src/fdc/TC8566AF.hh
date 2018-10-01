@@ -2,7 +2,6 @@
 #define TC8566AF_HH
 
 #include "DynamicClock.hh"
-#include "RawTrack.hh"
 #include "CRC16.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
@@ -17,7 +16,7 @@ class CliComm;
 class TC8566AF final : public Schedulable
 {
 public:
-	TC8566AF(Scheduler& scheduler, DiskDrive* drive[4], CliComm& cliComm,
+	TC8566AF(Scheduler& scheduler, DiskDrive* drv[4], CliComm& cliComm,
 	         EmuTime::param time);
 
 	void reset(EmuTime::param time);
@@ -86,7 +85,7 @@ private:
 	void writeSector();
 	void initTrackHeader(EmuTime::param time);
 	void formatSector();
-	void setDrqRate();
+	void setDrqRate(unsigned trackLength);
 
 private:
 	CliComm& cliComm;
@@ -102,7 +101,6 @@ private:
 
 	//bool interrupt;
 
-	RawTrack trackData;
 	int dataAvailable;
 	int dataCurrent;
 	CRC16 crc;
@@ -126,7 +124,7 @@ private:
 	byte specifyData[2]; // filled in by SPECIFY command
 	byte seekValue;
 };
-SERIALIZE_CLASS_VERSION(TC8566AF, 4);
+SERIALIZE_CLASS_VERSION(TC8566AF, 5);
 
 } // namespace openmsx
 

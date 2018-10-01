@@ -1,7 +1,7 @@
 #ifndef MEGAFLASHROMSCCPLUSSD_HH
 #define MEGAFLASHROMSCCPLUSSD_HH
 
-#include "MSXRom.hh"
+#include "MSXDevice.hh"
 #include "AmdFlash.hh"
 #include "SCC.hh"
 #include "AY8910.hh"
@@ -12,10 +12,10 @@ namespace openmsx {
 class CheckedRam;
 class SdCard;
 
-class MegaFlashRomSCCPlusSD final : public MSXRom
+class MegaFlashRomSCCPlusSD final : public MSXDevice
 {
 public:
-	MegaFlashRomSCCPlusSD(const DeviceConfig& config, Rom&& rom);
+	explicit MegaFlashRomSCCPlusSD(const DeviceConfig& config);
 	~MegaFlashRomSCCPlusSD();
 
 	void powerUp(EmuTime::param time) override;

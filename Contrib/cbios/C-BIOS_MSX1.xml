@@ -6,7 +6,7 @@
     <manufacturer>C-BIOS</manufacturer>
     <code>MSX1</code>
     <release_year>2003</release_year>
-    <description>An MSX1 machine using C-BIOS, with an international keyboard layout and 50Hz interrupt frequency.</description>
+    <description>An MSX1 machine using C-BIOS, with an international keyboard layout and 60Hz interrupt frequency.</description>
     <type>MSX</type>
   </info>
 
@@ -18,7 +18,7 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>f41b26357bac1b75a3cfba933763764187b365f0</sha1>
+          <sha1>2f997e8a57528518c82ab3693fdae243dbbcc508</sha1>
           <filename>cbios_main_msx1.rom</filename>
         </rom>
       </ROM>
@@ -26,7 +26,7 @@
       <ROM id="C-BIOS Logo ROM">
         <mem base="0x8000" size="0x4000"/>
         <rom>
-          <sha1>9e23773efec08e471327074d68ee8860e6992036</sha1>
+          <sha1>9fbbe400dbaf186aeba42e170d9424b032412c42</sha1>
           <filename>cbios_logo_msx1.rom</filename>
         </rom>
       </ROM>
@@ -57,7 +57,7 @@
     <VDP id="VDP">
       <io base="0x98" num="2" type="O"/>
       <io base="0x98" num="2" type="I"/>
-      <version>TMS9929A</version>
+      <version>TMS9918A</version>
       <vram>16</vram>
     </VDP>
 

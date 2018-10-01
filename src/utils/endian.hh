@@ -1,7 +1,6 @@
 #ifndef ENDIAN_HH
 #define ENDIAN_HH
 
-#include "alignof.hh"
 #include "build-info.hh"
 #include <cstdint>
 #include <cstring>
@@ -117,10 +116,10 @@ static_assert(sizeof(B16)  == 2, "must have size 2");
 static_assert(sizeof(L16)  == 2, "must have size 2");
 static_assert(sizeof(B32)  == 4, "must have size 4");
 static_assert(sizeof(L32)  == 4, "must have size 4");
-static_assert(ALIGNOF(B16) <= 2, "may have alignment 2");
-static_assert(ALIGNOF(L16) <= 2, "may have alignment 2");
-static_assert(ALIGNOF(B32) <= 4, "may have alignment 4");
-static_assert(ALIGNOF(L32) <= 4, "may have alignment 4");
+static_assert(alignof(B16) <= 2, "may have alignment 2");
+static_assert(alignof(L16) <= 2, "may have alignment 2");
+static_assert(alignof(B32) <= 4, "may have alignment 4");
+static_assert(alignof(L32) <= 4, "may have alignment 4");
 
 
 // Helper functions to read/write aligned 16/32 bit values.
@@ -266,10 +265,10 @@ static_assert(sizeof(UA_B16)  == 2, "must have size 2");
 static_assert(sizeof(UA_L16)  == 2, "must have size 2");
 static_assert(sizeof(UA_B32)  == 4, "must have size 4");
 static_assert(sizeof(UA_L32)  == 4, "must have size 4");
-static_assert(ALIGNOF(UA_B16) == 1, "must have alignment 1");
-static_assert(ALIGNOF(UA_L16) == 1, "must have alignment 1");
-static_assert(ALIGNOF(UA_B32) == 1, "must have alignment 1");
-static_assert(ALIGNOF(UA_L32) == 1, "must have alignment 1");
+static_assert(alignof(UA_B16) == 1, "must have alignment 1");
+static_assert(alignof(UA_L16) == 1, "must have alignment 1");
+static_assert(alignof(UA_B32) == 1, "must have alignment 1");
+static_assert(alignof(UA_L32) == 1, "must have alignment 1");
 
 // Template meta-programming.
 // Get a type of the same size of the given type that stores the value in a
@@ -289,116 +288,5 @@ template<> struct Big<uint16_t> { using type = B16; };
 template<> struct Big<uint32_t> { using type = B32; };
 
 } // namespace Endian
-
-#endif
-
-
-#if 0
-
-///////////////////////////////////////////
-// Small functions to inspect code quality
-
-using namespace Endian;
-
-uint16_t testSwap16(uint16_t x) { return bswap16(x); }
-uint16_t testSwap16()           { return bswap16(0x1234); }
-uint32_t testSwap32(uint32_t x) { return bswap32(x); }
-uint32_t testSwap32()           { return bswap32(0x12345678); }
-
-
-union T16 {
-	B16 be;
-	L16 le;
-};
-
-void test1(T16& t, uint16_t x) { t.le = x; }
-void test2(T16& t, uint16_t x) { t.be = x; }
-uint16_t test3(T16& t) { return t.le; }
-uint16_t test4(T16& t) { return t.be; }
-
-void testA(uint16_t& s, uint16_t x) { write_UA_L16(&s, x); }
-void testB(uint16_t& s, uint16_t x) { write_UA_B16(&s, x); }
-uint16_t testC(uint16_t& s) { return read_UA_L16(&s); }
-uint16_t testD(uint16_t& s) { return read_UA_B16(&s); }
-
-
-union T32 {
-	B32 be;
-	L32 le;
-};
-
-void test1(T32& t, uint32_t x) { t.le = x; }
-void test2(T32& t, uint32_t x) { t.be = x; }
-uint32_t test3(T32& t) { return t.le; }
-uint32_t test4(T32& t) { return t.be; }
-
-void testA(uint32_t& s, uint32_t x) { write_UA_L32(&s, x); }
-void testB(uint32_t& s, uint32_t x) { write_UA_B32(&s, x); }
-uint32_t testC(uint32_t& s) { return read_UA_L32(&s); }
-uint32_t testD(uint32_t& s) { return read_UA_B32(&s); }
-
-
-///////////////////////////////
-// Simple unit test
-
-#include <cassert>
-
-int main()
-{
-	T16 t16;
-	assert(sizeof(t16) == 2);
-
-	t16.le = 0x1234;
-	assert(t16.le == 0x1234);
-	assert(t16.be == 0x3412);
-	assert(read_UA_L16(&t16) == 0x1234);
-	assert(read_UA_B16(&t16) == 0x3412);
-
-	t16.be = 0x1234;
-	assert(t16.le == 0x3412);
-	assert(t16.be == 0x1234);
-	assert(read_UA_L16(&t16) == 0x3412);
-	assert(read_UA_B16(&t16) == 0x1234);
-
-	write_UA_L16(&t16, 0xaabb);
-	assert(t16.le == 0xaabb);
-	assert(t16.be == 0xbbaa);
-	assert(read_UA_L16(&t16) == 0xaabb);
-	assert(read_UA_B16(&t16) == 0xbbaa);
-
-	write_UA_B16(&t16, 0xaabb);
-	assert(t16.le == 0xbbaa);
-	assert(t16.be == 0xaabb);
-	assert(read_UA_L16(&t16) == 0xbbaa);
-	assert(read_UA_B16(&t16) == 0xaabb);
-
-
-	T32 t32;
-	assert(sizeof(t32) == 4);
-
-	t32.le = 0x12345678;
-	assert(t32.le == 0x12345678);
-	assert(t32.be == 0x78563412);
-	assert(read_UA_L32(&t32) == 0x12345678);
-	assert(read_UA_B32(&t32) == 0x78563412);
-
-	t32.be = 0x12345678;
-	assert(t32.le == 0x78563412);
-	assert(t32.be == 0x12345678);
-	assert(read_UA_L32(&t32) == 0x78563412);
-	assert(read_UA_B32(&t32) == 0x12345678);
-
-	write_UA_L32(&t32, 0xaabbccdd);
-	assert(t32.le == 0xaabbccdd);
-	assert(t32.be == 0xddccbbaa);
-	assert(read_UA_L32(&t32) == 0xaabbccdd);
-	assert(read_UA_B32(&t32) == 0xddccbbaa);
-
-	write_UA_B32(&t32, 0xaabbccdd);
-	assert(t32.le == 0xddccbbaa);
-	assert(t32.be == 0xaabbccdd);
-	assert(read_UA_L32(&t32) == 0xddccbbaa);
-	assert(read_UA_B32(&t32) == 0xaabbccdd);
-}
 
 #endif

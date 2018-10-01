@@ -2,20 +2,31 @@
 #define MSXMEMORYMAPPER_HH
 
 #include "MSXDevice.hh"
+#include "MSXMapperIO.hh"
 #include "CheckedRam.hh"
+#include "SimpleDebuggable.hh"
 
 namespace openmsx {
 
-class MSXMapperIO;
-
-class MSXMemoryMapper : public MSXDevice
+class MSXMemoryMapper : public MSXDevice, public MSXMapperIOClient<MSXMemoryMapper>
 {
 public:
 	explicit MSXMemoryMapper(const DeviceConfig& config);
 	virtual ~MSXMemoryMapper();
 
+	/**
+	 * Returns the currently selected segment for the given page.
+	 * @param page Z80 address page (0-3).
+	 */
+	byte getSelectedSegment(byte page) const override { return registers[page]; }
+
+	unsigned getSizeInBlocks() { return checkedRam.getSize() / 0x4000; }
+
 	void reset(EmuTime::param time) override;
 	void powerUp(EmuTime::param time) override;
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
 	const byte* getReadCacheLine(word start) const override;
@@ -33,12 +44,18 @@ protected:
 	unsigned calcAddress(word address) const;
 
 	CheckedRam checkedRam;
+	byte registers[4];
 
 private:
 	unsigned getRamSize() const;
 
-	MSXMapperIO& mapperIO;
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value) override;
+	} debuggable;
 };
+SERIALIZE_CLASS_VERSION(MSXMemoryMapper, 2);
 
 REGISTER_BASE_NAME_HELPER(MSXMemoryMapper, "MemoryMapper");
 

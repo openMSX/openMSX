@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-DACSound8U::DACSound8U(string_ref name_, string_ref desc,
+DACSound8U::DACSound8U(string_view name_, string_view desc,
                        const DeviceConfig& config)
 	: DACSound16S(name_, desc, config)
 {

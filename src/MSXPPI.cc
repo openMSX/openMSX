@@ -6,7 +6,6 @@
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
-#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -23,13 +22,7 @@ MSXPPI::MSXPPI(const DeviceConfig& config)
 		config.getMotherBoard().getReactor().getEventDistributor(),
 		config.getMotherBoard().getMSXEventDistributor(),
 		config.getMotherBoard().getStateChangeDistributor(),
-		config.getChildData("keyboard_type", "int"),                   // keyboardType
-		config.getChildDataAsBool("has_keypad", true),                 // hasKeypad
-		config.getChildDataAsBool("has_yesno_keys", false),            // hasYesNoKeys
-		config.getChildDataAsBool("key_ghosting", true),               // keyGhosting
-		config.getChildDataAsBool("key_ghosting_sgc_protected", true), // keyGhostingSGCprotected,
-		config.getChildDataAsBool("code_kana_locks", false),           // codeKanaLocks,
-		config.getChildDataAsBool("graph_locks", false))               // graphLocks
+		Keyboard::MATRIX_MSX, config)
 	, prevBits(15)
 	, selectedRow(0)
 {
@@ -54,56 +47,17 @@ void MSXPPI::powerDown(EmuTime::param /*time*/)
 
 byte MSXPPI::readIO(word port, EmuTime::param time)
 {
-	switch (port & 0x03) {
-	case 0:
-		return i8255.readPortA(time);
-	case 1:
-		return i8255.readPortB(time);
-	case 2:
-		return i8255.readPortC(time);
-	case 3:
-		return i8255.readControlPort(time);
-	default: // unreachable, avoid warning
-		UNREACHABLE;
-		return 0;
-	}
+	return i8255.read(port & 0x03, time);
 }
 
 byte MSXPPI::peekIO(word port, EmuTime::param time) const
 {
-	switch (port & 0x03) {
-	case 0:
-		return i8255.peekPortA(time);
-	case 1:
-		return i8255.peekPortB(time);
-	case 2:
-		return i8255.peekPortC(time);
-	case 3:
-		return i8255.readControlPort(time);
-	default: // unreachable, avoid warning
-		UNREACHABLE;
-		return 0;
-	}
+	return i8255.peek(port & 0x03, time);
 }
 
 void MSXPPI::writeIO(word port, byte value, EmuTime::param time)
 {
-	switch (port & 0x03) {
-	case 0:
-		i8255.writePortA(value, time);
-		break;
-	case 1:
-		i8255.writePortB(value, time);
-		break;
-	case 2:
-		i8255.writePortC(value, time);
-		break;
-	case 3:
-		i8255.writeControlPort(value, time);
-		break;
-	default:
-		UNREACHABLE;
-	}
+	i8255.write(port & 0x03, value, time);
 }
 
 

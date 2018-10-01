@@ -15,7 +15,7 @@ namespace openmsx {
 
 // class BaseSetting
 
-BaseSetting::BaseSetting(string_ref name_)
+BaseSetting::BaseSetting(string_view name_)
 	: fullName(name_)
 	, baseName(fullName)
 {
@@ -38,11 +38,11 @@ void BaseSetting::info(TclObject& result) const
 // class Setting
 
 Setting::Setting(CommandController& commandController_,
-                 string_ref name_, string_ref desc_,
+                 string_view name_, string_view description_,
                  const TclObject& initialValue, SaveSetting save_)
 	: BaseSetting(name_)
 	, commandController(commandController_)
-	, description(desc_.str())
+	, description(description_.str())
 	, value(initialValue)
 	, defaultValue(initialValue)
 	, restoreValue(initialValue)
@@ -81,7 +81,7 @@ Setting::~Setting()
 }
 
 
-string_ref Setting::getDescription() const
+string_view Setting::getDescription() const
 {
 	return description;
 }

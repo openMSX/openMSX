@@ -7,9 +7,9 @@
 #include "Reactor.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cassert>
 #include <cstring>
+#include <memory>
 
 namespace openmsx {
 
@@ -81,10 +81,10 @@ V9990::V9990(const DeviceConfig& config)
 
 	// create VRAM
 	EmuTime::param time = getCurrentTime();
-	vram = make_unique<V9990VRAM>(*this, time);
+	vram = std::make_unique<V9990VRAM>(*this, time);
 
 	// create Command Engine
-	cmdEngine = make_unique<V9990CmdEngine>(
+	cmdEngine = std::make_unique<V9990CmdEngine>(
 		*this, time, display.getRenderSettings());
 	vram->setCmdEngine(*cmdEngine);
 
@@ -894,11 +894,11 @@ void V9990::serialize(Archive& ar, unsigned version)
 	}
 
 	ar.serialize("vram", *vram);
+	ar.serialize("displayMode", mode); // must be deserialized before cmdEngine (because it's used to restore some derived state in cmdEngine)
 	ar.serialize("cmdEngine", *cmdEngine);
 	ar.serialize("irq", irq);
 	ar.serialize("frameStartTime", frameStartTime);
 	ar.serialize("hScanSyncTime", hScanSyncTime);
-	ar.serialize("displayMode", mode);
 	ar.serialize_blob("palette", palette, sizeof(palette));
 	ar.serialize("status", status);
 	ar.serialize("pendingIRQs", pendingIRQs);

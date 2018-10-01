@@ -20,7 +20,7 @@ void CassettePlayerCLI::parseOption(const string& option, array_ref<string>& cmd
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_ref CassettePlayerCLI::optionHelp() const
+string_view CassettePlayerCLI::optionHelp() const
 {
 	return "Put cassette image specified in argument in "
 	       "virtual cassetteplayer";
@@ -38,7 +38,7 @@ void CassettePlayerCLI::parseFileType(const string& filename,
 	command.executeCommand(parser.getInterpreter());
 }
 
-string_ref CassettePlayerCLI::fileTypeHelp() const
+string_view CassettePlayerCLI::fileTypeHelp() const
 {
 	return "Cassette image, raw recording or fMSX CAS image";
 }

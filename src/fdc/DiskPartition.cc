@@ -1,7 +1,7 @@
 #include "DiskPartition.hh"
 #include "DiskImageUtils.hh"
 #include "Filename.hh"
-#include "StringOp.hh"
+#include "strCat.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -12,7 +12,7 @@ static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 {
 	if (auto* dsk = dynamic_cast<Disk*>(disk)) {
 		return DiskName(dsk->getName().getFilename(),
-		                StringOp::Builder() << ':' << partition);
+		                strCat(':', partition));
 	} else {
 		return DiskName(Filename("dummy"));
 	}

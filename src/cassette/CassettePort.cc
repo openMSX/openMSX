@@ -11,7 +11,7 @@
 #include "PluggingController.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 using std::string;
 
@@ -47,7 +47,7 @@ void DummyCassettePort::setLaserdiscPlayer(LaserdiscPlayer* /* laserdisc */)
 
 CassettePort::CassettePort(const HardwareConfig& hwConf)
 	: Connector(hwConf.getMotherBoard().getPluggingController(), "cassetteport",
-	            make_unique<DummyCassetteDevice>())
+	            std::make_unique<DummyCassetteDevice>())
 	, motherBoard(hwConf.getMotherBoard())
 #if COMPONENT_LASERDISC
 	, laserdiscPlayer(nullptr)
@@ -55,7 +55,7 @@ CassettePort::CassettePort(const HardwareConfig& hwConf)
 	, lastOutput(false)
 	, motorControl(false)
 {
-	auto player = make_unique<CassettePlayer>(hwConf);
+	auto player = std::make_unique<CassettePlayer>(hwConf);
 	cassettePlayer = player.get();
 	getPluggingController().registerPluggable(std::move(player));
 }
@@ -120,7 +120,7 @@ const string CassettePort::getDescription() const
 	return "MSX Cassette port";
 }
 
-string_ref CassettePort::getClass() const
+string_view CassettePort::getClass() const
 {
 	return "Cassette Port";
 }

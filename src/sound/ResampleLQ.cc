@@ -1,9 +1,9 @@
 #include "ResampleLQ.hh"
 #include "ResampledSoundDevice.hh"
 #include "likely.hh"
-#include "memory.hh"
 #include <cassert>
 #include <cstring>
+#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -23,10 +23,10 @@ std::unique_ptr<ResampleLQ<CHANNELS>> ResampleLQ<CHANNELS>::create(
 	std::unique_ptr<ResampleLQ<CHANNELS>> result;
 	unsigned hostSampleRate = hostClock.getFreq();
 	if (emuSampleRate < hostSampleRate) {
-		result = make_unique<ResampleLQUp  <CHANNELS>>(
+		result = std::make_unique<ResampleLQUp  <CHANNELS>>(
 			input, hostClock, emuSampleRate);
 	} else {
-		result = make_unique<ResampleLQDown<CHANNELS>>(
+		result = std::make_unique<ResampleLQDown<CHANNELS>>(
 			input, hostClock, emuSampleRate);
 	}
 	return result;

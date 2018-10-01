@@ -1,30 +1,12 @@
 #ifndef ALIGNEDBUFFER_HH
 #define ALIGNEDBUFFER_HH
 
-#include "alignof.hh"
 #include <type_traits>
 #include <cassert>
 #include <cstdint>
 #include <cstddef>
 
 namespace openmsx {
-
-// Hack for visual studio, remove when we can use c++11 alignas/alignof
-#ifdef _MSC_VER
-  #ifdef _WIN64
-    #define MAX_ALIGN_V 16
-  #else
-    #define MAX_ALIGN_V  8
-  #endif
-#else
-  // This only works starting from gcc-4-9
-  //  #define MAX_ALIGN_V ALIGNOF(MAX_ALIGN_T)
-  #ifdef __x86_64
-    #define MAX_ALIGN_V 16
-  #else
-    #define MAX_ALIGN_V  8
-  #endif
-#endif
 
 // Interface for an aligned buffer.
 // This type doesn't itself provide any storage, it only 'refers' to some
@@ -42,14 +24,10 @@ namespace openmsx {
 //     // the compiler knows at compile-time the alignment of 'buf', while
 //     // above the compiler must assume worst case alignment.
 //   }
-#ifdef _MSC_VER
-// TODO in the future use the c++11 'alignas' feature
-__declspec (align(MAX_ALIGN_V))
-#endif
-class AlignedBuffer
+class alignas(std::max_align_t) AlignedBuffer
 {
 public:
-	static const size_t ALIGNMENT = MAX_ALIGN_V;
+	static const size_t ALIGNMENT = alignof(std::max_align_t);
 
 	operator       uint8_t*()       { return p(); }
 	operator const uint8_t*() const { return p(); }
@@ -69,12 +47,8 @@ public:
 private:
 	      uint8_t* p()       { return reinterpret_cast<      uint8_t*>(this); }
 	const uint8_t* p() const { return reinterpret_cast<const uint8_t*>(this); }
-}
-#ifndef _MSC_VER
-__attribute__((__aligned__((MAX_ALIGN_V))))
-#endif
-;
-static_assert(ALIGNOF(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be aligned");
+};
+static_assert(alignof(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be aligned");
 
 
 // Provide actual storage for the AlignedBuffer
@@ -89,14 +63,8 @@ public:
 private:
 	uint8_t dat[N];
 
-}
-// Repeat alignment because Clang 3.2svn does not inherit it from an empty
-// base class.
-#ifndef _MSC_VER
-__attribute__((__aligned__((MAX_ALIGN_V))))
-#endif
-;
-static_assert(ALIGNOF(AlignedByteArray<13>) == AlignedBuffer::ALIGNMENT,
+};
+static_assert(alignof(AlignedByteArray<13>) == AlignedBuffer::ALIGNMENT,
               "must be aligned");
 static_assert(sizeof(AlignedByteArray<32>) == 32,
               "we rely on the empty-base optimization");
@@ -111,7 +79,7 @@ template<typename T> static inline T aligned_cast(void* p)
 	static_assert(std::is_pointer<T>::value,
 	              "can only perform aligned_cast on pointers");
 	assert((reinterpret_cast<uintptr_t>(p) %
-	        ALIGNOF(typename std::remove_pointer<T>::type)) == 0);
+	        alignof(std::remove_pointer_t<T>)) == 0);
 	return reinterpret_cast<T>(p);
 }
 

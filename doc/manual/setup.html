@@ -216,7 +216,12 @@ or download it directly from the
 <p>
 C-BIOS can be used to run most MSX1, MSX2 and MSX2+ cartridge-based games.
 It does not include MSX-BASIC and does not support disk drives yet,
-so programs depending on that will not run.
+so programs depending on that will not run. So, with the C-BIOS machines and
+ROMs that came with openMSX, you cannot run software that comes on tape, disk
+or any other media than cartridges with ROMs.
+</p>
+
+<p>
 openMSX contains several machine configurations using C-BIOS.
 The machine <code>C-BIOS_MSX1</code> is an MSX1 with 64 kB RAM.
 The machine <code>C-BIOS_MSX2</code> is an MSX2 with 512 kB RAM and 128 kB VRAM.
@@ -282,19 +287,27 @@ Whatever you decide, is your own responsibility.
 
 <h3><a id="installrom">3.4 Installing ROMs</a></h3>
 
+<p>
+If you want to emulate real MSX machines next to the default C-BIOS based
+machines, you will have to install system ROMs that did not come with openMSX.
+This section explains how to install these, once you obtained them in one of
+the ways that are explained in the previous sections.
+</p>
+
 <h4><a id="romlocation">3.4.1 ROM Locations</a></h4>
 
-<p>The easiest way is to use a so-called file pool; a special directory where openMSX will look
-for files (system ROMs, other ROMs, disks, tapes, etc.). The default file pool
-for system ROMs is the <code>systemroms</code> sub directory. The best way is to
-make a <code>systemroms</code> sub directory in your own user directory, which is platform dependent
+<p>The easiest way is to copy the ROM files in a so-called file pool; a special
+directory where openMSX will look for files (system ROMs, other ROMs, disks,
+tapes, etc.). The default file pool for system ROMs is the
+<code>systemroms</code> sub directory. The best way is to make a
+<code>systemroms</code> sub directory in your own user directory, which is
+platform dependent:
 </p>
 <table class="border_enabled">
 <tr><th>Platform</th><th>User directory</th></tr>
-<tr><td>Old versions of Windows (e.g. Windows XP)</td><td>My Documents\openMSX\share</td></tr>
-<tr><td>Modern versions of Windows (e.g. Windows 7)</td><td>c:\Users\&lt;user name&gt;\Documents\openMSX\share whereby &lt;user name&gt; stands for your Windows login name</td></tr>
-<tr><td>Unix and Linux</td><td>~/.openMSX/share</td></tr>
-<tr><td>Android</td><td>&lt;external storage&gt;/openMSX/share, whereby &lt;external storage&gt; stands for the default external storage location of your Android device. On the Samsung Galaxy Nexus it is for example /sdcard</td></tr>
+<tr><td>Windows (e.g. Windows 7)</td><td><code>C:\Users\&lt;user name&gt;\Documents\openMSX\share</code> whereby <code>&lt;user name&gt;</code> stands for your Windows login name</td></tr>
+<tr><td>Unix and Linux</td><td><code>~/.openMSX/share</code></td></tr>
+<tr><td>Android</td><td><code>&lt;external storage&gt;/openMSX/share</code>, whereby <code>&lt;external storage&gt;</code> stands for the default external storage location of your Android device. On the Samsung Galaxy Nexus it is for example <code>/sdcard</code></td></tr>
 </table>
 <p>
 That way, you do not need special privilages. Furtermore, the installer won't
@@ -305,15 +318,21 @@ A template for the <code>systemroms</code> sub directory is present in the insta
 </p>
 <table class="border_enabled">
 <tr><th>Platform</th><th>Typical openMSX file pool installation directory</th></tr>
-<tr><td>Windows (any version)</td><td>C:\Program Files\openMSX\share</td></tr>
-<tr><td>Unix and Linux</td><td>/opt/openMSX/share or /usr/share/openmsx</td></tr>
-<tr><td>Android</td><td>&lt;internal app install dir&gt;/org.openmsx.android.openmsx/files/openmsx_system, whereby &lt;internal app install dir&gt; stands for the default internal app installation directory of your Android device. On the Samsung Galaxy Nexus it is for example /sdcard/Android/data</td></tr>
+<tr><td>Windows (any version)</td><td><code>C:\Program Files\openMSX\share</code></td></tr>
+<tr><td>Unix and Linux</td><td><code>/opt/openMSX/share</code> or <code>/usr/share/openmsx</code></td></tr>
+<tr><td>Android</td><td><code>&lt;internal app install dir&gt;/org.openmsx.android.openmsx/files/openmsx_system</code>, whereby <code>&lt;internal app install dir&gt;</code> stands for the default internal app installation directory of your Android device. On the Samsung Galaxy Nexus it is for example <code>/sdcard/Android/data</code></td></tr>
 </table>
 
 <p>
-So, you can just put all your system ROMs in that directory. More info about
-file pools is in the documentation of the <code><a class="external"
-href="commands.html#filepool">filepool</a></code> command. If
+So, you can just copy all your system ROMs to the <code>share/systemroms</code>
+directory of your user account. The ROM files can be zipped (or gzipped), but
+only one file can be in a ZIP file. If multiple ROM files are in a single ZIP
+file, openMSX will not find them.
+</p>
+
+<p>
+More info about file pools is in the documentation of the <code><a
+class="external" href="commands.html#filepool">filepool</a></code> command. If
 you can't get this working, please read one of the next sections about
 Checksums.
 </p>
@@ -325,20 +344,34 @@ copy the ROM file with the name and path as mentioned in the hardware
 configuration XML file that describes the machine, relative to the path of that
 machine description file.
 For example, if you dumped the ROMs of a Philips NMS 8250 machine,
-copy them to <code>share/machines/roms</code>, because in the machine
+copy them to <code>share/machines</code>, because in the machine
 description file (in <code>share/machines/Philips_NMS_8250.xml</code>) the name
-of the ROMs is like this: <code>roms/nms8250_msx2sub.rom</code>. We recommend
+of the ROMs is like this: <code>nms8250_msx2sub.rom</code>. We recommend
 to not use this feature, but use the file pools as mentioned above.
 </p>
 
 <h4><a id="romchecksums">3.4.2 Checksums</a></h4>
 
 <p>
-All necessary system ROM files used in machines and extensions are primarily identified with a checksum: a sha1sum. This enables openMSX to find the right ROM
-file from one of the <a class="external" href="commands.html#filepool">file
-pool</a>s of type <code>system_rom</code>, without depending on the
-file name. So the actual content is guaranteed to be what was intended. If the
-ROM is explicitly specified in the configuration file (which is also supported) and the sha1sum doesn't match, a warning will be printed.
+All necessary system ROM files used in machines and extensions are primarily
+identified with a checksum: a sha1sum. This enables openMSX to find the right
+ROM file from one of the <a class="external" href="commands.html#filepool">file
+pool</a>s of type <code>system_rom</code>, without depending on the file name.
+So the actual content is guaranteed to be what was intended. If the ROM is
+explicitly specified in the configuration file (which is also supported) and
+the sha1sum doesn't match, a warning will be printed.
+</p>
+
+<p>
+If you are trying to run an MSX machine and get an error like <code>Fatal
+error: Error in "broken" machine: Couldn't find ROM file for "MSX BIOS with
+BASIC ROM" (sha1: 12345c041975f31dc2ab1019cfdd4967999de53e).</code> it means
+that the required system ROM for that machine with the given sha1sum cannot be
+found in one of the file pools as mentioned above (typically
+<code>share/systemroms</code>). This is the primary way to know that you are
+missing required system ROMs and thus something went wrong installing them
+(typically either not a file with the proper content or you put the file in the
+wrong place, or you put it in a large ZIP file with multiple files).
 </p>
 
 <p>
@@ -403,7 +436,7 @@ The laserdisc must be captured before it can be used with an emulator. The file 
  <li>Captured at 640&times;480, YUV420</li>
  <li>A bitrate of at least 200kpbs for audio, otherwise the computer code encoded on the right audio channel will degrade too much for it to be readable</li>
  <li>Theora frame numbers must correspond to laserdisc frame numbers</li>
- <li>Some laserdiscs have chapters and/or stop frames. This is encoded in the <a href="https://www.daphne-emu.com/mediawiki/index.php/VBIInfo">VBI signal</a>, and must be converted to plain text. This must be added to the theora meta data</li>
+ <li>Some laserdiscs have chapters and/or stop frames. This is encoded in the <a href="http://www.daphne-emu.com/mediawiki/index.php/VBIInfo">VBI signal</a>, and must be converted to plain text. This must be added to the theora meta data</li>
 </ul>
 
 <p>
@@ -477,8 +510,7 @@ on your system.
 <h3><a id="opengl">6.1 OpenGL</a></h3>
 
 <p>
-The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed, with support for OpenGL 2.0. Practically all modern PC hardware has this, but if your hardware doesn't,
-use the SDL renderer instead.
+The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed, with support for OpenGL 2.0. Practically all modern PC hardware has this and that's why we made it the default, but if your hardware doesn't, use the SDL renderer instead.
 </p>
 <p>
 Getting OpenGL running hardware accelerated used to be a little cumbersome in some situations.

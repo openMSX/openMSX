@@ -6,12 +6,12 @@ namespace openmsx {
 
 static void throwException(Tcl_Interp* interp)
 {
-	string_ref message = interp ? Tcl_GetStringResult(interp)
+	string_view message = interp ? Tcl_GetStringResult(interp)
 	                            : "TclObject error";
 	throw CommandException(message);
 }
 
-void TclObject::setString(string_ref value)
+void TclObject::setString(string_view value)
 {
 	if (Tcl_IsShared(obj)) {
 		Tcl_DecrRefCount(obj);
@@ -66,7 +66,7 @@ void TclObject::setBinary(byte* buf, unsigned length)
 	}
 }
 
-void TclObject::addListElement(string_ref element)
+void TclObject::addListElement(string_view element)
 {
 	addListElement(Tcl_NewStringObj(element.data(), int(element.size())));
 }
@@ -136,11 +136,11 @@ double TclObject::getDouble(Interpreter& interp_) const
 	return result;
 }
 
-string_ref TclObject::getString() const
+string_view TclObject::getString() const
 {
 	int length;
 	char* buf = Tcl_GetStringFromObj(obj, &length);
-	return string_ref(buf, length);
+	return string_view(buf, length);
 }
 
 const byte* TclObject::getBinary(unsigned& length) const

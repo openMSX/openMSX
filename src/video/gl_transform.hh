@@ -6,7 +6,7 @@
 // This code can be used to replace them.
 //
 // This code was inspired by the 'glm' library (though written from scratch).
-// Compared to glm this code is much simpler but offer much less functionality.
+// Compared to glm this code is much simpler but offers much less functionality.
 //   http://glm.g-truc.net
 
 #include "gl_mat.hh"

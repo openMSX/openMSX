@@ -4,7 +4,7 @@
 // small_compare utility function
 //
 // This can be used to replace
-//   string_ref s1 = ...
+//   string_view s1 = ...
 //   if (s1 == "foo") { ... }
 // with
 //   if (small_compare<'f','o','o'>(s1)) { ... }
@@ -32,10 +32,10 @@
 
 #include "aligned.hh"
 #include "build-info.hh"
-#include "string_ref.hh"
-#include "type_traits.hh"
+#include "string_view.hh"
 #include <cstdint>
 #include <cstring>
+#include <type_traits>
 
 // Loader can load an 8/16/32/64 unaligned value.
 struct Load8 {
@@ -56,10 +56,10 @@ struct Load64 {
 };
 struct ErrorNotSupportedLoader; // load only implemented up to 64 bit
 template<size_t N> struct SelectLoader
-	: if_c<N <= 1, Load8,
-	  if_c<N <= 2, Load16,
-	  if_c<N <= 4, Load32,
-	  if_c<N <= 8, Load64,
+	: std::conditional_t<N <= 1, Load8,
+	  std::conditional_t<N <= 2, Load16,
+	  std::conditional_t<N <= 4, Load32,
+	  std::conditional_t<N <= 8, Load64,
 	  ErrorNotSupportedLoader>>>> {};
 
 
@@ -70,7 +70,7 @@ template<typename T, T v, T m, T s> struct ScValLeImpl<T, v, m, s> {
 	static const T mask  = m;
 };
 template<typename T, T v, T m, T s, char N0, char ...Ns> struct ScValLeImpl<T, v, m, s, N0, Ns...>
-	: ScValLeImpl<T, v + (T(N0) << s), (m << 8) + 255, s + 8, Ns...> {};
+	: ScValLeImpl<T, v + (T(N0 & 255) << s), (m << 8) + 255, s + 8, Ns...> {};
 template<typename T, char ...Ns> struct ScValLe : ScValLeImpl<T, 0, 0, 0, Ns...> {};
 
 // ScVal-big-endian
@@ -80,13 +80,14 @@ template<typename T, T v, T m> struct ScValBeImpl<T, v, m> {
 	static const T mask  = ~m;
 };
 template<typename T, T v, T m, char N0, char ...Ns> struct ScValBeImpl<T, v, m, N0, Ns...>
-	: ScValBeImpl<T, (v << 8) + N0, (m >> 8), Ns...> {};
+	: ScValBeImpl<T, (v << 8) + T(N0 & 255), (m >> 8), Ns...> {};
 template<typename T, char ...Ns> struct ScValBe : ScValBeImpl<T, 0, -1, Ns...> {};
 
 // ScVal: combines all given characters in one value of type T, also computes a
 // mask-value with 1-bits in the 'used' positions.
 template<typename T, char ...Ns> struct ScVal
-	: if_c<openmsx::OPENMSX_BIGENDIAN, ScValBe<T, Ns...>, ScValLe<T, Ns...>> {};
+	: std::conditional_t<openmsx::OPENMSX_BIGENDIAN, ScValBe<T, Ns...>,
+	                                                 ScValLe<T, Ns...>> {};
 
 
 template<char ...Ns> struct SmallCompare {
@@ -109,7 +110,7 @@ template<char ...Ns> bool small_compare(const char* p)
 	return (loader(p) & SC::mask) == SC::value;
 }
 
-template<char ...Ns> bool small_compare(string_ref str)
+template<char ...Ns> bool small_compare(string_view str)
 {
 	if (str.size() != sizeof...(Ns)) return false;
 	return small_compare<Ns...>(str.data());

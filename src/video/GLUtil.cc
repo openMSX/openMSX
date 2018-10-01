@@ -166,7 +166,7 @@ static string readTextFile(const string& filename)
 
 Shader::Shader(GLenum type, const string& filename)
 {
-	init(type, "", filename);
+	init(type, {}, filename);
 }
 
 Shader::Shader(GLenum type, const string& header, const string& filename)
@@ -177,7 +177,7 @@ Shader::Shader(GLenum type, const string& header, const string& filename)
 void Shader::init(GLenum type, const string& header, const string& filename)
 {
 	// Load shader source.
-	string source = header;
+	string source = "#version 110\n" + header;
 	try {
 		source += readTextFile("shaders/" + filename);
 	} catch (FileException& e) {
@@ -338,7 +338,7 @@ void ShaderProgram::validate()
 	VLA(GLchar, infoLog, infoLogLength);
 	glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog);
 	std::cout << "Validate "
-	          << ((validateStatus == GL_TRUE) ? string("OK") : string("FAIL"))
+	          << ((validateStatus == GL_TRUE) ? "OK" : "FAIL")
 	          << ": " << infoLog << std::endl;
 }
 

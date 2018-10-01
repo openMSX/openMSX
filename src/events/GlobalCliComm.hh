@@ -29,13 +29,13 @@ public:
 	void setAllowExternalCommands();
 
 	// CliComm
-	void log(LogLevel level, string_ref message) override;
-	void update(UpdateType type, string_ref name,
-	            string_ref value) override;
+	void log(LogLevel level, string_view message) override;
+	void update(UpdateType type, string_view name,
+	            string_view value) override;
 
 private:
-	void updateHelper(UpdateType type, string_ref machine,
-	                  string_ref name, string_ref value);
+	void updateHelper(UpdateType type, string_view machine,
+	                  string_view name, string_view value);
 
 	hash_map<std::string, std::string, XXHasher> prevValues[NUM_UPDATES];
 

@@ -16,6 +16,7 @@
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <cstddef>
 #ifdef __SSE2__
@@ -46,8 +47,8 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 		// alternative is to turn noiseBuf into an array of ints (it's
 		// now bytes) and in the 16bpp code extract R,G,B components
 		// from those ints
-		const Pixel p = Pixel(OPENMSX_BIGENDIAN ? 0x00010203
-		                                        : 0x03020100);
+		const auto p = Pixel(OPENMSX_BIGENDIAN ? 0x00010203
+		                                       : 0x03020100);
 		// TODO we can also fill the array with 'factor' and only set
 		// 'alpha' to 0.0. But PixelOperations doesn't offer a simple
 		// way to get the position of the alpha byte (yet).
@@ -215,7 +216,7 @@ void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output)
 	unsigned w = output.getWidth();
 	output.lock();
 	for (unsigned y = 0; y < h; ++y) {
-		Pixel* buf = output.getLinePtrDirect<Pixel>(y);
+		auto* buf = output.getLinePtrDirect<Pixel>(y);
 		drawNoiseLine(buf, &noiseBuf[noiseShift[y]], w);
 	}
 }
@@ -312,7 +313,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		//	srcStartY, srcEndY, lineWidth );
 		output.lock();
 		float horStretch = renderSettings.getHorizontalStretch();
-		unsigned inWidth = unsigned(horStretch + 0.5f);
+		unsigned inWidth = lrintf(horStretch);
 		std::unique_ptr<ScalerOutput<Pixel>> dst(
 			StretchScalerOutputFactory<Pixel>::create(
 				output, pixelOps, inWidth));

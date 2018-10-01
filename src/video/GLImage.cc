@@ -47,8 +47,8 @@ static gl::Texture loadTexture(
 	try {
 		return loadTexture(std::move(surface), size, texCoord);
 	} catch (MSXException& e) {
-		throw MSXException("Error loading image " + filename +
-		                   ": " + e.getMessage());
+		throw MSXException("Error loading image ", filename, ": ",
+		                   e.getMessage());
 	}
 }
 
@@ -78,6 +78,7 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, unsigned rgba)
 	checkSize(size_);
 	size = size_;
 	borderSize = 0;
+	borderR = borderG = borderB = borderA = 0; // not used, but avoid (harmless) UMR
 	for (int i = 0; i < 4; ++i) {
 		bgR[i] = (rgba >> 24) & 0xff;
 		bgG[i] = (rgba >> 16) & 0xff;

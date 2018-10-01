@@ -3,7 +3,7 @@
 
 #include "RomTypes.hh"
 #include "String32.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <vector>
 #include <utility>
 
@@ -29,32 +29,32 @@ public:
 	{
 	}
 
-	const string_ref getTitle   (const char* buf) const {
+	const string_view getTitle   (const char* buf) const {
 		return fromString32(buf, title);
 	}
-	const string_ref getYear    (const char* buf) const {
+	const string_view getYear    (const char* buf) const {
 		return fromString32(buf, year);
 	}
-	const string_ref getCompany (const char* buf) const {
+	const string_view getCompany (const char* buf) const {
 		return fromString32(buf, company);
 	}
-	const string_ref getCountry (const char* buf) const {
+	const string_view getCountry (const char* buf) const {
 		return fromString32(buf, country);
 	}
-	const string_ref getOrigType(const char* buf) const {
+	const string_view getOrigType(const char* buf) const {
 		return fromString32(buf, origType);
 	}
-	const string_ref getRemark  (const char* buf) const {
+	const string_view getRemark  (const char* buf) const {
 		return fromString32(buf, remark);
 	}
 	RomType          getRomType()   const { return romType; }
 	bool             getOriginal()  const { return original; }
 	int              getGenMSXid()  const { return genMSXid; }
 
-	static RomType nameToRomType(string_ref name);
-	static string_ref romTypeToName(RomType type);
-	static std::vector<string_ref> getAllRomTypes();
-	static string_ref getDescription(RomType type);
+	static RomType nameToRomType(string_view name);
+	static string_view romTypeToName(RomType type);
+	static std::vector<string_view> getAllRomTypes();
+	static string_view getDescription(RomType type);
 	static unsigned   getBlockSize  (RomType type);
 
 private:

@@ -21,8 +21,12 @@ A million repetitions of "a"
 #include "sha1.hh"
 #include "MSXException.hh"
 #include "endian.hh"
+#include "likely.hh"
 #include <cassert>
 #include <cstring>
+#ifdef __SSE2__
+#include <emmintrin.h> // SSE2
+#endif
 
 using std::string;
 
@@ -95,24 +99,119 @@ Sha1Sum::Sha1Sum()
 	clear();
 }
 
-Sha1Sum::Sha1Sum(string_ref str)
+Sha1Sum::Sha1Sum(string_view hex)
 {
-	if (str.size() != 40) {
-		throw MSXException("Invalid sha1, should be exactly 40 digits long: " + str);
+	if (hex.size() != 40) {
+		throw MSXException("Invalid sha1, should be exactly 40 digits long: ", hex);
 	}
-	parse40(str.data());
+	parse40(hex.data());
 }
+
+#ifdef __SSE2__
+// emulate some missing unsigned-8-bit comparison functions
+static inline __m128i _mm_cmpge_epu8(__m128i a, __m128i b)
+{
+	return _mm_cmpeq_epi8(_mm_max_epu8(a, b), a);
+}
+
+static inline __m128i _mm_cmple_epu8(__m128i a, __m128i b)
+{
+	return _mm_cmpge_epu8(b, a);
+}
+
+// load 64-bit (possibly unaligned) and swap bytes
+static inline uint64_t loadSwap64(const char* s)
+{
+	return Endian::bswap64(*reinterpret_cast<const uint64_t*>(s));
+}
+
+#else
 
 static inline unsigned hex(char x, const char* str)
 {
 	if (('0' <= x) && (x <= '9')) return x - '0';
 	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;
 	if (('A' <= x) && (x <= 'F')) return x - 'A' + 10;
-	throw MSXException("Invalid sha1, digits should be 0-9, a-f: " +
-	                   string(str, 40));
+	throw MSXException("Invalid sha1, digits should be 0-9, a-f: ",
+	                   string_view(str, 40));
 }
+#endif
+
 void Sha1Sum::parse40(const char* str)
 {
+#ifdef __SSE2__
+	// SSE2 version
+
+	// load characters
+	__m128i s0 = _mm_set_epi64x(loadSwap64(str +  8),     loadSwap64(str +  0));
+	__m128i s1 = _mm_set_epi64x(loadSwap64(str + 24),     loadSwap64(str + 16));
+	__m128i s2 = _mm_set_epi64x('0' * 0x0101010101010101, loadSwap64(str + 32));
+
+	// chars - '0'
+	__m128i cc0 = _mm_set1_epi8(char(-'0'));
+	__m128i s0_0 = _mm_add_epi8(s0, cc0);
+	__m128i s1_0 = _mm_add_epi8(s1, cc0);
+	__m128i s2_0 = _mm_add_epi8(s2, cc0);
+
+	// (chars | 32) - 'a'  (convert uppercase 'A'-'F' into lower case)
+	__m128i c32 = _mm_set1_epi8(32);
+	__m128i cca = _mm_set1_epi8(char(-'a'));
+	__m128i s0_a = _mm_add_epi8(_mm_or_si128(s0, c32), cca);
+	__m128i s1_a = _mm_add_epi8(_mm_or_si128(s1, c32), cca);
+	__m128i s2_a = _mm_add_epi8(_mm_or_si128(s2, c32), cca);
+
+	// was in range '0'-'9'?
+	__m128i c9  = _mm_set1_epi8(9);
+	__m128i c0_0 = _mm_cmple_epu8(s0_0, c9);
+	__m128i c1_0 = _mm_cmple_epu8(s1_0, c9);
+	__m128i c2_0 = _mm_cmple_epu8(s2_0, c9);
+
+	// was in range 'a'-'f'?
+	__m128i c5  = _mm_set1_epi8(5);
+	__m128i c0_a = _mm_cmple_epu8(s0_a, c5);
+	__m128i c1_a = _mm_cmple_epu8(s1_a, c5);
+	__m128i c2_a = _mm_cmple_epu8(s2_a, c5);
+
+	// either '0'-'9' or 'a'-f' must be in range for all chars
+	__m128i ok0 = _mm_or_si128(c0_0, c0_a);
+	__m128i ok1 = _mm_or_si128(c1_0, c1_a);
+	__m128i ok2 = _mm_or_si128(c2_0, c2_a);
+	__m128i ok = _mm_and_si128(_mm_and_si128(ok0, ok1), ok2);
+	if (unlikely(_mm_movemask_epi8(ok) != 0xffff)) {
+		throw MSXException("Invalid sha1, digits should be 0-9, a-f: ",
+		                   string_view(str, 40));
+	}
+
+	// '0'-'9' to numeric value (or zero)
+	__m128i d0_0 = _mm_and_si128(s0_0, c0_0);
+	__m128i d1_0 = _mm_and_si128(s1_0, c1_0);
+	__m128i d2_0 = _mm_and_si128(s2_0, c2_0);
+
+	// 'a'-'f' to numeric value (or zero)
+	__m128i c10 = _mm_set1_epi8(10);
+	__m128i d0_a = _mm_and_si128(_mm_add_epi8(s0_a, c10), c0_a);
+	__m128i d1_a = _mm_and_si128(_mm_add_epi8(s1_a, c10), c1_a);
+	__m128i d2_a = _mm_and_si128(_mm_add_epi8(s2_a, c10), c2_a);
+
+	// combine  0-9 / 10-15  into  0-15
+	__m128i d0 = _mm_or_si128(d0_0, d0_a);
+	__m128i d1 = _mm_or_si128(d1_0, d1_a);
+	__m128i d2 = _mm_or_si128(d2_0, d2_a);
+
+	// compact bytes to nibbles
+	__m128i c00ff = _mm_set1_epi16(0x00ff);
+	__m128i e0 = _mm_and_si128(_mm_or_si128(d0, _mm_srli_epi16(d0, 4)), c00ff);
+	__m128i e1 = _mm_and_si128(_mm_or_si128(d1, _mm_srli_epi16(d1, 4)), c00ff);
+	__m128i e2 = _mm_and_si128(_mm_or_si128(d2, _mm_srli_epi16(d2, 4)), c00ff);
+	__m128i f0 = _mm_packus_epi16(e0, e0);
+	__m128i f1 = _mm_packus_epi16(e1, e1);
+	__m128i f2 = _mm_packus_epi16(e2, e2);
+
+	// store result
+	_mm_storeu_si128(reinterpret_cast<__m128i*>(a), _mm_unpacklo_epi64(f0, f1));
+	a[4] = _mm_cvtsi128_si32(f2);
+#else
+	// equivalent c++ version
 	const char* p = str;
 	for (auto& ai : a) {
 		unsigned t = 0;
@@ -122,6 +221,7 @@ void Sha1Sum::parse40(const char* str)
 		}
 		ai = t;
 	}
+#endif
 }
 
 static inline char digit(unsigned x)

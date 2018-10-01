@@ -2,7 +2,6 @@
 #define DIVMODBYCONST
 
 #include "build-info.hh"
-#include "type_traits.hh"
 #include <type_traits>
 #include <cstdint>
 
@@ -20,7 +19,8 @@
 namespace DivModByConstPrivate {
 
 template<uint32_t A, uint32_t R = 0> struct log2
-	: if_c<A == 0, std::integral_constant<int, R>, log2<A / 2, R + 1>> {};
+	: std::conditional_t<A == 0, std::integral_constant<int, R>,
+	                             log2<A / 2, R + 1>> {};
 
 // Utility class to perform 128-bit by 128-bit division at compilation time
 template<uint64_t RH, uint64_t RL, uint64_t QH, uint64_t QL, uint64_t DH, uint64_t DL, uint32_t BITS>
@@ -404,8 +404,8 @@ template<uint32_t DIVISOR, uint32_t N> struct DBCAlgo3
 
 
 template<uint32_t DIVISOR, uint32_t N, typename RM> struct DBCHelper3
-	: if_c<RM::MHH == 0, DBCAlgo2<RM::MHL, N + RM::L>
-	                   , DBCAlgo3<DIVISOR, N>> {};
+	: std::conditional_t<RM::MHH == 0, DBCAlgo2<RM::MHL, N + RM::L>,
+	                                   DBCAlgo3<DIVISOR, N>> {};
 
 template<uint32_t DIVISOR, uint32_t N> struct DBCHelper2
 {
@@ -426,9 +426,11 @@ template<uint32_t DIVISOR, uint32_t N> struct DBCHelper2
 };
 
 template<uint32_t DIVISOR, uint32_t SHIFT> struct DBCHelper1
-	: if_c<DIVISOR == 1, DBCAlgo1<SHIFT>,
-	                     if_c<DIVISOR & 1, DBCHelper2<DIVISOR, SHIFT>
-	                                     , DBCHelper1<DIVISOR / 2, SHIFT + 1>>> {};
+	: std::conditional_t<DIVISOR == 1,
+	                     DBCAlgo1<SHIFT>,
+	                     std::conditional_t<DIVISOR & 1,
+	                                        DBCHelper2<DIVISOR, SHIFT>,
+	                                        DBCHelper1<DIVISOR / 2, SHIFT + 1>>> {};
 
 } // namespace DivModByConstPrivate
 

@@ -14,6 +14,7 @@
 #include "unreachable.hh"
 #include "stl.hh"
 #include "xxhash.hh"
+#include <cassert>
 #include <stdexcept>
 
 using std::string;
@@ -39,16 +40,16 @@ public:
 	}
 
 	// rapidsax handler interface
-	void start(string_ref name);
-	void attribute(string_ref name, string_ref value);
-	void text(string_ref txt);
+	void start(string_view tag);
+	void attribute(string_view name, string_view value);
+	void text(string_view txt);
 	void stop();
-	void doctype(string_ref txt);
+	void doctype(string_view txt);
 
-	string_ref getSystemID() const { return systemID; }
+	string_view getSystemID() const { return systemID; }
 
 private:
-	String32 cIndex(string_ref str);
+	String32 cIndex(string_view str);
 	void addEntries();
 	void addAllEntries();
 
@@ -86,12 +87,12 @@ private:
 	CliComm& cliComm;
 	char* bufStart;
 
-	string_ref systemID;
-	string_ref type;
-	string_ref startVal;
+	string_view systemID;
+	string_view type;
+	string_view startVal;
 
 	vector<Dump> dumps;
-	string_ref system;
+	string_view system;
 	String32 title;
 	String32 company;
 	String32 year;
@@ -103,13 +104,14 @@ private:
 	size_t initialSize;
 };
 
-void DBParser::start(string_ref tag)
+void DBParser::start(string_view tag)
 {
 	if (unknownLevel) {
 		++unknownLevel;
 		return;
 	}
 
+	assert(!tag.empty()); // rapidsax will reject empty tags
 	switch (state) {
 	case BEGIN:
 		if (tag == "softwaredb") {
@@ -259,7 +261,7 @@ void DBParser::start(string_ref tag)
 		break;
 
 	case END:
-		throw MSXException("Unexpected opening tag: " + tag);
+		throw MSXException("Unexpected opening tag: ", tag);
 
 	default:
 		UNREACHABLE;
@@ -268,7 +270,7 @@ void DBParser::start(string_ref tag)
 	++unknownLevel;
 }
 
-void DBParser::attribute(string_ref name, string_ref value)
+void DBParser::attribute(string_view name, string_view value)
 {
 	if (unknownLevel) return;
 
@@ -301,7 +303,7 @@ void DBParser::attribute(string_ref name, string_ref value)
 	}
 }
 
-void DBParser::text(string_ref txt)
+void DBParser::text(string_view txt)
 {
 	if (unknownLevel) return;
 
@@ -325,10 +327,10 @@ void DBParser::text(string_ref txt)
 		try {
 			genMSXid = fast_stou(txt);
 		} catch (std::invalid_argument&) {
-			cliComm.printWarning(StringOp::Builder() <<
+			cliComm.printWarning(
 				"Ignoring bad Generation MSX id (genmsxid) "
-				"in entry with title '" << title <<
-				": " << txt);
+				"in entry with title '", title,
+				": ", txt);
 		}
 		break;
 	case ORIGINAL:
@@ -359,7 +361,7 @@ void DBParser::text(string_ref txt)
 	}
 }
 
-String32 DBParser::cIndex(string_ref str)
+String32 DBParser::cIndex(string_view str)
 {
 	auto* begin = const_cast<char*>(str.data());
 	auto* end = begin + str.size();
@@ -372,11 +374,6 @@ String32 DBParser::cIndex(string_ref str)
 // called on </software>
 void DBParser::addEntries()
 {
-	if (!system.empty() && !small_compare<'M','S','X'>(system)) {
-		// skip non-MSX entries
-		return;
-	}
-
 	for (auto& d : dumps) {
 		db.emplace_back(d.hash, RomInfo(
 			title, year, company, country,
@@ -413,7 +410,7 @@ void DBParser::addAllEntries()
 	while (it2 != last) {
 		if (it1->first == it2->first) {
 			cliComm.printWarning(
-				"duplicate softwaredb entry SHA1: " +
+				"duplicate softwaredb entry SHA1: ",
 				it2->first.toString());
 		} else {
 			++it1;
@@ -457,7 +454,7 @@ void DBParser::addAllEntries()
 	swap(result, db);
 }
 
-static const char* parseStart(string_ref s)
+static const char* parseStart(string_view s)
 {
 	// we expect "0x0000", "0x4000", "0x8000", "0xc000" or ""
 	return ((s.size() == 6) && s.starts_with("0x")) ? (s.data() + 2) : nullptr;
@@ -498,19 +495,19 @@ void DBParser::stop()
 		state = DUMP;
 		break;
 	case ROM: {
-		string_ref t = type;
+		string_view t = type;
 		char buf[12];
 		if (small_compare<'M','i','r','r','o','r','e','d'>(t)) {
 			if (const char* s = parseStart(startVal)) {
 				memcpy(buf, t.data(), 8);
 				memcpy(buf + 8, s, 4);
-				t = string_ref(buf, 12);
+				t = string_view(buf, 12);
 			}
 		} else if (small_compare<'N','o','r','m','a','l'>(t)) {
 			if (const char* s = parseStart(startVal)) {
 				memcpy(buf, t.data(), 6);
 				memcpy(buf + 6, s, 4);
-				t = string_ref(buf, 10);
+				t = string_view(buf, 10);
 			}
 		}
 		RomType romType = RomInfo::nameToRomType(t);
@@ -539,13 +536,13 @@ void DBParser::stop()
 	}
 }
 
-void DBParser::doctype(string_ref txt)
+void DBParser::doctype(string_view txt)
 {
 	auto pos1 = txt.find(" SYSTEM \"");
-	if (pos1 == string_ref::npos) return;
+	if (pos1 == string_view::npos) return;
 	auto t = txt.substr(pos1 + 9);
 	auto pos2 = t.find('"');
-	if (pos2 == string_ref::npos) return;
+	if (pos2 == string_view::npos) return;
 	systemID = t.substr(0, pos2);
 }
 
@@ -595,8 +592,8 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 
 			parseDB(cliComm, buf, buffer.data(), db, unknownTypes);
 		} catch (rapidsax::ParseError& e) {
-			cliComm.printWarning(StringOp::Builder() <<
-				"Rom database parsing failed: " << e.what());
+			cliComm.printWarning(
+				"Rom database parsing failed: ", e.what());
 		} catch (MSXException& /*e*/) {
 			// Ignore, see above
 		}
@@ -608,10 +605,9 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 			"This may cause incorrect ROM mapper types to be used.");
 	}
 	if (!unknownTypes.empty()) {
-		StringOp::Builder output;
-		output << "Unknown mapper types in software database: ";
+		string output = "Unknown mapper types in software database: ";
 		for (auto& p : unknownTypes) {
-			output << p.first << " (" << p.second << "x); ";
+			strAppend(output, p.first, " (", p.second, "x); ");
 		}
 		cliComm.printWarning(output);
 	}
@@ -647,7 +643,7 @@ void RomDatabase::SoftwareInfoTopic::execute(
 	if (!romInfo) {
 		// no match found
 		throw CommandException(
-			"Software with sha1sum " + sha1sum.toString() + " not found");
+			"Software with sha1sum ", sha1sum.toString(), " not found");
 	}
 
 	const char* bufStart = romDatabase.buffer.data();

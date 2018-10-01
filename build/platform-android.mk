@@ -1,11 +1,4 @@
 # Configuration for Android, for ARM.
-# It *must* be called from Android SDL port build system. Toolchain params
-# like CXX and CXXFLAGS have been properly set-up by the SDL port build system
-# before invoking this make file
-#
-ifeq ($(origin ANDROID_CXXFLAGS),undefined)
-$(error Android build can only be invoked from SDL Android port build system. See compile.html for more details)
-endif
 
 # Does platform require symlinks? (it is used to link the openMSX executable
 # from a location inside the $PATH, which means it is not applicable for
@@ -16,7 +9,9 @@ USE_SYMLINK:=false
 EXEEXT:=
 LIBRARYEXT:=.so
 
-TARGET_FLAGS:=$(ANDROID_LDFLAGS)
+TARGET_FLAGS:=-DANDROID -D__ANDROID_API__=14
+
+LINK_FLAGS+=-llog
 
 # Build a maximum set of components.
 # See configure.py for LINK_MODE definition and usage

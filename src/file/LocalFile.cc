@@ -13,17 +13,16 @@
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
 #include "PreCacheFile.hh"
-#include "StringOp.hh"
-#include "memory.hh"
 #include <cstring> // for strchr, strerror
 #include <cerrno>
 #include <cassert>
+#include <memory>
 
 using std::string;
 
 namespace openmsx {
 
-LocalFile::LocalFile(string_ref filename_, File::OpenMode mode)
+LocalFile::LocalFile(string_view filename_, File::OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
@@ -36,7 +35,7 @@ LocalFile::LocalFile(string_ref filename_, File::OpenMode mode)
 	if (mode == File::SAVE_PERSISTENT) {
 		auto pos = filename.find_last_of('/');
 		if (pos != string::npos) {
-			FileOperations::mkdirp(filename.substr(0, pos));
+			FileOperations::mkdirp(string_view(filename).substr(0, pos));
 		}
 	}
 
@@ -64,17 +63,17 @@ LocalFile::LocalFile(string_ref filename_, File::OpenMode mode)
 		int err = errno;
 		if (err == ENOENT) {
 			throw FileNotFoundException(
-				"File \"" + filename + "\" not found");
+				"File \"", filename, "\" not found");
 		} else {
 			throw FileException(
-				"Error opening file \"" + filename + "\": " +
+				"Error opening file \"", filename, "\": ",
 				strerror(err));
 		}
 	}
 	getSize(); // check filesize
 }
 
-LocalFile::LocalFile(string_ref filename_, const char* mode)
+LocalFile::LocalFile(string_view filename_, const char* mode)
 	: filename(FileOperations::expandTilde(filename_))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
@@ -88,7 +87,7 @@ LocalFile::LocalFile(string_ref filename_, const char* mode)
 	const string name = FileOperations::getNativePath(filename);
 	file = FileOperations::openFile(name, mode);
 	if (!file) {
-		throw FileException("Error opening file \"" + filename + "\"");
+		throw FileException("Error opening file \"", filename, '"');
 	}
 	getSize(); // check filesize
 }
@@ -100,7 +99,7 @@ LocalFile::~LocalFile()
 
 void LocalFile::preCacheFile()
 {
-	cache = make_unique<PreCacheFile>(
+	cache = std::make_unique<PreCacheFile>(
 		FileOperations::getNativePath(filename));
 }
 
@@ -143,16 +142,15 @@ const byte* LocalFile::mmap(size_t& size)
 		assert(!hMmap);
 		hMmap = CreateFileMapping(hFile, nullptr, PAGE_WRITECOPY, 0, 0, nullptr);
 		if (!hMmap) {
-			throw FileException(StringOp::Builder() <<
-				"CreateFileMapping failed: " << GetLastError());
+			throw FileException(
+				"CreateFileMapping failed: ", GetLastError());
 		}
 		mmem = static_cast<byte*>(MapViewOfFile(hMmap, FILE_MAP_COPY, 0, 0, 0));
 		if (!mmem) {
 			DWORD gle = GetLastError();
 			CloseHandle(hMmap);
 			hMmap = nullptr;
-			throw FileException(StringOp::Builder() <<
-				"MapViewOfFile failed: " << gle);
+			throw FileException("MapViewOfFile failed: ", gle);
 		}
 	}
 	return mmem;
@@ -170,8 +168,8 @@ void LocalFile::munmap()
 		// FatalError).
 		if (!UnmapViewOfFile(mmem)) {
 			std::cerr << "UnmapViewOfFile failed: "
-			          << StringOp::toString(GetLastError())
-			          << std::endl;
+			          << GetLastError()
+			          << '\n';
 		}
 		mmem = nullptr;
 	}
@@ -224,7 +222,7 @@ size_t LocalFile::getSize()
 		// on 32-bit systems, the fstat() call returns a EOVERFLOW
 		// error in case the file is bigger than (1<<31)-1 bytes
 		throw FileException("Files >= 2GB are not supported on "
-		                    "32-bit platforms: " + getURL());
+		                    "32-bit platforms: ", getURL());
 	}
 #endif
 	if (ret) {

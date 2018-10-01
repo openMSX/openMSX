@@ -3,9 +3,9 @@
 #include "SVIPrinterPort.hh"
 #include "DummyPrinterPortDevice.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include <memory>
 
 // Centronics interface
 //
@@ -18,7 +18,7 @@ namespace openmsx {
 SVIPrinterPort::SVIPrinterPort(const DeviceConfig& config)
 	: MSXDevice(config)
 	, Connector(MSXDevice::getPluggingController(), "printerport",
-	            make_unique<DummyPrinterPortDevice>())
+	            std::make_unique<DummyPrinterPortDevice>())
 {
 	data = 255;     // != 0;
 	strobe = false; // != true;
@@ -76,7 +76,7 @@ const std::string SVIPrinterPort::getDescription() const
 	return "Spectravideo SVI-328 Printer port";
 }
 
-string_ref SVIPrinterPort::getClass() const
+string_view SVIPrinterPort::getClass() const
 {
 	return "Printer Port";
 }

@@ -5,7 +5,6 @@
 #include "JoystickPort.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
-#include "unreachable.hh"
 
 // Keyboard Matrix
 //
@@ -79,16 +78,7 @@ SVIPPI::SVIPPI(const DeviceConfig& config)
 		config.getMotherBoard().getReactor().getEventDistributor(),
 		config.getMotherBoard().getMSXEventDistributor(),
 		config.getMotherBoard().getStateChangeDistributor(),
-		// TODO Do (all of) these need to be configurable? E.g. I don't think
-		//      'hasYesNoKeys' and 'codeKanaLocks' make sense for SVI. Instead
-		//      hardcode them?
-		config.getChildData("keyboard_type", "svi"),                   // keyboardType
-		config.getChildDataAsBool("has_keypad", true),                 // hasKeypad
-		config.getChildDataAsBool("has_yesno_keys", false),            // hasYesNoKeys
-		config.getChildDataAsBool("key_ghosting", true),               // keyGhosting
-		config.getChildDataAsBool("key_ghosting_sgc_protected", true), // keyGhostingSGCprotected,
-		config.getChildDataAsBool("code_kana_locks", false),           // codeKanaLocks,
-		config.getChildDataAsBool("graph_locks", false))               // graphLocks
+		Keyboard::MATRIX_SVI, config)
 	, prevBits(15)
 	, selectedRow(0)
 {
@@ -110,52 +100,17 @@ void SVIPPI::reset(EmuTime::param time)
 
 byte SVIPPI::readIO(word port, EmuTime::param time)
 {
-	switch (port & 0x03) {
-	case 0:
-		return i8255.readPortA(time);
-	case 1:
-		return i8255.readPortB(time);
-	case 2:
-		return i8255.readPortC(time);
-	default:
-		UNREACHABLE;
-		return 0; // avoid warning
-	}
+	return i8255.read(port & 0x03, time);
 }
 
 byte SVIPPI::peekIO(word port, EmuTime::param time) const
 {
-	switch (port & 0x03) {
-	case 0:
-		return i8255.peekPortA(time);
-	case 1:
-		return i8255.peekPortB(time);
-	case 2:
-		return i8255.peekPortC(time);
-	default:
-		UNREACHABLE;
-		return 0; // avoid warning
-	}
+	return i8255.peek(port & 0x03, time);
 }
 
 void SVIPPI::writeIO(word port, byte value, EmuTime::param time)
 {
-	switch (port & 0x03) {
-	case 0:
-		i8255.writePortA(value, time);
-		break;
-	case 1:
-		i8255.writePortB(value, time);
-		break;
-	case 2:
-		i8255.writePortC(value, time);
-		break;
-	case 3:
-		i8255.writeControlPort(value, time);
-		break;
-	default:
-		UNREACHABLE;
-	}
+	i8255.write(port & 0x03, value, time);
 }
 
 

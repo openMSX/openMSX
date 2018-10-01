@@ -14,8 +14,8 @@ public:
 	           const std::string& description, unsigned size)
 		: ram(config, name, description, size) {}
 
-	TrackedRam(const DeviceConfig& config, unsigned size)
-		: ram(config, size) {}
+	TrackedRam(const XMLElement& xml, unsigned size)
+		: ram(xml, size) {}
 
 	unsigned getSize() const {
 		return ram.getSize();

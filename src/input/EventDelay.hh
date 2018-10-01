@@ -32,7 +32,7 @@ public:
 	           ReverseManager& reverseManager);
 	~EventDelay();
 
-	void sync(EmuTime::param time);
+	void sync(EmuTime::param curEmu);
 	void flush();
 
 private:

@@ -4,14 +4,14 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
-#include "memory.hh"
-#include <fstream>
 #include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <cstdio>
 #include <cstdarg>
 #include <ctime>
+#include <fstream>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -489,7 +489,7 @@ void NowindHost::doDiskWrite1()
 	unsigned bytesLeft = unsigned(buffer.size() * SECTOR_SIZE) - transfered;
 	if (bytesLeft == 0) {
 		// All data transferred!
-		unsigned sectorAmount = unsigned(buffer.size());
+		auto sectorAmount = unsigned(buffer.size());
 		unsigned startSector = getStartSector();
 		if (auto* disk = getDisk()) {
 			if (disk->writeSectors(&buffer[0], startSector, sectorAmount)) {
@@ -613,13 +613,12 @@ void NowindHost::deviceOpen()
 	string filename = extractName(0, 8);
 	string ext      = extractName(8, 11);
 	if (!ext.empty()) {
-		filename += '.';
-		filename += ext;
+		strAppend(filename, '.', ext);
 	}
 
 	unsigned fcb = getFCB();
 	unsigned dev = getFreeDeviceNum();
-	devices[dev].fs = make_unique<fstream>(); // takes care of deleting old fs
+	devices[dev].fs = std::make_unique<fstream>(); // takes care of deleting old fs
 	devices[dev].fcb = fcb;
 
 	sendHeader();
@@ -736,7 +735,7 @@ void NowindHost::readHelper2(unsigned len, const char* buf)
 
 // strips a string from outer double-quotes and anything outside them
 // ie: 'pre("foo")bar' will result in 'foo'
-static string stripquotes(const string& str)
+static string_view stripquotes(string_view str)
 {
 	auto first = str.find_first_of('\"');
 	if (first == string::npos) {
@@ -746,7 +745,7 @@ static string stripquotes(const string& str)
 	auto last = str.find_last_of ('\"');
 	if (first == last) {
 		// Error, there's only a single double-quote char.
-		return "";
+		return {};
 	}
 	// Return the part between the quotes.
 	return str.substr(first + 1, last - first - 1);

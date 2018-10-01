@@ -32,6 +32,8 @@ private:
 	void detectGeometryFallback() override;
 
 	void seekTrack(byte track, byte side);
+	void doWriteTrack(byte track, byte side, const RawTrack& input);
+	void extendImageToTrack(byte track);
 
 	std::shared_ptr<File> file;
 	unsigned numTracks;

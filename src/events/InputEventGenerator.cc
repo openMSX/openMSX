@@ -5,12 +5,12 @@
 #include "GlobalSettings.hh"
 #include "Keys.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <iostream>
+#include <memory>
 
 using std::string;
 using std::vector;

@@ -32,11 +32,11 @@ void CliExtension::parseOption(const string& option, array_ref<string>& cmdLine)
 		}
 		motherboard->loadExtension(extensionName, slotname);
 	} catch (MSXException& e) {
-		throw FatalError(e.getMessage());
+		throw FatalError(std::move(e).getMessage());
 	}
 }
 
-string_ref CliExtension::optionHelp() const
+string_view CliExtension::optionHelp() const
 {
 	return "Insert the extension specified in argument";
 }

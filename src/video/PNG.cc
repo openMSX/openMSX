@@ -2,7 +2,6 @@
 #include "SDLSurfacePtr.hh"
 #include "MSXException.hh"
 #include "File.hh"
-#include "StringOp.hh"
 #include "build-info.hh"
 #include "Version.hh"
 #include "vla.hh"
@@ -22,8 +21,7 @@ static void handleError(png_structp png_ptr, png_const_charp error_msg)
 {
 	auto operation = reinterpret_cast<const char*>(
 		png_get_error_ptr(png_ptr));
-	throw MSXException(StringOp::Builder() <<
-		"Error while " << operation << " PNG: " << error_msg);
+	throw MSXException("Error while ", operation, " PNG: ", error_msg);
 }
 
 static void handleWarning(png_structp png_ptr, png_const_charp warning_msg)
@@ -74,11 +72,6 @@ imported from SDL_image 1.2.10, file "IMG_png.c", function "IMG_LoadPNG_RW".
 */
 
 struct PNGReadHandle {
-	PNGReadHandle()
-		: ptr(nullptr), info(nullptr)
-	{
-	}
-
 	~PNGReadHandle()
 	{
 		if (ptr) {
@@ -86,8 +79,8 @@ struct PNGReadHandle {
 		}
 	}
 
-	png_structp ptr;
-	png_infop info;
+	png_structp ptr = nullptr;
+	png_infop info = nullptr;
 };
 
 static void readData(png_structp ctx, png_bytep area, png_size_t size)
@@ -196,14 +189,14 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		// Allocate the SDL surface to hold the image.
 		static const unsigned MAX_SIZE = 2048;
 		if (width > MAX_SIZE) {
-			throw MSXException(StringOp::Builder() <<
-				"Attempted to create a surface with excessive width: "
-				<< width << ", max " << MAX_SIZE);
+			throw MSXException(
+				"Attempted to create a surface with excessive width: ",
+				width, ", max ", MAX_SIZE);
 		}
 		if (height > MAX_SIZE) {
-			throw MSXException(StringOp::Builder() <<
-				"Attempted to create a surface with excessive height: "
-				<< height << ", max " << MAX_SIZE);
+			throw MSXException(
+				"Attempted to create a surface with excessive height: ",
+				height, ", max ", MAX_SIZE);
 		}
 		int bpp = png_get_channels(png.ptr, png.info) * 8;
 		assert(bpp == 24 || bpp == 32);
@@ -267,9 +260,9 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 
 		return surface;
 	} catch (MSXException& e) {
-		throw MSXException(StringOp::Builder() <<
-			"Error while loading PNG file \"" << filename <<
-			"\": " << e.getMessage());
+		throw MSXException(
+			"Error while loading PNG file \"", filename, "\": ",
+			e.getMessage());
 	}
 }
 
@@ -278,11 +271,6 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 /* heavily modified for openMSX by Joost Damad joost@lumatec.be */
 
 struct PNGWriteHandle {
-	PNGWriteHandle()
-		: ptr(nullptr), info(nullptr)
-	{
-	}
-
 	~PNGWriteHandle()
 	{
 		if (ptr) {
@@ -290,8 +278,8 @@ struct PNGWriteHandle {
 		}
 	}
 
-	png_structp ptr;
-	png_infop info;
+	png_structp ptr = nullptr;
+	png_infop info = nullptr;
 };
 
 static void writeData(png_structp ctx, png_bytep area, png_size_t size)
@@ -338,13 +326,22 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 		text[0].text = const_cast<char*>(version.c_str());
 		text[1].compression = PNG_TEXT_COMPRESSION_NONE;
 		text[1].key  = const_cast<char*>("Creation Time");
+
+		// A buffer size of 20 characters is large enough till the year
+		// 9999. But the compiler doesn't understand calendars and
+		// warns that the snprintf output could be truncated (e.g.
+		// because the year is -2147483647). To silence this warning
+		// (and also to work around the windows _snprintf stuff) we add
+		// some extra buffer space.
+		static constexpr size_t size = (10 + 1 + 8 + 1) + 44;
 		time_t now = time(nullptr);
 		struct tm* tm = localtime(&now);
-		char timeStr[10 + 1 + 8 + 1];
+		char timeStr[size];
 		snprintf(timeStr, sizeof(timeStr), "%04d-%02d-%02d %02d:%02d:%02d",
 				1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
 				tm->tm_hour, tm->tm_min, tm->tm_sec);
 		text[1].text = timeStr;
+
 		png_set_text(png.ptr, png.info, text, 2);
 
 		png_set_IHDR(png.ptr, png.info, width, height, 8,
@@ -362,24 +359,24 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 		png_write_end(png.ptr, png.info);
 	} catch (MSXException& e) {
 		throw MSXException(
-			"Error while writing PNG file \"" + filename + "\": " +
+			"Error while writing PNG file \"", filename, "\": ",
 			e.getMessage());
 	}
 }
 
-static void save(SDL_Surface* surface, const std::string& filename)
+static void save(SDL_Surface* image, const std::string& filename)
 {
 	SDLAllocFormatPtr frmt24(SDL_AllocFormat(
 		OPENMSX_BIGENDIAN ? SDL_PIXELFORMAT_BGR24 : SDL_PIXELFORMAT_RGB24));
-	SDLSurfacePtr surf24(SDL_ConvertSurface(surface, frmt24.get(), 0));
+	SDLSurfacePtr surf24(SDL_ConvertSurface(image, frmt24.get(), 0));
 
 	// Create the array of pointers to image data
-	VLA(const void*, row_pointers, surface->h);
-	for (int i = 0; i < surface->h; ++i) {
+	VLA(const void*, row_pointers, image->h);
+	for (int i = 0; i < image->h; ++i) {
 		row_pointers[i] = surf24.getLinePtr(i);
 	}
 
-	IMG_SavePNG_RW(surface->w, surface->h, row_pointers, filename, true);
+	IMG_SavePNG_RW(image->w, image->h, row_pointers, filename, true);
 }
 
 void save(unsigned width, unsigned height, const void** rowPointers,

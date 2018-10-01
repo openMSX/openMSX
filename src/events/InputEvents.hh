@@ -35,13 +35,13 @@ private:
 	const Keys::KeyCode keyCode;
 };
 
-class KeyUpEvent : public KeyEvent
+class KeyUpEvent final : public KeyEvent
 {
 public:
 	explicit KeyUpEvent(Keys::KeyCode keyCode);
 };
 
-class KeyDownEvent : public KeyEvent
+class KeyDownEvent final : public KeyEvent
 {
 public:
 	explicit KeyDownEvent(Keys::KeyCode keyCode);
@@ -68,7 +68,7 @@ private:
 	const unsigned button;
 };
 
-class MouseButtonUpEvent : public MouseButtonEvent
+class MouseButtonUpEvent final : public MouseButtonEvent
 {
 public:
 	explicit MouseButtonUpEvent(unsigned button);
@@ -76,7 +76,7 @@ private:
 	void toStringImpl(TclObject& result) const override;
 };
 
-class MouseButtonDownEvent : public MouseButtonEvent
+class MouseButtonDownEvent final : public MouseButtonEvent
 {
 public:
 	explicit MouseButtonDownEvent(unsigned button);
@@ -84,7 +84,7 @@ private:
 	void toStringImpl(TclObject& result) const override;
 };
 
-class MouseMotionEvent : public TimedEvent
+class MouseMotionEvent final : public TimedEvent
 {
 public:
 	MouseMotionEvent(int xrel, int yrel, int xabs, int yabs);
@@ -101,7 +101,7 @@ private:
 	const int yabs;
 };
 
-class MouseMotionGroupEvent : public Event
+class MouseMotionGroupEvent final : public Event
 {
 public:
 	MouseMotionGroupEvent();
@@ -142,7 +142,7 @@ private:
 	const unsigned button;
 };
 
-class JoystickButtonUpEvent : public JoystickButtonEvent
+class JoystickButtonUpEvent final : public JoystickButtonEvent
 {
 public:
 	JoystickButtonUpEvent(unsigned joystick, unsigned button);
@@ -150,7 +150,7 @@ private:
 	void toStringImpl(TclObject& result) const override;
 };
 
-class JoystickButtonDownEvent : public JoystickButtonEvent
+class JoystickButtonDownEvent final : public JoystickButtonEvent
 {
 public:
 	JoystickButtonDownEvent(unsigned joystick, unsigned button);
@@ -158,7 +158,7 @@ private:
 	void toStringImpl(TclObject& result) const override;
 };
 
-class JoystickAxisMotionEvent : public JoystickEvent
+class JoystickAxisMotionEvent final : public JoystickEvent
 {
 public:
 	static const unsigned X_AXIS = 0;
@@ -175,7 +175,7 @@ private:
 	const int value;
 };
 
-class JoystickHatEvent : public JoystickEvent
+class JoystickHatEvent final : public JoystickEvent
 {
 public:
 	JoystickHatEvent(unsigned joystick, unsigned hat, unsigned value);
@@ -190,10 +190,10 @@ private:
 };
 
 
-class TextEvent : public Event
+class TextEvent final : public Event
 {
 public:
-	explicit TextEvent(const std::string& text_);
+	explicit TextEvent(std::string text_);
 	const std::string& getText() const { return text; }
 private:
 	void toStringImpl(TclObject& result) const override;
@@ -202,7 +202,7 @@ private:
 };
 
 
-class FocusEvent : public Event
+class FocusEvent final : public Event
 {
 public:
 	explicit FocusEvent(bool gain);
@@ -216,7 +216,7 @@ private:
 };
 
 
-class ResizeEvent : public Event
+class ResizeEvent final : public Event
 {
 public:
 	ResizeEvent(unsigned x, unsigned y);
@@ -232,7 +232,7 @@ private:
 };
 
 
-class QuitEvent : public Event
+class QuitEvent final : public Event
 {
 public:
 	QuitEvent();
@@ -264,7 +264,7 @@ public:
 	 *  - if the original host event is a joystick motion event, we
 	 *    should not stop repeat for 'small' relative new joystick events.
 	 */
-	bool isRepeatStopper(const Event& other) const override;
+	bool isRepeatStopper(const Event& other) const final override;
 
 protected:
 	OsdControlEvent(EventType type, unsigned button_,
@@ -272,12 +272,12 @@ protected:
 	void toStringHelper(TclObject& result) const;
 
 private:
-	bool lessImpl(const Event& other) const override;
+	bool lessImpl(const Event& other) const final override;
 	const std::shared_ptr<const Event> origEvent;
 	const unsigned button;
 };
 
-class OsdControlReleaseEvent : public OsdControlEvent
+class OsdControlReleaseEvent final : public OsdControlEvent
 {
 public:
 	OsdControlReleaseEvent(unsigned button,
@@ -286,7 +286,7 @@ private:
 	void toStringImpl(TclObject& result) const override;
 };
 
-class OsdControlPressEvent : public OsdControlEvent
+class OsdControlPressEvent final : public OsdControlEvent
 {
 public:
 	OsdControlPressEvent(unsigned button,

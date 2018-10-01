@@ -29,17 +29,13 @@ namespace openmsx {
 
 // class ConsoleLine
 
-ConsoleLine::ConsoleLine()
-{
-}
-
-ConsoleLine::ConsoleLine(string_ref line_, uint32_t rgb)
+ConsoleLine::ConsoleLine(string_view line_, uint32_t rgb)
 	: line(line_.str())
 	, chunks(1, {rgb, 0})
 {
 }
 
-void ConsoleLine::addChunk(string_ref text, uint32_t rgb)
+void ConsoleLine::addChunk(string_view text, uint32_t rgb)
 {
 	chunks.emplace_back(rgb, line.size());
 	line.append(text.data(), text.size());
@@ -56,14 +52,14 @@ uint32_t ConsoleLine::chunkColor(size_t i) const
 	return chunks[i].first;
 }
 
-string_ref ConsoleLine::chunkText(size_t i) const
+string_view ConsoleLine::chunkText(size_t i) const
 {
 	assert(i < chunks.size());
 	auto pos = chunks[i].second;
 	auto len = ((i + 1) == chunks.size())
-	         ? string_ref::npos
+	         ? string_view::npos
 	         : chunks[i + 1].second - pos;
-	return string_ref(line).substr(pos, len);
+	return string_view(line).substr(pos, len);
 }
 
 ConsoleLine ConsoleLine::substr(size_t pos, size_t len) const
@@ -199,13 +195,13 @@ void CommandConsole::loadHistory()
 void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
 {
 	xPosition = cursorPosition % getColumns();
-	unsigned num = lines[0].numChars() / getColumns();
-	yPosition = num - (cursorPosition / getColumns());
+	auto num = lines[0].numChars() / getColumns();
+	yPosition = unsigned(num - (cursorPosition / getColumns()));
 }
 
 ConsoleLine CommandConsole::getLine(unsigned line) const
 {
-	unsigned count = 0;
+	size_t count = 0;
 	for (auto buf : xrange(lines.size())) {
 		count += (lines[buf].numChars() / getColumns()) + 1;
 		if (count > line) {
@@ -267,7 +263,7 @@ bool CommandConsole::handleKeyEvent(const KeyEvent& keyEvent)
 			cursorPosition = unsigned(prompt.size());
 			return true;
 		case Keys::K_E:
-			cursorPosition = lines[0].numChars();
+			cursorPosition = unsigned(lines[0].numChars());
 			return true;
 		case Keys::K_C:
 			clearCommand();
@@ -326,7 +322,7 @@ bool CommandConsole::handleKeyEvent(const KeyEvent& keyEvent)
 			cursorPosition = unsigned(prompt.size());
 			return true;
 		case Keys::K_END:
-			cursorPosition = lines[0].numChars();
+			cursorPosition = unsigned(lines[0].numChars());
 			return true;
 		}
 		break;
@@ -345,7 +341,7 @@ bool CommandConsole::handleTextEvent(const TextEvent& textEvent)
 	return true;
 }
 
-void CommandConsole::output(string_ref text)
+void CommandConsole::output(string_view text)
 {
 	print(text);
 }
@@ -355,18 +351,18 @@ unsigned CommandConsole::getOutputColumns() const
 	return getColumns();
 }
 
-void CommandConsole::print(string_ref text, unsigned rgb)
+void CommandConsole::print(string_view text, unsigned rgb)
 {
 	while (true) {
 		auto pos = text.find('\n');
 		newLineConsole(ConsoleLine(text.substr(0, pos), rgb));
-		if (pos == string_ref::npos) return;
+		if (pos == string_view::npos) return;
 		text = text.substr(pos + 1); // skip newline
 		if (text.empty()) return;
 	}
 }
 
-void CommandConsole::newLineConsole(string_ref line)
+void CommandConsole::newLineConsole(string_view line)
 {
 	newLineConsole(ConsoleLine(line));
 }
@@ -400,7 +396,7 @@ void CommandConsole::commandExecute()
 	putCommandHistory(cmd0);
 	saveHistory(); // save at this point already, so that we don't lose history in case of a crash
 
-	commandBuffer += std::move(cmd0) + '\n';
+	strAppend(commandBuffer, cmd0, '\n');
 	newLineConsole(lines[0]);
 	if (commandController.isComplete(commandBuffer)) {
 		// Normally the busy prompt is NOT shown (not even very briefly
@@ -429,7 +425,7 @@ void CommandConsole::commandExecute()
 	putPrompt();
 }
 
-ConsoleLine CommandConsole::highLight(string_ref line)
+ConsoleLine CommandConsole::highLight(string_view line)
 {
 	ConsoleLine result;
 	result.addChunk(prompt, 0xffffff);
@@ -472,7 +468,7 @@ void CommandConsole::putPrompt()
 void CommandConsole::tabCompletion()
 {
 	resetScrollBack();
-	unsigned pl = unsigned(prompt.size());
+	auto pl = unsigned(prompt.size());
 	string front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl).str();
 	string back  = utf8::unchecked::substr(lines[0].str(), cursorPosition).str();
 	string newFront = commandController.tabCompletion(front);
@@ -502,7 +498,7 @@ void CommandConsole::prevCommand()
 	if (match) {
 		commandScrollBack = tmp;
 		lines[0] = highLight(history[commandScrollBack]);
-		cursorPosition = lines[0].numChars();
+		cursorPosition = unsigned(lines[0].numChars());
 	}
 }
 
@@ -525,7 +521,7 @@ void CommandConsole::nextCommand()
 		commandScrollBack = unsigned(history.size());
 		lines[0] = highLight(currentLine);
 	}
-	cursorPosition = lines[0].numChars();
+	cursorPosition = unsigned(lines[0].numChars());
 }
 
 void CommandConsole::clearCommand()

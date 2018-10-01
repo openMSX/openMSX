@@ -33,11 +33,10 @@ TODO:
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
-#include "StringOp.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cstring>
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -99,8 +98,6 @@ VDP::VDP(const DeviceConfig& config)
 	, cpu(getCPU()) // used frequently, so cache it
 	, fixedVDPIOdelayCycles(getDelayCycles(getMotherBoard().getMachineConfig()->getConfig().getChild("devices")))
 {
-	VDPAccessSlots::initTables();
-
 	interlaced = false;
 
 	// Current general defaults for saturation:
@@ -134,7 +131,7 @@ VDP::VDP(const DeviceConfig& config)
 	else if (versionString == "TMS9129") version = TMS9129;
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
-	else throw MSXException("Unknown VDP version \"" + versionString + "\"");
+	else throw MSXException("Unknown VDP version \"", versionString, '"');
 
 	// saturation parameters only make sense when using TMS VDP's
 	if ((versionString.find("TMS") != 0) && ((config.findChild("saturationPr") != nullptr) || (config.findChild("saturationPb") != nullptr) || (config.findChild("saturation") != nullptr))) {
@@ -143,19 +140,19 @@ VDP::VDP(const DeviceConfig& config)
 
 	int saturation = config.getChildDataAsInt("saturation", defaultSaturation);
 	if (!((0 <= saturation) && (saturation <= 100))) {
-		throw MSXException(StringOp::Builder() <<
-			"Saturation percentage is not in range 0..100: " << saturationPr);
+		throw MSXException(
+			"Saturation percentage is not in range 0..100: ", saturationPr);
 	}
 	saturationPr = config.getChildDataAsInt("saturationPr", saturation);
 	if (!((0 <= saturationPr) && (saturationPr <= 100))) {
-		throw MSXException(StringOp::Builder() <<
-			"Saturation percentage for Pr component is not in range 0..100: " <<
+		throw MSXException(
+			"Saturation percentage for Pr component is not in range 0..100: ",
 			saturationPr);
 	}
 	saturationPb = config.getChildDataAsInt("saturationPb", saturation);
 	if (!((0 <= saturationPb) && (saturationPb <= 100))) {
-		throw MSXException(StringOp::Builder() <<
-			"Saturation percentage for Pb component is not in range 0..100: " <<
+		throw MSXException(
+			"Saturation percentage for Pb component is not in range 0..100: ",
 			saturationPr);
 	}
 
@@ -188,18 +185,18 @@ VDP::VDP(const DeviceConfig& config)
 		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
 	if ((vramSize !=  16) && (vramSize !=  64) &&
 	    (vramSize != 128) && (vramSize != 192)) {
-		throw MSXException(StringOp::Builder() <<
-			"VRAM size of " << vramSize << "kB is not supported!");
+		throw MSXException(
+			"VRAM size of ", vramSize, "kB is not supported!");
 	}
-	vram = make_unique<VDPVRAM>(*this, vramSize * 1024, time);
+	vram = std::make_unique<VDPVRAM>(*this, vramSize * 1024, time);
 
 	// Create sprite checker.
 	auto& renderSettings = display.getRenderSettings();
-	spriteChecker = make_unique<SpriteChecker>(*this, renderSettings, time);
+	spriteChecker = std::make_unique<SpriteChecker>(*this, renderSettings, time);
 	vram->setSpriteChecker(spriteChecker.get());
 
 	// Create command engine.
-	cmdEngine = make_unique<VDPCmdEngine>(*this, getCommandController());
+	cmdEngine = std::make_unique<VDPCmdEngine>(*this, getCommandController());
 	vram->setCmdEngine(cmdEngine.get());
 
 	// Initialise renderer.
@@ -410,6 +407,7 @@ void VDP::execSetMode(EmuTime::param time)
 {
 	updateDisplayMode(
 		DisplayMode(controlRegs[0], controlRegs[1], controlRegs[25]),
+		getCmdBit(),
 		time);
 }
 
@@ -1069,8 +1067,9 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		renderer->updateVerticalScroll(val, time);
 		break;
 	case 25:
-		if (change & DisplayMode::REG25_MASK) {
+		if (change & (DisplayMode::REG25_MASK | 0x40)) {
 			updateDisplayMode(getDisplayMode().updateReg25(val),
+			                  val & 0x40,
 			                  time);
 		}
 		if (change & 0x08) {
@@ -1147,10 +1146,10 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	case 9:
 		if ((val & 1) && ! warningPrinted) {
 			warningPrinted = true;
-			getCliComm().printWarning
-				("The running MSX software has set bit 0 of VDP register 9 "
-				 "(dot clock direction) to one. In an ordinary MSX, "
-				 "the screen would go black and the CPU would stop running.");
+			getCliComm().printWarning(
+				"The running MSX software has set bit 0 of VDP register 9 "
+				"(dot clock direction) to one. In an ordinary MSX, "
+				"the screen would go black and the CPU would stop running.");
 			// TODO: Emulate such behaviour.
 		}
 		if (change & 0x80) {
@@ -1309,10 +1308,10 @@ void VDP::updateSpritePatternBase(EmuTime::param time)
 	vram->spritePatternTable.setMask(baseMask, indexMask, time);
 }
 
-void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
+void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time)
 {
 	// Synchronise subsystems.
-	vram->updateDisplayMode(newMode, time);
+	vram->updateDisplayMode(newMode, cmdBit, time);
 
 	// TODO: Is this a useful optimisation, or doesn't it help
 	//       in practice?
@@ -1430,23 +1429,23 @@ static const std::array<std::array<uint8_t,3>,16> THREE_BIT_RGB_PALETTE = {{
 // Source: TMS9918/28/29 Data Book, page 2-17.
 
 const float TMS9XXXA_ANALOG_OUTPUT[16][3] = {
-//           Y   R-Y   B-Y  voltages
-	{ 0.00, 0.47, 0.47 },
-	{ 0.00, 0.47, 0.47 },
-	{ 0.53, 0.07, 0.20 },
-	{ 0.67, 0.17, 0.27 },
-	{ 0.40, 0.40, 1.00 },
-	{ 0.53, 0.43, 0.93 },
-	{ 0.47, 0.83, 0.30 },
-	{ 0.73, 0.00, 0.70 },
-	{ 0.53, 0.93, 0.27 },
-	{ 0.67, 0.93, 0.27 },
-	{ 0.73, 0.57, 0.07 },
-	{ 0.80, 0.57, 0.17 },
-	{ 0.47, 0.13, 0.23 },
-	{ 0.53, 0.73, 0.67 },
-	{ 0.80, 0.47, 0.47 },
-	{ 1.00, 0.47, 0.47 },
+	//  Y     R-Y    B-Y    voltages
+	{ 0.00f, 0.47f, 0.47f },
+	{ 0.00f, 0.47f, 0.47f },
+	{ 0.53f, 0.07f, 0.20f },
+	{ 0.67f, 0.17f, 0.27f },
+	{ 0.40f, 0.40f, 1.00f },
+	{ 0.53f, 0.43f, 0.93f },
+	{ 0.47f, 0.83f, 0.30f },
+	{ 0.73f, 0.00f, 0.70f },
+	{ 0.53f, 0.93f, 0.27f },
+	{ 0.67f, 0.93f, 0.27f },
+	{ 0.73f, 0.57f, 0.07f },
+	{ 0.80f, 0.57f, 0.17f },
+	{ 0.47f, 0.13f, 0.23f },
+	{ 0.53f, 0.73f, 0.67f },
+	{ 0.80f, 0.47f, 0.47f },
+	{ 1.00f, 0.47f, 0.47f },
 };
 
 const std::array<std::array<uint8_t,3>,16> VDP::getMSX1Palette() const
@@ -1598,7 +1597,7 @@ void VDP::VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /
 
 VDP::Info::Info(VDP& vdp_, const string& name_, string helpText_)
 	: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
-		    vdp_.getName() + '_' + name_)
+		    strCat(vdp_.getName(), '_', name_))
 	, vdp(vdp_)
 	, helpText(std::move(helpText_))
 {

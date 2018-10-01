@@ -12,7 +12,7 @@
 #include "StringOp.hh"
 #include "DeviceConfig.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 #include <string>
 
 using std::string;
@@ -53,8 +53,8 @@ public:
 
 	byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
-	const byte* getReadCacheLine(word start) const override;
-	byte* getWriteCacheLine(word start) const override;
+	const byte* getReadCacheLine(word address) const override;
+	byte* getWriteCacheLine(word address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -117,11 +117,11 @@ void Y8950Periphery::writeMem(word /*address*/, byte /*value*/, EmuTime::param /
 {
 	// nothing
 }
-const byte* Y8950Periphery::getReadCacheLine(word /*start*/) const
+const byte* Y8950Periphery::getReadCacheLine(word /*address*/) const
 {
 	return MSXDevice::unmappedRead;
 }
-byte* Y8950Periphery::getWriteCacheLine(word /*start*/) const
+byte* Y8950Periphery::getWriteCacheLine(word /*address*/) const
 {
 	return MSXDevice::unmappedWrite;
 }
@@ -325,14 +325,14 @@ std::unique_ptr<Y8950Periphery> Y8950PeripheryFactory::create(
 {
 	string type(StringOp::toLower(config.getChildData("type", "philips")));
 	if (type == "philips") {
-		return make_unique<MusicModulePeriphery>(audio);
+		return std::make_unique<MusicModulePeriphery>(audio);
 	} else if (type == "panasonic") {
-		return make_unique<PanasonicAudioPeriphery>(
+		return std::make_unique<PanasonicAudioPeriphery>(
 			audio, config, soundDeviceName);
 	} else if (type == "toshiba") {
-		return make_unique<ToshibaAudioPeriphery>(audio);
+		return std::make_unique<ToshibaAudioPeriphery>(audio);
 	} else {
-		throw MSXException("Unknown MSX-AUDIO type: " + type);
+		throw MSXException("Unknown MSX-AUDIO type: ", type);
 	}
 }
 

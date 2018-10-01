@@ -6,10 +6,10 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include <algorithm>
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::unique_ptr;
@@ -45,7 +45,7 @@ void OSDGUI::OSDCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 		throw SyntaxError();
 	}
 	auto& gui = OUTER(OSDGUI, osdCommand);
-	string_ref subCommand = tokens[1].getString();
+	string_view subCommand = tokens[1].getString();
 	if (subCommand == "create") {
 		create(tokens, result);
 		gui.refresh();
@@ -61,7 +61,7 @@ void OSDGUI::OSDCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 		gui.refresh();
 	} else {
 		throw CommandException(
-			"Invalid subcommand '" + subCommand + "', expected "
+			"Invalid subcommand '", subCommand, "', expected "
 			"'create', 'destroy', 'info', 'exists' or 'configure'.");
 	}
 }
@@ -71,7 +71,7 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() < 4) {
 		throw SyntaxError();
 	}
-	string_ref type = tokens[2].getString();
+	string_view type = tokens[2].getString();
 	auto& fullname = tokens[3];
 	auto fullnameStr = fullname.getString();
 
@@ -79,16 +79,16 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 	auto& top = gui.getTopWidget();
 	if (top.findByName(fullnameStr)) {
 		throw CommandException(
-			"There already exists a widget with this name: " +
+			"There already exists a widget with this name: ",
 			fullnameStr);
 	}
 
-	string_ref parentname, childName;
+	string_view parentname, childName;
 	StringOp::splitOnLast(fullnameStr, '.', parentname, childName);
 	auto* parent = childName.empty() ? &top : top.findByName(parentname);
 	if (!parent) {
 		throw CommandException(
-			"Parent widget doesn't exist yet:" + parentname);
+			"Parent widget doesn't exist yet:", parentname);
 	}
 
 	auto widget = create(type, fullname);
@@ -100,16 +100,16 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 }
 
 unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
-	string_ref type, const TclObject& newName) const
+	string_view type, const TclObject& newName) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (type == "rectangle") {
-		return make_unique<OSDRectangle>(gui.display, newName);
+		return std::make_unique<OSDRectangle>(gui.display, newName);
 	} else if (type == "text") {
-		return make_unique<OSDText>(gui.display, newName);
+		return std::make_unique<OSDText>(gui.display, newName);
 	} else {
 		throw CommandException(
-			"Invalid widget type '" + type + "', expected "
+			"Invalid widget type '", type, "', expected "
 			"'rectangle' or 'text'.");
 	}
 }
@@ -191,7 +191,7 @@ void OSDGUI::OSDCommand::configure(OSDWidget& widget, array_ref<TclObject> token
 	if ((tokens.size() - skip) & 1) {
 		// odd number of extra arguments
 		throw CommandException(
-			"Missing value for '" + tokens.back().getString() + "'.");
+			"Missing value for '", tokens.back().getString(), "'.");
 	}
 
 	auto& interp = getInterpreter();
@@ -280,7 +280,7 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, gui.getTopWidget().getAllWidgetNames());
 	} else {
 		try {
-			vector<string_ref> properties;
+			vector<string_view> properties;
 			if (tokens[1] == "create") {
 				auto widget = create(tokens[2], TclObject());
 				properties = widget->getProperties();
@@ -296,12 +296,12 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-OSDWidget& OSDGUI::OSDCommand::getWidget(string_ref widgetName) const
+OSDWidget& OSDGUI::OSDCommand::getWidget(string_view widgetName) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findByName(widgetName);
 	if (!widget) {
-		throw CommandException("No widget with name " + widgetName);
+		throw CommandException("No widget with name ", widgetName);
 	}
 	return *widget;
 }

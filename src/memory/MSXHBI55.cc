@@ -31,7 +31,6 @@
  */
 
 #include "MSXHBI55.hh"
-#include "unreachable.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -58,66 +57,17 @@ void MSXHBI55::reset(EmuTime::param time)
 
 byte MSXHBI55::readIO(word port, EmuTime::param time)
 {
-	byte result;
-	switch (port & 0x03) {
-	case 0:
-		result = i8255.readPortA(time);
-		break;
-	case 1:
-		result = i8255.readPortB(time);
-		break;
-	case 2:
-		result = i8255.readPortC(time);
-		break;
-	case 3:
-		result = i8255.readControlPort(time);
-		break;
-	default: // unreachable, avoid warning
-		UNREACHABLE; result = 0;
-	}
-	return result;
+	return i8255.read(port & 0x03, time);
 }
 
 byte MSXHBI55::peekIO(word port, EmuTime::param time) const
 {
-	byte result;
-	switch (port & 0x03) {
-	case 0:
-		result = i8255.peekPortA(time);
-		break;
-	case 1:
-		result = i8255.peekPortB(time);
-		break;
-	case 2:
-		result = i8255.peekPortC(time);
-		break;
-	case 3:
-		result = i8255.readControlPort(time);
-		break;
-	default: // unreachable, avoid warning
-		UNREACHABLE; result = 0;
-	}
-	return result;
+	return i8255.peek(port & 0x03, time);
 }
 
 void MSXHBI55::writeIO(word port, byte value, EmuTime::param time)
 {
-	switch (port & 0x03) {
-	case 0:
-		i8255.writePortA(value, time);
-		break;
-	case 1:
-		i8255.writePortB(value, time);
-		break;
-	case 2:
-		i8255.writePortC(value, time);
-		break;
-	case 3:
-		i8255.writeControlPort(value, time);
-		break;
-	default:
-		UNREACHABLE;
-	}
+	i8255.write(port & 0x03, value, time);
 }
 
 

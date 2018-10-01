@@ -61,7 +61,7 @@ void InfoCommand::execute(array_ref<TclObject> tokens,
 		const auto& topic = tokens[1].getString();
 		auto it = infoTopics.find(topic);
 		if (it == end(infoTopics)) {
-			throw CommandException("No info on: " + topic);
+			throw CommandException("No info on: ", topic);
 		}
 		(*it)->execute(tokens, result);
 		break;
@@ -82,7 +82,7 @@ string InfoCommand::help(const vector<string>& tokens) const
 		assert(tokens.size() >= 2);
 		auto it = infoTopics.find(tokens[1]);
 		if (it == end(infoTopics)) {
-			throw CommandException("No info on: " + tokens[1]);
+			throw CommandException("No info on: ", tokens[1]);
 		}
 		result = (*it)->help(tokens);
 		break;
@@ -95,7 +95,7 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete topic
-		vector<string_ref> topics;
+		vector<string_view> topics;
 		for (auto* t : infoTopics) {
 			topics.emplace_back(t->getName());
 		}

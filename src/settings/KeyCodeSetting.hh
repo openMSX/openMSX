@@ -10,10 +10,10 @@ class KeyCodeSetting final : public Setting
 {
 public:
 	KeyCodeSetting(CommandController& commandController,
-	               string_ref name, string_ref description,
+	               string_view name, string_view description,
 	               Keys::KeyCode initialValue);
 
-	string_ref getTypeString() const override;
+	string_view getTypeString() const override;
 
 	Keys::KeyCode getKey() const;
 };

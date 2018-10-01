@@ -216,7 +216,7 @@ template<typename Pixel> static inline void draw8(
 		__m128i b74 = _mm_cmpeq_epi32(_mm_and_si128(pat, m74), zero);
 		__m128i b30 = _mm_cmpeq_epi32(_mm_and_si128(pat, m30), zero);
 
-		__m128i* out = reinterpret_cast<__m128i*>(pixelPtr);
+		auto* out = reinterpret_cast<__m128i*>(pixelPtr);
 		_mm_storeu_si128(out + 0, select(fg4, bg4, b74));
 		_mm_storeu_si128(out + 1, select(fg4, bg4, b30));
 		pixelPtr += 8;

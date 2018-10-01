@@ -1,12 +1,12 @@
 #include "SuperImposedFrame.hh"
 #include "PixelOperations.hh"
 #include "LineScalers.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cstdint>
+#include <memory>
 
 namespace openmsx {
 
@@ -33,12 +33,12 @@ std::unique_ptr<SuperImposedFrame> SuperImposedFrame::create(
 {
 #if HAVE_16BPP
 	if (format.BitsPerPixel == 15 || format.BitsPerPixel == 16) {
-		return make_unique<SuperImposedFrameImpl<uint16_t>>(format);
+		return std::make_unique<SuperImposedFrameImpl<uint16_t>>(format);
 	}
 #endif
 #if HAVE_32BPP
 	if (format.BitsPerPixel == 32) {
-		return make_unique<SuperImposedFrameImpl<uint32_t>>(format);
+		return std::make_unique<SuperImposedFrameImpl<uint32_t>>(format);
 	}
 #endif
 	UNREACHABLE; return nullptr; // avoid warning
@@ -80,7 +80,7 @@ unsigned SuperImposedFrameImpl<Pixel>::getLineWidth(unsigned line) const
 
 template <typename Pixel>
 const void* SuperImposedFrameImpl<Pixel>::getLineInfo(
-	unsigned line, unsigned& width, void* tBuf_, unsigned bufWidth) const
+	unsigned line, unsigned& width, void* buf, unsigned bufWidth) const
 {
 	unsigned tNum = (getHeight() == top   ->getHeight()) ? line : line / 2;
 	unsigned bNum = (getHeight() == bottom->getHeight()) ? line : line / 2;
@@ -89,7 +89,7 @@ const void* SuperImposedFrameImpl<Pixel>::getLineInfo(
 	width = std::max(tWidth, bWidth);  // as wide as the widest source
 	width = std::min(width, bufWidth); // but no wider than the output buffer
 
-	auto* tBuf = static_cast<Pixel*>(tBuf_);
+	auto* tBuf = static_cast<Pixel*>(buf);
 	VLA_SSE_ALIGNED(Pixel, bBuf, width);
 	auto* tLine = top   ->getLinePtr(tNum, width, tBuf);
 	auto* bLine = bottom->getLinePtr(bNum, width, bBuf);

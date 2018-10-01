@@ -12,7 +12,6 @@
 #include "PNG.hh"
 #include "FileContext.hh"
 #include "CliComm.hh"
-#include "memory.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -39,7 +38,9 @@ VisibleSurface::VisibleSurface(
 		try {
 			iconSurf = PNG::load(preferSystemFileContext().resolve("icons/openMSX-logo-256.png"), true);
 		} catch (MSXException& e) {
-			cliComm.printWarning("Falling back to built in 32x32 icon, because failed to load icon: " + e.getMessage());
+			cliComm.printWarning(
+				"Falling back to built in 32x32 icon, because failed to load icon: ",
+				e.getMessage());
 #endif
 			iconSurf.reset(SDL_CreateRGBSurfaceFrom(
 				const_cast<char*>(openMSX_icon.pixel_data),
@@ -97,7 +98,7 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 			flags));
 	if (!window) {
 		std::string err = SDL_GetError();
-		throw InitException("Could not create window: " + err);
+		throw InitException("Could not create window: ", err);
 	}
 
 	updateWindowTitle();
@@ -151,13 +152,13 @@ void VisibleSurface::updateWindowTitle()
 	SDL_SetWindowTitle(window.get(), display.getWindowTitle().c_str());
 }
 
-bool VisibleSurface::setFullScreen(bool wantedState)
+bool VisibleSurface::setFullScreen(bool fullscreen)
 {
-	Uint32 flags = SDL_GetWindowFlags(window.get());
+	auto flags = SDL_GetWindowFlags(window.get());
 	// Note: SDL_WINDOW_FULLSCREEN_DESKTOP also has the SDL_WINDOW_FULLSCREEN
 	//       bit set.
 	bool currentState = (flags & SDL_WINDOW_FULLSCREEN) != 0;
-	if (currentState == wantedState) {
+	if (currentState == fullscreen) {
 		// already wanted stated
 		return true;
 	}
@@ -173,7 +174,7 @@ bool VisibleSurface::setFullScreen(bool wantedState)
 	SDL_Surface* surf = getSDLSurface();
 	SDL_WM_ToggleFullScreen(surf);
 	bool newState = (surf->flags & SDL_FULLSCREEN) != 0;
-	return newState == wantedState;
+	return newState == fullscreen;
 	*/
 }
 

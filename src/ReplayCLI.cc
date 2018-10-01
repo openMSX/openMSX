@@ -18,7 +18,7 @@ void ReplayCLI::parseOption(const string& option, array_ref<string>& cmdLine)
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_ref ReplayCLI::optionHelp() const
+string_view ReplayCLI::optionHelp() const
 {
 	return "Load replay and start replaying it in view only mode";
 }
@@ -34,7 +34,7 @@ void ReplayCLI::parseFileType(const string& filename,
 	command.executeCommand(parser.getInterpreter());
 }
 
-string_ref ReplayCLI::fileTypeHelp() const
+string_view ReplayCLI::fileTypeHelp() const
 {
 	return "openMSX replay";
 }

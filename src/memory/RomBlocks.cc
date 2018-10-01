@@ -1,7 +1,8 @@
+#include "CliComm.hh"
 #include "RomBlocks.hh"
 #include "SRAM.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
+#include "Math.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 
@@ -12,6 +13,9 @@ template<        class T, class F> struct if_log2_<true, T, F> : T {};
 template<unsigned A, unsigned R = 0> struct log2
 	: if_log2_<A == 1, std::integral_constant<int, R>, log2<A / 2, R + 1>> {};
 
+// minimal attempt to avoid seeing this warning too often
+static Sha1Sum alreadyWarnedForSha1Sum;
+
 template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::RomBlocks(
 		const DeviceConfig& config, Rom&& rom_,
@@ -20,13 +24,23 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 	, romBlockDebug(
 		*this,  blockNr, 0x0000, 0x10000,
 		log2<BANK_SIZE>::value, debugBankSizeShift)
-	, nrBlocks(rom.getSize() / BANK_SIZE)
 {
-	if ((nrBlocks * BANK_SIZE) != rom.getSize()) {
-		throw MSXException(StringOp::Builder() <<
-			"(uncompressed) ROM image filesize must be a multiple of " <<
-			BANK_SIZE / 1024 << " kB (for this mapper type).");
+	static_assert(Math::isPowerOfTwo(BANK_SIZE), "BANK_SIZE must be a power of two");
+	auto extendedSize = (rom.getSize() + BANK_SIZE - 1) & ~(BANK_SIZE - 1);
+	if (extendedSize != rom.getSize() && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
+		config.getCliComm().printWarning(
+			"(uncompressed) ROM image filesize was not a multiple "
+			"of ", BANK_SIZE / 1024, "kB (which is required for mapper type ",
+			config.findChild("mappertype")->getData(), "), so we "
+			"padded it to be correct. But if the ROM you are "
+			"running was just dumped, the dump is probably not "
+			"complete/correct!");
+		alreadyWarnedForSha1Sum = rom.getOriginalSHA1();
 	}
+	rom.addPadding(extendedSize);
+	nrBlocks = rom.getSize() / BANK_SIZE;
+	assert((nrBlocks * BANK_SIZE) == rom.getSize());
+
 	// by default no extra mappable memory block
 	extraMem = nullptr;
 	extraSize = 0;
@@ -42,9 +56,15 @@ template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::~RomBlocks() = default;
 
 template <unsigned BANK_SIZE>
-byte RomBlocks<BANK_SIZE>::readMem(word address, EmuTime::param /*time*/)
+byte RomBlocks<BANK_SIZE>::peekMem(word address, EmuTime::param /*time*/) const
 {
 	return bankPtr[address / BANK_SIZE][address & BANK_MASK];
+}
+
+template <unsigned BANK_SIZE>
+byte RomBlocks<BANK_SIZE>::readMem(word address, EmuTime::param time)
+{
+	return RomBlocks<BANK_SIZE>::peekMem(address, time);
 }
 
 template <unsigned BANK_SIZE>
@@ -81,7 +101,7 @@ void RomBlocks<BANK_SIZE>::setExtraMemory(const byte* mem, unsigned size)
 }
 
 template <unsigned BANK_SIZE>
-void RomBlocks<BANK_SIZE>::setRom(byte region, int block)
+void RomBlocks<BANK_SIZE>::setRom(byte region, unsigned block)
 {
 	// Note: Some cartridges have a number of blocks that is not a power of 2,
 	//       for those we have to make an exception for "block < nrBlocks".

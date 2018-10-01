@@ -58,7 +58,7 @@ private:
 class DeltaBlockDiff final : public DeltaBlock
 {
 public:
-	DeltaBlockDiff(const std::shared_ptr<DeltaBlockCopy>& prev_,
+	DeltaBlockDiff(std::shared_ptr<DeltaBlockCopy> prev_,
 	               const uint8_t* data, size_t size);
 	void apply(uint8_t* dst, size_t size) const override;
 	size_t getDeltaSize() const;

@@ -12,6 +12,7 @@
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "strCat.hh"
 #include "File.hh"
 #include <cstring>
 #include <algorithm>
@@ -65,28 +66,28 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	sectorsPerCluster = boot.spCluster;
 
 	if (boot.nrSectors == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number of sectors: " << boot.nrSectors);
+		throw MSXException(
+			"Illegal number of sectors: ", boot.nrSectors);
 	}
 	if (boot.nrSides == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number of sides: " << boot.nrSides);
+		throw MSXException(
+			"Illegal number of sides: ", boot.nrSides);
 	}
 	if (boot.nrFats == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number of FATs: " << boot.nrFats);
+		throw MSXException(
+			"Illegal number of FATs: ", boot.nrFats);
 	}
 	if (sectorsPerFat == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number sectors per FAT: " << sectorsPerFat);
+		throw MSXException(
+			"Illegal number sectors per FAT: ", sectorsPerFat);
 	}
 	if (nbRootDirSectors == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number of root dir sectors: " << nbRootDirSectors);
+		throw MSXException(
+			"Illegal number of root dir sectors: ", nbRootDirSectors);
 	}
 	if (sectorsPerCluster == 0) { // TODO: check limits more accurately
-		throw MSXException(StringOp::Builder() <<
-			"Illegal number of sectors per cluster: " << sectorsPerCluster);
+		throw MSXException(
+			"Illegal number of sectors per cluster: ", sectorsPerCluster);
 	}
 
 	rootDirStart = 1 + boot.nrFats * sectorsPerFat;
@@ -139,7 +140,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 		disk.readSector(0, buf);
 		parseBootSector(buf.bootSector);
 	} catch (MSXException& e) {
-		throw MSXException("Bad disk image: " + e.getMessage());
+		throw MSXException("Bad disk image: ", e.getMessage());
 	}
 
 	// cache complete FAT
@@ -329,9 +330,9 @@ static char toMSXChr(char a)
 
 // Transform a long hostname in a 8.3 uppercase filename as used in the
 // direntries on an MSX
-static string makeSimpleMSXFileName(string_ref fullFilename)
+static string makeSimpleMSXFileName(string_view fullFilename)
 {
-	string_ref dir, fullFile;
+	string_view dir, fullFile;
 	StringOp::splitOnLast(fullFilename, '/', dir, fullFile);
 
 	// handle speciale case '.' and '..' first
@@ -341,7 +342,7 @@ static string makeSimpleMSXFileName(string_ref fullFilename)
 		return result;
 	}
 
-	string_ref file, ext;
+	string_view file, ext;
 	StringOp::splitOnLast(fullFile, '.', file, ext);
 	if (file.empty()) std::swap(file, ext);
 
@@ -469,7 +470,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	// get host file size
 	struct stat st;
 	if (stat(hostName.c_str(), &st)) {
-		throw MSXException("Error reading host file: " + hostName);
+		throw MSXException("Error reading host file: ", hostName);
 	}
 	unsigned hostSize = st.st_size;
 	unsigned remaining = hostSize;
@@ -532,7 +533,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	msxDirEntry.size = hostSize - remaining;
 
 	if (remaining) {
-		throw MSXException("Disk full, " + hostName + " truncated.");
+		throw MSXException("Disk full, ", hostName, " truncated.");
 	}
 }
 
@@ -562,10 +563,10 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 
 // Add file to the MSX disk in the subdir pointed to by 'sector'
 // @throws when file could not be added
-string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
+string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 {
-	string_ref directory, hostName;
-	StringOp::splitOnLast(fullname, "/\\", directory, hostName);
+	string_view directory, hostName;
+	StringOp::splitOnLast(fullHostName, "/\\", directory, hostName);
 	string msxName = makeSimpleMSXFileName(hostName);
 
 	// first find out if the filename already exists in current dir
@@ -573,7 +574,7 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 	DirEntry fullMsxDirEntry = findEntryInDir(msxName, rootSector, dummy);
 	if (fullMsxDirEntry.sector != 0) {
 		// TODO implement overwrite option
-		return "Warning: preserving entry " + hostName + '\n';
+		return strCat("Warning: preserving entry ", hostName, '\n');
 	}
 
 	SectorBuffer buf;
@@ -586,30 +587,30 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 
 	// compute time/date stamps
 	unsigned time, date;
-	getTimeDate(fullname, time, date);
+	getTimeDate(fullHostName, time, date);
 	dirEntry.time = time;
 	dirEntry.date = date;
 
 	try {
-		alterFileInDSK(dirEntry, fullname);
+		alterFileInDSK(dirEntry, fullHostName);
 	} catch (MSXException&) {
 		// still write directory entry
 		writeLogicalSector(entry.sector, buf);
 		throw;
 	}
 	writeLogicalSector(entry.sector, buf);
-	return "";
+	return {};
 }
 
 // Transfer directory and all its subdirectories to the MSX diskimage
 // @throws when an error occurs
-string MSXtar::recurseDirFill(string_ref dirName, unsigned sector)
+string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 {
 	string messages;
 	ReadDir readDir(dirName.str());
 	while (dirent* d = readDir.getEntry()) {
 		string name(d->d_name);
-		string fullName = dirName + '/' + name;
+		string fullName = strCat(dirName, '/', name);
 
 		FileOperations::Stat st;
 		if (!FileOperations::getStat(fullName, st)) {
@@ -636,8 +637,9 @@ string MSXtar::recurseDirFill(string_ref dirName, unsigned sector)
 					messages += recurseDirFill(fullName, nextSector);
 				} else {
 					// .. but is NOT a directory
-					messages += "MSX file " + msxFileName +
-					            " is not a directory.\n";
+					strAppend(messages,
+					          "MSX file ", msxFileName,
+					          " is not a directory.\n");
 				}
 			} else {
 				// add new directory
@@ -687,7 +689,7 @@ void MSXtar::changeTime(const string& resultFile, const MSXDirEntry& dirEntry)
 
 string MSXtar::dir()
 {
-	StringOp::Builder result;
+	string result;
 	for (unsigned sector = chrootSector; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
@@ -699,35 +701,35 @@ string MSXtar::dir()
 			// filename first (in condensed form for human readablitly)
 			string tmp = condensName(dirEntry);
 			tmp.resize(13, ' ');
-			result << tmp;
-			// attributes
-			result << (dirEntry.attrib & T_MSX_DIR  ? 'd' : '-')
-			       << (dirEntry.attrib & T_MSX_READ ? 'r' : '-')
-			       << (dirEntry.attrib & T_MSX_HID  ? 'h' : '-')
-			       << (dirEntry.attrib & T_MSX_VOL  ? 'v' : '-') // TODO check if this is the output of files,l
-			       << (dirEntry.attrib & T_MSX_ARC  ? 'a' : '-') // TODO check if this is the output of files,l
-			       << "  ";
-			// filesize
-			result << dirEntry.size << '\n';
+			strAppend(result, tmp,
+			          // attributes
+			          (dirEntry.attrib & T_MSX_DIR  ? 'd' : '-'),
+			          (dirEntry.attrib & T_MSX_READ ? 'r' : '-'),
+			          (dirEntry.attrib & T_MSX_HID  ? 'h' : '-'),
+			          (dirEntry.attrib & T_MSX_VOL  ? 'v' : '-'), // TODO check if this is the output of files,l
+			          (dirEntry.attrib & T_MSX_ARC  ? 'a' : '-'), // TODO check if this is the output of files,l
+			          "  ",
+			          // filesize
+			          dirEntry.size << '\n');
 		}
 	}
 	return result;
 }
 
 // routines to update the global vars: chrootSector
-void MSXtar::chdir(string_ref newRootDir)
+void MSXtar::chdir(string_view newRootDir)
 {
 	chroot(newRootDir, false);
 }
 
-void MSXtar::mkdir(string_ref newRootDir)
+void MSXtar::mkdir(string_view newRootDir)
 {
 	unsigned tmpMSXchrootSector = chrootSector;
 	chroot(newRootDir, true);
 	chrootSector = tmpMSXchrootSector;
 }
 
-void MSXtar::chroot(string_ref newRootDir, bool createDir)
+void MSXtar::chroot(string_view newRootDir, bool createDir)
 {
 	if (newRootDir.starts_with('/') || newRootDir.starts_with('\\')) {
 		// absolute path, reset chrootSector
@@ -736,7 +738,7 @@ void MSXtar::chroot(string_ref newRootDir, bool createDir)
 	}
 
 	while (!newRootDir.empty()) {
-		string_ref firstPart, lastPart;
+		string_view firstPart, lastPart;
 		StringOp::splitOnFirst(newRootDir, "/\\", firstPart, lastPart);
 		newRootDir = lastPart;
 		StringOp::trimLeft(newRootDir, "/\\");
@@ -747,7 +749,7 @@ void MSXtar::chroot(string_ref newRootDir, bool createDir)
 		DirEntry entry = findEntryInDir(simple, chrootSector, buf);
 		if (entry.sector == 0) {
 			if (!createDir) {
-				throw MSXException("Subdirectory " + firstPart +
+				throw MSXException("Subdirectory ", firstPart,
 				                   " not found.");
 			}
 			// creat new subdir
@@ -759,7 +761,7 @@ void MSXtar::chroot(string_ref newRootDir, bool createDir)
 		} else {
 			auto& dirEntry = buf.dirEntry[entry.index];
 			if (!(dirEntry.attrib & T_MSX_DIR)) {
-				throw MSXException(firstPart + " is not a directory.");
+				throw MSXException(firstPart, " is not a directory.");
 			}
 			chrootSector = clusterToSector(getStartCluster(dirEntry));
 		}
@@ -785,7 +787,7 @@ void MSXtar::fileExtract(const string& resultFile, const MSXDirEntry& dirEntry)
 }
 
 // extracts a single item (file or directory) from the msximage to the host OS
-string MSXtar::singleItemExtract(string_ref dirName, string_ref itemName,
+string MSXtar::singleItemExtract(string_view dirName, string_view itemName,
                                  unsigned sector)
 {
 	// first find out if the filename exists in current dir
@@ -793,12 +795,12 @@ string MSXtar::singleItemExtract(string_ref dirName, string_ref itemName,
 	string msxName = makeSimpleMSXFileName(itemName);
 	DirEntry entry = findEntryInDir(msxName, sector, buf);
 	if (entry.sector == 0) {
-		return itemName + " not found!\n";
+		return strCat(itemName, " not found!\n");
 	}
 
 	auto& msxDirEntry = buf.dirEntry[entry.index];
 	// create full name for loacl filesystem
-	string fullName = dirName + '/' + condensName(msxDirEntry);
+	string fullName = strCat(dirName, '/', condensName(msxDirEntry));
 
 	// ...and extract
 	if  (msxDirEntry.attrib & T_MSX_DIR) {
@@ -811,12 +813,12 @@ string MSXtar::singleItemExtract(string_ref dirName, string_ref itemName,
 		// it is a file
 		fileExtract(fullName, msxDirEntry);
 	}
-	return "";
+	return {};
 }
 
 
 // extracts the contents of the directory (at sector) and all its subdirs to the host OS
-void MSXtar::recurseDirExtract(string_ref dirName, unsigned sector)
+void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 {
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
@@ -829,7 +831,7 @@ void MSXtar::recurseDirExtract(string_ref dirName, unsigned sector)
 			string filename = condensName(dirEntry);
 			string fullName = filename;
 			if (!dirName.empty()) {
-				fullName = dirName + '/' + filename;
+				fullName = strCat(dirName, '/', filename);
 			}
 			if (dirEntry.attrib != T_MSX_DIR) { // TODO
 				fileExtract(fullName, dirEntry);
@@ -846,7 +848,7 @@ void MSXtar::recurseDirExtract(string_ref dirName, unsigned sector)
 	}
 }
 
-string MSXtar::addDir(string_ref rootDirName)
+string MSXtar::addDir(string_view rootDirName)
 {
 	return recurseDirFill(rootDirName, chrootSector);
 }
@@ -856,12 +858,12 @@ string MSXtar::addFile(const string& filename)
 	return addFileToDSK(filename, chrootSector);
 }
 
-string MSXtar::getItemFromDir(string_ref rootDirName, string_ref itemName)
+string MSXtar::getItemFromDir(string_view rootDirName, string_view itemName)
 {
 	return singleItemExtract(rootDirName, itemName, chrootSector);
 }
 
-void MSXtar::getDir(string_ref rootDirName)
+void MSXtar::getDir(string_view rootDirName)
 {
 	recurseDirExtract(rootDirName, chrootSector);
 }

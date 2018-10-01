@@ -8,8 +8,7 @@ namespace openmsx {
 class FileException : public MSXException
 {
 public:
-	explicit FileException(string_ref message_)
-		: MSXException(message_) {}
+        using MSXException::MSXException;
 };
 
 } // namespace openmsx

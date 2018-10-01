@@ -13,11 +13,11 @@ class OSDRectangle final : public OSDImageBasedWidget
 public:
 	OSDRectangle(Display& display, const TclObject& name);
 
-	std::vector<string_ref> getProperties() const override;
+	std::vector<string_view> getProperties() const override;
 	void setProperty(Interpreter& interp,
-	                 string_ref name, const TclObject& value) override;
-	void getProperty(string_ref name, TclObject& result) const override;
-	string_ref getType() const override;
+	                 string_view name, const TclObject& value) override;
+	void getProperty(string_view name, TclObject& result) const override;
+	string_view getType() const override;
 
 private:
 	bool takeImageDimensions() const;

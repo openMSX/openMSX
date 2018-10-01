@@ -56,6 +56,32 @@ struct Element {
 	}
 };
 
+template<bool TRIVIAL> struct ReallocFunc;
+
+template<> struct ReallocFunc<true> {
+	template<typename Elem>
+	Elem* operator()(Elem* oldBuf, size_t /*oldCapacity*/, size_t newCapacity) const {
+		auto* newBuf = static_cast<Elem*>(realloc(oldBuf, newCapacity * sizeof(Elem)));
+		if (!newBuf) throw std::bad_alloc();
+		return newBuf;
+	}
+};
+
+template<> struct ReallocFunc<false> {
+	template<typename Elem>
+	Elem* operator()(Elem* oldBuf, size_t oldCapacity, size_t newCapacity) const {
+		auto* newBuf = static_cast<Elem*>(malloc(newCapacity * sizeof(Elem)));
+		if (!newBuf) throw std::bad_alloc();
+
+		for (unsigned i = 0; i < oldCapacity; ++i) {
+			new (&newBuf[i]) Elem(std::move(oldBuf[i]));
+			oldBuf[i].~Elem();
+		}
+		free(oldBuf);
+		return newBuf;
+	}
+};
+
 
 // Holds 'Element' objects. These objects can be in 2 states:
 // - 'free': In that case 'nextIdx' forms a single-linked list of all
@@ -188,26 +214,18 @@ private:
 	void growMore(unsigned newCapacity)
 	{
 		auto* oldBuf = buf1_ + 1;
-		Elem* newBuf;
 #if __GNUC__ <= 4
 		// only implemented starting from gcc-5
-		bool trivial = false;
+		ReallocFunc<false> reallocFunc;
 #else
-		bool trivial = std::is_trivially_move_constructible<Elem>::value;
+		// Use helper functor to work around gcc-8 -Wclass-memaccess warning.
+		//  The warning triggered for the not-executed if-branch. Now
+		//  we implement that 'if' via template specialization. So only
+		//  the code path that will be executed gets instantiated. In
+		//  C++17 we can simply that by using 'if constexpr'.
+		ReallocFunc<std::is_trivially_move_constructible<Elem>::value> reallocFunc;
 #endif
-		if (trivial) {
-			newBuf = static_cast<Elem*>(realloc(oldBuf, newCapacity * sizeof(Elem)));
-			if (!newBuf) throw std::bad_alloc();
-		} else {
-			newBuf = static_cast<Elem*>(malloc(newCapacity * sizeof(Elem)));
-			if (!newBuf) throw std::bad_alloc();
-
-			for (unsigned i = 0; i < capacity_; ++i) {
-				new (&newBuf[i]) Elem(std::move(oldBuf[i]));
-				oldBuf[i].~Elem();
-			}
-			free(oldBuf);
-		}
+		Elem* newBuf = reallocFunc(oldBuf, capacity_, newCapacity);
 
 		for (unsigned i = capacity_; i < newCapacity - 1; ++i) {
 			newBuf[i].nextIdx = i + 1 + 1;

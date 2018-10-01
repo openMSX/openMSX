@@ -4,13 +4,6 @@ set_help_text main_menu_open   "Show the OSD menu."
 set_help_text main_menu_close  "Remove the OSD menu."
 set_help_text main_menu_toggle "Toggle the OSD menu."
 
-# default colors defined here, for easy global tweaking
-variable default_bg_color "0x7090aae8 0xa0c0dde8 0x90b0cce8 0xc0e0ffe8"
-variable default_text_color 0x000000ff
-variable default_text_color 0x000000ff
-variable default_select_color "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
-variable default_header_text_color 0xff9020ff
-
 variable is_dingux [string match dingux "[openmsx_info platform]"]
 variable scaling_available [expr {[lindex [lindex [openmsx_info setting scale_factor] 2] 1] > 1}]
 
@@ -115,6 +108,19 @@ proc menu_create {menudef} {
 
 	set lst [get_optional menudef "lst" ""]
 	set menu_len [get_optional menudef "menu_len" 0]
+	if {[llength $lst] > $menu_len} {
+		set startheight 0
+		if {[llength $selectinfo] > 0} {
+			# there are selectable items. Start the scrollbar
+			# at the top of the first selectable item
+			# (skipping headers and stuff)
+			set startheight [lindex $selectinfo 0 0]
+		}
+		osd create rectangle "${name}.scrollbar" -z -1 -rgba 0x00000010 \
+		   -relx 1.0 -x -6 -w 6 -relh 1.0 -h -$startheight -y $startheight -borderrgba 0x00000070 -bordersize 0.5
+		osd create rectangle "${name}.scrollbar.thumb" -z -1 -rgba $default_select_color \
+		   -relw 1.0 -w -2 -x 1
+	}
 	set presentation [get_optional menudef "presentation" ""]
 	set selectidx 0
 	set scrollidx 0
@@ -124,6 +130,25 @@ proc menu_create {menudef} {
 	menu_on_select $selectinfo $selectidx
 
 	menu_refresh_top
+	menu_update_scrollbar
+}
+
+proc menu_update_scrollbar {} {
+	peek_menu_info
+	set name [dict get $menuinfo name]
+	if {[osd exists ${name}.scrollbar]} {
+		set menu_len   [dict get $menuinfo menu_len]
+		set scrollidx  [dict get $menuinfo scrollidx]
+		set selectidx  [dict get $menuinfo selectidx]
+		set totalitems [llength [dict get $menuinfo lst]]
+		set height [expr {1.0*$menu_len/$totalitems}]
+		set minheight 0.05 ;# TODO: derive from width of bar
+		set height [expr {$height > $minheight ? $height : $minheight}]
+		set pos [expr {1.0*($scrollidx+$selectidx)/($totalitems-1)}]
+		# scale the pos to the usable range
+		set pos [expr {$pos*(1.0-$height)}]
+		osd configure "${name}.scrollbar.thumb" -relh $height -rely $pos
+	}
 }
 
 proc menu_refresh_top {} {
@@ -502,6 +527,7 @@ proc select_menu_idx {itemidx} {
 	set_scrollidx $scrollidx
 	menu_on_select $selectinfo $selectidx
 	menu_refresh_top
+	menu_update_scrollbar
 }
 
 proc select_menu_item {item} {
@@ -738,19 +764,29 @@ proc create_video_setting_menu {} {
 		border-size 2
 		width 210
 		xpos 100
-		ypos 120
+		ypos 110
 	}
 	lappend items { text "Video Settings"
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
+	if {[expr {[lindex [lindex [openmsx_info setting videosource] 2] 1] > 1}]} {
+		lappend items { text "Video source: $videosource"
+			actions { LEFT  { osd_menu::menu_setting [cycle_back videosource] }
+			          RIGHT { osd_menu::menu_setting [cycle      videosource] }}
+				  post-spacing 6}
+	}
 	if {$scaling_available} {
 		lappend items { text "Scaler: $scale_algorithm"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back scale_algorithm] }
 			          RIGHT { osd_menu::menu_setting [cycle      scale_algorithm] }}}
-		lappend items { text "Scale Factor: ${scale_factor}x"
-			actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
-			          RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
+		# only add scale factor setting if it can actually be changed
+		set scale_minmax [lindex [openmsx_info setting scale_factor] 2]
+		if {[expr {[lindex $scale_minmax 0] != [lindex $scale_minmax 1]}]} {
+			lappend items { text "Scale Factor: ${scale_factor}x"
+				actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
+				          RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
+		}
 	}
 	lappend items { text "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $horizontal_stretch]"
 	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $horizontal_stretch }}
@@ -829,7 +865,7 @@ set advanced_menu {
 	         selectable false }
 	       { text "Manage Running Machines..."
 	         actions { A { osd_menu::menu_create $osd_menu::running_machines_menu }}}
-	       { text "Toys..."
+	       { text "Toys and Utilities..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_toys_list] }}}}}
 
 set running_machines_menu {
@@ -1100,11 +1136,6 @@ proc menu_remove_extension_exec {item} {
 	remove_extension $item
 }
 
-proc get_pluggable_for_connector {connector} {
-	set t [plug $connector]
-	return [string range $t [string first ": " $t]+2 end]
-}
-
 proc menu_create_connectors_list {} {
 	set menu_def {
 	         execute menu_connector_exec
@@ -1123,7 +1154,7 @@ proc menu_create_connectors_list {} {
 	foreach item $items {
 		set plugged [get_pluggable_for_connector $item]
 		set plugged_presentation ""
-		if {$plugged ne "--empty--"} {
+		if {$plugged ne ""} {
 			set plugged_presentation "  ([machine_info pluggable $plugged])"
 		}
 		lappend presentation "[machine_info connector $item]: $plugged$plugged_presentation"
@@ -1159,7 +1190,7 @@ proc create_menu_pluggable_list {connector} {
 	set already_plugged [list]
 	foreach other_connector [machine_info connector] {
 		set other_plugged [get_pluggable_for_connector $other_connector]
-		if {$other_plugged ne "--empty--" && $other_connector ne $connector} {
+		if {$other_plugged ne "" && $other_connector ne $connector} {
 			lappend already_plugged $other_plugged
 		}
 	}
@@ -1178,8 +1209,7 @@ proc create_menu_pluggable_list {connector} {
 	}
 
 	set plugged [get_pluggable_for_connector $connector]
-
-	if {$plugged ne "--empty--"} {
+	if {$plugged ne ""} {
 		set items [linsert $items 0 "--unplug--"]
 		set presentation [linsert $presentation 0 "Nothing, unplug $plugged ([machine_info pluggable $plugged])"]
 	}
@@ -1216,7 +1246,7 @@ proc menu_create_toys_list {} {
 	         width 200
 	         xpos 100
 	         ypos 120
-	         header { text "Toys"
+	         header { text "Toys and Utilities"
 	                  font-size 10
 	                  post-spacing 6 }}
 
@@ -1257,7 +1287,10 @@ proc ls {directory extensions} {
 	set extra_entries [list]
 	set volumes [file volumes]
 	if {$directory ni $volumes} {
-		lappend extra_entries ".."
+		# check whether .. is readable (it's not always so on Android)
+		if {[file readable [file join $directory ..]]} {
+			lappend extra_entries ".."
+		}
 	} else {
 		if {[llength $volumes] > 1} {
 			set extra_entries $volumes
@@ -1571,7 +1604,7 @@ proc menu_free_tape_name {} {
 }
 
 proc menu_create_hdd_list {path drive} {
-	return [prepare_menu_list [ls $path "dsk|zip|gz"] \
+	return [prepare_menu_list [ls $path "dsk|zip|gz|hdd"] \
 	                          10 \
 	                          [list execute [list menu_select_hdd $drive]\
 	                            font-size 8 \

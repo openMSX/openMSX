@@ -41,10 +41,12 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
+#include "cstd.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include <cmath>
 #include <cstring>
+#include <iostream>
 
 namespace openmsx {
 
@@ -57,27 +59,27 @@ static inline YMF262::FreqIndex fnumToIncrement(unsigned block_fnum)
 }
 
 // envelope output entries
-static const int ENV_BITS    = 10;
-static const int ENV_LEN     = 1 << ENV_BITS;
-static const float ENV_STEP = 128.0 / ENV_LEN;
+static constexpr int ENV_BITS    = 10;
+static constexpr int ENV_LEN     = 1 << ENV_BITS;
+static constexpr double ENV_STEP = 128.0 / ENV_LEN;
 
-static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; // 511
-static const int MIN_ATT_INDEX = 0;
+static constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 1)) - 1; // 511
+static constexpr int MIN_ATT_INDEX = 0;
 
 // sinwave entries
-static const int SIN_BITS = 10;
-static const int SIN_LEN  = 1 << SIN_BITS;
-static const int SIN_MASK = SIN_LEN - 1;
+static constexpr int SIN_BITS = 10;
+static constexpr int SIN_LEN  = 1 << SIN_BITS;
+static constexpr int SIN_MASK = SIN_LEN - 1;
 
-static const int TL_RES_LEN = 256; // 8 bits addressing (real chip)
+static constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // register number to channel number , slot offset
-static const byte MOD = 0;
-static const byte CAR = 1;
+static constexpr byte MOD = 0;
+static constexpr byte CAR = 1;
 
 
 // mapping of register number (offset) to slot number used by the emulator
-static const int slot_array[32] = {
+static constexpr int slot_array[32] = {
 	 0,  2,  4,  1,  3,  5, -1, -1,
 	 6,  8, 10,  7,  9, 11, -1, -1,
 	12, 14, 16, 13, 15, 17, -1, -1,
@@ -90,7 +92,7 @@ static const int slot_array[32] = {
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
 #define DV(x) int((x) / (0.1875 / 2.0))
-static const unsigned ksl_tab[8 * 16] = {
+static constexpr unsigned ksl_tab[8 * 16] = {
 	// OCT 0
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
@@ -136,16 +138,16 @@ static const unsigned ksl_tab[8 * 16] = {
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(db) unsigned((db) * (2.0f / ENV_STEP))
-static const unsigned sl_tab[16] = {
+#define SC(db) unsigned((db) * (2.0 / ENV_STEP))
+static constexpr unsigned sl_tab[16] = {
 	SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
 	SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
 };
 #undef SC
 
 
-static const byte RATE_STEPS = 8;
-static const byte eg_inc[15 * RATE_STEPS] = {
+static constexpr byte RATE_STEPS = 8;
+static constexpr byte eg_inc[15 * RATE_STEPS] = {
 //cycle:0 1  2 3  4 5  6 7
 	0,1, 0,1, 0,1, 0,1, //  0  rates 00..12 0 (increment by 0 or 1)
 	0,1, 0,1, 1,1, 0,1, //  1  rates 00..12 1
@@ -170,7 +172,7 @@ static const byte eg_inc[15 * RATE_STEPS] = {
 
 #define O(a) ((a) * RATE_STEPS)
 // note that there is no O(13) in this table - it's directly in the code
-static const byte eg_rate_select[16 + 64 + 16] = {
+static constexpr byte eg_rate_select[16 + 64 + 16] = {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
 	O(14), O(14), O(14), O(14), O(14), O(14), O(14), O(14),
@@ -210,7 +212,7 @@ static const byte eg_rate_select[16 + 64 + 16] = {
 // shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
 // mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
 #define O(a) ((a) * 1)
-static const byte eg_rate_shift[16 + 64 + 16] =
+static constexpr byte eg_rate_shift[16 + 64 + 16] =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -244,7 +246,7 @@ static const byte eg_rate_shift[16 + 64 + 16] =
 
 // multiple table
 #define ML(x) byte(2 * (x))
-static const byte mul_tab[16] = {
+static constexpr byte mul_tab[16] = {
 	// 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,10,12,12,15,15
 	ML( 0.5), ML( 1.0), ML( 2.0), ML( 3.0),
 	ML( 4.0), ML( 5.0), ML( 6.0), ML( 7.0),
@@ -252,22 +254,6 @@ static const byte mul_tab[16] = {
 	ML(12.0), ML(12.0), ML(15.0), ML(15.0)
 };
 #undef ML
-
-// TL_TAB_LEN is calculated as:
-//  (12+1)=13 - sinus amplitude bits     (Y axis)
-//  additional 1: to compensate for calculations of negative part of waveform
-//  (if we don't add it then the greatest possible _negative_ value would be -2
-//  and we really need -1 for waveform #7)
-//  2  - sinus sign bit           (Y axis)
-//  TL_RES_LEN - sinus resolution (X axis)
-
-static const int TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
-static int tl_tab[TL_TAB_LEN];
-static const int ENV_QUIET = TL_TAB_LEN >> 4;
-
-// sin waveform table in 'decibel' scale
-// there are eight waveforms on OPL3 chips
-static unsigned sin_tab[SIN_LEN * 8];
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 //  27 output levels (triangle waveform); 1 level takes one of: 192, 256 or 448 samples
@@ -281,8 +267,8 @@ static unsigned sin_tab[SIN_LEN * 8];
 // When AM = 1 data is used directly
 // When AM = 0 data is divided by 4 before being used (loosing precision is important)
 
-static const unsigned LFO_AM_TAB_ELEMENTS = 210;
-static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
+static constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
+static constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 	 0,  0,  0, /**/
 	 0,  0,  0,  0,
 	 1,  1,  1,  1,
@@ -339,7 +325,7 @@ static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 };
 
 // LFO Phase Modulation table (verified on real YM3812)
-static const signed char lfo_pm_table[8 * 8 * 2] = {
+static constexpr signed char lfo_pm_table[8 * 8 * 2] = {
 	// FNUM2/FNUM = 00 0xxxxxxx (0x0000)
 	0, 0, 0, 0, 0, 0, 0, 0, // LFO PM depth = 0
 	0, 0, 0, 0, 0, 0, 0, 0, // LFO PM depth = 1
@@ -373,6 +359,139 @@ static const signed char lfo_pm_table[8 * 8 * 2] = {
 	7, 3, 0,-3,-7,-3, 0, 3  // LFO PM depth = 1
 };
 
+// TL_TAB_LEN is calculated as:
+//  (12+1)=13 - sinus amplitude bits     (Y axis)
+//  additional 1: to compensate for calculations of negative part of waveform
+//  (if we don't add it then the greatest possible _negative_ value would be -2
+//  and we really need -1 for waveform #7)
+//  2  - sinus sign bit           (Y axis)
+//  TL_RES_LEN - sinus resolution (X axis)
+static constexpr int TL_TAB_LEN = 13 * 2 * TL_RES_LEN;
+static constexpr int ENV_QUIET = TL_TAB_LEN >> 4;
+
+struct TlTab {
+	int tab[TL_TAB_LEN];
+};
+
+static CONSTEXPR TlTab getTlTab()
+{
+	TlTab t = {};
+	// this _is_ different from OPL2 (verified on real YMF262)
+	for (int x = 0; x < TL_RES_LEN; x++) {
+		double m = (1 << 16) / cstd::exp2<6>((x + 1) * (ENV_STEP / 4.0) / 8.0);
+
+		// we never reach (1<<16) here due to the (x+1)
+		// result fits within 16 bits at maximum
+		int n = int(m);         // 16 bits here
+		n >>= 4;                // 12 bits here
+		n = (n >> 1) + (n & 1); // round to nearest
+		// 11 bits here (rounded)
+		n <<= 1; // 12 bits here (as in real chip)
+		t.tab[x * 2 + 0] = n;
+		t.tab[x * 2 + 1] = ~t.tab[x * 2 + 0];
+
+		for (int i = 1; i < 13; i++) {
+			t.tab[x * 2 + 0 + i * 2 * TL_RES_LEN] =
+			        t.tab[x * 2 + 0] >> i;
+			t.tab[x * 2 + 1 + i * 2 * TL_RES_LEN] =
+			        ~t.tab[x * 2 + 0 + i * 2 * TL_RES_LEN];
+		}
+	}
+	return t;
+}
+
+static CONSTEXPR TlTab tl = getTlTab();
+
+
+// sin waveform table in 'decibel' scale
+// there are eight waveforms on OPL3 chips
+struct SinTab {
+	unsigned tab[SIN_LEN * 8];
+};
+
+static CONSTEXPR SinTab getSinTab()
+{
+	SinTab sin = {};
+
+	for (int i = 0; i < SIN_LEN / 4; i++) {
+		// non-standard sinus
+		double m = cstd::sin<2>(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
+		// we never reach zero here due to ((i * 2) + 1)
+		double o = -8.0 * cstd::log2<11, 3>(m); // convert to 'decibels'
+		o = o / (double(ENV_STEP) / 4);
+
+		int n = int(2 * o);
+		n = (n >> 1) + (n & 1); // round to nearest
+		sin.tab[i] = 2 * n;
+	}
+	for (int i = 0; i < SIN_LEN / 4; i++) {
+		sin.tab[SIN_LEN / 2 - 1 - i] = sin.tab[i];
+	}
+	for (int i = 0; i < SIN_LEN / 2; i++) {
+		sin.tab[SIN_LEN / 2 + i] = sin.tab[i] + 1;
+	}
+
+	for (int i = 0; i < SIN_LEN; ++i) {
+		// these 'pictures' represent _two_ cycles
+		// waveform 1:  __      __
+		//             /  \____/  \____
+		// output only first half of the sinus waveform (positive one)
+		sin.tab[1 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
+		                         ? TL_TAB_LEN
+		                         : sin.tab[i];
+
+		// waveform 2:  __  __  __  __
+		//             /  \/  \/  \/  \.
+		// abs(sin)
+		sin.tab[2 * SIN_LEN + i] = sin.tab[i & (SIN_MASK >> 1)];
+
+		// waveform 3:  _   _   _   _
+		//             / |_/ |_/ |_/ |_
+		// abs(output only first quarter of the sinus waveform)
+		sin.tab[3 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 2)))
+		                         ? TL_TAB_LEN
+		                         : sin.tab[i & (SIN_MASK>>2)];
+
+		// waveform 4: /\  ____/\  ____
+		//               \/      \/
+		// output whole sinus waveform in half the cycle(step=2)
+		// and output 0 on the other half of cycle
+		sin.tab[4 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
+		                         ? TL_TAB_LEN
+		                         : sin.tab[i * 2];
+
+		// waveform 5: /\/\____/\/\____
+		//
+		// output abs(whole sinus) waveform in half the cycle(step=2)
+		// and output 0 on the other half of cycle
+		sin.tab[5 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
+		                         ? TL_TAB_LEN
+		                         : sin.tab[(i * 2) & (SIN_MASK >> 1)];
+
+		// waveform 6: ____    ____
+		//                 ____    ____
+		// output maximum in half the cycle and output minimum
+		// on the other half of cycle
+		sin.tab[6 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
+		                         ? 1  // negative
+		                         : 0; // positive
+
+		// waveform 7:|\____  |\____
+		//                   \|      \|
+		// output sawtooth waveform
+		int x = (i & (1 << (SIN_BITS - 1)))
+		      ? ((SIN_LEN - 1) - i) * 16 + 1  // negative: from 8177 to 1
+		      : i * 16;                       // positive: from 0 to 8176
+		x = std::min(x, TL_TAB_LEN); // clip to the allowed range
+		sin.tab[7 * SIN_LEN + i] = x;
+	}
+
+	return sin;
+}
+
+static CONSTEXPR SinTab sin = getSinTab();
+
+
 // TODO clean this up
 static int phase_modulation;  // phase modulation input (SLOT 2)
 static int phase_modulation2; // phase modulation input (SLOT 3
@@ -391,7 +510,7 @@ YMF262::Slot::Slot()
 	eg_m_ar = eg_sh_ar = eg_sel_ar = eg_m_dr = eg_sh_dr = 0;
 	eg_sel_dr = eg_m_rr = eg_sh_rr = eg_sel_rr = 0;
 	key = AMmask = 0;
-	wavetable = &sin_tab[0 * SIN_LEN];
+	wavetable = &sin.tab[0 * SIN_LEN];
 }
 
 YMF262::Channel::Channel()
@@ -558,12 +677,11 @@ void YMF262::advance()
 	noise_rng >>= 1;
 }
 
-
 inline int YMF262::Slot::op_calc(unsigned phase, unsigned lfo_am) const
 {
 	unsigned env = (TLL + volume + (lfo_am & AMmask)) << 4;
 	int p = env + wavetable[phase & SIN_MASK];
-	return (p < TL_TAB_LEN) ? tl_tab[p] : 0;
+	return (p < TL_TAB_LEN) ? tl.tab[p] : 0;
 }
 
 // calculate output of a standard 2 operator channel
@@ -774,104 +892,6 @@ void YMF262::chan_calc_rhythm(unsigned lfo_am)
 	auto& car8 = channel[8].slot[CAR];
 	chanout[8] += 2 * car8.op_calc(genPhaseCymbal(),  lfo_am);
 }
-
-
-// generic table initialize
-void YMF262::init_tables()
-{
-	static bool alreadyInit = false;
-	if (alreadyInit) return;
-	alreadyInit = true;
-
-	for (int x = 0; x < TL_RES_LEN; x++) {
-		float m = (1 << 16) / exp2f((x + 1) * (ENV_STEP / 4.0f) / 8.0f);
-		m = floorf(m);
-
-		// we never reach (1<<16) here due to the (x+1)
-		// result fits within 16 bits at maximum
-		int n = int(m); // 16 bits here
-		n >>= 4;        // 12 bits here
-		n = (n >> 1) + (n & 1); // round to nearest
-		// 11 bits here (rounded)
-		n <<= 1;        // 12 bits here (as in real chip)
-		tl_tab[x * 2 + 0] = n;
-		tl_tab[x * 2 + 1] = ~tl_tab[x * 2 + 0]; // this _is_ different from OPL2 (verified on real YMF262)
-
-		for (int i = 1; i < 13; i++) {
-			tl_tab[x * 2 + 0 + i * 2 * TL_RES_LEN] =  tl_tab[x * 2 + 0] >> i;
-			tl_tab[x * 2 + 1 + i * 2 * TL_RES_LEN] = ~tl_tab[x * 2 + 0 + i * 2 * TL_RES_LEN];  // this _is_ different from OPL2 (verified on real YMF262)
-		}
-	}
-
-	static const float LOG2 = log(2.0);
-	for (int i = 0; i < SIN_LEN; i++) {
-		// non-standard sinus
-		float m = sinf(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
-		// we never reach zero here due to ((i * 2) + 1)
-		float o = -8.0f * logf(std::abs(m)) / LOG2; // convert to 'decibels'
-		o = o / (ENV_STEP / 4);
-
-		int n = int(2 * o);
-		n = (n >> 1) + (n & 1); // round to nearest
-		sin_tab[i] = n * 2 + (m >= 0.0f ? 0 : 1);
-	}
-
-	for (int i = 0; i < SIN_LEN; ++i) {
-		// these 'pictures' represent _two_ cycles
-		// waveform 1:  __      __
-		//             /  \____/  \____
-		// output only first half of the sinus waveform (positive one)
-		sin_tab[1 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
-		                         ? TL_TAB_LEN
-		                         : sin_tab[i];
-
-		// waveform 2:  __  __  __  __
-		//             /  \/  \/  \/  \.
-		// abs(sin)
-		sin_tab[2 * SIN_LEN + i] = sin_tab[i & (SIN_MASK >> 1)];
-
-		// waveform 3:  _   _   _   _
-		//             / |_/ |_/ |_/ |_
-		// abs(output only first quarter of the sinus waveform)
-		sin_tab[3 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 2)))
-		                         ? TL_TAB_LEN
-		                         : sin_tab[i & (SIN_MASK>>2)];
-
-		// waveform 4: /\  ____/\  ____
-		//               \/      \/
-		// output whole sinus waveform in half the cycle(step=2)
-		// and output 0 on the other half of cycle
-		sin_tab[4 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
-		                         ? TL_TAB_LEN
-		                         : sin_tab[i * 2];
-
-		// waveform 5: /\/\____/\/\____
-		//
-		// output abs(whole sinus) waveform in half the cycle(step=2)
-		// and output 0 on the other half of cycle
-		sin_tab[5 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
-		                         ? TL_TAB_LEN
-		                         : sin_tab[(i * 2) & (SIN_MASK >> 1)];
-
-		// waveform 6: ____    ____
-		//                 ____    ____
-		// output maximum in half the cycle and output minimum
-		// on the other half of cycle
-		sin_tab[6 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
-		                         ? 1  // negative
-		                         : 0; // positive
-
-		// waveform 7:|\____  |\____
-		//                   \|      \|
-		// output sawtooth waveform
-		int x = (i & (1 << (SIN_BITS - 1)))
-		      ? ((SIN_LEN - 1) - i) * 16 + 1  // negative: from 8177 to 1
-		      : i * 16;                       // positive: from 0 to 8176
-		x = std::min(x, TL_TAB_LEN); // clip to the allowed range
-		sin_tab[7 * SIN_LEN + i] = x;
-	}
-}
-
 
 void YMF262::Slot::FM_KEYON(byte key_set)
 {
@@ -1393,7 +1413,7 @@ void YMF262::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 		if (!OPL3_mode) {
 			v &= 3;
 		}
-		ch.slot[slot & 1].wavetable = &sin_tab[v * SIN_LEN];
+		ch.slot[slot & 1].wavetable = &sin.tab[v * SIN_LEN];
 		break;
 	}
 	}
@@ -1432,6 +1452,8 @@ void YMF262::reset(EmuTime::param time)
 			sl.volume = MAX_ATT_INDEX;
 		}
 	}
+
+	setMixLevel(0x1b, time); // -9dB left and right
 }
 
 YMF262::YMF262(const std::string& name_,
@@ -1459,15 +1481,21 @@ YMF262::YMF262(const std::string& name_,
 	memset(chanout, 0, sizeof(chanout));
 	memset(reg, 0, sizeof(reg));
 
-	init_tables();
+	// For debugging: print out tables to be able to compare before/after
+	// when the calculation changes.
+	if (0) {
+		for (auto& e : tl.tab) std::cout << e << '\n';
+		std::cout << '\n';
+		for (auto& e : sin.tab) std::cout << e << '\n';
+	}
 
 	float input = isYMF278
 	            ?    33868800.0f / (19 * 36)
 	            : 4 * 3579545.0f / ( 8 * 36);
-	setInputRate(int(input + 0.5f));
+	setInputRate(lrintf(input));
 
-	reset(config.getMotherBoard().getCurrentTime());
 	registerSound(config);
+	reset(config.getMotherBoard().getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()
 }
 
 YMF262::~YMF262()
@@ -1503,9 +1531,27 @@ bool YMF262::checkMuteHelper()
 	return true;
 }
 
-int YMF262::getAmplificationFactor() const
+void YMF262::setMixLevel(uint8_t x, EmuTime::param time)
 {
-	return 1 << 2;
+	// Only present on YMF278
+	// see mix_level[] and vol_factor() in YMF278.cc
+	using T = SoundDevice::VolumeType;
+	static const T level[8] = {
+		T(1.00 / 1), //   0dB
+		T(0.75 / 1), //  -3dB (approx)
+		T(1.00 / 2), //  -6dB
+		T(0.75 / 2), //  -9dB (approx)
+		T(1.00 / 4), // -12dB
+		T(0.75 / 4), // -15dB (approx)
+		T(1.00 / 8), // -18dB
+		T(0.0     ), // -inf dB
+	};
+	setSoftwareVolume(level[x & 7], level[(x >> 3) & 7], time);
+}
+
+int YMF262::getAmplificationFactorImpl() const
+{
+	return 1 << 3;
 }
 
 void YMF262::generateChannels(int** bufs, unsigned num)
@@ -1595,10 +1641,10 @@ template<typename Archive>
 void YMF262::Slot::serialize(Archive& a, unsigned /*version*/)
 {
 	// wavetable
-	unsigned waveform = unsigned((wavetable - sin_tab) / SIN_LEN);
+	auto waveform = unsigned((wavetable - sin.tab) / SIN_LEN);
 	a.serialize("waveform", waveform);
 	if (a.isLoader()) {
-		wavetable = &sin_tab[waveform * SIN_LEN];
+		wavetable = &sin.tab[waveform * SIN_LEN];
 	}
 
 	// done by rewriting registers:

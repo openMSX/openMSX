@@ -6,7 +6,6 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cstring>
 #include <cerrno>
 #include "Midi_w32.hh"
@@ -15,6 +14,7 @@
 #endif
 #include <windows.h>
 #include <mmsystem.h>
+#include <memory>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -29,7 +29,7 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
 	w32_midiInInit();
 	unsigned devnum = w32_midiInGetVFNsNum();
 	for (unsigned i = 0 ; i <devnum; ++i) {
-		controller.registerPluggable(make_unique<MidiInWindows>(
+		controller.registerPluggable(std::make_unique<MidiInWindows>(
 			eventDistributor, scheduler, i));
 	}
 }
@@ -92,7 +92,7 @@ const string& MidiInWindows::getName() const
 	return name;
 }
 
-string_ref MidiInWindows::getDescription() const
+string_view MidiInWindows::getDescription() const
 {
 	return desc;
 }

@@ -18,29 +18,29 @@ EnumSettingBase::EnumSettingBase(BaseMap&& map)
 	sort(begin(baseMap), end(baseMap), Comp());
 }
 
-int EnumSettingBase::fromStringBase(string_ref str) const
+int EnumSettingBase::fromStringBase(string_view str) const
 {
 	auto it = lower_bound(begin(baseMap), end(baseMap), str, Comp());
 	StringOp::casecmp cmp;
 	if ((it == end(baseMap)) || !cmp(it->first, str)) {
-		throw CommandException("not a valid value: " + str);
+		throw CommandException("not a valid value: ", str);
 	}
 	return it->second;
 }
 
-string_ref EnumSettingBase::toStringBase(int value) const
+string_view EnumSettingBase::toStringBase(int value) const
 {
 	for (auto& p : baseMap) {
 		if (p.second == value) {
 			return p.first;
 		}
 	}
-	UNREACHABLE; return "";
+	UNREACHABLE; return {};
 }
 
-std::vector<string_ref> EnumSettingBase::getPossibleValues() const
+std::vector<string_view> EnumSettingBase::getPossibleValues() const
 {
-	std::vector<string_ref> result;
+	std::vector<string_view> result;
 	for (auto& p : baseMap) {
 		result.emplace_back(p.first);
 	}

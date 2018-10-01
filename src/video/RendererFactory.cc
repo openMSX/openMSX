@@ -3,8 +3,8 @@
 #include "Reactor.hh"
 #include "Display.hh"
 #include "Version.hh"
-#include "memory.hh"
 #include "unreachable.hh"
+#include <memory>
 
 // Video systems:
 #include "components.hh"
@@ -32,12 +32,12 @@ unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 	Display& display = reactor.getDisplay();
 	switch (display.getRenderSettings().getRenderer()) {
 		case RenderSettings::DUMMY:
-			return make_unique<DummyVideoSystem>();
+			return std::make_unique<DummyVideoSystem>();
 		case RenderSettings::SDL:
 		case RenderSettings::SDLGL_PP:
 		case RenderSettings::SDLGL_FB16:
 		case RenderSettings::SDLGL_FB32:
-			return make_unique<SDLVideoSystem>(
+			return std::make_unique<SDLVideoSystem>(
 				reactor, display.getCommandConsole());
 		default:
 			UNREACHABLE; return nullptr;
@@ -48,12 +48,12 @@ unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer()) {
 		case RenderSettings::DUMMY:
-			return make_unique<DummyRenderer>();
+			return std::make_unique<DummyRenderer>();
 		case RenderSettings::SDL:
 		case RenderSettings::SDLGL_PP:
 		case RenderSettings::SDLGL_FB16:
 		case RenderSettings::SDLGL_FB32:
-			return make_unique<PixelRenderer>(vdp, display);
+			return std::make_unique<PixelRenderer>(vdp, display);
 		default:
 			UNREACHABLE; return nullptr;
 	}
@@ -63,12 +63,12 @@ unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer()) {
 		case RenderSettings::DUMMY:
-			return make_unique<V9990DummyRenderer>();
+			return std::make_unique<V9990DummyRenderer>();
 		case RenderSettings::SDL:
 		case RenderSettings::SDLGL_PP:
 		case RenderSettings::SDLGL_FB16:
 		case RenderSettings::SDLGL_FB32:
-			return make_unique<V9990PixelRenderer>(vdp);
+			return std::make_unique<V9990PixelRenderer>(vdp);
 		default:
 			UNREACHABLE; return nullptr;
 	}
@@ -79,12 +79,12 @@ unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer()) {
 		case RenderSettings::DUMMY:
-			return make_unique<LDDummyRenderer>();
+			return std::make_unique<LDDummyRenderer>();
 		case RenderSettings::SDL:
 		case RenderSettings::SDLGL_PP:
 		case RenderSettings::SDLGL_FB16:
 		case RenderSettings::SDLGL_FB32:
-			return make_unique<LDPixelRenderer>(ld, display);
+			return std::make_unique<LDPixelRenderer>(ld, display);
 		default:
 			UNREACHABLE; return nullptr;
 	}

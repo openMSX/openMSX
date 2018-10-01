@@ -41,29 +41,29 @@ void SettingsManager::unregisterSetting(BaseSetting& setting)
 	settings.erase(name);
 }
 
-BaseSetting* SettingsManager::findSetting(string_ref name) const
+BaseSetting* SettingsManager::findSetting(string_view name) const
 {
 	auto it = settings.find(name);
 	return (it != end(settings)) ? *it : nullptr;
 }
 
-BaseSetting* SettingsManager::findSetting(string_ref prefix, string_ref baseName) const
+BaseSetting* SettingsManager::findSetting(string_view prefix, string_view baseName) const
 {
 	auto size = prefix.size() + baseName.size();
 	VLA(char, fullname, size);
 	memcpy(&fullname[0],             prefix  .data(), prefix  .size());
 	memcpy(&fullname[prefix.size()], baseName.data(), baseName.size());
-	return findSetting(string_ref(fullname, size));
+	return findSetting(string_view(fullname, size));
 }
 
 // Helper functions for setting commands
 
-BaseSetting& SettingsManager::getByName(string_ref cmd, string_ref name) const
+BaseSetting& SettingsManager::getByName(string_view cmd, string_view name) const
 {
 	if (auto* setting = findSetting(name)) {
 		return *setting;
 	}
-	throw CommandException(cmd + ": " + name + ": no such setting");
+	throw CommandException(cmd, ": ", name, ": no such setting");
 }
 
 vector<string> SettingsManager::getTabSettingNames() const
@@ -71,12 +71,12 @@ vector<string> SettingsManager::getTabSettingNames() const
 	vector<string> result;
 	result.reserve(settings.size() * 2);
 	for (auto* s : settings) {
-		string_ref name = s->getFullName();
+		string_view name = s->getFullName();
 		result.push_back(name.str());
 		if (name.starts_with("::")) {
 			result.push_back(name.substr(2).str());
 		} else {
-			result.push_back("::" + name);
+			result.push_back(strCat("::", name));
 		}
 	}
 	return result;
@@ -129,7 +129,7 @@ void SettingsManager::SettingInfo::execute(
 		const auto& settingName = tokens[2].getString();
 		auto it = manager.settings.find(settingName);
 		if (it == end(manager.settings)) {
-			throw CommandException("No such setting: " + settingName);
+			throw CommandException("No such setting: ", settingName);
 		}
 		(*it)->info(result);
 		break;
@@ -211,7 +211,7 @@ SettingsManager::SettingCompleter::SettingCompleter(
 
 string SettingsManager::SettingCompleter::help(const vector<string>& /*tokens*/) const
 {
-	return ""; // TODO
+	return {}; // TODO
 }
 
 void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) const

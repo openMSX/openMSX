@@ -11,7 +11,7 @@ namespace openmsx {
 class ZlibInflate
 {
 public:
-	ZlibInflate(const byte* buffer, size_t len);
+	ZlibInflate(const byte* input, size_t inputLen);
 	~ZlibInflate();
 
 	void skip(size_t num);

@@ -3,7 +3,7 @@
 
 #include "NowindHost.hh"
 #include "Command.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <memory>
 
 namespace openmsx {
@@ -28,7 +28,7 @@ public:
 
 private:
 	unsigned searchRomdisk(const NowindHost::Drives& drives) const;
-	void processHdimage(string_ref hdimage,
+	void processHdimage(string_view hdimage,
 	                    NowindHost::Drives& drives) const;
 	NowindInterface& interface;
 };

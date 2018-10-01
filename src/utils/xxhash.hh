@@ -1,7 +1,7 @@
 /*
    This code is a based on xxhash, the main modifications are:
     - allow to produce case-insensitive (for ascii) hash values
-    - tweak interface to fit openMSX (e.g. directly work on string_ref)
+    - tweak interface to fit openMSX (e.g. directly work on string_view)
 
 - - - - - - - - - - - - - - - - - - - -
 
@@ -42,7 +42,7 @@
 #ifndef XXHASH_HH
 #define XXHASH_HH
 
-#include "string_ref.hh"
+#include "string_view.hh"
 #include "likely.hh"
 #include "build-info.hh"
 #include <cstdint>
@@ -127,7 +127,7 @@ static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
 	return  h32 ^ (h32 >> 16);
 }
 
-template<uint8_t MASK8> static inline uint32_t xxhash_impl(string_ref key)
+template<uint8_t MASK8> static inline uint32_t xxhash_impl(string_view key)
 {
 	auto* data = reinterpret_cast<const uint8_t*>(key.data());
 	auto  size = key.size();
@@ -140,23 +140,23 @@ template<uint8_t MASK8> static inline uint32_t xxhash_impl(string_ref key)
 	}
 }
 
-inline uint32_t xxhash(string_ref key)
+inline uint32_t xxhash(string_view key)
 {
 	return xxhash_impl<0xFF>(key);
 }
-inline uint32_t xxhash_case(string_ref key)
+inline uint32_t xxhash_case(string_view key)
 {
 	return xxhash_impl<static_cast<uint8_t>(~('a' - 'A'))>(key);
 }
 
 struct XXHasher {
-	uint32_t operator()(string_ref key) const {
+	uint32_t operator()(string_view key) const {
 		return xxhash(key);
 	}
 };
 
 struct XXHasher_IgnoreCase {
-	uint32_t operator()(string_ref key) const {
+	uint32_t operator()(string_view key) const {
 		return xxhash_case(key);
 	}
 };

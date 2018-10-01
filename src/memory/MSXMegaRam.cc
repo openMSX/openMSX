@@ -26,7 +26,7 @@
 #include "Rom.hh"
 #include "Math.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -35,7 +35,7 @@ MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	, numBlocks(config.getChildDataAsInt("size") / 8) // 8kB blocks
 	, ram(config, getName() + " RAM", "Mega-RAM", numBlocks * 0x2000)
 	, rom(config.findChild("rom")
-	      ? make_unique<Rom>(getName() + " ROM", "Mega-RAM DiskROM", config)
+	      ? std::make_unique<Rom>(getName() + " ROM", "Mega-RAM DiskROM", config)
 	      : nullptr)
 	, romBlockDebug(*this, bank, 0x0000, 0x10000, 13, 0, 3)
 	, maskBlocks(Math::powerOfTwo(numBlocks) - 1)

@@ -10,11 +10,11 @@
 #include "EmuTime.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include <algorithm>
 #include <iterator>
+#include <memory>
 #include <sstream>
 
 using std::ostringstream;
@@ -29,7 +29,7 @@ class AfterCmd
 {
 public:
 	virtual ~AfterCmd() = default;
-	string_ref getCommand() const;
+	string_view getCommand() const;
 	const string& getId() const;
 	virtual string getType() const = 0;
 	void execute();
@@ -195,7 +195,7 @@ void AfterCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
-	string_ref subCmd = tokens[1].getString();
+	string_view subCmd = tokens[1].getString();
 	if (subCmd == "time") {
 		afterTime(tokens, result);
 	} else if (subCmd == "realtime") {
@@ -252,7 +252,7 @@ void AfterCommand::afterTime(array_ref<TclObject> tokens, TclObject& result)
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(getInterpreter(), tokens[2]);
-	auto cmd = make_unique<AfterTimeCmd>(
+	auto cmd = std::make_unique<AfterTimeCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
 	result.setString(cmd->getId());
 	afterCmds.push_back(move(cmd));
@@ -264,7 +264,7 @@ void AfterCommand::afterRealTime(array_ref<TclObject> tokens, TclObject& result)
 		throw SyntaxError();
 	}
 	double time = getTime(getInterpreter(), tokens[2]);
-	auto cmd = make_unique<AfterRealTimeCmd>(
+	auto cmd = std::make_unique<AfterRealTimeCmd>(
 		reactor.getRTScheduler(), *this, tokens[3], time);
 	result.setString(cmd->getId());
 	afterCmds.push_back(move(cmd));
@@ -275,7 +275,7 @@ void AfterCommand::afterTclTime(
 {
 	TclObject command;
 	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
-	auto cmd = make_unique<AfterRealTimeCmd>(
+	auto cmd = std::make_unique<AfterRealTimeCmd>(
 		reactor.getRTScheduler(), *this, command, ms / 1000.0);
 	result.setString(cmd->getId());
 	afterCmds.push_back(move(cmd));
@@ -287,7 +287,7 @@ void AfterCommand::afterEvent(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	auto cmd = make_unique<AfterEventCmd<T>>(
+	auto cmd = std::make_unique<AfterEventCmd<T>>(
 		*this, tokens[1], tokens[2]);
 	result.setString(cmd->getId());
 	afterCmds.push_back(move(cmd));
@@ -299,7 +299,7 @@ void AfterCommand::afterInputEvent(
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	auto cmd = make_unique<AfterInputEventCmd>(
+	auto cmd = std::make_unique<AfterInputEventCmd>(
 		*this, event, tokens[2]);
 	result.setString(cmd->getId());
 	afterCmds.push_back(move(cmd));
@@ -313,7 +313,7 @@ void AfterCommand::afterIdle(array_ref<TclObject> tokens, TclObject& result)
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(getInterpreter(), tokens[2]);
-	auto cmd = make_unique<AfterIdleCmd>(
+	auto cmd = std::make_unique<AfterIdleCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
 	result.setString(cmd->getId());
 	afterCmds.push_back(move(cmd));
@@ -351,7 +351,7 @@ void AfterCommand::afterCancel(array_ref<TclObject> tokens, TclObject& /*result*
 	}
 	TclObject command;
 	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
-	string_ref cmdStr = command.getString();
+	string_view cmdStr = command.getString();
 	auto it = find_if(begin(afterCmds), end(afterCmds),
 		[&](std::unique_ptr<AfterCmd>& e) { return e->getCommand() == cmdStr; });
 	if (it != end(afterCmds)) {
@@ -475,7 +475,7 @@ AfterCmd::AfterCmd(AfterCommand& afterCommand_, const TclObject& command_)
 	id = str.str();
 }
 
-string_ref AfterCmd::getCommand() const
+string_view AfterCmd::getCommand() const
 {
 	return command.getString();
 }
@@ -491,7 +491,7 @@ void AfterCmd::execute()
 		command.executeCommand(afterCommand.getInterpreter());
 	} catch (CommandException& e) {
 		afterCommand.getCommandController().getCliComm().printWarning(
-			"Error executing delayed command: " + e.getMessage());
+			"Error executing delayed command: ", e.getMessage());
 	}
 }
 

@@ -17,7 +17,7 @@ const std::string& SETetrisDongle::getName() const
 	return name;
 }
 
-string_ref SETetrisDongle::getDescription() const
+string_view SETetrisDongle::getDescription() const
 {
 	return "Tetris II Special Edition dongle";
 }

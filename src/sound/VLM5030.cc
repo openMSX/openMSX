@@ -81,6 +81,7 @@ chirp 12-..: vokume   0   : silent
 #include "Math.hh"
 #include "serialize.hh"
 #include "random.hh"
+#include <cmath>
 #include <cstring>
 #include <cstdint>
 
@@ -233,7 +234,7 @@ int VLM5030::parseFrame()
 }
 
 // decode and buffering data
-void VLM5030::generateChannels(int** bufs, unsigned length)
+void VLM5030::generateChannels(int** bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
 	if (phase == PH_IDLE) {
@@ -246,7 +247,7 @@ void VLM5030::generateChannels(int** bufs, unsigned length)
 	// running
 	if (phase == PH_RUN || phase == PH_STOP) {
 		// playing speech
-		while (length > 0) {
+		while (num > 0) {
 			int current_val;
 			// check new interpolator or new frame
 			if (sample_count == 0) {
@@ -332,38 +333,38 @@ void VLM5030::generateChannels(int** bufs, unsigned length)
 			if (pitch_count >= current_pitch) {
 				pitch_count = 0;
 			}
-			--length;
+			--num;
 		}
 	// return;
 	}
 phase_stop:
 	switch (phase) {
 	case PH_SETUP:
-		if (sample_count <= length) {
+		if (sample_count <= num) {
 			sample_count = 0;
 			// pin_BSY = true;
 			phase = PH_WAIT;
 		} else {
-			sample_count -= length;
+			sample_count -= num;
 		}
 		break;
 	case PH_END:
-		if (sample_count <= length) {
+		if (sample_count <= num) {
 			sample_count = 0;
 			pin_BSY = false;
 			phase = PH_IDLE;
 		} else {
-			sample_count -= length;
+			sample_count -= num;
 		}
 	}
 	// silent buffering
-	while (length > 0) {
+	while (num > 0) {
 		bufs[0][buf_count++] = 0;
-		--length;
+		--num;
 	}
 }
 
-int VLM5030::getAmplificationFactor() const
+int VLM5030::getAmplificationFactorImpl() const
 {
 	return 1 << (15 - 9);
 }
@@ -514,7 +515,7 @@ static XMLElement getRomConfig(const std::string& name, const std::string& romFi
 	romElement.addChild( // load by sha1sum
 		"sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40");
 	romElement.addChild( // load by predefined filename in software rom's dir
-		"filename", FileOperations::stripExtension(romFilename) + "_voice.rom");
+		"filename", strCat(FileOperations::stripExtension(romFilename), "_voice.rom"));
 	romElement.addChild( // or hardcoded filename in ditto dir
 		"filename", "keyboardmaster/voice.rom");
 	return voiceROMconfig;
@@ -536,7 +537,7 @@ VLM5030::VLM5030(const std::string& name_, const std::string& desc,
 
 	const int CLOCK_FREQ = 3579545;
 	float input = CLOCK_FREQ / 440.0f;
-	setInputRate(int(input + 0.5f));
+	setInputRate(lrintf(input));
 
 	registerSound(config);
 }

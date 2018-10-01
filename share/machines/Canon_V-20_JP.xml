@@ -50,13 +50,9 @@ PSG pin 6/7 quirk: C (YES)
     <primary external="true" slot="2"/> <!-- top slot -->
 
     <primary slot="3">
-
-      <secondary slot="0">
-        <RAM id="Main RAM">
-          <mem base="0x0000" size="0x10000"/>
-        </RAM>
-      </secondary>
-
+      <RAM id="Main RAM">
+        <mem base="0x0000" size="0x10000"/>
+      </RAM>
     </primary>
 
     <PPI id="ppi">

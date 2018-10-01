@@ -2,7 +2,7 @@
 #define FILE_HH
 
 #include "openmsx.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <memory>
 #include <ctime>
 
@@ -35,8 +35,8 @@ public:
 	 * @throws FileNotFoundException if file not found
 	 * @throws FileException for other errors
 	 */
-	explicit File(string_ref         filename, OpenMode mode = NORMAL);
-	explicit File(const Filename&    filename, OpenMode mode = NORMAL);
+	explicit File(string_view     filename, OpenMode mode = NORMAL);
+	explicit File(const Filename& filename, OpenMode mode = NORMAL);
 
 	/** This constructor maps very closely on the fopen() libc function.
 	  * Compared to constructor above, it does not transparantly
@@ -45,8 +45,8 @@ public:
 	  * @param mode Open mode, same meaning as in fopen(), but we assert
 	  *             that it contains a 'b' character.
 	  */
-	File(string_ref         filename, const char* mode);
-	File(const Filename&    filename, const char* mode);
+	File(string_view     filename, const char* mode);
+	File(const Filename& filename, const char* mode);
 	File(File&& other) noexcept;
 
 	~File();

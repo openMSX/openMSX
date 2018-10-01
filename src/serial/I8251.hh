@@ -75,7 +75,7 @@ public:
 	};
 
 private:
-	void setMode(byte mode);
+	void setMode(byte newMode);
 	void writeCommand(byte value, EmuTime::param time);
 	byte readStatus(EmuTime::param time);
 	byte readTrans(EmuTime::param time);

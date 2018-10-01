@@ -1,90 +1,84 @@
 #include "MSXMapperIO.hh"
+#include "MSXMemoryMapper.hh"
 #include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "Math.hh"
+#include "StringOp.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "stl.hh"
+#include <algorithm>
 
 namespace openmsx {
 
-static byte calcEngineMask(MSXMotherBoard& motherBoard)
+static byte calcReadBackMask(MSXMotherBoard& motherBoard)
 {
-	string_ref type = motherBoard.getMachineConfig()->getConfig().getChildData(
+	string_view type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
-	if (type == "5") {
-		return 0xE0; // upper 3 bits always read "1"
-	} else if (type == "largest") {
+	if (type == "largest") {
 		return 0x00; // all bits can be read
-	} else {
-		throw FatalError("Unknown mapper type: \"" + type + "\".");
 	}
+	std::string str = type.str();
+	int bits;
+	if (!StringOp::stringToInt(str, bits)) {
+		throw FatalError("Unknown mapper type: \"", type, "\".");
+	}
+	if (bits < 0 || bits > 8) {
+		throw FatalError("MapperReadBackBits out of range: \"", type, "\".");
+	}
+	return unsigned(-1) << bits;
 }
 
 MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
 	: MSXDevice(config)
 	, debuggable(getMotherBoard(), getName())
-	, engineMask(calcEngineMask(getMotherBoard()))
+	, mask(calcReadBackMask(getMotherBoard()))
 {
-	updateMask();
 	reset(EmuTime::dummy());
 }
 
-void MSXMapperIO::updateMask()
+void MSXMapperIO::registerMapper(MSXMemoryMapperInterface* mapper)
 {
-	// unused bits always read "1"
-	unsigned largest = (mapperSizes.empty()) ? 1 : mapperSizes.back();
-	mask = ((256 - Math::powerOfTwo(largest)) & 255) | engineMask;
+	mappers.push_back(mapper);
 }
 
-void MSXMapperIO::registerMapper(unsigned blocks)
+void MSXMapperIO::unregisterMapper(MSXMemoryMapperInterface* mapper)
 {
-	auto it = upper_bound(begin(mapperSizes), end(mapperSizes), blocks);
-	mapperSizes.insert(it, blocks);
-	updateMask();
-}
-
-void MSXMapperIO::unregisterMapper(unsigned blocks)
-{
-	mapperSizes.erase(rfind_unguarded(mapperSizes, blocks));
-	updateMask();
-}
-
-void MSXMapperIO::reset(EmuTime::param /*time*/)
-{
-	// TODO in what state is mapper after reset?
-	// Zeroed is most likely.
-	// To find out for real, insert an external memory mapper on an MSX1.
-	for (auto& reg : registers) {
-		reg = 0;
-	}
+	mappers.erase(rfind_unguarded(mappers, mapper));
 }
 
 byte MSXMapperIO::readIO(word port, EmuTime::param time)
 {
-	return peekIO(port, time);
+	byte result = 0xFF;
+	for (auto* mapper : mappers) {
+		result &= mapper->readIO(port, time);
+	}
+	return result | mask;
 }
 
-byte MSXMapperIO::peekIO(word port, EmuTime::param /*time*/) const
+byte MSXMapperIO::peekIO(word port, EmuTime::param time) const
 {
-	return getSelectedPage(port & 0x03) | mask;
+	byte result = 0xFF;
+	for (auto* mapper : mappers) {
+		result &= mapper->peekIO(port, time);
+	}
+	return result | mask;
 }
 
-void MSXMapperIO::writeIO(word port, byte value, EmuTime::param /*time*/)
+void MSXMapperIO::writeIO(word port, byte value, EmuTime::param time)
 {
-	write(port & 0x03, value);
-}
-
-void MSXMapperIO::write(unsigned address, byte value)
-{
-	registers[address] = value;
-	invalidateMemCache(0x4000 * address, 0x4000);
+	for (auto* mapper : mappers) {
+		mapper->writeIO(port, value, time);
+	}
+	invalidateMemCache(0x4000 * (port & 0x03), 0x4000);
 }
 
 
 // SimpleDebuggable
+// This debuggable is here for backwards compatibility. For more accurate
+// results, use the debuggable belonging to a specific mapper.
 
 MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
                                     const std::string& name_)
@@ -95,21 +89,34 @@ MSXMapperIO::Debuggable::Debuggable(MSXMotherBoard& motherBoard_,
 byte MSXMapperIO::Debuggable::read(unsigned address)
 {
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
-	return mapperIO.getSelectedPage(address);
+	byte result = 0;
+	for (auto* mapper : mapperIO.mappers) {
+		result = std::max(result, mapper->getSelectedSegment(address));
+	}
+	return result;
 }
 
-void MSXMapperIO::Debuggable::write(unsigned address, byte value)
+void MSXMapperIO::Debuggable::write(unsigned address, byte value,
+                                    EmuTime::param time)
 {
 	auto& mapperIO = OUTER(MSXMapperIO, debuggable);
-	mapperIO.write(address, value);
+	mapperIO.writeIO(address, value, time);
 }
 
 
 template<typename Archive>
-void MSXMapperIO::serialize(Archive& ar, unsigned /*version*/)
+void MSXMapperIO::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("registers", registers);
-	// all other state is reconstructed in another way
+	if (ar.versionBelow(version, 2)) {
+		// In version 1 we stored the mapper state in MSXMapperIO instead of
+		// in the individual mappers, so distribute the state to them.
+		assert(ar.isLoader());
+		byte registers[4];
+		ar.serialize("registers", registers);
+		for (int page = 0; page < 4; page++) {
+			writeIO(page, registers[page], EmuTime::dummy());
+		}
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMapperIO);
 

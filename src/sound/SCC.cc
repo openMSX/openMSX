@@ -102,6 +102,7 @@
 #include "likely.hh"
 #include "outer.hh"
 #include "unreachable.hh"
+#include <cmath>
 
 using std::string;
 
@@ -124,7 +125,7 @@ SCC::SCC(const string& name_, const DeviceConfig& config,
 	for (auto& op : orgPeriod) op = 0;
 
 	float input = 3579545.0f / 32;
-	setInputRate(int(input + 0.5f));
+	setInputRate(lrintf(input));
 
 	powerUp(time);
 	registerSound(config);
@@ -340,7 +341,7 @@ void SCC::writeMem(byte address, byte value, EmuTime::param time)
 	}
 }
 
-int SCC::getAmplificationFactor() const
+int SCC::getAmplificationFactorImpl() const
 {
 	return 256;
 }

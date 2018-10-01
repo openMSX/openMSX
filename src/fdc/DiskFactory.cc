@@ -9,7 +9,7 @@
 #include "DirAsDSK.hh"
 #include "DiskPartition.hh"
 #include "MSXException.hh"
-#include "memory.hh"
+#include <memory>
 #include <stdexcept>
 
 using std::string;
@@ -37,13 +37,13 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 	const string& diskImage, DiskChanger& diskChanger)
 {
 	if (diskImage == "ramdsk") {
-		return make_unique<RamDSKDiskImage>();
+		return std::make_unique<RamDSKDiskImage>();
 	}
 
 	Filename filename(diskImage, userFileContext());
 	try {
 		// First try DirAsDSK
-		return make_unique<DirAsDSK>(
+		return std::make_unique<DirAsDSK>(
 			diskChanger,
 			reactor.getCliComm(),
 			filename,
@@ -56,19 +56,19 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		auto file = std::make_shared<File>(filename, File::PRE_CACHE);
 		try {
 			// first try XSA
-			return make_unique<XSADiskImage>(filename, *file);
+			return std::make_unique<XSADiskImage>(filename, *file);
 		} catch (MSXException&) {
 			// XSA didn't work, still no problem
 		}
 		try {
 			// next try dmk
 			file->seek(0);
-			return make_unique<DMKDiskImage>(filename, file);
+			return std::make_unique<DMKDiskImage>(filename, file);
 		} catch (MSXException& /*e*/) {
 			// DMK didn't work, still no problem
 		}
 		// next try normal DSK
-		return make_unique<DSKDiskImage>(filename, std::move(file));
+		return std::make_unique<DSKDiskImage>(filename, std::move(file));
 
 	} catch (MSXException& e) {
 		// File could not be opened or (very rare) something is wrong
@@ -95,13 +95,13 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		}
 		unsigned num;
 		try {
-			num = fast_stou(diskImage.substr(pos + 1));
+			num = fast_stou(string_view(diskImage).substr(pos + 1));
 		} catch (std::invalid_argument&) {
 			// not a valid partion number, throw previous exception
 			throw e;
 		}
 		SectorAccessibleDisk& disk = *wholeDisk;
-		return make_unique<DiskPartition>(disk, num, std::move(wholeDisk));
+		return std::make_unique<DiskPartition>(disk, num, std::move(wholeDisk));
 	}
 }
 

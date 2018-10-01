@@ -15,23 +15,23 @@ using std::string;
 
 namespace openmsx {
 
-XMLElement::XMLElement(string_ref name_)
+XMLElement::XMLElement(string_view name_)
 	: name(name_.str())
 {
 }
 
-XMLElement::XMLElement(string_ref name_, string_ref data_)
+XMLElement::XMLElement(string_view name_, string_view data_)
 	: name(name_.str())
 	, data(data_.str())
 {
 }
 
-XMLElement& XMLElement::addChild(string_ref childName)
+XMLElement& XMLElement::addChild(string_view childName)
 {
 	children.emplace_back(childName);
 	return children.back();
 }
-XMLElement& XMLElement::addChild(string_ref childName, string_ref childData)
+XMLElement& XMLElement::addChild(string_view childName, string_view childData)
 {
 	children.emplace_back(childName, childData);
 	return children.back();
@@ -43,24 +43,24 @@ void XMLElement::removeChild(const XMLElement& child)
 		[&](Children::value_type& v) { return &v == &child; }));
 }
 
-XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref attrName)
+XMLElement::Attributes::iterator XMLElement::findAttribute(string_view attrName)
 {
 	return find_if(begin(attributes), end(attributes),
 	               [&](Attribute& a) { return a.first == attrName; });
 }
-XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_ref attrName) const
+XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_view attrName) const
 {
 	return find_if(begin(attributes), end(attributes),
 	               [&](const Attribute& a) { return a.first == attrName; });
 }
 
-void XMLElement::addAttribute(string_ref attrName, string_ref value)
+void XMLElement::addAttribute(string_view attrName, string_view value)
 {
 	assert(findAttribute(attrName) == end(attributes));
 	attributes.emplace_back(attrName.str(), value.str());
 }
 
-void XMLElement::setAttribute(string_ref attrName, string_ref value)
+void XMLElement::setAttribute(string_view attrName, string_view value)
 {
 	auto it = findAttribute(attrName);
 	if (it != end(attributes)) {
@@ -70,7 +70,7 @@ void XMLElement::setAttribute(string_ref attrName, string_ref value)
 	}
 }
 
-void XMLElement::removeAttribute(string_ref attrName)
+void XMLElement::removeAttribute(string_view attrName)
 {
 	auto it = findAttribute(attrName);
 	if (it != end(attributes)) {
@@ -78,7 +78,7 @@ void XMLElement::removeAttribute(string_ref attrName)
 	}
 }
 
-void XMLElement::setName(string_ref newName)
+void XMLElement::setName(string_view newName)
 {
 	name = newName.str();
 }
@@ -88,13 +88,13 @@ void XMLElement::clearName()
 	name.clear();
 }
 
-void XMLElement::setData(string_ref newData)
+void XMLElement::setData(string_view newData)
 {
 	assert(children.empty()); // no mixed-content elements
 	data = newData.str();
 }
 
-std::vector<const XMLElement*> XMLElement::getChildren(string_ref childName) const
+std::vector<const XMLElement*> XMLElement::getChildren(string_view childName) const
 {
 	std::vector<const XMLElement*> result;
 	for (auto& c : children) {
@@ -105,7 +105,7 @@ std::vector<const XMLElement*> XMLElement::getChildren(string_ref childName) con
 	return result;
 }
 
-XMLElement* XMLElement::findChild(string_ref childName)
+XMLElement* XMLElement::findChild(string_view childName)
 {
 	for (auto& c : children) {
 		if (c.getName() == childName) {
@@ -114,12 +114,12 @@ XMLElement* XMLElement::findChild(string_ref childName)
 	}
 	return nullptr;
 }
-const XMLElement* XMLElement::findChild(string_ref childName) const
+const XMLElement* XMLElement::findChild(string_view childName) const
 {
 	return const_cast<XMLElement*>(this)->findChild(childName);
 }
 
-const XMLElement* XMLElement::findNextChild(string_ref childName,
+const XMLElement* XMLElement::findNextChild(string_view childName,
 	                                    size_t& fromIndex) const
 {
 	for (auto i : xrange(fromIndex, children.size())) {
@@ -137,8 +137,8 @@ const XMLElement* XMLElement::findNextChild(string_ref childName,
 	return nullptr;
 }
 
-XMLElement* XMLElement::findChildWithAttribute(string_ref childName,
-	string_ref attName, string_ref attValue)
+XMLElement* XMLElement::findChildWithAttribute(string_view childName,
+	string_view attName, string_view attValue)
 {
 	for (auto& c : children) {
 		if ((c.getName() == childName) &&
@@ -149,28 +149,27 @@ XMLElement* XMLElement::findChildWithAttribute(string_ref childName,
 	return nullptr;
 }
 
-const XMLElement* XMLElement::findChildWithAttribute(string_ref childName,
-	string_ref attName, string_ref attValue) const
+const XMLElement* XMLElement::findChildWithAttribute(string_view childName,
+	string_view attName, string_view attValue) const
 {
 	return const_cast<XMLElement*>(this)->findChildWithAttribute(
 		childName, attName, attValue);
 }
 
-XMLElement& XMLElement::getChild(string_ref childName)
+XMLElement& XMLElement::getChild(string_view childName)
 {
 	if (auto* elem = findChild(childName)) {
 		return *elem;
 	}
-	throw ConfigException(StringOp::Builder() <<
-		"Missing tag \"" << childName << "\".");
+	throw ConfigException("Missing tag \"", childName, "\".");
 }
-const XMLElement& XMLElement::getChild(string_ref childName) const
+const XMLElement& XMLElement::getChild(string_view childName) const
 {
 	return const_cast<XMLElement*>(this)->getChild(childName);
 }
 
-XMLElement& XMLElement::getCreateChild(string_ref childName,
-                                       string_ref defaultValue)
+XMLElement& XMLElement::getCreateChild(string_view childName,
+                                       string_view defaultValue)
 {
 	if (auto* result = findChild(childName)) {
 		return *result;
@@ -179,8 +178,8 @@ XMLElement& XMLElement::getCreateChild(string_ref childName,
 }
 
 XMLElement& XMLElement::getCreateChildWithAttribute(
-	string_ref childName, string_ref attName,
-	string_ref attValue)
+	string_view childName, string_view attName,
+	string_view attValue)
 {
 	if (auto* result = findChildWithAttribute(childName, attName, attValue)) {
 		return *result;
@@ -190,31 +189,31 @@ XMLElement& XMLElement::getCreateChildWithAttribute(
 	return result;
 }
 
-const string& XMLElement::getChildData(string_ref childName) const
+const string& XMLElement::getChildData(string_view childName) const
 {
 	return getChild(childName).getData();
 }
 
-string_ref XMLElement::getChildData(string_ref childName,
-                                    string_ref defaultValue) const
+string_view XMLElement::getChildData(string_view childName,
+                                    string_view defaultValue) const
 {
 	auto* child = findChild(childName);
 	return child ? child->getData() : defaultValue;
 }
 
-bool XMLElement::getChildDataAsBool(string_ref childName, bool defaultValue) const
+bool XMLElement::getChildDataAsBool(string_view childName, bool defaultValue) const
 {
 	auto* child = findChild(childName);
 	return child ? StringOp::stringToBool(child->getData()) : defaultValue;
 }
 
-int XMLElement::getChildDataAsInt(string_ref childName, int defaultValue) const
+int XMLElement::getChildDataAsInt(string_view childName, int defaultValue) const
 {
 	auto* child = findChild(childName);
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
 }
 
-void XMLElement::setChildData(string_ref childName, string_ref value)
+void XMLElement::setChildData(string_view childName, string_view value)
 {
 	if (auto* child = findChild(childName)) {
 		child->setData(value);
@@ -228,29 +227,28 @@ void XMLElement::removeAllChildren()
 	children.clear();
 }
 
-bool XMLElement::hasAttribute(string_ref attrName) const
+bool XMLElement::hasAttribute(string_view attrName) const
 {
 	return findAttribute(attrName) != end(attributes);
 }
 
-const string& XMLElement::getAttribute(string_ref attName) const
+const string& XMLElement::getAttribute(string_view attName) const
 {
 	auto it = findAttribute(attName);
 	if (it == end(attributes)) {
-		throw ConfigException("Missing attribute \"" +
-		                      attName + "\".");
+		throw ConfigException("Missing attribute \"", attName, "\".");
 	}
 	return it->second;
 }
 
-string_ref XMLElement::getAttribute(string_ref attName,
-	                            string_ref defaultValue) const
+string_view XMLElement::getAttribute(string_view attName,
+	                            string_view defaultValue) const
 {
 	auto it = findAttribute(attName);
 	return (it == end(attributes)) ? defaultValue : it->second;
 }
 
-bool XMLElement::getAttributeAsBool(string_ref attName,
+bool XMLElement::getAttributeAsBool(string_view attName,
                                     bool defaultValue) const
 {
 	auto it = findAttribute(attName);
@@ -258,7 +256,7 @@ bool XMLElement::getAttributeAsBool(string_ref attName,
 	                                : StringOp::stringToBool(it->second);
 }
 
-int XMLElement::getAttributeAsInt(string_ref attName,
+int XMLElement::getAttributeAsInt(string_view attName,
                                   int defaultValue) const
 {
 	auto it = findAttribute(attName);
@@ -266,7 +264,7 @@ int XMLElement::getAttributeAsInt(string_ref attName,
 	                                : StringOp::stringToInt(it->second);
 }
 
-bool XMLElement::findAttributeInt(string_ref attName,
+bool XMLElement::findAttributeInt(string_view attName,
                                   unsigned& result) const
 {
 	auto it = findAttribute(attName);
@@ -280,32 +278,31 @@ bool XMLElement::findAttributeInt(string_ref attName,
 
 string XMLElement::dump() const
 {
-	StringOp::Builder result;
+	string result;
 	dump(result, 0);
 	return result;
 }
 
-void XMLElement::dump(StringOp::Builder& result, unsigned indentNum) const
+void XMLElement::dump(string& result, unsigned indentNum) const
 {
-	string indent(indentNum, ' ');
-	result << indent << '<' << getName();
+	strAppend(result, spaces(indentNum), '<', getName());
 	for (auto& p : attributes) {
-		result << ' ' << p.first
-		       << "=\"" << XMLEscape(p.second) << '"';
+		strAppend(result, ' ', p.first,
+		          "=\"", XMLEscape(p.second), '"');
 	}
 	if (children.empty()) {
 		if (data.empty()) {
-			result << "/>\n";
+			strAppend(result, "/>\n");
 		} else {
-			result << '>' << XMLEscape(data) << "</"
-			       << getName() << ">\n";
+			strAppend(result, '>', XMLEscape(data), "</",
+			          getName(), ">\n");
 		}
 	} else {
-		result << ">\n";
+		strAppend(result, ">\n");
 		for (auto& c : children) {
 			c.dump(result, indentNum + 2);
 		}
-		result << indent << "</" << getName() << ">\n";
+		strAppend(result, spaces(indentNum), "</", getName(), ">\n");
 	}
 }
 
@@ -326,7 +323,7 @@ string XMLElement::XMLEscape(const string& s)
 	result.reserve(s.size() + 10); // extra space for at least 2 substitutions
 	size_t pos = 0;
 	do {
-		result += s.substr(pos, i - pos);
+		strAppend(result, string_view(s).substr(pos, i - pos));
 		switch (s[i]) {
 		case '<' : result += "&lt;";   break;
 		case '>' : result += "&gt;";   break;
@@ -338,7 +335,7 @@ string XMLElement::XMLEscape(const string& s)
 		pos = i + 1;
 		i = s.find_first_of(CHARS, pos);
 	} while (i != string::npos);
-	result += s.substr(pos);
+	strAppend(result, string_view(s).substr(pos));
 	return result;
 }
 

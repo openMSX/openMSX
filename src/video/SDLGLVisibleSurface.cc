@@ -6,7 +6,7 @@
 #include "OSDGUILayer.hh"
 #include "InitException.hh"
 #include "RenderSettings.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -58,9 +58,9 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	GLenum glew_error = glewInit();
 	if (glew_error != GLEW_OK) {
 		throw InitException(
-			"Failed to init GLEW: " + std::string(
-				reinterpret_cast<const char*>(
-					glewGetErrorString(glew_error))));
+			"Failed to init GLEW: ",
+			reinterpret_cast<const char*>(
+				glewGetErrorString(glew_error)));
 	}
 	if (!GLEW_VERSION_2_0) {
 		throw InitException("Need at least openGL version 2.0.");
@@ -78,7 +78,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	// is split in two phases.
 	SDLGLOutputSurface::init(*this);
 
-	gl::context = make_unique<gl::Context>(width, height);
+	gl::context = std::make_unique<gl::Context>(width, height);
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
@@ -110,25 +110,25 @@ void SDLGLVisibleSurface::finish()
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
 {
-	return make_unique<GLSnow>(getDisplay());
+	return std::make_unique<GLSnow>(getDisplay());
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
 		Reactor& reactor, CommandConsole& console)
 {
 	const bool openGL = true;
-	return make_unique<OSDConsoleRenderer>(
+	return std::make_unique<OSDConsoleRenderer>(
 		reactor, console, getWidth(), getHeight(), openGL);
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
-	return make_unique<GLOSDGUILayer>(gui);
+	return std::make_unique<GLOSDGUILayer>(gui);
 }
 
 std::unique_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()
 {
-	return make_unique<SDLGLOffScreenSurface>(*this);
+	return std::make_unique<SDLGLOffScreenSurface>(*this);
 }
 
 } // namespace openmsx

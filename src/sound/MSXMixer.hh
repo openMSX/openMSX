@@ -28,6 +28,11 @@ class MSXMixer final : private Schedulable, private Observer<Setting>
                      , private Observer<ThrottleManager>
 {
 public:
+	// See SoundDevice::getAmplificationFactor()
+	// and MSXMixer::updateVolumeParams()
+	static constexpr int AMP_BITS = 9;
+
+public:
 	MSXMixer(Mixer& mixer, MSXMotherBoard& motherBoard,
 	         GlobalSettings& globalSettings);
 	~MSXMixer();
@@ -53,6 +58,11 @@ public:
 	 * updateBuffer() methods.
 	 */
 	void updateStream(EmuTime::param time);
+
+	/**
+	 * Used by SoundDevice::setSoftwareVolume()
+	 */
+	void updateSoftwareVolume(SoundDevice& device);
 
 	/** Returns the ratio of emutime-speed per realtime-speed.
 	 * In other words how many times faster emutime goes compared to
@@ -100,7 +110,7 @@ public:
 	// Returns the nominal host sample rate (not adjusted for speed setting)
 	unsigned getSampleRate() const { return hostSampleRate; }
 
-	SoundDevice* findDevice(string_ref name) const;
+	SoundDevice* findDevice(string_view name) const;
 
 	void reInit();
 
@@ -122,7 +132,7 @@ private:
 	void updateMasterVolume();
 	void reschedule();
 	void reschedule2();
-	void generate(int16_t* buffer, EmuTime::param time, unsigned samples);
+	void generate(int16_t* output, EmuTime::param time, unsigned samples);
 
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;

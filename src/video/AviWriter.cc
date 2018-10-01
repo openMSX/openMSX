@@ -3,13 +3,12 @@
 #include "AviWriter.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
-#include "memory.hh"
 #include "build-info.hh"
 #include "Version.hh"
 #include "cstdiop.hh" // for snprintf
+#include <cassert>
 #include <cstring>
 #include <ctime>
-#include <cassert>
 
 namespace openmsx {
 
@@ -170,12 +169,18 @@ AviWriter::~AviWriter()
 	// instead we #define snprintf to _snprintf and the latter does NOT
 	// properly zero-terminate. See also
 	//   http://stackoverflow.com/questions/7706936/is-snprintf-always-null-terminating
-	char dateStr[11];
+	//
+	// A buffer size of 11 characters is large enough till the year 9999.
+	// But the compiler doesn't understand calendars and warns that the
+	// snprintf output could be truncated (e.g. because the year is
+	// -2147483647). To silence this warning (and also to work around the
+	// windows _snprintf stuff) we add some extra buffer space.
+	static constexpr size_t size = (4 + 1 + 2 + 1 + 2 + 1) + 22;
+	char dateStr[size];
 	time_t t = time(nullptr);
 	struct tm *tm = localtime(&t);
-	snprintf(dateStr, 11, "%04d-%02d-%02d", 1900 + tm->tm_year,
+	snprintf(dateStr, sizeof(dateStr), "%04d-%02d-%02d", 1900 + tm->tm_year,
 		 tm->tm_mon + 1, tm->tm_mday);
-	dateStr[10] = 0; // only required on windows
 
 	AVIOUT4("LIST");
 	AVIOUTd(4 // list type
@@ -211,7 +216,7 @@ AviWriter::~AviWriter()
 	try {
 		// First add the index table to the end
 		unsigned idxSize = unsigned(index.size()) * sizeof(Endian::L32);
-		memcpy(&index[0], "idx1", 4);
+		index[0] = ('i' << 0) | ('d' << 8) | ('x' << 16) | ('1' << 24);
 		index[1] = idxSize - 8;
 		file.write(&index[0], idxSize);
 		file.seek(0);

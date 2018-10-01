@@ -52,7 +52,7 @@ TRIPLE_MACHINE:=$(OPENMSX_TARGET_CPU)
 endif
 endif
 endif
-ifeq ($(OPENMSX_TARGET_OS),dingux)
+ifneq ($(filter android dingux,$(OPENMSX_TARGET_OS)),)
 TRIPLE_OS:=linux
 else
 TRIPLE_OS:=$(OPENMSX_TARGET_OS)
@@ -84,9 +84,6 @@ USE_VIDEO_X11:=enable
 endif
 
 PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE))
-ifneq ($(TRIPLE_OS),linux)
-PACKAGES_BUILD:=$(filter-out ALSA,$(PACKAGES_BUILD))
-endif
 PACKAGES_NOBUILD:=
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
 
@@ -130,6 +127,7 @@ PNG_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/libpng-config
 FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
 SDL2_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl2-config
 $(PNG_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_PNG)
+FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
 $(FREETYPE_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_FREETYPE)
 $(SDL2_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL2)
 
@@ -205,12 +203,17 @@ $(BUILD_DIR)/$(PACKAGE_SDL2_TTF)/Makefile: \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
-		--with-sdl-prefix=$(PWD)/$(INSTALL_DIR) \
-		--with-freetype-prefix=$(PWD)/$(INSTALL_DIR) \
 		--$(subst disable,without,$(subst enable,with,$(USE_VIDEO_X11)))-x \
+		ac_cv_path_FREETYPE_CONFIG=$(abspath $(FREETYPE_CONFIG_SCRIPT)) \
+		ac_cv_path_SDL_CONFIG=$(abspath $(SDL_CONFIG_SCRIPT)) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="$(_LDFLAGS)"
+		LDFLAGS="$(_LDFLAGS)" \
+		PKG_CONFIG=/nowhere
+# Disable building of example programs.
+# This build fails on Android (SDL main issues), but on other platforms
+# we don't need these programs either.
+MAKEVAR_OVERRIDE_SDL_TTF:=noinst_PROGRAMS=""
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
@@ -283,6 +286,17 @@ else
 #       the "macosx" dir, but that is only intended for use with Xcode.
 TCL_OS:=unix
 endif
+CONFIGURE_OVERRIDE_TCL:=
+ifeq ($(OPENMSX_TARGET_OS),android)
+# nl_langinfo was introduced in API version 26, but for some reason configure
+# detects it on older API versions as well.
+CONFIGURE_OVERRIDE_TCL+=--disable-langinfo
+# The structs for 64-bit file offsets are already present in API version 14,
+# but the functions were only added in version 21. Tcl assumes that if the
+# structs are present, the functions are also present. So we override the
+# detection of the structs.
+CONFIGURE_OVERRIDE_TCL+=tcl_cv_struct_dirent64=no tcl_cv_struct_stat64=no
+endif
 $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_TCL)/.extracted
 	mkdir -p $(@D)
@@ -293,6 +307,7 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 		--disable-shared \
 		--disable-threads \
 		--without-tzdata \
+		$(CONFIGURE_OVERRIDE_TCL) \
 		CFLAGS="$(_CFLAGS)" \
 		LDFLAGS="$(_LDFLAGS)"
 

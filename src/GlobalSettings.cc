@@ -1,10 +1,10 @@
 #include "GlobalSettings.hh"
 #include "SettingsConfig.hh"
 #include "GlobalCommandController.hh"
-#include "StringOp.hh"
-#include "memory.hh"
+#include "strCat.hh"
 #include "xrange.hh"
 #include "build-info.hh"
+#include <memory>
 #include <SDL.h>
 
 namespace openmsx {
@@ -23,11 +23,11 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	, pauseOnLostFocusSetting(commandController, "pause_on_lost_focus",
 	       "pause emulation when the openMSX window loses focus", false)
 	, umrCallBackSetting(commandController, "umr_callback",
-		"Tcl proc to call when an UMR is detected", "")
+		"Tcl proc to call when an UMR is detected", {})
 	, invalidPsgDirectionsSetting(commandController,
 		"invalid_psg_directions_callback",
 		"Tcl proc called when the MSX program has set invalid PSG port directions",
-		"")
+		{})
 	, resampleSetting(commandController, "resampler", "Resample algorithm",
 #if PLATFORM_DINGUX
 		// For Dingux, LQ is good compromise between quality and performance
@@ -46,8 +46,8 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	, throttleManager(commandController)
 {
 	for (auto i : xrange(SDL_NumJoysticks())) {
-		std::string name = "joystick" + StringOp::toString(i + 1) + "_deadzone";
-		deadzoneSettings.emplace_back(make_unique<IntegerSetting>(
+		std::string name = strCat("joystick", i + 1, "_deadzone");
+		deadzoneSettings.emplace_back(std::make_unique<IntegerSetting>(
 			commandController, name,
 			"size (as a percentage) of the dead center zone",
 			25, 0, 100));

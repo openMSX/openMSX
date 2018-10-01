@@ -11,10 +11,10 @@ class IntegerSetting final : public Setting
 {
 public:
 	IntegerSetting(CommandController& commandController,
-	               string_ref name, string_ref description,
+	               string_view name, string_view description,
 	               int initialValue, int minValue, int maxValue);
 
-	string_ref getTypeString() const override;
+	string_view getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;
 
 	int getInt() const { return getValue().getInt(getInterpreter()); }

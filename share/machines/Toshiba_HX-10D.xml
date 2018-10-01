@@ -71,7 +71,8 @@
       </RAM>
     </primary>
 
-    <!-- <primary external="true" slot="3"/> expansion bus only! -->
+    <!-- Note: this connector is actually a non-standard expansion connector on the back -->
+    <primary external="true" slot="3"/>
 
   </devices>
 

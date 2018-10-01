@@ -17,17 +17,17 @@ CDImageCLI::CDImageCLI(CommandLineParser& parser_)
 
 void CDImageCLI::parseOption(const string& option, array_ref<string>& cmdLine)
 {
-	string_ref cd = string_ref(option).substr(1); // cda
+	string_view cd = string_view(option).substr(1); // cda
 	string filename = getArgument(option, cmdLine);
 	if (!parser.getGlobalCommandController().hasCommand(cd)) { // TODO WIP
-		throw MSXException("No CDROM named '" + cd + "'.");
+		throw MSXException("No CDROM named '", cd, "'.");
 	}
 	TclObject command;
 	command.addListElement(cd);
 	command.addListElement(filename);
 	command.executeCommand(parser.getInterpreter());
 }
-string_ref CDImageCLI::optionHelp() const
+string_view CDImageCLI::optionHelp() const
 {
 	return "Use iso image in argument for the CDROM extension";
 }

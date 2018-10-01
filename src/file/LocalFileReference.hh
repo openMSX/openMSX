@@ -48,7 +48,7 @@ public:
 
 private:
 	void init(const std::string& url);
-	void init(File& url);
+	void init(File& file);
 
 	std::string tmpFile;
 	std::string tmpDir;

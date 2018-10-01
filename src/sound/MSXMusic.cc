@@ -1,5 +1,7 @@
 #include "MSXMusic.hh"
 #include "CacheLine.hh"
+#include "Math.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -11,6 +13,10 @@ MSXMusicBase::MSXMusicBase(const DeviceConfig& config)
 	, rom(getName() + " ROM", "rom", config)
 	, ym2413(getName(), config)
 {
+	auto sz = rom.getSize();
+	if ((sz == 0) || !Math::isPowerOfTwo(sz)) {
+		throw MSXException("MSX-Music ROM-size must be a non-zero power of two");
+	}
 	reset(getCurrentTime());
 }
 
@@ -112,6 +118,7 @@ REGISTER_MSXDEVICE(MSXMusic, "MSX-Music");
 MSXMusicWX::MSXMusicWX(const DeviceConfig& config)
 	: MSXMusicBase(config)
 {
+	reset(getCurrentTime());
 }
 
 void MSXMusicWX::reset(EmuTime::param time)

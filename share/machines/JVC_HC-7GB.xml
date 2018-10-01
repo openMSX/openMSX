@@ -5,10 +5,21 @@
   <info>
     <manufacturer>JVC</manufacturer>
     <code>HC-7GB</code>
-    <release_year>1984?</release_year>
+    <release_year>1985</release_year>
     <description/>
     <type>MSX</type>
   </info>
+
+  <!--
+    As per: https://www.msx.org/wiki/images/d/dd/JVC_HC-7GB_PCB.jpg
+    CPU: SHARP LH0080A Z80-A-CPU-D
+    PPI: Mitsubishi M5L8255AP-5
+    PSG: GI AY-3-8910A
+    VDP: hidden under heat sink :(
+
+    ROM was taken from machine with serial 06012722
+  -->
+
 
   <CassettePort/>
 
@@ -33,6 +44,7 @@
     </VDP>
 
     <PSG id="PSG">
+      <type>AY8910</type>
       <sound>
         <volume>21000</volume>
       </sound>

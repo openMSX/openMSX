@@ -10,9 +10,10 @@
 #include "StringOp.hh"
 #include "utf8_core.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include "components.hh"
 #include <cassert>
+#include <cmath>
+#include <memory>
 #if COMPONENT_GL
 #include "GLImage.hh"
 #endif
@@ -31,7 +32,7 @@ OSDText::OSDText(Display& display_, const TclObject& name_)
 {
 }
 
-vector<string_ref> OSDText::getProperties() const
+vector<string_view> OSDText::getProperties() const
 {
 	auto result = OSDImageBasedWidget::getProperties();
 	static const char* const vals[] = {
@@ -43,10 +44,10 @@ vector<string_ref> OSDText::getProperties() const
 }
 
 void OSDText::setProperty(
-	Interpreter& interp, string_ref propName, const TclObject& value)
+	Interpreter& interp, string_view propName, const TclObject& value)
 {
 	if (propName == "-text") {
-		string_ref val = value.getString();
+		string_view val = value.getString();
 		if (text != val) {
 			text = val.str();
 			// note: don't invalidate font (don't reopen font file)
@@ -58,7 +59,7 @@ void OSDText::setProperty(
 		if (fontfile != val) {
 			string file = systemFileContext().resolve(val);
 			if (!FileOperations::isRegularFile(file)) {
-				throw CommandException("Not a valid font file: " + val);
+				throw CommandException("Not a valid font file: ", val);
 			}
 			fontfile = val;
 			invalidateRecursive();
@@ -70,7 +71,7 @@ void OSDText::setProperty(
 			invalidateRecursive();
 		}
 	} else if (propName == "-wrap") {
-		string_ref val = value.getString();
+		string_view val = value.getString();
 		WrapMode wrapMode2;
 		if (val == "none") {
 			wrapMode2 = NONE;
@@ -80,8 +81,8 @@ void OSDText::setProperty(
 			wrapMode2 = CHAR;
 		} else {
 			throw CommandException("Not a valid value for -wrap, "
-				"expected one of 'none word char', but got '" +
-				val + "'.");
+				"expected one of 'none word char', but got '",
+				val, "'.");
 		}
 		if (wrapMode != wrapMode2) {
 			wrapMode = wrapMode2;
@@ -106,7 +107,7 @@ void OSDText::setProperty(
 	}
 }
 
-void OSDText::getProperty(string_ref propName, TclObject& result) const
+void OSDText::getProperty(string_view propName, TclObject& result) const
 {
 	if (propName == "-text") {
 		result.setString(text);
@@ -143,7 +144,7 @@ void OSDText::invalidateLocal()
 }
 
 
-string_ref OSDText::getType() const
+string_view OSDText::getType() const
 {
 	return "text";
 }
@@ -155,7 +156,7 @@ vec2 OSDText::getSize(const OutputSurface& /*output*/) const
 	} else {
 		// we don't know the dimensions, must be because of an error
 		assert(hasError());
-		return vec2();
+		return {};
 	}
 }
 
@@ -168,7 +169,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	OutputSurface& output)
 {
 	if (text.empty()) {
-		return make_unique<IMAGE>(output, ivec2(), 0);
+		return std::make_unique<IMAGE>(output, ivec2(), 0);
 	}
 	int scale = getScaleFactor(output);
 	if (font.empty()) {
@@ -177,12 +178,12 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 			int ptSize = size * scale;
 			font = TTFFont(file, ptSize);
 		} catch (MSXException& e) {
-			throw MSXException("Couldn't open font: " + e.getMessage());
+			throw MSXException("Couldn't open font: ", e.getMessage());
 		}
 	}
 	try {
 		vec2 pSize = getParent()->getSize(output);
-		int maxWidth = int(wrapw * scale + wraprelw * pSize[0] + 0.5f);
+		int maxWidth = lrintf(wrapw * scale + wraprelw * pSize[0]);
 		// Width can't be negative, if it is make it zero instead.
 		// This will put each character on a different line.
 		maxWidth = std::max(0, maxWidth);
@@ -205,12 +206,12 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		SDLSurfacePtr surface(font.render(wrappedText,
 			(textRgba >> 24) & 0xff, (textRgba >> 16) & 0xff, (textRgba >> 8) & 0xff));
 		if (surface) {
-			return make_unique<IMAGE>(output, std::move(surface));
+			return std::make_unique<IMAGE>(output, std::move(surface));
 		} else {
-			return make_unique<IMAGE>(output, ivec2(), 0);
+			return std::make_unique<IMAGE>(output, ivec2(), 0);
 		}
 	} catch (MSXException& e) {
-		throw MSXException("Couldn't render text: " + e.getMessage());
+		throw MSXException("Couldn't render text: ", e.getMessage());
 	}
 }
 
@@ -242,7 +243,7 @@ static size_t findCharSplitPoint(const string& line, size_t min, size_t max)
 // exits, this function returns 'min'.
 // This function works correctly with multi-byte utf8-encoding as long as
 // all delimiter characters are single byte chars.
-static size_t findWordSplitPoint(string_ref line, size_t min, size_t max)
+static size_t findWordSplitPoint(string_view line, size_t min, size_t max)
 {
 	static const char* const delimiters = " -/";
 
@@ -257,7 +258,7 @@ static size_t findWordSplitPoint(string_ref line, size_t min, size_t max)
 	// try searching backward (this also checks current position)
 	assert(pos > min);
 	auto pos2 = line.substr(min, pos - min).find_last_of(delimiters);
-	if (pos2 != string_ref::npos) {
+	if (pos2 != string_view::npos) {
 		pos2 += min + 1;
 		assert(min < pos2);
 		assert(pos2 <= pos);
@@ -266,7 +267,7 @@ static size_t findWordSplitPoint(string_ref line, size_t min, size_t max)
 
 	// try searching forward
 	auto pos3 = line.substr(pos, max - pos).find_first_of(delimiters);
-	if (pos3 != string_ref::npos) {
+	if (pos3 != string_view::npos) {
 		pos3 += pos;
 		assert(pos3 < max);
 		pos3 += 1; // char directly after a delimiter;
@@ -366,7 +367,7 @@ size_t OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
 
 string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 {
-	vector<string_ref> wrappedLines;
+	vector<string_view> wrappedLines;
 	for (auto& line : StringOp::split(txt, '\n')) {
 		do {
 			auto p = splitAtChar(line.str(), maxWidth);
@@ -379,11 +380,11 @@ string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 
 string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 {
-	vector<string_ref> wrappedLines;
+	vector<string_view> wrappedLines;
 	for (auto& line : StringOp::split(txt, '\n')) {
 		do {
 			auto p = splitAtWord(line.str(), maxWidth);
-			string_ref first = line.substr(0, p);
+			string_view first = line.substr(0, p);
 			StringOp::trimRight(first, ' '); // remove trailing spaces
 			wrappedLines.push_back(first);
 			line = line.substr(p);

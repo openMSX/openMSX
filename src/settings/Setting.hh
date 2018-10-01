@@ -3,7 +3,8 @@
 
 #include "Subject.hh"
 #include "TclObject.hh"
-#include "string_ref.hh"
+#include "strCat.hh"
+#include "string_view.hh"
 #include <functional>
 #include <vector>
 
@@ -16,7 +17,7 @@ class Interpreter;
 class BaseSetting
 {
 protected:
-	explicit BaseSetting(string_ref name);
+	explicit BaseSetting(string_view name);
 	explicit BaseSetting(const TclObject& name);
 	~BaseSetting() {}
 
@@ -30,14 +31,14 @@ public:
 	  */
 	const TclObject& getFullNameObj() const { return fullName; }
 	const TclObject& getBaseNameObj() const { return baseName; }
-	const string_ref getFullName()    const { return fullName.getString(); }
-	const string_ref getBaseName()    const { return baseName.getString(); }
+	const string_view getFullName()    const { return fullName.getString(); }
+	const string_view getBaseName()    const { return baseName.getString(); }
 
 	/** Set a machine specific prefix.
 	 */
-	void setPrefix(string_ref prefix) {
+	void setPrefix(string_view prefix) {
 		assert(prefix.starts_with("::"));
-		fullName.setString(prefix + getBaseName());
+		fullName.setString(strCat(prefix, getBaseName()));
 	}
 
 	/** For SettingInfo
@@ -48,12 +49,12 @@ public:
 
 	/** Get a description of this setting that can be presented to the user.
 	  */
-	virtual string_ref getDescription() const = 0;
+	virtual string_view getDescription() const = 0;
 
 	/** Returns a string describing the setting type (integer, string, ..)
 	  * Could be used in a GUI to pick an appropriate setting widget.
 	  */
-	virtual string_ref getTypeString() const = 0;
+	virtual string_view getTypeString() const = 0;
 
 	/** Helper method for info().
 	 */
@@ -152,11 +153,11 @@ public:
 	}
 
 	// BaseSetting
-	void setValue(const TclObject& value) final override;
-	string_ref getDescription() const final override;
+	void setValue(const TclObject& newValue) final override;
+	string_view getDescription() const final override;
 	TclObject getDefaultValue() const final override { return defaultValue; }
 	TclObject getRestoreValue() const final override { return restoreValue; }
-	void setValueDirect(const TclObject& value) final override;
+	void setValueDirect(const TclObject& newValue) final override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 	bool needLoadSave() const final override;
 	void additionalInfo(TclObject& result) const override;
@@ -169,7 +170,7 @@ public:
 
 protected:
 	Setting(CommandController& commandController,
-	        string_ref name, string_ref description,
+	        string_view name, string_view description,
 	        const TclObject& initialValue, SaveSetting save = SAVE);
 	void init();
 	void notifyPropertyChange() const;

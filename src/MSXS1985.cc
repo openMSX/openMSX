@@ -1,7 +1,7 @@
 #include "MSXS1985.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -14,11 +14,11 @@ MSXS1985::MSXS1985(const DeviceConfig& config)
 	if (!config.findChild("sramname")) {
 		// special case for backwards compatibility (S1985 didn't
 		// always have SRAM in its config...)
-		sram = make_unique<SRAM>(
+		sram = std::make_unique<SRAM>(
 			getName() + " SRAM", "S1985 Backup RAM",
-			0x10, config, SRAM::DONT_LOAD);
+			0x10, config, SRAM::DontLoadTag{});
 	} else {
-		sram = make_unique<SRAM>(
+		sram = std::make_unique<SRAM>(
 			getName() + " SRAM", "S1985 Backup RAM",
 			0x10, config);
 	}

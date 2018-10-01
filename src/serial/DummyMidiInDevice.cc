@@ -7,9 +7,9 @@ void DummyMidiInDevice::signal(EmuTime::param /*time*/)
 	// ignore
 }
 
-string_ref DummyMidiInDevice::getDescription() const
+string_view DummyMidiInDevice::getDescription() const
 {
-	return "";
+	return {};
 }
 
 void DummyMidiInDevice::plugHelper(Connector& /*connector*/,

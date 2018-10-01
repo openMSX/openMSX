@@ -8,10 +8,10 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "stl.hh"
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -38,7 +38,7 @@ void UserSettings::deleteSetting(Setting& setting)
 		[&](unique_ptr<Setting>& p) { return p.get() == &setting; }));
 }
 
-Setting* UserSettings::findSetting(string_ref name) const
+Setting* UserSettings::findSetting(string_view name) const
 {
 	for (auto& s : settings) {
 		if (s->getFullName() == name) {
@@ -70,8 +70,8 @@ void UserSettings::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
 		info(tokens, result);
 	} else {
 		throw CommandException(
-			"Invalid subcommand '" + subCommand + "', expected "
-			"'create', 'destroy' or 'info'.");
+			"Invalid subcommand '", subCommand,
+			"', expected 'create', 'destroy' or 'info'.");
 	}
 }
 
@@ -86,7 +86,7 @@ void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
 	auto& controller = checked_cast<GlobalCommandController&>(getCommandController());
 	if (controller.getSettingsManager().findSetting(settingName)) {
 		throw CommandException(
-			"There already exists a setting with this name: " + settingName);
+			"There already exists a setting with this name: ", settingName);
 	}
 
 	unique_ptr<Setting> setting;
@@ -100,7 +100,7 @@ void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
 		setting = createFloat(tokens);
 	} else {
 		throw CommandException(
-			"Invalid setting type '" + type + "', expected "
+			"Invalid setting type '", type, "', expected "
 			"'string', 'boolean', 'integer' or 'float'.");
 	}
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
@@ -117,7 +117,7 @@ unique_ptr<Setting> UserSettings::Cmd::createString(array_ref<TclObject> tokens)
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getString();
-	return make_unique<StringSetting>(
+	return std::make_unique<StringSetting>(
 		getCommandController(), sName, desc, initVal);
 }
 
@@ -129,7 +129,7 @@ unique_ptr<Setting> UserSettings::Cmd::createBoolean(array_ref<TclObject> tokens
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getBoolean(getInterpreter());
-	return make_unique<BooleanSetting>(
+	return std::make_unique<BooleanSetting>(
 		getCommandController(), sName, desc, initVal);
 }
 
@@ -144,7 +144,7 @@ unique_ptr<Setting> UserSettings::Cmd::createInteger(array_ref<TclObject> tokens
 	const auto& initVal = tokens[5].getInt(interp);
 	const auto& minVal  = tokens[6].getInt(interp);
 	const auto& maxVal  = tokens[7].getInt(interp);
-	return make_unique<IntegerSetting>(
+	return std::make_unique<IntegerSetting>(
 		getCommandController(), sName, desc, initVal, minVal, maxVal);
 }
 
@@ -159,7 +159,7 @@ unique_ptr<Setting> UserSettings::Cmd::createFloat(array_ref<TclObject> tokens)
 	const auto& initVal = tokens[5].getDouble(interp);
 	const auto& minVal  = tokens[6].getDouble(interp);
 	const auto& maxVal  = tokens[7].getDouble(interp);
-	return make_unique<FloatSetting>(
+	return std::make_unique<FloatSetting>(
 		getCommandController(), sName, desc, initVal, minVal, maxVal);
 }
 
@@ -174,7 +174,7 @@ void UserSettings::Cmd::destroy(array_ref<TclObject> tokens, TclObject& /*result
 	auto* setting = userSettings.findSetting(settingName);
 	if (!setting) {
 		throw CommandException(
-			"There is no user setting with this name: " + settingName);
+			"There is no user setting with this name: ", settingName);
 	}
 	userSettings.deleteSetting(*setting);
 }
@@ -255,9 +255,9 @@ void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-vector<string_ref> UserSettings::Cmd::getSettingNames() const
+vector<string_view> UserSettings::Cmd::getSettingNames() const
 {
-	vector<string_ref> result;
+	vector<string_view> result;
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
 	for (auto& s : userSettings.getSettings()) {
 		result.push_back(s->getFullName());

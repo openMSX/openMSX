@@ -63,8 +63,10 @@ def installAll(
 	if hasattr(os, 'symlink'):
 		print '  Creating symlinks...'
 		for machine, alias in (
-			('Toshiba_HX-10', 'msx1'),
-			('Philips_NMS_8250', 'msx2'),
+			('National_CF-3300', 'msx1'),
+			('Toshiba_HX-10', 'msx1_eu'),
+			('Sony_HB-F900', 'msx2'),
+			('Philips_NMS_8250', 'msx2_eu'),
 			('Panasonic_FS-A1WSX', 'msx2plus'),
 			('Panasonic_FS-A1GT', 'turbor'),
 			):

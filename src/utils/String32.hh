@@ -16,10 +16,10 @@
 // approaches. In both cases it is a 32-bit type (hence the name). And on
 // both 32/64-bit systems it uses the more effient implementation.
 
-using String32 = std::conditional<
+using String32 = std::conditional_t<
 	(sizeof(char*) > sizeof(uint32_t)), // is a pointer bigger than an uint32_t
 	uint32_t,                           // yes -> use uint32_t
-	const char*>::type;                 // no  -> directly use pointer
+	const char*>;                       // no  -> directly use pointer
 
 // convert string in buffer to String32
 inline void toString32(const char* buffer, const char* str, uint32_t& result) {

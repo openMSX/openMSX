@@ -8,9 +8,9 @@ namespace openmsx {
 const EmuTime EmuTime::zero(uint64_t(0));
 const EmuTime EmuTime::infinity(std::numeric_limits<uint64_t>::max());
 
-std::ostream& operator<<(std::ostream& os, EmuTime::param et)
+std::ostream& operator<<(std::ostream& os, EmuTime::param time)
 {
-	os << et.time;
+	os << time.time;
 	return os;
 }
 

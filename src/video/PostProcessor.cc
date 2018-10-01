@@ -17,12 +17,12 @@
 #include "CommandException.hh"
 #include "MemBuffer.hh"
 #include "vla.hh"
-#include "memory.hh"
 #include "likely.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <memory>
 
 namespace openmsx {
 
@@ -47,9 +47,9 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard_,
 	, eventDistributor(motherBoard_.getReactor().getEventDistributor())
 {
 	if (canDoInterlace) {
-		deinterlacedFrame = make_unique<DeinterlacedFrame>(
+		deinterlacedFrame = std::make_unique<DeinterlacedFrame>(
 			screen.getSDLFormat());
-		interlacedFrame   = make_unique<DoubledFrame>(
+		interlacedFrame   = std::make_unique<DoubledFrame>(
 			screen.getSDLFormat());
 		deflicker = Deflicker::create(
 			screen.getSDLFormat(), lastFrames);
@@ -194,7 +194,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	// Return recycled frame to the caller
 	if (canDoInterlace) {
 		if (unlikely(!recycleFrame)) {
-			recycleFrame = make_unique<RawFrame>(
+			recycleFrame = std::make_unique<RawFrame>(
 				screen.getSDLFormat(), maxWidth, height);
 		}
 		return recycleFrame;

@@ -31,9 +31,12 @@ variable bptapout ;# tapout
 variable bptapoof ;# tapoof
 variable bphread  ;# h.read
 
-variable casheader [binary format H* "1FA6DEBACC137D74"]
-variable casbios [dict create r [list 0x00E2 tapion 0x00E5 tapin  0x00E8 tapiof] \
-                              w [list 0x00EB tapoon 0x00EE tapout 0x00F1 tapoof]]
+variable casheader    [binary format H* "1FA6DEBACC137D74"]
+variable casheaderSVI [binary format H* "555555555555555555555555555555557F"]
+variable casbios    [dict create r [list 0x00E2 tapion 0x00E5 tapin  0x00E8 tapiof] \
+                                 w [list 0x00EB tapoon 0x00EE tapout 0x00F1 tapoof]]
+variable casbiosSVI [dict create r [list 0x006A tapion 0x006D tapin  0x0070 tapiof] \
+                                 w [list 0x0073 tapoon 0x0076 tapout 0x0079 tapoof]]
 
 proc casload {filename} {
 	casopen $filename "r"
@@ -60,9 +63,20 @@ proc casopen {filename rw} {
 
 	# Install BIOS handlers.
 	variable casbios
-	foreach {addr func} [dict get $casbios $rw] {
+	variable casbiosSVI
+	if {[machine_info type] eq "SVI"} {
+		set bios $casbiosSVI
+	} else {
+		set bios $casbios
+	}
+	foreach {addr func} [dict get $bios $rw] {
 		variable bp${func}
-		set bp${func} [debug set_bp [peek16 $addr "slotted memory"] {[pc_in_slot 0 0]} [namespace code $func]]
+		if {[machine_info type] eq "SVI"} {
+			set slotspec "3 X X"
+		} else {
+			set slotspec "0 0"
+		}
+		set bp${func} [debug set_bp [peek16 $addr "slotted memory"] "\[pc_in_slot {*}${slotspec}\]" [namespace code $func]]
 	}
 }
 
@@ -73,7 +87,13 @@ proc casclose {rw} {
 
 	# Uninstall BIOS handlers.
 	variable casbios
-	foreach {addr func} [dict get $casbios $rw] {
+	variable casbiosSVI
+	if {[machine_info type] eq "SVI"} {
+		set bios $casbiosSVI
+	} else {
+		set bios $casbios
+	}
+	foreach {addr func} [dict get $bios $rw] {
 		variable bp${func}
 		debug remove_bp [set bp${func}]
 	}
@@ -99,7 +119,11 @@ proc tapion {} {
 	# Function : Reads the header block after turning the cassette motor on
 	# Output   : C-flag set if failed
 	# Registers: All
-	reg F [expr {([seekheader] == -1) ? 0x01 : 0x40}] ;# set carry flag if header not found
+	if {[machine_info type] eq "SVI"} {
+		seekheader
+	} else {
+		reg F [expr {([seekheader] == -1) ? 0x01 : 0x40}] ;# set carry flag if header not found
+	}
 	ret
 }
 
@@ -139,12 +163,22 @@ proc tapoon {} {
 	if {[catch {
 		variable fidw
 		variable casheader
-		set align [expr {[tell $fidw] & 7}]
-		if {$align} {puts -nonewline $fidw [string repeat \x0 [expr {8 - $align}]]}
-		puts -nonewline $fidw $casheader
-		reg F 0x40 ;# ok, clear carry flag
+		variable casheaderSVI
+		if {[machine_info type] eq "SVI"} {
+			set header $casheaderSVI
+		} else {
+			set align [expr {[tell $fidw] & 7}]
+			if {$align} {puts -nonewline $fidw [string repeat \x0 [expr {8 - $align}]]}
+			set header $casheader
+		}
+		puts -nonewline $fidw $header
+		if {[machine_info type] ne "SVI"} {
+			reg F 0x40 ;# ok, clear carry flag
+		}
 	}]} {
-		reg F 1 ;# write error, set carry flag
+		if {[machine_info type] ne "SVI"} {
+			reg F 1 ;# write error, set carry flag
+		}
 	}
 	ret
 }
@@ -180,17 +214,33 @@ proc ret {} {
 }
 
 proc seekheader {} {
-	# Skip till 8-bytes aligned.
 	variable fidr
-	set align [expr {[tell $fidr] & 7}]
-	if {$align} {read $fidr [expr {8 - $align}]}
+	if {[machine_info type] ne "SVI"} {
+		# Skip till 8-bytes aligned.
+		set align [expr {[tell $fidr] & 7}]
+		if {$align} {read $fidr [expr {8 - $align}]}
+	}
 
 	# Search header.
-	variable casheader
-	while {![eof $fidr] && [read $fidr 8] ne $casheader} {}
+	if {[machine_info type] eq "SVI"} {
+		while {true} {
+			variable casheaderSVI
+			set pos [tell $fidr]
+			if {[eof $fidr]} {break}
+			if {[read $fidr 17] eq $casheaderSVI} {break}
+			seek $fidr $pos start
+			read $fidr 1
+		}
 
-	# Return position of header in cas file, or -1 if not found.
-	expr {[eof $fidr] ? -1 : ([tell $fidr] - 8)}
+		# Return position of header in cas file, or -1 if not found.
+		expr {[eof $fidr] ? -1 : $pos}
+	} else {
+		variable casheader
+		while {![eof $fidr] && [read $fidr 8] ne $casheader} {}
+
+		# Return position of header in cas file, or -1 if not found.
+		expr {[eof $fidr] ? -1 : ([tell $fidr] - 8)}
+	}
 }
 
 proc readheader {} {
@@ -283,26 +333,40 @@ proc casrun {{filename 1} {position 1}} {
 	catch {cartb eject} ;# there are machines without slot-B
 	reset
 	set ::power on
-	keymatrixdown 6 1 ;# press SHIFT
-	set bphread [debug set_bp 0xff07 {} [namespace code "typeload $type"]]
+	if {[machine_info type] eq "SVI"} {
+		set bpaddr 0xfe94
+	} else {
+		set bpaddr 0xff07
+		keymatrixdown 6 1 ;# press SHIFT
+	}
+	set bphread [debug set_bp ${bpaddr} {} [namespace code "typeload $type"]]
 	return ""
 }
 
 proc typeload {type} {
 	variable bphread
-	debug remove_bp $bphread
-	keymatrixup 6 1 ;# release SHIFT
+	catch {debug remove_bp $bphread} ;# often not set, so catch error
+	if {[machine_info type] eq "SVI"} {
+		set keybuf 0xfd8b
+		set getpnt 0xfa1c
+		set putpnt 0xfa1a
+	} else {
+		keymatrixup 6 1 ;# release SHIFT
+		set keybuf 0xfbf0
+		set getpnt 0xf3fa
+		set putpnt 0xf3f8
+	}
 
 	set cmd [lindex [list "RUN\"CAS:\r" "BLOAD\"CAS:\",R\r" "CLOAD\rRUN\r"] $type]
-	set keybuf 0xfbf0
 	debug write_block memory $keybuf $cmd
-	poke16 0xf3fa $keybuf
-	poke16 0xf3f8 [expr {$keybuf + [string length $cmd]}]
+	poke16 ${getpnt} $keybuf
+	poke16 ${putpnt} [expr {$keybuf + [string length $cmd]}]
 }
 
 ######################################################
 proc tapedeck {args} {
-	if {[string toupper [file extension [lindex $args end]]]==".CAS"} {
+	set isCas [expr {[string toupper [file extension [lindex $args end]]] eq ".CAS"}]
+	if {$isCas} {
 
 		switch [lindex $args 0] {
 			eject         {caseject}
@@ -315,12 +379,25 @@ proc tapedeck {args} {
 			getpos        {}
 			getlength     {}
 			""            {}
-			default       {casload $args}
+			default       {
+				casload {*}$args
+				# for SVI we can't use the trick below, so use typeload
+				if {[expr {[machine_info type] eq "SVI" && $::autoruncassettes}]} {
+					lassign [seekpos 1] headerpos type
+					typeload $type
+				}
+			}
 		}
 	} else {
 		caseject
 	}
-	return [uplevel 1 [list interp invokehidden {} -global cassetteplayer] $args]
+
+	if {[expr {[machine_info type] ne "SVI" || !$isCas}]} {
+		# also insert the file in the normal openMSX cassetteplayer
+		# to trigger the behaviour that happens when we do (e.g. autoload)
+		# and of course to get normal behaviour for non-CAS files
+		return [uplevel 1 [list interp invokehidden {} -global cassetteplayer] $args]
+	}
 }
 
 ######################################################

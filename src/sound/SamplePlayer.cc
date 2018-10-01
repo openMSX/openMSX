@@ -2,7 +2,6 @@
 #include "DeviceConfig.hh"
 #include "CliComm.hh"
 #include "FileContext.hh"
-#include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include <cassert>
@@ -22,22 +21,21 @@ SamplePlayer::SamplePlayer(const std::string& name_, const std::string& desc,
 	auto context = systemFileContext();
 	for (unsigned i = 0; i < numSamples; ++i) {
 		try {
-			std::string filename = StringOp::Builder() <<
-				samplesBaseName << i << ".wav";
+			std::string filename = strCat(samplesBaseName, i, ".wav");
 			samples[i] = WavData(context.resolve(filename));
 		} catch (MSXException& e1) {
 			try {
 				if (alternativeName.empty()) throw;
-				std::string filename = StringOp::Builder() <<
-					alternativeName << i << ".wav";
+				std::string filename = strCat(
+					alternativeName, i, ".wav");
 				samples[i] = WavData(context.resolve(filename));
 			} catch (MSXException& /*e2*/) {
 				if (!alreadyWarned) {
 					alreadyWarned = true;
 					// print message from the 1st error
 					config.getCliComm().printWarning(
-						"Couldn't read " + name_ + " sample data: " +
-						e1.getMessage() +
+						"Couldn't read ", name_, " sample data: ",
+						e1.getMessage(),
 						". Continuing without sample data.");
 				}
 			}

@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-string_ref CassetteDevice::getClass() const
+string_view CassetteDevice::getClass() const
 {
 	return "Cassette Port";
 }

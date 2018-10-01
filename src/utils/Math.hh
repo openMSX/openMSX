@@ -6,10 +6,25 @@
 #include <cmath>
 #include <cstdint>
 
-// M_PI is a very common extension, but not guaranteed to be defined by <cmath>
-// when compiling in a strict standards compliant mode.
+#ifdef _MSC_VER
+#include <intrin.h>
+#pragma intrinsic(_BitScanForward)
+#endif
+
+// These constants are very common extensions, but not guaranteed to be defined
+// by <cmath> when compiling in a strict standards compliant mode. Also e.g.
+// visual studio does not provide them.
+#ifndef M_E
+#define M_E    2.7182818284590452354
+#endif
+#ifndef M_LN2
+#define M_LN2  0.69314718055994530942 // log_e 2
+#endif
+#ifndef M_LN10
+#define M_LN10 2.30258509299404568402 // log_e 10
+#endif
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI   3.14159265358979323846
 #endif
 
 namespace Math {
@@ -17,7 +32,7 @@ namespace Math {
 /** Is the given number an integer power of 2?
   * Not correct for zero (according to this test 0 is a power of 2).
   */
-inline bool isPowerOfTwo(unsigned a)
+constexpr bool isPowerOfTwo(unsigned a)
 {
 	return (a & (a - 1)) == 0;
 }
@@ -195,6 +210,29 @@ inline unsigned countLeadingZeros(unsigned x)
 	if (x <= 0x0fffffff) { lz +=  4; x <<=  4; }
 	lz += (0x55ac >> ((x >> 27) & 0x1e)) & 0x3;
 	return lz;
+#endif
+}
+
+/** Find the least significant bit that is set.
+  * @return 0 if the input is zero (no bits are set),
+  *   otherwise the index of the first set bit + 1.
+  */
+inline unsigned findFirstSet(unsigned x)
+{
+#if defined(__GNUC__)
+	return __builtin_ffs(x);
+#elif defined(_MSC_VER)
+	unsigned long index;
+	return _BitScanForward(&index, x) ? index + 1 : 0;
+#else
+	if (x == 0) return 0;
+	int pos = 0;
+	if ((x & 0xffff) == 0) { pos += 16; x >>= 16; }
+	if ((x & 0x00ff) == 0) { pos +=  8; x >>=  8; }
+	if ((x & 0x000f) == 0) { pos +=  4; x >>=  4; }
+	if ((x & 0x0003) == 0) { pos +=  2; x >>=  2; }
+	if ((x & 0x0001) == 0) { pos +=  1; }
+	return pos + 1;
 #endif
 }
 

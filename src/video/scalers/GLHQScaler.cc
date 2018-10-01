@@ -4,7 +4,6 @@
 #include "FrameSource.hh"
 #include "FileContext.hh"
 #include "File.hh"
-#include "StringOp.hh"
 #include "vla.hh"
 #include <cstring>
 #include <algorithm>
@@ -38,10 +37,11 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 
 	auto context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	string offsetsName = "shaders/HQ_xOffsets.dat";
+	string weightsName = "shaders/HQ_xWeights.dat";
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
-		string offsetsName = StringOp::Builder() <<
-			"shaders/HQ" << n << "xOffsets.dat";
+                offsetsName[10] = char('0') + n;
 		File offsetsFile(context.resolve(offsetsName));
 		offsetTexture[i].bind();
 		size_t size; // dummy
@@ -55,8 +55,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 		             GL_UNSIGNED_BYTE,    // type
 		             offsetsFile.mmap(size));// data
 
-		string weightsName = StringOp::Builder() <<
-			"shaders/HQ" << n << "xWeights.dat";
+		weightsName[10] = char('0') + n;
 		File weightsFile(context.resolve(weightsName));
 		weightTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,       // target

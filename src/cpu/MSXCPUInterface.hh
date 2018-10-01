@@ -63,22 +63,22 @@ public:
 	void unregister_IO_Out(byte port, MSXDevice* device);
 
 	/**
-	 * These methods are similar to the (un)register_IO_{In,Out} methods above.
+	 * These methods replace a previously registered device with a new one.
 	 *
-	 * The wrapXX variants register a new device, replacing the previously
-	 * registered device at the same port. The replaced device is returned.
-	 * The unwrapXX variants do the reverse operation.
+	 * This method checks whether the current device is the same as the
+	 * 'oldDevice' parameter.
+	 * - If it's the same, the current device is replace with 'newDevice'
+	 *   and this method returns true.
+	 * - If it's not the same, then no changes are made and this method
+	 *   returns false.
 	 *
 	 * The intention is that devices using these methods extend (=wrap) the
-	 * functionality of a previously registered device. So they should use
-	 * the pointer returned from wrapXX() and call the various IO handling
-	 * methods of that device from their own corresponding IO handling
-	 * methods.
+	 * functionality of a previously registered device. Typically the
+	 * destructor of the wrapping device will perform the inverse
+	 * replacement.
 	 */
-	MSXDevice* wrap_IO_In (byte port, MSXDevice* device);
-	MSXDevice* wrap_IO_Out(byte port, MSXDevice* device);
-	void unwrap_IO_In (byte port, MSXDevice* device);
-	void unwrap_IO_Out(byte port, MSXDevice* device);
+	bool replace_IO_In (byte port, MSXDevice* oldDevice, MSXDevice* newDevice);
+	bool replace_IO_Out(byte port, MSXDevice* oldDevice, MSXDevice* newDevice);
 
 	/**
 	 * Devices can register themself in the MSX slotstructure.
@@ -87,15 +87,21 @@ public:
 	 * get called.
 	 */
 	void registerMemDevice(MSXDevice& device,
-	                       int primSl, int secSL, int base, int size);
+	                       int ps, int ss, int base, int size);
 	void unregisterMemDevice(MSXDevice& device,
-	                         int primSl, int secSL, int base, int size);
+	                         int ps, int ss, int base, int size);
 
 	/** (Un)register global writes.
 	  * @see MSXDevice::globalWrite()
 	  */
 	void   registerGlobalWrite(MSXDevice& device, word address);
 	void unregisterGlobalWrite(MSXDevice& device, word address);
+
+	/** (Un)register global read.
+	  * @see MSXDevice::globalRead()
+	  */
+	void   registerGlobalRead(MSXDevice& device, word address);
+	void unregisterGlobalRead(MSXDevice& device, word address);
 
 	/**
 	 * Reset (the slot state)
@@ -203,7 +209,7 @@ public:
 	void unsetExpanded(int ps);
 	void testUnsetExpanded(int ps, std::vector<MSXDevice*> allowed) const;
 	inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
-	void changeExpanded(bool isExpanded);
+	void changeExpanded(bool newExpanded);
 
 	DummyDevice& getDummyDevice() { return *dummyDevice; }
 
@@ -373,15 +379,16 @@ private:
 	std::bitset<CacheLine::SIZE> readWatchSet [CacheLine::NUM];
 	std::bitset<CacheLine::SIZE> writeWatchSet[CacheLine::NUM];
 
-	struct GlobalWriteInfo {
+	struct GlobalRwInfo {
 		MSXDevice* device;
 		word addr;
-		bool operator==(const GlobalWriteInfo& rhs) const {
+		bool operator==(const GlobalRwInfo& rhs) const {
 			return (device == rhs.device) &&
 			       (addr   == rhs.addr);
 		}
 	};
-	std::vector<GlobalWriteInfo> globalWrites;
+	std::vector<GlobalRwInfo> globalReads;
+	std::vector<GlobalRwInfo> globalWrites;
 
 	MSXDevice* IO_In [256];
 	MSXDevice* IO_Out[256];
@@ -390,6 +397,7 @@ private:
 	byte subSlotRegister[4];
 	byte primarySlotState[4];
 	byte secondarySlotState[4];
+	byte initialPrimarySlots;
 	unsigned expanded[4];
 
 	bool fastForward; // no need to serialize
@@ -401,6 +409,82 @@ private:
 	static bool breaked;
 	static bool continued;
 	static bool step;
+};
+
+
+// Compile-Time Interval (half-open).
+//   TODO possibly move this to utils/
+template<unsigned BEGIN, unsigned END = BEGIN + 1>
+struct CT_Interval
+{
+	unsigned begin() const { return BEGIN; } // inclusive
+	unsigned end()   const { return END; }   // exclusive
+};
+
+// Execute an 'action' for every element in the given interval(s).
+template<typename ACTION, typename CT_INTERVAL>
+inline void foreach_ct_interval(ACTION action, CT_INTERVAL interval)
+{
+	for (auto i = interval.begin(); i != interval.end(); ++i) {
+		action(i);
+	}
+}
+template<typename ACTION, typename CT_INTERVAL, typename... CT_INTERVALS>
+inline void foreach_ct_interval(ACTION action, CT_INTERVAL front, CT_INTERVALS... tail)
+{
+	foreach_ct_interval(action, front);
+	foreach_ct_interval(action, tail...);
+}
+
+
+template<typename MSXDEVICE, typename... CT_INTERVALS>
+struct GlobalRWHelper
+{
+	template<typename ACTION>
+	void execute(ACTION action)
+	{
+		auto& dev = static_cast<MSXDEVICE&>(*this);
+		auto& cpu = dev.getCPUInterface();
+		foreach_ct_interval(
+			[&](unsigned addr) { action(cpu, dev, addr); },
+			CT_INTERVALS()...);
+	}
+};
+
+template<typename MSXDEVICE, typename... CT_INTERVALS>
+struct GlobalWriteClient : GlobalRWHelper<MSXDEVICE, CT_INTERVALS...>
+{
+	GlobalWriteClient()
+	{
+		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
+			cpu.registerGlobalWrite(dev, addr);
+		});
+	}
+
+	~GlobalWriteClient()
+	{
+		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
+			cpu.unregisterGlobalWrite(dev, addr);
+		});
+	}
+};
+
+template<typename MSXDEVICE, typename... CT_INTERVALS>
+struct GlobalReadClient : GlobalRWHelper<MSXDEVICE, CT_INTERVALS...>
+{
+	GlobalReadClient()
+	{
+		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
+			cpu.registerGlobalRead(dev, addr);
+		});
+	}
+
+	~GlobalReadClient()
+	{
+		this->execute([](MSXCPUInterface& cpu, MSXDevice& dev, unsigned addr) {
+			cpu.unregisterGlobalRead(dev, addr);
+		});
+	}
 };
 
 } // namespace openmsx

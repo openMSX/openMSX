@@ -10,6 +10,12 @@
     <type>MSX</type>
   </info>
 
+  <!--
+  From Daniel Ravazzi's machine:
+  CPU: Zilog
+  PSG: GI AY-3-8910A
+  PPI: NEC D8255AC-2
+  -->
   <CassettePort/>
 
   <devices>
@@ -27,11 +33,12 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS99X8A</version>
+      <version>TMS9918A</version>
       <io base="0x98" num="2"/>
     </VDP>
 
     <PSG id="PSG">
+      <type>AY8910</type>
       <keyboardlayout>50on</keyboardlayout>
       <sound>
         <volume>21000</volume>

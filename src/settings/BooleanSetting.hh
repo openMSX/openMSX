@@ -9,16 +9,16 @@ class BooleanSetting final : public Setting
 {
 public:
 	BooleanSetting(CommandController& commandController,
-	               string_ref name, string_ref description,
+	               string_view name, string_view description,
 	               bool initialValue, SaveSetting save = SAVE);
-	string_ref getTypeString() const override;
+	string_view getTypeString() const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	bool getBoolean() const { return getValue().getBoolean(getInterpreter()); }
 	void setBoolean(bool b) { setValue(TclObject(toString(b))); }
 
 private:
-	static string_ref toString(bool b) { return b ? "true" : "false"; }
+	static string_view toString(bool b) { return b ? "true" : "false"; }
 };
 
 } // namespace openmsx

@@ -20,7 +20,7 @@ public:
 
 	// Connector
 	const std::string getDescription() const final override;
-	string_ref getClass() const final override;
+	string_view getClass() const final override;
 	void plug(Pluggable& dev, EmuTime::param time) override;
 
 	template<typename Archive>

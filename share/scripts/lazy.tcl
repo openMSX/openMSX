@@ -13,7 +13,7 @@ register_lazy "_disasm.tcl" {
 	peek_u16_LE peek_u16_BE peek_s16 peek_s16_LE peek_s16_BE
 	poke poke8 poke16 poke16_LE poke16_BE dpoke disasm run_to step_over
 	step_back step_out step_in step skip_instruction}
-register_lazy "_example_tools.tcl" {get_screen listing get_color_count}
+register_lazy "_example_tools.tcl" {get_screen listing get_color_count toggle_tron}
 register_lazy "_filepool.tcl" {filepool get_paths_for_type}
 register_lazy "_guess_title.tcl" {guess_title guess_rom_title guess_rom_device}
 register_lazy "_info_panel.tcl" toggle_info_panel
@@ -36,7 +36,8 @@ register_lazy "_psg_profile.tcl" psg_profile
 register_lazy "_quitmenu.tcl" quit_menu
 register_lazy "_record_channels.tcl" {
 	record_channels mute_channels unmute_channels solo}
-register_lazy "_record_chunks.tcl" record_chunks
+register_lazy "_record_chunks.tcl" {
+	record_chunks record_chunks_on_framerate_changes}
 register_lazy "_reg_log.tcl" reg_log
 register_lazy "_reverse.tcl" {
 	reverse_prev reverse_next goto_time_delta go_back_one_step
@@ -77,12 +78,13 @@ register_lazy "_utils.tcl" {
 	get_extension_display_name_by_config_name
 	get_display_name_by_config_name get_machine_time format_time
 	format_time_subseconds get_ordered_machine_list get_random_number clip
-	file_completion filename_clean}
+	file_completion filename_clean get_next_numbered_filename}
 register_lazy "_vdp.tcl" {
 	getcolor setcolor get_screen_mode get_screen_mode_number vdpreg vdpregs
 	v9990regs vpeek vpoke palette}
 register_lazy "_vdp_access_test.tcl" toggle_vdp_access_test
 register_lazy "_vdp_busy.tcl" toggle_vdp_busy
 register_lazy "_vdrive.tcl" vdrive
+register_lazy "_vgmrecorder.tcl" {vgm_rec vgm_rec_next vgm_rec_end}
 register_lazy "_vu-meters.tcl" toggle_vu_meters
 register_lazy "_widgets.tcl" {toggle_show_palette toggle_vdp_reg_viewer}

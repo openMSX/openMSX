@@ -2,11 +2,11 @@
 #include "DeviceConfig.hh"
 #include "HD.hh"
 #include "MSXException.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "endian.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include <memory>
 #include <string>
 
 // TODO:
@@ -36,7 +36,7 @@ static const byte R1_ILLEGAL_COMMAND = 0x04;
 static const byte R1_PARAMETER_ERROR = 0x80;
 
 SdCard::SdCard(const DeviceConfig& config)
-	: hd(config.getXML() ? make_unique<HD>(config) : nullptr)
+	: hd(config.getXML() ? std::make_unique<HD>(config) : nullptr)
 	, cmdIdx(0)
 	, transferDelayCounter(0)
 	, mode(COMMAND)
@@ -240,7 +240,7 @@ void SdCard::executeCommand()
 			byte(0x00),        // CCC / (READ_BL_LEN)
 			byte(0x00)});      // (RBP)/(WBM)/(RBM)/ DSR_IMP
 		// SD_CARD_SIZE = (C_SIZE + 1) * 512kByte
-		unsigned c_size = unsigned((hd->getNbSectors() * sizeof(sectorBuf)) / (512 * 1024) - 1);
+		auto c_size = unsigned((hd->getNbSectors() * sizeof(sectorBuf)) / (512 * 1024) - 1);
 		responseQueue.push_back({
 			byte((c_size >> 16) & 0x3F), // C_SIZE 1
 			byte((c_size >>  8) & 0xFF), // C_SIZE 2

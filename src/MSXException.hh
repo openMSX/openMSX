@@ -1,34 +1,49 @@
 #ifndef MSXEXCEPTION_HH
 #define MSXEXCEPTION_HH
 
-#include "string_ref.hh"
+#include "string_view.hh"
+#include "strCat.hh"
 
 namespace openmsx {
 
 class MSXException
 {
 public:
-	explicit MSXException(string_ref message);
+	explicit MSXException() = default;
 
-	const std::string& getMessage() const {
-		return message;
-	}
+	explicit MSXException(std::string message_)
+            : message(std::move(message_)) {}
+
+        template<typename... Args>
+        explicit MSXException(Args&&... args)
+            : message(strCat(std::forward<Args>(args)...))
+        {
+        }
+
+	const std::string& getMessage() const &  { return message; }
+	      std::string  getMessage()       && { return std::move(message); }
 
 private:
-	const std::string message;
+	std::string message;
 };
 
 class FatalError
 {
 public:
-	explicit FatalError(string_ref message);
+	explicit FatalError(std::string message_)
+            : message(std::move(message_)) {}
 
-	const std::string& getMessage() const {
-		return message;
-	}
+        template<typename... Args>
+        explicit FatalError(Args&&... args)
+            : message(strCat(std::forward<Args>(args)...))
+        {
+        }
+
+	const std::string& getMessage() const &  { return message; }
+	      std::string  getMessage()       && { return std::move(message); }
 
 private:
-	const std::string message;
+	std::string message;
 };
 
 } // namespace openmsx

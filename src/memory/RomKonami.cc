@@ -24,9 +24,9 @@ RomKonami::RomKonami(const DeviceConfig& config, Rom&& rom_)
 
 	// warn if a ROM is used that would not work on a real Konami mapper
 	if (rom.getSize() > 256 * 1024) {
-		getMotherBoard().getMSXCliComm().printWarning("The size of "
-				"this ROM image is larger than 256kB, which is "
-				"not supported on real Konami mapper chips!");
+		getMotherBoard().getMSXCliComm().printWarning(
+			"The size of this ROM image is larger than 256kB, "
+			"which is not supported on real Konami mapper chips!");
 	}
 
 	// Do not call reset() here, since it can be overridden and the subclass

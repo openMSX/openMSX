@@ -3,7 +3,6 @@
 
 #include "MemBuffer.hh"
 #include "InitException.hh"
-#include "StringOp.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <memory>
@@ -177,8 +176,8 @@ public:
 		// SDL internally ref-counts sub-system initialization, so we
 		// don't need to worry about it here.
 		if (SDL_InitSubSystem(FLAGS) < 0) {
-			throw openmsx::InitException(StringOp::Builder() <<
-				"SDL init failed (" << FLAGS << "): " << SDL_GetError());
+			throw openmsx::InitException(
+				"SDL init failed (", FLAGS, "): ", SDL_GetError());
 		}
 	}
 	~SDLSubSystemInitializer() {

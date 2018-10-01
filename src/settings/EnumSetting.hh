@@ -14,14 +14,14 @@ class TclObject;
 class EnumSettingBase
 {
 protected:
-	// cannot be string_ref because of the 'default_machine' setting
+	// cannot be string_view because of the 'default_machine' setting
 	using BaseMap = std::vector<std::pair<std::string, int>>;
 	explicit EnumSettingBase(BaseMap&& m);
 
-	int fromStringBase(string_ref str) const;
-	string_ref toStringBase(int value) const;
+	int fromStringBase(string_view str) const;
+	string_view toStringBase(int value) const;
 
-	std::vector<string_ref> getPossibleValues() const;
+	std::vector<string_view> getPossibleValues() const;
 	void additionalInfoBase(TclObject& result) const;
 	void tabCompletionBase(std::vector<std::string>& tokens) const;
 
@@ -34,20 +34,20 @@ template<typename T> class EnumSetting final : private EnumSettingBase, public S
 public:
 	using Map = std::vector<std::pair<std::string, T>>;
 
-	EnumSetting(CommandController& commandController, string_ref name,
-	            string_ref description, T initialValue,
+	EnumSetting(CommandController& commandController, string_view name,
+	            string_view description, T initialValue,
 	            Map&& map_, SaveSetting save = SAVE);
 
-	string_ref getTypeString() const override;
+	string_view getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	T getEnum() const;
 	void setEnum(T e);
-	string_ref getString() const;
+	string_view getString() const;
 
 private:
-	string_ref toString(T e) const;
+	string_view toString(T e) const;
 };
 
 
@@ -56,8 +56,8 @@ private:
 
 template <typename T>
 EnumSetting<T>::EnumSetting(
-		CommandController& commandController_, string_ref name,
-		string_ref description_, T initialValue,
+		CommandController& commandController_, string_view name,
+		string_view description_, T initialValue,
 		Map&& map, SaveSetting save_)
 	: EnumSettingBase(BaseMap(std::make_move_iterator(begin(map)),
 	                          std::make_move_iterator(end(map))))
@@ -71,7 +71,7 @@ EnumSetting<T>::EnumSetting(
 }
 
 template<typename T>
-string_ref EnumSetting<T>::getTypeString() const
+string_view EnumSetting<T>::getTypeString() const
 {
 	return "enumeration";
 }
@@ -106,13 +106,13 @@ void EnumSetting<T>::setEnum(T e)
 }
 
 template<typename T>
-string_ref EnumSetting<T>::getString() const
+string_view EnumSetting<T>::getString() const
 {
 	return getValue().getString();
 }
 
 template<typename T>
-string_ref EnumSetting<T>::toString(T e) const
+string_view EnumSetting<T>::toString(T e) const
 {
 	return toStringBase(static_cast<int>(e));
 }

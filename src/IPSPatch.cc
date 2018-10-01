@@ -26,7 +26,7 @@ IPSPatch::IPSPatch(Filename filename_,
 	byte buf[5];
 	ipsFile.read(buf, 5);
 	if (memcmp(buf, "PATCH", 5) != 0) {
-		throw MSXException("Invalid IPS file: " + filename.getOriginal());
+		throw MSXException("Invalid IPS file: ", filename.getOriginal());
 	}
 	ipsFile.read(buf, 3);
 	while (memcmp(buf, "EOF", 3) != 0) {

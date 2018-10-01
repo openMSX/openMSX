@@ -1,9 +1,9 @@
 #include "JoyTap.hh"
 #include "JoystickPort.hh"
 #include "PluggingController.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include "strCat.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -19,14 +19,14 @@ JoyTap::~JoyTap() = default;
 
 void JoyTap::createPorts(const string& baseDescription) {
 	for (int i = 0; i < 4; ++i) {
-		slaves[i] = make_unique<JoystickPort>(
+		slaves[i] = std::make_unique<JoystickPort>(
 			pluggingController,
-			StringOp::Builder() << name << "_port_" << char('1' + i),
-			StringOp::Builder() << baseDescription << char('1' + i));
+			strCat(name, "_port_", char('1' + i)),
+			strCat(baseDescription, char('1' + i)));
 	}
 }
 
-string_ref JoyTap::getDescription() const
+string_view JoyTap::getDescription() const
 {
 	return "MSX Joy Tap device";
 }

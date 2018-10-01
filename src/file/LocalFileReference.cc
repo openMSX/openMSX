@@ -3,7 +3,6 @@
 #include "Filename.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
-#include "StringOp.hh"
 #include "build-info.hh"
 #include <cstdio>
 #include <cassert>
@@ -48,7 +47,7 @@ void LocalFileReference::init(File& file)
 	tmpDir = FileOperations::getTempDir() + FileOperations::nativePathSeparator + "openmsx";
 #else
 	// TODO - why not just use getTempDir()?
-	tmpDir = StringOp::Builder() << "/tmp/openmsx." << int(getpid());
+	tmpDir = strCat("/tmp/openmsx.", int(getpid()));
 #endif
 	// it's possible this directory already exists, in that case the
 	// following function does nothing

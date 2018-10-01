@@ -36,12 +36,12 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
 	// SoundDevice
-	void generateChannels(int** bufs, unsigned num) override;
+	void generateChannels(int** buffers, unsigned num) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

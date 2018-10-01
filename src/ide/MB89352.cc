@@ -20,12 +20,11 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
 #include <string>
 #include <cstring>
+#include <memory>
 
 using std::string;
 
@@ -100,29 +99,28 @@ MB89352::MB89352(const DeviceConfig& config)
 	for (auto* t : config.getXML()->getChildren("target")) {
 		unsigned id = t->getAttributeAsInt("id");
 		if (id >= MAX_DEV) {
-			throw MSXException(StringOp::Builder() <<
-				"Invalid SCSI id: " << id <<
-				" (should be 0.." + MAX_DEV - 1 << ')');
+			throw MSXException(
+				"Invalid SCSI id: ", id,
+				" (should be 0..", MAX_DEV - 1, ')');
 		}
 		if (dev[id]) {
-			throw MSXException(StringOp::Builder() <<
-				"Duplicate SCSI id: " << id);
+			throw MSXException("Duplicate SCSI id: ", id);
 		}
 		DeviceConfig conf(config, *t);
 		auto& type = t->getChild("type").getData();
 		if (type == "SCSIHD") {
-			dev[id] = make_unique<SCSIHD>(conf, buffer,
+			dev[id] = std::make_unique<SCSIHD>(conf, buffer,
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);
 		} else if (type == "SCSILS120") {
-			dev[id] = make_unique<SCSILS120>(conf, buffer,
+			dev[id] = std::make_unique<SCSILS120>(conf, buffer,
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);
 		} else {
-			throw MSXException("Unknown SCSI device: " + type);
+			throw MSXException("Unknown SCSI device: ", type);
 		}
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes
 	for (auto& d : dev) {
-		if (!d) d = make_unique<DummySCSIDevice>();
+		if (!d) d = std::make_unique<DummySCSIDevice>();
 	}
 	reset(false);
 
@@ -342,8 +340,7 @@ void MB89352::resetACKREQ()
 			break;
 		}
 		msgin = 0;
-		// throw to SCSI::MSG_OUT...
-
+		// fall-through
 	case SCSI::MSG_OUT: // Message Out phase
 		if (msgin == -1) {
 			disconnect();
@@ -503,14 +500,16 @@ void MB89352::writeRegister(byte reg, byte value)
 			int x = regs[REG_BDID] & regs[REG_TEMPWR];
 			if (phase == SCSI::BUS_FREE && x && x != regs[REG_TEMPWR]) {
 				x = regs[REG_TEMPWR] & ~regs[REG_BDID];
+				assert(x != 0); // because of the check 2 lines above
 
 				// the targetID is calculated.
 				// It is given priority that the number is large.
-				for (targetId = 0; targetId < MAX_DEV; ++targetId) {
+				targetId = 0;
+				while (true) {
 					x >>= 1;
-					if (x == 0) {
-						break;
-					}
+					if (x == 0) break;
+					++targetId;
+					assert(targetId < MAX_DEV);
 				}
 
 				if (/*!TODO: devBusy &&*/ dev[targetId]->isSelected()) {
@@ -623,8 +622,8 @@ void MB89352::writeRegister(byte reg, byte value)
 				softReset();
 			}
 		}
-		// throw to default
 	}
+		// fall-through
 	default:
 		regs[reg] = value;
 	}

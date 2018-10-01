@@ -3,10 +3,16 @@
 # on a Dingoo, automatically plug in the keyjoystick and if there are real
 # joysticks, plug them as well for non-Dingoo platofrms
 
+proc get_pluggable_for_connector {connector} {
+	set t [plug $connector]
+	return [string range $t [string first ": " $t]+2 end]
+}
+
 namespace eval autoplug {
 
 proc plug_if_empty {connector pluggable} {
-	if {[string first "--empty--" [plug $connector]] != -1} {
+	set plugged [get_pluggable_for_connector $connector]
+	if {$plugged eq ""} {
 		# only when nothing already plugged
 		plug $connector $pluggable
 	}

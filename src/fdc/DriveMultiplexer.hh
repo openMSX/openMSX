@@ -21,7 +21,7 @@ public:
 	};
 
 	// Multiplexer interface
-	explicit DriveMultiplexer(DiskDrive* drive[4]);
+	explicit DriveMultiplexer(DiskDrive* drv[4]);
 	void selectDrive(DriveNum num, EmuTime::param time);
 
 	// DiskDrive interface
@@ -34,15 +34,16 @@ public:
 	void setMotor(bool status, EmuTime::param time) override;
 	bool indexPulse(EmuTime::param time) override;
 	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
-	void setHeadLoaded(bool status, EmuTime::param time) override;
-	bool headLoaded(EmuTime::param time) override;
-	void writeTrack(const RawTrack& track) override;
-	void readTrack (      RawTrack& track) override;
-	EmuTime getNextSector(EmuTime::param time, RawTrack& track,
-	                      RawTrack::Sector& sector) override;
+	unsigned getTrackLength() override;
+	void writeTrackByte(int idx, byte val, bool addIdam) override;
+	byte  readTrackByte(int idx) override;
+	EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) override;
+	void flushTrack() override;
 	bool diskChanged() override;
 	bool peekDiskChanged() const override;
 	bool isDummyDrive() const override;
+	void applyWd2793ReadTrackQuirk() override;
+	void invalidateWd2793ReadTrackQuirk() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

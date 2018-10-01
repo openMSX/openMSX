@@ -848,7 +848,7 @@ YM2151::YM2151(const std::string& name_, const std::string& desc,
 
 	static const int CLCK_FREQ = 3579545;
 	float input = CLCK_FREQ / 64.0f;
-	setInputRate(int(input + 0.5f));
+	setInputRate(lrintf(input));
 
 	reset(time);
 

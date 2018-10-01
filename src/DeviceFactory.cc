@@ -15,8 +15,11 @@
 #include "MSXTurboRPCM.hh"
 #include "MSXS1985.hh"
 #include "MSXS1990.hh"
+#include "ColecoJoystickIO.hh"
+#include "ColecoSuperGameModule.hh"
 #include "MSXPSG.hh"
 #include "SVIPSG.hh"
+#include "SNPSG.hh"
 #include "MSXMusic.hh"
 #include "MSXFmPac.hh"
 #include "MSXAudio.hh"
@@ -27,6 +30,9 @@
 #include "MSXKanji.hh"
 #include "MSXBunsetsu.hh"
 #include "MSXMemoryMapper.hh"
+#include "MegaFlashRomSCCPlusSD.hh"
+#include "MusicalMemoryMapper.hh"
+#include "Carnivore2.hh"
 #include "PanasonicRam.hh"
 #include "MSXRTC.hh"
 #include "PasswordCart.hh"
@@ -71,13 +77,14 @@
 #include "SensorKid.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
-#include "memory.hh"
 #include "components.hh"
+#include <memory>
 
 #if COMPONENT_LASERDISC
 #include "PioneerLDControl.hh"
 #endif
 
+using std::make_unique;
 using std::unique_ptr;
 
 namespace openmsx {
@@ -110,7 +117,7 @@ static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 	} else if (type == "Victor") {
 		return make_unique<VictorFDC>(conf);
 	}
-	throw MSXException("Unknown WD2793 FDC connection style " + type);
+	throw MSXException("Unknown WD2793 FDC connection style ", type);
 }
 
 unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
@@ -139,10 +146,16 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXS1985>(conf);
 	} else if (type == "S1990") {
 		result = make_unique<MSXS1990>(conf);
+	} else if (type == "ColecoJoystick") {
+		result = make_unique<ColecoJoystickIO>(conf);
+	} else if (type == "SuperGameModule") {
+		result = make_unique<ColecoSuperGameModule>(conf);
 	} else if (type == "PSG") {
 		result = make_unique<MSXPSG>(conf);
 	} else if (type == "SVIPSG") {
 		result = make_unique<SVIPSG>(conf);
+	} else if (type == "SNPSG") {
+		result = make_unique<SNPSG>(conf);
 	} else if (type == "MSX-MUSIC") {
 		result = make_unique<MSXMusic>(conf);
 	} else if (type == "MSX-MUSIC-WX") {
@@ -254,17 +267,23 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<FraelSwitchableROM>(conf);
 	} else if (type == "ChakkariCopy") {
 		result = make_unique<ChakkariCopy>(conf);
+	} else if (type == "MegaFlashRomSCCPlusSD") {
+		result = make_unique<MegaFlashRomSCCPlusSD>(conf);
+	} else if (type == "MusicalMemoryMapper") {
+		result = make_unique<MusicalMemoryMapper>(conf);
+	} else if (type == "Carnivore2") {
+		result = make_unique<Carnivore2>(conf);
 	} else if (type == "T9769") {
 		// Ignore for now. We might want to create a real device for it later.
 	} else {
-		throw MSXException("Unknown device \"" + type +
+		throw MSXException("Unknown device \"", type,
 		                   "\" specified in configuration");
 	}
 	if (result) result->init();
 	return result;
 }
 
-static XMLElement createConfig(string_ref name, string_ref id)
+static XMLElement createConfig(string_view name, string_view id)
 {
 	XMLElement config(name);
 	config.addAttribute("id", id);
@@ -274,7 +293,7 @@ static XMLElement createConfig(string_ref name, string_ref id)
 unique_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 		const HardwareConfig& hwConf)
 {
-	static XMLElement xml(createConfig("Dummy", ""));
+	static XMLElement xml(createConfig("Dummy", {}));
 	return make_unique<DummyDevice>(DeviceConfig(hwConf, xml));
 }
 

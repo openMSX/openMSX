@@ -597,8 +597,8 @@
       <td><code>debug list</code></td>
 
       <td>Return a list of all debuggables.<br />
-      A debuggable is (part of) the state of<br />
-      a MSX device that can be accessed via these debug commands.<br />
+      A debuggable is (part of) the state of a MSX device that can be accessed
+      via these debug commands.<br />
       Examples are:
         <ul>
           <li> the VDP registers </li>
@@ -707,7 +707,7 @@
       the condition is evaluated. If the condition evaluated to true, the command is executed. The condition and the
       command are similar to the ones in the <code>set_bp</code> subcommand. A watchpoint can either be set on a single memory
       address or I/O port (specify a single value), or on a whole memory or I/O port range (specify a begin/end pair).
-      For example: <code>debug set_watchpoint write_mem {0x8000 0x8FFF}</code></td>
+      For example: <code>debug set_watchpoint write_mem {0x8000 0x8FFF}</code>. During the execution of <code>&lt;cmd&gt;</code>, the following global Tcl variables are set: <code>::wp_last_address</code>, which is the actual address of the mem/io read/write that triggered the watchpoint and <code>::wp_last_value</code>, the actual value that was written by the mem/io write that triggered the watchpoint.</td>
     </tr>
 
     <tr>
@@ -934,10 +934,21 @@
     <dd>There exists a list of file pools, which are searched in order of their position.</dd>
 
     <dt>type(s)</dt>
-    <dd>A file pool can serve specific types. Currently, the valid types are <code>system_rom</code> (for system ROMs, you are probably using this one already if you installed your system ROMs in the recommended place, <code>share/systemroms</code>), <code>rom</code> (for other ROM files), <code>disk</code> (for disk images) and <code>tape</code> for cassette/tape images.</dd>
+    <dd>A file pool can serve specific types. Currently, the valid types are
+      <dl>
+        <dt><code>system_rom</code></dt>
+        <dd>for system ROMs, you are probably using this one already if you installed your system ROMs in the recommended place <code>share/systemroms</code>,</dd>
+        <dt><code>rom</code></dt>
+        <dd>for other ROM files,</dd>
+        <dt><code>disk</code></dt>
+        <dd>for disk images and</dd>
+        <dt><code>tape</code></dt>
+        <dd>for cassette/tape images.</dd>
+      </dl>
+    </dd>
   </dl>
 
-  <p>Apart from the default sytem ROM file pool as mentioned above, the other default file pool is <code>share/software</code>, where openMSX will search for other (than system ROM) software.</p>
+  <p>Apart from the default system ROM file pool as mentioned above, the other default file pool is <code>share/software</code>, which is configured for all other (than type <code>system_rom</code>) software files.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1684,6 +1695,7 @@
   You can also force a mono recording with <code>-mono</code> to save space.</p>
   <p>The <code><a class="internal" href="#soundlog">soundlog</a></code> command is a shorthand for <code>record -audioonly</code>.</p>
   <p>Use <code>record_chunks</code> if you want some extra options. You can control the maximum length (in seconds) to record and also set up multiple recordings of a certain length. This is very useful if you want to record for e.g. YouTube. The default length is 14:59 (to make sure YouTube will accept it). Using this command implies <code>-doublesize</code>.</p>
+  <p>Use <code>record_chunks_on_framerate_changes</code> if you want to split up the recording in several files, whenever the frame rate of the MSX changes. An AVI file cannot contain video of multiple frame rates, so sound and video will get out of sync if that happens without using this special version of the command. Do not specify the target filename with this variant, or openMSX will record all chunks to the same file.</p>
 
   <h3><a id="record_channels">record_channels</a></h3>
 
@@ -1877,7 +1889,7 @@
 
   <h3><a id="savestate">savestate / loadstate / list_savestates / delete_savestate</a></h3>
 
-  <p>These command can be used to manage savestates. These are much easier to use than the lowlevel <code><a class="internal" href="#store_machine">store_machine</a></code> and <code><a class="internal" href="#store_machine">restore_machine</a></code> commands.</p>
+  <p>These commands can be used to manage savestates. These are much easier to use than the lowlevel <code><a class="internal" href="#store_machine">store_machine</a></code> and <code><a class="internal" href="#store_machine">restore_machine</a></code> commands.</p>
 
   <h4><code>savestate [&lt;name&gt;]</code></h4>
   <p>This creates a snapshot of the currently emulated MSX machine. Optionally you can specify a name for the savestate, if you omit this name, the default name <code>quicksave</code> will be taken.</p>
@@ -2204,7 +2216,7 @@
 
   <p>This command should always work, because it is just like as if a user was
   actually typing on the MSX keyboard. It is therefore a bit slow, though.
-  Check out the <code>type_via_keybuf</a></code> command if you're looking for
+  Check out the <code>type_via_keybuf</code> command if you're looking for
   something faster (but more limited in where it works). With the
   <code>default_type_proc</code> setting you can even make
   <code>type_via_keybuf</code> the standard implementation for the
@@ -2218,8 +2230,11 @@
   <table>
     <tr>
       <td><code>type "Hello world!"</code></td>
-
       <td>Yet another manifestation of the most famous program</td>
+    </tr>
+    <tr>
+      <td><code>type "PRINT \"Hi!\"\r"</code></td>
+      <td>Executes this basic command directly</td>
     </tr>
   </table>
 
@@ -2299,7 +2314,7 @@
 
   <p>Most commands described above are generally useful. openMSX also has a bunch of other more specialized commands. Some of these are intended for programmers who code MSX programs using openMSX as a tool. Other of these commands are more like toys or examples that show the openMSX scripting capabilities.</p>
 
-  <p>We've only listed a very brief overview of these command. As always execute "<code>help &lt;command-name&gt;</code>" to get a more detailed description of the command.</p>
+  <p>We've only listed a very brief overview of these commands. As always execute "<code>help &lt;command-name&gt;</code>" to get a more detailed description of the command.</p>
 
   <table>
     <tr>
@@ -2535,6 +2550,10 @@
       <td>Show (or hide) a graphical view on the palette registers</td>
     </tr>
     <tr>
+      <td><code>toggle_tron</code></td>
+      <td>Show (or hide) an OSD implementation of the MSX-BASIC TRON command to trace what the current line number of the BASIC interpreter is</td>
+    </tr>
+    <tr>
       <td><code>toggle_vdp_access_test</code></td>
       <td>Enable (or disable) reporting in the console when VDP I/O is done which could possibly cause data corruption on the slowest VDP (TMS9xxx), which is not emulated</td>
     </tr>
@@ -2577,6 +2596,10 @@
     <tr>
       <td><code>vdrive</code></td>
       <td>Easily switch disks in multi-disk games</td>
+    </tr>
+    <tr>
+      <td><code>vgm_rec</code></td>
+      <td>Record the music played by PSG, MSX-MUSIC, MSX-AUDIO, OPL4 and SCC into a VGM file</td>
     </tr>
     <tr>
       <td><code>vpeek/vpoke</code></td>
@@ -5283,7 +5306,7 @@
 
   <h3><a id="throttle">throttle</a></h3>
 
-  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible.</p>
+  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible. The speed may be limited to the framerate of your monitor (e.g. 60fps) due to how the OpenGL driver works, when using the (default) SDLGL-PP renderer. To increase the speed, set the <a class="internal" href="#maxframeskip">maxframeskip</a> setting to a high value (e.g. 100).</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5315,7 +5338,7 @@
   <p>How should software that accesses the VDP-VRAM too fast be emulated?
   Most existing MSX software should not access VRAM too fast, and in that case
   this setting has no effect. But you may want to change it when you e.g.
-  emulate an overclocked Z80 (see <a class="internal" href="z80_freq">
+  emulate an overclocked Z80 (see <a class="internal" href="#z80_freq">
   z80_freq</a>).</p>
 
   <div class="subsectiontitle">
@@ -5595,7 +5618,9 @@
 
   <h3><a id="z80_freq">z80_freq / z80_freq_locked</a></h3>
 
-  <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.5 MHz (or optionally 5.3 MHz on some machines). When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency.</p>
+  <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.579545 MHz (or optionally 5.369318 MHz on some machines). When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency.</p>
+
+  <p>WARNING: be careful when changing these settings. When saving the settings in which a different clock is activated, this will be applied for all machines, as these are global settings. Some software (like demos) may stop working properly with a changed CPU clock frequency. Specifically, using a value (just) below the normal value may cause problems loading CAS images, as these are converted to a high baud rate WAV file internally and when the MSX becomes slower it cannot handle that high baud rate.</p>
 
   <div class="subsectiontitle">
     examples:

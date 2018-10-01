@@ -6,8 +6,8 @@
 #include "CheckedRam.hh"
 #include "SdCard.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
+#include <memory>
 #include <vector>
 
 /******************************************************************************
@@ -265,16 +265,15 @@ static std::vector<AmdFlash::SectorInfo> getSectorInfo()
 	return sectorInfo;
 }
 
-MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(
-		const DeviceConfig& config, Rom&& rom_)
-	: MSXRom(config, std::move(rom_))
-	, flash(rom, getSectorInfo(), 0x207E, true, config)
+MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
+	: MSXDevice(config)
+	, flash("MFR SCC+ SD flash", getSectorInfo(), 0x207E, true, config)
 	, scc("MFR SCC+ SD SCC-I", config, getCurrentTime(), SCC::SCC_Compatible)
 	, psg("MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
 	      getCurrentTime())
 	, configReg(3) // avoid UMR
 	, checkedRam(config.getChildDataAsBool("hasmemorymapper", true) ?
-		make_unique<CheckedRam>(config, getName() + " memory mapper", "memory mapper", MEMORY_MAPPER_SIZE * 1024)
+		std::make_unique<CheckedRam>(config, getName() + " memory mapper", "memory mapper", MEMORY_MAPPER_SIZE * 1024)
 		: nullptr)
 {
 	powerUp(getCurrentTime());
@@ -289,8 +288,8 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(
 		getCPUInterface().register_IO_Out(0xFC, this);
 	}
 
-	sdCard[0] = make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard1")));
-	sdCard[1] = make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard2")));
+	sdCard[0] = std::make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard1")));
+	sdCard[1] = std::make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard2")));
 }
 
 MegaFlashRomSCCPlusSD::~MegaFlashRomSCCPlusSD()
@@ -858,14 +857,18 @@ void MegaFlashRomSCCPlusSD::writeIO(word port, byte value, EmuTime::param time)
 	switch (port & 0xFF) {
 		case 0xA0:
 			if (!isPSGalsoMappedToNormalPorts()) return;
+			// fall-through
 		case 0x10:
 			psgLatch = value & 0x0F;
 			break;
+
 		case 0xA1:
 			if (!isPSGalsoMappedToNormalPorts()) return;
+			// fall-through
 		case 0x11:
 			psg.writeRegister(psgLatch, value, time);
 			break;
+
 		case 0xFC:
 		case 0xFD:
 		case 0xFE:

@@ -7,6 +7,7 @@ MSXHiResTimer::MSXHiResTimer(const DeviceConfig& config)
 	: MSXDevice(config)
 	, reference(getCurrentTime())
 {
+	reset(getCurrentTime());
 }
 
 void MSXHiResTimer::reset(EmuTime::param time)

@@ -7,60 +7,74 @@
 
 namespace openmsx {
 
+struct MSXMemoryMapperInterface
+{
+	virtual byte readIO(word port, EmuTime::param time) = 0;
+	virtual byte peekIO(word port, EmuTime::param time) const = 0;
+	virtual void writeIO(word port, byte value, EmuTime::param time) = 0;
+	virtual byte getSelectedSegment(byte page) const = 0;
+protected:
+	~MSXMemoryMapperInterface() = default;
+};
+
+
 class MSXMapperIO final : public MSXDevice
 {
 public:
 	explicit MSXMapperIO(const DeviceConfig& config);
 
-	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;
 	byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
-	/**
-	 * Every MSXMemoryMapper must (un)register its size.
-	 * This is used to influence the result returned in readIO().
-	 */
-	void registerMapper(unsigned blocks);
-	void unregisterMapper(unsigned blocks);
-
-	/**
-	 * Returns the actual selected page for the given bank.
-	 */
-	byte getSelectedPage(byte bank) const {	return registers[bank]; }
+	void registerMapper(MSXMemoryMapperInterface* mapper);
+	void unregisterMapper(MSXMemoryMapperInterface* mapper);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void write(unsigned address, byte value);
-
-	/**
-	 * Updates the "mask" field after a mapper was registered or unregistered.
-	 */
-	void updateMask();
-
 	struct Debuggable final : SimpleDebuggable {
 		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
 		byte read(unsigned address) override;
-		void write(unsigned address, byte value) override;
+		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
 
-	std::vector<unsigned> mapperSizes; // sorted
-	byte registers[4];
+	std::vector<MSXMemoryMapperInterface*> mappers;
 
 	/**
-	 * The limit on which bits can be read back as imposed by the engine.
-	 * The S1990 engine of the MSX turbo R has such a limit, but other engines
-	 * do not.
-	 */
-	byte engineMask;
-
-	/**
-	 * Effective read mask: a combination of engineMask and the limit imposed
-	 * by the sizes of the inserted mappers.
+	 * OR-mask that limits which bits can be read back.
+	 * This is set using the MapperReadBackBits tag in the machine config.
 	 */
 	byte mask;
+};
+SERIALIZE_CLASS_VERSION(MSXMapperIO, 2);
+
+
+template<typename MSXDEVICE>
+class MSXMapperIOClient : public MSXMemoryMapperInterface
+{
+public:
+	MSXMapperIOClient()
+	{
+		auto& mb = self().getMotherBoard();
+		auto& mapperIO = mb.createMapperIO();
+		mapperIO.registerMapper(this);
+	}
+
+	~MSXMapperIOClient()
+	{
+		auto& mb = self().getMotherBoard();
+		auto& mapperIO = mb.getMapperIO();
+		mapperIO.unregisterMapper(this);
+		mb.destroyMapperIO();
+	}
+
+private:
+	MSXDEVICE& self()
+	{
+		return static_cast<MSXDEVICE&>(*this);
+	}
 };
 
 } // namespace openmsx

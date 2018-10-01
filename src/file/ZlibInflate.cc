@@ -1,7 +1,6 @@
 #include "ZlibInflate.hh"
 #include "FileException.hh"
 #include "MemBuffer.hh"
-#include "StringOp.hh"
 #include <limits>
 
 namespace openmsx {
@@ -84,8 +83,8 @@ size_t ZlibInflate::inflate(MemBuffer<byte>& output, size_t sizeHint)
 {
 	int initErr = inflateInit2(&s, -MAX_WBITS);
 	if (initErr != Z_OK) {
-		throw FileException(StringOp::Builder()
-			<< "Error initializing inflate struct: " << zError(initErr));
+		throw FileException(
+			"Error initializing inflate struct: ", zError(initErr));
 	}
 	wasInit = true;
 
@@ -99,8 +98,7 @@ size_t ZlibInflate::inflate(MemBuffer<byte>& output, size_t sizeHint)
 			break;
 		}
 		if (err != Z_OK) {
-			throw FileException(StringOp::Builder()
-				<< "Error decompressing gzip: " << zError(err));
+			throw FileException("Error decompressing gzip: ", zError(err));
 		}
 		auto oldSize = outSize;
 		outSize = oldSize * 2; // double buffer size

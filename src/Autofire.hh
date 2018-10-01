@@ -5,7 +5,7 @@
 #include "DynamicClock.hh"
 #include "EmuTime.hh"
 #include "IntegerSetting.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 
 namespace openmsx {
 
@@ -24,7 +24,7 @@ class Autofire final : private Observer<Setting>
 public:
 	Autofire(CommandController& commandController,
 	         unsigned newMinInts, unsigned newMaxInts,
-	         string_ref name);
+	         string_view name);
 	~Autofire();
 
 	/** Get the output signal in negative logic.

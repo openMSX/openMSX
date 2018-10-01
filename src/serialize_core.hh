@@ -354,7 +354,7 @@ template<typename T> struct ClassSaver
 			constrArgs.save(ar, t);
 		}
 
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
@@ -435,15 +435,11 @@ template<typename TC> struct CollectionSaver
 // Delegate to a specific Saver class
 // (implemented as inheriting from a specific baseclass).
 template<typename T> struct Saver
-	: if_<is_primitive<T>,
-	      PrimitiveSaver<T>,
-	  if_<serialize_as_enum<T>,
-	      EnumSaver<T>,
-	  if_<serialize_as_pointer<T>,
-	      PointerSaver<T>,
-	  if_<serialize_as_collection<T>,
-	      CollectionSaver<T>,
-	      ClassSaver<T>>>>> {};
+	: std::conditional_t<is_primitive<T>::value,            PrimitiveSaver<T>,
+	  std::conditional_t<serialize_as_enum<T>::value,       EnumSaver<T>,
+	  std::conditional_t<serialize_as_pointer<T>::value,    PointerSaver<T>,
+	  std::conditional_t<serialize_as_collection<T>::value, CollectionSaver<T>,
+	                                                        ClassSaver<T>>>>> {};
 
 ////
 
@@ -531,7 +527,7 @@ template<typename T> struct ClassLoader
 			version = loadVersion<T>(ar);
 		}
 
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
@@ -544,7 +540,7 @@ template<typename T> struct NonPolymorphicPointerLoader
 		int version = loadVersion<T>(ar);
 
 		// load (local) constructor args (if any)
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		using ConstrArgs = SerializeConstructorArgs<TNC>;
 		ConstrArgs constrArgs;
 		auto localArgs = constrArgs.load(ar, version);
@@ -576,8 +572,9 @@ template<typename T> struct PointerLoader2
 	// extra indirection needed because inlining the body of
 	// NonPolymorphicPointerLoader in PointerLoader does not compile
 	// for abstract types
-	: if_<std::is_polymorphic<T>, PolymorphicPointerLoader<T>,
-	                              NonPolymorphicPointerLoader<T>> {};
+	: std::conditional_t<std::is_polymorphic<T>::value,
+	                     PolymorphicPointerLoader<T>,
+	                     NonPolymorphicPointerLoader<T>> {};
 
 template<typename TP> struct PointerLoader
 {
@@ -687,15 +684,11 @@ template<typename TC> struct CollectionLoader
 	}
 };
 template<typename T> struct Loader
-	: if_<is_primitive<T>,
-	      PrimitiveLoader<T>,
-	  if_<serialize_as_enum<T>,
-	      EnumLoader<T>,
-	  if_<serialize_as_pointer<T>,
-	      PointerLoader<T>,
-	  if_<serialize_as_collection<T>,
-	      CollectionLoader<T>,
-	      ClassLoader<T>>>>> {};
+	: std::conditional_t<is_primitive<T>::value,            PrimitiveLoader<T>,
+	  std::conditional_t<serialize_as_enum<T>::value,       EnumLoader<T>,
+	  std::conditional_t<serialize_as_pointer<T>::value,    PointerLoader<T>,
+	  std::conditional_t<serialize_as_collection<T>::value, CollectionLoader<T>,
+	                                                        ClassLoader<T>>>>> {};
 
 } // namespace openmsx
 

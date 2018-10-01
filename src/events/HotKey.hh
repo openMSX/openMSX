@@ -5,7 +5,7 @@
 #include "EventListener.hh"
 #include "Command.hh"
 #include "stl.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <map>
 #include <set>
 #include <vector>
@@ -58,7 +58,7 @@ private:
 	void unbindLayer  (const EventPtr& event, const std::string& layer);
 	void unbindFullLayer(const std::string& layer);
 	void activateLayer  (std::string layer, bool blocking);
-	void deactivateLayer(string_ref layer);
+	void deactivateLayer(string_view layer);
 
 	int executeEvent(const EventPtr& event);
 	void executeBinding(const EventPtr& event, const HotKeyInfo& info);

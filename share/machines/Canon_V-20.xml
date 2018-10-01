@@ -44,13 +44,9 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
     <primary external="true" slot="2"/>
 
     <primary slot="3">
-
-      <secondary slot="0">
-        <RAM id="Main RAM">
-          <mem base="0x0000" size="0x10000"/>
-        </RAM>
-      </secondary>
-
+      <RAM id="Main RAM">
+        <mem base="0x0000" size="0x10000"/>
+      </RAM>
     </primary>
 
     <PPI id="ppi">

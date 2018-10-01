@@ -2,7 +2,6 @@
 #include "MSXSwitchedDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -31,8 +30,8 @@ void MSXDeviceSwitch::registerDevice(byte id, MSXSwitchedDevice* device)
 {
 	if (devices[id]) {
 		// TODO implement multiplexing
-		throw MSXException(StringOp::Builder() <<
-			"Already have a switched device with id " << int(id));
+		throw MSXException(
+			"Already have a switched device with id ", int(id));
 	}
 	devices[id] = device;
 	if (count == 0) {

@@ -223,6 +223,7 @@ private:
 
 template <typename T>
 PixelBuffer<T>::PixelBuffer()
+	: width(0), height(0)
 {
 	if (PixelBuffers::enabled && GLEW_ARB_pixel_buffer_object) {
 		glGenBuffers(1, &bufferId);
@@ -303,9 +304,9 @@ T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 {
 	assert(x < width);
 	assert(y < height);
-	unsigned offset = x + width * y;
+	auto offset = x + size_t(width) * y;
 	if (bufferId != 0) {
-		return static_cast<T*>(nullptr) + offset;
+		return reinterpret_cast<T*>(offset * sizeof(T));
 	} else {
 		return &allocated[offset];
 	}

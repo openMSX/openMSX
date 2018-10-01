@@ -3,9 +3,8 @@
 
 #include "hash_map.hh"
 #include "likely.hh"
-#include "memory.hh"
-#include "type_traits.hh"
 #include "xxhash.hh"
+#include <memory>
 #include <tuple>
 #include <typeindex>
 #include <type_traits>
@@ -23,7 +22,7 @@ namespace openmsx {
  *       tuple<int, float> args = std::make_tuple(42, 3.14);
  *       std::unique_ptr<Foo> foo = creator(args);
  * This is equivalent to
- *       auto foo = make_unique<Foo>(42, 3.14);
+ *       auto foo = std::make_unique<Foo>(42, 3.14);
  * But the former can be used in a generic context (where the number of
  * constructor parameters is unknown).
  */
@@ -40,23 +39,23 @@ private:
 	template<int I, typename TUPLE> struct DoInstantiate;
 	template<typename TUPLE> struct DoInstantiate<0, TUPLE> {
 		std::unique_ptr<T> operator()(TUPLE /*args*/) {
-			return make_unique<T>();
+			return std::make_unique<T>();
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<1, TUPLE> {
 		std::unique_ptr<T> operator()(TUPLE args) {
-			return make_unique<T>(std::get<0>(args));
+			return std::make_unique<T>(std::get<0>(args));
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<2, TUPLE> {
 		std::unique_ptr<T> operator()(TUPLE args) {
-			return make_unique<T>(
+			return std::make_unique<T>(
 				std::get<0>(args), std::get<1>(args));
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<3, TUPLE> {
 		std::unique_ptr<T> operator()(TUPLE args) {
-			return make_unique<T>(
+			return std::make_unique<T>(
 				std::get<0>(args), std::get<1>(args),
 				std::get<2>(args));
 		}
@@ -122,8 +121,8 @@ template<typename Base, typename Derived> struct MapConstrArgsCopy
  * cases, the user must define a specialization of this class.
  */
 template<typename Base, typename Derived> struct MapConstructorArguments
-	: if_<std::is_same<std::tuple<>,
-	                   typename PolymorphicConstructorArgs<Derived>::type>,
+	: std::conditional_t<std::is_same<std::tuple<>,
+	                     typename PolymorphicConstructorArgs<Derived>::type>::value,
 	      MapConstrArgsEmpty<Base>,
 	      MapConstrArgsCopy<Base, Derived>> {};
 
@@ -225,7 +224,7 @@ public:
 		static_assert(!std::is_abstract<T>::value,
 		              "can't be an abstract type");
 		registerHelper(typeid(T),
-		               make_unique<PolymorphicSaver<Archive, T>>(name));
+		               std::make_unique<PolymorphicSaver<Archive, T>>(name));
 	}
 
 	template<typename T> static void save(Archive& ar, T* t)
@@ -265,7 +264,7 @@ public:
 		static_assert(!std::is_abstract<T>::value,
 		              "can't be an abstract type");
 		registerHelper(name,
-		               make_unique<PolymorphicLoader<Archive, T>>());
+		               std::make_unique<PolymorphicLoader<Archive, T>>());
 	}
 
 	static void* load(Archive& ar, unsigned id, const void* args);
@@ -277,7 +276,7 @@ private:
 		const char* name,
 		std::unique_ptr<PolymorphicLoaderBase<Archive>> loader);
 
-	hash_map<string_ref, std::unique_ptr<PolymorphicLoaderBase<Archive>>, XXHasher>
+	hash_map<string_view, std::unique_ptr<PolymorphicLoaderBase<Archive>>, XXHasher>
 		loaderMap;
 };
 
@@ -294,7 +293,7 @@ public:
 		static_assert(!std::is_abstract<T>::value,
 		              "can't be an abstract type");
 		registerHelper(name,
-		               make_unique<PolymorphicInitializer<Archive, T>>());
+		               std::make_unique<PolymorphicInitializer<Archive, T>>());
 	}
 
 	static void init(const char* tag, Archive& ar, void* t);
@@ -306,7 +305,7 @@ private:
 		const char* name,
 		std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer);
 
-	hash_map<string_ref, std::unique_ptr<PolymorphicInitializerBase<Archive>>, XXHasher>
+	hash_map<string_view, std::unique_ptr<PolymorphicInitializerBase<Archive>>, XXHasher>
 		initializerMap;
 };
 

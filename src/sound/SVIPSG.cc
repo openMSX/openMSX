@@ -4,8 +4,8 @@
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
-#include "memory.hh"
 #include "serialize.hh"
+#include <memory>
 
 //        Slot 0    Slot 1    Slot 2    Slot 3
 // FFFF +---------+---------+---------+---------+
@@ -56,7 +56,7 @@ SVIPSG::SVIPSG(const DeviceConfig& config)
 
 	// must come after initialisation of ports
 	EmuTime::param time = getCurrentTime();
-	ay8910 = make_unique<AY8910>("PSG", *this, config, time);
+	ay8910 = std::make_unique<AY8910>("PSG", *this, config, time);
 	reset(time);
 }
 

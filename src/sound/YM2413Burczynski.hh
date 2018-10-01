@@ -120,7 +120,7 @@ private:
 	inline void updateDecayRate(int kcodeScaled);
 	inline void updateReleaseRate(int kcodeScaled);
 
-	unsigned* wavetable;	// waveform select
+	const unsigned* wavetable;	// waveform select
 
 	// Phase Generator
 	FreqIndex phase;	// frequency counter

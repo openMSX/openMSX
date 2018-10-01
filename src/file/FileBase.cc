@@ -7,11 +7,6 @@ using std::string;
 
 namespace openmsx {
 
-FileBase::~FileBase()
-{
-	munmap();
-}
-
 const byte* FileBase::mmap(size_t& size)
 {
 	if (mmapBuf.empty()) {
@@ -52,7 +47,7 @@ const string FileBase::getLocalReference()
 {
 	// default implementation, file is not backed (uncompressed) on
 	// the local file system
-	return "";
+	return {};
 }
 
 const string FileBase::getOriginalName()

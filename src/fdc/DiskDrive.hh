@@ -65,21 +65,11 @@ public:
 	 */
 	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time, int count = 1) = 0;
 
-	/** Set head loaded status.
-	 * @param status false = not loaded,
-	 *               true  = loaded.
-	 * @param time The moment in emulated time this action takes place.
-	 */
-	virtual void setHeadLoaded(bool status, EmuTime::param time) = 0;
-
-	/** Is head loaded?
-	 */
-	virtual bool headLoaded(EmuTime::param time) = 0;
-
-	virtual void writeTrack(const RawTrack& track) = 0;
-	virtual void readTrack (      RawTrack& track) = 0;
-	virtual EmuTime getNextSector(EmuTime::param time, RawTrack& track,
-	                              RawTrack::Sector& sector) = 0;
+	virtual unsigned getTrackLength() = 0;
+	virtual void writeTrackByte(int idx, byte val, bool addIdam = false) = 0;
+	virtual byte  readTrackByte(int idx) = 0;
+	virtual EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) = 0;
+	virtual void flushTrack() = 0;
 
 	/** Is disk changed?
 	 */
@@ -89,6 +79,10 @@ public:
 	/** Is there a dummy (unconncted) drive?
 	 */
 	virtual bool isDummyDrive() const = 0;
+
+	/** See RawTrack::applyWd2793ReadTrackQuirk() */
+	virtual void applyWd2793ReadTrackQuirk() = 0;
+	virtual void invalidateWd2793ReadTrackQuirk() = 0;
 };
 
 
@@ -107,15 +101,16 @@ public:
 	void setMotor(bool status, EmuTime::param time) override;
 	bool indexPulse(EmuTime::param time) override;
 	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
-	void setHeadLoaded(bool status, EmuTime::param time) override;
-	bool headLoaded(EmuTime::param time) override;
-	void writeTrack(const RawTrack& track) override;
-	void readTrack (      RawTrack& track) override;
-	EmuTime getNextSector(EmuTime::param time, RawTrack& track,
-	                      RawTrack::Sector& sector) override;
+	unsigned getTrackLength() override;
+	void writeTrackByte(int idx, byte val, bool addIdam) override;
+	byte  readTrackByte(int idx) override;
+	EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) override;
+	void flushTrack() override;
 	bool diskChanged() override;
 	bool peekDiskChanged() const override;
 	bool isDummyDrive() const override;
+	void applyWd2793ReadTrackQuirk() override;
+	void invalidateWd2793ReadTrackQuirk() override;
 };
 
 } // namespace openmsx

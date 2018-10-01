@@ -69,13 +69,13 @@ public:
 	void cassetteOut(bool output, EmuTime::param time) override;
 	bool cassetteIn(EmuTime::param time) override;
 #if COMPONENT_LASERDISC
-	void setLaserdiscPlayer(LaserdiscPlayer *laserdisc) override;
+	void setLaserdiscPlayer(LaserdiscPlayer* laserdisc) override;
 #endif
 	bool lastOut() const override;
 
 	// Connector
 	const std::string getDescription() const override;
-	string_ref getClass() const override;
+	string_view getClass() const override;
 	void unplug(EmuTime::param time) override;
 
 	template<typename Archive>

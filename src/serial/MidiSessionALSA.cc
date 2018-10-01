@@ -3,10 +3,10 @@
 #include "MidiOutDevice.hh"
 #include "PlugException.hh"
 #include "PluggingController.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
 
 #include <iostream>
+#include <memory>
 
 
 namespace openmsx {
@@ -24,7 +24,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 
 	// MidiOutDevice
 	void recvMessage(
@@ -79,20 +79,20 @@ void MidiOutALSA::unplugHelper(EmuTime::param /*time*/)
 void MidiOutALSA::connect()
 {
 	sourcePort = snd_seq_create_simple_port(
-			&seq, "MIDI out pluggable",
-			0, SND_SEQ_PORT_TYPE_MIDI_GENERIC);
+		&seq, "MIDI out pluggable",
+		0, SND_SEQ_PORT_TYPE_MIDI_GENERIC);
 	if (sourcePort < 0) {
-		throw PlugException(StringOp::Builder() <<
-				"Failed to create ALSA port: " << snd_strerror(sourcePort));
+		throw PlugException(
+                        "Failed to create ALSA port: ", snd_strerror(sourcePort));
 	}
 
 	int err = snd_seq_connect_to(&seq, sourcePort, destClient, destPort);
 	if (err) {
 		snd_seq_delete_simple_port(&seq, sourcePort);
-		throw PlugException(StringOp::Builder() <<
-				"Failed to connect to ALSA port "
-				"(" << destClient << ":" << destPort << ")"
-				": " << snd_strerror(err));
+		throw PlugException(
+			"Failed to connect to ALSA port "
+			"(", destClient, ':', destPort, ")"
+			": ", snd_strerror(err));
 	}
 
 	snd_midi_event_new(MAX_MESSAGE_SIZE, &event_parser);
@@ -114,7 +114,7 @@ const std::string& MidiOutALSA::getName() const
 	return name;
 }
 
-string_ref MidiOutALSA::getDescription() const
+string_view MidiOutALSA::getDescription() const
 {
 	return desc;
 }
@@ -177,8 +177,8 @@ void MidiSessionALSA::registerAll(
 		snd_seq_t* seq;
 		int err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
 		if (err < 0) {
-			cliComm.printError(StringOp::Builder() <<
-					"Could not open sequencer: " << snd_strerror(err));
+			cliComm.printError(
+                                "Could not open sequencer: ", snd_strerror(err));
 			return;
 		}
 		snd_seq_set_client_name(seq, "openMSX");
@@ -225,7 +225,7 @@ void MidiSessionALSA::scanClients(PluggingController& controller)
 			constexpr unsigned int wrcaps =
 					SND_SEQ_PORT_CAP_WRITE | SND_SEQ_PORT_CAP_SUBS_WRITE;
 			if ((snd_seq_port_info_get_capability(pinfo) & wrcaps) == wrcaps) {
-				controller.registerPluggable(make_unique<MidiOutALSA>(
+				controller.registerPluggable(std::make_unique<MidiOutALSA>(
 						seq, *cinfo, *pinfo
 						));
 			}

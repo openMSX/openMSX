@@ -15,10 +15,10 @@
 #include "SectorBasedDisk.hh"
 #include "StringOp.hh"
 #include "TclObject.hh"
-#include "memory.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cctype>
+#include <memory>
 #include <stdexcept>
 
 using std::string;
@@ -80,28 +80,28 @@ DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
-	string_ref driveName)
+	string_view driveName)
 {
 	return find_if(begin(drives), end(drives),
 	               [&](DriveSettings& ds) { return ds.driveName == driveName; });
 }
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
-	string_ref diskname)
+	string_view diskname)
 {
 	// first split-off the end numbers (if present)
 	// these will be used as partition indication
 	auto pos1 = diskname.find("::");
-	auto tmp1 = (pos1 == string_ref::npos) ? diskname : diskname.substr(pos1);
+	auto tmp1 = (pos1 == string_view::npos) ? diskname : diskname.substr(pos1);
 	auto pos2 = tmp1.find_first_of("0123456789");
-	auto pos1b = (pos1 == string_ref::npos) ? 0 : pos1;
+	auto pos1b = (pos1 == string_view::npos) ? 0 : pos1;
 	auto tmp2 = diskname.substr(0, pos2 + pos1b);
 
 	auto it = findDriveSettings(tmp2);
 	if (it == end(drives)) {
-		it = findDriveSettings(getMachinePrefix() + tmp2);
+		it = findDriveSettings(strCat(getMachinePrefix(), tmp2));
 		if (it == end(drives)) {
-			throw CommandException("Unknown drive: " + tmp2);
+			throw CommandException("Unknown drive: ", tmp2);
 		}
 	}
 
@@ -111,7 +111,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		throw CommandException("Unsupported disk type.");
 	}
 
-	if (pos2 == string_ref::npos) {
+	if (pos2 == string_view::npos) {
 		// whole disk
 		it->partition = 0;
 	} else {
@@ -132,7 +132,7 @@ unique_ptr<DiskPartition> DiskManipulator::getPartition(
 {
 	auto* disk = driveData.drive->getSectorAccessibleDisk();
 	assert(disk);
-	return make_unique<DiskPartition>(*disk, driveData.partition);
+	return std::make_unique<DiskPartition>(*disk, driveData.partition);
 }
 
 
@@ -142,7 +142,7 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 		throw CommandException("Missing argument");
 	}
 
-	string_ref subcmd = tokens[1].getString();
+	string_view subcmd = tokens[1].getString();
 	if (((tokens.size() != 4)                     && (subcmd == "savedsk")) ||
 	    ((tokens.size() != 4)                     && (subcmd == "mkdir"))   ||
 	    ((tokens.size() != 3)                     && (subcmd == "dir"))     ||
@@ -155,9 +155,9 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 
 	if (subcmd == "export") {
-		string_ref directory = tokens[3].getString();
+		string_view directory = tokens[3].getString();
 		if (!FileOperations::isDirectory(directory)) {
-			throw CommandException(directory + " is not a directory");
+			throw CommandException(directory, " is not a directory");
 		}
 		auto& settings = getDriveSettings(tokens[2].getString());
 		array_ref<TclObject> lists(std::begin(tokens) + 4, std::end(tokens));
@@ -190,7 +190,7 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 
 	} else if (subcmd == "format") {
 		bool dos1 = false;
-		string_ref drive = tokens[2].getString();
+		string_view drive = tokens[2].getString();
 		if (tokens.size() == 4) {
 			if (drive == "-dos1") {
 				dos1 = true;
@@ -207,7 +207,7 @@ void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 		result.setString(dir(settings));
 
 	} else {
-		throw CommandException("Unknown subcommand: " + subcmd);
+		throw CommandException("Unknown subcommand: ", subcmd);
 	}
 }
 
@@ -308,8 +308,8 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 					try {
 						DiskImageUtils::checkFAT12Partition(*disk, i);
 						names.insert(end(names), {
-							name1 + StringOp::toString(i),
-							name2 + StringOp::toString(i)});
+							strCat(name1, i),
+							strCat(name2, i)});
 					} catch (MSXException&) {
 						// skip invalid partition
 					}
@@ -338,7 +338,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 }
 
 void DiskManipulator::savedsk(const DriveSettings& driveData,
-                              string_ref filename)
+                              string_view filename)
 {
 	auto partition = getPartition(driveData);
 	SectorBuffer buf;
@@ -362,8 +362,8 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 		}
 
 		if (sizes.size() >= MAX_PARTITIONS) {
-			throw CommandException(StringOp::Builder() <<
-				"Maximum number of partitions is " << MAX_PARTITIONS);
+			throw CommandException(
+				"Maximum number of partitions is ", MAX_PARTITIONS);
 		}
 		string tok = tokens[i].getString().str();
 		char* q;
@@ -371,7 +371,7 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 		int scale = 1024; // default is kilobytes
 		if (*q) {
 			if ((q == tok.c_str()) || *(q + 1)) {
-				throw CommandException("Invalid size: " + tok);
+				throw CommandException("Invalid size: ", tok);
 			}
 			switch (tolower(*q)) {
 				case 'b':
@@ -387,8 +387,7 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 					scale = SectorBasedDisk::SECTOR_SIZE;
 					break;
 				default:
-					throw CommandException(
-					    string("Invalid postfix: ") + q);
+					throw CommandException("Invalid suffix: ", q);
 			}
 		}
 		sectors = (sectors * scale) / SectorBasedDisk::SECTOR_SIZE;
@@ -421,7 +420,7 @@ void DiskManipulator::create(array_ref<TclObject> tokens)
 		File file(filename, File::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
 	} catch (FileException& e) {
-		throw CommandException("Couldn't create image: " + e.getMessage());
+		throw CommandException("Couldn't create image: ", e.getMessage());
 	}
 
 	// initialize (create partition tables and format partitions)
@@ -445,19 +444,18 @@ unique_ptr<MSXtar> DiskManipulator::getMSXtar(
 	SectorAccessibleDisk& disk, DriveSettings& driveData)
 {
 	if (DiskImageUtils::hasPartitionTable(disk)) {
-		throw CommandException(
-			"Please select partition number.");
+		throw CommandException("Please select partition number.");
 	}
 
-	auto result = make_unique<MSXtar>(disk);
+	auto result = std::make_unique<MSXtar>(disk);
 	try {
 		result->chdir(driveData.workingDir[driveData.partition]);
 	} catch (MSXException&) {
 		driveData.workingDir[driveData.partition] = '/';
 		throw CommandException(
-		    "Directory " + driveData.workingDir[driveData.partition] +
-		    " doesn't exist anymore. Went back to root "
-		    "directory. Command aborted, please retry.");
+			"Directory ", driveData.workingDir[driveData.partition],
+			" doesn't exist anymore. Went back to root "
+			"directory. Command aborted, please retry.");
 	}
 	return result;
 }
@@ -469,14 +467,14 @@ string DiskManipulator::dir(DriveSettings& driveData)
 	return workhorse->dir();
 }
 
-string DiskManipulator::chdir(DriveSettings& driveData, string_ref filename)
+string DiskManipulator::chdir(DriveSettings& driveData, string_view filename)
 {
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(*partition, driveData);
 	try {
 		workhorse->chdir(filename);
 	} catch (MSXException& e) {
-		throw CommandException("chdir failed: " + e.getMessage());
+		throw CommandException("chdir failed: ", e.getMessage());
 	}
 	// TODO clean-up this temp hack, used to enable relative paths
 	string& cwd = driveData.workingDir[driveData.partition];
@@ -489,14 +487,14 @@ string DiskManipulator::chdir(DriveSettings& driveData, string_ref filename)
 	return "New working directory: " + cwd;
 }
 
-void DiskManipulator::mkdir(DriveSettings& driveData, string_ref filename)
+void DiskManipulator::mkdir(DriveSettings& driveData, string_view filename)
 {
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(*partition, driveData);
 	try {
 		workhorse->mkdir(filename);
 	} catch (MSXException& e) {
-		throw CommandException(e.getMessage());
+		throw CommandException(std::move(e).getMessage());
 	}
 }
 
@@ -515,7 +513,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 				FileOperations::Stat st;
 				if (!FileOperations::getStat(s, st)) {
 					throw CommandException(
-						"Non-existing file " + s);
+						"Non-existing file ", s);
 				}
 				if (FileOperations::isDirectory(st)) {
 					messages += workhorse->addDir(s);
@@ -523,17 +521,17 @@ string DiskManipulator::import(DriveSettings& driveData,
 					messages += workhorse->addFile(s.str());
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
-					messages += "Ignoring " + s + '\n';
+					strAppend(messages, "Ignoring ", s, '\n');
 				}
 			} catch (MSXException& e) {
-				throw CommandException(e.getMessage());
+				throw CommandException(std::move(e).getMessage());
 			}
 		}
 	}
 	return messages;
 }
 
-void DiskManipulator::exprt(DriveSettings& driveData, string_ref dirname,
+void DiskManipulator::exprt(DriveSettings& driveData, string_view dirname,
                             array_ref<TclObject> lists)
 {
 	auto partition = getPartition(driveData);
@@ -548,7 +546,7 @@ void DiskManipulator::exprt(DriveSettings& driveData, string_ref dirname,
 			}
 		}
 	} catch (MSXException& e) {
-		throw CommandException(e.getMessage());
+		throw CommandException(std::move(e).getMessage());
 	}
 }
 

@@ -10,89 +10,69 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
+#include "cstd.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 namespace openmsx {
 
-static const unsigned EG_MUTE = 1 << Y8950::EG_BITS;
-static const Y8950::EnvPhaseIndex EG_DP_MAX = Y8950::EnvPhaseIndex(EG_MUTE);
+static constexpr unsigned EG_MUTE = 1 << Y8950::EG_BITS;
+static constexpr Y8950::EnvPhaseIndex EG_DP_MAX = Y8950::EnvPhaseIndex(EG_MUTE);
 
-static const unsigned MOD = 0;
-static const unsigned CAR = 1;
+static constexpr unsigned MOD = 0;
+static constexpr unsigned CAR = 1;
 
-static const float EG_STEP = 0.1875f; //  3/16
-static const float SL_STEP = 3.0f;
-static const float TL_STEP = 0.75f;   // 12/16
-static const float DB_STEP = 0.1875f; //  3/16
+static constexpr double EG_STEP = 0.1875; //  3/16
+static constexpr double SL_STEP = 3.0;
+static constexpr double TL_STEP = 0.75;   // 12/16
+static constexpr double DB_STEP = 0.1875; //  3/16
 
-static const unsigned SL_PER_EG = 16; // SL_STEP / EG_STEP
-static const unsigned TL_PER_EG =  4; // TL_STEP / EG_STEP
-static const unsigned EG_PER_DB =  1; // EG_STEP / DB_STEP
+static constexpr unsigned SL_PER_EG = 16; // SL_STEP / EG_STEP
+static constexpr unsigned TL_PER_EG =  4; // TL_STEP / EG_STEP
+static constexpr unsigned EG_PER_DB =  1; // EG_STEP / DB_STEP
 
 // PM speed(Hz) and depth(cent)
-static const float PM_SPEED  = 6.4f;
-static const float PM_DEPTH  = 13.75f / 2;
-static const float PM_DEPTH2 = 13.75f;
+static constexpr double PM_SPEED  = 6.4;
+static constexpr double PM_DEPTH  = 13.75 / 2;
+static constexpr double PM_DEPTH2 = 13.75;
 
 // Dynamic range of sustine level
-static const int SL_BITS = 4;
-static const int SL_MUTE = 1 << SL_BITS;
+static constexpr int SL_BITS = 4;
+static constexpr int SL_MUTE = 1 << SL_BITS;
 // Size of Sintable ( 1 -- 18 can be used, but 7 -- 14 recommended.)
-static const int PG_BITS = 10;
-static const int PG_WIDTH = 1 << PG_BITS;
-static const int PG_MASK = PG_WIDTH - 1;
+static constexpr int PG_BITS = 10;
+static constexpr int PG_WIDTH = 1 << PG_BITS;
+static constexpr int PG_MASK = PG_WIDTH - 1;
 // Phase increment counter
-static const int DP_BITS = 19;
-static const int DP_BASE_BITS = DP_BITS - PG_BITS;
-
-// WaveTable for each envelope amp.
-//  values are in range[        0,   DB_MUTE)   (for positive values)
-//                  or [2*DB_MUTE, 3*DB_MUTE)   (for negative values)
-static unsigned sintable[PG_WIDTH];
-
-// Phase incr table for Attack.
-static Y8950::EnvPhaseIndex dphaseARTable[16][16];
-// Phase incr table for Decay and Release.
-static Y8950::EnvPhaseIndex dphaseDRTable[16][16];
-
-// TL Table.
-static int tllTable[16 * 8][4];
-
-// Linear to Log curve conversion table (for Attack rate) and vice versa.
-//   values are in the range [0 .. EG_MUTE]
-static unsigned AR_ADJUST_TABLE[EG_MUTE];
-static unsigned RA_ADJUST_TABLE[EG_MUTE + 1];
+static constexpr int DP_BITS = 19;
+static constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
 
 // Dynamic range
-static const int DB_BITS = 9;
-static const int DB_MUTE = 1 << DB_BITS;
+static constexpr int DB_BITS = 9;
+static constexpr int DB_MUTE = 1 << DB_BITS;
 // PM table is calcurated by PM_AMP * exp2(PM_DEPTH * sin(x) / 1200)
-static const int PM_AMP_BITS = 8;
-static const int PM_AMP = 1 << PM_AMP_BITS;
+static constexpr int PM_AMP_BITS = 8;
+static constexpr int PM_AMP = 1 << PM_AMP_BITS;
 
 // Bits for liner value
-static const int DB2LIN_AMP_BITS = 11;
-static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
+static constexpr int DB2LIN_AMP_BITS = 11;
+static constexpr int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
 // Bits for Pitch and Amp modulator
-static const int PM_PG_BITS = 8;
-static const int PM_PG_WIDTH = 1 << PM_PG_BITS;
-static const int PM_DP_BITS = 16;
-static const int PM_DP_WIDTH = 1 << PM_DP_BITS;
-static const int AM_PG_BITS = 8;
-static const int AM_PG_WIDTH = 1 << AM_PG_BITS;
-static const int AM_DP_BITS = 16;
-static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
+static constexpr int PM_PG_BITS = 8;
+static constexpr int PM_PG_WIDTH = 1 << PM_PG_BITS;
+static constexpr int PM_DP_BITS = 16;
+static constexpr int PM_DP_WIDTH = 1 << PM_DP_BITS;
+static constexpr int AM_PG_BITS = 8;
+static constexpr int AM_PG_WIDTH = 1 << AM_PG_BITS;
+static constexpr int AM_DP_BITS = 16;
+static constexpr int AM_DP_WIDTH = 1 << AM_DP_BITS;
 
 // LFO Table
-static const unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV)));
-static int pmtable[2][PM_PG_WIDTH];
-
-// dB to Liner table
-static int dB2LinTab[(2 * DB_MUTE) * 2];
+static constexpr unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
 
 
 // LFO Amplitude Modulation table (verified on real YM3812)
@@ -110,8 +90,8 @@ static int dB2LinTab[(2 * DB_MUTE) * 2];
 //    depth = 4.875dB
 // Also this approch can be easily implemented in HW, the previous one (see SVN
 // history) could not.
-static const unsigned LFO_AM_TAB_ELEMENTS = 210;
-static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
+static constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
+static constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
@@ -191,133 +171,179 @@ static inline unsigned DB_NEG(int x)
 //                                                  //
 //**************************************************//
 
-// Return log_BASE(x)  IOW the value y so that pow(BASE, y) == x.
-template<int BASE> static inline float log(float x)
+// Linear to Log curve conversion table (for Attack rate) and vice versa.
+//   values are in the range [0 .. EG_MUTE]
+struct AdjustTables {
+	unsigned ar[EG_MUTE];
+	unsigned ra[EG_MUTE + 1];
+};
+static CONSTEXPR AdjustTables makeAdjustTables()
 {
-	return ::logf(x) / ::logf(float(BASE));
-}
+	AdjustTables adjust = {};
 
-// Table for AR to LogCurve and vice versa.
-static void makeAdjustTable()
-{
-	AR_ADJUST_TABLE[0] = EG_MUTE;
-	RA_ADJUST_TABLE[0] = EG_MUTE;
+	adjust.ar[0] = EG_MUTE;
+	adjust.ra[0] = EG_MUTE;
+	auto log_eg_mute = cstd::log<6, 5>(EG_MUTE);
 	for (int i = 1; i < int(EG_MUTE); ++i) {
-		AR_ADJUST_TABLE[i] = (EG_MUTE - 1 - EG_MUTE * log<EG_MUTE>(i)) / 2;
-		RA_ADJUST_TABLE[i] = powf(EG_MUTE, float(EG_MUTE - 1 - 2 * i) / EG_MUTE);
-		assert(0 <= int(AR_ADJUST_TABLE[i]));
-		assert(0 <= int(RA_ADJUST_TABLE[i]));
-		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
-		assert(RA_ADJUST_TABLE[i] <= EG_MUTE);
+		adjust.ar[i] = (EG_MUTE - 1 - EG_MUTE * cstd::log<6, 5>(i) / log_eg_mute) / 2;
+		adjust.ra[i] = cstd::pow<6, 5>(EG_MUTE, (double(EG_MUTE) - 1 - 2 * i) / EG_MUTE);
+		assert(0 <= int(adjust.ar[i]));
+		assert(0 <= int(adjust.ra[i]));
+		assert(adjust.ar[i] <= EG_MUTE);
+		assert(adjust.ra[i] <= EG_MUTE);
 	}
-	RA_ADJUST_TABLE[EG_MUTE] = 0;
+	adjust.ra[EG_MUTE] = 0;
 
-	// AR_ADJUST_TABLE[] and RA_ADJUST_TABLE[] are each others inverse, IOW
-	//   RA_ADJUST_TABLE[AR_ADJUST_TABLE[x]] == x
+	return adjust;
+
+	// adjust.ar[] and adjust.ra[] are each others inverse, IOW
+	//   adjust.ra[adjust.ar[x]] == x
 	// (except for rounding errors).
 }
+static CONSTEXPR AdjustTables adjust = makeAdjustTables();
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
-static void makeDB2LinTable()
+struct Db2LinTab {
+	int tab[(2 * DB_MUTE) * 2];
+};
+static CONSTEXPR Db2LinTab makeDB2LinTable()
 {
+	Db2LinTab dB2Lin = {};
+
 	for (int i = 0; i < DB_MUTE; ++i) {
-		dB2LinTab[i] = int(float((1 << DB2LIN_AMP_BITS) - 1) *
-		                   powf(10, -float(i) * DB_STEP / 20));
+		dB2Lin.tab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
+		                   cstd::pow<7, 3>(10, -double(i) * DB_STEP / 20.0));
 	}
-	assert(dB2LinTab[DB_MUTE - 1] == 0);
+	assert(dB2Lin.tab[DB_MUTE - 1] == 0);
 	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
-		dB2LinTab[i] = 0;
+		dB2Lin.tab[i] = 0;
 	}
 	for (int i = 0; i < 2 * DB_MUTE; ++i) {
-		dB2LinTab[i + 2 * DB_MUTE] = -dB2LinTab[i];
+		dB2Lin.tab[i + 2 * DB_MUTE] = -dB2Lin.tab[i];
 	}
+
+	return dB2Lin;
 }
+static CONSTEXPR Db2LinTab dB2Lin = makeDB2LinTable();
 
 // Liner(+0.0 - +1.0) to dB(DB_MUTE-1 -- 0)
-static unsigned lin2db(float d)
+static CONSTEXPR unsigned lin2db(double d)
 {
-	if (d < 1e-4f) {
+	if (d < 1e-4) {
 		// (almost) zero
 		return DB_MUTE - 1;
 	}
-	int tmp = -int(20.0f * log10f(d) / DB_STEP);
+	int tmp = -int(20.0 * cstd::log10<6, 2>(d) / DB_STEP);
 	int result = std::min(tmp, DB_MUTE - 1);
 	assert(result >= 0);
 	assert(result <= DB_MUTE - 1);
 	return result;
 }
 
-// Sin Table
-static void makeSinTable()
+// WaveTable for each envelope amp.
+//  values are in range[        0,   DB_MUTE)   (for positive values)
+//                  or [2*DB_MUTE, 3*DB_MUTE)   (for negative values)
+struct SinTable {
+	unsigned table[PG_WIDTH];
+};
+static CONSTEXPR SinTable makeSinTable()
 {
+	SinTable sin = {};
 	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		sintable[i] = lin2db(sinf(float(2.0 * M_PI) * i / PG_WIDTH));
+		sin.table[i] = lin2db(cstd::sin<2>(2.0 * M_PI * i / PG_WIDTH));
 	}
 	for (int i = 0; i < PG_WIDTH / 4; i++) {
-		sintable[PG_WIDTH / 2 - 1 - i] = sintable[i];
+		sin.table[PG_WIDTH / 2 - 1 - i] = sin.table[i];
 	}
 	for (int i = 0; i < PG_WIDTH / 2; i++) {
-		sintable[PG_WIDTH / 2 + i] = 2 * DB_MUTE + sintable[i];
+		sin.table[PG_WIDTH / 2 + i] = 2 * DB_MUTE + sin.table[i];
 	}
+	return sin;
 }
+static CONSTEXPR SinTable sin = makeSinTable();
 
 // Table for Pitch Modulator
-static void makePmTable()
+struct PmTable {
+	int table[2][PM_PG_WIDTH];
+};
+static CONSTEXPR PmTable makePmTable()
 {
+	PmTable pm = {};
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
-		pmtable[0][i] = int(float(PM_AMP) * exp2f(float(PM_DEPTH)  * sinf(float(2.0 * M_PI) * i / PM_PG_WIDTH) / 1200));
-		pmtable[1][i] = int(float(PM_AMP) * exp2f(float(PM_DEPTH2) * sinf(float(2.0 * M_PI) * i / PM_PG_WIDTH) / 1200));
+		auto s = cstd::sin<5>(2.0 * M_PI * i / PM_PG_WIDTH) / 1200;
+		pm.table[0][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH  * s));
+		pm.table[1][i] = int(PM_AMP * cstd::exp2<2>(PM_DEPTH2 * s));
 	}
+	return pm;
 }
+static CONSTEXPR PmTable pm = makePmTable();
 
-static void makeTllTable()
+// TL Table.
+struct TllTable {
+	int table[16 * 8][4];
+};
+static CONSTEXPR TllTable makeTllTable()
 {
+	TllTable tll = {};
+
 	// Processed version of Table 3.5 from the Application Manual
-	static const unsigned kltable[16] = {
+	constexpr unsigned kltable[16] = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
 	// This is indeed {0.0, 3.0, 1.5, 6.0} dB/oct, verified on real Y8950.
 	// Note the illogical order of 2nd and 3rd element.
-	static const unsigned shift[4] = { 31, 1, 2, 0 };
+	constexpr unsigned shift[4] = { 31, 1, 2, 0 };
 
 	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
 		unsigned fnum  = freq % 16;
 		unsigned block = freq / 16;
 		int tmp = 4 * kltable[fnum] - 32 * (7 - block);
 		for (unsigned KL = 0; KL < 4; ++KL) {
-			tllTable[freq][KL] = (tmp <= 0) ? 0 : (tmp >> shift[KL]);
+			tll.table[freq][KL] = (tmp <= 0) ? 0 : (tmp >> shift[KL]);
 		}
 	}
-}
 
-// Rate Table for Attack
-static void makeDphaseARTable()
+	return tll;
+}
+static CONSTEXPR TllTable tllTable = makeTllTable();
+
+// Phase incr table for Attack.
+struct DPhaseTable {
+	Y8950::EnvPhaseIndex table[16][16];
+};
+static CONSTEXPR DPhaseTable makeDphaseARTable()
 {
+	DPhaseTable dphaseAR;
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseARTable[Rks][0] = Y8950::EnvPhaseIndex(0);
+		dphaseAR.table[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (unsigned AR = 1; AR < 15; ++AR) {
 			unsigned RM = std::min(AR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
-			dphaseARTable[Rks][AR] =
+			dphaseAR.table[Rks][AR] =
 				Y8950::EnvPhaseIndex(12 * (RL + 4)) >> (15 - RM);
 		}
-		dphaseARTable[Rks][15] = EG_DP_MAX;
+		dphaseAR.table[Rks][15] = EG_DP_MAX;
 	}
+	return dphaseAR;
 }
+static CONSTEXPR DPhaseTable dphaseAR = makeDphaseARTable();
 
-// Rate Table for Decay
-static void makeDphaseDRTable()
+// Phase incr table for Decay and Release.
+static CONSTEXPR DPhaseTable makeDphaseDRTable()
 {
+	DPhaseTable dphaseDR;
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseDRTable[Rks][0] = Y8950::EnvPhaseIndex(0);
+		dphaseDR.table[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (unsigned DR = 1; DR < 16; ++DR) {
 			unsigned RM = std::min(DR + (Rks >> 2), 15u);
 			unsigned RL = Rks & 3;
-			dphaseDRTable[Rks][DR] =
+			dphaseDR.table[Rks][DR] =
 				Y8950::EnvPhaseIndex(RL + 4) >> (15 - RM);
 		}
 	}
+	return dphaseDR;
 }
+static CONSTEXPR DPhaseTable dphaseDR = makeDphaseDRTable();
 
 
 // class Y8950::Patch
@@ -375,15 +401,15 @@ void Y8950::Slot::updatePG(unsigned freq)
 
 void Y8950::Slot::updateTLL(unsigned freq)
 {
-	tll = tllTable[freq >> 6][patch.KL] + patch.TL * TL_PER_EG;
+	tll = tllTable.table[freq >> 6][patch.KL] + patch.TL * TL_PER_EG;
 }
 
 void Y8950::Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
-	dphaseARTableRks = dphaseARTable[rks];
-	dphaseDRTableRks = dphaseDRTable[rks];
+	dphaseARTableRks = dphaseAR.table[rks];
+	dphaseDRTableRks = dphaseDR.table[rks];
 }
 
 void Y8950::Slot::updateEG()
@@ -424,7 +450,7 @@ void Y8950::Slot::slotOn(KeyPart part)
 	if (!key) {
 		eg_mode = ATTACK;
 		phase = 0;
-		eg_phase = Y8950::EnvPhaseIndex(RA_ADJUST_TABLE[eg_phase.toInt()]);
+		eg_phase = Y8950::EnvPhaseIndex(adjust.ra[eg_phase.toInt()]);
 	}
 	key |= part;
 }
@@ -436,7 +462,7 @@ void Y8950::Slot::slotOff(KeyPart part)
 		key &= ~part;
 		if (!key) {
 			if (eg_mode == ATTACK) {
-				eg_phase = Y8950::EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
+				eg_phase = Y8950::EnvPhaseIndex(adjust.ar[eg_phase.toInt()]);
 			}
 			eg_mode = RELEASE;
 		}
@@ -492,17 +518,54 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 	, irq(motherBoard, getName() + ".IRQ")
 	, enabled(true)
 {
-	makePmTable();
-	makeAdjustTable();
-	makeDB2LinTable();
-	makeTllTable();
-	makeSinTable();
+	// For debugging: print out tables to be able to compare before/after
+	// when the calculation changes.
+	if (0) {
+		for (int i = 0; i < PM_PG_WIDTH; ++i) {
+			std::cout << pm.table[0][i] << ' '
+			          << pm.table[1][i] << '\n';
+		}
+		std::cout << '\n';
 
-	makeDphaseARTable();
-	makeDphaseDRTable();
+		for (unsigned i = 0; i < EG_MUTE; ++i) {
+			std::cout << adjust.ra[i] << ' '
+			          << adjust.ar[i] << '\n';
+		}
+		std::cout << adjust.ra[EG_MUTE] << "\n\n";
+
+		for (auto& e : dB2Lin.tab) std::cout << e << '\n';
+		std::cout << '\n';
+
+		for (int i = 0; i < (16 * 8); ++i) {
+			for (int j = 0; j < 4; ++j) {
+				std::cout << tllTable.table[i][j] << ' ';
+			}
+			std::cout << '\n';
+		}
+		std::cout << '\n';
+
+		for (auto& e : sin.table) std::cout << e << '\n';
+		std::cout << '\n';
+
+		for (int i = 0; i < 16; ++i) {
+			for (int j = 0; j < 16; ++j) {
+				std::cout << dphaseAR.table[i][j].getRawValue() << ' ';
+			}
+			std::cout << '\n';
+		}
+		std::cout << '\n';
+
+		for (int i = 0; i < 16; ++i) {
+			for (int j = 0; j < 16; ++j) {
+				std::cout << dphaseDR.table[i][j].getRawValue() << ' ';
+			}
+			std::cout << '\n';
+		}
+		std::cout << '\n';
+	}
 
 	float input = Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV);
-	setInputRate(int(input + 0.5f));
+	setInputRate(lrintf(input));
 
 	reset(time);
 	registerSound(config);
@@ -620,7 +683,7 @@ unsigned Y8950::Slot::calc_phase(int lfo_pm)
 }
 
 #define S2E(x) Y8950::EnvPhaseIndex(int((x) / EG_STEP))
-static const Y8950::EnvPhaseIndex SL[16] = {
+static constexpr Y8950::EnvPhaseIndex SL[16] = {
 	S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 	S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
 };
@@ -636,7 +699,7 @@ unsigned Y8950::Slot::calc_envelope(int lfo_am)
 			eg_mode = DECAY;
 			updateEG();
 		} else {
-			egout = AR_ADJUST_TABLE[eg_phase.toInt()];
+			egout = adjust.ar[eg_phase.toInt()];
 		}
 		break;
 
@@ -688,7 +751,7 @@ int Y8950::Slot::calc_slot_car(int lfo_pm, int lfo_am, int fm)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	int pgout = calc_phase(lfo_pm) + wave2_8pi(fm);
-	return dB2LinTab[sintable[pgout & PG_MASK] + egout];
+	return dB2Lin.tab[sin.table[pgout & PG_MASK] + egout];
 }
 
 int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
@@ -699,7 +762,7 @@ int Y8950::Slot::calc_slot_mod(int lfo_pm, int lfo_am)
 	if (patch.FB != 0) {
 		pgout += wave2_8pi(feedback) >> patch.FB;
 	}
-	int newOutput = dB2LinTab[sintable[pgout & PG_MASK] + egout];
+	int newOutput = dB2Lin.tab[sin.table[pgout & PG_MASK] + egout];
 	feedback = (output + newOutput) >> 1;
 	output = newOutput;
 	return feedback;
@@ -709,7 +772,7 @@ int Y8950::Slot::calc_slot_tom(int lfo_pm, int lfo_am)
 {
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
-	return dB2LinTab[sintable[pgout & PG_MASK] + egout];
+	return dB2Lin.tab[sin.table[pgout & PG_MASK] + egout];
 }
 
 int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
@@ -717,25 +780,25 @@ int Y8950::Slot::calc_slot_snare(int lfo_pm, int lfo_am, int whitenoise)
 	unsigned egout = calc_envelope(lfo_am);
 	unsigned pgout = calc_phase(lfo_pm);
 	unsigned tmp = (pgout & (1 << (PG_BITS - 1))) ? 0 : 2 * DB_MUTE;
-	return (dB2LinTab[tmp + egout] + dB2LinTab[egout + whitenoise]) >> 1;
+	return (dB2Lin.tab[tmp + egout] + dB2Lin.tab[egout + whitenoise]) >> 1;
 }
 
 int Y8950::Slot::calc_slot_cym(int lfo_am, int a, int b)
 {
 	unsigned egout = calc_envelope(lfo_am);
-	return (dB2LinTab[egout + a] + dB2LinTab[egout + b]) >> 1;
+	return (dB2Lin.tab[egout + a] + dB2Lin.tab[egout + b]) >> 1;
 }
 
 // HI-HAT
 int Y8950::Slot::calc_slot_hat(int lfo_am, int a, int b, int whitenoise)
 {
 	unsigned egout = calc_envelope(lfo_am);
-	return (dB2LinTab[egout + whitenoise] +
-	        dB2LinTab[egout + a] +
-	        dB2LinTab[egout + b]) >> 2;
+	return (dB2Lin.tab[egout + whitenoise] +
+	        dB2Lin.tab[egout + a] +
+	        dB2Lin.tab[egout + b]) >> 2;
 }
 
-int Y8950::getAmplificationFactor() const
+int Y8950::getAmplificationFactorImpl() const
 {
 	return 1 << (15 - DB2LIN_AMP_BITS);
 }
@@ -793,7 +856,7 @@ void Y8950::generateChannels(int** bufs, unsigned num)
 		int lfo_am = am_mode ? tmp : tmp / 4;
 
 		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
-		int lfo_pm = pmtable[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
+		int lfo_pm = pm.table[pm_mode][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
 
 		if (noise_seed & 1) {
 			noise_seed ^= 0x24000;

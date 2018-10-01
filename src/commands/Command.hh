@@ -3,7 +3,7 @@
 
 #include "Completer.hh"
 #include "array_ref.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <vector>
 
 namespace openmsx {
@@ -24,7 +24,7 @@ public:
 	Interpreter& getInterpreter() const;
 
 protected:
-	CommandCompleter(CommandController& controller, string_ref name);
+	CommandCompleter(CommandController& controller, string_view name);
 	~CommandCompleter();
 
 	GlobalCommandController& getGlobalCommandController() const;
@@ -65,7 +65,7 @@ public:
 	void* getToken() const { return token; }
 
 protected:
-	Command(CommandController& controller, string_ref name);
+	Command(CommandController& controller, string_view name);
 	~Command();
 
 private:

@@ -1,11 +1,11 @@
 #include "Deflicker.hh"
 #include "RawFrame.hh"
 #include "PixelOperations.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <memory>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -33,12 +33,12 @@ std::unique_ptr<Deflicker> Deflicker::create(
 {
 #if HAVE_16BPP
 	if (format.BitsPerPixel == 15 || format.BitsPerPixel == 16) {
-		return make_unique<DeflickerImpl<uint16_t>>(format, lastFrames);
+		return std::make_unique<DeflickerImpl<uint16_t>>(format, lastFrames);
 	}
 #endif
 #if HAVE_32BPP
 	if (format.BitsPerPixel == 32) {
-		return make_unique<DeflickerImpl<uint32_t>>(format, lastFrames);
+		return std::make_unique<DeflickerImpl<uint32_t>>(format, lastFrames);
 	}
 #endif
 	UNREACHABLE; return nullptr; // avoid warning
@@ -112,7 +112,7 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 	// Prefer to write directly to the output buffer, if that's not
 	// possible store the intermediate result in a temp buffer.
 	VLA_SSE_ALIGNED(Pixel, buf2, width0);
-	Pixel* buf = static_cast<Pixel*>(buf_);
+	auto* buf = static_cast<Pixel*>(buf_);
 	Pixel* out = (width0 <= bufWidth) ? buf : buf2;
 
 	// Detect pixels that alternate between two different color values and

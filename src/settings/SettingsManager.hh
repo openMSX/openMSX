@@ -5,7 +5,7 @@
 #include "InfoTopic.hh"
 #include "Setting.hh"
 #include "hash_set.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include "xxhash.hh"
 
 namespace openmsx {
@@ -28,8 +28,8 @@ public:
 	/** Find the setting with given name.
 	  * @return The requested setting or nullptr.
 	  */
-	BaseSetting* findSetting(string_ref name) const;
-	BaseSetting* findSetting(string_ref prefix, string_ref baseName) const;
+	BaseSetting* findSetting(string_view name) const;
+	BaseSetting* findSetting(string_view prefix, string_view baseName) const;
 
 	void loadSettings(const XMLElement& config);
 
@@ -37,7 +37,7 @@ public:
 	void unregisterSetting(BaseSetting& setting);
 
 private:
-	BaseSetting& getByName(string_ref cmd, string_ref name) const;
+	BaseSetting& getByName(string_view cmd, string_view name) const;
 	std::vector<std::string> getTabSettingNames() const;
 
 	struct SettingInfo final : InfoTopic {

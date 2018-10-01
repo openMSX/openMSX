@@ -50,30 +50,29 @@ EmuTime DummyDrive::getTimeTillIndexPulse(EmuTime::param /*time*/, int /*count*/
 	return EmuTime::infinity;
 }
 
-void DummyDrive::setHeadLoaded(bool /*status*/, EmuTime::param /*time*/)
+unsigned DummyDrive::getTrackLength()
 {
-	// ignore
+	return RawTrack::STANDARD_SIZE;
 }
 
-bool DummyDrive::headLoaded(EmuTime::param /*time*/)
-{
-	return false;
-}
-
-void DummyDrive::writeTrack(const RawTrack& /*track*/)
+void DummyDrive::writeTrackByte(int /*idx*/, byte /*val*/, bool /*addIdam*/)
 {
 	throw DriveEmptyException("No drive selected");
 }
 
-void DummyDrive::readTrack(RawTrack& /*track*/)
+byte DummyDrive::readTrackByte(int /*idx*/)
 {
 	throw DriveEmptyException("No drive selected");
 }
 
-EmuTime DummyDrive::getNextSector(EmuTime::param /*time*/, RawTrack& /*track*/,
-                                  RawTrack::Sector& /*sector*/)
+EmuTime DummyDrive::getNextSector(EmuTime::param /*time*/, RawTrack::Sector& /*sector*/)
 {
 	return EmuTime::infinity;
+}
+
+void DummyDrive::flushTrack()
+{
+	// ignore
 }
 
 bool DummyDrive::diskChanged()
@@ -89,6 +88,16 @@ bool DummyDrive::peekDiskChanged() const
 bool DummyDrive::isDummyDrive() const
 {
 	return true;
+}
+
+void DummyDrive::applyWd2793ReadTrackQuirk()
+{
+	// nothing
+}
+
+void DummyDrive::invalidateWd2793ReadTrackQuirk()
+{
+	// nothing
 }
 
 } // namespace openmsx

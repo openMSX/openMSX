@@ -12,11 +12,11 @@ class OSDText final : public OSDImageBasedWidget
 public:
 	OSDText(Display& display, const TclObject& name);
 
-	std::vector<string_ref> getProperties() const override;
+	std::vector<string_view> getProperties() const override;
 	void setProperty(Interpreter& interp,
-	                 string_ref name, const TclObject& value) override;
-	void getProperty(string_ref name, TclObject& result) const override;
-	string_ref getType() const override;
+	                 string_view name, const TclObject& value) override;
+	void getProperty(string_view name, TclObject& result) const override;
+	string_view getType() const override;
 
 private:
 	void invalidateLocal() override;
@@ -33,8 +33,8 @@ private:
 		bool removeTrailingSpaces) const;
 	size_t splitAtChar(const std::string& line, unsigned maxWidth) const;
 	size_t splitAtWord(const std::string& line, unsigned maxWidth) const;
-	std::string getCharWrappedText(const std::string& text, unsigned maxWidth) const;
-	std::string getWordWrappedText(const std::string& text, unsigned maxWidth) const;
+	std::string getCharWrappedText(const std::string& txt, unsigned maxWidth) const;
+	std::string getWordWrappedText(const std::string& txt, unsigned maxWidth) const;
 
 	gl::vec2 getRenderedSize() const;
 

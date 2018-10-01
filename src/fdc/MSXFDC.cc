@@ -2,24 +2,26 @@
 #include "RealDrive.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
-#include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
-MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId)
+MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId, bool needROM)
 	: MSXDevice(config)
-	, rom(config.findChild("rom")
-		? make_unique<Rom>(getName() + " ROM", "rom", config, romId)
+	, rom(needROM
+		? std::make_unique<Rom>(getName() + " ROM", "rom", config, romId)
 		: nullptr) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
 {
+	if (needROM && (rom->getSize() == 0)) {
+		throw MSXException(
+			"Empty ROM not allowed for \"", getName(), "\".");
+	}
 	bool singleSided = config.findChild("singlesided") != nullptr;
 	int numDrives = config.getChildDataAsInt("drives", 1);
 	if ((0 > numDrives) || (numDrives >= 4)) {
-		throw MSXException(StringOp::Builder() <<
-			"Invalid number of drives: " << numDrives);
+		throw MSXException("Invalid number of drives: ", numDrives);
 	}
 	unsigned timeout = config.getChildDataAsInt("motor_off_timeout_ms", 0);
 	const XMLElement* styleEl = config.findChild("connectionstyle");
@@ -27,12 +29,12 @@ MSXFDC::MSXFDC(const DeviceConfig& config, const std::string& romId)
 	EmuDuration motorTimeout = EmuDuration::msec(timeout);
 	int i = 0;
 	for ( ; i < numDrives; ++i) {
-		drives[i] = make_unique<RealDrive>(
+		drives[i] = std::make_unique<RealDrive>(
 			getMotherBoard(), motorTimeout, signalsNeedMotorOn,
 			!singleSided);
 	}
 	for ( ; i < 4; ++i) {
-		drives[i] = make_unique<DummyDrive>();
+		drives[i] = std::make_unique<DummyDrive>();
 	}
 }
 

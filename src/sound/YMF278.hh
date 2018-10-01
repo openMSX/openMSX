@@ -29,6 +29,8 @@ public:
 	byte readMem(unsigned address) const;
 	void writeMem(unsigned address, byte value);
 
+	void setMixLevel(uint8_t x, EmuTime::param time);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -38,51 +40,50 @@ private:
 		Slot();
 		void reset();
 		int compute_rate(int val) const;
+		int compute_decay_rate(int val) const;
 		unsigned decay_rate(int num, int sample_rate);
 		void envelope_next(int sample_rate);
-		inline int compute_vib() const;
-		inline int compute_am() const;
-		void set_lfo(int newlfo);
+		int16_t compute_vib() const;
+		uint16_t compute_am() const;
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
-		unsigned startaddr;
-		unsigned loopaddr;
-		unsigned endaddr;
-		unsigned step;       // fixed-point frequency step
+		uint32_t startaddr;
+		uint16_t loopaddr;
+		uint16_t endaddr; // Note: stored in 2s complement (0x0000 = 0, 0x0001 = -65536, 0xffff = -1)
+		uint32_t step;       // fixed-point frequency step
 				     // invariant: step == calcStep(OCT, FN)
-		unsigned stepptr;    // fixed-point pointer into the sample
-		unsigned pos;
+		uint32_t stepptr;    // fixed-point pointer into the sample
+		uint16_t pos;
 		int16_t sample1, sample2;
 
-		int env_vol;
+		int16_t env_vol;
 
-		int lfo_cnt;
-		int lfo_step;
-		int lfo_max;
+		uint32_t lfo_cnt;
 
-		int DL;
-		int16_t wave;		// wavetable number
-		int16_t FN;		// f-number         TODO store 'FN | 1024'?
-		char OCT;		// octave [0..15]   TODO store sign-extended?
-		char PRVB;		// pseudo-reverb
-		char LD;		// level direct
-		char TL;		// total level
-		char pan;		// panpot
-		char lfo;		// LFO
-		char vib;		// vibrato
-		char AM;		// AM level
-		char AR;
-		char D1R;
-		char D2R;
-		char RC;		// rate correction
-		char RR;
+		int16_t DL;
+		uint16_t wave;		// wavetable number
+		uint16_t FN;		// f-number         TODO store 'FN | 1024'?
+		int8_t OCT;		// octave [-8..+7]
+		bool PRVB;		// pseudo-reverb
+		uint8_t TLdest;		// destination total level
+		uint8_t TL;		// total level  (goes towards TLdest)
+		uint8_t pan;		// panpot 0..15
+		bool keyon;		// slot keyed on
+		bool DAMP;
+		uint8_t lfo;            // LFO speed 0..7
+		uint8_t vib;		// vibrato 0..7
+		uint8_t AM;		// AM level 0..7
+		uint8_t AR;		// 0..15
+		uint8_t D1R;		// 0..15
+		uint8_t D2R;		// 0..15
+		uint8_t RC;		// rate correction 0..15
+		uint8_t RR;		// 0..15
 
-		byte bits;		// width of the samples
-		bool active;		// slot keyed on
+		uint8_t bits;		// width of the samples
 
-		byte state;
+		uint8_t state;		// envelope generator state
 		bool lfo_active;
 	};
 
@@ -117,20 +118,12 @@ private:
 
 	int memadr;
 
-	int fm_l, fm_r;
-	int pcm_l, pcm_r;
-
 	Rom rom;
 	TrackedRam ram;
 
-	/** Precalculated attenuation values with some margin for
-	  * envelope and pan levels.
-	  */
-	int volume[256 * 4];
-
 	byte regs[256];
 };
-SERIALIZE_CLASS_VERSION(YMF278::Slot, 3);
+SERIALIZE_CLASS_VERSION(YMF278::Slot, 5);
 SERIALIZE_CLASS_VERSION(YMF278, 4);
 
 } // namespace openmsx

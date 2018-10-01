@@ -2,7 +2,7 @@
 #define PROBE_HH
 
 #include "Subject.hh"
-#include "StringOp.hh"
+#include "strCat.hh"
 #include <string>
 
 namespace openmsx {
@@ -63,7 +63,7 @@ Probe<T>::Probe(Debugger& debugger_, std::string name_,
 template<typename T>
 std::string Probe<T>::getValue() const
 {
-	return StringOp::toString(value);
+	return strCat(value);
 }
 
 // specialization for void
