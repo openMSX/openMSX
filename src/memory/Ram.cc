@@ -67,6 +67,9 @@ void Ram::clear(byte c)
 			auto p = (encoding == "hex")
 			       ? HexDump::decode(init->getData())
 			       : Base64 ::decode(init->getData());
+			if (p.second == 0) {
+				throw MSXException("Zero-length initial pattern");
+			}
 			done = std::min(size_t(size), p.second);
 			memcpy(ram.data(), p.first.data(), done);
 		} else {
