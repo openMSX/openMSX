@@ -108,3 +108,5 @@ def getAndroidVersionCode():
 	else:
 		return '%s' % ( countGitCommits() )
 
+if __name__ == '__main__':
+	print packageVersionNumber
