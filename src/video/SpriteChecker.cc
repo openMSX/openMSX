@@ -320,9 +320,6 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				int colorIndex = (~0u << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
 					vram.spriteAttribTable.readPlanar(colorIndex);
-				// Sprites with CC=1 are only visible if preceded by
-				// a sprite with CC=0.
-				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
 
 				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[2 * sprite + 1] & patternIndexMask;
@@ -369,8 +366,10 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				byte colorAttrib =
 					vram.spriteAttribTable.readNP(colorIndex);
 				// Sprites with CC=1 are only visible if preceded by
-				// a sprite with CC=0.
-				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
+				// a sprite with CC=0. However they DO contribute towards
+				// the max-8-sprites-per-line limit, so we can't easily
+				// filter them here. See also
+				//    https://github.com/openMSX/openMSX/issues/497
 
 				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[4 * sprite + 2] & patternIndexMask;
