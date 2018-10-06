@@ -10,6 +10,7 @@ Android port, but you'll mostly notice the scale factor 2 there.
 Here's the list with all highlights and details:
 
 MSX device support:
+- fixed 16 year old old regarding sprites behaviour as shown in Ash Guine 3
 - fixed National CF-3300: it has a 2DD disk drive, not 1DD
 - fixed V9958 commands in non-bitmap modes
 - allow non-standard cartridge slots to be used as normal cartridge slots,
