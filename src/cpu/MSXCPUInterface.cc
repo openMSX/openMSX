@@ -5,6 +5,7 @@
 #include "TclObject.hh"
 #include "Interpreter.hh"
 #include "Reactor.hh"
+#include "RealTime.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "VDPIODelay.hh"
@@ -964,6 +965,7 @@ void MSXCPUInterface::doContinue2()
 	breakedSetting->setReadOnlyValue(TclObject("false"));
 	reactor.getCliComm().update(CliComm::STATUS, "cpu", "running");
 	reactor.unblock();
+	motherBoard.getRealTime().resync();
 }
 
 void MSXCPUInterface::cleanup()
