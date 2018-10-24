@@ -32,7 +32,10 @@ proc lazy_handler {name} {
 	dict for {script procs} $lazy {
 		if {[lsearch -exact $procs $name] == -1} continue
 		dict unset lazy $script
-		namespace eval :: [list source [data_file scripts/$script]]
+		if {[catch {namespace eval :: [list source [data_file scripts/$script]]}]} {
+			puts stderr "Error while (lazily) loading Tcl script: $script\n$::errorInfo"
+			error $::errorInfo
+		}
 		return true
 	}
 	return false
@@ -48,7 +51,10 @@ proc lazy_execute_all {} {
 	while {[dict size $lazy] != 0} {
 		set script [lindex [dict keys $lazy] 0]
 		dict unset lazy $script
-		namespace eval :: [list source [data_file scripts/$script]]
+		if {[catch {namespace eval :: [list source [data_file scripts/$script]]}]} {
+			puts stderr "Error while (lazily) loading Tcl script: $script\n$::errorInfo"
+			error $::errorInfo
+		}
 	}
 }
 
