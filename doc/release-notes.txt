@@ -29,6 +29,8 @@ MSX device support:
   ColecoVision games (mostly MSX ports)
 - added emulation of the Carnivore 2 cartridge
 - improved emulation of OPL4 (wave part) considerably, thanks to Valley Bell
+- added emulation of bizarre I/O port mirroring of Philips Music Module (thanks
+  to Grauw and L. Oliveira for doing the research)
 - added new machines: Sony HB-G900AP (thanks to Louthrax), Eurohard/Radofin
   Dragon MSX (thanks to MAME), Yamaha CX7/128 and CX7M/128 (thanks to Peter
   Hanraets), Al Alamiah Sakhr AX230, Sanyo MPC-2, Yamaha CX11 (thanks to
