@@ -229,6 +229,21 @@ void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
 	}
 }
 
+static Uint16 maskPUA(Uint16 unicode)
+{
+	// Apparently on macOS keyboard events for keys like F1 have a non-zero
+	// unicode field. This confuses the console code (it thinks it's a
+	// printable character) and it prevents those keys from triggering
+	// hotkey bindings. See this bug report:
+	//   https://github.com/openMSX/openMSX/issues/1095
+	// As a workaround we mask unicode chars in the 'Private Use Area' (PUA).
+	//   https://en.wikipedia.org/wiki/Private_Use_Areas
+	//
+	// Note: because the unicode field in SDL1.2 is only 16 bits, we only need
+	//       to look at the first area: U+E000..U+F8FF
+	return ((0xE000 <= unicode) && (unicode <= 0xF8FF)) ? 0 : unicode;
+}
+
 void InputEventGenerator::handle(const SDL_Event& evt)
 {
 	EventPtr event;
@@ -255,7 +270,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 				evt.key.keysym.sym, evt.key.keysym.mod,
 				evt.key.keysym.scancode, true);
 			event = make_shared<KeyUpEvent>(
-				keyCode, evt.key.keysym.unicode);
+				keyCode, maskPUA(evt.key.keysym.unicode));
 			triggerOsdControlEventsFromKeyEvent(keyCode, true, event);
 		}
 		break;
@@ -275,7 +290,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 				evt.key.keysym.sym, evt.key.keysym.mod,
 				evt.key.keysym.scancode, false);
 			event = make_shared<KeyDownEvent>(
-				keyCode, evt.key.keysym.unicode);
+				keyCode, maskPUA(evt.key.keysym.unicode));
 			triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
 		}
 		break;
