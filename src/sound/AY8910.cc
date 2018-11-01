@@ -106,6 +106,7 @@ inline void AY8910::Generator::setPeriod(int value)
 
 inline unsigned AY8910::Generator::getOutput() const
 {
+	assert((output == 0) || (output == 1));
 	return output;
 }
 
