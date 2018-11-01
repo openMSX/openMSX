@@ -195,9 +195,6 @@ inline void AY8910::NoiseGenerator::reset()
 inline void AY8910::NoiseGenerator::doNextEvent()
 {
 	count = 0;
-	// noise output changes when (bit1 ^ bit0) == 1
-	//output ^= ((random + 1) & 2) >> 1;
-	bool o = output ^ ((random + 1) & 2) >> 1;
 
 	// The Random Number Generator of the 8910 is a 17-bit shift register.
 	// The input to the shift register is bit0 XOR bit2 (bit0 is the
@@ -219,9 +216,7 @@ inline void AY8910::NoiseGenerator::doNextEvent()
 	//if (random & 1) random ^= 0x28000;
 	//random >>= 1;
 	random = (random >> 1) ^ ((random & 1) << 14) ^ ((random & 1) << 16);
-
 	output = random & 1;
-	assert(output == o);
 }
 
 inline void AY8910::NoiseGenerator::advance(int duration)
