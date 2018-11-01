@@ -21,7 +21,7 @@ public:
 	void refresh() const;
 
 	void setOpenGL(bool openGL_) { openGL = openGL_; }
-	bool isOpenGL() const { return openGL; };
+	bool isOpenGL() const { return openGL; }
 
 private:
 	Display& display;

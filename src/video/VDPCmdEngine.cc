@@ -616,7 +616,7 @@ struct IncrShift4
 	IncrShift4(unsigned sx, unsigned dx)
 		: shift(((dx - sx) & 1) * 4)
 	{
-	};
+	}
 	byte doShift(byte color) const
 	{
 		return (color >> shift) | (color << shift);
@@ -630,7 +630,7 @@ struct IncrShift5
 	IncrShift5(unsigned sx, unsigned dx)
 		: shift(((dx - sx) & 3) * 2)
 	{
-	};
+	}
 	byte doShift(byte color) const
 	{
 		return (color >> shift) | (color << (8 - shift));

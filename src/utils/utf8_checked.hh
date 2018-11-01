@@ -268,7 +268,7 @@ class iterator : public std::iterator<std::bidirectional_iterator_tag, uint32_t>
 	octet_iterator range_start;
 	octet_iterator range_end;
 public:
-	iterator() {};
+	iterator() {}
 	iterator(const octet_iterator& octet_it,
 	         const octet_iterator& range_start_,
 	         const octet_iterator& range_end_)
