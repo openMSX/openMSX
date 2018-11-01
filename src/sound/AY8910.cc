@@ -80,15 +80,9 @@ static float noiseValue(float x)
 
 // Generator:
 
-AY8910::Generator::Generator()
-{
-	reset(0);
-}
-
-inline void AY8910::Generator::reset(unsigned newOutput)
+inline void AY8910::Generator::reset()
 {
 	count = 0;
-	output = newOutput;
 }
 
 inline void AY8910::Generator::setPeriod(int value)
@@ -102,12 +96,6 @@ inline void AY8910::Generator::setPeriod(int value)
 	// period. In that case, period = 0 is half as period = 1.
 	period = std::max(1, value);
 	count = std::min(count, period - 1);
-}
-
-inline unsigned AY8910::Generator::getOutput() const
-{
-	assert((output == 0) || (output == 1));
-	return output;
 }
 
 inline unsigned AY8910::Generator::getNextEventTime() const
@@ -128,6 +116,13 @@ inline void AY8910::Generator::advanceFast(unsigned duration)
 AY8910::ToneGenerator::ToneGenerator()
 	: vibratoCount(0), detuneCount(0)
 {
+	reset();
+}
+
+inline void AY8910::ToneGenerator::reset()
+{
+	Generator::reset();
+	output = false;
 }
 
 int AY8910::ToneGenerator::getDetune(AY8910& ay8910)
@@ -189,7 +184,7 @@ AY8910::NoiseGenerator::NoiseGenerator()
 
 inline void AY8910::NoiseGenerator::reset()
 {
-	Generator::reset(1);
+	Generator::reset();
 	random = 1;
 }
 
@@ -217,7 +212,6 @@ inline void AY8910::NoiseGenerator::doNextEvent()
 	//if (random & 1) random ^= 0x28000;
 	//random >>= 1;
 	random = (random >> 1) ^ ((random & 1) << 14) ^ ((random & 1) << 16);
-	output = random & 1;
 }
 
 inline void AY8910::NoiseGenerator::advance(int duration)
@@ -247,7 +241,6 @@ inline void AY8910::NoiseGenerator::advance(int duration)
 		       ^ ((random & 1) << 14)
 		       ^ ((random & 1) << 16);
 	}
-	output = random & 1;
 }
 
 
@@ -511,7 +504,7 @@ AY8910::~AY8910()
 void AY8910::reset(EmuTime::param time)
 {
 	// Reset generators and envelope.
-	for (auto& t : tone) t.reset(0);
+	for (auto& t : tone) t.reset();
 	noise.reset();
 	envelope.reset();
 	// Reset registers and values derived from them.
@@ -981,24 +974,37 @@ void AY8910::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(AY8910);
 
+// version 1: initial version
+// version 2: removed 'output' member variable
 template<typename Archive>
 void AY8910::Generator::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("period", period);
 	ar.serialize("count", count);
-	ar.serialize("output", output);
 }
 INSTANTIATE_SERIALIZE_METHODS(AY8910::Generator);
 
+// version 1: initial version
+// version 2: moved 'output' variable from base class to here
 template<typename Archive>
 void AY8910::ToneGenerator::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeInlinedBase<Generator>(*this, version);
 	ar.serialize("vibratoCount", vibratoCount);
 	ar.serialize("detuneCount", detuneCount);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("output", output);
+	} else {
+		// don't bother trying to restore this from the old location:
+		// it doesn't influence any MSX-observable state, and the
+		// difference in generated sound will likely be inaudible
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(AY8910::ToneGenerator);
 
+// version 1: initial version
+// version 2: removed 'output' variable from base class, not stored here but
+//            instead it's calculated from 'random' when needed
 template<typename Archive>
 void AY8910::NoiseGenerator::serialize(Archive& ar, unsigned version)
 {
