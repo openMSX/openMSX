@@ -218,7 +218,6 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 			mat4 I;
 			glUniformMatrix4fv(gl::context->unifTexMvp,
 			                   1, GL_FALSE, &I[0][0]);
-			glDisable(GL_BLEND);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
 			glEnableVertexAttribArray(0);
@@ -496,6 +495,7 @@ void GLPostProcessor::drawNoise()
 	noiseTextureB.bind();
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glBlendEquation(GL_FUNC_ADD); // restore default
+	glDisable(GL_BLEND);
 }
 
 static const int GRID_SIZE = 16;
