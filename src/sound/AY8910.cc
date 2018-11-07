@@ -193,25 +193,17 @@ inline void AY8910::NoiseGenerator::doNextEvent()
 	count = 0;
 
 	// The Random Number Generator of the 8910 is a 17-bit shift register.
-	// The input to the shift register is bit0 XOR bit2 (bit0 is the
-	// output).
-	// The following is a fast way to compute bit 17 = bit0^bit2.
-	// Instead of doing all the logic operations, we only check bit 0,
-	// relying on the fact that after two shifts of the register, what now
-	// is bit 2 will become bit 0, and will invert, if necessary, bit 16,
-	// which previously was bit 18.
-	// Note: On Pentium 4, the "if" causes trouble in the pipeline.
-	//       After all this is pseudo-random and therefore a nightmare
-	//       for branch prediction.
-	//       A bit more calculation without a branch is faster.
-	//       Without the "if", the transformation described above still
-	//       speeds up the code, because the same "random & N"
-	//       subexpression appears twice (also when doing multiple cycles
-	//       in one go, see "advance" method).
-	//       TODO: Benchmark on other modern CPUs.
-	//if (random & 1) random ^= 0x28000;
-	//random >>= 1;
-	random = (random >> 1) ^ ((random & 1) << 14) ^ ((random & 1) << 16);
+	// The input to the shift register is bit0 XOR bit3 (bit0 is the
+	// output). Verified on real AY8910 and YM2149 chips.
+	//
+	// Fibonacci configuartion:
+	//   random ^= ((random & 1) ^ ((random >> 3) & 1)) << 17;
+	//   random >>= 1;
+	// Galois configuration:
+	//   if (random & 1) random ^= 0x24000;
+	//   random >>= 1;
+	// or alternatively:
+	random = (random >> 1) ^ ((random & 1) << 13) ^ ((random & 1) << 16);
 }
 
 inline void AY8910::NoiseGenerator::advance(int duration)
@@ -220,26 +212,40 @@ inline void AY8910::NoiseGenerator::advance(int duration)
 	count += duration;
 	int cycles = count / period;
 	count -= cycles * period; // equivalent to count %= period
-	// See advanceToFlip for explanation of noise algorithm.
-	for (; cycles >= 4405; cycles -= 4405) {
-		random ^= (random >> 10)
-		       ^ ((random & 0x003FF) << 5)
-		       ^ ((random & 0x003FF) << 7);
+
+	// The following loops advance the random state N steps at once. The
+	// values for N (4585, 275, 68, 8, 1) are chosen so that:
+	// - The formulas are relatively simple.
+	// - The ratio between the step sizes is roughly the same.
+	for (/**/; cycles >= 4585; cycles -= 4585) {
+		random = ((random & 0x1f) << 12)
+		       ^ ((random & 0x1f) <<  9)
+		       ^   random
+		       ^ ( random         >>  5);
 	}
-	for (; cycles >= 291; cycles -= 291) {
-		random ^= (random >> 6)
-		       ^ ((random & 0x3F) << 9)
-		       ^ ((random & 0x3F) << 11);
+	for (/**/; cycles >= 275; cycles -= 275) {
+		random = ((random & 0x03f) << 11)
+		       ^ ((random & 0x1c0) <<  8)
+		       ^ ((random & 0x1ff) <<  5)
+		       ^   random
+		       ^ ( random          >>  6)
+		       ^ ( random          >>  9);
 	}
-	for (; cycles >= 15; cycles -= 15) {
-		random =  (random & 0x07FFF)
-		       ^  (random >> 15)
-		       ^ ((random & 0x07FFF) << 2);
+	for (/**/; cycles >= 68; cycles -= 68) {
+		random = ((random & 0xfff) <<  5)
+		       ^ ((random & 0xfff) <<  2)
+		       ^   random
+		       ^ ( random          >> 12);
 	}
-	while (cycles--) {
-		random =  (random >> 1)
-		       ^ ((random & 1) << 14)
-		       ^ ((random & 1) << 16);
+	for (/**/; cycles >= 8; cycles -= 8) {
+		random = ((random & 0xff) << 9)
+		       ^ ((random & 0xff) << 6)
+		       ^ ( random         >> 8);
+	}
+	for (/**/; cycles >= 1; cycles -= 1) {
+		random = ((random & 1) << 16)
+		       ^ ((random & 1) << 13)
+		       ^ ( random      >>  1);
 	}
 }
 
