@@ -2,6 +2,7 @@
 #define MSXMAPPERIO_HH
 
 #include "MSXDevice.hh"
+#include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"
 #include <vector>
 
@@ -51,30 +52,25 @@ private:
 SERIALIZE_CLASS_VERSION(MSXMapperIO, 2);
 
 
-template<typename MSXDEVICE>
 class MSXMapperIOClient : public MSXMemoryMapperInterface
 {
 public:
-	MSXMapperIOClient()
+	MSXMapperIOClient(MSXMotherBoard& motherBoard_)
+		: motherBoard(motherBoard_)
 	{
-		auto& mb = self().getMotherBoard();
-		auto& mapperIO = mb.createMapperIO();
+		auto& mapperIO = motherBoard.createMapperIO();
 		mapperIO.registerMapper(this);
 	}
 
 	~MSXMapperIOClient()
 	{
-		auto& mb = self().getMotherBoard();
-		auto& mapperIO = mb.getMapperIO();
+		auto& mapperIO = motherBoard.getMapperIO();
 		mapperIO.unregisterMapper(this);
-		mb.destroyMapperIO();
+		motherBoard.destroyMapperIO();
 	}
 
 private:
-	MSXDEVICE& self()
-	{
-		return static_cast<MSXDEVICE&>(*this);
-	}
+	MSXMotherBoard& motherBoard;
 };
 
 } // namespace openmsx

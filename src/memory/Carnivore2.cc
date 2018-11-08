@@ -18,6 +18,7 @@ static std::vector<AmdFlash::SectorInfo> getSectorInfo()
 
 Carnivore2::Carnivore2(const DeviceConfig& config)
 	: MSXDevice(config)
+	, MSXMapperIOClient(getMotherBoard())
 	, flash("Carnivore2 flash", getSectorInfo(), 0x207e, true, config)
 	, ram(config, getName() + " ram", "ram", 2048 * 1024)
 	, eeprom(getName() + " eeprom",

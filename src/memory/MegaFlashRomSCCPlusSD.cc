@@ -221,6 +221,10 @@ by VPP/WD pin)
   mapper ports as read only, as stated on MSX Datapack, all read operations on
   these ports will not return any value.
 
+UPDATE:
+  Initial version indeed did not support reading the memory mapper ports. But
+  upon user request this feature was added later.
+
 --------------------------------------------------------------------------------
 [Subslot 3: MegaSD]
 
@@ -252,6 +256,7 @@ by VPP/WD pin)
 ******************************************************************************/
 
 static const unsigned MEMORY_MAPPER_SIZE = 512;
+static const unsigned MEMORY_MAPPER_MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
 
 namespace openmsx {
 
@@ -275,18 +280,12 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(const DeviceConfig& config)
 	, checkedRam(config.getChildDataAsBool("hasmemorymapper", true) ?
 		std::make_unique<CheckedRam>(config, getName() + " memory mapper", "memory mapper", MEMORY_MAPPER_SIZE * 1024)
 		: nullptr)
+	, mapperIO(checkedRam ? std::make_unique<MapperIO>(*this) : nullptr) // handles ports 0xfc-0xff
 {
 	powerUp(getCurrentTime());
 
 	getCPUInterface().register_IO_Out(0x10, this);
 	getCPUInterface().register_IO_Out(0x11, this);
-
-	if (checkedRam) {
-		getCPUInterface().register_IO_Out(0xFF, this);
-		getCPUInterface().register_IO_Out(0xFE, this);
-		getCPUInterface().register_IO_Out(0xFD, this);
-		getCPUInterface().register_IO_Out(0xFC, this);
-	}
 
 	sdCard[0] = std::make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard1")));
 	sdCard[1] = std::make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard2")));
@@ -299,13 +298,6 @@ MegaFlashRomSCCPlusSD::~MegaFlashRomSCCPlusSD()
 
 	getCPUInterface().unregister_IO_Out(0x10, this);
 	getCPUInterface().unregister_IO_Out(0x11, this);
-
-	if (checkedRam) {
-		getCPUInterface().unregister_IO_Out(0xFF, this);
-		getCPUInterface().unregister_IO_Out(0xFE, this);
-		getCPUInterface().unregister_IO_Out(0xFD, this);
-		getCPUInterface().unregister_IO_Out(0xFC, this);
-	}
 }
 
 void MegaFlashRomSCCPlusSD::powerUp(EmuTime::param time)
@@ -735,9 +727,8 @@ byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot1(word /*addr*/) const
 
 unsigned MegaFlashRomSCCPlusSD::calcMemMapperAddress(word address) const
 {
-	static const unsigned MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
 	unsigned bank = memMapperRegs[address >> 14];
-	return ((bank & MASK) << 14) | (address & 0x3FFF);
+	return ((bank & MEMORY_MAPPER_MASK) << 14) | (address & 0x3FFF);
 }
 
 byte MegaFlashRomSCCPlusSD::readMemSubSlot2(word addr)
@@ -765,6 +756,26 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot2(word addr, byte value)
 byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot2(word addr) const
 {
 	return checkedRam->getWriteCacheLine(calcMemMapperAddress(addr));
+}
+
+byte MegaFlashRomSCCPlusSD::MapperIO::readIO(word port, EmuTime::param time)
+{
+	return peekIO(port, time);
+}
+
+byte MegaFlashRomSCCPlusSD::MapperIO::peekIO(word port, EmuTime::param /*time*/) const
+{
+	return getSelectedSegment(port & 3) | ~MEMORY_MAPPER_MASK;
+}
+
+void MegaFlashRomSCCPlusSD::MapperIO::writeIO(word port, byte value, EmuTime::param /*time*/)
+{
+	mega.memMapperRegs[port & 3] = value & MEMORY_MAPPER_MASK;
+}
+
+byte MegaFlashRomSCCPlusSD::MapperIO::getSelectedSegment(byte page) const
+{
+	return mega.memMapperRegs[page];
 }
 
 /////////////////////// sub slot 3 ////////////////////////////////////////////
@@ -869,13 +880,6 @@ void MegaFlashRomSCCPlusSD::writeIO(word port, byte value, EmuTime::param time)
 			psg.writeRegister(psgLatch, value, time);
 			break;
 
-		case 0xFC:
-		case 0xFD:
-		case 0xFE:
-		case 0xFF:
-			memMapperRegs[port & 3] = value;
-			invalidateMemCache(0x4000 * (port & 3), 0x4000);
-			break;
 		default:
 			UNREACHABLE;
 	}
