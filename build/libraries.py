@@ -172,9 +172,15 @@ class FreeType(Library):
 			if distroRoot == '/usr/local':
 				# FreeType is located in the X11 tree, not the ports tree.
 				distroRoot = '/usr/X11R6'
-		return super(FreeType, cls).getConfigScript(
+		script = super(FreeType, cls).getConfigScript(
 			platform, linkStatic, distroRoot
 			)
+		if isfile(script):
+			return script
+		else:
+			# FreeType 2.9.1 no longer installs the freetype-config script
+			# by default and expects pkg-config to be used instead.
+			return 'pkg-config freetype2'
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):

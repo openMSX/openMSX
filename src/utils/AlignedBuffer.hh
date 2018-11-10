@@ -32,8 +32,8 @@ public:
 	operator       uint8_t*()       { return p(); }
 	operator const uint8_t*() const { return p(); }
 
-	      uint8_t* operator+(ptrdiff_t i)       { return p() + i; };
-	const uint8_t* operator+(ptrdiff_t i) const { return p() + i; };
+	      uint8_t* operator+(ptrdiff_t i)       { return p() + i; }
+	const uint8_t* operator+(ptrdiff_t i) const { return p() + i; }
 
 	      uint8_t& operator[](int           i)       { return *(p() + i); }
 	const uint8_t& operator[](int           i) const { return *(p() + i); }

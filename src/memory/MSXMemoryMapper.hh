@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-class MSXMemoryMapper : public MSXDevice, public MSXMapperIOClient<MSXMemoryMapper>
+class MSXMemoryMapper : public MSXDevice, public MSXMapperIOClient
 {
 public:
 	explicit MSXMemoryMapper(const DeviceConfig& config);

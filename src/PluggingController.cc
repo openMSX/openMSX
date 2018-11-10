@@ -379,7 +379,6 @@ void PluggingController::ConnectionClassInfo::execute(
 			break;
 		}
 		throw CommandException("No such connector or pluggable");
-		break;
 	}
 	default:
 		throw CommandException("Too many parameters");

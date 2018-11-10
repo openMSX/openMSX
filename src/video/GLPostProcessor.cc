@@ -218,12 +218,13 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 			mat4 I;
 			glUniformMatrix4fv(gl::context->unifTexMvp,
 			                   1, GL_FALSE, &I[0][0]);
-			glDisable(GL_BLEND);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(0);
 		}
 		storedFrame = true;
 	} else {
@@ -411,6 +412,8 @@ void GLPostProcessor::drawGlow(int glow)
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
 	glDisable(GL_BLEND);
 }
 
@@ -495,7 +498,11 @@ void GLPostProcessor::drawNoise()
 	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
 	noiseTextureB.bind();
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
 	glBlendEquation(GL_FUNC_ADD); // restore default
+	glDisable(GL_BLEND);
 }
 
 static const int GRID_SIZE = 16;
@@ -597,6 +604,9 @@ void GLPostProcessor::drawMonitor3D()
 	glEnableVertexAttribArray(2);
 
 	glDrawElements(GL_TRIANGLE_STRIP, NUM_INDICES, GL_UNSIGNED_SHORT, nullptr);
+	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

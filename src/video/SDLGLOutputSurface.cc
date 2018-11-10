@@ -93,6 +93,8 @@ void SDLGLOutputSurface::flushFrameBuffer(unsigned width, unsigned height)
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
 }
 
 void SDLGLOutputSurface::clearScreen()

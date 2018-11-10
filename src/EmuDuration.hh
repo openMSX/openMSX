@@ -46,10 +46,6 @@ public:
 	double toDouble() const { return double(time) / MAIN_FREQ32; }
 	uint64_t length() const { return time; }
 
-	// assignment operator
-	EmuDuration& operator=(EmuDuration::param d)
-		{ time = d.time; return *this; }
-
 	// comparison operators
 	bool operator==(EmuDuration::param d) const
 		{ return time == d.time; }

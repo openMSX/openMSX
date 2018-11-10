@@ -2,6 +2,7 @@ Instructions:
 
 * It only works on MSX systems with 2 disk drives
 * Your disk drive controller needs to be WD2793 compatible
+* The tool only works on 3.58 MHz.
 * The output of the tool is a DAT file for each cylinder/head combination.
   Typically that means 160 DAT files for a 720kB DS DD disk
 
