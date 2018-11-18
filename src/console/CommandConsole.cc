@@ -333,10 +333,19 @@ bool CommandConsole::handleKeyEvent(const KeyEvent& keyEvent)
 
 bool CommandConsole::handleTextEvent(const TextEvent& textEvent)
 {
+	// Apparently on macOS keyboard events for keys like F1 have a non-zero
+	// unicode field. This confuses the console code (it thinks it's a
+	// printable character) and it prevents those keys from triggering
+	// hotkey bindings. See this bug report:
+	//   https://github.com/openMSX/openMSX/issues/1095
+	// As a workaround we ignore chars in the 'Private Use Area' (PUA).
+	//   https://en.wikipedia.org/wiki/Private_Use_Areas
 	const string& text = textEvent.getText();
 	for (auto it = text.begin(); it != text.end(); ) {
 		uint32_t chr = utf8::unchecked::next(it);
-		normalKey(chr);
+		if (!utf8::is_pua(chr)) {
+			normalKey(chr);
+		}
 	}
 	return true;
 }

@@ -7,6 +7,7 @@
 #include "checked_cast.hh"
 #include "outer.hh"
 #include "unreachable.hh"
+#include "utf8_unchecked.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <iostream>
@@ -65,72 +66,46 @@ void InputEventGenerator::wait()
 
 void InputEventGenerator::poll()
 {
-	SDL_Event event;
-	while (SDL_PollEvent(&event) == 1) {
-#if 0
-		string t;
-		switch (event.type) {
-#define EVENT_TO_TEXT(name) case name: t = #name; break;
-		// Application events:
-		EVENT_TO_TEXT(SDL_QUIT)
-		// iOS events:
-		EVENT_TO_TEXT(SDL_APP_TERMINATING)
-		EVENT_TO_TEXT(SDL_APP_LOWMEMORY)
-		EVENT_TO_TEXT(SDL_APP_WILLENTERBACKGROUND)
-		EVENT_TO_TEXT(SDL_APP_DIDENTERBACKGROUND)
-		EVENT_TO_TEXT(SDL_APP_WILLENTERFOREGROUND)
-		EVENT_TO_TEXT(SDL_APP_DIDENTERFOREGROUND)
-		// Window events:
-		EVENT_TO_TEXT(SDL_WINDOWEVENT)
-		EVENT_TO_TEXT(SDL_SYSWMEVENT)
-		// Keyboard events:
-		EVENT_TO_TEXT(SDL_KEYDOWN)
-		EVENT_TO_TEXT(SDL_KEYUP)
-		EVENT_TO_TEXT(SDL_TEXTEDITING)
-		EVENT_TO_TEXT(SDL_TEXTINPUT)
-		// Mouse events:
-		EVENT_TO_TEXT(SDL_MOUSEMOTION)
-		EVENT_TO_TEXT(SDL_MOUSEBUTTONDOWN)
-		EVENT_TO_TEXT(SDL_MOUSEBUTTONUP)
-		EVENT_TO_TEXT(SDL_MOUSEWHEEL)
-		// Joystick events:
-		EVENT_TO_TEXT(SDL_JOYAXISMOTION)
-		EVENT_TO_TEXT(SDL_JOYBALLMOTION)
-		EVENT_TO_TEXT(SDL_JOYHATMOTION)
-		EVENT_TO_TEXT(SDL_JOYBUTTONDOWN)
-		EVENT_TO_TEXT(SDL_JOYBUTTONUP)
-		EVENT_TO_TEXT(SDL_JOYDEVICEADDED)
-		EVENT_TO_TEXT(SDL_JOYDEVICEREMOVED)
-		// Game controller events:
-		EVENT_TO_TEXT(SDL_CONTROLLERAXISMOTION)
-		EVENT_TO_TEXT(SDL_CONTROLLERBUTTONDOWN)
-		EVENT_TO_TEXT(SDL_CONTROLLERBUTTONUP)
-		EVENT_TO_TEXT(SDL_CONTROLLERDEVICEADDED)
-		EVENT_TO_TEXT(SDL_CONTROLLERDEVICEREMOVED)
-		EVENT_TO_TEXT(SDL_CONTROLLERDEVICEREMAPPED)
-		// Touch events:
-		EVENT_TO_TEXT(SDL_FINGERDOWN)
-		EVENT_TO_TEXT(SDL_FINGERUP)
-		EVENT_TO_TEXT(SDL_FINGERMOTION)
-		// Gesture events:
-		EVENT_TO_TEXT(SDL_DOLLARGESTURE)
-		EVENT_TO_TEXT(SDL_DOLLARRECORD)
-		EVENT_TO_TEXT(SDL_MULTIGESTURE)
-		// Clipboard events:
-		EVENT_TO_TEXT(SDL_CLIPBOARDUPDATE)
-		// Drag and drop events:
-		EVENT_TO_TEXT(SDL_DROPFILE)
-		// Render events:
-		EVENT_TO_TEXT(SDL_RENDER_TARGETS_RESET)
-#undef EVENT_TO_TEXT
-			default:
-				t = SDL_USEREVENT <= event.type && event.type <= SDL_LASTEVENT
-					? "SDL_USEREVENT" : "UNKNOWN";
-				break;
+	// Heuristic to emulate the old SDL1 behavior:
+	//
+	// SDL1 had a unicode field on each KEYDOWN event. In SDL2 that
+	// information is moved to the (new) SDL_TEXTINPUT events.
+	//
+	// Though our MSX keyboard emulation code needs to relate KEYDOWN
+	// events with the associated unicode. We try to mimic this by the
+	// following heuristic:
+	//   When two successive events are KEYDOWN followed by TEXTINPUT and
+	//   both have the same timestamp, then copy the unicode (of the first
+	//   character) of the TEXT event to the KEYDOWN event.
+	// Implementing this requires a lookahead of 1 event. So the code below
+	// deals with a 'current' and a 'previous' event, and keeps track of
+	// whether the previous event is still pending (not yet processed).
+
+	SDL_Event event1, event2;
+	auto* prev = &event1;
+	auto* curr = &event2;
+	bool pending = false;
+
+	while (SDL_PollEvent(curr)) {
+		if (pending) {
+			pending = false;
+			if ((prev->common.timestamp == curr->common.timestamp) &&
+			    (prev->type == SDL_KEYDOWN) && (curr->type == SDL_TEXTINPUT)) {
+				auto unicode = utf8::unchecked::peek_next(curr->text.text);
+				handle(*prev, unicode);
+			} else {
+				handle(*prev, 0);
+			}
 		}
-		std::cerr << "SDL event received, type: " << t << std::endl;
-#endif
-		handle(event);
+		if (curr->type == SDL_KEYDOWN) {
+			pending = true;
+			std::swap(curr, prev);
+		} else {
+			handle(*curr, 0);
+		}
+	}
+	if (pending) {
+		handle(*prev, 0);
 	}
 }
 
@@ -254,22 +229,7 @@ void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
 	}
 }
 
-//static Uint16 maskPUA(Uint16 unicode)
-//{
-//	// Apparently on macOS keyboard events for keys like F1 have a non-zero
-//	// unicode field. This confuses the console code (it thinks it's a
-//	// printable character) and it prevents those keys from triggering
-//	// hotkey bindings. See this bug report:
-//	//   https://github.com/openMSX/openMSX/issues/1095
-//	// As a workaround we mask unicode chars in the 'Private Use Area' (PUA).
-//	//   https://en.wikipedia.org/wiki/Private_Use_Areas
-//	//
-//	// Note: because the unicode field in SDL1.2 is only 16 bits, we only need
-//	//       to look at the first area: U+E000..U+F8FF
-//	return ((0xE000 <= unicode) && (unicode <= 0xF8FF)) ? 0 : unicode;
-//}
-
-void InputEventGenerator::handle(const SDL_Event& evt)
+void InputEventGenerator::handle(const SDL_Event& evt, uint32_t unicode)
 {
 	EventPtr event;
 	switch (evt.type) {
@@ -296,7 +256,6 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 				evt.key.keysym.sym, evt.key.keysym.mod,
 				evt.key.keysym.scancode, true);
 			event = make_shared<KeyUpEvent>(keyCode);
-				// maskPUA(evt.key.keysym.unicode));
 			triggerOsdControlEventsFromKeyEvent(keyCode, true, event);
 		}
 		break;
@@ -315,8 +274,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			auto keyCode = Keys::getCode(
 				evt.key.keysym.sym, evt.key.keysym.mod,
 				evt.key.keysym.scancode, false);
-			event = make_shared<KeyDownEvent>(keyCode);
-				// maskPUA(evt.key.keysym.unicode);
+			event = make_shared<KeyDownEvent>(keyCode, unicode);
 			triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
 		}
 		break;

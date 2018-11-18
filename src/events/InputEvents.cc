@@ -17,15 +17,15 @@ namespace openmsx {
 
 TimedEvent::TimedEvent(EventType type_)
 	: Event(type_)
-	, realtime(Timer::getTime())
+	, realtime(Timer::getTime()) // TODO use SDL2 event timestamp
 {
 }
 
 
 // class KeyEvent
 
-KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_)
-	: TimedEvent(type_), keyCode(keyCode_)
+KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, uint32_t unicode_)
+	: TimedEvent(type_), keyCode(keyCode_), unicode(unicode_)
 {
 }
 
@@ -33,6 +33,9 @@ void KeyEvent::toStringImpl(TclObject& result) const
 {
 	result.addListElement("keyb");
 	result.addListElement(Keys::getName(getKeyCode()));
+	if (getUnicode() != 0) {
+		result.addListElement(strCat("unicode", getUnicode()));
+	}
 }
 
 bool KeyEvent::lessImpl(const Event& other) const
@@ -46,15 +49,15 @@ bool KeyEvent::lessImpl(const Event& other) const
 // class KeyUpEvent
 
 KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode_)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_)
+	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, 0)
 {
 }
 
 
 // class KeyDownEvent
 
-KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_)
+KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_, uint32_t unicode_)
+	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, unicode_)
 {
 }
 

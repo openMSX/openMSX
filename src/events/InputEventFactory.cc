@@ -11,16 +11,16 @@ using std::make_shared;
 namespace openmsx {
 namespace InputEventFactory {
 
-static EventPtr parseKeyEvent(string_view str)
+static EventPtr parseKeyEvent(string_view str, uint32_t unicode)
 {
 	auto keyCode = Keys::getCode(str);
 	if (keyCode == Keys::K_NONE) {
 		throw CommandException("Invalid keycode: ", str);
 	}
 	if (keyCode & Keys::KD_RELEASE) {
-		return make_shared<KeyUpEvent  >(keyCode);
+		return make_shared<KeyUpEvent>(keyCode);
 	} else {
-		return make_shared<KeyDownEvent>(keyCode);
+		return make_shared<KeyDownEvent>(keyCode, unicode);
 	}
 }
 
@@ -29,10 +29,20 @@ static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
 	auto len = str.getListLength(interp);
 	if (len == 2) {
 		auto comp1 = str.getListIndex(interp, 1).getString();
-		return parseKeyEvent(comp1);
-	} else {
-		throw CommandException("Invalid keyboard event: ", str.getString());
+		return parseKeyEvent(comp1, 0);
+	} else if (len == 3) {
+		auto comp1 = str.getListIndex(interp, 1).getString();
+		auto comp2 = str.getListIndex(interp, 2).getString();
+		if (comp2.starts_with("unicode")) {
+			try {
+				return parseKeyEvent(
+					comp1, fast_stou(comp2.substr(7)));
+			} catch (std::invalid_argument&) {
+				// parse error in fast_stou()
+			}
+		}
 	}
+	throw CommandException("Invalid keyboard event: ", str.getString());
 }
 
 static bool upDown(string_view str)
@@ -209,7 +219,7 @@ EventPtr createInputEvent(const TclObject& str, Interpreter& interp)
 		return parseOsdControlEvent(str, interp);
 	} else {
 		// fall back
-		return parseKeyEvent(type);
+		return parseKeyEvent(type, 0);
 	}
 }
 EventPtr createInputEvent(string_view str, Interpreter& interp)

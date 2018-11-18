@@ -312,10 +312,12 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		// Once that is done, debug(...) can pass the c_str() version of that string
 		// to ad_printf(...) so that I don't have to make an explicit ad_printf(...)
 		// invocation for each debug(...) invocation
-		ad_printf("Key pressed, keyCode: 0x%05x, keyName: %s\n",
+		ad_printf("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
+		      keyEvent.getUnicode(),
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
-		debug("Key pressed, keyCode: 0x%05x, keyName: %s\n",
+		debug("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
+		      keyEvent.getUnicode(),
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	} else {
@@ -534,12 +536,12 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			unicode = 0;
 #endif
 		} else {
-			unicode = 0; // TODO: SDL2 key events don't have a unicode value.
+			unicode = keyEvent.getUnicode();
 			if ((unicode < 0x20) || ((0x7F <= unicode) && (unicode < 0xA0))) {
 				// Control character in C0 or C1 range.
 				// Use SDL's interpretation instead.
 				unicode = 0;
-			} else if ((0xE000 <= unicode) && (unicode < 0xF900)) {
+			} else if (utf8::is_pua(unicode)) {
 				// Code point in Private Use Area: undefined by Unicode,
 				// so we rely on SDL's interpretation instead.
 				// For example the Mac's cursor keys are in this range.

@@ -250,6 +250,15 @@ inline octet_iterator sync_backward(octet_iterator it)
 	return it;
 }
 
+// Is this a code point in the 'Private Use Area' (PUA).
+//   https://en.wikipedia.org/wiki/Private_Use_Areas
+inline bool is_pua(uint32_t cp)
+{
+	return ((0x00E000 <= cp) && (cp <= 0x00F8FF)) ||
+	       ((0x0F0000 <= cp) && (cp <= 0x0FFFFD)) ||
+	       ((0x100000 <= cp) && (cp <= 0x10FFFD));
+}
+
 } // namespace utf8
 
 #endif
