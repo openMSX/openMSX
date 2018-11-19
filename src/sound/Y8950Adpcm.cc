@@ -160,6 +160,9 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 			// start ADPCM
 			restart(emu);
 			restart(aud);
+			y8950.setStatus(Y8950::STATUS_PCM_BSY);
+		} else {
+			y8950.resetStatus(Y8950::STATUS_PCM_BSY);
 		}
 		if (reg7 & R07_MEMORY_DATA) {
 			// access external memory?
