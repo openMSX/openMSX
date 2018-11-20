@@ -73,14 +73,14 @@ std::string AndroidApiWrapper::getStorageDirectory()
 
 } // namespace openmsx
 
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void * /*reserved*/)
 {
 	// Store the reference to the JVM so that the JNI calls can use it
 	jniVM = vm;
 	return JNI_VERSION_1_2;
 };
 
-JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved)
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM * /*vm*/, void * /*reserved*/)
 {
 	// Nothing to do
 };
