@@ -100,7 +100,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-android update project -p project -t android-19
+android update project -p project -t android-16
 if [ $? -ne 0 ]; then
     echo "ERROR: an unexpected problem occurred while running \"android update ...\""
     exit 1
@@ -112,7 +112,3 @@ echo ""
 echo "Example"
 echo "> cd ${my_android_dir}"
 echo "> ./launch_anddev_build.sh"
-echo ""
-echo "Note: the first time that you run the launch_anddev_build.sh script, you may get some error"
-echo "      message. It is due to a subtle bug in the SDL android port."
-echo "      Simply re-run the build.sh script a second time and it will work fine."
