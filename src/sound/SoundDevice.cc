@@ -48,42 +48,6 @@ void SoundDevice::addFill(int*& buf, int val, unsigned num)
 	// method can also be called in the middle of a buffer (so multiple
 	// times per buffer), in such case it does go wrong.
 	assert(num > 0);
-#ifdef __arm__
-	asm volatile (
-		"subs	%[num],%[num],#4\n\t"
-		"bmi	1f\n"
-	"0:\n\t"
-		"ldmia	%[buf],{r3-r6}\n\t"
-		"add	r3,r3,%[val]\n\t"
-		"add	r4,r4,%[val]\n\t"
-		"add	r5,r5,%[val]\n\t"
-		"add	r6,r6,%[val]\n\t"
-		"stmia	%[buf]!,{r3-r6}\n\t"
-		"subs	%[num],%[num],#4\n\t"
-		"bpl	0b\n"
-	"1:\n\t"
-		"tst	%[num],#2\n\t"
-		"beq	2f\n\t"
-		"ldmia	%[buf],{r3-r4}\n\t"
-		"add	r3,r3,%[val]\n\t"
-		"add	r4,r4,%[val]\n\t"
-		"stmia	%[buf]!,{r3-r4}\n"
-	"2:\n\t"
-		"tst	%[num],#1\n\t"
-		"beq	3f\n\t"
-		"ldr	r3,[%[buf]]\n\t"
-		"add	r3,r3,%[val]\n\t"
-		"str	r3,[%[buf]],#4\n"
-	"3:\n\t"
-		: [buf] "=r"    (buf)
-		, [num] "=r"    (num)
-		:       "[buf]" (buf)
-		, [val] "r"     (val)
-		,       "[num]" (num)
-		: "memory", "r3","r4","r5","r6"
-	);
-	return;
-#endif
 	do {
 		*buf++ += val;
 	} while (--num);

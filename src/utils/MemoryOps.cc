@@ -122,47 +122,6 @@ static inline void memset_32(uint32_t* out, size_t num32, uint32_t val32)
 #else
 	memset_32_2(out, num32, val32, val32);
 #endif
-#elif defined __arm__
-	// Ideally the first mov(*) instruction could be omitted (and then
-	// replace 'r3' with '%[val]'. But this can cause problems in the
-	// 'stm' instructions when the compiler chooses a register
-	// 'bigger' than r4 for [val]. See commit message for LOTS more
-	// details.
-	asm volatile (
-		"mov     r3, %[val]\n\t"  // (*) should not be needed
-		"mov     r4, r3\n\t"
-		"mov     r5, r3\n\t"
-		"mov     r6, r3\n\t"
-		"subs    %[num],%[num],#8\n\t"
-		"bmi     1f\n"
-		"mov     r8, r3\n\t"
-		"mov     r9, r3\n\t"
-		"mov     r10,r3\n\t"
-		"mov     r12,r3\n\t"
-	"0:\n\t"
-		"stmia   %[out]!,{r3,r4,r5,r6,r8,r9,r10,r12}\n\t"
-		"subs    %[num],%[num],#8\n\t"
-		"bpl     0b\n\t"
-	"1:\n\t"
-		"tst     %[num],#4\n\t"
-		"it      ne\n\t"
-		"stmne   %[out]!,{r3,r4,r5,r6}\n\t"
-		"tst     %[num],#2\n\t"
-		"it      ne\n\t"
-		"stmne   %[out]!,{r3,r4}\n\t"
-		"tst     %[num],#1\n\t"
-		"it      ne\n\t"
-		"strne   r3,[%[out]]\n\t"
-
-		: [out] "=r"    (out)
-		, [num] "=r"    (num32)
-		:       "[out]" (out)
-		,       "[num]" (num32)
-		, [val] "r"     (val32)
-		: "memory"
-		, "r3","r4","r5","r6","r8","r9","r10","r12"
-	);
-	return;
 #else
 	uint32_t* e = out + num32 - 7;
 	for (/**/; out < e; out += 8) {
