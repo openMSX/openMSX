@@ -321,27 +321,28 @@ user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $e
 user_setting create string osd_tape_path "OSD Tape Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_hdd_path "OSD HDD Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_ld_path "OSD LD Load Menu Last Known Path" $env(HOME)
-if {![file exists $::osd_rom_path]} {
+
+if {![file exists $::osd_rom_path] || ![file readable $::osd_rom_path]} {
 	# revert to default (should always exist)
 	unset ::osd_rom_path
 }
 
-if {![file exists $::osd_disk_path]} {
+if {![file exists $::osd_disk_path] || ![file readable $::osd_disk_path]} {
 	# revert to default (should always exist)
 	unset ::osd_disk_path
 }
 
-if {![file exists $::osd_tape_path]} {
+if {![file exists $::osd_tape_path] || ![file readable $::osd_tape_path]} {
 	# revert to default (should always exist)
 	unset ::osd_tape_path
 }
 
-if {![file exists $::osd_hdd_path]} {
+if {![file exists $::osd_hdd_path] || ![file readable $::osd_hdd_path]} {
 	# revert to default (should always exist)
 	unset ::osd_hdd_path
 }
 
-if {![file exists $::osd_ld_path]} {
+if {![file exists $::osd_ld_path] || ![file readable $::osd_ld_path]} {
 	# revert to default (should always exist)
 	unset ::osd_ld_path
 }
