@@ -148,7 +148,7 @@ make sure you install a version from the 2.x series. Eventually Python will
 replace Make completely in our build system, but at the moment both are
 required. Note: on Windows 7 you may have to add the path to Python (e.g. <code>C:\Python26</code>) to your <code>PATH</code> manually.</dd>
 <dt>There are three compilers that are supported to build openMSX: GCC, clang
-and Visual C++. The GCC compiler builds openMSX on all supported platforms, clang is the default on Mac OS X, while Visual C++ is the primary compiler for Windows.</dt>
+and Visual C++. The GCC compiler builds openMSX on all supported platforms, clang is the default on macOS, while Visual C++ is the primary compiler for Windows.</dt>
 
 </dl>
 
@@ -185,7 +185,7 @@ GCW Zero toolchain. This toolchain is for x86 Linux; if you have an x86 machine 
 
 <h4>clang</h4>
 
-<h5>Mac OS X</h5>
+<h5>macOS</h5>
 
 <p>
 Install Xcode from Apple, which you can find in the Mac App Store. The openMSX build is not done inside the Xcode IDE, but it uses the SDK and command line tools that are provided by Xcode.
@@ -320,7 +320,7 @@ openMSX depends on the following libraries:
 
 <h4>GCC / clang</h4>
 <p>
-You can install the required libraries systemwide, or you can use the "3rd party libraries" support in the openMSX build system and build a stand-alone binary. Systemwide is recommended if you run a modular operating system (such as Linux, BSD or Mac OS X with MacPorts, Homebrew or Fink) and you intend to only use the openMSX binary on your computer. The 3rd party library system is recommended if you build for other operating systems (Windows, plain Mac OS X or embedded systems) or if you want to build a binary that can be used on other computers besides your own. If you choose the latter, please skip to the <a class="internal" href="#standalone">Stand-alone Binary</a> chapter.
+You can install the required libraries systemwide, or you can use the "3rd party libraries" support in the openMSX build system and build a stand-alone binary. Systemwide is recommended if you run a modular operating system (such as Linux, BSD or macOS with MacPorts, Homebrew or Fink) and you intend to only use the openMSX binary on your computer. The 3rd party library system is recommended if you build for other operating systems (Windows, plain macOS or embedded systems) or if you want to build a binary that can be used on other computers besides your own. If you choose the latter, please skip to the <a class="internal" href="#standalone">Stand-alone Binary</a> chapter.
 </p>
 <h5>Android</h5>
 <p>
@@ -357,7 +357,7 @@ The runtime package for the "Foo" library is typically called
 Applications that use a library only require the runtime package to be installed, but compilation requires both the runtime package and the development package to be installed.
 </p>
 
-<h5>Mac OS X</h5>
+<h5>macOS</h5>
 
 <p>
 The easiest thing to do is to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which will get the libraries automatically.</p>
@@ -537,7 +537,7 @@ or right click on the openMSX directory in Windows Explorer and select "Tortoise
 <h2><a id="local">4. Binary for Local System</a></h2>
 
 <p>
-This section explains how to build openMSX for a local system. If you want to build openMSX for Android, you can skip this section and use the <a class="internal" href="#androidbuild">Android build</a> method. If you want to create a binary that runs everywhere, we recommend to skip this chapter and use the <a class="internal" href="#standalone">stand-alone binary</a> method. We also recommend to do that for Mac OS X and especially for Microsoft Windows systems.
+This section explains how to build openMSX for a local system. If you want to build openMSX for Android, you can skip this section and use the <a class="internal" href="#androidbuild">Android build</a> method. If you want to create a binary that runs everywhere, we recommend to skip this chapter and use the <a class="internal" href="#standalone">stand-alone binary</a> method. We also recommend to do that for macOS and especially for Microsoft Windows systems.
 </p>
 
 <h3><a id="compilelocal">4.1 Compilation</a></h3>
@@ -642,13 +642,13 @@ Make sure you provide us with the error message you got.
 If you want to debug openMSX compilation problems yourself, you can add <code>V=1</code> (verbose) to the Make command line to see all build commands as they are executed.
 </p>
 
-<h5>Mac OS X</h5>
+<h5>macOS</h5>
 
 <p>
-Since openMSX 0.10.0, the minimum required Mac OS X release to build openMSX out of the box is 10.7. This implies that only x86_64 CPUs (64-bit Intel) are supported.
+Since openMSX 0.10.0, the minimum required macOS release to build openMSX out of the box is 10.7. This implies that only x86_64 CPUs (64-bit Intel) are supported.
 </p>
 <p>
-Building for older Mac OS X releases should be possible in theory, but it requires a lot of effort to set up the compiler and SDK (C++11 support is required), adjust the openMSX build (<code>build/platform-darwin.mk</code>) etc. It's easier to try an older openMSX release instead.
+Building for older macOS releases should be possible in theory, but it requires a lot of effort to set up the compiler and SDK (C++11 support is required), adjust the openMSX build (<code>build/platform-darwin.mk</code>) etc. It's easier to try an older openMSX release instead.
 </p>
 
 <h4>Visual C++</h4>
@@ -675,10 +675,10 @@ Note that only root has rights to write to system-wide directories such as
 so you may have to do <code>su</code> before <code>make install</code>, or use <code>sudo</code>.
 </p>
 
-<h5>Mac OS X</h5>
+<h5>macOS</h5>
 
 <p>
-On Mac OS X, the build creates an application folder. You can "install" this by copying it to a different location. The application folder will depend on systemwide installed libraries, so it will not work on Macs without those libraries.
+On macOS, the build creates an application folder. You can "install" this by copying it to a different location. The application folder will depend on systemwide installed libraries, so it will not work on Macs without those libraries.
 </p>
 <p>
 You can run openMSX from the application folder with the following command:
@@ -696,7 +696,7 @@ derived/&lt;cpu&gt;-darwin-&lt;flavour&gt;/bindist/openMSX.app/Contents/MacOS/op
 <h2><a id="standalone">5. Stand-alone Binary</a></h2>
 
 <p>
-This chapter describes how to build a binary of openMSX that does not depend on any libraries except those that are available on the platform by default. This procedure is highly recommended on Microsoft Windows. It is also recommended on Mac OS X.
+This chapter describes how to build a binary of openMSX that does not depend on any libraries except those that are available on the platform by default. This procedure is highly recommended on Microsoft Windows. It is also recommended on macOS.
 </p>
 
 <p>
@@ -723,7 +723,7 @@ make staticbindist
 The final output files will be produced in <code>derived/&lt;cpu&gt;-&lt;os&gt;-&lt;flavour&gt;-3rd/bindist</code>.
 </p>
 
-<h5>Mac OS X</h5>
+<h5>macOS</h5>
 
 <p>
 The final output is a DMG file (Mac disk image) containing the openMSX application folder and documentation. This file is internet-enabled, which means it will be automatically mounted after it is downloaded.
@@ -962,7 +962,7 @@ If you got stuck somewhere in the compilation and installation process,
 please contact us. The next chapter will tell you how.
 </p>
 
-<h5>Mac OS X</h5>
+<h5>macOS</h5>
 
 <p>
 You can run the openMSX application folder from Finder or from the command line:
@@ -972,7 +972,7 @@ open derived/&lt;cpu&gt;-darwin-&lt;flavour&gt;-3rd/bindist/openMSX.app
 </div>
 
 <p>
-We do not have a finished GUI yet that works on Mac OS X, so you can either use openMSX from the command line for now, or use third party software like <a class="external" href="http://nekocan.sitemix.jp/?page_id=17">NekoLauncher openMSX</a>.
+We do not have a finished GUI yet that works on macOS, so you can either use openMSX from the command line for now, or use third party software like <a class="external" href="http://nekocan.sitemix.jp/?page_id=17">NekoLauncher openMSX</a>.
 </p>
 
 <h5>Microsoft Windows</h5>
