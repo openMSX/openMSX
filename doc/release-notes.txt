@@ -57,11 +57,16 @@ New or improved emulator features:
 - added support for DCSG in the music keyboard and vu meters script
 - changed events about unplugging to an empty plug-event
 - changed fixed scale factor from 1 to 2 on Android
+- added OSD menu button to open the main menu for Android, as (most?) modern
+  Android devices do not have a menu button anymore
+- OSD menu: fixed issue of getting stuck in an unreadable directory when
+  browsing for a file (e.g. on Android)
 - added scrollbar when showing lists in OSD menu, as a visual cue on the length
   of a list; the scrollbar cannot be dragged
 - fixed crash in hq/hqlite scalers in interlace modes
 - fixed frame skipping when doing 'debug continue'
 - fixed function keys not working anymore when console is open on macOS
+- exposed tile viewer widget to the console (try "about tile")
 
 Build system, packaging, documentation:
 - upgraded C-BIOS to release 0.29a: default to 60Hz generic international
@@ -71,8 +76,8 @@ Build system, packaging, documentation:
   suitable DMK file for use with the SVI-707 drive with CP/M ROM
 - reworked complete Android port build. Now uses NDK 18b and recent version of
   commandergenius Android SDL port and all other 3rd party libraries are built
-  by the openMSX build system. Now the menu button is also used on Android.
-  Minimum required Android version is now 4.1.
+  by the openMSX build system. Minimum required Android version is now 4.1.
+- removed all hand-made ARM and 32-bit x86 assembly code
 - fixed version information of application on macOS
 - added workaround for FreeType no longer installing its config script
 
