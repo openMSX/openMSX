@@ -306,16 +306,10 @@ class SDL(Library):
 class SDL2(Library):
 	libName = 'SDL2'
 	makeName = 'SDL2'
+	header = '<SDL.h>'
 	configScriptName = 'sdl2-config'
 	staticLibsOption = '--static-libs'
 	function = 'SDL_Init'
-
-	@classmethod
-	def getHeaders(cls, platform):
-		if platform == 'darwin':
-			return ('<SDL2/SDL.h>', )
-		else:
-			return ('<SDL.h>', )
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
