@@ -15,7 +15,6 @@ namespace openmsx {
 class GlobalCommandController;
 class EventDistributor;
 class KeyEvent;
-class TextEvent;
 class Display;
 
 /** This class represents a single text line in the console.
@@ -90,8 +89,7 @@ private:
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
-	bool handleKeyEvent(const KeyEvent& keyEvent);
-	bool handleTextEvent(const TextEvent& textEvent);
+	bool handleEvent(const KeyEvent& keyEvent);
 	void tabCompletion();
 	void commandExecute();
 	void scroll(int delta);

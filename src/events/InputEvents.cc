@@ -291,26 +291,6 @@ bool JoystickHatEvent::lessImpl(const JoystickEvent& other) const
 }
 
 
-// class TextEvent
-
-TextEvent::TextEvent(string text_)
-	: Event(OPENMSX_TEXT_EVENT), text(std::move(text_))
-{
-}
-
-void TextEvent::toStringImpl(TclObject& result) const
-{
-	result.addListElement("text");
-	result.addListElement(getText());
-}
-
-bool TextEvent::lessImpl(const Event& other) const
-{
-	auto& o = checked_cast<const TextEvent&>(other);
-	return getText() < o.getText();
-}
-
-
 // class FocusEvent
 
 FocusEvent::FocusEvent(bool gain_)

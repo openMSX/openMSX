@@ -80,6 +80,11 @@ void InputEventGenerator::poll()
 	// Implementing this requires a lookahead of 1 event. So the code below
 	// deals with a 'current' and a 'previous' event, and keeps track of
 	// whether the previous event is still pending (not yet processed).
+	//
+	// We also split SDL_TEXTINPUT events into (possibly) multiple KEYDOWN
+	// events because a single event type makes it easier to handle higher
+	// priority listeners that can block the event for lower priority
+	// listener (console > hotkey > msx).
 
 	SDL_Event event1, event2;
 	auto* prev = &event1;
@@ -91,21 +96,26 @@ void InputEventGenerator::poll()
 			pending = false;
 			if ((prev->common.timestamp == curr->common.timestamp) &&
 			    (prev->type == SDL_KEYDOWN) && (curr->type == SDL_TEXTINPUT)) {
-				auto unicode = utf8::unchecked::peek_next(curr->text.text);
-				handle(*prev, unicode);
+				const char* utf8 = curr->text.text;
+				auto unicode = utf8::unchecked::next(utf8);
+				handleKeyDown(prev->key, unicode);
+				if (unicode) { // possibly there are more characters
+					handleText(utf8);
+				}
+				continue;
 			} else {
-				handle(*prev, 0);
+				handle(*prev);
 			}
 		}
 		if (curr->type == SDL_KEYDOWN) {
 			pending = true;
 			std::swap(curr, prev);
 		} else {
-			handle(*curr, 0);
+			handle(*curr);
 		}
 	}
 	if (pending) {
-		handle(*prev, 0);
+		handle(*prev);
 	}
 }
 
@@ -229,7 +239,40 @@ void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
 	}
 }
 
-void InputEventGenerator::handle(const SDL_Event& evt, uint32_t unicode)
+void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode)
+{
+	EventPtr event;
+	/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
+		event = make_shared<JoystickButtonDownEvent>(0, 0);
+		triggerOsdControlEventsFromJoystickButtonEvent(
+			0, false, event);
+		androidButtonA = true;
+	} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
+		event = make_shared<JoystickButtonDownEvent>(0, 1);
+		triggerOsdControlEventsFromJoystickButtonEvent(
+			1, false, event);
+		androidButtonB = true;
+	} else*/ {
+		auto keyCode = Keys::getCode(
+			key.keysym.sym, key.keysym.mod,
+			key.keysym.scancode, false);
+		event = make_shared<KeyDownEvent>(keyCode, unicode);
+		triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
+	}
+	eventDistributor.distributeEvent(event);
+}
+
+void InputEventGenerator::handleText(const char* utf8)
+{
+	while (true) {
+		auto unicode = utf8::unchecked::next(utf8);
+		if (unicode == 0) return;
+		eventDistributor.distributeEvent(
+			make_shared<KeyDownEvent>(Keys::K_NONE, unicode));
+	}
+}
+
+void InputEventGenerator::handle(const SDL_Event& evt)
 {
 	EventPtr event;
 	switch (evt.type) {
@@ -260,23 +303,7 @@ void InputEventGenerator::handle(const SDL_Event& evt, uint32_t unicode)
 		}
 		break;
 	case SDL_KEYDOWN:
-		/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
-			event = make_shared<JoystickButtonDownEvent>(0, 0);
-			triggerOsdControlEventsFromJoystickButtonEvent(
-				0, false, event);
-			androidButtonA = true;
-		} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
-			event = make_shared<JoystickButtonDownEvent>(0, 1);
-			triggerOsdControlEventsFromJoystickButtonEvent(
-				1, false, event);
-			androidButtonB = true;
-		} else*/ {
-			auto keyCode = Keys::getCode(
-				evt.key.keysym.sym, evt.key.keysym.mod,
-				evt.key.keysym.scancode, false);
-			event = make_shared<KeyDownEvent>(keyCode, unicode);
-			triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
-		}
+		handleKeyDown(evt.key, 0);
 		break;
 
 	case SDL_MOUSEBUTTONUP:
@@ -322,7 +349,7 @@ void InputEventGenerator::handle(const SDL_Event& evt, uint32_t unicode)
 		break;
 
 	case SDL_TEXTINPUT:
-		event = make_shared<TextEvent>(string(evt.text.text));
+		handleText(evt.text.text);
 		break;
 
 	case SDL_WINDOWEVENT:

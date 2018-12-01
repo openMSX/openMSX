@@ -52,7 +52,9 @@ public:
 private:
 	using EventPtr = std::shared_ptr<const Event>;
 
-	void handle(const SDL_Event& evt, uint32_t unicode);
+	void handle(const SDL_Event& evt);
+	void handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode);
+	void handleText(const char* utf8);
 	void setGrabInput(bool grab);
 
 	// Observer<Setting>

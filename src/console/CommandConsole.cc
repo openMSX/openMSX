@@ -145,13 +145,10 @@ CommandConsole::CommandConsole(
 	// also listen to KEY_UP events, so that we can consume them
 	eventDistributor.registerEventListener(
 		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::CONSOLE);
-	eventDistributor.registerEventListener(
-		OPENMSX_TEXT_EVENT, *this, EventDistributor::CONSOLE);
 }
 
 CommandConsole::~CommandConsole()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_TEXT_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT, *this);
 	commandController.getInterpreter().setOutput(nullptr);
@@ -216,11 +213,20 @@ ConsoleLine CommandConsole::getLine(unsigned line) const
 int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	if (!consoleSetting.getBoolean()) return 0;
+	auto& keyEvent = checked_cast<const KeyEvent&>(*event);
 
-	bool used = false;
+	// If the console is open then don't pass the event to the MSX
+	// (whetever the (keyboard) event is). If the event has a meaning for
+	// the console, then also don't pass the event to the hotkey system.
+	// For example PgUp, PgDown are keys that have both a meaning in the
+	// console and are used by standard key bindings.
 	if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
 		if (!executingCommand) {
-			used = handleKeyEvent(checked_cast<const KeyEvent&>(*event));
+			if (handleEvent(keyEvent)) {
+				// event was used
+				display.repaintDelayed(40000); // 25fps
+				return EventDistributor::HOTKEY; // block HOTKEY and MSX
+			}
 		} else {
 			// For commands that take a long time to execute (e.g.
 			// a loadstate that needs to create a filepool index),
@@ -228,26 +234,13 @@ int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 			// we can show progress on the OSD). In that case
 			// ignore extra input events.
 		}
-	} else if (event->getType() == OPENMSX_TEXT_EVENT) {
-		used = handleTextEvent(checked_cast<const TextEvent&>(*event));
 	} else {
 		assert(event->getType() == OPENMSX_KEY_UP_EVENT);
 	}
-
-	// If the console is open then don't pass the event to the MSX
-	// (whetever the (keyboard) event is). If the event has a meaning for
-	// the console, then also don't pass the event to the hotkey system.
-	// For example PgUp, PgDown are keys that have both a meaning in the
-	// console and are used by standard key bindings.
-	if (used) {
-		display.repaintDelayed(40000); // 25fps
-		return EventDistributor::HOTKEY; // block HOTKEY and MSX
-	} else {
-		return EventDistributor::MSX; // block MSX
-	}
+	return EventDistributor::MSX; // block MSX
 }
 
-bool CommandConsole::handleKeyEvent(const KeyEvent& keyEvent)
+bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 {
 	auto keyCode = keyEvent.getKeyCode();
 	int key = keyCode &  Keys::K_MASK;
@@ -328,11 +321,23 @@ bool CommandConsole::handleKeyEvent(const KeyEvent& keyEvent)
 		break;
 	}
 
-	return false;
-}
+	auto unicode = keyEvent.getUnicode();
+	if (!unicode || (mod & Keys::KM_META)) {
+		// Disallow META modifer for 'normal' key presses because on
+		// MacOSX Cmd+L is used as a hotkey to toggle the console.
+		// Hopefully there are no systems that require META to type
+		// normal keys. However there _are_ systems that require the
+		// following modifiers, some examples:
+		//  MODE:     to type '1-9' on a N900
+		//  ALT:      to type | [ ] on a azerty keyboard layout
+		//  CTRL+ALT: to type '#' on a spanish keyboard layout (windows)
+		//
+		// Event was not used by the console, allow the other
+		// subsystems to process it. E.g. F10, or Cmd+L to close the
+		// console.
+		return false;
+	}
 
-bool CommandConsole::handleTextEvent(const TextEvent& textEvent)
-{
 	// Apparently on macOS keyboard events for keys like F1 have a non-zero
 	// unicode field. This confuses the console code (it thinks it's a
 	// printable character) and it prevents those keys from triggering
@@ -340,12 +345,14 @@ bool CommandConsole::handleTextEvent(const TextEvent& textEvent)
 	//   https://github.com/openMSX/openMSX/issues/1095
 	// As a workaround we ignore chars in the 'Private Use Area' (PUA).
 	//   https://en.wikipedia.org/wiki/Private_Use_Areas
-	const string& text = textEvent.getText();
-	for (auto it = text.begin(); it != text.end(); ) {
-		uint32_t chr = utf8::unchecked::next(it);
-		if (!utf8::is_pua(chr)) {
-			normalKey(chr);
-		}
+	if (utf8::is_pua(unicode)) {
+		return false;
+	}
+
+	if (unicode >= 0x20) {
+		normalKey(unicode);
+	} else {
+		// Skip CTRL-<X> combinations, but still return true.
 	}
 	return true;
 }

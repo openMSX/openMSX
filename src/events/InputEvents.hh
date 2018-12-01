@@ -195,18 +195,6 @@ private:
 };
 
 
-class TextEvent final : public Event
-{
-public:
-	explicit TextEvent(std::string text_);
-	const std::string& getText() const { return text; }
-private:
-	void toStringImpl(TclObject& result) const override;
-	bool lessImpl(const Event& other) const override;
-	const std::string text;
-};
-
-
 class FocusEvent final : public Event
 {
 public:
