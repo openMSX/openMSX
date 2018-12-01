@@ -51,16 +51,6 @@ static void initializeSDL()
 	if (SDL_Init(flags) < 0) {
 		throw FatalError("Couldn't init SDL: ", SDL_GetError());
 	}
-
-// In SDL 1.2.9 and before SDL_putenv has different semantics and is not
-// guaranteed to exist on all platforms.
-#if SDL_VERSION_ATLEAST(1, 2, 10)
-	// On Mac OS X, send key combos like Cmd+H and Cmd+M to Cocoa, so it can
-	// perform the corresponding actions.
-#if defined(__APPLE__)
-	SDL_putenv(const_cast<char*>("SDL_ENABLEAPPEVENTS=1"));
-#endif
-#endif
 }
 
 static int main(int argc, char **argv)
