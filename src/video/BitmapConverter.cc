@@ -125,48 +125,6 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		calcDPalette();
 	}
 
-#ifdef __arm__
-	if ((sizeof(Pixel) == 2) && (((int)pixelPtr & 3) == 0)) {
-		// only 16bpp and only when aligned on 64-bit word boundary
-		// otherwise the stmia gives a segfault on ARMv6
-		unsigned dummy;
-		asm volatile (
-		"0:\n\t"
-			"ldmia	%[vram]!, {r3,r4}\n\t"
-			"and	r5,  %[m255], r3, lsr #16\n\t"
-			"and	r6,  %[m255], r3, lsr #24\n\t"
-			"and	r8,  %[m255], r4\n\t"
-			"and	r9,  %[m255], r4, lsr #8\n\t"
-			"and	r10, %[m255], r4, lsr #16\n\t"
-			"and	r12, %[m255], r4, lsr #24\n\t"
-			"and	r4,  %[m255], r3, lsr #8\n\t"
-			"and	r3,  %[m255], r3\n\t"
-			"ldr	r3,  [%[pal], r3, lsl #2]\n\t"
-			"ldr	r4,  [%[pal], r4, lsl #2]\n\t"
-			"ldr	r5,  [%[pal], r5, lsl #2]\n\t"
-			"ldr	r6,  [%[pal], r6, lsl #2]\n\t"
-			"ldr	r8,  [%[pal], r8, lsl #2]\n\t"
-			"ldr	r9,  [%[pal], r9, lsl #2]\n\t"
-			"ldr	r10, [%[pal], r10,lsl #2]\n\t"
-			"ldr	r12, [%[pal], r12,lsl #2]\n\t"
-			"subs	%[count], %[count], #1\n\t"
-			"stmia	%[out]!, {r3,r4,r5,r6,r8,r9,r10,r12}\n\t"
-			"bne	0b\n\t"
-
-			: [vram]  "=r"      (vramPtr0)
-			, [out]   "=r"      (pixelPtr)
-			, [count] "=r"      (dummy)
-			:         "[vram]"  (vramPtr0)
-			,         "[out]"   (pixelPtr)
-			,         "[count]" (16)
-			, [pal]   "r"      (dPalette)
-			, [m255]  "r"      (255)
-			: "r3", "r4", "r5", "r6", "r8", "r9", "r10", "r12"
-		);
-		return;
-	}
-#endif
-
 	if ((sizeof(Pixel) == 2) && ((uintptr_t(pixelPtr) & 1) == 1)) {
 		// Its 16 bit destination but currently not aligned on a word boundary
 		// First write one pixel to get aligned

@@ -470,47 +470,6 @@ void SCC::generateChannels(int** bufs, unsigned num)
 	unsigned enable = ch_enable;
 	for (unsigned i = 0; i < 5; ++i, enable >>= 1) {
 		if ((enable & 1) && (volume[i] || out[i])) {
-#ifdef __arm__
-			unsigned dummy;
-			int* buf = bufs[i];
-			asm volatile (
-			"0:\n\t"
-				"ldr	%[T],[%[B]]\n\t"
-				"add	%[T],%[T],%[O]\n\t"
-				"add	%[C],%[C],%[I]\n\t"
-				"str	%[T],[%[B]],#4\n\t"
-				"subs	%[T],%[C],%[PE]\n\t"
-				"bpl	2f\n"
-			"1:\n\t"
-				"cmp	%[B],%[E]\n\t"
-				"bne	0b\n\t"
-				"b	3f\n"
-			"2:\n\t"
-				"adds	%[PO],%[PO],#1\n\t"
-				"subs	%[T],%[T],%[PE]\n\t"
-				"bpl	2b\n\t"
-				"and	%[PO],%[PO],#31\n\t"
-				"add	%[C],%[T],%[PE]\n\t"
-				"ldr	%[O],[%[V],%[PO],LSL #2]\n\t"
-				"b	1b\n"
-			"3:\n\t"
-
-				: [T]  "=&r"  (dummy)
-				, [B]  "=r"   (buf)
-				, [O]  "=r"   (out[i])
-				, [C]  "=r"   (count[i])
-				, [PO] "=r"   (pos[i])
-				:      "[B]"  (buf)
-				,      "[O]"  (out[i])
-				,      "[C]"  (count[i])
-				, [I]  "r"    (incr[i])
-				, [PE] "r"    (period[i] + 1)
-				, [E]  "r"    (&buf[num])
-				,      "[PO]" (pos[i])
-				, [V]  "r"    (volAdjustedWave[i])
-				: "memory", "cc"
-			);
-#else
 			int out2 = out[i];
 			unsigned count2 = count[i];
 			unsigned pos2 = pos[i];
@@ -530,7 +489,6 @@ void SCC::generateChannels(int** bufs, unsigned num)
 			out[i] = out2;
 			count[i] = count2;
 			pos[i] = pos2;
-#endif
 		} else {
 			bufs[i] = nullptr; // channel muted
 			// Update phase counter.

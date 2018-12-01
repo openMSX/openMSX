@@ -38,7 +38,7 @@ proc checkclick {} {
 	}
 }
 
-proc showtile {tile} {
+proc view_tile {tile} {
 
 	bind -layer tileviewer "mouse button1 down" {tileviewer::checkclick}
 	activate_input_layer tileviewer
@@ -88,14 +88,13 @@ proc showtile {tile} {
 	}
 }
 
-
-proc showall {} {
+proc view_all_tiles {} {
 	if {![osd exists all_tiles]} {
 
 		osd create rectangle all_tiles -x 0 -y 0 -h 255 -w 255 -rgba 0xff0000ff
 
 		for {set x 0} {$x < 256} {incr x} {
-			for {set y 0} {$y < 64} {incr y} {
+			for {set y 0} {$y < 192} {incr y} {
 				osd create rectangle all_tiles.${x}_${y} -x $x -y $y -h 1 -w 1
 			}
 		}
@@ -103,7 +102,7 @@ proc showall {} {
 
 	if {[get_screen_mode] != 2} {
 		for {set x 0} {$x < 256} {incr x} {
-			for {set y 0} {$y < 64} {incr y} {
+			for {set y 0} {$y < 192} {incr y} {
 				osd configure all_tiles.${x}_${y} -rgb 0xffffff
 			}
 		}
@@ -117,7 +116,7 @@ proc showall {} {
 
 	set color_addr   [expr {(([vdpreg 10] << 8 | [vdpreg 3]) << 6) & 0x1e000}]
 	set pattern_addr [expr {([vdpreg 4] & 0x3c) << 11}]
-	for {set y 0} {$y < 64} {incr y 8} {
+	for {set y 0} {$y < 192} {incr y 8} {
 		for {set x 0} {$x < 256} {incr x 8} {
 			set ypos $y
 			for {set yt 0} {$yt < 8} {incr yt} {
@@ -142,4 +141,28 @@ proc showall {} {
 	}
 }
 
+proc hide_all_tiles_viewer {} {
+	catch {osd destroy all_tiles}
+	return ""
+}
+
+proc hide_tile_viewer {} {
+	catch {osd destroy tile_viewer}
+	return ""
+}
+
+set_help_text view_tile\
+{Experimental tile viewer. Shows the tile (in pattern modes) with the given
+number. Hide the viewer with hide_tile_viewer. In the viewer, you can toggle
+pixels between fore- and background colors with a mouse click.}
+
+set_help_text hide_tile_viewer\
+{Hide the tile viewer you summoned with the view_tile command.}
+namespace export view_tile
+namespace export hide_tile_viewer
+
+# for now do not expose the all tile viewer, as it is extremely slow
+
 } ;# namespace tileviewer
+
+namespace import tileviewer::*

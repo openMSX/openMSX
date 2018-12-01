@@ -195,29 +195,6 @@ void MSXMixer::updateStream(EmuTime::param time)
 // buf[0:n] *= f
 static inline void mul(int32_t* buf, int n, int f)
 {
-#ifdef __arm__
-	// ARM assembly version
-	int32_t dummy1, dummy2;
-	asm volatile (
-	"0:\n\t"
-		"ldmia	%[buf],{r3-r6}\n\t"
-		"mul	r3,%[f],r3\n\t"
-		"mul	r4,%[f],r4\n\t"
-		"mul	r5,%[f],r5\n\t"
-		"mul	r6,%[f],r6\n\t"
-		"stmia	%[buf]!,{r3-r6}\n\t"
-		"subs	%[n],%[n],#4\n\t"
-		"bgt	0b\n\t"
-		: [buf] "=r"    (dummy1)
-		, [n]   "=r"    (dummy2)
-		:       "[buf]" (buf)
-		,       "[n]"   (n)
-		, [f]   "r"     (f)
-		: "memory", "r3","r4","r5","r6"
-	);
-	return;
-#endif
-
 	// C++ version, unrolled 4x,
 	//   this allows gcc/clang to do much better auto-vectorization
 	// Note that this can process upto 3 samples too many, but that's OK.
@@ -236,34 +213,6 @@ static inline void mul(int32_t* buf, int n, int f)
 static inline void mulAcc(
 	int32_t* __restrict acc, const int32_t* __restrict mul, int n, int f)
 {
-#ifdef __arm__
-	// ARM assembly version
-	int32_t dummy1, dummy2, dummy3;
-	asm volatile (
-	"0:\n\t"
-		"ldmia	%[in]!,{r3,r4,r5,r6}\n\t"
-		"ldmia	%[out],{r8,r9,r10,r12}\n\t"
-		"mla	r3,%[f],r3,r8\n\t"
-		"mla	r4,%[f],r4,r9\n\t"
-		"mla	r5,%[f],r5,r10\n\t"
-		"mla	r6,%[f],r6,r12\n\t"
-		"stmia	%[out]!,{r3,r4,r5,r6}\n\t"
-		"subs	%[n],%[n],#4\n\t"
-		"bgt	0b\n\t"
-		: [in]  "=r"    (dummy1)
-		, [out] "=r"    (dummy2)
-		, [n]   "=r"    (dummy3)
-		:       "[in]"  (mul)
-		,       "[out]" (acc)
-		,       "[n]"   (n)
-		, [f]   "r"     (f)
-		: "memory"
-		, "r3","r4","r5","r6"
-		, "r8","r9","r10","r12"
-	);
-	return;
-#endif
-
 	// C++ version, unrolled 4x, see comments above.
 	assume_SSE_aligned(acc);
 	assume_SSE_aligned(mul);

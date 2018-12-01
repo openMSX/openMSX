@@ -1,11 +1,9 @@
 #include "RomDatabase.hh"
-#include "CommandException.hh"
-#include "TclObject.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileOperations.hh"
-#include "GlobalCommandController.hh"
 #include "CliComm.hh"
+#include "MSXException.hh"
 #include "StringOp.hh"
 #include "String32.hh"
 #include "hash_map.hh"
@@ -560,8 +558,7 @@ static void parseDB(CliComm& cliComm, char* buf, char* bufStart,
 	}
 }
 
-RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cliComm)
-	: softwareInfoTopic(commandController.getOpenMSXInfoCommand())
+RomDatabase::RomDatabase(CliComm& cliComm)
 {
 	db.reserve(3500);
 	UnknownTypes unknownTypes;
@@ -619,63 +616,6 @@ const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 	                      LessTupleElement<0>());
 	return ((it != end(db)) && (it->first == sha1sum))
 		? &it->second : nullptr;
-}
-
-
-// SoftwareInfoTopic
-
-RomDatabase::SoftwareInfoTopic::SoftwareInfoTopic(
-		InfoCommand& openMSXInfoCommand)
-	: InfoTopic(openMSXInfoCommand, "software")
-{
-}
-
-void RomDatabase::SoftwareInfoTopic::execute(
-	array_ref<TclObject> tokens, TclObject& result) const
-{
-	if (tokens.size() != 3) {
-		throw CommandException("Wrong number of parameters");
-	}
-
-	Sha1Sum sha1sum = Sha1Sum(tokens[2].getString());
-	auto& romDatabase = OUTER(RomDatabase, softwareInfoTopic);
-	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
-	if (!romInfo) {
-		// no match found
-		throw CommandException(
-			"Software with sha1sum ", sha1sum.toString(), " not found");
-	}
-
-	const char* bufStart = romDatabase.buffer.data();
-	result.addListElement("title");
-	result.addListElement(romInfo->getTitle(bufStart));
-	result.addListElement("year");
-	result.addListElement(romInfo->getYear(bufStart));
-	result.addListElement("company");
-	result.addListElement(romInfo->getCompany(bufStart));
-	result.addListElement("country");
-	result.addListElement(romInfo->getCountry(bufStart));
-	result.addListElement("orig_type");
-	result.addListElement(romInfo->getOrigType(bufStart));
-	result.addListElement("remark");
-	result.addListElement(romInfo->getRemark(bufStart));
-	result.addListElement("original");
-	result.addListElement(romInfo->getOriginal());
-	result.addListElement("mapper_type_name");
-	result.addListElement(RomInfo::romTypeToName(romInfo->getRomType()));
-	result.addListElement("genmsxid");
-	result.addListElement(romInfo->getGenMSXid());
-}
-
-string RomDatabase::SoftwareInfoTopic::help(const vector<string>& /*tokens*/) const
-{
-	return "Returns information about the software "
-	       "given its sha1sum, in a paired list.";
-}
-
-void RomDatabase::SoftwareInfoTopic::tabCompletion(vector<string>& /*tokens*/) const
-{
-	// no useful completion possible
 }
 
 } // namespace openmsx

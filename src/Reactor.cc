@@ -172,6 +172,17 @@ private:
 	const uint64_t reference;
 };
 
+class SoftwareInfoTopic final : InfoTopic
+{
+public:
+	SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, Reactor& reactor);
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	std::string help(const std::vector<std::string>& tokens) const override;
+private:
+	Reactor& reactor;
+};
+
 
 Reactor::Reactor()
 	: activeBoard(nullptr)
@@ -236,6 +247,8 @@ void Reactor::init()
 		getOpenMSXInfoCommand(), "machines");
 	realTimeInfo = make_unique<RealTimeInfo>(
 		getOpenMSXInfoCommand());
+	softwareInfoTopic = make_unique<SoftwareInfoTopic>(
+		getOpenMSXInfoCommand(), *this);
 	tclCallbackMessages = make_unique<TclCallbackMessages>(
 		*globalCliComm, *globalCommandController);
 
@@ -264,8 +277,7 @@ Reactor::~Reactor()
 RomDatabase& Reactor::getSoftwareDatabase()
 {
 	if (!softwareDatabase) {
-		softwareDatabase = make_unique<RomDatabase>(
-		        *globalCommandController, *globalCliComm);
+		softwareDatabase = make_unique<RomDatabase>(*globalCliComm);
 	}
 	return *softwareDatabase;
 }
@@ -1068,6 +1080,58 @@ void RealTimeInfo::execute(array_ref<TclObject> /*tokens*/,
 string RealTimeInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns the time in seconds since openMSX was started.";
+}
+
+
+// SoftwareInfoTopic
+
+SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, Reactor& reactor_)
+	: InfoTopic(openMSXInfoCommand, "software")
+	, reactor(reactor_)
+{
+}
+
+void SoftwareInfoTopic::execute(
+	array_ref<TclObject> tokens, TclObject& result) const
+{
+	if (tokens.size() != 3) {
+		throw CommandException("Wrong number of parameters");
+	}
+
+	Sha1Sum sha1sum = Sha1Sum(tokens[2].getString());
+	auto& romDatabase = reactor.getSoftwareDatabase();
+	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
+	if (!romInfo) {
+		// no match found
+		throw CommandException(
+			"Software with sha1sum ", sha1sum.toString(), " not found");
+	}
+
+	const char* bufStart = romDatabase.getBufferStart();
+	result.addListElement("title");
+	result.addListElement(romInfo->getTitle(bufStart));
+	result.addListElement("year");
+	result.addListElement(romInfo->getYear(bufStart));
+	result.addListElement("company");
+	result.addListElement(romInfo->getCompany(bufStart));
+	result.addListElement("country");
+	result.addListElement(romInfo->getCountry(bufStart));
+	result.addListElement("orig_type");
+	result.addListElement(romInfo->getOrigType(bufStart));
+	result.addListElement("remark");
+	result.addListElement(romInfo->getRemark(bufStart));
+	result.addListElement("original");
+	result.addListElement(romInfo->getOriginal());
+	result.addListElement("mapper_type_name");
+	result.addListElement(RomInfo::romTypeToName(romInfo->getRomType()));
+	result.addListElement("genmsxid");
+	result.addListElement(romInfo->getGenMSXid());
+}
+
+string SoftwareInfoTopic::help(const vector<string>& /*tokens*/) const
+{
+	return "Returns information about the software "
+	       "given its sha1sum, in a paired list.";
 }
 
 } // namespace openmsx

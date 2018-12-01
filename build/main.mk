@@ -353,7 +353,7 @@ ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.
   COMPILE_FLAGS+=-Wno-unused-const-variable
-  CC:=$(shell clang++ -print-prog-name=clang)
+  CC:=$(subst clang++,clang,$(CXX))
   DEPEND_FLAGS+=-MP
 else
 ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
