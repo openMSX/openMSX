@@ -178,7 +178,6 @@ $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
 		--disable-shared \
 		--disable-cpuinfo \
 		--disable-power \
-		--disable-file \
 		--disable-filesystem \
 		--disable-timers \
 		--host=$(TARGET_TRIPLE) \
