@@ -327,10 +327,7 @@ class SDL2(Library):
 
 	@classmethod
 	def getHeaders(cls, platform):
-		if platform == 'darwin':
-			return ('<SDL2/SDL.h>', )
-		else:
-			return ('<SDL.h>', )
+		return ('<SDL.h>', )
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
