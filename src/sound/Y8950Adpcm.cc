@@ -153,6 +153,11 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 	switch (rg) {
 	case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
 		reg7 = data;
+		if (reg7 & R07_START) {
+			y8950.setStatus(Y8950::STATUS_PCM_BSY);
+		} else {
+			y8950.resetStatus(Y8950::STATUS_PCM_BSY);
+		}
 		if (reg7 & R07_RESET) {
 			reg7 = 0;
 		}

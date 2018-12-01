@@ -68,7 +68,7 @@ register_lazy "_tas_tools.tcl" {
 register_lazy "_test_machines_and_extensions.tcl" {
 	test_all_machines test_all_extensions}
 register_lazy "_text_echo.tcl" text_echo
-register_lazy "_tileviewer.tcl" {showtile showall}
+register_lazy "_tileviewer.tcl" {view_tile hide_tile_viewer view_all_tiles hide_all_tiles_viewer}
 register_lazy "_toggle_freq.tcl" toggle_freq
 register_lazy "_trainer.tcl" trainer
 register_lazy "_type_from_file.tcl" {type_from_file type_password_from_file}

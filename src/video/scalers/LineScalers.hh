@@ -533,35 +533,6 @@ void Scale_1on1<Pixel>::operator()(
 	in  += n128 / sizeof(Pixel);
 	out += n128 / sizeof(Pixel);
 #endif
-#ifdef __arm__
-	size_t n64 = nBytes & ~63;
-	assert((size_t(in)  & 3) == 0);
-	assert((size_t(out) & 3) == 0);
-	assert((n64 % 64) == 0);
-	assert(n64 > 0);
-
-	asm volatile (
-	"0:\n\t"
-		"ldmia	%[IN]! ,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
-		"stmia	%[OUT]!,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
-		"ldmia	%[IN]! ,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
-		"stmia	%[OUT]!,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
-		"subs	%[NUM],%[NUM],#64;\n\t"
-		"bne	0b;\n\t"
-
-		: [NUM] "=r"    (n64)
-		, [IN]  "=r"    (in)
-		, [OUT] "=r"    (out)
-		:       "[NUM]" (n64)
-		,       "[IN]"  (in)
-		,       "[OUT]" (out)
-		: "r3","r4","r5","r6","r8","r9","r10","r12"
-	);
-
-	// in,out-pointers are already updated
-	nBytes &= 63; // remaining bytes
-	if (likely(nBytes == 0)) return;
-#endif
 
 	memcpy(out, in, nBytes);
 }

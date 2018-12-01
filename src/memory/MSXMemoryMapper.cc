@@ -22,6 +22,7 @@ unsigned MSXMemoryMapper::getRamSize() const
 
 MSXMemoryMapper::MSXMemoryMapper(const DeviceConfig& config)
 	: MSXDevice(config)
+	, MSXMapperIOClient(getMotherBoard())
 	, checkedRam(config, getName(), "memory mapper", getRamSize())
 	, debuggable(getMotherBoard(), getName())
 {

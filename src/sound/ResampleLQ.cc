@@ -151,122 +151,18 @@ bool ResampleLQDown<CHANNELS>::generateOutput(
 	if (!this->fetchData(time, valid)) return false;
 
 	int* buffer = &bufferInt[4 - 2 * CHANNELS];
-#ifdef __arm__
-	if (CHANNELS == 1) {
-		unsigned dummy;
-		// This asm code is equivalent to the c++ code below (does
-		// 1st order interpolation). It's still a bit slow, so we
-		// use 0th order interpolation. Sound quality is still good
-		// especially on portable devices with only medium quality
-		// speakers.
-		/*asm volatile (
-		"0:\n\t"
-			"mov	r7,%[p],LSR #14\n\t"
-			"add	r7,%[buf],r7,LSL #2\n\t"
-			"ldmia	r7,{r7,r8}\n\t"
-			"sub	r8,r8,r7\n\t"
-			"and	%[t],%[p],%[m]\n\t"
-			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #14\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"mov	r7,%[p],LSR #14\n\t"
-			"add	r7,%[buf],r7,LSL #2\n\t"
-			"ldmia	r7,{r7,r8}\n\t"
-			"sub	r8,r8,r7\n\t"
-			"and	%[t],%[p],%[m]\n\t"
-			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #14\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"mov	r7,%[p],LSR #14\n\t"
-			"add	r7,%[buf],r7,LSL #2\n\t"
-			"ldmia	r7,{r7,r8}\n\t"
-			"sub	r8,r8,r7\n\t"
-			"and	%[t],%[p],%[m]\n\t"
-			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #14\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"mov	r7,%[p],LSR #14\n\t"
-			"add	r7,%[buf],r7,LSL #2\n\t"
-			"ldmia	r7,{r7,r8}\n\t"
-			"sub	r8,r8,r7\n\t"
-			"and	%[t],%[p],%[m]\n\t"
-			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #14\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"subs	%[n],%[n],#4\n\t"
-			"bgt	0b\n\t"
-			: [p]   "=r"  (pos)
-			, [t]   "=&r" (dummy)
-			:       "[p]" (pos)
-			, [buf] "r"   (buffer)
-			, [out] "r"   (dataOut)
-			, [s]   "r"   (step)
-			, [n]   "r"   (hostNum)
-			, [m]   "r"   (0x3FFF) // mask 14 bits
-			: "r7","r8"
-		);*/
-
-		// 0th order interpolation
-		asm volatile (
-		"0:\n\t"
-			"lsrs	%[t],%[p],#14\n\t"
-			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"lsrs	%[t],%[p],#14\n\t"
-			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"lsrs	%[t],%[p],#14\n\t"
-			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"lsrs	%[t],%[p],#14\n\t"
-			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"subs	%[n],%[n],#4\n\t"
-			"bgt	0b\n\t"
-			: [p]   "=r"    (pos)
-			, [out] "=r"    (dataOut)
-			, [n]   "=r"    (hostNum)
-			, [t]   "=&r"   (dummy)
-			:       "[p]"   (pos)
-			,       "[out]" (dataOut)
-			,       "[n]"   (hostNum)
-			, [buf] "r"     (buffer)
-			, [s]   "r"     (this->step)
-			: "memory"
-		);
-	} else {
-#endif
-		for (unsigned i = 0; i < hostNum; ++i) {
-			unsigned p = pos.toInt();
-			assert((p + 1) < valid);
-			FP fract = pos.fract();
-			for (unsigned j = 0; j < CHANNELS; ++j) {
-				int s0 = buffer[(p + 0) * CHANNELS + j];
-				int s1 = buffer[(p + 1) * CHANNELS + j];
-				int out = s0 + (fract * (s1 - s0)).toInt();
-				dataOut[i * CHANNELS + j] = out;
-			}
-			pos += this->step;
+	for (unsigned i = 0; i < hostNum; ++i) {
+		unsigned p = pos.toInt();
+		assert((p + 1) < valid);
+		FP fract = pos.fract();
+		for (unsigned j = 0; j < CHANNELS; ++j) {
+			int s0 = buffer[(p + 0) * CHANNELS + j];
+			int s1 = buffer[(p + 1) * CHANNELS + j];
+			int out = s0 + (fract * (s1 - s0)).toInt();
+			dataOut[i * CHANNELS + j] = out;
 		}
-#ifdef __arm__
+		pos += this->step;
 	}
-#endif
 	return true;
 }
 

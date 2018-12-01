@@ -12,7 +12,8 @@
   <devices>
     <MSX-AUDIO id="Philips Music Module MSX-Audio">
       <io base="0xC0" num="2"/>
-      <io base="0x0A" num="1" type="O"/>
+      <io base="0x08" num="8" type="O"/> <!-- 0x0A is specced, the rest...  -->
+      <io base="0x18" num="8" type="O"/> <!-- ...is all mirroring here. -->
       <type>Philips</type>
       <sound>
         <volume>12000</volume>
@@ -22,7 +23,13 @@
 
     <MusicModuleMIDI id="Philips Music Module MIDI">
       <io base="0x00" num="2" type="O"/>
+      <io base="0x08" num="2" type="O"/> <!-- mirror 1, overlap with DAC mirror! -->
+      <io base="0x10" num="2" type="O"/> <!-- mirror 2 -->
+      <io base="0x18" num="2" type="O"/> <!-- mirror 3 -->
       <io base="0x04" num="2" type="I"/>
+      <io base="0x0C" num="2" type="I"/> <!-- mirror 1 -->
+      <io base="0x14" num="2" type="I"/> <!-- mirror 2 -->
+      <io base="0x1C" num="2" type="I"/> <!-- mirror 3 -->
     </MusicModuleMIDI>
 
     <primary slot="any">

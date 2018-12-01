@@ -57,9 +57,9 @@ void MSXAudio::reset(EmuTime::param time)
 byte MSXAudio::readIO(word port, EmuTime::param time)
 {
 	byte result;
-	if ((port & 0xFF) == 0x0A) {
+	if ((port & 0xE8) == 0x08) {
 		// read DAC
-		result = 255;
+		result = 0xFF;
 	} else {
 		result = (port & 1) ? y8950.readReg(registerLatch, time)
 		                    : y8950.readStatus(time);
@@ -69,9 +69,9 @@ byte MSXAudio::readIO(word port, EmuTime::param time)
 
 byte MSXAudio::peekIO(word port, EmuTime::param time) const
 {
-	if ((port & 0xFF) == 0x0A) {
+	if ((port & 0xE8) == 0x08) {
 		// read DAC
-		return 255; // read always returns 255
+		return 0xFF; // read always returns 0xFF
 	} else {
 		return (port & 1) ? y8950.peekReg(registerLatch, time)
 		                  : y8950.peekStatus(time);
@@ -80,7 +80,7 @@ byte MSXAudio::peekIO(word port, EmuTime::param time) const
 
 void MSXAudio::writeIO(word port, byte value, EmuTime::param time)
 {
-	if ((port & 0xFF) == 0x0A) {
+	if ((port & 0xE8) == 0x08) {
 		dacValue = value;
 		if (dacEnabled) {
 			assert(dac);

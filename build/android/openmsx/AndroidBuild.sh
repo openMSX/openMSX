@@ -7,6 +7,9 @@ openmsx_flavour="opt"
 echo "AB:INFO Starting AndroidBuild.sh, #params: $#, params: $*"
 echo "AB:INFO pwd: $(pwd)"
 
+export TARGET_ABI="$1"
+TARGET_TUPLE="$2"
+
 # Read environment.props (if it exists) to get following two params:
 #   sdl_android_port_path
 #   my_home_dir
@@ -20,14 +23,12 @@ fi
 # with all android specific code for the app
 my_app_android_dir="$(pwd)"
 
+# Use latest version of the setEnvironment script
+set_sdl_app_environment="${sdl_android_port_path}/project/jni/application/setEnvironment-${TARGET_ABI}.sh"
 
-# Use latest version of the setEnvironment script; it is the one that uses GCC 4.9
-set_sdl_app_environment="${sdl_android_port_path}/project/jni/application/setEnvironment.sh"
-
-# Parsing the CPU architecture information
-CPU_ARCH="$1"
-if [ "${CPU_ARCH}" = "armeabi" ]; then
-    so_file=libapplication.so
+# Parsing the ABI selection
+if [ "${TARGET_ABI}" = "armeabi-v7a" ]; then
+    so_file=libapplication-${TARGET_ABI}.so
     openmsx_target_cpu=arm
 else
     echo "AB:ERROR Unsupported architecture: $1"
@@ -52,7 +53,7 @@ unset V
 
 # The commandergenius build will modify the PATH.
 # Pick the right compiler now and store its absolute path.
-CXX=$(which arm-linux-androideabi-g++)
+CXX=$(which ${TARGET_TUPLE}-clang++)
 if [ $? -ne 0 ]; then
     echo "AB:ERROR Could not find compiler"
     exit 1
@@ -67,7 +68,7 @@ if [ -f /proc/cpuinfo ]; then
 fi
 echo "AB:INFO Detected ${cpu_count} CPUs for parallel build"
 
-echo "AB:INFO Making this app for CPU architecture ${CPU_ARCH}"
+echo "AB:INFO Making this app for ABI ${TARGET_ABI}"
 export SDL_ANDROID_PORT_PATH="${sdl_android_port_path}"
 unset BUILD_EXECUTABLE
 
@@ -121,10 +122,6 @@ echo "AB:INFO Done rebuilding appdata.zip"
 
 MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
 
-# Patch manifest file to target android 2.3 and older so that the
-# virtual menu button will be rendered by newer Android versions
-sed -i "s^android:targetSdkVersion=\"[0-9]*\"^android:targetSdkVersion=\"10\"^" ${MANIFEST}
-
-# Remove network permissions from manifest. OpenMSX does not need it
+# Remove network permissions from manifest. openMSX does not need it.
 sed -i "s/<uses-permission android:name=\"android.permission.INTERNET\"><\/uses-permission>/<\!-- -->/" ${MANIFEST}
 exit 0

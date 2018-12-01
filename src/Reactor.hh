@@ -50,6 +50,7 @@ class RestoreMachineCommand;
 class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
+class SoftwareInfoTopic;
 template <typename T> class EnumSetting;
 
 /**
@@ -167,6 +168,7 @@ private:
 	std::unique_ptr<ConfigInfo> extensionInfo;
 	std::unique_ptr<ConfigInfo> machineInfo;
 	std::unique_ptr<RealTimeInfo> realTimeInfo;
+	std::unique_ptr<SoftwareInfoTopic> softwareInfoTopic;
 	std::unique_ptr<TclCallbackMessages> tclCallbackMessages;
 
 	// Locking rules for activeBoard access:

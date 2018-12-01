@@ -91,7 +91,7 @@ void GLHQLiteScaler::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth,
 	FrameSource& paintFrame)
 {
-	if (lineWidth != 320) return;
+	if ((lineWidth != 320) || (srcEndY > 240)) return;
 
 	uint32_t tmpBuf2[320 / 2]; // 2 x uint16_t
 	#ifndef NDEBUG

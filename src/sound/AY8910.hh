@@ -34,12 +34,7 @@ public:
 private:
 	class Generator {
 	public:
-		inline void reset(unsigned output);
 		inline void setPeriod(int value);
-		/** Gets the current output of this generator.
-		  */
-		inline unsigned getOutput() const;
-
 		inline unsigned getNextEventTime() const;
 		inline void advanceFast(unsigned duration);
 
@@ -47,7 +42,8 @@ private:
 		void serialize(Archive& ar, unsigned version);
 
 	protected:
-		Generator();
+		Generator() = default;
+		inline void reset();
 
 		/** Time between output steps.
 		  * For tones, this is half the period of the square wave.
@@ -60,21 +56,24 @@ private:
 		  * was recently changed this might not be the case.
 		  */
 		int count;
-		/** Current state of the wave.
-		  * For tones, this is 0 or 1.
-		  */
-		unsigned output;
 	};
 
 	class ToneGenerator : public Generator {
 	public:
 		ToneGenerator();
+
+		inline void reset();
+
 		/** Advance tone generator several steps in time.
 		  * @param duration Length of interval to simulate.
 		  */
 		inline void advance(int duration);
 
 		inline void doNextEvent(AY8910& ay8910);
+
+		/** Gets the current output of this generator.
+		  */
+		bool getOutput() const { return output; }
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -86,6 +85,10 @@ private:
 		  */
 		unsigned vibratoCount;
 		unsigned detuneCount;
+
+		/** Current state of the wave.
+		  */
+		bool output;
 	};
 
 	class NoiseGenerator : public Generator {
@@ -99,6 +102,10 @@ private:
 		inline void advance(int duration);
 
 		inline void doNextEvent();
+
+		/** Gets the current output of this generator.
+		  */
+		bool getOutput() const { return random & 1; }
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -182,6 +189,10 @@ private:
 	bool doDetune;
 	bool detuneInitialized;
 };
+
+SERIALIZE_CLASS_VERSION(AY8910::Generator, 2);
+SERIALIZE_CLASS_VERSION(AY8910::ToneGenerator, 2);
+SERIALIZE_CLASS_VERSION(AY8910::NoiseGenerator, 2);
 
 } // namespace openmsx
 

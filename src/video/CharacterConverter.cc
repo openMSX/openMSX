@@ -102,106 +102,8 @@ template<typename Pixel> static inline void draw6(
 }
 
 template<typename Pixel> static inline void draw8(
-	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, byte pattern,
-	bool misAligned, uint32_t& partial)
+	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, byte pattern)
 {
-#ifdef __arm__
-	// ARM version, 16bpp, (32-bit aligned/unaligned destination)
-	if (sizeof(Pixel) == 2) {
-		if (misAligned) {
-			asm volatile (
-				"mov	r0,%[PART]\n\t"
-				"tst	%[PAT],#128\n\t"
-				"ite eq\n\t"
-				"orreq	r0,r0,%[BG], lsl #16\n\t"
-				"orrne	r0,r0,%[FG], lsl #16\n\t"
-				"tst	%[PAT],#64\n\t"
-				"ite eq\n\t"
-				"moveq	r1,%[BG]\n\t"
-				"movne	r1,%[FG]\n\t"
-				"tst	%[PAT],#32\n\t"
-				"ite eq\n\t"
-				"orreq	r1,r1,%[BG], lsl #16\n\t"
-				"orrne	r1,r1,%[FG], lsl #16\n\t"
-				"tst	%[PAT],#16\n\t"
-				"ite eq\n\t"
-				"moveq	r2,%[BG]\n\t"
-				"movne	r2,%[FG]\n\t"
-				"tst	%[PAT],#8\n\t"
-				"ite eq\n\t"
-				"orreq	r2,r2,%[BG], lsl #16\n\t"
-				"orrne	r2,r2,%[FG], lsl #16\n\t"
-				"tst	%[PAT],#4\n\t"
-				"ite eq\n\t"
-				"moveq	r3,%[BG]\n\t"
-				"movne	r3,%[FG]\n\t"
-				"tst	%[PAT],#2\n\t"
-				"ite eq\n\t"
-				"orreq	r3,r3,%[BG], lsl #16\n\t"
-				"orrne	r3,r3,%[FG], lsl #16\n\t"
-				"tst	%[PAT],#1\n\t"
-				"ite eq\n\t"
-				"moveq	%[PART],%[BG]\n\t"
-				"movne	%[PART],%[FG]\n\t"
-				"stmia	%[OUT]!,{r0-r3}\n\t"
-				: [OUT]  "=r"     (pixelPtr)
-				, [PART] "=r"     (partial)
-				:        "[OUT]"  (pixelPtr)
-				,        "[PART]" (partial)
-				, [PAT]  "r"      (pattern)
-				, [FG]   "r"      (uint32_t(fg))
-				, [BG]   "r"      (uint32_t(bg))
-				: "r0","r1","r2","r3","memory"
-			);
-		} else {
-			asm volatile (
-				"tst	%[PAT],#128\n\t"
-				"ite eq\n\t"
-				"moveq	r0,%[BG]\n\t"
-				"movne	r0,%[FG]\n\t"
-				"tst	%[PAT],#64\n\t"
-				"ite eq\n\t"
-				"orreq	r0,r0,%[BG], lsl #16\n\t"
-				"orrne	r0,r0,%[FG], lsl #16\n\t"
-				"tst	%[PAT],#32\n\t"
-				"ite eq\n\t"
-				"moveq	r1,%[BG]\n\t"
-				"movne	r1,%[FG]\n\t"
-				"tst	%[PAT],#16\n\t"
-				"ite eq\n\t"
-				"orreq	r1,r1,%[BG], lsl #16\n\t"
-				"orrne	r1,r1,%[FG], lsl #16\n\t"
-				"tst	%[PAT],#8\n\t"
-				"ite eq\n\t"
-				"moveq	r2,%[BG]\n\t"
-				"movne	r2,%[FG]\n\t"
-				"tst	%[PAT],#4\n\t"
-				"ite eq\n\t"
-				"orreq	r2,r2,%[BG], lsl #16\n\t"
-				"orrne	r2,r2,%[FG], lsl #16\n\t"
-				"tst	%[PAT],#2\n\t"
-				"ite eq\n\t"
-				"moveq	r3,%[BG]\n\t"
-				"movne	r3,%[FG]\n\t"
-				"tst	%[PAT],#1\n\t"
-				"ite eq\n\t"
-				"orreq	r3,r3,%[BG], lsl #16\n\t"
-				"orrne	r3,r3,%[FG], lsl #16\n\t"
-				"stmia	%[OUT]!,{r0-r3}\n\t"
-
-				: [OUT] "=r"    (pixelPtr)
-				:       "[OUT]" (pixelPtr)
-				, [PAT] "r"     (pattern)
-				, [FG]  "r"     (uint32_t(fg))
-				, [BG]  "r"     (uint32_t(bg))
-				: "r0","r1","r2","r3","memory"
-			);
-		}
-		return;
-	}
-#endif
-	(void)misAligned; (void)partial;
-
 #ifdef __SSE2__
 	// SSE2 version, 32bpp  (16bpp is possible, but not worth it anymore)
 	if (sizeof(Pixel) == 4) {
@@ -357,14 +259,6 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(
 	Pixel* __restrict pixelPtr, int line)
 {
-	bool misAligned = false; // initialize with dummy
-	uint32_t partial = 0;    // values to avoid warning
-#ifdef __arm__
-	misAligned = sizeof(Pixel) == 2 && (reinterpret_cast<uintptr_t>(pixelPtr) & 3);
-	if (misAligned) pixelPtr--;
-	partial = *pixelPtr;
-#endif
-
 	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
 	patternArea += line & 7;
 	const byte* colorArea = vram.colorTable.getReadArea(0, 256 / 8);
@@ -377,27 +271,15 @@ void CharacterConverter<Pixel>::renderGraphic1(
 		unsigned color = colorArea[charcode / 8];
 		Pixel fg = palFg[color >> 4];
 		Pixel bg = palFg[color & 0x0F];
-		draw8(pixelPtr, fg, bg, pattern, misAligned, partial);
+		draw8(pixelPtr, fg, bg, pattern);
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
-
-#ifdef __arm__
-	if (misAligned) *pixelPtr = static_cast<Pixel>(partial);
-#endif
 }
 
 template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic2(
 	Pixel* __restrict pixelPtr, int line)
 {
-	bool misAligned = false; // initialize with dummy
-	uint32_t partial = 0;    // values to avoid warning
-#ifdef __arm__
-	misAligned = sizeof(Pixel) == 2 && (reinterpret_cast<uintptr_t>(pixelPtr) & 3);
-	if (misAligned) pixelPtr--;
-	partial = *pixelPtr;
-#endif
-
 	int quarter8 = (((line / 8) * 32) & ~0xFF) * 8;
 	int line7 = line & 7;
 	int scroll = vdp.getHorizontalScrollHigh();
@@ -417,7 +299,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 			unsigned color   = colorArea  [charCode8];
 			Pixel fg = palFg[color >> 4];
 			Pixel bg = palFg[color & 0x0F];
-			draw8(pixelPtr, fg, bg, pattern, misAligned, partial);
+			draw8(pixelPtr, fg, bg, pattern);
 		}
 	} else {
 		// Slower variant, also works when:
@@ -432,14 +314,10 @@ void CharacterConverter<Pixel>::renderGraphic2(
 			unsigned color   = vram.colorTable  .readNP(index);
 			Pixel fg = palFg[color >> 4];
 			Pixel bg = palFg[color & 0x0F];
-			draw8(pixelPtr, fg, bg, pattern, misAligned, partial);
+			draw8(pixelPtr, fg, bg, pattern);
 			if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 		}
 	}
-
-#ifdef __arm__
-	if (misAligned) *pixelPtr = static_cast<Pixel>(partial);
-#endif
 }
 
 template <class Pixel>

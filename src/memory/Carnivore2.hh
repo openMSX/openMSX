@@ -18,7 +18,7 @@ class IDEDevice;
 
 class Carnivore2 final
 	: public MSXDevice
-	, public MSXMapperIOClient<Carnivore2>
+	, public MSXMapperIOClient
 	, public GlobalReadClient<Carnivore2, CT_Interval<0x0000>, CT_Interval<0x4000, 0x4010>>
 {
 public:

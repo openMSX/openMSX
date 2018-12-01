@@ -45,6 +45,7 @@ public:
 	static constexpr int R04_IRQ_RESET    = 0x80;
 
 	// Bitmask for status register
+	static constexpr int STATUS_PCM_BSY = 0x01;
 	static constexpr int STATUS_EOS     = R04_MASK_EOS;
 	static constexpr int STATUS_BUF_RDY = R04_MASK_BUF_RDY;
 	static constexpr int STATUS_T2      = R04_MASK_T2;
