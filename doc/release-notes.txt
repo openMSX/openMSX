@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.15.0 (2018-11-xx)
+Release Notes for openMSX 0.15.0 (2018-12-05)
 =============================================
 
 Again a release, because we did quite a lot, so it's due! Major new stuff is
@@ -48,7 +48,11 @@ New or improved emulator features:
 - improved tab-completion to initially hide internal procs, until you specify
   the namespace
 - many updates to the software database
-- improved the VGM recorder script: record sample RAM content before logging
+- many updates to the VGM recorder script, thanks to Niek. Use 'help vgm_rec'
+  to find out about the new subcommands. Sample RAM content is now logged even
+  when starting recording after the sample kit is loaded, actual data recording
+  starts automatically when data is sent to the chip, the proper OPL4 init data
+  is automatically written to the VGM file, and many more things.
 - changed default machine symlinks to JP machines (for applicable systems)
 - many robustness fixes against bad XML config files
 - added videosource setting to OSD menu, GFX9000 is getting more popular
@@ -80,6 +84,9 @@ Build system, packaging, documentation:
 - removed all hand-made ARM and 32-bit x86 assembly code
 - fixed version information of application on macOS
 - added workaround for FreeType no longer installing its config script
+- enabled retina support on macOS
+- advise people to compile with Xcode 9.4.1 on macOS, not Xcode 10 (see issue
+  #1126)
 
 And of course the usual various bug fixes and performance improvements.
 
