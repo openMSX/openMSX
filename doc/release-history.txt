@@ -80,6 +80,8 @@ New or improved emulator features:
 Build system, packaging, documentation:
 - upgraded C-BIOS to release 0.29a: default to 60Hz generic international
   config
+- to load older savestates, added all C-BIOS ROMs shipped with openMSX 0.7.0
+  and later for your convenience
 - put several pieces of code under unit-test with the Catch2 framework
 - added svicpm2dmk utility so disk images from the web can be converted to a
   suitable DMK file for use with the SVI-707 drive with CP/M ROM
