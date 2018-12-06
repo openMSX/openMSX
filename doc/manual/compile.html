@@ -227,19 +227,13 @@ to build the Android version on a Windows host, then you must install a virtual 
 <p>The Android build depends on the following toolkits and libraries that must first be installed:</p>
 <dl>
 	<dt>The Android SDK</dt>
-	<dd>Download the Android SDK command line tools or the Android Studio
-	IDE from the <a
+	<dd>Download the Android SDK command line tools from the <a
 	href="http://developer.android.com/sdk/index.html">Android SDK
-	site</a>. It is sufficient to download the SDK Tools only package; For
+	site</a>. It is sufficient to download the SDK Tools or SDK Manager only package. For
 	openMSX you do not need the so-called ADT bundle. An older SDK Tools
 	only package that we used is
     <a class="external" href="http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz">Android SDK R23.0.2 Linux</a>. The latest seems to be <a class="external" href="https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip">Android SDK Tools Linux 26.1.1</a>. Most instructions below are based on the older SDK manager.
-	After downloading it, unpack it to your favourite location and add following Android SDK directories to your PATH environment
-	variable: <code>${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools:${ANDROID_SDK}/build-tools/${ANDROID_SDK_VERSION}</code>.
-	It is advisable to do this in your <code>~/.profile</code>
-	script so that the setting remains available on each login. Note that <code>${ANDROID_SDK}</code> stands for the
-	directory in which you installed the Android SDK, for example <code>/opt/android/android-sdk-linux</code>
-	and <code>${ANDROID_SDK_VERSION}</code> stands for the version of the Android SDK Build-tools you installed with the SDK manager, for example <code>28.0.2</code> (see below).
+	After downloading it, unpack it to your favourite location. See below for further instructions.
 	See the README in the ${ANDROID-SDK} directory for further instructions on how to download extra tools and libraries.</dd>
 	<dt>The Android NDK</dt>
 	<dd>Download the Android NDK from the <a href="http://developer.android.com/tools/sdk/ndk/index.html">Android NDK site</a>,
@@ -266,7 +260,7 @@ to build the Android version on a Windows host, then you must install a virtual 
 </dl>
 
 <p>
-After you installed the Android SDK, you actually only installed the "Android SDK Manager". You'll have to use this manager to install the proper Android SDK packages. Start up this tool by running <code>android</code> in a terminal (you added it to your PATH in the previous step). This works for the above mentioned older SDK Tools, but it doesn't for the new ones, so you should check these instructions which packages to install with the newer SDK managers. The old SDK manager opens a new window. You should first get some messages in the status bar that it is fetching the repositories. After that, you should get a list of all possible SDK API versions. If you get errors like <code>HttpHostConnect Connection to http://dl-ssl.google.com refused</code>, you are hitting this bug: <a class="external" href="http://skybert.net/java/ipv46-related-network-problems/">IPv4/6 Related Network Problems</a>. You'll have to solve this to proceed.
+After you installed the Android SDK, you actually only installed the "Android SDK Manager". You'll have to use this manager to install the proper Android SDK packages. Start up this tool by running <code>android</code> in a terminal (it is located in the <code>tools</code> folder of the SDK manager you downloaded). This works for the above mentioned older SDK Tools, but it doesn't for the new ones, so you should check these instructions which packages to install with the newer SDK managers. The old SDK manager opens a new window. You should first get some messages in the status bar that it is fetching the repositories. After that, you should get a list of all possible SDK API versions. If you get errors like <code>HttpHostConnect Connection to http://dl-ssl.google.com refused</code>, you are hitting this bug: <a class="external" href="http://skybert.net/java/ipv46-related-network-problems/">IPv4/6 Related Network Problems</a>. You'll have to solve this to proceed.
 </p>
 <p>Once you have the list of packages, you must select the following options for installation:</p>
 <ul>
@@ -282,6 +276,15 @@ After you installed the Android SDK, you actually only installed the "Android SD
 	</li>
 </ul>
 <p>It may be possible that by default another version of the Android API is pre-selected. We're at least trying to target API 16 with this build. You may unselect other APIs in order to save download time and diskspace. (You also don't need the Android Support Package, so if it gets selected, you can also unselect that one.) Next step is to click the "Install N packages" button (N seems to vary a bit... it may be like 12) to install the packages (accept the license terms). After downloading and installing, you can close the Android SDK Manager. When you are trying to execute a build later on, and it stops with "license not accepted for package XYZ", then start the SDK Manager again to install the requested package.</p>
+
+<p>
+Finally, add following Android SDK directories to your PATH environment
+variable: <code>${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools:${ANDROID_SDK}/build-tools/${ANDROID_SDK_VERSION}</code>. The first one only exists for older SDK managers, as explained earlier.
+It is advisable to do this in your <code>~/.profile</code>
+script so that the setting remains available on each login. Note that <code>${ANDROID_SDK}</code> stands for the
+directory in which you installed the Android SDK, for example <code>/opt/android/android-sdk-linux</code>
+and <code>${ANDROID_SDK_VERSION}</code> stands for the version of the Android SDK Build-tools you installed with the SDK manager, for example <code>28.0.2</code> (see above).
+</p>
 
 <h3><a id="libs">2.2 Libraries</a></h3>
 
