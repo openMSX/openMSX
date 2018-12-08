@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.15.0 (2018-12-05)
+Release Notes for openMSX 0.15.0 (2018-12-08)
 =============================================
 
 Again a release, because we did quite a lot, so it's due! Major new stuff is

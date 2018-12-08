@@ -3,7 +3,7 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 0.15.0 (2018-12-05)
+openMSX 0.15.0 (2018-12-08)
 ---------------------------
 
 Again a release, because we did quite a lot, so it's due! Major new stuff is
