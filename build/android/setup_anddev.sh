@@ -100,12 +100,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-android update project -p project -t android-16
-if [ $? -ne 0 ]; then
-    echo "ERROR: an unexpected problem occurred while running \"android update ...\""
-    exit 1
-fi
-
 echo ""
 echo "You can now build the application from the openMSX android build directory"
 echo ""
