@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomMSXWrite : public Rom16kBBlocks
+class RomMSXWrite final : public Rom16kBBlocks
 {
 public:
 	RomMSXWrite(const DeviceConfig& config, Rom&& rom);
