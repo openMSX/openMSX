@@ -17,7 +17,7 @@ MSXMusicBase::MSXMusicBase(const DeviceConfig& config)
 	if ((sz == 0) || !Math::isPowerOfTwo(sz)) {
 		throw MSXException("MSX-Music ROM-size must be a non-zero power of two");
 	}
-	reset(getCurrentTime());
+	MSXMusicBase::reset(getCurrentTime());
 }
 
 void MSXMusicBase::reset(EmuTime::param time)

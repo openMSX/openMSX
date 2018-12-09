@@ -13,7 +13,7 @@ namespace openmsx {
 class StateChange
 {
 public:
-	virtual ~StateChange() {} // must be polymorhpic
+	virtual ~StateChange() = default; // must be polymorhpic
 
 	EmuTime::param getTime() const
 	{

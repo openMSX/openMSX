@@ -18,7 +18,7 @@ class MSXMatsushita final : public MSXDevice, public MSXSwitchedDevice
 public:
 	explicit MSXMatsushita(const DeviceConfig& config);
 	void init() override;
-	~MSXMatsushita();
+	~MSXMatsushita() override;
 
 	// MSXDevice
 	void reset(EmuTime::param time) override;

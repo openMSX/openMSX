@@ -69,8 +69,8 @@ private:
 
 	std::unique_ptr<const PatchInterface> patch;
 	Sha1Sum sha1cache;
-	bool forcedWriteProtect;
-	bool peekMode;
+	bool forcedWriteProtect = false;
+	bool peekMode = false;
 
 	friend class EmptyDiskPatch;
 };

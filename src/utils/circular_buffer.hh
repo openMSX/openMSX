@@ -110,12 +110,9 @@ public:
 	using difference_type = ptrdiff_t;
 	using size_type       = size_t;
 
-	circular_buffer()
-		: buf(nullptr), stop(nullptr)
-		, first(nullptr), last(nullptr), siz(0) {}
+	circular_buffer() = default;
 
 	explicit circular_buffer(size_t buffer_capacity)
-		: siz(0)
 	{
 		buf = allocate(buffer_capacity);
 		stop = buf + buffer_capacity;
@@ -138,8 +135,6 @@ public:
 	}
 
 	circular_buffer(circular_buffer&& cb) noexcept
-		: buf(nullptr), stop(nullptr)
-		, first(nullptr), last(nullptr), siz(0)
 	{
 		cb.swap(*this);
 	}
@@ -332,12 +327,12 @@ private:
 	}
 
 private:
-	T* buf;   // start of allocated area
-	T* stop;  // end of allocated area (exclusive)
-	T* first; // position of the 1st element in the buffer
-	T* last;  // position past the last element
-	          // note: both for a full or empty buffer first==last
-	size_t siz; // number of elements in the buffer
+	T* buf = nullptr;   // start of allocated area
+	T* stop = nullptr;  // end of allocated area (exclusive)
+	T* first = nullptr; // position of the 1st element in the buffer
+	T* last = nullptr;  // position past the last element
+	                    // note: both for a full or empty buffer first==last
+	size_t siz = 0; // number of elements in the buffer
 
 	template<typename BUF, typename T2> friend class cb_iterator;
 };
@@ -355,7 +350,7 @@ public:
 	using       reverse_iterator = typename circular_buffer<T>::reverse_iterator;
 	using const_reverse_iterator = typename circular_buffer<T>::const_reverse_iterator;
 
-	cb_queue() {}
+	cb_queue() = default;
 	explicit cb_queue(size_t capacity)
 		: buf(capacity) {}
 

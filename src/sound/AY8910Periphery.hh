@@ -38,8 +38,8 @@ public:
 	virtual void writeB(byte value, EmuTime::param time);
 
 protected:
-	AY8910Periphery() {}
-	~AY8910Periphery() {}
+	AY8910Periphery() = default;
+	~AY8910Periphery() = default;
 };
 
 } // namespace openmsx

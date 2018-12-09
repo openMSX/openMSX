@@ -22,7 +22,7 @@ class HD : public SectorAccessibleDisk, public DiskContainer
 {
 public:
 	explicit HD(const DeviceConfig& config);
-	virtual ~HD();
+	~HD() override;
 
 	const std::string& getName() const { return name; }
 	const Filename& getImageName() const { return filename; }

@@ -6,7 +6,7 @@ namespace openmsx {
 template<typename Pixel> class ScalerOutput
 {
 public:
-	virtual ~ScalerOutput() {}
+	virtual ~ScalerOutput() = default;
 
 	virtual unsigned getWidth()  const = 0;
 	virtual unsigned getHeight() const = 0;
@@ -17,7 +17,7 @@ public:
 	// TODO add copyLine() optimization
 
 protected:
-	ScalerOutput() {}
+	ScalerOutput() = default;
 };
 
 } // namespace openmsx

@@ -17,7 +17,7 @@ public:
 	SDLSoundDriver& operator=(const SDLSoundDriver&) = delete;
 
 	SDLSoundDriver(Reactor& reactor, unsigned wantedFreq, unsigned samples);
-	~SDLSoundDriver();
+	~SDLSoundDriver() override;
 
 	void mute() override;
 	void unmute() override;

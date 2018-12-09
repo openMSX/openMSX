@@ -520,7 +520,7 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 {
 	// For debugging: print out tables to be able to compare before/after
 	// when the calculation changes.
-	if (0) {
+	if (false) {
 		for (int i = 0; i < PM_PG_WIDTH; ++i) {
 			std::cout << pm.table[0][i] << ' '
 			          << pm.table[1][i] << '\n';

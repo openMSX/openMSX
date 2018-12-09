@@ -25,7 +25,7 @@ public:
 
 protected:
 	OSDImageBasedWidget(Display& display, const TclObject& name);
-	~OSDImageBasedWidget();
+	~OSDImageBasedWidget() override;
 	bool hasConstantAlpha() const;
 	void createImage(OutputSurface& output);
 	void invalidateLocal() override;
@@ -43,7 +43,7 @@ private:
 	void setRGBA(const uint32_t newRGBA[4]);
 	bool isFading() const;
 	float getCurrentFadeValue() const;
-	float getCurrentFadeValue(uint64_t) const;
+	float getCurrentFadeValue(uint64_t now) const;
 	void updateCurrentFadeValue();
 
 	void paint(OutputSurface& output, bool openGL);

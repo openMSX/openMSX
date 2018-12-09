@@ -83,8 +83,8 @@ private:
 
 		/** Time passed since start of vibrato cycle.
 		  */
-		unsigned vibratoCount;
-		unsigned detuneCount;
+		unsigned vibratoCount = 0;
+		unsigned detuneCount = 0;
 
 		/** Current state of the wave.
 		  */

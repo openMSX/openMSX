@@ -9,10 +9,8 @@ template<class T, size_t MAXSIZE>
 class CircularBuffer
 {
 public:
-	CircularBuffer()
-		: first(0), last(0)
-	{
-	}
+	CircularBuffer() = default;
+
 	void addFront(const T& element) {
 		assert(!isFull());
 		first = prev(first);
@@ -67,7 +65,8 @@ private:
 		return (a != 0) ? a - 1 : MAXSIZE;
 	}
 
-	size_t first, last;
+	size_t first = 0;
+	size_t last = 0;
 	// one extra to be able to distinguish full and empty
 	T buffer[MAXSIZE + 1];
 };

@@ -23,7 +23,7 @@ class MidiInReader final : public MidiInDevice, private EventListener
 public:
 	MidiInReader(EventDistributor& eventDistributor, Scheduler& scheduler,
 	             CommandController& commandController);
-	~MidiInReader();
+	~MidiInReader() override;
 
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;

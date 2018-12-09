@@ -16,7 +16,7 @@ class MusicalMemoryMapper final : public MSXMemoryMapper
 {
 public:
 	MusicalMemoryMapper(const DeviceConfig& config);
-	~MusicalMemoryMapper();
+	~MusicalMemoryMapper() override;
 
 	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;

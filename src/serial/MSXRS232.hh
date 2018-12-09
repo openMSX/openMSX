@@ -18,7 +18,7 @@ class MSXRS232 final : public MSXDevice, public RS232Connector
 {
 public:
 	explicit MSXRS232(const DeviceConfig& config);
-	~MSXRS232();
+	~MSXRS232() override;
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;

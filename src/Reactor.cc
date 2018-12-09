@@ -185,11 +185,6 @@ private:
 
 
 Reactor::Reactor()
-	: activeBoard(nullptr)
-	, blockedCounter(0)
-	, paused(false)
-	, running(true)
-	, isInit(false)
 {
 #if UNIQUE_PTR_BUG
 	display = nullptr;

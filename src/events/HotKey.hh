@@ -24,7 +24,7 @@ class HotKey final : public RTSchedulable, public EventListener
 {
 public:
 	struct HotKeyInfo {
-		HotKeyInfo() {} // for map::operator[]
+		HotKeyInfo() = default; // for map::operator[]
 		explicit HotKeyInfo(std::string command_, bool repeat_ = false)
 			: command(std::move(command_)), repeat(repeat_) {}
 		std::string command;

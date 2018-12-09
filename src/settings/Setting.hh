@@ -19,7 +19,7 @@ class BaseSetting
 protected:
 	explicit BaseSetting(string_view name);
 	explicit BaseSetting(const TclObject& name);
-	~BaseSetting() {}
+	~BaseSetting() = default;
 
 public:
 	/** Get the name of this setting.
@@ -149,7 +149,7 @@ public:
 	 * is not immediately executed once it's set (via this method).
 	 */
 	void setChecker(std::function<void(TclObject&)> checkFunc_) {
-		checkFunc = checkFunc_;
+		checkFunc = std::move(checkFunc_);
 	}
 
 	// BaseSetting

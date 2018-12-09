@@ -83,7 +83,7 @@ private:
 	bool checkCommandReset();
 	bool checkCommandEraseSector();
 	bool checkCommandEraseChip();
-	bool checkCommandProgramHelper(unsigned, const byte*, size_t cmdLen);
+	bool checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, size_t cmdLen);
 	bool checkCommandProgram();
 	bool checkCommandDoubleByteProgram();
 	bool checkCommandQuadrupleByteProgram();

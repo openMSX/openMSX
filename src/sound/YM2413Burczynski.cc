@@ -938,7 +938,7 @@ void Channel::updateInstrument(const byte* inst)
 YM2413::YM2413()
 	: lfo_am_cnt(0), lfo_pm_cnt(0)
 {
-	if (0) {
+	if (false) {
 		for (auto& e : tl.tab) std::cout << e << '\n';
 		std::cout << '\n';
 		for (auto& e : sin.tab) std::cout << e << '\n';

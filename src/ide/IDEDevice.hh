@@ -9,7 +9,7 @@ namespace openmsx {
 class IDEDevice
 {
 public:
-	virtual ~IDEDevice() {}
+	virtual ~IDEDevice() = default;
 	virtual void reset(EmuTime::param time) = 0;
 
 	virtual word readData(EmuTime::param time) = 0;

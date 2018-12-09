@@ -13,7 +13,7 @@ class CassetteImage
 public:
 	enum FileType { ASCII, BINARY, BASIC, UNKNOWN };
 
-	virtual ~CassetteImage() {}
+	virtual ~CassetteImage() = default;
 	virtual int16_t getSampleAt(EmuTime::param time) = 0;
 	virtual EmuTime getEndTime() const = 0;
 	virtual unsigned getFrequency() const = 0;

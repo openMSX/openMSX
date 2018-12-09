@@ -20,7 +20,7 @@ protected:
 	void setNbSectors(size_t num);
 
 protected:
-	~SectorBasedDisk() = default;
+	~SectorBasedDisk() override = default;
 
 private:
 	// Disk

@@ -31,7 +31,7 @@ public:
 
 private:
 	struct DirIndex {
-		DirIndex() {}
+		DirIndex() = default;
 		DirIndex(unsigned sector_, unsigned idx_)
 			: sector(sector_), idx(idx_) {}
 		bool operator<(const DirIndex& rhs) const {

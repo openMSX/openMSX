@@ -52,7 +52,7 @@ private:
 
 	mutable Sha1Sum originalSha1;
 	std::string name;
-	const std::string description;
+	/*const*/ std::string description; // not const to allow move
 	unsigned size;
 
 	// This must come after 'name':

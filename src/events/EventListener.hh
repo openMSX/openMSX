@@ -22,8 +22,8 @@ public:
 	virtual int signalEvent(const std::shared_ptr<const Event>& event) = 0;
 
 protected:
-	EventListener() {}
-	~EventListener() {}
+	EventListener() = default;
+	~EventListener() = default;
 };
 
 } // namespace openmsx

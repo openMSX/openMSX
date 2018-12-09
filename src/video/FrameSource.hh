@@ -193,7 +193,7 @@ public:
 
 protected:
 	explicit FrameSource(const SDL_PixelFormat& format);
-	~FrameSource() {}
+	~FrameSource() = default;
 
 	void setHeight(unsigned height_) { height = height_; }
 

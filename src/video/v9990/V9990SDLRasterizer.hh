@@ -30,7 +30,7 @@ public:
 	V9990SDLRasterizer(
 		V9990& vdp, Display& display, VisibleSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
-	~V9990SDLRasterizer();
+	~V9990SDLRasterizer() override;
 
 	// Rasterizer interface:
 	PostProcessor* getPostProcessor() const override;

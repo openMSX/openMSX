@@ -20,8 +20,8 @@ public:
 	void writeB(byte /*value*/, EmuTime::param /*time*/) override {}
 
 private:
-	DummyAY8910Periphery() {}
-	~DummyAY8910Periphery() {}
+	DummyAY8910Periphery() = default;
+	~DummyAY8910Periphery() = default;
 };
 
 }; // namespace openmsx

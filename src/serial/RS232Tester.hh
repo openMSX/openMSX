@@ -24,7 +24,7 @@ class RS232Tester final : public RS232Device, private EventListener
 public:
 	RS232Tester(EventDistributor& eventDistributor, Scheduler& scheduler,
 	            CommandController& commandController);
-	~RS232Tester();
+	~RS232Tester() override;
 
 	// Pluggable
 	void plugHelper(Connector& connector, EmuTime::param time) override;

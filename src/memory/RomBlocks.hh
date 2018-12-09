@@ -39,7 +39,7 @@ protected:
 	 */
 	RomBlocks(const DeviceConfig& config, Rom&& rom,
 	          unsigned debugBankSizeShift = 0);
-	~RomBlocks();
+	~RomBlocks() override;
 
 	/** Select 'unmapped' memory for this region. Reads from this
 	  * region will return 0xff.

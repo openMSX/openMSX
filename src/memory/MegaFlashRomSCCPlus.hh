@@ -12,7 +12,7 @@ class MegaFlashRomSCCPlus final : public MSXRom
 {
 public:
 	MegaFlashRomSCCPlus(const DeviceConfig& config, Rom&& rom);
-	~MegaFlashRomSCCPlus();
+	~MegaFlashRomSCCPlus() override;
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;

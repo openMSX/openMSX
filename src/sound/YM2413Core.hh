@@ -39,7 +39,7 @@ public:
 	 */
 	static const int CLOCK_FREQ = 3579545;
 
-	virtual ~YM2413Core() {}
+	virtual ~YM2413Core() = default;
 
 	/** Reset this YM2413 core.
 	 */
@@ -108,7 +108,7 @@ public:
 	virtual int getAmplificationFactor() const = 0;
 
 protected:
-	YM2413Core() {}
+	YM2413Core() = default;
 };
 
 } // namespace openmsx

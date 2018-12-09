@@ -3,6 +3,98 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.15.0 (2018-12-08)
+---------------------------
+
+Again a release, because we did quite a lot, so it's due! Major new stuff is
+support for ColecoVision (including Super Game Module and MegaCart mapper),
+Musical Memory Mapper and Carnivore 2. And we have fixed a lot of long-standing
+OPL4 emulation issues, thanks to Valley Bell. Furthermore, we overhauled the
+Android port, but you'll mostly notice the scale factor 2 there. And several
+other (sometimes very long standing) issues were fixed.
+
+Here's the list with all highlights and details:
+
+MSX device support:
+- fixed 16 year old bug regarding sprites behaviour as shown in Ash Guine 3
+- fixed National CF-3300: it has a 2DD disk drive, not 1DD
+- fixed V9958 commands in non-bitmap modes
+- allow non-standard cartridge slots to be used as normal cartridge slots,
+  consistently
+- fixed VDP type of National FS-1300
+- fixed a bug in the turboR mapper
+- fixed a bug regarding VIBrato in the YM2413 (Okazaki core)
+- fixed CAPS lock on SVI 318/328
+- fixed Canon V-20 configurations
+- fixed Sanyo MPC-25FD configuration
+- added support for 2 mapper read back bits, used in Panasonic MSX2+ machines
+- added emulation of the SN76489 DCSG sound chip
+- added emulation of the Musical Memory Mapper
+- added emulation of ColecoVision, ColecoVision Super Game Module
+- added emulation of the MegaCart mapper, used in some new homebrew
+  ColecoVision games (mostly MSX ports)
+- added emulation of the Carnivore 2 cartridge
+- improved emulation of OPL4 (wave part) considerably, thanks to Valley Bell
+- added emulation of bizarre I/O port mirroring of Philips Music Module (thanks
+  to Grauw and L. Oliveira for doing the research)
+- implemented Y8910 status register bit 0
+- fixed exact formula for noise generation on AY8910 (PSG)
+- made memory mapper ports readable on MegaFlashROM SCC+ SD, conforming to the
+  latest version of this cartridge
+- added new machines: Sony HB-G900AP (thanks to Louthrax), Eurohard/Radofin
+  Dragon MSX (thanks to MAME), Yamaha CX7/128 and CX7M/128 (thanks to Peter
+  Hanraets), Al Alamiah Sakhr AX230, Sanyo MPC-2, Yamaha CX11 (thanks to
+  Tabajara Labs) and Toshiba HX-32 (thanks to Jorge Janaite Neto)
+- added new extensions: Musical Memory Mapper, Carnivore 2 and SN76489 (on the
+  same I/O port as PlaySoniq)
+
+New or improved emulator features:
+- fixed some crashes when using very high Z80 frequencies
+- improved tab-completion to initially hide internal procs, until you specify
+  the namespace
+- many updates to the software database
+- many updates to the VGM recorder script, thanks to Niek. Use 'help vgm_rec'
+  to find out about the new subcommands. Sample RAM content is now logged even
+  when starting recording after the sample kit is loaded, actual data recording
+  starts automatically when data is sent to the chip, the proper OPL4 init data
+  is automatically written to the VGM file, and many more things.
+- changed default machine symlinks to JP machines (for applicable systems)
+- many robustness fixes against bad XML config files
+- added videosource setting to OSD menu, GFX9000 is getting more popular
+- fixed reverse bug in GFX9000
+- performance improvements: several fixes to improve start-up time
+- added support for DCSG in the music keyboard and vu meters script
+- changed events about unplugging to an empty plug-event
+- changed fixed scale factor from 1 to 2 on Android
+- added OSD menu button to open the main menu for Android, as (most?) modern
+  Android devices do not have a menu button anymore
+- OSD menu: fixed issue of getting stuck in an unreadable directory when
+  browsing for a file (e.g. on Android)
+- added scrollbar when showing lists in OSD menu, as a visual cue on the length
+  of a list; the scrollbar cannot be dragged
+- fixed crash in hq/hqlite scalers in interlace modes
+- fixed frame skipping when doing 'debug continue'
+- fixed function keys not working anymore when console is open on macOS
+- exposed tile viewer widget to the console (try "about tile")
+
+Build system, packaging, documentation:
+- upgraded C-BIOS to release 0.29a: default to 60Hz generic international
+  config
+- to load older savestates, added all C-BIOS ROMs shipped with openMSX 0.7.0
+  and later for your convenience
+- put several pieces of code under unit-test with the Catch2 framework
+- added svicpm2dmk utility so disk images from the web can be converted to a
+  suitable DMK file for use with the SVI-707 drive with CP/M ROM
+- reworked complete Android port build. Now uses NDK 18b and recent version of
+  commandergenius Android SDL port and all other 3rd party libraries are built
+  by the openMSX build system. Minimum required Android version is now 4.1.
+- removed all hand-made ARM and 32-bit x86 assembly code
+- fixed version information of application on macOS
+- added workaround for FreeType no longer installing its config script
+- enabled retina support on macOS
+- advise people to compile with Xcode 9.4.1 on macOS, not Xcode 10 (see issue
+  #1126)
+
 openMSX 0.14.0 (2017-08-03)
 ---------------------------
 

@@ -23,7 +23,7 @@ class Carnivore2 final
 {
 public:
 	Carnivore2(const DeviceConfig& config);
-	~Carnivore2();
+	~Carnivore2() override;
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;

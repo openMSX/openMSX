@@ -21,7 +21,7 @@ public:
 	            MSXEventDistributor& eventDistributor,
 	            StateChangeDistributor& stateChangeDistributor,
 	            std::string name);
-	~KeyJoystick();
+	~KeyJoystick() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -158,7 +158,7 @@ protected:
 		lastRefreshTime.reset(time);
 	}
 
-	ALWAYS_INLINE void setMemPtr(unsigned) { /* nothing*/ }
+	ALWAYS_INLINE void setMemPtr(unsigned /*x*/) { /* nothing*/ }
 	ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
 
 	static const int I  = 6; // cycles for an I/O operation

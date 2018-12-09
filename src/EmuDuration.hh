@@ -28,7 +28,7 @@ public:
 	friend class EmuTime;
 
 	// constructors
-	EmuDuration()                  : time(0) {}
+	EmuDuration() = default;
 	explicit EmuDuration(uint64_t n) : time(n) {}
 	explicit EmuDuration(double duration)
 		: time(uint64_t(duration * MAIN_FREQ)) {}
@@ -116,7 +116,7 @@ public:
 	static const EmuDuration infinity;
 
 private:
-	uint64_t time;
+	uint64_t time = 0;
 };
 
 } // namespace openmsx

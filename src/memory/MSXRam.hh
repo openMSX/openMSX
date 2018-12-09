@@ -12,7 +12,7 @@ class MSXRam final : public MSXDevice
 {
 public:
 	explicit MSXRam(const DeviceConfig& config);
-	~MSXRam();
+	~MSXRam() override;
 
 	void powerUp(EmuTime::param time) override;
 	byte readMem(word address, EmuTime::param time) override;

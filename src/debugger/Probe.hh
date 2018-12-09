@@ -34,12 +34,12 @@ public:
 	Probe(Debugger& debugger, std::string name,
 	      std::string description, T t);
 
-	const T& operator=(const T& newValue) {
+	Probe& operator=(const T& newValue) {
 		if (value != newValue) {
 			value = newValue;
 			notify();
 		}
-		return value;
+		return *this;
 	}
 
 	operator const T&() const {

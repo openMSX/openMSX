@@ -11,9 +11,9 @@
 #include "outer.hh"
 #include "serialize_meta.hh"
 
-class Scheduler;
-
 namespace openmsx {
+
+class Scheduler;
 
 class MC6850 final : public MSXDevice, public MidiInConnector
 {

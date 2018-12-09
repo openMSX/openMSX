@@ -11,7 +11,7 @@ class WavData
 {
 public:
 	/** Construct empty wav. */
-	WavData() : length(0) {}
+	WavData() = default;
 
 	/** Construct from .wav file, optionally convert to a specific
 	 * bit-depth and sample rate. */
@@ -27,7 +27,7 @@ private:
 	MemBuffer<uint8_t> buffer;
 	unsigned bits;
 	unsigned freq;
-	unsigned length;
+	unsigned length = 0;
 };
 
 } // namespace openmsx

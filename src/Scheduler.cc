@@ -19,13 +19,6 @@ struct EqualSchedulable {
 };
 
 
-Scheduler::Scheduler()
-	: scheduleTime(EmuTime::zero)
-	, cpu(nullptr)
-	, scheduleInProgress(false)
-{
-}
-
 Scheduler::~Scheduler()
 {
 	assert(!cpu);

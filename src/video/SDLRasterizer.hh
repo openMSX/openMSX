@@ -35,7 +35,7 @@ public:
 	SDLRasterizer(
 		VDP& vdp, Display& display, VisibleSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
-	~SDLRasterizer();
+	~SDLRasterizer() override;
 
 	// Rasterizer interface:
 	PostProcessor* getPostProcessor() const override;

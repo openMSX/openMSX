@@ -21,7 +21,7 @@ class JoyTap : public JoystickDevice
 {
 public:
 	JoyTap(PluggingController& pluggingController, std::string name);
-	virtual ~JoyTap();
+	~JoyTap() override;
 
 	// Pluggable
 	const std::string& getName() const override;

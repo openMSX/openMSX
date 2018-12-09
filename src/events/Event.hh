@@ -99,7 +99,7 @@ public:
 
 protected:
 	explicit Event(EventType type_) : type(type_) {}
-	~Event() {}
+	~Event() = default;
 
 private:
 	virtual void toStringImpl(TclObject& result) const = 0;

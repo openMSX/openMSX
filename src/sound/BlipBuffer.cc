@@ -107,7 +107,7 @@ static BLIP_CONSTEXPR Impulses impulses = calcImpulses();
 
 BlipBuffer::BlipBuffer()
 {
-	if (0) {
+	if (false) {
 		for (int i = 0; i < BLIP_RES; ++i) {
 			std::cout << "\t{ " << impulses.a[i][0];
 			for (int j = 1; j < BLIP_IMPULSE_WIDTH; ++j) {

@@ -191,7 +191,7 @@ private:
 	static EnumSetting<RendererID>::Map getRendererMap();
 
 	// Observer:
-	void update(const Setting&) override;
+	void update(const Setting& setting) override;
 
 	/** Sets the "brightness" and "contrast" fields according to the setting
 	  * values.

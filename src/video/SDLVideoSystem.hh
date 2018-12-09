@@ -28,7 +28,7 @@ public:
 
 	/** Deactivates this video system.
 	  */
-	~SDLVideoSystem();
+	~SDLVideoSystem() override;
 
 	// VideoSystem interface:
 	std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp) override;

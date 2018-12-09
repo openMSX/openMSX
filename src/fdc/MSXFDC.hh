@@ -24,7 +24,7 @@ public:
 protected:
 	explicit MSXFDC(const DeviceConfig& config, const std::string& romId = {},
 	                bool needROM = true);
-	~MSXFDC();
+	~MSXFDC() override;
 
 	std::unique_ptr<Rom> rom;
 	std::unique_ptr<DiskDrive> drives[4];

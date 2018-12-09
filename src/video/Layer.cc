@@ -3,11 +3,6 @@
 
 namespace openmsx {
 
-Layer::Layer(Coverage coverage_, ZIndex z_)
-	: display(nullptr), coverage(coverage_), z(z_)
-{
-}
-
 void Layer::setZ(ZIndex z_)
 {
 	z = z_;

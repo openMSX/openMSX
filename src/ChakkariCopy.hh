@@ -15,7 +15,7 @@ public:
 	enum Mode { COPY, RAM };
 
 	explicit ChakkariCopy(const DeviceConfig& config);
-	~ChakkariCopy();
+	~ChakkariCopy() override;
 
 	void reset(EmuTime::param time) override;
 	void writeIO(word port, byte value, EmuTime::param time) override;

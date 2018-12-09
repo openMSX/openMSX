@@ -68,17 +68,16 @@ private:
 	} extSlotInfo;
 
 	struct Slot {
-		Slot();
 		~Slot();
 		bool exists() const;
 		bool used(const HardwareConfig* allowed = nullptr) const;
 
 		std::unique_ptr<CartCmd> cartCommand;
 		std::unique_ptr<ExtCmd> extCommand;
-		const HardwareConfig* config;
-		unsigned useCount;
-		int ps;
-		int ss;
+		const HardwareConfig* config = nullptr;
+		unsigned useCount = 0;
+		int ps = 0;
+		int ss = 0;
 	};
 	static const unsigned MAX_SLOTS = 16 + 4;
 	Slot slots[MAX_SLOTS];

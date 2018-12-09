@@ -13,7 +13,7 @@ class PrinterPortSimpl final : public PrinterPortDevice
 {
 public:
 	explicit PrinterPortSimpl(const HardwareConfig& hwConf);
-	~PrinterPortSimpl();
+	~PrinterPortSimpl() override;
 
 	// PrinterPortDevice
 	bool getStatus(EmuTime::param time) override;

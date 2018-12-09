@@ -180,19 +180,19 @@ private:
 	//    the mbMutex lock
 	Boards boards; // unordered
 	Boards garbageBoards;
-	MSXMotherBoard* activeBoard; // either nullptr or a board inside 'boards'
+	MSXMotherBoard* activeBoard = nullptr; // either nullptr or a board inside 'boards'
 
-	int blockedCounter;
-	bool paused;
+	int blockedCounter = 0;
+	bool paused = false;
 
 	/**
 	 * True iff the Reactor should keep running.
 	 * When this is set to false, the Reactor will end the main loop after
 	 * finishing the pending request(s).
 	 */
-	bool running;
+	bool running = true;
 
-	bool isInit; // has the init() method been run successfully
+	bool isInit = false; // has the init() method been run successfully
 
 	friend class MachineCommand;
 	friend class TestMachineCommand;

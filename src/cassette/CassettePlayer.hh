@@ -27,7 +27,7 @@ class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
 {
 public:
 	explicit CassettePlayer(const HardwareConfig& hwConf);
-	~CassettePlayer();
+	~CassettePlayer() override;
 
 	// CassetteDevice
 	void setMotor(bool status, EmuTime::param time) override;

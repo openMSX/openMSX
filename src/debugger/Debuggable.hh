@@ -15,8 +15,8 @@ public:
 	virtual void write(unsigned address, byte value) = 0;
 
 protected:
-	Debuggable() {}
-	~Debuggable() {}
+	Debuggable() = default;
+	~Debuggable() = default;
 };
 
 } // namespace openmsx

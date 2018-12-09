@@ -16,7 +16,7 @@ public:
 	IDEHD& operator=(const IDEHD&) = delete;
 
 	explicit IDEHD(const DeviceConfig& config);
-	~IDEHD();
+	~IDEHD() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

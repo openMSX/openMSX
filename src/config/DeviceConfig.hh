@@ -19,14 +19,9 @@ class GlobalSettings;
 class DeviceConfig
 {
 public:
-	DeviceConfig()
-		: hwConf(nullptr), devConf(nullptr)
-		, primary(nullptr), secondary(nullptr)
-	{
-	}
+	DeviceConfig() = default;
 	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_)
 		: hwConf(&hwConf_), devConf(&devConf_)
-		, primary(nullptr), secondary(nullptr)
 	{
 	}
 	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_,
@@ -37,12 +32,10 @@ public:
 	}
 	DeviceConfig(const DeviceConfig& other, const XMLElement& devConf_)
 		: hwConf(other.hwConf), devConf(&devConf_)
-		, primary(nullptr), secondary(nullptr)
 	{
 	}
 	DeviceConfig(const DeviceConfig& other, const XMLElement* devConf_)
 		: hwConf(other.hwConf), devConf(devConf_)
-		, primary(nullptr), secondary(nullptr)
 	{
 	}
 
@@ -86,10 +79,10 @@ public:
 	int getAttributeAsInt(string_view attName, int defaultValue = 0) const;
 
 private:
-	const HardwareConfig* hwConf;
-	const XMLElement* devConf;
-	const XMLElement* primary;
-	const XMLElement* secondary;
+	const HardwareConfig* hwConf = nullptr;
+	const XMLElement* devConf = nullptr;
+	const XMLElement* primary = nullptr;
+	const XMLElement* secondary = nullptr;
 };
 
 } // namespace openmsx

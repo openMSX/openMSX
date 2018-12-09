@@ -13,7 +13,7 @@ class TclCallbackMessages final : public CliListener
 {
 public:
 	TclCallbackMessages(GlobalCliComm& cliComm, CommandController& controller);
-	~TclCallbackMessages();
+	~TclCallbackMessages() override;
 
 	void log(CliComm::LogLevel level, string_view message) override;
 

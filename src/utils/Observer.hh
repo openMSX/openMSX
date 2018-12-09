@@ -13,7 +13,7 @@ public:
 	virtual void subjectDeleted(const T& /*subject*/) { /*nothing*/ }
 
 protected:
-	~Observer() {}
+	~Observer() = default;
 };
 
 } // namespace openmsx

@@ -20,7 +20,7 @@ class OutputSurface;
 class VideoSystem
 {
 public:
-	virtual ~VideoSystem() {}
+	virtual ~VideoSystem() = default;
 
 	/** Create the rasterizer selected by the current renderer setting.
 	  * Video systems that use a rasterizer must override this method.
@@ -76,7 +76,7 @@ public:
 	virtual OutputSurface* getOutputSurface() = 0;
 
 protected:
-	VideoSystem() {}
+	VideoSystem() = default;
 };
 
 } // namespace openmsx

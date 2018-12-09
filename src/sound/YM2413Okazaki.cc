@@ -686,7 +686,7 @@ static byte inst_data[16 + 3][8] = {
 
 YM2413::YM2413()
 {
-	if (0) {
+	if (false) {
 		for (auto& e : dB2Lin.tab) std::cout << e << ' ';
 		std::cout << '\n';
 

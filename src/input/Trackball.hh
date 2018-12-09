@@ -17,7 +17,7 @@ class Trackball final : public JoystickDevice, private MSXEventListener
 public:
 	Trackball(MSXEventDistributor& eventDistributor,
 	          StateChangeDistributor& stateChangeDistributor);
-	~Trackball();
+	~Trackball() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

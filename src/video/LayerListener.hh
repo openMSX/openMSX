@@ -11,7 +11,7 @@ public:
 	virtual void updateZ(Layer& layer) = 0;
 
 protected:
-	~LayerListener() {}
+	~LayerListener() = default;
 };
 
 } // namespace openmsx

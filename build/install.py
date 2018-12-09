@@ -59,6 +59,12 @@ def installAll(
 			'Contrib/cbios', installPrefix + shareDestDir + '/machines',
 			scanTree('Contrib/cbios')
 			)
+		installDirs(installPrefix + shareDestDir + '/systemroms/cbios-old')
+		installTree(
+			'Contrib/cbios-old',
+			installPrefix + shareDestDir + '/systemroms/cbios-old',
+			scanTree('Contrib/cbios-old')
+			)
 
 	if hasattr(os, 'symlink'):
 		print '  Creating symlinks...'

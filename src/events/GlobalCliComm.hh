@@ -18,7 +18,7 @@ public:
 	GlobalCliComm(const GlobalCliComm&) = delete;
 	GlobalCliComm& operator=(const GlobalCliComm&) = delete;
 
-	GlobalCliComm();
+	GlobalCliComm() = default;
 	~GlobalCliComm();
 
 	void addListener(std::unique_ptr<CliListener> listener);
@@ -41,8 +41,8 @@ private:
 
 	std::vector<std::unique_ptr<CliListener>> listeners; // unordered
 	std::mutex mutex; // lock access to listeners member
-	bool delivering;
-	bool allowExternalCommands;
+	bool delivering = false;
+	bool allowExternalCommands = false;
 
 	friend class MSXCliComm;
 };

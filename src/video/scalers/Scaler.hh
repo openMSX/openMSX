@@ -13,7 +13,7 @@ template<typename Pixel> class ScalerOutput;
 template<typename Pixel> class Scaler
 {
 public:
-	virtual ~Scaler() {}
+	virtual ~Scaler() = default;
 
 	/** Scales the image in the given area, which must consist of lines which
 	  * are all equally wide.

@@ -17,7 +17,7 @@ namespace openmsx {
 RomAscii8kB::RomAscii8kB(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 {
-	reset(EmuTime::dummy());
+	RomAscii8kB::reset(EmuTime::dummy());
 }
 
 void RomAscii8kB::reset(EmuTime::param /*time*/)

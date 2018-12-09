@@ -10,7 +10,7 @@ public:
 	virtual void postVideoSystemChange() = 0;
 
 protected:
-	~VideoSystemChangeListener() {}
+	~VideoSystemChangeListener() = default;
 };
 
 } // namespace openmsx
