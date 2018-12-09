@@ -93,7 +93,7 @@ public:
 	void addListElement(int value);
 	void addListElement(double value);
 	void addListElement(const TclObject& element);
-	template <typename ITER> void addListElements(ITER begin, ITER end);
+	template <typename ITER> void addListElements(ITER first, ITER last);
 	template <typename CONT> void addListElements(const CONT& container);
 
 	// value getters

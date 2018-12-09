@@ -659,7 +659,7 @@ void strAppend(std::string& result, Ts&& ...ts)
 }
 
 // Degenerate case
-inline void strAppend(std::string&)
+inline void strAppend(std::string& /*x*/)
 {
 	// nothing
 }

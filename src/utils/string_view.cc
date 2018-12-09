@@ -18,14 +18,14 @@ string string_view::str() const
 
 // string operations with the same semantics as std::string
 
-int string_view::compare(string_view rhs) const
+int string_view::compare(string_view x) const
 {
 	// Check prefix.
-	if (int r = memcmp(dat, rhs.dat, std::min(siz, rhs.siz))) {
+	if (int r = memcmp(dat, x.dat, std::min(siz, x.siz))) {
 		return r;
 	}
 	// Prefixes match, check length.
-	return int(siz - rhs.siz); // Note: this overflows for very large strings.
+	return int(siz - x.siz); // Note: this overflows for very large strings.
 }
 
 
