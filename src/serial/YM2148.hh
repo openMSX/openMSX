@@ -8,10 +8,10 @@
 #include "openmsx.hh"
 #include "outer.hh"
 
+namespace openmsx {
+
 class MSXMotherBoard;
 class Scheduler;
-
-namespace openmsx {
 
 class YM2148 : public MidiInConnector
 {
