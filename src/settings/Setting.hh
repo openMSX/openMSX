@@ -149,7 +149,7 @@ public:
 	 * is not immediately executed once it's set (via this method).
 	 */
 	void setChecker(std::function<void(TclObject&)> checkFunc_) {
-		checkFunc = checkFunc_;
+		checkFunc = std::move(checkFunc_);
 	}
 
 	// BaseSetting
