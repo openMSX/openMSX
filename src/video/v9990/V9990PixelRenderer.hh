@@ -26,7 +26,7 @@ class V9990PixelRenderer final : public V9990Renderer
 {
 public:
 	explicit V9990PixelRenderer(V9990& vdp);
-	~V9990PixelRenderer();
+	~V9990PixelRenderer() override;
 
 	// V9990Renderer interface:
 	PostProcessor* getPostProcessor() const override;

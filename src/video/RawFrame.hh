@@ -11,10 +11,10 @@ namespace openmsx {
 // Used by SDLRasterizer to implement left/right border drawing optimization.
 struct V9958RasterizerBorderInfo
 {
-	V9958RasterizerBorderInfo()
-		: mode(0xff) {} // invalid mode
 	uint32_t color0, color1;
-	byte mode, adjust, scroll;
+	byte mode = 0xff; // invalid mode
+	byte adjust;
+	byte scroll;
 	bool masked;
 };
 
@@ -45,7 +45,7 @@ public:
 	template <class Pixel>
 	inline void setBlank(unsigned line, Pixel color) {
 		assert(line < getHeight());
-		Pixel* pixels = getLinePtrDirect<Pixel>(line);
+		auto* pixels = getLinePtrDirect<Pixel>(line);
 		pixels[0] = color;
 		lineWidths[line] = 1;
 	}

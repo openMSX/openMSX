@@ -32,7 +32,7 @@ public:
 protected:
 	RS232Connector(PluggingController& pluggingController,
 	               std::string name);
-	~RS232Connector() {}
+	~RS232Connector() = default;
 };
 
 REGISTER_BASE_CLASS(RS232Connector, "rs232connector");

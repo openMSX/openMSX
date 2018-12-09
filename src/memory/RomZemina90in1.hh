@@ -9,7 +9,7 @@ class RomZemina90in1 final : public Rom8kBBlocks
 {
 public:
 	RomZemina90in1(const DeviceConfig& config, Rom&& rom);
-	~RomZemina90in1();
+	~RomZemina90in1() override;
 
 	void reset(EmuTime::param time) override;
 	void writeIO(word port, byte value, EmuTime::param time) override;

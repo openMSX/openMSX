@@ -11,7 +11,7 @@ public:
 	virtual gl::ivec2 getOutputSize() const = 0;
 
 protected:
-	~OutputRectangle() {}
+	~OutputRectangle() = default;
 };
 
 

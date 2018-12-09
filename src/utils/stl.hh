@@ -121,7 +121,7 @@ template<typename ITER, typename VAL>
 inline ITER find_unguarded(ITER first, ITER last, const VAL& val)
 {
 	(void)last;
-	while (1) {
+	while (true) {
 		assert(first != last);
 		if (*first == val) return first;
 		++first;
@@ -142,7 +142,7 @@ template<typename ITER, typename PRED>
 inline ITER find_if_unguarded(ITER first, ITER last, PRED pred)
 {
 	(void)last;
-	while (1) {
+	while (true) {
 		assert(first != last);
 		if (pred(*first)) return first;
 		++first;

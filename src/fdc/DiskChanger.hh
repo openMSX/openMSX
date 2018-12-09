@@ -31,7 +31,7 @@ public:
 	            std::function<void()> preChangeCallback = {});
 	DiskChanger(Reactor& reactor,
 	            std::string driveName); // for virtual_drive
-	~DiskChanger();
+	~DiskChanger() override;
 
 	void createCommand();
 

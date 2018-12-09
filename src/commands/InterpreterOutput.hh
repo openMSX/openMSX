@@ -12,7 +12,7 @@ public:
 	virtual unsigned getOutputColumns() const = 0;
 
 protected:
-	~InterpreterOutput() {}
+	~InterpreterOutput() = default;
 };
 
 } // namespace openmsx

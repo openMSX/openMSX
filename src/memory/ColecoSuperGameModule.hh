@@ -12,7 +12,7 @@ class ColecoSuperGameModule final : public MSXDevice
 {
 public:
 	ColecoSuperGameModule(const DeviceConfig& config);
-	~ColecoSuperGameModule();
+	~ColecoSuperGameModule() override;
 
 	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;

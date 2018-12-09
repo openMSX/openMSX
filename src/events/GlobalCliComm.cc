@@ -10,12 +10,6 @@
 
 namespace openmsx {
 
-GlobalCliComm::GlobalCliComm()
-	: delivering(false)
-	, allowExternalCommands(false)
-{
-}
-
 GlobalCliComm::~GlobalCliComm()
 {
 	assert(Thread::isMainThread());

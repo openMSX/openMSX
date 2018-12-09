@@ -20,7 +20,7 @@ public:
 
 	// Construction.
 	//  (copy, assign, move, destruct are default)
-	XMLElement() {}
+	XMLElement() = default;
 	explicit XMLElement(string_view name);
 	XMLElement(string_view name, string_view data);
 

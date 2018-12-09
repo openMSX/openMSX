@@ -30,7 +30,7 @@ class EventDistributor;
 class PostProcessor : public VideoLayer, private Schedulable
 {
 public:
-	virtual ~PostProcessor();
+	~PostProcessor() override;
 
 	/** Sets up the "abcdFrame" variables for a new frame.
 	  * TODO: The point of passing the finished frame in and the new workFrame

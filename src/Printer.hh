@@ -36,7 +36,7 @@ public:
 
 protected:
 	PrinterCore() = default;
-	~PrinterCore() = default;
+	~PrinterCore() override = default;
 	virtual void write(byte data) = 0;
 	virtual void forceFormFeed() = 0;
 
@@ -73,7 +73,7 @@ public:
 
 protected:
 	ImagePrinter(MSXMotherBoard& motherBoard, bool graphicsHiLo);
-	~ImagePrinter();
+	~ImagePrinter() override;
 
 	void resetEmulatedPrinter();
 	void printGraphicByte(byte data);

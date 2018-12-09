@@ -8,7 +8,7 @@ namespace openmsx {
 class CliListener
 {
 public:
-	virtual ~CliListener() {}
+	virtual ~CliListener() = default;
 
 	virtual void log(CliComm::LogLevel level, string_view message) = 0;
 
@@ -16,7 +16,7 @@ public:
 	                    string_view name, string_view value) = 0;
 
 protected:
-	CliListener() {}
+	CliListener() = default;
 };
 
 } // namespace openmsx

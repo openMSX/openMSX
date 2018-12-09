@@ -17,7 +17,7 @@ class Paddle final : public JoystickDevice, private MSXEventListener
 public:
 	Paddle(MSXEventDistributor& eventDistributor,
 	       StateChangeDistributor& stateChangeDistributor);
-	~Paddle();
+	~Paddle() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

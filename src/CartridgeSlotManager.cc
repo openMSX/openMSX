@@ -18,11 +18,6 @@ using std::vector;
 namespace openmsx {
 
 // CartridgeSlotManager::Slot
-CartridgeSlotManager::Slot::Slot()
-	: config(nullptr), useCount(0), ps(0), ss(0)
-{
-}
-
 CartridgeSlotManager::Slot::~Slot()
 {
 	assert(!config);

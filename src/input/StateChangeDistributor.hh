@@ -16,7 +16,7 @@ class StateChangeDistributor
 public:
 	using EventPtr = std::shared_ptr<StateChange>;
 
-	StateChangeDistributor();
+	StateChangeDistributor() = default;
 	~StateChangeDistributor();
 
 	/** (Un)registers the given object to receive state change events.
@@ -72,8 +72,8 @@ private:
 	void distribute(const EventPtr& event);
 
 	std::vector<StateChangeListener*> listeners; // unordered
-	StateChangeRecorder* recorder;
-	bool viewOnlyMode;
+	StateChangeRecorder* recorder = nullptr;
+	bool viewOnlyMode = false;
 };
 
 } // namespace openmsx

@@ -2,7 +2,7 @@
 #define ALIGNED_HH
 
 #include "build-info.hh"
-#include <stdint.h>
+#include <cstdint>
 #include <cassert>
 #include <cstring>
 

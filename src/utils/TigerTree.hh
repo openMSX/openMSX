@@ -60,7 +60,7 @@ public:
 	virtual bool isCacheStillValid(time_t& time) = 0;
 
 protected:
-	~TTData() {}
+	~TTData() = default;
 };
 
 struct TTCacheEntry;

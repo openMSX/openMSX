@@ -8,7 +8,7 @@ namespace openmsx {
 class SoundDriver
 {
 public:
-	virtual ~SoundDriver() {}
+	virtual ~SoundDriver() = default;
 
 	/** Mute the sound system
 	 */
@@ -31,7 +31,7 @@ public:
 	virtual void uploadBuffer(int16_t* buffer, unsigned len) = 0;
 
 protected:
-	SoundDriver() {}
+	SoundDriver() = default;
 };
 
 } // namespace openmsx

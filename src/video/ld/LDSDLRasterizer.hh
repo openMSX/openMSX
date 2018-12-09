@@ -21,7 +21,7 @@ public:
 	LDSDLRasterizer(
 		VisibleSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
-	~LDSDLRasterizer();
+	~LDSDLRasterizer() override;
 
 	// Rasterizer interface:
 	PostProcessor* getPostProcessor() const override;

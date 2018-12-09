@@ -53,8 +53,8 @@ public:
 	virtual Interpreter& getInterpreter() = 0;
 
 protected:
-	CommandController() {}
-	~CommandController() {}
+	CommandController() = default;
+	~CommandController() = default;
 };
 
 } // namespace openmsx

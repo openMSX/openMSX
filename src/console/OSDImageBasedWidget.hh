@@ -25,7 +25,7 @@ public:
 
 protected:
 	OSDImageBasedWidget(Display& display, const TclObject& name);
-	~OSDImageBasedWidget();
+	~OSDImageBasedWidget() override;
 	bool hasConstantAlpha() const;
 	void createImage(OutputRectangle& output);
 	void invalidateLocal() override;

@@ -29,11 +29,6 @@ template class ArchiveBase<XmlOutputArchive>;
 
 ////
 
-OutputArchiveBase2::OutputArchiveBase2()
-	: lastId(0)
-{
-}
-
 unsigned OutputArchiveBase2::generateID1(const void* p)
 {
 	#ifdef linux

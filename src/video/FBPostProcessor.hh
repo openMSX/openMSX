@@ -22,7 +22,7 @@ public:
 		MSXMotherBoard& motherBoard, Display& display,
 		OutputSurface& screen, const std::string& videoSource,
 		unsigned maxWidth, unsigned height, bool canDoInterlace);
-	~FBPostProcessor();
+	~FBPostProcessor() override;
 
 	// Layer interface:
 	void paint(OutputSurface& output) override;

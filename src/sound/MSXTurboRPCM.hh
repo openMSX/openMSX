@@ -14,7 +14,7 @@ class MSXTurboRPCM final : public MSXDevice
 {
 public:
 	explicit MSXTurboRPCM(const DeviceConfig& config);
-	~MSXTurboRPCM();
+	~MSXTurboRPCM() override;
 
 	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;

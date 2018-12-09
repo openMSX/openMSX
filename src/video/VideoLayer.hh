@@ -49,7 +49,7 @@ public:
 protected:
 	VideoLayer(MSXMotherBoard& motherBoard,
 	           const std::string& videoSource);
-	~VideoLayer();
+	~VideoLayer() override;
 
 	// Observer<Setting> interface:
 	void update(const Setting& setting) override;

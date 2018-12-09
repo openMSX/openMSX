@@ -394,7 +394,7 @@ public:
 	}
 
 protected:
-	OutputArchiveBase2();
+	OutputArchiveBase2() = default;
 
 private:
 	unsigned generateID1(const void* p);
@@ -404,7 +404,7 @@ private:
 
 	std::map<std::pair<const void*, std::type_index>, unsigned> idMap;
 	std::map<const void*, unsigned> polyIdMap;
-	unsigned lastId;
+	unsigned lastId = 0;
 };
 
 template<typename Derived>
@@ -476,7 +476,7 @@ public:
 	}
 
 protected:
-	OutputArchiveBase() {}
+	OutputArchiveBase() = default;
 };
 
 
@@ -516,7 +516,7 @@ public:
 	}
 
 protected:
-	InputArchiveBase2() {}
+	InputArchiveBase2() = default;
 
 private:
 	std::map<unsigned, void*> idMap;
@@ -589,7 +589,7 @@ public:
 	}
 
 protected:
-	InputArchiveBase() {}
+	InputArchiveBase() = default;
 };
 
 

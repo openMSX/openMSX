@@ -8,7 +8,7 @@ namespace openmsx {
 class ResampleAlgo
 {
 public:
-	virtual ~ResampleAlgo() {}
+	virtual ~ResampleAlgo() = default;
 	virtual bool generateOutput(int* dataOut, unsigned num,
 	                            EmuTime::param time) = 0;
 };

@@ -9,7 +9,7 @@ class RomArc final : public Rom16kBBlocks
 {
 public:
 	RomArc(const DeviceConfig& config, Rom&& rom);
-	~RomArc();
+	~RomArc() override;
 
 	void reset(EmuTime::param time) override;
 	void writeIO(word port, byte value, EmuTime::param time) override;

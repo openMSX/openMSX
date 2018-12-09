@@ -30,7 +30,7 @@ class V9990 final : public MSXDevice, private VideoSystemChangeListener
 {
 public:
 	explicit V9990(const DeviceConfig& config);
-	~V9990();
+	~V9990() override;
 
 	// MSXDevice interface:
 	void powerUp(EmuTime::param time) override;

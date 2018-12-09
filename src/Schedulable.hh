@@ -13,8 +13,6 @@ class Scheduler;
 // For backwards-compatible savestates
 struct SyncPointBW
 {
-	SyncPointBW() : time(EmuTime::zero), userData(0) {}
-
 	template <typename Archive>
 	void serialize(Archive& ar, unsigned /*version*/) {
 		assert(ar.isLoader());
@@ -22,8 +20,8 @@ struct SyncPointBW
 		ar.serialize("type", userData);
 	}
 
-	EmuTime time;
-	int userData;
+	EmuTime time = EmuTime::zero;
+	int userData = 0;
 };
 
 /**

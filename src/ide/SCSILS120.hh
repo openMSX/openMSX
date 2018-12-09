@@ -32,7 +32,7 @@ public:
 
 	SCSILS120(const DeviceConfig& targetconfig,
 	          AlignedBuffer& buf, unsigned mode);
-	~SCSILS120();
+	~SCSILS120() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

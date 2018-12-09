@@ -309,7 +309,7 @@ static inline char* skipAndExpand(char*& text)
 				} else {
 					uint32_t code = 0;
 					src += 2; // skip &#
-					while (1) {
+					while (true) {
 						   uint8_t digit = lutDigits[uint8_t(*src)];
 						   if (digit == 0xFF) break;
 						   code = code * 10 + digit;

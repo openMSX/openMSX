@@ -46,7 +46,7 @@ public:
 
 	/** Creates a zero-initialized fixed point object.
 	  */
-	explicit constexpr FixedPoint() : value(0) {}
+	explicit constexpr FixedPoint() = default;
 
 	// Conversion to fixed point:
 
@@ -234,7 +234,7 @@ private:
 	constexpr FixedPoint(int raw_value, CreateRawTag)
 		: value(raw_value) {}
 
-	int value;
+	int value = 0;
 };
 
 } // namespace openmsx

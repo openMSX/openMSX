@@ -49,7 +49,7 @@ public:
 
 protected:
 	explicit Completer(string_view name);
-	~Completer() {}
+	~Completer() = default;
 
 private:
 	static bool equalHead(string_view s1, string_view s2, bool caseSensitive);

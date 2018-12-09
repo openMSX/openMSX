@@ -14,7 +14,7 @@ class SVIPSG final : public MSXDevice, public AY8910Periphery
 {
 public:
 	SVIPSG(const DeviceConfig& config);
-	~SVIPSG();
+	~SVIPSG() override;
 
 	void reset(EmuTime::param time) override;
 	void powerDown(EmuTime::param time) override;

@@ -11,7 +11,7 @@ class Connector;
 class Pluggable
 {
 public:
-	virtual ~Pluggable() {}
+	virtual ~Pluggable() = default;
 
 	/** Name used to identify this pluggable.
 	  */

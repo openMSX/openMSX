@@ -60,7 +60,10 @@ public:
 
 protected:
 	/** Construct a layer. */
-	explicit Layer(Coverage coverage = COVER_NONE, ZIndex z = Z_DUMMY);
+	explicit Layer(Coverage coverage_ = COVER_NONE, ZIndex z_ = Z_DUMMY)
+		: coverage(coverage_), z(z_)
+	{
+	}
 
 	/** Changes the current coverage of this layer.
 	  */
@@ -72,7 +75,7 @@ protected:
 
 private:
 	/** The display this layer is part of. */
-	LayerListener* display;
+	LayerListener* display = nullptr;
 
 	/** Inspected by Display to determine which layers to paint. */
 	Coverage coverage;

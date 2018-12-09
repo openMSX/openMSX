@@ -95,7 +95,7 @@ class ColorTexture : public Texture
 {
 public:
 	/** Default constructor, zero-sized texture. */
-	ColorTexture() : width(0), height(0) {}
+	ColorTexture() = default;
 
 	/** Create color texture with given size.
 	  * Initial content is undefined.
@@ -107,8 +107,8 @@ public:
 	GLsizei getHeight() const { return height; }
 
 private:
-	GLsizei width;
-	GLsizei height;
+	GLsizei width = 0;
+	GLsizei height = 0;
 };
 
 class FrameBufferObject
@@ -212,18 +212,17 @@ private:
 
 	/** Number of pixels per line.
 	  */
-	GLuint width;
+	GLuint width = 0;
 
 	/** Number of lines.
 	  */
-	GLuint height;
+	GLuint height = 0;
 };
 
 // class PixelBuffer
 
 template <typename T>
 PixelBuffer<T>::PixelBuffer()
-	: width(0), height(0)
 {
 	if (PixelBuffers::enabled && GLEW_ARB_pixel_buffer_object) {
 		glGenBuffers(1, &bufferId);

@@ -66,7 +66,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	EmuTime() {} // uninitialized
+	EmuTime() = default; // uninitialized
 	explicit EmuTime(uint64_t n) : time(n) {}
 
 	uint64_t time;

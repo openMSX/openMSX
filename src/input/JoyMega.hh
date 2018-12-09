@@ -25,7 +25,7 @@ public:
 	JoyMega(MSXEventDistributor& eventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
 	         SDL_Joystick* joystick);
-	~JoyMega();
+	~JoyMega() override;
 
 #ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable

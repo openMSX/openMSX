@@ -19,7 +19,7 @@ class BaseSetting
 protected:
 	explicit BaseSetting(string_view name);
 	explicit BaseSetting(const TclObject& name);
-	~BaseSetting() {}
+	~BaseSetting() = default;
 
 public:
 	/** Get the name of this setting.

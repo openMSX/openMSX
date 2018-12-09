@@ -32,8 +32,7 @@ public:
 	using difference_type = ptrdiff_t;
 
 	// construct/copy/assign
-	array_ref()
-		: dat(nullptr), siz(0) {}
+	array_ref() = default;
 	array_ref(const array_ref& r)
 		: dat(r.data()), siz(r.size()) {}
 	array_ref(const T* array, size_t length)
@@ -96,8 +95,8 @@ public:
 	}
 
 private:
-	const T* dat;
-	size_type siz;
+	const T* dat = nullptr;
+	size_type siz = 0;
 };
 
 // deducing constructor wrappers

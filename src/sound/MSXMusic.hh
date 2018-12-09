@@ -22,7 +22,7 @@ public:
 
 protected:
 	explicit MSXMusicBase(const DeviceConfig& config);
-	~MSXMusicBase() {}
+	~MSXMusicBase() override = default;
 
 	void writeRegisterPort(byte value, EmuTime::param time);
 	void writeDataPort(byte value, EmuTime::param time);

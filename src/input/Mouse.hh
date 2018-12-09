@@ -17,7 +17,7 @@ class Mouse final : public JoystickDevice, private MSXEventListener
 public:
 	Mouse(MSXEventDistributor& eventDistributor,
 	      StateChangeDistributor& stateChangeDistributor);
-	~Mouse();
+	~Mouse() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

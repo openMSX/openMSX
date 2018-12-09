@@ -12,7 +12,7 @@ class RawTrack;
 class Disk : public SectorAccessibleDisk
 {
 public:
-	virtual ~Disk() {}
+	virtual ~Disk() = default;
 
 	const DiskName& getName() const { return name; }
 

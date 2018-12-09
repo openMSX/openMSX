@@ -56,7 +56,7 @@ class MSXDeviceSwitch final : public MSXDevice
 {
 public:
 	explicit MSXDeviceSwitch(const DeviceConfig& config);
-	~MSXDeviceSwitch();
+	~MSXDeviceSwitch() override;
 
 	// (un)register methods for devices
 	void registerDevice(byte id, MSXSwitchedDevice* device);

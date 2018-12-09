@@ -23,8 +23,8 @@ public:
 	virtual void signal(EmuTime::param time) = 0;
 
 protected:
-	I8251Interface() {}
-	~I8251Interface() {}
+	I8251Interface() = default;
+	~I8251Interface() = default;
 };
 
 class I8251 final : public SerialDataInterface

@@ -20,7 +20,7 @@ public:
 	  *  - destruct the object
 	  * post-condition: empty()
 	  */
-	TTFFont() : font(nullptr) {}
+	TTFFont() = default;
 
 	/** Construct new TTFFont object.
 	  * @param filename Filename of font (.fft file, possibly (g)zipped).
@@ -73,7 +73,7 @@ public:
 	void getSize(const std::string& text, unsigned& width, unsigned& height) const;
 
 private:
-	void* font;  // TTF_Font*
+	void* font = nullptr;  // TTF_Font*
 };
 
 } // namespace openmsx

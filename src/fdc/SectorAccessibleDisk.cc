@@ -17,8 +17,6 @@ const size_t SectorAccessibleDisk::SECTOR_SIZE;
 
 SectorAccessibleDisk::SectorAccessibleDisk()
 	: patch(std::make_unique<EmptyDiskPatch>(*this))
-	, forcedWriteProtect(false)
-	, peekMode(false)
 {
 }
 

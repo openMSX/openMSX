@@ -183,7 +183,7 @@ class iterator : public std::iterator<std::bidirectional_iterator_tag, uint32_t>
 {
 	octet_iterator it;
 public:
-	iterator() {};
+	iterator() = default;
 	explicit iterator(const octet_iterator& octet_it)
 		: it(octet_it) {}
 	// the default "big three" are OK

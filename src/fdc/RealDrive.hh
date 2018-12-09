@@ -22,7 +22,7 @@ class RealDrive final : public DiskDrive
 public:
 	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,
 	          bool signalsNeedMotorOn, bool doubleSided);
-	~RealDrive();
+	~RealDrive() override;
 
 	// DiskDrive interface
 	bool isDiskInserted() const override;

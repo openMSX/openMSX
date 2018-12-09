@@ -13,7 +13,7 @@ class FrameSource;
 class GLScaler
 {
 public:
-	virtual ~GLScaler() {}
+	virtual ~GLScaler() = default;
 
 	/** Scales the image in the given area, which must consist of lines which
 	  * are all equally wide.

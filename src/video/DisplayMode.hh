@@ -83,13 +83,6 @@ public:
 		mode = 0;
 	}
 
-	/** Assignment operator.
-	  */
-	inline DisplayMode& operator=(const DisplayMode& newMode) {
-		mode = newMode.mode;
-		return *this;
-	}
-
 	/** Equals operator.
 	  */
 	inline bool operator==(const DisplayMode& otherMode) const {

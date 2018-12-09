@@ -15,7 +15,7 @@ class WavAudioInput final : public AudioInputDevice, private Observer<Setting>
 {
 public:
 	explicit WavAudioInput(CommandController& commandController);
-	~WavAudioInput();
+	~WavAudioInput() override;
 
 	// AudioInputDevice
 	const std::string& getName() const override;

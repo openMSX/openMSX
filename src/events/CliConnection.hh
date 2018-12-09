@@ -36,7 +36,7 @@ public:
 protected:
 	CliConnection(CommandController& commandController,
 	              EventDistributor& eventDistributor);
-	~CliConnection();
+	~CliConnection() override;
 
 	virtual void output(string_view message) = 0;
 
@@ -87,7 +87,7 @@ class StdioConnection final : public CliConnection
 public:
 	StdioConnection(CommandController& commandController,
 	                EventDistributor& eventDistributor);
-	~StdioConnection();
+	~StdioConnection() override;
 
 	void output(string_view message) override;
 
@@ -103,7 +103,7 @@ public:
 	PipeConnection(CommandController& commandController,
 	               EventDistributor& eventDistributor,
 	               string_view name);
-	~PipeConnection();
+	~PipeConnection() override;
 
 	void output(string_view message) override;
 
@@ -122,7 +122,7 @@ public:
 	SocketConnection(CommandController& commandController,
 	                 EventDistributor& eventDistributor,
 	                 SOCKET sd);
-	~SocketConnection();
+	~SocketConnection() override;
 
 	void output(string_view message) override;
 

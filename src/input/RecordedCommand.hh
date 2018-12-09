@@ -20,7 +20,7 @@ class Scheduler;
 class MSXCommandEvent final : public StateChange
 {
 public:
-	MSXCommandEvent() {} // for serialize
+	MSXCommandEvent() = default; // for serialize
 	MSXCommandEvent(array_ref<std::string> tokens, EmuTime::param time);
 	MSXCommandEvent(array_ref<TclObject>   tokens, EmuTime::param time);
 	const std::vector<TclObject>& getTokens() const { return tokens; }

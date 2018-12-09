@@ -24,7 +24,7 @@ public:
 	         StateChangeDistributor& stateChangeDistributor,
 	         Display& display,
 	         CommandController& commandController);
-	~Touchpad();
+	~Touchpad() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

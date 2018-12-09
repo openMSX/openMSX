@@ -15,7 +15,7 @@ public:
 	virtual string_view optionHelp() const = 0;
 
 protected:
-	~CLIOption() {}
+	~CLIOption() = default;
 	std::string getArgument(const std::string& option,
 	                        array_ref<std::string>& cmdLine) const;
 	std::string peekArgument(const array_ref<std::string>& cmdLine) const;
@@ -29,7 +29,7 @@ public:
 	virtual string_view fileTypeHelp() const = 0;
 
 protected:
-	~CLIFileType() {}
+	~CLIFileType() = default;
 };
 
 } // namespace openmsx

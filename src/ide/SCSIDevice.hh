@@ -22,7 +22,7 @@ public:
 
 	static const unsigned BUFFER_SIZE   = 0x10000; // 64KB
 
-	virtual ~SCSIDevice() {};
+	virtual ~SCSIDevice() = default;
 
 	virtual void reset() = 0;
 	virtual bool isSelected() = 0;

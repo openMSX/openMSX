@@ -9,7 +9,7 @@ namespace openmsx {
 class FileContext final
 {
 public:
-	FileContext() {}
+	FileContext() = default;
 	FileContext(std::vector<std::string>&& paths,
 	            std::vector<std::string>&& savePaths);
 

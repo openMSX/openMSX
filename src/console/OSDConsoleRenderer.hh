@@ -26,7 +26,7 @@ class OSDConsoleRenderer final : public Layer, private Observer<Setting>
 public:
 	OSDConsoleRenderer(Reactor& reactor, CommandConsole& console,
 	                   unsigned screenW, unsigned screenH, bool openGL);
-	~OSDConsoleRenderer();
+	~OSDConsoleRenderer() override;
 
 private:
 	int initFontAndGetColumns();

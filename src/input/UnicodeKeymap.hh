@@ -25,10 +25,7 @@ public:
 	/** Creates an invalid key matrix position, which can be used when
 	  * a key does not exist on a particular keyboard.
 	  */
-	KeyMatrixPosition()
-		: rowCol(INVALID)
-	{
-	}
+	KeyMatrixPosition() = default;
 
 	/** Creates a key matrix position from a byte: the row is stored in
 	  * the high nibble, the column is stored in the low nibble.
@@ -93,7 +90,7 @@ public:
 	}
 
 private:
-	byte rowCol;
+	byte rowCol = INVALID;
 };
 
 class UnicodeKeymap
@@ -108,20 +105,17 @@ public:
 		static constexpr byte CAPS_MASK  = 1 << CAPS;
 		static constexpr byte CODE_MASK  = 1 << CODE;
 
+		KeyInfo() = default;
 		KeyInfo(KeyMatrixPosition pos_, byte modmask_)
 			: pos(pos_), modmask(modmask_)
 		{
 			assert(pos.isValid());
 		}
-		KeyInfo()
-			: pos(), modmask(0)
-		{
-		}
 		bool isValid() const {
 			return pos.isValid();
 		}
 		KeyMatrixPosition pos;
-		byte modmask;
+		byte modmask = 0;
 	};
 
 	explicit UnicodeKeymap(string_view keyboardType);

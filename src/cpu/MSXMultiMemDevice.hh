@@ -10,7 +10,7 @@ class MSXMultiMemDevice final : public MSXMultiDevice
 {
 public:
 	explicit MSXMultiMemDevice(const HardwareConfig& hwConf);
-	~MSXMultiMemDevice();
+	~MSXMultiMemDevice() override;
 
 	bool canAdd(int base, int size);
 	void add(MSXDevice& device, int base, int size);

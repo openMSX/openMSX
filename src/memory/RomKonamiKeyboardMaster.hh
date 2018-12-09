@@ -10,7 +10,7 @@ class RomKonamiKeyboardMaster final : public Rom16kBBlocks
 {
 public:
 	RomKonamiKeyboardMaster(const DeviceConfig& config, Rom&& rom);
-	~RomKonamiKeyboardMaster();
+	~RomKonamiKeyboardMaster() override;
 
 	void reset(EmuTime::param time) override;
 	void writeIO(word port, byte value, EmuTime::param time) override;

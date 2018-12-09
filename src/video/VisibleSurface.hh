@@ -29,7 +29,7 @@ class VisibleSurface : public OutputSurface, public EventListener,
                        private Observer<Setting>, private RTSchedulable
 {
 public:
-	virtual ~VisibleSurface();
+	~VisibleSurface() override;
 	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
 

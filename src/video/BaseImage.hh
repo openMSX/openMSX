@@ -18,7 +18,7 @@ public:
 	 */
 	static void checkSize(gl::ivec2 size);
 
-	virtual ~BaseImage() {}
+	virtual ~BaseImage() = default;
 	virtual void draw(OutputSurface& output, gl::ivec2 pos,
 	                  byte r, byte g, byte b, byte alpha) = 0;
 	virtual gl::ivec2 getSize() const = 0;

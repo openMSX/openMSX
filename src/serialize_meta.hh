@@ -137,21 +137,21 @@ template<typename Base> struct BaseClassName;
 template<typename Archive> class PolymorphicSaverBase
 {
 public:
-	virtual ~PolymorphicSaverBase() {}
+	virtual ~PolymorphicSaverBase() = default;
 	virtual void save(Archive& ar, const void* p) const = 0;
 };
 
 template<typename Archive> class PolymorphicLoaderBase
 {
 public:
-	virtual ~PolymorphicLoaderBase() {}
+	virtual ~PolymorphicLoaderBase() = default;
 	virtual void* load(Archive& ar, unsigned id, const void* args) const = 0;
 };
 
 template<typename Archive> class PolymorphicInitializerBase
 {
 public:
-	virtual ~PolymorphicInitializerBase() {}
+	virtual ~PolymorphicInitializerBase() = default;
 	virtual void init(Archive& ar, void* t, unsigned id) const = 0;
 };
 

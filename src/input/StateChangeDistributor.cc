@@ -7,12 +7,6 @@
 
 namespace openmsx {
 
-StateChangeDistributor::StateChangeDistributor()
-	: recorder(nullptr)
-	, viewOnlyMode(false)
-{
-}
-
 StateChangeDistributor::~StateChangeDistributor()
 {
 	assert(listeners.empty());

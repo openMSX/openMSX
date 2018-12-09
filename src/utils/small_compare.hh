@@ -105,7 +105,7 @@ template<char ...Ns> bool small_compare(const char* p)
 {
 	// workaround gcc-4.7 bug
 	//using SC = SmallCompare<Ns...>;
-	typedef SmallCompare<Ns...> SC;
+	using SC = SmallCompare<Ns...>;
 	typename SC::Loader loader;
 	return (loader(p) & SC::mask) == SC::value;
 }

@@ -26,7 +26,7 @@ class MSXTurboRPause final : public MSXDevice, private Observer<Setting>
 {
 public:
 	explicit MSXTurboRPause(const DeviceConfig& config);
-	~MSXTurboRPause();
+	~MSXTurboRPause() override;
 
 	void reset(EmuTime::param time) override;
 	void powerDown(EmuTime::param time) override;

@@ -110,8 +110,8 @@ public:
 	// strings. Invalid Tcl lists are silently interpreted as empty lists.
 	unsigned size() const { return getListLengthUnchecked(); }
 	bool empty() const { return size() == 0; }
-	iterator begin() const { return iterator(*this, 0); }
-	iterator end()   const { return iterator(*this, size()); }
+	auto begin() const { return iterator(*this, 0); }
+	auto end()   const { return iterator(*this, size()); }
 
 	// expressions
 	bool evalBool(Interpreter& interp) const;

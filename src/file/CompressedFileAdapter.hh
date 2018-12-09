@@ -34,7 +34,7 @@ public:
 
 protected:
 	explicit CompressedFileAdapter(std::unique_ptr<FileBase> file);
-	~CompressedFileAdapter();
+	~CompressedFileAdapter() override;
 	virtual void decompress(FileBase& file, Decompressed& decompressed) = 0;
 
 private:

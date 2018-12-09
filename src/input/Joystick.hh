@@ -40,7 +40,7 @@ public:
 	         CommandController& commandController,
 		 GlobalSettings& globalSettings,
 	         SDL_Joystick* joystick);
-	~Joystick();
+	~Joystick() override;
 
 #ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable
