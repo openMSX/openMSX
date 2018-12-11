@@ -291,18 +291,6 @@ class OGG(Library):
 	def isSystemLibrary(cls, platform):
 		return platform in ('dingux',)
 
-class SDL(Library):
-	libName = 'SDL'
-	makeName = 'SDL'
-	header = '<SDL.h>'
-	configScriptName = 'sdl-config'
-	staticLibsOption = '--static-libs'
-	function = 'SDL_Init'
-
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
-
 class SDL2(Library):
 	libName = 'SDL2'
 	makeName = 'SDL2'
@@ -329,50 +317,6 @@ class SDL2(Library):
 				flags
 				)
 		return flags
-
-class SDL_ttf(Library):
-	libName = 'SDL_ttf'
-	makeName = 'SDL_TTF'
-	header = '<SDL_ttf.h>'
-	function = 'TTF_OpenFont'
-	dependsOn = ('SDL', 'FREETYPE')
-
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return platform in ('dingux',)
-
-	@classmethod
-	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		flags = super(SDL_ttf, cls).getLinkFlags(
-			platform, linkStatic, distroRoot
-			)
-		if not linkStatic:
-			# Because of the SDLmain trickery, we need SDL's link flags too
-			# on some platforms even though we're linking dynamically.
-			flags += ' ' + SDL.getLinkFlags(platform, linkStatic, distroRoot)
-		return flags
-
-	@classmethod
-	def getCompileFlags(cls, platform, linkStatic, distroRoot):
-		flags = super(SDL_ttf, cls).getCompileFlags(
-				platform, linkStatic, distroRoot
-				)
-		if platform == 'android':
-			# On Android, we don't share an install location with SDL,
-			# so SDL's compile flags are insufficient.
-			flags += ' -I%s/include/SDL' % distroRoot
-		return flags
-
-	@classmethod
-	def getVersion(cls, platform, linkStatic, distroRoot):
-		def execute(cmd, log):
-			version = cmd.expand(log, cls.getHeaders(platform),
-				'SDL_TTF_MAJOR_VERSION',
-				'SDL_TTF_MINOR_VERSION',
-				'SDL_TTF_PATCHLEVEL',
-				)
-			return None if None in version else '%s.%s.%s' % version
-		return execute
 
 class SDL2_ttf(Library):
 	libName = 'SDL2_ttf'

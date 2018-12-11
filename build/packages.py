@@ -113,17 +113,6 @@ class OpenGL(Package):
 	niceName = 'OpenGL'
 	sourceName = 'gl'
 
-class SDL(DownloadablePackage):
-	downloadURL = 'http://www.libsdl.org/release'
-	niceName = 'SDL'
-	sourceName = 'SDL'
-	version = '1.2.15'
-	fileLength = 3920622
-	checksums = {
-		'sha256':
-			'd6d316a793e5e348155f0dd93b979798933fb98aa1edebcc108829d6474aad00',
-		}
-
 class SDL2(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/release'
 	niceName = 'SDL2'
@@ -133,17 +122,6 @@ class SDL2(DownloadablePackage):
 	checksums = {
 		'sha256':
 			'255186dc676ecd0c1dbf10ec8a2cc5d6869b5079d8a38194c2aecdff54b324b1',
-		}
-
-class SDL_ttf(DownloadablePackage):
-	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
-	niceName = 'SDL_ttf'
-	sourceName = 'SDL_ttf'
-	version = '2.0.11'
-	fileLength = 4053686
-	checksums = {
-		'sha256':
-			'724cd895ecf4da319a3ef164892b72078bd92632a5d812111261cde248ebcdb7',
 		}
 
 class SDL2_ttf(DownloadablePackage):
