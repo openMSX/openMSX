@@ -62,26 +62,23 @@ def fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir):
 		extractPackage(package, tarballsDir, sourcesDir, patchesDir)
 
 def main(platform, tarballsDir, sourcesDir, patchesDir):
-	if platform == 'android':
-		fetchPackageSource('TCL_ANDROID', tarballsDir, sourcesDir, patchesDir)
-	else:
-		configuration = getConfiguration('3RD_STA')
-		components = configuration.iterDesiredComponents()
+	configuration = getConfiguration('3RD_STA')
+	components = configuration.iterDesiredComponents()
 
-		# Compute the set of all directly and indirectly required libraries,
-		# then filter out system libraries.
-		thirdPartyLibs = set(
-			makeName
-			for makeName in allDependencies(requiredLibrariesFor(components))
-			if not librariesByName[makeName].isSystemLibrary(platform)
-			)
+	# Compute the set of all directly and indirectly required libraries,
+	# then filter out system libraries.
+	thirdPartyLibs = set(
+		makeName
+		for makeName in allDependencies(requiredLibrariesFor(components))
+		if not librariesByName[makeName].isSystemLibrary(platform)
+		)
 
-		if platform == 'windows':
-			# Avoid ALSA, since we won't be building it and extracting it will
-			# fail on file systems that don't support symlinks.
-			# TODO: 3rdparty.mk filters out ALSA on non-Linux platforms;
-			#       figure out a way to do that in a single location.
-			thirdPartyLibs.discard('ALSA')
+	if platform == 'windows':
+		# Avoid ALSA, since we won't be building it and extracting it will
+		# fail on file systems that don't support symlinks.
+		# TODO: 3rdparty.mk filters out ALSA on non-Linux platforms;
+		#       figure out a way to do that in a single location.
+		thirdPartyLibs.discard('ALSA')
 
 	for makeName in sorted(thirdPartyLibs):
 		fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir)

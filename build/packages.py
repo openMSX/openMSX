@@ -157,29 +157,6 @@ class SDL2_ttf(DownloadablePackage):
 			'34db5e20bcf64e7071fe9ae25acaa7d72bdc4f11ab3ce59acc768ab62fe39276',
 		}
 
-class TCL_ANDROID(DownloadablePackage):
-	downloadURL = 'http://downloads.sourceforge.net/tcl'
-	niceName = 'Tcl'
-	sourceName = 'tcl'
-	version = '8.5.11'
-	fileLength = 4484001
-	checksums = {
-		'sha256':
-			'8addc385fa6b5be4605e6d68fbdc4c0e674c5af1dc1c95ec5420390c4b08042a',
-		}
-
-	@classmethod
-	def getMakeName(cls):
-		return 'TCL_ANDROID'
-
-	@classmethod
-	def getSourceDirName(cls):
-		return '%s%s' % (cls.sourceName, cls.version)
-
-	@classmethod
-	def getTarballName(cls):
-		return '%s%s-src.tar.gz' % (cls.sourceName, cls.version)
-
 class TCL(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
