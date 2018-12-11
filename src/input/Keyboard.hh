@@ -33,7 +33,6 @@ class TclObject;
 class Interpreter;
 
 class Keyboard final : private MSXEventListener, private StateChangeListener
-                     , private Schedulable
 {
 public:
 	enum MatrixType { MATRIX_MSX, MATRIX_SVI, MATRIX_CVJOY };
@@ -73,9 +72,6 @@ private:
 	// StateChangeListener
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;
-
-	// Schedulable
-	void executeUntil(EmuTime::param time) override;
 
 	void pressKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos);
 	void releaseKeyMatrixEvent(EmuTime::param time, KeyMatrixPosition pos);
@@ -237,7 +233,6 @@ private:
 	  * numbering) is set iff it is a lock key.
 	  */
 	const byte modifierIsLock;
-	const bool sdlReleasesCapslock;
 	mutable bool keysChanged;
 	/** Bit vector where each modifier's bit (using KeyInfo::Modifier's
 	  * numbering) is set iff it is a lock key that is currently on in

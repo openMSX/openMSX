@@ -79,36 +79,6 @@ static int main(int argc, char **argv)
 
 	int err = 0;
 	try {
-/*
- * TODO how does the CAPS lock event behave with SDL2?
- *
- * it seems the SDL_putenv() function doesn't exit anymore.
- *
-		// Constructing Reactor already causes parts of SDL to be used
-		// and initialized. If we want to set environment variables
-		// before this, we have to do it here...
-		//
-		// This is to make sure we get no annoying behaviour from SDL
-		// with regards to CAPS lock. This only works in SDL 1.2.14 or
-		// later, but it can't hurt to always set it (if we can rely on
-		// SDL_putenv, so on 1.2.10+).
-		//
-		// On Mac OS X, Cocoa does not report CAPS lock release events.
-		// The input driver inside SDL works around that by sending a
-		// pressed;released combo when CAPS status changes. However,
-		// because there is no time inbetween this does not give the
-		// MSX BIOS a chance to see the CAPS key in a pressed state.
-
-#if SDL_VERSION_ATLEAST(1, 2, 10)
-		SDL_putenv(const_cast<char*>("SDL_DISABLE_LOCK_KEYS="
-#if defined(__APPLE__)
-			"0"
-#else
-			"1"
-#endif
-			));
-#endif
-*/
 		randomize(); // seed global random generator
 		initializeSDL();
 

@@ -67,16 +67,6 @@ private:
 REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
 
 
-static bool checkSDLReleasesCapslock()
-{
-	// TODO: SDL_DISABLE_LOCK_KEYS no longer exists in SDL2.
-	//       According to a post on the bug report linked below,
-	//       SDL2's behavior corresponds to SDL_DISABLE_LOCK_KEYS=1.
-	//       If that is the case, this method can be removed.
-	//       https://bugzilla.icculus.org/show_bug.cgi?id=6070
-	return true;
-}
-
 static const char* defaultKeymapForMatrix[] = {
 	"int", // MATRIX_MSX
 	"svi", // MATRIX_SVI
@@ -111,8 +101,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    StateChangeDistributor& stateChangeDistributor_,
                    MatrixType matrix,
                    const DeviceConfig& config)
-	: Schedulable(scheduler_)
-	, commandController(commandController_)
+	: commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, keyTab(keyTabs[matrix])
@@ -135,13 +124,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, modifierIsLock(KeyInfo::CAPS_MASK
 		| (config.getChildDataAsBool("code_kana_locks", false) ? KeyInfo::CODE_MASK : 0)
 		| (config.getChildDataAsBool("graph_locks", false) ? KeyInfo::GRAPH_MASK : 0))
-	, sdlReleasesCapslock(checkSDLReleasesCapslock())
 	, locksOn(0)
 {
-	// SDL version >= 1.2.14 releases caps-lock key when SDL_DISABLED_LOCK_KEYS
-	// environment variable is already set in main.cc (because here it
-	// would be too late)
-
 	keysChanged = false;
 	msxmodifiers = 0xff;
 	memset(keyMatrix,     255, sizeof(keyMatrix));
@@ -386,45 +370,17 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
 }
 
 /*
- * Process a change event of the CAPSLOCK *STATUS*;
- *  SDL up to version 1.2.13 sends a CAPSLOCK press event at the moment that
- *  the host CAPSLOCK status goes 'on' and it sends the release event only when
- *  the host CAPSLOCK status goes 'off'. However, the emulated MSX must see a
- *  press and release event when CAPSLOCK status goes on and another press and
- *  release event when it goes off again. This is achieved by pressing CAPSLOCK
- *  key at the moment that the host CAPSLOCK status changes and releasing the
- *  CAPSLOCK key shortly after (via a timed event)
- *
- * SDL as of version 1.2.14 can send a press and release event at the moment
- * that the user presses and releases the CAPS lock. Though, this changed
- * behaviour is only enabled when a special environment variable is set.
- *
- * This version of openMSX supports both behaviours; when SDL version is at
- * least 1.2.14, it will set the environment variable to trigger the new
- * behaviour and simply process the press and release events as they come in.
- * For older SDL versions, it will still treat each change as a press that must
- * be followed by a scheduled release event
+ * Process a change (up or down event) of the CAPSLOCK key
+ * It presses or releases the key in the MSX keyboard matrix
+ * and changes the capslock state in case of a press
  */
 void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 {
-	if (sdlReleasesCapslock) {
-		debug("Changing CAPS lock state according to SDL request\n");
-		if (down) {
-			locksOn ^= KeyInfo::CAPS_MASK;
-		}
-		processSdlKey(time, down, Keys::K_CAPSLOCK);
-	} else {
-		debug("Pressing CAPS lock and scheduling a release\n");
-		locksOn ^= KeyInfo::CAPS_MASK;
-		processSdlKey(time, true, Keys::K_CAPSLOCK);
-		setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (in MSX time)
-	}
-}
-
-void Keyboard::executeUntil(EmuTime::param time)
-{
-	debug("Releasing CAPS lock\n");
-	processSdlKey(time, false, Keys::K_CAPSLOCK);
+    debug("Changing CAPS lock state according to SDL request\n");
+    if (down) {
+        locksOn ^= KeyInfo::CAPS_MASK;
+    }
+    processSdlKey(time, down, Keys::K_CAPSLOCK);
 }
 
 void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
@@ -1202,7 +1158,6 @@ void Keyboard::CapsLockAligner::executeUntil(EmuTime::param time)
 			break;
 		case MUST_DISTRIBUTE_KEY_RELEASE: {
 			auto& keyboard = OUTER(Keyboard, capsLockAligner);
-			assert(keyboard.sdlReleasesCapslock);
 			auto event = make_shared<KeyUpEvent>(Keys::K_CAPSLOCK);
 			keyboard.msxEventDistributor.distributeEvent(event, time);
 			state = IDLE;
@@ -1233,13 +1188,9 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 		// processCapslockEvent() because we want this to be recorded
 		auto event = make_shared<KeyDownEvent>(Keys::K_CAPSLOCK);
 		keyboard.msxEventDistributor.distributeEvent(event, time);
-		if (keyboard.sdlReleasesCapslock) {
-			keyboard.debug("Sending fake CAPS release\n");
-			state = MUST_DISTRIBUTE_KEY_RELEASE;
-			setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (MSX time)
-		} else {
-			state = IDLE;
-		}
+        keyboard.debug("Sending fake CAPS release\n");
+        state = MUST_DISTRIBUTE_KEY_RELEASE;
+        setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (MSX time)
 	} else {
 		state = IDLE;
 	}
