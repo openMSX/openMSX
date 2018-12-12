@@ -87,17 +87,21 @@ PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_O
 PACKAGES_NOBUILD:=
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
 
+# Function which, given a variable name prefix and the variable's value,
+# returns the name of the package.
+findpackage=$(strip $(foreach PACKAGE,$(PACKAGES_3RD),$(if $(filter $(2),$($(1)_$(PACKAGE))),$(PACKAGE),)))
+
+# Function which, given a list of packages, produces a list of the install
+# timestamps for those packages.
+installdeps=$(foreach PACKAGE,$(1),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+
 BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
-INSTALL_BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
-INSTALL_NOBUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_NOBUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+INSTALL_BUILD_TARGETS:=$(call installdeps,$(PACKAGES_BUILD))
+INSTALL_NOBUILD_TARGETS:=$(call installdeps,$(PACKAGES_NOBUILD))
 
 INSTALL_PARAMS_GLEW:=\
 	GLEW_DEST=$(PWD)/$(INSTALL_DIR) \
 	LIBDIR=$(PWD)/$(INSTALL_DIR)/lib
-
-# Function which, given a variable name prefix and the variable's value,
-# returns the name of the package.
-findpackage=$(strip $(foreach PACKAGE,$(PACKAGES_3RD),$(if $(filter $(2),$($(1)_$(PACKAGE))),$(PACKAGE),)))
 
 .PHONY: default
 default: $(INSTALL_BUILD_TARGETS) $(INSTALL_NOBUILD_TARGETS)
@@ -126,10 +130,10 @@ $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 PNG_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/libpng-config
 FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
 SDL2_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl2-config
-$(PNG_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_PNG)
+$(PNG_CONFIG_SCRIPT): $(call installdeps,PNG)
 FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
-$(FREETYPE_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_FREETYPE)
-$(SDL2_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL2)
+$(FREETYPE_CONFIG_SCRIPT): $(call installdeps,FREETYPE)
+$(SDL2_CONFIG_SCRIPT): $(call installdeps,SDL2)
 
 # Configure ALSA.
 $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
@@ -165,7 +169,7 @@ $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
 # Configure SDL2.
 $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL2)/.extracted \
-  $(foreach PACKAGE,$(filter ALSA,$(PACKAGES_3RD)),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+  $(call installdeps,$(filter ALSA,$(PACKAGES_3RD)))
 	mkdir -p $(@D)
 	cd $(@D) && \
 		$(PWD)/$(<D)/configure \
@@ -217,7 +221,7 @@ MAKEVAR_OVERRIDE_SDL_TTF:=noinst_PROGRAMS=""
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_PNG)/.extracted \
-  $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+  $(call installdeps,$(filter-out $(SYSTEM_LIBS),ZLIB))
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
@@ -326,7 +330,7 @@ $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
 
 $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_VORBIS)/.extracted \
-  $(TIMESTAMP_DIR)/install-$(PACKAGE_OGG)
+  $(call installdeps,OGG)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
@@ -344,8 +348,7 @@ $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
 #       package dependency on Ogg.
 $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_THEORA)/.extracted \
-  $(TIMESTAMP_DIR)/install-$(PACKAGE_OGG) \
-  $(TIMESTAMP_DIR)/install-$(PACKAGE_VORBIS)
+  $(call installdeps,OGG VORBIS)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
