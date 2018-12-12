@@ -8,7 +8,7 @@ class Package(object):
 
 	@classmethod
 	def getMakeName(cls):
-		return cls.sourceName.upper()
+		return cls.sourceName.upper().replace('-', '_')
 
 class DownloadablePackage(Package):
 	'''Abstract base class for packages that can be downloaded.
@@ -112,6 +112,17 @@ class OGG(DownloadablePackage):
 class OpenGL(Package):
 	niceName = 'OpenGL'
 	sourceName = 'gl'
+
+class PkgConfig(DownloadablePackage):
+	downloadURL = 'https://pkg-config.freedesktop.org/releases'
+	niceName = 'pkg-config'
+	sourceName = 'pkg-config'
+	version = '0.29.2'
+	fileLength = 2016830
+	checksums = {
+		'sha256':
+			'6fc69c01688c9458a57eb9a1664c9aba372ccda420a02bf4429fe610e7e7d591',
+		}
 
 class SDL2(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/release'

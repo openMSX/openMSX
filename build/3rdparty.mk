@@ -36,6 +36,7 @@ CC=$(_CC)
 TIMESTAMP_DIR:=$(BUILD_PATH)/timestamps
 BUILD_DIR:=$(BUILD_PATH)/build
 INSTALL_DIR:=$(BUILD_PATH)/install
+TOOLS_DIR:=$(BUILD_PATH)/tools
 
 # Create a GNU-style system triple.
 TRIPLE_VENDOR:=unknown
@@ -63,6 +64,8 @@ TRIPLE_VENDOR:=w64
 endif
 TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_VENDOR)-$(TRIPLE_OS)
 
+export PKG_CONFIG:=$(PWD)/$(TOOLS_DIR)/bin/$(TARGET_TRIPLE)-pkg-config
+
 # Ask the compiler for the names and locations of other toolchain components.
 # This works with GCC and Clang at least, so it should be pretty safe.
 export LD:=$(shell $(CC) -print-prog-name=ld)
@@ -83,7 +86,7 @@ else
 USE_VIDEO_X11:=enable
 endif
 
-PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE))
+PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE)) PKG_CONFIG
 PACKAGES_NOBUILD:=
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
 
@@ -126,14 +129,16 @@ $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 	mkdir -p $(@D)
 	touch $@
 
-# Configuration of a lib can depend on the lib-config script of another lib.
-PNG_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/libpng-config
-FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
-SDL2_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl2-config
-$(PNG_CONFIG_SCRIPT): $(call installdeps,PNG)
-FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
-$(FREETYPE_CONFIG_SCRIPT): $(call installdeps,FREETYPE)
-$(SDL2_CONFIG_SCRIPT): $(call installdeps,SDL2)
+# Configure pkg-config.
+$(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_PKG_CONFIG)/.extracted
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$(<D)/configure \
+		--with-internal-glib \
+		--disable-host-tool \
+		--program-prefix=$(TARGET_TRIPLE)- \
+		--prefix=$(PWD)/$(TOOLS_DIR) \
+		CC=
 
 # Configure ALSA.
 $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
@@ -162,6 +167,7 @@ $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
+		--with-pkgconfdir=$(PWD)/$(TOOLS_DIR)/lib/pkgconfig \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
@@ -169,7 +175,7 @@ $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
 # Configure SDL2.
 $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL2)/.extracted \
-  $(call installdeps,$(filter ALSA,$(PACKAGES_3RD)))
+  $(call installdeps,PKG_CONFIG $(filter ALSA,$(PACKAGES_3RD)))
 	mkdir -p $(@D)
 	cd $(@D) && \
 		$(PWD)/$(<D)/configure \
@@ -198,7 +204,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
 # Configure SDL2_ttf.
 $(BUILD_DIR)/$(PACKAGE_SDL2_TTF)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL2_TTF)/.extracted \
-  $(FREETYPE_CONFIG_SCRIPT) $(SDL2_CONFIG_SCRIPT)
+  $(call installdeps,PKG_CONFIG SDL2 FREETYPE)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-sdltest \
@@ -207,12 +213,9 @@ $(BUILD_DIR)/$(PACKAGE_SDL2_TTF)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--$(subst disable,without,$(subst enable,with,$(USE_VIDEO_X11)))-x \
-		ac_cv_path_FREETYPE_CONFIG=$(abspath $(FREETYPE_CONFIG_SCRIPT)) \
-		ac_cv_path_SDL_CONFIG=$(abspath $(SDL_CONFIG_SCRIPT)) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="$(_LDFLAGS)" \
-		PKG_CONFIG=/nowhere
+		LDFLAGS="$(_LDFLAGS)"
 # Disable building of example programs.
 # This build fails on Android (SDL main issues), but on other platforms
 # we don't need these programs either.
@@ -228,13 +231,15 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
+		--with-pkgconfigdir=$(PWD)/$(TOOLS_DIR)/lib/pkgconfig \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 
 # Configure FreeType.
 $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_FREETYPE)/.extracted
+  $(SOURCE_DIR)/$(PACKAGE_FREETYPE)/.extracted \
+  $(call installdeps,PKG_CONFIG)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
@@ -317,7 +322,8 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 # Configure Ogg, Vorbis and Theora for Laserdisc emulation.
 
 $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_OGG)/.extracted
+  $(SOURCE_DIR)/$(PACKAGE_OGG)/.extracted \
+  $(call installdeps,PKG_CONFIG)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
@@ -325,12 +331,11 @@ $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
-		LDFLAGS="$(_LDFLAGS)" \
-		PKG_CONFIG=/nowhere
+		LDFLAGS="$(_LDFLAGS)"
 
 $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_VORBIS)/.extracted \
-  $(call installdeps,OGG)
+  $(call installdeps,PKG_CONFIG OGG)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
@@ -340,15 +345,14 @@ $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
-		LDFLAGS="$(_LDFLAGS)" \
-		PKG_CONFIG=/nowhere
+		LDFLAGS="$(_LDFLAGS)"
 
 # Note: According to its spec file, Theora has a build dependency on both
 #       Ogg and Vorbis, a runtime dependency on Vorbis and a development
 #       package dependency on Ogg.
 $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_THEORA)/.extracted \
-  $(call installdeps,OGG VORBIS)
+  $(call installdeps,PKG_CONFIG OGG VORBIS)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
@@ -363,8 +367,7 @@ $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
 		--with-vorbis=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
-		LDFLAGS="$(_LDFLAGS)" \
-		PKG_CONFIG=/nowhere
+		LDFLAGS="$(_LDFLAGS)"
 
 endif
 
