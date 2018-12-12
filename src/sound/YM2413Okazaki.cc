@@ -9,6 +9,7 @@
 #include "cstd.hh"
 #include "inline.hh"
 #include "unreachable.hh"
+#include "Math.hh"
 #include <cstring>
 #include <cassert>
 #include <iostream>

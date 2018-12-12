@@ -1,6 +1,7 @@
 #include "BlipBuffer.hh"
 #include "cstd.hh"
 #include "likely.hh"
+#include "Math.hh"
 #include <algorithm>
 #include <cstring>
 #include <cassert>
