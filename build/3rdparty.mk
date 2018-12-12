@@ -216,7 +216,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL2_TTF)/Makefile: \
 # Disable building of example programs.
 # This build fails on Android (SDL main issues), but on other platforms
 # we don't need these programs either.
-MAKEVAR_OVERRIDE_SDL_TTF:=noinst_PROGRAMS=""
+MAKEVAR_OVERRIDE_SDL2_TTF:=noinst_PROGRAMS=""
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
