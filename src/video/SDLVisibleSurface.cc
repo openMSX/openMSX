@@ -25,24 +25,7 @@ SDLVisibleSurface::SDLVisibleSurface(
 	: VisibleSurface(display_, rtScheduler_, eventDistributor_,
 	                 inputEventGenerator_, cliComm_)
 {
-#if PLATFORM_DINGUX
-	// The OpenDingux kernel supports double buffering, while the legacy
-	// kernel will hang apps that try to use double buffering.
-	// The Dingoo seems to have a hardware problem that makes it hard or
-	// impossible to know when vsync happens:
-	//   http://www.dingux.com/2009/07/on-screen-tearing.html
-	// However, double buffering increases performance and does reduce
-	// the tearing somewhat, so it is worth having.
-	int flags = SDL_HWSURFACE | SDL_DOUBLEBUF;
-#elif PLATFORM_ANDROID
-	// On Android, SDL_HWSURFACE currently crashes although the SDL Android port is
-	// supposed to support it. Probably an incompatibility between how openMSX uses
-	// SDL and how the SDL Android expects an app to use SDL
-	int flags = SDL_SWSURFACE;
-#else
-	int flags = SDL_SWSURFACE; // Why did we use a SW surface again?
-#endif
-
+	int flags = 0;
 	createSurface(width, height, flags);
 	const SDL_Surface* surf = getSDLSurface();
 	setSDLFormat(*surf->format);
