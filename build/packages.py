@@ -38,11 +38,11 @@ class ALSA(DownloadablePackage):
 	downloadURL = 'ftp://ftp.alsa-project.org/pub/lib/'
 	niceName = 'ALSA'
 	sourceName = 'alsa-lib'
-	version = '1.1.0'
-	fileLength = 929874
+	version = '1.1.7'
+	fileLength = 1005257
 	checksums = {
 		'sha256':
-			'dfde65d11e82b68f82e562ab6228c1fb7c78854345d3c57e2c68a9dd3dae1f15',
+			'9d6000b882a3b2df56300521225d69717be6741b71269e488bb20a20783bdc09',
 		}
 
 	@classmethod
