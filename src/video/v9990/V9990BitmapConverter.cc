@@ -12,19 +12,21 @@ namespace openmsx {
 
 template <class Pixel>
 V9990BitmapConverter<Pixel>::V9990BitmapConverter(
-		V9990& vdp_, const Pixel* palette64_,
-		const Pixel* palette256_, const Pixel* palette32768_)
+		V9990& vdp_,
+		const Pixel* palette64_,  const int16_t* palette64_32768_,
+		const Pixel* palette256_, const int16_t* palette256_32768_,
+		const Pixel* palette32768_)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, palette64(palette64_), palette256(palette256_), palette32768(palette32768_)
+	, palette64 (palette64_ ), palette64_32768 (palette64_32768_ )
+	, palette256(palette256_), palette256_32768(palette256_32768_)
+	, palette32768(palette32768_)
 {
-	// make sure function pointers have valid values
-	setColorMode(PP, B0);
+	setColorMode(PP, B0); // initialize with dummy values
 }
 
-template<bool YJK, bool PAL, bool SKIP, typename Pixel>
+template<bool YJK, bool PAL, bool SKIP, typename Pixel, typename ColorLookup>
 static inline void draw_YJK_YUV_PAL(
-	V9990VRAM& vram,
-	const Pixel* __restrict palette64, const Pixel* __restrict palette32768,
+	ColorLookup color, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned& address, int firstX = 0)
 {
 	byte data[4];
@@ -37,7 +39,7 @@ static inline void draw_YJK_YUV_PAL(
 
 	for (int i = SKIP ? firstX : 0; i < 4; ++i) {
 		if (PAL && (data[i] & 0x08)) {
-			*out++ = palette64[data[i] >> 4];
+			*out++ = color.lookup64(data[i] >> 4);
 		} else {
 			int y = (data[i] & 0xF8) >> 3;
 			int r = Math::clip<0, 31>(y + u);
@@ -46,30 +48,32 @@ static inline void draw_YJK_YUV_PAL(
 			// The only difference between YUV and YJK is that
 			// green and blue are swapped.
 			if (YJK) std::swap(g, b);
-			*out++ = palette32768[(g << 10) + (r << 5) + b];
+			*out++ = color.lookup32768((g << 10) + (r << 5) + b);
 		}
 	}
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBYUV(
+template<typename Pixel, typename ColorLookup>
+static void rasterBYUV(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<false, false, true>(
-			vram, palette64, palette32768, out, address, x & 3);
+			color, vram, out, address, x & 3);
 		nrPixels -= 4 - (x & 3);
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		draw_YJK_YUV_PAL<false, false, false>(
-			vram, palette64, palette32768, out, address);
+			color, vram, out, address);
 	}
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBYUVP(
+template<typename Pixel, typename ColorLookup>
+static void rasterBYUVP(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
 	// TODO this mode cannot be shown in B4 and higher resolution modes
@@ -77,35 +81,37 @@ void V9990BitmapConverter<Pixel>::rasterBYUVP(
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<false, true, true>(
-			vram, palette64, palette32768, out, address, x & 3);
+			color, vram, out, address, x & 3);
 		nrPixels -= 4 - (x & 3);
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		draw_YJK_YUV_PAL<false, true, false>(
-			vram, palette64, palette32768, out, address);
+			color, vram, out, address);
 	}
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBYJK(
+template<typename Pixel, typename ColorLookup>
+static void rasterBYJK(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
-	unsigned address = (x & ~3)+ y * vdp.getImageWidth();
+	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<true, false, true>(
-			vram, palette64, palette32768, out, address, x & 3);
+			color, vram, out, address, x & 3);
 		nrPixels -= 4 - (x & 3);
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		draw_YJK_YUV_PAL<true, false, false>(
-			vram, palette64, palette32768, out, address);
+			color, vram, out, address);
 	}
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBYJKP(
+template<typename Pixel, typename ColorLookup>
+static void rasterBYJKP(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
 	// TODO this mode cannot be shown in B4 and higher resolution modes
@@ -113,30 +119,31 @@ void V9990BitmapConverter<Pixel>::rasterBYJKP(
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
 		draw_YJK_YUV_PAL<true, true, true>(
-			vram, palette64, palette32768, out, address, x & 3);
+			color, vram, out, address, x & 3);
 		nrPixels -= 4 - (x & 3);
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		draw_YJK_YUV_PAL<true, true, false>(
-			vram, palette64, palette32768, out, address);
+			color, vram, out, address);
 	}
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBD16(
+template<typename Pixel, typename ColorLookup>
+static void rasterBD16(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
 	unsigned address = 2 * (x + y * vdp.getImageWidth());
 	if (vdp.isSuperimposing()) {
-		Pixel transparant = palette256[0];
+		auto transparant = color.lookup256(0);
 		for (/**/; nrPixels > 0; --nrPixels) {
 			byte high = vram.readVRAMBx(address + 1);
 			if (high & 0x80) {
 				*out = transparant;
 			} else {
 				byte low  = vram.readVRAMBx(address + 0);
-				*out = palette32768[low + 256 * high];
+				*out = color.lookup32768(low + 256 * high);
 			}
 			address += 2;
 			out += 1;
@@ -145,101 +152,103 @@ void V9990BitmapConverter<Pixel>::rasterBD16(
 		for (/**/; nrPixels > 0; --nrPixels) {
 			byte low  = vram.readVRAMBx(address++);
 			byte high = vram.readVRAMBx(address++);
-			*out++ = palette32768[(low + 256 * high) & 0x7FFF];
+			*out++ = color.lookup32768((low + 256 * high) & 0x7FFF);
 		}
 	}
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBD8(
+template<typename Pixel, typename ColorLookup>
+static void rasterBD8(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
 	unsigned address = x + y * vdp.getImageWidth();
 	for (/**/; nrPixels > 0; --nrPixels) {
-		*out++ = palette256[vram.readVRAMBx(address++)];
+		*out++ = color.lookup256(vram.readVRAMBx(address++));
 	}
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBP6(
+template<typename Pixel, typename ColorLookup>
+static void rasterBP6(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
 	unsigned address = x + y * vdp.getImageWidth();
 	for (/**/; nrPixels > 0; --nrPixels) {
-		*out++ = palette64[vram.readVRAMBx(address++) & 0x3F];
+		*out++ = color.lookup64(vram.readVRAMBx(address++) & 0x3F);
 	}
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBP4(
+template<typename Pixel, typename ColorLookup>
+static void rasterBP4(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 2;
-	byte offset = (vdp.getPaletteOffset() & 0xC) << 2;
-	const Pixel* pal = &palette64[offset];
+	color.set64Offset((vdp.getPaletteOffset() & 0xC) << 2);
 	if (x & 1) {
 		byte data = vram.readVRAMBx(address++);
-		*out++ = pal[data & 0x0F];
+		*out++ = color.lookup64(data & 0x0F);
 		--nrPixels;
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 2) {
 		byte data = vram.readVRAMBx(address++);
-		*out++ = pal[data >> 4];
-		*out++ = pal[data & 0x0F];
+		*out++ = color.lookup64(data >> 4);
+		*out++ = color.lookup64(data & 0x0F);
 	}
 	// Note: this possibly draws 1 pixel too many, but that's ok.
 }
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBP4HiRes(
+template<typename Pixel, typename ColorLookup>
+static void rasterBP4HiRes(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
 	// Verified on real HW:
 	//   Bit PLT05 in palette offset is ignored, instead for even pixels
 	//   bit 'PLT05' is '0', for odd pixels it's '1'.
 	unsigned address = (x + y * vdp.getImageWidth()) / 2;
-	byte offset = (vdp.getPaletteOffset() & 0x4) << 2;
-	const Pixel* pal1 = &palette64[offset |  0];
-	const Pixel* pal2 = &palette64[offset | 32];
+	color.set64Offset((vdp.getPaletteOffset() & 0x4) << 2);
 	if (x & 1) {
 		byte data = vram.readVRAMBx(address++);
-		*out++ = pal2[data & 0x0F];
+		*out++ = color.lookup64(32 | (data & 0x0F));
 		--nrPixels;
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 2) {
 		byte data = vram.readVRAMBx(address++);
-		*out++ = pal1[data >> 4  ];
-		*out++ = pal2[data & 0x0F];
+		*out++ = color.lookup64( 0 | (data >> 4  ));
+		*out++ = color.lookup64(32 | (data & 0x0F));
 	}
 	// Note: this possibly draws 1 pixel too many, but that's ok.
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBP2(
+template<typename Pixel, typename ColorLookup>
+static void rasterBP2(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 4;
-	byte offset = vdp.getPaletteOffset() << 2;
-	const Pixel* pal = &palette64[offset];
+	color.set64Offset(vdp.getPaletteOffset() << 2);
 	if (x & 3) {
 		byte data = vram.readVRAMBx(address++);
-		if ((x & 3) <= 1) *out++ = pal[(data & 0x30) >> 4];
-		if ((x & 3) <= 2) *out++ = pal[(data & 0x0C) >> 2];
-		if (true)         *out++ = pal[(data & 0x03) >> 0];
+		if ((x & 3) <= 1) *out++ = color.lookup64((data & 0x30) >> 4);
+		if ((x & 3) <= 2) *out++ = color.lookup64((data & 0x0C) >> 2);
+		if (true)         *out++ = color.lookup64((data & 0x03) >> 0);
 		nrPixels -= 4 - (x & 3);
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		byte data = vram.readVRAMBx(address++);
-		*out++ = pal[(data & 0xC0) >> 6];
-		*out++ = pal[(data & 0x30) >> 4];
-		*out++ = pal[(data & 0x0C) >> 2];
-		*out++ = pal[(data & 0x03) >> 0];
+		*out++ = color.lookup64((data & 0xC0) >> 6);
+		*out++ = color.lookup64((data & 0x30) >> 4);
+		*out++ = color.lookup64((data & 0x0C) >> 2);
+		*out++ = color.lookup64((data & 0x03) >> 0);
 	}
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterBP2HiRes(
+template<typename Pixel, typename ColorLookup>
+static void rasterBP2HiRes(
+	ColorLookup color, V9990& vdp, V9990VRAM& vram,
 	Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
 	// Verified on real HW:
@@ -247,117 +256,239 @@ void V9990BitmapConverter<Pixel>::rasterBP2HiRes(
 	//   bit 'PLT05' is '0', for odd pixels it's '1'.
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 4;
-	byte offset = (vdp.getPaletteOffset() & 0x7) << 2;
-	const Pixel* pal1 = &palette64[offset |  0];
-	const Pixel* pal2 = &palette64[offset | 32];
+	color.set64Offset((vdp.getPaletteOffset() & 0x7) << 2);
 	if (x & 3) {
 		byte data = vram.readVRAMBx(address++);
-		if ((x & 3) <= 1) *out++ = pal2[(data & 0x30) >> 4];
-		if ((x & 3) <= 2) *out++ = pal1[(data & 0x0C) >> 2];
-		if (true)         *out++ = pal2[(data & 0x03) >> 0];
+		if ((x & 3) <= 1) *out++ = color.lookup64(32 | ((data & 0x30) >> 4));
+		if ((x & 3) <= 2) *out++ = color.lookup64( 0 | ((data & 0x0C) >> 2));
+		if (true)         *out++ = color.lookup64(32 | ((data & 0x03) >> 0));
 		nrPixels -= 4 - (x & 3);
 	}
 	for (/**/; nrPixels > 0; nrPixels -= 4) {
 		byte data = vram.readVRAMBx(address++);
-		*out++ = pal1[(data & 0xC0) >> 6];
-		*out++ = pal2[(data & 0x30) >> 4];
-		*out++ = pal1[(data & 0x0C) >> 2];
-		*out++ = pal2[(data & 0x03) >> 0];
+		*out++ = color.lookup64( 0 | ((data & 0xC0) >> 6));
+		*out++ = color.lookup64(32 | ((data & 0x30) >> 4));
+		*out++ = color.lookup64( 0 | ((data & 0x0C) >> 2));
+		*out++ = color.lookup64(32 | ((data & 0x03) >> 0));
 	}
 	// Note: this can draw up to 3 pixels too many, but that's ok.
 }
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::rasterP(
-	Pixel* /*out*/, unsigned /*x*/, unsigned /*y*/, int /*nrPixels*/)
+// Helper class to translate V9990 palette indices into host Pixel values.
+template<typename Pixel>
+class PaletteLookup
 {
-	UNREACHABLE;
-}
+public:
+	PaletteLookup(const Pixel* palette64_, const Pixel* palette256_,
+	              const Pixel* palette32768_)
+	        : palette64(palette64_)
+	        , palette256(palette256_)
+	        , palette32768(palette32768_)
+	{
+	}
 
-static bool isHighRes(V9990DisplayMode display)
+	void set64Offset(size_t offset) { palette64 += offset; }
+	Pixel lookup64   (size_t idx) const { return palette64   [idx]; }
+	Pixel lookup256  (size_t idx) const { return palette256  [idx]; }
+	Pixel lookup32768(size_t idx) const { return palette32768[idx]; }
+
+private:
+	const Pixel* palette64;
+	const Pixel* palette256;
+	const Pixel* palette32768;
+};
+
+// Helper class to translate V9990 palette indices (64-entry, 256-entry and
+// 32768-entry palettes) into V9990 32768-entry palette indices.
+class IndexLookup
 {
-	return (display == B4) || (display == B5) ||
-	       (display == B6) || (display == B7);
-}
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::setColorMode(V9990ColorMode color,
-                                               V9990DisplayMode display)
+public:
+	IndexLookup(const int16_t* palette64_, const int16_t* palette256_)
+	        : palette64_32768(palette64_)
+	        , palette256_32768(palette256_)
+	{
+	}
+
+	void set64Offset(size_t offset) { palette64_32768 += offset; }
+	int16_t lookup64   (size_t idx) const { return palette64_32768 [idx]; }
+	int16_t lookup256  (size_t idx) const { return palette256_32768[idx]; }
+	int16_t lookup32768(size_t idx) const { return idx; }
+
+private:
+	const int16_t* palette64_32768;
+	const int16_t* palette256_32768;
+};
+
+template<typename Pixel, typename ColorLookup>
+static void raster(V9990ColorMode colorMode, bool highRes,
+                   ColorLookup color, V9990& vdp, V9990VRAM& vram,
+                   Pixel* __restrict out, unsigned x, unsigned y, int nrPixels)
 {
-	switch (color) {
-	case PP:    rasterMethod = &V9990BitmapConverter::rasterP;     break;
-	case BYUV:  rasterMethod = &V9990BitmapConverter::rasterBYUV;  break;
-	case BYUVP: rasterMethod = &V9990BitmapConverter::rasterBYUVP; break;
-	case BYJK:  rasterMethod = &V9990BitmapConverter::rasterBYJK;  break;
-	case BYJKP: rasterMethod = &V9990BitmapConverter::rasterBYJKP; break;
-	case BD16:  rasterMethod = &V9990BitmapConverter::rasterBD16;  break;
-	case BD8:   rasterMethod = &V9990BitmapConverter::rasterBD8;   break;
-	case BP6:   rasterMethod = &V9990BitmapConverter::rasterBP6;   break;
-	case BP4:   rasterMethod = isHighRes(display) ?
-	                           &V9990BitmapConverter::rasterBP4HiRes :
-	                           &V9990BitmapConverter::rasterBP4;   break;
-	case BP2:   rasterMethod = isHighRes(display) ?
-	                           &V9990BitmapConverter::rasterBP2HiRes :
-	                           &V9990BitmapConverter::rasterBP2;   break;
+	switch (colorMode) {
+	case BYUV:  return rasterBYUV <Pixel>(color, vdp, vram, out, x, y, nrPixels);
+	case BYUVP: return rasterBYUVP<Pixel>(color, vdp, vram, out, x, y, nrPixels);
+	case BYJK:  return rasterBYJK <Pixel>(color, vdp, vram, out, x, y, nrPixels);
+	case BYJKP: return rasterBYJKP<Pixel>(color, vdp, vram, out, x, y, nrPixels);
+	case BD16:  return rasterBD16 <Pixel>(color, vdp, vram, out, x, y, nrPixels);
+	case BD8:   return rasterBD8  <Pixel>(color, vdp, vram, out, x, y, nrPixels);
+	case BP6:   return rasterBP6  <Pixel>(color, vdp, vram, out, x, y, nrPixels);
+	case BP4:   return highRes ? rasterBP4HiRes<Pixel>(color, vdp, vram, out, x, y, nrPixels)
+	                           : rasterBP4     <Pixel>(color, vdp, vram, out, x, y, nrPixels);
+	case BP2:   return highRes ? rasterBP2HiRes<Pixel>(color, vdp, vram, out, x, y, nrPixels)
+	                           : rasterBP2     <Pixel>(color, vdp, vram, out, x, y, nrPixels);
 	default:    UNREACHABLE;
 	}
 }
 
-
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::drawCursor(
-	Pixel* __restrict buffer, int displayY, unsigned attrAddr, unsigned patAddr)
+// Missing details in the V9990 application manual (reverse engineered from
+// tests on a real gfx9000):
+//  * Cursor 0 is drawn on top of cursor 1  (IOW cursor 0 has higher priority).
+//    This remains the case when both cursors use the 'EOR' feature (it's not
+//    so that EOR is applied twice).
+//  * The CC1,CC0,EOR bits in the cursor attribute table work like this:
+//     (CC1,CC0):
+//       when (0,0): pick the resulting color from bitmap rendering (this is
+//                   a 15 bit RGB value)
+//       when (x,y): pick the color from palette with index R#28:x:y (this is
+//                   also a 15 bit RGB color)
+//     (EOR):
+//       when 0: use the above color unchanged
+//       when 1: flip all the bits in the above color (IOW XOR with 0x7fff)
+//    From this follows:
+//      (CC1,CC0,EOR)==(0,0,0):
+//        Results in an invisible cursor: each pixel is colored the same as the
+//        corresponding background pixel.
+//      (CC1,CC0,EOR)==(0,0,1):
+//        This is the only combination where the cursor is drawn using multiple
+//        colors, each pixel is the complement of the corresponsing background
+//        pixel.
+//      (CC1,CC0,EOR)==(x,y,0):
+//        This is the 'usual' configuration, cursor is drawn with a specific
+//        color from the palette (also when bitmap rendering is not using the
+//        palette, e.g. YJK or BD8 mode).
+//      (CC1,CC0,EOR)==(x,y,1):
+//        This undocumented mode draws the cursor with a single color which is
+//        the complement of a specific palette color.
+class CursorInfo
 {
-	int cursorY = vram.readVRAMBx(attrAddr + 0) +
-	             (vram.readVRAMBx(attrAddr + 2) & 1) * 256;
-	++cursorY; // one line later
-	int cursorLine = (displayY - cursorY) & 511;
-	if (cursorLine >= 32) return;
+public:
+	CursorInfo(V9990& vdp, V9990VRAM& vram, const int16_t* palette64_32768,
+	           unsigned attrAddr, unsigned patAddr,
+		   int displayY, bool drawCursor)
+	{
+		x = unsigned(-1); // means not visible
+		// initialize these 3 to avoid warning
+		pattern = 0;
+		color = 0;
+		doXor = false;
 
-	byte attr = vram.readVRAMBx(attrAddr + 6);
-	if (attr & 0x10) {
-		// don't display
-		return;
-	}
+		if (!drawCursor) return;
 
-	unsigned pattern = (vram.readVRAMBx(patAddr + 4 * cursorLine + 0) << 24)
-	                 + (vram.readVRAMBx(patAddr + 4 * cursorLine + 1) << 16)
-	                 + (vram.readVRAMBx(patAddr + 4 * cursorLine + 2) <<  8)
-	                 + (vram.readVRAMBx(patAddr + 4 * cursorLine + 3) <<  0);
-	if (!pattern) {
-		// optimization, completely transparant line
-		return;
-	}
-	unsigned x = vram.readVRAMBx(attrAddr + 4) + (attr & 3) * 256;
+		unsigned attrY = vram.readVRAMBx(attrAddr + 0) +
+		                (vram.readVRAMBx(attrAddr + 2) & 1) * 256;
+		++attrY; // one line later
+		unsigned cursorLine = (displayY - attrY) & 511;
+		if (cursorLine >= 32) return;
 
-	// TODO EOR colors
-	// TODO investigate dual palette in B4 and higher modes
-	Pixel color = palette64[vdp.getSpritePaletteOffset() + (attr >> 6)];
-	for (int i = 0; i < 32; ++i) {
-		if (pattern & 0x80000000) {
-			buffer[(x + i) & 1023] = color;
+		attr = vram.readVRAMBx(attrAddr + 6);
+		if ((attr & 0x10) || ((attr & 0xe0) == 0x00)) {
+			// don't display
+			return;
 		}
-		pattern <<= 1;
+
+		pattern = (vram.readVRAMBx(patAddr + 4 * cursorLine + 0) << 24)
+		        + (vram.readVRAMBx(patAddr + 4 * cursorLine + 1) << 16)
+		        + (vram.readVRAMBx(patAddr + 4 * cursorLine + 2) <<  8)
+		        + (vram.readVRAMBx(patAddr + 4 * cursorLine + 3) <<  0);
+		if (pattern == 0) {
+			// optimization, completely transparant line
+			return;
+		}
+
+		// mark cursor visible
+		x = vram.readVRAMBx(attrAddr + 4) + (attr & 3) * 256;
+
+		doXor = (attr & 0xe0) == 0x20;
+
+		auto colorIdx = vdp.getSpritePaletteOffset() + (attr >> 6);
+		color = palette64_32768[colorIdx];
+		if (attr & 0x20) color ^= 0x7fff;
 	}
-}
 
-template <class Pixel>
-void V9990BitmapConverter<Pixel>::drawCursors(Pixel* buffer, int displayY)
-{
-	drawCursor(buffer, displayY, 0x7FE08, 0x7FF80);
-	drawCursor(buffer, displayY, 0x7FE00, 0x7FF00);
-}
+	bool isVisible() const {
+		return x != unsigned(-1);
+	}
+	bool dot() const {
+		return (x == 0) && (pattern & 0x80000000);
+	}
+	void shift() {
+		if (x) {
+			--x;
+		} else {
+			pattern <<= 1;
+		}
+	}
 
+public:
+	unsigned x;
+	uint32_t pattern;
+	int16_t color;
+	byte attr;
+	bool doXor;
+};
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::convertLine(
 	Pixel* linePtr, unsigned x, unsigned y, int nrPixels,
-	int cursorY, bool drawSprites)
+	int cursorY, bool drawCursors)
 {
-	// TODO cursor goes wrong when startX != 0
 	assert(nrPixels <= 1024);
-	(this->*rasterMethod)(linePtr, x, y, nrPixels);
-	if (drawSprites) {
-		drawCursors(linePtr, cursorY);
+
+	CursorInfo cursor0(vdp, vram, palette64_32768, 0x7fe00, 0x7ff00, cursorY, drawCursors);
+	CursorInfo cursor1(vdp, vram, palette64_32768, 0x7fe08, 0x7ff80, cursorY, drawCursors);
+
+	if (cursor0.isVisible() || cursor1.isVisible()) {
+		// raster background into a temporary buffer
+		int16_t buf[1024];
+		raster(colorMode, highRes,
+		       IndexLookup(palette64_32768, palette256_32768),
+		       vdp, vram,
+		       buf, x, y, nrPixels);
+
+		// draw sprites in this buffer
+		// TODO can be optimized
+		// TODO probably goes wrong when startX != 0
+		// TODO investigate dual palette in B4 and higher modes
+		// TODO check X-roll behavior
+		for (int i = 0; i < nrPixels; ++i) {
+			if (cursor0.dot()) {
+				if (cursor0.doXor) {
+					buf[i] ^= 0x7fff;
+				} else {
+					buf[i] = cursor0.color;
+				}
+			} else if (cursor1.dot()) {
+				if (cursor0.doXor) {
+					buf[i] ^= 0x7fff;
+				} else {
+					buf[i] = cursor0.color;
+				}
+			}
+			cursor0.shift();
+			cursor1.shift();
+			if ((cursor0.pattern == 0) && (cursor1.pattern == 0)) break;
+		}
+
+		// copy buffer to destination, translate from V9990 to host colors
+		for (int i = 0; i < nrPixels; ++i) {
+			linePtr[i] = palette32768[buf[i]];
+		}
+	} else {
+		// Optimization: no cursor(s) visible on this line, directly draw to destination
+		raster(colorMode, highRes,
+		       PaletteLookup<Pixel>(palette64, palette256, palette32768),
+		       vdp, vram,
+		       linePtr, x, y, nrPixels);
 	}
 }
 

@@ -32,7 +32,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	, displayMode(P1) // dummy value
 	, colorMode(PP)   //   avoid UMR
 	, postProcessor(std::move(postProcessor_))
-	, bitmapConverter(vdp, palette64, palette256, palette32768)
+	, bitmapConverter(vdp, palette64, palette64_32768, palette256, palette256_32768, palette32768)
 	, p1Converter(vdp, palette64)
 	, p2Converter(vdp, palette64)
 {
@@ -327,10 +327,10 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 	for (int g = 0; g < 8; ++g) {
 		for (int r = 0; r < 8; ++r) {
 			for (int b = 0; b < 4; ++b) {
-				palette256[(g << 5) + (r << 2) + b] =
-					palette32768[(mapRG[g] << 10) +
-					             (mapRG[r] <<  5) +
-					              mapB [b]];
+				auto idx256 = (g << 5) | (r << 2) | b;
+				auto idx32768 = (mapRG[g] << 10) | (mapRG[r] << 5) | mapB[b];
+				palette256_32768[idx256] = idx32768;
+				palette256[idx256] = palette32768[idx32768];
 			}
 		}
 	}
@@ -342,10 +342,10 @@ template <class Pixel>
 void V9990SDLRasterizer<Pixel>::setPalette(int index,
                                            byte r, byte g, byte b, bool ys)
 {
+	auto idx32768 = ((g & 31) << 10) | ((r & 31) << 5) | ((b & 31) << 0);
+	palette64_32768[index & 63] = idx32768; // TODO what with ys?
 	palette64[index & 63] = ys ? screen.getKeyColor<Pixel>()
-	                           : palette32768[((g & 31) << 10) +
-	                                          ((r & 31) <<  5) +
-	                                          ((b & 31) <<  0)];
+	                           : palette32768[idx32768];
 }
 
 template <class Pixel>
@@ -360,6 +360,7 @@ void V9990SDLRasterizer<Pixel>::resetPalette()
 	}
 	palette256[0] = vdp.isSuperimposing() ? screen.getKeyColor<Pixel>()
 	                                      : palette32768[0];
+	// TODO what with palette256_32768[0]?
 }
 
 template <class Pixel>
