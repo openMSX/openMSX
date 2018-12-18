@@ -64,6 +64,7 @@
 #include "MSXMegaRam.hh"
 #include "MSXPac.hh"
 #include "MSXHBI55.hh"
+#include "CommandDevice.hh"
 #include "DebugDevice.hh"
 #include "V9990.hh"
 #include "Video9000.hh"
@@ -243,6 +244,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXPac>(conf);
 	} else if (type == "HBI55") {
 		result = make_unique<MSXHBI55>(conf);
+	} else if (type == "CommandDevice") {
+		result = make_unique<CommandDevice>(conf);
 	} else if (type == "DebugDevice") {
 		result = make_unique<DebugDevice>(conf);
 	} else if (type == "V9990") {
