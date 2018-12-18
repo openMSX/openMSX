@@ -1,19 +1,19 @@
 ;------------------------------------
 ; MSXDOS openMSX controller program ;
 ;------------------------------------
-DOS 				.equ	0x5
+DOS					.equ	0x5
 D_PUTCHR			.equ	0x2
-D_ARG_SIZE 			.equ	0x0080
-D_ARG_DATA 			.equ	0x0081
-SWIO_DEVICE 		.equ	0x40
-SWIO_DEVICE_ID 		.equ	  30
-SWIO_WR_PUTCHR 		.equ	0x41
-SWIO_WR_EXECUTE 	.equ	0x42
-SWIO_WR_CLEAR	 	.equ	0x43
-SWIO_WR_RESP_IDX 	.equ	0x44
-SWIO_RD_STATUS 		.equ	0x41
-SWIO_RD_RESPONSE 	.equ	0x42
-SWIO_STATUS_IDLE 	.equ	0xFF
+D_ARG_SIZE			.equ	0x0080
+D_ARG_DATA			.equ	0x0081
+SWIO_DEVICE			.equ	0x40
+SWIO_DEVICE_ID		.equ	  30
+SWIO_WR_PUTCHR		.equ	0x41
+SWIO_WR_EXECUTE		.equ	0x42
+SWIO_WR_CLEAR		.equ	0x43
+SWIO_WR_RESP_IDX	.equ	0x44
+SWIO_RD_STATUS		.equ	0x41
+SWIO_RD_RESPONSE	.equ	0x42
+SWIO_STATUS_IDLE	.equ	0xFF
 
 .area	_CODE
 	JP		RUN
@@ -57,8 +57,8 @@ RUN_RD:
 
 	IN		A,(#SWIO_RD_RESPONSE)
 	LD		E,A
-	LD  	C,#D_PUTCHR
-	CALL 	DOS
+	LD		C,#D_PUTCHR
+	CALL	DOS
 	JR		RUN_RD
 
 
@@ -69,14 +69,14 @@ RUN_RD:
 
 ; result A = zero then device
 CHK_DEV:
-    LD		B,#1
-    LD		A,#SWIO_DEVICE_ID
-    OUT		(#SWIO_DEVICE),A	; set dev id
-    IN		A,(#SWIO_DEVICE)
-    CPL
-    CP		#SWIO_DEVICE_ID ; compare complement value
-    JR		NZ,CHK_DEV_ERR	; no device found
-    LD		B,#0
+	LD		B,#1
+	LD		A,#SWIO_DEVICE_ID
+	OUT		(#SWIO_DEVICE),A	; set dev id
+	IN		A,(#SWIO_DEVICE)
+	CPL
+	CP		#SWIO_DEVICE_ID	; compare complement value
+	JR		NZ,CHK_DEV_ERR	; no device found
+	LD		B,#0
 CHK_DEV_ERR:
 	LD		A,B
 	RET
