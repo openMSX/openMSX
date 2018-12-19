@@ -37,7 +37,7 @@ class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
 class AfterCommand;
-class QuitCommand;
+class ExitCommand;
 class MessageCommand;
 class MachineCommand;
 class TestMachineCommand;
@@ -52,6 +52,8 @@ class ConfigInfo;
 class RealTimeInfo;
 class SoftwareInfoTopic;
 template <typename T> class EnumSetting;
+
+extern int exitCode;
 
 /**
  * Contains the main loop of openMSX.
@@ -154,7 +156,7 @@ private:
 	std::unique_ptr<RomDatabase> softwareDatabase;
 
 	std::unique_ptr<AfterCommand> afterCommand;
-	std::unique_ptr<QuitCommand> quitCommand;
+	std::unique_ptr<ExitCommand> exitCommand;
 	std::unique_ptr<MessageCommand> messageCommand;
 	std::unique_ptr<MachineCommand> machineCommand;
 	std::unique_ptr<TestMachineCommand> testMachineCommand;

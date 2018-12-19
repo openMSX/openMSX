@@ -53,10 +53,13 @@ using std::vector;
 
 namespace openmsx {
 
-class QuitCommand final : public Command
+// global variable to communicate the exit-code from the 'exit' command to main()
+int exitCode = 0;
+
+class ExitCommand final : public Command
 {
 public:
-	QuitCommand(CommandController& commandController, EventDistributor& distributor);
+	ExitCommand(CommandController& commandController, EventDistributor& distributor);
 	void execute(array_ref<TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 private:
@@ -215,7 +218,7 @@ void Reactor::init()
 		*globalCommandController);
 	afterCommand = make_unique<AfterCommand>(
 		*this, *eventDistributor, *globalCommandController);
-	quitCommand = make_unique<QuitCommand>(
+	exitCommand = make_unique<ExitCommand>(
 		*globalCommandController, *eventDistributor);
 	messageCommand = make_unique<MessageCommand>(
 		*globalCommandController);
@@ -656,23 +659,34 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 }
 
 
-// class QuitCommand
+// class ExitCommand
 
-QuitCommand::QuitCommand(CommandController& commandController_,
+ExitCommand::ExitCommand(CommandController& commandController_,
                          EventDistributor& distributor_)
 	: Command(commandController_, "exit")
 	, distributor(distributor_)
 {
 }
 
-void QuitCommand::execute(array_ref<TclObject> /*tokens*/, TclObject& /*result*/)
+void ExitCommand::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
 {
+	switch (tokens.size()) {
+	case 1:
+		exitCode = 0;
+		break;
+	case 2:
+		exitCode = tokens[1].getInt(getInterpreter());
+		break;
+	default:
+		throw SyntaxError();
+	}
 	distributor.distributeEvent(make_shared<QuitEvent>());
 }
 
-string QuitCommand::help(const vector<string>& /*tokens*/) const
+string ExitCommand::help(const vector<string>& /*tokens*/) const
 {
-	return "Use this command to stop the emulator\n";
+	return "Use this command to stop the emulator.\n"
+	       "Optionally you can pass an exit-code.\n";
 }
 
 

@@ -77,7 +77,6 @@ static int main(int argc, char **argv)
 	std::cerr << msg << '\n';
 #endif
 
-	int err = 0;
 	try {
 		randomize(); // seed global random generator
 		initializeSDL();
@@ -113,23 +112,23 @@ static int main(int argc, char **argv)
 		}
 	} catch (FatalError& e) {
 		std::cerr << "Fatal error: " << e.getMessage() << '\n';
-		err = 1;
+		exitCode = 1;
 	} catch (MSXException& e) {
 		std::cerr << "Uncaught exception: " << e.getMessage() << '\n';
-		err = 1;
+		exitCode = 1;
 	} catch (std::exception& e) {
 		std::cerr << "Uncaught std::exception: " << e.what() << '\n';
-		err = 1;
+		exitCode = 1;
 	} catch (...) {
 		std::cerr << "Uncaught exception of unexpected type." << '\n';
-		err = 1;
+		exitCode = 1;
 	}
 	// Clean up.
 	if (SDL_WasInit(SDL_INIT_EVERYTHING)) {
 		SDL_Quit();
 	}
 
-	return err;
+	return exitCode;
 }
 
 } // namespace openmsx
