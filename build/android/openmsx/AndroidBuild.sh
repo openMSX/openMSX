@@ -80,7 +80,8 @@ unset BUILD_EXECUTABLE
     export _CC=\${CC};\
     export _LD=\${LD};\
     unset CXXFLAGS;\
-    make -k -j ${cpu_count} staticbindist\
+    unset CFLAGS;\
+    make -j ${cpu_count} staticbindist\
          OPENMSX_TARGET_CPU=${openmsx_target_cpu}\
          OPENMSX_TARGET_OS=android\
          OPENMSX_FLAVOUR=${openmsx_flavour}\
