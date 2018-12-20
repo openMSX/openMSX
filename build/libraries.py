@@ -303,21 +303,6 @@ class SDL2(Library):
 	def isSystemLibrary(cls, platform):
 		return platform in ('dingux',)
 
-	@classmethod
-	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		flags = super(SDL2, cls).getLinkFlags(
-			platform, linkStatic, distroRoot
-			)
-		if platform == 'android':
-			# On Android, we explicitly add the commander
-			# genius lib folder for SDL
-			flags = '-L%s/project/obj/local/%s %s' % (
-				environ['SDL_ANDROID_PORT_PATH'],
-				environ['TARGET_ABI'],
-				flags
-				)
-		return flags
-
 class SDL2_ttf(Library):
 	libName = 'SDL2_ttf'
 	makeName = 'SDL2_TTF'
