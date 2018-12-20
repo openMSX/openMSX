@@ -301,7 +301,7 @@ class SDL2(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
@@ -327,7 +327,7 @@ class SDL2_ttf(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
