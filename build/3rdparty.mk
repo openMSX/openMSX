@@ -29,7 +29,6 @@ SYSTEM_LIBS:=$(shell $(PYTHON) build/list_system_libs.py $(OPENMSX_TARGET_OS))
 # Compiler selection, compiler flags, SDK selection.
 # These variables are already exported, but we make it explicit here.
 export CC
-export NEXT_ROOT
 
 CC=$(_CC)
 
