@@ -1,0 +1,27 @@
+omsxctl -- execute openMSX commands from within an MSX program
+
+This is a combination of a Tcl script and a MSX-DOS utility. It allows to
+execute arbitrary openMSX console commands from within the MSX.
+
+Files:
+  omsxctl.tcl   The Tcl script.
+  omsxctl.com   The MSX-DOS utility.
+  omsxctl.z80   The source code for the above utility (Z80 assembly code).
+
+The use this, pass the script on the openMSX command line:
+  openmsx -script <path-to>/omsxctl.tcl
+And then in MSX-DOS execute something like:
+  omsxctl set save-settings_on_exit false
+  omsxctl set throttle off
+  omsxctl after time 10 "exit 1"
+  ...
+  omsxctl exit
+
+Check the script and utility source code more (technical) details.
+
+You can use this script/utility as-is. But as always, feel free to extend it
+for your specific needs. E.g. you might want to integrate this directly in
+your MSX program instead of using the omsxctl.com utility.
+
+Original idea by 'immetoo':
+  https://github.com/openMSX/openMSX/issues/1133
