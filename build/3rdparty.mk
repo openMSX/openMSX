@@ -137,6 +137,7 @@ $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
 		--disable-host-tool \
 		--program-prefix=$(TARGET_TRIPLE)- \
 		--prefix=$(PWD)/$(TOOLS_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CC= LD= AR= RANLIB= STRIP=
 
 # SDL2_ttf 2.0.15 no longer relies on freetype-config.
