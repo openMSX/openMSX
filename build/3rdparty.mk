@@ -170,7 +170,6 @@ $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
-		--with-pkgconfdir=$(PWD)/$(TOOLS_DIR)/lib/pkgconfig \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
@@ -235,7 +234,6 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
-		--with-pkgconfigdir=$(PWD)/$(TOOLS_DIR)/lib/pkgconfig \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
