@@ -51,6 +51,11 @@ public:
 	{
 	}
 
+	hash_map(std::initializer_list<std::pair<Key, Value>> list)
+		: BaseType(list)
+	{
+	}
+
 	template<typename K>
 	Value& operator[](K&& key)
 	{
