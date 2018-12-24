@@ -187,12 +187,7 @@ private:
 };
 
 
-Reactor::Reactor()
-{
-#if UNIQUE_PTR_BUG
-	display = nullptr;
-#endif
-}
+Reactor::Reactor() = default;
 
 void Reactor::init()
 {
@@ -405,12 +400,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 void Reactor::switchMachine(const string& machine)
 {
 	if (!display) {
-#if UNIQUE_PTR_BUG
-		display2 = make_unique<Display>(*this);
-		display = display2.get();
-#else
 		display = make_unique<Display>(*this);
-#endif
 		// TODO: Currently it is not possible to move this call into the
 		//       constructor of Display because the call to createVideoSystem()
 		//       indirectly calls Reactor.getDisplay().

@@ -28,16 +28,6 @@ using byte = uint8_t;
 /** 16 bit unsigned integer */
 using word = uint16_t;
 
-
-#if defined(__GNUC__) && \
-    ((__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__) < 472)
-	// gcc versions before 4.7.2 had a bug in ~unique_ptr(),
-	// see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=54351
-	#define UNIQUE_PTR_BUG 1
-#else
-	#define UNIQUE_PTR_BUG 0
-#endif
-
 } // namespace openmsx
 
 #endif
