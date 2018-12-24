@@ -211,17 +211,12 @@ private:
 	void growMore(unsigned newCapacity)
 	{
 		auto* oldBuf = buf1_ + 1;
-#if __GNUC__ <= 4
-		// only implemented starting from gcc-5
-		ReallocFunc<false> reallocFunc;
-#else
 		// Use helper functor to work around gcc-8 -Wclass-memaccess warning.
 		//  The warning triggered for the not-executed if-branch. Now
 		//  we implement that 'if' via template specialization. So only
 		//  the code path that will be executed gets instantiated. In
 		//  C++17 we can simply that by using 'if constexpr'.
 		ReallocFunc<std::is_trivially_move_constructible<Elem>::value> reallocFunc;
-#endif
 		Elem* newBuf = reallocFunc(oldBuf, capacity_, newCapacity);
 
 		for (unsigned i = capacity_; i < newCapacity - 1; ++i) {
