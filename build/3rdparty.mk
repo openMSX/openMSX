@@ -37,8 +37,11 @@ BUILD_DIR:=$(BUILD_PATH)/build
 INSTALL_DIR:=$(BUILD_PATH)/install
 TOOLS_DIR:=$(BUILD_PATH)/tools
 
-# Create a GNU-style system triple.
-TRIPLE_VENDOR:=unknown
+# Create a GNU-style system tuple.
+# Unfortunately, these are very poorly standardized, so our aim is to
+# create tuples that are known to work, instead of using a consistent
+# algorithm across all platforms.
+
 ifeq ($(OPENMSX_TARGET_CPU),x86)
 TRIPLE_MACHINE:=i686
 else
@@ -52,16 +55,27 @@ TRIPLE_MACHINE:=$(OPENMSX_TARGET_CPU)
 endif
 endif
 endif
+
 ifneq ($(filter android dingux,$(OPENMSX_TARGET_OS)),)
 TRIPLE_OS:=linux
 else
 TRIPLE_OS:=$(OPENMSX_TARGET_OS)
 endif
+
+TRIPLE_VENDOR:=unknown
 ifeq ($(OPENMSX_TARGET_OS),mingw-w64)
 TRIPLE_OS:=mingw32
 TRIPLE_VENDOR:=w64
 endif
+
+ifeq ($(OPENMSX_TARGET_OS),android)
+TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_OS)-android
+ifeq ($(TRIPLE_MACHINE),arm)
+TARGET_TRIPLE:=$(TARGET_TRIPLE)eabi
+endif
+else
 TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_VENDOR)-$(TRIPLE_OS)
+endif
 
 export PKG_CONFIG:=$(PWD)/$(TOOLS_DIR)/bin/$(TARGET_TRIPLE)-pkg-config
 
