@@ -128,7 +128,7 @@ void LocalFile::write(const void* buffer, size_t num)
 span<uint8_t> LocalFile::mmap()
 {
 	size_t size = getSize();
-	if (size == 0) return {nullptr, 0};
+	if (size == 0) return {static_cast<uint8_t*>(nullptr), size};
 
 	if (!mmem) {
 		int fd = _fileno(file.get());
