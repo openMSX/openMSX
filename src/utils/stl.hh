@@ -238,6 +238,12 @@ l_true:				*out_true++  = std::move(*first++);
 	return std::make_pair(out_true, out_false);
 }
 
+template<typename ForwardRange, typename OutputIt, typename UnaryPredicate>
+auto partition_copy_remove(ForwardRange&& range, OutputIt out_true, UnaryPredicate p)
+{
+	return partition_copy_remove(std::begin(range), std::end(range), out_true, p);
+}
+
 
 // Like range::transform(), but with equal source and destination.
 template<typename ForwardRange, typename UnaryOperation>

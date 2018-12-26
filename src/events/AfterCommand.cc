@@ -396,8 +396,7 @@ template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 	AfterCmds matches;
 	// Usually there are very few matches (typically even 0 or 1), so no
 	// need to reserve() space.
-	auto p = partition_copy_remove(begin(afterCmds), end(afterCmds),
-	                               std::back_inserter(matches), pred);
+	auto p = partition_copy_remove(afterCmds, std::back_inserter(matches), pred);
 	afterCmds.erase(p.second, end(afterCmds));
 	for (auto& c : matches) {
 		c->execute();
