@@ -2,6 +2,7 @@
 #include "TclObject.hh"
 #include "Completer.hh"
 #include "CommandException.hh"
+#include "KeyRange.hh"
 #include "StringOp.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -40,11 +41,7 @@ string_view EnumSettingBase::toStringBase(int value) const
 
 std::vector<string_view> EnumSettingBase::getPossibleValues() const
 {
-	std::vector<string_view> result;
-	for (auto& p : baseMap) {
-		result.emplace_back(p.first);
-	}
-	return result;
+	return to_vector<string_view>(keys(baseMap));
 }
 
 void EnumSettingBase::additionalInfoBase(TclObject& result) const

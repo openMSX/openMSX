@@ -4,6 +4,7 @@
 #include "MSXCPU.hh"
 #include "ranges.hh"
 #include "serialize.hh"
+#include "stl.hh"
 #include <cassert>
 #include <iterator> // for back_inserter
 
@@ -22,7 +23,7 @@ struct EqualSchedulable {
 Scheduler::~Scheduler()
 {
 	assert(!cpu);
-	SyncPoints copy(std::begin(queue), std::end(queue));
+	auto copy = to_vector(queue);
 	for (auto& s : copy) {
 		s.getDevice()->schedulerDeleted();
 	}

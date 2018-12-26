@@ -15,6 +15,7 @@
 #include "checked_cast.hh"
 #include "outer.hh"
 #include "ranges.hh"
+#include "stl.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <memory>
@@ -461,8 +462,8 @@ void GlobalCommandController::HelpCmd::execute(
 		string text =
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
-		const auto& k = keys(controller.commandCompleters);
-		vector<string_view> cmds(begin(k), end(k));
+		auto cmds = to_vector<string_view>(
+			keys(controller.commandCompleters));
 		ranges::sort(cmds);
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');

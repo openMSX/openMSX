@@ -210,7 +210,7 @@ vector<string_view> OSDWidget::getProperties() const
 		"-type", "-x", "-y", "-z", "-relx", "-rely", "-scaled",
 		"-clip", "-mousecoord", "-suppressErrors",
 	};
-	return vector<string_view>(std::begin(vals), std::end(vals));
+	return to_vector<string_view>(vals);
 }
 
 void OSDWidget::setProperty(

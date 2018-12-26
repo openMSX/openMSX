@@ -2,11 +2,12 @@
 #define STL_HH
 
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <numeric>
 #include <tuple>
 #include <utility>
-#include <cassert>
+#include <vector>
 
 // Dereference the two given (pointer-like) parameters and then compare
 // them with the less-than operator.
@@ -301,6 +302,35 @@ auto sum(InputRange&& range)
 	using Iter = decltype(std::begin(range));
 	using T = typename std::iterator_traits<Iter>::value_type;
 	return std::accumulate(std::begin(range), std::end(range), T());
+}
+
+
+// to_vector
+namespace detail {
+	template<typename T, typename Iterator>
+	using ToVectorType = std::conditional_t<
+		std::is_same<T, void>::value,
+		typename std::iterator_traits<Iterator>::value_type,
+		T>;
+}
+
+// Convert any range to a vector. Optionally specify the type of the elements
+// in the result.
+// Example:
+//   auto v1 = to_vector(view::drop(my_list, 3));
+//   auto v2 = to_vector<Base*>(getDerivedPtrs());
+template<typename T = void, typename Range>
+auto to_vector(Range&& range)
+	-> std::vector<detail::ToVectorType<T, decltype(std::begin(range))>>
+{
+	return {std::begin(range), std::end(range)};
+}
+
+// Optimized version for r-value input and no type conversion.
+template<typename T>
+auto to_vector(std::vector<T>&& v)
+{
+	return std::move(v);
 }
 
 #endif

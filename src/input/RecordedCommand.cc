@@ -6,6 +6,7 @@
 #include "ScopedAssign.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 
 using std::vector;
@@ -89,14 +90,12 @@ void RecordedCommand::stopReplay(EmuTime::param /*time*/)
 MSXCommandEvent::MSXCommandEvent(span<string> tokens_, EmuTime::param time_)
 	: StateChange(time_)
 {
-	for (auto& t : tokens_) {
-		tokens.emplace_back(t);
-	}
+	tokens = to_vector<TclObject>(tokens_);
 }
 
 MSXCommandEvent::MSXCommandEvent(span<const TclObject> tokens_, EmuTime::param time_)
 	: StateChange(time_)
-	, tokens(tokens_.begin(), tokens_.end())
+	, tokens(to_vector(tokens_))
 {
 }
 
