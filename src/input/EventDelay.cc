@@ -167,9 +167,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 	toBeScheduledEvents.clear();
 
 #if PLATFORM_ANDROID
-	toBeScheduledEvents.insert(end(toBeScheduledEvents),
-		make_move_iterator(begin(toBeRescheduledEvents)),
-		make_move_iterator(end  (toBeRescheduledEvents)));
+	append(toBeScheduledEvents, std::move(toBeRescheduledEvents));
 #endif
 }
 

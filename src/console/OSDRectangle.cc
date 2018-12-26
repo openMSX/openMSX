@@ -5,6 +5,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "TclObject.hh"
+#include "stl.hh"
 #include "components.hh"
 #include <cassert>
 #include <cmath>
@@ -33,7 +34,7 @@ vector<string_view> OSDRectangle::getProperties() const
 		"-w", "-h", "-relw", "-relh", "-scale", "-image",
 		"-bordersize", "-relbordersize", "-borderrgba",
 	};
-	result.insert(end(result), std::begin(vals), std::end(vals));
+	append(result, vals);
 	return result;
 }
 

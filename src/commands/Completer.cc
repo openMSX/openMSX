@@ -4,6 +4,7 @@
 #include "FileOperations.hh"
 #include "ReadDir.hh"
 #include "ranges.hh"
+#include "stl.hh"
 #include "strCat.hh"
 #include "stringsp.hh"
 #include "utf8_unchecked.hh"
@@ -167,9 +168,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 			}
 		}
 	}
-	for (auto& f : filenames) {
-		matches.emplace_back(f);
-	}
+	append(matches, filenames);
 	bool t = completeImpl(filename, matches, true);
 	if (t && !filename.empty() && (filename.back() != '/')) {
 		// completed filename, start new token

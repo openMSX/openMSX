@@ -7,6 +7,7 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Timer.hh"
+#include "stl.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
@@ -39,7 +40,7 @@ vector<string_view> OSDImageBasedWidget::getProperties() const
 		"-rgba", "-rgb", "-alpha", "-fadePeriod", "-fadeTarget",
 		"-fadeCurrent",
 	};
-	result.insert(end(result), std::begin(vals), std::end(vals));
+	append(result, vals);
 	return result;
 }
 

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <initializer_list>
 #include <numeric>
 #include <tuple>
 #include <utility>
@@ -331,6 +332,110 @@ template<typename T>
 auto to_vector(std::vector<T>&& v)
 {
 	return std::move(v);
+}
+
+
+// append() / concat()
+namespace detail {
+
+inline size_t sum_of_sizes()
+{
+	return 0;
+}
+template<typename Range, typename... Tail>
+size_t sum_of_sizes(const Range& r, Tail&&... tail)
+{
+	return std::distance(std::begin(r), std::end(r)) +
+	       sum_of_sizes(std::forward<Tail>(tail)...);
+}
+
+template<typename Result>
+void append(Result&)
+{
+	// nothing
+}
+
+template<typename Result, typename Range, typename... Tail>
+void append(Result& x, Range&& y, Tail&&... tail)
+{
+#ifdef _GLIBCXX_DEBUG
+	// Range can be a view::transform
+	// but vector::insert in libstdc++ debug mode will wrongly try
+	// to take its address to check for self-insertion (see
+	// gcc/include/c++/7.1.0/debug/functions.h
+	// __foreign_iterator_aux functions). So avoid vector::insert
+	for (auto&& e : y) {
+		x.push_back(std::forward<decltype(e)>(e));
+	}
+#else
+	x.insert(std::end(x), std::begin(y), std::end(y));
+#endif
+	detail::append(x, std::forward<Tail>(tail)...);
+}
+
+// Allow move from an rvalue-vector.
+// But don't allow to move from any rvalue-range. It breaks stuff like
+//   append(v, view::reverse(w));
+template<typename Result, typename T2, typename... Tail>
+void append(Result& x, std::vector<T2>&& y, Tail&&... tail)
+{
+	x.insert(std::end(x),
+		 std::make_move_iterator(std::begin(y)),
+		 std::make_move_iterator(std::end(y)));
+	detail::append(x, std::forward<Tail>(tail)...);
+}
+
+} // namespace detail
+
+// Append a range to a vector.
+template<typename T, typename... Tail>
+void append(std::vector<T>& v, Tail&&... tail)
+{
+	auto extra = detail::sum_of_sizes(std::forward<Tail>(tail)...);
+	auto current = v.size();
+	auto required = current + extra;
+	if (v.capacity() < required) {
+		v.reserve(current + std::max(current, extra));
+	}
+	detail::append(v, std::forward<Tail>(tail)...);
+}
+
+// If both source and destination are vectors of the same type and the
+// destination is empty and the source is an rvalue, then move the whole vector
+// at once instead of moving element by element.
+template<typename T>
+void append(std::vector<T>& v, std::vector<T>&& range)
+{
+	if (v.empty()) {
+		v = std::move(range);
+	} else {
+		v.insert(std::end(v),
+		         std::make_move_iterator(std::begin(range)),
+		         std::make_move_iterator(std::end(range)));
+	}
+}
+
+template<typename T>
+void append(std::vector<T>& x, std::initializer_list<T> list)
+{
+	x.insert(x.end(), list);
+}
+
+
+template<typename T = void, typename Range, typename... Tail>
+auto concat(const Range& range, Tail&&... tail)
+{
+    using T2 = detail::ToVectorType<T, decltype(std::begin(range))>;
+    std::vector<T2> result;
+    append(result, range, std::forward<Tail>(tail)...);
+    return result;
+}
+
+template<typename T, typename... Tail>
+std::vector<T> concat(std::vector<T>&& v, Tail&&... tail)
+{
+    append(v, std::forward<Tail>(tail)...);
+    return std::move(v);
 }
 
 #endif

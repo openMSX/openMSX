@@ -1040,11 +1040,7 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 	};
 	switch (tokens.size()) {
 	case 2: {
-		vector<const char*> cmds;
-		cmds.insert(end(cmds), begin(singleArgCmds),     end(singleArgCmds));
-		cmds.insert(end(cmds), begin(debuggableArgCmds), end(debuggableArgCmds));
-		cmds.insert(end(cmds), begin(otherCmds),         end(otherCmds));
-		completeString(tokens, cmds);
+		completeString(tokens, concat(singleArgCmds, debuggableArgCmds, otherCmds));
 		break;
 	}
 	case 3:

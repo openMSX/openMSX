@@ -5,6 +5,7 @@
 #include "CliComm.hh"
 #include "Clock.hh"
 #include "MSXException.hh"
+#include "stl.hh"
 #include "xrange.hh"
 #include <cstring> // for memcmp
 
@@ -90,11 +91,11 @@ void CasImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 
 void CasImage::write0()
 {
-	output.insert(end(output), { 127, 127, -127, -127 } );
+	append(output, {127, 127, -127, -127});
 }
 void CasImage::write1()
 {
-	output.insert(end(output), { 127, -127, 127, -127 } );
+	append(output, {127, -127, 127, -127});
 }
 
 // write a header signal

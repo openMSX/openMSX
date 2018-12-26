@@ -8,8 +8,9 @@
 #include "FileOperations.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
-#include "utf8_core.hh"
+#include "stl.hh"
 #include "unreachable.hh"
+#include "utf8_core.hh"
 #include "components.hh"
 #include <cassert>
 #include <cmath>
@@ -39,7 +40,7 @@ vector<string_view> OSDText::getProperties() const
 		"-text", "-font", "-size", "-wrap", "-wrapw", "-wraprelw",
 		"-query-size",
 	};
-	result.insert(end(result), std::begin(vals), std::end(vals));
+	append(result, vals);
 	return result;
 }
 

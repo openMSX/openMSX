@@ -16,6 +16,7 @@
 #include "StringOp.hh"
 #include "TclObject.hh"
 #include "ranges.hh"
+#include "stl.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cctype>
@@ -301,16 +302,15 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		for (auto& d : drives) {
 			const auto& name1 = d.driveName; // with prexix
 			const auto& name2 = d.drive->getContainerName(); // without prefix
-			names.insert(end(names), {name1, name2});
+			append(names, {name1, name2});
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
 			if (auto* disk = d.drive->getSectorAccessibleDisk()) {
 				for (unsigned i = 1; i <= MAX_PARTITIONS; ++i) {
 					try {
 						DiskImageUtils::checkFAT12Partition(*disk, i);
-						names.insert(end(names), {
-							strCat(name1, i),
-							strCat(name2, i)});
+						append(names,
+						       {strCat(name1, i), strCat(name2, i)});
 					} catch (MSXException&) {
 						// skip invalid partition
 					}
