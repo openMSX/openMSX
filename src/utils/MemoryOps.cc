@@ -3,6 +3,7 @@
 #include "build-info.hh"
 #include "systemfuncs.hh"
 #include "Math.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include <utility>
@@ -223,8 +224,7 @@ public:
 
 	void insert(void* aligned, void* unaligned) {
 		if (!aligned) return;
-		assert(none_of(begin(allocMap), end(allocMap),
-		               EqualTupleValue<0>(aligned)));
+		assert(ranges::none_of(allocMap, EqualTupleValue<0>(aligned)));
 		allocMap.emplace_back(aligned, unaligned);
 	}
 

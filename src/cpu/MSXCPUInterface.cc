@@ -23,9 +23,9 @@
 #include "serialize.hh"
 #include "checked_cast.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <algorithm>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -247,7 +247,7 @@ void MSXCPUInterface::testUnsetExpanded(
 {
 	// TODO handle multi-devices
 	allowed.push_back(dummyDevice.get());
-	sort(begin(allowed), end(allowed)); // for set_difference()
+	ranges::sort(allowed); // for set_difference()
 	assert(isExpanded(ps));
 	if (expanded[ps] != 1) return; // ok, still expanded after this
 
@@ -259,8 +259,8 @@ void MSXCPUInterface::testUnsetExpanded(
 			std::vector<MSXDevice*>::iterator end_devices;
 			if (auto memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
 				devices = memDev->getDevices();
-				sort(begin(devices), end(devices)); // for set_difference()
-				end_devices = unique(begin(devices), end(devices));
+				ranges::sort(devices); // for set_difference()
+				end_devices = ranges::unique(devices);
 			} else {
 				devices.push_back(device);
 				end_devices = end(devices);
@@ -734,15 +734,13 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 
 void MSXCPUInterface::insertBreakPoint(const BreakPoint& bp)
 {
-	auto it = upper_bound(begin(breakPoints), end(breakPoints),
-	                      bp, CompareBreakpoints());
+	auto it = ranges::upper_bound(breakPoints, bp, CompareBreakpoints());
 	breakPoints.insert(it, bp);
 }
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
-	auto range = equal_range(begin(breakPoints), end(breakPoints),
-	                         bp.getAddress(), CompareBreakpoints());
+	auto range = ranges::equal_range(breakPoints, bp.getAddress(), CompareBreakpoints());
 	breakPoints.erase(find_if_unguarded(range.first, range.second,
 		[&](const BreakPoint& i) { return &i == &bp; }));
 }

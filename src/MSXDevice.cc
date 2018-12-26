@@ -8,10 +8,10 @@
 #include "CacheLine.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <iterator> // for back_inserter
@@ -81,11 +81,10 @@ MSXMotherBoard& MSXDevice::getMotherBoard() const
 void MSXDevice::testRemove(Devices removed) const
 {
 	auto all = referencedBy;
-	sort(begin(all),     end(all));
-	sort(begin(removed), end(removed));
+	ranges::sort(all);
+	ranges::sort(removed);
 	Devices rest;
-	set_difference(begin(all), end(all), begin(removed), end(removed),
-	               back_inserter(rest));
+	ranges::set_difference(all, removed, back_inserter(rest));
 	if (!rest.empty()) {
 		string msg = "Still in use by";
 		for (auto& d : rest) {

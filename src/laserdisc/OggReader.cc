@@ -4,9 +4,9 @@
 #include "likely.hh"
 #include "CliComm.hh"
 #include "MemoryOps.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "stringsp.hh" // for strncasecmp
-#include <algorithm>
 #include <cstring> // for memcpy, memcmp
 #include <cstdlib> // for atoi
 #include <cctype> // for isspace
@@ -468,8 +468,8 @@ void OggReader::readMetadata(th_comment& tc)
 		p = strchr(p, '\n');
 		if (p) ++p;
 	}
-	sort(begin(stopFrames), end(stopFrames));
-	sort(begin(chapters  ), end(chapters  ), LessTupleElement<0>());
+	ranges::sort(stopFrames);
+	ranges::sort(chapters, LessTupleElement<0>());
 }
 
 void OggReader::readTheora(ogg_packet* packet)
@@ -966,13 +966,12 @@ bool OggReader::seek(size_t frame, size_t samples)
 
 bool OggReader::stopFrame(size_t frame) const
 {
-	return std::binary_search(begin(stopFrames), end(stopFrames), frame);
+	return ranges::binary_search(stopFrames, frame);
 }
 
 size_t OggReader::getChapter(int chapterNo) const
 {
-	auto it = std::lower_bound(begin(chapters), end(chapters),
-	                           chapterNo, LessTupleElement<0>());
+	auto it = ranges::lower_bound(chapters, chapterNo, LessTupleElement<0>());
 	return ((it != end(chapters)) && (it->first == chapterNo))
 		? it->second : 0;
 }

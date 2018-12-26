@@ -1,8 +1,8 @@
 #include "serialize_meta.hh"
 #include "serialize.hh"
 #include "MSXException.hh"
+#include "ranges.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
 #include <iostream>
 
@@ -21,7 +21,7 @@ void PolymorphicSaverRegistry<Archive>::registerHelper(
 	std::unique_ptr<PolymorphicSaverBase<Archive>> saver)
 {
 	assert(!initialized);
-	assert(none_of(begin(saverMap), end(saverMap), EqualTupleValue<0>(type)));
+	assert(ranges::none_of(saverMap, EqualTupleValue<0>(type)));
 	saverMap.emplace_back(type, std::move(saver));
 }
 
@@ -32,11 +32,9 @@ void PolymorphicSaverRegistry<Archive>::save(
 	auto& reg = PolymorphicSaverRegistry<Archive>::instance();
 	if (unlikely(!reg.initialized)) {
 		reg.initialized = true;
-		sort(begin(reg.saverMap), end(reg.saverMap),
-		     LessTupleElement<0>());
+		ranges::sort(reg.saverMap, LessTupleElement<0>());
 	}
-	auto it = lower_bound(begin(reg.saverMap), end(reg.saverMap), typeInfo,
-		LessTupleElement<0>());
+	auto it = ranges::lower_bound(reg.saverMap, typeInfo, LessTupleElement<0>());
 	if ((it == end(reg.saverMap)) || (it->first != typeInfo)) {
 		std::cerr << "Trying to save an unregistered polymorphic type: "
 			  << typeInfo.name() << std::endl;

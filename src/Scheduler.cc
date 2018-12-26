@@ -2,9 +2,9 @@
 #include "Schedulable.hh"
 #include "Thread.hh"
 #include "MSXCPU.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include <cassert>
-#include <algorithm>
 #include <iterator> // for back_inserter
 
 namespace openmsx {
@@ -52,8 +52,7 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device)
 Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 {
 	SyncPoints result;
-	copy_if(std::begin(queue), std::end(queue), back_inserter(result),
-	        EqualSchedulable(device));
+	ranges::copy_if(queue, back_inserter(result), EqualSchedulable(device));
 	return result;
 }
 
@@ -73,8 +72,7 @@ bool Scheduler::pendingSyncPoint(const Schedulable& device,
                                  EmuTime& result) const
 {
 	assert(Thread::isMainThread());
-	auto it = std::find_if(std::begin(queue), std::end(queue),
-	                       EqualSchedulable(device));
+	auto it = ranges::find_if(queue, EqualSchedulable(device));
 	if (it != std::end(queue)) {
 		result = it->getTime();
 		return true;

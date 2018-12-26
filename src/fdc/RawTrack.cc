@@ -1,8 +1,8 @@
 #include "RawTrack.hh"
 #include "CRC16.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include <algorithm>
 #include <cassert>
 
 using std::vector;
@@ -41,7 +41,7 @@ void RawTrack::addIdam(unsigned idx)
 void RawTrack::write(int idx, byte val, bool setIdam)
 {
 	unsigned i2 = wrapIndex(idx);
-	auto it = lower_bound(begin(idam), end(idam), i2);
+	auto it = ranges::lower_bound(idam, i2);
 	if (setIdam) {
 		// add idam (if not already present)
 		if ((it == end(idam)) || (*it != i2)) {
@@ -133,9 +133,9 @@ vector<RawTrack::Sector> RawTrack::decodeAll() const
 static vector<unsigned> rotateIdam(vector<unsigned> idam, unsigned startIdx)
 {
 	// find first element that is equal or bigger
-	auto it = lower_bound(begin(idam), end(idam), startIdx);
+	auto it = ranges::lower_bound(idam, startIdx);
 	// rotate range so that we start at that element
-	rotate(begin(idam), it, end(idam));
+	std::rotate(begin(idam), it, end(idam));
 	return idam;
 }
 

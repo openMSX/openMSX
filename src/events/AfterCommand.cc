@@ -10,9 +10,9 @@
 #include "EmuTime.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <algorithm>
 #include <iterator>
 #include <memory>
 #include <sstream>
@@ -342,8 +342,8 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	}
 	if (tokens.size() == 3) {
 		auto id = tokens[2].getString();
-		auto it = find_if(begin(afterCmds), end(afterCmds),
-			[&](std::unique_ptr<AfterCmd>& e) { return e->getId() == id; });
+		auto it = ranges::find_if(afterCmds,
+		                          [&](auto& e) { return e->getId() == id; });
 		if (it != end(afterCmds)) {
 			afterCmds.erase(it);
 			return;
@@ -352,8 +352,8 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	TclObject command;
 	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
 	string_view cmdStr = command.getString();
-	auto it = find_if(begin(afterCmds), end(afterCmds),
-		[&](std::unique_ptr<AfterCmd>& e) { return e->getCommand() == cmdStr; });
+	auto it = ranges::find_if(afterCmds,
+	                          [&](auto& e) { return e->getCommand() == cmdStr; });
 	if (it != end(afterCmds)) {
 		afterCmds.erase(it);
 		// Tcl manual is not clear about this, but it seems

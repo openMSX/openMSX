@@ -14,6 +14,7 @@
 #include "ScopedAssign.hh"
 #include "checked_cast.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <memory>
@@ -76,8 +77,9 @@ void GlobalCommandController::unregisterProxyCommand(string_view name)
 GlobalCommandController::ProxySettings::iterator
 GlobalCommandController::findProxySetting(string_view name)
 {
-	return find_if(begin(proxySettings), end(proxySettings),
-		[&](ProxySettings::value_type& v) { return v.first->getFullName() == name; });
+	return ranges::find_if(proxySettings, [&](auto& v) {
+		return v.first->getFullName() == name;
+	});
 }
 
 void GlobalCommandController::registerProxySetting(Setting& setting)
@@ -461,7 +463,7 @@ void GlobalCommandController::HelpCmd::execute(
 			"The following commands exist:\n";
 		const auto& k = keys(controller.commandCompleters);
 		vector<string_view> cmds(begin(k), end(k));
-		std::sort(begin(cmds), end(cmds));
+		ranges::sort(cmds);
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');
 		}

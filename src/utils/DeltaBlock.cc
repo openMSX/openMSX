@@ -1,7 +1,7 @@
 #include "DeltaBlock.hh"
-#include "snappy.hh"
 #include "likely.hh"
-#include <algorithm>
+#include "ranges.hh"
+#include "snappy.hh"
 #include <cassert>
 #include <cstring>
 #include <tuple>
@@ -365,7 +365,7 @@ size_t DeltaBlockDiff::getDeltaSize() const
 std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 		const void* id, const uint8_t* data, size_t size)
 {
-	auto it = std::lower_bound(begin(infos), end(infos), std::make_tuple(id, size),
+	auto it = ranges::lower_bound(infos, std::make_tuple(id, size),
 		[](const Info& info, const std::tuple<const void*, size_t>& info2) {
 			return std::make_tuple(info.id, info.size) < info2; });
 	if ((it == end(infos)) || (it->id != id) || (it->size != size)) {
@@ -402,7 +402,7 @@ std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNew(
 std::shared_ptr<DeltaBlock> LastDeltaBlocks::createNullDiff(
 		const void* id, const uint8_t* data, size_t size)
 {
-	auto it = std::lower_bound(begin(infos), end(infos), id,
+	auto it = ranges::lower_bound(infos, id,
 		[](const Info& info, const void* id2) {
 			return info.id < id2; });
 	if ((it == end(infos)) || (it->id != id)) {

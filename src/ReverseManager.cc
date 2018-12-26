@@ -18,6 +18,7 @@
 #include "Reactor.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "xrange.hh"
@@ -961,8 +962,9 @@ void ReverseManager::stopReplay(EmuTime::param time)
 		Events& events = history.events;
 		events.erase(begin(events) + replayIndex, end(events));
 		// search snapshots that are newer than 'time' and erase them
-		auto it = find_if(begin(history.chunks), end(history.chunks),
-			[&](Chunks::value_type& p) { return p.second.time > time; });
+		auto it = ranges::find_if(history.chunks, [&](auto& p) {
+			return p.second.time > time;
+		});
 		history.chunks.erase(it, end(history.chunks));
 		// this also means someone is changing history, record that
 		reRecordCount++;

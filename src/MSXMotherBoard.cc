@@ -41,6 +41,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "ScopedAssign.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include <cassert>
@@ -348,9 +349,9 @@ string MSXMotherBoard::insertExtension(
 
 HardwareConfig* MSXMotherBoard::findExtension(string_view extensionName)
 {
-	auto it = std::find_if(begin(extensions), end(extensions),
-		[&](Extensions::value_type& v) {
-			return v->getName() == extensionName; });
+	auto it = ranges::find_if(extensions, [&](auto& v) {
+		return v->getName() == extensionName;
+	});
 	return (it != end(extensions)) ? it->get() : nullptr;
 }
 
@@ -699,7 +700,7 @@ string MSXMotherBoard::getUserName(const string& hwName)
 	string userName;
 	do {
 		userName = strCat("untitled", ++n);
-	} while (find(begin(s), end(s), userName) != end(s));
+	} while (contains(s, userName));
 	s.push_back(userName);
 	return userName;
 }

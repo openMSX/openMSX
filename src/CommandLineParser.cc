@@ -20,6 +20,7 @@
 #include "RomInfo.hh"
 #include "hash_map.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "xxhash.hh"
 #include "build-info.hh"
@@ -76,8 +77,8 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerFileType("tcl", scriptOption);
 
 	// At this point all options and file-types must be registered
-	sort(begin(options),   end(options),   CmpOptions());
-	sort(begin(fileTypes), end(fileTypes), CmpFileTypes());
+	ranges::sort(options,   CmpOptions());
+	ranges::sort(fileTypes, CmpFileTypes());
 }
 
 void CommandLineParser::registerOption(
@@ -97,7 +98,7 @@ void CommandLineParser::registerFileType(
 bool CommandLineParser::parseOption(
 	const string& arg, span<string>& cmdLine, ParsePhase phase)
 {
-	auto it = lower_bound(begin(options), end(options), arg, CmpOptions());
+	auto it = ranges::lower_bound(options, arg, CmpOptions());
 	if ((it != end(options)) && (it->first == arg)) {
 		// parse option
 		if (it->second.phase <= phase) {
@@ -139,8 +140,7 @@ bool CommandLineParser::parseFileNameInner(const string& arg, const string& orig
 		return false; // no extension
 	}
 
-	auto it = lower_bound(begin(fileTypes), end(fileTypes), extension,
-	                      CmpFileTypes());
+	auto it = ranges::lower_bound(fileTypes, extension, CmpFileTypes());
 	StringOp::casecmp cmp;
 	if ((it == end(fileTypes)) || !cmp(it->first, extension)) {
 		return false; // unknown extension
@@ -248,7 +248,7 @@ void CommandLineParser::parse(int argc, char** argv)
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
-						auto it = lower_bound(begin(options), end(options), arg, CmpOptions());
+						auto it = ranges::lower_bound(options, arg, CmpOptions());
 						if ((it != end(options)) && (it->first == arg)) {
 							for (unsigned i = 0; i < it->second.length - 1; ++i) {
 								if (!cmdLine.empty()) {
@@ -427,7 +427,7 @@ static void printItemMap(const GroupedItems& itemMap)
 		printSet.push_back(strCat(formatSet(p.second, 15), ' ',
 		                          formatHelptext(p.first, 50, 20)));
 	}
-	sort(begin(printSet), end(printSet));
+	ranges::sort(printSet);
 	for (auto& s : printSet) {
 		cout << s << endl;
 	}

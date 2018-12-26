@@ -13,6 +13,7 @@
 #include "CliComm.hh"
 #include "Reactor.hh"
 #include "Timer.hh"
+#include "ranges.hh"
 #include "sha1.hh"
 #include "stl.hh"
 #include <fstream>
@@ -93,8 +94,7 @@ FilePool::~FilePool()
 
 void FilePool::insert(const Sha1Sum& sum, time_t time, const string& filename)
 {
-	auto it = upper_bound(begin(pool), end(pool), sum,
-	                      ComparePool());
+	auto it = ranges::upper_bound(pool, sum, ComparePool());
 	stringBuffer.push_back(filename);
 	pool.emplace(it, sum, time, stringBuffer.back().c_str());
 	needWrite = true;
@@ -114,8 +114,7 @@ void FilePool::remove(Pool::iterator it)
 bool FilePool::adjust(Pool::iterator it, const Sha1Sum& newSum)
 {
 	needWrite = true;
-	auto newIt = upper_bound(begin(pool), end(pool), newSum,
-	                         ComparePool());
+	auto newIt = ranges::upper_bound(pool, newSum, ComparePool());
 	it->sum = newSum; // update sum
 	if (newIt > it) {
 		// move to back
@@ -212,12 +211,12 @@ void FilePool::readSha1sums()
 		});
 	}
 
-	if (!std::is_sorted(begin(pool), end(pool), ComparePool())) {
+	if (!ranges::is_sorted(pool, ComparePool())) {
 		// This should _rarely_ happen. In fact it should only happen
 		// when .filecache was manually edited. Though because it's
 		// very important that pool is indeed sorted I've added this
 		// safety mechanism.
-		sort(begin(pool), end(pool), ComparePool());
+		ranges::sort(pool, ComparePool());
 	}
 }
 
@@ -385,8 +384,7 @@ static Sha1Sum calcSha1sum(File& file, Reactor& reactor)
 
 File FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
-	auto bound = equal_range(begin(pool), end(pool), sha1sum,
-	                         ComparePool());
+	auto bound = ranges::equal_range(pool, sha1sum, ComparePool());
 	// use indices instead of iterators
 	auto i    = distance(begin(pool), bound.first);
 	auto last = distance(begin(pool), bound.second);

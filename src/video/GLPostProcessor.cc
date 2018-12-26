@@ -12,9 +12,9 @@
 #include "InitException.hh"
 #include "gl_transform.hh"
 #include "random.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "vla.hh"
-#include <algorithm>
 #include <cassert>
 #include <cstdint>
 
@@ -297,8 +297,7 @@ void GLPostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
 	// create texture/pbo if needed
-	auto it = find_if(begin(textures), end(textures),
-	                  EqualTupleValue<0>(lineWidth));
+	auto it = ranges::find_if(textures, EqualTupleValue<0>(lineWidth));
 	if (it == end(textures)) {
 		TextureData textureData;
 

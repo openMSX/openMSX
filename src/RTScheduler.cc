@@ -1,6 +1,6 @@
 #include "RTScheduler.hh"
 #include "RTSchedulable.hh"
-#include <algorithm>
+#include "ranges.hh"
 #include <limits>
 #include <iterator>
 
@@ -31,8 +31,7 @@ bool RTScheduler::remove(RTSchedulable& schedulable)
 
 bool RTScheduler::isPending(const RTSchedulable& schedulable) const
 {
-	return std::find_if(std::begin(queue), std::end(queue),
-	                    EqualRTSchedulable(schedulable)) != std::end(queue);
+	return ranges::any_of(queue, EqualRTSchedulable(schedulable));
 }
 
 void RTScheduler::scheduleHelper(uint64_t limit)

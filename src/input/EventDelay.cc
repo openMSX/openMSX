@@ -6,9 +6,9 @@
 #include "Timer.hh"
 #include "MSXException.hh"
 #include "checked_cast.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include <cassert>
-
 
 namespace openmsx {
 
@@ -123,8 +123,8 @@ void EventDelay::sync(EmuTime::param curEmu)
 		    e->getType() == OPENMSX_KEY_UP_EVENT) {
 			auto keyEvent = checked_cast<const KeyEvent*>(e.get());
 			int maskedKeyCode = int(keyEvent->getKeyCode()) & int(Keys::K_MASK);
-			auto it = find_if(begin(nonMatchedKeyPresses), end(nonMatchedKeyPresses),
-				          EqualTupleValue<0>(maskedKeyCode));
+			auto it = ranges::find_if(nonMatchedKeyPresses,
+				                  EqualTupleValue<0>(maskedKeyCode));
 			if (e->getType() == OPENMSX_KEY_DOWN_EVENT) {
 				if (it == end(nonMatchedKeyPresses)) {
 					nonMatchedKeyPresses.emplace_back(maskedKeyCode, e);

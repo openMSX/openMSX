@@ -2,13 +2,13 @@
 #include "StringOp.hh"
 #include "FileContext.hh" // for bwcompat
 #include "ConfigException.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <cassert>
-#include <algorithm>
 
 using std::unique_ptr;
 using std::string;
@@ -45,13 +45,13 @@ void XMLElement::removeChild(const XMLElement& child)
 
 XMLElement::Attributes::iterator XMLElement::findAttribute(string_view attrName)
 {
-	return find_if(begin(attributes), end(attributes),
-	               [&](Attribute& a) { return a.first == attrName; });
+	return ranges::find_if(attributes,
+	                       [&](auto& a) { return a.first == attrName; });
 }
 XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_view attrName) const
 {
-	return find_if(begin(attributes), end(attributes),
-	               [&](const Attribute& a) { return a.first == attrName; });
+	return ranges::find_if(attributes,
+	                       [&](auto& a) { return a.first == attrName; });
 }
 
 void XMLElement::addAttribute(string_view attrName, string_view value)

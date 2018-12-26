@@ -17,9 +17,9 @@
 #include "stl.hh"
 #include "aligned.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
 #include "vla.hh"
-#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -540,10 +540,10 @@ void MSXMixer::generate(int16_t* output, EmuTime::param time, unsigned samples)
 
 bool MSXMixer::needStereoRecording() const
 {
-	return any_of(begin(infos), end(infos),
-		[](const SoundDeviceInfo& info) {
-			return info.device->isStereo() ||
-			       info.balanceSetting->getInt() != 0; });
+	return ranges::any_of(infos, [](auto& info) {
+		return info.device->isStereo() ||
+		       info.balanceSetting->getInt() != 0;
+	});
 }
 
 void MSXMixer::mute()
@@ -746,9 +746,9 @@ void MSXMixer::executeUntil(EmuTime::param time)
 
 SoundDevice* MSXMixer::findDevice(string_view name) const
 {
-	auto it = find_if(begin(infos), end(infos),
-		[&](const SoundDeviceInfo& i) {
-			return i.device->getName() == name; });
+	auto it = ranges::find_if(infos, [&](auto& i) {
+		return i.device->getName() == name;
+	});
 	return (it != end(infos)) ? it->device : nullptr;
 }
 

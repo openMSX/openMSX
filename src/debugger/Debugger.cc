@@ -12,6 +12,7 @@
 #include "CommandException.hh"
 #include "MemBuffer.hh"
 #include "KeyRange.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include <cassert>
@@ -114,9 +115,9 @@ void Debugger::removeProbeBreakPoint(string_view name)
 		// remove by id
 		try {
 			unsigned id = fast_stou(name.substr(3));
-			auto it = find_if(begin(probeBreakPoints), end(probeBreakPoints),
-				[&](std::unique_ptr<ProbeBreakPoint>& e)
-					{ return e->getId() == id; });
+			auto it = ranges::find_if(probeBreakPoints, [&](auto& bp) {
+				return bp->getId() == id;
+			});
 			if (it == end(probeBreakPoints)) {
 				throw CommandException("No such breakpoint: ", name);
 			}
@@ -127,9 +128,9 @@ void Debugger::removeProbeBreakPoint(string_view name)
 		}
 	} else {
 		// remove by probe, only works for unconditional bp
-		auto it = find_if(begin(probeBreakPoints), end(probeBreakPoints),
-			[&](std::unique_ptr<ProbeBreakPoint>& e)
-				{ return e->getProbe().getName() == name; });
+		auto it = ranges::find_if(probeBreakPoints, [&](auto& bp) {
+			return bp->getProbe().getName() == name;
+		});
 		if (it == end(probeBreakPoints)) {
 			throw CommandException(
 				"No (unconditional) breakpoint for probe: ", name);
@@ -419,8 +420,9 @@ void Debugger::Cmd::removeBreakPoint(
 		// remove by id
 		try {
 			unsigned id = fast_stou(tmp.substr(3));
-			auto it = find_if(begin(breakPoints), end(breakPoints),
-				[&](const BreakPoint& bp) { return bp.getId() == id; });
+			auto it = ranges::find_if(breakPoints, [&](auto& bp) {
+				return bp.getId() == id;
+			});
 			if (it == end(breakPoints)) {
 				throw CommandException("No such breakpoint: ", tmp);
 			}
@@ -432,11 +434,10 @@ void Debugger::Cmd::removeBreakPoint(
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(getInterpreter(), tokens);
-		auto range = equal_range(begin(breakPoints), end(breakPoints),
-		                         addr, CompareBreakpoints());
-		auto it = find_if(range.first, range.second,
-			[&](const BreakPoint& bp) {
-				return bp.getCondition().empty(); });
+		auto range = ranges::equal_range(breakPoints, addr, CompareBreakpoints());
+		auto it = std::find_if(range.first, range.second, [&](auto& bp) {
+			return bp.getCondition().empty();
+		});
 		if (it == range.second) {
 			throw CommandException(
 				"No (unconditional) breakpoint at address: ", tmp);

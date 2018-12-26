@@ -39,6 +39,7 @@
 #include "serialize.hh"
 #include "openmsx.hh"
 #include "checked_cast.hh"
+#include "ranges.hh"
 #include "statp.hh"
 #include "stl.hh"
 #include "unreachable.hh"
@@ -318,8 +319,8 @@ vector<string> Reactor::getHwConfigs(string_view type)
 		}
 	}
 	// remove duplicates
-	sort(begin(result), end(result));
-	result.erase(unique(begin(result), end(result)), end(result));
+	ranges::sort(result);
+	result.erase(ranges::unique(result), end(result));
 	return result;
 }
 
@@ -428,11 +429,9 @@ void Reactor::switchBoard(MSXMotherBoard* newBoard)
 {
 	assert(Thread::isMainThread());
 	assert(!newBoard ||
-	       (any_of(begin(boards), end(boards),
-	               [&](Boards::value_type& b) { return b.get() == newBoard; })));
+	       (ranges::any_of(boards, [&](auto& b) { return b.get() == newBoard; })));
 	assert(!activeBoard ||
-	       (any_of(begin(boards), end(boards),
-	               [&](Boards::value_type& b) { return b.get() == activeBoard; })));
+	       (ranges::any_of(boards, [&](auto& b) { return b.get() == activeBoard; })));
 	if (activeBoard) {
 		activeBoard->activate(false);
 	}

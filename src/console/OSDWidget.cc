@@ -4,9 +4,9 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "GLUtil.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include <SDL.h>
-#include <algorithm>
 #include <limits>
 #include <memory>
 
@@ -181,7 +181,7 @@ void OSDWidget::resortUp(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it1 + 1, it2);
 #ifdef DEBUG
-	assert(std::is_sorted(begin(subWidgets), end(subWidgets), AscendingZ()));
+	assert(ranges::is_sorted(subWidgets, AscendingZ()));
 #endif
 }
 void OSDWidget::resortDown(OSDWidget* elem)
@@ -200,7 +200,7 @@ void OSDWidget::resortDown(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it2, it2 + 1);
 #ifdef DEBUG
-	assert(std::is_sorted(begin(subWidgets), end(subWidgets), AscendingZ()));
+	assert(ranges::is_sorted(subWidgets, AscendingZ()));
 #endif
 }
 

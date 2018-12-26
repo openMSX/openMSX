@@ -1,10 +1,10 @@
 #include "Keys.hh"
 #include "StringOp.hh"
+#include "cstd.hh"
+#include "ranges.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <vector>
 #include <utility>
-#include "cstd.hh"
 
 using std::string;
 
@@ -34,7 +34,7 @@ struct CmpKeys {
 		return x.first < y.first; // shortcut: no need to ignore case
 	}
 
-	// for std::lower_bound
+	// for lower_bound()
 	bool operator()(const P& x, string_view y) const {
 		StringOp::caseless cmp;
 		return cmp(x.first, y);
@@ -315,7 +315,7 @@ static constexpr auto getSortedKeys()
 		P("PRESS",	KD_PRESS),
 		P("RELEASE",	KD_RELEASE)
 	);
-	cstd::sort(cstd::begin(keys), cstd::end(keys), CmpKeys());
+	cstd::sort(keys, CmpKeys());
 	return keys;
 }
 
@@ -330,7 +330,7 @@ KeyCode getCode(string_view name)
 		auto part = (pos != string_view::npos)
 		          ? name.substr(lastPos, pos)
 		          : name.substr(lastPos);
-		auto it = std::lower_bound(begin(keys), end(keys), part, CmpKeys());
+		auto it = ranges::lower_bound(keys, part, CmpKeys());
 		StringOp::casecmp cmp;
 		if ((it == end(keys)) || !cmp(it->first, part)) {
 			return K_NONE;

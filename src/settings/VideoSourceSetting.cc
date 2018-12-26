@@ -3,6 +3,7 @@
 #include "Completer.hh"
 #include "KeyRange.hh"
 #include "StringOp.hh"
+#include "ranges.hh"
 #include "stl.hh"
 
 namespace openmsx {
@@ -131,10 +132,10 @@ bool VideoSourceSetting::has(int val) const
 
 int VideoSourceSetting::has(string_view val) const
 {
-	auto it = find_if(begin(sources), end(sources),
-		[&](const Sources::value_type& p) {
-			StringOp::casecmp cmp;
-			return cmp(p.first, val); });
+	auto it = ranges::find_if(sources, [&](auto& p) {
+		StringOp::casecmp cmp;
+		return cmp(p.first, val);
+	});
 	return (it != end(sources)) ? it->second : 0;
 }
 

@@ -6,8 +6,8 @@
 #include "InputEventGenerator.hh"
 #include "Thread.hh"
 #include "KeyRange.hh"
+#include "ranges.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
 #include <chrono>
 
@@ -30,8 +30,7 @@ void EventDistributor::registerEventListener(
 		assert(l != &listener); (void)l;
 	}
 	// insert at highest position that keeps listeners sorted on priority
-	auto it = upper_bound(begin(priorityMap), end(priorityMap), priority,
-	                      LessTupleElement<0>());
+	auto it = ranges::upper_bound(priorityMap, priority, LessTupleElement<0>());
 	priorityMap.insert(it, {priority, &listener});
 }
 

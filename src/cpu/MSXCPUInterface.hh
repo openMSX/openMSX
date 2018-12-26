@@ -9,7 +9,7 @@
 #include "WatchPoint.hh"
 #include "openmsx.hh"
 #include "likely.hh"
-#include <algorithm>
+#include "ranges.hh"
 #include <bitset>
 #include <vector>
 #include <memory>
@@ -247,8 +247,7 @@ public:
 	}
 	static bool checkBreakPoints(unsigned pc, MSXMotherBoard& motherBoard)
 	{
-		auto range = equal_range(begin(breakPoints), end(breakPoints),
-		                         pc, CompareBreakpoints());
+		auto range = ranges::equal_range(breakPoints, pc, CompareBreakpoints());
 		if (conditions.empty() && (range.first == range.second)) {
 			return false;
 		}

@@ -1,13 +1,12 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
-#include <algorithm>
+#include "ranges.hh"
 #include <limits>
 #include <cassert>
 #include <cstdlib>
 #include <stdexcept>
 
 using std::string;
-using std::transform;
 using std::vector;
 
 namespace StringOp {
@@ -63,7 +62,7 @@ bool stringToDouble(const string& str, double& result)
 string toLower(string_view str)
 {
 	string result = str.str();
-	transform(begin(result), end(result), begin(result), ::tolower);
+	ranges::transform(result, begin(result), ::tolower);
 	return result;
 }
 
@@ -237,7 +236,7 @@ static void insert(unsigned x, vector<unsigned>& result, unsigned min, unsigned 
 	if ((x < min) || (x > max)) {
 		throw openmsx::MSXException("Out of range");
 	}
-	auto it = std::lower_bound(begin(result), end(result), x);
+	auto it = ranges::lower_bound(result, x);
 	if ((it == end(result)) || (*it != x)) {
 		result.insert(it, x);
 	}

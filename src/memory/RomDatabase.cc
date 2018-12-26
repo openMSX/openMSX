@@ -8,6 +8,7 @@
 #include "String32.hh"
 #include "hash_map.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
 #include "stl.hh"
@@ -393,7 +394,7 @@ void DBParser::addAllEntries()
 	if (mid == last) return; // no new entries
 
 	// Sort new entries, old entries are already sorted.
-	sort(mid, last, LessTupleElement<0>());
+	std::sort(mid, last, LessTupleElement<0>());
 
 	// Filter duplicates from new entries. This is similar to the
 	// unique() algorithm, except that it also warns about duplicates.
@@ -612,8 +613,7 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
-	auto it = lower_bound(begin(db), end(db), sha1sum,
-	                      LessTupleElement<0>());
+	auto it = ranges::lower_bound(db, sha1sum, LessTupleElement<0>());
 	return ((it != end(db)) && (it->first == sha1sum))
 		? &it->second : nullptr;
 }

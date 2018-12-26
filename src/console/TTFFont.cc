@@ -2,10 +2,10 @@
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
 #include <SDL_ttf.h>
-#include <algorithm>
 #include <cassert>
 #include <vector>
 
@@ -95,9 +95,9 @@ TTFFontPool& TTFFontPool::instance()
 
 TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 {
-	auto it = find_if(begin(pool), end(pool),
-		[&](const FontInfo& i) {
-			return (i.name == filename) && (i.size == ptSize); });
+	auto it = ranges::find_if(pool, [&](auto& info) {
+		return (info.name == filename) && (info.size == ptSize);
+	});
 	if (it != end(pool)) {
 		++it->count;
 		return it->font;

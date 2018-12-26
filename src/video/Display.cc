@@ -24,9 +24,9 @@
 #include "build-info.hh"
 #include "checked_cast.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <algorithm>
 #include <cassert>
 
 using std::string;
@@ -374,8 +374,7 @@ void Display::repaintDelayed(uint64_t delta)
 void Display::addLayer(Layer& layer)
 {
 	int z = layer.getZ();
-	auto it = find_if(begin(layers), end(layers),
-		[&](Layer* l) { return l->getZ() > z; });
+	auto it = ranges::find_if(layers, [&](Layer* l) { return l->getZ() > z; });
 	layers.insert(it, &layer);
 	layer.setDisplay(*this);
 }

@@ -2,11 +2,11 @@
 #include "TclObject.hh"
 #include "Completer.hh"
 #include "CommandException.hh"
+#include "StringOp.hh"
+#include "ranges.hh"
+#include "stl.hh"
 #include "stringsp.hh"
 #include "unreachable.hh"
-#include "StringOp.hh"
-#include "stl.hh"
-#include <algorithm>
 
 namespace openmsx {
 
@@ -15,12 +15,12 @@ using Comp = CmpTupleElement<0, StringOp::caseless>;
 EnumSettingBase::EnumSettingBase(BaseMap&& map)
 	: baseMap(std::move(map))
 {
-	sort(begin(baseMap), end(baseMap), Comp());
+	ranges::sort(baseMap, Comp());
 }
 
 int EnumSettingBase::fromStringBase(string_view str) const
 {
-	auto it = lower_bound(begin(baseMap), end(baseMap), str, Comp());
+	auto it = ranges::lower_bound(baseMap, str, Comp());
 	StringOp::casecmp cmp;
 	if ((it == end(baseMap)) || !cmp(it->first, str)) {
 		throw CommandException("not a valid value: ", str);

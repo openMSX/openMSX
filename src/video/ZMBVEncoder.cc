@@ -3,9 +3,9 @@
 #include "ZMBVEncoder.hh"
 #include "FrameSource.hh"
 #include "PixelOperations.hh"
-#include "unreachable.hh"
 #include "endian.hh"
-#include <algorithm>
+#include "ranges.hh"
+#include "unreachable.hh"
 #include <iterator>
 #include <cassert>
 #include <cstdlib>
@@ -114,7 +114,7 @@ static void createVectorTable()
 	}
 	assert(p == VECTOR_TAB_SIZE);
 
-	std::sort(std::begin(vectorTable), std::end(vectorTable));
+	ranges::sort(vectorTable);
 }
 
 ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)

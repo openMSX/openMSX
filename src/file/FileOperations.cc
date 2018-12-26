@@ -48,6 +48,7 @@
 #include "statp.hh"
 #include "unistdp.hh"
 #include "countof.hh"
+#include "ranges.hh"
 #include "build-info.hh"
 #include "AndroidApiWrapper.hh"
 #include <sstream>
@@ -447,7 +448,7 @@ string getNativePath(string_view path)
 {
 	string result = path.str();
 #ifdef _WIN32
-	replace(begin(result), end(result), '/', '\\');
+	ranges::replace(result, '/', '\\');
 #endif
 	return result;
 }
@@ -456,7 +457,7 @@ string getConventionalPath(string_view path)
 {
 	string result = path.str();
 #ifdef _WIN32
-	replace(begin(result), end(result), '\\', '/');
+	ranges::replace(result, '\\', '/');
 #endif
 	return result;
 }

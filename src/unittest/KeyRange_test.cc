@@ -1,8 +1,8 @@
 #include "catch.hpp"
 #include "KeyRange.hh"
 #include "hash_map.hh"
+#include "ranges.hh"
 #include "string_view.hh"
-#include <algorithm>
 #include <map>
 #include <tuple>
 #include <vector>
@@ -22,8 +22,8 @@ static void check_unordered(const RANGE& range, const vector<T>& expected_)
 	vector<T> expected = expected_;
 	REQUIRE(size_t(distance(range.begin(), range.end())) == expected.size());
 	vector<T> result(range.begin(), range.end());
-	sort(result  .begin(), result  .end());
-	sort(expected.begin(), expected.end());
+	ranges::sort(result);
+	ranges::sort(expected);
 	REQUIRE(equal(result.begin(), result.end(), expected.begin()));
 }
 

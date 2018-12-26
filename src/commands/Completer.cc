@@ -3,10 +3,10 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "ReadDir.hh"
-#include "utf8_unchecked.hh"
+#include "ranges.hh"
 #include "strCat.hh"
 #include "stringsp.hh"
-#include <algorithm>
+#include "utf8_unchecked.hh"
 
 using std::vector;
 using std::string;
@@ -93,8 +93,8 @@ bool Completer::completeImpl(string& str, vector<string_view> matches,
 	//  start with. Though sometimes this is hard to avoid. E.g. when doing
 	//  filename completion + some extra allowed strings and one of these
 	//  extra strings is the same as one of the filenames.
-	sort(begin(matches), end(matches));
-	matches.erase(unique(begin(matches), end(matches)), end(matches));
+	ranges::sort(matches);
+	matches.erase(ranges::unique(matches), end(matches));
 
 	bool expanded = false;
 	while (true) {

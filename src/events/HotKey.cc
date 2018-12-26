@@ -9,9 +9,9 @@
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
-#include <algorithm>
 #include <cassert>
 #include <memory>
 
@@ -229,19 +229,19 @@ void HotKey::saveBindings(XMLElement& config) const
 template<typename T>
 static bool contains(const vector<T>& v, const Event& event)
 {
-	return any_of(begin(v), end(v), EqualEvent(event));
+	return ranges::any_of(v, EqualEvent(event));
 }
 
 template<typename T>
 static void erase(vector<T>& v, const Event& event)
 {
-	auto it = find_if(begin(v), end(v), EqualEvent(event));
+	auto it = ranges::find_if(v, EqualEvent(event));
 	if (it != end(v)) move_pop_back(v, it);
 }
 
 static void insert(HotKey::KeySet& set, HotKey::EventPtr event)
 {
-	auto it = find_if(begin(set), end(set), EqualEvent(*event));
+	auto it = ranges::find_if(set, EqualEvent(*event));
 	if (it == end(set)) {
 		set.push_back(event);
 	} else {
@@ -252,7 +252,7 @@ static void insert(HotKey::KeySet& set, HotKey::EventPtr event)
 template<typename HotKeyInfo>
 static void insert(HotKey::BindMap& map, HotKeyInfo&& info)
 {
-	auto it = find_if(begin(map), end(map), EqualEvent(*info.event));
+	auto it = ranges::find_if(map, EqualEvent(*info.event));
 	if (it == end(map)) {
 		map.push_back(std::forward<HotKeyInfo>(info));
 	} else {
@@ -272,7 +272,7 @@ void HotKey::bind(HotKeyInfo&& info)
 
 void HotKey::unbind(const EventPtr& event)
 {
-	auto it1 = find_if(begin(boundKeys), end(boundKeys), EqualEvent(*event));
+	auto it1 = ranges::find_if(boundKeys, EqualEvent(*event));
 	if (it1 == end(boundKeys)) {
 		// only when not a regular bound event
 		insert(unboundKeys, event);
@@ -346,8 +346,9 @@ void HotKey::deactivateLayer(string_view layer)
 static HotKey::BindMap::const_iterator findMatch(
 	const HotKey::BindMap& map, const Event& event)
 {
-	return find_if(begin(map), end(map),
-		[&](const auto& p) { return p.event->matches(event); });
+	return ranges::find_if(map, [&](auto& p) {
+		return p.event->matches(event);
+	});
 }
 
 void HotKey::executeRT()
@@ -536,8 +537,8 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
 	}
 	case 1: {
 		// show bindings for this key (in this layer)
-		auto it = find_if(begin(cMap), end(cMap), EqualEvent(
-			                 *createEvent(tokens[0], getInterpreter())));
+		auto it = ranges::find_if(cMap,
+		                          EqualEvent(*createEvent(tokens[0], getInterpreter())));
 		if (it == end(cMap)) {
 			throw CommandException("Key not bound");
 		}

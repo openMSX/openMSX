@@ -15,6 +15,7 @@
 #include "SectorBasedDisk.hh"
 #include "StringOp.hh"
 #include "TclObject.hh"
+#include "ranges.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cctype>
@@ -75,15 +76,15 @@ void DiskManipulator::unregisterDrive(DiskContainer& drive)
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	DiskContainer& drive)
 {
-	return find_if(begin(drives), end(drives),
-	               [&](DriveSettings& ds) { return ds.drive == &drive; });
+	return ranges::find_if(drives,
+	                       [&](auto& ds) { return ds.drive == &drive; });
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	string_view driveName)
 {
-	return find_if(begin(drives), end(drives),
-	               [&](DriveSettings& ds) { return ds.driveName == driveName; });
+	return ranges::find_if(drives,
+	                       [&](auto& ds) { return ds.driveName == driveName; });
 }
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(

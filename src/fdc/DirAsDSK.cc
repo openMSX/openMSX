@@ -7,8 +7,8 @@
 #include "FileException.hh"
 #include "ReadDir.hh"
 #include "StringOp.hh"
+#include "ranges.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <vector>
@@ -226,7 +226,7 @@ bool DirAsDSK::checkFileUsedInDSK(const string& hostName)
 static string hostToMsxName(string hostName)
 {
 	// Create an MSX filename 8.3 format. TODO use vfat-like abbreviation
-	transform(begin(hostName), end(hostName), begin(hostName),
+	ranges::transform(hostName, begin(hostName),
 		[](char a) { return (a == ' ') ? '_' : ::toupper(a); });
 
 	string_view file, ext;
@@ -236,7 +236,7 @@ static string hostToMsxName(string hostName)
 	string result(8 + 3, ' ');
 	memcpy(&*begin(result) + 0, file.data(), std::min<size_t>(8, file.size()));
 	memcpy(&*begin(result) + 8, ext .data(), std::min<size_t>(3, ext .size()));
-	replace(begin(result), end(result), '.', '_');
+	ranges::replace(result, '.', '_');
 	return result;
 }
 
@@ -680,7 +680,7 @@ static size_t weight(const string& hostName)
 	string_view file, ext;
 	StringOp::splitOnLast(hostName, '.', file, ext);
 	// too many '.' characters
-	result += std::count(begin(file), end(file), '.') * 100;
+	result += ranges::count(file, '.') * 100;
 	// too long extension
 	result += ext.size() * 10;
 	// too long file
@@ -700,7 +700,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 			hostNames.emplace_back(d->d_name);
 		}
 	}
-	sort(begin(hostNames), end(hostNames),
+	ranges::sort(hostNames,
 	     [](const string& l, const string& r) { return weight(l) < weight(r); });
 
 	for (auto& hostName : hostNames) {

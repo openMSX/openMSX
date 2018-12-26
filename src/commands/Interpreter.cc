@@ -9,6 +9,7 @@
 #include "InterpreterOutput.hh"
 #include "MSXCPUInterface.hh"
 #include "FileOperations.hh"
+#include "ranges.hh"
 #include "span.hh"
 #include "stl.hh"
 #include "unreachable.hh"
@@ -317,8 +318,7 @@ void Interpreter::unregisterSetting(BaseSetting& variable)
 
 static BaseSetting* getTraceSetting(uintptr_t traceID)
 {
-	auto it = lower_bound(begin(traces), end(traces), traceID,
-	                      LessTupleElement<0>());
+	auto it = ranges::lower_bound(traces, traceID, LessTupleElement<0>());
 	return ((it != end(traces)) && (it->first == traceID))
 		? it->second : nullptr;
 }

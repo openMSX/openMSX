@@ -8,13 +8,13 @@
 #include "HardwareConfig.hh"
 #include "MSXException.hh"
 #include "Math.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "xrange.hh"
 #include "countof.hh"
 #include <cstring>
 #include <cassert>
 #include <memory>
-#include <numeric>
 
 using std::string;
 using std::vector;
@@ -26,7 +26,7 @@ AmdFlash::AmdFlash(const Rom& rom, vector<SectorInfo> sectorInfo_,
                    const DeviceConfig& config, bool load)
 	: motherBoard(config.getMotherBoard())
 	, sectorInfo(std::move(sectorInfo_))
-	, size(std::accumulate(begin(sectorInfo), end(sectorInfo), 0, [](int t, SectorInfo i) { return t + i.size;}))
+	, size(ranges::accumulate(sectorInfo, 0, [](int t, SectorInfo i) { return t + i.size;}))
 	, ID(ID_)
 	, use12bitAddressing(use12bitAddressing_)
 {
@@ -38,7 +38,7 @@ AmdFlash::AmdFlash(const string& name, vector<SectorInfo> sectorInfo_,
                    const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, sectorInfo(std::move(sectorInfo_))
-	, size(std::accumulate(begin(sectorInfo), end(sectorInfo), 0, [](int t, SectorInfo i) { return t + i.size;}))
+	, size(ranges::accumulate(sectorInfo, 0, [](int t, SectorInfo i) { return t + i.size;}))
 	, ID(ID_)
 	, use12bitAddressing(use12bitAddressing_)
 {

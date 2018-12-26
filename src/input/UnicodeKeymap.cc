@@ -3,8 +3,8 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "ranges.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cstring>
 
 namespace openmsx {
@@ -99,8 +99,7 @@ UnicodeKeymap::UnicodeKeymap(string_view keyboardType)
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::get(unsigned unicode) const
 {
-	auto it = lower_bound(begin(mapdata), end(mapdata), unicode,
-	                      LessTupleElement<0>());
+	auto it = ranges::lower_bound(mapdata, unicode, LessTupleElement<0>());
 	return ((it != end(mapdata)) && (it->first == unicode))
 		? it->second : KeyInfo();
 }
@@ -208,7 +207,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 		}
 	}
 
-	sort(begin(mapdata), end(mapdata), LessTupleElement<0>());
+	ranges::sort(mapdata, LessTupleElement<0>());
 }
 
 } // namespace openmsx

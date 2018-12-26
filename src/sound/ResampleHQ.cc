@@ -15,10 +15,10 @@
 #include "MemBuffer.hh"
 #include "countof.hh"
 #include "likely.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "vla.hh"
 #include "build-info.hh"
-#include <algorithm>
 #include <vector>
 #include <cmath>
 #include <cstddef>
@@ -85,8 +85,7 @@ ResampleCoeffs& ResampleCoeffs::instance()
 void ResampleCoeffs::getCoeffs(
 	double ratio, int16_t*& permute, float*& table, unsigned& filterLen)
 {
-	auto it = find_if(begin(cache), end(cache),
-		[=](const Element& e) { return e.ratio == ratio; });
+	auto it = ranges::find_if(cache, [=](auto& e) { return e.ratio == ratio; });
 	if (it != end(cache)) {
 		permute   = it->permute.data();
 		table     = it->table.data();
