@@ -14,7 +14,7 @@
 #include "StringOp.hh"
 #include "strCat.hh"
 #include "File.hh"
-#include "ranges.hh"
+#include "stl.hh"
 #include <cstring>
 #include <cassert>
 #include <cctype>
@@ -352,8 +352,8 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 	// put in major case and create '_' if needed
 	string fileS(file.data(), std::min<size_t>(8, file.size()));
 	string extS (ext .data(), std::min<size_t>(3, ext .size()));
-	ranges::transform(fileS, begin(fileS), toMSXChr);
-	ranges::transform(extS , begin(extS ), toMSXChr);
+	transform_in_place(fileS, toMSXChr);
+	transform_in_place(extS,  toMSXChr);
 
 	// add correct number of spaces
 	memcpy(&*begin(result) + 0, fileS.data(), fileS.size());

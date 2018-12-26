@@ -2,6 +2,8 @@
 #define STL_HH
 
 #include <algorithm>
+#include <iterator>
+#include <numeric>
 #include <tuple>
 #include <utility>
 #include <cassert>
@@ -234,6 +236,65 @@ l_true:				*out_true++  = std::move(*first++);
 		}
 	}
 	return std::make_pair(out_true, out_false);
+}
+
+
+// Like range::transform(), but with equal source and destination.
+template<typename ForwardRange, typename UnaryOperation>
+auto transform_in_place(ForwardRange&& range, UnaryOperation op)
+{
+	return std::transform(std::begin(range), std::end(range), std::begin(range), op);
+}
+
+
+// Returns (a copy of) the minimum value in [first, last).
+// Requires: first != last.
+template<typename InputIterator>
+auto min_value(InputIterator first, InputIterator last)
+{
+	assert(first != last);
+	auto result = *first++;
+	while (first != last) {
+		result = std::min(result, *first++);
+	}
+	return result;
+}
+
+template<typename InputRange>
+auto min_value(InputRange&& range)
+{
+	return min_value(std::begin(range), std::end(range));
+}
+
+// Returns (a copy of) the maximum value in [first, last).
+// Requires: first != last.
+template<typename InputIterator>
+auto max_value(InputIterator first, InputIterator last)
+{
+	assert(first != last);
+	auto result = *first++;
+	while (first != last) {
+		result = std::max(result, *first++);
+	}
+	return result;
+}
+
+template<typename InputRange>
+auto max_value(InputRange&& range)
+{
+	return max_value(std::begin(range), std::end(range));
+}
+
+
+// Returns the sum of the elements in the given range.
+// Assumes: elements can be summed via operator+, with a default constructed
+// value being the identity-element for this operator.
+template<typename InputRange>
+auto sum(InputRange&& range)
+{
+	using Iter = decltype(std::begin(range));
+	using T = typename std::iterator_traits<Iter>::value_type;
+	return std::accumulate(std::begin(range), std::end(range), T());
 }
 
 #endif

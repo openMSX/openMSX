@@ -1,6 +1,7 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "ranges.hh"
+#include "stl.hh"
 #include <limits>
 #include <cassert>
 #include <cstdlib>
@@ -62,7 +63,7 @@ bool stringToDouble(const string& str, double& result)
 string toLower(string_view str)
 {
 	string result = str.str();
-	ranges::transform(result, begin(result), ::tolower);
+	transform_in_place(result, ::tolower);
 	return result;
 }
 

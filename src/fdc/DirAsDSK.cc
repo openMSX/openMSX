@@ -226,9 +226,9 @@ bool DirAsDSK::checkFileUsedInDSK(const string& hostName)
 static string hostToMsxName(string hostName)
 {
 	// Create an MSX filename 8.3 format. TODO use vfat-like abbreviation
-	ranges::transform(hostName, begin(hostName),
-		[](char a) { return (a == ' ') ? '_' : ::toupper(a); });
-
+	transform_in_place(hostName, [](char a) {
+		return (a == ' ') ? '_' : ::toupper(a);
+	});
 	string_view file, ext;
 	StringOp::splitOnLast(hostName, '.', file, ext);
 	if (file.empty()) std::swap(file, ext);
