@@ -13,6 +13,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <iostream>
@@ -171,9 +172,9 @@ HardwareConfig::~HardwareConfig()
 void HardwareConfig::testRemove() const
 {
 	std::vector<MSXDevice*> alreadyRemoved;
-	for (auto it = rbegin(devices); it != rend(devices); ++it) {
-		(*it)->testRemove(alreadyRemoved);
-		alreadyRemoved.push_back(it->get());
+	for (auto& dev : view::reverse(devices)) {
+		dev->testRemove(alreadyRemoved);
+		alreadyRemoved.push_back(dev.get());
 	}
 	auto& slotManager = motherBoard.getSlotManager();
 	for (auto ps : xrange(4)) {

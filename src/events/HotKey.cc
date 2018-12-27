@@ -336,8 +336,8 @@ void HotKey::deactivateLayer(string_view layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
-	auto it = std::find_if(rbegin(activeLayers), rend(activeLayers),
-		[&](const LayerInfo& info) { return info.layer == layer; });
+	auto it = ranges::find_if(view::reverse(activeLayers),
+	                          [&](auto& info) { return info.layer == layer; });
 	if (it != activeLayers.rend()) {
 		// 'reverse_iterator' -> 'iterator' conversion is a bit tricky
 		activeLayers.erase((it + 1).base());
@@ -379,16 +379,16 @@ int HotKey::executeEvent(const EventPtr& event)
 {
 	// First search in active layers (from back to front)
 	bool blocking = false;
-	for (auto it = rbegin(activeLayers); it != rend(activeLayers); ++it) {
-		auto& cmap = layerMap[it->layer]; // ok, if this entry doesn't exist yet
-		auto it2 = findMatch(cmap, *event);
-		if (it2 != end(cmap)) {
-			executeBinding(event, *it2);
+	for (auto& info : view::reverse(activeLayers)) {
+		auto& cmap = layerMap[info.layer]; // ok, if this entry doesn't exist yet
+		auto it = findMatch(cmap, *event);
+		if (it != end(cmap)) {
+			executeBinding(event, *it);
 			// Deny event to MSX listeners, also don't pass event
 			// to other layers (including the default layer).
 			return EventDistributor::MSX;
 		}
-		blocking = it->blocking;
+		blocking = info.blocking;
 		if (blocking) break; // don't try lower layers
 	}
 
@@ -670,10 +670,9 @@ void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& resul
 	string r;
 	auto& hotKey = OUTER(HotKey, activateCmd);
 	if (layer.empty()) {
-		for (auto it = rbegin(hotKey.activeLayers);
-		     it != rend(hotKey.activeLayers); ++it) {
-			r += it->layer;
-			if (it->blocking) {
+		for (auto& info : view::reverse(hotKey.activeLayers)) {
+			r += info.layer;
+			if (info.blocking) {
 				r += " -blocking";
 			}
 			r += '\n';

@@ -7,6 +7,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "stringsp.hh" // for strncasecmp
+#include "view.hh"
 #include <cstring> // for memcpy, memcmp
 #include <cstdlib> // for atoi
 #include <cctype> // for isspace
@@ -237,9 +238,9 @@ OggReader::~OggReader()
 void OggReader::vorbisFoundPosition()
 {
 	auto last = vorbisPos;
-	for (auto it = rbegin(audioList); it != rend(audioList); ++it) {
-		last -= (*it)->length;
-		(*it)->position = last;
+	for (auto& audioFrag : view::reverse(audioList)) {
+		last -= audioFrag->length;
+		audioFrag->position = last;
 	}
 
 	// last is now the first vorbis audio decoded
@@ -601,10 +602,9 @@ void OggReader::readTheora(ogg_packet* packet)
 	// numbers correctly
 	if (!frameList.empty() && (frameno != size_t(-1)) &&
 	    (frameList[0]->no == size_t(-1))) {
-		for (auto it = rbegin(frameList);
-		     it != rend(frameList); ++it) {
-			frameno -= (*it)->length;
-			(*it)->no = frameno;
+		for (auto& frm : view::reverse(frameList)) {
+			frameno -= frm->length;
+			frm->no = frameno;
 		}
 	}
 
