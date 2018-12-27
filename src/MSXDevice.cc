@@ -12,6 +12,7 @@
 #include "serialize.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include <cassert>
 #include <cstring>
 #include <iterator> // for back_inserter
@@ -306,13 +307,11 @@ void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 		size = 0;
 		return;
 	}
-	auto it = begin(memRegions);
-	unsigned lowest  = it->first;
-	unsigned highest = it->first + it->second;
-	for (++it; it != end(memRegions); ++it) {
-		lowest  = std::min(lowest,  it->first);
-		highest = std::max(highest, it->first + it->second);
-	}
+
+	auto lowest  = min_value(view::transform(memRegions,
+		[](auto& r) { return r.first; }));
+	auto highest = max_value(view::transform(memRegions,
+		[](auto& r) { return r.first + r.second; }));
 	assert(lowest <= highest);
 	base = lowest;
 	size = highest - lowest;
