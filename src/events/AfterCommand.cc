@@ -13,6 +13,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include <iterator>
 #include <memory>
 #include <sstream>
@@ -274,7 +275,7 @@ void AfterCommand::afterTclTime(
 	int ms, span<const TclObject> tokens, TclObject& result)
 {
 	TclObject command;
-	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
+	command.addListElements(view::drop(tokens, 2));
 	auto cmd = std::make_unique<AfterRealTimeCmd>(
 		reactor.getRTScheduler(), *this, command, ms / 1000.0);
 	result.setString(cmd->getId());
@@ -350,7 +351,7 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 		}
 	}
 	TclObject command;
-	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
+	command.addListElements(view::drop(tokens, 2));
 	string_view cmdStr = command.getString();
 	auto it = ranges::find_if(afterCmds,
 	                          [&](auto& e) { return e->getCommand() == cmdStr; });

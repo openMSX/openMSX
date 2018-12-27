@@ -475,15 +475,14 @@ void GlobalCommandController::HelpCmd::execute(
 		auto it = controller.commandCompleters.find(tokens[1].getString());
 		if (it != end(controller.commandCompleters)) {
 			vector<string> tokens2;
-			auto it2 = std::begin(tokens);
-			for (++it2; it2 != std::end(tokens); ++it2) {
-				tokens2.push_back(it2->getString().str());
+			for (auto& t : view::drop(tokens, 1)) {
+				tokens2.push_back(t.getString().str());
 			}
 			result.setString(it->second->help(tokens2));
 		} else {
 			TclObject command;
 			command.addListElement("openmsx::help");
-			command.addListElements(std::begin(tokens) + 1, std::end(tokens));
+			command.addListElements(view::drop(tokens, 1));
 			result = command.executeCommand(getInterpreter());
 		}
 		break;

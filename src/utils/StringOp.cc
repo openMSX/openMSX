@@ -2,6 +2,7 @@
 #include "MSXException.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "view.hh"
 #include <limits>
 #include <cassert>
 #include <cstdlib>
@@ -211,10 +212,9 @@ string join(const vector<string_view>& elems, char separator)
 {
 	if (elems.empty()) return {};
 
-	auto it = begin(elems);
-	string result = strCat(*it);
-	for (++it; it != end(elems); ++it) {
-		strAppend(result, separator, *it);
+	string result = strCat(elems.front());
+	for (auto& e : view::drop(elems, 1)) {
+		strAppend(result, separator, e);
 	}
 	return result;
 }

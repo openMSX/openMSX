@@ -11,6 +11,7 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <memory>
@@ -479,7 +480,7 @@ static vector<TclObject> parse(bool defaultCmd, span<const TclObject> tokens_,
                                string& layer, bool& layers)
 {
 	layers = false;
-	vector<TclObject> tokens(std::begin(tokens_) + 1, std::end(tokens_));
+	auto tokens = to_vector(view::drop(tokens_, 1));
 	for (size_t i = 0; i < tokens.size(); /**/) {
 		if (tokens[i] == "-layer") {
 			if (i == (tokens.size() - 1)) {

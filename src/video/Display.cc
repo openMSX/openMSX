@@ -27,6 +27,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include <cassert>
 
 using std::string;
@@ -412,8 +413,7 @@ void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& re
 		string_view tok = tokens[i].getString();
 		if (StringOp::startsWith(tok, '-')) {
 			if (tok == "--") {
-				arguments.insert(end(arguments),
-					std::begin(tokens) + i + 1, std::end(tokens));
+				append(arguments, view::drop(tokens, i + 1));
 				break;
 			}
 			if (tok == "-prefix") {

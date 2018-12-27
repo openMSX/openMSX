@@ -13,6 +13,7 @@
 #include "FileOperations.hh"
 #include "TclObject.hh"
 #include "outer.hh"
+#include "view.hh"
 #include "vla.hh"
 #include <cassert>
 #include <memory>
@@ -205,9 +206,8 @@ void AviRecorder::processStart(span<const TclObject> tokens, TclObject& result)
 		string_view token = tokens[i].getString();
 		if (token.starts_with('-')) {
 			if (token == "--") {
-				for (auto it = std::begin(tokens) + i + 1;
-				     it != std::end(tokens); ++it) {
-					arguments.push_back(it->getString().str());
+				for (auto& t : view::drop(tokens, i + 1)) {
+					arguments.push_back(t.getString().str());
 				}
 				break;
 			}
