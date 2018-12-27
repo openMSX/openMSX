@@ -2,6 +2,7 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include <iostream>
 #include <cassert>
 
@@ -94,10 +95,8 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete topic
-		vector<string_view> topics;
-		for (auto* t : infoTopics) {
-			topics.emplace_back(t->getName());
-		}
+		auto topics = to_vector(view::transform(
+			infoTopics, [](auto* t) { return t->getName(); }));
 		completeString(tokens, topics);
 		break;
 	}

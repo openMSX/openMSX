@@ -206,9 +206,9 @@ void AviRecorder::processStart(span<const TclObject> tokens, TclObject& result)
 		string_view token = tokens[i].getString();
 		if (token.starts_with('-')) {
 			if (token == "--") {
-				for (auto& t : view::drop(tokens, i + 1)) {
-					arguments.push_back(t.getString().str());
-				}
+				append(arguments, view::transform(
+					view::drop(tokens, i + 1),
+					[](auto& t) { return t.getString().str(); }));
 				break;
 			}
 			if (token == "-prefix") {

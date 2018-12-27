@@ -8,6 +8,7 @@
 #include "serialize_stl.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 
 using std::vector;
 using std::string;
@@ -107,16 +108,14 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 	// serialize vector<TclObject> as vector<string>
 	vector<string> str;
 	if (!ar.isLoader()) {
-		for (auto& t : tokens) {
-			str.push_back(t.getString().str());
-		}
+		str = to_vector(view::transform(
+			tokens, [](auto& t) { return t.getString().str(); }));
 	}
 	ar.serialize("tokens", str);
 	if (ar.isLoader()) {
 		assert(tokens.empty());
-		for (auto& s : str) {
-			tokens.emplace_back(s);
-		}
+		tokens = to_vector(view::transform(
+			str, [](auto& s) { return TclObject(s); }));
 	}
 }
 REGISTER_POLYMORPHIC_CLASS(StateChange, MSXCommandEvent, "MSXCommandEvent");

@@ -10,6 +10,7 @@
 #include "checked_cast.hh"
 #include "outer.hh"
 #include "stl.hh"
+#include "view.hh"
 #include <cassert>
 #include <memory>
 
@@ -257,12 +258,9 @@ void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 
 vector<string_view> UserSettings::Cmd::getSettingNames() const
 {
-	vector<string_view> result;
-	auto& userSettings = OUTER(UserSettings, userSettingCommand);
-	for (auto& s : userSettings.getSettings()) {
-		result.push_back(s->getFullName());
-	}
-	return result;
+	return to_vector(view::transform(
+		OUTER(UserSettings, userSettingCommand).getSettings(),
+		[](auto& s) { return s->getFullName(); }));
 }
 
 } // namespace openmsx

@@ -17,6 +17,7 @@
 #include "TclObject.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "strCat.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cctype>
@@ -49,8 +50,8 @@ DiskManipulator::~DiskManipulator()
 
 string DiskManipulator::getMachinePrefix() const
 {
-	string id = reactor.getMachineID();
-	return id.empty() ? id : id + "::";
+	string_view id = reactor.getMachineID();
+	return id.empty() ? string{} : strCat(id, "::");
 }
 
 void DiskManipulator::registerDrive(

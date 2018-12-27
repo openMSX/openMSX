@@ -44,6 +44,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include <cassert>
 #include <functional>
 #include <iostream>
@@ -901,10 +902,9 @@ string RemoveExtCmd::help(const vector<string>& /*tokens*/) const
 void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		vector<string_view> names;
-		for (auto& e : motherBoard.getExtensions()) {
-			names.emplace_back(e->getName());
-		}
+		auto names = to_vector(view::transform(
+			motherBoard.getExtensions(),
+			[](auto& e) { return e->getName(); }));
 		completeString(tokens, names);
 	}
 }
@@ -989,10 +989,9 @@ string DeviceInfo::help(const vector<string>& /*tokens*/) const
 void DeviceInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string> names;
-		for (auto& d : motherBoard.availableDevices) {
-			names.push_back(d->getName());
-		}
+		auto names = to_vector(view::transform(
+			motherBoard.availableDevices,
+			[](auto& d) { return d->getName(); }));
 		completeString(tokens, names);
 	}
 }

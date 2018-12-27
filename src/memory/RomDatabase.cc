@@ -12,6 +12,7 @@
 #include "rapidsax.hh"
 #include "unreachable.hh"
 #include "stl.hh"
+#include "view.hh"
 #include "xxhash.hh"
 #include <cassert>
 #include <stdexcept>
@@ -373,12 +374,12 @@ String32 DBParser::cIndex(string_view str)
 // called on </software>
 void DBParser::addEntries()
 {
-	for (auto& d : dumps) {
-		db.emplace_back(d.hash, RomInfo(
-			title, year, company, country,
-			d.origValue, d.origData, d.remark, d.type,
-			genMSXid));
-	}
+	append(db, view::transform(dumps, [&](auto& d) {
+		return std::make_pair(
+			d.hash,
+			RomInfo(title, year, company, country, d.origValue,
+			        d.origData, d.remark, d.type, genMSXid));
+	}));
 }
 
 // called on </softwaredb>

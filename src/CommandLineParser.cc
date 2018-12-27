@@ -22,6 +22,7 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "view.hh"
 #include "xxhash.hh"
 #include "build-info.hh"
 #include <cassert>
@@ -90,9 +91,9 @@ void CommandLineParser::registerOption(
 void CommandLineParser::registerFileType(
 	string_view extensions, CLIFileType& cliFileType)
 {
-	for (auto& ext: StringOp::split(extensions, ',')) {
-		fileTypes.emplace_back(ext, &cliFileType);
-	}
+	append(fileTypes, view::transform(
+		StringOp::split(extensions, ','),
+		[&](auto& ext) { return std::make_pair(ext, &cliFileType); }));
 }
 
 bool CommandLineParser::parseOption(
@@ -159,10 +160,9 @@ void CommandLineParser::parse(int argc, char** argv)
 {
 	parseStatus = RUN;
 
-	vector<string> cmdLineBuf;
-	for (auto i : xrange(1, argc)) {
-		cmdLineBuf.push_back(FileOperations::getConventionalPath(argv[i]));
-	}
+	auto cmdLineBuf = to_vector(view::transform(xrange(1, argc), [&](auto i) {
+		return FileOperations::getConventionalPath(argv[i]);
+	}));
 	span<string> cmdLine(cmdLineBuf);
 	vector<string> backupCmdLine;
 
@@ -422,14 +422,13 @@ static string formatHelptext(string_view helpText,
 using GroupedItems = hash_map<string_view, vector<string_view>, XXHasher>;
 static void printItemMap(const GroupedItems& itemMap)
 {
-	vector<string> printSet;
-	for (auto& p : itemMap) {
-		printSet.push_back(strCat(formatSet(p.second, 15), ' ',
-		                          formatHelptext(p.first, 50, 20)));
-	}
+	auto printSet = to_vector(view::transform(itemMap, [](auto& p) {
+		return strCat(formatSet(p.second, 15), ' ',
+		              formatHelptext(p.first, 50, 20));
+	}));
 	ranges::sort(printSet);
 	for (auto& s : printSet) {
-		cout << s << endl;
+		cout << s << '\n';
 	}
 }
 

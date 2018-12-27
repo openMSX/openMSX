@@ -19,6 +19,7 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include "vla.hh"
 #include <cassert>
 #include <cmath>
@@ -789,11 +790,9 @@ string MSXMixer::SoundDeviceInfoTopic::help(const vector<string>& /*tokens*/) co
 void MSXMixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string_view> devices;
-		auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
-		for (auto& info : msxMixer.infos) {
-			devices.emplace_back(info.device->getName());
-		}
+		auto devices = to_vector(view::transform(
+			OUTER(MSXMixer, soundDeviceInfo).infos,
+			[](auto& info) { return info.device->getName(); }));
 		completeString(tokens, devices);
 	}
 }

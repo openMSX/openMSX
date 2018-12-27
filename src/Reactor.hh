@@ -105,7 +105,7 @@ public:
 	CommandController& getCommandController();
 	CliComm& getCliComm();
 	Interpreter& getInterpreter();
-	std::string getMachineID() const;
+	string_view getMachineID() const;
 
 	using Board = std::unique_ptr<MSXMotherBoard>;
 	Board createEmptyMotherBoard();

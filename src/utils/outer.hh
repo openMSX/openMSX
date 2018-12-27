@@ -35,6 +35,6 @@
 // reference to the outer object. The first parameter is the type of the outer
 // object, the second parameter is the name of the 'this' member variable in
 // the outer object.
-#define OUTER(type, member) *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(this) - offsetof(type, member));
+#define OUTER(type, member) (*reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(this) - offsetof(type, member)))
 
 #endif

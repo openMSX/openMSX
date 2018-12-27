@@ -20,6 +20,7 @@
 #include "openmsx.hh"
 #include "outer.hh"
 #include "stl.hh"
+#include "view.hh"
 #include <SDL.h>
 #include <cstdio>
 #include <cstring>
@@ -1305,9 +1306,8 @@ void Keyboard::MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	//ar.serialize("eventQueue", eventQueue);
 	vector<string> eventStrs;
 	if (!ar.isLoader()) {
-		for (auto& e : eventQueue) {
-			eventStrs.push_back(e->toString());
-		}
+		eventStrs = to_vector(view::transform(
+			eventQueue, [](auto& e) { return e->toString(); }));
 	}
 	ar.serialize("eventQueue", eventStrs);
 	if (ar.isLoader()) {

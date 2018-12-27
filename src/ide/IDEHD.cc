@@ -6,6 +6,7 @@
 #include "DiskManipulator.hh"
 #include "endian.hh"
 #include "serialize.hh"
+#include "strCat.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -16,7 +17,8 @@ IDEHD::IDEHD(const DeviceConfig& config)
 	, diskManipulator(config.getReactor().getDiskManipulator())
 {
 	transferSectorNumber = 0; // avoid UMR is serialize()
-	diskManipulator.registerDrive(*this, config.getMotherBoard().getMachineID() + "::");
+	diskManipulator.registerDrive(
+		*this, strCat(config.getMotherBoard().getMachineID(), "::"));
 }
 
 IDEHD::~IDEHD()

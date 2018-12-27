@@ -3,6 +3,7 @@
 #include "OutputSurface.hh"
 #include "Display.hh"
 #include "CliComm.hh"
+#include "view.hh"
 
 namespace openmsx {
 
@@ -80,11 +81,8 @@ void OSDTopWidget::removeName(OSDWidget& widget)
 
 std::vector<string_view> OSDTopWidget::getAllWidgetNames() const
 {
-	std::vector<string_view> result;
-	for (auto* p : widgetsByName) {
-		result.push_back(p->getName());
-	}
-	return result;
+	return to_vector(view::transform(widgetsByName,
+	                                 [](auto* p) { return p->getName(); }));
 }
 
 } // namespace openmsx

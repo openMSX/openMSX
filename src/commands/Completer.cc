@@ -8,6 +8,7 @@
 #include "strCat.hh"
 #include "stringsp.hh"
 #include "utf8_unchecked.hh"
+#include "view.hh"
 
 using std::vector;
 using std::string;
@@ -51,9 +52,7 @@ static vector<string> format(const vector<string_view>& input, size_t columnLimi
 			return result;
 		}
 	}
-	for (auto& s : input) {
-		result.push_back(s.str());
-	}
+	append(result, view::transform(input, [](auto& s) { return s.str(); }));
 	return result;
 }
 

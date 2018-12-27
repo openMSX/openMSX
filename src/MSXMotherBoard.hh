@@ -66,8 +66,8 @@ public:
 	explicit MSXMotherBoard(Reactor& reactor);
 	~MSXMotherBoard();
 
-	const std::string& getMachineID()   const { return machineID; }
-	const std::string& getMachineName() const { return machineName; }
+	string_view getMachineID()   const { return machineID; }
+	string_view getMachineName() const { return machineName; }
 
 	/** Run emulation.
 	 * @return True if emulation steps were done,

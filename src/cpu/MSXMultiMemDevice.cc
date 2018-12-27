@@ -69,11 +69,8 @@ void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
 
 std::vector<MSXDevice*> MSXMultiMemDevice::getDevices() const
 {
-	std::vector<MSXDevice*> result;
-	for (auto& rn : view::drop_back(ranges, 1)) {
-		result.push_back(rn.device);
-	}
-	return result;
+	return to_vector(view::transform(view::drop_back(ranges, 1),
+	                                 [](auto& rn) { return rn.device; }));
 }
 
 std::string MSXMultiMemDevice::getName() const

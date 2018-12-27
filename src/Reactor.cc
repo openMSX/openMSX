@@ -43,6 +43,7 @@
 #include "statp.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <memory>
@@ -328,9 +329,8 @@ void Reactor::createMachineSetting()
 {
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	int count = 1;
-	for (auto& name : getHwConfigs("machines")) {
-		machines.emplace_back(name, count++);
-	}
+	append(machines, view::transform(getHwConfigs("machines"),
+		[&](auto& name) { return std::make_pair(name, count++); }));
 	machines.emplace_back("C-BIOS_MSX2+", 0); // default machine
 
 	machineSetting = make_unique<EnumSetting<int>>(
@@ -345,18 +345,15 @@ MSXMotherBoard* Reactor::getMotherBoard() const
 	return activeBoard;
 }
 
-string Reactor::getMachineID() const
+string_view Reactor::getMachineID() const
 {
-	return activeBoard ? activeBoard->getMachineID() : string{};
+	return activeBoard ? activeBoard->getMachineID() : string_view{};
 }
 
 vector<string_view> Reactor::getMachineIDs() const
 {
-	vector<string_view> result;
-	for (auto& b : boards) {
-		result.emplace_back(b->getMachineID());
-	}
-	return result;
+	return to_vector(view::transform(
+		boards, [](auto& b) { return b->getMachineID(); }));
 }
 
 MSXMotherBoard& Reactor::getMachine(string_view machineID) const

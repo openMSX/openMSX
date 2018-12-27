@@ -22,6 +22,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "serialize_constr.hh"
+#include "strCat.hh"
 #include <functional>
 #include <memory>
 #include <utility>
@@ -58,7 +59,7 @@ DiskChanger::DiskChanger(MSXMotherBoard& board,
 	, driveName(std::move(driveName_))
 	, doubleSidedDrive(doubleSidedDrive_)
 {
-	init(board.getMachineID() + "::", createCmd);
+	init(strCat(board.getMachineID(), "::"), createCmd);
 }
 
 DiskChanger::DiskChanger(Reactor& reactor_, string driveName_)

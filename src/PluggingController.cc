@@ -9,6 +9,7 @@
 #include "CliComm.hh"
 #include "outer.hh"
 #include "stl.hh"
+#include "view.hh"
 #include <cassert>
 #include <iostream>
 
@@ -136,10 +137,9 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 	auto& pluggingController = OUTER(PluggingController, plugCmd);
 	if (tokens.size() == 2) {
 		// complete connector
-		vector<string_view> connectorNames;
-		for (auto& c : pluggingController.connectors) {
-			connectorNames.emplace_back(c->getName());
-		}
+		auto connectorNames = to_vector(view::transform(
+			pluggingController.connectors,
+			[](auto& c) { return c->getName(); }));
 		completeString(tokens, connectorNames);
 	} else if (tokens.size() == 3) {
 		// complete pluggable
@@ -195,11 +195,9 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete connector
-		vector<string_view> connectorNames;
-		auto& pluggingController = OUTER(PluggingController, unplugCmd);
-		for (auto& c : pluggingController.connectors) {
-			connectorNames.emplace_back(c->getName());
-		}
+		auto connectorNames = to_vector(view::transform(
+			OUTER(PluggingController, unplugCmd).connectors,
+			[](auto* c) { return c->getName(); }));
 		completeString(tokens, connectorNames);
 	}
 }
@@ -289,11 +287,9 @@ string PluggingController::PluggableInfo::help(const vector<string>& /*tokens*/)
 void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string_view> pluggableNames;
-		auto& pluggingController = OUTER(PluggingController, pluggableInfo);
-		for (auto& p : pluggingController.pluggables) {
-			pluggableNames.emplace_back(p->getName());
-		}
+		auto pluggableNames = to_vector(view::transform(
+			OUTER(PluggingController, pluggableInfo).pluggables,
+			[](auto& p) { return p->getName(); }));
 		completeString(tokens, pluggableNames);
 	}
 }
@@ -334,11 +330,9 @@ string PluggingController::ConnectorInfo::help(const vector<string>& /*tokens*/)
 void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string_view> connectorNames;
-		auto& pluggingController = OUTER(PluggingController, connectorInfo);
-		for (auto& c : pluggingController.connectors) {
-			connectorNames.emplace_back(c->getName());
-		}
+		auto connectorNames = to_vector(view::transform(
+			OUTER(PluggingController, connectorInfo).connectors,
+			[](auto& c) { return c->getName(); }));
 		completeString(tokens, connectorNames);
 	}
 }
@@ -394,14 +388,12 @@ string PluggingController::ConnectionClassInfo::help(const vector<string>& /*tok
 void PluggingController::ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		vector<string_view> names;
 		auto& pluggingController = OUTER(PluggingController, connectionClassInfo);
-		for (auto& c : pluggingController.connectors) {
-			names.emplace_back(c->getName());
-		}
-		for (auto& p : pluggingController.pluggables) {
-			names.emplace_back(p->getName());
-		}
+		auto names = concat<string_view>(
+			view::transform(pluggingController.connectors,
+			                [](auto& c) { return c->getName(); }),
+			view::transform(pluggingController.pluggables,
+			                [](auto& p) { return p->getName(); }));
 		completeString(tokens, names);
 	}
 }

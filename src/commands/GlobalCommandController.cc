@@ -474,10 +474,9 @@ void GlobalCommandController::HelpCmd::execute(
 	default: {
 		auto it = controller.commandCompleters.find(tokens[1].getString());
 		if (it != end(controller.commandCompleters)) {
-			vector<string> tokens2;
-			for (auto& t : view::drop(tokens, 1)) {
-				tokens2.push_back(t.getString().str());
-			}
+			auto tokens2 = to_vector(view::transform(
+				view::drop(tokens, 1),
+				[](auto& t) { return t.getString().str(); }));
 			result.setString(it->second->help(tokens2));
 		} else {
 			TclObject command;

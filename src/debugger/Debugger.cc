@@ -997,30 +997,21 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 
 vector<string> Debugger::Cmd::getBreakPointIds() const
 {
-	vector<string> bpids;
-	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (auto& bp : interface.getBreakPoints()) {
-		bpids.push_back(strCat("bp#", bp.getId()));
-	}
-	return bpids;
+	return to_vector(view::transform(
+		debugger().motherBoard.getCPUInterface().getBreakPoints(),
+		[](auto& bp) { return strCat("bp#", bp.getId()); }));
 }
 vector<string> Debugger::Cmd::getWatchPointIds() const
 {
-	vector<string> wpids;
-	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (auto& w : interface.getWatchPoints()) {
-		wpids.push_back(strCat("wp#", w->getId()));
-	}
-	return wpids;
+	return to_vector(view::transform(
+		debugger().motherBoard.getCPUInterface().getWatchPoints(),
+		[](auto& w) { return strCat("wp#", w->getId()); }));
 }
 vector<string> Debugger::Cmd::getConditionIds() const
 {
-	vector<string> condids;
-	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (auto& c : interface.getConditions()) {
-		condids.push_back(strCat("cond#", c.getId()));
-	}
-	return condids;
+	return to_vector(view::transform(
+		debugger().motherBoard.getCPUInterface().getConditions(),
+		[](auto& c) { return strCat("cond#", c.getId()); }));
 }
 
 void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
@@ -1077,10 +1068,9 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "probe") &&
 		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
 		     (tokens[2] == "set_bp"))) {
-			std::vector<string_view> probeNames;
-			for (auto* p : debugger().probes) {
-				probeNames.emplace_back(p->getName());
-			}
+			auto probeNames = to_vector(view::transform(
+				debugger().probes,
+				[](auto* p) { return p->getName(); }));
 			completeString(tokens, probeNames);
 		}
 		break;
