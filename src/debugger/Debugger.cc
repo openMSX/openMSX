@@ -684,10 +684,8 @@ void Debugger::Cmd::probe(span<const TclObject> tokens, TclObject& result)
 }
 void Debugger::Cmd::probeList(span<const TclObject> /*tokens*/, TclObject& result)
 {
-	// TODO use transform_iterator or transform_view
-	for (auto* p : debugger().probes) {
-		result.addListElement(p->getName());
-	}
+	result.addListElements(view::transform(debugger().probes,
+		[](auto* p) { return p->getName(); }));
 }
 void Debugger::Cmd::probeDesc(span<const TclObject> tokens, TclObject& result)
 {

@@ -8,6 +8,7 @@
 #include "CommandException.hh"
 #include "Timer.hh"
 #include "stl.hh"
+#include "view.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
@@ -119,10 +120,9 @@ static void set4(const uint32_t rgba[4], uint32_t mask, unsigned shift, TclObjec
 	if ((rgba[0] == rgba[1]) && (rgba[0] == rgba[2]) && (rgba[0] == rgba[3])) {
 		result.setInt((rgba[0] & mask) >> shift);
 	} else {
-
-		for (auto i : xrange(4)) {
-			result.addListElement(int((rgba[i] & mask) >> shift));
-		}
+		result.addListElements(view::transform(xrange(4), [&](auto i) {
+			return int((rgba[i] & mask) >> shift);
+		}));
 	}
 }
 void OSDImageBasedWidget::getProperty(string_view propName, TclObject& result) const

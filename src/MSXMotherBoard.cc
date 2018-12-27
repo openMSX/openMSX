@@ -814,9 +814,9 @@ ListExtCmd::ListExtCmd(MSXMotherBoard& motherBoard_)
 
 void ListExtCmd::execute(span<const TclObject> /*tokens*/, TclObject& result)
 {
-	for (auto& e : motherBoard.getExtensions()) {
-		result.addListElement(e->getName());
-	}
+	result.addListElements(
+		view::transform(motherBoard.getExtensions(),
+		                [&](auto& e) { return e->getName(); }));
 }
 
 string ListExtCmd::help(const vector<string>& /*tokens*/) const
@@ -961,9 +961,9 @@ void DeviceInfo::execute(span<const TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:
-		for (auto& d : motherBoard.availableDevices) {
-			result.addListElement(d->getName());
-		}
+		result.addListElements(
+			view::transform(motherBoard.availableDevices,
+			                [](auto& d) { return d->getName(); }));
 		break;
 	case 3: {
 		string_view deviceName = tokens[2].getString();

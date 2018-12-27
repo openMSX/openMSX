@@ -51,9 +51,8 @@ void InfoCommand::execute(span<const TclObject> tokens,
 	switch (tokens.size()) {
 	case 1:
 		// list topics
-		for (auto* t : infoTopics) {
-			result.addListElement(t->getName());
-		}
+		result.addListElements(view::transform(
+			infoTopics, [](auto* t) { return t->getName(); }));
 		break;
 	default:
 		// show info about topic

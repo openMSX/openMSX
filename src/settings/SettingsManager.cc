@@ -4,6 +4,7 @@
 #include "CommandException.hh"
 #include "XMLElement.hh"
 #include "outer.hh"
+#include "view.hh"
 #include "vla.hh"
 #include <cassert>
 #include <cstring>
@@ -121,9 +122,9 @@ void SettingsManager::SettingInfo::execute(
 	auto& manager = OUTER(SettingsManager, settingInfo);
 	switch (tokens.size()) {
 	case 2:
-		for (auto* p : manager.settings) {
-			result.addListElement(p->getFullNameObj());
-		}
+		result.addListElements(view::transform(
+			manager.settings,
+			[](auto* p) { return p->getFullNameObj(); }));
 		break;
 	case 3: {
 		const auto& settingName = tokens[2].getString();

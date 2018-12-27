@@ -21,6 +21,7 @@
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "view.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <cmath>
@@ -234,10 +235,9 @@ void ReverseManager::status(TclObject& result) const
 
 	result.addListElement("snapshots");
 	TclObject snapshots;
-	for (auto& p : history.chunks) {
-		EmuTime time = p.second.time;
-		snapshots.addListElement((time - EmuTime::zero).toDouble());
-	}
+	snapshots.addListElements(view::transform(history.chunks, [](auto& p) {
+		return (p.second.time - EmuTime::zero).toDouble();
+	}));
 	result.addListElement(snapshots);
 
 	result.addListElement("last_event");

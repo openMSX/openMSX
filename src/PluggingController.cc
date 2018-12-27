@@ -263,9 +263,9 @@ void PluggingController::PluggableInfo::execute(
 	auto& pluggingController = OUTER(PluggingController, pluggableInfo);
 	switch (tokens.size()) {
 	case 2:
-		for (auto& p : pluggingController.pluggables) {
-			result.addListElement(p->getName());
-		}
+		result.addListElements(
+			view::transform(pluggingController.pluggables,
+			                [](auto& p) { return p->getName(); }));
 		break;
 	case 3: {
 		auto& pluggable = pluggingController.getPluggable(
@@ -308,9 +308,9 @@ void PluggingController::ConnectorInfo::execute(
 	auto& pluggingController = OUTER(PluggingController, connectorInfo);
 	switch (tokens.size()) {
 	case 2:
-		for (auto& c : pluggingController.connectors) {
-			result.addListElement(c->getName());
-		}
+		result.addListElements(
+			view::transform(pluggingController.connectors,
+			                [](auto& c) { return c->getName(); }));
 		break;
 	case 3: {
 		auto& connector = pluggingController.getConnector(tokens[2].getString());

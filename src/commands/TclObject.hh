@@ -93,8 +93,8 @@ public:
 	void addListElement(int value);
 	void addListElement(double value);
 	void addListElement(const TclObject& element);
-	template <typename ITER> void addListElements(ITER first, ITER last);
-	template <typename CONT> void addListElements(const CONT& container);
+	template<typename ITER> void addListElements(ITER first, ITER last);
+	template<typename Range> void addListElements(Range&& range);
 
 	// value getters
 	string_view getString() const;
@@ -160,10 +160,10 @@ void TclObject::addListElements(ITER first, ITER last)
 	}
 }
 
-template <typename CONT>
-void TclObject::addListElements(const CONT& container)
+template <typename Range>
+void TclObject::addListElements(Range&& range)
 {
-	addListElements(std::begin(container), std::end(container));
+	addListElements(std::begin(range), std::end(range));
 }
 
 // We want to be able to reinterpret_cast a Tcl_Obj* as a TclObject.
