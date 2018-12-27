@@ -10,12 +10,12 @@
 #include "SettingsManager.hh"
 #include "TclObject.hh"
 #include "Version.hh"
-#include "KeyRange.hh"
 #include "ScopedAssign.hh"
 #include "checked_cast.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "view.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <memory>
@@ -463,7 +463,7 @@ void GlobalCommandController::HelpCmd::execute(
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
 		auto cmds = to_vector<string_view>(
-			keys(controller.commandCompleters));
+			view::keys(controller.commandCompleters));
 		ranges::sort(cmds);
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');

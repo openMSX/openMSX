@@ -1,7 +1,6 @@
 #include "InfoCommand.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
-#include "KeyRange.hh"
 #include "unreachable.hh"
 #include <iostream>
 #include <cassert>

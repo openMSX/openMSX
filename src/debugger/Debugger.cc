@@ -11,10 +11,10 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
-#include "KeyRange.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include "view.hh"
 #include <cassert>
 #include <memory>
 #include <stdexcept>
@@ -279,7 +279,7 @@ void Debugger::Cmd::execute(
 
 void Debugger::Cmd::list(TclObject& result)
 {
-	result.addListElements(keys(debugger().debuggables));
+	result.addListElements(view::keys(debugger().debuggables));
 }
 
 void Debugger::Cmd::desc(span<const TclObject> tokens, TclObject& result)
@@ -1048,7 +1048,7 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 			// this command takes (an) argument(s)
 			if (contains(debuggableArgCmds, tokens[1])) {
 				// it takes a debuggable here
-				completeString(tokens, keys(debugger().debuggables));
+				completeString(tokens, view::keys(debugger().debuggables));
 			} else if (tokens[1] == "remove_bp") {
 				// this one takes a bp id
 				completeString(tokens, getBreakPointIds());

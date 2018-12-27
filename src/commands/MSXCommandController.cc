@@ -10,7 +10,6 @@
 #include "Setting.hh"
 #include "Event.hh"
 #include "MSXException.hh"
-#include "KeyRange.hh"
 #include "stl.hh"
 #include <iostream>
 #include <memory>

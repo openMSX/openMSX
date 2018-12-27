@@ -2,11 +2,11 @@
 #include "TclObject.hh"
 #include "Completer.hh"
 #include "CommandException.hh"
-#include "KeyRange.hh"
 #include "StringOp.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "stringsp.hh"
+#include "view.hh"
 #include "unreachable.hh"
 
 namespace openmsx {
@@ -41,7 +41,7 @@ string_view EnumSettingBase::toStringBase(int value) const
 
 std::vector<string_view> EnumSettingBase::getPossibleValues() const
 {
-	return to_vector<string_view>(keys(baseMap));
+	return to_vector<string_view>(view::keys(baseMap));
 }
 
 void EnumSettingBase::additionalInfoBase(TclObject& result) const

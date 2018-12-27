@@ -3,7 +3,6 @@
 #include "OutputSurface.hh"
 #include "Display.hh"
 #include "CliComm.hh"
-#include "KeyRange.hh"
 
 namespace openmsx {
 
