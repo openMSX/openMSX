@@ -118,11 +118,11 @@ void SensorKid::putPort(byte data, byte diff)
 	// When the upper 2 bits (bit 6 and 7) change we send a message.
 	// I assume the cartridge also has two digital output pins?
 	if (diff & 0x80) {
-		//std::cout << "Status Port 0: " << int((data & 0x80) == 0) << std::endl;
+		//std::cout << "Status Port 0: " << int((data & 0x80) == 0) << '\n';
 		portStatusCallback.execute(0, (data & 0x80) == 0);
 	}
 	if (diff & 0x40) {
-		//std::cout << "Status Port 1:  " << int((data & 0x40) == 0) << std::endl;
+		//std::cout << "Status Port 1:  " << int((data & 0x40) == 0) << '\n';
 		portStatusCallback.execute(1, (data & 0x40) == 0);
 	}
 }

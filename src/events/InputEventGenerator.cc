@@ -382,9 +382,9 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 
 #if 0
 	if (event) {
-		std::cerr << "SDL event converted to: " + event->toString() << std::endl;
+		std::cerr << "SDL event converted to: " << event->toString() << '\n';
 	} else {
-		std::cerr << "SDL event was of unknown type, not converted to an openMSX event" << std::endl;
+		std::cerr << "SDL event was of unknown type, not converted to an openMSX event\n";
 	}
 #endif
 

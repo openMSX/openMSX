@@ -37,7 +37,7 @@ void MSXYamahaSFG::writeMem(word address, byte value, EmuTime::param time)
 		break;
 	case 0x3FF2: // Register for data latched to ST0 to ST7 output ports
 		// TODO: keyboardLatch = value;
-		//std::cerr << "TODO: keyboardLatch = " << (int)value << std::endl;
+		//std::cerr << "TODO: keyboardLatch = " << (int)value << '\n';
 		break;
 	case 0x3FF3: // MIDI IRQ VECTOR ADDRESS REGISTER
 		irqVector2148 = value;

@@ -311,9 +311,9 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 	}
 
 	if (!f.empty()) {
-		std::cerr << "LaserdiscPlayer::remote " << f << std::endl;
+		std::cerr << "LaserdiscPlayer::remote " << f << '\n';
 	} else {
-		std::cerr << "LaserdiscPlayer::remote unknown " << std::hex << code << std::endl;
+		std::cerr << "LaserdiscPlayer::remote unknown " << std::hex << code << '\n';
 	}
 #endif
 	// When not playing the following buttons work

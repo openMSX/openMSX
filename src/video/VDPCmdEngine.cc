@@ -2560,7 +2560,7 @@ void VDPCmdEngine::reportVdpCommand()
 		<<  '(' << int(SX) << ',' << int(SY) << ")->("
 		        << int(DX) << ',' << int(DY) << ")," << int(COL)
 		<< " [" << int((ARG & DIX) ? -int(NX) : int(NX))
-		<<  ',' << int((ARG & DIY) ? -int(NY) : int(NY)) << ']' << std::endl;
+		<<  ',' << int((ARG & DIY) ? -int(NY) : int(NY)) << "]\n";
 }
 
 void VDPCmdEngine::commandDone(EmuTime::param time)

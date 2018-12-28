@@ -30,7 +30,6 @@
 #include <memory>
 
 using std::cout;
-using std::endl;
 using std::string;
 using std::vector;
 
@@ -440,13 +439,13 @@ void CommandLineParser::HelpOption::parseOption(
 {
 	auto& parser = OUTER(CommandLineParser, helpOption);
 	const auto& fullVersion = Version::full();
-	cout << fullVersion << endl;
-	cout << string(fullVersion.size(), '=') << endl;
-	cout << endl;
-	cout << "usage: openmsx [arguments]" << endl;
-	cout << "  an argument is either an option or a filename" << endl;
-	cout << endl;
-	cout << "  this is the list of supported options:" << endl;
+	cout << fullVersion << '\n'
+	     << string(fullVersion.size(), '=') << "\n"
+	        "\n"
+	        "usage: openmsx [arguments]\n"
+	        "  an argument is either an option or a filename\n"
+	        "\n"
+	        "  this is the list of supported options:\n";
 
 	GroupedItems itemMap;
 	for (auto& p : parser.options) {
@@ -457,8 +456,8 @@ void CommandLineParser::HelpOption::parseOption(
 	}
 	printItemMap(itemMap);
 
-	cout << endl;
-	cout << "  this is the list of supported file types:" << endl;
+	cout << "\n"
+	        "  this is the list of supported file types:\n";
 
 	itemMap.clear();
 	for (auto& p : parser.fileTypes) {
@@ -480,9 +479,9 @@ string_view CommandLineParser::HelpOption::optionHelp() const
 void CommandLineParser::VersionOption::parseOption(
 	const string& /*option*/, span<string>& /*cmdLine*/)
 {
-	cout << Version::full() << endl;
-	cout << "flavour: " << BUILD_FLAVOUR << endl;
-	cout << "components: " << BUILD_COMPONENTS << endl;
+	cout << Version::full() << "\n"
+	        "flavour: " << BUILD_FLAVOUR << "\n"
+	        "components: " << BUILD_COMPONENTS << '\n';
 	auto& parser = OUTER(CommandLineParser, versionOption);
 	parser.parseStatus = CommandLineParser::EXIT;
 }
@@ -549,7 +548,7 @@ void CommandLineParser::NoPBOOption::parseOption(
 	const string& /*option*/, span<string>& /*cmdLine*/)
 {
 	#if COMPONENT_GL
-	cout << "Disabling PBO" << endl;
+	cout << "Disabling PBO\n";
 	gl::PixelBuffers::enabled = false;
 	#endif
 }

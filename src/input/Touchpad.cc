@@ -84,7 +84,7 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 		parseTransformMatrix(interp, transformSetting.getValue());
 	} catch (CommandException& e) {
 		// should only happen when settings.xml was manually edited
-		std::cerr << e.getMessage() << std::endl;
+		std::cerr << e.getMessage() << '\n';
 		// fill in safe default values
 		m[0][0] = 256.0f; m[1][0] =   0.0f; m[2][0] = 0.0f;
 		m[0][1] =   0.0f; m[1][1] = 256.0f; m[2][1] = 0.0f;

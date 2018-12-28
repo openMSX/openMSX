@@ -249,7 +249,7 @@ void MSXMotherBoard::deleteMachine()
 		} catch (MSXException& e) {
 			std::cerr << "Internal error: failed to remove "
 			             "extension while deleting a machine: "
-			          << e.getMessage() << std::endl;
+			          << e.getMessage() << '\n';
 			UNREACHABLE;
 		}
 	}

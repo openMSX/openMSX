@@ -37,7 +37,7 @@ void PolymorphicSaverRegistry<Archive>::save(
 	auto it = ranges::lower_bound(reg.saverMap, typeInfo, LessTupleElement<0>());
 	if ((it == end(reg.saverMap)) || (it->first != typeInfo)) {
 		std::cerr << "Trying to save an unregistered polymorphic type: "
-			  << typeInfo.name() << std::endl;
+			  << typeInfo.name() << '\n';
 		assert(false); return;
 	}
 	it->second->save(ar, t);

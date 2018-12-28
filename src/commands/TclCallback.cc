@@ -106,7 +106,7 @@ TclObject TclCallback::executeCommon(TclObject& command)
 			getSetting().getCommandController().getCliComm().printWarning(
 				message);
 		} else {
-			std::cerr << message << std::endl;
+			std::cerr << message << '\n';
 		}
 		return TclObject();
 	}

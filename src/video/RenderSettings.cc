@@ -202,7 +202,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	try {
 		parseColorMatrix(interp, colorMatrixSetting.getValue());
 	} catch (MSXException& e) {
-		std::cerr << e.getMessage() << std::endl;
+		std::cerr << e.getMessage() << '\n';
 		cmIdentity = true;
 	}
 

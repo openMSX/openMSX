@@ -142,7 +142,7 @@ HardwareConfig::~HardwareConfig()
 	try {
 		testRemove();
 	} catch (MSXException& e) {
-		std::cerr << e.getMessage() << std::endl;
+		std::cerr << e.getMessage() << '\n';
 		UNREACHABLE;
 	}
 #endif

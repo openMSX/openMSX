@@ -26,7 +26,7 @@ void InfoCommand::registerTopic(InfoTopic& topic)
 #ifndef NDEBUG
 	if (infoTopics.contains(topic.getName())) {
 		std::cerr << "INTERNAL ERROR: already have an info topic with "
-		             "name " << topic.getName() << std::endl;
+		             "name " << topic.getName() << '\n';
 		UNREACHABLE;
 	}
 #endif
@@ -37,7 +37,7 @@ void InfoCommand::unregisterTopic(InfoTopic& topic)
 {
 	if (!infoTopics.contains(topic.getName())) {
 		std::cerr << "INTERNAL ERROR: can't unregister topic with name "
-		          << topic.getName() << ", not found!" << std::endl;
+		          << topic.getName() << ", not found!\n";
 		UNREACHABLE;
 	}
 	infoTopics.erase(topic.getName());

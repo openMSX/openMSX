@@ -1216,7 +1216,7 @@ byte Y8950::peekReg(byte rg, EmuTime::param time) const
 byte Y8950::readStatus(EmuTime::param time)
 {
 	byte result = peekStatus(time);
-	//std::cout << "status: " << (int)result << std::endl;
+	//std::cout << "status: " << (int)result << '\n';
 	return result;
 }
 

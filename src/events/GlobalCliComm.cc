@@ -64,7 +64,7 @@ void GlobalCliComm::log(LogLevel level, string_view message)
 		// One example of a recursive invocation is when something goes
 		// wrong in the Tcl proc attached to message_callback (e.g. the
 		// font used to display the message could not be loaded).
-		std::cerr << "Recursive cliComm message: " << message << std::endl;
+		std::cerr << "Recursive cliComm message: " << message << '\n';
 		return;
 	}
 	ScopedAssign<bool> sa(delivering, true);
@@ -76,7 +76,7 @@ void GlobalCliComm::log(LogLevel level, string_view message)
 		}
 	} else {
 		// don't let the message get lost
-		std::cerr << message << std::endl;
+		std::cerr << message << '\n';
 	}
 }
 

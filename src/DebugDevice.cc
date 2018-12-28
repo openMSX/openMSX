@@ -51,7 +51,7 @@ void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
 			break;
 		}
 		if (!(value & 0x40)){
-			(*outputstrm) << std::endl;
+			(*outputstrm) << '\n' << std::flush;
 		}
 		break;
 	case 1:
@@ -93,7 +93,7 @@ void DebugDevice::outputSingleByte(byte value, EmuTime::param time)
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))) {
 		displayByte(value, ASC); // do special effects
 	}
-	(*outputstrm) << std::endl;
+	(*outputstrm) << '\n' << std::flush;
 }
 
 void DebugDevice::outputMultiByte(byte value)

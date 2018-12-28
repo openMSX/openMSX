@@ -38,7 +38,7 @@ using Samples = vector<int>;
 
 static void error(const string& message)
 {
-	cout << message << endl;
+	cout << message << '\n';
 }
 
 
@@ -78,7 +78,7 @@ static void createSilence(const Log& log, Samples& result)
 static void test(YM2413Core& core, const Log& log,
                  const Samples* expectedSamples[CHANNELS])
 {
-	cout << " test " << testName << " ..." << endl;
+	cout << " test " << testName << " ...\n";
 
 	Samples generatedSamples[CHANNELS];
 
@@ -216,10 +216,10 @@ template<typename CORE, typename FUNC> void testOnCore(FUNC f)
 template<typename CORE> static void testAll(const string& coreName_)
 {
 	coreName = coreName_;
-	cout << "Testing YM2413 core " << coreName << endl;
+	cout << "Testing YM2413 core " << coreName << '\n';
 	testOnCore<CORE>(testSilence);
 	testOnCore<CORE>(testViolin);
-	cout << endl;
+	cout << '\n';
 }
 
 int main()

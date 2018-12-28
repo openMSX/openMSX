@@ -82,13 +82,13 @@ Interpreter::Interpreter(EventDistributor& eventDistributor_)
 	// TODO need to investigate this: doesn't work on windows
 	/*
 	if (Tcl_Init(interp) != TCL_OK) {
-		std::cout << "Tcl_Init: " << interp->result << std::endl;
+		std::cout << "Tcl_Init: " << interp->result << '\n';
 	}
 	if (Tk_Init(interp) != TCL_OK) {
-		std::cout << "Tk_Init error: " << interp->result << std::endl;
+		std::cout << "Tk_Init error: " << interp->result << '\n';
 	}
 	if (Tcl_Eval(interp, "wm withdraw .") != TCL_OK) {
-		std::cout << "wm withdraw error: " << interp->result << std::endl;
+		std::cout << "wm withdraw error: " << interp->result << '\n';
 	}
 	*/
 
@@ -220,7 +220,7 @@ static void setVar(Tcl_Interp* interp, const TclObject& name, const TclObject& v
 		            value.getTclObjectNonConst(),
 		            TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
 		// might contain error message of a trace proc
-		std::cerr << Tcl_GetStringResult(interp) << std::endl;
+		std::cerr << Tcl_GetStringResult(interp) << '\n';
 	}
 }
 static Tcl_Obj* getVar(Tcl_Interp* interp, const TclObject& name)

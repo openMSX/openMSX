@@ -972,7 +972,7 @@ void RestoreMachineCommand::execute(span<const TclObject> tokens,
 		throw SyntaxError();
 	}
 
-	//std::cerr << "Loading " << filename << std::endl;
+	//std::cerr << "Loading " << filename << '\n';
 	try {
 		XmlInputArchive in(filename);
 		in.serialize("machine", *newBoard);

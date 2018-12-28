@@ -17,7 +17,7 @@ Schedulable::~Schedulable()
 void Schedulable::schedulerDeleted()
 {
 	std::cerr << "Internal error: Schedulable \"" << typeid(*this).name()
-	          << "\" failed to unregister." << std::endl;
+	          << "\" failed to unregister.\n";
 }
 
 void Schedulable::setSyncPoint(EmuTime::param timestamp)

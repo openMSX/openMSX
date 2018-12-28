@@ -247,7 +247,7 @@ DeltaBlock::~DeltaBlock()
 {
 	globalAllocSize -= allocSize;
 	std::cout << "stat: ~DeltaBlock " << globalAllocSize
-	          << " (-" << allocSize << ')' << std::endl;
+	          << " (-" << allocSize << ")\n";
 }
 
 #endif
@@ -267,7 +267,7 @@ DeltaBlockCopy::DeltaBlockCopy(const uint8_t* data, size_t size)
 	allocSize = size;
 	globalAllocSize += allocSize;
 	std::cout << "stat: DeltaBlockCopy " << globalAllocSize
-	          << " (+" << allocSize << ')' << std::endl;
+	          << " (+" << allocSize << ")\n";
 #endif
 }
 
@@ -311,7 +311,7 @@ void DeltaBlockCopy::compress(size_t size)
 	allocSize = compressedSize;
 	globalAllocSize += delta;
 	std::cout << "stat: compress " << globalAllocSize
-	          << " (" << delta << ')' << std::endl;
+	          << " (" << delta << ")\n";
 #endif
 }
 
@@ -341,7 +341,7 @@ DeltaBlockDiff::DeltaBlockDiff(
 	allocSize = delta.size();
 	globalAllocSize += allocSize;
 	std::cout << "stat: DeltaBlockDiff " << globalAllocSize
-	          << " (+" << allocSize << ')' << std::endl;
+	          << " (+" << allocSize << ")\n";
 #endif
 }
 

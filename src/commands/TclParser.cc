@@ -11,7 +11,7 @@ using std::string;
 #if DEBUG_TCLPARSER
 void TclParser::DEBUG_PRINT(const string& s)
 {
-	std::cout << string(2 * level, ' ') << s << std::endl;
+	std::cout << string(2 * level, ' ') << s << '\n';
 }
 
 static string_view type2string(int type)

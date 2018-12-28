@@ -1032,7 +1032,7 @@ void WD2793::startType4Cmd(EmuTime::param time)
 	if (flags & (N2R_IRQ | R2N_IRQ)) {
 		// all flags not yet supported
 		#ifdef DEBUG
-		std::cerr << "WD2793 type 4 cmd, unimplemented bits " << int(flags) << std::endl;
+		std::cerr << "WD2793 type 4 cmd, unimplemented bits " << int(flags) << '\n';
 		#endif
 	}
 

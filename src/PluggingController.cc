@@ -42,7 +42,7 @@ PluggingController::~PluggingController()
 	// but if it does, it helps to catch an error.
 	for (auto& c : connectors) {
 		std::cerr << "ERROR: Connector still registered at shutdown: "
-		          << c->getName() << std::endl;
+		          << c->getName() << '\n';
 	}
 #endif
 }

@@ -91,7 +91,7 @@ void MidiOutDevice::recvByte(byte value, EmuTime::param time)
 				std::cerr << "Discarding incomplete MIDI message with status "
 				             "0x" << std::hex << int(buffer[0]) << std::dec <<
 				             ", at " << buffer.size() << " of " <<
-				             midiMessageLength(buffer[0]) << " bytes" << std::endl;
+				             midiMessageLength(buffer[0]) << " bytes\n";
 				#endif
 			}
 			buffer = { value };

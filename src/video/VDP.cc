@@ -1487,7 +1487,7 @@ const std::array<std::array<uint8_t,3>,16> VDP::getMSX1Palette() const
 		tmsPalette[color][0] = Math::clipIntToByte(roundf(R));
 		tmsPalette[color][1] = Math::clipIntToByte(roundf(G));
 		tmsPalette[color][2] = Math::clipIntToByte(roundf(B));
-		// std::cerr << color << " " << int(tmsPalette[color][0]) << " " << int(tmsPalette[color][1]) <<" " << int(tmsPalette[color][2]) << std::endl;
+		// std::cerr << color << " " << int(tmsPalette[color][0]) << " " << int(tmsPalette[color][1]) <<" " << int(tmsPalette[color][2]) << '\n';
 	}
 	return tmsPalette;
 }

@@ -903,7 +903,7 @@ void V9990CmdEngine::reportV9990Command()
 	          << " FC="  << std::hex << fgCol
 	          << " BC="  << std::hex << bgCol
 	          << " CMD=" << std::hex << int(CMD)
-	          << std::endl;
+	          << '\n';
 }
 
 void V9990CmdEngine::update(const Setting& setting)
@@ -1185,7 +1185,7 @@ void V9990CmdEngine::executeCMMC(EmuTime::param limit)
 // CMMK
 void V9990CmdEngine::startCMMK(EmuTime::param time)
 {
-	std::cout << "V9990: CMMK not yet implemented" << std::endl;
+	std::cout << "V9990: CMMK not yet implemented\n";
 	cmdReady(time); // TODO dummy implementation
 }
 
@@ -1600,7 +1600,7 @@ void V9990CmdEngine::executePSET(EmuTime::param /*limit*/)
 // ADVN
 void V9990CmdEngine::startADVN(EmuTime::param time)
 {
-	std::cout << "V9990: ADVN not yet implemented" << std::endl;
+	std::cout << "V9990: ADVN not yet implemented\n";
 	cmdReady(time); // TODO dummy implementation
 }
 

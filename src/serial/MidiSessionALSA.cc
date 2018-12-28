@@ -135,12 +135,12 @@ void MidiOutALSA::recvMessage(
 	if (encodeLen < 0) {
 		std::cerr << "Error encoding MIDI message of type "
 		          << std::hex << int(message[0]) << std::dec
-		          << ": " << snd_strerror(encodeLen) << std::endl;
+		          << ": " << snd_strerror(encodeLen) << '\n';
 		return;
 	}
 	if (ev.type == SND_SEQ_EVENT_NONE) {
 		std::cerr << "Incomplete MIDI message of type "
-		          << std::hex << int(message[0]) << std::dec << std::endl;
+		          << std::hex << int(message[0]) << std::dec << '\n';
 		return;
 	}
 
@@ -149,7 +149,7 @@ void MidiOutALSA::recvMessage(
 	int err = snd_seq_event_output(&seq, &ev);
 	if (err < 0) {
 		std::cerr << "Error sending MIDI event: "
-		          << snd_strerror(err) << std::endl;
+		          << snd_strerror(err) << '\n';
 	}
 	snd_seq_drain_output(&seq);
 }

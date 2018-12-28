@@ -9,7 +9,7 @@ void StdioMessages::log(CliComm::LogLevel level, string_view message)
 {
 	auto levelStr = CliComm::getLevelStrings();
 	((level == CliComm::INFO) ? std::cout : std::cerr) <<
-		levelStr[level] << ": " << message << std::endl;
+		levelStr[level] << ": " << message << '\n' << std::flush;
 
 }
 

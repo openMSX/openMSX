@@ -29,7 +29,7 @@ static void handleWarning(png_structp png_ptr, png_const_charp warning_msg)
 	auto operation = reinterpret_cast<const char*>(
 		png_get_error_ptr(png_ptr));
 	std::cerr << "Warning while " << operation << " PNG: "
-		<< warning_msg << std::endl;
+		<< warning_msg << '\n';
 }
 
 /*

@@ -140,7 +140,7 @@ SOCKET CliServer::createSocket()
 	FileOperations::unlink(socketName); // ignore error
 	std::ofstream out;
 	FileOperations::openofstream(out, socketName);
-	out << portNumber << std::endl;
+	out << portNumber << '\n';
 	if (!out.good()) {
 		sock_close(sd);
 		throw MSXException("Couldn't write socket port file.");

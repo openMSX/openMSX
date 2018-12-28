@@ -143,12 +143,12 @@ MSXCPUInterface::~MSXCPUInterface()
 	for (int port = 0; port < 256; ++port) {
 		if (IO_In[port] != dummyDevice.get()) {
 			std::cout << "In-port " << port << " still registered "
-			          << IO_In[port]->getName() << std::endl;
+			          << IO_In[port]->getName() << '\n';
 			UNREACHABLE;
 		}
 		if (IO_Out[port] != dummyDevice.get()) {
 			std::cout << "Out-port " << port << " still registered "
-			          << IO_Out[port]->getName() << std::endl;
+			          << IO_Out[port]->getName() << '\n';
 			UNREACHABLE;
 		}
 	}

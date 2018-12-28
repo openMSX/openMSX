@@ -227,7 +227,7 @@ PixelBuffer<T>::PixelBuffer()
 	if (PixelBuffers::enabled && GLEW_ARB_pixel_buffer_object) {
 		glGenBuffers(1, &bufferId);
 	} else {
-		//std::cerr << "OpenGL pixel buffers are not available" << std::endl;
+		//std::cerr << "OpenGL pixel buffers are not available\n";
 		bufferId = 0;
 	}
 }

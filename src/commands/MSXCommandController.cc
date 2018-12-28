@@ -46,10 +46,10 @@ MSXCommandController::~MSXCommandController()
 
 	#ifndef NDEBUG
 	for (auto* c : commandMap) {
-		std::cout << "Command not unregistered: " << c->getName() << std::endl;
+		std::cout << "Command not unregistered: " << c->getName() << '\n';
 	}
 	for (auto* s : settings) {
-		std::cout << "Setting not unregistered: " << s->getFullName() << std::endl;
+		std::cout << "Setting not unregistered: " << s->getFullName() << '\n';
 	}
 	assert(commandMap.empty());
 	assert(settings.empty());

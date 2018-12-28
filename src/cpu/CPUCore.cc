@@ -2483,7 +2483,7 @@ template<class T> void CPUCore<T>::cpuTracePost_slow()
 	     << " IX=" << std::setw(4) << getIX()
 	     << " IY=" << std::setw(4) << getIY()
 	     << " SP=" << std::setw(4) << getSP()
-	     << std::endl << std::dec;
+	     << '\n' << std::flush << std::dec;
 }
 
 template<class T> void CPUCore<T>::executeSlow()
