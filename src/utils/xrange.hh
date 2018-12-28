@@ -39,25 +39,35 @@ public:
 	class XRangeIter
 	{
 	public:
-		using difference_type = size_t;
+		using difference_type = ptrdiff_t;
 		using value_type = T;
 		using pointer    = T*;
 		using reference  = T&;
-		using iterator_category = std::forward_iterator_tag;
+		using iterator_category = std::random_access_iterator_tag;
 
 		explicit XRangeIter(T x_)
 			: x(x_)
 		{
 		}
+
+		// ForwardIterator
 		T operator*() const
 		{
 			return x;
 		}
+
 		XRangeIter& operator++()
 		{
 			++x;
 			return *this;
 		}
+		XRangeIter operator++(int)
+		{
+			auto copy = *this;
+			++x;
+			return copy;
+		}
+
 		bool operator==(const XRangeIter& other) const
 		{
 			return x == other.x;
@@ -66,6 +76,75 @@ public:
 		{
 			return x != other.x;
 		}
+
+		// BidirectionalIterator
+		XRangeIter& operator--()
+		{
+			--x;
+			return *this;
+		}
+		XRangeIter operator--(int)
+		{
+			auto copy = *this;
+			--x;
+			return copy;
+		}
+
+		// RandomAccessIterator
+		XRangeIter& operator+=(difference_type n)
+		{
+			x += n;
+			return *this;
+		}
+		XRangeIter& operator-=(difference_type n)
+		{
+			x -= n;
+			return *this;
+		}
+
+		friend XRangeIter operator+(XRangeIter x, difference_type n)
+		{
+			x += n;
+			return x;
+		}
+		friend XRangeIter operator+(difference_type n, XRangeIter x)
+		{
+			x += n;
+			return x;
+		}
+		friend XRangeIter operator-(XRangeIter x, difference_type n)
+		{
+			x -= n;
+			return x;
+		}
+
+		friend difference_type operator-(const XRangeIter& x, const XRangeIter& y)
+		{
+			return x.x - y.x;
+		}
+
+		T operator[](difference_type n)
+		{
+			return *(*this + n);
+		}
+
+		friend bool operator<(const XRangeIter& x, const XRangeIter& y)
+		{
+			return x.x < y.x;
+		}
+		friend bool operator<=(const XRangeIter& x, const XRangeIter& y)
+		{
+			return x.x <= y.x;
+		}
+		friend bool operator>(const XRangeIter& x, const XRangeIter& y)
+		{
+			return x.x > y.x;
+		}
+		friend bool operator>=(const XRangeIter& x, const XRangeIter& y)
+		{
+			return x.x >= y.x;
+		}
+
 	private:
 		T x;
 	};

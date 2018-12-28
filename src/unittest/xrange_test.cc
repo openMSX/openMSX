@@ -1,13 +1,13 @@
 #include "catch.hpp"
 #include "xrange.hh"
 #include <algorithm>
+#include <type_traits>
 #include <vector>
 
 template<typename T, typename RANGE>
 static void test(const RANGE& range, const std::vector<T>& v)
 {
-	REQUIRE(std::distance(range.begin(), range.end()) == v.size());
-	REQUIRE(std::equal(range.begin(), range.end(), v.begin()));
+	CHECK(std::equal(range.begin(), range.end(), v.begin(), v.end()));
 }
 
 TEST_CASE("xrange")
@@ -41,4 +41,34 @@ TEST_CASE("xrange")
 
 	// undefined behavior
 	//test<int>(xrange(10, 5), {});
+}
+
+TEST_CASE("xrange, random-access")
+{
+	auto r = xrange(20, 45);
+	static_assert(std::is_same<decltype(r.begin())::iterator_category,
+	                           std::random_access_iterator_tag>::value, "");
+
+	auto b = r.begin();  REQUIRE(*b == 20);
+	auto m = b + 10;
+
+	auto i1 = b; auto j1 = i1++;  CHECK(*i1 == 21);  CHECK(*j1 == 20);  CHECK(i1 != j1);
+	auto i2 = b; auto j2 = ++i2;  CHECK(*i2 == 21);  CHECK(*j2 == 21);  CHECK(i2 == j2);
+	auto i3 = m; auto j3 = i3--;  CHECK(*i3 == 29);  CHECK(*j3 == 30);  CHECK(i3 != j3);
+	auto i4 = m; auto j4 = --i4;  CHECK(*i4 == 29);  CHECK(*j4 == 29);  CHECK(i4 == j4);
+
+	auto i5 = b; i5 += 7;  CHECK(*i5 == 27);
+	auto i6 = m; i6 -= 7;  CHECK(*i6 == 23);
+
+	auto i7 = b + 4;  CHECK(*i7 == 24);
+	auto i8 = 6 + m;  CHECK(*i8 == 36);
+	auto i9 = m - 5;  CHECK(*i9 == 25);
+
+	CHECK((m - b) == 10);
+	CHECK(m[4] == 34);
+
+	CHECK(b <  m);  CHECK(!(b <  b));
+	CHECK(b <= m);  CHECK(  b <= b );
+	CHECK(m >  b);  CHECK(!(b >  b));
+	CHECK(m >= b);  CHECK(  b >= b );
 }

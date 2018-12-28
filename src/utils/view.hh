@@ -190,6 +190,11 @@ public:
 		x += n;
 		return x;
 	}
+	friend TransformIterator operator+(difference_type n, TransformIterator x)
+	{
+		x += n;
+		return x;
+	}
 
 	friend TransformIterator operator-(TransformIterator x, difference_type n)
 	{
