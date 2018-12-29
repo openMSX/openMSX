@@ -31,7 +31,6 @@ GlobalCommandController::GlobalCommandController(
 	: cliComm(cliComm_)
 	, connection(nullptr)
 	, reactor(reactor_)
-	, interpreter(eventDistributor)
 	, openMSXInfoCommand(*this, "openmsx_info")
 	, hotKey(reactor.getRTScheduler(), *this, eventDistributor)
 	, settingsConfig(*this, hotKey)

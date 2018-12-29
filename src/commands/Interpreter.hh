@@ -9,7 +9,6 @@
 
 namespace openmsx {
 
-class EventDistributor;
 class Command;
 class BaseSetting;
 class InterpreterOutput;
@@ -20,7 +19,7 @@ public:
 	Interpreter(const Interpreter&) = delete;
 	Interpreter& operator=(const Interpreter&) = delete;
 
-	explicit Interpreter(EventDistributor& eventDistributor);
+	Interpreter();
 	~Interpreter();
 
 	void setOutput(InterpreterOutput* output_) { output = output_; }
@@ -59,8 +58,6 @@ private:
 	                       int objc, Tcl_Obj* const objv[]);
 	static char* traceProc(ClientData clientData, Tcl_Interp* interp,
 	                       const char* part1, const char* part2, int flags);
-
-	EventDistributor& eventDistributor;
 
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;

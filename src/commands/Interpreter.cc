@@ -1,5 +1,4 @@
 #include "Interpreter.hh"
-#include "EventDistributor.hh"
 #include "Command.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
@@ -73,8 +72,7 @@ void Interpreter::init(const char* programName)
 	Tcl_FindExecutable(programName);
 }
 
-Interpreter::Interpreter(EventDistributor& eventDistributor_)
-	: eventDistributor(eventDistributor_)
+Interpreter::Interpreter()
 {
 	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);
