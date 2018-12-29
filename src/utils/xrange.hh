@@ -102,25 +102,25 @@ public:
 			return *this;
 		}
 
-		friend XRangeIter operator+(XRangeIter x, difference_type n)
+		friend XRangeIter operator+(XRangeIter i, difference_type n)
 		{
-			x += n;
-			return x;
+			i += n;
+			return i;
 		}
-		friend XRangeIter operator+(difference_type n, XRangeIter x)
+		friend XRangeIter operator+(difference_type n, XRangeIter i)
 		{
-			x += n;
-			return x;
+			i += n;
+			return i;
 		}
-		friend XRangeIter operator-(XRangeIter x, difference_type n)
+		friend XRangeIter operator-(XRangeIter i, difference_type n)
 		{
-			x -= n;
-			return x;
+			i -= n;
+			return i;
 		}
 
-		friend difference_type operator-(const XRangeIter& x, const XRangeIter& y)
+		friend difference_type operator-(const XRangeIter& i, const XRangeIter& j)
 		{
-			return x.x - y.x;
+			return i.x - j.x;
 		}
 
 		T operator[](difference_type n)
@@ -128,21 +128,21 @@ public:
 			return *(*this + n);
 		}
 
-		friend bool operator<(const XRangeIter& x, const XRangeIter& y)
+		friend bool operator<(const XRangeIter& i, const XRangeIter& j)
 		{
-			return x.x < y.x;
+			return i.x < j.x;
 		}
-		friend bool operator<=(const XRangeIter& x, const XRangeIter& y)
+		friend bool operator<=(const XRangeIter& i, const XRangeIter& j)
 		{
-			return x.x <= y.x;
+			return i.x <= j.x;
 		}
-		friend bool operator>(const XRangeIter& x, const XRangeIter& y)
+		friend bool operator>(const XRangeIter& i, const XRangeIter& j)
 		{
-			return x.x > y.x;
+			return i.x > j.x;
 		}
-		friend bool operator>=(const XRangeIter& x, const XRangeIter& y)
+		friend bool operator>=(const XRangeIter& i, const XRangeIter& j)
 		{
-			return x.x >= y.x;
+			return i.x >= j.x;
 		}
 
 	private:
