@@ -116,7 +116,7 @@ template<typename Iterator, typename UnaryOp> class TransformIterator
 public:
 	using return_type       = decltype(std::declval<UnaryOp>()(*std::declval<Iterator>()));
 	using value_type        = std::remove_reference_t<return_type>;
-	using reference         = value_type&;
+	using reference         = value_type;
 	using pointer           = value_type*;
 	using difference_type   = typename std::iterator_traits<Iterator>::difference_type;
 	using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
