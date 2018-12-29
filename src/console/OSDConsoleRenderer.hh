@@ -15,11 +15,12 @@
 
 namespace openmsx {
 
-class Reactor;
-class CommandConsole;
-class ConsoleLine;
 class BaseImage;
 class BooleanSetting;
+class CommandConsole;
+class ConsoleLine;
+class Display;
+class Reactor;
 
 class OSDConsoleRenderer final : public Layer, private Observer<Setting>
 {
@@ -76,6 +77,7 @@ private:
 	using TextCache = std::list<TextCacheElement>;
 
 	Reactor& reactor;
+	Display& display;
 	CommandConsole& console;
 	BooleanSetting& consoleSetting;
 	const unsigned screenW;

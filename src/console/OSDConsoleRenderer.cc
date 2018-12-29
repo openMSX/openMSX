@@ -55,6 +55,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		bool openGL_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
+	, display(reactor.getDisplay()) // need to store because still needed during destructor
 	, console(console_)
 	, consoleSetting(console.getConsoleSetting())
 	, screenW(screenW_)
@@ -183,7 +184,7 @@ void OSDConsoleRenderer::setActive(bool active_)
 	if (active == active_) return;
 	active = active_;
 
-	reactor.getDisplay().repaintDelayed(40000); // 25 fps
+	display.repaintDelayed(40000); // 25 fps
 
 	activeTime = Timer::getTime();
 
@@ -201,14 +202,14 @@ byte OSDConsoleRenderer::getVisibility() const
 		if (dur > FADE_IN_DURATION) {
 			return 255;
 		} else {
-			reactor.getDisplay().repaintDelayed(40000); // 25 fps
+			display.repaintDelayed(40000); // 25 fps
 			return byte((dur * 255) / FADE_IN_DURATION);
 		}
 	} else {
 		if (dur > FADE_OUT_DURATION) {
 			return 0;
 		} else {
-			reactor.getDisplay().repaintDelayed(40000); // 25 fps
+			display.repaintDelayed(40000); // 25 fps
 			return byte(255 - ((dur * 255) / FADE_OUT_DURATION));
 		}
 	}
@@ -283,7 +284,7 @@ void OSDConsoleRenderer::loadBackground(string_view value)
 		backgroundImage.reset();
 		return;
 	}
-	auto* output = reactor.getDisplay().getOutputSurface();
+	auto* output = display.getOutputSurface();
 	if (!output) {
 		backgroundImage.reset();
 		return;
