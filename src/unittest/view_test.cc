@@ -161,6 +161,8 @@ TEST_CASE("view::transform")
 	}
 }
 
+/*
+No longer true since we use semiregular_t<> in TransformIterator
 TEST_CASE("view::transform sizes")
 {
 	auto square = [](auto& x) { return x * x; };
@@ -189,7 +191,7 @@ TEST_CASE("view::transform sizes")
 		CHECK(sizeof(vw)         == (sizeof(size_t&) + sizeof(std::vector<int>)));
 		CHECK(sizeof(vw.begin()) == (sizeof(size_t&) + sizeof(std::vector<int>::iterator)));
 	}
-}
+}*/
 
 
 template<typename RANGE, typename T>

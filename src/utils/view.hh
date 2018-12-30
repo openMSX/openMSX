@@ -1,6 +1,7 @@
 #ifndef VIEW_HH
 #define VIEW_HH
 
+#include "semiregular.hh"
 #include <algorithm>
 #include <iterator>
 #include <tuple>
@@ -122,6 +123,8 @@ public:
 	using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
 
 public:
+	TransformIterator() = default;
+
 	TransformIterator(Iterator it_, UnaryOp op_)
 		: storage(it_, op_)
 	{
@@ -230,7 +233,7 @@ public:
 	}
 
 private:
-	std::tuple<Iterator, UnaryOp> storage;
+	std::tuple<Iterator, semiregular_t<UnaryOp>> storage;
 
 	      Iterator& it()       { return std::get<0>(storage); }
 	const Iterator& it() const { return std::get<0>(storage); }
