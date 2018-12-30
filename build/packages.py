@@ -184,11 +184,11 @@ class Vorbis(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/vorbis'
 	niceName = 'libvorbis'
 	sourceName = 'libvorbis'
-	version = '1.3.3'
-	fileLength = 1592663
+	version = '1.3.6'
+	fileLength = 1634357
 	checksums = {
 		'sha256':
-			'6d747efe7ac4ad249bf711527882cef79fb61d9194c45b5ca5498aa60f290762',
+			'6ed40e0241089a42c48604dc00e362beee00036af2d8b3f46338031c9e0351cb',
 		}
 
 	@classmethod
