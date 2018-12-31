@@ -18,6 +18,12 @@ class TclObject
 {
 	// For STL interface, see below
 	struct iterator {
+		using value_type        = string_view;
+		using reference         = string_view;
+		using pointer           = string_view*;
+		using difference_type   = ptrdiff_t;
+		using iterator_category = std::bidirectional_iterator_tag;
+
 		iterator(const TclObject& obj_, unsigned i_)
 			: obj(&obj_), i(i_) {}
 
