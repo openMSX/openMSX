@@ -55,14 +55,14 @@ void TclObject::setDouble(double value)
 	}
 }
 
-void TclObject::setBinary(byte* buf, unsigned length)
+void TclObject::setBinary(span<const uint8_t> buf)
 {
 	if (Tcl_IsShared(obj)) {
 		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewByteArrayObj(buf, length);
+		obj = Tcl_NewByteArrayObj(buf.data(), buf.size());
 		Tcl_IncrRefCount(obj);
 	} else {
-		Tcl_SetByteArrayObj(obj, buf, length);
+		Tcl_SetByteArrayObj(obj, buf.data(), buf.size());
 	}
 }
 
@@ -143,10 +143,11 @@ string_view TclObject::getString() const
 	return string_view(buf, length);
 }
 
-const byte* TclObject::getBinary(unsigned& length) const
+span<const uint8_t> TclObject::getBinary() const
 {
-	return static_cast<const byte*>(Tcl_GetByteArrayFromObj(
-		obj, reinterpret_cast<int*>(&length)));
+	int length;
+	auto* buf = Tcl_GetByteArrayFromObj(obj, &length);
+	return {buf, size_t(length)};
 }
 
 unsigned TclObject::getListLength(Interpreter& interp_) const

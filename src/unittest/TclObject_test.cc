@@ -100,13 +100,12 @@ TEST_CASE("TclObject, setXXX")
 	}
 	SECTION("binary") {
 		uint8_t buf[] = {1, 2, 3};
-		t.setBinary(buf, sizeof(buf));
-		unsigned length;
-		auto* result = t.getBinary(length);
-		CHECK(length == sizeof(buf));
-		CHECK(memcmp(buf, result, length) == 0);
+		t.setBinary({buf, sizeof(buf)});
+		auto result = t.getBinary();
+		CHECK(result.size() == sizeof(buf));
+		CHECK(memcmp(buf, result.data(), result.size()) == 0);
 		// 'buf' was copied into 't'
-		CHECK(result != &buf[0]);
+		CHECK(result.data() != &buf[0]);
 		CHECK(result[0] == 1);
 		buf[0] = 99;
 		CHECK(result[0] == 1);

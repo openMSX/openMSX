@@ -15,6 +15,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "view.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <memory>
 #include <stdexcept>
@@ -334,7 +335,7 @@ void Debugger::Cmd::readBlock(span<const TclObject> tokens, TclObject& result)
 	for (unsigned i = 0; i < num; ++i) {
 		buf[i] = device.read(addr + i);
 	}
-	result.setBinary(buf.data(), num);
+	result.setBinary({buf.data(), num});
 }
 
 void Debugger::Cmd::write(span<const TclObject> tokens, TclObject& /*result*/)
@@ -367,14 +368,13 @@ void Debugger::Cmd::writeBlock(span<const TclObject> tokens, TclObject& /*result
 	if (addr >= devSize) {
 		throw CommandException("Invalid address");
 	}
-	unsigned num;
-	const byte* buf = tokens[4].getBinary(num);
-	if ((num + addr) > devSize) {
+	auto buf = tokens[4].getBinary();
+	if ((buf.size() + addr) > devSize) {
 		throw CommandException("Invalid size");
 	}
 
-	for (unsigned i = 0; i < num; ++i) {
-		device.write(addr + i, static_cast<byte>(buf[i]));
+	for (auto i : xrange(buf.size())) {
+		device.write(addr + i, buf[i]);
 	}
 }
 

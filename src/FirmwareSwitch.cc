@@ -3,6 +3,7 @@
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileException.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 

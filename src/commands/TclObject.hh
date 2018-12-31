@@ -2,11 +2,12 @@
 #define TCLOBJECT_HH
 
 #include "string_view.hh"
-#include "openmsx.hh"
+#include "span.hh"
 #include "xxhash.hh"
 #include <tcl.h>
 #include <iterator>
 #include <cassert>
+#include <cstdint>
 
 struct Tcl_Obj;
 
@@ -94,7 +95,7 @@ public:
 	void setInt(int value);
 	void setBoolean(bool value);
 	void setDouble(double value);
-	void setBinary(byte* buf, unsigned length);
+	void setBinary(span<const uint8_t> buf);
 	void addListElement(string_view element);
 	void addListElement(int value);
 	void addListElement(double value);
@@ -107,7 +108,7 @@ public:
 	int getInt      (Interpreter& interp) const;
 	bool getBoolean (Interpreter& interp) const;
 	double getDouble(Interpreter& interp) const;
-	const byte* getBinary(unsigned& length) const;
+	span<const uint8_t> getBinary() const;
 	unsigned getListLength(Interpreter& interp) const;
 	TclObject getListIndex(Interpreter& interp, unsigned index) const;
 	TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
