@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iterator>
+#include <string>
 
 using namespace openmsx;
 
@@ -16,8 +17,18 @@ TEST_CASE("TclObject, constructors")
 		CHECK(t.getString() == "");
 	}
 	SECTION("string_view") {
-		TclObject t("foo");
-		CHECK(t.getString() == "foo");
+		TclObject t1("foo"); // const char*
+		CHECK(t1.getString() == "foo");
+		TclObject t2(std::string("bar")); // string
+		CHECK(t2.getString() == "bar");
+		TclObject t3(string_view("qux")); // string_view
+		CHECK(t3.getString() == "qux");
+	}
+	SECTION("bool") {
+		TclObject t1(true);
+		CHECK(t1.getString() == "1");
+		TclObject t2(false);
+		CHECK(t2.getString() == "0");
 	}
 	SECTION("int") {
 		TclObject t(42);
@@ -26,6 +37,11 @@ TEST_CASE("TclObject, constructors")
 	SECTION("double") {
 		TclObject t(6.28);
 		CHECK(t.getString() == "6.28");
+	}
+	SECTION("binary") {
+		uint8_t buf[] = {'a', 'b', 'c'};
+		TclObject t(span<uint8_t>{buf, sizeof(buf)});
+		CHECK(t.getString() == "abc");
 	}
 	SECTION("copy") {
 		TclObject t1("bar");
@@ -121,24 +137,37 @@ TEST_CASE("TclObject, addListElement")
 		CHECK(t.getListLength(interp) == 0);
 		t.addListElement("foo bar");
 		CHECK(t.getListLength(interp) == 1);
-		t.addListElement(33);
+		t.addListElement(false);
 		CHECK(t.getListLength(interp) == 2);
-		t.addListElement(9.23);
+		t.addListElement(33);
 		CHECK(t.getListLength(interp) == 3);
+		t.addListElement(9.23);
+		CHECK(t.getListLength(interp) == 4);
 		TclObject t2("bla");
 		t.addListElement(t2);
-		CHECK(t.getListLength(interp) == 4);
+		CHECK(t.getListLength(interp) == 5);
+		t.addListElement(std::string("qux"));
+		CHECK(t.getListLength(interp) == 6);
+		uint8_t buf[] = {'x', 'y', 'z'};
+		t.addListElement(span<uint8_t>{buf, sizeof(buf)});
+		CHECK(t.getListLength(interp) == 7);
 
 		TclObject l0 = t.getListIndex(interp, 0);
 		TclObject l1 = t.getListIndex(interp, 1);
 		TclObject l2 = t.getListIndex(interp, 2);
 		TclObject l3 = t.getListIndex(interp, 3);
+		TclObject l4 = t.getListIndex(interp, 4);
+		TclObject l5 = t.getListIndex(interp, 5);
+		TclObject l6 = t.getListIndex(interp, 6);
 		CHECK(l0.getString() == "foo bar");
-		CHECK(l1.getString() == "33");
-		CHECK(l2.getString() == "9.23");
-		CHECK(l3.getString() == "bla");
+		CHECK(l1.getString() == "0");
+		CHECK(l2.getString() == "33");
+		CHECK(l3.getString() == "9.23");
+		CHECK(l4.getString() == "bla");
+		CHECK(l5.getString() == "qux");
+		CHECK(l6.getString() == "xyz");
 
-		CHECK(t.getString() == "{foo bar} 33 9.23 bla");
+		CHECK(t.getString() == "{foo bar} 0 33 9.23 bla qux xyz");
 	}
 	SECTION("error") {
 		TclObject t("{foo"); // invalid list representation

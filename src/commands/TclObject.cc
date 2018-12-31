@@ -15,7 +15,7 @@ void TclObject::setString(string_view value)
 {
 	if (Tcl_IsShared(obj)) {
 		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewStringObj(value.data(), int(value.size()));
+		obj = newObj(value);
 		Tcl_IncrRefCount(obj);
 	} else {
 		Tcl_SetStringObj(obj, value.data(), int(value.size()));
@@ -26,7 +26,7 @@ void TclObject::setInt(int value)
 {
 	if (Tcl_IsShared(obj)) {
 		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewIntObj(value);
+		obj = newObj(value);
 		Tcl_IncrRefCount(obj);
 	} else {
 		Tcl_SetIntObj(obj, value);
@@ -37,7 +37,7 @@ void TclObject::setBoolean(bool value)
 {
 	if (Tcl_IsShared(obj)) {
 		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewBooleanObj(value);
+		obj = newObj(value);
 		Tcl_IncrRefCount(obj);
 	} else {
 		Tcl_SetBooleanObj(obj, value);
@@ -48,7 +48,7 @@ void TclObject::setDouble(double value)
 {
 	if (Tcl_IsShared(obj)) {
 		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewDoubleObj(value);
+		obj = newObj(value);
 		Tcl_IncrRefCount(obj);
 	} else {
 		Tcl_SetDoubleObj(obj, value);
@@ -59,31 +59,11 @@ void TclObject::setBinary(span<const uint8_t> buf)
 {
 	if (Tcl_IsShared(obj)) {
 		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewByteArrayObj(buf.data(), buf.size());
+		obj = newObj(buf);
 		Tcl_IncrRefCount(obj);
 	} else {
 		Tcl_SetByteArrayObj(obj, buf.data(), buf.size());
 	}
-}
-
-void TclObject::addListElement(string_view element)
-{
-	addListElement(Tcl_NewStringObj(element.data(), int(element.size())));
-}
-
-void TclObject::addListElement(int value)
-{
-	addListElement(Tcl_NewIntObj(value));
-}
-
-void TclObject::addListElement(double value)
-{
-	addListElement(Tcl_NewDoubleObj(value));
-}
-
-void TclObject::addListElement(const TclObject& element)
-{
-	addListElement(element.obj);
 }
 
 void TclObject::addListElement(Tcl_Obj* element)

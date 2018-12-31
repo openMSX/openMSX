@@ -64,14 +64,18 @@ class TclObject
 	};
 
 public:
-	TclObject()                      { init(Tcl_NewObj()); }
-	explicit TclObject(Tcl_Obj* o)   { init(o); }
-	explicit TclObject(string_view v) { init(Tcl_NewStringObj(v.data(), int(v.size()))); }
-	explicit TclObject(int v)        { init(Tcl_NewIntObj(v)); }
-	explicit TclObject(double v)     { init(Tcl_NewDoubleObj(v)); }
-	TclObject(const TclObject&  o)   { init(o.obj); }
-	TclObject(      TclObject&& o) noexcept { init(o.obj); }
-	~TclObject()                     { Tcl_DecrRefCount(obj); }
+	TclObject()                               { init(Tcl_NewObj()); }
+	explicit TclObject(Tcl_Obj* o)            { init(o); }
+	explicit TclObject(string_view s)         { init(newObj(s)); }
+	explicit TclObject(const char* s)         { init(newObj(s)); }
+	explicit TclObject(bool b)                { init(newObj(b)); }
+	explicit TclObject(int i)                 { init(newObj(i)); }
+	explicit TclObject(double d)              { init(newObj(d)); }
+	explicit TclObject(span<const uint8_t> b) { init(newObj(b)); }
+	TclObject(const TclObject&  o)            { init(newObj(o)); }
+	TclObject(      TclObject&& o) noexcept   { init(newObj(o)); }
+
+	~TclObject() { Tcl_DecrRefCount(obj); }
 
 	// assignment operator so we can use vector<TclObject>
 	TclObject& operator=(const TclObject& other) {
@@ -92,14 +96,18 @@ public:
 
 	// value setters
 	void setString(string_view value);
-	void setInt(int value);
 	void setBoolean(bool value);
+	void setInt(int value);
 	void setDouble(double value);
 	void setBinary(span<const uint8_t> buf);
-	void addListElement(string_view element);
-	void addListElement(int value);
-	void addListElement(double value);
-	void addListElement(const TclObject& element);
+
+	void addListElement(string_view s)         { addListElement(newObj(s)); }
+	void addListElement(const char* s)         { addListElement(newObj(s)); }
+	void addListElement(bool b)                { addListElement(newObj(b)); }
+	void addListElement(int i)                 { addListElement(newObj(i)); }
+	void addListElement(double d)              { addListElement(newObj(d)); }
+	void addListElement(span<const uint8_t> b) { addListElement(newObj(b)); }
+	void addListElement(const TclObject& o)    { addListElement(newObj(o)); }
 	template<typename ITER> void addListElements(ITER first, ITER last);
 	template<typename Range> void addListElements(Range&& range);
 
@@ -150,6 +158,28 @@ private:
 	void init(Tcl_Obj* obj_) noexcept {
 		obj = obj_;
 		Tcl_IncrRefCount(obj);
+	}
+
+	static Tcl_Obj* newObj(string_view s) {
+		return Tcl_NewStringObj(s.data(), int(s.size()));
+	}
+	static Tcl_Obj* newObj(const char* s) {
+		return Tcl_NewStringObj(s, strlen(s));
+	}
+	static Tcl_Obj* newObj(bool b) {
+		return Tcl_NewBooleanObj(b);
+	}
+	static Tcl_Obj* newObj(int i) {
+		return Tcl_NewIntObj(i);
+	}
+	static Tcl_Obj* newObj(double d) {
+		return Tcl_NewDoubleObj(d);
+	}
+	static Tcl_Obj* newObj(span<const uint8_t> buf) {
+		return Tcl_NewByteArrayObj(buf.data(), buf.size());
+	}
+	static Tcl_Obj* newObj(const TclObject& o) {
+		return o.obj;
 	}
 
 	void addListElement(Tcl_Obj* element);
