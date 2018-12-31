@@ -64,16 +64,11 @@ class TclObject
 	};
 
 public:
-	TclObject()                               { init(Tcl_NewObj()); }
-	explicit TclObject(Tcl_Obj* o)            { init(o); }
-	explicit TclObject(string_view s)         { init(newObj(s)); }
-	explicit TclObject(const char* s)         { init(newObj(s)); }
-	explicit TclObject(bool b)                { init(newObj(b)); }
-	explicit TclObject(int i)                 { init(newObj(i)); }
-	explicit TclObject(double d)              { init(newObj(d)); }
-	explicit TclObject(span<const uint8_t> b) { init(newObj(b)); }
-	TclObject(const TclObject&  o)            { init(newObj(o)); }
-	TclObject(      TclObject&& o) noexcept   { init(newObj(o)); }
+	TclObject()                                  { init(Tcl_NewObj()); }
+	explicit TclObject(Tcl_Obj* o)               { init(o); }
+	template<typename T> explicit TclObject(T t) { init(newObj(t)); }
+	TclObject(const TclObject&  o)               { init(newObj(o)); }
+	TclObject(      TclObject&& o) noexcept      { init(newObj(o)); }
 
 	~TclObject() { Tcl_DecrRefCount(obj); }
 
@@ -101,13 +96,8 @@ public:
 	void setDouble(double value);
 	void setBinary(span<const uint8_t> buf);
 
-	void addListElement(string_view s)         { addListElement(newObj(s)); }
-	void addListElement(const char* s)         { addListElement(newObj(s)); }
-	void addListElement(bool b)                { addListElement(newObj(b)); }
-	void addListElement(int i)                 { addListElement(newObj(i)); }
-	void addListElement(double d)              { addListElement(newObj(d)); }
-	void addListElement(span<const uint8_t> b) { addListElement(newObj(b)); }
-	void addListElement(const TclObject& o)    { addListElement(newObj(o)); }
+	template<typename T> void addListElement(T t) { addListElement(newObj(t)); }
+	void addListElement(const TclObject& o)       { addListElement(newObj(o)); }
 	template<typename ITER> void addListElements(ITER first, ITER last);
 	template<typename Range> void addListElements(Range&& range);
 
