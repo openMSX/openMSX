@@ -1,0 +1,37 @@
+msxbuild -- use openMSX in build pipeline
+
+These are a few Tcl scripts. It allows to integrate openMSX as an reliable
+build step in compiling/packing/testing msx software natively but managed 
+from external build tool like make or scripts.
+This means that great care is given to make sure that openMSX exits correctly.
+
+Files:
+  boot_env.tcl    Tcl script to override some openMSX settings
+                  from environment variables.
+  boot_hdd.tcl    Tcl script to allow hdd usage with automatic
+                  import and export just like floppy disk as folder
+                  feature but not limited in size or speed. 
+  fail_after.tcl  Tcl script with 'fail_after' command to
+                  exit openMSX after (boot)timeout.
+
+The use this, pass the one or more scripts on the command line and
+set the optional environment variables when executing openMSX:
+  FAIL_AFTER_BOOT=30 \
+  FAIL_AFTER_PATH=bin/myapp \
+  BOOT_HDD_PATH=bin/myapp/disk \
+  BOOT_HDD_IMAGE=bin/myapp/disk.img \
+  RENDERER=none \
+  THROTTLE=off \
+  openmsx \
+    -script <path-to>/boot_env.tcl \
+    -script <path-to>/boot_hdd.tcl \
+    -script <path-to>/fail_after.tcl \
+    -machine ...
+
+Check the scripts source code for more (technical) details.
+
+You can use these scripts as-is. But as always, feel free to extend it
+for your specific needs or contribute a fix or feature.
+
+Original idea by 'immetoo':
+  https://github.com/openMSX/openMSX/issues/1133
