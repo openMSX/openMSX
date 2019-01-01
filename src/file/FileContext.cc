@@ -176,8 +176,7 @@ FileContext userDataFileContext(string_view subDir)
 
 FileContext currentDirFileContext()
 {
-	return { { string{} },
-	         {} };
+	return {{string{}}, {string{}}};
 }
 
 } // namespace openmsx
