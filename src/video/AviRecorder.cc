@@ -263,11 +263,11 @@ void AviRecorder::processStart(span<const TclObject> tokens, TclObject& result)
 		filename, directory, prefix, extension);
 
 	if (aviWriter || wavWriter) {
-		result.setString("Already recording.");
+		result = "Already recording.";
 	} else {
 		start(recordAudio, recordVideo, recordMono, recordStereo,
 				Filename(filename));
-		result.setString("Recording to " + filename);
+		result = "Recording to " + filename;
 	}
 }
 

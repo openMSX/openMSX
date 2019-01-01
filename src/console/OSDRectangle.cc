@@ -106,23 +106,23 @@ void OSDRectangle::setProperty(
 void OSDRectangle::getProperty(string_view propName, TclObject& result) const
 {
 	if (propName == "-w") {
-		result.setDouble(size[0]);
+		result = size[0];
 	} else if (propName == "-h") {
-		result.setDouble(size[1]);
+		result = size[1];
 	} else if (propName == "-relw") {
-		result.setDouble(relSize[0]);
+		result = relSize[0];
 	} else if (propName == "-relh") {
-		result.setDouble(relSize[1]);
+		result = relSize[1];
 	} else if (propName == "-scale") {
-		result.setDouble(scale);
+		result = scale;
 	} else if (propName == "-image") {
-		result.setString(imageName);
+		result = imageName;
 	} else if (propName == "-bordersize") {
-		result.setDouble(borderSize);
+		result = borderSize;
 	} else if (propName == "-relbordersize") {
-		result.setDouble(relBorderSize);
+		result = relBorderSize;
 	} else if (propName == "-borderrgba") {
-		result.setInt(borderRGBA);
+		result = borderRGBA;
 	} else {
 		OSDImageBasedWidget::getProperty(propName, result);
 	}

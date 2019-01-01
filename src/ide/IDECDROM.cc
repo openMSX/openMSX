@@ -348,9 +348,8 @@ void CDXCommand::execute(span<const TclObject> tokens, TclObject& result,
 		cd.eject();
 		// TODO check for locked tray
 		if (tokens[1] == "-eject") {
-			result.setString(
-				"Warning: use of '-eject' is deprecated, "
-				"instead use the 'eject' subcommand");
+			result = "Warning: use of '-eject' is deprecated, "
+			         "instead use the 'eject' subcommand";
 		}
 	} else if ((tokens.size() == 2) ||
 	           ((tokens.size() == 3) && (tokens[1] == "insert"))) {

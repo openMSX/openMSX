@@ -104,7 +104,7 @@ void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
 	userSettings.addSetting(std::move(setting));
 
-	result.setString(tokens[3].getString()); // name
+	result = tokens[3]; // name
 }
 
 unique_ptr<Setting> UserSettings::Cmd::createString(span<const TclObject> tokens)

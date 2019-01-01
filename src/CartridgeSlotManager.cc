@@ -323,9 +323,9 @@ void CartridgeSlotManager::CartCmd::execute(
 	} else if ((tokens[1] == "eject") || (tokens[1] == "-eject")) {
 		// remove cartridge (or extension)
 		if (tokens[1] == "-eject") {
-			result.setString(
+			result =
 				"Warning: use of '-eject' is deprecated, "
-				"instead use the 'eject' subcommand");
+				"instead use the 'eject' subcommand";
 		}
 		if (auto* extConf = getExtensionConfig(cartname)) {
 			try {
@@ -360,8 +360,8 @@ void CartridgeSlotManager::CartCmd::execute(
 					manager.motherBoard.removeExtension(*extConf);
 				}
 			}
-			result.setString(manager.motherBoard.insertExtension(
-				"ROM", std::move(extension)));
+			result = manager.motherBoard.insertExtension(
+				"ROM", std::move(extension));
 			cliComm.update(CliComm::MEDIA, cartname, romname);
 		} catch (MSXException& e) {
 			throw CommandException(std::move(e).getMessage());

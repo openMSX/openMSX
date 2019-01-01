@@ -265,7 +265,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 		totalSize += chunk.size;
 	}
 	strAppend(res, "total size: ", totalSize, '\n');
-	result.setString(res);
+	result = res;
 }
 
 static void parseGoTo(Interpreter& interp, span<const TclObject> tokens,
@@ -669,7 +669,7 @@ void ReverseManager::saveReplay(
 		history.events.pop_back();
 	}
 
-	result.setString("Saved replay to " + filename);
+	result = "Saved replay to " + filename;
 }
 
 void ReverseManager::loadReplay(
@@ -794,7 +794,7 @@ void ReverseManager::loadReplay(
 	bool novideo = false;
 	goTo(destination, novideo, newHistory, false); // move to different time-line
 
-	result.setString("Loaded replay from " + filename);
+	result = "Loaded replay from " + filename;
 }
 
 void ReverseManager::transferHistory(ReverseHistory& oldHistory,
@@ -1040,7 +1040,7 @@ void ReverseManager::ReverseCmd::execute(span<const TclObject> tokens, TclObject
 		auto& distributor = manager.motherBoard.getStateChangeDistributor();
 		switch (tokens.size()) {
 		case 2:
-			result.setString(distributor.isViewOnlyMode() ? "true" : "false");
+			result = distributor.isViewOnlyMode();
 			break;
 		case 3:
 			distributor.setViewOnlyMode(tokens[2].getBoolean(interp));

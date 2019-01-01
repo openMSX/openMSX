@@ -636,13 +636,13 @@ void CassettePlayer::TapeCommand::execute(
 			(tokens.size() == 3) ? tokens[2].getString() : string{},
 			directory, prefix, extension);
 		cassettePlayer.recordTape(Filename(filename), time);
-		result.setString(strCat(
+		result = strCat(
                         "Created new cassette image file: ", filename,
-		        ", inserted it and set recording mode."));
+		        ", inserted it and set recording mode.");
 
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
-			result.setString("Changing tape");
+			result = "Changing tape";
 			Filename filename(tokens[2].getString().str(), userFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
@@ -652,10 +652,10 @@ void CassettePlayer::TapeCommand::execute(
 	} else if (tokens[1] == "motorcontrol" && tokens.size() == 3) {
 		if (tokens[2] == "on") {
 			cassettePlayer.setMotorControl(true, time);
-			result.setString("Motor control enabled.");
+			result = "Motor control enabled.";
 		} else if (tokens[2] == "off") {
 			cassettePlayer.setMotorControl(false, time);
-			result.setString("Motor control disabled.");
+			result = "Motor control disabled.";
 		} else {
 			throw SyntaxError();
 		}
@@ -664,16 +664,16 @@ void CassettePlayer::TapeCommand::execute(
 		throw SyntaxError();
 
 	} else if (tokens[1] == "motorcontrol") {
-		result.setString(strCat("Motor control is ",
-		                 (cassettePlayer.motorControl ? "on" : "off")));
+		result = strCat("Motor control is ",
+		                (cassettePlayer.motorControl ? "on" : "off"));
 
 	} else if (tokens[1] == "record") {
-			result.setString("TODO: implement this... (sorry)");
+			result = "TODO: implement this... (sorry)";
 
 	} else if (tokens[1] == "play") {
 		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
 			try {
-				result.setString("Play mode set, rewinding tape.");
+				result = "Play mode set, rewinding tape.";
 				cassettePlayer.playTape(
 					cassettePlayer.getImageName(), time);
 			} catch (MSXException& e) {
@@ -683,11 +683,11 @@ void CassettePlayer::TapeCommand::execute(
 			throw CommandException("No tape inserted or tape at end!");
 		} else {
 			// PLAY mode
-			result.setString("Already in play mode.");
+			result = "Already in play mode.";
 		}
 
 	} else if (tokens[1] == "eject") {
-		result.setString("Tape ejected");
+		result = "Tape ejected";
 		cassettePlayer.removeTape(time);
 
 	} else if (tokens[1] == "rewind") {
@@ -703,17 +703,17 @@ void CassettePlayer::TapeCommand::execute(
 		}
 		cassettePlayer.rewind(time);
 		r += "Tape rewound";
-		result.setString(r);
+		result = r;
 
 	} else if (tokens[1] == "getpos") {
-		result.setDouble(cassettePlayer.getTapePos(time));
+		result = cassettePlayer.getTapePos(time);
 
 	} else if (tokens[1] == "getlength") {
-		result.setDouble(cassettePlayer.getTapeLength(time));
+		result = cassettePlayer.getTapeLength(time);
 
 	} else {
 		try {
-			result.setString("Changing tape");
+			result = "Changing tape";
 			Filename filename(tokens[1].getString().str(), userFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {

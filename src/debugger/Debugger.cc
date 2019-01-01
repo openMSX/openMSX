@@ -252,7 +252,7 @@ void Debugger::Cmd::execute(
 	} else if (subCmd == "break") {
 		debugger().motherBoard.getCPUInterface().doBreak();
 	} else if (subCmd == "breaked") {
-		result.setInt(debugger().motherBoard.getCPUInterface().isBreaked());
+		result = debugger().motherBoard.getCPUInterface().isBreaked();
 	} else if (subCmd == "set_bp") {
 		setBreakPoint(tokens, result);
 	} else if (subCmd == "remove_bp") {
@@ -289,7 +289,7 @@ void Debugger::Cmd::desc(span<const TclObject> tokens, TclObject& result)
 		throw SyntaxError();
 	}
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
-	result.setString(device.getDescription());
+	result = device.getDescription();
 }
 
 void Debugger::Cmd::size(span<const TclObject> tokens, TclObject& result)
@@ -298,7 +298,7 @@ void Debugger::Cmd::size(span<const TclObject> tokens, TclObject& result)
 		throw SyntaxError();
 	}
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
-	result.setInt(device.getSize());
+	result = device.getSize();
 }
 
 void Debugger::Cmd::read(span<const TclObject> tokens, TclObject& result)
@@ -311,7 +311,7 @@ void Debugger::Cmd::read(span<const TclObject> tokens, TclObject& result)
 	if (addr >= device.getSize()) {
 		throw CommandException("Invalid address");
 	}
-	result.setInt(device.read(addr));
+	result = device.read(addr);
 }
 
 void Debugger::Cmd::readBlock(span<const TclObject> tokens, TclObject& result)
@@ -335,7 +335,7 @@ void Debugger::Cmd::readBlock(span<const TclObject> tokens, TclObject& result)
 	for (unsigned i = 0; i < num; ++i) {
 		buf[i] = device.read(addr + i);
 	}
-	result.setBinary({buf.data(), num});
+	result = span<byte>{buf.data(), num};
 }
 
 void Debugger::Cmd::write(span<const TclObject> tokens, TclObject& /*result*/)
@@ -393,7 +393,7 @@ void Debugger::Cmd::setBreakPoint(span<const TclObject> tokens, TclObject& resul
 	case 3: { // address
 		word addr = getAddress(getInterpreter(), tokens);
 		BreakPoint bp(addr, command, condition);
-		result.setString(strCat("bp#", bp.getId()));
+		result = strCat("bp#", bp.getId());
 		debugger().motherBoard.getCPUInterface().insertBreakPoint(bp);
 		break;
 	}
@@ -459,7 +459,7 @@ void Debugger::Cmd::listBreakPoints(
 		line.addListElement(bp.getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
-	result.setString(res);
+	result = res;
 }
 
 
@@ -521,7 +521,7 @@ void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& resul
 	}
 	unsigned id = debugger().setWatchPoint(
 		command, condition, type, beginAddr, endAddr);
-	result.setString(strCat("wp#", id));
+	result = strCat("wp#", id);
 }
 
 void Debugger::Cmd::removeWatchPoint(
@@ -589,7 +589,7 @@ void Debugger::Cmd::listWatchPoints(
 		line.addListElement(wp->getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
-	result.setString(res);
+	result = res;
 }
 
 
@@ -605,7 +605,7 @@ void Debugger::Cmd::setCondition(span<const TclObject> tokens, TclObject& result
 	case 3: { // condition
 		condition = tokens[2];
 		DebugCondition dc(command, condition);
-		result.setString(strCat("cond#", dc.getId()));
+		result = strCat("cond#", dc.getId());
 		debugger().motherBoard.getCPUInterface().setCondition(dc);
 		break;
 	}
@@ -656,7 +656,7 @@ void Debugger::Cmd::listConditions(
 		line.addListElement(c.getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
-	result.setString(res);
+	result = res;
 }
 
 
@@ -692,14 +692,14 @@ void Debugger::Cmd::probeDesc(span<const TclObject> tokens, TclObject& result)
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	result.setString(debugger().getProbe(tokens[3].getString()).getDescription());
+	result = debugger().getProbe(tokens[3].getString()).getDescription();
 }
 void Debugger::Cmd::probeRead(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	result.setString(debugger().getProbe(tokens[3].getString()).getValue());
+	result = debugger().getProbe(tokens[3].getString()).getValue();
 }
 void Debugger::Cmd::probeSetBreakPoint(
 	span<const TclObject> tokens, TclObject& result)
@@ -728,7 +728,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 	}
 
 	unsigned id = debugger().insertProbeBreakPoint(command, condition, *p);
-	result.setString(strCat("pp#", id));
+	result = strCat("pp#", id);
 }
 void Debugger::Cmd::probeRemoveBreakPoint(
 	span<const TclObject> tokens, TclObject& /*result*/)
@@ -750,7 +750,7 @@ void Debugger::Cmd::probeListBreakPoints(
 		line.addListElement(p->getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
-	result.setString(res);
+	result = res;
 }
 
 string Debugger::Cmd::help(const vector<string>& tokens) const

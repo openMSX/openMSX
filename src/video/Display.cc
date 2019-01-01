@@ -488,7 +488,7 @@ void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& re
 	}
 
 	display.getCliComm().printInfo("Screen saved to ", filename);
-	result.setString(filename);
+	result = filename;
 }
 
 string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
@@ -523,8 +523,7 @@ void Display::FpsInfoTopic::execute(span<const TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	auto& display = OUTER(Display, fpsInfo);
-	float fps = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
-	result.setDouble(fps);
+	result = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
 }
 
 string Display::FpsInfoTopic::help(const vector<string>& /*tokens*/) const

@@ -126,7 +126,7 @@ void OSDGUI::OSDCommand::destroy(span<const TclObject> tokens, TclObject& result
 	auto* widget = top.findByName(fullname);
 	if (!widget) {
 		// widget not found, not an error
-		result.setBoolean(false);
+		result = false;
 		return;
 	}
 
@@ -137,7 +137,7 @@ void OSDGUI::OSDCommand::destroy(span<const TclObject> tokens, TclObject& result
 
 	top.removeName(*widget);
 	parent->deleteWidget(*widget);
-	result.setBoolean(true);
+	result = true;
 }
 
 void OSDGUI::OSDCommand::info(span<const TclObject> tokens, TclObject& result)
@@ -173,7 +173,7 @@ void OSDGUI::OSDCommand::exists(span<const TclObject> tokens, TclObject& result)
 	}
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findByName(tokens[2].getString());
-	result.setBoolean(widget != nullptr);
+	result = widget != nullptr;
 }
 
 void OSDGUI::OSDCommand::configure(span<const TclObject> tokens, TclObject& /*result*/)

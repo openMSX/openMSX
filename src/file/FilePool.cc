@@ -600,7 +600,7 @@ void Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 2) throw SyntaxError();
 	File file(tokens[1].getString());
-	result.setString(filePool.getSha1Sum(file).toString());
+	result = filePool.getSha1Sum(file).toString();
 }
 
 string Sha1SumCommand::help(const vector<string>& /*tokens*/) const

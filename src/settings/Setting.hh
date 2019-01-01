@@ -38,7 +38,7 @@ public:
 	 */
 	void setPrefix(string_view prefix) {
 		assert(prefix.starts_with("::"));
-		fullName.setString(strCat(prefix, getBaseName()));
+		fullName = strCat(prefix, getBaseName());
 	}
 
 	/** For SettingInfo

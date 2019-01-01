@@ -122,7 +122,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 		          "allow other diskroms: ",
 		          (host.getAllowOtherDiskroms() ? "yes" : "no"),
 		          '\n');
-		result.setString(r);
+		result = r;
 		return;
 	}
 
@@ -271,7 +271,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 	if (!r.empty()) {
 		r += "You may need to reset the MSX for the changes to take effect.";
 	}
-	result.setString(r);
+	result = r;
 }
 
 string NowindCommand::help(const vector<string>& /*tokens*/) const

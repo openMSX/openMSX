@@ -169,7 +169,7 @@ void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
 	} else if (subcmd == "import") {
 		auto& settings = getDriveSettings(tokens[2].getString());
 		span<const TclObject> lists(std::begin(tokens) + 3, std::end(tokens));
-		result.setString(import(settings, lists));
+		result = import(settings, lists);
 
 	} else if (subcmd == "savedsk") {
 		auto& settings = getDriveSettings(tokens[2].getString());
@@ -178,10 +178,10 @@ void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
 	} else if (subcmd == "chdir") {
 		auto& settings = getDriveSettings(tokens[2].getString());
 		if (tokens.size() == 3) {
-			result.setString("Current directory: " +
-			                 settings.workingDir[settings.partition]);
+			result = "Current directory: " +
+			         settings.workingDir[settings.partition];
 		} else {
-			result.setString(chdir(settings, tokens[3].getString()));
+			result = chdir(settings, tokens[3].getString());
 		}
 
 	} else if (subcmd == "mkdir") {
@@ -207,7 +207,7 @@ void DiskManipulator::execute(span<const TclObject> tokens, TclObject& result)
 
 	} else if (subcmd == "dir") {
 		auto& settings = getDriveSettings(tokens[2].getString());
-		result.setString(dir(settings));
+		result = dir(settings);
 
 	} else {
 		throw CommandException("Unknown subcommand: ", subcmd);

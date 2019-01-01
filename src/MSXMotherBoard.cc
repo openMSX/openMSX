@@ -787,7 +787,7 @@ void LoadMachineCmd::execute(span<const TclObject> tokens, TclObject& result)
 	if (motherBoard.getMachineConfig()) {
 		throw CommandException("Already loaded a config in this machine.");
 	}
-	result.setString(motherBoard.loadMachine(tokens[1].getString().str()));
+	result = motherBoard.loadMachine(tokens[1].getString().str());
 }
 
 string LoadMachineCmd::help(const vector<string>& /*tokens*/) const
@@ -843,8 +843,8 @@ void ExtCmd::execute(span<const TclObject> tokens, TclObject& result,
 		auto slotname = (commandName.size() == 4)
 			? string_view(&commandName[3], 1)
 			: "any";
-		result.setString(motherBoard.loadExtension(
-			tokens[1].getString(), slotname));
+		result = motherBoard.loadExtension(
+			tokens[1].getString(), slotname);
 	} catch (MSXException& e) {
 		throw CommandException(std::move(e).getMessage());
 	}
@@ -918,7 +918,7 @@ MachineNameInfo::MachineNameInfo(MSXMotherBoard& motherBoard_)
 void MachineNameInfo::execute(span<const TclObject> /*tokens*/,
                               TclObject& result) const
 {
-	result.setString(motherBoard.getMachineName());
+	result = motherBoard.getMachineName();
 }
 
 string MachineNameInfo::help(const vector<string>& /*tokens*/) const
@@ -937,7 +937,7 @@ MachineTypeInfo::MachineTypeInfo(MSXMotherBoard& motherBoard_)
 void MachineTypeInfo::execute(span<const TclObject> /*tokens*/,
                               TclObject& result) const
 {
-	result.setString(motherBoard.getMachineType());
+	result = motherBoard.getMachineType();
 }
 
 string MachineTypeInfo::help(const vector<string>& /*tokens*/) const

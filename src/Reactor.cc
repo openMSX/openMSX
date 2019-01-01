@@ -703,7 +703,7 @@ void MachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 		throw SyntaxError();
 	}
 	// Always return machineID (of current or of new machine).
-	result.setString(reactor.getMachineID());
+	result = reactor.getMachineID();
 }
 
 string MachineCommand::help(const vector<string>& /*tokens*/) const
@@ -736,7 +736,7 @@ void TestMachineCommand::execute(span<const TclObject> tokens,
 		MSXMotherBoard mb(reactor);
 		mb.loadMachine(tokens[1].getString().str());
 	} catch (MSXException& e) {
-		result.setString(e.getMessage()); // error
+		result = e.getMessage(); // error
 	}
 }
 
@@ -768,7 +768,7 @@ void CreateMachineCommand::execute(span<const TclObject> tokens, TclObject& resu
 		throw SyntaxError();
 	}
 	auto newBoard = reactor.createEmptyMotherBoard();
-	result.setString(newBoard->getMachineID());
+	result = newBoard->getMachineID();
 	reactor.boards.push_back(move(newBoard));
 }
 
@@ -857,7 +857,7 @@ void ActivateMachineCommand::execute(span<const TclObject> tokens,
 	default:
 		throw SyntaxError();
 	}
-	result.setString(reactor.getMachineID());
+	result = reactor.getMachineID();
 }
 
 string ActivateMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -907,7 +907,7 @@ void StoreMachineCommand::execute(span<const TclObject> tokens, TclObject& resul
 
 	XmlOutputArchive out(filename);
 	out.serialize("machine", board);
-	result.setString(filename);
+	result = filename;
 }
 
 string StoreMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -988,7 +988,7 @@ void RestoreMachineCommand::execute(span<const TclObject> tokens,
 	// now we want the MSX to see the actual host keyboard state.
 	newBoard->getStateChangeDistributor().stopReplay(newBoard->getCurrentTime());
 
-	result.setString(newBoard->getMachineID());
+	result = newBoard->getMachineID();
 	reactor.boards.push_back(move(newBoard));
 }
 
@@ -1069,7 +1069,7 @@ void RealTimeInfo::execute(span<const TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	auto delta = Timer::getTime() - reference;
-	result.setDouble(delta / 1000000.0);
+	result = delta / 1000000.0;
 }
 
 string RealTimeInfo::help(const vector<string>& /*tokens*/) const

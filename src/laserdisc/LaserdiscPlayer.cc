@@ -49,11 +49,11 @@ void LaserdiscPlayer::Command::execute(
 		result.addListElement(getName() + ':');
 		result.addListElement(laserdiscPlayer.getImageName().getResolved());
 	} else if (tokens.size() == 2 && tokens[1] == "eject") {
-		result.setString("Ejecting laserdisc.");
+		result = "Ejecting laserdisc.";
 		laserdiscPlayer.eject(time);
 	} else if (tokens.size() == 3 && tokens[1] == "insert") {
 		try {
-			result.setString("Changing laserdisc.");
+			result = "Changing laserdisc.";
 			laserdiscPlayer.setImageName(tokens[2].getString().str(), time);
 		} catch (MSXException& e) {
 			throw CommandException(std::move(e).getMessage());

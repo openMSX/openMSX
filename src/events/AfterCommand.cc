@@ -255,7 +255,7 @@ void AfterCommand::afterTime(span<const TclObject> tokens, TclObject& result)
 	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = std::make_unique<AfterTimeCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	result.setString(cmd->getId());
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -267,7 +267,7 @@ void AfterCommand::afterRealTime(span<const TclObject> tokens, TclObject& result
 	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = std::make_unique<AfterRealTimeCmd>(
 		reactor.getRTScheduler(), *this, tokens[3], time);
-	result.setString(cmd->getId());
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -278,7 +278,7 @@ void AfterCommand::afterTclTime(
 	command.addListElements(view::drop(tokens, 2));
 	auto cmd = std::make_unique<AfterRealTimeCmd>(
 		reactor.getRTScheduler(), *this, command, ms / 1000.0);
-	result.setString(cmd->getId());
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -290,7 +290,7 @@ void AfterCommand::afterEvent(span<const TclObject> tokens, TclObject& result)
 	}
 	auto cmd = std::make_unique<AfterEventCmd<T>>(
 		*this, tokens[1], tokens[2]);
-	result.setString(cmd->getId());
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -302,7 +302,7 @@ void AfterCommand::afterInputEvent(
 	}
 	auto cmd = std::make_unique<AfterInputEventCmd>(
 		*this, event, tokens[2]);
-	result.setString(cmd->getId());
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -316,7 +316,7 @@ void AfterCommand::afterIdle(span<const TclObject> tokens, TclObject& result)
 	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = std::make_unique<AfterIdleCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	result.setString(cmd->getId());
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
@@ -333,7 +333,7 @@ void AfterCommand::afterInfo(span<const TclObject> /*tokens*/, TclObject& result
 		str << cmd->getCommand()
 		    << '\n';
 	}
-	result.setString(str.str());
+	result = str.str();
 }
 
 void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result*/)

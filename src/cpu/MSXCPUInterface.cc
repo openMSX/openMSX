@@ -1074,8 +1074,8 @@ void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
 		throw SyntaxError();
 	}
 	auto& interface = OUTER(MSXCPUInterface, subSlottedInfo);
-	result.setInt(interface.isExpanded(
-		getSlot(getInterpreter(), tokens[2], "Slot")));
+	result = interface.isExpanded(
+		getSlot(getInterpreter(), tokens[2], "Slot"));
 }
 
 string MSXCPUInterface::SubSlottedInfo::help(
@@ -1111,7 +1111,7 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 	}
 	auto& interface = OUTER(MSXCPUInterface, externalSlotInfo);
 	auto& manager = interface.motherBoard.getSlotManager();
-	result.setInt(manager.isExternalSlot(ps, ss, true));
+	result = manager.isExternalSlot(ps, ss, true);
 }
 
 string MSXCPUInterface::ExternalSlotInfo::help(
@@ -1158,7 +1158,7 @@ void MSXCPUInterface::IOInfo::helper(
 	if (port >= 256) {
 		throw CommandException("Port must be in range 0..255");
 	}
-	result.setString(devices[port]->getName());
+	result = devices[port]->getName();
 }
 void MSXCPUInterface::IInfo::execute(
 	span<const TclObject> tokens, TclObject& result) const

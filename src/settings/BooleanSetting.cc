@@ -14,7 +14,7 @@ BooleanSetting::BooleanSetting(
 	setChecker([&interp](TclObject& newValue) {
 		// May throw.
 		// Re-set the queried value to get a normalized value.
-		newValue.setString(toString(newValue.getBoolean(interp)));
+		newValue = toString(newValue.getBoolean(interp));
 	});
 	init();
 }

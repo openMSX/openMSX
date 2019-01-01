@@ -1604,7 +1604,7 @@ VDP::Info::Info(VDP& vdp_, const string& name_, string helpText_)
 
 void VDP::Info::execute(span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	result.setInt(calc(vdp.getCurrentTime()));
+	result = calc(vdp.getCurrentTime());
 }
 
 string VDP::Info::help(const vector<string>& /*tokens*/) const

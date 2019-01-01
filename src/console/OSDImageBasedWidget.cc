@@ -117,7 +117,7 @@ void OSDImageBasedWidget::setRGBA(const uint32_t newRGBA[4])
 static void set4(const uint32_t rgba[4], uint32_t mask, unsigned shift, TclObject& result)
 {
 	if ((rgba[0] == rgba[1]) && (rgba[0] == rgba[2]) && (rgba[0] == rgba[3])) {
-		result.setInt((rgba[0] & mask) >> shift);
+		result = (rgba[0] & mask) >> shift;
 	} else {
 		result.addListElements(view::transform(xrange(4), [&](auto i) {
 			return int((rgba[i] & mask) >> shift);
@@ -133,11 +133,11 @@ void OSDImageBasedWidget::getProperty(string_view propName, TclObject& result) c
 	} else if (propName == "-alpha") {
 		set4(rgba, 0x000000ff, 0, result);
 	} else if (propName == "-fadePeriod") {
-		result.setDouble(fadePeriod);
+		result = fadePeriod;
 	} else if (propName == "-fadeTarget") {
-		result.setDouble(fadeTarget);
+		result = fadeTarget;
 	} else if (propName == "-fadeCurrent") {
-		result.setDouble(getCurrentFadeValue());
+		result = getCurrentFadeValue();
 	} else {
 		OSDWidget::getProperty(propName, result);
 	}

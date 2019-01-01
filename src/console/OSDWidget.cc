@@ -260,27 +260,27 @@ void OSDWidget::setProperty(
 void OSDWidget::getProperty(string_view propName, TclObject& result) const
 {
 	if (propName == "-type") {
-		result.setString(getType());
+		result = getType();
 	} else if (propName == "-x") {
-		result.setDouble(pos[0]);
+		result = pos[0];
 	} else if (propName == "-y") {
-		result.setDouble(pos[1]);
+		result = pos[1];
 	} else if (propName == "-z") {
-		result.setDouble(z);
+		result = z;
 	} else if (propName == "-relx") {
-		result.setDouble(relPos[0]);
+		result = relPos[0];
 	} else if (propName == "-rely") {
-		result.setDouble(relPos[1]);
+		result = relPos[1];
 	} else if (propName == "-scaled") {
-		result.setBoolean(scaled);
+		result = scaled;
 	} else if (propName == "-clip") {
-		result.setBoolean(clip);
+		result = clip;
 	} else if (propName == "-mousecoord") {
 		vec2 coord = getMouseCoord();
 		result.addListElement(coord[0]);
 		result.addListElement(coord[1]);
 	} else if (propName == "-suppressErrors") {
-		result.setBoolean(suppressErrors);
+		result = suppressErrors;
 	} else {
 		throw CommandException("No such property: ", propName);
 	}

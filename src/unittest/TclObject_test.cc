@@ -48,7 +48,7 @@ TEST_CASE("TclObject, constructors")
 		TclObject t2 = t1;
 		CHECK(t1.getString() == "bar");
 		CHECK(t2.getString() == "bar");
-		t1.setInt(123);
+		t1 = 123;
 		CHECK(t1.getString() == "123");
 		CHECK(t2.getString() == "bar");
 	}
@@ -70,7 +70,7 @@ TEST_CASE("TclObject, assignment")
 		CHECK(t1 == t2);
 		CHECK(t1.getString() == "123");
 		CHECK(t2.getString() == "123");
-		t1.setInt(456);
+		t1 = 456;
 		CHECK(t1 != t2);
 		CHECK(t1.getString() == "456");
 		CHECK(t2.getString() == "123");
@@ -81,7 +81,7 @@ TEST_CASE("TclObject, assignment")
 		REQUIRE(t1 != t2);
 		t2 = std::move(t1);
 		CHECK(t2.getString() == "123");
-		t1.setInt(456);
+		t1 = 456;
 		CHECK(t1 != t2);
 		CHECK(t1.getString() == "456");
 		CHECK(t2.getString() == "123");
@@ -90,33 +90,37 @@ TEST_CASE("TclObject, assignment")
 
 // skipped getTclObject() / getTclObjectNonConst()
 
-TEST_CASE("TclObject, setXXX")
+TEST_CASE("TclObject, operator=")
 {
 	Interpreter interp;
 	TclObject t(123);
 	REQUIRE(t.getString() == "123");
 
-	SECTION("string_view") {
-		t.setString("foo");
+	SECTION("string") {
+		t = "foo";
 		CHECK(t.getString() == "foo");
+		t = std::string("bar");
+		CHECK(t.getString() == "bar");
+		t = string_view("qux");
+		CHECK(t.getString() == "qux");
 	}
 	SECTION("int") {
-		t.setInt(42);
+		t = 42;
 		CHECK(t.getString() == "42");
 	}
 	SECTION("bool") {
-		t.setBoolean(true);
+		t = true;
 		CHECK(t.getString() == "1");
-		t.setBoolean(false);
+		t = false;
 		CHECK(t.getString() == "0");
 	}
 	SECTION("double") {
-		t.setDouble(-3.14);
+		t = -3.14;
 		CHECK(t.getString() == "-3.14");
 	}
 	SECTION("binary") {
 		uint8_t buf[] = {1, 2, 3};
-		t.setBinary({buf, sizeof(buf)});
+		t = span<uint8_t>{buf, sizeof(buf)};
 		auto result = t.getBinary();
 		CHECK(result.size() == sizeof(buf));
 		CHECK(memcmp(buf, result.data(), result.size()) == 0);
@@ -125,6 +129,25 @@ TEST_CASE("TclObject, setXXX")
 		CHECK(result[0] == 1);
 		buf[0] = 99;
 		CHECK(result[0] == 1);
+	}
+	SECTION("copy") {
+		TclObject t2(true);
+		REQUIRE(t2.getString() == "1");
+		t = t2;
+		CHECK(t .getString() == "1");
+		CHECK(t2.getString() == "1");
+		t2 = false;
+		CHECK(t .getString() == "1");
+		CHECK(t2.getString() == "0");
+	}
+	SECTION("move") {
+		TclObject t2(true);
+		REQUIRE(t2.getString() == "1");
+		t = std::move(t2);
+		CHECK(t .getString() == "1");
+		t2 = false;
+		CHECK(t .getString() == "1");
+		CHECK(t2.getString() == "0");
 	}
 }
 

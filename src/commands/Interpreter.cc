@@ -169,7 +169,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 			}
 			command.execute(tokens, result);
 		} catch (MSXException& e) {
-			result.setString(e.getMessage());
+			result = e.getMessage();
 			res = TCL_ERROR;
 		}
 		Tcl_SetObjResult(interp, result.getTclObject());

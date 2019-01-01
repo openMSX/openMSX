@@ -123,7 +123,7 @@ void PluggingController::PlugCmd::execute(
 	default:
 		throw SyntaxError();
 	}
-	result_.setString(result); // TODO return Tcl list
+	result_ = result; // TODO return Tcl list
 }
 
 string PluggingController::PlugCmd::help(const vector<string>& /*tokens*/) const
@@ -264,7 +264,7 @@ void PluggingController::PluggableInfo::execute(
 	case 3: {
 		auto& pluggable = pluggingController.getPluggable(
 				tokens[2].getString());
-		result.setString(pluggable.getDescription());
+		result = pluggable.getDescription();
 		break;
 	}
 	default:
@@ -308,7 +308,7 @@ void PluggingController::ConnectorInfo::execute(
 		break;
 	case 3: {
 		auto& connector = pluggingController.getConnector(tokens[2].getString());
-		result.setString(connector.getDescription());
+		result = connector.getDescription();
 		break;
 	}
 	default:
@@ -360,11 +360,11 @@ void PluggingController::ConnectionClassInfo::execute(
 	case 3: {
 		const auto& arg = tokens[2].getString();
 		if (auto* connector = pluggingController.findConnector(arg)) {
-			result.setString(connector->getClass());
+			result = connector->getClass();
 			break;
 		}
 		if (auto* pluggable = pluggingController.findPluggable(arg)) {
-			result.setString(pluggable->getClass());
+			result = pluggable->getClass();
 			break;
 		}
 		throw CommandException("No such connector or pluggable");

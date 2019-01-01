@@ -466,7 +466,7 @@ void GlobalCommandController::HelpCmd::execute(
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');
 		}
-		result.setString(text);
+		result = text;
 		break;
 	}
 	default: {
@@ -474,7 +474,7 @@ void GlobalCommandController::HelpCmd::execute(
 			auto tokens2 = to_vector(view::transform(
 				view::drop(tokens, 1),
 				[](auto& t) { return t.getString().str(); }));
-			result.setString((*v)->help(tokens2));
+			result = (*v)->help(tokens2);
 		} else {
 			TclObject command;
 			command.addListElement("openmsx::help");
@@ -516,7 +516,7 @@ void GlobalCommandController::TabCompletionCmd::execute(
 	case 2: {
 		// TODO this prints list of possible completions in the console
 		auto& controller = OUTER(GlobalCommandController, tabCompletionCmd);
-		result.setString(controller.tabCompletion(tokens[1].getString()));
+		result = controller.tabCompletion(tokens[1].getString());
 		break;
 	}
 	default:
@@ -607,7 +607,7 @@ GlobalCommandController::PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoComm
 void GlobalCommandController::PlatformInfo::execute(
 	span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	result.setString(TARGET_PLATFORM);
+	result = TARGET_PLATFORM;
 }
 
 string GlobalCommandController::PlatformInfo::help(const vector<string>& /*tokens*/) const
@@ -625,7 +625,7 @@ GlobalCommandController::VersionInfo::VersionInfo(InfoCommand& openMSXInfoComman
 void GlobalCommandController::VersionInfo::execute(
 	span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	result.setString(Version::full());
+	result = Version::full();
 }
 
 string GlobalCommandController::VersionInfo::help(const vector<string>& /*tokens*/) const

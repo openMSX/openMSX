@@ -250,7 +250,7 @@ void MSXCPU::TimeInfoTopic::execute(
 {
 	auto& cpu = OUTER(MSXCPU, timeInfo);
 	EmuDuration dur = cpu.getCurrentTime() - cpu.reference;
-	result.setDouble(dur.toDouble());
+	result = dur.toDouble();
 }
 
 string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const
@@ -272,7 +272,7 @@ MSXCPU::CPUFreqInfoTopic::CPUFreqInfoTopic(
 void MSXCPU::CPUFreqInfoTopic::execute(
 	span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	result.setInt(clock.getFreq());
+	result = clock.getFreq();
 }
 
 string MSXCPU::CPUFreqInfoTopic::help(const vector<string>& /*tokens*/) const

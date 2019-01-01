@@ -774,7 +774,7 @@ void MSXMixer::SoundDeviceInfoTopic::execute(
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}
-		result.setString(device->getDescription());
+		result = device->getDescription();
 		break;
 	}
 	default:

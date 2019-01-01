@@ -111,11 +111,11 @@ void OSDText::setProperty(
 void OSDText::getProperty(string_view propName, TclObject& result) const
 {
 	if (propName == "-text") {
-		result.setString(text);
+		result = text;
 	} else if (propName == "-font") {
-		result.setString(fontfile);
+		result = fontfile;
 	} else if (propName == "-size") {
-		result.setInt(size);
+		result = size;
 	} else if (propName == "-wrap") {
 		string wrapString;
 		switch (wrapMode) {
@@ -124,11 +124,11 @@ void OSDText::getProperty(string_view propName, TclObject& result) const
 			case CHAR: wrapString = "char"; break;
 			default: UNREACHABLE;
 		}
-		result.setString(wrapString);
+		result = wrapString;
 	} else if (propName == "-wrapw") {
-		result.setDouble(wrapw);
+		result = wrapw;
 	} else if (propName == "-wraprelw") {
-		result.setDouble(wraprelw);
+		result = wraprelw;
 	} else if (propName == "-query-size") {
 		vec2 renderedSize = getRenderedSize();
 		result.addListElement(renderedSize[0]);

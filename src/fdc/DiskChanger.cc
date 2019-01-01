@@ -235,13 +235,11 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 	} else if (tokens[1] == "-ramdsk") {
 		string args[] = {diskChanger.getDriveName(), "ramdsk"};
 		diskChanger.sendChangeDiskEvent(args);
-		result.setString(
-			"Warning: use of '-ramdsk' is deprecated, instead use the 'ramdsk' subcommand");
+		result = "Warning: use of '-ramdsk' is deprecated, instead use the 'ramdsk' subcommand";
 	} else if (tokens[1] == "-eject") {
 		string args[] = {diskChanger.getDriveName(), "eject"};
 		diskChanger.sendChangeDiskEvent(args);
-		result.setString(
-			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
+		result = "Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand";
 	} else if (tokens[1] == "eject") {
 		string args[] = {diskChanger.getDriveName(), "eject"};
 		diskChanger.sendChangeDiskEvent(args);

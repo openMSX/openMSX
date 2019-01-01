@@ -72,7 +72,7 @@ public:
 
 	~TclObject() { Tcl_DecrRefCount(obj); }
 
-	// assignment operator so we can use vector<TclObject>
+	// assignment operators
 	TclObject& operator=(const TclObject& other) {
 		if (&other != this) {
 			Tcl_DecrRefCount(obj);
@@ -84,20 +84,24 @@ public:
 		std::swap(obj, other.obj);
 		return *this;
 	}
+	template<typename T>
+	TclObject& operator=(T t) {
+		if (Tcl_IsShared(obj)) {
+			Tcl_DecrRefCount(obj);
+			obj = newObj(t);
+			Tcl_IncrRefCount(obj);
+		} else {
+			assign(t);
+		}
+		return *this;
+	}
 
 	// get underlying Tcl_Obj
 	Tcl_Obj* getTclObject() { return obj; }
 	Tcl_Obj* getTclObjectNonConst() const { return const_cast<Tcl_Obj*>(obj); }
 
-	// value setters
-	void setString(string_view value);
-	void setBoolean(bool value);
-	void setInt(int value);
-	void setDouble(double value);
-	void setBinary(span<const uint8_t> buf);
-
+	// add elements to a Tcl list
 	template<typename T> void addListElement(T t) { addListElement(newObj(t)); }
-	void addListElement(const TclObject& o)       { addListElement(newObj(o)); }
 	template<typename ITER> void addListElements(ITER first, ITER last);
 	template<typename Range> void addListElements(Range&& range);
 
@@ -162,6 +166,9 @@ private:
 	static Tcl_Obj* newObj(int i) {
 		return Tcl_NewIntObj(i);
 	}
+	static Tcl_Obj* newObj(unsigned u) {
+		return Tcl_NewIntObj(u);
+	}
 	static Tcl_Obj* newObj(double d) {
 		return Tcl_NewDoubleObj(d);
 	}
@@ -170,6 +177,28 @@ private:
 	}
 	static Tcl_Obj* newObj(const TclObject& o) {
 		return o.obj;
+	}
+
+	void assign(string_view s) {
+		Tcl_SetStringObj(obj, s.data(), int(s.size()));
+	}
+	void assign(const char* s) {
+		Tcl_SetStringObj(obj, s, strlen(s));
+	}
+	void assign(bool b) {
+		Tcl_SetBooleanObj(obj, b);
+	}
+	void assign(int i) {
+		Tcl_SetIntObj(obj, i);
+	}
+	void assign(unsigned u) {
+		Tcl_SetIntObj(obj, u);
+	}
+	void assign(double d) {
+		Tcl_SetDoubleObj(obj, d);
+	}
+	void assign(span<const uint8_t> b) {
+		Tcl_SetByteArrayObj(obj, b.data(), b.size());
 	}
 
 	void addListElement(Tcl_Obj* element);

@@ -15,8 +15,7 @@ FloatSetting::FloatSetting(CommandController& commandController_,
 	auto& interp = getInterpreter();
 	setChecker([this, &interp](TclObject& newValue) {
 		double val = newValue.getDouble(interp); // may throw
-		double clipped = std::min(std::max(val, minValue), maxValue);
-		newValue.setDouble(clipped);
+		newValue = std::min(std::max(val, minValue), maxValue);
 	});
 	init();
 }

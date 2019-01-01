@@ -533,7 +533,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
 		for (auto& p : cMap) {
 			r += formatBinding(p);
 		}
-		result.setString(r);
+		result = r;
 		break;
 	}
 	case 1: {
@@ -543,7 +543,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
 		if (it == end(cMap)) {
 			throw CommandException("Key not bound");
 		}
-		result.setString(formatBinding(*it));
+		result = formatBinding(*it);
 		break;
 	}
 	default: {
@@ -680,7 +680,7 @@ void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& resul
 	} else {
 		hotKey.activateLayer(layer.str(), blocking);
 	}
-	result.setString(r);
+	result = r;
 }
 
 string HotKey::ActivateCmd::help(const vector<string>& /*tokens*/) const

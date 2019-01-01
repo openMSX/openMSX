@@ -11,61 +11,6 @@ static void throwException(Tcl_Interp* interp)
 	throw CommandException(message);
 }
 
-void TclObject::setString(string_view value)
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = newObj(value);
-		Tcl_IncrRefCount(obj);
-	} else {
-		Tcl_SetStringObj(obj, value.data(), int(value.size()));
-	}
-}
-
-void TclObject::setInt(int value)
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = newObj(value);
-		Tcl_IncrRefCount(obj);
-	} else {
-		Tcl_SetIntObj(obj, value);
-	}
-}
-
-void TclObject::setBoolean(bool value)
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = newObj(value);
-		Tcl_IncrRefCount(obj);
-	} else {
-		Tcl_SetBooleanObj(obj, value);
-	}
-}
-
-void TclObject::setDouble(double value)
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = newObj(value);
-		Tcl_IncrRefCount(obj);
-	} else {
-		Tcl_SetDoubleObj(obj, value);
-	}
-}
-
-void TclObject::setBinary(span<const uint8_t> buf)
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = newObj(buf);
-		Tcl_IncrRefCount(obj);
-	} else {
-		Tcl_SetByteArrayObj(obj, buf.data(), buf.size());
-	}
-}
-
 void TclObject::addListElement(Tcl_Obj* element)
 {
 	// Although it's theoretically possible that Tcl_ListObjAppendElement()
