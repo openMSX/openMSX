@@ -8,7 +8,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	platformVars = extractMakeVariables(
 		'build/platform-%s.mk' % targetPlatform,
 		dict.fromkeys(
-			('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS',
+			('COMPILE_FLAGS', 'LINK_FLAGS', 'LDFLAGS', 'TARGET_FLAGS',
 				'OPENMSX_TARGET_CPU'),
 			''
 			)
