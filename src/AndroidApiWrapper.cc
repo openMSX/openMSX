@@ -11,8 +11,8 @@
 #if PLATFORM_ANDROID
 
 #include "openmsx.hh"
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <jni.h>
 
 // The jniVM parameter gets set by the JNI mechanism directly after loading the
@@ -22,31 +22,26 @@
 // This method is defined at the end of this source file and must be able to
 // initialize this jniVM parameter, hence it must exist outside the openmsx
 // namespace
-static JavaVM *jniVM = NULL;
+static JavaVM* jniVM = nullptr;
 
 namespace openmsx {
 
 std::string AndroidApiWrapper::getStorageDirectory()
 {
-	JNIEnv * jniEnv = NULL;
-	jclass cls;
-	jmethodID mid;
-	jobject storageDirectory;
-	jstring storageDirectoryName;
-
-	jniVM->AttachCurrentThread(&jniEnv, NULL);
-	if( !jniEnv ) {
+	JNIEnv* jniEnv = nullptr;
+	jniVM->AttachCurrentThread(&jniEnv, nullptr);
+	if (!jniEnv) {
 		throw JniException("Java VM AttachCurrentThread() failed");
 	}
-	cls = jniEnv->FindClass("android/os/Environment");
+	jclass cls = jniEnv->FindClass("android/os/Environment");
 	if (cls == 0) {
 		throw JniException("Cant find class android/os/Environment");
 	}
-	mid = jniEnv->GetStaticMethodID(cls, "getExternalStorageDirectory", "()Ljava/io/File;");
+	jmethodID mid = jniEnv->GetStaticMethodID(cls, "getExternalStorageDirectory", "()Ljava/io/File;");
 	if (mid == 0) {
 		throw JniException("Cant find getExternalStorageDirectory method");
 	}
-	storageDirectory = jniEnv->CallStaticObjectMethod(cls, mid);
+	jobject storageDirectory = jniEnv->CallStaticObjectMethod(cls, mid);
 	if (storageDirectory == 0) {
 		throw JniException("Cant get storageDirectory");
 	}
@@ -58,12 +53,12 @@ std::string AndroidApiWrapper::getStorageDirectory()
 	if (mid == 0) {
 		throw JniException("Cant find getAbsolutePath method");
 	}
-	storageDirectoryName = (jstring)jniEnv->CallObjectMethod(storageDirectory, mid);
+	jstring storageDirectoryName = static_cast<jstring>(jniEnv->CallObjectMethod(storageDirectory, mid));
 	if (storageDirectoryName == 0) {
 		throw JniException("Cant get storageDirectoryName");
 	}
-	const char *str = jniEnv->GetStringUTFChars(storageDirectoryName, NULL);
-	if (str == NULL) {
+	const char* str = jniEnv->GetStringUTFChars(storageDirectoryName, nullptr);
+	if (str == nullptr) {
 		throw JniException("Cant convert storageDirectoryName to C format");
 	}
 	std::string rslt(str);
@@ -73,16 +68,16 @@ std::string AndroidApiWrapper::getStorageDirectory()
 
 } // namespace openmsx
 
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void * /*reserved*/)
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* /*reserved*/)
 {
 	// Store the reference to the JVM so that the JNI calls can use it
 	jniVM = vm;
 	return JNI_VERSION_1_2;
-};
+}
 
-JNIEXPORT void JNICALL JNI_OnUnload(JavaVM * /*vm*/, void * /*reserved*/)
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* /*vm*/, void* /*reserved*/)
 {
 	// Nothing to do
-};
+}
 
 #endif
