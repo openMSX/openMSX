@@ -63,13 +63,13 @@ static int main(int argc, char **argv)
 		ad_printf("Couldn't redirect stdout to logfile, aborting\n");
 		std::cerr << "Couldn't redirect stdout to "
 		             STDOUT_LOG_FILE_NAME "\n";
-		exit(1);
+		return 1;
 	}
 	if (!freopen(STDERR_LOG_FILE_NAME, "a", stderr)) {
 		ad_printf("Couldn't redirect stderr to logfile, aborting\n");
 		std::cout << "Couldn't redirect stderr to "
 		             STDERR_LOG_FILE_NAME "\n";
-		exit(1);
+		return 1;
 	}
 
 	std::string msg = Date::toString(time(nullptr)) + ": starting openMSX";
@@ -136,5 +136,9 @@ static int main(int argc, char **argv)
 // Enter the openMSX namespace.
 int main(int argc, char **argv)
 {
-	exit(openmsx::main(argc, argv)); // need exit() iso return on win32/SDL
+	// TODO with SDL1 we had the comment:
+	//   need exit() iso return on win32/SDL
+	// Is that still the case with SDL2? Becase for Android we need to
+	// return from main instead of exit().
+	return openmsx::main(argc, argv);
 }
