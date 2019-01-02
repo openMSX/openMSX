@@ -68,13 +68,19 @@ TRIPLE_OS:=mingw32
 TRIPLE_VENDOR:=w64
 endif
 
+TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_VENDOR)-$(TRIPLE_OS)
+
+# Libraries using old autoconf macros don't recognise Android as an OS,
+# so we have to tell those we're building for Linux instead.
+OLD_TARGET_TRIPLE:=$(TARGET_TRIPLE)
+
+# For all other libraries, we pass an Android-specific system tuple.
+# These are triples but instead of machine-vendor-os they use machine-os-abi.
 ifeq ($(OPENMSX_TARGET_OS),android)
 TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_OS)-android
 ifeq ($(TRIPLE_MACHINE),arm)
 TARGET_TRIPLE:=$(TARGET_TRIPLE)eabi
 endif
-else
-TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_VENDOR)-$(TRIPLE_OS)
 endif
 
 export PKG_CONFIG:=$(PWD)/$(TOOLS_DIR)/bin/$(TARGET_TRIPLE)-pkg-config
@@ -378,7 +384,7 @@ $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
 		--disable-sdltest \
 		--disable-encode \
 		--disable-examples \
-		--host=$(TARGET_TRIPLE) \
+		--host=$(OLD_TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
