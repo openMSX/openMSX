@@ -3,8 +3,11 @@
 
 #include "string_view.hh"
 #include "span.hh"
+#include "vla.hh"
 #include "xxhash.hh"
 #include <tcl.h>
+#include <algorithm>
+#include <climits>
 #include <iterator>
 #include <cassert>
 #include <cstdint>
@@ -102,8 +105,13 @@ public:
 
 	// add elements to a Tcl list
 	template<typename T> void addListElement(T t) { addListElement(newObj(t)); }
-	template<typename ITER> void addListElements(ITER first, ITER last);
-	template<typename Range> void addListElements(Range&& range);
+	template<typename ITER> void addListElements(ITER first, ITER last) {
+		addListElements(first, last,
+		                typename std::iterator_traits<ITER>::iterator_category());
+	}
+	template<typename Range> void addListElements(Range&& range) {
+		addListElements(std::begin(range), std::end(range));
+	}
 
 	// value getters
 	string_view getString() const;
@@ -201,26 +209,28 @@ private:
 		Tcl_SetByteArrayObj(obj, b.data(), b.size());
 	}
 
+	template<typename ITER>
+	void addListElements(ITER first, ITER last, std::input_iterator_tag) {
+		for (ITER it = first; it != last; ++it) {
+			addListElement(*it);
+		}
+	}
+	template<typename ITER>
+	void addListElements(ITER first, ITER last, std::random_access_iterator_tag) {
+		auto objc = last - first;
+		VLA(Tcl_Obj*, objv, objc);
+		std::transform(first, last, objv, [](const auto& t) { return newObj(t); });
+		addListElements(objc, objv);
+	}
+
 	void addListElement(Tcl_Obj* element);
+	void addListElements(int objc, Tcl_Obj** objv);
 	unsigned getListLengthUnchecked() const;
 	TclObject getListIndexUnchecked(unsigned index) const;
 
+private:
 	Tcl_Obj* obj;
 };
-
-template <typename ITER>
-void TclObject::addListElements(ITER first, ITER last)
-{
-	for (ITER it = first; it != last; ++it) {
-		addListElement(*it);
-	}
-}
-
-template <typename Range>
-void TclObject::addListElements(Range&& range)
-{
-	addListElements(std::begin(range), std::end(range));
-}
 
 // We want to be able to reinterpret_cast a Tcl_Obj* as a TclObject.
 static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*), "");

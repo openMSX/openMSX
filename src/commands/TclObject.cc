@@ -31,6 +31,19 @@ void TclObject::addListElement(Tcl_Obj* element)
 	}
 }
 
+void TclObject::addListElements(int objc, Tcl_Obj** objv)
+{
+	Tcl_Interp* interp = nullptr; // see comment in addListElement
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_DuplicateObj(obj);
+		Tcl_IncrRefCount(obj);
+	}
+	if (Tcl_ListObjReplace(interp, obj, INT_MAX, 0, objc, objv) != TCL_OK) {
+		throwException(interp);
+	}
+}
+
 int TclObject::getInt(Interpreter& interp_) const
 {
 	auto* interp = interp_.interp;
