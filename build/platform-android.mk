@@ -12,6 +12,7 @@ LIBRARYEXT:=.so
 TARGET_FLAGS:=-DANDROID -fPIC
 
 LINK_FLAGS+=-llog
+LDFLAGS+=--no-undefined
 
 # Build a maximum set of components.
 # See configure.py for LINK_MODE definition and usage

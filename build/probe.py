@@ -214,7 +214,7 @@ class TargetSystem(object):
 		binaryPath = self.outDir + '/' + makeName + '.bin'
 		if self.platform == 'android':
 			binaryPath = self.outDir + '/' + makeName + '.so'
-			ldflags += ' -shared'
+			ldflags += ' -shared -Wl,--no-undefined'
 
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
 		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
