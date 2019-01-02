@@ -547,7 +547,7 @@ const string& getUserOpenMSXDir()
 #elif PLATFORM_ANDROID
 	// TODO: do something to query whether the storage is available
 	// via SDL_AndroidGetExternalStorageState
-	static const string OPENMSX_DIR = string(SDL_AndroidGetExternalStoragePath()) + "/openMSX";
+	static const string OPENMSX_DIR = strCat(SDL_AndroidGetExternalStoragePath(), "/openMSX");
 #else
 	static const string OPENMSX_DIR = expandTilde("~/.openMSX");
 #endif
