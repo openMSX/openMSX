@@ -50,7 +50,6 @@
 #include "countof.hh"
 #include "ranges.hh"
 #include "build-info.hh"
-#include "AndroidApiWrapper.hh"
 #include <sstream>
 #include <cerrno>
 #include <cstdlib>
@@ -59,6 +58,10 @@
 
 #ifndef _MSC_VER
 #include <dirent.h>
+#endif
+
+#if PLATFORM_ANDROID
+#include "SDL_system.h" // for GetExternalStorage stuff
 #endif
 
 using std::string;
@@ -542,7 +545,9 @@ const string& getUserOpenMSXDir()
 #ifdef _WIN32
 	static const string OPENMSX_DIR = expandTilde("~/openMSX");
 #elif PLATFORM_ANDROID
-	static const string OPENMSX_DIR = AndroidApiWrapper::getStorageDirectory() + "/openMSX";
+	// TODO: do something to query whether the storage is available
+	// via SDL_AndroidGetExternalStorageState
+	static const string OPENMSX_DIR = string(SDL_AndroidGetExternalStoragePath()) + "/openMSX";
 #else
 	static const string OPENMSX_DIR = expandTilde("~/.openMSX");
 #endif
