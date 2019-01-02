@@ -107,8 +107,8 @@ void KeyJoystick::write(byte value, EmuTime::param /*time*/)
 
 
 // MSXEventListener
-void KeyJoystick::signalEvent(const shared_ptr<const Event>& event,
-                              EmuTime::param time)
+void KeyJoystick::signalMSXEvent(const shared_ptr<const Event>& event,
+                                 EmuTime::param time)
 {
 	byte press = 0;
 	byte release = 0;

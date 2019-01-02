@@ -225,7 +225,7 @@ unsigned JoyMega::calcInitialState()
 }
 
 // MSXEventListener
-void JoyMega::signalEvent(const shared_ptr<const Event>& event, EmuTime::param time)
+void JoyMega::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time)
 {
 	auto joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) return;

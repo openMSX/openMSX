@@ -204,8 +204,8 @@ void Trackball::syncCurrentWithTarget(EmuTime::param time)
 }
 
 // MSXEventListener
-void Trackball::signalEvent(const shared_ptr<const Event>& event,
-                            EmuTime::param time)
+void Trackball::signalMSXEvent(const shared_ptr<const Event>& event,
+                               EmuTime::param time)
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {

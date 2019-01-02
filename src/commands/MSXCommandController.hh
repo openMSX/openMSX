@@ -75,8 +75,8 @@ private:
 	std::string getFullName(string_view name);
 
 	// MSXEventListener
-	void signalEvent(const std::shared_ptr<const Event>& event,
-	                 EmuTime::param time) override;
+	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	                    EmuTime::param time) override;
 
 	GlobalCommandController& globalCommandController;
 	Reactor& reactor;

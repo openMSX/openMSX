@@ -243,7 +243,7 @@ void Mouse::write(byte value, EmuTime::param time)
 
 
 // MSXEventListener
-void Mouse::signalEvent(const shared_ptr<const Event>& event, EmuTime::param time)
+void Mouse::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time)
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {

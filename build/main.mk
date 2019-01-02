@@ -348,8 +348,6 @@ ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Clang does support -Wunused-macros, but it triggers on SDL's headers,
   # causing way too many false positives that we cannot fix.
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wshadow
-  # TODO: Remove the overloading from the code instead.
-  COMPILE_FLAGS+=-Wno-overloaded-virtual
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.
   COMPILE_FLAGS+=-Wno-unused-const-variable

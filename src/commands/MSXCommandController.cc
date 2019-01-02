@@ -148,7 +148,7 @@ Interpreter& MSXCommandController::getInterpreter()
 	return globalCommandController.getInterpreter();
 }
 
-void MSXCommandController::signalEvent(
+void MSXCommandController::signalMSXEvent(
 	const std::shared_ptr<const Event>& event, EmuTime::param /*time*/)
 {
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;

@@ -118,8 +118,8 @@ void ArkanoidPad::write(byte value, EmuTime::param /*time*/)
 }
 
 // MSXEventListener
-void ArkanoidPad::signalEvent(const shared_ptr<const Event>& event,
-                              EmuTime::param time)
+void ArkanoidPad::signalMSXEvent(const shared_ptr<const Event>& event,
+                                 EmuTime::param time)
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {

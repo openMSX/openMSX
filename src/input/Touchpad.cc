@@ -203,8 +203,8 @@ ivec2 Touchpad::transformCoords(ivec2 xy)
 }
 
 // MSXEventListener
-void Touchpad::signalEvent(const shared_ptr<const Event>& event,
-                           EmuTime::param time)
+void Touchpad::signalMSXEvent(const shared_ptr<const Event>& event,
+                              EmuTime::param time)
 {
 	ivec2 pos = hostPos;
 	int b = hostButtons;

@@ -94,8 +94,8 @@ void Paddle::write(byte value, EmuTime::param time)
 }
 
 // MSXEventListener
-void Paddle::signalEvent(const std::shared_ptr<const Event>& event,
-                         EmuTime::param time)
+void Paddle::signalMSXEvent(const std::shared_ptr<const Event>& event,
+                            EmuTime::param time)
 {
 	if (event->getType() != OPENMSX_MOUSE_MOTION_EVENT) return;
 

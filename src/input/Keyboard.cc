@@ -191,8 +191,8 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
  *  OPENMSX_KEY_DOWN_EVENT
  *  OPENMSX_KEY_UP_EVENT
  */
-void Keyboard::signalEvent(const shared_ptr<const Event>& event,
-                           EmuTime::param time)
+void Keyboard::signalMSXEvent(const shared_ptr<const Event>& event,
+                              EmuTime::param time)
 {
 	EventType type = event->getType();
 	if ((type == OPENMSX_KEY_DOWN_EVENT) ||

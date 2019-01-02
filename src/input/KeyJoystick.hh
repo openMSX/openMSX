@@ -38,8 +38,8 @@ private:
 	void write(byte value, EmuTime::param time) override;
 
 	// MSXEventListener
-	void signalEvent(const std::shared_ptr<const Event>& event,
-	                 EmuTime::param time) override;
+	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	                    EmuTime::param time) override;
 	// StateChangeListener
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;

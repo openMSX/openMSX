@@ -29,9 +29,9 @@ void MSXEventDistributor::unregisterEventListener(MSXEventListener& listener)
 
 void MSXEventDistributor::distributeEvent(const EventPtr& event, EmuTime::param time)
 {
-	// Iterate over a copy because signalEvent() may indirect call back into
+	// Iterate over a copy because signalMSXEvent() may indirect call back into
 	// registerEventListener().
-	//   e.g. signalEvent() -> .. -> PlugCmd::execute() -> .. ->
+	//   e.g. signalMSXEvent() -> .. -> PlugCmd::execute() -> .. ->
 	//        Connector::plug() -> .. -> Joystick::plugHelper() ->
 	//        registerEventListener()
 	auto copy = listeners;
@@ -39,7 +39,7 @@ void MSXEventDistributor::distributeEvent(const EventPtr& event, EmuTime::param 
 		if (isRegistered(l)) {
 			// it's possible the listener unregistered itself
 			// (but is still present in the copy)
-			l->signalEvent(event, time);
+			l->signalMSXEvent(event, time);
 		}
 	}
 }

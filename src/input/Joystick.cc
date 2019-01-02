@@ -299,8 +299,8 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 }
 
 // MSXEventListener
-void Joystick::signalEvent(const shared_ptr<const Event>& event,
-                           EmuTime::param time)
+void Joystick::signalMSXEvent(const shared_ptr<const Event>& event,
+                              EmuTime::param time)
 {
 	auto joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) return;

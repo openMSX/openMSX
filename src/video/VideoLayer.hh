@@ -61,8 +61,8 @@ private:
 	void calcCoverage();
 
 	// MSXEventListener
-	void signalEvent(const std::shared_ptr<const Event>& event,
-	                         EmuTime::param time) override;
+	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	                    EmuTime::param time) override;
 
 	/** This layer belongs to a specific machine. */
 	MSXMotherBoard& motherBoard;

@@ -13,8 +13,8 @@ class MSXEventListener
 public:
 	/** This method gets called when an event you are subscribed to occurs.
 	  */
-	virtual void signalEvent(const std::shared_ptr<const Event>& event,
-	                         EmuTime::param time) = 0;
+	virtual void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	                            EmuTime::param time) = 0;
 
 protected:
 	MSXEventListener() = default;
