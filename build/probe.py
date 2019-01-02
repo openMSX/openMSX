@@ -206,8 +206,6 @@ class TargetSystem(object):
 				self.platform, self.configuration.linkStatic(), self.distroRoot
 				)
 			)
-		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
-		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
 		self.outVars['%s_CFLAGS' % makeName] = cflags
 		self.outVars['%s_LDFLAGS' % makeName] = ldflags
 
@@ -216,6 +214,10 @@ class TargetSystem(object):
 		binaryPath = self.outDir + '/' + makeName + '.bin'
 		if self.platform == 'android':
 			binaryPath = self.outDir + '/' + makeName + '.so'
+			ldflags += ' -shared'
+
+		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
+		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
 
 		funcName = library.function
 		headers = library.getHeaders(self.platform)
