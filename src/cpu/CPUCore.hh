@@ -79,7 +79,9 @@ public:
 	void wait(EmuTime::param time);
 	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
 	void setNextSyncPoint(EmuTime::param time);
-	void invalidateMemCache(unsigned start, unsigned size);
+	auto getCacheLines() {
+		return std::pair(readCacheLine, writeCacheLine);
+	}
 	bool isM1Cycle(unsigned address) const;
 
 	void disasmCommand(Interpreter& interp,

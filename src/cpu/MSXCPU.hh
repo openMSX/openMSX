@@ -5,6 +5,7 @@
 #include "SimpleDebuggable.hh"
 #include "Observer.hh"
 #include "BooleanSetting.hh"
+#include "CacheLine.hh"
 #include "EmuTime.hh"
 #include "TclCallback.hh"
 #include "serialize_meta.hh"
@@ -119,6 +120,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void invalidateMemCacheSlot();
+
 	// only for MSXMotherBoard
 	void execute(bool fastForward);
 	friend class MSXMotherBoard;
@@ -138,6 +141,10 @@ private:
 	TclCallback diHaltCallback;
 	const std::unique_ptr<CPUCore<Z80TYPE>> z80;
 	const std::unique_ptr<CPUCore<R800TYPE>> r800; // can be nullptr
+
+	const byte* slotReadLines [16][CacheLine::NUM];
+	      byte* slotWriteLines[16][CacheLine::NUM];
+	byte slots[4]; // active slot for page (= 4 * primSlot + secSlot)
 
 	struct TimeInfoTopic final : InfoTopic {
 		explicit TimeInfoTopic(InfoCommand& machineInfoCommand);
@@ -168,6 +175,8 @@ private:
 	EmuTime reference;
 	bool z80Active;
 	bool newZ80Active;
+
+	MSXCPUInterface* interface = nullptr; // only used for debug
 };
 SERIALIZE_CLASS_VERSION(MSXCPU, 2);
 

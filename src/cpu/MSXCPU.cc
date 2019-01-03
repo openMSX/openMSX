@@ -1,4 +1,5 @@
 #include "MSXCPU.hh"
+#include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "Debugger.hh"
 #include "Scheduler.hh"
@@ -8,6 +9,7 @@
 #include "R800.hh"
 #include "TclObject.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <cassert>
@@ -56,6 +58,7 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 		r800->freqLocked.attach(*this);
 		r800->freqValue.attach(*this);
 	}
+	invalidateMemCacheSlot();
 }
 
 MSXCPU::~MSXCPU()
@@ -71,8 +74,9 @@ MSXCPU::~MSXCPU()
 	motherboard.getDebugger() .setCPU(nullptr);
 }
 
-void MSXCPU::setInterface(MSXCPUInterface* interface)
+void MSXCPU::setInterface(MSXCPUInterface* interface_)
 {
+	interface = interface_;
 	          z80 ->setInterface(interface);
 	if (r800) r800->setInterface(interface);
 }
@@ -81,6 +85,8 @@ void MSXCPU::doReset(EmuTime::param time)
 {
 	          z80 ->doReset(time);
 	if (r800) r800->doReset(time);
+
+	invalidateMemCache(0x0000, 0x10000);
 
 	reference = time;
 }
@@ -138,16 +144,49 @@ void MSXCPU::setNextSyncPoint(EmuTime::param time)
 	          : r800->setNextSyncPoint(time);
 }
 
+void MSXCPU::invalidateMemCacheSlot()
+{
+	ranges::fill(slots, 0);
+
+	// nullptr: means not a valid entry and not yet attempted to fill this entry
+	for (int i = 0; i < 16; ++i) {
+		ranges::fill(slotReadLines[i], nullptr);
+		ranges::fill(slotWriteLines[i], nullptr);
+	}
+}
+
 void MSXCPU::updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
 {
-	invalidateMemCache(page * 0x4000, 0x4000);
+	byte from = slots[page];
+	byte to = 4 * primarySlot + secondarySlot;
+	slots[page] = to;
+
+	auto [cpuReadLines, cpuWriteLines] = z80Active ? z80->getCacheLines() : r800->getCacheLines();
+
+	unsigned first = page * (0x4000 / CacheLine::SIZE);
+	unsigned num = 0x4000 / CacheLine::SIZE;
+	std::copy_n(&cpuReadLines      [first], num, &slotReadLines [from][first]);
+	std::copy_n(&slotReadLines [to][first], num, &cpuReadLines        [first]);
+	std::copy_n(&cpuWriteLines     [first], num, &slotWriteLines[from][first]);
+	std::copy_n(&slotWriteLines[to][first], num, &cpuWriteLines       [first]);
+
 	if (r800) r800->updateVisiblePage(page, primarySlot, secondarySlot);
 }
 
 void MSXCPU::invalidateMemCache(word start, unsigned size)
 {
-	z80Active ? z80 ->invalidateMemCache(start, size)
-	          : r800->invalidateMemCache(start, size);
+	if (interface) interface->tick(CacheLineCounters::InvalidateCache);
+	auto [cpuReadLines, cpuWriteLines] = z80Active ? z80->getCacheLines() : r800->getCacheLines();
+
+	unsigned first = start / CacheLine::SIZE;
+	unsigned num = (size + CacheLine::SIZE - 1) / CacheLine::SIZE;
+	std::fill_n(cpuReadLines  + first, num, nullptr); // nullptr: means not a valid entry and not
+	std::fill_n(cpuWriteLines + first, num, nullptr); //   yet attempted to fill this entry
+
+	for (int i = 0; i < 16; ++i) {
+		std::fill_n(slotReadLines[i] + first, num, nullptr);
+		std::fill_n(slotWriteLines[i] + first, num, nullptr);
+	}
 }
 
 void MSXCPU::raiseIRQ()
@@ -418,6 +457,11 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 		}
 	}
 	ar.serialize("resetTime", reference);
+
+	if (ar.isLoader()) {
+		invalidateMemCacheSlot();
+		invalidateMemCache(0x0000, 0x10000);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXCPU);
 

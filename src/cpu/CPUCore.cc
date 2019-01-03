@@ -330,15 +330,6 @@ template<class T> EmuTime::param CPUCore<T>::getCurrentTime() const
 	return T::getTime();
 }
 
-template<class T> void CPUCore<T>::invalidateMemCache(unsigned start, unsigned size)
-{
-	if (interface) interface->tick(CacheLineCounters::InvalidateCache);
-	unsigned first = start / CacheLine::SIZE;
-	unsigned num = (size + CacheLine::SIZE - 1) / CacheLine::SIZE;
-	memset(&readCacheLine  [first], 0, num * sizeof(byte*)); // nullptr: means not a valid entry and not
-	memset(&writeCacheLine [first], 0, num * sizeof(byte*)); //   yet attempted to fill this entry
-}
-
 template<class T> void CPUCore<T>::doReset(EmuTime::param time)
 {
 	// AF and SP are 0xFFFF
@@ -365,7 +356,6 @@ template<class T> void CPUCore<T>::doReset(EmuTime::param time)
 	setR(0x00);
 	T::setMemPtr(0xFFFF);
 	clearPrevious();
-	invalidateMemCache(0x0000, 0x10000);
 
 	// We expect this assert to be valid
 	//   assert(T::getTimeFast() <= time); // time shouldn't go backwards
@@ -4417,10 +4407,6 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 		// CPU is deserialized after devices, so nmiEdge is restored to the
 		// saved version even if IRQHelpers set it on deserialization.
 		ar.serialize("nmiEdge", nmiEdge);
-	}
-
-	if (ar.isLoader()) {
-		invalidateMemCache(0x0000, 0x10000);
 	}
 
 	// Don't serialize:

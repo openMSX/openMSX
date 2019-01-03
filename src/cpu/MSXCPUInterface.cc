@@ -479,6 +479,7 @@ void MSXCPUInterface::registerSlot(
 			assert(false);
 		}
 	}
+	msxcpu.invalidateMemCache(base, size); // TODO optimize
 	updateVisible(page);
 }
 
@@ -499,6 +500,7 @@ void MSXCPUInterface::unregisterSlot(
 		assert(slot == &device);
 		slot = dummyDevice.get();
 	}
+	msxcpu.invalidateMemCache(base, size); // TODO optimize
 	updateVisible(page);
 }
 
