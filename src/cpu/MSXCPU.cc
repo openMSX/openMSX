@@ -115,7 +115,13 @@ void MSXCPU::execute(bool fastForward)
 		z80Active = newZ80Active;
 		z80Active ? z80 ->warp(time)
 		          : r800->warp(time);
-		invalidateMemCache(0x0000, 0x10000);
+		// copy Z80/R800 cache lines
+		auto zCache = z80 ->getCacheLines();
+		auto rCache = r800->getCacheLines();
+		auto from = z80Active ? rCache : zCache;
+		auto to   = z80Active ? zCache : rCache;
+		std::copy_n(from.first,  CacheLine::NUM, to.first );
+		std::copy_n(from.second, CacheLine::NUM, to.second);
 	}
 	z80Active ? z80 ->execute(fastForward)
 	          : r800->execute(fastForward);
