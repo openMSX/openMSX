@@ -7,6 +7,7 @@
 #include "MSXCPU.hh"
 #include "CacheLine.hh"
 #include "TclObject.hh"
+#include "Math.hh"
 #include "MSXException.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -166,6 +167,8 @@ PluggingController& MSXDevice::getPluggingController() const
 void MSXDevice::registerSlots()
 {
 	MemRegions tmpMemRegions;
+	unsigned align = getBaseSizeAlignment();
+	assert(Math::ispow2(align));
 	for (auto& m : getDeviceConfig().getChildren("mem")) {
 		unsigned base = m->getAttributeAsInt("base");
 		unsigned size = m->getAttributeAsInt("size");
@@ -174,6 +177,12 @@ void MSXDevice::registerSlots()
 				"Invalid memory specification for device ",
 				getName(), " should be in range "
 				"[0x0000,0x10000).");
+		}
+		if ((base & (align - 1)) || (size & (align - 1))) {
+			throw MSXException(
+				"invalid memory specification for device ",
+				getName(), " should be aligned on at least 0x",
+				hex_string<4>(align), '.');
 		}
 		tmpMemRegions.emplace_back(base, size);
 	}
@@ -386,6 +395,11 @@ void MSXDevice::getDeviceInfo(TclObject& result) const
 void MSXDevice::getExtraDeviceInfo(TclObject& /*result*/) const
 {
 	// nothing
+}
+
+unsigned MSXDevice::getBaseSizeAlignment() const
+{
+	return CacheLine::SIZE;
 }
 
 

@@ -275,6 +275,12 @@ protected:
 	friend class DeviceFactory;
 	virtual void init();
 
+	/** The 'base' and 'size' attribute values need to be at least aligned
+	  * to CacheLine::SIZE. Though some devices may need a stricter
+	  * alignment. In that case they must override this method.
+	  */
+	virtual unsigned getBaseSizeAlignment() const;
+
 	/** @see getDeviceInfo()
 	 * Default implementation does nothing. Subclasses can override this
 	 * method to add extra info (like subtypes).
