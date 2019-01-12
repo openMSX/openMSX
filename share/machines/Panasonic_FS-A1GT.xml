@@ -170,6 +170,7 @@
         <volume>21000</volume>
       </sound>
       <keyboardlayout>JIS</keyboardlayout>
+      <mirrored_registers>false</mirrored_registers>
     </PSG>
 
     <RTC id="Real time clock">

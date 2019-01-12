@@ -521,7 +521,7 @@ void AY8910::reset(EmuTime::param time)
 
 byte AY8910::readRegister(unsigned reg, EmuTime::param time)
 {
-	assert(reg <= 15);
+	if (reg >= 16) return 255;
 	switch (reg) {
 	case AY_PORTA:
 		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { // input
@@ -546,7 +546,7 @@ byte AY8910::readRegister(unsigned reg, EmuTime::param time)
 
 byte AY8910::peekRegister(unsigned reg, EmuTime::param time) const
 {
-	assert(reg <= 15);
+	if (reg >= 16) return 255;
 	switch (reg) {
 	case AY_PORTA:
 		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { // input
@@ -565,7 +565,7 @@ byte AY8910::peekRegister(unsigned reg, EmuTime::param time) const
 
 void AY8910::writeRegister(unsigned reg, byte value, EmuTime::param time)
 {
-	assert(reg <= 15);
+	if (reg >= 16) return;
 	if ((reg < AY_PORTA) && (reg == AY_ESHAPE || regs[reg] != value)) {
 		// Update the output buffer before changing the register.
 		updateStream(time);

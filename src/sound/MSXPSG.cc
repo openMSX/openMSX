@@ -18,6 +18,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, selectedPort(0)
 	, prev(255)
 	, keyLayout((config.getChildData("keyboardlayout", {}) == "JIS") ? 0x40 : 0x00)
+	, addressMask(config.getChildDataAsBool("mirrored_registers", true) ? 0x0f : 0xff)
 {
 	ports[0] = &getMotherBoard().getJoystickPort(0);
 	ports[1] = &getMotherBoard().getJoystickPort(1);
@@ -56,7 +57,7 @@ void MSXPSG::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0x03) {
 	case 0:
-		registerLatch = value & 0x0F;
+		registerLatch = value & addressMask;
 		break;
 	case 1:
 		ay8910->writeRegister(registerLatch, value, time);

@@ -41,6 +41,7 @@ private:
 	int registerLatch;
 	byte prev;
 	const byte keyLayout; // 0x40 or 0x00
+	const byte addressMask; // controls address mirroring
 	// TODO could be by-value, but visual studio doesn't support
 	// initialization of arrays (ports[2]) in the initializer list yet.
 	std::unique_ptr<AY8910> ay8910; // must come after initialisation of most stuff above
