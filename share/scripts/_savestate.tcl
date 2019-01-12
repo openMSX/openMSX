@@ -69,7 +69,6 @@ proc list_savestates_raw {} {
 
 proc list_savestates {args} {
 	set sort_key 0
-	set long_format false
 	set sort_option "-ascii"
 	set sort_order "-increasing"
 
@@ -83,14 +82,6 @@ proc list_savestates {args} {
 			set args [lrange $args 1 end]
 			set sort_order "-decreasing"
 		}
-		"-l" {
-			if {[info commands clock] ne ""} {
-				set long_format true
-			} else {
-				error "Sorry, long format not supported on this system (missing clock.tcl)"
-			}
-			set args [lrange $args 1 end]
-		}
 		"default" {
 			error "Invalid option: [lindex $args 0]"
 		}
@@ -99,17 +90,9 @@ proc list_savestates {args} {
 
 	set sorted_sublists [lsort ${sort_option} ${sort_order} -index $sort_key [list_savestates_raw]]
 
-	if {!$long_format} {
-		set sorted_result [list]
-		foreach sublist $sorted_sublists {lappend sorted_result [lindex $sublist 0]}
-		return $sorted_result
-	} else {
-		set stringres ""
-		foreach sublist $sorted_sublists {
-			append stringres [format "%-[expr {round(${::consolecolumns} / 2)}]s %s\n" [lindex $sublist 0] [clock format [lindex $sublist 1] -format "%a %b %d %Y - %H:%M:%S"]]
-		}
-		return $stringres
-	}
+	set sorted_result [list]
+	foreach sublist $sorted_sublists {lappend sorted_result [lindex $sublist 0]}
+	return $sorted_result
 }
 
 proc delete_savestate {{name ""}} {
