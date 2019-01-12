@@ -342,7 +342,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\main\win32\SDL_win32_main.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameSDL)\src\main\windows\SDL_windows_main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
