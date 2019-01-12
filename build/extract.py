@@ -10,8 +10,8 @@ try:
 	from os import symlink
 except ImportError:
 	def symlink(source, link_name):
-		raise RuntimeError(
-			'OS does not support symlink creation: %s -> %s'
+		print(
+			'WARNING: OS does not support symlink creation: %s -> %s, skipping!'
 			% (link_name, source)
 			)
 from os.path import abspath, isdir, join as joinpath, sep, split as splitpath
