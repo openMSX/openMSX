@@ -17,7 +17,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
 	, selectedPort(0)
 	, prev(255)
-	, keyLayoutBit(config.getChildData("keyboardlayout", {}) == "JIS")
+	, keyLayout((config.getChildData("keyboardlayout", {}) == "JIS") ? 0x40 : 0x00)
 {
 	ports[0] = &getMotherBoard().getJoystickPort(0);
 	ports[1] = &getMotherBoard().getJoystickPort(1);
@@ -76,7 +76,6 @@ byte MSXPSG::readA(EmuTime::param time)
 	joystick &= (pin67| 0xCF);
 
 	byte cassetteInput = cassette.cassetteIn(time) ? 0x80 : 0x00;
-	byte keyLayout = keyLayoutBit ? 0x40 : 0x00;
 	return joystick | keyLayout | cassetteInput;
 }
 
