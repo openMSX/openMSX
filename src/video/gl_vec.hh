@@ -135,15 +135,6 @@ private:
 };
 
 
-// Convenience typedefs (same names as used by GLSL).
-using  vec2 = vecN<2, float>;
-using  vec3 = vecN<3, float>;
-using  vec4 = vecN<4, float>;
-using ivec2 = vecN<2, int>;
-using ivec3 = vecN<3, int>;
-using ivec4 = vecN<4, int>;
-
-
 // -- Scalar functions --
 
 // reciprocal square root
@@ -456,6 +447,16 @@ private:
 		float e_[4];
 	};
 };
+
+
+// Convenience typedefs (same names as used by GLSL).
+using  vec2 = vecN<2, float>;
+using  vec3 = vecN<3, float>;
+using  vec4 = vecN<4, float>;
+using ivec2 = vecN<2, int>;
+using ivec3 = vecN<3, int>;
+using ivec4 = vecN<4, int>;
+
 
 inline bool operator==(vec4 x, vec4 y)
 {
