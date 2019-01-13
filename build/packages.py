@@ -83,11 +83,11 @@ class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'
 	sourceName = 'libpng'
-	version = '1.6.20'
-	fileLength = 1417478
+	version = '1.6.36'
+	fileLength = 1496022
 	checksums = {
 		'sha256':
-			'3d3bdc16f973a62fb1d26464fe2fe19f51dde9b883feff3e059d18ec1457b199',
+			'ca13c548bde5fb6ff7117cc0bdab38808acb699c0eccb613f0e4697826e1fd7d',
 		}
 
 	@classmethod
@@ -199,11 +199,11 @@ class ZLib(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'zlib'
 	sourceName = 'zlib'
-	version = '1.2.8'
-	fileLength = 571091
+	version = '1.2.11'
+	fileLength = 607698
 	checksums = {
 		'sha256':
-			'36658cb768a54c1d4dec43c3116c27ed893e88b02ecfcb44f2166f9c0b7f2a0d',
+			'c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1',
 		}
 
 # Build a dictionary of packages using introspection.
