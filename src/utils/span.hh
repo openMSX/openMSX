@@ -132,6 +132,21 @@ struct is_complete : std::false_type {};
 template<typename T>
 struct is_complete<T, decltype(sizeof(T))> : std::true_type {};
 
+
+// 'calculate_byte_size' implementation (including comment) taken from:
+//   https://github.com/Microsoft/GSL/blob/master/include/gsl/span
+// If we only supported compilers with good constexpr support then
+// this pair of classes could collapse down to a constexpr function.
+template<typename ElementType, ptrdiff_t Extent>
+struct calculate_byte_size
+        : std::integral_constant<ptrdiff_t,
+                                 static_cast<ptrdiff_t>(
+                                         sizeof(ElementType) *
+                                         static_cast<size_t>(Extent))> {};
+template<typename ElementType>
+struct calculate_byte_size<ElementType, dynamic_extent>
+        : std::integral_constant<ptrdiff_t, dynamic_extent> {};
+
 } // namespace detail
 
 
@@ -351,9 +366,8 @@ private:
     storage_type storage;
 };
 
-
 template<typename ElementType, size_t Extent>
-span<const uint8_t, (Extent == dynamic_extent) ? dynamic_extent : (sizeof(ElementType) * Extent)>
+span<const uint8_t, detail::calculate_byte_size<ElementType, Extent>::value>
 as_bytes(span<ElementType, Extent> s) noexcept
 {
     return {reinterpret_cast<const uint8_t*>(s.data()), s.size_bytes()};
@@ -362,7 +376,7 @@ as_bytes(span<ElementType, Extent> s) noexcept
 template<typename ElementType,
          size_t Extent,
          std::enable_if_t<!std::is_const<ElementType>::value, int> = 0>
-span<uint8_t, (Extent == dynamic_extent) ? dynamic_extent : (sizeof(ElementType) * Extent)>
+span<uint8_t, detail::calculate_byte_size<ElementType, Extent>::value>
 as_writable_bytes( span<ElementType, Extent> s) noexcept
 {
     return {reinterpret_cast<uint8_t*>(s.data()), s.size_bytes()};
