@@ -27,7 +27,7 @@ V9990BitmapConverter<Pixel>::V9990BitmapConverter(
 template<bool YJK, bool PAL, bool SKIP, typename Pixel, typename ColorLookup>
 static inline void draw_YJK_YUV_PAL(
 	ColorLookup color, V9990VRAM& vram,
-	Pixel* __restrict out, unsigned& address, int firstX = 0)
+	Pixel* __restrict& out, unsigned& address, int firstX = 0)
 {
 	byte data[4];
 	for (auto& d : data) {
