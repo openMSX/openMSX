@@ -166,7 +166,7 @@ private:
 		return Tcl_NewStringObj(s.data(), int(s.size()));
 	}
 	static Tcl_Obj* newObj(const char* s) {
-		return Tcl_NewStringObj(s, strlen(s));
+		return Tcl_NewStringObj(s, int(strlen(s)));
 	}
 	static Tcl_Obj* newObj(bool b) {
 		return Tcl_NewBooleanObj(b);
@@ -181,7 +181,7 @@ private:
 		return Tcl_NewDoubleObj(d);
 	}
 	static Tcl_Obj* newObj(span<const uint8_t> buf) {
-		return Tcl_NewByteArrayObj(buf.data(), buf.size());
+		return Tcl_NewByteArrayObj(buf.data(), int(buf.size()));
 	}
 	static Tcl_Obj* newObj(const TclObject& o) {
 		return o.obj;
@@ -191,7 +191,7 @@ private:
 		Tcl_SetStringObj(obj, s.data(), int(s.size()));
 	}
 	void assign(const char* s) {
-		Tcl_SetStringObj(obj, s, strlen(s));
+		Tcl_SetStringObj(obj, s, int(strlen(s)));
 	}
 	void assign(bool b) {
 		Tcl_SetBooleanObj(obj, b);
@@ -206,7 +206,7 @@ private:
 		Tcl_SetDoubleObj(obj, d);
 	}
 	void assign(span<const uint8_t> b) {
-		Tcl_SetByteArrayObj(obj, b.data(), b.size());
+		Tcl_SetByteArrayObj(obj, b.data(), int(b.size()));
 	}
 
 	template<typename ITER>
