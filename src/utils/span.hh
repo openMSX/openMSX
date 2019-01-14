@@ -137,15 +137,12 @@ struct is_complete<T, decltype(sizeof(T))> : std::true_type {};
 //   https://github.com/Microsoft/GSL/blob/master/include/gsl/span
 // If we only supported compilers with good constexpr support then
 // this pair of classes could collapse down to a constexpr function.
-template<typename ElementType, ptrdiff_t Extent>
+template<typename ElementType, size_t Extent>
 struct calculate_byte_size
-        : std::integral_constant<ptrdiff_t,
-                                 static_cast<ptrdiff_t>(
-                                         sizeof(ElementType) *
-                                         static_cast<size_t>(Extent))> {};
+        : std::integral_constant<size_t, sizeof(ElementType) * Extent> {};
 template<typename ElementType>
 struct calculate_byte_size<ElementType, dynamic_extent>
-        : std::integral_constant<ptrdiff_t, dynamic_extent> {};
+        : std::integral_constant<size_t, dynamic_extent> {};
 
 } // namespace detail
 
