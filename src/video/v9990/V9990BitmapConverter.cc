@@ -312,7 +312,7 @@ public:
 	void set64Offset(size_t offset) { palette64_32768 += offset; }
 	int16_t lookup64   (size_t idx) const { return palette64_32768 [idx]; }
 	int16_t lookup256  (size_t idx) const { return palette256_32768[idx]; }
-	int16_t lookup32768(size_t idx) const { return idx; }
+	int16_t lookup32768(size_t idx) const { return int16_t(idx); }
 
 private:
 	const int16_t* palette64_32768;

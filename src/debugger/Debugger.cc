@@ -374,7 +374,7 @@ void Debugger::Cmd::writeBlock(span<const TclObject> tokens, TclObject& /*result
 	}
 
 	for (auto i : xrange(buf.size())) {
-		device.write(addr + i, buf[i]);
+		device.write(unsigned(addr + i), buf[i]);
 	}
 }
 
