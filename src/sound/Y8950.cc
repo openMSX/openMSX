@@ -314,7 +314,7 @@ struct DPhaseTable {
 };
 static constexpr DPhaseTable makeDphaseARTable()
 {
-	DPhaseTable dphaseAR;
+	DPhaseTable dphaseAR = {};
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
 		dphaseAR.table[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (unsigned AR = 1; AR < 15; ++AR) {
@@ -332,7 +332,7 @@ static constexpr DPhaseTable dphaseAR = makeDphaseARTable();
 // Phase incr table for Decay and Release.
 static constexpr DPhaseTable makeDphaseDRTable()
 {
-	DPhaseTable dphaseDR;
+	DPhaseTable dphaseDR = {};
 	for (unsigned Rks = 0; Rks < 16; ++Rks) {
 		dphaseDR.table[Rks][0] = Y8950::EnvPhaseIndex(0);
 		for (unsigned DR = 1; DR < 16; ++DR) {

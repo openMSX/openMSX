@@ -46,7 +46,7 @@ public:
 
 	/** Creates a zero-initialized fixed point object.
 	  */
-	explicit constexpr FixedPoint() = default;
+	constexpr FixedPoint() = default;
 
 	// Conversion to fixed point:
 
