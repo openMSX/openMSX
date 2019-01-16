@@ -115,7 +115,18 @@ Interpreter::~Interpreter()
 	}
 	Tcl_Release(interp);
 
-	Tcl_Finalize();
+	// Tcl_Finalize() should only be called once for the whole application
+	// tcl8.6 checks for this (tcl8.5 did not).
+	// Normally we only create/destroy exactly one Interpreter object for
+	// openMSX, and then simply calling Tcl_Finalize() here is fine. Though
+	// when running unittest we do create/destroy multiple Interpreter's.
+	// Another option is to not call Tcl_Finalize(), but that leaves some
+	// memory allocated, and makes memory-leak checkers report more errors.
+	static bool scheduled = false;
+	if (!scheduled) {
+		scheduled = true;
+		atexit(Tcl_Finalize);
+	}
 }
 
 int Interpreter::outputProc(ClientData clientData, const char* buf,
