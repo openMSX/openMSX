@@ -41,7 +41,17 @@ struct CmpKeys {
 	}
 };
 
-static constexpr auto getSortedKeys()
+#ifdef _MSC_VER
+  // Workaround visual studio compiler bug, see
+  //   https://developercommunity.visualstudio.com/content/problem/429980/wrong-code-with-constexpr-on-msvc-1916.html
+  // Disable compile-time sorting on msvc until that bug gets solved.
+  #define KEYS_CONSTEXPR
+  #define KEYS_SORT ranges::sort
+#else
+  #define KEYS_CONSTEXPR constexpr
+  #define KEYS_SORT cstd::sort
+#endif
+static KEYS_CONSTEXPR auto getSortedKeys()
 {
 	auto keys = cstd::array_of<P>(
 		P("BACKSPACE",	K_BACKSPACE),
@@ -315,11 +325,11 @@ static constexpr auto getSortedKeys()
 		P("PRESS",	KD_PRESS),
 		P("RELEASE",	KD_RELEASE)
 	);
-	cstd::sort(keys, CmpKeys());
+	KEYS_SORT(keys, CmpKeys());
 	return keys;
 }
 
-static constexpr auto keys = getSortedKeys();
+static KEYS_CONSTEXPR auto keys = getSortedKeys();
 
 KeyCode getCode(string_view name)
 {
