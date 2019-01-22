@@ -8,7 +8,6 @@
 #include "Math.hh"
 #include "Timer.hh"
 #include "build-info.hh"
-#include <SDL.h>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -28,37 +27,39 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 	desired.callback = audioCallbackHelper; // must be a static method
 	desired.userdata = this;
 
-	SDL_AudioSpec audioSpec;
-	if (SDL_OpenAudio(&desired, &audioSpec) != 0) {
+	SDL_AudioSpec obtained;
+	deviceID = SDL_OpenAudioDevice(nullptr, SDL_FALSE, &desired, &obtained,
+	                               SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
+	if (!deviceID) {
 		throw MSXException("Unable to open SDL audio: ", SDL_GetError());
 	}
 
-	frequency = audioSpec.freq;
-	fragmentSize = audioSpec.samples;
+	frequency = obtained.freq;
+	fragmentSize = obtained.samples;
 
-	mixBufferSize = 3 * (audioSpec.size / sizeof(int16_t)) + 2;
+	mixBufferSize = 3 * (obtained.size / sizeof(int16_t)) + 2;
 	mixBuffer.resize(mixBufferSize);
 	reInit();
 }
 
 SDLSoundDriver::~SDLSoundDriver()
 {
-	SDL_CloseAudio();
+	SDL_CloseAudioDevice(deviceID);
 }
 
 void SDLSoundDriver::reInit()
 {
-	SDL_LockAudio();
+	SDL_LockAudioDevice(deviceID);
 	readIdx  = 0;
 	writeIdx = 0;
-	SDL_UnlockAudio();
+	SDL_UnlockAudioDevice(deviceID);
 }
 
 void SDLSoundDriver::mute()
 {
 	if (!muted) {
 		muted = true;
-		SDL_PauseAudio(1);
+		SDL_PauseAudioDevice(deviceID, 1);
 	}
 }
 
@@ -67,7 +68,7 @@ void SDLSoundDriver::unmute()
 	if (muted) {
 		muted = false;
 		reInit();
-		SDL_PauseAudio(0);
+		SDL_PauseAudioDevice(deviceID, 0);
 	}
 }
 
@@ -81,7 +82,7 @@ unsigned SDLSoundDriver::getSamples() const
 	return fragmentSize;
 }
 
-void SDLSoundDriver::audioCallbackHelper(void* userdata, byte* strm, int len)
+void SDLSoundDriver::audioCallbackHelper(void* userdata, uint8_t* strm, int len)
 {
 	assert((len & 3) == 0); // stereo, 16-bit
 	static_cast<SDLSoundDriver*>(userdata)->
@@ -131,15 +132,15 @@ void SDLSoundDriver::audioCallback(int16_t* stream, unsigned len)
 
 void SDLSoundDriver::uploadBuffer(int16_t* buffer, unsigned len)
 {
-	SDL_LockAudio();
+	SDL_LockAudioDevice(deviceID);
 	len *= 2; // stereo
 	unsigned free = getBufferFree();
 	if (len > free) {
 		if (reactor.getGlobalSettings().getThrottleManager().isThrottled()) {
 			do {
-				SDL_UnlockAudio();
+				SDL_UnlockAudioDevice(deviceID);
 				Timer::sleep(5000); // 5ms
-				SDL_LockAudio();
+				SDL_LockAudioDevice(deviceID);
 				if (MSXMotherBoard* board = reactor.getMotherBoard()) {
 					board->getRealTime().resync();
 				}
@@ -162,7 +163,7 @@ void SDLSoundDriver::uploadBuffer(int16_t* buffer, unsigned len)
 		writeIdx = len2;
 	}
 
-	SDL_UnlockAudio();
+	SDL_UnlockAudioDevice(deviceID);
 }
 
 } // namespace openmsx

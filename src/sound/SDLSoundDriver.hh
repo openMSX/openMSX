@@ -4,7 +4,8 @@
 #include "SoundDriver.hh"
 #include "SDLSurfacePtr.hh"
 #include "MemBuffer.hh"
-#include "openmsx.hh"
+#include <cstdint>
+#include <SDL.h>
 
 namespace openmsx {
 
@@ -31,10 +32,11 @@ private:
 	void reInit();
 	unsigned getBufferFilled() const;
 	unsigned getBufferFree() const;
-	static void audioCallbackHelper(void* userdata, byte* strm, int len);
+	static void audioCallbackHelper(void* userdata, uint8_t* strm, int len);
 	void audioCallback(int16_t* stream, unsigned len);
 
 	Reactor& reactor;
+	SDL_AudioDeviceID deviceID;
 	MemBuffer<int16_t> mixBuffer;
 	unsigned mixBufferSize;
 	unsigned frequency;
