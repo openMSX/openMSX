@@ -496,7 +496,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	// drawBorder() (for the right border). And the value we set there is
 	// anyway the same as the one we would set here.
 	DisplayMode mode = vdp.getDisplayMode();
-	unsigned lineWidth = mode.getLineWidth();
+	int lineWidth = mode.getLineWidth();
 	if (lineWidth == 256) {
 		int endX = displayX + displayWidth;
 		displayX /= 2;
@@ -566,7 +566,9 @@ void SDLRasterizer<Pixel>::drawDisplay(
 			           + leftBackground + displayX;
 			int firstPageWidth = pageBorder - displayX;
 			if (firstPageWidth > 0) {
-				if ((displayX + hScroll) == 0) {
+				if (((displayX + hScroll) == 0) &&
+				    (firstPageWidth == lineWidth)) {
+					// fast-path, directly render to destination
 					renderBitmapLine(dst, vramLine[scrollPage1]);
 				} else {
 					lineInBuf = vramLine[scrollPage1];
@@ -597,7 +599,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 
 			Pixel* dst = workFrame->getLinePtrDirect<Pixel>(y)
 			           + leftBackground + displayX;
-			if (displayX == 0) {
+			if ((displayX == 0) && (displayWidth == lineWidth)){
 				characterConverter.convertLine(dst, displayY);
 			} else {
 				Pixel buf[512];
