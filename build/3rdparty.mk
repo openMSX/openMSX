@@ -212,7 +212,6 @@ $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
 		--disable-cpuinfo \
 		--disable-power \
 		--disable-filesystem \
-		--disable-timers \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
