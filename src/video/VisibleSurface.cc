@@ -22,42 +22,13 @@ VisibleSurface::VisibleSurface(
 		RTScheduler& rtScheduler,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
-		CliComm& cliComm)
+		CliComm& cliComm_)
 	: RTSchedulable(rtScheduler)
 	, display(display_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
+	, cliComm(cliComm_)
 {
-	(void)cliComm; // avoid unused parameter warning on _WIN32
-
-	// set icon
-	if (OPENMSX_SET_WINDOW_ICON) {
-		SDLSurfacePtr iconSurf;
-		// always use 32x32 icon on Windows, for some reason you get badly scaled icons there
-#ifndef _WIN32
-		try {
-			iconSurf = PNG::load(preferSystemFileContext().resolve("icons/openMSX-logo-256.png"), true);
-		} catch (MSXException& e) {
-			cliComm.printWarning(
-				"Falling back to built in 32x32 icon, because failed to load icon: ",
-				e.getMessage());
-#endif
-			iconSurf.reset(SDL_CreateRGBSurfaceFrom(
-				const_cast<char*>(openMSX_icon.pixel_data),
-				openMSX_icon.width, openMSX_icon.height,
-				openMSX_icon.bytes_per_pixel * 8,
-				openMSX_icon.bytes_per_pixel * openMSX_icon.width,
-				OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
-				OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
-				OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
-				OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000));
-#ifndef _WIN32
-		}
-#endif
-		SDL_SetColorKey(iconSurf.get(), SDL_TRUE, 0);
-		SDL_SetWindowIcon(window.get(), iconSurf.get());
-	}
-
 	// on Mac it seems to be necessary to grab input in full screen
 	// Note: this is duplicated from InputEventGenerator::setGrabInput
 	// in order to keep the settings in sync (grab when fullscreen)
@@ -130,6 +101,34 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 
 	// prefer linear filtering (instead of nearest neighbour)
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+
+	// set icon
+	if (OPENMSX_SET_WINDOW_ICON) {
+		SDLSurfacePtr iconSurf;
+		// always use 32x32 icon on Windows, for some reason you get badly scaled icons there
+#ifndef _WIN32
+		try {
+			iconSurf = PNG::load(preferSystemFileContext().resolve("icons/openMSX-logo-256.png"), true);
+		} catch (MSXException& e) {
+			cliComm.printWarning(
+				"Falling back to built in 32x32 icon, because failed to load icon: ",
+				e.getMessage());
+#endif
+			iconSurf.reset(SDL_CreateRGBSurfaceFrom(
+				const_cast<char*>(openMSX_icon.pixel_data),
+				openMSX_icon.width, openMSX_icon.height,
+				openMSX_icon.bytes_per_pixel * 8,
+				openMSX_icon.bytes_per_pixel * openMSX_icon.width,
+				OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
+				OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
+				OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
+				OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000));
+#ifndef _WIN32
+		}
+#endif
+		SDL_SetColorKey(iconSurf.get(), SDL_TRUE, 0);
+		SDL_SetWindowIcon(window.get(), iconSurf.get());
+	}
 }
 
 VisibleSurface::~VisibleSurface()

@@ -80,6 +80,7 @@ private:
 	Display& display;
 	EventDistributor& eventDistributor;
 	InputEventGenerator& inputEventGenerator;
+	CliComm& cliComm;
 };
 
 } // namespace openmsx
