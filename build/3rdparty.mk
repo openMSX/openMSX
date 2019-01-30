@@ -160,10 +160,6 @@ $(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CC= LD= AR= RANLIB= STRIP=
 
-# SDL2_ttf 2.0.15 no longer relies on freetype-config.
-# However, at the time of writing, 2.0.14 is their last release.
-FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
-
 # Configure ALSA.
 $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_ALSA)/.extracted
@@ -232,7 +228,6 @@ $(BUILD_DIR)/$(PACKAGE_SDL2_TTF)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--$(subst disable,without,$(subst enable,with,$(USE_VIDEO_X11)))-x \
-		ac_cv_path_FREETYPE_CONFIG=$(abspath $(FREETYPE_CONFIG_SCRIPT)) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS)"
