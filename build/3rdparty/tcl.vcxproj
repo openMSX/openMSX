@@ -352,8 +352,10 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclNotify.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclObj.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOO.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOBasic.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOCall.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOODefineCmds.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOMethod.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOptimize.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPanic.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclParse.c" />
