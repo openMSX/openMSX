@@ -139,11 +139,11 @@ class SDL2_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	niceName = 'SDL2_ttf'
 	sourceName = 'SDL2_ttf'
-	version = '2.0.14'
-	fileLength = 4147462
+	version = '2.0.15'
+	fileLength = 4479718
 	checksums = {
 		'sha256':
-			'34db5e20bcf64e7071fe9ae25acaa7d72bdc4f11ab3ce59acc768ab62fe39276',
+			'a9eceb1ad88c1f1545cd7bd28e7cbc0b2c14191d40238f531a15b01b1b22cd33',
 		}
 
 class TCL(DownloadablePackage):
