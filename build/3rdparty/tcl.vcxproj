@@ -327,6 +327,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclDisassemble.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEncoding.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEnv.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEnsemble.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEvent.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclExecute.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclFCmd.c" />
@@ -351,6 +352,8 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclNotify.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclObj.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOO.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOCall.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOODefineCmds.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOptimize.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPanic.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclParse.c" />
@@ -382,6 +385,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclUtf.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclUtil.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclVar.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclZlib.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cnt_lsb.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWin32Dll.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinChan.c" />
