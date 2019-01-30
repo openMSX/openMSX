@@ -299,6 +299,9 @@ MAKEVAR_OVERRIDE_GLEW+=SYSTEM=$(TRIPLE_OS)
 endif
 
 # Configure Tcl.
+# Note: Tcl 8.6 includes some bundled extensions. We don't want these and there
+#       is no configure flag to disable them, so we remove the pkgs/ directory
+#       that they are in.
 # Note: Tcl seems to build either dynamic libs or static libs, which is why we
 #       have to pass --disable-shared to configure.
 ifeq ($(TRIPLE_OS),mingw32)
@@ -322,6 +325,7 @@ endif
 $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_TCL)/.extracted
 	mkdir -p $(@D)
+	rm -rf $(SOURCE_DIR)/$(PACKAGE_TCL)/pkgs/
 	cd $(@D) && $(PWD)/$(<D)/$(TCL_OS)/configure \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
