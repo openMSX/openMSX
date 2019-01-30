@@ -359,6 +359,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOInfo.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOMethod.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOStubLib.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOStubInit.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOptimize.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPanic.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclParse.c" />
