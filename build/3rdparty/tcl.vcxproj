@@ -238,7 +238,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPosixStr.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bncore.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_reverse.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_fast_s_mp_mul_digs.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_fast_s_mp_sqr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_add.c" />
@@ -250,13 +251,14 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cmp.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cmp_d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cmp_mag.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cnt_lsb.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_copy.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_count_bits.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_2.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_2d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_3.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_div_d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_exch.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_expt_d.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_grow.c" />
@@ -264,6 +266,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_copy.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_multi.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set_int.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_size.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_karatsuba_mul.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_karatsuba_sqr.c" />
@@ -281,6 +284,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_read_radix.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_rshd.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set_int.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_shrink.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sqr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_sqrt.c" />
@@ -294,21 +298,17 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_unsigned_bin_size.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_xor.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_zero.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_reverse.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_add.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_mul_digs.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sqr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sub.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set_int.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set_int.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bncore.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regcomp.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regerror.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regexec.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regfree.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclAlloc.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclAsync.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclAssembly.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclAsync.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclBasic.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclBinary.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCkalloc.c" />
@@ -326,8 +326,8 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclDictObj.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclDisassemble.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEncoding.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEnv.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEnsemble.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEnv.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEvent.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclExecute.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclFCmd.c" />
@@ -340,10 +340,10 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIO.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOCmd.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOGT.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIORChan.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOSock.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIORTrans.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIOUtil.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIORChan.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIORTrans.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclLink.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclListObj.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclLiteral.c" />
@@ -351,15 +351,14 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclMain.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclNamesp.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclNotify.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclObj.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOO.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOBasic.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOCall.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOODefineCmds.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOInfo.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOMethod.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOStubLib.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOStubInit.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclObj.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOptimize.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPanic.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclParse.c" />
@@ -367,6 +366,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPipe.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPkg.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPkgConfig.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPosixStr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPreserve.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclProc.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclRegexp.c" />
@@ -376,15 +376,10 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStringObj.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStrToD.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStubInit.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStubLib.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTest.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTestObj.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTestProcBodyObj.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThread.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadAlloc.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadJoin.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadStorage.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadTest.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTimer.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTomMathInterface.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTrace.c" />
@@ -392,7 +387,6 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclUtil.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclVar.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclZlib.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cnt_lsb.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWin32Dll.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinChan.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinConsole.c" />
@@ -407,7 +401,6 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinReg.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinSerial.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinSock.c" />
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinTest.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinThrd.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinTime.c" />
   </ItemGroup>
