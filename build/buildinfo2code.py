@@ -2,11 +2,12 @@ from cpu import getCPU, X86, X86_64
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged
 
+from os.path import dirname, join as joinpath
 import sys
 
 def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	platformVars = extractMakeVariables(
-		'build/platform-%s.mk' % targetPlatform,
+        joinpath(dirname(__file__), 'platform-%s.mk' % targetPlatform),
 		dict.fromkeys(
 			('COMPILE_FLAGS', 'LINK_FLAGS', 'LDFLAGS', 'TARGET_FLAGS',
 				'OPENMSX_TARGET_CPU'),
