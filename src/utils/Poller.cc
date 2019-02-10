@@ -44,8 +44,8 @@ bool Poller::poll(int fd)
 {
 	while (true) {
 		struct pollfd fds[2] = {
-			{ .fd = fd, .events = POLLIN },
-			{ .fd = wakeupPipe[0], .events = POLLIN },
+			{ .fd = fd, .events = POLLIN, .revents = 0 },
+			{ .fd = wakeupPipe[0], .events = POLLIN, .revents = 0 },
 		};
 		int pollResult = ::poll(fds, 2, 1000);
 		if (abortFlag) {

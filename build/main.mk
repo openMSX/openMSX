@@ -361,11 +361,6 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   COMPILE_FLAGS+=-std=c++14
   # Stricter warning and error reporting.
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast
-  # Flag that is not accepted by old GCC versions.
-  COMPILE_FLAGS+=$(shell \
-    echo | $(CXX) -E -Wno-missing-field-initializers - >/dev/null 2>&1 \
-    && echo -Wno-missing-field-initializers \
-    )
 
   # -Wzero-as-null-pointer-constant is available from gcc-4.7
   ## IMHO this is a useful but not very important warning. It triggers in
