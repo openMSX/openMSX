@@ -104,7 +104,7 @@ private:
 	template<unsigned N> void dropOldSnapshots(unsigned count);
 
 	// Schedulable
-	struct SyncNewSnapshot : Schedulable {
+	struct SyncNewSnapshot final : Schedulable {
 		friend class ReverseManager;
 		explicit SyncNewSnapshot(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
@@ -112,7 +112,7 @@ private:
 			rm.execNewSnapshot();
 		}
 	} syncNewSnapshot;
-	struct SyncInputEvent : Schedulable {
+	struct SyncInputEvent final : Schedulable {
 		friend class ReverseManager;
 		explicit SyncInputEvent(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {

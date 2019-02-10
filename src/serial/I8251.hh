@@ -47,7 +47,7 @@ public:
 	void recvByte(byte value, EmuTime::param time) override;
 
 	// Schedulable
-	struct SyncRecv : Schedulable {
+	struct SyncRecv final : Schedulable {
 		friend class I8251;
 		explicit SyncRecv(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
@@ -55,7 +55,7 @@ public:
 			i8251.execRecv(time);
 		}
 	} syncRecv;
-	struct SyncTrans : Schedulable {
+	struct SyncTrans final : Schedulable {
 		friend class I8251;
 		explicit SyncTrans(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {

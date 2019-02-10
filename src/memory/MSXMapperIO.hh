@@ -54,7 +54,7 @@ SERIALIZE_CLASS_VERSION(MSXMapperIO, 2);
 
 class MSXMapperIOClient : public MSXMemoryMapperInterface
 {
-public:
+protected:
 	MSXMapperIOClient(MSXMotherBoard& motherBoard_)
 		: motherBoard(motherBoard_)
 	{

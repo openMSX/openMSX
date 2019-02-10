@@ -114,7 +114,7 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// Schedulable
-	struct SyncEndOfTape : Schedulable {
+	struct SyncEndOfTape final : Schedulable {
 		friend class CassettePlayer;
 		explicit SyncEndOfTape(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
@@ -122,7 +122,7 @@ private:
 			cp.execEndOfTape(time);
 		}
 	} syncEndOfTape;
-	struct SyncAudioEmu : Schedulable {
+	struct SyncAudioEmu final : Schedulable {
 		friend class CassettePlayer;
 		explicit SyncAudioEmu(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {

@@ -342,6 +342,8 @@ private:
 		void helper(span<const TclObject> tokens,
 		            TclObject& result, MSXDevice** devices) const;
 		std::string help(const std::vector<std::string>& tokens) const override;
+	protected:
+		~IOInfo() = default;
 	};
 	struct IInfo final : IOInfo {
 		explicit IInfo(InfoCommand& machineInfoCommand)

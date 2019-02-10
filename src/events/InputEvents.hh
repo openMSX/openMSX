@@ -16,6 +16,7 @@ public:
 	uint64_t getRealTime() const { return realtime; }
 protected:
 	explicit TimedEvent(EventType type);
+	~TimedEvent() = default;
 private:
 	const uint64_t realtime;
 };
@@ -29,6 +30,7 @@ public:
 
 protected:
 	KeyEvent(EventType type, Keys::KeyCode keyCode, uint32_t unicode);
+	~KeyEvent() = default;
 
 private:
 	void toStringImpl(TclObject& result) const override;
@@ -66,6 +68,7 @@ public:
 
 protected:
 	MouseButtonEvent(EventType type, unsigned button_);
+	~MouseButtonEvent() = default;
 	void toStringHelper(TclObject& result) const;
 
 private:
@@ -125,6 +128,7 @@ public:
 
 protected:
 	JoystickEvent(EventType type, unsigned joystick);
+	~JoystickEvent() = default;
 	void toStringHelper(TclObject& result) const;
 
 private:
@@ -140,6 +144,7 @@ public:
 
 protected:
 	JoystickButtonEvent(EventType type, unsigned joystick, unsigned button);
+	~JoystickButtonEvent() = default;
 	void toStringHelper(TclObject& result) const;
 
 private:
@@ -262,6 +267,7 @@ public:
 protected:
 	OsdControlEvent(EventType type, unsigned button_,
 	                std::shared_ptr<const Event> origEvent);
+	~OsdControlEvent() = default;
 	void toStringHelper(TclObject& result) const;
 
 private:

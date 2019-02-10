@@ -36,6 +36,8 @@ class StateChangeRecorder : public StateChangeListener
 {
 public:
 	virtual bool isReplaying() const = 0;
+protected:
+	~StateChangeRecorder() = default;
 };
 
 } // namespace openmsx

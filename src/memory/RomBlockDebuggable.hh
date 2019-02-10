@@ -18,6 +18,8 @@ public:
 		        0x10000)
 	{
 	}
+protected:
+	~RomBlockDebuggableBase() = default;
 };
 
 class RomBlockDebuggable final : public RomBlockDebuggableBase

@@ -112,7 +112,7 @@ private:
 	                  EmuTime::param time) override;
 
 	// Schedulable
-	struct SyncAck : public Schedulable {
+	struct SyncAck final : public Schedulable {
 		friend class LaserdiscPlayer;
 		explicit SyncAck(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
@@ -120,7 +120,7 @@ private:
 			player.execSyncAck(time);
 		}
 	} syncAck;
-	struct SyncOdd : public Schedulable {
+	struct SyncOdd final : public Schedulable {
 		friend class LaserdiscPlayer;
 		explicit SyncOdd(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
@@ -128,7 +128,7 @@ private:
 			player.execSyncFrame(time, true);
 		}
 	} syncOdd;
-	struct SyncEven : public Schedulable {
+	struct SyncEven final : public Schedulable {
 		friend class LaserdiscPlayer;
 		explicit SyncEven(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {

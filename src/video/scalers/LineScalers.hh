@@ -307,7 +307,7 @@ protected:
  * This version directly contains (and thus constructs) the wrapped Line Scaler.
  */
 template<typename Pixel, typename Scaler>
-class PolyScale : public PolyLineScaler<Pixel>
+class PolyScale final : public PolyLineScaler<Pixel>
 {
 public:
 	PolyScale()
@@ -334,7 +334,7 @@ private:
  * Can be used when the actual scaler is expensive to construct (e.g. Blur_1on3).
  */
 template<typename Pixel, typename Scaler>
-class PolyScaleRef : public PolyLineScaler<Pixel>
+class PolyScaleRef final : public PolyLineScaler<Pixel>
 {
 public:
 	explicit PolyScaleRef(Scaler& scaler_)

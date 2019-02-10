@@ -51,7 +51,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	struct SyncLoadingTimeout : Schedulable {
+	struct SyncLoadingTimeout final : Schedulable {
 		friend class RealDrive;
 		explicit SyncLoadingTimeout(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
@@ -60,7 +60,7 @@ private:
 		}
 	} syncLoadingTimeout;
 
-	struct SyncMotorTimeout : Schedulable {
+	struct SyncMotorTimeout final : Schedulable {
 		friend class RealDrive;
 		explicit SyncMotorTimeout(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
