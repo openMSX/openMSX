@@ -345,7 +345,7 @@ DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Enable C++14 (supported since clang-3.5)
   COMPILE_FLAGS+=-std=c++14
-  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.
   COMPILE_FLAGS+=-Wno-unused-const-variable
@@ -358,17 +358,7 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Enable C++14
   COMPILE_FLAGS+=-std=c++14
   # Stricter warning and error reporting.
-  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast
-
-  # -Wzero-as-null-pointer-constant is available from gcc-4.7
-  ## IMHO this is a useful but not very important warning. It triggers in
-  ## quite a few places via macros defined in tcl8.5/tclDecls.h, so we can't
-  ## easily suppress it. So for now I'll disable this warning again.
-  ##COMPILE_FLAGS+=$(shell \
-  ##  echo | $(CXX) -E -Wzero-as-null-pointer-constant - >/dev/null 2>&1 \
-  ##  && echo -Wzero-as-null-pointer-constant \
-  ##  )
-
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.
