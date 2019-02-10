@@ -345,9 +345,7 @@ DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Enable C++14 (supported since clang-3.5)
   COMPILE_FLAGS+=-std=c++14
-  # Clang does support -Wunused-macros, but it triggers on SDL's headers,
-  # causing way too many false positives that we cannot fix.
-  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wshadow
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.
   COMPILE_FLAGS+=-Wno-unused-const-variable
