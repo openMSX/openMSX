@@ -377,7 +377,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	, emuClock(hostClock.getTime(), emuSampleRate)
 	, ratio(float(emuSampleRate) / hostClock.getFreq())
 {
-	ResampleCoeffs::instance().getCoeffs(ratio, permute, table, filterLen);
+	ResampleCoeffs::instance().getCoeffs(double(ratio), permute, table, filterLen);
 
 	// fill buffer with 'enough' zero's
 	unsigned extra = int(filterLen + 1 + ratio + 1);
@@ -391,7 +391,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 template <unsigned CHANNELS>
 ResampleHQ<CHANNELS>::~ResampleHQ()
 {
-	ResampleCoeffs::instance().releaseCoeffs(ratio);
+	ResampleCoeffs::instance().releaseCoeffs(double(ratio));
 }
 
 #ifdef __SSE2__

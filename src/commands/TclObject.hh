@@ -177,6 +177,9 @@ private:
 	static Tcl_Obj* newObj(unsigned u) {
 		return Tcl_NewIntObj(u);
 	}
+	static Tcl_Obj* newObj(float f) {
+		return Tcl_NewDoubleObj(double(f));
+	}
 	static Tcl_Obj* newObj(double d) {
 		return Tcl_NewDoubleObj(d);
 	}
@@ -201,6 +204,9 @@ private:
 	}
 	void assign(unsigned u) {
 		Tcl_SetIntObj(obj, u);
+	}
+	void assign(float f) {
+		Tcl_SetDoubleObj(obj, double(f));
 	}
 	void assign(double d) {
 		Tcl_SetDoubleObj(obj, d);
