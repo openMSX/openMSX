@@ -354,7 +354,7 @@ void Keyboard::processCodeKanaChange(EmuTime::param time, bool down)
 	if (down) {
 		locksOn ^= KeyInfo::CODE_MASK;
 	}
-	processSdlKey(time, down, Keys::K_RALT);
+	updateKeyMatrix(time, down, modifierPos[KeyInfo::CODE]);
 }
 
 /*
@@ -367,7 +367,7 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
 	if (down) {
 		locksOn ^= KeyInfo::GRAPH_MASK;
 	}
-	processSdlKey(time, down, Keys::K_LALT);
+	updateKeyMatrix(time, down, modifierPos[KeyInfo::GRAPH]);
 }
 
 /*
@@ -377,11 +377,11 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
  */
 void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 {
-    debug("Changing CAPS lock state according to SDL request\n");
-    if (down) {
-        locksOn ^= KeyInfo::CAPS_MASK;
-    }
-    processSdlKey(time, down, Keys::K_CAPSLOCK);
+	debug("Changing CAPS lock state according to SDL request\n");
+	if (down) {
+		locksOn ^= KeyInfo::CAPS_MASK;
+	}
+	updateKeyMatrix(time, down, modifierPos[KeyInfo::CAPS]);
 }
 
 void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
@@ -1352,7 +1352,7 @@ const KeyMatrixPosition Keyboard::keyTabs[][MAX_KEYSYM] = {
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
    x  ,0x84,0x85,0x87,0x86, x  , x  , x  , x  , x  , x  ,0x15,0x14,0x16, x  , x  , //050
   0x21,0x26,0x27,0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x40,0x41,0x42,0x43,0x44, //060
-  0x45,0x46,0x47,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57, x  , x  , x  ,0x62,0x83, //070
+  0x45,0x46,0x47,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57, x  , x  , x  , x  ,0x83, //070
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
@@ -1363,8 +1363,8 @@ const KeyMatrixPosition Keyboard::keyTabs[][MAX_KEYSYM] = {
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
   0x93,0x94,0x95,0x96,0x97,0xA0,0xA1,0xA2,0xA3,0xA4,0xA7,0x92,0x90,0xA5,0x91,0xA6, //100
    x  ,0x85,0x86,0x87,0x84,0x82,0x81, x  , x  , x  ,0x65,0x66,0x67,0x70,0x71, x  , //110
-  0x76,0x74, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x63, x  ,0x60, //120
-  0x60,0x25,0x61,0x64,0x62,0xB3,0xB1,0xB3,0xB1,0xB1,0xB3, x  , x  , x  , x  , x  , //130
+  0x76,0x74, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x60, //120
+  0x60,0x25,0x61, x  , x  ,0xB3,0xB1,0xB3,0xB1,0xB1,0xB3, x  , x  , x  , x  , x  , //130
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
   },
   {
@@ -1403,7 +1403,7 @@ const KeyMatrixPosition Keyboard::keyTabs[][MAX_KEYSYM] = {
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
   0x90,0x91,0x92,0x93,0x94,0x95,0x96,0x97,0xA0,0xA1,0xA6,0xA5,0xA4,0xA3,0xA2,0xA7, //100
    x  ,0x57,0x77,0x87,0x67,0x76, x  , x  , x  , x  ,0x70,0x71,0x72,0x73,0x74, x  , //110
-  0x75,0x65, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x83, x  ,0x60, //120
+  0x75,0x65, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x60, //120
   0x60, x  ,0x61, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
   },
