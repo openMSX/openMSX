@@ -358,7 +358,8 @@ private:
 	// Scheduler stuff
 	struct SyncBase : Schedulable {
 		explicit SyncBase(V9990& v9990) : Schedulable(v9990.getScheduler()) {}
-		friend class V9990;
+		using Schedulable::setSyncPoint;
+		using Schedulable::removeSyncPoint;
 	protected:
 		~SyncBase() = default;
 	};

@@ -574,7 +574,9 @@ private:
 
 	struct SyncBase : public Schedulable {
 		explicit SyncBase(VDP& vdp_) : Schedulable(vdp_.getScheduler()) {}
-		friend class VDP;
+		using Schedulable::removeSyncPoint;
+		using Schedulable::setSyncPoint;
+		using Schedulable::pendingSyncPoint;
 	protected:
 		~SyncBase() = default;
 	};
