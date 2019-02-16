@@ -267,7 +267,6 @@ SOURCE_DIRS:=$(sort $(shell find src -type d))
 
 SOURCES_FULL:=$(foreach dir,$(SOURCE_DIRS),$(sort $(wildcard $(dir)/*.cc)))
 SOURCES_FULL:=$(filter-out %Test.cc,$(SOURCES_FULL))
-SOURCES_FULL:=$(filter-out src/sound/generate%.cc,$(SOURCES_FULL))
 
 # TODO: This doesn't work since MAX_SCALE_FACTOR is not a Make variable,
 #       only a #define in build-info.hh.
