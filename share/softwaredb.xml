@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1537130838">
+<softwaredb timestamp="1550602959">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
 
 Copyright 2003 Nicolas Beyaert (Initial Database)
 Copyright 2004-2013 BlueMSX Team
-Copyright 2005-2018 openMSX Team
+Copyright 2005-2019 openMSX Team
 Generation MSXIDs by www.generation-msx.nl
 
 ]]>
@@ -574,7 +574,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>6bd5b97baceb3bc8da3571590e2a6a761bb90b48</hash><remark>[RC-701] / [SCC]</remark></megarom></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>e1c7169bd44a3c67f2941a14699b954d7e337d29</hash><remark>[RC-701] / [SD Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><rom><hash>c7af3306dbae898fcc077492cc4574298951df34</hash><remark>[RC-701] / Konami Antiques MSX Collection 1</remark></rom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>c40d24a31e36f786688a556c1b63c1dda40325b6</hash><remark>GDX SCC Version</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>c40d24a31e36f786688a556c1b63c1dda40325b6</hash><remark>[RC-701] / GDX SCC Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Anty</title>
@@ -1227,6 +1227,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>bd4b8c48f1d8107f11ae680a787d7b3825669b7c</hash></rom></dump>
 		<dump><rom><hash>a4f8627b060e521c0c8537e45912d39b8ded5991</hash></rom></dump>
+</software>
+<software>
+	<title>Blow Up</title>
+	<system>MSX</system>
+	<company>Eurosoft</company>
+	<year>1987</year>
+	<country>NL</country>
+		<dump><rom><hash>445a9744035218b70041a3eae70b4bd3460da031</hash><remark>cas2rom</remark></rom></dump>
 </software>
 <software>
 	<title>Blur</title>
@@ -6296,7 +6304,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>22704b82d159d963f1192d7a81810aa2be8b6042</hash></megarom></dump>
 </software>
 <software>
-	<title>Kinnikuman - Muscle Man</title>
+	<title>Kinnikuman - Colosseum Deathmatch</title>
 	<genmsxid>443</genmsxid>
 	<system>MSX</system>
 	<company>BANDAI</company>
@@ -8611,6 +8619,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash>fbfdd89ec183ceae63d3d66b0ab45faa951b525a</hash></megarom></dump>
+</software>
+<software>
+	<title>Nogalious</title>
+	<system>MSX</system>
+	<company>LUEGOLU3GO Studio</company>
+	<year>2019</year>
+	<country>SP</country>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash>678be67c55ba0f0bc7eeb4b53b79a0c4d6597f72</hash></megarom></dump>
 </software>
 <software>
 	<title>Norakomi's demo Level</title>
@@ -12542,7 +12558,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>7c7d0bff4a51bb0f1f0cdb4132fdb11f8a71c623</hash><remark>[RC-753] / cheat version</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>216b2c181c9ee0fb48e2d9efdb88ea918c8ff04f</hash><remark>[RC-753]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>5b545569a2d0452b9317490636c08a3221208961</hash><remark>[RC-753] / Icon Patch</remark></megarom></dump>
-		<dump><rom><hash>5ef92707dcb9d3ce4c7571f6cbe23b7f61c24c2d</hash><remark>[RC-753] / TFH SCC version</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>5ef92707dcb9d3ce4c7571f6cbe23b7f61c24c2d</hash><remark>[RC-753] / SCC version</remark></megarom></dump>
 </software>
 <software>
 	<title>Trial Ski</title>
@@ -16083,4 +16099,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:3972 - Created on Sun Sep 16 2018 - 13:47:20 PDT-->
+<!-- Roms in this XML file:3974 - Created on Tue Feb 19 2019 - 11:02:45 PST-->
