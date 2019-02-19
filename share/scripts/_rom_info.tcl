@@ -35,9 +35,15 @@ proc getlist_rom_info {{romdevice ""}} {
 		error [format "Device is not of type ROM, but %s" $device_type]
 	}
 
-	if {[catch {set rominfo [openmsx_info software [lindex $device_info 2]]}]} {
-		return
+	set actualSHA1 [dict get [lindex $device_info 1] "actualSHA1"]
+	set originalSHA1 [dict get [lindex $device_info 1] "originalSHA1"]
+	if {[catch {set rominfo [openmsx_info software $actualSHA1]}]} {
+		# try original sha1 to get more info
+		if {[catch {set rominfo [openmsx_info software $originalSHA1}]} {
+			return
+		}
 	}
+	set softPatched [expr {$actualSHA1 ne $originalSHA1}]
 
 	dict with rominfo {
 		# dummy info for missing items
@@ -66,6 +72,9 @@ proc getlist_rom_info {{romdevice ""}} {
 					set status "Unknown"
 				}
 			}
+		}
+		if {$softPatched} {
+			set status "$status (patched by openMSX)"
 		}
 
 		return [list \

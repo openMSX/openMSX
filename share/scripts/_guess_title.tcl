@@ -49,7 +49,7 @@ proc guess_rom_device_nonextension {} {
 		for {set ss 0} {$ss < 4} {incr ss} {
 			if {![machine_info isexternalslot $ps $ss]} continue
 			foreach device [machine_info slot $ps $ss 1] {
-				set path [lindex [machine_info device $device] 3]
+				set path [dict get [lindex [machine_info device $device] 1] "filename"]
 				if {$path eq ""} continue
 				set ok 1
 				foreach syspath $system_rom_paths {
