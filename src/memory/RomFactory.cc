@@ -168,8 +168,13 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	// plain ROMs...
 	string_view typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
-		// Guess mapper type, if it was not in DB.
-		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getOriginalSHA1());
+		// First check whether the (possibly patched) SHA1 is in the DB
+		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getSHA1());
+		// If not found, try the original SHA1 in the DB
+		if (!romInfo) {
+			romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getOriginalSHA1());
+		}
+		// If still not found, guess the mapper type
 		if (!romInfo) {
 			auto machineType = config.getMotherBoard().getMachineType();
 			if (machineType == "Coleco") {

@@ -35,6 +35,7 @@ public:
 	const std::string& getName() const { return name; }
 	const std::string& getDescription() const { return description; }
 	const Sha1Sum& getOriginalSHA1() const;
+	const Sha1Sum& getSHA1() const;
 
 	void addPadding(unsigned newSize, byte filler = 0xff);
 
@@ -51,6 +52,7 @@ private:
 	File file; // can be a closed file
 
 	mutable Sha1Sum originalSha1;
+	mutable Sha1Sum actualSha1;
 	std::string name;
 	/*const*/ std::string description; // not const to allow move
 	unsigned size;

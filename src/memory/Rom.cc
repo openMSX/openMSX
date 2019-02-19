@@ -221,7 +221,6 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		checkResolvedSha1 = false;
 	}
 
-	Sha1Sum patchedSha1;
 	if (size != 0) {
 		if (auto* patchesElem = config.findChild("patches")) {
 			// calculate before content is altered
@@ -246,7 +245,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			}
 
 			// calculated because it's different from original
-			patchedSha1 = SHA1::calc(rom, size);
+			actualSha1 = SHA1::calc(rom, size);
 
 			// Content altered by external patch file -> check.
 			checkResolvedSha1 = true;
@@ -284,8 +283,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	if (checkResolvedSha1) {
 		auto& mutableConfig = const_cast<XMLElement&>(config);
-		auto& psha1 = patchedSha1.empty() ? getOriginalSHA1() : patchedSha1;
-		string patchedSha1Str = psha1.toString();
+		string patchedSha1Str = getSHA1().toString();
 		const auto& actualSha1Elem = mutableConfig.getCreateChild(
 			"resolvedSha1", patchedSha1Str);
 		if (actualSha1Elem.getData() != patchedSha1Str) {
@@ -337,6 +335,7 @@ Rom::Rom(Rom&& r) noexcept
 	, extendedRom  (std::move(r.extendedRom))
 	, file         (std::move(r.file))
 	, originalSha1 (std::move(r.originalSha1))
+	, actualSha1   (std::move(r.actualSha1))
 	, name         (std::move(r.name))
 	, description  (std::move(r.description))
 	, size         (std::move(r.size))
@@ -358,6 +357,15 @@ const Sha1Sum& Rom::getOriginalSHA1() const
 		originalSha1 = SHA1::calc(rom, size);
 	}
 	return originalSha1;
+}
+
+const Sha1Sum& Rom::getSHA1() const
+{
+	if (actualSha1.empty())
+	{
+		actualSha1 = getOriginalSHA1();
+	}
+	return actualSha1;
 }
 
 void Rom::addPadding(unsigned newSize, byte filler)
