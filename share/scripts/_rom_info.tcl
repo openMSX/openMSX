@@ -9,7 +9,7 @@ proc tab {args} {
 	set result [list]
 
 	foreach device [machine_info device] {
-		if {[lindex [machine_info device $device] 0] eq "ROM"} {
+		if {[dict get [machine_info device $device] "type"] eq "ROM"} {
 			lappend result $device
 		}
 	}
@@ -30,13 +30,13 @@ proc getlist_rom_info {{romdevice ""}} {
 		error "No such device: $romdevice"
 	}
 
-	set device_type [lindex [machine_info device $romdevice] 0]
+	set device_type [dict get $device_info "type"]
 	if {$device_type ne "ROM"} {
 		error [format "Device is not of type ROM, but %s" $device_type]
 	}
 
-	set actualSHA1 [dict get [lindex $device_info 1] "actualSHA1"]
-	set originalSHA1 [dict get [lindex $device_info 1] "originalSHA1"]
+	set actualSHA1 [dict get $device_info "actualSHA1"]
+	set originalSHA1 [dict get $device_info "originalSHA1"]
 	if {[catch {set rominfo [openmsx_info software $actualSHA1]}]} {
 		# try original sha1 to get more info
 		if {[catch {set rominfo [openmsx_info software $originalSHA1}]} {

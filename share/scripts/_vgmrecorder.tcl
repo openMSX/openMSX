@@ -363,15 +363,17 @@ proc find_all_scc {} {
 			set device_list [machine_info slot $ps $ss 2]
 			if {[llength $device_list] != 0} {
 				set device [lindex $device_list 0]
-				set device_info_list [machine_info device $device]
-				lassign $device_info_list device_info device_sub_info
-				if {[string match -nocase *scc* $device_info]} {
+				set device_info_dict [machine_info device $device]
+				set device_type [dict get $device_info_dict "type"]
+				if {[string match -nocase *scc* $device_type]} {
 					lappend result $ps $ss 1
-				}
-				if {[string match -nocase *scc* $device_sub_info] ||
-				    [string match -nocase manbow2 $device_sub_info] ||
-				    [string match -nocase KonamiUltimateCollection $device_sub_info]} {
-					lappend result $ps $ss 0
+				} elseif {[dict exists $device_info_dict "mappertype"]} {
+					set mapper_type [dict get $device_info_dict "mappertype"]
+					if {[string match -nocase *scc* $mapper_type] ||
+					    [string match -nocase manbow2 $mapper_type] ||
+					    [string match -nocase KonamiUltimateCollection $mapper_type]} {
+						lappend result $ps $ss 0
+					}
 				}
 			}
 			if {![machine_info issubslotted $ps]} break

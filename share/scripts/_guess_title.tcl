@@ -31,7 +31,7 @@ proc guess_rom_device_z80space {internal checkpage} {
 	}
 	if {$incorrectslottype} {
 		foreach device [machine_info slot $ps $ss $checkpage] {
-			set type [lindex [machine_info device $device] 0]
+			set type [dict get [machine_info device $device] "type"]
 			# try to ignore RAM devices
 			if {$type ne "RAM" && $type ne "MemoryMapper" && $type ne "PanasonicRAM"} {
 				return $device
@@ -49,7 +49,7 @@ proc guess_rom_device_nonextension {} {
 		for {set ss 0} {$ss < 4} {incr ss} {
 			if {![machine_info isexternalslot $ps $ss]} continue
 			foreach device [machine_info slot $ps $ss 1] {
-				set path [dict get [lindex [machine_info device $device] 1] "filename"]
+				set path [dict get [machine_info device $device] "filename"]
 				if {$path eq ""} continue
 				set ok 1
 				foreach syspath $system_rom_paths {

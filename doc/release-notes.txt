@@ -13,12 +13,14 @@ MSX device support:
 - added new extensions: TODO
 
 New or improved emulator features:
-- WARNING: backwards incompatible change to the 'machine_info device <ROM
-  device>' command. The result for ROM devices is now a list with two elements.
-  The second element is a Tcl dict which contains all information that was
-  previously in list elements 1 to 3. Element 0 has not been changed. Example
-  to get the mapper type of device 'usas':
-  dict get [lindex [machine_info device usas] 1] "mappertype"
+- WARNING: backwards incompatible change to the 'machine_info device <device>'
+  command. The result for ROM devices is now a dict (instead of a list) with at
+  least one key-value pair, with key "type". For certain devices more key-value
+  pairs are present, that were previously in list elements 1 to 3. Example to
+  get the mapper type of device 'usas':
+  dict get [machine_info device usas] "mappertype"
+  And to get the device type (works for any device) of MyCoolDevice:
+  dict get [machine_info device MyCoolDevice] "type"
 
 Build system, packaging, documentation:
 - migrated to SDL2

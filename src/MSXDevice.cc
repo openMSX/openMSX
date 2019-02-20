@@ -383,6 +383,8 @@ void MSXDevice::getNameList(TclObject& result) const
 
 void MSXDevice::getDeviceInfo(TclObject& result) const
 {
+	// we just pretend to be a dict
+	result.addListElement("type");
 	result.addListElement(getDeviceConfig().getName());
 	getExtraDeviceInfo(result);
 }
