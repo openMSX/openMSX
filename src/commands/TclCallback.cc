@@ -53,8 +53,7 @@ TclObject TclCallback::execute(int arg1)
 	if (callback.empty()) return TclObject();
 
 	TclObject command;
-	command.addListElement(callback);
-	command.addListElement(arg1);
+	command.addListElement(callback, arg1);
 	return executeCommon(command);
 }
 
@@ -64,9 +63,7 @@ TclObject TclCallback::execute(int arg1, int arg2)
 	if (callback.empty()) return TclObject();
 
 	TclObject command;
-	command.addListElement(callback);
-	command.addListElement(arg1);
-	command.addListElement(arg2);
+	command.addListElement(callback, arg1, arg2);
 	return executeCommon(command);
 }
 
@@ -76,9 +73,7 @@ TclObject TclCallback::execute(int arg1, string_view arg2)
 	if (callback.empty()) return TclObject();
 
 	TclObject command;
-	command.addListElement(callback);
-	command.addListElement(arg1);
-	command.addListElement(arg2);
+	command.addListElement(callback, arg1, arg2);
 	return executeCommon(command);
 }
 
@@ -88,9 +83,7 @@ TclObject TclCallback::execute(string_view arg1, string_view arg2)
 	if (callback.empty()) return TclObject();
 
 	TclObject command;
-	command.addListElement(callback);
-	command.addListElement(arg1);
-	command.addListElement(arg2);
+	command.addListElement(callback, arg1, arg2);
 	return executeCommon(command);
 }
 

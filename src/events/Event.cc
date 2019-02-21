@@ -30,8 +30,7 @@ bool Event::operator!=(const Event& other) const
 
 void SimpleEvent::toStringImpl(TclObject& result) const
 {
-	result.addListElement("simple");
-	result.addListElement(int(getType()));
+	result.addListElement("simple", int(getType()));
 }
 
 bool SimpleEvent::lessImpl(const Event& /*other*/) const

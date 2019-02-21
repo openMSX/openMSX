@@ -277,8 +277,7 @@ void OSDWidget::getProperty(string_view propName, TclObject& result) const
 		result = clip;
 	} else if (propName == "-mousecoord") {
 		vec2 coord = getMouseCoord();
-		result.addListElement(coord[0]);
-		result.addListElement(coord[1]);
+		result.addListElement(coord[0], coord[1]);
 	} else if (propName == "-suppressErrors") {
 		result = suppressErrors;
 	} else {

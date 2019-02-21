@@ -31,7 +31,13 @@ void TclObject::addListElement(Tcl_Obj* element)
 	}
 }
 
-void TclObject::addListElements(int objc, Tcl_Obj** objv)
+void TclObject::addListElementsImpl(std::initializer_list<Tcl_Obj*> l)
+{
+	Tcl_Obj* const* objv = &*l.begin();
+	addListElementsImpl(int(l.size()), objv);
+}
+
+void TclObject::addListElementsImpl(int objc, Tcl_Obj* const* objv)
 {
 	Tcl_Interp* interp = nullptr; // see comment in addListElement
 	if (Tcl_IsShared(obj)) {
@@ -41,6 +47,25 @@ void TclObject::addListElements(int objc, Tcl_Obj** objv)
 	}
 	if (Tcl_ListObjReplace(interp, obj, INT_MAX, 0, objc, objv) != TCL_OK) {
 		throwException(interp);
+	}
+}
+
+void TclObject::addDictKeyValues(std::initializer_list<Tcl_Obj*> keyValuePairs)
+{
+	assert((keyValuePairs.size() % 2) == 0);
+	Tcl_Interp* interp = nullptr; // see comment in addListElement
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_DuplicateObj(obj);
+		Tcl_IncrRefCount(obj);
+	}
+	auto it = keyValuePairs.begin(), et = keyValuePairs.end();
+	while (it != et) {
+		Tcl_Obj* key   = *it++;
+		Tcl_Obj* value = *it++;
+		if (Tcl_DictObjPut(interp, obj, key, value) != TCL_OK) {
+			throwException(interp);
+		}
 	}
 }
 

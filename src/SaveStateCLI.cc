@@ -31,8 +31,7 @@ void SaveStateCLI::parseFileType(const string& filename,
 	auto& interp = parser.getInterpreter();
 
 	TclObject command1;
-	command1.addListElement("restore_machine");
-	command1.addListElement(filename);
+	command1.addListElement("restore_machine", filename);
 	auto newId = command1.executeCommand(interp);
 
 	TclObject command2;
@@ -41,14 +40,12 @@ void SaveStateCLI::parseFileType(const string& filename,
 
 	if (!currentId.empty()) {
 		TclObject command3;
-		command3.addListElement("delete_machine");
-		command3.addListElement(currentId);
+		command3.addListElement("delete_machine", currentId);
 		command3.executeCommand(interp);
 	}
 
 	TclObject command4;
-	command4.addListElement("activate_machine");
-	command4.addListElement(newId);
+	command4.addListElement("activate_machine", newId);
 	command4.executeCommand(interp);
 }
 

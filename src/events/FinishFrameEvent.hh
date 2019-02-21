@@ -37,10 +37,10 @@ public:
 
 	void toStringImpl(TclObject& result) const override
 	{
-		result.addListElement("finishframe");
-		result.addListElement(int(thisSource));
-		result.addListElement(int(selectedSource));
-		result.addListElement(skipped);
+		result.addListElement("finishframe",
+		                      int(thisSource),
+		                      int(selectedSource),
+		                      skipped);
 	}
 	bool lessImpl(const Event& other) const override
 	{

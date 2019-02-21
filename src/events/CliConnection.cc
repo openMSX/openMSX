@@ -49,8 +49,7 @@ public:
 	}
 	void toStringImpl(TclObject& result) const override
 	{
-		result.addListElement("CliCmd");
-		result.addListElement(getCommand());
+		result.addListElement("CliCmd", getCommand());
 	}
 	bool lessImpl(const Event& other) const override
 	{

@@ -220,12 +220,40 @@ TEST_CASE("TclObject, addListElements")
 		t.addListElements(view::transform(ints, [](int i) { return 2 * i; }));
 		CHECK(t.getListLength(interp) == 8);
 		CHECK(t.getListIndex(interp, 7).getString() == "10");
+		// multiple
+		t.addListElement("one", 2, 3.14);
+		CHECK(t.getListLength(interp) == 11);
+		CHECK(t.getListIndex(interp, 8).getString() == "one");
+		CHECK(t.getListIndex(interp, 9).getString() == "2");
+		CHECK(t.getListIndex(interp, 10).getString() == "3.14");
 	}
 	SECTION("error") {
 		TclObject t("{foo"); // invalid list representation
 		CHECK_THROWS(t.addListElements(std::begin(doubles), std::end(doubles)));
 		CHECK_THROWS(t.addListElements(ints));
 	}
+}
+
+TEST_CASE("TclObject, addDictKeyValue(s)")
+{
+	Interpreter interp;
+	TclObject t;
+
+	t.addDictKeyValue("one", 1);
+	CHECK(t.getDictValue(interp, "one").getInt(interp) == 1);
+	CHECK(t.getDictValue(interp, "two").getString() == "");
+	CHECK(t.getDictValue(interp, "three").getString() == "");
+
+	t.addDictKeyValues("two", 2, "three", 3.14);
+	CHECK(t.getDictValue(interp, "one").getInt(interp) == 1);
+	CHECK(t.getDictValue(interp, "two").getInt(interp) == 2);
+	CHECK(t.getDictValue(interp, "three").getDouble(interp) == 3.14);
+
+	t.addDictKeyValues("four", false, "one", "een");
+	CHECK(t.getDictValue(interp, "one").getString() == "een");
+	CHECK(t.getDictValue(interp, "two").getInt(interp) == 2);
+	CHECK(t.getDictValue(interp, "three").getDouble(interp) == 3.14);
+	CHECK(t.getDictValue(interp, "four").getBoolean(interp) == false);
 }
 
 // there are no setting functions (yet?) for dicts

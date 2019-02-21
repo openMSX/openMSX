@@ -453,10 +453,10 @@ void Debugger::Cmd::listBreakPoints(
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (auto& bp : interface.getBreakPoints()) {
 		TclObject line;
-		line.addListElement(strCat("bp#", bp.getId()));
-		line.addListElement(strCat("0x", hex_string<4>(bp.getAddress())));
-		line.addListElement(bp.getCondition());
-		line.addListElement(bp.getCommand());
+		line.addListElement(strCat("bp#", bp.getId()),
+		                    strCat("0x", hex_string<4>(bp.getAddress())),
+		                    bp.getCondition(),
+		                    bp.getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
 	result = res;
@@ -581,12 +581,12 @@ void Debugger::Cmd::listWatchPoints(
 			line.addListElement(strCat("0x", hex_string<4>(beginAddr)));
 		} else {
 			TclObject range;
-			range.addListElement(strCat("0x", hex_string<4>(beginAddr)));
-			range.addListElement(strCat("0x", hex_string<4>(endAddr)));
+			range.addListElement(strCat("0x", hex_string<4>(beginAddr)),
+			                     strCat("0x", hex_string<4>(endAddr)));
 			line.addListElement(range);
 		}
-		line.addListElement(wp->getCondition());
-		line.addListElement(wp->getCommand());
+		line.addListElement(wp->getCondition(),
+		                    wp->getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
 	result = res;
@@ -651,9 +651,9 @@ void Debugger::Cmd::listConditions(
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (auto& c : interface.getConditions()) {
 		TclObject line;
-		line.addListElement(strCat("cond#", c.getId()));
-		line.addListElement(c.getCondition());
-		line.addListElement(c.getCommand());
+		line.addListElement(strCat("cond#", c.getId()),
+		                    c.getCondition(),
+		                    c.getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
 	result = res;
@@ -744,10 +744,10 @@ void Debugger::Cmd::probeListBreakPoints(
 	string res;
 	for (auto& p : debugger().probeBreakPoints) {
 		TclObject line;
-		line.addListElement(strCat("pp#", p->getId()));
-		line.addListElement(p->getProbe().getName());
-		line.addListElement(p->getCondition());
-		line.addListElement(p->getCommand());
+		line.addListElement(strCat("pp#", p->getId()),
+		                    p->getProbe().getName(),
+		                    p->getCondition(),
+		                    p->getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
 	result = res;

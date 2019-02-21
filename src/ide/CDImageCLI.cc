@@ -23,8 +23,7 @@ void CDImageCLI::parseOption(const string& option, span<string>& cmdLine)
 		throw MSXException("No CDROM named '", cd, "'.");
 	}
 	TclObject command;
-	command.addListElement(cd);
-	command.addListElement(filename);
+	command.addListElement(cd, filename);
 	command.executeCommand(parser.getInterpreter());
 }
 string_view CDImageCLI::optionHelp() const

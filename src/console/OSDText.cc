@@ -131,8 +131,7 @@ void OSDText::getProperty(string_view propName, TclObject& result) const
 		result = wraprelw;
 	} else if (propName == "-query-size") {
 		vec2 renderedSize = getRenderedSize();
-		result.addListElement(renderedSize[0]);
-		result.addListElement(renderedSize[1]);
+		result.addListElement(renderedSize[0], renderedSize[1]);
 	} else {
 		OSDImageBasedWidget::getProperty(propName, result);
 	}

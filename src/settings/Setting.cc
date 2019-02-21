@@ -29,8 +29,7 @@ BaseSetting::BaseSetting(const TclObject& name_)
 
 void BaseSetting::info(TclObject& result) const
 {
-	result.addListElement(getTypeString());
-	result.addListElement(getDefaultValue());
+	result.addListElement(getTypeString(), getDefaultValue());
 	additionalInfo(result);
 }
 

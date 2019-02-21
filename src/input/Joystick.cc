@@ -130,11 +130,6 @@ static string getJoystickName(unsigned joyNum)
 
 static TclObject getConfigValue(SDL_Joystick* joystick)
 {
-	TclObject value;
-	value.addListElement("LEFT" ); value.addListElement("-axis0");
-	value.addListElement("RIGHT"); value.addListElement("+axis0");
-	value.addListElement("UP"   ); value.addListElement("-axis1");
-	value.addListElement("DOWN" ); value.addListElement("+axis1");
 	TclObject listA, listB;
 	for (auto i : xrange(InputEventGenerator::joystickNumButtons(joystick))) {
 		string button = strCat("button", i);
@@ -144,8 +139,13 @@ static TclObject getConfigValue(SDL_Joystick* joystick)
 			listA.addListElement(button);
 		}
 	}
-	value.addListElement("A"); value.addListElement(listA);
-	value.addListElement("B"); value.addListElement(listB);
+	TclObject value;
+	value.addDictKeyValues("LEFT",  "-axis0",
+	                       "RIGHT", "+axis0",
+	                       "UP",    "-axis1",
+	                       "DOWN",  "+axis1",
+	                       "A",     listA,
+	                       "B",     listB);
 	return value;
 }
 
@@ -251,7 +251,7 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
                         string_view key, int threshold)
 {
 	try {
-		const auto& list = dict.getDictValue(interp, TclObject(key));
+		const auto& list = dict.getDictValue(interp, key);
 		for (auto i : xrange(list.getListLength(interp))) {
 			const auto& elem = list.getListIndex(interp, i).getString();
 			if (elem.starts_with("button")) {

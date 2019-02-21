@@ -211,42 +211,32 @@ EmuTime::param ReverseManager::getEndTime(const ReverseHistory& hist) const
 
 void ReverseManager::status(TclObject& result) const
 {
-	result.addListElement("status");
-	if (!isCollecting()) {
-		result.addListElement("disabled");
-	} else if (isReplaying()) {
-		result.addListElement("replaying");
-	} else {
-		result.addListElement("enabled");
-	}
+	result.addDictKeyValue("status", !isCollecting() ? "disabled"
+	                               : isReplaying()   ? "replaying"
+	                                                 : "enabled");
 
-	result.addListElement("begin");
 	EmuTime b(isCollecting() ? begin(history.chunks)->second.time
 	                         : EmuTime::zero);
-	result.addListElement((b - EmuTime::zero).toDouble());
+	result.addDictKeyValue("begin", (b - EmuTime::zero).toDouble());
 
-	result.addListElement("end");
 	EmuTime end(isCollecting() ? getEndTime(history) : EmuTime::zero);
-	result.addListElement((end - EmuTime::zero).toDouble());
+	result.addDictKeyValue("end", (end - EmuTime::zero).toDouble());
 
-	result.addListElement("current");
 	EmuTime current(isCollecting() ? getCurrentTime() : EmuTime::zero);
-	result.addListElement((current - EmuTime::zero).toDouble());
+	result.addDictKeyValue("current", (current - EmuTime::zero).toDouble());
 
-	result.addListElement("snapshots");
 	TclObject snapshots;
 	snapshots.addListElements(view::transform(history.chunks, [](auto& p) {
 		return (p.second.time - EmuTime::zero).toDouble();
 	}));
-	result.addListElement(snapshots);
+	result.addDictKeyValue("snapshots", snapshots);
 
-	result.addListElement("last_event");
 	auto lastEvent = rbegin(history.events);
 	if (lastEvent != rend(history.events) && dynamic_cast<const EndLogEvent*>(lastEvent->get())) {
 		++lastEvent;
 	}
 	EmuTime le(isCollecting() && (lastEvent != rend(history.events)) ? (*lastEvent)->getTime() : EmuTime::zero);
-	result.addListElement((le - EmuTime::zero).toDouble());
+	result.addDictKeyValue("last_event", (le - EmuTime::zero).toDouble());
 }
 
 void ReverseManager::debugInfo(TclObject& result) const

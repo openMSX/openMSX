@@ -1030,8 +1030,7 @@ void ConfigInfo::execute(span<const TclObject> tokens, TclObject& result) const
 				configName, tokens[2].getString());
 			if (auto* info = config.findChild("info")) {
 				for (auto& i : info->getChildren()) {
-					result.addListElement(i.getName());
-					result.addListElement(i.getData());
+					result.addDictKeyValue(i.getName(), i.getData());
 				}
 			}
 		} catch (MSXException& e) {
@@ -1103,24 +1102,15 @@ void SoftwareInfoTopic::execute(
 	}
 
 	const char* bufStart = romDatabase.getBufferStart();
-	result.addListElement("title");
-	result.addListElement(romInfo->getTitle(bufStart));
-	result.addListElement("year");
-	result.addListElement(romInfo->getYear(bufStart));
-	result.addListElement("company");
-	result.addListElement(romInfo->getCompany(bufStart));
-	result.addListElement("country");
-	result.addListElement(romInfo->getCountry(bufStart));
-	result.addListElement("orig_type");
-	result.addListElement(romInfo->getOrigType(bufStart));
-	result.addListElement("remark");
-	result.addListElement(romInfo->getRemark(bufStart));
-	result.addListElement("original");
-	result.addListElement(romInfo->getOriginal());
-	result.addListElement("mapper_type_name");
-	result.addListElement(RomInfo::romTypeToName(romInfo->getRomType()));
-	result.addListElement("genmsxid");
-	result.addListElement(romInfo->getGenMSXid());
+	result.addDictKeyValues("title",            romInfo->getTitle(bufStart),
+	                        "year",             romInfo->getYear(bufStart),
+	                        "company",          romInfo->getCompany(bufStart),
+	                        "country",          romInfo->getCountry(bufStart),
+	                        "orig_type",        romInfo->getOrigType(bufStart),
+	                        "remark",           romInfo->getRemark(bufStart),
+	                        "original",         romInfo->getOriginal(),
+	                        "mapper_type_name", RomInfo::romTypeToName(romInfo->getRomType()),
+	                        "genmsxid",         romInfo->getGenMSXid());
 }
 
 string SoftwareInfoTopic::help(const vector<string>& /*tokens*/) const

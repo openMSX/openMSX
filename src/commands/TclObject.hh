@@ -8,6 +8,7 @@
 #include <tcl.h>
 #include <algorithm>
 #include <climits>
+#include <initializer_list>
 #include <iterator>
 #include <cassert>
 #include <cstdint>
@@ -106,11 +107,23 @@ public:
 	// add elements to a Tcl list
 	template<typename T> void addListElement(T t) { addListElement(newObj(t)); }
 	template<typename ITER> void addListElements(ITER first, ITER last) {
-		addListElements(first, last,
+		addListElementsImpl(first, last,
 		                typename std::iterator_traits<ITER>::iterator_category());
 	}
 	template<typename Range> void addListElements(Range&& range) {
 		addListElements(std::begin(range), std::end(range));
+	}
+	template<typename... Args> void addListElement(Args&&... args) {
+		addListElementsImpl({newObj(std::forward<Args>(args))...});
+	}
+
+	// add key-value pair(s) to a Tcl dict
+	template<typename Key, typename Value>
+	void addDictKeyValue(const Key& key, const Value& value) {
+		addDictKeyValues({newObj(key), newObj(value)});
+	}
+	template<typename... Args> void addDictKeyValues(Args&&... args) {
+		addDictKeyValues({newObj(std::forward<Args>(args))...});
 	}
 
 	// value getters
@@ -122,6 +135,10 @@ public:
 	unsigned getListLength(Interpreter& interp) const;
 	TclObject getListIndex(Interpreter& interp, unsigned index) const;
 	TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
+	template<typename Key>
+	TclObject getDictValue(Interpreter& interp, const Key& key) const {
+		return getDictValue(interp, TclObject(key));
+	}
 
 	// STL-like interface when interpreting this TclObject as a list of
 	// strings. Invalid Tcl lists are silently interpreted as empty lists.
@@ -216,21 +233,23 @@ private:
 	}
 
 	template<typename ITER>
-	void addListElements(ITER first, ITER last, std::input_iterator_tag) {
+	void addListElementsImpl(ITER first, ITER last, std::input_iterator_tag) {
 		for (ITER it = first; it != last; ++it) {
 			addListElement(*it);
 		}
 	}
 	template<typename ITER>
-	void addListElements(ITER first, ITER last, std::random_access_iterator_tag) {
+	void addListElementsImpl(ITER first, ITER last, std::random_access_iterator_tag) {
 		auto objc = last - first;
 		VLA(Tcl_Obj*, objv, objc);
 		std::transform(first, last, objv, [](const auto& t) { return newObj(t); });
-		addListElements(objc, objv);
+		addListElementsImpl(objc, objv);
 	}
 
 	void addListElement(Tcl_Obj* element);
-	void addListElements(int objc, Tcl_Obj** objv);
+	void addListElementsImpl(int objc, Tcl_Obj* const* objv);
+	void addListElementsImpl(std::initializer_list<Tcl_Obj*> l);
+	void addDictKeyValues(std::initializer_list<Tcl_Obj*> l);
 	unsigned getListLengthUnchecked() const;
 	TclObject getListIndexUnchecked(unsigned index) const;
 

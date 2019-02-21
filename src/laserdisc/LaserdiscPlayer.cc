@@ -46,8 +46,8 @@ void LaserdiscPlayer::Command::execute(
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
-		result.addListElement(getName() + ':');
-		result.addListElement(laserdiscPlayer.getImageName().getResolved());
+		result.addListElement(getName() + ':',
+		                      laserdiscPlayer.getImageName().getResolved());
 	} else if (tokens.size() == 2 && tokens[1] == "eject") {
 		result = "Ejecting laserdisc.";
 		laserdiscPlayer.eject(time);

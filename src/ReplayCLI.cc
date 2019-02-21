@@ -27,10 +27,7 @@ void ReplayCLI::parseFileType(const string& filename,
                               span<string>& /*cmdLine*/)
 {
 	TclObject command;
-	command.addListElement("reverse");
-	command.addListElement("loadreplay");
-	command.addListElement("-viewonly");
-	command.addListElement(filename);
+	command.addListElement("reverse", "loadreplay", "-viewonly", filename);
 	command.executeCommand(parser.getInterpreter());
 }
 

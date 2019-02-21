@@ -621,12 +621,11 @@ void CassettePlayer::TapeCommand::execute(
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
-		result.addListElement(getName() + ':');
-		result.addListElement(cassettePlayer.getImageName().getResolved());
-
 		TclObject options;
 		options.addListElement(cassettePlayer.getStateString());
-		result.addListElement(options);
+		result.addListElement(getName() + ':',
+		                      cassettePlayer.getImageName().getResolved(),
+		                      options);
 
 	} else if (tokens[1] == "new") {
 		string directory = "taperecordings";

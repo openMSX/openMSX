@@ -45,19 +45,12 @@ static string initialFilePoolSettingValue()
 	TclObject result;
 
 	for (auto& p : systemFileContext().getPaths()) {
-		TclObject entry1;
-		entry1.addListElement("-path");
-		entry1.addListElement(FileOperations::join(p, "systemroms"));
-		entry1.addListElement("-types");
-		entry1.addListElement("system_rom");
-		result.addListElement(entry1);
-
-		TclObject entry2;
-		entry2.addListElement("-path");
-		entry2.addListElement(FileOperations::join(p, "software"));
-		entry2.addListElement("-types");
-		entry2.addListElement("rom disk tape");
-		result.addListElement(entry2);
+		TclObject entry1, entry2;
+		entry1.addDictKeyValues("-path", FileOperations::join(p, "systemroms"),
+		                        "-types", "system_rom");
+		entry2.addDictKeyValues("-path", FileOperations::join(p, "software"),
+		                        "-types", "rom disk tape");
+		result.addListElement(entry1, entry2);
 	}
 	return result.getString().str();
 }

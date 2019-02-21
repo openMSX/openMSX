@@ -33,8 +33,7 @@ void CassettePlayerCLI::parseFileType(const string& filename,
 		throw MSXException("No cassetteplayer.");
 	}
 	TclObject command;
-	command.addListElement("cassetteplayer");
-	command.addListElement(filename);
+	command.addListElement("cassetteplayer", filename);
 	command.executeCommand(parser.getInterpreter());
 }
 

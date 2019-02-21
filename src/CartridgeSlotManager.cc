@@ -313,8 +313,8 @@ void CartridgeSlotManager::CartCmd::execute(
 	if (tokens.size() == 1) {
 		// query name of cartridge
 		auto* extConf = getExtensionConfig(cartname);
-		result.addListElement(strCat(cartname, ':'));
-		result.addListElement(extConf ? extConf->getName() : string{});
+		result.addListElement(strCat(cartname, ':'),
+		                      extConf ? extConf->getName() : string{});
 		if (!extConf) {
 			TclObject options;
 			options.addListElement("empty");

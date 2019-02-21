@@ -765,8 +765,8 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 {
 	if (tokens.size() == 1) {
 		auto& file = ls.file;
-		result.addListElement(ls.name + ':');
-		result.addListElement(file.is_open() ? file.getURL() : string{});
+		result.addListElement(ls.name + ':',
+		                      file.is_open() ? file.getURL() : string{});
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) &&
 	           ((tokens[1] == "eject") || (tokens[1] == "-eject"))) {

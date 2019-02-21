@@ -294,13 +294,7 @@ void AviRecorder::status(span<const TclObject> tokens, TclObject& result) const
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	result.addListElement("status");
-	if (aviWriter || wavWriter) {
-		result.addListElement("recording");
-	} else {
-		result.addListElement("idle");
-	}
-
+	result.addDictKeyValue("status", (aviWriter || wavWriter) ? "recording" : "idle");
 }
 
 // class AviRecorder::Cmd
