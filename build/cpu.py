@@ -88,6 +88,12 @@ class PPC64(CPU):
 	name = 'ppc64'
 	bigEndian = True
 
+class PPC64LE(CPU):
+	'''64-bit Power PC LE.
+	'''
+	name = 'ppc64le'
+	bigEndian = False
+
 class S390(CPU):
 	'''IBM S/390.
 	'''
