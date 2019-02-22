@@ -108,6 +108,30 @@ void MouseButtonDownEvent::toStringImpl(TclObject& result) const
 }
 
 
+// class MouseWheelEvent
+
+MouseWheelEvent::MouseWheelEvent(int x_, int y_)
+	: TimedEvent(OPENMSX_MOUSE_WHEEL_EVENT)
+	, x(x_), y(y_)
+{
+}
+
+void MouseWheelEvent::toStringImpl(TclObject& result) const
+{
+	result.addListElement("mouse");
+	result.addListElement("wheel");
+	result.addListElement(getX());
+	result.addListElement(getY());
+}
+
+bool MouseWheelEvent::lessImpl(const Event& other) const
+{
+	auto& o = checked_cast<const MouseWheelEvent&>(other);
+	return make_tuple(  getX(),   getY()) <
+	       make_tuple(o.getX(), o.getY());
+}
+
+
 // class MouseMotionEvent
 
 MouseMotionEvent::MouseMotionEvent(int xrel_, int yrel_, int xabs_, int yabs_)

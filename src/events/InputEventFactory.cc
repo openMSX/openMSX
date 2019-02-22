@@ -88,6 +88,10 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 			} catch (std::invalid_argument&) {
 				// parse error in fast_stou()
 			}
+		} else if ((comp1 == "wheel") && (len == 4)) {
+			return make_shared<MouseWheelEvent>(
+				str.getListIndex(interp, 2).getInt(interp),
+				str.getListIndex(interp, 3).getInt(interp));
 		}
 	}
 	throw CommandException("Invalid mouse event: ", str.getString());

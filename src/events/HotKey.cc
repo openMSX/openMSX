@@ -62,6 +62,8 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_WHEEL_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
 		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::HOTKEY);

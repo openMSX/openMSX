@@ -61,8 +61,6 @@ public:
 	static const unsigned LEFT      = 1;
 	static const unsigned MIDDLE    = 2;
 	static const unsigned RIGHT     = 3;
-	static const unsigned WHEELUP   = 4;
-	static const unsigned WHEELDOWN = 5;
 
 	unsigned getButton() const { return button; }
 
@@ -90,6 +88,20 @@ public:
 	explicit MouseButtonDownEvent(unsigned button);
 private:
 	void toStringImpl(TclObject& result) const override;
+};
+
+class MouseWheelEvent : public TimedEvent
+{
+public:
+	MouseWheelEvent(int x, int y);
+	int getX() const  { return x; }
+	int getY() const  { return y; }
+
+private:
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const Event& other) const override;
+	const int x;
+	const int y;
 };
 
 class MouseMotionEvent final : public TimedEvent

@@ -312,6 +312,17 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 	case SDL_MOUSEBUTTONDOWN:
 		event = make_shared<MouseButtonDownEvent>(evt.button.button);
 		break;
+	case SDL_MOUSEWHEEL: {
+		int x = evt.wheel.x;
+		int y = evt.wheel.y;
+		if (evt.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
+		{
+			x = -x;
+			y = -y;
+		}
+		event = make_shared<MouseWheelEvent>(x, y);
+		break;
+	}
 	case SDL_MOUSEMOTION:
 		event = make_shared<MouseMotionEvent>(
 			evt.motion.xrel, evt.motion.yrel,
