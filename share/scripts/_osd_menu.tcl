@@ -277,6 +277,14 @@ proc menu_mouse_up {} {
 	unset mouse_coord
 	unset mouse_idx
 }
+proc menu_mouse_wheel {event} {
+	lassign $event type1 type2 x y
+	if {$y > 0} {
+		osd_menu::menu_action UP
+	} elseif {$y < 0} {
+		osd_menu::menu_action DOWN
+	}
+}
 proc menu_mouse_motion {} {
 	variable mouse_coord
 	variable mouse_idx
@@ -379,8 +387,7 @@ proc do_menu_open {top_menu} {
 	bind -layer osd_menu "mouse button1 up"   {osd_menu::menu_mouse_up}
 	bind -layer osd_menu "mouse button3 up"   {osd_menu::menu_close_top}
 	bind -layer osd_menu "mouse motion"       {osd_menu::menu_mouse_motion}
-	bind -layer osd_menu "mouse button4 down" {osd_menu::menu_action UP   }
-	bind -layer osd_menu "mouse button5 down" {osd_menu::menu_action DOWN }
+	bind -layer osd_menu "mouse wheel" -event {osd_menu::menu_mouse_wheel}
 	if {$is_dingux} {
 		bind -layer osd_menu "keyb LCTRL"  {osd_menu::menu_action A    }
 		bind -layer osd_menu "keyb LALT"   {osd_menu::menu_action B    }
