@@ -25,12 +25,14 @@ public:
 	using EventPtr = std::shared_ptr<const Event>;
 	struct HotKeyInfo {
 		HotKeyInfo(const EventPtr& event_, std::string command_,
-		           bool repeat_ = false)
+		           bool repeat_ = false, bool passEvent_ = false)
 			: event(event_), command(std::move(command_))
-			, repeat(repeat_) {}
+			, repeat(repeat_)
+			, passEvent(passEvent_) {}
 		EventPtr event;
 		std::string command;
 		bool repeat;
+		bool passEvent; // whether to pass event with args back to command
 	};
 	using BindMap = std::vector<HotKeyInfo>; // unsorted
 	using KeySet  = std::vector<EventPtr>;   // unsorted

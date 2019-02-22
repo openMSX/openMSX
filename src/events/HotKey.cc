@@ -8,6 +8,7 @@
 #include "XMLElement.hh"
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
+#include "StringOp.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
@@ -186,7 +187,8 @@ void HotKey::loadBindings(const XMLElement& config)
 			if (elem.getName() == "bind") {
 				bind(HotKeyInfo(createEvent(elem.getAttribute("key"), interp),
 				                elem.getData(),
-				                elem.getAttributeAsBool("repeat", false)));
+				                elem.getAttributeAsBool("repeat", false),
+				                elem.getAttributeAsBool("event", false)));
 			} else if (elem.getName() == "unbind") {
 				unbind(createEvent(elem.getAttribute("key"), interp));
 			}
@@ -220,6 +222,9 @@ void HotKey::saveBindings(XMLElement& config) const
 		elem.addAttribute("key", k->toString());
 		if (info.repeat) {
 			elem.addAttribute("repeat", "true");
+		}
+		if (info.passEvent) {
+			elem.addAttribute("event", "true");
 		}
 	}
 	// add explicit unbind's
@@ -423,9 +428,19 @@ void HotKey::executeBinding(const EventPtr& event, const HotKeyInfo& info)
 		// menu and reopens a new quit_menu. This will re-bind the
 		// action for the 'OSDControl A PRESS' event.
 		string copy = info.command;
+		// TODO: I guess the copy story here doesn't apply anymore now
+		// TODO: is there a better way to change the command into
+		//       separate Tcl command parts?
+		std::vector<string_view> commandParts = StringOp::split(copy, ' ');
+		TclObject command;
+		command.addListElements(commandParts);
+		if (info.passEvent) {
+			// add event with args to command
+			command.addListElement(event->toString());
+		}
 
 		// ignore return value
-		commandController.executeCommand(copy);
+		command.executeCommand(commandController.getInterpreter());
 	} catch (CommandException& e) {
 		commandController.getCliComm().printWarning(
 			"Error executing hot key command: ", e.getMessage());
@@ -475,7 +490,7 @@ HotKey::BindCmd::BindCmd(CommandController& commandController_, HotKey& hotKey_,
 string HotKey::BindCmd::formatBinding(const HotKey::HotKeyInfo& info)
 {
 	return strCat(info.event->toString(), (info.repeat ? " [repeat]" : ""),
-	              ":  ", info.command, '\n');
+	              (info.passEvent ? " [event]" : ""), ":  ", info.command, '\n');
 }
 
 static vector<TclObject> parse(bool defaultCmd, span<const TclObject> tokens_,
@@ -552,9 +567,15 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
 		// make a new binding
 		string command;
 		bool repeat = false;
+		bool passEvent = false;
 		unsigned start = 1;
 		if (tokens[1] == "-repeat") {
 			repeat = true;
+			++start;
+		}
+		if ((tokens[1] == "-event") ||
+			  ((tokens.size() > 2) && (tokens[2] == "-event"))) {
+			passEvent = true;
 			++start;
 		}
 		for (unsigned i = start; i < tokens.size(); ++i) {
@@ -564,7 +585,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
 		}
 		HotKey::HotKeyInfo info(
 			createEvent(tokens[0], getInterpreter()),
-			command, repeat);
+			command, repeat, passEvent);
 		if (defaultCmd) {
 			hotKey.bindDefault(std::move(info));
 		} else if (layer.empty()) {
@@ -582,10 +603,11 @@ string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
 	return strCat(
 		cmd, "                       : show all bounded keys\n",
 		cmd, " <key>                 : show binding for this key\n",
-		cmd, " <key> [-repeat] <cmd> : bind key to command, optionally "
-		"repeat command while key remains pressed\n"
+		cmd, " <key> [-repeat] [-event] <cmd> : bind key to command, optionally "
+		"repeat command while key remains pressed and also optionally "
+		"give back the event as argument (a list) to <cmd>\n"
 		"These 3 take an optional '-layer <layername>' option, "
-		"see activate_input_layer.",
+		"see activate_input_layer.\n",
 		cmd, " -layers               : show a list of layers with bound keys\n");
 }
 
