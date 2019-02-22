@@ -178,6 +178,30 @@ bool MouseMotionGroupEvent::matches(const Event& other) const
 }
 
 
+// class MouseWheelGroupEvent
+
+MouseWheelGroupEvent::MouseWheelGroupEvent()
+	: Event(OPENMSX_MOUSE_WHEEL_GROUP_EVENT)
+{
+}
+
+void MouseWheelGroupEvent::toStringImpl(TclObject& result) const
+{
+	result.addListElement("mouse", "wheel");
+}
+
+bool MouseWheelGroupEvent::lessImpl(const Event& /*other*/) const
+{
+	// All MouseWheelGroup events are equivalent
+	return false;
+}
+
+bool MouseWheelGroupEvent::matches(const Event& other) const
+{
+	return other.getType() == OPENMSX_MOUSE_WHEEL_EVENT;
+}
+
+
 // class JoystickEvent
 
 JoystickEvent::JoystickEvent(EventType type_, unsigned joystick_)

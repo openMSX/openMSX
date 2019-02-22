@@ -133,6 +133,18 @@ private:
 };
 
 
+class MouseWheelGroupEvent final : public Event
+{
+public:
+	MouseWheelGroupEvent();
+
+private:
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const Event& other) const override;
+	bool matches(const Event& other) const override;
+};
+
+
 class JoystickEvent : public TimedEvent
 {
 public:

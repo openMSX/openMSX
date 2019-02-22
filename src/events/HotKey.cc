@@ -158,6 +158,7 @@ static HotKey::EventPtr createEvent(const TclObject& obj, Interpreter& interp)
 	if (!dynamic_cast<const KeyEvent*>             (event.get()) &&
 	    !dynamic_cast<const MouseButtonEvent*>     (event.get()) &&
 	    !dynamic_cast<const MouseMotionGroupEvent*>(event.get()) &&
+	    !dynamic_cast<const MouseWheelGroupEvent*> (event.get()) &&
 	    !dynamic_cast<const JoystickEvent*>        (event.get()) &&
 	    !dynamic_cast<const OsdControlEvent*>      (event.get()) &&
 	    !dynamic_cast<const FocusEvent*>           (event.get())) {
