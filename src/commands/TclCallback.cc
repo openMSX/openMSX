@@ -42,8 +42,7 @@ TclObject TclCallback::execute()
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
 
-	TclObject command;
-	command.addListElement(callback);
+	TclObject command = makeTclList(callback);
 	return executeCommon(command);
 }
 
@@ -52,8 +51,7 @@ TclObject TclCallback::execute(int arg1)
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
 
-	TclObject command;
-	command.addListElement(callback, arg1);
+	TclObject command = makeTclList(callback, arg1);
 	return executeCommon(command);
 }
 
@@ -62,8 +60,7 @@ TclObject TclCallback::execute(int arg1, int arg2)
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
 
-	TclObject command;
-	command.addListElement(callback, arg1, arg2);
+	TclObject command = makeTclList(callback, arg1, arg2);
 	return executeCommon(command);
 }
 
@@ -72,8 +69,7 @@ TclObject TclCallback::execute(int arg1, string_view arg2)
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
 
-	TclObject command;
-	command.addListElement(callback, arg1, arg2);
+	TclObject command = makeTclList(callback, arg1, arg2);
 	return executeCommon(command);
 }
 
@@ -82,8 +78,7 @@ TclObject TclCallback::execute(string_view arg1, string_view arg2)
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
 
-	TclObject command;
-	command.addListElement(callback, arg1, arg2);
+	TclObject command = makeTclList(callback, arg1, arg2);
 	return executeCommon(command);
 }
 

@@ -30,22 +30,18 @@ void SaveStateCLI::parseFileType(const string& filename,
 	// Can that be improved?
 	auto& interp = parser.getInterpreter();
 
-	TclObject command1;
-	command1.addListElement("restore_machine", filename);
+	TclObject command1 = makeTclList("restore_machine", filename);
 	auto newId = command1.executeCommand(interp);
 
-	TclObject command2;
-	command2.addListElement("machine");
+	TclObject command2 = makeTclList("machine");
 	auto currentId = command2.executeCommand(interp);
 
 	if (!currentId.empty()) {
-		TclObject command3;
-		command3.addListElement("delete_machine", currentId);
+		TclObject command3 = makeTclList("delete_machine", currentId);
 		command3.executeCommand(interp);
 	}
 
-	TclObject command4;
-	command4.addListElement("activate_machine", newId);
+	TclObject command4 = makeTclList("activate_machine", newId);
 	command4.executeCommand(interp);
 }
 

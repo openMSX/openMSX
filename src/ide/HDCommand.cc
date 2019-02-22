@@ -32,8 +32,7 @@ void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
 		                      hd.getImageName().getResolved());
 
 		if (hd.isWriteProtected()) {
-			TclObject options;
-			options.addListElement("readonly");
+			TclObject options = makeTclList("readonly");
 			result.addListElement(options);
 		}
 	} else if ((tokens.size() == 2) ||

@@ -621,8 +621,7 @@ void CassettePlayer::TapeCommand::execute(
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
-		TclObject options;
-		options.addListElement(cassettePlayer.getStateString());
+		TclObject options = makeTclList(cassettePlayer.getStateString());
 		result.addListElement(getName() + ':',
 		                      cassettePlayer.getImageName().getResolved(),
 		                      options);

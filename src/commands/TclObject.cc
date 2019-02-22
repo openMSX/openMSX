@@ -33,7 +33,7 @@ void TclObject::addListElement(Tcl_Obj* element)
 
 void TclObject::addListElementsImpl(std::initializer_list<Tcl_Obj*> l)
 {
-	Tcl_Obj* const* objv = &*l.begin();
+	Tcl_Obj* const* objv = l.begin();
 	addListElementsImpl(int(l.size()), objv);
 }
 

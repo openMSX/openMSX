@@ -22,8 +22,7 @@ void CDImageCLI::parseOption(const string& option, span<string>& cmdLine)
 	if (!parser.getGlobalCommandController().hasCommand(cd)) { // TODO WIP
 		throw MSXException("No CDROM named '", cd, "'.");
 	}
-	TclObject command;
-	command.addListElement(cd, filename);
+	TclObject command = makeTclList(cd, filename);
 	command.executeCommand(parser.getInterpreter());
 }
 string_view CDImageCLI::optionHelp() const

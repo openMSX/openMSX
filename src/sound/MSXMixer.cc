@@ -765,9 +765,9 @@ void MSXMixer::SoundDeviceInfoTopic::execute(
 	auto& msxMixer = OUTER(MSXMixer, soundDeviceInfo);
 	switch (tokens.size()) {
 	case 2:
-		for (auto& info : msxMixer.infos) {
-			result.addListElement(info.device->getName());
-		}
+		result.addListElements(view::transform(
+			msxMixer.infos,
+			[](auto& info) { return info.device->getName(); }));
 		break;
 	case 3: {
 		SoundDevice* device = msxMixer.findDevice(tokens[2].getString());

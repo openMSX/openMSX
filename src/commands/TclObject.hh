@@ -68,11 +68,25 @@ class TclObject
 	};
 
 public:
+
 	TclObject()                                  { init(Tcl_NewObj()); }
 	explicit TclObject(Tcl_Obj* o)               { init(o); }
 	template<typename T> explicit TclObject(T t) { init(newObj(t)); }
 	TclObject(const TclObject&  o)               { init(newObj(o)); }
 	TclObject(      TclObject&& o) noexcept      { init(newObj(o)); }
+
+	struct MakeListTag {};
+	template<typename... Args>
+	TclObject(MakeListTag, Args&&... args) {
+		init(newList({newObj(std::forward<Args>(args))...}));
+	}
+
+	struct MakeDictTag {};
+	template<typename... Args>
+	TclObject(MakeDictTag, Args&&... args) {
+		init(Tcl_NewDictObj());
+		addDictKeyValues(std::forward<Args>(args)...);
+	}
 
 	~TclObject() { Tcl_DecrRefCount(obj); }
 
@@ -206,6 +220,9 @@ private:
 	static Tcl_Obj* newObj(const TclObject& o) {
 		return o.obj;
 	}
+	static Tcl_Obj* newList(std::initializer_list<Tcl_Obj*> l) {
+		return Tcl_NewListObj(int(l.size()), l.begin());
+	}
 
 	void assign(string_view s) {
 		Tcl_SetStringObj(obj, s.data(), int(s.size()));
@@ -260,6 +277,17 @@ private:
 // We want to be able to reinterpret_cast a Tcl_Obj* as a TclObject.
 static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*), "");
 
+template<typename... Args>
+TclObject makeTclList(Args&&... args)
+{
+	return TclObject(TclObject::MakeListTag{}, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+TclObject makeTclDict(Args&&... args)
+{
+	return TclObject(TclObject::MakeDictTag{}, std::forward<Args>(args)...);
+}
 
 struct XXTclHasher {
 	uint32_t operator()(string_view str) const {

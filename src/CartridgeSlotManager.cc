@@ -316,8 +316,7 @@ void CartridgeSlotManager::CartCmd::execute(
 		result.addListElement(strCat(cartname, ':'),
 		                      extConf ? extConf->getName() : string{});
 		if (!extConf) {
-			TclObject options;
-			options.addListElement("empty");
+			TclObject options = makeTclList("empty");
 			result.addListElement(options);
 		}
 	} else if ((tokens[1] == "eject") || (tokens[1] == "-eject")) {

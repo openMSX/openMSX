@@ -452,11 +452,11 @@ void Debugger::Cmd::listBreakPoints(
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (auto& bp : interface.getBreakPoints()) {
-		TclObject line;
-		line.addListElement(strCat("bp#", bp.getId()),
-		                    strCat("0x", hex_string<4>(bp.getAddress())),
-		                    bp.getCondition(),
-		                    bp.getCommand());
+		TclObject line = makeTclList(
+			strCat("bp#", bp.getId()),
+			strCat("0x", hex_string<4>(bp.getAddress())),
+			bp.getCondition(),
+			bp.getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
 	result = res;
@@ -555,8 +555,7 @@ void Debugger::Cmd::listWatchPoints(
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (auto& wp : interface.getWatchPoints()) {
-		TclObject line;
-		line.addListElement(strCat("wp#", wp->getId()));
+		TclObject line = makeTclList(strCat("wp#", wp->getId()));
 		string type;
 		switch (wp->getType()) {
 		case WatchPoint::READ_IO:
@@ -580,10 +579,9 @@ void Debugger::Cmd::listWatchPoints(
 		if (beginAddr == endAddr) {
 			line.addListElement(strCat("0x", hex_string<4>(beginAddr)));
 		} else {
-			TclObject range;
-			range.addListElement(strCat("0x", hex_string<4>(beginAddr)),
-			                     strCat("0x", hex_string<4>(endAddr)));
-			line.addListElement(range);
+			line.addListElement(makeTclList(
+				strCat("0x", hex_string<4>(beginAddr)),
+				strCat("0x", hex_string<4>(endAddr))));
 		}
 		line.addListElement(wp->getCondition(),
 		                    wp->getCommand());
@@ -650,10 +648,9 @@ void Debugger::Cmd::listConditions(
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (auto& c : interface.getConditions()) {
-		TclObject line;
-		line.addListElement(strCat("cond#", c.getId()),
-		                    c.getCondition(),
-		                    c.getCommand());
+		TclObject line = makeTclList(strCat("cond#", c.getId()),
+		                             c.getCondition(),
+		                             c.getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
 	result = res;
@@ -743,11 +740,10 @@ void Debugger::Cmd::probeListBreakPoints(
 {
 	string res;
 	for (auto& p : debugger().probeBreakPoints) {
-		TclObject line;
-		line.addListElement(strCat("pp#", p->getId()),
-		                    p->getProbe().getName(),
-		                    p->getCondition(),
-		                    p->getCommand());
+		TclObject line = makeTclList(strCat("pp#", p->getId()),
+		                             p->getProbe().getName(),
+		                             p->getCondition(),
+		                             p->getCommand());
 		strAppend(res, line.getString(), '\n');
 	}
 	result = res;

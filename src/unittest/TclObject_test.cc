@@ -57,6 +57,32 @@ TEST_CASE("TclObject, constructors")
 		TclObject t2 = std::move(t1);
 		CHECK(t2.getString() == "bar");
 	}
+	SECTION("list") {
+		TclObject t0 = makeTclList();
+		CHECK(t0.getListLength(interp) == 0);
+
+		TclObject t1 = makeTclList(1);
+		CHECK(t1.getListLength(interp) == 1);
+		CHECK(t1.getListIndex(interp, 0).getInt(interp) == 1);
+
+		TclObject t2 = makeTclList("foo", 2.72);
+		CHECK(t2.getListLength(interp) == 2);
+		CHECK(t2.getListIndex(interp, 0).getString() == "foo");
+		CHECK(t2.getListIndex(interp, 1).getDouble(interp) == 2.72);
+	}
+	SECTION("dict") {
+		TclObject t0 = makeTclDict();
+		CHECK(t0.getDictValue(interp, "foo").getString() == "");
+		CHECK(t0.getDictValue(interp, "bar").getString() == "");
+
+		TclObject t1 = makeTclDict("foo", true);
+		CHECK(t1.getDictValue(interp, "foo").getBoolean(interp) == true);
+		CHECK(t1.getDictValue(interp, "bar").getString() == "");
+
+		TclObject t2 = makeTclDict("foo", 123, "bar", "qux");
+		CHECK(t2.getDictValue(interp, "foo").getInt(interp) == 123);
+		CHECK(t2.getDictValue(interp, "bar").getString() == "qux");
+	}
 }
 
 TEST_CASE("TclObject, assignment")

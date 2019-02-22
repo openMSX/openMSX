@@ -414,8 +414,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		if (auto v = lookup(commandCompleters, cmd)) {
 			(*v)->tabCompletion(tokens);
 		} else {
-			TclObject command;
-			command.addListElement("openmsx::tabcompletion");
+			TclObject command = makeTclList("openmsx::tabcompletion");
 			command.addListElements(tokens);
 			try {
 				TclObject list = command.executeCommand(interpreter);
@@ -476,8 +475,7 @@ void GlobalCommandController::HelpCmd::execute(
 				[](auto& t) { return t.getString().str(); }));
 			result = (*v)->help(tokens2);
 		} else {
-			TclObject command;
-			command.addListElement("openmsx::help");
+			TclObject command = makeTclList("openmsx::help");
 			command.addListElements(view::drop(tokens, 1));
 			result = command.executeCommand(getInterpreter());
 		}

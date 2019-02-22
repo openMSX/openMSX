@@ -27,9 +27,7 @@ string_view FloatSetting::getTypeString() const
 
 void FloatSetting::additionalInfo(TclObject& result) const
 {
-	TclObject range;
-	range.addListElement(minValue, maxValue);
-	result.addListElement(range);
+	result.addListElement(makeTclList(minValue, maxValue));
 }
 
 void FloatSetting::setDouble(double d)

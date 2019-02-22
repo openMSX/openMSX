@@ -44,8 +44,7 @@ void DiskImageCLI::parse(string_view drive, string_view image,
 	if (!parser.getGlobalCommandController().hasCommand(drive)) { // TODO WIP
 		throw MSXException("No drive named '", drive, "'.");
 	}
-	TclObject command;
-	command.addListElement(drive, image);
+	TclObject command = makeTclList(drive, image);
 	while (peekArgument(cmdLine) == "-ips") {
 		cmdLine = cmdLine.subspan(1);
 		command.addListElement(getArgument("-ips", cmdLine));
