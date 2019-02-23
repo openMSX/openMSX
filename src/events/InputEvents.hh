@@ -88,7 +88,7 @@ public:
 	TclObject toTclList() const override;
 };
 
-class MouseWheelEvent : public TimedEvent
+class MouseWheelEvent final : public TimedEvent
 {
 public:
 	MouseWheelEvent(int x, int y);
