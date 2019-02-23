@@ -3,6 +3,7 @@ project(
     version : '0.15.0',
     license : 'GPL2',
     default_options : ['warning_level=3', 'cpp_std=c++14'],
+    meson_version: '>=0.49.999'
     )
 
 subdir('src')
@@ -159,9 +160,10 @@ hdr_config = custom_target(
 # Targets
 # =======
 
-executable(
+main_exec = executable(
     'openmsx',
-    sources, hdr_version, hdr_config, hdr_components, hdr_systemfuncs,
+    main_sources, sources,
+    hdr_version, hdr_config, hdr_components, hdr_systemfuncs,
     install : true,
     implicit_include_directories : false,
     include_directories: incdirs,
@@ -171,4 +173,21 @@ executable(
         ],
     )
 
-# TODO: Unit tests.
+objects = main_exec.extract_objects(sources)
+
+test_exec = executable(
+    'unittest',
+    test_sources,
+    hdr_version, hdr_config, hdr_components, hdr_systemfuncs,
+    objects : objects,
+    build_by_default : false,
+    install : false,
+    implicit_include_directories : false,
+    include_directories: incdirs,
+    dependencies : [
+        dep_alsa, dep_gl, dep_glew, dep_ogg, dep_png, dep_sdl2, dep_sdl2_ttf,
+        dep_tcl, dep_theora, dep_threads, dep_vorbis
+        ],
+    )
+
+test('combined unit test', test_exec)

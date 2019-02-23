@@ -237,7 +237,6 @@ sources = files(
     'laserdisc/OggReader.cc',
     'laserdisc/PioneerLDControl.cc',
     'laserdisc/yuv2rgb.cc',
-    'main.cc',
     'memory/AmdFlash.cc',
     'memory/Carnivore2.cc',
     'memory/CheckedRam.cc',
@@ -527,6 +526,40 @@ sources = files(
     'video/v9990/V9990SDLRasterizer.cc',
     'video/v9990/V9990VRAM.cc',
     'video/v9990/Video9000.cc',
+    )
+
+main_sources = files(
+    'main.cc',
+    )
+
+test_sources = files(
+    'unittest/AdhocCliCommParser_test.cc',
+    'unittest/Base64_test.cc',
+    'unittest/CRC16_test.cc',
+    'unittest/CircularBuffer_test.cc',
+    'unittest/Date_test.cc',
+    'unittest/DivMod_test.cc',
+    'unittest/FixedPoint_test.cc',
+    'unittest/HexDump_test.cc',
+    'unittest/Keys_test.cc',
+    'unittest/Math_test.cc',
+    'unittest/ScopedAssign_test.cc',
+    'unittest/StringOp_test.cc',
+    'unittest/TclObject_test.cc',
+    'unittest/TigerTree_test.cc',
+    'unittest/circular_buffer_test.cc',
+    'unittest/eeprom.cc',
+    'unittest/endian_test.cc',
+    'unittest/gl_mat.cc',
+    'unittest/gl_transform.cc',
+    'unittest/gl_vec.cc',
+    'unittest/main.cc',
+    'unittest/semiregular_test.cc',
+    'unittest/sha1.cc',
+    'unittest/stl_test.cc',
+    'unittest/strCat.cc',
+    'unittest/view_test.cc',
+    'unittest/xrange_test.cc',
     )
 
 incdirs = include_directories(
