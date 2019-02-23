@@ -136,6 +136,8 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_WHEEL_EVENT, *this);
+	eventDistributor.registerEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
 	eventDistributor.registerEventListener(
 		OPENMSX_JOY_HAT_EVENT, *this);
@@ -179,6 +181,8 @@ AfterCommand::~AfterCommand()
 		OPENMSX_JOY_HAT_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_MOUSE_WHEEL_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(
