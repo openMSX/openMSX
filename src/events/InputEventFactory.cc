@@ -63,7 +63,10 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 		auto comp1 = str.getListIndex(interp, 1).getString();
 		if (comp1 == "motion") {
 			if (len == 2) {
-				return make_shared<MouseMotionGroupEvent>();
+				return make_shared<GroupEvent>(
+					OPENMSX_MOUSE_MOTION_GROUP_EVENT,
+					OPENMSX_MOUSE_MOTION_EVENT,
+					makeTclList("mouse", comp1));
 			} else if ((len == 4) || (len == 6)) {
 				int absX = 0, absY = 0;
 				if (len == 6) {
@@ -90,7 +93,10 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 			}
 		} else if (comp1 == "wheel") {
 			if (len == 2) {
-				return make_shared<MouseWheelGroupEvent>();
+				return make_shared<GroupEvent>(
+					OPENMSX_MOUSE_WHEEL_GROUP_EVENT,
+					OPENMSX_MOUSE_WHEEL_EVENT,
+					makeTclList("mouse", comp1));
 			} else if (len == 4) {
 				return make_shared<MouseWheelEvent>(
 					str.getListIndex(interp, 2).getInt(interp),

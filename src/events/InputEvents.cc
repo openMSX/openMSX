@@ -150,54 +150,6 @@ bool MouseMotionEvent::lessImpl(const Event& other) const
 }
 
 
-// class MouseMotionGroupEvent
-
-MouseMotionGroupEvent::MouseMotionGroupEvent()
-	: Event(OPENMSX_MOUSE_MOTION_GROUP_EVENT)
-{
-}
-
-TclObject MouseMotionGroupEvent::toTclList() const
-{
-	return makeTclList("mouse", "motion");
-}
-
-bool MouseMotionGroupEvent::lessImpl(const Event& /*other*/) const
-{
-	// All MouseMotionGroup events are equivalent
-	return false;
-}
-
-bool MouseMotionGroupEvent::matches(const Event& other) const
-{
-	return other.getType() == OPENMSX_MOUSE_MOTION_EVENT;
-}
-
-
-// class MouseWheelGroupEvent
-
-MouseWheelGroupEvent::MouseWheelGroupEvent()
-	: Event(OPENMSX_MOUSE_WHEEL_GROUP_EVENT)
-{
-}
-
-TclObject MouseWheelGroupEvent::toTclList() const
-{
-	return makeTclList("mouse", "wheel");
-}
-
-bool MouseWheelGroupEvent::lessImpl(const Event& /*other*/) const
-{
-	// All MouseWheelGroup events are equivalent
-	return false;
-}
-
-bool MouseWheelGroupEvent::matches(const Event& other) const
-{
-	return other.getType() == OPENMSX_MOUSE_WHEEL_EVENT;
-}
-
-
 // class JoystickEvent
 
 JoystickEvent::JoystickEvent(EventType type_, unsigned joystick_)
@@ -447,6 +399,33 @@ TclObject OsdControlPressEvent::toTclList() const
 {
 	return toTclHelper("PRESS");
 }
+
+
+// class GroupEvent
+
+GroupEvent::GroupEvent(EventType type_, EventType typeToMatch_, const TclObject& tclListComponents_)
+	: Event(type_)
+	, typeToMatch(typeToMatch_)
+	, tclListComponents(tclListComponents_)
+{
+}
+
+TclObject GroupEvent::toTclList() const
+{
+	return tclListComponents;
+}
+
+bool GroupEvent::lessImpl(const Event& /*other*/) const
+{
+	// All Group events are equivalent
+	return false;
+}
+
+bool GroupEvent::matches(const Event& other) const
+{
+	return other.getType() == typeToMatch;
+}
+
 
 
 } // namespace openmsx

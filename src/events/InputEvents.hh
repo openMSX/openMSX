@@ -3,6 +3,7 @@
 
 #include "Event.hh"
 #include "Keys.hh"
+#include "TclObject.hh"
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -119,30 +120,6 @@ private:
 	const int xabs;
 	const int yabs;
 };
-
-class MouseMotionGroupEvent final : public Event
-{
-public:
-	MouseMotionGroupEvent();
-	TclObject toTclList() const override;
-
-private:
-	bool lessImpl(const Event& other) const override;
-	bool matches(const Event& other) const override;
-};
-
-
-class MouseWheelGroupEvent final : public Event
-{
-public:
-	MouseWheelGroupEvent();
-	TclObject toTclList() const override;
-
-private:
-	bool lessImpl(const Event& other) const override;
-	bool matches(const Event& other) const override;
-};
-
 
 class JoystickEvent : public TimedEvent
 {
@@ -310,6 +287,21 @@ public:
 	                     const std::shared_ptr<const Event>& origEvent);
 	TclObject toTclList() const override;
 };
+
+
+class GroupEvent final : public Event
+{
+public:
+	GroupEvent(EventType type, EventType typeToMatch, const TclObject& tclListComponents);
+	TclObject toTclList() const override;
+
+private:
+	bool lessImpl(const Event& other) const override;
+	bool matches(const Event& other) const override;
+	const EventType typeToMatch;
+	const TclObject tclListComponents;
+};
+
 
 } // namespace openmsx
 
