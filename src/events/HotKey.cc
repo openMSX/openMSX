@@ -89,6 +89,7 @@ HotKey::~HotKey()
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_HAT_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_WHEEL_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_MOTION_EVENT, *this);
