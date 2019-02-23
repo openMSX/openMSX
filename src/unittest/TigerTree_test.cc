@@ -4,7 +4,7 @@
 
 using namespace openmsx;
 
-struct TTTestData : public TTData
+struct TTTestData final : public TTData
 {
 	uint8_t* getData(size_t offset, size_t /*size*/) override
 	{
