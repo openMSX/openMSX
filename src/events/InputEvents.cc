@@ -29,12 +29,13 @@ KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, uint32_t unicode_)
 {
 }
 
-void KeyEvent::toStringImpl(TclObject& result) const
+TclObject KeyEvent::toTclList() const
 {
-	result.addListElement("keyb", Keys::getName(getKeyCode()));
+	auto result = makeTclList("keyb", Keys::getName(getKeyCode()));
 	if (getUnicode() != 0) {
 		result.addListElement(strCat("unicode", getUnicode()));
 	}
+	return result;
 }
 
 bool KeyEvent::lessImpl(const Event& other) const
@@ -68,9 +69,9 @@ MouseButtonEvent::MouseButtonEvent(EventType type_, unsigned button_)
 {
 }
 
-void MouseButtonEvent::toStringHelper(TclObject& result) const
+TclObject MouseButtonEvent::toTclHelper(string_view direction) const
 {
-	result.addListElement("mouse", strCat("button", getButton()));
+	return makeTclList("mouse", strCat("button", getButton()), direction);
 }
 
 bool MouseButtonEvent::lessImpl(const Event& other) const
@@ -87,10 +88,9 @@ MouseButtonUpEvent::MouseButtonUpEvent(unsigned button_)
 {
 }
 
-void MouseButtonUpEvent::toStringImpl(TclObject& result) const
+TclObject MouseButtonUpEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("up");
+	return toTclHelper("up");
 }
 
 
@@ -101,10 +101,9 @@ MouseButtonDownEvent::MouseButtonDownEvent(unsigned button_)
 {
 }
 
-void MouseButtonDownEvent::toStringImpl(TclObject& result) const
+TclObject MouseButtonDownEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("down");
+	return toTclHelper("down");
 }
 
 
@@ -116,12 +115,9 @@ MouseWheelEvent::MouseWheelEvent(int x_, int y_)
 {
 }
 
-void MouseWheelEvent::toStringImpl(TclObject& result) const
+TclObject MouseWheelEvent::toTclList() const
 {
-	result.addListElement("mouse");
-	result.addListElement("wheel");
-	result.addListElement(getX());
-	result.addListElement(getY());
+	return makeTclList("mouse", "wheel", getX(), getY());
 }
 
 bool MouseWheelEvent::lessImpl(const Event& other) const
@@ -141,9 +137,9 @@ MouseMotionEvent::MouseMotionEvent(int xrel_, int yrel_, int xabs_, int yabs_)
 {
 }
 
-void MouseMotionEvent::toStringImpl(TclObject& result) const
+TclObject MouseMotionEvent::toTclList() const
 {
-	result.addListElement("mouse", "motion", getX(), getY(), getAbsX(), getAbsY());
+	return makeTclList("mouse", "motion", getX(), getY(), getAbsX(), getAbsY());
 }
 
 bool MouseMotionEvent::lessImpl(const Event& other) const
@@ -161,9 +157,9 @@ MouseMotionGroupEvent::MouseMotionGroupEvent()
 {
 }
 
-void MouseMotionGroupEvent::toStringImpl(TclObject& result) const
+TclObject MouseMotionGroupEvent::toTclList() const
 {
-	result.addListElement("mouse", "motion");
+	return makeTclList("mouse", "motion");
 }
 
 bool MouseMotionGroupEvent::lessImpl(const Event& /*other*/) const
@@ -185,9 +181,9 @@ MouseWheelGroupEvent::MouseWheelGroupEvent()
 {
 }
 
-void MouseWheelGroupEvent::toStringImpl(TclObject& result) const
+TclObject MouseWheelGroupEvent::toTclList() const
 {
-	result.addListElement("mouse", "wheel");
+	return makeTclList("mouse", "wheel");
 }
 
 bool MouseWheelGroupEvent::lessImpl(const Event& /*other*/) const
@@ -209,9 +205,9 @@ JoystickEvent::JoystickEvent(EventType type_, unsigned joystick_)
 {
 }
 
-void JoystickEvent::toStringHelper(TclObject& result) const
+TclObject JoystickEvent::toTclHelper() const
 {
-	result.addListElement(strCat("joy", getJoystick() + 1));
+	return makeTclList(strCat("joy", getJoystick() + 1));
 }
 
 bool JoystickEvent::lessImpl(const Event& other) const
@@ -231,10 +227,11 @@ JoystickButtonEvent::JoystickButtonEvent(
 {
 }
 
-void JoystickButtonEvent::toStringHelper(TclObject& result) const
+TclObject JoystickButtonEvent::toTclHelper(string_view direction) const
 {
-	JoystickEvent::toStringHelper(result);
-	result.addListElement(strCat("button", getButton()));
+	auto result = JoystickEvent::toTclHelper();
+	result.addListElement(strCat("button", getButton()), direction);
+	return result;
 }
 
 bool JoystickButtonEvent::lessImpl(const JoystickEvent& other) const
@@ -251,10 +248,9 @@ JoystickButtonUpEvent::JoystickButtonUpEvent(unsigned joystick_, unsigned button
 {
 }
 
-void JoystickButtonUpEvent::toStringImpl(TclObject& result) const
+TclObject JoystickButtonUpEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("up");
+	return toTclHelper("up");
 }
 
 
@@ -265,10 +261,9 @@ JoystickButtonDownEvent::JoystickButtonDownEvent(unsigned joystick_, unsigned bu
 {
 }
 
-void JoystickButtonDownEvent::toStringImpl(TclObject& result) const
+TclObject JoystickButtonDownEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("down");
+	return toTclHelper("down");
 }
 
 
@@ -281,10 +276,11 @@ JoystickAxisMotionEvent::JoystickAxisMotionEvent(
 {
 }
 
-void JoystickAxisMotionEvent::toStringImpl(TclObject& result) const
+TclObject JoystickAxisMotionEvent::toTclList() const
 {
-	toStringHelper(result);
+	auto result = JoystickEvent::toTclHelper();
 	result.addListElement(strCat("axis", getAxis()), getValue());
+	return result;
 }
 
 bool JoystickAxisMotionEvent::lessImpl(const JoystickEvent& other) const
@@ -303,9 +299,9 @@ JoystickHatEvent::JoystickHatEvent(unsigned joystick_, unsigned hat_, unsigned v
 {
 }
 
-void JoystickHatEvent::toStringImpl(TclObject& result) const
+TclObject JoystickHatEvent::toTclList() const
 {
-	toStringHelper(result);
+	auto result = JoystickEvent::toTclHelper();
 	const char* str;
 	switch (getValue()) {
 		case SDL_HAT_UP:        str = "up";        break;
@@ -319,6 +315,7 @@ void JoystickHatEvent::toStringImpl(TclObject& result) const
 		default:                str = "center";    break;
 	}
 	result.addListElement(strCat("hat", getHat()), str);
+	return result;
 }
 
 bool JoystickHatEvent::lessImpl(const JoystickEvent& other) const
@@ -336,9 +333,9 @@ FocusEvent::FocusEvent(bool gain_)
 {
 }
 
-void FocusEvent::toStringImpl(TclObject& result) const
+TclObject FocusEvent::toTclList() const
 {
-	result.addListElement("focus", getGain());
+	return makeTclList("focus", getGain());
 }
 
 bool FocusEvent::lessImpl(const Event& other) const
@@ -355,9 +352,9 @@ ResizeEvent::ResizeEvent(unsigned x_, unsigned y_)
 {
 }
 
-void ResizeEvent::toStringImpl(TclObject& result) const
+TclObject ResizeEvent::toTclList() const
 {
-	result.addListElement("resize", int(getX()), int(getY()));
+	return makeTclList("resize", int(getX()), int(getY()));
 }
 
 bool ResizeEvent::lessImpl(const Event& other) const
@@ -374,9 +371,9 @@ QuitEvent::QuitEvent() : Event(OPENMSX_QUIT_EVENT)
 {
 }
 
-void QuitEvent::toStringImpl(TclObject& result) const
+TclObject QuitEvent::toTclList() const
 {
-	result.addListElement("quit");
+	return makeTclList("quit");
 }
 
 bool QuitEvent::lessImpl(const Event& /*other*/) const
@@ -409,12 +406,12 @@ bool OsdControlEvent::isRepeatStopper(const Event& other) const
 	       !dynamic_cast<const JoystickAxisMotionEvent*>(&other);
 }
 
-void OsdControlEvent::toStringHelper(TclObject& result) const
+TclObject OsdControlEvent::toTclHelper(string_view direction) const
 {
 	static const char* const names[] = {
 		"LEFT", "RIGHT", "UP", "DOWN", "A", "B"
 	};
-	result.addListElement("OSDcontrol", names[getButton()]);
+	return makeTclList("OSDcontrol", names[getButton()], direction);
 }
 
 bool OsdControlEvent::lessImpl(const Event& other) const
@@ -432,10 +429,9 @@ OsdControlReleaseEvent::OsdControlReleaseEvent(
 {
 }
 
-void OsdControlReleaseEvent::toStringImpl(TclObject& result) const
+TclObject OsdControlReleaseEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("RELEASE");
+	return toTclHelper("RELEASE");
 }
 
 
@@ -447,10 +443,9 @@ OsdControlPressEvent::OsdControlPressEvent(
 {
 }
 
-void OsdControlPressEvent::toStringImpl(TclObject& result) const
+TclObject OsdControlPressEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("PRESS");
+	return toTclHelper("PRESS");
 }
 
 

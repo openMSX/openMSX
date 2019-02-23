@@ -80,8 +80,17 @@ public:
 	Event& operator=(const Event&) = delete;
 
 	EventType getType() const { return type; }
+
+	/** Get a string representation of this event. */
 	std::string toString() const;
+
+	/** Similar to toString(), but retains the structure of the event. */
+	virtual TclObject toTclList() const = 0;
+
 	bool operator< (const Event& other) const;
+	bool operator> (const Event& other) const;
+	bool operator<=(const Event& other) const;
+	bool operator>=(const Event& other) const;
 	bool operator==(const Event& other) const;
 	bool operator!=(const Event& other) const;
 
@@ -104,7 +113,6 @@ protected:
 	~Event() = default;
 
 private:
-	virtual void toStringImpl(TclObject& result) const = 0;
 	virtual bool lessImpl(const Event& other) const = 0;
 
 	const EventType type;
@@ -115,7 +123,7 @@ class SimpleEvent final : public Event
 {
 public:
 	explicit SimpleEvent(EventType type_) : Event(type_) {}
-	void toStringImpl(TclObject& result) const override;
+	TclObject toTclList() const override;
 	bool lessImpl(const Event& other) const override;
 };
 

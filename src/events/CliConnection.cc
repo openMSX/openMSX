@@ -47,9 +47,9 @@ public:
 	{
 		return id;
 	}
-	void toStringImpl(TclObject& result) const override
+	TclObject toTclList() const override
 	{
-		result.addListElement("CliCmd", getCommand());
+		return makeTclList("CliCmd", getCommand());
 	}
 	bool lessImpl(const Event& other) const override
 	{

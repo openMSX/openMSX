@@ -428,16 +428,13 @@ void HotKey::executeBinding(const EventPtr& event, const HotKeyInfo& info)
 		// event. The Tcl script bound to that event closes the main
 		// menu and reopens a new quit_menu. This will re-bind the
 		// action for the 'OSDControl A PRESS' event.
-		string copy = info.command;
-		// TODO: I guess the copy story here doesn't apply anymore now
-		// TODO: is there a better way to change the command into
-		//       separate Tcl command parts?
-		std::vector<string_view> commandParts = StringOp::split(copy, ' ');
-		TclObject command;
-		command.addListElements(commandParts);
+		TclObject command(info.command);
 		if (info.passEvent) {
-			// add event with args to command
-			command.addListElement(event->toString());
+			// Add event as the last argument to the command.
+			// (If needed) the current command string is first
+			// converted to a list (thus split in a command name
+			// and arguments).
+			command.addListElement(event->toTclList());
 		}
 
 		// ignore return value
