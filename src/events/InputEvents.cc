@@ -403,9 +403,9 @@ TclObject OsdControlPressEvent::toTclList() const
 
 // class GroupEvent
 
-GroupEvent::GroupEvent(EventType type_, EventType typeToMatch_, const TclObject& tclListComponents_)
+GroupEvent::GroupEvent(EventType type_, const std::vector<EventType>& typesToMatch_, const TclObject& tclListComponents_)
 	: Event(type_)
-	, typeToMatch(typeToMatch_)
+	, typesToMatch(typesToMatch_)
 	, tclListComponents(tclListComponents_)
 {
 }
@@ -423,7 +423,7 @@ bool GroupEvent::lessImpl(const Event& /*other*/) const
 
 bool GroupEvent::matches(const Event& other) const
 {
-	return other.getType() == typeToMatch;
+	return end(typesToMatch) != std::find(begin(typesToMatch), end(typesToMatch), other.getType());
 }
 
 

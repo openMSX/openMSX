@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -292,13 +293,13 @@ public:
 class GroupEvent final : public Event
 {
 public:
-	GroupEvent(EventType type, EventType typeToMatch, const TclObject& tclListComponents);
+	GroupEvent(EventType type, const std::vector<EventType>& typesToMatch, const TclObject& tclListComponents);
 	TclObject toTclList() const override;
 
 private:
 	bool lessImpl(const Event& other) const override;
 	bool matches(const Event& other) const override;
-	const EventType typeToMatch;
+	const std::vector<EventType> typesToMatch;
 	const TclObject tclListComponents;
 };
 

@@ -65,7 +65,7 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 			if (len == 2) {
 				return make_shared<GroupEvent>(
 					OPENMSX_MOUSE_MOTION_GROUP_EVENT,
-					OPENMSX_MOUSE_MOTION_EVENT,
+					std::vector<EventType>{OPENMSX_MOUSE_MOTION_EVENT},
 					makeTclList("mouse", comp1));
 			} else if ((len == 4) || (len == 6)) {
 				int absX = 0, absY = 0;
@@ -95,7 +95,7 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 			if (len == 2) {
 				return make_shared<GroupEvent>(
 					OPENMSX_MOUSE_WHEEL_GROUP_EVENT,
-					OPENMSX_MOUSE_WHEEL_EVENT,
+					std::vector<EventType>{OPENMSX_MOUSE_WHEEL_EVENT},
 					makeTclList("mouse", comp1));
 			} else if (len == 4) {
 				return make_shared<MouseWheelEvent>(
