@@ -90,7 +90,7 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 				return make_shared<GroupEvent>(
 					OPENMSX_MOUSE_BUTTON_GROUP_EVENT,
 					std::vector<EventType>{OPENMSX_MOUSE_BUTTON_UP_EVENT, OPENMSX_MOUSE_BUTTON_DOWN_EVENT},
-					makeTclList("mouse", comp1));
+					makeTclList("mouse", "button"));
 			} else if (len == 3) {
 				try {
 					unsigned button = fast_stou(comp1.substr(6));
@@ -166,7 +166,7 @@ static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
 				return make_shared<GroupEvent>(
 					OPENMSX_JOY_AXIS_MOTION_GROUP_EVENT,
 					std::vector<EventType>{OPENMSX_JOY_AXIS_MOTION_EVENT},
-					makeTclList("joy", "button"));
+					makeTclList("joy", "axis"));
 			} else if (comp1.starts_with("hat")) {
 				return make_shared<GroupEvent>(
 					OPENMSX_JOY_HAT_GROUP_EVENT,
