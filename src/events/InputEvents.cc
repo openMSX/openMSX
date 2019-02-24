@@ -4,6 +4,7 @@
 #include "Timer.hh"
 #include "checked_cast.hh"
 #include "strCat.hh"
+#include "stl.hh"
 #include <string>
 #include <tuple>
 #include <SDL.h>
@@ -423,9 +424,8 @@ bool GroupEvent::lessImpl(const Event& /*other*/) const
 
 bool GroupEvent::matches(const Event& other) const
 {
-	return end(typesToMatch) != std::find(begin(typesToMatch), end(typesToMatch), other.getType());
+	return contains(typesToMatch, other.getType());
 }
-
 
 
 } // namespace openmsx
