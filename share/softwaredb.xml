@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1550602959">
+<softwaredb timestamp="1550719825">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -12558,7 +12558,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>7c7d0bff4a51bb0f1f0cdb4132fdb11f8a71c623</hash><remark>[RC-753] / cheat version</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>216b2c181c9ee0fb48e2d9efdb88ea918c8ff04f</hash><remark>[RC-753]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>5b545569a2d0452b9317490636c08a3221208961</hash><remark>[RC-753] / Icon Patch</remark></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>5ef92707dcb9d3ce4c7571f6cbe23b7f61c24c2d</hash><remark>[RC-753] / SCC version</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>5ef92707dcb9d3ce4c7571f6cbe23b7f61c24c2d</hash><remark>[RC-753] / Enhanced by Victor Martinez version 1.03</remark></megarom></dump>
 </software>
 <software>
 	<title>Trial Ski</title>
@@ -16099,4 +16099,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:3974 - Created on Tue Feb 19 2019 - 11:02:45 PST-->
+<!-- Roms in this XML file:3974 - Created on Wed Feb 20 2019 - 19:30:30 PST-->
