@@ -10,3 +10,5 @@ core.*
 core
 .cproject
 .project
+*.VC.db
+*.VC.VC.opendb
