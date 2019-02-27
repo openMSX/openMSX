@@ -272,6 +272,15 @@ static KEYS_CONSTEXPR auto getSortedKeys()
 		P("F13",	K_F13),
 		P("F14",	K_F14),
 		P("F15",	K_F15),
+		P("F16",	K_F16),
+		P("F17",	K_F17),
+		P("F18",	K_F18),
+		P("F19",	K_F19),
+		P("F20",	K_F20),
+		P("F21",	K_F21),
+		P("F22",	K_F22),
+		P("F23",	K_F23),
+		P("F24",	K_F24),
 
 		// Key state modifier keys
 		P("NUMLOCK",	K_NUMLOCK),
@@ -482,6 +491,15 @@ KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release
 	case SDLK_F13:            result = K_F13;               break;
 	case SDLK_F14:            result = K_F14;               break;
 	case SDLK_F15:            result = K_F15;               break;
+	case SDLK_F16:            result = K_F16;               break;
+	case SDLK_F17:            result = K_F17;               break;
+	case SDLK_F18:            result = K_F18;               break;
+	case SDLK_F19:            result = K_F19;               break;
+	case SDLK_F20:            result = K_F20;               break;
+	case SDLK_F21:            result = K_F21;               break;
+	case SDLK_F22:            result = K_F22;               break;
+	case SDLK_F23:            result = K_F23;               break;
+	case SDLK_F24:            result = K_F24;               break;
 
 	// Key state modifier keys
 	case SDLK_NUMLOCKCLEAR:   result = K_NUMLOCK;           break;

@@ -145,9 +145,18 @@ enum KeyCode {
 	K_F13 = 0x126,
 	K_F14 = 0x127,
 	K_F15 = 0x128,
+	K_F16 = 0x129,
+	K_F17 = 0x12A,
+	K_F18 = 0x12B,
+	K_F19 = 0x144, // NOTE: continuing at 0x144
+	K_F20 = 0x145,
+	K_F21 = 0x146,
+	K_F22 = 0x147,
+	K_F23 = 0x148,
+	K_F24 = 0x149,
 
 	// Key state modifier keys
-	K_NUMLOCK = 0x12C,
+	K_NUMLOCK = 0x12C, // NOTE: here we continue at 0x12C
 	K_CAPSLOCK = 0x12D,
 	K_SCROLLLOCK = 0x12E,
 	K_RSHIFT = 0x12F,
