@@ -127,7 +127,7 @@ template<typename T> union storage_t {
 	{
 	}
 
-	~storage_t() {}
+	~storage_t() = default;
 };
 
 template<typename T> union constexpr_storage_t {

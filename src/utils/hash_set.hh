@@ -216,7 +216,8 @@ private:
 		//  we implement that 'if' via template specialization. So only
 		//  the code path that will be executed gets instantiated. In
 		//  C++17 we can simply that by using 'if constexpr'.
-		ReallocFunc<std::is_trivially_move_constructible<Elem>::value> reallocFunc;
+		ReallocFunc<std::is_trivially_move_constructible<Elem>::value &&
+		            std::is_trivially_copyable<Elem>::value> reallocFunc;
 		Elem* newBuf = reallocFunc(oldBuf, capacity_, newCapacity);
 
 		for (unsigned i = capacity_; i < newCapacity - 1; ++i) {

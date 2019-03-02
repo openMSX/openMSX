@@ -114,7 +114,7 @@ private:
 class FrameBufferObject
 {
 public:
-	FrameBufferObject();
+	FrameBufferObject() = default;
 	explicit FrameBufferObject(Texture& texture);
 	FrameBufferObject(FrameBufferObject&& other) noexcept
 		: bufferId(other.bufferId)
@@ -131,7 +131,7 @@ public:
 	void pop();
 
 private:
-	GLuint bufferId;
+	GLuint bufferId = 0; // 0 is not a valid openGL name
 };
 
 struct PixelBuffers

@@ -3,6 +3,7 @@
 
 #include "VideoSystem.hh"
 #include "EventListener.hh"
+#include "gl_vec.hh"
 #include "Observer.hh"
 #include "components.hh"
 #include <memory>
@@ -50,7 +51,7 @@ private:
 	// Observer
 	void update(const Setting& subject) override;
 
-	void getWindowSize(unsigned& width, unsigned& height);
+	gl::ivec2 getWindowSize();
 	void resize();
 
 	Reactor& reactor;

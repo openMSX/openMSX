@@ -30,7 +30,7 @@ public:
 	void setParityBit(bool enable, ParityBit parity) override;
 
 protected:
-	explicit MidiOutDevice();
+	explicit MidiOutDevice() = default;
 
 	/** Discard any buffered partial MIDI message.
 	  */
@@ -45,7 +45,7 @@ protected:
 
 private:
 	std::vector<uint8_t> buffer;
-	bool isSysEx;
+	bool isSysEx = false;
 };
 
 } // namespace openmsx

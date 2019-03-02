@@ -32,12 +32,12 @@ public:
 	const Sha1Sum& getSha1Sum() const;
 
 protected:
-	CassetteImage();
+	CassetteImage() = default;
 	void setFirstFileType(FileType type) { firstFileType = type; }
 	void setSha1Sum(const Sha1Sum& sha1sum);
 
 private:
-	FileType firstFileType;
+	FileType firstFileType = UNKNOWN;
 	Sha1Sum sha1sum;
 };
 

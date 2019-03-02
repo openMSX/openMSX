@@ -3,11 +3,6 @@
 
 namespace openmsx {
 
-CassetteImage::CassetteImage()
-	: firstFileType(UNKNOWN)
-{
-}
-
 std::string CassetteImage::getFirstFileTypeAsString() const
 {
 	if (firstFileType == ASCII) {

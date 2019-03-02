@@ -293,7 +293,7 @@ public:
 class GroupEvent final : public Event
 {
 public:
-	GroupEvent(EventType type, const std::vector<EventType>& typesToMatch, const TclObject& tclListComponents);
+	GroupEvent(EventType type, std::vector<EventType> typesToMatch, const TclObject& tclListComponents);
 	TclObject toTclList() const override;
 
 private:

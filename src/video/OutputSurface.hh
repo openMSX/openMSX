@@ -20,9 +20,9 @@ public:
 
 	virtual ~OutputSurface() = default;
 
-	unsigned getWidth()  const { return surface->w; }
-	unsigned getHeight() const { return surface->h; }
-	gl::ivec2 getOutputSize() const { return gl::ivec2(getWidth(), getHeight()); }
+	int getWidth()  const { return surface->w; }
+	int getHeight() const { return surface->h; }
+	gl::ivec2 getOutputSize() const { return {getWidth(), getHeight()}; }
 
 	int getX() const { return xOffset; }
 	int getY() const { return yOffset; }

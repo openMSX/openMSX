@@ -193,9 +193,9 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 }
 #endif
 
-void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
+gl::ivec2 SDLVideoSystem::getWindowSize()
 {
-	unsigned factor = renderSettings.getScaleFactor();
+	int factor = renderSettings.getScaleFactor();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
 	case RenderSettings::SDLGL_FB16:
@@ -212,8 +212,7 @@ void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 	default:
 		UNREACHABLE;
 	}
-	width  = 320 * factor;
-	height = 240 * factor;
+	return {320 * factor, 240 * factor};
 }
 
 // TODO: If we can switch video system at any time (not just frame end),
@@ -221,9 +220,7 @@ void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 bool SDLVideoSystem::checkSettings()
 {
 	// Check resolution.
-	unsigned width, height;
-	getWindowSize(width, height);
-	if (width != screen->getWidth() || height != screen->getHeight()) {
+	if (getWindowSize() != screen->getOutputSize()) {
 		return false;
 	}
 
@@ -268,8 +265,9 @@ void SDLVideoSystem::resize()
 	auto& eventDistributor    = reactor.getEventDistributor();
 	auto& inputEventGenerator = reactor.getInputEventGenerator();
 
-	unsigned width, height;
-	getWindowSize(width, height);
+	auto windowSize = getWindowSize();
+	unsigned width  = windowSize[0];
+	unsigned height = windowSize[1];
 	// Destruct existing output surface before creating a new one.
 	screen.reset();
 

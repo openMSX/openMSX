@@ -25,10 +25,10 @@ inline mat4 scale(const vec3& xyz)
 // efficient than) 'A * scale(xyz)'.
 inline mat4 scale(const mat4& A, const vec3& xyz)
 {
-	return mat4(A[0] * xyz[0],
-	            A[1] * xyz[1],
-	            A[2] * xyz[2],
-	            A[3]);
+	return {A[0] * xyz[0],
+	        A[1] * xyz[1],
+	        A[2] * xyz[2],
+	        A[3]};
 }
 
 // Returns a 4x4 translation matrix for the given xyz translation vector.
@@ -44,8 +44,10 @@ inline mat4 translate(const vec3& xyz)
 // more efficient than) 'A * translate(xyz)'.
 inline mat4 translate(mat4& A, const vec3& xyz)
 {
-	return mat4(A[0], A[1], A[2],
-	            A[0] * xyz[0] + A[1] * xyz[1] + A[2] * xyz[2] + A[3]);
+	return {A[0],
+	        A[1],
+	        A[2],
+	        A[0] * xyz[0] + A[1] * xyz[1] + A[2] * xyz[2] + A[3]};
 }
 
 // Returns a 4x4 rotation matrix for rotation of the given 'angle' around the
@@ -59,22 +61,22 @@ inline mat4 rotate(float angle, const vec3& axis)
 	float c = cosf(angle);
 	vec3 temp = (1.0f - c) * axis;
 	
-	return mat4(vec4(axis[0] * temp[0] + c,
-	                 axis[1] * temp[0] + s * axis[2],
-	                 axis[2] * temp[0] - s * axis[1],
-	                 0.0f),
-	            vec4(axis[0] * temp[1] - s * axis[2],
-	                 axis[1] * temp[1] + c,
-	                 axis[2] * temp[1] + s * axis[0],
-	                 0.0f),
-	            vec4(axis[0] * temp[2] + s * axis[1],
-	                 axis[1] * temp[2] - s * axis[0],
-	                 axis[2] * temp[2] + c,
-	                 0.0f),
-	            vec4(0.0f,
-	                 0.0f,
-	                 0.0f,
-	                 1.0f));
+	return {vec4(axis[0] * temp[0] + c,
+	             axis[1] * temp[0] + s * axis[2],
+	             axis[2] * temp[0] - s * axis[1],
+	             0.0f),
+	        vec4(axis[0] * temp[1] - s * axis[2],
+	             axis[1] * temp[1] + c,
+	             axis[2] * temp[1] + s * axis[0],
+	             0.0f),
+	        vec4(axis[0] * temp[2] + s * axis[1],
+	             axis[1] * temp[2] - s * axis[0],
+	             axis[2] * temp[2] + c,
+	             0.0f),
+	        vec4(0.0f,
+	             0.0f,
+	             0.0f,
+	             1.0f)};
 }
 
 // Multiplies the given matrix by a rotation matrix. Equivalent to 
@@ -92,10 +94,10 @@ inline mat4 rotateX(float angle)
 {
 	float s = sinf(angle);
 	float c = cosf(angle);
-	return mat4(vec4(1.0f, 0.0f, 0.0f, 0.0f),
-	            vec4(0.0f,  c  ,  s  , 0.0f),
-	            vec4(0.0f, -s  ,  c  , 0.0f),
-	            vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	return {vec4(1.0f, 0.0f, 0.0f, 0.0f),
+	        vec4(0.0f,  c  ,  s  , 0.0f),
+	        vec4(0.0f, -s  ,  c  , 0.0f),
+	        vec4(0.0f, 0.0f, 0.0f, 1.0f)};
 }
 
 // Multiplies the given matrix by a X-rotation matrix. Equivalent to (but more
@@ -104,10 +106,10 @@ inline mat4 rotateX(const mat4& A, float angle)
 {
 	float s = sinf(angle);
 	float c = cosf(angle);
-	return mat4(A[0],
-	            A[1] * c + A[2] * s,
-	            A[2] * c - A[1] * s,
-	            A[3]);
+	return {A[0],
+	        A[1] * c + A[2] * s,
+	        A[2] * c - A[1] * s,
+	        A[3]};
 }
 
 // Returns a 4x4 rotation matrix for rotation around the Y-axis. Much more
@@ -117,10 +119,10 @@ inline mat4 rotateY(float angle)
 {
 	float s = sinf(angle);
 	float c = cosf(angle);
-	return mat4(vec4( c  , 0.0f, -s  , 0.0f),
-	            vec4(0.0f, 1.0f, 0.0f, 0.0f),
-	            vec4( s  , 0.0f,  c  , 0.0f),
-	            vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	return {vec4( c  , 0.0f, -s  , 0.0f),
+	        vec4(0.0f, 1.0f, 0.0f, 0.0f),
+	        vec4( s  , 0.0f,  c  , 0.0f),
+	        vec4(0.0f, 0.0f, 0.0f, 1.0f)};
 }
 
 // Multiplies the given matrix by a Y-rotation matrix. Equivalent to (but more
@@ -129,10 +131,10 @@ inline mat4 rotateY(const mat4& A, float angle)
 {
 	float s = sinf(angle);
 	float c = cosf(angle);
-	return mat4(A[0] * c - A[2] * s,
-	            A[1],
-	            A[2] * c + A[0] * s,
-	            A[3]);
+	return {A[0] * c - A[2] * s,
+	        A[1],
+	        A[2] * c + A[0] * s,
+	        A[3]};
 }
 
 // Returns a 4x4 rotation matrix for rotation around the Z-axis. Much more
@@ -142,10 +144,10 @@ inline mat4 rotateZ(float angle)
 {
 	float s = sinf(angle);
 	float c = cosf(angle);
-	return mat4(vec4( c  ,  s  , 0.0f, 0.0f),
-	            vec4(-s  ,  c  , 0.0f, 0.0f),
-	            vec4(0.0f, 0.0f, 1.0f, 0.0f),
-	            vec4(0.0f, 0.0f, 0.0f, 1.0f));
+	return {vec4( c  ,  s  , 0.0f, 0.0f),
+	        vec4(-s  ,  c  , 0.0f, 0.0f),
+	        vec4(0.0f, 0.0f, 1.0f, 0.0f),
+	        vec4(0.0f, 0.0f, 0.0f, 1.0f)};
 }
 
 // Multiplies the given matrix by a Z-rotation matrix. Equivalent to (but more
@@ -154,10 +156,10 @@ inline mat4 rotateZ(const mat4& A, float angle)
 {
 	float s = sinf(angle);
 	float c = cosf(angle);
-	return mat4(A[0] * c + A[1] * s,
-	            A[1] * c - A[0] * s,
-	            A[2],
-	            A[3]);
+	return {A[0] * c + A[1] * s,
+	        A[1] * c - A[0] * s,
+	        A[2],
+	        A[3]};
 }
 
 // Note: Don't use "near" or "far" as names since those are macros on Windows.
@@ -168,13 +170,13 @@ inline mat4 ortho(float left,    float right,
                   float bottom,  float top,
                   float nearVal, float farVal)
 {
-	return mat4(vec4(-2.0f / (left - right),  0.0f, 0.0f, 0.0f),
-	            vec4( 0.0f, -2.0f / (bottom - top), 0.0f, 0.0f),
-	            vec4( 0.0f,  0.0f,  2.0f / (nearVal - farVal),  0.0f),
-	            vec4((left    + right ) / (left    - right ),
-	                 (bottom  + top   ) / (bottom  - top   ),
-	                 (nearVal + farVal) / (nearVal - farVal),
-	                 1.0f));
+	return {vec4(-2.0f / (left - right),  0.0f, 0.0f, 0.0f),
+	        vec4( 0.0f, -2.0f / (bottom - top), 0.0f, 0.0f),
+	        vec4( 0.0f,  0.0f,  2.0f / (nearVal - farVal),  0.0f),
+	        vec4((left    + right ) / (left    - right ),
+	             (bottom  + top   ) / (bottom  - top   ),
+	             (nearVal + farVal) / (nearVal - farVal),
+	             1.0f)};
 }
 
 // Returns a 4x4 frustum projection matrix. Comparable to
@@ -183,16 +185,16 @@ inline mat4 frustum(float left,    float right,
                     float bottom,  float top,
                     float nearVal, float farVal)
 {
-	return mat4(vec4((2.0f * nearVal) / (right - left), 0.0f, 0.0f, 0.0f),
-	            vec4(0.0f, (2.0f * nearVal) / (top - bottom), 0.0f, 0.0f),
-	            vec4((right   + left  ) / (right   - left  ),
-	                 (top     + bottom) / (top     - bottom),
-	                 (nearVal + farVal) / (nearVal - farVal),
-	                 -1.0f),
-	            vec4(0.0f,
-                         0.0f,
-                         (2.0f * farVal * nearVal) / (nearVal - farVal),
-                         0.0f));
+	return {vec4((2.0f * nearVal) / (right - left), 0.0f, 0.0f, 0.0f),
+	        vec4(0.0f, (2.0f * nearVal) / (top - bottom), 0.0f, 0.0f),
+	        vec4((right   + left  ) / (right   - left  ),
+	             (top     + bottom) / (top     - bottom),
+	             (nearVal + farVal) / (nearVal - farVal),
+	             -1.0f),
+	        vec4(0.0f,
+                     0.0f,
+                     (2.0f * farVal * nearVal) / (nearVal - farVal),
+                     0.0f)};
 }
 
 } // namespace gl

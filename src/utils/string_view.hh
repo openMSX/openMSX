@@ -1,11 +1,12 @@
 #ifndef STRING_VIEW_HH
 #define STRING_VIEW_HH
 
-#include <string>
-#include <iterator>
-#include <iosfwd>
 #include <cassert>
 #include <cstring>
+#include <iosfwd>
+#include <iterator>
+#include <string>
+#include <type_traits>
 
 /** This class implements a (close approximation) of the std::string_view class.
   *    https://en.cppreference.com/w/cpp/string/basic_string_view
@@ -23,10 +24,7 @@ public:
 	static const size_type npos = size_type(-1);
 
 	// construct/copy/assign
-	string_view()
-		: dat(nullptr), siz(0) {}
-	string_view(const string_view& s)
-		: dat(s.dat), siz(s.siz) {}
+	string_view() = default;
 	/*implicit*/ string_view(const char* s)
 		: dat(s), siz(s ? size_type(strlen(s)) : 0) {}
 	string_view(const char* s, size_type len)
@@ -35,12 +33,6 @@ public:
 		: dat(first), siz(last - first) { if (!dat) assert(siz == 0); }
 	/*implicit*/ string_view(const std::string& s)
 		: dat(s.data()), siz(s.size()) {}
-
-	string_view& operator=(const string_view& rhs) {
-		dat = rhs.data();
-		siz = rhs.size();
-		return *this;
-	}
 
 	// iterators
 	auto begin() const { return dat; }
@@ -106,10 +98,17 @@ public:
 	bool ends_with(char x) const;
 
 private:
-	const char* dat;
-	size_type siz;
+	const char* dat = nullptr;
+	size_type siz = 0;
 };
 
+static_assert(std::is_trivially_destructible<string_view>::value, "");
+static_assert(std::is_trivially_copyable<string_view>::value, "");
+static_assert(std::is_trivially_copy_constructible<string_view>::value, "");
+static_assert(std::is_trivially_move_constructible<string_view>::value, "");
+static_assert(std::is_trivially_assignable<string_view, string_view>::value, "");
+static_assert(std::is_trivially_copy_assignable<string_view>::value, "");
+static_assert(std::is_trivially_move_assignable<string_view>::value, "");
 
 // Comparison operators
 inline bool operator==(string_view x, string_view y) {
@@ -151,5 +150,6 @@ std::ostream& operator<<(std::ostream& os, string_view s);
 // begin, end
 inline auto begin(const string_view& x) { return x.begin(); }
 inline auto end  (const string_view& x) { return x.end();   }
+
 
 #endif

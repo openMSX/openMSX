@@ -99,11 +99,6 @@ void ColorTexture::resize(GLsizei width_, GLsizei height_)
 static GLuint currentId = 0;
 static std::vector<GLuint> stack;
 
-FrameBufferObject::FrameBufferObject()
-	: bufferId(0) // 0 is not a valid openGL name
-{
-}
-
 FrameBufferObject::FrameBufferObject(Texture& texture)
 {
 	glGenFramebuffersEXT(1, &bufferId);
