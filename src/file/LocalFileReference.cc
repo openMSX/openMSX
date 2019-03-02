@@ -16,9 +16,9 @@ LocalFileReference::LocalFileReference(File& file)
 	init(file);
 }
 
-LocalFileReference::LocalFileReference(const string& url)
+LocalFileReference::LocalFileReference(const string& filename)
 {
-	File file(url);
+	File file(filename);
 	init(file);
 }
 

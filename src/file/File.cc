@@ -38,8 +38,8 @@ static std::unique_ptr<FileBase> init(string_view filename, File::OpenMode mode)
 	return file;
 }
 
-File::File(string_view url, OpenMode mode)
-	: file(init(url, mode))
+File::File(string_view filename, OpenMode mode)
+	: file(init(filename, mode))
 {
 }
 

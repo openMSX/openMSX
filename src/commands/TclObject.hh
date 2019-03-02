@@ -266,7 +266,7 @@ private:
 	void addListElement(Tcl_Obj* element);
 	void addListElementsImpl(int objc, Tcl_Obj* const* objv);
 	void addListElementsImpl(std::initializer_list<Tcl_Obj*> l);
-	void addDictKeyValues(std::initializer_list<Tcl_Obj*> l);
+	void addDictKeyValues(std::initializer_list<Tcl_Obj*> keyValuePairs);
 	unsigned getListLengthUnchecked() const;
 	TclObject getListIndexUnchecked(unsigned index) const;
 

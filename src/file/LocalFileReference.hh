@@ -32,7 +32,7 @@ class LocalFileReference
 public:
 	LocalFileReference() = default;
 	explicit LocalFileReference(const Filename& filename);
-	explicit LocalFileReference(const std::string& url);
+	explicit LocalFileReference(const std::string& filename);
 	explicit LocalFileReference(File& file);
 	~LocalFileReference();
 	// non-copyable, but moveable
@@ -47,7 +47,7 @@ public:
 	const std::string getFilename() const;
 
 private:
-	void init(File& url);
+	void init(File& file);
 
 	std::string tmpFile;
 	std::string tmpDir;

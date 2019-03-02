@@ -24,7 +24,7 @@ public:
 	/** Convert a line of VRAM into host pixels.
 	  */
 	void convertLine(Pixel* linePtr, unsigned x, unsigned y, int nrPixels,
-		         int cursorY, bool drawSprites);
+		         int cursorY, bool drawCursors);
 
 	/** Set a different rendering mode.
 	  */
