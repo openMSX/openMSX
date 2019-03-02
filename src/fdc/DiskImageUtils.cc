@@ -233,7 +233,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 	buf.pt.end = 0xAA55;
 
 	unsigned partitionOffset = 1;
-	for (unsigned i = 0; i < sizes.size(); ++i) {
+	for (size_t i = 0; i < sizes.size(); ++i) {
 		unsigned partitionNbSectors = sizes[i];
 		auto& p = buf.pt.part[30 - i];
 		unsigned startCylinder, startHead, startSector;

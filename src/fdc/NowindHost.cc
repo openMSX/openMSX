@@ -290,7 +290,7 @@ void NowindHost::DRIVES()
 	send(numberOfDrives);
 
 	romdisk = 255; // no romdisk
-	for (unsigned i = 0; i < drives.size(); ++i) {
+	for (size_t i = 0; i < drives.size(); ++i) {
 		if (drives[i]->isRomdisk()) {
 			romdisk = i;
 			break;

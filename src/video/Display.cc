@@ -409,7 +409,7 @@ void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& re
 	bool doubleSize = false;
 	string_view prefix = "openmsx";
 	vector<TclObject> arguments;
-	for (unsigned i = 1; i < tokens.size(); ++i) {
+	for (size_t i = 1; i < tokens.size(); ++i) {
 		string_view tok = tokens[i].getString();
 		if (StringOp::startsWith(tok, '-')) {
 			if (tok == "--") {

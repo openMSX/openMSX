@@ -103,7 +103,7 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		ar.beginTag("ram");
 		ar.serialize_blob("ram", tmp, sizeof(tmp));
 		ar.endTag("ram");
-		for (unsigned i = 0; i < sizeof(tmp); ++i) {
+		for (size_t i = 0; i < sizeof(tmp); ++i) {
 			sram->write(i, tmp[i]);
 		}
 	}

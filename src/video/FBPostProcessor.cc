@@ -181,14 +181,14 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 	if (sizeof(Pixel) == 4) {
 		// optimized version for 32bpp
 		auto noise4 = reinterpret_cast<uint32_t*>(noise);
-		for (unsigned i = 0; i < width; ++i) {
+		for (size_t i = 0; i < width; ++i) {
 			buf[i] = addNoise4(buf[i], noise4[i]);
 		}
 	} else {
 		int mr = pixelOps.getMaxRed();
 		int mg = pixelOps.getMaxGreen();
 		int mb = pixelOps.getMaxBlue();
-		for (unsigned i = 0; i < width; ++i) {
+		for (size_t i = 0; i < width; ++i) {
 			Pixel p = buf[i];
 			int r = pixelOps.red(p);
 			int g = pixelOps.green(p);

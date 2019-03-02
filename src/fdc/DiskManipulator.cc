@@ -357,7 +357,7 @@ void DiskManipulator::create(span<const TclObject> tokens)
 	unsigned totalSectors = 0;
 	bool dos1 = false;
 
-	for (unsigned i = 3; i < tokens.size(); ++i) {
+	for (size_t i = 3; i < tokens.size(); ++i) {
 		if (tokens[i] == "-dos1") {
 			dos1 = true;
 			continue;

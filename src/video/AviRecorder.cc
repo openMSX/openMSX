@@ -202,7 +202,7 @@ void AviRecorder::processStart(span<const TclObject> tokens, TclObject& result)
 	frameHeight = 240;
 
 	vector<string> arguments;
-	for (unsigned i = 2; i < tokens.size(); ++i) {
+	for (size_t i = 2; i < tokens.size(); ++i) {
 		string_view token = tokens[i].getString();
 		if (token.starts_with('-')) {
 			if (token == "--") {

@@ -994,7 +994,7 @@ void Keyboard::KeyInserter::execute(
 	}
 
         vector<string_view> arguments;
-	for (unsigned i = 1; i < tokens.size(); ++i) {
+	for (size_t i = 1; i < tokens.size(); ++i) {
 		string_view t = tokens[i].getString();
 		if (t == "-release") {
 			releaseBeforePress = true;

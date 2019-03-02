@@ -173,7 +173,7 @@ void DiskChanger::insertDisk(span<const TclObject> args)
 	const string& diskImage = FileOperations::getConventionalPath(args[1].getString());
 	auto& diskFactory = reactor.getDiskFactory();
 	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
-	for (unsigned i = 2; i < args.size(); ++i) {
+	for (size_t i = 2; i < args.size(); ++i) {
 		newDisk->applyPatch(Filename(
 			args[i].getString().str(), userFileContext()));
 	}
@@ -254,7 +254,7 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 		}
 		try {
 			vector<string> args = { diskChanger.getDriveName() };
-			for (unsigned i = firstFileToken; i < tokens.size(); ++i) {
+			for (size_t i = firstFileToken; i < tokens.size(); ++i) {
 				string_view option = tokens[i].getString();
 				if (option == "-ips") {
 					if (++i == tokens.size()) {

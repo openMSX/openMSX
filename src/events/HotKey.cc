@@ -576,7 +576,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
 			passEvent = true;
 			++start;
 		}
-		for (unsigned i = start; i < tokens.size(); ++i) {
+		for (size_t i = start; i < tokens.size(); ++i) {
 			if (i != start) command += ' ';
 			string_view t = tokens[i].getString();
 			command.append(t.data(), t.size());

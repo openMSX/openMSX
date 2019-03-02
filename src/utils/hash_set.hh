@@ -73,7 +73,7 @@ template<> struct ReallocFunc<false> {
 		auto* newBuf = static_cast<Elem*>(malloc(newCapacity * sizeof(Elem)));
 		if (!newBuf) throw std::bad_alloc();
 
-		for (unsigned i = 0; i < oldCapacity; ++i) {
+		for (size_t i = 0; i < oldCapacity; ++i) {
 			new (&newBuf[i]) Elem(std::move(oldBuf[i]));
 			oldBuf[i].~Elem();
 		}

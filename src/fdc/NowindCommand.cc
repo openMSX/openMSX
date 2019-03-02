@@ -39,7 +39,7 @@ unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 
 unsigned NowindCommand::searchRomdisk(const NowindHost::Drives& drives) const
 {
-	for (unsigned i = 0; i < drives.size(); ++i) {
+	for (size_t i = 0; i < drives.size(); ++i) {
 		if (drives[i]->isRomdisk()) {
 			return i;
 		}
@@ -103,7 +103,7 @@ void NowindCommand::execute(span<const TclObject> tokens, TclObject& result)
 		// no arguments, show general status
 		assert(!drives.empty());
 		string r;
-		for (unsigned i = 0; i < drives.size(); ++i) {
+		for (size_t i = 0; i < drives.size(); ++i) {
 			strAppend(r, "nowind", i + 1, ": ");
 			if (dynamic_cast<NowindRomDisk*>(drives[i].get())) {
 				strAppend(r, "romdisk\n");
