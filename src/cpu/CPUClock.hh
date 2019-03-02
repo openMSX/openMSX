@@ -34,8 +34,8 @@ protected:
 
 	// These are similar to the corresponding methods in DynamicClock.
 	EmuTime::param getTime() const { sync(); return clock.getTime(); }
-	const EmuTime getTimeFast() const { return clock.getFastAdd(limit - remaining); }
-	const EmuTime getTimeFast(int cc) const {
+	EmuTime getTimeFast() const { return clock.getFastAdd(limit - remaining); }
+	EmuTime getTimeFast(int cc) const {
 		return clock.getFastAdd(limit - remaining + cc);
 	}
 	void setTime(EmuTime::param time) { sync(); clock.reset(time); }

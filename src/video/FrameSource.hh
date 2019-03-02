@@ -71,7 +71,7 @@ public:
 	  * that case the color of the first pixel of the line is returned.
 	  */
 	template <typename Pixel>
-	inline const Pixel getLineColor(unsigned line) const {
+	inline Pixel getLineColor(unsigned line) const {
 		SSE_ALIGNED(Pixel buf[1280]); // large enough for widest line
 		unsigned width; // not used
 		return reinterpret_cast<const Pixel*>(

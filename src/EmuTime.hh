@@ -45,9 +45,9 @@ public:
 		{ return time >= e.time; }
 
 	// arithmetic operators
-	const EmuTime operator+(EmuDuration::param d) const
+	EmuTime operator+(EmuDuration::param d) const
 		{ return EmuTime(time + d.time); }
-	const EmuTime operator-(EmuDuration::param d) const
+	EmuTime operator-(EmuDuration::param d) const
 		{ assert(time >= d.time);
 		  return EmuTime(time - d.time); }
 	EmuTime& operator+=(EmuDuration::param d)
@@ -55,7 +55,7 @@ public:
 	EmuTime& operator-=(EmuDuration::param d)
 		{ assert(time >= d.time);
 		  time -= d.time; return *this; }
-	const EmuDuration operator-(EmuTime::param e) const
+	EmuDuration operator-(EmuTime::param e) const
 		{ assert(time >= e.time);
 		  return EmuDuration(time - e.time); }
 

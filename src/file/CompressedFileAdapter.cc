@@ -105,12 +105,12 @@ void CompressedFileAdapter::flush()
 	// nothing because writing is not supported
 }
 
-const string CompressedFileAdapter::getURL() const
+string CompressedFileAdapter::getURL() const
 {
 	return file ? file->getURL() : decompressed->cachedURL;
 }
 
-const string CompressedFileAdapter::getOriginalName()
+string CompressedFileAdapter::getOriginalName()
 {
 	decompress();
 	return decompressed->originalName;

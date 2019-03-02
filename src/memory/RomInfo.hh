@@ -29,22 +29,22 @@ public:
 	{
 	}
 
-	const string_view getTitle   (const char* buf) const {
+	string_view getTitle   (const char* buf) const {
 		return fromString32(buf, title);
 	}
-	const string_view getYear    (const char* buf) const {
+	string_view getYear    (const char* buf) const {
 		return fromString32(buf, year);
 	}
-	const string_view getCompany (const char* buf) const {
+	string_view getCompany (const char* buf) const {
 		return fromString32(buf, company);
 	}
-	const string_view getCountry (const char* buf) const {
+	string_view getCountry (const char* buf) const {
 		return fromString32(buf, country);
 	}
-	const string_view getOrigType(const char* buf) const {
+	string_view getOrigType(const char* buf) const {
 		return fromString32(buf, origType);
 	}
-	const string_view getRemark  (const char* buf) const {
+	string_view getRemark  (const char* buf) const {
 		return fromString32(buf, remark);
 	}
 	RomType          getRomType()   const { return romType; }

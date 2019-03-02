@@ -587,7 +587,7 @@ KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release
 	return result;
 }
 
-const string getName(KeyCode keyCode)
+string getName(KeyCode keyCode)
 {
 	string result;
 	for (auto& p : keys) {

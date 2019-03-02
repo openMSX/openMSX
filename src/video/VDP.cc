@@ -1447,7 +1447,7 @@ const float TMS9XXXA_ANALOG_OUTPUT[16][3] = {
 	{ 1.00f, 0.47f, 0.47f },
 };
 
-const std::array<std::array<uint8_t,3>,16> VDP::getMSX1Palette() const
+std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 {
 	assert(isMSX1VDP());
 	if (MSXDevice::getDeviceConfig().findChild("3bitrgboutput") != nullptr) {
@@ -1456,15 +1456,15 @@ const std::array<std::array<uint8_t,3>,16> VDP::getMSX1Palette() const
 	if ((version & VM_TOSHIBA_PALETTE) != 0) {
 		return TOSHIBA_PALETTE;
 	}
-	std::array<std::array<uint8_t,3>,16> tmsPalette;
+	std::array<std::array<uint8_t, 3>, 16> tmsPalette;
 	for (int color = 0; color < 16; color++) {
 		// convert from analog output to YPbPr
 		float Y  = TMS9XXXA_ANALOG_OUTPUT[color][0];
 		float Pr = TMS9XXXA_ANALOG_OUTPUT[color][1] - 0.5f;
 		float Pb = TMS9XXXA_ANALOG_OUTPUT[color][2] - 0.5f;
 		// apply the saturation
-		Pr *= (saturationPr/100.0f);
-		Pb *= (saturationPb/100.0f);
+		Pr *= (saturationPr / 100.0f);
+		Pb *= (saturationPb / 100.0f);
 		// convert to RGB as follows:
 		/*
 		  |R|   | 1  0      1.402 |   |Y |

@@ -43,14 +43,14 @@ void FileBase::truncate(size_t newSize)
 	}
 }
 
-const string FileBase::getLocalReference()
+string FileBase::getLocalReference()
 {
 	// default implementation, file is not backed (uncompressed) on
 	// the local file system
 	return {};
 }
 
-const string FileBase::getOriginalName()
+string FileBase::getOriginalName()
 {
 	// default implementation just returns filename portion of URL
 	return FileOperations::getFilename(getURL()).str();

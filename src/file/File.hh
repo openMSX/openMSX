@@ -118,7 +118,7 @@ public:
 	/** Returns the URL of this file object.
 	 * @throws FileException
 	 */
-	const std::string getURL() const;
+	std::string getURL() const;
 
 	/** Get Original filename for this object. This will usually just
 	 *  return the filename portion of the URL. However for compressed
@@ -126,7 +126,7 @@ public:
 	 * @result Original file name
 	 * @throws FileException
 	 */
-	const std::string getOriginalName();
+	std::string getOriginalName();
 
 	/** Check if this file is readonly
 	 * @result true iff file is readonly
@@ -145,7 +145,7 @@ private:
 	 * Returns the path to the (uncompressed) file on the local,
 	 * filesystem. Or an empty string in case there is no such path.
 	 */
-	const std::string getLocalReference() const;
+	std::string getLocalReference() const;
 
 	std::unique_ptr<FileBase> file;
 };

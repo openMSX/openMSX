@@ -13,8 +13,8 @@ public:
 	FileContext(std::vector<std::string>&& paths,
 	            std::vector<std::string>&& savePaths);
 
-	const std::string resolve      (string_view filename) const;
-	const std::string resolveCreate(string_view filename) const;
+	std::string resolve      (string_view filename) const;
+	std::string resolveCreate(string_view filename) const;
 
 	std::vector<std::string> getPaths() const;
 	bool isUserContext() const;

@@ -224,7 +224,7 @@ KeyCode getCode(SDL_Keycode key, Uint16 mod = KMOD_NONE, SDL_Scancode scancode =
  * Translate key code to key name.
  * Returns the string "unknown" for unknown key codes.
  */
-const std::string getName(KeyCode keyCode);
+std::string getName(KeyCode keyCode);
 
 /**
  * Convenience method to create key combinations (hides ugly casts).

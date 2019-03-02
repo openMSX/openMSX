@@ -34,8 +34,8 @@ public:
 	void truncate(size_t size) override;
 #endif
 	void flush() override;
-	const std::string getURL() const override;
-	const std::string getLocalReference() override;
+	std::string getURL() const override;
+	std::string getLocalReference() override;
 	bool isReadOnly() const override;
 	time_t getModificationDate() override;
 

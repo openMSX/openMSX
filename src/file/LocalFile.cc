@@ -263,12 +263,12 @@ void LocalFile::flush()
 	fflush(file.get());
 }
 
-const string LocalFile::getURL() const
+string LocalFile::getURL() const
 {
 	return filename;
 }
 
-const string LocalFile::getLocalReference()
+string LocalFile::getLocalReference()
 {
 	return filename;
 }

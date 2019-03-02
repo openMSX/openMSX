@@ -71,7 +71,7 @@ LocalFileReference::~LocalFileReference()
 	}
 }
 
-const string LocalFileReference::getFilename() const
+const string& LocalFileReference::getFilename() const
 {
 	assert(!tmpFile.empty());
 	return tmpFile;

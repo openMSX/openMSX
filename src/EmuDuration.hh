@@ -61,15 +61,15 @@ public:
 		{ return time >= d.time; }
 
 	// arithmetic operators
-	const EmuDuration operator%(EmuDuration::param d) const
+	EmuDuration operator%(EmuDuration::param d) const
 		{ return EmuDuration(time % d.time); }
-	const EmuDuration operator+(EmuDuration::param d) const
+	EmuDuration operator+(EmuDuration::param d) const
 		{ return EmuDuration(time + d.time); }
-	const EmuDuration operator*(unsigned fact) const
+	EmuDuration operator*(unsigned fact) const
 		{ return EmuDuration(time * fact); }
-	const EmuDuration operator/(unsigned fact) const
+	EmuDuration operator/(unsigned fact) const
 		{ return EmuDuration(time / fact); }
-	const EmuDuration divRoundUp(unsigned fact) const
+	EmuDuration divRoundUp(unsigned fact) const
 		{ return EmuDuration((time + fact - 1) / fact); }
 	unsigned operator/(EmuDuration::param d) const
 	{

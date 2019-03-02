@@ -31,8 +31,8 @@ public:
 	  */
 	const TclObject& getFullNameObj() const { return fullName; }
 	const TclObject& getBaseNameObj() const { return baseName; }
-	const string_view getFullName()    const { return fullName.getString(); }
-	const string_view getBaseName()    const { return baseName.getString(); }
+	string_view      getFullName()    const { return fullName.getString(); }
+	string_view      getBaseName()    const { return baseName.getString(); }
 
 	/** Set a machine specific prefix.
 	 */

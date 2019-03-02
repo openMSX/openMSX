@@ -27,8 +27,8 @@ public:
 	size_t getPos() final override;
 	void truncate(size_t size) final override;
 	void flush() final override;
-	const std::string getURL() const final override;
-	const std::string getOriginalName() final override;
+	std::string getURL() const final override;
+	std::string getOriginalName() final override;
 	bool isReadOnly() const final override;
 	time_t getModificationDate() final override;
 

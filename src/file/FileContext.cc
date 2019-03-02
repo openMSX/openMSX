@@ -74,7 +74,7 @@ FileContext::FileContext(vector<string>&& paths_, vector<string>&& savePaths_)
 {
 }
 
-const string FileContext::resolve(string_view filename) const
+string FileContext::resolve(string_view filename) const
 {
 	vector<string> pathList = getPathsHelper(paths);
 	string result = resolveHelper(pathList, filename);
@@ -82,7 +82,7 @@ const string FileContext::resolve(string_view filename) const
 	return result;
 }
 
-const string FileContext::resolveCreate(string_view filename) const
+string FileContext::resolveCreate(string_view filename) const
 {
 	string result;
 	vector<string> pathList = getPathsHelper(savePaths);

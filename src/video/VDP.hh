@@ -133,7 +133,7 @@ public:
 	  * Don't use this if it's not an MSX1 VDP!
 	  * @return an array of 16 RGB triplets
 	  */
-	const std::array<std::array<uint8_t,3>,16> getMSX1Palette() const;
+	std::array<std::array<uint8_t, 3>, 16> getMSX1Palette() const;
 
 	/** Get the display mode the VDP is in.
 	  * @return The current display mode.

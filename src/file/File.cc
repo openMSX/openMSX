@@ -121,17 +121,17 @@ void File::flush()
 	file->flush();
 }
 
-const string File::getURL() const
+string File::getURL() const
 {
 	return file->getURL();
 }
 
-const string File::getLocalReference() const
+string File::getLocalReference() const
 {
 	return file->getLocalReference();
 }
 
-const string File::getOriginalName()
+string File::getOriginalName()
 {
 	string orig = file->getOriginalName();
 	return !orig.empty() ? orig : getURL();
