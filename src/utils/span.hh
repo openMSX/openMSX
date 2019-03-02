@@ -150,7 +150,7 @@ struct calculate_byte_size<ElementType, dynamic_extent>
 template<typename ElementType, size_t Extent>
 class span
 {
-    static_assert(Extent == dynamic_extent || Extent >= 0,
+    static_assert(Extent == dynamic_extent || ptrdiff_t(Extent) >= 0,
                   "A span must have an extent greater than or equal to zero, "
                   "or a dynamic extent");
     static_assert(std::is_object<ElementType>::value,

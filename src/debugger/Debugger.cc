@@ -24,7 +24,6 @@ using std::shared_ptr;
 using std::make_shared;
 using std::string;
 using std::vector;
-using std::begin;
 using std::end;
 
 namespace openmsx {
