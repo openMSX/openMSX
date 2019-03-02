@@ -14,7 +14,7 @@ RS232Connector::RS232Connector(PluggingController& pluggingController_,
 {
 }
 
-const std::string RS232Connector::getDescription() const
+string_view RS232Connector::getDescription() const
 {
 	return "Serial RS232 connector";
 }

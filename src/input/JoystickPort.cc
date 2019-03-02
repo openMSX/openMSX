@@ -18,7 +18,7 @@ JoystickPort::JoystickPort(PluggingController& pluggingController_,
 {
 }
 
-const string JoystickPort::getDescription() const
+string_view JoystickPort::getDescription() const
 {
 	return description;
 }

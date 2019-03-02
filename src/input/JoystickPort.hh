@@ -28,7 +28,7 @@ public:
 	JoystickDevice& getPluggedJoyDev() const;
 
 	// Connector
-	const std::string getDescription() const override;
+	string_view getDescription() const override;
 	string_view getClass() const override;
 	void plug(Pluggable& device, EmuTime::param time) override;
 

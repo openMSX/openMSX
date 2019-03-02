@@ -34,7 +34,7 @@ byte Y8950KeyboardConnector::peek(EmuTime::param time) const
 	return const_cast<Y8950KeyboardConnector*>(this)->read(time);
 }
 
-const std::string Y8950KeyboardConnector::getDescription() const
+string_view Y8950KeyboardConnector::getDescription() const
 {
 	return "MSX-AUDIO keyboard connector";
 }

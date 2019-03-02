@@ -31,7 +31,7 @@ public:
 	/**
 	 * Get a description for this connector
 	 */
-	virtual const std::string getDescription() const = 0;
+	virtual string_view getDescription() const = 0;
 
 	/**
 	 * A Connector belong to a certain class.

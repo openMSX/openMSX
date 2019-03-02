@@ -16,7 +16,7 @@ MidiOutConnector::MidiOutConnector(PluggingController& pluggingController_,
 {
 }
 
-const string MidiOutConnector::getDescription() const
+string_view MidiOutConnector::getDescription() const
 {
 	return "MIDI-out connector";
 }

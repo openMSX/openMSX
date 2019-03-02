@@ -74,7 +74,7 @@ public:
 	bool lastOut() const override;
 
 	// Connector
-	const std::string getDescription() const override;
+	string_view getDescription() const override;
 	string_view getClass() const override;
 	void unplug(EmuTime::param time) override;
 

@@ -23,7 +23,7 @@ public:
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	// Connector
-	const std::string getDescription() const override;
+	string_view getDescription() const override;
 	string_view getClass() const override;
 	void plug(Pluggable& dev, EmuTime::param time) override;
 

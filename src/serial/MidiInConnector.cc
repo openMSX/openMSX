@@ -14,7 +14,7 @@ MidiInConnector::MidiInConnector(PluggingController& pluggingController_,
 {
 }
 
-const std::string MidiInConnector::getDescription() const
+string_view MidiInConnector::getDescription() const
 {
 	return "MIDI-in connector";
 }
