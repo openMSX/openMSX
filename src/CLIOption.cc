@@ -1,6 +1,6 @@
 #include "CLIOption.hh"
 #include "MSXException.hh"
-#include <algorithm>
+#include <utility>
 
 using std::string;
 

@@ -12,13 +12,11 @@
 #include "span.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "xrange.hh"
 #include <iostream>
 #include <utility>
 #include <vector>
 #include <cstdint>
 //#include <tk.h>
-#include "openmsx.hh"
 
 using std::string;
 using std::vector;

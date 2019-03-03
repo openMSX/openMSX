@@ -10,7 +10,6 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "view.hh"
-#include <cassert>
 #include <iostream>
 
 using std::string;

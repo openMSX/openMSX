@@ -3,7 +3,6 @@
 #include "Reactor.hh"
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
-#include "SettingsConfig.hh"
 #include "SettingsManager.hh"
 #include "InfoCommand.hh"
 #include "Interpreter.hh"

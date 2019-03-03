@@ -15,7 +15,6 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "Clock.hh"
-#include "Math.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"

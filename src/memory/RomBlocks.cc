@@ -1,7 +1,6 @@
 #include "CliComm.hh"
 #include "RomBlocks.hh"
 #include "SRAM.hh"
-#include "MSXException.hh"
 #include "Math.hh"
 #include "serialize.hh"
 #include "unreachable.hh"

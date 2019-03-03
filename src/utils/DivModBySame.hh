@@ -1,7 +1,6 @@
 #ifndef DIVISIONBYCONST_HH
 #define DIVISIONBYCONST_HH
 
-#include "build-info.hh"
 #include <cassert>
 #include <cstdint>
 

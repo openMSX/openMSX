@@ -49,7 +49,9 @@
 #include "unistdp.hh"
 #include "countof.hh"
 #include "ranges.hh"
+#include "strCat.hh"
 #include "build-info.hh"
+#include <algorithm>
 #include <sstream>
 #include <cerrno>
 #include <cstdlib>

@@ -5,6 +5,8 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "serialize_stl.hh"
+#include <cassert>
+#include <vector>
 
 namespace openmsx {
 

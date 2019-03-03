@@ -1,6 +1,5 @@
 #include "Multiply32.hh"
 #include "PixelOperations.hh"
-#include "build-info.hh"
 #include <cstring>
 
 namespace openmsx {

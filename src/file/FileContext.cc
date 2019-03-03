@@ -4,10 +4,9 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "openmsx.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
+#include <utility>
 
 using std::string;
 using std::vector;

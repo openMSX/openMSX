@@ -7,7 +7,6 @@
 namespace openmsx {
 
 class Reactor;
-class CommandController;
 class Display;
 class VideoSystem;
 class Renderer;
@@ -16,7 +15,6 @@ class V9990Renderer;
 class V9990;
 class LDRenderer;
 class LaserdiscPlayer;
-template <typename T> class EnumSetting;
 
 /** Interface for renderer factories.
   * Every Renderer type has its own RendererFactory.

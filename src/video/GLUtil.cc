@@ -7,7 +7,6 @@
 #include "Version.hh"
 #include <iostream>
 #include <vector>
-#include <cstring>
 #include <cstdio>
 
 #ifndef glGetShaderiv

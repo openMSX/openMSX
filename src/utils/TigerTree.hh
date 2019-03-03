@@ -28,14 +28,14 @@
 #ifndef TIGERTREE_HH
 #define TIGERTREE_HH
 
-#include "tiger.hh"
-#include "MemBuffer.hh"
 #include <string>
 #include <cstdint>
 #include <ctime>
 #include <functional>
 
 namespace openmsx {
+
+struct TigerHash;
 
 /** The TigerTree class will query the to-be-hashed data via this abstract
   * interface. This allows to e.g. fetch the data from a file.

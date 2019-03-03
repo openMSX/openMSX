@@ -1,25 +1,24 @@
 #ifndef POSTPROCESSOR_HH
 #define POSTPROCESSOR_HH
 
-#include "FrameSource.hh"
 #include "VideoLayer.hh"
 #include "Schedulable.hh"
 #include "EmuTime.hh"
 #include <memory>
-#include <vector>
 
 namespace openmsx {
 
-class Display;
-class RenderSettings;
-class RawFrame;
-class DeinterlacedFrame;
-class DoubledFrame;
-class Deflicker;
-class SuperImposedFrame;
 class AviRecorder;
 class CliComm;
+class Deflicker;
+class DeinterlacedFrame;
+class Display;
+class DoubledFrame;
 class EventDistributor;
+class FrameSource;
+class RawFrame;
+class RenderSettings;
+class SuperImposedFrame;
 
 /** Abstract base class for post processors.
   * A post processor builds the frame that is displayed from the MSX frame,

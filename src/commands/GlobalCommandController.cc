@@ -11,7 +11,6 @@
 #include "TclObject.hh"
 #include "Version.hh"
 #include "ScopedAssign.hh"
-#include "checked_cast.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"

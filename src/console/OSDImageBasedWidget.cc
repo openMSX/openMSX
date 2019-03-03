@@ -3,7 +3,6 @@
 #include "OSDGUI.hh"
 #include "BaseImage.hh"
 #include "Display.hh"
-#include "OutputSurface.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Timer.hh"

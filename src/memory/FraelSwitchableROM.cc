@@ -1,5 +1,4 @@
 #include "FraelSwitchableROM.hh"
-#include "MSXException.hh"
 #include "serialize.hh"
 
 /*

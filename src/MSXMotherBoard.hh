@@ -54,7 +54,6 @@ class ResetCmd;
 class ReverseManager;
 class SettingObserver;
 class Scheduler;
-class Setting;
 class StateChangeDistributor;
 
 class MSXMotherBoard final

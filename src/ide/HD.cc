@@ -1,6 +1,5 @@
 #include "HD.hh"
 #include "FileContext.hh"
-#include "FileException.hh"
 #include "FilePool.hh"
 #include "DeviceConfig.hh"
 #include "CliComm.hh"
@@ -13,6 +12,7 @@
 #include "HDCommand.hh"
 #include "Timer.hh"
 #include "serialize.hh"
+#include "tiger.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <memory>

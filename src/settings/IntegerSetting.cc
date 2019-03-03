@@ -1,5 +1,4 @@
 #include "IntegerSetting.hh"
-#include "CommandController.hh"
 
 namespace openmsx {
 

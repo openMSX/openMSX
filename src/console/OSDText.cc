@@ -1,7 +1,6 @@
 #include "OSDText.hh"
 #include "TTFFont.hh"
 #include "SDLImage.hh"
-#include "OutputSurface.hh"
 #include "Display.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"

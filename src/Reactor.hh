@@ -4,13 +4,11 @@
 #include "Observer.hh"
 #include "EventListener.hh"
 #include "string_view.hh"
-#include "openmsx.hh"
-#include <string>
+#include <cassert>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <vector>
-
-#include <iostream>
 
 namespace openmsx {
 

@@ -4,8 +4,6 @@
 #include "SDLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
-#include "RenderSettings.hh"
-#include "BooleanSetting.hh"
 #include "MSXException.hh"
 #include "unreachable.hh"
 #include "vla.hh"

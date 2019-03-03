@@ -6,7 +6,6 @@
 #include "TclObject.hh"
 #include "ReadDir.hh"
 #include "Date.hh"
-#include "CommandController.hh"
 #include "CommandException.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
@@ -15,7 +14,6 @@
 #include "Timer.hh"
 #include "ranges.hh"
 #include "sha1.hh"
-#include "stl.hh"
 #include <fstream>
 #include <memory>
 
@@ -198,7 +196,7 @@ void FilePool::readSha1sums()
 			pool.emplace_back(sum, timeStr, filename);
 		}
 
-		data = std::find_if(it + 1, data_end, [](byte c) {
+		data = std::find_if(it + 1, data_end, [](char c) {
 			return !(c == '\n' || c == '\r');
 		});
 	}

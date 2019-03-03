@@ -8,10 +8,8 @@
 #include "XMLElement.hh"
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
-#include "StringOp.hh"
 #include "outer.hh"
 #include "ranges.hh"
-#include "unreachable.hh"
 #include "view.hh"
 #include "build-info.hh"
 #include <cassert>

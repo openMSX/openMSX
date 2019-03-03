@@ -7,8 +7,6 @@
 #include "TclCallback.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "likely.hh"
-#include <memory>
 
 namespace openmsx {
 

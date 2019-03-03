@@ -9,7 +9,6 @@
 #include "CartridgeSlotManager.hh"
 #include "MSXCPUInterface.hh"
 #include "DeviceFactory.hh"
-#include "CliComm.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"

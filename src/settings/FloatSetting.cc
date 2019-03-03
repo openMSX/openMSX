@@ -1,5 +1,4 @@
 #include "FloatSetting.hh"
-#include "CommandController.hh"
 
 namespace openmsx {
 

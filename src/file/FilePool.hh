@@ -12,7 +12,6 @@
 #include <ctime>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <vector>
 
 namespace openmsx {

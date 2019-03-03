@@ -4,8 +4,8 @@
 #include "TclParser.hh"
 #include "TclObject.hh"
 #include "string_view.hh"
-#include <vector>
 #include <tcl.h>
+#include <string>
 
 namespace openmsx {
 

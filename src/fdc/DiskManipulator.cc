@@ -4,7 +4,6 @@
 #include "DiskImageUtils.hh"
 #include "DSKDiskImage.hh"
 #include "DiskPartition.hh"
-#include "CommandController.hh"
 #include "CommandException.hh"
 #include "Reactor.hh"
 #include "File.hh"

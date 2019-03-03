@@ -8,8 +8,6 @@
 
 namespace openmsx {
 
-class InfoTopic;
-
 class InfoCommand final : public Command
 {
 public:

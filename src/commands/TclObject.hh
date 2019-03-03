@@ -7,7 +7,6 @@
 #include "xxhash.hh"
 #include <tcl.h>
 #include <algorithm>
-#include <climits>
 #include <initializer_list>
 #include <iterator>
 #include <cassert>

@@ -1,6 +1,5 @@
 #include "MSXRam.hh"
 #include "CheckedRam.hh"
-#include "Ram.hh" // because we serialize Ram instead of CheckedRam
 #include "XMLElement.hh"
 #include "serialize.hh"
 #include <cassert>

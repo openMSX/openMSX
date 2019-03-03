@@ -4,7 +4,6 @@
 #include "RTSchedulable.hh"
 #include "EventListener.hh"
 #include "Command.hh"
-#include "stl.hh"
 #include "string_view.hh"
 #include <map>
 #include <vector>

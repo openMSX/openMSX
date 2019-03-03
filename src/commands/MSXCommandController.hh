@@ -4,7 +4,6 @@
 #include "CommandController.hh"
 #include "Command.hh"
 #include "MSXEventListener.hh"
-#include "Setting.hh"
 #include "hash_set.hh"
 #include "xxhash.hh"
 #include <memory>
@@ -12,10 +11,11 @@
 namespace openmsx {
 
 class GlobalCommandController;
-class Reactor;
-class MSXMotherBoard;
-class MSXEventDistributor;
 class InfoCommand;
+class MSXEventDistributor;
+class MSXMotherBoard;
+class Reactor;
+class Setting;
 
 class MSXCommandController final
 	: public CommandController, private MSXEventListener

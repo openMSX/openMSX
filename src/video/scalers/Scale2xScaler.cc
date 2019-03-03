@@ -15,7 +15,6 @@ Visit the Scale2x site for info:
 #include "ScalerOutput.hh"
 #include "unreachable.hh"
 #include "vla.hh"
-#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>

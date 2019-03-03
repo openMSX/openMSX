@@ -1,5 +1,7 @@
 #include "TigerTree.hh"
+#include "tiger.hh"
 #include "Math.hh"
+#include "MemBuffer.hh"
 #include <map>
 #include <cstring>
 #include <cassert>

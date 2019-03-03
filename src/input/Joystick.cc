@@ -14,7 +14,6 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include <memory>
 
 using std::string;

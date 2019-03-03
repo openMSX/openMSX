@@ -8,7 +8,6 @@
 #include "openmsx.hh"
 #include "circular_buffer.hh"
 #include "Poller.hh"
-#include <cstdio>
 #include <mutex>
 #include <thread>
 

@@ -1,6 +1,5 @@
 #include "OSDRectangle.hh"
 #include "SDLImage.hh"
-#include "OutputSurface.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"

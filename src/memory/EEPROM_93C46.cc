@@ -1,6 +1,5 @@
 #include "EEPROM_93C46.hh"
 #include "serialize.hh"
-#include "xrange.hh"
 
 namespace openmsx {
 

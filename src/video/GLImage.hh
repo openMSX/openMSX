@@ -3,7 +3,7 @@
 
 #include "BaseImage.hh"
 #include "GLUtil.hh"
-#include "openmsx.hh"
+#include <cstdint>
 #include <string>
 
 class SDLSurfacePtr;

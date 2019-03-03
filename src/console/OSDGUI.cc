@@ -7,9 +7,8 @@
 #include "TclObject.hh"
 #include "StringOp.hh"
 #include "outer.hh"
-#include <algorithm>
-#include <cassert>
 #include <memory>
+#include <utility>
 
 using std::string;
 using std::unique_ptr;

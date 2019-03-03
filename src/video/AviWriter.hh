@@ -8,7 +8,6 @@
 #include "endian.hh"
 #include <cstdint>
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 

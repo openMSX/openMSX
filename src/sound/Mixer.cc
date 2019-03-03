@@ -7,7 +7,6 @@
 #include "MSXException.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "components.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <memory>

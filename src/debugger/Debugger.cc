@@ -2,7 +2,6 @@
 #include "Debuggable.hh"
 #include "ProbeBreakPoint.hh"
 #include "MSXMotherBoard.hh"
-#include "Reactor.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "BreakPoint.hh"

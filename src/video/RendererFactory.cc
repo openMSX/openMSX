@@ -2,7 +2,6 @@
 #include "RenderSettings.hh"
 #include "Reactor.hh"
 #include "Display.hh"
-#include "Version.hh"
 #include "unreachable.hh"
 #include <memory>
 

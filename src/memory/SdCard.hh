@@ -5,7 +5,6 @@
 #include "circular_buffer.hh"
 #include "DiskImageUtils.hh"
 #include <memory>
-#include <string>
 
 namespace openmsx {
 

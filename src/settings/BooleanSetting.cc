@@ -1,5 +1,4 @@
 #include "BooleanSetting.hh"
-#include "CommandController.hh"
 #include "Completer.hh"
 
 namespace openmsx {

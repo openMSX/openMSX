@@ -20,12 +20,10 @@
 #include "MemBuffer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
-#include "serialize_stl.hh"
+#include "serialize_meta.hh"
 #include "view.hh"
-#include "xrange.hh"
 #include <cassert>
 #include <cmath>
-#include <functional>
 #include <iomanip>
 
 using std::string;

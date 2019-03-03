@@ -6,7 +6,6 @@
 #include "endian.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
-#include <iterator>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>

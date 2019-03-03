@@ -1,7 +1,6 @@
 #ifndef ROMDATABASE_HH
 #define ROMDATABASE_HH
 
-#include "RomInfo.hh"
 #include "MemBuffer.hh"
 #include "sha1.hh"
 #include <utility>
@@ -10,6 +9,7 @@
 namespace openmsx {
 
 class CliComm;
+class RomInfo;
 
 class RomDatabase
 {

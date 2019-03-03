@@ -3,7 +3,6 @@
 #include "Reactor.hh"
 #include "CassettePort.hh"
 #include "JoystickPort.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 
 // Keyboard Matrix

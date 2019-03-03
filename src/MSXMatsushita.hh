@@ -4,13 +4,13 @@
 #include "MSXDevice.hh"
 #include "MSXSwitchedDevice.hh"
 #include "FirmwareSwitch.hh"
-#include "SRAM.hh"
 #include "Clock.hh"
 #include "serialize_meta.hh"
 
 namespace openmsx {
 
 class MSXCPU;
+class SRAM;
 class VDP;
 
 class MSXMatsushita final : public MSXDevice, public MSXSwitchedDevice

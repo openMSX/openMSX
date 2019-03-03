@@ -25,7 +25,6 @@
 #include "FilePool.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
-#include "Reactor.hh"
 #include "DeviceConfig.hh"
 #include "RecordedCommand.hh"
 #include "CliComm.hh"

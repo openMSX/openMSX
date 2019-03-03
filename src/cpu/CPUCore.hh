@@ -12,7 +12,6 @@
 #include "span.hh"
 #include <atomic>
 #include <string>
-#include <memory>
 
 namespace openmsx {
 

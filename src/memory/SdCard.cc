@@ -7,7 +7,6 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include <memory>
-#include <string>
 
 // TODO:
 // - replace transferDelayCounter with 0xFF's in responseQueue?

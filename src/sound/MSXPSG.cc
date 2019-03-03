@@ -1,4 +1,5 @@
 #include "MSXPSG.hh"
+#include "AY8910.hh"
 #include "LedStatus.hh"
 #include "CassettePort.hh"
 #include "MSXMotherBoard.hh"

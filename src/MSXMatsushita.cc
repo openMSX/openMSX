@@ -1,5 +1,6 @@
 #include "MSXMatsushita.hh"
 #include "MSXCPU.hh"
+#include "SRAM.hh"
 #include "VDP.hh"
 #include "MSXCPUInterface.hh"
 #include "CliComm.hh"

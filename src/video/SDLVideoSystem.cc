@@ -6,16 +6,12 @@
 #include "Reactor.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
-#include "BooleanSetting.hh"
-#include "EnumSetting.hh"
 #include "IntegerSetting.hh"
 #include "EventDistributor.hh"
-#include "InputEventGenerator.hh"
 #include "VDP.hh"
 #include "V9990.hh"
 #include "build-info.hh"
 #include "unreachable.hh"
-#include <cassert>
 #include <memory>
 
 #include "components.hh"

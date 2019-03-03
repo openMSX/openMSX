@@ -9,7 +9,6 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
 class MSXCPU;
 class DeviceConfig;
 

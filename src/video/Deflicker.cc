@@ -4,7 +4,6 @@
 #include "unreachable.hh"
 #include "vla.hh"
 #include "build-info.hh"
-#include <cassert>
 #include <memory>
 #ifdef __SSE2__
 #include <emmintrin.h>

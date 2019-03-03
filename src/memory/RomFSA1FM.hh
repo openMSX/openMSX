@@ -7,7 +7,6 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
 class SRAM;
 
 class RomFSA1FM1 final : public MSXRom

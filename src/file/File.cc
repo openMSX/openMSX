@@ -4,7 +4,6 @@
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
 #include "checked_cast.hh"
-#include <cassert>
 #include <cstring>
 #include <memory>
 

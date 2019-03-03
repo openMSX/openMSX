@@ -6,7 +6,6 @@
 #include "TclObject.hh"
 #include <cstdint>
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace openmsx {

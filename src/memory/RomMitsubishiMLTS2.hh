@@ -11,8 +11,6 @@
 
 namespace openmsx {
 
-class Ram;
-
 class RomMitsubishiMLTS2 final : public Rom8kBBlocks
 {
 public:

@@ -3,9 +3,7 @@
 
 #include "TclObject.hh"
 #include "gl_vec.hh"
-#include "hash_set.hh"
 #include "string_view.hh"
-#include "xxhash.hh"
 #include <vector>
 #include <memory>
 
@@ -13,7 +11,6 @@ namespace openmsx {
 
 class Display;
 class OutputSurface;
-class TclObject;
 class Interpreter;
 
 class OSDWidget

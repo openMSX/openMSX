@@ -1,7 +1,6 @@
 #include "ProxyCommand.hh"
 #include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
-#include "TclObject.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"

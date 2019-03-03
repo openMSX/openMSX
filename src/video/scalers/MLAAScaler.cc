@@ -3,7 +3,6 @@
 #include "ScalerOutput.hh"
 #include "Math.hh"
 #include "MemBuffer.hh"
-#include "MemBuffer.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>

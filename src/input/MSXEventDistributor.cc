@@ -1,7 +1,6 @@
 #include "MSXEventDistributor.hh"
 #include "MSXEventListener.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
 
 namespace openmsx {

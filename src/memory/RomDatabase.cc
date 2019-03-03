@@ -1,4 +1,5 @@
 #include "RomDatabase.hh"
+#include "RomInfo.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileOperations.hh"
@@ -7,7 +8,6 @@
 #include "StringOp.hh"
 #include "String32.hh"
 #include "hash_map.hh"
-#include "outer.hh"
 #include "ranges.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"

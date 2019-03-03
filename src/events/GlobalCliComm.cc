@@ -4,9 +4,9 @@
 #include "Thread.hh"
 #include "ScopedAssign.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <utility>
 
 namespace openmsx {
 

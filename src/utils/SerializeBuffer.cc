@@ -1,7 +1,7 @@
 #include "SerializeBuffer.hh"
 #include "likely.hh"
-#include <new> // for bad_alloc
 #include <cstdlib>
+#include <utility>
 
 namespace openmsx {
 

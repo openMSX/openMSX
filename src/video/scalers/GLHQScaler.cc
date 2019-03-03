@@ -6,7 +6,7 @@
 #include "File.hh"
 #include "vla.hh"
 #include <cstring>
-#include <algorithm>
+#include <utility>
 
 using std::string;
 

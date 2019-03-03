@@ -2,7 +2,6 @@
 #define MATH_HH
 
 #include "likely.hh"
-#include <algorithm>
 #include <cmath>
 #include <cstdint>
 

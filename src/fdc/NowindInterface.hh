@@ -7,13 +7,11 @@
 #include "AmdFlash.hh"
 #include <bitset>
 #include <memory>
-#include <vector>
 #include <string>
 
 namespace openmsx {
 
 class NowindCommand;
-class DiskContainer;
 
 class NowindInterface final : public MSXDevice
 {

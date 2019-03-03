@@ -2,7 +2,6 @@
 #include "IDEDevice.hh"
 #include "IDEDeviceFactory.hh"
 #include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
 
 namespace openmsx {
 

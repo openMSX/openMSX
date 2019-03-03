@@ -2,7 +2,6 @@
 #include "MSXException.hh"
 #include "TclObject.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
 
 namespace openmsx {

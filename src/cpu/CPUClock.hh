@@ -3,7 +3,6 @@
 
 #include "DynamicClock.hh"
 #include "Scheduler.hh"
-#include <algorithm>
 #include <cassert>
 
 namespace openmsx {

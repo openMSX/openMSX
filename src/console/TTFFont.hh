@@ -3,8 +3,8 @@
 
 #include "SDLSurfacePtr.hh"
 #include "openmsx.hh"
-#include <algorithm>
 #include <string>
+#include <utility>
 
 namespace openmsx {
 

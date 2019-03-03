@@ -84,7 +84,6 @@ chirp 12-..: vokume   0   : silent
 #include "ranges.hh"
 #include <cmath>
 #include <cstring>
-#include <cstdint>
 
 namespace openmsx {
 

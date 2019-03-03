@@ -1,5 +1,4 @@
 #include "Socket.hh"
-#include "MSXException.hh"
 #include "utf8_checked.hh"
 #include <cerrno>
 #include <cstring>

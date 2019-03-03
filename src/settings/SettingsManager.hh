@@ -6,11 +6,10 @@
 #include "Setting.hh"
 #include "hash_set.hh"
 #include "string_view.hh"
-#include "xxhash.hh"
+#include "TclObject.hh"
 
 namespace openmsx {
 
-class BaseSetting;
 class GlobalCommandController;
 class XMLElement;
 

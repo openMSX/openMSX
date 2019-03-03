@@ -10,7 +10,6 @@
 #include "utf8_unchecked.hh"
 #include "build-info.hh"
 #include <cassert>
-#include <iostream>
 #include <memory>
 
 using std::string;

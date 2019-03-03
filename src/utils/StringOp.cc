@@ -3,8 +3,6 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include "view.hh"
-#include <limits>
-#include <cassert>
 #include <cstdlib>
 #include <stdexcept>
 

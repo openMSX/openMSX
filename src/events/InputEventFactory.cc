@@ -1,7 +1,6 @@
 #include "InputEventFactory.hh"
 #include "InputEvents.hh"
 #include "CommandException.hh"
-#include "Interpreter.hh"
 #include "TclObject.hh"
 #include <stdexcept>
 #include <SDL.h>

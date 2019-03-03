@@ -7,7 +7,6 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "stl.hh"
-#include "unreachable.hh"
 #include "view.hh"
 
 using std::vector;

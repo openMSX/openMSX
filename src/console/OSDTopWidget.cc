@@ -1,5 +1,4 @@
 #include "OSDTopWidget.hh"
-#include "OSDGUI.hh"
 #include "OutputSurface.hh"
 #include "Display.hh"
 #include "CliComm.hh"

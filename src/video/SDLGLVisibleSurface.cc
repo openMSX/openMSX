@@ -5,7 +5,6 @@
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
 #include "InitException.hh"
-#include "RenderSettings.hh"
 #include <memory>
 
 namespace openmsx {

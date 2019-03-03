@@ -6,7 +6,6 @@
 #include "EventListener.hh"
 #include "RTSchedulable.hh"
 #include "SDLSurfacePtr.hh"
-#include <string>
 #include <memory>
 
 namespace openmsx {

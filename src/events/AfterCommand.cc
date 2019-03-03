@@ -12,7 +12,6 @@
 #include "TclObject.hh"
 #include "ranges.hh"
 #include "stl.hh"
-#include "unreachable.hh"
 #include "view.hh"
 #include <iterator>
 #include <memory>

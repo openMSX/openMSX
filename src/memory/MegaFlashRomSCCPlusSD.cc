@@ -2,11 +2,9 @@
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
-#include "Ram.hh"
 #include "CheckedRam.hh"
 #include "SdCard.hh"
 #include "serialize.hh"
-#include <cassert>
 #include <memory>
 #include <vector>
 

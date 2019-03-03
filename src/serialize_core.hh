@@ -3,7 +3,6 @@
 
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
-#include "unreachable.hh"
 #include <string>
 #include <type_traits>
 #include <cassert>
