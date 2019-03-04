@@ -13,13 +13,13 @@
 #include "DeviceConfig.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
+#include "Math.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "likely.hh"
 #include "outer.hh"
 #include "random.hh"
 #include <cassert>
-#include <cmath>
 #include <cstring>
 
 using std::string;
