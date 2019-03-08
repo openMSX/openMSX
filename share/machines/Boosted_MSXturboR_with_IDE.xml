@@ -259,6 +259,7 @@
         <volume>21000</volume>
       </sound>
       <keyboardlayout>JIS</keyboardlayout>
+      <ignorePortDirections>true</ignorePortDirections> <!-- highest compatibility -->
     </PSG>
 
     <RTC id="Real time clock">

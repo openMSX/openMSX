@@ -81,6 +81,7 @@ PSG pin 6/7 quirk: C (YES)
       <sound>
         <volume>21000</volume>
       </sound>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 
     <PrinterPort id="Printer Port">

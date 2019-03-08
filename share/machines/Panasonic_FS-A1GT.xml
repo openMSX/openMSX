@@ -171,6 +171,7 @@
       </sound>
       <keyboardlayout>JIS</keyboardlayout>
       <mirrored_registers>false</mirrored_registers>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <RTC id="Real time clock">

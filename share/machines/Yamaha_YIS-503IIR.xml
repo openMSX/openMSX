@@ -67,6 +67,7 @@ Yamaha SFG-01/05 regarding physical shape and how it connects to the MSX. -->
       <sound>
         <volume>21000</volume>
       </sound>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <PrinterPort id="Printer Port">

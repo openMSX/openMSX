@@ -81,6 +81,7 @@
       <vram>128</vram>
       <io base="0x98" num="4" type="O"/> <!-- No mirroring of VDP ports -->
       <io base="0x98" num="2" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </VDP>
 
     <PSG id="PSG">

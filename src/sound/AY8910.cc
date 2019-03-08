@@ -479,6 +479,7 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 	, amplitude(config)
 	, envelope(amplitude.getEnvVolTable())
 	, isAY8910(checkAY8910(config))
+	, ignorePortDirections(config.getChildDataAsBool("ignorePortDirections", true))
 {
 	// (lazily) initialize detune stuff
 	detuneInitialized = false;
@@ -578,9 +579,12 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 		if (value & PORT_A_DIRECTION) {
 			directionsCallback.execute();
 		}
-		// portA -> input
-		// portB -> output
-		value = (value & ~PORT_A_DIRECTION) | PORT_B_DIRECTION;
+		if (ignorePortDirections)
+		{
+			// portA -> input
+			// portB -> output
+			value = (value & ~PORT_A_DIRECTION) | PORT_B_DIRECTION;
+		}
 	}
 
 	// Note: unused bits are stored as well; they can be read back.

@@ -75,6 +75,7 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
       <sound>
         <volume>21000</volume>
       </sound>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 
     <PrinterPort id="Printer Port">

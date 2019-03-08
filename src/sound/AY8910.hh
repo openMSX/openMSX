@@ -186,6 +186,7 @@ private:
 	Envelope envelope;
 	byte regs[16];
 	const bool isAY8910;
+	const bool ignorePortDirections;
 	bool doDetune;
 	bool detuneInitialized;
 };
