@@ -1318,51 +1318,62 @@ void V9990CmdEngine::startBMLX(EmuTime::param time)
 	ANY = getWrappedNY();
 }
 
-template<typename Mode>
-void V9990CmdEngine::executeBMLX(EmuTime::param limit)
+template<>
+void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime::param limit)
 {
-	// TODO lots of corner cases still go wrong
-	//      very dumb implementation, can be made much faster
+	// TODO test corner cases, timing
 	auto delta = getTiming(BMLX_TIMING);
-	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
+	unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
 
-	word tmp = 0;
-	bitsLeft = 16;
 	while (engineTime < limit) {
 		engineTime += delta;
-		auto src = Mode::point(vram, SX, SY, pitch);
-		src = Mode::shift(src, SX, 0); // TODO optimize
-		if (Mode::BITS_PER_PIXEL == 16) {
-			tmp = src;
-		} else {
-			tmp <<= Mode::BITS_PER_PIXEL;
-			tmp |= src;
-		}
-		bitsLeft -= Mode::BITS_PER_PIXEL;
-		if (!bitsLeft) {
-			vram.writeVRAMBx(dstAddress++, tmp & 0xFF);
-			vram.writeVRAMBx(dstAddress++, tmp >> 8);
-			bitsLeft = 16;
-			tmp = 0;
-		}
-
-		DX += dx;
+		auto src = V9990Bpp16::point(vram, SX, SY, pitch);
+		vram.writeVRAMBx(dstAddress++, src & 0xFF);
+		vram.writeVRAMBx(dstAddress++, src >> 8);
 		SX += dx;
 		if (!--(ANX)) {
-			DX -= (NX * dx);
 			SX -= (NX * dx);
-			DY += dy;
 			SY += dy;
 			if (!--(ANY)) {
 				cmdReady(engineTime);
-				// TODO handle last pixels
 				return;
 			} else {
 				ANX = getWrappedNX();
 			}
 		}
+	}
+}
+template<typename Mode>
+void V9990CmdEngine::executeBMLX(EmuTime::param limit)
+{
+	// TODO test corner cases, timing
+	auto delta = getTiming(BMLX_TIMING);
+	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
+	int dx = (ARG & DIX) ? -1 : 1;
+	int dy = (ARG & DIY) ? -1 : 1;
+
+	while (engineTime < limit) {
+		engineTime += delta;
+		byte d = 0;
+		for (int i = 0; i < Mode::PIXELS_PER_BYTE; ++i) {
+			auto src = Mode::point(vram, SX, SY, pitch);
+			d |= Mode::shift(src, SX, i) & Mode::shiftMask(i);
+			SX += dx;
+			if (!--(ANX)) {
+				SX -= (NX * dx);
+				SY += dy;
+				if (!--(ANY)) {
+					vram.writeVRAMBx(dstAddress++, d);
+					cmdReady(engineTime);
+					return;
+				} else {
+					ANX = getWrappedNX();
+				}
+			}
+		}
+		vram.writeVRAMBx(dstAddress++, d);
 	}
 }
 
