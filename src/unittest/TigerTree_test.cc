@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "TigerTree.hh"
+#include "tiger.hh"
 #include <cstring>
 
 using namespace openmsx;

@@ -29,15 +29,6 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	createSurface(width, height, flags);
 	glContext = SDL_GL_CreateContext(window.get());
 
-	// The created surface may be larger than requested.
-	// If that happens, center the area that we actually use.
-	SDL_Surface* surf = getSDLSurface();
-	unsigned actualWidth  = surf->w;
-	unsigned actualHeight = surf->h;
-	surf->w = width;
-	surf->h = height;
-	setPosition((actualWidth - width ) / 2, (actualHeight - height) / 2);
-
 	// From the glew documentation:
 	//   GLEW obtains information on the supported extensions from the
 	//   graphics driver. Experimental or pre-release drivers, however,
@@ -65,7 +56,20 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		throw InitException("Need at least openGL version 2.0.");
 	}
 
-	glViewport(getX(), getY(), width, height);
+	// The created surface may be larger than requested.
+	// If that happens, center the area that we actually use.
+	int w, h;
+	SDL_GL_GetDrawableSize(window.get(), &w, &h);
+	gl::vec2 physSize(w, h);
+	gl::vec2 logSize(width, height);
+	float scale = min_component(physSize / logSize);
+	gl::vec2 viewSize = logSize * scale;
+	gl::vec2 viewOffset = (physSize - viewSize) / 2.0f;
+	gl::ivec2 iOffset(viewOffset);
+	gl::ivec2 iSize  (viewSize);
+	setViewPort(iOffset, iSize, scale != 1.0f);
+	glViewport(iOffset[0], iOffset[1], iSize[0], iSize[1]);
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, width, height, 0, -1, 1);

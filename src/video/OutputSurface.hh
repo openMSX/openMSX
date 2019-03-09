@@ -24,8 +24,9 @@ public:
 	int getHeight() const { return surface->h; }
 	gl::ivec2 getOutputSize() const { return {getWidth(), getHeight()}; }
 
-	int getX() const { return xOffset; }
-	int getY() const { return yOffset; }
+	gl::ivec2 getViewOffset() const { return m_viewOffset; }
+	gl::ivec2 getViewSize()   const { return m_viewSize; }
+	bool      getViewScaled() const { return m_viewScaled; }
 
 	const SDL_PixelFormat& getSDLFormat() const { return format; }
 	SDL_Surface* getSDLSurface()          const { return surface; }
@@ -135,7 +136,11 @@ public:
 protected:
 	OutputSurface() = default;
 
-	void setPosition(int x, int y);
+	void setViewPort(gl::ivec2 offset, gl::ivec2 size, bool scaled) {
+		m_viewOffset = offset;
+		m_viewSize = size;
+		m_viewScaled = scaled;
+	}
 	void setSDLSurface(SDL_Surface* surface_) { surface = surface_; }
 	void setSDLRenderer(SDL_Renderer* r) { renderer = r; }
 	void setSDLFormat(const SDL_PixelFormat& format);
@@ -147,7 +152,9 @@ private:
 	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;
-	int xOffset = 0, yOffset = 0;
+	gl::ivec2 m_viewOffset;
+	gl::ivec2 m_viewSize;
+	bool m_viewScaled = false;
 
 	bool locked = false;
 

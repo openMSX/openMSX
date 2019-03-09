@@ -273,6 +273,15 @@ inline vecN<N, T> min(const vecN<N, T>& x, const vecN<N, T>& y)
 	return r;
 }
 
+// min(vector, vector)
+template<int N, typename T>
+inline T min_component(const vecN<N, T>& x)
+{
+	T r = x[0];
+	for (int i = 1; i < N; ++i) r = std::min(r, x[i]);
+	return r;
+}
+
 // max(vector, vector)
 template<int N, typename T>
 inline vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)

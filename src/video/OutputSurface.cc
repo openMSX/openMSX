@@ -23,12 +23,6 @@ void OutputSurface::unlock()
 	}
 }
 
-void OutputSurface::setPosition(int x, int y)
-{
-	xOffset = x;
-	yOffset = y;
-}
-
 void OutputSurface::setSDLFormat(const SDL_PixelFormat& format_)
 {
 	format = format_;

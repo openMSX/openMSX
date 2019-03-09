@@ -413,6 +413,14 @@ TEST_CASE("gl_vec: component-wise min/max")
 	CHECK(max(ivec4(1, -2, 5, -7), ivec4(0, 2, -4, -3)) == ivec4(1, 2, 5, -3));
 }
 
+TEST_CASE("gl_vec: minimum component within a vector")
+{
+	CHECK(min_component( vec3(1, 5, -7.2f)) == -7.2f);
+	CHECK(min_component(ivec3(3, 2, 4)) == 2);
+	CHECK(min_component( vec4(-1, 2, 5.2f, 0)) == -1);
+	CHECK(min_component(ivec4(1, -2, 5, -7)) == -7);
+}
+
 TEST_CASE("gl_vec: clamp") {
 	CHECK(clamp( vec3(2, 3, 4),  vec3(0, 4, -4),  vec3(4, 7, 0)) ==  vec3(2, 4, 0));
 	CHECK(clamp(ivec3(2, 3, 4), ivec3(0, 4, -4), ivec3(4, 7, 0)) == ivec3(2, 4, 0));

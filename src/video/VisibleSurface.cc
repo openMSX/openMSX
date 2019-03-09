@@ -58,7 +58,7 @@ VisibleSurface::VisibleSurface(
 void VisibleSurface::createSurface(int width, int height, unsigned flags)
 {
 	if (getDisplay().getRenderSettings().getFullScreen()) {
-		flags |= SDL_WINDOW_FULLSCREEN;
+		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
 
 	assert(!window);

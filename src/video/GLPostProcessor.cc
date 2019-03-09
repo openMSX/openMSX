@@ -136,7 +136,8 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	int glow = renderSettings.getGlow();
 	bool renderToTexture = (deform != RenderSettings::DEFORM_NORMAL) ||
 	                       (horStretch != 320.0f) ||
-	                       (glow != 0);
+	                       (glow != 0) ||
+	                       screen.getViewScaled();
 
 	if ((deform == RenderSettings::DEFORM_3D) || !paintFrame) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -193,8 +194,9 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	if (renderToTexture) {
 		fbo[frameCounter & 1].pop();
 		colorTex[frameCounter & 1].bind();
-		glViewport(screen.getX(), screen.getY(),
-		           screen.getWidth(), screen.getHeight());
+		gl::ivec2 viewOffset = screen.getViewOffset();
+		gl::ivec2 viewSize   = screen.getViewSize();
+		glViewport(viewOffset[0], viewOffset[1], viewSize[0], viewSize[1]);
 
 		if (deform == RenderSettings::DEFORM_3D) {
 			drawMonitor3D();

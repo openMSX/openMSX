@@ -127,7 +127,7 @@ template<typename T> union storage_t {
 	{
 	}
 
-	~storage_t() = default;
+	~storage_t() {}
 };
 
 template<typename T> union constexpr_storage_t {
@@ -142,7 +142,7 @@ template<typename T> union constexpr_storage_t {
 	{
 	}
 
-	~constexpr_storage_t() = default;
+	~constexpr_storage_t() {}
 };
 
 template<typename T> struct optional_base {
