@@ -14,13 +14,12 @@ using namespace gl;
 namespace openmsx {
 
 static gl::Texture loadTexture(
-	SDLSurfacePtr surface, ivec2& size, vec2& texCoord)
+	SDLSurfacePtr surface, ivec2& size)
 {
 	size = ivec2(surface->w, surface->h);
-	ivec2 size2(Math::powerOfTwo(size[0]),
-	            Math::powerOfTwo(size[1]));
-	texCoord = vec2(size) / vec2(size2);
-	SDLSurfacePtr image2(size2[0], size2[1], 32,
+	// Make a copy to convert to the correct pixel format.
+	// TODO instead directly load the image in the correct format.
+	SDLSurfacePtr image2(size[0], size[1], 32,
 		OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
 		OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
 		OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
@@ -35,17 +34,17 @@ static gl::Texture loadTexture(
 	SDL_BlitSurface(surface.get(), &area, image2.get(), &area);
 
 	gl::Texture texture(true); // enable interpolation
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size2[0], size2[1], 0,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size[0], size[1], 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, image2->pixels);
 	return texture;
 }
 
 static gl::Texture loadTexture(
-	const string& filename, ivec2& size, vec2& texCoord)
+	const string& filename, ivec2& size)
 {
 	SDLSurfacePtr surface(PNG::load(filename, false));
 	try {
-		return loadTexture(std::move(surface), size, texCoord);
+		return loadTexture(std::move(surface), size);
 	} catch (MSXException& e) {
 		throw MSXException("Error loading image ", filename, ": ",
 		                   e.getMessage());
@@ -54,19 +53,19 @@ static gl::Texture loadTexture(
 
 
 GLImage::GLImage(OutputSurface& /*output*/, const string& filename)
-	: texture(loadTexture(filename, size, texCoord))
+	: texture(loadTexture(filename, size))
 {
 }
 
 GLImage::GLImage(OutputSurface& /*output*/, const string& filename, float scalefactor)
-	: texture(loadTexture(filename, size, texCoord))
+	: texture(loadTexture(filename, size))
 {
 	size = trunc(vec2(size) * scalefactor);
 	checkSize(size);
 }
 
 GLImage::GLImage(OutputSurface& /*output*/, const string& filename, ivec2 size_)
-	: texture(loadTexture(filename, size, texCoord))
+	: texture(loadTexture(filename, size))
 {
 	checkSize(size_);
 	size = size_;
@@ -111,7 +110,7 @@ GLImage::GLImage(OutputSurface& /*output*/, ivec2 size_, const unsigned* rgba,
 }
 
 GLImage::GLImage(OutputSurface& /*output*/, SDLSurfacePtr image)
-	: texture(loadTexture(std::move(image), size, texCoord))
+	: texture(loadTexture(std::move(image), size))
 {
 }
 
@@ -144,10 +143,10 @@ void GLImage::draw(OutputSurface& /*output*/, ivec2 pos, uint8_t r, uint8_t g, u
 
 	if (texture.get()) {
 		vec2 tex[4] = {
-			vec2(       0.0f,        0.0f),
-			vec2(       0.0f, texCoord[1]),
-			vec2(texCoord[0], texCoord[1]),
-			vec2(texCoord[0],        0.0f),
+			vec2(0.0f, 0.0f),
+			vec2(0.0f, 1.0f),
+			vec2(1.0f, 1.0f),
+			vec2(1.0f, 0.0f),
 		};
 
 		gl::context->progTex.activate();

@@ -25,8 +25,7 @@ public:
 	          uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) override;
 
 private:
-	gl::vec2 texCoord;
-	gl::Texture texture; // must come after size and texCoord
+	gl::Texture texture; // must come after size
 	int borderSize;
 	int bgA[4], borderA;
 	uint8_t bgR[4], bgG[4], bgB[4];
