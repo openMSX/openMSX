@@ -139,7 +139,8 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	                       (glow != 0) ||
 	                       screen.getViewScaled();
 
-	if ((deform == RenderSettings::DEFORM_3D) || !paintFrame) {
+	if ((screen.getViewOffset() != ivec2()) || // any part of the screen not covered by the viewport?
+	    (deform == RenderSettings::DEFORM_3D) || !paintFrame) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		if (!paintFrame) {
