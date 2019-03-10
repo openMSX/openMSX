@@ -67,7 +67,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	gl::vec2 viewOffset = (physSize - viewSize) / 2.0f;
 	gl::ivec2 iOffset(viewOffset);
 	gl::ivec2 iSize  (viewSize);
-	setViewPort(iOffset, iSize, scale != 1.0f);
+	setViewPort(iOffset, iSize, gl::vec2(scale));
 	glViewport(iOffset[0], iOffset[1], iSize[0], iSize[1]);
 
 	glMatrixMode(GL_PROJECTION);

@@ -137,7 +137,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	bool renderToTexture = (deform != RenderSettings::DEFORM_NORMAL) ||
 	                       (horStretch != 320.0f) ||
 	                       (glow != 0) ||
-	                       screen.getViewScaled();
+	                       screen.isViewScaled();
 
 	if ((screen.getViewOffset() != ivec2()) || // any part of the screen not covered by the viewport?
 	    (deform == RenderSettings::DEFORM_3D) || !paintFrame) {

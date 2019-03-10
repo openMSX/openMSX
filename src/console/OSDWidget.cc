@@ -4,11 +4,11 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "GLUtil.hh"
+#include "optional.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include <SDL.h>
 #include <limits>
-#include <memory>
 
 using std::string;
 using std::vector;
@@ -33,8 +33,8 @@ static void intersect(int xa, int ya, int wa, int ha,
 }
 
 ////
-
-static void normalize(int& x, int& w)
+template<typename T>
+static void normalize(T& x, T& w)
 {
 	if (w < 0) {
 		w = -w;
@@ -45,7 +45,7 @@ static void normalize(int& x, int& w)
 class SDLScopedClip
 {
 public:
-	SDLScopedClip(OutputSurface& output, int x, int y, int w, int h);
+	SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~SDLScopedClip();
 private:
 	SDL_Surface* surface;
@@ -53,9 +53,12 @@ private:
 };
 
 
-SDLScopedClip::SDLScopedClip(OutputSurface& output, int x, int y, int w, int h)
+SDLScopedClip::SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 	: surface(output.getSDLSurface())
 {
+	ivec2 i_xy = round(xy); int x = i_xy[0]; int y = i_xy[1];
+	ivec2 i_wh = round(wh); int w = i_wh[0]; int h = i_wh[1];
+
 	normalize(x, w); normalize(y, h);
 	SDL_GetClipRect(surface, &origClip);
 
@@ -79,7 +82,7 @@ SDLScopedClip::~SDLScopedClip()
 class GLScopedClip
 {
 public:
-	GLScopedClip(OutputSurface& output, int x, int y, int w, int h);
+	GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~GLScopedClip();
 private:
 	GLint box[4]; // x, y, w, h;
@@ -87,21 +90,26 @@ private:
 };
 
 
-GLScopedClip::GLScopedClip(OutputSurface& output, int x, int y, int w, int h)
+GLScopedClip::GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 {
-	normalize(x, w); normalize(y, h);
-	y = output.getHeight() - y - h; // openGL sets (0,0) in LOWER-left corner
+	normalize(xy[0], wh[0]); normalize(xy[1], wh[1]);
+	xy[1] = output.getHeight() - xy[1] - wh[1]; // openGL sets (0,0) in LOWER-left corner
+
+	// transform view-space coordinates to clip-space coordinates
+	vec2 scale = output.getViewScale();
+	ivec2 i_xy = round(xy * scale) + output.getViewOffset();
+	ivec2 i_wh = round(wh * scale);
 
 	wasEnabled = glIsEnabled(GL_SCISSOR_TEST);
 	if (wasEnabled == GL_TRUE) {
 		glGetIntegerv(GL_SCISSOR_BOX, box);
 		int xn, yn, wn, hn;
 		intersect(box[0], box[1], box[2], box[3],
-		          x,  y,  w,  h,
+		          i_xy[0], i_xy[1], i_wh[0], i_wh[1],
 		          xn, yn, wn, hn);
 		glScissor(xn, yn, wn, hn);
 	} else {
-		glScissor(x, y, w, h);
+		glScissor(i_xy[0], i_xy[1], i_wh[0], i_wh[1]);
 		glEnable(GL_SCISSOR_TEST);
 	}
 }
@@ -316,12 +324,11 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 {
 	paintSDL(output);
 
-	std::unique_ptr<SDLScopedClip> scopedClip;
+	optional<SDLScopedClip> scopedClip;
 	if (clip) {
-		ivec2 clipPos, size;
+		vec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
-		scopedClip = std::make_unique<SDLScopedClip>(
-			output, clipPos[0], clipPos[1], size[0], size[1]);
+		scopedClip.emplace(output, clipPos, size);
 	}
 
 	for (auto& s : subWidgets) {
@@ -335,12 +342,11 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 #if COMPONENT_GL
 	paintGL(output);
 
-	std::unique_ptr<GLScopedClip> scopedClip;
+	optional<GLScopedClip> scopedClip;
 	if (clip) {
-		ivec2 clipPos, size;
+		vec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
-		scopedClip = std::make_unique<GLScopedClip>(
-			output, clipPos[0], clipPos[1], size[0], size[1]);
+		scopedClip.emplace(output, clipPos, size);
 	}
 
 	for (auto& s : subWidgets) {
@@ -426,12 +432,12 @@ vec2 OSDWidget::getMouseCoord() const
 }
 
 void OSDWidget::getBoundingBox(const OutputSurface& output,
-                               ivec2& bbPos, ivec2& bbSize)
+                               vec2& bbPos, vec2& bbSize)
 {
 	vec2 topLeft     = transformPos(output, vec2(), vec2(0.0f));
 	vec2 bottomRight = transformPos(output, vec2(), vec2(1.0f));
-	bbPos  = round(topLeft);
-	bbSize = round(bottomRight - topLeft);
+	bbPos  = topLeft;
+	bbSize = bottomRight - topLeft;
 }
 
 } // namespace openmsx
