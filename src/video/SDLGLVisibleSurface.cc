@@ -60,15 +60,10 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	// If that happens, center the area that we actually use.
 	int w, h;
 	SDL_GL_GetDrawableSize(window.get(), &w, &h);
-	gl::vec2 physSize(w, h);
-	gl::vec2 logSize(width, height);
-	float scale = min_component(physSize / logSize);
-	gl::vec2 viewSize = logSize * scale;
-	gl::vec2 viewOffset = (physSize - viewSize) / 2.0f;
-	gl::ivec2 iOffset(viewOffset);
-	gl::ivec2 iSize  (viewSize);
-	setViewPort(iOffset, iSize, gl::vec2(scale));
-	glViewport(iOffset[0], iOffset[1], iSize[0], iSize[1]);
+	calculateViewPort(gl::ivec2(w, h));
+	gl::ivec2 offset = getViewOffset();
+	gl::ivec2 size   = getViewSize();
+	glViewport(offset[0], offset[1], size[0], size[1]);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -103,7 +98,7 @@ void SDLGLVisibleSurface::clearScreen()
 
 void SDLGLVisibleSurface::saveScreenshot(const std::string& filename)
 {
-	SDLGLOutputSurface::saveScreenshot(filename, getWidth(), getHeight());
+	SDLGLOutputSurface::saveScreenshot(filename, *this);
 }
 
 void SDLGLVisibleSurface::finish()

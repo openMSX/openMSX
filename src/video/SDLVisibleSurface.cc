@@ -28,6 +28,9 @@ SDLVisibleSurface::SDLVisibleSurface(
 	const SDL_Surface* surf = getSDLSurface();
 	setSDLFormat(*surf->format);
 	setBufferPtr(static_cast<char*>(surf->pixels), surf->pitch);
+
+	// In the SDL renderer logical size is the same as physical size.
+	calculateViewPort(getLogicalSize());
 }
 
 void SDLVisibleSurface::flushFrameBuffer()

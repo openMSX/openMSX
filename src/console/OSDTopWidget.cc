@@ -19,7 +19,7 @@ string_view OSDTopWidget::getType() const
 
 gl::vec2 OSDTopWidget::getSize(const OutputSurface& output) const
 {
-	return gl::vec2(output.getOutputSize()); // int -> float
+	return gl::vec2(output.getLogicalSize()); // int -> float
 }
 
 void OSDTopWidget::invalidateLocal()

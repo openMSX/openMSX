@@ -104,15 +104,18 @@ void SDLGLOutputSurface::clearScreen()
 }
 
 void SDLGLOutputSurface::saveScreenshot(
-	const std::string& filename, unsigned width, unsigned height)
+	const std::string& filename, const OutputSurface& output) const
 {
-	VLA(const void*, rowPointers, height);
-	MemBuffer<uint8_t> buffer(width * height * 3);
-	for (unsigned i = 0; i < height; ++i) {
-		rowPointers[height - 1 - i] = &buffer[width * 3 * i];
+	gl::ivec2 offset = output.getViewOffset();
+	gl::ivec2 size   = output.getViewSize();
+
+	VLA(const void*, rowPointers, size[1]);
+	MemBuffer<uint8_t> buffer(size[0] * size[1] * 3);
+	for (int i = 0; i < size[1]; ++i) {
+		rowPointers[size[1] - 1 - i] = &buffer[size[0] * 3 * i];
 	}
-	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
-	PNG::save(width, height, rowPointers, filename);
+	glReadPixels(offset[0], offset[1], size[0], size[1], GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+	PNG::save(size[0], size[1], rowPointers, filename);
 }
 
 } // namespace openmsx

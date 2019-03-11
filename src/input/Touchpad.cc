@@ -195,7 +195,7 @@ void Touchpad::write(byte value, EmuTime::param time)
 ivec2 Touchpad::transformCoords(ivec2 xy)
 {
 	if (auto* output = display.getOutputSurface()) {
-		vec2 uv = vec2(xy) / vec2(output->getOutputSize());
+		vec2 uv = vec2(xy) / vec2(output->getLogicalSize());
 		xy = ivec2(m * vec3(uv, 1.0f));
 	}
 	return clamp(xy, 0, 255);

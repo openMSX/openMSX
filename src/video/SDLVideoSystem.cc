@@ -216,7 +216,7 @@ gl::ivec2 SDLVideoSystem::getWindowSize()
 bool SDLVideoSystem::checkSettings()
 {
 	// Check resolution.
-	if (getWindowSize() != screen->getOutputSize()) {
+	if (getWindowSize() != screen->getLogicalSize()) {
 		return false;
 	}
 
