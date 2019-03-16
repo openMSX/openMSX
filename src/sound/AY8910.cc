@@ -623,11 +623,17 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 		    !(oldValue & PORT_A_DIRECTION)) {
 			// Changed from input to output.
 			periphery.writeA(regs[AY_PORTA], time);
+		} else {
+			// Output -> input
+			periphery.writeA(0xff, time);
 		}
 		if ((value     & PORT_B_DIRECTION) &&
 		    !(oldValue & PORT_B_DIRECTION)) {
 			// Changed from input to output.
 			periphery.writeB(regs[AY_PORTB], time);
+		} else {
+			// Output -> input
+			periphery.writeB(0xff, time);
 		}
 		break;
 	case AY_PORTA:
