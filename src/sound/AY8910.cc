@@ -588,7 +588,7 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 	}
 
 	// Note: unused bits are stored as well; they can be read back.
-	byte oldValue = regs[reg];
+	byte diff = regs[reg] ^ value;
 	regs[reg] = value;
 
 	switch (reg) {
@@ -619,21 +619,25 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 		envelope.setShape(value);
 		break;
 	case AY_ENABLE:
-		if ((value     & PORT_A_DIRECTION) &&
-		    !(oldValue & PORT_A_DIRECTION)) {
-			// Changed from input to output.
-			periphery.writeA(regs[AY_PORTA], time);
-		} else {
-			// Output -> input
-			periphery.writeA(0xff, time);
+		if (diff & PORT_A_DIRECTION) {
+			// port A changed
+			if (value & PORT_A_DIRECTION) {
+				// from input to output
+				periphery.writeA(regs[AY_PORTA], time);
+			} else {
+				// from output to input
+				periphery.writeA(0xff, time);
+			}
 		}
-		if ((value     & PORT_B_DIRECTION) &&
-		    !(oldValue & PORT_B_DIRECTION)) {
-			// Changed from input to output.
-			periphery.writeB(regs[AY_PORTB], time);
-		} else {
-			// Output -> input
-			periphery.writeB(0xff, time);
+		if (diff & PORT_B_DIRECTION) {
+			// port B changed
+			if (value & PORT_B_DIRECTION) {
+				// from input to output
+				periphery.writeB(regs[AY_PORTB], time);
+			} else {
+				// from output to input
+				periphery.writeB(0xff, time);
+			}
 		}
 		break;
 	case AY_PORTA:
