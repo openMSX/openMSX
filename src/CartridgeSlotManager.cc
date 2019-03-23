@@ -406,6 +406,7 @@ CartridgeSlotManager::CartridgeSlotInfo::CartridgeSlotInfo(
 void CartridgeSlotManager::CartridgeSlotInfo::execute(
 	span<const TclObject> tokens, TclObject& result) const
 {
+	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?slot?");
 	auto& manager = OUTER(CartridgeSlotManager, extSlotInfo);
 	switch (tokens.size()) {
 	case 2: {
@@ -445,8 +446,6 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 		}
 		break;
 	}
-	default:
-		throw SyntaxError();
 	}
 }
 

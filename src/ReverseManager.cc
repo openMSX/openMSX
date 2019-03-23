@@ -1002,9 +1002,7 @@ ReverseManager::ReverseCmd::ReverseCmd(CommandController& controller)
 
 void ReverseManager::ReverseCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 2) {
-		throw CommandException("Missing subcommand");
-	}
+	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	auto& manager = OUTER(ReverseManager, reverseCmd);
 	auto& interp = getInterpreter();
 	string_view subcommand = tokens[1].getString();

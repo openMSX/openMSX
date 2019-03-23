@@ -24,6 +24,7 @@ static CliComm::LogLevel getLevel(string_view level)
 
 void MessageCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
+	checkNumArgs(tokens, Between{2, 3}, "string ?level?");
 	CliComm& cliComm = getCliComm();
 	CliComm::LogLevel level = CliComm::INFO;
 	switch (tokens.size()) {
@@ -33,8 +34,6 @@ void MessageCommand::execute(span<const TclObject> tokens, TclObject& /*result*/
 	case 2:
 		cliComm.log(level, tokens[1].getString());
 		break;
-	default:
-		throw SyntaxError();
 	}
 }
 

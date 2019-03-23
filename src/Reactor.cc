@@ -656,6 +656,7 @@ ExitCommand::ExitCommand(CommandController& commandController_,
 
 void ExitCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?exitcode?");
 	switch (tokens.size()) {
 	case 1:
 		exitCode = 0;
@@ -663,8 +664,6 @@ void ExitCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 	case 2:
 		exitCode = tokens[1].getInt(getInterpreter());
 		break;
-	default:
-		throw SyntaxError();
 	}
 	distributor.distributeEvent(make_shared<QuitEvent>());
 }
@@ -687,6 +686,7 @@ MachineCommand::MachineCommand(CommandController& commandController_,
 
 void MachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?machinetype?");
 	switch (tokens.size()) {
 	case 1: // get current machine
 		// nothing
@@ -699,8 +699,6 @@ void MachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 			                       e.getMessage());
 		}
 		break;
-	default:
-		throw SyntaxError();
 	}
 	// Always return machineID (of current or of new machine).
 	result = reactor.getMachineID();
@@ -729,9 +727,7 @@ TestMachineCommand::TestMachineCommand(CommandController& commandController_,
 void TestMachineCommand::execute(span<const TclObject> tokens,
                                  TclObject& result)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "machinetype");
 	try {
 		MSXMotherBoard mb(reactor);
 		mb.loadMachine(tokens[1].getString().str());
@@ -764,9 +760,7 @@ CreateMachineCommand::CreateMachineCommand(
 
 void CreateMachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 1) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 1, Prefix{1}, nullptr);
 	auto newBoard = reactor.createEmptyMotherBoard();
 	result = newBoard->getMachineID();
 	reactor.boards.push_back(move(newBoard));
@@ -797,9 +791,7 @@ DeleteMachineCommand::DeleteMachineCommand(
 void DeleteMachineCommand::execute(span<const TclObject> tokens,
                                    TclObject& /*result*/)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "id");
 	reactor.deleteBoard(&reactor.getMachine(tokens[1].getString()));
 }
 
@@ -847,15 +839,13 @@ ActivateMachineCommand::ActivateMachineCommand(
 void ActivateMachineCommand::execute(span<const TclObject> tokens,
                                      TclObject& result)
 {
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "id");
 	switch (tokens.size()) {
 	case 1:
 		break;
-	case 2: {
+	case 2:
 		reactor.switchBoard(&reactor.getMachine(tokens[1].getString()));
 		break;
-	}
-	default:
-		throw SyntaxError();
 	}
 	result = reactor.getMachineID();
 }
@@ -884,6 +874,7 @@ StoreMachineCommand::StoreMachineCommand(
 
 void StoreMachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{1, 3}, Prefix{1}, "?id? ?filename?");
 	string filename;
 	string_view machineID;
 	switch (tokens.size()) {
@@ -899,8 +890,6 @@ void StoreMachineCommand::execute(span<const TclObject> tokens, TclObject& resul
 		machineID = tokens[1].getString();
 		filename = tokens[2].getString().str();
 		break;
-	default:
-		throw SyntaxError();
 	}
 
 	auto& board = reactor.getMachine(machineID);
@@ -938,6 +927,7 @@ RestoreMachineCommand::RestoreMachineCommand(
 void RestoreMachineCommand::execute(span<const TclObject> tokens,
                                     TclObject& result)
 {
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?filename?");
 	auto newBoard = reactor.createEmptyMotherBoard();
 
 	string filename;
@@ -968,8 +958,6 @@ void RestoreMachineCommand::execute(span<const TclObject> tokens,
 	case 2:
 		filename = tokens[1].getString().str();
 		break;
-	default:
-		throw SyntaxError();
 	}
 
 	//std::cerr << "Loading " << filename << '\n';

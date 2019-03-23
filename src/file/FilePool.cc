@@ -588,7 +588,7 @@ Sha1SumCommand::Sha1SumCommand(
 
 void Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 2) throw SyntaxError();
+	checkNumArgs(tokens, 2, "filename");
 	File file(tokens[1].getString());
 	result = filePool.getSha1Sum(file).toString();
 }

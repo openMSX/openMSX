@@ -781,9 +781,7 @@ LoadMachineCmd::LoadMachineCmd(MSXMotherBoard& motherBoard_)
 
 void LoadMachineCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "machine");
 	if (motherBoard.getMachineConfig()) {
 		throw CommandException("Already loaded a config in this machine.");
 	}
@@ -836,9 +834,7 @@ ExtCmd::ExtCmd(MSXMotherBoard& motherBoard_, std::string commandName_)
 void ExtCmd::execute(span<const TclObject> tokens, TclObject& result,
                      EmuTime::param /*time*/)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "extension");
 	try {
 		auto slotname = (commandName.size() == 4)
 			? string_view(&commandName[3], 1)
@@ -875,9 +871,7 @@ RemoveExtCmd::RemoveExtCmd(MSXMotherBoard& motherBoard_)
 void RemoveExtCmd::execute(span<const TclObject> tokens, TclObject& /*result*/,
                            EmuTime::param /*time*/)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "extension");
 	string_view extName = tokens[1].getString();
 	HardwareConfig* extension = motherBoard.findExtension(extName);
 	if (!extension) {
@@ -956,6 +950,7 @@ DeviceInfo::DeviceInfo(MSXMotherBoard& motherBoard_)
 
 void DeviceInfo::execute(span<const TclObject> tokens, TclObject& result) const
 {
+	checkNumArgs(tokens, Between{2, 3}, Prefix{2}, "?device?");
 	switch (tokens.size()) {
 	case 2:
 		result.addListElements(
@@ -971,8 +966,6 @@ void DeviceInfo::execute(span<const TclObject> tokens, TclObject& result) const
 		device->getDeviceInfo(result);
 		break;
 	}
-	default:
-		throw SyntaxError();
 	}
 }
 

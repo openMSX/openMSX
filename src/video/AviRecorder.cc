@@ -271,11 +271,8 @@ void AviRecorder::processStart(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-void AviRecorder::processStop(span<const TclObject> tokens)
+void AviRecorder::processStop(span<const TclObject> /*tokens*/)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
 	stop();
 }
 
@@ -289,11 +286,8 @@ void AviRecorder::processToggle(span<const TclObject> tokens, TclObject& result)
 	}
 }
 
-void AviRecorder::status(span<const TclObject> tokens, TclObject& result) const
+void AviRecorder::status(span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
 	result.addDictKeyValue("status", (aviWriter || wavWriter) ? "recording" : "idle");
 }
 
@@ -314,10 +308,12 @@ void AviRecorder::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 	if (subcommand == "start") {
 		recorder.processStart(tokens, result);
 	} else if (subcommand == "stop") {
+		checkNumArgs(tokens, 2, Prefix{2}, nullptr);
 		recorder.processStop(tokens);
 	} else if (subcommand == "toggle") {
 		recorder.processToggle(tokens, result);
 	} else if (subcommand == "status") {
+		checkNumArgs(tokens, 2, Prefix{2}, nullptr);
 		recorder.status(tokens, result);
 	} else {
 		throw SyntaxError();

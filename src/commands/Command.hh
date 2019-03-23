@@ -21,7 +21,7 @@ public:
 	CommandCompleter& operator=(const CommandCompleter&) = delete;
 
 	CommandController& getCommandController() const { return commandController; }
-	Interpreter& getInterpreter() const;
+	Interpreter& getInterpreter() const final;
 
 protected:
 	CommandCompleter(CommandController& controller, string_view name);

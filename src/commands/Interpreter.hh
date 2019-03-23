@@ -50,6 +50,8 @@ public:
 	TclParser parse(string_view command);
 
 	void poll();
+	
+	void wrongNumArgs(unsigned argc, span<const TclObject> tokens, const char* message);
 
 private:
 	static int outputProc(ClientData clientData, const char* buf,

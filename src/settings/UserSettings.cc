@@ -56,9 +56,7 @@ UserSettings::Cmd::Cmd(CommandController& commandController_)
 
 void UserSettings::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	const auto& subCommand = tokens[1].getString();
 	if (subCommand == "create") {
 		create(tokens, result);
@@ -75,9 +73,7 @@ void UserSettings::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 
 void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 5) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{5}, Prefix{2}, "type name ?arg ...?");
 	const auto& type = tokens[2].getString();
 	const auto& settingName = tokens[3].getString();
 
@@ -109,9 +105,7 @@ void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)
 
 unique_ptr<Setting> UserSettings::Cmd::createString(span<const TclObject> tokens)
 {
-	if (tokens.size() != 6) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 6, Prefix{3}, "name description initialvalue");
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getString();
@@ -121,9 +115,7 @@ unique_ptr<Setting> UserSettings::Cmd::createString(span<const TclObject> tokens
 
 unique_ptr<Setting> UserSettings::Cmd::createBoolean(span<const TclObject> tokens)
 {
-	if (tokens.size() != 6) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 6, Prefix{3}, "name description initialvalue");
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getBoolean(getInterpreter());
@@ -133,9 +125,7 @@ unique_ptr<Setting> UserSettings::Cmd::createBoolean(span<const TclObject> token
 
 unique_ptr<Setting> UserSettings::Cmd::createInteger(span<const TclObject> tokens)
 {
-	if (tokens.size() != 8) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 8, Prefix{3}, "name description initialvalue minvalue maxvalue");
 	auto& interp = getInterpreter();
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
@@ -148,9 +138,7 @@ unique_ptr<Setting> UserSettings::Cmd::createInteger(span<const TclObject> token
 
 unique_ptr<Setting> UserSettings::Cmd::createFloat(span<const TclObject> tokens)
 {
-	if (tokens.size() != 8) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 8, Prefix{3}, "name description initialvalue minvalue maxvalue");
 	auto& interp = getInterpreter();
 	const auto& sName    = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
@@ -163,9 +151,7 @@ unique_ptr<Setting> UserSettings::Cmd::createFloat(span<const TclObject> tokens)
 
 void UserSettings::Cmd::destroy(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "name");
 	const auto& settingName = tokens[2].getString();
 
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);

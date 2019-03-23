@@ -509,16 +509,10 @@ GlobalCommandController::TabCompletionCmd::TabCompletionCmd(
 void GlobalCommandController::TabCompletionCmd::execute(
 	span<const TclObject> tokens, TclObject& result)
 {
-	switch (tokens.size()) {
-	case 2: {
-		// TODO this prints list of possible completions in the console
-		auto& controller = OUTER(GlobalCommandController, tabCompletionCmd);
-		result = controller.tabCompletion(tokens[1].getString());
-		break;
-	}
-	default:
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "commandstring");
+	// TODO this prints list of possible completions in the console
+	auto& controller = OUTER(GlobalCommandController, tabCompletionCmd);
+	result = controller.tabCompletion(tokens[1].getString());
 }
 
 string GlobalCommandController::TabCompletionCmd::help(const vector<string>& /*tokens*/) const
@@ -561,9 +555,7 @@ CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 void GlobalCommandController::UpdateCmd::execute(
 	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "enable|disable type");
 	if (tokens[1] == "enable") {
 		getConnection().setUpdateEnable(getType(tokens[2]), true);
 	} else if (tokens[1] == "disable") {

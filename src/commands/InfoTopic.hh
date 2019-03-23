@@ -40,7 +40,7 @@ public:
 	  */
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
-	Interpreter& getInterpreter() const;
+	Interpreter& getInterpreter() const final;
 
 protected:
 	InfoTopic(InfoCommand& infoCommand, const std::string& name);

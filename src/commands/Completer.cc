@@ -1,4 +1,5 @@
 #include "Completer.hh"
+#include "Interpreter.hh"
 #include "InterpreterOutput.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
@@ -7,6 +8,7 @@
 #include "stl.hh"
 #include "strCat.hh"
 #include "stringsp.hh"
+#include "TclObject.hh"
 #include "utf8_unchecked.hh"
 #include "view.hh"
 
@@ -173,6 +175,39 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 		// completed filename, start new token
 		tokens.emplace_back();
 	}
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, unsigned exactly, const char* errMessage) const
+{
+	checkNumArgs(tokens, exactly, Prefix{exactly - 1}, errMessage);
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, AtLeast atLeast, const char* errMessage) const
+{
+	checkNumArgs(tokens, atLeast, Prefix{atLeast.min - 1}, errMessage);
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, Between between, const char* errMessage) const
+{
+	checkNumArgs(tokens, between, Prefix{between.min - 1}, errMessage);
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, unsigned exactly, Prefix prefix, const char* errMessage) const
+{
+	if (tokens.size() == exactly) return;
+	getInterpreter().wrongNumArgs(prefix.n, tokens, errMessage);
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, AtLeast atLeast, Prefix prefix, const char* errMessage) const
+{
+	if (tokens.size() >= atLeast.min) return;
+	getInterpreter().wrongNumArgs(prefix.n, tokens, errMessage);
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, Between between, Prefix prefix, const char* errMessage) const
+{
+	if (tokens.size() >= between.min && tokens.size() <= between.max) return;
+	getInterpreter().wrongNumArgs(prefix.n, tokens, errMessage);
 }
 
 } // namespace openmsx

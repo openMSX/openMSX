@@ -449,4 +449,12 @@ TclParser Interpreter::parse(string_view command)
 	return TclParser(interp, command);
 }
 
+void Interpreter::wrongNumArgs(unsigned argc, span<const TclObject> tokens, const char* message)
+{
+	assert(argc <= tokens.size());
+	Tcl_WrongNumArgs(interp, argc, reinterpret_cast<Tcl_Obj* const*>(tokens.data()), message);
+	// not efficient, but anyway on an error path
+	throw CommandException(Tcl_GetStringResult(interp));
+}
+
 } // namespace openmsx

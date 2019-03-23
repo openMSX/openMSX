@@ -721,9 +721,7 @@ HotKey::DeactivateCmd::DeactivateCmd(CommandController& commandController_)
 
 void HotKey::DeactivateCmd::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "layer");
 	auto& hotKey = OUTER(HotKey, deactivateCmd);
 	hotKey.deactivateLayer(tokens[1].getString());
 }

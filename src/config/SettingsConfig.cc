@@ -88,6 +88,7 @@ SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
 void SettingsConfig::SaveSettingsCommand::execute(
 	span<const TclObject> tokens, TclObject& /*result*/)
 {
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?filename?");
 	auto& settingsConfig = OUTER(SettingsConfig, saveSettingsCommand);
 	try {
 		switch (tokens.size()) {
@@ -97,8 +98,6 @@ void SettingsConfig::SaveSettingsCommand::execute(
 		case 2:
 			settingsConfig.saveSetting(tokens[1].getString());
 			break;
-		default:
-			throw SyntaxError();
 		}
 	} catch (FileException& e) {
 		throw CommandException(std::move(e).getMessage());
@@ -129,9 +128,7 @@ SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
 void SettingsConfig::LoadSettingsCommand::execute(
 	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "filename");
 	auto& settingsConfig = OUTER(SettingsConfig, loadSettingsCommand);
 	settingsConfig.loadSetting(systemFileContext(), tokens[1].getString());
 }

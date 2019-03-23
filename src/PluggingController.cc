@@ -81,6 +81,7 @@ PluggingController::PlugCmd::PlugCmd(
 void PluggingController::PlugCmd::execute(
 	span<const TclObject> tokens, TclObject& result_, EmuTime::param time)
 {
+	checkNumArgs(tokens, Between{1, 3}, Prefix{1}, "?connector? ?pluggable?");
 	string result;
 	auto& pluggingController = OUTER(PluggingController, plugCmd);
 	switch (tokens.size()) {
@@ -119,8 +120,6 @@ void PluggingController::PlugCmd::execute(
 		}
 		break;
 	}
-	default:
-		throw SyntaxError();
 	}
 	result_ = result; // TODO return Tcl list
 }
@@ -174,9 +173,7 @@ PluggingController::UnplugCmd::UnplugCmd(
 void PluggingController::UnplugCmd::execute(
 	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param time)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "connector");
 	auto& pluggingController = OUTER(PluggingController, unplugCmd);
 	string_view connName = tokens[1].getString();
 	auto& connector = pluggingController.getConnector(connName);

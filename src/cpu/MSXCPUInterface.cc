@@ -1038,9 +1038,7 @@ MSXCPUInterface::SlotInfo::SlotInfo(
 void MSXCPUInterface::SlotInfo::execute(span<const TclObject> tokens,
                        TclObject& result) const
 {
-	if (tokens.size() != 5) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 5, Prefix{2}, "primary secondary page");
 	auto& interp = getInterpreter();
 	unsigned ps   = getSlot(interp, tokens[2], "Primary slot");
 	unsigned ss   = getSlot(interp, tokens[3], "Secondary slot");
@@ -1070,9 +1068,7 @@ MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(
 void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
                              TclObject& result) const
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "primary");
 	auto& interface = OUTER(MSXCPUInterface, subSlottedInfo);
 	result = interface.isExpanded(
 		getSlot(getInterpreter(), tokens[2], "Slot"));
@@ -1096,6 +1092,7 @@ MSXCPUInterface::ExternalSlotInfo::ExternalSlotInfo(
 void MSXCPUInterface::ExternalSlotInfo::execute(
 	span<const TclObject> tokens, TclObject& result) const
 {
+	checkNumArgs(tokens, Between{3, 4}, "primary ?secondary?");
 	int ps = 0;
 	int ss = 0;
 	auto& interp = getInterpreter();
@@ -1106,8 +1103,6 @@ void MSXCPUInterface::ExternalSlotInfo::execute(
 	case 3:
 		ps = getSlot(interp, tokens[2], "Primary slot");
 		break;
-	default:
-		throw SyntaxError();
 	}
 	auto& interface = OUTER(MSXCPUInterface, externalSlotInfo);
 	auto& manager = interface.motherBoard.getSlotManager();
@@ -1151,9 +1146,7 @@ MSXCPUInterface::IOInfo::IOInfo(InfoCommand& machineInfoCommand, const char* nam
 void MSXCPUInterface::IOInfo::helper(
 	span<const TclObject> tokens, TclObject& result, MSXDevice** devices) const
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "port");
 	unsigned port = tokens[2].getInt(getInterpreter());
 	if (port >= 256) {
 		throw CommandException("Port must be in range 0..255");

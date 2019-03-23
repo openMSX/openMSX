@@ -40,9 +40,7 @@ OSDGUI::OSDCommand::OSDCommand(CommandController& commandController_)
 
 void OSDGUI::OSDCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	string_view subCommand = tokens[1].getString();
 	if (subCommand == "create") {
@@ -67,9 +65,7 @@ void OSDGUI::OSDCommand::execute(span<const TclObject> tokens, TclObject& result
 
 void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{4}, Prefix{2}, "type name ?property value ...?");
 	string_view type = tokens[2].getString();
 	auto& fullname = tokens[3];
 	auto fullnameStr = fullname.getString();
@@ -115,9 +111,7 @@ unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
 
 void OSDGUI::OSDCommand::destroy(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "name");
 	auto fullname = tokens[2].getString();
 
 	auto& gui = OUTER(OSDGUI, osdCommand);
@@ -141,6 +135,7 @@ void OSDGUI::OSDCommand::destroy(span<const TclObject> tokens, TclObject& result
 
 void OSDGUI::OSDCommand::info(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{2, 4}, Prefix{2}, "?name? ?property?");
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	switch (tokens.size()) {
 	case 2: {
@@ -160,16 +155,12 @@ void OSDGUI::OSDCommand::info(span<const TclObject> tokens, TclObject& result)
 		widget.getProperty(tokens[3].getString(), result);
 		break;
 	}
-	default:
-		throw SyntaxError();
 	}
 }
 
 void OSDGUI::OSDCommand::exists(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "name");
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findByName(tokens[2].getString());
 	result = widget != nullptr;
@@ -177,9 +168,7 @@ void OSDGUI::OSDCommand::exists(span<const TclObject> tokens, TclObject& result)
 
 void OSDGUI::OSDCommand::configure(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() < 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{3}, "name ?property value ...?");
 	configure(getWidget(tokens[2].getString()), tokens.subspan(3));
 }
 

@@ -631,9 +631,6 @@ void Keyboard::doKeyGhosting() const
 
 void Keyboard::processCmd(Interpreter& interp, span<const TclObject> tokens, bool up)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
 	unsigned row  = tokens[1].getInt(interp);
 	unsigned mask = tokens[2].getInt(interp);
 	if (row >= KeyMatrixPosition::NUM_ROWS) {
@@ -866,6 +863,7 @@ Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(
 void Keyboard::KeyMatrixUpCmd::execute(
 	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
+	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
 	auto& keyboard = OUTER(Keyboard, keyMatrixUpCmd);
 	return keyboard.processCmd(getInterpreter(), tokens, true);
 }
@@ -891,6 +889,7 @@ Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandControlle
 void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
                                TclObject& /*result*/, EmuTime::param /*time*/)
 {
+	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
 	auto& keyboard = OUTER(Keyboard, keyMatrixDownCmd);
 	return keyboard.processCmd(getInterpreter(), tokens, false);
 }
@@ -980,9 +979,7 @@ Keyboard::KeyInserter::KeyInserter(
 void Keyboard::KeyInserter::execute(
 	span<const TclObject> tokens, TclObject& /*result*/, EmuTime::param /*time*/)
 {
-	if (tokens.size() < 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{2}, "?-release? ?-freq hz? text");
 
 	releaseBeforePress = false;
 	typingFrequency = 15;

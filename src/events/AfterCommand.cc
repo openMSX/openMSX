@@ -250,9 +250,7 @@ static double getTime(Interpreter& interp, const TclObject& obj)
 
 void AfterCommand::afterTime(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, Prefix{2}, "seconds command");
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(getInterpreter(), tokens[2]);
@@ -264,9 +262,7 @@ void AfterCommand::afterTime(span<const TclObject> tokens, TclObject& result)
 
 void AfterCommand::afterRealTime(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, Prefix{2}, "seconds command");
 	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = std::make_unique<AfterRealTimeCmd>(
 		reactor.getRTScheduler(), *this, tokens[3], time);
@@ -288,11 +284,8 @@ void AfterCommand::afterTclTime(
 template<EventType T>
 void AfterCommand::afterEvent(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
-	auto cmd = std::make_unique<AfterEventCmd<T>>(
-		*this, tokens[1], tokens[2]);
+	checkNumArgs(tokens, 3, "command");
+	auto cmd = std::make_unique<AfterEventCmd<T>>(*this, tokens[1], tokens[2]);
 	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
@@ -300,20 +293,15 @@ void AfterCommand::afterEvent(span<const TclObject> tokens, TclObject& result)
 void AfterCommand::afterInputEvent(
 	const EventPtr& event, span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
-	auto cmd = std::make_unique<AfterInputEventCmd>(
-		*this, event, tokens[2]);
+	checkNumArgs(tokens, 3, "command");
+	auto cmd = std::make_unique<AfterInputEventCmd>(*this, event, tokens[2]);
 	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
 void AfterCommand::afterIdle(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, Prefix{2}, "seconds command");
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(getInterpreter(), tokens[2]);
@@ -341,9 +329,7 @@ void AfterCommand::afterInfo(span<const TclObject> /*tokens*/, TclObject& result
 
 void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() < 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{3}, "id|command");
 	if (tokens.size() == 3) {
 		auto id = tokens[2].getString();
 		auto it = ranges::find_if(afterCmds,

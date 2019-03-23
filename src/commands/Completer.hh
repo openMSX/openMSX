@@ -2,13 +2,16 @@
 #define COMPLETER_HH
 
 #include "inline.hh"
+#include "span.hh"
 #include "string_view.hh"
 #include <vector>
 
 namespace openmsx {
 
 class FileContext;
+class Interpreter;
 class InterpreterOutput;
+class TclObject;
 
 class Completer
 {
@@ -25,6 +28,8 @@ public:
 	  *     The last token is incomplete, this method tries to complete it.
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
+
+	virtual Interpreter& getInterpreter() const = 0;
 
 	template<typename ITER>
 	static void completeString(std::vector<std::string>& tokens,
@@ -43,6 +48,17 @@ public:
 
 	static std::vector<std::string> formatListInColumns(
 		const std::vector<string_view>& input);
+
+	// helper functions to check the number of arguments
+	struct AtLeast { unsigned min; };
+	struct Between { unsigned min; unsigned max; };
+	struct Prefix { unsigned n; }; // how many items from 'tokens' to show in error
+	void checkNumArgs(span<const TclObject> tokens, unsigned exactly, const char* errMessage) const;
+	void checkNumArgs(span<const TclObject> tokens, AtLeast atLeast,  const char* errMessage) const;
+	void checkNumArgs(span<const TclObject> tokens, Between between,  const char* errMessage) const;
+	void checkNumArgs(span<const TclObject> tokens, unsigned exactly, Prefix prefix, const char* errMessage) const;
+	void checkNumArgs(span<const TclObject> tokens, AtLeast atLeast,  Prefix prefix, const char* errMessage) const;
+	void checkNumArgs(span<const TclObject> tokens, Between between,  Prefix prefix, const char* errMessage) const;
 
 	// should only be called by CommandConsole
 	static void setOutput(InterpreterOutput* output_) { output = output_; }

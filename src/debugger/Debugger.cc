@@ -191,9 +191,7 @@ void Debugger::transfer(Debugger& other)
 
 static word getAddress(Interpreter& interp, span<const TclObject> tokens)
 {
-	if (tokens.size() < 3) {
-		throw CommandException("Missing argument");
-	}
+	assert(tokens.size() >= 3);
 	unsigned addr = tokens[2].getInt(interp);
 	if (addr >= 0x10000) {
 		throw CommandException("Invalid address");
@@ -223,9 +221,7 @@ bool Debugger::Cmd::needRecord(span<const TclObject> tokens) const
 void Debugger::Cmd::execute(
 	span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
 {
-	if (tokens.size() < 2) {
-		throw CommandException("Missing argument");
-	}
+	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	string_view subCmd = tokens[1].getString();
 	if (subCmd == "read") {
 		read(tokens, result);
@@ -283,27 +279,21 @@ void Debugger::Cmd::list(TclObject& result)
 
 void Debugger::Cmd::desc(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "debuggable");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	result = device.getDescription();
 }
 
 void Debugger::Cmd::size(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "debuggable");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	result = device.getSize();
 }
 
 void Debugger::Cmd::read(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, Prefix{2}, "debuggable address");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	unsigned addr = tokens[3].getInt(getInterpreter());
 	if (addr >= device.getSize()) {
@@ -314,9 +304,7 @@ void Debugger::Cmd::read(span<const TclObject> tokens, TclObject& result)
 
 void Debugger::Cmd::readBlock(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 5) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 5, Prefix{2}, "debuggable address size");
 	auto& interp = getInterpreter();
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	unsigned devSize = device.getSize();
@@ -338,9 +326,7 @@ void Debugger::Cmd::readBlock(span<const TclObject> tokens, TclObject& result)
 
 void Debugger::Cmd::write(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 5) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 5, Prefix{2}, "debuggable address value");
 	auto& interp = getInterpreter();
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	unsigned addr = tokens[3].getInt(interp);
@@ -357,9 +343,7 @@ void Debugger::Cmd::write(span<const TclObject> tokens, TclObject& /*result*/)
 
 void Debugger::Cmd::writeBlock(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 5) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 5, Prefix{2}, "debuggable address values");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	unsigned devSize = device.getSize();
 	unsigned addr = tokens[3].getInt(getInterpreter());
@@ -378,6 +362,7 @@ void Debugger::Cmd::writeBlock(span<const TclObject> tokens, TclObject& /*result
 
 void Debugger::Cmd::setBreakPoint(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{3, 5}, "address ?condition? ?command?");
 	TclObject command("debug break");
 	TclObject condition;
 
@@ -395,21 +380,13 @@ void Debugger::Cmd::setBreakPoint(span<const TclObject> tokens, TclObject& resul
 		debugger().motherBoard.getCPUInterface().insertBreakPoint(bp);
 		break;
 	}
-	default:
-		if (tokens.size() < 3) {
-			throw CommandException("Too few arguments.");
-		} else {
-			throw CommandException("Too many arguments.");
-		}
 	}
 }
 
 void Debugger::Cmd::removeBreakPoint(
 	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "id|address");
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	auto& breakPoints = interface.getBreakPoints();
 
@@ -463,6 +440,7 @@ void Debugger::Cmd::listBreakPoints(
 
 void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{4, 6}, Prefix{2}, "type address ?condition? ?command?");
 	TclObject command("debug break");
 	TclObject condition;
 	unsigned beginAddr, endAddr;
@@ -511,11 +489,7 @@ void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& resul
 		break;
 	}
 	default:
-		if (tokens.size() < 4) {
-			throw CommandException("Too few arguments.");
-		} else {
-			throw CommandException("Too many arguments.");
-		}
+		UNREACHABLE; break;
 	}
 	unsigned id = debugger().setWatchPoint(
 		command, condition, type, beginAddr, endAddr);
@@ -525,9 +499,7 @@ void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& resul
 void Debugger::Cmd::removeWatchPoint(
 	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "id");
 	string_view tmp = tokens[2].getString();
 	try {
 		if (tmp.starts_with("wp#")) {
@@ -591,6 +563,7 @@ void Debugger::Cmd::listWatchPoints(
 
 void Debugger::Cmd::setCondition(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{3, 4}, "condition ?command?");
 	TclObject command("debug break");
 	TclObject condition;
 
@@ -605,21 +578,13 @@ void Debugger::Cmd::setCondition(span<const TclObject> tokens, TclObject& result
 		debugger().motherBoard.getCPUInterface().setCondition(dc);
 		break;
 	}
-	default:
-		if (tokens.size() < 3) {
-			throw CommandException("Too few arguments.");
-		} else {
-			throw CommandException("Too many arguments.");
-		}
 	}
 }
 
 void Debugger::Cmd::removeCondition(
 	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "id");
 
 	string_view tmp = tokens[2].getString();
 	try {
@@ -657,9 +622,7 @@ void Debugger::Cmd::listConditions(
 
 void Debugger::Cmd::probe(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 3) {
-		throw CommandException("Missing argument");
-	}
+	checkNumArgs(tokens, AtLeast{3}, "subcommand ?arg ...?");
 	string_view subCmd = tokens[2].getString();
 	if (subCmd == "list") {
 		probeList(tokens, result);
@@ -684,21 +647,18 @@ void Debugger::Cmd::probeList(span<const TclObject> /*tokens*/, TclObject& resul
 }
 void Debugger::Cmd::probeDesc(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, "probe");
 	result = debugger().getProbe(tokens[3].getString()).getDescription();
 }
 void Debugger::Cmd::probeRead(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, "probe");
 	result = debugger().getProbe(tokens[3].getString()).getValue();
 }
 void Debugger::Cmd::probeSetBreakPoint(
 	span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{4, 6}, "probe ?condition? ?command?");
 	TclObject command("debug break");
 	TclObject condition;
 	ProbeBase* p;
@@ -715,11 +675,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 		break;
 	}
 	default:
-		if (tokens.size() < 4) {
-			throw CommandException("Too few arguments.");
-		} else {
-			throw CommandException("Too many arguments.");
-		}
+		UNREACHABLE; break;
 	}
 
 	unsigned id = debugger().insertProbeBreakPoint(command, condition, *p);
@@ -728,9 +684,7 @@ void Debugger::Cmd::probeSetBreakPoint(
 void Debugger::Cmd::probeRemoveBreakPoint(
 	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, "id");
 	debugger().removeProbeBreakPoint(tokens[3].getString());
 }
 void Debugger::Cmd::probeListBreakPoints(
