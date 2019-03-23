@@ -146,14 +146,6 @@ static RomType guessRomType(const Rom& rom)
 				type = static_cast<RomType>(i);
 			}
 		}
-		// in case of doubt we go for type ROM_GENERIC_8KB
-		// in case of even type ROM_ASCII16 and ROM_ASCII8 we would
-		// prefer ROM_ASCII16 but we would still prefer ROM_GENERIC_8KB
-		// above ROM_ASCII8 or ROM_ASCII16
-		if ((type == ROM_ASCII16) &&
-		    (typeGuess[ROM_GENERIC_8KB] == typeGuess[ROM_ASCII16])) {
-			type = ROM_GENERIC_8KB;
-		}
 		return type;
 	}
 }
