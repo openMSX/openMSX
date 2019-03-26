@@ -138,7 +138,7 @@ int main(int argc, char **argv)
 {
 	// TODO with SDL1 we had the comment:
 	//   need exit() iso return on win32/SDL
-	// Is that still the case with SDL2? Becase for Android we need to
+	// Is that still the case with SDL2? Because for Android we need to
 	// return from main instead of exit().
 	return openmsx::main(argc, argv);
 }

@@ -273,7 +273,7 @@ void AmdFlash::write(unsigned address, byte value)
 	cmd[cmdIdx].addr = address;
 	cmd[cmdIdx].value = value;
 	++cmdIdx;
-	if (checkCommandManifacturer() ||
+	if (checkCommandManufacturer() ||
 	    checkCommandEraseSector() ||
 	    checkCommandProgram() ||
 	    checkCommandDoubleByteProgram() ||
@@ -364,7 +364,7 @@ bool AmdFlash::checkCommandQuadrupleByteProgram()
 	return checkCommandProgramHelper(4, cmdSeq, countof(cmdSeq));
 }
 
-bool AmdFlash::checkCommandManifacturer()
+bool AmdFlash::checkCommandManufacturer()
 {
 	static const byte cmdSeq[] = { 0xaa, 0x55, 0x90 };
 	if (partialMatch(3, cmdSeq)) {

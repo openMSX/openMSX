@@ -273,7 +273,7 @@ void HardwareConfig::parseSlots()
 			int ss = CartridgeSlotManager::getSlotNum(secSlot);
 			if ((-16 <= ss) && (ss <= -1) && (ss != ps)) {
 				throw MSXException(
-					"Invalid secundary slot specification: \"",
+					"Invalid secondary slot specification: \"",
 					secSlot, "\".");
 			}
 			if (ss < 0) {
