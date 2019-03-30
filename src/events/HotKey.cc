@@ -6,6 +6,7 @@
 #include "CliComm.hh"
 #include "InputEvents.hh"
 #include "XMLElement.hh"
+#include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
 #include "outer.hh"
@@ -489,39 +490,22 @@ string HotKey::BindCmd::formatBinding(const HotKey::HotKeyInfo& info)
 	              (info.passEvent ? " [event]" : ""), ":  ", info.command, '\n');
 }
 
-static vector<TclObject> parse(bool defaultCmd, span<const TclObject> tokens_,
-                               string& layer, bool& layers)
-{
-	layers = false;
-	auto tokens = to_vector(view::drop(tokens_, 1));
-	for (size_t i = 0; i < tokens.size(); /**/) {
-		if (tokens[i] == "-layer") {
-			if (i == (tokens.size() - 1)) {
-				throw CommandException("Missing layer name");
-			}
-			if (defaultCmd) {
-				throw CommandException(
-					"Layers are not supported for default bindings");
-			}
-			layer = tokens[i + 1].getString().str();
-
-			auto it = begin(tokens) + i;
-			tokens.erase(it, it + 2);
-		} else if (tokens[i] == "-layers") {
-			layers = true;
-			tokens.erase(begin(tokens) + i);
-		} else {
-			++i;
-		}
-	}
-	return tokens;
-}
-
-void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
+void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	string layer;
-	bool layers;
-	auto tokens = parse(defaultCmd, tokens_, layer, layers);
+	bool layers = false;
+	bool repeat = false;
+	bool passEvent = false;
+	ArgsInfo parserInfo[] = {
+		valueArg("-layer", layer),
+		flagArg("-layers", layers),
+		flagArg("-repeat", repeat),
+		flagArg("-event", passEvent),
+	};
+	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan<1>(), parserInfo);
+	if (defaultCmd && !layer.empty()) {
+		throw CommandException("Layers are not supported for default bindings");
+	}
 
 	auto& cMap = defaultCmd
 		? hotKey.defaultMap
@@ -539,7 +523,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
 		return;
 	}
 
-	switch (tokens.size()) {
+	switch (arguments.size()) {
 	case 0: {
 		// show all bounded keys (for this layer)
 		string r;
@@ -552,7 +536,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
 	case 1: {
 		// show bindings for this key (in this layer)
 		auto it = ranges::find_if(cMap,
-		                          EqualEvent(*createEvent(tokens[0], getInterpreter())));
+		                          EqualEvent(*createEvent(arguments[0], getInterpreter())));
 		if (it == end(cMap)) {
 			throw CommandException("Key not bound");
 		}
@@ -561,26 +545,12 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens_, TclObject& result)
 	}
 	default: {
 		// make a new binding
-		string command;
-		bool repeat = false;
-		bool passEvent = false;
-		unsigned start = 1;
-		if (tokens[1] == "-repeat") {
-			repeat = true;
-			++start;
-		}
-		if ((tokens[1] == "-event") ||
-			  ((tokens.size() > 2) && (tokens[2] == "-event"))) {
-			passEvent = true;
-			++start;
-		}
-		for (size_t i = start; i < tokens.size(); ++i) {
-			if (i != start) command += ' ';
-			string_view t = tokens[i].getString();
-			command.append(t.data(), t.size());
+		string command = arguments[1].getString().str();
+		for (const auto& arg : view::drop(arguments, 2)) {
+			strAppend(command, ' ', arg.getString());
 		}
 		HotKey::HotKeyInfo info(
-			createEvent(tokens[0], getInterpreter()),
+			createEvent(arguments[0], getInterpreter()),
 			command, repeat, passEvent);
 		if (defaultCmd) {
 			hotKey.bindDefault(std::move(info));
@@ -623,22 +593,22 @@ HotKey::UnbindCmd::UnbindCmd(CommandController& commandController_,
 {
 }
 
-void HotKey::UnbindCmd::execute(span<const TclObject> tokens_, TclObject& /*result*/)
+void HotKey::UnbindCmd::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	string layer;
-	bool layers;
-	auto tokens = parse(defaultCmd, tokens_, layer, layers);
-
-	if (layers) {
-		throw SyntaxError();
+	ArgsInfo info[] = { valueArg("-layer", layer) };
+	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan<1>(), info);
+	if (defaultCmd && !layer.empty()) {
+		throw CommandException("Layers are not supported for default bindings");
 	}
-	if ((tokens.size() > 1) || (layer.empty() && (tokens.size() != 1))) {
+
+	if ((arguments.size() > 1) || (layer.empty() && (arguments.size() != 1))) {
 		throw SyntaxError();
 	}
 
 	HotKey::EventPtr event;
-	if (tokens.size() == 1) {
-		event = createEvent(tokens[0], getInterpreter());
+	if (arguments.size() == 1) {
+		event = createEvent(arguments[0], getInterpreter());
 	}
 
 	if (defaultCmd) {
@@ -674,33 +644,32 @@ HotKey::ActivateCmd::ActivateCmd(CommandController& commandController_)
 
 void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
-	string_view layer;
 	bool blocking = false;
-        for (auto& t : tokens.subspan(1)) {
-		if (t == "-blocking") {
-			blocking = true;
-		} else {
-			if (!layer.empty()) {
-				throw SyntaxError();
-			}
-			layer = t.getString();
-		}
-	}
+	ArgsInfo info[] = { flagArg("-blocking", blocking) };
+	auto args = parseTclArgs(getInterpreter(), tokens.subspan(1), info);
 
-	string r;
 	auto& hotKey = OUTER(HotKey, activateCmd);
-	if (layer.empty()) {
-		for (auto& info : view::reverse(hotKey.activeLayers)) {
-			r += info.layer;
-			if (info.blocking) {
+	switch (args.size()) {
+	case 0: {
+		string r;
+		for (auto& layerInfo : view::reverse(hotKey.activeLayers)) {
+			r += layerInfo.layer;
+			if (layerInfo.blocking) {
 				r += " -blocking";
 			}
 			r += '\n';
 		}
-	} else {
-		hotKey.activateLayer(layer.str(), blocking);
+		result = r;
+		break;
 	}
-	result = r;
+	case 1: {
+		string_view layer = args[0].getString();
+		hotKey.activateLayer(layer.str(), blocking);
+		break;
+	}
+	default:
+		throw SyntaxError();
+	}
 }
 
 string HotKey::ActivateCmd::help(const vector<string>& /*tokens*/) const

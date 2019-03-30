@@ -16,6 +16,7 @@
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
+#include "TclArgParser.hh"
 #include "XMLElement.hh"
 #include "VideoSystemChangeListener.hh"
 #include "CommandException.hh"
@@ -403,42 +404,27 @@ Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController_)
 
 void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
-	auto& display = OUTER(Display, screenShotCmd);
-	bool rawShot = false;
-	bool withOsd = false;
-	bool doubleSize = false;
 	string_view prefix = "openmsx";
-	vector<TclObject> arguments;
-	for (size_t i = 1; i < tokens.size(); ++i) {
-		string_view tok = tokens[i].getString();
-		if (StringOp::startsWith(tok, '-')) {
-			if (tok == "--") {
-				append(arguments, view::drop(tokens, i + 1));
-				break;
-			}
-			if (tok == "-prefix") {
-				if (++i == tokens.size()) {
-					throw CommandException("Missing argument");
-				}
-				prefix = tokens[i].getString();
-			} else if (tok == "-raw") {
-				rawShot = true;
-			} else if (tok == "-msxonly") {
-				display.getCliComm().printWarning(
-					"The -msxonly option has been deprecated and will "
-					"be removed in a future release. Instead, use the "
-					"-raw option for the same effect.");
-				rawShot = true;
-			} else if (tok == "-doublesize") {
-				doubleSize = true;
-			} else if (tok == "-with-osd") {
-				withOsd = true;
-			} else {
-				throw CommandException("Invalid option: ", tok);
-			}
-		} else {
-			arguments.push_back(tokens[i]);
-		}
+	bool rawShot = false;
+	bool msxOnly = false;
+	bool doubleSize = false;
+	bool withOsd = false;
+	ArgsInfo info[] = {
+		valueArg("-prefix", prefix),
+		flagArg("-raw", rawShot),
+		flagArg("-msxonly", msxOnly),
+		flagArg("-doublesize", doubleSize),
+		flagArg("-with-osd", withOsd)
+	};
+	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(1), info);
+
+	auto& display = OUTER(Display, screenShotCmd);
+	if (msxOnly) {
+		display.getCliComm().printWarning(
+			"The -msxonly option has been deprecated and will "
+			"be removed in a future release. Instead, use the "
+			"-raw option for the same effect.");
+		rawShot = true;
 	}
 	if (doubleSize && !rawShot) {
 		throw CommandException("-doublesize option can only be used in "

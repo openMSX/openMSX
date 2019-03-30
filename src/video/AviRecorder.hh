@@ -10,14 +10,15 @@
 
 namespace openmsx {
 
-class Reactor;
 class AviWriter;
-class Wav16Writer;
 class Filename;
-class PostProcessor;
 class FrameSource;
+class Interpreter;
 class MSXMixer;
+class PostProcessor;
+class Reactor;
 class TclObject;
+class Wav16Writer;
 
 class AviRecorder
 {
@@ -35,9 +36,9 @@ private:
 		   bool recordStereo, const Filename& filename);
 	void status(span<const TclObject> tokens, TclObject& result) const;
 
-	void processStart (span<const TclObject> tokens, TclObject& result);
+	void processStart (Interpreter& interp, span<const TclObject> tokens, TclObject& result);
 	void processStop  (span<const TclObject> tokens);
-	void processToggle(span<const TclObject> tokens, TclObject& result);
+	void processToggle(Interpreter& interp, span<const TclObject> tokens, TclObject& result);
 
 	Reactor& reactor;
 

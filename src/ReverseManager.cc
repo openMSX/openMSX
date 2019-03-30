@@ -8,6 +8,7 @@
 #include "MSXMixer.hh"
 #include "MSXCommandController.hh"
 #include "XMLException.hh"
+#include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
@@ -260,18 +261,10 @@ static void parseGoTo(Interpreter& interp, span<const TclObject> tokens,
                       bool& novideo, double& time)
 {
 	novideo = false;
-	bool hasTime = false;
-        for (auto& token : tokens.subspan(2)) {
-		if (token == "-novideo") {
-			novideo = true;
-		} else {
-			time = token.getDouble(interp);
-			hasTime = true;
-		}
-	}
-	if (!hasTime) {
-		throw SyntaxError();
-	}
+	ArgsInfo info[] = { flagArg("-novideo", novideo) };
+	auto args = parseTclArgs(interp, tokens.subspan(2), info);
+	if (args.size() != 1) throw SyntaxError();
+	time = args[0].getDouble(interp);
 }
 
 void ReverseManager::goBack(span<const TclObject> tokens)
@@ -542,38 +535,21 @@ void ReverseManager::saveReplay(
 		throw CommandException("No recording...");
 	}
 
-	string filename;
+	string_view filenameArg;
 	int maxNofExtraSnapshots = MAX_NOF_SNAPSHOTS;
-	switch (tokens.size()) {
-	case 2:
-		// nothing
-		break;
-	case 3:
-		filename = tokens[2].getString().str();
-		break;
-	case 4:
-	case 5:
-		size_t tn;
-		for (tn = 2; tn < (tokens.size() - 1); ++tn) {
-			if (tokens[tn] == "-maxnofextrasnapshots") {
-				maxNofExtraSnapshots = tokens[tn + 1].getInt(interp);
-				break;
-			}
-		}
-		if (tn == (tokens.size() - 1)) throw SyntaxError();
-		if (tokens.size() == 5) {
-			filename = tokens[tn == 2 ? 4 : 2].getString().str();
-		}
-		if (maxNofExtraSnapshots < 0) {
-			throw CommandException("Maximum number of snapshots should be at least 0");
-		}
-
-		break;
-	default:
-		throw SyntaxError();
+	ArgsInfo info[] = { valueArg("-maxnofextrasnapshots", maxNofExtraSnapshots) };
+	auto args = parseTclArgs(interp, tokens.subspan(2), info);
+	switch (args.size()) {
+		case 0: break; // nothing
+		case 1: filenameArg = args[0].getString(); break;
+		default: throw SyntaxError();
 	}
-	filename = FileOperations::parseCommandFileArgument(
-		filename, REPLAY_DIR, "openmsx", ".omr");
+	if (maxNofExtraSnapshots < 0) {
+		throw CommandException("Maximum number of snapshots should be at least 0");
+	}
+
+	string filename = FileOperations::parseCommandFileArgument(
+		filenameArg, REPLAY_DIR, "openmsx", ".omr");
 
 	auto& reactor = motherBoard.getReactor();
 	Replay replay(reactor);
@@ -663,31 +639,18 @@ void ReverseManager::saveReplay(
 void ReverseManager::loadReplay(
 	Interpreter& interp, span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 3) throw SyntaxError();
-
-	vector<string> arguments;
-	const TclObject* whereArg = nullptr;
 	bool enableViewOnly = false;
-
-	for (size_t i = 2; i < tokens.size(); ++i) {
-		string_view token = tokens[i].getString();
-		if (token == "-viewonly") {
-			enableViewOnly = true;
-		} else if (token == "-goto") {
-			if (++i == tokens.size()) {
-				throw CommandException("Missing argument");
-			}
-			whereArg = &tokens[i];
-		} else {
-			arguments.push_back(token.str());
-		}
-	}
-
+	optional<TclObject> where;
+	ArgsInfo info[] = {
+		flagArg("-viewonly", enableViewOnly),
+		valueArg("-goto", where),
+	};
+	auto arguments = parseTclArgs(interp, tokens.subspan(2), info);
 	if (arguments.size() != 1) throw SyntaxError();
 
 	// resolve the filename
 	auto context = userDataFileContext(REPLAY_DIR);
-	string fileNameArg = arguments[0];
+	string fileNameArg = arguments[0].getString().str();
 	string filename;
 	try {
 		// Try filename as typed by user.
@@ -721,15 +684,14 @@ void ReverseManager::loadReplay(
 
 	// get destination time index
 	auto destination = EmuTime::zero;
-	string_view where = whereArg ? whereArg->getString() : "begin";
-	if (where == "begin") {
+	if (!where || (*where == "begin")) {
 		destination = EmuTime::zero;
-	} else if (where == "end") {
+	} else if (*where == "end") {
 		destination = EmuTime::infinity;
-	} else if (where == "savetime") {
+	} else if (*where == "savetime") {
 		destination = replay.currentTime;
 	} else {
-		destination += EmuDuration(whereArg->getDouble(interp));
+		destination += EmuDuration(where->getDouble(interp));
 	}
 
 	// OK, we are going to be actually changing states now

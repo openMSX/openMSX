@@ -8,7 +8,9 @@
 #include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXCPUInterface.hh"
+#include "CommandController.hh"
 #include "DeviceFactory.hh"
+#include "TclArgParser.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
@@ -47,38 +49,23 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	MSXMotherBoard& motherBoard, string_view romfile,
 	string_view slotname, span<const TclObject> options)
 {
-	auto result = std::make_unique<HardwareConfig>(motherBoard, "rom");
-	const auto& sramfile = FileOperations::getFilename(romfile);
-	auto context = userFileContext(strCat("roms/", sramfile));
-
 	vector<string_view> ipsfiles;
 	string_view mapper;
+	ArgsInfo info[] = {
+		valueArg("-ips", ipsfiles),
+		valueArg("-romtype", mapper),
+	};
+	auto& interp = motherBoard.getCommandController().getInterpreter();
+	auto args = parseTclArgs(interp, options, info);
+	if (!args.empty()) {
+		throw MSXException("Invalid option \"", args.front().getString(), '\"');
+	}
 
-	bool romTypeOptionFound = false;
-
-	// parse options
-	for (auto it = std::begin(options); it != std::end(options); ++it) {
-		string_view option = it->getString();
-		++it;
-		if (it == std::end(options)) {
-			throw MSXException("Missing argument for option \"",
-			                   option, '\"');
-		}
-		string_view arg = it->getString();
-		if (option == "-ips") {
-			if (!FileOperations::isRegularFile(context.resolve(arg))) {
-				throw MSXException("Invalid IPS file: ", arg);
-			}
-			ipsfiles.push_back(arg);
-		} else if (option == "-romtype") {
-			if (!romTypeOptionFound) {
-				mapper = arg;
-				romTypeOptionFound = true;
-			} else {
-				throw MSXException("Only one -romtype option is allowed");
-			}
-		} else {
-			throw MSXException("Invalid option \"", option, '\"');
+	const auto& sramfile = FileOperations::getFilename(romfile);
+	auto context = userFileContext(strCat("roms/", sramfile));
+	for (const auto& ips : ipsfiles) {
+		if (!FileOperations::isRegularFile(context.resolve(ips))) {
+			throw MSXException("Invalid IPS file: ", ips);
 		}
 	}
 
@@ -112,10 +99,10 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	device.addChild("mappertype", mapper.empty() ? "auto" : mapper);
 	device.addChild("sramname", strCat(sramfile, ".SRAM"));
 
+	auto result = std::make_unique<HardwareConfig>(motherBoard, "rom");
 	result->setConfig(move(extension));
 	result->setName(romfile);
 	result->setFileContext(move(context));
-
 	return result;
 }
 

@@ -11,6 +11,7 @@
 #include "CommandException.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
+#include "TclArgParser.hh"
 #include "utf8_checked.hh"
 #include "checked_cast.hh"
 #include "unreachable.hh"
@@ -990,28 +991,18 @@ void Keyboard::KeyInserter::execute(
 		return;
 	}
 
-        vector<string_view> arguments;
-	for (size_t i = 1; i < tokens.size(); ++i) {
-		string_view t = tokens[i].getString();
-		if (t == "-release") {
-			releaseBeforePress = true;
-		} else if (t == "-freq") {
-			if (++i == tokens.size()) {
-				throw CommandException("Missing argument");
-			}
-			int tmp = tokens[i].getInt(getInterpreter());
-			if (tmp <= 0) {
-				throw CommandException("Wrong argument for -freq (should be a positive number)");
-			}
-			typingFrequency = tmp;
-		} else {
-			arguments.push_back(t);
-		}
-	}
+	ArgsInfo info[] = {
+		flagArg("-release", releaseBeforePress),
+		valueArg("-freq", typingFrequency),
+	};
+	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(1), info);
 
+	if (typingFrequency <= 0) {
+		throw CommandException("Wrong argument for -freq (should be a positive number)");
+	}
 	if (arguments.size() != 1) throw SyntaxError();
 
-	type(arguments[0]);
+	type(arguments[0].getString());
 }
 
 string Keyboard::KeyInserter::help(const vector<string>& /*tokens*/) const

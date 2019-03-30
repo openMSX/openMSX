@@ -157,7 +157,7 @@ private:
 		byte oldLocksOn;
 
 		bool releaseBeforePress;
-		unsigned typingFrequency;
+		int typingFrequency;
 	} keyTypeCmd;
 
 	class CapsLockAligner final : private EventListener, private Schedulable {
