@@ -1309,6 +1309,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\commands\TclArgParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\DeviceConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\StdioMessages.cc" />
@@ -2794,6 +2795,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.hh">
       <Filter>memory</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\commands\TclArgParser.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\TclParser.hh" />
     <None Include="$(OpenMSXSrcDir)\config\DeviceConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\events\TclCallbackMessages.hh" />

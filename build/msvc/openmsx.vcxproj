@@ -317,6 +317,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\commands\Interpreter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\MSXCommandController.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\ProxyCommand.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\commands\TclArgParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclObject.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclCallback.cc" />
@@ -846,6 +847,7 @@
     <None Include="$(OpenMSXSrcDir)\commands\InterpreterOutput.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\MSXCommandController.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\ProxyCommand.hh" />
+    <None Include="$(OpenMSXSrcDir)\commands\TclArgParser.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\TclObject.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\TclParser.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\TclCallback.hh" />
