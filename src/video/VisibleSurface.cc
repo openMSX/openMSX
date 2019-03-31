@@ -29,15 +29,7 @@ VisibleSurface::VisibleSurface(
 	, inputEventGenerator(inputEventGenerator_)
 	, cliComm(cliComm_)
 {
-	// on Mac it seems to be necessary to grab input in full screen
-	// Note: this is duplicated from InputEventGenerator::setGrabInput
-	// in order to keep the settings in sync (grab when fullscreen)
-	// TODO: Check whether this is still necessary with SDL2.
 	auto& renderSettings = display.getRenderSettings();
-	SDL_SetRelativeMouseMode(
-			(inputEventGenerator_.getGrabInput().getBoolean() ||
-			  renderSettings.getFullScreen())
-			?  SDL_TRUE : SDL_FALSE);
 
 	inputEventGenerator_.getGrabInput().attach(*this);
 	renderSettings.getPointerHideDelaySetting().attach(*this);
