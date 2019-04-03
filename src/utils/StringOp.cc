@@ -206,17 +206,6 @@ vector<string_view> split(string_view str, char chars)
 	return result;
 }
 
-string join(const vector<string_view>& elems, char separator)
-{
-	if (elems.empty()) return {};
-
-	string result = strCat(elems.front());
-	for (auto& e : view::drop(elems, 1)) {
-		strAppend(result, separator, e);
-	}
-	return result;
-}
-
 static unsigned parseNumber(string_view str)
 {
 	trim(str, " \t");

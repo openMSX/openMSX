@@ -51,8 +51,6 @@ namespace StringOp
 	void splitOnLast (string_view str, char chars,
 	                  string_view& first, string_view& last);
 	std::vector<string_view> split(string_view str, char chars);
-	std::string join(const std::vector<string_view>& elems,
-	                 char separator);
 	std::vector<unsigned> parseRange(string_view str,
 	                                 unsigned min, unsigned max);
 

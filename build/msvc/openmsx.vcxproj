@@ -1187,6 +1187,7 @@
     <None Include="$(OpenMSXSrcDir)\utils\FixedPoint.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\HexDump.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\inline.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\join.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\likely.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\snappy.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Math.hh" />

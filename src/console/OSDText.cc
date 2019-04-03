@@ -7,6 +7,7 @@
 #include "FileOperations.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
+#include "join.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "utf8_core.hh"
@@ -200,7 +201,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 			UNREACHABLE;
 		}
 		// An alternative is to pass vector<string> to TTFFont::render().
-		// That way we can avoid StringOp::join() (in the wrap functions)
+		// That way we can avoid join() (in the wrap functions)
 		// followed by // StringOp::split() (in TTFFont::render()).
 		SDLSurfacePtr surface(font.render(wrappedText,
 			(textRgba >> 24) & 0xff, (textRgba >> 16) & 0xff, (textRgba >> 8) & 0xff));
@@ -374,7 +375,7 @@ string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 			line = line.substr(p);
 		} while (!line.empty());
 	}
-	return StringOp::join(wrappedLines, '\n');
+	return join(wrappedLines, '\n');
 }
 
 string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
@@ -390,7 +391,7 @@ string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 			StringOp::trimLeft(line, ' '); // remove leading spaces
 		} while (!line.empty());
 	}
-	return StringOp::join(wrappedLines, '\n');
+	return join(wrappedLines, '\n');
 }
 
 vec2 OSDText::getRenderedSize() const

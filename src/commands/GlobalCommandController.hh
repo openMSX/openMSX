@@ -92,7 +92,6 @@ public:
 private:
 	void split(string_view str,
 	           std::vector<std::string>& tokens, char delimiter);
-	std::string join(const std::vector<std::string>& tokens, char delimiter);
 	std::string removeEscaping(const std::string& str);
 	std::vector<std::string> removeEscaping(
 		const std::vector<std::string>& input, bool keepLastIfEmpty);

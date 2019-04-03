@@ -11,6 +11,7 @@
 #include "TclObject.hh"
 #include "Version.hh"
 #include "ScopedAssign.hh"
+#include "join.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -285,21 +286,6 @@ string GlobalCommandController::addEscaping(const string& str, bool quote,
 		}
 	} else {
 		result = escapeChars(result, " ");
-	}
-	return result;
-}
-
-string GlobalCommandController::join(
-	const vector<string>& tokens, char delimiter)
-{
-	string result;
-	bool first = true;
-	for (auto& t : tokens) {
-		if (!first) {
-			result += delimiter;
-		}
-		first = false;
-		result += t;
 	}
 	return result;
 }

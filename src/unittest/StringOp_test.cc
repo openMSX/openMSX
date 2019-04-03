@@ -84,11 +84,6 @@ static void checkSplit(const string& s, const vector<string_view> expected)
 	CHECK(split(s, '-') == expected);
 }
 
-static void checkJoin(const vector<string_view>& v, const string& expected)
-{
-	CHECK(join(v, '-') == expected);
-}
-
 static void checkParseRange(const string& s, const vector<unsigned>& expected)
 {
 	CHECK(parseRange(s, 0, 99) == expected);
@@ -217,18 +212,6 @@ TEST_CASE("StringOp")
 		checkSplit("foo-bar-qux", {"foo", "bar", "qux"});
 		checkSplit("-bar-qux", {"", "bar", "qux"});
 		checkSplit("foo-bar-", {"foo", "bar"});
-	}
-	SECTION("join") {
-		checkJoin({}, "");
-		checkJoin({""}, "");
-		checkJoin({"foo"}, "foo");
-		checkJoin({"", ""}, "-");
-		checkJoin({"foo", ""}, "foo-");
-		checkJoin({"", "foo"}, "-foo");
-		checkJoin({"foo", "bar"}, "foo-bar");
-		checkJoin({"foo", "bar", "qux"}, "foo-bar-qux");
-		checkJoin({"", "bar", "qux"}, "-bar-qux");
-		checkJoin({"foo", "bar", ""}, "foo-bar-");
 	}
 	SECTION("parseRange") {
 		checkParseRange("", {});

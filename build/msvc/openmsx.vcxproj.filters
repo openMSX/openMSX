@@ -2346,6 +2346,9 @@
     <None Include="$(OpenMSXSrcDir)\utils\inline.hh">
       <Filter>utils</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\utils\join.hh">
+      <Filter>utils</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\utils\likely.hh">
       <Filter>utils</Filter>
     </None>
