@@ -1,7 +1,9 @@
 #include "TclArgParser.hh"
 #include "CommandException.hh"
+#include "join.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "view.hh"
 
 namespace openmsx {
 
@@ -21,7 +23,11 @@ std::vector<TclObject> parseTclArgs(Interpreter& interp, span<const TclObject> i
 			}
 			auto it = ranges::find_if(table, [&](const auto& info) { return info.name == argStr; });
 			if (it == table.end()) {
-				throw CommandException("Invalid option: ", argStr);
+				throw CommandException(
+					"Invalid option: '", argStr, "'. Must be one of ",
+					join(view::transform(table, [](auto& info) {
+					             return strCat('\'', info.name, '\'');
+					     }), ", "), '.');
 			}
 			auto consumed = it->func(interp, inArgs);
 			inArgs = inArgs.subspan(consumed);
