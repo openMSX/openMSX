@@ -17,8 +17,8 @@
   backside: RGB out, video (yellow RCA), audio (white RCA)
   frontside: power button, keyboard, joystick 1 and 2, reset button, 2 diskdrives (2DD)
 
-  CPU: ? 
-  MSX-ENGINE: S1985
+  CPU: LH0080A (according to service manual)
+  MSX-ENGINE: S1985 (YM-3814)
   FDC: MB8877M, with SED9420-CAC (SEIKO) data separator
 
   Z80 scf: 01C529ED01D429FC (dunno)
@@ -26,6 +26,13 @@
   Z80 out (c),0: 0 (MSX)
   PSG pin 6/7 quirk: C (YES)
   PSGmask: AY8910-like.
+
+  SHIFT+GRAPH+0 in KEYMATRIX.BAS only shows 3 zeroes (ghosting protection)
+  keypad is on row 9/10
+  star-like shaped key left of RETURN key is DEAD key
+  CODE key toggles LED on CODE key. (Locking?) But not in International mode.
+
+
   -->
 
   <MapperReadBackBits>largest</MapperReadBackBits>
@@ -142,8 +149,8 @@
       <keyboard_type>int</keyboard_type> <!-- Should be Arabic? -->
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
-      <code_kana_locks>false</code_kana_locks>
-      <graph_locks>false</graph_locks>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>false</graph_locks> <!-- not sure, doesn't seem to matter in international BASIC and has no effect in Arabic basic -->
     </PPI>
 
     <VDP id="VDP">
