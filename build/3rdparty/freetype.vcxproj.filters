@@ -29,9 +29,6 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\cache\ftcache.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\builds\win32\ftdebug.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\base\ftgasp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -108,6 +105,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\src\winfonts\winfnt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameFreeType)\builds\windows\ftdebug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

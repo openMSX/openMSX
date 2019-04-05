@@ -371,18 +371,6 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStubInit.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclStubLib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTest.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTestObj.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTestProcBodyObj.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -393,9 +381,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadStorage.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclThreadTest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTimer.c">
@@ -458,9 +443,6 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinSock.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinTest.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinThrd.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -477,6 +459,51 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cnt_lsb.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclAssembly.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCompCmdsGR.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclCompCmdsSZ.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclDisassemble.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclEnsemble.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIORTrans.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOO.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOBasic.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOCall.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOODefineCmds.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOInfo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOMethod.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOOStubInit.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclOptimize.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclZlib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
