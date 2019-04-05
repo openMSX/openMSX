@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1550719825">
+<softwaredb timestamp="1554433193">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -589,6 +589,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>4175abdf1383f90a08ebf8a2ae3b065ec9f929a9</hash></rom></dump>
 </software>
 <software>
+	<title>Any Treasure Day</title>
+	<system>MSX</system>
+	<company>Timmy</company>
+	<year>2018</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>581990d984cc01bb695208a62a2203abc896e563</hash><remark>MSXDev2018</remark></rom></dump>
+</software>
+<software>
 	<title>Aquapolis SOS</title>
 	<genmsxid>4</genmsxid>
 	<system>MSX</system>
@@ -953,6 +961,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1983</year>
 	<country>JP</country>
 		<dump><rom><hash>223661138586a1b024d6dba5e5fa67d6b7685884</hash></rom></dump>
+</software>
+<software>
+	<title>Barbarian The Duel</title>
+	<system>MSX</system>
+	<company>Bitvision</company>
+	<year>2018</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>7c6538f1406723f032938aee79588615b5ca8f3e</hash><remark>v1.0 / MSXDev2018</remark></megarom></dump>
 </software>
 <software>
 	<title>Barn Stormer</title>
@@ -1472,7 +1488,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>f1f571c1d9360839450c26d73c6aef89e1e052eb</hash></rom></dump>
 </software>
 <software>
-	<title>Bousou Tokkyuu Sos - Stop The Train</title>
+	<title>Bousou Tokkyuu SOS - Stop The Express</title>
 	<genmsxid>313</genmsxid>
 	<system>MSX</system>
 	<company>Hudson Soft / Japanese Softbank</company>
@@ -1603,6 +1619,15 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>25ccc462ab7ecbe9f8e63e931840d6164b9cc4c1</hash><remark>cas2rom</remark></rom></dump>
 </software>
 <software>
+	<title>Bumper Car Racing</title>
+	<system>MSX</system>
+	<company>Uninteresting</company>
+	<year>2018</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>7e91f77eb2146c0690656557d445617fbfe02190</hash><remark>v1.1 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>4948aa0a8c3cb34fba5d3619df1245376a26f12f</hash><remark>v1.0 / MSXDev2018</remark></rom></dump>
+</software>
+<software>
 	<title>Burger Time</title>
 	<genmsxid>822</genmsxid>
 	<system>MSX</system>
@@ -1679,9 +1704,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>joesg</company>
 	<year>2018</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>b8ca3873eb5d089567fb71f9860310bfcbc2d5f7</hash><remark>v1.0 / MSXDev2018</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>a2327e1ae71b431282bfadeb0db4339c884933d7</hash><remark>v1.2 / MSXDev2018</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>ac5befd00528117995e2693872c4f260ea5d09b2</hash><remark>v1.1 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>b8ca3873eb5d089567fb71f9860310bfcbc2d5f7</hash><remark>v1.0 Spanish / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>a2327e1ae71b431282bfadeb0db4339c884933d7</hash><remark>v1.2 Spanish / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>ac5befd00528117995e2693872c4f260ea5d09b2</hash><remark>v1.1 Spanish / MSXDev2018</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>4454e9aab3d6efb7ff5cca0956205f46a9db8194</hash><remark>English / MSXDev2018</remark></rom></dump>
 </software>
 <software>
@@ -4152,6 +4177,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>e25401f0423cf11e62c955b47887cc3e036f087d</hash></rom></dump>
 </software>
 <software>
+	<title>GRAVITICA</title>
+	<system>MSX</system>
+	<company>Yusuke Miyauchi</company>
+	<year>2018</year>
+	<country>JP</country>
+		<dump><original value="true">Author</original><rom><hash>9dec583ada35979e62d1d6ad296a8916f3de9414</hash><remark>MSXDev2018</remark></rom></dump>
+</software>
+<software>
 	<title>Gakuen Monogatari - High School Story</title>
 	<genmsxid>1086</genmsxid>
 	<system>MSX</system>
@@ -4468,6 +4501,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><sccpluscart><boot>scc+</boot><hash>461c581ebc43b47c54a6d706a03c462bf7d1ef75</hash><remark>[The Snatcher RAM SCC+]</remark></sccpluscart></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>82bbe05b539bf5463738f8b246c09c67ab9bf65d</hash><remark>Game Collection</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>e6d2f6f6f6b478656585835c596b4b98cb3f87f0</hash><remark>Game Collection</remark></megarom></dump>
+</software>
+<software>
+	<title>Goal</title>
+	<system>MSX</system>
+	<company>G.G.G. Soft</company>
+	<year>2018</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>e6b1af53fd225ce565c88572d6a592b4fb637840</hash><remark>MSXDev2018</remark></rom></dump>
 </software>
 <software>
 	<title>Gofer no Yabou Episode 2 - Nemesis 3 The Eve Of Destruction</title>
@@ -6914,6 +6955,16 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>2b9ab44526a19706de76ff374459cccae3e65c84</hash></rom></dump>
 </software>
 <software>
+	<title>Linez</title>
+	<system>MSX</system>
+	<company>Wim Dewijngaert</company>
+	<year>2018</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>307f9167ffabcbc79fe6770eb58fced244a5ef03</hash><remark>v1.0 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>0cfbbec61137b4e7ef05285dfc0f4683f334e737</hash><remark>v1.1 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>05f3594bb1c8ca6d0479e755c0e8e43157683a18</hash><remark>Final / MSXDev2018</remark></rom></dump>
+</software>
+<software>
 	<title>Livingstone Supongo 2</title>
 	<genmsxid>2255</genmsxid>
 	<system>MSX</system>
@@ -8625,8 +8676,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<system>MSX</system>
 	<company>LUEGOLU3GO Studio</company>
 	<year>2019</year>
-	<country>SP</country>
-		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash>678be67c55ba0f0bc7eeb4b53b79a0c4d6597f72</hash></megarom></dump>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash>678be67c55ba0f0bc7eeb4b53b79a0c4d6597f72</hash><remark>Demo</remark></megarom></dump>
 </software>
 <software>
 	<title>Norakomi's demo Level</title>
@@ -8907,6 +8958,15 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>US</country>
 		<dump><original value="true">Author</original><rom><hash>6ac076f0c5dd09186fef2ebbee2b74221882538f</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>478a75ad54417b1abf95be7a706d971a0d6cff0f</hash><remark>MSX.org Donation</remark></rom></dump>
+</software>
+<software>
+	<title>PWND3 - Full Metal Snake Twitch Edition</title>
+	<system>MSX</system>
+	<company>Metal Soft (Vampier)</company>
+	<year>2018</year>
+	<country>US</country>
+		<dump><original value="true">Author</original><rom><hash>9735b2b165d22c7f99c49b90079ca663c94ea065</hash><remark>v1.0 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>030f6462d91831aa0ef838c353e20c44f528693b</hash><remark>v1.1 / MSXDev2018</remark></rom></dump>
 </software>
 <software>
 	<title>Pac-Man</title>
@@ -9747,6 +9807,15 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>a7a2a867f7e90458f3e8614e8c227da944a6092c</hash><remark>v1.0 / MSXDev2010</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>4921e9ed9455e56371fb14481f1963957b1caeb1</hash><remark>v1.1 / MSXDev2010</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>680be3a41a605ff95a4f5a8d6d1b79714439e1ae</hash><remark>v1.2 / Post MSXDev2010</remark></rom></dump>
+</software>
+<software>
+	<title>Quartet</title>
+	<system>MSX</system>
+	<company>Ilkke and bitsofbas</company>
+	<year>2018</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><hash>8424f6245ac00850bb3abf961f75d0276b7fb71c</hash><remark>v1.1 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>009806bb3f99209a1532197d6e6e08807188dcc7</hash><remark>v1.2 / MSXDev2018</remark></rom></dump>
 </software>
 <software>
 	<title>Quarth</title>
@@ -10749,6 +10818,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash>39d500fbf22168be2a12ac89ff5a50131bb1c30b</hash></megarom></dump>
 		<dump><rom><hash>2d1f8f790cbddd060855ae9a3a94a17aa309eaa4</hash></rom></dump>
+</software>
+<software>
+	<title>Shoulder Blade OVERDRIVE</title>
+	<system>MSX</system>
+	<company>GWʼs-Workshop</company>
+	<year>2018</year>
+	<country>JP</country>
+		<dump><original value="true">Author</original><rom><hash>349fc714c0c19b7cd749f75e618fffb6c2855fcb</hash><remark>v1.0 / MSXDev2018</remark></rom></dump>
 </software>
 <software>
 	<title>Shout Match</title>
@@ -12967,6 +13044,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2018</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>f474c68a6d5b91c98fba2e922f09e3dcc6e0494c</hash><remark>v1.00 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>427b67e7f9237685b26272b6601c45d9b29d8ff1</hash><remark>v1.10 / MSXDev2018</remark></rom></dump>
 </software>
 <software>
 	<title>Volguard</title>
@@ -13176,6 +13254,18 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>607059ef3247771f1bbee5c38d4f43cef8856712</hash><remark>MSXDev09</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>58d510e572130db643b6115da40edcdd33280017</hash><remark>MSXDev09  - bug fix</remark></rom></dump>
 		<dump><megarom><type>ASCII16</type><hash>bba3af72eaaf31e786fff3e9b9c016f4ec526790</hash></megarom></dump>
+</software>
+<software>
+	<title>XRacing</title>
+	<system>MSX</system>
+	<company>Brain Games</company>
+	<year>2018</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>fa5cc49fbd073ea4b2f09e0083083db4534ac5de</hash><remark>v1.0 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>16083c0e1cb167c55f2317b152d17684d62902a4</hash><remark>v1.0.1 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>6a95f4ffe21259e5757240e5015800efd6d9bc21</hash><remark>v1.0.2 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>66aaf627941bbd15940f5838861208becdb787ff</hash><remark>v1.0.3 / MSXDev2018</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>246ac053230bc1f3e42a00347fcb42c390eb4a7c</hash><remark>v1.0.4 / MSXDev2018</remark></rom></dump>
 </software>
 <software>
 	<title>Xenon</title>
@@ -16099,4 +16189,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:3974 - Created on Wed Feb 20 2019 - 19:30:30 PST-->
+<!-- Roms in this XML file:3994 - Created on Thu Apr 4 2019 - 19:59:59 PDT-->
