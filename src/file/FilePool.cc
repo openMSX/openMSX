@@ -467,11 +467,11 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 			sha1sum.toString(), "...\nIndexing filepool ", poolPath,
 			": [", progress.amountScanned, "]: ",
 			string_view(filename).substr(poolPath.size()));
+		reactor.getDisplay().repaint();
 	}
 
-	// deliverEvents() is relatively cheap when there are no events to
-	// deliver, so it's ok to call on each file.
-	reactor.getEventDistributor().deliverEvents();
+	// Note: do NOT call 'reactor.getEventDistributor().deliverEvents()'.
+	// See comment in ReverseManager::goTo() for more details.
 
 	auto it = findInDatabase(filename);
 	if (it == end(pool)) {
