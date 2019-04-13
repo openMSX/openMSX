@@ -125,7 +125,11 @@ void WD2793::setCommandReg(byte value, EmuTime::param time)
 	    ((commandReg & 0xF0) == 0xF0)) { // write track
 		// If a write sector/track command is cancelled, still flush
 		// the partially written data to disk.
-		drive.flushTrack();
+		try {
+			drive.flushTrack();
+		} catch (MSXException&) {
+			// ignore
+		}
 	}
 
 	removeSyncPoint();
