@@ -2,7 +2,7 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
 <msxconfig>
   <info>
-    <name>3.5" Disk Drive</name>
+    <name>Micro Floppydisk Unit</name>
     <manufacturer>Toshiba</manufacturer>
     <code>HX-F101PE</code>
     <release_year>1985</release_year>
@@ -14,7 +14,7 @@
       <secondary slot="any">
         <WD2793 id="Toshiba HX-F101PE diskROM/FDC">
           <connectionstyle>Toshiba</connectionstyle>
-          <mem base="0x0000" size="0x10000"/>
+          <mem base="0x4000" size="0x4000"/> <!-- No mirroring at all. -->
           <singlesided/>
           <rom>
             <sha1>b88c507720a0617a27141c329755de1a48b89deb</sha1> <!-- marked as TSDFDD00104Apr85 -->
