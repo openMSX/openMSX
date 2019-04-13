@@ -4,6 +4,10 @@
 #include "WD2793.hh"
 #include "serialize.hh"
 
+// Based on studying the code in the Toshiba disk ROM.
+// Thanks to Arjen Zeilemaker for an annotated disassembly:
+//   https://sourceforge.net/p/msxsyssrc/git/ci/master/tree/diskdrvs/hx-f101/driver.mac
+
 namespace openmsx {
 
 ToshibaFDC::ToshibaFDC(const DeviceConfig& config)
@@ -26,6 +30,9 @@ byte ToshibaFDC::readMem(word address, EmuTime::param time)
 		break;
 	case 0x7FF3:
 		value = controller.getDataReg(time);
+		break;
+	case 0x7FF6:
+		value = 0xFE | (multiplexer.diskChanged() ? 0 : 1);
 		break;
 	case 0x7FF7:
 		value = 0xFF;
@@ -60,11 +67,10 @@ byte ToshibaFDC::peekMem(word address, EmuTime::param time) const
 		value = 0xFF;
 		break;
 	case 0x7FF5:
-		value = 0xFE | r7ff5;
+		value = 0xFE | ((multiplexer.getSelectedDrive() == DriveMultiplexer::DRIVE_B) ? 1 : 0);
 		break;
 	case 0x7FF6:
-		// Disk ROM reads bit 0. TODO what function does it have?
-		value = 0xFE | r7ff6;
+		value = 0xFE | (multiplexer.peekDiskChanged() ? 0 : 1);
 		break;
 	case 0x7FF7:
 		value = 0xFF; // unused bits read as 1
@@ -117,12 +123,14 @@ void ToshibaFDC::writeMem(word address, byte value, EmuTime::param time)
 		break;
 	case 0x7FF5:
 		// Disk ROM only writes the values 0 or 1.
-		r7ff5 = value & 1;
-		multiplexer.selectDrive(r7ff5 ? DriveMultiplexer::DRIVE_B : DriveMultiplexer::DRIVE_A, time);
+		multiplexer.selectDrive((value & 1) ? DriveMultiplexer::DRIVE_B
+		                                    : DriveMultiplexer::DRIVE_A,
+		                        time);
 		break;
 	case 0x7FF6:
-		// Disk ROM writes the values 0 or 1. TODO what function does it have?
-		r7ff6 = value & 1;
+		// Disk ROM writes '1' (to drive A) and shortly after '0' (to drive B).
+		// TODO What does this do? Activate the 'disk is changed' state?
+		//      And if so, does the written value matter?
 		break;
 	case 0x7FF7:
 		// Probably no function, disk ROM doesn't write to this address.
@@ -143,8 +151,6 @@ template<typename Archive>
 void ToshibaFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
-	ar.serialize("r7ff5", r7ff5);
-	ar.serialize("r7ff6", r7ff6);
 }
 INSTANTIATE_SERIALIZE_METHODS(ToshibaFDC);
 REGISTER_MSXDEVICE(ToshibaFDC, "ToshibaFDC");

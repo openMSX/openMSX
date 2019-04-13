@@ -336,6 +336,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\ToshibaFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SpectravideoFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
@@ -1672,6 +1675,9 @@
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\fdc\ToshibaFDC.hh">
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\VictorFDC.hh">

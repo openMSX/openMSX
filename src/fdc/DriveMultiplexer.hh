@@ -22,7 +22,9 @@ public:
 
 	// Multiplexer interface
 	explicit DriveMultiplexer(DiskDrive* drv[4]);
+
 	void selectDrive(DriveNum num, EmuTime::param time);
+	DriveNum getSelectedDrive() const { return selected; }
 
 	// DiskDrive interface
 	bool isDiskInserted() const override;

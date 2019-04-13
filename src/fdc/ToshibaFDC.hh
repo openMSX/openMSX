@@ -18,10 +18,6 @@ public:
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
-
-private:
-	bool r7ff5 = false; // only bit 0 contains storage
-	bool r7ff6 = false; // "
 };
 
 } // namespace openmsx
