@@ -52,10 +52,8 @@ static void loadWav(const string& filename, Samples& data)
 {
 	WavData wav(filename);
 	assert(wav.getFreq() == 3579545 / 72);
-	assert(wav.getBits() == 16);
-	assert(wav.getChannels() == 1);
 
-	auto rawData = reinterpret_cast<const int16_t*>(wav.getData());
+	auto rawData = wav.getData();
 	data.assign(rawData, rawData + wav.getSize());
 }
 

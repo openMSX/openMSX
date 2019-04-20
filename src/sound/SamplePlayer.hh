@@ -45,7 +45,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	int getSample(unsigned idx);
 	void setWavParams();
 	void doRepeat();
 
@@ -54,12 +53,10 @@ private:
 
 	std::vector<WavData> samples;
 
-	const void* sampBuf;
 	unsigned index;
 	unsigned bufferSize;
 	unsigned currentSampleNum;
 	unsigned nextSampleNum;
-	bool bits8;
 };
 
 } // namespace openmsx

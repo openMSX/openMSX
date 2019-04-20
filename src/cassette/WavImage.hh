@@ -22,8 +22,6 @@ public:
 	void fillBuffer(unsigned pos, int** bufs, unsigned num) const override;
 
 private:
-	int16_t getSample(unsigned pos) const;
-
 	WavData wav;
 	DynamicClock clock;
 };
