@@ -967,42 +967,31 @@ void ReverseManager::ReverseCmd::execute(span<const TclObject> tokens, TclObject
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	auto& manager = OUTER(ReverseManager, reverseCmd);
 	auto& interp = getInterpreter();
-	string_view subcommand = tokens[1].getString();
-	if        (subcommand == "start") {
-		manager.start();
-	} else if (subcommand == "stop") {
-		manager.stop();
-	} else if (subcommand == "status") {
-		manager.status(result);
-	} else if (subcommand == "debug") {
-		manager.debugInfo(result);
-	} else if (subcommand == "goback") {
-		manager.goBack(tokens);
-	} else if (subcommand == "goto") {
-		manager.goTo(tokens);
-	} else if (subcommand == "savereplay") {
-		return manager.saveReplay(interp, tokens, result);
-	} else if (subcommand == "loadreplay") {
-		return manager.loadReplay(interp, tokens, result);
-	} else if (subcommand == "viewonlymode") {
-		auto& distributor = manager.motherBoard.getStateChangeDistributor();
-		switch (tokens.size()) {
-		case 2:
-			result = distributor.isViewOnlyMode();
-			break;
-		case 3:
-			distributor.setViewOnlyMode(tokens[2].getBoolean(interp));
-			break;
-		default:
-			throw SyntaxError();
-		}
-	} else if (subcommand == "truncatereplay") {
-		if (manager.isReplaying()) {
-			manager.signalStopReplay(manager.getCurrentTime());
-		}
-	} else {
-		throw CommandException("Invalid subcommand: ", subcommand);
-	}
+	executeSubCommand(tokens[1].getString(),
+		"start",      [&]{ manager.start(); },
+		"stop",       [&]{ manager.stop(); },
+		"status",     [&]{ manager.status(result); },
+		"debug",      [&]{ manager.debugInfo(result); },
+		"goback",     [&]{ manager.goBack(tokens); },
+		"goto",       [&]{ manager.goTo(tokens); },
+		"savereplay", [&]{ manager.saveReplay(interp, tokens, result); },
+		"loadreplay", [&]{ manager.loadReplay(interp, tokens, result); },
+		"viewonlymode", [&]{
+			auto& distributor = manager.motherBoard.getStateChangeDistributor();
+			switch (tokens.size()) {
+			case 2:
+				result = distributor.isViewOnlyMode();
+				break;
+			case 3:
+				distributor.setViewOnlyMode(tokens[2].getBoolean(interp));
+				break;
+			default:
+				throw SyntaxError();
+			}},
+		"truncatereplay", [&] {
+			if (manager.isReplaying()) {
+				manager.signalStopReplay(manager.getCurrentTime());
+			}});
 }
 
 string ReverseManager::ReverseCmd::help(const vector<string>& /*tokens*/) const

@@ -57,18 +57,10 @@ UserSettings::Cmd::Cmd(CommandController& commandController_)
 void UserSettings::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
-	const auto& subCommand = tokens[1].getString();
-	if (subCommand == "create") {
-		create(tokens, result);
-	} else if (subCommand == "destroy") {
-		destroy(tokens, result);
-	} else if (subCommand == "info") {
-		info(tokens, result);
-	} else {
-		throw CommandException(
-			"Invalid subcommand '", subCommand,
-			"', expected 'create', 'destroy' or 'info'.");
-	}
+	executeSubCommand(tokens[1].getString(),
+		"create",  [&]{ create(tokens, result); },
+		"destroy", [&]{ destroy(tokens, result); },
+		"info",    [&]{ info(tokens, result); });
 }
 
 void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)

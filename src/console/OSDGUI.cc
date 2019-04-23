@@ -41,26 +41,12 @@ OSDGUI::OSDCommand::OSDCommand(CommandController& commandController_)
 void OSDGUI::OSDCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
-	auto& gui = OUTER(OSDGUI, osdCommand);
-	string_view subCommand = tokens[1].getString();
-	if (subCommand == "create") {
-		create(tokens, result);
-		gui.refresh();
-	} else if (subCommand == "destroy") {
-		destroy(tokens, result);
-		gui.refresh();
-	} else if (subCommand == "info") {
-		info(tokens, result);
-	} else if (subCommand == "exists") {
-		exists(tokens, result);
-	} else if (subCommand == "configure") {
-		configure(tokens, result);
-		gui.refresh();
-	} else {
-		throw CommandException(
-			"Invalid subcommand '", subCommand, "', expected "
-			"'create', 'destroy', 'info', 'exists' or 'configure'.");
-	}
+	executeSubCommand(tokens[1].getString(),
+		"create",    [&]{ create(tokens, result); },
+		"destroy",   [&]{ destroy(tokens, result); },
+		"info",      [&]{ info(tokens, result); },
+		"exists",    [&]{ exists(tokens, result); },
+		"configure", [&]{ configure(tokens, result); });
 }
 
 void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
@@ -92,6 +78,7 @@ void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
 	parent->addWidget(std::move(widget));
 
 	result = fullname;
+	gui.refresh();
 }
 
 unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
@@ -131,6 +118,7 @@ void OSDGUI::OSDCommand::destroy(span<const TclObject> tokens, TclObject& result
 	top.removeName(*widget);
 	parent->deleteWidget(*widget);
 	result = true;
+	gui.refresh();
 }
 
 void OSDGUI::OSDCommand::info(span<const TclObject> tokens, TclObject& result)
@@ -170,6 +158,8 @@ void OSDGUI::OSDCommand::configure(span<const TclObject> tokens, TclObject& /*re
 {
 	checkNumArgs(tokens, AtLeast{3}, "name ?property value ...?");
 	configure(getWidget(tokens[2].getString()), tokens.subspan(3));
+	auto& gui = OUTER(OSDGUI, osdCommand);
+	gui.refresh();
 }
 
 void OSDGUI::OSDCommand::configure(OSDWidget& widget, span<const TclObject> tokens)

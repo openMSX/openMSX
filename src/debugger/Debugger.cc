@@ -222,54 +222,29 @@ void Debugger::Cmd::execute(
 	span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
 {
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
-	string_view subCmd = tokens[1].getString();
-	if (subCmd == "read") {
-		read(tokens, result);
-	} else if (subCmd == "read_block") {
-		readBlock(tokens, result);
-	} else if (subCmd == "write") {
-		write(tokens, result);
-	} else if (subCmd == "write_block") {
-		writeBlock(tokens, result);
-	} else if (subCmd == "size") {
-		size(tokens, result);
-	} else if (subCmd == "desc") {
-		desc(tokens, result);
-	} else if (subCmd == "list") {
-		list(result);
-	} else if (subCmd == "step") {
-		debugger().motherBoard.getCPUInterface().doStep();
-	} else if (subCmd == "cont") {
-		debugger().motherBoard.getCPUInterface().doContinue();
-	} else if (subCmd == "disasm") {
-		debugger().cpu->disasmCommand(getInterpreter(), tokens, result);
-	} else if (subCmd == "break") {
-		debugger().motherBoard.getCPUInterface().doBreak();
-	} else if (subCmd == "breaked") {
-		result = debugger().motherBoard.getCPUInterface().isBreaked();
-	} else if (subCmd == "set_bp") {
-		setBreakPoint(tokens, result);
-	} else if (subCmd == "remove_bp") {
-		removeBreakPoint(tokens, result);
-	} else if (subCmd == "list_bp") {
-		listBreakPoints(tokens, result);
-	} else if (subCmd == "set_watchpoint") {
-		setWatchPoint(tokens, result);
-	} else if (subCmd == "remove_watchpoint") {
-		removeWatchPoint(tokens, result);
-	} else if (subCmd == "list_watchpoints") {
-		listWatchPoints(tokens, result);
-	} else if (subCmd == "set_condition") {
-		setCondition(tokens, result);
-	} else if (subCmd == "remove_condition") {
-		removeCondition(tokens, result);
-	} else if (subCmd == "list_conditions") {
-		listConditions(tokens, result);
-	} else if (subCmd == "probe") {
-		probe(tokens, result);
-	} else {
-		throw SyntaxError();
-	}
+	executeSubCommand(tokens[1].getString(),
+		"read",              [&]{ read(tokens, result); },
+		"read_block",        [&]{ readBlock(tokens, result); },
+		"write",             [&]{ write(tokens, result); },
+		"write_block",       [&]{ writeBlock(tokens, result); },
+		"size",              [&]{ size(tokens, result); },
+		"desc",              [&]{ desc(tokens, result); },
+		"list",              [&]{ list(result); },
+		"step",              [&]{ debugger().motherBoard.getCPUInterface().doStep(); },
+		"cont",              [&]{ debugger().motherBoard.getCPUInterface().doContinue(); },
+		"disasm",            [&]{ debugger().cpu->disasmCommand(getInterpreter(), tokens, result); },
+		"break",             [&]{ debugger().motherBoard.getCPUInterface().doBreak(); },
+		"breaked",           [&]{ debugger().motherBoard.getCPUInterface().isBreaked(); },
+		"set_bp",            [&]{ setBreakPoint(tokens, result); },
+		"remove_bp",         [&]{ removeBreakPoint(tokens, result); },
+		"list_bp",           [&]{ listBreakPoints(tokens, result); },
+		"set_watchpoint",    [&]{ setWatchPoint(tokens, result); },
+		"remove_watchpoint", [&]{ removeWatchPoint(tokens, result); },
+		"list_watchpoints",  [&]{ listWatchPoints(tokens, result); },
+		"set_condition",     [&]{ setCondition(tokens, result); },
+		"remove_condition",  [&]{ removeCondition(tokens, result); },
+		"list_conditions",   [&]{ listConditions(tokens, result); },
+		"probe",             [&]{ probe(tokens, result); });
 }
 
 void Debugger::Cmd::list(TclObject& result)
@@ -623,22 +598,13 @@ void Debugger::Cmd::listConditions(
 void Debugger::Cmd::probe(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{3}, "subcommand ?arg ...?");
-	string_view subCmd = tokens[2].getString();
-	if (subCmd == "list") {
-		probeList(tokens, result);
-	} else if (subCmd == "desc") {
-		probeDesc(tokens, result);
-	} else if (subCmd == "read") {
-		probeRead(tokens, result);
-	} else if (subCmd == "set_bp") {
-		probeSetBreakPoint(tokens, result);
-	} else if (subCmd == "remove_bp") {
-		probeRemoveBreakPoint(tokens, result);
-	} else if (subCmd == "list_bp") {
-		probeListBreakPoints(tokens, result);
-	} else {
-		throw SyntaxError();
-	}
+	executeSubCommand(tokens[2].getString(),
+		"list",      [&]{ probeList(tokens, result); },
+		"desc",      [&]{ probeDesc(tokens, result); },
+		"read",      [&]{ probeRead(tokens, result); },
+		"set_bp",    [&]{ probeSetBreakPoint(tokens, result); },
+		"remove_bp", [&]{ probeRemoveBreakPoint(tokens, result); },
+		"list_bp",   [&]{ probeListBreakPoints(tokens, result); });
 }
 void Debugger::Cmd::probeList(span<const TclObject> /*tokens*/, TclObject& result)
 {

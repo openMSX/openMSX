@@ -293,20 +293,15 @@ void AviRecorder::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 		throw CommandException("Missing argument");
 	}
 	auto& recorder = OUTER(AviRecorder, recordCommand);
-	const string_view subcommand = tokens[1].getString();
-	if (subcommand == "start") {
-		recorder.processStart(getInterpreter(), tokens, result);
-	} else if (subcommand == "stop") {
-		checkNumArgs(tokens, 2, Prefix{2}, nullptr);
-		recorder.processStop(tokens);
-	} else if (subcommand == "toggle") {
-		recorder.processToggle(getInterpreter(), tokens, result);
-	} else if (subcommand == "status") {
-		checkNumArgs(tokens, 2, Prefix{2}, nullptr);
-		recorder.status(tokens, result);
-	} else {
-		throw SyntaxError();
-	}
+	executeSubCommand(tokens[1].getString(),
+		"start",  [&]{ recorder.processStart(getInterpreter(), tokens, result); },
+		"stop",   [&]{
+			checkNumArgs(tokens, 2, Prefix{2}, nullptr);
+			recorder.processStop(tokens); },
+		"toggle", [&]{ recorder.processToggle(getInterpreter(), tokens, result); },
+		"status", [&]{
+			checkNumArgs(tokens, 2, Prefix{2}, nullptr);
+			recorder.status(tokens, result); });
 }
 
 string AviRecorder::Cmd::help(const vector<string>& /*tokens*/) const
