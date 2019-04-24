@@ -25,7 +25,7 @@ WavAudioInput::~WavAudioInput()
 
 void WavAudioInput::loadWave()
 {
-	wav = WavData(audioInputFilenameSetting.getString().str(), 16, 0);
+	wav = WavData(audioInputFilenameSetting.getString().str());
 }
 
 const string& WavAudioInput::getName() const
@@ -75,10 +75,7 @@ int16_t WavAudioInput::readSample(EmuTime::param time)
 {
 	if (wav.getSize()) {
 		unsigned pos = (time - reference).getTicksAt(wav.getFreq());
-		if (pos < wav.getSize()) {
-			auto buf = static_cast<const int16_t*>(wav.getData());
-			return buf[pos];
-		}
+		return wav.getSample(pos);
 	}
 	return 0;
 }

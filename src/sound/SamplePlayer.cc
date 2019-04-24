@@ -73,12 +73,7 @@ void SamplePlayer::setWavParams()
 	if ((currentSampleNum < samples.size()) &&
 	    samples[currentSampleNum].getSize()) {
 		auto& wav = samples[currentSampleNum];
-		sampBuf = wav.getData();
 		bufferSize = wav.getSize();
-
-		unsigned bits = wav.getBits();
-		assert((bits == 8) || (bits == 16));
-		bits8 = (bits == 8);
 
 		unsigned freq = wav.getFreq();
 		if (freq != getInputRate()) {
@@ -102,13 +97,6 @@ void SamplePlayer::repeat(unsigned sampleNum)
 	}
 }
 
-inline int SamplePlayer::getSample(unsigned idx)
-{
-	return bits8
-	     ? (static_cast<const uint8_t*>(sampBuf)[idx] - 0x80) * 256
-	     :  static_cast<const int16_t*>(sampBuf)[idx];
-}
-
 void SamplePlayer::generateChannels(int** bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
@@ -116,6 +104,8 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 		bufs[0] = nullptr;
 		return;
 	}
+
+	auto& wav = samples[currentSampleNum];
 	for (unsigned i = 0; i < num; ++i) {
 		if (index >= bufferSize) {
 			if (nextSampleNum != unsigned(-1)) {
@@ -129,7 +119,7 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 				break;
 			}
 		}
-		bufs[0][i] = 3 * getSample(index++);
+		bufs[0][i] = 3 * wav.getSample(index++);
 	}
 }
 

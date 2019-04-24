@@ -1,48 +1,81 @@
 #include "WavData.hh"
+#include "File.hh"
 #include "MSXException.hh"
-#include "SDLSurfacePtr.hh"
-#include <cassert>
-
-using std::string;
+#include "endian.hh"
 
 namespace openmsx {
 
-static inline bool is8Bit(Uint16 format)
+WavData::WavData(const std::string& filename)
 {
-	return (format == AUDIO_U8) || (format == AUDIO_S8);
+	File file(filename);
+
+	struct WavHeader {
+		char riffID[4];
+		Endian::L32 riffSize;
+		char riffType[4];
+		char fmtID[4];
+		Endian::L32 fmtSize;
+		Endian::L16 wFormatTag;
+		Endian::L16 wChannels;
+		Endian::L32 dwSamplesPerSec;
+		Endian::L32 dwAvgBytesPerSec;
+		Endian::L16 wBlockAlign;
+		Endian::L16 wBitsPerSample;
+	} header;
+
+	struct DataHeader {
+		char dataID[4];
+		Endian::L32 size;
+	} data;
+
+	// Read and check header
+	file.read(&header, sizeof(WavHeader));
+	if (memcmp(header.riffID, "RIFF", 4) ||
+	    memcmp(header.riffType, "WAVE", 4) ||
+	    memcmp(header.fmtID, "fmt ", 4)) {
+		throw MSXException("Invalid WAV");
+	}
+	if ((header.wFormatTag != 1) || ((header.wBitsPerSample != 8) && (header.wBitsPerSample != 16))) {
+		throw MSXException("WAV format unsupported, must be 8 or 16 bit PCM");
+	}
+	// Skip any extra format bytes
+	file.seek(file.getPos() + (header.fmtSize - (sizeof(WavHeader) - 20)));
+
+	// Find 'data' chunk
+	for(;;) {
+		// Read chunk header
+		file.read(&data, sizeof(DataHeader));
+		if (!memcmp(data.dataID, "data", 4)) break;
+
+		// Skip chunk
+		file.seek(file.getPos() + data.size);
+	}
+	freq = header.dwSamplesPerSec;
+	length = data.size / ((header.wBitsPerSample / 8) * header.wChannels);
+	buffer.resize(length);
+
+	// Read sample data
+	auto pos = file.getPos();
+	for (unsigned i = 0; i < length; ++i) {
+		Endian::L16 sample;
+
+		// TODO implement multi-channel to mono conversion
+		file.read(&sample, header.wBitsPerSample / 8);
+		buffer[i] = (header.wBitsPerSample == 8)
+		          ? (int16_t(sample - 0x80) & 0xFF) << 8
+		          : int16_t(sample);
+
+		pos += (header.wBitsPerSample / 8) * header.wChannels;
+		file.seek(pos);
+	}
 }
 
-WavData::WavData(const string& filename, unsigned wantedBits, unsigned wantedFreq)
+int16_t WavData::getSample(unsigned pos) const
 {
-	SDL_AudioSpec wavSpec;
-	Uint8* wavBuf_;
-	Uint32 wavLen;
-	if (!SDL_LoadWAV(filename.c_str(), &wavSpec, &wavBuf_, &wavLen)) {
-		throw MSXException("WavData error: ", SDL_GetError());
+	if (pos < length) {
+		return buffer[pos];
 	}
-	SDLWavPtr wavBuf(wavBuf_);
-
-	freq = (wantedFreq == 0) ? unsigned(wavSpec.freq) : wantedFreq;
-	bits = (wantedBits == 0) ? (is8Bit(wavSpec.format) ? 8 : 16)
-	                         : wantedBits;
-	assert((bits == 8) || (bits == 16));
-	Uint16 format = (bits == 8) ? AUDIO_U8 : AUDIO_S16SYS;
-
-	SDL_AudioCVT audioCVT;
-	if (SDL_BuildAudioCVT(&audioCVT, wavSpec.format, wavSpec.channels,
-		              wavSpec.freq, format, 1, freq) == -1) {
-		throw MSXException("Couldn't build wav converter");
-	}
-
-	buffer.resize(wavLen * audioCVT.len_mult);
-	memcpy(buffer.data(), wavBuf.get(), wavLen);
-	audioCVT.buf = buffer.data();
-	audioCVT.len = wavLen;
-
-	if (SDL_ConvertAudio(&audioCVT) == -1) {
-		throw MSXException("Couldn't convert wav file to internal format");
-	}
-	length = unsigned(audioCVT.len * audioCVT.len_ratio) / 2;
+	return 0;
 }
 
 } // namespace openmsx

@@ -1,6 +1,6 @@
 #include "WavImage.hh"
-#include "LocalFileReference.hh"
 #include "File.hh"
+#include "Filename.hh"
 #include "FilePool.hh"
 #include "Math.hh"
 #include "xrange.hh"
@@ -27,35 +27,22 @@ static void filter(float sampleFreq, int16_t* begin, int16_t* end)
 WavImage::WavImage(const Filename& filename, FilePool& filePool)
 	: clock(EmuTime::zero)
 {
-	LocalFileReference localFile;
 	{
-		// File object must be destroyed before localFile is actually
-		// used by an external API (see comments in LocalFileReference
-		// for details).
+		// Scoped to avoid the same file being opened twice.
 		File file(filename);
 		setSha1Sum(filePool.getSha1Sum(file));
-		localFile = LocalFileReference(file);
 	}
-	wav = WavData(localFile.getFilename(), 16, 0);
+	wav = WavData(filename.getResolved());
 	clock.setFreq(wav.getFreq());
 
-	auto* buf = static_cast<int16_t*>(wav.getData());
+	auto* buf = wav.getData();
 	auto* end = buf + wav.getSize();
 	filter(wav.getFreq(), buf, end);
 }
 
-int16_t WavImage::getSample(unsigned pos) const
-{
-	if (pos < wav.getSize()) {
-		auto* buf = static_cast<const int16_t*>(wav.getData());
-		return buf[pos];
-	}
-	return 0;
-}
-
 int16_t WavImage::getSampleAt(EmuTime::param time)
 {
-	return getSample(clock.getTicksTill(time));
+	return wav.getSample(clock.getTicksTill(time));
 }
 
 EmuTime WavImage::getEndTime() const
@@ -74,7 +61,7 @@ void WavImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 {
 	if (pos < wav.getSize()) {
 		for (auto i : xrange(num)) {
-			bufs[0][i] = getSample(pos + i);
+			bufs[0][i] = wav.getSample(pos + i);
 		}
 	} else {
 		bufs[0] = nullptr;
