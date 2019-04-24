@@ -1,6 +1,7 @@
 #ifndef WAVDATA_HH
 #define WAVDATA_HH
 
+#include "File.hh"
 #include "MemBuffer.hh"
 #include <cstdint>
 #include <string>
@@ -14,7 +15,9 @@ public:
 	WavData() = default;
 
 	/** Construct from .wav file. */
-	explicit WavData(const std::string& filename);
+	explicit WavData(const std::string& filename)
+		: WavData(File(filename)) {}
+	explicit WavData(File file);
 
 	unsigned getFreq() const { return freq; }
 	unsigned getSize() const { return length; }

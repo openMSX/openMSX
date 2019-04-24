@@ -1,14 +1,11 @@
 #include "WavData.hh"
-#include "File.hh"
 #include "MSXException.hh"
 #include "endian.hh"
 
 namespace openmsx {
 
-WavData::WavData(const std::string& filename)
+WavData::WavData(File file)
 {
-	File file(filename);
-
 	struct WavHeader {
 		char riffID[4];
 		Endian::L32 riffSize;

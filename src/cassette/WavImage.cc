@@ -27,12 +27,10 @@ static void filter(float sampleFreq, int16_t* begin, int16_t* end)
 WavImage::WavImage(const Filename& filename, FilePool& filePool)
 	: clock(EmuTime::zero)
 {
-	{
-		// Scoped to avoid the same file being opened twice.
-		File file(filename);
-		setSha1Sum(filePool.getSha1Sum(file));
-	}
-	wav = WavData(filename.getResolved());
+	File file(filename);
+	setSha1Sum(filePool.getSha1Sum(file));
+
+	wav = WavData(std::move(file));
 	clock.setFreq(wav.getFreq());
 
 	auto* buf = wav.getData();
