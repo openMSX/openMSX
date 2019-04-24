@@ -62,6 +62,11 @@ File::File(File&& other) noexcept
 {
 }
 
+File::File(std::unique_ptr<FileBase> file_)
+	: file(std::move(file_))
+{
+}
+
 File::~File() = default;
 
 File& File::operator=(File&& other) noexcept

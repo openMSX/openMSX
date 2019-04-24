@@ -50,6 +50,9 @@ public:
 	File(const Filename& filename, const char* mode);
 	File(File&& other) noexcept;
 
+	/* Used by MemoryBufferFile. */
+	File(std::unique_ptr<FileBase> file_);
+
 	~File();
 
 	File& operator=(File&& other) noexcept;
