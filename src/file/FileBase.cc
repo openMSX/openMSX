@@ -11,9 +11,14 @@ span<uint8_t> FileBase::mmap()
 {
 	auto size = getSize();
 	if (mmapBuf.empty()) {
+		auto pos = getPos();
+		seek(0);
+
 		MemBuffer<uint8_t> tmpBuf(size);
 		read(tmpBuf.data(), size);
 		std::swap(mmapBuf, tmpBuf);
+
+		seek(pos);
 	}
 	return {mmapBuf.data(), size};
 }
