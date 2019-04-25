@@ -67,12 +67,4 @@ WavData::WavData(File file)
 	}
 }
 
-int16_t WavData::getSample(unsigned pos) const
-{
-	if (pos < length) {
-		return buffer[pos];
-	}
-	return 0;
-}
-
 } // namespace openmsx
