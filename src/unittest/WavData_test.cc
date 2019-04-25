@@ -24,7 +24,7 @@ TEST_CASE("WavData, parser")
 			WavData wav(std::move(file));
 			CHECK(false);
 		} catch (MSXException& e) {
-			CHECK(e.getMessage() == "Read beyond end of file");
+			CHECK(e.getMessage() == "Read beyond end of wav file.");
 		}
 	}
 	SECTION("garbage data") {
@@ -38,7 +38,7 @@ TEST_CASE("WavData, parser")
 			WavData wav(memory_buffer_file(buffer));
 			CHECK(false);
 		} catch (MSXException& e) {
-			CHECK(e.getMessage() == "Invalid WAV");
+			CHECK(e.getMessage() == "Invalid WAV file.");
 		}
 	}
 	SECTION("unsupported format") {
@@ -52,7 +52,7 @@ TEST_CASE("WavData, parser")
 			WavData wav(memory_buffer_file(buffer));
 			CHECK(false);
 		} catch (MSXException& e) {
-			CHECK(e.getMessage() == "WAV format unsupported, must be 8 or 16 bit PCM");
+			CHECK(e.getMessage() == "WAV format unsupported, must be 8 or 16 bit PCM.");
 		}
 	}
 	SECTION("missing data chunk") {
@@ -66,7 +66,7 @@ TEST_CASE("WavData, parser")
 			WavData wav(memory_buffer_file(buffer));
 			CHECK(false);
 		} catch (MSXException& e) {
-			CHECK(e.getMessage() == "Read beyond end of file");
+			CHECK(e.getMessage() == "Read beyond end of wav file.");
 		}
 	}
 	SECTION("data chunk with incorrect length") {
@@ -80,7 +80,7 @@ TEST_CASE("WavData, parser")
 			WavData wav(memory_buffer_file(buffer));
 			CHECK(false);
 		} catch (MSXException& e) {
-			CHECK(e.getMessage() == "Read beyond end of file");
+			CHECK(e.getMessage() == "Read beyond end of wav file.");
 		}
 	}
 	SECTION("finally a correct, but empty wav file") {
