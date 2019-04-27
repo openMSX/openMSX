@@ -882,9 +882,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavAudioInput.cc">
       <Filter>sound</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\sound\WavData.cc">
-      <Filter>sound</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavWriter.cc">
       <Filter>sound</Filter>
     </ClCompile>

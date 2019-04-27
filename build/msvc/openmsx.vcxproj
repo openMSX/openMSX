@@ -597,7 +597,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SoundDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\VLM5030.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavAudioInput.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\sound\WavData.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavWriter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8950.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8950Adpcm.cc" />
