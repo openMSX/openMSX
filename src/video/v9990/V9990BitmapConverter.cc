@@ -468,10 +468,10 @@ void V9990BitmapConverter<Pixel>::convertLine(
 					buf[i] = cursor0.color;
 				}
 			} else if (cursor1.dot()) {
-				if (cursor0.doXor) {
+				if (cursor1.doXor) {
 					buf[i] ^= 0x7fff;
 				} else {
-					buf[i] = cursor0.color;
+					buf[i] = cursor1.color;
 				}
 			}
 			cursor0.shift();
