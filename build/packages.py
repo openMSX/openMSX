@@ -113,6 +113,10 @@ class OpenGL(Package):
 	niceName = 'OpenGL'
 	sourceName = 'gl'
 
+class PortAudio(Package):
+	niceName = 'Port Audio'
+	sourceName = 'portaudio'
+
 class PkgConfig(DownloadablePackage):
 	downloadURL = 'https://pkg-config.freedesktop.org/releases'
 	niceName = 'pkg-config'

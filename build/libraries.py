@@ -300,6 +300,13 @@ class OGG(Library):
 	def isSystemLibrary(cls, platform):
 		return platform in ('dingux',)
 
+class PortAudio(Library):
+	libName = 'portaudio'
+	makeName = 'PORTAUDIO'
+	header = '<portaudio.h>'
+	function = 'Pa_Initialize'
+	configScriptName = 'pkg-config portaudio-2.0'
+
 class SDL2(Library):
 	libName = 'SDL2'
 	makeName = 'SDL2'

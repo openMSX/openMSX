@@ -33,6 +33,11 @@ class ALSAMIDI(Component):
 	makeName = 'ALSAMIDI'
 	dependsOn = ('ALSA', )
 
+class PortAudio(Component):
+	niceName = 'Port Audio'
+	makeName = 'PORTAUDIO'
+	dependsOn = ('PORTAUDIO', )
+
 def iterComponents():
 	'''Iterates through all components of openMSX.
 	'''
@@ -40,6 +45,7 @@ def iterComponents():
 	yield GLRenderer
 	yield Laserdisc
 	yield ALSAMIDI
+	yield PortAudio
 
 def iterBuildableComponents(probeVars):
 	'''Iterates through those components of openMSX that can be built

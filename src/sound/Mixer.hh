@@ -18,7 +18,7 @@ class MSXMixer;
 class Mixer final : private Observer<Setting>
 {
 public:
-	enum SoundDriverType { SND_NULL, SND_SDL };
+	enum SoundDriverType { SND_NULL, SND_SDL, SND_PA };
 
 	Mixer(Reactor& reactor, CommandController& commandController);
 	~Mixer();

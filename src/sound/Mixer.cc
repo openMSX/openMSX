@@ -1,6 +1,7 @@
 #include "Mixer.hh"
 #include "MSXMixer.hh"
 #include "NullSoundDriver.hh"
+#include "PASoundDriver.hh"
 #include "SDLSoundDriver.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
@@ -8,6 +9,7 @@
 #include "stl.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include "components.hh"
 #include <cassert>
 #include <memory>
 
@@ -25,7 +27,11 @@ static EnumSetting<Mixer::SoundDriverType>::Map getSoundDriverMap()
 {
 	EnumSetting<Mixer::SoundDriverType>::Map soundDriverMap = {
 		{ "null", Mixer::SND_NULL },
-		{ "sdl",  Mixer::SND_SDL } };
+		{ "sdl",  Mixer::SND_SDL },
+#if COMPONENT_PORTAUDIO
+		{ "pa",   Mixer::SND_PA },
+#endif
+	};
 	return soundDriverMap;
 }
 
@@ -91,6 +97,14 @@ void Mixer::reloadDriver()
 				frequencySetting.getInt(),
 				samplesSetting.getInt());
 			break;
+#if COMPONENT_PORTAUDIO
+		case SND_PA:
+			driver = std::make_unique<PASoundDriver>(
+				reactor,
+				frequencySetting.getInt(),
+				samplesSetting.getInt());
+			break;
+#endif
 		default:
 			UNREACHABLE;
 		}
