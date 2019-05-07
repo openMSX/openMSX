@@ -520,6 +520,7 @@ KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release
 	case SDLK_PRINTSCREEN:    result = K_PRINT;             break;
 	case SDLK_SYSREQ:         result = K_SYSREQ;            break;
 //	case SDLK_BREAK:          result = K_BREAK;             break;
+	case SDLK_APPLICATION:    result = K_MENU;              break;
 	case SDLK_MENU:           result = K_MENU;              break;
 	case SDLK_POWER:          result = K_POWER;             break; // Power Macintosh power key
 //	case SDLK_EURO:           result = K_EURO;              break; // Some european keyboards
