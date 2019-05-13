@@ -405,7 +405,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		throw MSXException("Unknown ROM type");
 	}
 
-	return move(result);
+	return result;
 }
 
 } // namespace RomFactory
