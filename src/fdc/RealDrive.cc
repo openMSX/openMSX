@@ -105,6 +105,11 @@ void RealDrive::setSide(bool side_)
 	side = side_ ? 1 : 0; // also for single-sided drives
 }
 
+bool RealDrive::getSide() const
+{
+	return side;
+}
+
 void RealDrive::step(bool direction, EmuTime::param time)
 {
 	invalidateTrack();
@@ -189,6 +194,14 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 		// Turn the motor off after some timeout (timeout could be 0)
 		syncMotorTimeout.setSyncPoint(time + motorTimeout);
 	}
+}
+
+bool RealDrive::getMotor() const
+{
+	// note: currently unused because of the implementation in DriveMultiplexer
+	// note: currently returns the actual motor status, could be differnt from the
+	//       last set status because of 'syncMotorTimeout'.
+	return motorStatus;
 }
 
 unsigned RealDrive::getCurrentAngle(EmuTime::param time) const

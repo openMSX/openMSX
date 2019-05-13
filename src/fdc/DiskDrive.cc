@@ -30,6 +30,11 @@ void DummyDrive::setSide(bool /*side*/)
 	// ignore
 }
 
+bool DummyDrive::getSide() const
+{
+	return false;
+}
+
 void DummyDrive::step(bool /*direction*/, EmuTime::param /*time*/)
 {
 	// ignore
@@ -38,6 +43,11 @@ void DummyDrive::step(bool /*direction*/, EmuTime::param /*time*/)
 void DummyDrive::setMotor(bool /*status*/, EmuTime::param /*time*/)
 {
 	// ignore
+}
+
+bool DummyDrive::getMotor() const
+{
+	return false;
 }
 
 bool DummyDrive::indexPulse(EmuTime::param /*time*/)

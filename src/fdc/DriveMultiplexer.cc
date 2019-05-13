@@ -46,6 +46,11 @@ void DriveMultiplexer::setSide(bool side_)
 	drive[selected]->setSide(side);
 }
 
+bool DriveMultiplexer::getSide() const
+{
+	return side;
+}
+
 void DriveMultiplexer::step(bool direction, EmuTime::param time)
 {
 	drive[selected]->step(direction, time);
@@ -60,6 +65,11 @@ void DriveMultiplexer::setMotor(bool status, EmuTime::param time)
 {
 	motor = status;
 	drive[selected]->setMotor(status, time);
+}
+
+bool DriveMultiplexer::getMotor() const
+{
+	return motor;
 }
 
 bool DriveMultiplexer::indexPulse(EmuTime::param time)

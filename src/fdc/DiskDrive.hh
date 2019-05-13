@@ -38,6 +38,10 @@ public:
 	 */
 	virtual void setSide(bool side) = 0;
 
+	/* Returns the previously selected side.
+	 */
+	virtual bool getSide() const = 0;
+
 	/** Step head
 	 * @param direction false = out,
 	 *                  true  = in.
@@ -51,6 +55,10 @@ public:
 	 * @param time The moment in emulated time this action takes place.
 	 */
 	virtual void setMotor(bool status, EmuTime::param time) = 0;
+
+	/** Returns the previously set motor status.
+	 */
+	virtual bool getMotor() const = 0;
 
 	/** Gets the state of the index pulse.
 	 * @param time The moment in emulated time to get the pulse state for.
@@ -97,8 +105,10 @@ public:
 	bool isDoubleSided() const override;
 	bool isTrack00() const override;
 	void setSide(bool side) override;
+	bool getSide() const override;
 	void step(bool direction, EmuTime::param time) override;
 	void setMotor(bool status, EmuTime::param time) override;
+	bool getMotor() const override;
 	bool indexPulse(EmuTime::param time) override;
 	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
 	unsigned getTrackLength() override;

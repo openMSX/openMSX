@@ -7,6 +7,7 @@
 // Based on studying the code in the Toshiba disk ROM.
 // Thanks to Arjen Zeilemaker for an annotated disassembly:
 //   https://sourceforge.net/p/msxsyssrc/git/ci/master/tree/diskdrvs/hx-f101/driver.mac
+//   https://sourceforge.net/p/msxsyssrc/git/ci/master/tree/diskdrvs/hx-34/driver.mac
 
 namespace openmsx {
 
@@ -63,8 +64,12 @@ byte ToshibaFDC::peekMem(word address, EmuTime::param time) const
 		value = controller.peekDataReg(time);
 		break;
 	case 0x7FF4:
-		// Probably no function. Toshiba disk ROM doesn't read this.
-		value = 0xFF;
+		// ToshibaFDC HX-F101 disk ROM doesn't read this, but HX-34
+		// does. No idea if this location is actually readable on
+		// HX-F101, but currently the emulation is the same for both.
+		value = 0xFC
+		      | (multiplexer.getSide() ? 1 : 0)
+		      | (multiplexer.getMotor() ? 2 : 0);
 		break;
 	case 0x7FF5:
 		value = 0xFE | ((multiplexer.getSelectedDrive() == DriveMultiplexer::DRIVE_B) ? 1 : 0);
@@ -118,7 +123,7 @@ void ToshibaFDC::writeMem(word address, byte value, EmuTime::param time)
 		controller.setDataReg(value, time);
 		break;
 	case 0x7FF4:
-		// Disk ROM only writes the values 0 or 2.
+		multiplexer.setSide((value & 0x01) != 0); // no effect on HX-F101 because it has single sided drive
 		multiplexer.setMotor((value & 0x02) != 0, time);
 		break;
 	case 0x7FF5:
