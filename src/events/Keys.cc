@@ -20,6 +20,7 @@ struct P {
 		second = o.second;
 		return *this;
 	}
+	constexpr P(const P& p) = default;
 
 	cstd::string first;
 	KeyCode second;
