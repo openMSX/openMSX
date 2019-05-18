@@ -654,23 +654,18 @@ private:
 	void execSetBlank(EmuTime::param time);
 	void execCpuVramAccess(EmuTime::param time);
 
-	/** Time at which the internal VDP display line counter is reset,
-	  * expressed in ticks after vsync.
-	  * I would expect the counter to reset at line 16, but measurements
-	  * on NMS8250 show it is one line earlier. I'm not sure whether the
-	  * actual counter reset happens on line 15 or whether the VDP
-	  * timing may be one line off for some reason.
-	  * TODO: This is just an assumption, more measurements on real MSX
-	  *       are necessary to verify there is really such a thing and
-	  *       if so, that the value is accurate.
-	  */
-	static const int LINE_COUNT_RESET_TICKS = 15 * TICKS_PER_LINE;
-
 	/** Gets the number of display lines per screen.
 	  * @return 192 or 212.
 	  */
 	inline int getNumberOfLines() const {
 		return controlRegs[9] & 0x80 ? 212 : 192;
+	}
+
+	/** Returns the amount of vertical set-adjust 0..15.
+	  * Neutral set-adjust (that is 'set adjust(0,0)') returns the value '7'.
+	  */
+	int getVerticalAdjust() const {
+		return (controlRegs[18] >> 4) ^ 0x07;
 	}
 
 	/** Gets the value of the horizontal retrace status bit.

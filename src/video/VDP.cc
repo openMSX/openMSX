@@ -438,14 +438,13 @@ void VDP::scheduleDisplayStart(EmuTime::param time)
 	}
 
 	// Calculate when (lines and time) display starts.
-	int verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
 	int lineZero =
 		// sync + top erase:
 		3 + 13 +
 		// top border:
 		(palTiming ? 36 : 9) +
 		(controlRegs[9] & 0x80 ? 0 : 10) +
-		verticalAdjust;
+		getVerticalAdjust(); // 0..15
 	displayStart =
 		lineZero * TICKS_PER_LINE
 		+ 100 + 102; // VR flips at start of left border
@@ -513,9 +512,24 @@ void VDP::scheduleHScan(EmuTime::param time)
 	int ticksPerFrame = getTicksPerFrame();
 	if (horizontalScanOffset >= ticksPerFrame) {
 		horizontalScanOffset -= ticksPerFrame;
+
+		// Time at which the internal VDP display line counter is reset,
+		// expressed in ticks after vsync.
+		// I would expect the counter to reset at line 16 (for neutral
+		// set-adjust), but measurements on NMS8250 show it is one line
+		// earlier. I'm not sure whether the actual counter reset
+		// happens on line 15 or whether the VDP timing may be one line
+		// off for some reason.
+		// TODO: This is just an assumption, more measurements on real MSX
+		//       are necessary to verify there is really such a thing and
+		//       if so, that the value is accurate.
+		// Note: see this bug report for some measurements on a real machine:
+		//   https://github.com/openMSX/openMSX/issues/1106
+		int lineCountResetTicks = (8 + getVerticalAdjust()) * TICKS_PER_LINE;
+
 		// Display line counter is reset at the start of the top border.
 		// Any HSCAN that has a higher line number never occurs.
-		if (horizontalScanOffset >= LINE_COUNT_RESET_TICKS) {
+		if (horizontalScanOffset >= lineCountResetTicks) {
 			// This is one way to say "never".
 			horizontalScanOffset = -1000 * TICKS_PER_LINE;
 		}
