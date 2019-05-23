@@ -1,6 +1,5 @@
 #include "SettingsConfig.hh"
 #include "XMLLoader.hh"
-#include "LocalFileReference.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -42,8 +41,7 @@ SettingsConfig::~SettingsConfig()
 
 void SettingsConfig::loadSetting(const FileContext& context, string_view filename)
 {
-	LocalFileReference file(context.resolve(filename));
-	xmlElement = XMLLoader::load(file.getFilename(), "settings.dtd");
+	xmlElement = XMLLoader::load(context.resolve(filename), "settings.dtd");
 	getSettingsManager().loadSettings(xmlElement);
 	hotKey.loadBindings(xmlElement);
 

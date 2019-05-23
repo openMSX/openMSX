@@ -3,7 +3,6 @@
 #include "XMLException.hh"
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
-#include "LocalFileReference.hh"
 #include "FileOperations.hh"
 #include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
@@ -192,8 +191,7 @@ XMLElement HardwareConfig::loadConfig(string_view type, string_view name)
 XMLElement HardwareConfig::loadConfig(const string& filename)
 {
 	try {
-		LocalFileReference fileRef(filename);
-		return XMLLoader::load(fileRef.getFilename(), "msxconfig2.dtd");
+		return XMLLoader::load(filename, "msxconfig2.dtd");
 	} catch (XMLException& e) {
 		throw MSXException(
 			"Loading of hardware configuration failed: ",
