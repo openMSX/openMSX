@@ -111,6 +111,7 @@ static void init()
 	init(ROM_RAMFILE,        "RAMFILE",        0x0000, "Tecall MSX RAMFILE");
 	init(ROM_COLECOMEGACART, "ColecoMegaCart", 0x4000, "ColecoVision MegaCart");
 	init(ROM_MEGAFLASHROMSCCPLUS,"MegaFlashRomSccPlus",0x0000, "Mega Flash ROM SCC Plus");
+	init(ROM_REPRO_CARTRIDGE1,"ReproCartridgeV1",0x0000, "Repro Cartridge V1");
 	init(ROM_REPRO_CARTRIDGE2,"ReproCartridgeV2",0x0000, "Repro Cartridge V2");
 	init(ROM_KONAMI_ULTIMATE_COLLECTION,"KonamiUltimateCollection",0x0000, "Konami Ultimate Collection");
 

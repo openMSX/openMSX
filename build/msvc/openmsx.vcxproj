@@ -543,6 +543,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina80in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina90in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\SRAM.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\KonamiUltimateCollection.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.cc" />
@@ -1090,6 +1091,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina80in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina90in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\SRAM.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\KonamiUltimateCollection.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.hh" />

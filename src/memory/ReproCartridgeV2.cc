@@ -42,8 +42,9 @@ Note: there is also a version 1 of this hardware, with the following
 differences:
 - Only Konami SCC mapper (no register at #7FFE)
 - No volume control register behind port #31
+- Main bank register is behind port #13 instead of #33
+- Main block size is 2MB instead of 1MB
 - No extra PSG at 0xA0 (but the PSG at #10 is there)
-That version isn't implemented, as no ROM image was available to test.
 
 ******************************************************************************/
 
