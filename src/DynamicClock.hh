@@ -104,7 +104,8 @@ public:
 	  * @see setFreq()
 	  */
 	unsigned getFreq() const {
-		return MAIN_FREQ32 / getStep();
+		auto step = getStep();
+		return (MAIN_FREQ + (step / 2)) / step;
 	}
 
 	/** Returns the length of one clock-cycle.
