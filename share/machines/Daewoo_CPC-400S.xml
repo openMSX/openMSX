@@ -17,9 +17,10 @@
   <devices>
 
     <Kanji id="Hangul ROM">
+      <type>hangul</type>
       <rom>
         <filename>cpc-400s_hangulfont.rom</filename>
-        <sha1>30fff22e3e3d464993707488442721a5e56a9707</sha1>
+        <sha1>22d5f4e522250dc5eb17e15b68f4a51bb752cba1</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD9" num="1" type="I"/>
