@@ -112,13 +112,15 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 
 	unsigned phase = time.fractAsInt();
 	unsigned ofst = time.toInt() + offset;
+	const float* __restrict impulse = impulses.a[phase];
 	if (likely((ofst + BLIP_IMPULSE_WIDTH) <= BUFFER_SIZE)) {
+		float* __restrict result = &buffer[ofst];
 		for (int i = 0; i < BLIP_IMPULSE_WIDTH; ++i) {
-			buffer[ofst + i] += impulses.a[phase][i] * delta;
+			result[i] += impulse[i] * delta;
 		}
 	} else {
 		for (int i = 0; i < BLIP_IMPULSE_WIDTH; ++i) {
-			buffer[(ofst + i) & BUFFER_MASK] += impulses.a[phase][i] * delta;
+			buffer[(ofst + i) & BUFFER_MASK] += impulse[i] * delta;
 		}
 	}
 }
