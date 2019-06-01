@@ -16,11 +16,13 @@
 #include "Math.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
+#include "cstd.hh"
 #include "likely.hh"
 #include "outer.hh"
 #include "random.hh"
 #include <cassert>
 #include <cstring>
+#include <iostream>
 
 using std::string;
 
@@ -41,6 +43,45 @@ enum Register {
 	AY_AVOL = 8, AY_BVOL = 9, AY_CVOL = 10, AY_EFINE = 11,
 	AY_ECOARSE = 12, AY_ESHAPE = 13, AY_PORTA = 14, AY_PORTB = 15
 };
+
+struct AY8910Tables {
+	float YM2149Envelope[32];
+	float AY8910Envelope[32];
+	float volume[16];
+};
+static constexpr AY8910Tables calcTables()
+{
+	AY8910Tables tables = {};
+
+	// Calculate the volume->voltage conversion table.
+	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step).
+	// YM2149 has 32 levels, the 16 extra levels are only used for envelope
+	// volumes
+	double out = 1.0;
+	double factor = cstd::pow<5, 3>(0.5, 0.25); // 1/sqrt(sqrt(2)) ~= 1/(1.5dB)
+	for (int i = 31; i > 0; --i) {
+		tables.YM2149Envelope[i] = float(out);
+		out *= factor;
+	}
+	tables.YM2149Envelope[0] = 0.0f;
+
+	tables.volume[0] = 0.0f;
+	for (int i = 1; i < 16; ++i) {
+		tables.volume[i] = tables.YM2149Envelope[2 * i + 1];
+	}
+
+	// only 16 envelope steps, duplicate every step
+	tables.AY8910Envelope[0] = 0.0f;
+	tables.AY8910Envelope[1] = 0.0f;
+	for (int i = 2; i < 32; i += 2) {
+		tables.AY8910Envelope[i + 0] = tables.YM2149Envelope[i + 1];
+		tables.AY8910Envelope[i + 1] = tables.YM2149Envelope[i + 1];
+	}
+
+	return tables;
+}
+static constexpr AY8910Tables tables = calcTables();
+
 
 // Perlin noise
 
@@ -269,7 +310,23 @@ AY8910::Amplitude::Amplitude(const DeviceConfig& config)
 	envChan[0] = false;
 	envChan[1] = false;
 	envChan[2] = false;
-	calcVolumeTable();
+	envVolTable = isAY8910 ? tables.AY8910Envelope : tables.YM2149Envelope;
+
+	if (0) {
+		std::cout << "YM2149Envelope:";
+		for (int i = 0; i < 32; ++i) {
+			std::cout << ' ' << std::hexfloat << tables.YM2149Envelope[i];
+		}
+		std::cout << "\nAY8910Envelope:";
+		for (int i = 0; i < 32; ++i) {
+			std::cout << ' ' << std::hexfloat << tables.AY8910Envelope[i];
+		}
+		std::cout << "\nvolume:";
+		for (int i = 0; i < 16; ++i) {
+			std::cout << ' ' << std::hexfloat << tables.volume[i];
+		}
+		std::cout << '\n';
+	}
 }
 
 const float* AY8910::Amplitude::getEnvVolTable() const
@@ -286,36 +343,7 @@ inline float AY8910::Amplitude::getVolume(unsigned chan) const
 inline void AY8910::Amplitude::setChannelVolume(unsigned chan, unsigned value)
 {
 	envChan[chan] = (value & 0x10) != 0;
-	vol[chan] = volTable[value & 0x0F];
-}
-
-inline void AY8910::Amplitude::calcVolumeTable()
-{
-	// TODO make this a global constexpr table
-
-	// Calculate the volume->voltage conversion table.
-	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step).
-	// YM2149 has 32 levels, the 16 extra levels are only used for envelope
-	// volumes
-
-	float out = 1.0f; // avoid clipping
-	float factor = powf(0.5f, 0.25f); // 1/sqrt(sqrt(2)) ~= 1/(1.5dB)
-	for (int i = 31; i > 0; --i) {
-		envVolTable[i] = out;
-		out *= factor;
-	}
-	envVolTable[0] = 0.0f;
-	volTable[0] = 0.0f;
-	for (int i = 1; i < 16; ++i) {
-		volTable[i] = envVolTable[2 * i + 1];
-	}
-	if (isAY8910) {
-		// only 16 envelope steps, duplicate every step
-		envVolTable[1] = 0.0f;
-		for (int i = 2; i < 32; i += 2) {
-			envVolTable[i] = envVolTable[i + 1];
-		}
-	}
+	vol[chan] = tables.volume[value & 0x0F];
 }
 
 inline bool AY8910::Amplitude::followsEnvelope(unsigned chan) const

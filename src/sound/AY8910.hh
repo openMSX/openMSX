@@ -120,12 +120,10 @@ private:
 		const float* getEnvVolTable() const;
 		inline float getVolume(unsigned chan) const;
 		inline void setChannelVolume(unsigned chan, unsigned value);
-		inline void calcVolumeTable();
 		inline bool followsEnvelope(unsigned chan) const;
 
 	private:
-		float volTable[16];
-		float envVolTable[32];
+		const float* envVolTable;
 		float vol[3];
 		bool envChan[3];
 		const bool isAY8910;
