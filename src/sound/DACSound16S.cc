@@ -40,7 +40,7 @@ void DACSound16S::writeDAC(int16_t value, EmuTime::param time)
 	blip.addDelta(t, delta);
 }
 
-void DACSound16S::generateChannels(int** bufs, unsigned num)
+void DACSound16S::generateChannels(float** bufs, unsigned num)
 {
 	// Note: readSamples() replaces the values in the buffer (it doesn't
 	// add the new values to the existing values in the buffer). That's OK
@@ -50,12 +50,11 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-bool DACSound16S::updateBuffer(unsigned length, int* buffer,
+bool DACSound16S::updateBuffer(unsigned length, float* buffer,
                                EmuTime::param /*time*/)
 {
 	return mixChannels(buffer, length);
 }
-
 
 template<typename Archive>
 void DACSound16S::serialize(Archive& ar, unsigned /*version*/)

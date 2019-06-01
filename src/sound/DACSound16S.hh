@@ -25,8 +25,8 @@ public:
 private:
 	// SoundDevice
 	void setOutputRate(unsigned sampleRate) override;
-	void generateChannels(int** bufs, unsigned num) override;
-	bool updateBuffer(unsigned length, int* buffer,
+	void generateChannels(float** bufs, unsigned num) override;
+	bool updateBuffer(unsigned length, float* buffer,
 	                  EmuTime::param time) override;
 
 	BlipBuffer blip;

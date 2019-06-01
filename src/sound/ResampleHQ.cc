@@ -396,7 +396,7 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 
 #ifdef __SSE2__
 template<bool REVERSE>
-static inline void calcSseMono(const float* buf_, const float* tab_, size_t len, int* out)
+static inline void calcSseMono(const float* buf_, const float* tab_, size_t len, float* out)
 {
 	assert((len % 4) == 0);
 	assert((uintptr_t(tab_) % 16) == 0);
@@ -444,7 +444,7 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 	__m128 t = _mm_add_ps(a, _mm_movehl_ps(a, a));
 	__m128 s = _mm_add_ss(t, _mm_shuffle_ps(t, t, 1));
 
-	*out = _mm_cvtss_si32(s);
+	_mm_store_ss(out, s);
 }
 
 template<int N> static inline __m128 shuffle(__m128 x)
@@ -452,7 +452,7 @@ template<int N> static inline __m128 shuffle(__m128 x)
 	return _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(x), N));
 }
 template<bool REVERSE>
-static inline void calcSseStereo(const float* buf_, const float* tab_, size_t len, int* out)
+static inline void calcSseStereo(const float* buf_, const float* tab_, size_t len, float* out)
 {
 	assert((len % 4) == 0);
 	assert((uintptr_t(tab_) % 16) == 0);
@@ -517,20 +517,15 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 	__m128 a   = _mm_add_ps(a01, a23);
 	// Can faster with SSE3, but (like above) not worth the trouble.
 	__m128 s = _mm_add_ps(a, _mm_movehl_ps(a, a));
-	__m128i si = _mm_cvtps_epi32(s);
-#if ASM_X86_64
-	*reinterpret_cast<int64_t*>(out) = _mm_cvtsi128_si64(si);
-#else
-	out[0] = _mm_cvtsi128_si32(si);
-	out[1] = _mm_cvtsi128_si32(_mm_shuffle_epi32(si, 0x55));
-#endif
+	_mm_store_ss(&out[0], s);
+	_mm_store_ss(&out[1], shuffle<0x55>(s));
 }
 
 #endif
 
 template <unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::calcOutput(
-	float pos, int* __restrict output)
+	float pos, float* __restrict output)
 {
 	assert((filterLen & 3) == 0);
 
@@ -566,7 +561,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 				r2 += tab[i + 2] * buf[CHANNELS * (i + 2)];
 				r3 += tab[i + 3] * buf[CHANNELS * (i + 3)];
 			}
-			output[ch] = lrintf(r0 + r1 + r2 + r3);
+			output[ch] = r0 + r1 + r2 + r3;
 			++buf;
 		}
 	} else {
@@ -595,7 +590,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 				r2 += tab[-i - 3] * buf[CHANNELS * (i + 2)];
 				r3 += tab[-i - 4] * buf[CHANNELS * (i + 3)];
 			}
-			output[ch] = lrintf(r0 + r1 + r2 + r3);
+			output[ch] = r0 + r1 + r2 + r3;
 			++buf;
 		}
 	}
@@ -628,11 +623,10 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 			buffer.resize(buffer.size() + missing * CHANNELS);
 		}
 	}
-	VLA_SSE_ALIGNED(int, tmpBuf, emuNum * CHANNELS + 3);
+	VLA_SSE_ALIGNED(float, tmpBuf, emuNum * CHANNELS + 3);
 	if (input.generateInput(tmpBuf, emuNum)) {
-		for (unsigned i = 0; i < emuNum * CHANNELS; ++i) {
-			buffer[bufEnd * CHANNELS + i] = float(tmpBuf[i]);
-		}
+		memcpy(&buffer[bufEnd * CHANNELS], tmpBuf,
+		       emuNum * CHANNELS * sizeof(float));
 		bufEnd += emuNum;
 		nonzeroSamples = bufEnd - bufStart;
 	} else {
@@ -647,7 +641,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 
 template <unsigned CHANNELS>
 bool ResampleHQ<CHANNELS>::generateOutput(
-	int* __restrict dataOut, unsigned hostNum, EmuTime::param time)
+	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
 	unsigned emuNum = emuClock.getTicksTill(time);
 	if (emuNum > 0) {

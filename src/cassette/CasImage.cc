@@ -74,19 +74,24 @@ unsigned CasImage::getFrequency() const
 	return OUTPUT_FREQUENCY * AUDIO_OVERSAMPLE;
 }
 
-void CasImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
+void CasImage::fillBuffer(unsigned pos, float** bufs, unsigned num) const
 {
 	size_t nbSamples = output.size();
 	if ((pos / AUDIO_OVERSAMPLE) < nbSamples) {
 		for (auto i : xrange(num)) {
 			bufs[0][i] = ((pos / AUDIO_OVERSAMPLE) < nbSamples)
-			           ? output[pos / AUDIO_OVERSAMPLE] * 256
-			           : 0;
+			           ? output[pos / AUDIO_OVERSAMPLE]
+			           : 0.0f;
 			++pos;
 		}
 	} else {
 		bufs[0] = nullptr;
 	}
+}
+
+float CasImage::getAmplificationFactorImpl() const
+{
+	return 1.0f / 128;
 }
 
 void CasImage::write0()

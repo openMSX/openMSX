@@ -209,7 +209,7 @@ void SN76489::writeRegister(unsigned reg, word value, EmuTime::param time)
  */
 
 template <bool NOISE> void SN76489::synthesizeChannel(
-		int*& buffer, unsigned num, unsigned generator)
+		float*& buffer, unsigned num, unsigned generator)
 {
 	unsigned period;
 	if (generator == 3) {
@@ -238,7 +238,7 @@ template <bool NOISE> void SN76489::synthesizeChannel(
 		if (NOISE) {
 			noiseShifter.catchUp();
 		}
-		int* buf = buffer;
+		auto* buf = buffer;
 		unsigned remaining = num;
 		while (remaining != 0) {
 			if (counter == 0) {
@@ -280,7 +280,7 @@ template <bool NOISE> void SN76489::synthesizeChannel(
 	}
 }
 
-void SN76489::generateChannels(int** buffers, unsigned num)
+void SN76489::generateChannels(float** buffers, unsigned num)
 {
 	// Channel 3: noise.
 	if ((regs[6] & 3) == 3) {
@@ -288,7 +288,7 @@ void SN76489::generateChannels(int** buffers, unsigned num)
 		synthesizeChannel<true>(buffers[3], num, 2);
 		// Assume the noise phase counter and output bit keep updating even
 		// if they are currently not driving the noise shift register.
-		int* noBuffer = nullptr;
+		float* noBuffer = nullptr;
 		synthesizeChannel<false>(noBuffer, num, 3);
 	} else {
 		// Use the channel 3 generator output.

@@ -93,7 +93,7 @@ public:
 	 * so an idle YM2413 core generally requires very little emulation
 	 * time.
 	 */
-	virtual void generateChannels(int* bufs[11], unsigned num) = 0;
+	virtual void generateChannels(float* bufs[11], unsigned num) = 0;
 
 	/** Returns normalization factor.
 	 * The output of the generateChannels() method should still be
@@ -105,7 +105,7 @@ public:
 	 * filters or volume adjustments) must anyway still multiply the output
 	 * sample values, so this factor can be folded-in for free.
 	 */
-	virtual int getAmplificationFactor() const = 0;
+	virtual float getAmplificationFactor() const = 0;
 
 protected:
 	YM2413Core() = default;

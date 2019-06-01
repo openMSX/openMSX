@@ -152,7 +152,7 @@ public:
 	Patch& getPatch(unsigned instrument, bool carrier);
 
 	template <unsigned FLAGS>
-	inline void calcChannel(Channel& ch, int* buf, unsigned num);
+	inline void calcChannel(Channel& ch, float* buf, unsigned num);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -162,8 +162,8 @@ private:
 	void reset() override;
 	void writeReg(byte reg, byte data) override;
 	byte peekReg(byte reg) const override;
-	void generateChannels(int* bufs[9 + 5], unsigned num) override;
-	int getAmplificationFactor() const override;
+	void generateChannels(float* bufs[9 + 5], unsigned num) override;
+	float getAmplificationFactor() const override;
 
 	/** Channel & Slot */
 	Channel channels[9];

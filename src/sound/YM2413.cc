@@ -69,12 +69,12 @@ void YM2413::writeReg(byte reg, byte value, EmuTime::param time)
 	core->writeReg(reg, value);
 }
 
-void YM2413::generateChannels(int** bufs, unsigned num)
+void YM2413::generateChannels(float** bufs, unsigned num)
 {
 	core->generateChannels(bufs, num);
 }
 
-int YM2413::getAmplificationFactorImpl() const
+float YM2413::getAmplificationFactorImpl() const
 {
 	return core->getAmplificationFactor();
 }

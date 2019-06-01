@@ -18,7 +18,7 @@ class MSXMixer;
 class Mixer final : private Observer<Setting>
 {
 public:
-	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX };
+	enum SoundDriverType { SND_NULL, SND_SDL };
 
 	Mixer(Reactor& reactor, CommandController& commandController);
 	~Mixer();
@@ -43,7 +43,7 @@ public:
 
 	/** Upload new sample data
 	 */
-	void uploadBuffer(MSXMixer& msxMixer, int16_t* buffer, unsigned len);
+	void uploadBuffer(MSXMixer& msxMixer, float* buffer, unsigned len);
 
 	IntegerSetting& getMasterVolume() { return masterVolume; }
 

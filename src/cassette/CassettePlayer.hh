@@ -41,7 +41,8 @@ public:
 	void unplugHelper(EmuTime::param time) override;
 
 	// SoundDevice
-	void generateChannels(int** buffers, unsigned num) override;
+	void generateChannels(float** buffers, unsigned num) override;
+	float getAmplificationFactorImpl() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -60,7 +61,7 @@ private:
 	/** Insert a tape for use in PLAY mode.
 	 */
 	void playTape(const Filename& filename, EmuTime::param time);
-	void insertTape(const Filename& filename);
+	void insertTape(const Filename& filename, EmuTime::param time);
 
 	/** Removes tape (possibly stops recording). And go to STOP mode.
 	 */

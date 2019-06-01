@@ -55,7 +55,7 @@ unsigned WavImage::getFrequency() const
 	return clock.getFreq();
 }
 
-void WavImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
+void WavImage::fillBuffer(unsigned pos, float** bufs, unsigned num) const
 {
 	if (pos < wav.getSize()) {
 		for (auto i : xrange(num)) {
@@ -64,6 +64,11 @@ void WavImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 	} else {
 		bufs[0] = nullptr;
 	}
+}
+
+float WavImage::getAmplificationFactorImpl() const
+{
+	return 1.0f / 32768;
 }
 
 } // namespace openmsx

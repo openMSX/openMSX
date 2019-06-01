@@ -667,7 +667,7 @@ void LaserdiscPlayer::autoRun()
 	}
 }
 
-void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
+void LaserdiscPlayer::generateChannels(float** buffers, unsigned num)
 {
 	// Single channel device: replace content of buffers[0] (not add to it).
 	if (playerState != PLAYER_PLAYING || seeking || (muteLeft && muteRight)) {
@@ -688,8 +688,8 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 		}
 
 		for (/**/; pos < len; ++pos) {
-			buffers[0][pos * 2 + 0] = 0;
-			buffers[0][pos * 2 + 1] = 0;
+			buffers[0][pos * 2 + 0] = 0.0f;
+			buffers[0][pos * 2 + 1] = 0.0f;
 		}
 
 		currentSample = playingFromSample;
@@ -717,8 +717,8 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 				break;
 			} else {
 				for (/**/; pos < num; ++pos) {
-					buffers[0][pos * 2 + 0] = 0;
-					buffers[0][pos * 2 + 1] = 0;
+					buffers[0][pos * 2 + 0] = 0.0f;
+					buffers[0][pos * 2 + 1] = 0.0f;
 				}
 			}
 		} else {
@@ -727,10 +727,10 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 
 			// maybe muting should be moved out of the loop?
 			for (unsigned i = 0; i < len; ++i, ++pos) {
-				buffers[0][pos * 2 + 0] = muteLeft ? 0 :
-				   int(audio->pcm[left][offset + i] * 65536.f);
-				buffers[0][pos * 2 + 1] = muteRight ? 0 :
-				   int(audio->pcm[right][offset + i] * 65536.f);
+				buffers[0][pos * 2 + 0] = muteLeft ? 0.0f :
+				   audio->pcm[left][offset + i];
+				buffers[0][pos * 2 + 1] = muteRight ? 0.0f :
+				   audio->pcm[right][offset + i];
 			}
 
 			lastPlayedSample += len;
@@ -738,7 +738,12 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 	}
 }
 
-bool LaserdiscPlayer::updateBuffer(unsigned length, int* buffer,
+float LaserdiscPlayer::getAmplificationFactorImpl() const
+{
+	return 2.0f;
+}
+
+bool LaserdiscPlayer::updateBuffer(unsigned length, float* buffer,
                                    EmuTime::param time)
 {
 	bool result = ResampledSoundDevice::updateBuffer(length, buffer, time);

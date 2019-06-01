@@ -232,7 +232,7 @@ int VLM5030::parseFrame()
 }
 
 // decode and buffering data
-void VLM5030::generateChannels(int** bufs, unsigned num)
+void VLM5030::generateChannels(float** bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
 	if (phase == PH_IDLE) {
@@ -362,9 +362,9 @@ phase_stop:
 	}
 }
 
-int VLM5030::getAmplificationFactorImpl() const
+float VLM5030::getAmplificationFactorImpl() const
 {
-	return 1 << (15 - 9);
+	return 1.0f / (1 << 9);
 }
 
 // setup parameteroption when RST=H

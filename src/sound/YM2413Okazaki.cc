@@ -1075,9 +1075,9 @@ ALWAYS_INLINE int Slot::calc_slot_hat(unsigned phase7, unsigned phase8, bool noi
 	return dB2Lin.tab[dbout + egout];
 }
 
-int YM2413::getAmplificationFactor() const
+float YM2413::getAmplificationFactor() const
 {
-	return 1 << (15 - DB2LIN_AMP_BITS);
+	return 1.0f / (1 << DB2LIN_AMP_BITS);
 }
 
 bool YM2413::isRhythm() const
@@ -1098,7 +1098,7 @@ Patch& YM2413::getPatch(unsigned instrument, bool carrier)
 }
 
 template <unsigned FLAGS>
-ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
+ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
 {
 	// VC++ requires explicit conversion to bool. Compiler bug??
 	const bool HAS_CAR_PM = (FLAGS &  1) != 0;
@@ -1152,7 +1152,7 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 	} while (sample < num);
 }
 
-void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
+void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 {
 	assert(num != 0);
 

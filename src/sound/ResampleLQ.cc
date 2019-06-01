@@ -10,9 +10,9 @@
 namespace openmsx {
 
 // 16-byte aligned buffer of ints (shared among all instances of this resampler)
-static std::vector<int> bufferStorage; // (possibly) unaligned storage
+static std::vector<float> bufferStorage; // (possibly) unaligned storage
 static unsigned bufferSize = 0; // usable buffer size (aligned portion)
-static int* bufferInt = nullptr; // pointer to aligned sub-buffer
+static float* aBuffer = nullptr; // pointer to aligned sub-buffer
 
 ////
 
@@ -42,7 +42,13 @@ ResampleLQ<CHANNELS>::ResampleLQ(
 	, emuClock(hostClock.getTime(), emuSampleRate)
 	, step(FP::roundRatioDown(emuSampleRate, hostClock.getFreq()))
 {
-	ranges::fill(lastInput, 0);
+	ranges::fill(lastInput, 0.0f);
+}
+
+static bool isSilent(float x)
+{
+	static const float threshold = 1.0f / 32768;
+	return std::abs(x) < threshold;
 }
 
 template <unsigned CHANNELS>
@@ -57,9 +63,9 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 		bufferStorage.resize(required + 3);
 		// align at 16-byte boundary
 		auto p = reinterpret_cast<uintptr_t>(bufferStorage.data());
-		bufferInt = reinterpret_cast<int*>((p + 15) & ~15);
+		aBuffer = reinterpret_cast<float*>((p + 15) & ~15);
 		// calculate actual usable size (the aligned portion)
-		bufferSize = (bufferStorage.data() + bufferStorage.size()) - bufferInt;
+		bufferSize = (bufferStorage.data() + bufferStorage.size()) - aBuffer;
 		assert(bufferSize >= required);
 	}
 
@@ -67,17 +73,17 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 	assert(emuClock.getTime() <= time);
 	assert(emuClock.getFastAdd(1) > time);
 
-	int* buffer = &bufferInt[4 - 2 * CHANNELS];
+	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
 	assert((uintptr_t(&buffer[2 * CHANNELS]) & 15) == 0);
 
 	if (!input.generateInput(&buffer[2 * CHANNELS], emuNum)) {
 		// New input is all zero
-		if (ranges::all_of(lastInput, [](auto& l) { return l == 0; })) {
+		if (ranges::all_of(lastInput, [](auto& l) { return isSilent(l); })) {
 			// Old input was also all zero, then the resampled
 			// output will be all zero as well.
 			return false;
 		}
-		memset(&buffer[CHANNELS], 0, emuNum * CHANNELS * sizeof(int));
+		memset(&buffer[CHANNELS], 0, emuNum * CHANNELS * sizeof(float));
 	}
 	for (unsigned j = 0; j < 2 * CHANNELS; ++j) {
 		buffer[j] = lastInput[j];
@@ -99,7 +105,7 @@ ResampleLQUp<CHANNELS>::ResampleLQUp(
 
 template <unsigned CHANNELS>
 bool ResampleLQUp<CHANNELS>::generateOutput(
-	int* __restrict dataOut, unsigned hostNum, EmuTime::param time)
+	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
 	EmuTime host1 = this->hostClock.getFastAdd(1);
 	assert(host1 > this->emuClock.getTime());
@@ -113,7 +119,7 @@ bool ResampleLQUp<CHANNELS>::generateOutput(
 	// this is currently only used to upsample cassette player sound,
 	// sound quality is not so important here, so use 0-th order
 	// interpolation (instead of 1st-order).
-	int* buffer = &bufferInt[4 - 2 * CHANNELS];
+	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
 	for (unsigned i = 0; i < hostNum; ++i) {
 		unsigned p = pos.toInt();
 		assert(p < valid);
@@ -139,7 +145,7 @@ ResampleLQDown<CHANNELS>::ResampleLQDown(
 
 template <unsigned CHANNELS>
 bool ResampleLQDown<CHANNELS>::generateOutput(
-	int* __restrict dataOut, unsigned hostNum, EmuTime::param time)
+	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
 	EmuTime host1 = this->hostClock.getFastAdd(1);
 	assert(host1 > this->emuClock.getTime());
@@ -149,15 +155,15 @@ bool ResampleLQDown<CHANNELS>::generateOutput(
 	unsigned valid;
 	if (!this->fetchData(time, valid)) return false;
 
-	int* buffer = &bufferInt[4 - 2 * CHANNELS];
+	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
 	for (unsigned i = 0; i < hostNum; ++i) {
 		unsigned p = pos.toInt();
 		assert((p + 1) < valid);
 		FP fract = pos.fract();
 		for (unsigned j = 0; j < CHANNELS; ++j) {
-			int s0 = buffer[(p + 0) * CHANNELS + j];
-			int s1 = buffer[(p + 1) * CHANNELS + j];
-			int out = s0 + (fract * (s1 - s0)).toInt();
+			auto s0 = buffer[(p + 0) * CHANNELS + j];
+			auto s1 = buffer[(p + 1) * CHANNELS + j];
+			auto out = s0 + (fract.toFloat() * (s1 - s0));
 			dataOut[i * CHANNELS + j] = out;
 		}
 		pos += this->step;

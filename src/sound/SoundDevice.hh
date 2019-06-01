@@ -3,7 +3,6 @@
 
 #include "MSXMixer.hh"
 #include "EmuTime.hh"
-#include "FixedPoint.hh"
 #include "string_view.hh"
 #include <memory>
 
@@ -17,7 +16,6 @@ class DynamicClock;
 class SoundDevice
 {
 public:
-	using VolumeType = FixedPoint<MSXMixer::AMP_BITS>;
 	static const unsigned MAX_CHANNELS = 24;
 
 	/** Get the unique name that identifies this sound device.
@@ -47,10 +45,9 @@ public:
 	  * The influence of the different volume settings is not part of this
 	  * factor.
 	  */
-	std::pair<VolumeType, VolumeType> getAmplificationFactor() const {
+	std::pair<float, float> getAmplificationFactor() const {
 		auto f = getAmplificationFactorImpl();
-		return std::make_pair(f * softwareVolumeLeft,
-		                      f * softwareVolumeRight);
+		return {f * softwareVolumeLeft, f * softwareVolumeRight};
 	}
 
 	/** Change the 'software volume' of this sound device.
@@ -63,8 +60,8 @@ public:
 	  *
 	  * This method allows to change that per-chip volume.
 	  */
-	void setSoftwareVolume(VolumeType volume, EmuTime::param time);
-	void setSoftwareVolume(VolumeType left, VolumeType right, EmuTime::param time);
+	void setSoftwareVolume(float volume, EmuTime::param time);
+	void setSoftwareVolume(float left, float right, EmuTime::param time);
 
 	void recordChannel(unsigned channel, const Filename& filename);
 	void muteChannel  (unsigned channel, bool muted);
@@ -81,15 +78,15 @@ protected:
 	            unsigned numChannels, bool stereo = false);
 	~SoundDevice();
 
-	/** Get extra amplification factor for this device.
+	/** Get amplification/attenuation factor for this device.
 	  * Normally the outputBuffer() method should scale the output to
-	  * the range [-32768,32768]. Some devices can be emulated slightly
-	  * faster to produce another output range. In later stages the output
+	  * the range [-1.0..+1.0]. But sometimes it's more convenient to
+	  * generate another output range. In later stages the output
 	  * is anyway still multiplied by some factor. This method tells which
 	  * factor should be used to scale the output to the correct range.
-	  * The default implementation returns 1.
+	  * The default implementation returns '1.0 / 32768.0'.
 	  */
-	virtual int getAmplificationFactorImpl() const;
+	virtual float getAmplificationFactorImpl() const;
 
 	/**
 	 * Registers this sound device with the Mixer.
@@ -137,19 +134,19 @@ public: // Will be called by Mixer:
 	  * samples should be ignored, though the caller must make sure the
 	  * buffer has enough space to hold them.
 	  */
-	virtual bool updateBuffer(unsigned length, int* buffer,
+	virtual bool updateBuffer(unsigned length, float* buffer,
 	                          EmuTime::param time) = 0;
 
 protected:
 	/** Adds a number of samples that all have the same value.
-	  * Can be used to synthesize the high half of a square wave cycle.
+	  * Can be used to synthesize segments of a square wave.
 	  * @param buffer Pointer to the position in a sample buffer where the
 	  *               samples should be added. This pointer is updated to
 	  *               the position right after the written samples.
 	  * @param value Sample value (amplitude).
 	  * @param num The number of samples.
 	  */
-	static void addFill(int*& buffer, int value, unsigned num);
+	static void addFill(float*& buffer, float value, unsigned num);
 
 	/** Abstract method to generate the actual sound data.
 	  * @param buffers An array of pointer to buffers. Each buffer must
@@ -164,7 +161,7 @@ protected:
 	  * pointer to nullptr. This has exactly the same effect as filling the
 	  * buffer completely with zeros, but it can be more efficient.
 	  */
-	virtual void generateChannels(int** buffers, unsigned num) = 0;
+	virtual void generateChannels(float** buffers, unsigned num) = 0;
 
 	/** Calls generateChannels() and combines the output to a single
 	  * channel.
@@ -178,7 +175,7 @@ protected:
 	  * samples should be ignored, though the caller must make sure the
 	  * buffer has enough space to hold them.
 	  */
-	bool mixChannels(int* dataOut, unsigned samples);
+	bool mixChannels(float* dataOut, unsigned samples);
 
 	/** See MSXMixer::getHostSampleClock(). */
 	const DynamicClock& getHostSampleClock() const;
@@ -191,8 +188,8 @@ private:
 
 	std::unique_ptr<Wav16Writer> writer[MAX_CHANNELS];
 
-	VolumeType softwareVolumeLeft{1};
-	VolumeType softwareVolumeRight{1};
+	float softwareVolumeLeft = 1.0f;
+	float softwareVolumeRight = 1.0f;
 	unsigned inputSampleRate;
 	const unsigned numChannels;
 	const unsigned stereo;

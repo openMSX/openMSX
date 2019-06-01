@@ -100,7 +100,12 @@ void Wav16Writer::write(const int16_t* buffer, unsigned samples)
 	bytes += size;
 }
 
-void Wav16Writer::write(const int* buffer, unsigned stereo, unsigned samples,
+static int16_t float2int16(float f)
+{
+	return Math::clipIntToShort(lrintf(32768.0f * f));
+}
+
+void Wav16Writer::write(const float* buffer, unsigned stereo, unsigned samples,
                         float ampLeft, float ampRight)
 {
 	assert(stereo == 1 || stereo == 2);
@@ -108,12 +113,12 @@ void Wav16Writer::write(const int* buffer, unsigned stereo, unsigned samples,
 	if (stereo == 1) {
 		assert(ampLeft == ampRight);
 		for (unsigned i = 0; i < samples; ++i) {
-			buf[i] = Math::clipIntToShort(lrintf(buffer[i] * ampLeft));
+			buf[i] = float2int16(buffer[i] * ampLeft);
 		}
 	} else {
 		for (unsigned i = 0; i < samples; ++i) {
-			buf[2 * i + 0] = Math::clipIntToShort(lrintf(buffer[2 * i + 0] * ampLeft));
-			buf[2 * i + 0] = Math::clipIntToShort(lrintf(buffer[2 * i + 0] * ampRight));
+			buf[2 * i + 0] = float2int16(buffer[2 * i + 0] * ampLeft);
+			buf[2 * i + 0] = float2int16(buffer[2 * i + 0] * ampRight);
 		}
 	}
 	unsigned size = sizeof(int16_t) * samples * stereo;

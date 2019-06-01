@@ -118,7 +118,7 @@ private:
 	void setConnect(YM2151Operator* om1, int cha, int v);
 
 	// SoundDevice
-	void generateChannels(int** bufs, unsigned num) override;
+	void generateChannels(float** bufs, unsigned num) override;
 
 	void callback(byte flag) override;
 	void setStatus(byte flags);

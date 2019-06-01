@@ -7,6 +7,7 @@
 #include "CommandException.hh"
 #include "Display.hh"
 #include "PostProcessor.hh"
+#include "Math.hh"
 #include "MSXMixer.hh"
 #include "Filename.hh"
 #include "CliComm.hh"
@@ -117,7 +118,12 @@ void AviRecorder::stop()
 	wavWriter.reset();
 }
 
-void AviRecorder::addWave(unsigned num, int16_t* data)
+static int16_t float2int16(float f)
+{
+	return Math::clipIntToShort(lrintf(32768.0f * f));
+}
+
+void AviRecorder::addWave(unsigned num, float* fdata)
 {
 	if (!warnedSampleRate && (mixer->getSampleRate() != sampleRate)) {
 		warnedSampleRate = true;
@@ -127,17 +133,21 @@ void AviRecorder::addWave(unsigned num, int16_t* data)
 			"because of this.");
 	}
 	if (stereo) {
+		VLA(int16_t, buf, 2 * num);
+		for (unsigned i = 0; i < 2 * num; ++i) {
+			buf[i] = float2int16(fdata[i]);
+		}
 		if (wavWriter) {
-			wavWriter->write(data, 2, num);
+			wavWriter->write(buf, 2, num);
 		} else {
 			assert(aviWriter);
-			audioBuf.insert(end(audioBuf), data, data + 2 * num);
+			audioBuf.insert(end(audioBuf), buf, buf + 2 * num);
 		}
 	} else {
 		VLA(int16_t, buf, num);
 		unsigned i = 0;
 		for (/**/; !warnedStereo && i < num; ++i) {
-			if (data[2 * i + 0] != data[2 * i + 1]) {
+			if (fdata[2 * i + 0] != fdata[2 * i + 1]) {
 				reactor.getCliComm().printWarning(
 				    "Detected stereo sound during mono recording. "
 				    "Channels will be mixed down to mono. To "
@@ -146,10 +156,10 @@ void AviRecorder::addWave(unsigned num, int16_t* data)
 				warnedStereo = true;
 				break;
 			}
-			buf[i] = data[2 * i];
+			buf[i] = float2int16(fdata[2 * i]);
 		}
 		for (/**/; i < num; ++i) {
-			buf[i] = (int(data[2 * i + 0]) + int(data[2 * i + 1])) / 2;
+			buf[i] = float2int16((fdata[2 * i + 0] + fdata[2 * i + 1]) * 0.5f);
 		}
 
 		if (wavWriter) {

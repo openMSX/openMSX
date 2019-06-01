@@ -16,11 +16,11 @@ ResampleBlip<CHANNELS>::ResampleBlip(
 	, emuClock(hostClock.getTime(), emuSampleRate)
 	, step(FP::roundRatioDown(hostClock.getFreq(), emuSampleRate))
 {
-	ranges::fill(lastInput, 0);
+	ranges::fill(lastInput, 0.0f);
 }
 
 template <unsigned CHANNELS>
-bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
+bool ResampleBlip<CHANNELS>::generateOutput(float* dataOut, unsigned hostNum,
                                             EmuTime::param time)
 {
 	unsigned emuNum = emuClock.getTicksTill(time);
@@ -29,7 +29,7 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
 		// Clang will produce a link error if the length expression is put
 		// inside the macro.
 		const unsigned len = emuNum * CHANNELS + std::max(3u, CHANNELS);
-		VLA_SSE_ALIGNED(int, buf, len);
+		VLA_SSE_ALIGNED(float, buf, len);
 		EmuTime emu1 = emuClock.getFastAdd(1); // time of 1st emu-sample
 		assert(emu1 > hostClock.getTime());
 		if (input.generateInput(buf, emuNum)) {
@@ -43,11 +43,11 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
 				// into the 'samples differ' branch.
 				assert(emuNum > 0);
 				buf[CHANNELS * emuNum + ch] =
-					buf[CHANNELS * (emuNum - 1) + ch] + 1;
+					buf[CHANNELS * (emuNum - 1) + ch] + 1.0f;
 				FP pos = pos1;
-				int last = lastInput[ch]; // local var is slightly faster
+				auto last = lastInput[ch]; // local var is slightly faster
 				for (unsigned i = 0; /**/; ++i) {
-					int delta = buf[CHANNELS * i + ch] - last;
+					auto delta = buf[CHANNELS * i + ch] - last;
 					if (unlikely(delta != 0)) {
 						if (i == emuNum) {
 							break;
@@ -66,9 +66,9 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
 			BlipBuffer::TimeIndex pos;
 			hostClock.getTicksTill(emu1, pos);
 			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
-				if (lastInput[ch] != 0) {
-					int delta = -lastInput[ch];
-					lastInput[ch] = 0;
+				if (lastInput[ch] != 0.0f) {
+					auto delta = -lastInput[ch];
+					lastInput[ch] = 0.0f;
 					blip[ch].addDelta(pos, delta);
 				}
 			}
@@ -95,7 +95,7 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
 			// We have to set the muted channel to all-zero.
 			unsigned offset = results[0] ? 1 : 0;
 			for (unsigned i = 0; i < hostNum; ++i) {
-				dataOut[2 * i + offset] = 0;
+				dataOut[2 * i + offset] = 0.0f;
 			}
 			result = true;
 		}

@@ -11,7 +11,7 @@ class ResampleTrivial final : public ResampleAlgo
 {
 public:
 	explicit ResampleTrivial(ResampledSoundDevice& input);
-	bool generateOutput(int* dataOut, unsigned num,
+	bool generateOutput(float* dataOut, unsigned num,
 	                    EmuTime::param time) override;
 
 private:

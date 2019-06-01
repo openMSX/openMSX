@@ -198,10 +198,10 @@ byte Carnivore2::readConfigRegister(word address, EmuTime::param time)
 	}
 }
 
-static SoundDevice::VolumeType volumeLevel(byte volume)
+static float volumeLevel(byte volume)
 {
 	static constexpr byte tab[8] = {5, 6, 7, 8, 10, 12, 14, 16};
-	return SoundDevice::VolumeType(tab[volume & 7]) / 16;
+	return tab[volume & 7] / 16.0f;
 }
 
 void Carnivore2::writeSndLVL(byte value, EmuTime::param time)

@@ -799,9 +799,9 @@ int Y8950::Slot::calc_slot_hat(int lfo_am, int a, int b, int whitenoise)
 	        dB2Lin.tab[egout + b]) >> 2;
 }
 
-int Y8950::getAmplificationFactorImpl() const
+float Y8950::getAmplificationFactorImpl() const
 {
-	return 1 << (15 - DB2LIN_AMP_BITS);
+	return 1.0f / (1 << DB2LIN_AMP_BITS);
 }
 
 void Y8950::setEnabled(bool enabled_, EmuTime::param time)
@@ -833,7 +833,7 @@ bool Y8950::checkMuteHelper()
 	return adpcm.isMuted();
 }
 
-void Y8950::generateChannels(int** bufs, unsigned num)
+void Y8950::generateChannels(float** bufs, unsigned num)
 {
 	// TODO implement per-channel mute (instead of all-or-nothing)
 	if (checkMuteHelper()) {

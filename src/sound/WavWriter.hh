@@ -61,7 +61,7 @@ public:
 		assert(stereo == 1 || stereo == 2);
 		write(buffer, stereo * samples);
 	}
-	void write(const int* buffer, unsigned stereo, unsigned samples,
+	void write(const float* buffer, unsigned stereo, unsigned samples,
 	           float ampLeft, float ampRight);
 	void writeSilence(unsigned stereo, unsigned samples) {
 		assert(stereo == 1 || stereo == 2);

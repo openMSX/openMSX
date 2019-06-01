@@ -1057,12 +1057,12 @@ Channel& YM2413::getChannelForReg(byte r)
 	return channels[chan];
 }
 
-int YM2413::getAmplificationFactor() const
+float YM2413::getAmplificationFactor() const
 {
-	return 1 << 4;
+	return 1.0f / 2048.0f;
 }
 
-void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
+void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 {
 	// TODO make channelActiveBits a member and
 	//      keep it up-to-date all the time

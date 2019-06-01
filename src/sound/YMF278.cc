@@ -475,21 +475,20 @@ static int vol_factor(int x, unsigned envVol)
 
 void YMF278::setMixLevel(uint8_t x, EmuTime::param time)
 {
-	using T = SoundDevice::VolumeType;
-	static const T level[8] = {
-		T(1.00 / 1), //   0dB
-		T(0.75 / 1), //  -3dB (approx)
-		T(1.00 / 2), //  -6dB
-		T(0.75 / 2), //  -9dB (approx)
-		T(1.00 / 4), // -12dB
-		T(0.75 / 4), // -15dB (approx)
-		T(1.00 / 8), // -18dB
-		T(0.0     ), // -inf dB
+	static const float level[8] = {
+		(1.00f / 1), //   0dB
+		(0.75f / 1), //  -3dB (approx)
+		(1.00f / 2), //  -6dB
+		(0.75f / 2), //  -9dB (approx)
+		(1.00f / 4), // -12dB
+		(0.75f / 4), // -15dB (approx)
+		(1.00f / 8), // -18dB
+		(0.00f    ), // -inf dB
 	};
 	setSoftwareVolume(level[x & 7], level[(x >> 3) & 7], time);
 }
 
-void YMF278::generateChannels(int** bufs, unsigned num)
+void YMF278::generateChannels(float** bufs, unsigned num)
 {
 	if (!anyActive()) {
 		// TODO update internal state, even if muted

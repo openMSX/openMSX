@@ -97,7 +97,7 @@ void SamplePlayer::repeat(unsigned sampleNum)
 	}
 }
 
-void SamplePlayer::generateChannels(int** bufs, unsigned num)
+void SamplePlayer::generateChannels(float** bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
 	if (!isPlaying()) {
@@ -114,7 +114,7 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 				currentSampleNum = unsigned(-1);
 				// fill remaining buffer with zeros
 				do {
-					bufs[0][i++] = 0;
+					bufs[0][i++] = 0.0f;
 				} while (i < num);
 				break;
 			}

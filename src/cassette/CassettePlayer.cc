@@ -308,7 +308,7 @@ void CassettePlayer::setImageName(const Filename& newImage)
 		CliComm::MEDIA, "cassetteplayer", casImage.getResolved());
 }
 
-void CassettePlayer::insertTape(const Filename& filename)
+void CassettePlayer::insertTape(const Filename& filename, EmuTime::param time)
 {
 	if (!filename.empty()) {
 		FilePool& filePool = motherBoard.getReactor().getFilePool();
@@ -346,6 +346,9 @@ void CassettePlayer::insertTape(const Filename& filename)
 		createResampler();
 	}
 
+	// trigger (re-)query of getAmplificationFactorImpl()
+	setSoftwareVolume(1.0f, time);
+
 	setImageName(filename);
 }
 
@@ -357,7 +360,7 @@ void CassettePlayer::playTape(const Filename& filename, EmuTime::param time)
 	// PLAY: Go to stop because we temporally violate some invariants
 	//       (tapePos can be beyond end-of-tape).
 	setState(STOP, getImageName(), time); // keep current image
-	insertTape(filename);
+	insertTape(filename, time);
 	rewind(time); // sets PLAY mode
 	autoRun();
 }
@@ -549,7 +552,7 @@ void CassettePlayer::unplugHelper(EmuTime::param time)
 }
 
 
-void CassettePlayer::generateChannels(int** buffers, unsigned num)
+void CassettePlayer::generateChannels(float** buffers, unsigned num)
 {
 	// Single channel device: replace content of buffers[0] (not add to it).
 	if ((getState() != PLAY) || !isRolling()) {
@@ -560,6 +563,10 @@ void CassettePlayer::generateChannels(int** buffers, unsigned num)
 	audioPos += num;
 }
 
+float CassettePlayer::getAmplificationFactorImpl() const
+{
+	return playImage ? playImage->getAmplificationFactorImpl() : 1.0f;
+}
 
 int CassettePlayer::signalEvent(const std::shared_ptr<const Event>& event)
 {
@@ -859,7 +866,8 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 
 	if (ar.isLoader()) {
 		FilePool& filePool = motherBoard.getReactor().getFilePool();
-		removeTape(getCurrentTime());
+		auto time = getCurrentTime();
+		removeTape(time);
 		casImage.updateAfterLoadState();
 		if (!oldChecksum.empty() &&
 		    !FileOperations::exists(casImage.getResolved())) {
@@ -869,7 +877,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 			}
 		}
 		try {
-			insertTape(casImage);
+			insertTape(casImage, time);
 		} catch (MSXException&) {
 			if (oldChecksum.empty()) {
 				// It's OK if we cannot reinsert an empty
