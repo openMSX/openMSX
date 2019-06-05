@@ -103,6 +103,7 @@ static void init()
 	init(ROM_HAMARAJANIGHT,  "HamarajaNight",  0x2000, "Best of Hamaraja Night");
 	init(ROM_MEGAFLASHROMSCC,"MegaFlashRomScc",0x2000, "Mega Flash ROM SCC");
 	init(ROM_MATRAINK,       "MatraInk",       0x0000, "Matra Ink");
+	init(ROM_MATRACOMPILATION,"MatraCompilation",0x2000, "Matra Compilation");
 	init(ROM_ARC,            "Arc",            0x4000, "Parallax' ARC"); // officially plain 32K
 	init(ROM_DOOLY,          "Dooly",          0x4000, "Baby Dinosaur Dooly"); // officially 32K blocksize, but spread over 2 pages
 	init(ROM_MSXTRA,         "MSXtra",         0x0000, "PTC MSXtra");
