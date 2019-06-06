@@ -4,7 +4,8 @@
 // This is basically a generic 8kB mapper (Konami like, but without fixed page
 // at 0x4000), with an extra offset register accessible at 0xBA00.
 // The software only writes to 0x5000, 0x6000, 0x8000, 0xA000 to switch mapper
-// page. 
+// page. I took these as unique switching addresses, as some of the compilation
+// software would write to others, causing crashes.
 // It seems that a write of 1 to the offset register should be igored and that
 // the value written there (if different than 1) must be lowered by 2 to get
 // the actual offset to use.
@@ -41,15 +42,15 @@ void RomMatraCompilation::writeMem(word address, byte value, EmuTime::param /*ti
 				setRom(i, blockNr[i] + blockOffset);
 			}
 		}
-	}
-	else if ((0x4000 <= address) && (address < 0xC000)) {
+	} else if ((address == 0x5000) || (address == 0x6000)
+		|| (address == 0x8000) || (address == 0xA000)) {
 		setRom(address >> 13, value + blockOffset);
 	}
 }
 
 byte* RomMatraCompilation::getWriteCacheLine(word address) const
 {
-	if ((0x4000 <= address) && (address < 0xC000)) {
+	if ((0x5000 <= address) && (address < 0xC000)) {
 		return nullptr;
 	} else {
 		return unmappedWrite;
