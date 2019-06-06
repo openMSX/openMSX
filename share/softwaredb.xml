@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1554433193">
+<softwaredb timestamp="1559160775">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -7820,6 +7820,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="false">Translated</original><megarom><type>Konami</type><hash>cd115914f7e9515eabaaeed1c8c480a09bd82887</hash><remark>[RC-750] / Turbo Fix V2</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>6228aef9c26276b9ed4157d1c5b3912d27ee6ce5</hash><remark>[RC-750] / Wii VC Version</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>8c26cd111acf57443b7f2918f8d74e857c02d789</hash><remark>[RC-750] / TFH SCC version</remark></megarom></dump>
+		<dump><megarom><type>ReproCartridgeV1</type><hash>28c66e68d802119af97e33544f898254effff6c5</hash><remark>[RC-750] / Repro cart</remark></megarom></dump>
 </software>
 <software>
 	<title>Metal Gear 2 - Solid Snake</title>
@@ -7851,7 +7852,9 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash>8cc81bb1e5d9477e08b2a4728eb997c5890f405d</hash><remark>[RC-767] / FRS patch</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>d8cd8c87d720cf0bf52a7f432999979de5438bd5</hash><remark>[RC-767] / Wii Virtual Console Version</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash>7681b0dde4d2c40512e33afe9abc72b7ef591294</hash><remark>[RC-767] / Retranslation 1.4</remark></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>5bb1be67984903649f2e8ec5bb3e559945a36f43</hash><remark>RC-767 / Spanish</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>5bb1be67984903649f2e8ec5bb3e559945a36f43</hash><remark>[RC-767] / Spanish</remark></megarom></dump>
+		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>f9bc911ad3d1bc042fc18e74b1987a5d8464fb3e</hash><remark>[RC-767] / Wii Virtual Console Version (Broken) (English Translation)</remark></megarom></dump>
+		<dump><original value="false">0</original><megarom><type>ReproCartridgeV1</type><hash>bd727e1fb1833762e43bf2cde811e5a6421ecce8</hash><remark>[RC-767] / Repro cart</remark></megarom></dump>
 </software>
 <software>
 	<title>Metal Gear 2 - Solid Snake (Demo)</title>
@@ -7864,6 +7867,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash>3a0b0bdd77a1f3a11533f5ef030370bcc90c6334</hash><remark>[RC-767] / [tr En]</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash>efc3814c035ab472736e9473590c628eee5dba38</hash><remark>[RC-767] / Retranslation by BifiMSX</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash>5844f14e297b2c93c59cc5e52c005d3296e7a949</hash><remark>[RC-767] / Retranslation 1.4</remark></megarom></dump>
+</software>
+<software>
+	<title>Metal Gear Collection (1 &amp; 2)</title>
+	<system>MSX</system>
+	<company>Konami</company>
+	<year>1990</year>
+	<country>JP</country>
+		<dump><megarom><type>ReproCartridgeV2</type><hash>04b790b46e9dbd81e09d4f9b10ea34614163a6ab</hash><remark>Repro cart</remark></megarom></dump>
 </software>
 <software>
 	<title>Meteoritooo !!</title>
@@ -8505,6 +8516,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>50c8a1f1298b48cd3e325a859ea68d5739d87a01</hash><remark>MSX Basic Challenge 2010</remark></rom></dump>
 </software>
 <software>
+	<title>Nigh Knight</title>
+	<system>MSX</system>
+	<company>Juan J. Martinez</company>
+	<year>2019</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>2707da273f4a7ba2e73317188427c1d1fc28a93a</hash><remark>First Release</remark></rom></dump>
+</software>
+<software>
 	<title>Night City</title>
 	<system>MSX</system>
 	<company>Yermani Soft</company>
@@ -8678,6 +8697,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2019</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash>678be67c55ba0f0bc7eeb4b53b79a0c4d6597f72</hash><remark>Demo</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash>6096d5a8c269c8db39820a54868cdd2c993ff94c</hash><remark>Steam Version</remark></megarom></dump>
 </software>
 <software>
 	<title>Norakomi's demo Level</title>
@@ -9812,7 +9832,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<title>Quartet</title>
 	<system>MSX</system>
 	<company>Ilkke and bitsofbas</company>
-	<year>2018</year>
+	<year>2019</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><rom><hash>8424f6245ac00850bb3abf961f75d0276b7fb71c</hash><remark>v1.1 / MSXDev2018</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>009806bb3f99209a1532197d6e6e08807188dcc7</hash><remark>v1.2 / MSXDev2018</remark></rom></dump>
@@ -10216,6 +10236,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2011</year>
 	<country>EU</country>
 		<dump><original value="true">Author</original><rom><hash>c1577863c6ac7aab87cc0c2d64cc0577e2e5e360</hash><remark>MSXDev11</remark></rom></dump>
+</software>
+<software>
+	<title>Robotto Demo</title>
+	<system>MSX</system>
+	<company>The Pets Mode/303bcn</company>
+	<year>2019</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>80ee3fb7717ac80a4b27fdd4e7360c18142a247b</hash><remark>Revision 2019 Entry</remark></rom></dump>
 </software>
 <software>
 	<title>Robowres 2001</title>
@@ -16189,4 +16217,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:3994 - Created on Thu Apr 4 2019 - 19:59:59 PDT-->
+<!-- Roms in this XML file:4001 - Created on Wed May 29 2019 - 13:13:02 PDT-->
