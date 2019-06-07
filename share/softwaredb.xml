@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1559160775">
+<softwaredb timestamp="1559942048">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1836,6 +1836,30 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>e7396ad700f7edf98cc2b0ec2e6127a68d3cd9ba</hash></rom></dump>
 		<dump><rom><hash>4fd41171b6b43d51678590a59f004b0b9121751e</hash></rom></dump>
 		<dump><rom><hash>ab7354c9ced9782d572c4dd69249b76a1244e5ce</hash><remark>[a2]</remark></rom></dump>
+</software>
+<software>
+	<title>Cardwork Orange</title>
+	<system>MSX</system>
+	<company>Matra</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>MatraCompilation</type><hash>5688dc926f87e3cf71050caced90cab29f82af60</hash><remark>unlicensed compilation</remark></megarom></dump>
+</software>
+<software>
+	<title>Casio GPM-Compilation Volumen 1</title>
+	<system>MSX</system>
+	<company>Matra</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>MatraCompilation</type><hash>ef9c51bd3e8cb6f531a8210f97843e48f368aae4</hash><remark>unlicensed compilation</remark></megarom></dump>
+</software>
+<software>
+	<title>Casio GPM-Compilation Volumen 2</title>
+	<system>MSX</system>
+	<company>Matra</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>MatraCompilation</type><hash>5b9a76d4c6eea0fa61544afa5b8c7dcece5608c6</hash><remark>unlicensed compilation</remark></megarom></dump>
 </software>
 <software>
 	<title>Casio Gamecase</title>
@@ -4511,6 +4535,16 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>e6b1af53fd225ce565c88572d6a592b4fb637840</hash><remark>MSXDev2018</remark></rom></dump>
 </software>
 <software>
+	<title>Godzilla Kun</title>
+	<genmsxid>463</genmsxid>
+	<system>MSX</system>
+	<company>Toho</company>
+	<year>1985</year>
+	<country>JP</country>
+		<dump><original value="true">GoodMSX</original><rom><hash>8bd874aa854cc26d7fc48e7d2de60dbbee681721</hash><remark>[a1]</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>d6b6cb3d85b991f8adf2e07a0e8e74b586741d12</hash></rom></dump>
+</software>
+<software>
 	<title>Gofer no Yabou Episode 2 - Nemesis 3 The Eve Of Destruction</title>
 	<genmsxid>1254</genmsxid>
 	<system>MSX</system>
@@ -4635,16 +4669,6 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>d85298a9cdd9bcb4a546cb020ebaccd3c4281f07</hash><remark>MSXDev14</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>bc56324cb10a1fc2ec5094812f6ffebf481d97f6</hash><remark>Final / MSXDev14</remark></rom></dump>
-</software>
-<software>
-	<title>Gozilla Kun</title>
-	<genmsxid>463</genmsxid>
-	<system>MSX</system>
-	<company>Toho</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash>8bd874aa854cc26d7fc48e7d2de60dbbee681721</hash><remark>[a1]</remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>d6b6cb3d85b991f8adf2e07a0e8e74b586741d12</hash></rom></dump>
 </software>
 <software>
 	<title>GraCo</title>
@@ -6460,6 +6484,22 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>6895a062e10b790e19a55952e634662f3135fa55</hash><remark>Ulver crack</remark></rom></dump>
 </software>
 <software>
+	<title>Konami Compilation Volume 1</title>
+	<system>MSX</system>
+	<company>Matra</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>MatraCompilation</type><hash>7ca8f0ca8901773fd69bc08eea8a27ac37d6cb3e</hash><remark>unlicensed compilation</remark></megarom></dump>
+</software>
+<software>
+	<title>Konami Compilation Volume 2</title>
+	<system>MSX</system>
+	<company>Matra</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>MatraCompilation</type><hash>61a67b5684b60f11faf92eec9fe392401616a64b</hash><remark>unlicensed compilation</remark></megarom></dump>
+</software>
+<software>
 	<title>Konami Game Collection - Volume #1</title>
 	<genmsxid>1107</genmsxid>
 	<system>MSX</system>
@@ -6523,7 +6563,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Konami</company>
 	<year>1989</year>
 	<country>JP</country>
-		<dump><megarom><type>KonamiSCC</type><hash>f90064fe4ffed170f9e9c79196aa0b17e0bbd86b</hash><remark>[h Thevma]</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>f90064fe4ffed170f9e9c79196aa0b17e0bbd86b</hash><remark>[h Thevma]</remark></megarom></dump>
 </software>
 <software>
 	<title>Konami ultimate collection</title>
@@ -6531,7 +6571,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Konami</company>
 	<year>2014</year>
 	<country>JP</country>
-		<dump><megarom><type>KonamiUltimateCollection</type><hash>3d94e0998690325bcb3640e1646d8e4e13f652cf</hash><remark>M. Pazos collection of MSX games</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiUltimateCollection</type><hash>3d94e0998690325bcb3640e1646d8e4e13f652cf</hash><remark>M. Pazos collection of MSX games</remark></megarom></dump>
 </software>
 <software>
 	<title>Konami's Baseball</title>
@@ -7874,7 +7914,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Konami</company>
 	<year>1990</year>
 	<country>JP</country>
-		<dump><megarom><type>ReproCartridgeV2</type><hash>04b790b46e9dbd81e09d4f9b10ea34614163a6ab</hash><remark>Repro cart</remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ReproCartridgeV2</type><hash>04b790b46e9dbd81e09d4f9b10ea34614163a6ab</hash><remark>Repro cart</remark></megarom></dump>
 </software>
 <software>
 	<title>Meteoritooo !!</title>
@@ -16217,4 +16257,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:4001 - Created on Wed May 29 2019 - 13:13:02 PDT-->
+<!-- Roms in this XML file:4006 - Created on Fri Jun 7 2019 - 14:14:14 PDT-->
