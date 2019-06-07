@@ -6,9 +6,10 @@
 // The software only writes to 0x5000, 0x6000, 0x8000, 0xA000 to switch mapper
 // page. I took these as unique switching addresses, as some of the compilation
 // software would write to others, causing crashes.
-// It seems that a write of 1 to the offset register should be igored and that
-// the value written there (if different than 1) must be lowered by 2 to get
-// the actual offset to use.
+// It seems that a write of 1 (and probably 0, but the software doesn't do
+// that) to the offset register should be ignored and will disable the mapper
+// switch addresses. Values of 2 or larger written there must be lowered by 2
+// to get the actual offset to use.
 
 namespace openmsx {
 
@@ -28,23 +29,24 @@ void RomMatraCompilation::reset(EmuTime::param /*time*/)
 	setUnmapped(6);
 	setUnmapped(7);
 
-	blockOffset = 0;
+	blockOffset = 2;
 }
 
 void RomMatraCompilation::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if (address == 0xBA00) {
-		if (value >= 2) {
-			// write of block offset
-			blockOffset = value - 2;
-			// retro-actively select the blocks for this offset
+		// write of block offset
+		blockOffset = value;
+		// retro-actively select the blocks for this offset
+		if (blockOffset >= 2) {
 			for (int i = 2; i < 6; i++) {
-				setRom(i, blockNr[i] + blockOffset);
+				setRom(i, blockNr[i] + blockOffset - 2);
 			}
 		}
-	} else if ((address == 0x5000) || (address == 0x6000)
-		|| (address == 0x8000) || (address == 0xA000)) {
-		setRom(address >> 13, value + blockOffset);
+	} else if ((blockOffset >= 2) &&
+		   ((address == 0x5000) || (address == 0x6000)
+		 || (address == 0x8000) || (address == 0xA000))) {
+		setRom(address >> 13, value + blockOffset - 2);
 	}
 }
 
