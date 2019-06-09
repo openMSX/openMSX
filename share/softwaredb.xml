@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1560040678">
+<softwaredb timestamp="1560058911">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -225,8 +225,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>HK</country>
 		<dump><rom><hash>3ca4a1ab35b3cbe3ddb238ce88ca9df258ae37d6</hash><remark>[a]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>cb48969f27eaebf24c61f651399ec2433d85bcbc</hash></rom></dump>
-		<dump><rom><hash>2707dcf377066b3c1755c56cc4c2f953d82f6524</hash><remark>[h by Prosoft]</remark></rom></dump>
+		<dump><rom><hash>2707dcf377066b3c1755c56cc4c2f953d82f6524</hash><remark>ProSoft Hack</remark></rom></dump>
 		<dump><rom><hash>022e88a3cc0e56ec88167703d801f1ce27e37940</hash></rom></dump>
+		<dump><rom><hash>bbbbd3f7868f9b36bd291fa9394407a11e2f70d4</hash><remark>ProSoft Hack</remark></rom></dump>
 </software>
 <software>
 	<title>Add and Subtract</title>
@@ -808,6 +809,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>c5f1897c416f62cd58cd6257282e3428155cd698</hash></rom></dump>
 		<dump><rom><hash>c6c64d803d65ce439d00034a86a570f8c77d18d5</hash><remark>[Topia]</remark></rom></dump>
+</software>
+<software>
+	<title>Auf Wiedersehen Monty</title>
+	<system>MSX</system>
+	<company>Gremlin Graphics</company>
+	<year>1987</year>
+	<country>UK</country>
+		<dump><megarom><type>ASCII8</type><hash>bd71f818bf98e21fd1f3d7f35c4e77162a7c6c5a</hash></megarom></dump>
 </software>
 <software>
 	<title>Azzurro 8bit Jam</title>
@@ -2028,6 +2037,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>f9e9a6e517ee0b9b3147abb6144b31ed2ca8dbda</hash></rom></dump>
 		<dump><rom><hash>a502e37f580bd287ed8338fcb1d809b8dc90bbe0</hash></rom></dump>
+		<dump><rom><hash>2fef6d6d5008b0bd40bd5e250c51d813c1111fa9</hash><remark>Topia Hack</remark></rom></dump>
 </software>
 <software>
 	<title>Championship Lode Runner</title>
@@ -3085,6 +3095,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2017</year>
 	<country>JP</country>
 		<dump><original value="true">Author</original><rom><hash>d2a86f789a3869bee18c061866a14a043da9a69f</hash><remark>MSXDev 2017</remark></rom></dump>
+		<dump><rom><hash>39b11232bf539a953e528c574ae5776766c5d03e</hash></rom></dump>
+		<dump><rom><hash>cefe6636d64f2333ccc610caf405195c16344d3c</hash></rom></dump>
 </software>
 <software>
 	<title>Dragon Attack</title>
@@ -3397,6 +3409,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1990</year>
 	<country>KR</country>
 		<dump><rom><hash>6365ee1bfd4764546681d860c90b59f27b25f213</hash></rom></dump>
+		<dump><rom><hash>f0f128b25e5557e660d936995e6bf25c8ebd17e5</hash></rom></dump>
 </software>
 <software>
 	<title>Eat Blue! 2004</title>
@@ -4264,6 +4277,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>b90aa345904890dd449bbd35c9648d22e01313fd</hash></rom></dump>
 		<dump><rom><hash>c650de3523eba6d220445cb727db4ef2248c3a98</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>90f3696fe96e720a9309cab8b981b6f84744b60e</hash><remark>GDX SCC Version</remark></megarom></dump>
+		<dump><rom><hash>9d6262ecbb181f144e69c47595297dfea7d7bf76</hash><remark>Clover Hack</remark></rom></dump>
 </software>
 <software>
 	<title>Galaxian</title>
@@ -4280,6 +4294,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>d357b635ae007609718d21f0e22ea486f4eac2bd</hash></rom></dump>
 		<dump><rom><hash>307f5680290a88400126010ab26cbc87fb85913c</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>a2816649eac034d3b068678860ace2b94d4c1def</hash><remark>GDX SCC Version</remark></megarom></dump>
+		<dump><rom><hash>4d5ae087f24575ed4789957104f2807d67d0ae4b</hash><remark>hi com hack</remark></rom></dump>
 </software>
 <software>
 	<title>Galaxian</title>
@@ -6316,6 +6331,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>15c82849dfc691a9cc39f874ab48243523ea6b9c</hash></rom></dump>
 		<dump><rom><hash>c1cd04c3ff667d12764fff9e150b863e94b9bb20</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>3aaa762a16a942bc45e884a428123eecd1fa6a85</hash><remark>GDX SCC Version</remark></megarom></dump>
+		<dump><rom><hash>fe9b6952e7377e7e52c64830bc1dd8509db5c0e9</hash><remark>ProSoft Hack</remark></rom></dump>
 </software>
 <software>
 	<title>King Kong 2</title>
@@ -8274,6 +8290,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>1b3059c7873765a476fb7791a4d6fc846ab05ade</hash><remark>[RC-728]</remark></rom></dump>
 		<dump><rom><hash>9d8029aafc4125af7f151f377978389963432d49</hash><remark>[RC-728] / Konami Antiques MSX Collection 1</remark></rom></dump>
 		<dump><rom><hash>dd9d6ed442122d142987fd691001efcc2bc18c7c</hash><remark>[RC-728]</remark></rom></dump>
+		<dump><rom><hash>0c2ccefcf5713b26a1b63f52d1499349e9dac4e1</hash><remark>[RC-728] / Hack</remark></rom></dump>
 </software>
 <software>
 	<title>Morita Kazurou no Othello</title>
@@ -8841,6 +8858,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>aeecb99ed7bfe2ff39a5f42637b6b33ecc79c443</hash></rom></dump>
+		<dump><rom><hash>bd1d59403b9e57ea25eb24ea7c2248aeec9bf34b</hash></rom></dump>
 </software>
 <software>
 	<title>Nyorols</title>
@@ -10298,7 +10316,8 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>7abdf08e9c0a511b8182c502ed8c5f42778437e9</hash><remark>[a][RC-730]</remark></rom></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>9a5e3433c5d82f2166969162bb822a965c741ce5</hash><remark>[SD Snatcher RAM SCC+][RC-730]</remark></sccpluscart></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>cc15f65d607a573e0bcd23abe9d0d825e05deb10</hash><remark>[The Snatcher RAM SCC+][RC-730]</remark></sccpluscart></dump>
-		<dump><rom><hash>5c947b82cf81a03674671b663697c9b79546c1ee</hash><remark>Konami Antiques MSX Collection 1</remark></rom></dump>
+		<dump><rom><hash>5c947b82cf81a03674671b663697c9b79546c1ee</hash><remark>[RC-730] / Konami Antiques MSX Collection 1</remark></rom></dump>
+		<dump><rom><hash>ad76e9126fad614629bea49e7ae19c3e4dfedd59</hash><remark>[RC-730] / Korean hack</remark></rom></dump>
 </software>
 <software>
 	<title>Robofrog</title>
@@ -10985,11 +11004,10 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title>Simple ASM 3.0</title>
 	<system>MSX</system>
-	<company>Unknown</company>
+	<company>Coral Sea</company>
 	<year>1988</year>
-	<country></country>
+	<country>JP</country>
 		<dump><rom><hash>91e522473a8470511584df3ee5b325ea5e2b81ef</hash></rom></dump>
-		<dump><rom><hash>f40e43e321c9c0f6c17835c587c62981efbe0392</hash></rom></dump>
 </software>
 <software>
 	<title>Sinbad</title>
@@ -12380,6 +12398,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>fd1eecd9c89f47741276433b99b75eca2930b58d</hash></megarom></dump>
 </software>
 <software>
+	<title>Tetris II</title>
+	<system>MSX</system>
+	<company>Prosoft</company>
+	<year>1989</year>
+	<country>KR</country>
+		<dump><rom><hash>93b9420a4b0590b43163c02b43d7fbfd51fe9a92</hash></rom></dump>
+</software>
+<software>
 	<title>Tetsuman</title>
 	<genmsxid>562</genmsxid>
 	<system>MSX</system>
@@ -12693,6 +12719,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>9b815efaa927c11827acfdb0f9b9197b5ac97572</hash></rom></dump>
+		<dump><rom><hash>a0a6850382075eb7e4cc667972e056f890df5a7e</hash><remark>ProSoft Hack</remark></rom></dump>
+		<dump><rom><hash>f12be8f8bc24dffd60f77d77dde85f5cc0efa7ae</hash><remark>ProSoft Hack</remark></rom></dump>
 </software>
 <software>
 	<title>Track &amp; Field 1</title>
@@ -13568,7 +13596,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash>c60a28a4048710ad3c63ef5bcf4ce03db54c00bb</hash></rom></dump>
 </software>
 <software>
-	<title>Yokai Yasiki - Boynight - Haunted House</title>
+	<title>Youkai Yashiki - Ghost House</title>
 	<genmsxid>874</genmsxid>
 	<system>MSX</system>
 	<company>Casio</company>
@@ -13578,6 +13606,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>7c87b7ded0c7813217e5b305036e57849d0b93e9</hash><remark>[b]</remark></rom></dump>
 		<dump><rom><hash>cec8ffb88b3c047f5dbd95d3ed1cd9660803fa7b</hash><remark>cheat version</remark></rom></dump>
 		<dump><rom><hash>372cdeff033701c86d3e01efe73c172af7492dd1</hash><remark>Ulver crack</remark></rom></dump>
+		<dump><rom><hash>7e5206879cfcd7e714861cd06c22e7f1daf69a70</hash></rom></dump>
 </software>
 <software>
 	<title>Young Artist</title>
@@ -16349,4 +16378,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:4042 - Created on Sat Jun 8 2019 - 17:38:01 PDT-->
+<!-- Roms in this XML file:4057 - Created on Sat Jun 8 2019 - 22:41:57 PDT-->
