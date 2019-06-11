@@ -276,11 +276,16 @@ void Y8950Adpcm::writeData(byte data)
 			// set the flag in zero time, so that the IRQ
 			// will work.
 
-			// set BRDY bit in status register
-			y8950.setStatus(Y8950::STATUS_BUF_RDY);
-		} else {
-			// set EOS bit in status register
-			y8950.setStatus(Y8950::STATUS_EOS);
+			if (emu.memPntr <= stopAddr) {
+				// there's more to transfer: set BRDY
+				y8950.setStatus(Y8950::STATUS_BUF_RDY);
+			} else {
+				// we just received the last byte: set EOS
+				y8950.setStatus(Y8950::STATUS_EOS);
+				// Eugeny tested that pointer wraps when
+				// continue writing after EOS
+				emu.memPntr = startAddr;
+			}
 		}
 
 	} else if ((reg7 & R07_MODE) == 0x80) {
