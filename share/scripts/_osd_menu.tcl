@@ -569,7 +569,7 @@ proc create_main_menu {} {
 		foreach slot [lrange [lsort [info command cart?]] 0 1] {
 			set slot_str [string toupper [string index $slot end]]
 			lappend items [list text "Load ROM... (slot $slot_str)" \
-				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_ROM_list \$::osd_rom_path $slot\]"]]
+				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_ROM_list \$::osd_rom_path $slot\]; catch { osd_menu::select_menu_item \[file tail \[lindex \[$slot\] 1\]\]}"]]
 		}
 	}
 	if {[catch diska]} {
@@ -581,19 +581,19 @@ proc create_main_menu {} {
 		foreach drive [lrange [lsort [info command disk?]] 0 1] {
 			set drive_str [string toupper [string index $drive end]]
 			lappend items [list text "Insert Disk... (drive $drive_str)" \
-				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_disk_list \$::osd_disk_path $drive\]"]]
+				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_disk_list \$::osd_disk_path $drive\]; catch { osd_menu::select_menu_item \[file tail \[lindex \[$drive\] 1\]\]}"]]
 		}
 	}
 	if {[info command hda] ne ""} {; # only exists when hard disk extension available
 		foreach drive [lrange [lsort [info command hd?]] 0 1] {
 			set drive_str [string toupper [string index $drive end]]
 			lappend items [list text "Change HD/SD image... (drive $drive_str)" \
-				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_hdd_list \$::osd_hdd_path $drive\]"]]
+				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_hdd_list \$::osd_hdd_path $drive\]; catch { osd_menu::select_menu_item \[file tail \[lindex \[$drive\] 1\]\]}"]]
 		}
 	}
 	if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
 		lappend items { text "Load LaserDisc..."
-			actions { A { osd_menu::menu_create [osd_menu::menu_create_ld_list $::osd_ld_path]} }
+			actions { A { osd_menu::menu_create [osd_menu::menu_create_ld_list $::osd_ld_path]; catch { osd_menu::select_menu_item [file tail [lindex [laserdiscplayer] 1]]}} }
 		}
 	}
 	if {[catch "machine_info connector cassetteport"]} {; # example: turboR
@@ -604,7 +604,7 @@ proc create_main_menu {} {
 		}
 	} else {
 		lappend items { text "Set Tape..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_tape_list $::osd_tape_path]} }
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_tape_list $::osd_tape_path]; catch { osd_menu::select_menu_item [file tail [lindex [cassetteplayer] 1]]}} }
 	         post-spacing 3 }
 	}
 	lappend items { text "Save State..."
