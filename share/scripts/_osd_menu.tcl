@@ -397,6 +397,10 @@ proc do_menu_open {top_menu} {
 		# on Android, use BACK button to go back in menus
 		bind -layer osd_menu "keyb BACK"      {osd_menu::menu_action B }
 	}
+	set alphanum {a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9}
+	foreach char $alphanum {
+		bind -layer osd_menu "keyb $char"      "osd_menu::select_next_menu_item_starting_with $char"
+	}
 	activate_input_layer osd_menu -blocking
 }
 
@@ -542,6 +546,26 @@ proc select_menu_item {item} {
 	peek_menu_info
 
 	set index [lsearch -exact [dict get $menuinfo lst] $item]
+	if {$index == -1} return
+
+	select_menu_idx $index
+}
+
+proc select_next_menu_item_starting_with {char} {
+	peek_menu_info
+
+	set items [dict get $menuinfo presentation]
+	if {[llength $items] == 0} return
+
+	set selectidx [dict get $menuinfo selectidx]
+	set scrollidx [dict get $menuinfo scrollidx]
+	set itemidx [expr {$scrollidx + $selectidx}]
+
+	# start after the current item and use the list twice to wrap
+	incr itemidx
+	set index [lsearch -glob -nocase -start $itemidx [concat $items $items] "$char*"]
+	set index [expr {$index % [llength $items]}]
+
 	if {$index == -1} return
 
 	select_menu_idx $index
