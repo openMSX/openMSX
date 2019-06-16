@@ -20,6 +20,10 @@ proc set_optional {dict_name key value} {
 }
 
 variable menulevels 0
+# some variables for typing-in-menus support
+variable input_buffer ""
+variable input_last_time [clock milliseconds]
+variable input_timeout 1000; #msec
 
 proc push_menu_info {} {
 	variable menulevels
@@ -217,6 +221,10 @@ proc menu_on_deselect {selectinfo selectidx} {
 }
 
 proc menu_action {button} {
+	# for any menu action, clear the input buffer
+	variable input_buffer
+	set input_buffer ""
+
 	peek_menu_info
 	set selectidx [dict get $menuinfo selectidx ]
 	menu_action_idx $selectidx $button
@@ -399,7 +407,7 @@ proc do_menu_open {top_menu} {
 	}
 	set alphanum {a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9}
 	foreach char $alphanum {
-		bind -layer osd_menu "keyb $char"      "osd_menu::select_next_menu_item_starting_with $char"
+		bind -layer osd_menu "keyb $char"      "osd_menu::handle_keyboard_input $char"
 	}
 	activate_input_layer osd_menu -blocking
 }
@@ -551,7 +559,23 @@ proc select_menu_item {item} {
 	select_menu_idx $index
 }
 
-proc select_next_menu_item_starting_with {char} {
+proc handle_keyboard_input {char} {
+	variable input_buffer
+	variable input_last_time
+	variable input_timeout
+
+	set current_time [clock milliseconds]
+	if {[expr {$current_time - $input_last_time}] < $input_timeout} {
+		set input_buffer "$input_buffer$char"
+	} else {
+		set input_buffer $char
+	}
+	set input_last_time $current_time
+
+	osd_menu::select_next_menu_item_starting_with $input_buffer
+}
+
+proc select_next_menu_item_starting_with {text} {
 	peek_menu_info
 
 	set items [dict get $menuinfo presentation]
@@ -561,12 +585,14 @@ proc select_next_menu_item_starting_with {char} {
 	set scrollidx [dict get $menuinfo scrollidx]
 	set itemidx [expr {$scrollidx + $selectidx}]
 
-	# start after the current item and use the list twice to wrap
-	incr itemidx
-	set index [lsearch -glob -nocase -start $itemidx [concat $items $items] "$char*"]
-	set index [expr {$index % [llength $items]}]
-
+	# start after the current item if this is a new search
+	if {[string length $text] == 1} {
+		incr itemidx
+	}
+	# use the list twice to wrap
+	set index [lsearch -glob -nocase -start $itemidx [concat $items $items] "$text*"]
 	if {$index == -1} return
+	set index [expr {$index % [llength $items]}]
 
 	select_menu_idx $index
 }
