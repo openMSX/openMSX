@@ -1516,7 +1516,7 @@ proc menu_create_disk_list {path drive} {
 			font-size 10 \
 			post-spacing 6 }]
 	set cur_image [lindex [$drive] 1]
-	set extensions "dsk|zip|gz|xsa|dmk|di1|di2|fd1|fd2"
+	set extensions "dsk|zip|gz|xsa|dmk|di1|di2|fd?"
 	set items [list]
 	set presentation [list]
 	if {[lindex [$drive] 2] ne "empty readonly"} {
