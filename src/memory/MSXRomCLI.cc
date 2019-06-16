@@ -19,7 +19,7 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerOption("-cartb", *this);
 	cmdLineParser.registerOption("-cartc", *this);
 	cmdLineParser.registerOption("-cartd", *this);
-	cmdLineParser.registerFileType("ri,rom", *this);
+	cmdLineParser.registerFileType("ri,rom,mx1,mx2", *this);
 }
 
 void MSXRomCLI::parseOption(const string& option, span<string>& cmdLine)
