@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1560058911">
+<softwaredb timestamp="1560650876">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -3016,6 +3016,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>19c610339c0480c3d2d0d1c21e3ccbf2179bb191</hash></rom></dump>
+		<dump><sccpluscart><boot>scc</boot><hash>88574db5b1fc4bea720bd49794a708d96436c70d</hash><remark>SCC addition</remark></sccpluscart></dump>
 </software>
 <software>
 	<title>Double Dragon</title>
@@ -7047,6 +7048,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="false">0</original><megarom><type>KonamiSCC</type><hash>5ef21f8be4bbbb1d2288489dde46507df2e68a2d</hash></megarom></dump>
 </software>
 <software>
+	<title>Life in the fast lane</title>
+	<system>MSX</system>
+	<company>Bytebusters</company>
+	<year>1987</year>
+	<country>NL</country>
+		<dump><rom><hash>6f15201359b39b9af38b76d56f2ba37dafbb540d</hash></rom></dump>
+</software>
+<software>
 	<title>Limaribu</title>
 	<system>MSX</system>
 	<company>Arnold Metselaar</company>
@@ -7814,6 +7823,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1987</year>
 	<country>BR</country>
 		<dump><rom><hash>ab29429f7d2df7ce4bab46d1d0f2b782df7f908e</hash><remark>Version 1.1</remark></rom></dump>
+		<dump><rom><hash>4efbe86c3d36bd251a4942145028474ac401b050</hash><remark>Version 1.0</remark></rom></dump>
 </software>
 <software>
 	<title>Mega Assembler</title>
@@ -9276,6 +9286,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>0486938b52fbcf30a4fa206e07960a5b866fca61</hash><remark>[Kanji]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>5f965bbba026134818759d25119d4114599132a8</hash></rom></dump>
 		<dump><rom><hash>536e6ca8baaa19250b1272a70b68dd11ffc97047</hash><remark>[t Du - F2]</remark></rom></dump>
+		<dump><rom><hash>a7493bde54de0a4304296ac7395d6919ff9a73bd</hash><remark>Filehunter hack</remark></rom></dump>
 </software>
 <software>
 	<title>Peek-a-boo</title>
@@ -9316,6 +9327,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>6e2597e3dd2558043550a4307d01426998136722</hash><remark>Demo / Demo Version</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>efd0e4d8df8951be7fa1c129beb50e55999ce099</hash><remark>Freeware Version</remark></megarom></dump>
 		<dump><megarom><type>manbow2</type><hash>0618eb4059edd8282190889e3b0255113df354c3</hash><remark>Retail</remark></megarom></dump>
+</software>
+<software>
+	<title>Penguin</title>
+	<system>MSX</system>
+	<company>Eurosoft</company>
+	<year>1988</year>
+	<country>NL</country>
+		<dump><rom><hash>1b2a288bdc8992e1b3adc062c9662d43497b13ef</hash></rom></dump>
 </software>
 <software>
 	<title>Penguin Cafe</title>
@@ -13167,10 +13186,11 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>a2a9d0303cb0b36a73d58e42b7c2c976c540597f</hash><remark>[o2][RC-706][aka Konami's Billiards]</remark></rom></dump>
 		<dump><rom><hash>01788f6238dc934fbc843aab85fdc0581ed96989</hash><remark>[o3][RC-706][aka Konami's Billiards]</remark></rom></dump>
 		<dump><rom><hash>eed68d254a17d76c36e094dd8a50a362a964e1b7</hash><remark>[RC-706][aka Konami's Billiards]</remark></rom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>d131d718f57aef3a5469c6785e342a63128bf6d1</hash><remark>[SCC][RC-706]</remark></megarom></dump>
-		<dump><sccpluscart><boot>scc+</boot><hash>82a5b00496eb1b9741a9540a89085e86443e76c5</hash><remark>[SD Snatcher RAM SCC+][RC-706]</remark></sccpluscart></dump>
-		<dump><sccpluscart><boot>scc+</boot><hash>22e095eefb53adf47648520f117afd8bfafa63d0</hash><remark>[The Snatcher RAM SCC+][RC-706]</remark></sccpluscart></dump>
-		<dump><rom><hash>4f893002dbb9d456a16c72206a2eedab2644936b</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>d131d718f57aef3a5469c6785e342a63128bf6d1</hash><remark>[RC-706] / SCC Version</remark></megarom></dump>
+		<dump><sccpluscart><boot>scc+</boot><hash>82a5b00496eb1b9741a9540a89085e86443e76c5</hash><remark>[RC-706] / SCC+ Version</remark></sccpluscart></dump>
+		<dump><sccpluscart><boot>scc+</boot><hash>22e095eefb53adf47648520f117afd8bfafa63d0</hash><remark>SCC Version / SCC+ Version</remark></sccpluscart></dump>
+		<dump><rom><hash>4f893002dbb9d456a16c72206a2eedab2644936b</hash><remark>[RC-706]</remark></rom></dump>
+		<dump><sccpluscart><boot>scc+</boot><hash>0e851b3dda7b9dc5cb8b79a20e4a601976a0e7f0</hash><remark>[RC-706] / SCC Version</remark></sccpluscart></dump>
 </software>
 <software>
 	<title>Videotexto</title>
@@ -16378,4 +16398,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:4057 - Created on Sat Jun 8 2019 - 22:41:57 PDT-->
+<!-- Roms in this XML file:4063 - Created on Sat Jun 15 2019 - 19:08:02 PDT-->
