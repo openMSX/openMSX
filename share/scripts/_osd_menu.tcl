@@ -1043,8 +1043,7 @@ proc get_filtered_configs {type} {
 		}
 		# follow symlink (on platforms that support links)
 		catch {
-			set conf [file join [file dirname $conf]
-			                    [file readlink $conf]]
+			set conf [file join [file dirname $conf] [file readlink $conf]]
 		}
 		# only add if the (possibly resolved link) hasn't been seen before
 		if {$conf ni $configs} {
