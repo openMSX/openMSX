@@ -48,31 +48,37 @@ public:
 	SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~SDLScopedClip();
 private:
-	SDL_Surface* surface;
+	SDL_Renderer* renderer;
 	SDL_Rect origClip;
+	SDL_bool wasClipped;
 };
 
 
 SDLScopedClip::SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
-	: surface(output.getSDLSurface())
+	: renderer(output.getSDLRenderer())
 {
 	ivec2 i_xy = round(xy); int x = i_xy[0]; int y = i_xy[1];
 	ivec2 i_wh = round(wh); int w = i_wh[0]; int h = i_wh[1];
-
 	normalize(x, w); normalize(y, h);
-	SDL_GetClipRect(surface, &origClip);
 
+	wasClipped = SDL_RenderIsClipEnabled(renderer);
 	int xn, yn, wn, hn;
-	intersect(origClip.x, origClip.y, origClip.w, origClip.h,
-	          x,  y,  w,  h,
-	          xn, yn, wn, hn);
+	if (wasClipped) {
+		SDL_RenderGetClipRect(renderer, &origClip);
+
+		intersect(origClip.x, origClip.y, origClip.w, origClip.h,
+			  x,  y,  w,  h,
+			  xn, yn, wn, hn);
+	} else {
+		xn = x; yn = y; wn = w; hn = h;
+	}
 	SDL_Rect newClip = { Sint16(xn), Sint16(yn), Uint16(wn), Uint16(hn) };
-	SDL_SetClipRect(surface, &newClip);
+	SDL_RenderSetClipRect(renderer, &newClip);
 }
 
 SDLScopedClip::~SDLScopedClip()
 {
-	SDL_SetClipRect(surface, &origClip);
+	SDL_RenderSetClipRect(renderer, wasClipped ? &origClip : nullptr);
 }
 
 ////
