@@ -22,8 +22,8 @@ proc set_optional {dict_name key value} {
 variable menulevels 0
 # some variables for typing-in-menus support
 variable input_buffer ""
-variable input_last_time [clock milliseconds]
-variable input_timeout 1000; #msec
+variable input_last_time [openmsx_info realtime]
+variable input_timeout 1; #sec
 
 proc push_menu_info {} {
 	variable menulevels
@@ -564,7 +564,7 @@ proc handle_keyboard_input {char} {
 	variable input_last_time
 	variable input_timeout
 
-	set current_time [clock milliseconds]
+	set current_time [openmsx_info realtime]
 	if {[expr {$current_time - $input_last_time}] < $input_timeout} {
 		set input_buffer "$input_buffer$char"
 	} else {
