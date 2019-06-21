@@ -363,7 +363,6 @@ if {![file exists $::osd_ld_path] || ![file readable $::osd_ld_path]} {
 	unset ::osd_ld_path
 }
 
-
 variable taperecordings_directory [file normalize $::env(OPENMSX_USER_DATA)/../taperecordings]
 
 proc main_menu_open {} {
@@ -621,7 +620,7 @@ proc create_main_menu {} {
 		foreach slot [lrange [lsort [info command cart?]] 0 1] {
 			set slot_str [string toupper [string index $slot end]]
 			lappend items [list text "Load ROM... (slot $slot_str)" \
-				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_ROM_list \$::osd_rom_path $slot\]; catch { osd_menu::select_menu_item \[file tail \[lindex \[$slot\] 1\]\]}"]]
+				actions [list A "set curSel \[lindex \[$slot\] 1\]; set ::osd_rom_path \[expr {\$curSel ne {} ? \[file dirname \$curSel\] : \$::osd_rom_path}\]; osd_menu::menu_create \[osd_menu::menu_create_ROM_list \$::osd_rom_path $slot\]; catch { osd_menu::select_menu_item \[file tail \$curSel\]}"]]
 		}
 	}
 	if {[catch diska]} {
@@ -633,19 +632,20 @@ proc create_main_menu {} {
 		foreach drive [lrange [lsort [info command disk?]] 0 1] {
 			set drive_str [string toupper [string index $drive end]]
 			lappend items [list text "Insert Disk... (drive $drive_str)" \
-				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_disk_list \$::osd_disk_path $drive\]; catch { osd_menu::select_menu_item \[file tail \[lindex \[$drive\] 1\]\]}"]]
+				actions [list A "set curSel \[lindex \[$drive\] 1\]; set ::osd_disk_path \[expr {\$curSel ne {} ? \[file dirname \$curSel\] : \$::osd_disk_path}\]; osd_menu::menu_create \[osd_menu::menu_create_disk_list  \$::osd_disk_path $drive\]; catch { osd_menu::select_menu_item \[file tail \$curSel\]}"]]
+			# the action A is checking what is currently in that media slot (e.g. diska) and if it's not empty, it puts that path as last known path. Then it creates the menu and afterwards selects the current item.
 		}
 	}
 	if {[info command hda] ne ""} {; # only exists when hard disk extension available
 		foreach drive [lrange [lsort [info command hd?]] 0 1] {
 			set drive_str [string toupper [string index $drive end]]
 			lappend items [list text "Change HD/SD image... (drive $drive_str)" \
-				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_hdd_list \$::osd_hdd_path $drive\]; catch { osd_menu::select_menu_item \[file tail \[lindex \[$drive\] 1\]\]}"]]
+				actions [list A "set curSel \[lindex \[$drive\] 1\]; set ::osd_hdd_path \[expr {\$curSel ne {} ? \[file dirname \$curSel\] : \$::osd_hdd_path}\]; osd_menu::menu_create \[osd_menu::menu_create_hdd_list \$::osd_hdd_path $drive\]; catch { osd_menu::select_menu_item \[file tail \$curSel\]}"]]
 		}
 	}
 	if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
 		lappend items { text "Load LaserDisc..."
-			actions { A { osd_menu::menu_create [osd_menu::menu_create_ld_list $::osd_ld_path]; catch { osd_menu::select_menu_item [file tail [lindex [laserdiscplayer] 1]]}} }
+			actions { A { set curSel [lindex [laserdiscplayer] 1]; set ::osd_ld_path [expr {$curSel ne {} ? [file dirname $curSel] : $::osd_ld_path}]; osd_menu::menu_create [osd_menu::menu_create_ld_list $::osd_ld_path]; catch { osd_menu::select_menu_item [file tail $curSel]}} }
 		}
 	}
 	if {[catch "machine_info connector cassetteport"]} {; # example: turboR
@@ -1517,7 +1517,7 @@ proc menu_create_disk_list {path drive} {
 			font-size 10 \
 			post-spacing 6 }]
 	set cur_image [lindex [$drive] 1]
-	set extensions "dsk|zip|gz|xsa|dmk|di1|di2|fd?"
+	set extensions "dsk|zip|gz|xsa|dmk|di1|di2|fd?|1|2|3|4|5|6|7|8|9"
 	set items [list]
 	set presentation [list]
 	if {[lindex [$drive] 2] ne "empty readonly"} {
