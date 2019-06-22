@@ -52,6 +52,7 @@ void VisibleSurface::createSurface(int width, int height, unsigned flags)
 	if (getDisplay().getRenderSettings().getFullScreen()) {
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}
+	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 
 	assert(!window);
 	window.reset(SDL_CreateWindow(
