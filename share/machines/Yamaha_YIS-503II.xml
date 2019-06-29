@@ -16,7 +16,7 @@
 
       V9938 VDP
       Z80 scf: 01E529ED01F429FC (dunno)
-      Z80 cpl: 3AF12D7 (standard)
+      Z80 cpl: 3AFF12D7 (standard)
       Z80 out (c),0: 0 (MSX)
       PSG pin 6/7 quirk: C (YES)
       PSGMask: YM2149 like
@@ -80,6 +80,7 @@
       <secondary slot="2">
         <RAM id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
+          <initialContent encoding="gz-base64">eJz7z/B/QOEAW/8fAASAf4E=</initialContent> <!-- 64x FF00, 64x 00FF, etc. In the RAM dump, the first byte of each 256 byte group seems to be random, but that's not emulated. -->
         </RAM>
       </secondary>
 
