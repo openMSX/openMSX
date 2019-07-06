@@ -41,6 +41,7 @@
 #include "RomMatraInk.hh"
 #include "RomMatraCompilation.hh"
 #include "RomArc.hh"
+#include "ROMHunterMk2.hh"
 #include "MegaFlashRomSCCPlus.hh"
 #include "ReproCartridgeV1.hh"
 #include "ReproCartridgeV2.hh"
@@ -385,6 +386,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case ROM_ARC:
 		result = make_unique<RomArc>(config, move(rom));
+		break;
+	case ROM_ROMHUNTERMK2:
+		result = make_unique<ROMHunterMk2>(config, move(rom));
 		break;
 	case ROM_MEGAFLASHROMSCCPLUS:
 		result = make_unique<MegaFlashRomSCCPlus>(config, move(rom));
