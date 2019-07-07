@@ -1,5 +1,4 @@
 #include "ROMHunterMk2.hh"
-#include "CacheLine.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -26,16 +25,11 @@ to 1.
 
 namespace openmsx {
 
-ROMHunterMk2::ROMHunterMk2(
-		const DeviceConfig& config, Rom&& rom_)
+ROMHunterMk2::ROMHunterMk2(const DeviceConfig& config, Rom&& rom_)
 	: MSXRom(config, std::move(rom_))
 	, ram(config, getName() + " RAM", "ROM Hunter Mk 2 RAM", 0x40000)
 {
 	reset(getCurrentTime());
-}
-
-ROMHunterMk2::~ROMHunterMk2()
-{
 }
 
 void ROMHunterMk2::reset(EmuTime::param /*time*/)
@@ -50,126 +44,108 @@ void ROMHunterMk2::reset(EmuTime::param /*time*/)
 unsigned ROMHunterMk2::getRamAddr(unsigned addr) const
 {
 	unsigned page = (addr >> 13) - 2;
-	if (page >= 4) {
-		// Bank: -2, -1, 4, 5. So not mapped in this region,
-		// returned value should not be used. But querying it
-		// anyway is easier, see start of writeMem().
-		return unsigned(-1);
-	}
+	assert(page < 4);
 	unsigned bank = bankRegs[page];
 	return (bank * 0x2000) + (addr & 0x1FFF);
 }
 
+const byte* ROMHunterMk2::getReadCacheLine(word addr) const
+{
+	// reads outside [0x4000, 0xC000) return 0xFF
+	if ((addr < 0x4000) || (0xC000 <= addr)) {
+		return unmappedRead;
+	}
+
+	// if bit 3 is 0, reads from page 1 come from the ROM, else from the RAM
+	if (((configReg & 0b1000) == 0) && (addr < 0x8000)) {
+		return &rom[addr & 0x1FFF];
+	} else {
+		return &ram[getRamAddr(addr)];
+	}
+}
+
 byte ROMHunterMk2::peekMem(word addr, EmuTime::param /*time*/) const
 {
-	if ((0x4000 <= addr) && (addr < 0xC000)) {
-		// if bit 3 is 0, reads from page 1 go from the ROM, else from the RAM
-		if (((configReg & 0b1000) == 0) && (addr < 0x8000)) {
-			// read ROM
-			return rom[addr & 0x1FFF];
-		} else {
-			// read RAM content
-			unsigned ramAddr = getRamAddr(addr);
-			assert(ramAddr != unsigned(-1));
-			return ram[ramAddr];
-		}
-	} else {		
-		// unmapped read
-		return 0xFF;
-	}
+	return *getReadCacheLine(addr);
 }
 
 byte ROMHunterMk2::readMem(word addr, EmuTime::param time)
 {
-	// peek is good enough, no side effects expected
-	return peekMem(addr, time);
-}
-
-const byte* ROMHunterMk2::getReadCacheLine(word addr) const
-{
-	if ((0x4000 <= addr) && (addr < 0xC000)) {
-		// if bit 3 is 0, reads from page 1 go from the ROM, else from the RAM
-		if (((configReg & 0b1000) == 0) && (addr < 0x8000)) {
-			return &rom[addr & 0x1FFF];
-		} else {
-			// read RAM content
-			unsigned ramAddr = getRamAddr(addr);
-			assert(ramAddr != unsigned(-1));
-			return &ram[ramAddr];
-		}
-	} else {		
-		return unmappedRead;
-	}
+	return peekMem(addr, time); // reads have no side effects
 }
 
 void ROMHunterMk2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 {
-	if (addr == 0x3FFF)
-	{
+	// config register at address 0x3FFF
+	if (addr == 0x3FFF) {
 		configReg = value;
 		invalidateMemCache(0x4000, 0x8000);
-	} else {
-		// address is calculated before writes to other regions take effect
-		unsigned ramAddr = getRamAddr(addr);
+		return;
+	}
 
-		unsigned page8kB = (addr >> 13) - 2;
-		// only write mapper registers if bit 1 is not set
-		if (((configReg & 0b10) == 0) && (page8kB < 4)) {
-			// (possibly) write to bank registers
-			switch (configReg & 0b101) {
-			case 0b000: {
-				// ASCII-16
-				// Doing something similar as the much later MFR SCC+:
-				// This behaviour is confirmed by Manuel Pazos (creator
-				// of the cartridge): ASCII-16 uses all 4 bank registers
-				// and one bank switch changes 2 registers at once.
-				// This matters when switching mapper mode, because
-				// the content of the bank registers is unchanged after
-				// a switch.
-				const byte maskedValue = value & 0xF;
-				if ((0x6000 <= addr) && (addr < 0x6800)) {
-					bankRegs[0] = 2 * maskedValue + 0;
-					bankRegs[1] = 2 * maskedValue + 1;
-					invalidateMemCache(0x4000, 0x4000);
-				}
-				if ((0x7000 <= addr) && (addr < 0x7800)) {
-					bankRegs[2] = 2 * maskedValue + 0;
-					bankRegs[3] = 2 * maskedValue + 1;
-					invalidateMemCache(0x8000, 0x4000);
-				}
-				break;
+	// ignore (other) writes outside [0x4000, 0xC000)
+	if ((addr < 0x4000) || (0xC000 <= addr)) {
+		return;
+	}
+
+	// address is calculated before writes to other regions take effect
+	unsigned ramAddr = getRamAddr(addr);
+
+	// only write mapper registers if bit 1 is not set
+	if ((configReg & 0b10) == 0) {
+		// (possibly) write to bank registers
+		switch (configReg & 0b101) {
+		case 0b000: {
+			// ASCII-16
+			// Implemented similarly as the (much later) MFR SCC+,
+			// TODO did we verify that ROMHunterMk2 behaves the same?
+			//
+			// ASCII-16 uses all 4 bank registers and one bank
+			// switch changes 2 registers at once. This matters
+			// when switching mapper mode, because the content of
+			// the bank registers is unchanged after a switch.
+			const byte maskedValue = value & 0xF;
+			if ((0x6000 <= addr) && (addr < 0x6800)) {
+				bankRegs[0] = 2 * maskedValue + 0;
+				bankRegs[1] = 2 * maskedValue + 1;
+				invalidateMemCache(0x4000, 0x4000);
 			}
-			case 0b001:
-				// ASCII-8
-				if ((0x6000 <= addr) && (addr < 0x8000)) {
-					byte bank = (addr >> 11) & 0x03;
-					bankRegs[bank] = value & 0x1F;
-					invalidateMemCache(0x4000 + 0x2000 * bank, 0x2000);
-				}
-				break;
-			case 0b101: {
-				// Konami
-				if ((0x6000 <= addr) && (addr < 0xC000)) {
-					bankRegs[page8kB] = value & 0x1F;
-					invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
-				}
-				break;
+			if ((0x7000 <= addr) && (addr < 0x7800)) {
+				bankRegs[2] = 2 * maskedValue + 0;
+				bankRegs[3] = 2 * maskedValue + 1;
+				invalidateMemCache(0x8000, 0x4000);
 			}
-			default:
-				// NOT IMPLEMENTED
-				break;
-			}
+			break;
 		}
-
-		// write to RAM
-		if (((configReg & 0b1000) == 0) && (0x4000 <= addr) && (addr < 0xC000)) {
-			// write protect is off, so:
-			// if write to page 2, just do it
-			// if write to page 1, only do it if bit 1 is set
-			if ((addr >= 0x8000) || ((addr >= 0x4000) && ((configReg & 0b10) == 0b10))) {
-				assert(ramAddr != unsigned(-1));
-				ram[ramAddr] = value;
+		case 0b001:
+			// ASCII-8
+			if ((0x6000 <= addr) && (addr < 0x8000)) {
+				byte bank = (addr >> 11) & 0x03;
+				bankRegs[bank] = value & 0x1F;
+				invalidateMemCache(0x4000 + 0x2000 * bank, 0x2000);
 			}
+			break;
+		case 0b101: {
+			// Konami
+			unsigned page8kB = (addr >> 13) - 2;
+			if ((0x6000 <= addr) && (addr < 0xC000)) {
+				bankRegs[page8kB] = value & 0x1F;
+				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+			}
+			break;
+		}
+		case 0b100:
+			// TODO how does this configuration behave?
+			break;
+		}
+	}
+
+	// write to RAM, if not write-protected
+	if ((configReg & 0b1000) == 0) {
+		// if write to [0x8000, 0xC000), just do it
+		// if write to [0x4000, 0x8000), only do it if bit 1 is set
+		if ((addr >= 0x8000) || ((configReg & 0b10) == 0b10)) {
+			ram[ramAddr] = value;
 		}
 	}
 }

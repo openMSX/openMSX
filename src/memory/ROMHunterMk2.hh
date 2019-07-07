@@ -10,7 +10,6 @@ class ROMHunterMk2 final : public MSXRom
 {
 public:
 	ROMHunterMk2(const DeviceConfig& config, Rom&& rom);
-	~ROMHunterMk2() override;
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;
