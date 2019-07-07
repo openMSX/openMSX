@@ -125,15 +125,14 @@ void ROMHunterMk2::writeMem(word addr, byte value, EmuTime::param /*time*/)
 				invalidateMemCache(0x4000 + 0x2000 * bank, 0x2000);
 			}
 			break;
-		case 0b101: {
+		case 0b101:
 			// Konami
-			unsigned page8kB = (addr >> 13) - 2;
 			if ((0x6000 <= addr) && (addr < 0xC000)) {
-				bankRegs[page8kB] = value & 0x1F;
-				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+				unsigned bank = (addr >> 13) - 2;
+				bankRegs[bank] = value & 0x1F;
+				invalidateMemCache(0x4000 + 0x2000 * bank, 0x2000);
 			}
 			break;
-		}
 		case 0b100:
 			// TODO how does this configuration behave?
 			break;
