@@ -24,7 +24,9 @@ namespace Keys {
  *                code.
  */
 enum KeyCode {
-	K_NONE = -1,
+	K_MASK = 0x1FFFF,
+
+	K_NONE = K_MASK, // make sure K_NONE has no modifiers set
 	K_UNKNOWN = 0,
 	K_BACKSPACE = 8,
 	K_TAB = 9,
@@ -197,8 +199,6 @@ enum KeyCode {
 	K_MUHENKAN          = 0x10001, // ???
 	K_HENKAN_MODE       = 0x10002, // Similar to kanalock on MSX
 	K_HIRAGANA_KATAKANA = 0x10003, // MSX switches between the two sets based on capslock state
-
-	K_MASK      = 0x1FFFF,
 
 	// Modifiers
 	KM_SHIFT    = 0x020000,

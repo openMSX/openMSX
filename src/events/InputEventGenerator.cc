@@ -73,12 +73,21 @@ void InputEventGenerator::poll()
 	// Though our MSX keyboard emulation code needs to relate KEYDOWN
 	// events with the associated unicode. We try to mimic this by the
 	// following heuristic:
-	//   When two successive events are KEYDOWN followed by TEXTINPUT and
-	//   both have the same timestamp, then copy the unicode (of the first
-	//   character) of the TEXT event to the KEYDOWN event.
+	//   When two successive events in a single batch (so, the same
+	//   invocation of poll()) are KEYDOWN followed by TEXTINPUT, then copy
+	//   the unicode (of the first character) of the TEXT event to the
+	//   KEYDOWN event.
 	// Implementing this requires a lookahead of 1 event. So the code below
 	// deals with a 'current' and a 'previous' event, and keeps track of
 	// whether the previous event is still pending (not yet processed).
+	//
+	// In a previous version we also added the constraint that these two
+	// consecutive events must have the same timestamp, but that had mixed
+	// results:
+	// - on Linux it worked fine
+	// - on Windows the timestamps sometimes did not match
+	// - on Mac the timestamps mostly did not match
+	// So we removed this constraint.
 	//
 	// We also split SDL_TEXTINPUT events into (possibly) multiple KEYDOWN
 	// events because a single event type makes it easier to handle higher
@@ -93,8 +102,7 @@ void InputEventGenerator::poll()
 	while (SDL_PollEvent(curr)) {
 		if (pending) {
 			pending = false;
-			if ((prev->common.timestamp == curr->common.timestamp) &&
-			    (prev->type == SDL_KEYDOWN) && (curr->type == SDL_TEXTINPUT)) {
+			if ((prev->type == SDL_KEYDOWN) && (curr->type == SDL_TEXTINPUT)) {
 				const char* utf8 = curr->text.text;
 				auto unicode = utf8::unchecked::next(utf8);
 				handleKeyDown(prev->key, unicode);
