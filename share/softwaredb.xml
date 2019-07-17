@@ -13771,6 +13771,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>76cf87f9fb8f70918df1aefb470d82d0caa41175</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>8618e2ac27fce4a904dfb9b2cc96610bf8d38d65</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>6bc79eaa65bd2cdee0286ee914dcef285f774728</hash><remark>TFH SCC version</remark></megarom></dump>
+		<dump><megarom><type>ASCII16</type><hash>f540021e314b624ac3c7fa2022ef3585d908396a</hash><remark>Enhanced version</remark></megarom></dump>
 </software>
 <software>
 	<title>Zaxxon</title>
