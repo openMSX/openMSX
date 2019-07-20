@@ -58,6 +58,7 @@ V9990::V9990(const DeviceConfig& config)
 	, syncVScan(*this)
 	, syncHScan(*this)
 	, syncSetMode(*this)
+	, syncCmdEnd(*this)
 	, v9990RegDebug(*this)
 	, v9990PalDebug(*this)
 	, irq(getMotherBoard(), getName() + ".IRQ")
@@ -451,6 +452,22 @@ void V9990::execSetMode(EmuTime::param time)
 	renderer->setColorMode(getColorMode(), time);
 }
 
+void V9990::execCheckCmdEnd(EmuTime::param time)
+{
+	cmdEngine->sync(time);
+	scheduleCmdEnd(time); // in case of underestimation
+}
+
+void V9990::scheduleCmdEnd(EmuTime::param time)
+{
+	if (regs[INTERRUPT_0] & 4) {
+		auto next = cmdEngine->estimateCmdEnd();
+		if (next > time) {
+			syncCmdEnd.setSyncPoint(next);
+		}
+	}
+}
+
 // -------------------------------------------------------------------------
 // VideoSystemChangeListener
 // -------------------------------------------------------------------------
@@ -578,6 +595,9 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 	}
 	if (reg >= CMD_PARAM_SRC_ADDRESS_0) {
 		cmdEngine->setCmdReg(reg, val, time);
+		if (reg == CMD_PARAM_OPCODE) {
+			scheduleCmdEnd(time);
+		}
 		return;
 	}
 
@@ -635,8 +655,15 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 			// update read buffer immediately after read pointer changes. TODO: timing?
 			vramReadBuffer = vram->readVRAMCPU(vramReadPtr, time);
 			break;
+		case SCREEN_MODE_0:
+		case SCREEN_MODE_1:
+		case CONTROL:
+			// These influence the command timing
+			scheduleCmdEnd(time);
+			break;
 		case INTERRUPT_0:
 			irq.set((pendingIRQs & val) != 0);
+			scheduleCmdEnd(time);
 			break;
 		case INTERRUPT_1:
 		case INTERRUPT_2:

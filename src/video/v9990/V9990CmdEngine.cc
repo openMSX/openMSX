@@ -1762,6 +1762,72 @@ void V9990CmdEngine::cmdReady(EmuTime::param /*time*/)
 	vdp.cmdReady();
 }
 
+EmuTime V9990CmdEngine::estimateCmdEnd() const
+{
+	EmuDuration delta;
+	switch (CMD >> 4) {
+		case 0x00: // STOP
+			delta = EmuDuration::zero;
+			break;
+
+		case 0x01: // LMMC
+		case 0x05: // CMMC
+			// command terminates when CPU writes data, no need for extra sync
+			delta = EmuDuration::zero;
+			break;
+
+		case 0x03: // LMCM
+		case 0x0D: // POINT
+			// command terminates when CPU reads data, no need for extra sync
+			delta = EmuDuration::zero;
+			break;
+
+		case 0x02: // LMMV
+			// Block commands.
+			delta = getTiming(LMMV_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+			break;
+		case 0x04: // LMMM
+			delta = getTiming(LMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+			break;
+		case 0x07: // CMMM
+			delta = getTiming(CMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+			break;
+		case 0x08: // BMXL
+			delta = getTiming(BMXL_TIMING) * (ANX + (ANY - 1) * getWrappedNX()); // TODO correct?
+			break;
+		case 0x09: // BMLX
+			delta = getTiming(BMLX_TIMING) * (ANX + (ANY - 1) * getWrappedNX()); // TODO correct?
+			break;
+
+		case 0x06: // CMMK
+			// Not yet implemented.
+			delta = EmuDuration::zero;
+			break;
+
+		case 0x0A: // BMLL
+			delta = getTiming(BMLL_TIMING) * nbBytes;
+			break;
+
+		case 0x0B: // LINE
+			delta = getTiming(LINE_TIMING) * (NX - ANX); // TODO ignores clipping
+			break;
+
+		case 0x0C: // SRCH
+			// Can end at any next pixel.
+			delta = getTiming(SRCH_TIMING);
+			break;
+
+		case 0x0E: // PSET
+		case 0x0F: // ADVN
+			// Current implementation of these commands execute instantly, no need for extra sync.
+			delta = EmuDuration::zero;
+			break;
+
+		default: UNREACHABLE;
+	}
+	return engineTime + delta;
+}
+
 // version 1: initial version
 // version 2: we forgot to serialize the time (or clock) member
 template<typename Archive>

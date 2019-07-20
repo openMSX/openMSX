@@ -75,6 +75,19 @@ public:
 		return borderX;
 	}
 
+	/** Calculate an (under-)estimation for when the command will finish.
+	  * The main purpose of this function is to insert extra sync points
+	  * so that the Command-End (CE) interrupt properly synchronizes with
+	  * CPU emulation.
+	  * This estimation:
+	  * - Is the current time (engineTime) when no command is executing
+	  *   or the command doesn't require extra syncs.
+	  * - Is allowed to be an underestimation, on the condition that (when
+	  *   that point in time is reached) the new estimation is more
+	  *   accurate and converges to the actual end time.
+	  */
+	EmuTime estimateCmdEnd() const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
