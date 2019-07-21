@@ -18,8 +18,8 @@ struct SyncPointBW
 	template <typename Archive>
 	void serialize(Archive& ar, unsigned /*version*/) {
 		assert(ar.isLoader());
-		ar.serialize("time", time);
-		ar.serialize("type", userData);
+		ar.serialize("time", time,
+		             "type", userData);
 	}
 
 	EmuTime time = EmuTime::zero;

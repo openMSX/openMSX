@@ -1,6 +1,7 @@
 #ifndef FIXEDPOINT_HH
 #define FIXEDPOINT_HH
 
+#include "serialize.hh"
 #include <cmath>
 #include <cstdint>
 

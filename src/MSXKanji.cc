@@ -89,8 +89,8 @@ template<typename Archive>
 void MSXKanji::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("adr1", adr1);
-	ar.serialize("adr2", adr2);
+	ar.serialize("adr1", adr1,
+	             "adr2", adr2);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXKanji);
 REGISTER_MSXDEVICE(MSXKanji, "Kanji");

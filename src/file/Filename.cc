@@ -44,8 +44,8 @@ bool Filename::empty() const
 template<typename Archive>
 void Filename::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("original", originalFilename);
-	ar.serialize("resolved", resolvedFilename);
+	ar.serialize("original", originalFilename,
+	             "resolved", resolvedFilename);
 }
 INSTANTIATE_SERIALIZE_METHODS(Filename);
 

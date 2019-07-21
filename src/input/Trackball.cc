@@ -40,10 +40,10 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("deltaX", deltaX);
-		ar.serialize("deltaY", deltaY);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("deltaX",  deltaX,
+		             "deltaY",  deltaY,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	int deltaX, deltaY;
@@ -290,20 +290,20 @@ template<typename Archive>
 void Trackball::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("lastSync" ,lastSync);
-		ar.serialize("targetDeltaX", targetDeltaX);
-		ar.serialize("targetDeltaY", targetDeltaY);
-		ar.serialize("currentDeltaX", currentDeltaX);
-		ar.serialize("currentDeltaY", currentDeltaY);
+		ar.serialize("lastSync",      lastSync,
+		             "targetDeltaX",  targetDeltaX,
+		             "targetDeltaY",  targetDeltaY,
+		             "currentDeltaX", currentDeltaX,
+		             "currentDeltaY", currentDeltaY);
 	} else {
-		ar.serialize("deltaX", targetDeltaX);
-		ar.serialize("deltaY", targetDeltaY);
+		ar.serialize("deltaX", targetDeltaX,
+		             "deltaY", targetDeltaY);
 		currentDeltaX = targetDeltaX;
 		currentDeltaY = targetDeltaY;
 		smooth = false;
 	}
-	ar.serialize("lastValue", lastValue);
-	ar.serialize("status", status);
+	ar.serialize("lastValue", lastValue,
+	             "status",    status);
 
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());

@@ -433,12 +433,12 @@ void MSXRS232::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<RS232Connector>(*this);
 
-	ar.serialize("I8254", i8254);
-	ar.serialize("I8251", i8251);
+	ar.serialize("I8254", i8254,
+	             "I8251", i8251);
 	if (ram) ar.serialize("ram", *ram);
-	ar.serialize("rxrdyIRQ", rxrdyIRQ);
-	ar.serialize("rxrdyIRQlatch", rxrdyIRQlatch);
-	ar.serialize("rxrdyIRQenabled", rxrdyIRQenabled);
+	ar.serialize("rxrdyIRQ",        rxrdyIRQ,
+	             "rxrdyIRQlatch",   rxrdyIRQlatch,
+	             "rxrdyIRQenabled", rxrdyIRQenabled);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("ioAccessEnabled", ioAccessEnabled);
 	} else {

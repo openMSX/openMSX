@@ -229,14 +229,14 @@ void ReproCartridgeV1::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("flash", flash);
-	ar.serialize("scc", scc);
-	ar.serialize("psg", psg);
-	ar.serialize("psgLatch", psgLatch);
-	ar.serialize("flashRomWriteEnabled", flashRomWriteEnabled);
-	ar.serialize("mainBankReg", mainBankReg);
-	ar.serialize("sccMode", sccMode);
-	ar.serialize("bankRegs", bankRegs);
+	ar.serialize("flash",       flash,
+	             "scc",         scc,
+	             "psg",         psg,
+	             "psgLatch",    psgLatch,
+	             "flashRomWriteEnabled", flashRomWriteEnabled,
+	             "mainBankReg", mainBankReg,
+	             "sccMode",     sccMode,
+	             "bankRegs",    bankRegs);
 }
 INSTANTIATE_SERIALIZE_METHODS(ReproCartridgeV1);
 REGISTER_MSXDEVICE(ReproCartridgeV1, "ReproCartridgeV1");

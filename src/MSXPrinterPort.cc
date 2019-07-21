@@ -114,8 +114,8 @@ void MSXPrinterPort::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<Connector>(*this);
-	ar.serialize("strobe", strobe);
-	ar.serialize("data", data);
+	ar.serialize("strobe", strobe,
+	             "data",   data);
 	// TODO force writing data to port??
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXPrinterPort);

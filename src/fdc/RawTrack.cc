@@ -291,15 +291,15 @@ INSTANTIATE_SERIALIZE_METHODS(RawTrack);
 template<typename Archive>
 void RawTrack::Sector::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("addrIdx", addrIdx);
-	ar.serialize("dataIdx", dataIdx);
-	ar.serialize("track", track);
-	ar.serialize("head", head);
-	ar.serialize("sector", sector);
-	ar.serialize("sizeCode", sizeCode);
-	ar.serialize("deleted", deleted);
-	ar.serialize("addrCrcErr", addrCrcErr);
-	ar.serialize("dataCrcErr", dataCrcErr);
+	ar.serialize("addrIdx",    addrIdx,
+	             "dataIdx",    dataIdx,
+	             "track",      track,
+	             "head",       head,
+	             "sector",     sector,
+	             "sizeCode",   sizeCode,
+	             "deleted",    deleted,
+	             "addrCrcErr", addrCrcErr,
+	             "dataCrcErr", dataCrcErr);
 }
 INSTANTIATE_SERIALIZE_METHODS(RawTrack::Sector);
 

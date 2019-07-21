@@ -108,10 +108,10 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		}
 	}
 
-	ar.serialize("address", address);
-	ar.serialize("color1", color1);
-	ar.serialize("color2", color2);
-	ar.serialize("pattern", pattern);
+	ar.serialize("address", address,
+	             "color1",  color1,
+	             "color2",  color2,
+	             "pattern", pattern);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXS1985);
 REGISTER_MSXDEVICE(MSXS1985, "S1985");

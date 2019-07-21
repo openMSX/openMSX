@@ -258,10 +258,10 @@ template<typename Archive>
 void MSXMoonSound::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ymf262", ymf262);
-	ar.serialize("ymf278", ymf278);
-	ar.serialize("opl3latch", opl3latch);
-	ar.serialize("opl4latch", opl4latch);
+	ar.serialize("ymf262",    ymf262,
+	             "ymf278",    ymf278,
+	             "opl3latch", opl3latch,
+	             "opl4latch", opl4latch);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("alreadyReadID", alreadyReadID);
 	} else {
@@ -270,8 +270,8 @@ void MSXMoonSound::serialize(Archive& ar, unsigned version)
 		                      // 'true' is the safest value
 	}
 	if (ar.versionAtLeast(version, 3)) {
-		ar.serialize("loadTime", ymf278LoadTime);
-		ar.serialize("busyTime", ymf278BusyTime);
+		ar.serialize("loadTime", ymf278LoadTime,
+		             "busyTime", ymf278BusyTime);
 	} else {
 		assert(ar.isLoader());
 		// For 100% backwards compatibility we should restore these two

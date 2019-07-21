@@ -144,8 +144,8 @@ template<typename Archive>
 void SVIPSG::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ay8910", *ay8910);
-	ar.serialize("registerLatch", registerLatch);
+	ar.serialize("ay8910",        *ay8910,
+	             "registerLatch", registerLatch);
 	byte portB = prev;
 	ar.serialize("portB", portB);
 	if (ar.isLoader()) {

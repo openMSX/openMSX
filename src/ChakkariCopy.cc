@@ -217,9 +217,9 @@ template<typename Archive>
 void ChakkariCopy::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("biosRam", biosRam);
-	ar.serialize("workRam", workRam);
-	ar.serialize("reg", reg);
+	ar.serialize("biosRam", biosRam,
+	             "workRam", workRam,
+	             "reg", reg);
 	if (ar.isLoader()) {
 		writeIO(0, reg, getCurrentTime());
 	}

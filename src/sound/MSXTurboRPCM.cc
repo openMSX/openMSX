@@ -134,13 +134,12 @@ template<typename Archive>
 void MSXTurboRPCM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-
-	ar.serialize("audioConnector", connector);
-	ar.serialize("reference", reference);
-	ar.serialize("status", status);
-	ar.serialize("DValue", DValue);
-	ar.serialize("hold", hold);
-	ar.serialize("DAC", dac);
+	ar.serialize("audioConnector", connector,
+	             "reference",      reference,
+	             "status",         status,
+	             "DValue",         DValue,
+	             "hold",           hold,
+	             "DAC",            dac);
 
 	hardwareMute(!(status & 0x02));  // restore hwMute
 }

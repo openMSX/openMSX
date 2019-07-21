@@ -1764,14 +1764,14 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	if (ar.versionAtLeast(serVersion, 8)) {
-		ar.serialize("syncVSync",         syncVSync);
-		ar.serialize("syncDisplayStart",  syncDisplayStart);
-		ar.serialize("syncVScan",         syncVScan);
-		ar.serialize("syncHScan",         syncHScan);
-		ar.serialize("syncHorAdjust",     syncHorAdjust);
-		ar.serialize("syncSetMode",       syncSetMode);
-		ar.serialize("syncSetBlank",      syncSetBlank);
-		ar.serialize("syncCpuVramAccess", syncCpuVramAccess);
+		ar.serialize("syncVSync",         syncVSync,
+		             "syncDisplayStart",  syncDisplayStart,
+		             "syncVScan",         syncVScan,
+		             "syncHScan",         syncHScan,
+		             "syncHorAdjust",     syncHorAdjust,
+		             "syncSetMode",       syncSetMode,
+		             "syncSetBlank",      syncSetBlank,
+		             "syncCpuVramAccess", syncCpuVramAccess);
 	} else {
 		Schedulable::restoreOld(ar,
 			{&syncVSync, &syncDisplayStart, &syncVScan,
@@ -1786,44 +1786,44 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	//    byte controlValueMasks[32];
 	//    bool warningPrinted;
 
-	ar.serialize("irqVertical", irqVertical);
-	ar.serialize("irqHorizontal", irqHorizontal);
-	ar.serialize("frameStartTime", frameStartTime);
-	ar.serialize("displayStartSyncTime", displayStartSyncTime);
-	ar.serialize("vScanSyncTime", vScanSyncTime);
-	ar.serialize("hScanSyncTime", hScanSyncTime);
-	ar.serialize("displayStart", displayStart);
-	ar.serialize("horizontalScanOffset", horizontalScanOffset);
-	ar.serialize("horizontalAdjust", horizontalAdjust);
-	ar.serialize("registers", controlRegs);
-	ar.serialize("blinkCount", blinkCount);
-	ar.serialize("vramPointer", vramPointer);
-	ar.serialize("palette", palette);
-	ar.serialize("isDisplayArea", isDisplayArea);
-	ar.serialize("palTiming", palTiming);
-	ar.serialize("interlaced", interlaced);
-	ar.serialize("statusReg0", statusReg0);
-	ar.serialize("statusReg1", statusReg1);
-	ar.serialize("statusReg2", statusReg2);
-	ar.serialize("blinkState", blinkState);
-	ar.serialize("dataLatch", dataLatch);
-	ar.serialize("registerDataStored", registerDataStored);
-	ar.serialize("paletteDataStored", paletteDataStored);
+	ar.serialize("irqVertical",          irqVertical,
+	             "irqHorizontal",        irqHorizontal,
+	             "frameStartTime",       frameStartTime,
+	             "displayStartSyncTime", displayStartSyncTime,
+	             "vScanSyncTime",        vScanSyncTime,
+	             "hScanSyncTime",        hScanSyncTime,
+	             "displayStart",         displayStart,
+	             "horizontalScanOffset", horizontalScanOffset,
+	             "horizontalAdjust",     horizontalAdjust,
+	             "registers",            controlRegs,
+	             "blinkCount",           blinkCount,
+	             "vramPointer",          vramPointer,
+	             "palette",              palette,
+	             "isDisplayArea",        isDisplayArea,
+	             "palTiming",            palTiming,
+	             "interlaced",           interlaced,
+	             "statusReg0",           statusReg0,
+	             "statusReg1",           statusReg1,
+	             "statusReg2",           statusReg2,
+	             "blinkState",           blinkState,
+	             "dataLatch",            dataLatch,
+	             "registerDataStored",   registerDataStored,
+	             "paletteDataStored",    paletteDataStored);
 	if (ar.versionAtLeast(serVersion, 5)) {
-		ar.serialize("cpuVramData", cpuVramData);
-		ar.serialize("cpuVramReqIsRead", cpuVramReqIsRead);
+		ar.serialize("cpuVramData",      cpuVramData,
+		             "cpuVramReqIsRead", cpuVramReqIsRead);
 	} else {
 		ar.serialize("readAhead", cpuVramData);
 	}
-	ar.serialize("cpuExtendedVram", cpuExtendedVram);
-	ar.serialize("displayEnabled", displayEnabled);
+	ar.serialize("cpuExtendedVram", cpuExtendedVram,
+	             "displayEnabled",  displayEnabled);
 	byte mode = displayMode.getByte();
 	ar.serialize("displayMode", mode);
 	displayMode.setByte(mode);
 
-	ar.serialize("cmdEngine", *cmdEngine);
-	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
-	ar.serialize("vram", *vram); // must come after controlRegs and after spriteChecker
+	ar.serialize("cmdEngine",     *cmdEngine,
+	             "spriteChecker", *spriteChecker, // must come after displayMode
+	             "vram",          *vram); // must come after controlRegs and after spriteChecker
 	if (ar.isLoader()) {
 		pendingCpuAccess = syncCpuVramAccess.pendingSyncPoint();
 		update(tooFastAccess);

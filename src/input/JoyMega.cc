@@ -72,9 +72,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("joyNum", joyNum);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("joyNum",  joyNum,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	unsigned joyNum;
@@ -328,10 +328,10 @@ void JoyMega::stopReplay(EmuTime::param time)
 template<typename Archive>
 void JoyMega::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("lastTime", lastTime);
-	ar.serialize("status", status);
-	ar.serialize("cycle", cycle);
-	ar.serialize("cycleMask", cycleMask);
+	ar.serialize("lastTime",  lastTime,
+	             "status",    status,
+	             "cycle",     cycle,
+	             "cycleMask", cycleMask);
 	if (ar.isLoader()) {
 		if (isPluggedIn()) {
 			plugHelper2();

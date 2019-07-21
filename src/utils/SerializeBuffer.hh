@@ -3,15 +3,18 @@
 
 #include "MemBuffer.hh"
 #include "openmsx.hh"
+#include "inline.hh"
+#include "likely.hh"
 #include <algorithm>
 #include <cstring>
 #include <cassert>
+#include <tuple>
 
 namespace openmsx {
 
 /** Memory output buffer
  *
-  * Acts as a replacement for std::vector<byte>. You can insert data in the
+  * Acts as a replacement for std::vector<uint8_t>. You can insert data in the
   * buffer and the buffer will automatically grow. Like std::vector it manages
   * an internal memory buffer that will automatically reallocate and grow
   * exponentially.
@@ -54,6 +57,28 @@ public:
 #endif
 	void insertN(const void* __restrict data, size_t len);
 
+	/** Insert all the elements of the given tuple.
+	  * Equivalent to repeatedly calling insert() for all the elements of
+	  * the tuple. Though using this method the implementation only has to
+	  * check once whether enough memory is allocated.
+	  */
+	template<typename TUPLE> ALWAYS_INLINE void insert_tuple_ptr(const TUPLE& tuple)
+	{
+		size_t len = TupleElementSize<TUPLE>::value;
+		auto* newEnd = end + len;
+		if (unlikely(newEnd > finish)) grow(len);
+
+		InsertTupleHelper<TUPLE, 0, std::tuple_size<TUPLE>::value> helper;
+		helper(tuple, end);
+
+		end = newEnd;
+	}
+	template<typename T> ALWAYS_INLINE void insert_tuple_ptr(const std::tuple<T*>& tuple)
+	{
+		// single-element tuple -> use insert() because it's better tuned
+		insert(std::get<0>(tuple), sizeof(T));
+	}
+
 	/** Insert data at a given position. This will overwrite the old data.
 	  * It's not possible to grow the buffer via this method (so the buffer
 	  * must already be big enough to hold the new data).
@@ -72,15 +97,15 @@ public:
 	  * when the buffer will be used for gzip output data), you can request
 	  * the maximum size and deallocate the unused space later.
 	  */
-	byte* allocate(size_t len)
+	uint8_t* allocate(size_t len)
 	{
-		byte* newEnd = end + len;
+		auto* newEnd = end + len;
 		// Make sure the next OutputBuffer will start with an initial size
 		// that can hold this much space plus some slack.
 		size_t newSize = newEnd - buf.data();
 		lastSize = std::max(lastSize, newSize + 1000);
 		if (newEnd <= finish) {
-			byte* result = end;
+			uint8_t* result = end;
 			end = newEnd;
 			return result;
 		} else {
@@ -99,7 +124,7 @@ public:
 	  * allocate() call, there cannot be any other (non-const) call to this
 	  * object in between.
 	  */
-	void deallocate(byte* pos)
+	void deallocate(uint8_t* pos)
 	{
 		assert(buf.data() <= pos);
 		assert(pos <= end);
@@ -116,17 +141,47 @@ public:
 	/** Release ownership of the buffer.
 	 * Returns both the buffer and its size.
 	 */
-	MemBuffer<byte> release(size_t& size);
+	MemBuffer<uint8_t> release(size_t& size);
 
 private:
 	void insertGrow(const void* __restrict data, size_t len);
-	byte* allocateGrow(size_t len);
+	uint8_t* allocateGrow(size_t len);
+	void grow(size_t len);
 
-	MemBuffer<byte> buf; // begin of allocated memory
-	byte* end;           // points right after the last used byte
-	                     // so   end - buf == size
-	byte* finish;        // points right after the last allocated byte
-	                     // so   finish - buf == capacity
+	// TupleElementSize
+	template<size_t N, typename TUPLE> struct TupleElementSizeImpl {
+		using ElemPtr = typename std::tuple_element<N - 1, TUPLE>::type;
+		using Elem = typename std::remove_pointer<ElemPtr>::type;
+		static const size_t value
+			= sizeof(Elem) + TupleElementSizeImpl<N - 1, TUPLE>::value;
+	};
+	template<typename TUPLE> struct TupleElementSizeImpl<0, TUPLE> {
+		static const size_t value = 0;
+	};
+	template<typename TUPLE> struct TupleElementSize
+		: TupleElementSizeImpl<std::tuple_size<TUPLE>::value, TUPLE> {};
+
+	// InsertTupleHelper
+	template<typename TUPLE, size_t I, size_t N> struct InsertTupleHelper {
+		ALWAYS_INLINE void operator()(const TUPLE& tuple, uint8_t* p) {
+			using ElemPtr = typename std::tuple_element<I, TUPLE>::type;
+			using Elem = typename std::remove_pointer<ElemPtr>::type;
+			memcpy(p, std::get<I>(tuple), sizeof(Elem));
+			InsertTupleHelper<TUPLE, I + 1, N> helper;
+			helper(tuple, p + sizeof(Elem));
+		}
+	};
+	template<typename TUPLE, size_t N> struct InsertTupleHelper<TUPLE, N, N> {
+		ALWAYS_INLINE void operator()(const TUPLE& /*tuple*/, uint8_t* /*p*/) {
+			// nothing
+		}
+	};
+
+	MemBuffer<uint8_t> buf; // begin of allocated memory
+	uint8_t* end;           // points right after the last used byte
+	                        // so   end - buf == size
+	uint8_t* finish;        // points right after the last allocated byte
+	                        // so   finish - buf == capacity
 
 	static size_t lastSize;
 };
@@ -142,7 +197,7 @@ public:
 	/** Construct new InputBuffer, typically the data and size parameters
 	  * will come from a MemBuffer object.
 	  */
-	InputBuffer(const byte* data, size_t size);
+	InputBuffer(const uint8_t* data, size_t size);
 
 	/** Read the given number of bytes.
 	  * This 'consumes' the read bytes, so a future read() will continue
@@ -170,12 +225,12 @@ public:
 	  * as input for an uncompress algorithm. You can later use skip() to
 	  * actually consume the data.
 	  */
-	const byte* getCurrentPos() const { return buf; }
+	const uint8_t* getCurrentPos() const { return buf; }
 
 private:
-	const byte* buf;
+	const uint8_t* buf;
 #ifndef NDEBUG
-	const byte* finish; // only used to check asserts
+	const uint8_t* finish; // only used to check asserts
 #endif
 };
 

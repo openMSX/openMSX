@@ -163,13 +163,13 @@ template<typename Archive>
 void MSXHBI55::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("i8255", i8255);
-	ar.serialize("SRAM", sram);
-	ar.serialize("readAddress", readAddress);
-	ar.serialize("writeAddress", writeAddress);
-	ar.serialize("addressLatch", addressLatch);
-	ar.serialize("writeLatch", writeLatch);
-	ar.serialize("mode", mode);
+	ar.serialize("i8255",        i8255,
+	             "SRAM",         sram,
+	             "readAddress",  readAddress,
+	             "writeAddress", writeAddress,
+	             "addressLatch", addressLatch,
+	             "writeLatch",   writeLatch,
+	             "mode",         mode);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXHBI55);
 REGISTER_MSXDEVICE(MSXHBI55, "MSXHBI55");

@@ -408,12 +408,12 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 		}
 	}
 
-	ar.serialize("byteCountLimit", byteCountLimit);
-	ar.serialize("transferOffset", transferOffset);
-	ar.serialize("senseKey", senseKey);
-	ar.serialize("readSectorData", readSectorData);
-	ar.serialize("remMedStatNotifEnabled", remMedStatNotifEnabled);
-	ar.serialize("mediaChanged", mediaChanged);
+	ar.serialize("byteCountLimit",         byteCountLimit,
+	             "transferOffset",         transferOffset,
+	             "senseKey",               senseKey,
+	             "readSectorData",         readSectorData,
+	             "remMedStatNotifEnabled", remMedStatNotifEnabled,
+	             "mediaChanged",           mediaChanged);
 }
 INSTANTIATE_SERIALIZE_METHODS(IDECDROM);
 REGISTER_POLYMORPHIC_INITIALIZER(IDEDevice, IDECDROM, "IDECDROM");

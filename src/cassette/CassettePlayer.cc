@@ -914,13 +914,13 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	//double partialInterval;
 	//std::unique_ptr<WavWriter> recordImage;
 
-	ar.serialize("tapePos", tapePos);
-	ar.serialize("prevSyncTime", prevSyncTime);
-	ar.serialize("audioPos", audioPos);
-	ar.serialize("state", state);
-	ar.serialize("lastOutput", lastOutput);
-	ar.serialize("motor", motor);
-	ar.serialize("motorControl", motorControl);
+	ar.serialize("tapePos",      tapePos,
+	             "prevSyncTime", prevSyncTime,
+	             "audioPos",     audioPos,
+	             "state",        state,
+	             "lastOutput",   lastOutput,
+	             "motor",        motor,
+	             "motorControl", motorControl);
 
 	if (ar.isLoader()) {
 		auto time = getCurrentTime();

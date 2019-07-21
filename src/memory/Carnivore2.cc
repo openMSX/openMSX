@@ -697,34 +697,34 @@ template<typename Archive>
 void Carnivore2::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("flash", flash);
-	ar.serialize("ram", ram);
-	ar.serialize("eeprom", eeprom);
-	ar.serialize("configRegs", configRegs);
-	ar.serialize("shadowConfigRegs", shadowConfigRegs);
-	ar.serialize("subSlotReg", subSlotReg);
-	ar.serialize("port3C", port3C);
+	ar.serialize("flash",            flash,
+	             "ram",              ram,
+	             "eeprom",           eeprom,
+	             "configRegs",       configRegs,
+	             "shadowConfigRegs", shadowConfigRegs,
+	             "subSlotReg",       subSlotReg,
+	             "port3C",           port3C,
 
-	ar.serialize("scc", scc);
-	ar.serialize("sccMode", sccMode);
-	ar.serialize("sccBank", sccBank);
+	             "scc",              scc,
+	             "sccMode",          sccMode,
+	             "sccBank",          sccBank);
 
 	ar.serializePolymorphic("master", *ideDevices[0]);
 	ar.serializePolymorphic("slave",  *ideDevices[1]);
-	ar.serialize("ideSoftReset", ideSoftReset);
-	ar.serialize("ideSelectedDevice", ideSelectedDevice);
-	ar.serialize("ideControlReg", ideControlReg);
-	ar.serialize("ideRead", ideRead);
-	ar.serialize("ideWrite", ideWrite);
+	ar.serialize("ideSoftReset",      ideSoftReset,
+	             "ideSelectedDevice", ideSelectedDevice,
+	             "ideControlReg",     ideControlReg,
+	             "ideRead",           ideRead,
+	             "ideWrite",          ideWrite,
 
-	ar.serialize("memMapRegs", memMapRegs);
+	             "memMapRegs",        memMapRegs,
 	
-	ar.serialize("ym2413", ym2413);
-	ar.serialize("fmPacEnable", fmPacEnable);
-	ar.serialize("fmPacBank", fmPacBank);
-	ar.serialize("fmPac5ffe", fmPac5ffe);
-	ar.serialize("fmPac5fff", fmPac5fff);
-	ar.serialize("fmPacRegSelect", fmPacRegSelect);
+	             "ym2413",            ym2413,
+	             "fmPacEnable",       fmPacEnable,
+	             "fmPacBank",         fmPacBank,
+	             "fmPac5ffe",         fmPac5ffe,
+	             "fmPac5fff",         fmPac5fff,
+	             "fmPacRegSelect",    fmPacRegSelect);
 	
 	if (ar.isLoader()) {
 		auto time = getCurrentTime();

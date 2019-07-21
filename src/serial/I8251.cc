@@ -387,27 +387,27 @@ template<typename Archive>
 void I8251::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("syncRecv",  syncRecv);
-		ar.serialize("syncTrans", syncTrans);
+		ar.serialize("syncRecv",  syncRecv,
+		             "syncTrans", syncTrans);
 	} else {
 		Schedulable::restoreOld(ar, {&syncRecv, &syncTrans});
 	}
-	ar.serialize("clock", clock);
-	ar.serialize("charLength", charLength);
-	ar.serialize("recvDataBits", recvDataBits);
-	ar.serialize("recvStopBits", recvStopBits);
-	ar.serialize("recvParityBit", recvParityBit);
-	ar.serialize("recvParityEnabled", recvParityEnabled);
-	ar.serialize("recvBuf", recvBuf);
-	ar.serialize("recvReady", recvReady);
-	ar.serialize("sendByte", sendByte);
-	ar.serialize("sendBuffer", sendBuffer);
-	ar.serialize("status", status);
-	ar.serialize("command", command);
-	ar.serialize("mode", mode);
-	ar.serialize("sync1", sync1);
-	ar.serialize("sync2", sync2);
-	ar.serialize("cmdFaze", cmdFaze);
+	ar.serialize("clock",             clock,
+	             "charLength",        charLength,
+	             "recvDataBits",      recvDataBits,
+	             "recvStopBits",      recvStopBits,
+	             "recvParityBit",     recvParityBit,
+	             "recvParityEnabled", recvParityEnabled,
+	             "recvBuf",           recvBuf,
+	             "recvReady",         recvReady,
+	             "sendByte",          sendByte,
+	             "sendBuffer",        sendBuffer,
+	             "status",            status,
+	             "command",           command,
+	             "mode",              mode,
+	             "sync1",             sync1,
+	             "sync2",             sync2,
+	             "cmdFaze",           cmdFaze);
 }
 INSTANTIATE_SERIALIZE_METHODS(I8251);
 

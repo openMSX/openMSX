@@ -1013,10 +1013,10 @@ void AY8910::Debuggable::write(unsigned address, byte value, EmuTime::param time
 template<typename Archive>
 void AY8910::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("toneGenerators", tone);
-	ar.serialize("noiseGenerator", noise);
-	ar.serialize("envelope", envelope);
-	ar.serialize("registers", regs);
+	ar.serialize("toneGenerators", tone,
+	             "noiseGenerator", noise,
+	             "envelope",       envelope,
+	             "registers",      regs);
 
 	// amplitude
 	if (ar.isLoader()) {
@@ -1032,8 +1032,8 @@ INSTANTIATE_SERIALIZE_METHODS(AY8910);
 template<typename Archive>
 void AY8910::Generator::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("period", period);
-	ar.serialize("count", count);
+	ar.serialize("period", period,
+	             "count", count);
 }
 INSTANTIATE_SERIALIZE_METHODS(AY8910::Generator);
 
@@ -1043,8 +1043,8 @@ template<typename Archive>
 void AY8910::ToneGenerator::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeInlinedBase<Generator>(*this, version);
-	ar.serialize("vibratoCount", vibratoCount);
-	ar.serialize("detuneCount", detuneCount);
+	ar.serialize("vibratoCount", vibratoCount,
+	             "detuneCount", detuneCount);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("output", output);
 	} else {
@@ -1069,13 +1069,13 @@ INSTANTIATE_SERIALIZE_METHODS(AY8910::NoiseGenerator);
 template<typename Archive>
 void AY8910::Envelope::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("period",    period);
-	ar.serialize("count",     count);
-	ar.serialize("step",      step);
-	ar.serialize("attack",    attack);
-	ar.serialize("hold",      hold);
-	ar.serialize("alternate", alternate);
-	ar.serialize("holding",   holding);
+	ar.serialize("period",    period,
+	             "count",     count,
+	             "step",      step,
+	             "attack",    attack,
+	             "hold",      hold,
+	             "alternate", alternate,
+	             "holding",   holding);
 }
 INSTANTIATE_SERIALIZE_METHODS(AY8910::Envelope);
 

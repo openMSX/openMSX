@@ -176,10 +176,10 @@ void MegaSCSI::setSRAM(unsigned region, byte block)
 template<typename Archive>
 void MegaSCSI::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("SRAM", sram);
-	ar.serialize("MB89352", mb89352);
-	ar.serialize("isWriteable", isWriteable);
-	ar.serialize("mapped", mapped);
+	ar.serialize("SRAM",        sram,
+	             "MB89352",     mb89352,
+	             "isWriteable", isWriteable,
+	             "mapped",      mapped);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaSCSI);
 REGISTER_MSXDEVICE(MegaSCSI, "MegaSCSI");

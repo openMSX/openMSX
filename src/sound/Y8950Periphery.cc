@@ -279,8 +279,8 @@ void PanasonicAudioPeriphery::setIOPortsHelper(unsigned base, bool enable)
 template<typename Archive>
 void PanasonicAudioPeriphery::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("ram", ram);
-	ar.serialize("bankSelect", bankSelect);
+	ar.serialize("ram",        ram,
+	             "bankSelect", bankSelect);
 	byte tmpIoPorts = ioPorts;
 	ar.serialize("ioPorts", tmpIoPorts);
 	if (ar.isLoader()) {

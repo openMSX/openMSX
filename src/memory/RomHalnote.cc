@@ -147,9 +147,9 @@ template<typename Archive>
 void RomHalnote::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("subBanks", subBanks);
-	ar.serialize("sramEnabled", sramEnabled);
-	ar.serialize("subMapperEnabled", subMapperEnabled);
+	ar.serialize("subBanks",         subBanks,
+	             "sramEnabled",      sramEnabled,
+	             "subMapperEnabled", subMapperEnabled);
 
 }
 INSTANTIATE_SERIALIZE_METHODS(RomHalnote);

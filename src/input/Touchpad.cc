@@ -41,10 +41,10 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("x",      x);
-		ar.serialize("y",      y);
-		ar.serialize("touch",  touch);
-		ar.serialize("button", button);
+		ar.serialize("x",      x,
+		             "y",      y,
+		             "touch",  touch,
+		             "button", button);
 	}
 private:
 	byte x, y;
@@ -291,14 +291,14 @@ void Touchpad::serialize(Archive& ar, unsigned /*version*/)
 {
 	// no need to serialize hostX, hostY, hostButtons,
 	//                      transformSetting, m[][]
-	ar.serialize("start", start);
-	ar.serialize("x", x);
-	ar.serialize("y", y);
-	ar.serialize("touch", touch);
-	ar.serialize("button", button);
-	ar.serialize("shift", shift);
-	ar.serialize("channel", channel);
-	ar.serialize("last", last);
+	ar.serialize("start",   start,
+	             "x",       x,
+	             "y",       y,
+	             "touch",   touch,
+	             "button",  button,
+	             "shift",   shift,
+	             "channel", channel,
+	             "last",    last);
 
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());

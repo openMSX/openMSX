@@ -113,8 +113,8 @@ bool FileContext::isUserContext() const
 template<typename Archive>
 void FileContext::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("paths", paths);
-	ar.serialize("savePaths", savePaths);
+	ar.serialize("paths",     paths,
+	             "savePaths", savePaths);
 }
 INSTANTIATE_SERIALIZE_METHODS(FileContext);
 

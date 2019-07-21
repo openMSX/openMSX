@@ -515,26 +515,26 @@ template<typename Archive>
 void Y8950Adpcm::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<Schedulable>(*this);
-	ar.serialize("ram", ram);
-	ar.serialize("startAddr", startAddr);
-	ar.serialize("stopAddr", stopAddr);
-	ar.serialize("addrMask", addrMask);
-	ar.serialize("volume", volume);
-	ar.serialize("volumeWStep", volumeWStep);
-	ar.serialize("readDelay", readDelay);
-	ar.serialize("delta", delta);
-	ar.serialize("reg7", reg7);
-	ar.serialize("reg15", reg15);
-	ar.serialize("romBank", romBank);
+	ar.serialize("ram",          ram,
+	             "startAddr",    startAddr,
+	             "stopAddr",     stopAddr,
+	             "addrMask",     addrMask,
+	             "volume",       volume,
+	             "volumeWStep",  volumeWStep,
+	             "readDelay",    readDelay,
+	             "delta",        delta,
+	             "reg7",         reg7,
+	             "reg15",        reg15,
+	             "romBank",      romBank,
 
-	ar.serialize("memPntr", emu.memPntr);
-	ar.serialize("nowStep", emu.nowStep);
-	ar.serialize("out", emu.out);
-	ar.serialize("output", emu.output);
-	ar.serialize("diff", emu.diff);
-	ar.serialize("nextLeveling", emu.nextLeveling);
-	ar.serialize("sampleStep", emu.sampleStep);
-	ar.serialize("adpcm_data", emu.adpcm_data);
+	             "memPntr",      emu.memPntr,
+	             "nowStep",      emu.nowStep,
+	             "out",          emu.out,
+	             "output",       emu.output,
+	             "diff",         emu.diff,
+	             "nextLeveling", emu.nextLeveling,
+	             "sampleStep",   emu.sampleStep,
+	             "adpcm_data",   emu.adpcm_data);
 	if (ar.isLoader()) {
 		// ignore aud part for saving,
 		// for loading we make it the same as the emu part

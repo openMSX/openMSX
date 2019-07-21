@@ -159,11 +159,9 @@ void ROMHunterMk2::serialize(Archive& ar, unsigned /*version*/)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
-
-	ar.serialize("ram", ram);
-
-	ar.serialize("configReg", configReg);
-	ar.serialize("bankRegs", bankRegs);
+	ar.serialize("ram",       ram,
+	             "configReg", configReg,
+	             "bankRegs",  bankRegs);
 }
 INSTANTIATE_SERIALIZE_METHODS(ROMHunterMk2);
 REGISTER_MSXDEVICE(ROMHunterMk2, "ROMHunterMk2");

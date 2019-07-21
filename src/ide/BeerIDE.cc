@@ -144,8 +144,8 @@ void BeerIDE::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("i8255", i8255);
 	ar.serializePolymorphic("device", *device);
-	ar.serialize("dataReg", dataReg);
-	ar.serialize("controlReg", controlReg);
+	ar.serialize("dataReg",    dataReg,
+	             "controlReg", controlReg);
 }
 INSTANTIATE_SERIALIZE_METHODS(BeerIDE);
 REGISTER_MSXDEVICE(BeerIDE, "BeerIDE");

@@ -47,8 +47,8 @@ void serialize(Archive& ar, T& t, unsigned version)
 template <typename Archive, typename T1, typename T2>
 void serialize(Archive& ar, std::pair<T1, T2>& p, unsigned /*version*/)
 {
-	ar.serialize("first",  p.first);
-	ar.serialize("second", p.second);
+	ar.serialize("first",  p.first,
+	             "second", p.second);
 }
 template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2>>
 {

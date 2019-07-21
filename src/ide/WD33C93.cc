@@ -463,16 +463,16 @@ void WD33C93::serialize(Archive& ar, unsigned /*version*/)
 		tag[6] = char('0' + i);
 		ar.serializePolymorphic(tag, *dev[i]);
 	}
-	ar.serialize("bufIdx", bufIdx);
-	ar.serialize("counter", counter);
-	ar.serialize("blockCounter", blockCounter);
-	ar.serialize("tc", tc);
-	ar.serialize("phase", phase);
-	ar.serialize("myId", myId);
-	ar.serialize("targetId", targetId);
+	ar.serialize("bufIdx",       bufIdx,
+	             "counter",      counter,
+	             "blockCounter", blockCounter,
+	             "tc",           tc,
+	             "phase",        phase,
+	             "myId",         myId,
+	             "targetId",     targetId);
 	ar.serialize_blob("registers", regs, sizeof(regs));
-	ar.serialize("latch", latch);
-	ar.serialize("devBusy", devBusy);
+	ar.serialize("latch",   latch,
+	             "devBusy", devBusy);
 }
 INSTANTIATE_SERIALIZE_METHODS(WD33C93);
 

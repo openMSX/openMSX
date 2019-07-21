@@ -336,21 +336,20 @@ void ReproCartridgeV2::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("flash", flash);
-	ar.serialize("scc", scc);
-	ar.serialize("psg0x10", psg0x10);
-	ar.serialize("psg0x10Latch", psg0x10Latch);
-	ar.serialize("psg0xA0", psg0xA0);
-	ar.serialize("psg0xA0Latch", psg0xA0Latch);
-	ar.serialize("flashRomWriteEnabled", flashRomWriteEnabled);
-	ar.serialize("mainBankReg", mainBankReg);
-	ar.serialize("volumeReg", volumeReg);
-	ar.serialize("mapperTypeReg", mapperTypeReg);
-	ar.serialize("sccMode", sccMode);
-	ar.serialize("bankRegs", bankRegs);
+	ar.serialize("flash",         flash,
+	             "scc",           scc,
+	             "psg0x10",       psg0x10,
+	             "psg0x10Latch",  psg0x10Latch,
+	             "psg0xA0",       psg0xA0,
+	             "psg0xA0Latch",  psg0xA0Latch,
+	             "flashRomWriteEnabled", flashRomWriteEnabled,
+	             "mainBankReg",   mainBankReg,
+	             "volumeReg",     volumeReg,
+	             "mapperTypeReg", mapperTypeReg,
+	             "sccMode",       sccMode,
+	             "bankRegs",      bankRegs);
 
-	if (ar.isLoader())
-	{
+	if (ar.isLoader()) {
 		auto time = getCurrentTime();
 		setVolume(time, volumeReg);
 	}

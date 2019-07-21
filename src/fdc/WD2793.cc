@@ -1133,18 +1133,18 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		}
 	}
 
-	ar.serialize("fsmState", fsmState);
-	ar.serialize("statusReg", statusReg);
-	ar.serialize("commandReg", commandReg);
-	ar.serialize("sectorReg", sectorReg);
-	ar.serialize("trackReg", trackReg);
-	ar.serialize("dataReg", dataReg);
+	ar.serialize("fsmState",      fsmState,
+	             "statusReg",     statusReg,
+	             "commandReg",    commandReg,
+	             "sectorReg",     sectorReg,
+	             "trackReg",      trackReg,
+	             "dataReg",       dataReg,
 
-	ar.serialize("directionIn", directionIn);
-	ar.serialize("immediateIRQ", immediateIRQ);
+	             "directionIn",   directionIn,
+	             "immediateIRQ",  immediateIRQ,
 
-	ar.serialize("dataCurrent", dataCurrent);
-	ar.serialize("dataAvailable", dataAvailable);
+	             "dataCurrent",   dataCurrent,
+	             "dataAvailable", dataAvailable);
 
 	if (ar.versionAtLeast(version, 2)) {
 		if (ar.versionAtLeast(version, 4)) {
@@ -1158,11 +1158,11 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		}
 	} else {
 		assert(ar.isLoader());
-		//ar.serialize("commandStart", commandStart);
-		//ar.serialize("DRQTimer", DRQTimer);
-		//ar.serialize("DRQ", DRQ);
-		//ar.serialize("transferring", transferring);
-		//ar.serialize("formatting", formatting);
+		//ar.serialize("commandStart", commandStart,
+		//             "DRQTimer",     DRQTimer,
+		//             "DRQ",          DRQ,
+		//             "transferring", transferring,
+		//             "formatting",   formatting);
 		drqTime.reset(EmuTime::infinity);
 	}
 
@@ -1174,8 +1174,8 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.versionAtLeast(version, 5)) {
-		ar.serialize("pulse5", pulse5);
-		ar.serialize("sectorInfo", sectorInfo);
+		ar.serialize("pulse5",     pulse5,
+		             "sectorInfo", sectorInfo);
 	} else {
 		// leave pulse5 at EmuTime::infinity
 		// leave sectorInfo uninitialized
@@ -1194,9 +1194,9 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.versionAtLeast(version, 11)) {
-		ar.serialize("dataOutReg", dataOutReg);
-		ar.serialize("dataRegWritten", dataRegWritten);
-		ar.serialize("lastWasCRC", lastWasCRC);
+		ar.serialize("dataOutReg",     dataOutReg,
+		             "dataRegWritten", dataRegWritten,
+		             "lastWasCRC",     lastWasCRC);
 	} else {
 		assert(ar.isLoader());
 		dataOutReg = dataReg;

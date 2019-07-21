@@ -171,8 +171,8 @@ template<typename Archive>
 void DebugDevice::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("mode", mode);
-	ar.serialize("modeParameter", modeParameter);
+	ar.serialize("mode",          mode,
+	             "modeParameter", modeParameter);
 }
 INSTANTIATE_SERIALIZE_METHODS(DebugDevice);
 REGISTER_MSXDEVICE(DebugDevice, "DebugDevice");

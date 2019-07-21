@@ -145,9 +145,9 @@ SERIALIZE_ENUM(DriveMultiplexer::DriveNum, driveNumInfo);
 template<typename Archive>
 void DriveMultiplexer::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("selected", selected);
-	ar.serialize("motor", motor);
-	ar.serialize("side", side);
+	ar.serialize("selected", selected,
+	             "motor",    motor,
+	             "side",     side);
 }
 INSTANTIATE_SERIALIZE_METHODS(DriveMultiplexer);
 

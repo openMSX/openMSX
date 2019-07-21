@@ -2594,27 +2594,27 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 		ar.serialize("clock", clock);
 		engineTime = clock.getTime();
 	}
-	ar.serialize("statusChangeTime", statusChangeTime);
-	ar.serialize("scrMode", scrMode);
-	ar.serialize("status", status);
-	ar.serialize("transfer", transfer);
-	ar.serialize("SX", SX);
-	ar.serialize("SY", SY);
-	ar.serialize("DX", DX);
-	ar.serialize("DY", DY);
-	ar.serialize("NX", NX);
-	ar.serialize("NY", NY);
-	ar.serialize("ASX", ASX);
-	ar.serialize("ADX", ADX);
-	ar.serialize("ANX", ANX);
-	ar.serialize("COL", COL);
-	ar.serialize("ARG", ARG);
-	ar.serialize("CMD", CMD);
+	ar.serialize("statusChangeTime", statusChangeTime,
+	             "scrMode",          scrMode,
+	             "status",           status,
+	             "transfer",         transfer,
+	             "SX",  SX,
+	             "SY",  SY,
+	             "DX",  DX,
+	             "DY",  DY,
+	             "NX",  NX,
+	             "NY",  NY,
+	             "ASX", ASX,
+	             "ADX", ADX,
+	             "ANX", ANX,
+	             "COL", COL,
+	             "ARG", ARG,
+	             "CMD", CMD);
 
 	if (ar.versionAtLeast(version, 3)) {
-		ar.serialize("phase", phase);
-		ar.serialize("tmpSrc", tmpSrc);
-		ar.serialize("tmpDst", tmpDst);
+		ar.serialize("phase",  phase,
+		             "tmpSrc", tmpSrc,
+		             "tmpDst", tmpDst);
 	} else {
 		assert(ar.isLoader());
 		phase = tmpSrc = tmpDst = 0;

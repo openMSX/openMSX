@@ -515,23 +515,23 @@ SERIALIZE_ENUM(Counter::ByteOrder, byteOrderInfo);
 template<typename Archive>
 void Counter::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("clock", clock);
-	ar.serialize("output", output);
-	ar.serialize("currentTime", currentTime);
-	ar.serialize("counter", counter);
-	ar.serialize("latchedCounter", latchedCounter);
-	ar.serialize("counterLoad", counterLoad);
-	ar.serialize("control", control);
-	ar.serialize("latchedControl", latchedControl);
-	ar.serialize("ltchCtrl", ltchCtrl);
-	ar.serialize("ltchCntr", ltchCntr);
-	ar.serialize("readOrder", readOrder);
-	ar.serialize("writeOrder", writeOrder);
-	ar.serialize("writeLatch", writeLatch);
-	ar.serialize("gate", gate);
-	ar.serialize("active", active);
-	ar.serialize("triggered", triggered);
-	ar.serialize("counting", counting);
+	ar.serialize("clock",          clock,
+	             "output",         output,
+	             "currentTime",    currentTime,
+	             "counter",        counter,
+	             "latchedCounter", latchedCounter,
+	             "counterLoad",    counterLoad,
+	             "control",        control,
+	             "latchedControl", latchedControl,
+	             "ltchCtrl",       ltchCtrl,
+	             "ltchCntr",       ltchCntr,
+	             "readOrder",      readOrder,
+	             "writeOrder",     writeOrder,
+	             "writeLatch",     writeLatch,
+	             "gate",           gate,
+	             "active",         active,
+	             "triggered",      triggered,
+	             "counting",       counting);
 }
 
 template<typename Archive>

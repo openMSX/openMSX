@@ -124,9 +124,9 @@ void Paddle::stopReplay(EmuTime::param /*time*/)
 template<typename Archive>
 void Paddle::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("lastPulse", lastPulse);
-	ar.serialize("analogValue", analogValue);
-	ar.serialize("lastInput", lastInput);
+	ar.serialize("lastPulse",   lastPulse,
+	             "analogValue", analogValue,
+	             "lastInput",   lastInput);
 
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());

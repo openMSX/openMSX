@@ -397,16 +397,16 @@ template<typename Archive>
 void RealDrive::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 4)) {
-		ar.serialize("syncLoadingTimeout", syncLoadingTimeout);
-		ar.serialize("syncMotorTimeout",   syncMotorTimeout);
+		ar.serialize("syncLoadingTimeout", syncLoadingTimeout,
+		             "syncMotorTimeout",   syncMotorTimeout);
 	} else {
 		Schedulable::restoreOld(ar, {&syncLoadingTimeout, &syncMotorTimeout});
 	}
-	ar.serialize("motorTimer", motorTimer);
-	ar.serialize("changer", *changer);
-	ar.serialize("headPos", headPos);
-	ar.serialize("side", side);
-	ar.serialize("motorStatus", motorStatus);
+	ar.serialize("motorTimer", motorTimer,
+	             "changer",    *changer,
+	             "headPos",    headPos,
+	             "side",       side,
+	             "motorStatus", motorStatus);
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("startAngle", startAngle);
 	} else {
@@ -414,8 +414,8 @@ void RealDrive::serialize(Archive& ar, unsigned version)
 		startAngle = 0;
 	}
 	if (ar.versionAtLeast(version, 5)) {
-		ar.serialize("track", track);
-		ar.serialize("trackValid" ,trackValid);
+		ar.serialize("track",      track);
+		ar.serialize("trackValid", trackValid);
 		ar.serialize("trackDirty", trackDirty);
 	}
 	if (ar.isLoader()) {

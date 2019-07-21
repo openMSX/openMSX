@@ -263,9 +263,9 @@ void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
 	unsigned ramBase = lowRAM ? 0x00000 : 0x10000;
 	ar.serialize_blob("ram", &ram[ramBase], ramSize);
 
-	ar.serialize("scc", scc);
-	ar.serialize("mapper", mapper);
-	ar.serialize("mode", modeRegister);
+	ar.serialize("scc",    scc,
+	             "mapper", mapper,
+	             "mode",   modeRegister);
 
 	if (ar.isLoader()) {
 		// recalculate: isMapped[4], internalMemoryBank[4]

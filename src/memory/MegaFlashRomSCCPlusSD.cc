@@ -890,22 +890,22 @@ void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	// overall
-	ar.serialize("flash", flash);
-	ar.serialize("subslotReg", subslotReg);
+	ar.serialize("flash",      flash,
+	             "subslotReg", subslotReg);
 
 	// subslot 0 stuff
 	// (nothing)
 
 	// subslot 1 stuff
-	ar.serialize("scc", scc);
-	ar.serialize("sccMode", sccMode);
-	ar.serialize("sccBanks", sccBanks);
-	ar.serialize("psg", psg);
-	ar.serialize("psgLatch", psgLatch);
-	ar.serialize("configReg", configReg);
-	ar.serialize("mapperReg", mapperReg);
-	ar.serialize("offsetReg", offsetReg);
-	ar.serialize("bankRegsSubSlot1", bankRegsSubSlot1);
+	ar.serialize("scc",       scc,
+	             "sccMode",   sccMode,
+	             "sccBanks",  sccBanks,
+	             "psg",       psg,
+	             "psgLatch",  psgLatch,
+	             "configReg", configReg,
+	             "mapperReg", mapperReg,
+	             "offsetReg", offsetReg,
+	             "bankRegsSubSlot1", bankRegsSubSlot1);
 	if (ar.isLoader()) {
 		// Re-register PSG ports (if needed)
 		byte tmp = configReg;
@@ -919,10 +919,10 @@ void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("memMapperRegs", memMapperRegs);
 
 	// subslot 3 stuff
-	ar.serialize("bankRegsSubSlot3", bankRegsSubSlot3);
-	ar.serialize("selectedCard", selectedCard);
-	ar.serialize("sdCard0", *sdCard[0]);
-	ar.serialize("sdCard1", *sdCard[1]);
+	ar.serialize("bankRegsSubSlot3", bankRegsSubSlot3,
+	             "selectedCard",     selectedCard,
+	             "sdCard0",          *sdCard[0],
+	             "sdCard1",          *sdCard[1]);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaFlashRomSCCPlusSD);
 REGISTER_MSXDEVICE(MegaFlashRomSCCPlusSD, "MegaFlashRomSCCPlusSD");

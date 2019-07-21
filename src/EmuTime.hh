@@ -2,6 +2,7 @@
 #define EMUTIME_HH
 
 #include "EmuDuration.hh"
+#include "serialize.hh"
 #include <iosfwd>
 #include <cassert>
 
@@ -77,6 +78,8 @@ private:
 	template<unsigned, unsigned> friend class Clock;
 	friend class DynamicClock;
 };
+
+template<> struct SerializeAsMemcpy<EmuTime> : std::true_type {};
 
 std::ostream& operator <<(std::ostream& os, EmuTime::param e);
 

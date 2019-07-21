@@ -1636,12 +1636,12 @@ namespace YM2413Okazaki {
 template<typename Archive>
 void Slot::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("feedback", feedback);
-	ar.serialize("output", output);
-	ar.serialize("cphase", cphase);
-	ar.serialize("state", state);
-	ar.serialize("eg_phase", eg_phase);
-	ar.serialize("sustain", sustain);
+	ar.serialize("feedback", feedback,
+	             "output",   output,
+	             "cphase",   cphase,
+	             "state",    state,
+	             "eg_phase", eg_phase,
+	             "sustain",  sustain);
 
 	// These are restored by calls to
 	//  updateAll():         eg_dphase, dphaseDRTableRks, tll, dphase
@@ -1656,8 +1656,8 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Channel::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mod", mod);
-	ar.serialize("car", car);
+	ar.serialize("mod", mod,
+	             "car", car);
 }
 
 
@@ -1673,10 +1673,10 @@ void YM2413::serialize(Archive& ar, unsigned version)
 
 	// no need to serialize patches[]
 	//   patches[0] is restored from registers, the others are read-only
-	ar.serialize("channels", channels);
-	ar.serialize("pm_phase", pm_phase);
-	ar.serialize("am_phase", am_phase);
-	ar.serialize("noise_seed", noise_seed);
+	ar.serialize("channels",   channels,
+	             "pm_phase",   pm_phase,
+	             "am_phase",   am_phase,
+	             "noise_seed", noise_seed);
 
 	if (ar.isLoader()) {
 		patches[0][0].initModulator(&reg[0]);

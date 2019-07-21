@@ -868,28 +868,28 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 		delayTime.reset(c.getTime());
 		delayTime.setFreq(6250 * 5);
 	}
-	ar.serialize("command", command);
-	ar.serialize("phase", phase);
-	ar.serialize("phaseStep", phaseStep);
-	ar.serialize("driveSelect", driveSelect);
-	ar.serialize("mainStatus", mainStatus);
-	ar.serialize("status0", status0);
-	ar.serialize("status1", status1);
-	ar.serialize("status2", status2);
-	ar.serialize("status3", status3);
-	ar.serialize("commandCode", commandCode);
-	ar.serialize("cylinderNumber", cylinderNumber);
-	ar.serialize("headNumber", headNumber);
-	ar.serialize("sectorNumber", sectorNumber);
-	ar.serialize("number", number);
-	ar.serialize("currentTrack", currentTrack);
-	ar.serialize("sectorsPerCylinder", sectorsPerCylinder);
-	ar.serialize("fillerByte", fillerByte);
+	ar.serialize("command",            command,
+	             "phase",              phase,
+	             "phaseStep",          phaseStep,
+	             "driveSelect",        driveSelect,
+	             "mainStatus",         mainStatus,
+	             "status0",            status0,
+	             "status1",            status1,
+	             "status2",            status2,
+	             "status3",            status3,
+	             "commandCode",        commandCode,
+	             "cylinderNumber",     cylinderNumber,
+	             "headNumber",         headNumber,
+	             "sectorNumber",       sectorNumber,
+	             "number",             number,
+	             "currentTrack",       currentTrack,
+	             "sectorsPerCylinder", sectorsPerCylinder,
+	             "fillerByte",         fillerByte);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.template serializeBase<Schedulable>(*this);
-		ar.serialize("specifyData", specifyData);
-		ar.serialize("headUnloadTime", headUnloadTime);
-		ar.serialize("seekValue", seekValue);
+		ar.serialize("specifyData",    specifyData,
+		             "headUnloadTime", headUnloadTime,
+		             "seekValue",      seekValue);
 	} else {
 		assert(ar.isLoader());
 		specifyData[0] = 0xDF; // values normally set by TurboR disk rom
@@ -898,9 +898,9 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 		seekValue = 0;
 	}
 	if (ar.versionAtLeast(version, 3)) {
-		ar.serialize("dataAvailable", dataAvailable);
-		ar.serialize("dataCurrent", dataCurrent);
-		ar.serialize("gapLength", gapLength);
+		ar.serialize("dataAvailable", dataAvailable,
+		             "dataCurrent", dataCurrent,
+		             "gapLength", gapLength);
 		word crcVal = crc.getValue();
 		ar.serialize("crc", crcVal);
 		crc.init(crcVal);

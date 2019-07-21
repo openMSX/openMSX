@@ -1325,23 +1325,23 @@ void Slot::serialize(Archive& a, unsigned /*version*/)
 		setWaveform(waveform);
 	}
 
-	a.serialize("phase", phase);
-	a.serialize("TL", TL);
-	a.serialize("volume", egout);
-	a.serialize("sl", sl);
-	a.serialize("state", state);
-	a.serialize("op1_out", op1_out);
-	a.serialize("eg_sustain", eg_sustain);
-	a.serialize("fb_shift", fb_shift);
-	a.serialize("key", key);
-	a.serialize("ar", ar);
-	a.serialize("dr", dr);
-	a.serialize("rr", rr);
-	a.serialize("KSR", KSR);
-	a.serialize("ksl", ksl);
-	a.serialize("mul", mul);
-	a.serialize("AMmask", AMmask);
-	a.serialize("vib", vib);
+	a.serialize("phase",      phase,
+	            "TL",         TL,
+	            "volume",     egout,
+	            "sl",         sl,
+	            "state",      state,
+	            "op1_out",    op1_out,
+	            "eg_sustain", eg_sustain,
+	            "fb_shift",   fb_shift,
+	            "key",        key,
+	            "ar",         ar,
+	            "dr",         dr,
+	            "rr",         rr,
+	            "KSR",        KSR,
+	            "ksl",        ksl,
+	            "mul",        mul,
+	            "AMmask",     AMmask,
+	            "vib",        vib);
 
 	// These are calculated by updateTotalLevel()
 	//   TLL
@@ -1364,10 +1364,10 @@ void Channel::serialize(Archive& a, unsigned /*version*/)
 		car = slots[1];
 	}
 
-	a.serialize("block_fnum", block_fnum);
-	a.serialize("fc", fc);
-	a.serialize("ksl_base", ksl_base);
-	a.serialize("sus", sus);
+	a.serialize("block_fnum", block_fnum,
+	            "fc",         fc,
+	            "ksl_base",   ksl_base,
+	            "sus",        sus);
 
 	if (a.isLoader()) {
 		mod.updateFrequency(*this);
@@ -1387,11 +1387,11 @@ void YM2413::serialize(Archive& a, unsigned version)
 
 	// only serialize user instrument
 	a.serialize_blob("user_instrument", inst_tab[0], 8);
-	a.serialize("channels", channels);
-	a.serialize("eg_cnt", eg_cnt);
-	a.serialize("noise_rng", noise_rng);
-	a.serialize("lfo_am_cnt", lfo_am_cnt);
-	a.serialize("lfo_pm_cnt", lfo_pm_cnt);
+	a.serialize("channels",   channels,
+	            "eg_cnt",     eg_cnt,
+	            "noise_rng",  noise_rng,
+	            "lfo_am_cnt", lfo_am_cnt,
+	            "lfo_pm_cnt", lfo_pm_cnt);
 	// don't serialize idleSamples, it's only an optimization
 }
 

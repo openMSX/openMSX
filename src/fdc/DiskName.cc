@@ -39,8 +39,8 @@ bool DiskName::empty() const
 template<typename Archive>
 void DiskName::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("filename", name);
-	ar.serialize("extra", extra);
+	ar.serialize("filename", name,
+	             "extra",    extra);
 }
 INSTANTIATE_SERIALIZE_METHODS(DiskName);
 

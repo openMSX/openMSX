@@ -398,8 +398,8 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		          ar.serialize("z80",  *z80);
 		if (r800) ar.serialize("r800", *r800);
-		ar.serialize("z80Active", z80Active);
-		ar.serialize("newZ80Active", newZ80Active);
+		ar.serialize("z80Active",    z80Active,
+		             "newZ80Active", newZ80Active);
 	} else {
 		// backwards-compatibility
 		assert(ar.isLoader());

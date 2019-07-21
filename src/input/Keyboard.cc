@@ -59,9 +59,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("row", row);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("row",     row,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	byte row, press, release;
@@ -1210,10 +1210,10 @@ template<typename Archive>
 void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
-	ar.serialize("text", text_utf8);
-	ar.serialize("last", last);
-	ar.serialize("lockKeysMask", lockKeysMask);
-	ar.serialize("releaseLast", releaseLast);
+	ar.serialize("text", text_utf8,
+	             "last", last,
+	             "lockKeysMask", lockKeysMask,
+	             "releaseLast", releaseLast);
 
 	bool oldCodeKanaLockOn, oldGraphLockOn, oldCapsLockOn;
 	if (!ar.isLoader()) {
@@ -1221,9 +1221,9 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 		oldGraphLockOn = oldLocksOn & KeyInfo::GRAPH_MASK;
 		oldCapsLockOn = oldLocksOn & KeyInfo::CAPS_MASK;
 	}
-	ar.serialize("oldCodeKanaLockOn", oldCodeKanaLockOn);
-	ar.serialize("oldGraphLockOn", oldGraphLockOn);
-	ar.serialize("oldCapsLockOn", oldCapsLockOn);
+	ar.serialize("oldCodeKanaLockOn", oldCodeKanaLockOn,
+	             "oldGraphLockOn",    oldGraphLockOn,
+	             "oldCapsLockOn",     oldCapsLockOn);
 	if (ar.isLoader()) {
 		oldLocksOn = (oldCodeKanaLockOn ? KeyInfo::CODE_MASK : 0)
 		           | (oldGraphLockOn ? KeyInfo::GRAPH_MASK : 0)
@@ -1246,8 +1246,8 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Keyboard::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("keyTypeCmd", keyTypeCmd);
-	ar.serialize("cmdKeyMatrix", cmdKeyMatrix);
+	ar.serialize("keyTypeCmd", keyTypeCmd,
+	             "cmdKeyMatrix", cmdKeyMatrix);
 
 	bool msxCapsLockOn, msxCodeKanaLockOn, msxGraphLockOn;
 	if (!ar.isLoader()) {
@@ -1255,9 +1255,9 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 		msxCodeKanaLockOn = locksOn & KeyInfo::CODE_MASK;
 		msxGraphLockOn = locksOn & KeyInfo::GRAPH_MASK;
 	}
-	ar.serialize("msxCapsLockOn", msxCapsLockOn);
-	ar.serialize("msxCodeKanaLockOn", msxCodeKanaLockOn);
-	ar.serialize("msxGraphLockOn", msxGraphLockOn);
+	ar.serialize("msxCapsLockOn",     msxCapsLockOn,
+	             "msxCodeKanaLockOn", msxCodeKanaLockOn,
+	             "msxGraphLockOn",    msxGraphLockOn);
 	if (ar.isLoader()) {
 		locksOn = (msxCapsLockOn ? KeyInfo::CAPS_MASK : 0)
 		        | (msxCodeKanaLockOn ? KeyInfo::CODE_MASK : 0)
@@ -1265,10 +1265,10 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("userKeyMatrix", userKeyMatrix);
-		ar.serialize("dynKeymap", dynKeymap);
-		ar.serialize("msxmodifiers", msxmodifiers);
-		ar.serialize("msxKeyEventQueue", msxKeyEventQueue);
+		ar.serialize("userKeyMatrix",    userKeyMatrix,
+		             "dynKeymap",        dynKeymap,
+		             "msxmodifiers",     msxmodifiers,
+		             "msxKeyEventQueue", msxKeyEventQueue);
 	}
 	// don't serialize hostKeyMatrix
 

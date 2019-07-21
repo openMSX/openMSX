@@ -311,9 +311,9 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 template<typename Archive>
 void VRAMWindow::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("baseAddr",  baseAddr);
-	ar.serialize("baseMask",  origBaseMask);
-	ar.serialize("indexMask", indexMask);
+	ar.serialize("baseAddr",  baseAddr,
+	             "baseMask",  origBaseMask,
+	             "indexMask", indexMask);
 	if (ar.isLoader()) {
 		effectiveBaseMask = origBaseMask & sizeMask;
 		combiMask = ~effectiveBaseMask | indexMask;
@@ -330,17 +330,17 @@ void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	ar.serialize_blob("data", &data[0], actualSize);
-	ar.serialize("cmdReadWindow",       cmdReadWindow);
-	ar.serialize("cmdWriteWindow",      cmdWriteWindow);
-	ar.serialize("nameTable",           nameTable);
+	ar.serialize("cmdReadWindow",       cmdReadWindow,
+	             "cmdWriteWindow",      cmdWriteWindow,
+	             "nameTable",           nameTable,
 	// TODO: Find a way of changing the line below to "colorTable",
 	// without breaking backwards compatibility
-	ar.serialize("colourTable",         colorTable);
-	ar.serialize("patternTable",        patternTable);
-	ar.serialize("bitmapVisibleWindow", bitmapVisibleWindow);
-	ar.serialize("bitmapCacheWindow",   bitmapCacheWindow);
-	ar.serialize("spriteAttribTable",   spriteAttribTable);
-	ar.serialize("spritePatternTable",  spritePatternTable);
+	             "colourTable",         colorTable,
+	             "patternTable",        patternTable,
+	             "bitmapVisibleWindow", bitmapVisibleWindow,
+	             "bitmapCacheWindow",   bitmapCacheWindow,
+	             "spriteAttribTable",   spriteAttribTable,
+	             "spritePatternTable",  spritePatternTable);
 }
 INSTANTIATE_SERIALIZE_METHODS(VDPVRAM);
 

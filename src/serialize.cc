@@ -87,7 +87,7 @@ void OutputArchiveBase<Derived>::serialize_blob(
 		encoding = "gz-base64";
 		// TODO check for overflow?
 		auto dstLen = uLongf(len + len / 1000 + 12 + 1); // worst-case
-		MemBuffer<byte> buf(dstLen);
+		MemBuffer<uint8_t> buf(dstLen);
 		if (compress2(buf.data(), &dstLen,
 		              reinterpret_cast<const Bytef*>(data),
 		              uLong(len), 9)
@@ -170,12 +170,12 @@ template class InputArchiveBase<XmlInputArchive>;
 void MemOutputArchive::save(const std::string& s)
 {
 	auto size = s.size();
-	byte* buf = buffer.allocate(sizeof(size) + size);
+	uint8_t* buf = buffer.allocate(sizeof(size) + size);
 	memcpy(buf, &size, sizeof(size));
 	memcpy(buf + sizeof(size), s.data(), size);
 }
 
-MemBuffer<byte> MemOutputArchive::releaseBuffer(size_t& size)
+MemBuffer<uint8_t> MemOutputArchive::releaseBuffer(size_t& size)
 {
 	return buffer.release(size);
 }
@@ -196,7 +196,7 @@ string_view MemInputArchive::loadStr()
 {
 	size_t length;
 	load(length);
-	const byte* p = buffer.getCurrentPos();
+	const uint8_t* p = buffer.getCurrentPos();
 	buffer.skip(length);
 	return string_view(reinterpret_cast<const char*>(p), length);
 }
@@ -222,7 +222,7 @@ void MemOutputArchive::serialize_blob(const char* /*tag*/, const void* data,
 			: lastDeltaBlocks.createNullDiff(
 				data, static_cast<const uint8_t*>(data), len));
 	} else {
-		byte* buf = buffer.allocate(len);
+		uint8_t* buf = buffer.allocate(len);
 		memcpy(buf, data, len);
 	}
 

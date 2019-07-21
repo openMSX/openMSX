@@ -1842,31 +1842,31 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 		// initialize it with the current time, that's already done in
 		// the constructor.
 	}
-	ar.serialize("srcAddress", srcAddress);
-	ar.serialize("dstAddress", dstAddress);
-	ar.serialize("nbBytes", nbBytes);
-	ar.serialize("borderX", borderX);
-	ar.serialize("ASX", ASX);
-	ar.serialize("ADX", ADX);
-	ar.serialize("ANX", ANX);
-	ar.serialize("ANY", ANY);
-	ar.serialize("SX", SX);
-	ar.serialize("SY", SY);
-	ar.serialize("DX", DX);
-	ar.serialize("DY", DY);
-	ar.serialize("NX", NX);
-	ar.serialize("NY", NY);
-	ar.serialize("WM", WM);
-	ar.serialize("fgCol", fgCol);
-	ar.serialize("bgCol", bgCol);
-	ar.serialize("ARG", ARG);
-	ar.serialize("LOG", LOG);
-	ar.serialize("CMD", CMD);
-	ar.serialize("status", status);
-	ar.serialize("data", data);
-	ar.serialize("bitsLeft", bitsLeft);
-	ar.serialize("partial", partial);
-	ar.serialize("endAfterRead", endAfterRead);
+	ar.serialize("srcAddress",   srcAddress,
+	             "dstAddress",   dstAddress,
+	             "nbBytes",      nbBytes,
+	             "borderX",      borderX,
+	             "ASX",          ASX,
+	             "ADX",          ADX,
+	             "ANX",          ANX,
+	             "ANY",          ANY,
+	             "SX",           SX,
+	             "SY",           SY,
+	             "DX",           DX,
+	             "DY",           DY,
+	             "NX",           NX,
+	             "NY",           NY,
+	             "WM",           WM,
+	             "fgCol",        fgCol,
+	             "bgCol",        bgCol,
+	             "ARG",          ARG,
+	             "LOG",          LOG,
+	             "CMD",          CMD,
+	             "status",       status,
+	             "data",         data,
+	             "bitsLeft",     bitsLeft,
+	             "partial",      partial,
+	             "endAfterRead", endAfterRead);
 
 	if (ar.isLoader()) {
 		setCommandMode();

@@ -99,8 +99,8 @@ template<typename Archive>
 void EmuTimer::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
-	ar.serialize("count", count);
-	ar.serialize("counting", counting);
+	ar.serialize("count",    count,
+	             "counting", counting);
 }
 INSTANTIATE_SERIALIZE_METHODS(EmuTimer);
 

@@ -506,17 +506,17 @@ void MegaFlashRomSCCPlus::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("scc", scc);
-	ar.serialize("psg", psg);
-	ar.serialize("flash", flash);
+	ar.serialize("scc",        scc,
+	             "psg",        psg,
+	             "flash",      flash,
 
-	ar.serialize("configReg", configReg);
-	ar.serialize("offsetReg", offsetReg);
-	ar.serialize("subslotReg", subslotReg);
-	ar.serialize("bankRegs", bankRegs);
-	ar.serialize("psgLatch", psgLatch);
-	ar.serialize("sccMode", sccMode);
-	ar.serialize("sccBanks", sccBanks);
+	             "configReg",  configReg,
+	             "offsetReg",  offsetReg,
+	             "subslotReg", subslotReg,
+	             "bankRegs",   bankRegs,
+	             "psgLatch",   psgLatch,
+	             "sccMode",    sccMode,
+	             "sccBanks",   sccBanks);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaFlashRomSCCPlus);
 REGISTER_MSXDEVICE(MegaFlashRomSCCPlus, "MegaFlashRomSCCPlus");

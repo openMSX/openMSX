@@ -1184,8 +1184,8 @@ void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
 			prim |= primarySlotState[i] << (2 * i);
 		}
 	}
-	ar.serialize("primarySlots", prim);
-	ar.serialize("subSlotRegs", subSlotRegister);
+	ar.serialize("primarySlots", prim,
+	             "subSlotRegs",  subSlotRegister);
 	if (ar.isLoader()) {
 		setPrimarySlots(prim);
 		for (int i = 0; i < 4; ++i) {

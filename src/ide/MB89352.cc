@@ -757,22 +757,22 @@ void MB89352::serialize(Archive& ar, unsigned /*version*/)
 		tag[6] = char('0' + i);
 		ar.serializePolymorphic(tag, *dev[i]);
 	}
-	ar.serialize("bufIdx", bufIdx);
-	ar.serialize("msgin", msgin);
-	ar.serialize("counter", counter);
-	ar.serialize("blockCounter", blockCounter);
-	ar.serialize("tc", tc);
-	ar.serialize("phase", phase);
-	ar.serialize("nextPhase", nextPhase);
-	ar.serialize("myId", myId);
-	ar.serialize("targetId", targetId);
+	ar.serialize("bufIdx",       bufIdx,
+	             "msgin",        msgin,
+	             "counter",      counter,
+	             "blockCounter", blockCounter,
+	             "tc",           tc,
+	             "phase",        phase,
+	             "nextPhase",    nextPhase,
+	             "myId",         myId,
+	             "targetId",     targetId);
 	ar.serialize_blob("registers", regs, sizeof(regs));
-	ar.serialize("rst", rst);
-	ar.serialize("atn", atn);
-	ar.serialize("isEnabled", isEnabled);
-	ar.serialize("isBusy", isBusy);
-	ar.serialize("isTransfer", isTransfer);
-	ar.serialize("cdbIdx", cdbIdx);
+	ar.serialize("rst",        rst,
+	             "atn",        atn,
+	             "isEnabled",  isEnabled,
+	             "isBusy",     isBusy,
+	             "isTransfer", isTransfer,
+	             "cdbIdx",     cdbIdx);
 	ar.serialize_blob("cdb", cdb, sizeof(cdb));
 }
 INSTANTIATE_SERIALIZE_METHODS(MB89352);

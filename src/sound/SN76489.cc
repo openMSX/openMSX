@@ -306,10 +306,10 @@ void SN76489::serialize(Archive& ar, unsigned version)
 {
 	// Don't serialize volTable since it holds computed constants, not state.
 
-	ar.serialize("regs", regs);
-	ar.serialize("registerLatch", registerLatch);
-	ar.serialize("counters", counters);
-	ar.serialize("outputs", outputs);
+	ar.serialize("regs",          regs,
+	             "registerLatch", registerLatch,
+	             "counters",      counters,
+	             "outputs",       outputs);
 
 	if (ar.isLoader()) {
 		// Initialize the computed NoiseShifter members, based on the

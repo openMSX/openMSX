@@ -171,12 +171,12 @@ byte* ColecoSuperGameModule::getWriteCacheLine(word start) const
 template<typename Archive>
 void ColecoSuperGameModule::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mainRam", mainRam.getUncheckedRam());
-	ar.serialize("sgmRam", sgmRam.getUncheckedRam());
-	ar.serialize("psg", psg);
-	ar.serialize("psgLatch", psgLatch);
-	ar.serialize("ramEnabled", ramEnabled);
-	ar.serialize("ramAtBiosEnabled", ramAtBiosEnabled);
+	ar.serialize("mainRam",          mainRam.getUncheckedRam(),
+	             "sgmRam",           sgmRam.getUncheckedRam(),
+	             "psg",              psg,
+	             "psgLatch",         psgLatch,
+	             "ramEnabled",       ramEnabled,
+	             "ramAtBiosEnabled", ramAtBiosEnabled);
 }
 INSTANTIATE_SERIALIZE_METHODS(ColecoSuperGameModule);
 REGISTER_MSXDEVICE(ColecoSuperGameModule, "ColecoSuperGameModule");

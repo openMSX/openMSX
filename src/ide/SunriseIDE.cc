@@ -219,11 +219,11 @@ void SunriseIDE::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serializePolymorphic("master", *device[0]);
 	ar.serializePolymorphic("slave",  *device[1]);
-	ar.serialize("readLatch", readLatch);
-	ar.serialize("writeLatch", writeLatch);
-	ar.serialize("selectedDevice", selectedDevice);
-	ar.serialize("control", control);
-	ar.serialize("softReset", softReset);
+	ar.serialize("readLatch",      readLatch,
+	             "writeLatch",     writeLatch,
+	             "selectedDevice", selectedDevice,
+	             "control",        control,
+	             "softReset",      softReset);
 
 	if (ar.isLoader()) {
 		// restore internalBank, ideRegsEnabled

@@ -85,9 +85,9 @@ template<typename Archive>
 void ADVram::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("baseAddr", baseAddr);
-	ar.serialize("enabled", enabled);
-	ar.serialize("planar", planar);
+	ar.serialize("baseAddr", baseAddr,
+	             "enabled",  enabled,
+	             "planar",   planar);
 }
 INSTANTIATE_SERIALIZE_METHODS(ADVram);
 REGISTER_MSXDEVICE(ADVram, "ADVRAM");

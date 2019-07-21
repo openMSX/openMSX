@@ -196,12 +196,12 @@ void RomManbow2::serialize(Archive& ar, unsigned version)
 
 	ar.serialize("scc", scc);
 	if ((ar.versionAtLeast(version, 2)) && psg) {
-		ar.serialize("psg", *psg);
-		ar.serialize("psgLatch", psgLatch);
+		ar.serialize("psg",      *psg,
+		             "psgLatch", psgLatch);
 	}
-	ar.serialize("flash", flash);
-	ar.serialize("bank", bank);
-	ar.serialize("sccEnabled", sccEnabled);
+	ar.serialize("flash",      flash,
+	             "bank",       bank,
+	             "sccEnabled", sccEnabled);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomManbow2);
 REGISTER_MSXDEVICE(RomManbow2, "RomManbow2");

@@ -23,8 +23,8 @@ template<typename Archive>
 void WD2793BasedFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXFDC>(*this);
-	ar.serialize("multiplexer", multiplexer);
-	ar.serialize("wd2793", controller);
+	ar.serialize("multiplexer", multiplexer,
+	             "wd2793",      controller);
 }
 INSTANTIATE_SERIALIZE_METHODS(WD2793BasedFDC);
 

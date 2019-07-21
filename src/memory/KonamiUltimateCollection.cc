@@ -228,13 +228,13 @@ void KonamiUltimateCollection::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("flash", flash);
-	ar.serialize("scc", scc);
-	ar.serialize("DAC", dac);
-	ar.serialize("mapperReg", mapperReg);
-	ar.serialize("offsetReg", offsetReg);
-	ar.serialize("sccMode", sccMode);
-	ar.serialize("bankRegs", bankRegs);
+	ar.serialize("flash",     flash,
+	             "scc",       scc,
+	             "DAC",       dac,
+	             "mapperReg", mapperReg,
+	             "offsetReg", offsetReg,
+	             "sccMode",   sccMode,
+	             "bankRegs",  bankRegs);
 }
 INSTANTIATE_SERIALIZE_METHODS(KonamiUltimateCollection);
 REGISTER_MSXDEVICE(KonamiUltimateCollection, "KonamiUltimateCollection");

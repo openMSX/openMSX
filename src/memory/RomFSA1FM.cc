@@ -287,9 +287,9 @@ void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	// note: SRAM can be serialized in this class (as opposed to
 	//       Rom8kBBlocks), because we don't use setBank to map it
-	ar.serialize("SRAM", *fsSram);
-	ar.serialize("bankSelect", bankSelect);
-	ar.serialize("control", control);
+	ar.serialize("SRAM",       *fsSram,
+	             "bankSelect", bankSelect,
+	             "control",    control);
 	if (ar.isLoader()) {
 		// recalculate 'isRam' and 'isEmpty' from bankSelect
 		for (int region = 0; region < 8; ++region) {

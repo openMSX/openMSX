@@ -210,8 +210,8 @@ template<typename Archive>
 void MusicalMemoryMapper::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXMemoryMapper>(*this);
-	ar.serialize("ctrl", controlReg);
-	ar.serialize("sn76489", *sn76489);
+	ar.serialize("ctrl",    controlReg,
+	             "sn76489", *sn76489);
 }
 INSTANTIATE_SERIALIZE_METHODS(MusicalMemoryMapper);
 REGISTER_MSXDEVICE(MusicalMemoryMapper, "MusicalMemoryMapper");

@@ -334,15 +334,15 @@ SERIALIZE_ENUM(SdCard::Mode, modeInfo);
 template<typename Archive>
 void SdCard::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mode", mode);
-	ar.serialize("cmdBuf", cmdBuf);
+	ar.serialize("mode",   mode,
+	             "cmdBuf", cmdBuf);
 	ar.serialize_blob("sectorBuf", sectorBuf.raw, sizeof(sectorBuf));
 	if (hd) ar.serialize("hd", *hd);
-	ar.serialize("cmdIdx", cmdIdx);
-	ar.serialize("transferDelayCounter", transferDelayCounter);
-	ar.serialize("responseQueue", responseQueue);
-	ar.serialize("currentSector", currentSector);
-	ar.serialize("currentByteInSector", currentByteInSector);
+	ar.serialize("cmdIdx",               cmdIdx,
+	             "transferDelayCounter", transferDelayCounter,
+	             "responseQueue",        responseQueue,
+	             "currentSector",        currentSector,
+	             "currentByteInSector",  currentByteInSector);
 }
 INSTANTIATE_SERIALIZE_METHODS(SdCard);
 

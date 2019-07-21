@@ -73,9 +73,9 @@ template<typename Archive>
 void NinjaTap::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<JoyTap>(*this);
-	ar.serialize("status", status);
-	ar.serialize("previous", previous);
-	ar.serialize("buf", buf);
+	ar.serialize("status",   status,
+	             "previous", previous,
+	             "buf",      buf);
 }
 INSTANTIATE_SERIALIZE_METHODS(NinjaTap);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, NinjaTap, "NinjaTap");

@@ -41,10 +41,10 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("deltaX", deltaX);
-		ar.serialize("deltaY", deltaY);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("deltaX",  deltaX,
+		             "deltaY",  deltaY,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	int deltaX, deltaY;
@@ -359,15 +359,15 @@ void Mouse::serialize(Archive& ar, unsigned version)
 	} else {
 		ar.serialize("lastTime", lastTime);
 	}
-	ar.serialize("faze", phase); // TODO fix spelling if there's ever a need
-	                             // to bump the serialization verion
-	ar.serialize("xrel", xrel);
-	ar.serialize("yrel", yrel);
-	ar.serialize("mouseMode", mouseMode);
+	ar.serialize("faze",      phase, // TODO fix spelling if there's ever a need
+	                                 // to bump the serialization verion
+	             "xrel",      xrel,
+	             "yrel",      yrel,
+	             "mouseMode", mouseMode);
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("curxrel", curxrel);
-		ar.serialize("curyrel", curyrel);
-		ar.serialize("status",  status);
+		ar.serialize("curxrel", curxrel,
+		             "curyrel", curyrel,
+		             "status",  status);
 	}
 	if (ar.versionBelow(version, 3)) {
 		xrel    /= SCALE;

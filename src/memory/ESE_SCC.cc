@@ -251,13 +251,13 @@ template<typename Archive>
 void ESE_SCC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("sram", sram);
-	ar.serialize("scc", scc);
+	ar.serialize("sram", sram,
+	             "scc",  scc);
 	if (spc) ar.serialize("MB89352", *spc);
-	ar.serialize("mapper", mapper);
-	ar.serialize("spcEnable", spcEnable);
-	ar.serialize("sccEnable", sccEnable);
-	ar.serialize("writeEnable", writeEnable);
+	ar.serialize("mapper",      mapper,
+	             "spcEnable",   spcEnable,
+	             "sccEnable",   sccEnable,
+	             "writeEnable", writeEnable);
 }
 INSTANTIATE_SERIALIZE_METHODS(ESE_SCC);
 REGISTER_MSXDEVICE(ESE_SCC, "ESE_SCC");

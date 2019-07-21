@@ -780,12 +780,12 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 {
 	// drives is serialized elsewhere
 
-	ar.serialize("hostToMsxFifo", hostToMsxFifo);
-	ar.serialize("lastTime", lastTime);
-	ar.serialize("state", state);
-	ar.serialize("recvCount", recvCount);
-	ar.serialize("cmdData", cmdData);
-	ar.serialize("extraData", extraData);
+	ar.serialize("hostToMsxFifo", hostToMsxFifo,
+	             "lastTime",      lastTime,
+	             "state",         state,
+	             "recvCount",     recvCount,
+	             "cmdData",       cmdData,
+	             "extraData",     extraData);
 
 	// for backwards compatibility, serialize buffer as a vector<byte>
 	size_t bufSize = buffer.size() * sizeof(SectorBuffer);
@@ -794,12 +794,12 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("buffer", tmp);
 	memcpy(bufRaw, tmp.data(), bufSize);
 
-	ar.serialize("transfered", transfered);
-	ar.serialize("retryCount", retryCount);
-	ar.serialize("transferSize", transferSize);
-	ar.serialize("romdisk", romdisk);
-	ar.serialize("allowOtherDiskroms", allowOtherDiskroms);
-	ar.serialize("enablePhantomDrives", enablePhantomDrives);
+	ar.serialize("transfered",          transfered,
+	             "retryCount",          retryCount,
+	             "transferSize",        transferSize,
+	             "romdisk",             romdisk,
+	             "allowOtherDiskroms",  allowOtherDiskroms,
+	             "enablePhantomDrives", enablePhantomDrives);
 
 	// Note: We don't serialize 'devices'. So after a loadstate it will be
 	// as-if the devices are closed again. The reason for not serializing

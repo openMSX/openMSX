@@ -328,10 +328,10 @@ unique_ptr<FileContext> XMLElement::getLastSerializedFileContext()
 template<typename Archive>
 void XMLElement::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("name", name);
-	ar.serialize("data", data);
-	ar.serialize("attributes", attributes);
-	ar.serialize("children", children);
+	ar.serialize("name",       name,
+	             "data",       data,
+	             "attributes", attributes,
+	             "children",   children);
 
 	if (ar.versionBelow(version, 2)) {
 		assert(ar.isLoader());
