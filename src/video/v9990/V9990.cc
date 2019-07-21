@@ -131,6 +131,7 @@ void V9990::reset(EmuTime::param time)
 	syncVScan       .removeSyncPoint();
 	syncHScan       .removeSyncPoint();
 	syncSetMode     .removeSyncPoint();
+	syncCmdEnd      .removeSyncPoint();
 
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
@@ -903,6 +904,7 @@ SERIALIZE_ENUM(V9990DisplayMode, displayModeInfo);
 // version 2: added systemReset
 // version 3: added vramReadPtr, vramWritePtr, vramReadBuffer
 // version 4: removed 'userData' from Schedulable
+// version 5: added syncCmdEnd
 template<typename Archive>
 void V9990::serialize(Archive& ar, unsigned version)
 {
@@ -918,6 +920,9 @@ void V9990::serialize(Archive& ar, unsigned version)
 		Schedulable::restoreOld(ar,
 			{&syncVSync, &syncDisplayStart, &syncVScan,
 			 &syncHScan, &syncSetMode});
+	}
+	if (ar.versionAtLeast(version, 5)) {
+		ar.serialize("syncCmdEnd", syncCmdEnd);
 	}
 
 	ar.serialize("vram", *vram);

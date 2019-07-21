@@ -694,7 +694,7 @@ private:
 	 */
 	void scheduleCmdEnd(EmuTime::param time);
 };
-SERIALIZE_CLASS_VERSION(V9990, 4);
+SERIALIZE_CLASS_VERSION(V9990, 5);
 
 } // namespace openmsx
 
