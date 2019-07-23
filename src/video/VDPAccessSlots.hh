@@ -6,8 +6,7 @@
 #include <cassert>
 #include <cstdint>
 
-namespace openmsx {
-namespace VDPAccessSlots {
+namespace openmsx::VDPAccessSlots {
 
 static const int TICKS = VDP::TICKS_PER_LINE;
 
@@ -98,7 +97,6 @@ Calculator getCalculator(
 	EmuTime::param frame, EmuTime::param time, EmuTime::param limit,
 	const VDP& vdp);
 
-} // namespace VDPAccessSlots
-} // namespace openmsx
+} // namespace openmsx::VDPAccessSlots
 
 #endif

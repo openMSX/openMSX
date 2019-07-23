@@ -7,8 +7,7 @@
 
 using std::make_shared;
 
-namespace openmsx {
-namespace InputEventFactory {
+namespace openmsx::InputEventFactory {
 
 static EventPtr parseKeyEvent(string_view str, uint32_t unicode)
 {
@@ -273,5 +272,4 @@ EventPtr createInputEvent(string_view str, Interpreter& interp)
 	return createInputEvent(TclObject(str), interp);
 }
 
-} // namespace InputEventFactory
-} // namespace openmsx
+} // namespace openmsx::InputEventFactory

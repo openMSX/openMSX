@@ -33,8 +33,7 @@ DEALINGS IN THE SOFTWARE.
 #include "utf8_core.hh"
 #include "string_view.hh"
 
-namespace utf8 {
-namespace unchecked {
+namespace utf8::unchecked {
 
 template <typename octet_iterator>
 octet_iterator append(uint32_t cp, octet_iterator result)
@@ -246,7 +245,6 @@ inline string_view substr(string_view utf8, string_view::size_type first = 0,
 	return string_view(b, e);
 }
 
-} // namespace unchecked
-} // namespace utf8
+} // namespace utf8::unchecked
 
 #endif

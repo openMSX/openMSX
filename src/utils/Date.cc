@@ -2,9 +2,7 @@
 #include <sstream>
 #include <iomanip>
 
-namespace openmsx {
-
-namespace Date {
+namespace openmsx::Date {
 
 const char* const days[7] = {
 	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
@@ -166,6 +164,4 @@ std::string toString(time_t time)
 	return sstr.str();
 }
 
-} // namespace Date
-
-} // namespace openmsx
+} // namespace openmsx::Date

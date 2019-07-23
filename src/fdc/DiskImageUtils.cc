@@ -8,8 +8,7 @@
 #include <cassert>
 #include <ctime>
 
-namespace openmsx {
-namespace DiskImageUtils {
+namespace openmsx::DiskImageUtils {
 
 static const char PARTAB_HEADER[11] = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
@@ -259,5 +258,4 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 	disk.writeSector(0, buf);
 }
 
-} // namespace DiskImageUtils
-} // namespace openmsx
+} // namespace openmsx::DiskImageUtils

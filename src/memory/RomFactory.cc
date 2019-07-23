@@ -65,8 +65,7 @@ using std::move;
 using std::string;
 using std::unique_ptr;
 
-namespace openmsx {
-namespace RomFactory {
+namespace openmsx::RomFactory {
 
 static RomType guessRomType(const Rom& rom)
 {
@@ -424,5 +423,4 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	return result;
 }
 
-} // namespace RomFactory
-} // namespace openmsx
+} // namespace openmsx::RomFactory

@@ -1,7 +1,6 @@
 #include "VDPAccessSlots.hh"
 
-namespace openmsx {
-namespace VDPAccessSlots {
+namespace openmsx::VDPAccessSlots {
 
 // These tables must contain at least one value that is bigger or equal
 // to 1368+136. So we extend the data with some cyclic duplicates.
@@ -260,5 +259,4 @@ Calculator getCalculator(
 	return Calculator(frame, time, limit, tab);
 }
 
-} // namespace VDPAccessSlots
-} // namespace openmsx
+} // namespace openmsx::VDPAccessSlots

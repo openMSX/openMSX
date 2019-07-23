@@ -6,8 +6,7 @@
 #include "MemBuffer.hh"
 #include "rapidsax.hh"
 
-namespace openmsx {
-namespace XMLLoader {
+namespace openmsx::XMLLoader {
 
 class XMLElementParser : public rapidsax::NullHandler
 {
@@ -116,5 +115,4 @@ void XMLElementParser::doctype(string_view txt)
 	systemID = t.substr(0, pos2);
 }
 
-} // namespace XMLLoader
-} // namespace openmsx
+} // namespace openmsx::XMLLoader

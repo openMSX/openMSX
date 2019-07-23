@@ -1,7 +1,6 @@
 #include "rapidsax.hh"
 
-namespace rapidsax {
-namespace internal {
+namespace rapidsax::internal {
 
 // Character class lookup table
 //   bit 0: \0
@@ -55,5 +54,4 @@ const uint8_t lutDigits[256] =
 	 255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255   // F
 };
 
-} // namespace internal
-} // namespace rapidsax
+} // namespace rapidsax::internal

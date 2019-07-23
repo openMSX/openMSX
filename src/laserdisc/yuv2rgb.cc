@@ -8,8 +8,7 @@
 #include <emmintrin.h>
 #endif
 
-namespace openmsx {
-namespace yuv2rgb {
+namespace openmsx::yuv2rgb {
 
 #ifdef __SSE2__
 
@@ -354,5 +353,4 @@ void convert(const th_ycbcr_buffer& input, RawFrame& output)
 	}
 }
 
-} // namespace yuv2rgb
-} // namespace openmsx
+} // namespace openmsx::yuv2rgb

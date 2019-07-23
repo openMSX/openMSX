@@ -2,8 +2,7 @@
 #include <chrono>
 #include <thread>
 
-namespace openmsx {
-namespace Timer {
+namespace openmsx::Timer {
 
 uint64_t getTime()
 {
@@ -31,5 +30,4 @@ void sleep(uint64_t us)
 	std::this_thread::sleep_for(std::chrono::microseconds(us));
 }
 
-} // namespace Timer
-} // namespace openmsx
+} // namespace openmsx::Timer

@@ -13,8 +13,7 @@
 
 using std::unique_ptr;
 
-namespace openmsx {
-namespace GLScalerFactory {
+namespace openmsx::GLScalerFactory {
 
 unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 {
@@ -46,5 +45,4 @@ unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 	return nullptr; // avoid warning
 }
 
-} // namespace GLScalerFactory
-} // namespace openmsx
+} // namespace openmsx::GLScalerFactory

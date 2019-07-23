@@ -24,8 +24,7 @@
 // NOTE: This file MUST be kept in sync between the openmsx and openmsx-debugger projects
 //
 
-namespace openmsx {
-namespace sspiutils {
+namespace openmsx::sspiutils {
 
 const unsigned STREAM_ERROR = 0xffffffff;
 
@@ -71,8 +70,7 @@ unsigned long GetPackageMaxTokenSize(const SEC_WCHAR* package);
 bool SendChunk(StreamWrapper& stream, void* buffer, uint32_t cb);
 bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, uint32_t cbMaxSize);
 
-} // namespace sspiutils
-} // namespace openmsx
+} // namespace openmsx::sspiutils
 
 #endif // _WIN32
 

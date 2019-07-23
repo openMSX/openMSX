@@ -8,8 +8,7 @@
 #include <fstream>
 #include <memory>
 
-namespace openmsx {
-namespace FileOperations {
+namespace openmsx::FileOperations {
 
 	struct FClose {
 		void operator()(FILE* f) { fclose(f); }
@@ -279,7 +278,6 @@ namespace FileOperations {
 	 */
 	FILE_t openUniqueFile(const std::string& directory, std::string& filename);
 
-} // namespace FileOperations
-} // namespace openmsx
+} // namespace openmsx::FileOperations
 
 #endif

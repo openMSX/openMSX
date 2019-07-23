@@ -6,11 +6,9 @@
 
 struct SDL_PixelFormat;
 
-namespace openmsx {
-
 /** Utility functions to hide the complexity of saving to a PNG file.
   */
-namespace PNG {
+namespace openmsx::PNG {
 	/** Load the given PNG file in a SDL_Surface.
 	 * This SDL_Surface is either 24bpp or 32bpp, depending on whether the
 	 * PNG file had an alpha layer. But it's possible to force a 32bpp
@@ -26,7 +24,6 @@ namespace PNG {
 	void saveGrayscale(unsigned width, unsigned height,
 	                   const void** rowPointers, const std::string& filename);
 
-} // namespace PNG
-} // namespace openmsx
+} // namespace openmsx::PNG
 
 #endif // PNG_HH

@@ -72,9 +72,7 @@ using std::string;
 using namespace utf8;
 #endif
 
-namespace openmsx {
-
-namespace FileOperations {
+namespace openmsx::FileOperations {
 
 #ifdef __APPLE__
 
@@ -813,6 +811,4 @@ FILE_t openUniqueFile(const std::string& directory, std::string& filename)
 #endif
 }
 
-} // namespace FileOperations
-
-} // namespace openmsx
+} // namespace openmsx::FileOperations

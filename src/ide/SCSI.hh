@@ -12,8 +12,7 @@
 
 #include "openmsx.hh"
 
-namespace openmsx {
-namespace SCSI {
+namespace openmsx::SCSI {
 
 // Group 0: 6bytes cdb
 static const byte OP_TEST_UNIT_READY       = 0x00;
@@ -112,7 +111,6 @@ enum Phase {
     MSG_IN,
 };
 
-} // namespace SCSI
-} // namespace openmsx
+} // namespace openmsx::SCSI
 
 #endif

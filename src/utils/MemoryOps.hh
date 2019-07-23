@@ -3,8 +3,7 @@
 
 #include <cstddef>
 
-namespace openmsx {
-namespace MemoryOps {
+namespace openmsx::MemoryOps {
 
 	template <typename Pixel> struct MemSet {
 		void operator()(Pixel* out, size_t num,
@@ -18,7 +17,6 @@ namespace MemoryOps {
 	void* mallocAligned(size_t alignment, size_t size);
 	void freeAligned(void* aligned);
 
-} // namespace MemoryOps
-} // namespace openmsx
+} // namespace openmsx::MemoryOps
 
 #endif

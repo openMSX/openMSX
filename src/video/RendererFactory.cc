@@ -23,8 +23,7 @@
 
 using std::unique_ptr;
 
-namespace openmsx {
-namespace RendererFactory {
+namespace openmsx::RendererFactory {
 
 unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 {
@@ -90,5 +89,4 @@ unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 }
 #endif
 
-} // namespace RendererFactory
-} // namespace openmsx
+} // namespace openmsx::RendererFactory

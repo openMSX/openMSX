@@ -5,9 +5,7 @@
 
 using std::string;
 
-namespace openmsx {
-
-namespace Keys {
+namespace openmsx::Keys {
 
 // can be std::pair in C++17
 struct P {
@@ -619,6 +617,4 @@ string getName(KeyCode keyCode)
 	return result;
 }
 
-} // namespace Keys
-
-} // namespace openmsx
+} // namespace openmsx::Keys

@@ -6,8 +6,7 @@
 #include <SDL_keycode.h>
 #include <string>
 
-namespace openmsx {
-namespace Keys {
+namespace openmsx::Keys {
 
 /**
  * Constants that identify keys and key modifiers.
@@ -233,7 +232,6 @@ inline KeyCode combine(KeyCode key, KeyCode modifier) {
 	return static_cast<KeyCode>(int(key) | int(modifier));
 }
 
-} // namespace Keys
-} // namespace openmsx
+} // namespace openmsx::Keys
 
 #endif

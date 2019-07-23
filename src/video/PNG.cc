@@ -14,8 +14,7 @@
 #include <png.h>
 #include <SDL.h>
 
-namespace openmsx {
-namespace PNG {
+namespace openmsx::PNG {
 
 static void handleError(png_structp png_ptr, png_const_charp error_msg)
 {
@@ -405,5 +404,4 @@ void saveGrayscale(unsigned width, unsigned height,
 	IMG_SavePNG_RW(width, height, rowPointers, filename, false);
 }
 
-} // namespace PNG
-} // namespace openmsx
+} // namespace openmsx::PNG

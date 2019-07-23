@@ -19,8 +19,7 @@
 #include <emmintrin.h>
 #endif
 
-namespace openmsx {
-namespace MemoryOps {
+namespace openmsx::MemoryOps {
 
 #ifdef __SSE2__
 #if ASM_X86_32 && defined _MSC_VER
@@ -294,5 +293,4 @@ void freeAligned(void* aligned)
 #endif
 }
 
-} // namespace MemoryOps
-} // namespace openmsx
+} // namespace openmsx::MemoryOps

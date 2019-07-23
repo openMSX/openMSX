@@ -3,12 +3,8 @@
 
 #include "XMLElement.hh"
 
-namespace openmsx {
-namespace XMLLoader {
-
+namespace openmsx::XMLLoader {
 	XMLElement load(string_view filename, string_view systemID);
-
-} // namespace XMLLoader
-} // namespace openmsx
+}
 
 #endif
