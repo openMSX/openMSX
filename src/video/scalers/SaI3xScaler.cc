@@ -145,7 +145,7 @@ public:
 
 template <unsigned X, unsigned OLD, unsigned NEW>
 struct Round {
-	static_assert(OLD > NEW, "!");
+	static_assert(OLD > NEW);
 	static const unsigned result =
 		(X >> (OLD - NEW)) + ((X >> (OLD - NEW - 1)) & 1);
 };

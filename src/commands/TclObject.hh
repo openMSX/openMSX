@@ -274,7 +274,7 @@ private:
 };
 
 // We want to be able to reinterpret_cast a Tcl_Obj* as a TclObject.
-static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*), "");
+static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*));
 
 template<typename... Args>
 TclObject makeTclList(Args&&... args)

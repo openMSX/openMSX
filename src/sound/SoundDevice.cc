@@ -193,7 +193,7 @@ bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 	if (samples == 0) return true;
 	unsigned outputStereo = isStereo() ? 2 : 1;
 
-	static_assert(sizeof(float) == sizeof(uint32_t), "");
+	static_assert(sizeof(float) == sizeof(uint32_t));
 	MemoryOps::MemSet<uint32_t> mset;
 	if (numChannels != 1) {
 		// The generateChannels() method of SoundDevices with more than

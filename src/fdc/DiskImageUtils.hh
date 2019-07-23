@@ -28,7 +28,7 @@ struct MSXBootSector {
 	Endian::UA_L32 vol_id;        // +39
 	byte           pad2[512-43];  // +43
 };
-static_assert(sizeof(MSXBootSector) == 512, "must be size 512");
+static_assert(sizeof(MSXBootSector) == 512);
 
 struct MSXDirEntry {
 	static const byte ATT_REGULAR   = 0x00; // Normal file
@@ -53,7 +53,7 @@ struct MSXDirEntry {
 	Endian::L16 startCluster;    // +26
 	Endian::L32 size;            // +28
 };
-static_assert(sizeof(MSXDirEntry) == 32, "must be size 32");
+static_assert(sizeof(MSXDirEntry) == 32);
 
 // Note: can't use Endian::L32 for 'start' and 'size' because the Partition
 //       struct itself is not 4-bytes aligned.
@@ -69,7 +69,7 @@ struct Partition {
 	Endian::UA_L32 start;      // + 8 starting sector counting from 0
 	Endian::UA_L32 size;       // +12 nr of sectors in partition
 };
-static_assert(sizeof(Partition) == 16, "must be size 16");
+static_assert(sizeof(Partition) == 16);
 static_assert(alignof(Partition) == 1, "must not have alignment requirements");
 
 struct PartitionTable {
@@ -78,7 +78,7 @@ struct PartitionTable {
 	Partition   part[31];   // + 14,+30,..,+494    Not 4-byte aligned!!
 	Endian::L16 end;        // +510
 };
-static_assert(sizeof(PartitionTable) == 512, "must be size 512");
+static_assert(sizeof(PartitionTable) == 512);
 
 
 // Buffer that can hold a (512-byte) disk sector.
@@ -94,7 +94,7 @@ union SectorBuffer {
        PartitionTable pt;        // interpreted as Sunrise-IDE partition table
        AlignedBuffer aligned;    // force big alignment (for faster memcpy)
 };
-static_assert(sizeof(SectorBuffer) == 512, "must be size 512");
+static_assert(sizeof(SectorBuffer) == 512);
 
 
 namespace DiskImageUtils {

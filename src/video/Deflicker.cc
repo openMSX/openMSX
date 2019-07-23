@@ -108,7 +108,7 @@ static void ustore(Pixel* ptr, ptrdiff_t byteOffst, __m128i val)
 template<typename Pixel>
 static __m128i compare(__m128i x, __m128i y)
 {
-	static_assert(sizeof(Pixel) == 4 || sizeof(Pixel) == 2, "");
+	static_assert(sizeof(Pixel) == 4 || sizeof(Pixel) == 2);
 	if (sizeof(Pixel) == 4) {
 		return _mm_cmpeq_epi32(x, y);
 	} else {

@@ -102,13 +102,13 @@ private:
 	size_type siz = 0;
 };
 
-static_assert(std::is_trivially_destructible<string_view>::value, "");
-static_assert(std::is_trivially_copyable<string_view>::value, "");
-static_assert(std::is_trivially_copy_constructible<string_view>::value, "");
-static_assert(std::is_trivially_move_constructible<string_view>::value, "");
-static_assert(std::is_trivially_assignable<string_view, string_view>::value, "");
-static_assert(std::is_trivially_copy_assignable<string_view>::value, "");
-static_assert(std::is_trivially_move_assignable<string_view>::value, "");
+static_assert(std::is_trivially_destructible<string_view>::value);
+static_assert(std::is_trivially_copyable<string_view>::value);
+static_assert(std::is_trivially_copy_constructible<string_view>::value);
+static_assert(std::is_trivially_move_constructible<string_view>::value);
+static_assert(std::is_trivially_assignable<string_view, string_view>::value);
+static_assert(std::is_trivially_copy_assignable<string_view>::value);
+static_assert(std::is_trivially_move_assignable<string_view>::value);
 
 // Comparison operators
 inline bool operator==(string_view x, string_view y) {

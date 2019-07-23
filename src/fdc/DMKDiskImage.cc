@@ -18,7 +18,7 @@ struct DmkHeader
 	byte reserved[7];
 	byte format[4];
 };
-static_assert(sizeof(DmkHeader) == 16, "must be size 16");
+static_assert(sizeof(DmkHeader) == 16);
 
 static const byte FLAG_SINGLE_SIDED = 0x10;
 static const unsigned IDAM_FLAGS_MASK = 0xC000;
