@@ -393,11 +393,11 @@ void Debugger::Cmd::removeBreakPoint(
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(getInterpreter(), tokens[2]);
-		auto range = ranges::equal_range(breakPoints, addr, CompareBreakpoints());
-		auto it = std::find_if(range.first, range.second, [&](auto& bp) {
+		auto [first, last] = ranges::equal_range(breakPoints, addr, CompareBreakpoints());
+		auto it = std::find_if(first, last, [&](auto& bp) {
 			return bp.getCondition().empty();
 		});
-		if (it == range.second) {
+		if (it == last) {
 			throw CommandException(
 				"No (unconditional) breakpoint at address: ", tmp);
 		}

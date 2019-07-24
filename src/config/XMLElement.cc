@@ -259,9 +259,8 @@ string XMLElement::dump() const
 void XMLElement::dump(string& result, unsigned indentNum) const
 {
 	strAppend(result, spaces(indentNum), '<', getName());
-	for (auto& p : attributes) {
-		strAppend(result, ' ', p.first,
-		          "=\"", XMLEscape(p.second), '"');
+	for (const auto& [attrName, value] : attributes) {
+		strAppend(result, ' ', attrName, "=\"", XMLEscape(value), '"');
 	}
 	if (children.empty()) {
 		if (data.empty()) {

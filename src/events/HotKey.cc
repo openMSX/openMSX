@@ -513,11 +513,11 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
 		                : hotKey.layerMap[layer];
 
 	if (layers) {
-		for (auto& p : hotKey.layerMap) {
+		for (const auto& [layerName, bindings] : hotKey.layerMap) {
 			// An alternative for this test is to always properly
 			// prune layerMap. ATM this approach seems simpler.
-			if (!p.second.empty()) {
-				result.addListElement(p.first);
+			if (!bindings.empty()) {
+				result.addListElement(layerName);
 			}
 		}
 		return;

@@ -31,9 +31,9 @@ int EnumSettingBase::fromStringBase(string_view str) const
 
 string_view EnumSettingBase::toStringBase(int value) const
 {
-	for (auto& p : baseMap) {
-		if (p.second == value) {
-			return p.first;
+	for (const auto& [name, val] : baseMap) {
+		if (val == value) {
+			return name;
 		}
 	}
 	UNREACHABLE; return {};

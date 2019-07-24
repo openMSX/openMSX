@@ -194,9 +194,9 @@ RomType RomInfo::nameToRomType(string_view name)
 string_view RomInfo::romTypeToName(RomType type)
 {
 	assert(!isAlias(type));
-	for (auto& p : getRomTypeMap()) {
-		if (p.second == type) {
-			return p.first;
+	for (const auto& [name, romType] : getRomTypeMap()) {
+		if (romType == type) {
+			return name;
 		}
 	}
 	UNREACHABLE; return {};
@@ -205,9 +205,9 @@ string_view RomInfo::romTypeToName(RomType type)
 vector<string_view> RomInfo::getAllRomTypes()
 {
 	vector<string_view> result;
-	for (auto& p : getRomTypeMap()) {
-		if (!isAlias(p.second)) {
-			result.push_back(p.first);
+	for (const auto& [name, romType] : getRomTypeMap()) {
+		if (!isAlias(romType)) {
+			result.push_back(name);
 		}
 	}
 	return result;

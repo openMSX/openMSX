@@ -288,9 +288,9 @@ void MSXDevice::unregisterSlots()
 	if (memRegions.empty()) return;
 
 	int logicalSS = (ss == -1) ? 0 : ss;
-	for (auto& r : memRegions) {
+	for (const auto& [base, size] : memRegions) {
 		getCPUInterface().unregisterMemDevice(
-			*this, ps, logicalSS, r.first, r.second);
+			*this, ps, logicalSS, base, size);
 	}
 
 	// See comments above about allocateSlot() for more details:

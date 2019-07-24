@@ -244,9 +244,8 @@ void ReverseManager::debugInfo(TclObject& result) const
 	// information means nothing. We should remove this later.
 	string res;
 	size_t totalSize = 0;
-	for (auto& p : history.chunks) {
-		auto& chunk = p.second;
-		strAppend(res, p.first, ' ',
+	for (const auto& [idx, chunk] : history.chunks) {
+		strAppend(res, idx, ' ',
 		          (chunk.time - EmuTime::zero).toDouble(), ' ',
 		          ((chunk.time - EmuTime::zero).toDouble() / (getCurrentTime() - EmuTime::zero).toDouble()) * 100, "%"
 		          " (", chunk.size, ")"

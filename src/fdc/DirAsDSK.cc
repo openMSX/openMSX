@@ -208,9 +208,9 @@ bool DirAsDSK::checkMSXFileExists(
 // is not mapped in the virtual disk.
 DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(const string& hostName)
 {
-	for (auto& p : mapDirs) {
-		if (p.second.hostName == hostName) {
-			return p.first;
+	for (const auto& [dirIdx, mapDir] : mapDirs) {
+		if (mapDir.hostName == hostName) {
+			return dirIdx;
 		}
 	}
 	return {unsigned(-1), unsigned(-1)};
@@ -401,8 +401,8 @@ void DirAsDSK::checkDeletedHostFiles()
 {
 	// This handles both host files and directories.
 	auto copy = mapDirs;
-	for (auto& p : copy) {
-		if (!mapDirs.contains(p.first)) {
+	for (const auto& [dirIdx, mapDir] : copy) {
+		if (!mapDirs.contains(dirIdx)) {
 			// While iterating over (the copy of) mapDirs we delete
 			// entries of mapDirs (when we delete files only the
 			// current entry is deleted, when we delete
@@ -413,10 +413,8 @@ void DirAsDSK::checkDeletedHostFiles()
 			// mapDirs. Ignore it.
 			continue;
 		}
-		const DirIndex& dirIndex = p.first;
-		MapDir& mapDir = p.second;
 		string fullHostName = hostDir + mapDir.hostName;
-		bool isMSXDirectory = (msxDir(dirIndex).attrib &
+		bool isMSXDirectory = (msxDir(dirIdx).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
 		FileOperations::Stat fst;
 		if ((!FileOperations::getStat(fullHostName, fst)) ||
@@ -427,7 +425,7 @@ void DirAsDSK::checkDeletedHostFiles()
 			// has been removed and a host directory with the same
 			// name has been created). In both cases delete the msx
 			// entry (if needed it will be recreated soon).
-			deleteMSXFile(dirIndex);
+			deleteMSXFile(dirIdx);
 		}
 	}
 }
@@ -498,15 +496,13 @@ void DirAsDSK::freeFATChain(unsigned cluster)
 void DirAsDSK::checkModifiedHostFiles()
 {
 	auto copy = mapDirs;
-	for (auto& p : copy) {
-		if (!mapDirs.contains(p.first)) {
+	for (const auto& [dirIdx, mapDir] : copy) {
+		if (!mapDirs.contains(dirIdx)) {
 			// See comment in checkDeletedHostFiles().
 			continue;
 		}
-		const DirIndex& dirIndex = p.first;
-		MapDir& mapDir = p.second;
 		string fullHostName = hostDir + mapDir.hostName;
-		bool isMSXDirectory = (msxDir(dirIndex).attrib &
+		bool isMSXDirectory = (msxDir(dirIdx).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
 		FileOperations::Stat fst;
 		if (FileOperations::getStat(fullHostName, fst) &&
@@ -523,12 +519,12 @@ void DirAsDSK::checkModifiedHostFiles()
 			if (!isMSXDirectory &&
 			    ((mapDir.mtime    != fst.st_mtime) ||
 			     (mapDir.filesize != size_t(fst.st_size)))) {
-				importHostFile(dirIndex, fst);
+				importHostFile(dirIdx, fst);
 			}
 		} else {
 			// Only very rarely happens (because checkDeletedHostFiles()
 			// checked this just recently).
-			deleteMSXFile(dirIndex);
+			deleteMSXFile(dirIdx);
 		}
 	}
 }

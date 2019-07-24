@@ -12,7 +12,7 @@ using std::vector;
 TEST_CASE("join: vector<string_view>, char")
 {
 	auto check = [](const vector<string_view>& v, const string& expected) {
-		std::string result = join(v, '-');
+		string result = join(v, '-');
 		CHECK(result == expected);
 	};
 
@@ -40,12 +40,12 @@ TEST_CASE("join: various types")
 	int sep4 = 123;
 
 	auto check = [](const auto& range, const auto& sep, const string& expected) {
-		std::string result1 = join(range, sep);
+		string result1 = join(range, sep);
 		CHECK(result1 == expected);
 
 		std::ostringstream ss;
 		ss << join(range, sep);
-		std::string result2 = ss.str();
+		string result2 = ss.str();
 		CHECK(result2 == expected);
 	};
 

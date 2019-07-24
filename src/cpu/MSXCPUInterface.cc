@@ -734,8 +734,8 @@ void MSXCPUInterface::insertBreakPoint(BreakPoint bp)
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
-	auto range = ranges::equal_range(breakPoints, bp.getAddress(), CompareBreakpoints());
-	breakPoints.erase(find_if_unguarded(range.first, range.second,
+	auto [first, last] = ranges::equal_range(breakPoints, bp.getAddress(), CompareBreakpoints());
+	breakPoints.erase(find_if_unguarded(first, last,
 		[&](const BreakPoint& i) { return &i == &bp; }));
 }
 void MSXCPUInterface::removeBreakPoint(unsigned id)

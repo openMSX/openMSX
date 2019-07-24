@@ -374,10 +374,10 @@ static Sha1Sum calcSha1sum(File& file, Reactor& reactor)
 
 File FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
-	auto bound = ranges::equal_range(pool, sha1sum, ComparePool());
+	auto [b, e] = ranges::equal_range(pool, sha1sum, ComparePool());
 	// use indices instead of iterators
-	auto i    = distance(begin(pool), bound.first);
-	auto last = distance(begin(pool), bound.second);
+	auto i    = distance(begin(pool), b);
+	auto last = distance(begin(pool), e);
 	while (i != last) {
 		auto it = begin(pool) + i;
 		if (it->getTime() == time_t(-1)) {

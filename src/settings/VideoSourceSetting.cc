@@ -77,9 +77,9 @@ std::vector<string_view> VideoSourceSetting::getPossibleValues() const
 		assert(sources.front().first == "none");
 		result.emplace_back("none");
 	} else {
-		for (auto& p : sources) {
-			if (p.second != 0) {
-				result.emplace_back(p.first);
+		for (const auto& [name, val] : sources) {
+			if (val != 0) {
+				result.emplace_back(name);
 			}
 		}
 	}

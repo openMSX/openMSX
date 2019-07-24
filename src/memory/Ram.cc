@@ -55,23 +55,23 @@ void Ram::clear(byte c)
 		const string& encoding = init->getAttribute("encoding");
 		size_t done = 0;
 		if (encoding == "gz-base64") {
-			auto p = Base64::decode(init->getData());
+			auto [buf, bufSize] = Base64::decode(init->getData());
 			uLongf dstLen = getSize();
 			if (uncompress(reinterpret_cast<Bytef*>(ram.data()), &dstLen,
-			               reinterpret_cast<const Bytef*>(p.first.data()), uLong(p.second))
+			               reinterpret_cast<const Bytef*>(buf.data()), uLong(bufSize))
 			     != Z_OK) {
 				throw MSXException("Error while decompressing initialContent.");
 			}
 			done = dstLen;
 		} else if ((encoding == "hex") || (encoding == "base64")) {
-			auto p = (encoding == "hex")
+			auto [buf, bufSize] = (encoding == "hex")
 			       ? HexDump::decode(init->getData())
 			       : Base64 ::decode(init->getData());
-			if (p.second == 0) {
+			if (bufSize == 0) {
 				throw MSXException("Zero-length initial pattern");
 			}
-			done = std::min(size_t(size), p.second);
-			memcpy(ram.data(), p.first.data(), done);
+			done = std::min(size_t(size), bufSize);
+			memcpy(ram.data(), buf.data(), done);
 		} else {
 			throw MSXException("Unsupported encoding \"", encoding,
 			                   "\" for initialContent");

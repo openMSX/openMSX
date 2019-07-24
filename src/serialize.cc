@@ -123,8 +123,8 @@ void InputArchiveBase2::addPointer(unsigned id, const void* p)
 
 unsigned InputArchiveBase2::getId(const void* ptr) const
 {
-	for (const auto& p : idMap) {
-		if (p.second == ptr) return p.first;
+	for (const auto& [id, pt] : idMap) {
+		if (pt == ptr) return id;
 	}
 	return 0;
 }
@@ -141,10 +141,10 @@ void InputArchiveBase<Derived>::serialize_blob(
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {
-		auto p = Base64::decode(tmp);
+		auto [buf, bufSize] = Base64::decode(tmp);
 		auto dstLen = uLongf(len); // TODO check for overflow?
 		if ((uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
-		                reinterpret_cast<const Bytef*>(p.first.data()), uLong(p.second))
+		                reinterpret_cast<const Bytef*>(buf.data()), uLong(bufSize))
 		     != Z_OK) ||
 		    (dstLen != len)) {
 			throw MSXException("Error while decompressing blob.");

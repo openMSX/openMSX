@@ -587,9 +587,9 @@ KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release
 string getName(KeyCode keyCode)
 {
 	string result;
-	for (auto& p : keys) {
-		if (p.second == (keyCode & K_MASK)) {
-			result = string_view(p.first).str();
+	for (const auto& [name, code] : keys) {
+		if (code == (keyCode & K_MASK)) {
+			result = string_view(name).str();
 			break;
 		}
 	}

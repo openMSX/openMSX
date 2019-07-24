@@ -265,8 +265,8 @@ void CommandLineParser::parse(int argc, char** argv)
 			break;
 		}
 	}
-	for (auto& p : options) {
-		p.second.option->parseDone();
+	for (auto& opData : view::values(options)) {
+		opData.option->parseDone();
 	}
 	if (!cmdLine.empty() && (parseStatus != EXIT)) {
 		throw FatalError(
@@ -448,10 +448,10 @@ void CommandLineParser::HelpOption::parseOption(
 	        "  this is the list of supported options:\n";
 
 	GroupedItems itemMap;
-	for (auto& p : parser.options) {
-		const auto& helpText = p.second.option->optionHelp();
+	for (const auto& [name, data] : parser.options) {
+		const auto& helpText = data.option->optionHelp();
 		if (!helpText.empty()) {
-			itemMap[helpText].push_back(p.first);
+			itemMap[helpText].push_back(name);
 		}
 	}
 	printItemMap(itemMap);
@@ -460,8 +460,8 @@ void CommandLineParser::HelpOption::parseOption(
 	        "  this is the list of supported file types:\n";
 
 	itemMap.clear();
-	for (auto& p : parser.fileTypes) {
-		itemMap[p.second->fileTypeHelp()].push_back(p.first);
+	for (const auto& [ext, data] : parser.fileTypes) {
+		itemMap[data->fileTypeHelp()].push_back(ext);
 	}
 	printItemMap(itemMap);
 
@@ -595,8 +595,8 @@ void CommandLineParser::BashOption::parseOption(
 			cout << s << '\n';
 		}
 	} else {
-		for (auto& p : parser.options) {
-			cout << p.first << '\n';
+		for (const auto& name : view::keys(parser.options)) {
+			cout << name << '\n';
 		}
 	}
 	parser.parseStatus = CommandLineParser::EXIT;

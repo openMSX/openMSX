@@ -605,8 +605,8 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 	}
 	if (!unknownTypes.empty()) {
 		string output = "Unknown mapper types in software database: ";
-		for (auto& p : unknownTypes) {
-			strAppend(output, p.first, " (", p.second, "x); ");
+		for (const auto& [type, count] : unknownTypes) {
+			strAppend(output, type, " (", count, "x); ");
 		}
 		cliComm.printWarning(output);
 	}
