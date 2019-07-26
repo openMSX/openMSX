@@ -238,49 +238,6 @@ constexpr cstd::array<V, sizeof...(Ts)> array_of(Ts&& ...ts)
 }
 
 
-//
-// Reimplementation of (a very small subset of) C++17 std::string_view.
-//
-// The main difference with our string_view class is that cstd::string offers
-// a constexpr constructor.
-//
-// TODO is this still required now that we use c++17 std::string_view?
-//
-
-class string
-{
-public:
-	constexpr string(const char* s)
-		: dat(s), sz(cstd::strlen(s))
-	{
-	}
-
-	constexpr const char* begin() const
-	{
-		return dat;
-	}
-
-	constexpr const char* end() const
-	{
-		return dat + sz;
-	}
-
-	friend constexpr bool operator<(string x, string y)
-	{
-		return cstd::lexicographical_compare(x.begin(), x.end(),
-		                                     y.begin(), y.end());
-	}
-
-	operator std::string_view() const
-	{
-		return std::string_view(dat, sz);
-	}
-
-private:
-	const char* dat;
-	size_t sz;
-};
-
 // Reimplementation of various mathematical functions. You must specify an
 // iteration count, this controls how accurate the result will be.
 #if (defined(__GNUC__) && !defined(__clang__))

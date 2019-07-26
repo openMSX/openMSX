@@ -10,7 +10,7 @@ namespace openmsx::Keys {
 
 // can be std::pair in C++17
 struct P {
-	constexpr P(cstd::string s, KeyCode k)
+	constexpr P(string_view s, KeyCode k)
 		: first(s), second(k) {}
 
 	// Needed for gcc-6.3. Compiler bug?
@@ -21,7 +21,7 @@ struct P {
 	}
 	constexpr P(const P& p) = default;
 
-	cstd::string first;
+	string_view first;
 	KeyCode second;
 };
 
@@ -590,7 +590,7 @@ string getName(KeyCode keyCode)
 	string result;
 	for (const auto& [name, code] : keys) {
 		if (code == (keyCode & K_MASK)) {
-			result = string_view(name);
+			result = name;
 			break;
 		}
 	}
