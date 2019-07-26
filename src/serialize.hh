@@ -722,22 +722,17 @@ private:
 		buffer.insert_tuple_ptr(tuple);
 	}
 	template<typename TUPLE, typename T, typename ...Args>
-	ALWAYS_INLINE void serialize_group_impl(std::true_type, const TUPLE& tuple, const char* /*tag*/, const T& t, Args&& ...args)
-	{
-		// add to the group and continue categorizing
-		serialize_group(std::tuple_cat(tuple, std::tuple(&t)), std::forward<Args>(args)...);
-	}
-	template<typename TUPLE, typename T, typename ...Args>
-	ALWAYS_INLINE void serialize_group_impl(std::false_type, const TUPLE& tuple, const char* tag, const T& t, Args&& ...args)
-	{
-		serialize(tag, t);      // process single (ungroupable) element
-		serialize_group(tuple, std::forward<Args>(args)...); // continue categorizing
-	}
-	template<typename TUPLE, typename T, typename ...Args>
 	ALWAYS_INLINE void serialize_group(const TUPLE& tuple, const char* tag, const T& t, Args&& ...args)
 	{
 		// categorize one element
-		serialize_group_impl(typename SerializeAsMemcpy<T>::type(), tuple, tag, t, std::forward<Args>(args)...);
+		if constexpr (SerializeAsMemcpy<T>::value) {
+			// add to the group and continue categorizing
+			(void)tag;
+			serialize_group(std::tuple_cat(tuple, std::tuple(&t)), std::forward<Args>(args)...);
+		} else {
+			serialize(tag, t);      // process single (ungroupable) element
+			serialize_group(tuple, std::forward<Args>(args)...); // continue categorizing
+		}
 	}
 
 private:
@@ -821,20 +816,15 @@ private:
 		std::apply([&](auto&&... args) { (read(args), ...); }, tuple);
 	}
 	template<typename TUPLE, typename T, typename ...Args>
-	ALWAYS_INLINE void serialize_group_impl(std::true_type, const TUPLE& tuple, const char* /*tag*/, T& t, Args&& ...args)
-	{
-		serialize_group(std::tuple_cat(tuple, std::tuple(&t)), std::forward<Args>(args)...);
-	}
-	template<typename TUPLE, typename T, typename ...Args>
-	ALWAYS_INLINE void serialize_group_impl(std::false_type, const TUPLE& tuple, const char* tag, T& t, Args&& ...args)
-	{
-		serialize(tag, t);
-		serialize_group(tuple, std::forward<Args>(args)...);
-	}
-	template<typename TUPLE, typename T, typename ...Args>
 	ALWAYS_INLINE void serialize_group(const TUPLE& tuple, const char* tag, T& t, Args&& ...args)
 	{
-		serialize_group_impl(typename SerializeAsMemcpy<T>::type(), tuple, tag, t, std::forward<Args>(args)...);
+		if constexpr (SerializeAsMemcpy<T>::value) {
+			(void)tag;
+			serialize_group(std::tuple_cat(tuple, std::tuple(&t)), std::forward<Args>(args)...);
+		} else {
+			serialize(tag, t);
+			serialize_group(tuple, std::forward<Args>(args)...);
+		}
 	}
 
 private:
