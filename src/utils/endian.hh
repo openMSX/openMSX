@@ -7,7 +7,7 @@
 
 namespace Endian {
 
-// Revese bytes in a 16-bit number: 0x1234 becomes 0x3412
+// Reverse bytes in a 16-bit number: 0x1234 becomes 0x3412
 static inline uint16_t bswap16(uint16_t x)
 {
 	// This sequence generates 'optimal' code on a wide range of gcc/clang
@@ -19,7 +19,7 @@ static inline uint16_t bswap16(uint16_t x)
 	//return (x << 8) | (x >> 8);
 }
 
-// Revese bytes in a 32-bit number: 0x12345678 becomes 0x78563412
+// Reverse bytes in a 32-bit number: 0x12345678 becomes 0x78563412
 static inline uint32_t bswap32(uint32_t x)
 {
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3))
@@ -34,7 +34,7 @@ static inline uint32_t bswap32(uint32_t x)
 #endif
 }
 
-// Revese bytes in a 64-bit value: 0x1122334455667788 becomes 0x8877665544332211
+// Reverse bytes in a 64-bit value: 0x1122334455667788 becomes 0x8877665544332211
 static inline uint64_t bswap64(uint64_t x)
 {
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3))

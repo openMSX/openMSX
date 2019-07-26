@@ -122,7 +122,7 @@
 //     exit the loop. The exact timing doesn't matter here because anyway the
 //     relative timing between threads is undefined.
 // So for 1) we don't need to do anything (we don't actually exit). For 2) and
-// 3) we need the exit the loop as soon as possible (right after the current
+// 3) we need to exit the loop as soon as possible (right after the current
 // instruction is finished). For 4) it's OK to exit 'eventually' (a few hundred
 // z80 instructions late is still OK).
 //

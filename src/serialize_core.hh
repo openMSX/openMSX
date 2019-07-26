@@ -442,7 +442,7 @@ template<typename T> struct Saver
 
 // Implementation of the different load-strategies.
 //
-// This matches very closly with the save-strategies above.
+// This matches very closely with the save-strategies above.
 //
 // All these strategies have a method:
 //   template<typename Archive, typename TUPLE>

@@ -189,8 +189,8 @@ enum KeyCode {
 
 	// Some japanese keyboard keys are unknown to SDL.
 	// That is; they are all mapped to SDL_Keycode=0
-	// However, they can recognized on their scancode
-	// These keys are usefull for Japanese users who want to map
+	// However, they can be recognized on their scancode
+	// These keys are useful for Japanese users who want to map
 	// their host keyboard to the Japanese MSX keyboard
 	// (e.g. the MSX turbo R keyboard)
 	// Define some codes above suspected SDL_Keycode value range, to

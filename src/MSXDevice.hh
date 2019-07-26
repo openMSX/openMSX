@@ -121,7 +121,7 @@ public:
 
 	/**
 	 * Read a byte from a given IO port. Reading via this method has no
-	 * side effects (doesn't change the device status). If save reading
+	 * side effects (doesn't change the device status). If safe reading
 	 * is not possible this method returns 0xFF.
 	 * This method is not used by the emulation. It can however be used
 	 * by a debugger.
