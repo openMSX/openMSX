@@ -27,40 +27,15 @@ namespace openmsx {
  * But the former can be used in a generic context (where the number of
  * constructor parameters is unknown).
  */
-template<typename T> class Creator
+template<typename T> struct Creator
 {
-public:
 	template<typename TUPLE>
-	std::unique_ptr<T> operator()(TUPLE args) {
-		DoInstantiate<std::tuple_size_v<TUPLE>, TUPLE> inst;
-		return inst(args);
+	std::unique_ptr<T> operator()(TUPLE tuple) {
+		auto makeT = [](auto&& ...args) {
+			return std::make_unique<T>(std::forward<decltype(args)>(args)...);
+		};
+		return std::apply(makeT, tuple);
 	}
-
-private:
-	template<int I, typename TUPLE> struct DoInstantiate;
-	template<typename TUPLE> struct DoInstantiate<0, TUPLE> {
-		std::unique_ptr<T> operator()(TUPLE /*args*/) {
-			return std::make_unique<T>();
-		}
-	};
-	template<typename TUPLE> struct DoInstantiate<1, TUPLE> {
-		std::unique_ptr<T> operator()(TUPLE args) {
-			return std::make_unique<T>(std::get<0>(args));
-		}
-	};
-	template<typename TUPLE> struct DoInstantiate<2, TUPLE> {
-		std::unique_ptr<T> operator()(TUPLE args) {
-			return std::make_unique<T>(
-				std::get<0>(args), std::get<1>(args));
-		}
-	};
-	template<typename TUPLE> struct DoInstantiate<3, TUPLE> {
-		std::unique_ptr<T> operator()(TUPLE args) {
-			return std::make_unique<T>(
-				std::get<0>(args), std::get<1>(args),
-				std::get<2>(args));
-		}
-	};
 };
 
 ///////////////////////////////

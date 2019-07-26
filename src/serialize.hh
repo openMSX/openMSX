@@ -813,27 +813,12 @@ private:
 		}
 	}
 
-	template<int I, int N, typename TUPLE> struct GroupLoader {
-		ALWAYS_INLINE void operator()(InputBuffer& buf, const TUPLE& tuple) const {
-			using ElemPtr = typename std::tuple_element<I, TUPLE>::type;
-			using Elem = typename std::remove_pointer<ElemPtr>::type;
-			buf.read(std::get<I>(tuple), sizeof(Elem));
-			GroupLoader<I + 1, N, TUPLE> nextLoader;
-			nextLoader(buf, tuple);
-		}
-	};
-	template<int N, typename TUPLE> struct GroupLoader<N, N, TUPLE> {
-		ALWAYS_INLINE void operator()(InputBuffer& /*buf*/, const TUPLE& /*tuple*/) const {
-			// nothing
-		}
-	};
-
 	// See comments in MemOutputArchive
 	template<typename TUPLE>
 	ALWAYS_INLINE void serialize_group(const TUPLE& tuple)
 	{
-		GroupLoader<0, std::tuple_size_v<TUPLE>, TUPLE> groupLoader;
-		groupLoader(buffer, tuple);
+		auto read = [&](auto* p) { buffer.read(p, sizeof(*p)); };
+		std::apply([&](auto&&... args) { (read(args), ...); }, tuple);
 	}
 	template<typename TUPLE, typename T, typename ...Args>
 	ALWAYS_INLINE void serialize_group_impl(std::true_type, const TUPLE& tuple, const char* /*tag*/, T& t, Args&& ...args)

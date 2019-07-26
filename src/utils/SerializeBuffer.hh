@@ -64,15 +64,24 @@ public:
 	  */
 	template<typename TUPLE> ALWAYS_INLINE void insert_tuple_ptr(const TUPLE& tuple)
 	{
-		size_t len = TupleElementSize<TUPLE>::value;
+		size_t len = 0;
+		auto accum = [&](auto* p) { len += sizeof(*p); };
+		std::apply([&](auto&&... args) { (accum(args), ...); }, tuple);
+
 		auto* newEnd = end + len;
 		if (unlikely(newEnd > finish)) grow(len);
 
-		InsertTupleHelper<TUPLE, 0, std::tuple_size_v<TUPLE>> helper;
-		helper(tuple, end);
+		uint8_t* dst = end;
+		auto write = [&](auto* src) {
+			memcpy(dst, src, sizeof(*src));
+			dst += sizeof(*src);
+		};
+		std::apply([&](auto&&... args) { (write(args), ...); }, tuple);
+		assert(dst == newEnd);
 
 		end = newEnd;
 	}
+
 	template<typename T> ALWAYS_INLINE void insert_tuple_ptr(const std::tuple<T*>& tuple)
 	{
 		// single-element tuple -> use insert() because it's better tuned
@@ -147,35 +156,6 @@ private:
 	void insertGrow(const void* __restrict data, size_t len);
 	uint8_t* allocateGrow(size_t len);
 	void grow(size_t len);
-
-	// TupleElementSize
-	template<size_t N, typename TUPLE> struct TupleElementSizeImpl {
-		using ElemPtr = typename std::tuple_element<N - 1, TUPLE>::type;
-		using Elem = typename std::remove_pointer<ElemPtr>::type;
-		static const size_t value
-			= sizeof(Elem) + TupleElementSizeImpl<N - 1, TUPLE>::value;
-	};
-	template<typename TUPLE> struct TupleElementSizeImpl<0, TUPLE> {
-		static const size_t value = 0;
-	};
-	template<typename TUPLE> struct TupleElementSize
-		: TupleElementSizeImpl<std::tuple_size_v<TUPLE>, TUPLE> {};
-
-	// InsertTupleHelper
-	template<typename TUPLE, size_t I, size_t N> struct InsertTupleHelper {
-		ALWAYS_INLINE void operator()(const TUPLE& tuple, uint8_t* p) {
-			using ElemPtr = typename std::tuple_element<I, TUPLE>::type;
-			using Elem = typename std::remove_pointer<ElemPtr>::type;
-			memcpy(p, std::get<I>(tuple), sizeof(Elem));
-			InsertTupleHelper<TUPLE, I + 1, N> helper;
-			helper(tuple, p + sizeof(Elem));
-		}
-	};
-	template<typename TUPLE, size_t N> struct InsertTupleHelper<TUPLE, N, N> {
-		ALWAYS_INLINE void operator()(const TUPLE& /*tuple*/, uint8_t* /*p*/) {
-			// nothing
-		}
-	};
 
 	MemBuffer<uint8_t> buf; // begin of allocated memory
 	uint8_t* end;           // points right after the last used byte
