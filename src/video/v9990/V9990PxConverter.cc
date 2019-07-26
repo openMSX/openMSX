@@ -135,7 +135,7 @@ static void renderPattern(
 	if (width == 0) return;
 
 	std::optional<ScopedAssign<Pixel>> col0, col1; // optimized away when not used
-	if (Policy::DRAW_BACKDROP) {
+	if constexpr (Policy::DRAW_BACKDROP) {
 		// Speedup drawing by temporarily replacing palette index 0.
 		// OK because palette0 and palette1 never partially overlap, IOW either:
 		// - palette0 == palette1           (fully overlap)

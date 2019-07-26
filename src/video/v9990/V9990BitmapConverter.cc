@@ -46,7 +46,7 @@ static inline void draw_YJK_YUV_PAL(
 			int b = std::clamp(y + v,                   0, 31);
 			// The only difference between YUV and YJK is that
 			// green and blue are swapped.
-			if (YJK) std::swap(g, b);
+			if constexpr (YJK) std::swap(g, b);
 			*out++ = color.lookup32768((g << 10) + (r << 5) + b);
 		}
 	}

@@ -78,7 +78,7 @@ DeflickerImpl<Pixel>::DeflickerImpl(const PixelFormat& format,
 template<typename Pixel>
 static __m128i blend(__m128i x, __m128i y, Pixel blendMask)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// 32bpp
 		return _mm_avg_epu8(x, y);
 	} else {
@@ -112,7 +112,7 @@ template<typename Pixel>
 static __m128i compare(__m128i x, __m128i y)
 {
 	static_assert(sizeof(Pixel) == one_of(2u, 4u));
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_cmpeq_epi32(x, y);
 	} else {
 		return _mm_cmpeq_epi16(x, y);

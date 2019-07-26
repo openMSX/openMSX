@@ -196,7 +196,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE uint32_t YM2413::envelopeKSLTL(const Pat
 	auto tl2 = [&]() -> uint32_t {
 		if ((rm_for_cycle(CYCLES) == one_of(rm_num_hh, rm_num_tom)) && use_rm_patches) {
 			return inst[ch] << (2 + 1);
-		} else if (mcsel == 1) {
+		} else if constexpr (mcsel == 1) {
 			return vol8[ch];
 		} else {
 			return patch1.tl2;
@@ -207,7 +207,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE uint32_t YM2413::envelopeKSLTL(const Pat
 
 template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeTimer1()
 {
-	if (CYCLES == 0) {
+	if constexpr (CYCLES == 0) {
 		eg_counter_state = (eg_counter_state + 1) & 3;
 		auto idx = releaseIndex[eg_timer_shift_lock][eg_timer_lock][eg_counter_state];
 		releasePtr = releaseData[idx];
@@ -216,7 +216,7 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeTimer1()
 
 template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTimer2(bool& eg_timer_carry)
 {
-	if (TEST_MODE) {
+	if constexpr (TEST_MODE) {
 		if (CYCLES == 0 && (eg_counter_state & 1) == 0) {
 			eg_timer_lock = eg_timer & 3;
 			eg_timer_shift_lock = likely(eg_timer_shift <= 13) ? eg_timer_shift : 0;
@@ -240,14 +240,14 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::envelopeTim
 				eg_timer |= (data << (16 - 2)) & 0x10000;
 			}
 		}
-		if (CYCLES == 0) {
+		if constexpr (CYCLES == 0) {
 			eg_timer_shift_stop = false;
 		} else if (!eg_timer_shift_stop && ((eg_timer >> 16) & 1)) {
 			eg_timer_shift = CYCLES;
 			eg_timer_shift_stop = true;
 		}
 	} else {
-		if (CYCLES == 0) {
+		if constexpr (CYCLES == 0) {
 			if ((eg_counter_state & 1) == 0) {
 				eg_timer_lock = eg_timer & 3;
 				eg_timer_shift_lock = (eg_timer_shift > 13) ? 0 : eg_timer_shift;
@@ -386,9 +386,9 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 
 template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool& lfo_am_car)
 {
-	if (TEST_MODE) {
+	if constexpr (TEST_MODE) {
 		// Update counter
-		if (CYCLES == 17) {
+		if constexpr (CYCLES == 17) {
 			lfo_counter++;
 			if (((lfo_counter & 0x3ff) == 0) || (testmode & 8)) {
 				lfo_vib_counter = (lfo_vib_counter + 1) & 7;
@@ -402,7 +402,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 		            ? (lfo_am_dir | (CYCLES == 0))
 		            : 0;
 
-		if (CYCLES == 0) {
+		if constexpr (CYCLES == 0) {
 			if (lfo_am_dir && (lfo_am_counter & 0x7f) == 0) {
 				lfo_am_dir = false;
 			} else if (!lfo_am_dir && (lfo_am_counter & 0x69) == 0x69) {
@@ -411,7 +411,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 		}
 
 		auto am_bit = (lfo_am_counter & 1) + am_inc + ((CYCLES < 9) ? lfo_am_car : false);
-		if (CYCLES < 8) {
+		if constexpr (CYCLES < 8) {
 			lfo_am_car = am_bit & 2;
 		}
 		lfo_am_counter = ((am_bit & 1) << 8) | (lfo_am_counter >> 1);
@@ -425,7 +425,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 			lfo_am_counter &= 0xff;
 		}
 	} else {
-		if (CYCLES == 17) {
+		if constexpr (CYCLES == 17) {
 			int delta = lfo_am_dir ? -1 : 1;
 
 			if (lfo_am_dir && (lfo_am_counter & 0x7f) == 0) {
@@ -446,14 +446,14 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doLFO(bool&
 			lfo_am_step = (lfo_counter & 0x3f) == 0;
 		}
 	}
-	if (CYCLES == 17) {
+	if constexpr (CYCLES == 17) {
 		lfo_am_out = (lfo_am_counter >> 3) & 0x0f;
 	}
 }
 
 template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doRhythm()
 {
-	if (TEST_MODE) {
+	if constexpr (TEST_MODE) {
 		bool nbit = (rm_noise ^ (rm_noise >> 14)) & 1;
 		nbit |= bool(testmode & 2);
 		rm_noise = (nbit << 22) | (rm_noise >> 1);
@@ -463,7 +463,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doRhythm()
 		// From this we can easily derive the value of the noise bit (bit 0)
 		// 13 and 16 steps in the future (see getPhase()). We can also
 		// derive a formula that takes 18 steps at once.
-		if (CYCLES == 17) {
+		if constexpr (CYCLES == 17) {
 			rm_noise = ((rm_noise & 0x1ff) << 14)
 			         ^ ((rm_noise & 0x3ffff) << 5)
 			         ^ (rm_noise & 0x7fc000)
@@ -662,7 +662,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint32_t YM2413::getPhas
 	uint32_t phase = pg_phase[CYCLES];
 
 	// Rhythm mode
-	if (CYCLES == 12) {
+	if constexpr (CYCLES == 12) {
 		rm_hh_bits = phase >> (2 + 9);
 	} else if (CYCLES == 16 && (rhythm & 0x20)) {
 		rm_tc_bits = phase >> 8;
@@ -777,7 +777,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE uint8_t YM2413::envelope
 template<uint32_t CYCLES, bool TEST_MODE>
 ALWAYS_INLINE void YM2413::step(Locals& l)
 {
-	if (CYCLES == 11) {
+	if constexpr (CYCLES == 11) {
 		// the value for 'use_rm_patches' is only meaningful in cycles 11..16
 		// and it remains constant during that time.
 		l.use_rm_patches = rhythm & 0x20;

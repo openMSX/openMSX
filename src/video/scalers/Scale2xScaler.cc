@@ -64,9 +64,9 @@ template<int BYTES, int TMP = sizeof(__m128i) - BYTES>
 // These three functions are abstracted to work either on 16bpp or 32bpp.
 template<typename Pixel> [[nodiscard]] static inline __m128i isEqual(__m128i x, __m128i y)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_cmpeq_epi32(x, y);
-	} else if (sizeof(Pixel) == 2) {
+	} else if constexpr (sizeof(Pixel) == 2) {
 		return _mm_cmpeq_epi16(x, y);
 	} else {
 		UNREACHABLE;
@@ -74,9 +74,9 @@ template<typename Pixel> [[nodiscard]] static inline __m128i isEqual(__m128i x, 
 }
 template<typename Pixel> [[nodiscard]] static inline __m128i unpacklo(__m128i x, __m128i y)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_unpacklo_epi32(x, y);
-	} else if (sizeof(Pixel) == 2) {
+	} else if constexpr (sizeof(Pixel) == 2) {
 		return _mm_unpacklo_epi16(x, y);
 	} else {
 		UNREACHABLE;
@@ -84,9 +84,9 @@ template<typename Pixel> [[nodiscard]] static inline __m128i unpacklo(__m128i x,
 }
 template<typename Pixel> [[nodiscard]] static inline __m128i unpackhi(__m128i x, __m128i y)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_unpackhi_epi32(x, y);
-	} else if (sizeof(Pixel) == 2) {
+	} else if constexpr (sizeof(Pixel) == 2) {
 		return _mm_unpackhi_epi16(x, y);
 	} else {
 		UNREACHABLE;
@@ -124,7 +124,7 @@ template<typename Pixel, bool DOUBLE_X> static inline void scale1(
 	__m128i c = select(mid, bottom, cndC);
 	__m128i d = select(mid, bottom, cndD);
 
-	if (DOUBLE_X) {
+	if constexpr (DOUBLE_X) {
 		out0[0] = unpacklo<Pixel>(a, b);
 		out0[1] = unpackhi<Pixel>(a, b);
 		out1[0] = unpacklo<Pixel>(c, d);

@@ -8,7 +8,7 @@ namespace openmsx {
 std::string Version::full()
 {
 	std::string result = strCat("openMSX ", VERSION);
-	if (!RELEASE) strAppend(result, '-', REVISION);
+	if constexpr (!RELEASE) strAppend(result, '-', REVISION);
 	return result;
 }
 

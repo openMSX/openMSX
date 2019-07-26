@@ -142,13 +142,6 @@ static void blur1on2_SSE2(
 	*reinterpret_cast<__m128i*>(out + 16) = _mm_shuffle_epi32(cdcd, 0xd8);
 }
 
-// no SSE2 16bpp routine yet (probably not worth the effort)
-static void blur1on2_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
-                          unsigned /*c1*/, unsigned /*c2*/, size_t /*width*/)
-{
-	UNREACHABLE;
-}
-
 #endif
 
 template<typename Pixel>
@@ -192,7 +185,7 @@ void Simple2xScaler<Pixel>::blur1on2(
 	unsigned c2 = 256 - c1;
 
 #ifdef __SSE2__
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// SSE2, only 32bpp
 		blur1on2_SSE2(pIn, pOut, c1, c2, srcWidth);
 		return;
@@ -298,13 +291,6 @@ static void blur1on1_SSE2(
 	*reinterpret_cast<__m128i*>(out) = _mm_packus_epi16(aabb, ccdd);
 }
 
-// no SSE2 16bpp routine yet (probably not worth the effort)
-static void blur1on1_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
-                          unsigned /*c1*/, unsigned /*c2*/, size_t /*width*/)
-{
-	UNREACHABLE;
-}
-
 #endif
 template<typename Pixel>
 void Simple2xScaler<Pixel>::blur1on1(
@@ -344,7 +330,7 @@ void Simple2xScaler<Pixel>::blur1on1(
 	unsigned c2 = 256 - alpha / 2;
 
 #ifdef __SSE2__
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// SSE2, only 32bpp
 		blur1on1_SSE2(pIn, pOut, c1, c2, srcWidth);
 		return;

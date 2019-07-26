@@ -134,7 +134,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		// Finally write the last pixel unaligned
 		const auto* in  = reinterpret_cast<const unsigned*>(vramPtr0);
 		unsigned data = in[0];
-		if (OPENMSX_BIGENDIAN) {
+		if constexpr (OPENMSX_BIGENDIAN) {
 			pixelPtr[0] = palette16[(data >> 28) & 0x0F];
 			data <<=4;
 		} else {
@@ -146,7 +146,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		auto out = reinterpret_cast<DPixel*>(pixelPtr);
 		for (auto i : xrange(256 / 8)) {
 			// 8 pixels per iteration
-			if (OPENMSX_BIGENDIAN) {
+			if constexpr (OPENMSX_BIGENDIAN) {
 				out[4 * i + 0] = dPalette[(data >> 24) & 0xFF];
 				out[4 * i + 1] = dPalette[(data >> 16) & 0xFF];
 				out[4 * i + 2] = dPalette[(data >>  8) & 0xFF];
@@ -188,7 +188,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 	for (auto i : xrange(256 / 8)) {
 		// 8 pixels per iteration
 		unsigned data = in[i];
-		if (OPENMSX_BIGENDIAN) {
+		if constexpr (OPENMSX_BIGENDIAN) {
 			out[4 * i + 0] = dPalette[(data >> 24) & 0xFF];
 			out[4 * i + 1] = dPalette[(data >> 16) & 0xFF];
 			out[4 * i + 2] = dPalette[(data >>  8) & 0xFF];
@@ -240,7 +240,7 @@ void BitmapConverter<Pixel>::renderGraphic6(
 		// 16 pixels per iteration
 		unsigned data0 = in0[i];
 		unsigned data1 = in1[i];
-		if (OPENMSX_BIGENDIAN) {
+		if constexpr (OPENMSX_BIGENDIAN) {
 			out[8 * i + 0] = dPalette[(data0 >> 24) & 0xFF];
 			out[8 * i + 1] = dPalette[(data1 >> 24) & 0xFF];
 			out[8 * i + 2] = dPalette[(data0 >> 16) & 0xFF];

@@ -19,7 +19,7 @@ template<typename Pixel>
 [[nodiscard]] inline uint32_t readPixel(Pixel p)
 {
 	// TODO: Use surface info instead.
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		return ((p & 0xF800) << 8) |
 		       ((p & 0x07C0) << 5) | // drop lowest green bit
 		       ((p & 0x001F) << 3);
@@ -32,7 +32,7 @@ template<typename Pixel>
 inline Pixel writePixel(uint32_t p)
 {
 	// TODO: Use surface info instead.
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		return ((p & 0xF80000) >> 8) |
 		       ((p & 0x00FC00) >> 5) |
 		       ((p & 0x0000F8) >> 3);
@@ -85,7 +85,7 @@ private:
 template<typename Pixel>
 EdgeHQ createEdgeHQ(const PixelOperations<Pixel>& pixelOps)
 {
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		return EdgeHQ(0, 8, 16);
 	} else {
 		return EdgeHQ(pixelOps.getRshift(),

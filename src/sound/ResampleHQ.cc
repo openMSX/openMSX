@@ -415,7 +415,7 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x +  0));
 		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 16));
 		__m128 t0, t1;
-		if (REVERSE) {
+		if constexpr (REVERSE) {
 			t0 = _mm_loadr_ps(reinterpret_cast<const float*>(tab - x - 16));
 			t1 = _mm_loadr_ps(reinterpret_cast<const float*>(tab - x - 32));
 		} else {
@@ -431,7 +431,7 @@ static inline void calcSseMono(const float* buf_, const float* tab_, size_t len,
 	if (len & 4) {
 		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf));
 		__m128 t0;
-		if (REVERSE) {
+		if constexpr (REVERSE) {
 			t0 = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 16));
 		} else {
 			t0 = _mm_load_ps (reinterpret_cast<const float*>(tab));
@@ -474,7 +474,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 		__m128 b2 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 32));
 		__m128 b3 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 48));
 		__m128 ta, tb;
-		if (REVERSE) {
+		if constexpr (REVERSE) {
 			ta = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 16));
 			tb = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 32));
 			tab -= 2 * sizeof(__m128);
@@ -501,7 +501,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, size_t le
 		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf +  0));
 		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 16));
 		__m128 ta;
-		if (REVERSE) {
+		if constexpr (REVERSE) {
 			ta = _mm_loadr_ps(reinterpret_cast<const float*>(tab - 16));
 		} else {
 			ta = _mm_load_ps (reinterpret_cast<const float*>(tab +  0));
@@ -543,7 +543,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 		const float* tab = &table[t * filterLen];
 
 #ifdef __SSE2__
-		if (CHANNELS == 1) {
+		if constexpr (CHANNELS == 1) {
 			calcSseMono  <false>(buf, tab, filterLen, output);
 		} else {
 			calcSseStereo<false>(buf, tab, filterLen, output);
@@ -572,7 +572,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 		const float* tab = &table[(t + 1) * filterLen];
 
 #ifdef __SSE2__
-		if (CHANNELS == 1) {
+		if constexpr (CHANNELS == 1) {
 			calcSseMono  <true>(buf, tab, filterLen, output);
 		} else {
 			calcSseStereo<true>(buf, tab, filterLen, output);

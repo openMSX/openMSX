@@ -302,7 +302,7 @@ Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps)
 template<typename Pixel>
 void Blur_1on3<Pixel>::blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 {
-	if (sizeof(Pixel) != 4) {
+	if constexpr (sizeof(Pixel) != 4) {
 		assert(false); return; // only 32-bpp
 	}
 
@@ -467,7 +467,7 @@ void Blur_1on3<Pixel>::operator()(
 	 */
 	size_t srcWidth = dstWidth / 3;
 #ifdef __SSE2__
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		blur_SSE(in, out, srcWidth);
 		return;
 	}

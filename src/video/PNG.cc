@@ -204,7 +204,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		int bpp = png_get_channels(png.ptr, png.info) * 8;
 		assert(bpp == one_of(24, 32));
 		auto [redMask, grnMask, bluMask, alpMask] = [&]()-> std::tuple<Uint32, Uint32, Uint32, Uint32> {
-			if (OPENMSX_BIGENDIAN) {
+			if constexpr (OPENMSX_BIGENDIAN) {
 				if (bpp == 32) {
 					if (swapAlpha) {
 						return {0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000};

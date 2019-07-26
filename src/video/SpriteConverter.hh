@@ -182,14 +182,14 @@ public:
 							color |= info2.colorAttrib & 0x0F;
 						}
 					}
-					if (MODE == DisplayMode::GRAPHIC5) {
+					if constexpr (MODE == DisplayMode::GRAPHIC5) {
 						Pixel pixL = palette[color >> 2];
 						Pixel pixR = palette[color & 3];
 						pixelPtr[x * 2 + 0] = pixL;
 						pixelPtr[x * 2 + 1] = pixR;
 					} else {
 						Pixel pix = palette[color];
-						if (MODE == DisplayMode::GRAPHIC6) {
+						if constexpr (MODE == DisplayMode::GRAPHIC6) {
 							pixelPtr[x * 2 + 0] = pix;
 							pixelPtr[x * 2 + 1] = pix;
 						} else {

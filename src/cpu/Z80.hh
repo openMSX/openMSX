@@ -16,14 +16,14 @@ protected:
 
 	static constexpr int CLOCK_FREQ = 3579545;
 	static constexpr int WAIT_CYCLES = 1;
+	static constexpr unsigned HALT_STATES = 4 + WAIT_CYCLES; // HALT + M1
+	static constexpr bool IS_R800 = false;
 
 	Z80TYPE(EmuTime::param time, Scheduler& scheduler_)
 		: CPUClock(time, scheduler_)
 	{
 	}
 
-	[[nodiscard]] ALWAYS_INLINE unsigned haltStates() const { return 4 + WAIT_CYCLES; } // HALT + M1
-	[[nodiscard]] ALWAYS_INLINE bool isR800() const { return false; }
 
 	template<bool, bool> ALWAYS_INLINE void PRE_MEM  (unsigned /*address*/) { }
 	template<      bool> ALWAYS_INLINE void POST_MEM (unsigned /*address*/) { }

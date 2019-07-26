@@ -446,7 +446,7 @@ template<typename T> static inline void fastAtoi(string_view str, T& t)
 	size_t l = str.size();
 
 	constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
-	if (IS_SIGNED) {
+	if constexpr (IS_SIGNED) {
 		if (l == 0) return;
 		if (str[0] == '-') {
 			neg = true;

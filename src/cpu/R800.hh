@@ -33,9 +33,8 @@ protected:
 	template<bool B> struct Normalize { static constexpr bool value = B; };
 
 	static constexpr int CLOCK_FREQ = 7159090;
-
-	[[nodiscard]] ALWAYS_INLINE unsigned haltStates() const { return 1; } // TODO check this
-	[[nodiscard]] ALWAYS_INLINE bool isR800() const { return true; }
+	static constexpr unsigned HALT_STATES = 1; // TODO check this
+	static constexpr bool IS_R800 = true;
 
 	R800TYPE(EmuTime::param time, Scheduler& scheduler_)
 		: CPUClock(time, scheduler_)
@@ -76,7 +75,7 @@ protected:
 	ALWAYS_INLINE void PRE_MEM(unsigned address)
 	{
 		int newPage = address >> 8;
-		if (PRE_PB) {
+		if constexpr (PRE_PB) {
 			// there is a statically predictable page break at this
 			// point -> 'add(1)' moved to static cost table
 		} else {
@@ -85,7 +84,7 @@ protected:
 				add(1);
 			}
 		}
-		if (!POST_PB) {
+		if constexpr (!POST_PB) {
 			lastPage = newPage;
 		}
 	}
@@ -93,7 +92,7 @@ protected:
 	ALWAYS_INLINE void POST_MEM(unsigned address)
 	{
 		add(extraMemoryDelay[address >> 14]);
-		if (POST_PB) {
+		if constexpr (POST_PB) {
 			R800ForcePageBreak();
 		}
 	}
@@ -101,7 +100,7 @@ protected:
 	ALWAYS_INLINE void PRE_WORD(unsigned address)
 	{
 		int newPage = address >> 8;
-		if (PRE_PB) {
+		if constexpr (PRE_PB) {
 			// there is a statically predictable page break at this
 			// point -> 'add(1)' moved to static cost table
 			if (unlikely(extraMemoryDelay[address >> 14])) {
@@ -114,7 +113,7 @@ protected:
 				add(1);
 			}
 		}
-		if (!POST_PB) {
+		if constexpr (!POST_PB) {
 			lastPage = newPage;
 		}
 	}
@@ -122,7 +121,7 @@ protected:
 	ALWAYS_INLINE void POST_WORD(unsigned address)
 	{
 		add(2 * extraMemoryDelay[address >> 14]);
-		if (POST_PB) {
+		if constexpr (POST_PB) {
 			R800ForcePageBreak();
 		}
 	}

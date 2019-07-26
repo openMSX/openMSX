@@ -29,7 +29,7 @@ using std::make_shared;
 
 namespace openmsx {
 
-const bool META_HOT_KEYS =
+constexpr bool META_HOT_KEYS =
 #ifdef __APPLE__
 	true;
 #else
@@ -103,7 +103,7 @@ void HotKey::initDefaultBindings()
 {
 	// TODO move to Tcl script?
 
-	if (META_HOT_KEYS) {
+	if constexpr (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.
 		bindDefault(HotKeyInfo(make_shared<KeyDownEvent>(
 		                            Keys::combine(Keys::K_D, Keys::KM_META)),

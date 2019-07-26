@@ -88,7 +88,7 @@ bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum
 		results[ch] = blip[ch].template readSamples<CHANNELS>(dataOut + ch, hostNum);
 	}
 	static_assert(CHANNELS == one_of(1u, 2u), "either mono or stereo");
-	if (CHANNELS == 1) {
+	if constexpr (CHANNELS == 1) {
 		return results[0];
 	} else {
 		if (results[0] == results[1]) {

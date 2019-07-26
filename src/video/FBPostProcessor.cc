@@ -38,7 +38,7 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 	// depend on it.
 
 	float scale[4];
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// 32bpp
 		// TODO ATM we compensate for big endian here. A better
 		// alternative is to turn noiseBuf into an array of ints (it's
@@ -166,7 +166,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 		Pixel* buf, signed char* noise, size_t width)
 {
 #ifdef __SSE2__
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// cast to avoid compilation error in case of 16bpp (even
 		// though this code is dead in that case).
 		auto* buf32 = reinterpret_cast<uint32_t*>(buf);
@@ -175,7 +175,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 	}
 #endif
 	// c++ version
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// optimized version for 32bpp
 		auto* noise4 = reinterpret_cast<uint32_t*>(noise);
 		for (auto i : xrange(width)) {

@@ -139,7 +139,7 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 [[nodiscard]] static inline int NbCommonBytes(size_t val)
 {
 #if LZ4_ARCH64
-	if (openmsx::OPENMSX_BIGENDIAN) {
+	if constexpr (openmsx::OPENMSX_BIGENDIAN) {
 #ifdef _MSC_VER
 		unsigned long r;
 		_BitScanReverse64(&r, val);
@@ -173,7 +173,7 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 
 #else // LZ4_ARCH64
 
-	if (openmsx::OPENMSX_BIGENDIAN) {
+	if constexpr (openmsx::OPENMSX_BIGENDIAN) {
 #ifdef _MSC_VER
 		unsigned long r;
 		_BitScanReverse(&r, val);
@@ -357,7 +357,7 @@ ALWAYS_INLINE int compress_impl(const uint8_t* src, uint8_t* const dst, const in
 	while (true) {
 		// Find a match
 		const uint8_t* match;
-		if (!L64K && !ARCH64) { // byPtr
+		if constexpr (!L64K && !ARCH64) { // byPtr
 			const uint8_t* forwardIp = ip;
 			int step = 1;
 			int searchMatchNb = ACCELERATION << SKIP_TRIGGER;
@@ -466,7 +466,7 @@ _next_match:
 		hashTable.putPosition(ip - 2, src);
 
 		// Test next position
-		if (!L64K && !ARCH64) { // byPtr
+		if constexpr (!L64K && !ARCH64) { // byPtr
 			match = hashTable.getPosition(ip, src);
 			hashTable.putPosition(ip, src);
 			if ((match + DISTANCE_MAX >= ip) && (unalignedLoad32(match) == unalignedLoad32(ip))) {

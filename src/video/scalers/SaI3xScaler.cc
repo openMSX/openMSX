@@ -160,7 +160,7 @@ inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 	const unsigned areaB = Round<x, 16, bits>::result;
 	const unsigned areaA = (1 << bits) - areaB;
 
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		a = (a & redblueMask) | ((a & greenMask) << 16);
 		b = (b & redblueMask) | ((b & greenMask) << 16);
 		const unsigned result = ((areaA * a) + (areaB * b)) >> bits;
@@ -188,7 +188,7 @@ inline Pixel Blender<Pixel>::blend(
 	const unsigned areaD = Round<xy,      16, bits>::result;
 	const unsigned areaA = (1 << bits) - areaB - areaC - areaD;
 
-	if (sizeof(Pixel) == 2) {
+	if constexpr (sizeof(Pixel) == 2) {
 		a = (a & redblueMask) | ((a & greenMask) << 16);
 		b = (b & redblueMask) | ((b & greenMask) << 16);
 		c = (c & redblueMask) | ((c & greenMask) << 16);

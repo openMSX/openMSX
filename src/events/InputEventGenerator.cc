@@ -325,8 +325,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 	case SDL_MOUSEWHEEL: {
 		int x = evt.wheel.x;
 		int y = evt.wheel.y;
-		if (evt.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
-		{
+		if (evt.wheel.direction == SDL_MOUSEWHEEL_FLIPPED) {
 			x = -x;
 			y = -y;
 		}
@@ -465,7 +464,7 @@ void InputEventGenerator::setGrabInput(bool grab)
 // joystick button state queries.
 int InputEventGenerator::joystickNumButtons(SDL_Joystick* joystick)
 {
-	if (PLATFORM_ANDROID) {
+	if constexpr (PLATFORM_ANDROID) {
 		return 2;
 	} else {
 		return SDL_JoystickNumButtons(joystick);
@@ -473,7 +472,7 @@ int InputEventGenerator::joystickNumButtons(SDL_Joystick* joystick)
 }
 bool InputEventGenerator::joystickGetButton(SDL_Joystick* joystick, int button)
 {
-	if (PLATFORM_ANDROID) {
+	if constexpr (PLATFORM_ANDROID) {
 		switch (button) {
 		case 0: return androidButtonA;
 		case 1: return androidButtonB;

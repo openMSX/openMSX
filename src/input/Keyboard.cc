@@ -1330,7 +1330,7 @@ Keyboard::CapsLockAligner::~CapsLockAligner()
 
 int Keyboard::CapsLockAligner::signalEvent(const shared_ptr<const Event>& event) noexcept
 {
-	if (!SANE_CAPSLOCK_BEHAVIOR) {
+	if constexpr (!SANE_CAPSLOCK_BEHAVIOR) {
 		// don't even try
 		return 0;
 	}

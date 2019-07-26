@@ -54,7 +54,7 @@ void SDLVisibleSurfaceBase::createSurface(int width, int height, unsigned flags)
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
 	// set icon
-	if (OPENMSX_SET_WINDOW_ICON) {
+	if constexpr (OPENMSX_SET_WINDOW_ICON) {
 		SDLSurfacePtr iconSurf;
 		// always use 32x32 icon on Windows, for some reason you get badly scaled icons there
 #ifndef _WIN32

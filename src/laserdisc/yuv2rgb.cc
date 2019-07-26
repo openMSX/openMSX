@@ -288,7 +288,7 @@ template<typename Pixel>
 	uint8_t r = Math::clipIntToByte((y + ruv) >> PREC);
 	uint8_t g = Math::clipIntToByte((y + guv) >> PREC);
 	uint8_t b = Math::clipIntToByte((y + buv) >> PREC);
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return (r << 16) | (g << 8) | (b << 0);
 	} else {
 		return static_cast<Pixel>(format.map(r, g, b));

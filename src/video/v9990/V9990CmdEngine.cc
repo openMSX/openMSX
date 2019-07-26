@@ -1096,7 +1096,7 @@ void V9990CmdEngine::executeLMCM(EmuTime::param /*limit*/)
 				}
 			}
 		}
-		if (Mode::BITS_PER_PIXEL == 16) {
+		if constexpr (Mode::BITS_PER_PIXEL == 16) {
 			unsigned tmp = d; // workaround for VC++ warning C4333
 			                  // (in case Mode::Type == byte and
 			                  //          Mode::BITS_PER_PIXEL == 8)
@@ -1541,7 +1541,7 @@ void V9990CmdEngine::executeSRCH(EmuTime::param limit)
 		typename Mode::Type value;
 		typename Mode::Type col;
 		typename Mode::Type mask2;
-		if (Mode::BITS_PER_PIXEL == 16) {
+		if constexpr (Mode::BITS_PER_PIXEL == 16) {
 			value = Mode::point(vram, ASX, SY, pitch);
 			col = static_cast<typename Mode::Type>(fgCol);
 			mask2 = static_cast<typename Mode::Type>(~0);
@@ -1574,7 +1574,7 @@ void V9990CmdEngine::startPOINT(EmuTime::param /*time*/)
 	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
 	auto d = Mode::point(vram, SX, SY, pitch);
 
-	if (Mode::BITS_PER_PIXEL != 16) {
+	if constexpr (Mode::BITS_PER_PIXEL != 16) {
 		data = byte(d);
 		endAfterRead = true;
 	} else {

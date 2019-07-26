@@ -107,7 +107,7 @@ template<typename Pixel> static inline void draw8(
 {
 #ifdef __SSE2__
 	// SSE2 version, 32bpp  (16bpp is possible, but not worth it anymore)
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		const __m128i m74 = _mm_set_epi32(0x10, 0x20, 0x40, 0x80);
 		const __m128i m30 = _mm_set_epi32(0x01, 0x02, 0x04, 0x08);
 		const __m128i zero = _mm_setzero_si128();

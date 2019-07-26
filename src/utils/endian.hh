@@ -171,7 +171,7 @@ inline void writeL32(void* p, uint32_t x)
 
 template<bool SWAP, typename T> static ALWAYS_INLINE void write_UA(void* p, T x)
 {
-	if (SWAP) x = byteswap(x);
+	if constexpr (SWAP) x = byteswap(x);
 	memcpy(p, &x, sizeof(x));
 }
 ALWAYS_INLINE void write_UA_B16(void* p, uint16_t x)
@@ -203,7 +203,7 @@ template<bool SWAP, typename T> [[nodiscard]] static ALWAYS_INLINE T read_UA(con
 {
 	T x;
 	memcpy(&x, p, sizeof(x));
-	if (SWAP) x = byteswap(x);
+	if constexpr (SWAP) x = byteswap(x);
 	return x;
 }
 [[nodiscard]] ALWAYS_INLINE uint16_t read_UA_B16(const void* p)

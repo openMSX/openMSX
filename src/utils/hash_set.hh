@@ -674,7 +674,7 @@ private:
 
 		if (!CHECK_CAPACITY || (elemCount > 0)) {
 			primary = table[tableIdx];
-			if (CHECK_DUPLICATE) {
+			if constexpr (CHECK_DUPLICATE) {
 				for (auto elemIdx = primary; elemIdx != invalidIndex; /**/) {
 					auto& elem = pool.get(elemIdx);
 					if ((elem.hash == hash) &&
@@ -711,7 +711,7 @@ private:
 
 		if (!CHECK_CAPACITY || (elemCount > 0)) {
 			primary = table[tableIdx];
-			if (CHECK_DUPLICATE) {
+			if constexpr (CHECK_DUPLICATE) {
 				for (auto elemIdx = primary; elemIdx != invalidIndex; /**/) {
 					auto& elem = pool.get(elemIdx);
 					if ((elem.hash == hash) &&

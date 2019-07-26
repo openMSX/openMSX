@@ -17,7 +17,7 @@ namespace openmsx {
 EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 {
 	EnumSetting<ScaleAlgorithm>::Map scalerMap = { { "simple", SCALER_SIMPLE } };
-	if (MAX_SCALE_FACTOR > 1) {
+	if constexpr (MAX_SCALE_FACTOR > 1) {
 		append(scalerMap, {{"SaI",        SCALER_SAI},
 		                   {"ScaleNx",    SCALER_SCALE},
 		                   {"hq",         SCALER_HQ},

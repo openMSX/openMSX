@@ -931,9 +931,9 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 {
 	assert(!FIXED_ENV || (state == one_of(SUSHOLD, FINISH)));
 
-	if (FIXED_ENV) {
+	if constexpr (FIXED_ENV) {
 		unsigned out = fixed_env;
-		if (HAS_AM) {
+		if constexpr (HAS_AM) {
 			out += lfo_am; // [0, 768)
 			out |= 3;
 		} else {
@@ -950,7 +950,7 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 			calc_envelope_outline(out);
 		}
 		out = EG2DB(out + tll); // [0, 732]
-		if (HAS_AM) {
+		if constexpr (HAS_AM) {
 			out += lfo_am; // [0, 758]
 		}
 		return out | 3;
@@ -962,7 +962,7 @@ template<bool HAS_AM> unsigned Slot::calc_fixed_env() const
 	assert(eg_dPhase == EnvPhaseIndex(0));
 	unsigned out = eg_phase.toInt(); // in range [0, 128)
 	out = EG2DB(out + tll); // [0, 480)
-	if (!HAS_AM) {
+	if constexpr (!HAS_AM) {
 		out |= 3;
 	}
 	return out;
@@ -986,7 +986,7 @@ ALWAYS_INLINE int Slot::calc_slot_mod(unsigned lfo_pm, int lfo_am, unsigned fixe
 	assert((patch.FB != 0) == HAS_FB);
 	unsigned phase = calc_phase(lfo_pm);
 	unsigned egOut = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
-	if (HAS_FB) {
+	if constexpr (HAS_FB) {
 		phase += wave2_8pi(feedback) >> patch.FB;
 	}
 	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egOut];
@@ -1084,17 +1084,17 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
 	unsigned tmp_am_phase = am_phase;
 	unsigned car_fixed_env = 0; // dummy
 	unsigned mod_fixed_env = 0; // dummy
-	if (HAS_CAR_FIXED_ENV) {
+	if constexpr (HAS_CAR_FIXED_ENV) {
 		car_fixed_env = ch.car.calc_fixed_env<HAS_CAR_AM>();
 	}
-	if (HAS_MOD_FIXED_ENV) {
+	if constexpr (HAS_MOD_FIXED_ENV) {
 		mod_fixed_env = ch.mod.calc_fixed_env<HAS_MOD_AM>();
 	}
 
 	unsigned sample = 0;
 	do {
 		unsigned lfo_pm = 0;
-		if (HAS_CAR_PM || HAS_MOD_PM) {
+		if constexpr (HAS_CAR_PM || HAS_MOD_PM) {
 			// Copied from Burczynski:
 			//  There are only 8 different steps for PM, and each
 			//  step lasts for 1024 samples. This results in a PM
@@ -1103,7 +1103,7 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
 			lfo_pm = (tmp_pm_phase >> 10) & 7;
 		}
 		int lfo_am = 0; // avoid warning
-		if (HAS_CAR_AM || HAS_MOD_AM) {
+		if constexpr (HAS_CAR_AM || HAS_MOD_AM) {
 			++tmp_am_phase;
 			if (tmp_am_phase == (LFO_AM_TAB_ELEMENTS * 64)) {
 				tmp_am_phase = 0;

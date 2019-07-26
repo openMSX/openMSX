@@ -395,9 +395,9 @@ void Scale_1on6<Pixel>::operator()(const Pixel* in, Pixel* out, size_t width)
 #ifdef __SSE2__
 template<typename Pixel> inline __m128i unpacklo(__m128i x, __m128i y)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_unpacklo_epi32(x, y);
-	} else if (sizeof(Pixel) == 2) {
+	} else if constexpr (sizeof(Pixel) == 2) {
 		return _mm_unpacklo_epi16(x, y);
 	} else {
 		UNREACHABLE;
@@ -405,9 +405,9 @@ template<typename Pixel> inline __m128i unpacklo(__m128i x, __m128i y)
 }
 template<typename Pixel> inline __m128i unpackhi(__m128i x, __m128i y)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		return _mm_unpackhi_epi32(x, y);
-	} else if (sizeof(Pixel) == 2) {
+	} else if constexpr (sizeof(Pixel) == 2) {
 		return _mm_unpackhi_epi16(x, y);
 	} else {
 		UNREACHABLE;
@@ -553,7 +553,7 @@ template<int IMM8> static inline __m128i shuffle(__m128i x, __m128i y)
 template<typename Pixel>
 inline __m128i blend(__m128i x, __m128i y, Pixel mask)
 {
-	if (sizeof(Pixel) == 4) {
+	if constexpr (sizeof(Pixel) == 4) {
 		// 32bpp
 		__m128i p = shuffle<0x88>(x, y);
 		__m128i q = shuffle<0xDD>(x, y);

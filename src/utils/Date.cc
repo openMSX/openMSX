@@ -18,7 +18,7 @@ template<bool FIRST, unsigned MUL, typename T>
 {
 	c -= '0';
 	if (c > 9) return false;
-	if (FIRST) {
+	if constexpr (FIRST) {
 		t = c * MUL;
 	} else {
 		t += c * MUL;

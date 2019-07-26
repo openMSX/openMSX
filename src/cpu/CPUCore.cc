@@ -284,7 +284,7 @@ template<typename T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
 		const BooleanSetting& traceSetting_,
 		TclCallback& diHaltCallback_, EmuTime::param time)
-	: CPURegs(T::isR800())
+	: CPURegs(T::IS_R800)
 	, T(time, motherboard_.getScheduler())
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
@@ -1275,14 +1275,14 @@ CASE(CB) {
 		case 0x2d: { II ii = sra_R<L>(); NEXT; }
 		case 0x2f: { II ii = sra_R<A>(); NEXT; }
 		case 0x2e: { II ii = sra_xhl();  NEXT; }
-		case 0x30: { II ii = T::isR800() ? sla_R<B>() : sll_R<B>(); NEXT; }
-		case 0x31: { II ii = T::isR800() ? sla_R<C>() : sll_R<C>(); NEXT; }
-		case 0x32: { II ii = T::isR800() ? sla_R<D>() : sll_R<D>(); NEXT; }
-		case 0x33: { II ii = T::isR800() ? sla_R<E>() : sll_R<E>(); NEXT; }
-		case 0x34: { II ii = T::isR800() ? sla_R<H>() : sll_R<H>(); NEXT; }
-		case 0x35: { II ii = T::isR800() ? sla_R<L>() : sll_R<L>(); NEXT; }
-		case 0x37: { II ii = T::isR800() ? sla_R<A>() : sll_R<A>(); NEXT; }
-		case 0x36: { II ii = T::isR800() ? sla_xhl()  : sll_xhl();  NEXT; }
+		case 0x30: { II ii = T::IS_R800 ? sla_R<B>() : sll_R<B>(); NEXT; }
+		case 0x31: { II ii = T::IS_R800 ? sla_R<C>() : sll_R<C>(); NEXT; }
+		case 0x32: { II ii = T::IS_R800 ? sla_R<D>() : sll_R<D>(); NEXT; }
+		case 0x33: { II ii = T::IS_R800 ? sla_R<E>() : sll_R<E>(); NEXT; }
+		case 0x34: { II ii = T::IS_R800 ? sla_R<H>() : sll_R<H>(); NEXT; }
+		case 0x35: { II ii = T::IS_R800 ? sla_R<L>() : sll_R<L>(); NEXT; }
+		case 0x37: { II ii = T::IS_R800 ? sla_R<A>() : sll_R<A>(); NEXT; }
+		case 0x36: { II ii = T::IS_R800 ? sla_xhl()  : sll_xhl();  NEXT; }
 		case 0x38: { II ii = srl_R<B>(); NEXT; }
 		case 0x39: { II ii = srl_R<C>(); NEXT; }
 		case 0x3a: { II ii = srl_R<D>(); NEXT; }
@@ -1584,8 +1584,8 @@ CASE(ED) {
 
 		case 0x47: { II ii = ld_i_a(); NEXT; }
 		case 0x4f: { II ii = ld_r_a(); NEXT; }
-		case 0x57: { II ii = ld_a_IR<REG_I>(); if (T::isR800()) { NEXT; } else { NEXT_STOP; }}
-		case 0x5f: { II ii = ld_a_IR<REG_R>(); if (T::isR800()) { NEXT; } else { NEXT_STOP; }}
+		case 0x57: { II ii = ld_a_IR<REG_I>(); if (T::IS_R800) { NEXT; } else { NEXT_STOP; }}
+		case 0x5f: { II ii = ld_a_IR<REG_R>(); if (T::IS_R800) { NEXT; } else { NEXT_STOP; }}
 
 		case 0x67: { II ii = rrd(); NEXT; }
 		case 0x6f: { II ii = rld(); NEXT; }
@@ -1620,12 +1620,12 @@ CASE(ED) {
 		case 0xba: { II ii = indr(); NEXT; }
 		case 0xbb: { II ii = otdr(); NEXT; }
 
-		case 0xc1: { II ii = T::isR800() ? mulub_a_R<B>() : nop(); NEXT; }
-		case 0xc9: { II ii = T::isR800() ? mulub_a_R<C>() : nop(); NEXT; }
-		case 0xd1: { II ii = T::isR800() ? mulub_a_R<D>() : nop(); NEXT; }
-		case 0xd9: { II ii = T::isR800() ? mulub_a_R<E>() : nop(); NEXT; }
-		case 0xc3: { II ii = T::isR800() ? muluw_hl_SS<BC>() : nop(); NEXT; }
-		case 0xf3: { II ii = T::isR800() ? muluw_hl_SS<SP>() : nop(); NEXT; }
+		case 0xc1: { II ii = T::IS_R800 ? mulub_a_R<B>() : nop(); NEXT; }
+		case 0xc9: { II ii = T::IS_R800 ? mulub_a_R<C>() : nop(); NEXT; }
+		case 0xd1: { II ii = T::IS_R800 ? mulub_a_R<D>() : nop(); NEXT; }
+		case 0xd9: { II ii = T::IS_R800 ? mulub_a_R<E>() : nop(); NEXT; }
+		case 0xc3: { II ii = T::IS_R800 ? muluw_hl_SS<BC>() : nop(); NEXT; }
+		case 0xf3: { II ii = T::IS_R800 ? muluw_hl_SS<SP>() : nop(); NEXT; }
 		default: UNREACHABLE; return;
 	}
 }
@@ -1808,7 +1808,7 @@ CASE(DD) {
 		case 0xfc: // call_m();
 		case 0xfe: // cp_byte();
 		case 0xff: // rst_38();
-			if (T::isR800()) {
+			if /*constexpr*/ (T::IS_R800) {
 				II ii = nop();
 				ii.cycles += T::CC_DD;
 				NEXT;
@@ -2093,7 +2093,7 @@ CASE(FD) {
 		case 0xfc: // call_m();
 		case 0xfe: // cp_byte();
 		case 0xff: // rst_38();
-			if (T::isR800()) {
+			if constexpr (T::IS_R800) {
 				II ii = nop();
 				ii.cycles += T::CC_DD;
 				NEXT;
@@ -2258,14 +2258,14 @@ xx_cb: {
 			case 0x2d: { II ii = sra_xix_R<L>(addr); NEXT; }
 			case 0x2e: { II ii = sra_xix_R<DUMMY>(addr); NEXT; }
 			case 0x2f: { II ii = sra_xix_R<A>(addr); NEXT; }
-			case 0x30: { II ii = T::isR800() ? sll2() : sll_xix_R<B>(addr); NEXT; }
-			case 0x31: { II ii = T::isR800() ? sll2() : sll_xix_R<C>(addr); NEXT; }
-			case 0x32: { II ii = T::isR800() ? sll2() : sll_xix_R<D>(addr); NEXT; }
-			case 0x33: { II ii = T::isR800() ? sll2() : sll_xix_R<E>(addr); NEXT; }
-			case 0x34: { II ii = T::isR800() ? sll2() : sll_xix_R<H>(addr); NEXT; }
-			case 0x35: { II ii = T::isR800() ? sll2() : sll_xix_R<L>(addr); NEXT; }
-			case 0x36: { II ii = T::isR800() ? sll2() : sll_xix_R<DUMMY>(addr); NEXT; }
-			case 0x37: { II ii = T::isR800() ? sll2() : sll_xix_R<A>(addr); NEXT; }
+			case 0x30: { II ii = T::IS_R800 ? sll2() : sll_xix_R<B>(addr); NEXT; }
+			case 0x31: { II ii = T::IS_R800 ? sll2() : sll_xix_R<C>(addr); NEXT; }
+			case 0x32: { II ii = T::IS_R800 ? sll2() : sll_xix_R<D>(addr); NEXT; }
+			case 0x33: { II ii = T::IS_R800 ? sll2() : sll_xix_R<E>(addr); NEXT; }
+			case 0x34: { II ii = T::IS_R800 ? sll2() : sll_xix_R<H>(addr); NEXT; }
+			case 0x35: { II ii = T::IS_R800 ? sll2() : sll_xix_R<L>(addr); NEXT; }
+			case 0x36: { II ii = T::IS_R800 ? sll2() : sll_xix_R<DUMMY>(addr); NEXT; }
+			case 0x37: { II ii = T::IS_R800 ? sll2() : sll_xix_R<A>(addr); NEXT; }
 			case 0x38: { II ii = srl_xix_R<B>(addr); NEXT; }
 			case 0x39: { II ii = srl_xix_R<C>(addr); NEXT; }
 			case 0x3a: { II ii = srl_xix_R<D>(addr); NEXT; }
@@ -2510,7 +2510,7 @@ template<typename T> void CPUCore<T>::executeSlow(ExecIRQ execIRQ)
 		}
 	} else if (unlikely(getHALT())) {
 		// in halt mode
-		incR(T::advanceHalt(T::haltStates(), scheduler.getNext()));
+		incR(T::advanceHalt(T::HALT_STATES, scheduler.getNext()));
 		setSlowInstructions();
 	} else {
 		cpuTracePre();
@@ -2518,7 +2518,7 @@ template<typename T> void CPUCore<T>::executeSlow(ExecIRQ execIRQ)
 		executeInstructions();
 		endInstruction();
 
-		if (T::isR800()) {
+		if constexpr (T::IS_R800) {
 			if (unlikely(prev2WasCall()) && likely(!prevWasPopRet())) {
 				// On R800 a CALL or RST instruction not _immediately_
 				// followed by a (single-byte) POP or RET instruction
@@ -2643,59 +2643,59 @@ template<typename T> void CPUCore<T>::execute2(bool fastForward)
 }
 
 template<typename T> template<Reg8 R8> ALWAYS_INLINE byte CPUCore<T>::get8() const {
-	if      (R8 == A)     { return getA(); }
-	else if (R8 == F)     { return getF(); }
-	else if (R8 == B)     { return getB(); }
-	else if (R8 == C)     { return getC(); }
-	else if (R8 == D)     { return getD(); }
-	else if (R8 == E)     { return getE(); }
-	else if (R8 == H)     { return getH(); }
-	else if (R8 == L)     { return getL(); }
-	else if (R8 == IXH)   { return getIXh(); }
-	else if (R8 == IXL)   { return getIXl(); }
-	else if (R8 == IYH)   { return getIYh(); }
-	else if (R8 == IYL)   { return getIYl(); }
-	else if (R8 == REG_I) { return getI(); }
-	else if (R8 == REG_R) { return getR(); }
-	else if (R8 == DUMMY) { return 0; }
+	if      constexpr (R8 == A)     { return getA(); }
+	else if constexpr (R8 == F)     { return getF(); }
+	else if constexpr (R8 == B)     { return getB(); }
+	else if constexpr (R8 == C)     { return getC(); }
+	else if constexpr (R8 == D)     { return getD(); }
+	else if constexpr (R8 == E)     { return getE(); }
+	else if constexpr (R8 == H)     { return getH(); }
+	else if constexpr (R8 == L)     { return getL(); }
+	else if constexpr (R8 == IXH)   { return getIXh(); }
+	else if constexpr (R8 == IXL)   { return getIXl(); }
+	else if constexpr (R8 == IYH)   { return getIYh(); }
+	else if constexpr (R8 == IYL)   { return getIYl(); }
+	else if constexpr (R8 == REG_I) { return getI(); }
+	else if constexpr (R8 == REG_R) { return getR(); }
+	else if constexpr (R8 == DUMMY) { return 0; }
 	else { UNREACHABLE; return 0; }
 }
 template<typename T> template<Reg16 R16> ALWAYS_INLINE unsigned CPUCore<T>::get16() const {
-	if      (R16 == AF) { return getAF(); }
-	else if (R16 == BC) { return getBC(); }
-	else if (R16 == DE) { return getDE(); }
-	else if (R16 == HL) { return getHL(); }
-	else if (R16 == IX) { return getIX(); }
-	else if (R16 == IY) { return getIY(); }
-	else if (R16 == SP) { return getSP(); }
+	if      constexpr (R16 == AF) { return getAF(); }
+	else if constexpr (R16 == BC) { return getBC(); }
+	else if constexpr (R16 == DE) { return getDE(); }
+	else if constexpr (R16 == HL) { return getHL(); }
+	else if constexpr (R16 == IX) { return getIX(); }
+	else if constexpr (R16 == IY) { return getIY(); }
+	else if constexpr (R16 == SP) { return getSP(); }
 	else { UNREACHABLE; return 0; }
 }
 template<typename T> template<Reg8 R8> ALWAYS_INLINE void CPUCore<T>::set8(byte x) {
-	if      (R8 == A)     { setA(x); }
-	else if (R8 == F)     { setF(x); }
-	else if (R8 == B)     { setB(x); }
-	else if (R8 == C)     { setC(x); }
-	else if (R8 == D)     { setD(x); }
-	else if (R8 == E)     { setE(x); }
-	else if (R8 == H)     { setH(x); }
-	else if (R8 == L)     { setL(x); }
-	else if (R8 == IXH)   { setIXh(x); }
-	else if (R8 == IXL)   { setIXl(x); }
-	else if (R8 == IYH)   { setIYh(x); }
-	else if (R8 == IYL)   { setIYl(x); }
-	else if (R8 == REG_I) { setI(x); }
-	else if (R8 == REG_R) { setR(x); }
-	else if (R8 == DUMMY) { /* nothing */ }
+	if      constexpr (R8 == A)     { setA(x); }
+	else if constexpr (R8 == F)     { setF(x); }
+	else if constexpr (R8 == B)     { setB(x); }
+	else if constexpr (R8 == C)     { setC(x); }
+	else if constexpr (R8 == D)     { setD(x); }
+	else if constexpr (R8 == E)     { setE(x); }
+	else if constexpr (R8 == H)     { setH(x); }
+	else if constexpr (R8 == L)     { setL(x); }
+	else if constexpr (R8 == IXH)   { setIXh(x); }
+	else if constexpr (R8 == IXL)   { setIXl(x); }
+	else if constexpr (R8 == IYH)   { setIYh(x); }
+	else if constexpr (R8 == IYL)   { setIYl(x); }
+	else if constexpr (R8 == REG_I) { setI(x); }
+	else if constexpr (R8 == REG_R) { setR(x); }
+	else if constexpr (R8 == DUMMY) { /* nothing */ }
 	else { UNREACHABLE; }
 }
 template<typename T> template<Reg16 R16> ALWAYS_INLINE void CPUCore<T>::set16(unsigned x) {
-	if      (R16 == AF) { setAF(x); }
-	else if (R16 == BC) { setBC(x); }
-	else if (R16 == DE) { setDE(x); }
-	else if (R16 == HL) { setHL(x); }
-	else if (R16 == IX) { setIX(x); }
-	else if (R16 == IY) { setIY(x); }
-	else if (R16 == SP) { setSP(x); }
+	if      constexpr (R16 == AF) { setAF(x); }
+	else if constexpr (R16 == BC) { setBC(x); }
+	else if constexpr (R16 == DE) { setDE(x); }
+	else if constexpr (R16 == HL) { setHL(x); }
+	else if constexpr (R16 == IX) { setIX(x); }
+	else if constexpr (R16 == IY) { setIY(x); }
+	else if constexpr (R16 == SP) { setSP(x); }
 	else { UNREACHABLE; }
 }
 
@@ -2832,7 +2832,7 @@ template<typename T> inline void CPUCore<T>::ADC(byte reg) {
 	         ((getA() ^ res ^ reg) & H_FLAG) |
 	         (((getA() ^ res) & (reg ^ res) & 0x80) >> 5) | // V_FLAG
 	         0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -2847,7 +2847,7 @@ template<typename T> inline II CPUCore<T>::adc_a_a() {
 	         (res & H_FLAG) |
 	         (((getA() ^ res) & 0x80) >> 5) | // V_FLAG
 	         0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -2881,7 +2881,7 @@ template<typename T> inline void CPUCore<T>::ADD(byte reg) {
 	         ((getA() ^ res ^ reg) & H_FLAG) |
 	         (((getA() ^ res) & (reg ^ res) & 0x80) >> 5) | // V_FLAG
 	         0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -2896,7 +2896,7 @@ template<typename T> inline II CPUCore<T>::add_a_a() {
 	         (res & H_FLAG) |
 	         (((getA() ^ res) & 0x80) >> 5) | // V_FLAG
 	         0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -2927,7 +2927,7 @@ template<typename T> template<Reg16 IXY> II CPUCore<T>::add_a_xix() {
 template<typename T> inline void CPUCore<T>::AND(byte reg) {
 	setA(getA() & reg);
 	byte f = 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSPH[getA()];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -2937,7 +2937,7 @@ template<typename T> inline void CPUCore<T>::AND(byte reg) {
 }
 template<typename T> II CPUCore<T>::and_a() {
 	byte f = 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSPH[getA()];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -2971,7 +2971,7 @@ template<typename T> inline void CPUCore<T>::CP(byte reg) {
 	         N_FLAG |
 	         ((getA() ^ q ^ reg) & H_FLAG) |
 	         (((reg ^ getA()) & (getA() ^ q) & 0x80) >> 5); // V_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
 		f |= reg & (X_FLAG | Y_FLAG); // XY from operand, not from result
@@ -2980,7 +2980,7 @@ template<typename T> inline void CPUCore<T>::CP(byte reg) {
 }
 template<typename T> II CPUCore<T>::cp_a() {
 	byte f = ZS0 | N_FLAG;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
 		f |= getA() & (X_FLAG | Y_FLAG); // XY from operand, not from result
@@ -3009,7 +3009,7 @@ template<typename T> template<Reg16 IXY> II CPUCore<T>::cp_xix() {
 template<typename T> inline void CPUCore<T>::OR(byte reg) {
 	setA(getA() | reg);
 	byte f = 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSP[getA()];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3019,7 +3019,7 @@ template<typename T> inline void CPUCore<T>::OR(byte reg) {
 }
 template<typename T> II CPUCore<T>::or_a() {
 	byte f = 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSP[getA()];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3052,7 +3052,7 @@ template<typename T> inline void CPUCore<T>::SBC(byte reg) {
 	         N_FLAG |
 	         ((getA() ^ res ^ reg) & H_FLAG) |
 	         (((reg ^ getA()) & (getA() ^ res) & 0x80) >> 5); // V_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3062,7 +3062,7 @@ template<typename T> inline void CPUCore<T>::SBC(byte reg) {
 	setA(res);
 }
 template<typename T> II CPUCore<T>::sbc_a_a() {
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		word t = (getF() & C_FLAG)
 		       ? (255 * 256 | ZS255 | C_FLAG | H_FLAG | N_FLAG)
 		       : (  0 * 256 | ZS0   |                   N_FLAG);
@@ -3098,7 +3098,7 @@ template<typename T> inline void CPUCore<T>::SUB(byte reg) {
 	         N_FLAG |
 	         ((getA() ^ res ^ reg) & H_FLAG) |
 	         (((reg ^ getA()) & (getA() ^ res) & 0x80) >> 5); // V_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3108,7 +3108,7 @@ template<typename T> inline void CPUCore<T>::SUB(byte reg) {
 	setA(res);
 }
 template<typename T> II CPUCore<T>::sub_a() {
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		word t = 0 * 256 | ZS0 | N_FLAG;
 		setAF(t | (getF() & (X_FLAG | Y_FLAG)));
 	} else {
@@ -3137,7 +3137,7 @@ template<typename T> template<Reg16 IXY> II CPUCore<T>::sub_xix() {
 template<typename T> inline void CPUCore<T>::XOR(byte reg) {
 	setA(getA() ^ reg);
 	byte f = 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSP[getA()];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3146,7 +3146,7 @@ template<typename T> inline void CPUCore<T>::XOR(byte reg) {
 	setF(f);
 }
 template<typename T> II CPUCore<T>::xor_a() {
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		word t = 0 * 256 + ZSP0;
 		setAF(t | (getF() & (X_FLAG | Y_FLAG)));
 	} else {
@@ -3178,7 +3178,7 @@ template<typename T> inline byte CPUCore<T>::DEC(byte reg) {
 	byte f = ((reg & ~res & 0x80) >> 5) | // V_FLAG
 	         (((res & 0x0F) + 1) & H_FLAG) |
 	         N_FLAG;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
 		f |= table.ZS[res];
 	} else {
@@ -3213,7 +3213,7 @@ template<typename T> inline byte CPUCore<T>::INC(byte reg) {
 	byte f = ((reg & -reg & 0x80) >> 5) | // V_FLAG
 	         (((reg & 0x0F) - 1) & H_FLAG) |
 		 0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
 		f |= table.ZS[reg];
 	} else {
@@ -3250,14 +3250,14 @@ template<typename T> template<Reg16 REG> inline II CPUCore<T>::adc_hl_SS() {
 	unsigned res = getHL() + reg + ((getF() & C_FLAG) ? 1 : 0);
 	byte f = (res >> 16) | // C_FLAG
 	         0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (X_FLAG | Y_FLAG);
 	}
 	if (res & 0xFFFF) {
 		f |= ((getHL() ^ res ^ reg) >> 8) & H_FLAG;
 		f |= 0; // Z_FLAG
 		f |= ((getHL() ^ res) & (reg ^ res) & 0x8000) >> 13; // V_FLAG
-		if (T::isR800()) {
+		if constexpr (T::IS_R800) {
 			f |= (res >> 8) & S_FLAG;
 		} else {
 			f |= (res >> 8) & (S_FLAG | X_FLAG | Y_FLAG);
@@ -3277,13 +3277,13 @@ template<typename T> II CPUCore<T>::adc_hl_hl() {
 	unsigned res = 2 * getHL() + ((getF() & C_FLAG) ? 1 : 0);
 	byte f = (res >> 16) | // C_FLAG
 	         0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (X_FLAG | Y_FLAG);
 	}
 	if (res & 0xFFFF) {
 		f |= 0; // Z_FLAG
 		f |= ((getHL() ^ res) & 0x8000) >> 13; // V_FLAG
-		if (T::isR800()) {
+		if constexpr (T::IS_R800) {
 			f |= (res >> 8) & (H_FLAG | S_FLAG);
 		} else {
 			f |= (res >> 8) & (H_FLAG | S_FLAG | X_FLAG | Y_FLAG);
@@ -3307,7 +3307,7 @@ template<typename T> template<Reg16 REG1, Reg16 REG2, int EE> II CPUCore<T>::add
 	byte f = (((reg1 ^ res ^ reg2) >> 8) & H_FLAG) |
 	         (res >> 16) | // C_FLAG
 	         0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (S_FLAG | Z_FLAG | V_FLAG | X_FLAG | Y_FLAG);
 	} else {
 		f |= getF() & (S_FLAG | Z_FLAG | V_FLAG);
@@ -3323,7 +3323,7 @@ template<typename T> template<Reg16 REG, int EE> II CPUCore<T>::add_SS_SS() {
 	unsigned res = 2 * reg;
 	byte f = (res >> 16) | // C_FLAG
 	         0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (S_FLAG | Z_FLAG | V_FLAG | X_FLAG | Y_FLAG);
 		f |= (res >> 8) & H_FLAG;
 	} else {
@@ -3342,14 +3342,14 @@ template<typename T> template<Reg16 REG> inline II CPUCore<T>::sbc_hl_SS() {
 	unsigned res = getHL() - reg - ((getF() & C_FLAG) ? 1 : 0);
 	byte f = ((res & 0x10000) ? C_FLAG : 0) |
 		 N_FLAG;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (X_FLAG | Y_FLAG);
 	}
 	if (res & 0xFFFF) {
 		f |= ((getHL() ^ res ^ reg) >> 8) & H_FLAG;
 		f |= 0; // Z_FLAG
 		f |= ((reg ^ getHL()) & (getHL() ^ res) & 0x8000) >> 13; // V_FLAG
-		if (T::isR800()) {
+		if constexpr (T::IS_R800) {
 			f |= (res >> 8) & S_FLAG;
 		} else {
 			f |= (res >> 8) & (S_FLAG | X_FLAG | Y_FLAG);
@@ -3366,10 +3366,10 @@ template<typename T> template<Reg16 REG> inline II CPUCore<T>::sbc_hl_SS() {
 }
 template<typename T> II CPUCore<T>::sbc_hl_hl() {
 	T::setMemPtr(getHL() + 1);
-	byte f = T::isR800() ? (getF() & (X_FLAG | Y_FLAG)) : 0;
+	byte f = T::IS_R800 ? (getF() & (X_FLAG | Y_FLAG)) : 0;
 	if (getF() & C_FLAG) {
 		f |= C_FLAG | H_FLAG | S_FLAG | N_FLAG;
-		if (!T::isR800()) {
+		if constexpr (!T::IS_R800) {
 			f |= X_FLAG | Y_FLAG;
 		}
 		setHL(0xFFFF);
@@ -3396,7 +3396,7 @@ template<typename T> template<Reg16 REG, int EE> II CPUCore<T>::inc_SS() {
 template<typename T> template<unsigned N, Reg8 REG> II CPUCore<T>::bit_N_R() {
 	byte reg = get8<REG>();
 	byte f = 0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		// this is very different from Z80 (not only XY flags)
 		f |= getF() & (S_FLAG | V_FLAG | C_FLAG | X_FLAG | Y_FLAG);
 		f |= H_FLAG;
@@ -3412,7 +3412,7 @@ template<typename T> template<unsigned N, Reg8 REG> II CPUCore<T>::bit_N_R() {
 template<typename T> template<unsigned N> inline II CPUCore<T>::bit_N_xhl() {
 	byte m = RDMEM(getHL(), T::CC_BIT_XHL_1) & (1 << N);
 	byte f = 0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (S_FLAG | V_FLAG | C_FLAG | X_FLAG | Y_FLAG);
 		f |= H_FLAG;
 		f |= m ? 0 : Z_FLAG;
@@ -3428,7 +3428,7 @@ template<typename T> template<unsigned N> inline II CPUCore<T>::bit_N_xix(unsign
 	T::setMemPtr(addr);
 	byte m = RDMEM(addr, T::CC_DD + T::CC_BIT_XIX_1) & (1 << N);
 	byte f = 0; // N_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (S_FLAG | V_FLAG | C_FLAG | X_FLAG | Y_FLAG);
 		f |= H_FLAG;
 		f |= m ? 0 : Z_FLAG;
@@ -3488,7 +3488,7 @@ template<typename T> inline byte CPUCore<T>::RL(byte reg) {
 	byte c = reg >> 7;
 	reg = (reg << 1) | ((getF() & C_FLAG) ? 0x01 : 0);
 	byte f = c ? C_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3519,7 +3519,7 @@ template<typename T> inline byte CPUCore<T>::RLC(byte reg) {
 	byte c = reg >> 7;
 	reg = (reg << 1) | c;
 	byte f = c ? C_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3550,7 +3550,7 @@ template<typename T> inline byte CPUCore<T>::RR(byte reg) {
 	byte c = reg & 1;
 	reg = (reg >> 1) | ((getF() & C_FLAG) << 7);
 	byte f = c ? C_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3581,7 +3581,7 @@ template<typename T> inline byte CPUCore<T>::RRC(byte reg) {
 	byte c = reg & 1;
 	reg = (reg >> 1) | (c << 7);
 	byte f = c ? C_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3612,7 +3612,7 @@ template<typename T> inline byte CPUCore<T>::SLA(byte reg) {
 	byte c = reg >> 7;
 	reg <<= 1;
 	byte f = c ? C_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3640,7 +3640,7 @@ template<typename T> template<Reg8 REG> II CPUCore<T>::sla_xix_R(unsigned a) {
 
 // SLL r
 template<typename T> inline byte CPUCore<T>::SLL(byte reg) {
-	assert(!T::isR800()); // this instruction is Z80-only
+	assert(!T::IS_R800); // this instruction is Z80-only
 	byte c = reg >> 7;
 	reg = (reg << 1) | 1;
 	byte f = c ? C_FLAG : 0;
@@ -3665,7 +3665,7 @@ template<typename T> template<Reg8 REG> II CPUCore<T>::sll_xix_R(unsigned a) {
 	return {3, T::CC_DD + T::CC_SET_XIX};
 }
 template<typename T> II CPUCore<T>::sll2() {
-	assert(T::isR800()); // this instruction is R800-only
+	assert(T::IS_R800); // this instruction is R800-only
 	byte f = (getF() & (X_FLAG | Y_FLAG)) |
 	         (getA() >> 7) | // C_FLAG
 	         0; // all other flags zero
@@ -3678,7 +3678,7 @@ template<typename T> inline byte CPUCore<T>::SRA(byte reg) {
 	byte c = reg & 1;
 	reg = (reg >> 1) | (reg & 0x80);
 	byte f = c ? C_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3709,7 +3709,7 @@ template<typename T> inline byte CPUCore<T>::SRL(byte reg) {
 	byte c = reg & 1;
 	reg >>= 1;
 	byte f = c ? C_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZSP[reg];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -3739,13 +3739,13 @@ template<typename T> template<Reg8 REG> II CPUCore<T>::srl_xix_R(unsigned a) {
 template<typename T> II CPUCore<T>::rla() {
 	byte c = getF() & C_FLAG;
 	byte f = (getA() & 0x80) ? C_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG | X_FLAG | Y_FLAG);
 	} else {
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG);
 	}
 	setA((getA() << 1) | (c ? 1 : 0));
-	if (!T::isR800()) {
+	if constexpr (!T::IS_R800) {
 		f |= getA() & (X_FLAG | Y_FLAG);
 	}
 	setF(f);
@@ -3754,7 +3754,7 @@ template<typename T> II CPUCore<T>::rla() {
 template<typename T> II CPUCore<T>::rlca() {
 	setA((getA() << 1) | (getA() >> 7));
 	byte f = 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG | X_FLAG | Y_FLAG);
 		f |= getA() & C_FLAG;
 	} else {
@@ -3767,13 +3767,13 @@ template<typename T> II CPUCore<T>::rlca() {
 template<typename T> II CPUCore<T>::rra() {
 	byte c = (getF() & C_FLAG) << 7;
 	byte f = (getA() & 0x01) ? C_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG | X_FLAG | Y_FLAG);
 	} else {
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG);
 	}
 	setA((getA() >> 1) | c);
-	if (!T::isR800()) {
+	if constexpr (!T::IS_R800) {
 		f |= getA() & (X_FLAG | Y_FLAG);
 	}
 	setF(f);
@@ -3781,13 +3781,13 @@ template<typename T> II CPUCore<T>::rra() {
 }
 template<typename T> II CPUCore<T>::rrca() {
 	byte f = getA() & C_FLAG;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG | X_FLAG | Y_FLAG);
 	} else {
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG);
 	}
 	setA((getA() >> 1) | (getA() << 7));
-	if (!T::isR800()) {
+	if constexpr (!T::IS_R800) {
 		f |= getA() & (X_FLAG | Y_FLAG);
 	}
 	setF(f);
@@ -3802,7 +3802,7 @@ template<typename T> II CPUCore<T>::rld() {
 	WRMEM(getHL(), (val << 4) | (getA() & 0x0F), T::CC_RLD_2);
 	setA((getA() & 0xF0) | (val >> 4));
 	byte f = 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
 		f |= table.ZSP[getA()];
 	} else {
@@ -3820,7 +3820,7 @@ template<typename T> II CPUCore<T>::rrd() {
 	WRMEM(getHL(), (val >> 4) | (getA() << 4), T::CC_RLD_2);
 	setA((getA() & 0xF0) | (val & 0x0F));
 	byte f = 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
 		f |= table.ZSP[getA()];
 	} else {
@@ -3845,9 +3845,9 @@ template<typename T> template<Reg16 REG, int EE> II CPUCore<T>::push_SS() {
 template<typename T> template<int EE> inline unsigned CPUCore<T>::POP() {
 	unsigned addr = getSP();
 	setSP(addr + 2);
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		// handles both POP and RET instructions (RET with condition = true)
-		if (EE == 0) { // not reti/retn, not pop ix/iy
+		if constexpr (EE == 0) { // not reti/retn, not pop ix/iy
 			setCurrentPopRet();
 			// No need for setSlowInstructions()
 			// -> this only matters directly after a CALL
@@ -3869,7 +3869,7 @@ template<typename T> template<typename COND> II CPUCore<T>::call(COND cond) {
 	if (cond(getF())) {
 		PUSH<T::EE_CALL>(getPC() + 3); /**/
 		setPC(addr);
-		if (T::isR800()) {
+		if constexpr (T::IS_R800) {
 			setCurrentCall();
 			setSlowInstructions();
 		}
@@ -3885,7 +3885,7 @@ template<typename T> template<unsigned ADDR> II CPUCore<T>::rst() {
 	PUSH<0>(getPC() + 1); /**/
 	T::setMemPtr(ADDR);
 	setPC(ADDR);
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		setCurrentCall();
 		setSlowInstructions();
 	}
@@ -4006,11 +4006,11 @@ template<typename T> template<Reg16 REG, int EE> II CPUCore<T>::ex_xsp_SS() {
 
 // IN r,(c)
 template<typename T> template<Reg8 REG> II CPUCore<T>::in_R_c() {
-	if (T::isR800()) T::waitForEvenCycle(T::CC_IN_R_C_1);
+	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_IN_R_C_1);
 	T::setMemPtr(getBC() + 1);
 	byte res = READ_PORT(getBC(), T::CC_IN_R_C_1);
 	byte f = 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
 		f |= table.ZSP[res];
 	} else {
@@ -4026,21 +4026,21 @@ template<typename T> template<Reg8 REG> II CPUCore<T>::in_R_c() {
 template<typename T> II CPUCore<T>::in_a_byte() {
 	unsigned y = RDMEM_OPCODE<1>(T::CC_IN_A_N_1) + 256 * getA();
 	T::setMemPtr(y + 1);
-	if (T::isR800()) T::waitForEvenCycle(T::CC_IN_A_N_2);
+	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_IN_A_N_2);
 	setA(READ_PORT(y, T::CC_IN_A_N_2));
 	return {2, T::CC_IN_A_N};
 }
 
 // OUT (c),r
 template<typename T> template<Reg8 REG> II CPUCore<T>::out_c_R() {
-	if (T::isR800()) T::waitForEvenCycle(T::CC_OUT_C_R_1);
+	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_OUT_C_R_1);
 	T::setMemPtr(getBC() + 1);
 	WRITE_PORT(getBC(), get8<REG>(), T::CC_OUT_C_R_1);
 	return {1, T::CC_OUT_C_R};
 }
 template<typename T> II CPUCore<T>::out_c_0() {
 	// TODO not on R800
-	if (T::isR800()) T::waitForEvenCycle(T::CC_OUT_C_R_1);
+	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_OUT_C_R_1);
 	T::setMemPtr(getBC() + 1);
 	byte out_c_x = isTurboR ? 255 : 0;
 	WRITE_PORT(getBC(), out_c_x, T::CC_OUT_C_R_1);
@@ -4052,7 +4052,7 @@ template<typename T> II CPUCore<T>::out_byte_a() {
 	byte port = RDMEM_OPCODE<1>(T::CC_OUT_N_A_1);
 	unsigned y = (getA() << 8) |   port;
 	T::setMemPtr((getA() << 8) | ((port + 1) & 255));
-	if (T::isR800()) T::waitForEvenCycle(T::CC_OUT_N_A_2);
+	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_OUT_N_A_2);
 	WRITE_PORT(y, getA(), T::CC_OUT_N_A_2);
 	return {2, T::CC_OUT_N_A};
 }
@@ -4069,7 +4069,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
 	         table.ZS[res] |
 	         N_FLAG |
 	         (getBC() ? V_FLAG : 0);
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
 	} else {
 		f |= getF() & C_FLAG;
@@ -4100,7 +4100,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_LD(int increase, bool repeat) {
 	setDE(getDE() + increase);
 	setBC(getBC() - 1);
 	byte f = getBC() ? V_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (S_FLAG | Z_FLAG | C_FLAG | X_FLAG | Y_FLAG);
 	} else {
 		f |= getF() & (S_FLAG | Z_FLAG | C_FLAG);
@@ -4125,7 +4125,7 @@ template<typename T> II CPUCore<T>::ldir() { return BLOCK_LD( 1, true ); }
 // block IN
 template<typename T> inline II CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
 	// TODO R800 flags
-	if (T::isR800()) T::waitForEvenCycle(T::CC_INI_1);
+	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_INI_1);
 	T::setMemPtr(getBC() + increase);
 	setBC(getBC() - 0x100); // decr before use
 	byte val = READ_PORT(getBC(), T::CC_INI_1);
@@ -4155,7 +4155,7 @@ template<typename T> inline II CPUCore<T>::BLOCK_OUT(int increase, bool repeat) 
 	// TODO R800 flags
 	byte val = RDMEM(getHL(), T::CC_OUTI_1);
 	setHL(getHL() + increase);
-	if (T::isR800()) T::waitForEvenCycle(T::CC_OUTI_2);
+	if constexpr (T::IS_R800) T::waitForEvenCycle(T::CC_OUTI_2);
 	WRITE_PORT(getBC(), val, T::CC_OUTI_2);
 	setBC(getBC() - 0x100); // decr after use
 	T::setMemPtr(getBC() + increase);
@@ -4182,7 +4182,7 @@ template<typename T> II CPUCore<T>::otir() { return BLOCK_OUT( 1, true ); }
 template<typename T> II CPUCore<T>::nop() { return {1, T::CC_NOP}; }
 template<typename T> II CPUCore<T>::ccf() {
 	byte f = 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		// H flag is different from Z80 (and as always XY flags as well)
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG | X_FLAG | Y_FLAG | H_FLAG);
 	} else {
@@ -4204,7 +4204,7 @@ template<typename T> II CPUCore<T>::ccf() {
 template<typename T> II CPUCore<T>::cpl() {
 	setA(getA() ^ 0xFF);
 	byte f = H_FLAG | N_FLAG;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF();
 	} else {
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG);
@@ -4220,7 +4220,7 @@ template<typename T> II CPUCore<T>::daa() {
 	if ((f & H_FLAG) || ((getA() & 0xf) > 9)) adjust += 6;
 	if ((f & C_FLAG) || (getA() > 0x99)) adjust += 0x60;
 	if (f & N_FLAG) a -= adjust; else a += adjust;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f &= C_FLAG | N_FLAG | X_FLAG | Y_FLAG;
 		f |= table.ZSP[a];
 	} else {
@@ -4240,7 +4240,7 @@ template<typename T> II CPUCore<T>::neg() {
 	         N_FLAG |
 	         ((res ^ a) & H_FLAG) |
 	         ((a & res & 0x80) >> 5); // V_FLAG
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= table.ZS[res & 0xFF];
 		f |= getF() & (X_FLAG | Y_FLAG);
 	} else {
@@ -4252,7 +4252,7 @@ template<typename T> II CPUCore<T>::neg() {
 }
 template<typename T> II CPUCore<T>::scf() {
 	byte f = C_FLAG;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (S_FLAG | Z_FLAG | P_FLAG | X_FLAG | Y_FLAG);
 	} else {
 		// only set X(Y) flag (don't reset if already set)
@@ -4313,7 +4313,7 @@ template<typename T> template<unsigned N> II CPUCore<T>::im_N() {
 template<typename T> template<Reg8 REG> II CPUCore<T>::ld_a_IR() {
 	setA(get8<REG>());
 	byte f = getIFF2() ? V_FLAG : 0;
-	if (T::isR800()) {
+	if constexpr (T::IS_R800) {
 		f |= getF() & (C_FLAG | X_FLAG | Y_FLAG);
 		f |= table.ZS[getA()];
 	} else {
@@ -4337,7 +4337,7 @@ template<typename T> II CPUCore<T>::ld_r_a() {
 	// cycle. Here we implemented the R800 behaviour by storing 'A-1' into
 	// R, that's good enough for now.
 	byte val = getA();
-	if (T::isR800()) val -= 1;
+	if constexpr (T::IS_R800) val -= 1;
 	setR(val);
 	return {1, T::CC_LD_A_I};
 }
@@ -4348,7 +4348,7 @@ template<typename T> II CPUCore<T>::ld_i_a() {
 
 // MULUB A,r
 template<typename T> template<Reg8 REG> II CPUCore<T>::mulub_a_R() {
-	assert(T::isR800()); // this instruction is R800-only
+	assert(T::IS_R800); // this instruction is R800-only
 	// Verified on real R800:
 	//   YHXN flags are unchanged
 	//   SV   flags are reset
@@ -4364,7 +4364,7 @@ template<typename T> template<Reg8 REG> II CPUCore<T>::mulub_a_R() {
 
 // MULUW HL,ss
 template<typename T> template<Reg16 REG> II CPUCore<T>::muluw_hl_SS() {
-	assert(T::isR800()); // this instruction is R800-only
+	assert(T::IS_R800); // this instruction is R800-only
 	// Verified on real R800:
 	//   YHXN flags are unchanged
 	//   SV   flags are reset
@@ -4416,11 +4416,13 @@ void CPUCore<T>::serialize(Archive& ar, unsigned version)
 	// - slowInstructions, exitLoop:
 	//     serialization happens outside the CPU emulation loop
 
-	if (T::isR800() && ar.versionBelow(version, 4)) {
-		motherboard.getMSXCliComm().printWarning(
-			"Loading an old savestate: the timing of the R800 "
-			"emulation has changed. This may cause synchronization "
-			"problems in replay.");
+	if constexpr (T::IS_R800) {
+		if (ar.versionBelow(version, 4)) {
+			motherboard.getMSXCliComm().printWarning(
+				"Loading an old savestate: the timing of the R800 "
+				"emulation has changed. This may cause synchronization "
+				"problems in replay.");
+		}
 	}
 }
 

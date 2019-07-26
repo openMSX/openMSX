@@ -236,9 +236,9 @@ template<typename StopPred, class StopPredPure, int FLAGS>
 {
 	// If entity translation, whitespace condense and whitespace
 	// trimming is disabled, use plain skip.
-	if ( (FLAGS & noEntityTranslation) &&
-	    !(FLAGS & normalizeWhitespace)  &&
-	    !(FLAGS & trimWhitespace)) {
+	if constexpr ( (FLAGS & noEntityTranslation) &&
+	              !(FLAGS & normalizeWhitespace)  &&
+	              !(FLAGS & trimWhitespace)) {
 		skip<StopPred>(text);
 		return text;
 	}
@@ -477,7 +477,7 @@ private:
 	void parseText(char*& text, char* contentsStart)
 	{
 		// Backup to contents start if whitespace trimming is disabled
-		if (!(FLAGS & trimWhitespace)) {
+		if constexpr (!(FLAGS & trimWhitespace)) {
 			text = contentsStart;
 		}
 		// Skip until end of data
@@ -488,8 +488,8 @@ private:
 
 		// Trim trailing whitespace; leading was already trimmed by
 		// whitespace skip after >
-		if (FLAGS & trimWhitespace) {
-			if (FLAGS & normalizeWhitespace) {
+		if constexpr (FLAGS & trimWhitespace) {
+			if constexpr (FLAGS & normalizeWhitespace) {
 				// Whitespace is already condensed to single
 				// space characters by skipping function, so
 				// just trim 1 char off the end.

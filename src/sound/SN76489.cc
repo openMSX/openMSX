@@ -240,7 +240,7 @@ template<bool NOISE> void SN76489::synthesizeChannel(
 	}
 	if (buffer) {
 		// Synthesize channel.
-		if (NOISE) {
+		if constexpr (NOISE) {
 			noiseShifter.catchUp();
 		}
 		auto* buf = buffer;
@@ -270,7 +270,7 @@ template<bool NOISE> void SN76489::synthesizeChannel(
 			unsigned remaining = num - counter;
 			output ^= 1; // partial cycle
 			unsigned cycles = (remaining - 1) / period;
-			if (NOISE) {
+			if constexpr (NOISE) {
 				noiseShifter.queueAdvance((cycles + output) / 2);
 			}
 			output ^= cycles & 1; // full cycles

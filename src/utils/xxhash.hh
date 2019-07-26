@@ -63,7 +63,7 @@ template<int R>
 template<bool ALIGNED>
 [[nodiscard]] inline uint32_t read32(const uint8_t* ptr)
 {
-	if (ALIGNED) {
+	if constexpr (ALIGNED) {
 #ifdef DEBUG
 		assert((reinterpret_cast<intptr_t>(ptr) & 3) == 0);
 #endif

@@ -80,7 +80,7 @@ public:
 	template<typename Pixel> [[nodiscard]] Pixel mapKeyedRGB255(gl::ivec3 rgb)
 	{
 		Pixel p = mapRGB255(rgb);
-		if (sizeof(Pixel) == 2) {
+		if constexpr (sizeof(Pixel) == 2) {
 			return (p != getKeyColor<Pixel>())
 				? p
 				: getKeyColorClash<Pixel>();

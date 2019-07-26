@@ -200,7 +200,7 @@ template<bool READ, bool WRITE, bool SUB_START>
 void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
                              const byte* disallowRead, const byte* disallowWrite)
 {
-	if (!SUB_START) {
+	if constexpr (!SUB_START) {
 		assert(rData == nullptr);
 		assert(wData == nullptr);
 	}
@@ -212,8 +212,8 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 	int slot = 4 * ps + ss;
 	unsigned page = start >> 14;
 	assert(((start + size - 1) >> 14) == page); // all in same page
-	if (SUB_START && READ)  rData -= start;
-	if (SUB_START && WRITE) wData -= start;
+	if constexpr (SUB_START && READ)  rData -= start;
+	if constexpr (SUB_START && WRITE) wData -= start;
 
 	// select between 'active' or 'shadow' cache lines
 	auto [readLines, writeLines] = [&] {
@@ -234,8 +234,8 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 
 	static auto* const NON_CACHEABLE = reinterpret_cast<byte*>(1);
 	for (auto i : xrange(num)) {
-		if (READ)  readLines [i] = disallowRead [i] ? NON_CACHEABLE : rData;
-		if (WRITE) writeLines[i] = disallowWrite[i] ? NON_CACHEABLE : wData;
+		if constexpr (READ)  readLines [i] = disallowRead [i] ? NON_CACHEABLE : rData;
+		if constexpr (WRITE) writeLines[i] = disallowWrite[i] ? NON_CACHEABLE : wData;
 	}
 }
 

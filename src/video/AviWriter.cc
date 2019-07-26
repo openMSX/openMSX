@@ -275,7 +275,7 @@ void AviWriter::addFrame(FrameSource* frame, unsigned samples, int16_t* sampleDa
 	if (samples) {
 		assert((samples % channels) == 0);
 		assert(audiorate != 0);
-		if (OPENMSX_BIGENDIAN) {
+		if constexpr (OPENMSX_BIGENDIAN) {
 			// See comment in WavWriter::write()
 			//VLA(Endian::L16, buf, samples); // doesn't work in clang
 			std::vector<Endian::L16> buf(sampleData, sampleData + samples);

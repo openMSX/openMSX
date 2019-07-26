@@ -131,7 +131,7 @@ void Shader::init(GLenum type, std::string_view header, std::string_view filenam
 {
 	// Load shader source.
 	string source;
-	if (OPENGL_VERSION == OPENGL_ES_2_0) {
+	if constexpr (OPENGL_VERSION == OPENGL_ES_2_0) {
 		source += "#version 100\n";
 		if (type == GL_FRAGMENT_SHADER) {
 			source += "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
