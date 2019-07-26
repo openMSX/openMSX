@@ -41,8 +41,6 @@ namespace openmsx {
 
 // Global variables
 bool MSXCPUInterface::breaked = false;
-bool MSXCPUInterface::continued = false;
-bool MSXCPUInterface::step = false;
 MSXCPUInterface::BreakPoints MSXCPUInterface::breakPoints;
 //TODO watchpoints
 MSXCPUInterface::Conditions  MSXCPUInterface::conditions;
@@ -963,29 +961,23 @@ void MSXCPUInterface::doBreak()
 void MSXCPUInterface::doStep()
 {
 	assert(!isFastForward());
-	if (breaked) {
-		step = true;
-		doContinue2();
-	}
+	DebugCondition dc(TclObject("debug break"), TclObject("true"), true);
+	setCondition(dc);
+	doContinue();
 }
 
 void MSXCPUInterface::doContinue()
 {
 	assert(!isFastForward());
 	if (breaked) {
-		continued = true;
-		doContinue2();
-	}
-}
+		breaked = false;
 
-void MSXCPUInterface::doContinue2()
-{
-	breaked = false;
-	Reactor& reactor = motherBoard.getReactor();
-	breakedSetting->setReadOnlyValue(TclObject("false"));
-	reactor.getCliComm().update(CliComm::STATUS, "cpu", "running");
-	reactor.unblock();
-	motherBoard.getRealTime().resync();
+		Reactor& reactor = motherBoard.getReactor();
+		breakedSetting->setReadOnlyValue(TclObject("false"));
+		reactor.getCliComm().update(CliComm::STATUS, "cpu", "running");
+		reactor.unblock();
+		motherBoard.getRealTime().resync();
+	}
 }
 
 void MSXCPUInterface::cleanup()
