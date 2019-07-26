@@ -1,9 +1,9 @@
 #ifndef SHA1_HH
 #define SHA1_HH
 
-#include "string_view.hh"
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <cstdint>
 
 namespace openmsx {
@@ -25,7 +25,7 @@ public:
 	// note: default copy and assign are ok
 	Sha1Sum();
 	/** Construct from string, throws when string is malformed. */
-	explicit Sha1Sum(string_view hex);
+	explicit Sha1Sum(std::string_view hex);
 
 	/** Parse from a 40-character long buffer.
 	 * @pre: 'str' points to a buffer of at least 40 characters

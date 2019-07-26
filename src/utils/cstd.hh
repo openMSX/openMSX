@@ -1,10 +1,10 @@
 #ifndef CSTD_HH
 #define CSTD_HH
 
-#include "string_view.hh"
 #include <cmath>
 #include <cstddef>
 #include <functional>
+#include <string_view>
 #include <utility>
 
 namespace cstd {
@@ -243,6 +243,8 @@ constexpr cstd::array<V, sizeof...(Ts)> array_of(Ts&& ...ts)
 // The main difference with our string_view class is that cstd::string offers
 // a constexpr constructor.
 //
+// TODO is this still required now that we use c++17 std::string_view?
+//
 
 class string
 {
@@ -268,9 +270,9 @@ public:
 		                                     y.begin(), y.end());
 	}
 
-	operator string_view() const
+	operator std::string_view() const
 	{
-		return string_view(dat, sz);
+		return std::string_view(dat, sz);
 	}
 
 private:

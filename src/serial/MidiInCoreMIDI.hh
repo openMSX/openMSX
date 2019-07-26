@@ -36,7 +36,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	// MidiInDevice
 	void signal(EmuTime::param time) override;
@@ -81,7 +81,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	// MidiInDevice
 	void signal(EmuTime::param time) override;

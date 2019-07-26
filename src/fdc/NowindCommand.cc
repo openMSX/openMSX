@@ -14,8 +14,9 @@
 #include <cassert>
 #include <memory>
 
-using std::unique_ptr;
 using std::string;
+using std::string_view;
+using std::unique_ptr;
 using std::vector;
 
 namespace openmsx {
@@ -64,7 +65,7 @@ void NowindCommand::processHdimage(
 			hdimage.substr(pos + 1), 1, 31);
 	}
 
-	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdimage.str()));
+	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(string(hdimage)));
 	bool failOnError = true;
 	if (partitions.empty()) {
 		// insert all partitions

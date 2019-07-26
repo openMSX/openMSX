@@ -15,12 +15,14 @@
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "StringOp.hh"
 #include "view.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <memory>
 
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -134,7 +136,7 @@ void GlobalCommandController::unregisterCommand(
 	Command& command, string_view str)
 {
 	assert(commands.contains(str));
-	assert(commands[str.str()] == &command);
+	assert(commands[str] == &command);
 	commands.erase(str);
 	interpreter.unregisterCommand(command);
 }
@@ -142,17 +144,17 @@ void GlobalCommandController::unregisterCommand(
 void GlobalCommandController::registerCompleter(
 	CommandCompleter& completer, string_view str)
 {
-	if (str.starts_with("::")) str.remove_prefix(2); // drop leading ::
+	if (StringOp::startsWith(str, "::")) str.remove_prefix(2); // drop leading ::
 	assert(!commandCompleters.contains(str));
-	commandCompleters.emplace_noDuplicateCheck(str.str(), &completer);
+	commandCompleters.emplace_noDuplicateCheck(str, &completer);
 }
 
 void GlobalCommandController::unregisterCompleter(
 	CommandCompleter& completer, string_view str)
 {
-	if (str.starts_with("::")) str.remove_prefix(2); // drop leading ::
+	if (StringOp::startsWith(str, "::")) str.remove_prefix(2); // drop leading ::
 	assert(commandCompleters.contains(str));
-	assert(commandCompleters[str.str()] == &completer); (void)completer;
+	assert(commandCompleters[str] == &completer); (void)completer;
 	commandCompleters.erase(str);
 }
 
@@ -366,7 +368,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		string_view cmd = tokens[0];
 		string_view leadingNs;
 		// remove leading ::
-		if (cmd.starts_with("::")) {
+		if (StringOp::startsWith(cmd, "::")) {
 			cmd.remove_prefix(2);
 			leadingNs = "::";
 		}
@@ -380,9 +382,9 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		names2.reserve(names.size());
 		for (string_view n1 : names) {
 			// remove leading ::
-			if (n1.starts_with("::")) n1.remove_prefix(2);
+			if (StringOp::startsWith(n1, "::")) n1.remove_prefix(2);
 			// initial namespace part must match
-			if (!n1.starts_with(ns)) continue;
+			if (!StringOp::startsWith(n1, ns)) continue;
 			// the part following the initial namespace
 			string_view n2 = n1.substr(ns.size());
 			// only keep upto the next namespace portion,
@@ -394,7 +396,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		Completer::completeString(tokens, names2);
 	} else {
 		string_view cmd = tokens.front();
-		if (cmd.starts_with("::")) cmd.remove_prefix(2); // drop leading ::
+		if (StringOp::startsWith(cmd, "::")) cmd.remove_prefix(2); // drop leading ::
 
 		if (auto v = lookup(commandCompleters, cmd)) {
 			(*v)->tabCompletion(tokens);
@@ -457,7 +459,7 @@ void GlobalCommandController::HelpCmd::execute(
 		if (auto v = lookup(controller.commandCompleters, tokens[1].getString())) {
 			auto tokens2 = to_vector(view::transform(
 				view::drop(tokens, 1),
-				[](auto& t) { return t.getString().str(); }));
+				[](auto& t) { return string(t.getString()); }));
 			result = (*v)->help(tokens2);
 		} else {
 			TclObject command = makeTclList("openmsx::help");

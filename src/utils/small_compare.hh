@@ -32,9 +32,9 @@
 
 #include "aligned.hh"
 #include "build-info.hh"
-#include "string_view.hh"
 #include <cstdint>
 #include <cstring>
+#include <string_view>
 #include <type_traits>
 
 // Loader can load an 8/16/32/64 unaligned value.
@@ -105,7 +105,7 @@ template<char ...Ns> bool small_compare(const char* p)
 	return (loader(p) & SC::mask) == SC::value;
 }
 
-template<char ...Ns> bool small_compare(string_view str)
+template<char ...Ns> bool small_compare(std::string_view str)
 {
 	if (str.size() != sizeof...(Ns)) return false;
 	return small_compare<Ns...>(str.data());

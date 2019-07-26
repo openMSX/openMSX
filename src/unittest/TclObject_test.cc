@@ -21,7 +21,7 @@ TEST_CASE("TclObject, constructors")
 		CHECK(t1.getString() == "foo");
 		TclObject t2(std::string("bar")); // string
 		CHECK(t2.getString() == "bar");
-		TclObject t3(string_view("qux")); // string_view
+		TclObject t3(std::string_view("qux")); // string_view
 		CHECK(t3.getString() == "qux");
 	}
 	SECTION("bool") {
@@ -127,7 +127,7 @@ TEST_CASE("TclObject, operator=")
 		CHECK(t.getString() == "foo");
 		t = std::string("bar");
 		CHECK(t.getString() == "bar");
-		t = string_view("qux");
+		t = std::string_view("qux");
 		CHECK(t.getString() == "qux");
 	}
 	SECTION("int") {

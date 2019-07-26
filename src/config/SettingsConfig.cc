@@ -11,6 +11,7 @@
 #include "outer.hh"
 
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {

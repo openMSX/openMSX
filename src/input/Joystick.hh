@@ -45,7 +45,7 @@ public:
 #ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
@@ -59,7 +59,7 @@ public:
 private:
 	void plugHelper2();
 	byte calcState();
-	bool getState(Interpreter& interp, const TclObject& dict, string_view key,
+	bool getState(Interpreter& interp, const TclObject& dict, std::string_view key,
 	              int threshold);
 	void createEvent(EmuTime::param time, byte newStatus);
 

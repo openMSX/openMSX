@@ -13,6 +13,7 @@
 #include "CommandException.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+#include "StringOp.hh"
 #include "xrange.hh"
 #include <memory>
 
@@ -95,7 +96,7 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 		throw CommandException("Need an even number of elements");
 	}
 	for (unsigned i = 0; i < n; i += 2) {
-		string_view key  = newValue.getListIndex(interp, i + 0).getString();
+		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
 		TclObject value = newValue.getListIndex(interp, i + 1);
 		if ((key != "A"   ) && (key != "B"    ) &&
 		    (key != "LEFT") && (key != "RIGHT") &&
@@ -105,14 +106,14 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 				"'A', 'B', 'LEFT', 'RIGHT', 'UP', 'DOWN'.");
 		}
 		for (auto j : xrange(value.getListLength(interp))) {
-			string_view host = value.getListIndex(interp, j).getString();
-			if (!host.starts_with("button") &&
-			    !host.starts_with("+axis") &&
-			    !host.starts_with("-axis") &&
-			    !host.starts_with("L_hat") &&
-			    !host.starts_with("R_hat") &&
-			    !host.starts_with("U_hat") &&
-			    !host.starts_with("D_hat")) {
+			std::string_view host = value.getListIndex(interp, j).getString();
+			if (!StringOp::startsWith(host, "button") &&
+			    !StringOp::startsWith(host, "+axis") &&
+			    !StringOp::startsWith(host, "-axis") &&
+			    !StringOp::startsWith(host, "L_hat") &&
+			    !StringOp::startsWith(host, "R_hat") &&
+			    !StringOp::startsWith(host, "U_hat") &&
+			    !StringOp::startsWith(host, "D_hat")) {
 				throw CommandException(
 					"Invalid host joystick action: must be "
 					"one of 'button<N>', '+axis<N>', '-axis<N>', "
@@ -190,7 +191,7 @@ const string& Joystick::getName() const
 	return name;
 }
 
-string_view Joystick::getDescription() const
+std::string_view Joystick::getDescription() const
 {
 	return desc;
 }
@@ -247,44 +248,44 @@ byte Joystick::calcState()
 }
 
 bool Joystick::getState(Interpreter& interp, const TclObject& dict,
-                        string_view key, int threshold)
+                        std::string_view key, int threshold)
 {
 	try {
 		const auto& list = dict.getDictValue(interp, key);
 		for (auto i : xrange(list.getListLength(interp))) {
 			const auto& elem = list.getListIndex(interp, i).getString();
-			if (elem.starts_with("button")) {
-				unsigned n = fast_stou(elem.substr(6));
+			if (StringOp::startsWith(elem, "button")) {
+				unsigned n = StringOp::fast_stou(elem.substr(6));
 				if (InputEventGenerator::joystickGetButton(joystick, n)) {
 					return true;
 				}
-			} else if (elem.starts_with("+axis")) {
-				unsigned n = fast_stou(elem.substr(5));
+			} else if (StringOp::startsWith(elem, "+axis")) {
+				unsigned n = StringOp::fast_stou(elem.substr(5));
 				if (SDL_JoystickGetAxis(joystick, n) > threshold) {
 					return true;
 				}
-			} else if (elem.starts_with("-axis")) {
-				unsigned n = fast_stou(elem.substr(5));
+			} else if (StringOp::startsWith(elem, "-axis")) {
+				unsigned n = StringOp::fast_stou(elem.substr(5));
 				if (SDL_JoystickGetAxis(joystick, n) < -threshold) {
 					return true;
 				}
-			} else if (elem. starts_with("L_hat")) {
-				unsigned n = fast_stou(elem.substr(5));
+			} else if (StringOp::startsWith(elem, "L_hat")) {
+				unsigned n = StringOp::fast_stou(elem.substr(5));
 				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_LEFT) {
 					return true;
 				}
-			} else if (elem.starts_with("R_hat")) {
-				unsigned n = fast_stou(elem.substr(5));
+			} else if (StringOp::startsWith(elem, "R_hat")) {
+				unsigned n = StringOp::fast_stou(elem.substr(5));
 				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_RIGHT) {
 					return true;
 				}
-			} else if (elem.starts_with("U_hat")) {
-				unsigned n = fast_stou(elem.substr(5));
+			} else if (StringOp::startsWith(elem, "U_hat")) {
+				unsigned n = StringOp::fast_stou(elem.substr(5));
 				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_UP) {
 					return true;
 				}
-			} else if (elem.starts_with("D_hat")) {
-				unsigned n = fast_stou(elem.substr(5));
+			} else if (StringOp::startsWith(elem, "D_hat")) {
+				unsigned n = StringOp::fast_stou(elem.substr(5));
 				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_DOWN) {
 					return true;
 				}

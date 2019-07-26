@@ -175,7 +175,7 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -199,7 +199,7 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

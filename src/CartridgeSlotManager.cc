@@ -8,6 +8,7 @@
 #include "CliComm.hh"
 #include "unreachable.hh"
 #include "outer.hh"
+#include "StringOp.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <memory>
@@ -53,7 +54,7 @@ CartridgeSlotManager::~CartridgeSlotManager()
 	}
 }
 
-int CartridgeSlotManager::getSlotNum(string_view slot)
+int CartridgeSlotManager::getSlotNum(std::string_view slot)
 {
 	if (slot.size() == 1) {
 		if (('0' <= slot[0]) && (slot[0] <= '3')) {
@@ -277,7 +278,7 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 // CartCmd
 CartridgeSlotManager::CartCmd::CartCmd(
 		CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard_,
-		string_view commandName)
+		std::string_view commandName)
 	: RecordedCommand(motherBoard_.getCommandController(),
 	                  motherBoard_.getStateChangeDistributor(),
 	                  motherBoard_.getScheduler(),
@@ -288,7 +289,7 @@ CartridgeSlotManager::CartCmd::CartCmd(
 }
 
 const HardwareConfig* CartridgeSlotManager::CartCmd::getExtensionConfig(
-	string_view cartname)
+	std::string_view cartname)
 {
 	if (cartname.size() != 5) {
 		throw SyntaxError();
@@ -300,14 +301,14 @@ const HardwareConfig* CartridgeSlotManager::CartCmd::getExtensionConfig(
 void CartridgeSlotManager::CartCmd::execute(
 	span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
 {
-	string_view cartname = tokens[0].getString();
+	std::string_view cartname = tokens[0].getString();
 
 	// strip namespace qualification
 	//  TODO investigate whether it's a good idea to strip namespace at a
 	//       higher level for all commands. How does that interact with
 	//       the event recording feature?
 	auto pos = cartname.rfind("::");
-	if (pos != string_view::npos) {
+	if (pos != std::string_view::npos) {
 		cartname = cartname.substr(pos + 2);
 	}
 	if (tokens.size() == 1) {
@@ -350,9 +351,9 @@ void CartridgeSlotManager::CartCmd::execute(
 		}
                 auto options = tokens.subspan(extensionNameToken + 1);
 		try {
-			string_view romname = tokens[extensionNameToken].getString();
+			std::string_view romname = tokens[extensionNameToken].getString();
 			auto extension = HardwareConfig::createRomConfig(
-				manager.motherBoard, romname.str(), slotname.str(), options);
+				manager.motherBoard, string(romname), string(slotname), options);
 			if (slotname != "any") {
 				if (auto* extConf = getExtensionConfig(cartname)) {
 					// still a cartridge inserted, (try to) remove it now
@@ -422,7 +423,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 	case 3: {
 		// return info on a particular slot
 		const auto& slotName = tokens[2].getString();
-		if ((slotName.size() != 5) || (!slotName.starts_with("slot"))) {
+		if ((slotName.size() != 5) || (!StringOp::startsWith(slotName, "slot"))) {
 			throw CommandException("Invalid slot name: ", slotName);
 		}
 		unsigned num = slotName[4] - 'a';
@@ -442,7 +443,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 		if (slot.config) {
 			result.addListElement(slot.config->getName());
 		} else {
-			result.addListElement(string_view{});
+			result.addListElement(std::string_view{});
 		}
 		break;
 	}

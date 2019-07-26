@@ -534,7 +534,7 @@ void ReverseManager::saveReplay(
 		throw CommandException("No recording...");
 	}
 
-	string_view filenameArg;
+        std::string_view filenameArg;
 	int maxNofExtraSnapshots = MAX_NOF_SNAPSHOTS;
 	ArgsInfo info[] = { valueArg("-maxnofextrasnapshots", maxNofExtraSnapshots) };
 	auto args = parseTclArgs(interp, tokens.subspan(2), info);
@@ -650,7 +650,7 @@ void ReverseManager::loadReplay(
 
 	// resolve the filename
 	auto context = userDataFileContext(REPLAY_DIR);
-	string fileNameArg = arguments[0].getString().str();
+	string fileNameArg(arguments[0].getString());
 	string filename;
 	try {
 		// Try filename as typed by user.

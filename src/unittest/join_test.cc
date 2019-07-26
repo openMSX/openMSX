@@ -1,9 +1,9 @@
 #include "catch.hpp"
 #include "join.hh"
 
-#include "string_view.hh"
 #include "strCat.hh"
 #include "view.hh"
+#include <string_view>
 
 using std::string;
 using std::vector;
@@ -11,7 +11,7 @@ using std::vector;
 
 TEST_CASE("join: vector<string_view>, char")
 {
-	auto check = [](const vector<string_view>& v, const string& expected) {
+	auto check = [](const vector<std::string_view>& v, const string& expected) {
 		string result = join(v, '-');
 		CHECK(result == expected);
 	};

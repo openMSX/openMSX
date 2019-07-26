@@ -2,7 +2,7 @@
 #define BREAKPOINTBASE_HH
 
 #include "TclObject.hh"
-#include "string_view.hh"
+#include <string_view>
 
 namespace openmsx {
 
@@ -14,8 +14,8 @@ class GlobalCliComm;
 class BreakPointBase
 {
 public:
-	string_view getCondition() const { return condition.getString(); }
-	string_view getCommand()   const { return command  .getString(); }
+	std::string_view getCondition() const { return condition.getString(); }
+	std::string_view getCommand()   const { return command  .getString(); }
 	TclObject getConditionObj() const { return condition; }
 	TclObject getCommandObj()   const { return command; }
 	bool onlyOnce() const { return once; }

@@ -9,6 +9,7 @@
 #include <utility>
 
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -21,7 +22,7 @@ const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 
 static string subst(string_view path, string_view before, string_view after)
 {
-	assert(path.starts_with(before));
+	assert(StringOp::startsWith(path, before));
 	return strCat(after, path.substr(before.size()));
 }
 

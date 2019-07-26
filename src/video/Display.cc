@@ -404,7 +404,7 @@ Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController_)
 
 void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
-	string_view prefix = "openmsx";
+	std::string_view prefix = "openmsx";
 	bool rawShot = false;
 	bool msxOnly = false;
 	bool doubleSize = false;
@@ -435,7 +435,7 @@ void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& re
 		                       "combination with -raw");
 	}
 
-	string_view fname;
+	std::string_view fname;
 	switch (arguments.size()) {
 	case 0:
 		// nothing

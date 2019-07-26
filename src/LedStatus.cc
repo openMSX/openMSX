@@ -61,10 +61,7 @@ void LedStatus::setLed(Led led, bool status)
 
 void LedStatus::handleEvent(Led led) noexcept
 {
-	static const string_view ON  = "on";
-	static const string_view OFF = "off";
-	const string_view& str = ledValue[led] ? ON : OFF;
-
+	std::string_view str = ledValue[led] ? "on": "off";
 	ledStatus[led]->setReadOnlyValue(TclObject(str));
 	msxCliComm.update(CliComm::LED, getLedName(led), str);
 }

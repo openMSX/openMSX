@@ -777,7 +777,7 @@ public:
 		load(c);
 	}
 	void load(std::string& s);
-	string_view loadStr();
+	std::string_view loadStr();
 	void serialize_blob(const char* tag, void* data, size_t len,
 	                    bool diff = true);
 
@@ -956,7 +956,7 @@ public:
 	void load(unsigned& u);             // but having them non-inline
 	void load(unsigned long long& ull); // saves quite a bit of code
 	void load(std::string& t);
-	string_view loadStr();
+	std::string_view loadStr();
 
 	void skipSection(bool /*skip*/) { /*nothing*/ }
 

@@ -11,7 +11,7 @@ const std::string& MagicKey::getName() const
 	return NAME;
 }
 
-string_view MagicKey::getDescription() const
+std::string_view MagicKey::getDescription() const
 {
 	return "Dongle used by some Japanese games to enable cheat mode";
 }

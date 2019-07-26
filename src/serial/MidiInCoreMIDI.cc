@@ -94,7 +94,7 @@ const std::string& MidiInCoreMIDI::getName() const
 	return name;
 }
 
-string_view MidiInCoreMIDI::getDescription() const
+std::string_view MidiInCoreMIDI::getDescription() const
 {
 	return "Receives MIDI events from an existing CoreMIDI source.";
 }
@@ -218,7 +218,7 @@ const std::string& MidiInCoreMIDIVirtual::getName() const
 	return name;
 }
 
-string_view MidiInCoreMIDIVirtual::getDescription() const
+std::string_view MidiInCoreMIDIVirtual::getDescription() const
 {
 	return "Sends MIDI events from a newly created CoreMIDI virtual source.";
 }

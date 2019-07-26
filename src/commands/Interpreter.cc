@@ -132,7 +132,7 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 {
 	try {
 		auto* output = static_cast<Interpreter*>(clientData)->output;
-		string_view text(buf, toWrite);
+		std::string_view text(buf, toWrite);
 		if (!text.empty() && output) {
 			output->output(text);
 		}
@@ -331,9 +331,9 @@ static BaseSetting* getTraceSetting(uintptr_t traceID)
 }
 
 #ifndef NDEBUG
-static string_view removeColonColon(string_view s)
+static std::string_view removeColonColon(std::string_view s)
 {
-	if (s.starts_with("::")) s.remove_prefix(2);
+	if (StringOp::startsWith(s, "::")) s.remove_prefix(2);
 	return s;
 }
 #endif
@@ -444,7 +444,7 @@ void Interpreter::poll()
 	Tcl_DoOneEvent(TCL_DONT_WAIT);
 }
 
-TclParser Interpreter::parse(string_view command)
+TclParser Interpreter::parse(std::string_view command)
 {
 	return TclParser(interp, command);
 }

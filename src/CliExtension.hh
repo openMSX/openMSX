@@ -14,7 +14,7 @@ public:
 
 	void parseOption(const std::string& option,
 	                 span<std::string>& cmdLine) override;
-	string_view optionHelp() const override;
+	std::string_view optionHelp() const override;
 
 private:
 	CommandLineParser& cmdLineParser;

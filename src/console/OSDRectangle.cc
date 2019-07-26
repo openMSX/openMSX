@@ -26,7 +26,7 @@ OSDRectangle::OSDRectangle(Display& display_, const TclObject& name_)
 {
 }
 
-vector<string_view> OSDRectangle::getProperties() const
+vector<std::string_view> OSDRectangle::getProperties() const
 {
 	auto result = OSDImageBasedWidget::getProperties();
 	static const char* const vals[] = {
@@ -38,7 +38,7 @@ vector<string_view> OSDRectangle::getProperties() const
 }
 
 void OSDRectangle::setProperty(
-	Interpreter& interp, string_view propName, const TclObject& value)
+	Interpreter& interp, std::string_view propName, const TclObject& value)
 {
 	if (propName == "-w") {
 		float w = value.getDouble(interp);
@@ -71,7 +71,7 @@ void OSDRectangle::setProperty(
 			invalidateRecursive();
 		}
 	} else if (propName == "-image") {
-		string val = value.getString().str();
+		string val(value.getString());
 		if (imageName != val) {
 			if (!val.empty() && !FileOperations::isRegularFile(val)) {
 				throw CommandException("Not a valid image file: ", val);
@@ -102,7 +102,7 @@ void OSDRectangle::setProperty(
 	}
 }
 
-void OSDRectangle::getProperty(string_view propName, TclObject& result) const
+void OSDRectangle::getProperty(std::string_view propName, TclObject& result) const
 {
 	if (propName == "-w") {
 		result = size[0];
@@ -127,7 +127,7 @@ void OSDRectangle::getProperty(string_view propName, TclObject& result) const
 	}
 }
 
-string_view OSDRectangle::getType() const
+std::string_view OSDRectangle::getType() const
 {
 	return "rectangle";
 }

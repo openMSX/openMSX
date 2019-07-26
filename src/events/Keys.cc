@@ -4,6 +4,7 @@
 #include "ranges.hh"
 
 using std::string;
+using std::string_view;
 
 namespace openmsx::Keys {
 
@@ -589,7 +590,7 @@ string getName(KeyCode keyCode)
 	string result;
 	for (const auto& [name, code] : keys) {
 		if (code == (keyCode & K_MASK)) {
-			result = string_view(name).str();
+			result = string_view(name);
 			break;
 		}
 	}

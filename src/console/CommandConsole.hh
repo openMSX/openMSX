@@ -7,7 +7,7 @@
 #include "IntegerSetting.hh"
 #include "CircularBuffer.hh"
 #include "circular_buffer.hh"
-#include "string_view.hh"
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -30,7 +30,7 @@ public:
 
 	/** Append a chunk with a (different) color. This is currently the
 	  * only way to construct a multi-colored line/ */
-	void addChunk(string_view text, uint32_t rgb);
+	void addChunk(std::string_view text, uint32_t rgb);
 
 	/** Get the number of UTF8 characters in this line. So multi-byte
 	  * characters are counted as a single character. */
@@ -44,7 +44,7 @@ public:
 	/** Get the color for the i-th chunk. */
 	uint32_t chunkColor(size_t i) const;
 	/** Get the text for the i-th chunk. */
-	string_view chunkText(size_t i) const;
+	std::string_view chunkText(size_t i) const;
 
 	/** Get a part of total line. The result keeps the same colors as this
 	  * line. E.g. used to get part of (long) line that should be wrapped
@@ -57,7 +57,7 @@ public:
 
 private:
 	std::string line;
-	std::vector<std::pair<uint32_t, string_view::size_type>> chunks; // [rgb, pos]
+	std::vector<std::pair<uint32_t, std::string_view::size_type>> chunks; // [rgb, pos]
 };
 
 
@@ -83,7 +83,7 @@ public:
 
 private:
 	// InterpreterOutput
-	void output(string_view text) override;
+	void output(std::string_view text) override;
 	unsigned getOutputColumns() const override;
 
 	// EventListener
@@ -104,11 +104,11 @@ private:
 	void newLineConsole(ConsoleLine line);
 	void putPrompt();
 	void resetScrollBack();
-	ConsoleLine highLight(string_view line);
+	ConsoleLine highLight(std::string_view line);
 
 	/** Prints a string on the console.
 	  */
-	void print(string_view text, unsigned rgb = 0xffffff);
+	void print(std::string_view text, unsigned rgb = 0xffffff);
 
 	void loadHistory();
 	void saveHistory();

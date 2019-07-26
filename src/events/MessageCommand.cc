@@ -11,7 +11,7 @@ MessageCommand::MessageCommand(CommandController& controller)
 {
 }
 
-static CliComm::LogLevel getLevel(string_view level)
+static CliComm::LogLevel getLevel(std::string_view level)
 {
 	auto levels = CliComm::getLevelStrings();
 	for (auto i : xrange(levels.size())) {

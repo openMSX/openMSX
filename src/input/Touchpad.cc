@@ -120,7 +120,7 @@ const std::string& Touchpad::getName() const
 	return name;
 }
 
-string_view Touchpad::getDescription() const
+std::string_view Touchpad::getDescription() const
 {
 	return "MSX Touchpad";
 }

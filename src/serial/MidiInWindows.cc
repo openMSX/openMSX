@@ -92,7 +92,7 @@ const string& MidiInWindows::getName() const
 	return name;
 }
 
-string_view MidiInWindows::getDescription() const
+std::string_view MidiInWindows::getDescription() const
 {
 	return desc;
 }

@@ -277,7 +277,7 @@ private:
 		const char* name,
 		std::unique_ptr<PolymorphicLoaderBase<Archive>> loader);
 
-	hash_map<string_view, std::unique_ptr<PolymorphicLoaderBase<Archive>>, XXHasher>
+	hash_map<std::string_view, std::unique_ptr<PolymorphicLoaderBase<Archive>>, XXHasher>
 		loaderMap;
 };
 
@@ -306,7 +306,7 @@ private:
 		const char* name,
 		std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer);
 
-	hash_map<string_view, std::unique_ptr<PolymorphicInitializerBase<Archive>>, XXHasher>
+	hash_map<std::string_view, std::unique_ptr<PolymorphicInitializerBase<Archive>>, XXHasher>
 		initializerMap;
 };
 

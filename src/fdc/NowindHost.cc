@@ -735,7 +735,7 @@ void NowindHost::readHelper2(unsigned len, const char* buf)
 
 // strips a string from outer double-quotes and anything outside them
 // ie: 'pre("foo")bar' will result in 'foo'
-static string_view stripquotes(string_view str)
+static std::string_view stripquotes(std::string_view str)
 {
 	auto first = str.find_first_of('\"');
 	if (first == string::npos) {

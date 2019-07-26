@@ -17,7 +17,7 @@ namespace openmsx {
 RecordedCommand::RecordedCommand(CommandController& commandController_,
                                  StateChangeDistributor& stateChangeDistributor_,
                                  Scheduler& scheduler_,
-                                 string_view name_)
+                                 std::string_view name_)
 	: Command(commandController_, name_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, scheduler(scheduler_)
@@ -48,10 +48,10 @@ bool RecordedCommand::needRecord(span<const TclObject> /*tokens*/) const
 	return true;
 }
 
-static string_view getBaseName(string_view str)
+static std::string_view getBaseName(std::string_view str)
 {
 	auto pos = str.rfind("::");
-	return (pos == string_view::npos) ? str : str.substr(pos + 2);
+	return (pos == std::string_view::npos) ? str : str.substr(pos + 2);
 }
 
 void RecordedCommand::signalStateChange(const std::shared_ptr<StateChange>& event)
@@ -108,7 +108,7 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 	vector<string> str;
 	if (!ar.isLoader()) {
 		str = to_vector(view::transform(
-			tokens, [](auto& t) { return t.getString().str(); }));
+			tokens, [](auto& t) { return string(t.getString()); }));
 	}
 	ar.serialize("tokens", str);
 	if (ar.isLoader()) {

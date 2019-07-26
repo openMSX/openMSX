@@ -1,8 +1,8 @@
 #ifndef MSXEXCEPTION_HH
 #define MSXEXCEPTION_HH
 
-#include "string_view.hh"
 #include "strCat.hh"
+#include <string>
 
 namespace openmsx {
 

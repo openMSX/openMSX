@@ -80,7 +80,7 @@ const string& Trackball::getName() const
 	return name;
 }
 
-string_view Trackball::getDescription() const
+std::string_view Trackball::getDescription() const
 {
 	return "MSX Trackball";
 }

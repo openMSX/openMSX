@@ -3,7 +3,7 @@
 namespace openmsx {
 
 IntegerSetting::IntegerSetting(CommandController& commandController_,
-                               string_view name_, string_view description_,
+                               std::string_view name_, std::string_view description_,
                                int initialValue, int minValue_, int maxValue_)
 	: Setting(commandController_, name_, description_,
 	          TclObject(initialValue), SAVE)
@@ -18,7 +18,7 @@ IntegerSetting::IntegerSetting(CommandController& commandController_,
 	init();
 }
 
-string_view IntegerSetting::getTypeString() const
+std::string_view IntegerSetting::getTypeString() const
 {
 	return "integer";
 }

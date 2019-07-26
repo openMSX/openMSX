@@ -42,6 +42,7 @@
 #include "ranges.hh"
 #include "statp.hh"
 #include "stl.hh"
+#include "StringOp.hh"
 #include "unreachable.hh"
 #include "view.hh"
 #include "build-info.hh"
@@ -51,6 +52,7 @@
 using std::make_shared;
 using std::make_unique;
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -330,15 +332,15 @@ vector<string> Reactor::getHwConfigs(string_view type)
 		while (auto* entry = configsDir.getEntry()) {
 			string_view name = entry->d_name;
 			const auto& fullname = FileOperations::join(path, name);
-			if (name.ends_with(".xml") &&
+			if (StringOp::endsWith(name, ".xml") &&
 			    FileOperations::isRegularFile(fullname)) {
 				name.remove_suffix(4);
-				result.push_back(name.str());
+				result.emplace_back(name);
 			} else if (FileOperations::isDirectory(fullname)) {
 				const auto& config = FileOperations::join(
 					fullname, "hardwareconfig.xml");
 				if (FileOperations::isRegularFile(config)) {
-					result.push_back(name.str());
+					result.emplace_back(name);
 				}
 			}
 		}
@@ -701,7 +703,7 @@ void MachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 		break;
 	case 2:
 		try {
-			reactor.switchMachine(tokens[1].getString().str());
+			reactor.switchMachine(string(tokens[1].getString()));
 		} catch (MSXException& e) {
 			throw CommandException("Machine switching failed: ",
 			                       e.getMessage());
@@ -738,7 +740,7 @@ void TestMachineCommand::execute(span<const TclObject> tokens,
 	checkNumArgs(tokens, 2, "machinetype");
 	try {
 		MSXMotherBoard mb(reactor);
-		mb.loadMachine(tokens[1].getString().str());
+		mb.loadMachine(string(tokens[1].getString()));
 	} catch (MSXException& e) {
 		result = e.getMessage(); // error
 	}
@@ -896,7 +898,7 @@ void StoreMachineCommand::execute(span<const TclObject> tokens, TclObject& resul
 		break;
 	case 3:
 		machineID = tokens[1].getString();
-		filename = tokens[2].getString().str();
+		filename = tokens[2].getString();
 		break;
 	}
 
@@ -965,7 +967,7 @@ void RestoreMachineCommand::execute(span<const TclObject> tokens,
 		break;
 	}
 	case 2:
-		filename = tokens[1].getString().str();
+		filename = tokens[1].getString();
 		break;
 	}
 
@@ -1036,7 +1038,7 @@ SetClipboardCommand::SetClipboardCommand(CommandController& commandController_)
 void SetClipboardCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
 	checkNumArgs(tokens, 2, "text");
-	string text = tokens[1].getString().str();
+	string text(tokens[1].getString());
 	if (SDL_SetClipboardText(text.c_str()) != 0) {
 		const char* err = SDL_GetError();
 		SDL_ClearError();

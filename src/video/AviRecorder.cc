@@ -203,7 +203,7 @@ unsigned AviRecorder::getFrameHeight() const {
 
 void AviRecorder::processStart(Interpreter& interp, span<const TclObject> tokens, TclObject& result)
 {
-	string_view prefix = "openmsx";
+	std::string_view prefix = "openmsx";
 	bool audioOnly    = false;
 	bool videoOnly    = false;
 	bool recordMono   = false;
@@ -233,7 +233,7 @@ void AviRecorder::processStart(Interpreter& interp, span<const TclObject> tokens
 	if (videoOnly && (recordStereo || recordMono)) {
 		throw CommandException("Can't have both -videoonly and -stereo or -mono.");
 	}
-	string_view filenameArg;
+	std::string_view filenameArg;
 	switch (arguments.size()) {
 	case 0:
 		// nothing

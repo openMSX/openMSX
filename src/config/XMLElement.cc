@@ -11,8 +11,9 @@
 #include "xrange.hh"
 #include <cassert>
 
-using std::unique_ptr;
 using std::string;
+using std::string_view;
+using std::unique_ptr;
 
 namespace openmsx {
 
@@ -62,7 +63,7 @@ void XMLElement::setAttribute(string_view attrName, string value)
 	if (it != end(attributes)) {
 		it->second = std::move(value);
 	} else {
-		attributes.emplace_back(attrName.str(), std::move(value));
+		attributes.emplace_back(attrName, std::move(value));
 	}
 }
 
@@ -151,7 +152,7 @@ XMLElement& XMLElement::getCreateChild(string_view childName,
 	if (auto* result = findChild(childName)) {
 		return *result;
 	}
-	return addChild(childName.str(), defaultValue.str());
+	return addChild(string(childName), string(defaultValue));
 }
 
 XMLElement& XMLElement::getCreateChildWithAttribute(
@@ -161,8 +162,8 @@ XMLElement& XMLElement::getCreateChildWithAttribute(
 	if (auto* result = findChildWithAttribute(childName, attName, attValue)) {
 		return *result;
 	}
-	auto& result = addChild(childName.str());
-	result.addAttribute(attName.str(), attValue.str());
+	auto& result = addChild(string(childName));
+	result.addAttribute(string(attName), string(attValue));
 	return result;
 }
 
@@ -195,7 +196,7 @@ void XMLElement::setChildData(string_view childName, string value)
 	if (auto* child = findChild(childName)) {
 		child->setData(std::move(value));
 	} else {
-		addChild(childName.str(), std::move(value));
+		addChild(string(childName), std::move(value));
 	}
 }
 
@@ -285,17 +286,17 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 //  ' -> &apos;  always allowed, but must be done inside quoted attribute
 //  " -> &quot;  always allowed, but must be done inside quoted attribute
 // So to simplify things we always do these 5 substitutions.
-string XMLElement::XMLEscape(const string& s)
+string XMLElement::XMLEscape(string_view s)
 {
 	static const char* const CHARS = "<>&\"'";
 	size_t i = s.find_first_of(CHARS);
-	if (i == string::npos) return s; // common case, no substitutions
+	if (i == string::npos) return string(s); // common case, no substitutions
 
 	string result;
 	result.reserve(s.size() + 10); // extra space for at least 2 substitutions
 	size_t pos = 0;
 	do {
-		strAppend(result, string_view(s).substr(pos, i - pos));
+		strAppend(result, s.substr(pos, i - pos));
 		switch (s[i]) {
 		case '<' : result += "&lt;";   break;
 		case '>' : result += "&gt;";   break;
@@ -307,7 +308,7 @@ string XMLElement::XMLEscape(const string& s)
 		pos = i + 1;
 		i = s.find_first_of(CHARS, pos);
 	} while (i != string::npos);
-	strAppend(result, string_view(s).substr(pos));
+	strAppend(result, s.substr(pos));
 	return result;
 }
 

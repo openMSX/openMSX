@@ -1,8 +1,8 @@
 #ifndef INPUTEVENTFACTORY_HH
 #define INPUTEVENTFACTORY_HH
 
-#include "string_view.hh"
 #include <memory>
+#include <string_view>
 
 namespace openmsx {
 
@@ -14,7 +14,7 @@ namespace InputEventFactory
 {
 	using EventPtr = std::shared_ptr<const Event>;
 
-	EventPtr createInputEvent(string_view str,       Interpreter& interp);
+	EventPtr createInputEvent(std::string_view str, Interpreter& interp);
 	EventPtr createInputEvent(const TclObject& str, Interpreter& interp);
 }
 

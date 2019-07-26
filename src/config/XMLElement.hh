@@ -4,6 +4,7 @@
 #include "serialize_meta.hh"
 #include <utility>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <memory>
 
@@ -40,14 +41,14 @@ public:
 
 	// attribute
 	void addAttribute(std::string name, std::string value);
-	void setAttribute(string_view name, std::string value);
-	void removeAttribute(string_view name);
-	bool hasAttribute(string_view name) const;
-	const std::string& getAttribute(string_view attName) const;
-	string_view getAttribute(string_view attName,
-	                        string_view defaultValue) const;
+	void setAttribute(std::string_view name, std::string value);
+	void removeAttribute(std::string_view name);
+	bool hasAttribute(std::string_view name) const;
+	const std::string& getAttribute(std::string_view attName) const;
+	std::string_view getAttribute(std::string_view attName,
+	                              std::string_view defaultValue) const;
 	// Returns ptr to attribute value, or nullptr when not found.
-	const std::string* findAttribute(string_view attName) const;
+	const std::string* findAttribute(std::string_view attName) const;
 
 	// child
 	using Children = std::vector<XMLElement>;
@@ -63,50 +64,50 @@ public:
 	//
 
 	// attribute
-	bool getAttributeAsBool(string_view attName,
+	bool getAttributeAsBool(std::string_view attName,
 	                        bool defaultValue = false) const;
-	int getAttributeAsInt(string_view attName,
+	int getAttributeAsInt(std::string_view attName,
 	                      int defaultValue = 0) const;
-	bool findAttributeInt(string_view attName,
+	bool findAttributeInt(std::string_view attName,
 	                      unsigned& result) const;
 
 	// child
-	const XMLElement* findChild(string_view name) const;
-	XMLElement* findChild(string_view name);
-	const XMLElement& getChild(string_view name) const;
-	XMLElement& getChild(string_view name);
+	const XMLElement* findChild(std::string_view name) const;
+	XMLElement* findChild(std::string_view name);
+	const XMLElement& getChild(std::string_view name) const;
+	XMLElement& getChild(std::string_view name);
 
 	const XMLElement* findChildWithAttribute(
-		string_view name, string_view attName,
-		string_view attValue) const;
+		std::string_view name, std::string_view attName,
+		std::string_view attValue) const;
 	XMLElement* findChildWithAttribute(
-		string_view name, string_view attName,
-		string_view attValue);
-	const XMLElement* findNextChild(string_view name,
+		std::string_view name, std::string_view attName,
+		std::string_view attValue);
+	const XMLElement* findNextChild(std::string_view name,
 	                                size_t& fromIndex) const;
 
-	std::vector<const XMLElement*> getChildren(string_view name) const;
+	std::vector<const XMLElement*> getChildren(std::string_view name) const;
 
-	XMLElement& getCreateChild(string_view name,
-	                           string_view defaultValue = {});
+	XMLElement& getCreateChild(std::string_view name,
+	                           std::string_view defaultValue = {});
 	XMLElement& getCreateChildWithAttribute(
-		string_view name, string_view attName,
-		string_view attValue);
+		std::string_view name, std::string_view attName,
+		std::string_view attValue);
 
-	const std::string& getChildData(string_view name) const;
-	string_view getChildData(string_view name,
-	                        string_view defaultValue) const;
-	bool getChildDataAsBool(string_view name,
+	const std::string& getChildData(std::string_view name) const;
+	std::string_view getChildData(std::string_view name,
+	                              std::string_view defaultValue) const;
+	bool getChildDataAsBool(std::string_view name,
 	                        bool defaultValue = false) const;
-	int getChildDataAsInt(string_view name,
+	int getChildDataAsInt(std::string_view name,
 	                      int defaultValue = 0) const;
-	void setChildData(string_view name, std::string value);
+	void setChildData(std::string_view name, std::string value);
 
 	void removeAllChildren();
 
 	// various
 	std::string dump() const;
-	static std::string XMLEscape(const std::string& str);
+	static std::string XMLEscape(std::string_view str);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -117,8 +118,8 @@ public:
 private:
 	using Attribute = std::pair<std::string, std::string>;
 	using Attributes = std::vector<Attribute>;
-	Attributes::iterator getAttributeIter(string_view name);
-	Attributes::const_iterator getAttributeIter(string_view name) const;
+	Attributes::iterator getAttributeIter(std::string_view name);
+	Attributes::const_iterator getAttributeIter(std::string_view name) const;
 	void dump(std::string& result, unsigned indentNum) const;
 
 	std::string name;

@@ -19,8 +19,8 @@ public:
 	Y8950KeyboardDevice& getPluggedKeyb() const;
 
 	// Connector
-	string_view getDescription() const final override;
-	string_view getClass() const final override;
+	std::string_view getDescription() const final override;
+	std::string_view getClass() const final override;
 	void plug(Pluggable& dev, EmuTime::param time) override;
 
 	template<typename Archive>

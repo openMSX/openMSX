@@ -32,7 +32,7 @@ OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& nam
 
 OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 
-vector<string_view> OSDImageBasedWidget::getProperties() const
+vector<std::string_view> OSDImageBasedWidget::getProperties() const
 {
 	auto result = OSDWidget::getProperties();
 	static const char* const vals[] = {
@@ -60,7 +60,7 @@ static void get4(Interpreter& interp, const TclObject& value, uint32_t* result)
 	}
 }
 void OSDImageBasedWidget::setProperty(
-	Interpreter& interp, string_view propName, const TclObject& value)
+	Interpreter& interp, std::string_view propName, const TclObject& value)
 {
 	if (propName == "-rgba") {
 		uint32_t newRGBA[4];
@@ -123,7 +123,7 @@ static void set4(const uint32_t rgba[4], uint32_t mask, unsigned shift, TclObjec
 		}));
 	}
 }
-void OSDImageBasedWidget::getProperty(string_view propName, TclObject& result) const
+void OSDImageBasedWidget::getProperty(std::string_view propName, TclObject& result) const
 {
 	if (propName == "-rgba") {
 		set4(rgba, 0xffffffff, 0, result);

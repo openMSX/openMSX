@@ -3,8 +3,8 @@
 
 #include "RecordedCommand.hh"
 #include "InfoTopic.hh"
-#include "string_view.hh"
 #include <memory>
+#include <string_view>
 
 namespace openmsx {
 
@@ -18,7 +18,7 @@ public:
 	explicit CartridgeSlotManager(MSXMotherBoard& motherBoard);
 	~CartridgeSlotManager();
 
-	static int getSlotNum(string_view slot);
+	static int getSlotNum(std::string_view slot);
 
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);
@@ -48,14 +48,14 @@ private:
 	class CartCmd final : public RecordedCommand {
 	public:
 		CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
-			string_view commandName);
+			std::string_view commandName);
 		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 		bool needRecord(span<const TclObject> tokens) const override;
 	private:
-		const HardwareConfig* getExtensionConfig(string_view cartname);
+		const HardwareConfig* getExtensionConfig(std::string_view cartname);
 		CartridgeSlotManager& manager;
 		CliComm& cliComm;
 	} cartCmd;

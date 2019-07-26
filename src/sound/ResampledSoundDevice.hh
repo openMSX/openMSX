@@ -24,8 +24,8 @@ public:
 	bool generateInput(float* buffer, unsigned num);
 
 protected:
-	ResampledSoundDevice(MSXMotherBoard& motherBoard, string_view name,
-	                     string_view description, unsigned channels,
+	ResampledSoundDevice(MSXMotherBoard& motherBoard, std::string_view name,
+	                     std::string_view description, unsigned channels,
 	                     unsigned inputSampleRate, bool stereo);
 	~ResampledSoundDevice();
 

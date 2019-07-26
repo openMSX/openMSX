@@ -11,10 +11,10 @@ class IntegerSetting final : public Setting
 {
 public:
 	IntegerSetting(CommandController& commandController,
-	               string_view name, string_view description,
+	               std::string_view name, std::string_view description,
 	               int initialValue, int minValue, int maxValue);
 
-	string_view getTypeString() const override;
+	std::string_view getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;
 
 	int getInt() const noexcept { return getValue().getInt(getInterpreter()); }

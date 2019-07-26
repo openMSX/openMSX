@@ -157,7 +157,7 @@ void DiskChanger::stopReplay(EmuTime::param /*time*/)
 	// nothing
 }
 
-int DiskChanger::insertDisk(string_view filename)
+int DiskChanger::insertDisk(std::string_view filename)
 {
 	TclObject args[] = { TclObject("dummy"), TclObject(filename) };
 	try {
@@ -175,7 +175,7 @@ void DiskChanger::insertDisk(span<const TclObject> args)
 	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
 	for (size_t i = 2; i < args.size(); ++i) {
 		newDisk->applyPatch(Filename(
-			args[i].getString().str(), userFileContext()));
+			string(args[i].getString()), userFileContext()));
 	}
 
 	// no errors, only now replace original disk
@@ -229,7 +229,7 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 
 	} else if (tokens[1] == "ramdsk") {
 		string args[] = {
-			diskChanger.getDriveName(), tokens[1].getString().str()
+			diskChanger.getDriveName(), string(tokens[1].getString())
 		};
 		diskChanger.sendChangeDiskEvent(args);
 	} else if (tokens[1] == "-ramdsk") {
@@ -255,16 +255,16 @@ void DiskCommand::execute(span<const TclObject> tokens, TclObject& result)
 		try {
 			vector<string> args = { diskChanger.getDriveName() };
 			for (size_t i = firstFileToken; i < tokens.size(); ++i) {
-				string_view option = tokens[i].getString();
+				std::string_view option = tokens[i].getString();
 				if (option == "-ips") {
 					if (++i == tokens.size()) {
 						throw MSXException(
 							"Missing argument for option \"", option, '\"');
 					}
-					args.push_back(tokens[i].getString().str());
+					args.emplace_back(tokens[i].getString());
 				} else {
 					// backwards compatibility
-					args.push_back(option.str());
+					args.emplace_back(option);
 				}
 			}
 			diskChanger.sendChangeDiskEvent(args);

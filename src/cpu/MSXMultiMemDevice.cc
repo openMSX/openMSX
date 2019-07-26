@@ -77,7 +77,7 @@ std::string MSXMultiMemDevice::getName() const
 {
 	TclObject list;
 	getNameList(list);
-	return list.getString().str();
+	return std::string(list.getString());
 }
 void MSXMultiMemDevice::getNameList(TclObject& result) const
 {

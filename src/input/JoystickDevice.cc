@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-string_view JoystickDevice::getClass() const
+std::string_view JoystickDevice::getClass() const
 {
 	return "Joystick Port";
 }

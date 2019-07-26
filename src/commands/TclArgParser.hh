@@ -4,9 +4,9 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "span.hh"
-#include "string_view.hh"
 #include <functional>
 #include <optional>
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -29,14 +29,14 @@ namespace detail {
 			result = obj.getDouble(interp);
 		}
 	};
-	template<> struct GetArg<string_view> {
-		void operator()(Interpreter& /*interp*/, const TclObject& obj, string_view& result) const {
+	template<> struct GetArg<std::string_view> {
+		void operator()(Interpreter& /*interp*/, const TclObject& obj, std::string_view& result) const {
 			result = obj.getString();
 		}
 	};
 	template<> struct GetArg<std::string> {
 		void operator()(Interpreter& /*interp*/, const TclObject& obj, std::string& result) const {
-			result = obj.getString().str();
+			result = std::string(obj.getString());
 		}
 	};
 	template<> struct GetArg<TclObject> {
@@ -64,12 +64,12 @@ namespace detail {
 // A Tcl-argument-parser description is made out of ArgsInfo objects
 struct ArgsInfo
 {
-	string_view name;
+	std::string_view name;
 	std::function<unsigned(Interpreter&, span<const TclObject>)> func;
 };
 
 // Parse a flag.
-inline ArgsInfo flagArg(string_view name, bool& flag)
+inline ArgsInfo flagArg(std::string_view name, bool& flag)
 {
 	return {
 		name,
@@ -82,7 +82,7 @@ inline ArgsInfo flagArg(string_view name, bool& flag)
 
 // Parse a value (like a flag but with associated value).
 template<typename T>
-ArgsInfo valueArg(string_view name, T& value)
+ArgsInfo valueArg(std::string_view name, T& value)
 {
 	return {
 		name,

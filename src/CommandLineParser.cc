@@ -31,6 +31,7 @@
 
 using std::cout;
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -214,7 +215,7 @@ void CommandLineParser::parse(int argc, char** argv)
 				const auto& machine =
 					reactor.getMachineSetting().getString();
 				try {
-					reactor.switchMachine(machine.str());
+					reactor.switchMachine(string(machine));
 				} catch (MSXException& e) {
 					reactor.getCliComm().printInfo(
 						"Failed to initialize default machine: ",
@@ -225,7 +226,7 @@ void CommandLineParser::parse(int argc, char** argv)
 					reactor.getCliComm().printInfo(
 						"Using fallback machine: ", fallbackMachine);
 					try {
-						reactor.switchMachine(fallbackMachine.str());
+						reactor.switchMachine(string(fallbackMachine));
 					} catch (MSXException& e2) {
 						// Fallback machine failed as well; we're out of options.
 						throw FatalError(std::move(e2).getMessage());

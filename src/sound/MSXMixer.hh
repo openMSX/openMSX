@@ -109,7 +109,7 @@ public:
 	// Returns the nominal host sample rate (not adjusted for speed setting)
 	unsigned getSampleRate() const { return hostSampleRate; }
 
-	SoundDevice* findDevice(string_view name) const;
+	SoundDevice* findDevice(std::string_view name) const;
 
 	void reInit();
 

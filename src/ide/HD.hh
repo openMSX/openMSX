@@ -47,7 +47,7 @@ private:
 	SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	const std::string& getContainerName() const override;
 	bool diskChanged() override;
-	int insertDisk(string_view newFilename) override;
+	int insertDisk(std::string_view newFilename) override;
 
 	// TTData
 	uint8_t* getData(size_t offset, size_t size) override;

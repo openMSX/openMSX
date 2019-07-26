@@ -317,12 +317,12 @@ string MSXMotherBoard::loadMachine(const string& machine)
 	return machineName;
 }
 
-string MSXMotherBoard::loadExtension(string_view name, string slotname)
+string MSXMotherBoard::loadExtension(std::string_view name, string slotname)
 {
 	unique_ptr<HardwareConfig> extension;
 	try {
 		extension = HardwareConfig::createExtensionConfig(
-			*this, name.str(), std::move(slotname));
+			*this, string(name), std::move(slotname));
 	} catch (FileException& e) {
 		throw MSXException(
 			"Extension \"", name, "\" not found: ", e.getMessage());
@@ -334,7 +334,7 @@ string MSXMotherBoard::loadExtension(string_view name, string slotname)
 }
 
 string MSXMotherBoard::insertExtension(
-	string_view name, unique_ptr<HardwareConfig> extension)
+	std::string_view name, unique_ptr<HardwareConfig> extension)
 {
 	try {
 		extension->parseSlots();
@@ -349,7 +349,7 @@ string MSXMotherBoard::insertExtension(
 	return result;
 }
 
-HardwareConfig* MSXMotherBoard::findExtension(string_view extensionName)
+HardwareConfig* MSXMotherBoard::findExtension(std::string_view extensionName)
 {
 	auto it = ranges::find_if(extensions, [&](auto& v) {
 		return v->getName() == extensionName;
@@ -428,7 +428,7 @@ JoystickPortIf& MSXMotherBoard::getJoystickPort(unsigned port)
 	if (!joystickPort[0]) {
 		assert(getMachineConfig());
 		// some MSX machines only have 1 instead of 2 joystick ports
-		string_view ports = getMachineConfig()->getConfig().getChildData(
+		std::string_view ports = getMachineConfig()->getConfig().getChildData(
 			"JoystickPorts", "AB");
 		if ((ports != "AB") && (!ports.empty()) &&
 		    (ports != "A") && (ports != "B")) {
@@ -646,7 +646,7 @@ void MSXMotherBoard::exitCPULoopSync()
 	getCPU().exitCPULoopSync();
 }
 
-MSXDevice* MSXMotherBoard::findDevice(string_view name)
+MSXDevice* MSXMotherBoard::findDevice(std::string_view name)
 {
 	auto it = ranges::find_if(availableDevices,
 	                          [&](auto* d) { return d->getName() == name; });
@@ -786,7 +786,7 @@ void LoadMachineCmd::execute(span<const TclObject> tokens, TclObject& result)
 	if (motherBoard.getMachineConfig()) {
 		throw CommandException("Already loaded a config in this machine.");
 	}
-	result = motherBoard.loadMachine(tokens[1].getString().str());
+	result = motherBoard.loadMachine(string(tokens[1].getString()));
 }
 
 string LoadMachineCmd::help(const vector<string>& /*tokens*/) const
@@ -838,10 +838,10 @@ void ExtCmd::execute(span<const TclObject> tokens, TclObject& result,
 	checkNumArgs(tokens, 2, "extension");
 	try {
 		auto slotname = (commandName.size() == 4)
-			? string_view(&commandName[3], 1)
+			? std::string_view(&commandName[3], 1)
 			: "any";
 		result = motherBoard.loadExtension(
-			tokens[1].getString(), slotname.str());
+			tokens[1].getString(), string(slotname));
 	} catch (MSXException& e) {
 		throw CommandException(std::move(e).getMessage());
 	}
@@ -873,7 +873,7 @@ void RemoveExtCmd::execute(span<const TclObject> tokens, TclObject& /*result*/,
                            EmuTime::param /*time*/)
 {
 	checkNumArgs(tokens, 2, "extension");
-	string_view extName = tokens[1].getString();
+	std::string_view extName = tokens[1].getString();
 	HardwareConfig* extension = motherBoard.findExtension(extName);
 	if (!extension) {
 		throw CommandException("No such extension: ", extName);
@@ -959,7 +959,7 @@ void DeviceInfo::execute(span<const TclObject> tokens, TclObject& result) const
 			                [](auto& d) { return d->getName(); }));
 		break;
 	case 3: {
-		string_view deviceName = tokens[2].getString();
+		std::string_view deviceName = tokens[2].getString();
 		MSXDevice* device = motherBoard.findDevice(deviceName);
 		if (!device) {
 			throw CommandException("No such device: ", deviceName);

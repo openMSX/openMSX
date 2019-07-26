@@ -4,8 +4,9 @@
 #include "Subject.hh"
 #include "TclObject.hh"
 #include "strCat.hh"
-#include "string_view.hh"
+#include "StringOp.hh"
 #include <functional>
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -17,7 +18,7 @@ class Interpreter;
 class BaseSetting
 {
 protected:
-	explicit BaseSetting(string_view name);
+	explicit BaseSetting(std::string_view name);
 	explicit BaseSetting(const TclObject& name);
 	~BaseSetting() = default;
 
@@ -31,13 +32,13 @@ public:
 	  */
 	const TclObject& getFullNameObj() const { return fullName; }
 	const TclObject& getBaseNameObj() const { return baseName; }
-	string_view      getFullName()    const { return fullName.getString(); }
-	string_view      getBaseName()    const { return baseName.getString(); }
+	std::string_view getFullName()    const { return fullName.getString(); }
+	std::string_view getBaseName()    const { return baseName.getString(); }
 
 	/** Set a machine specific prefix.
 	 */
-	void setPrefix(string_view prefix) {
-		assert(prefix.starts_with("::"));
+	void setPrefix(std::string_view prefix) {
+		assert(StringOp::startsWith(prefix, "::"));
 		fullName = strCat(prefix, getBaseName());
 	}
 
@@ -49,12 +50,12 @@ public:
 
 	/** Get a description of this setting that can be presented to the user.
 	  */
-	virtual string_view getDescription() const = 0;
+	virtual std::string_view getDescription() const = 0;
 
 	/** Returns a string describing the setting type (integer, string, ..)
 	  * Could be used in a GUI to pick an appropriate setting widget.
 	  */
-	virtual string_view getTypeString() const = 0;
+	virtual std::string_view getTypeString() const = 0;
 
 	/** Helper method for info().
 	 */
@@ -154,7 +155,7 @@ public:
 
 	// BaseSetting
 	void setValue(const TclObject& newValue) final override;
-	string_view getDescription() const final override;
+	std::string_view getDescription() const final override;
 	TclObject getDefaultValue() const final override { return defaultValue; }
 	TclObject getRestoreValue() const final override { return restoreValue; }
 	void setValueDirect(const TclObject& newValue) final override;
@@ -170,7 +171,7 @@ public:
 
 protected:
 	Setting(CommandController& commandController,
-	        string_view name, string_view description,
+	        std::string_view name, std::string_view description,
 	        const TclObject& initialValue, SaveSetting save = SAVE);
 	void init();
 	void notifyPropertyChange() const;

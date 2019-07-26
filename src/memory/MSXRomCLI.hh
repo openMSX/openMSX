@@ -14,11 +14,11 @@ public:
 
 	void parseOption(const std::string& option,
 	                 span<std::string>& cmdLine) override;
-	string_view optionHelp() const override;
+	std::string_view optionHelp() const override;
 
 	void parseFileType(const std::string& arg,
 	                   span<std::string>& cmdLine) override;
-	string_view fileTypeHelp() const override;
+	std::string_view fileTypeHelp() const override;
 
 private:
 	void parse(const std::string& arg, const std::string& slotname,
@@ -29,12 +29,12 @@ private:
 	struct IpsOption final : CLIOption {
 		void parseOption(const std::string& option,
 		                 span<std::string>& cmdLine) override;
-		string_view optionHelp() const override;
+		std::string_view optionHelp() const override;
 	} ipsOption;
 	struct RomTypeOption final : CLIOption {
 		void parseOption(const std::string& option,
 		                 span<std::string>& cmdLine) override;
-		string_view optionHelp() const override;
+		std::string_view optionHelp() const override;
 	} romTypeOption;
 };
 

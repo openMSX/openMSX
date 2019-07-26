@@ -256,12 +256,12 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	//      HardwareConfig::createRomConfig
 	if (StringOp::startsWith(name, "MSXRom")) {
 		auto& db = motherBoard.getReactor().getSoftwareDatabase();
-		string_view title;
+		std::string_view title;
 		if (const auto* romInfo = db.fetchRomInfo(getOriginalSHA1())) {
 			title = romInfo->getTitle(db.getBufferStart());
 		}
 		if (!title.empty()) {
-			name = title.str();
+			name = title;
 		} else {
 			// unknown ROM, use file name
 			name = file.getOriginalName();

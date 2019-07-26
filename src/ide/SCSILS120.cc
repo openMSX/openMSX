@@ -235,7 +235,7 @@ unsigned SCSILS120::inquiry()
 	}
 
 	if (length > 36) {
-		string filename = FileOperations::getFilename(file.getURL()).str();
+		string filename(FileOperations::getFilename(file.getURL()));
 		filename.resize(20, ' ');
 		memcpy(buffer + 36, filename.data(), 20);
 	}
@@ -477,7 +477,7 @@ void SCSILS120::eject()
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, {});
 }
 
-void SCSILS120::insert(string_view filename)
+void SCSILS120::insert(std::string_view filename)
 {
 	file = File(filename);
 	mediaChanged = true;
@@ -739,7 +739,7 @@ bool SCSILS120::diskChanged()
 	return mediaChanged; // TODO not reset on read
 }
 
-int SCSILS120::insertDisk(string_view filename)
+int SCSILS120::insertDisk(std::string_view filename)
 {
 	try {
 		insert(filename);
@@ -790,7 +790,7 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 		}
 		try {
 			string filename = userFileContext().resolve(
-				tokens[fileToken].getString().str());
+				string(tokens[fileToken].getString()));
 			ls.insert(filename);
 			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {

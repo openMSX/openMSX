@@ -115,7 +115,7 @@ const string& JoyMega::getName() const
 	return name;
 }
 
-string_view JoyMega::getDescription() const
+std::string_view JoyMega::getDescription() const
 {
 	return desc;
 }

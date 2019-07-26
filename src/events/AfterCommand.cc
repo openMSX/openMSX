@@ -17,11 +17,12 @@
 #include <memory>
 #include <sstream>
 
+using std::move;
 using std::ostringstream;
 using std::string;
+using std::string_view;
 using std::vector;
 using std::unique_ptr;
-using std::move;
 
 namespace openmsx {
 
@@ -569,7 +570,7 @@ template<EventType T>
 AfterEventCmd<T>::AfterEventCmd(
 		AfterCommand& afterCommand_, const TclObject& type_,
 		const TclObject& command_)
-	: AfterCmd(afterCommand_, command_), type(type_.getString().str())
+	: AfterCmd(afterCommand_, command_), type(type_.getString())
 {
 }
 

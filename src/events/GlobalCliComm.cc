@@ -52,7 +52,7 @@ void GlobalCliComm::setAllowExternalCommands()
 	}
 }
 
-void GlobalCliComm::log(LogLevel level, string_view message)
+void GlobalCliComm::log(LogLevel level, std::string_view message)
 {
 	assert(Thread::isMainThread());
 
@@ -80,22 +80,22 @@ void GlobalCliComm::log(LogLevel level, string_view message)
 	}
 }
 
-void GlobalCliComm::update(UpdateType type, string_view name, string_view value)
+void GlobalCliComm::update(UpdateType type, std::string_view name, std::string_view value)
 {
 	assert(type < NUM_UPDATES);
 	if (auto v = lookup(prevValues[type], name)) {
 		if (*v == value) {
 			return;
 		}
-		*v = value.str();
+		*v = value;
 	} else {
-		prevValues[type].emplace_noDuplicateCheck(name.str(), value.str());
+		prevValues[type].emplace_noDuplicateCheck(name, value);
 	}
 	updateHelper(type, {}, name, value);
 }
 
-void GlobalCliComm::updateHelper(UpdateType type, string_view machine,
-                                 string_view name, string_view value)
+void GlobalCliComm::updateHelper(UpdateType type, std::string_view machine,
+                                 std::string_view name, std::string_view value)
 {
 	assert(Thread::isMainThread());
 	std::lock_guard<std::mutex> lock(mutex);

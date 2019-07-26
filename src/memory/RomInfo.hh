@@ -3,9 +3,9 @@
 
 #include "RomTypes.hh"
 #include "String32.hh"
-#include "string_view.hh"
-#include <vector>
+#include <string_view>
 #include <utility>
+#include <vector>
 
 namespace openmsx {
 
@@ -29,32 +29,32 @@ public:
 	{
 	}
 
-	string_view getTitle   (const char* buf) const {
+	std::string_view getTitle   (const char* buf) const {
 		return fromString32(buf, title);
 	}
-	string_view getYear    (const char* buf) const {
+	std::string_view getYear    (const char* buf) const {
 		return fromString32(buf, year);
 	}
-	string_view getCompany (const char* buf) const {
+	std::string_view getCompany (const char* buf) const {
 		return fromString32(buf, company);
 	}
-	string_view getCountry (const char* buf) const {
+	std::string_view getCountry (const char* buf) const {
 		return fromString32(buf, country);
 	}
-	string_view getOrigType(const char* buf) const {
+	std::string_view getOrigType(const char* buf) const {
 		return fromString32(buf, origType);
 	}
-	string_view getRemark  (const char* buf) const {
+	std::string_view getRemark  (const char* buf) const {
 		return fromString32(buf, remark);
 	}
 	RomType          getRomType()   const { return romType; }
 	bool             getOriginal()  const { return original; }
 	int              getGenMSXid()  const { return genMSXid; }
 
-	static RomType nameToRomType(string_view name);
-	static string_view romTypeToName(RomType type);
-	static std::vector<string_view> getAllRomTypes();
-	static string_view getDescription(RomType type);
+	static RomType nameToRomType(std::string_view name);
+	static std::string_view romTypeToName(RomType type);
+	static std::vector<std::string_view> getAllRomTypes();
+	static std::string_view getDescription(RomType type);
 	static unsigned   getBlockSize  (RomType type);
 
 private:

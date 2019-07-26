@@ -20,6 +20,7 @@
 #endif
 
 using std::string;
+using std::string_view;
 using std::vector;
 using namespace gl;
 
@@ -50,13 +51,13 @@ void OSDText::setProperty(
 	if (propName == "-text") {
 		string_view val = value.getString();
 		if (text != val) {
-			text = val.str();
+			text = val;
 			// note: don't invalidate font (don't reopen font file)
 			OSDImageBasedWidget::invalidateLocal();
 			invalidateChildren();
 		}
 	} else if (propName == "-font") {
-		string val = value.getString().str();
+		string val(value.getString());
 		if (fontfile != val) {
 			string file = systemFileContext().resolve(val);
 			if (!FileOperations::isRegularFile(file)) {
@@ -370,7 +371,7 @@ string OSDText::getCharWrappedText(const string& txt, unsigned maxWidth) const
 	vector<string_view> wrappedLines;
 	for (auto& line : StringOp::split(txt, '\n')) {
 		do {
-			auto p = splitAtChar(line.str(), maxWidth);
+			auto p = splitAtChar(string(line), maxWidth);
 			wrappedLines.push_back(line.substr(0, p));
 			line = line.substr(p);
 		} while (!line.empty());
@@ -383,7 +384,7 @@ string OSDText::getWordWrappedText(const string& txt, unsigned maxWidth) const
 	vector<string_view> wrappedLines;
 	for (auto& line : StringOp::split(txt, '\n')) {
 		do {
-			auto p = splitAtWord(line.str(), maxWidth);
+			auto p = splitAtWord(string(line), maxWidth);
 			string_view first = line.substr(0, p);
 			StringOp::trimRight(first, ' '); // remove trailing spaces
 			wrappedLines.push_back(first);

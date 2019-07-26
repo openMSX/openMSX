@@ -68,7 +68,7 @@ public:
 protected:
 	MouseButtonEvent(EventType type, unsigned button_);
 	~MouseButtonEvent() = default;
-	TclObject toTclHelper(string_view direction) const;
+	TclObject toTclHelper(std::string_view direction) const;
 
 private:
 	bool lessImpl(const Event& other) const override;
@@ -145,7 +145,7 @@ public:
 protected:
 	JoystickButtonEvent(EventType type, unsigned joystick, unsigned button);
 	~JoystickButtonEvent() = default;
-	TclObject toTclHelper(string_view direction) const;
+	TclObject toTclHelper(std::string_view direction) const;
 
 private:
 	bool lessImpl(const JoystickEvent& other) const override;
@@ -264,7 +264,7 @@ protected:
 	OsdControlEvent(EventType type, unsigned button_,
 	                std::shared_ptr<const Event> origEvent);
 	~OsdControlEvent() = default;
-	TclObject toTclHelper(string_view direction) const;
+	TclObject toTclHelper(std::string_view direction) const;
 
 private:
 	bool lessImpl(const Event& other) const final override;

@@ -19,7 +19,7 @@ EnumSettingBase::EnumSettingBase(BaseMap&& map)
 	ranges::sort(baseMap, Comp());
 }
 
-int EnumSettingBase::fromStringBase(string_view str) const
+int EnumSettingBase::fromStringBase(std::string_view str) const
 {
 	auto it = ranges::lower_bound(baseMap, str, Comp());
 	StringOp::casecmp cmp;
@@ -29,7 +29,7 @@ int EnumSettingBase::fromStringBase(string_view str) const
 	return it->second;
 }
 
-string_view EnumSettingBase::toStringBase(int value) const
+std::string_view EnumSettingBase::toStringBase(int value) const
 {
 	for (const auto& [name, val] : baseMap) {
 		if (val == value) {
@@ -39,9 +39,9 @@ string_view EnumSettingBase::toStringBase(int value) const
 	UNREACHABLE; return {};
 }
 
-std::vector<string_view> EnumSettingBase::getPossibleValues() const
+std::vector<std::string_view> EnumSettingBase::getPossibleValues() const
 {
-	return to_vector<string_view>(view::keys(baseMap));
+	return to_vector<std::string_view>(view::keys(baseMap));
 }
 
 void EnumSettingBase::additionalInfoBase(TclObject& result) const

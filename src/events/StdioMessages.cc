@@ -5,7 +5,7 @@ using std::string;
 
 namespace openmsx {
 
-void StdioMessages::log(CliComm::LogLevel level, string_view message)
+void StdioMessages::log(CliComm::LogLevel level, std::string_view message)
 {
 	auto levelStr = CliComm::getLevelStrings();
 	((level == CliComm::INFO) ? std::cout : std::cerr) <<
@@ -13,8 +13,8 @@ void StdioMessages::log(CliComm::LogLevel level, string_view message)
 
 }
 
-void StdioMessages::update(CliComm::UpdateType /*type*/, string_view /*machine*/,
-                           string_view /*name*/, string_view /*value*/)
+void StdioMessages::update(CliComm::UpdateType /*type*/, std::string_view /*machine*/,
+                           std::string_view /*name*/, std::string_view /*value*/)
 {
 	// ignore
 }

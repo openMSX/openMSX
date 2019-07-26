@@ -15,8 +15,8 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 using std::unique_ptr;
+using std::vector;
 
 namespace openmsx {
 
@@ -39,7 +39,7 @@ void UserSettings::deleteSetting(Setting& setting)
 		[&](unique_ptr<Setting>& p) { return p.get() == &setting; }));
 }
 
-Setting* UserSettings::findSetting(string_view name) const
+Setting* UserSettings::findSetting(std::string_view name) const
 {
 	auto it = ranges::find_if(
 	        settings, [&](auto& s) { return s->getFullName() == name; });
@@ -231,7 +231,7 @@ void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-vector<string_view> UserSettings::Cmd::getSettingNames() const
+vector<std::string_view> UserSettings::Cmd::getSettingNames() const
 {
 	return to_vector(view::transform(
 		OUTER(UserSettings, userSettingCommand).getSettings(),

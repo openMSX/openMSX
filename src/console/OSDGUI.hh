@@ -40,10 +40,10 @@ private:
 		void exists   (span<const TclObject> tokens, TclObject& result);
 		void configure(span<const TclObject> tokens, TclObject& result);
 		std::unique_ptr<OSDWidget> create(
-			string_view type, const TclObject& name) const;
+			std::string_view type, const TclObject& name) const;
 		void configure(OSDWidget& widget, span<const TclObject> tokens);
 
-		OSDWidget& getWidget(string_view name) const;
+		OSDWidget& getWidget(std::string_view name) const;
 	} osdCommand;
 
 	OSDTopWidget topWidget;

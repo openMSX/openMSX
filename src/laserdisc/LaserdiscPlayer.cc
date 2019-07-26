@@ -56,7 +56,7 @@ void LaserdiscPlayer::Command::execute(
 		checkNumArgs(tokens, 3, "filename");
 		try {
 			result = "Changing laserdisc.";
-			laserdiscPlayer.setImageName(tokens[2].getString().str(), time);
+			laserdiscPlayer.setImageName(string(tokens[2].getString()), time);
 		} catch (MSXException& e) {
 			throw CommandException(std::move(e).getMessage());
 		}

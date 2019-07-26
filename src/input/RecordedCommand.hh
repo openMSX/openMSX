@@ -63,7 +63,7 @@ protected:
 	RecordedCommand(CommandController& commandController,
 	                StateChangeDistributor& stateChangeDistributor,
 	                Scheduler& scheduler,
-	                string_view name);
+	                std::string_view name);
 	~RecordedCommand();
 
 private:

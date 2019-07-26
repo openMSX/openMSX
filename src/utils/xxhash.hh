@@ -42,11 +42,11 @@
 #ifndef XXHASH_HH
 #define XXHASH_HH
 
-#include "string_view.hh"
 #include "likely.hh"
 #include "build-info.hh"
 #include <cstdint>
 #include <cstring>
+#include <string_view>
 
 static const uint32_t PRIME32_1 = 2654435761;
 static const uint32_t PRIME32_2 = 2246822519;
@@ -127,7 +127,7 @@ static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
 	return  h32 ^ (h32 >> 16);
 }
 
-template<uint8_t MASK8> static inline uint32_t xxhash_impl(string_view key)
+template<uint8_t MASK8> static inline uint32_t xxhash_impl(std::string_view key)
 {
 	auto* data = reinterpret_cast<const uint8_t*>(key.data());
 	auto  size = key.size();
@@ -140,23 +140,23 @@ template<uint8_t MASK8> static inline uint32_t xxhash_impl(string_view key)
 	}
 }
 
-inline uint32_t xxhash(string_view key)
+inline uint32_t xxhash(std::string_view key)
 {
 	return xxhash_impl<0xFF>(key);
 }
-inline uint32_t xxhash_case(string_view key)
+inline uint32_t xxhash_case(std::string_view key)
 {
 	return xxhash_impl<static_cast<uint8_t>(~('a' - 'A'))>(key);
 }
 
 struct XXHasher {
-	uint32_t operator()(string_view key) const {
+	uint32_t operator()(std::string_view key) const {
 		return xxhash(key);
 	}
 };
 
 struct XXHasher_IgnoreCase {
-	uint32_t operator()(string_view key) const {
+	uint32_t operator()(std::string_view key) const {
 		return xxhash_case(key);
 	}
 };

@@ -81,7 +81,7 @@ const string& Mouse::getName() const
 	return name;
 }
 
-string_view Mouse::getDescription() const
+std::string_view Mouse::getDescription() const
 {
 	return "MSX mouse";
 }

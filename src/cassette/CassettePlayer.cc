@@ -529,7 +529,7 @@ const string& CassettePlayer::getName() const
 	return pluggableName;
 }
 
-string_view CassettePlayer::getDescription() const
+std::string_view CassettePlayer::getDescription() const
 {
 	// TODO: this description is not entirely accurate, but it is used
 	// as an identifier for this audio device in e.g. Catapult. We should
@@ -647,7 +647,7 @@ void CassettePlayer::TapeCommand::execute(
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
 			result = "Changing tape";
-			Filename filename(tokens[2].getString().str(), userFileContext());
+			Filename filename(string(tokens[2].getString()), userFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(std::move(e).getMessage());
@@ -718,7 +718,7 @@ void CassettePlayer::TapeCommand::execute(
 	} else {
 		try {
 			result = "Changing tape";
-			Filename filename(tokens[1].getString().str(), userFileContext());
+			Filename filename(string(tokens[1].getString()), userFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(std::move(e).getMessage());

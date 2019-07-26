@@ -15,9 +15,9 @@ class MSXCliComm final : public CliComm
 public:
 	MSXCliComm(MSXMotherBoard& motherBoard, GlobalCliComm& cliComm);
 
-	void log(LogLevel level, string_view message) override;
-	void update(UpdateType type, string_view name,
-	            string_view value) override;
+	void log(LogLevel level, std::string_view message) override;
+	void update(UpdateType type, std::string_view name,
+	            std::string_view value) override;
 
 private:
 	MSXMotherBoard& motherBoard;

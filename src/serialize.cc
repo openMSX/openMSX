@@ -17,6 +17,7 @@
 #include <limits>
 
 using std::string;
+using std::string_view;
 
 namespace openmsx {
 
@@ -390,7 +391,7 @@ string_view XmlInputArchive::loadStr()
 }
 void XmlInputArchive::load(string& t)
 {
-	t = loadStr().str();
+	t = loadStr();
 }
 void XmlInputArchive::loadChar(char& c)
 {

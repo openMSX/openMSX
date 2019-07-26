@@ -1,5 +1,6 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
+#include "likely.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "view.hh"
@@ -7,6 +8,7 @@
 #include <stdexcept>
 
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace StringOp {
@@ -61,14 +63,15 @@ bool stringToDouble(const string& str, double& result)
 
 string toLower(string_view str)
 {
-	string result = str.str();
+	string result(str);
 	transform_in_place(result, ::tolower);
 	return result;
 }
 
 bool startsWith(string_view total, string_view part)
 {
-	return total.starts_with(part);
+	return (total.size() >= part.size()) &&
+	       (memcmp(total.data(), part.data(), part.size()) == 0);
 }
 bool startsWith(string_view total, char part)
 {
@@ -77,7 +80,8 @@ bool startsWith(string_view total, char part)
 
 bool endsWith(string_view total, string_view part)
 {
-	return total.ends_with(part);
+	return (total.size() >= part.size()) &&
+	       (memcmp(total.data() + total.size() - part.size(), part.data(), part.size()) == 0);
 }
 bool endsWith(string_view total, char part)
 {
@@ -105,13 +109,13 @@ void trimRight(string& str, char chars)
 void trimRight(string_view& str, string_view chars)
 {
 	while (!str.empty() && (chars.find(str.back()) != string_view::npos)) {
-		str.pop_back();
+		str.remove_suffix(1);
 	}
 }
 void trimRight(string_view& str, char chars)
 {
 	while (!str.empty() && (str.back() == chars)) {
-		str.pop_back();
+		str.remove_suffix(1);
 	}
 }
 
@@ -126,13 +130,13 @@ void trimLeft(string& str, char chars)
 void trimLeft(string_view& str, string_view chars)
 {
 	while (!str.empty() && (chars.find(str.front()) != string_view::npos)) {
-		str.pop_front();
+		str.remove_prefix(1);
 	}
 }
 void trimLeft(string_view& str, char chars)
 {
 	while (!str.empty() && (str.front() == chars)) {
-		str.pop_front();
+		str.remove_prefix(1);
 	}
 }
 
@@ -153,7 +157,7 @@ void splitOnFirst(string_view str, string_view chars, string_view& first, string
 	auto pos = str.find_first_of(chars);
 	if (pos == string_view::npos) {
 		first = str;
-		last.clear();
+		last = string_view{};
 	} else {
 		first = str.substr(0, pos);
 		last  = str.substr(pos + 1);
@@ -164,7 +168,7 @@ void splitOnFirst(string_view str, char chars, string_view& first, string_view& 
 	auto pos = str.find_first_of(chars);
 	if (pos == string_view::npos) {
 		first = str;
-		last.clear();
+		last = string_view{};
 	} else {
 		first = str.substr(0, pos);
 		last  = str.substr(pos + 1);
@@ -175,7 +179,7 @@ void splitOnLast(string_view str, string_view chars, string_view& first, string_
 {
 	auto pos = str.find_last_of(chars);
 	if (pos == string_view::npos) {
-		first.clear();
+		first = string_view{};
 		last = str;
 	} else {
 		first = str.substr(0, pos);
@@ -186,7 +190,7 @@ void splitOnLast(string_view str, char chars, string_view& first, string_view& l
 {
 	auto pos = str.find_last_of(chars);
 	if (pos == string_view::npos) {
-		first.clear();
+		first = string_view{};
 		last = str;
 	} else {
 		first = str.substr(0, pos);
@@ -263,6 +267,20 @@ vector<unsigned> parseRange(string_view str, unsigned min, unsigned max)
 		parseRange2(sub, result, min, max);
 		if (next == string_view::npos) break;
 		str = str.substr(next);
+	}
+	return result;
+}
+
+unsigned fast_stou(string_view s)
+{
+	unsigned result = 0;
+	for (char c : s) {
+		unsigned d = c - '0';
+		if (unlikely(d > 9)) {
+			throw std::invalid_argument("fast_stoi");
+		}
+		result *= 10;
+		result += d;
 	}
 	return result;
 }

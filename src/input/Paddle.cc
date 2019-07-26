@@ -54,7 +54,7 @@ const std::string& Paddle::getName() const
 	return name;
 }
 
-string_view Paddle::getDescription() const
+std::string_view Paddle::getDescription() const
 {
 	return "MSX Paddle";
 }

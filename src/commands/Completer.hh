@@ -3,7 +3,7 @@
 
 #include "inline.hh"
 #include "span.hh"
-#include "string_view.hh"
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -47,7 +47,7 @@ public:
 	                             const FileContext& context);
 
 	static std::vector<std::string> formatListInColumns(
-		const std::vector<string_view>& input);
+		const std::vector<std::string_view>& input);
 
 	// helper functions to check the number of arguments
 	struct AtLeast { unsigned min; };
@@ -64,22 +64,22 @@ public:
 	static void setOutput(InterpreterOutput* output_) { output = output_; }
 
 protected:
-	explicit Completer(string_view name);
+	explicit Completer(std::string_view name);
 	~Completer() = default;
 
 private:
-	static bool equalHead(string_view s1, string_view s2, bool caseSensitive);
+	static bool equalHead(std::string_view s1, std::string_view s2, bool caseSensitive);
 	template<typename ITER>
-	static std::vector<string_view> filter(
-		string_view str, ITER begin, ITER end, bool caseSensitive);
+	static std::vector<std::string_view> filter(
+		std::string_view str, ITER begin, ITER end, bool caseSensitive);
 	template<typename RANGE>
-	static std::vector<string_view> filter(
-		string_view str, const RANGE& range, bool caseSensitive);
-	static bool completeImpl(std::string& str, std::vector<string_view> matches,
+	static std::vector<std::string_view> filter(
+		std::string_view str, const RANGE& range, bool caseSensitive);
+	static bool completeImpl(std::string& str, std::vector<std::string_view> matches,
 	                         bool caseSensitive);
 	static void completeFileNameImpl(std::vector<std::string>& tokens,
 	                                 const FileContext& context,
-	                                 std::vector<string_view> matches);
+	                                 std::vector<std::string_view> matches);
 
 	const std::string name;
 	static InterpreterOutput* output;
@@ -87,10 +87,10 @@ private:
 
 
 template<typename ITER>
-NEVER_INLINE std::vector<string_view> Completer::filter(
-	string_view str, ITER begin, ITER end, bool caseSensitive)
+NEVER_INLINE std::vector<std::string_view> Completer::filter(
+	std::string_view str, ITER begin, ITER end, bool caseSensitive)
 {
-	std::vector<string_view> result;
+	std::vector<std::string_view> result;
 	for (auto it = begin; it != end; ++it) {
 		if (equalHead(str, *it, caseSensitive)) {
 			result.push_back(*it);
@@ -100,8 +100,8 @@ NEVER_INLINE std::vector<string_view> Completer::filter(
 }
 
 template<typename RANGE>
-inline std::vector<string_view> Completer::filter(
-	string_view str, const RANGE& range, bool caseSensitive)
+inline std::vector<std::string_view> Completer::filter(
+	std::string_view str, const RANGE& range, bool caseSensitive)
 {
 	return filter(str, std::begin(range), std::end(range), caseSensitive);
 }

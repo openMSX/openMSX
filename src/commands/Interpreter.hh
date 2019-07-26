@@ -3,8 +3,8 @@
 
 #include "TclParser.hh"
 #include "TclObject.hh"
-#include "string_view.hh"
 #include <tcl.h>
+#include <string_view>
 #include <string>
 
 namespace openmsx {
@@ -47,7 +47,7 @@ public:
 	  */
 	void deleteNamespace(const std::string& name);
 
-	TclParser parse(string_view command);
+	TclParser parse(std::string_view command);
 
 	void poll();
 	

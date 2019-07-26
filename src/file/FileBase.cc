@@ -58,7 +58,7 @@ string FileBase::getLocalReference()
 string FileBase::getOriginalName()
 {
 	// default implementation just returns filename portion of URL
-	return FileOperations::getFilename(getURL()).str();
+	return string(FileOperations::getFilename(getURL()));
 }
 
 } // namespace openmsx

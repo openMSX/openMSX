@@ -1,12 +1,12 @@
 #ifndef FILEOPERATIONS_HH
 #define FILEOPERATIONS_HH
 
-#include "string_view.hh"
 #include "unistdp.hh" // needed for mode_t definition when building with VC++
 #include "statp.hh"
 #include <sys/types.h>
 #include <fstream>
 #include <memory>
+#include <string_view>
 
 namespace openmsx::FileOperations {
 
@@ -27,7 +27,7 @@ namespace openmsx::FileOperations {
 	 * @param path Pathname, with or without '~' character
 	 * @result The expanded pathname
 	 */
-	std::string expandTilde(string_view path);
+	std::string expandTilde(std::string_view path);
 
 	/**
 	 * Create the specified directory. Does some sanity checks so that
@@ -48,7 +48,7 @@ namespace openmsx::FileOperations {
 	 * @param path The path of the directory to create
 	 * @throw FileException
 	 */
-	void mkdirp(string_view path);
+	void mkdirp(std::string_view path);
 
 	/**
 	 * Call unlink() in a platform-independent manner
@@ -94,7 +94,7 @@ namespace openmsx::FileOperations {
 	 * @param path The pathname
 	 * @result The file portion
 	 */
-	string_view getFilename(string_view path);
+	std::string_view getFilename(std::string_view path);
 
 	/**
 	 * Returns the directory portion of a path.
@@ -103,7 +103,7 @@ namespace openmsx::FileOperations {
 	 *         If path doesn't have a directory portion the result
 	 *         is an empty string.
 	 */
-	string_view getDirName(string_view path);
+	std::string_view getDirName(std::string_view path);
 
 	/**
 	 * Returns the extension portion of a path.
@@ -112,7 +112,7 @@ namespace openmsx::FileOperations {
 	 *         If path doesn't have an extension portion the result
 	 *         is an empty string.
 	 */
-	string_view getExtension(string_view path);
+	std::string_view getExtension(std::string_view path);
 
 	/**
 	 * Returns the path without extension.
@@ -121,7 +121,7 @@ namespace openmsx::FileOperations {
 	 *         If path doesn't have an extension portion the result
 	 *         remains unchanged.
 	 */
-	string_view stripExtension(string_view path);
+	std::string_view stripExtension(std::string_view path);
 
 	/** Join two paths.
 	 * Returns the equivalent of 'path1 + '/' + path2'. If 'part2' is an
@@ -129,10 +129,10 @@ namespace openmsx::FileOperations {
 	 * 'part1' is empty or if it already ends with '/', there will be no
 	 * extra '/' added inbetween 'part1' and 'part2'.
 	 */
-	std::string join(string_view part1, string_view part2);
-	std::string join(string_view part1, string_view part2, string_view part3);
-	std::string join(string_view part1, string_view part2,
-	                 string_view part3, string_view part4);
+	std::string join(std::string_view part1, std::string_view part2);
+	std::string join(std::string_view part1, std::string_view part2, std::string_view part3);
+	std::string join(std::string_view part1, std::string_view part2,
+	                 std::string_view part3, std::string_view part4);
 
 	/**
 	 * Returns the path in conventional path-delimiter.
@@ -141,7 +141,7 @@ namespace openmsx::FileOperations {
 	 *    On UNI*Y systems, it will have no effect indeed.
 	 *    Just for portability issue. (Especially for Win32)
 	 */
-	std::string getConventionalPath(string_view path);
+	std::string getConventionalPath(std::string_view path);
 
 	/**
 	 * Returns the path in native path-delimiter.
@@ -150,7 +150,7 @@ namespace openmsx::FileOperations {
 	 *    On UNI*Y systems, it will have no effect indeed.
 	 *    Just for portability issue. (Especially for Win32)
 	 */
-	std::string getNativePath(string_view path);
+	std::string getNativePath(std::string_view path);
 
 	/** Returns the current working directory.
 	 * @throw FileException (for example when directory has been deleted).
@@ -160,13 +160,13 @@ namespace openmsx::FileOperations {
 	/** Transform given path into an absolute path
 	 * @throw FileException
 	 */
-	std::string getAbsolutePath(string_view path);
+	std::string getAbsolutePath(std::string_view path);
 
 	/**
 	 * Checks whether it's a absolute path or not.
 	 * @param path The pathname.
 	 */
-	bool isAbsolutePath(string_view path);
+	bool isAbsolutePath(std::string_view path);
 
 	/**
 	 * Get user's home directory.
@@ -179,7 +179,7 @@ namespace openmsx::FileOperations {
 	 *        This is because to support Win9x.
 	 *        Ignores the username parameter
 	 */
-	std::string getUserHomeDir(string_view username);
+	std::string getUserHomeDir(std::string_view username);
 
 	/**
 	 * Get the openMSX dir in the user's home directory.
@@ -204,7 +204,7 @@ namespace openmsx::FileOperations {
 	* Get the current directory of the specified drive
 	* Linux: just return an empty string
 	*/
-	std::string expandCurrentDirFromDrive(string_view path);
+	std::string expandCurrentDirFromDrive(std::string_view path);
 
 #ifdef _WIN32
 	typedef struct _stat Stat;
@@ -217,24 +217,24 @@ namespace openmsx::FileOperations {
 	 * @param st The stat structute that will be filled in
 	 * @result true iff success
 	 */
-	bool getStat(string_view filename, Stat& st);
+	bool getStat(std::string_view filename, Stat& st);
 
 	/**
 	 * Is this a regular file (no directory, device, ..)?
 	 */
-	bool isRegularFile(string_view filename);
+	bool isRegularFile(std::string_view filename);
 	bool isRegularFile(const Stat& st);
 
 	/**
 	 * Is this a directory?
 	 */
-	bool isDirectory(string_view directory);
+	bool isDirectory(std::string_view directory);
 	bool isDirectory(const Stat& st);
 
 	/**
 	 * Does this file (directory) exists?
 	 */
-	bool exists(string_view filename);
+	bool exists(std::string_view filename);
 
 	/** Get the date/time of last modification
 	 */
@@ -250,7 +250,7 @@ namespace openmsx::FileOperations {
 	 * @param extension Extension of the filename with numbers
 	 */
 	std::string getNextNumberedFileName(
-		string_view directory, string_view prefix, string_view extension);
+		std::string_view directory, std::string_view prefix, std::string_view extension);
 
 	/** Helper function for parsing filename arguments in Tcl commands.
 	 * - If argument is empty then getNextNumberedFileName() is used
@@ -261,8 +261,8 @@ namespace openmsx::FileOperations {
 	 *   directory is used (and created if required).
 	 */
 	std::string parseCommandFileArgument(
-		string_view argument, string_view directory,
-		string_view prefix,   string_view extension);
+		std::string_view argument, std::string_view directory,
+		std::string_view prefix,   std::string_view extension);
 
 	/**
 	 * Get the name of the temp directory on the system.

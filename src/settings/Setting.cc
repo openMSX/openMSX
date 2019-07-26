@@ -10,6 +10,7 @@
 #include "checked_cast.hh"
 
 using std::string;
+using std::string_view;
 
 namespace openmsx {
 
@@ -41,7 +42,7 @@ Setting::Setting(CommandController& commandController_,
                  const TclObject& initialValue, SaveSetting save_)
 	: BaseSetting(name_)
 	, commandController(commandController_)
-	, description(description_.str())
+	, description(description_)
 	, value(initialValue)
 	, defaultValue(initialValue)
 	, restoreValue(initialValue)
@@ -121,7 +122,7 @@ void Setting::notify() const
 		// check for non-saveable value
 		// (mechanism can be generalize later when needed)
 		if (val == dontSaveValue) val = getRestoreValue();
-		elem.setData(val.getString().str());
+		elem.setData(string(val.getString()));
 	}
 }
 

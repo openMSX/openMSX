@@ -13,6 +13,7 @@
 #include "MemBuffer.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "StringOp.hh"
 #include "unreachable.hh"
 #include "view.hh"
 #include "xrange.hh"
@@ -23,6 +24,7 @@
 using std::shared_ptr;
 using std::make_shared;
 using std::string;
+using std::string_view;
 using std::vector;
 using std::end;
 
@@ -52,7 +54,7 @@ void Debugger::registerDebuggable(string name, Debuggable& debuggable)
 void Debugger::unregisterDebuggable(string_view name, Debuggable& debuggable)
 {
 	assert(debuggables.contains(name));
-	assert(debuggables[name.str()] == &debuggable); (void)debuggable;
+	assert(debuggables[name] == &debuggable); (void)debuggable;
 	debuggables.erase(name);
 }
 
@@ -111,10 +113,10 @@ unsigned Debugger::insertProbeBreakPoint(
 
 void Debugger::removeProbeBreakPoint(string_view name)
 {
-	if (name.starts_with("pp#")) {
+	if (StringOp::startsWith(name, "pp#")) {
 		// remove by id
 		try {
-			unsigned id = fast_stou(name.substr(3));
+			unsigned id = StringOp::fast_stou(name.substr(3));
 			auto it = ranges::find_if(probeBreakPoints, [&](auto& bp) {
 				return bp->getId() == id;
 			});
@@ -375,10 +377,10 @@ void Debugger::Cmd::removeBreakPoint(
 	auto& breakPoints = interface.getBreakPoints();
 
 	string_view tmp = tokens[2].getString();
-	if (tmp.starts_with("bp#")) {
+	if (StringOp::startsWith(tmp, "bp#")) {
 		// remove by id
 		try {
-			unsigned id = fast_stou(tmp.substr(3));
+			unsigned id = StringOp::fast_stou(tmp.substr(3));
 			auto it = ranges::find_if(breakPoints, [&](auto& bp) {
 				return bp.getId() == id;
 			});
@@ -493,9 +495,9 @@ void Debugger::Cmd::removeWatchPoint(
 	checkNumArgs(tokens, 3, "id");
 	string_view tmp = tokens[2].getString();
 	try {
-		if (tmp.starts_with("wp#")) {
+		if (StringOp::startsWith(tmp, "wp#")) {
 			// remove by id
-			unsigned id = fast_stou(tmp.substr(3));
+			unsigned id = StringOp::fast_stou(tmp.substr(3));
 			auto& interface = debugger().motherBoard.getCPUInterface();
 			for (auto& wp : interface.getWatchPoints()) {
 				if (wp->getId() == id) {
@@ -586,9 +588,9 @@ void Debugger::Cmd::removeCondition(
 
 	string_view tmp = tokens[2].getString();
 	try {
-		if (tmp.starts_with("cond#")) {
+		if (StringOp::startsWith(tmp, "cond#")) {
 			// remove by id
-			unsigned id = fast_stou(tmp.substr(5));
+			unsigned id = StringOp::fast_stou(tmp.substr(5));
 			auto& interface = debugger().motherBoard.getCPUInterface();
 			for (auto& c : interface.getConditions()) {
 				if (c.getId() == id) {

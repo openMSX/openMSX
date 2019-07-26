@@ -22,6 +22,7 @@
 #endif
 
 using std::string;
+using std::string_view;
 using namespace gl;
 
 namespace openmsx {
@@ -112,7 +113,7 @@ int OSDConsoleRenderer::initFontAndGetColumns()
 {
 	// init font
 	fontSetting.setChecker([this](TclObject& value) {
-		loadFont(value.getString().str());
+		loadFont(string(value.getString()));
 	});
 	try {
 		loadFont(fontSetting.getString());
@@ -306,7 +307,7 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_view text,
 	unsigned width;
 	BaseImage* image;
 	if (!getFromCache(text, rgb, image, width)) {
-		string textStr = text.str();
+		string textStr(text);
 		SDLSurfacePtr surf;
 		unsigned rgb2 = openGL ? 0xffffff : rgb; // openGL -> always render white
 		try {

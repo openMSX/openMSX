@@ -24,6 +24,7 @@
 using std::min;
 using std::max;
 using std::string;
+using std::string_view;
 
 namespace openmsx {
 
@@ -371,7 +372,7 @@ void CommandConsole::print(string_view text, unsigned rgb)
 {
 	while (true) {
 		auto pos = text.find('\n');
-		newLineConsole(ConsoleLine(text.substr(0, pos).str(), rgb));
+		newLineConsole(ConsoleLine(string(text.substr(0, pos)), rgb));
 		if (pos == string_view::npos) return;
 		text = text.substr(pos + 1); // skip newline
 		if (text.empty()) return;
@@ -484,8 +485,8 @@ void CommandConsole::tabCompletion()
 {
 	resetScrollBack();
 	auto pl = unsigned(prompt.size());
-	string front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl).str();
-	string back  = utf8::unchecked::substr(lines[0].str(), cursorPosition).str();
+	string front(utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl));
+	string back (utf8::unchecked::substr(lines[0].str(), cursorPosition));
 	string newFront = commandController.tabCompletion(front);
 	cursorPosition = pl + unsigned(utf8::unchecked::size(newFront));
 	currentLine = newFront + back;

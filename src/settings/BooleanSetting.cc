@@ -4,8 +4,8 @@
 namespace openmsx {
 
 BooleanSetting::BooleanSetting(
-		CommandController& commandController_, string_view name,
-		string_view description_, bool initialValue, SaveSetting save_)
+		CommandController& commandController_, std::string_view name,
+		std::string_view description_, bool initialValue, SaveSetting save_)
 	: Setting(commandController_, name, description_,
 	          TclObject(toString(initialValue)), save_)
 {
@@ -18,7 +18,7 @@ BooleanSetting::BooleanSetting(
 	init();
 }
 
-string_view BooleanSetting::getTypeString() const
+std::string_view BooleanSetting::getTypeString() const
 {
 	return "boolean";
 }

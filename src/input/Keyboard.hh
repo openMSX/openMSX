@@ -11,10 +11,10 @@
 #include "EventListener.hh"
 #include "serialize_meta.hh"
 #include "span.hh"
-#include "string_view.hh"
 #include "openmsx.hh"
 #include <array>
 #include <deque>
+#include <string_view>
 #include <vector>
 #include <memory>
 
@@ -138,7 +138,7 @@ private:
 		void serialize(Archive& ar, unsigned version);
 
 	private:
-		void type(string_view str);
+		void type(std::string_view str);
 		void reschedule(EmuTime::param time);
 
 		// Command

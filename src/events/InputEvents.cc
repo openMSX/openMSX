@@ -70,7 +70,7 @@ MouseButtonEvent::MouseButtonEvent(EventType type_, unsigned button_)
 {
 }
 
-TclObject MouseButtonEvent::toTclHelper(string_view direction) const
+TclObject MouseButtonEvent::toTclHelper(std::string_view direction) const
 {
 	return makeTclList("mouse", strCat("button", getButton()), direction);
 }
@@ -180,7 +180,7 @@ JoystickButtonEvent::JoystickButtonEvent(
 {
 }
 
-TclObject JoystickButtonEvent::toTclHelper(string_view direction) const
+TclObject JoystickButtonEvent::toTclHelper(std::string_view direction) const
 {
 	auto result = JoystickEvent::toTclHelper();
 	result.addListElement(strCat("button", getButton()), direction);
@@ -359,7 +359,7 @@ bool OsdControlEvent::isRepeatStopper(const Event& other) const
 	       !dynamic_cast<const JoystickAxisMotionEvent*>(&other);
 }
 
-TclObject OsdControlEvent::toTclHelper(string_view direction) const
+TclObject OsdControlEvent::toTclHelper(std::string_view direction) const
 {
 	static const char* const names[] = {
 		"LEFT", "RIGHT", "UP", "DOWN", "A", "B"

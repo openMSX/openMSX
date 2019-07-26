@@ -18,8 +18,8 @@ class PreCacheFile;
 class LocalFile final : public FileBase
 {
 public:
-	LocalFile(string_view filename, File::OpenMode mode);
-	LocalFile(string_view filename, const char* mode);
+	LocalFile(std::string_view filename, File::OpenMode mode);
+	LocalFile(std::string_view filename, const char* mode);
 	~LocalFile() override;
 	void read (void* buffer, size_t num) override;
 	void write(const void* buffer, size_t num) override;

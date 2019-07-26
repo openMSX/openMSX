@@ -7,8 +7,8 @@
 #include "serialize_meta.hh"
 #include "serialize_constr.hh"
 #include "span.hh"
-#include "string_view.hh"
 #include <string>
+#include <string_view>
 #include <vector>
 #include <memory>
 
@@ -24,7 +24,7 @@ public:
 	HardwareConfig(const HardwareConfig&) = delete;
 	HardwareConfig& operator=(const HardwareConfig&) = delete;
 
-	static XMLElement loadConfig(string_view type, string_view name);
+	static XMLElement loadConfig(std::string_view type, std::string_view name);
 
 	static std::unique_ptr<HardwareConfig> createMachineConfig(
 		MSXMotherBoard& motherBoard, std::string machineName);
@@ -65,7 +65,7 @@ public:
 
 private:
 	void setConfig(XMLElement config_) { config = std::move(config_); }
-	void load(string_view type);
+	void load(std::string_view type);
 
 	const XMLElement& getDevices() const;
 	void createDevices(const XMLElement& elem,
@@ -76,7 +76,7 @@ private:
 	int getAnyFreePrimarySlot();
 	int getSpecificFreePrimarySlot(unsigned slot);
 	void addDevice(std::unique_ptr<MSXDevice> device);
-	void setName(string_view proposedName);
+	void setName(std::string_view proposedName);
 	void setSlot(std::string slotname);
 
 	MSXMotherBoard& motherBoard;

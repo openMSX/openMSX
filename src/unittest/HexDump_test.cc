@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "HexDump.hh"
+#include <cstring>
 
 static void test_decode(const std::string& encoded, const std::string& decoded)
 {

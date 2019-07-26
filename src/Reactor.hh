@@ -3,11 +3,11 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
-#include "string_view.hh"
 #include <cassert>
 #include <memory>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -94,7 +94,7 @@ public:
 	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
 
-	static std::vector<std::string> getHwConfigs(string_view type);
+	static std::vector<std::string> getHwConfigs(std::string_view type);
 
 	void block();
 	void unblock();
@@ -105,7 +105,7 @@ public:
 	CommandController& getCommandController();
 	CliComm& getCliComm();
 	Interpreter& getInterpreter();
-	string_view getMachineID() const;
+	std::string_view getMachineID() const;
 
 	using Board = std::unique_ptr<MSXMotherBoard>;
 	Board createEmptyMotherBoard();
@@ -117,8 +117,8 @@ private:
 	void createMachineSetting();
 	void switchBoard(MSXMotherBoard* newBoard);
 	void deleteBoard(MSXMotherBoard* board);
-	MSXMotherBoard& getMachine(string_view machineID) const;
-	std::vector<string_view> getMachineIDs() const;
+	MSXMotherBoard& getMachine(std::string_view machineID) const;
+	std::vector<std::string_view> getMachineIDs() const;
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;

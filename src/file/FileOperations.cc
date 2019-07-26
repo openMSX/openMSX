@@ -67,6 +67,7 @@
 #endif
 
 using std::string;
+using std::string_view;
 
 #ifdef _WIN32
 using namespace utf8;
@@ -193,7 +194,7 @@ static std::string findShareDir()
 string expandTilde(string_view path)
 {
 	if (path.empty() || path[0] != '~') {
-		return path.str();
+		return string(path);
 	}
 	auto pos = path.find_first_of('/');
 	string_view user = ((path.size() == 1) || (pos == 1))
@@ -202,7 +203,7 @@ string expandTilde(string_view path)
 	string result = getUserHomeDir(user);
 	if (result.empty()) {
 		// failed to find homedir, return the path unchanged
-		return path.str();
+		return string(path);
 	}
 	if (pos == string_view::npos) {
 		return result;
@@ -429,7 +430,7 @@ string_view stripExtension(string_view path)
 string join(string_view part1, string_view part2)
 {
 	if (part1.empty() || isAbsolutePath(part2)) {
-		return part2.str();
+		return string(part2);
 	}
 	if (part1.back() == '/') {
 		return strCat(part1, part2);
@@ -449,7 +450,7 @@ string join(string_view part1, string_view part2,
 
 string getNativePath(string_view path)
 {
-	string result = path.str();
+	string result(path);
 #ifdef _WIN32
 	ranges::replace(result, '/', '\\');
 #endif
@@ -458,7 +459,7 @@ string getNativePath(string_view path)
 
 string getConventionalPath(string_view path)
 {
-	string result = path.str();
+	string result(path);
 #ifdef _WIN32
 	ranges::replace(result, '\\', '/');
 #endif
@@ -489,7 +490,7 @@ string getAbsolutePath(string_view path)
 	// In rare cases getCurrentWorkingDirectory() can throw,
 	// so only call it when really necessary.
 	if (isAbsolutePath(path)) {
-		return path.str();
+		return string(path);
 	}
 	string currentDir = getCurrentWorkingDirectory();
 	return join(currentDir, path);
@@ -531,7 +532,7 @@ string getUserHomeDir(string_view username)
 			pw = getpwuid(getuid());
 		}
 	} else {
-		pw = getpwnam(username.str().c_str());
+		pw = getpwnam(string(username).c_str());
 	}
 	if (pw) {
 		dir = pw->pw_dir;
@@ -606,7 +607,7 @@ static bool driveExists(char driveLetter)
 
 string expandCurrentDirFromDrive(string_view path)
 {
-	string result = path.str();
+	string result(path);
 #ifdef _WIN32
 	if (((path.size() == 2) && (path[1] == ':')) ||
 		((path.size() >= 3) && (path[1] == ':') && (path[2] != '/'))) {
@@ -695,7 +696,7 @@ static unsigned getNextNum(dirent* d, string_view prefix, string_view extension,
 		return 0;
 	}
 	try {
-		return fast_stou(name.substr(prefixLen, nofdigits));
+		return StringOp::fast_stou(name.substr(prefixLen, nofdigits));
 	} catch (std::invalid_argument&) {
 		return 0;
 	}
@@ -737,7 +738,7 @@ string parseCommandFileArgument(
 		return getNextNumberedFileName(directory, prefix, extension);
 	}
 
-	string filename = argument.str();
+	string filename(argument);
 	if (getDirName(filename).empty()) {
 		// no dir given, use standard dir (and create it)
 		string dir = strCat(getUserOpenMSXDir(), '/', directory);

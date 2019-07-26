@@ -8,11 +8,11 @@
 #include "IntegerSetting.hh"
 #include "FilenameSetting.hh"
 #include "Observer.hh"
-#include "string_view.hh"
 #include "gl_vec.hh"
 #include "openmsx.hh"
 #include <list>
 #include <memory>
+#include <string_view>
 
 namespace openmsx {
 
@@ -43,16 +43,16 @@ private:
 	void setActive(bool active);
 
 	bool updateConsoleRect();
-	void loadFont      (string_view value);
-	void loadBackground(string_view value);
+	void loadFont      (std::string_view value);
+	void loadBackground(std::string_view value);
 	byte getVisibility() const;
 	void drawText(OutputSurface& output, const ConsoleLine& line,
 	              gl::ivec2 pos, byte alpha);
-	void drawText2(OutputSurface& output, string_view text,
+	void drawText2(OutputSurface& output, std::string_view text,
                        int& x, int y, byte alpha, unsigned rgb);
 	gl::ivec2 getTextPos(int cursorX, int cursorY);
 
-	bool getFromCache(string_view text, unsigned rgb,
+	bool getFromCache(std::string_view text, unsigned rgb,
 	                  BaseImage*& image, unsigned& width);
 	void insertInCache(std::string text, unsigned rgb,
 	                   std::unique_ptr<BaseImage> image, unsigned width);

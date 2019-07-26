@@ -3,6 +3,7 @@
 
 using namespace StringOp;
 using std::string;
+using std::string_view;
 using std::vector;
 
 static void testStringToInt(const string& s, bool ok, int expected)

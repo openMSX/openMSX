@@ -38,7 +38,7 @@ protected:
 	              EventDistributor& eventDistributor);
 	~CliConnection() override;
 
-	virtual void output(string_view message) = 0;
+	virtual void output(std::string_view message) = 0;
 
 	/** End this connection by sending the closing tag
 	  * and then closing the stream.
@@ -67,9 +67,9 @@ private:
 	void execute(const std::string& command);
 
 	// CliListener
-	void log(CliComm::LogLevel level, string_view message) override;
-	void update(CliComm::UpdateType type, string_view machine,
-	            string_view name, string_view value) override;
+	void log(CliComm::LogLevel level, std::string_view message) override;
+	void update(CliComm::UpdateType type, std::string_view machine,
+	            std::string_view name, std::string_view value) override;
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
@@ -89,7 +89,7 @@ public:
 	                EventDistributor& eventDistributor);
 	~StdioConnection() override;
 
-	void output(string_view message) override;
+	void output(std::string_view message) override;
 
 private:
 	void close() override;
@@ -102,10 +102,10 @@ class PipeConnection final : public CliConnection
 public:
 	PipeConnection(CommandController& commandController,
 	               EventDistributor& eventDistributor,
-	               string_view name);
+	               std::string_view name);
 	~PipeConnection() override;
 
-	void output(string_view message) override;
+	void output(std::string_view message) override;
 
 private:
 	void close() override;
@@ -124,7 +124,7 @@ public:
 	                 SOCKET sd);
 	~SocketConnection() override;
 
-	void output(string_view message) override;
+	void output(std::string_view message) override;
 
 private:
 	void close() override;

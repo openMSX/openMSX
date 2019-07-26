@@ -12,7 +12,7 @@ byte DummyY8950KeyboardDevice::read(EmuTime::param /*time*/)
 	return 255;
 }
 
-string_view DummyY8950KeyboardDevice::getDescription() const
+std::string_view DummyY8950KeyboardDevice::getDescription() const
 {
 	return {};
 }

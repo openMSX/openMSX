@@ -1078,7 +1078,7 @@ void Keyboard::KeyInserter::tabCompletion(vector<string>& tokens) const
 	completeString(tokens, options);
 }
 
-void Keyboard::KeyInserter::type(string_view str)
+void Keyboard::KeyInserter::type(std::string_view str)
 {
 	if (str.empty()) {
 		return;

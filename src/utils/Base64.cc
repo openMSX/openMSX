@@ -85,7 +85,7 @@ string encode(const uint8_t* input, size_t inSize)
 	return ret;
 }
 
-std::pair<MemBuffer<uint8_t>, size_t> decode(string_view input)
+std::pair<MemBuffer<uint8_t>, size_t> decode(std::string_view input)
 {
 	auto outSize = (input.size() * 3 + 3) / 4; // overestimation
 	MemBuffer<uint8_t> ret(outSize); // too big
@@ -122,7 +122,7 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(string_view input)
 	return std::make_pair(std::move(ret), out);
 }
 
-bool decode_inplace(string_view input, uint8_t* output, size_t outSize)
+bool decode_inplace(std::string_view input, uint8_t* output, size_t outSize)
 {
 	unsigned i = 0;
 	size_t out = 0;

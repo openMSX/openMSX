@@ -30,9 +30,9 @@ static void allocateMixBuffer(unsigned size)
 	}
 }
 
-static string makeUnique(MSXMixer& mixer, string_view name)
+static string makeUnique(MSXMixer& mixer, std::string_view name)
 {
-	string result = name.str();
+	string result(name);
 	if (mixer.findDevice(result)) {
 		unsigned n = 0;
 		do {
@@ -55,11 +55,11 @@ void SoundDevice::addFill(float*& buf, float val, unsigned num)
 	} while (--num);
 }
 
-SoundDevice::SoundDevice(MSXMixer& mixer_, string_view name_, string_view description_,
+SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, std::string_view description_,
 			 unsigned numChannels_, unsigned inputRate, bool stereo_)
 	: mixer(mixer_)
 	, name(makeUnique(mixer, name_))
-	, description(description_.str())
+	, description(description_)
 	, numChannels(numChannels_)
 	, stereo(stereo_ ? 2 : 1)
 	, numRecordChannels(0)
@@ -92,7 +92,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 	const XMLElement& soundConfig = config.getChild("sound");
 	float volume = soundConfig.getChildDataAsInt("volume") / 32767.0f;
 	int devBalance = 0;
-	string_view mode = soundConfig.getChildData("mode", "mono");
+	std::string_view mode = soundConfig.getChildData("mode", "mono");
 	if (mode == "mono") {
 		devBalance = 0;
 	} else if (mode == "left") {

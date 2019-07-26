@@ -37,7 +37,7 @@ void ProxySetting::setValue(const TclObject& value)
 	}
 }
 
-string_view ProxySetting::getTypeString() const
+std::string_view ProxySetting::getTypeString() const
 {
 	if (auto* setting = getSetting()) {
 		return setting->getTypeString();
@@ -46,7 +46,7 @@ string_view ProxySetting::getTypeString() const
 	}
 }
 
-string_view ProxySetting::getDescription() const
+std::string_view ProxySetting::getDescription() const
 {
 	if (auto* setting = getSetting()) {
 		return setting->getDescription();

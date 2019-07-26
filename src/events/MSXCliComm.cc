@@ -10,21 +10,21 @@ MSXCliComm::MSXCliComm(MSXMotherBoard& motherBoard_, GlobalCliComm& cliComm_)
 {
 }
 
-void MSXCliComm::log(LogLevel level, string_view message)
+void MSXCliComm::log(LogLevel level, std::string_view message)
 {
 	cliComm.log(level, message);
 }
 
-void MSXCliComm::update(UpdateType type, string_view name, string_view value)
+void MSXCliComm::update(UpdateType type, std::string_view name, std::string_view value)
 {
 	assert(type < NUM_UPDATES);
 	if (auto v = lookup(prevValues[type], name)) {
 		if (*v == value) {
 			return;
 		}
-		*v = value.str();
+		*v = std::string(value);
 	} else {
-		prevValues[type].emplace_noDuplicateCheck(name.str(), value.str());
+		prevValues[type].emplace_noDuplicateCheck(name, value);
 	}
 	cliComm.updateHelper(type, motherBoard.getMachineID(), name, value);
 }

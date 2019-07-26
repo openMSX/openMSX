@@ -46,7 +46,7 @@ static size_t midiMessageLength(uint8_t status)
 	}
 }
 
-string_view MidiOutDevice::getClass() const
+std::string_view MidiOutDevice::getClass() const
 {
 	return "midi out";
 }

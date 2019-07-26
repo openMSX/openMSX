@@ -5,12 +5,12 @@
 #include "VideoSourceSetting.hh"
 #include "hash_map.hh"
 #include "serialize_meta.hh"
-#include "string_view.hh"
 #include "xxhash.hh"
 #include "openmsx.hh"
 #include "RecordedCommand.hh"
 #include <cassert>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -65,8 +65,8 @@ public:
 	explicit MSXMotherBoard(Reactor& reactor);
 	~MSXMotherBoard();
 
-	string_view getMachineID()   const { return machineID; }
-	string_view getMachineName() const { return machineName; }
+	std::string_view getMachineID()   const { return machineID; }
+	std::string_view getMachineName() const { return machineName; }
 
 	/** Run emulation.
 	 * @return True if emulation steps were done,
@@ -106,9 +106,9 @@ public:
 
 	using Extensions = std::vector<std::unique_ptr<HardwareConfig>>;
 	const Extensions& getExtensions() const { return extensions; }
-	HardwareConfig* findExtension(string_view extensionName);
-	std::string loadExtension(string_view extensionName, std::string slotname);
-	std::string insertExtension(string_view name,
+	HardwareConfig* findExtension(std::string_view extensionName);
+	std::string loadExtension(std::string_view extensionName, std::string slotname);
+	std::string insertExtension(std::string_view name,
 	                            std::unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
 
@@ -154,7 +154,7 @@ public:
 	  * @return A pointer to the device or nullptr if the device could not
 	  *         be found.
 	  */
-	MSXDevice* findDevice(string_view name);
+	MSXDevice* findDevice(std::string_view name);
 
 	/** Some MSX device parts are shared between several MSX devices
 	  * (e.g. all memory mappers share IO ports 0xFC-0xFF). But this
@@ -165,7 +165,7 @@ public:
 	  *      Maybe this method can be removed when savestates are finished.
 	  */
 	template<typename T, typename ... Args>
-	std::shared_ptr<T> getSharedStuff(string_view name, Args&& ...args)
+	std::shared_ptr<T> getSharedStuff(std::string_view name, Args&& ...args)
 	{
 		auto& weak = sharedStuffMap[name];
 		auto shared = std::static_pointer_cast<T>(weak.lock());
@@ -210,7 +210,7 @@ private:
 
 	std::vector<MSXDevice*> availableDevices; // no ownership, no order
 
-	hash_map<string_view, std::weak_ptr<void>,      XXHasher> sharedStuffMap;
+	hash_map<std::string_view, std::weak_ptr<void>,      XXHasher> sharedStuffMap;
 	hash_map<std::string, std::vector<std::string>, XXHasher> userNames;
 
 	std::unique_ptr<MSXMapperIO> mapperIO;

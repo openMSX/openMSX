@@ -9,7 +9,7 @@
 
 #include "MemBuffer.hh"
 #include "DiskImageUtils.hh"
-#include "string_view.hh"
+#include <string_view>
 
 namespace openmsx {
 
@@ -21,13 +21,13 @@ public:
 	explicit MSXtar(SectorAccessibleDisk& disk);
 	~MSXtar();
 
-	void chdir(string_view newRootDir);
-	void mkdir(string_view newRootDir);
+	void chdir(std::string_view newRootDir);
+	void mkdir(std::string_view newRootDir);
 	std::string dir();
 	std::string addFile(const std::string& filename);
-	std::string addDir(string_view rootDirName);
-	std::string getItemFromDir(string_view rootDirName, string_view itemName);
-	void getDir(string_view rootDirName);
+	std::string addDir(std::string_view rootDirName);
+	std::string getItemFromDir(std::string_view rootDirName, std::string_view itemName);
+	void getDir(std::string_view rootDirName);
 
 private:
 	struct DirEntry {
@@ -57,14 +57,14 @@ private:
 	DirEntry findEntryInDir(const std::string& name, unsigned sector,
 	                        SectorBuffer& sectorBuf);
 	std::string addFileToDSK(const std::string& fullHostName, unsigned sector);
-	std::string recurseDirFill(string_view dirName, unsigned sector);
+	std::string recurseDirFill(std::string_view dirName, unsigned sector);
 	std::string condensName(const MSXDirEntry& dirEntry);
 	void changeTime (const std::string& resultFile, const MSXDirEntry& dirEntry);
 	void fileExtract(const std::string& resultFile, const MSXDirEntry& dirEntry);
-	void recurseDirExtract(string_view dirName, unsigned sector);
-	std::string singleItemExtract(string_view dirName, string_view itemName,
+	void recurseDirExtract(std::string_view dirName, unsigned sector);
+	std::string singleItemExtract(std::string_view dirName, std::string_view itemName,
 	                              unsigned sector);
-	void chroot(string_view newRootDir, bool createDir);
+	void chroot(std::string_view newRootDir, bool createDir);
 
 
 	SectorAccessibleDisk& disk;

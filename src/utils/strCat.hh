@@ -1,12 +1,12 @@
 #ifndef STRCAT_H
 #define STRCAT_H
 
-#include "string_view.hh"
 #include <climits>
 #include <cstring>
 #include <limits>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
 
@@ -154,9 +154,9 @@ struct ConcatUnit : ConcatViaString
 
 // ConcatUnit<string_view>:
 //   store the string view (copies the view, not the string)
-template<> struct ConcatUnit<string_view>
+template<> struct ConcatUnit<std::string_view>
 {
-	ConcatUnit(const string_view v_)
+	ConcatUnit(const std::string_view v_)
 		: v(v_)
 	{
 	}
@@ -174,7 +174,7 @@ template<> struct ConcatUnit<string_view>
 	}
 
 private:
-	string_view v;
+	std::string_view v;
 };
 
 
@@ -429,17 +429,17 @@ inline auto makeConcatUnit(const T& t)
 // Overloads for various cases (strings, integers, floats, ...).
 inline auto makeConcatUnit(const std::string& s)
 {
-	return ConcatUnit<string_view>(s);
+	return ConcatUnit<std::string_view>(s);
 }
 
 inline auto makeConcatUnit(const char* s)
 {
-	return ConcatUnit<string_view>(s);
+	return ConcatUnit<std::string_view>(s);
 }
 
 inline auto makeConcatUnit(char* s)
 {
-	return ConcatUnit<string_view>(s);
+	return ConcatUnit<std::string_view>(s);
 }
 
 // Note: no ConcatIntegral<char> because that is printed as a single character
@@ -616,7 +616,7 @@ inline std::string strCat(const std::string& x) { return x; }
 inline std::string strCat(std::string&&      x) { return std::move(x); }
 inline std::string strCat(const char*        x) { return std::string(x); }
 inline std::string strCat(char               x) { return std::string(1, x); }
-inline std::string strCat(string_view         x) { return std::string(x.data(), x.size()); }
+inline std::string strCat(std::string_view   x) { return std::string(x.data(), x.size()); }
 
 inline std::string strCat(signed char        x) { return strCatImpl::to_string(x); }
 inline std::string strCat(unsigned char      x) { return strCatImpl::to_string(x); }
@@ -667,7 +667,7 @@ inline void strAppend(std::string& /*x*/)
 // Extra overloads, see strCat().
 inline void strAppend(std::string& x, const std::string& y) { x += y; }
 inline void strAppend(std::string& x, const char*        y) { x += y; }
-inline void strAppend(std::string& x, string_view         y) { x.append(y.data(), y.size()); }
+inline void strAppend(std::string& x, std::string_view   y) { x.append(y.data(), y.size()); }
 
 
 template<size_t N, typename T>

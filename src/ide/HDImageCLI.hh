@@ -14,7 +14,7 @@ public:
 	void parseOption(const std::string& option,
 	                 span<std::string>& cmdLine) override;
 	void parseDone() override;
-	string_view optionHelp() const override;
+	std::string_view optionHelp() const override;
 
 	static std::string getImageForId(int id);
 

@@ -4,9 +4,9 @@
 #include "RecordedCommand.hh"
 #include "InfoTopic.hh"
 #include "EmuTime.hh"
-#include "string_view.hh"
-#include <vector>
 #include <memory>
+#include <string_view>
+#include <vector>
 
 namespace openmsx {
 
@@ -32,7 +32,7 @@ public:
 	/** Return the Connector with given name or
 	  * nullptr if there is none with this name.
 	  */
-	Connector* findConnector(string_view name) const;
+	Connector* findConnector(std::string_view name) const;
 
 	/** Add a Pluggable to the registry.
 	 */
@@ -41,7 +41,7 @@ public:
 	/** Return the Pluggable with given name or
 	  * nullptr if there is none with this name.
 	  */
-	Pluggable* findPluggable(string_view name) const;
+	Pluggable* findPluggable(std::string_view name) const;
 
 	/** Access to the MSX specific CliComm, so that Connectors can get it.
 	 */
@@ -52,8 +52,8 @@ public:
 	EmuTime::param getCurrentTime() const;
 
 private:
-	Connector& getConnector(string_view name) const;
-	Pluggable& getPluggable(string_view name) const;
+	Connector& getConnector(std::string_view name) const;
+	Pluggable& getPluggable(std::string_view name) const;
 
 	MSXMotherBoard& motherBoard;
 	std::vector<Connector*> connectors; // no order

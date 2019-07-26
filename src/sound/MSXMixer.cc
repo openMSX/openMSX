@@ -101,7 +101,7 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 		channelSettings.recordSetting = std::make_unique<StringSetting>(
 			commandController, ch_name + "_record",
 			"filename to record this channel to",
-			string_view{}, Setting::DONT_SAVE);
+			std::string_view{}, Setting::DONT_SAVE);
 		channelSettings.recordSetting->attach(*this);
 
 		channelSettings.muteSetting = std::make_unique<BooleanSetting>(
@@ -638,7 +638,7 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 			if (s.recordSetting.get() == &setting) {
 				info.device->recordChannel(
 					channel,
-					Filename(s.recordSetting->getString().str()));
+					Filename(string(s.recordSetting->getString())));
 				return;
 			}
 			++channel;
@@ -738,7 +738,7 @@ void MSXMixer::executeUntil(EmuTime::param time)
 
 // Sound device info
 
-SoundDevice* MSXMixer::findDevice(string_view name) const
+SoundDevice* MSXMixer::findDevice(std::string_view name) const
 {
 	auto it = ranges::find_if(infos, [&](auto& i) {
 		return i.device->getName() == name;

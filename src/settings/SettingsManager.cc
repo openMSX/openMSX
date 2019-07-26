@@ -4,12 +4,14 @@
 #include "CommandException.hh"
 #include "XMLElement.hh"
 #include "outer.hh"
+#include "StringOp.hh"
 #include "view.hh"
 #include "vla.hh"
 #include <cassert>
 #include <cstring>
 
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -73,9 +75,9 @@ vector<string> SettingsManager::getTabSettingNames() const
 	result.reserve(settings.size() * 2);
 	for (auto* s : settings) {
 		string_view name = s->getFullName();
-		result.push_back(name.str());
-		if (name.starts_with("::")) {
-			result.push_back(name.substr(2).str());
+		result.emplace_back(name);
+		if (StringOp::startsWith(name, "::")) {
+			result.emplace_back(name.substr(2));
 		} else {
 			result.push_back(strCat("::", name));
 		}
@@ -170,7 +172,7 @@ string SettingsManager::SetCompleter::help(const vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		auto& manager = OUTER(SettingsManager, setCompleter);
-		return manager.getByName("set", tokens[1]).getDescription().str();
+		return string(manager.getByName("set", tokens[1]).getDescription());
 	}
 	return "Set or query the value of a openMSX setting or Tcl variable\n"
 	       "  set <setting>          shows current value\n"

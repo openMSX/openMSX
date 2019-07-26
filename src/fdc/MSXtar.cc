@@ -21,6 +21,7 @@
 #include <sys/stat.h>
 
 using std::string;
+using std::string_view;
 
 namespace openmsx {
 
@@ -607,7 +608,7 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 {
 	string messages;
-	ReadDir readDir(dirName.str());
+	ReadDir readDir{string(dirName)};
 	while (dirent* d = readDir.getEntry()) {
 		string name(d->d_name);
 		string fullName = strCat(dirName, '/', name);
@@ -731,7 +732,7 @@ void MSXtar::mkdir(string_view newRootDir)
 
 void MSXtar::chroot(string_view newRootDir, bool createDir)
 {
-	if (newRootDir.starts_with('/') || newRootDir.starts_with('\\')) {
+	if (StringOp::startsWith(newRootDir, '/') || StringOp::startsWith(newRootDir, '\\')) {
 		// absolute path, reset chrootSector
 		chrootSector = rootDirStart;
 		StringOp::trimLeft(newRootDir, "/\\");

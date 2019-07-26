@@ -144,9 +144,9 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 	}
 }
 
-void DebugDevice::openOutput(string_view name)
+void DebugDevice::openOutput(std::string_view name)
 {
-	fileNameString = name.str();
+	fileNameString = name;
 	debugOut.close();
 	if (name == "stdout") {
 		outputstrm = &std::cout;
