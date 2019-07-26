@@ -13,7 +13,7 @@
 // wraps it so that it does become SemiRegular. More specifically
 // semiregular_t<T> is default constructible and assignable (but if T is
 // move-only, then semiregular_t<T> remains move-only). Internally this works by
-// wrapping T in an optional<T> (but only when needed).
+// wrapping T in an std::optional<T> (but only when needed).
 // 
 // This implementation is taken from (and simplified / stripped down):
 //   https://github.com/ericniebler/range-v3/blob/master/include/range/v3/utility/semiregular.hpp
@@ -34,16 +34,16 @@
 #ifndef SEMIREGULAR_HH
 #define SEMIREGULAR_HH
 
-#include "optional.hh"
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <utility>
 
 namespace sreg_impl {
 
-template <typename T> struct semiregular_move_assign : optional<T> {
-	using optional<T>::optional;
+template <typename T> struct semiregular_move_assign : std::optional<T> {
+	using std::optional<T>::optional;
 
 	semiregular_move_assign() = default;
 	semiregular_move_assign(const semiregular_move_assign&) = default;
@@ -63,7 +63,7 @@ template <typename T> struct semiregular_move_assign : optional<T> {
 template <typename T>
 using semiregular_move_layer =
         std::conditional_t<std::is_move_assignable<T>::value,
-                           optional<T>,
+                           std::optional<T>,
                            semiregular_move_assign<T>>;
 
 template <typename T>
@@ -87,7 +87,7 @@ struct semiregular_copy_assign : semiregular_move_layer<T> {
 template <typename T>
 using semiregular_copy_layer =
         std::conditional_t<std::is_copy_assignable<T>::value,
-                           optional<T>,
+                           std::optional<T>,
                            semiregular_copy_assign<T>>;
 
 template <typename T> struct semiregular : semiregular_copy_layer<T> {
@@ -129,7 +129,7 @@ private:
 
 	semiregular(tag, std::false_type) {}
 	semiregular(tag, std::true_type)
-	        : semiregular_copy_layer<T>{in_place}
+	        : semiregular_copy_layer<T>{std::in_place}
 	{
 	}
 };
@@ -142,7 +142,7 @@ struct semiregular<T&> : private std::reference_wrapper<T&> {
 	template <typename Arg, std::enable_if_t<(std::is_constructible<
 	                                          std::reference_wrapper<T&>,
 	                                          Arg&>::value)>* = nullptr>
-	semiregular(in_place_t, Arg& arg) : std::reference_wrapper<T&>(arg)
+	semiregular(std::in_place_t, Arg& arg) : std::reference_wrapper<T&>(arg)
 	{
 	}
 
@@ -159,7 +159,7 @@ struct semiregular<T&&> : private std::reference_wrapper<T&&> {
 	template <typename Arg, std::enable_if_t<(std::is_constructible<
 	                                          std::reference_wrapper<T&&>,
 	                                          Arg>::value)>* = nullptr>
-	semiregular(in_place_t, Arg&& arg)
+	semiregular(std::in_place_t, Arg&& arg)
 	        : std::reference_wrapper<T&>(static_cast<Arg&&>(arg))
 	{
 	}

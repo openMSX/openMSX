@@ -4,12 +4,12 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "GLUtil.hh"
-#include "optional.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include <SDL.h>
 #include <array>
 #include <limits>
+#include <optional>
 
 using std::string;
 using std::vector;
@@ -50,7 +50,7 @@ public:
 	~SDLScopedClip();
 private:
 	SDL_Renderer* renderer;
-	optional<SDL_Rect> origClip;
+	std::optional<SDL_Rect> origClip;
 };
 
 
@@ -91,7 +91,7 @@ public:
 	GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~GLScopedClip();
 private:
-	optional<std::array<GLint, 4>> origClip; // x, y, w, h;
+	std::optional<std::array<GLint, 4>> origClip; // x, y, w, h;
 };
 
 
@@ -329,7 +329,7 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 {
 	paintSDL(output);
 
-	optional<SDLScopedClip> scopedClip;
+	std::optional<SDLScopedClip> scopedClip;
 	if (clip) {
 		vec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
@@ -347,7 +347,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 #if COMPONENT_GL
 	paintGL(output);
 
-	optional<GLScopedClip> scopedClip;
+	std::optional<GLScopedClip> scopedClip;
 	if (clip) {
 		vec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);

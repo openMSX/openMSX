@@ -3,10 +3,10 @@
 
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "optional.hh"
 #include "span.hh"
 #include "string_view.hh"
 #include <functional>
+#include <optional>
 #include <vector>
 
 namespace openmsx {
@@ -45,8 +45,8 @@ namespace detail {
 		}
 	};
 
-	template<typename T> struct GetArg<optional<T>> {
-		void operator()(Interpreter& interp, const TclObject& obj, optional<T>& result) const {
+	template<typename T> struct GetArg<std::optional<T>> {
+		void operator()(Interpreter& interp, const TclObject& obj, std::optional<T>& result) const {
 			T t;
 			GetArg<T>{}(interp, obj, t);
 			result = std::move(t);

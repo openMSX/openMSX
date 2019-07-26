@@ -640,7 +640,7 @@ void ReverseManager::loadReplay(
 	Interpreter& interp, span<const TclObject> tokens, TclObject& result)
 {
 	bool enableViewOnly = false;
-	optional<TclObject> where;
+	std::optional<TclObject> where;
 	ArgsInfo info[] = {
 		flagArg("-viewonly", enableViewOnly),
 		valueArg("-goto", where),

@@ -2,12 +2,12 @@
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "ScopedAssign.hh"
-#include "optional.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <cassert>
 #include <algorithm>
 #include <cstdint>
+#include <optional>
 
 namespace openmsx {
 
@@ -134,7 +134,7 @@ static void renderPattern(
 	assert(x < Policy::IMAGE_WIDTH);
 	if (width == 0) return;
 
-	optional<ScopedAssign<Pixel>> col0, col1; // optimized away when not used
+	std::optional<ScopedAssign<Pixel>> col0, col1; // optimized away when not used
 	if (Policy::DRAW_BACKDROP) {
 		// Speedup drawing by temporarily replacing palette index 0.
 		// OK because palette0 and palette1 never partially overlap, IOW either:
