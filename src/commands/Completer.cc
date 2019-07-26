@@ -19,11 +19,6 @@ using std::string_view;
 
 namespace openmsx {
 
-Completer::Completer(string_view name)
-	: theName(std::string(name)) // TODO take std::string parameter instead and move()
-{
-}
-
 static bool formatHelper(const vector<string_view>& input, size_t columnLimit,
                          vector<string>& result)
 {

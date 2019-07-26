@@ -22,7 +22,7 @@ void MSXCliComm::update(UpdateType type, std::string_view name, std::string_view
 		if (*v == value) {
 			return;
 		}
-		*v = std::string(value);
+		*v = value;
 	} else {
 		prevValues[type].emplace_noDuplicateCheck(name, value);
 	}

@@ -3,8 +3,6 @@
 #include "serialize.hh"
 #include <cassert>
 
-using std::string;
-
 namespace openmsx {
 
 void Filename::updateAfterLoadState()

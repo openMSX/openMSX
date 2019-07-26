@@ -287,8 +287,7 @@ void MSXMotherBoard::setMachineConfig(HardwareConfig* machineConfig_)
 
 std::string MSXMotherBoard::getMachineType() const
 {
-	const HardwareConfig* machine = getMachineConfig();
-	if (machine) {
+	if (const HardwareConfig* machine = getMachineConfig()) {
 		return machine->getConfig().getChild("info").getChildData("type");
 	} else {
 		return "";

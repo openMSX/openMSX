@@ -65,7 +65,12 @@ public:
 	static void setOutput(InterpreterOutput* output_) { output = output_; }
 
 protected:
-	explicit Completer(std::string_view name);
+	template<typename String>
+	explicit Completer(String&& name_)
+		: theName(std::forward<String>(name_))
+	{
+	}
+
 	~Completer() = default;
 
 private:

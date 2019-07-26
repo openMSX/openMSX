@@ -45,8 +45,7 @@ int setenv(const char *name, const char *value, int overwrite);
 int setenv(const char *name, const char *value, int overwrite)
 {
 	if (!overwrite) {
-		char* oldvalue = getenv(name);
-		if (oldvalue) {
+		if (char* oldvalue = getenv(name)) {
 			return 0;
 		}
 	}
@@ -58,8 +57,7 @@ int setenv(const char *name, const char *value, int overwrite)
 // enable console output on Windows
 void EnableConsoleOutput()
 {
-    if (AttachConsole(ATTACH_PARENT_PROCESS))
-    {
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
         FILE* pCout;
         freopen_s(&pCout, "CONOUT$", "w", stdout);
         std::cout.clear();
