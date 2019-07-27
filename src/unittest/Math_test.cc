@@ -1,6 +1,27 @@
 #include "catch.hpp"
 #include "Math.hh"
 
+TEST_CASE("Math::log2p1")
+{
+	CHECK(Math::log2p1(0) == 0);
+	CHECK(Math::log2p1(1) == 1);
+	CHECK(Math::log2p1(2) == 2);
+	CHECK(Math::log2p1(3) == 2);
+	CHECK(Math::log2p1(4) == 3);
+	CHECK(Math::log2p1(5) == 3);
+	CHECK(Math::log2p1(6) == 3);
+	CHECK(Math::log2p1(7) == 3);
+	CHECK(Math::log2p1(8) == 4);
+	CHECK(Math::log2p1(9) == 4);
+	CHECK(Math::log2p1(127) == 7);
+	CHECK(Math::log2p1(128) == 8);
+	CHECK(Math::log2p1(129) == 8);
+	CHECK(Math::log2p1(255) == 8);
+	CHECK(Math::log2p1(256) == 9);
+
+	constexpr auto x = Math::log2p1(255); static_assert(x == 8);
+}
+
 TEST_CASE("Math::ispow2")
 {
 	CHECK(!Math::ispow2(0));

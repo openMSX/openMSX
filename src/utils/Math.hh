@@ -28,6 +28,23 @@
 
 namespace Math {
 
+/** Returns the number of bits needed to store the value 'x', that is:
+  *   for x==0 : 0
+  *   for x!=0 : 1 + floor(log2(x))
+  * This will be part of c++20:
+  *   https://en.cppreference.com/w/cpp/numeric/log2p1
+  */
+template<typename T>
+constexpr T log2p1(T x) noexcept
+{
+	T result = 0;
+	while (x) {
+		++result;
+		x >>= 1;
+	}
+	return result;
+}
+
 /** Is the given number an integral power of two?
   * That is, does it have exactly one 1-bit in binary representation.
   * (So zero is not a power of two).

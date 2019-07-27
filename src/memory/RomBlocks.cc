@@ -7,11 +7,6 @@
 
 namespace openmsx {
 
-template<bool C, class T, class F> struct if_log2_             : F {};
-template<        class T, class F> struct if_log2_<true, T, F> : T {};
-template<unsigned A, unsigned R = 0> struct log2
-	: if_log2_<A == 1, std::integral_constant<int, R>, log2<A / 2, R + 1>> {};
-
 // minimal attempt to avoid seeing this warning too often
 static Sha1Sum alreadyWarnedForSha1Sum;
 
@@ -22,7 +17,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 	: MSXRom(config, std::move(rom_))
 	, romBlockDebug(
 		*this,  blockNr, 0x0000, 0x10000,
-		log2<BANK_SIZE>::value, debugBankSizeShift)
+		Math::log2p1(BANK_SIZE) - 1, debugBankSizeShift)
 {
 	static_assert(Math::ispow2(BANK_SIZE), "BANK_SIZE must be a power of two");
 	auto extendedSize = (rom.getSize() + BANK_SIZE - 1) & ~(BANK_SIZE - 1);

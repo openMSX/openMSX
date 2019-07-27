@@ -2,6 +2,7 @@
 #define DIVMODBYCONST
 
 #include "build-info.hh"
+#include "Math.hh"
 #include <type_traits>
 #include <cstdint>
 
@@ -17,10 +18,6 @@
  */
 
 namespace DivModByConstPrivate {
-
-template<uint32_t A, uint32_t R = 0> struct log2
-	: std::conditional_t<A == 0, std::integral_constant<int, R>,
-	                             log2<A / 2, R + 1>> {};
 
 // Utility class to perform 128-bit by 128-bit division at compilation time
 template<uint64_t RH, uint64_t RL, uint64_t QH, uint64_t QL, uint64_t DH, uint64_t DL, uint32_t BITS>
@@ -173,7 +170,7 @@ template<uint64_t M, uint32_t S> struct DBCAlgo2
 template<uint32_t DIVISOR, uint32_t N> struct DBCAlgo3
 {
 	// division possible by multiplication, addition and shift
-	static const uint32_t S = log2<DIVISOR>::value - 1;
+	static const uint32_t S = Math::log2p1(DIVISOR) - 1;
 	using D = Div128<1 << S, 0, 0, DIVISOR>;
 	static const uint64_t M = D::quotientLow + (D::remainderLow > (DIVISOR / 2));
 
@@ -192,7 +189,7 @@ template<uint32_t DIVISOR, uint32_t N, typename RM> struct DBCHelper3
 
 template<uint32_t DIVISOR, uint32_t N> struct DBCHelper2
 {
-	static const uint32_t L = log2<DIVISOR>::value;
+	static const uint32_t L = Math::log2p1(DIVISOR);
 	static const uint64_t J = 0xffffffffffffffffull % DIVISOR;
 	using K = Div128<1 << L, 0, 0, 0xffffffffffffffffull - J>;
 
