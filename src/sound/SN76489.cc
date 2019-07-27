@@ -38,7 +38,7 @@ inline unsigned SN76489::NoiseShifter::getOutput() const
 
 inline void SN76489::NoiseShifter::advance()
 {
-	random = (random >> 1) ^ (-(random & 1) & pattern);
+	random = (random >> 1) ^ ((random & 1) ? pattern : 0);
 }
 
 inline void SN76489::NoiseShifter::queueAdvance(unsigned steps)

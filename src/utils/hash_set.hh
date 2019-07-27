@@ -710,7 +710,7 @@ private:
 		unsigned poolIdx = pool.emplace(std::forward<Args>(args)...);
 		auto& poolElem = pool.get(poolIdx);
 
-		unsigned hash = hasher(extract(poolElem.value));
+		auto hash = unsigned(hasher(extract(poolElem.value)));
 		unsigned tableIdx = hash & allocMask;
 		unsigned primary = 0;
 
@@ -783,7 +783,7 @@ private:
 	{
 		if (elemCount == 0) return 0;
 
-		unsigned hash = hasher(key);
+		auto hash = unsigned(hasher(key));
 		unsigned tableIdx = hash & allocMask;
 		for (unsigned elemIdx = table[tableIdx]; elemIdx; /**/) {
 			auto& elem = pool.get(elemIdx);
