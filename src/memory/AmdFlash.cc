@@ -54,7 +54,7 @@ static bool sramEmpty(const SRAM& ram)
 
 void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, const Rom* rom)
 {
-	assert(Math::isPowerOfTwo(getSize()));
+	assert(Math::ispow2(getSize()));
 
 	auto numSectors = sectorInfo.size();
 

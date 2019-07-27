@@ -20,7 +20,7 @@ SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
 {
 	SDL_AudioSpec desired;
 	desired.freq     = wantedFreq;
-	desired.samples  = Math::powerOfTwo(wantedSamples);
+	desired.samples  = Math::ceil2(wantedSamples);
 	desired.channels = 2; // stereo
 	desired.format   = AUDIO_F32SYS;
 	desired.callback = audioCallbackHelper; // must be a static method

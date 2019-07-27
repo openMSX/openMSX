@@ -251,7 +251,7 @@ private:
 
 void* mallocAligned(size_t alignment, size_t size)
 {
-	assert("must be a power of 2" && Math::isPowerOfTwo(alignment));
+	assert("must be a power of 2" && Math::ispow2(alignment));
 	assert(alignment >= sizeof(void*));
 #if HAVE_POSIX_MEMALIGN
 	void* aligned;

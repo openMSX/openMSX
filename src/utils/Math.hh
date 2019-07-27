@@ -28,17 +28,53 @@
 
 namespace Math {
 
-/** Is the given number an integer power of 2?
-  * Not correct for zero (according to this test 0 is a power of 2).
+/** Is the given number an integral power of two?
+  * That is, does it have exactly one 1-bit in binary representation.
+  * (So zero is not a power of two).
+  *
+  * This will be part of c++20:
+  *   https://en.cppreference.com/w/cpp/numeric/ispow2
   */
-constexpr bool isPowerOfTwo(unsigned a)
+template<typename T>
+constexpr bool ispow2(T x) noexcept
 {
-	return (a & (a - 1)) == 0;
+	return x && ((x & (x - 1)) == 0);
+}
+
+/** Returns the smallest number of the form 2^n-1 that is greater or equal
+  * to the given number.
+  * The resulting number has the same number of leading zeros as the input,
+  * but starting from the first 1-bit in the input all bits more to the right
+  * are also 1.
+  */
+template<typename T>
+constexpr T floodRight(T x) noexcept
+{
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> ((sizeof(x) >= 2) ?  8 : 0); // Written in a weird way to
+	x |= x >> ((sizeof(x) >= 4) ? 16 : 0); // suppress compiler warnings.
+	x |= x >> ((sizeof(x) >= 8) ? 32 : 0); // Generates equally efficient
+	return x;                              // code.
 }
 
 /** Returns the smallest number that is both >=a and a power of two.
+  * This will be part of c++20:
+  *   https://en.cppreference.com/w/cpp/numeric/ceil2
   */
-unsigned powerOfTwo(unsigned a);
+template<typename T>
+constexpr T ceil2(T x) noexcept
+{
+	// classical implementation:
+	//   unsigned res = 1;
+	//   while (x > res) res <<= 1;
+	//   return res;
+
+	// optimized version
+	x += (x == 0); // can be removed if argument is never zero
+	return floodRight(x - 1) + 1;
+}
 
 /** Clips x to the range [LO,HI].
   * Slightly faster than    std::min(HI, std::max(LO, x))
@@ -174,23 +210,6 @@ inline uint8_t reverseByte(uint8_t a)
 	// on 32-bit systems this is faster
 	return (((a * 0x0802 & 0x22110) | (a * 0x8020 & 0x88440)) * 0x10101) >> 16;
 #endif
-}
-
-/** Returns the smallest number of the form 2^n-1 that is greater or equal
-  * to the given number.
-  * The resulting number has the same number of leading zeros as the input,
-  * but starting from the first 1-bit in the input all bits more to the right
-  * are also 1.
-  */
-template<typename T> inline T floodRight(T x)
-{
-	x |= x >> 1;
-	x |= x >> 2;
-	x |= x >> 4;
-	x |= x >> ((sizeof(x) >= 2) ?  8 : 0); // Written in a weird way to
-	x |= x >> ((sizeof(x) >= 4) ? 16 : 0); // suppress compiler warnings.
-	x |= x >> ((sizeof(x) >= 8) ? 32 : 0); // Generates equally efficient
-	return x;                              // code.
 }
 
 /** Count the number of leading zero-bits in the given word.

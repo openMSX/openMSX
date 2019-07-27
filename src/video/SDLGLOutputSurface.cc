@@ -37,8 +37,8 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 		// TODO 64 byte aligned (see RawFrame)
 		unsigned width  = output.getWidth();
 		unsigned height = output.getHeight();
-		unsigned texW = Math::powerOfTwo(width);
-		unsigned texH = Math::powerOfTwo(height);
+		unsigned texW = Math::ceil2(width);
+		unsigned texH = Math::ceil2(height);
 		fbBuf.resize(format->BytesPerPixel * texW * texH);
 		unsigned pitch = width * format->BytesPerPixel;
 		output.setBufferPtr(fbBuf.data(), pitch);

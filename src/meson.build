@@ -417,7 +417,6 @@ sources = files(
     'utils/DeltaBlock.cc',
     'utils/DivModBySame.cc',
     'utils/HexDump.cc',
-    'utils/Math.cc',
     'utils/MemoryOps.cc',
     'utils/Poller.cc',
     'utils/SerializeBuffer.cc',

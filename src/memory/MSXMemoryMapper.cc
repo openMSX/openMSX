@@ -50,13 +50,13 @@ byte MSXMemoryMapper::readIO(word port, EmuTime::param time)
 byte MSXMemoryMapper::peekIO(word port, EmuTime::param /*time*/) const
 {
 	unsigned numSegments = checkedRam.getSize() / 0x4000;
-	return registers[port & 0x03] | ~(Math::powerOfTwo(numSegments) - 1);
+	return registers[port & 0x03] | ~(Math::ceil2(numSegments) - 1);
 }
 
 void MSXMemoryMapper::writeIO(word port, byte value, EmuTime::param /*time*/)
 {
 	unsigned numSegments = checkedRam.getSize() / 0x4000;
-	registers[port & 0x03] = value & (Math::powerOfTwo(numSegments) - 1);
+	registers[port & 0x03] = value & (Math::ceil2(numSegments) - 1);
 }
 
 unsigned MSXMemoryMapper::calcAddress(word address) const

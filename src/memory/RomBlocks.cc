@@ -24,7 +24,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 		*this,  blockNr, 0x0000, 0x10000,
 		log2<BANK_SIZE>::value, debugBankSizeShift)
 {
-	static_assert(Math::isPowerOfTwo(BANK_SIZE), "BANK_SIZE must be a power of two");
+	static_assert(Math::ispow2(BANK_SIZE), "BANK_SIZE must be a power of two");
 	auto extendedSize = (rom.getSize() + BANK_SIZE - 1) & ~(BANK_SIZE - 1);
 	if (extendedSize != rom.getSize() && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
 		config.getCliComm().printWarning(

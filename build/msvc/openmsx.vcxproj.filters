@@ -942,9 +942,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\HexDump.cc">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\Math.cc">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\MemoryOps.cc">
       <Filter>utils</Filter>
     </ClCompile>

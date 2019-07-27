@@ -38,7 +38,7 @@ MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	      ? std::make_unique<Rom>(getName() + " ROM", "Mega-RAM DiskROM", config)
 	      : nullptr)
 	, romBlockDebug(*this, bank, 0x0000, 0x10000, 13, 0, 3)
-	, maskBlocks(Math::powerOfTwo(numBlocks) - 1)
+	, maskBlocks(Math::ceil2(numBlocks) - 1)
 {
 	powerUp(EmuTime::dummy());
 }
