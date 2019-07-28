@@ -803,7 +803,9 @@ FILE_t openUniqueFile(const std::string& directory, std::string& filename)
 	return FILE_t(_wfopen(filenameW, L"wb"));
 #else
 	filename = directory + "/XXXXXX";
+	auto oldMask = umask(S_IRWXO | S_IRWXG);
 	int fd = mkstemp(const_cast<char*>(filename.c_str()));
+	umask(oldMask);
 	if (fd == -1) {
 		throw FileException("Coundn't get temp file name");
 	}
