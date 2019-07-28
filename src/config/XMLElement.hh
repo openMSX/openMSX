@@ -42,6 +42,12 @@ public:
 	void addAttribute(std::string name, std::string value);
 	void setAttribute(string_view name, std::string value);
 	void removeAttribute(string_view name);
+	bool hasAttribute(string_view name) const;
+	const std::string& getAttribute(string_view attName) const;
+	string_view getAttribute(string_view attName,
+	                        string_view defaultValue) const;
+	// Returns ptr to attribute value, or nullptr when not found.
+	const std::string* findAttribute(string_view attName) const;
 
 	// child
 	using Children = std::vector<XMLElement>;
@@ -57,10 +63,6 @@ public:
 	//
 
 	// attribute
-	bool hasAttribute(string_view name) const;
-	const std::string& getAttribute(string_view attName) const;
-	string_view getAttribute(string_view attName,
-	                        string_view defaultValue) const;
 	bool getAttributeAsBool(string_view attName,
 	                        bool defaultValue = false) const;
 	int getAttributeAsInt(string_view attName,
@@ -115,8 +117,8 @@ public:
 private:
 	using Attribute = std::pair<std::string, std::string>;
 	using Attributes = std::vector<Attribute>;
-	Attributes::iterator findAttribute(string_view name);
-	Attributes::const_iterator findAttribute(string_view name) const;
+	Attributes::iterator getAttributeIter(string_view name);
+	Attributes::const_iterator getAttributeIter(string_view name) const;
 	void dump(std::string& result, unsigned indentNum) const;
 
 	std::string name;

@@ -33,26 +33,32 @@ void XMLElement::removeChild(const XMLElement& child)
 		[&](Children::value_type& v) { return &v == &child; }));
 }
 
-XMLElement::Attributes::iterator XMLElement::findAttribute(string_view attrName)
+XMLElement::Attributes::iterator XMLElement::getAttributeIter(string_view attrName)
 {
 	return ranges::find_if(attributes,
 	                       [&](auto& a) { return a.first == attrName; });
 }
-XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_view attrName) const
+XMLElement::Attributes::const_iterator XMLElement::getAttributeIter(string_view attrName) const
 {
 	return ranges::find_if(attributes,
 	                       [&](auto& a) { return a.first == attrName; });
 }
 
+const string* XMLElement::findAttribute(string_view attName) const
+{
+	auto it = getAttributeIter(attName);
+	return (it != end(attributes)) ? &it->second : nullptr;
+}
+
 void XMLElement::addAttribute(string attrName, string value)
 {
-	assert(findAttribute(attrName) == end(attributes));
+	assert(!hasAttribute(attrName));
 	attributes.emplace_back(std::move(attrName), std::move(value));
 }
 
 void XMLElement::setAttribute(string_view attrName, string value)
 {
-	auto it = findAttribute(attrName);
+	auto it = getAttributeIter(attrName);
 	if (it != end(attributes)) {
 		it->second = std::move(value);
 	} else {
@@ -62,7 +68,7 @@ void XMLElement::setAttribute(string_view attrName, string value)
 
 void XMLElement::removeAttribute(string_view attrName)
 {
-	auto it = findAttribute(attrName);
+	auto it = getAttributeIter(attrName);
 	if (it != end(attributes)) {
 		attributes.erase(it);
 	}
@@ -112,8 +118,10 @@ XMLElement* XMLElement::findChildWithAttribute(string_view childName,
 	string_view attName, string_view attValue)
 {
 	auto it = ranges::find_if(children, [&](auto& c) {
-		return (c.getName() == childName) &&
-		       (c.getAttribute(attName) == attValue);
+		if (c.getName() != childName) return false;
+		auto* value = c.findAttribute(attName);
+		if (!value) return false;
+		return *value == attValue;
 	});
 	return (it != end(children)) ? &*it : nullptr;
 }
@@ -198,47 +206,43 @@ void XMLElement::removeAllChildren()
 
 bool XMLElement::hasAttribute(string_view attrName) const
 {
-	return findAttribute(attrName) != end(attributes);
+	return findAttribute(attrName);
 }
 
 const string& XMLElement::getAttribute(string_view attName) const
 {
-	auto it = findAttribute(attName);
-	if (it == end(attributes)) {
-		throw ConfigException("Missing attribute \"", attName, "\".");
+	if (auto* value = findAttribute(attName)) {
+		return *value;
 	}
-	return it->second;
+	throw ConfigException("Missing attribute \"", attName, "\".");
 }
 
 string_view XMLElement::getAttribute(string_view attName,
-	                            string_view defaultValue) const
+                                     string_view defaultValue) const
 {
-	auto it = findAttribute(attName);
-	return (it == end(attributes)) ? defaultValue : it->second;
+	auto* value = findAttribute(attName);
+	return value ? *value : defaultValue;
 }
 
 bool XMLElement::getAttributeAsBool(string_view attName,
                                     bool defaultValue) const
 {
-	auto it = findAttribute(attName);
-	return (it == end(attributes)) ? defaultValue
-	                                : StringOp::stringToBool(it->second);
+	auto* value = findAttribute(attName);
+	return value ? StringOp::stringToBool(*value) : defaultValue;
 }
 
 int XMLElement::getAttributeAsInt(string_view attName,
                                   int defaultValue) const
 {
-	auto it = findAttribute(attName);
-	return (it == end(attributes)) ? defaultValue
-	                                : StringOp::stringToInt(it->second);
+	auto* value = findAttribute(attName);
+	return value ? StringOp::stringToInt(*value) : defaultValue;
 }
 
 bool XMLElement::findAttributeInt(string_view attName,
                                   unsigned& result) const
 {
-	auto it = findAttribute(attName);
-	if (it != end(attributes)) {
-		result = StringOp::stringToInt(it->second);
+	if (auto* value = findAttribute(attName)) {
+		result = StringOp::stringToInt(*value);
 		return true;
 	} else {
 		return false;
