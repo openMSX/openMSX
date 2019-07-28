@@ -117,6 +117,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(), *this);
 
+	lun = 0; // TODO move to reset() ?
 	reset();
 }
 
