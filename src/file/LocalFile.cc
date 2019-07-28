@@ -202,7 +202,12 @@ span<uint8_t> LocalFile::mmap()
 void LocalFile::munmap()
 {
 	if (mmem) {
-		::munmap(const_cast<uint8_t*>(mmem), getSize());
+		try {
+			::munmap(const_cast<uint8_t*>(mmem), getSize());
+		} catch (FileException&) {
+			// In theory getSize() could throw. Does that ever
+			// happen in practice?
+		}
 		mmem = nullptr;
 	}
 }
