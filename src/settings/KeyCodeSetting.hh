@@ -15,7 +15,7 @@ public:
 
 	string_view getTypeString() const override;
 
-	Keys::KeyCode getKey() const;
+	Keys::KeyCode getKey() const noexcept;
 };
 
 } // namespace openmsx

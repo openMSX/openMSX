@@ -18,7 +18,7 @@ public:
 
 	int registerVideoSource(const std::string& source);
 	void unregisterVideoSource(int source);
-	int getSource();
+	int getSource() noexcept;
 	void setSource(int id);
 
 private:

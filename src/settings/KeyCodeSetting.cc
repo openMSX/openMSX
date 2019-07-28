@@ -23,7 +23,7 @@ string_view KeyCodeSetting::getTypeString() const
 	return "key";
 }
 
-Keys::KeyCode KeyCodeSetting::getKey() const
+Keys::KeyCode KeyCodeSetting::getKey() const noexcept
 {
 	return Keys::getCode(getValue().getString());
 }

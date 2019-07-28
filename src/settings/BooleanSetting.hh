@@ -14,7 +14,7 @@ public:
 	string_view getTypeString() const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
-	bool getBoolean() const { return getValue().getBoolean(getInterpreter()); }
+	bool getBoolean() const noexcept { return getValue().getBoolean(getInterpreter()); }
 	void setBoolean(bool b) { setValue(TclObject(toString(b))); }
 
 private:

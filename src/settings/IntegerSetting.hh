@@ -17,7 +17,7 @@ public:
 	string_view getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;
 
-	int getInt() const { return getValue().getInt(getInterpreter()); }
+	int getInt() const noexcept { return getValue().getInt(getInterpreter()); }
 	void setInt(int i);
 
 private:

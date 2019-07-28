@@ -14,7 +14,7 @@ public:
 
 	string_view getTypeString() const override;
 
-	string_view getString() const { return getValue().getString(); }
+	string_view getString() const noexcept { return getValue().getString(); }
 	void setString(string_view str) { setValue(TclObject(str)); }
 };
 

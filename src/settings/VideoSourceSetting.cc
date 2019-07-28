@@ -32,7 +32,7 @@ void VideoSourceSetting::checkSetValue(string_view newValue) const
 	}
 }
 
-int VideoSourceSetting::getSource()
+int VideoSourceSetting::getSource() noexcept
 {
 	// Always try to find a better value than "none".
 	string_view str = getValue().getString();

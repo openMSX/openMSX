@@ -42,7 +42,7 @@ public:
 	void additionalInfo(TclObject& result) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
-	T getEnum() const;
+	T getEnum() const noexcept;
 	void setEnum(T e);
 	string_view getString() const;
 
@@ -89,11 +89,11 @@ void EnumSetting<T>::tabCompletion(std::vector<std::string>& tokens) const
 }
 
 template<typename T>
-T EnumSetting<T>::getEnum() const
+T EnumSetting<T>::getEnum() const noexcept
 {
 	return static_cast<T>(fromStringBase(getValue().getString()));
 }
-template<> inline bool EnumSetting<bool>::getEnum() const
+template<> inline bool EnumSetting<bool>::getEnum() const noexcept
 {
 	// _exactly_ the same functionality as above, but suppress VS warning
 	return fromStringBase(getValue().getString()) != 0;
