@@ -788,31 +788,25 @@ void V9990::setVerticalTiming()
 
 V9990ColorMode V9990::getColorMode(byte pal_ctrl) const
 {
-	V9990ColorMode cm = INVALID_COLOR_MODE;
-
 	if (!(regs[SCREEN_MODE_0] & 0x80)) {
-		cm = BP4;
+		return BP4;
 	} else {
 		switch (regs[SCREEN_MODE_0] & 0x03) {
-			case 0x00: cm = BP2; break;
-			case 0x01: cm = BP4; break;
+			case 0x00: return BP2;
+			case 0x01: return BP4;
 			case 0x02:
 				switch (pal_ctrl & 0xC0) {
-					case 0x00: cm = BP6; break;
-					case 0x40: cm = BD8; break;
-					case 0x80: cm = BYJK; break;
-					case 0xC0: cm = BYUV; break;
-					default: UNREACHABLE;
+					case 0x00: return BP6;
+					case 0x40: return BD8;
+					case 0x80: return BYJK;
+					case 0xC0: return BYUV;
 				}
 				break;
-			case 0x03: cm = BD16; break;
-			default: UNREACHABLE;
+			case 0x03: return BD16;
 		}
 	}
-
-	// TODO Check
-	if (cm == INVALID_COLOR_MODE) cm = BP4;
-	return cm;
+	UNREACHABLE;
+	return INVALID_COLOR_MODE;
 }
 
 V9990ColorMode V9990::getColorMode() const
@@ -831,7 +825,7 @@ void V9990::calcDisplayMode()
 			mode = P2;
 			break;
 		case 0x80:
-			if(status & 0x04) { // MCLK timing
+			if (status & 0x04) { // MCLK timing
 				switch(regs[SCREEN_MODE_0] & 0x30) {
 				case 0x00: mode = B0; break;
 				case 0x10: mode = B2; break;
