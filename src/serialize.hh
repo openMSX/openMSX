@@ -863,6 +863,7 @@ class XmlOutputArchive final : public OutputArchiveBase<XmlOutputArchive>
 {
 public:
 	explicit XmlOutputArchive(const std::string& filename);
+	void close();
 	~XmlOutputArchive();
 
 	template <typename T> void saveImpl(const T& t)

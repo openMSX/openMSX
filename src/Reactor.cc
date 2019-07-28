@@ -896,6 +896,7 @@ void StoreMachineCommand::execute(span<const TclObject> tokens, TclObject& resul
 
 	XmlOutputArchive out(filename);
 	out.serialize("machine", board);
+	out.close();
 	result = filename;
 }
 

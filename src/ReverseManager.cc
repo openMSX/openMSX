@@ -618,6 +618,7 @@ void ReverseManager::saveReplay(
 		XmlOutputArchive out(filename);
 		replay.events = &history.events;
 		out.serialize("replay", replay);
+		out.close();
 	} catch (MSXException&) {
 		if (addSentinel) {
 			history.events.pop_back();

@@ -13,6 +13,7 @@
 #include "stl.hh"
 #include "cstdiop.hh" // for dup()
 #include <cstring>
+#include <iostream>
 #include <limits>
 
 using std::string;
@@ -263,7 +264,7 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 		if (duped_fd == -1) goto error;
 		file = gzdopen(duped_fd, "wb9");
 		if (!file) {
-			close(duped_fd);
+			::close(duped_fd);
 			goto error;
 		}
 		current.push_back(&root);
@@ -276,16 +277,31 @@ error:
 	throw XMLException("Could not open compressed file \"", filename, "\"");
 }
 
-XmlOutputArchive::~XmlOutputArchive()
+void XmlOutputArchive::close()
 {
+	if (!file) return; // already closed
+
 	assert(current.back() == &root);
 	const char* header =
 	    "<?xml version=\"1.0\" ?>\n"
 	    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
-	gzwrite(file, const_cast<char*>(header), unsigned(strlen(header)));
 	string dump = root.dump();
-	gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size()));
-	gzclose(file);
+	if ((gzwrite(file, const_cast<char*>(header), unsigned(strlen(header))) == 0) ||
+	    (gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size())) == 0) ||
+	    (gzclose(file) != Z_OK)) {
+		throw XMLException("Could not write savestate file.");
+	}
+
+	file = nullptr;
+}
+
+XmlOutputArchive::~XmlOutputArchive()
+{
+	try {
+		close();
+	} catch (...) {
+		// Eat exception. Explicitly call close() if you want to handle errors.
+	}
 }
 
 void XmlOutputArchive::saveChar(char c)
