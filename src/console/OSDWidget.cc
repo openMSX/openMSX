@@ -8,6 +8,7 @@
 #include "ranges.hh"
 #include "stl.hh"
 #include <SDL.h>
+#include <array>
 #include <limits>
 
 using std::string;
@@ -49,8 +50,7 @@ public:
 	~SDLScopedClip();
 private:
 	SDL_Renderer* renderer;
-	SDL_Rect origClip;
-	SDL_bool wasClipped;
+	optional<SDL_Rect> origClip;
 };
 
 
@@ -61,12 +61,12 @@ SDLScopedClip::SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 	ivec2 i_wh = round(wh); int w = i_wh[0]; int h = i_wh[1];
 	normalize(x, w); normalize(y, h);
 
-	wasClipped = SDL_RenderIsClipEnabled(renderer);
 	int xn, yn, wn, hn;
-	if (wasClipped) {
-		SDL_RenderGetClipRect(renderer, &origClip);
+	if (SDL_RenderIsClipEnabled(renderer)) {
+		origClip.emplace();
+		SDL_RenderGetClipRect(renderer, &*origClip);
 
-		intersect(origClip.x, origClip.y, origClip.w, origClip.h,
+		intersect(origClip->x, origClip->y, origClip->w, origClip->h,
 			  x,  y,  w,  h,
 			  xn, yn, wn, hn);
 	} else {
@@ -78,7 +78,7 @@ SDLScopedClip::SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 
 SDLScopedClip::~SDLScopedClip()
 {
-	SDL_RenderSetClipRect(renderer, wasClipped ? &origClip : nullptr);
+	SDL_RenderSetClipRect(renderer, origClip ? &*origClip : nullptr);
 }
 
 ////
@@ -91,8 +91,7 @@ public:
 	GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~GLScopedClip();
 private:
-	GLint box[4]; // x, y, w, h;
-	GLboolean wasEnabled;
+	optional<std::array<GLint, 4>> origClip; // x, y, w, h;
 };
 
 
@@ -106,11 +105,11 @@ GLScopedClip::GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 	ivec2 i_xy = round(xy * scale) + output.getViewOffset();
 	ivec2 i_wh = round(wh * scale);
 
-	wasEnabled = glIsEnabled(GL_SCISSOR_TEST);
-	if (wasEnabled == GL_TRUE) {
-		glGetIntegerv(GL_SCISSOR_BOX, box);
+	if (glIsEnabled(GL_SCISSOR_TEST) == GL_TRUE) {
+		origClip.emplace();
+		glGetIntegerv(GL_SCISSOR_BOX, origClip->data());
 		int xn, yn, wn, hn;
-		intersect(box[0], box[1], box[2], box[3],
+		intersect((*origClip)[0], (*origClip)[1], (*origClip)[2], (*origClip)[3],
 		          i_xy[0], i_xy[1], i_wh[0], i_wh[1],
 		          xn, yn, wn, hn);
 		glScissor(xn, yn, wn, hn);
@@ -122,8 +121,8 @@ GLScopedClip::GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 
 GLScopedClip::~GLScopedClip()
 {
-	if (wasEnabled == GL_TRUE) {
-		glScissor(box[0], box[1], box[2], box[3]);
+	if (origClip) {
+		glScissor((*origClip)[0], (*origClip)[1], (*origClip)[2], (*origClip)[3]);
 	} else {
 		glDisable(GL_SCISSOR_TEST);
 	}
