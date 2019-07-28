@@ -234,7 +234,7 @@ void Debugger::Cmd::execute(
 		"cont",              [&]{ debugger().motherBoard.getCPUInterface().doContinue(); },
 		"disasm",            [&]{ debugger().cpu->disasmCommand(getInterpreter(), tokens, result); },
 		"break",             [&]{ debugger().motherBoard.getCPUInterface().doBreak(); },
-		"breaked",           [&]{ debugger().motherBoard.getCPUInterface().isBreaked(); },
+		"breaked",           [&]{ result = debugger().motherBoard.getCPUInterface().isBreaked(); },
 		"set_bp",            [&]{ setBreakPoint(tokens, result); },
 		"remove_bp",         [&]{ removeBreakPoint(tokens, result); },
 		"list_bp",           [&]{ listBreakPoints(tokens, result); },
