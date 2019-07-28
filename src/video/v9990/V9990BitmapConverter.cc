@@ -390,7 +390,7 @@ public:
 		unsigned cursorLine = (displayY - attrY) & 511;
 		if (cursorLine >= 32) return;
 
-		attr = vram.readVRAMBx(attrAddr + 6);
+		byte attr = vram.readVRAMBx(attrAddr + 6);
 		if ((attr & 0x10) || ((attr & 0xe0) == 0x00)) {
 			// don't display
 			return;
@@ -433,7 +433,6 @@ public:
 	unsigned x;
 	uint32_t pattern;
 	int16_t color;
-	byte attr;
 	bool doXor;
 };
 
