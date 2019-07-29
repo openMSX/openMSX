@@ -59,7 +59,7 @@ void LedStatus::setLed(Led led, bool status)
 	}
 }
 
-void LedStatus::handleEvent(Led led)
+void LedStatus::handleEvent(Led led) noexcept
 {
 	static const string_view ON  = "on";
 	static const string_view OFF = "off";
