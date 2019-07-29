@@ -172,7 +172,6 @@
 #include "likely.hh"
 #include "inline.hh"
 #include "unreachable.hh"
-#include <iomanip>
 #include <iostream>
 #include <type_traits>
 #include <cassert>
@@ -2474,16 +2473,17 @@ template<class T> void CPUCore<T>::cpuTracePost_slow()
 	byte opbuf[4];
 	string dasmOutput;
 	dasm(*interface, start_pc, opbuf, dasmOutput, T::getTimeFast());
-	std::cout << std::setfill('0') << std::hex << std::setw(4) << start_pc
-	     << " : " << dasmOutput
-	     << " AF=" << std::setw(4) << getAF()
-	     << " BC=" << std::setw(4) << getBC()
-	     << " DE=" << std::setw(4) << getDE()
-	     << " HL=" << std::setw(4) << getHL()
-	     << " IX=" << std::setw(4) << getIX()
-	     << " IY=" << std::setw(4) << getIY()
-	     << " SP=" << std::setw(4) << getSP()
-	     << '\n' << std::flush << std::dec;
+	std::cout << strCat(hex_string<4>(start_pc),
+	                    " : ", dasmOutput,
+	                    " AF=", hex_string<4>(getAF()),
+	                    " BC=", hex_string<4>(getBC()),
+	                    " DE=", hex_string<4>(getDE()),
+	                    " HL=", hex_string<4>(getHL()),
+	                    " IX=", hex_string<4>(getIX()),
+	                    " IY=", hex_string<4>(getIY()),
+	                    " SP=", hex_string<4>(getSP()),
+	                    '\n')
+	          << std::flush;
 }
 
 template<class T> void CPUCore<T>::executeSlow()
