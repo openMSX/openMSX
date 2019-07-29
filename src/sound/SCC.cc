@@ -98,6 +98,7 @@
 
 #include "SCC.hh"
 #include "DeviceConfig.hh"
+#include "cstd.hh"
 #include "likely.hh"
 #include "outer.hh"
 #include "ranges.hh"
@@ -109,6 +110,8 @@ using std::string;
 
 namespace openmsx {
 
+static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545.0 / 32));
+
 static string calcDescription(SCC::ChipMode mode)
 {
 	return (mode == SCC::SCC_Real) ? "Konami SCC" : "Konami SCC+";
@@ -117,16 +120,13 @@ static string calcDescription(SCC::ChipMode mode)
 SCC::SCC(const string& name_, const DeviceConfig& config,
          EmuTime::param time, ChipMode mode)
 	: ResampledSoundDevice(
-		config.getMotherBoard(), name_, calcDescription(mode), 5)
+		config.getMotherBoard(), name_, calcDescription(mode), 5, INPUT_RATE, false)
 	, debuggable(config.getMotherBoard(), getName())
 	, deformTimer(time)
 	, currentChipMode(mode)
 {
 	// Make valgrind happy
 	ranges::fill(orgPeriod, 0);
-
-	float input = 3579545.0f / 32;
-	setInputRate(lrintf(input));
 
 	powerUp(time);
 	registerSound(config);

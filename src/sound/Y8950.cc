@@ -504,10 +504,11 @@ void Y8950::Channel::keyOff(KeyPart part)
 	slot[CAR].slotOff(part);
 }
 
+static constexpr auto INPUT_RATE = unsigned(cstd::round(Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV)));
 
 Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
              unsigned sampleRam, EmuTime::param time, MSXAudio& audio)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-AUDIO", 9 + 5 + 1)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-AUDIO", 9 + 5 + 1, INPUT_RATE, false)
 	, motherBoard(config.getMotherBoard())
 	, periphery(audio.createPeriphery(getName()))
 	, adpcm(*this, config, name_, sampleRam)
@@ -564,9 +565,6 @@ Y8950::Y8950(const std::string& name_, const DeviceConfig& config,
 		}
 		std::cout << '\n';
 	}
-
-	float input = Y8950::CLOCK_FREQ / float(Y8950::CLOCK_FREQ_DIV);
-	setInputRate(lrintf(input));
 
 	reset(time);
 	registerSound(config);

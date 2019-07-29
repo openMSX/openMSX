@@ -489,7 +489,7 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 
 AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
                const DeviceConfig& config, EmuTime::param time)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "PSG", 3)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "PSG", 3, NATIVE_FREQ_INT, false)
 	, periphery(periphery_)
 	, debuggable(config.getMotherBoard(), getName())
 	, vibratoPercent(
@@ -517,8 +517,6 @@ AY8910::AY8910(const std::string& name_, AY8910Periphery& periphery_,
 
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
-
-	setInputRate(NATIVE_FREQ_INT);
 
 	reset(time);
 	registerSound(config);

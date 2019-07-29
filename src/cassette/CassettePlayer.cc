@@ -54,6 +54,7 @@ using std::vector;
 
 namespace openmsx {
 
+static const unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .cas/.wav file
 static const unsigned RECORD_FREQ = 44100;
 static const double OUTPUT_AMP = 60.0;
 
@@ -65,7 +66,7 @@ static XMLElement createXML()
 }
 
 CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
-	: ResampledSoundDevice(hwConf.getMotherBoard(), getName(), getDescription(), 1)
+	: ResampledSoundDevice(hwConf.getMotherBoard(), getName(), getDescription(), 1, DUMMY_INPUT_RATE, false)
 	, syncEndOfTape(hwConf.getMotherBoard().getScheduler())
 	, syncAudioEmu (hwConf.getMotherBoard().getScheduler())
 	, tapePos(EmuTime::zero)
@@ -87,8 +88,6 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	, motor(false), motorControl(true)
 	, syncScheduled(false)
 {
-	setInputRate(44100); // Initialize with dummy value
-
 	removeTape(EmuTime::zero);
 
 	static XMLElement xml = createXML();

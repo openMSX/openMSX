@@ -75,7 +75,7 @@ protected:
 	  * @param stereo Is this a stereo device
 	  */
 	SoundDevice(MSXMixer& mixer, string_view name, string_view description,
-	            unsigned numChannels, bool stereo = false);
+	            unsigned numChannels, unsigned inputRate, bool stereo);
 	~SoundDevice();
 
 	/** Get amplification/attenuation factor for this device.

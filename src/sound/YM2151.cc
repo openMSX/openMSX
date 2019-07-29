@@ -7,6 +7,7 @@
 #include "YM2151.hh"
 #include "DeviceConfig.hh"
 #include "Math.hh"
+#include "cstd.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include <cmath>
@@ -832,9 +833,11 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 	}
 }
 
+static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
+
 YM2151::YM2151(const std::string& name_, const std::string& desc,
                    const DeviceConfig& config, EmuTime::param time)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, true)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, true)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
 	, timer1(EmuTimer::createOPM_1(config.getScheduler(), *this))
 	, timer2(EmuTimer::createOPM_2(config.getScheduler(), *this))
@@ -846,10 +849,6 @@ YM2151::YM2151(const std::string& name_, const std::string& desc,
 
 	initTables();
 	initChipTables();
-
-	static const int CLCK_FREQ = 3579545;
-	float input = CLCK_FREQ / 64.0f;
-	setInputRate(lrintf(input));
 
 	reset(time);
 

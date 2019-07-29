@@ -1456,10 +1456,15 @@ void YMF262::reset(EmuTime::param time)
 	setMixLevel(0x1b, time); // -9dB left and right
 }
 
+static unsigned calcInputRate(bool isYMF278)
+{
+	return unsigned(lrintf(isYMF278 ?    33868800.0f / (19 * 36)
+	                                : 4 * 3579545.0f / ( 8 * 36)));
+}
 YMF262::YMF262(const std::string& name_,
                const DeviceConfig& config, bool isYMF278_)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "MoonSound FM-part",
-	                       18, true)
+	                       18, calcInputRate(isYMF278_), true)
 	, debuggable(config.getMotherBoard(), getName())
 	, timer1(isYMF278_
 	         ? EmuTimer::createOPL4_1(config.getScheduler(), *this)
@@ -1488,11 +1493,6 @@ YMF262::YMF262(const std::string& name_,
 		std::cout << '\n';
 		for (auto& e : sin.tab) std::cout << e << '\n';
 	}
-
-	float input = isYMF278
-	            ?    33868800.0f / (19 * 36)
-	            : 4 * 3579545.0f / ( 8 * 36);
-	setInputRate(lrintf(input));
 
 	registerSound(config);
 	reset(config.getMotherBoard().getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()

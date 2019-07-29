@@ -26,7 +26,7 @@ public:
 protected:
 	ResampledSoundDevice(MSXMotherBoard& motherBoard, string_view name,
 	                     string_view description, unsigned channels,
-	                     bool stereo = false);
+	                     unsigned inputSampleRate, bool stereo);
 	~ResampledSoundDevice();
 
 	// SoundDevice

@@ -16,8 +16,9 @@ namespace openmsx {
 ResampledSoundDevice::ResampledSoundDevice(
 		MSXMotherBoard& motherBoard, string_view name_,
 		string_view description_, unsigned channels,
-		bool stereo_)
-	: SoundDevice(motherBoard.getMSXMixer(), name_, description_, channels, stereo_)
+		unsigned inputSampleRate_, bool stereo_)
+	: SoundDevice(motherBoard.getMSXMixer(), name_, description_,
+	              channels, inputSampleRate_, stereo_)
 	, resampleSetting(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
 {
 	resampleSetting.attach(*this);

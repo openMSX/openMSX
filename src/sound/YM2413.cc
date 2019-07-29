@@ -3,6 +3,7 @@
 #include "YM2413Burczynski.hh"
 #include "DeviceConfig.hh"
 #include "serialize.hh"
+#include "cstd.hh"
 #include "outer.hh"
 #include <cmath>
 #include <memory>
@@ -41,14 +42,13 @@ static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
 	}
 }
 
+static constexpr auto INPUT_RATE = unsigned(cstd::round(YM2413Core::CLOCK_FREQ / 72.0));
+
 YM2413::YM2413(const std::string& name_, const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-MUSIC", 9 + 5)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-MUSIC", 9 + 5, INPUT_RATE, false)
 	, core(createCore(config))
 	, debuggable(config.getMotherBoard(), getName())
 {
-	float input = YM2413Core::CLOCK_FREQ / 72.0f;
-	setInputRate(lrintf(input));
-
 	registerSound(config);
 }
 

@@ -55,9 +55,8 @@ void SoundDevice::addFill(float*& buf, float val, unsigned num)
 	} while (--num);
 }
 
-SoundDevice::SoundDevice(MSXMixer& mixer_, string_view name_,
-			 string_view description_,
-			 unsigned numChannels_, bool stereo_)
+SoundDevice::SoundDevice(MSXMixer& mixer_, string_view name_, string_view description_,
+			 unsigned numChannels_, unsigned inputRate, bool stereo_)
 	: mixer(mixer_)
 	, name(makeUnique(mixer, name_))
 	, description(description_.str())
@@ -68,6 +67,8 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, string_view name_,
 {
 	assert(numChannels <= MAX_CHANNELS);
 	assert(stereo == 1 || stereo == 2);
+
+	setInputRate(inputRate);
 
 	// initially no channels are muted
 	ranges::fill(channelMuted, false);

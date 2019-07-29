@@ -785,10 +785,12 @@ byte YMF278::peekReg(byte reg) const
 	return result;
 }
 
+static constexpr unsigned INPUT_RATE = 44100;
+
 YMF278::YMF278(const std::string& name_, int ramSize_,
                const DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "MoonSound wave-part",
-	                       24, true)
+	                       24, INPUT_RATE, true)
 	, motherBoard(config.getMotherBoard())
 	, debugRegisters(motherBoard, getName())
 	, debugMemory   (motherBoard, getName())
@@ -815,8 +817,6 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 	}
 
 	memadr = 0; // avoid UMR
-
-	setInputRate(44100);
 
 	registerSound(config);
 	reset(motherBoard.getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()

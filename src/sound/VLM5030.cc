@@ -79,6 +79,7 @@ chirp 12-..: vokume   0   : silent
 #include "XMLElement.hh"
 #include "FileOperations.hh"
 #include "Math.hh"
+#include "cstd.hh"
 #include "serialize.hh"
 #include "random.hh"
 #include "ranges.hh"
@@ -519,9 +520,11 @@ static XMLElement getRomConfig(const std::string& name, const std::string& romFi
 	return voiceROMconfig;
 }
 
+static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
+
 VLM5030::VLM5030(const std::string& name_, const std::string& desc,
                  const std::string& romFilename, const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, INPUT_RATE, false)
 	, rom(name_ + " ROM", "rom", DeviceConfig(config, getRomConfig(name_, romFilename)))
 {
 	// reset input pins
@@ -532,10 +535,6 @@ VLM5030::VLM5030(const std::string& name_, const std::string& desc,
 	phase = PH_IDLE;
 
 	address_mask = rom.getSize() - 1;
-
-	const int CLOCK_FREQ = 3579545;
-	float input = CLOCK_FREQ / 440.0f;
-	setInputRate(lrintf(input));
 
 	registerSound(config);
 }
