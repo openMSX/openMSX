@@ -230,6 +230,7 @@ void YMF278::Slot::reset()
 
 	lfo_active = false;
 	lfo_cnt = 0;
+	lfo = 0;
 
 	state = EG_OFF;
 
