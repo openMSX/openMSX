@@ -238,8 +238,8 @@ class GL(Library):
 		def execute(cmd, log):
 			versionPairs = tuple(
 				( major, minor )
-				for major in range(1, 10)
-				for minor in range(0, 10)
+				for major in xrange(1, 10)
+				for minor in xrange(0, 10)
 				)
 			version = cmd.expand(log, cls.getHeaders(platform), *(
 				'GL_VERSION_%d_%d' % pair for pair in versionPairs
