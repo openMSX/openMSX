@@ -14,6 +14,7 @@ from packages import getPackage
 from systemfuncs import systemFunctions
 from systemfuncs2code import iterSystemFuncsHeader
 
+from io import open
 from os import environ, makedirs, remove
 from os.path import isdir, isfile, pathsep
 from shlex import split as shsplit
@@ -33,12 +34,9 @@ def resolve(log, expr):
 		return ''
 
 def writeFile(path, lines):
-	out = open(path, 'w')
-	try:
+	with open(path, 'w', encoding='utf-8') as out:
 		for line in lines:
 			print >> out, line
-	finally:
-		out.close()
 
 def tryCompile(log, compileCommand, sourcePath, lines):
 	'''Write the program defined by "lines" to a text file specified
@@ -351,10 +349,9 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	if not isdir(outDir):
 		makedirs(outDir)
 	logPath = outDir + '/probe.log'
-	log = open(logPath, 'w')
-	print 'Probing target system...'
-	print >> log, 'Probing system:'
-	try:
+	with open(logPath, 'w', encoding='utf-8') as log:
+		print 'Probing target system...'
+		print >> log, 'Probing system:'
 		distroRoot = thirdPartyInstall or None
 		if distroRoot is None:
 			if platform == 'darwin':
@@ -385,8 +382,6 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			log, logPath, compileCommandStr, outDir, platform, distroRoot,
 			configuration
 			).everything()
-	finally:
-		log.close()
 
 if __name__ == '__main__':
 	if len(sys.argv) == 6:

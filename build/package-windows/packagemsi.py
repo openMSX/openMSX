@@ -3,6 +3,7 @@ from packagewindows import (
 	PackageInfo, emptyOrCreateDirectory, generateInstallFiles
 	)
 
+from io import open
 from os import environ, mkdir, system, unlink
 from os.path import exists, join as joinpath
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -13,8 +14,7 @@ def _writeFragment(
 	virtualDir, excludedFile, win64
 	):
 	print 'Generating ' + wxsFile
-	out = open(wxsFile, 'w')
-	try:
+	with open(wxsFile, 'w', encoding='utf-8') as out:
 		out.writelines(
 			'%s\n' % line
 			for line in generateWixFragment(
@@ -22,8 +22,6 @@ def _writeFragment(
 				excludedFile, win64
 				)
 			)
-	finally:
-		out.close()
 
 def packageMSI(info):
 	print 'Generating install files...'

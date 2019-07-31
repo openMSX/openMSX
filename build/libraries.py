@@ -12,6 +12,7 @@
 from executils import captureStdout, shjoin
 from msysutils import msysActive, msysPathToNative
 
+from io import open
 from os import listdir
 from os.path import isdir, isfile
 from os import environ
@@ -391,9 +392,8 @@ class TCL(Library):
 										yield tclpath
 
 		tclConfigs = {}
-		log = open('derived/tcl-search.log', 'w')
-		print >> log, 'Looking for Tcl...'
-		try:
+		with open('derived/tcl-search.log', 'w', encoding='utf-8') as log:
+			print >> log, 'Looking for Tcl...'
 			for location in iterLocations():
 				path = location + '/tclConfig.sh'
 				if isfile(path):
@@ -428,8 +428,6 @@ class TCL(Library):
 				print >> log, 'No suitable versions found.'
 			else:
 				print >> log, 'Selected:', tclConfig
-		finally:
-			log.close()
 
 		cls.tclConfig = tclConfig
 		return tclConfig
@@ -439,8 +437,7 @@ class TCL(Library):
 		tclConfig = cls.getTclConfig(platform, distroRoot)
 		if tclConfig is None:
 			return None
-		log = open('derived/tcl-search.log', 'a')
-		try:
+		with open('derived/tcl-search.log', 'a', encoding='utf-8') as log:
 			print >> log, 'Getting Tcl %s...' % description
 			text = captureStdout(
 				log,
@@ -451,8 +448,6 @@ class TCL(Library):
 				)
 			if text is not None:
 				print >> log, 'Result: %s' % text.strip()
-		finally:
-			log.close()
 		return None if text is None else text.strip()
 
 	@classmethod
@@ -479,8 +474,7 @@ class TCL(Library):
 			'${TCL_SHARED_BUILD}',
 			'library type (shared/static)'
 			)
-		log = open('derived/tcl-search.log', 'a')
-		try:
+		with open('derived/tcl-search.log', 'a', encoding='utf-8') as log:
 			if tclShared == '0':
 				if wantShared:
 					print >> log, (
@@ -501,8 +495,6 @@ class TCL(Library):
 					'shared or static library.'
 					)
 				return None
-		finally:
-			log.close()
 
 		# Now get the link flags.
 		if wantShared:

@@ -3,9 +3,9 @@
 from executils import captureStdout
 from makeutils import filterLines
 
+from io import open
 from os import makedirs
 from os.path import isdir
-
 import re
 
 # Name used for packaging.
@@ -65,14 +65,11 @@ def extractRevision():
 		return None
 	if not isdir('derived'):
 		makedirs('derived')
-	log = open('derived/version.log', 'w')
-	print >> log, 'Extracting revision info...'
-	try:
+	with open('derived/version.log', 'w', encoding='utf-8') as log:
+		print >> log, 'Extracting revision info...'
 		revision = extractGitRevision(log)
 		print >> log, 'Revision string: %s' % revision
 		print >> log, 'Revision number: %s' % extractNumberFromGitRevision(revision)
-	finally:
-		log.close()
 	_cachedRevision = revision
 	return revision
 
@@ -93,13 +90,10 @@ def getVersionedPackageName():
 def countGitCommits():
 	if not isdir('derived'):
 		makedirs('derived')
-	log = open('derived/commitCountVersion.log', 'w')
-	print >> log, 'Extracting commit count...'
-	try:
+	with open('derived/commitCountVersion.log', 'w', encoding='utf-8') as log:
+		print >> log, 'Extracting commit count...'
 		commitCount = captureStdout(log, 'git rev-list HEAD --count')
 		print >> log, 'Commit count: %s' % commitCount
-	finally:
-		log.close()
 	return commitCount
 
 def getAndroidVersionCode():

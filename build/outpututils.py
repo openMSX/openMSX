@@ -1,5 +1,6 @@
 # Various utility functions for generating output files and directories.
 
+from io import open
 from os import makedirs
 from os.path import dirname, isdir, isfile
 
@@ -19,12 +20,8 @@ def rewriteIfChanged(path, lines):
 	newLines = [ line + '\n' for line in lines ]
 
 	if isfile(path):
-		inp = open(path, 'r')
-		try:
+		with open(path, 'r', encoding='utf-8') as inp:
 			oldLines = inp.readlines()
-		finally:
-			inp.close()
-
 		if newLines == oldLines:
 			print 'Up to date: %s' % path
 			return False
@@ -34,9 +31,6 @@ def rewriteIfChanged(path, lines):
 		print 'Creating %s...' % path
 		createDirFor(path)
 
-	out = open(path, 'w')
-	try:
+	with open(path, 'w', encoding='utf-8') as out:
 		out.writelines(newLines)
-	finally:
-		out.close()
 	return True

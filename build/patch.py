@@ -1,5 +1,6 @@
 # Applies a unified diff to a directory tree.
 
+from io import open
 from os.path import abspath, isdir, join as joinpath, sep
 import re
 import sys
@@ -197,8 +198,7 @@ class Diff(object):
 		Each element returned is a Diff object containing the differences to
 		a single file.
 		'''
-		inp = open(path, 'r')
-		try:
+		with open(path, 'r', encoding='utf-8') as inp:
 			scanner = LineScanner(inp, lambda line: not line.startswith('#'))
 			error = scanner.parseError
 			def parseHunks():
@@ -227,8 +227,6 @@ class Diff(object):
 					yield cls(filePath, parseHunks())
 				except ValueError as ex:
 					raise error('inconsistent hunks: %s' % ex, diffLineNo)
-		finally:
-			inp.close()
 
 	def __init__(self, path, hunks):
 		self.__path = path
@@ -276,11 +274,8 @@ def patch(diff, targetDir):
 	# Read entire file into memory.
 	# The largest file we expect to patch is the "configure" script, which is
 	# typically about 1MB.
-	inp = open(absFilePath, 'r')
-	try:
+	with open(absFilePath, 'r', encoding='utf-8') as inp:
 		lines = inp.readlines()
-	finally:
-		inp.close()
 
 	for hunk in diff.iterHunks():
 		# We will be modifying "lines" at index "newLine", while "oldLine" is
@@ -300,11 +295,8 @@ def patch(diff, targetDir):
 			oldLine += change.oldInc
 			newLine += change.newInc
 
-	out = open(absFilePath, 'w')
-	try:
+	with open(absFilePath, 'w', encoding='utf-8') as out:
 		out.writelines(lines)
-	finally:
-		out.close()
 
 def main(diffPath, targetDir):
 	try:

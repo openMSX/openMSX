@@ -1,3 +1,4 @@
+from io import open
 from os import environ
 from os.path import isfile
 from subprocess import PIPE, Popen
@@ -30,8 +31,7 @@ def _determineMounts():
 	fstab = msysRoot + '/etc/fstab'
 	if isfile(fstab):
 		try:
-			inp = open(fstab, 'r')
-			try:
+			with open(fstab, 'r', encoding='utf-8') as inp:
 				for line in inp:
 					line = line.strip()
 					if line and not line.startswith('#'):
@@ -40,8 +40,6 @@ def _determineMounts():
 							)
 						if nativePath != 'none':
 							mounts[mountPoint] = nativePath
-			finally:
-				inp.close()
 		except IOError as ex:
 			print >> sys.stderr, 'Failed to read MSYS fstab:', ex
 		except ValueError as ex:
