@@ -15,17 +15,14 @@ def verifyFile(filePath, fileLength, checksums):
 			hashers[algo] = newhash(algo)
 		except ValueError as ex:
 			raise IOError('Failed to create "%s" hasher: %s' % (algo, ex))
-	inp = open(filePath, 'rb')
 	bufSize = 16384
-	try:
+	with open(filePath, 'rb') as inp:
 		while True:
 			buf = inp.read(bufSize)
 			if not buf:
 				break
 			for hasher in hashers.itervalues():
 				hasher.update(buf)
-	finally:
-		inp.close()
 	for algo, hasher in sorted(hashers.iteritems()):
 		if checksums[algo] != hasher.hexdigest():
 			raise IOError('%s checksum mismatch' % algo)
