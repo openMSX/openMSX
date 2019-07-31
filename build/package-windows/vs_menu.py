@@ -32,9 +32,9 @@ def menu():
 	print '-'*50
 	print title
 	print '-'*50+'\n'
-	
+
 	for item in sorted(menuval): print item
-	
+
 	print '-'*50
 	print '  Resulting Binary settings:'
 
