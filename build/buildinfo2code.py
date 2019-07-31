@@ -1,3 +1,4 @@
+from __future__ import print_function
 from cpu import getCPU, X86, X86_64
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged
@@ -93,7 +94,9 @@ if __name__ == '__main__':
 	if len(sys.argv) == 6:
 		rewriteIfChanged(sys.argv[1], iterBuildInfoHeader(*sys.argv[2 : ]))
 	else:
-		print >> sys.stderr, \
-			'Usage: python buildinfo2code.py CONFIG_HEADER ' \
-			'platform cpu flavour share-install-dir'
+		print(
+			'Usage: python buildinfo2code.py CONFIG_HEADER '
+			'platform cpu flavour share-install-dir',
+			file=sys.stderr
+			)
 		sys.exit(2)

@@ -1,5 +1,6 @@
 # Applies a unified diff to a directory tree.
 
+from __future__ import print_function
 from io import open
 from os.path import abspath, isdir, join as joinpath, sep
 import re
@@ -302,37 +303,35 @@ def main(diffPath, targetDir):
 	try:
 		differences = list(Diff.load(diffPath))
 	except IOError as ex:
-		print >> sys.stderr, 'Error reading diff:', ex
+		print('Error reading diff:', ex, file=sys.stderr)
 		sys.exit(1)
 	except ParseError as ex:
-		print >> sys.stderr, ex
+		print(ex, file=sys.stderr)
 		sys.exit(1)
 
 	if not isdir(targetDir):
-		print >> sys.stderr, \
-			'Destination directory "%s" does not exist' % targetDir
+		print('Destination directory "%s" does not exist' % targetDir, file=sys.stderr)
 		sys.exit(1)
 	for diff in differences:
 		targetPath = joinpath(targetDir, diff.getPath())
 		try:
 			patch(diff, targetDir)
 		except IOError as ex:
-			print >> sys.stderr, 'I/O error patching "%s": %s' % (
+			print('I/O error patching "%s": %s' % (
 				targetPath, ex
-				)
+				), file=sys.stderr)
 			sys.exit(1)
 		except ValueError as ex:
-			print >> sys.stderr, 'Patch could not be applied to "%s": %s' % (
+			print('Patch could not be applied to "%s": %s' % (
 				targetPath, ex
-				)
+				), file=sys.stderr)
 			sys.exit(1)
 		else:
-			print 'Patched:', targetPath
+			print('Patched:', targetPath)
 
 if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		main(*sys.argv[1 : ])
 	else:
-		print >> sys.stderr, \
-			'Usage: python patch.py diff target'
+		print('Usage: python patch.py diff target', file=sys.stderr)
 		sys.exit(2)

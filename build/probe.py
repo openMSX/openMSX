@@ -2,6 +2,7 @@
 # Performs some test compiles, to check for headers and functions.
 # It does not execute anything it builds, making it friendly for cross compiles.
 
+from __future__ import print_function
 from compilers import CompileCommand, LinkCommand
 from components import iterComponents, requiredLibrariesFor
 from configurations import getConfiguration
@@ -36,7 +37,7 @@ def resolve(log, expr):
 def writeFile(path, lines):
 	with open(path, 'w', encoding='utf-8') as out:
 		for line in lines:
-			print >> out, line
+			print(line, file=out)
 
 def tryCompile(log, compileCommand, sourcePath, lines):
 	'''Write the program defined by "lines" to a text file specified
@@ -158,7 +159,7 @@ class TargetSystem(object):
 		for line in iterProbeResults(
 			self.outVars, self.configuration, self.logPath
 			):
-			print line
+			print(line)
 
 	def everything(self):
 		self.checkAll()
@@ -170,10 +171,10 @@ class TargetSystem(object):
 		'''
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, '')
 		ok = checkCompiler(self.log, compileCommand, self.outDir)
-		print >> self.log, 'Compiler %s: %s' % (
+		print('Compiler %s: %s' % (
 			'works' if ok else 'broken',
 			compileCommand
-			)
+			), file=self.log)
 		self.outVars['COMPILER'] = str(ok).lower()
 
 	def checkFunc(self, func):
@@ -184,10 +185,10 @@ class TargetSystem(object):
 			self.log, compileCommand, self.outDir,
 			func.name, func.getFunctionName(), func.iterHeaders(self.platform)
 			)
-		print >> self.log, '%s function: %s' % (
+		print('%s function: %s' % (
 			'Found' if ok else 'Missing',
 			func.getFunctionName()
-			)
+			), file=self.log)
 		self.functionResults[func.getMakeName()] = ok
 
 	def checkLibrary(self, makeName):
@@ -230,22 +231,22 @@ class TargetSystem(object):
 		writeFile(sourcePath, takeFuncAddr())
 		try:
 			compileOK = compileCommand.compile(self.log, sourcePath, objectPath)
-			print >> self.log, '%s: %s header' % (
+			print('%s: %s header' % (
 				makeName,
 				'Found' if compileOK else 'Missing'
-				)
+				), file=self.log)
 			if compileOK:
 				linkOK = linkCommand.link(self.log, [ objectPath ], binaryPath)
-				print >> self.log, '%s: %s lib' % (
+				print('%s: %s lib' % (
 					makeName,
 					'Found' if linkOK else 'Missing'
-					)
+					), file=self.log)
 			else:
 				linkOK = False
-				print >> self.log, (
+				print((
 					'%s: Cannot test linking because compile failed'
 					% makeName
-					)
+					), file=self.log)
 		finally:
 			remove(sourcePath)
 			if isfile(objectPath):
@@ -350,31 +351,33 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 		makedirs(outDir)
 	logPath = outDir + '/probe.log'
 	with open(logPath, 'w', encoding='utf-8') as log:
-		print 'Probing target system...'
-		print >> log, 'Probing system:'
+		print('Probing target system...')
+		print('Probing system:', file=log)
 		distroRoot = thirdPartyInstall or None
 		if distroRoot is None:
 			if platform == 'darwin':
 				for searchPath in environ.get('PATH', '').split(pathsep):
 					if searchPath == '/opt/local/bin':
-						print 'Using libraries from MacPorts.'
+						print('Using libraries from MacPorts.')
 						distroRoot = '/opt/local'
 						break
 					elif searchPath == '/sw/bin':
-						print 'Using libraries from Fink.'
+						print('Using libraries from Fink.')
 						distroRoot = '/sw'
 						break
 				else:
 					distroRoot = '/usr/local'
 			elif platform.endswith('bsd') or platform == 'dragonfly':
 				distroRoot = environ.get('LOCALBASE', '/usr/local')
-				print 'Using libraries from ports directory %s.' % distroRoot
+				print('Using libraries from ports directory %s.' % distroRoot)
 			elif platform == 'pandora':
 				distroRoot = environ.get('LIBTOOL_SYSROOT_PATH')
 				if distroRoot is not None:
 					distroRoot += '/usr'
-					print 'Using libraries from sysroot directory %s.' \
+					print(
+						'Using libraries from sysroot directory %s.'
 						% distroRoot
+						)
 
 		configuration = getConfiguration(linkMode)
 
@@ -388,11 +391,12 @@ if __name__ == '__main__':
 		try:
 			main(*sys.argv[1 : ])
 		except ValueError as ve:
-			print >> sys.stderr, ve
+			print(ve, file=sys.stderr)
 			sys.exit(2)
 	else:
-		print >> sys.stderr, (
+		print(
 			'Usage: python probe.py '
-			'COMPILE OUTDIR OPENMSX_TARGET_OS LINK_MODE 3RDPARTY_INSTALL_DIR'
+			'COMPILE OUTDIR OPENMSX_TARGET_OS LINK_MODE 3RDPARTY_INSTALL_DIR',
+			file=sys.stderr
 			)
 		sys.exit(2)

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from os import altsep, chmod, mkdir, remove, sep, stat, walk
 from os.path import dirname, exists, isdir, isfile, islink, join as joinpath
 from shutil import copyfile
@@ -131,13 +132,13 @@ def installTree(srcDir, destDir, paths):
 		srcPath = joinpath(srcDir, relPath)
 		destPath = joinpath(destDir, relPath)
 		if islink(srcPath):
-			print 'Skipping symbolic link:', srcPath
+			print('Skipping symbolic link:', srcPath)
 		elif isdir(srcPath):
 			_installDirsRec(destPath)
 		elif isfile(srcPath):
 			_installDirsRec(dirname(destPath))
 			installFile(srcPath, destPath)
 		elif exists(srcPath):
-			print 'Skipping unknown kind of file system entry:', srcPath
+			print('Skipping unknown kind of file system entry:', srcPath)
 		else:
-			print 'Skipping non-existing path:', srcPath
+			print('Skipping non-existing path:', srcPath)

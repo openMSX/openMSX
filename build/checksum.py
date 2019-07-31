@@ -1,3 +1,4 @@
+from __future__ import print_function
 from hashlib import new as newhash
 from os import stat
 from os.path import isfile
@@ -29,30 +30,30 @@ def verifyFile(filePath, fileLength, checksums):
 
 def main(filePath, fileLengthStr, checksumStrs):
 	if not isfile(filePath):
-		print >> sys.stderr, 'No such file: %s' % filePath
+		print('No such file: %s' % filePath, file=sys.stderr)
 		sys.exit(2)
 	try:
 		fileLength = int(fileLengthStr)
 	except ValueError:
-		print >> sys.stderr, 'Length should be an integer'
+		print('Length should be an integer', file=sys.stderr)
 		sys.exit(2)
 	checksums = {}
 	for checksumStr in checksumStrs:
 		try:
 			algo, hashval = checksumStr.split('=')
 		except ValueError:
-			print >> sys.stderr, 'Invalid checksum format: %s' % checksumStr
+			print('Invalid checksum format: %s' % checksumStr, file=sys.stderr)
 			sys.exit(2)
 		else:
 			checksums[algo] = hashval
-	print 'Validating: %s' % filePath
+	print('Validating: %s' % filePath)
 	try:
 		verifyFile(filePath, fileLength, checksums)
 	except IOError as ex:
-		print >> sys.stderr, 'Validation FAILED: %s' % ex
+		print('Validation FAILED: %s' % ex, file=sys.stderr)
 		sys.exit(1)
 	else:
-		print 'Validation passed'
+		print('Validation passed')
 		sys.exit(0)
 
 if __name__ == '__main__':
@@ -63,7 +64,8 @@ if __name__ == '__main__':
 			sys.argv[3 : ]
 			)
 	else:
-		print >> sys.stderr, (
-			'Usage: python checksum.py FILE LENGTH (ALGO=HASH)*'
+		print(
+			'Usage: python checksum.py FILE LENGTH (ALGO=HASH)*',
+			file=sys.stderr
 			)
 		sys.exit(2)

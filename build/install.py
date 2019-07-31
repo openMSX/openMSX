@@ -1,3 +1,4 @@
+from __future__ import print_function
 from fileutils import (
 	installDirs, installFile, installSymlink, installTree, scanTree
 	)
@@ -27,18 +28,18 @@ def installAll(
 		'doc/' + fileName for fileName in docNodeVars['INSTALL_DOCS'].split()
 		]
 
-	print '  Executable...'
+	print('  Executable...')
 	installDirs(installPrefix + binaryDestDir)
 	installFile(
 		binaryBuildPath,
 		installPrefix + binaryDestDir + '/' + binaryFileName
 		)
 
-	print '  Data files...'
+	print('  Data files...')
 	installDirs(installPrefix + shareDestDir)
 	installTree('share', installPrefix + shareDestDir, scanTree('share'))
 
-	print '  Documentation...'
+	print('  Documentation...')
 	installDirs(installPrefix + docDestDir)
 	for path in docsToInstall:
 		installFile(path, installPrefix + docDestDir + '/' + basename(path))
@@ -51,7 +52,7 @@ def installAll(
 				)
 
 	if cbios:
-		print '  C-BIOS...'
+		print('  C-BIOS...')
 		installFile(
 			'Contrib/README.cbios', installPrefix + docDestDir + '/cbios.txt'
 			)
@@ -67,7 +68,7 @@ def installAll(
 			)
 
 	if hasattr(os, 'symlink'):
-		print '  Creating symlinks...'
+		print('  Creating symlinks...')
 		for machine, alias in (
 			('National_CF-3300', 'msx1'),
 			('Toshiba_HX-10', 'msx1_eu'),
@@ -109,7 +110,7 @@ def main(
 		cbios = parseBool(cbiosStr)
 		symlinkForBinary = parseBool(customVars['SYMLINK_FOR_BINARY'])
 	except ValueError as ex:
-		print >> sys.stderr, 'Invalid argument:', ex
+		print('Invalid argument:', ex, file=sys.stderr)
 		sys.exit(2)
 
 	if installPrefix and not installPrefix.endswith('/'):
@@ -117,7 +118,7 @@ def main(
 		installPrefix += '/'
 
 	if verbose:
-		print 'Installing openMSX:'
+		print('Installing openMSX:')
 
 	try:
 		installAll(
@@ -125,12 +126,12 @@ def main(
 			binaryBuildPath, targetPlatform, cbios, symlinkForBinary
 			)
 	except IOError as ex:
-		print >> sys.stderr, 'Installation failed:', ex
+		print('Installation failed:', ex, file=sys.stderr)
 		sys.exit(1)
 
 	if verbose:
-		print 'Installation complete... have fun!'
-		print (
+		print('Installation complete... have fun!')
+		print((
 			'Notice: if you want to emulate real MSX systems and not only the '
 			'free C-BIOS machines, put the system ROMs in one of the following '
 			'directories: %s/systemroms or '
@@ -139,14 +140,16 @@ def main(
 			'or savestates you get from your friends, copy that MSX software to '
 			'%s/software or '
 			'~/.openMSX/share/software'
-			) % (shareDestDir, shareDestDir)
+			) % (shareDestDir, shareDestDir))
 
 if __name__ == '__main__':
 	if len(sys.argv) == 9:
 		main(*sys.argv[1 : ])
 	else:
-		print >> sys.stderr, \
-			'Usage: python install.py ' \
-			'DESTDIR INSTALL_BINARY_DIR INSTALL_SHARE_DIR INSTALL_DOC_DIR ' \
-			'BINARY_FULL OPENMSX_TARGET_OS INSTALL_VERBOSE INSTALL_CONTRIB'
+		print(
+			'Usage: python install.py '
+			'DESTDIR INSTALL_BINARY_DIR INSTALL_SHARE_DIR INSTALL_DOC_DIR '
+			'BINARY_FULL OPENMSX_TARGET_OS INSTALL_VERBOSE INSTALL_CONTRIB',
+			file=sys.stderr
+			)
 		sys.exit(2)

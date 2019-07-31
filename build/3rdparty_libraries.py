@@ -1,5 +1,6 @@
 # Prints which 3rd party libraries are desired for the given configuration.
 
+from __future__ import print_function
 from components import requiredLibrariesFor
 from configurations import getConfiguration
 from libraries import allDependencies, librariesByName
@@ -23,7 +24,7 @@ def main(platform, linkMode):
 	if platform != 'linux':
 		thirdPartyLibs.discard('ALSA')
 
-	print ' '.join(sorted(thirdPartyLibs))
+	print(' '.join(sorted(thirdPartyLibs)))
 
 if __name__ == '__main__':
 	import sys
@@ -31,10 +32,11 @@ if __name__ == '__main__':
 		try:
 			main(*sys.argv[1 : ])
 		except ValueError as ex:
-			print >> sys.stderr, ex
+			print(ex, file=sys.stderr)
 			sys.exit(2)
 	else:
-		print >> sys.stderr, (
-			'Usage: python 3rdparty_libraries.py TARGET_OS LINK_MODE'
+		print(
+			'Usage: python 3rdparty_libraries.py TARGET_OS LINK_MODE',
+			file=sys.stderr
 			)
 		sys.exit(2)

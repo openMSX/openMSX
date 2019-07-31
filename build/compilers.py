@@ -1,3 +1,4 @@
+from __future__ import print_function
 from msysutils import msysActive, msysPathToNative
 
 from os import environ
@@ -69,7 +70,7 @@ class _Command(object):
 				stderr = PIPE if captureOutput else STDOUT,
 				)
 		except OSError as ex:
-			print >> log, 'failed to execute %s: %s' % (name, ex)
+			print('failed to execute %s: %s' % (name, ex), file=log)
 			return None if captureOutput else False
 		inputText = None if inputSeq is None else '\n'.join(inputSeq) + '\n'
 		stdoutdata, stderrdata = proc.communicate(inputText)
@@ -96,7 +97,7 @@ class _Command(object):
 		if proc.returncode == 0:
 			return stdoutdata if captureOutput else True
 		else:
-			print >> log, 'return code from %s: %d' % (name, proc.returncode)
+			print('return code from %s: %d' % (name, proc.returncode), file=log)
 			return None if captureOutput else False
 
 class CompileCommand(_Command):

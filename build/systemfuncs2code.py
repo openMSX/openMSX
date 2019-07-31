@@ -1,3 +1,4 @@
+from __future__ import print_function
 from systemfuncs import systemFunctions
 from outpututils import rewriteIfChanged
 
@@ -23,9 +24,10 @@ if __name__ == '__main__':
 			iterSystemFuncsHeader(getSystemFuncsInfo())
 			)
 	else:
-		print >> sys.stderr, \
-			'Usage: python systemfuncs2code.py CONFIG_HEADER '
-		print >> sys.stderr, \
-			'Note: Should only be called directly on systems where the probe ' \
-			'does not work.'
+		print('Usage: python systemfuncs2code.py CONFIG_HEADER ', file=sys.stderr)
+		print(
+			'Note: Should only be called directly on systems '
+			'where the probe does not work.',
+			file=sys.stderr
+			)
 		sys.exit(2)

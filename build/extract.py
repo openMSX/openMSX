@@ -1,5 +1,6 @@
 # Extract files from archives.
 
+from __future__ import print_function
 from os import O_CREAT, O_WRONLY, fdopen, mkdir, open as osopen, utime
 try:
 	from os import O_BINARY
@@ -114,6 +115,5 @@ if __name__ == '__main__':
 			renameTopLevelDir = None
 		extract(sys.argv[1], sys.argv[2], renameTopLevelDir)
 	else:
-		print >> sys.stderr, \
-			'Usage: python extract.py archive destination [new-top-level-dir]'
+		print('Usage: python extract.py archive destination [new-top-level-dir]', file=sys.stderr)
 		sys.exit(2)

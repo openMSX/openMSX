@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 from executils import captureStdout
 
 from collections import defaultdict, namedtuple
@@ -97,7 +98,7 @@ if __name__ == '__main__':
 						node.iteritems(),
 						key=lambda item: (-item[1][0], item[0])
 						):
-					print '%s%8d %s' % (indent, contentSize, name)
+					print('%s%8d %s' % (indent, contentSize, name))
 					printTree(contentSize, content, indent + '  ')
 			else:
 				for symbol in sorted(
@@ -105,11 +106,11 @@ if __name__ == '__main__':
 						key=lambda symbol: (-symbol.size, symbol.name)
 						):
 					lineNo = symbol.lineNo
-					print '%s%8d %s %s %s' % (
+					print('%s%8d %s %s %s' % (
 						indent, symbol.size, symbol.typ, symbol.name,
 						'' if lineNo is None else '(line %d)' % lineNo
-						)
+						))
 		printTree(totalSize, sizeTree, '')
 	else:
-		print >> sys.stderr, 'Usage: python sizestats.py executable'
+		print('Usage: python sizestats.py executable', file=sys.stderr)
 		sys.exit(2)

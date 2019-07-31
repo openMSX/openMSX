@@ -2,6 +2,7 @@
 # Actually we rely on the Python "platform" module and map its output to names
 # that the openMSX build understands.
 
+from __future__ import print_function
 from executils import captureStdout
 
 from platform import architecture, machine, system
@@ -104,10 +105,11 @@ if __name__ == '__main__':
 			elif compilerCPU == 'mipsel':
 				hostCPU = compilerCPU
 			else:
-				print >>sys.stderr, (
-						'Warning: Unabling to determine endianess; '
-						'compiling for big endian'
-						)
+				print(
+					'Warning: Unabling to determine endianess; '
+					'compiling for big endian',
+					file=sys.stderr
+					)
 
 		hostOS = detectOS()
 		if hostOS == 'mingw32' and hostCPU == 'x86_64':
@@ -121,7 +123,7 @@ if __name__ == '__main__':
 			if architecture()[0] == '64bit':
 				hostCPU = 'x86_64'
 
-		print hostCPU, hostOS
+		print(hostCPU, hostOS)
 	except ValueError as ex:
-		print >> sys.stderr, ex
+		print(ex, file=sys.stderr)
 		sys.exit(1)
