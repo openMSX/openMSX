@@ -61,20 +61,14 @@ def extract(archivePath, destDir, rename = None):
 				mode = S_IRWXU | S_IRWXG | S_IRWXO
 				if not (member.mode & S_IXUSR):
 					mode &= ~(S_IXUSR | S_IXGRP | S_IXOTH)
-				out = fdopen(
-					osopen(absMemberPath, O_CREAT | O_WRONLY | O_BINARY, mode),
-					'wb'
-					)
-				try:
+				fd = osopen(absMemberPath, O_CREAT | O_WRONLY | O_BINARY, mode)
+				with fdopen(fd, 'wb') as out:
 					inp = tar.extractfile(member)
 					bytesLeft = member.size
 					while bytesLeft > 0:
 						buf = inp.read(bufSize)
 						out.write(buf)
 						bytesLeft -= len(buf)
-					buf = None
-				finally:
-					out.close()
 			elif member.isdir():
 				if not isdir(absMemberPath):
 					mkdir(absMemberPath)
