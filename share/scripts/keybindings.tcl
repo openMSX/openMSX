@@ -63,3 +63,6 @@ bind_default       ALT+F9  "vdrive diska"
 bind_default SHIFT+ALT+F9  "vdrive diska -1"
 bind_default       ALT+F10 "vdrive diskb"
 bind_default SHIFT+ALT+F10 "vdrive diskb -1"
+
+# copy/paste (use middle-click instead of ctrl-v because the latter might be used by the MSX itself).
+bind_default "mouse button2 down" {type [get_clipboard_text]}

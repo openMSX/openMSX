@@ -154,6 +154,14 @@ private:
 	Reactor& reactor;
 };
 
+class GetClipboardCommand final : public Command
+{
+public:
+	GetClipboardCommand(CommandController& commandController);
+	void execute(span<const TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+};
+
 class ConfigInfo final : public InfoTopic
 {
 public:
@@ -235,6 +243,8 @@ void Reactor::init()
 		*globalCommandController, *this);
 	restoreMachineCommand = make_unique<RestoreMachineCommand>(
 		*globalCommandController, *this);
+	getClipboardCommand = make_unique<GetClipboardCommand>(
+		*globalCommandController);
 	aviRecordCommand = make_unique<AviRecorder>(*this);
 	extensionInfo = make_unique<ConfigInfo>(
 		getOpenMSXInfoCommand(), "extensions");
@@ -993,6 +1003,27 @@ void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	// TODO: add the default files (state files in user's savestates dir)
 	completeFileName(tokens, userFileContext());
+}
+
+
+// class GetClipboardCommand
+
+GetClipboardCommand::GetClipboardCommand(CommandController& commandController_)
+	: Command(commandController_, "get_clipboard_text")
+{
+}
+
+void GetClipboardCommand::execute(span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, 1, Prefix{1}, nullptr);
+	if (char* text = SDL_GetClipboardText()) {
+		result = text;
+	}
+}
+
+string GetClipboardCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Returns the (text) content of the clipboard as a string.";
 }
 
 
