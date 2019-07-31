@@ -46,6 +46,7 @@ class ActivateMachineCommand;
 class StoreMachineCommand;
 class RestoreMachineCommand;
 class GetClipboardCommand;
+class SetClipboardCommand;
 class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
@@ -161,6 +162,7 @@ private:
 	std::unique_ptr<StoreMachineCommand> storeMachineCommand;
 	std::unique_ptr<RestoreMachineCommand> restoreMachineCommand;
 	std::unique_ptr<GetClipboardCommand> getClipboardCommand;
+	std::unique_ptr<SetClipboardCommand> setClipboardCommand;
 	std::unique_ptr<AviRecorder> aviRecordCommand;
 	std::unique_ptr<ConfigInfo> extensionInfo;
 	std::unique_ptr<ConfigInfo> machineInfo;

@@ -162,6 +162,14 @@ public:
 	string help(const vector<string>& tokens) const override;
 };
 
+class SetClipboardCommand final : public Command
+{
+public:
+	SetClipboardCommand(CommandController& commandController);
+	void execute(span<const TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+};
+
 class ConfigInfo final : public InfoTopic
 {
 public:
@@ -244,6 +252,8 @@ void Reactor::init()
 	restoreMachineCommand = make_unique<RestoreMachineCommand>(
 		*globalCommandController, *this);
 	getClipboardCommand = make_unique<GetClipboardCommand>(
+		*globalCommandController);
+	setClipboardCommand = make_unique<SetClipboardCommand>(
 		*globalCommandController);
 	aviRecordCommand = make_unique<AviRecorder>(*this);
 	extensionInfo = make_unique<ConfigInfo>(
@@ -1018,12 +1028,37 @@ void GetClipboardCommand::execute(span<const TclObject> tokens, TclObject& resul
 	checkNumArgs(tokens, 1, Prefix{1}, nullptr);
 	if (char* text = SDL_GetClipboardText()) {
 		result = text;
+		SDL_free(text);
 	}
 }
 
 string GetClipboardCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns the (text) content of the clipboard as a string.";
+}
+
+
+// class SetClipboardCommand
+
+SetClipboardCommand::SetClipboardCommand(CommandController& commandController_)
+	: Command(commandController_, "set_clipboard_text")
+{
+}
+
+void SetClipboardCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, 2, "text");
+	string text = tokens[1].getString().str();
+	if (SDL_SetClipboardText(text.c_str()) != 0) {
+		const char* err = SDL_GetError();
+		SDL_ClearError();
+		throw CommandException(err);
+	}
+}
+
+string SetClipboardCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Send the given string to the clipboard.";
 }
 
 
