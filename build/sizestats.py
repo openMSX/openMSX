@@ -66,7 +66,7 @@ if __name__ == '__main__':
 				name = names.pop()
 				content = node[name]
 				if isinstance(content, dict) and len(content) == 1:
-					subName, subContent = content.iteritems().next()
+					subName, subContent = next(content.iteritems())
 					if isinstance(subContent, dict):
 						# A directory containing a single directory.
 						del node[name]
