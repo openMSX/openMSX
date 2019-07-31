@@ -225,7 +225,7 @@ class Diff(object):
 				scanner.next()
 				try:
 					yield cls(filePath, parseHunks())
-				except ValueError, ex:
+				except ValueError as ex:
 					raise error('inconsistent hunks: %s' % ex, diffLineNo)
 		finally:
 			inp.close()
@@ -309,10 +309,10 @@ def patch(diff, targetDir):
 def main(diffPath, targetDir):
 	try:
 		differences = list(Diff.load(diffPath))
-	except IOError, ex:
+	except IOError as ex:
 		print >> sys.stderr, 'Error reading diff:', ex
 		sys.exit(1)
-	except ParseError, ex:
+	except ParseError as ex:
 		print >> sys.stderr, ex
 		sys.exit(1)
 
@@ -324,12 +324,12 @@ def main(diffPath, targetDir):
 		targetPath = joinpath(targetDir, diff.getPath())
 		try:
 			patch(diff, targetDir)
-		except IOError, ex:
+		except IOError as ex:
 			print >> sys.stderr, 'I/O error patching "%s": %s' % (
 				targetPath, ex
 				)
 			sys.exit(1)
-		except ValueError, ex:
+		except ValueError as ex:
 			print >> sys.stderr, 'Patch could not be applied to "%s": %s' % (
 				targetPath, ex
 				)

@@ -13,7 +13,7 @@ def verifyFile(filePath, fileLength, checksums):
 	for algo in checksums.iterkeys():
 		try:
 			hashers[algo] = newhash(algo)
-		except ValueError, ex:
+		except ValueError as ex:
 			raise IOError('Failed to create "%s" hasher: %s' % (algo, ex))
 	inp = open(filePath, 'rb')
 	bufSize = 16384
@@ -51,7 +51,7 @@ def main(filePath, fileLengthStr, checksumStrs):
 	print 'Validating: %s' % filePath
 	try:
 		verifyFile(filePath, fileLength, checksums)
-	except IOError, ex:
+	except IOError as ex:
 		print >> sys.stderr, 'Validation FAILED: %s' % ex
 		sys.exit(1)
 	else:

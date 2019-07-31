@@ -122,6 +122,6 @@ if __name__ == '__main__':
 				hostCPU = 'x86_64'
 
 		print hostCPU, hostOS
-	except ValueError, ex:
+	except ValueError as ex:
 		print >> sys.stderr, ex
 		sys.exit(1)

@@ -30,7 +30,7 @@ def verifyPackage(package, tarballsDir):
 	filePath = joinpath(tarballsDir, package.getTarballName())
 	try:
 		verifyFile(filePath, package.fileLength, package.checksums)
-	except IOError, ex:
+	except IOError as ex:
 		print >> sys.stderr, '%s corrupt: %s' % (
 			package.getTarballName(), ex
 			)

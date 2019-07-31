@@ -83,7 +83,7 @@ if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		try:
 			downloadURL(*sys.argv[1 : ])
-		except IOError, ex:
+		except IOError as ex:
 			print >> sys.stderr, ex
 			sys.exit(1)
 	else:

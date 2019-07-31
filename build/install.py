@@ -108,7 +108,7 @@ def main(
 		verbose = parseBool(verboseStr)
 		cbios = parseBool(cbiosStr)
 		symlinkForBinary = parseBool(customVars['SYMLINK_FOR_BINARY'])
-	except ValueError, ex:
+	except ValueError as ex:
 		print >> sys.stderr, 'Invalid argument:', ex
 		sys.exit(2)
 
@@ -124,7 +124,7 @@ def main(
 			installPrefix, binaryDestDir, shareDestDir, docDestDir,
 			binaryBuildPath, targetPlatform, cbios, symlinkForBinary
 			)
-	except IOError, ex:
+	except IOError as ex:
 		print >> sys.stderr, 'Installation failed:', ex
 		sys.exit(1)
 

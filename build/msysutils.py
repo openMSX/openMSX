@@ -42,9 +42,9 @@ def _determineMounts():
 							mounts[mountPoint] = nativePath
 			finally:
 				inp.close()
-		except IOError, ex:
+		except IOError as ex:
 			print >> sys.stderr, 'Failed to read MSYS fstab:', ex
-		except ValueError, ex:
+		except ValueError as ex:
 			print >> sys.stderr, 'Failed to parse MSYS fstab:', ex
 	mounts['/'] = msysRoot + '/'
 	return mounts

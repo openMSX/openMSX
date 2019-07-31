@@ -30,7 +30,7 @@ if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		try:
 			main(*sys.argv[1 : ])
-		except ValueError, ex:
+		except ValueError as ex:
 			print >> sys.stderr, ex
 			sys.exit(2)
 	else:

@@ -68,7 +68,7 @@ class _Command(object):
 				stdout = PIPE,
 				stderr = PIPE if captureOutput else STDOUT,
 				)
-		except OSError, ex:
+		except OSError as ex:
 			print >> log, 'failed to execute %s: %s' % (name, ex)
 			return None if captureOutput else False
 		inputText = None if inputSeq is None else '\n'.join(inputSeq) + '\n'

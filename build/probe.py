@@ -392,7 +392,7 @@ if __name__ == '__main__':
 	if len(sys.argv) == 6:
 		try:
 			main(*sys.argv[1 : ])
-		except ValueError, ve:
+		except ValueError as ve:
 			print >> sys.stderr, ve
 			sys.exit(2)
 	else:
