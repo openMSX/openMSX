@@ -16,8 +16,8 @@ except ImportError:
 			)
 from os.path import abspath, isdir, join as joinpath, sep, split as splitpath
 from stat import S_IRWXU, S_IRWXG, S_IRWXO, S_IXUSR, S_IXGRP, S_IXOTH
+from tarfile import TarFile
 import sys
-import tarfile
 
 from detectsys import detectOS
 
@@ -41,13 +41,7 @@ def extract(archivePath, destDir, rename = None):
 			'Destination directory "%s" does not exist' % absDestDir
 			)
 
-	tar = tarfile.open(archivePath)
-	# Note: According to the Python 2.6 docs, errorlevel can be passed as a
-	#       keyword argument to the open() call, but on Python 2.5 this does
-	#       not work.
-	tar.errorlevel = 2
-
-	try:
+	with TarFile.open(archivePath, errorlevel=2) as tar:
 		for member in tar.getmembers():
 			absMemberPath = abspath(joinpath(absDestDir, member.name))
 			if member.isdir():
@@ -102,8 +96,6 @@ def extract(archivePath, destDir, rename = None):
 				member.isdir() and not hostOS.startswith('mingw')
 				):
 				utime(absMemberPath, (member.mtime, member.mtime))
-	finally:
-		tar.close()
 
 class TopLevelDirRenamer(object):
 

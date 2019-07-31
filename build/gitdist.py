@@ -36,37 +36,31 @@ def archiveFromGit(versionedPackageName, committish):
 		print 'archive:', outTarPath
 		if not isdir(distBase):
 			makedirs(distBase)
-		outTar = TarFile.open(outTarPath, 'w:gz')
 		try:
-			# Copy entries from "git archive" into output tarball, except for
-			# excluded entries.
-			numIncluded = numExcluded = 0
-			inTar = TarFile.open(mode = 'r|', fileobj = proc.stdout)
-			try:
-				for info in inTar:
-					if exclude(info):
-						if verbose:
-							print 'EX', info.name
-						numExcluded += 1
-					else:
-						if verbose:
-							print 'IN', info.name
-						numIncluded += 1
-						info.uid = info.gid = 1000
-						info.uname = info.gname = 'openmsx'
-						info.mode = info.mode & umask
-						outTar.addfile(info, inTar.extractfile(info))
-			finally:
-				inTar.close()
-			print 'entries: %d included, %d excluded' % (
-					numIncluded, numExcluded)
+			with TarFile.open(outTarPath, 'w:gz') as outTar:
+				# Copy entries from "git archive" into output tarball,
+				# except for excluded entries.
+				numIncluded = numExcluded = 0
+				with TarFile.open(mode='r|', fileobj=proc.stdout) as inTar:
+					for info in inTar:
+						if exclude(info):
+							if verbose:
+								print 'EX', info.name
+							numExcluded += 1
+						else:
+							if verbose:
+								print 'IN', info.name
+							numIncluded += 1
+							info.uid = info.gid = 1000
+							info.uname = info.gname = 'openmsx'
+							info.mode = info.mode & umask
+							outTar.addfile(info, inTar.extractfile(info))
+				print 'entries: %d included, %d excluded' % (
+						numIncluded, numExcluded)
 		except:
 			# Clean up partial output file.
-			outTar.close()
 			remove(outTarPath)
 			raise
-		else:
-			outTar.close()
 	except:
 		proc.terminate()
 		raise
