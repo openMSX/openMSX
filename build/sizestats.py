@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 from executils import captureStdout
 
 from collections import defaultdict
