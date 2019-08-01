@@ -17,7 +17,7 @@ def _writeFragment(
 	print('Generating ' + wxsFile)
 	with open(wxsFile, 'w', encoding='utf-8') as out:
 		out.writelines(
-			'%s\n' % line
+			u'%s\n' % line
 			for line in generateWixFragment(
 				sourcePath, componentGroup, directoryRef, virtualDir,
 				excludedFile, win64

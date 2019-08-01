@@ -81,23 +81,23 @@ class _Command(object):
 			assert stderrdata is None
 			messages = stdoutdata
 		if messages:
-			log.write('%s command: %s\n' % (name, ' '.join(commandLine)))
+			log.write(u'%s command: %s\n' % (name, ' '.join(commandLine)))
 			if inputText is not None:
-				log.write('input:\n')
-				log.write(inputText)
+				log.write(u'input:\n')
+				log.write(unicode(inputText))
 				if not inputText.endswith('\n'):
-					log.write('\n')
-				log.write('end input.\n')
+					log.write(u'\n')
+				log.write(u'end input.\n')
 			# pylint 0.18.0 somehow thinks 'messages' is a list, not a string.
 			# pylint: disable-msg=E1103
 			messages = messages.replace('\r', '')
-			log.write(messages)
+			log.write(unicode(messages))
 			if not messages.endswith('\n'):
-				log.write('\n')
+				log.write(u'\n')
 		if proc.returncode == 0:
 			return stdoutdata if captureOutput else True
 		else:
-			print('return code from %s: %d' % (name, proc.returncode), file=log)
+			print(u'return code from %s: %d' % (name, proc.returncode), file=log)
 			return None if captureOutput else False
 
 class CompileCommand(_Command):
@@ -139,8 +139,8 @@ class CompileCommand(_Command):
 						key, value = keyValueStr, ''
 					if key not in keys:
 						log.write(
-							'Ignoring macro expand signature match on '
-							'non-requested macro "%s"\n' % key
+							u'Ignoring macro expand signature match on '
+							u'non-requested macro "%s"\n' % key
 							)
 						continue
 					elif value == '':

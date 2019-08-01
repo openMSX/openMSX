@@ -37,7 +37,7 @@ def resolve(log, expr):
 def writeFile(path, lines):
 	with open(path, 'w', encoding='utf-8') as out:
 		for line in lines:
-			print(line, file=out)
+			print(unicode(line), file=out)
 
 def tryCompile(log, compileCommand, sourcePath, lines):
 	'''Write the program defined by "lines" to a text file specified
@@ -171,7 +171,7 @@ class TargetSystem(object):
 		'''
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, '')
 		ok = checkCompiler(self.log, compileCommand, self.outDir)
-		print('Compiler %s: %s' % (
+		print(u'Compiler %s: %s' % (
 			'works' if ok else 'broken',
 			compileCommand
 			), file=self.log)
@@ -185,7 +185,7 @@ class TargetSystem(object):
 			self.log, compileCommand, self.outDir,
 			func.name, func.getFunctionName(), func.iterHeaders(self.platform)
 			)
-		print('%s function: %s' % (
+		print(u'%s function: %s' % (
 			'Found' if ok else 'Missing',
 			func.getFunctionName()
 			), file=self.log)
@@ -231,22 +231,22 @@ class TargetSystem(object):
 		writeFile(sourcePath, takeFuncAddr())
 		try:
 			compileOK = compileCommand.compile(self.log, sourcePath, objectPath)
-			print('%s: %s header' % (
+			print(u'%s: %s header' % (
 				makeName,
 				'Found' if compileOK else 'Missing'
 				), file=self.log)
 			if compileOK:
 				linkOK = linkCommand.link(self.log, [ objectPath ], binaryPath)
-				print('%s: %s lib' % (
+				print(u'%s: %s lib' % (
 					makeName,
 					'Found' if linkOK else 'Missing'
 					), file=self.log)
 			else:
 				linkOK = False
-				print((
-					'%s: Cannot test linking because compile failed'
-					% makeName
-					), file=self.log)
+				print(
+					u'%s: Cannot test linking because compile failed' % makeName,
+					file=self.log
+					)
 		finally:
 			remove(sourcePath)
 			if isfile(objectPath):
@@ -352,7 +352,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	logPath = outDir + '/probe.log'
 	with open(logPath, 'w', encoding='utf-8') as log:
 		print('Probing target system...')
-		print('Probing system:', file=log)
+		print(u'Probing system:', file=log)
 		distroRoot = thirdPartyInstall or None
 		if distroRoot is None:
 			if platform == 'darwin':

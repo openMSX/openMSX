@@ -18,7 +18,7 @@ def rewriteIfChanged(path, lines):
 	contents should change. The contents are given by the "lines" sequence.
 	Returns True if the file was (re)written, False otherwise.
 	'''
-	newLines = [ line + '\n' for line in lines ]
+	newLines = [u'%s\n' % line for line in lines]
 
 	if isfile(path):
 		with open(path, 'r', encoding='utf-8') as inp:

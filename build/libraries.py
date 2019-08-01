@@ -394,11 +394,11 @@ class TCL(Library):
 
 		tclConfigs = {}
 		with open('derived/tcl-search.log', 'w', encoding='utf-8') as log:
-			print('Looking for Tcl...', file=log)
+			print(u'Looking for Tcl...', file=log)
 			for location in iterLocations():
 				path = location + '/tclConfig.sh'
 				if isfile(path):
-					print('Config script:', path, file=log)
+					print(u'Config script: %s' % path, file=log)
 					text = captureStdout(
 						log,
 						"sh -c '. %s && echo %s'" % (
@@ -413,7 +413,7 @@ class TCL(Library):
 						except ValueError:
 							pass
 						else:
-							print('Found: version %d.%d' % version, file=log)
+							print(u'Found: version %d.%d' % version, file=log)
 							tclConfigs[path] = version
 			try:
 				# Minimum required version is 8.5.
@@ -426,9 +426,9 @@ class TCL(Library):
 					)[1]
 			except ValueError:
 				tclConfig = None
-				print('No suitable versions found.', file=log)
+				print(u'No suitable versions found.', file=log)
 			else:
-				print('Selected:', tclConfig, file=log)
+				print(u'Selected: %s' % tclConfig, file=log)
 
 		cls.tclConfig = tclConfig
 		return tclConfig
@@ -439,7 +439,7 @@ class TCL(Library):
 		if tclConfig is None:
 			return None
 		with open('derived/tcl-search.log', 'a', encoding='utf-8') as log:
-			print('Getting Tcl %s...' % description, file=log)
+			print(u'Getting Tcl %s...' % description, file=log)
 			text = captureStdout(
 				log,
 				shjoin([
@@ -448,7 +448,7 @@ class TCL(Library):
 					])
 				)
 			if text is not None:
-				print('Result: %s' % text.strip(), file=log)
+				print(u'Result: %s' % text.strip(), file=log)
 		return None if text is None else text.strip()
 
 	@classmethod
@@ -479,21 +479,21 @@ class TCL(Library):
 			if tclShared == '0':
 				if wantShared:
 					print(
-						'Dynamic linking requested, but Tcl installation has '
-						'static library.', file=log
+						u'Dynamic linking requested, but Tcl installation has '
+						u'static library.', file=log
 						)
 					return None
 			elif tclShared == '1':
 				if not wantShared:
 					print(
-						'Static linking requested, but Tcl installation has '
-						'dynamic library.', file=log
+						u'Static linking requested, but Tcl installation has '
+						u'dynamic library.', file=log
 						)
 					return None
 			else:
 				print(
-					'Unable to determine whether Tcl installation has '
-					'shared or static library.', file=log
+					u'Unable to determine whether Tcl installation has '
+					u'shared or static library.', file=log
 					)
 				return None
 

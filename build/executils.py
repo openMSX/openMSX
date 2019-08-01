@@ -41,17 +41,17 @@ def captureStdout(log, commandLine):
 	stdoutdata, stderrdata = proc.communicate()
 	if stderrdata:
 		severity = 'warning' if proc.returncode == 0 else 'error'
-		log.write('%s executing "%s"\n' % (severity.capitalize(), commandLine))
+		log.write(u'%s executing "%s"\n' % (severity.capitalize(), commandLine))
 		# pylint 0.18.0 somehow thinks stderrdata is a list, not a string.
 		# pylint: disable-msg=E1103
 		stderrdata = stderrdata.replace('\r', '')
-		log.write(stderrdata)
+		log.write(unicode(stderrdata))
 		if not stderrdata.endswith('\n'):
-			log.write('\n')
+			log.write(u'\n')
 	if proc.returncode == 0:
 		return stdoutdata
 	else:
-		print('Execution failed with exit code %d' % proc.returncode, file=log)
+		print(u'Execution failed with exit code %d' % proc.returncode, file=log)
 		return None
 
 def shjoin(parts):
