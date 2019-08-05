@@ -36,7 +36,7 @@ def captureStdout(log, commandLine):
 			stdin = None, stdout = PIPE, stderr = PIPE,
 			)
 	except OSError as ex:
-		print('Failed to execute "%s": %s' % (commandLine, ex), file=log)
+		print(u'Failed to execute "%s": %s' % (commandLine, ex), file=log)
 		return None
 	stdoutdata, stderrdata = proc.communicate()
 	if stderrdata:
