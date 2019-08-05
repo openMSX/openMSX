@@ -13,6 +13,7 @@ def captureStdout(log, commandLine):
 	# TODO: This is a modified copy-paste from compilers._Command.
 	commandParts = shsplit(commandLine)
 	env = dict(environ)
+	env['LC_ALL'] = 'C.UTF-8'
 	while commandParts:
 		if '=' in commandParts[0]:
 			name, value = commandParts[0].split('=', 1)
@@ -45,11 +46,11 @@ def captureStdout(log, commandLine):
 		# pylint 0.18.0 somehow thinks stderrdata is a list, not a string.
 		# pylint: disable-msg=E1103
 		stderrdata = stderrdata.replace('\r', '')
-		log.write(unicode(stderrdata))
+		log.write(stderrdata.decode('utf-8'))
 		if not stderrdata.endswith('\n'):
 			log.write(u'\n')
 	if proc.returncode == 0:
-		return stdoutdata
+		return stdoutdata.decode('utf-8')
 	else:
 		print(u'Execution failed with exit code %d' % proc.returncode, file=log)
 		return None

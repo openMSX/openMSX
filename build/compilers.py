@@ -24,7 +24,7 @@ class _Command(object):
 	def fromLine(cls, commandStr, flagsStr):
 		commandParts = shsplit(commandStr)
 		flags = shsplit(flagsStr)
-		env = {}
+		env = {'LC_ALL': 'C.UTF-8'}
 		while commandParts:
 			if '=' in commandParts[0]:
 				name, value = commandParts[0].split('=', 1)
@@ -91,7 +91,7 @@ class _Command(object):
 			# pylint 0.18.0 somehow thinks 'messages' is a list, not a string.
 			# pylint: disable-msg=E1103
 			messages = messages.replace('\r', '')
-			log.write(unicode(messages))
+			log.write(messages.decode('utf-8'))
 			if not messages.endswith('\n'):
 				log.write(u'\n')
 		if proc.returncode == 0:
