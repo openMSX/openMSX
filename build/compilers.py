@@ -70,7 +70,7 @@ class _Command(object):
 				stderr = PIPE if captureOutput else STDOUT,
 				)
 		except OSError as ex:
-			print('failed to execute %s: %s' % (name, ex), file=log)
+			print(u'failed to execute %s: %s' % (name, ex), file=log)
 			return None if captureOutput else False
 		inputText = None if inputSeq is None else '\n'.join(inputSeq) + '\n'
 		stdoutdata, stderrdata = proc.communicate(inputText)
