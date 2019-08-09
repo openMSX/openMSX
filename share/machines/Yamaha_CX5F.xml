@@ -10,6 +10,11 @@
     <type>MSX</type>
   </info>
 
+  <!-- Note: Peter's Yamaha CX5 (or CX-5 as per the type plate) with serial
+  3001652 shows identical results. It has a simpler/cheaper keyboard, but the
+  properties from software point of view are identical.
+  For some reason, the CX5 contained an SFG-01, but the CX5F did not... -->
+
   <!-- Based on machine of Peter Hanraets, with serial nr. 6004872
        ident:
         VDP TMS99xx (4k/16k effect, sprite clones, no address latch, mirrored/mixed mode present
