@@ -433,7 +433,7 @@ proc menu_last_closed {} {
 	variable is_dingux
 
 	set ::pause false
-	deactivate_input_layer osd_menu
+	after realtime 0 {deactivate_input_layer osd_menu}
 
 	namespace eval ::osd_control {unset close}
 }
