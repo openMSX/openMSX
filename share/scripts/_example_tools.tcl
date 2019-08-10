@@ -25,7 +25,11 @@ proc get_screen {} {
 	for {set y 0} {$y < 24} {incr y} {
 		set line ""
 		for {set x 0} {$x < $width} {incr x} {
-			append line [format %c [vpeek $addr]]
+			set char [vpeek $addr]
+			if {$char == 255} {
+				set char [peek 0xFBCC]
+			}
+			append line [format %c $char]
 			incr addr
 		}
 		append screen [string trim $line] "\n"
