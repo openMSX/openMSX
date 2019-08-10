@@ -430,8 +430,6 @@ proc main_menu_toggle {} {
 }
 
 proc menu_last_closed {} {
-	variable is_dingux
-
 	set ::pause false
 	after realtime 0 {deactivate_input_layer osd_menu}
 
