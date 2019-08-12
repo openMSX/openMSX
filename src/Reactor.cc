@@ -272,7 +272,9 @@ void Reactor::init()
 	getGlobalSettings().getPauseSetting().attach(*this);
 
 	eventDistributor->registerEventListener(OPENMSX_QUIT_EVENT, *this);
+#if PLATFORM_ANDROID
 	eventDistributor->registerEventListener(OPENMSX_FOCUS_EVENT, *this);
+#endif
 	eventDistributor->registerEventListener(OPENMSX_DELETE_BOARDS, *this);
 	isInit = true;
 }
@@ -283,7 +285,9 @@ Reactor::~Reactor()
 	deleteBoard(activeBoard);
 
 	eventDistributor->unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
+#if PLATFORM_ANDROID
 	eventDistributor->unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
+#endif
 	eventDistributor->unregisterEventListener(OPENMSX_DELETE_BOARDS, *this);
 
 	getGlobalSettings().getPauseSetting().detach(*this);
@@ -619,8 +623,8 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 	if (type == OPENMSX_QUIT_EVENT) {
 		enterMainLoop();
 		running = false;
-	} else if (type == OPENMSX_FOCUS_EVENT) {
 #if PLATFORM_ANDROID
+	} else if (type == OPENMSX_FOCUS_EVENT) {
 		// Android SDL port sends a (un)focus event when an app is put in background
 		// by the OS for whatever reason (like an incoming phone call) and all screen
 		// resources are taken away from the app.
@@ -635,22 +639,6 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 			unblock();
 		} else {
 			block();
-		}
-#else
-		// On other platforms, the user may specify if openMSX should be
-		// halted on loss of focus.
-		if (!getGlobalSettings().getPauseOnLostFocusSetting().getBoolean()) {
-			return 0;
-		}
-		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
-		if (focusEvent.getGain()) {
-			// gained focus
-			if (!getGlobalSettings().getPauseSetting().getBoolean()) {
-				unpause();
-			}
-		} else {
-			// lost focus
-			pause();
 		}
 #endif
 	} else if (type == OPENMSX_DELETE_BOARDS) {

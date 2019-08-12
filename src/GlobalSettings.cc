@@ -21,8 +21,6 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	        "turn power on/off", false, Setting::DONT_SAVE)
 	, autoSaveSetting(commandController, "save_settings_on_exit",
 	        "automatically save settings when openMSX exits", true)
-	, pauseOnLostFocusSetting(commandController, "pause_on_lost_focus",
-	       "pause emulation when the openMSX window loses focus", false)
 	, umrCallBackSetting(commandController, "umr_callback",
 		"Tcl proc to call when an UMR is detected", {})
 	, invalidPsgDirectionsSetting(commandController,
