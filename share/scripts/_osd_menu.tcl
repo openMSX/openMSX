@@ -242,9 +242,11 @@ proc menu_action_idx {idx button} {
 
 proc get_mouse_coords {} {
 	peek_menu_info
-	set name [dict get $menuinfo name]
 	set x 2; set y 2
-	catch {lassign [osd info $name -mousecoord] x y}
+	catch {
+		set name [dict get $menuinfo name]
+		lassign [osd info $name -mousecoord] x y
+	}
 	list $x $y
 }
 proc menu_get_mouse_idx {xy} {
