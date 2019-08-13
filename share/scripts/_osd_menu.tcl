@@ -599,6 +599,59 @@ proc select_next_menu_item_starting_with {text} {
 	select_menu_idx $index
 }
 
+proc create_slot_actions {slot path listtype} {
+	# the action A is checking what is currently in that media slot (e.g. diska) and if it's not empty, it puts that path as last known path. Then it creates the menu and afterwards selects the current item.
+	return [list actions [list A "set curSel \[lindex \[$slot\] 1\]; set $path \[expr {\$curSel ne {} ? \[file dirname \$curSel\] : \$$path}\]; osd_menu::menu_create \[osd_menu::menu_create_${listtype}_list \$$path $slot\]; catch { osd_menu::select_menu_item \[file tail \$curSel\]}"]]
+}
+
+proc get_slot_str {slot} {
+	return [string toupper [string index $slot end]]
+}
+proc create_slot_menu {slots path listtype menutitle} {
+	set menudef {
+		font-size 8
+		border-size 2
+		width 150
+		xpos 100
+		ypos 80
+	}
+	lappend items [list text $menutitle\
+		font-size 12\
+		post-spacing 6\
+		selectable false\
+	]
+	foreach slot $slots {
+		set slotcontent "(empty)"
+		if {![string match "empty*" [lindex [$slot] 2]]} {
+			set slotcontent [file tail [lindex [$slot] 1]]
+		}
+		lappend items [list text "[get_slot_str $slot]: $slotcontent" {*}[create_slot_actions $slot $path $listtype]]
+	}
+	dict set menudef items $items
+	osd_menu::menu_create $menudef
+}
+
+proc create_media_menu_items {media mediapath listtype itemtext shortmediaslotname longmediaslotname} {
+	if {[catch ${media}a]} {; # example: Philips NMS 801 without cart slot, or no diskdrives
+		lappend menuitems [list text "(No $longmediaslotname present...)"\
+			selectable false\
+			text-color 0x808080ff\
+		]
+	} else {
+		set slots [lsort [info command ${media}?]]
+		if {[llength $slots] <= 2} {
+			foreach slot $slots {
+				lappend menuitems [list text "${itemtext}... (${shortmediaslotname} [get_slot_str $slot])" {*}[create_slot_actions $slot $mediapath $listtype]]
+			}
+		} else {
+			set slot [lindex $slots 0]
+			lappend menuitems [list text "${itemtext}... (${shortmediaslotname} [get_slot_str $slot])" {*}[create_slot_actions $slot $mediapath $listtype]]
+			lappend menuitems [list text "${itemtext}... (any ${shortmediaslotname})" actions [list A "osd_menu::create_slot_menu \[list $slots\] \{$mediapath\} \{$listtype\} \{Select $longmediaslotname...\}"]]
+		}
+	}
+	return $menuitems
+}
+
 #
 # definitions of menus
 #
@@ -612,31 +665,8 @@ proc create_main_menu {} {
 	         font-size 12
 	         post-spacing 6
 	         selectable false }
-	if {[catch carta]} {; # example: Philips NMS 801
-		lappend items { text "(No cartridge slot available...)"
-			selectable false
-			text-color 0x808080ff
-		}
-	} else {
-		foreach slot [lrange [lsort [info command cart?]] 0 1] {
-			set slot_str [string toupper [string index $slot end]]
-			lappend items [list text "Load ROM... (slot $slot_str)" \
-				actions [list A "set curSel \[lindex \[$slot\] 1\]; set ::osd_rom_path \[expr {\$curSel ne {} ? \[file dirname \$curSel\] : \$::osd_rom_path}\]; osd_menu::menu_create \[osd_menu::menu_create_ROM_list \$::osd_rom_path $slot\]; catch { osd_menu::select_menu_item \[file tail \$curSel\]}"]]
-		}
-	}
-	if {[catch diska]} {
-		lappend items { text "(No disk drives available...)"
-			selectable false
-			text-color 0x808080ff
-		}
-	} else {
-		foreach drive [lrange [lsort [info command disk?]] 0 1] {
-			set drive_str [string toupper [string index $drive end]]
-			lappend items [list text "Insert Disk... (drive $drive_str)" \
-				actions [list A "set curSel \[lindex \[$drive\] 1\]; set ::osd_disk_path \[expr {\$curSel ne {} ? \[file dirname \$curSel\] : \$::osd_disk_path}\]; osd_menu::menu_create \[osd_menu::menu_create_disk_list  \$::osd_disk_path $drive\]; catch { osd_menu::select_menu_item \[file tail \$curSel\]}"]]
-			# the action A is checking what is currently in that media slot (e.g. diska) and if it's not empty, it puts that path as last known path. Then it creates the menu and afterwards selects the current item.
-		}
-	}
+	lappend items {*}[create_media_menu_items "cart" "::osd_rom_path"  "ROM"  "Load ROM"    "slot"  "cartridge slot"]
+	lappend items {*}[create_media_menu_items "disk" "::osd_disk_path" "disk" "Insert disk" "drive" "disk drive"    ]
 	if {[info command hda] ne ""} {; # only exists when hard disk extension available
 		foreach drive [lrange [lsort [info command hd?]] 0 1] {
 			set drive_str [string toupper [string index $drive end]]
