@@ -5,38 +5,38 @@
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
 #              SHIFT CTRL GRAPH CODE CAPSLOCK
-0000, 02, CTRL SHIFT # ^@
-0001, 26, CTRL       # ^A
-0002, 27, CTRL       # ^B
-0003, 30, CTRL       # ^C
-0004, 31, CTRL       # ^D
-0005, 32, CTRL       # ^E
-0006, 33, CTRL       # ^F
-0007, 34, CTRL       # ^G
-0008, 75,            # Backspace
-0009, 73,            # Tab
-000a, 37, CTRL       # ^J
-000b, 81,            # Home (is Home a unicode character?)
-000c, 41, CTRL       # ^L
-000d, 77,            # Enter/CR
-000e, 43, CTRL       # ^N
-000f, 44, CTRL       # ^O
-0010, 45, CTRL       # ^P
-0011, 46, CTRL       # ^Q
-0012, 82,            # Insert (is Insert a unicode character?)
-0013, 50, CTRL       # ^S
-0014, 51, CTRL       # ^T
-0015, 52, CTRL       # ^U
-0016, 53, CTRL       # ^V
-0017, 54, CTRL       # ^W
-0018, 76,            # Select (is Select a unicode character?)
-0019, 56, CTRL       # ^Y
-001a, 57, CTRL       # ^Z
-001b, 72,            # Escape(SDL maps ESC and ^[ to this code)
-001c, 87,            # Right (SDL maps ^\ to this code)
-001d, 84,            # Left  (SDL maps ^] to this code)
-001e, 85,            # Up    (SDL maps ^6 to this code)
-001f, 86,            # Down  (SDL maps ^/ to this code)
+0000, 02, CTRL SHIFT  # ^@
+0001, 26, CTRL        # ^A
+0002, 27, CTRL        # ^B
+0003, 30, CTRL        # ^C
+0004, 31, CTRL        # ^D
+0005, 32, CTRL        # ^E
+0006, 33, CTRL        # ^F
+0007, 34, CTRL        # ^G
+0008, 75,             # Backspace
+0009, 73,             # Tab
+000a, 37, CTRL        # ^J
+000b, 81,             # Home (is Home a unicode character?)
+000c, 41, CTRL        # ^L
+000d, 77,             # Enter/CR
+000e, 43, CTRL        # ^N
+000f, 44, CTRL        # ^O
+0010, 45, CTRL        # ^P
+0011, 46, CTRL        # ^Q
+0012, 82,             # Insert (is Insert a unicode character?)
+0013, 50, CTRL        # ^S
+0014, 51, CTRL        # ^T
+0015, 52, CTRL        # ^U
+0016, 53, CTRL        # ^V
+0017, 54, CTRL        # ^W
+0018, 76,             # Select (is Select a unicode character?)
+0019, 56, CTRL        # ^Y
+001a, 57, CTRL        # ^Z
+001b, 72,             # Escape(SDL maps ESC and ^[ to this code)
+001c, 87,             # Right (SDL maps ^\ to this code)
+001d, 84,             # Left  (SDL maps ^] to this code)
+001e, 85,             # Up    (SDL maps ^6 to this code)
+001f, 86,             # Down  (SDL maps ^/ to this code)
 0020, 80,
 0021, 02,
 0022, 03,
@@ -131,7 +131,7 @@
 007C, 55,
 007D, 44, SHIFT
 007E, 55, SHIFT
-007f, 83,            # Delete
+007f, 83,             # Delete
 00a0, 80,
 00A4, 05,
 0395, 22, SHIFT GRAPH

@@ -5,6 +5,8 @@
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
 #              SHIFT CTRL GRAPH CODE CAPSLOCK
+#
+# NOTE: looks like this map isn't complete??
 0000, 02, CTRL SHIFT # ^@
 0001, 26, CTRL       # ^A
 0002, 27, CTRL       # ^B
