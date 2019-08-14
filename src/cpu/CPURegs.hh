@@ -19,7 +19,7 @@ union z80regpair {
 class CPURegs
 {
 public:
-	CPURegs(bool r800) : HALT_(0), Rmask(r800 ? 0xff : 0x7f) {}
+	explicit CPURegs(bool r800) : HALT_(0), Rmask(r800 ? 0xff : 0x7f) {}
 	inline byte getA()   const { return AF_.b.h; }
 	inline byte getF()   const { return AF_.b.l; }
 	inline byte getB()   const { return BC_.b.h; }
@@ -113,86 +113,82 @@ public:
 
 	inline void incR(byte x) { R_ += x; }
 
-	// These methods are used to set/query whether the previously
-	// executed instruction was a 'EI' or 'LD A,{I,R}' instruction.
-	// Initially this could only be queried between two
-	// instructions, so e.g. after the EI instruction was executed
-	// but before the next one has started, for emulation this is
-	// good enough. But for debugging we still want to be able to
-	// query this info during the execution of the next
-	// instruction: e.g. a IO-watchpoint is triggered during the
-	// execution of some OUT instruction, at the time we evaluate
-	// the condition for that watchpoint, we still want to be able
-	// to query whether the previous instruction was a EI
-	// instruction.
-	inline bool isSameAfter() const {
-		// Between two instructions these two should be the same
-		return (after_ & 0x07) == (afterNext_ & 0x07); // ignore pop/ret
+	// Sometimes we need to look at sequences of instructions/actions
+	// instead of only individual instructions. The most obvious example is
+	// the non-acceptance of IRQs directly after an EI instruction. But
+	// also on R800, the timing of the CALL instruction is different when
+	// it's directly followed by a POP or RET instruction.
+	//
+	// The following methods implement this:
+	// - setCurrentXXX(): set flag for currently executing instruction
+	// - prevWasXXX(): check whether the last executed instruction had
+	//                 a specific flag
+	// - prev2WasXXX(): same but for the 2nd-to-last instruction
+	// - endInstruction(): this shifts the flags of the current instruction
+	//                     into the last, last into 2nd-to-last, ...
+	//
+	// Optimizations: these sequence flags are relatively infrequently
+	// needed. So most of the time we want to avoid the (small) overhead of
+	// maintaining these flags. (CPU emulation is still to most heavy part
+	// of the total emulation, so every cycle we can save counts). Therefor
+	// the flags are only shifted in the 'slow' emulation path. This means:
+	// - After setting a flag we should enter the slow emulation path for a
+	//   few instructions.
+	// - Querying the flags should only be done in the slow emulation path.
+
+	// Set EI-flag on current instruction.
+	inline void setCurrentEI() {
+		prev_ |= 1;
 	}
-	inline bool getAfterEI()   const {
-		assert(isSameAfter());
-		return (after_ & 0x01) != 0;
+	// Set LDAI-flag on current instruction.
+	inline void setCurrentLDAI() {
+		prev_ |= 2;
 	}
-	inline bool getAfterLDAI() const {
-		assert(isSameAfter());
-		return (after_ & 0x02) != 0;
+	// Set CALL-flag on current instruction.
+	inline void setCurrentCall() {
+		prev_ |= 4;
 	}
-	inline bool getAfterCall() const {
-		// Can be called during execution of an instruction
-		return (after_ & 0x04) != 0;
+	// Set POPRET-flag on current instruction.
+	inline void setCurrentPopRet() {
+		prev_ |= 8;
 	}
-	inline bool getAfterPopRet() const {
-		return (afterNext_ & 0x08) != 0;
+
+	// Previous instruction was EI?
+	inline bool prevWasEI()   const {
+		return (prev_ & (1 << 8)) != 0;
 	}
-	inline bool debugGetAfterEI() const {
-		// Can be called during execution of an instruction
-		return (after_ & 0x01) != 0;
+	// Previous instruction was LD A,I or LD A,R?  (only set for Z80)
+	inline bool prevWasLDAI() const {
+		return (prev_ & (2 << 8)) != 0;
 	}
-	inline void clearNextAfter() {
-		// Right before executing an instruction this should be
-		// cleared
-		afterNext_ = 0x00;
+	// Previous-previous instruction was a CALL?  (only set for R800)
+	inline bool prev2WasCall() const {
+		return (prev_ & (4 << (2 * 8))) != 0;
 	}
-	inline bool isNextAfterClear() const {
-		// In the fast code path we avoid calling clearNextAfter()
-		// before every instruction. But in debug mode we want
-		// to verify that this optimzation is valid.
-		return (afterNext_ & 0x07) == 0; // don't check pop/ret
+	// Previous instruction was a POP or RET?  (only set for R800)
+	inline bool prevWasPopRet() const {
+		return (prev_ & (8 << 8)) != 0;
 	}
-	inline void setAfterEI() {
-		// Set both after_ and afterNext_. Can only be called
-		// at the end of an instruction (status of prev
-		// instruction can't be queried anymore)
-		assert(isNextAfterClear());
-		afterNext_ = after_ = 0x01;
+
+	// Shift flags to the previous instruction positions.
+	// Clear flags for current instruction.
+	inline void endInstruction() {
+		prev_ <<= 8;
 	}
-	inline void setAfterLDAI() {
-		// Set both, see above.
-		assert(isNextAfterClear());
-		afterNext_ = after_ = 0x02;
+
+	// Clear all previous-flags (called on reset).
+	inline void clearPrevious() {
+		prev_ = 0;
 	}
-	inline void setAfterCall() {
-		// Set both, see above.
-		assert(isNextAfterClear());
-		afterNext_ = after_ = 0x04;
+
+	// (for debug-only) At the start of an instruction(-block) no flags
+	// should be set.
+	inline void checkNoCurrentFlags() const {
+		// Exception: we do allow a sloppy POP/RET flag, it only needs
+		// to be correct after a CALL instruction.
+		assert((prev_ & 0xF7) == 0);
 	}
-	inline void setAfterPopRet() {
-		// Only set 'afterNext_', executeSlow() still needs 'after_'.
-		// This does mean getAfterPopRet() is unreliable in the
-		// fast execute() code path, but that's ok.
-		afterNext_ = 0x08;
-	}
-	inline void copyNextAfter() {
-		// At the end of an instruction, the next flags become
-		// the current flags. setAfterEI/LDAI() already sets
-		// both after_ and afterNext_, thus calling this method
-		// is only required to clear the flags. Instructions
-		// right after a EI or LD A,I/R instruction are always
-		// executed in the slow code path. So this means that
-		// in the fast code path we don't need to call
-		// copyNextAfter().
-		after_ = afterNext_;
-	}
+	
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -203,13 +199,13 @@ private:
 	z80regpair AF2_, BC2_, DE2_, HL2_;
 	z80regpair IX_, IY_, SP_;
 	bool IFF1_, IFF2_;
-	byte after_, afterNext_;
 	byte HALT_;
 	byte IM_, I_;
 	byte R_, R2_; // refresh = R & Rmask | R2 & ~Rmask
 	const byte Rmask; // 0x7F for Z80, 0xFF for R800
+	unsigned prev_;
 };
-SERIALIZE_CLASS_VERSION(CPURegs, 2);
+SERIALIZE_CLASS_VERSION(CPURegs, 3);
 
 
 /* The above implementation uses a union to access the upper/lower 8 bits in a

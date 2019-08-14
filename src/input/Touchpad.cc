@@ -10,15 +10,15 @@
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
+#include "Display.hh"
+#include "OutputSurface.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "Clock.hh"
-#include "Math.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include <iostream>
-#include <SDL.h>
 
 using std::shared_ptr;
 using namespace gl;
@@ -28,7 +28,7 @@ namespace openmsx {
 class TouchpadState final : public StateChange
 {
 public:
-	TouchpadState() {} // for serialize
+	TouchpadState() = default; // for serialize
 	TouchpadState(EmuTime::param time_,
 	              byte x_, byte y_, bool touch_, bool button_)
 		: StateChange(time_)
@@ -41,10 +41,10 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("x",      x);
-		ar.serialize("y",      y);
-		ar.serialize("touch",  touch);
-		ar.serialize("button", button);
+		ar.serialize("x",      x,
+		             "y",      y,
+		             "touch",  touch,
+		             "button", button);
 	}
 private:
 	byte x, y;
@@ -55,9 +55,11 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, TouchpadState, "TouchpadState");
 
 Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
+                   Display& display_,
                    CommandController& commandController)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
+	, display(display_)
 	, transformSetting(commandController,
 		"touchpad_transform_matrix",
 		"2x3 matrix to transform host mouse coordinates to "
@@ -74,17 +76,17 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 			parseTransformMatrix(interp, newValue);
 		} catch (CommandException& e) {
 			throw CommandException(
-				"Invalid transformation matrix: " + e.getMessage());
+				"Invalid transformation matrix: ", e.getMessage());
 		}
 	});
 	try {
 		parseTransformMatrix(interp, transformSetting.getValue());
 	} catch (CommandException& e) {
 		// should only happen when settings.xml was manually edited
-		std::cerr << e.getMessage() << std::endl;
+		std::cerr << e.getMessage() << '\n';
 		// fill in safe default values
-		m[0][0] = 256.0f; m[0][1] =   0.0f; m[0][2] = 0.0f;
-		m[1][0] =   0.0f; m[1][1] = 256.0f; m[1][2] = 0.0f;
+		m[0][0] = 256.0f; m[1][0] =   0.0f; m[2][0] = 0.0f;
+		m[0][1] =   0.0f; m[1][1] = 256.0f; m[2][1] = 0.0f;
 	}
 }
 
@@ -106,7 +108,7 @@ void Touchpad::parseTransformMatrix(Interpreter& interp, const TclObject& value)
 			throw CommandException("each row must have 3 elements");
 		}
 		for (int j = 0; j < 3; ++j) {
-			m[i][j] = row.getListIndex(interp, j).getDouble(interp);
+			m[j][i] = row.getListIndex(interp, j).getDouble(interp);
 		}
 	}
 }
@@ -118,7 +120,7 @@ const std::string& Touchpad::getName() const
 	return name;
 }
 
-string_ref Touchpad::getDescription() const
+string_view Touchpad::getDescription() const
 {
 	return "MSX Touchpad";
 }
@@ -192,16 +194,16 @@ void Touchpad::write(byte value, EmuTime::param time)
 
 ivec2 Touchpad::transformCoords(ivec2 xy)
 {
-	if (SDL_Surface* surf = SDL_GetVideoSurface()) {
-		vec2 uv = vec2(xy) / vec2(surf->w, surf->h);
+	if (auto* output = display.getOutputSurface()) {
+		vec2 uv = vec2(xy) / vec2(output->getLogicalSize());
 		xy = ivec2(m * vec3(uv, 1.0f));
 	}
 	return clamp(xy, 0, 255);
 }
 
 // MSXEventListener
-void Touchpad::signalEvent(const shared_ptr<const Event>& event,
-                           EmuTime::param time)
+void Touchpad::signalMSXEvent(const shared_ptr<const Event>& event,
+                              EmuTime::param time)
 {
 	ivec2 pos = hostPos;
 	int b = hostButtons;
@@ -289,14 +291,14 @@ void Touchpad::serialize(Archive& ar, unsigned /*version*/)
 {
 	// no need to serialize hostX, hostY, hostButtons,
 	//                      transformSetting, m[][]
-	ar.serialize("start", start);
-	ar.serialize("x", x);
-	ar.serialize("y", y);
-	ar.serialize("touch", touch);
-	ar.serialize("button", button);
-	ar.serialize("shift", shift);
-	ar.serialize("channel", channel);
-	ar.serialize("last", last);
+	ar.serialize("start",   start,
+	             "x",       x,
+	             "y",       y,
+	             "touch",   touch,
+	             "button",  button,
+	             "shift",   shift,
+	             "channel", channel,
+	             "last",    last);
 
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());

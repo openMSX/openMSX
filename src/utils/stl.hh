@@ -2,9 +2,14 @@
 #define STL_HH
 
 #include <algorithm>
+#include <cassert>
+#include <iterator>
+#include <initializer_list>
+#include <map>
+#include <numeric>
 #include <tuple>
 #include <utility>
-#include <cassert>
+#include <vector>
 
 // Dereference the two given (pointer-like) parameters and then compare
 // them with the less-than operator.
@@ -14,8 +19,7 @@ struct LessDeref
 	bool operator()(PTR p1, PTR p2) const { return *p1 < *p2; }
 };
 
-// C++14 has an std::equal_to functor that is very much like this version.
-// TODO remove this version once we switch to C++14.
+// Heterogeneous version of std::equal_to.
 struct EqualTo
 {
        template<typename T1, typename T2>
@@ -78,7 +82,7 @@ template<int N> using LessTupleElement = CmpTupleElement<N, LessThan>;
 // Check whether the N-the element of a tuple is equal to the given value.
 template<int N, typename T> struct EqualTupleValueImpl
 {
-	EqualTupleValueImpl(const T& t_) : t(t_) {}
+	explicit EqualTupleValueImpl(const T& t_) : t(t_) {}
 	template<typename TUPLE>
 	bool operator()(const TUPLE& tup) const {
 		return std::get<N>(tup) == t;
@@ -87,7 +91,7 @@ private:
 	const T& t;
 };
 template<int N, typename T>
-EqualTupleValueImpl<N, T> EqualTupleValue(const T& t) {
+auto EqualTupleValue(const T& t) {
 	return EqualTupleValueImpl<N, T>(t);
 }
 
@@ -121,7 +125,7 @@ template<typename ITER, typename VAL>
 inline ITER find_unguarded(ITER first, ITER last, const VAL& val)
 {
 	(void)last;
-	while (1) {
+	while (true) {
 		assert(first != last);
 		if (*first == val) return first;
 		++first;
@@ -129,7 +133,6 @@ inline ITER find_unguarded(ITER first, ITER last, const VAL& val)
 }
 template<typename RANGE, typename VAL>
 inline auto find_unguarded(RANGE& range, const VAL& val)
--> decltype(std::begin(range))
 {
 	return find_unguarded(std::begin(range), std::end(range), val);
 }
@@ -142,7 +145,7 @@ template<typename ITER, typename PRED>
 inline ITER find_if_unguarded(ITER first, ITER last, PRED pred)
 {
 	(void)last;
-	while (1) {
+	while (true) {
 		assert(first != last);
 		if (pred(*first)) return first;
 		++first;
@@ -150,7 +153,6 @@ inline ITER find_if_unguarded(ITER first, ITER last, PRED pred)
 }
 template<typename RANGE, typename PRED>
 inline auto find_if_unguarded(RANGE& range, PRED pred)
--> decltype(std::begin(range))
 {
 	return find_if_unguarded(std::begin(range), std::end(range), pred);
 }
@@ -162,19 +164,16 @@ inline auto find_if_unguarded(RANGE& range, PRED pred)
   */
 template<typename RANGE, typename VAL>
 inline auto rfind_unguarded(RANGE& range, const VAL& val)
--> decltype(std::begin(range))
 {
-	//auto it = find_unguarded(std::rbegin(range), std::rend(range), val); // c++14
-	auto it = find_unguarded(range.rbegin(), range.rend(), val);
+	auto it = find_unguarded(std::rbegin(range), std::rend(range), val);
 	++it;
 	return it.base();
 }
 
 template<typename RANGE, typename PRED>
 inline auto rfind_if_unguarded(RANGE& range, PRED pred)
--> decltype(std::begin(range))
 {
-	auto it = find_if_unguarded(range.rbegin(), range.rend(), pred);
+	auto it = find_if_unguarded(std::rbegin(range), std::rend(range), pred);
 	++it;
 	return it.base();
 }
@@ -240,6 +239,220 @@ l_true:				*out_true++  = std::move(*first++);
 		}
 	}
 	return std::make_pair(out_true, out_false);
+}
+
+template<typename ForwardRange, typename OutputIt, typename UnaryPredicate>
+auto partition_copy_remove(ForwardRange&& range, OutputIt out_true, UnaryPredicate p)
+{
+	return partition_copy_remove(std::begin(range), std::end(range), out_true, p);
+}
+
+
+// Like range::transform(), but with equal source and destination.
+template<typename ForwardRange, typename UnaryOperation>
+auto transform_in_place(ForwardRange&& range, UnaryOperation op)
+{
+	return std::transform(std::begin(range), std::end(range), std::begin(range), op);
+}
+
+
+// Returns (a copy of) the minimum value in [first, last).
+// Requires: first != last.
+template<typename InputIterator>
+auto min_value(InputIterator first, InputIterator last)
+{
+	assert(first != last);
+	auto result = *first++;
+	while (first != last) {
+		result = std::min(result, *first++);
+	}
+	return result;
+}
+
+template<typename InputRange>
+auto min_value(InputRange&& range)
+{
+	return min_value(std::begin(range), std::end(range));
+}
+
+// Returns (a copy of) the maximum value in [first, last).
+// Requires: first != last.
+template<typename InputIterator>
+auto max_value(InputIterator first, InputIterator last)
+{
+	assert(first != last);
+	auto result = *first++;
+	while (first != last) {
+		result = std::max(result, *first++);
+	}
+	return result;
+}
+
+template<typename InputRange>
+auto max_value(InputRange&& range)
+{
+	return max_value(std::begin(range), std::end(range));
+}
+
+
+// Returns the sum of the elements in the given range.
+// Assumes: elements can be summed via operator+, with a default constructed
+// value being the identity-element for this operator.
+template<typename InputRange>
+auto sum(InputRange&& range)
+{
+	using Iter = decltype(std::begin(range));
+	using T = typename std::iterator_traits<Iter>::value_type;
+	return std::accumulate(std::begin(range), std::end(range), T());
+}
+
+
+// to_vector
+namespace detail {
+	template<typename T, typename Iterator>
+	using ToVectorType = std::conditional_t<
+		std::is_same<T, void>::value,
+		typename std::iterator_traits<Iterator>::value_type,
+		T>;
+}
+
+// Convert any range to a vector. Optionally specify the type of the elements
+// in the result.
+// Example:
+//   auto v1 = to_vector(view::drop(my_list, 3));
+//   auto v2 = to_vector<Base*>(getDerivedPtrs());
+template<typename T = void, typename Range>
+auto to_vector(Range&& range)
+	-> std::vector<detail::ToVectorType<T, decltype(std::begin(range))>>
+{
+	return {std::begin(range), std::end(range)};
+}
+
+// Optimized version for r-value input and no type conversion.
+template<typename T>
+auto to_vector(std::vector<T>&& v)
+{
+	return std::move(v);
+}
+
+
+// append() / concat()
+namespace detail {
+
+inline size_t sum_of_sizes()
+{
+	return 0;
+}
+template<typename Range, typename... Tail>
+size_t sum_of_sizes(const Range& r, Tail&&... tail)
+{
+	return std::distance(std::begin(r), std::end(r)) +
+	       sum_of_sizes(std::forward<Tail>(tail)...);
+}
+
+template<typename Result>
+void append(Result&)
+{
+	// nothing
+}
+
+template<typename Result, typename Range, typename... Tail>
+void append(Result& x, Range&& y, Tail&&... tail)
+{
+#ifdef _GLIBCXX_DEBUG
+	// Range can be a view::transform
+	// but vector::insert in libstdc++ debug mode will wrongly try
+	// to take its address to check for self-insertion (see
+	// gcc/include/c++/7.1.0/debug/functions.h
+	// __foreign_iterator_aux functions). So avoid vector::insert
+	for (auto&& e : y) {
+		x.push_back(std::forward<decltype(e)>(e));
+	}
+#else
+	x.insert(std::end(x), std::begin(y), std::end(y));
+#endif
+	detail::append(x, std::forward<Tail>(tail)...);
+}
+
+// Allow move from an rvalue-vector.
+// But don't allow to move from any rvalue-range. It breaks stuff like
+//   append(v, view::reverse(w));
+template<typename Result, typename T2, typename... Tail>
+void append(Result& x, std::vector<T2>&& y, Tail&&... tail)
+{
+	x.insert(std::end(x),
+		 std::make_move_iterator(std::begin(y)),
+		 std::make_move_iterator(std::end(y)));
+	detail::append(x, std::forward<Tail>(tail)...);
+}
+
+} // namespace detail
+
+// Append a range to a vector.
+template<typename T, typename... Tail>
+void append(std::vector<T>& v, Tail&&... tail)
+{
+	auto extra = detail::sum_of_sizes(std::forward<Tail>(tail)...);
+	auto current = v.size();
+	auto required = current + extra;
+	if (v.capacity() < required) {
+		v.reserve(current + std::max(current, extra));
+	}
+	detail::append(v, std::forward<Tail>(tail)...);
+}
+
+// If both source and destination are vectors of the same type and the
+// destination is empty and the source is an rvalue, then move the whole vector
+// at once instead of moving element by element.
+template<typename T>
+void append(std::vector<T>& v, std::vector<T>&& range)
+{
+	if (v.empty()) {
+		v = std::move(range);
+	} else {
+		v.insert(std::end(v),
+		         std::make_move_iterator(std::begin(range)),
+		         std::make_move_iterator(std::end(range)));
+	}
+}
+
+template<typename T>
+void append(std::vector<T>& x, std::initializer_list<T> list)
+{
+	x.insert(x.end(), list);
+}
+
+
+template<typename T = void, typename Range, typename... Tail>
+auto concat(const Range& range, Tail&&... tail)
+{
+    using T2 = detail::ToVectorType<T, decltype(std::begin(range))>;
+    std::vector<T2> result;
+    append(result, range, std::forward<Tail>(tail)...);
+    return result;
+}
+
+template<typename T, typename... Tail>
+std::vector<T> concat(std::vector<T>&& v, Tail&&... tail)
+{
+    append(v, std::forward<Tail>(tail)...);
+    return std::move(v);
+}
+
+
+// lookup in std::map
+template<typename Key, typename Value>
+const Value* lookup(const std::map<Key, Value>& m, const Key& k)
+{
+	auto it = m.find(k);
+	return (it != m.end()) ? &it->second : nullptr;
+}
+
+template<typename Key, typename Value>
+Value* lookup(std::map<Key, Value>& m, const Key& k)
+{
+	auto it = m.find(k);
+	return (it != m.end()) ? &it->second : nullptr;
 }
 
 #endif

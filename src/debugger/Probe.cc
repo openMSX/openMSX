@@ -3,11 +3,11 @@
 
 namespace openmsx {
 
-ProbeBase::ProbeBase(Debugger& debugger_, const std::string& name_,
-                     const std::string& description_)
+ProbeBase::ProbeBase(Debugger& debugger_, std::string name_,
+                     std::string description_)
 	: debugger(debugger_)
-	, name(name_)
-	, description(description_)
+	, name(std::move(name_))
+	, description(std::move(description_))
 {
 	debugger.registerProbe(*this);
 }
@@ -18,9 +18,9 @@ ProbeBase::~ProbeBase()
 }
 
 
-Probe<void>::Probe(Debugger& debugger_, const std::string& name_,
-                   const std::string& description_)
-	: ProbeBase(debugger_, name_, description_)
+Probe<void>::Probe(Debugger& debugger_, std::string name_,
+                   std::string description_)
+	: ProbeBase(debugger_, std::move(name_), std::move(description_))
 {
 }
 
@@ -31,7 +31,7 @@ void Probe<void>::signal()
 
 std::string Probe<void>::getValue() const
 {
-	return "";
+	return {};
 }
 
 } // namespace openmsx

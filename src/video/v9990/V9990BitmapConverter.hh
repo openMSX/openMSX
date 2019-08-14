@@ -2,6 +2,7 @@
 #define V9990BITMAPCONVERTER_HH
 
 #include "V9990ModeEnum.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -14,18 +15,29 @@ template <class Pixel>
 class V9990BitmapConverter
 {
 public:
-	V9990BitmapConverter(V9990& vdp,
-	             const Pixel* palette64, const Pixel* palette256,
-	             const Pixel* palette32768);
+	V9990BitmapConverter(
+		V9990& vdp,
+		const Pixel* palette64,  const int16_t* palette64_32768,
+		const Pixel* palette256, const int16_t* palette256_32768,
+		const Pixel* palette32768);
 
 	/** Convert a line of VRAM into host pixels.
 	  */
 	void convertLine(Pixel* linePtr, unsigned x, unsigned y, int nrPixels,
-		         int cursorY, bool drawSprites);
+		         int cursorY, bool drawCursors);
 
-	/** Set the color mode
+	/** Set a different rendering mode.
 	  */
-	void setColorMode(V9990ColorMode color, V9990DisplayMode display);
+	void setColorMode(V9990ColorMode colorMode_, V9990DisplayMode display) {
+		colorMode = colorMode_;
+		highRes = isHighRes(display);
+	}
+
+private:
+	static bool isHighRes(V9990DisplayMode display) {
+		return (display == B4) || (display == B5) ||
+		       (display == B6) || (display == B7);
+	}
 
 private:
 	/** Reference to VDP
@@ -36,45 +48,29 @@ private:
 	  */
 	V9990VRAM& vram;
 
-	/** Rastering method for the current color mode
-	  */
-	using RasterMethod = void (V9990BitmapConverter<Pixel>::*)
-	             (Pixel* pixelPtr, unsigned x, unsigned y, int nrPixels);
-	RasterMethod rasterMethod;
-
 	/** The 64 color palette for P1, P2 and BP* modes
 	  * This is the palette manipulated through the palette port and register
 	  */
 	const Pixel* const palette64;
+	const int16_t* const palette64_32768;
 
 	/** The 256 color palette for BD8 mode
 	  * A fixed palette; sub-color space within the 32768 color palette
 	  */
 	const Pixel* const palette256;
+	const int16_t* const palette256_32768;
 
 	/** The 15-bits color palette for BD16, BYJK* and BYUV modes
 	  * This is the complete color space for the V9990
 	  */
 	const Pixel* const palette32768;
 
-	/* private Raster methods */
-	void rasterP       (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBYUV    (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBYUVP   (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBYJK    (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBYJKP   (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBD16    (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBD8     (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBP6     (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBP4     (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBP2     (Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBP4HiRes(Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-	void rasterBP2HiRes(Pixel* outPixels, unsigned x, unsigned y, int nrPixels);
-
-	/* Cursor drawing methods */
-	void drawCursor(Pixel* buffer, int displayY,
-	                unsigned attrAddr, unsigned patAddr);
-	void drawCursors(Pixel* buffer, int displayY);
+	/** Remember last color and display mode. This is always the same as
+	  * vdp.getColorMode() and vdp.getDisplayMode() because these two only
+	  * change at the end of a display line.
+	  */
+	V9990ColorMode colorMode;
+	bool highRes;
 };
 
 } // namespace openmsx

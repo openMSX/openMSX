@@ -24,7 +24,9 @@
 
 #include "Math.hh"
 #include <algorithm>
+#include <cassert>
 #include <cmath>
+#include <iostream>
 
 namespace gl {
 
@@ -109,8 +111,18 @@ public:
 	}
 
 	// Access the i-th element of this vector.
-	T  operator[](int i) const { return e[i]; }
-	T& operator[](int i)       { return e[i]; }
+	T  operator[](unsigned i) const {
+		#ifdef DEBUG
+		assert(i < N);
+		#endif
+		return e[i];
+	}
+	T& operator[](unsigned i) {
+		#ifdef DEBUG
+		assert(i < N);
+		#endif
+		return e[i];
+	}
 
 	// Assignment version of the +,-,* operations defined below.
 	vecN& operator+=(const vecN& x) { *this = *this + x; return *this; }
@@ -261,6 +273,15 @@ inline vecN<N, T> min(const vecN<N, T>& x, const vecN<N, T>& y)
 	return r;
 }
 
+// min(vector, vector)
+template<int N, typename T>
+inline T min_component(const vecN<N, T>& x)
+{
+	T r = x[0];
+	for (int i = 1; i < N; ++i) r = std::min(r, x[i]);
+	return r;
+}
+
 // max(vector, vector)
 template<int N, typename T>
 inline vecN<N, T> max(const vecN<N, T>& x, const vecN<N, T>& y)
@@ -345,7 +366,9 @@ template<int N, typename T>
 inline vecN<N, int> round(const vecN<N, T>& x)
 {
 	vecN<N, int> r;
-	for (int i = 0; i < N; ++i) r[i] = int(roundf(x[i]));
+	// note: std::lrint() is more generic (e.g. also works with double),
+	// but Dingux doesn't seem to have std::lrint().
+	for (int i = 0; i < N; ++i) r[i] = lrintf(x[i]);
 	return r;
 }
 
@@ -357,6 +380,18 @@ inline vecN<N, int> trunc(const vecN<N, T>& x)
 	vecN<N, int> r;
 	for (int i = 0; i < N; ++i) r[i] = int(x[i]);
 	return r;
+}
+
+// Textual representation. (Only) used to debug unittest.
+template<int N, typename T>
+std::ostream& operator<<(std::ostream& os, const vecN<N, T>& x)
+{
+	os << "[ ";
+	for (int i = 0; i < N; ++i) {
+		os << x[i] << ' ';
+	}
+	os << ']';
+	return os;
 }
 
 } // namespace gl

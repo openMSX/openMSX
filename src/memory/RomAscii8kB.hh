@@ -9,7 +9,6 @@ class RomAscii8kB : public Rom8kBBlocks
 {
 public:
 	RomAscii8kB(const DeviceConfig& config, Rom&& rom);
-	virtual ~RomAscii8kB() {}
 
 	void reset(EmuTime::param time) override;
 	void writeMem(word address, byte value, EmuTime::param time) override;

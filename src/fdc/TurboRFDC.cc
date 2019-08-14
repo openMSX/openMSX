@@ -1,10 +1,20 @@
 /*
  * Based on code from NLMSX written by Frits Hilderink
+ *
+ * Despite the name, the class implements MSX connection to TC8566AF FDC for
+ * any MSX that uses it. To make reuse possible, it implements two sets of
+ * I/O configurations, one is used on turboR, the other on other machines with
+ * this FDC.
+ * There's also a mapper mechanism implemented. It's only used on the turboR,
+ * but all other machines only have a 16kB diskROM, so it's practically
+ * ineffective there. The mapper has 0x7FF0 as switch address. (Thanks to
+ * NYYRIKKI for this info.)
  */
 
 #include "TurboRFDC.hh"
 #include "MSXCPU.hh"
 #include "CacheLine.hh"
+#include "Rom.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 
@@ -12,18 +22,18 @@ namespace openmsx {
 
 static TurboRFDC::Type parseType(const DeviceConfig& config)
 {
-	auto ioregs = config.getChildData("io_regs", "");
+	auto ioregs = config.getChildData("io_regs", {});
 	if (ioregs == "7FF2") {
 		return TurboRFDC::R7FF2;
 	} else if (ioregs == "7FF8") {
 		return TurboRFDC::R7FF8;
-	} else if (ioregs == "") {
+	} else if (ioregs.empty()) {
 		// for backwards compatibility
 		return TurboRFDC::BOTH;
 	} else {
 		throw MSXException(
 			"Invalid 'io_regs' specification: expected one of "
-			"'7FF2' or '7FF8', but got: " + ioregs);
+			"'7FF2' or '7FF8', but got: ", ioregs);
 	}
 }
 
@@ -32,7 +42,7 @@ TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	, controller(getScheduler(), reinterpret_cast<DiskDrive**>(drives),
 	             getCliComm(), getCurrentTime())
 	, romBlockDebug(*this, &bank, 0x4000, 0x4000, 14)
-	, blockMask((rom.getSize() / 0x4000) - 1)
+	, blockMask((rom->getSize() / 0x4000) - 1)
 	, type(parseType(config))
 {
 	reset(getCurrentTime());
@@ -44,14 +54,15 @@ void TurboRFDC::reset(EmuTime::param time)
 	controller.reset(time);
 }
 
-byte TurboRFDC::readMem(word address, EmuTime::param time)
+byte TurboRFDC::readMem(word address, EmuTime::param time_)
 {
+	EmuTime time = time_;
 	if (0x3FF0 <= (address & 0x3FFF)) {
 		// Reading or writing to this region takes 1 extra clock
 		// cycle. But only in R800 mode. Verified on a real turboR
 		// machine, it happens for all 16 positions in this region
 		// and both for reading and writing.
-		getCPU().waitCyclesR800(1);
+		time = getCPU().waitCyclesR800(time, 1);
 		if (type != R7FF8) { // turboR or BOTH
 			switch (address & 0xF) {
 			case 0x1: {
@@ -140,15 +151,14 @@ const byte* TurboRFDC::getReadCacheLine(word start) const
 	}
 }
 
-void TurboRFDC::writeMem(word address, byte value, EmuTime::param time)
+void TurboRFDC::writeMem(word address, byte value, EmuTime::param time_)
 {
+	EmuTime time = time_;
 	if (0x3FF0 <= (address & 0x3FFF)) {
 		// See comment in readMem().
-		getCPU().waitCyclesR800(1);
+		time = getCPU().waitCyclesR800(time, 1);
 	}
-	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
-		// TODO Is this correct? Are these 3 switch addresses used in
-		//      all variants?
+	if (address == 0x7FF0) {
 		setBank(value);
 	} else {
 		if (type != R7FF8) { // turboR or BOTH
@@ -178,14 +188,12 @@ void TurboRFDC::setBank(byte value)
 {
 	invalidateMemCache(0x4000, 0x4000);
 	bank = value & blockMask;
-	memory = &rom[0x4000 * bank];
+	memory = &(*rom)[0x4000 * bank];
 }
 
 byte* TurboRFDC::getWriteCacheLine(word address) const
 {
-	if ((address == (0x6000 & CacheLine::HIGH)) ||
-	    (address == (0x7FF0 & CacheLine::HIGH)) ||
-	    (address == (0x7FFE & CacheLine::HIGH)) ||
+	if ((address == (0x7FF0 & CacheLine::HIGH)) ||
 	    ((address & 0x3FF0) == (0x3FF0 & CacheLine::HIGH))) {
 		return nullptr;
 	} else {
@@ -198,8 +206,8 @@ template<typename Archive>
 void TurboRFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXFDC>(*this);
-	ar.serialize("TC8566AF", controller);
-	ar.serialize("bank", bank);
+	ar.serialize("TC8566AF", controller,
+	             "bank",     bank);
 	if (ar.isLoader()) {
 		setBank(bank);
 	}

@@ -336,6 +336,12 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\ToshibaFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\SpectravideoFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\VictorFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
@@ -519,6 +525,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\NinjaTap.cc">
       <Filter>input</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\input\Paddle.cc">
+      <Filter>input</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\input\RecordedCommand.cc">
       <Filter>input</Filter>
     </ClCompile>
@@ -537,13 +546,28 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\AmdFlash.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\EEPROM_93C46.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\Carnivore2.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\TrackedRam.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\CheckedRam.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\ColecoSuperGameModule.cc">
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_RAM.cc">
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ESE_SCC.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\FraelSwitchableROM.cc">
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXHBI55.cc">
@@ -571,6 +595,9 @@
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXRomCLI.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\MusicalMemoryMapper.cc">
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\PanasonicMemory.cc">
@@ -601,6 +628,9 @@
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomBlocks.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomColecoMegaCart.cc">
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomCrossBlaim.cc">
@@ -660,6 +690,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomManbow2.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraCompilation.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraInk.cc">
       <Filter>memory</Filter>
     </ClCompile>
@@ -688,6 +721,9 @@
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomPlayBall.cc">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomRamFile.cc">
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomRType.cc">
@@ -765,9 +801,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DACSound8U.cc">
       <Filter>sound</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\sound\DirectXSoundDriver.cc">
-      <Filter>sound</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DummyAudioInputDevice.cc">
       <Filter>sound</Filter>
     </ClCompile>
@@ -837,6 +870,12 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SDLSoundDriver.cc">
       <Filter>sound</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\SN76489.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\SNPSG.cc">
+      <Filter>sound</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SoundDevice.cc">
       <Filter>sound</Filter>
     </ClCompile>
@@ -844,9 +883,6 @@
       <Filter>sound</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavAudioInput.cc">
-      <Filter>sound</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\sound\WavData.cc">
       <Filter>sound</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavWriter.cc">
@@ -891,13 +927,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Timer.cc">
       <Filter>thread</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.cc">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Base64.cc">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\CircularBuffer.cc">
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\CRC16.cc">
@@ -910,9 +940,6 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\HexDump.cc">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\Math.cc">
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\MemoryOps.cc">
@@ -934,6 +961,9 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-dirent.cc">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\Poller.cc">
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\ADVram.cc">
@@ -1101,9 +1131,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990PixelRenderer.cc">
       <Filter>video\v9990</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990Renderer.cc">
-      <Filter>video\v9990</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990SDLRasterizer.cc">
       <Filter>video\v9990</Filter>
     </ClCompile>
@@ -1114,9 +1141,6 @@
       <Filter>video\ld</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\ld\LDPixelRenderer.cc">
-      <Filter>video\ld</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\ld\LDRenderer.cc">
       <Filter>video\ld</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\ld\LDSDLRasterizer.cc">
@@ -1217,6 +1241,7 @@
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\Autofire.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CartridgeSlotManager.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\ChakkariCopy.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CliExtension.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CLIOption.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\CommandLineParser.cc" />
@@ -1240,7 +1265,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXDeviceSwitch.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXE6Timer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXHiResTimer.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\MSXException.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXResetStatusRegister.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXKanji.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXKanji12.cc" />
@@ -1279,10 +1303,13 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_meta.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ThrottleManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Version.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SVIPrinterPort.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SVIPPI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\SerializeBuffer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.cc">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\commands\TclArgParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\DeviceConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\StdioMessages.cc" />
@@ -1292,7 +1319,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoyMega.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomDooly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\string_ref.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\string_view.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\rapidsax.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.cc" />
@@ -1333,19 +1360,27 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMitsubishiMLTS2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXtra.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXWrite.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMultiRom.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\ReadOnlySetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\DeltaBlock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\snappy.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV2.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\KonamiUltimateCollection.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\ROMHunterMk2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\SdCard.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-windowhandle.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\SVIPSG.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\SVIFDC.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
@@ -1642,6 +1677,9 @@
     <None Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.hh">
       <Filter>fdc</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\fdc\ToshibaFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\fdc\VictorFDC.hh">
       <Filter>fdc</Filter>
     </None>
@@ -1840,6 +1878,9 @@
     <None Include="$(OpenMSXSrcDir)\input\NinjaTap.hh">
       <Filter>input</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\input\Paddle.hh">
+      <Filter>input</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\input\RecordedCommand.hh">
       <Filter>input</Filter>
     </None>
@@ -1864,13 +1905,28 @@
     <None Include="$(OpenMSXSrcDir)\memory\AmdFlash.hh">
       <Filter>memory</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\memory\EEPROM_93C46.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\Carnivore2.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\TrackedRam.hh">
+      <Filter>memory</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\memory\CheckedRam.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\ColecoSuperGameModule.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\ESE_RAM.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\ESE_SCC.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\FraelSwitchableROM.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\MSXHBI55.hh">
@@ -1898,6 +1954,9 @@
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\MSXRomCLI.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\MusicalMemoryMapper.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\PanasonicMemory.hh">
@@ -1987,6 +2046,9 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomManbow2.hh">
       <Filter>memory</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\memory\RomMatraCompilation.hh">
+      <Filter>memory</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomMatraInk.hh">
       <Filter>memory</Filter>
     </None>
@@ -2015,6 +2077,9 @@
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomPlayBall.hh">
+      <Filter>memory</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\memory\RomRamFile.hh">
       <Filter>memory</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\memory\RomRType.hh">
@@ -2104,9 +2169,6 @@
     <None Include="$(OpenMSXSrcDir)\sound\DACSound8U.hh">
       <Filter>sound</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\sound\DirectXSoundDriver.hh">
-      <Filter>sound</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\sound\DummyAudioInputDevice.hh">
       <Filter>sound</Filter>
     </None>
@@ -2182,6 +2244,12 @@
     <None Include="$(OpenMSXSrcDir)\sound\SDLSoundDriver.hh">
       <Filter>sound</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\sound\SN76489.hh">
+      <Filter>sound</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\sound\SNPSG.hh">
+      <Filter>sound</Filter>
+    </None>
     <None Include="$(OpenMSXSrcDir)\sound\SoundDevice.hh">
       <Filter>sound</Filter>
     </None>
@@ -2248,9 +2316,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh">
       <Filter>utils</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.hh">
-      <Filter>utils</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\utils\Base64.hh">
       <Filter>utils</Filter>
     </None>
@@ -2288,6 +2353,9 @@
       <Filter>utils</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\utils\inline.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\utils\join.hh">
       <Filter>utils</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\utils\likely.hh">
@@ -2338,15 +2406,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\Subject.hh">
       <Filter>utils</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\utils\tuple.hh">
-      <Filter>utils</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\utils\type_traits.hh">
-      <Filter>utils</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\utils\TypeInfo.hh">
-      <Filter>utils</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\utils\uint128.hh">
       <Filter>utils</Filter>
     </None>
@@ -2372,6 +2431,9 @@
       <Filter>utils</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\utils\win32-dirent.hh">
+      <Filter>utils</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\utils\Poller.hh">
       <Filter>utils</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\ADVram.hh">
@@ -2670,6 +2732,7 @@
     </None>
     <None Include="$(OpenMSXSrcDir)\Autofire.hh" />
     <None Include="$(OpenMSXSrcDir)\CartridgeSlotManager.hh" />
+    <None Include="$(OpenMSXSrcDir)\ChakkariCopy.hh" />
     <None Include="$(OpenMSXSrcDir)\CliExtension.hh" />
     <None Include="$(OpenMSXSrcDir)\CLIOption.hh" />
     <None Include="$(OpenMSXSrcDir)\Clock.hh" />
@@ -2737,9 +2800,14 @@
     <None Include="$(OpenMSXSrcDir)\serialize_stl.hh" />
     <None Include="$(OpenMSXSrcDir)\ThrottleManager.hh" />
     <None Include="$(OpenMSXSrcDir)\Version.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\SVIPSG.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\SVIFDC.hh" />
+    <None Include="$(OpenMSXSrcDir)\SVIPrinterPort.hh" />
+    <None Include="$(OpenMSXSrcDir)\SVIPPI.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.hh">
       <Filter>memory</Filter>
     </None>
+    <None Include="$(OpenMSXSrcDir)\commands\TclArgParser.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\TclParser.hh" />
     <None Include="$(OpenMSXSrcDir)\config\DeviceConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\events\TclCallbackMessages.hh" />
@@ -2755,7 +2823,8 @@
     <None Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\hash_map.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\hash_set.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\string_ref.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\string_view.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\strCat.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\rapidsax.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQLiteScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLHQScaler.hh" />
@@ -2805,18 +2874,30 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMitsubishiMLTS2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXtra.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomMSXWrite.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMultiRom.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\DeltaBlock.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\snappy.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV2.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\KonamiUltimateCollection.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\ROMHunterMk2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\SdCard.cc.hh" />
     <None Include="$(OpenMSXSrcDir)\video\GLContext.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLDefaultScaler.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\SpectravideoFDC.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\ColecoJoystickIO.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomColecoMegaCart.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
   </ItemGroup>
   <ItemGroup>

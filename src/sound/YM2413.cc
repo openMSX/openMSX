@@ -3,8 +3,10 @@
 #include "YM2413Burczynski.hh"
 #include "DeviceConfig.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include "cstd.hh"
 #include "outer.hh"
+#include <cmath>
+#include <memory>
 
 namespace openmsx {
 
@@ -34,20 +36,19 @@ void YM2413::Debuggable::write(unsigned address, byte value, EmuTime::param time
 static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
 {
 	if (config.getChildDataAsBool("alternative", false)) {
-		return make_unique<YM2413Burczynski::YM2413>();
+		return std::make_unique<YM2413Burczynski::YM2413>();
 	} else {
-		return make_unique<YM2413Okazaki::YM2413>();
+		return std::make_unique<YM2413Okazaki::YM2413>();
 	}
 }
 
+static constexpr auto INPUT_RATE = unsigned(cstd::round(YM2413Core::CLOCK_FREQ / 72.0));
+
 YM2413::YM2413(const std::string& name_, const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-MUSIC", 9 + 5)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-MUSIC", 9 + 5, INPUT_RATE, false)
 	, core(createCore(config))
 	, debuggable(config.getMotherBoard(), getName())
 {
-	float input = YM2413Core::CLOCK_FREQ / 72.0f;
-	setInputRate(int(input + 0.5f));
-
 	registerSound(config);
 }
 
@@ -68,12 +69,12 @@ void YM2413::writeReg(byte reg, byte value, EmuTime::param time)
 	core->writeReg(reg, value);
 }
 
-void YM2413::generateChannels(int** bufs, unsigned num)
+void YM2413::generateChannels(float** bufs, unsigned num)
 {
 	core->generateChannels(bufs, num);
 }
 
-int YM2413::getAmplificationFactor() const
+float YM2413::getAmplificationFactorImpl() const
 {
 	return core->getAmplificationFactor();
 }

@@ -1,3 +1,4 @@
+from io import open
 from os.path import isdir
 import re
 
@@ -19,12 +20,9 @@ def filterFile(filePath, regex):
 	expression string. For each match, a tuple containing the text matching
 	each capture group from the regular expression is yielded.
 	'''
-	inp = open(filePath, 'r')
-	try:
+	with open(filePath, 'r', encoding='utf-8') as inp:
 		for groups in filterLines(inp, regex):
 			yield groups
-	finally:
-		inp.close()
 
 def joinContinuedLines(lines):
 	'''Iterates through the given lines, replacing lines that are continued
@@ -65,11 +63,6 @@ def evalMakeExpr(expr, makeVars):
 			elif name.startswith('shell '):
 				# Unsupported; assume result is never used.
 				value = '?'
-			elif name.startswith('call DIR_IF_EXISTS,'):
-				# This is our function, not a Make function, but the goal is
-				# not to emulate Make, so we emulate our function instead.
-				path = name[len('call DIR_IF_EXISTS,'): ]
-				value = path if isdir(path) else ''
 			elif name.isdigit():
 				# This is a function argument; assume the evaluated result is
 				# never used.
@@ -91,8 +84,7 @@ def extractMakeVariables(filePath, makeVars = None):
 	Returns a dictionary that maps each variable name to its value.
 	'''
 	makeVars = {} if makeVars is None else dict(makeVars)
-	inp = open(filePath, 'r')
-	try:
+	with open(filePath, 'r', encoding='utf-8') as inp:
 		for name, assign, value in filterLines(
 			joinContinuedLines(inp),
 			r'[ ]*([A-Za-z0-9_]+)[ ]*([+:]?=)(.*)'
@@ -108,8 +100,6 @@ def extractMakeVariables(filePath, makeVars = None):
 				makeVars[name] = makeVars[name] + ' ' + value.strip()
 			else:
 				assert False, assign
-	finally:
-		inp.close()
 	return makeVars
 
 def parseBool(valueStr):

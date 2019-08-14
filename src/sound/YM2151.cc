@@ -7,6 +7,8 @@
 #include "YM2151.hh"
 #include "DeviceConfig.hh"
 #include "Math.hh"
+#include "cstd.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include <cmath>
 #include <cstring>
@@ -85,7 +87,7 @@ static byte eg_inc[19 * RATE_STEPS] = {
 };
 
 
-#define O(a) (a*RATE_STEPS)
+#define O(a) ((a) * RATE_STEPS)
 // note that there is no O(17) in this table - it's directly in the code
 static byte eg_rate_select[32 + 64 + 32] = {
 // Envelope Generator rates (32 + 64 rates + 32 RKS)
@@ -132,7 +134,7 @@ O(16),O(16),O(16),O(16),O(16),O(16),O(16),O(16)
 // rate  0,    1,    2,   3,   4,   5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15
 // shift 11,   10,   9,   8,   7,   6,  5,  4,  3,  2, 1,  0,  0,  0,  0,  0
 // mask  2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3, 1,  0,  0,  0,  0,  0
-#define O(a) (a*1)
+#define O(a) ((a) * 1)
 static byte eg_rate_shift[32 + 64 + 32] = {
 // Envelope Generator counter shifts (32 + 64 rates + 32 RKS)
 // 32 infinite time rates
@@ -831,9 +833,11 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 	}
 }
 
+static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 64.0));
+
 YM2151::YM2151(const std::string& name_, const std::string& desc,
                    const DeviceConfig& config, EmuTime::param time)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, true)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 8, INPUT_RATE, true)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
 	, timer1(EmuTimer::createOPM_1(config.getScheduler(), *this))
 	, timer2(EmuTimer::createOPM_2(config.getScheduler(), *this))
@@ -845,10 +849,6 @@ YM2151::YM2151(const std::string& name_, const std::string& desc,
 
 	initTables();
 	initChipTables();
-
-	static const int CLCK_FREQ = 3579545;
-	float input = CLCK_FREQ / 64.0f;
-	setInputRate(int(input + 0.5f));
 
 	reset(time);
 
@@ -862,10 +862,7 @@ YM2151::~YM2151()
 
 bool YM2151::checkMuteHelper()
 {
-	for (auto& op : oper) {
-		if (op.state != EG_OFF) return false;
-	}
-	return true;
+	return ranges::all_of(oper, [](auto& op) { return op.state == EG_OFF; });
 }
 
 void YM2151::reset(EmuTime::param time)
@@ -892,8 +889,8 @@ void YM2151::reset(EmuTime::param time)
 	test = 0;
 
 	irq_enable = 0;
-	timer1->setStart(0, time);
-	timer2->setStart(0, time);
+	timer1->setStart(false, time);
+	timer2->setStart(false, time);
 
 	noise     = 0;
 	noise_rng = 0;
@@ -1456,7 +1453,7 @@ void YM2151::advance()
 	}
 }
 
-void YM2151::generateChannels(int** bufs, unsigned num)
+void YM2151::generateChannels(float** bufs, unsigned num)
 {
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
@@ -1477,8 +1474,8 @@ void YM2151::generateChannels(int** bufs, unsigned num)
 		chan7Calc(); // special case for channel 7
 
 		for (int j = 0; j < 8; ++j) {
-			bufs[j][2 * i + 0] += chanout[j] & pan[2 * j + 0];
-			bufs[j][2 * i + 1] += chanout[j] & pan[2 * j + 1];
+			bufs[j][2 * i + 0] += int(chanout[j] & pan[2 * j + 0]);
+			bufs[j][2 * i + 1] += int(chanout[j] & pan[2 * j + 1]);
 		}
 		advance();
 	}
@@ -1528,76 +1525,76 @@ void YM2151::YM2151Operator::serialize(Archive& a, unsigned /*version*/)
 {
 	//int* connect; // recalculated from regs[0x20-0x27]
 	//int* mem_connect; // recalculated from regs[0x20-0x27]
-	a.serialize("phase", phase);
-	a.serialize("freq", freq);
-	a.serialize("dt1", dt1);
-	a.serialize("mul", mul);
-	a.serialize("dt1_i", dt1_i);
-	a.serialize("dt2", dt2);
-	a.serialize("mem_value", mem_value);
-	//a.serialize("fb_shift", fb_shift); // recalculated from regs[0x20-0x27]
-	a.serialize("fb_out_curr", fb_out_curr);
-	a.serialize("fb_out_prev", fb_out_prev);
-	a.serialize("kc", kc);
-	a.serialize("kc_i", kc_i);
-	a.serialize("pms", pms);
-	a.serialize("ams", ams);
-	a.serialize("AMmask", AMmask);
-	a.serialize("state", state);
-	a.serialize("tl", tl);
-	a.serialize("volume", volume);
-	a.serialize("d1l", d1l);
-	a.serialize("key", key);
-	a.serialize("ks", ks);
-	a.serialize("ar", ar);
-	a.serialize("d1r", d1r);
-	a.serialize("d2r", d2r);
-	a.serialize("rr", rr);
-	a.serialize("eg_sh_ar", eg_sh_ar);
-	a.serialize("eg_sel_ar", eg_sel_ar);
-	a.serialize("eg_sh_d1r", eg_sh_d1r);
-	a.serialize("eg_sel_d1r", eg_sel_d1r);
-	a.serialize("eg_sh_d2r", eg_sh_d2r);
-	a.serialize("eg_sel_d2r", eg_sel_d2r);
-	a.serialize("eg_sh_rr", eg_sh_rr);
-	a.serialize("eg_sel_rr", eg_sel_rr);
+	a.serialize("phase",       phase,
+	            "freq",        freq,
+	            "dt1",         dt1,
+	            "mul",         mul,
+	            "dt1_i",       dt1_i,
+	            "dt2",         dt2,
+	            "mem_value",   mem_value,
+	            //"fb_shift",    fb_shift, // recalculated from regs[0x20-0x27]
+	            "fb_out_curr", fb_out_curr,
+	            "fb_out_prev", fb_out_prev,
+	            "kc",          kc,
+	            "kc_i",        kc_i,
+	            "pms",         pms,
+	            "ams",         ams,
+	            "AMmask",      AMmask,
+	            "state",       state,
+	            "tl",          tl,
+	            "volume",      volume,
+	            "d1l",         d1l,
+	            "key",         key,
+	            "ks",          ks,
+	            "ar",          ar,
+	            "d1r",         d1r,
+	            "d2r",         d2r,
+	            "rr",          rr,
+	            "eg_sh_ar",    eg_sh_ar,
+	            "eg_sel_ar",   eg_sel_ar,
+	            "eg_sh_d1r",   eg_sh_d1r,
+	            "eg_sel_d1r",  eg_sel_d1r,
+	            "eg_sh_d2r",   eg_sh_d2r,
+	            "eg_sel_d2r",  eg_sel_d2r,
+	            "eg_sh_rr",    eg_sh_rr,
+	            "eg_sel_rr",   eg_sel_rr);
 };
 
 template<typename Archive>
 void YM2151::serialize(Archive& a, unsigned /*version*/)
 {
-	a.serialize("irq", irq);
-	a.serialize("timer1", *timer1);
-	a.serialize("timer2", *timer2);
-	a.serialize("operators", oper);
-	//a.serialize("pan", pan); // recalculated from regs[0x20-0x27]
-	a.serialize("eg_cnt", eg_cnt);
-	a.serialize("eg_timer", eg_timer);
-	a.serialize("lfo_phase", lfo_phase);
-	a.serialize("lfo_timer", lfo_timer);
-	a.serialize("lfo_overflow", lfo_overflow);
-	a.serialize("lfo_counter", lfo_counter);
-	a.serialize("lfo_counter_add", lfo_counter_add);
-	a.serialize("lfa", lfa);
-	a.serialize("lfp", lfp);
-	a.serialize("noise", noise);
-	a.serialize("noise_rng", noise_rng);
-	a.serialize("noise_p", noise_p);
-	a.serialize("noise_f", noise_f);
-	a.serialize("csm_req", csm_req);
-	a.serialize("irq_enable", irq_enable);
-	a.serialize("status", status);
-	a.serialize("chanout", chanout);
-	a.serialize("m2", m2);
-	a.serialize("c1", c1);
-	a.serialize("c2", c2);
-	a.serialize("mem", mem);
-	a.serialize("timer_A_val", timer_A_val);
-	a.serialize("lfo_wsel", lfo_wsel);
-	a.serialize("amd", amd);
-	a.serialize("pmd", pmd);
-	a.serialize("test", test);
-	a.serialize("ct", ct);
+	a.serialize("irq",             irq,
+	            "timer1",          *timer1,
+	            "timer2",          *timer2,
+	            "operators",       oper,
+	            //"pan",             pan, // recalculated from regs[0x20-0x27]
+	            "eg_cnt",          eg_cnt,
+	            "eg_timer",        eg_timer,
+	            "lfo_phase",       lfo_phase,
+	            "lfo_timer",       lfo_timer,
+	            "lfo_overflow",    lfo_overflow,
+	            "lfo_counter",     lfo_counter,
+	            "lfo_counter_add", lfo_counter_add,
+	            "lfa",             lfa,
+	            "lfp",             lfp,
+	            "noise",           noise,
+	            "noise_rng",       noise_rng,
+	            "noise_p",         noise_p,
+	            "noise_f",         noise_f,
+	            "csm_req",         csm_req,
+	            "irq_enable",      irq_enable,
+	            "status",          status,
+	            "chanout",         chanout,
+	            "m2",              m2,
+	            "c1",              c1,
+	            "c2",              c2,
+	            "mem",             mem,
+	            "timer_A_val",     timer_A_val,
+	            "lfo_wsel",        lfo_wsel,
+	            "amd",             amd,
+	            "pmd",             pmd,
+	            "test",            test,
+	            "ct",              ct);
 	a.serialize_blob("registers", regs, sizeof(regs));
 
 	if (a.isLoader()) {

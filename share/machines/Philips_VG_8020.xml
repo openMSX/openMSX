@@ -29,6 +29,8 @@
     <VDP id="VDP">
       <version>TMS9929A</version>
       <io base="0x98" num="8"/> <!-- mirroring confirmed by l_oliveira -->
+      <saturationPr>75</saturationPr>
+      <saturationPb>50</saturationPb>
     </VDP>
 
     <PSG id="PSG">
@@ -38,6 +40,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 
     <PrinterPort id="Printer Port">

@@ -48,11 +48,37 @@ struct Element {
 	}
 
 	template<typename... Args>
-	Element(Args&&... args)
+	explicit Element(Args&&... args)
 		: value(std::forward<Args>(args)...)
 		// hash    left uninitialized
 		// nextIdx left uninitialized
 	{
+	}
+};
+
+template<bool TRIVIAL> struct ReallocFunc;
+
+template<> struct ReallocFunc<true> {
+	template<typename Elem>
+	Elem* operator()(Elem* oldBuf, size_t /*oldCapacity*/, size_t newCapacity) const {
+		auto* newBuf = static_cast<Elem*>(realloc(oldBuf, newCapacity * sizeof(Elem)));
+		if (!newBuf) throw std::bad_alloc();
+		return newBuf;
+	}
+};
+
+template<> struct ReallocFunc<false> {
+	template<typename Elem>
+	Elem* operator()(Elem* oldBuf, size_t oldCapacity, size_t newCapacity) const {
+		auto* newBuf = static_cast<Elem*>(malloc(newCapacity * sizeof(Elem)));
+		if (!newBuf) throw std::bad_alloc();
+
+		for (size_t i = 0; i < oldCapacity; ++i) {
+			new (&newBuf[i]) Elem(std::move(oldBuf[i]));
+			oldBuf[i].~Elem();
+		}
+		free(oldBuf);
+		return newBuf;
 	}
 };
 
@@ -69,10 +95,7 @@ class Pool {
 	using Elem = Element<Value>;
 
 public:
-	Pool()
-		: buf1_(adjust(nullptr)), freeIdx_(0), capacity_(0)
-	{
-	}
+	Pool() = default;
 
 	Pool(Pool&& source) noexcept
 		: buf1_    (source.buf1_)
@@ -188,26 +211,14 @@ private:
 	void growMore(unsigned newCapacity)
 	{
 		auto* oldBuf = buf1_ + 1;
-		Elem* newBuf;
-#if __GNUC__ <= 4
-		// only implemented starting from gcc-5
-		bool trivial = false;
-#else
-		bool trivial = std::is_trivially_move_constructible<Elem>::value;
-#endif
-		if (trivial) {
-			newBuf = static_cast<Elem*>(realloc(oldBuf, newCapacity * sizeof(Elem)));
-			if (!newBuf) throw std::bad_alloc();
-		} else {
-			newBuf = static_cast<Elem*>(malloc(newCapacity * sizeof(Elem)));
-			if (!newBuf) throw std::bad_alloc();
-
-			for (unsigned i = 0; i < capacity_; ++i) {
-				new (&newBuf[i]) Elem(std::move(oldBuf[i]));
-				oldBuf[i].~Elem();
-			}
-			free(oldBuf);
-		}
+		// Use helper functor to work around gcc-8 -Wclass-memaccess warning.
+		//  The warning triggered for the not-executed if-branch. Now
+		//  we implement that 'if' via template specialization. So only
+		//  the code path that will be executed gets instantiated. In
+		//  C++17 we can simply that by using 'if constexpr'.
+		ReallocFunc<std::is_trivially_move_constructible<Elem>::value &&
+		            std::is_trivially_copyable<Elem>::value> reallocFunc;
+		Elem* newBuf = reallocFunc(oldBuf, capacity_, newCapacity);
 
 		for (unsigned i = capacity_; i < newCapacity - 1; ++i) {
 			newBuf[i].nextIdx = i + 1 + 1;
@@ -235,9 +246,9 @@ private:
 	}
 
 private:
-	Elem* buf1_; // 1 before start of buffer -> valid indices start at 1
-	unsigned freeIdx_; // index of a free block, 0 means nothing is free
-	unsigned capacity_;
+	Elem* buf1_ = adjust(nullptr); // 1 before start of buffer -> valid indices start at 1
+	unsigned freeIdx_ = 0; // index of a free block, 0 means nothing is free
+	unsigned capacity_ = 0;
 };
 
 // Type-alias for the resulting type of applying Extractor on Value.
@@ -284,11 +295,10 @@ public:
 		using reference = IValue&;
 		using iterator_category = std::forward_iterator_tag;
 
-		Iter()
-			: hashSet(nullptr), elemIdx(0) {}
+		Iter() = default;
 
 		template<typename HashSet2, typename IValue2>
-		Iter(const Iter<HashSet2, IValue2>& other)
+		explicit Iter(const Iter<HashSet2, IValue2>& other)
 			: hashSet(other.hashSet), elemIdx(other.elemIdx) {}
 
 		template<typename HashSet2, typename IValue2>
@@ -342,27 +352,25 @@ public:
 		}
 
 	private:
-		HashSet* hashSet;
-		unsigned elemIdx;
+		HashSet* hashSet = nullptr;
+		unsigned elemIdx = 0;
 	};
 
 	using       iterator = Iter<      hash_set,       Value>;
 	using const_iterator = Iter<const hash_set, const Value>;
 
 public:
-	hash_set(unsigned initialSize = 0,
+	explicit hash_set(unsigned initialSize = 0,
 	         Extractor extract_ = Extractor(),
 	         Hasher hasher_ = Hasher(),
 	         Equal equal_ = Equal())
-		: table(nullptr), allocMask(unsigned(-1)), elemCount(0)
-		, extract(extract_), hasher(hasher_), equal(equal_)
+		: extract(extract_), hasher(hasher_), equal(equal_)
 	{
 		reserve(initialSize); // optimized away if initialSize==0
 	}
 
 	hash_set(const hash_set& source)
-		: table(nullptr), allocMask(-1), elemCount(0)
-		, extract(source.extract), hasher(source.hasher)
+		: extract(source.extract), hasher(source.hasher)
 		, equal(source.equal)
 	{
 		if (source.elemCount == 0) return;
@@ -391,8 +399,7 @@ public:
 		source.elemCount = 0;
 	}
 
-	hash_set(std::initializer_list<Value> args)
-		: table(nullptr), allocMask(-1), elemCount(0)
+	explicit hash_set(std::initializer_list<Value> args)
 	{
 		reserve(args.size());
 		for (auto a : args) insert_noCapacityCheck(a); // need duplicate check??
@@ -643,10 +650,10 @@ public:
 		swap(x.equal    , y.equal);
 	}
 
-	friend       iterator begin(      hash_set& s) { return s.begin(); }
-	friend const_iterator begin(const hash_set& s) { return s.begin(); }
-	friend       iterator end  (      hash_set& s) { return s.end();   }
-	friend const_iterator end  (const hash_set& s) { return s.end();   }
+	friend auto begin(      hash_set& s) { return s.begin(); }
+	friend auto begin(const hash_set& s) { return s.begin(); }
+	friend auto end  (      hash_set& s) { return s.end();   }
+	friend auto end  (const hash_set& s) { return s.end();   }
 
 private:
 	// Returns the smallest value that is >= x that is also a power of 2.
@@ -703,7 +710,7 @@ private:
 		unsigned poolIdx = pool.emplace(std::forward<Args>(args)...);
 		auto& poolElem = pool.get(poolIdx);
 
-		unsigned hash = hasher(extract(poolElem.value));
+		auto hash = unsigned(hasher(extract(poolElem.value)));
 		unsigned tableIdx = hash & allocMask;
 		unsigned primary = 0;
 
@@ -776,7 +783,7 @@ private:
 	{
 		if (elemCount == 0) return 0;
 
-		unsigned hash = hasher(key);
+		auto hash = unsigned(hasher(key));
 		unsigned tableIdx = hash & allocMask;
 		for (unsigned elemIdx = table[tableIdx]; elemIdx; /**/) {
 			auto& elem = pool.get(elemIdx);
@@ -790,10 +797,10 @@ private:
 	}
 
 private:
-	unsigned* table;
+	unsigned* table = nullptr;
 	hash_set_impl::Pool<Value> pool;
-	unsigned allocMask;
-	unsigned elemCount;
+	unsigned allocMask = unsigned(-1);
+	unsigned elemCount = 0;
 	Extractor extract;
 	Hasher hasher;
 	Equal equal;

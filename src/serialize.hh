@@ -5,20 +5,33 @@
 #include "SerializeBuffer.hh"
 #include "XMLElement.hh"
 #include "MemBuffer.hh"
-#include "StringOp.hh"
+#include "hash_map.hh"
 #include "inline.hh"
+#include "strCat.hh"
 #include "unreachable.hh"
 #include <zlib.h>
 #include <string>
 #include <typeindex>
 #include <type_traits>
 #include <vector>
-#include <map>
 #include <sstream>
 #include <cassert>
 #include <memory>
 
 namespace openmsx {
+
+class LastDeltaBlocks;
+class DeltaBlock;
+
+// TODO move somewhere in utils once we use this more often
+struct HashPair {
+	template<typename T1, typename T2>
+	size_t operator()(const std::pair<T1, T2>& p) const {
+		return 31 * std::hash<T1>()(p.first) +
+			    std::hash<T2>()(p.second);
+	}
+};
+
 
 template<typename T> struct SerializeClassVersion;
 
@@ -122,7 +135,8 @@ public:
 	//        (polymorphic) constructors are also described.
 	//
 	//
-	// void serialize_blob(const char* tag, const void* data, size_t len)
+	// void serialize_blob(const char* tag, const void* data, size_t len,
+	//                     bool diff = true)
 	//
 	//   Serialize the given data as a binary blob.
 	//   This cannot be part of the serialize() method above because we
@@ -142,6 +156,15 @@ public:
 	//   Note that for primitive types we already don't store an ID, because
 	//   pointers to primitive types are not supported (at least not ATM).
 	//
+	//
+	// template<typename T, typename ...Args>
+	// void serialize(const char* tag, const T& t, Args&& ...args)
+	//
+	//   Optionally serialize() accepts more than one tag-variable pair.
+	//   This does conceptually the same as repeated calls to serialize()
+	//   with each time a single pair, but it might be more efficient. E.g.
+	//   the MemOutputArchive implementation is more efficient when called
+	//   with multiple simple types.
 	//
 	// template<typename T> void serializePointerID(const char* tag, const T& t)
 	//
@@ -190,6 +213,9 @@ public:
 
 	/** Does this archive store version information. */
 	bool needVersion() const { return true; }
+
+	/** Is this a reverse-snapshot? */
+	bool isReverseSnapshot() const { return false; }
 
 	/** Does this archive store enums as strings.
 	 * See also struct serialize_as_enum.
@@ -387,7 +413,7 @@ public:
 	}
 
 protected:
-	OutputArchiveBase2();
+	OutputArchiveBase2() = default;
 
 private:
 	unsigned generateID1(const void* p);
@@ -395,9 +421,9 @@ private:
 	unsigned getID1(const void* p);
 	unsigned getID2(const void* p, const std::type_info& typeInfo);
 
-	std::map<std::pair<const void*, std::type_index>, unsigned> idMap;
-	std::map<const void*, unsigned> polyIdMap;
-	unsigned lastId;
+	hash_map<std::pair<const void*, std::type_index>, unsigned, HashPair> idMap;
+	hash_map<const void*, unsigned> polyIdMap;
+	unsigned lastId = 0;
 };
 
 template<typename Derived>
@@ -430,7 +456,8 @@ public:
 
 	// Default implementation is to base64-encode the blob and serialize
 	// the resulting string. But memory archives will memcpy the blob.
-	void serialize_blob(const char* tag, const void* data, size_t len);
+	void serialize_blob(const char* tag, const void* data, size_t len,
+	                    bool diff = true);
 
 	template<typename T> void serialize(const char* tag, const T& t)
 	{
@@ -452,6 +479,12 @@ public:
 		              "must be a polymorphic type");
 		PolymorphicSaverRegistry<Derived>::save(tag, this->self(), t);
 	}
+	template<typename T> void serializeOnlyOnce(const char* tag, const T& t)
+	{
+		if (!getId(&t)) {
+			serializeWithID(tag, t);
+		}
+	}
 
 	// You shouldn't use this, it only exists for backwards compatibility
 	void serializeChar(const char* tag, char c)
@@ -462,7 +495,7 @@ public:
 	}
 
 protected:
-	OutputArchiveBase() {}
+	OutputArchiveBase() = default;
 };
 
 
@@ -484,6 +517,7 @@ public:
 /*internal*/
 	void* getPointer(unsigned id);
 	void addPointer(unsigned id, const void* p);
+	unsigned getId(const void* p) const;
 
 	template<typename T> void resetSharedPtr(std::shared_ptr<T>& s, T* r)
 	{
@@ -494,18 +528,18 @@ public:
 		auto it = sharedPtrMap.find(r);
 		if (it == end(sharedPtrMap)) {
 			s.reset(r);
-			sharedPtrMap[r] = s;
+			sharedPtrMap.emplace_noDuplicateCheck(r, s);
 		} else {
 			s = std::static_pointer_cast<T>(it->second);
 		}
 	}
 
 protected:
-	InputArchiveBase2() {}
+	InputArchiveBase2() = default;
 
 private:
-	std::map<unsigned, void*> idMap;
-	std::map<void*, std::shared_ptr<void>> sharedPtrMap;
+	hash_map<unsigned, void*> idMap;
+	hash_map<void*, std::shared_ptr<void>> sharedPtrMap;
 };
 
 template<typename Derived>
@@ -517,13 +551,14 @@ public:
 	{
 		doSerialize(tag, t, std::tuple<Args...>(args...));
 	}
-	void serialize_blob(const char* tag, void* data, size_t len);
+	void serialize_blob(const char* tag, void* data, size_t len,
+	                    bool diff = true);
 
 	template<typename T>
 	void serialize(const char* tag, T& t)
 	{
 		this->self().beginTag(tag);
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, std::make_tuple(), -1); // don't load id
@@ -532,7 +567,7 @@ public:
 	template<typename T> void serializePointerID(const char* tag, const T& t)
 	{
 		this->self().beginTag(tag);
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		IDLoader<TNC> loader;
 		loader(this->self(), tnc);
@@ -543,6 +578,12 @@ public:
 		static_assert(std::is_polymorphic<T>::value,
 		              "must be a polymorphic type");
 		PolymorphicInitializerRegistry<Derived>::init(tag, this->self(), &t);
+	}
+	template<typename T> void serializeOnlyOnce(const char* tag, const T& t)
+	{
+		if (!getId(&t)) {
+			serializeWithID(tag, t);
+		}
 	}
 
 	// You shouldn't use this, it only exists for backwards compatibility
@@ -559,7 +600,7 @@ public:
 	void doSerialize(const char* tag, T& t, TUPLE args, int id = 0)
 	{
 		this->self().beginTag(tag);
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, args, id);
@@ -567,14 +608,39 @@ public:
 	}
 
 protected:
-	InputArchiveBase() {}
+	InputArchiveBase() = default;
 };
 
+
+// Enumerate all types which can be serialized using a simple memcpy. This
+// trait can be used by MemOutputArchive to apply certain optimizations.
+template<typename T> struct SerializeAsMemcpy : std::false_type {};
+template<> struct SerializeAsMemcpy<         bool     > : std::true_type {};
+template<> struct SerializeAsMemcpy<         char     > : std::true_type {};
+template<> struct SerializeAsMemcpy<  signed char     > : std::true_type {};
+template<> struct SerializeAsMemcpy<unsigned char     > : std::true_type {};
+template<> struct SerializeAsMemcpy<         short    > : std::true_type {};
+template<> struct SerializeAsMemcpy<unsigned short    > : std::true_type {};
+template<> struct SerializeAsMemcpy<         int      > : std::true_type {};
+template<> struct SerializeAsMemcpy<unsigned int      > : std::true_type {};
+template<> struct SerializeAsMemcpy<         long     > : std::true_type {};
+template<> struct SerializeAsMemcpy<unsigned long     > : std::true_type {};
+template<> struct SerializeAsMemcpy<         long long> : std::true_type {};
+template<> struct SerializeAsMemcpy<unsigned long long> : std::true_type {};
+template<> struct SerializeAsMemcpy<         float    > : std::true_type {};
+template<> struct SerializeAsMemcpy<         double   > : std::true_type {};
+template<> struct SerializeAsMemcpy<    long double   > : std::true_type {};
+template<typename T, size_t N> struct SerializeAsMemcpy<T[N]> : SerializeAsMemcpy<T> {};
 
 class MemOutputArchive final : public OutputArchiveBase<MemOutputArchive>
 {
 public:
-	MemOutputArchive()
+	MemOutputArchive(LastDeltaBlocks& lastDeltaBlocks_,
+	                 std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks_,
+			 bool reverseSnapshot_)
+		: lastDeltaBlocks(lastDeltaBlocks_)
+		, deltaBlocks(deltaBlocks_)
+		, reverseSnapshot(reverseSnapshot_)
 	{
 	}
 
@@ -584,6 +650,7 @@ public:
 	}
 
 	bool needVersion() const { return false; }
+	bool isReverseSnapshot() const { return reverseSnapshot; }
 
 	template <typename T> void save(const T& t)
 	{
@@ -594,7 +661,27 @@ public:
 		save(c);
 	}
 	void save(const std::string& s);
-	void serialize_blob(const char*, const void* data, size_t len);
+	void serialize_blob(const char* tag, const void* data, size_t len,
+	                    bool diff = true);
+
+	using OutputArchiveBase<MemOutputArchive>::serialize;
+	template<typename T, typename ...Args>
+	ALWAYS_INLINE void serialize(const char* tag, const T& t, Args&& ...args)
+	{
+		// - Walk over all elements. Process non-memcpy-able elements at
+		//   once. Collect memcpy-able elements in a tuple. At the end
+		//   process the collected tuple with a single call.
+		// - Only do this when there are at least two pairs (it is
+		//   correct for a single pair, but it's less tuned for that
+		//   case).
+		serialize_group(std::make_tuple(), tag, t, std::forward<Args>(args)...);
+	}
+	template<typename T, size_t N>
+	ALWAYS_INLINE void serialize(const char* /*tag*/, const T(&t)[N],
+		typename std::enable_if<SerializeAsMemcpy<T>::value>::type* = nullptr)
+	{
+		buffer.insert(&t[0], N * sizeof(T));
+	}
 
 	void beginSection()
 	{
@@ -614,7 +701,7 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	MemBuffer<byte> releaseBuffer(size_t& size);
+	MemBuffer<uint8_t> releaseBuffer(size_t& size);
 
 private:
 	void put(const void* data, size_t len)
@@ -624,15 +711,50 @@ private:
 		}
 	}
 
+	ALWAYS_INLINE void serialize_group(const std::tuple<>& /*tuple*/)
+	{
+		// done categorizing, there were no memcpy-able elements
+	}
+	template<typename ...Args>
+	ALWAYS_INLINE void serialize_group(const std::tuple<Args...>& tuple)
+	{
+		// done categorizing, process all memcpy-able elements
+		buffer.insert_tuple_ptr(tuple);
+	}
+	template<typename TUPLE, typename T, typename ...Args>
+	ALWAYS_INLINE void serialize_group_impl(std::true_type, const TUPLE& tuple, const char* /*tag*/, const T& t, Args&& ...args)
+	{
+		// add to the group and continue categorizing
+		serialize_group(std::tuple_cat(tuple, std::make_tuple(&t)), std::forward<Args>(args)...);
+	}
+	template<typename TUPLE, typename T, typename ...Args>
+	ALWAYS_INLINE void serialize_group_impl(std::false_type, const TUPLE& tuple, const char* tag, const T& t, Args&& ...args)
+	{
+		serialize(tag, t);      // process single (ungroupable) element
+		serialize_group(tuple, std::forward<Args>(args)...); // continue categorizing
+	}
+	template<typename TUPLE, typename T, typename ...Args>
+	ALWAYS_INLINE void serialize_group(const TUPLE& tuple, const char* tag, const T& t, Args&& ...args)
+	{
+		// categorize one element
+		serialize_group_impl(typename SerializeAsMemcpy<T>::type(), tuple, tag, t, std::forward<Args>(args)...);
+	}
+
+private:
 	OutputBuffer buffer;
 	std::vector<size_t> openSections;
+	LastDeltaBlocks& lastDeltaBlocks;
+	std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks;
+	const bool reverseSnapshot;
 };
 
 class MemInputArchive final : public InputArchiveBase<MemInputArchive>
 {
 public:
-	MemInputArchive(const byte* data, size_t size)
+	MemInputArchive(const uint8_t* data, size_t size,
+	                const std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks_)
 		: buffer(data, size)
+		, deltaBlocks(deltaBlocks_)
 	{
 	}
 
@@ -655,8 +777,24 @@ public:
 		load(c);
 	}
 	void load(std::string& s);
-	string_ref loadStr();
-	void serialize_blob(const char*, void* data, size_t len);
+	string_view loadStr();
+	void serialize_blob(const char* tag, void* data, size_t len,
+	                    bool diff = true);
+
+	using InputArchiveBase<MemInputArchive>::serialize;
+	template<typename T, typename ...Args>
+	ALWAYS_INLINE void serialize(const char* tag, T& t, Args&& ...args)
+	{
+		// see comments in MemOutputArchive
+		serialize_group(std::make_tuple(), tag, t, std::forward<Args>(args)...);
+	}
+
+	template<typename T, size_t N>
+	ALWAYS_INLINE void serialize(const char* /*tag*/, T(&t)[N],
+		typename std::enable_if<SerializeAsMemcpy<T>::value>::type* = nullptr)
+	{
+		buffer.read(&t[0], N * sizeof(T));
+	}
 
 	void skipSection(bool skip)
 	{
@@ -675,7 +813,48 @@ private:
 		}
 	}
 
+	template<int I, int N, typename TUPLE> struct GroupLoader {
+		ALWAYS_INLINE void operator()(InputBuffer& buf, const TUPLE& tuple) const {
+			using ElemPtr = typename std::tuple_element<I, TUPLE>::type;
+			using Elem = typename std::remove_pointer<ElemPtr>::type;
+			buf.read(std::get<I>(tuple), sizeof(Elem));
+			GroupLoader<I + 1, N, TUPLE> nextLoader;
+			nextLoader(buf, tuple);
+		}
+	};
+	template<int N, typename TUPLE> struct GroupLoader<N, N, TUPLE> {
+		ALWAYS_INLINE void operator()(InputBuffer& /*buf*/, const TUPLE& /*tuple*/) const {
+			// nothing
+		}
+	};
+
+	// See comments in MemOutputArchive
+	template<typename TUPLE>
+	ALWAYS_INLINE void serialize_group(const TUPLE& tuple)
+	{
+		GroupLoader<0, std::tuple_size<TUPLE>::value, TUPLE> groupLoader;
+		groupLoader(buffer, tuple);
+	}
+	template<typename TUPLE, typename T, typename ...Args>
+	ALWAYS_INLINE void serialize_group_impl(std::true_type, const TUPLE& tuple, const char* /*tag*/, T& t, Args&& ...args)
+	{
+		serialize_group(std::tuple_cat(tuple, std::make_tuple(&t)), std::forward<Args>(args)...);
+	}
+	template<typename TUPLE, typename T, typename ...Args>
+	ALWAYS_INLINE void serialize_group_impl(std::false_type, const TUPLE& tuple, const char* tag, T& t, Args&& ...args)
+	{
+		serialize(tag, t);
+		serialize_group(tuple, std::forward<Args>(args)...);
+	}
+	template<typename TUPLE, typename T, typename ...Args>
+	ALWAYS_INLINE void serialize_group(const TUPLE& tuple, const char* tag, T& t, Args&& ...args)
+	{
+		serialize_group_impl(typename SerializeAsMemcpy<T>::type(), tuple, tag, t, std::forward<Args>(args)...);
+	}
+
+private:
 	InputBuffer buffer;
+	const std::vector<std::shared_ptr<DeltaBlock>>& deltaBlocks;
 };
 
 ////
@@ -683,14 +862,15 @@ private:
 class XmlOutputArchive final : public OutputArchiveBase<XmlOutputArchive>
 {
 public:
-	XmlOutputArchive(const std::string& filename);
+	explicit XmlOutputArchive(const std::string& filename);
+	void close();
 	~XmlOutputArchive();
 
 	template <typename T> void saveImpl(const T& t)
 	{
 		// TODO make sure floating point is printed with enough digits
 		//      maybe print as hex?
-		save(StringOp::toString(t));
+		save(strCat(t));
 	}
 	template <typename T> void save(const T& t)
 	{
@@ -709,6 +889,17 @@ public:
 	void beginSection() { /*nothing*/ }
 	void endSection()   { /*nothing*/ }
 
+	// workaround(?) for visual studio 2015:
+	//   put the default here instead of in the base class
+	using OutputArchiveBase<XmlOutputArchive>::serialize;
+	template<typename T, typename ...Args>
+	ALWAYS_INLINE void serialize(const char* tag, const T& t, Args&& ...args)
+	{
+		// by default just repeatedly call the single-pair serialize() variant
+		this->self().serialize(tag, t);
+		this->self().serialize(std::forward<Args>(args)...);
+	}
+
 //internal:
 	inline bool translateEnumToString() const { return true; }
 	inline bool canHaveOptionalAttributes() const { return true; }
@@ -719,7 +910,7 @@ public:
 
 	template<typename T> void attributeImpl(const char* name, const T& t)
 	{
-		attribute(name, StringOp::toString(t));
+		attribute(name, strCat(t));
 	}
 	template<typename T> void attribute(const char* name, const T& t)
 	{
@@ -738,7 +929,7 @@ private:
 class XmlInputArchive final : public InputArchiveBase<XmlInputArchive>
 {
 public:
-	XmlInputArchive(const std::string& filename);
+	explicit XmlInputArchive(const std::string& filename);
 
 	inline bool versionAtLeast(unsigned actual, unsigned required) const
 	{
@@ -765,9 +956,20 @@ public:
 	void load(unsigned& u);             // but having them non-inline
 	void load(unsigned long long& ull); // saves quite a bit of code
 	void load(std::string& t);
-	string_ref loadStr();
+	string_view loadStr();
 
 	void skipSection(bool /*skip*/) { /*nothing*/ }
+
+	// workaround(?) for visual studio 2015:
+	//   put the default here instead of in the base class
+	using InputArchiveBase<XmlInputArchive>::serialize;
+	template<typename T, typename ...Args>
+	ALWAYS_INLINE void serialize(const char* tag, T& t, Args&& ...args)
+	{
+		// by default just repeatedly call the single-pair serialize() variant
+		this->self().serialize(tag, t);
+		this->self().serialize(std::forward<Args>(args)...);
+	}
 
 //internal:
 	inline bool translateEnumToString() const { return true; }

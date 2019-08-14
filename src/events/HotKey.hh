@@ -4,10 +4,8 @@
 #include "RTSchedulable.hh"
 #include "EventListener.hh"
 #include "Command.hh"
-#include "stl.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <map>
-#include <set>
 #include <vector>
 #include <string>
 #include <memory>
@@ -23,16 +21,20 @@ class XMLElement;
 class HotKey final : public RTSchedulable, public EventListener
 {
 public:
+	using EventPtr = std::shared_ptr<const Event>;
 	struct HotKeyInfo {
-		HotKeyInfo() {} // for map::operator[]
-		HotKeyInfo(std::string command_, bool repeat_ = false)
-			: command(std::move(command_)), repeat(repeat_) {}
+		HotKeyInfo(const EventPtr& event_, std::string command_,
+		           bool repeat_ = false, bool passEvent_ = false)
+			: event(event_), command(std::move(command_))
+			, repeat(repeat_)
+			, passEvent(passEvent_) {}
+		EventPtr event;
 		std::string command;
 		bool repeat;
+		bool passEvent; // whether to pass event with args back to command
 	};
-	using EventPtr = std::shared_ptr<const Event>;
-	using BindMap  = std::map<EventPtr, HotKeyInfo, LessDeref>;
-	using KeySet   = std::set<EventPtr,             LessDeref>;
+	using BindMap = std::vector<HotKeyInfo>; // unsorted
+	using KeySet  = std::vector<EventPtr>;   // unsorted
 
 	HotKey(RTScheduler& rtScheduler,
 	       GlobalCommandController& commandController,
@@ -49,16 +51,15 @@ private:
 	};
 
 	void initDefaultBindings();
-	void bind         (const EventPtr& event, const HotKeyInfo& info);
+	void bind         (HotKeyInfo&& info);
 	void unbind       (const EventPtr& event);
-	void bindDefault  (const EventPtr& event, const HotKeyInfo& info);
+	void bindDefault  (HotKeyInfo&& info);
 	void unbindDefault(const EventPtr& event);
-	void bindLayer    (const EventPtr& event, const HotKeyInfo& info,
-	                   const std::string& layer);
+	void bindLayer    (HotKeyInfo&& info, const std::string& layer);
 	void unbindLayer  (const EventPtr& event, const std::string& layer);
 	void unbindFullLayer(const std::string& layer);
 	void activateLayer  (std::string layer, bool blocking);
-	void deactivateLayer(string_ref layer);
+	void deactivateLayer(string_view layer);
 
 	int executeEvent(const EventPtr& event);
 	void executeBinding(const EventPtr& event, const HotKeyInfo& info);
@@ -74,10 +75,10 @@ private:
 	public:
 		BindCmd(CommandController& commandController, HotKey& hotKey,
 			bool defaultCmd);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	private:
-		std::string formatBinding(const HotKey::BindMap::value_type& p);
+		std::string formatBinding(const HotKey::BindMap::value_type& info);
 
 		HotKey& hotKey;
 		const bool defaultCmd;
@@ -89,7 +90,7 @@ private:
 	public:
 		UnbindCmd(CommandController& commandController, HotKey& hotKey,
 			  bool defaultCmd);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	private:
 		HotKey& hotKey;
@@ -99,14 +100,14 @@ private:
 	UnbindCmd unbindDefaultCmd;
 
 	struct ActivateCmd final : Command {
-		ActivateCmd(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		explicit ActivateCmd(CommandController& commandController);
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} activateCmd;
 
 	struct DeactivateCmd final : Command {
-		DeactivateCmd(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		explicit DeactivateCmd(CommandController& commandController);
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} deactivateCmd;
 

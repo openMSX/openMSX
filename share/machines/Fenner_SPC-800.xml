@@ -51,7 +51,8 @@ PSG pin 6/7 quierk: C (YES)
 
     </primary>
 
-    <!-- <primary external="true" slot="3"/> expansion bus only -->
+    <!-- Note: this connector is actually a non-standard expansion connector on the back -->
+    <primary external="true" slot="3"/>
 
     <PPI id="ppi">
       <io base="0xA8" num="4"/>
@@ -77,6 +78,7 @@ PSG pin 6/7 quierk: C (YES)
       <sound>
         <volume>21000</volume>
       </sound>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 
     <PrinterPort id="Printer Port">

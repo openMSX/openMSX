@@ -53,6 +53,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <RTC id="Real time clock">
@@ -69,6 +70,15 @@
       <inverted>true</inverted>
       <io base="0xF4" num="1"/>
     </ResetStatusRegister>
+
+    <Matsushita id="Matsushita">
+      <device idref="VDP"/>
+      <hasturbo>false</hasturbo>
+    </Matsushita>
+
+    <T9769 id="T9769">
+      <subtype>A</subtype>
+    </T9769>
 
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">

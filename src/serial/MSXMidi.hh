@@ -14,7 +14,7 @@ class MSXMidi final : public MSXDevice, public MidiInConnector
 {
 public:
 	explicit MSXMidi(const DeviceConfig& config);
-	~MSXMidi();
+	~MSXMidi() override;
 
 	void reset(EmuTime::param time) override;
 	byte readIO(word port, EmuTime::param time) override;

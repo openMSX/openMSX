@@ -32,7 +32,7 @@ public:
 	~LaserdiscPlayer();
 
 	// Called from CassettePort
-	short readSample(EmuTime::param time);
+	int16_t readSample(EmuTime::param time);
 
 	// Called from PioneerLDControl
 	void setMuting(bool left, bool right, EmuTime::param time);
@@ -91,7 +91,7 @@ private:
 	void stop(EmuTime::param time);
 	void eject(EmuTime::param time);
 	void seekFrame(size_t frame, EmuTime::param time);
-	void stepFrame(bool);
+	void stepFrame(bool forwards);
 	void seekChapter(int chapter, EmuTime::param time);
 
 	// Control from MSX
@@ -107,30 +107,31 @@ private:
 	void createRenderer();
 
 	// SoundDevice
-	void generateChannels(int** bufs, unsigned num) override;
-	bool updateBuffer(unsigned length, int* buffer,
+	void generateChannels(float** buffers, unsigned num) override;
+	bool updateBuffer(unsigned length, float* buffer,
 	                  EmuTime::param time) override;
+	float getAmplificationFactorImpl() const override;
 
 	// Schedulable
-	struct SyncAck : public Schedulable {
+	struct SyncAck final : public Schedulable {
 		friend class LaserdiscPlayer;
-		SyncAck(Scheduler& s) : Schedulable(s) {}
+		explicit SyncAck(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& player = OUTER(LaserdiscPlayer, syncAck);
 			player.execSyncAck(time);
 		}
 	} syncAck;
-	struct SyncOdd : public Schedulable {
+	struct SyncOdd final : public Schedulable {
 		friend class LaserdiscPlayer;
-		SyncOdd(Scheduler& s) : Schedulable(s) {}
+		explicit SyncOdd(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& player = OUTER(LaserdiscPlayer, syncOdd);
 			player.execSyncFrame(time, true);
 		}
 	} syncOdd;
-	struct SyncEven : public Schedulable {
+	struct SyncEven final : public Schedulable {
 		friend class LaserdiscPlayer;
-		SyncEven(Scheduler& s) : Schedulable(s) {}
+		explicit SyncEven(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& player = OUTER(LaserdiscPlayer, syncEven);
 			player.execSyncFrame(time, false);
@@ -155,7 +156,7 @@ private:
 		Command(CommandController& commandController,
 		        StateChangeDistributor& stateChangeDistributor,
 		        Scheduler& scheduler);
-		void execute(array_ref<TclObject> tokens, TclObject& result,
+		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;

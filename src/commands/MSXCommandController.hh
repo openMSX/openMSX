@@ -4,7 +4,6 @@
 #include "CommandController.hh"
 #include "Command.hh"
 #include "MSXEventListener.hh"
-#include "Setting.hh"
 #include "hash_set.hh"
 #include "xxhash.hh"
 #include <memory>
@@ -12,10 +11,11 @@
 namespace openmsx {
 
 class GlobalCommandController;
-class Reactor;
-class MSXMotherBoard;
-class MSXEventDistributor;
 class InfoCommand;
+class MSXEventDistributor;
+class MSXMotherBoard;
+class Reactor;
+class Setting;
 
 class MSXCommandController final
 	: public CommandController, private MSXEventListener
@@ -43,7 +43,7 @@ public:
 		return machineID;
 	}
 
-	Command* findCommand(string_ref name) const;
+	Command* findCommand(string_view name) const;
 
 	/** Returns true iff the machine this controller belongs to is currently
 	  * active.
@@ -56,14 +56,14 @@ public:
 
 	// CommandController
 	void   registerCompleter(CommandCompleter& completer,
-	                         string_ref str) override;
+	                         string_view str) override;
 	void unregisterCompleter(CommandCompleter& completer,
-	                         string_ref str) override;
+	                         string_view str) override;
 	void   registerCommand(Command& command,
 	                       const std::string& str) override;
 	void unregisterCommand(Command& command,
-	                       string_ref str) override;
-	bool hasCommand(string_ref command) const override;
+	                       string_view str) override;
+	bool hasCommand(string_view command) const override;
 	TclObject executeCommand(const std::string& command,
 	                         CliConnection* connection = nullptr) override;
 	void registerSetting(Setting& setting) override;
@@ -72,11 +72,11 @@ public:
 	Interpreter& getInterpreter() override;
 
 private:
-	std::string getFullName(string_ref name);
+	std::string getFullName(string_view name);
 
 	// MSXEventListener
-	void signalEvent(const std::shared_ptr<const Event>& event,
-	                 EmuTime::param time) override;
+	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	                    EmuTime::param time) override;
 
 	GlobalCommandController& globalCommandController;
 	Reactor& reactor;

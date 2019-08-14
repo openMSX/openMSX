@@ -11,6 +11,7 @@
 #include "FilePool.hh"
 #include "UserSettings.hh"
 #include "RomDatabase.hh"
+#include "RomInfo.hh"
 #include "TclCallbackMessages.hh"
 #include "MSXMotherBoard.hh"
 #include "StateChangeDistributor.hh"
@@ -37,26 +38,31 @@
 #include "Thread.hh"
 #include "Timer.hh"
 #include "serialize.hh"
-#include "openmsx.hh"
 #include "checked_cast.hh"
+#include "ranges.hh"
 #include "statp.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "memory.hh"
+#include "view.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <memory>
 
+using std::make_shared;
+using std::make_unique;
 using std::string;
 using std::vector;
-using std::make_shared;
 
 namespace openmsx {
 
-class QuitCommand final : public Command
+// global variable to communicate the exit-code from the 'exit' command to main()
+int exitCode = 0;
+
+class ExitCommand final : public Command
 {
 public:
-	QuitCommand(CommandController& commandController, EventDistributor& distributor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	ExitCommand(CommandController& commandController, EventDistributor& distributor);
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 private:
 	EventDistributor& distributor;
@@ -66,7 +72,7 @@ class MachineCommand final : public Command
 {
 public:
 	MachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -77,7 +83,7 @@ class TestMachineCommand final : public Command
 {
 public:
 	TestMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -88,7 +94,7 @@ class CreateMachineCommand final : public Command
 {
 public:
 	CreateMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
@@ -98,7 +104,7 @@ class DeleteMachineCommand final : public Command
 {
 public:
 	DeleteMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -109,7 +115,7 @@ class ListMachinesCommand final : public Command
 {
 public:
 	ListMachinesCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
@@ -119,7 +125,7 @@ class ActivateMachineCommand final : public Command
 {
 public:
 	ActivateMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -130,7 +136,7 @@ class StoreMachineCommand final : public Command
 {
 public:
 	StoreMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
@@ -141,18 +147,34 @@ class RestoreMachineCommand final : public Command
 {
 public:
 	RestoreMachineCommand(CommandController& commandController, Reactor& reactor);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
 
+class GetClipboardCommand final : public Command
+{
+public:
+	GetClipboardCommand(CommandController& commandController);
+	void execute(span<const TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+};
+
+class SetClipboardCommand final : public Command
+{
+public:
+	SetClipboardCommand(CommandController& commandController);
+	void execute(span<const TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+};
+
 class ConfigInfo final : public InfoTopic
 {
 public:
 	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
@@ -163,26 +185,27 @@ private:
 class RealTimeInfo final : public InfoTopic
 {
 public:
-	RealTimeInfo(InfoCommand& openMSXInfoCommand);
-	void execute(array_ref<TclObject> tokens,
+	explicit RealTimeInfo(InfoCommand& openMSXInfoCommand);
+	void execute(span<const TclObject> tokens,
 	             TclObject& result) const override;
 	string help(const vector<string>& tokens) const override;
 private:
 	const uint64_t reference;
 };
 
-
-Reactor::Reactor()
-	: activeBoard(nullptr)
-	, blockedCounter(0)
-	, paused(false)
-	, running(true)
-	, isInit(false)
+class SoftwareInfoTopic final : InfoTopic
 {
-#if UNIQUE_PTR_BUG
-	display = nullptr;
-#endif
-}
+public:
+	SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, Reactor& reactor);
+	void execute(span<const TclObject> tokens,
+	             TclObject& result) const override;
+	std::string help(const std::vector<std::string>& tokens) const override;
+private:
+	Reactor& reactor;
+};
+
+
+Reactor::Reactor() = default;
 
 void Reactor::init()
 {
@@ -203,15 +226,12 @@ void Reactor::init()
 		*globalCommandController, *this);
 	virtualDrive = make_unique<DiskChanger>(
 		*this, "virtual_drive");
-	filePool = make_unique<FilePool>(
-		*globalCommandController, *eventDistributor);
+	filePool = make_unique<FilePool>(*globalCommandController, *this);
 	userSettings = make_unique<UserSettings>(
 		*globalCommandController);
-	softwareDatabase = make_unique<RomDatabase>(
-		*globalCommandController, *globalCliComm);
 	afterCommand = make_unique<AfterCommand>(
 		*this, *eventDistributor, *globalCommandController);
-	quitCommand = make_unique<QuitCommand>(
+	exitCommand = make_unique<ExitCommand>(
 		*globalCommandController, *eventDistributor);
 	messageCommand = make_unique<MessageCommand>(
 		*globalCommandController);
@@ -231,6 +251,10 @@ void Reactor::init()
 		*globalCommandController, *this);
 	restoreMachineCommand = make_unique<RestoreMachineCommand>(
 		*globalCommandController, *this);
+	getClipboardCommand = make_unique<GetClipboardCommand>(
+		*globalCommandController);
+	setClipboardCommand = make_unique<SetClipboardCommand>(
+		*globalCommandController);
 	aviRecordCommand = make_unique<AviRecorder>(*this);
 	extensionInfo = make_unique<ConfigInfo>(
 		getOpenMSXInfoCommand(), "extensions");
@@ -238,6 +262,8 @@ void Reactor::init()
 		getOpenMSXInfoCommand(), "machines");
 	realTimeInfo = make_unique<RealTimeInfo>(
 		getOpenMSXInfoCommand());
+	softwareInfoTopic = make_unique<SoftwareInfoTopic>(
+		getOpenMSXInfoCommand(), *this);
 	tclCallbackMessages = make_unique<TclCallbackMessages>(
 		*globalCliComm, *globalCommandController);
 
@@ -246,7 +272,9 @@ void Reactor::init()
 	getGlobalSettings().getPauseSetting().attach(*this);
 
 	eventDistributor->registerEventListener(OPENMSX_QUIT_EVENT, *this);
+#if PLATFORM_ANDROID
 	eventDistributor->registerEventListener(OPENMSX_FOCUS_EVENT, *this);
+#endif
 	eventDistributor->registerEventListener(OPENMSX_DELETE_BOARDS, *this);
 	isInit = true;
 }
@@ -257,10 +285,20 @@ Reactor::~Reactor()
 	deleteBoard(activeBoard);
 
 	eventDistributor->unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
+#if PLATFORM_ANDROID
 	eventDistributor->unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
+#endif
 	eventDistributor->unregisterEventListener(OPENMSX_DELETE_BOARDS, *this);
 
 	getGlobalSettings().getPauseSetting().detach(*this);
+}
+
+RomDatabase& Reactor::getSoftwareDatabase()
+{
+	if (!softwareDatabase) {
+		softwareDatabase = make_unique<RomDatabase>(*globalCliComm);
+	}
+	return *softwareDatabase;
 }
 
 CliComm& Reactor::getCliComm()
@@ -283,14 +321,14 @@ InfoCommand& Reactor::getOpenMSXInfoCommand()
 	return globalCommandController->getOpenMSXInfoCommand();
 }
 
-vector<string> Reactor::getHwConfigs(string_ref type)
+vector<string> Reactor::getHwConfigs(string_view type)
 {
 	vector<string> result;
 	for (auto& p : systemFileContext().getPaths()) {
 		const auto& path = FileOperations::join(p, type);
 		ReadDir configsDir(path);
 		while (auto* entry = configsDir.getEntry()) {
-			string_ref name = entry->d_name;
+			string_view name = entry->d_name;
 			const auto& fullname = FileOperations::join(path, name);
 			if (name.ends_with(".xml") &&
 			    FileOperations::isRegularFile(fullname)) {
@@ -306,8 +344,8 @@ vector<string> Reactor::getHwConfigs(string_ref type)
 		}
 	}
 	// remove duplicates
-	sort(begin(result), end(result));
-	result.erase(unique(begin(result), end(result)), end(result));
+	ranges::sort(result);
+	result.erase(ranges::unique(result), end(result));
 	return result;
 }
 
@@ -315,9 +353,8 @@ void Reactor::createMachineSetting()
 {
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	int count = 1;
-	for (auto& name : getHwConfigs("machines")) {
-		machines.emplace_back(name, count++);
-	}
+	append(machines, view::transform(getHwConfigs("machines"),
+		[&](auto& name) { return std::make_pair(name, count++); }));
 	machines.emplace_back("C-BIOS_MSX2+", 0); // default machine
 
 	machineSetting = make_unique<EnumSetting<int>>(
@@ -332,28 +369,25 @@ MSXMotherBoard* Reactor::getMotherBoard() const
 	return activeBoard;
 }
 
-string Reactor::getMachineID() const
+string_view Reactor::getMachineID() const
 {
-	return activeBoard ? activeBoard->getMachineID() : "";
+	return activeBoard ? activeBoard->getMachineID() : string_view{};
 }
 
-vector<string_ref> Reactor::getMachineIDs() const
+vector<string_view> Reactor::getMachineIDs() const
 {
-	vector<string_ref> result;
-	for (auto& b : boards) {
-		result.push_back(b->getMachineID());
-	}
-	return result;
+	return to_vector(view::transform(
+		boards, [](auto& b) { return b->getMachineID(); }));
 }
 
-MSXMotherBoard& Reactor::getMachine(string_ref machineID) const
+MSXMotherBoard& Reactor::getMachine(string_view machineID) const
 {
 	for (auto& b : boards) {
 		if (b->getMachineID() == machineID) {
 			return *b;
 		}
 	}
-	throw CommandException("No machine with ID: " + machineID);
+	throw CommandException("No machine with ID: ", machineID);
 }
 
 Reactor::Board Reactor::createEmptyMotherBoard()
@@ -388,12 +422,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 void Reactor::switchMachine(const string& machine)
 {
 	if (!display) {
-#if UNIQUE_PTR_BUG
-		display2 = make_unique<Display>(*this);
-		display = display2.get();
-#else
 		display = make_unique<Display>(*this);
-#endif
 		// TODO: Currently it is not possible to move this call into the
 		//       constructor of Display because the call to createVideoSystem()
 		//       indirectly calls Reactor.getDisplay().
@@ -421,11 +450,9 @@ void Reactor::switchBoard(MSXMotherBoard* newBoard)
 {
 	assert(Thread::isMainThread());
 	assert(!newBoard ||
-	       (any_of(begin(boards), end(boards),
-	               [&](Boards::value_type& b) { return b.get() == newBoard; })));
+	       (ranges::any_of(boards, [&](auto& b) { return b.get() == newBoard; })));
 	assert(!activeBoard ||
-	       (any_of(begin(boards), end(boards),
-	               [&](Boards::value_type& b) { return b.get() == activeBoard; })));
+	       (ranges::any_of(boards, [&](auto& b) { return b.get() == activeBoard; })));
 	if (activeBoard) {
 		activeBoard->activate(false);
 	}
@@ -504,7 +531,7 @@ void Reactor::run(CommandLineParser& parser)
 		try {
 			commandController.source(userFileContext().resolve(s));
 		} catch (FileException& e) {
-			throw FatalError("Couldn't execute script: " +
+			throw FatalError("Couldn't execute script: ",
 			                 e.getMessage());
 		}
 	}
@@ -596,8 +623,8 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 	if (type == OPENMSX_QUIT_EVENT) {
 		enterMainLoop();
 		running = false;
-	} else if (type == OPENMSX_FOCUS_EVENT) {
 #if PLATFORM_ANDROID
+	} else if (type == OPENMSX_FOCUS_EVENT) {
 		// Android SDL port sends a (un)focus event when an app is put in background
 		// by the OS for whatever reason (like an incoming phone call) and all screen
 		// resources are taken away from the app.
@@ -613,22 +640,6 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 		} else {
 			block();
 		}
-#else
-		// On other platforms, the user may specify if openMSX should be
-		// halted on loss of focus.
-		if (!getGlobalSettings().getPauseOnLostFocusSetting().getBoolean()) {
-			return 0;
-		}
-		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
-		if (focusEvent.getGain()) {
-			// gained focus
-			if (!getGlobalSettings().getPauseSetting().getBoolean()) {
-				unpause();
-			}
-		} else {
-			// lost focus
-			pause();
-		}
 #endif
 	} else if (type == OPENMSX_DELETE_BOARDS) {
 		// Doesn't really matter which one we delete, just that we do
@@ -642,23 +653,33 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 }
 
 
-// class QuitCommand
+// class ExitCommand
 
-QuitCommand::QuitCommand(CommandController& commandController_,
+ExitCommand::ExitCommand(CommandController& commandController_,
                          EventDistributor& distributor_)
 	: Command(commandController_, "exit")
 	, distributor(distributor_)
 {
 }
 
-void QuitCommand::execute(array_ref<TclObject> /*tokens*/, TclObject& /*result*/)
+void ExitCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?exitcode?");
+	switch (tokens.size()) {
+	case 1:
+		exitCode = 0;
+		break;
+	case 2:
+		exitCode = tokens[1].getInt(getInterpreter());
+		break;
+	}
 	distributor.distributeEvent(make_shared<QuitEvent>());
 }
 
-string QuitCommand::help(const vector<string>& /*tokens*/) const
+string ExitCommand::help(const vector<string>& /*tokens*/) const
 {
-	return "Use this command to stop the emulator\n";
+	return "Use this command to stop the emulator.\n"
+	       "Optionally you can pass an exit-code.\n";
 }
 
 
@@ -671,8 +692,9 @@ MachineCommand::MachineCommand(CommandController& commandController_,
 {
 }
 
-void MachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void MachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?machinetype?");
 	switch (tokens.size()) {
 	case 1: // get current machine
 		// nothing
@@ -681,15 +703,13 @@ void MachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 		try {
 			reactor.switchMachine(tokens[1].getString().str());
 		} catch (MSXException& e) {
-			throw CommandException("Machine switching failed: " +
+			throw CommandException("Machine switching failed: ",
 			                       e.getMessage());
 		}
 		break;
-	default:
-		throw SyntaxError();
 	}
 	// Always return machineID (of current or of new machine).
-	result.setString(reactor.getMachineID());
+	result = reactor.getMachineID();
 }
 
 string MachineCommand::help(const vector<string>& /*tokens*/) const
@@ -712,17 +732,15 @@ TestMachineCommand::TestMachineCommand(CommandController& commandController_,
 {
 }
 
-void TestMachineCommand::execute(array_ref<TclObject> tokens,
+void TestMachineCommand::execute(span<const TclObject> tokens,
                                  TclObject& result)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "machinetype");
 	try {
 		MSXMotherBoard mb(reactor);
 		mb.loadMachine(tokens[1].getString().str());
 	} catch (MSXException& e) {
-		result.setString(e.getMessage()); // error
+		result = e.getMessage(); // error
 	}
 }
 
@@ -748,13 +766,11 @@ CreateMachineCommand::CreateMachineCommand(
 {
 }
 
-void CreateMachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void CreateMachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 1) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 1, Prefix{1}, nullptr);
 	auto newBoard = reactor.createEmptyMotherBoard();
-	result.setString(newBoard->getMachineID());
+	result = newBoard->getMachineID();
 	reactor.boards.push_back(move(newBoard));
 }
 
@@ -780,12 +796,10 @@ DeleteMachineCommand::DeleteMachineCommand(
 {
 }
 
-void DeleteMachineCommand::execute(array_ref<TclObject> tokens,
+void DeleteMachineCommand::execute(span<const TclObject> tokens,
                                    TclObject& /*result*/)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "id");
 	reactor.deleteBoard(&reactor.getMachine(tokens[1].getString()));
 }
 
@@ -809,7 +823,7 @@ ListMachinesCommand::ListMachinesCommand(
 {
 }
 
-void ListMachinesCommand::execute(array_ref<TclObject> /*tokens*/,
+void ListMachinesCommand::execute(span<const TclObject> /*tokens*/,
                                   TclObject& result)
 {
 	result.addListElements(reactor.getMachineIDs());
@@ -830,20 +844,18 @@ ActivateMachineCommand::ActivateMachineCommand(
 {
 }
 
-void ActivateMachineCommand::execute(array_ref<TclObject> tokens,
+void ActivateMachineCommand::execute(span<const TclObject> tokens,
                                      TclObject& result)
 {
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "id");
 	switch (tokens.size()) {
 	case 1:
 		break;
-	case 2: {
+	case 2:
 		reactor.switchBoard(&reactor.getMachine(tokens[1].getString()));
 		break;
 	}
-	default:
-		throw SyntaxError();
-	}
-	result.setString(reactor.getMachineID());
+	result = reactor.getMachineID();
 }
 
 string ActivateMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -868,10 +880,11 @@ StoreMachineCommand::StoreMachineCommand(
 {
 }
 
-void StoreMachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void StoreMachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{1, 3}, Prefix{1}, "?id? ?filename?");
 	string filename;
-	string_ref machineID;
+	string_view machineID;
 	switch (tokens.size()) {
 	case 1:
 		machineID = reactor.getMachineID();
@@ -885,15 +898,14 @@ void StoreMachineCommand::execute(array_ref<TclObject> tokens, TclObject& result
 		machineID = tokens[1].getString();
 		filename = tokens[2].getString().str();
 		break;
-	default:
-		throw SyntaxError();
 	}
 
 	auto& board = reactor.getMachine(machineID);
 
 	XmlOutputArchive out(filename);
 	out.serialize("machine", board);
-	result.setString(filename);
+	out.close();
+	result = filename;
 }
 
 string StoreMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -921,9 +933,10 @@ RestoreMachineCommand::RestoreMachineCommand(
 {
 }
 
-void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
+void RestoreMachineCommand::execute(span<const TclObject> tokens,
                                     TclObject& result)
 {
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?filename?");
 	auto newBoard = reactor.createEmptyMotherBoard();
 
 	string filename;
@@ -932,11 +945,11 @@ void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
 		// load last saved entry
 		struct stat st;
 		string dirName = FileOperations::getUserOpenMSXDir() + "/savestates/";
-		string lastEntry = "";
+		string lastEntry;
 		time_t lastTime = 0;
 		ReadDir dir(dirName);
 		while (dirent* d = dir.getEntry()) {
-			int res = stat((dirName + string(d->d_name)).c_str(), &st);
+			int res = stat(strCat(dirName, d->d_name).c_str(), &st);
 			if ((res == 0) && S_ISREG(st.st_mode)) {
 				time_t modTime = st.st_mtime;
 				if (modTime > lastTime) {
@@ -945,7 +958,7 @@ void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
 				}
 			}
 		}
-		if (lastEntry == "") {
+		if (lastEntry.empty()) {
 			throw CommandException("Can't find last saved state.");
 		}
 		filename = dirName + lastEntry;
@@ -954,18 +967,17 @@ void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
 	case 2:
 		filename = tokens[1].getString().str();
 		break;
-	default:
-		throw SyntaxError();
 	}
 
-	//std::cerr << "Loading " << filename << std::endl;
+	//std::cerr << "Loading " << filename << '\n';
 	try {
 		XmlInputArchive in(filename);
 		in.serialize("machine", *newBoard);
 	} catch (XMLException& e) {
-		throw CommandException("Cannot load state, bad file format: " + e.getMessage());
+		throw CommandException("Cannot load state, bad file format: ",
+		                       e.getMessage());
 	} catch (MSXException& e) {
-		throw CommandException("Cannot load state: " + e.getMessage());
+		throw CommandException("Cannot load state: ", e.getMessage());
 	}
 
 	// Savestate also contains stuff like the keyboard state at the moment
@@ -973,23 +985,68 @@ void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
 	// now we want the MSX to see the actual host keyboard state.
 	newBoard->getStateChangeDistributor().stopReplay(newBoard->getCurrentTime());
 
-	result.setString(newBoard->getMachineID());
+	result = newBoard->getMachineID();
 	reactor.boards.push_back(move(newBoard));
 }
 
 string RestoreMachineCommand::help(const vector<string>& /*tokens*/) const
 {
-	return
-		"restore_machine                       Load state from last saved state in default directory\n"
-		"restore_machine <filename>            Load state from indicated file\n"
-		"\n"
-		"This is a low-level command, the 'loadstate' script is easier to use.";
+	return "restore_machine                       Load state from last saved state in default directory\n"
+	       "restore_machine <filename>            Load state from indicated file\n"
+	       "\n"
+	       "This is a low-level command, the 'loadstate' script is easier to use.";
 }
 
 void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	// TODO: add the default files (state files in user's savestates dir)
 	completeFileName(tokens, userFileContext());
+}
+
+
+// class GetClipboardCommand
+
+GetClipboardCommand::GetClipboardCommand(CommandController& commandController_)
+	: Command(commandController_, "get_clipboard_text")
+{
+}
+
+void GetClipboardCommand::execute(span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, 1, Prefix{1}, nullptr);
+	if (char* text = SDL_GetClipboardText()) {
+		result = text;
+		SDL_free(text);
+	}
+}
+
+string GetClipboardCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Returns the (text) content of the clipboard as a string.";
+}
+
+
+// class SetClipboardCommand
+
+SetClipboardCommand::SetClipboardCommand(CommandController& commandController_)
+	: Command(commandController_, "set_clipboard_text")
+{
+}
+
+void SetClipboardCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, 2, "text");
+	string text = tokens[1].getString().str();
+	if (SDL_SetClipboardText(text.c_str()) != 0) {
+		const char* err = SDL_GetError();
+		SDL_ClearError();
+		throw CommandException(err);
+	}
+}
+
+string SetClipboardCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Send the given string to the clipboard.";
 }
 
 
@@ -1002,7 +1059,7 @@ ConfigInfo::ConfigInfo(InfoCommand& openMSXInfoCommand,
 {
 }
 
-void ConfigInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
+void ConfigInfo::execute(span<const TclObject> tokens, TclObject& result) const
 {
 	// TODO make meta info available through this info topic
 	switch (tokens.size()) {
@@ -1016,13 +1073,12 @@ void ConfigInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 				configName, tokens[2].getString());
 			if (auto* info = config.findChild("info")) {
 				for (auto& i : info->getChildren()) {
-					result.addListElement(i.getName());
-					result.addListElement(i.getData());
+					result.addDictKeyValue(i.getName(), i.getData());
 				}
 			}
 		} catch (MSXException& e) {
 			throw CommandException(
-				"Couldn't get config info: " + e.getMessage());
+				"Couldn't get config info: ", e.getMessage());
 		}
 		break;
 	}
@@ -1033,8 +1089,8 @@ void ConfigInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 
 string ConfigInfo::help(const vector<string>& /*tokens*/) const
 {
-	return "Shows a list of available " + configName + ", "
-	       "or get meta information about the selected item.\n";
+	return strCat("Shows a list of available ", configName, ", "
+	              "or get meta information about the selected item.\n");
 }
 
 void ConfigInfo::tabCompletion(vector<string>& tokens) const
@@ -1051,16 +1107,59 @@ RealTimeInfo::RealTimeInfo(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void RealTimeInfo::execute(array_ref<TclObject> /*tokens*/,
+void RealTimeInfo::execute(span<const TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	auto delta = Timer::getTime() - reference;
-	result.setDouble(delta / 1000000.0);
+	result = delta / 1000000.0;
 }
 
 string RealTimeInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns the time in seconds since openMSX was started.";
+}
+
+
+// SoftwareInfoTopic
+
+SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, Reactor& reactor_)
+	: InfoTopic(openMSXInfoCommand, "software")
+	, reactor(reactor_)
+{
+}
+
+void SoftwareInfoTopic::execute(
+	span<const TclObject> tokens, TclObject& result) const
+{
+	if (tokens.size() != 3) {
+		throw CommandException("Wrong number of parameters");
+	}
+
+	Sha1Sum sha1sum = Sha1Sum(tokens[2].getString());
+	auto& romDatabase = reactor.getSoftwareDatabase();
+	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
+	if (!romInfo) {
+		// no match found
+		throw CommandException(
+			"Software with sha1sum ", sha1sum.toString(), " not found");
+	}
+
+	const char* bufStart = romDatabase.getBufferStart();
+	result.addDictKeyValues("title",            romInfo->getTitle(bufStart),
+	                        "year",             romInfo->getYear(bufStart),
+	                        "company",          romInfo->getCompany(bufStart),
+	                        "country",          romInfo->getCountry(bufStart),
+	                        "orig_type",        romInfo->getOrigType(bufStart),
+	                        "remark",           romInfo->getRemark(bufStart),
+	                        "original",         romInfo->getOriginal(),
+	                        "mapper_type_name", RomInfo::romTypeToName(romInfo->getRomType()),
+	                        "genmsxid",         romInfo->getGenMSXid());
+}
+
+string SoftwareInfoTopic::help(const vector<string>& /*tokens*/) const
+{
+	return "Returns information about the software "
+	       "given its sha1sum, in a paired list.";
 }
 
 } // namespace openmsx

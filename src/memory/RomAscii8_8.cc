@@ -16,7 +16,7 @@
 #include "RomAscii8_8.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -28,10 +28,10 @@ RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
 	, sramPages(((subType == KOEI_8) || (subType == KOEI_32))
 	            ? 0x34 : 0x30)
 {
-	unsigned size = (subType == KOEI_32 ) ? 0x8000  // 32kB
+	unsigned size = (subType == KOEI_32 || subType == ASCII8_32) ? 0x8000  // 32kB
 	              : (subType == ASCII8_2) ? 0x0800  //  2kB
 	                                      : 0x2000; //  8kB
-	sram = make_unique<SRAM>(getName() + " SRAM", size, config);
+	sram = std::make_unique<SRAM>(getName() + " SRAM", size, config);
 	reset(EmuTime::dummy());
 }
 
@@ -116,8 +116,8 @@ template<typename Archive>
 void RomAscii8_8::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("sramEnabled", sramEnabled);
-	ar.serialize("sramBlock", sramBlock);
+	ar.serialize("sramEnabled", sramEnabled,
+	             "sramBlock",   sramBlock);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomAscii8_8);
 REGISTER_MSXDEVICE(RomAscii8_8, "RomAscii8_8");

@@ -9,10 +9,14 @@ variable help_proc
 variable lazy [dict create]
 
 # Only execute this script once. Below we source other Tcl script,
-# so this makes sure we don't get in an infinte loop.
+# so this makes sure we don't get in an infinite loop.
 if {$init_tcl_executed} return
 set init_tcl_executed true
 
+# Debug pints (disabled by default).
+proc dbg {msg} {
+	#puts stderr $msg
+}
 
 # Helpers to handle on-demand (lazy) loading of Tcl scripts
 
@@ -32,7 +36,12 @@ proc lazy_handler {name} {
 	dict for {script procs} $lazy {
 		if {[lsearch -exact $procs $name] == -1} continue
 		dict unset lazy $script
-		namespace eval :: [list source [data_file scripts/$script]]
+		dbg "start executing script $script (via lazy_handler)"
+		if {[catch {namespace eval :: [list source [data_file scripts/$script]]}]} {
+			puts stderr "Error while (lazily) loading Tcl script: $script\n$::errorInfo"
+			error $::errorInfo
+		}
+		dbg "done executing script $script"
 		return true
 	}
 	return false
@@ -48,7 +57,12 @@ proc lazy_execute_all {} {
 	while {[dict size $lazy] != 0} {
 		set script [lindex [dict keys $lazy] 0]
 		dict unset lazy $script
-		namespace eval :: [list source [data_file scripts/$script]]
+		dbg "start executing script $script (via lazy_execute_all)"
+		if {[catch {namespace eval :: [list source [data_file scripts/$script]]}]} {
+			puts stderr "Error while (lazily) loading Tcl script: $script\n$::errorInfo"
+			error $::errorInfo
+		}
+		dbg "done executing script $script"
 	}
 }
 
@@ -183,9 +197,11 @@ foreach script [lsort -unique [concat $user_scripts $system_scripts]] {
 	if {[string index $script 0] eq "_"} continue
 	set script [data_file scripts/$script]
 	set t1 [openmsx_info realtime]
+	dbg "start executing script $script (via startup sequence)"
 	if {[catch {namespace eval :: [list source $script]}]} {
 		puts stderr "Error while executing $script\n$errorInfo"
 	}
+	dbg "done executing script $script"
 	set t2 [openmsx_info realtime]
 	lappend profile_list [list [expr {int(1000000 * ($t2 - $t1))}] $script]
 }

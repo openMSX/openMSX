@@ -5,12 +5,12 @@
 #include "GlobalSettings.hh"
 #include "Keys.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "unreachable.hh"
+#include "utf8_unchecked.hh"
 #include "build-info.hh"
 #include <cassert>
-#include <iostream>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -38,8 +38,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 	grabInput.attach(*this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 
-	reinit();
-
 	osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
 
 #ifndef SDL_JOYSTICK_DISABLED
@@ -51,12 +49,6 @@ InputEventGenerator::~InputEventGenerator()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	grabInput.detach(*this);
-}
-
-void InputEventGenerator::reinit()
-{
-	SDL_EnableUNICODE(1);
-	setKeyRepeat(keyRepeat);
 }
 
 void InputEventGenerator::wait()
@@ -73,46 +65,71 @@ void InputEventGenerator::wait()
 
 void InputEventGenerator::poll()
 {
-	SDL_Event event;
-	while (SDL_PollEvent(&event) == 1) {
-#if 0
-		string t;
-		switch (event.type) {
-			case SDL_ACTIVEEVENT:     t = "SDL_ACTIVEEVENT";     break;
-			case SDL_KEYDOWN:         t = "SDL_KEYDOWN";         break;
-			case SDL_KEYUP:           t = "SDL_KEYUP";           break;
-			case SDL_MOUSEMOTION:     t = "SDL_MOUSEMOTION";     break;
-			case SDL_MOUSEBUTTONDOWN: t = "SDL_MOUSEBUTTONDOWN"; break;
-			case SDL_MOUSEBUTTONUP:   t = "SDL_MOUSEBUTTONUP";   break;
-			case SDL_JOYAXISMOTION:   t = "SDL_JOYAXISMOTION";   break;
-			case SDL_JOYBALLMOTION:   t = "SDL_JOYBALLMOTION";   break;
-			case SDL_JOYHATMOTION:    t = "SDL_JOYHATMOTION";    break;
-			case SDL_JOYBUTTONDOWN:   t = "SDL_JOYBUTTONDOWN";   break;
-			case SDL_JOYBUTTONUP:     t = "SDL_JOYBUTTONUP";     break;
-			case SDL_QUIT:            t = "SDL_QUIT";            break;
-			case SDL_SYSWMEVENT:      t = "SDL_SYSWMEVENT";      break;
-			case SDL_VIDEORESIZE:     t = "SDL_VIDEORESIZE";     break;
-			case SDL_VIDEOEXPOSE:     t = "SDL_VIDEOEXPOSE";     break;
-			case SDL_USEREVENT:       t = "SDL_USEREVENT";       break;
-			default:                  t = "UNKNOWN";             break;
+	// Heuristic to emulate the old SDL1 behavior:
+	//
+	// SDL1 had a unicode field on each KEYDOWN event. In SDL2 that
+	// information is moved to the (new) SDL_TEXTINPUT events.
+	//
+	// Though our MSX keyboard emulation code needs to relate KEYDOWN
+	// events with the associated unicode. We try to mimic this by the
+	// following heuristic:
+	//   When two successive events in a single batch (so, the same
+	//   invocation of poll()) are KEYDOWN followed by TEXTINPUT, then copy
+	//   the unicode (of the first character) of the TEXT event to the
+	//   KEYDOWN event.
+	// Implementing this requires a lookahead of 1 event. So the code below
+	// deals with a 'current' and a 'previous' event, and keeps track of
+	// whether the previous event is still pending (not yet processed).
+	//
+	// In a previous version we also added the constraint that these two
+	// consecutive events must have the same timestamp, but that had mixed
+	// results:
+	// - on Linux it worked fine
+	// - on Windows the timestamps sometimes did not match
+	// - on Mac the timestamps mostly did not match
+	// So we removed this constraint.
+	//
+	// We also split SDL_TEXTINPUT events into (possibly) multiple KEYDOWN
+	// events because a single event type makes it easier to handle higher
+	// priority listeners that can block the event for lower priority
+	// listener (console > hotkey > msx).
+
+	SDL_Event event1, event2;
+	auto* prev = &event1;
+	auto* curr = &event2;
+	bool pending = false;
+
+	while (SDL_PollEvent(curr)) {
+		if (pending) {
+			pending = false;
+			if ((prev->type == SDL_KEYDOWN) && (curr->type == SDL_TEXTINPUT)) {
+				const char* utf8 = curr->text.text;
+				auto unicode = utf8::unchecked::next(utf8);
+				handleKeyDown(prev->key, unicode);
+				if (unicode) { // possibly there are more characters
+					handleText(utf8);
+				}
+				continue;
+			} else {
+				handle(*prev);
+			}
 		}
-		std::cerr << "SDL event received, type: " << t << std::endl;
-#endif
-		handle(event);
+		if (curr->type == SDL_KEYDOWN) {
+			pending = true;
+			std::swap(curr, prev);
+		} else {
+			handle(*curr);
+		}
+	}
+	if (pending) {
+		handle(*prev);
 	}
 }
 
 void InputEventGenerator::setKeyRepeat(bool enable)
 {
 	keyRepeat = enable;
-	if (keyRepeat) {
-		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-		                    SDL_DEFAULT_REPEAT_INTERVAL);
-	} else {
-		SDL_EnableKeyRepeat(0, 0);
-	}
 }
-
 
 void InputEventGenerator::setNewOsdControlButtonState(
 		unsigned newState, const EventPtr& origEvent)
@@ -136,7 +153,7 @@ void InputEventGenerator::setNewOsdControlButtonState(
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
-	unsigned axis, short value, const EventPtr& origEvent)
+	unsigned axis, int value, const EventPtr& origEvent)
 {
 	unsigned neg_button, pos_button;
 	switch (axis) {
@@ -229,6 +246,39 @@ void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
 	}
 }
 
+void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode)
+{
+	EventPtr event;
+	/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
+		event = make_shared<JoystickButtonDownEvent>(0, 0);
+		triggerOsdControlEventsFromJoystickButtonEvent(
+			0, false, event);
+		androidButtonA = true;
+	} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
+		event = make_shared<JoystickButtonDownEvent>(0, 1);
+		triggerOsdControlEventsFromJoystickButtonEvent(
+			1, false, event);
+		androidButtonB = true;
+	} else*/ {
+		auto keyCode = Keys::getCode(
+			key.keysym.sym, key.keysym.mod,
+			key.keysym.scancode, false);
+		event = make_shared<KeyDownEvent>(keyCode, unicode);
+		triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
+	}
+	eventDistributor.distributeEvent(event);
+}
+
+void InputEventGenerator::handleText(const char* utf8)
+{
+	while (true) {
+		auto unicode = utf8::unchecked::next(utf8);
+		if (unicode == 0) return;
+		eventDistributor.distributeEvent(
+			make_shared<KeyDownEvent>(Keys::K_NONE, unicode));
+	}
+}
+
 void InputEventGenerator::handle(const SDL_Event& evt)
 {
 	EventPtr event;
@@ -240,7 +290,8 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		// will be mapped to keys SDLK_WORLD_93 and 94 and are
 		// interpeted here as joystick buttons (respectively button 0
 		// and 1).
-		if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
+		// TODO Android code should be rewritten for SDL2
+		/*if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
 			event = make_shared<JoystickButtonUpEvent>(0, 0);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				0, true, event);
@@ -250,34 +301,16 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				1, true, event);
 			androidButtonB = false;
-		} else {
+		} else*/ {
 			auto keyCode = Keys::getCode(
 				evt.key.keysym.sym, evt.key.keysym.mod,
 				evt.key.keysym.scancode, true);
-			event = make_shared<KeyUpEvent>(
-				keyCode, evt.key.keysym.unicode);
+			event = make_shared<KeyUpEvent>(keyCode);
 			triggerOsdControlEventsFromKeyEvent(keyCode, true, event);
 		}
 		break;
 	case SDL_KEYDOWN:
-		if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
-			event = make_shared<JoystickButtonDownEvent>(0, 0);
-			triggerOsdControlEventsFromJoystickButtonEvent(
-				0, false, event);
-			androidButtonA = true;
-		} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
-			event = make_shared<JoystickButtonDownEvent>(0, 1);
-			triggerOsdControlEventsFromJoystickButtonEvent(
-				1, false, event);
-			androidButtonB = true;
-		} else {
-			auto keyCode = Keys::getCode(
-				evt.key.keysym.sym, evt.key.keysym.mod,
-				evt.key.keysym.scancode, false);
-			event = make_shared<KeyDownEvent>(
-				keyCode, evt.key.keysym.unicode);
-			triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
-		}
+		handleKeyDown(evt.key, 0);
 		break;
 
 	case SDL_MOUSEBUTTONUP:
@@ -286,6 +319,17 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 	case SDL_MOUSEBUTTONDOWN:
 		event = make_shared<MouseButtonDownEvent>(evt.button.button);
 		break;
+	case SDL_MOUSEWHEEL: {
+		int x = evt.wheel.x;
+		int y = evt.wheel.y;
+		if (evt.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
+		{
+			x = -x;
+			y = -y;
+		}
+		event = make_shared<MouseWheelEvent>(x, y);
+		break;
+	}
 	case SDL_MOUSEMOTION:
 		event = make_shared<MouseMotionEvent>(
 			evt.motion.xrel, evt.motion.yrel,
@@ -322,16 +366,28 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		triggerOsdControlEventsFromJoystickHat(evt.jhat.value, event);
 		break;
 
-	case SDL_ACTIVEEVENT:
-		event = make_shared<FocusEvent>(evt.active.gain != 0);
+	case SDL_TEXTINPUT:
+		handleText(evt.text.text);
 		break;
 
-	case SDL_VIDEORESIZE:
-		event = make_shared<ResizeEvent>(evt.resize.w, evt.resize.h);
-		break;
-
-	case SDL_VIDEOEXPOSE:
-		event = make_shared<SimpleEvent>(OPENMSX_EXPOSE_EVENT);
+	case SDL_WINDOWEVENT:
+		switch (evt.window.event) {
+		case SDL_WINDOWEVENT_FOCUS_GAINED:
+			event = make_shared<FocusEvent>(true);
+			break;
+		case SDL_WINDOWEVENT_FOCUS_LOST:
+			event = make_shared<FocusEvent>(false);
+			break;
+		case SDL_WINDOWEVENT_RESIZED:
+			event = make_shared<ResizeEvent>(
+				evt.window.data1, evt.window.data2);
+			break;
+		case SDL_WINDOWEVENT_EXPOSED:
+			event = make_shared<SimpleEvent>(OPENMSX_EXPOSE_EVENT);
+			break;
+		default:
+			break;
+		}
 		break;
 
 	case SDL_QUIT:
@@ -344,9 +400,9 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 
 #if 0
 	if (event) {
-		std::cerr << "SDL event converted to: " + event->toString() << std::endl;
+		std::cerr << "SDL event converted to: " << event->toString() << '\n';
 	} else {
-		std::cerr << "SDL event was of unknown type, not converted to an openMSX event" << std::endl;
+		std::cerr << "SDL event was of unknown type, not converted to an openMSX event\n";
 	}
 #endif
 
@@ -369,12 +425,12 @@ int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
 			// nothing
 			break;
 		case ESCAPE_GRAB_WAIT_LOST:
-			if (focusEvent.getGain() == false) {
+			if (!focusEvent.getGain()) {
 				escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
 			}
 			break;
 		case ESCAPE_GRAB_WAIT_GAIN:
-			if (focusEvent.getGain() == true) {
+			if (focusEvent.getGain()) {
 				escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
 			}
 			setGrabInput(true);
@@ -387,12 +443,12 @@ int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
 
 void InputEventGenerator::setGrabInput(bool grab)
 {
-	// Note that this setting is also changed in VisibleSurface constructor
-	// because for Mac we want to enable it in fullscreen.
-	// It's not worth it to get that exactly right here, because here
-	// we don't have easy access to renderer settings and it may only
-	// go wrong if you explicitly change grab input at full screen (on Mac)
-	SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
+	SDL_SetRelativeMouseMode(grab ? SDL_TRUE : SDL_FALSE);
+
+	// TODO is this still the correct place in SDL2
+	// TODO get the SDL_window
+	//SDL_Window* window = ...;
+	//SDL_SetWindowGrab(window, grab ? SDL_TRUE : SDL_FALSE);
 }
 
 
@@ -431,7 +487,7 @@ InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(
 }
 
 void InputEventGenerator::EscapeGrabCmd::execute(
-	array_ref<TclObject> /*tokens*/, TclObject& /*result*/)
+	span<const TclObject> /*tokens*/, TclObject& /*result*/)
 {
 	auto& inputEventGenerator = OUTER(InputEventGenerator, escapeGrabCmd);
 	if (inputEventGenerator.grabInput.getBoolean()) {

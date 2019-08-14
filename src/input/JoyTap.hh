@@ -20,13 +20,12 @@ class JoystickPort;
 class JoyTap : public JoystickDevice
 {
 public:
-	JoyTap(PluggingController& pluggingController,
-	       const std::string& name);
-	virtual ~JoyTap();
+	JoyTap(PluggingController& pluggingController, std::string name);
+	~JoyTap() override;
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 

@@ -18,7 +18,7 @@ AppVersionName="VERSION_NAME_PLACEHOLDER"
 # If the URL does not contain 'http://' it is treated as file from 'project/jni/application/src/AndroidData' dir -
 # these files are put inside .apk package by build system
 # Also please avoid 'https://' URLs, many Android devices do not have trust certificates and will fail to connect to SF.net over HTTPS
-AppDataDownloadUrl="Application data|appdata.zip"
+AppDataDownloadUrl="!!Application data|appdata.zip"
 
 # Reset SDL config when updating application to the new version (y) / (n)
 ResetSdlConfigForThisVersion=y
@@ -135,10 +135,10 @@ AppUsesMultitouch=n
 AppRecordsAudio=n
 
 # Application needs to access SD card. If your data files are bigger than 5 Mb, enable it. (y) / (n)
-AccessSdCard=
+AccessSdCard=y
 
 # Immersive mode - Android will hide on-screen Home/Back keys. Looks bad if you invoke Android keyboard. (y) / (n)
-ImmersiveMode=n
+ImmersiveMode=y
 
 # Application implements Android-specific routines to put to background, and will not draw anything to screen
 # between SDL_ACTIVEEVENT lost / gained notifications - you should check for them
@@ -191,7 +191,7 @@ FirstStartMenuOptions='SettingsMenu.DummyMenu SettingsMenuMisc.OptionalDownloadC
 
 # Enable multi-ABI binary, with hardware FPU support - it will also work on old devices,
 # but .apk size is 2x bigger (y) / (n) / (x86) / (all)
-MultiABI=n
+MultiABI='armeabi-v7a'
 
 # Minimum amount of RAM application requires, in Mb, SDL will print warning to user if it's lower
 AppMinimumRAM=50
@@ -199,7 +199,7 @@ AppMinimumRAM=50
 # Optional shared libraries to compile - removing some of them will save space
 # MP3 support by libMAD is encumbered by patents and libMAD is GPL-ed
 # Available libraries: mad (GPL-ed!) sdl_mixer sdl_image sdl_ttf sdl_net sdl_blitpool sdl_gfx sdl_sound intl xml2 lua jpeg png ogg flac tremor vorbis freetype xerces curl theora fluidsynth lzma lzo2 mikmod openal timidity zzip bzip2 yaml-cpp python boost_date_time boost_filesystem boost_iostreams boost_program_options boost_regex boost_signals boost_system boost_thread glu avcodec avdevice avfilter avformat avresample avutil swscale swresample bzip2 
-CompiledLibraries="freetype sdl_ttf png ogg vorbis theora tcl8.5"
+CompiledLibraries=""
 
 # Application uses custom build script AndroidBuild.sh instead of Android.mk (y) or (n)
 CustomBuildScript=y

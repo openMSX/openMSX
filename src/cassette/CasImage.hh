@@ -3,6 +3,7 @@
 
 #include "CassetteImage.hh"
 #include "openmsx.hh"
+#include "span.hh"
 #include <vector>
 
 namespace openmsx {
@@ -20,10 +21,11 @@ public:
 	CasImage(const Filename& fileName, FilePool& filePool, CliComm& cliComm);
 
 	// CassetteImage
-	short getSampleAt(EmuTime::param time) override;
+	int16_t getSampleAt(EmuTime::param time) override;
 	EmuTime getEndTime() const override;
 	unsigned getFrequency() const override;
-	void fillBuffer(unsigned pos, int** bufs, unsigned num) const override;
+	void fillBuffer(unsigned pos, float** bufs, unsigned num) const override;
+	float getAmplificationFactorImpl() const override;
 
 private:
 	void write0();
@@ -31,7 +33,7 @@ private:
 	void writeHeader(int s);
 	void writeSilence(int s);
 	void writeByte(byte b);
-	bool writeData(const byte* buf, size_t size, size_t& pos);
+	bool writeData(span<byte> buf, size_t& pos);
 	void convert(const Filename& filename, FilePool& filePool, CliComm& cliComm);
 
 	std::vector<signed char> output;

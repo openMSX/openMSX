@@ -10,11 +10,11 @@
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
+#include <memory>
 
 #include "components.hh"
 #if COMPONENT_GL
@@ -35,19 +35,9 @@ static const uint64_t BLINK_RATE = 500000; // us
 static const int CHAR_BORDER = 4;
 
 
-// class OSDConsoleRenderer::TextCacheElement
-
-OSDConsoleRenderer::TextCacheElement::TextCacheElement(
-		const std::string& text_, unsigned rgb_,
-		std::unique_ptr<BaseImage> image_, unsigned width_)
-	: text(text_), image(std::move(image_)), rgb(rgb_), width(width_)
-{
-}
-
-
 // class OSDConsoleRenderer
 
-static const string_ref defaultFont = "skins/VeraMono.ttf.gz";
+static const string_view defaultFont = "skins/VeraMono.ttf.gz";
 
 OSDConsoleRenderer::OSDConsoleRenderer(
 		Reactor& reactor_, CommandConsole& console_,
@@ -55,6 +45,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		bool openGL_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
+	, display(reactor.getDisplay()) // need to store because still needed during destructor
 	, console(console_)
 	, consoleSetting(console.getConsoleSetting())
 	, screenW(screenW_)
@@ -129,8 +120,8 @@ int OSDConsoleRenderer::initFontAndGetColumns()
 		// This will happen when you upgrade from the old .png based
 		// fonts to the new .ttf fonts. So provide a smooth upgrade path.
 		reactor.getCliComm().printWarning(
-			"Loading selected font (" + fontSetting.getString() +
-			") failed. Reverting to default font (" + defaultFont + ").");
+			"Loading selected font (", fontSetting.getString(),
+			") failed. Reverting to default font (", defaultFont, ").");
 		fontSetting.setString(defaultFont);
 		if (font.empty()) {
 			// we can't continue without font
@@ -183,7 +174,7 @@ void OSDConsoleRenderer::setActive(bool active_)
 	if (active == active_) return;
 	active = active_;
 
-	reactor.getDisplay().repaintDelayed(40000); // 25 fps
+	display.repaintDelayed(40000); // 25 fps
 
 	activeTime = Timer::getTime();
 
@@ -201,14 +192,14 @@ byte OSDConsoleRenderer::getVisibility() const
 		if (dur > FADE_IN_DURATION) {
 			return 255;
 		} else {
-			reactor.getDisplay().repaintDelayed(40000); // 25 fps
+			display.repaintDelayed(40000); // 25 fps
 			return byte((dur * 255) / FADE_IN_DURATION);
 		}
 	} else {
 		if (dur > FADE_OUT_DURATION) {
 			return 0;
 		} else {
-			reactor.getDisplay().repaintDelayed(40000); // 25 fps
+			display.repaintDelayed(40000); // 25 fps
 			return byte(255 - ((dur * 255) / FADE_OUT_DURATION));
 		}
 	}
@@ -266,30 +257,35 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	return result;
 }
 
-void OSDConsoleRenderer::loadFont(string_ref value)
+void OSDConsoleRenderer::loadFont(string_view value)
 {
 	string filename = systemFileContext().resolve(value);
 	auto newFont = TTFFont(filename, fontSizeSetting.getInt());
 	if (!newFont.isFixedWidth()) {
-		throw MSXException(value + " is not a monospaced font");
+		throw MSXException(value, " is not a monospaced font");
 	}
 	font = std::move(newFont);
 	clearCache();
 }
 
-void OSDConsoleRenderer::loadBackground(string_ref value)
+void OSDConsoleRenderer::loadBackground(string_view value)
 {
 	if (value.empty()) {
 		backgroundImage.reset();
 		return;
 	}
+	auto* output = display.getOutputSurface();
+	if (!output) {
+		backgroundImage.reset();
+		return;
+	}
 	string filename = systemFileContext().resolve(value);
 	if (!openGL) {
-		backgroundImage = make_unique<SDLImage>(filename, bgSize);
+		backgroundImage = std::make_unique<SDLImage>(*output, filename, bgSize);
 	}
 #if COMPONENT_GL
 	else {
-		backgroundImage = make_unique<GLImage>(filename, bgSize);
+		backgroundImage = std::make_unique<GLImage>(*output, filename, bgSize);
 	}
 #endif
 }
@@ -297,15 +293,14 @@ void OSDConsoleRenderer::loadBackground(string_ref value)
 void OSDConsoleRenderer::drawText(OutputSurface& output, const ConsoleLine& line,
                                   ivec2 pos, byte alpha)
 {
-	unsigned chunks = line.numChunks();
-	for (unsigned i = 0; i < chunks; ++i) {
-		unsigned rgb = line.chunkColor(i);
-		string_ref text = line.chunkText(i);
+	for (auto i : xrange(line.numChunks())) {
+		auto rgb = line.chunkColor(i);
+		string_view text = line.chunkText(i);
 		drawText2(output, text, pos[0], pos[1], alpha, rgb);
 	}
 }
 
-void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
+void OSDConsoleRenderer::drawText2(OutputSurface& output, string_view text,
                                    int& x, int y, byte alpha, unsigned rgb)
 {
 	unsigned width;
@@ -326,7 +321,7 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 			if (!alreadyPrinted) {
 				alreadyPrinted = true;
 				reactor.getCliComm().printWarning(
-					"Invalid console text (invalid UTF-8): " +
+					"Invalid console text (invalid UTF-8): ",
 					e.getMessage());
 			}
 			return; // don't cache negative results
@@ -335,15 +330,15 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 		if (!surf) {
 			// nothing was rendered, so do nothing
 		} else if (!openGL) {
-			image2 = make_unique<SDLImage>(std::move(surf));
+			image2 = std::make_unique<SDLImage>(output, std::move(surf));
 		}
 #if COMPONENT_GL
 		else {
-			image2 = make_unique<GLImage>(std::move(surf));
+			image2 = std::make_unique<GLImage>(output, std::move(surf));
 		}
 #endif
 		image = image2.get();
-		insertInCache(textStr, rgb, std::move(image2), width);
+		insertInCache(std::move(textStr), rgb, std::move(image2), width);
 	}
 	if (image) {
 		if (openGL) {
@@ -358,7 +353,7 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 	x += width; // in case of trailing whitespace width != image->getWidth()
 }
 
-bool OSDConsoleRenderer::getFromCache(string_ref text, unsigned rgb,
+bool OSDConsoleRenderer::getFromCache(string_view text, unsigned rgb,
                                       BaseImage*& image, unsigned& width)
 {
 	// Items are LRU sorted, so the next requested items will often be
@@ -391,27 +386,26 @@ found:		image = it->image.get();
 }
 
 void OSDConsoleRenderer::insertInCache(
-	const string& text, unsigned rgb, std::unique_ptr<BaseImage> image,
+	string text, unsigned rgb, std::unique_ptr<BaseImage> image,
 	unsigned width)
 {
 	static const unsigned MAX_TEXT_CACHE_SIZE = 250;
 	if (textCache.size() == MAX_TEXT_CACHE_SIZE) {
 		// flush the least recently used entry
-		auto it = end(textCache);
-		--it;
+		auto it = std::prev(std::end(textCache));
 		if (it == cacheHint) {
 			cacheHint = begin(textCache);
 		}
 		textCache.pop_back();
 	}
-	textCache.emplace_front(text, rgb, std::move(image), width);
+	textCache.emplace_front(std::move(text), rgb, std::move(image), width);
 }
 
 void OSDConsoleRenderer::clearCache()
 {
 	// cacheHint must always point to a valid item, so insert a dummy entry
 	textCache.clear();
-	textCache.emplace_back("", 0, nullptr, 0);
+	textCache.emplace_back(string{}, 0, nullptr, 0);
 	cacheHint = begin(textCache);
 }
 
@@ -439,13 +433,13 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		// no background image, try to create an empty one
 		try {
 			if (!openGL) {
-				backgroundImage = make_unique<SDLImage>(
-					bgSize, CONSOLE_ALPHA);
+				backgroundImage = std::make_unique<SDLImage>(
+					output, bgSize, CONSOLE_ALPHA);
 			}
 #if COMPONENT_GL
 			else {
-				backgroundImage = make_unique<GLImage>(
-					bgSize, CONSOLE_ALPHA);
+				backgroundImage = std::make_unique<GLImage>(
+					output, bgSize, CONSOLE_ALPHA);
 			}
 #endif
 		} catch (MSXException&) {

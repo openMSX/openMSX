@@ -5,15 +5,15 @@ using std::string;
 
 namespace openmsx {
 
-Disk::Disk(const DiskName& name_)
-	: name(name_), nbSides(0)
+Disk::Disk(DiskName name_)
+	: name(std::move(name_)), nbSides(0)
 {
 }
 
 void Disk::writeTrack(byte track, byte side, const RawTrack& input)
 {
 	if (isWriteProtected()) {
-		throw WriteProtectedException("");
+		throw WriteProtectedException();
 	}
 	writeTrackImpl(track, side, input);
 	flushCaches();

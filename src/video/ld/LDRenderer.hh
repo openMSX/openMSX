@@ -18,7 +18,7 @@ class RawFrame;
 class LDRenderer
 {
 public:
-	virtual ~LDRenderer();
+	virtual ~LDRenderer() = default;
 
 	/** Signals the start of a new frame.
 	  * The LDRenderer can use this to get fixed-per-frame settings from
@@ -36,7 +36,7 @@ public:
 	virtual RawFrame* getRawFrame() = 0;
 
 protected:
-	LDRenderer();
+	LDRenderer() = default;
 };
 
 } // namespace openmsx

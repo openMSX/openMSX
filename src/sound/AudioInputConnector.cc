@@ -3,28 +3,28 @@
 #include "AudioInputDevice.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
 AudioInputConnector::AudioInputConnector(PluggingController& pluggingController_,
-                                         string_ref name_)
-	: Connector(pluggingController_, name_,
-	            make_unique<DummyAudioInputDevice>())
+                                         std::string name_)
+	: Connector(pluggingController_, std::move(name_),
+	            std::make_unique<DummyAudioInputDevice>())
 {
 }
 
-const std::string AudioInputConnector::getDescription() const
+string_view AudioInputConnector::getDescription() const
 {
 	return "Audio input connector";
 }
 
-string_ref AudioInputConnector::getClass() const
+string_view AudioInputConnector::getClass() const
 {
 	return "Audio Input Port";
 }
 
-short AudioInputConnector::readSample(EmuTime::param time) const
+int16_t AudioInputConnector::readSample(EmuTime::param time) const
 {
 	return getPluggedAudioDev().readSample(time);
 }

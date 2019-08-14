@@ -12,7 +12,7 @@ public:
 	using Devices = std::vector<MSXDevice*>;
 
 	explicit MSXMultiIODevice(const HardwareConfig& hwConf);
-	~MSXMultiIODevice();
+	~MSXMultiIODevice() override;
 
 	void addDevice(MSXDevice* device);
 	void removeDevice(MSXDevice* device);

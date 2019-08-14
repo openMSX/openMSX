@@ -7,43 +7,43 @@ using std::string;
 
 namespace openmsx {
 
-const byte STAT_TXRDY   = 0x01;
-const byte STAT_RXRDY   = 0x02;
-const byte STAT_TXEMPTY = 0x04;
-const byte STAT_PE      = 0x08;
-const byte STAT_OE      = 0x10;
-const byte STAT_FE      = 0x20;
-const byte STAT_SYNBRK  = 0x40;
-const byte STAT_DSR     = 0x80;
+static const byte STAT_TXRDY   = 0x01;
+static const byte STAT_RXRDY   = 0x02;
+static const byte STAT_TXEMPTY = 0x04;
+static const byte STAT_PE      = 0x08;
+static const byte STAT_OE      = 0x10;
+static const byte STAT_FE      = 0x20;
+static const byte STAT_SYNBRK  = 0x40;
+static const byte STAT_DSR     = 0x80;
 
-const byte MODE_BAUDRATE    = 0x03;
-const byte MODE_SYNCHRONOUS = 0x00;
-const byte MODE_RATE1       = 0x01;
-const byte MODE_RATE16      = 0x02;
-const byte MODE_RATE64      = 0x03;
-const byte MODE_WORDLENGTH  = 0x0C;
-const byte MODE_5BIT        = 0x00;
-const byte MODE_6BIT        = 0x04;
-const byte MODE_7BIT        = 0x08;
-const byte MODE_8BIT        = 0x0C;
-const byte MODE_PARITYEN    = 0x10;
-const byte MODE_PARITODD    = 0x00;
-const byte MODE_PARITEVEN   = 0x20;
-const byte MODE_STOP_BITS   = 0xC0;
-const byte MODE_STOP_INV    = 0x00;
-const byte MODE_STOP_1      = 0x40;
-const byte MODE_STOP_15     = 0x80;
-const byte MODE_STOP_2      = 0xC0;
-const byte MODE_SINGLESYNC  = 0x80;
+static const byte MODE_BAUDRATE    = 0x03;
+static const byte MODE_SYNCHRONOUS = 0x00;
+static const byte MODE_RATE1       = 0x01;
+static const byte MODE_RATE16      = 0x02;
+static const byte MODE_RATE64      = 0x03;
+static const byte MODE_WORDLENGTH  = 0x0C;
+static const byte MODE_5BIT        = 0x00;
+static const byte MODE_6BIT        = 0x04;
+static const byte MODE_7BIT        = 0x08;
+static const byte MODE_8BIT        = 0x0C;
+static const byte MODE_PARITYEN    = 0x10;
+static const byte MODE_PARITODD    = 0x00;
+static const byte MODE_PARITEVEN   = 0x20;
+static const byte MODE_STOP_BITS   = 0xC0;
+static const byte MODE_STOP_INV    = 0x00;
+static const byte MODE_STOP_1      = 0x40;
+static const byte MODE_STOP_15     = 0x80;
+static const byte MODE_STOP_2      = 0xC0;
+static const byte MODE_SINGLESYNC  = 0x80;
 
-const byte CMD_TXEN   = 0x01;
-const byte CMD_DTR    = 0x02;
-const byte CMD_RXE    = 0x04;
-const byte CMD_SBRK   = 0x08;
-const byte CMD_RSTERR = 0x10;
-const byte CMD_RTS    = 0x20;
-const byte CMD_RESET  = 0x40;
-const byte CMD_HUNT   = 0x80;
+static const byte CMD_TXEN   = 0x01;
+static const byte CMD_DTR    = 0x02;
+static const byte CMD_RXE    = 0x04;
+static const byte CMD_SBRK   = 0x08;
+static const byte CMD_RSTERR = 0x10;
+static const byte CMD_RTS    = 0x20;
+static const byte CMD_RESET  = 0x40;
+static const byte CMD_HUNT   = 0x80;
 
 
 I8251::I8251(Scheduler& scheduler, I8251Interface& interf_, EmuTime::param time)
@@ -149,9 +149,9 @@ void I8251::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
-void I8251::setMode(byte value)
+void I8251::setMode(byte newMode)
 {
-	mode = value;
+	mode = newMode;
 
 	SerialDataInterface::DataBits dataBits;
 	switch (mode & MODE_WORDLENGTH) {
@@ -351,7 +351,7 @@ void I8251::execTrans(EmuTime::param time)
 }
 
 
-static enum_string<SerialDataInterface::DataBits> dataBitsInfo[] = {
+static std::initializer_list<enum_string<SerialDataInterface::DataBits>> dataBitsInfo = {
 		{ "5", SerialDataInterface::DATA_5 },
 		{ "6", SerialDataInterface::DATA_6 },
 		{ "7", SerialDataInterface::DATA_7 },
@@ -359,7 +359,7 @@ static enum_string<SerialDataInterface::DataBits> dataBitsInfo[] = {
 };
 SERIALIZE_ENUM(SerialDataInterface::DataBits, dataBitsInfo);
 
-static enum_string<SerialDataInterface::StopBits> stopBitsInfo[] = {
+static std::initializer_list<enum_string<SerialDataInterface::StopBits>> stopBitsInfo = {
 	{ "INVALID", SerialDataInterface::STOP_INV },
 	{ "1",       SerialDataInterface::STOP_1   },
 	{ "1.5",     SerialDataInterface::STOP_15  },
@@ -367,13 +367,13 @@ static enum_string<SerialDataInterface::StopBits> stopBitsInfo[] = {
 };
 SERIALIZE_ENUM(SerialDataInterface::StopBits, stopBitsInfo);
 
-static enum_string<SerialDataInterface::ParityBit> parityBitInfo[] = {
+static std::initializer_list<enum_string<SerialDataInterface::ParityBit>> parityBitInfo = {
 	{ "EVEN", SerialDataInterface::EVEN },
 	{ "ODD",  SerialDataInterface::ODD  }
 };
 SERIALIZE_ENUM(SerialDataInterface::ParityBit, parityBitInfo);
 
-static enum_string<I8251::CmdFaze> cmdFazeInfo[] = {
+static std::initializer_list<enum_string<I8251::CmdFaze>> cmdFazeInfo = {
 	{ "MODE",  I8251::FAZE_MODE  },
 	{ "SYNC1", I8251::FAZE_SYNC1 },
 	{ "SYNC2", I8251::FAZE_SYNC2 },
@@ -387,27 +387,27 @@ template<typename Archive>
 void I8251::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("syncRecv",  syncRecv);
-		ar.serialize("syncTrans", syncTrans);
+		ar.serialize("syncRecv",  syncRecv,
+		             "syncTrans", syncTrans);
 	} else {
 		Schedulable::restoreOld(ar, {&syncRecv, &syncTrans});
 	}
-	ar.serialize("clock", clock);
-	ar.serialize("charLength", charLength);
-	ar.serialize("recvDataBits", recvDataBits);
-	ar.serialize("recvStopBits", recvStopBits);
-	ar.serialize("recvParityBit", recvParityBit);
-	ar.serialize("recvParityEnabled", recvParityEnabled);
-	ar.serialize("recvBuf", recvBuf);
-	ar.serialize("recvReady", recvReady);
-	ar.serialize("sendByte", sendByte);
-	ar.serialize("sendBuffer", sendBuffer);
-	ar.serialize("status", status);
-	ar.serialize("command", command);
-	ar.serialize("mode", mode);
-	ar.serialize("sync1", sync1);
-	ar.serialize("sync2", sync2);
-	ar.serialize("cmdFaze", cmdFaze);
+	ar.serialize("clock",             clock,
+	             "charLength",        charLength,
+	             "recvDataBits",      recvDataBits,
+	             "recvStopBits",      recvStopBits,
+	             "recvParityBit",     recvParityBit,
+	             "recvParityEnabled", recvParityEnabled,
+	             "recvBuf",           recvBuf,
+	             "recvReady",         recvReady,
+	             "sendByte",          sendByte,
+	             "sendBuffer",        sendBuffer,
+	             "status",            status,
+	             "command",           command,
+	             "mode",              mode,
+	             "sync1",             sync1,
+	             "sync2",             sync2,
+	             "cmdFaze",           cmdFaze);
 }
 INSTANTIATE_SERIALIZE_METHODS(I8251);
 

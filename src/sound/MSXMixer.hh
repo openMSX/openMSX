@@ -6,7 +6,6 @@
 #include "InfoTopic.hh"
 #include "EmuTime.hh"
 #include "DynamicClock.hh"
-#include <cstdint>
 #include <vector>
 #include <memory>
 
@@ -27,6 +26,11 @@ class AviRecorder;
 class MSXMixer final : private Schedulable, private Observer<Setting>
                      , private Observer<ThrottleManager>
 {
+public:
+	// See SoundDevice::getAmplificationFactor()
+	// and MSXMixer::updateVolumeParams()
+	static constexpr int AMP_BITS = 9;
+
 public:
 	MSXMixer(Mixer& mixer, MSXMotherBoard& motherBoard,
 	         GlobalSettings& globalSettings);
@@ -53,6 +57,11 @@ public:
 	 * updateBuffer() methods.
 	 */
 	void updateStream(EmuTime::param time);
+
+	/**
+	 * Used by SoundDevice::setSoftwareVolume()
+	 */
+	void updateSoftwareVolume(SoundDevice& device);
 
 	/** Returns the ratio of emutime-speed per realtime-speed.
 	 * In other words how many times faster emutime goes compared to
@@ -100,7 +109,7 @@ public:
 	// Returns the nominal host sample rate (not adjusted for speed setting)
 	unsigned getSampleRate() const { return hostSampleRate; }
 
-	SoundDevice* findDevice(string_ref name) const;
+	SoundDevice* findDevice(string_view name) const;
 
 	void reInit();
 
@@ -115,14 +124,14 @@ private:
 			std::unique_ptr<BooleanSetting> muteSetting;
 		};
 		std::vector<ChannelSettings> channelSettings;
-		int left1, right1, left2, right2;
+		float left1, right1, left2, right2;
 	};
 
 	void updateVolumeParams(SoundDeviceInfo& info);
 	void updateMasterVolume();
 	void reschedule();
 	void reschedule2();
-	void generate(int16_t* buffer, EmuTime::param time, unsigned samples);
+	void generate(float* output, EmuTime::param time, unsigned samples);
 
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
@@ -152,8 +161,8 @@ private:
 	DynamicClock prevTime;
 
 	struct SoundDeviceInfoTopic final : InfoTopic {
-		SoundDeviceInfoTopic(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		explicit SoundDeviceInfoTopic(InfoCommand& machineInfoCommand);
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
@@ -163,7 +172,7 @@ private:
 	unsigned synchronousCounter;
 
 	unsigned muteCount;
-	int32_t tl0, tr0; // internal DC-filter state
+	float tl0, tr0; // internal DC-filter state
 };
 
 } // namespace openmsx

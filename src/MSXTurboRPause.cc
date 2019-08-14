@@ -25,15 +25,15 @@ MSXTurboRPause::~MSXTurboRPause()
 	pauseSetting.detach(*this);
 }
 
-void MSXTurboRPause::powerDown(EmuTime::param dummy)
+void MSXTurboRPause::powerDown(EmuTime::param time)
 {
-	writeIO(0, 0, dummy); // send LED OFF events (if needed)
+	writeIO(0, 0, time); // send LED OFF events (if needed)
 }
 
-void MSXTurboRPause::reset(EmuTime::param dummy)
+void MSXTurboRPause::reset(EmuTime::param time)
 {
 	pauseSetting.setBoolean(false);
-	writeIO(0, 0, dummy);
+	writeIO(0, 0, time);
 }
 
 byte MSXTurboRPause::readIO(word port, EmuTime::param time)

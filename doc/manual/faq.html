@@ -21,13 +21,14 @@
 		<li><a class="internal" href="#easyinstall">What is the easiest way to install openMSX?</a></li>
 		<li><a class="internal" href="#ziporinstaller">Should I download the Zip or the Installer for Windows?</a></li>
 		<li><a class="internal" href="#roms">Why doesn't openMSX come with system ROMs?</a></li>
-		<li><a class="internal" href="#whereroms">Where do I install the ROMs?</a> </li>
+		<li><a class="internal" href="#whereroms">Where do I install the system ROMs?</a> </li>
 	</ul></li>
 	<li><a class="internal" href="#use">Using openMSX</a>:
 	<ul class="toc">
 		<li><a class="internal" href="#easyuse">Is openMSX easy to use?</a></li>
 		<li><a class="internal" href="#c-bios">All I get is "Cartridge not found." What's wrong?</a></li>
 		<li><a class="internal" href="#nodrive">I get "Fatal error: No drive named 'diska'." What's wrong?</a></li>
+		<li><a class="internal" href="#rundiskstapes">It looks like only ROMs are supported. How can I run disk and tape software?</a></li>
 		<li><a class="internal" href="#savegame">How do I save my game?</a></li>
 		<li><a class="internal" href="#harddisk">What is the openMSX harddisk support?</a></li>
 		<li><a class="internal" href="#videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></li>
@@ -67,8 +68,8 @@ file. After this, you should have a working openMSX and openMSX Catapult.<br />
 <br />
 You can also download the Zip distribution which contains only the emulator
 files (no installer) and unpack it to the directory of your choice.</dd>
-<dt>Mac OS X</dt>
-<dd>The easiest way is to get the <code>.dmg</code> file from <a class="external" href="http://openmsx.org/">our website</a> (check the Download box). There is no Catapult for OS X yet, but <a class="external" href="http://nekocan.sitemix.jp/?page_id=17">NekoLauncher openMSX</a> is a very good alternative. If this site gives you problems, check <a class="external" href="http://nekocanmac.seesaa.net/">the mirror download site</a>. And of course you can also use the built-in OSD menu, open it with Cmd+O.
+<dt>macOS</dt>
+<dd>The easiest way is to get the <code>.dmg</code> file from <a class="external" href="http://openmsx.org/">our website</a> (check the Download box). There is no Catapult for macOS yet, but <a class="external" href="http://nekocan.sitemix.jp/?page_id=17">NekoLauncher openMSX</a> is a very good alternative. If this site gives you problems, check <a class="external" href="http://nekocanmac.seesaa.net/">the mirror download site</a>. And of course you can also use the built-in OSD menu, open it with Cmd+O or by clicking the tiny menu button in the top left corner.
 </dd>
 <dt>Linux</dt>
 <dd><dl>
@@ -127,11 +128,9 @@ and those familiar with openMSX and emulators in general.
 The MSX system ROMs are copyrighted. In other words: it's illegal to include them in our software package without a license. The Setup Guide contains a <a class="external" href="setup.html#systemroms">section about system ROMs</a>.
 </p>
 
-<h3><a id="whereroms">Where do I install the ROMs?</a></h3>
+<h3><a id="whereroms">Where do I install the system ROMs?</a></h3>
 
-<p>You can put all the ROMs in a file pool, which is a central directory in which openMSX looks for files. The default location is <code>share/systemroms</code>. If you want to tweak this, add locations or get a list of all file pools, take a look at the <code><a class="external" href="commands.html#filepool">filepool</a></code> command.
-</p>
-<p>See also the <a class="external" href="setup.html#romlocation">Setup Guide</a>.
+<p>You can put all the system ROMs in <code>share/systemroms</code>. Please see  the <a class="external" href="setup.html#romlocation">Setup Guide</a> for the exact location for your operating system.
 </p>
 
 <h2><a id="use">Using openMSX</a></h2>
@@ -143,7 +142,7 @@ Ever since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is 
 </p>
 
 <p>
-An alternative to Catapult, is the built in OSD menu. You can call it by pressing the <a class="external" href="http://en.wikipedia.org/wiki/Menu_key">MENU key</a> (or Cmd+O on Mac). This menu is also used on handhelds, like the Dingoo.
+An alternative to Catapult, is the built in OSD menu. You can call it by pressing the <a class="external" href="http://en.wikipedia.org/wiki/Menu_key">MENU key</a> (or Cmd+O on Mac) or by clicking the tiny menu button in the top left corner. This menu is also used on handhelds, like the Dingoo.
 </p>
 
 <p>
@@ -170,7 +169,7 @@ Oh, you might wonder: why don't you make a normal GUI like other emulators? One 
 </p>
 
 <p>
-So, the message is not from openMSX, but from C-BIOS, an MSX program which tries to start a cartridge that is inserted in the MSX that is being emulated by openMSX. And it seems you didn't insert any cartridge for it... So, either run openMSX with a ROM image or install real MSX system ROMs for a certain machine and run that one.
+So, the message is not from openMSX, but from C-BIOS, an MSX program which tries to start a cartridge that is inserted in the MSX that is being emulated by openMSX. And it seems you didn't insert any cartridge for it... So, either run openMSX with a ROM image or <a class="internal" href="setup.html#installrom">install real MSX system ROMs</a> for a certain machine and run that one.
 </p>
 
 <p>Note that the current version of C-BIOS can only run cartridges and does not support disk or tape usage. More information can be found in the <a class="external" href="setup.html#cbios">Setup Guide</a>.
@@ -180,11 +179,19 @@ So, the message is not from openMSX, but from C-BIOS, an MSX program which tries
 
 <p>You are probably using Catapult with C-BIOS and you're trying to run a program on a disk image.</p>
 
-<p>Unfortunately, the C-BIOS machines that come with openMSX do not support disk or tape usage, see previous question. Please see the <a class="external" href="setup.html#cbios">Setup Guide</a>.</p>
+<p>Unfortunately, the C-BIOS machines that come with openMSX do not support disk or tape usage. Please see the <a class="external" href="setup.html#cbios">Setup Guide</a>.</p>
 
 <p>The tricky thing is that the old (current) version of Catapult always shows the disk, tape and cartridge controls, independent whether the machine you're emulating actually supports them. This will be greatly improved in the new (upcoming, but not finished) Catapult.</p>
 
 <p>If you want to use disks or tapes with your emulated MSX, you will have to install the system ROMs of a real MSX (one with a disk drive!) to emulate that one, until C-BIOS supports this as well. More about this in the <a class="external" href="setup.html#systemroms">Setup Guide</a>.</p>
+
+<h3><a id="rundiskstapes">It looks like only ROMs are supported. How can I run disk and tape software?</a></h3>
+
+<p>You probably are running the C-BIOS machines that came with openMSX and did not install any system ROMs of other machines (or did not choose to emulate another machine). The C-BIOS machines rely on the freely available C-BIOS ROMs and that's why we can ship them with openMSX. However, C-BIOS only supports ROM images for now. More information about that in the <a class="external" href="setup.html#cbios">C-BIOS section of the Setup Guide</a>.
+</p>
+
+<p>If you want to run software from other media (disks, tapes, etc.), you will have to install other system ROMs, which are from real, existing MSX machines. Then you can run other MSX machines than the C-BIOS machines, which do support tape and/or disk software (depending on the emulated MSX model). More about this in the <a class="external" href="setup.html#systemroms">Setup Guide</a>.
+</p>
 
 <h3><a id="savegame">How do I save my game?</a></h3>
 
@@ -224,7 +231,7 @@ You've been playing a game and want to continue another time, so you want to sav
 <h4><a id="savegame-mg">In Metal Gear</a></h4>
 
 <p>
-Many people wonder how to save in Metal Gear. Here we will explain how that is done on a real MSX, which is also the way to work in openMSX.
+Many people wonder how to save in Metal Gear. Here we will explain how that is done on a real MSX, which is also the way to work if you don't want to use the built in <a class="external" href="user.html#savestate">save state mechanism</a> of openMSX.
 </p>
 
 <p>
@@ -346,7 +353,7 @@ The full list of commands and settings that are available in the console can be 
 <h3><a id="slow">How can I speed up openMSX? How hard is it to emulate an old MSX on a modern PC?</a></h3>
 
 <p>
-Actually, openMSX is quite fast, depending on what you ask it to do. If you have minimal hardware, you should use minimal settings as well, to get decent speed. This was proven by Karloch who ran openMSX 0.6.0 on a 206MHz HP Jornada 720, see <a class="external" href="http://www.msx.org/forumtopic6031.html">this thread on MRC</a>. On PC's, it really helps if your graphics card is not slow, or actually, the pipe between the CPU and the graphics card. Tips on how to performance tune openMSX can be found in the <a class="external" href="setup.html#tuning">Setup Guide</a>. The developers do their best to keep the performance of openMSX as good as possible, whilst still achieving the highest level of accuracy that we can.
+Actually, openMSX is quite fast, depending on what you ask it to do. If you have minimal hardware, you should use minimal settings as well, to get decent speed. This was proven by Karloch who ran openMSX 0.6.0 on a 206MHz HP Jornada 720, see <a class="external" href="https://www.msx.org/forum/semi-msx-talk/emulation/openmsx-arm-without-x-window">this thread on MRC</a>. On PC's, it really helps if your graphics card is not slow, or actually, the pipe between the CPU and the graphics card. Tips on how to performance tune openMSX can be found in the <a class="external" href="setup.html#tuning">Setup Guide</a>. The developers do their best to keep the performance of openMSX as good as possible, whilst still achieving the highest level of accuracy that we can.
 </p>
 <p>
 In general people wonder why you need 200MHz+ machines to emulate a computer based on a 3.5MHz CPU. Well, you don't only have to emulate the CPU, you also have to emulate the VDP (21MHz), the monitor (writing at least 50 times per second at least 256&times;192 pixels to a window), the sound chips, etc. This is relatively simple hardware, but having that run in software with cycle accuracy is quite heavy. In general, it is a lot of work for a general purpose CPU to emulate functionality that was originally made in dedicated hardware. Rebuilding an MSX in general purpose hardware (using VHDL on FPGA) is already a lot less demanding. An example of this is the One Chip MSX.
@@ -416,7 +423,6 @@ Not sure, but for some reason, especially on Windows, we can't find default sett
 <ul>
  <li>Chances are that your CPU load is very high, which may cause stutters. Check the <a class="external" href="setup.html#tuning">Performance Tuning</a> section of the Setup Guide to see what you can do to get it lower. Also, peaks in CPU usage (e.g. caused by certain P2P programs) can cause stuttering, in some cases.</li>
  <li>Try to tune the value of the <a class="external" href="commands.html#samples"><code>samples</code></a> setting. If you have stutters, double it and see if that helps. If you have delays, halve it and see if that helps.</li>
- <li>Try to change the value of the <a class="external" href="commands.html#sound_driver"><code>sound_driver</code></a> setting (only on Windows for now). After changing it try to tune the value of the <a class="external" href="commands.html#samples"><code>samples</code></a> setting again.</li>
 </ul>
 
 <h3><a id="techinfo">Where can I find more technical info about openMSX?</a></h3>

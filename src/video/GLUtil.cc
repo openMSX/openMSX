@@ -7,7 +7,6 @@
 #include "Version.hh"
 #include <iostream>
 #include <vector>
-#include <cstring>
 #include <cstdio>
 
 #ifndef glGetShaderiv
@@ -26,7 +25,7 @@ void checkGLError(const string& prefix)
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR) {
 		string err = (char*)gluErrorString(error);
-		std::cerr << "GL error: " << prefix << ": " << err << std::endl;
+		std::cerr << "GL error: " << prefix << ": " << err << '\n';
 	}
 }
 */
@@ -99,11 +98,6 @@ void ColorTexture::resize(GLsizei width_, GLsizei height_)
 static GLuint currentId = 0;
 static std::vector<GLuint> stack;
 
-FrameBufferObject::FrameBufferObject()
-	: bufferId(0) // 0 is not a valid openGL name
-{
-}
-
 FrameBufferObject::FrameBufferObject(Texture& texture)
 {
 	glGenFramebuffersEXT(1, &bufferId);
@@ -152,21 +146,12 @@ void FrameBufferObject::pop()
 
 bool PixelBuffers::enabled = true;
 
-// Utility function used by Shader.
-static string readTextFile(const string& filename)
-{
-	File file(systemFileContext().resolve(filename));
-	size_t size;
-	const byte* data = file.mmap(size);
-	return string(reinterpret_cast<const char*>(data), size);
-}
-
 
 // class Shader
 
 Shader::Shader(GLenum type, const string& filename)
 {
-	init(type, "", filename);
+	init(type, {}, filename);
 }
 
 Shader::Shader(GLenum type, const string& header, const string& filename)
@@ -177,11 +162,14 @@ Shader::Shader(GLenum type, const string& header, const string& filename)
 void Shader::init(GLenum type, const string& header, const string& filename)
 {
 	// Load shader source.
-	string source = header;
+	string source = "#version 110\n" + header;
 	try {
-		source += readTextFile("shaders/" + filename);
+		File file(systemFileContext().resolve("shaders/" + filename));
+		auto mmap = file.mmap();
+		source.append(reinterpret_cast<const char*>(mmap.data()),
+		              mmap.size());
 	} catch (FileException& e) {
-		std::cerr << "Cannot find shader: " << e.getMessage() << std::endl;
+		std::cerr << "Cannot find shader: " << e.getMessage() << '\n';
 		handle = 0;
 		return;
 	}
@@ -189,7 +177,7 @@ void Shader::init(GLenum type, const string& header, const string& filename)
 	// Allocate shader handle.
 	handle = glCreateShader(type);
 	if (handle == 0) {
-		std::cerr << "Failed to allocate shader" << std::endl;
+		std::cerr << "Failed to allocate shader\n";
 		return;
 	}
 
@@ -258,7 +246,7 @@ void ShaderProgram::allocate()
 {
 	handle = glCreateProgram();
 	if (handle == 0) {
-		std::cerr << "Failed to allocate program" << std::endl;
+		std::cerr << "Failed to allocate program\n";
 	}
 }
 
@@ -338,8 +326,8 @@ void ShaderProgram::validate()
 	VLA(GLchar, infoLog, infoLogLength);
 	glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog);
 	std::cout << "Validate "
-	          << ((validateStatus == GL_TRUE) ? string("OK") : string("FAIL"))
-	          << ": " << infoLog << std::endl;
+	          << ((validateStatus == GL_TRUE) ? "OK" : "FAIL")
+	          << ": " << infoLog << '\n';
 }
 
 

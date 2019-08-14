@@ -31,8 +31,11 @@
 
 #else
   // asserts enabled
+  // One some platforms, like MinGW, the compiler cannot determine that
+  // assert(false) will never return, so we help it by wrapping the assert
+  // in an infinite loop.
   #include <cassert>
-  #define UNREACHABLE assert(false)
+  #define UNREACHABLE while (1) assert(false)
 
 #endif
 

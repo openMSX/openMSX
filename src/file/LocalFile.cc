@@ -13,21 +13,16 @@
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
 #include "PreCacheFile.hh"
-#include "StringOp.hh"
-#include "memory.hh"
 #include <cstring> // for strchr, strerror
 #include <cerrno>
 #include <cassert>
-
-#ifndef EOVERFLOW
-#define EOVERFLOW 0
-#endif
+#include <memory>
 
 using std::string;
 
 namespace openmsx {
 
-LocalFile::LocalFile(string_ref filename_, File::OpenMode mode)
+LocalFile::LocalFile(string_view filename_, File::OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
@@ -40,7 +35,7 @@ LocalFile::LocalFile(string_ref filename_, File::OpenMode mode)
 	if (mode == File::SAVE_PERSISTENT) {
 		auto pos = filename.find_last_of('/');
 		if (pos != string::npos) {
-			FileOperations::mkdirp(filename.substr(0, pos));
+			FileOperations::mkdirp(string_view(filename).substr(0, pos));
 		}
 	}
 
@@ -68,17 +63,17 @@ LocalFile::LocalFile(string_ref filename_, File::OpenMode mode)
 		int err = errno;
 		if (err == ENOENT) {
 			throw FileNotFoundException(
-				"File \"" + filename + "\" not found");
+				"File \"", filename, "\" not found");
 		} else {
 			throw FileException(
-				"Error opening file \"" + filename + "\": " +
+				"Error opening file \"", filename, "\": ",
 				strerror(err));
 		}
 	}
 	getSize(); // check filesize
 }
 
-LocalFile::LocalFile(string_ref filename_, const char* mode)
+LocalFile::LocalFile(string_view filename_, const char* mode)
 	: filename(FileOperations::expandTilde(filename_))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
@@ -92,7 +87,7 @@ LocalFile::LocalFile(string_ref filename_, const char* mode)
 	const string name = FileOperations::getNativePath(filename);
 	file = FileOperations::openFile(name, mode);
 	if (!file) {
-		throw FileException("Error opening file \"" + filename + "\"");
+		throw FileException("Error opening file \"", filename, '"');
 	}
 	getSize(); // check filesize
 }
@@ -104,8 +99,8 @@ LocalFile::~LocalFile()
 
 void LocalFile::preCacheFile()
 {
-	string name = FileOperations::getNativePath(filename);
-	cache = make_unique<PreCacheFile>(name);
+	cache = std::make_unique<PreCacheFile>(
+		FileOperations::getNativePath(filename));
 }
 
 void LocalFile::read(void* buffer, size_t num)
@@ -130,10 +125,10 @@ void LocalFile::write(const void* buffer, size_t num)
 }
 
 #if defined _WIN32
-const byte* LocalFile::mmap(size_t& size)
+span<uint8_t> LocalFile::mmap()
 {
-	size = getSize();
-	if (size == 0) return nullptr;
+	size_t size = getSize();
+	if (size == 0) return {static_cast<uint8_t*>(nullptr), size};
 
 	if (!mmem) {
 		int fd = _fileno(file.get());
@@ -147,19 +142,18 @@ const byte* LocalFile::mmap(size_t& size)
 		assert(!hMmap);
 		hMmap = CreateFileMapping(hFile, nullptr, PAGE_WRITECOPY, 0, 0, nullptr);
 		if (!hMmap) {
-			throw FileException(StringOp::Builder() <<
-				"CreateFileMapping failed: " << GetLastError());
+			throw FileException(
+				"CreateFileMapping failed: ", GetLastError());
 		}
-		mmem = static_cast<byte*>(MapViewOfFile(hMmap, FILE_MAP_COPY, 0, 0, 0));
+		mmem = static_cast<uint8_t*>(MapViewOfFile(hMmap, FILE_MAP_COPY, 0, 0, 0));
 		if (!mmem) {
 			DWORD gle = GetLastError();
 			CloseHandle(hMmap);
 			hMmap = nullptr;
-			throw FileException(StringOp::Builder() <<
-				"MapViewOfFile failed: " << gle);
+			throw FileException("MapViewOfFile failed: ", gle);
 		}
 	}
-	return mmem;
+	return {mmem, size};
 }
 
 void LocalFile::munmap()
@@ -174,8 +168,8 @@ void LocalFile::munmap()
 		// FatalError).
 		if (!UnmapViewOfFile(mmem)) {
 			std::cerr << "UnmapViewOfFile failed: "
-			          << StringOp::toString(GetLastError())
-			          << std::endl;
+			          << GetLastError()
+			          << '\n';
 		}
 		mmem = nullptr;
 	}
@@ -186,13 +180,13 @@ void LocalFile::munmap()
 }
 
 #elif HAVE_MMAP
-const byte* LocalFile::mmap(size_t& size)
+span<uint8_t> LocalFile::mmap()
 {
-	size = getSize();
-	if (size == 0) return nullptr;
+	size_t size = getSize();
+	if (size == 0) return {static_cast<uint8_t*>(nullptr), size};
 
 	if (!mmem) {
-		mmem = static_cast<byte*>(
+		mmem = static_cast<uint8_t*>(
 		          ::mmap(nullptr, size, PROT_READ | PROT_WRITE,
 		                 MAP_PRIVATE, fileno(file.get()), 0));
 		// MAP_FAILED is #define'd using an old-style cast, we
@@ -202,13 +196,18 @@ const byte* LocalFile::mmap(size_t& size)
 			throw FileException("Error mmapping file");
 		}
 	}
-	return mmem;
+	return {mmem, size};
 }
 
 void LocalFile::munmap()
 {
 	if (mmem) {
-		::munmap(const_cast<byte*>(mmem), getSize());
+		try {
+			::munmap(const_cast<uint8_t*>(mmem), getSize());
+		} catch (FileException&) {
+			// In theory getSize() could throw. Does that ever
+			// happen in practice?
+		}
 		mmem = nullptr;
 	}
 }
@@ -216,14 +215,21 @@ void LocalFile::munmap()
 
 size_t LocalFile::getSize()
 {
+#if defined _WIN32
+	// Normal fstat compiles but doesn't seem to be working the same
+	// as on POSIX, regarding size support.
+	struct _stat64 st;
+	int ret = _fstat64(fileno(file.get()), &st);
+#else
 	struct stat st;
 	int ret = fstat(fileno(file.get()), &st);
 	if (ret && (errno == EOVERFLOW)) {
 		// on 32-bit systems, the fstat() call returns a EOVERFLOW
 		// error in case the file is bigger than (1<<31)-1 bytes
 		throw FileException("Files >= 2GB are not supported on "
-		                    "32-bit platforms: " + getURL());
+		                    "32-bit platforms: ", getURL());
 	}
+#endif
 	if (ret) {
 		throw FileException("Cannot get file size");
 	}
@@ -232,7 +238,12 @@ size_t LocalFile::getSize()
 
 void LocalFile::seek(size_t pos)
 {
-	if (fseek(file.get(), long(pos), SEEK_SET) != 0) {
+#if defined _WIN32
+	int ret = _fseeki64(file.get(), pos, SEEK_SET);
+#else
+	int ret = fseek(file.get(), pos, SEEK_SET);
+#endif
+	if (ret != 0) {
 		throw FileException("Error seeking file");
 	}
 }
@@ -257,12 +268,12 @@ void LocalFile::flush()
 	fflush(file.get());
 }
 
-const string LocalFile::getURL() const
+string LocalFile::getURL() const
 {
 	return filename;
 }
 
-const string LocalFile::getLocalReference()
+string LocalFile::getLocalReference()
 {
 	return filename;
 }
@@ -274,8 +285,16 @@ bool LocalFile::isReadOnly() const
 
 time_t LocalFile::getModificationDate()
 {
+#if defined _WIN32
+	// Normal fstat compiles but doesn't seem to be working the same
+	// as on POSIX, regarding size support.
+	struct _stat64 st;
+	int ret = _fstat64(fileno(file.get()), &st);
+#else
 	struct stat st;
-	if (fstat(fileno(file.get()), &st)) {
+	int ret = fstat(fileno(file.get()), &st);
+#endif
+	if (ret) {
 		throw FileException("Cannot stat file");
 	}
 	return st.st_mtime;

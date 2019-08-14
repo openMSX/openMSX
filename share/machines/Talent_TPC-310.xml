@@ -10,6 +10,8 @@
     <type>MSX2</type>
   </info>
 
+  <!-- Note: also has an expansion bus slot, but it is not known to which MSX slot it maps. -->
+
   <MapperReadBackBits>largest</MapperReadBackBits>
 
   <CassettePort/>
@@ -46,6 +48,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <RTC id="Real time clock">

@@ -56,6 +56,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <RTC id="Real time clock">
@@ -67,6 +68,10 @@
     <PrinterPort id="Printer Port">
       <io base="0x90" num="2"/>
     </PrinterPort>
+
+    <T9769 id="T9769">
+      <subtype></subtype>
+    </T9769>
 
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">

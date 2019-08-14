@@ -1,7 +1,6 @@
 #include "ProxyCommand.hh"
 #include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
-#include "TclObject.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -12,7 +11,7 @@ using std::string;
 
 namespace openmsx {
 
-ProxyCmd::ProxyCmd(Reactor& reactor_, string_ref name_)
+ProxyCmd::ProxyCmd(Reactor& reactor_, string_view name_)
 	: Command(reactor_.getGlobalCommandController(), name_)
 	, reactor(reactor_)
 {
@@ -25,7 +24,7 @@ Command* ProxyCmd::getMachineCommand() const
 	return motherBoard->getMSXCommandController().findCommand(getName());
 }
 
-void ProxyCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void ProxyCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (Command* command = getMachineCommand()) {
 		if (!command->isAllowedInEmptyMachine()) {
@@ -38,7 +37,7 @@ void ProxyCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 		}
 		command->execute(tokens, result);
 	} else {
-		throw CommandException("Invalid command name \"" + getName() + '"');
+		throw CommandException("Invalid command name \"", getName(), '"');
 	}
 }
 

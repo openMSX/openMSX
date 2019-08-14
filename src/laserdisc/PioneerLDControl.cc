@@ -5,7 +5,7 @@
 #include "MSXPPI.hh"
 #include "MSXException.hh"
 #include "VDP.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -39,7 +39,7 @@ PioneerLDControl::PioneerLDControl(const DeviceConfig& config)
 	, videoEnabled(false)
 {
 	if (config.getChildDataAsBool("laserdisc", true)) {
-		laserdisc = make_unique<LaserdiscPlayer>(
+		laserdisc = std::make_unique<LaserdiscPlayer>(
 			getHardwareConfig(), *this);
 	}
 	reset(getCurrentTime());
@@ -63,9 +63,7 @@ void PioneerLDControl::init()
 	}
 }
 
-PioneerLDControl::~PioneerLDControl()
-{
-}
+PioneerLDControl::~PioneerLDControl() = default;
 
 void PioneerLDControl::reset(EmuTime::param time)
 {
@@ -111,12 +109,12 @@ byte PioneerLDControl::peekMem(word address, EmuTime::param time) const
 	return val;
 }
 
-const byte* PioneerLDControl::getReadCacheLine(word start) const
+const byte* PioneerLDControl::getReadCacheLine(word address) const
 {
-	if ((start & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
+	if ((address & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
 		return nullptr;
-	} else if (0x4000 <= start && start < 0x6000) {
-		return &rom[start & 0x1fff];
+	} else if (0x4000 <= address && address < 0x6000) {
+		return &rom[address & 0x1fff];
 	} else {
 		return unmappedRead;
 	}
@@ -143,9 +141,9 @@ void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
-byte* PioneerLDControl::getWriteCacheLine(word start) const
+byte* PioneerLDControl::getWriteCacheLine(word address) const
 {
-	if ((start & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
+	if ((address & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
 		return nullptr;
 	} else {
 		return unmappedWrite;
@@ -174,17 +172,17 @@ void PioneerLDControl::updateVideoSource()
 template<typename Archive>
 void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("clock", clock);
-	ar.serialize("mutel", mutel);
-	ar.serialize("muter", muter);
+	ar.serialize("clock", clock,
+	             "mutel", mutel,
+	             "muter", muter);
 	// videoEnabled is restored from LaserdiscPlayer. Set to false
 	// for now so that the irq does not get changed during load
 	if (ar.isLoader()) {
 		videoEnabled = false;
 	}
-	ar.serialize("superimposing", superimposing);
-	ar.serialize("extint", extint);
-	ar.serialize("irq", irq);
+	ar.serialize("superimposing", superimposing,
+	             "extint",        extint,
+	             "irq",           irq);
 	if (laserdisc) ar.serialize("laserdisc", *laserdisc);
 
 	if (ar.isLoader()) {

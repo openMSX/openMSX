@@ -2,7 +2,6 @@
 #include "PlugException.hh"
 #include "FileException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 
 namespace openmsx {
 
@@ -18,10 +17,6 @@ PrinterPortLogger::PrinterPortLogger(CommandController& commandController)
 		     // other classes, so let's simplify stuff and just
 		     // initialize.
 	, prevStrobe(true)
-{
-}
-
-PrinterPortLogger::~PrinterPortLogger()
 {
 }
 
@@ -53,7 +48,7 @@ void PrinterPortLogger::plugHelper(
 		file = File(logFilenameSetting.getString(),
 		            File::TRUNCATE);
 	} catch (FileException& e) {
-		throw PlugException("Couldn't plug printer logger: " +
+		throw PlugException("Couldn't plug printer logger: ",
 		                    e.getMessage());
 	}
 }
@@ -69,7 +64,7 @@ const std::string& PrinterPortLogger::getName() const
 	return name;
 }
 
-string_ref PrinterPortLogger::getDescription() const
+string_view PrinterPortLogger::getDescription() const
 {
 	return	"Log everything that is sent to the printer port to a "
 		"file. The filename can be set with the "

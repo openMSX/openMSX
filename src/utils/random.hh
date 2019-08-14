@@ -5,7 +5,7 @@
 
 /** Return reference to a (shared) global random number generator.
   */
-inline std::minstd_rand0& global_urng()
+inline auto& global_urng()
 {
 	static std::minstd_rand0 u;
 	return u;

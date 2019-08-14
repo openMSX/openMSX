@@ -37,7 +37,7 @@ void MSXYamahaSFG::writeMem(word address, byte value, EmuTime::param time)
 		break;
 	case 0x3FF2: // Register for data latched to ST0 to ST7 output ports
 		// TODO: keyboardLatch = value;
-		//std::cerr << "TODO: keyboardLatch = " << (int)value << std::endl;
+		//std::cerr << "TODO: keyboardLatch = " << (int)value << '\n';
 		break;
 	case 0x3FF3: // MIDI IRQ VECTOR ADDRESS REGISTER
 		irqVector2148 = value;
@@ -88,13 +88,10 @@ byte MSXYamahaSFG::readMem(word address, EmuTime::param time)
 	case 0x3FF1: // OPM STATUS REGISTER
 	case 0x3FF2: // Data buffer for SD0 to SD7 input ports
 		return peekMem(address, time);
-		break;
 	case 0x3FF5: // MIDI standard UART DATA READ BUFFER
 		return ym2148.readData(time);
-		break;
 	case 0x3FF6: // MIDI standard UART STATUS REGISTER
 		return ym2148.readStatus(time);
-		break;
 	}
 	return 0xFF;
 }
@@ -115,10 +112,8 @@ byte MSXYamahaSFG::peekMem(word address, EmuTime::param time) const
 		break;
 	case 0x3FF5: // MIDI standard UART DATA READ BUFFER
 		return ym2148.peekData(time);
-		break;
 	case 0x3FF6: // MIDI standard UART STATUS REGISTER
 		return ym2148.peekStatus(time);
-		break;
 	}
 	return 0xFF;
 }
@@ -136,10 +131,10 @@ const byte* MSXYamahaSFG::getReadCacheLine(word start) const
 template<typename Archive>
 void MSXYamahaSFG::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("YM2151", ym2151);
-	ar.serialize("YM2148", ym2148);
-	ar.serialize("registerLatch", registerLatch);
-	ar.serialize("irqVector", irqVector);
+	ar.serialize("YM2151",        ym2151,
+	             "YM2148",        ym2148,
+	             "registerLatch", registerLatch,
+	             "irqVector",     irqVector);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("irqVector2148", irqVector2148);
 	} else {

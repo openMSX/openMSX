@@ -20,7 +20,6 @@ public:
 	static const char* CODEC_4CC;
 
 	ZMBVEncoder(unsigned width, unsigned height, unsigned bpp);
-	~ZMBVEncoder();
 
 	void compressFrame(bool keyFrame, FrameSource* frame,
 	                   void*& buffer, unsigned& written);

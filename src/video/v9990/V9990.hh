@@ -30,7 +30,7 @@ class V9990 final : public MSXDevice, private VideoSystemChangeListener
 {
 public:
 	explicit V9990(const DeviceConfig& config);
-	~V9990();
+	~V9990() override;
 
 	// MSXDevice interface:
 	void powerUp(EmuTime::param time) override;
@@ -357,55 +357,67 @@ private:
 
 	// Scheduler stuff
 	struct SyncBase : Schedulable {
-		SyncBase(V9990& v9990) : Schedulable(v9990.getScheduler()) {}
-		friend class V9990;
+		explicit SyncBase(V9990& v9990) : Schedulable(v9990.getScheduler()) {}
+		using Schedulable::setSyncPoint;
+		using Schedulable::removeSyncPoint;
+	protected:
+		~SyncBase() = default;
 	};
 
-	struct SyncVSync : SyncBase {
-		SyncVSync(V9990& v9990) : SyncBase(v9990) {}
+	struct SyncVSync final : SyncBase {
+		explicit SyncVSync(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncVSync);
 			v9990.execVSync(time);
 		}
 	} syncVSync;
 
-	struct SyncDisplayStart : SyncBase {
-		SyncDisplayStart(V9990& v9990) : SyncBase(v9990) {}
+	struct SyncDisplayStart final : SyncBase {
+		explicit SyncDisplayStart(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncDisplayStart);
 			v9990.execDisplayStart(time);
 		}
 	} syncDisplayStart;
 
-	struct SyncVScan : SyncBase {
-		SyncVScan(V9990& v9990) : SyncBase(v9990) {}
+	struct SyncVScan final : SyncBase {
+		explicit SyncVScan(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncVScan);
 			v9990.execVScan(time);
 		}
 	} syncVScan;
 
-	struct SyncHScan : SyncBase {
-		SyncHScan(V9990& v9990) : SyncBase(v9990) {}
+	struct SyncHScan final : SyncBase {
+		explicit SyncHScan(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& v9990 = OUTER(V9990, syncHScan);
 			v9990.execHScan();
 		}
 	} syncHScan;
 
-	struct SyncSetMode : SyncBase {
-		SyncSetMode(V9990& v9990) : SyncBase(v9990) {}
+	struct SyncSetMode final : SyncBase {
+		explicit SyncSetMode(V9990& v9990) : SyncBase(v9990) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& v9990 = OUTER(V9990, syncSetMode);
 			v9990.execSetMode(time);
 		}
 	} syncSetMode;
 
+	struct SyncCmdEnd final : SyncBase {
+		explicit SyncCmdEnd(V9990& v9990) : SyncBase(v9990) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& v9990 = OUTER(V9990, syncCmdEnd);
+			v9990.execCheckCmdEnd(time);
+		}
+	} syncCmdEnd;
+
 	void execVSync(EmuTime::param time);
 	void execDisplayStart(EmuTime::param time);
 	void execVScan(EmuTime::param time);
 	void execHScan();
 	void execSetMode(EmuTime::param time);
+	void execCheckCmdEnd(EmuTime::param time);
 
 	// --- types ------------------------------------------------------
 
@@ -677,8 +689,12 @@ private:
 	  * @result Timestamp for next hor irq
 	  */
 	void scheduleHscan(EmuTime::param time);
+
+	/** Estimate when the current (if any) command will finish.
+	 */
+	void scheduleCmdEnd(EmuTime::param time);
 };
-SERIALIZE_CLASS_VERSION(V9990, 4);
+SERIALIZE_CLASS_VERSION(V9990, 5);
 
 } // namespace openmsx
 

@@ -106,9 +106,9 @@ byte SensorKid::getAnalog(byte chi)
 		}
 	} catch (MSXException& e) {
 		getCliComm().printWarning(
-			"Wrong result for callback function \"" +
-			acquireCallback.getSetting().getFullName() +
-			"\": " + e.getMessage());
+			"Wrong result for callback function \"",
+			acquireCallback.getSetting().getFullName(),
+			"\": ", e.getMessage());
 	}
 	return result;
 }
@@ -118,11 +118,11 @@ void SensorKid::putPort(byte data, byte diff)
 	// When the upper 2 bits (bit 6 and 7) change we send a message.
 	// I assume the cartridge also has two digital output pins?
 	if (diff & 0x80) {
-		//std::cout << "Status Port 0: " << int((data & 0x80) == 0) << std::endl;
+		//std::cout << "Status Port 0: " << int((data & 0x80) == 0) << '\n';
 		portStatusCallback.execute(0, (data & 0x80) == 0);
 	}
 	if (diff & 0x40) {
-		//std::cout << "Status Port 1:  " << int((data & 0x40) == 0) << std::endl;
+		//std::cout << "Status Port 1:  " << int((data & 0x40) == 0) << '\n';
 		portStatusCallback.execute(1, (data & 0x40) == 0);
 	}
 }
@@ -131,9 +131,9 @@ template<typename Archive>
 void SensorKid::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("prev", prev);
-	ar.serialize("mb4052_ana", mb4052_ana);
-	ar.serialize("mb4052_count", mb4052_count);
+	ar.serialize("prev",         prev,
+	             "mb4052_ana",   mb4052_ana,
+	             "mb4052_count", mb4052_count);
 }
 INSTANTIATE_SERIALIZE_METHODS(SensorKid);
 REGISTER_MSXDEVICE(SensorKid, "SensorKid");

@@ -2,11 +2,12 @@
 #include "TclObject.hh"
 #include "Completer.hh"
 #include "CommandException.hh"
-#include "stringsp.hh"
-#include "unreachable.hh"
 #include "StringOp.hh"
+#include "ranges.hh"
 #include "stl.hh"
-#include <algorithm>
+#include "stringsp.hh"
+#include "view.hh"
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -15,36 +16,32 @@ using Comp = CmpTupleElement<0, StringOp::caseless>;
 EnumSettingBase::EnumSettingBase(BaseMap&& map)
 	: baseMap(std::move(map))
 {
-	sort(begin(baseMap), end(baseMap), Comp());
+	ranges::sort(baseMap, Comp());
 }
 
-int EnumSettingBase::fromStringBase(string_ref str) const
+int EnumSettingBase::fromStringBase(string_view str) const
 {
-	auto it = lower_bound(begin(baseMap), end(baseMap), str, Comp());
+	auto it = ranges::lower_bound(baseMap, str, Comp());
 	StringOp::casecmp cmp;
 	if ((it == end(baseMap)) || !cmp(it->first, str)) {
-		throw CommandException("not a valid value: " + str);
+		throw CommandException("not a valid value: ", str);
 	}
 	return it->second;
 }
 
-string_ref EnumSettingBase::toStringBase(int value) const
+string_view EnumSettingBase::toStringBase(int value) const
 {
 	for (auto& p : baseMap) {
 		if (p.second == value) {
 			return p.first;
 		}
 	}
-	UNREACHABLE; return "";
+	UNREACHABLE; return {};
 }
 
-std::vector<string_ref> EnumSettingBase::getPossibleValues() const
+std::vector<string_view> EnumSettingBase::getPossibleValues() const
 {
-	std::vector<string_ref> result;
-	for (auto& p : baseMap) {
-		result.push_back(p.first);
-	}
-	return result;
+	return to_vector<string_view>(view::keys(baseMap));
 }
 
 void EnumSettingBase::additionalInfoBase(TclObject& result) const

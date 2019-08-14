@@ -9,24 +9,24 @@ namespace openmsx {
 // TODO  ALARM is not implemented        (not connected on MSX)
 // TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
-const nibble MODE_REG  = 13;
-const nibble TEST_REG  = 14;
-const nibble RESET_REG = 15;
+static const nibble MODE_REG  = 13;
+static const nibble TEST_REG  = 14;
+static const nibble RESET_REG = 15;
 
-const nibble TIME_BLOCK  = 0;
-const nibble ALARM_BLOCK = 1;
+static const nibble TIME_BLOCK  = 0;
+static const nibble ALARM_BLOCK = 1;
 
-const nibble MODE_BLOKSELECT  = 0x3;
-const nibble MODE_ALARMENABLE = 0x4;
-const nibble MODE_TIMERENABLE = 0x8;
+static const nibble MODE_BLOKSELECT  = 0x3;
+static const nibble MODE_ALARMENABLE = 0x4;
+static const nibble MODE_TIMERENABLE = 0x8;
 
-const nibble TEST_SECONDS = 0x1;
-const nibble TEST_MINUTES = 0x2;
-const nibble TEST_DAYS    = 0x4;
-const nibble TEST_YEARS   = 0x8;
+static const nibble TEST_SECONDS = 0x1;
+static const nibble TEST_MINUTES = 0x2;
+static const nibble TEST_DAYS    = 0x4;
+static const nibble TEST_YEARS   = 0x8;
 
-const nibble RESET_ALARM    = 0x1;
-const nibble RESET_FRACTION = 0x2;
+static const nibble RESET_ALARM    = 0x1;
+static const nibble RESET_FRACTION = 0x2;
 
 
 // 0-bits are ignored on writing and return 0 on reading
@@ -200,7 +200,7 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 {
 	if (modeSetting.getEnum() == EMUTIME) {
 		// sync with EmuTime, perfect emulation
-		unsigned elapsed = unsigned(reference.getTicksTill(time));
+		auto elapsed = unsigned(reference.getTicksTill(time));
 		reference.advance(time);
 
 		// in test mode increase sec/min/.. at a rate of 16384Hz
@@ -255,19 +255,19 @@ void RP5C01::resetAlarm()
 template<typename Archive>
 void RP5C01::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("reference", reference);
-	ar.serialize("fraction",  fraction);
-	ar.serialize("seconds",   seconds);
-	ar.serialize("minutes",   minutes);
-	ar.serialize("hours",     hours);
-	ar.serialize("dayWeek",   dayWeek);
-	ar.serialize("years",     years);
-	ar.serialize("leapYear",  leapYear);
-	ar.serialize("days",      days);
-	ar.serialize("months",    months);
-	ar.serialize("modeReg",   modeReg);
-	ar.serialize("testReg",   testReg);
-	ar.serialize("resetReg",  resetReg);
+	ar.serialize("reference", reference,
+                     "fraction",  fraction,
+                     "seconds",   seconds,
+                     "minutes",   minutes,
+                     "hours",     hours,
+                     "dayWeek",   dayWeek,
+                     "years",     years,
+                     "leapYear",  leapYear,
+                     "days",      days,
+                     "months",    months,
+                     "modeReg",   modeReg,
+                     "testReg",   testReg,
+                     "resetReg",  resetReg);
 }
 INSTANTIATE_SERIALIZE_METHODS(RP5C01);
 

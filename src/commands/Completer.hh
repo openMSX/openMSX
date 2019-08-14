@@ -2,13 +2,16 @@
 #define COMPLETER_HH
 
 #include "inline.hh"
-#include "string_ref.hh"
+#include "span.hh"
+#include "string_view.hh"
 #include <vector>
 
 namespace openmsx {
 
 class FileContext;
+class Interpreter;
 class InterpreterOutput;
+class TclObject;
 
 class Completer
 {
@@ -26,6 +29,8 @@ public:
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
 
+	virtual Interpreter& getInterpreter() const = 0;
+
 	template<typename ITER>
 	static void completeString(std::vector<std::string>& tokens,
 	                           ITER begin, ITER end,
@@ -41,26 +46,40 @@ public:
 	static void completeFileName(std::vector<std::string>& tokens,
 	                             const FileContext& context);
 
+	static std::vector<std::string> formatListInColumns(
+		const std::vector<string_view>& input);
+
+	// helper functions to check the number of arguments
+	struct AtLeast { unsigned min; };
+	struct Between { unsigned min; unsigned max; };
+	struct Prefix { unsigned n; }; // how many items from 'tokens' to show in error
+	void checkNumArgs(span<const TclObject> tokens, unsigned exactly, const char* errMessage) const;
+	void checkNumArgs(span<const TclObject> tokens, AtLeast atLeast,  const char* errMessage) const;
+	void checkNumArgs(span<const TclObject> tokens, Between between,  const char* errMessage) const;
+	void checkNumArgs(span<const TclObject> tokens, unsigned exactly, Prefix prefix, const char* errMessage) const;
+	void checkNumArgs(span<const TclObject> tokens, AtLeast atLeast,  Prefix prefix, const char* errMessage) const;
+	void checkNumArgs(span<const TclObject> tokens, Between between,  Prefix prefix, const char* errMessage) const;
+
 	// should only be called by CommandConsole
 	static void setOutput(InterpreterOutput* output_) { output = output_; }
 
 protected:
-	explicit Completer(string_ref name);
-	~Completer() {}
+	explicit Completer(string_view name);
+	~Completer() = default;
 
 private:
-	static bool equalHead(string_ref s1, string_ref s2, bool caseSensitive);
+	static bool equalHead(string_view s1, string_view s2, bool caseSensitive);
 	template<typename ITER>
-	static std::vector<string_ref> filter(
-		string_ref str, ITER begin, ITER end, bool caseSensitive);
+	static std::vector<string_view> filter(
+		string_view str, ITER begin, ITER end, bool caseSensitive);
 	template<typename RANGE>
-	static std::vector<string_ref> filter(
-		string_ref str, const RANGE& range, bool caseSensitive);
-	static bool completeImpl(std::string& str, std::vector<string_ref> matches,
+	static std::vector<string_view> filter(
+		string_view str, const RANGE& range, bool caseSensitive);
+	static bool completeImpl(std::string& str, std::vector<string_view> matches,
 	                         bool caseSensitive);
 	static void completeFileNameImpl(std::vector<std::string>& tokens,
 	                                 const FileContext& context,
-	                                 std::vector<string_ref> matches);
+	                                 std::vector<string_view> matches);
 
 	const std::string name;
 	static InterpreterOutput* output;
@@ -68,10 +87,10 @@ private:
 
 
 template<typename ITER>
-NEVER_INLINE std::vector<string_ref> Completer::filter(
-	string_ref str, ITER begin, ITER end, bool caseSensitive)
+NEVER_INLINE std::vector<string_view> Completer::filter(
+	string_view str, ITER begin, ITER end, bool caseSensitive)
 {
-	std::vector<string_ref> result;
+	std::vector<string_view> result;
 	for (auto it = begin; it != end; ++it) {
 		if (equalHead(str, *it, caseSensitive)) {
 			result.push_back(*it);
@@ -81,8 +100,8 @@ NEVER_INLINE std::vector<string_ref> Completer::filter(
 }
 
 template<typename RANGE>
-inline std::vector<string_ref> Completer::filter(
-	string_ref str, const RANGE& range, bool caseSensitive)
+inline std::vector<string_view> Completer::filter(
+	string_view str, const RANGE& range, bool caseSensitive)
 {
 	return filter(str, std::begin(range), std::end(range), caseSensitive);
 }
@@ -97,7 +116,7 @@ void Completer::completeString(
 	if (completeImpl(str,
 	                 filter(str, possibleValues, caseSensitive),
 	                 caseSensitive)) {
-		tokens.push_back("");
+		tokens.emplace_back();
 	}
 }
 
@@ -111,7 +130,7 @@ void Completer::completeString(
 	if (completeImpl(str,
 	                 filter(str, begin, end, caseSensitive),
 	                 caseSensitive)) {
-		tokens.push_back("");
+		tokens.emplace_back();
 	}
 }
 

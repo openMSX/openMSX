@@ -13,6 +13,7 @@
 #include "MidiInReader.hh"
 #include "MidiOutLogger.hh"
 #include "Mouse.hh"
+#include "Paddle.hh"
 #include "Trackball.hh"
 #include "Touchpad.hh"
 #include "PrinterPortLogger.hh"
@@ -20,6 +21,7 @@
 #include "Printer.hh"
 #include "RS232Tester.hh"
 #include "WavAudioInput.hh"
+#include "components.hh"
 #if	defined(_WIN32)
 #include "MidiInWindows.hh"
 #include "MidiOutWindows.hh"
@@ -28,11 +30,12 @@
 #include "MidiInCoreMIDI.hh"
 #include "MidiOutCoreMIDI.hh"
 #endif
-#include "memory.hh"
+#if COMPONENT_ALSAMIDI
+#include "MidiSessionALSA.hh"
+#endif
+#include <memory>
 
 namespace openmsx {
-
-using std::unique_ptr;
 
 void PluggableFactory::createAll(PluggingController& controller,
                                  MSXMotherBoard& motherBoard)
@@ -44,27 +47,30 @@ void PluggableFactory::createAll(PluggingController& controller,
 	auto& stateChangeDistributor = motherBoard.getStateChangeDistributor();
 	auto& eventDistributor       = reactor.getEventDistributor();
 	auto& globalSettings         = reactor.getGlobalSettings();
+	auto& display                = reactor.getDisplay();
 	// Input devices:
 	// TODO: Support hot-plugging of input devices:
 	// - additional key joysticks can be created by the user
 	// - real joysticks and mice can be hotplugged (USB)
-	controller.registerPluggable(make_unique<ArkanoidPad>(
+	controller.registerPluggable(std::make_unique<ArkanoidPad>(
 		msxEventDistributor, stateChangeDistributor));
-	controller.registerPluggable(make_unique<Mouse>(
+	controller.registerPluggable(std::make_unique<Mouse>(
 		msxEventDistributor, stateChangeDistributor));
-	controller.registerPluggable(make_unique<Trackball>(
+	controller.registerPluggable(std::make_unique<Paddle>(
 		msxEventDistributor, stateChangeDistributor));
-	controller.registerPluggable(make_unique<Touchpad>(
+	controller.registerPluggable(std::make_unique<Trackball>(
+		msxEventDistributor, stateChangeDistributor));
+	controller.registerPluggable(std::make_unique<Touchpad>(
 		msxEventDistributor, stateChangeDistributor,
-		commandController));
-	controller.registerPluggable(make_unique<JoyTap>(
+		display, commandController));
+	controller.registerPluggable(std::make_unique<JoyTap>(
 		controller, "joytap"));
-	controller.registerPluggable(make_unique<NinjaTap>(
+	controller.registerPluggable(std::make_unique<NinjaTap>(
 		controller, "ninjatap"));
-	controller.registerPluggable(make_unique<KeyJoystick>(
+	controller.registerPluggable(std::make_unique<KeyJoystick>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, "keyjoystick1"));
-	controller.registerPluggable(make_unique<KeyJoystick>(
+	controller.registerPluggable(std::make_unique<KeyJoystick>(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, "keyjoystick2"));
 	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
@@ -73,44 +79,52 @@ void PluggableFactory::createAll(PluggingController& controller,
 	                      controller);
 
 	// Dongles
-	controller.registerPluggable(make_unique<SETetrisDongle>());
-	controller.registerPluggable(make_unique<MagicKey>());
+	controller.registerPluggable(std::make_unique<SETetrisDongle>());
+	controller.registerPluggable(std::make_unique<MagicKey>());
 
 	// Logging:
-	controller.registerPluggable(make_unique<PrinterPortLogger>(
+	controller.registerPluggable(std::make_unique<PrinterPortLogger>(
 		commandController));
-	controller.registerPluggable(make_unique<MidiOutLogger>(
+	controller.registerPluggable(std::make_unique<MidiOutLogger>(
 		commandController));
 
 	// Serial communication:
-	controller.registerPluggable(make_unique<RS232Tester>(
+	controller.registerPluggable(std::make_unique<RS232Tester>(
 		eventDistributor, scheduler, commandController));
 
 	// Sampled audio:
-	controller.registerPluggable(make_unique<PrinterPortSimpl>(
+	controller.registerPluggable(std::make_unique<PrinterPortSimpl>(
 		*motherBoard.getMachineConfig()));
-	controller.registerPluggable(make_unique<WavAudioInput>(
+	controller.registerPluggable(std::make_unique<WavAudioInput>(
 		commandController));
 
 	// MIDI:
-	controller.registerPluggable(make_unique<MidiInReader>(
+#if !defined(_WIN32)
+	// Devices and pipes are not usable as files on Windows, and MidiInReader
+	// reads all data as soon as it becomes available, so this pluggable is
+	// not useful on Windows.
+	controller.registerPluggable(std::make_unique<MidiInReader>(
 		eventDistributor, scheduler, commandController));
+#endif
 #if defined(_WIN32)
 	MidiInWindows::registerAll(eventDistributor, scheduler, controller);
 	MidiOutWindows::registerAll(controller);
 #endif
 #if defined(__APPLE__)
-	controller.registerPluggable(make_unique<MidiInCoreMIDIVirtual>(
+	controller.registerPluggable(std::make_unique<MidiInCoreMIDIVirtual>(
 		eventDistributor, scheduler));
 	MidiInCoreMIDI::registerAll(eventDistributor, scheduler, controller);
-	controller.registerPluggable(make_unique<MidiOutCoreMIDIVirtual>());
+	controller.registerPluggable(std::make_unique<MidiOutCoreMIDIVirtual>());
 	MidiOutCoreMIDI::registerAll(controller);
+#endif
+#if COMPONENT_ALSAMIDI
+	MidiSessionALSA::registerAll(controller, reactor.getCliComm());
 #endif
 
 	// Printers
-	controller.registerPluggable(make_unique<ImagePrinterMSX>(
+	controller.registerPluggable(std::make_unique<ImagePrinterMSX>(
 		motherBoard));
-	controller.registerPluggable(make_unique<ImagePrinterEpson>(
+	controller.registerPluggable(std::make_unique<ImagePrinterEpson>(
 		motherBoard));
 }
 

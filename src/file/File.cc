@@ -4,32 +4,29 @@
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
-#include <cassert>
 #include <cstring>
+#include <memory>
 
 using std::string;
 
 namespace openmsx {
 
-File::File()
-{
-}
+File::File() = default;
 
-static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
+static std::unique_ptr<FileBase> init(string_view filename, File::OpenMode mode)
 {
-	static const byte GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
-	static const byte ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
+	static const uint8_t GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
+	static const uint8_t ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
 
-	std::unique_ptr<FileBase> file = make_unique<LocalFile>(url, mode);
+	std::unique_ptr<FileBase> file = std::make_unique<LocalFile>(filename, mode);
 	if (file->getSize() >= 4) {
-		byte buf[4];
+		uint8_t buf[4];
 		file->read(buf, 4);
 		file->seek(0);
 		if (memcmp(buf, GZ_HEADER, 3) == 0) {
-			file = make_unique<GZFileAdapter>(std::move(file));
+			file = std::make_unique<GZFileAdapter>(std::move(file));
 		} else if (memcmp(buf, ZIP_HEADER, 4) == 0) {
-			file = make_unique<ZipFileAdapter>(std::move(file));
+			file = std::make_unique<ZipFileAdapter>(std::move(file));
 		} else {
 			// only pre-cache non-compressed files
 			if (mode == File::PRE_CACHE) {
@@ -40,23 +37,23 @@ static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
 	return file;
 }
 
+File::File(string_view filename, OpenMode mode)
+	: file(init(filename, mode))
+{
+}
+
 File::File(const Filename& filename, OpenMode mode)
-	: file(init(filename.getResolved(), mode))
+	: File(filename.getResolved(), mode)
 {
 }
 
-File::File(string_ref url, OpenMode mode)
-	: file(init(url, mode))
-{
-}
-
-File::File(string_ref filename, const char* mode)
-	: file(make_unique<LocalFile>(filename, mode))
+File::File(string_view filename, const char* mode)
+	: file(std::make_unique<LocalFile>(filename, mode))
 {
 }
 
 File::File(const Filename& filename, const char* mode)
-	: file(make_unique<LocalFile>(filename.getResolved(), mode))
+	: File(filename.getResolved(), mode)
 {
 }
 
@@ -65,9 +62,12 @@ File::File(File&& other) noexcept
 {
 }
 
-File::~File()
+File::File(std::unique_ptr<FileBase> file_)
+	: file(std::move(file_))
 {
 }
+
+File::~File() = default;
 
 File& File::operator=(File&& other) noexcept
 {
@@ -90,9 +90,9 @@ void File::write(const void* buffer, size_t num)
 	file->write(buffer, num);
 }
 
-const byte* File::mmap(size_t& size)
+span<uint8_t> File::mmap()
 {
-	return file->mmap(size);
+	return file->mmap();
 }
 
 void File::munmap()
@@ -125,17 +125,17 @@ void File::flush()
 	file->flush();
 }
 
-const string File::getURL() const
+string File::getURL() const
 {
 	return file->getURL();
 }
 
-const string File::getLocalReference() const
+string File::getLocalReference() const
 {
 	return file->getLocalReference();
 }
 
-const string File::getOriginalName()
+string File::getOriginalName()
 {
 	string orig = file->getOriginalName();
 	return !orig.empty() ? orig : getURL();

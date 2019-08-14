@@ -3,14 +3,15 @@
 #include "yuv2rgb.hh"
 #include "likely.hh"
 #include "CliComm.hh"
-#include "StringOp.hh"
 #include "MemoryOps.hh"
-#include "memory.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "stringsp.hh" // for strncasecmp
-#include <algorithm>
+#include "view.hh"
 #include <cstring> // for memcpy, memcmp
 #include <cstdlib> // for atoi
+#include <cctype> // for isspace
+#include <memory>
 
 // TODO
 // - Improve error handling
@@ -237,9 +238,9 @@ OggReader::~OggReader()
 void OggReader::vorbisFoundPosition()
 {
 	auto last = vorbisPos;
-	for (auto it = audioList.rbegin(); it != audioList.rend(); ++it) {
-		last -= (*it)->length;
-		(*it)->position = last;
+	for (auto& audioFrag : view::reverse(audioList)) {
+		last -= audioFrag->length;
+		audioFrag->position = last;
 	}
 
 	// last is now the first vorbis audio decoded
@@ -361,7 +362,7 @@ void OggReader::readVorbis(ogg_packet* packet)
 	while (pos < decoded)  {
 		// Find memory to copy PCM into
 		if (recycleAudioList.empty()) {
-			auto audio = make_unique<AudioFragment>();
+			auto audio = std::make_unique<AudioFragment>();
 			audio->length = 0;
 			recycleAudioList.push_back(std::move(audio));
 		}
@@ -407,12 +408,9 @@ void OggReader::readVorbis(ogg_packet* packet)
 			vorbisFoundPosition();
 		} else {
 			if (vorbisPos != size_t(packet->granulepos)) {
-				cli.printWarning("vorbis audio out of sync, "
-					"expected " +
-					StringOp::toString(vorbisPos) +
-					", got " +
-					StringOp::toString(packet->granulepos));
-
+				cli.printWarning(
+                                        "vorbis audio out of sync, expected ",
+					vorbisPos, ", got ", packet->granulepos);
 				vorbisPos = packet->granulepos;
 			}
 		}
@@ -428,7 +426,7 @@ size_t OggReader::frameNo(ogg_packet* packet)
 		return size_t(-1);
 	}
 
-	size_t intra = packet->granulepos & ((1 << granuleShift) - 1);
+	size_t intra = packet->granulepos & ((size_t(1) << granuleShift) - 1);
 	size_t key = packet->granulepos >> granuleShift;
 	return key + intra;
 }
@@ -450,6 +448,9 @@ void OggReader::readMetadata(th_comment& tc)
 	// Maybe there is a better way of doing this parsing in C++
 	char* p = metadata;
 	while (p) {
+		while (isspace(*p)) {
+			p++;
+		}
 		if (strncasecmp(p, "chapter: ", 9) == 0) {
 			int chapter = atoi(p + 9);
 			p = strchr(p, ',');
@@ -468,8 +469,8 @@ void OggReader::readMetadata(th_comment& tc)
 		p = strchr(p, '\n');
 		if (p) ++p;
 	}
-	sort(begin(stopFrames), end(stopFrames));
-	sort(begin(chapters  ), end(chapters  ), LessTupleElement<0>());
+	ranges::sort(stopFrames);
+	ranges::sort(chapters, LessTupleElement<0>());
 }
 
 void OggReader::readTheora(ogg_packet* packet)
@@ -546,8 +547,7 @@ void OggReader::readTheora(ogg_packet* packet)
 	case 0:
 		break;
 	default:
-		cli.printWarning("Theora error: unknown error " +
-					StringOp::toString(rc));
+		cli.printWarning("Theora error: unknown error ", rc);
 		break;
 	}
 
@@ -569,7 +569,7 @@ void OggReader::readTheora(ogg_packet* packet)
 
 	std::unique_ptr<Frame> frame;
 	if (recycleFrameList.empty()) {
-		frame = make_unique<Frame>(yuv);
+		frame = std::make_unique<Frame>(yuv);
 	} else {
 		frame = std::move(recycleFrameList.back());
 		recycleFrameList.pop_back();
@@ -602,10 +602,9 @@ void OggReader::readTheora(ogg_packet* packet)
 	// numbers correctly
 	if (!frameList.empty() && (frameno != size_t(-1)) &&
 	    (frameList[0]->no == size_t(-1))) {
-		for (auto it = frameList.rbegin();
-		     it != frameList.rend(); ++it) {
-			frameno -= (*it)->length;
-			(*it)->no = frameno;
+		for (auto& frm : view::reverse(frameList)) {
+			frameno -= frm->length;
+			frm->no = frameno;
 		}
 	}
 
@@ -636,9 +635,9 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 		if (!frameList.empty() && frameList[0]->no > frameno) {
 			// we're missing frames!
 			frame = frameList[0].get();
-			cli.printWarning("Cannot find frame " +
-				StringOp::toString(frameno) + " using " +
-				StringOp::toString(frame->no) + " instead");
+			cli.printWarning(
+                                "Cannot find frame ", frameno, " using ",
+			        frame->no, " instead");
 			break;
 		}
 
@@ -657,11 +656,10 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 		}
 
 		// Sanity check, should not happen
-		if (frameList.size() > (2u << granuleShift)) {
+		if (frameList.size() > (size_t(2) << granuleShift)) {
 			// We've got more than twice as many frames
 			// as the maximum distance between key frames.
-			cli.printWarning("Cannot find frame " +
-				StringOp::toString(frameno));
+			cli.printWarning("Cannot find frame ", frameno);
 			return;
 		}
 
@@ -761,8 +759,8 @@ bool OggReader::nextPacket()
 				cli.printWarning("Failed to submit theora page");
 			}
 		} else if (serial != skeletonSerial) {
-			cli.printWarning("Unexpected stream with serial " +
-				StringOp::toString(serial) + " in ogg file");
+			cli.printWarning("Unexpected stream with serial ",
+			                 serial, " in ogg file");
 		}
 	}
 }
@@ -968,13 +966,12 @@ bool OggReader::seek(size_t frame, size_t samples)
 
 bool OggReader::stopFrame(size_t frame) const
 {
-	return std::binary_search(begin(stopFrames), end(stopFrames), frame);
+	return ranges::binary_search(stopFrames, frame);
 }
 
 size_t OggReader::getChapter(int chapterNo) const
 {
-	auto it = std::lower_bound(begin(chapters), end(chapters),
-	                           chapterNo, LessTupleElement<0>());
+	auto it = ranges::lower_bound(chapters, chapterNo, LessTupleElement<0>());
 	return ((it != end(chapters)) && (it->first == chapterNo))
 		? it->second : 0;
 }

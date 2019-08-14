@@ -15,7 +15,7 @@ namespace openmsx {
 class KeyJoyState final : public StateChange
 {
 public:
-	KeyJoyState() {} // for serialize
+	KeyJoyState() = default; // for serialize
 	KeyJoyState(EmuTime::param time_, string name_,
 	            byte press_, byte release_)
 		: StateChange(time_)
@@ -26,9 +26,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("name", name);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("name",    name,
+		             "press",   press,
+		             "release", release);
 	}
 
 private:
@@ -40,10 +40,10 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, KeyJoyState, "KeyJoyState");
 KeyJoystick::KeyJoystick(CommandController& commandController,
                          MSXEventDistributor& eventDistributor_,
                          StateChangeDistributor& stateChangeDistributor_,
-                         const string& name_)
+                         std::string name_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, name(name_)
+	, name(std::move(name_))
 	, up   (commandController, name + ".up",
 		"key for direction up",    Keys::K_UP)
 	, down (commandController, name + ".down",
@@ -75,7 +75,7 @@ const string& KeyJoystick::getName() const
 	return name;
 }
 
-string_ref KeyJoystick::getDescription() const
+string_view KeyJoystick::getDescription() const
 {
 	return "Key-Joystick, use your keyboard to emulate an MSX joystick. "
 		"See manual for information on how to configure this.";
@@ -107,8 +107,8 @@ void KeyJoystick::write(byte value, EmuTime::param /*time*/)
 
 
 // MSXEventListener
-void KeyJoystick::signalEvent(const shared_ptr<const Event>& event,
-                              EmuTime::param time)
+void KeyJoystick::signalMSXEvent(const shared_ptr<const Event>& event,
+                                 EmuTime::param time)
 {
 	byte press = 0;
 	byte release = 0;

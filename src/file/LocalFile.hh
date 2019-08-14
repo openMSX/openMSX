@@ -18,13 +18,13 @@ class PreCacheFile;
 class LocalFile final : public FileBase
 {
 public:
-	LocalFile(string_ref filename, File::OpenMode mode);
-	LocalFile(string_ref filename, const char* mode);
-	~LocalFile();
+	LocalFile(string_view filename, File::OpenMode mode);
+	LocalFile(string_view filename, const char* mode);
+	~LocalFile() override;
 	void read (void* buffer, size_t num) override;
 	void write(const void* buffer, size_t num) override;
 #if HAVE_MMAP || defined _WIN32
-	const byte* mmap(size_t& size) override;
+	span<uint8_t> mmap() override;
 	void munmap() override;
 #endif
 	size_t getSize() override;
@@ -34,8 +34,8 @@ public:
 	void truncate(size_t size) override;
 #endif
 	void flush() override;
-	const std::string getURL() const override;
-	const std::string getLocalReference() override;
+	std::string getURL() const override;
+	std::string getLocalReference() override;
 	bool isReadOnly() const override;
 	time_t getModificationDate() override;
 
@@ -45,10 +45,10 @@ private:
 	std::string filename;
 	FileOperations::FILE_t file;
 #if HAVE_MMAP
-	byte* mmem;
+	uint8_t* mmem;
 #endif
 #if defined _WIN32
-	byte* mmem;
+	uint8_t* mmem;
 	HANDLE hMmap;
 #endif
 	std::unique_ptr<PreCacheFile> cache;

@@ -113,6 +113,14 @@ proc get_volume_expr {soundchip channel} {
 				error "Unknown channel: $channel for $soundchip!"
 			}
 		}
+		"DCSG" {
+			set regs "\"${soundchip} regs\""
+			set addr [expr {$channel*3 + 2}]
+			if {${channel} == 3} {
+				incr addr -1
+			}
+			return "expr {(15 - \[debug read $regs $addr\]) / 15.0}"
+		}
 		default {
 			return "x"
 		}
@@ -170,6 +178,18 @@ proc get_frequency_expr {soundchip channel} {
 					incr channel -3
 				}
 				return "expr {(\[debug read $regs [expr {$channel + 0xA0}]\] + 256 * ((\[debug read $regs [expr {$channel + 0xB0}]\]) & 3)) * $factor * (1 << (((\[debug read $regs [expr {$channel + 0xB0}]\]) & 31) >> 2))}"
+			}
+		}
+		"DCSG" {
+			set regs "\"${soundchip} regs\""
+			set basefreq [expr {(3579545.454545 / 8.0) / 2.0}]
+			set addr [expr {$channel*3}]
+			set next_addr [expr {$addr + 1}]
+			if {${channel} == 3} {
+				# noise channel not supported
+				return "x"
+			} else {
+				return "set period \[expr {\[debug read $regs $addr\] + (\[debug read $regs $next_addr\] << 4)}\]; if {\$period == 0} {set period 1024}; expr {$basefreq / (2*\$period)}"
 			}
 		}
 		default {

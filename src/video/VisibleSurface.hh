@@ -5,7 +5,7 @@
 #include "Observer.hh"
 #include "EventListener.hh"
 #include "RTSchedulable.hh"
-#include <string>
+#include "SDLSurfacePtr.hh"
 #include <memory>
 
 namespace openmsx {
@@ -15,7 +15,6 @@ class Reactor;
 class CommandConsole;
 class EventDistributor;
 class InputEventGenerator;
-class RenderSettings;
 class Setting;
 class Display;
 class OSDGUI;
@@ -30,8 +29,8 @@ class VisibleSurface : public OutputSurface, public EventListener,
                        private Observer<Setting>, private RTSchedulable
 {
 public:
-	virtual ~VisibleSurface();
-	void setWindowTitle(const std::string& title);
+	~VisibleSurface() override;
+	void updateWindowTitle();
 	bool setFullScreen(bool fullscreen);
 
 	/** When a complete frame is finished, call this method.
@@ -40,7 +39,7 @@ public:
 	  */
 	virtual void finish() = 0;
 
-	virtual std::unique_ptr<Layer> createSnowLayer(Display& display) = 0;
+	virtual std::unique_ptr<Layer> createSnowLayer() = 0;
 	virtual std::unique_ptr<Layer> createConsoleLayer(
 		Reactor& reactor, CommandConsole& console) = 0;
 	virtual std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) = 0;
@@ -51,13 +50,21 @@ public:
 	  */
 	virtual std::unique_ptr<OutputSurface> createOffScreenSurface() = 0;
 
+	Display& getDisplay() const { return display; }
+
 protected:
-	VisibleSurface(RenderSettings& renderSettings,
+	VisibleSurface(Display& display,
 	               RTScheduler& rtScheduler,
 	               EventDistributor& eventDistributor,
 	               InputEventGenerator& inputEventGenerator,
 	               CliComm& cliComm);
-	void createSurface(unsigned width, unsigned height, int flags);
+	void createSurface(int width, int height, unsigned flags);
+
+	SDLSubSystemInitializer<SDL_INIT_VIDEO> videoSubSystem;
+	SDLWindowPtr window;
+	SDLRendererPtr renderer;
+	SDLSurfacePtr surface;
+	SDLTexturePtr texture;
 
 private:
 	void updateCursor();
@@ -69,9 +76,10 @@ private:
 	// RTSchedulable
 	void executeRT() override;
 
-	RenderSettings& renderSettings;
+	Display& display;
 	EventDistributor& eventDistributor;
 	InputEventGenerator& inputEventGenerator;
+	CliComm& cliComm;
 };
 
 } // namespace openmsx

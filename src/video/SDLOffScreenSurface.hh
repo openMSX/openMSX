@@ -17,8 +17,9 @@ private:
 	void saveScreenshot(const std::string& filename) override;
 	void clearScreen() override;
 
-	SDLSurfacePtr surface;
 	MemBuffer<char, SSE2_ALIGNMENT> buffer;
+	SDLSurfacePtr surface;
+	SDLRendererPtr renderer;
 };
 
 } // namespace openmsx

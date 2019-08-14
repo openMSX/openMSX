@@ -22,25 +22,44 @@ TODO:
 #include "VDPCmdEngine.hh"
 #include "SpriteChecker.hh"
 #include "Display.hh"
+#include "HardwareConfig.hh"
 #include "RendererFactory.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include "TclObject.hh"
+#include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
-#include "StringOp.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cstring>
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
 
 namespace openmsx {
+
+static byte getDelayCycles(const XMLElement& devices) {
+	byte cycles = 0;
+	const XMLElement* t9769Dev = devices.findChild("T9769");
+	if (t9769Dev) {
+		if (t9769Dev->getChildData("subtype") == "C") {
+			cycles = 1;
+		} else {
+			cycles = 2;
+		}
+	} else if (devices.findChild("S1990")) {
+		// this case is purely there for backwards compatibility for
+		// turboR configs which do not have the T9769 tag yet.
+		cycles = 1;
+	}
+	return cycles;
+}
 
 VDP::VDP(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -77,27 +96,66 @@ VDP::VDP(const DeviceConfig& config)
 		getName() + ".too_fast_vram_access_callback",
 		"Tcl proc called when the VRAM is read or written too fast")
 	, warningPrinted(false)
+	, cpu(getCPU()) // used frequently, so cache it
+	, fixedVDPIOdelayCycles(getDelayCycles(getMotherBoard().getMachineConfig()->getConfig().getChild("devices")))
 {
-	VDPAccessSlots::initTables();
-
 	interlaced = false;
+
+	// Current general defaults for saturation:
+	// - Any MSX with a TMS9x18 VDP: SatPr=SatPb=100%
+	// - Other machines with a TMS9x2x VDP and RGB output:
+	//   SatPr=SatPr=100%, until someone reports a better value
+	// - Other machines with a TMS9x2x VDP and CVBS only output:
+	//   SatPr=SatPb=54%, until someone reports a better value
+	// At this point we don't know anything about the connector here, so
+	// only the first point can be implemented. The default default is
+	// still 54, which is very similar to the old palette implementation
+
+	int defaultSaturation = 54;
 
 	std::string versionString = config.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
-	else if (versionString == "TMS9918A") version = TMS99X8A;
-	else if (versionString == "TMS9928A") version = TMS99X8A;
+	else if (versionString == "TMS9918A") {
+		version = TMS99X8A;
+		defaultSaturation = 100;
+	} else if (versionString == "TMS9928A") version = TMS99X8A;
 	else if (versionString == "T6950PAL") version = T6950PAL;
 	else if (versionString == "T6950NTSC") version = T6950NTSC;
 	else if (versionString == "T7937APAL") version = T7937APAL;
 	else if (versionString == "T7937ANTSC") version = T7937ANTSC;
 	else if (versionString == "TMS91X8") version = TMS91X8;
-	else if (versionString == "TMS9118") version = TMS91X8;
-	else if (versionString == "TMS9128") version = TMS91X8;
+	else if (versionString == "TMS9118") {
+		version = TMS91X8;
+		defaultSaturation = 100;
+	} else if (versionString == "TMS9128") version = TMS91X8;
 	else if (versionString == "TMS9929A") version = TMS9929A;
 	else if (versionString == "TMS9129") version = TMS9129;
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
-	else throw MSXException("Unknown VDP version \"" + versionString + "\"");
+	else throw MSXException("Unknown VDP version \"", versionString, '"');
+
+	// saturation parameters only make sense when using TMS VDP's
+	if ((versionString.find("TMS") != 0) && ((config.findChild("saturationPr") != nullptr) || (config.findChild("saturationPb") != nullptr) || (config.findChild("saturation") != nullptr))) {
+		throw MSXException("Specifying saturation parameters only makes sense for TMS VDP's");
+	}
+
+	int saturation = config.getChildDataAsInt("saturation", defaultSaturation);
+	if (!((0 <= saturation) && (saturation <= 100))) {
+		throw MSXException(
+			"Saturation percentage is not in range 0..100: ", saturationPr);
+	}
+	saturationPr = config.getChildDataAsInt("saturationPr", saturation);
+	if (!((0 <= saturationPr) && (saturationPr <= 100))) {
+		throw MSXException(
+			"Saturation percentage for Pr component is not in range 0..100: ",
+			saturationPr);
+	}
+	saturationPb = config.getChildDataAsInt("saturationPb", saturation);
+	if (!((0 <= saturationPb) && (saturationPb <= 100))) {
+		throw MSXException(
+			"Saturation percentage for Pb component is not in range 0..100: ",
+			saturationPr);
+	}
 
 	// Set up control register availability.
 	static const byte VALUE_MASKS_MSX1[32] = {
@@ -128,18 +186,18 @@ VDP::VDP(const DeviceConfig& config)
 		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
 	if ((vramSize !=  16) && (vramSize !=  64) &&
 	    (vramSize != 128) && (vramSize != 192)) {
-		throw MSXException(StringOp::Builder() <<
-			"VRAM size of " << vramSize << "kB is not supported!");
+		throw MSXException(
+			"VRAM size of ", vramSize, "kB is not supported!");
 	}
-	vram = make_unique<VDPVRAM>(*this, vramSize * 1024, time);
+	vram = std::make_unique<VDPVRAM>(*this, vramSize * 1024, time);
 
 	// Create sprite checker.
 	auto& renderSettings = display.getRenderSettings();
-	spriteChecker = make_unique<SpriteChecker>(*this, renderSettings, time);
+	spriteChecker = std::make_unique<SpriteChecker>(*this, renderSettings, time);
 	vram->setSpriteChecker(spriteChecker.get());
 
 	// Create command engine.
-	cmdEngine = make_unique<VDPCmdEngine>(*this, getCommandController());
+	cmdEngine = std::make_unique<VDPCmdEngine>(*this, getCommandController());
 	vram->setCmdEngine(cmdEngine.get());
 
 	// Initialise renderer.
@@ -189,9 +247,7 @@ void VDP::resetInit()
 {
 	// note: vram, spriteChecker, cmdEngine, renderer may not yet be
 	//       created at this point
-	for (auto& reg : controlRegs) {
-		reg = 0;
-	}
+	ranges::fill(controlRegs, 0);
 	if (isVDPwithPALonly()) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;
@@ -350,6 +406,7 @@ void VDP::execSetMode(EmuTime::param time)
 {
 	updateDisplayMode(
 		DisplayMode(controlRegs[0], controlRegs[1], controlRegs[25]),
+		getCmdBit(),
 		time);
 }
 
@@ -381,14 +438,13 @@ void VDP::scheduleDisplayStart(EmuTime::param time)
 	}
 
 	// Calculate when (lines and time) display starts.
-	int verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
 	int lineZero =
 		// sync + top erase:
 		3 + 13 +
 		// top border:
 		(palTiming ? 36 : 9) +
 		(controlRegs[9] & 0x80 ? 0 : 10) +
-		verticalAdjust;
+		getVerticalAdjust(); // 0..15
 	displayStart =
 		lineZero * TICKS_PER_LINE
 		+ 100 + 102; // VR flips at start of left border
@@ -456,9 +512,24 @@ void VDP::scheduleHScan(EmuTime::param time)
 	int ticksPerFrame = getTicksPerFrame();
 	if (horizontalScanOffset >= ticksPerFrame) {
 		horizontalScanOffset -= ticksPerFrame;
+
+		// Time at which the internal VDP display line counter is reset,
+		// expressed in ticks after vsync.
+		// I would expect the counter to reset at line 16 (for neutral
+		// set-adjust), but measurements on NMS8250 show it is one line
+		// earlier. I'm not sure whether the actual counter reset
+		// happens on line 15 or whether the VDP timing may be one line
+		// off for some reason.
+		// TODO: This is just an assumption, more measurements on real MSX
+		//       are necessary to verify there is really such a thing and
+		//       if so, that the value is accurate.
+		// Note: see this bug report for some measurements on a real machine:
+		//   https://github.com/openMSX/openMSX/issues/1106
+		int lineCountResetTicks = (8 + getVerticalAdjust()) * TICKS_PER_LINE;
+
 		// Display line counter is reset at the start of the top border.
 		// Any HSCAN that has a higher line number never occurs.
-		if (horizontalScanOffset >= LINE_COUNT_RESET_TICKS) {
+		if (horizontalScanOffset >= lineCountResetTicks) {
 			// This is one way to say "never".
 			horizontalScanOffset = -1000 * TICKS_PER_LINE;
 		}
@@ -549,8 +620,18 @@ void VDP::frameStart(EmuTime::param time)
 
 // The I/O functions.
 
-void VDP::writeIO(word port, byte value, EmuTime::param time)
+void VDP::writeIO(word port, byte value, EmuTime::param time_)
 {
+	EmuTime time = time_;
+	// This is the (fixed) delay from
+	// https://github.com/openMSX/openMSX/issues/563 and
+	// https://github.com/openMSX/openMSX/issues/989
+	// It seems to originate from the T9769x and for x=C the delay is 1
+	// cycle and for other x it seems the delay is 2 cycles
+	if (fixedVDPIOdelayCycles > 0) {
+		time = cpu.waitCycles(time, fixedVDPIOdelayCycles);
+	}
+
 	assert(isInsideFrame(time));
 	switch (port & (isMSX1VDP() ? 0x01 : 0x03)) {
 	case 0: // VRAM data write
@@ -999,8 +1080,9 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		renderer->updateVerticalScroll(val, time);
 		break;
 	case 25:
-		if (change & DisplayMode::REG25_MASK) {
+		if (change & (DisplayMode::REG25_MASK | 0x40)) {
 			updateDisplayMode(getDisplayMode().updateReg25(val),
+			                  val & 0x40,
 			                  time);
 		}
 		if (change & 0x08) {
@@ -1077,10 +1159,10 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	case 9:
 		if ((val & 1) && ! warningPrinted) {
 			warningPrinted = true;
-			getCliComm().printWarning
-				("The running MSX software has set bit 0 of VDP register 9 "
-				 "(dot clock direction) to one. In an ordinary MSX, "
-				 "the screen would go black and the CPU would stop running.");
+			getCliComm().printWarning(
+				"The running MSX software has set bit 0 of VDP register 9 "
+				"(dot clock direction) to one. In an ordinary MSX, "
+				"the screen would go black and the CPU would stop running.");
 			// TODO: Emulate such behaviour.
 		}
 		if (change & 0x80) {
@@ -1239,10 +1321,10 @@ void VDP::updateSpritePatternBase(EmuTime::param time)
 	vram->spritePatternTable.setMask(baseMask, indexMask, time);
 }
 
-void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
+void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time)
 {
 	// Synchronise subsystems.
-	vram->updateDisplayMode(newMode, time);
+	vram->updateDisplayMode(newMode, cmdBit, time);
 
 	// TODO: Is this a useful optimisation, or doesn't it help
 	//       in practice?
@@ -1292,6 +1374,136 @@ void VDP::update(const Setting& setting)
 		pendingCpuAccess = false;
 		executeCpuVramAccess(getCurrentTime());
 	}
+}
+
+/*
+ * Roughly measured RGB values in volts.
+ * Voltages were in range of 1.12-5.04, and had 2 digits accuracy (it seems
+ * minimum difference was 0.04 V).
+ * Blue component of color 5 and red component of color 9 were higher than
+ * the components for white... There are several methods to handle this...
+ * 1) clip to values of white
+ * 2) scale all colors by min/max of that component (means white is not 3x 255)
+ * 3) scale per color if components for that color are beyond those of white
+ * 4) assume the analog values are output by a DA converter, derive the digital
+ *    values and scale that to the range 0-255 (thanks to FRS for this idea).
+ *    This also results in white not being 3x 255, of course.
+ *
+ * Method 4 results in the table below and seems the most accurate (so far).
+ *
+ * Thanks to Tiago Valença and Carlos Mansur for measuring on a T7937A.
+ */
+static const std::array<std::array<uint8_t,3>,16> TOSHIBA_PALETTE = {{
+	{   0,   0,   0 },
+	{   0,   0,   0 },
+	{ 102, 204, 102 },
+	{ 136, 238, 136 },
+	{  68,  68, 221 },
+	{ 119, 119, 255 },
+	{ 187,  85,  85 },
+	{ 119, 221, 221 },
+	{ 221, 102, 102 },
+	{ 255, 119, 119 },
+	{ 204, 204,  85 },
+	{ 238, 238, 136 },
+	{  85, 170,  85 },
+	{ 187,  85, 187 },
+	{ 204, 204, 204 },
+	{ 238, 238, 238 },
+}};
+
+/*
+How come the FM-X has a distinct palette while it clearly has a TMS9928 VDP?
+Because it has an additional circuit that rework the palette for the same one
+used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
+
+This seems to be the 24-bit RGB equivalent to the palette output by the FM-X on
+its RGB conector:
+*/
+static const std::array<std::array<uint8_t,3>,16> THREE_BIT_RGB_PALETTE = {{
+	{   0,   0,   0 },
+	{   0,   0,   0 },
+	{   0, 255,   0 },
+	{   0, 255,   0 },
+	{   0,   0, 255 },
+	{   0,   0, 255 },
+	{ 255,   0,   0 },
+	{   0, 255, 255 },
+	{ 255,   0,   0 },
+	{ 255,   0,   0 },
+	{ 255, 255,   0 },
+	{ 255, 255,   0 },
+	{   0, 255,   0 },
+	{ 255,   0, 255 },
+	{ 255, 255, 255 },
+	{ 255, 255, 255 },
+}};
+
+// Source: TMS9918/28/29 Data Book, page 2-17.
+
+const float TMS9XXXA_ANALOG_OUTPUT[16][3] = {
+	//  Y     R-Y    B-Y    voltages
+	{ 0.00f, 0.47f, 0.47f },
+	{ 0.00f, 0.47f, 0.47f },
+	{ 0.53f, 0.07f, 0.20f },
+	{ 0.67f, 0.17f, 0.27f },
+	{ 0.40f, 0.40f, 1.00f },
+	{ 0.53f, 0.43f, 0.93f },
+	{ 0.47f, 0.83f, 0.30f },
+	{ 0.73f, 0.00f, 0.70f },
+	{ 0.53f, 0.93f, 0.27f },
+	{ 0.67f, 0.93f, 0.27f },
+	{ 0.73f, 0.57f, 0.07f },
+	{ 0.80f, 0.57f, 0.17f },
+	{ 0.47f, 0.13f, 0.23f },
+	{ 0.53f, 0.73f, 0.67f },
+	{ 0.80f, 0.47f, 0.47f },
+	{ 1.00f, 0.47f, 0.47f },
+};
+
+std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
+{
+	assert(isMSX1VDP());
+	if (MSXDevice::getDeviceConfig().findChild("3bitrgboutput") != nullptr) {
+		return THREE_BIT_RGB_PALETTE;
+	}
+	if ((version & VM_TOSHIBA_PALETTE) != 0) {
+		return TOSHIBA_PALETTE;
+	}
+	std::array<std::array<uint8_t, 3>, 16> tmsPalette;
+	for (int color = 0; color < 16; color++) {
+		// convert from analog output to YPbPr
+		float Y  = TMS9XXXA_ANALOG_OUTPUT[color][0];
+		float Pr = TMS9XXXA_ANALOG_OUTPUT[color][1] - 0.5f;
+		float Pb = TMS9XXXA_ANALOG_OUTPUT[color][2] - 0.5f;
+		// apply the saturation
+		Pr *= (saturationPr / 100.0f);
+		Pb *= (saturationPb / 100.0f);
+		// convert to RGB as follows:
+		/*
+		  |R|   | 1  0      1.402 |   |Y |
+		  |G| = | 1 -0.344 -0.714 | x |Pb|
+		  |B|   | 1  1.722  0     |   |Pr|
+		*/
+		float R = Y +           0 + 1.402f * Pr;
+		float G = Y - 0.344f * Pb - 0.714f * Pr;
+		float B = Y + 1.722f * Pb +           0;
+		// blow up with factor of 255
+		R *= 255;
+		G *= 255;
+		B *= 255;
+		// the final result is that these values
+		// are clipped in the [0:255] range.
+		// Note: Using roundf instead of std::round because libstdc++ when
+		//       built on top of uClibc lacks std::round; uClibc does provide
+		//       roundf, but lacks other C99 math functions and that makes
+		//       libstdc++ disable all wrappers for C99 math functions.
+		tmsPalette[color][0] = Math::clipIntToByte(roundf(R));
+		tmsPalette[color][1] = Math::clipIntToByte(roundf(G));
+		tmsPalette[color][2] = Math::clipIntToByte(roundf(B));
+		// std::cerr << color << " " << int(tmsPalette[color][0]) << " " << int(tmsPalette[color][1]) <<" " << int(tmsPalette[color][2]) << '\n';
+	}
+	return tmsPalette;
 }
 
 // RegDebug
@@ -1398,15 +1610,15 @@ void VDP::VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /
 
 VDP::Info::Info(VDP& vdp_, const string& name_, string helpText_)
 	: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
-		    vdp_.getName() + '_' + name_)
+		    strCat(vdp_.getName(), '_', name_))
 	, vdp(vdp_)
 	, helpText(std::move(helpText_))
 {
 }
 
-void VDP::Info::execute(array_ref<TclObject> /*tokens*/, TclObject& result) const
+void VDP::Info::execute(span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	result.setInt(calc(vdp.getCurrentTime()));
+	result = calc(vdp.getCurrentTime());
 }
 
 string VDP::Info::help(const vector<string>& /*tokens*/) const
@@ -1552,14 +1764,14 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	if (ar.versionAtLeast(serVersion, 8)) {
-		ar.serialize("syncVSync",         syncVSync);
-		ar.serialize("syncDisplayStart",  syncDisplayStart);
-		ar.serialize("syncVScan",         syncVScan);
-		ar.serialize("syncHScan",         syncHScan);
-		ar.serialize("syncHorAdjust",     syncHorAdjust);
-		ar.serialize("syncSetMode",       syncSetMode);
-		ar.serialize("syncSetBlank",      syncSetBlank);
-		ar.serialize("syncCpuVramAccess", syncCpuVramAccess);
+		ar.serialize("syncVSync",         syncVSync,
+		             "syncDisplayStart",  syncDisplayStart,
+		             "syncVScan",         syncVScan,
+		             "syncHScan",         syncHScan,
+		             "syncHorAdjust",     syncHorAdjust,
+		             "syncSetMode",       syncSetMode,
+		             "syncSetBlank",      syncSetBlank,
+		             "syncCpuVramAccess", syncCpuVramAccess);
 	} else {
 		Schedulable::restoreOld(ar,
 			{&syncVSync, &syncDisplayStart, &syncVScan,
@@ -1574,44 +1786,44 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 	//    byte controlValueMasks[32];
 	//    bool warningPrinted;
 
-	ar.serialize("irqVertical", irqVertical);
-	ar.serialize("irqHorizontal", irqHorizontal);
-	ar.serialize("frameStartTime", frameStartTime);
-	ar.serialize("displayStartSyncTime", displayStartSyncTime);
-	ar.serialize("vScanSyncTime", vScanSyncTime);
-	ar.serialize("hScanSyncTime", hScanSyncTime);
-	ar.serialize("displayStart", displayStart);
-	ar.serialize("horizontalScanOffset", horizontalScanOffset);
-	ar.serialize("horizontalAdjust", horizontalAdjust);
-	ar.serialize("registers", controlRegs);
-	ar.serialize("blinkCount", blinkCount);
-	ar.serialize("vramPointer", vramPointer);
-	ar.serialize("palette", palette);
-	ar.serialize("isDisplayArea", isDisplayArea);
-	ar.serialize("palTiming", palTiming);
-	ar.serialize("interlaced", interlaced);
-	ar.serialize("statusReg0", statusReg0);
-	ar.serialize("statusReg1", statusReg1);
-	ar.serialize("statusReg2", statusReg2);
-	ar.serialize("blinkState", blinkState);
-	ar.serialize("dataLatch", dataLatch);
-	ar.serialize("registerDataStored", registerDataStored);
-	ar.serialize("paletteDataStored", paletteDataStored);
+	ar.serialize("irqVertical",          irqVertical,
+	             "irqHorizontal",        irqHorizontal,
+	             "frameStartTime",       frameStartTime,
+	             "displayStartSyncTime", displayStartSyncTime,
+	             "vScanSyncTime",        vScanSyncTime,
+	             "hScanSyncTime",        hScanSyncTime,
+	             "displayStart",         displayStart,
+	             "horizontalScanOffset", horizontalScanOffset,
+	             "horizontalAdjust",     horizontalAdjust,
+	             "registers",            controlRegs,
+	             "blinkCount",           blinkCount,
+	             "vramPointer",          vramPointer,
+	             "palette",              palette,
+	             "isDisplayArea",        isDisplayArea,
+	             "palTiming",            palTiming,
+	             "interlaced",           interlaced,
+	             "statusReg0",           statusReg0,
+	             "statusReg1",           statusReg1,
+	             "statusReg2",           statusReg2,
+	             "blinkState",           blinkState,
+	             "dataLatch",            dataLatch,
+	             "registerDataStored",   registerDataStored,
+	             "paletteDataStored",    paletteDataStored);
 	if (ar.versionAtLeast(serVersion, 5)) {
-		ar.serialize("cpuVramData", cpuVramData);
-		ar.serialize("cpuVramReqIsRead", cpuVramReqIsRead);
+		ar.serialize("cpuVramData",      cpuVramData,
+		             "cpuVramReqIsRead", cpuVramReqIsRead);
 	} else {
 		ar.serialize("readAhead", cpuVramData);
 	}
-	ar.serialize("cpuExtendedVram", cpuExtendedVram);
-	ar.serialize("displayEnabled", displayEnabled);
+	ar.serialize("cpuExtendedVram", cpuExtendedVram,
+	             "displayEnabled",  displayEnabled);
 	byte mode = displayMode.getByte();
 	ar.serialize("displayMode", mode);
 	displayMode.setByte(mode);
 
-	ar.serialize("cmdEngine", *cmdEngine);
-	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
-	ar.serialize("vram", *vram); // must come after controlRegs and after spriteChecker
+	ar.serialize("cmdEngine",     *cmdEngine,
+	             "spriteChecker", *spriteChecker, // must come after displayMode
+	             "vram",          *vram); // must come after controlRegs and after spriteChecker
 	if (ar.isLoader()) {
 		pendingCpuAccess = syncCpuVramAccess.pendingSyncPoint();
 		update(tooFastAccess);

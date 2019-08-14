@@ -1,3 +1,4 @@
+from __future__ import print_function
 from fileutils import (
 	installDirs, installFile, installSymlink, installTree, scanTree
 	)
@@ -16,7 +17,7 @@ def installAll(
 		'build/platform-%s.mk' % targetPlatform,
 		dict.fromkeys(
 			('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS',
-			 'COMPILE_ENV', 'LINK_ENV', 'OPENMSX_TARGET_CPU'),
+			 'OPENMSX_TARGET_CPU'),
 			''
 			)
 		)
@@ -27,18 +28,18 @@ def installAll(
 		'doc/' + fileName for fileName in docNodeVars['INSTALL_DOCS'].split()
 		]
 
-	print '  Executable...'
+	print('  Executable...')
 	installDirs(installPrefix + binaryDestDir)
 	installFile(
 		binaryBuildPath,
 		installPrefix + binaryDestDir + '/' + binaryFileName
 		)
 
-	print '  Data files...'
+	print('  Data files...')
 	installDirs(installPrefix + shareDestDir)
 	installTree('share', installPrefix + shareDestDir, scanTree('share'))
 
-	print '  Documentation...'
+	print('  Documentation...')
 	installDirs(installPrefix + docDestDir)
 	for path in docsToInstall:
 		installFile(path, installPrefix + docDestDir + '/' + basename(path))
@@ -51,7 +52,7 @@ def installAll(
 				)
 
 	if cbios:
-		print '  C-BIOS...'
+		print('  C-BIOS...')
 		installFile(
 			'Contrib/README.cbios', installPrefix + docDestDir + '/cbios.txt'
 			)
@@ -59,12 +60,20 @@ def installAll(
 			'Contrib/cbios', installPrefix + shareDestDir + '/machines',
 			scanTree('Contrib/cbios')
 			)
+		installDirs(installPrefix + shareDestDir + '/systemroms/cbios-old')
+		installTree(
+			'Contrib/cbios-old',
+			installPrefix + shareDestDir + '/systemroms/cbios-old',
+			scanTree('Contrib/cbios-old')
+			)
 
 	if hasattr(os, 'symlink'):
-		print '  Creating symlinks...'
+		print('  Creating symlinks...')
 		for machine, alias in (
-			('Toshiba_HX-10', 'msx1'),
-			('Philips_NMS_8250', 'msx2'),
+			('National_CF-3300', 'msx1'),
+			('Toshiba_HX-10', 'msx1_eu'),
+			('Sony_HB-F900', 'msx2'),
+			('Philips_NMS_8250', 'msx2_eu'),
 			('Panasonic_FS-A1WSX', 'msx2plus'),
 			('Panasonic_FS-A1GT', 'turbor'),
 			):
@@ -100,8 +109,8 @@ def main(
 		verbose = parseBool(verboseStr)
 		cbios = parseBool(cbiosStr)
 		symlinkForBinary = parseBool(customVars['SYMLINK_FOR_BINARY'])
-	except ValueError, ex:
-		print >> sys.stderr, 'Invalid argument:', ex
+	except ValueError as ex:
+		print('Invalid argument:', ex, file=sys.stderr)
 		sys.exit(2)
 
 	if installPrefix and not installPrefix.endswith('/'):
@@ -109,20 +118,20 @@ def main(
 		installPrefix += '/'
 
 	if verbose:
-		print 'Installing openMSX:'
+		print('Installing openMSX:')
 
 	try:
 		installAll(
 			installPrefix, binaryDestDir, shareDestDir, docDestDir,
 			binaryBuildPath, targetPlatform, cbios, symlinkForBinary
 			)
-	except IOError, ex:
-		print >> sys.stderr, 'Installation failed:', ex
+	except IOError as ex:
+		print('Installation failed:', ex, file=sys.stderr)
 		sys.exit(1)
 
 	if verbose:
-		print 'Installation complete... have fun!'
-		print (
+		print('Installation complete... have fun!')
+		print((
 			'Notice: if you want to emulate real MSX systems and not only the '
 			'free C-BIOS machines, put the system ROMs in one of the following '
 			'directories: %s/systemroms or '
@@ -131,14 +140,16 @@ def main(
 			'or savestates you get from your friends, copy that MSX software to '
 			'%s/software or '
 			'~/.openMSX/share/software'
-			) % (shareDestDir, shareDestDir)
+			) % (shareDestDir, shareDestDir))
 
 if __name__ == '__main__':
 	if len(sys.argv) == 9:
 		main(*sys.argv[1 : ])
 	else:
-		print >> sys.stderr, \
-			'Usage: python install.py ' \
-			'DESTDIR INSTALL_BINARY_DIR INSTALL_SHARE_DIR INSTALL_DOC_DIR ' \
-			'BINARY_FULL OPENMSX_TARGET_OS INSTALL_VERBOSE INSTALL_CONTRIB'
+		print(
+			'Usage: python install.py '
+			'DESTDIR INSTALL_BINARY_DIR INSTALL_SHARE_DIR INSTALL_DOC_DIR '
+			'BINARY_FULL OPENMSX_TARGET_OS INSTALL_VERBOSE INSTALL_CONTRIB',
+			file=sys.stderr
+			)
 		sys.exit(2)

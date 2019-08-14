@@ -5,25 +5,26 @@
 #include "StringSetting.hh"
 #include "Observer.hh"
 #include "EventListener.hh"
+#include "MemBuffer.hh"
 #include "sha1.hh"
+#include <cassert>
+#include <cstdint>
+#include <ctime>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <vector>
-#include <ctime>
-#include <cstdint>
 
 namespace openmsx {
 
 class CommandController;
-class EventDistributor;
+class Reactor;
 class File;
-class CliComm;
+class Sha1SumCommand;
 
 class FilePool final : private Observer<Setting>, private EventListener
 {
 public:
-	FilePool(CommandController& controler, EventDistributor& distributor);
+	FilePool(CommandController& controller, Reactor& reactor);
 	~FilePool();
 
 	enum FileType {
@@ -53,8 +54,40 @@ private:
 	};
 	using Directories = std::vector<Entry>;
 
-	// <sha1sum, timestamp, filename>, sorted on sha1sum
-	using Pool = std::vector<std::tuple<Sha1Sum, time_t, std::string>>;
+	struct PoolEntry {
+		PoolEntry(const Sha1Sum& s, time_t t, const char* f)
+			: filename(f), time(t), sum(s)
+		{
+			assert(time != time_t(-1));
+		}
+		PoolEntry(const Sha1Sum& s, const char* t, const char* f)
+			: filename(f), timeStr(t), sum(s)
+		{
+			assert(timeStr != nullptr);
+		}
+
+		time_t getTime();
+		void setTime(time_t t);
+
+		// - At least one of 'timeStr' or 'time' is valid.
+		// - 'filename' and 'timeStr' are non-owning pointers.
+		const char* filename;
+		const char* timeStr = nullptr; // might be nullptr
+		time_t time = time_t(-1);      // might be -1
+		Sha1Sum sum;
+	};
+	struct ComparePool { // PoolEntry sorted on 'sum'
+		bool operator()(const PoolEntry& x, const PoolEntry& y) const {
+			return x.sum < y.sum;
+		}
+		bool operator()(const PoolEntry& x, const Sha1Sum& y) const {
+			return x.sum < y;
+		}
+		bool operator()(const Sha1Sum& x, const PoolEntry& y) const {
+			return x < y.sum;
+		}
+	};
+	using Pool = std::vector<PoolEntry>; // sorted with 'ComparePool'
 
 	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
 	void remove(Pool::iterator it);
@@ -85,8 +118,10 @@ private:
 
 
 	StringSetting filePoolSetting;
-	EventDistributor& distributor;
-	CliComm& cliComm;
+	Reactor& reactor;
+	std::unique_ptr<Sha1SumCommand> sha1SumCommand;
+	MemBuffer<char> fileMem; // content of initial .filecache
+	std::vector<std::string> stringBuffer; // owns strings that are not in 'fileMem'
 
 	Pool pool;
 	bool quit;

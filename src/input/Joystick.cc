@@ -13,9 +13,8 @@
 #include "CommandException.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
-#include "memory.hh"
 #include "xrange.hh"
-#include "build-info.hh"
+#include <memory>
 
 using std::string;
 using std::shared_ptr;
@@ -46,7 +45,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 			// practice.
 			if (InputEventGenerator::joystickNumButtons(joystick) != 0) {
 				controller.registerPluggable(
-					make_unique<Joystick>(
+					std::make_unique<Joystick>(
 						eventDistributor,
 						stateChangeDistributor,
 						commandController,
@@ -62,7 +61,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 class JoyState final : public StateChange
 {
 public:
-	JoyState() {} // for serialize
+	JoyState() = default; // for serialize
 	JoyState(EmuTime::param time_, unsigned joyNum_, byte press_, byte release_)
 		: StateChange(time_)
 		, joyNum(joyNum_), press(press_), release(release_)
@@ -77,9 +76,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("joyNum", joyNum);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("joyNum",  joyNum,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	unsigned joyNum;
@@ -96,7 +95,7 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 		throw CommandException("Need an even number of elements");
 	}
 	for (unsigned i = 0; i < n; i += 2) {
-		string_ref key  = newValue.getListIndex(interp, i + 0).getString();
+		string_view key  = newValue.getListIndex(interp, i + 0).getString();
 		TclObject value = newValue.getListIndex(interp, i + 1);
 		if ((key != "A"   ) && (key != "B"    ) &&
 		    (key != "LEFT") && (key != "RIGHT") &&
@@ -106,7 +105,7 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 				"'A', 'B', 'LEFT', 'RIGHT', 'UP', 'DOWN'.");
 		}
 		for (auto j : xrange(value.getListLength(interp))) {
-			string_ref host = value.getListIndex(interp, j).getString();
+			string_view host = value.getListIndex(interp, j).getString();
 			if (!host.starts_with("button") &&
 			    !host.starts_with("+axis") &&
 			    !host.starts_with("-axis") &&
@@ -125,27 +124,27 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 
 static string getJoystickName(unsigned joyNum)
 {
-	return string("joystick") + char('1' + joyNum);
+	return strCat("joystick", char('1' + joyNum));
 }
 
 static TclObject getConfigValue(SDL_Joystick* joystick)
 {
-	TclObject value;
-	value.addListElement("LEFT" ); value.addListElement("-axis0");
-	value.addListElement("RIGHT"); value.addListElement("+axis0");
-	value.addListElement("UP"   ); value.addListElement("-axis1");
-	value.addListElement("DOWN" ); value.addListElement("+axis1");
 	TclObject listA, listB;
 	for (auto i : xrange(InputEventGenerator::joystickNumButtons(joystick))) {
-		string button = "button" + StringOp::toString(i);
+		string button = strCat("button", i);
 		if (i & 1) {
 			listB.addListElement(button);
 		} else {
 			listA.addListElement(button);
 		}
 	}
-	value.addListElement("A"); value.addListElement(listA);
-	value.addListElement("B"); value.addListElement(listB);
+	TclObject value;
+	value.addDictKeyValues("LEFT",  "-axis0",
+	                       "RIGHT", "+axis0",
+	                       "UP",    "-axis1",
+	                       "DOWN",  "+axis1",
+	                       "A",     listA,
+	                       "B",     listB);
 	return value;
 }
 
@@ -161,10 +160,10 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, joystick(joystick_)
-	, joyNum(SDL_JoystickIndex(joystick_))
+	, joyNum(SDL_JoystickInstanceID(joystick_))
 	, deadSetting(globalSettings.getJoyDeadzoneSetting(joyNum))
 	, name(getJoystickName(joyNum))
-	, desc(string(SDL_JoystickName(joyNum)))
+	, desc(string(SDL_JoystickName(joystick_)))
 	, configSetting(commandController, name + "_config",
 		"joystick configuration", getConfigValue(joystick).getString())
 {
@@ -191,7 +190,7 @@ const string& Joystick::getName() const
 	return name;
 }
 
-string_ref Joystick::getDescription() const
+string_view Joystick::getDescription() const
 {
 	return desc;
 }
@@ -248,10 +247,10 @@ byte Joystick::calcState()
 }
 
 bool Joystick::getState(Interpreter& interp, const TclObject& dict,
-                        string_ref key, int threshold)
+                        string_view key, int threshold)
 {
 	try {
-		const auto& list = dict.getDictValue(interp, TclObject(key));
+		const auto& list = dict.getDictValue(interp, key);
 		for (auto i : xrange(list.getListLength(interp))) {
 			const auto& elem = list.getListIndex(interp, i).getString();
 			if (elem.starts_with("button")) {
@@ -299,8 +298,8 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 }
 
 // MSXEventListener
-void Joystick::signalEvent(const shared_ptr<const Event>& event,
-                           EmuTime::param time)
+void Joystick::signalMSXEvent(const shared_ptr<const Event>& event,
+                              EmuTime::param time)
 {
 	auto joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) return;

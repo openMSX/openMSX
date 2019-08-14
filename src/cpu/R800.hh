@@ -158,7 +158,7 @@ protected:
 		lastRefreshTime.reset(time);
 	}
 
-	ALWAYS_INLINE void setMemPtr(unsigned) { /* nothing*/ }
+	ALWAYS_INLINE void setMemPtr(unsigned /*x*/) { /* nothing*/ }
 	ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
 
 	static const int I  = 6; // cycles for an I/O operation
@@ -268,9 +268,9 @@ protected:
 	void serialize(Archive& ar, unsigned version)
 	{
 		CPUClock::serialize(ar, version);
-		ar.serialize("lastRefreshTime", lastRefreshTime);
-		ar.serialize("lastPage", lastPage);
-		ar.serialize("extraMemoryDelay", extraMemoryDelay);
+		ar.serialize("lastRefreshTime",  lastRefreshTime,
+		             "lastPage",         lastPage,
+		             "extraMemoryDelay", extraMemoryDelay);
 
 		// don't serialize 'extraMemoryDelays', is initialized in
 		// constructor and setDRAMmode()

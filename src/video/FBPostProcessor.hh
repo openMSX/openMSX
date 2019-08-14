@@ -22,7 +22,7 @@ public:
 		MSXMotherBoard& motherBoard, Display& display,
 		OutputSurface& screen, const std::string& videoSource,
 		unsigned maxWidth, unsigned height, bool canDoInterlace);
-	~FBPostProcessor();
+	~FBPostProcessor() override;
 
 	// Layer interface:
 	void paint(OutputSurface& output) override;
@@ -34,7 +34,7 @@ private:
 	void preCalcNoise(float factor);
 	void drawNoise(OutputSurface& output);
 	void drawNoiseLine(Pixel* buf, signed char* noise,
-	                   unsigned long width);
+	                   size_t width);
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;

@@ -2,21 +2,18 @@
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "RawFrame.hh"
-#include "MSXMotherBoard.hh"
 #include "Display.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "PostProcessor.hh"
-#include "FloatSetting.hh"
-#include "StringSetting.hh"
 #include "MemoryOps.hh"
 #include "VisibleSurface.hh"
-#include "memory.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <memory>
 
 using namespace gl;
 
@@ -33,20 +30,23 @@ static const int TICKS_LEFT_BORDER = 100 + 102;
 static const int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
 
-template <class Pixel>
-inline int SDLRasterizer<Pixel>::translateX(int absoluteX, bool narrow)
+/** Translate from absolute VDP coordinates to screen coordinates:
+  * Note: In reality, there are only 569.5 visible pixels on a line.
+  *       Because it looks better, the borders are extended to 640.
+  * @param absoluteX Absolute VDP coordinate.
+  * @param narrow Is this a narrow (512 pixels wide) display mode?
+  */
+static inline int translateX(int absoluteX, bool narrow)
 {
 	int maxX = narrow ? 640 : 320;
 	if (absoluteX == VDP::TICKS_PER_LINE) return maxX;
 
 	// Note: The ROUND_MASK forces the ticks to a pixel (2-tick) boundary.
 	//       If this is not done, rounding errors will occur.
-	//       This is especially tricky because division of a negative number
-	//       is rounded towards zero instead of down.
 	const int ROUND_MASK = narrow ? ~1 : ~3;
 	int screenX =
-		((absoluteX & ROUND_MASK) - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
-		/ (narrow ? 2 : 4)
+		((absoluteX - (TICKS_VISIBLE_MIDDLE & ROUND_MASK))
+		>> (narrow ? 1 : 2))
 		+ maxX / 2;
 	return std::max(screenX, 0);
 }
@@ -74,7 +74,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, postProcessor(std::move(postProcessor_))
-	, workFrame(make_unique<RawFrame>(screen.getSDLFormat(), 640, 240))
+	, workFrame(std::make_unique<RawFrame>(screen.getSDLFormat(), 640, 240))
 	, renderSettings(display.getRenderSettings())
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLORS)
@@ -290,8 +290,9 @@ void SDLRasterizer<Pixel>::precalcPalette()
 {
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
+		const auto palette = vdp.getMSX1Palette();
 		for (int i = 0; i < 16; ++i) {
-			const byte* rgb = vdp.hasToshibaPalette() ? Renderer::TOSHIBA_PALETTE[i] : Renderer::TMS99X8A_PALETTE[i];
+			const auto rgb = palette[i];
 			palFg[i] = palFg[i + 16] = palBg[i] =
 				screen.mapKeyedRGB<Pixel>(
 					renderSettings.transformRGB(
@@ -492,7 +493,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	// drawBorder() (for the right border). And the value we set there is
 	// anyway the same as the one we would set here.
 	DisplayMode mode = vdp.getDisplayMode();
-	unsigned lineWidth = mode.getLineWidth();
+	int lineWidth = mode.getLineWidth();
 	if (lineWidth == 256) {
 		int endX = displayX + displayWidth;
 		displayX /= 2;
@@ -562,7 +563,9 @@ void SDLRasterizer<Pixel>::drawDisplay(
 			           + leftBackground + displayX;
 			int firstPageWidth = pageBorder - displayX;
 			if (firstPageWidth > 0) {
-				if ((displayX + hScroll) == 0) {
+				if (((displayX + hScroll) == 0) &&
+				    (firstPageWidth == lineWidth)) {
+					// fast-path, directly render to destination
 					renderBitmapLine(dst, vramLine[scrollPage1]);
 				} else {
 					lineInBuf = vramLine[scrollPage1];
@@ -593,7 +596,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 
 			Pixel* dst = workFrame->getLinePtrDirect<Pixel>(y)
 			           + leftBackground + displayX;
-			if (displayX == 0) {
+			if ((displayX == 0) && (displayWidth == lineWidth)){
 				characterConverter.convertLine(dst, displayY);
 			} else {
 				Pixel buf[512];

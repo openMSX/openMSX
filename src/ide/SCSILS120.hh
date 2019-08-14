@@ -32,7 +32,7 @@ public:
 
 	SCSILS120(const DeviceConfig& targetconfig,
 	          AlignedBuffer& buf, unsigned mode);
-	~SCSILS120();
+	~SCSILS120() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -49,7 +49,7 @@ private:
 	SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	const std::string& getContainerName() const override;
 	bool diskChanged() override;
-	int insertDisk(string_ref filename) override;
+	int insertDisk(string_view filename) override;
 
 	// SCSI Device
 	void reset() override;
@@ -65,7 +65,7 @@ private:
 	unsigned dataOut(unsigned& blocks) override;
 
 	void eject();
-	void insert(string_ref filename);
+	void insert(string_view filename);
 
 	bool getReady();
 	void testUnitReady();

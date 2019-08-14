@@ -32,7 +32,7 @@ static const int SCALE = 2;
 class ArkanoidState final : public StateChange
 {
 public:
-	ArkanoidState() {} // for serialize
+	ArkanoidState() = default; // for serialize
 	ArkanoidState(EmuTime::param time_, int delta_, bool press_, bool release_)
 		: StateChange(time_)
 		, delta(delta_), press(press_), release(release_) {}
@@ -43,9 +43,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("delta", delta);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("delta",   delta,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	int delta;
@@ -79,7 +79,7 @@ const string& ArkanoidPad::getName() const
 	return name;
 }
 
-string_ref ArkanoidPad::getDescription() const
+string_view ArkanoidPad::getDescription() const
 {
 	return "Arkanoid pad";
 }
@@ -118,8 +118,8 @@ void ArkanoidPad::write(byte value, EmuTime::param /*time*/)
 }
 
 // MSXEventListener
-void ArkanoidPad::signalEvent(const shared_ptr<const Event>& event,
-                              EmuTime::param time)
+void ArkanoidPad::signalMSXEvent(const shared_ptr<const Event>& event,
+                                 EmuTime::param time)
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
@@ -187,11 +187,11 @@ void ArkanoidPad::stopReplay(EmuTime::param time)
 template<typename Archive>
 void ArkanoidPad::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("shiftreg", shiftreg);
-	ar.serialize("lastValue", lastValue);
+	ar.serialize("shiftreg",  shiftreg,
+	             "lastValue", lastValue);
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("dialpos", dialpos);
-		ar.serialize("buttonStatus", buttonStatus);
+		ar.serialize("dialpos",      dialpos,
+		             "buttonStatus", buttonStatus);
 	}
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());

@@ -3,7 +3,8 @@
 #include "DiskExceptions.hh"
 #include "File.hh"
 #include "FilePool.hh"
-#include <algorithm>
+#include "likely.hh"
+#include "ranges.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -34,18 +35,13 @@ static bool isValidDmkHeader(const DmkHeader& header)
 	if (trackLen >= 0x4000) return false; // too large track length
 	if (trackLen <= 128)    return false; // too small
 	if (header.flags & ~0xd0) return false; // unknown flag set
-	for (int i = 0; i < 7; ++i) {
-		if (header.reserved[i] != 0) return false;
-	}
-	for (int i = 0; i < 4; ++i) {
-		if (header.format[i] != 0) return false;
-	}
-	return true;
+	return ranges::all_of(header.reserved, [](auto& r) { return r == 0; }) &&
+	       ranges::all_of(header.format,   [](auto& f) { return f == 0; });
 }
 
-DMKDiskImage::DMKDiskImage(Filename& filename, const std::shared_ptr<File>& file_)
-	: Disk(filename)
-	, file(file_)
+DMKDiskImage::DMKDiskImage(Filename filename, std::shared_ptr<File> file_)
+	: Disk(std::move(filename))
+	, file(std::move(file_))
 {
 	DmkHeader header;
 	file->seek(0);
@@ -125,14 +121,19 @@ void DMKDiskImage::readTrack(byte track, byte side, RawTrack& output)
 void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 {
 	assert(side < 2);
-	if ((singleSided && side) || (track >= numTracks)) {
-		// no such side/track, ignore write
-		// TODO a possible enhancement is to extend the file with
-		//      extra tracks (or even convert from single sided to
-		//      double sided)
+	if (singleSided && (side != 0)) {
+		// second side on a single-side image, ignore write.
+		// TODO possible enhancement:  convert to double sided
 		return;
 	}
+	if (unlikely(numTracks <= track)) {
+		extendImageToTrack(track);
+	}
+	doWriteTrack(track, side, input);
+}
 
+void DMKDiskImage::doWriteTrack(byte track, byte side, const RawTrack& input)
+{
 	seekTrack(track, side);
 
 	// Write idam table.
@@ -148,6 +149,24 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 	// Write raw track data.
 	assert(input.getLength() == dmkTrackLen);
 	file->write(input.getRawBuffer(), dmkTrackLen);
+}
+
+void DMKDiskImage::extendImageToTrack(byte track)
+{
+	// extend image with empty tracks
+	RawTrack emptyTrack(dmkTrackLen);
+	byte numSides = singleSided ? 1 : 2;
+	while (numTracks <= track) {
+		for (byte side = 0; side < numSides; ++side) {
+			doWriteTrack(numTracks, side, emptyTrack);
+		}
+		++numTracks;
+	}
+
+	// update header
+	file->seek(1); // position in header where numTracks is stored
+	byte numTracksByte = numTracks;
+	file->write(&numTracksByte, sizeof(numTracksByte));
 }
 
 

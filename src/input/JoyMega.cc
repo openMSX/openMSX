@@ -8,9 +8,9 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include <memory>
 
 using std::string;
 using std::shared_ptr;
@@ -43,7 +43,7 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 			// practice.
 			if (InputEventGenerator::joystickNumButtons(joystick) != 0) {
 				controller.registerPluggable(
-					make_unique<JoyMega>(
+					std::make_unique<JoyMega>(
 						eventDistributor,
 						stateChangeDistributor,
 						joystick));
@@ -56,7 +56,7 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 class JoyMegaState final : public StateChange
 {
 public:
-	JoyMegaState() {} // for serialize
+	JoyMegaState() = default; // for serialize
 	JoyMegaState(EmuTime::param time_, unsigned joyNum_,
 	             unsigned press_, unsigned release_)
 		: StateChange(time_)
@@ -72,9 +72,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("joyNum", joyNum);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("joyNum",  joyNum,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	unsigned joyNum;
@@ -93,9 +93,9 @@ JoyMega::JoyMega(MSXEventDistributor& eventDistributor_,
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, joystick(joystick_)
-	, joyNum(SDL_JoystickIndex(joystick_))
+	, joyNum(SDL_JoystickInstanceID(joystick_))
 	, name("joymegaX") // 'X' is filled in below
-	, desc(string(SDL_JoystickName(joyNum)))
+	, desc(string(SDL_JoystickName(joystick_)))
 	, lastTime(EmuTime::zero)
 {
 	const_cast<string&>(name)[7] = char('1' + joyNum);
@@ -115,7 +115,7 @@ const string& JoyMega::getName() const
 	return name;
 }
 
-string_ref JoyMega::getDescription() const
+string_view JoyMega::getDescription() const
 {
 	return desc;
 }
@@ -225,7 +225,7 @@ unsigned JoyMega::calcInitialState()
 }
 
 // MSXEventListener
-void JoyMega::signalEvent(const shared_ptr<const Event>& event, EmuTime::param time)
+void JoyMega::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time)
 {
 	auto joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) return;
@@ -237,7 +237,7 @@ void JoyMega::signalEvent(const shared_ptr<const Event>& event, EmuTime::param t
 	switch (event->getType()) {
 	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
 		auto& mev = checked_cast<const JoystickAxisMotionEvent&>(*event);
-		short value = mev.getValue();
+		int value = mev.getValue();
 		switch (mev.getAxis() & 1) {
 		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
 			if (value < -THRESHOLD) {
@@ -328,10 +328,10 @@ void JoyMega::stopReplay(EmuTime::param time)
 template<typename Archive>
 void JoyMega::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("lastTime", lastTime);
-	ar.serialize("status", status);
-	ar.serialize("cycle", cycle);
-	ar.serialize("cycleMask", cycleMask);
+	ar.serialize("lastTime",  lastTime,
+	             "status",    status,
+	             "cycle",     cycle,
+	             "cycleMask", cycleMask);
 	if (ar.isLoader()) {
 		if (isPluggedIn()) {
 			plugHelper2();

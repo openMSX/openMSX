@@ -7,13 +7,12 @@
 #include "FileException.hh"
 #include "ReadDir.hh"
 #include "StringOp.hh"
+#include "ranges.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <vector>
 
-using std::map;
 using std::string;
 using std::vector;
 
@@ -214,7 +213,7 @@ DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(const string& hostName)
 			return p.first;
 		}
 	}
-	return DirIndex(unsigned(-1), unsigned(-1));
+	return {unsigned(-1), unsigned(-1)};
 }
 
 // Check if a host file is already mapped in the virtual disk.
@@ -227,17 +226,18 @@ bool DirAsDSK::checkFileUsedInDSK(const string& hostName)
 static string hostToMsxName(string hostName)
 {
 	// Create an MSX filename 8.3 format. TODO use vfat-like abbreviation
-	transform(begin(hostName), end(hostName), begin(hostName),
-		[](char a) { return (a == ' ') ? '_' : ::toupper(a); });
-
-	string_ref file, ext;
+	transform_in_place(hostName, [](char a) {
+		return (a == ' ') ? '_' : ::toupper(a);
+	});
+	string_view file, ext;
 	StringOp::splitOnLast(hostName, '.', file, ext);
 	if (file.empty()) std::swap(file, ext);
 
 	string result(8 + 3, ' ');
+	// c++17: use result.data()
 	memcpy(&*begin(result) + 0, file.data(), std::min<size_t>(8, file.size()));
 	memcpy(&*begin(result) + 8, ext .data(), std::min<size_t>(3, ext .size()));
-	replace(begin(result), end(result), '.', '_');
+	ranges::replace(result, '.', '_');
 	return result;
 }
 
@@ -245,12 +245,12 @@ static string msxToHostName(const char* msxName)
 {
 	string result;
 	for (unsigned i = 0; (i < 8) && (msxName[i] != ' '); ++i) {
-		result += tolower(msxName[i]);
+		result += char(tolower(msxName[i]));
 	}
 	if (msxName[8] != ' ') {
 		result += '.';
 		for (unsigned i = 8; (i < (8 + 3)) && (msxName[i] != ' '); ++i) {
-			result += tolower(msxName[i]);
+			result += char(tolower(msxName[i]));
 		}
 	}
 	return result;
@@ -394,7 +394,7 @@ void DirAsDSK::syncWithHost()
 	checkModifiedHostFiles();
 
 	// Last add new host files (this can only consume virtual disk space).
-	addNewHostFiles("", firstDirSector);
+	addNewHostFiles({}, firstDirSector);
 }
 
 void DirAsDSK::checkDeletedHostFiles()
@@ -402,7 +402,7 @@ void DirAsDSK::checkDeletedHostFiles()
 	// This handles both host files and directories.
 	auto copy = mapDirs;
 	for (auto& p : copy) {
-		if (mapDirs.find(p.first) == end(mapDirs)) {
+		if (!mapDirs.contains(p.first)) {
 			// While iterating over (the copy of) mapDirs we delete
 			// entries of mapDirs (when we delete files only the
 			// current entry is deleted, when we delete
@@ -499,7 +499,7 @@ void DirAsDSK::checkModifiedHostFiles()
 {
 	auto copy = mapDirs;
 	for (auto& p : copy) {
-		if (mapDirs.find(p.first) == end(mapDirs)) {
+		if (!mapDirs.contains(p.first)) {
 			// See comment in checkDeletedHostFiles().
 			continue;
 		}
@@ -536,7 +536,7 @@ void DirAsDSK::checkModifiedHostFiles()
 void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 {
 	assert(!(msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY));
-	assert(mapDirs.find(dirIndex) != end(mapDirs));
+	assert(mapDirs.contains(dirIndex));
 
 	// Set _msx_ modification time.
 	setMSXTimeStamp(dirIndex, fst);
@@ -616,14 +616,14 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 			}
 		}
 		if (remainingSize != 0) {
-			cliComm.printWarning("Virtual diskimage full: " +
-			                     mapDir.hostName + " truncated.");
+			cliComm.printWarning("Virtual diskimage full: ",
+			                     mapDir.hostName, " truncated.");
 		}
 	} catch (FileException& e) {
 		// Error opening or reading host file.
-		cliComm.printWarning("Error reading host file: " +
-				mapDir.hostName + ": " + e.getMessage() +
-				" Truncated file on MSX disk.");
+		cliComm.printWarning("Error reading host file: ",
+		                     mapDir.hostName, ": ", e.getMessage(),
+		                     " Truncated file on MSX disk.");
 	}
 
 	// In all cases (no error / image full / host read error) we need to
@@ -678,10 +678,10 @@ static size_t weight(const string& hostName)
 {
 	// TODO this weight function can most likely be improved
 	size_t result = 0;
-	string_ref file, ext;
+	string_view file, ext;
 	StringOp::splitOnLast(hostName, '.', file, ext);
 	// too many '.' characters
-	result += std::count(begin(file), end(file), '.') * 100;
+	result += ranges::count(file, '.') * 100;
 	// too long extension
 	result += ext.size() * 10;
 	// too long file
@@ -701,26 +701,27 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 			hostNames.emplace_back(d->d_name);
 		}
 	}
-	sort(begin(hostNames), end(hostNames),
+	ranges::sort(hostNames,
 	     [](const string& l, const string& r) { return weight(l) < weight(r); });
 
 	for (auto& hostName : hostNames) {
 		try {
 			if (StringOp::startsWith(hostName, '.')) {
+				// skip '.' and '..'
+				// also skip hidden files on unix
 				continue;
 			}
-			string fullHostName = hostDir + hostSubDir + hostName;
+			string fullHostName = strCat(hostDir, hostSubDir, hostName);
 			FileOperations::Stat fst;
 			if (!FileOperations::getStat(fullHostName, fst)) {
-				throw MSXException("Error accessing " + fullHostName);
+				throw MSXException("Error accessing ", fullHostName);
 			}
 			if (FileOperations::isDirectory(fst)) {
 				addNewDirectory(hostSubDir, hostName, msxDirSector, fst);
 			} else if (FileOperations::isRegularFile(fst)) {
 				addNewHostFile(hostSubDir, hostName, msxDirSector, fst);
 			} else {
-				throw MSXException("Not a regular file: " +
-				                   fullHostName);
+				throw MSXException("Not a regular file: ", fullHostName);
 			}
 		} catch (MSXException& e) {
 			cliComm.printWarning(e.getMessage());
@@ -788,7 +789,7 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 	}
 
 	// Recursively process this directory.
-	addNewHostFiles(hostSubDir + hostName + '/', newMsxDirSector);
+	addNewHostFiles(strCat(hostSubDir, hostName, '/'), newMsxDirSector);
 }
 
 void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
@@ -804,7 +805,7 @@ void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
 	// TODO check for available free space on disk instead of max free space
 	static const int DISK_SPACE = (nofSectors - firstDataSector) * SECTOR_SIZE;
 	if (fst.st_size > DISK_SPACE) {
-		cliComm.printWarning("File too large: " + fullHostName);
+		cliComm.printWarning("File too large: ", fullHostName);
 		return;
 	}
 
@@ -825,7 +826,8 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		if (checkMSXFileExists(msxFilename, msxDirSector)) {
 			// TODO: actually should increase vfat abrev if possible!!
 			throw MSXException(
-				"MSX name " + msxToHostName(msxFilename.c_str()) + " already exists");
+				"MSX name ", msxToHostName(msxFilename.c_str()),
+				" already exists");
 		}
 
 		// Fill in hostName / msx filename.
@@ -835,7 +837,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		memcpy(msxDir(dirIndex).filename, msxFilename.data(), 8 + 3);
 		return dirIndex;
 	} catch (MSXException& e) {
-		throw MSXException("Couldn't add " + hostPath + ": " +
+		throw MSXException("Couldn't add ", hostPath, ": ",
 		                   e.getMessage());
 	}
 }
@@ -857,7 +859,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 			    (msxName[0] == char(0xE5))) {
 				// Found an unused msx entry. There shouldn't
 				// be any hostfile mapped to this entry.
-				assert(mapDirs.find(dirIndex) == end(mapDirs));
+				assert(!mapDirs.contains(dirIndex));
 				return dirIndex;
 			}
 		}
@@ -882,7 +884,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	writeFAT12(newCluster, EOF_FAT);
 
 	// First entry in this newly allocated cluster is free. Return it.
-	return DirIndex(sector, 0);
+	return {sector, 0};
 }
 
 void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
@@ -921,7 +923,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 {
 	// Create copy of old FAT (to be able to detect changes).
 	vector<SectorBuffer> oldFAT(nofSectorsPerFat);
-	memcpy(&oldFAT[0], fat(), sizeof(oldFAT));
+	memcpy(&oldFAT[0], fat(), SECTOR_SIZE * nofSectorsPerFat);
 
 	// Update current FAT with new data.
 	memcpy(&sectors[sector], &buf, sizeof(buf));
@@ -1074,7 +1076,7 @@ struct NullScanner {
 // Base class for the IsDirSector and DirEntryForCluster scanner algorithms
 // below. This class remembers the directory entry of the last visited subdir.
 struct DirScanner : NullScanner {
-	DirScanner(DirAsDSK::DirIndex& dirDirIndex_)
+	explicit DirScanner(DirAsDSK::DirIndex& dirDirIndex_)
 		: dirDirIndex(dirDirIndex_)
 	{
 		dirDirIndex = DirAsDSK::DirIndex(0, 0); // represents entry for root dir
@@ -1133,14 +1135,14 @@ DirAsDSK::DirIndex DirAsDSK::getDirEntryForCluster(unsigned cluster)
 	if (getDirEntryForCluster(cluster, dirIndex, dirDirIndex)) {
 		return dirIndex;
 	} else {
-		return DirIndex(unsigned(-1), unsigned(-1)); // not found
+		return {unsigned(-1), unsigned(-1)}; // not found
 	}
 }
 
 // Remove the mapping between the msx and host for all the files/dirs in the
 // given msx directory (+ subdirectories).
 struct UnmapHostFiles : NullScanner {
-	UnmapHostFiles(DirAsDSK::MapDirs& mapDirs_)
+	explicit UnmapHostFiles(DirAsDSK::MapDirs& mapDirs_)
 		: mapDirs(mapDirs_) {}
 	bool onDirEntry(DirAsDSK::DirIndex dirIndex,
 	                const MSXDirEntry& /*entry*/) {
@@ -1163,8 +1165,10 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 	}
 	const char* msxName = msxDir(dirIndex).filename;
 	string hostName;
-	auto it = mapDirs.find(dirIndex);
-	if (it == end(mapDirs)) {
+	if (auto v = lookup(mapDirs, dirIndex)) {
+		// Hostname is already known.
+		hostName = v->hostName;
+	} else {
 		// Host file/dir does not yet exist, create hostname from
 		// msx name.
 		if ((msxName[0] == char(0x00)) || (msxName[0] == char(0xE5))) {
@@ -1174,17 +1178,14 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 		string hostSubDir;
 		if (dirDirIndex.sector != 0) {
 			// Not the msx root directory.
-			auto it2 = mapDirs.find(dirDirIndex);
-			assert(it2 != end(mapDirs));
-			hostSubDir = it2->second.hostName;
+			auto v2 = lookup(mapDirs, dirDirIndex);
+			assert(v2);
+			hostSubDir = v2->hostName;
 			assert(!StringOp::endsWith(hostSubDir, '/'));
 			hostSubDir += '/';
 		}
 		hostName = hostSubDir + msxToHostName(msxName);
 		mapDirs[dirIndex].hostName = hostName;
-	} else {
-		// Hostname is already known.
-		hostName = it->second.hostName;
 	}
 	if (msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) {
 		if ((memcmp(msxName, ".          ", 11) == 0) ||
@@ -1233,8 +1234,8 @@ void DirAsDSK::exportToHostDir(DirIndex dirIndex, const string& hostName)
 			msxDirSector = nextMsxDirSector(msxDirSector);
 		} while (msxDirSector != unsigned(-1));
 	} catch (FileException& e) {
-		cliComm.printWarning("Error while syncing host directory: " +
-			hostName + ": " + e.getMessage());
+		cliComm.printWarning("Error while syncing host directory: ",
+		                     hostName, ": ", e.getMessage());
 	}
 }
 
@@ -1273,8 +1274,8 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const string& hostName)
 			curCl = readFAT(curCl);
 		}
 	} catch (FileException& e) {
-		cliComm.printWarning("Error while syncing host file: " +
-			hostName + ": " + e.getMessage());
+		cliComm.printWarning("Error while syncing host file: ",
+		                     hostName, ": ", e.getMessage());
 	}
 }
 
@@ -1296,7 +1297,7 @@ void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
 void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
                              const MSXDirEntry& newEntry)
 {
-	if (memcmp(msxDir(dirIndex).filename, newEntry.filename, 8 + 3) ||
+	if (memcmp(msxDir(dirIndex).filename, newEntry.filename, 8 + 3) != 0 ||
 	    ((msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) !=
 	     (        newEntry.attrib & MSXDirEntry::ATT_DIRECTORY))) {
 		// Name or file-type in the direntry was changed.
@@ -1345,14 +1346,14 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	// Get corresponding directory entry.
 	DirIndex dirIndex = getDirEntryForCluster(startCluster);
 	// no need to check for 'dirIndex.sector == unsigned(-1)'
-	auto it = mapDirs.find(dirIndex);
-	if (it == end(mapDirs)) {
+	auto v = lookup(mapDirs, dirIndex);
+	if (!v) {
 		// This sector was not mapped to a file, nothing more to do.
 		return;
 	}
 
 	// Actually write data to host file.
-	string fullHostName = hostDir + it->second.hostName;
+	string fullHostName = hostDir + v->hostName;
 	try {
 		File file(fullHostName, "rb+"); // don't uncompress
 		file.seek(offset);
@@ -1362,8 +1363,8 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 			file.write(&buf, writeSize);
 		}
 	} catch (FileException& e) {
-		cliComm.printWarning("Couldn't write to file " + fullHostName +
-		                     ": " + e.getMessage());
+		cliComm.printWarning("Couldn't write to file ", fullHostName,
+		                     ": ", e.getMessage());
 	}
 }
 

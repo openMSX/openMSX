@@ -41,7 +41,7 @@ class invalid_code_point : public std::exception
 	uint32_t cp;
 public:
 	explicit invalid_code_point(uint32_t cp_) : cp(cp_) {}
-	const char* what() const throw() override { return "Invalid code point"; }
+	const char* what() const noexcept override { return "Invalid code point"; }
 	uint32_t code_point() const { return cp; }
 };
 
@@ -50,7 +50,7 @@ class invalid_utf8 : public std::exception
 	uint8_t u8;
 public:
 	explicit invalid_utf8(uint8_t u) : u8(u) {}
-	const char* what() const throw() override { return "Invalid UTF-8"; }
+	const char* what() const noexcept override { return "Invalid UTF-8"; }
 	uint8_t utf8_octet() const { return u8; }
 };
 
@@ -59,14 +59,14 @@ class invalid_utf16 : public std::exception
 	uint16_t u16;
 public:
 	explicit invalid_utf16(uint16_t u) : u16(u) {}
-	const char* what() const throw() override { return "Invalid UTF-16"; }
+	const char* what() const noexcept override { return "Invalid UTF-16"; }
 	uint16_t utf16_word() const { return u16; }
 };
 
 class not_enough_room : public std::exception
 {
 public:
-	const char* what() const throw() override { return "Not enough space"; }
+	const char* what() const noexcept override { return "Not enough space"; }
 };
 
 // The library API - functions intended to be called by the users
@@ -191,8 +191,7 @@ void advance(octet_iterator& it, distance_type n, octet_iterator end)
 }
 
 template <typename octet_iterator>
-typename std::iterator_traits<octet_iterator>::difference_type
-distance(octet_iterator first, octet_iterator last)
+auto distance(octet_iterator first, octet_iterator last)
 {
 	typename std::iterator_traits<octet_iterator>::difference_type dist;
 	for (dist = 0; first < last; ++dist) {
@@ -268,7 +267,7 @@ class iterator : public std::iterator<std::bidirectional_iterator_tag, uint32_t>
 	octet_iterator range_start;
 	octet_iterator range_end;
 public:
-	iterator() {};
+	iterator() = default;
 	iterator(const octet_iterator& octet_it,
 	         const octet_iterator& range_start_,
 	         const octet_iterator& range_end_)

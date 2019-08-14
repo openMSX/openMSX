@@ -9,7 +9,7 @@ proc tab {args} {
 	set result [list]
 
 	foreach device [machine_info device] {
-		if {[lindex [machine_info device $device] 0] eq "ROM"} {
+		if {[dict get [machine_info device $device] "type"] eq "ROM"} {
 			lappend result $device
 		}
 	}
@@ -20,7 +20,7 @@ set_tabcompletion_proc rom_info [namespace code tab]
 
 proc getlist_rom_info {{romdevice ""}} {
 	if {$romdevice eq ""} {
-		set romdevice [guess_rom_title]
+		set romdevice [guess_rom_device]
 		if {$romdevice eq ""} {
 			error "No (external) ROM device found"
 		}
@@ -30,14 +30,20 @@ proc getlist_rom_info {{romdevice ""}} {
 		error "No such device: $romdevice"
 	}
 
-	set device_type [lindex [machine_info device $romdevice] 0]
+	set device_type [dict get $device_info "type"]
 	if {$device_type ne "ROM"} {
 		error [format "Device is not of type ROM, but %s" $device_type]
 	}
 
-	if {[catch {set rominfo [openmsx_info software [lindex $device_info 2]]}]} {
-		return
+	set actualSHA1 [dict get $device_info "actualSHA1"]
+	set originalSHA1 [dict get $device_info "originalSHA1"]
+	if {[catch {set rominfo [openmsx_info software $actualSHA1]}]} {
+		# try original sha1 to get more info
+		if {[catch {set rominfo [openmsx_info software $originalSHA1}]} {
+			return
+		}
 	}
+	set softPatched [expr {$actualSHA1 ne $originalSHA1}]
 
 	dict with rominfo {
 		# dummy info for missing items
@@ -67,6 +73,9 @@ proc getlist_rom_info {{romdevice ""}} {
 				}
 			}
 		}
+		if {$softPatched} {
+			set status "$status (patched by openMSX)"
+		}
 
 		return [list \
 				"title"		$title \
@@ -78,8 +87,8 @@ proc getlist_rom_info {{romdevice ""}} {
 	}
 }
 
-proc rom_info {} {
-	set rominfo [rom_info::getlist_rom_info]
+proc rom_info {{romdevice ""}} {
+	set rominfo [rom_info::getlist_rom_info $romdevice]
 
 	if {$rominfo eq ""} {return "No ROM information available..."}
 

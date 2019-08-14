@@ -3,7 +3,7 @@
 #include "WavWriter.hh"
 #include "WavData.hh"
 #include "Filename.hh"
-#include "StringOp.hh"
+#include <cstdint>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -38,7 +38,7 @@ using Samples = vector<int>;
 
 static void error(const string& message)
 {
-	cout << message << endl;
+	cout << message << '\n';
 }
 
 
@@ -52,10 +52,8 @@ static void loadWav(const string& filename, Samples& data)
 {
 	WavData wav(filename);
 	assert(wav.getFreq() == 3579545 / 72);
-	assert(wav.getBits() == 16);
-	assert(wav.getChannels() == 1);
 
-	auto rawData = reinterpret_cast<const short*>(wav.getData());
+	auto rawData = wav.getData();
 	data.assign(rawData, rawData + wav.getSize());
 }
 
@@ -78,7 +76,7 @@ static void createSilence(const Log& log, Samples& result)
 static void test(YM2413Core& core, const Log& log,
                  const Samples* expectedSamples[CHANNELS])
 {
-	cout << " test " << testName << " ..." << endl;
+	cout << " test " << testName << " ...\n";
 
 	Samples generatedSamples[CHANNELS];
 
@@ -109,29 +107,28 @@ static void test(YM2413Core& core, const Log& log,
 		for (unsigned j = 0; j < generatedSamples[i].size(); ++j) {
 			int s = generatedSamples[i][j];
 			s *= factor;
-			assert(s == short(s)); // shouldn't overflow 16-bit
+			assert(s == int16_t(s)); // shouldn't overflow 16-bit
 			generatedSamples[i][j] = s;
 		}
 	}
 
 	// verify generated samples
 	for (unsigned i = 0; i < CHANNELS; ++i) {
-		StringOp::Builder msg;
-		msg << "Error in channel " << i << ": ";
+		string msg = strCat("Error in channel ", i, ": ");
 		bool err = false;
 		if (generatedSamples[i].size() != expectedSamples[i]->size()) {
-			msg << "wrong size, expected " << expectedSamples[i]->size()
-			    << " but got " << generatedSamples[i].size();
+			strAppend(msg, "wrong size, expected ", expectedSamples[i]->size(),
+			          " but got ", generatedSamples[i].size());
 			err = true;
 		} else if (generatedSamples[i] != *expectedSamples[i]) {
-			msg << "Wrong data";
+			strAppend(msg, "Wrong data");
 			err = true;
 		}
 		if (err) {
-			StringOp::Builder filename;
-			filename << "bad-" << coreName << '-' << testName
-			         << "-ch" << i << ".wav";
-			msg << " writing data to " << std::string(filename);
+			string filename = strCat(
+                                "bad-", coreName, '-', testName,
+			         "-ch", i, ".wav");
+			strAppend(msg, " writing data to ", filename);
 			error(msg);
 			saveWav(filename, generatedSamples[i]);
 		}
@@ -217,10 +214,10 @@ template<typename CORE, typename FUNC> void testOnCore(FUNC f)
 template<typename CORE> static void testAll(const string& coreName_)
 {
 	coreName = coreName_;
-	cout << "Testing YM2413 core " << coreName << endl;
+	cout << "Testing YM2413 core " << coreName << '\n';
 	testOnCore<CORE>(testSilence);
 	testOnCore<CORE>(testViolin);
-	cout << endl;
+	cout << '\n';
 }
 
 int main()

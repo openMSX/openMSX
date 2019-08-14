@@ -4,7 +4,6 @@
 #include "SDLSurfacePtr.hh"
 #include <string>
 
-struct SDL_Surface;
 struct SDL_PixelFormat;
 
 namespace openmsx {
@@ -20,12 +19,11 @@ namespace PNG {
 	 */
 	SDLSurfacePtr load(const std::string& filename, bool want32bpp);
 
-	void save(SDL_Surface* image, const std::string& filename);
 	void save(unsigned width, unsigned height, const void** rowPointers,
 	          const SDL_PixelFormat& format, const std::string& filename);
-	void save(unsigned witdh, unsigned height, const void** rowPointers,
+	void save(unsigned width, unsigned height, const void** rowPointers,
 	          const std::string& filename);
-	void saveGrayscale(unsigned witdh, unsigned height,
+	void saveGrayscale(unsigned width, unsigned height,
 	                   const void** rowPointers, const std::string& filename);
 
 } // namespace PNG

@@ -196,6 +196,12 @@ public:
 	  */
 	virtual void globalWrite(word address, byte value, EmuTime::param time);
 
+	/** Global reads. Similar to globalWrite() but then for reads.
+	  * 'Carnivore2' is an example of a device that monitors the MSX bus
+	  * for reads in any slot.
+	  */
+	virtual void globalRead(word address, EmuTime::param time);
+
 	/** Invalidate CPU memory-mapping cache.
 	  * This is a shortcut to the MSXCPU::invalidateMemCache() method,
 	  * see that method for more details.
@@ -247,7 +253,7 @@ protected:
 	  * is called this init() method must be called. The reason is exception
 	  * safety (init() might throw and we use the destructor to clean up
 	  * some stuff, this is more difficult when everything is done in the
-	  * constrcutor).
+	  * constructor).
 	  * This is also a non-public method. This means you can only construct
 	  * MSXDevices via DeviceFactory.
 	  * In rare cases you need to override this method, for example when you

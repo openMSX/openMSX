@@ -38,9 +38,6 @@ public:
 	BooleanSetting& getAutoSaveSetting() {
 		return autoSaveSetting;
 	}
-	BooleanSetting& getPauseOnLostFocusSetting() {
-		return pauseOnLostFocusSetting;
-	}
 	StringSetting& getUMRCallBackSetting() {
 		return umrCallBackSetting;
 	}
@@ -67,7 +64,6 @@ private:
 	BooleanSetting pauseSetting;
 	BooleanSetting powerSetting;
 	BooleanSetting autoSaveSetting;
-	BooleanSetting pauseOnLostFocusSetting;
 	StringSetting  umrCallBackSetting;
 	StringSetting  invalidPsgDirectionsSetting;
 	EnumSetting<ResampledSoundDevice::ResampleType> resampleSetting;

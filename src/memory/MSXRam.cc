@@ -1,10 +1,9 @@
 #include "MSXRam.hh"
 #include "CheckedRam.hh"
-#include "Ram.hh" // because we serialize Ram instead of CheckedRam
 #include "XMLElement.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
@@ -15,9 +14,7 @@ MSXRam::MSXRam(const DeviceConfig& config)
 	// are not yet processed.
 }
 
-MSXRam::~MSXRam()
-{
-}
+MSXRam::~MSXRam() = default;
 
 void MSXRam::init()
 {
@@ -31,7 +28,7 @@ void MSXRam::init()
 	assert( base         <  0x10000);
 	assert((base + size) <= 0x10000);
 
-	checkedRam = make_unique<CheckedRam>(
+	checkedRam = std::make_unique<CheckedRam>(
 		getDeviceConfig2(), getName(), "ram", size);
 }
 

@@ -3,10 +3,10 @@
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
 #include "likely.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "xrange.hh"
-#include <algorithm>
+#include "view.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -51,12 +51,9 @@ static bool overlap(unsigned start1, unsigned size1,
 
 bool MSXMultiMemDevice::canAdd(int base, int size)
 {
-	for (auto i : xrange(ranges.size() - 1)) {
-		if (overlap(base, size, ranges[i].base, ranges[i].size)) {
-			return false;
-		}
-	}
-	return true;
+	return ranges::none_of(view::drop_back(ranges, 1), [&](auto& rn) {
+		return overlap(base, size, rn.base, rn.size);
+	});
 }
 
 void MSXMultiMemDevice::add(MSXDevice& device, int base, int size)
@@ -72,11 +69,8 @@ void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
 
 std::vector<MSXDevice*> MSXMultiMemDevice::getDevices() const
 {
-	std::vector<MSXDevice*> result;
-	for (auto i : xrange(ranges.size() - 1)) {
-		result.push_back(ranges[i].device);
-	}
-	return result;
+	return to_vector(view::transform(view::drop_back(ranges, 1),
+	                                 [](auto& rn) { return rn.device; }));
 }
 
 std::string MSXMultiMemDevice::getName() const

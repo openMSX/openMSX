@@ -15,7 +15,7 @@
     <max_ints>221</max_ints>
   </RenShaTurbo>
 
-  <MapperReadBackBits>largest</MapperReadBackBits>
+  <MapperReadBackBits>2</MapperReadBackBits>
 
   <!-- The cassette port on this machine is combined with the RGB connector -->
 
@@ -61,6 +61,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <RTC id="Real time clock">
@@ -80,7 +81,13 @@
 
     <Matsushita id="Matsushita">
       <sramname>fs-a1wsx_matsushita.sram</sramname>
+      <device idref="VDP"/>
+      <hasturbo>true</hasturbo>
     </Matsushita>
+
+    <T9769 id="T9769">
+      <subtype>C</subtype>
+    </T9769>
 
     <primary slot="0">
 

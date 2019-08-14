@@ -55,7 +55,6 @@ void VDPIODelay::writeIO(word port, byte value, EmuTime::param time)
 
 void VDPIODelay::delay(EmuTime::param time)
 {
-	cpu.waitCycles(1);
 	if (cpu.isR800Active()) {
 		// Number of cycles based on measurements on real HW.
 		// See doc/turbor-vdp-io-timing.ods for details.

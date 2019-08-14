@@ -4,30 +4,26 @@
 #include "PluggingController.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 using std::string;
 
 namespace openmsx {
 
 JoystickPort::JoystickPort(PluggingController& pluggingController_,
-                           string_ref name_, const string& description_)
-	: Connector(pluggingController_, name_, make_unique<DummyJoystick>())
+                           std::string name_, std::string description_)
+	: Connector(pluggingController_, std::move(name_), std::make_unique<DummyJoystick>())
 	, lastValue(255) // != 0
-	, description(description_)
+	, description(std::move(description_))
 {
 }
 
-JoystickPort::~JoystickPort()
-{
-}
-
-const string JoystickPort::getDescription() const
+string_view JoystickPort::getDescription() const
 {
 	return description;
 }
 
-string_ref JoystickPort::getClass() const
+string_view JoystickPort::getClass() const
 {
 	return "Joystick Port";
 }

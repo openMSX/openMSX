@@ -13,7 +13,7 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void RomInfoTopic::execute(array_ref<TclObject> tokens, TclObject& result) const
+void RomInfoTopic::execute(span<const TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -25,10 +25,8 @@ void RomInfoTopic::execute(array_ref<TclObject> tokens, TclObject& result) const
 		if (type == ROM_UNKNOWN) {
 			throw CommandException("Unknown rom type");
 		}
-		result.addListElement("description");
-		result.addListElement(RomInfo::getDescription(type));
-		result.addListElement("blocksize");
-		result.addListElement(int(RomInfo::getBlockSize(type)));
+		result.addDictKeyValues("description", RomInfo::getDescription(type),
+		                        "blocksize", int(RomInfo::getBlockSize(type)));
 		break;
 	}
 	default:

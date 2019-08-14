@@ -3,8 +3,10 @@
 
 #include "Event.hh"
 #include "Keys.hh"
+#include "TclObject.hh"
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -15,6 +17,7 @@ public:
 	uint64_t getRealTime() const { return realtime; }
 protected:
 	explicit TimedEvent(EventType type);
+	~TimedEvent() = default;
 private:
 	const uint64_t realtime;
 };
@@ -24,30 +27,32 @@ class KeyEvent : public TimedEvent
 {
 public:
 	Keys::KeyCode getKeyCode() const { return keyCode; }
-	uint16_t getUnicode() const { return unicode; }
+	uint32_t getUnicode() const { return unicode; }
 
 protected:
-	KeyEvent(EventType type, Keys::KeyCode keyCode, uint16_t unicode);
+	KeyEvent(EventType type, Keys::KeyCode keyCode, uint32_t unicode);
+	~KeyEvent() = default;
 
 private:
-	void toStringImpl(TclObject& result) const override;
+	TclObject toTclList() const override;
 	bool lessImpl(const Event& other) const override;
 	const Keys::KeyCode keyCode;
-	const uint16_t unicode;
+	const uint32_t unicode;
 };
 
-class KeyUpEvent : public KeyEvent
+class KeyUpEvent final : public KeyEvent
 {
 public:
 	explicit KeyUpEvent(Keys::KeyCode keyCode);
-	KeyUpEvent(Keys::KeyCode keyCode, uint16_t unicode);
 };
 
-class KeyDownEvent : public KeyEvent
+class KeyDownEvent final : public KeyEvent
 {
 public:
-	explicit KeyDownEvent(Keys::KeyCode keyCode);
-	KeyDownEvent(Keys::KeyCode keyCode, uint16_t unicode);
+	explicit KeyDownEvent(Keys::KeyCode keyCode_)
+		: KeyDownEvent(keyCode_, 0) {}
+
+	explicit KeyDownEvent(Keys::KeyCode keyCode, uint32_t unicode);
 };
 
 
@@ -57,37 +62,48 @@ public:
 	static const unsigned LEFT      = 1;
 	static const unsigned MIDDLE    = 2;
 	static const unsigned RIGHT     = 3;
-	static const unsigned WHEELUP   = 4;
-	static const unsigned WHEELDOWN = 5;
 
 	unsigned getButton() const { return button; }
 
 protected:
 	MouseButtonEvent(EventType type, unsigned button_);
-	void toStringHelper(TclObject& result) const;
+	~MouseButtonEvent() = default;
+	TclObject toTclHelper(string_view direction) const;
 
 private:
 	bool lessImpl(const Event& other) const override;
 	const unsigned button;
 };
 
-class MouseButtonUpEvent : public MouseButtonEvent
+class MouseButtonUpEvent final : public MouseButtonEvent
 {
 public:
 	explicit MouseButtonUpEvent(unsigned button);
-private:
-	void toStringImpl(TclObject& result) const override;
+	TclObject toTclList() const override;
 };
 
-class MouseButtonDownEvent : public MouseButtonEvent
+class MouseButtonDownEvent final : public MouseButtonEvent
 {
 public:
 	explicit MouseButtonDownEvent(unsigned button);
-private:
-	void toStringImpl(TclObject& result) const override;
+	TclObject toTclList() const override;
 };
 
-class MouseMotionEvent : public TimedEvent
+class MouseWheelEvent final : public TimedEvent
+{
+public:
+	MouseWheelEvent(int x, int y);
+	int getX() const  { return x; }
+	int getY() const  { return y; }
+	TclObject toTclList() const override;
+
+private:
+	bool lessImpl(const Event& other) const override;
+	const int x;
+	const int y;
+};
+
+class MouseMotionEvent final : public TimedEvent
 {
 public:
 	MouseMotionEvent(int xrel, int yrel, int xabs, int yabs);
@@ -95,26 +111,15 @@ public:
 	int getY() const    { return yrel; }
 	int getAbsX() const { return xabs; }
 	int getAbsY() const { return yabs; }
+	TclObject toTclList() const override;
+
 private:
-	void toStringImpl(TclObject& result) const override;
 	bool lessImpl(const Event& other) const override;
 	const int xrel;
 	const int yrel;
 	const int xabs;
 	const int yabs;
 };
-
-class MouseMotionGroupEvent : public Event
-{
-public:
-	MouseMotionGroupEvent();
-
-private:
-	void toStringImpl(TclObject& result) const override;
-	bool lessImpl(const Event& other) const override;
-	bool matches(const Event& other) const override;
-};
-
 
 class JoystickEvent : public TimedEvent
 {
@@ -123,7 +128,8 @@ public:
 
 protected:
 	JoystickEvent(EventType type, unsigned joystick);
-	void toStringHelper(TclObject& result) const;
+	~JoystickEvent() = default;
+	TclObject toTclHelper() const;
 
 private:
 	bool lessImpl(const Event& other) const override;
@@ -138,97 +144,94 @@ public:
 
 protected:
 	JoystickButtonEvent(EventType type, unsigned joystick, unsigned button);
-	void toStringHelper(TclObject& result) const;
+	~JoystickButtonEvent() = default;
+	TclObject toTclHelper(string_view direction) const;
 
 private:
 	bool lessImpl(const JoystickEvent& other) const override;
 	const unsigned button;
 };
 
-class JoystickButtonUpEvent : public JoystickButtonEvent
+class JoystickButtonUpEvent final : public JoystickButtonEvent
 {
 public:
 	JoystickButtonUpEvent(unsigned joystick, unsigned button);
-private:
-	void toStringImpl(TclObject& result) const override;
+	TclObject toTclList() const override;
 };
 
-class JoystickButtonDownEvent : public JoystickButtonEvent
+class JoystickButtonDownEvent final : public JoystickButtonEvent
 {
 public:
 	JoystickButtonDownEvent(unsigned joystick, unsigned button);
-private:
-	void toStringImpl(TclObject& result) const override;
+	TclObject toTclList() const override;
 };
 
-class JoystickAxisMotionEvent : public JoystickEvent
+class JoystickAxisMotionEvent final : public JoystickEvent
 {
 public:
 	static const unsigned X_AXIS = 0;
 	static const unsigned Y_AXIS = 1;
 
-	JoystickAxisMotionEvent(unsigned joystick, unsigned axis, short value);
+	JoystickAxisMotionEvent(unsigned joystick, unsigned axis, int value);
 	unsigned getAxis() const { return axis; }
-	short getValue() const { return value; }
+	int getValue() const { return value; }
+	TclObject toTclList() const override;
 
 private:
-	void toStringImpl(TclObject& result) const override;
 	bool lessImpl(const JoystickEvent& other) const override;
 	const unsigned axis;
-	const short value;
+	const int value;
 };
 
-class JoystickHatEvent : public JoystickEvent
+class JoystickHatEvent final : public JoystickEvent
 {
 public:
 	JoystickHatEvent(unsigned joystick, unsigned hat, unsigned value);
 	unsigned getHat()   const { return hat; }
 	unsigned getValue() const { return value; }
+	TclObject toTclList() const override;
 
 private:
-	void toStringImpl(TclObject& result) const override;
 	bool lessImpl(const JoystickEvent& other) const override;
 	const unsigned hat;
 	const unsigned value;
 };
 
 
-class FocusEvent : public Event
+class FocusEvent final : public Event
 {
 public:
 	explicit FocusEvent(bool gain);
-
 	bool getGain() const { return gain; }
+	TclObject toTclList() const override;
 
 private:
-	void toStringImpl(TclObject& result) const override;
 	bool lessImpl(const Event& other) const override;
 	const bool gain;
 };
 
 
-class ResizeEvent : public Event
+class ResizeEvent final : public Event
 {
 public:
 	ResizeEvent(unsigned x, unsigned y);
-
 	unsigned getX() const { return x; }
 	unsigned getY() const { return y; }
+	TclObject toTclList() const override;
 
 private:
-	void toStringImpl(TclObject& result) const override;
 	bool lessImpl(const Event& other) const override;
 	const unsigned x;
 	const unsigned y;
 };
 
 
-class QuitEvent : public Event
+class QuitEvent final : public Event
 {
 public:
 	QuitEvent();
+	TclObject toTclList() const override;
 private:
-	void toStringImpl(TclObject& result) const override;
 	bool lessImpl(const Event& other) const override;
 };
 
@@ -255,36 +258,50 @@ public:
 	 *  - if the original host event is a joystick motion event, we
 	 *    should not stop repeat for 'small' relative new joystick events.
 	 */
-	bool isRepeatStopper(const Event& other) const override;
+	bool isRepeatStopper(const Event& other) const final override;
 
 protected:
 	OsdControlEvent(EventType type, unsigned button_,
-	                const std::shared_ptr<const Event>& origEvent);
-	void toStringHelper(TclObject& result) const;
+	                std::shared_ptr<const Event> origEvent);
+	~OsdControlEvent() = default;
+	TclObject toTclHelper(string_view direction) const;
 
 private:
-	bool lessImpl(const Event& other) const override;
+	bool lessImpl(const Event& other) const final override;
 	const std::shared_ptr<const Event> origEvent;
 	const unsigned button;
 };
 
-class OsdControlReleaseEvent : public OsdControlEvent
+class OsdControlReleaseEvent final : public OsdControlEvent
 {
 public:
 	OsdControlReleaseEvent(unsigned button,
 	                       const std::shared_ptr<const Event>& origEvent);
-private:
-	void toStringImpl(TclObject& result) const override;
+	TclObject toTclList() const override;
 };
 
-class OsdControlPressEvent : public OsdControlEvent
+class OsdControlPressEvent final : public OsdControlEvent
 {
 public:
 	OsdControlPressEvent(unsigned button,
 	                     const std::shared_ptr<const Event>& origEvent);
-private:
-	void toStringImpl(TclObject& result) const override;
+	TclObject toTclList() const override;
 };
+
+
+class GroupEvent final : public Event
+{
+public:
+	GroupEvent(EventType type, std::vector<EventType> typesToMatch, const TclObject& tclListComponents);
+	TclObject toTclList() const override;
+
+private:
+	bool lessImpl(const Event& other) const override;
+	bool matches(const Event& other) const override;
+	const std::vector<EventType> typesToMatch;
+	const TclObject tclListComponents;
+};
+
 
 } // namespace openmsx
 

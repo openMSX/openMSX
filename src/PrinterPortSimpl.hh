@@ -13,7 +13,7 @@ class PrinterPortSimpl final : public PrinterPortDevice
 {
 public:
 	explicit PrinterPortSimpl(const HardwareConfig& hwConf);
-	~PrinterPortSimpl();
+	~PrinterPortSimpl() override;
 
 	// PrinterPortDevice
 	bool getStatus(EmuTime::param time) override;
@@ -22,7 +22,7 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 

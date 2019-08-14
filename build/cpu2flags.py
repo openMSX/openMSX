@@ -1,3 +1,4 @@
+from __future__ import print_function
 from cpu import getCPU
 
 import sys
@@ -10,9 +11,9 @@ if __name__ == '__main__':
 	if len(sys.argv) == 2:
 		cpuName = sys.argv[1]
 		try:
-			print getCPUFlags(cpuName)
+			print(getCPUFlags(cpuName))
 		except KeyError:
-			print >> sys.stderr, 'Unknown CPU "%s"' % cpuName
+			print('Unknown CPU "%s"' % cpuName, file=sys.stderr)
 	else:
-		print >> sys.stderr, 'Usage: python cpu2flags.py OPENMSX_TARGET_CPU'
+		print('Usage: python cpu2flags.py OPENMSX_TARGET_CPU', file=sys.stderr)
 		sys.exit(2)

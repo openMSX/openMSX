@@ -6,17 +6,15 @@
 #include "Scaler.hh"
 #include "ScalerFactory.hh"
 #include "OutputSurface.hh"
-#include "IntegerSetting.hh"
-#include "FloatSetting.hh"
-#include "BooleanSetting.hh"
-#include "EnumSetting.hh"
 #include "Math.hh"
 #include "aligned.hh"
 #include "random.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
+#include <cstddef>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -45,8 +43,8 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 		// alternative is to turn noiseBuf into an array of ints (it's
 		// now bytes) and in the 16bpp code extract R,G,B components
 		// from those ints
-		const Pixel p = Pixel(OPENMSX_BIGENDIAN ? 0x00010203
-		                                        : 0x03020100);
+		const auto p = Pixel(OPENMSX_BIGENDIAN ? 0x00010203
+		                                       : 0x03020100);
 		// TODO we can also fill the array with 'factor' and only set
 		// 'alpha' to 0.0. But PixelOperations doesn't offer a simple
 		// way to get the position of the alpha byte (yet).
@@ -74,7 +72,7 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 }
 
 #ifdef __SSE2__
-static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, long width)
+static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, size_t width)
 {
 	// To each of the RGBA color components (a value in range [0..255]) we
 	// want to add a signed noise value (in range [-128..127]) and also clip
@@ -89,7 +87,7 @@ static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, long wi
 	//   signed_add_sat(value ^ 128, noise) ^ 128
 	// The follwoing loop does just that, though it processes 64 bytes per
 	// iteration.
-	long x = width * sizeof(uint32_t);
+	ptrdiff_t x = width * sizeof(uint32_t);
 	assert((x & 63) == 0);
 	assert((uintptr_t(buf_) & 15) == 0);
 
@@ -164,7 +162,7 @@ static inline uint32_t addNoise4(uint32_t p, uint32_t n)
 
 template <class Pixel>
 void FBPostProcessor<Pixel>::drawNoiseLine(
-		Pixel* buf, signed char* noise, unsigned long width)
+		Pixel* buf, signed char* noise, size_t width)
 {
 #ifdef __SSE2__
 	if (sizeof(Pixel) == 4) {
@@ -179,14 +177,14 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 	if (sizeof(Pixel) == 4) {
 		// optimized version for 32bpp
 		auto noise4 = reinterpret_cast<uint32_t*>(noise);
-		for (unsigned i = 0; i < width; ++i) {
+		for (size_t i = 0; i < width; ++i) {
 			buf[i] = addNoise4(buf[i], noise4[i]);
 		}
 	} else {
 		int mr = pixelOps.getMaxRed();
 		int mg = pixelOps.getMaxGreen();
 		int mb = pixelOps.getMaxBlue();
-		for (unsigned i = 0; i < width; ++i) {
+		for (size_t i = 0; i < width; ++i) {
 			Pixel p = buf[i];
 			int r = pixelOps.red(p);
 			int g = pixelOps.green(p);
@@ -214,7 +212,7 @@ void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output)
 	unsigned w = output.getWidth();
 	output.lock();
 	for (unsigned y = 0; y < h; ++y) {
-		Pixel* buf = output.getLinePtrDirect<Pixel>(y);
+		auto* buf = output.getLinePtrDirect<Pixel>(y);
 		drawNoiseLine(buf, &noiseBuf[noiseShift[y]], w);
 	}
 }
@@ -311,7 +309,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		//	srcStartY, srcEndY, lineWidth );
 		output.lock();
 		float horStretch = renderSettings.getHorizontalStretch();
-		unsigned inWidth = unsigned(horStretch + 0.5f);
+		unsigned inWidth = lrintf(horStretch);
 		std::unique_ptr<ScalerOutput<Pixel>> dst(
 			StretchScalerOutputFactory<Pixel>::create(
 				output, pixelOps, inWidth));
@@ -327,7 +325,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 
 	drawNoise(output);
 
-	output.flushFrameBuffer(); // for SDLGL-FBxx
+	output.flushFrameBuffer();
 }
 
 template <class Pixel>

@@ -3,6 +3,7 @@
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileException.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 
@@ -24,7 +25,7 @@ FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 		setting.setBoolean(bytebuf != 0);
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
-			"Couldn't load firmwareswitch status: " + e.getMessage());
+			"Couldn't load firmwareswitch status: ", e.getMessage());
 	}
 }
 
@@ -38,7 +39,7 @@ FirmwareSwitch::~FirmwareSwitch()
 		file.write(&bytebuf, 1);
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
-			"Couldn't save firmwareswitch status: " + e.getMessage());
+			"Couldn't save firmwareswitch status: ", e.getMessage());
 	}
 }
 

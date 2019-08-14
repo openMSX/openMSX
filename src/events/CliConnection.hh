@@ -2,13 +2,14 @@
 #define CLICONNECTION_HH
 
 #include "CliListener.hh"
-#include "Thread.hh"
 #include "EventListener.hh"
 #include "Socket.hh"
 #include "CliComm.hh"
 #include "AdhocCliCommParser.hh"
+#include "Poller.hh"
 #include <mutex>
 #include <string>
+#include <thread>
 
 namespace openmsx {
 
@@ -16,7 +17,6 @@ class CommandController;
 class EventDistributor;
 
 class CliConnection : public CliListener, private EventListener
-                    , protected Runnable
 {
 public:
 	void setUpdateEnable(CliComm::UpdateType type, bool value) {
@@ -36,9 +36,9 @@ public:
 protected:
 	CliConnection(CommandController& commandController,
 	              EventDistributor& eventDistributor);
-	~CliConnection();
+	~CliConnection() override;
 
-	virtual void output(string_ref message) = 0;
+	virtual void output(string_view message) = 0;
 
 	/** End this connection by sending the closing tag
 	  * and then closing the stream.
@@ -59,21 +59,25 @@ protected:
 	void startOutput();
 
 	AdhocCliCommParser parser;
-	Thread thread; // TODO: Possible to make this private?
+	Poller poller;
 
 private:
+	virtual void run() = 0;
+
 	void execute(const std::string& command);
 
 	// CliListener
-	void log(CliComm::LogLevel level, string_ref message) override;
-	void update(CliComm::UpdateType type, string_ref machine,
-	            string_ref name, string_ref value) override;
+	void log(CliComm::LogLevel level, string_view message) override;
+	void update(CliComm::UpdateType type, string_view machine,
+	            string_view name, string_view value) override;
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
+
+	std::thread thread;
 
 	bool updateEnabled[CliComm::NUM_UPDATES];
 };
@@ -83,15 +87,13 @@ class StdioConnection final : public CliConnection
 public:
 	StdioConnection(CommandController& commandController,
 	                EventDistributor& eventDistributor);
-	~StdioConnection();
+	~StdioConnection() override;
 
-	void output(string_ref message) override;
+	void output(string_view message) override;
 
 private:
 	void close() override;
 	void run() override;
-
-	bool ok;
 };
 
 #ifdef _WIN32
@@ -100,10 +102,10 @@ class PipeConnection final : public CliConnection
 public:
 	PipeConnection(CommandController& commandController,
 	               EventDistributor& eventDistributor,
-	               string_ref name);
-	~PipeConnection();
+	               string_view name);
+	~PipeConnection() override;
 
-	void output(string_ref message) override;
+	void output(string_view message) override;
 
 private:
 	void close() override;
@@ -120,15 +122,16 @@ public:
 	SocketConnection(CommandController& commandController,
 	                 EventDistributor& eventDistributor,
 	                 SOCKET sd);
-	~SocketConnection();
+	~SocketConnection() override;
 
-	void output(string_ref message) override;
+	void output(string_view message) override;
 
 private:
 	void close() override;
 	void run() override;
+	void closeSocket();
 
-	std::mutex mutex;
+	std::mutex sdMutex;
 	SOCKET sd;
 	bool established;
 };

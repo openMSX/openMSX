@@ -6,7 +6,7 @@ namespace openmsx {
 class SoundDriver
 {
 public:
-	virtual ~SoundDriver() {}
+	virtual ~SoundDriver() = default;
 
 	/** Mute the sound system
 	 */
@@ -26,10 +26,10 @@ public:
 	  */
 	virtual unsigned getSamples() const = 0;
 
-	virtual void uploadBuffer(short* buffer, unsigned len) = 0;
+	virtual void uploadBuffer(float* buffer, unsigned len) = 0;
 
 protected:
-	SoundDriver() {}
+	SoundDriver() = default;
 };
 
 } // namespace openmsx

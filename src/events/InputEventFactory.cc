@@ -1,7 +1,6 @@
 #include "InputEventFactory.hh"
 #include "InputEvents.hh"
 #include "CommandException.hh"
-#include "Interpreter.hh"
 #include "TclObject.hh"
 #include <stdexcept>
 #include <SDL.h>
@@ -11,14 +10,14 @@ using std::make_shared;
 namespace openmsx {
 namespace InputEventFactory {
 
-static EventPtr parseKeyEvent(string_ref str, unsigned unicode)
+static EventPtr parseKeyEvent(string_view str, uint32_t unicode)
 {
 	auto keyCode = Keys::getCode(str);
 	if (keyCode == Keys::K_NONE) {
-		throw CommandException("Invalid keycode: " + str);
+		throw CommandException("Invalid keycode: ", str);
 	}
 	if (keyCode & Keys::KD_RELEASE) {
-		return make_shared<KeyUpEvent  >(keyCode, unicode);
+		return make_shared<KeyUpEvent>(keyCode);
 	} else {
 		return make_shared<KeyDownEvent>(keyCode, unicode);
 	}
@@ -27,7 +26,12 @@ static EventPtr parseKeyEvent(string_ref str, unsigned unicode)
 static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
 {
 	auto len = str.getListLength(interp);
-	if (len == 2) {
+	if (len == 1) {
+		return make_shared<GroupEvent>(
+			OPENMSX_KEY_GROUP_EVENT,
+			std::vector<EventType>{OPENMSX_KEY_UP_EVENT, OPENMSX_KEY_DOWN_EVENT},
+			makeTclList("keyb"));
+	} else if (len == 2) {
 		auto comp1 = str.getListIndex(interp, 1).getString();
 		return parseKeyEvent(comp1, 0);
 	} else if (len == 3) {
@@ -42,10 +46,10 @@ static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
 			}
 		}
 	}
-	throw CommandException("Invalid keyboard event: " + str.getString());
+	throw CommandException("Invalid keyboard event: ", str.getString());
 }
 
-static bool upDown(string_ref str)
+static bool upDown(string_view str)
 {
 	if (str == "up") {
 		return true;
@@ -53,7 +57,7 @@ static bool upDown(string_ref str)
 		return false;
 	}
 	throw CommandException(
-		"Invalid direction (expected 'up' or 'down'): " + str);
+		"Invalid direction (expected 'up' or 'down'): ", str);
 }
 
 static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
@@ -63,7 +67,10 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 		auto comp1 = str.getListIndex(interp, 1).getString();
 		if (comp1 == "motion") {
 			if (len == 2) {
-				return make_shared<MouseMotionGroupEvent>();
+				return make_shared<GroupEvent>(
+					OPENMSX_MOUSE_MOTION_GROUP_EVENT,
+					std::vector<EventType>{OPENMSX_MOUSE_MOTION_EVENT},
+					makeTclList("mouse", comp1));
 			} else if ((len == 4) || (len == 6)) {
 				int absX = 0, absY = 0;
 				if (len == 6) {
@@ -77,20 +84,38 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 					str.getListIndex(interp, 3).getInt(interp),
 					absX, absY);
 			}
-		} else if (comp1.starts_with("button") && (len == 3)) {
-			try {
-				unsigned button = fast_stou(comp1.substr(6));
-				if (upDown(str.getListIndex(interp, 2).getString())) {
-					return make_shared<MouseButtonUpEvent>  (button);
-				} else {
-					return make_shared<MouseButtonDownEvent>(button);
+		} else if (comp1.starts_with("button")) {
+			if (len == 2) {
+				return make_shared<GroupEvent>(
+					OPENMSX_MOUSE_BUTTON_GROUP_EVENT,
+					std::vector<EventType>{OPENMSX_MOUSE_BUTTON_UP_EVENT, OPENMSX_MOUSE_BUTTON_DOWN_EVENT},
+					makeTclList("mouse", "button"));
+			} else if (len == 3) {
+				try {
+					unsigned button = fast_stou(comp1.substr(6));
+					if (upDown(str.getListIndex(interp, 2).getString())) {
+						return make_shared<MouseButtonUpEvent>  (button);
+					} else {
+						return make_shared<MouseButtonDownEvent>(button);
+					}
+				} catch (std::invalid_argument&) {
+					// parse error in fast_stou()
 				}
-			} catch (std::invalid_argument&) {
-				// parse error in fast_stou()
+			}
+		} else if (comp1 == "wheel") {
+			if (len == 2) {
+				return make_shared<GroupEvent>(
+					OPENMSX_MOUSE_WHEEL_GROUP_EVENT,
+					std::vector<EventType>{OPENMSX_MOUSE_WHEEL_EVENT},
+					makeTclList("mouse", comp1));
+			} else if (len == 4) {
+				return make_shared<MouseWheelEvent>(
+					str.getListIndex(interp, 2).getInt(interp),
+					str.getListIndex(interp, 3).getInt(interp));
 			}
 		}
 	}
-	throw CommandException("Invalid mouse event: " + str.getString());
+	throw CommandException("Invalid mouse event: ", str.getString());
 }
 
 static EventPtr parseOsdControlEvent(const TclObject& str, Interpreter& interp)
@@ -120,58 +145,79 @@ static EventPtr parseOsdControlEvent(const TclObject& str, Interpreter& interp)
 			return make_shared<OsdControlPressEvent>  (button, nullptr);
 		}
 	}
-error:	throw CommandException("Invalid OSDcontrol event: " + str.getString());
+error:	throw CommandException("Invalid OSDcontrol event: ", str.getString());
 }
 
 static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
 {
-	try {
-		if (str.getListLength(interp) != 3) goto error;
-
+	auto len = str.getListLength(interp);
+	if (len >= 2) {
 		auto comp0 = str.getListIndex(interp, 0).getString(); // joyN
 		auto comp1 = str.getListIndex(interp, 1).getString();
-		auto comp2 = str.getListIndex(interp, 2);
-		unsigned joystick = fast_stou(comp0.substr(3)) - 1;
 
-		if (comp1.starts_with("button")) {
-			unsigned button = fast_stou(comp1.substr(6));
-			if (upDown(comp2.getString())) {
-				return make_shared<JoystickButtonUpEvent>  (joystick, button);
-			} else {
-				return make_shared<JoystickButtonDownEvent>(joystick, button);
+		if (len == 2) {
+			if (comp1.starts_with("button")) {
+				return make_shared<GroupEvent>(
+					OPENMSX_JOY_BUTTON_GROUP_EVENT,
+					std::vector<EventType>{OPENMSX_JOY_BUTTON_UP_EVENT, OPENMSX_JOY_BUTTON_DOWN_EVENT},
+					makeTclList("joy", "button"));
+			} else if (comp1.starts_with("axis")) {
+				return make_shared<GroupEvent>(
+					OPENMSX_JOY_AXIS_MOTION_GROUP_EVENT,
+					std::vector<EventType>{OPENMSX_JOY_AXIS_MOTION_EVENT},
+					makeTclList("joy", "axis"));
+			} else if (comp1.starts_with("hat")) {
+				return make_shared<GroupEvent>(
+					OPENMSX_JOY_HAT_GROUP_EVENT,
+					std::vector<EventType>{OPENMSX_JOY_HAT_EVENT},
+					makeTclList("joy", "hat"));
 			}
-		} else if (comp1.starts_with("axis")) {
-			unsigned axis = fast_stou(comp1.substr(4));
-			int value = str.getListIndex(interp, 2).getInt(interp);
-			return make_shared<JoystickAxisMotionEvent>(joystick, axis, value);
-		} else if (comp1.starts_with("hat")) {
-			unsigned hat = fast_stou(comp1.substr(3));
-			auto valueStr = str.getListIndex(interp, 2).getString();
-			int value;
-			if      (valueStr == "up")        value = SDL_HAT_UP;
-			else if (valueStr == "right")     value = SDL_HAT_RIGHT;
-			else if (valueStr == "down")      value = SDL_HAT_DOWN;
-			else if (valueStr == "left")      value = SDL_HAT_LEFT;
-			else if (valueStr == "rightup")   value = SDL_HAT_RIGHTUP;
-			else if (valueStr == "rightdown") value = SDL_HAT_RIGHTDOWN;
-			else if (valueStr == "leftup")    value = SDL_HAT_LEFTUP;
-			else if (valueStr == "leftdown")  value = SDL_HAT_LEFTDOWN;
-			else if (valueStr == "center")    value = SDL_HAT_CENTERED;
-			else {
-				throw CommandException("Invalid hat value: " + valueStr);
+		} else if (len == 3) {
+			try {
+				auto comp2 = str.getListIndex(interp, 2);
+				unsigned joystick = fast_stou(comp0.substr(3)) - 1;
+
+				if (comp1.starts_with("button")) {
+					unsigned button = fast_stou(comp1.substr(6));
+					if (upDown(comp2.getString())) {
+						return make_shared<JoystickButtonUpEvent>  (joystick, button);
+					} else {
+						return make_shared<JoystickButtonDownEvent>(joystick, button);
+					}
+				} else if (comp1.starts_with("axis")) {
+					unsigned axis = fast_stou(comp1.substr(4));
+					int value = str.getListIndex(interp, 2).getInt(interp);
+					return make_shared<JoystickAxisMotionEvent>(joystick, axis, value);
+				} else if (comp1.starts_with("hat")) {
+					unsigned hat = fast_stou(comp1.substr(3));
+					auto valueStr = str.getListIndex(interp, 2).getString();
+					int value;
+					if      (valueStr == "up")        value = SDL_HAT_UP;
+					else if (valueStr == "right")     value = SDL_HAT_RIGHT;
+					else if (valueStr == "down")      value = SDL_HAT_DOWN;
+					else if (valueStr == "left")      value = SDL_HAT_LEFT;
+					else if (valueStr == "rightup")   value = SDL_HAT_RIGHTUP;
+					else if (valueStr == "rightdown") value = SDL_HAT_RIGHTDOWN;
+					else if (valueStr == "leftup")    value = SDL_HAT_LEFTUP;
+					else if (valueStr == "leftdown")  value = SDL_HAT_LEFTDOWN;
+					else if (valueStr == "center")    value = SDL_HAT_CENTERED;
+					else {
+						throw CommandException("Invalid hat value: ", valueStr);
+					}
+					return make_shared<JoystickHatEvent>(joystick, hat, value);
+				}
+			} catch (std::invalid_argument&) {
+				// parse error in fast_stou()
 			}
-			return make_shared<JoystickHatEvent>(joystick, hat, value);
 		}
-	} catch (std::invalid_argument&) {
-		// parse error in fast_stou()
 	}
-error:	throw CommandException("Invalid joystick event: " + str.getString());
+	throw CommandException("Invalid joystick event: ", str.getString());
 }
 
 static EventPtr parseFocusEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 2) {
-		throw CommandException("Invalid focus event: " + str.getString());
+		throw CommandException("Invalid focus event: ", str.getString());
 	}
 	return make_shared<FocusEvent>(str.getListIndex(interp, 1).getBoolean(interp));
 }
@@ -179,7 +225,7 @@ static EventPtr parseFocusEvent(const TclObject& str, Interpreter& interp)
 static EventPtr parseResizeEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 3) {
-		throw CommandException("Invalid resize event: " + str.getString());
+		throw CommandException("Invalid resize event: ", str.getString());
 	}
 	return make_shared<ResizeEvent>(
 		str.getListIndex(interp, 1).getInt(interp),
@@ -189,7 +235,7 @@ static EventPtr parseResizeEvent(const TclObject& str, Interpreter& interp)
 static EventPtr parseQuitEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 1) {
-		throw CommandException("Invalid quit event: " + str.getString());
+		throw CommandException("Invalid quit event: ", str.getString());
 	}
 	return make_shared<QuitEvent>();
 }
@@ -197,7 +243,7 @@ static EventPtr parseQuitEvent(const TclObject& str, Interpreter& interp)
 EventPtr createInputEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) == 0) {
-		throw CommandException("Invalid event: " + str.getString());
+		throw CommandException("Invalid event: ", str.getString());
 	}
 	auto type = str.getListIndex(interp, 0).getString();
 	if (type == "keyb") {
@@ -222,7 +268,7 @@ EventPtr createInputEvent(const TclObject& str, Interpreter& interp)
 		return parseKeyEvent(type, 0);
 	}
 }
-EventPtr createInputEvent(string_ref str, Interpreter& interp)
+EventPtr createInputEvent(string_view str, Interpreter& interp)
 {
 	return createInputEvent(TclObject(str), interp);
 }

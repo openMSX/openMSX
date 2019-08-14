@@ -7,12 +7,11 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+#include "Math.hh"
 #include "unreachable.hh"
 #include <SDL.h>
 
 using std::string;
-using std::min;
-using std::max;
 using std::shared_ptr;
 
 namespace openmsx {
@@ -29,7 +28,7 @@ static const int STROBE = 0x04;
 class MouseState final : public StateChange
 {
 public:
-	MouseState() {} // for serialize
+	MouseState() = default; // for serialize
 	MouseState(EmuTime::param time_, int deltaX_, int deltaY_,
 	           byte press_, byte release_)
 		: StateChange(time_)
@@ -42,10 +41,10 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("deltaX", deltaX);
-		ar.serialize("deltaY", deltaY);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("deltaX",  deltaX,
+		             "deltaY",  deltaY,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	int deltaX, deltaY;
@@ -82,7 +81,7 @@ const string& Mouse::getName() const
 	return name;
 }
 
-string_ref Mouse::getDescription() const
+string_view Mouse::getDescription() const
 {
 	return "MSX mouse";
 }
@@ -219,8 +218,21 @@ void Mouse::write(byte value, EmuTime::param time)
 		case PHASE_YLOW:
 			if ((value & STROBE) != 0) {
 				phase = PHASE_XHIGH;
+#if 0
+				// Real MSX mice don't have overflow protection,
+				// verified on a Philips SBC3810 MSX mouse.
 				xrel = curxrel; yrel = curyrel;
 				curxrel = 0; curyrel = 0;
+#else
+				// Nevertheless we do emulate it here. See
+				// sdsnatcher's post of 30 aug 2018 for a
+				// motivation for this difference:
+				//   https://github.com/openMSX/openMSX/issues/892
+				xrel = Math::clip<-128, 127>(curxrel);
+				yrel = Math::clip<-128, 127>(curyrel);
+				curxrel -= xrel;
+				curyrel -= yrel;
+#endif
 			}
 			break;
 		}
@@ -231,7 +243,7 @@ void Mouse::write(byte value, EmuTime::param time)
 
 
 // MSXEventListener
-void Mouse::signalEvent(const shared_ptr<const Event>& event, EmuTime::param time)
+void Mouse::signalMSXEvent(const shared_ptr<const Event>& event, EmuTime::param time)
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
@@ -347,15 +359,15 @@ void Mouse::serialize(Archive& ar, unsigned version)
 	} else {
 		ar.serialize("lastTime", lastTime);
 	}
-	ar.serialize("faze", phase); // TODO fix spelling if there's ever a need
-	                             // to bump the serialization verion
-	ar.serialize("xrel", xrel);
-	ar.serialize("yrel", yrel);
-	ar.serialize("mouseMode", mouseMode);
+	ar.serialize("faze",      phase, // TODO fix spelling if there's ever a need
+	                                 // to bump the serialization verion
+	             "xrel",      xrel,
+	             "yrel",      yrel,
+	             "mouseMode", mouseMode);
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("curxrel", curxrel);
-		ar.serialize("curyrel", curyrel);
-		ar.serialize("status",  status);
+		ar.serialize("curxrel", curxrel,
+		             "curyrel", curyrel,
+		             "status",  status);
 	}
 	if (ar.versionBelow(version, 3)) {
 		xrel    /= SCALE;

@@ -13,46 +13,39 @@ SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
 	parser.registerFileType("oms", *this);
 }
 
-void SaveStateCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void SaveStateCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_ref SaveStateCLI::optionHelp() const
+string_view SaveStateCLI::optionHelp() const
 {
 	return "Load savestate and start emulation from there";
 }
 
 void SaveStateCLI::parseFileType(const string& filename,
-                                 array_ref<string>& /*cmdLine*/)
+                                 span<string>& /*cmdLine*/)
 {
 	// TODO: this is basically a C++ version of a part of savestate.tcl.
 	// Can that be improved?
 	auto& interp = parser.getInterpreter();
 
-	TclObject command1;
-	command1.addListElement("restore_machine");
-	command1.addListElement(filename);
+	TclObject command1 = makeTclList("restore_machine", filename);
 	auto newId = command1.executeCommand(interp);
 
-	TclObject command2;
-	command2.addListElement("machine");
+	TclObject command2 = makeTclList("machine");
 	auto currentId = command2.executeCommand(interp);
 
 	if (!currentId.empty()) {
-		TclObject command3;
-		command3.addListElement("delete_machine");
-		command3.addListElement(currentId);
+		TclObject command3 = makeTclList("delete_machine", currentId);
 		command3.executeCommand(interp);
 	}
 
-	TclObject command4;
-	command4.addListElement("activate_machine");
-	command4.addListElement(newId);
+	TclObject command4 = makeTclList("activate_machine", newId);
 	command4.executeCommand(interp);
 }
 
-string_ref SaveStateCLI::fileTypeHelp() const
+string_view SaveStateCLI::fileTypeHelp() const
 {
 	return "openMSX savestate";
 }

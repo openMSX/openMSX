@@ -42,6 +42,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <PrinterPort id="Printer Port">
@@ -76,6 +77,7 @@
         </ROM>
       </secondary>
 
+    <!-- Note that this device can be plugged out. What is left is not a standard MSX cartridgeslot, but a kind of mini cartridgeslot. -->
       <secondary slot="1">
         <ROM id="FM Voicing Program II">
           <rom>
@@ -93,9 +95,12 @@
         </MemoryMapper>
       </secondary>
 
+    <!-- Note that this device can be plugged out. What is left is not a
+    standard MSX cartridgeslot, but a 60 pins card edge connector, carrying all
+    MSX cartridgeslot signals. -->
       <secondary slot="3">
         <YamahaSFG id="Yamaha SFG-05">
-          <mem base="0x0000" size="0x8000"/>
+          <mem base="0x0000" size="0x10000"/>
           <sound>
             <volume>30000</volume>
           </sound>

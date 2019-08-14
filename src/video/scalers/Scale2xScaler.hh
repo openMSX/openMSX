@@ -23,17 +23,17 @@ public:
 private:
 	void scaleLine_1on2(Pixel* dst0, Pixel* dst1,
 		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		unsigned long srcWidth) __restrict;
+		size_t srcWidth) __restrict;
 	void scaleLineHalf_1on2(Pixel* dst,
 		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		unsigned long srcWidth) __restrict;
+		size_t srcWidth) __restrict;
 
 	void scaleLine_1on1(Pixel* dst0, Pixel* dst1,
 		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		unsigned long srcWidth) __restrict;
+		size_t srcWidth) __restrict;
 	void scaleLineHalf_1on1(Pixel* dst,
 		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		unsigned long srcWidth) __restrict;
+		size_t srcWidth) __restrict;
 };
 
 } // namespace openmsx

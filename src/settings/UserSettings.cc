@@ -8,10 +8,11 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "checked_cast.hh"
-#include "memory.hh"
 #include "outer.hh"
-#include "stl.hh"
+#include "ranges.hh"
+#include "view.hh"
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -38,14 +39,11 @@ void UserSettings::deleteSetting(Setting& setting)
 		[&](unique_ptr<Setting>& p) { return p.get() == &setting; }));
 }
 
-Setting* UserSettings::findSetting(string_ref name) const
+Setting* UserSettings::findSetting(string_view name) const
 {
-	for (auto& s : settings) {
-		if (s->getFullName() == name) {
-			return s.get();
-		}
-	}
-	return nullptr;
+	auto it = ranges::find_if(
+	        settings, [&](auto& s) { return s->getFullName() == name; });
+	return (it != end(settings)) ? it->get() : nullptr;
 }
 
 
@@ -56,37 +54,25 @@ UserSettings::Cmd::Cmd(CommandController& commandController_)
 {
 }
 
-void UserSettings::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void UserSettings::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 2) {
-		throw SyntaxError();
-	}
-	const auto& subCommand = tokens[1].getString();
-	if (subCommand == "create") {
-		create(tokens, result);
-	} else if (subCommand == "destroy") {
-		destroy(tokens, result);
-	} else if (subCommand == "info") {
-		info(tokens, result);
-	} else {
-		throw CommandException(
-			"Invalid subcommand '" + subCommand + "', expected "
-			"'create', 'destroy' or 'info'.");
-	}
+	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
+	executeSubCommand(tokens[1].getString(),
+		"create",  [&]{ create(tokens, result); },
+		"destroy", [&]{ destroy(tokens, result); },
+		"info",    [&]{ info(tokens, result); });
 }
 
-void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
+void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 5) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{5}, Prefix{2}, "type name ?arg ...?");
 	const auto& type = tokens[2].getString();
 	const auto& settingName = tokens[3].getString();
 
 	auto& controller = checked_cast<GlobalCommandController&>(getCommandController());
 	if (controller.getSettingsManager().findSetting(settingName)) {
 		throw CommandException(
-			"There already exists a setting with this name: " + settingName);
+			"There already exists a setting with this name: ", settingName);
 	}
 
 	unique_ptr<Setting> setting;
@@ -100,86 +86,76 @@ void UserSettings::Cmd::create(array_ref<TclObject> tokens, TclObject& result)
 		setting = createFloat(tokens);
 	} else {
 		throw CommandException(
-			"Invalid setting type '" + type + "', expected "
+			"Invalid setting type '", type, "', expected "
 			"'string', 'boolean', 'integer' or 'float'.");
 	}
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
 	userSettings.addSetting(std::move(setting));
 
-	result.setString(tokens[3].getString()); // name
+	result = tokens[3]; // name
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createString(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createString(span<const TclObject> tokens)
 {
-	if (tokens.size() != 6) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 6, Prefix{3}, "name description initialvalue");
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getString();
-	return make_unique<StringSetting>(
+	return std::make_unique<StringSetting>(
 		getCommandController(), sName, desc, initVal);
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createBoolean(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createBoolean(span<const TclObject> tokens)
 {
-	if (tokens.size() != 6) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 6, Prefix{3}, "name description initialvalue");
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getBoolean(getInterpreter());
-	return make_unique<BooleanSetting>(
+	return std::make_unique<BooleanSetting>(
 		getCommandController(), sName, desc, initVal);
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createInteger(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createInteger(span<const TclObject> tokens)
 {
-	if (tokens.size() != 8) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 8, Prefix{3}, "name description initialvalue minvalue maxvalue");
 	auto& interp = getInterpreter();
 	const auto& sName   = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getInt(interp);
 	const auto& minVal  = tokens[6].getInt(interp);
 	const auto& maxVal  = tokens[7].getInt(interp);
-	return make_unique<IntegerSetting>(
+	return std::make_unique<IntegerSetting>(
 		getCommandController(), sName, desc, initVal, minVal, maxVal);
 }
 
-unique_ptr<Setting> UserSettings::Cmd::createFloat(array_ref<TclObject> tokens)
+unique_ptr<Setting> UserSettings::Cmd::createFloat(span<const TclObject> tokens)
 {
-	if (tokens.size() != 8) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 8, Prefix{3}, "name description initialvalue minvalue maxvalue");
 	auto& interp = getInterpreter();
 	const auto& sName    = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
 	const auto& initVal = tokens[5].getDouble(interp);
 	const auto& minVal  = tokens[6].getDouble(interp);
 	const auto& maxVal  = tokens[7].getDouble(interp);
-	return make_unique<FloatSetting>(
+	return std::make_unique<FloatSetting>(
 		getCommandController(), sName, desc, initVal, minVal, maxVal);
 }
 
-void UserSettings::Cmd::destroy(array_ref<TclObject> tokens, TclObject& /*result*/)
+void UserSettings::Cmd::destroy(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "name");
 	const auto& settingName = tokens[2].getString();
 
 	auto& userSettings = OUTER(UserSettings, userSettingCommand);
 	auto* setting = userSettings.findSetting(settingName);
 	if (!setting) {
 		throw CommandException(
-			"There is no user setting with this name: " + settingName);
+			"There is no user setting with this name: ", settingName);
 	}
 	userSettings.deleteSetting(*setting);
 }
 
-void UserSettings::Cmd::info(array_ref<TclObject> /*tokens*/, TclObject& result)
+void UserSettings::Cmd::info(span<const TclObject> /*tokens*/, TclObject& result)
 {
 	result.addListElements(getSettingNames());
 }
@@ -255,14 +231,11 @@ void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-vector<string_ref> UserSettings::Cmd::getSettingNames() const
+vector<string_view> UserSettings::Cmd::getSettingNames() const
 {
-	vector<string_ref> result;
-	auto& userSettings = OUTER(UserSettings, userSettingCommand);
-	for (auto& s : userSettings.getSettings()) {
-		result.push_back(s->getFullName());
-	}
-	return result;
+	return to_vector(view::transform(
+		OUTER(UserSettings, userSettingCommand).getSettings(),
+		[](auto& s) { return s->getFullName(); }));
 }
 
 } // namespace openmsx

@@ -58,25 +58,25 @@ void DebugPrintSecurityStatus(const char* context, SECURITY_STATUS ss)
 #if 0
 	switch (ss) {
 	case SEC_E_OK:
-		std::cerr << context << ": SEC_E_OK" << std::endl;
+		std::cerr << context << ": SEC_E_OK\n";
 		break;
 	case SEC_I_CONTINUE_NEEDED:
-		std::cerr << context << ": SEC_I_CONTINUE_NEEDED" << std::endl;
+		std::cerr << context << ": SEC_I_CONTINUE_NEEDED\n";
 		break;
 	case SEC_E_INVALID_TOKEN:
-		std::cerr << context << ": SEC_E_INVALID_TOKEN" << std::endl;
+		std::cerr << context << ": SEC_E_INVALID_TOKEN\n";
 		break;
 	case SEC_E_BUFFER_TOO_SMALL:
-		std::cerr << context << ": SEC_E_BUFFER_TOO_SMALL" << std::endl;
+		std::cerr << context << ": SEC_E_BUFFER_TOO_SMALL\n";
 		break;
 	case SEC_E_INVALID_HANDLE:
-		std::cerr << context << ": SEC_E_INVALID_HANDLE" << std::endl;
+		std::cerr << context << ": SEC_E_INVALID_HANDLE\n";
 		break;
 	case SEC_E_WRONG_PRINCIPAL:
-		std::cerr << context << ": SEC_E_WRONG_PRINCIPAL" << std::endl;
+		std::cerr << context << ": SEC_E_WRONG_PRINCIPAL\n";
 		break;
 	default:
-		std::cerr << context << ": " << ss << std::endl;
+		std::cerr << context << ": " << ss << '\n';
 		break;
 	}
 #endif
@@ -88,9 +88,9 @@ void DebugPrintSecurityBool(const char* context, BOOL ret)
 	(void)&ret;
 #if 0
 	if (ret) {
-		std::cerr << context << ": true" << std::endl;
+		std::cerr << context << ": true\n";
 	} else {
-		std::cerr << context << ": false - " << GetLastError() << std::endl;
+		std::cerr << context << ": false - " << GetLastError() << '\n';
 	}
 #endif
 }
@@ -102,7 +102,7 @@ void DebugPrintSecurityPackageName(PCtxtHandle phContext)
 	SecPkgContext_PackageInfoA package;
 	SECURITY_STATUS ss = QueryContextAttributesA(phContext, SECPKG_ATTR_PACKAGE_INFO, &package);
 	if (ss == SEC_E_OK) {
-		std::cerr << "Using " << package.PackageInfo->Name << " package" << std::endl;
+		std::cerr << "Using " << package.PackageInfo->Name << " package\n";
 	}
 #endif
 }
@@ -114,7 +114,7 @@ void DebugPrintSecurityPrincipalName(PCtxtHandle phContext)
 	SecPkgContext_NamesA name;
 	SECURITY_STATUS ss = QueryContextAttributesA(phContext, SECPKG_ATTR_NAMES, &name);
 	if (ss == SEC_E_OK) {
-		std::cerr << "Client principal " << name.sUserName << std::endl;
+		std::cerr << "Client principal " << name.sUserName << '\n';
 	}
 #endif
 }
@@ -132,7 +132,7 @@ void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd)
 		&sddl,
 		nullptr);
 	if (ret) {
-		std::cerr << "SecurityDescriptor: " << sddl << std::endl;
+		std::cerr << "SecurityDescriptor: " << sddl << '\n';
 		LocalFree(sddl);
 	}
 #endif

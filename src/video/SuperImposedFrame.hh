@@ -17,9 +17,10 @@ public:
 	static std::unique_ptr<SuperImposedFrame> create(
 		const SDL_PixelFormat& format);
 	void init(const FrameSource* top, const FrameSource* bottom);
+	virtual ~SuperImposedFrame() = default;
 
 protected:
-	SuperImposedFrame(const SDL_PixelFormat& format);
+	explicit SuperImposedFrame(const SDL_PixelFormat& format);
 
 	const FrameSource* top;
 	const FrameSource* bottom;

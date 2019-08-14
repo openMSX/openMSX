@@ -33,7 +33,7 @@ public:
 
 	byte read(unsigned addr);
 	byte peek(unsigned addr) const { return ram[addr]; }
-	void write(unsigned addr, const byte value);
+	void write(unsigned addr, byte value);
 
 	const byte* getReadCacheLine(unsigned addr) const;
 	byte* getWriteCacheLine(unsigned addr) const;

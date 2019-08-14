@@ -1,5 +1,6 @@
 # Generates Windows resource header.
 
+from __future__ import print_function
 from outpututils import rewriteIfChanged
 from version import extractRevisionNumber, packageVersion
 
@@ -21,6 +22,5 @@ if __name__ == '__main__':
 	if len(sys.argv) == 2:
 		rewriteIfChanged(sys.argv[1], iterResourceHeader())
 	else:
-		print >> sys.stderr, \
-			'Usage: python win-resource.py RESOURCE_HEADER'
+		print('Usage: python win-resource.py RESOURCE_HEADER', file=sys.stderr)
 		sys.exit(2)

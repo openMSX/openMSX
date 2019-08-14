@@ -7,7 +7,8 @@
 #include "Command.hh"
 #include "EmuTime.hh"
 #include "MemBuffer.hh"
-#include "array_ref.hh"
+#include "DeltaBlock.hh"
+#include "span.hh"
 #include "outer.hh"
 #include <vector>
 #include <map>
@@ -26,7 +27,7 @@ class Interpreter;
 class ReverseManager final : private EventListener, private StateChangeRecorder
 {
 public:
-	ReverseManager(MSXMotherBoard& motherBoard);
+	explicit ReverseManager(MSXMotherBoard& motherBoard);
 	~ReverseManager();
 
 	// Keyboard is special because we need to transfer the host keyboard
@@ -54,6 +55,7 @@ private:
 		ReverseChunk() : time(EmuTime::zero) {}
 
 		EmuTime time;
+		std::vector<std::shared_ptr<DeltaBlock>> deltaBlocks;
 		MemBuffer<uint8_t> savestate;
 		size_t size;
 
@@ -72,6 +74,7 @@ private:
 
 		Chunks chunks;
 		Events events;
+		LastDeltaBlocks lastDeltaBlocks;
 	};
 
 	bool isCollecting() const { return collecting; }
@@ -80,12 +83,12 @@ private:
 	void stop();
 	void status(TclObject& result) const;
 	void debugInfo(TclObject& result) const;
-	void goBack(array_ref<TclObject> tokens);
-	void goTo(array_ref<TclObject> tokens);
+	void goBack(span<const TclObject> tokens);
+	void goTo(span<const TclObject> tokens);
 	void saveReplay(Interpreter& interp,
-	                array_ref<TclObject> tokens, TclObject& result);
+	                span<const TclObject> tokens, TclObject& result);
 	void loadReplay(Interpreter& interp,
-	                array_ref<TclObject> tokens, TclObject& result);
+	                span<const TclObject> tokens, TclObject& result);
 
 	void signalStopReplay(EmuTime::param time);
 	EmuTime::param getEndTime(const ReverseHistory& history) const;
@@ -101,17 +104,17 @@ private:
 	template<unsigned N> void dropOldSnapshots(unsigned count);
 
 	// Schedulable
-	struct SyncNewSnapshot : Schedulable {
+	struct SyncNewSnapshot final : Schedulable {
 		friend class ReverseManager;
-		SyncNewSnapshot(Scheduler& s) : Schedulable(s) {}
+		explicit SyncNewSnapshot(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& rm = OUTER(ReverseManager, syncNewSnapshot);
 			rm.execNewSnapshot();
 		}
 	} syncNewSnapshot;
-	struct SyncInputEvent : Schedulable {
+	struct SyncInputEvent final : Schedulable {
 		friend class ReverseManager;
-		SyncInputEvent(Scheduler& s) : Schedulable(s) {}
+		explicit SyncInputEvent(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& rm = OUTER(ReverseManager, syncInputEvent);
 			rm.execInputEvent();
@@ -134,8 +137,8 @@ private:
 	EventDistributor& eventDistributor;
 
 	struct ReverseCmd final : Command {
-		ReverseCmd(CommandController& controller);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		explicit ReverseCmd(CommandController& controller);
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} reverseCmd;

@@ -13,7 +13,7 @@ public:
 	SamplePlayer(const std::string& name, const std::string& desc,
 	             const DeviceConfig& config,
 	             const std::string& samplesBaseName, unsigned numSamples,
-	             const std::string& alternativeName = "");
+	             const std::string& alternativeName = {});
 	~SamplePlayer();
 
 	void reset();
@@ -45,21 +45,18 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	inline int getSample(unsigned index);
 	void setWavParams();
 	void doRepeat();
 
 	// SoundDevice
-	void generateChannels(int** bufs, unsigned num) override;
+	void generateChannels(float** bufs, unsigned num) override;
 
 	std::vector<WavData> samples;
 
-	const void* sampBuf;
 	unsigned index;
 	unsigned bufferSize;
 	unsigned currentSampleNum;
 	unsigned nextSampleNum;
-	bool bits8;
 };
 
 } // namespace openmsx

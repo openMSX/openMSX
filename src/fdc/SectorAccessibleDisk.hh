@@ -29,7 +29,7 @@ public:
 	virtual bool isDummyDisk() const;
 
 	// patch stuff
-	void applyPatch(const Filename& patchFile);
+	void applyPatch(Filename patchFile);
 	std::vector<Filename> getPatches() const;
 	bool hasPatches() const;
 
@@ -47,6 +47,9 @@ public:
 	int writeSectors(const SectorBuffer* buffers, size_t startSector,
 	                 size_t nbSectors);
 
+	// should only be called by EmptyDiskPatch
+	virtual void readSectorImpl (size_t sector, SectorBuffer& buf) = 0;
+
 protected:
 	SectorAccessibleDisk();
 	~SectorAccessibleDisk();
@@ -62,17 +65,14 @@ protected:
 	virtual Sha1Sum getSha1SumImpl(FilePool& filepool);
 
 private:
-	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf) = 0;
 	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf) = 0;
 	virtual size_t getNbSectorsImpl() const = 0;
 	virtual bool isWriteProtectedImpl() const = 0;
 
 	std::unique_ptr<const PatchInterface> patch;
 	Sha1Sum sha1cache;
-	bool forcedWriteProtect;
-	bool peekMode;
-
-	friend class EmptyDiskPatch;
+	bool forcedWriteProtect = false;
+	bool peekMode = false;
 };
 
 } // namespace openmsx

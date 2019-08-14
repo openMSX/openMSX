@@ -23,7 +23,7 @@ private:
 	                   unsigned x, unsigned y, byte pal);
 	void determineVisibleSprites(int* visibleSprites, int displayY);
 	void renderSprites(Pixel* buffer, int displayX, int displayEnd,
-	                   unsigned displayY, int* visibleSprites, bool front);
+	                   unsigned displayY, const int* visibleSprites, bool front);
 
 	V9990& vdp;
 	V9990VRAM& vram;

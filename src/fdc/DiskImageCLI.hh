@@ -10,17 +10,17 @@ class CommandLineParser;
 class DiskImageCLI final : public CLIOption, public CLIFileType
 {
 public:
-	explicit DiskImageCLI(CommandLineParser& cmdLineParser);
+	explicit DiskImageCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
-	                 array_ref<std::string>& cmdLine) override;
-	string_ref optionHelp() const override;
+	                 span<std::string>& cmdLine) override;
+	string_view optionHelp() const override;
 	void parseFileType(const std::string& filename,
-	                   array_ref<std::string>& cmdLine) override;
-	string_ref fileTypeHelp() const override;
+	                   span<std::string>& cmdLine) override;
+	string_view fileTypeHelp() const override;
 
 private:
-	void parse(string_ref drive, string_ref image,
-	           array_ref<std::string>& cmdLine);
+	void parse(string_view drive, string_view image,
+	           span<std::string>& cmdLine);
 
 	CommandLineParser& parser;
 	char driveLetter;

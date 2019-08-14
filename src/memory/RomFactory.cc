@@ -12,6 +12,7 @@
 #include "RomAscii8kB.hh"
 #include "RomAscii8_8.hh"
 #include "RomAscii16kB.hh"
+#include "RomMSXWrite.hh"
 #include "RomPadial8kB.hh"
 #include "RomPadial16kB.hh"
 #include "RomSuperLodeRunner.hh"
@@ -38,23 +39,31 @@
 #include "RomFSA1FM.hh"
 #include "RomManbow2.hh"
 #include "RomMatraInk.hh"
+#include "RomMatraCompilation.hh"
 #include "RomArc.hh"
+#include "ROMHunterMk2.hh"
 #include "MegaFlashRomSCCPlus.hh"
-#include "MegaFlashRomSCCPlusSD.hh"
+#include "ReproCartridgeV1.hh"
+#include "ReproCartridgeV2.hh"
+#include "KonamiUltimateCollection.hh"
 #include "RomDooly.hh"
 #include "RomMSXtra.hh"
+#include "RomRamFile.hh"
+#include "RomColecoMegaCart.hh"
 #include "RomMultiRom.hh"
 #include "Rom.hh"
 #include "Reactor.hh"
+#include "MSXMotherBoard.hh"
 #include "RomDatabase.hh"
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
-#include "memory.hh"
+#include <memory>
 
-using std::unique_ptr;
+using std::make_unique;
 using std::move;
 using std::string;
+using std::unique_ptr;
 
 namespace openmsx {
 namespace RomFactory {
@@ -141,14 +150,6 @@ static RomType guessRomType(const Rom& rom)
 				type = static_cast<RomType>(i);
 			}
 		}
-		// in case of doubt we go for type ROM_GENERIC_8KB
-		// in case of even type ROM_ASCII16 and ROM_ASCII8 we would
-		// prefer ROM_ASCII16 but we would still prefer ROM_GENERIC_8KB
-		// above ROM_ASCII8 or ROM_ASCII16
-		if ((type == ROM_ASCII16) &&
-		    (typeGuess[ROM_GENERIC_8KB] == typeGuess[ROM_ASCII16])) {
-			type = ROM_GENERIC_8KB;
-		}
 		return type;
 	}
 }
@@ -161,19 +162,48 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	RomType type;
 	// if no type is mentioned, we assume 'mirrored' which works for most
 	// plain ROMs...
-	string_ref typestr = config.getChildData("mappertype", "Mirrored");
+	string_view typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
-		// Guess mapper type, if it was not in DB.
-		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getOriginalSHA1());
+		// First check whether the (possibly patched) SHA1 is in the DB
+		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getSHA1());
+		// If not found, try the original SHA1 in the DB
 		if (!romInfo) {
-			type = guessRomType(rom);
+			romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getOriginalSHA1());
+		}
+		// If still not found, guess the mapper type
+		if (!romInfo) {
+			auto machineType = config.getMotherBoard().getMachineType();
+			if (machineType == "Coleco") {
+				unsigned size = rom.getSize();
+				if ((size == 128*1024) || (size == 256*1024) ||
+				    (size == 512*1024) || (size == 1024*1024)) {
+					type = ROM_COLECOMEGACART;
+				}
+				else {
+					type = ROM_PAGE23;
+				}
+			} else {
+				type = guessRomType(rom);
+			}
 		} else {
 			type = romInfo->getRomType();
 		}
 	} else {
 		// Use mapper type from config, even if this overrides DB.
 		type = RomInfo::nameToRomType(typestr);
+		if (type == ROM_UNKNOWN) {
+			throw MSXException("Unknown mappertype: ", typestr);
+		}
 	}
+
+	// Store actual detected mapper type in config (override the possible
+	// 'auto' value). This way we're sure that on savestate/loadstate we're
+	// using the same mapper type (for example when the user's rom-database
+	// was updated).
+	// We do it at this point so that constructors used below can use this
+	// information for warning messages etc.
+	auto& writableConfig = const_cast<XMLElement&>(*config.getXML());
+	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type).str());
 
 	unique_ptr<MSXRom> result;
 	switch (type) {
@@ -237,6 +267,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_ASCII16:
 		result = make_unique<RomAscii16kB>(config, move(rom));
 		break;
+	case ROM_MSXWRITE:
+		result = make_unique<RomMSXWrite>(config, move(rom));
+		break;
 	case ROM_PADIAL8:
 		result = make_unique<RomPadial8kB>(config, move(rom));
 		break;
@@ -267,6 +300,10 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_ASCII8_8:
 		result = make_unique<RomAscii8_8>(
 			config, move(rom), RomAscii8_8::ASCII8_8);
+		break;
+	case ROM_ASCII8_32:
+		result = make_unique<RomAscii8_8>(
+			config, move(rom), RomAscii8_8::ASCII8_32);
 		break;
 	case ROM_ASCII8_2:
 		result = make_unique<RomAscii8_8>(
@@ -344,14 +381,26 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_MATRAINK:
 		result = make_unique<RomMatraInk>(config, move(rom));
 		break;
+	case ROM_MATRACOMPILATION:
+		result = make_unique<RomMatraCompilation>(config, move(rom));
+		break;
 	case ROM_ARC:
 		result = make_unique<RomArc>(config, move(rom));
+		break;
+	case ROM_ROMHUNTERMK2:
+		result = make_unique<ROMHunterMk2>(config, move(rom));
 		break;
 	case ROM_MEGAFLASHROMSCCPLUS:
 		result = make_unique<MegaFlashRomSCCPlus>(config, move(rom));
 		break;
-	case ROM_MEGAFLASHROMSCCPLUSSD:
-		result = make_unique<MegaFlashRomSCCPlusSD>(config, move(rom));
+	case ROM_REPRO_CARTRIDGE1:
+		result = make_unique<ReproCartridgeV1>(config, move(rom));
+		break;
+	case ROM_REPRO_CARTRIDGE2:
+		result = make_unique<ReproCartridgeV2>(config, move(rom));
+		break;
+	case ROM_KONAMI_ULTIMATE_COLLECTION:
+		result = make_unique<KonamiUltimateCollection>(config, move(rom));
 		break;
 	case ROM_DOOLY:
 		result = make_unique<RomDooly>(config, move(rom));
@@ -362,18 +411,17 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_MULTIROM:
 		result = make_unique<RomMultiRom>(config, move(rom));
 		break;
+	case ROM_RAMFILE:
+		result = make_unique<RomRamFile>(config, move(rom));
+		break;
+	case ROM_COLECOMEGACART:
+		result = make_unique<RomColecoMegaCart>(config, move(rom));
+		break;
 	default:
 		throw MSXException("Unknown ROM type");
 	}
 
-	// Store actual detected mapper type in config (override the possible
-	// 'auto' value). This way we're sure that on savestate/loadstate we're
-	// using the same mapper type (for example when the user's rom-database
-	// was updated).
-	auto& writableConfig = const_cast<XMLElement&>(*config.getXML());
-	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type));
-
-	return move(result);
+	return result;
 }
 
 } // namespace RomFactory

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import msvcrt
 import os
 
@@ -29,23 +30,23 @@ def menu():
 	os.system('TITLE'+title)
 	os.system('cls')
 
-	print '-'*50
-	print title
-	print '-'*50+'\n'
-	
-	for item in sorted(menuval): print item
-	
-	print '-'*50
-	print '  Resulting Binary settings:'
+	print('-'*50)
+	print(title)
+	print('-'*50+'\n')
 
-	if version == 32:	print '     - Windows 32bit Version'
-	else: print '     - Windows 64bit Version'
+	for item in sorted(menuval): print(item)
 
-	if compileXP == 1:print '     - XP Support ON'
-	else: print '     - XP Support Off'
+	print('-'*50)
+	print('  Resulting Binary settings:')
 
-	print '-'*50
-	print
+	if version == 32:	print('     - Windows 32bit Version')
+	else: print('     - Windows 64bit Version')
+
+	if compileXP == 1:print('     - XP Support ON')
+	else: print('     - XP Support Off')
+
+	print('-'*50)
+	print()
 	if compileXP == 1: print('The DirectX June 2010 SDK is needed for XP support')
 	if quit == 1: os.system('cls')
 

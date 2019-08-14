@@ -4,10 +4,9 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "openmsx.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
+#include <utility>
 
 using std::string;
 using std::vector;
@@ -20,10 +19,10 @@ const string USER_DATA    = "{{USER_DATA}}";
 const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 
 
-static string subst(string_ref path, string_ref before, string_ref after)
+static string subst(string_view path, string_view before, string_view after)
 {
 	assert(path.starts_with(before));
-	return after + path.substr(before.size());
+	return strCat(after, path.substr(before.size()));
 }
 
 static vector<string> getPathsHelper(const vector<string>& input)
@@ -49,7 +48,7 @@ static vector<string> getPathsHelper(const vector<string>& input)
 }
 
 static string resolveHelper(const vector<string>& pathList,
-                            string_ref filename)
+                            string_view filename)
 {
 	string filepath = FileOperations::expandCurrentDirFromDrive(filename);
 	filepath = FileOperations::expandTilde(filepath);
@@ -66,7 +65,7 @@ static string resolveHelper(const vector<string>& pathList,
 		}
 	}
 	// not found in any path
-	throw FileException(filename + " not found in this context");
+	throw FileException(filename, " not found in this context");
 }
 
 FileContext::FileContext(vector<string>&& paths_, vector<string>&& savePaths_)
@@ -74,7 +73,7 @@ FileContext::FileContext(vector<string>&& paths_, vector<string>&& savePaths_)
 {
 }
 
-const string FileContext::resolve(string_ref filename) const
+string FileContext::resolve(string_view filename) const
 {
 	vector<string> pathList = getPathsHelper(paths);
 	string result = resolveHelper(pathList, filename);
@@ -82,7 +81,7 @@ const string FileContext::resolve(string_ref filename) const
 	return result;
 }
 
-const string FileContext::resolveCreate(string_ref filename) const
+string FileContext::resolveCreate(string_view filename) const
 {
 	string result;
 	vector<string> pathList = getPathsHelper(savePaths);
@@ -114,8 +113,8 @@ bool FileContext::isUserContext() const
 template<typename Archive>
 void FileContext::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("paths", paths);
-	ar.serialize("savePaths", savePaths);
+	ar.serialize("paths",     paths,
+	             "savePaths", savePaths);
 }
 INSTANTIATE_SERIALIZE_METHODS(FileContext);
 
@@ -123,15 +122,15 @@ INSTANTIATE_SERIALIZE_METHODS(FileContext);
 
 static string backSubstSymbols(const string& path)
 {
-	string systemData = FileOperations::getSystemDataDir();
+	const string& systemData = FileOperations::getSystemDataDir();
 	if (StringOp::startsWith(path, systemData)) {
 		return subst(path, systemData, SYSTEM_DATA);
 	}
-	string userData = FileOperations::getSystemDataDir();
+	const string& userData = FileOperations::getSystemDataDir();
 	if (StringOp::startsWith(path, userData)) {
 		return subst(path, userData, SYSTEM_DATA);
 	}
-	string userDir = FileOperations::getUserOpenMSXDir();
+	const string& userDir = FileOperations::getUserOpenMSXDir();
 	if (StringOp::startsWith(path, userDir)) {
 		return subst(path, userDir, USER_OPENMSX);
 	}
@@ -139,7 +138,7 @@ static string backSubstSymbols(const string& path)
 	return path;
 }
 
-FileContext configFileContext(string_ref path, string_ref hwDescr, string_ref userName)
+FileContext configFileContext(string_view path, string_view hwDescr, string_view userName)
 {
 	return { { backSubstSymbols(FileOperations::expandTilde(path)) },
 	         { FileOperations::join(
@@ -158,26 +157,25 @@ FileContext preferSystemFileContext()
 	         {} };
 }
 
-FileContext userFileContext(string_ref savePath)
+FileContext userFileContext(string_view savePath)
 {
 	vector<string> savePaths;
 	if (!savePath.empty()) {
 		savePaths = { FileOperations::join(
 		                 USER_OPENMSX, "persistent", savePath) };
 	}
-	return { { "", USER_DIRS }, std::move(savePaths) };
+	return { { string{}, USER_DIRS }, std::move(savePaths) };
 }
 
-FileContext userDataFileContext(string_ref subDir)
+FileContext userDataFileContext(string_view subDir)
 {
-	return { { "", USER_OPENMSX + '/' + subDir },
+	return { { string{}, strCat(USER_OPENMSX, '/', subDir) },
 	         {} };
 }
 
 FileContext currentDirFileContext()
 {
-	return { { "" },
-	         {} };
+	return {{string{}}, {string{}}};
 }
 
 } // namespace openmsx

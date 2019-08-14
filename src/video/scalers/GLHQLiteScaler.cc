@@ -4,10 +4,9 @@
 #include "FrameSource.hh"
 #include "FileContext.hh"
 #include "File.hh"
-#include "StringOp.hh"
 #include "vla.hh"
 #include <cstring>
-#include <algorithm>
+#include <utility>
 
 using std::string;
 
@@ -17,10 +16,10 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 	: GLScaler("hqlite")
 	, fallback(fallback_)
 {
-	for (int i = 0; i < 2; ++i) {
-		program[i].activate();
-		glUniform1i(program[i].getUniformLocation("edgeTex"),   2);
-		glUniform1i(program[i].getUniformLocation("offsetTex"), 3);
+	for (auto& p : program) {
+		p.activate();
+		glUniform1i(p.getUniformLocation("edgeTex"),   2);
+		glUniform1i(p.getUniformLocation("offsetTex"), 3);
 	}
 
 	edgeTexture.bind();
@@ -37,13 +36,12 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 
 	auto context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	string offsetName = "shaders/HQ_xLiteOffsets.dat";
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
-		string offsetName = StringOp::Builder() <<
-			"shaders/HQ" << n << "xLiteOffsets.dat";
+		offsetName[10] = char('0') + n;
 		File offsetFile(context.resolve(offsetName));
 		offsetTexture[i].bind();
-		size_t size; // dummy
 		glTexImage2D(GL_TEXTURE_2D,        // target
 		             0,                    // level
 		             GL_LUMINANCE8_ALPHA8, // internal format
@@ -52,7 +50,7 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 		             0,                    // border
 		             GL_LUMINANCE_ALPHA,   // format
 		             GL_UNSIGNED_BYTE,     // type
-		             offsetFile.mmap(size));// data
+		             offsetFile.mmap().data());// data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 }
@@ -92,7 +90,7 @@ void GLHQLiteScaler::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth,
 	FrameSource& paintFrame)
 {
-	if (lineWidth != 320) return;
+	if ((lineWidth != 320) || (srcEndY > 240)) return;
 
 	uint32_t tmpBuf2[320 / 2]; // 2 x uint16_t
 	#ifndef NDEBUG

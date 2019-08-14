@@ -19,7 +19,7 @@ class LDPixelRenderer final : public LDRenderer
 {
 public:
 	LDPixelRenderer(LaserdiscPlayer& ld, Display& display);
-	~LDPixelRenderer();
+	~LDPixelRenderer() override;
 
 	// Renderer interface:
 	void frameStart(EmuTime::param time) override;

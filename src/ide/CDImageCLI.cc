@@ -15,19 +15,17 @@ CDImageCLI::CDImageCLI(CommandLineParser& parser_)
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
-void CDImageCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void CDImageCLI::parseOption(const string& option, span<string>& cmdLine)
 {
-	string_ref cd = string_ref(option).substr(1); // cda
+	string_view cd = string_view(option).substr(1); // cda
 	string filename = getArgument(option, cmdLine);
 	if (!parser.getGlobalCommandController().hasCommand(cd)) { // TODO WIP
-		throw MSXException("No CDROM named '" + cd + "'.");
+		throw MSXException("No CDROM named '", cd, "'.");
 	}
-	TclObject command;
-	command.addListElement(cd);
-	command.addListElement(filename);
+	TclObject command = makeTclList(cd, filename);
 	command.executeCommand(parser.getInterpreter());
 }
-string_ref CDImageCLI::optionHelp() const
+string_view CDImageCLI::optionHelp() const
 {
 	return "Use iso image in argument for the CDROM extension";
 }

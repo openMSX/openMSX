@@ -18,7 +18,7 @@ public:
 	IDECDROM& operator=(const IDECDROM&) = delete;
 
 	explicit IDECDROM(const DeviceConfig& config);
-	~IDECDROM();
+	~IDECDROM() override;
 
 	void eject();
 	void insert(const std::string& filename);

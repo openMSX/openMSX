@@ -1,23 +1,25 @@
 #include "HD.hh"
 #include "FileContext.hh"
-#include "FileException.hh"
 #include "FilePool.hh"
 #include "DeviceConfig.hh"
 #include "CliComm.hh"
+#include "HDImageCLI.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
+#include "Display.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "HDCommand.hh"
+#include "Timer.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include "tiger.hh"
 #include "xrange.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
 using std::string;
-using std::vector;
 
 HD::HD(const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
@@ -38,23 +40,30 @@ HD::HD(const DeviceConfig& config)
 	// For the initial hd image, savestate should only try exactly this
 	// (resolved) filename. For user-specified hd images (commandline or
 	// via hda command) savestate will try to re-resolve the filename.
-	string original = config.getChildData("filename");
-	string resolved = config.getFileContext().resolveCreate(original);
-	filename = Filename(resolved);
-	try {
-		file = File(filename);
-		filesize = file.getSize();
-		tigerTree = make_unique<TigerTree>(*this, filesize,
-		                                   filename.getResolved());
-	} catch (FileException&) {
-		// Image didn't exist yet, but postpone image creation:
-		// we don't want to create images during 'testconfig'
-		filesize = size_t(config.getChildDataAsInt("size")) * 1024 * 1024;
+	auto mode = File::NORMAL;
+	string cliImage = HDImageCLI::getImageForId(id);
+	if (cliImage.empty()) {
+		string original = config.getChildData("filename");
+		string resolved = config.getFileContext().resolveCreate(original);
+		filename = Filename(resolved);
+		mode = File::CREATE;
+	} else {
+		filename = Filename(cliImage, userFileContext());
 	}
-	alreadyTried = false;
+
+	file = File(filename, mode);
+	filesize = file.getSize();
+	if (mode == File::CREATE && filesize == 0) {
+		// OK, the file was just newly created. Now make sure the file
+		// is of the right (default) size
+		file.truncate(size_t(config.getChildDataAsInt("size")) * 1024 * 1024);
+		filesize = file.getSize();
+	}
+	tigerTree = std::make_unique<TigerTree>(
+		*this, filesize, filename.getResolved());
 
 	(*hdInUse)[id] = true;
-	hdCommand = make_unique<HDCommand>(
+	hdCommand = std::make_unique<HDCommand>(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(),
@@ -73,54 +82,30 @@ HD::~HD()
 	(*hdInUse)[id] = false;
 }
 
-void HD::openImage()
-{
-	if (file.is_open()) return;
-
-	// image didn't exist yet, create new
-	if (alreadyTried) {
-		throw FileException("No HD image");
-	}
-	alreadyTried = true;
-	try {
-		file = File(filename, File::CREATE);
-		file.truncate(filesize);
-		tigerTree = make_unique<TigerTree>(*this, filesize,
-		                                   filename.getResolved());
-	} catch (FileException& e) {
-		motherBoard.getMSXCliComm().printWarning(
-			"Couldn't create HD image: " + e.getMessage());
-		throw;
-	}
-}
-
 void HD::switchImage(const Filename& newFilename)
 {
 	file = File(newFilename);
 	filename = newFilename;
 	filesize = file.getSize();
-	tigerTree = make_unique<TigerTree>(*this, filesize,
-	                                   filename.getResolved());
+	tigerTree = std::make_unique<TigerTree>(*this, filesize,
+			filename.getResolved());
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
 	                                   filename.getResolved());
 }
 
 size_t HD::getNbSectorsImpl() const
 {
-	const_cast<HD&>(*this).openImage();
 	return filesize / sizeof(SectorBuffer);
 }
 
 void HD::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
-	openImage();
 	file.seek(sector * sizeof(buf));
 	file.read(&buf, sizeof(buf));
 }
 
 void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
-	openImage();
 	file.seek(sector * sizeof(buf));
 	file.write(&buf, sizeof(buf));
 	tigerTree->notifyChange(sector * sizeof(buf), sizeof(buf),
@@ -129,23 +114,42 @@ void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 
 bool HD::isWriteProtectedImpl() const
 {
-	const_cast<HD&>(*this).openImage();
 	return file.isReadOnly();
 }
 
 Sha1Sum HD::getSha1SumImpl(FilePool& filePool)
 {
-	openImage();
 	if (hasPatches()) {
 		return SectorAccessibleDisk::getSha1SumImpl(filePool);
 	}
 	return filePool.getSha1Sum(file);
 }
 
+void HD::showProgress(size_t position, size_t maxPosition)
+{
+	// only show progress iff:
+	//  - 1 second has passed since last progress OR
+	//  - we reach completion and did progress before (to show the 100%)
+	// This avoids showing any progress if the operation would take less than 1 second.
+	auto now = Timer::getTime();
+	if (((now - lastProgressTime) > 1000000) ||
+	    ((position == maxPosition) && everDidProgress)) {
+		lastProgressTime = now;
+		int percentage = int((100 * position) / maxPosition);
+		motherBoard.getMSXCliComm().printProgress(
+			"Calculating hash for ", filename.getResolved(),
+			"... ", percentage, '%');
+		motherBoard.getReactor().getDisplay().repaint();
+		everDidProgress = true;
+	}
+}
+
 std::string HD::getTigerTreeHash()
 {
-	openImage();
-	return tigerTree->calcHash().toString(); // calls HD::getData()
+	lastProgressTime = Timer::getTime();
+	everDidProgress = false;
+	auto callback = [this](size_t p, size_t t) { showProgress(p, t); };
+	return tigerTree->calcHash(callback).toString(); // calls HD::getData()
 }
 
 uint8_t* HD::getData(size_t offset, size_t size)
@@ -192,10 +196,10 @@ bool HD::diskChanged()
 	return false; // TODO not implemented
 }
 
-int HD::insertDisk(string_ref newDisk)
+int HD::insertDisk(string_view newFilename)
 {
 	try {
-		switchImage(Filename(newDisk.str()));
+		switchImage(Filename(newFilename.str()));
 		return 0;
 	} catch (MSXException&) {
 		return -1;
@@ -241,7 +245,7 @@ void HD::serialize(Archive& ar, unsigned version)
 
 		if (ar.versionAtLeast(version, 2)) {
 			// use tiger-tree-hash
-			string oldTiger = ar.isLoader() ? "" : getTigerTreeHash();
+			string oldTiger = ar.isLoader() ? string{} : getTigerTreeHash();
 			ar.serialize("tthsum", oldTiger);
 			if (ar.isLoader()) {
 				string newTiger = getTigerTreeHash();
@@ -255,7 +259,7 @@ void HD::serialize(Archive& ar, unsigned version)
 				oldChecksum = getSha1Sum(filepool);
 			}
 			string oldChecksumStr = oldChecksum.empty()
-					      ? ""
+					      ? string{}
 					      : oldChecksum.toString();
 			ar.serialize("checksum", oldChecksumStr);
 			oldChecksum = oldChecksumStr.empty()
@@ -270,12 +274,12 @@ void HD::serialize(Archive& ar, unsigned version)
 
 		if (ar.isLoader() && mismatch) {
 			motherBoard.getMSXCliComm().printWarning(
-			    "The content of the harddisk " +
-			    tmp.getResolved() +
-			    " has changed since the time this savestate was "
-			    "created. This might result in emulation problems "
-			    "or even diskcorruption. To prevent the latter, "
-			    "the harddisk is now write-protected.");
+				"The content of the harddisk ",
+				tmp.getResolved(),
+				" has changed since the time this savestate was "
+				"created. This might result in emulation problems "
+				"or even diskcorruption. To prevent the latter, "
+				"the harddisk is now write-protected.");
 			forceWriteProtect();
 		}
 	}

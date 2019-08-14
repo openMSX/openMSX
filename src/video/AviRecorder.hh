@@ -3,20 +3,22 @@
 
 #include "Command.hh"
 #include "EmuTime.hh"
-#include "array_ref.hh"
+#include "span.hh"
+#include <cstdint>
 #include <vector>
 #include <memory>
 
 namespace openmsx {
 
-class Reactor;
 class AviWriter;
-class Wav16Writer;
 class Filename;
-class PostProcessor;
 class FrameSource;
+class Interpreter;
 class MSXMixer;
+class PostProcessor;
+class Reactor;
 class TclObject;
+class Wav16Writer;
 
 class AviRecorder
 {
@@ -24,7 +26,7 @@ public:
 	explicit AviRecorder(Reactor& reactor);
 	~AviRecorder();
 
-	void addWave(unsigned num, short* data);
+	void addWave(unsigned num, float* data);
 	void addImage(FrameSource* frame, EmuTime::param time);
 	void stop();
 	unsigned getFrameHeight() const;
@@ -32,22 +34,22 @@ public:
 private:
 	void start(bool recordAudio, bool recordVideo, bool recordMono,
 		   bool recordStereo, const Filename& filename);
-	void status(array_ref<TclObject> tokens, TclObject& result) const;
+	void status(span<const TclObject> tokens, TclObject& result) const;
 
-	void processStart (array_ref<TclObject> tokens, TclObject& result);
-	void processStop  (array_ref<TclObject> tokens);
-	void processToggle(array_ref<TclObject> tokens, TclObject& result);
+	void processStart (Interpreter& interp, span<const TclObject> tokens, TclObject& result);
+	void processStop  (span<const TclObject> tokens);
+	void processToggle(Interpreter& interp, span<const TclObject> tokens, TclObject& result);
 
 	Reactor& reactor;
 
 	struct Cmd final : Command {
-		Cmd(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		explicit Cmd(CommandController& commandController);
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} recordCommand;
 
-	std::vector<short> audioBuf;
+	std::vector<int16_t> audioBuf;
 	std::unique_ptr<AviWriter>   aviWriter; // can be nullptr
 	std::unique_ptr<Wav16Writer> wavWriter; // can be nullptr
 	std::vector<PostProcessor*> postProcessors;

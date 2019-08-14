@@ -88,7 +88,7 @@ proc enter_tas_mode {} {
 
 	# Set up frame advance/reverse
 	bind_default END -repeat next_frame
-	bind_default SCROLLOCK -repeat prev_frame
+	bind_default SCROLLLOCK -repeat prev_frame
 }
 
 proc leave_tas_mode {} {
@@ -123,7 +123,7 @@ proc leave_tas_mode {} {
 
 	# Remove frame advance/reverse
 	unbind_default END
-	unbind_default SCROLLOCK
+	unbind_default SCROLLLOCK
 }
 
 register "tas" [namespace code enter_tas_mode] \

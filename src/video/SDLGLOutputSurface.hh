@@ -25,13 +25,13 @@ public:
 
 protected:
 	explicit SDLGLOutputSurface(FrameBuffer frameBuffer = FB_NONE);
-	~SDLGLOutputSurface();
+	~SDLGLOutputSurface() = default;
 
 	void init(OutputSurface& output);
 	void flushFrameBuffer(unsigned width, unsigned height);
 	void clearScreen();
 	void saveScreenshot(const std::string& filename,
-	                    unsigned width, unsigned height);
+	                    const OutputSurface& output) const;
 
 private:
 	float texCoordX, texCoordY;

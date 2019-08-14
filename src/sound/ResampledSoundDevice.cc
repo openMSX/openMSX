@@ -8,16 +8,17 @@
 #include "GlobalSettings.hh"
 #include "EnumSetting.hh"
 #include "unreachable.hh"
-#include "memory.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
 ResampledSoundDevice::ResampledSoundDevice(
-		MSXMotherBoard& motherBoard, string_ref name_,
-		string_ref description_, unsigned channels,
-		bool stereo_)
-	: SoundDevice(motherBoard.getMSXMixer(), name_, description_, channels, stereo_)
+		MSXMotherBoard& motherBoard, string_view name_,
+		string_view description_, unsigned channels,
+		unsigned inputSampleRate_, bool stereo_)
+	: SoundDevice(motherBoard.getMSXMixer(), name_, description_,
+	              channels, inputSampleRate_, stereo_)
 	, resampleSetting(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
 {
 	resampleSetting.attach(*this);
@@ -34,13 +35,13 @@ void ResampledSoundDevice::setOutputRate(unsigned /*sampleRate*/)
 	createResampler();
 }
 
-bool ResampledSoundDevice::updateBuffer(unsigned length, int* buffer,
+bool ResampledSoundDevice::updateBuffer(unsigned length, float* buffer,
                                         EmuTime::param time)
 {
 	return algo->generateOutput(buffer, length, time);
 }
 
-bool ResampledSoundDevice::generateInput(int* buffer, unsigned num)
+bool ResampledSoundDevice::generateInput(float* buffer, unsigned num)
 {
 	return mixChannels(buffer, num);
 }
@@ -60,15 +61,15 @@ void ResampledSoundDevice::createResampler()
 	unsigned inputRate  = getInputRate() / getEffectiveSpeed();
 
 	if (outputRate == inputRate) {
-		algo = make_unique<ResampleTrivial>(*this);
+		algo = std::make_unique<ResampleTrivial>(*this);
 	} else {
 		switch (resampleSetting.getEnum()) {
 		case RESAMPLE_HQ:
 			if (!isStereo()) {
-				algo = make_unique<ResampleHQ<1>>(
+				algo = std::make_unique<ResampleHQ<1>>(
 					*this, hostClock, inputRate);
 			} else {
-				algo = make_unique<ResampleHQ<2>>(
+				algo = std::make_unique<ResampleHQ<2>>(
 					*this, hostClock, inputRate);
 			}
 			break;
@@ -83,10 +84,10 @@ void ResampledSoundDevice::createResampler()
 			break;
 		case RESAMPLE_BLIP:
 			if (!isStereo()) {
-				algo = make_unique<ResampleBlip<1>>(
+				algo = std::make_unique<ResampleBlip<1>>(
 					*this, hostClock, inputRate);
 			} else {
-				algo = make_unique<ResampleBlip<2>>(
+				algo = std::make_unique<ResampleBlip<2>>(
 					*this, hostClock, inputRate);
 			}
 			break;

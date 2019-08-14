@@ -5,12 +5,11 @@
 #include "InfoTopic.hh"
 #include "Setting.hh"
 #include "hash_set.hh"
-#include "string_ref.hh"
-#include "xxhash.hh"
+#include "string_view.hh"
+#include "TclObject.hh"
 
 namespace openmsx {
 
-class BaseSetting;
 class GlobalCommandController;
 class XMLElement;
 
@@ -28,8 +27,8 @@ public:
 	/** Find the setting with given name.
 	  * @return The requested setting or nullptr.
 	  */
-	BaseSetting* findSetting(string_ref name) const;
-	BaseSetting* findSetting(string_ref prefix, string_ref baseName) const;
+	BaseSetting* findSetting(string_view name) const;
+	BaseSetting* findSetting(string_view prefix, string_view baseName) const;
 
 	void loadSettings(const XMLElement& config);
 
@@ -37,19 +36,19 @@ public:
 	void unregisterSetting(BaseSetting& setting);
 
 private:
-	BaseSetting& getByName(string_ref cmd, string_ref name) const;
+	BaseSetting& getByName(string_view cmd, string_view name) const;
 	std::vector<std::string> getTabSettingNames() const;
 
 	struct SettingInfo final : InfoTopic {
-		SettingInfo(InfoCommand& openMSXInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		explicit SettingInfo(InfoCommand& openMSXInfoCommand);
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} settingInfo;
 
 	struct SetCompleter final : CommandCompleter {
-		SetCompleter(CommandController& commandController);
+		explicit SetCompleter(CommandController& commandController);
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} setCompleter;

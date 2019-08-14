@@ -38,7 +38,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -65,10 +65,6 @@ RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, Rom&& rom_)
 			"Rom for FSA1FM mapper must be 1MB in size "
 			"(some dumps are 2MB, those can be used as well).");
 	}
-}
-
-RomFSA1FM1::~RomFSA1FM1()
-{
 }
 
 void RomFSA1FM1::reset(EmuTime::param /*time*/)
@@ -166,10 +162,6 @@ RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, Rom&& rom_)
 	, fsSram(getSram(config))
 {
 	reset(EmuTime::dummy());
-}
-
-RomFSA1FM2::~RomFSA1FM2()
-{
 }
 
 void RomFSA1FM2::reset(EmuTime::param /*time*/)
@@ -295,9 +287,9 @@ void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	// note: SRAM can be serialized in this class (as opposed to
 	//       Rom8kBBlocks), because we don't use setBank to map it
-	ar.serialize("SRAM", *fsSram);
-	ar.serialize("bankSelect", bankSelect);
-	ar.serialize("control", control);
+	ar.serialize("SRAM",       *fsSram,
+	             "bankSelect", bankSelect,
+	             "control",    control);
 	if (ar.isLoader()) {
 		// recalculate 'isRam' and 'isEmpty' from bankSelect
 		for (int region = 0; region < 8; ++region) {

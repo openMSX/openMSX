@@ -6,8 +6,8 @@
 #include "RenderSettings.hh"
 #include "Multiply32.hh"
 #include "vla.hh"
-#include "memory.hh"
 #include <cstdint>
+#include <memory>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -17,7 +17,7 @@ namespace openmsx {
 template <class Pixel> class Blur_1on3
 {
 public:
-	Blur_1on3(const PixelOperations<Pixel>& pixelOps);
+	explicit Blur_1on3(const PixelOperations<Pixel>& pixelOps);
 	inline void setBlur(unsigned blur_) { blur = blur_; }
 	void operator()(const Pixel* in, Pixel* out, size_t dstWidth);
 private:
@@ -39,15 +39,13 @@ Simple3xScaler<Pixel>::Simple3xScaler(
 	: Scaler3<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 	, scanline(pixelOps_)
-	, blur_1on3(make_unique<Blur_1on3<Pixel>>(pixelOps_))
+	, blur_1on3(std::make_unique<Blur_1on3<Pixel>>(pixelOps_))
 	, settings(settings_)
 {
 }
 
 template <class Pixel>
-Simple3xScaler<Pixel>::~Simple3xScaler()
-{
-}
+Simple3xScaler<Pixel>::~Simple3xScaler() = default;
 
 template <typename Pixel>
 void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
@@ -256,7 +254,7 @@ void Simple3xScaler<Pixel>::scaleBlank1to3(
 	                  ? dstEndY : dstEndY - 3;
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
-		Pixel color0 = src.getLineColor<Pixel>(srcY);
+		auto color0 = src.getLineColor<Pixel>(srcY);
 		Pixel color1 = scanline.darken(color0, scanlineFactor);
 		dst.fillLine(dstY + 0, color0);
 		dst.fillLine(dstY + 1, color0);
@@ -279,8 +277,8 @@ void Simple3xScaler<Pixel>::scaleBlank2to3(
 	int scanlineFactor = settings.getScanlineFactor();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
-		Pixel color0 = src.getLineColor<Pixel>(srcY + 0);
-		Pixel color1 = src.getLineColor<Pixel>(srcY + 1);
+		auto color0 = src.getLineColor<Pixel>(srcY + 0);
+		auto color1 = src.getLineColor<Pixel>(srcY + 1);
 		Pixel color01 = scanline.darken(color0, color1, scanlineFactor);
 		dst.fillLine(dstY + 0, color0);
 		dst.fillLine(dstY + 1, color01);

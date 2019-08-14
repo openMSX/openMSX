@@ -1,13 +1,14 @@
 #include "OSDWidget.hh"
 #include "OutputSurface.hh"
+#include "Display.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "StringOp.hh"
 #include "GLUtil.hh"
-#include "memory.hh"
+#include "optional.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include <SDL.h>
-#include <algorithm>
+#include <array>
 #include <limits>
 
 using std::string;
@@ -33,8 +34,8 @@ static void intersect(int xa, int ya, int wa, int ha,
 }
 
 ////
-
-static void normalize(int& x, int& w)
+template<typename T>
+static void normalize(T& x, T& w)
 {
 	if (w < 0) {
 		w = -w;
@@ -45,31 +46,39 @@ static void normalize(int& x, int& w)
 class SDLScopedClip
 {
 public:
-	SDLScopedClip(OutputSurface& output, int x, int y, int w, int h);
+	SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~SDLScopedClip();
 private:
-	SDL_Surface* surface;
-	SDL_Rect origClip;
+	SDL_Renderer* renderer;
+	optional<SDL_Rect> origClip;
 };
 
 
-SDLScopedClip::SDLScopedClip(OutputSurface& output, int x, int y, int w, int h)
-	: surface(output.getSDLSurface())
+SDLScopedClip::SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
+	: renderer(output.getSDLRenderer())
 {
+	ivec2 i_xy = round(xy); int x = i_xy[0]; int y = i_xy[1];
+	ivec2 i_wh = round(wh); int w = i_wh[0]; int h = i_wh[1];
 	normalize(x, w); normalize(y, h);
-	SDL_GetClipRect(surface, &origClip);
 
 	int xn, yn, wn, hn;
-	intersect(origClip.x, origClip.y, origClip.w, origClip.h,
-	          x,  y,  w,  h,
-	          xn, yn, wn, hn);
+	if (SDL_RenderIsClipEnabled(renderer)) {
+		origClip.emplace();
+		SDL_RenderGetClipRect(renderer, &*origClip);
+
+		intersect(origClip->x, origClip->y, origClip->w, origClip->h,
+			  x,  y,  w,  h,
+			  xn, yn, wn, hn);
+	} else {
+		xn = x; yn = y; wn = w; hn = h;
+	}
 	SDL_Rect newClip = { Sint16(xn), Sint16(yn), Uint16(wn), Uint16(hn) };
-	SDL_SetClipRect(surface, &newClip);
+	SDL_RenderSetClipRect(renderer, &newClip);
 }
 
 SDLScopedClip::~SDLScopedClip()
 {
-	SDL_SetClipRect(surface, &origClip);
+	SDL_RenderSetClipRect(renderer, origClip ? &*origClip : nullptr);
 }
 
 ////
@@ -79,37 +88,41 @@ SDLScopedClip::~SDLScopedClip()
 class GLScopedClip
 {
 public:
-	GLScopedClip(OutputSurface& output, int x, int y, int w, int h);
+	GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~GLScopedClip();
 private:
-	GLint box[4]; // x, y, w, h;
-	GLboolean wasEnabled;
+	optional<std::array<GLint, 4>> origClip; // x, y, w, h;
 };
 
 
-GLScopedClip::GLScopedClip(OutputSurface& output, int x, int y, int w, int h)
+GLScopedClip::GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 {
-	normalize(x, w); normalize(y, h);
-	y = output.getHeight() - y - h; // openGL sets (0,0) in LOWER-left corner
+	normalize(xy[0], wh[0]); normalize(xy[1], wh[1]);
+	xy[1] = output.getHeight() - xy[1] - wh[1]; // openGL sets (0,0) in LOWER-left corner
 
-	wasEnabled = glIsEnabled(GL_SCISSOR_TEST);
-	if (wasEnabled == GL_TRUE) {
-		glGetIntegerv(GL_SCISSOR_BOX, box);
+	// transform view-space coordinates to clip-space coordinates
+	vec2 scale = output.getViewScale();
+	ivec2 i_xy = round(xy * scale) + output.getViewOffset();
+	ivec2 i_wh = round(wh * scale);
+
+	if (glIsEnabled(GL_SCISSOR_TEST) == GL_TRUE) {
+		origClip.emplace();
+		glGetIntegerv(GL_SCISSOR_BOX, origClip->data());
 		int xn, yn, wn, hn;
-		intersect(box[0], box[1], box[2], box[3],
-		          x,  y,  w,  h,
+		intersect((*origClip)[0], (*origClip)[1], (*origClip)[2], (*origClip)[3],
+		          i_xy[0], i_xy[1], i_wh[0], i_wh[1],
 		          xn, yn, wn, hn);
 		glScissor(xn, yn, wn, hn);
 	} else {
-		glScissor(x, y, w, h);
+		glScissor(i_xy[0], i_xy[1], i_wh[0], i_wh[1]);
 		glEnable(GL_SCISSOR_TEST);
 	}
 }
 
 GLScopedClip::~GLScopedClip()
 {
-	if (wasEnabled == GL_TRUE) {
-		glScissor(box[0], box[1], box[2], box[3]);
+	if (origClip) {
+		glScissor((*origClip)[0], (*origClip)[1], (*origClip)[2], (*origClip)[3]);
 	} else {
 		glDisable(GL_SCISSOR_TEST);
 	}
@@ -119,17 +132,14 @@ GLScopedClip::~GLScopedClip()
 
 ////
 
-OSDWidget::OSDWidget(const TclObject& name_)
-	: parent(nullptr)
+OSDWidget::OSDWidget(Display& display_, const TclObject& name_)
+	: display(display_)
+	, parent(nullptr)
 	, name(name_)
 	, z(0.0)
 	, scaled(false)
 	, clip(false)
 	, suppressErrors(false)
-{
-}
-
-OSDWidget::~OSDWidget()
 {
 }
 
@@ -184,7 +194,7 @@ void OSDWidget::resortUp(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it1 + 1, it2);
 #ifdef DEBUG
-	assert(std::is_sorted(begin(subWidgets), end(subWidgets), AscendingZ()));
+	assert(ranges::is_sorted(subWidgets, AscendingZ()));
 #endif
 }
 void OSDWidget::resortDown(OSDWidget* elem)
@@ -203,21 +213,21 @@ void OSDWidget::resortDown(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it2, it2 + 1);
 #ifdef DEBUG
-	assert(std::is_sorted(begin(subWidgets), end(subWidgets), AscendingZ()));
+	assert(ranges::is_sorted(subWidgets, AscendingZ()));
 #endif
 }
 
-vector<string_ref> OSDWidget::getProperties() const
+vector<string_view> OSDWidget::getProperties() const
 {
 	static const char* const vals[] = {
 		"-type", "-x", "-y", "-z", "-relx", "-rely", "-scaled",
 		"-clip", "-mousecoord", "-suppressErrors",
 	};
-	return vector<string_ref>(std::begin(vals), std::end(vals));
+	return to_vector<string_view>(vals);
 }
 
 void OSDWidget::setProperty(
-	Interpreter& interp, string_ref propName, const TclObject& value)
+	Interpreter& interp, string_view propName, const TclObject& value)
 {
 	if (propName == "-type") {
 		throw CommandException("-type property is readonly");
@@ -256,36 +266,35 @@ void OSDWidget::setProperty(
 	} else if (propName == "-suppressErrors") {
 		suppressErrors = value.getBoolean(interp);
 	} else {
-		throw CommandException("No such property: " + propName);
+		throw CommandException("No such property: ", propName);
 	}
 }
 
-void OSDWidget::getProperty(string_ref propName, TclObject& result) const
+void OSDWidget::getProperty(string_view propName, TclObject& result) const
 {
 	if (propName == "-type") {
-		result.setString(getType());
+		result = getType();
 	} else if (propName == "-x") {
-		result.setDouble(pos[0]);
+		result = pos[0];
 	} else if (propName == "-y") {
-		result.setDouble(pos[1]);
+		result = pos[1];
 	} else if (propName == "-z") {
-		result.setDouble(z);
+		result = z;
 	} else if (propName == "-relx") {
-		result.setDouble(relPos[0]);
+		result = relPos[0];
 	} else if (propName == "-rely") {
-		result.setDouble(relPos[1]);
+		result = relPos[1];
 	} else if (propName == "-scaled") {
-		result.setBoolean(scaled);
+		result = scaled;
 	} else if (propName == "-clip") {
-		result.setBoolean(clip);
+		result = clip;
 	} else if (propName == "-mousecoord") {
 		vec2 coord = getMouseCoord();
-		result.addListElement(coord[0]);
-		result.addListElement(coord[1]);
+		result.addListElement(coord[0], coord[1]);
 	} else if (propName == "-suppressErrors") {
-		result.setBoolean(suppressErrors);
+		result = suppressErrors;
 	} else {
-		throw CommandException("No such property: " + propName);
+		throw CommandException("No such property: ", propName);
 	}
 }
 
@@ -320,12 +329,11 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 {
 	paintSDL(output);
 
-	std::unique_ptr<SDLScopedClip> scopedClip;
+	optional<SDLScopedClip> scopedClip;
 	if (clip) {
-		ivec2 clipPos, size;
+		vec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
-		scopedClip = make_unique<SDLScopedClip>(
-			output, clipPos[0], clipPos[1], size[0], size[1]);
+		scopedClip.emplace(output, clipPos, size);
 	}
 
 	for (auto& s : subWidgets) {
@@ -339,12 +347,11 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 #if COMPONENT_GL
 	paintGL(output);
 
-	std::unique_ptr<GLScopedClip> scopedClip;
+	optional<GLScopedClip> scopedClip;
 	if (clip) {
-		ivec2 clipPos, size;
+		vec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
-		scopedClip = make_unique<GLScopedClip>(
-			output, clipPos[0], clipPos[1], size[0], size[1]);
+		scopedClip.emplace(output, clipPos, size);
 	}
 
 	for (auto& s : subWidgets) {
@@ -353,10 +360,10 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 #endif
 }
 
-int OSDWidget::getScaleFactor(const OutputRectangle& output) const
+int OSDWidget::getScaleFactor(const OutputSurface& output) const
 {
 	if (scaled) {
-		return output.getOutputWidth() / 320;;
+		return output.getLogicalSize()[0] / 320;;
 	} else if (getParent()) {
 		return getParent()->getScaleFactor(output);
 	} else {
@@ -364,7 +371,7 @@ int OSDWidget::getScaleFactor(const OutputRectangle& output) const
 	}
 }
 
-vec2 OSDWidget::transformPos(const OutputRectangle& output,
+vec2 OSDWidget::transformPos(const OutputSurface& output,
                              vec2 trPos, vec2 trRelPos) const
 {
 	vec2 out = trPos
@@ -376,7 +383,7 @@ vec2 OSDWidget::transformPos(const OutputRectangle& output,
 	return out;
 }
 
-vec2 OSDWidget::transformReverse(const OutputRectangle& output, vec2 trPos) const
+vec2 OSDWidget::transformReverse(const OutputSurface& output, vec2 trPos) const
 {
 	if (const auto* p = getParent()) {
 		trPos = p->transformReverse(output, trPos);
@@ -409,19 +416,18 @@ vec2 OSDWidget::getMouseCoord() const
 		return vec2(std::numeric_limits<float>::infinity());
 	}
 
-	SDL_Surface* surface = SDL_GetVideoSurface();
-	if (!surface) {
+	auto* output = getDisplay().getOutputSurface();
+	if (!output) {
 		throw CommandException(
 			"Can't get mouse coordinates: no window visible");
 	}
-	DummyOutputRectangle output(surface->w, surface->h);
 
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	vec2 out = transformReverse(output, vec2(mouseX, mouseY));
+	vec2 out = transformReverse(*output, vec2(mouseX, mouseY));
 
-	vec2 size = getSize(output);
+	vec2 size = getSize(*output);
 	if ((size[0] == 0.0f) || (size[1] == 0.0f)) {
 		throw CommandException(
 			"-can't get mouse coordinates: "
@@ -430,13 +436,13 @@ vec2 OSDWidget::getMouseCoord() const
 	return out / size;
 }
 
-void OSDWidget::getBoundingBox(const OutputRectangle& output,
-                               ivec2& bbPos, ivec2& bbSize)
+void OSDWidget::getBoundingBox(const OutputSurface& output,
+                               vec2& bbPos, vec2& bbSize)
 {
 	vec2 topLeft     = transformPos(output, vec2(), vec2(0.0f));
 	vec2 bottomRight = transformPos(output, vec2(), vec2(1.0f));
-	bbPos  = round(topLeft);
-	bbSize = round(bottomRight - topLeft);
+	bbPos  = topLeft;
+	bbSize = bottomRight - topLeft;
 }
 
 } // namespace openmsx

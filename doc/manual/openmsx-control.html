@@ -200,11 +200,7 @@ get messages like this:
     </tr>
     <tr>
       <td><code>plug</code></td>
-      <td>a pluggable got plugged</td>
-    </tr>
-    <tr>
-      <td><code>unplug</code></td>
-      <td>a pluggable got unplugged</td>
+      <td>a pluggable got plugged or unplugged (empty value)</td>
     </tr>
     <tr>
       <td><code>setting</code></td>
@@ -277,7 +273,7 @@ get messages like this:
   <p>And unplugs it again:</p>
 
 <pre>
-&lt;update type="unplug" machine="machine2" name="joyporta"&gt;&lt;/update&gt;
+&lt;update type="plug" machine="machine2" name="joyporta"&gt;&lt;/update&gt;
 </pre>
 
   <p>Someone set the maxframeskip setting to 12:</p>

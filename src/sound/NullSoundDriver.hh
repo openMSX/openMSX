@@ -14,7 +14,7 @@ public:
 	unsigned getFrequency() const override;
 	unsigned getSamples() const override;
 
-	void uploadBuffer(short* buffer, unsigned len) override;
+	void uploadBuffer(float* buffer, unsigned len) override;
 };
 
 } // namespace openmsx

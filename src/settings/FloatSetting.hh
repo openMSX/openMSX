@@ -11,13 +11,13 @@ class FloatSetting final : public Setting
 {
 public:
 	FloatSetting(CommandController& commandController,
-	             string_ref name, string_ref description,
+	             string_view name, string_view description,
 	             double initialValue, double minValue, double maxValue);
 
-	string_ref getTypeString() const override;
+	string_view getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;
 
-	double getDouble() const { return getValue().getDouble(getInterpreter()); }
+	double getDouble() const noexcept { return getValue().getDouble(getInterpreter()); }
 	void setDouble (double d);
 
 private:

@@ -820,8 +820,12 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, EmuTime::param time)
 			case 0x0C: case 0x1C: case 0x2C: case 0x3C: case 0x4C: case 0x5C:
 				startSRCH(time); break;
 
-			case 0x0D: case 0x1D: case 0x2D: case 0x3D: case 0x4D: case 0x5D:
-				startPOINT(time); break;
+			case 0x0D: startPOINT<V9990P1   >(time); break;
+			case 0x1D: startPOINT<V9990P2   >(time); break;
+			case 0x2D: startPOINT<V9990Bpp2 >(time); break;
+			case 0x3D: startPOINT<V9990Bpp4 >(time); break;
+			case 0x4D: startPOINT<V9990Bpp8 >(time); break;
+			case 0x5D: startPOINT<V9990Bpp16>(time); break;
 
 			case 0x0E: startPSET<V9990P1   >(time); break;
 			case 0x1E: startPSET<V9990P2   >(time); break;
@@ -899,7 +903,7 @@ void V9990CmdEngine::reportV9990Command()
 	          << " FC="  << std::hex << fgCol
 	          << " BC="  << std::hex << bgCol
 	          << " CMD=" << std::hex << int(CMD)
-	          << std::endl;
+	          << '\n';
 }
 
 void V9990CmdEngine::update(const Setting& setting)
@@ -1181,7 +1185,7 @@ void V9990CmdEngine::executeCMMC(EmuTime::param limit)
 // CMMK
 void V9990CmdEngine::startCMMK(EmuTime::param time)
 {
-	std::cout << "V9990: CMMK not yet implemented" << std::endl;
+	std::cout << "V9990: CMMK not yet implemented\n";
 	cmdReady(time); // TODO dummy implementation
 }
 
@@ -1314,51 +1318,62 @@ void V9990CmdEngine::startBMLX(EmuTime::param time)
 	ANY = getWrappedNY();
 }
 
-template<typename Mode>
-void V9990CmdEngine::executeBMLX(EmuTime::param limit)
+template<>
+void V9990CmdEngine::executeBMLX<V9990CmdEngine::V9990Bpp16>(EmuTime::param limit)
 {
-	// TODO lots of corner cases still go wrong
-	//      very dumb implementation, can be made much faster
+	// TODO test corner cases, timing
 	auto delta = getTiming(BMLX_TIMING);
-	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
+	unsigned pitch = V9990Bpp16::getPitch(vdp.getImageWidth());
 	int dx = (ARG & DIX) ? -1 : 1;
 	int dy = (ARG & DIY) ? -1 : 1;
 
-	word tmp = 0;
-	bitsLeft = 16;
 	while (engineTime < limit) {
 		engineTime += delta;
-		auto src = Mode::point(vram, SX, SY, pitch);
-		src = Mode::shift(src, SX, 0); // TODO optimize
-		if (Mode::BITS_PER_PIXEL == 16) {
-			tmp = src;
-		} else {
-			tmp <<= Mode::BITS_PER_PIXEL;
-			tmp |= src;
-		}
-		bitsLeft -= Mode::BITS_PER_PIXEL;
-		if (!bitsLeft) {
-			vram.writeVRAMBx(dstAddress++, tmp & 0xFF);
-			vram.writeVRAMBx(dstAddress++, tmp >> 8);
-			bitsLeft = 16;
-			tmp = 0;
-		}
-
-		DX += dx;
+		auto src = V9990Bpp16::point(vram, SX, SY, pitch);
+		vram.writeVRAMBx(dstAddress++, src & 0xFF);
+		vram.writeVRAMBx(dstAddress++, src >> 8);
 		SX += dx;
 		if (!--(ANX)) {
-			DX -= (NX * dx);
 			SX -= (NX * dx);
-			DY += dy;
 			SY += dy;
 			if (!--(ANY)) {
 				cmdReady(engineTime);
-				// TODO handle last pixels
 				return;
 			} else {
 				ANX = getWrappedNX();
 			}
 		}
+	}
+}
+template<typename Mode>
+void V9990CmdEngine::executeBMLX(EmuTime::param limit)
+{
+	// TODO test corner cases, timing
+	auto delta = getTiming(BMLX_TIMING);
+	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
+	int dx = (ARG & DIX) ? -1 : 1;
+	int dy = (ARG & DIY) ? -1 : 1;
+
+	while (engineTime < limit) {
+		engineTime += delta;
+		byte d = 0;
+		for (int i = 0; i < Mode::PIXELS_PER_BYTE; ++i) {
+			auto src = Mode::point(vram, SX, SY, pitch);
+			d |= Mode::shift(src, SX, i) & Mode::shiftMask(i);
+			SX += dx;
+			if (!--(ANX)) {
+				SX -= (NX * dx);
+				SY += dy;
+				if (!--(ANY)) {
+					vram.writeVRAMBx(dstAddress++, d);
+					cmdReady(engineTime);
+					return;
+				} else {
+					ANX = getWrappedNX();
+				}
+			}
+		}
+		vram.writeVRAMBx(dstAddress++, d);
 	}
 }
 
@@ -1544,15 +1559,35 @@ void V9990CmdEngine::executeSRCH(EmuTime::param limit)
 }
 
 // POINT
-void V9990CmdEngine::startPOINT(EmuTime::param time)
+template<typename Mode>
+void V9990CmdEngine::startPOINT(EmuTime::param /*time*/)
 {
-	std::cout << "V9990: POINT not yet implemented" << std::endl;
-	cmdReady(time); // TODO dummy implementation
+	unsigned pitch = Mode::getPitch(vdp.getImageWidth());
+	auto d = Mode::point(vram, SX, SY, pitch);
+
+	if (Mode::BITS_PER_PIXEL != 16) {
+		data = byte(d);
+		endAfterRead = true;
+	} else {
+		unsigned tmp = d; // workaround for VC++ warning C4333
+				  // (in case Mode::Type == byte and
+				  //          Mode::BITS_PER_PIXEL == 8)
+		data = tmp & 0xff;
+		partial = tmp >> 8;
+		endAfterRead = false;
+	}
+	status |= TR;
 }
 
+template<typename Mode>
 void V9990CmdEngine::executePOINT(EmuTime::param /*limit*/)
 {
-	UNREACHABLE;
+	if (status & TR) return;
+
+	assert(Mode::BITS_PER_PIXEL == 16);
+	status |= TR;
+	data = partial;
+	endAfterRead = true;
 }
 
 // PSET
@@ -1576,7 +1611,7 @@ void V9990CmdEngine::executePSET(EmuTime::param /*limit*/)
 // ADVN
 void V9990CmdEngine::startADVN(EmuTime::param time)
 {
-	std::cout << "V9990: ADVN not yet implemented" << std::endl;
+	std::cout << "V9990: ADVN not yet implemented\n";
 	cmdReady(time); // TODO dummy implementation
 }
 
@@ -1674,8 +1709,12 @@ void V9990CmdEngine::sync2(EmuTime::param time)
 		case 0x4C: executeSRCH<V9990Bpp8 >(time); break;
 		case 0x5C: executeSRCH<V9990Bpp16>(time); break;
 
-		case 0x0D: case 0x1D: case 0x2D: case 0x3D: case 0x4D: case 0x5D:
-			executePOINT(time); break;
+		case 0x0D: executePOINT<V9990P1   >(time); break;
+		case 0x1D: executePOINT<V9990P2   >(time); break;
+		case 0x2D: executePOINT<V9990Bpp2 >(time); break;
+		case 0x3D: executePOINT<V9990Bpp4 >(time); break;
+		case 0x4D: executePOINT<V9990Bpp8 >(time); break;
+		case 0x5D: executePOINT<V9990Bpp16>(time); break;
 
 		case 0x0E: case 0x1E: case 0x2E: case 0x3E: case 0x4E: case 0x5E:
 			executePSET(time); break;
@@ -1723,6 +1762,72 @@ void V9990CmdEngine::cmdReady(EmuTime::param /*time*/)
 	vdp.cmdReady();
 }
 
+EmuTime V9990CmdEngine::estimateCmdEnd() const
+{
+	EmuDuration delta;
+	switch (CMD >> 4) {
+		case 0x00: // STOP
+			delta = EmuDuration::zero;
+			break;
+
+		case 0x01: // LMMC
+		case 0x05: // CMMC
+			// command terminates when CPU writes data, no need for extra sync
+			delta = EmuDuration::zero;
+			break;
+
+		case 0x03: // LMCM
+		case 0x0D: // POINT
+			// command terminates when CPU reads data, no need for extra sync
+			delta = EmuDuration::zero;
+			break;
+
+		case 0x02: // LMMV
+			// Block commands.
+			delta = getTiming(LMMV_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+			break;
+		case 0x04: // LMMM
+			delta = getTiming(LMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+			break;
+		case 0x07: // CMMM
+			delta = getTiming(CMMM_TIMING) * (ANX + (ANY - 1) * getWrappedNX());
+			break;
+		case 0x08: // BMXL
+			delta = getTiming(BMXL_TIMING) * (ANX + (ANY - 1) * getWrappedNX()); // TODO correct?
+			break;
+		case 0x09: // BMLX
+			delta = getTiming(BMLX_TIMING) * (ANX + (ANY - 1) * getWrappedNX()); // TODO correct?
+			break;
+
+		case 0x06: // CMMK
+			// Not yet implemented.
+			delta = EmuDuration::zero;
+			break;
+
+		case 0x0A: // BMLL
+			delta = getTiming(BMLL_TIMING) * nbBytes;
+			break;
+
+		case 0x0B: // LINE
+			delta = getTiming(LINE_TIMING) * (NX - ANX); // TODO ignores clipping
+			break;
+
+		case 0x0C: // SRCH
+			// Can end at any next pixel.
+			delta = getTiming(SRCH_TIMING);
+			break;
+
+		case 0x0E: // PSET
+		case 0x0F: // ADVN
+			// Current implementation of these commands execute instantly, no need for extra sync.
+			delta = EmuDuration::zero;
+			break;
+
+		default: UNREACHABLE;
+	}
+	return engineTime + delta;
+}
+
 // version 1: initial version
 // version 2: we forgot to serialize the time (or clock) member
 template<typename Archive>
@@ -1737,31 +1842,31 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 		// initialize it with the current time, that's already done in
 		// the constructor.
 	}
-	ar.serialize("srcAddress", srcAddress);
-	ar.serialize("dstAddress", dstAddress);
-	ar.serialize("nbBytes", nbBytes);
-	ar.serialize("borderX", borderX);
-	ar.serialize("ASX", ASX);
-	ar.serialize("ADX", ADX);
-	ar.serialize("ANX", ANX);
-	ar.serialize("ANY", ANY);
-	ar.serialize("SX", SX);
-	ar.serialize("SY", SY);
-	ar.serialize("DX", DX);
-	ar.serialize("DY", DY);
-	ar.serialize("NX", NX);
-	ar.serialize("NY", NY);
-	ar.serialize("WM", WM);
-	ar.serialize("fgCol", fgCol);
-	ar.serialize("bgCol", bgCol);
-	ar.serialize("ARG", ARG);
-	ar.serialize("LOG", LOG);
-	ar.serialize("CMD", CMD);
-	ar.serialize("status", status);
-	ar.serialize("data", data);
-	ar.serialize("bitsLeft", bitsLeft);
-	ar.serialize("partial", partial);
-	ar.serialize("endAfterRead", endAfterRead);
+	ar.serialize("srcAddress",   srcAddress,
+	             "dstAddress",   dstAddress,
+	             "nbBytes",      nbBytes,
+	             "borderX",      borderX,
+	             "ASX",          ASX,
+	             "ADX",          ADX,
+	             "ANX",          ANX,
+	             "ANY",          ANY,
+	             "SX",           SX,
+	             "SY",           SY,
+	             "DX",           DX,
+	             "DY",           DY,
+	             "NX",           NX,
+	             "NY",           NY,
+	             "WM",           WM,
+	             "fgCol",        fgCol,
+	             "bgCol",        bgCol,
+	             "ARG",          ARG,
+	             "LOG",          LOG,
+	             "CMD",          CMD,
+	             "status",       status,
+	             "data",         data,
+	             "bitsLeft",     bitsLeft,
+	             "partial",      partial,
+	             "endAfterRead", endAfterRead);
 
 	if (ar.isLoader()) {
 		setCommandMode();

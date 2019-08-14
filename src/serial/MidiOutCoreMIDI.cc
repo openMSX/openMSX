@@ -4,135 +4,20 @@
 #include "PluggingController.hh"
 #include "PlugException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include "openmsx.hh"
+#include "StringOp.hh"
 
 #include <mach/mach_time.h>
 #include <cassert>
+#include <memory>
 
 
 namespace openmsx {
 
 // MidiOutMessageBuffer ======================================================
 
-static constexpr uint8_t MIDI_MSG_SYSEX     = 0xF0;
-static constexpr uint8_t MIDI_MSG_SYSEX_END = 0xF7;
-static constexpr uint8_t MIDI_MSG_RESET     = 0xFF;
-
-/** Returns the size in bytes of a message that starts with the given status.
-  */
-static size_t midiMessageLength(uint8_t status)
-{
-	if (status < 0x80) {
-		assert(false);
-		return 0;
-	} else if (status < 0xC0) {
-		return 3;
-	} else if (status < 0xE0) {
-		return 2;
-	} else if (status < 0xF0) {
-		return 3;
-	} else {
-		switch (status) {
-		case MIDI_MSG_SYSEX:
-			// Limit to force sending large SysEx messages in chunks.
-			// The limit for the amount of data in one MIDIPacket in CoreMIDI,
-			// so our chunks could be rejected by CoreMIDI if we set this limit
-			// larger than 256.
-			return 256;
-		case MIDI_MSG_SYSEX_END:
-			assert(false);
-			return 0;
-		case 0xF1:
-		case 0xF3:
-			return 2;
-		case 0xF2:
-			return 3;
-		case 0xF4:
-		case 0xF5:
-		case 0xF9:
-		case 0xFD:
-			// Data size unknown
-			return 1;
-		default:
-			return 1;
-		}
-	}
-}
-
-MidiOutMessageBuffer::MidiOutMessageBuffer()
-	: isSysEx(false)
-{
-}
-
-void MidiOutMessageBuffer::clearBuffer()
-{
-	message.clear();
-	isSysEx = false;
-}
-
-// Note: Nothing in this method is specific to CoreMIDI; it could be moved to
-//       generic MIDI code if any other platform also needs message rebuilding.
-void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
-{
-	if (value & 0x80) { // status byte
-		if (value == MIDI_MSG_SYSEX_END) {
-			if (isSysEx) {
-				message.push_back(value);
-				messageComplete(time, message.data(), message.size());
-			} else {
-				// Ignoring SysEx end without start
-			}
-			message.clear();
-			isSysEx = false;
-		} else if (value >= 0xF8) {
-			// Realtime message, send immediately.
-			messageComplete(time, &value, 1);
-			if (value == MIDI_MSG_RESET) {
-				message.clear();
-			}
-			return;
-		} else {
-			// Replace any message in progress.
-			if (isSysEx) {
-				// Discarding incomplete MIDI SysEx message
-			} else if (message.size() >= 2) {
-				#if 0
-				std::cerr << "Discarding incomplete MIDI message with status "
-				             "0x" << std::hex << int(message[0]) << std::dec <<
-				             ", at " << message.size() << " of " <<
-				             midiMessageLength(message[0]) << " bytes" << std::endl;
-				#endif
-			}
-			message = { value };
-			isSysEx = value == MIDI_MSG_SYSEX;
-		}
-	} else { // data byte
-		if (message.empty() && !isSysEx) {
-			// Ignoring MIDI data without preceding status
-		} else {
-			message.push_back(value);
-		}
-	}
-
-	// Is the message complete?
-	if (!message.empty()) {
-		uint8_t status = isSysEx ? MIDI_MSG_SYSEX : message[0];
-		size_t len = midiMessageLength(status);
-		if (message.size() >= len) {
-			messageComplete(time, message.data(), message.size());
-			if (status >= 0xF0 && status < 0xF8) {
-				message.clear();
-			} else {
-				// Keep last status, to support running status.
-				message.resize(1);
-			}
-		}
-	}
-}
-
-void MidiOutMessageBuffer::messageComplete(EmuTime::param /*time*/,
-		const uint8_t *data, size_t size)
+void MidiOutMessageBuffer::recvMessage(
+		const std::vector<uint8_t>& message, EmuTime::param /*time*/)
 {
 	// TODO: It would be better to schedule events based on EmuTime.
 	MIDITimeStamp abstime = mach_absolute_time();
@@ -140,7 +25,7 @@ void MidiOutMessageBuffer::messageComplete(EmuTime::param /*time*/,
 	MIDIPacketList packetList;
 	MIDIPacket *curPacket = MIDIPacketListInit(&packetList);
 	curPacket = MIDIPacketListAdd(&packetList, sizeof(packetList),
-			curPacket, abstime, size, data);
+			curPacket, abstime, message.size(), message.data());
 	if (!curPacket) {
 		fprintf(stderr, "Failed to package MIDI data\n");
 	} else if (OSStatus status = sendPacketList(&packetList)) {
@@ -160,7 +45,7 @@ void MidiOutCoreMIDI::registerAll(PluggingController& controller)
 		MIDIEndpointRef endpoint = MIDIGetDestination(i);
 		if (endpoint) {
 			controller.registerPluggable(
-				make_unique<MidiOutCoreMIDI>(endpoint));
+				std::make_unique<MidiOutCoreMIDI>(endpoint));
 		}
 	}
 }
@@ -179,8 +64,7 @@ MidiOutCoreMIDI::MidiOutCoreMIDI(MIDIEndpointRef endpoint_)
 	if (status) {
 		name = "Nameless endpoint";
 	} else {
-		name = StringOp::Builder() << StringOp::fromCFString(midiDeviceName)
-		                           << " OUT";
+		name = strCat(StringOp::fromCFString(midiDeviceName), " OUT");
 		CFRelease(midiDeviceName);
 	}
 }
@@ -190,15 +74,13 @@ void MidiOutCoreMIDI::plugHelper(Connector& /*connector*/,
 {
 	// Create client.
 	if (OSStatus status = MIDIClientCreate(CFSTR("openMSX"), nullptr, nullptr, &client)) {
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI client (" << status << ")");
+		throw PlugException("Failed to create MIDI client (", status, ')');
 	}
 	// Create output port.
 	if (OSStatus status = MIDIOutputPortCreate(client, CFSTR("Output"), &port)) {
 		MIDIClientDispose(client);
 		client = 0;
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI port (" << status << ")");
+		throw PlugException("Failed to create MIDI port (", status, ')');
 	}
 }
 
@@ -219,7 +101,7 @@ const std::string& MidiOutCoreMIDI::getName() const
 	return name;
 }
 
-string_ref MidiOutCoreMIDI::getDescription() const
+string_view MidiOutCoreMIDI::getDescription() const
 {
 	return "Sends MIDI events to an existing CoreMIDI destination.";
 }
@@ -250,14 +132,12 @@ void MidiOutCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
 {
 	// Create client.
 	if (OSStatus status = MIDIClientCreate(CFSTR("openMSX"), nullptr, nullptr, &client)) {
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI client (" << status << ")");
+		throw PlugException("Failed to create MIDI client (", status, ')');
 	}
 	// Create endpoint.
 	if (OSStatus status = MIDISourceCreate(client, CFSTR("openMSX"), &endpoint)) {
 		MIDIClientDispose(client);
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI endpoint (" << status << ")");
+		throw PlugException("Failed to create MIDI endpoint (", status, ')');
 	}
 }
 
@@ -281,7 +161,7 @@ const std::string& MidiOutCoreMIDIVirtual::getName() const
 	return name;
 }
 
-string_ref MidiOutCoreMIDIVirtual::getDescription() const
+string_view MidiOutCoreMIDIVirtual::getDescription() const
 {
 	return "Sends MIDI events from a newly created CoreMIDI virtual source.";
 }

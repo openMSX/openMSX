@@ -50,6 +50,7 @@
       <type>YM2149</type> <!-- in S3527 MSX-ENGINE -->
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <PrinterPort id="Printer Port">

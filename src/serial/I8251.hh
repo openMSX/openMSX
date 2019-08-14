@@ -23,8 +23,8 @@ public:
 	virtual void signal(EmuTime::param time) = 0;
 
 protected:
-	I8251Interface() {}
-	~I8251Interface() {}
+	I8251Interface() = default;
+	~I8251Interface() = default;
 };
 
 class I8251 final : public SerialDataInterface
@@ -47,17 +47,17 @@ public:
 	void recvByte(byte value, EmuTime::param time) override;
 
 	// Schedulable
-	struct SyncRecv : Schedulable {
+	struct SyncRecv final : Schedulable {
 		friend class I8251;
-		SyncRecv(Scheduler& s) : Schedulable(s) {}
+		explicit SyncRecv(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& i8251 = OUTER(I8251, syncRecv);
 			i8251.execRecv(time);
 		}
 	} syncRecv;
-	struct SyncTrans : Schedulable {
+	struct SyncTrans final : Schedulable {
 		friend class I8251;
-		SyncTrans(Scheduler& s) : Schedulable(s) {}
+		explicit SyncTrans(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& i8251 = OUTER(I8251, syncTrans);
 			i8251.execTrans(time);
@@ -75,7 +75,7 @@ public:
 	};
 
 private:
-	void setMode(byte mode);
+	void setMode(byte newMode);
 	void writeCommand(byte value, EmuTime::param time);
 	byte readStatus(EmuTime::param time);
 	byte readTrans(EmuTime::param time);

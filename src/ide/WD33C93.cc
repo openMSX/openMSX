@@ -19,11 +19,10 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
 #include <cstring>
+#include <memory>
 
 namespace openmsx {
 
@@ -111,31 +110,29 @@ WD33C93::WD33C93(const DeviceConfig& config)
 	for (auto* t : config.getXML()->getChildren("target")) {
 		unsigned id = t->getAttributeAsInt("id");
 		if (id >= MAX_DEV) {
-			throw MSXException(StringOp::Builder() <<
-				"Invalid SCSI id: " << id <<
-				" (should be 0.." << MAX_DEV - 1 << ')');
+			throw MSXException("Invalid SCSI id: ", id,
+			                   " (should be 0..", MAX_DEV - 1, ')');
 		}
 		if (dev[id]) {
-			throw MSXException(StringOp::Builder() <<
-				"Duplicate SCSI id: " << id);
+			throw MSXException("Duplicate SCSI id: ", id);
 		}
 		DeviceConfig conf(config, *t);
 		auto& type = t->getChild("type").getData();
 		if (type == "SCSIHD") {
-			dev[id] = make_unique<SCSIHD>(conf, buffer,
+			dev[id] = std::make_unique<SCSIHD>(conf, buffer,
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
 			        SCSIDevice::MODE_NOVAXIS);
 		} else if (type == "SCSILS120") {
-			dev[id] = make_unique<SCSILS120>(conf, buffer,
+			dev[id] = std::make_unique<SCSILS120>(conf, buffer,
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
 			        SCSIDevice::MODE_NOVAXIS);
 		} else {
-			throw MSXException("Unknown SCSI device: " + type);
+			throw MSXException("Unknown SCSI device: ", type);
 		}
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes
 	for (auto& d : dev) {
-		if (!d) d = make_unique<DummySCSIDevice>();
+		if (!d) d = std::make_unique<DummySCSIDevice>();
 	}
 	reset(false);
 
@@ -144,10 +141,6 @@ WD33C93::WD33C93(const DeviceConfig& config)
 	counter = 0;
 	blockCounter = 0;
 	targetId = 0;
-}
-
-WD33C93::~WD33C93()
-{
 }
 
 void WD33C93::disconnect()
@@ -445,7 +438,7 @@ void WD33C93::reset(bool scsireset)
 }
 
 
-static enum_string<SCSI::Phase> phaseInfo[] = {
+static std::initializer_list<enum_string<SCSI::Phase>> phaseInfo = {
 	{ "UNDEFINED",   SCSI::UNDEFINED   },
 	{ "BUS_FREE",    SCSI::BUS_FREE    },
 	{ "ARBITRATION", SCSI::ARBITRATION },
@@ -470,16 +463,16 @@ void WD33C93::serialize(Archive& ar, unsigned /*version*/)
 		tag[6] = char('0' + i);
 		ar.serializePolymorphic(tag, *dev[i]);
 	}
-	ar.serialize("bufIdx", bufIdx);
-	ar.serialize("counter", counter);
-	ar.serialize("blockCounter", blockCounter);
-	ar.serialize("tc", tc);
-	ar.serialize("phase", phase);
-	ar.serialize("myId", myId);
-	ar.serialize("targetId", targetId);
+	ar.serialize("bufIdx",       bufIdx,
+	             "counter",      counter,
+	             "blockCounter", blockCounter,
+	             "tc",           tc,
+	             "phase",        phase,
+	             "myId",         myId,
+	             "targetId",     targetId);
 	ar.serialize_blob("registers", regs, sizeof(regs));
-	ar.serialize("latch", latch);
-	ar.serialize("devBusy", devBusy);
+	ar.serialize("latch",   latch,
+	             "devBusy", devBusy);
 }
 INSTANTIATE_SERIALIZE_METHODS(WD33C93);
 

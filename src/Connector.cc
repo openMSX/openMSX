@@ -1,4 +1,5 @@
 #include "Connector.hh"
+#include "PlugException.hh"
 #include "Pluggable.hh"
 #include "PluggingController.hh"
 #include "serialize.hh"
@@ -7,9 +8,9 @@
 namespace openmsx {
 
 Connector::Connector(PluggingController& pluggingController_,
-                     string_ref name_, std::unique_ptr<Pluggable> dummy_)
+                     std::string name_, std::unique_ptr<Pluggable> dummy_)
 	: pluggingController(pluggingController_)
-	, name(name_.str())
+	, name(std::move(name_))
 	, dummy(std::move(dummy_))
 {
 	plugged = dummy.get();
@@ -59,11 +60,19 @@ void Connector::serialize(Archive& ar, unsigned /*version*/)
 			// the pluggable can test whether it was connected
 			pluggable->setConnector(this);
 			ar.skipSection(false);
-			ar.serializePolymorphic("pluggable", *plugged);
+			try {
+				ar.serializePolymorphic("pluggable", *plugged);
+			} catch (PlugException& e) {
+				pluggingController.getCliComm().printWarning(
+					"Pluggable \"", plugName, "\" failed to re-plug: ",
+					e.getMessage());
+				pluggable->setConnector(nullptr);
+				plugged = dummy.get();
+			}
 		} else {
 			// was plugged, but we don't have that pluggable anymore
 			pluggingController.getCliComm().printWarning(
-				"Pluggable \"" + plugName + "\" was plugged in, "
+				"Pluggable \"", plugName, "\" was plugged in, "
 				"but is not available anymore on this system, "
 				"so it will be ignored.");
 			ar.skipSection(true);

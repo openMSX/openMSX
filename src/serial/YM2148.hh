@@ -8,12 +8,12 @@
 #include "openmsx.hh"
 #include "outer.hh"
 
+namespace openmsx {
+
 class MSXMotherBoard;
 class Scheduler;
 
-namespace openmsx {
-
-class YM2148 : public MidiInConnector
+class YM2148 final : public MidiInConnector
 {
 public:
 	YM2148(const std::string& name, MSXMotherBoard& motherBoard);
@@ -41,17 +41,17 @@ private:
 	void recvByte(byte value, EmuTime::param time) override;
 
 	// Schedulable
-	struct SyncRecv : Schedulable {
+	struct SyncRecv final : Schedulable {
 		friend class YM2148;
-		SyncRecv(Scheduler& s) : Schedulable(s) {}
+		explicit SyncRecv(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& ym2148 = OUTER(YM2148, syncRecv);
 			ym2148.execRecv(time);
 		}
 	} syncRecv;
-	struct SyncTrans : Schedulable {
+	struct SyncTrans final : Schedulable {
 		friend class YM2148;
-		SyncTrans(Scheduler& s) : Schedulable(s) {}
+		explicit SyncTrans(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& ym2148 = OUTER(YM2148, syncTrans);
 			ym2148.execTrans(time);

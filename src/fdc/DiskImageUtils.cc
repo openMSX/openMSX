@@ -1,7 +1,6 @@
 #include "DiskImageUtils.hh"
 #include "DiskPartition.hh"
 #include "CommandException.hh"
-#include "StringOp.hh"
 #include "BootBlocks.hh"
 #include "endian.hh"
 #include "random.hh"
@@ -45,8 +44,7 @@ static Partition& checkImpl(SectorAccessibleDisk& disk, unsigned partition,
 	// check valid partition number
 	auto& p = buf.pt.part[31 - partition];
 	if (p.start == 0) {
-		throw CommandException(StringOp::Builder() <<
-			"No partition number " << partition);
+		throw CommandException("No partition number ", partition);
 	}
 	return p;
 }
@@ -235,7 +233,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 	buf.pt.end = 0xAA55;
 
 	unsigned partitionOffset = 1;
-	for (unsigned i = 0; i < sizes.size(); ++i) {
+	for (size_t i = 0; i < sizes.size(); ++i) {
 		unsigned partitionNbSectors = sizes[i];
 		auto& p = buf.pt.part[30 - i];
 		unsigned startCylinder, startHead, startSector;

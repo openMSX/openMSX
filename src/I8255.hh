@@ -23,6 +23,14 @@ public:
 
 	void reset(EmuTime::param time);
 
+	byte read(byte port, EmuTime::param time);
+	byte peek(byte port, EmuTime::param time) const;
+	void write(byte port, byte value, EmuTime::param time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+private:
 	byte readPortA(EmuTime::param time);
 	byte readPortB(EmuTime::param time);
 	byte readPortC(EmuTime::param time);
@@ -35,10 +43,6 @@ public:
 	void writePortC(byte value, EmuTime::param time);
 	void writeControlPort(byte value, EmuTime::param time);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
-private:
 	byte readC0(EmuTime::param time);
 	byte readC1(EmuTime::param time);
 	byte peekC0(EmuTime::param time) const;

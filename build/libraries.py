@@ -9,9 +9,11 @@
 # Conclusion: We have to specify the full path to each library that should be
 #             linked statically.
 
+from __future__ import print_function
 from executils import captureStdout, shjoin
 from msysutils import msysActive, msysPathToNative
 
+from io import open
 from os import listdir
 from os.path import isdir, isfile
 from os import environ
@@ -56,7 +58,7 @@ class Library(object):
 			#       Note that distroRoot is for non-system libs only.
 			#       Trying a path relative to the compiler location would
 			#       probably work well.
-			return '/opt/a320-toolchain/usr/mipsel-a320-linux-uclibc/sysroot/usr/bin/%s' % scriptName
+			return '/opt/gcw0-toolchain/usr/mipsel-gcw0-linux-uclibc/sysroot/usr/bin/%s' % scriptName
 		elif distroRoot is None:
 			return scriptName
 		else:
@@ -73,8 +75,6 @@ class Library(object):
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
-		if platform == 'android':
-			return environ['ANDROID_CXXFLAGS']
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is not None:
 			flags = [ '`%s --cflags`' % configScript ]
@@ -92,8 +92,6 @@ class Library(object):
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		if platform == 'android':
-			return environ['ANDROID_LDFLAGS']
 		configScript = cls.getConfigScript(platform, linkStatic, distroRoot)
 		if configScript is not None:
 			libsOption = (
@@ -133,6 +131,32 @@ class Library(object):
 		else:
 			return '`%s --version`' % configScript
 
+class ALSA(Library):
+	libName = 'asound'
+	makeName = 'ALSA'
+	header = '<alsa/asoundlib.h>'
+	function = 'snd_seq_open'
+
+	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
+
+	@classmethod
+	def getLinkFlags(cls, platform, linkStatic, distroRoot):
+		flags = super(ALSA, cls).getLinkFlags(platform, linkStatic, distroRoot)
+		if linkStatic:
+			flags += ' -lpthread'
+		return flags
+
+	@classmethod
+	def getVersion(cls, platform, linkStatic, distroRoot):
+		def execute(cmd, log):
+			version = cmd.expand(log, cls.getHeaders(platform),
+				'SND_LIB_VERSION_STR'
+				)
+			return None if version is None else version.strip('"')
+		return execute
+
 class FreeType(Library):
 	libName = 'freetype'
 	makeName = 'FREETYPE'
@@ -142,7 +166,7 @@ class FreeType(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 	@classmethod
 	def getConfigScript(cls, platform, linkStatic, distroRoot):
@@ -150,9 +174,23 @@ class FreeType(Library):
 			if distroRoot == '/usr/local':
 				# FreeType is located in the X11 tree, not the ports tree.
 				distroRoot = '/usr/X11R6'
-		return super(FreeType, cls).getConfigScript(
+		script = super(FreeType, cls).getConfigScript(
 			platform, linkStatic, distroRoot
 			)
+		# FreeType 2.9.1 no longer installs the freetype-config script
+		# by default and expects pkg-config to be used instead.
+		if isfile(script):
+			return script
+		elif distroRoot is None:
+			return 'pkg-config freetype2'
+		elif distroRoot.startswith('derived/'):
+			toolsDir = '%s/../tools/bin' % distroRoot
+			for name in listdir(toolsDir):
+				if name.endswith('-pkg-config'):
+					return toolsDir + '/' + name + ' freetype2'
+			raise RuntimeError('No cross-pkg-config found in 3rdparty build')
+		else:
+			return '%s/bin/pkg-config freetype2' % distroRoot
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
@@ -201,8 +239,8 @@ class GL(Library):
 		def execute(cmd, log):
 			versionPairs = tuple(
 				( major, minor )
-				for major in range(1, 10)
-				for minor in range(0, 10)
+				for major in xrange(1, 10)
+				for minor in xrange(0, 10)
 				)
 			version = cmd.expand(log, cls.getHeaders(platform), *(
 				'GL_VERSION_%d_%d' % pair for pair in versionPairs
@@ -241,7 +279,7 @@ class GLEW(Library):
 			return flags
 
 class LibPNG(Library):
-	libName = 'png12'
+	libName = 'png16'
 	makeName = 'PNG'
 	header = '<png.h>'
 	configScriptName = 'libpng-config'
@@ -251,7 +289,7 @@ class LibPNG(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 class OGG(Library):
 	libName = 'ogg'
@@ -261,40 +299,40 @@ class OGG(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
-class SDL(Library):
-	libName = 'SDL'
-	makeName = 'SDL'
+class SDL2(Library):
+	libName = 'SDL2'
+	makeName = 'SDL2'
 	header = '<SDL.h>'
-	configScriptName = 'sdl-config'
+	configScriptName = 'sdl2-config'
 	staticLibsOption = '--static-libs'
 	function = 'SDL_Init'
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
-class SDL_ttf(Library):
-	libName = 'SDL_ttf'
-	makeName = 'SDL_TTF'
+class SDL2_ttf(Library):
+	libName = 'SDL2_ttf'
+	makeName = 'SDL2_TTF'
 	header = '<SDL_ttf.h>'
 	function = 'TTF_OpenFont'
-	dependsOn = ('SDL', 'FREETYPE')
+	dependsOn = ('SDL2', 'FREETYPE')
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		flags = super(SDL_ttf, cls).getLinkFlags(
+		flags = super(SDL2_ttf, cls).getLinkFlags(
 			platform, linkStatic, distroRoot
 			)
 		if not linkStatic:
 			# Because of the SDLmain trickery, we need SDL's link flags too
 			# on some platforms even though we're linking dynamically.
-			flags += ' ' + SDL.getLinkFlags(platform, linkStatic, distroRoot)
+			flags += ' ' + SDL2.getLinkFlags(platform, linkStatic, distroRoot)
 		return flags
 
 	@classmethod
@@ -315,10 +353,6 @@ class TCL(Library):
 	function = 'Tcl_CreateInterp'
 
 	@classmethod
-	def isSystemLibrary(cls, platform):
-		return platform in ('android',)
-
-	@classmethod
 	def getTclConfig(cls, platform, distroRoot):
 		'''Tcl has a config script that is unlike the typical lib-config script.
 		Information is gathered by sourcing the config script, instead of
@@ -333,45 +367,38 @@ class TCL(Library):
 			return cls.tclConfig
 
 		def iterLocations():
-			if platform == 'android':
-				# Under Android, the tcl set-up apparently differs from
-				# other cross-platform setups. the search algorithm to find the
-				# directory that will contain the tclConfig.sh script and the shared libs
-				# is not applicable to Android. Instead, immediately return the correct
-				# subdirectories to the routine that invokes iterLocations()
-				sdl_android_port_path = environ['SDL_ANDROID_PORT_PATH']
-				libpath = sdl_android_port_path + '/project/libs/armeabi'
-				yield libpath
-				tclpath = sdl_android_port_path + '/project/jni/tcl8.5/unix'
+			# Allow the user to specify the location we should search first,
+			# by setting an environment variable.
+			tclpath = environ.get('TCL_CONFIG')
+			if tclpath is not None:
 				yield tclpath
-			else:
-				if distroRoot is None or cls.isSystemLibrary(platform):
-					if msysActive():
-						roots = (msysPathToNative('/mingw32'), )
-					else:
-						roots = ('/usr/local', '/usr')
+
+			if distroRoot is None or cls.isSystemLibrary(platform):
+				if msysActive():
+					roots = (msysPathToNative('/mingw32'), )
 				else:
-					roots = (distroRoot, )
-				for root in roots:
-					if isdir(root):
-						for libdir in ('lib', 'lib64', 'lib/tcl'):
-							libpath = root + '/' + libdir
-							if isdir(libpath):
-								yield libpath
-								for entry in listdir(libpath):
-									if entry.startswith('tcl8.'):
-										tclpath = libpath + '/' + entry
-										if isdir(tclpath):
-											yield tclpath
+					roots = ('/usr/local', '/usr')
+			else:
+				roots = (distroRoot, )
+			for root in roots:
+				if isdir(root):
+					for libdir in ('lib', 'lib64', 'lib/tcl'):
+						libpath = root + '/' + libdir
+						if isdir(libpath):
+							yield libpath
+							for entry in listdir(libpath):
+								if entry.startswith('tcl8.'):
+									tclpath = libpath + '/' + entry
+									if isdir(tclpath):
+										yield tclpath
 
 		tclConfigs = {}
-		log = open('derived/tcl-search.log', 'w')
-		print >> log, 'Looking for Tcl...'
-		try:
+		with open('derived/tcl-search.log', 'w', encoding='utf-8') as log:
+			print(u'Looking for Tcl...', file=log)
 			for location in iterLocations():
 				path = location + '/tclConfig.sh'
 				if isfile(path):
-					print >> log, 'Config script:', path
+					print(u'Config script: %s' % path, file=log)
 					text = captureStdout(
 						log,
 						"sh -c '. %s && echo %s'" % (
@@ -386,7 +413,7 @@ class TCL(Library):
 						except ValueError:
 							pass
 						else:
-							print >> log, 'Found: version %d.%d' % version
+							print(u'Found: version %d.%d' % version, file=log)
 							tclConfigs[path] = version
 			try:
 				# Minimum required version is 8.5.
@@ -399,11 +426,9 @@ class TCL(Library):
 					)[1]
 			except ValueError:
 				tclConfig = None
-				print >> log, 'No suitable versions found.'
+				print(u'No suitable versions found.', file=log)
 			else:
-				print >> log, 'Selected:', tclConfig
-		finally:
-			log.close()
+				print(u'Selected: %s' % tclConfig, file=log)
 
 		cls.tclConfig = tclConfig
 		return tclConfig
@@ -413,9 +438,8 @@ class TCL(Library):
 		tclConfig = cls.getTclConfig(platform, distroRoot)
 		if tclConfig is None:
 			return None
-		log = open('derived/tcl-search.log', 'a')
-		try:
-			print >> log, 'Getting Tcl %s...' % description
+		with open('derived/tcl-search.log', 'a', encoding='utf-8') as log:
+			print(u'Getting Tcl %s...' % description, file=log)
 			text = captureStdout(
 				log,
 				shjoin([
@@ -424,20 +448,11 @@ class TCL(Library):
 					])
 				)
 			if text is not None:
-				print >> log, 'Result: %s' % text.strip()
-		finally:
-			log.close()
+				print(u'Result: %s' % text.strip(), file=log)
 		return None if text is None else text.strip()
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
-		if platform == 'android':
-			# Use the current ANDROID cross-compilation flags and not the TCL flags. Otherwise, the
-			# wrong version of libstdc++ will end-up on the include path; the minimal Android NDK
-			# version instead of the more complete GNU version. This is because TCL for Android has
-			# been configured with the minimal libstdc++ on the include path in the C(XX) flags and
-			# not with the more complete GNU version
-			return environ['ANDROID_CXXFLAGS']
 		wantShared = not linkStatic or cls.isSystemLibrary(platform)
 		# The -DSTATIC_BUILD is a hack to avoid including the complete
 		# TCL_DEFS (see 9f1dbddda2) but still being able to link on
@@ -451,10 +466,6 @@ class TCL(Library):
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		if platform == 'android':
-			# Use the current ANDROID cross-compilation flags and not the TCL flags to
-			# prevent issues with libstdc++ version. See also getCompileFlags()
-			return environ['ANDROID_LDFLAGS']
 		# Tcl can be built as a shared or as a static library, but not both.
 		# Check whether the library type of Tcl matches the one we want.
 		wantShared = not linkStatic or cls.isSystemLibrary(platform)
@@ -464,30 +475,27 @@ class TCL(Library):
 			'${TCL_SHARED_BUILD}',
 			'library type (shared/static)'
 			)
-		log = open('derived/tcl-search.log', 'a')
-		try:
+		with open('derived/tcl-search.log', 'a', encoding='utf-8') as log:
 			if tclShared == '0':
 				if wantShared:
-					print >> log, (
-						'Dynamic linking requested, but Tcl installation has '
-						'static library.'
+					print(
+						u'Dynamic linking requested, but Tcl installation has '
+						u'static library.', file=log
 						)
 					return None
 			elif tclShared == '1':
 				if not wantShared:
-					print >> log, (
-						'Static linking requested, but Tcl installation has '
-						'dynamic library.'
+					print(
+						u'Static linking requested, but Tcl installation has '
+						u'dynamic library.', file=log
 						)
 					return None
 			else:
-				print >> log, (
-					'Unable to determine whether Tcl installation has '
-					'shared or static library.'
+				print(
+					u'Unable to determine whether Tcl installation has '
+					u'shared or static library.', file=log
 					)
 				return None
-		finally:
-			log.close()
 
 		# Now get the link flags.
 		if wantShared:
@@ -523,7 +531,7 @@ class Theora(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 class Vorbis(Library):
 	libName = 'vorbis'
@@ -534,7 +542,7 @@ class Vorbis(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 class ZLib(Library):
 	libName = 'z'
@@ -544,7 +552,7 @@ class ZLib(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
+		return platform in ('dingux',)
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):

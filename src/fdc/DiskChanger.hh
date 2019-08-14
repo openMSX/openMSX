@@ -4,9 +4,10 @@
 #include "DiskContainer.hh"
 #include "StateChangeListener.hh"
 #include "serialize_meta.hh"
-#include "array_ref.hh"
-#include <string>
+#include "span.hh"
+#include <functional>
 #include <memory>
+#include <string>
 
 namespace openmsx {
 
@@ -24,12 +25,13 @@ class DiskChanger final : public DiskContainer, private StateChangeListener
 {
 public:
 	DiskChanger(MSXMotherBoard& board,
-	            const std::string& driveName,
-	            bool createCommand = true,
-	            bool doubleSidedDrive = true);
+	            std::string driveName,
+	            bool createCmd = true,
+	            bool doubleSidedDrive = true,
+	            std::function<void()> preChangeCallback = {});
 	DiskChanger(Reactor& reactor,
-	            const std::string& driveName); // for virtual_drive
-	~DiskChanger();
+	            std::string driveName); // for virtual_drive
+	~DiskChanger() override;
 
 	void createCommand();
 
@@ -43,7 +45,7 @@ public:
 	SectorAccessibleDisk* getSectorAccessibleDisk() override;
 	const std::string& getContainerName() const override;
 	bool diskChanged() override;
-	int insertDisk(string_ref filename) override;
+	int insertDisk(string_view filename) override;
 
 	// for NowindCommand
 	void changeDisk(std::unique_ptr<Disk> newDisk);
@@ -57,9 +59,9 @@ public:
 
 private:
 	void init(const std::string& prefix, bool createCmd);
-	void insertDisk(array_ref<TclObject> args);
+	void insertDisk(span<const TclObject> args);
 	void ejectDisk();
-	void sendChangeDiskEvent(array_ref<std::string> args);
+	void sendChangeDiskEvent(span<std::string> args);
 
 	// StateChangeListener
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
@@ -69,6 +71,7 @@ private:
 	CommandController& controller;
 	StateChangeDistributor* stateChangeDistributor;
 	Scheduler* scheduler;
+	std::function<void()> preChangeCallback;
 
 	const std::string driveName;
 	std::unique_ptr<Disk> disk;

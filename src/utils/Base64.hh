@@ -2,15 +2,15 @@
 #define BASE64_HH
 
 #include "MemBuffer.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <string>
 #include <cstdint>
 #include <utility>
 
 namespace Base64 {
-	std::string encode(const uint8_t* input, size_t len);
-	std::pair<openmsx::MemBuffer<uint8_t>, size_t> decode(string_ref input);
-	bool decode_inplace(string_ref input, uint8_t* output, size_t outSize);
+	std::string encode(const uint8_t* input, size_t inSize);
+	std::pair<openmsx::MemBuffer<uint8_t>, size_t> decode(string_view input);
+	bool decode_inplace(string_view input, uint8_t* output, size_t outSize);
 }
 
 #endif

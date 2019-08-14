@@ -49,9 +49,9 @@ template<typename Archive>
 void MSXRTC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("sram", sram);
-	ar.serialize("rp5c01", rp5c01);
-	ar.serialize("registerLatch", registerLatch);
+	ar.serialize("sram",          sram,
+	             "rp5c01",        rp5c01,
+	             "registerLatch", registerLatch);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXRTC);
 REGISTER_MSXDEVICE(MSXRTC, "RTC");

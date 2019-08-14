@@ -4,10 +4,9 @@
 #include "FrameSource.hh"
 #include "FileContext.hh"
 #include "File.hh"
-#include "StringOp.hh"
 #include "vla.hh"
 #include <cstring>
-#include <algorithm>
+#include <utility>
 
 using std::string;
 
@@ -17,11 +16,11 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 	: GLScaler("hq")
 	, fallback(fallback_)
 {
-	for (int i = 0; i < 2; ++i) {
-		program[i].activate();
-		glUniform1i(program[i].getUniformLocation("edgeTex"),   2);
-		glUniform1i(program[i].getUniformLocation("offsetTex"), 3);
-		glUniform1i(program[i].getUniformLocation("weightTex"), 4);
+	for (auto& p : program) {
+		p.activate();
+		glUniform1i(p.getUniformLocation("edgeTex"),   2);
+		glUniform1i(p.getUniformLocation("offsetTex"), 3);
+		glUniform1i(p.getUniformLocation("weightTex"), 4);
 	}
 
 	edgeTexture.bind();
@@ -38,13 +37,13 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 
 	auto context = systemFileContext();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	string offsetsName = "shaders/HQ_xOffsets.dat";
+	string weightsName = "shaders/HQ_xWeights.dat";
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
-		string offsetsName = StringOp::Builder() <<
-			"shaders/HQ" << n << "xOffsets.dat";
+                offsetsName[10] = char('0') + n;
 		File offsetsFile(context.resolve(offsetsName));
 		offsetTexture[i].bind();
-		size_t size; // dummy
 		glTexImage2D(GL_TEXTURE_2D,       // target
 		             0,                   // level
 		             GL_RGBA8,            // internal format
@@ -53,10 +52,9 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 		             0,                   // border
 		             GL_RGBA,             // format
 		             GL_UNSIGNED_BYTE,    // type
-		             offsetsFile.mmap(size));// data
+		             offsetsFile.mmap().data());// data
 
-		string weightsName = StringOp::Builder() <<
-			"shaders/HQ" << n << "xWeights.dat";
+		weightsName[10] = char('0') + n;
 		File weightsFile(context.resolve(weightsName));
 		weightTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,       // target
@@ -67,7 +65,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 		             0,                   // border
 		             GL_RGB,              // format
 		             GL_UNSIGNED_BYTE,    // type
-		             weightsFile.mmap(size));// data
+		             weightsFile.mmap().data());// data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 }
@@ -108,7 +106,7 @@ void GLHQScaler::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth,
 	FrameSource& paintFrame)
 {
-	if (lineWidth != 320) return;
+	if ((lineWidth != 320) || (srcEndY > 240)) return;
 
 	uint32_t tmpBuf2[320 / 2]; // 2 x uint16_t
 	#ifndef NDEBUG

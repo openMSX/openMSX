@@ -12,7 +12,7 @@ class RawFrame;
 class Rasterizer
 {
 public:
-	virtual ~Rasterizer() {}
+	virtual ~Rasterizer() = default;
 
 	/** See VDP::getPostProcessor(). */
 	virtual PostProcessor* getPostProcessor() const = 0;
@@ -105,7 +105,7 @@ public:
 	virtual bool isRecording() const = 0;
 
 protected:
-	Rasterizer() {}
+	Rasterizer() = default;
 };
 
 } // namespace openmsx

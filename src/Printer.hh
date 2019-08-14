@@ -35,14 +35,14 @@ public:
 	void unplugHelper(EmuTime::param time) override;
 
 protected:
-	PrinterCore();
-	~PrinterCore();
+	PrinterCore() = default;
+	~PrinterCore() override = default;
 	virtual void write(byte data) = 0;
 	virtual void forceFormFeed() = 0;
 
 private:
-	byte toPrint;
-	bool prevStrobe;
+	byte toPrint = 0;
+	bool prevStrobe = true;
 };
 
 /*
@@ -73,7 +73,7 @@ public:
 
 protected:
 	ImagePrinter(MSXMotherBoard& motherBoard, bool graphicsHiLo);
-	~ImagePrinter();
+	~ImagePrinter() override;
 
 	void resetEmulatedPrinter();
 	void printGraphicByte(byte data);
@@ -175,7 +175,7 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -199,7 +199,7 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

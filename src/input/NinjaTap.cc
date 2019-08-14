@@ -1,21 +1,19 @@
 #include "NinjaTap.hh"
 #include "JoystickPort.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-NinjaTap::NinjaTap(PluggingController& pluggingController_,
-                   const std::string& name_)
-	: JoyTap(pluggingController_, name_)
+NinjaTap::NinjaTap(PluggingController& pluggingController_, std::string name_)
+	: JoyTap(pluggingController_, std::move(name_))
 {
 	status = 0x3F; // TODO check initial value
 	previous = 0;
-	for (auto& b : buf) {
-		b = 0xFF;
-	}
+	ranges::fill(buf, 0xFF);
 }
 
-string_ref NinjaTap::getDescription() const
+string_view NinjaTap::getDescription() const
 {
 	return "MSX Ninja Tap device";
 }
@@ -75,9 +73,9 @@ template<typename Archive>
 void NinjaTap::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<JoyTap>(*this);
-	ar.serialize("status", status);
-	ar.serialize("previous", previous);
-	ar.serialize("buf", buf);
+	ar.serialize("status",   status,
+	             "previous", previous,
+	             "buf",      buf);
 }
 INSTANTIATE_SERIALIZE_METHODS(NinjaTap);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, NinjaTap, "NinjaTap");

@@ -11,32 +11,34 @@
 
 namespace openmsx {
 
-#include "BlipConfig.hh"
-
 class BlipBuffer
 {
 public:
+	// Number of bits in phase offset. Fewer than 6 bits (64 phase offsets) results
+	// in noticeable broadband noise when synthesizing high frequency square waves.
+	static constexpr int BLIP_PHASE_BITS = 10;
+
 	using TimeIndex = FixedPoint<BLIP_PHASE_BITS>;
 
 	BlipBuffer();
 
 	// Update amplitude of waveform at given time. Time is in output sample
 	// units and since the last time readSamples() was called.
-	void addDelta(TimeIndex time, int delta);
+	void addDelta(TimeIndex time, float delta);
 
 	// Read the given amount of samples into destination buffer.
 	template <unsigned PITCH>
-	bool readSamples(int* dest, unsigned samples);
+	bool readSamples(float* out, unsigned samples);
 
 private:
 	template <unsigned PITCH>
-	void readSamplesHelper(int* out, unsigned samples) __restrict;
+	void readSamplesHelper(float* out, unsigned samples) __restrict;
 
-	static const unsigned BUFFER_SIZE = 1 << 14;
-	static const unsigned BUFFER_MASK = BUFFER_SIZE - 1;
-	int buffer[BUFFER_SIZE];
+	static constexpr unsigned BUFFER_SIZE = 1 << 14;
+	static constexpr unsigned BUFFER_MASK = BUFFER_SIZE - 1;
+	float buffer[BUFFER_SIZE];
 	unsigned offset;
-	int accum;
+	float accum;
 	int availSamp;
 };
 

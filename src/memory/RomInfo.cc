@@ -1,10 +1,10 @@
 #include "RomInfo.hh"
 #include "StringOp.hh"
 #include "hash_map.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xxhash.hh"
-#include <algorithm>
 #include <cassert>
 
 using std::vector;
@@ -30,7 +30,7 @@ static bool isInit = false;
 
 // This maps a name to a RomType. There can be multiple names (aliases) for the
 // same type.
-using RomTypeMap = hash_map<string_ref, RomType, XXHasher_IgnoreCase, StringOp::casecmp>;
+using RomTypeMap = hash_map<string_view, RomType, XXHasher_IgnoreCase, StringOp::casecmp>;
 static RomTypeMap romTypeMap(256); // initial hashtable size
                                    // (big enough so that no rehash is needed)
 
@@ -38,19 +38,19 @@ static RomTypeMap romTypeMap(256); // initial hashtable size
 // contains the primary (non-alias) romtypes.
 using RomTypeInfo = std::tuple<
 	RomType,    // rom type
-	string_ref, // description
+	string_view, // description
 	unsigned>;  // blockSize
 using RomTypeInfoMap = vector<RomTypeInfo>;
 using RomTypeInfoMapLess = LessTupleElement<0>;
 static RomTypeInfoMap romTypeInfoMap;
 
-static void init(RomType type, string_ref name,
-                 unsigned blockSize, string_ref description)
+static void init(RomType type, string_view name,
+                 unsigned blockSize, string_view description)
 {
 	romTypeMap.emplace_noCapacityCheck_noDuplicateCheck(name, type);
 	romTypeInfoMap.emplace_back(type, description, blockSize);
 }
-static void initAlias(RomType type, string_ref name)
+static void initAlias(RomType type, string_view name)
 {
 	romTypeMap.emplace_noCapacityCheck_noDuplicateCheck(name, makeAlias(type));
 }
@@ -80,6 +80,7 @@ static void init()
 	init(ROM_ASCII16_2,      "ASCII16SRAM2",   0x4000, "ASCII 16kB with 2kB SRAM");
 	init(ROM_ASCII16_8,      "ASCII16SRAM8",   0x4000, "ASCII 16kB with 8kB SRAM");
 	init(ROM_ASCII8_8,       "ASCII8SRAM8",    0x2000, "ASCII 8kB with 8kB SRAM");
+	init(ROM_ASCII8_32,      "ASCII8SRAM32",   0x2000, "ASCII 8kB with 32kB SRAM");
 	init(ROM_ASCII8_2,       "ASCII8SRAM2",    0x2000, "ASCII 8kB with 2kB SRAM");
 	init(ROM_KOEI_8,         "KoeiSRAM8",      0x2000, "Koei with 8kB SRAM");
 	init(ROM_KOEI_32,        "KoeiSRAM32",     0x2000, "Koei with 32kB SRAM");
@@ -102,12 +103,19 @@ static void init()
 	init(ROM_HAMARAJANIGHT,  "HamarajaNight",  0x2000, "Best of Hamaraja Night");
 	init(ROM_MEGAFLASHROMSCC,"MegaFlashRomScc",0x2000, "Mega Flash ROM SCC");
 	init(ROM_MATRAINK,       "MatraInk",       0x0000, "Matra Ink");
+	init(ROM_MATRACOMPILATION,"MatraCompilation",0x2000, "Matra Compilation");
 	init(ROM_ARC,            "Arc",            0x4000, "Parallax' ARC"); // officially plain 32K
+	init(ROM_ROMHUNTERMK2,   "ROMHunterMk2",   0x0000, "ROM Hunter Mk2");
 	init(ROM_DOOLY,          "Dooly",          0x4000, "Baby Dinosaur Dooly"); // officially 32K blocksize, but spread over 2 pages
 	init(ROM_MSXTRA,         "MSXtra",         0x0000, "PTC MSXtra");
+	init(ROM_MSXWRITE,       "MSXWrite",       0x4000, "Japanese MSX Write");
 	init(ROM_MULTIROM,       "MultiRom",       0x0000, "MultiRom Collection");
+	init(ROM_RAMFILE,        "RAMFILE",        0x0000, "Tecall MSX RAMFILE");
+	init(ROM_COLECOMEGACART, "ColecoMegaCart", 0x4000, "ColecoVision MegaCart");
 	init(ROM_MEGAFLASHROMSCCPLUS,"MegaFlashRomSccPlus",0x0000, "Mega Flash ROM SCC Plus");
-	init(ROM_MEGAFLASHROMSCCPLUSSD,"MegaFlashRomSccPlusSD",0x0000, "Mega Flash ROM SCC Plus SD"); // ****
+	init(ROM_REPRO_CARTRIDGE1,"ReproCartridgeV1",0x0000, "Repro Cartridge V1");
+	init(ROM_REPRO_CARTRIDGE2,"ReproCartridgeV2",0x0000, "Repro Cartridge V2");
+	init(ROM_KONAMI_ULTIMATE_COLLECTION,"KonamiUltimateCollection",0x0000, "Konami Ultimate Collection");
 
 	// ROM mapper types used for system ROMs in machines
 	init(ROM_PANASONIC, "Panasonic", 0x2000, "Panasonic internal mapper");
@@ -164,7 +172,7 @@ static void init()
 	initAlias(ROM_ZEMINA126IN1,"KOREAN126IN1");
 	initAlias(ROM_HOLY_QURAN,  "HolyQuran");
 
-	sort(begin(romTypeInfoMap), end(romTypeInfoMap), RomTypeInfoMapLess());
+	ranges::sort(romTypeInfoMap, RomTypeInfoMapLess());
 }
 static const RomTypeMap& getRomTypeMap()
 {
@@ -177,14 +185,13 @@ static const RomTypeInfoMap& getRomTypeInfoMap()
 	return romTypeInfoMap;
 }
 
-RomType RomInfo::nameToRomType(string_ref name)
+RomType RomInfo::nameToRomType(string_view name)
 {
-	auto& m = getRomTypeMap();
-	auto it = m.find(name);
-	return (it != end(m)) ? removeAlias(it->second) : ROM_UNKNOWN;
+	auto v = lookup(getRomTypeMap(), name);
+	return v ? removeAlias(*v) : ROM_UNKNOWN;
 }
 
-string_ref RomInfo::romTypeToName(RomType type)
+string_view RomInfo::romTypeToName(RomType type)
 {
 	assert(!isAlias(type));
 	for (auto& p : getRomTypeMap()) {
@@ -192,12 +199,12 @@ string_ref RomInfo::romTypeToName(RomType type)
 			return p.first;
 		}
 	}
-	UNREACHABLE; return "";
+	UNREACHABLE; return {};
 }
 
-vector<string_ref> RomInfo::getAllRomTypes()
+vector<string_view> RomInfo::getAllRomTypes()
 {
-	vector<string_ref> result;
+	vector<string_view> result;
 	for (auto& p : getRomTypeMap()) {
 		if (!isAlias(p.second)) {
 			result.push_back(p.first);
@@ -206,10 +213,10 @@ vector<string_ref> RomInfo::getAllRomTypes()
 	return result;
 }
 
-string_ref RomInfo::getDescription(RomType type)
+string_view RomInfo::getDescription(RomType type)
 {
 	auto& m = getRomTypeInfoMap();
-	auto it = lower_bound(begin(m), end(m), type, RomTypeInfoMapLess());
+	auto it = ranges::lower_bound(m, type, RomTypeInfoMapLess());
 	assert(it != end(m));
 	assert(std::get<0>(*it) == type);
 	return std::get<1>(*it);
@@ -218,7 +225,7 @@ string_ref RomInfo::getDescription(RomType type)
 unsigned RomInfo::getBlockSize(RomType type)
 {
 	auto& m = getRomTypeInfoMap();
-	auto it = lower_bound(begin(m), end(m), type, RomTypeInfoMapLess());
+	auto it = ranges::lower_bound(m, type, RomTypeInfoMapLess());
 	assert(it != end(m));
 	assert(std::get<0>(*it) == type);
 	return std::get<2>(*it);

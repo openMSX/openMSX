@@ -16,8 +16,8 @@
   <h1>openMSX Console Command Reference</h1>
 
   <ol class="inlinetoccat">
-    <li>Introduction</li>
-    <li>Commands
+    <li><a class="internal" href="#introduction">Introduction</a></li>
+    <li><a class="internal" href="#commands">Commands</a>
 
       <ol class="inlinetoc">
         <li><a class="internal" href="#after">after</a></li>
@@ -72,7 +72,7 @@
         <li><a class="internal" href="#test_machine">test_machine</a></li>
         <li><a class="internal" href="#toggle">toggle</a></li>
         <li><a class="internal" href="#trainer">trainer</a></li>
-        <li><a class="internal" href="#type">type</a></li>
+        <li><a class="internal" href="#type">type / type_via_keyboard</a></li>
         <li><a class="internal" href="#unset">unset</a></li>
         <li><a class="internal" href="#user_setting">user_setting</a></li>
         <li><a class="internal" href="#vdpregs">vdpregs</a></li>
@@ -80,7 +80,7 @@
       </ol>
     </li>
 
-    <li>Settings
+    <li><a class="internal" href="#settings">Settings</a>
 
       <ol class="inlinetoc">
         <li><a class="internal" href="#accuracy">accuracy</a></li>
@@ -597,8 +597,8 @@
       <td><code>debug list</code></td>
 
       <td>Return a list of all debuggables.<br />
-      A debuggable is (part of) the state of<br />
-      a MSX device that can be accessed via these debug commands.<br />
+      A debuggable is (part of) the state of a MSX device that can be accessed
+      via these debug commands.<br />
       Examples are:
         <ul>
           <li> the VDP registers </li>
@@ -707,7 +707,7 @@
       the condition is evaluated. If the condition evaluated to true, the command is executed. The condition and the
       command are similar to the ones in the <code>set_bp</code> subcommand. A watchpoint can either be set on a single memory
       address or I/O port (specify a single value), or on a whole memory or I/O port range (specify a begin/end pair).
-      For example: <code>debug set_watchpoint write_mem {0x8000 0x8FFF}</code></td>
+      For example: <code>debug set_watchpoint write_mem {0x8000 0x8FFF}</code>. During the execution of <code>&lt;cmd&gt;</code>, the following global Tcl variables are set: <code>::wp_last_address</code>, which is the actual address of the mem/io read/write that triggered the watchpoint and <code>::wp_last_value</code>, the actual value that was written by the mem/io write that triggered the watchpoint.</td>
     </tr>
 
     <tr>
@@ -759,7 +759,7 @@
     </tr>
     <tr>
       <td><code>debug probe set_bp &lt;probe&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
-      <td>Set a breakpoint of a probe. Like in the 'set_bp' subcommand you can optionally specify a condition and a command.</td>
+      <td>Set a breakpoint on a probe. Like in the 'set_bp' subcommand you can optionally specify a condition and a command.</td>
     </tr>
     <tr>
       <td><code>debug probe remove_bp &lt;id&gt;</code></td>
@@ -882,7 +882,7 @@
 
   <h3><a id="exit">exit</a></h3>
 
-  <p>Terminate the openMSX application.</p>
+  <p>Terminate the openMSX application. Optionally you can pass an exit-code.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -899,6 +899,8 @@
 
   <p>Insert an MSX extension in a running MSX machine. The <code>ext</code> command inserts the extension in the first available slot. The <code>exta</code>, <code>extb</code> etc. commands insert it in the specified slot. The extension can be removed again with the <code><a class="internal" href="#remove_extension">remove_extension</a></code>
   command. See also the commands <code><a class="internal" href="#cart">cart</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code> and <code><a class="internal" href="#remove_extension">remove_extension</a></code>.</p>
+
+  <p>To get a list of possible extensions it's convenient to use the tab-completetion feature, i.e. type '<code>ext&lt;space&gt;&lt;tab&gt;</code>'. Alternatively the command '<code><a class="internal" href="#openmsx_info">openmsx_info</a> extensions</code>' gives you the same information (and is easier to use in a scripting context).</p>
 
   <p>Note that some extensions (i.e. those without any memory) will not physically occupy any slot when inserted, even when they were inserted in a specific slot.</p>
 
@@ -932,10 +934,21 @@
     <dd>There exists a list of file pools, which are searched in order of their position.</dd>
 
     <dt>type(s)</dt>
-    <dd>A file pool can serve specific types. Currently, the valid types are <code>system_rom</code> (for system ROMs, you are probably using this one already if you installed your system ROMs in the recommended place, <code>share/systemroms</code>), <code>rom</code> (for other ROM files), <code>disk</code> (for disk images) and <code>tape</code> for cassette/tape images.</dd>
+    <dd>A file pool can serve specific types. Currently, the valid types are
+      <dl>
+        <dt><code>system_rom</code></dt>
+        <dd>for system ROMs, you are probably using this one already if you installed your system ROMs in the recommended place <code>share/systemroms</code>,</dd>
+        <dt><code>rom</code></dt>
+        <dd>for other ROM files,</dd>
+        <dt><code>disk</code></dt>
+        <dd>for disk images and</dd>
+        <dt><code>tape</code></dt>
+        <dd>for cassette/tape images.</dd>
+      </dl>
+    </dd>
   </dl>
 
-  <p>Apart from the default sytem ROM file pool as mentioned above, the other default file pool is <code>share/software</code>, where openMSX will search for other (than system ROM) software.</p>
+  <p>Apart from the default system ROM file pool as mentioned above, the other default file pool is <code>share/software</code>, which is configured for all other (than type <code>system_rom</code>) software files.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1067,7 +1080,7 @@
     <tr>
       <td><code>incr &lt;setting&gt; &lt;num&gt;</code></td>
 
-      <td>Increment the specified setting by the given amount</td>
+      <td>Increment the specified setting by the given amount (can be negative)</td>
     </tr>
   </table>
 
@@ -1130,7 +1143,7 @@
 
   <p>Controls the Laserdisc player; a Laserdisc can be inserted or ejected. When a real Laserdisc player is connected to an MSX, no other controls are available either.</p>
 
-  <p>Note that this command is only available when the Pioneer PX-7 or Pioneer PX-V60 is being emulated</p>
+  <p>Note that this command is only available when the Pioneer PX-7 or Pioneer PX-V60 MSX machine is being emulated</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1242,11 +1255,11 @@
   <table>
     <tr>
       <td><code>diska &lt;diskimage&gt;</code></td>
-      <td>execute diska command in the active machine</td>
+      <td>execute the diska command in the active machine</td>
     </tr>
     <tr>
       <td><code>&lt;machine-ID&gt;::diska &lt;diskimage&gt;</code></td>
-      <td>execute diska command in the specified machine</td>
+      <td>execute the diska command in the specified machine</td>
     </tr>
   </table>
 
@@ -1682,6 +1695,7 @@
   You can also force a mono recording with <code>-mono</code> to save space.</p>
   <p>The <code><a class="internal" href="#soundlog">soundlog</a></code> command is a shorthand for <code>record -audioonly</code>.</p>
   <p>Use <code>record_chunks</code> if you want some extra options. You can control the maximum length (in seconds) to record and also set up multiple recordings of a certain length. This is very useful if you want to record for e.g. YouTube. The default length is 14:59 (to make sure YouTube will accept it). Using this command implies <code>-doublesize</code>.</p>
+  <p>Use <code>record_chunks_on_framerate_changes</code> if you want to split up the recording in several files, whenever the frame rate of the MSX changes. An AVI file cannot contain video of multiple frame rates, so sound and video will get out of sync if that happens without using this special version of the command. Do not specify the target filename with this variant, or openMSX will record all chunks to the same file.</p>
 
   <h3><a id="record_channels">record_channels</a></h3>
 
@@ -1875,7 +1889,7 @@
 
   <h3><a id="savestate">savestate / loadstate / list_savestates / delete_savestate</a></h3>
 
-  <p>These command can be used to manage savestates. These are much easier to use than the lowlevel <code><a class="internal" href="#store_machine">store_machine</a></code> and <code><a class="internal" href="#store_machine">restore_machine</a></code> commands.</p>
+  <p>These commands can be used to manage savestates. These are much easier to use than the lowlevel <code><a class="internal" href="#store_machine">store_machine</a></code> and <code><a class="internal" href="#store_machine">restore_machine</a></code> commands.</p>
 
   <h4><code>savestate [&lt;name&gt;]</code></h4>
   <p>This creates a snapshot of the currently emulated MSX machine. Optionally you can specify a name for the savestate, if you omit this name, the default name <code>quicksave</code> will be taken.</p>
@@ -1963,7 +1977,7 @@
     </tr>
   </table>
 
-  <p>The settings that can be adjusted with this command are listed and explained at the end of this document.</p>
+  <p>The settings that can be adjusted with this command are listed and explained <a class="internal" href="#settings">later</a> in this document.</p>
 
   <div class="subsectiontitle">
     examples:
@@ -2185,7 +2199,7 @@
     <code>trainer Pippols lives "jump shoes"</code>
   </div>
 
-  <h3><a id="type">type</a></h3>
+  <h3><a id="type">type / type_via_keyboard</a></h3>
 
   <p>Type a string in the emulated MSX. This command automatically presses and
   releases keys in the simulated MSX keyboard matrix. This command is useful
@@ -2200,6 +2214,15 @@
   option is used). Keys will be typed at the given frequency and will remain
   pressed/released for 1/freq seconds.</p>
 
+  <p>This command should always work, because it is just like as if a user was
+  actually typing on the MSX keyboard. It is therefore a bit slow, though.
+  Check out the <code>type_via_keybuf</code> command if you're looking for
+  something faster (but more limited in where it works). With the
+  <code>default_type_proc</code> setting you can even make
+  <code>type_via_keybuf</code> the standard implementation for the
+  <code>type</code> command. Only do this if you really know what you're
+  doing!</p>
+
   <div class="subsectiontitle">
     usage:
   </div>
@@ -2207,8 +2230,11 @@
   <table>
     <tr>
       <td><code>type "Hello world!"</code></td>
-
       <td>Yet another manifestation of the most famous program</td>
+    </tr>
+    <tr>
+      <td><code>type "PRINT \"Hi!\"\r"</code></td>
+      <td>Executes this basic command directly</td>
     </tr>
   </table>
 
@@ -2288,16 +2314,16 @@
 
   <p>Most commands described above are generally useful. openMSX also has a bunch of other more specialized commands. Some of these are intended for programmers who code MSX programs using openMSX as a tool. Other of these commands are more like toys or examples that show the openMSX scripting capabilities.</p>
 
-  <p>We've only listed a very brief overview of these command. As always execute "<code>help &lt;command-name&gt;</code>" to get a more detailed description of the command.</p>
+  <p>We've only listed a very brief overview of these commands. As always execute "<code>help &lt;command-name&gt;</code>" to get a more detailed description of the command.</p>
 
   <table>
     <tr>
       <td><code>about</code></td>
-      <td>Search command and setting help-texts for given keyword</td>
+      <td>Search command and setting help-texts for the given keyword</td>
     </tr>
     <tr>
       <td><code>cpuregs</code></td>
-      <td>Gives overview of the CPU registers</td>
+      <td>Gives an overview of the CPU registers</td>
     </tr>
     <tr>
       <td><code>data_file</code></td>
@@ -2305,7 +2331,7 @@
     </tr>
     <tr>
       <td><code>disasm</code></td>
-      <td>Print disassembled instructions at given memory location</td>
+      <td>Print disassembled instructions at the given memory location</td>
     </tr>
     <tr>
       <td><code>getcolor</code></td>
@@ -2357,19 +2383,19 @@
     </tr>
     <tr>
       <td><code>peek</code></td>
-      <td>Read a byte from given memory location</td>
+      <td>Read a byte from the given memory location</td>
     </tr>
     <tr>
       <td><code>peek16</code></td>
-      <td>Read a 16 bit word from given memory location</td>
+      <td>Read a 16 bit word from the given memory location</td>
     </tr>
     <tr>
       <td><code>poke</code></td>
-      <td>Write a byte to given memory location. Use <code>dpoke</code> to only write if the to be written value is different than the current value.</td>
+      <td>Write a byte to the given memory location. Use <code>dpoke</code> to only write if the to be written value is different from the current value.</td>
     </tr>
     <tr>
       <td><code>poke16</code></td>
-      <td>Write a 16 bit word to given memory location</td>
+      <td>Write a 16 bit word to the given memory location</td>
     </tr>
     <tr>
       <td><code>psg_log</code></td>
@@ -2393,11 +2419,15 @@
     </tr>
     <tr>
       <td><code>run_to</code></td>
-      <td>Execute instructions until PC reaches specified address</td>
+      <td>Execute instructions until the PC reaches the specified address</td>
     </tr>
     <tr>
       <td><code>save_debuggable</code></td>
       <td>Save the (partial) content of a debuggable to a file</td>
+    </tr>
+    <tr>
+      <td><code>save_msx_screen</code></td>
+      <td>Saves the current MSX screen into an MSX compatible binary file (BLOAD format).</td>
     </tr>
     <tr>
       <td><code>save_to_file</code></td>
@@ -2465,7 +2495,7 @@
     </tr>
     <tr>
       <td><code>toggle_fps</code></td>
-      <td>Show (or hide) an fps indicator</td>
+      <td>Show (or hide) a frames-per-second (fps) indicator</td>
     </tr>
     <tr>
       <td><code>toggle_frame_counter</code></td>
@@ -2497,7 +2527,7 @@
     </tr>
     <tr>
       <td><code>toggle_osd_keyboard</code></td>
-      <td>Show (or hide) an on-screen keyboard (mostly useful for devices without physical keyboard); only supports an international layout for now</td>
+      <td>Show (or hide) an on-screen keyboard (mostly useful for devices without physical keyboard); only supports an international keyboard-layout for now</td>
     </tr>
     <tr>
       <td><code>toggle_psg2scc</code></td>
@@ -2520,6 +2550,10 @@
       <td>Show (or hide) a graphical view on the palette registers</td>
     </tr>
     <tr>
+      <td><code>toggle_tron</code></td>
+      <td>Show (or hide) an OSD implementation of the MSX-BASIC TRON command to trace what the current line number of the BASIC interpreter is</td>
+    </tr>
+    <tr>
       <td><code>toggle_vdp_access_test</code></td>
       <td>Enable (or disable) reporting in the console when VDP I/O is done which could possibly cause data corruption on the slowest VDP (TMS9xxx), which is not emulated</td>
     </tr>
@@ -2534,6 +2568,10 @@
     <tr>
       <td><code>toggle_vu_meters</code></td>
       <td>Show (or hide) a graphical view of the volumes of the sound channels of several sound chips</td>
+    </tr>
+    <tr>
+      <td><code>type_via_keybuf</code></td>
+      <td>Alternative to the <code>type_via_keyboard</code> (the default <code><a class="internal" href="#type">type</a></code> command), that uses the keyboard buffer; only works if the running software uses the standard keyboard buffer functions to get keyboard input, but is much faster</td>
     </tr>
     <tr>
       <td><code>umrcallback</code></td>
@@ -2558,6 +2596,10 @@
     <tr>
       <td><code>vdrive</code></td>
       <td>Easily switch disks in multi-disk games</td>
+    </tr>
+    <tr>
+      <td><code>vgm_rec</code></td>
+      <td>Record the music played by PSG, MSX-MUSIC, MSX-AUDIO, OPL4 and SCC into a VGM file</td>
     </tr>
     <tr>
       <td><code>vpeek/vpoke</code></td>
@@ -2967,7 +3009,7 @@
   <h3><a id="consolefont">consolefont</a></h3>
 
   <p>Change the console font. This should be the filename of a True Type Font. The default value is <code>skins/VeraMono.ttf.gz</code>.</p>
-  <p>Font files of other types than True Type Fonts (TTF) are not supported.</p>
+  <p>Font files of other types than True Type Fonts (TTF) are not supported. The font must also be monospaced.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3071,7 +3113,7 @@
     <tr>
       <td><code>set consolerows &lt;value&gt;</code></td>
 
-      <td>Set the specified width</td>
+      <td>Set the specified number of rows</td>
     </tr>
   </table>
 
@@ -3522,7 +3564,7 @@
 
   <p>Sets the amount of gamma correction. A value of 1.0 will turn off gamma correction. Lower values will result in a darker image, higher values in a brighter image.</p>
 
-  <p>If you want to get a realistic picture, set the openMSX gamma correction to <i>PC gamma / MSX gamma</i>. TVs use a standardised gamma of 2.5, let's take that as the value of <i>MSX gamma</i>. You can measure the gamma of your PC screen with a simple test such as the Gamma Measurement Image in <a class="external" href="http://www.bberger.net/rwb/gamma.html">Robert W. Berger's "An Explanation of Monitor Gamma"</a>. If your <i>PC gamma</i> would be for example 2.0, the most realistic value for gamma correction would be 2.0 / 2.5 = 0.8.</p>
+  <p>If you want to get a realistic picture, set the openMSX gamma correction to <i>PC gamma / MSX gamma</i>. TVs use a standardised gamma of 2.5, let's take that as the value of <i>MSX gamma</i>. You can measure the gamma of your PC screen with a simple test such as the Gamma Measurement Image in <a class="external" href="https://web.archive.org/web/20150714015749/http://www.bberger.net/rwb/gamma.html">Robert W. Berger's "An Explanation of Monitor Gamma"</a>. If your <i>PC gamma</i> would be for example 2.0, the most realistic value for gamma correction would be 2.0 / 2.5 = 0.8.</p>
 
   <p>Alternatively, you can just try a few values and see what you like.</p>
 
@@ -4916,13 +4958,13 @@
     <tr>
       <td><code>set sound_driver sdl</code></td>
 
-      <td>Selects the SDL sound driver (all platforms)</td>
+      <td>Selects the SDL sound driver</td>
     </tr>
 
     <tr>
-      <td><code>set sound_driver directx</code></td>
+      <td><code>set sound_driver null</code></td>
 
-      <td>Selects the DirectX sound driver (Windows only)</td>
+      <td>Selects the null sound driver (no sound)</td>
     </tr>
   </table>
 
@@ -5264,7 +5306,7 @@
 
   <h3><a id="throttle">throttle</a></h3>
 
-  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible.</p>
+  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible. The speed may be limited to the framerate of your monitor (e.g. 60fps) due to how the OpenGL driver works, when using the (default) SDLGL-PP renderer. To increase the speed, set the <a class="internal" href="#maxframeskip">maxframeskip</a> setting to a high value (e.g. 100).</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5296,7 +5338,7 @@
   <p>How should software that accesses the VDP-VRAM too fast be emulated?
   Most existing MSX software should not access VRAM too fast, and in that case
   this setting has no effect. But you may want to change it when you e.g.
-  emulate an overclocked Z80 (see <a class="internal" href="z80_freq">
+  emulate an overclocked Z80 (see <a class="internal" href="#z80_freq">
   z80_freq</a>).</p>
 
   <div class="subsectiontitle">
@@ -5576,7 +5618,9 @@
 
   <h3><a id="z80_freq">z80_freq / z80_freq_locked</a></h3>
 
-  <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.5 MHz (or optionally 5.3 MHz on some machines). When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency.</p>
+  <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.579545 MHz (or optionally 5.369318 MHz on some machines). When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency.</p>
+
+  <p>WARNING: be careful when changing these settings. When saving the settings in which a different clock is activated, this will be applied for all machines, as these are global settings. Some software (like demos) may stop working properly with a changed CPU clock frequency. Specifically, using a value (just) below the normal value may cause problems loading CAS images, as these are converted to a high baud rate WAV file internally and when the MSX becomes slower it cannot handle that high baud rate.</p>
 
   <div class="subsectiontitle">
     examples:

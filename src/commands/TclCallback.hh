@@ -2,7 +2,7 @@
 #define TCLCALLBACK_HH
 
 #include "TclObject.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <memory>
 
 namespace openmsx {
@@ -14,18 +14,18 @@ class TclCallback
 {
 public:
 	TclCallback(CommandController& controller,
-	            string_ref name,
-	            string_ref description,
+	            string_view name,
+	            string_view description,
 	            bool useCliComm = true,
 	            bool save = true);
-	TclCallback(StringSetting& setting);
+	explicit TclCallback(StringSetting& setting);
 	~TclCallback();
 
 	TclObject execute();
 	TclObject execute(int arg1);
 	TclObject execute(int arg1, int arg2);
-	TclObject execute(int arg1, string_ref arg2);
-	TclObject execute(string_ref arg1, string_ref arg2);
+	TclObject execute(int arg1, string_view arg2);
+	TclObject execute(string_view arg1, string_view arg2);
 
 	TclObject getValue() const;
 	StringSetting& getSetting() const { return callbackSetting; }

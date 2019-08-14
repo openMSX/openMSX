@@ -15,7 +15,7 @@ class MSXAudio final : public MSXDevice
 {
 public:
 	explicit MSXAudio(const DeviceConfig& config);
-	~MSXAudio();
+	~MSXAudio() override;
 
 	/** Creates a periphery object for this MSXAudio cartridge.
 	  * The ownership of the object remains with the MSXAudio instance.

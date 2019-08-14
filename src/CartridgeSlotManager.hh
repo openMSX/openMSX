@@ -3,7 +3,7 @@
 
 #include "RecordedCommand.hh"
 #include "InfoTopic.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <memory>
 
 namespace openmsx {
@@ -18,7 +18,7 @@ public:
 	explicit CartridgeSlotManager(MSXMotherBoard& motherBoard);
 	~CartridgeSlotManager();
 
-	static int getSlotNum(string_ref slot);
+	static int getSlotNum(string_view slot);
 
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);
@@ -34,7 +34,8 @@ public:
 	void freeSlot(int ps, int ss, const HardwareConfig& hwConfig);
 
 	// Allocate/free external primary slots
-	void allocatePrimarySlot(int& ps, const HardwareConfig& hwConfig);
+	int allocateAnyPrimarySlot(const HardwareConfig& hwConfig);
+	int allocateSpecificPrimarySlot(unsigned slot, const HardwareConfig& hwConfig);
 	void freePrimarySlot(int ps, const HardwareConfig& hwConfig);
 
 	bool isExternalSlot(int ps, int ss, bool convert) const;
@@ -47,37 +48,36 @@ private:
 	class CartCmd final : public RecordedCommand {
 	public:
 		CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
-			string_ref commandName);
-		void execute(array_ref<TclObject> tokens, TclObject& result,
+			string_view commandName);
+		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-		bool needRecord(array_ref<TclObject> tokens) const override;
+		bool needRecord(span<const TclObject> tokens) const override;
 	private:
-		const HardwareConfig* getExtensionConfig(string_ref cartname);
+		const HardwareConfig* getExtensionConfig(string_view cartname);
 		CartridgeSlotManager& manager;
 		CliComm& cliComm;
 	} cartCmd;
 
 	struct CartridgeSlotInfo final : InfoTopic {
-		CartridgeSlotInfo(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		explicit CartridgeSlotInfo(InfoCommand& machineInfoCommand);
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} extSlotInfo;
 
 	struct Slot {
-		Slot();
 		~Slot();
 		bool exists() const;
 		bool used(const HardwareConfig* allowed = nullptr) const;
 
 		std::unique_ptr<CartCmd> cartCommand;
 		std::unique_ptr<ExtCmd> extCommand;
-		const HardwareConfig* config;
-		unsigned useCount;
-		int ps;
-		int ss;
+		const HardwareConfig* config = nullptr;
+		unsigned useCount = 0;
+		int ps = 0;
+		int ss = 0;
 	};
 	static const unsigned MAX_SLOTS = 16 + 4;
 	Slot slots[MAX_SLOTS];

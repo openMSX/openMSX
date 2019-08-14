@@ -3,8 +3,8 @@
 
 #include "SDLSurfacePtr.hh"
 #include "openmsx.hh"
-#include <algorithm>
 #include <string>
+#include <utility>
 
 namespace openmsx {
 
@@ -20,14 +20,14 @@ public:
 	  *  - destruct the object
 	  * post-condition: empty()
 	  */
-	TTFFont() : font(nullptr) {}
+	TTFFont() = default;
 
 	/** Construct new TTFFont object.
-	  * @param font Filename of font (.fft file, possibly (g)zipped).
+	  * @param filename Filename of font (.fft file, possibly (g)zipped).
 	  * @param ptSize Point size (based on 72DPI) to load font as.
 	  * post-condition: !empty()
 	  */
-	TTFFont(const std::string& font, int ptSize);
+	TTFFont(const std::string& filename, int ptSize);
 
 	/** Move construct. */
 	TTFFont(TTFFont&& other) noexcept
@@ -73,7 +73,7 @@ public:
 	void getSize(const std::string& text, unsigned& width, unsigned& height) const;
 
 private:
-	void* font;  // TTF_Font*
+	void* font = nullptr;  // TTF_Font*
 };
 
 } // namespace openmsx

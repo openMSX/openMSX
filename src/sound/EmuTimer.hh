@@ -14,7 +14,7 @@ public:
 	virtual void callback(byte value) = 0;
 
 protected:
-	~EmuTimerCallback() {}
+	~EmuTimerCallback() = default;
 };
 
 

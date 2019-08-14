@@ -1,5 +1,7 @@
 #include "TigerTree.hh"
+#include "tiger.hh"
 #include "Math.hh"
+#include "MemBuffer.hh"
 #include <map>
 #include <cstring>
 #include <cassert>
@@ -10,12 +12,11 @@ static const size_t BLOCK_SIZE = 1024;
 
 struct TTCacheEntry
 {
-	TTCacheEntry() : time(-1) {}
-
 	MemBuffer<TigerHash> hash;
 	MemBuffer<bool> valid;
 	size_t numNodes;
-	time_t time;
+	time_t time = -1;
+	size_t numNodesValid;
 };
 // Typically contains 0 or 1 element, and only rarely 2 or more. But we need
 // the address of existing elements to remain stable when new elements are
@@ -31,13 +32,14 @@ static size_t calcNumNodes(size_t dataSize)
 static TTCacheEntry& getCacheEntry(
 	TTData& data, size_t dataSize, const std::string& name)
 {
-	size_t numNodes = calcNumNodes(dataSize);
 	auto& result = ttCache[std::make_pair(dataSize, name)];
-	if ((numNodes != result.numNodes) || !data.isCacheStillValid(result.time)) {
+	if (!data.isCacheStillValid(result.time)) { // note: has side effect
+		size_t numNodes = calcNumNodes(dataSize);
 		result.hash .resize(numNodes);
 		result.valid.resize(numNodes);
 		result.numNodes = numNodes;
 		memset(result.valid.data(), 0, numNodes); // all invalid
+		result.numNodesValid = 0;
 	}
 	return result;
 }
@@ -49,9 +51,9 @@ TigerTree::TigerTree(TTData& data_, size_t dataSize_, const std::string& name)
 {
 }
 
-const TigerHash& TigerTree::calcHash()
+const TigerHash& TigerTree::calcHash(const std::function<void(size_t, size_t)>& progressCallback)
 {
-	return calcHash(getTop());
+	return calcHash(getTop(), progressCallback);
 }
 
 void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
@@ -61,7 +63,10 @@ void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
 	assert((offset + len) <= dataSize);
 	if (len == 0) return;
 
-	entry.valid[getTop().n] = false; // set sentinel
+	if (entry.valid[getTop().n]) {
+		entry.valid[getTop().n] = false; // set sentinel
+		entry.numNodesValid--;
+	}
 	auto first = offset / BLOCK_SIZE;
 	auto last = (offset + len - 1) / BLOCK_SIZE;
 	assert(first <= last); // requires len != 0
@@ -69,12 +74,13 @@ void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
 		auto node = getLeaf(first);
 		while (entry.valid[node.n]) {
 			entry.valid[node.n] = false;
+			entry.numNodesValid--;
 			node = getParent(node);
 		}
 	} while (++first <= last);
 }
 
-const TigerHash& TigerTree::calcHash(Node node)
+const TigerHash& TigerTree::calcHash(Node node, const std::function<void(size_t, size_t)>& progressCallback)
 {
 	auto n = node.n;
 	if (!entry.valid[n]) {
@@ -82,8 +88,8 @@ const TigerHash& TigerTree::calcHash(Node node)
 			// interior node
 			auto left  = getLeftChild (node);
 			auto right = getRightChild(node);
-			auto& h1 = calcHash(left);
-			auto& h2 = calcHash(right);
+			auto& h1 = calcHash(left, progressCallback);
+			auto& h2 = calcHash(right, progressCallback);
 			tiger_int(h1, h2, entry.hash[n]);
 		} else {
 			// leaf node
@@ -103,6 +109,10 @@ const TigerHash& TigerTree::calcHash(Node node)
 			}
 		}
 		entry.valid[n] = true;
+		entry.numNodesValid++;
+		if (progressCallback) {
+			progressCallback(entry.numNodesValid, entry.numNodes);
+		}
 	}
 	return entry.hash[n];
 }
@@ -133,13 +143,13 @@ const TigerHash& TigerTree::calcHash(Node node)
 TigerTree::Node TigerTree::getTop() const
 {
 	auto n = Math::floodRight(entry.numNodes / 2);
-	return Node(n, n + 1);
+	return {n, n + 1};
 }
 
 TigerTree::Node TigerTree::getLeaf(size_t block) const
 {
 	assert((2 * block) < entry.numNodes);
-	return Node(2 * block, 1);
+	return {2 * block, 1};
 }
 
 TigerTree::Node TigerTree::getParent(Node node) const
@@ -164,80 +174,12 @@ TigerTree::Node TigerTree::getLeftChild(Node node) const
 TigerTree::Node TigerTree::getRightChild(Node node) const
 {
 	assert(node.n < entry.numNodes);
-	while (1) {
+	while (true) {
 		assert(node.l > 1);
 		node.l /= 2;
 		auto r = node.n + node.l;
-		if (r < entry.numNodes) return Node(r, node.l);
+		if (r < entry.numNodes) return {r, node.l};
 	}
 }
 
 } // namespace openmsx
-
-
-#if 0
-
-// Unittest
-
-class TTTestData : public openmsx::TTData
-{
-public:
-	uint8_t* getData(size_t offset, size_t size) override
-	{
-		return buffer + offset;
-	}
-	uint8_t* buffer;
-};
-
-int main()
-{
-	uint8_t buffer_[8192 + 1];
-	uint8_t* buffer = buffer_ + 1;
-	TTTestData data;
-	data.buffer = buffer;
-
-	// zero sized buffer
-	openmsx::TigerTree tt0(data, 0);
-	assert(tt0.calcHash().toString() ==
-	       "LWPNACQDBZRYXW3VHJVCJ64QBZNGHOHHHZWCLNQ");
-
-	// size less than one block
-	openmsx::TigerTree tt1(data, 100);
-	memset(buffer, 0, 100);
-	assert(tt1.calcHash().toString() ==
-	       "EOIEKIQO6BSNCNRX2UB2MB466INV6LICZ6MPUWQ");
-	memset(buffer + 20, 1, 10);
-	tt1.notifyChange(20, 10);
-	assert(tt1.calcHash().toString() ==
-	       "GOTZVYW3WIE37XFCDOY66PLLXWGP6DPN3CQRHWA");
-
-	// 3 full and one partial block
-	openmsx::TigerTree tt2(data, 4000);
-	memset(buffer, 0, 4000);
-	assert(tt2.calcHash().toString() ==
-	       "YC44NFWFCN3QWFRSS6ICGUJDLH7F654RCKVT7VY");
-	memset(buffer + 1500, 1, 10);
-	tt2.notifyChange(1500, 10); // change a single block
-	assert(tt2.calcHash().toString() ==
-	       "JU5RYR446PVZSPMOJML4IQ2FXLDDKE522CEYIBA");
-	memset(buffer + 2000, 1, 100);
-	tt2.notifyChange(2000, 100); // change two blocks
-	assert(tt2.calcHash().toString() ==
-	       "IPV53CDVB2I63HXIXVK2OUPNS26YB7V7G2Y7XIA");
-
-	// 7 full blocks (unbalanced internal binary tree)
-	openmsx::TigerTree tt3(data, 7 * 1024);
-	memset(buffer, 0, 7 * 1024);
-	assert(tt3.calcHash().toString() ==
-	       "FPSZ35773WS4WGBVXM255KWNETQZXMTEJGFMLTA");
-	memset(buffer + 512, 1, 512);
-	tt3.notifyChange(512, 512); // part of block-0
-	assert(tt3.calcHash().toString() ==
-	       "Z32BC2WSHPW5DYUSNSZGLDIFTEIP3DBFJ7MG2MQ");
-	memset(buffer + 3*1024, 1, 4*1024);
-	tt3.notifyChange(3*1024, 4*1024); // blocks 3-6
-	assert(tt3.calcHash().toString() ==
-	       "SJUYB3QVIJXNKZMSQZGIMHA7GA2MYU2UECDA26A");
-}
-
-#endif

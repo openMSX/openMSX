@@ -7,18 +7,17 @@
 #include "MSXCPU.hh"
 #include "CacheLine.hh"
 #include "TclObject.hh"
-#include "StringOp.hh"
 #include "MSXException.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <algorithm>
+#include "view.hh"
 #include <cassert>
 #include <cstring>
 #include <iterator> // for back_inserter
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -44,7 +43,7 @@ void MSXDevice::initName(const string& name)
 	if (getMotherBoard().findDevice(deviceName)) {
 		unsigned n = 0;
 		do {
-			deviceName = StringOp::Builder() << name << " (" << ++n << ')';
+			deviceName = strCat(name, " (", ++n, ')');
 		} while (getMotherBoard().findDevice(deviceName));
 	}
 }
@@ -83,18 +82,16 @@ MSXMotherBoard& MSXDevice::getMotherBoard() const
 void MSXDevice::testRemove(Devices removed) const
 {
 	auto all = referencedBy;
-	sort(begin(all),     end(all));
-	sort(begin(removed), end(removed));
+	ranges::sort(all);
+	ranges::sort(removed);
 	Devices rest;
-	set_difference(begin(all), end(all), begin(removed), end(removed),
-	               back_inserter(rest));
+	ranges::set_difference(all, removed, back_inserter(rest));
 	if (!rest.empty()) {
-		StringOp::Builder msg;
-		msg << "Still in use by ";
+		string msg = "Still in use by";
 		for (auto& d : rest) {
-			msg << d->getName() << ' ';
+			strAppend(msg, ' ', d->getName());
 		}
-		throw MSXException(msg);
+		throw MSXException(std::move(msg));
 	}
 }
 
@@ -111,9 +108,9 @@ void MSXDevice::lockDevices()
 		auto* dev = getMotherBoard().findDevice(name);
 		if (!dev) {
 			throw MSXException(
-				"Unsatisfied dependency: '" + getName() +
-				"' depends on unavailable device '" +
-				name + "'.");
+				"Unsatisfied dependency: '", getName(),
+				"' depends on unavailable device '",
+				name, "'.");
 		}
 		references.push_back(dev);
 		dev->referencedBy.push_back(this);
@@ -176,10 +173,10 @@ void MSXDevice::registerSlots()
 	for (auto& m : getDeviceConfig().getChildren("mem")) {
 		unsigned base = m->getAttributeAsInt("base");
 		unsigned size = m->getAttributeAsInt("size");
-		if ((base >= 0x10000) || (size > 0x10000)) {
+		if ((base >= 0x10000) || (size > 0x10000) || ((base + size) > 0x10000)) {
 			throw MSXException(
-				"Invalid memory specification for device " +
-				getName() + " should be in range "
+				"Invalid memory specification for device ",
+				getName(), " should be in range "
 				"[0x0000,0x10000).");
 		}
 		tmpMemRegions.emplace_back(base, size);
@@ -198,7 +195,13 @@ void MSXDevice::registerSlots()
 		throw MSXException("Invalid memory specification");
 	}
 	if (secondaryConfig) {
-		ss = slotManager.getSlotNum(secondaryConfig->getAttribute("slot"));
+		const auto& ss_str = secondaryConfig->getAttribute("slot");
+		ss = slotManager.getSlotNum(ss_str);
+		if ((-16 <= ss) && (ss <= -1) && (ss != ps)) {
+			throw MSXException(
+				"Invalid secondary slot specification: \"",
+				ss_str, "\".");
+		}
 	} else {
 		ss = 0;
 	}
@@ -254,15 +257,14 @@ void MSXDevice::registerSlots()
 	//  - Fix the slot number so that it remains the same after a
 	//    savestate/loadstate.
 	assert(primaryConfig);
-	primaryConfig->setAttribute("slot", StringOp::toString(ps));
+	primaryConfig->setAttribute("slot", strCat(ps));
 	if (secondaryConfig) {
-		string slot = (ss == -1) ? "X" : StringOp::toString(ss);
+		string slot = (ss == -1) ? "X" : strCat(ss);
 		secondaryConfig->setAttribute("slot", slot);
 	} else {
 		if (ss != -1) {
 			throw MSXException(
-				"Missing <secondary> tag for device" +
-				getName());
+				"Missing <secondary> tag for device", getName());
 		}
 	}
 
@@ -305,13 +307,11 @@ void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 		size = 0;
 		return;
 	}
-	auto it = begin(memRegions);
-	unsigned lowest  = it->first;
-	unsigned highest = it->first + it->second;
-	for (++it; it != end(memRegions); ++it) {
-		lowest  = std::min(lowest,  it->first);
-		highest = std::max(highest, it->first + it->second);
-	}
+
+	auto lowest  = min_value(view::transform(memRegions,
+		[](auto& r) { return r.first; }));
+	auto highest = max_value(view::transform(memRegions,
+		[](auto& r) { return r.first + r.second; }));
 	assert(lowest <= highest);
 	base = lowest;
 	size = highest - lowest;
@@ -383,7 +383,7 @@ void MSXDevice::getNameList(TclObject& result) const
 
 void MSXDevice::getDeviceInfo(TclObject& result) const
 {
-	result.addListElement(getDeviceConfig().getName());
+	result.addDictKeyValue("type", getDeviceConfig().getName());
 	getExtraDeviceInfo(result);
 }
 
@@ -441,6 +441,11 @@ byte MSXDevice::peekMem(word address, EmuTime::param /*time*/) const
 
 void MSXDevice::globalWrite(word /*address*/, byte /*value*/,
                             EmuTime::param /*time*/)
+{
+	UNREACHABLE;
+}
+
+void MSXDevice::globalRead(word /*address*/, EmuTime::param /*time*/)
 {
 	UNREACHABLE;
 }

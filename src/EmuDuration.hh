@@ -1,6 +1,7 @@
 #ifndef EMUDUARTION_HH
 #define EMUDUARTION_HH
 
+#include "serialize.hh"
 #include <cassert>
 #include <cstdint>
 
@@ -28,7 +29,7 @@ public:
 	friend class EmuTime;
 
 	// constructors
-	EmuDuration()                  : time(0) {}
+	EmuDuration() = default;
 	explicit EmuDuration(uint64_t n) : time(n) {}
 	explicit EmuDuration(double duration)
 		: time(uint64_t(duration * MAIN_FREQ)) {}
@@ -46,10 +47,6 @@ public:
 	double toDouble() const { return double(time) / MAIN_FREQ32; }
 	uint64_t length() const { return time; }
 
-	// assignment operator
-	EmuDuration& operator=(EmuDuration::param d)
-		{ time = d.time; return *this; }
-
 	// comparison operators
 	bool operator==(EmuDuration::param d) const
 		{ return time == d.time; }
@@ -65,15 +62,15 @@ public:
 		{ return time >= d.time; }
 
 	// arithmetic operators
-	const EmuDuration operator%(EmuDuration::param d) const
+	EmuDuration operator%(EmuDuration::param d) const
 		{ return EmuDuration(time % d.time); }
-	const EmuDuration operator+(EmuDuration::param d) const
+	EmuDuration operator+(EmuDuration::param d) const
 		{ return EmuDuration(time + d.time); }
-	const EmuDuration operator*(unsigned fact) const
+	EmuDuration operator*(unsigned fact) const
 		{ return EmuDuration(time * fact); }
-	const EmuDuration operator/(unsigned fact) const
+	EmuDuration operator/(unsigned fact) const
 		{ return EmuDuration(time / fact); }
-	const EmuDuration divRoundUp(unsigned fact) const
+	EmuDuration divRoundUp(unsigned fact) const
 		{ return EmuDuration((time + fact - 1) / fact); }
 	unsigned operator/(EmuDuration::param d) const
 	{
@@ -120,8 +117,10 @@ public:
 	static const EmuDuration infinity;
 
 private:
-	uint64_t time;
+	uint64_t time = 0;
 };
+
+template<> struct SerializeAsMemcpy<EmuDuration> : std::true_type {};
 
 } // namespace openmsx
 

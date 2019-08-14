@@ -75,6 +75,7 @@
             <balance>-75</balance>
           </sound>
           <rom>
+            <sha1>fec451b9256570a0e4869355a40329c57f40705f</sha1> <!-- EPROM dump, same as 9d789, but then the memory mapped registers are 0xFF -->
             <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
             <filename>fmpac.rom</filename>
           </rom>
@@ -103,6 +104,7 @@
           <mem base="0x0000" size="0x10000"/>
           <!-- See 8250 config for info on mirroring stuff -->
           <rom>
+            <sha1>dab3e6f36843392665b71b04178aadd8762c6589</sha1>
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
             <filename>nms8250_disk.rom</filename>
           </rom>
@@ -139,6 +141,7 @@
       <sound>
         <volume>21000</volume>
       </sound>
+      <ignorePortDirections>true</ignorePortDirections> <!-- highest compatibility -->
     </PSG>
 
     <RTC id="Real time clock">
@@ -175,7 +178,7 @@
         <filename>yrw801.rom</filename>
       </rom>
       <sound>
-        <volume>12000</volume>
+        <volume>17000</volume>
       </sound>
       <sampleram>640</sampleram>
     </MoonSound>

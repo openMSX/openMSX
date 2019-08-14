@@ -15,7 +15,7 @@ class PostProcessor;
 class V9990Rasterizer
 {
 public:
-	virtual ~V9990Rasterizer() {}
+	virtual ~V9990Rasterizer() = default;
 
 	/** See V9990::getPostProcessor(). */
 	virtual PostProcessor* getPostProcessor() const = 0;

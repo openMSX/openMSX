@@ -2,29 +2,96 @@
 #define MATH_HH
 
 #include "likely.hh"
-#include <algorithm>
 #include <cmath>
 #include <cstdint>
 
-// M_PI is a very common extension, but not guaranteed to be defined by <cmath>
-// when compiling in a strict standards compliant mode.
+#ifdef _MSC_VER
+#include <intrin.h>
+#pragma intrinsic(_BitScanForward)
+#endif
+
+// These constants are very common extensions, but not guaranteed to be defined
+// by <cmath> when compiling in a strict standards compliant mode. Also e.g.
+// visual studio does not provide them.
+#ifndef M_E
+#define M_E    2.7182818284590452354
+#endif
+#ifndef M_LN2
+#define M_LN2  0.69314718055994530942 // log_e 2
+#endif
+#ifndef M_LN10
+#define M_LN10 2.30258509299404568402 // log_e 10
+#endif
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI   3.14159265358979323846
 #endif
 
 namespace Math {
 
-/** Is the given number an integer power of 2?
-  * Not correct for zero (according to this test 0 is a power of 2).
+/** Returns the number of bits needed to store the value 'x', that is:
+  *   for x==0 : 0
+  *   for x!=0 : 1 + floor(log2(x))
+  * This will be part of c++20:
+  *   https://en.cppreference.com/w/cpp/numeric/log2p1
   */
-inline bool isPowerOfTwo(unsigned a)
+template<typename T>
+constexpr T log2p1(T x) noexcept
 {
-	return (a & (a - 1)) == 0;
+	T result = 0;
+	while (x) {
+		++result;
+		x >>= 1;
+	}
+	return result;
+}
+
+/** Is the given number an integral power of two?
+  * That is, does it have exactly one 1-bit in binary representation.
+  * (So zero is not a power of two).
+  *
+  * This will be part of c++20:
+  *   https://en.cppreference.com/w/cpp/numeric/ispow2
+  */
+template<typename T>
+constexpr bool ispow2(T x) noexcept
+{
+	return x && ((x & (x - 1)) == 0);
+}
+
+/** Returns the smallest number of the form 2^n-1 that is greater or equal
+  * to the given number.
+  * The resulting number has the same number of leading zeros as the input,
+  * but starting from the first 1-bit in the input all bits more to the right
+  * are also 1.
+  */
+template<typename T>
+constexpr T floodRight(T x) noexcept
+{
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> ((sizeof(x) >= 2) ?  8 : 0); // Written in a weird way to
+	x |= x >> ((sizeof(x) >= 4) ? 16 : 0); // suppress compiler warnings.
+	x |= x >> ((sizeof(x) >= 8) ? 32 : 0); // Generates equally efficient
+	return x;                              // code.
 }
 
 /** Returns the smallest number that is both >=a and a power of two.
+  * This will be part of c++20:
+  *   https://en.cppreference.com/w/cpp/numeric/ceil2
   */
-unsigned powerOfTwo(unsigned a);
+template<typename T>
+constexpr T ceil2(T x) noexcept
+{
+	// classical implementation:
+	//   unsigned res = 1;
+	//   while (x > res) res <<= 1;
+	//   return res;
+
+	// optimized version
+	x += (x == 0); // can be removed if argument is never zero
+	return floodRight(x - 1) + 1;
+}
 
 /** Clips x to the range [LO,HI].
   * Slightly faster than    std::min(HI, std::max(LO, x))
@@ -162,23 +229,6 @@ inline uint8_t reverseByte(uint8_t a)
 #endif
 }
 
-/** Returns the smallest number of the form 2^n-1 that is greater or equal
-  * to the given number.
-  * The resulting number has the same number of leading zeros as the input,
-  * but starting from the first 1-bit in the input all bits more to the right
-  * are also 1.
-  */
-template<typename T> inline T floodRight(T x)
-{
-	x |= x >> 1;
-	x |= x >> 2;
-	x |= x >> 4;
-	x |= x >> ((sizeof(x) >= 2) ?  8 : 0); // Written in a weird way to
-	x |= x >> ((sizeof(x) >= 4) ? 16 : 0); // suppress compiler warnings.
-	x |= x >> ((sizeof(x) >= 8) ? 32 : 0); // Generates equally efficient
-	return x;                              // code.
-}
-
 /** Count the number of leading zero-bits in the given word.
   * The result is undefined when the input is zero (all bits are zero).
   */
@@ -195,6 +245,29 @@ inline unsigned countLeadingZeros(unsigned x)
 	if (x <= 0x0fffffff) { lz +=  4; x <<=  4; }
 	lz += (0x55ac >> ((x >> 27) & 0x1e)) & 0x3;
 	return lz;
+#endif
+}
+
+/** Find the least significant bit that is set.
+  * @return 0 if the input is zero (no bits are set),
+  *   otherwise the index of the first set bit + 1.
+  */
+inline unsigned findFirstSet(unsigned x)
+{
+#if defined(__GNUC__)
+	return __builtin_ffs(x);
+#elif defined(_MSC_VER)
+	unsigned long index;
+	return _BitScanForward(&index, x) ? index + 1 : 0;
+#else
+	if (x == 0) return 0;
+	int pos = 0;
+	if ((x & 0xffff) == 0) { pos += 16; x >>= 16; }
+	if ((x & 0x00ff) == 0) { pos +=  8; x >>=  8; }
+	if ((x & 0x000f) == 0) { pos +=  4; x >>=  4; }
+	if ((x & 0x0003) == 0) { pos +=  2; x >>=  2; }
+	if ((x & 0x0001) == 0) { pos +=  1; }
+	return pos + 1;
 #endif
 }
 

@@ -1,10 +1,9 @@
 #include "IntegerSetting.hh"
-#include "CommandController.hh"
 
 namespace openmsx {
 
 IntegerSetting::IntegerSetting(CommandController& commandController_,
-                               string_ref name_, string_ref description_,
+                               string_view name_, string_view description_,
                                int initialValue, int minValue_, int maxValue_)
 	: Setting(commandController_, name_, description_,
 	          TclObject(initialValue), SAVE)
@@ -14,23 +13,19 @@ IntegerSetting::IntegerSetting(CommandController& commandController_,
 	auto& interp = getInterpreter();
 	setChecker([this, &interp](TclObject& newValue) {
 		int val = newValue.getInt(interp); // may throw
-		int clipped = std::min(std::max(val, minValue), maxValue);
-		newValue.setInt(clipped);
+		newValue = std::min(std::max(val, minValue), maxValue);
 	});
 	init();
 }
 
-string_ref IntegerSetting::getTypeString() const
+string_view IntegerSetting::getTypeString() const
 {
 	return "integer";
 }
 
 void IntegerSetting::additionalInfo(TclObject& result) const
 {
-	TclObject range;
-	range.addListElement(minValue);
-	range.addListElement(maxValue);
-	result.addListElement(range);
+	result.addListElement(makeTclList(minValue, maxValue));
 }
 
 void IntegerSetting::setInt(int i)

@@ -6,6 +6,7 @@
 #include "VRAMObserver.hh"
 #include "DisplayMode.hh"
 #include "serialize_meta.hh"
+#include "ranges.hh"
 #include "unreachable.hh"
 #include <cstdint>
 
@@ -198,7 +199,7 @@ public:
 	inline void frameStart(EmuTime::param time) {
 		frameStartTime.reset(time);
 		currentLine = 0;
-		for (auto& c : spriteCount) c = 0;
+		ranges::fill(spriteCount, 0);
 		// TODO: Reset anything else? Does the real VDP?
 	}
 

@@ -63,7 +63,7 @@
 					<li><a class="internal" href="#ide">4.4.1 Sunrise IDE</a></li>
 					<li><a class="internal" href="#beeride">4.4.2 Beer IDE</a></li>
 					<li><a class="internal" href="#scsi">4.4.3 SCSI devices</a></li>
-					<li><a class="internal" href="#sd">4.4.4 Mega Flash ROM SCC+ SD</a></li>
+					<li><a class="internal" href="#sd">4.4.4 MegaFlashROM SCC+ SD</a></li>
 				</ol>
 
 			</li>
@@ -76,8 +76,10 @@
 		<ol class="toc">
 			<li><a class="internal" href="#keyboard">5.1 Keyboard</a>
 				<ol class="toc">
-					<li><a class="internal" href="#keymapping">5.1.1 Key Mapping</a></li>
-					<li><a class="internal" href="#keyboardlayouts">5.1.2 Keyboard Layouts</a></li>
+					<li><a class="internal" href="#msxkeymapping">5.1.1 MSX Key Mapping</a></li>
+					<li><a class="internal" href="#cvkeymapping">5.1.2 ColecoVision Key Mapping</a></li>
+					<li><a class="internal" href="#emukeymapping">5.1.3 Emulator Functions Key Mapping</a></li>
+					<li><a class="internal" href="#keyboardlayouts">5.1.4 Keyboard Layouts</a></li>
 				</ol>
 			</li>
 			<li><a class="internal" href="#joystick">5.2 Joystick</a></li>
@@ -213,7 +215,7 @@ To select a different MSX machine, you can use the <code>-machine</code> command
     openmsx -machine Panasonic_FS-A1GT
 </div>
 <p>
-But, you can also use the <code><a class="external" href="commands.html#machine">machine</a></code> command to switch at run time in the console, which is explained in the next chapter.
+But, you can also use the <code><a class="external" href="commands.html#machine">machine</a></code> command to switch at run time in the <a class="internal" href="#console">console</a>, which is explained in the next chapter.
 </p>
 
 <p>
@@ -255,7 +257,7 @@ Often used other command line options will be discussed later in this manual. Fo
 openMSX has a built-in command interface called the <em>console</em>,
 which allows you to control almost all aspects of openMSX while it is running.
 You can access the console by pressing F10
-(with default key mapping; Cmd+L on Mac) when the focus is on the emulator window.  This will
+(with <a class="internal" href="#keymapping">default key mapping</a>; Cmd+L on Mac) when the focus is on the emulator window.  This will
 give you a command line in the openMSX window. Note that due to a <a class="external" href="https://github.com/openMSX/openMSX/issues/485">known problem</a>
 in SDL on Windows, the console won't come up if you went to fullscreen by using
 ALT-ENTER. Use F12 to go to fullscreen to work around this problem. (See also <a class="internal" href="#settings">Settings</a> and <a class="internal" href="#keymapping">Keymapping</a>.)
@@ -278,7 +280,7 @@ One very practical feature of the console command line is that you can use "comp
 <h3><a id="importantconsole">3.2 Some Simple Console Commands</a></h3>
 
 <p>
-You can reset your MSX with the Console command <code><a class="external" href="commands.html#reset">reset</a></code> and exit openMSX with the command <code>exit</code>. As is explained in the previous chapter, you can change machines with the <code><a class="external" href="commands.html#machine">machine</a></code> command and you can insert extensions with the <code><a class="external" href="commands.html#ext">ext</a></code> command. Remove extensions with the <code><a class="external" href="commands.html#remove_extension">remove_extension</a></code> command or list them with the <code><a class="external" href="commands.html#list_extensions">list_extensions</a></code> command. Other commands will be discussed later on in this manual.
+You can reset your MSX with the Console command <code><a class="external" href="commands.html#reset">reset</a></code> and exit openMSX with the command <code><a class="external" href="commands.html#exit">exit</a></code>. As is explained in the previous chapter, you can change machines with the <code><a class="external" href="commands.html#machine">machine</a></code> command and you can insert extensions with the <code><a class="external" href="commands.html#ext">ext</a></code> command (use tab-completion to see the list of possible extension names). Remove extensions with the <code><a class="external" href="commands.html#remove_extension">remove_extension</a></code> command or get a list of the currently inserted extensions with the <code><a class="external" href="commands.html#list_extensions">list_extensions</a></code> command. Other commands will be discussed later on in this manual.
 </p>
 
 <h3><a id="settings">3.3 Settings</a></h3>
@@ -338,7 +340,7 @@ Add the complete list of pluggables here.
 <h2><a id="media">4. Running MSX Software and Using Media</a></h2>
 
 <p>
-With this information, you can run most of the existing MSX software.
+With this information, you can run most of the existing MSX software. For all supported media, there is a list of extensions that are recognized by openMSX. If you run openMSX from the command line, adding a file name (with path if necessary) as a command line option, openMSX will insert the file as the proper type of media. The list of supported extensions for each media type can be easily retrieved with <code>-h</code> option on the command line. For some media examples of command line usage are given below.
 </p>
 
 <h3><a id="roms">4.1 Running ROM software</a></h3>
@@ -376,7 +378,7 @@ As with the <code>-romtype</code> option, the <code>-ips</code> option on the co
 </p>
 
 <p>
-If you already have openMSX running and want to insert cartridges at run time (maybe even when the MSX is powered on), you can use the <code><a class="external" href="commands.html#cart">carta</a></code> command in the console as well, which is just as powerful.
+If you already have openMSX running and want to insert cartridges at run time (maybe even when the MSX is powered on), you can use the <code><a class="external" href="commands.html#cart">carta</a></code> command in the <a class="internal" href="#console">console</a> as well, which is just as powerful.
 </p>
 
 <h3><a id="disks">4.2 Running Disk Software</a></h3>
@@ -399,7 +401,7 @@ You can also change disks at run time of course. Just type
     <a class="external" href="commands.html#disk">diska</a> &lt;diskimage&gt;
 </div>
 <p>
-in the console to put the specified disk image in drive A. To eject the disk from drive A, use:
+in the <a class="internal" href="#console">console</a> to put the specified disk image in drive A. To eject the disk from drive A, use:
 </p>
 <div class="commandline">
     <a class="external" href="commands.html#disk">diska</a> eject
@@ -494,7 +496,7 @@ openMSX supports WAV files for tape emulation! Just use an MSX with a
 cassette port (at least any MSX1 or MSX2 machine will do) and it should be available.
 </p>
 <p>
-Then type in the console:
+Then type in the <a class="internal" href="#console">console</a>:
 </p>
 <div class="commandline">
      <a class="external" href="commands.html#cassetteplayer">cassetteplayer</a> insert &lt;file&gt;.wav
@@ -535,8 +537,8 @@ You can also use the so-called CAS files. Use them exactly as you would use WAV 
 </p>
 
 <p>
-We don't support using CAS files anymore by patching a BIOS, because it is not really something we want: we prefer a more authentic emulation without hacks like this.
-So, nowadays, the CAS files are automatically
+We don't support using CAS files by patching a BIOS natively, because it is not really something we want: we prefer a more authentic emulation without hacks like this.
+So, the CAS files are automatically
 converted to WAV files, internally. Note that the loading time is drastically
 longer this way (but: doing a <code>set <a class="external" href="commands.html#fullspeedwhenloading">fullspeedwhenloading</a> on</code> will help a lot). On the other hand, you will be able to hear the cassette
 sounds now also with the CAS files... What is using cassettes with an MSX
@@ -554,7 +556,6 @@ To make it even more comfortable to run software from CAS images, try the follow
 Note that saving to CAS files (new or existing ones) is not possible; one can only save to new cassette images in WAV format.
 </p>
 
-
 <h3><a id="harddisks">4.4 Emulating MSX Harddisks and CD-ROM</a></h3>
 
 <p>
@@ -564,7 +565,7 @@ openMSX supports mostly the emulation of the Sunrise IDE interface, but there is
 <p>
 The extensions that enable this have a built in harddisk
 configuration, in the form of a 100MB sized disk image. This is the default size: if the harddisk image is
-not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/NAME/untitled1/IMAGENAME.dsk</code>, where NAME is the name of the extension used and IMAGENAME is a name that is configured in the extension's XML file.
+not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/NAME/untitled1/IMAGENAME.dsk</code>, where NAME is the name of the extension used and IMAGENAME is a name that is configured in the extension's XML file (default <code>hd.dsk</code>).
 </p>
 
 <p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to initialise them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, but only supports hard disk images with a partition table format compatible with the Sunrise IDE at the moment.
@@ -598,7 +599,7 @@ If you don't want to use the default harddisk image as is described above, you c
 </p>
 <div class="commandline">openmsx -ext ide -hda symbos.dsk</div>
 <p>
-This means that you're using the ide extension with symbos.dsk as harddisk image. You can also change the harddisk image at run time in the console (only when the MSX is powered off via the <code><a class="external" href="commands.html#power">power</a></code> setting). This works the same as the <code><a class="external" href="commands.html#disk">diska</a></code> command:
+This means that you're using the ide extension with symbos.dsk as harddisk image. You can also change the harddisk image at run time in the <a class="internal" href="#console">console</a> (only when the MSX is powered off via the <code><a class="external" href="commands.html#power">power</a></code> setting). This works the same as the <code><a class="external" href="commands.html#disk">diska</a></code> command:
 </p>
 <div class="commandline">
     <a class="external" href="commands.html#hd">hda</a> &lt;diskimage&gt;
@@ -616,8 +617,8 @@ The initialisation of a Sunrise IDE harddisk is described in the text files that
 program for IDE, downloadable from the <a class="external"
 href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web
 site</a>. There are also <a class="external"
-href="http://www.msx.org/forumtopic6184.html">some</a> <a class="external"
-href="http://www.msx.org/forumtopic3015p15.html">threads</a> on the MSX Resource
+href="https://www.msx.org/forum/semi-msx-talk/emulation/how-get-sunrise-ide-working-openmsx">some</a> <a class="external"
+href="https://www.msx.org/forum/semi-msx-talk/emulation/openmsx-harddisk-emulation">threads</a> on the MSX Resource
 Center forum that may give you valuable hints.
 </p>
 <p>
@@ -628,7 +629,7 @@ subdirectories on it. For instance to create a hard disk with 3 partitions of
 you can do the following:
 </p>
 <p>
-Start openMSX with the ide extension, then type in the console:
+Start openMSX with the ide extension, then type in the <a class="internal" href="#console">console</a>:
 </p>
 <div class="commandline">
 set <a class="external" href="commands.html#power">power</a> off<br/>
@@ -680,13 +681,18 @@ To change the disk image of the LS-120 device, use the <code>lsa</code> (LS driv
 <p>For the Gouda (Novaxis) SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://msx.hansotten.com/index.php?page=msxscsi">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
 </p>
 
-<h4><a id="sd">4.4.4 Mega Flash ROM SCC+ SD</a></h4>
+<h4><a id="sd">4.4.4 MegaFlashROM SCC+ SD</a></h4>
 
-<p>Currently there is only one SD interface emulated: the Mega Flash ROM SCC+ SD. All features of this cartridge are emulated in the sense that all currently working software with it runs on openMSX too. It is not emulated accurately enough to rely on it for development.</p>
+<p>Currently there is only one SD interface emulated: the MegaFlashROM SCC+ SD. All features of this cartridge are emulated in the sense that all currently working software with it runs on openMSX too. It is not emulated accurately enough to rely on it for development.</p>
 
-<p>Usage is again identical to using the Sunrise hard disk interface: you can use the <a class="external" href="commands.html#hd">hda/hdb</a> commands and the matching command line parameters <code>-hda</code> and <code>-hdb</code> to control which image will be used for the first and second SD card.</p>
+<p>The difference compared to a real MegaFlashROM SCC+ SD, is that it does not come with anything flashed on the flash ROM by default. There are two ways to overcome that. The first one is to download the preflashed ROM content (for URL see below) and install it into your systemroms folder, like any usual system ROM. This only works if you use the extension for the first time, unless you manually delete the persistent file for the flash ROM chip (typically in your openMSX user directory<code>/persistent/MegaFlashROM_SCC+_SD/untitled1/megaflashromsccplussd.sram</code>). Only if no such file is found, openMSX will load the content of that ROM file into the flash ROM of the MegaFlashROM SCC+ SD. The second way is manually flashing things like Nextor, the rescue menu and the ROM disk. This is all described in the manual (see at the end of this section) of the MegaFlashROM SCC+ SD, because on a real device you may also need to do this.</p>
 
-<p>Currently, by default, the first SD card is 8MB and the 2nd SD card is 100MB size. You can change these defaults by editing the extension file in <code>share/extensions/MegaFlashROM_SCC+_SD.xml</code>. For formatting and managing the SD cards, please refer to its manual and tools on the Flash part of the <a class="external" href="http://www.msxcartridgeshop.com/">MSX Cartridge Shop</a>.
+<p>Once you achieved this, usage is again identical to using the Sunrise hard disk interface: you can use the <a class="external" href="commands.html#hd">hda/hdb</a> commands and the matching command line parameters <code>-hda</code> and <code>-hdb</code> to control which image will be used for the first and second SD card.</p>
+
+<p>Currently, by default, the first SD card is 8MB and the 2nd SD card is 100MB size. You can change these defaults by editing the extension file in <code>share/extensions/MegaFlashROM_SCC+_SD.xml</code>. For formatting and managing the SD cards, please refer to its manual and tools on the Flash part of the <a class="external" href="http://www.msxcartridgeshop.com/">MSX Cartridge Shop</a>. It also provides the ROM file with the initial content of the flash ROM as it is shipped on real MegaFlashROM SCC+ SD cartridges.
+</p>
+
+<p>One problem you may encounter compared to a real MegaFlashROM SCC+ SD is: how to get files on the SD cards... You can't take out the SD cards and put them in a PC or so. Your options are the same as on a real system when you don't have a PC at hand: use the floppy drive of your MSX to transfer files or use another mass storage medium. You can for instance use the Sunrise IDE concurrently with the MegaFlashROM SCC+ SD. And for the Sunrise IDE partitions, you could use <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> to import a lot of files, as is explained <a class="internal" href="#ide">above at the Sunrise IDE</a> section. Once you have that you can copy these files from MSX-DOS2/Nextor onto the virtual SD card(s).
 </p>
 
 <h3><a id="laserdisc">4.5 Running Laserdisc software</a></h3>
@@ -696,7 +702,7 @@ In order to run Laserdisc software, you need to have this optional feature compi
 </p>
 
 <p>
-In the console, type:
+In the <a class="internal" href="#console">console</a>, type:
 </p>
 
 <div class="commandline">
@@ -729,11 +735,8 @@ The program is encoded on the right audio channel which will not be audible. Wit
 
 <h3><a id="keyboard">5.1 Keyboard</a></h3>
 
-<h4><a id="keymapping">5.1.1 Key Mapping</a></h4>
-
-<p>
-This subsection lists the default key mapping of openMSX. The mapping of the special MSX keys is hardcoded, but the mapping of the keys for emulator functions is fully customisable using the <a class="external" href="commands.html#bind"><code>bind</code></a> command in the console. Your customised key bindings are saved together with the settings.
-</p>
+<a id="keymapping"><!--backwards compat--></a>
+<h4><a id="msxkeymapping">5.1.1 MSX Key Mapping</a></h4>
 
 <p>The special MSX keys are mapped as follows, the first column for PCs (running Windows, Linux or BSD), the second column for Apple Macintosh computers:
 </p>
@@ -751,8 +754,38 @@ This subsection lists the default key mapping of openMSX. The mapping of the spe
   <tr> <td>INS key</td>           <td>Insert</td>    <td>Cmd+I</td>      </tr>
 </table>
 
+<h4><a id="cvkeymapping">5.1.2 ColecoVision Key Mapping</a></h4>
+
+<p>The ColecoVision controllers are mapped as follows:</p>
+
+<table>
+  <tr> <th>direction/key</th>  <th>player 1</th>                <th>player 2</th>    </tr>
+  <tr> <td>up</td>             <td>cursor up</td>               <td>W</td>           </tr>
+  <tr> <td>down</td>           <td>cursor down</td>             <td>S</td>           </tr>
+  <tr> <td>left</td>           <td>cursor left</td>             <td>A</td>           </tr>
+  <tr> <td>right</td>          <td>cursor right</td>            <td>D</td>           </tr>
+  <tr> <td>fire left</td>      <td>space, R-CTRL</td>           <td>L-CTRL</td>      </tr>
+  <tr> <td>fire right</td>     <td>L-ALT, R-ALT, R-SHIFT</td>   <td>L-SHIFT</td>     </tr>
+  <tr> <td>1</td>              <td>1, numpad 1</td>             <td>R</td>           </tr>
+  <tr> <td>2</td>              <td>2, numpad 2</td>             <td>T</td>           </tr>
+  <tr> <td>3</td>              <td>3, numpad 3</td>             <td>Y</td>           </tr>
+  <tr> <td>4</td>              <td>4, numpad 4</td>             <td>F</td>           </tr>
+  <tr> <td>5</td>              <td>5, numpad 5</td>             <td>G</td>           </tr>
+  <tr> <td>6</td>              <td>6, numpad 6</td>             <td>H</td>           </tr>
+  <tr> <td>7</td>              <td>7, numpad 7</td>             <td>V</td>           </tr>
+  <tr> <td>8</td>              <td>8, numpad 8</td>             <td>B</td>           </tr>
+  <tr> <td>9</td>              <td>9, numpad 9</td>             <td>N</td>           </tr>
+  <tr> <td>0</td>              <td>0, numpad 0</td>             <td>U</td>           </tr>
+  <tr> <td>*</td>              <td>-, numpad *, numpad -</td>   <td>J</td>           </tr>
+  <tr> <td>#</td>              <td>=, numpad /, numpad +</td>   <td>M</td>           </tr>
+</table>
+
+<p>Host joysticks can also be used for directions and the fire buttons, but the keys from the telephone-style keypad can only be entered via the host keyboard.</p>
+
+<h4><a id="emukeymapping">5.1.3 Emulator Functions Key Mapping</a></h4>
+
 <p>
-Several emulator functions are available under keys as well (which can be changed with the <code><a class="external" href="commands.html#bind">bind</a></code> command):
+The mapping of the keys for emulator functions is fully customisable using the <a class="external" href="commands.html#bind"><code>bind</code></a> command in the <a class="internal" href="#console">console</a>. Your customised key bindings are saved together with the settings. This subsection lists the default key mapping.
 </p>
 
 <table>
@@ -780,28 +813,9 @@ Make the table look better by using cellpadding stuff in the css.
 Note for Mac users: if you want to bind your custom keys on the console, use <code>META</code> as a modifier for the Command (Apple logo) key.
 </p>
 
-<p>For handheld devices like the Dingoo, most of these functions can only be used via the On-Screen-Display menu and the On-Screen-Keyboard.</p>
+<p>For handheld devices, most of these functions can only be used via the On-Screen-Display menu and the On-Screen-Keyboard.</p>
 
-<p>For the Dingoo handheld device, this is the key mapping:
-</p>
-
-<table>
-  <tr> <th>Dingoo key</th>        <th>MSX key</th>                       <th>OSD action</th>             </tr>
-  <tr> <td>D-pad up</td>          <td>Cursor up / joystick up</td>       <td>Cursor one item up</td>     </tr>
-  <tr> <td>D-pad down</td>        <td>Cursor down / joystick down</td>   <td>Cursor one item down</td>   </tr>
-  <tr> <td>D-pad left</td>        <td>Cursor left / joystick left</td>   <td>Value - / previous page</td> </tr>
-  <tr> <td>D-pad right</td>       <td>Cursor right / joystick right</td> <td>Value + / next page</td>     </tr>
-  <tr> <td>A button</td>          <td>CTRL / joystick trigger A </td>    <td>Confirm</td>     </tr>
-  <tr> <td>B button</td>          <td>Graph / joystick trigger B </td>   <td>Cancel</td>     </tr>
-  <tr> <td>X button</td>          <td>Space</td>                         <td></td>     </tr>
-  <tr> <td>Y button</td>          <td>Shift</td>                         <td></td>     </tr>
-  <tr> <td>L shoulder button</td> <td>TAB</td>                           <td></td>     </tr>
-  <tr> <td>R shoulder button</td> <td>Backspace</td>                     <td></td>     </tr>
-  <tr> <td>START button</td>      <td></td>                              <td>Toggle OSD keyboard</td>     </tr>
-  <tr> <td>SELECT button</td>     <td></td>                              <td>Toggle OSD menu</td>     </tr>
-</table>
-
-<h4><a id="keyboardlayouts">5.1.2 Keyboard Layouts</a></h4>
+<h4><a id="keyboardlayouts">5.1.4 Keyboard Layouts</a></h4>
 
 <p>
 This section is about how keyboard layouts from host computers are mapped to keyboard layouts of MSX computers. This is mostly interesting if those differ (a lot). For example, you have a US-English keyboard on your PC and you are emulating a Japanese MSX computer. Or, you have a Japanese Mac and you are emulating a Spanish MSX computer.
@@ -914,19 +928,19 @@ A renderer is a part of the emulator that generates the graphical part of the em
 
 <dt>SDL</dt>
 <dd>
-This is the default renderer. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be relatively high though, as all graphics are calculated on the CPU.
+This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be relatively high though, as all graphics are calculated on the CPU.
 </dd>
 
 <dt>SDLGL-PP</dt>
 <dd>
 This renderer uses the OpenGL graphics library for all post processing (hence the PP), which includes scalers and other effects.
 Because part of the rendering is done by the graphics hardware,
-the CPU load can vary a lot.
+the CPU load can vary a lot, but it is usually a lot less than with the SDL renderer.
 The SDLGL-PP renderer is only useful if you have a hardware accelerated
 OpenGL library; a software GL implementation will be very slow.
 See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
-If your card supports it, we recommend to use this renderer. Note that this renderer requires both your video card and video driver to support OpenGL 2.0. Sometimes you need to upgrade your driver to make it work. If your videocard or driver don't support OpenGL 2.0, openMSX will switch back to the SDL renderer if you try to select SDLGL-PP.
+If your card supports it, we recommend to use this renderer. Note that this renderer requires both your video card and video driver to support OpenGL 2.0. Sometimes you need to upgrade your driver to make it work. If your videocard or driver don't support OpenGL 2.0, openMSX will switch back to the SDL renderer if you try to select SDLGL-PP. Because almost all modern systems have OpenGL 2.0 capable hardware and drivers, this is now the default renderer.
 </dd>
 
 
@@ -937,7 +951,7 @@ You can set the renderer with the <code><a class="external" href="commands.html#
 </p>
 
 <p>
-Note that openMSX can be compiled without the SDLGL-PP renderer; if that is true for the build you're using, you will not be able to switch to the SDLGL-PP renderer.
+Note that openMSX can be compiled without the SDLGL-PP renderer; if that is true for the build you're using, you will not be able to switch to the SDLGL-PP renderer and the default renderer will be SDL.
 </p>
 
 <h3><a id="accuracy">6.2 Accuracy</a></h3>
@@ -987,7 +1001,7 @@ Most MSX screen modes are only 256&times;212 pixels big. This is quite small for
 </p>
 
 <p>
-An exception to all of this is the SDLGL-PP renderer. With this renderer (when using a suitable video card and driver), scaling is done on the graphics card hardware and will not take extra CPU power. This renderer also gives you the possibility to use a <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> of 4. The down side is that not all scalers have been implemented for this renderer. See also below.
+With the SDLGL-PP renderer (when using a suitable video card and driver), scaling is done on the graphics card hardware and will not take extra CPU power. This renderer also gives you the possibility to use a <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> of 4. The down side is that not all scalers have been implemented for this renderer. See also below.
 </p>
 
 <p>
@@ -1001,7 +1015,7 @@ openMSX contains the following scaling algorithms:
 This algorithm simply expands each MSX pixel to a square of (scale_factor)&times;(scale_factor) PC pixels.
 This is the default scaler and it is fast.
 The image looks blocky, especially diagonal edges, but it does support scanlines and blur for scale factors of 2 and higher. In combination with a scale factor of 1, you get what was
-previously the SDLLo renderer, which is the fastest scaling method available.
+once known as the SDLLo renderer, which is the fastest scaling method available.
 </dd>
 
 <dt><a class="external" href="http://scale2x.sourceforge.net/">ScaleNx</a></dt>
@@ -1255,39 +1269,52 @@ of the Philips Music Module (NMS 1205), the MIDI interface of the Yamaha SFG-01
 and SFG-05 module (also present in the Yamaha CX5M series of machines) and the
 FAC MIDI Interface.
 </p>
-<p>To use MIDI, start openMSX with a machine that has a MIDI interface built in, or add one of the mentioned MIDI interface extensions. For example, use the machine
-<code>Panasonic_FS-A1GT</code> and plug in a MIDI device on the console:
+<p>To use MIDI, start openMSX with a machine that has a MIDI interface built in, or add one of the mentioned MIDI interface extensions. Then plug a MIDI out and/or MIDI in device into that MSX MIDI interface using the openMSX <a class="internal" href="#console">console</a>.
+</p>
+
+<h4>MIDI Out</h4>
+
+<p>
+You can connect the MIDI out of the MSX to a host MIDI device, such as a physical MIDI out port, a soft synthesizer or a sequencer program. On Windows, Linux and macOS, host MIDI devices are made available as pluggables in openMSX. On macOS, you can opt to instead select <code>Virtual OUT</code> to create a virtual MIDI port for Mac MIDI software to connect to.
+</p>
+
+<p>
+For example, use the machine <code>Panasonic_FS-A1GT</code> and plug into the <a class="external" href="https://sourceforge.net/projects/munt/">Munt</a> soft synthesizer (MT-32 emulator) using the console command:
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#plugunplug">plug</a> msx-midi-out Munt\ MT-32
+</div>
+<p>
+The exact naming of the host MIDI devices differs per platform. You can use tab completion to see the options: type <code>plug msx-midi-out</code> and hit TAB twice.
+</p>
+
+<p>
+The <code>midi-out-logger</code> MIDI device is available on all platforms and logs MIDI events to a file.
 </p>
 <div class="commandline">
     <a class="external" href="commands.html#plugunplug">plug</a> msx-midi-out midi-out-logger
 </div>
 <p>
-This logs all MIDI commands to a file.
-Because there is no timing information logged, this is not very useful yet.
+You can specify the file to log to using <code>set
+<a class="external" href="commands.html#midi-out-logfilename">midi-out-logfilename</a></code>.
+The log is a raw binary log of the bytes written by the MIDI interface, with no timing information. Therefore its usefulness mostly limited to debugging.
+</p>
+<p>
+On UNIX-like systems, it is possible to log to a MIDI device node, for example <code>/dev/midi</code> and configure the sound system to send those notes to a soft synthesizer. This is harder to configure than using for example the ALSA MIDI out device, so it's only recommended when no platform-specific MIDI devices are available in openMSX. On MSX Resource Center there is <a class="external" href="http://www.msx.org/forum/semi-msx-talk/emulation/openmsx-timidity">a forum thread</a> which describes how to connect openMSX to Timidity via <code>/dev/midi</code>.
 </p>
 
-<p>
-It's more interesting to connect the MIDI out of the MSX to an actual PC MIDI device,
-such as a MIDI out port or the internal synthesizer of your sound card.
-On Linux, you can use the <code>midi-out-logger</code> and set a MIDI
-device node, for example <code>/dev/midi</code>, as its output file. This is
-done by default. To play with this setting, use <code>set
-<a class="external" href="commands.html#midi-out-logfilename">midi-out-logfilename</a></code>.
-On Windows and Mac OS X, real MIDI devices are separate pluggables. On OS X, you
-can also select <code>Virtual OUT</code> to provide a port to external software.
-</p>
+<h4>MIDI In</h4>
 
 <p>
 Vice versa, the MIDI in port can also receive data from the system by plugging a device
 into <code>msx-midi-in</code> (for the Panasonic FS-A1GT; use the appropriate
 connector name for other devices). Analogous to the above mentioned outputs you
 can connect a <code>midi-in-reader</code> which reads from a file or
-<code>/dev/midi</code> on Linux. On Windows and Mac OS X available MIDI devices
-show up as separate pluggables. On OS X a <code>Virtual IN</code> port is
+<code>/dev/midi</code> on Linux. On Windows and macOS available MIDI devices
+show up as separate pluggables. On macOS a <code>Virtual IN</code> port is
 available as well.
 </p>
 
-<p>On Linux, it might be useful to route the MIDI events to a software synthesizer as well. On MSX Resource Center there is <a class="external" href="http://www.msx.org/forum/semi-msx-talk/emulation/openmsx-timidity">a forum thread</a> which describes how to do this.</p>
 
 <h3><a id="soundlogger">7.3 Recording Audio to File</a></h3>
 
@@ -1312,7 +1339,7 @@ A feature of emulators which is particularly useful is saving the state of the e
 </p>
 
 <p>
-The easiest way to use it is by using the keyboard shortcuts for quickly saving and loading a state, see the <a class="internal" href="#keymapping">key mapping section</a>. These shortcuts basically use the <a class="external" href="commands.html#savestate">savestate</a> and loadstate commands, with the parameter <code>quicksave</code>, i.e. they use a savestate file with the name 'quicksave'. You can also use the commands directly yourself, with the argument as the name of the slot you save the state to (use TAB or the <code>list_savestates</code> command to see your previously saved states). Without having to browse the file system of your computer, you can also conveniently delete existing save games with the <code>delete_savestate</code> command.
+The easiest way to use it is by using the keyboard shortcuts for quickly saving and loading a state, see the <a class="internal" href="#keymapping">key mapping section</a>. These shortcuts basically use the <a class="external" href="commands.html#savestate">savestate</a> and loadstate commands, with the parameter <code>quicksave</code>, i.e. they use a savestate file with the name 'quicksave'. You can also use the commands directly yourself, with the argument as the name of the slot you save the state to (use TAB or the <code><a class="external" href="commands.html#savestate">list_savestates</a></code> command to see your previously saved states). Without having to browse the file system of your computer, you can also conveniently delete existing save games with the <code><a class="external" href="commands.html#savestate">delete_savestate</a></code> command.
 </p>
 
 <p>Note that when saving the state of the machine, a screenshot will also be saved with it, so that those could be used for save state browsing. (Currently only used on the On-Screen-Display and in a prototype version of a new Catapult.)
@@ -1342,11 +1369,11 @@ Inspired by the meisei MSX emulator, openMSX now also has a reverse feature. Thi
 <h3><a id="trainer">8.3 Game Trainer</a></h3>
 
 <p>
-openMSX includes a game trainer system. Although it has to be used from the console, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
+openMSX includes a game trainer system. Although it has to be used from the <a class="internal" href="#console">console</a>, it is very easy to use. As always, you could type: <code>help <a class="external" href="commands.html#trainer">trainer</a></code>, for some basic help.
 </p>
 
 <p>
-Suppose you want to cheat on Metal Gear. Then it would be useful to type: <code>trainer Metal[TAB]</code>, which will expand to: <code>trainer Metal\ Gear</code>. When you then press enter, you see which cheats are available in the Metal Gear trainer. You can active them by typing e.g.: <code>trainer Metal\ Gear 1 2 3 4</code>. This will activate (toggle) the first 4 cheats (as the list will tell you which is printed after the command: the crosses mean an active cheat). You can also use the descriptions instead of the numbers: <code>trainer Metal\ Gear "enemy 1 gone" "enemy 2 gone"</code>. Or, if you want to activate all cheats, as was default in the old cheat system, you could simply type: <code>trainer Metal\ Gear all</code>.
+Suppose you want to cheat on Metal Gear. Then it would be useful to type: <code>trainer Metal[TAB]</code>, which will expand to: <code>trainer Metal\ Gear</code>. When you then press enter, you see which cheats are available in the Metal Gear trainer. You can active them by typing e.g.: <code>trainer Metal\ Gear 1 2 3 4</code>. This will activate (toggle) the first 4 cheats (as the list will tell you which is printed after the command: the crosses mean an active cheat). You can also use the descriptions instead of the numbers: <code>trainer Metal\ Gear "enemy 1 gone" "enemy 2 gone"</code>. Or, if you want to activate all cheats you can simply type: <code>trainer Metal\ Gear all</code>.
 </p>
 
 <p>
@@ -1523,6 +1550,12 @@ and ask your question there. Also reachable via <a class="external" href="http:/
 Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a>.
 </li>
 <li>
+Create a new issue in the
+<a class="external" href="https://github.com/openMSX/openMSX/issues">openMSX issue tracker</a>
+on GitHub.
+You need a (free) log-in on GitHub to get access.
+</li>
+<li>
 Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible problems,
 join our <code>openmsx-user</code> mailing list.
 If you want to address the openMSX developers directly,
@@ -1530,12 +1563,6 @@ post a message to the <code>openmsx-devel</code> mailing list.
 More info on the
 <a class="external" href="https://sourceforge.net/p/openmsx/mailman">openMSX mailing lists</a>,
 including an archive of old messages, can be found at SourceForge.
-</li>
-<li>
-Create a new issue in the
-<a class="external" href="https://github.com/openMSX/openMSX/issues">openMSX issue tracker</a>
-on GitHub.
-You need a (free) log-in on GitHub to get access.
 </li>
 </ol>
 

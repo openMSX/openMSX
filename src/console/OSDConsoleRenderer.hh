@@ -1,13 +1,14 @@
 #ifndef OSDCONSOLERENDERER_HH
 #define OSDCONSOLERENDERER_HH
 
+#include "BaseImage.hh"
 #include "Layer.hh"
 #include "TTFFont.hh"
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"
 #include "FilenameSetting.hh"
 #include "Observer.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include "gl_vec.hh"
 #include "openmsx.hh"
 #include <list>
@@ -15,18 +16,18 @@
 
 namespace openmsx {
 
-class Reactor;
+class BooleanSetting;
 class CommandConsole;
 class ConsoleLine;
-class BaseImage;
-class BooleanSetting;
+class Display;
+class Reactor;
 
 class OSDConsoleRenderer final : public Layer, private Observer<Setting>
 {
 public:
 	OSDConsoleRenderer(Reactor& reactor, CommandConsole& console,
 	                   unsigned screenW, unsigned screenH, bool openGL);
-	~OSDConsoleRenderer();
+	~OSDConsoleRenderer() override;
 
 private:
 	int initFontAndGetColumns();
@@ -42,18 +43,18 @@ private:
 	void setActive(bool active);
 
 	bool updateConsoleRect();
-	void loadFont      (string_ref value);
-	void loadBackground(string_ref value);
+	void loadFont      (string_view value);
+	void loadBackground(string_view value);
 	byte getVisibility() const;
-	void drawText(OutputSurface& output, const ConsoleLine& text,
+	void drawText(OutputSurface& output, const ConsoleLine& line,
 	              gl::ivec2 pos, byte alpha);
-	void drawText2(OutputSurface& output, string_ref text,
+	void drawText2(OutputSurface& output, string_view text,
                        int& x, int y, byte alpha, unsigned rgb);
 	gl::ivec2 getTextPos(int cursorX, int cursorY);
 
-	bool getFromCache(string_ref text, unsigned rgb,
+	bool getFromCache(string_view text, unsigned rgb,
 	                  BaseImage*& image, unsigned& width);
-	void insertInCache(const std::string& text, unsigned rgb,
+	void insertInCache(std::string text, unsigned rgb,
 	                   std::unique_ptr<BaseImage> image, unsigned width);
 	void clearCache();
 
@@ -64,9 +65,10 @@ private:
 	};
 
 	struct TextCacheElement {
-		TextCacheElement(const std::string& text_, unsigned rgb_,
-		                 std::unique_ptr<BaseImage> image_,
-		                 unsigned width_);
+		TextCacheElement(std::string text_, unsigned rgb_,
+		                 std::unique_ptr<BaseImage> image_, unsigned width_)
+			: text(std::move(text_)), image(std::move(image_))
+			, rgb(rgb_), width(width_) {}
 
 		std::string text;
 		std::unique_ptr<BaseImage> image;
@@ -76,6 +78,7 @@ private:
 	using TextCache = std::list<TextCacheElement>;
 
 	Reactor& reactor;
+	Display& display;
 	CommandConsole& console;
 	BooleanSetting& consoleSetting;
 	const unsigned screenW;

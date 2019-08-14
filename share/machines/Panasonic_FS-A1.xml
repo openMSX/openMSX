@@ -44,6 +44,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <RTC id="Real time clock">
@@ -58,6 +59,11 @@
 
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
+        <rom> <!-- maskROM dump by FRS -->
+          <filename>Panasonic_FS-A1_firmware.rom</filename>
+          <sha1>7bbe3f355d3129592268ae87f40ea7e3ced88f98</sha1>
+          <window base="0x0000" size="0x8000"/>
+        </rom>
         <rom>
           <filename>fs-a1_basic-bios2.rom</filename>
           <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
@@ -80,6 +86,11 @@
 
       <secondary slot="1">
         <ROM id="MSX Sub ROM">
+          <rom> <!-- maskROM dump by FRS -->
+            <filename>Panasonic_FS-A1_firmware.rom</filename>
+            <sha1>7bbe3f355d3129592268ae87f40ea7e3ced88f98</sha1>
+            <window base="0x8000" size="0x4000"/> <!-- NOTE: actually, it should be size = 0x8000, but that 2nd block is all 0xFF and that is mapped in there by default already. So, to be backwards compatible with the separate subROM dump, I only use 0x4000 here as size -->
+          </rom>
           <rom>
             <filename>fs-a1_msx2sub.rom</filename>
             <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
@@ -90,6 +101,11 @@
 
       <secondary slot="2">
         <ROM id="Desk Pac 1">
+          <rom> <!-- maskROM dump by FRS -->
+            <filename>Panasonic_FS-A1_firmware.rom</filename>
+            <sha1>7bbe3f355d3129592268ae87f40ea7e3ced88f98</sha1>
+            <window base="0x10000" size="0x8000"/>
+          </rom>
           <rom>
             <filename>fs-a1_deskpac1.rom</filename>
             <sha1>63098f27beac9eca6b39d837d2a552395df33fe1</sha1>
@@ -100,6 +116,11 @@
 
       <secondary slot="3">
         <ROM id="Desk Pac 2">
+          <rom> <!-- maskROM dump by FRS -->
+            <filename>Panasonic_FS-A1_firmware.rom</filename>
+            <sha1>7bbe3f355d3129592268ae87f40ea7e3ced88f98</sha1>
+            <window base="0x18000" size="0x8000"/>
+          </rom>
           <rom>
             <filename>fs-a1_deskpac2.rom</filename>
             <sha1>7f5b76605e3d898cc4b5aacf1d7682b82fe84353</sha1>

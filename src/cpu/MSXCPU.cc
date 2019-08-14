@@ -7,11 +7,11 @@
 #include "Z80.hh"
 #include "R800.hh"
 #include "TclObject.hh"
-#include "memory.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -26,18 +26,18 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	, diHaltCallback(
 		motherboard.getCommandController(), "di_halt_callback",
 		"Tcl proc called when the CPU executed a DI/HALT sequence")
-	, z80(make_unique<CPUCore<Z80TYPE>>(
+	, z80(std::make_unique<CPUCore<Z80TYPE>>(
 		motherboard, "z80", traceSetting,
 		diHaltCallback, EmuTime::zero))
 	, r800(motherboard.isTurboR()
-		? make_unique<CPUCore<R800TYPE>>(
+		? std::make_unique<CPUCore<R800TYPE>>(
 			motherboard, "r800", traceSetting,
 			diHaltCallback, EmuTime::zero)
 		: nullptr)
 	, timeInfo(motherboard.getMachineInfoCommand())
 	, z80FreqInfo(motherboard.getMachineInfoCommand(), "z80_freq", *z80)
 	, r800FreqInfo(r800
-		? make_unique<CPUFreqInfoTopic>(
+		? std::make_unique<CPUFreqInfoTopic>(
 			motherboard.getMachineInfoCommand(), "r800_freq", *r800)
 		: nullptr)
 	, debuggable(motherboard_)
@@ -188,17 +188,16 @@ void MSXCPU::wait(EmuTime::param time)
 	          : r800->wait(time);
 }
 
-void MSXCPU::waitCycles(unsigned cycles)
+EmuTime MSXCPU::waitCycles(EmuTime::param time, unsigned cycles)
 {
-	z80Active ? z80 ->waitCycles(cycles)
-	          : r800->waitCycles(cycles);
+	return z80Active ? z80 ->waitCycles(time, cycles)
+	                 : r800->waitCycles(time, cycles);
 }
 
-void MSXCPU::waitCyclesR800(unsigned cycles)
+EmuTime MSXCPU::waitCyclesR800(EmuTime::param time, unsigned cycles)
 {
-	if (isR800Active()) {
-		r800->waitCycles(cycles);
-	}
+	return z80Active ? time
+	                 : r800->waitCycles(time, cycles);
 }
 
 CPURegs& MSXCPU::getRegisters()
@@ -220,7 +219,7 @@ void MSXCPU::update(const Setting& setting)
 // Command
 
 void MSXCPU::disasmCommand(
-	Interpreter& interp, array_ref<TclObject> tokens,
+	Interpreter& interp, span<const TclObject> tokens,
 	TclObject& result) const
 {
 	z80Active ? z80 ->disasmCommand(interp, tokens, result)
@@ -247,11 +246,11 @@ MSXCPU::TimeInfoTopic::TimeInfoTopic(InfoCommand& machineInfoCommand)
 }
 
 void MSXCPU::TimeInfoTopic::execute(
-	array_ref<TclObject> /*tokens*/, TclObject& result) const
+	span<const TclObject> /*tokens*/, TclObject& result) const
 {
 	auto& cpu = OUTER(MSXCPU, timeInfo);
 	EmuDuration dur = cpu.getCurrentTime() - cpu.reference;
-	result.setDouble(dur.toDouble());
+	result = dur.toDouble();
 }
 
 string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const
@@ -271,9 +270,9 @@ MSXCPU::CPUFreqInfoTopic::CPUFreqInfoTopic(
 }
 
 void MSXCPU::CPUFreqInfoTopic::execute(
-	array_ref<TclObject> /*tokens*/, TclObject& result) const
+	span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	result.setInt(clock.getFreq());
+	result = clock.getFreq();
 }
 
 string MSXCPU::CPUFreqInfoTopic::help(const vector<string>& /*tokens*/) const
@@ -342,7 +341,7 @@ byte MSXCPU::Debuggable::read(unsigned address)
 	case 26: return regs.getIM();
 	case 27: return 1 *  regs.getIFF1() +
 	                2 *  regs.getIFF2() +
-	                4 * (regs.getIFF1() && !regs.debugGetAfterEI());
+	                4 * (regs.getIFF1() && !regs.prevWasEI());
 	default: UNREACHABLE; return 0;
 	}
 }
@@ -399,8 +398,8 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 2)) {
 		          ar.serialize("z80",  *z80);
 		if (r800) ar.serialize("r800", *r800);
-		ar.serialize("z80Active", z80Active);
-		ar.serialize("newZ80Active", newZ80Active);
+		ar.serialize("z80Active",    z80Active,
+		             "newZ80Active", newZ80Active);
 	} else {
 		// backwards-compatibility
 		assert(ar.isLoader());

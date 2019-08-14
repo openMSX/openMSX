@@ -16,7 +16,7 @@ class Component(object):
 class EmulationCore(Component):
 	niceName = 'Emulation core'
 	makeName = 'CORE'
-	dependsOn = ('SDL', 'SDL_TTF', 'PNG', 'TCL', 'ZLIB')
+	dependsOn = ('SDL2', 'SDL2_TTF', 'PNG', 'TCL', 'ZLIB')
 
 class GLRenderer(Component):
 	niceName = 'GL renderer'
@@ -28,10 +28,26 @@ class Laserdisc(Component):
 	makeName = 'LASERDISC'
 	dependsOn = ('OGG', 'VORBIS', 'THEORA')
 
+class ALSAMIDI(Component):
+	niceName = 'ALSA MIDI'
+	makeName = 'ALSAMIDI'
+	dependsOn = ('ALSA', )
+
 def iterComponents():
+	'''Iterates through all components of openMSX.
+	'''
 	yield EmulationCore
 	yield GLRenderer
 	yield Laserdisc
+	yield ALSAMIDI
+
+def iterBuildableComponents(probeVars):
+	'''Iterates through those components of openMSX that can be built
+	on the probed system.
+	'''
+	for component in iterComponents():
+		if component.canBuild(probeVars):
+			yield component
 
 def requiredLibrariesFor(components):
 	'''Compute the library packages required to build the given components.

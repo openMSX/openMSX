@@ -61,6 +61,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- highest compatibility -->
     </PSG>
 
     <RTC id="Real time clock">
@@ -80,7 +81,13 @@
 
     <Matsushita id="Matsushita">
       <sramname>Boosted_MSX2+_JP_matsushita.sram</sramname>
+      <device idref="VDP"/>
+      <hasturbo>true</hasturbo>
     </Matsushita>
+
+    <T9769 id="T9769">
+      <subtype>C</subtype>
+    </T9769>
 
     <MSX-AUDIO id="Generic MSX-Audio">
       <io base="0xC0" num="2"/>
@@ -106,7 +113,7 @@
         <filename>yrw801.rom</filename>
       </rom>
       <sound>
-        <volume>12000</volume>
+        <volume>17000</volume>
       </sound>
       <sampleram>640</sampleram>
     </MoonSound>

@@ -39,25 +39,35 @@ public:
 	class XRangeIter
 	{
 	public:
-		using difference_type = size_t;
+		using difference_type = ptrdiff_t;
 		using value_type = T;
 		using pointer    = T*;
 		using reference  = T&;
-		using iterator_category = std::forward_iterator_tag;
+		using iterator_category = std::random_access_iterator_tag;
 
-		XRangeIter(T x_)
+		explicit XRangeIter(T x_)
 			: x(x_)
 		{
 		}
+
+		// ForwardIterator
 		T operator*() const
 		{
 			return x;
 		}
+
 		XRangeIter& operator++()
 		{
 			++x;
 			return *this;
 		}
+		XRangeIter operator++(int)
+		{
+			auto copy = *this;
+			++x;
+			return copy;
+		}
+
 		bool operator==(const XRangeIter& other) const
 		{
 			return x == other.x;
@@ -66,11 +76,80 @@ public:
 		{
 			return x != other.x;
 		}
+
+		// BidirectionalIterator
+		XRangeIter& operator--()
+		{
+			--x;
+			return *this;
+		}
+		XRangeIter operator--(int)
+		{
+			auto copy = *this;
+			--x;
+			return copy;
+		}
+
+		// RandomAccessIterator
+		XRangeIter& operator+=(difference_type n)
+		{
+			x += n;
+			return *this;
+		}
+		XRangeIter& operator-=(difference_type n)
+		{
+			x -= n;
+			return *this;
+		}
+
+		friend XRangeIter operator+(XRangeIter i, difference_type n)
+		{
+			i += n;
+			return i;
+		}
+		friend XRangeIter operator+(difference_type n, XRangeIter i)
+		{
+			i += n;
+			return i;
+		}
+		friend XRangeIter operator-(XRangeIter i, difference_type n)
+		{
+			i -= n;
+			return i;
+		}
+
+		friend difference_type operator-(const XRangeIter& i, const XRangeIter& j)
+		{
+			return i.x - j.x;
+		}
+
+		T operator[](difference_type n)
+		{
+			return *(*this + n);
+		}
+
+		friend bool operator<(const XRangeIter& i, const XRangeIter& j)
+		{
+			return i.x < j.x;
+		}
+		friend bool operator<=(const XRangeIter& i, const XRangeIter& j)
+		{
+			return i.x <= j.x;
+		}
+		friend bool operator>(const XRangeIter& i, const XRangeIter& j)
+		{
+			return i.x > j.x;
+		}
+		friend bool operator>=(const XRangeIter& i, const XRangeIter& j)
+		{
+			return i.x >= j.x;
+		}
+
 	private:
 		T x;
 	};
 
-	XRange(T e_)
+	explicit XRange(T e_)
 		: b(0), e(e_)
 	{
 	}
@@ -80,26 +159,19 @@ public:
 	{
 	}
 
-	XRangeIter begin() const
-	{
-		return XRangeIter(b);
-	}
-
-	XRangeIter end() const
-	{
-		return XRangeIter(e);
-	}
+	auto begin() const { return XRangeIter(b); }
+	auto end()   const { return XRangeIter(e); }
 
 private:
 	const T b;
 	const T e;
 };
 
-template<typename T> inline XRange<T> xrange(T e)
+template<typename T> inline auto xrange(T e)
 {
 	return XRange<T>(e);
 }
-template<typename T> inline XRange<T> xrange(T b, T e)
+template<typename T> inline auto xrange(T b, T e)
 {
 	return XRange<T>(b, e);
 }

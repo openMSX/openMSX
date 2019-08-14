@@ -2,6 +2,7 @@
 #define CASSETTEPORT_HH
 
 #include "Connector.hh"
+#include "serialize_meta.hh"
 #include "components.hh"
 
 namespace openmsx {
@@ -9,6 +10,7 @@ namespace openmsx {
 class HardwareConfig;
 class MSXMotherBoard;
 class CassetteDevice;
+class CassettePlayer;
 #if COMPONENT_LASERDISC
 class LaserdiscPlayer;
 #endif
@@ -16,7 +18,7 @@ class LaserdiscPlayer;
 class CassettePortInterface
 {
 public:
-	virtual ~CassettePortInterface() {}
+	virtual ~CassettePortInterface() = default;
 
 	/**
 	* Sets the cassette motor relay
@@ -62,18 +64,18 @@ class CassettePort final : public CassettePortInterface, public Connector
 {
 public:
 	explicit CassettePort(const HardwareConfig& hwConf);
-	~CassettePort();
+	~CassettePort() override;
 	void setMotor(bool status, EmuTime::param time) override;
 	void cassetteOut(bool output, EmuTime::param time) override;
 	bool cassetteIn(EmuTime::param time) override;
 #if COMPONENT_LASERDISC
-	void setLaserdiscPlayer(LaserdiscPlayer *laserdisc) override;
+	void setLaserdiscPlayer(LaserdiscPlayer* laserdisc) override;
 #endif
 	bool lastOut() const override;
 
 	// Connector
-	const std::string getDescription() const override;
-	string_ref getClass() const override;
+	string_view getDescription() const override;
+	string_view getClass() const override;
 	void unplug(EmuTime::param time) override;
 
 	template<typename Archive>
@@ -87,10 +89,12 @@ private:
 #if COMPONENT_LASERDISC
 	LaserdiscPlayer* laserdiscPlayer;
 #endif
+	CassettePlayer* cassettePlayer;
 
 	bool lastOutput;
 	bool motorControl;
 };
+SERIALIZE_CLASS_VERSION(CassettePort, 2);
 
 class DummyCassettePort final : public CassettePortInterface
 {

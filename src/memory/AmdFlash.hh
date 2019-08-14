@@ -37,9 +37,12 @@ public:
 	 * @param config The motherboard this flash belongs to
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
-	AmdFlash(const Rom& rom, const std::vector<SectorInfo>& sectorInfo,
+	AmdFlash(const Rom& rom, std::vector<SectorInfo> sectorInfo,
 	         word ID, bool use12bitAddressing,
 	         const DeviceConfig& config, bool load = true);
+	AmdFlash(const std::string& name, std::vector<SectorInfo> sectorInfo,
+	         word ID, bool use12bitAddressing,
+		 const DeviceConfig& config);
 	~AmdFlash();
 
 	void reset();
@@ -72,6 +75,7 @@ public:
 	enum State { ST_IDLE, ST_IDENT };
 
 private:
+	void init(const std::string& name, const DeviceConfig& config, bool load, const Rom* rom);
 	void getSectorInfo(unsigned address, unsigned& sector,
                            unsigned& sectorSize, unsigned& offset) const;
 
@@ -79,16 +83,16 @@ private:
 	bool checkCommandReset();
 	bool checkCommandEraseSector();
 	bool checkCommandEraseChip();
-	bool checkCommandProgramHelper(unsigned, const byte*, size_t cmdLen);
+	bool checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, size_t cmdLen);
 	bool checkCommandProgram();
+	bool checkCommandDoubleByteProgram();
 	bool checkCommandQuadrupleByteProgram();
-	bool checkCommandManifacturer();
+	bool checkCommandManufacturer();
 	bool partialMatch(size_t len, const byte* dataSeq) const;
 
 	bool isSectorWritable(unsigned sector) const;
 
 	MSXMotherBoard& motherBoard;
-	const Rom& rom;
 	std::unique_ptr<SRAM> ram;
 	MemBuffer<int> writeAddress;
 	MemBuffer<const byte*> readAddress;
@@ -100,8 +104,8 @@ private:
 	static const unsigned MAX_CMD_SIZE = 8;
 	AmdCmd cmd[MAX_CMD_SIZE];
 	unsigned cmdIdx;
-	State state;
-	bool vppWpPinLow; // true = protection on
+	State state = ST_IDLE;
+	bool vppWpPinLow = false; // true = protection on
 };
 SERIALIZE_CLASS_VERSION(AmdFlash, 2);
 

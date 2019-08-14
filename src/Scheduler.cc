@@ -2,15 +2,16 @@
 #include "Schedulable.hh"
 #include "Thread.hh"
 #include "MSXCPU.hh"
+#include "ranges.hh"
 #include "serialize.hh"
+#include "stl.hh"
 #include <cassert>
-#include <algorithm>
 #include <iterator> // for back_inserter
 
 namespace openmsx {
 
 struct EqualSchedulable {
-	EqualSchedulable(const Schedulable& schedulable_)
+	explicit EqualSchedulable(const Schedulable& schedulable_)
 		: schedulable(schedulable_) {}
 	bool operator()(const SynchronizationPoint& sp) const {
 		return sp.getDevice() == &schedulable;
@@ -19,17 +20,10 @@ struct EqualSchedulable {
 };
 
 
-Scheduler::Scheduler()
-	: scheduleTime(EmuTime::zero)
-	, cpu(nullptr)
-	, scheduleInProgress(false)
-{
-}
-
 Scheduler::~Scheduler()
 {
 	assert(!cpu);
-	SyncPoints copy(std::begin(queue), std::end(queue));
+	auto copy = to_vector(queue);
 	for (auto& s : copy) {
 		s.getDevice()->schedulerDeleted();
 	}
@@ -59,8 +53,7 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device)
 Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 {
 	SyncPoints result;
-	copy_if(std::begin(queue), std::end(queue), back_inserter(result),
-	        EqualSchedulable(device));
+	ranges::copy_if(queue, back_inserter(result), EqualSchedulable(device));
 	return result;
 }
 
@@ -80,8 +73,7 @@ bool Scheduler::pendingSyncPoint(const Schedulable& device,
                                  EmuTime& result) const
 {
 	assert(Thread::isMainThread());
-	auto it = std::find_if(std::begin(queue), std::end(queue),
-	                       EqualSchedulable(device));
+	auto it = ranges::find_if(queue, EqualSchedulable(device));
 	if (it != std::end(queue)) {
 		result = it->getTime();
 		return true;

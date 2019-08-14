@@ -3,6 +3,7 @@
 
 #include "MSXDevice.hh"
 #include "Connector.hh"
+#include "SimpleDebuggable.hh"
 
 namespace openmsx {
 
@@ -12,7 +13,6 @@ class MSXPrinterPort final : public MSXDevice, public Connector
 {
 public:
 	explicit MSXPrinterPort(const DeviceConfig& config);
-	~MSXPrinterPort();
 
 	PrinterPortDevice& getPluggedPrintDev() const;
 
@@ -23,8 +23,8 @@ public:
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	// Connector
-	const std::string getDescription() const override;
-	string_ref getClass() const override;
+	string_view getDescription() const override;
+	string_view getClass() const override;
 	void plug(Pluggable& dev, EmuTime::param time) override;
 
 	template<typename Archive>
@@ -33,6 +33,12 @@ public:
 private:
 	void setStrobe(bool newStrobe, EmuTime::param time);
 	void writeData(byte newData, EmuTime::param time);
+
+	struct Debuggable final : SimpleDebuggable {
+		Debuggable(MSXMotherBoard& motherBoard, const std::string& name);
+		byte read(unsigned address) override;
+		void write(unsigned address, byte value) override;
+	} debuggable;
 
 	bool strobe;
 	byte data;

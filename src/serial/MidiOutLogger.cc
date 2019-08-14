@@ -34,7 +34,7 @@ const std::string& MidiOutLogger::getName() const
 	return name;
 }
 
-string_ref MidiOutLogger::getDescription() const
+string_view MidiOutLogger::getDescription() const
 {
 	return "Midi output logger. Log all data that is sent to this "
 	       "pluggable to a file. The filename is set with the "

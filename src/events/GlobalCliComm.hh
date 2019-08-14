@@ -18,7 +18,7 @@ public:
 	GlobalCliComm(const GlobalCliComm&) = delete;
 	GlobalCliComm& operator=(const GlobalCliComm&) = delete;
 
-	GlobalCliComm();
+	GlobalCliComm() = default;
 	~GlobalCliComm();
 
 	void addListener(std::unique_ptr<CliListener> listener);
@@ -29,20 +29,20 @@ public:
 	void setAllowExternalCommands();
 
 	// CliComm
-	void log(LogLevel level, string_ref message) override;
-	void update(UpdateType type, string_ref name,
-	            string_ref value) override;
+	void log(LogLevel level, string_view message) override;
+	void update(UpdateType type, string_view name,
+	            string_view value) override;
 
 private:
-	void updateHelper(UpdateType type, string_ref machine,
-	                  string_ref name, string_ref value);
+	void updateHelper(UpdateType type, string_view machine,
+	                  string_view name, string_view value);
 
 	hash_map<std::string, std::string, XXHasher> prevValues[NUM_UPDATES];
 
 	std::vector<std::unique_ptr<CliListener>> listeners; // unordered
 	std::mutex mutex; // lock access to listeners member
-	bool delivering;
-	bool allowExternalCommands;
+	bool delivering = false;
+	bool allowExternalCommands = false;
 
 	friend class MSXCliComm;
 };

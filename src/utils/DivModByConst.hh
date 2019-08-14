@@ -2,7 +2,7 @@
 #define DIVMODBYCONST
 
 #include "build-info.hh"
-#include "type_traits.hh"
+#include "Math.hh"
 #include <type_traits>
 #include <cstdint>
 
@@ -18,9 +18,6 @@
  */
 
 namespace DivModByConstPrivate {
-
-template<uint32_t A, uint32_t R = 0> struct log2
-	: if_c<A == 0, std::integral_constant<int, R>, log2<A / 2, R + 1>> {};
 
 // Utility class to perform 128-bit by 128-bit division at compilation time
 template<uint64_t RH, uint64_t RL, uint64_t QH, uint64_t QL, uint64_t DH, uint64_t DL, uint32_t BITS>
@@ -160,134 +157,6 @@ template<uint64_t M, uint32_t S> struct DBCAlgo2
 	uint32_t operator()(uint64_t dividend) const
 	{
 		using R = DBCReduce<M, S>;
-	#if ASM_X86_32 || defined(__arm__)
-		const uint32_t _ah_ = R::M2 >> 32;
-		const uint32_t _al_ = uint32_t((R::M2 << 32) >> 32); // Suppress VC++ C4310 warning
-		const uint32_t _bh_ = dividend >> 32;
-		const uint32_t _bl_ = uint32_t(dividend);
-	#endif
-	#if ASM_X86_32
-	#ifdef _MSC_VER
-		uint32_t _tl_;
-		register uint32_t result;
-		__asm {
-			// It's worth noting that simple benchmarks show this to be
-			// no faster than straight division on an Intel E8400
-			//
-			// eax and edx are used with mul
-			// ecx = bl
-			// esi = ah
-			mov		ecx,_bl_
-			mov		esi,_ah_
-			// ebx is th
-			mov     eax,esi
-			mul     ecx
-			mov     _tl_,eax
-			mov     ebx,edx
-			mov     eax,_al_
-			mul     ecx
-			add     _tl_,edx
-			adc     ebx,0
-			// ecx = bh now
-			// edi is cl
-			mov		ecx,_bh_
-			mov     eax,esi
-			mul     ecx
-			mov     edi,eax
-			// esi is ch now
-			mov     esi,edx
-			mov     eax,_al_
-			mul     ecx
-			add     _tl_,eax
-			adc     ebx,edx
-			adc     esi,0
-			add     edi,ebx
-			adc     esi,0
-			// Sadly, no way to make this an immediate in VC++
-			mov		cl,byte ptr [R::S2]
-			shrd    edi,esi,cl
-			mov		result,edi
-		}
-	#ifdef DEBUG
-		uint32_t realResult = uint32_t(mla64(dividend, R::M2, 0) >> R::S2);
-		assert(realResult == result);
-	#endif
-		return result;
-	#else
-		uint32_t th, tl, ch, cl;
-		asm (
-			"movl	%[AH],%%eax\n\t"
-			"mull	%[BL]\n\t"
-			"movl	%%eax,%[TL]\n\t"
-			"movl	%%edx,%[TH]\n\t"
-			"movl	%[AL],%%eax\n\t"
-			"mull	%[BL]\n\t"
-			"addl	%%edx,%[TL]\n\t"
-			"adcl	$0,%[TH]\n\t"
-
-			"movl	%[AH],%%eax\n\t"
-			"mull	%[BH]\n\t"
-			"movl	%%eax,%[CL]\n\t"
-			"movl	%%edx,%[CH]\n\t"
-			"movl	%[AL],%%eax\n\t"
-			"mull	%[BH]\n\t"
-			"addl	%%eax,%[TL]\n\t"
-			"adcl	%%edx,%[TH]\n\t"
-			"adcl	$0,%[CH]\n\t"
-			"addl	%[TH],%[CL]\n\t"
-			"adcl	$0,%[CH]\n\t"
-
-			: [CH] "=&rm" (ch)
-			, [TH] "=&r"  (th)
-			, [CL] "=rm"  (cl)
-			, [TL] "=&rm" (tl)
-			: [AH] "g"    (_ah_)
-			, [AL] "g"    (_al_)
-			, [BH] "rm"   (_bh_)
-			, [BL] "[CL]" (_bl_)
-			: "eax","edx"
-		);
-		asm (
-			"shrd   %[SH],%[CH],%[CL]\n\t"
-
-			: [CL] "=rm"  (cl)
-			: [CH] "r"    (ch)
-			,      "[CL]" (cl)
-			, [SH] "i"    (R::S2)
-		);
-		return cl;
-	#endif
-	#elif defined(__arm__)
-		uint32_t res;
-		uint32_t th,tl;
-		asm volatile (
-			"umull	%[TH],%[TL],%[AL],%[BL]\n\t"
-			"eors	%[TH],%[TH]\n\t"
-			"umlal	%[TL],%[TH],%[AH],%[BL]\n\t"
-
-			"umull	%[BL],%[AL],%[BH],%[AL]\n\t"
-			"adds	%[TL],%[TL],%[BL]\n\t"
-			"adcs	%[TH],%[TH],%[AL]\n\t"
-			"mov	%[TL],#0\n\t"
-			"adc	%[TL],%[TL],%[TL]\n\t"
-			"umlal	%[TH],%[TL],%[AH],%[BH]\n\t"
-
-			"lsr	%[RES],%[TH],%[S]\n\t"
-			//"orr	%[RES],%[RES],%[TL],LSL %[S32]\n\t" // not thumb2
-			"lsls	%[TL],%[TL],%[S32]\n\t"
-			"orrs	%[RES],%[RES],%[TL]\n\t"
-			: [RES] "=r"    (res)
-			, [TH]  "=&r"   (th)
-			, [TL]  "=&r"   (tl)
-			: [AH]  "r"     (_ah_)
-			, [AL]  "r"     (_al_)
-			, [BH]  "r"     (_bh_)
-			, [BL]  "[RES]" (_bl_)
-			, [S]   "M"   (R::S2)
-			, [S32] "M"   (32 - R::S2)
-		);
-		return res;
-	#else
 		uint64_t h = mla64(dividend, R::M2, 0);
 		uint64_t result = h >> R::S2;
 	#ifdef DEBUG
@@ -295,121 +164,32 @@ template<uint64_t M, uint32_t S> struct DBCAlgo2
 		assert(result == uint32_t(result));
 	#endif
 		return uint32_t(result);
-	#endif
 	}
 };
 
 template<uint32_t DIVISOR, uint32_t N> struct DBCAlgo3
 {
 	// division possible by multiplication, addition and shift
-	static const uint32_t S = log2<DIVISOR>::value - 1;
+	static const uint32_t S = Math::log2p1(DIVISOR) - 1;
 	using D = Div128<1 << S, 0, 0, DIVISOR>;
 	static const uint64_t M = D::quotientLow + (D::remainderLow > (DIVISOR / 2));
 
 	uint32_t operator()(uint64_t dividend) const
 	{
 		using R = DBCReduce<M, S + N>;
-	#if ASM_X86_32 || defined(__arm__)
-		const uint32_t ah = R::M2 >> 32;
-		const uint32_t al = uint32_t(R::M2);
-		const uint32_t bh = dividend >> 32;
-		const uint32_t bl = dividend;
-	#endif
-	#if ASM_X86_32
-		uint32_t th, tl, ch, cl;
-		asm (
-			"mov	%[AH],%%eax\n\t"
-			"mull	%[BL]\n\t"
-			"mov	%%eax,%[TL]\n\t"
-			"mov	%%edx,%[TH]\n\t"
-			"mov	%[AL],%%eax\n\t"
-			"mull	%[BL]\n\t"
-			"add	%[AL],%%eax\n\t"
-			"adc	%[AH],%%edx\n\t"
-			"adc	$0,%[TH]\n\t"
-			"add	%%edx,%[TL]\n\t"
-			"adc	$0,%[TH]\n\t"
-
-			"mov	%[AH],%%eax\n\t"
-			"mull	%[BH]\n\t"
-			"mov	%%eax,%[CL]\n\t"
-			"mov	%%edx,%[CH]\n\t"
-			"mov	%[AL],%%eax\n\t"
-			"mull	%[BH]\n\t"
-			"add	%%eax,%[TL]\n\t"
-			"adc	%%edx,%[TH]\n\t"
-			"adc	$0,%[CH]\n\t"
-			"add	%[TH],%[CL]\n\t"
-			"adc	$0,%[CH]\n\t"
-
-			: [CH] "=&rm" (ch)
-			, [TH] "=&r"  (th)
-			, [CL] "=rm"  (cl)
-			, [TL] "=&rm" (tl)
-			: [AH] "g"    (ah)
-			, [AL] "g"    (al)
-			, [BH] "rm"   (bh)
-			, [BL] "[CL]" (bl)
-			: "eax","edx"
-		);
-		asm (
-			"shrd   %[SH],%[CH],%[CL]\n\t"
-
-			: [CL] "=rm"  (cl)
-			: [CH] "r"    (ch)
-			,      "[CL]" (cl)
-			, [SH] "i"    (R::S2)
-		);
-		return cl;
-
-	#elif defined(__arm__)
-		uint32_t res;
-		uint32_t th,tl;
-		asm volatile (
-			"umull	%[TH],%[TL],%[AL],%[BL]\n\t"
-			"adds	%[TH],%[TH],%[AL]\n\t"
-			"adcs	%[TL],%[TL],%[AH]\n\t"
-			"mov	%[TH],#0\n\t"
-			"adc	%[TH],%[TH],%[TH]\n\t"
-			"umlal	%[TL],%[TH],%[AH],%[BL]\n\t"
-
-			"umull	%[BL],%[AL],%[BH],%[AL]\n\t"
-			"adds	%[TL],%[TL],%[BL]\n\t"
-			"adcs	%[TH],%[TH],%[AL]\n\t"
-			"mov	%[TL],#0\n\t"
-			"adc	%[TL],%[TL],%[TL]\n\t"
-			"umlal	%[TH],%[TL],%[AH],%[BH]\n\t"
-
-			"lsr	%[RES],%[TH],%[S]\n\t"
-			//"orr	%[RES],%[RES],%[TL],LSL %[S32]\n\t" // not thumb2
-			"lsls	%[TL],%[TL],%[S32]\n\t"
-			"orrs	%[RES],%[RES],%[TL]\n\t"
-			: [RES] "=r"    (res)
-			, [TH]  "=&r"   (th)
-			, [TL]  "=&r"   (tl)
-			: [AH]  "r"     (ah)
-			, [AL]  "r"     (al)
-			, [BH]  "r"     (bh)
-			, [BL]  "[RES]" (bl)
-			, [S]   "M"     (R::S2)
-			, [S32] "M"     (32 - R::S2)
-		);
-		return res;
-	#else
 		uint64_t h = mla64(dividend, R::M2, R::M2);
 		return h >> R::S2;
-	#endif
 	}
 };
 
 
 template<uint32_t DIVISOR, uint32_t N, typename RM> struct DBCHelper3
-	: if_c<RM::MHH == 0, DBCAlgo2<RM::MHL, N + RM::L>
-	                   , DBCAlgo3<DIVISOR, N>> {};
+	: std::conditional_t<RM::MHH == 0, DBCAlgo2<RM::MHL, N + RM::L>,
+	                                   DBCAlgo3<DIVISOR, N>> {};
 
 template<uint32_t DIVISOR, uint32_t N> struct DBCHelper2
 {
-	static const uint32_t L = log2<DIVISOR>::value;
+	static const uint32_t L = Math::log2p1(DIVISOR);
 	static const uint64_t J = 0xffffffffffffffffull % DIVISOR;
 	using K = Div128<1 << L, 0, 0, 0xffffffffffffffffull - J>;
 
@@ -426,9 +206,11 @@ template<uint32_t DIVISOR, uint32_t N> struct DBCHelper2
 };
 
 template<uint32_t DIVISOR, uint32_t SHIFT> struct DBCHelper1
-	: if_c<DIVISOR == 1, DBCAlgo1<SHIFT>,
-	                     if_c<DIVISOR & 1, DBCHelper2<DIVISOR, SHIFT>
-	                                     , DBCHelper1<DIVISOR / 2, SHIFT + 1>>> {};
+	: std::conditional_t<DIVISOR == 1,
+	                     DBCAlgo1<SHIFT>,
+	                     std::conditional_t<DIVISOR & 1,
+	                                        DBCHelper2<DIVISOR, SHIFT>,
+	                                        DBCHelper1<DIVISOR / 2, SHIFT + 1>>> {};
 
 } // namespace DivModByConstPrivate
 

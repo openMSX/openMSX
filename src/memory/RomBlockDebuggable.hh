@@ -10,7 +10,7 @@ namespace openmsx {
 class RomBlockDebuggableBase : public SimpleDebuggable
 {
 public:
-	RomBlockDebuggableBase(const MSXDevice& device)
+	explicit RomBlockDebuggableBase(const MSXDevice& device)
 		: SimpleDebuggable(
 			device.getMotherBoard(),
 			device.getName() + " romblocks",
@@ -18,6 +18,8 @@ public:
 		        0x10000)
 	{
 	}
+protected:
+	~RomBlockDebuggableBase() = default;
 };
 
 class RomBlockDebuggable final : public RomBlockDebuggableBase

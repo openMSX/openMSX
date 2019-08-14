@@ -60,9 +60,12 @@ public:
 	Layer* findActiveLayer() const;
 	const Layers& getAllLayers() const { return layers; }
 
+	OutputSurface* getOutputSurface();
+
+	std::string getWindowTitle();
+
 private:
 	void resetVideoSystem();
-	void setWindowTitle();
 
 	// EventListener interface
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
@@ -96,15 +99,15 @@ private:
 	uint64_t prevTimeStamp;
 
 	struct ScreenShotCmd final : Command {
-		ScreenShotCmd(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		explicit ScreenShotCmd(CommandController& commandController);
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} screenShotCmd;
 
 	struct FpsInfoTopic final : InfoTopic {
-		FpsInfoTopic(InfoCommand& openMSXInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		explicit FpsInfoTopic(InfoCommand& openMSXInfoCommand);
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} fpsInfo;

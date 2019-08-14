@@ -15,20 +15,25 @@
 #include "CacheLine.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
+#include "sha1.hh"
 #include "serialize.hh"
 
 namespace openmsx {
+
+// minimal attempt to avoid seeing this warning too often
+static Sha1Sum alreadyWarnedForSha1Sum;
 
 RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, Rom&& rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
 	, scc("SCC", config, getCurrentTime())
 {
 	// warn if a ROM is used that would not work on a real KonamiSCC mapper
-	if (rom.getSize() > 512 * 1024) {
+	if ((rom.getSize() > 512 * 1024) && alreadyWarnedForSha1Sum != rom.getOriginalSHA1()) {
 		getMotherBoard().getMSXCliComm().printWarning(
 			"The size of this ROM image is larger than 512kB, "
 			"which is not supported on real Konami SCC mapper "
 			"chips!");
+		alreadyWarnedForSha1Sum = rom.getOriginalSHA1();
 	}
 	powerUp(getCurrentTime());
 }
@@ -124,8 +129,8 @@ template<typename Archive>
 void RomKonamiSCC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("scc", scc);
-	ar.serialize("sccEnabled", sccEnabled);
+	ar.serialize("scc",        scc,
+	             "sccEnabled", sccEnabled);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomKonamiSCC);
 REGISTER_MSXDEVICE(RomKonamiSCC, "RomKonamiSCC");

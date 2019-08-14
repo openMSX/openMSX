@@ -9,12 +9,12 @@ class ReadOnlySetting final : public Setting
 {
 public:
 	ReadOnlySetting(CommandController& commandController,
-	                string_ref name, string_ref description,
+	                string_view name, string_view description,
 	                const TclObject& initialValue);
 
 	void setReadOnlyValue(const TclObject& value);
 
-	string_ref getTypeString() const override;
+	string_view getTypeString() const override;
 
 private:
 	TclObject roValue;

@@ -22,7 +22,7 @@ class MSXS1985 final : public MSXDevice, public MSXSwitchedDevice
 {
 public:
 	explicit MSXS1985(const DeviceConfig& config);
-	~MSXS1985();
+	~MSXS1985() override;
 
 	// MSXDevice
 	void reset(EmuTime::param time) override;

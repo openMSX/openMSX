@@ -1,5 +1,5 @@
 #include "KeyboardSettings.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -11,8 +11,8 @@ static EnumSetting<Keys::KeyCode>::Map getAllowedKeysMap()
 		{"RCTRL",       Keys::K_RCTRL},
 		{"HENKAN_MODE", Keys::K_HENKAN_MODE},
 		{"RSHIFT",      Keys::K_RSHIFT},
-		{"RMETA",       Keys::K_RMETA},
-		{"LMETA",       Keys::K_LMETA},
+		{"RMETA",       Keys::K_RSUPER}, // TODO correct???
+		{"LMETA",       Keys::K_LSUPER}, //
 		{"LSUPER",      Keys::K_LSUPER},
 		{"RSUPER",      Keys::K_RSUPER},
 		{"HELP",        Keys::K_HELP},
@@ -53,17 +53,17 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 		"Automatically toggle the CODE/KANA lock, based on the characters entered on the host keyboard",
 		true)
 {
-	deadkeyHostKey[0] = make_unique<EnumSetting<Keys::KeyCode>>(
+	deadkeyHostKey[0] = std::make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_deadkey1_host_key",
 		"Host key that maps to deadkey 1. Not applicable to Japanese and Korean MSX models",
 		Keys::K_RCTRL, getAllowedKeysMap());
 
-	deadkeyHostKey[1] = make_unique<EnumSetting<Keys::KeyCode>>(
+	deadkeyHostKey[1] = std::make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_deadkey2_host_key",
 		"Host key that maps to deadkey 2. Only applicable to Brazilian MSX models (Sharp Hotbit and Gradiente)",
 		Keys::K_PAGEUP, getAllowedKeysMap());
 
-	deadkeyHostKey[2] = make_unique<EnumSetting<Keys::KeyCode>>(
+	deadkeyHostKey[2] = std::make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_deadkey3_host_key",
 		"Host key that maps to deadkey 3. Only applicable to Brazilian Sharp Hotbit MSX models",
 		Keys::K_PAGEDOWN, getAllowedKeysMap());

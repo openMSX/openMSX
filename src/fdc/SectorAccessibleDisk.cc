@@ -4,7 +4,7 @@
 #include "DiskExceptions.hh"
 #include "sha1.hh"
 #include "xrange.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -16,15 +16,11 @@ const size_t SectorAccessibleDisk::SECTOR_SIZE;
 #endif
 
 SectorAccessibleDisk::SectorAccessibleDisk()
-	: patch(make_unique<EmptyDiskPatch>(*this))
-	, forcedWriteProtect(false)
-	, peekMode(false)
+	: patch(std::make_unique<EmptyDiskPatch>(*this))
 {
 }
 
-SectorAccessibleDisk::~SectorAccessibleDisk()
-{
-}
+SectorAccessibleDisk::~SectorAccessibleDisk() = default;
 
 void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf)
 {
@@ -40,14 +36,14 @@ void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf)
 		// in the end this calls readSectorImpl()
 		patch->copyBlock(sector * sizeof(buf), buf.raw, sizeof(buf));
 	} catch (MSXException& e) {
-		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
+		throw DiskIOErrorException("Disk I/O error: ", e.getMessage());
 	}
 }
 
 void SectorAccessibleDisk::writeSector(size_t sector, const SectorBuffer& buf)
 {
 	if (isWriteProtected()) {
-		throw WriteProtectedException("");
+		throw WriteProtectedException();
 	}
 	if (!isDummyDisk() && (getNbSectors() <= sector)) {
 		throw NoSuchSectorException("No such sector");
@@ -55,7 +51,7 @@ void SectorAccessibleDisk::writeSector(size_t sector, const SectorBuffer& buf)
 	try {
 		writeSectorImpl(sector, buf);
 	} catch (MSXException& e) {
-		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
+		throw DiskIOErrorException("Disk I/O error: ", e.getMessage());
 	}
 	flushCaches();
 }
@@ -65,9 +61,9 @@ size_t SectorAccessibleDisk::getNbSectors() const
 	return getNbSectorsImpl();
 }
 
-void SectorAccessibleDisk::applyPatch(const Filename& patchFile)
+void SectorAccessibleDisk::applyPatch(Filename patchFile)
 {
-	patch = make_unique<IPSPatch>(patchFile, std::move(patch));
+	patch = std::make_unique<IPSPatch>(std::move(patchFile), std::move(patch));
 }
 
 std::vector<Filename> SectorAccessibleDisk::getPatches() const

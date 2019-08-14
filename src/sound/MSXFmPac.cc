@@ -151,11 +151,11 @@ template<typename Archive>
 void MSXFmPac::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeInlinedBase<MSXMusicBase>(*this, version);
-	ar.serialize("sram", sram);
-	ar.serialize("enable", enable);
-	ar.serialize("bank", bank);
-	ar.serialize("r1ffe", r1ffe);
-	ar.serialize("r1fff", r1fff);
+	ar.serialize("sram",   sram,
+	             "enable", enable,
+	             "bank",   bank,
+	             "r1ffe",  r1ffe,
+	             "r1fff",  r1fff);
 	if (ar.isLoader()) {
 		// sramEnabled can be calculated
 		checkSramEnable();

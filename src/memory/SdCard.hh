@@ -5,7 +5,6 @@
 #include "circular_buffer.hh"
 #include "DiskImageUtils.hh"
 #include <memory>
-#include <string>
 
 namespace openmsx {
 
@@ -15,7 +14,7 @@ class HD;
 class SdCard
 {
 public:
-	SdCard(const DeviceConfig& config);
+	explicit SdCard(const DeviceConfig& config);
 	~SdCard();
 
 	byte transfer(byte value, bool cs);

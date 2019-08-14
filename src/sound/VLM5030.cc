@@ -79,10 +79,12 @@ chirp 12-..: vokume   0   : silent
 #include "XMLElement.hh"
 #include "FileOperations.hh"
 #include "Math.hh"
+#include "cstd.hh"
 #include "serialize.hh"
 #include "random.hh"
+#include "ranges.hh"
+#include <cmath>
 #include <cstring>
-#include <cstdint>
 
 namespace openmsx {
 
@@ -198,9 +200,7 @@ int VLM5030::parseFrame()
 	if (cmd & 0x01) {
 		// extend frame
 		new_energy = new_pitch = 0;
-		for (int i = 0; i <= 9; ++i) {
-			new_k[i] = 0;
-		}
+		ranges::fill(new_k, 0);
 		++address;
 		if (cmd & 0x02) {
 			// end of speech
@@ -233,7 +233,7 @@ int VLM5030::parseFrame()
 }
 
 // decode and buffering data
-void VLM5030::generateChannels(int** bufs, unsigned length)
+void VLM5030::generateChannels(float** bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
 	if (phase == PH_IDLE) {
@@ -246,7 +246,7 @@ void VLM5030::generateChannels(int** bufs, unsigned length)
 	// running
 	if (phase == PH_RUN || phase == PH_STOP) {
 		// playing speech
-		while (length > 0) {
+		while (num > 0) {
 			int current_val;
 			// check new interpolator or new frame
 			if (sample_count == 0) {
@@ -332,40 +332,40 @@ void VLM5030::generateChannels(int** bufs, unsigned length)
 			if (pitch_count >= current_pitch) {
 				pitch_count = 0;
 			}
-			--length;
+			--num;
 		}
 	// return;
 	}
 phase_stop:
 	switch (phase) {
 	case PH_SETUP:
-		if (sample_count <= length) {
+		if (sample_count <= num) {
 			sample_count = 0;
 			// pin_BSY = true;
 			phase = PH_WAIT;
 		} else {
-			sample_count -= length;
+			sample_count -= num;
 		}
 		break;
 	case PH_END:
-		if (sample_count <= length) {
+		if (sample_count <= num) {
 			sample_count = 0;
 			pin_BSY = false;
 			phase = PH_IDLE;
 		} else {
-			sample_count -= length;
+			sample_count -= num;
 		}
 	}
 	// silent buffering
-	while (length > 0) {
+	while (num > 0) {
 		bufs[0][buf_count++] = 0;
-		--length;
+		--num;
 	}
 }
 
-int VLM5030::getAmplificationFactor() const
+float VLM5030::getAmplificationFactorImpl() const
 {
-	return 1 << (15 - 9);
+	return 1.0f / (1 << 9);
 }
 
 // setup parameteroption when RST=H
@@ -514,15 +514,17 @@ static XMLElement getRomConfig(const std::string& name, const std::string& romFi
 	romElement.addChild( // load by sha1sum
 		"sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40");
 	romElement.addChild( // load by predefined filename in software rom's dir
-		"filename", FileOperations::stripExtension(romFilename) + "_voice.rom");
+		"filename", strCat(FileOperations::stripExtension(romFilename), "_voice.rom"));
 	romElement.addChild( // or hardcoded filename in ditto dir
 		"filename", "keyboardmaster/voice.rom");
 	return voiceROMconfig;
 }
 
+static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
+
 VLM5030::VLM5030(const std::string& name_, const std::string& desc,
                  const std::string& romFilename, const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, INPUT_RATE, false)
 	, rom(name_ + " ROM", "rom", DeviceConfig(config, getRomConfig(name_, romFilename)))
 {
 	// reset input pins
@@ -533,10 +535,6 @@ VLM5030::VLM5030(const std::string& name_, const std::string& desc,
 	phase = PH_IDLE;
 
 	address_mask = rom.getSize() - 1;
-
-	const int CLOCK_FREQ = 3579545;
-	float input = CLOCK_FREQ / 440.0f;
-	setInputRate(int(input + 0.5f));
 
 	registerSound(config);
 }
@@ -549,35 +547,35 @@ VLM5030::~VLM5030()
 template<typename Archive>
 void VLM5030::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("address_mask", address_mask);
-	ar.serialize("frame_size", frame_size);
-	ar.serialize("pitch_offset", pitch_offset);
-	ar.serialize("current_energy", current_energy);
-	ar.serialize("current_pitch", current_pitch);
-	ar.serialize("current_k", current_k);
-	ar.serialize("x", x);
-	ar.serialize("address", address);
-	ar.serialize("vcu_addr_h", vcu_addr_h);
-	ar.serialize("old_k", old_k);
-	ar.serialize("new_k", new_k);
-	ar.serialize("target_k", target_k);
-	ar.serialize("old_energy", old_energy);
-	ar.serialize("new_energy", new_energy);
-	ar.serialize("target_energy", target_energy);
-	ar.serialize("old_pitch", old_pitch);
-	ar.serialize("new_pitch", new_pitch);
-	ar.serialize("target_pitch", target_pitch);
-	ar.serialize("interp_step", interp_step);
-	ar.serialize("interp_count", interp_count);
-	ar.serialize("sample_count", sample_count);
-	ar.serialize("pitch_count", pitch_count);
-	ar.serialize("latch_data", latch_data);
-	ar.serialize("parameter", parameter);
-	ar.serialize("phase", phase);
-	ar.serialize("pin_BSY", pin_BSY);
-	ar.serialize("pin_ST", pin_ST);
-	ar.serialize("pin_VCU", pin_VCU);
-	ar.serialize("pin_RST", pin_RST);
+	ar.serialize("address_mask",   address_mask,
+	             "frame_size",     frame_size,
+	             "pitch_offset",   pitch_offset,
+	             "current_energy", current_energy,
+	             "current_pitch",  current_pitch,
+	             "current_k",      current_k,
+	             "x",              x,
+	             "address",        address,
+	             "vcu_addr_h",     vcu_addr_h,
+	             "old_k",          old_k,
+	             "new_k",          new_k,
+	             "target_k",       target_k,
+	             "old_energy",     old_energy,
+	             "new_energy",     new_energy,
+	             "target_energy",  target_energy,
+	             "old_pitch",      old_pitch,
+	             "new_pitch",      new_pitch,
+	             "target_pitch",   target_pitch,
+	             "interp_step",    interp_step,
+	             "interp_count",   interp_count,
+	             "sample_count",   sample_count,
+	             "pitch_count",    pitch_count,
+	             "latch_data",     latch_data,
+	             "parameter",      parameter,
+	             "phase",          phase,
+	             "pin_BSY",        pin_BSY,
+	             "pin_ST",         pin_ST,
+	             "pin_VCU",        pin_VCU,
+	             "pin_RST",        pin_RST);
 }
 
 INSTANTIATE_SERIALIZE_METHODS(VLM5030);

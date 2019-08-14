@@ -64,59 +64,6 @@ my_home_dir=${my_home_dir%/*}
 my_android_dir="${my_home_dir}/build/android/openmsx"
 my_relative_dir="${my_android_dir##*/}"
 
-tcl_build=8.5.11
-tcl_version=${tcl_build%.*}
-tcl_archive="${my_home_dir}/derived/3rdparty/download/tcl${tcl_build}-src.tar.gz"
-tcl_sdl_dir="${sdl_android_port_path}/project/jni/tcl${tcl_version}"
-if [ -d "${tcl_sdl_dir}" ]; then
-	if [ ! -f "${tcl_sdl_dir}/${tcl_build}.txt" ]; then
-		echo "ERROR: expecting TCL build ${tcl_build} in ${tcl_sdl_dir}"
-		exit 1
-	fi
-fi
-export GCCVER=4.8
-export NDK_TOOLCHAIN_VERSION=${GCCVER}
-if [ ! -d "${tcl_sdl_dir}" ]; then
-    if [ ! -f "${tcl_archive}" ]; then
-		cd "${my_home_dir}"
-		echo "Downloading TCL"
-		python build/android_download.py
-		if [ $? -ne 0 ]; then
-			echo "ERROR: Failed to download TCL"
-			exit 1
-		fi
-		if [ ! -f "${tcl_archive}" ]; then
-			echo "ERROR: Failed to download TCL ${tcl_build}"
-			exit 1
-		fi
-    fi
-    cd "${sdl_android_port_path}/project/jni"
-    tar xzf "${tcl_archive}"
-	tcl_relative_dir=tcl${tcl_version}
-    mv tcl${tcl_build} ${tcl_relative_dir}
-	touch ${tcl_relative_dir}/${tcl_build}.txt
-    cp -p "${my_home_dir}/build/android/tcl${tcl_build}_Android.mk" ${tcl_relative_dir}/Android.mk
-    cd ${tcl_relative_dir}
-    mkdir -p lib/armeabi
-    mkdir -p lib/armeabi-v7a
-    mkdir -p include
-    cp -p generic/*.h include
-    cd unix
-    if [ ! -f Makefile.in.original ]; then
-        cp -p Makefile.in Makefile.in.original
-        patch -i "${my_home_dir}/build/android/tcl${tcl_build}_unix_Makefile.in.patch"
-    fi
-    export BUILD_EXECUTABLE=yes
-    ../../setCrossEnvironment.sh ./configure --host=arm-eabi
-    make clean
-    ../../setCrossEnvironment.sh make
-    mv libtcl8.5.so ../lib/armeabi
-    ../../setCrossEnvironment.sh ./configure --host=arm-eabi-v7a
-    make clean
-    ../../setCrossEnvironment.sh make
-    mv libtcl8.5.so ../lib/armeabi-v7a
-fi
-
 echo "Setting-up softlink to this application in the SDL android port."
 if [ -h "${sdl_port_app_dir}/${my_relative_dir}" ]; then
     rm "${sdl_port_app_dir}/${my_relative_dir}"
@@ -153,19 +100,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-android update project -p project -t android-19
-if [ $? -ne 0 ]; then
-    echo "ERROR: an unexpected problem occurred while running \"android update ...\""
-    exit 1
-fi
-
 echo ""
 echo "You can now build the application from the openMSX android build directory"
 echo ""
 echo "Example"
 echo "> cd ${my_android_dir}"
 echo "> ./launch_anddev_build.sh"
-echo ""
-echo "Note: the first time that you run the launch_anddev_build.sh script, you may get some error"
-echo "      message. It is due to a subtle bug in the SDL android port."
-echo "      Simply re-run the build.sh script a second time and it will work fine."

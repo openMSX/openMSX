@@ -17,7 +17,7 @@ class RomManbow2 final : public MSXRom
 {
 public:
 	RomManbow2(const DeviceConfig& config, Rom&& rom, RomType type);
-	~RomManbow2();
+	~RomManbow2() override;
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;

@@ -2,16 +2,14 @@
 #include "MSXMixer.hh"
 #include "NullSoundDriver.hh"
 #include "SDLSoundDriver.hh"
-#include "DirectXSoundDriver.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "components.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <memory>
 
 namespace openmsx {
 
@@ -23,23 +21,11 @@ static const int defaultsamples = 2560;
 static const int defaultsamples = 1024;
 #endif
 
-static Mixer::SoundDriverType getDefaultSoundDriver()
-{
-#ifdef _WIN32
-	return Mixer::SND_DIRECTX;
-#else
-	return Mixer::SND_SDL;
-#endif
-}
-
 static EnumSetting<Mixer::SoundDriverType>::Map getSoundDriverMap()
 {
 	EnumSetting<Mixer::SoundDriverType>::Map soundDriverMap = {
 		{ "null", Mixer::SND_NULL },
 		{ "sdl",  Mixer::SND_SDL } };
-#ifdef _WIN32
-	soundDriverMap.emplace_back("directx", Mixer::SND_DIRECTX);
-#endif
 	return soundDriverMap;
 }
 
@@ -49,7 +35,7 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	, soundDriverSetting(
 		commandController, "sound_driver",
 		"select the sound output driver",
-		getDefaultSoundDriver(), getSoundDriverMap())
+		Mixer::SND_SDL, getSoundDriverMap())
 	, muteSetting(
 		commandController, "mute",
 		"(un)mute the emulation sound", false, Setting::DONT_SAVE)
@@ -92,26 +78,19 @@ void Mixer::reloadDriver()
 	// this means we end up without driver if creating the new one failed
 	// for some reason.
 
-	driver = make_unique<NullSoundDriver>();
+	driver = std::make_unique<NullSoundDriver>();
 
 	try {
 		switch (soundDriverSetting.getEnum()) {
 		case SND_NULL:
-			driver = make_unique<NullSoundDriver>();
+			driver = std::make_unique<NullSoundDriver>();
 			break;
 		case SND_SDL:
-			driver = make_unique<SDLSoundDriver>(
+			driver = std::make_unique<SDLSoundDriver>(
 				reactor,
 				frequencySetting.getInt(),
 				samplesSetting.getInt());
 			break;
-#ifdef _WIN32
-		case SND_DIRECTX:
-			driver = make_unique<DirectXSoundDriver>(
-				frequencySetting.getInt(),
-				samplesSetting.getInt());
-			break;
-#endif
 		default:
 			UNREACHABLE;
 		}
@@ -167,7 +146,7 @@ void Mixer::muteHelper()
 	}
 }
 
-void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, short* buffer, unsigned len)
+void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, float* buffer, unsigned len)
 {
 	// can only handle one MSXMixer ATM
 	assert(!msxMixers.empty());

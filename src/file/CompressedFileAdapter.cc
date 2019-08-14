@@ -68,11 +68,10 @@ void CompressedFileAdapter::write(const void* /*buffer*/, size_t /*num*/)
 	throw FileException("Writing to compressed files not yet supported");
 }
 
-const byte* CompressedFileAdapter::mmap(size_t& size)
+span<uint8_t> CompressedFileAdapter::mmap()
 {
 	decompress();
-	size = decompressed->size;
-	return reinterpret_cast<const byte*>(decompressed->buf.data());
+	return { decompressed->buf.data(), decompressed->size };
 }
 
 void CompressedFileAdapter::munmap()
@@ -106,12 +105,12 @@ void CompressedFileAdapter::flush()
 	// nothing because writing is not supported
 }
 
-const string CompressedFileAdapter::getURL() const
+string CompressedFileAdapter::getURL() const
 {
 	return file ? file->getURL() : decompressed->cachedURL;
 }
 
-const string CompressedFileAdapter::getOriginalName()
+string CompressedFileAdapter::getOriginalName()
 {
 	decompress();
 	return decompressed->originalName;

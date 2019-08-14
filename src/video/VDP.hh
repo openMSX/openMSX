@@ -14,6 +14,7 @@
 #include "openmsx.hh"
 #include "outer.hh"
 #include <memory>
+#include <array>
 
 namespace openmsx {
 
@@ -21,6 +22,7 @@ class PostProcessor;
 class Renderer;
 class VDPCmdEngine;
 class VDPVRAM;
+class MSXCPU;
 class SpriteChecker;
 class Display;
 class RawFrame;
@@ -70,7 +72,7 @@ public:
 	static const int TICKS_PER_LINE = 1368;
 
 	explicit VDP(const DeviceConfig& config);
-	~VDP();
+	~VDP() override;
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
@@ -120,19 +122,18 @@ public:
 		return (version & VM_VRAM_REMAPPING) != 0;
 	}
 
-	/** Is this a VDP with a Toshiba palette?
-	  * @return True iff this VDP has the Toshiba palette
-	  */
-	inline bool hasToshibaPalette() const {
-		return (version & VM_TOSHIBA_PALETTE) != 0;
-	}
-
 	/** Does this VDP support YJK display?
 	  * @return True for V9958, false otherwise.
 	  */
 	inline bool hasYJK() const {
 		return (version & VM_YJK) != 0;
 	}
+
+	/** Get the (fixed) palette for this MSX1 VDP.
+	  * Don't use this if it's not an MSX1 VDP!
+	  * @return an array of 16 RGB triplets
+	  */
+	std::array<std::array<uint8_t, 3>, 16> getMSX1Palette() const;
 
 	/** Get the display mode the VDP is in.
 	  * @return The current display mode.
@@ -520,11 +521,6 @@ public:
 	VDPAccessSlots::Calculator getAccessSlotCalculator(
 		EmuTime::param time, EmuTime::param limit) const;
 
-	/** Is there a CPU-VRAM access scheduled. */
-	bool cpuAccessScheduled() const {
-		return pendingCpuAccess; // pendingSyncPoint(CPU_VRAM_ACCESS)
-	}
-
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -577,68 +573,72 @@ private:
 	};
 
 	struct SyncBase : public Schedulable {
-		SyncBase(VDP& vdp_) : Schedulable(vdp_.getScheduler()) {}
-		friend class VDP;
+		explicit SyncBase(VDP& vdp_) : Schedulable(vdp_.getScheduler()) {}
+		using Schedulable::removeSyncPoint;
+		using Schedulable::setSyncPoint;
+		using Schedulable::pendingSyncPoint;
+	protected:
+		~SyncBase() = default;
 	};
 
-	struct SyncVSync : public SyncBase {
-		SyncVSync(VDP& vdp) : SyncBase(vdp) {}
+	struct SyncVSync final : public SyncBase {
+		explicit SyncVSync(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncVSync);
 			vdp.execVSync(time);
 		}
 	} syncVSync;
 
-	struct SyncDisplayStart : public SyncBase {
-		SyncDisplayStart(VDP& vdp) : SyncBase(vdp) {}
+	struct SyncDisplayStart final : public SyncBase {
+		explicit SyncDisplayStart(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncDisplayStart);
 			vdp.execDisplayStart(time);
 		}
 	} syncDisplayStart;
 
-	struct SyncVScan : public SyncBase {
-		SyncVScan(VDP& vdp) : SyncBase(vdp) {}
+	struct SyncVScan final : public SyncBase {
+		explicit SyncVScan(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncVScan);
 			vdp.execVScan(time);
 		}
 	} syncVScan;
 
-	struct SyncHScan : public SyncBase {
-		SyncHScan(VDP& vdp) : SyncBase(vdp) {}
+	struct SyncHScan final : public SyncBase {
+		explicit SyncHScan(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& vdp = OUTER(VDP, syncHScan);
 			vdp.execHScan();
 		}
 	} syncHScan;
 
-	struct SyncHorAdjust : public SyncBase {
-		SyncHorAdjust(VDP& vdp) : SyncBase(vdp) {}
+	struct SyncHorAdjust final : public SyncBase {
+		explicit SyncHorAdjust(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncHorAdjust);
 			vdp.execHorAdjust(time);
 		}
 	} syncHorAdjust;
 
-	struct SyncSetMode : public SyncBase {
-		SyncSetMode(VDP& vdp) : SyncBase(vdp) {}
+	struct SyncSetMode final : public SyncBase {
+		explicit SyncSetMode(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncSetMode);
 			vdp.execSetMode(time);
 		}
 	} syncSetMode;
 
-	struct SyncSetBlank : public SyncBase {
-		SyncSetBlank(VDP& vdp) : SyncBase(vdp) {}
+	struct SyncSetBlank final : public SyncBase {
+		explicit SyncSetBlank(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncSetBlank);
 			vdp.execSetBlank(time);
 		}
 	} syncSetBlank;
 
-	struct SyncCpuVramAccess : public SyncBase {
-		SyncCpuVramAccess(VDP& vdp) : SyncBase(vdp) {}
+	struct SyncCpuVramAccess final : public SyncBase {
+		explicit SyncCpuVramAccess(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& vdp = OUTER(VDP, syncCpuVramAccess);
 			vdp.execCpuVramAccess(time);
@@ -654,23 +654,18 @@ private:
 	void execSetBlank(EmuTime::param time);
 	void execCpuVramAccess(EmuTime::param time);
 
-	/** Time at which the internal VDP display line counter is reset,
-	  * expressed in ticks after vsync.
-	  * I would expect the counter to reset at line 16, but measurements
-	  * on NMS8250 show it is one line earlier. I'm not sure whether the
-	  * actual counter reset happens on line 15 or whether the VDP
-	  * timing may be one line off for some reason.
-	  * TODO: This is just an assumption, more measurements on real MSX
-	  *       are necessary to verify there is really such a thing and
-	  *       if so, that the value is accurate.
-	  */
-	static const int LINE_COUNT_RESET_TICKS = 15 * TICKS_PER_LINE;
-
 	/** Gets the number of display lines per screen.
 	  * @return 192 or 212.
 	  */
 	inline int getNumberOfLines() const {
 		return controlRegs[9] & 0x80 ? 212 : 192;
+	}
+
+	/** Returns the amount of vertical set-adjust 0..15.
+	  * Neutral set-adjust (that is 'set adjust(0,0)') returns the value '7'.
+	  */
+	int getVerticalAdjust() const {
+		return (controlRegs[18] >> 4) ^ 0x07;
 	}
 
 	/** Gets the value of the horizontal retrace status bit.
@@ -800,7 +795,7 @@ private:
 	/** Display mode has changed.
 	  * Update displayMode's value and inform the Renderer.
 	  */
-	void updateDisplayMode(DisplayMode newMode, EmuTime::param time);
+	void updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param time);
 
 	/** Sets a palette entry.
 	  * @param index The index [0..15] in the palette.
@@ -843,48 +838,49 @@ private:
 
 	class Info : public InfoTopic {
 	public:
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 		             TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		virtual int calc(const EmuTime& time) const = 0;
 	protected:
 		Info(VDP& vdp_, const std::string& name, std::string helpText_);
+		~Info() = default;
 		VDP& vdp;
 		const std::string helpText;
 	};
 
 	struct FrameCountInfo final : Info {
-		FrameCountInfo(VDP& vdp);
+		explicit FrameCountInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} frameCountInfo;
 
 	struct CycleInFrameInfo final : Info {
-		CycleInFrameInfo(VDP& vdp);
+		explicit CycleInFrameInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} cycleInFrameInfo;
 
 	struct LineInFrameInfo final : Info {
-		LineInFrameInfo(VDP& vdp);
+		explicit LineInFrameInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} lineInFrameInfo;
 
 	struct CycleInLineInfo final : Info {
-		CycleInLineInfo(VDP& vdp);
+		explicit CycleInLineInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} cycleInLineInfo;
 
 	struct MsxYPosInfo final : Info {
-		MsxYPosInfo(VDP& vdp);
+		explicit MsxYPosInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} msxYPosInfo;
 
 	struct MsxX256PosInfo final : Info {
-		MsxX256PosInfo(VDP& vdp);
+		explicit MsxX256PosInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} msxX256PosInfo;
 
 	struct MsxX512PosInfo final : Info {
-		MsxX512PosInfo(VDP& vdp);
+		explicit MsxX512PosInfo(VDP& vdp);
 		int calc(const EmuTime& time) const override;
 	} msxX512PosInfo;
 
@@ -945,6 +941,18 @@ private:
 	/** VDP version.
 	  */
 	VdpVersion version;
+
+	/** Saturation of Pr component of TMS9XXXA output circuitry.
+	  * The output of the VDP and the circuitry between the output and the
+	  * output connector influences this value. Percentage in range [0:100]
+	  */
+	int saturationPr;
+
+	/** Saturation of Pb component of TMS9XXXA output circuitry.
+	  * The output of the VDP and the circuitry between the output and the
+	  * output connector influences this value. Percentage in range [0:100]
+	  */
+	int saturationPb;
 
 	/** The number of already fully rendered frames.
 	  * Not used for actual emulation, only for 'frame_count' info topic.
@@ -1091,6 +1099,10 @@ private:
 	/** Cached version of cmdTiming/tooFastAccess setting. */
 	bool brokenCmdTiming;
 	bool allowTooFastAccess;
+
+	/** Cached CPU reference */
+	MSXCPU& cpu;
+	const byte fixedVDPIOdelayCycles;
 };
 SERIALIZE_CLASS_VERSION(VDP, 8);
 

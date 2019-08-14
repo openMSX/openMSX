@@ -24,16 +24,15 @@ HDCommand::HDCommand(CommandController& commandController_,
 {
 }
 
-void HDCommand::execute(array_ref<TclObject> tokens, TclObject& result,
+void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
                         EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		result.addListElement(hd.getName() + ':');
-		result.addListElement(hd.getImageName().getResolved());
+		result.addListElement(hd.getName() + ':',
+		                      hd.getImageName().getResolved());
 
 		if (hd.isWriteProtected()) {
-			TclObject options;
-			options.addListElement("readonly");
+			TclObject options = makeTclList("readonly");
 			result.addListElement(options);
 		}
 	} else if ((tokens.size() == 2) ||
@@ -60,7 +59,7 @@ void HDCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 			// so this has not been converted to TclObject style here
 			// return filename;
 		} catch (FileException& e) {
-			throw CommandException("Can't change hard disk image: " +
+			throw CommandException("Can't change hard disk image: ",
 			                       e.getMessage());
 		}
 	} else {
@@ -82,7 +81,7 @@ void HDCommand::tabCompletion(vector<string>& tokens) const
 	completeFileName(tokens, userFileContext(), extra);
 }
 
-bool HDCommand::needRecord(array_ref<TclObject> tokens) const
+bool HDCommand::needRecord(span<const TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }

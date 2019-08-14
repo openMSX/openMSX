@@ -1,7 +1,6 @@
 #ifndef OUTPUTSURFACE_HH
 #define OUTPUTSURFACE_HH
 
-#include "OutputRectangle.hh"
 #include "gl_vec.hh"
 #include <string>
 #include <cassert>
@@ -13,21 +12,27 @@ namespace openmsx {
   * It could be an in-memory buffer or a video buffer visible to the user
   * (see VisibleSurface subclass).
   */
-class OutputSurface : public OutputRectangle
+class OutputSurface
 {
 public:
 	OutputSurface(const OutputSurface&) = delete;
 	OutputSurface& operator=(const OutputSurface&) = delete;
 
-	virtual ~OutputSurface();
+	virtual ~OutputSurface() = default;
 
-	unsigned getWidth()  const { return surface->w; }
-	unsigned getHeight() const { return surface->h; }
-	int getX() const { return xOffset; }
-	int getY() const { return yOffset; }
+	int getWidth()  const { return surface->w; }
+	int getHeight() const { return surface->h; }
+	gl::ivec2 getLogicalSize()  const { return {getWidth(), getHeight()}; }
+	gl::ivec2 getPhysicalSize() const { return m_physSize; }
+
+	gl::ivec2 getViewOffset() const { return m_viewOffset; }
+	gl::ivec2 getViewSize()   const { return m_viewSize; }
+	gl::vec2  getViewScale()  const { return m_viewScale; }
+	bool      isViewScaled()  const { return m_viewScale != gl::vec2(1.0f); }
 
 	const SDL_PixelFormat& getSDLFormat() const { return format; }
 	SDL_Surface* getSDLSurface()          const { return surface; }
+	SDL_Renderer* getSDLRenderer()        const { return renderer; }
 
 	/** Returns the pixel value for the given RGB color.
 	  * No effort is made to ensure that the returned pixel value is not the
@@ -131,24 +136,26 @@ public:
 	virtual void clearScreen() = 0;
 
 protected:
-	OutputSurface();
-	void setPosition(int x, int y);
+	OutputSurface() = default;
+
+	void calculateViewPort(gl::ivec2 physSize);
 	void setSDLSurface(SDL_Surface* surface_) { surface = surface_; }
+	void setSDLRenderer(SDL_Renderer* r) { renderer = r; }
 	void setSDLFormat(const SDL_PixelFormat& format);
 	void setBufferPtr(char* data, unsigned pitch);
 
 private:
-	// OutputRectangle
-	unsigned getOutputWidth()  const override { return getWidth(); }
-	unsigned getOutputHeight() const override { return getHeight(); }
-
-	SDL_Surface* surface;
+	SDL_Surface* surface = nullptr;
+	SDL_Renderer* renderer = nullptr;
 	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;
-	int xOffset, yOffset;
+	gl::ivec2 m_physSize;
+	gl::ivec2 m_viewOffset;
+	gl::ivec2 m_viewSize;
+	gl::vec2 m_viewScale{1.0f};
 
-	bool locked;
+	bool locked = false;
 
 	friend class SDLGLOutputSurface; // for setBufferPtr()
 };

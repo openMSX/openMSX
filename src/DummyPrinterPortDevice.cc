@@ -17,9 +17,9 @@ void DummyPrinterPortDevice::writeData(byte /*data*/, EmuTime::param /*time*/)
 	// ignore data
 }
 
-string_ref DummyPrinterPortDevice::getDescription() const
+string_view DummyPrinterPortDevice::getDescription() const
 {
-	return "";
+	return {};
 }
 
 void DummyPrinterPortDevice::plugHelper(

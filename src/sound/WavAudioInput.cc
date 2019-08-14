@@ -25,7 +25,7 @@ WavAudioInput::~WavAudioInput()
 
 void WavAudioInput::loadWave()
 {
-	wav = WavData(audioInputFilenameSetting.getString().str(), 16, 0);
+	wav = WavData(audioInputFilenameSetting.getString().str());
 }
 
 const string& WavAudioInput::getName() const
@@ -34,7 +34,7 @@ const string& WavAudioInput::getName() const
 	return name;
 }
 
-string_ref WavAudioInput::getDescription() const
+string_view WavAudioInput::getDescription() const
 {
 	return "Read .wav files. Can for example be used as input for "
 		"samplers.";
@@ -47,8 +47,7 @@ void WavAudioInput::plugHelper(Connector& /*connector*/, EmuTime::param time)
 			loadWave();
 		}
 	} catch (MSXException& e) {
-		throw PlugException("Load of wave file failed: " +
-		                    e.getMessage());
+		throw PlugException("Load of wave file failed: ", e.getMessage());
 	}
 	reference = time;
 }
@@ -68,18 +67,15 @@ void WavAudioInput::update(const Setting& setting)
 	} catch (MSXException& e) {
 		// TODO proper error handling, message should go to console
 		setting.getCommandController().getCliComm().printWarning(
-			"Load of wave file failed: " + e.getMessage());
+			"Load of wave file failed: ", e.getMessage());
 	}
 }
 
-short WavAudioInput::readSample(EmuTime::param time)
+int16_t WavAudioInput::readSample(EmuTime::param time)
 {
 	if (wav.getSize()) {
 		unsigned pos = (time - reference).getTicksAt(wav.getFreq());
-		if (pos < wav.getSize()) {
-			auto buf = static_cast<const short*>(wav.getData());
-			return buf[pos];
-		}
+		return wav.getSample(pos);
 	}
 	return 0;
 }

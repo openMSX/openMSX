@@ -6,10 +6,9 @@
 #include "Timer.hh"
 #include "MSXException.hh"
 #include "checked_cast.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include <cassert>
-
-using std::make_shared;
 
 namespace openmsx {
 
@@ -124,8 +123,8 @@ void EventDelay::sync(EmuTime::param curEmu)
 		    e->getType() == OPENMSX_KEY_UP_EVENT) {
 			auto keyEvent = checked_cast<const KeyEvent*>(e.get());
 			int maskedKeyCode = int(keyEvent->getKeyCode()) & int(Keys::K_MASK);
-			auto it = find_if(begin(nonMatchedKeyPresses), end(nonMatchedKeyPresses),
-				          EqualTupleValue<0>(maskedKeyCode));
+			auto it = ranges::find_if(nonMatchedKeyPresses,
+				                  EqualTupleValue<0>(maskedKeyCode));
 			if (e->getType() == OPENMSX_KEY_DOWN_EVENT) {
 				if (it == end(nonMatchedKeyPresses)) {
 					nonMatchedKeyPresses.emplace_back(maskedKeyCode, e);
@@ -144,7 +143,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 						// Reschedule it for the next sync, with the realTime updated to now, so that it seems like the
 						// key was released now and not when android released it.
 						// Otherwise, the offset calculation for the emutime further down below will go wrong on the next sync
-						EventPtr newKeyupEvent = make_shared<KeyUpEvent>(keyEvent->getKeyCode(), keyEvent->getUnicode());
+						EventPtr newKeyupEvent = std::make_shared<KeyUpEvent>(keyEvent->getKeyCode());
 						toBeRescheduledEvents.push_back(newKeyupEvent);
 						continue; // continue with next to be scheduled event
 					}
@@ -168,9 +167,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 	toBeScheduledEvents.clear();
 
 #if PLATFORM_ANDROID
-	toBeScheduledEvents.insert(end(toBeScheduledEvents),
-		make_move_iterator(begin(toBeRescheduledEvents)),
-		make_move_iterator(end  (toBeRescheduledEvents)));
+	append(toBeScheduledEvents, std::move(toBeRescheduledEvents));
 #endif
 }
 

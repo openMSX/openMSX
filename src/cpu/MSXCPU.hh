@@ -9,7 +9,7 @@
 #include "TclCallback.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "array_ref.hh"
+#include "span.hh"
 #include <memory>
 
 namespace openmsx {
@@ -100,7 +100,7 @@ public:
 	void setInterface(MSXCPUInterface* interf);
 
 	void disasmCommand(Interpreter& interp,
-	                   array_ref<TclObject> tokens,
+	                   span<const TclObject> tokens,
                            TclObject& result) const;
 
 	/** (un)pause CPU. During pause the CPU executes NOP instructions
@@ -110,8 +110,8 @@ public:
 	void setNextSyncPoint(EmuTime::param time);
 
 	void wait(EmuTime::param time);
-	void waitCycles(unsigned cycles);
-	void waitCyclesR800(unsigned cycles);
+	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
+	EmuTime waitCyclesR800(EmuTime::param time, unsigned cycles);
 
 	CPURegs& getRegisters();
 
@@ -140,8 +140,8 @@ private:
 	const std::unique_ptr<CPUCore<R800TYPE>> r800; // can be nullptr
 
 	struct TimeInfoTopic final : InfoTopic {
-		TimeInfoTopic(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		explicit TimeInfoTopic(InfoCommand& machineInfoCommand);
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help (const std::vector<std::string>& tokens) const override;
 	} timeInfo;
@@ -150,7 +150,7 @@ private:
 	public:
 		CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
 				 const std::string& name, CPUClock& clock);
-		void execute(array_ref<TclObject> tokens,
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help (const std::vector<std::string>& tokens) const override;
 	private:
@@ -160,7 +160,7 @@ private:
 	const std::unique_ptr<CPUFreqInfoTopic> r800FreqInfo; // can be nullptr
 
 	struct Debuggable final : SimpleDebuggable {
-		Debuggable(MSXMotherBoard& motherboard);
+		explicit Debuggable(MSXMotherBoard& motherboard);
 		byte read(unsigned address) override;
 		void write(unsigned address, byte value) override;
 	} debuggable;

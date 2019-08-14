@@ -1,10 +1,11 @@
 #ifndef FILE_HH
 #define FILE_HH
 
-#include "openmsx.hh"
-#include "string_ref.hh"
-#include <memory>
+#include "span.hh"
+#include "string_view.hh"
+#include <cstdint>
 #include <ctime>
+#include <memory>
 
 namespace openmsx {
 
@@ -35,8 +36,8 @@ public:
 	 * @throws FileNotFoundException if file not found
 	 * @throws FileException for other errors
 	 */
-	explicit File(string_ref         filename, OpenMode mode = NORMAL);
-	explicit File(const Filename&    filename, OpenMode mode = NORMAL);
+	explicit File(string_view     filename, OpenMode mode = NORMAL);
+	explicit File(const Filename& filename, OpenMode mode = NORMAL);
 
 	/** This constructor maps very closely on the fopen() libc function.
 	  * Compared to constructor above, it does not transparantly
@@ -45,16 +46,19 @@ public:
 	  * @param mode Open mode, same meaning as in fopen(), but we assert
 	  *             that it contains a 'b' character.
 	  */
-	File(string_ref         filename, const char* mode);
-	File(const Filename&    filename, const char* mode);
+	File(string_view     filename, const char* mode);
+	File(const Filename& filename, const char* mode);
 	File(File&& other) noexcept;
+
+	/* Used by MemoryBufferFile. */
+	File(std::unique_ptr<FileBase> file_);
 
 	~File();
 
 	File& operator=(File&& other) noexcept;
 
 	/** Return true iff this file handle refers to an open file. */
-	bool is_open() const { return file.get() != nullptr; }
+	bool is_open() const { return file != nullptr; }
 
 	/** Close the current file.
 	 * Equivalent to assigning a default constructed value to this object.
@@ -76,11 +80,10 @@ public:
 	void write(const void* buffer, size_t num);
 
 	/** Map file in memory.
-	 * @param size Filled in with filesize.
-	 * @result Pointer to memory block.
+	 * @result Pointer/size to/of memory block.
 	 * @throws FileException
 	 */
-	const byte* mmap(size_t& size);
+	span<uint8_t> mmap();
 
 	/** Unmap file from memory.
 	 */
@@ -118,7 +121,7 @@ public:
 	/** Returns the URL of this file object.
 	 * @throws FileException
 	 */
-	const std::string getURL() const;
+	std::string getURL() const;
 
 	/** Get Original filename for this object. This will usually just
 	 *  return the filename portion of the URL. However for compressed
@@ -126,7 +129,7 @@ public:
 	 * @result Original file name
 	 * @throws FileException
 	 */
-	const std::string getOriginalName();
+	std::string getOriginalName();
 
 	/** Check if this file is readonly
 	 * @result true iff file is readonly
@@ -145,7 +148,7 @@ private:
 	 * Returns the path to the (uncompressed) file on the local,
 	 * filesystem. Or an empty string in case there is no such path.
 	 */
-	const std::string getLocalReference() const;
+	std::string getLocalReference() const;
 
 	std::unique_ptr<FileBase> file;
 };

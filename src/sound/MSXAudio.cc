@@ -3,7 +3,7 @@
 #include "DACSound8U.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 using std::string;
 
@@ -20,7 +20,7 @@ MSXAudio::MSXAudio(const DeviceConfig& config)
 {
 	string type(StringOp::toLower(config.getChildData("type", "philips")));
 	if (type == "philips") {
-		dac = make_unique<DACSound8U>(
+		dac = std::make_unique<DACSound8U>(
 			getName() + " 8-bit DAC", "MSX-AUDIO 8-bit DAC",
 			config);
 	}
@@ -57,9 +57,9 @@ void MSXAudio::reset(EmuTime::param time)
 byte MSXAudio::readIO(word port, EmuTime::param time)
 {
 	byte result;
-	if ((port & 0xFF) == 0x0A) {
+	if ((port & 0xE8) == 0x08) {
 		// read DAC
-		result = 255;
+		result = 0xFF;
 	} else {
 		result = (port & 1) ? y8950.readReg(registerLatch, time)
 		                    : y8950.readStatus(time);
@@ -69,9 +69,9 @@ byte MSXAudio::readIO(word port, EmuTime::param time)
 
 byte MSXAudio::peekIO(word port, EmuTime::param time) const
 {
-	if ((port & 0xFF) == 0x0A) {
+	if ((port & 0xE8) == 0x08) {
 		// read DAC
-		return 255; // read always returns 255
+		return 0xFF; // read always returns 0xFF
 	} else {
 		return (port & 1) ? y8950.peekReg(registerLatch, time)
 		                  : y8950.peekStatus(time);
@@ -80,7 +80,7 @@ byte MSXAudio::peekIO(word port, EmuTime::param time) const
 
 void MSXAudio::writeIO(word port, byte value, EmuTime::param time)
 {
-	if ((port & 0xFF) == 0x0A) {
+	if ((port & 0xE8) == 0x08) {
 		dacValue = value;
 		if (dacEnabled) {
 			assert(dac);
@@ -129,11 +129,10 @@ template<typename Archive>
 void MSXAudio::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serializePolymorphic("periphery", *periphery);
-	ar.serialize("Y8950", y8950);
-
-	ar.serialize("registerLatch", registerLatch);
-	ar.serialize("dacValue", dacValue);
-	ar.serialize("dacEnabled", dacEnabled);
+	ar.serialize("Y8950",         y8950,
+	             "registerLatch", registerLatch,
+	             "dacValue",      dacValue,
+	             "dacEnabled",    dacEnabled);
 
 	if (ar.isLoader()) {
 		// restore dac status

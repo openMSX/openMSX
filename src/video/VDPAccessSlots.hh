@@ -86,9 +86,6 @@ private:
 	const uint8_t* const tab;
 };
 
-/** This function should be called (once) before the next functions. */
-void initTables();
-
 /** Return the time of the next available access slot that is at least 'delta'
   * cycles later than 'time'. The start of the current 'frame' is needed for
   * reference. */

@@ -49,7 +49,7 @@ public:
 protected:
 	VideoLayer(MSXMotherBoard& motherBoard,
 	           const std::string& videoSource);
-	~VideoLayer();
+	~VideoLayer() override;
 
 	// Observer<Setting> interface:
 	void update(const Setting& setting) override;
@@ -61,8 +61,8 @@ private:
 	void calcCoverage();
 
 	// MSXEventListener
-	void signalEvent(const std::shared_ptr<const Event>& event,
-	                         EmuTime::param time) override;
+	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	                    EmuTime::param time) override;
 
 	/** This layer belongs to a specific machine. */
 	MSXMotherBoard& motherBoard;

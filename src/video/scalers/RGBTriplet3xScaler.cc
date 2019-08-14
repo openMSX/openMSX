@@ -324,7 +324,7 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 	                  ? dstEndY : dstEndY - 3;
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
-		Pixel color = src.getLineColor<Pixel>(srcY);
+		auto color = src.getLineColor<Pixel>(srcY);
 
 		Pixel inNormal [3];
 		Pixel outNormal[3 * 3];
@@ -368,8 +368,8 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
-		Pixel color0 = src.getLineColor<Pixel>(srcY + 0);
-		Pixel color1 = src.getLineColor<Pixel>(srcY + 1);
+		auto color0 = src.getLineColor<Pixel>(srcY + 0);
+		auto color1 = src.getLineColor<Pixel>(srcY + 1);
 
 		Pixel inNormal [3];
 		Pixel out0Normal[3 * 3];

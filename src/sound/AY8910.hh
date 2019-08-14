@@ -34,12 +34,7 @@ public:
 private:
 	class Generator {
 	public:
-		inline void reset(unsigned output);
 		inline void setPeriod(int value);
-		/** Gets the current output of this generator.
-		  */
-		inline unsigned getOutput() const;
-
 		inline unsigned getNextEventTime() const;
 		inline void advanceFast(unsigned duration);
 
@@ -47,7 +42,8 @@ private:
 		void serialize(Archive& ar, unsigned version);
 
 	protected:
-		Generator();
+		Generator() = default;
+		inline void reset();
 
 		/** Time between output steps.
 		  * For tones, this is half the period of the square wave.
@@ -60,21 +56,24 @@ private:
 		  * was recently changed this might not be the case.
 		  */
 		int count;
-		/** Current state of the wave.
-		  * For tones, this is 0 or 1.
-		  */
-		unsigned output;
 	};
 
 	class ToneGenerator : public Generator {
 	public:
 		ToneGenerator();
+
+		inline void reset();
+
 		/** Advance tone generator several steps in time.
 		  * @param duration Length of interval to simulate.
 		  */
 		inline void advance(int duration);
 
 		inline void doNextEvent(AY8910& ay8910);
+
+		/** Gets the current output of this generator.
+		  */
+		bool getOutput() const { return output; }
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
@@ -84,8 +83,12 @@ private:
 
 		/** Time passed since start of vibrato cycle.
 		  */
-		unsigned vibratoCount;
-		unsigned detuneCount;
+		unsigned vibratoCount = 0;
+		unsigned detuneCount = 0;
+
+		/** Current state of the wave.
+		  */
+		bool output;
 	};
 
 	class NoiseGenerator : public Generator {
@@ -100,6 +103,10 @@ private:
 
 		inline void doNextEvent();
 
+		/** Gets the current output of this generator.
+		  */
+		bool getOutput() const { return random & 1; }
+
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
@@ -110,29 +117,27 @@ private:
 	class Amplitude {
 	public:
 		explicit Amplitude(const DeviceConfig& config);
-		const unsigned* getEnvVolTable() const;
-		inline unsigned getVolume(unsigned chan) const;
+		const float* getEnvVolTable() const;
+		inline float getVolume(unsigned chan) const;
 		inline void setChannelVolume(unsigned chan, unsigned value);
-		inline void setMasterVolume(int volume);
 		inline bool followsEnvelope(unsigned chan) const;
 
 	private:
-		unsigned volTable[16];
-		unsigned envVolTable[32];
-		unsigned vol[3];
+		const float* envVolTable;
+		float vol[3];
 		bool envChan[3];
 		const bool isAY8910;
 	};
 
 	class Envelope {
 	public:
-		explicit inline Envelope(const unsigned* envVolTable);
+		explicit inline Envelope(const float* envVolTable);
 		inline void reset();
 		inline void setPeriod(int value);
 		inline void setShape(unsigned shape);
 		inline bool isChanging() const;
 		inline void advance(int duration);
-		inline unsigned getVolume() const;
+		inline float getVolume() const;
 
 		inline unsigned getNextEventTime() const;
 		inline void advanceFast(unsigned duration);
@@ -144,7 +149,7 @@ private:
 	private:
 		inline void doSteps(int steps);
 
-		const unsigned* envVolTable;
+		const float* envVolTable;
 		int period;
 		int count;
 		int step;
@@ -153,7 +158,8 @@ private:
 	};
 
 	// SoundDevice
-	void generateChannels(int** bufs, unsigned num) override;
+	void generateChannels(float** bufs, unsigned num) override;
+	float getAmplificationFactorImpl() const override;
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;
@@ -179,9 +185,14 @@ private:
 	Envelope envelope;
 	byte regs[16];
 	const bool isAY8910;
+	const bool ignorePortDirections;
 	bool doDetune;
 	bool detuneInitialized;
 };
+
+SERIALIZE_CLASS_VERSION(AY8910::Generator, 2);
+SERIALIZE_CLASS_VERSION(AY8910::ToneGenerator, 2);
+SERIALIZE_CLASS_VERSION(AY8910::NoiseGenerator, 2);
 
 } // namespace openmsx
 

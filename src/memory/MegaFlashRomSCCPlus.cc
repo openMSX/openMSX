@@ -53,6 +53,7 @@ Main features:
  Port #A1 -> #11
  Port #A2 -> #12
 
+ The PSG is read only.
 
 --------------------------------------------------------------------------------
 [REGISTERS]
@@ -187,14 +188,12 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 
 	getCPUInterface().register_IO_Out(0x10, this);
 	getCPUInterface().register_IO_Out(0x11, this);
-	getCPUInterface().register_IO_In (0x12, this);
 }
 
 MegaFlashRomSCCPlus::~MegaFlashRomSCCPlus()
 {
 	getCPUInterface().unregister_IO_Out(0x10, this);
 	getCPUInterface().unregister_IO_Out(0x11, this);
-	getCPUInterface().unregister_IO_In (0x12, this);
 }
 
 void MegaFlashRomSCCPlus::powerUp(EmuTime::param time)
@@ -450,7 +449,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 			if ((0x6000 <= addr) && (addr < 0x8000)) {
 				byte bank = (addr >> 11) & 0x03;
 				bankRegs[subslot][bank] = value;
-				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+				invalidateMemCache(0x4000 + 0x2000 * bank, 0x2000);
 			}
 			break;
 		case 0xC0:
@@ -490,18 +489,6 @@ byte* MegaFlashRomSCCPlus::getWriteCacheLine(word /*addr*/) const
 }
 
 
-byte MegaFlashRomSCCPlus::readIO(word port, EmuTime::param time)
-{
-	assert((port & 0xFF) == 0x12); (void)port;
-	return psg.readRegister(psgLatch, time);
-}
-
-byte MegaFlashRomSCCPlus::peekIO(word port, EmuTime::param time) const
-{
-	assert((port & 0xFF) == 0x12); (void)port;
-	return psg.peekRegister(psgLatch, time);
-}
-
 void MegaFlashRomSCCPlus::writeIO(word port, byte value, EmuTime::param time)
 {
 	if ((port & 0xFF) == 0x10) {
@@ -519,17 +506,17 @@ void MegaFlashRomSCCPlus::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("scc", scc);
-	ar.serialize("psg", psg);
-	ar.serialize("flash", flash);
+	ar.serialize("scc",        scc,
+	             "psg",        psg,
+	             "flash",      flash,
 
-	ar.serialize("configReg", configReg);
-	ar.serialize("offsetReg", offsetReg);
-	ar.serialize("subslotReg", subslotReg);
-	ar.serialize("bankRegs", bankRegs);
-	ar.serialize("psgLatch", psgLatch);
-	ar.serialize("sccMode", sccMode);
-	ar.serialize("sccBanks", sccBanks);
+	             "configReg",  configReg,
+	             "offsetReg",  offsetReg,
+	             "subslotReg", subslotReg,
+	             "bankRegs",   bankRegs,
+	             "psgLatch",   psgLatch,
+	             "sccMode",    sccMode,
+	             "sccBanks",   sccBanks);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaFlashRomSCCPlus);
 REGISTER_MSXDEVICE(MegaFlashRomSCCPlus, "MegaFlashRomSCCPlus");

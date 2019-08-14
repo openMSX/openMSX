@@ -32,6 +32,7 @@
     <VDP id="VDP">
       <version>TMS9929A</version>
       <io base="0x98" num="2"/>
+      <saturation>100</saturation> <!-- TMS9x2x and RGB output -->
     </VDP>
 
     <PSG id="PSG">
@@ -41,6 +42,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 
     <PrinterPort id="Printer Port">

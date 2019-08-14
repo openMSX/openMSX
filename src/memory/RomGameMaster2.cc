@@ -39,14 +39,14 @@
 #include "RomGameMaster2.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
 RomGameMaster2::RomGameMaster2(const DeviceConfig& config, Rom&& rom_)
 	: Rom4kBBlocks(config, std::move(rom_), 1)
 {
-	sram = make_unique<SRAM>(getName() + " SRAM", 0x2000, config);
+	sram = std::make_unique<SRAM>(getName() + " SRAM", 0x2000, config);
 	reset(EmuTime::dummy());
 }
 
@@ -112,8 +112,8 @@ template<typename Archive>
 void RomGameMaster2::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom4kBBlocks>(*this);
-	ar.serialize("sramOffset", sramOffset);
-	ar.serialize("sramEnabled", sramEnabled);
+	ar.serialize("sramOffset",  sramOffset,
+	             "sramEnabled", sramEnabled);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomGameMaster2);
 REGISTER_MSXDEVICE(RomGameMaster2, "RomGameMaster2");

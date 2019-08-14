@@ -23,8 +23,8 @@ public:
 	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
 protected:
-	SimpleDebuggable(MSXMotherBoard& motherBoard, const std::string& name,
-	                 const std::string& description, unsigned size);
+	SimpleDebuggable(MSXMotherBoard& motherBoard, std::string name,
+	                 std::string description, unsigned size);
 	~SimpleDebuggable();
 
 private:

@@ -1,5 +1,6 @@
 # Generates configuration headers for VC++ builds
 
+from __future__ import print_function
 import sys
 import os.path
 import outpututils
@@ -19,7 +20,7 @@ def genConfig(platform, configuration, outputPath):
 	buildPath = 'build'
 	msvcPath = os.path.join(buildPath, 'msvc')
 	probeMakePath = os.path.join(msvcPath, 'probed_defs.mk')
-	
+
 	#
 	# build-info.hh
 	#
@@ -35,7 +36,7 @@ def genConfig(platform, configuration, outputPath):
 	installShareDir = '/opt/openMSX/share' #not used on Windows, so whatever
 	generator = buildinfo2code.iterBuildInfoHeader(targetPlatform, targetCPU, flavour, installShareDir)
 	outpututils.rewriteIfChanged(buildInfoHeader, generator)
-	
+
 	#
 	# components.hh
 	#
@@ -46,7 +47,7 @@ def genConfig(platform, configuration, outputPath):
 	#
 	# systemfuncs.hh
 	#
-	
+
 	systemFuncsHeader = os.path.join(outputPath, 'systemfuncs.hh')
 	generator = systemfuncs2code.iterSystemFuncsHeader(systemfuncs2code.getSystemFuncsInfo())
 	outpututils.rewriteIfChanged(systemFuncsHeader, generator)
@@ -68,5 +69,5 @@ def genConfig(platform, configuration, outputPath):
 if len(sys.argv) == 4:
 	genConfig(sys.argv[1], sys.argv[2], sys.argv[3])
 else:
-	print >> sys.stderr, 'Usage: python genconfig.py platform configuration outputPath'
+	print('Usage: python genconfig.py platform configuration outputPath', file=sys.stderr)
 	sys.exit(2)

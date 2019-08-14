@@ -21,17 +21,17 @@ public:
 	  * allowed to generate up to 3 extra sample.
 	  * @see SoundDevice::updateBuffer()
 	  */
-	bool generateInput(int* buffer, unsigned num);
+	bool generateInput(float* buffer, unsigned num);
 
 protected:
-	ResampledSoundDevice(MSXMotherBoard& motherBoard, string_ref name,
-	                     string_ref description, unsigned channels,
-	                     bool stereo = false);
+	ResampledSoundDevice(MSXMotherBoard& motherBoard, string_view name,
+	                     string_view description, unsigned channels,
+	                     unsigned inputSampleRate, bool stereo);
 	~ResampledSoundDevice();
 
 	// SoundDevice
 	void setOutputRate(unsigned sampleRate) override;
-	bool updateBuffer(unsigned length, int* buffer,
+	bool updateBuffer(unsigned length, float* buffer,
 	                  EmuTime::param time) override;
 
 	// Observer<Setting>

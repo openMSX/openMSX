@@ -8,19 +8,24 @@
 #include "MSXMixer.hh"
 #include "MSXCommandController.hh"
 #include "XMLException.hh"
+#include "TclArgParser.hh"
 #include "TclObject.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "StateChange.hh"
+#include "Timer.hh"
+#include "CliComm.hh"
+#include "Display.hh"
 #include "Reactor.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
-#include "StringOp.hh"
+#include "ranges.hh"
 #include "serialize.hh"
-#include "serialize_stl.hh"
-#include "xrange.hh"
-#include <functional>
+#include "serialize_meta.hh"
+#include "view.hh"
 #include <cassert>
+#include <cmath>
+#include <iomanip>
 
 using std::string;
 using std::vector;
@@ -52,7 +57,7 @@ static const char* const REPLAY_DIR = "replays";
 
 struct Replay
 {
-	Replay(Reactor& reactor_)
+	explicit Replay(Reactor& reactor_)
 		: reactor(reactor_), currentTime(EmuTime::dummy()) {}
 
 	Reactor& reactor;
@@ -114,8 +119,8 @@ void ReverseManager::ReverseHistory::clear()
 class EndLogEvent final : public StateChange
 {
 public:
-	EndLogEvent() {} // for serialize
-	EndLogEvent(EmuTime::param time_)
+	EndLogEvent() = default; // for serialize
+	explicit EndLogEvent(EmuTime::param time_)
 		: StateChange(time_)
 	{
 	}
@@ -205,83 +210,64 @@ EmuTime::param ReverseManager::getEndTime(const ReverseHistory& hist) const
 
 void ReverseManager::status(TclObject& result) const
 {
-	result.addListElement("status");
-	if (!isCollecting()) {
-		result.addListElement("disabled");
-	} else if (isReplaying()) {
-		result.addListElement("replaying");
-	} else {
-		result.addListElement("enabled");
-	}
+	result.addDictKeyValue("status", !isCollecting() ? "disabled"
+	                               : isReplaying()   ? "replaying"
+	                                                 : "enabled");
 
-	result.addListElement("begin");
 	EmuTime b(isCollecting() ? begin(history.chunks)->second.time
 	                         : EmuTime::zero);
-	result.addListElement((b - EmuTime::zero).toDouble());
+	result.addDictKeyValue("begin", (b - EmuTime::zero).toDouble());
 
-	result.addListElement("end");
 	EmuTime end(isCollecting() ? getEndTime(history) : EmuTime::zero);
-	result.addListElement((end - EmuTime::zero).toDouble());
+	result.addDictKeyValue("end", (end - EmuTime::zero).toDouble());
 
-	result.addListElement("current");
 	EmuTime current(isCollecting() ? getCurrentTime() : EmuTime::zero);
-	result.addListElement((current - EmuTime::zero).toDouble());
+	result.addDictKeyValue("current", (current - EmuTime::zero).toDouble());
 
-	result.addListElement("snapshots");
 	TclObject snapshots;
-	for (auto& p : history.chunks) {
-		EmuTime time = p.second.time;
-		snapshots.addListElement((time - EmuTime::zero).toDouble());
-	}
-	result.addListElement(snapshots);
+	snapshots.addListElements(view::transform(history.chunks, [](auto& p) {
+		return (p.second.time - EmuTime::zero).toDouble();
+	}));
+	result.addDictKeyValue("snapshots", snapshots);
 
-	result.addListElement("last_event");
-	auto lastEvent = history.events.rbegin();
-	if (lastEvent != history.events.rend() && dynamic_cast<const EndLogEvent*>(lastEvent->get())) {
+	auto lastEvent = rbegin(history.events);
+	if (lastEvent != rend(history.events) && dynamic_cast<const EndLogEvent*>(lastEvent->get())) {
 		++lastEvent;
 	}
-	EmuTime le(isCollecting() && (lastEvent != history.events.rend()) ? (*lastEvent)->getTime() : EmuTime::zero);
-	result.addListElement((le - EmuTime::zero).toDouble());
+	EmuTime le(isCollecting() && (lastEvent != rend(history.events)) ? (*lastEvent)->getTime() : EmuTime::zero);
+	result.addDictKeyValue("last_event", (le - EmuTime::zero).toDouble());
 }
 
 void ReverseManager::debugInfo(TclObject& result) const
 {
 	// TODO this is useful during development, but for the end user this
 	// information means nothing. We should remove this later.
-	StringOp::Builder res;
+	string res;
 	size_t totalSize = 0;
 	for (auto& p : history.chunks) {
 		auto& chunk = p.second;
-		res << p.first << ' '
-		    << (chunk.time - EmuTime::zero).toDouble() << ' '
-		    << ((chunk.time - EmuTime::zero).toDouble() / (getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
-		    << " (" << chunk.size << ')'
-		    << " (next event index: " << chunk.eventCount << ")\n";
+		strAppend(res, p.first, ' ',
+		          (chunk.time - EmuTime::zero).toDouble(), ' ',
+		          ((chunk.time - EmuTime::zero).toDouble() / (getCurrentTime() - EmuTime::zero).toDouble()) * 100, "%"
+		          " (", chunk.size, ")"
+		          " (next event index: ", chunk.eventCount, ")\n");
 		totalSize += chunk.size;
 	}
-	res << "total size: " << totalSize << '\n';
-	result.setString(string(res));
+	strAppend(res, "total size: ", totalSize, '\n');
+	result = res;
 }
 
-static void parseGoTo(Interpreter& interp, array_ref<TclObject> tokens,
+static void parseGoTo(Interpreter& interp, span<const TclObject> tokens,
                       bool& novideo, double& time)
 {
 	novideo = false;
-	bool hasTime = false;
-	for (auto i : xrange(size_t(2), tokens.size())) {
-		if (tokens[i] == "-novideo") {
-			novideo = true;
-		} else {
-			time = tokens[i].getDouble(interp);
-			hasTime = true;
-		}
-	}
-	if (!hasTime) {
-		throw SyntaxError();
-	}
+	ArgsInfo info[] = { flagArg("-novideo", novideo) };
+	auto args = parseTclArgs(interp, tokens.subspan(2), info);
+	if (args.size() != 1) throw SyntaxError();
+	time = args[0].getDouble(interp);
 }
 
-void ReverseManager::goBack(array_ref<TclObject> tokens)
+void ReverseManager::goBack(span<const TclObject> tokens)
 {
 	bool novideo;
 	double t;
@@ -303,7 +289,7 @@ void ReverseManager::goBack(array_ref<TclObject> tokens)
 	goTo(target, novideo);
 }
 
-void ReverseManager::goTo(array_ref<TclObject> tokens)
+void ReverseManager::goTo(span<const TclObject> tokens)
 {
 	bool novideo;
 	double t;
@@ -322,6 +308,20 @@ void ReverseManager::goTo(EmuTime::param target, bool novideo)
 			"start' command to start collecting data.");
 	}
 	goTo(target, novideo, history, true); // move in current time-line
+}
+
+// this function is used below, but factored out, because it's already way too long
+static void reportProgress(Reactor& reactor, const EmuTime& targetTime, int percentage)
+{
+	double targetTimeDisp = (targetTime - EmuTime::zero).toDouble();
+	std::ostringstream sstr;
+	sstr << "Time warping to " <<
+		int(targetTimeDisp / 60) << ':' << std::setfill('0') <<
+		std::setw(5) << std::setprecision(2) << std::fixed <<
+		std::fmod(targetTimeDisp, 60.0) <<
+		"... " << percentage << '%';
+	reactor.getCliComm().printProgress(sstr.str());
+	reactor.getDisplay().repaint();
 }
 
 void ReverseManager::goTo(
@@ -371,7 +371,8 @@ void ReverseManager::goTo(
 		// one that's not newer (thus older or equal).
 		assert(it != begin(hist.chunks));
 		--it;
-		EmuTime snapshotTime = it->second.time;
+		ReverseChunk& chunk = it->second;
+		EmuTime snapshotTime = chunk.time;
 		assert(snapshotTime <= preTarget);
 
 		// IF current time is before the wanted time AND either
@@ -396,8 +397,9 @@ void ReverseManager::goTo(
 			// -- restore old snapshot --
 			newBoard_ = reactor.createEmptyMotherBoard();
 			newBoard = newBoard_.get();
-			MemInputArchive in(it->second.savestate.data(),
-					   it->second.size);
+			MemInputArchive in(chunk.savestate.data(),
+					   chunk.size,
+					   chunk.deltaBlocks);
 			in.serialize("machine", *newBoard);
 
 			if (eventDelay) {
@@ -418,7 +420,7 @@ void ReverseManager::goTo(
 			// Also we should stop collecting in this ReverseManager,
 			// and start collecting in the new one.
 			auto& newManager = newBoard->getReverseManager();
-			newManager.transferHistory(hist, it->second.eventCount);
+			newManager.transferHistory(hist, chunk.eventCount);
 
 			// transfer (or copy) state from old to new machine
 			transferState(*newBoard);
@@ -434,18 +436,44 @@ void ReverseManager::goTo(
 		// at least the usual interval, but the later, the more: each
 		// time divide the remaining time in half and make a snapshot
 		// there.
+		auto lastProgress = Timer::getTime();
+		auto startMSXTime = newBoard->getCurrentTime();
+		auto lastSnapshotTarget = startMSXTime;
+		bool everShowedProgress = false;
+		syncNewSnapshot.removeSyncPoint(); // don't schedule new snapshot takings during fast forward
 		while (true) {
-			EmuTime nextTarget = std::min(
+			auto currentTimeNewBoard = newBoard->getCurrentTime();
+			auto nextSnapshotTarget = std::min(
 				preTarget,
-				newBoard->getCurrentTime() + std::max(
+				lastSnapshotTarget + std::max(
 					EmuDuration(SNAPSHOT_PERIOD),
-					(preTarget - newBoard->getCurrentTime()) / 2
+					(preTarget - lastSnapshotTarget) / 2
 					));
+			auto nextTarget = std::min(nextSnapshotTarget, currentTimeNewBoard + EmuDuration::sec(1));
 			newBoard->fastForward(nextTarget, true);
-			if (nextTarget >= preTarget) break;
-			newBoard->getReverseManager().takeSnapshot(
-				newBoard->getCurrentTime());
+			auto now = Timer::getTime();
+			if (((now - lastProgress) > 1000000) || ((currentTimeNewBoard >= preTarget) && everShowedProgress)) {
+				everShowedProgress = true;
+				lastProgress = now;
+				int percentage = ((currentTimeNewBoard - startMSXTime) * 100u) / (preTarget - startMSXTime);
+				reportProgress(newBoard->getReactor(), targetTime, percentage);
+			}
+			// note: fastForward does not always stop at
+			//       _exactly_ the requested time
+			if (currentTimeNewBoard >= preTarget) break;
+			if (currentTimeNewBoard >= nextSnapshotTarget) {
+				// NOTE: there used to be
+				//newBoard->getReactor().getEventDistributor().deliverEvents();
+				// here, but that has all kinds of nasty side effects: it enables
+				// processing of hotkeys, which can cause things like the machine
+				// being deleted, causing a crash. TODO: find a better way to support
+				// live updates of the UI whilst being in a reverse action...
+				newBoard->getReverseManager().takeSnapshot(currentTimeNewBoard);
+				lastSnapshotTarget = nextSnapshotTarget;
+			}
 		}
+		// re-enable automatic snapshots
+		schedule(getCurrentTime());
 
 		// switch to the new MSXMotherBoard
 		//  Note: this deletes the current MSXMotherBoard and
@@ -500,45 +528,28 @@ void ReverseManager::transferState(MSXMotherBoard& newBoard)
 }
 
 void ReverseManager::saveReplay(
-	Interpreter& interp, array_ref<TclObject> tokens, TclObject& result)
+	Interpreter& interp, span<const TclObject> tokens, TclObject& result)
 {
 	const auto& chunks = history.chunks;
 	if (chunks.empty()) {
 		throw CommandException("No recording...");
 	}
 
-	string filename;
+	string_view filenameArg;
 	int maxNofExtraSnapshots = MAX_NOF_SNAPSHOTS;
-	switch (tokens.size()) {
-	case 2:
-		// nothing
-		break;
-	case 3:
-		filename = tokens[2].getString().str();
-		break;
-	case 4:
-	case 5:
-		size_t tn;
-		for (tn = 2; tn < (tokens.size() - 1); ++tn) {
-			if (tokens[tn] == "-maxnofextrasnapshots") {
-				maxNofExtraSnapshots = tokens[tn + 1].getInt(interp);
-				break;
-			}
-		}
-		if (tn == (tokens.size() - 1)) throw SyntaxError();
-		if (tokens.size() == 5) {
-			filename = tokens[tn == 2 ? 4 : 2].getString().str();
-		}
-		if (maxNofExtraSnapshots < 0) {
-			throw CommandException("Maximum number of snapshots should be at least 0");
-		}
-
-		break;
-	default:
-		throw SyntaxError();
+	ArgsInfo info[] = { valueArg("-maxnofextrasnapshots", maxNofExtraSnapshots) };
+	auto args = parseTclArgs(interp, tokens.subspan(2), info);
+	switch (args.size()) {
+		case 0: break; // nothing
+		case 1: filenameArg = args[0].getString(); break;
+		default: throw SyntaxError();
 	}
-	filename = FileOperations::parseCommandFileArgument(
-		filename, REPLAY_DIR, "openmsx", ".omr");
+	if (maxNofExtraSnapshots < 0) {
+		throw CommandException("Maximum number of snapshots should be at least 0");
+	}
+
+	string filename = FileOperations::parseCommandFileArgument(
+		filenameArg, REPLAY_DIR, "openmsx", ".omr");
 
 	auto& reactor = motherBoard.getReactor();
 	Replay replay(reactor);
@@ -551,7 +562,8 @@ void ReverseManager::saveReplay(
 	// restore first snapshot to be able to serialize it to a file
 	auto initialBoard = reactor.createEmptyMotherBoard();
 	MemInputArchive in(begin(chunks)->second.savestate.data(),
-	                   begin(chunks)->second.size);
+	                   begin(chunks)->second.size,
+			   begin(chunks)->second.deltaBlocks);
 	in.serialize("machine", *initialBoard);
 	replay.motherBoards.push_back(move(initialBoard));
 
@@ -562,7 +574,7 @@ void ReverseManager::saveReplay(
 		// seconds before the normal end time so that we get an extra snapshot
 		// at that point, which is comfortable if you want to reverse from the
 		// last snapshot after loading the replay.
-		const auto& lastChunkTime = chunks.rbegin()->second.time;
+		const auto& lastChunkTime = rbegin(chunks)->second.time;
 		const auto& endTime   = ((startTime + MAX_DIST_1_BEFORE_LAST_SNAPSHOT) < lastChunkTime) ? lastChunkTime - MAX_DIST_1_BEFORE_LAST_SNAPSHOT : lastChunkTime;
 		EmuDuration totalLength = endTime - startTime;
 		EmuDuration partitionLength = totalLength.divRoundUp(maxNofExtraSnapshots);
@@ -579,7 +591,8 @@ void ReverseManager::saveReplay(
 					// this is a new one, add it to the list of snapshots
 					Reactor::Board board = reactor.createEmptyMotherBoard();
 					MemInputArchive in2(it->second.savestate.data(),
-							    it->second.size);
+							    it->second.size,
+							    it->second.deltaBlocks);
 					in2.serialize("machine", *board);
 					replay.motherBoards.push_back(move(board));
 					lastAddedIt = it;
@@ -590,7 +603,7 @@ void ReverseManager::saveReplay(
 				}
 			}
 		}
-		assert(lastAddedIt == --end(chunks)); // last snapshot must be included
+		assert(lastAddedIt == std::prev(end(chunks))); // last snapshot must be included
 	}
 
 	// add sentinel when there isn't one yet
@@ -605,6 +618,7 @@ void ReverseManager::saveReplay(
 		XmlOutputArchive out(filename);
 		replay.events = &history.events;
 		out.serialize("replay", replay);
+		out.close();
 	} catch (MSXException&) {
 		if (addSentinel) {
 			history.events.pop_back();
@@ -620,37 +634,24 @@ void ReverseManager::saveReplay(
 		history.events.pop_back();
 	}
 
-	result.setString("Saved replay to " + filename);
+	result = "Saved replay to " + filename;
 }
 
 void ReverseManager::loadReplay(
-	Interpreter& interp, array_ref<TclObject> tokens, TclObject& result)
+	Interpreter& interp, span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 3) throw SyntaxError();
-
-	vector<string> arguments;
-	const TclObject* whereArg = nullptr;
 	bool enableViewOnly = false;
-
-	for (size_t i = 2; i < tokens.size(); ++i) {
-		string_ref token = tokens[i].getString();
-		if (token == "-viewonly") {
-			enableViewOnly = true;
-		} else if (token == "-goto") {
-			if (++i == tokens.size()) {
-				throw CommandException("Missing argument");
-			}
-			whereArg = &tokens[i];
-		} else {
-			arguments.push_back(token.str());
-		}
-	}
-
+	optional<TclObject> where;
+	ArgsInfo info[] = {
+		flagArg("-viewonly", enableViewOnly),
+		valueArg("-goto", where),
+	};
+	auto arguments = parseTclArgs(interp, tokens.subspan(2), info);
 	if (arguments.size() != 1) throw SyntaxError();
 
 	// resolve the filename
 	auto context = userDataFileContext(REPLAY_DIR);
-	string fileNameArg = arguments[0];
+	string fileNameArg = arguments[0].getString().str();
 	string filename;
 	try {
 		// Try filename as typed by user.
@@ -676,22 +677,22 @@ void ReverseManager::loadReplay(
 		XmlInputArchive in(filename);
 		in.serialize("replay", replay);
 	} catch (XMLException& e) {
-		throw CommandException("Cannot load replay, bad file format: " + e.getMessage());
+		throw CommandException("Cannot load replay, bad file format: ",
+		                       e.getMessage());
 	} catch (MSXException& e) {
-		throw CommandException("Cannot load replay: " + e.getMessage());
+		throw CommandException("Cannot load replay: ", e.getMessage());
 	}
 
 	// get destination time index
 	auto destination = EmuTime::zero;
-	string_ref where = whereArg ? whereArg->getString() : "begin";
-	if (where == "begin") {
+	if (!where || (*where == "begin")) {
 		destination = EmuTime::zero;
-	} else if (where == "end") {
+	} else if (*where == "end") {
 		destination = EmuTime::infinity;
-	} else if (where == "savetime") {
+	} else if (*where == "savetime") {
 		destination = replay.currentTime;
 	} else {
-		destination += EmuDuration(whereArg->getDouble(interp));
+		destination += EmuDuration(where->getDouble(interp));
 	}
 
 	// OK, we are going to be actually changing states now
@@ -721,7 +722,8 @@ void ReverseManager::loadReplay(
 		ReverseChunk newChunk;
 		newChunk.time = m->getCurrentTime();
 
-		MemOutputArchive out;
+		MemOutputArchive out(newHistory.lastDeltaBlocks,
+		                     newChunk.deltaBlocks, false);
 		out.serialize("machine", *m);
 		newChunk.savestate = out.releaseBuffer(newChunk.size);
 
@@ -743,7 +745,7 @@ void ReverseManager::loadReplay(
 	bool novideo = false;
 	goTo(destination, novideo, newHistory, false); // move to different time-line
 
-	result.setString("Loaded replay from " + filename);
+	result = "Loaded replay from " + filename;
 }
 
 void ReverseManager::transferHistory(ReverseHistory& oldHistory,
@@ -751,6 +753,9 @@ void ReverseManager::transferHistory(ReverseHistory& oldHistory,
 {
 	assert(!isCollecting());
 	assert(history.chunks.empty());
+
+	// 'ids' for old and new serialize blobs don't match, so cleanup old cache
+	oldHistory.lastDeltaBlocks.clear();
 
 	// actual history transfer
 	history.swap(oldHistory);
@@ -841,7 +846,7 @@ unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime::param time) cons
 	}
 	const auto& startTime = begin(chunks)->second.time;
 	double duration = (time - startTime).toDouble();
-	return unsigned(duration / SNAPSHOT_PERIOD + 0.5);
+	return lrint(duration / SNAPSHOT_PERIOD);
 }
 
 void ReverseManager::takeSnapshot(EmuTime::param time)
@@ -858,9 +863,10 @@ void ReverseManager::takeSnapshot(EmuTime::param time)
 	// the same moment in time).
 
 	// actually create new snapshot
-	MemOutputArchive out;
-	out.serialize("machine", motherBoard);
 	ReverseChunk& newChunk = history.chunks[seqNum];
+	newChunk.deltaBlocks.clear();
+	MemOutputArchive out(history.lastDeltaBlocks, newChunk.deltaBlocks, true);
+	out.serialize("machine", motherBoard);
 	newChunk.time = time;
 	newChunk.savestate = out.releaseBuffer(newChunk.size);
 	newChunk.eventCount = replayIndex;
@@ -907,8 +913,9 @@ void ReverseManager::stopReplay(EmuTime::param time)
 		Events& events = history.events;
 		events.erase(begin(events) + replayIndex, end(events));
 		// search snapshots that are newer than 'time' and erase them
-		auto it = find_if(begin(history.chunks), end(history.chunks),
-			[&](Chunks::value_type& p) { return p.second.time > time; });
+		auto it = ranges::find_if(history.chunks, [&](auto& p) {
+			return p.second.time > time;
+		});
 		history.chunks.erase(it, end(history.chunks));
 		// this also means someone is changing history, record that
 		reRecordCount++;
@@ -956,49 +963,36 @@ ReverseManager::ReverseCmd::ReverseCmd(CommandController& controller)
 {
 }
 
-void ReverseManager::ReverseCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void ReverseManager::ReverseCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 2) {
-		throw CommandException("Missing subcommand");
-	}
+	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
 	auto& manager = OUTER(ReverseManager, reverseCmd);
 	auto& interp = getInterpreter();
-	string_ref subcommand = tokens[1].getString();
-	if        (subcommand == "start") {
-		manager.start();
-	} else if (subcommand == "stop") {
-		manager.stop();
-	} else if (subcommand == "status") {
-		manager.status(result);
-	} else if (subcommand == "debug") {
-		manager.debugInfo(result);
-	} else if (subcommand == "goback") {
-		manager.goBack(tokens);
-	} else if (subcommand == "goto") {
-		manager.goTo(tokens);
-	} else if (subcommand == "savereplay") {
-		return manager.saveReplay(interp, tokens, result);
-	} else if (subcommand == "loadreplay") {
-		return manager.loadReplay(interp, tokens, result);
-	} else if (subcommand == "viewonlymode") {
-		auto& distributor = manager.motherBoard.getStateChangeDistributor();
-		switch (tokens.size()) {
-		case 2:
-			result.setString(distributor.isViewOnlyMode() ? "true" : "false");
-			break;
-		case 3:
-			distributor.setViewOnlyMode(tokens[2].getBoolean(interp));
-			break;
-		default:
-			throw SyntaxError();
-		}
-	} else if (subcommand == "truncatereplay") {
-		if (manager.isReplaying()) {
-			manager.signalStopReplay(manager.getCurrentTime());
-		}
-	} else {
-		throw CommandException("Invalid subcommand: " + subcommand);
-	}
+	executeSubCommand(tokens[1].getString(),
+		"start",      [&]{ manager.start(); },
+		"stop",       [&]{ manager.stop(); },
+		"status",     [&]{ manager.status(result); },
+		"debug",      [&]{ manager.debugInfo(result); },
+		"goback",     [&]{ manager.goBack(tokens); },
+		"goto",       [&]{ manager.goTo(tokens); },
+		"savereplay", [&]{ manager.saveReplay(interp, tokens, result); },
+		"loadreplay", [&]{ manager.loadReplay(interp, tokens, result); },
+		"viewonlymode", [&]{
+			auto& distributor = manager.motherBoard.getStateChangeDistributor();
+			switch (tokens.size()) {
+			case 2:
+				result = distributor.isViewOnlyMode();
+				break;
+			case 3:
+				distributor.setViewOnlyMode(tokens[2].getBoolean(interp));
+				break;
+			default:
+				throw SyntaxError();
+			}},
+		"truncatereplay", [&] {
+			if (manager.isReplaying()) {
+				manager.signalStopReplay(manager.getCurrentTime());
+			}});
 }
 
 string ReverseManager::ReverseCmd::help(const vector<string>& /*tokens*/) const

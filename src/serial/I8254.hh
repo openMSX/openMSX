@@ -30,7 +30,7 @@ public:
 	byte peekIO(word port, EmuTime::param time) const;
 	void writeIO(word port, byte value, EmuTime::param time);
 
-	void setGate(unsigned counter, bool status, EmuTime::param time);
+	void setGate(unsigned cntr, bool status, EmuTime::param time);
 	ClockPin& getClockPin(unsigned cntr);
 	ClockPin& getOutputPin(unsigned cntr);
 

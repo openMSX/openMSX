@@ -13,7 +13,7 @@ MSXKanji12::MSXKanji12(const DeviceConfig& config)
 {
 	unsigned size = rom.getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
-		throw MSXException("MSXKanji12: wrong kanji rom");
+		throw MSXException("MSXKanji12: wrong kanji ROM, it should be either 128kB or 256kB.");
 	}
 
 	reset(EmuTime::dummy());

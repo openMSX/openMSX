@@ -9,13 +9,14 @@
 
 #include "openmsx.hh"
 #include "MidiInDevice.hh"
-#include "Thread.hh"
 #include "EventListener.hh"
 #include "serialize_meta.hh"
 #include "circular_buffer.hh"
 #include <windows.h>
 #include <mmsystem.h>
 #include <mutex>
+#include <condition_variable>
+#include <thread>
 
 namespace openmsx {
 
@@ -23,8 +24,7 @@ class EventDistributor;
 class Scheduler;
 class PluggingController;
 
-class MidiInWindows final : public MidiInDevice, private Runnable
-                          , private EventListener
+class MidiInWindows final : public MidiInDevice, private EventListener
 {
 public:
 	/** Register all available native Windows midi in devices
@@ -41,7 +41,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 
 	// MidiInDevice
 	void signal(EmuTime::param time) override;
@@ -50,8 +50,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	// Runnable
-	void run() override;
+	void run();
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
@@ -61,11 +60,15 @@ private:
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	Thread thread;
-	unsigned devidx;
-	DWORD thrdid;
+	std::thread thread;
+	std::mutex devIdxMutex;
+	std::condition_variable devIdxCond;
+	unsigned devIdx;
+	std::mutex threadIdMutex;
+	std::condition_variable threadIdCond;
+	DWORD threadId;
 	cb_queue<byte> queue;
-	std::mutex mutex; // to protect queue
+	std::mutex queueMutex;
 	std::string name;
 	std::string desc;
 };

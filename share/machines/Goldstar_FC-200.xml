@@ -37,6 +37,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 
     <PrinterPort id="Printer Port">
@@ -61,6 +62,7 @@
       </RAM>
     </primary>
 
+    <!-- Note: this connector is actually a non-standard expansion connector on the back -->
     <primary external="true" slot="3"/>
 
   </devices>

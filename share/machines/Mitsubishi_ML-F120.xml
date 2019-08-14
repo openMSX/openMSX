@@ -13,7 +13,7 @@
   <!-- Based on Werner Kai's machine with serial 1012478
 
        CPU: NEC D780C-1
-       VDP: TMS9918ANL
+       VDP: TMS9918ANL - Note: the ML-F120D with RGB out uses a TMS9928ANL, see https://goo.gl/bxH7nG
        PPI: Mitsubishi M5L8255AP-5
        PSG: GI AY-3-8910A
 
@@ -55,6 +55,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 
     <PrinterPort id="Printer Port">
@@ -79,7 +80,7 @@
     <primary external="true" slot="2"/> <!-- back slot -->
 
     <primary slot="3">
-      <ROM id="MSX BIOS with BASIC ROM">
+      <ROM id="ML-F120 firmware ROM">
         <rom>
           <filename>ml-f120_firmware.rom</filename>
           <sha1>21a9f60cb6370d0617ce54c42bb7d8e40a4ab560</sha1>

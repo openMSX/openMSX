@@ -3,20 +3,17 @@
 #include "Reactor.hh"
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
-#include "SettingsConfig.hh"
 #include "SettingsManager.hh"
 #include "InfoCommand.hh"
 #include "Interpreter.hh"
 #include "Setting.hh"
 #include "Event.hh"
 #include "MSXException.hh"
-#include "KeyRange.hh"
-#include "memory.hh"
 #include "stl.hh"
 #include <iostream>
+#include <memory>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -30,11 +27,11 @@ MSXCommandController::MSXCommandController(
 	, reactor(reactor_)
 	, motherboard(motherboard_)
 	, msxEventDistributor(msxEventDistributor_)
-	, machineID("::" + machineID_ + "::")
+	, machineID(strCat("::", machineID_, "::"))
 {
 	globalCommandController.getInterpreter().createNamespace(machineID);
 
-	machineInfoCommand = make_unique<InfoCommand>(*this, "machine_info");
+	machineInfoCommand = std::make_unique<InfoCommand>(*this, "machine_info");
 	machineInfoCommand->setAllowedInEmptyMachine(true);
 
 	msxEventDistributor.registerEventListener(*this);
@@ -48,10 +45,10 @@ MSXCommandController::~MSXCommandController()
 
 	#ifndef NDEBUG
 	for (auto* c : commandMap) {
-		std::cout << "Command not unregistered: " << c->getName() << std::endl;
+		std::cout << "Command not unregistered: " << c->getName() << '\n';
 	}
 	for (auto* s : settings) {
-		std::cout << "Setting not unregistered: " << s->getFullName() << std::endl;
+		std::cout << "Setting not unregistered: " << s->getFullName() << '\n';
 	}
 	assert(commandMap.empty());
 	assert(settings.empty());
@@ -60,9 +57,9 @@ MSXCommandController::~MSXCommandController()
 	globalCommandController.getInterpreter().deleteNamespace(machineID);
 }
 
-string MSXCommandController::getFullName(string_ref name)
+string MSXCommandController::getFullName(string_view name)
 {
-	return machineID + name;
+	return strCat(machineID, name);
 }
 
 void MSXCommandController::registerCommand(Command& command, const string& str)
@@ -78,7 +75,7 @@ void MSXCommandController::registerCommand(Command& command, const string& str)
 	command.setAllowedInEmptyMachine(false);
 }
 
-void MSXCommandController::unregisterCommand(Command& command, string_ref str)
+void MSXCommandController::unregisterCommand(Command& command, string_view str)
 {
 	assert(hasCommand(str));
 	assert(command.getName() == str);
@@ -90,14 +87,14 @@ void MSXCommandController::unregisterCommand(Command& command, string_ref str)
 }
 
 void MSXCommandController::registerCompleter(CommandCompleter& completer,
-                                             string_ref str)
+                                             string_view str)
 {
 	string fullname = getFullName(str);
 	globalCommandController.registerCompleter(completer, fullname);
 }
 
 void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
-                                               string_ref str)
+                                               string_view str)
 {
 	string fullname = getFullName(str);
 	globalCommandController.unregisterCompleter(completer, fullname);
@@ -123,13 +120,13 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	globalCommandController.getSettingsManager().unregisterSetting(setting);
 }
 
-Command* MSXCommandController::findCommand(string_ref name) const
+Command* MSXCommandController::findCommand(string_view name) const
 {
 	auto it = commandMap.find(name);
 	return (it != end(commandMap)) ? *it : nullptr;
 }
 
-bool MSXCommandController::hasCommand(string_ref command) const
+bool MSXCommandController::hasCommand(string_view command) const
 {
 	return findCommand(command) != nullptr;
 }
@@ -150,7 +147,7 @@ Interpreter& MSXCommandController::getInterpreter()
 	return globalCommandController.getInterpreter();
 }
 
-void MSXCommandController::signalEvent(
+void MSXCommandController::signalMSXEvent(
 	const std::shared_ptr<const Event>& event, EmuTime::param /*time*/)
 {
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;

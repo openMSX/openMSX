@@ -1,3 +1,4 @@
+from __future__ import print_function
 from os import remove, stat
 from os.path import basename, isdir, isfile, join as joinpath
 from urllib import FancyURLopener
@@ -72,7 +73,7 @@ def downloadURL(url, localDir):
 		else:
 			statusLine(prefix + 'done.')
 		finally:
-			print
+			print()
 	except:
 		if isfile(localPath):
 			statusLine(prefix + 'removing partial download.')
@@ -83,10 +84,9 @@ if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		try:
 			downloadURL(*sys.argv[1 : ])
-		except IOError, ex:
-			print >> sys.stderr, ex
+		except IOError as ex:
+			print(ex, file=sys.stderr)
 			sys.exit(1)
 	else:
-		print >> sys.stderr, \
-			'Usage: python download.py url localdir'
+		print('Usage: python download.py url localdir', file=sys.stderr)
 		sys.exit(2)

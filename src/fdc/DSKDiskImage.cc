@@ -12,15 +12,11 @@ DSKDiskImage::DSKDiskImage(const Filename& fileName)
 }
 
 DSKDiskImage::DSKDiskImage(const Filename& fileName,
-                           const std::shared_ptr<File>& file_)
+                           std::shared_ptr<File> file_)
 	: SectorBasedDisk(fileName)
-	, file(file_)
+	, file(std::move(file_))
 {
 	setNbSectors(file->getSize() / sizeof(SectorBuffer));
-}
-
-DSKDiskImage::~DSKDiskImage()
-{
 }
 
 void DSKDiskImage::readSectorImpl(size_t sector, SectorBuffer& buf)

@@ -38,6 +38,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip of CF-3000 -->
     </PSG>
 
     <PrinterPort id="Printer Port">
@@ -69,7 +70,6 @@
       <secondary slot="1">
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>National</connectionstyle>
-          <singlesided/>
           <drives>1</drives>
           <rom>
             <filename>cf-3300_disk.rom</filename>

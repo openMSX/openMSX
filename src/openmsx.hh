@@ -2,6 +2,7 @@
 #define OPENMSX_HH
 
 #include "build-info.hh"
+#include <cstdint>
 
 #if PLATFORM_ANDROID
 #include <android/log.h>
@@ -19,23 +20,13 @@
 namespace openmsx {
 
 /** 4 bit integer */
-using nibble = unsigned char;
+using nibble = uint8_t;
 
 /** 8 bit unsigned integer */
-using byte = unsigned char;
+using byte = uint8_t;
 
 /** 16 bit unsigned integer */
-using word = unsigned short;
-
-
-#if defined(__GNUC__) && \
-    ((__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__) < 472)
-	// gcc versions before 4.7.2 had a bug in ~unique_ptr(),
-	// see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=54351
-	#define UNIQUE_PTR_BUG 1
-#else
-	#define UNIQUE_PTR_BUG 0
-#endif
+using word = uint16_t;
 
 } // namespace openmsx
 

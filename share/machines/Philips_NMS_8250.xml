@@ -58,8 +58,9 @@
                in all 4 pages, rom only in page 1. This is handled internally
                in the WD2793 device -->
           <rom>
+            <sha1>dab3e6f36843392665b71b04178aadd8762c6589</sha1> <!-- marked as "NMS 8250" and "v 1.08" -->
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
-	    <sha1>8625c6b633d9cca2875e4dc33404fb98653379d7</sha1> <!-- verified by mth's 8250/00, same as previous with different FDC register values -->
+            <sha1>8625c6b633d9cca2875e4dc33404fb98653379d7</sha1> <!-- verified by mth's 8250/00, same as previous with different FDC register values -->
             <filename>nms8250_disk.rom</filename>
           </rom>
           <drives>1</drives>
@@ -94,6 +95,7 @@
       <sound>
         <volume>21000</volume>
       </sound>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <RTC id="Real time clock">

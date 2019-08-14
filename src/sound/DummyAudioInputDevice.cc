@@ -2,9 +2,9 @@
 
 namespace openmsx {
 
-string_ref DummyAudioInputDevice::getDescription() const
+string_view DummyAudioInputDevice::getDescription() const
 {
-	return "";
+	return {};
 }
 
 void DummyAudioInputDevice::plugHelper(Connector& /*connector*/,
@@ -16,7 +16,7 @@ void DummyAudioInputDevice::unplugHelper(EmuTime::param /*time*/)
 {
 }
 
-short DummyAudioInputDevice::readSample(EmuTime::param /*time*/)
+int16_t DummyAudioInputDevice::readSample(EmuTime::param /*time*/)
 {
 	return 0; // silence
 }

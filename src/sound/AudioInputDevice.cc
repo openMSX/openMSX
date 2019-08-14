@@ -4,7 +4,7 @@ using std::string;
 
 namespace openmsx {
 
-string_ref AudioInputDevice::getClass() const
+string_view AudioInputDevice::getClass() const
 {
 	return "Audio Input Port";
 }

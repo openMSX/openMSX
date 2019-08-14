@@ -14,9 +14,9 @@
 #include "XMLElement.hh"
 #include "checked_cast.hh"
 #include "cstdiop.hh"
-#include "unistdp.hh"
 #include "openmsx.hh"
-#include "StringOp.hh"
+#include "ranges.hh"
+#include "unistdp.hh"
 #include <cassert>
 #include <iostream>
 
@@ -31,7 +31,7 @@ namespace openmsx {
 
 // class CliCommandEvent
 
-class CliCommandEvent : public Event
+class CliCommandEvent final : public Event
 {
 public:
 	CliCommandEvent(string command_, const CliConnection* id_)
@@ -47,10 +47,9 @@ public:
 	{
 		return id;
 	}
-	void toStringImpl(TclObject& result) const override
+	TclObject toTclList() const override
 	{
-		result.addListElement("CliCmd");
-		result.addListElement(getCommand());
+		return makeTclList("CliCmd", getCommand());
 	}
 	bool lessImpl(const Event& other) const override
 	{
@@ -68,13 +67,10 @@ private:
 CliConnection::CliConnection(CommandController& commandController_,
                              EventDistributor& eventDistributor_)
 	: parser([this](const std::string& cmd) { execute(cmd); })
-	, thread(this)
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
-	for (auto& en : updateEnabled) {
-		en = false;
-	}
+	ranges::fill(updateEnabled, false);
 
 	eventDistributor.registerEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
 }
@@ -84,29 +80,27 @@ CliConnection::~CliConnection()
 	eventDistributor.unregisterEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
 }
 
-void CliConnection::log(CliComm::LogLevel level, string_ref message)
+void CliConnection::log(CliComm::LogLevel level, string_view message)
 {
 	auto levelStr = CliComm::getLevelStrings();
-	output(StringOp::Builder() <<
-		"<log level=\"" << levelStr[level] << "\">" <<
-		XMLElement::XMLEscape(message.str()) << "</log>\n");
+	output(strCat("<log level=\"", levelStr[level], "\">",
+	              XMLElement::XMLEscape(message.str()), "</log>\n"));
 }
 
-void CliConnection::update(CliComm::UpdateType type, string_ref machine,
-                              string_ref name, string_ref value)
+void CliConnection::update(CliComm::UpdateType type, string_view machine,
+                              string_view name, string_view value)
 {
 	if (!getUpdateEnable(type)) return;
 
 	auto updateStr = CliComm::getUpdateStrings();
-	StringOp::Builder tmp;
-	tmp << "<update type=\"" << updateStr[type] << '\"';
+	string tmp = strCat("<update type=\"", updateStr[type], '\"');
 	if (!machine.empty()) {
-		tmp << " machine=\"" << machine << '\"';
+		strAppend(tmp, " machine=\"", machine, '\"');
 	}
 	if (!name.empty()) {
-		tmp << " name=\"" << XMLElement::XMLEscape(name.str()) << '\"';
+		strAppend(tmp, " name=\"", XMLElement::XMLEscape(name.str()), '\"');
 	}
-	tmp << '>' << XMLElement::XMLEscape(value.str()) << "</update>\n";
+	strAppend(tmp, '>', XMLElement::XMLEscape(value.str()), "</update>\n");
 
 	output(tmp);
 }
@@ -118,13 +112,19 @@ void CliConnection::startOutput()
 
 void CliConnection::start()
 {
-	thread.start();
+	thread = std::thread([this]() { run(); });
 }
 
 void CliConnection::end()
 {
 	output("</openmsx-output>\n");
 	close();
+
+	poller.abort();
+	// Thread might not be running if start() was never called.
+	if (thread.joinable()) {
+		thread.join();
+	}
 }
 
 void CliConnection::execute(const string& command)
@@ -135,9 +135,8 @@ void CliConnection::execute(const string& command)
 
 static string reply(const string& message, bool status)
 {
-	return StringOp::Builder() <<
-		"<reply result=\"" << (status ? "ok" : "nok") << "\">" <<
-		XMLElement::XMLEscape(message) << "</reply>\n";
+	return strCat("<reply result=\"", (status ? "ok" : "nok"), "\">",
+	              XMLElement::XMLEscape(message), "</reply>\n");
 }
 
 int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
@@ -149,7 +148,7 @@ int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 				commandEvent.getCommand(), this).getString().str();
 			output(reply(result, true));
 		} catch (CommandException& e) {
-			string result = e.getMessage() + '\n';
+			string result = std::move(e).getMessage() + '\n';
 			output(reply(result, false));
 		}
 	}
@@ -163,7 +162,6 @@ static const int BUF_SIZE = 4096;
 StdioConnection::StdioConnection(CommandController& commandController_,
                                  EventDistributor& eventDistributor_)
 	: CliConnection(commandController_, eventDistributor_)
-	, ok(true)
 {
 	startOutput();
 }
@@ -176,29 +174,30 @@ StdioConnection::~StdioConnection()
 void StdioConnection::run()
 {
 	// runs in helper thread
-	while (ok) {
+	while (true) {
+#ifdef _WIN32
+		if (poller.aborted()) break;
+#else
+		if (poller.poll(STDIN_FILENO)) break;
+#endif
 		char buf[BUF_SIZE];
 		int n = read(STDIN_FILENO, buf, sizeof(buf));
 		if (n > 0) {
 			parser.parse(buf, n);
 		} else if (n < 0) {
-			close();
 			break;
 		}
 	}
 }
 
-void StdioConnection::output(string_ref message)
+void StdioConnection::output(string_view message)
 {
-	if (ok) {
-		std::cout << message << std::flush;
-	}
+	std::cout << message << std::flush;
 }
 
 void StdioConnection::close()
 {
 	// don't close stdin/out/err
-	ok = false;
 }
 
 
@@ -211,23 +210,20 @@ static const HANDLE OPENMSX_INVALID_HANDLE_VALUE = reinterpret_cast<HANDLE>(-1);
 
 PipeConnection::PipeConnection(CommandController& commandController_,
                                EventDistributor& eventDistributor_,
-                               string_ref name)
+                               string_view name)
 	: CliConnection(commandController_, eventDistributor_)
 {
-	string pipeName = "\\\\.\\pipe\\" + name;
+	string pipeName = strCat("\\\\.\\pipe\\", name);
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, nullptr,
 	                         OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr);
 	if (pipeHandle == OPENMSX_INVALID_HANDLE_VALUE) {
-		char msg[256];
-		snprintf(msg, 255, "Error reopening pipefile '%s': error %u",
-		         pipeName.c_str(), unsigned(GetLastError()));
-		throw FatalError(msg);
+		throw FatalError("Error reopening pipefile '", pipeName, "': error ",
+		                 unsigned(GetLastError()));
 	}
 
 	shutdownEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 	if (!shutdownEvent) {
-		throw FatalError(StringOp::Builder() <<
-			"Error creating shutdown event: " << GetLastError());
+		throw FatalError("Error creating shutdown event: ", GetLastError());
 	}
 
 	startOutput();
@@ -237,6 +233,7 @@ PipeConnection::~PipeConnection()
 {
 	end();
 
+	assert(pipeHandle == OPENMSX_INVALID_HANDLE_VALUE);
 	CloseHandle(shutdownEvent);
 }
 
@@ -245,8 +242,7 @@ static void InitOverlapped(LPOVERLAPPED overlapped)
 	ZeroMemory(overlapped, sizeof(*overlapped));
 	overlapped->hEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 	if (!overlapped->hEvent) {
-		throw FatalError(StringOp::Builder() <<
-			"Error creating overlapped event: " << GetLastError());
+		throw FatalError("Error creating overlapped event: ", GetLastError());
 	}
 }
 
@@ -278,13 +274,11 @@ void PipeConnection::run()
 				break; // Pipe broke
 			}
 			parser.parse(buf, bytesRead);
-		}
-		else if (wait == WAIT_OBJECT_0) {
+		} else if (wait == WAIT_OBJECT_0) {
 			break; // Shutdown
-		}
-		else {
-			throw FatalError(StringOp::Builder() <<
-				"WaitForMultipleObjects returned unexpectedly: " << wait);
+		} else {
+			throw FatalError(
+				"WaitForMultipleObjects returned unexpectedly: ", wait);
 		}
 	}
 
@@ -295,7 +289,7 @@ void PipeConnection::run()
 	pipeHandle = OPENMSX_INVALID_HANDLE_VALUE;
 }
 
-void PipeConnection::output(string_ref message)
+void PipeConnection::output(string_view message)
 {
 	if (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
 		std::cout << message << std::flush;
@@ -305,8 +299,6 @@ void PipeConnection::output(string_ref message)
 void PipeConnection::close()
 {
 	SetEvent(shutdownEvent);
-	thread.join();
-	assert(pipeHandle == OPENMSX_INVALID_HANDLE_VALUE);
 }
 #endif // _WIN32
 
@@ -332,14 +324,14 @@ void SocketConnection::run()
 #ifdef _WIN32
 	bool ok;
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(sdMutex);
 		// Authenticate and authorize the caller
 		SocketStreamWrapper stream(sd);
 		SspiNegotiateServer server(stream);
 		ok = server.Authenticate() && server.Authorize();
 	}
 	if (!ok) {
-		close();
+		closeSocket();
 		return;
 	}
 #endif
@@ -352,18 +344,23 @@ void SocketConnection::run()
 	// and 'sd' only gets written to in this thread.
 	while (true) {
 		if (sd == OPENMSX_INVALID_SOCKET) return;
+#ifndef _WIN32
+		if (poller.poll(sd)) {
+			break;
+		}
+#endif
 		char buf[BUF_SIZE];
 		int n = sock_recv(sd, buf, BUF_SIZE);
 		if (n > 0) {
 			parser.parse(buf, n);
 		} else if (n < 0) {
-			close();
 			break;
 		}
 	}
+	closeSocket();
 }
 
-void SocketConnection::output(string_ref message)
+void SocketConnection::output(string_view message)
 {
 	if (!established) { // TODO needs locking?
 		// Connection isn't authorized yet (and opening tag is not
@@ -376,7 +373,7 @@ void SocketConnection::output(string_ref message)
 	while (bytesLeft) {
 		int bytesSend;
 		{
-			std::lock_guard<std::mutex> lock(mutex);
+			std::lock_guard<std::mutex> lock(sdMutex);
 			if (sd == OPENMSX_INVALID_SOCKET) return;
 			bytesSend = sock_send(sd, &data[pos], bytesLeft);
 		}
@@ -384,20 +381,29 @@ void SocketConnection::output(string_ref message)
 			bytesLeft -= bytesSend;
 			pos += bytesSend;
 		} else {
-			close();
+			// Note: On Windows we rely on closing the socket to
+			//       wake up the worker thread, on other platforms
+			//       we rely on Poller.
+			closeSocket();
+			poller.abort();
 			break;
 		}
 	}
 }
 
-void SocketConnection::close()
+void SocketConnection::closeSocket()
 {
-	std::lock_guard<std::mutex> lock(mutex);
+	std::lock_guard<std::mutex> lock(sdMutex);
 	if (sd != OPENMSX_INVALID_SOCKET) {
 		SOCKET _sd = sd;
 		sd = OPENMSX_INVALID_SOCKET;
 		sock_close(_sd);
 	}
+}
+
+void SocketConnection::close()
+{
+	closeSocket();
 }
 
 } // namespace openmsx

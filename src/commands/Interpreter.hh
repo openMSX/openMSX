@@ -3,13 +3,12 @@
 
 #include "TclParser.hh"
 #include "TclObject.hh"
-#include "string_ref.hh"
-#include <vector>
+#include "string_view.hh"
 #include <tcl.h>
+#include <string>
 
 namespace openmsx {
 
-class EventDistributor;
 class Command;
 class BaseSetting;
 class InterpreterOutput;
@@ -20,7 +19,7 @@ public:
 	Interpreter(const Interpreter&) = delete;
 	Interpreter& operator=(const Interpreter&) = delete;
 
-	explicit Interpreter(EventDistributor& eventDistributor);
+	Interpreter();
 	~Interpreter();
 
 	void setOutput(InterpreterOutput* output_) { output = output_; }
@@ -48,9 +47,11 @@ public:
 	  */
 	void deleteNamespace(const std::string& name);
 
-	TclParser parse(string_ref command);
+	TclParser parse(string_view command);
 
 	void poll();
+	
+	void wrongNumArgs(unsigned argc, span<const TclObject> tokens, const char* message);
 
 private:
 	static int outputProc(ClientData clientData, const char* buf,
@@ -59,8 +60,6 @@ private:
 	                       int objc, Tcl_Obj* const objv[]);
 	static char* traceProc(ClientData clientData, Tcl_Interp* interp,
 	                       const char* part1, const char* part2, int flags);
-
-	EventDistributor& eventDistributor;
 
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;

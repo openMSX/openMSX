@@ -30,7 +30,7 @@ public:
 	V9990SDLRasterizer(
 		V9990& vdp, Display& display, VisibleSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
-	~V9990SDLRasterizer();
+	~V9990SDLRasterizer() override;
 
 	// Rasterizer interface:
 	PostProcessor* getPostProcessor() const override;
@@ -99,12 +99,16 @@ private:
 
 	/** The 256 color palette. A fixed subset of the palette32768.
 	  */
-	Pixel palette256[256];
+	Pixel palette256[256];         // from index to host Pixel color
+	int16_t palette256_32768[256]; // from index to 15bpp V9990 color
+	// invariant: palette256[i] == palette32768[palette256_32768[i]]
 
 	/** The 64 palette entries of the VDP - a subset of the palette32768.
 	  * These are colors influenced by the palette IO ports and registers
 	  */
-	Pixel palette64[64];
+	Pixel palette64[64];         // from index to host Pixel color
+	int16_t palette64_32768[64]; // from index to 15bpp V9990 color
+	// invariant: palette64[i] == palette32768[palette64_32768[i]]
 
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.

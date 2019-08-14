@@ -1,12 +1,12 @@
 #include "RTScheduler.hh"
 #include "RTSchedulable.hh"
-#include <algorithm>
+#include "ranges.hh"
 #include <limits>
 
 namespace openmsx {
 
 struct EqualRTSchedulable {
-	EqualRTSchedulable(const RTSchedulable& schedulable_)
+	explicit EqualRTSchedulable(const RTSchedulable& schedulable_)
 		: schedulable(schedulable_) {}
 	bool operator()(const RTSyncPoint& sp) const {
 		return sp.schedulable == &schedulable;
@@ -30,8 +30,7 @@ bool RTScheduler::remove(RTSchedulable& schedulable)
 
 bool RTScheduler::isPending(const RTSchedulable& schedulable) const
 {
-	return std::find_if(std::begin(queue), std::end(queue),
-	                    EqualRTSchedulable(schedulable)) != std::end(queue);
+	return ranges::any_of(queue, EqualRTSchedulable(schedulable));
 }
 
 void RTScheduler::scheduleHelper(uint64_t limit)

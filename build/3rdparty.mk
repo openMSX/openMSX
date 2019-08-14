@@ -20,7 +20,7 @@ all: default
 # Get information about packages.
 -include derived/3rdparty/packages.mk
 
-ifneq ($(origin PACKAGE_SDL),undefined)
+ifneq ($(origin PACKAGE_SDL2),undefined)
 
 # These libraries are part of the base system, therefore we do not need to
 # link them statically for building a redistributable binary.
@@ -29,17 +29,19 @@ SYSTEM_LIBS:=$(shell $(PYTHON) build/list_system_libs.py $(OPENMSX_TARGET_OS))
 # Compiler selection, compiler flags, SDK selection.
 # These variables are already exported, but we make it explicit here.
 export CC
-export NEXT_ROOT
-export MACOSX_DEPLOYMENT_TARGET
 
 CC=$(_CC)
 
 TIMESTAMP_DIR:=$(BUILD_PATH)/timestamps
 BUILD_DIR:=$(BUILD_PATH)/build
 INSTALL_DIR:=$(BUILD_PATH)/install
+TOOLS_DIR:=$(BUILD_PATH)/tools
 
-# Create a GNU-style system triple.
-TRIPLE_VENDOR:=unknown
+# Create a GNU-style system tuple.
+# Unfortunately, these are very poorly standardized, so our aim is to
+# create tuples that are known to work, instead of using a consistent
+# algorithm across all platforms.
+
 ifeq ($(OPENMSX_TARGET_CPU),x86)
 TRIPLE_MACHINE:=i686
 else
@@ -53,16 +55,35 @@ TRIPLE_MACHINE:=$(OPENMSX_TARGET_CPU)
 endif
 endif
 endif
-ifeq ($(OPENMSX_TARGET_OS),dingux)
+
+ifneq ($(filter android dingux,$(OPENMSX_TARGET_OS)),)
 TRIPLE_OS:=linux
 else
 TRIPLE_OS:=$(OPENMSX_TARGET_OS)
 endif
+
+TRIPLE_VENDOR:=unknown
 ifeq ($(OPENMSX_TARGET_OS),mingw-w64)
 TRIPLE_OS:=mingw32
 TRIPLE_VENDOR:=w64
 endif
+
 TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_VENDOR)-$(TRIPLE_OS)
+
+# Libraries using old autoconf macros don't recognise Android as an OS,
+# so we have to tell those we're building for Linux instead.
+OLD_TARGET_TRIPLE:=$(TARGET_TRIPLE)
+
+# For all other libraries, we pass an Android-specific system tuple.
+# These are triples but instead of machine-vendor-os they use machine-os-abi.
+ifeq ($(OPENMSX_TARGET_OS),android)
+TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_OS)-android
+ifeq ($(TRIPLE_MACHINE),arm)
+TARGET_TRIPLE:=$(TARGET_TRIPLE)eabi
+endif
+endif
+
+export PKG_CONFIG:=$(PWD)/$(TOOLS_DIR)/bin/$(TARGET_TRIPLE)-pkg-config
 
 # Ask the compiler for the names and locations of other toolchain components.
 # This works with GCC and Clang at least, so it should be pretty safe.
@@ -76,13 +97,6 @@ export WINDRES
 export RC:=$(WINDRES)
 endif
 
-# Work around some autoconf versions returning "universal" for endianess when
-# compiling with "-arch" in the CFLAGS, even in a single arch compile.
-BIGENDIAN:=$(shell PYTHONPATH=build/ $(PYTHON) -c 'from cpu import getCPU ; print "yes" if getCPU("$(OPENMSX_TARGET_CPU)").bigEndian else "no"')
-ifeq ($(BIGENDIAN),)
-$(error Could not determine endianess of "$(OPENMSX_TARGET_CPU)")
-endif
-
 # Although X11 is available on Windows and Mac OS X, most people do not have
 # it installed, so do not link against it.
 ifeq ($(filter linux freebsd netbsd openbsd gnu,$(OPENMSX_TARGET_OS)),)
@@ -91,30 +105,25 @@ else
 USE_VIDEO_X11:=enable
 endif
 
-PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE))
+PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE)) PKG_CONFIG
 PACKAGES_NOBUILD:=
-ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
-PACKAGES_NOBUILD+=DIRECTX
-endif
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
-
-BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
-INSTALL_BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
-INSTALL_NOBUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_NOBUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
-
-ifeq ($(filter $(PACKAGES_3RD),DIRECTX),)
-INSTALL_DIRECTX:=
-else
-INSTALL_DIRECTX:=$(TIMESTAMP_DIR)/install-$(PACKAGE_DIRECTX)
-endif
-
-INSTALL_PARAMS_GLEW:=\
-	GLEW_DEST=$(PWD)/$(INSTALL_DIR) \
-	LIBDIR=$(PWD)/$(INSTALL_DIR)/lib
 
 # Function which, given a variable name prefix and the variable's value,
 # returns the name of the package.
 findpackage=$(strip $(foreach PACKAGE,$(PACKAGES_3RD),$(if $(filter $(2),$($(1)_$(PACKAGE))),$(PACKAGE),)))
+
+# Function which, given a list of packages, produces a list of the install
+# timestamps for those packages.
+installdeps=$(foreach PACKAGE,$(1),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+
+BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
+INSTALL_BUILD_TARGETS:=$(call installdeps,$(PACKAGES_BUILD))
+INSTALL_NOBUILD_TARGETS:=$(call installdeps,$(PACKAGES_NOBUILD))
+
+INSTALL_PARAMS_GLEW:=\
+	GLEW_DEST=$(PWD)/$(INSTALL_DIR) \
+	LIBDIR=$(PWD)/$(INSTALL_DIR)/lib
 
 .PHONY: default
 default: $(INSTALL_BUILD_TARGETS) $(INSTALL_NOBUILD_TARGETS)
@@ -133,93 +142,125 @@ $(INSTALL_BUILD_TARGETS): $(TIMESTAMP_DIR)/install-%: $(TIMESTAMP_DIR)/build-%
 	mkdir -p $(@D)
 	touch $@
 
-ifneq ($(INSTALL_DIRECTX),)
-# Install DirectX headers.
-$(INSTALL_DIRECTX): $(TARBALL_DIRECTX)
-	mkdir -p $(INSTALL_DIR)
-	tar -zxf $< -C $(INSTALL_DIR)
-	mkdir -p $(@D)
-	touch $@
-endif
-
 # Build.
 $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 	$(MAKE) -C $(<D) $(MAKEVAR_OVERRIDE_$(call findpackage,PACKAGE,$*))
 	mkdir -p $(@D)
 	touch $@
 
-# Configuration of a lib can depend on the lib-config script of another lib.
-PNG_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/libpng12-config
-FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
-SDL_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl-config
-$(PNG_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_PNG)
-$(FREETYPE_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_FREETYPE)
-$(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
-
-# Configure SDL.
-$(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL) $(INSTALL_DIRECTX)
+# Configure pkg-config.
+$(BUILD_DIR)/$(PACKAGE_PKG_CONFIG)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_PKG_CONFIG)/.extracted
 	mkdir -p $(@D)
-	cd $(@D) && \
-		ac_cv_c_bigendian=$(BIGENDIAN) \
-		$(PWD)/$</configure \
-		--$(USE_VIDEO_X11)-video-x11 \
-		--disable-video-dga \
-		--disable-video-directfb \
-		--disable-video-svga \
-		--disable-nas \
-		--disable-esd \
-		--disable-directx \
-		--disable-cdrom \
-		--disable-stdio-redirect \
+	cd $(@D) && $(PWD)/$(<D)/configure \
+		--with-internal-glib \
+		--disable-host-tool \
+		--program-prefix=$(TARGET_TRIPLE)- \
+		--prefix=$(PWD)/$(TOOLS_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
+		CC= LD= AR= RANLIB= STRIP=
+
+# Configure ALSA.
+$(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_ALSA)/.extracted
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$(<D)/configure \
+		--enable-static \
 		--disable-shared \
+		--enable-symbolic-functions \
+		--disable-debug \
+		--disable-aload \
+		--disable-mixer \
+		--enable-pcm \
+		--disable-rawmidi \
+		--disable-hwdep \
+		--enable-seq \
+		--disable-ucm \
+		--disable-topology \
+		--disable-alisp \
+		--disable-old-symbols \
+		--disable-python \
+		--with-debug=no \
+		--with-libdl=no \
+		--with-pthread=yes \
+		--with-librt=yes \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
-# While openMSX does not use "cpuinfo", "endian" and "file" modules, other
-# modules do and if we disable them, SDL will not link.
 
-# Configure SDL_ttf.
-$(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL_TTF) \
-  $(FREETYPE_CONFIG_SCRIPT) $(SDL_CONFIG_SCRIPT)
+# Configure SDL2.
+$(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_SDL2)/.extracted \
+  $(call installdeps,PKG_CONFIG $(filter ALSA,$(PACKAGES_3RD)))
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && \
+		$(PWD)/$(<D)/configure \
+		--$(USE_VIDEO_X11)-video-x11 \
+		--disable-video-directfb \
+		--disable-video-opengles1 \
+		--disable-nas \
+		--disable-esd \
+		--disable-arts \
+		--disable-shared \
+		--host=$(TARGET_TRIPLE) \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
+		CFLAGS="$(_CFLAGS)" \
+		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
+		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
+# Some modules are enabled because of internal SDL2 dependencies:
+# - "audio" depends on "atomic" and "threads"
+# - "joystick" depends on "haptic" (at least in the Windows back-end)
+# - OpenGL on Windows depends on "loadso"
+
+# Configure SDL2_ttf.
+$(BUILD_DIR)/$(PACKAGE_SDL2_TTF)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_SDL2_TTF)/.extracted \
+  $(call installdeps,PKG_CONFIG SDL2 FREETYPE)
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-sdltest \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		--with-sdl-prefix=$(PWD)/$(INSTALL_DIR) \
-		--with-freetype-prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--$(subst disable,without,$(subst enable,with,$(USE_VIDEO_X11)))-x \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS)"
+# Disable building of example programs.
+# This build fails on Android (SDL main issues), but on other platforms
+# we don't need these programs either.
+MAKEVAR_OVERRIDE_SDL2_TTF:=noinst_PROGRAMS=""
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_PNG) \
-  $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+  $(SOURCE_DIR)/$(PACKAGE_PNG)/.extracted \
+  $(call installdeps,$(filter-out $(SYSTEM_LIBS),ZLIB))
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 
 # Configure FreeType.
 $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_FREETYPE)
+  $(SOURCE_DIR)/$(PACKAGE_FREETYPE)/.extracted \
+  $(call installdeps,PKG_CONFIG)
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
 		--without-zlib \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
 		LDFLAGS="$(_LDFLAGS)"
 
@@ -227,12 +268,13 @@ $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
 # Although it uses "configure", zlib does not support building outside of the
 # source tree, so just copy everything over (it's a small package).
 $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_ZLIB)
+  $(SOURCE_DIR)/$(PACKAGE_ZLIB)/.extracted
 	mkdir -p $(dir $(@D))
 	rm -rf $(@D)
-	cp -r $< $(@D)
+	cp -r $(<D) $(@D)
 	cd $(@D) && ./configure \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--static
 # It is not possible to pass CFLAGS to zlib's configure.
 MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
@@ -243,20 +285,23 @@ MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
 # GLEW does not support building outside of the source tree, so just copy
 # everything over (it's a small package).
 $(BUILD_DIR)/$(PACKAGE_GLEW)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_GLEW)
+  $(SOURCE_DIR)/$(PACKAGE_GLEW)/.extracted
 	mkdir -p $(dir $(@D))
 	rm -rf $(@D)
-	cp -r $< $(@D)
+	cp -r $(<D) $(@D)
 # GLEW does not have a configure script to pass CFLAGS to.
 MAKEVAR_OVERRIDE_GLEW:=CC="$(_CC) $(_CFLAGS)" LD="$(_CC) $(_LDFLAGS)"
 # Tell GLEW to cross compile.
 ifeq ($(TRIPLE_OS),mingw32)
-MAKEVAR_OVERRIDE_GLEW+=SYSTEM=mingw
+MAKEVAR_OVERRIDE_GLEW+=SYSTEM=linux-mingw-w64
 else
 MAKEVAR_OVERRIDE_GLEW+=SYSTEM=$(TRIPLE_OS)
 endif
 
 # Configure Tcl.
+# Note: Tcl 8.6 includes some bundled extensions. We don't want these and there
+#       is no configure flag to disable them, so we remove the pkgs/ directory
+#       that they are in.
 # Note: Tcl seems to build either dynamic libs or static libs, which is why we
 #       have to pass --disable-shared to configure.
 ifeq ($(TRIPLE_OS),mingw32)
@@ -266,67 +311,81 @@ else
 #       the "macosx" dir, but that is only intended for use with Xcode.
 TCL_OS:=unix
 endif
+CONFIGURE_OVERRIDE_TCL:=
+ifeq ($(OPENMSX_TARGET_OS),android)
+# nl_langinfo was introduced in API version 26, but for some reason configure
+# detects it on older API versions as well.
+CONFIGURE_OVERRIDE_TCL+=--disable-langinfo
+# The structs for 64-bit file offsets are already present in API version 14,
+# but the functions were only added in version 21. Tcl assumes that if the
+# structs are present, the functions are also present. So we override the
+# detection of the structs.
+CONFIGURE_OVERRIDE_TCL+=tcl_cv_struct_dirent64=no tcl_cv_struct_stat64=no
+endif
 $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_TCL)
+  $(SOURCE_DIR)/$(PACKAGE_TCL)/.extracted
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</$(TCL_OS)/configure \
+	rm -rf $(SOURCE_DIR)/$(PACKAGE_TCL)/pkgs/
+	cd $(@D) && $(PWD)/$(<D)/$(TCL_OS)/configure \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--disable-shared \
 		--disable-threads \
 		--without-tzdata \
+		$(CONFIGURE_OVERRIDE_TCL) \
 		CFLAGS="$(_CFLAGS)" \
 		LDFLAGS="$(_LDFLAGS)"
 
 # Configure Ogg, Vorbis and Theora for Laserdisc emulation.
 
 $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_OGG)
+  $(SOURCE_DIR)/$(PACKAGE_OGG)/.extracted \
+  $(call installdeps,PKG_CONFIG)
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		CFLAGS="$(_CFLAGS)" \
-		LDFLAGS="$(_LDFLAGS)" \
-		PKG_CONFIG=/nowhere
+		LDFLAGS="$(_LDFLAGS)"
 
 $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_VORBIS) \
-  $(TIMESTAMP_DIR)/install-$(PACKAGE_OGG)
+  $(SOURCE_DIR)/$(PACKAGE_VORBIS)/.extracted \
+  $(call installdeps,PKG_CONFIG OGG)
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
 		--disable-oggtest \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
-		LDFLAGS="$(_LDFLAGS)" \
-		PKG_CONFIG=/nowhere
+		LDFLAGS="$(_LDFLAGS)"
 
 # Note: According to its spec file, Theora has a build dependency on both
 #       Ogg and Vorbis, a runtime dependency on Vorbis and a development
 #       package dependency on Ogg.
 $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_THEORA) \
-  $(TIMESTAMP_DIR)/install-$(PACKAGE_OGG) \
-  $(TIMESTAMP_DIR)/install-$(PACKAGE_VORBIS)
+  $(SOURCE_DIR)/$(PACKAGE_THEORA)/.extracted \
+  $(call installdeps,PKG_CONFIG OGG VORBIS)
 	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
+	cd $(@D) && $(PWD)/$(<D)/configure \
 		--disable-shared \
 		--disable-oggtest \
 		--disable-vorbistest \
 		--disable-sdltest \
 		--disable-encode \
 		--disable-examples \
-		--host=$(TARGET_TRIPLE) \
+		--host=$(OLD_TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
 		--with-vorbis=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
-		LDFLAGS="$(_LDFLAGS)" \
-		PKG_CONFIG=/nowhere
+		LDFLAGS="$(_LDFLAGS)"
 
 endif
 

@@ -5,13 +5,15 @@
 #include "XMLElement.hh"
 #include "ConfigException.hh"
 #include "XMLException.hh"
-#include "snappy.hh"
+#include "DeltaBlock.hh"
 #include "MemBuffer.hh"
-#include "StringOp.hh"
 #include "FileOperations.hh"
 #include "Version.hh"
 #include "Date.hh"
+#include "stl.hh"
+#include "cstdiop.hh" // for dup()
 #include <cstring>
+#include <iostream>
 #include <limits>
 
 using std::string;
@@ -29,11 +31,6 @@ template class ArchiveBase<XmlOutputArchive>;
 
 ////
 
-OutputArchiveBase2::OutputArchiveBase2()
-	: lastId(0)
-{
-}
-
 unsigned OutputArchiveBase2::generateID1(const void* p)
 {
 	#ifdef linux
@@ -41,8 +38,8 @@ unsigned OutputArchiveBase2::generateID1(const void* p)
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	assert(polyIdMap.find(p) == end(polyIdMap));
-	polyIdMap[p] = lastId;
+	assert(!polyIdMap.contains(p));
+	polyIdMap.emplace_noDuplicateCheck(p, lastId);
 	return lastId;
 }
 unsigned OutputArchiveBase2::generateID2(
@@ -54,27 +51,27 @@ unsigned OutputArchiveBase2::generateID2(
 	#endif
 	++lastId;
 	auto key = std::make_pair(p, std::type_index(typeInfo));
-	assert(idMap.find(key) == end(idMap));
-	idMap[key] = lastId;
+	assert(!idMap.contains(key));
+	idMap.emplace_noDuplicateCheck(key, lastId);
 	return lastId;
 }
 
 unsigned OutputArchiveBase2::getID1(const void* p)
 {
-	auto it = polyIdMap.find(p);
-	return it != end(polyIdMap) ? it->second : 0;
+	auto v = lookup(polyIdMap, p);
+	return v ? *v : 0;
 }
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	auto it = idMap.find({p, std::type_index(typeInfo)});
-	return it != end(idMap) ? it->second : 0;
+	auto v = lookup(idMap, std::make_pair(p, std::type_index(typeInfo)));
+	return v ? *v : 0;
 }
 
 
 template<typename Derived>
 void OutputArchiveBase<Derived>::serialize_blob(
-	const char* tag, const void* data_, size_t len)
+	const char* tag, const void* data_, size_t len, bool /*diff*/)
 {
 	auto* data = static_cast<const uint8_t*>(data_);
 
@@ -91,7 +88,7 @@ void OutputArchiveBase<Derived>::serialize_blob(
 		encoding = "gz-base64";
 		// TODO check for overflow?
 		auto dstLen = uLongf(len + len / 1000 + 12 + 1); // worst-case
-		MemBuffer<byte> buf(dstLen);
+		MemBuffer<uint8_t> buf(dstLen);
 		if (compress2(buf.data(), &dstLen,
 		              reinterpret_cast<const Bytef*>(data),
 		              uLong(len), 9)
@@ -114,25 +111,33 @@ template class OutputArchiveBase<XmlOutputArchive>;
 
 void* InputArchiveBase2::getPointer(unsigned id)
 {
-	auto it = idMap.find(id);
-	return it != end(idMap) ? it->second : nullptr;
+	auto v = lookup(idMap, id);
+	return v ? *v : nullptr;
 }
 
 void InputArchiveBase2::addPointer(unsigned id, const void* p)
 {
-	assert(idMap.find(id) == end(idMap));
-	idMap[id] = const_cast<void*>(p);
+	assert(!idMap.contains(id));
+	idMap.emplace_noDuplicateCheck(id, const_cast<void*>(p));
+}
+
+unsigned InputArchiveBase2::getId(const void* ptr) const
+{
+	for (const auto& p : idMap) {
+		if (p.second == ptr) return p.first;
+	}
+	return 0;
 }
 
 template<typename Derived>
 void InputArchiveBase<Derived>::serialize_blob(
-	const char* tag, void* data, size_t len)
+	const char* tag, void* data, size_t len, bool /*diff*/)
 {
 	this->self().beginTag(tag);
 	string encoding;
 	this->self().attribute("encoding", encoding);
 
-	string_ref tmp = this->self().loadStr();
+	string_view tmp = this->self().loadStr();
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {
@@ -149,12 +154,12 @@ void InputArchiveBase<Derived>::serialize_blob(
 		        ? HexDump::decode_inplace(tmp, static_cast<uint8_t*>(data), len)
 		        : Base64 ::decode_inplace(tmp, static_cast<uint8_t*>(data), len);
 		if (!ok) {
-			throw XMLException(StringOp::Builder()
-				<< "Length of decoded blob different from "
-				   "expected value (" << len << ')');
+			throw XMLException(
+				"Length of decoded blob different from "
+				"expected value (", len, ')');
 		}
 	} else {
-		throw XMLException("Unsupported encoding \"" + encoding + "\" for blob");
+		throw XMLException("Unsupported encoding \"", encoding, "\" for blob");
 	}
 }
 
@@ -166,12 +171,12 @@ template class InputArchiveBase<XmlInputArchive>;
 void MemOutputArchive::save(const std::string& s)
 {
 	auto size = s.size();
-	byte* buf = buffer.allocate(sizeof(size) + size);
+	uint8_t* buf = buffer.allocate(sizeof(size) + size);
 	memcpy(buf, &size, sizeof(size));
 	memcpy(buf + sizeof(size), s.data(), size);
 }
 
-MemBuffer<byte> MemOutputArchive::releaseBuffer(size_t& size)
+MemBuffer<uint8_t> MemOutputArchive::releaseBuffer(size_t& size)
 {
 	return buffer.release(size);
 }
@@ -188,59 +193,56 @@ void MemInputArchive::load(std::string& s)
 	}
 }
 
-string_ref MemInputArchive::loadStr()
+string_view MemInputArchive::loadStr()
 {
 	size_t length;
 	load(length);
-	const byte* p = buffer.getCurrentPos();
+	const uint8_t* p = buffer.getCurrentPos();
 	buffer.skip(length);
-	return string_ref(reinterpret_cast<const char*>(p), length);
+	return string_view(reinterpret_cast<const char*>(p), length);
 }
 
 ////
 
 // Too small inputs don't compress very well (often the compressed size is even
-// bigger than the input). It also takes a relatively long time (because snappy
-// has a relatively large setup time). I choose this value semi-arbitrary. I
-// only made it >= 52 so that the (incompressible) RP5C01 registers won't be
-// compressed.
-static const size_t SMALL_SIZE = 100;
-void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len)
+// bigger than the input). It also takes a relatively long time (because often
+// compression has a relatively large setup time). I choose this value
+// semi-arbitrary. I only made it >= 52 so that the (incompressible) RP5C01
+// registers won't be compressed.
+static const size_t SMALL_SIZE = 64;
+void MemOutputArchive::serialize_blob(const char* /*tag*/, const void* data,
+                                      size_t len, bool diff)
 {
-	// Compress in-memory blobs:
-	//
-	// This is a bit slower than memcpy, but it uses a lot less memory.
-	// Memory usage is important for the reverse feature, where we keep a
-	// lot of savestates in memory.
-	//
-	// I compared 'gzip level=1' (fastest version with lowest compression
-	// ratio) with 'lzo'. lzo was considerably faster. Compression ratio
-	// was about the same (maybe lzo was slightly better (OTOH on higher
-	// levels gzip compresses better)). So I decided to go with lzo.
-	//
-	// Later I compared 'lzo' with 'snappy', lzo compresses 6-25% better,
-	// but 'snappy' is about twice as fast. So I switched to 'snappy'.
-	if (len >= SMALL_SIZE) {
-		size_t dstLen = snappy::maxCompressedLength(len);
-		byte* buf = buffer.allocate(sizeof(dstLen) + dstLen);
-		snappy::compress(static_cast<const char*>(data), len,
-		                 reinterpret_cast<char*>(&buf[sizeof(dstLen)]), dstLen);
-		memcpy(buf, &dstLen, sizeof(dstLen)); // fill-in actual size
-		buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
+	// Delta-compress in-memory blobs, see DeltaBlock.hh for more details.
+	if (len > SMALL_SIZE) {
+		auto deltaBlockIdx = unsigned(deltaBlocks.size());
+		save(deltaBlockIdx); // see comment below in MemInputArchive
+		deltaBlocks.push_back(diff
+			? lastDeltaBlocks.createNew(
+				data, static_cast<const uint8_t*>(data), len)
+			: lastDeltaBlocks.createNullDiff(
+				data, static_cast<const uint8_t*>(data), len));
 	} else {
-		byte* buf = buffer.allocate(len);
+		uint8_t* buf = buffer.allocate(len);
 		memcpy(buf, data, len);
 	}
 
 }
 
-void MemInputArchive::serialize_blob(const char*, void* data, size_t len)
+void MemInputArchive::serialize_blob(const char* /*tag*/, void* data,
+                                     size_t len, bool /*diff*/)
 {
-	if (len >= SMALL_SIZE) {
-		size_t srcLen; load(srcLen);
-		snappy::uncompress(reinterpret_cast<const char*>(buffer.getCurrentPos()),
-		                   srcLen, reinterpret_cast<char*>(data), len);
-		buffer.skip(srcLen);
+	if (len > SMALL_SIZE) {
+		// Usually blobs are saved in the same order as they are loaded
+		// (via the serialize_blob() methods in respectively
+		// MemOutputArchive and MemInputArchive). In that case keeping
+		// track of the deltaBlockIdx in the savestate itself is
+		// redundant (it will simply be an increasing value). However
+		// in rare cases, via the {begin,end,skip)Section() methods, it
+		// is possible that certain blobs are stored in the savestate,
+		// but skipped while loading. That's why we do need the index.
+		unsigned deltaBlockIdx; load(deltaBlockIdx);
+		deltaBlocks[deltaBlockIdx]->apply(static_cast<uint8_t*>(data), len);
 	} else {
 		memcpy(data, buffer.getCurrentPos(), len);
 		buffer.skip(len);
@@ -255,28 +257,51 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 	root.addAttribute("openmsx_version", Version::full());
 	root.addAttribute("date_time", Date::toString(time(nullptr)));
 	root.addAttribute("platform", TARGET_PLATFORM);
-	auto f = FileOperations::openFile(filename, "wb");
-	if (!f) {
-		throw XMLException("Could not open compressed file \"" + filename + "\"");
+	{
+		auto f = FileOperations::openFile(filename, "wb");
+		if (!f) goto error;
+		int duped_fd = dup(fileno(f.get()));
+		if (duped_fd == -1) goto error;
+		file = gzdopen(duped_fd, "wb9");
+		if (!file) {
+			::close(duped_fd);
+			goto error;
+		}
+		current.push_back(&root);
+		return; // success
+		// on scope-exit 'File* f' is closed, and 'gzFile file'
+		// uses the dup()'ed file descriptor.
 	}
-	file = gzdopen(fileno(f.get()), "wb9");
-	if (!file) {
-		throw XMLException("Could not open compressed file \"" + filename + "\"");
-	}
-	f.release();
-	current.push_back(&root);
+
+error:
+	throw XMLException("Could not open compressed file \"", filename, "\"");
 }
 
-XmlOutputArchive::~XmlOutputArchive()
+void XmlOutputArchive::close()
 {
+	if (!file) return; // already closed
+
 	assert(current.back() == &root);
 	const char* header =
 	    "<?xml version=\"1.0\" ?>\n"
 	    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
-	gzwrite(file, const_cast<char*>(header), unsigned(strlen(header)));
 	string dump = root.dump();
-	gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size()));
-	gzclose(file);
+	if ((gzwrite(file, const_cast<char*>(header), unsigned(strlen(header))) == 0) ||
+	    (gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size())) == 0) ||
+	    (gzclose(file) != Z_OK)) {
+		throw XMLException("Could not write savestate file.");
+	}
+
+	file = nullptr;
+}
+
+XmlOutputArchive::~XmlOutputArchive()
+{
+	try {
+		close();
+	} catch (...) {
+		// Eat exception. Explicitly call close() if you want to handle errors.
+	}
 }
 
 void XmlOutputArchive::saveChar(char c)
@@ -356,7 +381,7 @@ XmlInputArchive::XmlInputArchive(const string& filename)
 	elems.emplace_back(&rootElem, 0);
 }
 
-string_ref XmlInputArchive::loadStr()
+string_view XmlInputArchive::loadStr()
 {
 	if (!elems.back().first->getChildren().empty()) {
 		throw XMLException("No child tags expected for primitive type");
@@ -376,13 +401,13 @@ void XmlInputArchive::loadChar(char& c)
 }
 void XmlInputArchive::load(bool& b)
 {
-	string_ref s = loadStr();
+	string_view s = loadStr();
 	if ((s == "true") || (s == "1")) {
 		b = true;
 	} else if ((s == "false") || (s == "0")) {
 		b = false;
 	} else {
-		throw XMLException("Bad value found for boolean: " + s);
+		throw XMLException("Bad value found for boolean: ", s);
 	}
 }
 
@@ -410,7 +435,7 @@ template<> struct ConditionalNegate<false> {
 		assert(!negate); (void)negate; // can't negate unsigned type
 	}
 };
-template<typename T> static inline void fastAtoi(string_ref str, T& t)
+template<typename T> static inline void fastAtoi(string_view str, T& t)
 {
 	t = 0;
 	bool neg = false;
@@ -428,7 +453,7 @@ template<typename T> static inline void fastAtoi(string_ref str, T& t)
 	for (/**/; i < l; ++i) {
 		unsigned d = str[i] - '0';
 		if (unlikely(d > 9)) {
-			throw XMLException("Invalid integer: " + str);
+			throw XMLException("Invalid integer: ", str);
 		}
 		t = 10 * t + d;
 	}
@@ -441,17 +466,17 @@ template<typename T> static inline void fastAtoi(string_ref str, T& t)
 }
 void XmlInputArchive::load(int& i)
 {
-	string_ref str = loadStr();
+	string_view str = loadStr();
 	fastAtoi(str, i);
 }
 void XmlInputArchive::load(unsigned& u)
 {
-	string_ref str = loadStr();
+	string_view str = loadStr();
 	fastAtoi(str, u);
 }
 void XmlInputArchive::load(unsigned long long& ull)
 {
-	string_ref str = loadStr();
+	string_view str = loadStr();
 	fastAtoi(str, ull);
 }
 void XmlInputArchive::load(unsigned char& b)
@@ -480,11 +505,10 @@ void XmlInputArchive::beginTag(const char* tag)
 	if (!child) {
 		string path;
 		for (auto& e : elems) {
-			path += e.first->getName() + '/';
+			strAppend(path, e.first->getName(), '/');
 		}
-		throw XMLException(StringOp::Builder() <<
-			"No child tag \"" << tag <<
-			"\" found at location \"" << path << '\"');
+		throw XMLException("No child tag \"", tag,
+		                   "\" found at location \"", path, '\"');
 	}
 	elems.emplace_back(child, 0);
 }
@@ -492,8 +516,8 @@ void XmlInputArchive::endTag(const char* tag)
 {
 	const auto& elem = *elems.back().first;
 	if (elem.getName() != tag) {
-		throw XMLException("End tag \"" + elem.getName() +
-			"\" not equal to begin tag \"" + tag + "\"");
+		throw XMLException("End tag \"", elem.getName(),
+		                   "\" not equal to begin tag \"", tag, "\"");
 	}
 	auto& elem2 = const_cast<XMLElement&>(elem);
 	elem2.clearName(); // mark this elem for later beginTag() calls
@@ -504,8 +528,8 @@ void XmlInputArchive::attribute(const char* name, string& t)
 {
 	try {
 		t = elems.back().first->getAttribute(name);
-	} catch (ConfigException& ex) {
-		throw XMLException(ex.getMessage());
+	} catch (ConfigException& e) {
+		throw XMLException(std::move(e).getMessage());
 	}
 }
 void XmlInputArchive::attribute(const char* name, int& i)

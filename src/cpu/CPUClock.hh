@@ -3,7 +3,6 @@
 
 #include "DynamicClock.hh"
 #include "Scheduler.hh"
-#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -34,13 +33,16 @@ protected:
 
 	// These are similar to the corresponding methods in DynamicClock.
 	EmuTime::param getTime() const { sync(); return clock.getTime(); }
-	const EmuTime getTimeFast() const { return clock.getFastAdd(limit - remaining); }
-	const EmuTime getTimeFast(int cc) const {
+	EmuTime getTimeFast() const { return clock.getFastAdd(limit - remaining); }
+	EmuTime getTimeFast(int cc) const {
 		return clock.getFastAdd(limit - remaining + cc);
 	}
 	void setTime(EmuTime::param time) { sync(); clock.reset(time); }
 	void setFreq(unsigned freq) { clock.setFreq(freq); }
 	void advanceTime(EmuTime::param time);
+	EmuTime calcTime(EmuTime::param time, unsigned ticks) const {
+		return clock.add(time, ticks);
+	}
 
 	/** Implementation of the HALT instruction timing.
 	  * Advances the clock with an integer multiple of 'hltStates' cycles

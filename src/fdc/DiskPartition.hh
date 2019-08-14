@@ -19,7 +19,7 @@ public:
 	 *              will then take (shared) ownership of that Disk.
 	 */
 	DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
-	              const std::shared_ptr<SectorAccessibleDisk>& owned = nullptr);
+	              std::shared_ptr<SectorAccessibleDisk> owned = nullptr);
 
 	DiskPartition(SectorAccessibleDisk& parent,
 	              size_t start, size_t length);

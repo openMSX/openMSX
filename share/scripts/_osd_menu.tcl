@@ -4,14 +4,7 @@ set_help_text main_menu_open   "Show the OSD menu."
 set_help_text main_menu_close  "Remove the OSD menu."
 set_help_text main_menu_toggle "Toggle the OSD menu."
 
-# default colors defined here, for easy global tweaking
-variable default_bg_color "0x7090aae8 0xa0c0dde8 0x90b0cce8 0xc0e0ffe8"
-variable default_text_color 0x000000ff
-variable default_text_color 0x000000ff
-variable default_select_color "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
-variable default_header_text_color 0xff9020ff
-
-variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
+variable is_dingux [string match dingux "[openmsx_info platform]"]
 variable scaling_available [expr {[lindex [lindex [openmsx_info setting scale_factor] 2] 1] > 1}]
 
 proc get_optional {dict_name key default} {
@@ -27,6 +20,10 @@ proc set_optional {dict_name key value} {
 }
 
 variable menulevels 0
+# some variables for typing-in-menus support
+variable input_buffer ""
+variable input_last_time [openmsx_info realtime]
+variable input_timeout 1; #sec
 
 proc push_menu_info {} {
 	variable menulevels
@@ -115,6 +112,19 @@ proc menu_create {menudef} {
 
 	set lst [get_optional menudef "lst" ""]
 	set menu_len [get_optional menudef "menu_len" 0]
+	if {[llength $lst] > $menu_len} {
+		set startheight 0
+		if {[llength $selectinfo] > 0} {
+			# there are selectable items. Start the scrollbar
+			# at the top of the first selectable item
+			# (skipping headers and stuff)
+			set startheight [lindex $selectinfo 0 0]
+		}
+		osd create rectangle "${name}.scrollbar" -z -1 -rgba 0x00000010 \
+		   -relx 1.0 -x -6 -w 6 -relh 1.0 -h -$startheight -y $startheight -borderrgba 0x00000070 -bordersize 0.5
+		osd create rectangle "${name}.scrollbar.thumb" -z -1 -rgba $default_select_color \
+		   -relw 1.0 -w -2 -x 1
+	}
 	set presentation [get_optional menudef "presentation" ""]
 	set selectidx 0
 	set scrollidx 0
@@ -124,6 +134,25 @@ proc menu_create {menudef} {
 	menu_on_select $selectinfo $selectidx
 
 	menu_refresh_top
+	menu_update_scrollbar
+}
+
+proc menu_update_scrollbar {} {
+	peek_menu_info
+	set name [dict get $menuinfo name]
+	if {[osd exists ${name}.scrollbar]} {
+		set menu_len   [dict get $menuinfo menu_len]
+		set scrollidx  [dict get $menuinfo scrollidx]
+		set selectidx  [dict get $menuinfo selectidx]
+		set totalitems [llength [dict get $menuinfo lst]]
+		set height [expr {1.0*$menu_len/$totalitems}]
+		set minheight 0.05 ;# TODO: derive from width of bar
+		set height [expr {$height > $minheight ? $height : $minheight}]
+		set pos [expr {1.0*($scrollidx+$selectidx)/($totalitems-1)}]
+		# scale the pos to the usable range
+		set pos [expr {$pos*(1.0-$height)}]
+		osd configure "${name}.scrollbar.thumb" -relh $height -rely $pos
+	}
 }
 
 proc menu_refresh_top {} {
@@ -192,6 +221,10 @@ proc menu_on_deselect {selectinfo selectidx} {
 }
 
 proc menu_action {button} {
+	# for any menu action, clear the input buffer
+	variable input_buffer
+	set input_buffer ""
+
 	peek_menu_info
 	set selectidx [dict get $menuinfo selectidx ]
 	menu_action_idx $selectidx $button
@@ -209,9 +242,11 @@ proc menu_action_idx {idx button} {
 
 proc get_mouse_coords {} {
 	peek_menu_info
-	set name [dict get $menuinfo name]
 	set x 2; set y 2
-	catch {lassign [osd info $name -mousecoord] x y}
+	catch {
+		set name [dict get $menuinfo name]
+		lassign [osd info $name -mousecoord] x y
+	}
 	list $x $y
 }
 proc menu_get_mouse_idx {xy} {
@@ -251,6 +286,14 @@ proc menu_mouse_up {} {
 	}
 	unset mouse_coord
 	unset mouse_idx
+}
+proc menu_mouse_wheel {event} {
+	lassign $event type1 type2 x y
+	if {$y > 0} {
+		osd_menu::menu_action UP
+	} elseif {$y < 0} {
+		osd_menu::menu_action DOWN
+	}
 }
 proc menu_mouse_motion {} {
 	variable mouse_coord
@@ -296,31 +339,31 @@ user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $e
 user_setting create string osd_tape_path "OSD Tape Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_hdd_path "OSD HDD Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_ld_path "OSD LD Load Menu Last Known Path" $env(HOME)
-if {![file exists $::osd_rom_path]} {
+
+if {![file exists $::osd_rom_path] || ![file readable $::osd_rom_path]} {
 	# revert to default (should always exist)
 	unset ::osd_rom_path
 }
 
-if {![file exists $::osd_disk_path]} {
+if {![file exists $::osd_disk_path] || ![file readable $::osd_disk_path]} {
 	# revert to default (should always exist)
 	unset ::osd_disk_path
 }
 
-if {![file exists $::osd_tape_path]} {
+if {![file exists $::osd_tape_path] || ![file readable $::osd_tape_path]} {
 	# revert to default (should always exist)
 	unset ::osd_tape_path
 }
 
-if {![file exists $::osd_hdd_path]} {
+if {![file exists $::osd_hdd_path] || ![file readable $::osd_hdd_path]} {
 	# revert to default (should always exist)
 	unset ::osd_hdd_path
 }
 
-if {![file exists $::osd_ld_path]} {
+if {![file exists $::osd_ld_path] || ![file readable $::osd_ld_path]} {
 	# revert to default (should always exist)
 	unset ::osd_ld_path
 }
-
 
 variable taperecordings_directory [file normalize $::env(OPENMSX_USER_DATA)/../taperecordings]
 
@@ -329,7 +372,7 @@ proc main_menu_open {} {
 }
 
 proc do_menu_open {top_menu} {
-	variable is_dingoo
+	variable is_dingux
 
 	# close console, because the menu interferes with it
 	set ::console off
@@ -353,16 +396,22 @@ proc do_menu_open {top_menu} {
 	bind -layer osd_menu "mouse button1 up"   {osd_menu::menu_mouse_up}
 	bind -layer osd_menu "mouse button3 up"   {osd_menu::menu_close_top}
 	bind -layer osd_menu "mouse motion"       {osd_menu::menu_mouse_motion}
-	bind -layer osd_menu "mouse button4 down" {osd_menu::menu_action UP   }
-	bind -layer osd_menu "mouse button5 down" {osd_menu::menu_action DOWN }
-	if {$is_dingoo} {
+	bind -layer osd_menu "mouse wheel" -event {osd_menu::menu_mouse_wheel}
+	if {$is_dingux} {
 		bind -layer osd_menu "keyb LCTRL"  {osd_menu::menu_action A    }
 		bind -layer osd_menu "keyb LALT"   {osd_menu::menu_action B    }
 	} else {
 		bind -layer osd_menu "OSDcontrol A PRESS" {osd_menu::menu_action A }
 		bind -layer osd_menu "OSDcontrol B PRESS" {osd_menu::menu_action B }
 		# on Android, use BACK button to go back in menus
-		bind -layer osd_menu "keyb WORLD_92"      {osd_menu::menu_action B }
+		bind -layer osd_menu "keyb BACK"      {osd_menu::menu_action B }
+	}
+	bind -layer osd_menu "CTRL+UP"      {osd_menu::select_menu_idx 0}
+	bind -layer osd_menu "CTRL+LEFT"    {osd_menu::select_menu_idx 0}
+	bind -layer osd_menu "keyb HOME"    {osd_menu::select_menu_idx 0}
+	set alphanum {a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9}
+	foreach char $alphanum {
+		bind -layer osd_menu "keyb $char"      "osd_menu::handle_keyboard_input $char"
 	}
 	activate_input_layer osd_menu -blocking
 }
@@ -383,10 +432,8 @@ proc main_menu_toggle {} {
 }
 
 proc menu_last_closed {} {
-	variable is_dingoo
-
 	set ::pause false
-	deactivate_input_layer osd_menu
+	after realtime 0 {deactivate_input_layer osd_menu}
 
 	namespace eval ::osd_control {unset close}
 }
@@ -493,7 +540,7 @@ proc select_menu_idx {itemidx} {
 	if {$selectidx < 0} {
 		incr scrollidx $selectidx
 		set selectidx 0
-	} elseif {$selectidx >= $menu_len} {
+	} elseif {($menu_len > 0) && ($selectidx >= $menu_len)} {
 		set selectidx [expr {$menu_len - 1}]
 		set scrollidx [expr {$itemidx - $selectidx}]
 	}
@@ -502,6 +549,7 @@ proc select_menu_idx {itemidx} {
 	set_scrollidx $scrollidx
 	menu_on_select $selectinfo $selectidx
 	menu_refresh_top
+	menu_update_scrollbar
 }
 
 proc select_menu_item {item} {
@@ -511,6 +559,97 @@ proc select_menu_item {item} {
 	if {$index == -1} return
 
 	select_menu_idx $index
+}
+
+proc handle_keyboard_input {char} {
+	variable input_buffer
+	variable input_last_time
+	variable input_timeout
+
+	set current_time [openmsx_info realtime]
+	if {[expr {$current_time - $input_last_time}] < $input_timeout} {
+		set input_buffer "$input_buffer$char"
+	} else {
+		set input_buffer $char
+	}
+	set input_last_time $current_time
+
+	osd_menu::select_next_menu_item_starting_with $input_buffer
+}
+
+proc select_next_menu_item_starting_with {text} {
+	peek_menu_info
+
+	set items [dict get $menuinfo presentation]
+	if {[llength $items] == 0} return
+
+	set selectidx [dict get $menuinfo selectidx]
+	set scrollidx [dict get $menuinfo scrollidx]
+	set itemidx [expr {$scrollidx + $selectidx}]
+
+	# start after the current item if this is a new search
+	if {[string length $text] == 1} {
+		incr itemidx
+	}
+	# use the list twice to wrap
+	set index [lsearch -glob -nocase -start $itemidx [concat $items $items] "$text*"]
+	if {$index == -1} return
+	set index [expr {$index % [llength $items]}]
+
+	select_menu_idx $index
+}
+
+proc create_slot_actions {slot path listtype} {
+	# the action A is checking what is currently in that media slot (e.g. diska) and if it's not empty, it puts that path as last known path. Then it creates the menu and afterwards selects the current item.
+	return [list actions [list A "set curSel \[lindex \[$slot\] 1\]; set $path \[expr {\$curSel ne {} ? \[file dirname \$curSel\] : \$$path}\]; osd_menu::menu_create \[osd_menu::menu_create_${listtype}_list \$$path $slot\]; catch { osd_menu::select_menu_item \[file tail \$curSel\]}"]]
+}
+
+proc get_slot_str {slot} {
+	return [string toupper [string index $slot end]]
+}
+proc create_slot_menu {slots path listtype menutitle} {
+	set menudef {
+		font-size 8
+		border-size 2
+		width 150
+		xpos 100
+		ypos 80
+	}
+	lappend items [list text $menutitle\
+		font-size 12\
+		post-spacing 6\
+		selectable false\
+	]
+	foreach slot $slots {
+		set slotcontent "(empty)"
+		if {![string match "empty*" [lindex [$slot] 2]]} {
+			set slotcontent [file tail [lindex [$slot] 1]]
+		}
+		lappend items [list text "[get_slot_str $slot]: $slotcontent" {*}[create_slot_actions $slot $path $listtype]]
+	}
+	dict set menudef items $items
+	osd_menu::menu_create $menudef
+}
+
+proc create_media_menu_items {media mediapath listtype itemtext shortmediaslotname longmediaslotname} {
+	if {[catch ${media}a]} {; # example: Philips NMS 801 without cart slot, or no diskdrives
+		lappend menuitems [list text "(No $longmediaslotname present...)"\
+			selectable false\
+			text-color 0x808080ff\
+		]
+	} else {
+		set slots [lsort [info command ${media}?]]
+		if {[llength $slots] <= 2} {
+			foreach slot $slots {
+				lappend menuitems [list text "${itemtext}... (${shortmediaslotname} [get_slot_str $slot])" {*}[create_slot_actions $slot $mediapath $listtype]]
+			}
+		} else {
+			set slot [lindex $slots 0]
+			lappend menuitems [list text "${itemtext}... (${shortmediaslotname} [get_slot_str $slot])" {*}[create_slot_actions $slot $mediapath $listtype]]
+			lappend menuitems [list text "${itemtext}... (any ${shortmediaslotname})" actions [list A "osd_menu::create_slot_menu \[list $slots\] \{$mediapath\} \{$listtype\} \{Select $longmediaslotname...\}"]]
+		}
+	}
+	return $menuitems
 }
 
 #
@@ -526,38 +665,18 @@ proc create_main_menu {} {
 	         font-size 12
 	         post-spacing 6
 	         selectable false }
-	if {[catch carta]} {; # example: Philips NMS 801
-		lappend items { text "(No cartridge slot available...)"
-			selectable false
-			text-color 0x808080ff
-		}
-	} else {
-		foreach slot [lrange [lsort [info command cart?]] 0 1] {
-			set slot_str [string toupper [string index $slot end]]
-			lappend items [list text "Load ROM... (slot $slot_str)" \
-				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_ROM_list \$::osd_rom_path $slot\]"]]
-		}
-	}
-	if {[catch diska]} {
-		lappend items { text "(No disk drives available...)"
-			selectable false
-			text-color 0x808080ff
-		}
-	} else {
-		foreach drive [lrange [lsort [info command disk?]] 0 1] {
-			set drive_str [string toupper [string index $drive end]]
-			lappend items [list text "Insert Disk... (drive $drive_str)" \
-				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_disk_list \$::osd_disk_path $drive\]"]]
-		}
-	}
+	lappend items {*}[create_media_menu_items "cart" "::osd_rom_path"  "ROM"  "Load ROM"    "slot"  "cartridge slot"]
+	lappend items {*}[create_media_menu_items "disk" "::osd_disk_path" "disk" "Insert disk" "drive" "disk drive"    ]
 	if {[info command hda] ne ""} {; # only exists when hard disk extension available
-		lappend items { text "Change hard disk image..."
-			actions { A { osd_menu::menu_create [osd_menu::menu_create_hdd_list $::osd_hdd_path]} }
+		foreach drive [lrange [lsort [info command hd?]] 0 1] {
+			set drive_str [string toupper [string index $drive end]]
+			lappend items [list text "Change HD/SD image... (drive $drive_str)" \
+				actions [list A "set curSel \[lindex \[$drive\] 1\]; set ::osd_hdd_path \[expr {\$curSel ne {} ? \[file dirname \$curSel\] : \$::osd_hdd_path}\]; osd_menu::menu_create \[osd_menu::menu_create_hdd_list \$::osd_hdd_path $drive\]; catch { osd_menu::select_menu_item \[file tail \$curSel\]}"]]
 		}
 	}
 	if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
 		lappend items { text "Load LaserDisc..."
-			actions { A { osd_menu::menu_create [osd_menu::menu_create_ld_list $::osd_ld_path]} }
+			actions { A { set curSel [lindex [laserdiscplayer] 1]; set ::osd_ld_path [expr {$curSel ne {} ? [file dirname $curSel] : $::osd_ld_path}]; osd_menu::menu_create [osd_menu::menu_create_ld_list $::osd_ld_path]; catch { osd_menu::select_menu_item [file tail $curSel]}} }
 		}
 	}
 	if {[catch "machine_info connector cassetteport"]} {; # example: turboR
@@ -568,7 +687,7 @@ proc create_main_menu {} {
 		}
 	} else {
 		lappend items { text "Set Tape..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_tape_list $::osd_tape_path]} }
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_tape_list $::osd_tape_path]; catch { osd_menu::select_menu_item [file tail [lindex [cassetteplayer] 1]]}} }
 	         post-spacing 3 }
 	}
 	lappend items { text "Save State..."
@@ -736,19 +855,29 @@ proc create_video_setting_menu {} {
 		border-size 2
 		width 210
 		xpos 100
-		ypos 120
+		ypos 110
 	}
 	lappend items { text "Video Settings"
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
+	if {[expr {[lindex [lindex [openmsx_info setting videosource] 2] 1] > 1}]} {
+		lappend items { text "Video source: $videosource"
+			actions { LEFT  { osd_menu::menu_setting [cycle_back videosource] }
+			          RIGHT { osd_menu::menu_setting [cycle      videosource] }}
+				  post-spacing 6}
+	}
 	if {$scaling_available} {
 		lappend items { text "Scaler: $scale_algorithm"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back scale_algorithm] }
 			          RIGHT { osd_menu::menu_setting [cycle      scale_algorithm] }}}
-		lappend items { text "Scale Factor: ${scale_factor}x"
-			actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
-			          RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
+		# only add scale factor setting if it can actually be changed
+		set scale_minmax [lindex [openmsx_info setting scale_factor] 2]
+		if {[expr {[lindex $scale_minmax 0] != [lindex $scale_minmax 1]}]} {
+			lappend items { text "Scale Factor: ${scale_factor}x"
+				actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
+				          RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
+		}
 	}
 	lappend items { text "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $horizontal_stretch]"
 	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $horizontal_stretch }}
@@ -827,7 +956,7 @@ set advanced_menu {
 	         selectable false }
 	       { text "Manage Running Machines..."
 	         actions { A { osd_menu::menu_create $osd_menu::running_machines_menu }}}
-	       { text "Toys..."
+	       { text "Toys and Utilities..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_toys_list] }}}}}
 
 set running_machines_menu {
@@ -947,8 +1076,7 @@ proc get_filtered_configs {type} {
 		}
 		# follow symlink (on platforms that support links)
 		catch {
-			set conf [file join [file dirname $conf]
-			                    [file readlink $conf]]
+			set conf [file join [file dirname $conf] [file readlink $conf]]
 		}
 		# only add if the (possibly resolved link) hasn't been seen before
 		if {$conf ni $configs} {
@@ -1098,11 +1226,6 @@ proc menu_remove_extension_exec {item} {
 	remove_extension $item
 }
 
-proc get_pluggable_for_connector {connector} {
-	set t [plug $connector]
-	return [string range $t [string first ": " $t]+2 end]
-}
-
 proc menu_create_connectors_list {} {
 	set menu_def {
 	         execute menu_connector_exec
@@ -1121,7 +1244,7 @@ proc menu_create_connectors_list {} {
 	foreach item $items {
 		set plugged [get_pluggable_for_connector $item]
 		set plugged_presentation ""
-		if {$plugged ne "--empty--"} {
+		if {$plugged ne ""} {
 			set plugged_presentation "  ([machine_info pluggable $plugged])"
 		}
 		lappend presentation "[machine_info connector $item]: $plugged$plugged_presentation"
@@ -1157,7 +1280,7 @@ proc create_menu_pluggable_list {connector} {
 	set already_plugged [list]
 	foreach other_connector [machine_info connector] {
 		set other_plugged [get_pluggable_for_connector $other_connector]
-		if {$other_plugged ne "--empty--" && $other_connector ne $connector} {
+		if {$other_plugged ne "" && $other_connector ne $connector} {
 			lappend already_plugged $other_plugged
 		}
 	}
@@ -1176,8 +1299,7 @@ proc create_menu_pluggable_list {connector} {
 	}
 
 	set plugged [get_pluggable_for_connector $connector]
-
-	if {$plugged ne "--empty--"} {
+	if {$plugged ne ""} {
 		set items [linsert $items 0 "--unplug--"]
 		set presentation [linsert $presentation 0 "Nothing, unplug $plugged ([machine_info pluggable $plugged])"]
 	}
@@ -1190,9 +1312,9 @@ proc create_menu_pluggable_list {connector} {
 proc menu_plug_exec {connector pluggable} {
 	set command ""
 	if {$pluggable eq "--unplug--"} {
-		set command "unplug $connector"
+		set command "unplug {$connector}"
 	} else {
-		set command "plug $connector $pluggable"
+		set command "plug {$connector} {$pluggable}"
 	}
 	#note: NO braces around $command
 	if {[catch $command errorText]} {
@@ -1214,7 +1336,7 @@ proc menu_create_toys_list {} {
 	         width 200
 	         xpos 100
 	         ypos 120
-	         header { text "Toys"
+	         header { text "Toys and Utilities"
 	                  font-size 10
 	                  post-spacing 6 }}
 
@@ -1255,7 +1377,10 @@ proc ls {directory extensions} {
 	set extra_entries [list]
 	set volumes [file volumes]
 	if {$directory ni $volumes} {
-		lappend extra_entries ".."
+		# check whether .. is readable (it's not always so on Android)
+		if {[file readable [file join $directory ..]]} {
+			lappend extra_entries ".."
+		}
 	} else {
 		if {[llength $volumes] > 1} {
 			set extra_entries $volumes
@@ -1327,47 +1452,89 @@ proc menu_select_rom {slot item} {
 			set ::osd_rom_path [file normalize $fullname]
 			menu_create [menu_create_ROM_list $::osd_rom_path $slot]
 		} else {
-			if {[catch {$slot $fullname} errorText]} {
-				osd::display_message "Can't insert ROM: $errorText" error
+			set mappertype ""
+			set hash [sha1sum $fullname]
+			if {[catch {set mappertype [dict get [openmsx_info software $hash] mapper_type_name]}]} {
+				# not in the database, execute after selecting mapper type
+				menu_create [menu_create_mappertype_list $slot $fullname]
 			} else {
-				menu_close_all
-
-				set rominfo [getlist_rom_info]
-
-				if {$rominfo eq ""} {
-					osd::display_message "No ROM information available..."
-				} else {
-					osd::display_message "Now running ROM:\nTitle:\nYear:\nCompany:\nCountry:\nStatus:\nRemark:"
-
-					append result " \n" \
-								  "[dict get $rominfo title]\n" \
-								  "[dict get $rominfo year]\n" \
-								  "[dict get $rominfo company]\n" \
-								  "[dict get $rominfo country]\n" \
-								  "[dict get $rominfo status]\n"
-
-					if {[dict get $rominfo remark] ne ""} {
-						append result [dict get $rominfo remark]
-					} else {
-						append result "None"
-					}
-
-					set txt_size 6
-					set xpos 35
-
-					# TODO: prevent this from being duplicated from osd_widgets::text_box
-					if {$::scale_factor == 1} {
-						set txt_size 9
-						set xpos 53
-					}
-
-					# TODO: this code knows the internal name of the widget of osd::display_message proc... it shouldn't need to.
-					osd create text osd_display_message.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$result"
-				}
-				reset
+				# in the database, so just execute
+				menu_rom_with_mappertype_exec $slot $fullname $mappertype
 			}
 		}
 	}
+}
+
+proc menu_rom_with_mappertype_exec {slot fullname mappertype} {
+	if {[catch {$slot $fullname -romtype $mappertype} errorText]} {
+		osd::display_message "Can't insert ROM: $errorText" error
+	} else {
+		menu_close_all
+
+		set rominfo [getlist_rom_info]
+
+		if {$rominfo eq ""} {
+			osd::display_message "No ROM information available..."
+		} else {
+			osd::display_message "Now running ROM:\nTitle:\nYear:\nCompany:\nCountry:\nStatus:\nRemark:"
+
+			append result " \n" \
+						  "[dict get $rominfo title]\n" \
+						  "[dict get $rominfo year]\n" \
+						  "[dict get $rominfo company]\n" \
+						  "[dict get $rominfo country]\n" \
+						  "[dict get $rominfo status]\n"
+
+			if {[dict get $rominfo remark] ne ""} {
+				append result [dict get $rominfo remark]
+			} else {
+				append result "None"
+			}
+
+			set txt_size 6
+			set xpos 35
+
+			# TODO: prevent this from being duplicated from osd_widgets::text_box
+			if {$::scale_factor == 1} {
+				set txt_size 9
+				set xpos 53
+			}
+
+			# TODO: this code knows the internal name of the widget of osd::display_message proc... it shouldn't need to.
+			osd create text osd_display_message.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$result"
+		}
+		reset
+	}
+}
+
+proc menu_create_mappertype_list {slot fullname} {
+	set menu_def [list execute [list menu_rom_with_mappertype_exec $slot $fullname] \
+	         font-size 8 \
+	         border-size 2 \
+	         width 200 \
+	         xpos 100 \
+	         ypos 120 \
+	         header { text "Select mapper type" \
+	                  font-size 10 \
+	                  post-spacing 6 }]
+
+	set items [openmsx_info romtype]
+	set presentation [list]
+
+	foreach i $items {
+		lappend presentation "[dict get [openmsx_info romtype $i] description]"
+	}
+
+	set items_sorted [list "auto"]
+	set presentation_sorted [list "Auto-detect (guess)"]
+
+	foreach i [lsort -dictionary -indices $presentation] {
+		lappend presentation_sorted [lindex $presentation $i]
+		lappend items_sorted [lindex $items $i]
+	}
+
+	lappend menu_def presentation $presentation_sorted
+	return [prepare_menu_list $items_sorted 10 $menu_def]
 }
 
 proc menu_create_disk_list {path drive} {
@@ -1381,7 +1548,7 @@ proc menu_create_disk_list {path drive} {
 			font-size 10 \
 			post-spacing 6 }]
 	set cur_image [lindex [$drive] 1]
-	set extensions "dsk|zip|gz|xsa|dmk|di1|di2"
+	set extensions "dsk|zip|gz|xsa|dmk|di1|di2|fd?|1|2|3|4|5|6|7|8|9"
 	set items [list]
 	set presentation [list]
 	if {[lindex [$drive] 2] ne "empty readonly"} {
@@ -1526,40 +1693,40 @@ proc menu_free_tape_name {} {
 	}
 }
 
-proc menu_create_hdd_list {path} {
-	return [prepare_menu_list [ls $path "dsk|zip|gz"] \
+proc menu_create_hdd_list {path drive} {
+	return [prepare_menu_list [ls $path "dsk|zip|gz|hdd"] \
 	                          10 \
-	                          { execute menu_select_hdd
-	                            font-size 8
-	                            border-size 2
-	                            width 200
-	                            xpos 100
-	                            ypos 120
+	                          [list execute [list menu_select_hdd $drive]\
+	                            font-size 8 \
+	                            border-size 2 \
+	                            width 200 \
+	                            xpos 100 \
+	                            ypos 120 \
 	                            header { text "Hard disk images $::osd_hdd_path"
 	                                     font-size 10
-	                                     post-spacing 6 }}]
+	                                     post-spacing 6 }]]
 }
 
-proc menu_select_hdd {item} {
+proc menu_select_hdd {drive item} {
 	set fullname [file join $::osd_hdd_path $item]
 	if {[file isdirectory $fullname]} {
 		menu_close_top
 		set ::osd_hdd_path [file normalize $fullname]
-		menu_create [menu_create_hdd_list $::osd_hdd_path]
+		menu_create [menu_create_hdd_list $::osd_hdd_path $drive]
 	} else {
-		confirm_action "Really power off to change HDD image?" osd_menu::confirm_change_hdd $item
+		confirm_action "Really power off to change HDD image?" osd_menu::confirm_change_hdd [list $item $drive]
 	}
 }
 
 proc confirm_change_hdd {item result} {
 	menu_close_top
 	if {$result eq "Yes"} {
-		set fullname [file join $::osd_hdd_path $item]
-		if {[catch {set ::power off; hda $fullname} errorText]} {
-				osd::display_message "Can't change hard disk image: $errorText" error
-				# TODO: we already powered off even though the file may be invalid... save state first?
+		set fullname [file join $::osd_hdd_path [lindex $item 0]]
+		if {[catch {set ::power off; [lindex $item 1] $fullname} errorText]} {
+			osd::display_message "Can't change hard disk image: $errorText" error
+			# TODO: we already powered off even though the file may be invalid... save state first?
 		} else {
-			osd::display_message "Changed hard disk image to $item!"
+			osd::display_message "Changed hard disk image to [lindex $item 0]!"
 			menu_close_all
 		}
 		set ::power on
@@ -1609,11 +1776,7 @@ proc menu_select_ld {item} {
 proc get_savestates_list_presentation_sorted {} {
 	set presentation [list]
 	foreach i [lsort -integer -index 1 -decreasing [savestate::list_savestates_raw]] {
-		if {[info commands clock] ne ""} {
-			set pres_str [format "%s (%s)" [lindex $i 0] [clock format [lindex $i 1] -format "%x - %X"]]
-		} else {
-			set pres_str [lindex $i 0]
-		}
+		set pres_str [lindex $i 0]
 		lappend presentation $pres_str
 	}
 	return $presentation

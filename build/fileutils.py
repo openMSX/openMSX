@@ -1,3 +1,4 @@
+from __future__ import print_function
 from os import altsep, chmod, mkdir, remove, sep, stat, walk
 from os.path import dirname, exists, isdir, isfile, islink, join as joinpath
 from shutil import copyfile
@@ -65,7 +66,7 @@ def installDir(path):
 		# We have to do chmod() separately because the "mode" argument of
 		# mkdir() is modified by umask.
 		mkdir(path)
-		chmod(path, 0755)
+		chmod(path, 0o755)
 
 def _installDirsRec(path):
 	'''Like installDirs(), except that "altsep" is not supported as directory
@@ -77,7 +78,7 @@ def _installDirsRec(path):
 		if index != -1:
 			_installDirsRec(path[ : index])
 		mkdir(path)
-		chmod(path, 0755)
+		chmod(path, 0o755)
 
 def installDirs(path):
 	'''Creates the given path, including any parent directories if necessary.
@@ -98,7 +99,7 @@ def installFile(srcPath, destPath):
 	Raises IOError if there is a problem reading or writing files.
 	'''
 	copyfile(srcPath, destPath)
-	chmod(destPath, 0755 if (stat(srcPath).st_mode & 0100) else 0644)
+	chmod(destPath, 0o755 if (stat(srcPath).st_mode & 0o100) else 0o644)
 
 def installSymlink(target, link):
 	'''Creates a symbolic link with the given name to the given target.
@@ -131,13 +132,13 @@ def installTree(srcDir, destDir, paths):
 		srcPath = joinpath(srcDir, relPath)
 		destPath = joinpath(destDir, relPath)
 		if islink(srcPath):
-			print 'Skipping symbolic link:', srcPath
+			print('Skipping symbolic link:', srcPath)
 		elif isdir(srcPath):
 			_installDirsRec(destPath)
 		elif isfile(srcPath):
 			_installDirsRec(dirname(destPath))
 			installFile(srcPath, destPath)
 		elif exists(srcPath):
-			print 'Skipping unknown kind of file system entry:', srcPath
+			print('Skipping unknown kind of file system entry:', srcPath)
 		else:
-			print 'Skipping non-existing path:', srcPath
+			print('Skipping non-existing path:', srcPath)

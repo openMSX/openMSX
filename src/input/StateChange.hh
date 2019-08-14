@@ -13,7 +13,7 @@ namespace openmsx {
 class StateChange
 {
 public:
-	virtual ~StateChange() {} // must be polymorhpic
+	virtual ~StateChange() = default; // must be polymorhpic
 
 	EmuTime::param getTime() const
 	{
@@ -28,7 +28,7 @@ public:
 
 protected:
 	StateChange() : time(EmuTime::zero) {} // for serialize
-	StateChange(EmuTime::param time_)
+	explicit StateChange(EmuTime::param time_)
 		: time(time_)
 	{
 	}

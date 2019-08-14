@@ -27,7 +27,7 @@ class PixelRenderer final : public Renderer, private Observer<Setting>
 {
 public:
 	PixelRenderer(VDP& vdp, Display& display);
-	~PixelRenderer();
+	~PixelRenderer() override;
 
 	// Renderer interface:
 	PostProcessor* getPostProcessor() const override;

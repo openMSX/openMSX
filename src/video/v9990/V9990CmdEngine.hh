@@ -75,6 +75,19 @@ public:
 		return borderX;
 	}
 
+	/** Calculate an (under-)estimation for when the command will finish.
+	  * The main purpose of this function is to insert extra sync points
+	  * so that the Command-End (CE) interrupt properly synchronizes with
+	  * CPU emulation.
+	  * This estimation:
+	  * - Is the current time (engineTime) when no command is executing
+	  *   or the command doesn't require extra syncs.
+	  * - Is allowed to be an underestimation, on the condition that (when
+	  *   that point in time is reached) the new estimation is more
+	  *   accurate and converges to the actual end time.
+	  */
+	EmuTime estimateCmdEnd() const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -221,8 +234,8 @@ private:
 	void startBMLL16(EmuTime::param time);
 	void startLINE  (EmuTime::param time);
 	void startSRCH  (EmuTime::param time);
-	void startPOINT (EmuTime::param time);
-	template<typename Mode> void startPSET(EmuTime::param time);
+	template<typename Mode> void startPOINT(EmuTime::param time);
+	template<typename Mode> void startPSET (EmuTime::param time);
 	void startADVN  (EmuTime::param time);
 
 	                        void executeSTOP (EmuTime::param limit);
@@ -238,7 +251,7 @@ private:
 	template<typename Mode> void executeBMLL (EmuTime::param limit);
 	template<typename Mode> void executeLINE (EmuTime::param limit);
 	template<typename Mode> void executeSRCH (EmuTime::param limit);
-	                        void executePOINT(EmuTime::param limit);
+	template<typename Mode> void executePOINT(EmuTime::param limit);
 	                        void executePSET (EmuTime::param limit);
 	                        void executeADVN (EmuTime::param limit);
 

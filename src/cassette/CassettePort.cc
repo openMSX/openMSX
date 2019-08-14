@@ -11,7 +11,7 @@
 #include "PluggingController.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 using std::string;
 
@@ -47,7 +47,7 @@ void DummyCassettePort::setLaserdiscPlayer(LaserdiscPlayer* /* laserdisc */)
 
 CassettePort::CassettePort(const HardwareConfig& hwConf)
 	: Connector(hwConf.getMotherBoard().getPluggingController(), "cassetteport",
-	            make_unique<DummyCassetteDevice>())
+	            std::make_unique<DummyCassetteDevice>())
 	, motherBoard(hwConf.getMotherBoard())
 #if COMPONENT_LASERDISC
 	, laserdiscPlayer(nullptr)
@@ -55,8 +55,9 @@ CassettePort::CassettePort(const HardwareConfig& hwConf)
 	, lastOutput(false)
 	, motorControl(false)
 {
-	getPluggingController().registerPluggable(
-		make_unique<CassettePlayer>(hwConf));
+	auto player = std::make_unique<CassettePlayer>(hwConf);
+	cassettePlayer = player.get();
+	getPluggingController().registerPluggable(std::move(player));
 }
 
 CassettePort::~CassettePort()
@@ -89,7 +90,7 @@ bool CassettePort::cassetteIn(EmuTime::param time)
 	// All analog filtering is ignored for now
 	//   only important component is DC-removal
 	//   we just assume sample has no DC component
-	short sample;
+	int16_t sample;
 #if COMPONENT_LASERDISC
 	if (!motorControl && laserdiscPlayer) {
 		sample = laserdiscPlayer->readSample(time);
@@ -114,12 +115,12 @@ void CassettePort::unplug(EmuTime::param time)
 	Connector::unplug(time);
 }
 
-const string CassettePort::getDescription() const
+string_view CassettePort::getDescription() const
 {
 	return "MSX Cassette port";
 }
 
-string_ref CassettePort::getClass() const
+string_view CassettePort::getClass() const
 {
 	return "Cassette Port";
 }
@@ -130,10 +131,17 @@ CassetteDevice& CassettePort::getPluggedCasDev() const
 }
 
 template<typename Archive>
-void CassettePort::serialize(Archive& ar, unsigned /*version*/)
+void CassettePort::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<Connector>(*this);
 	// don't serialize 'lastOutput', done via MSXPPI
+
+	// Must come after serialization of the connector because that one
+	// potentionally serializes the CassettePlayer.
+	if (ar.versionAtLeast(version, 2)) {
+		// always serialize CassettePlayer, even if it's not plugged in.
+		ar.serializeOnlyOnce("cassettePlayer", *cassettePlayer);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(CassettePort);
 

@@ -39,6 +39,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 
     <PrinterPort id="Printer Port">
@@ -51,7 +52,7 @@
       </RAM>
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-	  <sha1>8963fc041975f31dc2ab1019cfdd4967999de53e</sha1>
+          <sha1>8963fc041975f31dc2ab1019cfdd4967999de53e</sha1>
           <filename>cx5m_basic-bios1.rom</filename>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -60,12 +61,18 @@
 
     <primary external="true" slot="1"/>
 
+    <!-- Note that this slot is not a standard MSX cartridgeslot, but a 50 pins
+    male connector, carrying all MSX cartridgeslot signals. On a real machine
+    you can use the Yamaha CA-01 Single Cartridge Adapter to change this slot
+    into a normal MSX cartridge slot. As openMSX doesn't model these, consider
+    this slot to have this adapter connected... -->
     <primary external="true" slot="2"/>
 
     <primary slot="3">
 
+    <!-- Note that this device can be plugged out. What is left is not a standard MSX cartridgeslot, but a 60 pins male edge connector, carrying all MSX cartridgeslot signals. -->
       <YamahaSFG id="Yamaha SFG-01">
-        <mem base="0x0000" size="0x8000"/>
+        <mem base="0x0000" size="0x10000"/>
         <sound>
           <volume>30000</volume>
         </sound>

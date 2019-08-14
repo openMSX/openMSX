@@ -25,7 +25,6 @@
 #include "FilePool.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
-#include "Reactor.hh"
 #include "DeviceConfig.hh"
 #include "RecordedCommand.hh"
 #include "CliComm.hh"
@@ -34,10 +33,10 @@
 #include "FileContext.hh"
 #include "endian.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <algorithm>
-#include <vector>
 #include <cstring>
+#include <memory>
+#include <vector>
 
 using std::string;
 using std::vector;
@@ -86,7 +85,7 @@ public:
 	LSXCommand(CommandController& commandController,
 	           StateChangeDistributor& stateChangeDistributor,
 	           Scheduler& scheduler, SCSILS120& ls);
-	void execute(array_ref<TclObject> tokens,
+	void execute(span<const TclObject> tokens,
 	             TclObject& result, EmuTime::param time) override;
 	string help(const vector<string>& tokens) const override;
 	void tabCompletion(vector<string>& tokens) const override;
@@ -113,11 +112,13 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	}
 	name[2] = char('a' + id);
 	(*lsInUse)[id] = true;
-	lsxCommand = make_unique<LSXCommand>(
+	lsxCommand = std::make_unique<LSXCommand>(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(), *this);
 
+	lun = 0; // TODO move to reset() ?
+	message = 0;
 	reset();
 }
 
@@ -343,7 +344,7 @@ bool SCSILS120::checkReadOnly()
 
 unsigned SCSILS120::readCapacity()
 {
-	unsigned block = unsigned(getNbSectors());
+	auto block = unsigned(getNbSectors());
 
 	if (block == 0) {
 		// drive not ready
@@ -360,7 +361,7 @@ unsigned SCSILS120::readCapacity()
 
 bool SCSILS120::checkAddress()
 {
-	unsigned total = unsigned(getNbSectors());
+	auto total = unsigned(getNbSectors());
 	if (total == 0) {
 		// drive not ready
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
@@ -473,10 +474,10 @@ void SCSILS120::eject()
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
 	}
-	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, "");
+	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, {});
 }
 
-void SCSILS120::insert(string_ref filename)
+void SCSILS120::insert(string_view filename)
 {
 	file = File(filename);
 	mediaChanged = true;
@@ -738,7 +739,7 @@ bool SCSILS120::diskChanged()
 	return mediaChanged; // TODO not reset on read
 }
 
-int SCSILS120::insertDisk(string_ref filename)
+int SCSILS120::insertDisk(string_view filename)
 {
 	try {
 		insert(filename);
@@ -760,22 +761,21 @@ LSXCommand::LSXCommand(CommandController& commandController_,
 {
 }
 
-void LSXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
+void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
 		auto& file = ls.file;
-		result.addListElement(ls.name + ':');
-		result.addListElement(file.is_open() ? file.getURL() : "");
+		result.addListElement(ls.name + ':',
+		                      file.is_open() ? file.getURL() : string{});
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) &&
 	           ((tokens[1] == "eject") || (tokens[1] == "-eject"))) {
 		ls.eject();
 		// TODO check for locked tray
 		if (tokens[1] == "-eject") {
-			result.setString(
-				"Warning: use of '-eject' is deprecated, "
-				"instead use the 'eject' subcommand");
+			result = "Warning: use of '-eject' is deprecated, "
+			         "instead use the 'eject' subcommand";
 		}
 	} else if ((tokens.size() == 2) ||
 	           ((tokens.size() == 3) && (tokens[1] == "insert"))) {
@@ -794,8 +794,8 @@ void LSXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 			ls.insert(filename);
 			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {
-			throw CommandException("Can't change disk image: " +
-					e.getMessage());
+			throw CommandException("Can't change disk image: ",
+			                       e.getMessage());
 		}
 	} else {
 		throw CommandException("Too many or wrong arguments.");
@@ -804,10 +804,11 @@ void LSXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 
 string LSXCommand::help(const vector<string>& /*tokens*/) const
 {
-	return ls.name + "                   : display the disk image for this LS-120 drive\n" +
-	       ls.name + " eject             : eject the disk image from this LS-120 drive\n" +
-	       ls.name + " insert <filename> : change the disk image for this LS-120 drive\n" +
-	       ls.name + " <filename>        : change the disk image for this LS-120 drive\n";
+	return strCat(
+		ls.name, "                   : display the disk image for this LS-120 drive\n",
+		ls.name, " eject             : eject the disk image from this LS-120 drive\n",
+		ls.name, " insert <filename> : change the disk image for this LS-120 drive\n",
+		ls.name, " <filename>        : change the disk image for this LS-120 drive\n");
 }
 
 void LSXCommand::tabCompletion(vector<string>& tokens) const
@@ -820,7 +821,7 @@ void LSXCommand::tabCompletion(vector<string>& tokens) const
 template<typename Archive>
 void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 {
-	string filename = file.is_open() ? file.getURL() : "";
+	string filename = file.is_open() ? file.getURL() : string{};
 	ar.serialize("filename", filename);
 	if (ar.isLoader()) {
 		// re-insert disk before restoring 'mediaChanged'
@@ -831,13 +832,13 @@ void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 		}
 	}
 
-	ar.serialize("keycode", keycode);
-	ar.serialize("currentSector", currentSector);
-	ar.serialize("currentLength", currentLength);
-	ar.serialize("unitAttention", unitAttention);
-	ar.serialize("mediaChanged", mediaChanged);
-	ar.serialize("message", message);
-	ar.serialize("lun", lun);
+	ar.serialize("keycode",       keycode,
+	             "currentSector", currentSector,
+	             "currentLength", currentLength,
+	             "unitAttention", unitAttention,
+	             "mediaChanged",  mediaChanged,
+	             "message",       message,
+	             "lun",           lun);
 	ar.serialize_blob("cdb", cdb, sizeof(cdb));
 }
 INSTANTIATE_SERIALIZE_METHODS(SCSILS120);

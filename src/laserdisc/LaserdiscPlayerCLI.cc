@@ -15,31 +15,28 @@ LaserdiscPlayerCLI::LaserdiscPlayerCLI(CommandLineParser& parser_)
 	parser.registerFileType("ogv", *this);
 }
 
-void LaserdiscPlayerCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void LaserdiscPlayerCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_ref LaserdiscPlayerCLI::optionHelp() const
+string_view LaserdiscPlayerCLI::optionHelp() const
 {
 	return "Put laserdisc image specified in argument in "
 	       "virtual laserdiscplayer";
 }
 
 void LaserdiscPlayerCLI::parseFileType(const string& filename,
-                                       array_ref<string>& /*cmdLine*/)
+                                       span<string>& /*cmdLine*/)
 {
 	if (!parser.getGlobalCommandController().hasCommand("laserdiscplayer")) {
 		throw MSXException("No laserdiscplayer.");
 	}
-	TclObject command;
-	command.addListElement("laserdiscplayer");
-	command.addListElement("insert");
-	command.addListElement(filename);
+	TclObject command = makeTclList("laserdiscplayer", "insert", filename);
 	command.executeCommand(parser.getInterpreter());
 }
 
-string_ref LaserdiscPlayerCLI::fileTypeHelp() const
+string_view LaserdiscPlayerCLI::fileTypeHelp() const
 {
 	return "Laserdisc image, Ogg Vorbis/Theora";
 }

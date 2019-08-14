@@ -2,20 +2,18 @@
 #include "GLContext.hh"
 #include "GLScaler.hh"
 #include "GLScalerFactory.hh"
-#include "IntegerSetting.hh"
 #include "FloatSetting.hh"
-#include "BooleanSetting.hh"
-#include "EnumSetting.hh"
 #include "OutputSurface.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
 #include "InitException.hh"
 #include "gl_transform.hh"
 #include "random.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "vla.hh"
-#include <algorithm>
 #include <cassert>
+#include <cstdint>
 
 using namespace gl;
 
@@ -138,9 +136,11 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	int glow = renderSettings.getGlow();
 	bool renderToTexture = (deform != RenderSettings::DEFORM_NORMAL) ||
 	                       (horStretch != 320.0f) ||
-	                       (glow != 0);
+	                       (glow != 0) ||
+	                       screen.isViewScaled();
 
-	if ((deform == RenderSettings::DEFORM_3D) || !paintFrame) {
+	if ((screen.getViewOffset() != ivec2()) || // any part of the screen not covered by the viewport?
+	    (deform == RenderSettings::DEFORM_3D) || !paintFrame) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		if (!paintFrame) {
@@ -195,8 +195,9 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	if (renderToTexture) {
 		fbo[frameCounter & 1].pop();
 		colorTex[frameCounter & 1].bind();
-		glViewport(screen.getX(), screen.getY(),
-		           screen.getWidth(), screen.getHeight());
+		gl::ivec2 viewOffset = screen.getViewOffset();
+		gl::ivec2 viewSize   = screen.getViewSize();
+		glViewport(viewOffset[0], viewOffset[1], viewSize[0], viewSize[1]);
 
 		if (deform == RenderSettings::DEFORM_3D) {
 			drawMonitor3D();
@@ -217,12 +218,13 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 			mat4 I;
 			glUniformMatrix4fv(gl::context->unifTexMvp,
 			                   1, GL_FALSE, &I[0][0]);
-			glDisable(GL_BLEND);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(0);
 		}
 		storedFrame = true;
 	} else {
@@ -295,8 +297,7 @@ void GLPostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
 	// create texture/pbo if needed
-	auto it = find_if(begin(textures), end(textures),
-	                  EqualTupleValue<0>(lineWidth));
+	auto it = ranges::find_if(textures, EqualTupleValue<0>(lineWidth));
 	if (it == end(textures)) {
 		TextureData textureData;
 
@@ -410,6 +411,8 @@ void GLPostProcessor::drawGlow(int glow)
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
 	glDisable(GL_BLEND);
 }
 
@@ -494,7 +497,11 @@ void GLPostProcessor::drawNoise()
 	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
 	noiseTextureB.bind();
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
 	glBlendEquation(GL_FUNC_ADD); // restore default
+	glDisable(GL_BLEND);
 }
 
 static const int GRID_SIZE = 16;
@@ -529,9 +536,9 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	}
 
 	// calculate indices
-	unsigned short indices[NUM_INDICES];
+	uint16_t indices[NUM_INDICES];
 
-	unsigned short* ind = indices;
+	uint16_t* ind = indices;
 	for (int y = 0; y < GRID_SIZE; ++y) {
 		for (int x = 0; x < GRID_SIZE1; ++x) {
 			*ind++ = (y + 0) * GRID_SIZE1 + x;
@@ -596,6 +603,9 @@ void GLPostProcessor::drawMonitor3D()
 	glEnableVertexAttribArray(2);
 
 	glDrawElements(GL_TRIANGLE_STRIP, NUM_INDICES, GL_UNSIGNED_SHORT, nullptr);
+	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

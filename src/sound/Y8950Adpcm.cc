@@ -54,10 +54,6 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const DeviceConfig& config,
 	clearRam();
 }
 
-Y8950Adpcm::~Y8950Adpcm()
-{
-}
-
 void Y8950Adpcm::clearRam()
 {
 	ram.clear(0xFF);
@@ -157,6 +153,11 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 	switch (rg) {
 	case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
 		reg7 = data;
+		if (reg7 & R07_START) {
+			y8950.setStatus(Y8950::STATUS_PCM_BSY);
+		} else {
+			y8950.resetStatus(Y8950::STATUS_PCM_BSY);
+		}
 		if (reg7 & R07_RESET) {
 			reg7 = 0;
 		}
@@ -275,11 +276,16 @@ void Y8950Adpcm::writeData(byte data)
 			// set the flag in zero time, so that the IRQ
 			// will work.
 
-			// set BRDY bit in status register
-			y8950.setStatus(Y8950::STATUS_BUF_RDY);
-		} else {
-			// set EOS bit in status register
-			y8950.setStatus(Y8950::STATUS_EOS);
+			if (emu.memPntr <= stopAddr) {
+				// there's more to transfer: set BRDY
+				y8950.setStatus(Y8950::STATUS_BUF_RDY);
+			} else {
+				// we just received the last byte: set EOS
+				y8950.setStatus(Y8950::STATUS_EOS);
+				// Eugeny tested that pointer wraps when
+				// continue writing after EOS
+				emu.memPntr = startAddr;
+			}
 		}
 
 	} else if ((reg7 & R07_MODE) == 0x80) {
@@ -408,7 +414,7 @@ void Y8950Adpcm::writeMemory(unsigned memPntr, byte value)
 {
 	unsigned addr = (memPntr / 2) & addrMask;
 	if ((addr < ram.getSize()) && !romBank) {
-		ram[addr] = value;
+		ram.write(addr, value);
 	}
 }
 byte Y8950Adpcm::readMemory(unsigned memPntr) const
@@ -509,26 +515,26 @@ template<typename Archive>
 void Y8950Adpcm::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<Schedulable>(*this);
-	ar.serialize("ram", ram);
-	ar.serialize("startAddr", startAddr);
-	ar.serialize("stopAddr", stopAddr);
-	ar.serialize("addrMask", addrMask);
-	ar.serialize("volume", volume);
-	ar.serialize("volumeWStep", volumeWStep);
-	ar.serialize("readDelay", readDelay);
-	ar.serialize("delta", delta);
-	ar.serialize("reg7", reg7);
-	ar.serialize("reg15", reg15);
-	ar.serialize("romBank", romBank);
+	ar.serialize("ram",          ram,
+	             "startAddr",    startAddr,
+	             "stopAddr",     stopAddr,
+	             "addrMask",     addrMask,
+	             "volume",       volume,
+	             "volumeWStep",  volumeWStep,
+	             "readDelay",    readDelay,
+	             "delta",        delta,
+	             "reg7",         reg7,
+	             "reg15",        reg15,
+	             "romBank",      romBank,
 
-	ar.serialize("memPntr", emu.memPntr);
-	ar.serialize("nowStep", emu.nowStep);
-	ar.serialize("out", emu.out);
-	ar.serialize("output", emu.output);
-	ar.serialize("diff", emu.diff);
-	ar.serialize("nextLeveling", emu.nextLeveling);
-	ar.serialize("sampleStep", emu.sampleStep);
-	ar.serialize("adpcm_data", emu.adpcm_data);
+	             "memPntr",      emu.memPntr,
+	             "nowStep",      emu.nowStep,
+	             "out",          emu.out,
+	             "output",       emu.output,
+	             "diff",         emu.diff,
+	             "nextLeveling", emu.nextLeveling,
+	             "sampleStep",   emu.sampleStep,
+	             "adpcm_data",   emu.adpcm_data);
 	if (ar.isLoader()) {
 		// ignore aud part for saving,
 		// for loading we make it the same as the emu part

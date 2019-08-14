@@ -11,7 +11,7 @@ MessageCommand::MessageCommand(CommandController& controller)
 {
 }
 
-static CliComm::LogLevel getLevel(string_ref level)
+static CliComm::LogLevel getLevel(string_view level)
 {
 	auto levels = CliComm::getLevelStrings();
 	for (auto i : xrange(levels.size())) {
@@ -19,11 +19,12 @@ static CliComm::LogLevel getLevel(string_ref level)
 			return static_cast<CliComm::LogLevel>(i);
 		}
 	}
-	throw CommandException("Unknown level string: " + level);
+	throw CommandException("Unknown level string: ", level);
 }
 
-void MessageCommand::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
+void MessageCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
 {
+	checkNumArgs(tokens, Between{2, 3}, "string ?level?");
 	CliComm& cliComm = getCliComm();
 	CliComm::LogLevel level = CliComm::INFO;
 	switch (tokens.size()) {
@@ -33,8 +34,6 @@ void MessageCommand::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
 	case 2:
 		cliComm.log(level, tokens[1].getString());
 		break;
-	default:
-		throw SyntaxError();
 	}
 }
 

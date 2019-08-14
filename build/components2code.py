@@ -1,5 +1,6 @@
 # Creates the components header file.
 
+from __future__ import print_function
 from components import iterComponents
 from makeutils import extractMakeVariables
 from outpututils import rewriteIfChanged
@@ -36,7 +37,8 @@ if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		rewriteIfChanged(sys.argv[1], iterComponentsHeader(sys.argv[2]))
 	else:
-		print >> sys.stderr, (
-			'Usage: python components2code.py COMPONENTS_HEADER PROBE_MAKE'
+		print(
+			'Usage: python components2code.py COMPONENTS_HEADER PROBE_MAKE',
+			file=sys.stderr
 			)
 		sys.exit(2)

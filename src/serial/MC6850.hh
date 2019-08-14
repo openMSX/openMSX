@@ -11,9 +11,9 @@
 #include "outer.hh"
 #include "serialize_meta.hh"
 
-class Scheduler;
-
 namespace openmsx {
+
+class Scheduler;
 
 class MC6850 final : public MSXDevice, public MidiInConnector
 {
@@ -47,17 +47,17 @@ private:
 	void recvByte(byte value, EmuTime::param time) override;
 
 	// Schedulable
-	struct SyncRecv : Schedulable {
+	struct SyncRecv final : Schedulable {
 		friend class MC6850;
-		SyncRecv(Scheduler& s) : Schedulable(s) {}
+		explicit SyncRecv(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& mc6850 = OUTER(MC6850, syncRecv);
 			mc6850.execRecv(time);
 		}
 	} syncRecv;
-	struct SyncTrans : Schedulable {
+	struct SyncTrans final : Schedulable {
 		friend class MC6850;
-		SyncTrans(Scheduler& s) : Schedulable(s) {}
+		explicit SyncTrans(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& mc6850 = OUTER(MC6850, syncTrans);
 			mc6850.execTrans(time);

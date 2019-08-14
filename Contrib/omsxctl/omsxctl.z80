@@ -1,0 +1,114 @@
+; MSX-DOS utility to execute openMSX commands from within the MSX.
+;
+; This can be used to e.g. integrate a MSX program in a build chain
+; on the host computer.
+;
+; For example start openMSX from the command line like this:
+;   openmsx -script omsxctl.tcl -diska my_directory
+;
+; And inside my_directory/ put the a AUTOEXEC.BAT with content:
+;   omsxctl after time 100 "exit 1"
+;   my_tool my_data.in my_data.out
+;   omsxctl exit 0
+
+bdos:           equ    0x5
+PutChr:         equ    0x2
+ArgSize:        equ    0x0080
+ArgData:        equ    0x0081
+ScriptPort:     equ    0x2d
+
+                org     0x0100
+
+                ; Detect whether the 'omsxctl.tcl' script is active.
+                ld      hl,ZeroStr        ; empty command (doesn't produce output)
+                scf
+                out     (ScriptPort),a    ; script should change clear carry flag
+                jr      c,ErrNoScript
+
+                ; Process command line.
+                ld      a,(ArgSize)
+                or      a
+                jr      z,ErrNoArgs
+                ld      hl,ArgData
+                add     a,l
+                ld      l,a
+                ld      (hl),0            ; write 0-terminator (needed for DOS1?)
+
+                ; Execute command.
+                ld      hl,ArgData+1      ; skip first space
+                ld      de,ResultBuf
+                ld      bc,ResultBufSize
+                out     (ScriptPort),a
+
+                ; Did the command give an error?
+                jr      nc,NoError
+                ld      hl,TxtCmdError
+                push    bc
+                call    Print
+                pop     bc
+NoError:
+
+                ; Was the result string truncated?
+                ld      a,b
+                and     c
+                inc     a                 ; BC == 0xffff ?
+                jr      nz,NotTruncated
+                ld      hl,TxtTruncated
+                call    Print
+                ld      bc,ResultBufSize
+NotTruncated:
+
+                ; Print the result string and translate \n to \r\n.
+                ld      hl,ResultBuf
+ResultLoop:     ld      a,b
+                or      c
+                jr      z,Done
+                push    hl
+                push    bc
+                ld      a,(hl)
+                cp      10
+                jr      nz,Not10
+                ld      e,13
+                ld      c,PutChr
+                call    bdos
+                ld      a,10
+Not10:          ld      e,a
+                ld      c,PutChr
+                call    bdos
+                pop     bc
+                pop     hl
+                inc     hl
+                dec     bc
+                jr      ResultLoop
+
+Done:           ld      hl,TxtNewLine
+                jr      Print
+
+
+ErrNoScript:    ld      hl,TxtErrNoScript
+                jr      Print
+
+ErrNoArgs:      ld      hl,TxtErrNoArgs
+                ;jr      Print
+
+Print:          ld      a,(hl)
+                or      a
+                ret     z
+                ld      e,a
+                ld      c,PutChr
+                push    hl
+                call    bdos
+                pop     hl
+                inc     hl
+                jr      Print
+
+
+TxtErrNoScript: db      "The 'omsxctl.tcl' script is not active.", 0
+TxtErrNoArgs:   db      "No arguments given.", 0
+TxtCmdError:    db      "ERROR: ", 0
+TxtTruncated:   db      "[truncated]"
+TxtNewLine:     db      13, 10
+ZeroStr:        db      0
+
+ResultBuf:
+ResultBufSize:  equ 0x4000 - $

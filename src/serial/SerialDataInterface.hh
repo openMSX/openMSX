@@ -26,7 +26,7 @@ public:
 	virtual void recvByte(byte value, EmuTime::param time) = 0;
 
 protected:
-	~SerialDataInterface() {}
+	~SerialDataInterface() = default;
 };
 
 } // namespace openmsx

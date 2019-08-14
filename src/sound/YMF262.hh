@@ -31,6 +31,8 @@ public:
 	byte readStatus();
 	byte peekStatus() const;
 
+	void setMixLevel(uint8_t x, EmuTime::param time);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -51,7 +53,7 @@ private:
 		inline int op_calc(unsigned phase, unsigned lfo_am) const;
 		inline void FM_KEYON(byte key_set);
 		inline void FM_KEYOFF(byte key_clr);
-		inline void advanceEnvelopeGenerator(unsigned eg_cnt);
+		inline void advanceEnvelopeGenerator(unsigned egCnt);
 		inline void advancePhaseGenerator(Channel& ch, unsigned lfo_pm);
 		void update_ar_dr();
 		void update_rr();
@@ -78,7 +80,7 @@ private:
 		int volume;	// envelope counter
 		int sl;		// sustain level: sl_tab[SL]
 
-		unsigned* wavetable; // waveform select
+		const unsigned* wavetable; // waveform select
 
 		EnvelopeState state; // EG: phase type
 		unsigned eg_m_ar;// (attack state)
@@ -140,8 +142,8 @@ private:
 	};
 
 	// SoundDevice
-	int getAmplificationFactor() const override;
-	void generateChannels(int** bufs, unsigned num) override;
+	float getAmplificationFactorImpl() const override;
+	void generateChannels(float** bufs, unsigned num) override;
 
 	void callback(byte flag) override;
 

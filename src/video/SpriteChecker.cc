@@ -320,9 +320,6 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				int colorIndex = (~0u << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
 					vram.spriteAttribTable.readPlanar(colorIndex);
-				// Sprites with CC=1 are only visible if preceded by
-				// a sprite with CC=0.
-				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
 
 				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[2 * sprite + 1] & patternIndexMask;
@@ -369,8 +366,10 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				byte colorAttrib =
 					vram.spriteAttribTable.readNP(colorIndex);
 				// Sprites with CC=1 are only visible if preceded by
-				// a sprite with CC=0.
-				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
+				// a sprite with CC=0. However they DO contribute towards
+				// the max-8-sprites-per-line limit, so we can't easily
+				// filter them here. See also
+				//    https://github.com/openMSX/openMSX/issues/497
 
 				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[4 * sprite + 2] & patternIndexMask;
@@ -499,11 +498,11 @@ void SpriteChecker::serialize(Archive& ar, unsigned version)
 		// any influence on the MSX state. So the effect of not
 		// serializing these two is that no sprites will be shown in the
 		// first (partial) frame after loadstate.
-		for (auto& c : spriteCount) c = 0;
+		ranges::fill(spriteCount, 0);
 		// content of spriteBuffer[] doesn't matter if spriteCount[] is 0
 	}
-	ar.serialize("collisionX", collisionX);
-	ar.serialize("collisionY", collisionY);
+	ar.serialize("collisionX", collisionX,
+	             "collisionY", collisionY);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("currentLine", currentLine);
 	} else {

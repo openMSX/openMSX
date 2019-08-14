@@ -10,23 +10,21 @@
 
 namespace openmsx {
 
-class OSDGUI;
-
 class OSDTopWidget final : public OSDWidget
 {
 public:
-	OSDTopWidget(OSDGUI& gui);
-	string_ref getType() const override;
-	gl::vec2 getSize(const OutputRectangle& output) const override;
+	explicit OSDTopWidget(Display& display);
+	string_view getType() const override;
+	gl::vec2 getSize(const OutputSurface& output) const override;
 
 	void queueError(std::string message);
 	void showAllErrors();
 
-	OSDWidget* findByName(string_ref name);
-	const OSDWidget* findByName(string_ref name) const;
+	OSDWidget* findByName(string_view name);
+	const OSDWidget* findByName(string_view name) const;
 	void addName(OSDWidget& widget);
 	void removeName(OSDWidget& widget);
-	std::vector<string_ref> getAllWidgetNames() const;
+	std::vector<string_view> getAllWidgetNames() const;
 
 protected:
 	void invalidateLocal() override;
@@ -34,11 +32,10 @@ protected:
 	void paintGL (OutputSurface& output) override;
 
 private:
-	OSDGUI& gui;
 	std::vector<std::string> errors;
 
 	struct NameFromWidget {
-		string_ref operator()(const OSDWidget* w) const {
+		string_view operator()(const OSDWidget* w) const {
 			return w->getName();
 		}
 	};

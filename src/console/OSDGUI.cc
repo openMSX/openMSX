@@ -6,10 +6,9 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
-#include "memory.hh"
 #include "outer.hh"
-#include <algorithm>
-#include <cassert>
+#include <memory>
+#include <utility>
 
 using std::string;
 using std::unique_ptr;
@@ -22,7 +21,7 @@ namespace openmsx {
 OSDGUI::OSDGUI(CommandController& commandController, Display& display_)
 	: display(display_)
 	, osdCommand(commandController)
-	, topWidget(*this)
+	, topWidget(display_)
 {
 }
 
@@ -39,39 +38,21 @@ OSDGUI::OSDCommand::OSDCommand(CommandController& commandController_)
 {
 }
 
-void OSDGUI::OSDCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 2) {
-		throw SyntaxError();
-	}
-	auto& gui = OUTER(OSDGUI, osdCommand);
-	string_ref subCommand = tokens[1].getString();
-	if (subCommand == "create") {
-		create(tokens, result);
-		gui.refresh();
-	} else if (subCommand == "destroy") {
-		destroy(tokens, result);
-		gui.refresh();
-	} else if (subCommand == "info") {
-		info(tokens, result);
-	} else if (subCommand == "exists") {
-		exists(tokens, result);
-	} else if (subCommand == "configure") {
-		configure(tokens, result);
-		gui.refresh();
-	} else {
-		throw CommandException(
-			"Invalid subcommand '" + subCommand + "', expected "
-			"'create', 'destroy', 'info', 'exists' or 'configure'.");
-	}
+	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
+	executeSubCommand(tokens[1].getString(),
+		"create",    [&]{ create(tokens, result); },
+		"destroy",   [&]{ destroy(tokens, result); },
+		"info",      [&]{ info(tokens, result); },
+		"exists",    [&]{ exists(tokens, result); },
+		"configure", [&]{ configure(tokens, result); });
 }
 
-void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 4) {
-		throw SyntaxError();
-	}
-	string_ref type = tokens[2].getString();
+	checkNumArgs(tokens, AtLeast{4}, Prefix{2}, "type name ?property value ...?");
+	string_view type = tokens[2].getString();
 	auto& fullname = tokens[3];
 	auto fullnameStr = fullname.getString();
 
@@ -79,46 +60,45 @@ void OSDGUI::OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 	auto& top = gui.getTopWidget();
 	if (top.findByName(fullnameStr)) {
 		throw CommandException(
-			"There already exists a widget with this name: " +
+			"There already exists a widget with this name: ",
 			fullnameStr);
 	}
 
-	string_ref parentname, childName;
+	string_view parentname, childName;
 	StringOp::splitOnLast(fullnameStr, '.', parentname, childName);
 	auto* parent = childName.empty() ? &top : top.findByName(parentname);
 	if (!parent) {
 		throw CommandException(
-			"Parent widget doesn't exist yet:" + parentname);
+			"Parent widget doesn't exist yet:", parentname);
 	}
 
 	auto widget = create(type, fullname);
-	configure(*widget, tokens, 4);
+	configure(*widget, tokens.subspan(4));
 	top.addName(*widget);
 	parent->addWidget(std::move(widget));
 
 	result = fullname;
+	gui.refresh();
 }
 
 unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
-	string_ref type, const TclObject& newName) const
+	string_view type, const TclObject& newName) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (type == "rectangle") {
-		return make_unique<OSDRectangle>(gui, newName);
+		return std::make_unique<OSDRectangle>(gui.display, newName);
 	} else if (type == "text") {
-		return make_unique<OSDText>(gui, newName);
+		return std::make_unique<OSDText>(gui.display, newName);
 	} else {
 		throw CommandException(
-			"Invalid widget type '" + type + "', expected "
+			"Invalid widget type '", type, "', expected "
 			"'rectangle' or 'text'.");
 	}
 }
 
-void OSDGUI::OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::destroy(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "name");
 	auto fullname = tokens[2].getString();
 
 	auto& gui = OUTER(OSDGUI, osdCommand);
@@ -126,7 +106,7 @@ void OSDGUI::OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
 	auto* widget = top.findByName(fullname);
 	if (!widget) {
 		// widget not found, not an error
-		result.setBoolean(false);
+		result = false;
 		return;
 	}
 
@@ -137,11 +117,13 @@ void OSDGUI::OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
 
 	top.removeName(*widget);
 	parent->deleteWidget(*widget);
-	result.setBoolean(true);
+	result = true;
+	gui.refresh();
 }
 
-void OSDGUI::OSDCommand::info(array_ref<TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::info(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{2, 4}, Prefix{2}, "?name? ?property?");
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	switch (tokens.size()) {
 	case 2: {
@@ -161,41 +143,35 @@ void OSDGUI::OSDCommand::info(array_ref<TclObject> tokens, TclObject& result)
 		widget.getProperty(tokens[3].getString(), result);
 		break;
 	}
-	default:
-		throw SyntaxError();
 	}
 }
 
-void OSDGUI::OSDCommand::exists(array_ref<TclObject> tokens, TclObject& result)
+void OSDGUI::OSDCommand::exists(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "name");
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findByName(tokens[2].getString());
-	result.setBoolean(widget != nullptr);
+	result = widget != nullptr;
 }
 
-void OSDGUI::OSDCommand::configure(array_ref<TclObject> tokens, TclObject& /*result*/)
+void OSDGUI::OSDCommand::configure(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() < 3) {
-		throw SyntaxError();
-	}
-	configure(getWidget(tokens[2].getString()), tokens, 3);
+	checkNumArgs(tokens, AtLeast{3}, "name ?property value ...?");
+	configure(getWidget(tokens[2].getString()), tokens.subspan(3));
+	auto& gui = OUTER(OSDGUI, osdCommand);
+	gui.refresh();
 }
 
-void OSDGUI::OSDCommand::configure(OSDWidget& widget, array_ref<TclObject> tokens,
-                                   unsigned skip)
+void OSDGUI::OSDCommand::configure(OSDWidget& widget, span<const TclObject> tokens)
 {
-	assert(tokens.size() >= skip);
-	if ((tokens.size() - skip) & 1) {
+	if (tokens.size() & 1) {
 		// odd number of extra arguments
 		throw CommandException(
-			"Missing value for '" + tokens.back().getString() + "'.");
+			"Missing value for '", tokens.back().getString(), "'.");
 	}
 
 	auto& interp = getInterpreter();
-	for (size_t i = skip; i < tokens.size(); i += 2) {
+	for (size_t i = 0; i < tokens.size(); i += 2) {
 		const auto& propName = tokens[i + 0].getString();
 		widget.setProperty(interp, propName, tokens[i + 1]);
 	}
@@ -280,7 +256,7 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, gui.getTopWidget().getAllWidgetNames());
 	} else {
 		try {
-			vector<string_ref> properties;
+			vector<string_view> properties;
 			if (tokens[1] == "create") {
 				auto widget = create(tokens[2], TclObject());
 				properties = widget->getProperties();
@@ -296,12 +272,12 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-OSDWidget& OSDGUI::OSDCommand::getWidget(string_ref widgetName) const
+OSDWidget& OSDGUI::OSDCommand::getWidget(string_view widgetName) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	auto* widget = gui.getTopWidget().findByName(widgetName);
 	if (!widget) {
-		throw CommandException("No widget with name " + widgetName);
+		throw CommandException("No widget with name ", widgetName);
 	}
 	return *widget;
 }

@@ -41,12 +41,14 @@
     </VDP>
 
     <PSG id="PSG">
+      <type>YM2149</type>
       <keyboardlayout>50on</keyboardlayout>
       <sound>
         <volume>21000</volume>
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <PrinterPort id="Printer Port">

@@ -2,12 +2,11 @@
 #include "DeviceConfig.hh"
 #include "HD.hh"
 #include "MSXException.hh"
-#include "memory.hh"
 #include "unreachable.hh"
 #include "endian.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include <string>
+#include <memory>
 
 // TODO:
 // - replace transferDelayCounter with 0xFF's in responseQueue?
@@ -36,7 +35,7 @@ static const byte R1_ILLEGAL_COMMAND = 0x04;
 static const byte R1_PARAMETER_ERROR = 0x80;
 
 SdCard::SdCard(const DeviceConfig& config)
-	: hd(config.getXML() ? make_unique<HD>(config) : nullptr)
+	: hd(config.getXML() ? std::make_unique<HD>(config) : nullptr)
 	, cmdIdx(0)
 	, transferDelayCounter(0)
 	, mode(COMMAND)
@@ -45,9 +44,7 @@ SdCard::SdCard(const DeviceConfig& config)
 {
 }
 
-SdCard::~SdCard()
-{
-}
+SdCard::~SdCard() = default;
 
 // helper methods for 'transfer' to avoid duplication
 byte SdCard::readCurrentByteFromCurrentSector() {
@@ -242,7 +239,7 @@ void SdCard::executeCommand()
 			byte(0x00),        // CCC / (READ_BL_LEN)
 			byte(0x00)});      // (RBP)/(WBM)/(RBM)/ DSR_IMP
 		// SD_CARD_SIZE = (C_SIZE + 1) * 512kByte
-		unsigned c_size = unsigned((hd->getNbSectors() * sizeof(sectorBuf)) / (512 * 1024) - 1);
+		auto c_size = unsigned((hd->getNbSectors() * sizeof(sectorBuf)) / (512 * 1024) - 1);
 		responseQueue.push_back({
 			byte((c_size >> 16) & 0x3F), // C_SIZE 1
 			byte((c_size >>  8) & 0xFF), // C_SIZE 2
@@ -325,7 +322,7 @@ void SdCard::executeCommand()
 	}
 }
 
-static enum_string<SdCard::Mode> modeInfo[] = {
+static std::initializer_list<enum_string<SdCard::Mode>> modeInfo = {
 	{ "COMMAND",     SdCard::COMMAND  },
 	{ "READ",        SdCard::READ },
 	{ "MULTI_READ",  SdCard::MULTI_READ },
@@ -337,15 +334,15 @@ SERIALIZE_ENUM(SdCard::Mode, modeInfo);
 template<typename Archive>
 void SdCard::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mode", mode);
-	ar.serialize("cmdBuf", cmdBuf);
+	ar.serialize("mode",   mode,
+	             "cmdBuf", cmdBuf);
 	ar.serialize_blob("sectorBuf", sectorBuf.raw, sizeof(sectorBuf));
 	if (hd) ar.serialize("hd", *hd);
-	ar.serialize("cmdIdx", cmdIdx);
-	ar.serialize("transferDelayCounter", transferDelayCounter);
-	ar.serialize("responseQueue", responseQueue);
-	ar.serialize("currentSector", currentSector);
-	ar.serialize("currentByteInSector", currentByteInSector);
+	ar.serialize("cmdIdx",               cmdIdx,
+	             "transferDelayCounter", transferDelayCounter,
+	             "responseQueue",        responseQueue,
+	             "currentSector",        currentSector,
+	             "currentByteInSector",  currentByteInSector);
 }
 INSTANTIATE_SERIALIZE_METHODS(SdCard);
 

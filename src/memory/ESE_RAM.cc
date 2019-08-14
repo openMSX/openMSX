@@ -20,10 +20,8 @@
  */
 
 #include "ESE_RAM.hh"
-#include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -32,10 +30,10 @@ unsigned ESE_RAM::getSramSize() const
 {
 	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
-		throw MSXException(StringOp::Builder() <<
-			"SRAM size for " << getName() <<
-			" should be 128, 256, 512 or 1024kB and not " <<
-			sramSize << "kB!");
+		throw MSXException(
+			"SRAM size for ", getName(),
+			" should be 128, 256, 512 or 1024kB and not ",
+			sramSize, "kB!");
 	}
 	return sramSize * 1024; // in bytes
 }
@@ -119,9 +117,9 @@ template<typename Archive>
 void ESE_RAM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("SRAM", sram);
-	ar.serialize("isWriteable", isWriteable);
-	ar.serialize("mapped", mapped);
+	ar.serialize("SRAM",        sram,
+	             "isWriteable", isWriteable,
+	             "mapped",      mapped);
 }
 INSTANTIATE_SERIALIZE_METHODS(ESE_RAM);
 REGISTER_MSXDEVICE(ESE_RAM, "ESE_RAM");

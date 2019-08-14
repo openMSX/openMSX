@@ -13,7 +13,7 @@ class FrameSource;
 class GLScaler
 {
 public:
-	virtual ~GLScaler() {}
+	virtual ~GLScaler() = default;
 
 	/** Scales the image in the given area, which must consist of lines which
 	  * are all equally wide.
@@ -42,7 +42,7 @@ public:
 		unsigned lineWidth, FrameSource& paintFrame);
 
 protected:
-	GLScaler(const std::string& progName);
+	explicit GLScaler(const std::string& progName);
 	void setup(bool superImpose);
 
 	/** Helper method to draw a rectangle with multiple texture coordinates.

@@ -3,11 +3,11 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
-#include "string_ref.hh"
-#include "openmsx.hh"
-#include <string>
+#include "string_view.hh"
+#include <cassert>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <vector>
 
 namespace openmsx {
@@ -35,7 +35,7 @@ class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
 class AfterCommand;
-class QuitCommand;
+class ExitCommand;
 class MessageCommand;
 class MachineCommand;
 class TestMachineCommand;
@@ -45,10 +45,15 @@ class ListMachinesCommand;
 class ActivateMachineCommand;
 class StoreMachineCommand;
 class RestoreMachineCommand;
+class GetClipboardCommand;
+class SetClipboardCommand;
 class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
+class SoftwareInfoTopic;
 template <typename T> class EnumSetting;
+
+extern int exitCode;
 
 /**
  * Contains the main loop of openMSX.
@@ -82,13 +87,14 @@ public:
 	DiskFactory& getDiskFactory() { return *diskFactory; }
 	DiskManipulator& getDiskManipulator() { return *diskManipulator; }
 	EnumSetting<int>& getMachineSetting() { return *machineSetting; }
-	RomDatabase& getSoftwareDatabase() { return *softwareDatabase; }
 	FilePool& getFilePool() { return *filePool; }
+
+	RomDatabase& getSoftwareDatabase();
 
 	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
 
-	static std::vector<std::string> getHwConfigs(string_ref type);
+	static std::vector<std::string> getHwConfigs(string_view type);
 
 	void block();
 	void unblock();
@@ -99,7 +105,7 @@ public:
 	CommandController& getCommandController();
 	CliComm& getCliComm();
 	Interpreter& getInterpreter();
-	std::string getMachineID() const;
+	string_view getMachineID() const;
 
 	using Board = std::unique_ptr<MSXMotherBoard>;
 	Board createEmptyMotherBoard();
@@ -111,8 +117,8 @@ private:
 	void createMachineSetting();
 	void switchBoard(MSXMotherBoard* newBoard);
 	void deleteBoard(MSXMotherBoard* board);
-	MSXMotherBoard& getMachine(string_ref machineID) const;
-	std::vector<string_ref> getMachineIDs() const;
+	MSXMotherBoard& getMachine(string_view machineID) const;
+	std::vector<string_view> getMachineIDs() const;
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;
@@ -133,12 +139,7 @@ private:
 	std::unique_ptr<GlobalCommandController> globalCommandController;
 	std::unique_ptr<GlobalSettings> globalSettings;
 	std::unique_ptr<InputEventGenerator> inputEventGenerator;
-#if UNIQUE_PTR_BUG // see openmsx.hh
-	std::unique_ptr<Display> display2;
-	Display* display;
-#else
 	std::unique_ptr<Display> display;
-#endif
 	std::unique_ptr<Mixer> mixer;
 	std::unique_ptr<DiskFactory> diskFactory;
 	std::unique_ptr<DiskManipulator> diskManipulator;
@@ -150,7 +151,7 @@ private:
 	std::unique_ptr<RomDatabase> softwareDatabase;
 
 	std::unique_ptr<AfterCommand> afterCommand;
-	std::unique_ptr<QuitCommand> quitCommand;
+	std::unique_ptr<ExitCommand> exitCommand;
 	std::unique_ptr<MessageCommand> messageCommand;
 	std::unique_ptr<MachineCommand> machineCommand;
 	std::unique_ptr<TestMachineCommand> testMachineCommand;
@@ -160,10 +161,13 @@ private:
 	std::unique_ptr<ActivateMachineCommand> activateMachineCommand;
 	std::unique_ptr<StoreMachineCommand> storeMachineCommand;
 	std::unique_ptr<RestoreMachineCommand> restoreMachineCommand;
+	std::unique_ptr<GetClipboardCommand> getClipboardCommand;
+	std::unique_ptr<SetClipboardCommand> setClipboardCommand;
 	std::unique_ptr<AviRecorder> aviRecordCommand;
 	std::unique_ptr<ConfigInfo> extensionInfo;
 	std::unique_ptr<ConfigInfo> machineInfo;
 	std::unique_ptr<RealTimeInfo> realTimeInfo;
+	std::unique_ptr<SoftwareInfoTopic> softwareInfoTopic;
 	std::unique_ptr<TclCallbackMessages> tclCallbackMessages;
 
 	// Locking rules for activeBoard access:
@@ -175,19 +179,19 @@ private:
 	//    the mbMutex lock
 	Boards boards; // unordered
 	Boards garbageBoards;
-	MSXMotherBoard* activeBoard; // either nullptr or a board inside 'boards'
+	MSXMotherBoard* activeBoard = nullptr; // either nullptr or a board inside 'boards'
 
-	int blockedCounter;
-	bool paused;
+	int blockedCounter = 0;
+	bool paused = false;
 
 	/**
 	 * True iff the Reactor should keep running.
 	 * When this is set to false, the Reactor will end the main loop after
 	 * finishing the pending request(s).
 	 */
-	bool running;
+	bool running = true;
 
-	bool isInit; // has the init() method been run successfully
+	bool isInit = false; // has the init() method been run successfully
 
 	friend class MachineCommand;
 	friend class TestMachineCommand;

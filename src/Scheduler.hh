@@ -14,10 +14,9 @@ class MSXCPU;
 class SynchronizationPoint
 {
 public:
+	SynchronizationPoint() = default;
 	SynchronizationPoint(EmuTime::param time, Schedulable* dev)
 		: timeStamp(time), device(dev) {}
-	SynchronizationPoint()
-		: timeStamp(EmuTime::zero), device(nullptr) {}
 	EmuTime::param getTime() const { return timeStamp; }
 	void setTime(EmuTime::param time) { timeStamp = time; }
 	Schedulable* getDevice() const { return device; }
@@ -26,8 +25,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	EmuTime timeStamp;
-	Schedulable* device;
+	EmuTime timeStamp = EmuTime::zero;
+	Schedulable* device = nullptr;
 };
 
 
@@ -36,7 +35,7 @@ class Scheduler
 public:
 	using SyncPoints = std::vector<SynchronizationPoint>;
 
-	Scheduler();
+	Scheduler() = default;
 	~Scheduler();
 
 	void setCPU(MSXCPU* cpu_)
@@ -113,9 +112,9 @@ private:
 	  * doesn't allow removal of non-top element.
 	  */
 	SchedulerQueue<SynchronizationPoint> queue;
-	EmuTime scheduleTime;
-	MSXCPU* cpu;
-	bool scheduleInProgress;
+	EmuTime scheduleTime = EmuTime::zero;
+	MSXCPU* cpu = nullptr;
+	bool scheduleInProgress = false;
 };
 
 } // namespace openmsx

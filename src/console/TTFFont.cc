@@ -2,13 +2,12 @@
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "memory.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "xrange.hh"
 #include <SDL_ttf.h>
-#include <algorithm>
-#include <vector>
 #include <cassert>
+#include <vector>
 
 using std::string;
 
@@ -32,7 +31,7 @@ public:
 	void release(TTF_Font* font);
 
 private:
-	TTFFontPool();
+	TTFFontPool() = default;
 	~TTFFontPool();
 
 	// We want to keep the LocalFileReference object alive for as long as
@@ -65,8 +64,7 @@ private:
 SDLTTF::SDLTTF()
 {
 	if (TTF_Init() < 0) {
-		throw FatalError(StringOp::Builder() <<
-			"Couldn't initialize SDL_ttf: " << TTF_GetError());
+		throw FatalError("Couldn't initialize SDL_ttf: ", TTF_GetError());
 	}
 }
 
@@ -84,10 +82,6 @@ SDLTTF& SDLTTF::instance()
 
 // class TTFFontPool
 
-TTFFontPool::TTFFontPool()
-{
-}
-
 TTFFontPool::~TTFFontPool()
 {
 	assert(pool.empty());
@@ -101,9 +95,9 @@ TTFFontPool& TTFFontPool::instance()
 
 TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 {
-	auto it = find_if(begin(pool), end(pool),
-		[&](const FontInfo& i) {
-			return (i.name == filename) && (i.size == ptSize); });
+	auto it = ranges::find_if(pool, [&](auto& info) {
+		return (info.name == filename) && (info.size == ptSize);
+	});
 	if (it != end(pool)) {
 		++it->count;
 		return it->font;
@@ -187,7 +181,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	unsigned lineSkip = getHeight();
 	// We assume that height is the same for all lines.
 	// For the last line we don't include spacing between two lines.
-	unsigned height = unsigned((lines.size() - 1) * lineSkip + lineHeight);
+	auto height = unsigned((lines.size() - 1) * lineSkip + lineHeight);
 
 	// Create destination surface (initial surface is fully transparent)
 	SDLSurfacePtr destination(SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
@@ -215,7 +209,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 		SDL_Rect rect;
 		rect.x = 0;
 		rect.y = Sint16(i * lineSkip);
-		SDL_SetAlpha(line.get(), 0, 0); // no blending during copy
+		SDL_SetSurfaceBlendMode(line.get(), SDL_BLENDMODE_NONE); // no blending during copy
 		SDL_BlitSurface(line.get(), nullptr, destination.get(), &rect);
 	}
 	return destination;

@@ -1,3 +1,5 @@
+from __future__ import print_function
+from io import open
 from os import environ
 from os.path import isfile
 from subprocess import PIPE, Popen
@@ -19,9 +21,9 @@ def _determineMounts():
 	stdoutdata, stderrdata = proc.communicate()
 	if stderrdata or proc.returncode:
 		if stderrdata:
-			print >> sys.stderr, 'Error determining MSYS root:', stderrdata
+			print('Error determining MSYS root:', stderrdata, file=sys.stderr)
 		if proc.returncode:
-			print >> sys.stderr, 'Exit code %d' % proc.returncode
+			print('Exit code %d' % proc.returncode, file=sys.stderr)
 		raise IOError('Error determining MSYS root')
 	msysRoot = stdoutdata.strip()
 
@@ -30,8 +32,7 @@ def _determineMounts():
 	fstab = msysRoot + '/etc/fstab'
 	if isfile(fstab):
 		try:
-			inp = open(fstab, 'r')
-			try:
+			with open(fstab, 'r', encoding='utf-8') as inp:
 				for line in inp:
 					line = line.strip()
 					if line and not line.startswith('#'):
@@ -40,12 +41,10 @@ def _determineMounts():
 							)
 						if nativePath != 'none':
 							mounts[mountPoint] = nativePath
-			finally:
-				inp.close()
-		except IOError, ex:
-			print >> sys.stderr, 'Failed to read MSYS fstab:', ex
-		except ValueError, ex:
-			print >> sys.stderr, 'Failed to parse MSYS fstab:', ex
+		except IOError as ex:
+			print('Failed to read MSYS fstab:', ex, file=sys.stderr)
+		except ValueError as ex:
+			print('Failed to parse MSYS fstab:', ex, file=sys.stderr)
 	mounts['/'] = msysRoot + '/'
 	return mounts
 
@@ -75,4 +74,4 @@ else:
 	msysMounts = None
 
 if __name__ == '__main__':
-	print 'MSYS mounts:', msysMounts
+	print('MSYS mounts:', msysMounts)

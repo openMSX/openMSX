@@ -2,7 +2,7 @@
 #define PLUGGABLE_HH
 
 #include "EmuTime.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 
 namespace openmsx {
 
@@ -11,7 +11,7 @@ class Connector;
 class Pluggable
 {
 public:
-	virtual ~Pluggable() {}
+	virtual ~Pluggable() = default;
 
 	/** Name used to identify this pluggable.
 	  */
@@ -20,11 +20,11 @@ public:
 	/** A pluggable belongs to a certain class. A pluggable only fits in
 	  * connectors of the same class.
 	  */
-	virtual string_ref getClass() const = 0;
+	virtual string_view getClass() const = 0;
 
 	/** Description for this pluggable.
 	  */
-	virtual string_ref getDescription() const = 0;
+	virtual string_view getDescription() const = 0;
 
 	/** This method is called when this pluggable is inserted in a
 	  * connector.

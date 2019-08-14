@@ -30,9 +30,9 @@ class Filename;
 class LocalFileReference
 {
 public:
-	LocalFileReference() {}
+	LocalFileReference() = default;
 	explicit LocalFileReference(const Filename& filename);
-	explicit LocalFileReference(const std::string& url);
+	explicit LocalFileReference(const std::string& filename);
 	explicit LocalFileReference(File& file);
 	~LocalFileReference();
 	// non-copyable, but moveable
@@ -44,11 +44,10 @@ public:
 	/** Returns path to a local uncompressed version of this file.
 	  * This path only remains valid as long as this object is in scope.
 	  */
-	const std::string getFilename() const;
+	const std::string& getFilename() const;
 
 private:
-	void init(const std::string& url);
-	void init(File& url);
+	void init(File& file);
 
 	std::string tmpFile;
 	std::string tmpDir;

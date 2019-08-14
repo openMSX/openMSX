@@ -37,13 +37,6 @@ public:
 	 */
 	void setKeyRepeat(bool enable);
 
-	/**
-	 * This functions shouldn't be needed, but in the SDL library input
-	 * and video or closely coupled (sigh). For example when the video mode
-	 * is changed we need to reset the keyrepeat and unicode settings.
-	 */
-	void reinit();
-
 	/** Input Grab on or off */
 	BooleanSetting& getGrabInput() { return grabInput; }
 
@@ -59,7 +52,9 @@ public:
 private:
 	using EventPtr = std::shared_ptr<const Event>;
 
-	void handle(const SDL_Event& event);
+	void handle(const SDL_Event& evt);
+	void handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode);
+	void handleText(const char* utf8);
 	void setGrabInput(bool grab);
 
 	// Observer<Setting>
@@ -73,8 +68,8 @@ private:
 	BooleanSetting grabInput;
 
 	struct EscapeGrabCmd final : Command {
-		EscapeGrabCmd(CommandController& commandController);
-		void execute(array_ref<TclObject> tokens, TclObject& result) override;
+		explicit EscapeGrabCmd(CommandController& commandController);
+		void execute(span<const TclObject> tokens, TclObject& result) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 	} escapeGrabCmd;
 
@@ -88,7 +83,7 @@ private:
 	void setNewOsdControlButtonState(
 		unsigned newState, const EventPtr& origEvent);
 	void triggerOsdControlEventsFromJoystickAxisMotion(
-		unsigned axis, short value, const EventPtr& origEvent);
+		unsigned axis, int value, const EventPtr& origEvent);
 	void triggerOsdControlEventsFromJoystickHat(
 		int value, const EventPtr& origEvent);
 	void osdControlChangeButton(

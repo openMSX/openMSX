@@ -1,4 +1,5 @@
 #include "MSXPSG.hh"
+#include "AY8910.hh"
 #include "LedStatus.hh"
 #include "CassettePort.hh"
 #include "MSXMotherBoard.hh"
@@ -6,6 +7,7 @@
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
 #include "checked_cast.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -16,11 +18,12 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
 	, selectedPort(0)
 	, prev(255)
-	, keyLayoutBit(config.getChildData("keyboardlayout", "") == "JIS")
+	, keyLayout((config.getChildData("keyboardlayout", {}) == "JIS") ? 0x40 : 0x00)
+	, addressMask(config.getChildDataAsBool("mirrored_registers", true) ? 0x0f : 0xff)
 {
 	ports[0] = &getMotherBoard().getJoystickPort(0);
 	ports[1] = &getMotherBoard().getJoystickPort(1);
-	ay8910 = make_unique<AY8910>("PSG", *this, config, getCurrentTime());
+	ay8910 = std::make_unique<AY8910>("PSG", *this, config, getCurrentTime());
 
 	reset(getCurrentTime());
 }
@@ -55,7 +58,7 @@ void MSXPSG::writeIO(word port, byte value, EmuTime::param time)
 {
 	switch (port & 0x03) {
 	case 0:
-		registerLatch = value & 0x0F;
+		registerLatch = value & addressMask;
 		break;
 	case 1:
 		ay8910->writeRegister(registerLatch, value, time);
@@ -75,7 +78,6 @@ byte MSXPSG::readA(EmuTime::param time)
 	joystick &= (pin67| 0xCF);
 
 	byte cassetteInput = cassette.cassetteIn(time) ? 0x80 : 0x00;
-	byte keyLayout = keyLayoutBit ? 0x40 : 0x00;
 	return joystick | keyLayout | cassetteInput;
 }
 
@@ -103,8 +105,8 @@ void MSXPSG::serialize(Archive& ar, unsigned version)
 	if (ar.versionBelow(version, 2)) {
 		assert(ar.isLoader());
 		// in older versions there were always 2 real joytsick ports
-		ar.serialize("joystickportA", *checked_cast<JoystickPort*>(ports[0]));
-		ar.serialize("joystickportB", *checked_cast<JoystickPort*>(ports[1]));
+		ar.serialize("joystickportA", *checked_cast<JoystickPort*>(ports[0]),
+		             "joystickportB", *checked_cast<JoystickPort*>(ports[1]));
 	}
 	ar.serialize("registerLatch", registerLatch);
 	byte portB = prev;

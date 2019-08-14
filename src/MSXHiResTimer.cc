@@ -7,6 +7,7 @@ MSXHiResTimer::MSXHiResTimer(const DeviceConfig& config)
 	: MSXDevice(config)
 	, reference(getCurrentTime())
 {
+	reset(getCurrentTime());
 }
 
 void MSXHiResTimer::reset(EmuTime::param time)
@@ -42,8 +43,8 @@ template<typename Archive>
 void MSXHiResTimer::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("reference", reference);
-	ar.serialize("latchedValue", latchedValue);
+	ar.serialize("reference",    reference,
+	             "latchedValue", latchedValue);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXHiResTimer);
 REGISTER_MSXDEVICE(MSXHiResTimer, "HiResTimer");

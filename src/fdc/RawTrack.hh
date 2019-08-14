@@ -87,7 +87,7 @@ public:
 	};
 
 	/* Construct a (cleared) track. */
-	RawTrack();
+	explicit RawTrack(unsigned size = STANDARD_SIZE);
 
 	/** Clear track data. Also sets the track length. */
 	void clear(unsigned size);
@@ -101,9 +101,9 @@ public:
 	// it will wrap like in a circular buffer.
 
 	byte read(int idx) const { return data[wrapIndex(idx)]; }
-	void write(int idx, byte val) { data[wrapIndex(idx)] = val; }
+	void write(int idx, byte val, bool setIdam = false);
 	int wrapIndex(int idx) const {
-		// operator% in not a modulo but a remainder operation (makes a
+		// operator% is not a modulo but a remainder operation (makes a
 		// difference for negative inputs). Hence the extra test.
 		int tmp = idx % int(data.size());
 		return (tmp >= 0) ? tmp : int(tmp + data.size());
@@ -131,8 +131,10 @@ public:
 	void writeBlock(int idx, unsigned size, const byte* source);
 
 	/** Convenience method to calculate CRC for part of this track. */
-	word calcCrc(int idx, int length) const;
+	word calcCrc(int idx, int size) const;
 	void updateCrc(CRC16& crc, int idx, int size) const;
+
+	void applyWd2793ReadTrackQuirk();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

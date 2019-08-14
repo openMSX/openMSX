@@ -7,15 +7,18 @@
 #include "CommandException.hh"
 #include "Display.hh"
 #include "PostProcessor.hh"
+#include "Math.hh"
 #include "MSXMixer.hh"
 #include "Filename.hh"
 #include "CliComm.hh"
 #include "FileOperations.hh"
+#include "TclArgParser.hh"
 #include "TclObject.hh"
-#include "memory.hh"
 #include "outer.hh"
+#include "view.hh"
 #include "vla.hh"
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -81,16 +84,16 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 		prevTime = EmuTime::infinity;
 
 		try {
-			aviWriter = make_unique<AviWriter>(
+			aviWriter = std::make_unique<AviWriter>(
 				filename, frameWidth, frameHeight, bpp,
 				(recordAudio && stereo) ? 2 : 1, sampleRate);
 		} catch (MSXException& e) {
-			throw CommandException("Can't start recording: " +
+			throw CommandException("Can't start recording: ",
 			                       e.getMessage());
 		}
 	} else {
 		assert(recordAudio);
-		wavWriter = make_unique<Wav16Writer>(
+		wavWriter = std::make_unique<Wav16Writer>(
 			filename, stereo ? 2 : 1, sampleRate);
 	}
 	// only set recorders when all errors are checked for
@@ -115,7 +118,12 @@ void AviRecorder::stop()
 	wavWriter.reset();
 }
 
-void AviRecorder::addWave(unsigned num, short* data)
+static int16_t float2int16(float f)
+{
+	return Math::clipIntToShort(lrintf(32768.0f * f));
+}
+
+void AviRecorder::addWave(unsigned num, float* fdata)
 {
 	if (!warnedSampleRate && (mixer->getSampleRate() != sampleRate)) {
 		warnedSampleRate = true;
@@ -125,17 +133,21 @@ void AviRecorder::addWave(unsigned num, short* data)
 			"because of this.");
 	}
 	if (stereo) {
+		VLA(int16_t, buf, 2 * num);
+		for (unsigned i = 0; i < 2 * num; ++i) {
+			buf[i] = float2int16(fdata[i]);
+		}
 		if (wavWriter) {
-			wavWriter->write(data, 2, num);
+			wavWriter->write(buf, 2, num);
 		} else {
 			assert(aviWriter);
-			audioBuf.insert(end(audioBuf), data, data + 2 * num);
+			audioBuf.insert(end(audioBuf), buf, buf + 2 * num);
 		}
 	} else {
-		VLA(short, buf, num);
+		VLA(int16_t, buf, num);
 		unsigned i = 0;
 		for (/**/; !warnedStereo && i < num; ++i) {
-			if (data[2 * i + 0] != data[2 * i + 1]) {
+			if (fdata[2 * i + 0] != fdata[2 * i + 1]) {
 				reactor.getCliComm().printWarning(
 				    "Detected stereo sound during mono recording. "
 				    "Channels will be mixed down to mono. To "
@@ -144,10 +156,10 @@ void AviRecorder::addWave(unsigned num, short* data)
 				warnedStereo = true;
 				break;
 			}
-			buf[i] = data[2 * i];
+			buf[i] = float2int16(fdata[2 * i]);
 		}
 		for (/**/; i < num; ++i) {
-			buf[i] = (int(data[2 * i + 0]) + int(data[2 * i + 1])) / 2;
+			buf[i] = float2int16((fdata[2 * i + 0] + fdata[2 * i + 1]) * 0.5f);
 		}
 
 		if (wavWriter) {
@@ -189,118 +201,93 @@ unsigned AviRecorder::getFrameHeight() const {
 	return frameHeight;
 }
 
-void AviRecorder::processStart(array_ref<TclObject> tokens, TclObject& result)
+void AviRecorder::processStart(Interpreter& interp, span<const TclObject> tokens, TclObject& result)
 {
-	string filename;
-	string prefix = "openmsx";
-	bool recordAudio = true;
-	bool recordVideo = true;
-	bool recordMono = false;
+	string_view prefix = "openmsx";
+	bool audioOnly    = false;
+	bool videoOnly    = false;
+	bool recordMono   = false;
 	bool recordStereo = false;
-	frameWidth = 320;
-	frameHeight = 240;
+	bool doubleSize   = false;
+	bool tripleSize   = false;
+	ArgsInfo info[] = {
+		valueArg("-prefix", prefix),
+		flagArg("-audioonly", audioOnly),
+		flagArg("-videoonly", videoOnly),
+		flagArg("-mono",      recordMono),
+		flagArg("-stereo",    recordStereo),
+		flagArg("-doublesize", doubleSize),
+		flagArg("-triplesize", tripleSize),
+	};
+	auto arguments = parseTclArgs(interp, tokens.subspan(2), info);
 
-	vector<string> arguments;
-	for (unsigned i = 2; i < tokens.size(); ++i) {
-		string_ref token = tokens[i].getString();
-		if (token.starts_with("-")) {
-			if (token == "--") {
-				for (auto it = std::begin(tokens) + i + 1;
-				     it != std::end(tokens); ++it) {
-					arguments.push_back(it->getString().str());
-				}
-				break;
-			}
-			if (token == "-prefix") {
-				if (++i == tokens.size()) {
-					throw CommandException("Missing argument");
-				}
-				prefix = tokens[i].getString().str();
-			} else if (token == "-audioonly") {
-				recordVideo = false;
-			} else if (token == "-mono") {
-				recordMono = true;
-			} else if (token == "-stereo") {
-				recordStereo = true;
-			} else if (token == "-videoonly") {
-				recordAudio = false;
-			} else if (token == "-doublesize") {
-				frameWidth = 640;
-				frameHeight = 480;
-			} else if (token == "-triplesize") {
-				frameWidth = 960;
-				frameHeight = 720;
-			} else {
-				throw CommandException("Invalid option: " + token);
-			}
-		} else {
-			arguments.push_back(token.str());
-		}
-	}
-	if (!recordAudio && !recordVideo) {
+	if (audioOnly && videoOnly) {
 		throw CommandException("Can't have both -videoonly and -audioonly.");
 	}
 	if (recordStereo && recordMono) {
 		throw CommandException("Can't have both -mono and -stereo.");
 	}
-	if (!recordAudio && (recordStereo || recordMono)) {
+	if (doubleSize && tripleSize) {
+		throw CommandException("Can't have both -doublesize and -triplesize.");
+	}
+	if (videoOnly && (recordStereo || recordMono)) {
 		throw CommandException("Can't have both -videoonly and -stereo or -mono.");
 	}
+	string_view filenameArg;
 	switch (arguments.size()) {
 	case 0:
 		// nothing
 		break;
 	case 1:
-		filename = arguments[0];
+		filenameArg = arguments[0].getString();
 		break;
 	default:
 		throw SyntaxError();
 	}
 
+	frameWidth = 320;
+	frameHeight = 240;
+	if (doubleSize) {
+		frameWidth  *= 2;
+		frameHeight *= 2;
+	} else if (tripleSize) {
+		frameWidth  *= 3;
+		frameHeight *= 3;
+	}
+	bool recordAudio = !videoOnly;
+	bool recordVideo = !audioOnly;
 	string directory = recordVideo ? "videos" : "soundlogs";
 	string extension = recordVideo ? ".avi"   : ".wav";
-	filename = FileOperations::parseCommandFileArgument(
-		filename, directory, prefix, extension);
+	string filename = FileOperations::parseCommandFileArgument(
+		filenameArg, directory, prefix, extension);
 
 	if (aviWriter || wavWriter) {
-		result.setString("Already recording.");
+		result = "Already recording.";
 	} else {
 		start(recordAudio, recordVideo, recordMono, recordStereo,
 				Filename(filename));
-		result.setString("Recording to " + filename);
+		result = "Recording to " + filename;
 	}
 }
 
-void AviRecorder::processStop(array_ref<TclObject> tokens)
+void AviRecorder::processStop(span<const TclObject> /*tokens*/)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
 	stop();
 }
 
-void AviRecorder::processToggle(array_ref<TclObject> tokens, TclObject& result)
+void AviRecorder::processToggle(Interpreter& interp, span<const TclObject> tokens, TclObject& result)
 {
 	if (aviWriter || wavWriter) {
 		// drop extra tokens
-		processStop(make_array_ref(tokens.data(), 2));
+		processStop(tokens.first<2>());
 	} else {
-		processStart(tokens, result);
+		processStart(interp, tokens, result);
 	}
 }
 
-void AviRecorder::status(array_ref<TclObject> tokens, TclObject& result) const
+void AviRecorder::status(span<const TclObject> /*tokens*/, TclObject& result) const
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
-	result.addListElement("status");
-	if (aviWriter || wavWriter) {
-		result.addListElement("recording");
-	} else {
-		result.addListElement("idle");
-	}
-
+	result.addDictKeyValue("status", (aviWriter || wavWriter) ? "recording" : "idle");
 }
 
 // class AviRecorder::Cmd
@@ -310,24 +297,21 @@ AviRecorder::Cmd::Cmd(CommandController& commandController_)
 {
 }
 
-void AviRecorder::Cmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void AviRecorder::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
 	auto& recorder = OUTER(AviRecorder, recordCommand);
-	const string_ref subcommand = tokens[1].getString();
-	if (subcommand == "start") {
-		recorder.processStart(tokens, result);
-	} else if (subcommand == "stop") {
-		recorder.processStop(tokens);
-	} else if (subcommand == "toggle") {
-		recorder.processToggle(tokens, result);
-	} else if (subcommand == "status") {
-		recorder.status(tokens, result);
-	} else {
-		throw SyntaxError();
-	}
+	executeSubCommand(tokens[1].getString(),
+		"start",  [&]{ recorder.processStart(getInterpreter(), tokens, result); },
+		"stop",   [&]{
+			checkNumArgs(tokens, 2, Prefix{2}, nullptr);
+			recorder.processStop(tokens); },
+		"toggle", [&]{ recorder.processToggle(getInterpreter(), tokens, result); },
+		"status", [&]{
+			checkNumArgs(tokens, 2, Prefix{2}, nullptr);
+			recorder.status(tokens, result); });
 }
 
 string AviRecorder::Cmd::help(const vector<string>& /*tokens*/) const
@@ -341,7 +325,7 @@ string AviRecorder::Cmd::help(const vector<string>& /*tokens*/) const
 	       "record status             Query recording state\n"
 	       "\n"
 	       "The start subcommand also accepts an optional -audioonly, -videoonly, "
-	       " -mono, -stereo, -doublesize flag.\n"
+	       " -mono, -stereo, -doublesize, -triplesize flag.\n"
 	       "Videos are recorded in a 320x240 size by default, at 640x480 when the "
 	       "-doublesize flag is used and at 960x720 when the -triplesize flag is used.";
 }

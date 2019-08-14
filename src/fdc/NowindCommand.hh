@@ -3,7 +3,7 @@
 
 #include "NowindHost.hh"
 #include "Command.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <memory>
 
 namespace openmsx {
@@ -18,7 +18,7 @@ public:
 	NowindCommand(const std::string& basename,
 	              CommandController& commandController,
 	              NowindInterface& interface);
-	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	void execute(span<const TclObject> tokens, TclObject& result) override;
 	std::string help(const std::vector<std::string>& tokens) const override;
 	void tabCompletion(std::vector<std::string>& tokens) const override;
 
@@ -28,7 +28,7 @@ public:
 
 private:
 	unsigned searchRomdisk(const NowindHost::Drives& drives) const;
-	void processHdimage(string_ref hdimage,
+	void processHdimage(string_view hdimage,
 	                    NowindHost::Drives& drives) const;
 	NowindInterface& interface;
 };

@@ -11,14 +11,21 @@ enum EventType
 {
 	OPENMSX_KEY_UP_EVENT,
 	OPENMSX_KEY_DOWN_EVENT,
+	OPENMSX_KEY_GROUP_EVENT,
 	OPENMSX_MOUSE_MOTION_EVENT,
 	OPENMSX_MOUSE_MOTION_GROUP_EVENT,
 	OPENMSX_MOUSE_BUTTON_UP_EVENT,
 	OPENMSX_MOUSE_BUTTON_DOWN_EVENT,
+	OPENMSX_MOUSE_BUTTON_GROUP_EVENT,
+	OPENMSX_MOUSE_WHEEL_EVENT,
+	OPENMSX_MOUSE_WHEEL_GROUP_EVENT,
 	OPENMSX_JOY_AXIS_MOTION_EVENT,
+	OPENMSX_JOY_AXIS_MOTION_GROUP_EVENT,
 	OPENMSX_JOY_HAT_EVENT,
+	OPENMSX_JOY_HAT_GROUP_EVENT,
 	OPENMSX_JOY_BUTTON_UP_EVENT,
 	OPENMSX_JOY_BUTTON_DOWN_EVENT,
+	OPENMSX_JOY_BUTTON_GROUP_EVENT,
 	OPENMSX_FOCUS_EVENT,
 	OPENMSX_RESIZE_EVENT,
 	OPENMSX_QUIT_EVENT,
@@ -78,8 +85,17 @@ public:
 	Event& operator=(const Event&) = delete;
 
 	EventType getType() const { return type; }
+
+	/** Get a string representation of this event. */
 	std::string toString() const;
+
+	/** Similar to toString(), but retains the structure of the event. */
+	virtual TclObject toTclList() const = 0;
+
 	bool operator< (const Event& other) const;
+	bool operator> (const Event& other) const;
+	bool operator<=(const Event& other) const;
+	bool operator>=(const Event& other) const;
 	bool operator==(const Event& other) const;
 	bool operator!=(const Event& other) const;
 
@@ -99,21 +115,20 @@ public:
 
 protected:
 	explicit Event(EventType type_) : type(type_) {}
-	~Event() {}
+	~Event() = default;
 
 private:
-	virtual void toStringImpl(TclObject& result) const = 0;
 	virtual bool lessImpl(const Event& other) const = 0;
 
 	const EventType type;
 };
 
 // implementation for events that don't need additional data
-class SimpleEvent : public Event
+class SimpleEvent final : public Event
 {
 public:
-	SimpleEvent(EventType type_) : Event(type_) {}
-	void toStringImpl(TclObject& result) const override;
+	explicit SimpleEvent(EventType type_) : Event(type_) {}
+	TclObject toTclList() const override;
 	bool lessImpl(const Event& other) const override;
 };
 

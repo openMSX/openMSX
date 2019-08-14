@@ -1,8 +1,10 @@
+from __future__ import print_function
 from harvest import generateWixFragment
 from packagewindows import (
 	PackageInfo, emptyOrCreateDirectory, generateInstallFiles
 	)
 
+from io import open
 from os import environ, mkdir, system, unlink
 from os.path import exists, join as joinpath
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -12,21 +14,18 @@ def _writeFragment(
 	wxsFile, sourcePath, componentGroup, directoryRef,
 	virtualDir, excludedFile, win64
 	):
-	print 'Generating ' + wxsFile
-	out = open(wxsFile, 'w')
-	try:
+	print('Generating ' + wxsFile)
+	with open(wxsFile, 'w', encoding='utf-8') as out:
 		out.writelines(
-			'%s\n' % line
+			u'%s\n' % line
 			for line in generateWixFragment(
 				sourcePath, componentGroup, directoryRef, virtualDir,
 				excludedFile, win64
 				)
 			)
-	finally:
-		out.close()
 
 def packageMSI(info):
-	print 'Generating install files...'
+	print('Generating install files...')
 	generateInstallFiles(info)
 
 	wixIntermediatePath = joinpath(info.buildPath, 'build\\WiX')
@@ -35,7 +34,7 @@ def packageMSI(info):
 	if not exists(info.packagePath):
 		mkdir(info.packagePath)
 
-	print 'Generating fragments...'
+	print('Generating fragments...')
 
 	# openMSX files
 	openMSXExeFile = joinpath(wixIntermediatePath, 'openmsxexe.wxs')
@@ -176,7 +175,7 @@ def packageMSI(info):
 		))
 
 	# Run Candle
-	print candleCmd
+	print(candleCmd)
 	system(candleCmd)
 
 	msiFileName = info.packageFileName + '-bin.msi'
@@ -184,7 +183,7 @@ def packageMSI(info):
 	if exists(msiFilePath):
 		unlink(msiFilePath)
 
-	print 'Generating ' + msiFilePath
+	print('Generating ' + msiFilePath)
 
 	lightCmd = ' '.join((
 		'light.exe',
@@ -209,14 +208,14 @@ def packageMSI(info):
 		))
 
 	# Run Light
-	print lightCmd
+	print(lightCmd)
 	system(lightCmd)
 
 	# Zip up the MSI
 	zipFileName = info.packageFileName + '-bin-msi.zip'
 	zipFilePath = joinpath(info.packagePath, zipFileName)
 
-	print 'Generating ' + zipFilePath
+	print('Generating ' + zipFilePath)
 	zipFile = ZipFile(zipFilePath, 'w')
 	zipFile.write(msiFilePath, msiFileName, ZIP_DEFLATED)
 	zipFile.close()
@@ -225,6 +224,9 @@ if __name__ == '__main__':
 	if len(sys.argv) == 4:
 		packageMSI(PackageInfo(*sys.argv[1 : ]))
 	else:
-		print >> sys.stderr, 'Usage: python packagemsi.py ' \
-			'platform configuration catapultPath'
+		print(
+			'Usage: python packagemsi.py '
+			'platform configuration catapultPath',
+			file=sys.stderr
+			)
 		sys.exit(2)

@@ -21,23 +21,16 @@ public:
 	void detach(Observer<T>& observer);
 
 protected:
-	Subject();
+	Subject() = default;
 	~Subject();
 	void notify() const;
 
 private:
 	std::vector<Observer<T>*> observers; // unordered
 #ifndef NDEBUG
-	mutable bool notifyInProgress;
+	mutable bool notifyInProgress = false;
 #endif
 };
-
-template <typename T> Subject<T>::Subject()
-#ifndef NDEBUG
-	: notifyInProgress(false)
-#endif
-{
-}
 
 template <typename T> Subject<T>::~Subject()
 {

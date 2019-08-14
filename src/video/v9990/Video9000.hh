@@ -19,7 +19,7 @@ class Video9000 final : public MSXDevice
 {
 public:
 	explicit Video9000(const DeviceConfig& config);
-	~Video9000();
+	~Video9000() override;
 
 	// MSXDevice
 	void init() override;

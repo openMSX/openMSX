@@ -1,7 +1,7 @@
 #include "DiskPartition.hh"
 #include "DiskImageUtils.hh"
 #include "Filename.hh"
-#include "StringOp.hh"
+#include "strCat.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -12,17 +12,17 @@ static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 {
 	if (auto* dsk = dynamic_cast<Disk*>(disk)) {
 		return DiskName(dsk->getName().getFilename(),
-		                StringOp::Builder() << ':' << partition);
+		                strCat(':', partition));
 	} else {
 		return DiskName(Filename("dummy"));
 	}
 }
 
 DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
-                             const std::shared_ptr<SectorAccessibleDisk>& owned_)
+                             std::shared_ptr<SectorAccessibleDisk> owned_)
 	: SectorBasedDisk(getDiskName(&disk, partition))
 	, parent(disk)
-	, owned(owned_)
+	, owned(std::move(owned_))
 {
 	assert(!owned || (owned.get() == &disk));
 

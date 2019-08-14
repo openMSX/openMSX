@@ -15,14 +15,14 @@ class WavAudioInput final : public AudioInputDevice, private Observer<Setting>
 {
 public:
 	explicit WavAudioInput(CommandController& commandController);
-	~WavAudioInput();
+	~WavAudioInput() override;
 
 	// AudioInputDevice
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
-	short readSample(EmuTime::param time) override;
+	int16_t readSample(EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -38,6 +38,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 
     <PrinterPort id="Printer Port">
@@ -59,7 +60,19 @@
 
     <primary external="true" slot="1"/>
 
-    <primary external="true" slot="2"/>
+     <!-- Note that this slot is not a standard MSX cartridgeslot, but a 50 pins
+    male connector, carrying all MSX cartridgeslot signals. On a real machine
+    you can use the Yamaha CA-01 Single Cartridge Adapter to change this slot
+    into a normal MSX cartridge slot. As openMSX doesn't model these, consider
+    this slot to have this adapter connected... -->
+   <primary external="true" slot="2"/>
+
+    <!-- Note that this is not a standard MSX cartridgeslot, but a 60 pins card
+    edge connector, carrying all MSX cartridgeslot signals. It is made to
+    connect the Yamaha SFG-01/05 and other "units" with the same connector. As
+    openMSX doesn't model this, we just make it available as an MSX cartridge
+    slot here. -->
+   <primary external="true" slot="3"/>
 
   </devices>
 

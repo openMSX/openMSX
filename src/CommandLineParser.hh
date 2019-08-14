@@ -10,8 +10,8 @@
 #include "DiskImageCLI.hh"
 #include "HDImageCLI.hh"
 #include "CDImageCLI.hh"
-#include "array_ref.hh"
-#include "string_ref.hh"
+#include "span.hh"
+#include "string_view.hh"
 #include "components.hh"
 #include <string>
 #include <vector>
@@ -37,16 +37,16 @@ public:
 		PHASE_INIT,              // calls Reactor::init()
 		PHASE_BEFORE_SETTINGS,   // -setting, -nommx, ...
 		PHASE_LOAD_SETTINGS,     // loads settings.xml
-		PHASE_BEFORE_MACHINE,    // -machine
-		PHASE_LOAD_MACHINE,      // loads machine hardwareconfig.xml
+		PHASE_BEFORE_MACHINE,    // before -machine
+		PHASE_LOAD_MACHINE,      // -machine
+		PHASE_DEFAULT_MACHINE,   // default machine
 		PHASE_LAST,              // all the rest
 	};
 
 	explicit CommandLineParser(Reactor& reactor);
-	~CommandLineParser();
 	void registerOption(const char* str, CLIOption& cliOption,
 		ParsePhase phase = PHASE_LAST, unsigned length = 2);
-	void registerFileType(string_ref extensions, CLIFileType& cliFileType);
+	void registerFileType(string_view extensions, CLIFileType& cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
 
@@ -69,66 +69,66 @@ private:
 	};
 
 	bool parseFileName(const std::string& arg,
-	                   array_ref<std::string>& cmdLine);
+	                   span<std::string>& cmdLine);
 	bool parseFileNameInner(const std::string& arg, const std::string&
-	                   originalPath, array_ref<std::string>& cmdLine);
+	                   originalPath, span<std::string>& cmdLine);
 	bool parseOption(const std::string& arg,
-	                 array_ref<std::string>& cmdLine, ParsePhase phase);
+	                 span<std::string>& cmdLine, ParsePhase phase);
 	void createMachineSetting();
 
-	std::vector<std::pair<string_ref, OptionData>> options;
-	std::vector<std::pair<string_ref, CLIFileType*>> fileTypes;
+	std::vector<std::pair<string_view, OptionData>> options;
+	std::vector<std::pair<string_view, CLIFileType*>> fileTypes;
 
 	Reactor& reactor;
 
 	struct HelpOption final : CLIOption {
-		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
-		string_ref optionHelp() const override;
+		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		string_view optionHelp() const override;
 	} helpOption;
 
 	struct VersionOption final : CLIOption {
-		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
-		string_ref optionHelp() const override;
+		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		string_view optionHelp() const override;
 	} versionOption;
 
 	struct ControlOption final : CLIOption {
-		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
-		string_ref optionHelp() const override;
+		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		string_view optionHelp() const override;
 	} controlOption;
 
 	struct ScriptOption final : CLIOption, CLIFileType {
-		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
-		string_ref optionHelp() const override;
+		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		string_view optionHelp() const override;
 		void parseFileType(const std::string& filename,
-				   array_ref<std::string>& cmdLine) override;
-		string_ref fileTypeHelp() const override;
+				   span<std::string>& cmdLine) override;
+		string_view fileTypeHelp() const override;
 
 		CommandLineParser::Scripts scripts;
 	} scriptOption;
 
 	struct MachineOption final : CLIOption {
-		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
-		string_ref optionHelp() const override;
+		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		string_view optionHelp() const override;
 	} machineOption;
 
 	struct SettingOption final : CLIOption {
-		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
-		string_ref optionHelp() const override;
+		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		string_view optionHelp() const override;
 	} settingOption;
 
 	struct NoPBOOption final : CLIOption {
-		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
-		string_ref optionHelp() const override;
+		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		string_view optionHelp() const override;
 	} noPBOOption;
 
 	struct TestConfigOption final : CLIOption {
-		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
-		string_ref optionHelp() const override;
+		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		string_view optionHelp() const override;
 	} testConfigOption;
 
 	struct BashOption final : CLIOption {
-		void parseOption(const std::string& option, array_ref<std::string>& cmdLine) override;
-		string_ref optionHelp() const override;
+		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		string_view optionHelp() const override;
 	} bashOption;
 
 	MSXRomCLI msxRomCLI;

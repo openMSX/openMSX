@@ -115,13 +115,13 @@ set_help_text osd_widgets::text_box\
  -textcolor: defines the color of the text
  -textsize: defines the font size of the text}
 
-variable widget_click_handlers
+variable widget_handlers
 variable opaque_duration   2.5
 variable fade_out_duration 2.5
 variable fade_in_duration  0.4
 
 proc text_box {name args} {
-	variable widget_click_handlers
+	variable widget_handlers
 	variable opaque_duration
 
 	# Default values in case nothing is given
@@ -163,14 +163,16 @@ proc text_box {name args} {
 		osd configure $name -h [expr {4 + $y}]
 	}
 
-	# if the widget was still active, kill old click handler
-	if {[info exists widget_click_handlers($name)]} {
-		after cancel $widget_click_handlers($name)
+	# if the widget was still active, kill old click/opaque handler
+	if {[info exists widget_handlers($name)]} {
+		lassign $widget_handlers($name) click opaque
+		after cancel $click
+		after cancel $opaque
 	}
 
-	set widget_click_handlers($name) [after "mouse button1 down" \
-		"osd_widgets::click_handler $name"]
-	after realtime $opaque_duration "osd_widgets::timer_handler $name"
+	set click  [after "mouse button1 down" "osd_widgets::click_handler $name"]
+	set opaque [after realtime $opaque_duration "osd_widgets::timer_handler $name"]
+	set widget_handlers($name) [list $click $opaque]
 
 	return ""
 }
@@ -183,14 +185,17 @@ proc click_handler {name} {
 }
 
 proc kill_widget {name} {
-	variable widget_click_handlers
+	variable widget_handlers
 
-	after cancel $widget_click_handlers($name)
-	unset widget_click_handlers($name)
+	lassign $widget_handlers($name) click opaque
+	after cancel $click
+	after cancel $opaque
+	unset widget_handlers($name)
 	osd destroy $name
 }
 
 proc timer_handler {name} {
+	variable widget_handlers
 	variable opaque_duration
 	variable fade_out_duration
 	variable fade_in_duration
@@ -209,13 +214,15 @@ proc timer_handler {name} {
 	# If the cursor is over the widget, we fade-in fast and leave the widget
 	# opaque for some time (= don't poll for some longer time). Otherwise
 	# we fade-out slow and more quickly poll the cursor position.
+	lassign $widget_handlers($name) click opaque
 	if {[osd::is_cursor_in $name]} {
 		osd configure $name -fadePeriod $fade_in_duration -fadeTarget 1.0
-		after realtime $opaque_duration "osd_widgets::timer_handler $name"
+		set opaque [after realtime $opaque_duration "osd_widgets::timer_handler $name"]
 	} else {
 		osd configure $name -fadePeriod $fade_out_duration -fadeTarget 0.0
-		after realtime 0.25 "osd_widgets::timer_handler $name"
+		set opaque [after realtime 0.25 "osd_widgets::timer_handler $name"]
 	}
+	set widget_handlers($name) [list $click $opaque]
 }
 
 proc volume_control {incr_val} {

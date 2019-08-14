@@ -1,24 +1,25 @@
 # Contains the openMSX version number and versioning related functions.
 
+from __future__ import print_function
 from executils import captureStdout
 from makeutils import filterLines
 
+from io import open
 from os import makedirs
 from os.path import isdir
-
 import re
 
 # Name used for packaging.
 packageName = 'openmsx'
 
 # Version number.
-packageVersionNumber = '0.12.0'
+packageVersionNumber = '0.15.0'
 
 # Version code for Android must be an incremental number
 # Increase this number for each release build. For a dev build, the
 # version number is based on the git commit count but for a release
 # build, it must be hardcoded
-androidReleaseVersionCode=5
+androidReleaseVersionCode=10
 
 # Note: suffix should be empty or with dash, like "-rc1" or "-test1"
 packageVersionSuffix = ''
@@ -35,11 +36,11 @@ def _extractRevisionFromStdout(log, command, regex):
 	# pylint 0.18.0 somehow thinks captureStdout() returns a list, not a string.
 	lines = text.split('\n') # pylint: disable-msg=E1103
 	for revision, in filterLines(lines, regex):
-		print >> log, 'Revision number found by "%s": %s' % (command, revision)
+		print(u'Revision number found by "%s": %s' % (command, revision), file=log)
 		return revision
 	else:
-		print >> log, 'Revision number not found in "%s" output:' % command
-		print >> log, text
+		print(u'Revision number not found in "%s" output:' % command, file=log)
+		print(unicode(text), file=log)
 		return None
 
 def extractGitRevision(log):
@@ -65,14 +66,12 @@ def extractRevision():
 		return None
 	if not isdir('derived'):
 		makedirs('derived')
-	log = open('derived/version.log', 'w')
-	print >> log, 'Extracting revision info...'
-	try:
+	with open('derived/version.log', 'w', encoding='utf-8') as log:
+		print(u'Extracting revision info...', file=log)
 		revision = extractGitRevision(log)
-		print >> log, 'Revision string: %s' % revision
-		print >> log, 'Revision number: %s' % extractNumberFromGitRevision(revision)
-	finally:
-		log.close()
+		print(u'Revision string: %s' % revision, file=log)
+		revisionNumber = extractNumberFromGitRevision(revision)
+		print(u'Revision number: %s' % revisionNumber, file=log)
 	_cachedRevision = revision
 	return revision
 
@@ -93,13 +92,10 @@ def getVersionedPackageName():
 def countGitCommits():
 	if not isdir('derived'):
 		makedirs('derived')
-	log = open('derived/commitCountVersion.log', 'w')
-	print >> log, 'Extracting commit count...'
-	try:
+	with open('derived/commitCountVersion.log', 'w', encoding='utf-8') as log:
+		print(u'Extracting commit count...', file=log)
 		commitCount = captureStdout(log, 'git rev-list HEAD --count')
-		print >> log, 'Commit count: %s' % commitCount
-	finally:
-		log.close()
+		print(u'Commit count: %s' % commitCount, file=log)
 	return commitCount
 
 def getAndroidVersionCode():
@@ -108,3 +104,5 @@ def getAndroidVersionCode():
 	else:
 		return '%s' % ( countGitCommits() )
 
+if __name__ == '__main__':
+	print(packageVersionNumber)

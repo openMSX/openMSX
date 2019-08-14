@@ -4,14 +4,14 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
-#include "memory.hh"
-#include <fstream>
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <cstdio>
-#include <ctype.h>
-#include <time.h>
-#include <stdarg.h>
+#include <cstdarg>
+#include <ctime>
+#include <fstream>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -45,9 +45,7 @@ NowindHost::NowindHost(const Drives& drives_)
 {
 }
 
-NowindHost::~NowindHost()
-{
-}
+NowindHost::~NowindHost() = default;
 
 byte NowindHost::peek() const
 {
@@ -292,7 +290,7 @@ void NowindHost::DRIVES()
 	send(numberOfDrives);
 
 	romdisk = 255; // no romdisk
-	for (unsigned i = 0; i < drives.size(); ++i) {
+	for (size_t i = 0; i < drives.size(); ++i) {
 		if (drives[i]->isRomdisk()) {
 			romdisk = i;
 			break;
@@ -491,7 +489,7 @@ void NowindHost::doDiskWrite1()
 	unsigned bytesLeft = unsigned(buffer.size() * SECTOR_SIZE) - transfered;
 	if (bytesLeft == 0) {
 		// All data transferred!
-		unsigned sectorAmount = unsigned(buffer.size());
+		auto sectorAmount = unsigned(buffer.size());
 		unsigned startSector = getStartSector();
 		if (auto* disk = getDisk()) {
 			if (disk->writeSectors(&buffer[0], startSector, sectorAmount)) {
@@ -570,7 +568,7 @@ string NowindHost::extractName(int begin, int end) const
 	for (int i = begin; i < end; ++i) {
 		char c = extraData[i];
 		if (c == ' ') break;
-		result += toupper(c);
+		result += char(toupper(c));
 	}
 	return result;
 }
@@ -615,13 +613,12 @@ void NowindHost::deviceOpen()
 	string filename = extractName(0, 8);
 	string ext      = extractName(8, 11);
 	if (!ext.empty()) {
-		filename += '.';
-		filename += ext;
+		strAppend(filename, '.', ext);
 	}
 
 	unsigned fcb = getFCB();
 	unsigned dev = getFreeDeviceNum();
-	devices[dev].fs = make_unique<fstream>(); // takes care of deleting old fs
+	devices[dev].fs = std::make_unique<fstream>(); // takes care of deleting old fs
 	devices[dev].fcb = fcb;
 
 	sendHeader();
@@ -738,7 +735,7 @@ void NowindHost::readHelper2(unsigned len, const char* buf)
 
 // strips a string from outer double-quotes and anything outside them
 // ie: 'pre("foo")bar' will result in 'foo'
-static string stripquotes(const string& str)
+static string_view stripquotes(string_view str)
 {
 	auto first = str.find_first_of('\"');
 	if (first == string::npos) {
@@ -748,7 +745,7 @@ static string stripquotes(const string& str)
 	auto last = str.find_last_of ('\"');
 	if (first == last) {
 		// Error, there's only a single double-quote char.
-		return "";
+		return {};
 	}
 	// Return the part between the quotes.
 	return str.substr(first + 1, last - first - 1);
@@ -767,7 +764,7 @@ void NowindHost::callImage(const string& filename)
 }
 
 
-static enum_string<NowindHost::State> stateInfo[] = {
+static std::initializer_list<enum_string<NowindHost::State>> stateInfo = {
 	{ "SYNC1",     NowindHost::STATE_SYNC1     },
 	{ "SYNC2",     NowindHost::STATE_SYNC2     },
 	{ "COMMAND",   NowindHost::STATE_COMMAND   },
@@ -783,12 +780,12 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 {
 	// drives is serialized elsewhere
 
-	ar.serialize("hostToMsxFifo", hostToMsxFifo);
-	ar.serialize("lastTime", lastTime);
-	ar.serialize("state", state);
-	ar.serialize("recvCount", recvCount);
-	ar.serialize("cmdData", cmdData);
-	ar.serialize("extraData", extraData);
+	ar.serialize("hostToMsxFifo", hostToMsxFifo,
+	             "lastTime",      lastTime,
+	             "state",         state,
+	             "recvCount",     recvCount,
+	             "cmdData",       cmdData,
+	             "extraData",     extraData);
 
 	// for backwards compatibility, serialize buffer as a vector<byte>
 	size_t bufSize = buffer.size() * sizeof(SectorBuffer);
@@ -797,12 +794,12 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("buffer", tmp);
 	memcpy(bufRaw, tmp.data(), bufSize);
 
-	ar.serialize("transfered", transfered);
-	ar.serialize("retryCount", retryCount);
-	ar.serialize("transferSize", transferSize);
-	ar.serialize("romdisk", romdisk);
-	ar.serialize("allowOtherDiskroms", allowOtherDiskroms);
-	ar.serialize("enablePhantomDrives", enablePhantomDrives);
+	ar.serialize("transfered",          transfered,
+	             "retryCount",          retryCount,
+	             "transferSize",        transferSize,
+	             "romdisk",             romdisk,
+	             "allowOtherDiskroms",  allowOtherDiskroms,
+	             "enablePhantomDrives", enablePhantomDrives);
 
 	// Note: We don't serialize 'devices'. So after a loadstate it will be
 	// as-if the devices are closed again. The reason for not serializing

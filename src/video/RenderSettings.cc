@@ -2,6 +2,7 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "Version.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include "components.hh"
@@ -17,13 +18,12 @@ EnumSetting<RenderSettings::ScaleAlgorithm>::Map RenderSettings::getScalerMap()
 {
 	EnumSetting<ScaleAlgorithm>::Map scalerMap = { { "simple", SCALER_SIMPLE } };
 	if (MAX_SCALE_FACTOR > 1) {
-		scalerMap.insert(end(scalerMap), {
-			{ "SaI",        SCALER_SAI },
-			{ "ScaleNx",    SCALER_SCALE },
-			{ "hq",         SCALER_HQ },
-			{ "hqlite",     SCALER_HQLITE },
-			{ "RGBtriplet", SCALER_RGBTRIPLET },
-			{ "TV",         SCALER_TV } });
+		append(scalerMap, {{"SaI",        SCALER_SAI},
+		                   {"ScaleNx",    SCALER_SCALE},
+		                   {"hq",         SCALER_HQ},
+		                   {"hqlite",     SCALER_HQLITE},
+		                   {"RGBtriplet", SCALER_RGBTRIPLET},
+		                   {"TV",         SCALER_TV}});
 		if (!Version::RELEASE) {
 			// This scaler is not ready yet for the upcoming 0.8.1
 			// release, so disable it. As soon as it is ready we
@@ -48,9 +48,8 @@ EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
 		//  these renderers don't offer anything more than the existing
 		//  renderers and sdlgl-fb32 still has endian problems on PPC
 		// TODO is this still true now that SDLGL is removed?
-		rendererMap.insert(end(rendererMap), {
-			{"SDLGL-FB16", SDLGL_FB16},
-			{"SDLGL-FB32", SDLGL_FB32}});
+		append(rendererMap, {{"SDLGL-FB16", SDLGL_FB16},
+		                     {"SDLGL-FB32", SDLGL_FB32}});
 	}
 #endif
 	return rendererMap;
@@ -107,7 +106,12 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	, rendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-		SDL, getRendererMap())
+#if COMPONENT_GL
+		SDLGL_PP,
+#else
+		SDL,
+#endif
+		getRendererMap())
 
 	, horizontalBlurSetting(commandController,
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
@@ -192,13 +196,13 @@ RenderSettings::RenderSettings(CommandController& commandController)
 			parseColorMatrix(interp, newValue);
 		} catch (CommandException& e) {
 			throw CommandException(
-				"Invalid color matrix: " + e.getMessage());
+				"Invalid color matrix: ", e.getMessage());
 		}
 	});
 	try {
 		parseColorMatrix(interp, colorMatrixSetting.getValue());
 	} catch (MSXException& e) {
-		std::cerr << e.getMessage() << std::endl;
+		std::cerr << e.getMessage() << '\n';
 		cmIdentity = true;
 	}
 
@@ -264,9 +268,9 @@ vec3 RenderSettings::transformRGB(vec3 rgb) const
 {
 	vec3 t = colorMatrix * (rgb * contrast + vec3(brightness));
 	float gamma = 1.0f / getGamma();
-	return vec3(conv2(t[0], gamma),
-	            conv2(t[1], gamma),
-	            conv2(t[2], gamma));
+	return {conv2(t[0], gamma),
+	        conv2(t[1], gamma),
+	        conv2(t[2], gamma)};
 }
 
 void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& value)

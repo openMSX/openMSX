@@ -12,13 +12,13 @@ class MidiOutConnector final : public Connector, public SerialDataInterface
 {
 public:
 	MidiOutConnector(PluggingController& pluggingController,
-	                 string_ref name);
+	                 std::string name);
 
 	MidiOutDevice& getPluggedMidiOutDev() const;
 
 	// Connector
-	const std::string getDescription() const final override;
-	string_ref getClass() const final override;
+	string_view getDescription() const final override;
+	string_view getClass() const final override;
 
 	// SerialDataInterface
 	void setDataBits(DataBits bits) override;

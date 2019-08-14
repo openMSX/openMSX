@@ -17,7 +17,7 @@ class ArkanoidPad final : public JoystickDevice, private MSXEventListener
 public:
 	explicit ArkanoidPad(MSXEventDistributor& eventDistributor,
 	                     StateChangeDistributor& stateChangeDistributor);
-	~ArkanoidPad();
+	~ArkanoidPad() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -25,7 +25,7 @@ public:
 private:
 	// Pluggable
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
@@ -34,8 +34,8 @@ private:
 	void write(byte value, EmuTime::param time) override;
 
 	// MSXEventListener
-	void signalEvent(const std::shared_ptr<const Event>& event,
-	                 EmuTime::param time) override;
+	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	                    EmuTime::param time) override;
 	// StateChangeListener
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;

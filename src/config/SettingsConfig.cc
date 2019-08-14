@@ -1,6 +1,5 @@
 #include "SettingsConfig.hh"
 #include "XMLLoader.hh"
-#include "LocalFileReference.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -35,15 +34,14 @@ SettingsConfig::~SettingsConfig()
 			saveSetting();
 		} catch (FileException& e) {
 			commandController.getCliComm().printWarning(
-				"Auto-saving of settings failed: " + e.getMessage() );
+				"Auto-saving of settings failed: ", e.getMessage());
 		}
 	}
 }
 
-void SettingsConfig::loadSetting(const FileContext& context, string_ref filename)
+void SettingsConfig::loadSetting(const FileContext& context, string_view filename)
 {
-	LocalFileReference file(context.resolve(filename));
-	xmlElement = XMLLoader::load(file.getFilename(), "settings.dtd");
+	xmlElement = XMLLoader::load(context.resolve(filename), "settings.dtd");
 	getSettingsManager().loadSettings(xmlElement);
 	hotKey.loadBindings(xmlElement);
 
@@ -51,14 +49,14 @@ void SettingsConfig::loadSetting(const FileContext& context, string_ref filename
 	setSaveFilename(context, filename);
 }
 
-void SettingsConfig::setSaveFilename(const FileContext& context, string_ref filename)
+void SettingsConfig::setSaveFilename(const FileContext& context, string_view filename)
 {
 	saveName = context.resolveCreate(filename);
 }
 
-void SettingsConfig::saveSetting(string_ref filename)
+void SettingsConfig::saveSetting(string_view filename)
 {
-	string_ref name = filename.empty() ? saveName : filename;
+	string_view name = filename.empty() ? saveName : filename;
 	if (name.empty()) return;
 
 	// Normally the following isn't needed. Only when there was no
@@ -86,8 +84,9 @@ SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
 }
 
 void SettingsConfig::SaveSettingsCommand::execute(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
+	checkNumArgs(tokens, Between{1, 2}, Prefix{1}, "?filename?");
 	auto& settingsConfig = OUTER(SettingsConfig, saveSettingsCommand);
 	try {
 		switch (tokens.size()) {
@@ -97,11 +96,9 @@ void SettingsConfig::SaveSettingsCommand::execute(
 		case 2:
 			settingsConfig.saveSetting(tokens[1].getString());
 			break;
-		default:
-			throw SyntaxError();
 		}
 	} catch (FileException& e) {
-		throw CommandException(e.getMessage());
+		throw CommandException(std::move(e).getMessage());
 	}
 }
 
@@ -127,11 +124,9 @@ SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
 }
 
 void SettingsConfig::LoadSettingsCommand::execute(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 2, "filename");
 	auto& settingsConfig = OUTER(SettingsConfig, loadSettingsCommand);
 	settingsConfig.loadSetting(systemFileContext(), tokens[1].getString());
 }

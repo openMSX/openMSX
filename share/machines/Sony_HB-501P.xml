@@ -27,7 +27,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS9929A</version>
+      <version>T6950PAL</version> <!-- P version has T6950, F version has TMS9129 -->
       <io base="0x98" num="2"/>
     </VDP>
 
@@ -37,6 +37,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <PrinterPort id="Printer Port">

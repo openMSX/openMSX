@@ -55,7 +55,7 @@ public:
 	  * @param width Line width in pixels.
 	  */
 	void draw(const Pixel* src1, const Pixel* src2, Pixel* dst,
-	          unsigned factor, unsigned long width);
+	          unsigned factor, size_t width);
 
 	/** Darken one pixel. Typically used to implement drawBlank().
 	 */

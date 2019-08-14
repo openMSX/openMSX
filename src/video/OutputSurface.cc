@@ -4,15 +4,6 @@
 
 namespace openmsx {
 
-OutputSurface::OutputSurface()
-	: surface(nullptr), xOffset(0), yOffset(0), locked(false)
-{
-}
-
-OutputSurface::~OutputSurface()
-{
-}
-
 void OutputSurface::lock()
 {
 	if (isLocked()) return;
@@ -32,10 +23,20 @@ void OutputSurface::unlock()
 	}
 }
 
-void OutputSurface::setPosition(int x, int y)
+void OutputSurface::calculateViewPort(gl::ivec2 physSize_)
 {
-	xOffset = x;
-	yOffset = y;
+	m_physSize = physSize_;
+	gl::vec2 physSize(physSize_);
+
+	gl::vec2 logSize = gl::vec2(getLogicalSize());
+	float scale = min_component(physSize / logSize);
+	m_viewScale = gl::vec2(scale); // for now always same X and Y scale
+
+	gl::vec2 viewSize = logSize * scale;
+	m_viewSize = round(viewSize);
+
+	gl::vec2 viewOffset = (physSize - viewSize) / 2.0f;
+	m_viewOffset = round(viewOffset);
 }
 
 void OutputSurface::setSDLFormat(const SDL_PixelFormat& format_)

@@ -2,6 +2,7 @@
 # Actually we rely on the Python "platform" module and map its output to names
 # that the openMSX build understands.
 
+from __future__ import print_function
 from executils import captureStdout
 
 from platform import architecture, machine, system
@@ -22,6 +23,8 @@ def detectCPU():
 		return 'x86_64'
 	elif cpu in ('x86', 'i386', 'i486', 'i586', 'i686'):
 		return 'x86'
+	elif cpu == 'ppc64le':
+		return 'ppc64le'
 	elif cpu.startswith('ppc') or cpu.endswith('ppc') or cpu.startswith('power'):
 		return 'ppc64' if cpu.endswith('64') else 'ppc'
 	elif cpu.startswith('arm'):
@@ -91,19 +94,6 @@ def getCompilerMachine():
 			return machineParts[0], machineParts[2]
 	return None, None
 
-def detectMaemo5():
-	try:
-		proc = Popen(
-			["pkg-config", "--silence-errors", "--modversion", "maemo-version"],
-			stdin = None,
-			stdout = PIPE,
-			stderr = None);
-	except OSError:
-		return False
-
-	stdoutdata, stderrdata = proc.communicate()
-	return proc.returncode == 0 and stdoutdata.startswith("5.0")
-
 if __name__ == '__main__':
 	try:
 		hostCPU = detectCPU()
@@ -115,10 +105,11 @@ if __name__ == '__main__':
 			elif compilerCPU == 'mipsel':
 				hostCPU = compilerCPU
 			else:
-				print >>sys.stderr, (
-						'Warning: Unabling to determine endianess; '
-						'compiling for big endian'
-						)
+				print(
+					'Warning: Unabling to determine endianess; '
+					'compiling for big endian',
+					file=sys.stderr
+					)
 
 		hostOS = detectOS()
 		if hostOS == 'mingw32' and hostCPU == 'x86_64':
@@ -131,12 +122,8 @@ if __name__ == '__main__':
 			# safer, but will fail if using MacPorts on a 64-bit capable system.
 			if architecture()[0] == '64bit':
 				hostCPU = 'x86_64'
-		elif hostOS == 'linux' and hostCPU == 'arm':
-			# Detect maemo5 environment, e.g. Nokia N900
-			if detectMaemo5():
-				hostOS = 'maemo5'
 
-		print hostCPU, hostOS
-	except ValueError, ex:
-		print >> sys.stderr, ex
+		print(hostCPU, hostOS)
+	except ValueError as ex:
+		print(ex, file=sys.stderr)
 		sys.exit(1)

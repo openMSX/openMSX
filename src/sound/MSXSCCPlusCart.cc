@@ -7,6 +7,7 @@
 #include "FileException.hh"
 #include "XMLElement.hh"
 #include "CacheLine.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -25,10 +26,10 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 			auto size = std::min<size_t>(file.getSize(), ram.getSize());
 			file.read(&ram[0], size);
 		} catch (FileException&) {
-			throw MSXException("Error reading file: " + filename);
+			throw MSXException("Error reading file: ", filename);
 		}
 	}
-	string_ref subtype = config.getChildData("subtype", "expanded");
+	string_view subtype = config.getChildData("subtype", "expanded");
 	if (subtype == "Snatcher") {
 		mapperMask = 0x0F;
 		lowRAM  = true;
@@ -49,10 +50,8 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	}
 
 	// make valgrind happy
-	for (int i = 0; i < 4; ++i) {
-		isRamSegment[i] = true;
-		mapper[i] = 0;
-	}
+	ranges::fill(isRamSegment, true);
+	ranges::fill(mapper, 0);
 
 	powerUp(getCurrentTime());
 }
@@ -264,9 +263,9 @@ void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
 	unsigned ramBase = lowRAM ? 0x00000 : 0x10000;
 	ar.serialize_blob("ram", &ram[ramBase], ramSize);
 
-	ar.serialize("scc", scc);
-	ar.serialize("mapper", mapper);
-	ar.serialize("mode", modeRegister);
+	ar.serialize("scc",    scc,
+	             "mapper", mapper,
+	             "mode",   modeRegister);
 
 	if (ar.isLoader()) {
 		// recalculate: isMapped[4], internalMemoryBank[4]

@@ -2,6 +2,7 @@
 # Performs some test compiles, to check for headers and functions.
 # It does not execute anything it builds, making it friendly for cross compiles.
 
+from __future__ import print_function
 from compilers import CompileCommand, LinkCommand
 from components import iterComponents, requiredLibrariesFor
 from configurations import getConfiguration
@@ -14,6 +15,7 @@ from packages import getPackage
 from systemfuncs import systemFunctions
 from systemfuncs2code import iterSystemFuncsHeader
 
+from io import open
 from os import environ, makedirs, remove
 from os.path import isdir, isfile, pathsep
 from shlex import split as shsplit
@@ -33,12 +35,9 @@ def resolve(log, expr):
 		return ''
 
 def writeFile(path, lines):
-	out = open(path, 'w')
-	try:
+	with open(path, 'w', encoding='utf-8') as out:
 		for line in lines:
-			print >> out, line
-	finally:
-		out.close()
+			print(unicode(line), file=out)
 
 def tryCompile(log, compileCommand, sourcePath, lines):
 	'''Write the program defined by "lines" to a text file specified
@@ -160,7 +159,7 @@ class TargetSystem(object):
 		for line in iterProbeResults(
 			self.outVars, self.configuration, self.logPath
 			):
-			print line
+			print(line)
 
 	def everything(self):
 		self.checkAll()
@@ -172,10 +171,10 @@ class TargetSystem(object):
 		'''
 		compileCommand = CompileCommand.fromLine(self.compileCommandStr, '')
 		ok = checkCompiler(self.log, compileCommand, self.outDir)
-		print >> self.log, 'Compiler %s: %s' % (
+		print(u'Compiler %s: %s' % (
 			'works' if ok else 'broken',
 			compileCommand
-			)
+			), file=self.log)
 		self.outVars['COMPILER'] = str(ok).lower()
 
 	def checkFunc(self, func):
@@ -186,10 +185,10 @@ class TargetSystem(object):
 			self.log, compileCommand, self.outDir,
 			func.name, func.getFunctionName(), func.iterHeaders(self.platform)
 			)
-		print >> self.log, '%s function: %s' % (
+		print(u'%s function: %s' % (
 			'Found' if ok else 'Missing',
 			func.getFunctionName()
-			)
+			), file=self.log)
 		self.functionResults[func.getMakeName()] = ok
 
 	def checkLibrary(self, makeName):
@@ -206,8 +205,6 @@ class TargetSystem(object):
 				self.platform, self.configuration.linkStatic(), self.distroRoot
 				)
 			)
-		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
-		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
 		self.outVars['%s_CFLAGS' % makeName] = cflags
 		self.outVars['%s_LDFLAGS' % makeName] = ldflags
 
@@ -216,6 +213,10 @@ class TargetSystem(object):
 		binaryPath = self.outDir + '/' + makeName + '.bin'
 		if self.platform == 'android':
 			binaryPath = self.outDir + '/' + makeName + '.so'
+			ldflags += ' -shared -Wl,--no-undefined'
+
+		compileCommand = CompileCommand.fromLine(self.compileCommandStr, cflags)
+		linkCommand = LinkCommand.fromLine(self.compileCommandStr, ldflags)
 
 		funcName = library.function
 		headers = library.getHeaders(self.platform)
@@ -230,21 +231,21 @@ class TargetSystem(object):
 		writeFile(sourcePath, takeFuncAddr())
 		try:
 			compileOK = compileCommand.compile(self.log, sourcePath, objectPath)
-			print >> self.log, '%s: %s header' % (
+			print(u'%s: %s header' % (
 				makeName,
 				'Found' if compileOK else 'Missing'
-				)
+				), file=self.log)
 			if compileOK:
 				linkOK = linkCommand.link(self.log, [ objectPath ], binaryPath)
-				print >> self.log, '%s: %s lib' % (
+				print(u'%s: %s lib' % (
 					makeName,
 					'Found' if linkOK else 'Missing'
-					)
+					), file=self.log)
 			else:
 				linkOK = False
-				print >> self.log, (
-					'%s: Cannot test linking because compile failed'
-					% makeName
+				print(
+					u'%s: Cannot test linking because compile failed' % makeName,
+					file=self.log
 					)
 		finally:
 			remove(sourcePath)
@@ -273,9 +274,7 @@ def iterProbeResults(probeVars, configuration, logPath):
 	'''
 	desiredComponents = set(configuration.iterDesiredComponents())
 	requiredComponents = set(configuration.iterRequiredComponents())
-	buildableComponents = set(
-		comp for comp in desiredComponents if comp.canBuild(probeVars)
-		)
+	buildableComponents = set(configuration.iterBuildableComponents(probeVars))
 	packages = sorted(
 		(	getPackage(makeName)
 			for makeName in requiredLibrariesFor(desiredComponents)
@@ -333,52 +332,52 @@ def iterProbeResults(probeVars, configuration, logPath):
 
 		if buildableComponents == desiredComponents:
 			yield 'All required and optional components can be built.'
+		elif requiredComponents.issubset(buildableComponents):
+			yield 'If you are satisfied with the probe results, ' \
+				'run "make" to start the build.'
+			yield 'Otherwise, install some libraries and headers ' \
+				'and rerun "configure".'
 		else:
-			if requiredComponents.issubset(buildableComponents):
-				yield 'If you are satisfied with the probe results, ' \
-					'run "make" to start the build.'
-				yield 'Otherwise, install some libraries and headers ' \
-					'and rerun "configure".'
-			else:
-				yield 'Please install missing libraries and headers ' \
-					'and rerun "configure".'
-			yield ''
-			yield 'If the detected libraries differ from what you think ' \
-				'is installed on this system, please check the log file: %s' \
-				% logPath
+			yield 'Please install missing libraries and headers ' \
+				'and rerun "configure".'
+		yield ''
+		yield 'If the detected libraries differ from what you think ' \
+			'is installed on this system, please check the log file: %s' \
+			% logPath
 		yield ''
 
 def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 	if not isdir(outDir):
 		makedirs(outDir)
 	logPath = outDir + '/probe.log'
-	log = open(logPath, 'w')
-	print 'Probing target system...'
-	print >> log, 'Probing system:'
-	try:
+	with open(logPath, 'w', encoding='utf-8') as log:
+		print('Probing target system...')
+		print(u'Probing system:', file=log)
 		distroRoot = thirdPartyInstall or None
 		if distroRoot is None:
 			if platform == 'darwin':
 				for searchPath in environ.get('PATH', '').split(pathsep):
 					if searchPath == '/opt/local/bin':
-						print 'Using libraries from MacPorts.'
+						print('Using libraries from MacPorts.')
 						distroRoot = '/opt/local'
 						break
 					elif searchPath == '/sw/bin':
-						print 'Using libraries from Fink.'
+						print('Using libraries from Fink.')
 						distroRoot = '/sw'
 						break
 				else:
 					distroRoot = '/usr/local'
 			elif platform.endswith('bsd') or platform == 'dragonfly':
 				distroRoot = environ.get('LOCALBASE', '/usr/local')
-				print 'Using libraries from ports directory %s.' % distroRoot
+				print('Using libraries from ports directory %s.' % distroRoot)
 			elif platform == 'pandora':
 				distroRoot = environ.get('LIBTOOL_SYSROOT_PATH')
 				if distroRoot is not None:
 					distroRoot += '/usr'
-					print 'Using libraries from sysroot directory %s.' \
+					print(
+						'Using libraries from sysroot directory %s.'
 						% distroRoot
+						)
 
 		configuration = getConfiguration(linkMode)
 
@@ -386,19 +385,18 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			log, logPath, compileCommandStr, outDir, platform, distroRoot,
 			configuration
 			).everything()
-	finally:
-		log.close()
 
 if __name__ == '__main__':
 	if len(sys.argv) == 6:
 		try:
 			main(*sys.argv[1 : ])
-		except ValueError, ve:
-			print >> sys.stderr, ve
+		except ValueError as ve:
+			print(ve, file=sys.stderr)
 			sys.exit(2)
 	else:
-		print >> sys.stderr, (
+		print(
 			'Usage: python probe.py '
-			'COMPILE OUTDIR OPENMSX_TARGET_OS LINK_MODE 3RDPARTY_INSTALL_DIR'
+			'COMPILE OUTDIR OPENMSX_TARGET_OS LINK_MODE 3RDPARTY_INSTALL_DIR',
+			file=sys.stderr
 			)
 		sys.exit(2)

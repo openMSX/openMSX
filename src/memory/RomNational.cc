@@ -2,14 +2,14 @@
 #include "CacheLine.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
 RomNational::RomNational(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 {
-	sram = make_unique<SRAM>(getName() + " SRAM", 0x1000, config);
+	sram = std::make_unique<SRAM>(getName() + " SRAM", 0x1000, config);
 	reset(EmuTime::dummy());
 }
 
@@ -110,9 +110,9 @@ template<typename Archive>
 void RomNational::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
-	ar.serialize("control", control);
-	ar.serialize("sramAddr", sramAddr);
-	ar.serialize("bankSelect", bankSelect);
+	ar.serialize("control",    control,
+	             "sramAddr",   sramAddr,
+	             "bankSelect", bankSelect);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomNational);
 REGISTER_MSXDEVICE(RomNational, "RomNational");

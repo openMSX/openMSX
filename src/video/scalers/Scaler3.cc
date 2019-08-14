@@ -22,7 +22,7 @@ void Scaler3<Pixel>::scaleBlank1to3(
 {
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 3) {
-		Pixel color = src.getLineColor<Pixel>(srcY);
+		auto color = src.getLineColor<Pixel>(srcY);
 		for (int i = 0; i < 3; ++i) {
 			dst.fillLine(dstY + i, color);
 		}
@@ -36,8 +36,8 @@ void Scaler3<Pixel>::scaleBlank2to3(
 {
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
-		Pixel color0 = src.getLineColor<Pixel>(srcY + 0);
-		Pixel color1 = src.getLineColor<Pixel>(srcY + 1);
+		auto color0 = src.getLineColor<Pixel>(srcY + 0);
+		auto color1 = src.getLineColor<Pixel>(srcY + 1);
 		Pixel color01 = pixelOps.template blend<1, 1>(color0, color1);
 		dst.fillLine(dstY + 0, color0);
 		dst.fillLine(dstY + 1, color01);

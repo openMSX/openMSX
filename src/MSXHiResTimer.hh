@@ -9,7 +9,7 @@ namespace openmsx {
 class MSXHiResTimer final : public MSXDevice
 {
 public:
-	MSXHiResTimer(const DeviceConfig& config);
+	explicit MSXHiResTimer(const DeviceConfig& config);
 
 	void reset(EmuTime::param time) override;
 

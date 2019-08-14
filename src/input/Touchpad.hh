@@ -11,6 +11,7 @@ namespace openmsx {
 
 class MSXEventDistributor;
 class StateChangeDistributor;
+class Display;
 class CommandController;
 class TclObject;
 class Interpreter;
@@ -21,8 +22,9 @@ class Touchpad final : public JoystickDevice, private MSXEventListener
 public:
 	Touchpad(MSXEventDistributor& eventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
+	         Display& display,
 	         CommandController& commandController);
-	~Touchpad();
+	~Touchpad() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -35,7 +37,7 @@ private:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
@@ -44,14 +46,15 @@ private:
 	void write(byte value, EmuTime::param time) override;
 
 	// MSXEventListener
-	void signalEvent(const std::shared_ptr<const Event>& event,
-	                 EmuTime::param time) override;
+	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	                    EmuTime::param time) override;
 	// StateChangeListener
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;
 
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
+	Display& display;
 
 	StringSetting transformSetting;
 	gl::matMxN<2, 3, float> m; // transformation matrix

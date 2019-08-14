@@ -106,14 +106,19 @@ proc update_meters {} {
 	# update meters with the volumes
 	if {!$vu_meters_active} return
 
-	dict for {soundchip channel_dict} $volume_expr {
-		dict for {channel volExpr} $channel_dict {
-			set new_volume [eval $volExpr]
-			if {[dict get $volume_cache $soundchip $channel] != $new_volume} {
-				dict set volume_cache $soundchip $channel $new_volume
-				update_meter "vu_meters.${soundchip}.ch${channel}" $new_volume
+	if {[catch {
+		dict for {soundchip channel_dict} $volume_expr {
+			dict for {channel volExpr} $channel_dict {
+				set new_volume [eval $volExpr]
+				if {[dict get $volume_cache $soundchip $channel] != $new_volume} {
+					dict set volume_cache $soundchip $channel $new_volume
+					update_meter "vu_meters.${soundchip}.ch${channel}" $new_volume
+				}
 			}
 		}
+	}]} {
+		# a chip disappeared probably, let's reinit to see which there are now
+		vu_meters_reinit
 	}
 	# here you can customize the update frequency (to reduce CPU load)
 	#set frame_trigger_id [after time 0.05 [namespace code update_meters]]
@@ -161,6 +166,11 @@ proc toggle_vu_meters {} {
 		update_meters
 	}
 	return ""
+}
+
+proc vu_meters_reinit {} {
+	toggle_vu_meters
+	toggle_vu_meters
 }
 
 namespace export toggle_vu_meters

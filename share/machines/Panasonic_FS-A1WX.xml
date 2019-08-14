@@ -15,7 +15,7 @@
     <max_ints>221</max_ints>
   </RenShaTurbo>
 
-  <MapperReadBackBits>largest</MapperReadBackBits>
+  <MapperReadBackBits>2</MapperReadBackBits>
 
   <CassettePort/>
 
@@ -143,6 +143,7 @@
         <volume>21000</volume>
       </sound>
       <keyboardlayout>JIS</keyboardlayout>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <RTC id="Real time clock">
@@ -162,7 +163,13 @@
 
     <Matsushita id="Matsushita">
       <sramname>fs-a1wx_matsushita.sram</sramname>
+      <device idref="VDP"/>
+      <hasturbo>true</hasturbo>
     </Matsushita>
+
+    <T9769 id="T9769">
+      <subtype>B</subtype>
+    </T9769>
 
   </devices>
 

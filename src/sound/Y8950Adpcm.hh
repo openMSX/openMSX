@@ -1,7 +1,7 @@
 #ifndef Y8950ADPCM_HH
 #define Y8950ADPCM_HH
 
-#include "Ram.hh"
+#include "TrackedRam.hh"
 #include "Schedulable.hh"
 #include "Clock.hh"
 #include "serialize_meta.hh"
@@ -17,7 +17,6 @@ class Y8950Adpcm final : public Schedulable
 public:
 	Y8950Adpcm(Y8950& y8950, const DeviceConfig& config,
 	           const std::string& name, unsigned sampleRam);
-	~Y8950Adpcm();
 
 	void clearRam();
 	void reset(EmuTime::param time);
@@ -61,7 +60,7 @@ private:
 	int calcSample(bool doEmu);
 
 	Y8950& y8950;
-	Ram ram;
+	TrackedRam ram;
 
 	// copy/pasted from Y8950.hh
 	static const int CLOCK_FREQ     = 3579545;

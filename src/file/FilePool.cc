@@ -6,28 +6,35 @@
 #include "TclObject.hh"
 #include "ReadDir.hh"
 #include "Date.hh"
-#include "CommandController.hh"
 #include "CommandException.hh"
+#include "Display.hh"
 #include "EventDistributor.hh"
 #include "CliComm.hh"
+#include "Reactor.hh"
 #include "Timer.hh"
-#include "StringOp.hh"
-#include "memory.hh"
+#include "ranges.hh"
 #include "sha1.hh"
-#include "stl.hh"
 #include <fstream>
-#include <cassert>
+#include <memory>
 
 using std::ifstream;
-using std::get;
-using std::make_tuple;
 using std::ofstream;
-using std::pair;
 using std::string;
 using std::vector;
-using std::unique_ptr;
 
 namespace openmsx {
+
+class Sha1SumCommand final : public Command
+{
+public:
+	Sha1SumCommand(CommandController& commandController, FilePool& filePool);
+	void execute(span<const TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
+private:
+	FilePool& filePool;
+};
+
 
 const char* const FILE_CACHE = "/.filecache";
 
@@ -36,37 +43,34 @@ static string initialFilePoolSettingValue()
 	TclObject result;
 
 	for (auto& p : systemFileContext().getPaths()) {
-		TclObject entry1;
-		entry1.addListElement("-path");
-		entry1.addListElement(FileOperations::join(p, "systemroms"));
-		entry1.addListElement("-types");
-		entry1.addListElement("system_rom");
-		result.addListElement(entry1);
-
-		TclObject entry2;
-		entry2.addListElement("-path");
-		entry2.addListElement(FileOperations::join(p, "software"));
-		entry2.addListElement("-types");
-		entry2.addListElement("rom disk tape");
-		result.addListElement(entry2);
+		result.addListElement(
+			makeTclDict("-path", FileOperations::join(p, "systemroms"),
+			            "-types", "system_rom"),
+			makeTclDict("-path", FileOperations::join(p, "software"),
+			            "-types", "rom disk tape"));
 	}
 	return result.getString().str();
 }
 
-FilePool::FilePool(CommandController& controller, EventDistributor& distributor_)
+FilePool::FilePool(CommandController& controller, Reactor& reactor_)
 	: filePoolSetting(
 		controller, "__filepool",
 		"This is an internal setting. Don't change this directly, "
 		"instead use the 'filepool' command.",
 		initialFilePoolSettingValue())
-	, distributor(distributor_)
-	, cliComm(controller.getCliComm())
+	, reactor(reactor_)
 	, quit(false)
 {
 	filePoolSetting.attach(*this);
-	distributor.registerEventListener(OPENMSX_QUIT_EVENT, *this);
-	readSha1sums();
+	reactor.getEventDistributor().registerEventListener(OPENMSX_QUIT_EVENT, *this);
+	try {
+		readSha1sums();
+	} catch (MSXException&) {
+		// ignore, probably .filecache doesn't exist yet
+	}
 	needWrite = false;
+
+	sha1SumCommand = std::make_unique<Sha1SumCommand>(controller, *this);
 }
 
 FilePool::~FilePool()
@@ -74,15 +78,15 @@ FilePool::~FilePool()
 	if (needWrite) {
 		writeSha1sums();
 	}
-	distributor.unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
+	reactor.getEventDistributor().unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
 	filePoolSetting.detach(*this);
 }
 
 void FilePool::insert(const Sha1Sum& sum, time_t time, const string& filename)
 {
-	auto it = upper_bound(begin(pool), end(pool), sum,
-	                      LessTupleElement<0>());
-	pool.insert(it, make_tuple(sum, time, filename));
+	auto it = ranges::upper_bound(pool, sum, ComparePool());
+	stringBuffer.push_back(filename);
+	pool.emplace(it, sum, time, stringBuffer.back().c_str());
 	needWrite = true;
 }
 
@@ -100,9 +104,8 @@ void FilePool::remove(Pool::iterator it)
 bool FilePool::adjust(Pool::iterator it, const Sha1Sum& newSum)
 {
 	needWrite = true;
-	auto newIt = upper_bound(begin(pool), end(pool), newSum,
-	                         LessTupleElement<0>());
-	get<0>(*it) = newSum; // update sum
+	auto newIt = ranges::upper_bound(pool, newSum, ComparePool());
+	it->sum = newSum; // update sum
 	if (newIt > it) {
 		// move to back
 		rotate(it, it + 1, newIt);
@@ -120,46 +123,90 @@ bool FilePool::adjust(Pool::iterator it, const Sha1Sum& newSum)
 	}
 }
 
-static bool parse(const string& line, Sha1Sum& sha1, time_t& time, string& filename)
+time_t FilePool::PoolEntry::getTime()
 {
-	if (line.size() <= 68) return false;
+	if (time == time_t(-1)) {
+		time = Date::fromString(timeStr);
+	}
+	return time;
+}
+
+void FilePool::PoolEntry::setTime(time_t t)
+{
+	time = t;
+	timeStr = nullptr;
+}
+
+static bool parse(char* line, char* line_end,
+                  Sha1Sum& sha1, const char*& timeStr, const char*& filename)
+{
+	if ((line_end - line) <= 68) return false; // minumum length (only filename is variable)
+
+	// only perform quick sanity check on date/time format
+	if (line[40] != ' ') return false; // two space between sha1sum and date
+	if (line[41] != ' ') return false;
+	if (line[45] != ' ') return false; // space between day-of-week and month
+	if (line[49] != ' ') return false; // space between month and day of month
+	if (line[52] != ' ') return false; // space between day of month and hour
+	if (line[55] != ':') return false; // colon between hour and minutes
+	if (line[58] != ':') return false; // colon between minutes and seconds
+	if (line[61] != ' ') return false; // space between seconds and year
+	if (line[66] != ' ') return false; // two spaces between date and filename
+	if (line[67] != ' ') return false;
 
 	try {
-		sha1.parse40(line.data());
+		sha1.parse40(line);
 	} catch (MSXException& /*e*/) {
 		return false;
 	}
 
-	time = Date::fromString(line.data() + 42);
-	if (time == time_t(-1)) return false;
+	timeStr = line + 42; // not guaranteed to be a correct date/time
+	line[66] = '\0'; // zero-terminate timeStr, so that it can be printed
 
-	filename.assign(line, 68, line.size());
+	filename = line + 68;
+	*line_end = '\0'; // ok because there is certainly a '\n' after this line
 	return true;
 }
 
 void FilePool::readSha1sums()
 {
 	assert(pool.empty());
+	assert(fileMem.empty());
 
-	string cacheFile = FileOperations::getUserDataDir() + FILE_CACHE;
-	ifstream file(cacheFile.c_str());
-	string line;
-	Sha1Sum sum;
-	string filename;
-	time_t time;
-	while (file.good()) {
-		getline(file, line);
-		if (parse(line, sum, time, filename)) {
-			pool.emplace_back(sum, time, filename);
+	File file(FileOperations::getUserDataDir() + FILE_CACHE);
+	auto size = file.getSize();
+	fileMem.resize(size + 1);
+	file.read(fileMem.data(), size);
+	fileMem[size] = '\n'; // ensure there's always a '\n' at the end
+
+	// Process each line.
+	// Assume lines are separated by "\n", "\r\n" or "\n\r" (but not "\r").
+	char* data = fileMem.data();
+	char* data_end = data + size + 1;
+	while (data != data_end) {
+		// memchr() seems better optimized than std::find_if()
+		char* it = static_cast<char*>(memchr(data, '\n', data_end - data));
+		if (it == nullptr) it = data_end;
+		if ((it != data) && (it[-1] == '\r')) --it;
+
+		Sha1Sum sum(Sha1Sum::UninitializedTag{});
+		const char* timeStr;
+		const char* filename;
+		if (parse(data, it, sum, timeStr, filename)) {
+			pool.emplace_back(sum, timeStr, filename);
 		}
+
+		data = std::find_if(it + 1, data_end, [](char c) {
+			return !(c == '\n' || c == '\r');
+		});
 	}
 
-	if (!std::is_sorted(begin(pool), end(pool), LessTupleElement<0>())) {
+	if (!ranges::is_sorted(pool, ComparePool())) {
 		// This should _rarely_ happen. In fact it should only happen
 		// when .filecache was manually edited. Though because it's
 		// very important that pool is indeed sorted I've added this
 		// safety mechanism.
-		sort(begin(pool), end(pool), LessTupleElement<0>());
+		ranges::sort(pool, ComparePool());
 	}
 }
 
@@ -172,10 +219,14 @@ void FilePool::writeSha1sums()
 		return;
 	}
 	for (auto& p : pool) {
-		file << get<0>(p).toString()      << "  " // sum
-		     << Date::toString(get<1>(p)) << "  " // date
-		     << get<2>(p)                         // filename
-		     << '\n';
+		file << p.sum.toString() << "  ";
+		if (p.timeStr) {
+			file << p.timeStr;
+		} else {
+			assert(p.time != time_t(-1));
+			file << Date::toString(p.time);
+		}
+		file << "  " << p.filename << '\n';
 	}
 }
 
@@ -184,7 +235,7 @@ static int parseTypes(Interpreter& interp, const TclObject& list)
 	int result = 0;
 	unsigned num = list.getListLength(interp);
 	for (unsigned i = 0; i < num; ++i) {
-		string_ref elem = list.getListIndex(interp, i).getString();
+		string_view elem = list.getListIndex(interp, i).getString();
 		if (elem == "system_rom") {
 			result |= FilePool::SYSTEM_ROM;
 		} else if (elem == "rom") {
@@ -194,7 +245,7 @@ static int parseTypes(Interpreter& interp, const TclObject& list)
 		} else if (elem == "tape") {
 			result |= FilePool::TAPE;
 		} else {
-			throw CommandException("Unknown type: " + elem);
+			throw CommandException("Unknown type: ", elem);
 		}
 	}
 	return result;
@@ -221,10 +272,10 @@ FilePool::Directories FilePool::getDirectories() const
 		if (numItems & 1) {
 			throw CommandException(
 				"Expected a list with an even number "
-				"of elements, but got " + line.getString());
+				"of elements, but got ", line.getString());
 		}
 		for (unsigned j = 0; j < numItems; j += 2) {
-			string_ref name  = line.getListIndex(interp, j + 0).getString();
+			string_view name  = line.getListIndex(interp, j + 0).getString();
 			TclObject value = line.getListIndex(interp, j + 1);
 			if (name == "-path") {
 				entry.path = value.getString().str();
@@ -232,17 +283,16 @@ FilePool::Directories FilePool::getDirectories() const
 			} else if (name == "-types") {
 				entry.types = parseTypes(interp, value);
 			} else {
-				throw CommandException(
-					"Unknown item: " + name);
+				throw CommandException("Unknown item: ", name);
 			}
 		}
 		if (!hasPath) {
 			throw CommandException(
-				"Missing -path item: " + line.getString());
+				"Missing -path item: ", line.getString());
 		}
 		if (entry.types == 0) {
 			throw CommandException(
-				"Missing -types item: " + line.getString());
+				"Missing -types item: ", line.getString());
 		}
 		result.push_back(entry);
 	}
@@ -263,8 +313,8 @@ File FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 	try {
 		directories = getDirectories();
 	} catch (CommandException& e) {
-		cliComm.printWarning("Error while parsing '__filepool' setting" +
-			e.getMessage());
+		reactor.getCliComm().printWarning(
+			"Error while parsing '__filepool' setting", e.getMessage());
 	}
 	for (auto& d : directories) {
 		if (d.types & fileType) {
@@ -278,65 +328,77 @@ File FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 }
 
 static void reportProgress(const string& filename, size_t percentage,
-                           CliComm& cliComm, EventDistributor& distributor)
+                           Reactor& reactor)
 {
-	cliComm.printProgress(
-		"Calculating SHA1 sum for " + filename + "... " + StringOp::toString(percentage) + "%");
-	distributor.deliverEvents();
+	reactor.getCliComm().printProgress(
+		"Calculating SHA1 sum for ", filename, "... ", percentage, '%');
+	reactor.getDisplay().repaint();
 }
 
-static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distributor)
+static Sha1Sum calcSha1sum(File& file, Reactor& reactor)
 {
-	size_t size;
-	const byte* data = file.mmap(size);
+	// Calculate sha1 in several steps so that we can show progress
+	// information. We take a fixed step size for an efficient calculation.
+	static const size_t STEP_SIZE = 1024 * 1024; // 1MB
 
-	if (size < 10*1024*1024) {
-		// for small files, don't show progress
-		return SHA1::calc(data, size);
-	}
-
-	// Calculate sha1 in several steps so that we can show progress information
-	SHA1 sha1;
-	static const size_t NUMBER_OF_STEPS = 100;
-	// calculate in NUMBER_OF_STEPS steps and report progress every step
-	auto stepSize  = size / NUMBER_OF_STEPS;
-	auto remainder = size % NUMBER_OF_STEPS;
-	size_t offset = 0;
+	auto data = file.mmap();
 	string filename = file.getOriginalName();
-	reportProgress(filename, 0, cliComm, distributor);
-	for (size_t i = 0; i < (NUMBER_OF_STEPS - 1); ++i) {
-		sha1.update(&data[offset], stepSize);
-		offset += stepSize;
-		reportProgress(filename, i + 1, cliComm, distributor);
+
+	SHA1 sha1;
+	size_t size = data.size();
+	size_t done = 0;
+	size_t remaining = size;
+	auto lastShowedProgress = Timer::getTime();
+	bool everShowedProgress = false;
+
+	// Loop over all-but-the last blocks. For small files this loop is skipped.
+	while (remaining > STEP_SIZE) {
+		sha1.update(&data[done], STEP_SIZE);
+		done += STEP_SIZE;
+		remaining -= STEP_SIZE;
+
+		auto now = Timer::getTime();
+		if ((now - lastShowedProgress) > 1000000) {
+			reportProgress(filename, (100 * done) / size, reactor);
+			lastShowedProgress = now;
+			everShowedProgress = true;
+		}
 	}
-	sha1.update(data + offset, stepSize + remainder);
-	reportProgress(filename, 100, cliComm, distributor);
+	// last block
+	sha1.update(&data[done], remaining);
+	if (everShowedProgress) {
+		reportProgress(filename, 100, reactor);
+	}
 	return sha1.digest();
 }
 
 File FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
-	auto bound = equal_range(begin(pool), end(pool), sha1sum,
-	                         LessTupleElement<0>());
+	auto bound = ranges::equal_range(pool, sha1sum, ComparePool());
 	// use indices instead of iterators
 	auto i    = distance(begin(pool), bound.first);
 	auto last = distance(begin(pool), bound.second);
 	while (i != last) {
 		auto it = begin(pool) + i;
-		auto& time           = get<1>(*it);
-		const auto& filename = get<2>(*it);
+		if (it->getTime() == time_t(-1)) {
+			// Invalid time/date format. Remove from
+			// database and continue searching.
+			remove(it);
+			--last;
+			continue;
+		}
 		try {
-			File file(filename);
+			File file(it->filename);
 			auto newTime = file.getModificationDate();
-			if (time == newTime) {
+			if (it->time == newTime) {
 				// When modification time is unchanged, assume
 				// sha1sum is also unchanged. So avoid
 				// expensive sha1sum calculation.
 				return file;
 			}
-			time = newTime; // update timestamp
+			it->setTime(newTime); // update timestamp
 			needWrite = true;
-			auto newSum = calcSha1sum(file, cliComm, distributor);
+			auto newSum = calcSha1sum(file, reactor);
 			if (newSum == sha1sum) {
 				// Modification time was changed, but
 				// (recalculated) sha1sum is still the same.
@@ -374,7 +436,7 @@ File FilePool::scanDirectory(
 			return File();
 		}
 		string file = d->d_name;
-		string path = directory + '/' + file;
+		string path = strCat(directory, '/', file);
 		FileOperations::Stat st;
 		if (FileOperations::getStat(path, st)) {
 			File result;
@@ -400,22 +462,23 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 	auto now = Timer::getTime();
 	if (now > (progress.lastTime + 250000)) { // 4Hz
 		progress.lastTime = now;
-		cliComm.printProgress("Searching for file with sha1sum " +
-			sha1sum.toString() + "...\nIndexing filepool " + poolPath +
-			": [" + StringOp::toString(progress.amountScanned) + "]: " +
-			filename.substr(poolPath.size()));
+		reactor.getCliComm().printProgress(
+                        "Searching for file with sha1sum ",
+			sha1sum.toString(), "...\nIndexing filepool ", poolPath,
+			": [", progress.amountScanned, "]: ",
+			string_view(filename).substr(poolPath.size()));
+		reactor.getDisplay().repaint();
 	}
 
-	// deliverEvents() is relatively cheap when there are no events to
-	// deliver, so it's ok to call on each file.
-	distributor.deliverEvents();
+	// Note: do NOT call 'reactor.getEventDistributor().deliverEvents()'.
+	// See comment in ReverseManager::goTo() for more details.
 
 	auto it = findInDatabase(filename);
 	if (it == end(pool)) {
 		// not in pool
 		try {
 			File file(filename);
-			auto sum = calcSha1sum(file, cliComm, distributor);
+			auto sum = calcSha1sum(file, reactor);
 			auto time = FileOperations::getModificationDate(st);
 			insert(sum, time, filename);
 			if (sum == sha1sum) {
@@ -426,19 +489,20 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 		}
 	} else {
 		// already in pool
-		assert(filename == get<2>(*it));
+		assert(filename == it->filename);
+		assert(it->time != time_t(-1));
 		try {
 			auto time = FileOperations::getModificationDate(st);
-			if (time == get<1>(*it)) {
+			if (it->time == time) {
 				// db is still up to date
-				if (get<0>(*it) == sha1sum) {
+				if (it->sum == sha1sum) {
 					return File(filename);
 				}
 			} else {
 				// db outdated
 				File file(filename);
-				auto sum = calcSha1sum(file, cliComm, distributor);
-				get<1>(*it) = time;
+				auto sum = calcSha1sum(file, reactor);
+				it->setTime(time);
 				adjust(it, sum);
 				if (sum == sha1sum) {
 					return file;
@@ -460,9 +524,19 @@ FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
 	// shifting all elements in the vector starting from a certain
 	// position. Starting the search from the back increases the likelihood
 	// that the to-be-shifted elements are already in the memory cache.
-	for (auto it = pool.rbegin(); it != pool.rend(); ++it) {
-		if (get<2>(*it) == filename) {
-			return it.base() - 1;
+	auto i = pool.size();
+	while (i) {
+		--i;
+		auto it = begin(pool) + i;
+		if (it->filename == filename) {
+			// ensure 'time' is valid
+			if (it->getTime() == time_t(-1)) {
+				// invalid time/date format, remove from db
+				// and continue searching
+				pool.erase(it);
+				continue;
+			}
+			return it;
 		}
 	}
 	return end(pool); // not found
@@ -474,20 +548,21 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	const auto& filename = file.getURL();
 
 	auto it = findInDatabase(filename);
-	if ((it != end(pool)) && (get<1>(*it) == time)) {
+	assert((it == end(pool)) || (it->time != time_t(-1)));
+	if ((it != end(pool)) && (it->time == time)) {
 		// in database and modification time matches,
 		// assume sha1sum also matches
-		return get<0>(*it);
+		return it->sum;
 	}
 
 	// not in database or timestamp mismatch
-	auto sum = calcSha1sum(file, cliComm, distributor);
+	auto sum = calcSha1sum(file, reactor);
 	if (it == end(pool)) {
 		// was not yet in database, insert new entry
 		insert(sum, time, filename);
 	} else {
 		// was already in database, but with wrong timestamp (and sha1sum)
-		get<1>(*it) = time;
+		it->setTime(time);
 		adjust(it, sum);
 	}
 	return sum;
@@ -499,6 +574,34 @@ int FilePool::signalEvent(const std::shared_ptr<const Event>& event)
 	assert(event->getType() == OPENMSX_QUIT_EVENT);
 	quit = true;
 	return 0;
+}
+
+
+// class Sha1SumCommand
+
+Sha1SumCommand::Sha1SumCommand(
+		CommandController& commandController_, FilePool& filePool_)
+	: Command(commandController_, "sha1sum")
+	, filePool(filePool_)
+{
+}
+
+void Sha1SumCommand::execute(span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, 2, "filename");
+	File file(tokens[1].getString());
+	result = filePool.getSha1Sum(file).toString();
+}
+
+string Sha1SumCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Calculate sha1 value for the given file. If the file is "
+	       "(g)zipped the sha1 is calculated on the unzipped version.";
+}
+
+void Sha1SumCommand::tabCompletion(vector<string>& tokens) const
+{
+	completeFileName(tokens, userFileContext());
 }
 
 } // namespace openmsx

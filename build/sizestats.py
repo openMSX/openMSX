@@ -1,8 +1,14 @@
+#!/usr/bin/env python2
+
+from __future__ import print_function
 from executils import captureStdout
 
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from os.path import normpath
 import re, sys
+
+
+Symbol = namedtuple('Symbol', ('name', 'typ', 'size', 'source', 'lineNo'))
 
 _reSymbolInfo = re.compile(
 	r'^([0-9a-f]+\s)?([0-9a-f]+\s)?\s*([A-Za-z])\s([^\t]+)(\t[^\t]+)?$'
@@ -15,16 +21,19 @@ def parseSymbolSize(objectFile):
 				match = _reSymbolInfo.match(line)
 				assert match is not None, line
 				addr_, sizeStr, typ, name, originStr = match.groups()
+				if sizeStr is None:
+					continue
+				if typ in 'Bb':
+					# Symbols in BSS (uninitialized data section) do not
+					# contribute to executable size, so ignore them.
+					continue
 				if originStr is None:
-					origin = (None, None)
+					source = lineNo = None
 				else:
 					source, lineNo = originStr.lstrip().rsplit(':', 1)
-					origin = (normpath(source), int(lineNo))
-				if sizeStr is not None:
-					if typ not in 'Bb':
-						# Symbols in BSS (uninitialized data section) do not
-						# contribute to executable size, so ignore them.
-						yield name, typ, int(sizeStr, 16), origin
+					source = normpath(source)
+					lineNo = int(lineNo)
+				yield Symbol(name, typ, int(sizeStr, 16), source, lineNo)
 
 if __name__ == '__main__':
 	if len(sys.argv) == 2:
@@ -32,8 +41,8 @@ if __name__ == '__main__':
 
 		# Get symbol information.
 		symbolsBySource = defaultdict(list)
-		for name, typ, size, (source, lineNo) in parseSymbolSize(executable):
-			symbolsBySource[source].append((name, typ, size, lineNo))
+		for symbol in parseSymbolSize(executable):
+			symbolsBySource[symbol.source].append(symbol)
 
 		# Build directory tree.
 		def newDict():
@@ -58,7 +67,7 @@ if __name__ == '__main__':
 				name = names.pop()
 				content = node[name]
 				if isinstance(content, dict) and len(content) == 1:
-					subName, subContent = content.iteritems().next()
+					subName, subContent = next(content.iteritems())
 					if isinstance(subContent, dict):
 						# A directory containing a single directory.
 						del node[name]
@@ -78,7 +87,7 @@ if __name__ == '__main__':
 				nodeSize = sum(size for size, subNode in newNode.itervalues())
 				return nodeSize, newNode
 			else:
-				nodeSize = sum(size for name, typ, size, lineNo in node)
+				nodeSize = sum(symbol.size for symbol in node)
 				return nodeSize, node
 		totalSize, sizeTree = buildSizeTree(dirTree)
 
@@ -86,22 +95,22 @@ if __name__ == '__main__':
 		def printTree(size, node, indent):
 			if isinstance(node, dict):
 				for name, (contentSize, content) in sorted(
-					node.iteritems(),
-					key = lambda (name, (contentSize, content)):
-						( -contentSize, name )
-					):
-					print '%s%8d %s' % (indent, contentSize, name)
+						node.iteritems(),
+						key=lambda item: (-item[1][0], item[0])
+						):
+					print('%s%8d %s' % (indent, contentSize, name))
 					printTree(contentSize, content, indent + '  ')
 			else:
-				for name, typ, size, lineNo in sorted(
-					node,
-					key = lambda (name, typ, size, lineNo): ( -size, name )
-					):
-					print '%s%8d %s %s %s' % (
-						indent, size, typ, name,
+				for symbol in sorted(
+						node,
+						key=lambda symbol: (-symbol.size, symbol.name)
+						):
+					lineNo = symbol.lineNo
+					print('%s%8d %s %s %s' % (
+						indent, symbol.size, symbol.typ, symbol.name,
 						'' if lineNo is None else '(line %d)' % lineNo
-						)
+						))
 		printTree(totalSize, sizeTree, '')
 	else:
-		print >> sys.stderr, 'Usage: python sizestats.py executable'
+		print('Usage: python sizestats.py executable', file=sys.stderr)
 		sys.exit(2)

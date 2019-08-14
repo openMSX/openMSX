@@ -13,28 +13,24 @@ ReplayCLI::ReplayCLI(CommandLineParser& parser_)
 	parser.registerFileType("omr", *this);
 }
 
-void ReplayCLI::parseOption(const string& option, array_ref<string>& cmdLine)
+void ReplayCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
 
-string_ref ReplayCLI::optionHelp() const
+string_view ReplayCLI::optionHelp() const
 {
 	return "Load replay and start replaying it in view only mode";
 }
 
 void ReplayCLI::parseFileType(const string& filename,
-                              array_ref<string>& /*cmdLine*/)
+                              span<string>& /*cmdLine*/)
 {
-	TclObject command;
-	command.addListElement("reverse");
-	command.addListElement("loadreplay");
-	command.addListElement("-viewonly");
-	command.addListElement(filename);
+	TclObject command = makeTclList("reverse", "loadreplay", "-viewonly", filename);
 	command.executeCommand(parser.getInterpreter());
 }
 
-string_ref ReplayCLI::fileTypeHelp() const
+string_view ReplayCLI::fileTypeHelp() const
 {
 	return "openMSX replay";
 }

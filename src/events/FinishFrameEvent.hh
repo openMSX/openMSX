@@ -35,12 +35,12 @@ public:
 	bool isSkipped() const { return skipped; }
 	bool needRender() const { return !skipped && (thisSource == selectedSource); }
 
-	void toStringImpl(TclObject& result) const override
+	TclObject toTclList() const override
 	{
-		result.addListElement("finishframe");
-		result.addListElement(int(thisSource));
-		result.addListElement(int(selectedSource));
-		result.addListElement(skipped);
+		return makeTclList("finishframe",
+		                   int(thisSource),
+		                   int(selectedSource),
+		                   skipped);
 	}
 	bool lessImpl(const Event& other) const override
 	{

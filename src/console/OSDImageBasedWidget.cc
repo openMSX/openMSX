@@ -2,10 +2,13 @@
 #include "OSDTopWidget.hh"
 #include "OSDGUI.hh"
 #include "BaseImage.hh"
-#include "OutputSurface.hh"
+#include "Display.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Timer.hh"
+#include "ranges.hh"
+#include "stl.hh"
+#include "view.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <cassert>
@@ -16,44 +19,39 @@ using namespace gl;
 
 namespace openmsx {
 
-OSDImageBasedWidget::OSDImageBasedWidget(OSDGUI& gui_, const TclObject& name_)
-	: OSDWidget(name_)
-	, gui(gui_)
+OSDImageBasedWidget::OSDImageBasedWidget(Display& display_, const TclObject& name_)
+	: OSDWidget(display_, name_)
 	, startFadeTime(0)
 	, fadePeriod(0.0)
 	, fadeTarget(1.0)
 	, startFadeValue(1.0)
 	, error(false)
 {
-	for (auto i : xrange(4)) {
-		rgba[i] = 0x000000ff;
-	}
+	ranges::fill(rgba, 0x000000ff);
 }
 
-OSDImageBasedWidget::~OSDImageBasedWidget()
-{
-}
+OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 
-vector<string_ref> OSDImageBasedWidget::getProperties() const
+vector<string_view> OSDImageBasedWidget::getProperties() const
 {
 	auto result = OSDWidget::getProperties();
 	static const char* const vals[] = {
 		"-rgba", "-rgb", "-alpha", "-fadePeriod", "-fadeTarget",
 		"-fadeCurrent",
 	};
-	result.insert(end(result), std::begin(vals), std::end(vals));
+	append(result, vals);
 	return result;
 }
 
-static void get4(Interpreter& interp, const TclObject& value, unsigned* result)
+static void get4(Interpreter& interp, const TclObject& value, uint32_t* result)
 {
-	unsigned len = value.getListLength(interp);
+	auto len = value.getListLength(interp);
 	if (len == 4) {
 		for (auto i : xrange(4)) {
 			result[i] = value.getListIndex(interp, i).getInt(interp);
 		}
 	} else if (len == 1) {
-		unsigned val = value.getInt(interp);
+		uint32_t val = value.getInt(interp);
 		for (auto i : xrange(4)) {
 			result[i] = val;
 		}
@@ -62,25 +60,25 @@ static void get4(Interpreter& interp, const TclObject& value, unsigned* result)
 	}
 }
 void OSDImageBasedWidget::setProperty(
-	Interpreter& interp, string_ref propName, const TclObject& value)
+	Interpreter& interp, string_view propName, const TclObject& value)
 {
 	if (propName == "-rgba") {
-		unsigned newRGBA[4];
+		uint32_t newRGBA[4];
 		get4(interp, value, newRGBA);
 		setRGBA(newRGBA);
 	} else if (propName == "-rgb") {
-		unsigned newRGB[4];
+		uint32_t newRGB[4];
 		get4(interp, value, newRGB);
-		unsigned newRGBA[4];
+		uint32_t newRGBA[4];
 		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]          & 0x000000ff) |
 			             ((newRGB[i] << 8) & 0xffffff00);
 		}
 		setRGBA(newRGBA);
 	} else if (propName == "-alpha") {
-		unsigned newAlpha[4];
+		uint32_t newAlpha[4];
 		get4(interp, value, newAlpha);
-		unsigned newRGBA[4];
+		uint32_t newRGBA[4];
 		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]     & 0xffffff00) |
 			             (newAlpha[i] & 0x000000ff);
@@ -100,7 +98,7 @@ void OSDImageBasedWidget::setProperty(
 	}
 }
 
-void OSDImageBasedWidget::setRGBA(const unsigned newRGBA[4])
+void OSDImageBasedWidget::setRGBA(const uint32_t newRGBA[4])
 {
 	if ((rgba[0] == newRGBA[0]) &&
 	    (rgba[1] == newRGBA[1]) &&
@@ -115,18 +113,17 @@ void OSDImageBasedWidget::setRGBA(const unsigned newRGBA[4])
 	}
 }
 
-static void set4(const unsigned rgba[4], unsigned mask, unsigned shift, TclObject& result)
+static void set4(const uint32_t rgba[4], uint32_t mask, unsigned shift, TclObject& result)
 {
 	if ((rgba[0] == rgba[1]) && (rgba[0] == rgba[2]) && (rgba[0] == rgba[3])) {
-		result.setInt((rgba[0] & mask) >> shift);
+		result = (rgba[0] & mask) >> shift;
 	} else {
-
-		for (auto i : xrange(4)) {
-			result.addListElement(int((rgba[i] & mask) >> shift));
-		}
+		result.addListElements(view::transform(xrange(4), [&](auto i) {
+			return int((rgba[i] & mask) >> shift);
+		}));
 	}
 }
-void OSDImageBasedWidget::getProperty(string_ref propName, TclObject& result) const
+void OSDImageBasedWidget::getProperty(string_view propName, TclObject& result) const
 {
 	if (propName == "-rgba") {
 		set4(rgba, 0xffffffff, 0, result);
@@ -135,17 +132,17 @@ void OSDImageBasedWidget::getProperty(string_ref propName, TclObject& result) co
 	} else if (propName == "-alpha") {
 		set4(rgba, 0x000000ff, 0, result);
 	} else if (propName == "-fadePeriod") {
-		result.setDouble(fadePeriod);
+		result = fadePeriod;
 	} else if (propName == "-fadeTarget") {
-		result.setDouble(fadeTarget);
+		result = fadeTarget;
 	} else if (propName == "-fadeCurrent") {
-		result.setDouble(getCurrentFadeValue());
+		result = getCurrentFadeValue();
 	} else {
 		OSDWidget::getProperty(propName, result);
 	}
 }
 
-static bool constantAlpha(const unsigned rgba[4])
+static bool constantAlpha(const uint32_t rgba[4])
 {
 	return ((rgba[0] & 0xff) == (rgba[1] & 0xff)) &&
 	       ((rgba[0] & 0xff) == (rgba[2] & 0xff)) &&
@@ -213,7 +210,7 @@ void OSDImageBasedWidget::invalidateLocal()
 	image.reset();
 }
 
-vec2 OSDImageBasedWidget::getTransformedPos(const OutputRectangle& output) const
+vec2 OSDImageBasedWidget::getTransformedPos(const OutputSurface& output) const
 {
 	return getParent()->transformPos(
 		output, float(getScaleFactor(output)) * getPos(), getRelPos());
@@ -231,7 +228,7 @@ void OSDImageBasedWidget::setError(string message)
 	// the OSD widgets get created, but only the next frame, when this new
 	// widget is actually drawn the next error occurs.
 	if (!needSuppressErrors()) {
-		gui.getTopWidget().queueError(std::move(message));
+		getDisplay().getOSDGUI().getTopWidget().queueError(std::move(message));
 	}
 }
 
@@ -245,17 +242,17 @@ void OSDImageBasedWidget::paintGL(OutputSurface& output)
 	paint(output, true);
 }
 
-void OSDImageBasedWidget::createImage(OutputRectangle& output)
+void OSDImageBasedWidget::createImage(OutputSurface& output)
 {
 	if (!image && !hasError()) {
 		try {
-			if (gui.isOpenGL()) {
+			if (getDisplay().getOSDGUI().isOpenGL()) {
 				image = createGL(output);
 			} else {
 				image = createSDL(output);
 			}
 		} catch (MSXException& e) {
-			setError(e.getMessage());
+			setError(std::move(e).getMessage());
 		}
 	}
 }
@@ -265,16 +262,16 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 	// Note: Even when alpha == 0 we still create the image:
 	//    It may be needed to get the dimensions to be able to position
 	//    child widgets.
-	assert(openGL == gui.isOpenGL()); (void)openGL;
+	assert(openGL == getDisplay().getOSDGUI().isOpenGL()); (void)openGL;
 	createImage(output);
 
-	byte fadedAlpha = getFadedAlpha();
+	auto fadedAlpha = getFadedAlpha();
 	if ((fadedAlpha != 0) && image) {
 		ivec2 drawPos = round(getTransformedPos(output));
 		image->draw(output, drawPos, fadedAlpha);
 	}
 	if (isFading()) {
-		gui.refresh();
+		getDisplay().getOSDGUI().refresh();
 	}
 }
 

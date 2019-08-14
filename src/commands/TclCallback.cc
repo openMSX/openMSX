@@ -3,8 +3,8 @@
 #include "CliComm.hh"
 #include "CommandException.hh"
 #include "StringSetting.hh"
-#include "memory.hh"
 #include <iostream>
+#include <memory>
 
 using std::string;
 
@@ -12,12 +12,12 @@ namespace openmsx {
 
 TclCallback::TclCallback(
 		CommandController& controller,
-		string_ref name,
-		string_ref description,
+		string_view name,
+		string_view description,
 		bool useCliComm_,
 		bool save)
-	: callbackSetting2(make_unique<StringSetting>(
-		controller, name, description, "",
+	: callbackSetting2(std::make_unique<StringSetting>(
+		controller, name, description, string_view{},
 		save ? Setting::SAVE : Setting::DONT_SAVE))
 	, callbackSetting(*callbackSetting2)
 	, useCliComm(useCliComm_)
@@ -30,9 +30,7 @@ TclCallback::TclCallback(StringSetting& setting)
 {
 }
 
-TclCallback::~TclCallback()
-{
-}
+TclCallback::~TclCallback() = default;
 
 TclObject TclCallback::getValue() const
 {
@@ -44,8 +42,7 @@ TclObject TclCallback::execute()
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
 
-	TclObject command;
-	command.addListElement(callback);
+	TclObject command = makeTclList(callback);
 	return executeCommon(command);
 }
 
@@ -54,9 +51,7 @@ TclObject TclCallback::execute(int arg1)
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
 
-	TclObject command;
-	command.addListElement(callback);
-	command.addListElement(arg1);
+	TclObject command = makeTclList(callback, arg1);
 	return executeCommon(command);
 }
 
@@ -65,34 +60,25 @@ TclObject TclCallback::execute(int arg1, int arg2)
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
 
-	TclObject command;
-	command.addListElement(callback);
-	command.addListElement(arg1);
-	command.addListElement(arg2);
+	TclObject command = makeTclList(callback, arg1, arg2);
 	return executeCommon(command);
 }
 
-TclObject TclCallback::execute(int arg1, string_ref arg2)
+TclObject TclCallback::execute(int arg1, string_view arg2)
 {
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
 
-	TclObject command;
-	command.addListElement(callback);
-	command.addListElement(arg1);
-	command.addListElement(arg2);
+	TclObject command = makeTclList(callback, arg1, arg2);
 	return executeCommon(command);
 }
 
-TclObject TclCallback::execute(string_ref arg1, string_ref arg2)
+TclObject TclCallback::execute(string_view arg1, string_view arg2)
 {
 	const auto& callback = getValue();
 	if (callback.empty()) return TclObject();
 
-	TclObject command;
-	command.addListElement(callback);
-	command.addListElement(arg1);
-	command.addListElement(arg2);
+	TclObject command = makeTclList(callback, arg1, arg2);
 	return executeCommon(command);
 }
 
@@ -101,14 +87,14 @@ TclObject TclCallback::executeCommon(TclObject& command)
 	try {
 		return command.executeCommand(callbackSetting.getInterpreter());
 	} catch (CommandException& e) {
-		string message =
-			"Error executing callback function \"" +
-			getSetting().getFullName() + "\": " + e.getMessage();
+		string message = strCat(
+			"Error executing callback function \"",
+			getSetting().getFullName(), "\": ", e.getMessage());
 		if (useCliComm) {
 			getSetting().getCommandController().getCliComm().printWarning(
 				message);
 		} else {
-			std::cerr << message << std::endl;
+			std::cerr << message << '\n';
 		}
 		return TclObject();
 	}

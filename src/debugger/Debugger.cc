@@ -2,7 +2,6 @@
 #include "Debuggable.hh"
 #include "ProbeBreakPoint.hh"
 #include "MSXMotherBoard.hh"
-#include "Reactor.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "BreakPoint.hh"
@@ -11,19 +10,19 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
-#include "StringOp.hh"
-#include "KeyRange.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include "memory.hh"
+#include "view.hh"
+#include "xrange.hh"
 #include <cassert>
+#include <memory>
 #include <stdexcept>
 
 using std::shared_ptr;
 using std::make_shared;
 using std::string;
 using std::vector;
-using std::begin;
 using std::end;
 
 namespace openmsx {
@@ -49,24 +48,24 @@ void Debugger::registerDebuggable(string name, Debuggable& debuggable)
 	debuggables.emplace_noDuplicateCheck(std::move(name), &debuggable);
 }
 
-void Debugger::unregisterDebuggable(string_ref name, Debuggable& debuggable)
+void Debugger::unregisterDebuggable(string_view name, Debuggable& debuggable)
 {
 	assert(debuggables.contains(name));
 	assert(debuggables[name.str()] == &debuggable); (void)debuggable;
 	debuggables.erase(name);
 }
 
-Debuggable* Debugger::findDebuggable(string_ref name)
+Debuggable* Debugger::findDebuggable(string_view name)
 {
-	auto it = debuggables.find(name);
-	return (it != end(debuggables)) ? it->second : nullptr;
+	auto v = lookup(debuggables, name);
+	return v ? *v : nullptr;
 }
 
-Debuggable& Debugger::getDebuggable(string_ref name)
+Debuggable& Debugger::getDebuggable(string_view name)
 {
 	Debuggable* result = findDebuggable(name);
 	if (!result) {
-		throw CommandException("No such debuggable: " + name);
+		throw CommandException("No such debuggable: ", name);
 	}
 	return *result;
 }
@@ -83,17 +82,17 @@ void Debugger::unregisterProbe(ProbeBase& probe)
 	probes.erase(probe.getName());
 }
 
-ProbeBase* Debugger::findProbe(string_ref name)
+ProbeBase* Debugger::findProbe(string_view name)
 {
 	auto it = probes.find(name);
 	return (it != end(probes)) ? *it : nullptr;
 }
 
-ProbeBase& Debugger::getProbe(string_ref name)
+ProbeBase& Debugger::getProbe(string_view name)
 {
 	auto* result = findProbe(name);
 	if (!result) {
-		throw CommandException("No such probe: " + name);
+		throw CommandException("No such probe: ", name);
 	}
 	return *result;
 }
@@ -102,38 +101,38 @@ unsigned Debugger::insertProbeBreakPoint(
 	TclObject command, TclObject condition,
 	ProbeBase& probe, unsigned newId /*= -1*/)
 {
-	auto bp = make_unique<ProbeBreakPoint>(
+	auto bp = std::make_unique<ProbeBreakPoint>(
 		command, condition, *this, probe, newId);
 	unsigned result = bp->getId();
 	probeBreakPoints.push_back(std::move(bp));
 	return result;
 }
 
-void Debugger::removeProbeBreakPoint(string_ref name)
+void Debugger::removeProbeBreakPoint(string_view name)
 {
 	if (name.starts_with("pp#")) {
 		// remove by id
 		try {
 			unsigned id = fast_stou(name.substr(3));
-			auto it = find_if(begin(probeBreakPoints), end(probeBreakPoints),
-				[&](std::unique_ptr<ProbeBreakPoint>& e)
-					{ return e->getId() == id; });
+			auto it = ranges::find_if(probeBreakPoints, [&](auto& bp) {
+				return bp->getId() == id;
+			});
 			if (it == end(probeBreakPoints)) {
-				throw CommandException("No such breakpoint: " + name);
+				throw CommandException("No such breakpoint: ", name);
 			}
 			move_pop_back(probeBreakPoints, it);
 		} catch (std::invalid_argument&) {
 			// parse error in fast_stou()
-			throw CommandException("No such breakpoint: " + name);
+			throw CommandException("No such breakpoint: ", name);
 		}
 	} else {
 		// remove by probe, only works for unconditional bp
-		auto it = find_if(begin(probeBreakPoints), end(probeBreakPoints),
-			[&](std::unique_ptr<ProbeBreakPoint>& e)
-				{ return e->getProbe().getName() == name; });
+		auto it = ranges::find_if(probeBreakPoints, [&](auto& bp) {
+			return bp->getProbe().getName() == name;
+		});
 		if (it == end(probeBreakPoints)) {
 			throw CommandException(
-				"No (unconditional) breakpoint for probe: " + name);
+				"No (unconditional) breakpoint for probe: ", name);
 		}
 		move_pop_back(probeBreakPoints, it);
 	}
@@ -190,11 +189,9 @@ void Debugger::transfer(Debugger& other)
 
 // class Debugger::Cmd
 
-static word getAddress(Interpreter& interp, array_ref<TclObject> tokens)
+static word getAddress(Interpreter& interp, span<const TclObject> tokens)
 {
-	if (tokens.size() < 3) {
-		throw CommandException("Missing argument");
-	}
+	assert(tokens.size() >= 3);
 	unsigned addr = tokens[2].getInt(interp);
 	if (addr >= 0x10000) {
 		throw CommandException("Invalid address");
@@ -210,114 +207,79 @@ Debugger::Cmd::Cmd(CommandController& commandController_,
 {
 }
 
-bool Debugger::Cmd::needRecord(array_ref<TclObject> tokens) const
+bool Debugger::Cmd::needRecord(span<const TclObject> tokens) const
 {
 	// Note: it's crucial for security that only the write and write_block
 	// subcommands are recorded and replayed. The 'set_bp' command for
 	// example would allow to set a callback that can execute arbitrary Tcl
 	// code. See comments in RecordedCommand for more details.
 	if (tokens.size() < 2) return false;
-	string_ref subCmd = tokens[1].getString();
+	string_view subCmd = tokens[1].getString();
 	return (subCmd == "write") || (subCmd == "write_block");
 }
 
 void Debugger::Cmd::execute(
-	array_ref<TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
+	span<const TclObject> tokens, TclObject& result, EmuTime::param /*time*/)
 {
-	if (tokens.size() < 2) {
-		throw CommandException("Missing argument");
-	}
-	string_ref subCmd = tokens[1].getString();
-	if (subCmd == "read") {
-		read(tokens, result);
-	} else if (subCmd == "read_block") {
-		readBlock(tokens, result);
-	} else if (subCmd == "write") {
-		write(tokens, result);
-	} else if (subCmd == "write_block") {
-		writeBlock(tokens, result);
-	} else if (subCmd == "size") {
-		size(tokens, result);
-	} else if (subCmd == "desc") {
-		desc(tokens, result);
-	} else if (subCmd == "list") {
-		list(result);
-	} else if (subCmd == "step") {
-		debugger().motherBoard.getCPUInterface().doStep();
-	} else if (subCmd == "cont") {
-		debugger().motherBoard.getCPUInterface().doContinue();
-	} else if (subCmd == "disasm") {
-		debugger().cpu->disasmCommand(getInterpreter(), tokens, result);
-	} else if (subCmd == "break") {
-		debugger().motherBoard.getCPUInterface().doBreak();
-	} else if (subCmd == "breaked") {
-		result.setInt(debugger().motherBoard.getCPUInterface().isBreaked());
-	} else if (subCmd == "set_bp") {
-		setBreakPoint(tokens, result);
-	} else if (subCmd == "remove_bp") {
-		removeBreakPoint(tokens, result);
-	} else if (subCmd == "list_bp") {
-		listBreakPoints(tokens, result);
-	} else if (subCmd == "set_watchpoint") {
-		setWatchPoint(tokens, result);
-	} else if (subCmd == "remove_watchpoint") {
-		removeWatchPoint(tokens, result);
-	} else if (subCmd == "list_watchpoints") {
-		listWatchPoints(tokens, result);
-	} else if (subCmd == "set_condition") {
-		setCondition(tokens, result);
-	} else if (subCmd == "remove_condition") {
-		removeCondition(tokens, result);
-	} else if (subCmd == "list_conditions") {
-		listConditions(tokens, result);
-	} else if (subCmd == "probe") {
-		probe(tokens, result);
-	} else {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
+	executeSubCommand(tokens[1].getString(),
+		"read",              [&]{ read(tokens, result); },
+		"read_block",        [&]{ readBlock(tokens, result); },
+		"write",             [&]{ write(tokens, result); },
+		"write_block",       [&]{ writeBlock(tokens, result); },
+		"size",              [&]{ size(tokens, result); },
+		"desc",              [&]{ desc(tokens, result); },
+		"list",              [&]{ list(result); },
+		"step",              [&]{ debugger().motherBoard.getCPUInterface().doStep(); },
+		"cont",              [&]{ debugger().motherBoard.getCPUInterface().doContinue(); },
+		"disasm",            [&]{ debugger().cpu->disasmCommand(getInterpreter(), tokens, result); },
+		"break",             [&]{ debugger().motherBoard.getCPUInterface().doBreak(); },
+		"breaked",           [&]{ result = debugger().motherBoard.getCPUInterface().isBreaked(); },
+		"set_bp",            [&]{ setBreakPoint(tokens, result); },
+		"remove_bp",         [&]{ removeBreakPoint(tokens, result); },
+		"list_bp",           [&]{ listBreakPoints(tokens, result); },
+		"set_watchpoint",    [&]{ setWatchPoint(tokens, result); },
+		"remove_watchpoint", [&]{ removeWatchPoint(tokens, result); },
+		"list_watchpoints",  [&]{ listWatchPoints(tokens, result); },
+		"set_condition",     [&]{ setCondition(tokens, result); },
+		"remove_condition",  [&]{ removeCondition(tokens, result); },
+		"list_conditions",   [&]{ listConditions(tokens, result); },
+		"probe",             [&]{ probe(tokens, result); });
 }
 
 void Debugger::Cmd::list(TclObject& result)
 {
-	result.addListElements(keys(debugger().debuggables));
+	result.addListElements(view::keys(debugger().debuggables));
 }
 
-void Debugger::Cmd::desc(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::desc(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "debuggable");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
-	result.setString(device.getDescription());
+	result = device.getDescription();
 }
 
-void Debugger::Cmd::size(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::size(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "debuggable");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
-	result.setInt(device.getSize());
+	result = device.getSize();
 }
 
-void Debugger::Cmd::read(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::read(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, Prefix{2}, "debuggable address");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	unsigned addr = tokens[3].getInt(getInterpreter());
 	if (addr >= device.getSize()) {
 		throw CommandException("Invalid address");
 	}
-	result.setInt(device.read(addr));
+	result = device.read(addr);
 }
 
-void Debugger::Cmd::readBlock(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::readBlock(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 5) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 5, Prefix{2}, "debuggable address size");
 	auto& interp = getInterpreter();
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	unsigned devSize = device.getSize();
@@ -334,14 +296,12 @@ void Debugger::Cmd::readBlock(array_ref<TclObject> tokens, TclObject& result)
 	for (unsigned i = 0; i < num; ++i) {
 		buf[i] = device.read(addr + i);
 	}
-	result.setBinary(buf.data(), num);
+	result = span<byte>{buf.data(), num};
 }
 
-void Debugger::Cmd::write(array_ref<TclObject> tokens, TclObject& /*result*/)
+void Debugger::Cmd::write(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 5) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 5, Prefix{2}, "debuggable address value");
 	auto& interp = getInterpreter();
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	unsigned addr = tokens[3].getInt(interp);
@@ -356,30 +316,28 @@ void Debugger::Cmd::write(array_ref<TclObject> tokens, TclObject& /*result*/)
 	device.write(addr, value);
 }
 
-void Debugger::Cmd::writeBlock(array_ref<TclObject> tokens, TclObject& /*result*/)
+void Debugger::Cmd::writeBlock(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 5) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 5, Prefix{2}, "debuggable address values");
 	Debuggable& device = debugger().getDebuggable(tokens[2].getString());
 	unsigned devSize = device.getSize();
 	unsigned addr = tokens[3].getInt(getInterpreter());
 	if (addr >= devSize) {
 		throw CommandException("Invalid address");
 	}
-	unsigned num;
-	const byte* buf = tokens[4].getBinary(num);
-	if ((num + addr) > devSize) {
+	auto buf = tokens[4].getBinary();
+	if ((buf.size() + addr) > devSize) {
 		throw CommandException("Invalid size");
 	}
 
-	for (unsigned i = 0; i < num; ++i) {
-		device.write(addr + i, static_cast<byte>(buf[i]));
+	for (auto i : xrange(buf.size())) {
+		device.write(unsigned(addr + i), buf[i]);
 	}
 }
 
-void Debugger::Cmd::setBreakPoint(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::setBreakPoint(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{3, 5}, "address ?condition? ?command?");
 	TclObject command("debug break");
 	TclObject condition;
 
@@ -393,78 +351,71 @@ void Debugger::Cmd::setBreakPoint(array_ref<TclObject> tokens, TclObject& result
 	case 3: { // address
 		word addr = getAddress(getInterpreter(), tokens);
 		BreakPoint bp(addr, command, condition);
-		result.setString(StringOp::Builder() << "bp#" << bp.getId());
+		result = strCat("bp#", bp.getId());
 		debugger().motherBoard.getCPUInterface().insertBreakPoint(bp);
 		break;
 	}
-	default:
-		if (tokens.size() < 3) {
-			throw CommandException("Too few arguments.");
-		} else {
-			throw CommandException("Too many arguments.");
-		}
 	}
 }
 
 void Debugger::Cmd::removeBreakPoint(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "id|address");
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	auto& breakPoints = interface.getBreakPoints();
 
-	string_ref tmp = tokens[2].getString();
+	string_view tmp = tokens[2].getString();
 	if (tmp.starts_with("bp#")) {
 		// remove by id
 		try {
 			unsigned id = fast_stou(tmp.substr(3));
-			auto it = find_if(begin(breakPoints), end(breakPoints),
-				[&](const BreakPoint& bp) { return bp.getId() == id; });
+			auto it = ranges::find_if(breakPoints, [&](auto& bp) {
+				return bp.getId() == id;
+			});
 			if (it == end(breakPoints)) {
-				throw CommandException("No such breakpoint: " + tmp);
+				throw CommandException("No such breakpoint: ", tmp);
 			}
 			interface.removeBreakPoint(*it);
 		} catch (std::invalid_argument&) {
 			// parse error in fast_stou()
-			throw CommandException("No such breakpoint: " + tmp);
+			throw CommandException("No such breakpoint: ", tmp);
 		}
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(getInterpreter(), tokens);
-		auto range = equal_range(begin(breakPoints), end(breakPoints),
-		                         addr, CompareBreakpoints());
-		auto it = find_if(range.first, range.second,
-			[&](const BreakPoint& bp) {
-				return bp.getCondition().empty(); });
+		auto range = ranges::equal_range(breakPoints, addr, CompareBreakpoints());
+		auto it = std::find_if(range.first, range.second, [&](auto& bp) {
+			return bp.getCondition().empty();
+		});
 		if (it == range.second) {
 			throw CommandException(
-				"No (unconditional) breakpoint at address: " + tmp);
+				"No (unconditional) breakpoint at address: ", tmp);
 		}
 		interface.removeBreakPoint(*it);
 	}
 }
 
 void Debugger::Cmd::listBreakPoints(
-	array_ref<TclObject> /*tokens*/, TclObject& result)
+	span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (auto& bp : interface.getBreakPoints()) {
-		TclObject line;
-		line.addListElement(StringOp::Builder() << "bp#" << bp.getId());
-		line.addListElement("0x" + StringOp::toHexString(bp.getAddress(), 4));
-		line.addListElement(bp.getCondition());
-		line.addListElement(bp.getCommand());
-		res += line.getString() + '\n';
+		TclObject line = makeTclList(
+			strCat("bp#", bp.getId()),
+			strCat("0x", hex_string<4>(bp.getAddress())),
+			bp.getCondition(),
+			bp.getCommand());
+		strAppend(res, line.getString(), '\n');
 	}
-	result.setString(res);
+	result = res;
 }
 
 
-void Debugger::Cmd::setWatchPoint(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{4, 6}, Prefix{2}, "type address ?condition? ?command?");
 	TclObject command("debug break");
 	TclObject condition;
 	unsigned beginAddr, endAddr;
@@ -478,7 +429,7 @@ void Debugger::Cmd::setWatchPoint(array_ref<TclObject> tokens, TclObject& result
 		condition = tokens[4];
 		// fall-through
 	case 4: { // address + type
-		string_ref typeStr = tokens[2].getString();
+		string_view typeStr = tokens[2].getString();
 		unsigned max;
 		if (typeStr == "read_io") {
 			type = WatchPoint::READ_IO;
@@ -493,7 +444,7 @@ void Debugger::Cmd::setWatchPoint(array_ref<TclObject> tokens, TclObject& result
 			type = WatchPoint::WRITE_MEM;
 			max = 0x10000;
 		} else {
-			throw CommandException("Invalid type: " + typeStr);
+			throw CommandException("Invalid type: ", typeStr);
 		}
 		auto& interp = getInterpreter();
 		if (tokens[3].getListLength(interp) == 2) {
@@ -513,24 +464,18 @@ void Debugger::Cmd::setWatchPoint(array_ref<TclObject> tokens, TclObject& result
 		break;
 	}
 	default:
-		if (tokens.size() < 4) {
-			throw CommandException("Too few arguments.");
-		} else {
-			throw CommandException("Too many arguments.");
-		}
+		UNREACHABLE; break;
 	}
 	unsigned id = debugger().setWatchPoint(
 		command, condition, type, beginAddr, endAddr);
-	result.setString(StringOp::Builder() << "wp#" << id);
+	result = strCat("wp#", id);
 }
 
 void Debugger::Cmd::removeWatchPoint(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
-	string_ref tmp = tokens[2].getString();
+	checkNumArgs(tokens, 3, "id");
+	string_view tmp = tokens[2].getString();
 	try {
 		if (tmp.starts_with("wp#")) {
 			// remove by id
@@ -546,17 +491,16 @@ void Debugger::Cmd::removeWatchPoint(
 	} catch (std::invalid_argument&) {
 		// parse error in fast_stou()
 	}
-	throw CommandException("No such watchpoint: " + tmp);
+	throw CommandException("No such watchpoint: ", tmp);
 }
 
 void Debugger::Cmd::listWatchPoints(
-	array_ref<TclObject> /*tokens*/, TclObject& result)
+	span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (auto& wp : interface.getWatchPoints()) {
-		TclObject line;
-		line.addListElement(StringOp::Builder() << "wp#" << wp->getId());
+		TclObject line = makeTclList(strCat("wp#", wp->getId()));
 		string type;
 		switch (wp->getType()) {
 		case WatchPoint::READ_IO:
@@ -578,23 +522,23 @@ void Debugger::Cmd::listWatchPoints(
 		unsigned beginAddr = wp->getBeginAddress();
 		unsigned endAddr   = wp->getEndAddress();
 		if (beginAddr == endAddr) {
-			line.addListElement("0x" + StringOp::toHexString(beginAddr, 4));
+			line.addListElement(strCat("0x", hex_string<4>(beginAddr)));
 		} else {
-			TclObject range;
-			range.addListElement("0x" + StringOp::toHexString(beginAddr, 4));
-			range.addListElement("0x" + StringOp::toHexString(endAddr,   4));
-			line.addListElement(range);
+			line.addListElement(makeTclList(
+				strCat("0x", hex_string<4>(beginAddr)),
+				strCat("0x", hex_string<4>(endAddr))));
 		}
-		line.addListElement(wp->getCondition());
-		line.addListElement(wp->getCommand());
-		res += line.getString() + '\n';
+		line.addListElement(wp->getCondition(),
+		                    wp->getCommand());
+		strAppend(res, line.getString(), '\n');
 	}
-	result.setString(res);
+	result = res;
 }
 
 
-void Debugger::Cmd::setCondition(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::setCondition(span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{3, 4}, "condition ?command?");
 	TclObject command("debug break");
 	TclObject condition;
 
@@ -605,27 +549,19 @@ void Debugger::Cmd::setCondition(array_ref<TclObject> tokens, TclObject& result)
 	case 3: { // condition
 		condition = tokens[2];
 		DebugCondition dc(command, condition);
-		result.setString(StringOp::Builder() << "cond#" << dc.getId());
+		result = strCat("cond#", dc.getId());
 		debugger().motherBoard.getCPUInterface().setCondition(dc);
 		break;
 	}
-	default:
-		if (tokens.size() < 3) {
-			throw CommandException("Too few arguments.");
-		} else {
-			throw CommandException("Too many arguments.");
-		}
 	}
 }
 
 void Debugger::Cmd::removeCondition(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 3, "id");
 
-	string_ref tmp = tokens[2].getString();
+	string_view tmp = tokens[2].getString();
 	try {
 		if (tmp.starts_with("cond#")) {
 			// remove by id
@@ -641,71 +577,54 @@ void Debugger::Cmd::removeCondition(
 	} catch (std::invalid_argument&) {
 		// parse error in fast_stou()
 	}
-	throw CommandException("No such condition: " + tmp);
+	throw CommandException("No such condition: ", tmp);
 }
 
 void Debugger::Cmd::listConditions(
-	array_ref<TclObject> /*tokens*/, TclObject& result)
+	span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	auto& interface = debugger().motherBoard.getCPUInterface();
 	for (auto& c : interface.getConditions()) {
-		TclObject line;
-		line.addListElement(StringOp::Builder() << "cond#" << c.getId());
-		line.addListElement(c.getCondition());
-		line.addListElement(c.getCommand());
-		res += line.getString() + '\n';
+		TclObject line = makeTclList(strCat("cond#", c.getId()),
+		                             c.getCondition(),
+		                             c.getCommand());
+		strAppend(res, line.getString(), '\n');
 	}
-	result.setString(res);
+	result = res;
 }
 
 
-void Debugger::Cmd::probe(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::probe(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() < 3) {
-		throw CommandException("Missing argument");
-	}
-	string_ref subCmd = tokens[2].getString();
-	if (subCmd == "list") {
-		probeList(tokens, result);
-	} else if (subCmd == "desc") {
-		probeDesc(tokens, result);
-	} else if (subCmd == "read") {
-		probeRead(tokens, result);
-	} else if (subCmd == "set_bp") {
-		probeSetBreakPoint(tokens, result);
-	} else if (subCmd == "remove_bp") {
-		probeRemoveBreakPoint(tokens, result);
-	} else if (subCmd == "list_bp") {
-		probeListBreakPoints(tokens, result);
-	} else {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{3}, "subcommand ?arg ...?");
+	executeSubCommand(tokens[2].getString(),
+		"list",      [&]{ probeList(tokens, result); },
+		"desc",      [&]{ probeDesc(tokens, result); },
+		"read",      [&]{ probeRead(tokens, result); },
+		"set_bp",    [&]{ probeSetBreakPoint(tokens, result); },
+		"remove_bp", [&]{ probeRemoveBreakPoint(tokens, result); },
+		"list_bp",   [&]{ probeListBreakPoints(tokens, result); });
 }
-void Debugger::Cmd::probeList(array_ref<TclObject> /*tokens*/, TclObject& result)
+void Debugger::Cmd::probeList(span<const TclObject> /*tokens*/, TclObject& result)
 {
-	// TODO use transform_iterator or transform_view
-	for (auto* p : debugger().probes) {
-		result.addListElement(p->getName());
-	}
+	result.addListElements(view::transform(debugger().probes,
+		[](auto* p) { return p->getName(); }));
 }
-void Debugger::Cmd::probeDesc(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::probeDesc(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
-	result.setString(debugger().getProbe(tokens[3].getString()).getDescription());
+	checkNumArgs(tokens, 4, "probe");
+	result = debugger().getProbe(tokens[3].getString()).getDescription();
 }
-void Debugger::Cmd::probeRead(array_ref<TclObject> tokens, TclObject& result)
+void Debugger::Cmd::probeRead(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
-	result.setString(debugger().getProbe(tokens[3].getString()).getValue());
+	checkNumArgs(tokens, 4, "probe");
+	result = debugger().getProbe(tokens[3].getString()).getValue();
 }
 void Debugger::Cmd::probeSetBreakPoint(
-	array_ref<TclObject> tokens, TclObject& result)
+	span<const TclObject> tokens, TclObject& result)
 {
+	checkNumArgs(tokens, Between{4, 6}, "probe ?condition? ?command?");
 	TclObject command("debug break");
 	TclObject condition;
 	ProbeBase* p;
@@ -722,37 +641,30 @@ void Debugger::Cmd::probeSetBreakPoint(
 		break;
 	}
 	default:
-		if (tokens.size() < 4) {
-			throw CommandException("Too few arguments.");
-		} else {
-			throw CommandException("Too many arguments.");
-		}
+		UNREACHABLE; break;
 	}
 
 	unsigned id = debugger().insertProbeBreakPoint(command, condition, *p);
-	result.setString(StringOp::Builder() << "pp#" << id);
+	result = strCat("pp#", id);
 }
 void Debugger::Cmd::probeRemoveBreakPoint(
-	array_ref<TclObject> tokens, TclObject& /*result*/)
+	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, "id");
 	debugger().removeProbeBreakPoint(tokens[3].getString());
 }
 void Debugger::Cmd::probeListBreakPoints(
-	array_ref<TclObject> /*tokens*/, TclObject& result)
+	span<const TclObject> /*tokens*/, TclObject& result)
 {
 	string res;
 	for (auto& p : debugger().probeBreakPoints) {
-		TclObject line;
-		line.addListElement(StringOp::Builder() << "pp#" << p->getId());
-		line.addListElement(p->getProbe().getName());
-		line.addListElement(p->getCondition());
-		line.addListElement(p->getCommand());
-		res += line.getString() + '\n';
+		TclObject line = makeTclList(strCat("pp#", p->getId()),
+		                             p->getProbe().getName(),
+		                             p->getCondition(),
+		                             p->getCommand());
+		strAppend(res, line.getString(), '\n');
 	}
-	result.setString(res);
+	result = res;
 }
 
 string Debugger::Cmd::help(const vector<string>& tokens) const
@@ -997,30 +909,21 @@ string Debugger::Cmd::help(const vector<string>& tokens) const
 
 vector<string> Debugger::Cmd::getBreakPointIds() const
 {
-	vector<string> bpids;
-	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (auto& bp : interface.getBreakPoints()) {
-		bpids.push_back(StringOp::Builder() << "bp#" << bp.getId());
-	}
-	return bpids;
+	return to_vector(view::transform(
+		debugger().motherBoard.getCPUInterface().getBreakPoints(),
+		[](auto& bp) { return strCat("bp#", bp.getId()); }));
 }
 vector<string> Debugger::Cmd::getWatchPointIds() const
 {
-	vector<string> wpids;
-	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (auto& w : interface.getWatchPoints()) {
-		wpids.push_back(StringOp::Builder() << "wp#" << w->getId());
-	}
-	return wpids;
+	return to_vector(view::transform(
+		debugger().motherBoard.getCPUInterface().getWatchPoints(),
+		[](auto& w) { return strCat("wp#", w->getId()); }));
 }
 vector<string> Debugger::Cmd::getConditionIds() const
 {
-	vector<string> condids;
-	auto& interface = debugger().motherBoard.getCPUInterface();
-	for (auto& c : interface.getConditions()) {
-		condids.push_back(StringOp::Builder() << "cond#" << c.getId());
-	}
-	return condids;
+	return to_vector(view::transform(
+		debugger().motherBoard.getCPUInterface().getConditions(),
+		[](auto& c) { return strCat("cond#", c.getId()); }));
 }
 
 void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
@@ -1040,11 +943,7 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 	};
 	switch (tokens.size()) {
 	case 2: {
-		vector<const char*> cmds;
-		cmds.insert(end(cmds), begin(singleArgCmds),     end(singleArgCmds));
-		cmds.insert(end(cmds), begin(debuggableArgCmds), end(debuggableArgCmds));
-		cmds.insert(end(cmds), begin(otherCmds),         end(otherCmds));
-		completeString(tokens, cmds);
+		completeString(tokens, concat(singleArgCmds, debuggableArgCmds, otherCmds));
 		break;
 	}
 	case 3:
@@ -1052,7 +951,7 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 			// this command takes (an) argument(s)
 			if (contains(debuggableArgCmds, tokens[1])) {
 				// it takes a debuggable here
-				completeString(tokens, keys(debugger().debuggables));
+				completeString(tokens, view::keys(debugger().debuggables));
 			} else if (tokens[1] == "remove_bp") {
 				// this one takes a bp id
 				completeString(tokens, getBreakPointIds());
@@ -1081,10 +980,9 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "probe") &&
 		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
 		     (tokens[2] == "set_bp"))) {
-			std::vector<string_ref> probeNames;
-			for (auto* p : debugger().probes) {
-				probeNames.push_back(p->getName());
-			}
+			auto probeNames = to_vector(view::transform(
+				debugger().probes,
+				[](auto* p) { return p->getName(); }));
 			completeString(tokens, probeNames);
 		}
 		break;

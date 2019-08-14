@@ -3,12 +3,12 @@
 
 #include "hash_map.hh"
 #include "likely.hh"
-#include "memory.hh"
-#include "type_traits.hh"
 #include "xxhash.hh"
+#include <memory>
 #include <tuple>
 #include <typeindex>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace openmsx {
@@ -23,7 +23,7 @@ namespace openmsx {
  *       tuple<int, float> args = std::make_tuple(42, 3.14);
  *       std::unique_ptr<Foo> foo = creator(args);
  * This is equivalent to
- *       auto foo = make_unique<Foo>(42, 3.14);
+ *       auto foo = std::make_unique<Foo>(42, 3.14);
  * But the former can be used in a generic context (where the number of
  * constructor parameters is unknown).
  */
@@ -40,23 +40,23 @@ private:
 	template<int I, typename TUPLE> struct DoInstantiate;
 	template<typename TUPLE> struct DoInstantiate<0, TUPLE> {
 		std::unique_ptr<T> operator()(TUPLE /*args*/) {
-			return make_unique<T>();
+			return std::make_unique<T>();
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<1, TUPLE> {
 		std::unique_ptr<T> operator()(TUPLE args) {
-			return make_unique<T>(std::get<0>(args));
+			return std::make_unique<T>(std::get<0>(args));
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<2, TUPLE> {
 		std::unique_ptr<T> operator()(TUPLE args) {
-			return make_unique<T>(
+			return std::make_unique<T>(
 				std::get<0>(args), std::get<1>(args));
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<3, TUPLE> {
 		std::unique_ptr<T> operator()(TUPLE args) {
-			return make_unique<T>(
+			return std::make_unique<T>(
 				std::get<0>(args), std::get<1>(args),
 				std::get<2>(args));
 		}
@@ -122,8 +122,8 @@ template<typename Base, typename Derived> struct MapConstrArgsCopy
  * cases, the user must define a specialization of this class.
  */
 template<typename Base, typename Derived> struct MapConstructorArguments
-	: if_<std::is_same<std::tuple<>,
-	                   typename PolymorphicConstructorArgs<Derived>::type>,
+	: std::conditional_t<std::is_same<std::tuple<>,
+	                     typename PolymorphicConstructorArgs<Derived>::type>::value,
 	      MapConstrArgsEmpty<Base>,
 	      MapConstrArgsCopy<Base, Derived>> {};
 
@@ -138,21 +138,21 @@ template<typename Base> struct BaseClassName;
 template<typename Archive> class PolymorphicSaverBase
 {
 public:
-	virtual ~PolymorphicSaverBase() {}
+	virtual ~PolymorphicSaverBase() = default;
 	virtual void save(Archive& ar, const void* p) const = 0;
 };
 
 template<typename Archive> class PolymorphicLoaderBase
 {
 public:
-	virtual ~PolymorphicLoaderBase() {}
+	virtual ~PolymorphicLoaderBase() = default;
 	virtual void* load(Archive& ar, unsigned id, const void* args) const = 0;
 };
 
 template<typename Archive> class PolymorphicInitializerBase
 {
 public:
-	virtual ~PolymorphicInitializerBase() {}
+	virtual ~PolymorphicInitializerBase() = default;
 	virtual void init(Archive& ar, void* t, unsigned id) const = 0;
 };
 
@@ -160,7 +160,7 @@ template<typename Archive, typename T>
 class PolymorphicSaver : public PolymorphicSaverBase<Archive>
 {
 public:
-	PolymorphicSaver(const char* name_)
+	explicit PolymorphicSaver(const char* name_)
 		: name(name_)
 	{
 	}
@@ -225,7 +225,7 @@ public:
 		static_assert(!std::is_abstract<T>::value,
 		              "can't be an abstract type");
 		registerHelper(typeid(T),
-		               make_unique<PolymorphicSaver<Archive, T>>(name));
+		               std::make_unique<PolymorphicSaver<Archive, T>>(name));
 	}
 
 	template<typename T> static void save(Archive& ar, T* t)
@@ -238,8 +238,8 @@ public:
 	}
 
 private:
-	PolymorphicSaverRegistry();
-	~PolymorphicSaverRegistry();
+	PolymorphicSaverRegistry() = default;
+	~PolymorphicSaverRegistry() = default;
 	void registerHelper(const std::type_info& type,
 	                    std::unique_ptr<PolymorphicSaverBase<Archive>> saver);
 	static void save(Archive& ar, const void* t,
@@ -249,7 +249,7 @@ private:
 
 	std::vector<std::pair<std::type_index,
 	                      std::unique_ptr<PolymorphicSaverBase<Archive>>>> saverMap;
-	bool initialized;
+	bool initialized = false;
 };
 
 template<typename Archive>
@@ -265,19 +265,19 @@ public:
 		static_assert(!std::is_abstract<T>::value,
 		              "can't be an abstract type");
 		registerHelper(name,
-		               make_unique<PolymorphicLoader<Archive, T>>());
+		               std::make_unique<PolymorphicLoader<Archive, T>>());
 	}
 
 	static void* load(Archive& ar, unsigned id, const void* args);
 
 private:
-	PolymorphicLoaderRegistry();
-	~PolymorphicLoaderRegistry();
+	PolymorphicLoaderRegistry() = default;
+	~PolymorphicLoaderRegistry() = default;
 	void registerHelper(
 		const char* name,
 		std::unique_ptr<PolymorphicLoaderBase<Archive>> loader);
 
-	hash_map<string_ref, std::unique_ptr<PolymorphicLoaderBase<Archive>>, XXHasher>
+	hash_map<string_view, std::unique_ptr<PolymorphicLoaderBase<Archive>>, XXHasher>
 		loaderMap;
 };
 
@@ -294,26 +294,26 @@ public:
 		static_assert(!std::is_abstract<T>::value,
 		              "can't be an abstract type");
 		registerHelper(name,
-		               make_unique<PolymorphicInitializer<Archive, T>>());
+		               std::make_unique<PolymorphicInitializer<Archive, T>>());
 	}
 
 	static void init(const char* tag, Archive& ar, void* t);
 
 private:
-	PolymorphicInitializerRegistry();
-	~PolymorphicInitializerRegistry();
+	PolymorphicInitializerRegistry() = default;
+	~PolymorphicInitializerRegistry() = default;
 	void registerHelper(
 		const char* name,
 		std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer);
 
-	hash_map<string_ref, std::unique_ptr<PolymorphicInitializerBase<Archive>>, XXHasher>
+	hash_map<string_view, std::unique_ptr<PolymorphicInitializerBase<Archive>>, XXHasher>
 		initializerMap;
 };
 
 
 template<typename Archive, typename T> struct RegisterSaverHelper
 {
-	RegisterSaverHelper(const char* name)
+	explicit RegisterSaverHelper(const char* name)
 	{
 		PolymorphicSaverRegistry<Archive>::instance().
 			template registerClass<T>(name);
@@ -321,7 +321,7 @@ template<typename Archive, typename T> struct RegisterSaverHelper
 };
 template<typename Archive, typename T> struct RegisterLoaderHelper
 {
-	RegisterLoaderHelper(const char* name)
+	explicit RegisterLoaderHelper(const char* name)
 	{
 		PolymorphicLoaderRegistry<Archive>::instance().
 			template registerClass<T>(name);
@@ -329,7 +329,7 @@ template<typename Archive, typename T> struct RegisterLoaderHelper
 };
 template<typename Archive, typename T> struct RegisterInitializerHelper
 {
-	RegisterInitializerHelper(const char* name)
+	explicit RegisterInitializerHelper(const char* name)
 	{
 		PolymorphicInitializerRegistry<Archive>::instance().
 			template registerClass<T>(name);

@@ -10,13 +10,16 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 {
 	// only used for width and height
 	setSDLSurface(const_cast<SDL_Surface*>(output.getSDLSurface()));
+	setSDLRenderer(output.getSDLRenderer());
+	calculateViewPort(output.getPhysicalSize());
 
+	gl::ivec2 physSize = getPhysicalSize();
 	fboTex.bind();
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
 	             GL_RGB8,          // internal format
-	             getWidth(),       // width
-	             getHeight(),      // height
+	             physSize[0],      // width
+	             physSize[1],      // height
 	             0,                // border
 	             GL_RGB,           // format
 	             GL_UNSIGNED_BYTE, // type
@@ -25,10 +28,6 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	fbo.push();
 
 	SDLGLOutputSurface::init(*this);
-}
-
-SDLGLOffScreenSurface::~SDLGLOffScreenSurface()
-{
 }
 
 void SDLGLOffScreenSurface::flushFrameBuffer()
@@ -43,7 +42,7 @@ void SDLGLOffScreenSurface::clearScreen()
 
 void SDLGLOffScreenSurface::saveScreenshot(const std::string& filename)
 {
-	SDLGLOutputSurface::saveScreenshot(filename, getWidth(), getHeight());
+	SDLGLOutputSurface::saveScreenshot(filename, *this);
 }
 
 } // namespace openmsx

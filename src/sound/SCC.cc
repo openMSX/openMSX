@@ -98,14 +98,19 @@
 
 #include "SCC.hh"
 #include "DeviceConfig.hh"
-#include "serialize.hh"
+#include "cstd.hh"
 #include "likely.hh"
 #include "outer.hh"
+#include "ranges.hh"
+#include "serialize.hh"
 #include "unreachable.hh"
+#include <cmath>
 
 using std::string;
 
 namespace openmsx {
+
+static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545.0 / 32));
 
 static string calcDescription(SCC::ChipMode mode)
 {
@@ -115,16 +120,13 @@ static string calcDescription(SCC::ChipMode mode)
 SCC::SCC(const string& name_, const DeviceConfig& config,
          EmuTime::param time, ChipMode mode)
 	: ResampledSoundDevice(
-		config.getMotherBoard(), name_, calcDescription(mode), 5)
+		config.getMotherBoard(), name_, calcDescription(mode), 5, INPUT_RATE, false)
 	, debuggable(config.getMotherBoard(), getName())
 	, deformTimer(time)
 	, currentChipMode(mode)
 {
 	// Make valgrind happy
-	for (auto& op : orgPeriod) op = 0;
-
-	float input = 3579545.0f / 32;
-	setInputRate(int(input + 0.5f));
+	ranges::fill(orgPeriod, 0);
 
 	powerUp(time);
 	registerSound(config);
@@ -149,11 +151,9 @@ void SCC::powerUp(EmuTime::param time)
 	// Initialize ch_enable, deform (initialize this before period)
 	reset(time);
 
-	// Initialize waveform (initialize before volumes)
-	for (unsigned i = 0; i < 5; ++i) {
-		for (unsigned j = 0; j < 32; ++j) {
-			wave[i][j] = ~0;
-		}
+	// Initialize waveforms (initialize before volumes)
+	for (auto& w1 : wave) {
+		ranges::fill(w1, ~0);
 	}
 	// Initialize volume (initialize this before period)
 	for (int i = 0; i < 5; ++i) {
@@ -161,7 +161,7 @@ void SCC::powerUp(EmuTime::param time)
 	}
 	// Actual initial value is difficult to measure, assume zero
 	// (initialize before period)
-	for (auto& p : pos) p = 0;
+	ranges::fill(pos, 0);
 
 	// Initialize period (sets members orgPeriod, period, incr, count, out)
 	for (int i = 0; i < 2 * 5; ++i) {
@@ -340,14 +340,17 @@ void SCC::writeMem(byte address, byte value, EmuTime::param time)
 	}
 }
 
-int SCC::getAmplificationFactor() const
+float SCC::getAmplificationFactorImpl() const
 {
-	return 256;
+	return 1.0f / 128.0f;
 }
 
-inline int SCC::adjust(signed char wav, byte vol)
+inline float SCC::adjust(signed char wav, byte vol)
 {
-	return (int(wav) * vol) >> 4;
+	// The result is an integer value, but we store it as a float because
+	// then we need fewer int->float conversion (compared to converting in
+	// generateChannels()).
+	return float((int(wav) * vol) >> 4);
 }
 
 void SCC::writeWave(unsigned channel, unsigned address, byte value)
@@ -428,16 +431,12 @@ void SCC::setDeformRegHelper(byte value)
 	}
 	switch (value & 0xC0) {
 	case 0x00:
-		for (unsigned i = 0; i < 5; ++i) {
-			rotate[i] = false;
-			readOnly[i] = false;
-		}
+		ranges::fill(rotate, false);
+		ranges::fill(readOnly, false);
 		break;
 	case 0x40:
-		for (unsigned i = 0; i < 5; ++i) {
-			rotate[i] = true;
-			readOnly[i] = true;
-		}
+		ranges::fill(rotate, true);
+		ranges::fill(readOnly, true);
 		break;
 	case 0x80:
 		for (unsigned i = 0; i < 3; ++i) {
@@ -464,53 +463,12 @@ void SCC::setDeformRegHelper(byte value)
 	}
 }
 
-void SCC::generateChannels(int** bufs, unsigned num)
+void SCC::generateChannels(float** bufs, unsigned num)
 {
 	unsigned enable = ch_enable;
 	for (unsigned i = 0; i < 5; ++i, enable >>= 1) {
 		if ((enable & 1) && (volume[i] || out[i])) {
-#ifdef __arm__
-			unsigned dummy;
-			int* buf = bufs[i];
-			asm volatile (
-			"0:\n\t"
-				"ldr	%[T],[%[B]]\n\t"
-				"add	%[T],%[T],%[O]\n\t"
-				"add	%[C],%[C],%[I]\n\t"
-				"str	%[T],[%[B]],#4\n\t"
-				"subs	%[T],%[C],%[PE]\n\t"
-				"bpl	2f\n"
-			"1:\n\t"
-				"cmp	%[B],%[E]\n\t"
-				"bne	0b\n\t"
-				"b	3f\n"
-			"2:\n\t"
-				"adds	%[PO],%[PO],#1\n\t"
-				"subs	%[T],%[T],%[PE]\n\t"
-				"bpl	2b\n\t"
-				"and	%[PO],%[PO],#31\n\t"
-				"add	%[C],%[T],%[PE]\n\t"
-				"ldr	%[O],[%[V],%[PO],LSL #2]\n\t"
-				"b	1b\n"
-			"3:\n\t"
-
-				: [T]  "=&r"  (dummy)
-				, [B]  "=r"   (buf)
-				, [O]  "=r"   (out[i])
-				, [C]  "=r"   (count[i])
-				, [PO] "=r"   (pos[i])
-				:      "[B]"  (buf)
-				,      "[O]"  (out[i])
-				,      "[C]"  (count[i])
-				, [I]  "r"    (incr[i])
-				, [PE] "r"    (period[i] + 1)
-				, [E]  "r"    (&buf[num])
-				,      "[PO]" (pos[i])
-				, [V]  "r"    (volAdjustedWave[i])
-				: "memory", "cc"
-			);
-#else
-			int out2 = out[i];
+			auto out2 = out[i];
 			unsigned count2 = count[i];
 			unsigned pos2 = pos[i];
 			unsigned incr2 = incr[i];
@@ -529,7 +487,6 @@ void SCC::generateChannels(int** bufs, unsigned num)
 			out[i] = out2;
 			count[i] = count2;
 			pos[i] = pos2;
-#endif
 		} else {
 			bufs[i] = nullptr; // channel muted
 			// Update phase counter.
@@ -537,7 +494,7 @@ void SCC::generateChannels(int** bufs, unsigned num)
 			count[i] = newCount % (period[i] + 1);
 			pos[i] = (pos[i] + newCount / (period[i] + 1)) % 32;
 			// Channel stays off until next waveform index.
-			out[i] = 0;
+			out[i] = 0.0f;
 		}
 	}
 }
@@ -586,7 +543,7 @@ void SCC::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 }
 
 
-static enum_string<SCC::ChipMode> chipModeInfo[] = {
+static std::initializer_list<enum_string<SCC::ChipMode>> chipModeInfo = {
 	{ "Real",       SCC::SCC_Real       },
 	{ "Compatible", SCC::SCC_Compatible },
 	{ "Plus",       SCC::SCC_plusmode   },
@@ -596,12 +553,12 @@ SERIALIZE_ENUM(SCC::ChipMode, chipModeInfo);
 template<typename Archive>
 void SCC::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mode", currentChipMode);
-	ar.serialize("period", orgPeriod);
-	ar.serialize("volume", volume);
-	ar.serialize("ch_enable", ch_enable);
-	ar.serialize("deformTimer", deformTimer);
-	ar.serialize("deform", deformValue);
+	ar.serialize("mode",        currentChipMode,
+	             "period",      orgPeriod,
+	             "volume",      volume,
+	             "ch_enable",   ch_enable,
+	             "deformTimer", deformTimer,
+	             "deform",      deformValue);
 	// multi-dimensional arrays are not directly support by the
 	// serialization framework, maybe in the future. So for now
 	// manually loop over the channels.
@@ -637,9 +594,9 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	// call to setFreqVol() modifies these variables, see above
-	ar.serialize("count", count);
-	ar.serialize("pos", pos);
-	ar.serialize("out", out);
+	ar.serialize("count", count,
+	             "pos",   pos,
+	             "out",   out); // note: changed int->float, but no need to bump serialize-version
 }
 INSTANTIATE_SERIALIZE_METHODS(SCC);
 

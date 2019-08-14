@@ -28,14 +28,16 @@ public:
 	virtual void stopReplay(EmuTime::param time) = 0;
 
 protected:
-	StateChangeListener() {}
-	~StateChangeListener() {}
+	StateChangeListener() = default;
+	~StateChangeListener() = default;
 };
 
 class StateChangeRecorder : public StateChangeListener
 {
 public:
 	virtual bool isReplaying() const = 0;
+protected:
+	~StateChangeRecorder() = default;
 };
 
 } // namespace openmsx

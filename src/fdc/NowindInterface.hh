@@ -7,19 +7,17 @@
 #include "AmdFlash.hh"
 #include <bitset>
 #include <memory>
-#include <vector>
 #include <string>
 
 namespace openmsx {
 
 class NowindCommand;
-class DiskContainer;
 
 class NowindInterface final : public MSXDevice
 {
 public:
 	explicit NowindInterface(const DeviceConfig& config);
-	~NowindInterface();
+	~NowindInterface() override;
 
 	void reset(EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;

@@ -1,6 +1,5 @@
 #include "Multiply32.hh"
 #include "PixelOperations.hh"
-#include "build-info.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -72,20 +71,5 @@ void Multiply32<uint16_t>::setFactor32(unsigned f)
 		         (((b * factor) >> 8) << 20);
 	}
 }
-
-
-// Force template instantiation
-#ifndef _MSC_VER
-#if HAVE_16BPP
-template class Multiply32<uint16_t>;
-#endif
-#if HAVE_32BPP
-template class Multiply32<uint32_t>;
-#endif
-#else
-// In VC++ we hit this problem again (see also V9990BitmapConverter)
-//    http://msdn.microsoft.com/en-us/library/9045w50z.aspx
-// But luckily we don't get link errors without this in VC++.
-#endif
 
 } // namespace openmsx

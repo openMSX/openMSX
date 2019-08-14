@@ -6,84 +6,9 @@ namespace openmsx {
 
 static void throwException(Tcl_Interp* interp)
 {
-	string_ref message = interp ? Tcl_GetStringResult(interp)
+	string_view message = interp ? Tcl_GetStringResult(interp)
 	                            : "TclObject error";
 	throw CommandException(message);
-}
-
-void TclObject::setString(string_ref value)
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewStringObj(value.data(), int(value.size()));
-		Tcl_IncrRefCount(obj);
-	} else {
-		Tcl_SetStringObj(obj, value.data(), int(value.size()));
-	}
-}
-
-void TclObject::setInt(int value)
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewIntObj(value);
-		Tcl_IncrRefCount(obj);
-	} else {
-		Tcl_SetIntObj(obj, value);
-	}
-}
-
-void TclObject::setBoolean(bool value)
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewBooleanObj(value);
-		Tcl_IncrRefCount(obj);
-	} else {
-		Tcl_SetBooleanObj(obj, value);
-	}
-}
-
-void TclObject::setDouble(double value)
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewDoubleObj(value);
-		Tcl_IncrRefCount(obj);
-	} else {
-		Tcl_SetDoubleObj(obj, value);
-	}
-}
-
-void TclObject::setBinary(byte* buf, unsigned length)
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = Tcl_NewByteArrayObj(buf, length);
-		Tcl_IncrRefCount(obj);
-	} else {
-		Tcl_SetByteArrayObj(obj, buf, length);
-	}
-}
-
-void TclObject::addListElement(string_ref element)
-{
-	addListElement(Tcl_NewStringObj(element.data(), int(element.size())));
-}
-
-void TclObject::addListElement(int value)
-{
-	addListElement(Tcl_NewIntObj(value));
-}
-
-void TclObject::addListElement(double value)
-{
-	addListElement(Tcl_NewDoubleObj(value));
-}
-
-void TclObject::addListElement(const TclObject& element)
-{
-	addListElement(element.obj);
 }
 
 void TclObject::addListElement(Tcl_Obj* element)
@@ -103,6 +28,44 @@ void TclObject::addListElement(Tcl_Obj* element)
 	}
 	if (Tcl_ListObjAppendElement(interp, obj, element) != TCL_OK) {
 		throwException(interp);
+	}
+}
+
+void TclObject::addListElementsImpl(std::initializer_list<Tcl_Obj*> l)
+{
+	Tcl_Obj* const* objv = l.begin();
+	addListElementsImpl(int(l.size()), objv);
+}
+
+void TclObject::addListElementsImpl(int objc, Tcl_Obj* const* objv)
+{
+	Tcl_Interp* interp = nullptr; // see comment in addListElement
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_DuplicateObj(obj);
+		Tcl_IncrRefCount(obj);
+	}
+	if (Tcl_ListObjReplace(interp, obj, INT_MAX, 0, objc, objv) != TCL_OK) {
+		throwException(interp);
+	}
+}
+
+void TclObject::addDictKeyValues(std::initializer_list<Tcl_Obj*> keyValuePairs)
+{
+	assert((keyValuePairs.size() % 2) == 0);
+	Tcl_Interp* interp = nullptr; // see comment in addListElement
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_DuplicateObj(obj);
+		Tcl_IncrRefCount(obj);
+	}
+	auto it = keyValuePairs.begin(), et = keyValuePairs.end();
+	while (it != et) {
+		Tcl_Obj* key   = *it++;
+		Tcl_Obj* value = *it++;
+		if (Tcl_DictObjPut(interp, obj, key, value) != TCL_OK) {
+			throwException(interp);
+		}
 	}
 }
 
@@ -136,17 +99,18 @@ double TclObject::getDouble(Interpreter& interp_) const
 	return result;
 }
 
-string_ref TclObject::getString() const
+string_view TclObject::getString() const
 {
 	int length;
 	char* buf = Tcl_GetStringFromObj(obj, &length);
-	return string_ref(buf, length);
+	return string_view(buf, length);
 }
 
-const byte* TclObject::getBinary(unsigned& length) const
+span<const uint8_t> TclObject::getBinary() const
 {
-	return static_cast<const byte*>(Tcl_GetByteArrayFromObj(
-		obj, reinterpret_cast<int*>(&length)));
+	int length;
+	auto* buf = Tcl_GetByteArrayFromObj(obj, &length);
+	return {buf, size_t(length)};
 }
 
 unsigned TclObject::getListLength(Interpreter& interp_) const

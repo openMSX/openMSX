@@ -6,11 +6,11 @@
 namespace openmsx {
 
 SimpleDebuggable::SimpleDebuggable(
-		MSXMotherBoard& motherBoard_, const std::string& name_,
-		const std::string& description_, unsigned size_)
+		MSXMotherBoard& motherBoard_, std::string name_,
+		std::string description_, unsigned size_)
 	: motherBoard(motherBoard_)
-	, name(name_)
-	, description(description_)
+	, name(std::move(name_))
+	, description(std::move(description_))
 	, size(size_)
 {
 	motherBoard.getDebugger().registerDebuggable(name, *this);

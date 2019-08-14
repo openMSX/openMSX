@@ -1,28 +1,25 @@
 #include "OSDTopWidget.hh"
-#include "OSDGUI.hh"
-#include "OutputRectangle.hh"
+#include "OutputSurface.hh"
 #include "Display.hh"
 #include "CliComm.hh"
-#include "KeyRange.hh"
+#include "view.hh"
 
 namespace openmsx {
 
-OSDTopWidget::OSDTopWidget(OSDGUI& gui_)
-	: OSDWidget(TclObject())
-	, gui(gui_)
+OSDTopWidget::OSDTopWidget(Display& display_)
+	: OSDWidget(display_, TclObject())
 {
 	addName(*this);
 }
 
-string_ref OSDTopWidget::getType() const
+string_view OSDTopWidget::getType() const
 {
 	return "top";
 }
 
-gl::vec2 OSDTopWidget::getSize(const OutputRectangle& output) const
+gl::vec2 OSDTopWidget::getSize(const OutputSurface& output) const
 {
-	return gl::vec2(output.getOutputWidth(),
-	                output.getOutputHeight());
+	return gl::vec2(output.getLogicalSize()); // int -> float
 }
 
 void OSDTopWidget::invalidateLocal()
@@ -47,20 +44,20 @@ void OSDTopWidget::queueError(std::string message)
 
 void OSDTopWidget::showAllErrors()
 {
-	auto& cliComm = gui.getDisplay().getCliComm();
-	for (const auto& message : errors) {
+	auto& cliComm = getDisplay().getCliComm();
+	for (auto& message : errors) {
 		cliComm.printWarning(std::move(message));
 	}
 	errors.clear();
 }
 
-OSDWidget* OSDTopWidget::findByName(string_ref widgetName)
+OSDWidget* OSDTopWidget::findByName(string_view widgetName)
 {
 	auto it = widgetsByName.find(widgetName);
 	return (it != end(widgetsByName)) ? *it : nullptr;
 }
 
-const OSDWidget* OSDTopWidget::findByName(string_ref widgetName) const
+const OSDWidget* OSDTopWidget::findByName(string_view widgetName) const
 {
 	return const_cast<OSDTopWidget*>(this)->findByName(widgetName);
 }
@@ -81,13 +78,10 @@ void OSDTopWidget::removeName(OSDWidget& widget)
 	widgetsByName.erase(it);
 }
 
-std::vector<string_ref> OSDTopWidget::getAllWidgetNames() const
+std::vector<string_view> OSDTopWidget::getAllWidgetNames() const
 {
-	std::vector<string_ref> result;
-	for (auto* p : widgetsByName) {
-		result.push_back(p->getName());
-	}
-	return result;
+	return to_vector(view::transform(widgetsByName,
+	                                 [](auto* p) { return p->getName(); }));
 }
 
 } // namespace openmsx

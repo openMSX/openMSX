@@ -12,26 +12,16 @@ namespace openmsx {
 
 class PluggingController;
 
-/** Combines MIDI bytes into full MIDI messages.
-  * CoreMIDI expects full messages in packet lists.
+/** Puts MIDI messages into a MIDIPacketList.
   */
 class MidiOutMessageBuffer : public MidiOutDevice
 {
-public:
-	// SerialDataInterface (part)
-	void recvByte(byte value, EmuTime::param time) override;
-
 protected:
-	explicit MidiOutMessageBuffer();
-	void clearBuffer();
-
 	virtual OSStatus sendPacketList(MIDIPacketList *myPacketList) = 0;
 
 private:
-	void messageComplete(EmuTime::param time, const uint8_t *data, size_t size);
-
-	std::vector<uint8_t> message;
-	bool isSysEx;
+	void recvMessage(
+			const std::vector<uint8_t>& message, EmuTime::param time) override;
 };
 
 /** Sends MIDI events to an existing CoreMIDI destination.
@@ -50,7 +40,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 
 	// MidiOutMessageBuffer
 	OSStatus sendPacketList(MIDIPacketList *myPacketList) override;
@@ -80,7 +70,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 
 	// MidiOutMessageBuffer
 	OSStatus sendPacketList(MIDIPacketList *myPacketList) override;

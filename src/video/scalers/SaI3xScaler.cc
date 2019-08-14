@@ -31,7 +31,7 @@ void SaI3xScaler<Pixel>::scaleBlank1to3(
 	                  ? dstEndY : dstEndY - 3;
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
-		Pixel color = src.getLineColor<Pixel>(srcY);
+		auto color = src.getLineColor<Pixel>(srcY);
 		for (int i = 0; i < 3; ++i) {
 			dst.fillLine(dstY + i, color);
 		}

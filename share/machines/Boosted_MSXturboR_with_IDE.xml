@@ -201,7 +201,7 @@
         <filename>yrw801.rom</filename>
       </rom>
       <sound>
-        <volume>12000</volume>
+        <volume>17000</volume>
       </sound>
       <sampleram>640</sampleram>
     </MoonSound>
@@ -217,6 +217,10 @@
     <S1990 id="S1990">
       <io base="0xE4" num="2"/>
     </S1990>
+
+    <T9769 id="T9769">
+      <subtype>C</subtype>
+    </T9769>
 
     <PPI id="ppi">
       <io base="0xA8" num="4"/>
@@ -255,6 +259,7 @@
         <volume>21000</volume>
       </sound>
       <keyboardlayout>JIS</keyboardlayout>
+      <ignorePortDirections>true</ignorePortDirections> <!-- highest compatibility -->
     </PSG>
 
     <RTC id="Real time clock">

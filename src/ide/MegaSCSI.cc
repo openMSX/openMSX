@@ -41,7 +41,6 @@
  */
 
 #include "MegaSCSI.hh"
-#include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include <cassert>
@@ -54,10 +53,10 @@ unsigned MegaSCSI::getSramSize() const
 {
 	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 1024); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
-		throw MSXException(StringOp::Builder() <<
-			"SRAM size for " << getName() <<
-			" should be 128, 256, 512 or 1024kB and not " <<
-			sramSize << "kB!");
+		throw MSXException(
+			"SRAM size for ", getName(),
+			" should be 128, 256, 512 or 1024kB and not ",
+			sramSize, "kB!");
 	}
 	return sramSize * 1024; // in bytes
 }
@@ -177,10 +176,10 @@ void MegaSCSI::setSRAM(unsigned region, byte block)
 template<typename Archive>
 void MegaSCSI::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("SRAM", sram);
-	ar.serialize("MB89352", mb89352);
-	ar.serialize("isWriteable", isWriteable);
-	ar.serialize("mapped", mapped);
+	ar.serialize("SRAM",        sram,
+	             "MB89352",     mb89352,
+	             "isWriteable", isWriteable,
+	             "mapped",      mapped);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaSCSI);
 REGISTER_MSXDEVICE(MegaSCSI, "MegaSCSI");

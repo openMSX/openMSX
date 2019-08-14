@@ -71,9 +71,9 @@ proc get_block_size {ps ss page} {
 		set device_list [machine_info slot $ps $ss $page]
 		if {[llength $device_list] != 1} {return 0}
 		set device_info [machine_info device [lindex $device_list 0]]
-		set romtype [lindex $device_info 1]                ;# can return ""
-		set romtype_info [openmsx_info romtype $romtype]   ;# fails if romtype == ""
-		set block_size [dict get $romtype_info blocksize]  ;# could fail??
+		set romtype [dict get $device_info "mappertype"] ;# can return ""
+		set romtype_info [openmsx_info romtype $romtype] ;# fails if romtype == ""
+		set block_size [dict get $romtype_info blocksize];# could fail??
 	}
 	return $block_size
 }

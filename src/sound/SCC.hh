@@ -30,12 +30,12 @@ public:
 
 private:
 	// SoundDevice
-	int getAmplificationFactor() const override;
-	void generateChannels(int** bufs, unsigned num) override;
+	float getAmplificationFactorImpl() const override;
+	void generateChannels(float** bufs, unsigned num) override;
 
-	inline int adjust(signed char wav, byte vol);
+	inline float adjust(signed char wav, byte vol);
 	byte readWave(unsigned channel, unsigned address, EmuTime::param time) const;
-	void writeWave(unsigned channel, unsigned offset, byte value);
+	void writeWave(unsigned channel, unsigned address, byte value);
 	void setDeformReg(byte value, EmuTime::param time);
 	void setDeformRegHelper(byte value);
 	void setFreqVol(unsigned address, byte value, EmuTime::param time);
@@ -53,13 +53,13 @@ private:
 	ChipMode currentChipMode;
 
 	signed char wave[5][32];
-	int volAdjustedWave[5][32];
+	float volAdjustedWave[5][32]; // ints stored as floats, see comment in adjust()
 	unsigned incr[5];
 	unsigned count[5];
 	unsigned pos[5];
 	unsigned period[5];
 	unsigned orgPeriod[5];
-	int out[5];
+	float out[5]; // ints stored as floats
 	byte volume[5];
 	byte ch_enable;
 

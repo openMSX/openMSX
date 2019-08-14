@@ -9,11 +9,6 @@ using std::string;
 
 namespace openmsx {
 
-// dummy constructor, to be able to serialize vector<Filename>
-Filename::Filename()
-{
-}
-
 Filename::Filename(string filename)
 	: originalFilename(std::move(filename))
 	, resolvedFilename(originalFilename)
@@ -49,8 +44,8 @@ bool Filename::empty() const
 template<typename Archive>
 void Filename::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("original", originalFilename);
-	ar.serialize("resolved", resolvedFilename);
+	ar.serialize("original", originalFilename,
+	             "resolved", resolvedFilename);
 }
 INSTANTIATE_SERIALIZE_METHODS(Filename);
 

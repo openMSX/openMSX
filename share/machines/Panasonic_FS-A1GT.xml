@@ -139,6 +139,10 @@
       <io base="0xE4" num="2"/>
     </S1990>
 
+    <T9769 id="T9769">
+      <subtype>C</subtype>
+    </T9769>
+
     <PPI id="ppi">
       <io base="0xA8" num="4"/>
       <sound>
@@ -166,6 +170,8 @@
         <volume>21000</volume>
       </sound>
       <keyboardlayout>JIS</keyboardlayout>
+      <mirrored_registers>false</mirrored_registers>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <RTC id="Real time clock">

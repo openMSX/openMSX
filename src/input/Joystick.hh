@@ -40,12 +40,12 @@ public:
 	         CommandController& commandController,
 		 GlobalSettings& globalSettings,
 	         SDL_Joystick* joystick);
-	~Joystick();
+	~Joystick() override;
 
 #ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
@@ -59,13 +59,13 @@ public:
 private:
 	void plugHelper2();
 	byte calcState();
-	bool getState(Interpreter& interp, const TclObject& dict, string_ref key,
+	bool getState(Interpreter& interp, const TclObject& dict, string_view key,
 	              int threshold);
 	void createEvent(EmuTime::param time, byte newStatus);
 
 	// MSXEventListener
-	void signalEvent(const std::shared_ptr<const Event>& event,
-	                 EmuTime::param time) override;
+	void signalMSXEvent(const std::shared_ptr<const Event>& event,
+	                    EmuTime::param time) override;
 	// StateChangeListener
 	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
 	void stopReplay(EmuTime::param time) override;

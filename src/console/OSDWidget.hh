@@ -3,26 +3,23 @@
 
 #include "TclObject.hh"
 #include "gl_vec.hh"
-#include "hash_set.hh"
-#include "string_ref.hh"
-#include "xxhash.hh"
+#include "string_view.hh"
 #include <vector>
 #include <memory>
 
 namespace openmsx {
 
-class OutputRectangle;
+class Display;
 class OutputSurface;
-class TclObject;
 class Interpreter;
 
 class OSDWidget
 {
 	using SubWidgets = std::vector<std::unique_ptr<OSDWidget>>;
 public:
-	virtual ~OSDWidget();
+	virtual ~OSDWidget() = default;
 
-	string_ref getName() const { return name.getString(); }
+	string_view getName() const { return name.getString(); }
 	gl::vec2 getPos()    const { return pos; }
 	gl::vec2 getRelPos() const { return relPos; }
 	float    getZ()      const { return z; }
@@ -33,26 +30,28 @@ public:
 	void addWidget(std::unique_ptr<OSDWidget> widget);
 	void deleteWidget(OSDWidget& widget);
 
-	virtual std::vector<string_ref> getProperties() const;
+	virtual std::vector<string_view> getProperties() const;
 	virtual void setProperty(Interpreter& interp,
-	                         string_ref name, const TclObject& value);
-	virtual void getProperty(string_ref name, TclObject& result) const;
+	                         string_view name, const TclObject& value);
+	virtual void getProperty(string_view name, TclObject& result) const;
 	virtual float getRecursiveFadeValue() const;
-	virtual string_ref getType() const = 0;
+	virtual string_view getType() const = 0;
 
 	void invalidateRecursive();
 	void paintSDLRecursive(OutputSurface& output);
 	void paintGLRecursive (OutputSurface& output);
 
-	int getScaleFactor(const OutputRectangle& surface) const;
-	gl::vec2 transformPos(const OutputRectangle& output,
+	int getScaleFactor(const OutputSurface& output) const;
+	gl::vec2 transformPos(const OutputSurface& output,
 	                      gl::vec2 pos, gl::vec2 relPos) const;
-	void getBoundingBox(const OutputRectangle& output,
-	                    gl::ivec2& pos, gl::ivec2& size);
-	virtual gl::vec2 getSize(const OutputRectangle& output) const = 0;
+	void getBoundingBox(const OutputSurface& output,
+	                    gl::vec2& pos, gl::vec2& size);
+	virtual gl::vec2 getSize(const OutputSurface& output) const = 0;
+
+	Display& getDisplay() const { return display; }
 
 protected:
-	OSDWidget(const TclObject& name);
+	OSDWidget(Display& display, const TclObject& name);
 	void invalidateChildren();
 	bool needSuppressErrors() const;
 
@@ -62,7 +61,7 @@ protected:
 
 private:
 	gl::vec2 getMouseCoord() const;
-	gl::vec2 transformReverse(const OutputRectangle& output,
+	gl::vec2 transformReverse(const OutputSurface& output,
 	                          gl::vec2 pos) const;
 	void setParent(OSDWidget* parent_) { parent = parent_; }
 	void resortUp  (OSDWidget* elem);
@@ -72,6 +71,7 @@ private:
 	  */
 	SubWidgets subWidgets;
 
+	Display& display;
 	OSDWidget* parent;
 
 	TclObject name;

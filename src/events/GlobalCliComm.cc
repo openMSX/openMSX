@@ -4,17 +4,11 @@
 #include "Thread.hh"
 #include "ScopedAssign.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <utility>
 
 namespace openmsx {
-
-GlobalCliComm::GlobalCliComm()
-	: delivering(false)
-	, allowExternalCommands(false)
-{
-}
 
 GlobalCliComm::~GlobalCliComm()
 {
@@ -58,7 +52,7 @@ void GlobalCliComm::setAllowExternalCommands()
 	}
 }
 
-void GlobalCliComm::log(LogLevel level, string_ref message)
+void GlobalCliComm::log(LogLevel level, string_view message)
 {
 	assert(Thread::isMainThread());
 
@@ -70,7 +64,7 @@ void GlobalCliComm::log(LogLevel level, string_ref message)
 		// One example of a recursive invocation is when something goes
 		// wrong in the Tcl proc attached to message_callback (e.g. the
 		// font used to display the message could not be loaded).
-		std::cerr << "Recursive cliComm message: " << message << std::endl;
+		std::cerr << "Recursive cliComm message: " << message << '\n';
 		return;
 	}
 	ScopedAssign<bool> sa(delivering, true);
@@ -82,27 +76,26 @@ void GlobalCliComm::log(LogLevel level, string_ref message)
 		}
 	} else {
 		// don't let the message get lost
-		std::cerr << message << std::endl;
+		std::cerr << message << '\n';
 	}
 }
 
-void GlobalCliComm::update(UpdateType type, string_ref name, string_ref value)
+void GlobalCliComm::update(UpdateType type, string_view name, string_view value)
 {
 	assert(type < NUM_UPDATES);
-	auto it = prevValues[type].find(name);
-	if (it != end(prevValues[type])) {
-		if (it->second == value) {
+	if (auto v = lookup(prevValues[type], name)) {
+		if (*v == value) {
 			return;
 		}
-		it->second = value.str();
+		*v = value.str();
 	} else {
 		prevValues[type].emplace_noDuplicateCheck(name.str(), value.str());
 	}
-	updateHelper(type, "", name, value);
+	updateHelper(type, {}, name, value);
 }
 
-void GlobalCliComm::updateHelper(UpdateType type, string_ref machine,
-                                 string_ref name, string_ref value)
+void GlobalCliComm::updateHelper(UpdateType type, string_view machine,
+                                 string_view name, string_view value)
 {
 	assert(Thread::isMainThread());
 	std::lock_guard<std::mutex> lock(mutex);

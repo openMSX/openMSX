@@ -51,7 +51,7 @@ void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
 			break;
 		}
 		if (!(value & 0x40)){
-			(*outputstrm) << std::endl;
+			(*outputstrm) << '\n' << std::flush;
 		}
 		break;
 	case 1:
@@ -63,6 +63,7 @@ void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
 			break;
 		case MULTIBYTE:
 			outputMultiByte(value);
+                        break;
 		default:
 			break;
 		}
@@ -92,7 +93,7 @@ void DebugDevice::outputSingleByte(byte value, EmuTime::param time)
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))) {
 		displayByte(value, ASC); // do special effects
 	}
-	(*outputstrm) << std::endl;
+	(*outputstrm) << '\n' << std::flush;
 }
 
 void DebugDevice::outputMultiByte(byte value)
@@ -143,7 +144,7 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 	}
 }
 
-void DebugDevice::openOutput(string_ref name)
+void DebugDevice::openOutput(string_view name)
 {
 	fileNameString = name.str();
 	debugOut.close();
@@ -158,7 +159,7 @@ void DebugDevice::openOutput(string_ref name)
 	}
 }
 
-static enum_string<DebugDevice::DebugMode> debugModeInfo[] = {
+static std::initializer_list<enum_string<DebugDevice::DebugMode>> debugModeInfo = {
 	{ "OFF",        DebugDevice::OFF },
 	{ "SINGLEBYTE", DebugDevice::SINGLEBYTE },
 	{ "MULTIBYTE",  DebugDevice::MULTIBYTE },
@@ -170,8 +171,8 @@ template<typename Archive>
 void DebugDevice::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("mode", mode);
-	ar.serialize("modeParameter", modeParameter);
+	ar.serialize("mode",          mode,
+	             "modeParameter", modeParameter);
 }
 INSTANTIATE_SERIALIZE_METHODS(DebugDevice);
 REGISTER_MSXDEVICE(DebugDevice, "DebugDevice");

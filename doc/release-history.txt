@@ -3,6 +3,277 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.15.0 (2018-12-08)
+---------------------------
+
+Again a release, because we did quite a lot, so it's due! Major new stuff is
+support for ColecoVision (including Super Game Module and MegaCart mapper),
+Musical Memory Mapper and Carnivore 2. And we have fixed a lot of long-standing
+OPL4 emulation issues, thanks to Valley Bell. Furthermore, we overhauled the
+Android port, but you'll mostly notice the scale factor 2 there. And several
+other (sometimes very long standing) issues were fixed.
+
+Here's the list with all highlights and details:
+
+MSX device support:
+- fixed 16 year old bug regarding sprites behaviour as shown in Ash Guine 3
+- fixed National CF-3300: it has a 2DD disk drive, not 1DD
+- fixed V9958 commands in non-bitmap modes
+- allow non-standard cartridge slots to be used as normal cartridge slots,
+  consistently
+- fixed VDP type of National FS-1300
+- fixed a bug in the turboR mapper
+- fixed a bug regarding VIBrato in the YM2413 (Okazaki core)
+- fixed CAPS lock on SVI 318/328
+- fixed Canon V-20 configurations
+- fixed Sanyo MPC-25FD configuration
+- added support for 2 mapper read back bits, used in Panasonic MSX2+ machines
+- added emulation of the SN76489 DCSG sound chip
+- added emulation of the Musical Memory Mapper
+- added emulation of ColecoVision, ColecoVision Super Game Module
+- added emulation of the MegaCart mapper, used in some new homebrew
+  ColecoVision games (mostly MSX ports)
+- added emulation of the Carnivore 2 cartridge
+- improved emulation of OPL4 (wave part) considerably, thanks to Valley Bell
+- added emulation of bizarre I/O port mirroring of Philips Music Module (thanks
+  to Grauw and L. Oliveira for doing the research)
+- implemented Y8910 status register bit 0
+- fixed exact formula for noise generation on AY8910 (PSG)
+- made memory mapper ports readable on MegaFlashROM SCC+ SD, conforming to the
+  latest version of this cartridge
+- added new machines: Sony HB-G900AP (thanks to Louthrax), Eurohard/Radofin
+  Dragon MSX (thanks to MAME), Yamaha CX7/128 and CX7M/128 (thanks to Peter
+  Hanraets), Al Alamiah Sakhr AX230, Sanyo MPC-2, Yamaha CX11 (thanks to
+  Tabajara Labs) and Toshiba HX-32 (thanks to Jorge Janaite Neto)
+- added new extensions: Musical Memory Mapper, Carnivore 2 and SN76489 (on the
+  same I/O port as PlaySoniq)
+
+New or improved emulator features:
+- fixed some crashes when using very high Z80 frequencies
+- improved tab-completion to initially hide internal procs, until you specify
+  the namespace
+- many updates to the software database
+- many updates to the VGM recorder script, thanks to Niek. Use 'help vgm_rec'
+  to find out about the new subcommands. Sample RAM content is now logged even
+  when starting recording after the sample kit is loaded, actual data recording
+  starts automatically when data is sent to the chip, the proper OPL4 init data
+  is automatically written to the VGM file, and many more things.
+- changed default machine symlinks to JP machines (for applicable systems)
+- many robustness fixes against bad XML config files
+- added videosource setting to OSD menu, GFX9000 is getting more popular
+- fixed reverse bug in GFX9000
+- performance improvements: several fixes to improve start-up time
+- added support for DCSG in the music keyboard and vu meters script
+- changed events about unplugging to an empty plug-event
+- changed fixed scale factor from 1 to 2 on Android
+- added OSD menu button to open the main menu for Android, as (most?) modern
+  Android devices do not have a menu button anymore
+- OSD menu: fixed issue of getting stuck in an unreadable directory when
+  browsing for a file (e.g. on Android)
+- added scrollbar when showing lists in OSD menu, as a visual cue on the length
+  of a list; the scrollbar cannot be dragged
+- fixed crash in hq/hqlite scalers in interlace modes
+- fixed frame skipping when doing 'debug continue'
+- fixed function keys not working anymore when console is open on macOS
+- exposed tile viewer widget to the console (try "about tile")
+
+Build system, packaging, documentation:
+- upgraded C-BIOS to release 0.29a: default to 60Hz generic international
+  config
+- to load older savestates, added all C-BIOS ROMs shipped with openMSX 0.7.0
+  and later for your convenience
+- put several pieces of code under unit-test with the Catch2 framework
+- added svicpm2dmk utility so disk images from the web can be converted to a
+  suitable DMK file for use with the SVI-707 drive with CP/M ROM
+- reworked complete Android port build. Now uses NDK 18b and recent version of
+  commandergenius Android SDL port and all other 3rd party libraries are built
+  by the openMSX build system. Minimum required Android version is now 4.1.
+- removed all hand-made ARM and 32-bit x86 assembly code
+- fixed version information of application on macOS
+- added workaround for FreeType no longer installing its config script
+- enabled retina support on macOS
+- advise people to compile with Xcode 9.4.1 on macOS, not Xcode 10 (see issue
+  #1126)
+
+openMSX 0.14.0 (2017-08-03)
+---------------------------
+
+This release is another mix of some new features and additions and a lot of
+smaller fixes and improvements. This release adds support for Konami Ultimate
+Collection and basic emulation for the Spectravideo SVI-318 and SVI-328 pre-MSX
+computers, increases FDC accuracy in such a way that we think all copy
+protections (captured in a DMK file) should now run in openMSX. Moreover, we
+now put the SDLGL-PP renderer as the default, so let us know how that works for
+you. You can of course always set the old default setting for your system if
+you don't like SDLGL-PP. But then we would really like to know why... We also
+removed the Windows DirectX sound driver, as it was buggy and caused a lot of
+complaints. And finally, we added a button in the top left corner to easily
+invoke the OSD menu.
+
+Here's the list with all highlights and details:
+
+MSX device support:
+- fixed VDP type of Sony HB-501P
+- fixed a bug that caused hangups on some machines when resetting during the
+  logo animation
+- fixed ROM block debuggable for Sunrise IDE
+- improved accuracy of WD2793 FDC and disk drive emulation
+- added support for Spectravideo SVI-318 and SVI-328 pre-MSX computers:
+  - most SVI support was implemented by Tomas Karlsson. With NYYRIKKI's help
+    we fixed most last details
+  - added in Contrib a tool to convert SVI disk images to DMK so they can be
+    used in openMSX
+  - added SVI support to several scripts (thanks to NYYRIKKI): cashandler,
+    type_via_keybuf, listing
+  - note the following limitations:
+    - only WAV images are supported for cassettes. The stereo feature
+      (music/sound on the other channel) is not supported.
+    - only DMK disk images can be used
+    - nothing is done to prevent the user to mix MSX and SVI hardware/software.
+      This will not work, of course. As we are not SVI enthusiasts ourselves,
+      we rely on contributions from others for the SVI support.
+- added accurate M1 cycle emulation
+- added support for ASCII8 mapper with 32kB SRAM
+- added initial support for the ASCII paddle input device (paddle 1 and 2 only)
+- added new machines: Bawareth Perfect MSX1, Al Alamiah AX370 (thanks to
+  alshamaa), and as already mentioned: Spectravideo SVI-318, SVI-328 and a
+  superexpanded SVI-328.
+- added new extensions: Konami Ultimate Collection, ASCII Japanese MSX-Write,
+  ASCII Japanese MSX-Write II and Tecall TM220 MSX-RAMFILE
+
+New or improved emulator features:
+- performance improvements:
+  - reverse feature
+  - hq resampler
+- fixed issue with remote connections on Mac OS X/FreeBSD
+- changed default sound driver on Windows to SDL, because the DirectX sound
+  driver has been removed
+- fixed creation of new HD images
+- changed the default renderer to SDLGL-PP
+- (probably!) fixed stability of MIDI-in on Windows. Unfortunately we didn't
+  find someone to help us test this properly
+- also improved stability on external connections in general
+- allow to specify initial content for flash ROMs. This way it is possible to
+  use MegaFlashROMSCC+SD like how the actual hardware is also shipped:
+  preflashed.
+- several improvements on the listing command (thanks to NYYRIKKI)
+- added automatic file numbering for record_channels
+- added a tron script (thanks to NYYRIKKI)
+- added script that records to a new AVI file if the framerate changes (thanks
+  to BiFi and FiXato for their initial version)
+- added mapper selection to OSD menu for unknown ROMs
+- automatically pad ROM files if they are not a multiple of the block size,
+  instead of refusing to run that ROM
+- added OSD button to invoke OSD menu in the top left corner
+- added VGM recorder script (by Niek Vlessert) to help you record MSX songs
+  into VGM files, supporting PSG, MSX-MUSIC, MSX-AUDIO, OPL4 and SCC
+
+Build system, packaging, documentation:
+- migrated from SDL threads to C++11 threads
+- removed support for Maemo5
+- moved Windows build to Visual Studio 2017
+- upgraded C-BIOS to release 0.28
+
+openMSX 0.13.0 (2016-07-31)
+---------------------------
+
+This again was meant to be (mostly) a bug fix release, but again it also has
+some nice additions and improvements to enjoy. Important improvements are much
+better support for VDP I/O delay in turbo machines (fixing graphics issues due
+to too fast VDP access there), more accurate MSX1 color palette, progress
+reporting for long operations and ALSA MIDI-out support for Linux. This is also
+one of the first releases that drops support for older platforms: Windows XP,
+Dingoo A320 (but introducing support for GCW Zero) and non-64-bit MacOSX. If
+you still want to run openMSX on these, you'll be stuck on using a previous
+release or start maintaining these platforms yourself.
+
+Here's the list with all highlights and details:
+
+MSX device support:
+- fixed bug in ASCII-8 mapper of MegaFlashROM SCC+ (SD)
+- fixed bug in border drawing in text mode with YJK/YAE bits
+- fixed bug in LMMC VDP command that appeared in Baltak Rampage greetings part
+- fixed bug in YMF278 (OPL4 wave part) preventing samples to be played sometimes
+- improved R800 timing for the CALL instruction
+- added missing hardware VDP delay in turbo mode of MSX2+ machines
+- improved accuracy and completeness of the Matsushita switched I/O ports
+  device:
+  - added bits on turbo status and presence
+  - added the device to the Sanyo MSX2+ machines (without SRAM and turbo)
+  - removed fixed VDP I/O delay (because it is linked to the T9769 engine)
+- added support for the different fixed VDP I/O delays of the different T9769
+  engines and added these to the configuration files of the machine that have
+  these (as far as that is known)
+- added support for Epson Chakkari Copy, thanks to Rudolf Lechleitner and
+  Enrico Barbisan
+- added 2MB MegaRAM extension (thanks to Mauricio Braga)
+- added MIDI Interface 3 extension (cart that implements turboR GT internal
+  MIDI without BIOS ROM)
+- added support for mapper of Japanese MSX Write
+- added support for Spectravideo SVI-707 disk drive
+- added support for the V9990 POINT VDP command
+- added support for more realistic TMS VDP pallettes: it's now possible to
+  specify the saturation for the Pb and Pr channel (this is dependent on the
+  analog electronics in the MSX video circuit) which affects the palette. E.g.
+  all machines with TMS9x2x have a brighter palette now, as they should.
+- added weird color palette of the Fujitsu FM-X RGB output (3 bit RGB)
+- added a high-resolution timer extension: a cartridge with a 32-bit counter
+  that counts at 3.57 MHz. Useful for debugging and reverse engineering. Only
+  one such real cartridge exists :)
+- added new machines: Aucnet NIA-2001 MSXturboR (thanks to PiterPunk/NYYRIKKI),
+  Frael BRUC_100 version 1 and 2 (thanks to RJP, FRS, et al), Pioneer UC-V102
+  (thanks to PiterPunk), Victor HC-80 (thanks to Daniele), Toshiba HX-23F and
+  HX-23 (thanks to FRS)
+- added new extension: Sanyo MRS-001 RS-232C cartridge (thanks to mtn)
+
+New or improved emulator features:
+- fixed bug in parsing remote command XML (causing e.g. ROM names with special
+  characters not to get communicated to openMSX correctly from Catapult)
+- fixed crash in 'reverse goback'
+- fixed inserting a slotexpander in a specific slot
+- fixed slowness issue when taking screenshots frame by frame
+- fixed support of files larger than 2GB (e.g. hard disk images) on Windows
+- fixed VDP status flag when using cmdtiming broking (infinitely fast VDP
+  commands)
+- fixed excessive delay on 'reverse goto' with ram watch enabled
+- OSD menu:
+  - fixed (un)plugging (connectors)/pluggables with spaces in their name
+  - fixed loading savestate with more than one . in its filename
+  - support up to 2 hard disk images (just like ROMs and disk drives)
+- fixed bug that cassette image was removed when doing reverse goto 0
+- fixed save_msx_screen for 2nd page of screen 7-12 (thanks to FRS)
+- improved robustness of DirAsDisk
+- added progress update reporting when doing operations that take a lot of time
+  (like calculating a hash of a large file or doing a large step in a replay)
+- fixed unintended extra calculation of hash for hard disk images when
+  reversing
+- made joystickN_deadzone setting's numbering consistent with joystickN_config;
+  both are now 0-based
+- added debuggable for printer port, containing strobe and data byte
+- added experimental support for ALSA MIDI out (Linux): now it's much easier to
+  connect MSX MIDI out devices to a soft synth or other application on Linux
+- improved support for UNC paths on Windows (network drives)
+- added a script to speed up the type command: type_via_keybuf (thanks to
+  NYYRIKKI for the initial version). Default type implementation can now be
+  tuned with the new default_type_proc setting.
+
+Build system, packaging, documentation:
+- to compile with gcc you now need gcc 4.8 or higher
+- updated Visual Studio projects to Visual Studio 2015
+- dropped support for Windows XP, because it seems Visual Studio 2015 has bugs
+  in supporting it
+- dropped support for Dingoo A320, because its toolchain is now so outdated
+  that it can't compile the openMSX source code any longer
+- added build, packaging and documentation support for GCW Zero
+- dropped support for universal binaries on Mac OS X, as all supported Mac OS X
+  versions require x86-64 CPU's
+- updated Tcl to 8.5.18
+- updated libpng to 1.6.20
+- now optionally link to libasound on Linux (for the ALSA MIDI support)
+- added debug flag to build system that shows which commands are executed:
+  make V=1
+- improved description on how to use MegaFlashROM SCC+ SD
+
 openMSX 0.12.0 (2015-09-12)
 ---------------------------
 

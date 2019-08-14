@@ -8,15 +8,15 @@ namespace openmsx {
 class CliListener
 {
 public:
-	virtual ~CliListener() {}
+	virtual ~CliListener() = default;
 
-	virtual void log(CliComm::LogLevel level, string_ref message) = 0;
+	virtual void log(CliComm::LogLevel level, string_view message) = 0;
 
-	virtual void update(CliComm::UpdateType type, string_ref machine,
-	                    string_ref name, string_ref value) = 0;
+	virtual void update(CliComm::UpdateType type, string_view machine,
+	                    string_view name, string_view value) = 0;
 
 protected:
-	CliListener() {}
+	CliListener() = default;
 };
 
 } // namespace openmsx

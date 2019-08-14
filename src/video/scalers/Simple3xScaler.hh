@@ -17,8 +17,8 @@ class Simple3xScaler final : public Scaler3<Pixel>
 {
 public:
 	Simple3xScaler(const PixelOperations<Pixel>& pixelOps,
-	               const RenderSettings& renderSettings);
-	~Simple3xScaler();
+	               const RenderSettings& settings);
+	~Simple3xScaler() override;
 
 private:
 	void scaleImage(FrameSource& src, const RawFrame* superImpose,

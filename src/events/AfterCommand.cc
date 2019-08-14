@@ -10,11 +10,11 @@
 #include "EmuTime.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "memory.hh"
+#include "ranges.hh"
 #include "stl.hh"
-#include "unreachable.hh"
-#include <algorithm>
+#include "view.hh"
 #include <iterator>
+#include <memory>
 #include <sstream>
 
 using std::ostringstream;
@@ -28,8 +28,8 @@ namespace openmsx {
 class AfterCmd
 {
 public:
-	virtual ~AfterCmd() {}
-	string_ref getCommand() const;
+	virtual ~AfterCmd() = default;
+	string_view getCommand() const;
 	const string& getId() const;
 	virtual string getType() const = 0;
 	void execute();
@@ -135,6 +135,8 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_WHEEL_EVENT, *this);
+	eventDistributor.registerEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
 	eventDistributor.registerEventListener(
 		OPENMSX_JOY_HAT_EVENT, *this);
@@ -179,6 +181,8 @@ AfterCommand::~AfterCommand()
 	eventDistributor.unregisterEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
 	eventDistributor.unregisterEventListener(
+		OPENMSX_MOUSE_WHEEL_EVENT, *this);
+	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
@@ -190,12 +194,12 @@ AfterCommand::~AfterCommand()
 		OPENMSX_KEY_UP_EVENT, *this);
 }
 
-void AfterCommand::execute(array_ref<TclObject> tokens, TclObject& result)
+void AfterCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
-	string_ref subCmd = tokens[1].getString();
+	string_view subCmd = tokens[1].getString();
 	if (subCmd == "time") {
 		afterTime(tokens, result);
 	} else if (subCmd == "realtime") {
@@ -244,82 +248,70 @@ static double getTime(Interpreter& interp, const TclObject& obj)
 	return time;
 }
 
-void AfterCommand::afterTime(array_ref<TclObject> tokens, TclObject& result)
+void AfterCommand::afterTime(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, Prefix{2}, "seconds command");
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(getInterpreter(), tokens[2]);
-	auto cmd = make_unique<AfterTimeCmd>(
+	auto cmd = std::make_unique<AfterTimeCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	result.setString(cmd->getId());
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
-void AfterCommand::afterRealTime(array_ref<TclObject> tokens, TclObject& result)
+void AfterCommand::afterRealTime(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, Prefix{2}, "seconds command");
 	double time = getTime(getInterpreter(), tokens[2]);
-	auto cmd = make_unique<AfterRealTimeCmd>(
+	auto cmd = std::make_unique<AfterRealTimeCmd>(
 		reactor.getRTScheduler(), *this, tokens[3], time);
-	result.setString(cmd->getId());
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
 void AfterCommand::afterTclTime(
-	int ms, array_ref<TclObject> tokens, TclObject& result)
+	int ms, span<const TclObject> tokens, TclObject& result)
 {
 	TclObject command;
-	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
-	auto cmd = make_unique<AfterRealTimeCmd>(
+	command.addListElements(view::drop(tokens, 2));
+	auto cmd = std::make_unique<AfterRealTimeCmd>(
 		reactor.getRTScheduler(), *this, command, ms / 1000.0);
-	result.setString(cmd->getId());
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
 template<EventType T>
-void AfterCommand::afterEvent(array_ref<TclObject> tokens, TclObject& result)
+void AfterCommand::afterEvent(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
-	auto cmd = make_unique<AfterEventCmd<T>>(
-		*this, tokens[1], tokens[2]);
-	result.setString(cmd->getId());
+	checkNumArgs(tokens, 3, "command");
+	auto cmd = std::make_unique<AfterEventCmd<T>>(*this, tokens[1], tokens[2]);
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
 void AfterCommand::afterInputEvent(
-	const EventPtr& event, array_ref<TclObject> tokens, TclObject& result)
+	const EventPtr& event, span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
-	auto cmd = make_unique<AfterInputEventCmd>(
-		*this, event, tokens[2]);
-	result.setString(cmd->getId());
+	checkNumArgs(tokens, 3, "command");
+	auto cmd = std::make_unique<AfterInputEventCmd>(*this, event, tokens[2]);
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
-void AfterCommand::afterIdle(array_ref<TclObject> tokens, TclObject& result)
+void AfterCommand::afterIdle(span<const TclObject> tokens, TclObject& result)
 {
-	if (tokens.size() != 4) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, 4, Prefix{2}, "seconds command");
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(getInterpreter(), tokens[2]);
-	auto cmd = make_unique<AfterIdleCmd>(
+	auto cmd = std::make_unique<AfterIdleCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	result.setString(cmd->getId());
+	result = cmd->getId();
 	afterCmds.push_back(move(cmd));
 }
 
-void AfterCommand::afterInfo(array_ref<TclObject> /*tokens*/, TclObject& result)
+void AfterCommand::afterInfo(span<const TclObject> /*tokens*/, TclObject& result)
 {
 	ostringstream str;
 	for (auto& cmd : afterCmds) {
@@ -332,28 +324,26 @@ void AfterCommand::afterInfo(array_ref<TclObject> /*tokens*/, TclObject& result)
 		str << cmd->getCommand()
 		    << '\n';
 	}
-	result.setString(str.str());
+	result = str.str();
 }
 
-void AfterCommand::afterCancel(array_ref<TclObject> tokens, TclObject& /*result*/)
+void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result*/)
 {
-	if (tokens.size() < 3) {
-		throw SyntaxError();
-	}
+	checkNumArgs(tokens, AtLeast{3}, "id|command");
 	if (tokens.size() == 3) {
 		auto id = tokens[2].getString();
-		auto it = find_if(begin(afterCmds), end(afterCmds),
-			[&](std::unique_ptr<AfterCmd>& e) { return e->getId() == id; });
+		auto it = ranges::find_if(afterCmds,
+		                          [&](auto& e) { return e->getId() == id; });
 		if (it != end(afterCmds)) {
 			afterCmds.erase(it);
 			return;
 		}
 	}
 	TclObject command;
-	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
-	string_ref cmdStr = command.getString();
-	auto it = find_if(begin(afterCmds), end(afterCmds),
-		[&](std::unique_ptr<AfterCmd>& e) { return e->getCommand() == cmdStr; });
+	command.addListElements(view::drop(tokens, 2));
+	string_view cmdStr = command.getString();
+	auto it = ranges::find_if(afterCmds,
+	                          [&](auto& e) { return e->getCommand() == cmdStr; });
 	if (it != end(afterCmds)) {
 		afterCmds.erase(it);
 		// Tcl manual is not clear about this, but it seems
@@ -396,8 +386,7 @@ template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 	AfterCmds matches;
 	// Usually there are very few matches (typically even 0 or 1), so no
 	// need to reserve() space.
-	auto p = partition_copy_remove(begin(afterCmds), end(afterCmds),
-	                               std::back_inserter(matches), pred);
+	auto p = partition_copy_remove(afterCmds, std::back_inserter(matches), pred);
 	afterCmds.erase(p.second, end(afterCmds));
 	for (auto& c : matches) {
 		c->execute();
@@ -426,7 +415,7 @@ struct AfterEmuTimePred {
 };
 
 struct AfterInputEventPred {
-	AfterInputEventPred(AfterCommand::EventPtr event_)
+	explicit AfterInputEventPred(AfterCommand::EventPtr event_)
 		: event(std::move(event_)) {}
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {
@@ -475,7 +464,7 @@ AfterCmd::AfterCmd(AfterCommand& afterCommand_, const TclObject& command_)
 	id = str.str();
 }
 
-string_ref AfterCmd::getCommand() const
+string_view AfterCmd::getCommand() const
 {
 	return command.getString();
 }
@@ -491,7 +480,7 @@ void AfterCmd::execute()
 		command.executeCommand(afterCommand.getInterpreter());
 	} catch (CommandException& e) {
 		afterCommand.getCommandController().getCliComm().printWarning(
-			"Error executing delayed command: " + e.getMessage());
+			"Error executing delayed command: ", e.getMessage());
 	}
 }
 

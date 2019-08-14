@@ -1,16 +1,16 @@
+from __future__ import print_function
 from cpu import getCPU, X86, X86_64
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged
 
+from os.path import dirname, join as joinpath
 import sys
 
 def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	platformVars = extractMakeVariables(
-		'build/platform-%s.mk' % targetPlatform,
+        joinpath(dirname(__file__), 'platform-%s.mk' % targetPlatform),
 		dict.fromkeys(
-			('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS',
-				'COMPILE_ENV', 'LINK_ENV',
-				'ANDROID_LDFLAGS', 'ANDROID_CXXFLAGS',
+			('COMPILE_FLAGS', 'LINK_FLAGS', 'LDFLAGS', 'TARGET_FLAGS',
 				'OPENMSX_TARGET_CPU'),
 			''
 			)
@@ -21,7 +21,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 
 	# TODO: Add support for device-specific configuration.
 	platformDingux = targetPlatform == 'dingux'
-	platformMaemo5 = targetPlatform == 'maemo5'
 	platformPandora = targetPlatform == 'pandora'
 	platformAndroid = targetPlatform == 'android'
 
@@ -33,19 +32,13 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 
 	# Platform overrides.
 	if platformDingux:
-		have32BPP = False
 		maxScaleFactor = 1
 	elif platformAndroid:
 		# At the moment, libsdl android crashes when trying to dynamically change the scale factor
 		# TODO: debug why it crashes and then change the maxScaleFactor parameter here
 		# so that people with a powerfull enough android device can use a higher scale factor
 		have32BPP = False
-		maxScaleFactor = 1
-	elif platformMaemo5:
-		# TODO: These are in fact N900 specific settings, but we have no
-		#       support yet for device specific configuration and the N900
-		#       is the most popular Maemo device currently.
-		have32BPP = False
+		minScaleFactor = 2
 		maxScaleFactor = 2
 	elif platformPandora:
 		have32BPP = False
@@ -73,7 +66,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	# Use a macro iso integer because we really need to exclude code sections
 	# based on this.
 	yield '#define PLATFORM_DINGUX %d' % platformDingux
-	yield '#define PLATFORM_MAEMO5 %d' % platformMaemo5
 	yield '#define PLATFORM_ANDROID %d' % platformAndroid
 	yield '#define HAVE_16BPP %d' % have16BPP
 	yield '#define HAVE_32BPP %d' % have32BPP
@@ -102,7 +94,9 @@ if __name__ == '__main__':
 	if len(sys.argv) == 6:
 		rewriteIfChanged(sys.argv[1], iterBuildInfoHeader(*sys.argv[2 : ]))
 	else:
-		print >> sys.stderr, \
-			'Usage: python buildinfo2code.py CONFIG_HEADER ' \
-			'platform cpu flavour share-install-dir'
+		print(
+			'Usage: python buildinfo2code.py CONFIG_HEADER '
+			'platform cpu flavour share-install-dir',
+			file=sys.stderr
+			)
 		sys.exit(2)

@@ -1,11 +1,16 @@
 #include "Completer.hh"
+#include "Interpreter.hh"
 #include "InterpreterOutput.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "ReadDir.hh"
-#include "utf8_unchecked.hh"
+#include "ranges.hh"
+#include "stl.hh"
+#include "strCat.hh"
 #include "stringsp.hh"
-#include <algorithm>
+#include "TclObject.hh"
+#include "utf8_unchecked.hh"
+#include "view.hh"
 
 using std::vector;
 using std::string;
@@ -15,12 +20,12 @@ namespace openmsx {
 InterpreterOutput* Completer::output = nullptr;
 
 
-Completer::Completer(string_ref name_)
+Completer::Completer(string_view name_)
 	: name(name_.str())
 {
 }
 
-static bool formatHelper(const vector<string_ref>& input, size_t columnLimit,
+static bool formatHelper(const vector<string_view>& input, size_t columnLimit,
                          vector<string>& result)
 {
 	size_t column = 0;
@@ -30,8 +35,7 @@ static bool formatHelper(const vector<string_ref>& input, size_t columnLimit,
 		for (size_t i = 0; (i < result.size()) && (it != end(input));
 		     ++i, ++it) {
 			auto curSize = utf8::unchecked::size(result[i]);
-			result[i] += string(column - curSize, ' ');
-			result[i] += it->str();
+			strAppend(result[i], spaces(column - curSize), it->str());
 			maxcolumn = std::max(maxcolumn,
 			                     utf8::unchecked::size(result[i]));
 			if (maxcolumn > columnLimit) return false;
@@ -41,7 +45,7 @@ static bool formatHelper(const vector<string_ref>& input, size_t columnLimit,
 	return true;
 }
 
-static vector<string> format(const vector<string_ref>& input, size_t columnLimit)
+static vector<string> format(const vector<string_view>& input, size_t columnLimit)
 {
 	vector<string> result;
 	for (size_t lines = 1; lines < input.size(); ++lines) {
@@ -50,13 +54,16 @@ static vector<string> format(const vector<string_ref>& input, size_t columnLimit
 			return result;
 		}
 	}
-	for (auto& s : input) {
-		result.push_back(s.str());
-	}
+	append(result, view::transform(input, [](auto& s) { return s.str(); }));
 	return result;
 }
 
-bool Completer::equalHead(string_ref s1, string_ref s2, bool caseSensitive)
+vector<string> Completer::formatListInColumns(const vector<string_view>& input)
+{
+	return format(input, output->getOutputColumns() - 1);
+}
+
+bool Completer::equalHead(string_view s1, string_view s2, bool caseSensitive)
 {
 	if (s2.size() < s1.size()) return false;
 	if (caseSensitive) {
@@ -66,12 +73,12 @@ bool Completer::equalHead(string_ref s1, string_ref s2, bool caseSensitive)
 	}
 }
 
-bool Completer::completeImpl(string& str, vector<string_ref> matches,
+bool Completer::completeImpl(string& str, vector<string_view> matches,
                              bool caseSensitive)
 {
-	for (auto& m : matches) {
-		assert(equalHead(str, m, caseSensitive)); (void)m;
-	}
+	assert(ranges::all_of(matches, [&](auto& m) {
+		return equalHead(str, m, caseSensitive);
+	}));
 
 	if (matches.empty()) {
 		// no matching values
@@ -88,8 +95,8 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 	//  start with. Though sometimes this is hard to avoid. E.g. when doing
 	//  filename completion + some extra allowed strings and one of these
 	//  extra strings is the same as one of the filenames.
-	sort(begin(matches), end(matches));
-	matches.erase(unique(begin(matches), end(matches)), end(matches));
+	ranges::sort(matches);
+	matches.erase(ranges::unique(matches), end(matches));
 
 	bool expanded = false;
 	while (true) {
@@ -102,7 +109,7 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 		auto b = begin(*it);
 		auto e = b + str.size();
 		utf8::unchecked::next(e); // one more utf8 char
-		string_ref string2(b, e);
+		string_view string2(b, e);
 		for (/**/; it != end(matches); ++it) {
 			if (!equalHead(string2, *it, caseSensitive)) {
 				goto out; // TODO rewrite this
@@ -115,7 +122,7 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 	out:
 	if (!expanded && output) {
 		// print all possibilities
-		for (auto& line : format(matches, output->getOutputColumns() - 1)) {
+		for (auto& line : formatListInColumns(matches)) {
 			output->output(line);
 		}
 	}
@@ -125,17 +132,17 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 void Completer::completeFileName(vector<string>& tokens,
                                  const FileContext& context)
 {
-	completeFileNameImpl(tokens, context, vector<string_ref>());
+	completeFileNameImpl(tokens, context, vector<string_view>());
 }
 
 void Completer::completeFileNameImpl(vector<string>& tokens,
                                      const FileContext& context,
-                                     vector<string_ref> matches)
+                                     vector<string_view> matches)
 {
 	string& filename = tokens.back();
 	filename = FileOperations::expandTilde(filename);
 	filename = FileOperations::expandCurrentDirFromDrive(filename);
-	string_ref basename = FileOperations::getBaseName(filename);
+	string_view dirname1 = FileOperations::getDirName(filename);
 
 	vector<string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {
@@ -146,12 +153,12 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 
 	vector<string> filenames;
 	for (auto& p : paths) {
-		string dirname = FileOperations::join(p, basename);
+		string dirname = FileOperations::join(p, dirname1);
 		ReadDir dir(FileOperations::getNativePath(dirname));
 		while (dirent* de = dir.getEntry()) {
 			string name = FileOperations::join(dirname, de->d_name);
 			if (FileOperations::exists(name)) {
-				string nm = FileOperations::join(basename, de->d_name);
+				string nm = FileOperations::join(dirname1, de->d_name);
 				if (FileOperations::isDirectory(name)) {
 					nm += '/';
 				}
@@ -162,14 +169,45 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 			}
 		}
 	}
-	for (auto& f : filenames) {
-		matches.push_back(f);
-	}
+	append(matches, filenames);
 	bool t = completeImpl(filename, matches, true);
 	if (t && !filename.empty() && (filename.back() != '/')) {
 		// completed filename, start new token
 		tokens.emplace_back();
 	}
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, unsigned exactly, const char* errMessage) const
+{
+	checkNumArgs(tokens, exactly, Prefix{exactly - 1}, errMessage);
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, AtLeast atLeast, const char* errMessage) const
+{
+	checkNumArgs(tokens, atLeast, Prefix{atLeast.min - 1}, errMessage);
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, Between between, const char* errMessage) const
+{
+	checkNumArgs(tokens, between, Prefix{between.min - 1}, errMessage);
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, unsigned exactly, Prefix prefix, const char* errMessage) const
+{
+	if (tokens.size() == exactly) return;
+	getInterpreter().wrongNumArgs(prefix.n, tokens, errMessage);
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, AtLeast atLeast, Prefix prefix, const char* errMessage) const
+{
+	if (tokens.size() >= atLeast.min) return;
+	getInterpreter().wrongNumArgs(prefix.n, tokens, errMessage);
+}
+
+void Completer::checkNumArgs(span<const TclObject> tokens, Between between, Prefix prefix, const char* errMessage) const
+{
+	if (tokens.size() >= between.min && tokens.size() <= between.max) return;
+	getInterpreter().wrongNumArgs(prefix.n, tokens, errMessage);
 }
 
 } // namespace openmsx

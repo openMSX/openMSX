@@ -2,6 +2,7 @@ Instructions:
 
 * It only works on MSX systems with 2 disk drives
 * Your disk drive controller needs to be WD2793 compatible
+* The tool only works on 3.58 MHz.
 * The output of the tool is a DAT file for each cylinder/head combination.
   Typically that means 160 DAT files for a 720kB DS DD disk
 
@@ -46,7 +47,7 @@ Command line options:
 * stop=NN: specify stop cylinder (use if you don't need the whole disk dumped,
   stop earlier than end-of-disk detection finds)
 
-Example: read-dmk type=national debug=1 start=38 end=38
+Example: read-dmk type=national debug=1 start=38 stop=38
 This will dump only cylinder 38 (for both sides, so 2 DAT files) with debug
 enabled and for national-type disk drives (see above). Usually you don't
 specify any options, except for the type if you don't have a Philips-like

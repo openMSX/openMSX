@@ -3,14 +3,14 @@
 #include "IDEDevice.hh"
 #include "Math.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include "outer.hh"
 
 namespace openmsx {
 
 SunriseIDE::SunriseIDE(const DeviceConfig& config)
 	: MSXDevice(config)
+	, romBlockDebug(*this)
 	, rom(getName() + " ROM", "rom", config)
-	, romBlockDebug(*this, &control, 0x4000, 0x4000, 14)
 {
 	device[0] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("master")));
@@ -24,9 +24,7 @@ SunriseIDE::SunriseIDE(const DeviceConfig& config)
 	powerUp(getCurrentTime());
 }
 
-SunriseIDE::~SunriseIDE()
-{
-}
+SunriseIDE::~SunriseIDE() = default;
 
 void SunriseIDE::powerUp(EmuTime::param time)
 {
@@ -102,6 +100,15 @@ void SunriseIDE::writeMem(word address, byte value, EmuTime::param time)
 	// all other writes ignored
 }
 
+byte SunriseIDE::getBank() const
+{
+	byte bank = Math::reverseByte(control & 0xF8);
+	if (bank >= (rom.getSize() / 0x4000)) {
+		bank &= ((rom.getSize() / 0x4000) - 1);
+	}
+	return bank;
+}
+
 void SunriseIDE::writeControl(byte value)
 {
 	control = value;
@@ -113,10 +120,7 @@ void SunriseIDE::writeControl(byte value)
 		invalidateMemCache(0xFC00, 0x0300);
 	}
 
-	byte bank = Math::reverseByte(control & 0xF8);
-	if (bank >= (rom.getSize() / 0x4000)) {
-		bank &= ((rom.getSize() / 0x4000) - 1);
-	}
+	byte bank = getBank();
 	if (internalBank != &rom[0x4000 * bank]) {
 		internalBank = &rom[0x4000 * bank];
 		invalidateMemCache(0x4000, 0x4000);
@@ -215,11 +219,11 @@ void SunriseIDE::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serializePolymorphic("master", *device[0]);
 	ar.serializePolymorphic("slave",  *device[1]);
-	ar.serialize("readLatch", readLatch);
-	ar.serialize("writeLatch", writeLatch);
-	ar.serialize("selectedDevice", selectedDevice);
-	ar.serialize("control", control);
-	ar.serialize("softReset", softReset);
+	ar.serialize("readLatch",      readLatch,
+	             "writeLatch",     writeLatch,
+	             "selectedDevice", selectedDevice,
+	             "control",        control,
+	             "softReset",      softReset);
 
 	if (ar.isLoader()) {
 		// restore internalBank, ideRegsEnabled
@@ -228,5 +232,18 @@ void SunriseIDE::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(SunriseIDE);
 REGISTER_MSXDEVICE(SunriseIDE, "SunriseIDE");
+
+
+SunriseIDE::Blocks::Blocks(SunriseIDE& device)
+	: RomBlockDebuggableBase(device)
+{
+}
+
+byte SunriseIDE::Blocks::read(unsigned address)
+{
+	if ((address < 0x4000) || (address >= 0x8000)) return 255;
+	auto& ide = OUTER(SunriseIDE, romBlockDebug);
+	return ide.getBank();
+}
 
 } // namespace openmsx

@@ -49,7 +49,7 @@ RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, Rom&& rom_)
 	, samplePlayer(
 		"Nettou Yakyuu-DAC",
 		"Jaleco Moero!! Nettou Yakuu '88 DAC", config,
-		FileOperations::stripExtension(rom.getFilename()) + '_',
+		strCat(FileOperations::stripExtension(rom.getFilename()), '_'),
 		16, "nettou_yakyuu/nettou_yakyuu_")
 {
 	reset(EmuTime::dummy());
@@ -117,8 +117,8 @@ template<typename Archive>
 void RomNettouYakyuu::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("SamplePlayer", samplePlayer);
-	ar.serialize("redirectToSamplePlayer", redirectToSamplePlayer);
+	ar.serialize("SamplePlayer",           samplePlayer,
+	             "redirectToSamplePlayer", redirectToSamplePlayer);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomNettouYakyuu);
 REGISTER_MSXDEVICE(RomNettouYakyuu, "RomNettouYakyuu");

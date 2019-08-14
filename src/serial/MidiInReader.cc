@@ -4,9 +4,7 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FileOperations.hh"
-#include "StringOp.hh"
 #include "serialize.hh"
-#include <atomic>
 #include <cstdio>
 #include <cerrno>
 #include <cstring>
@@ -15,27 +13,20 @@ using std::string;
 
 namespace openmsx {
 
-// This only works for one simultaneous instance
-// TODO get rid of helper thread
-static std::atomic<bool> exitLoop(false);
-
 MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_,
                            CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this)
 	, readFilenameSetting(
 		commandController, "midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
 		"/dev/midi")
 {
 	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
-	exitLoop = false;
 }
 
 MidiInReader::~MidiInReader()
 {
-	exitLoop = true;
 	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
 }
 
@@ -44,8 +35,7 @@ void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	file = FileOperations::openFile(readFilenameSetting.getString().str(), "rb");
 	if (!file) {
-		throw PlugException(StringOp::Builder()
-			<< "Failed to open input: " << strerror(errno));
+		throw PlugException("Failed to open input: ", strerror(errno));
 	}
 
 	auto& midiConnector = static_cast<MidiInConnector&>(connector_);
@@ -55,13 +45,13 @@ void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
-	thread.start();
+	thread = std::thread([this]() { run(); });
 }
 
 void MidiInReader::unplugHelper(EmuTime::param /*time*/)
 {
-	std::lock_guard<std::mutex> lock(mutex);
-	thread.stop();
+	poller.abort();
+	thread.join();
 	file.reset();
 }
 
@@ -71,7 +61,7 @@ const string& MidiInReader::getName() const
 	return name;
 }
 
-string_ref MidiInReader::getDescription() const
+string_view MidiInReader::getDescription() const
 {
 	return "MIDI in file reader. Sends data from an input file to the "
 	       "MIDI port it is connected to. The filename is set with "
@@ -79,14 +69,20 @@ string_ref MidiInReader::getDescription() const
 }
 
 
-// Runnable
 void MidiInReader::run()
 {
 	byte buf;
 	if (!file) return;
 	while (true) {
+#ifndef _WIN32
+		if (poller.poll(fileno(file.get()))) {
+			break;
+		}
+#endif
 		size_t num = fread(&buf, 1, 1, file.get());
-		if (exitLoop) break;
+		if (poller.aborted()) {
+			break;
+		}
 		if (num != 1) {
 			continue;
 		}

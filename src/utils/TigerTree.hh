@@ -28,13 +28,14 @@
 #ifndef TIGERTREE_HH
 #define TIGERTREE_HH
 
-#include "tiger.hh"
-#include "MemBuffer.hh"
 #include <string>
 #include <cstdint>
 #include <ctime>
+#include <functional>
 
 namespace openmsx {
+
+struct TigerHash;
 
 /** The TigerTree class will query the to-be-hashed data via this abstract
   * interface. This allows to e.g. fetch the data from a file.
@@ -59,7 +60,7 @@ public:
 	virtual bool isCacheStillValid(time_t& time) = 0;
 
 protected:
-	~TTData() {}
+	~TTData() = default;
 };
 
 struct TTCacheEntry;
@@ -78,7 +79,7 @@ public:
 
 	/** Calculate the hash value.
 	 */
-	const TigerHash& calcHash();
+	const TigerHash& calcHash(const std::function<void(size_t, size_t)>& progressCallback);
 
 	/** Inform this calculator about changes in the input data. This is
 	 * used to (not) skip re-calculations on future calcHash() calls. So
@@ -100,7 +101,7 @@ private:
 	Node getLeftChild(Node node) const;
 	Node getRightChild(Node node) const;
 
-	const TigerHash& calcHash(Node node);
+	const TigerHash& calcHash(Node node, const std::function<void(size_t, size_t)>& progressCallback);
 
 	TTData& data;
 	const size_t dataSize;

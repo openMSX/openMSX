@@ -3,7 +3,6 @@
 
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
-#include "unreachable.hh"
 #include <string>
 #include <type_traits>
 #include <cassert>
@@ -48,8 +47,8 @@ void serialize(Archive& ar, T& t, unsigned version)
 template <typename Archive, typename T1, typename T2>
 void serialize(Archive& ar, std::pair<T1, T2>& p, unsigned /*version*/)
 {
-	ar.serialize("first",  p.first);
-	ar.serialize("second", p.second);
+	ar.serialize("first",  p.first,
+	             "second", p.second);
 }
 template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2>>
 {
@@ -82,10 +81,9 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
 
  * example:
  *    enum MyEnum { FOO, BAR };
- *    enum_string<MyEnum> myEnumInfo[] = {
+ *    std::initializer_list<enum_string<MyEnum>> myEnumInfo = {
  *          { "FOO", FOO },
  *          { "BAR", BAR },
- *          { nullptr, FOO } // dummy enum value
  *    };
  *    SERIALIZE_ENUM(MyEnum, myEnumInfo);
  *
@@ -103,26 +101,24 @@ template<typename T> struct enum_string {
 };
 void enumError(const std::string& str);
 template<typename T> struct serialize_as_enum_impl : std::true_type {
-	serialize_as_enum_impl(enum_string<T>* info_) : info(info_) {}
+	explicit serialize_as_enum_impl(std::initializer_list<enum_string<T>> info_)
+		: info(info_) {}
 	std::string toString(T t) const {
-		auto* p = info;
-		while (p->str) {
-			if (p->e == t) return p->str;
-			++p;
+		for (auto& i : info) {
+			if (i.e == t) return i.str;
 		}
-		UNREACHABLE; return "";
+		assert(false);
+		return "internal-error-unknown-enum-value";
 	}
 	T fromString(const std::string& str) const {
-		auto* p = info;
-		while (p->str) {
-			if (p->str == str) return p->e;
-			++p;
+		for (auto& i : info) {
+			if (i.str == str) return i.e;
 		}
-		enumError(str); // does not return
-		UNREACHABLE; return T(); // avoid warning
+		enumError(str); // does not return (throws)
+		return T(); // avoid warning
 	}
 private:
-	enum_string<T>* info;
+	std::initializer_list<enum_string<T>> info;
 };
 
 #define SERIALIZE_ENUM(TYPE,INFO) \
@@ -203,8 +199,8 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 // collection to have it serialized (you don't have to iterate over it
 // manually).
 //
-// By default arrays, std::vector, std::list, std::set, std::deque and std::map
-// are recognized as collections. Though for STL collections you need to add
+// By default arrays, std::vector, std::list, std::deque and std::map are
+// recognized as collections. Though for STL collections you need to add
 //    #include "serialize_stl.hh"
 //
 // The serialize_as_collection class has the following members:
@@ -229,7 +225,6 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 //  - const_iterator begin(...)
 //  - const_iterator end(...)
 //      Returns begin/end iterator for the given collection. Used for saving.
-//  - using output_iterator = ...
 //  - void prepare(..., int n)
 //  - output_iterator output(...)
 //      These are used for loading. The prepare() method should prepare the
@@ -247,7 +242,6 @@ template<typename T, int N> struct serialize_as_collection<T[N]> : std::true_typ
 	static const T* end  (const T (&array)[N]) { return &array[N]; }
 	// load
 	static const bool loadInPlace = true;
-	using output_iterator = T*;
 	static void prepare(T (&/*array*/)[N], int /*n*/) { }
 	static T* output(T (&array)[N]) { return &array[0]; }
 };
@@ -357,7 +351,7 @@ template<typename T> struct ClassSaver
 			constrArgs.save(ar, t);
 		}
 
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
@@ -438,15 +432,11 @@ template<typename TC> struct CollectionSaver
 // Delegate to a specific Saver class
 // (implemented as inheriting from a specific baseclass).
 template<typename T> struct Saver
-	: if_<is_primitive<T>,
-	      PrimitiveSaver<T>,
-	  if_<serialize_as_enum<T>,
-	      EnumSaver<T>,
-	  if_<serialize_as_pointer<T>,
-	      PointerSaver<T>,
-	  if_<serialize_as_collection<T>,
-	      CollectionSaver<T>,
-	      ClassSaver<T>>>>> {};
+	: std::conditional_t<is_primitive<T>::value,            PrimitiveSaver<T>,
+	  std::conditional_t<serialize_as_enum<T>::value,       EnumSaver<T>,
+	  std::conditional_t<serialize_as_pointer<T>::value,    PointerSaver<T>,
+	  std::conditional_t<serialize_as_collection<T>::value, CollectionSaver<T>,
+	                                                        ClassSaver<T>>>>> {};
 
 ////
 
@@ -534,7 +524,7 @@ template<typename T> struct ClassLoader
 			version = loadVersion<T>(ar);
 		}
 
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		auto& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
@@ -547,7 +537,7 @@ template<typename T> struct NonPolymorphicPointerLoader
 		int version = loadVersion<T>(ar);
 
 		// load (local) constructor args (if any)
-		using TNC = typename std::remove_const<T>::type;
+		using TNC = std::remove_const_t<T>;
 		using ConstrArgs = SerializeConstructorArgs<TNC>;
 		ConstrArgs constrArgs;
 		auto localArgs = constrArgs.load(ar, version);
@@ -579,8 +569,9 @@ template<typename T> struct PointerLoader2
 	// extra indirection needed because inlining the body of
 	// NonPolymorphicPointerLoader in PointerLoader does not compile
 	// for abstract types
-	: if_<std::is_polymorphic<T>, PolymorphicPointerLoader<T>,
-	                              NonPolymorphicPointerLoader<T>> {};
+	: std::conditional_t<std::is_polymorphic<T>::value,
+	                     PolymorphicPointerLoader<T>,
+	                     NonPolymorphicPointerLoader<T>> {};
 
 template<typename TP> struct PointerLoader
 {
@@ -690,15 +681,11 @@ template<typename TC> struct CollectionLoader
 	}
 };
 template<typename T> struct Loader
-	: if_<is_primitive<T>,
-	      PrimitiveLoader<T>,
-	  if_<serialize_as_enum<T>,
-	      EnumLoader<T>,
-	  if_<serialize_as_pointer<T>,
-	      PointerLoader<T>,
-	  if_<serialize_as_collection<T>,
-	      CollectionLoader<T>,
-	      ClassLoader<T>>>>> {};
+	: std::conditional_t<is_primitive<T>::value,            PrimitiveLoader<T>,
+	  std::conditional_t<serialize_as_enum<T>::value,       EnumLoader<T>,
+	  std::conditional_t<serialize_as_pointer<T>::value,    PointerLoader<T>,
+	  std::conditional_t<serialize_as_collection<T>::value, CollectionLoader<T>,
+	                                                        ClassLoader<T>>>>> {};
 
 } // namespace openmsx
 

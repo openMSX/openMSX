@@ -13,8 +13,8 @@ public:
 	explicit CliExtension(CommandLineParser& cmdLineParser);
 
 	void parseOption(const std::string& option,
-	                 array_ref<std::string>& cmdLine) override;
-	string_ref optionHelp() const override;
+	                 span<std::string>& cmdLine) override;
+	string_view optionHelp() const override;
 
 private:
 	CommandLineParser& cmdLineParser;

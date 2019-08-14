@@ -14,7 +14,7 @@ public:
 
 protected:
 	explicit OSDGUILayer(OSDGUI& gui);
-	~OSDGUILayer();
+	~OSDGUILayer() override;
 
 private:
 	OSDGUI& gui;

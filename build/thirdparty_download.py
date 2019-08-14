@@ -1,3 +1,4 @@
+from __future__ import print_function
 from checksum import verifyFile
 from components import requiredLibrariesFor
 from configurations import getConfiguration
@@ -20,9 +21,9 @@ def downloadPackage(package, tarballsDir):
 		makedirs(tarballsDir)
 	filePath = joinpath(tarballsDir, package.getTarballName())
 	if isfile(filePath):
-		print '%s version %s - already downloaded' % (
+		print('%s version %s - already downloaded' % (
 			package.niceName, package.version
-			)
+			))
 	else:
 		downloadURL(package.getURL(), tarballsDir)
 
@@ -30,10 +31,10 @@ def verifyPackage(package, tarballsDir):
 	filePath = joinpath(tarballsDir, package.getTarballName())
 	try:
 		verifyFile(filePath, package.fileLength, package.checksums)
-	except IOError, ex:
-		print >> sys.stderr, '%s corrupt: %s' % (
+	except IOError as ex:
+		print('%s corrupt: %s' % (
 			package.getTarballName(), ex
-			)
+			), file=sys.stderr)
 		sys.exit(1)
 
 def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
@@ -52,7 +53,7 @@ def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
 	if isfile(diffPath):
 		for diff in Diff.load(diffPath):
 			patch(diff, sourcesDir)
-			print 'Patched:', diff.getPath()
+			print('Patched:', diff.getPath())
 
 
 def fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir):
@@ -62,19 +63,23 @@ def fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir):
 		extractPackage(package, tarballsDir, sourcesDir, patchesDir)
 
 def main(platform, tarballsDir, sourcesDir, patchesDir):
-	if platform == 'android':
-		fetchPackageSource('TCL_ANDROID', tarballsDir, sourcesDir, patchesDir)
-	else:
-		configuration = getConfiguration('3RD_STA')
-		components = configuration.iterDesiredComponents()
+	configuration = getConfiguration('3RD_STA')
+	components = configuration.iterDesiredComponents()
 
-		# Compute the set of all directly and indirectly required libraries,
-		# then filter out system libraries.
-		thirdPartyLibs = set(
-			makeName
-			for makeName in allDependencies(requiredLibrariesFor(components))
-			if not librariesByName[makeName].isSystemLibrary(platform)
-			)
+	# Compute the set of all directly and indirectly required libraries,
+	# then filter out system libraries.
+	thirdPartyLibs = set(
+		makeName
+		for makeName in allDependencies(requiredLibrariesFor(components))
+		if not librariesByName[makeName].isSystemLibrary(platform)
+		)
+
+	if platform == 'windows':
+		# Avoid ALSA, since we won't be building it and extracting it will
+		# fail on file systems that don't support symlinks.
+		# TODO: 3rdparty.mk filters out ALSA on non-Linux platforms;
+		#       figure out a way to do that in a single location.
+		thirdPartyLibs.discard('ALSA')
 
 	for makeName in sorted(thirdPartyLibs):
 		fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir)
@@ -88,7 +93,5 @@ if __name__ == '__main__':
 			'build/3rdparty'
 			)
 	else:
-		print >> sys.stderr, (
-			'Usage: python thirdparty_download.py TARGET_OS'
-			)
+		print('Usage: python thirdparty_download.py TARGET_OS', file=sys.stderr)
 		sys.exit(2)

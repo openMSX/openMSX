@@ -1,5 +1,6 @@
 # Generates Windows resource header.
 
+from __future__ import print_function
 from optparse import OptionParser
 from os import walk
 from os.path import (
@@ -217,7 +218,7 @@ def run():
 		options.sourcePath, options.componentGroup, options.directoryRef,
 		options.virtualDir, options.excludedFile, options.win64
 		):
-		print line
+		print(line)
 
 if __name__ == '__main__':
 	run()

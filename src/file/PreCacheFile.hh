@@ -1,9 +1,9 @@
 #ifndef PRECACHEFILE_HH
 #define PRECACHEFILE_HH
 
-#include "Thread.hh"
 #include <atomic>
 #include <string>
+#include <thread>
 
 namespace openmsx {
 
@@ -12,19 +12,17 @@ namespace openmsx {
  * sticks in the OS cache. Mainly useful to avoid CDROM spinups or to
  * speed up real floppy disk (/dev/fd0) reads.
  */
-class PreCacheFile final : private Runnable
+class PreCacheFile final
 {
 public:
-	explicit PreCacheFile(const std::string& name);
+	explicit PreCacheFile(std::string name);
 	~PreCacheFile();
 
 private:
-	// Runnable
-	void run() override;
+	void run();
 
 	const std::string name;
-	Thread thread;
-
+	std::thread thread;
 	std::atomic<bool> exitLoop;
 };
 

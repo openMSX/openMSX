@@ -7,8 +7,9 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include "StringOp.hh"
 #include <mach/mach_time.h>
+#include <memory>
 
 
 namespace openmsx {
@@ -23,7 +24,7 @@ void MidiInCoreMIDI::registerAll(EventDistributor& eventDistributor,
 	for (ItemCount i = 0; i < numberOfEndpoints; i++) {
 		MIDIEndpointRef endpoint = MIDIGetSource(i);
 		if (endpoint) {
-			controller.registerPluggable(make_unique<MidiInCoreMIDI>(
+			controller.registerPluggable(std::make_unique<MidiInCoreMIDI>(
 					eventDistributor, scheduler, endpoint));
 		}
 	}
@@ -46,8 +47,7 @@ MidiInCoreMIDI::MidiInCoreMIDI(EventDistributor& eventDistributor_,
 	if (status) {
 		name = "Nameless endpoint";
 	} else {
-		name = StringOp::Builder() << StringOp::fromCFString(midiDeviceName)
-		                           << " IN";
+		name = strCat(StringOp::fromCFString(midiDeviceName), " IN");
 		CFRelease(midiDeviceName);
 	}
 
@@ -66,16 +66,14 @@ void MidiInCoreMIDI::plugHelper(Connector& /*connector*/, EmuTime::param /*time*
 	// Create client.
 	if (OSStatus status = MIDIClientCreate(
 			CFSTR("openMSX"), nullptr, nullptr, &client)) {
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI client (" << status << ")");
+		throw PlugException("Failed to create MIDI client (", status, ')');
 	}
 	// Create input port.
 	if (OSStatus status = MIDIInputPortCreate(
 			client, CFSTR("Input"), sendPacketList, this, &port)) {
 		MIDIClientDispose(client);
 		client = 0;
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI port (" << status << ")");
+		throw PlugException("Failed to create MIDI port (", status, ')');
 	}
 
 	MIDIPortConnectSource(port, endpoint, nullptr);
@@ -96,7 +94,7 @@ const std::string& MidiInCoreMIDI::getName() const
 	return name;
 }
 
-string_ref MidiInCoreMIDI::getDescription() const
+string_view MidiInCoreMIDI::getDescription() const
 {
 	return "Receives MIDI events from an existing CoreMIDI source.";
 }
@@ -191,16 +189,14 @@ void MidiInCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
 	// Create client.
 	if (OSStatus status = MIDIClientCreate(CFSTR("openMSX"),
 	                                       nullptr, nullptr, &client)) {
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI client (" << status << ")");
+		throw PlugException("Failed to create MIDI client (", status, ')');
 	}
 	// Create endpoint.
 	if (OSStatus status = MIDIDestinationCreate(client, CFSTR("openMSX"),
 	                                            sendPacketList, this,
 	                                            &endpoint)) {
 		MIDIClientDispose(client);
-		throw PlugException(StringOp::Builder() <<
-			"Failed to create MIDI endpoint (" << status << ")");
+		throw PlugException("Failed to create MIDI endpoint (", status, ')');
 	}
 }
 
@@ -222,7 +218,7 @@ const std::string& MidiInCoreMIDIVirtual::getName() const
 	return name;
 }
 
-string_ref MidiInCoreMIDIVirtual::getDescription() const
+string_view MidiInCoreMIDIVirtual::getDescription() const
 {
 	return "Sends MIDI events from a newly created CoreMIDI virtual source.";
 }

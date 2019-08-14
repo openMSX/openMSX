@@ -1,16 +1,16 @@
 #include "InputEvents.hh"
 #include "Keys.hh"
 #include "TclObject.hh"
-#include "StringOp.hh"
 #include "Timer.hh"
 #include "checked_cast.hh"
+#include "strCat.hh"
+#include "stl.hh"
 #include <string>
 #include <tuple>
 #include <SDL.h>
 
 using std::make_tuple;
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -18,102 +18,25 @@ namespace openmsx {
 
 TimedEvent::TimedEvent(EventType type_)
 	: Event(type_)
-	, realtime(Timer::getTime())
+	, realtime(Timer::getTime()) // TODO use SDL2 event timestamp
 {
 }
 
 
 // class KeyEvent
 
-#if PLATFORM_ANDROID
-// The unicode support in the SDL Android port is currently broken.
-// It always sets the unicode value to 0 while on other platforms,
-// unicode is set to non-zero for character keys on keypress.
-// As a workaround, set unicode to keycode for character keys on keypress
-// until SDL Android port has been fixed.
-// Furthermore, try to set unicode value to correct character, taking into consideration
-// the modifier keys. The assumption is that Android has a qwerty keyboard, which is
-// true for the standard virtual keyboard of android 4.0, 4.1 and 4.2 and also true
-// for the more convenient "hackers keyboard" app.
-// However, some Android devices with a physical keyboard might have an Azerty keyboard
-// I don't know what the SDL layer does with the key events received from such Azerty
-// keyboard. Probably it won't work well with this work-around code. Must eventually fix
-// the unicode support in the SDL Android port, together with the main developer of the port.
-// Note that in an older version od SDL Android port, the unicode was always set to the
-// keycode (for all key presses and releases so even for non character keys)
-// Simulate this old broken behaviour and then "fix" the unicode
-static uint16_t fixUnicode(Keys::KeyCode keyCode, uint16_t brokenUnicode)
-{
-	brokenUnicode = keyCode;
-	Keys::KeyCode maskedKeyCode = (Keys::KeyCode)(int(brokenUnicode) & int(Keys::K_MASK));
-	if (brokenUnicode & Keys::KD_RELEASE) {
-		return 0;
-	}
-	if (maskedKeyCode >= Keys::K_UP) {
-		return 0;
-	}
-	if (maskedKeyCode >= Keys::K_WORLD_90 && maskedKeyCode <= Keys::K_WORLD_95) {
-		return 0;
-	}
-
-	if ((keyCode & Keys::KM_SHIFT) == Keys::KM_SHIFT) {
-		if (maskedKeyCode >= Keys::K_A && maskedKeyCode <= Keys::K_Z) {
-			// Convert lowercase character into uppercase
-			return brokenUnicode - 32;
-		}
-		// Convert several characters, assuming user has a qwerty keyboard on the Android or that Android has translated everything
-		// to qwerty keyboard combinations before passing the events to the SDL layer.
-		// Note that the 'rows' mentioned in below mapping table are based on the "hackers keyboard" app. Though
-		// this mapping turns out to work fine with the standard Android 4.x keyboard app as well.
-		switch (maskedKeyCode) {
-			// row 1
-			case Keys::K_1:            return uint16_t('!');
-			case Keys::K_2:            return uint16_t('@');
-			case Keys::K_3:            return uint16_t('#');
-			case Keys::K_4:            return uint16_t('$');
-			case Keys::K_5:            return uint16_t('%');
-			case Keys::K_6:            return uint16_t('^');
-			case Keys::K_7:            return uint16_t('&');
-			case Keys::K_8:            return uint16_t('*');
-			case Keys::K_9:            return uint16_t('(');
-			case Keys::K_0:            return uint16_t(')');
-			case Keys::K_MINUS:        return uint16_t('_');
-			case Keys::K_EQUALS:       return uint16_t('+');
-			// row 2
-			case Keys::K_LEFTBRACKET:  return uint16_t('{');
-			case Keys::K_RIGHTBRACKET: return uint16_t('}');
-			case Keys::K_BACKSLASH:    return uint16_t('|');
-			// row 3
-			case Keys::K_SEMICOLON:    return uint16_t(':');
-			case Keys::K_QUOTE:        return uint16_t('"');
-			// row 4
-			case Keys::K_COMMA:        return uint16_t('<');
-			case Keys::K_PERIOD:       return uint16_t('>');
-			case Keys::K_SLASH:        return uint16_t('?');
-		}
-	}
-	return brokenUnicode;
-}
-
-KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, uint16_t unicode_)
-	: TimedEvent(type), keyCode(keyCode_), unicode(fixUnicode(keyCode_, unicode_))
-{
-}
-#else
-KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, uint16_t unicode_)
+KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, uint32_t unicode_)
 	: TimedEvent(type_), keyCode(keyCode_), unicode(unicode_)
 {
 }
-#endif
 
-void KeyEvent::toStringImpl(TclObject& result) const
+TclObject KeyEvent::toTclList() const
 {
-	result.addListElement("keyb");
-	result.addListElement(Keys::getName(getKeyCode()));
+	auto result = makeTclList("keyb", Keys::getName(getKeyCode()));
 	if (getUnicode() != 0) {
-		result.addListElement(StringOp::Builder() <<
-			"unicode" << getUnicode());
+		result.addListElement(strCat("unicode", getUnicode()));
 	}
+	return result;
 }
 
 bool KeyEvent::lessImpl(const Event& other) const
@@ -127,24 +50,14 @@ bool KeyEvent::lessImpl(const Event& other) const
 // class KeyUpEvent
 
 KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode_)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, uint16_t(0))
-{
-}
-
-KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode_, uint16_t unicode_)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, unicode_)
+	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, 0)
 {
 }
 
 
 // class KeyDownEvent
 
-KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, uint16_t(0))
-{
-}
-
-KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_, uint16_t unicode_)
+KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_, uint32_t unicode_)
 	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, unicode_)
 {
 }
@@ -157,10 +70,9 @@ MouseButtonEvent::MouseButtonEvent(EventType type_, unsigned button_)
 {
 }
 
-void MouseButtonEvent::toStringHelper(TclObject& result) const
+TclObject MouseButtonEvent::toTclHelper(string_view direction) const
 {
-	result.addListElement("mouse");
-	result.addListElement(StringOp::Builder() << "button" << getButton());
+	return makeTclList("mouse", strCat("button", getButton()), direction);
 }
 
 bool MouseButtonEvent::lessImpl(const Event& other) const
@@ -177,10 +89,9 @@ MouseButtonUpEvent::MouseButtonUpEvent(unsigned button_)
 {
 }
 
-void MouseButtonUpEvent::toStringImpl(TclObject& result) const
+TclObject MouseButtonUpEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("up");
+	return toTclHelper("up");
 }
 
 
@@ -191,10 +102,30 @@ MouseButtonDownEvent::MouseButtonDownEvent(unsigned button_)
 {
 }
 
-void MouseButtonDownEvent::toStringImpl(TclObject& result) const
+TclObject MouseButtonDownEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("down");
+	return toTclHelper("down");
+}
+
+
+// class MouseWheelEvent
+
+MouseWheelEvent::MouseWheelEvent(int x_, int y_)
+	: TimedEvent(OPENMSX_MOUSE_WHEEL_EVENT)
+	, x(x_), y(y_)
+{
+}
+
+TclObject MouseWheelEvent::toTclList() const
+{
+	return makeTclList("mouse", "wheel", getX(), getY());
+}
+
+bool MouseWheelEvent::lessImpl(const Event& other) const
+{
+	auto& o = checked_cast<const MouseWheelEvent&>(other);
+	return make_tuple(  getX(),   getY()) <
+	       make_tuple(o.getX(), o.getY());
 }
 
 
@@ -207,14 +138,9 @@ MouseMotionEvent::MouseMotionEvent(int xrel_, int yrel_, int xabs_, int yabs_)
 {
 }
 
-void MouseMotionEvent::toStringImpl(TclObject& result) const
+TclObject MouseMotionEvent::toTclList() const
 {
-	result.addListElement("mouse");
-	result.addListElement("motion");
-	result.addListElement(getX());
-	result.addListElement(getY());
-	result.addListElement(getAbsX());
-	result.addListElement(getAbsY());
+	return makeTclList("mouse", "motion", getX(), getY(), getAbsX(), getAbsY());
 }
 
 bool MouseMotionEvent::lessImpl(const Event& other) const
@@ -225,31 +151,6 @@ bool MouseMotionEvent::lessImpl(const Event& other) const
 }
 
 
-// class MouseMotionGroupEvent
-
-MouseMotionGroupEvent::MouseMotionGroupEvent()
-	: Event(OPENMSX_MOUSE_MOTION_GROUP_EVENT)
-{
-}
-
-void MouseMotionGroupEvent::toStringImpl(TclObject& result) const
-{
-	result.addListElement("mouse");
-	result.addListElement("motion");
-}
-
-bool MouseMotionGroupEvent::lessImpl(const Event& /*other*/) const
-{
-	// All MouseMotionGroup events are equivalent
-	return false;
-}
-
-bool MouseMotionGroupEvent::matches(const Event& other) const
-{
-	return other.getType() == OPENMSX_MOUSE_MOTION_EVENT;
-}
-
-
 // class JoystickEvent
 
 JoystickEvent::JoystickEvent(EventType type_, unsigned joystick_)
@@ -257,9 +158,9 @@ JoystickEvent::JoystickEvent(EventType type_, unsigned joystick_)
 {
 }
 
-void JoystickEvent::toStringHelper(TclObject& result) const
+TclObject JoystickEvent::toTclHelper() const
 {
-	result.addListElement(StringOp::Builder() << "joy" << getJoystick() + 1);
+	return makeTclList(strCat("joy", getJoystick() + 1));
 }
 
 bool JoystickEvent::lessImpl(const Event& other) const
@@ -279,10 +180,11 @@ JoystickButtonEvent::JoystickButtonEvent(
 {
 }
 
-void JoystickButtonEvent::toStringHelper(TclObject& result) const
+TclObject JoystickButtonEvent::toTclHelper(string_view direction) const
 {
-	JoystickEvent::toStringHelper(result);
-	result.addListElement(StringOp::Builder() << "button" << getButton());
+	auto result = JoystickEvent::toTclHelper();
+	result.addListElement(strCat("button", getButton()), direction);
+	return result;
 }
 
 bool JoystickButtonEvent::lessImpl(const JoystickEvent& other) const
@@ -299,10 +201,9 @@ JoystickButtonUpEvent::JoystickButtonUpEvent(unsigned joystick_, unsigned button
 {
 }
 
-void JoystickButtonUpEvent::toStringImpl(TclObject& result) const
+TclObject JoystickButtonUpEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("up");
+	return toTclHelper("up");
 }
 
 
@@ -313,27 +214,26 @@ JoystickButtonDownEvent::JoystickButtonDownEvent(unsigned joystick_, unsigned bu
 {
 }
 
-void JoystickButtonDownEvent::toStringImpl(TclObject& result) const
+TclObject JoystickButtonDownEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("down");
+	return toTclHelper("down");
 }
 
 
 // class JoystickAxisMotionEvent
 
 JoystickAxisMotionEvent::JoystickAxisMotionEvent(
-		unsigned joystick_, unsigned axis_, short value_)
+		unsigned joystick_, unsigned axis_, int value_)
 	: JoystickEvent(OPENMSX_JOY_AXIS_MOTION_EVENT, joystick_)
 	, axis(axis_), value(value_)
 {
 }
 
-void JoystickAxisMotionEvent::toStringImpl(TclObject& result) const
+TclObject JoystickAxisMotionEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement(StringOp::Builder() << "axis" << getAxis());
-	result.addListElement(getValue());
+	auto result = JoystickEvent::toTclHelper();
+	result.addListElement(strCat("axis", getAxis()), getValue());
+	return result;
 }
 
 bool JoystickAxisMotionEvent::lessImpl(const JoystickEvent& other) const
@@ -352,10 +252,9 @@ JoystickHatEvent::JoystickHatEvent(unsigned joystick_, unsigned hat_, unsigned v
 {
 }
 
-void JoystickHatEvent::toStringImpl(TclObject& result) const
+TclObject JoystickHatEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement(StringOp::Builder() << "hat" << getHat());
+	auto result = JoystickEvent::toTclHelper();
 	const char* str;
 	switch (getValue()) {
 		case SDL_HAT_UP:        str = "up";        break;
@@ -368,7 +267,8 @@ void JoystickHatEvent::toStringImpl(TclObject& result) const
 		case SDL_HAT_LEFTDOWN:  str = "leftdown";  break;
 		default:                str = "center";    break;
 	}
-	result.addListElement(str);
+	result.addListElement(strCat("hat", getHat()), str);
+	return result;
 }
 
 bool JoystickHatEvent::lessImpl(const JoystickEvent& other) const
@@ -386,10 +286,9 @@ FocusEvent::FocusEvent(bool gain_)
 {
 }
 
-void FocusEvent::toStringImpl(TclObject& result) const
+TclObject FocusEvent::toTclList() const
 {
-	result.addListElement("focus");
-	result.addListElement(getGain());
+	return makeTclList("focus", getGain());
 }
 
 bool FocusEvent::lessImpl(const Event& other) const
@@ -406,11 +305,9 @@ ResizeEvent::ResizeEvent(unsigned x_, unsigned y_)
 {
 }
 
-void ResizeEvent::toStringImpl(TclObject& result) const
+TclObject ResizeEvent::toTclList() const
 {
-	result.addListElement("resize");
-	result.addListElement(int(getX()));
-	result.addListElement(int(getY()));
+	return makeTclList("resize", int(getX()), int(getY()));
 }
 
 bool ResizeEvent::lessImpl(const Event& other) const
@@ -427,9 +324,9 @@ QuitEvent::QuitEvent() : Event(OPENMSX_QUIT_EVENT)
 {
 }
 
-void QuitEvent::toStringImpl(TclObject& result) const
+TclObject QuitEvent::toTclList() const
 {
-	result.addListElement("quit");
+	return makeTclList("quit");
 }
 
 bool QuitEvent::lessImpl(const Event& /*other*/) const
@@ -441,8 +338,8 @@ bool QuitEvent::lessImpl(const Event& /*other*/) const
 
 OsdControlEvent::OsdControlEvent(
 		EventType type_, unsigned button_,
-		const std::shared_ptr<const Event>& origEvent_)
-	: TimedEvent(type_), origEvent(origEvent_), button(button_)
+		std::shared_ptr<const Event> origEvent_)
+	: TimedEvent(type_), origEvent(std::move(origEvent_)), button(button_)
 {
 }
 
@@ -462,13 +359,12 @@ bool OsdControlEvent::isRepeatStopper(const Event& other) const
 	       !dynamic_cast<const JoystickAxisMotionEvent*>(&other);
 }
 
-void OsdControlEvent::toStringHelper(TclObject& result) const
+TclObject OsdControlEvent::toTclHelper(string_view direction) const
 {
-	result.addListElement("OSDcontrol");
 	static const char* const names[] = {
 		"LEFT", "RIGHT", "UP", "DOWN", "A", "B"
 	};
-	result.addListElement(names[getButton()]);
+	return makeTclList("OSDcontrol", names[getButton()], direction);
 }
 
 bool OsdControlEvent::lessImpl(const Event& other) const
@@ -486,10 +382,9 @@ OsdControlReleaseEvent::OsdControlReleaseEvent(
 {
 }
 
-void OsdControlReleaseEvent::toStringImpl(TclObject& result) const
+TclObject OsdControlReleaseEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("RELEASE");
+	return toTclHelper("RELEASE");
 }
 
 
@@ -501,10 +396,35 @@ OsdControlPressEvent::OsdControlPressEvent(
 {
 }
 
-void OsdControlPressEvent::toStringImpl(TclObject& result) const
+TclObject OsdControlPressEvent::toTclList() const
 {
-	toStringHelper(result);
-	result.addListElement("PRESS");
+	return toTclHelper("PRESS");
+}
+
+
+// class GroupEvent
+
+GroupEvent::GroupEvent(EventType type_, std::vector<EventType> typesToMatch_, const TclObject& tclListComponents_)
+	: Event(type_)
+	, typesToMatch(std::move(typesToMatch_))
+	, tclListComponents(tclListComponents_)
+{
+}
+
+TclObject GroupEvent::toTclList() const
+{
+	return tclListComponents;
+}
+
+bool GroupEvent::lessImpl(const Event& /*other*/) const
+{
+	// All Group events are equivalent
+	return false;
+}
+
+bool GroupEvent::matches(const Event& other) const
+{
+	return contains(typesToMatch, other.getType());
 }
 
 

@@ -1,5 +1,7 @@
 #include "TclParser.hh"
 #include "ScopedAssign.hh"
+#include "ranges.hh"
+#include "strCat.hh"
 #include <algorithm>
 #include <iostream>
 #include <cassert>
@@ -9,10 +11,10 @@ using std::string;
 #if DEBUG_TCLPARSER
 void TclParser::DEBUG_PRINT(const string& s)
 {
-	std::cout << string(2 * level, ' ') << s << std::endl;
+	std::cout << string(2 * level, ' ') << s << '\n';
 }
 
-static string_ref type2string(int type)
+static string_view type2string(int type)
 {
 	switch (type) {
 	case TCL_TOKEN_WORD:
@@ -35,7 +37,7 @@ static string_ref type2string(int type)
 		return "operator";
 	default:
 		assert(false);
-		return "";
+		return {};
 	}
 }
 #endif
@@ -46,30 +48,26 @@ static bool inRange(char c, char low, char high)
 	return t <= unsigned(high - low);
 }
 
-static bool isNumber(string_ref str)
+static bool isNumber(string_view str)
 {
 	if (str.starts_with('-') || str.starts_with('+')) {
 		str.pop_front();
 	}
 	if (str.starts_with("0x") || str.starts_with("0X")) {
 		str.remove_prefix(2);
-		for (auto c : str) {
-			if (!inRange(c, '0', '9') &&
-			    !inRange(c, 'a', 'f') &&
-			    !inRange(c, 'A', 'F')) {
-				return false;
-			}
-		}
+		return ranges::all_of(str, [](char c) {
+			return inRange(c, '0', '9') ||
+			       inRange(c, 'a', 'f') ||
+			       inRange(c, 'A', 'F');
+		});
 	} else {
-		for (auto c : str) {
-			if (!inRange(c, '0', '9')) return false;
-		}
+		return ranges::all_of(str,
+		                      [](char c) { return inRange(c, '0', '9'); });
 	}
-	return true;
 }
 
 
-TclParser::TclParser(Tcl_Interp* interp_, string_ref input)
+TclParser::TclParser(Tcl_Interp* interp_, string_view input)
 	: interp(interp_)
 	, colors(input.size(), '.')
 	, parseStr(input.str())
@@ -107,7 +105,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 		Tcl_Obj* resObj = Tcl_GetObjResult(interp);
 		int resLen;
 		const char* resStr = Tcl_GetStringFromObj(resObj, &resLen);
-		string_ref error(resStr, resLen);
+		string_view error(resStr, resLen);
 
 		if (allowComplete && error.starts_with("missing close-brace")) {
 			parseStr += '}';
@@ -138,10 +136,10 @@ void TclParser::parse(const char* p, int size, ParseType type)
 		DEBUG_PRINT("EXPRESSION: " + parseStr);
 	} else {
 		if (parseInfo.commentSize) {
-			DEBUG_PRINT("COMMENT: " + string_ref(parseInfo.commentStart, parseInfo.commentSize));
+			DEBUG_PRINT("COMMENT: " + string_view(parseInfo.commentStart, parseInfo.commentSize));
 			setColors(parseInfo.commentStart, parseInfo.commentSize, 'c');
 		}
-		DEBUG_PRINT("COMMAND: " + string_ref(parseInfo.commandStart, parseInfo.commandSize));
+		DEBUG_PRINT("COMMAND: " + string_view(parseInfo.commandStart, parseInfo.commandSize));
 	}
 	printTokens(parseInfo.tokenPtr, parseInfo.numTokens);
 
@@ -169,7 +167,7 @@ void TclParser::printTokens(Tcl_Token* tokens, int numTokens)
 #endif
 	for (int i = 0; i < numTokens; /**/) {
 		Tcl_Token& token = tokens[i];
-		string_ref tokenStr(token.start, token.size);
+		string_view tokenStr(token.start, token.size);
 		DEBUG_PRINT(type2string(token.type) + " -> " + tokenStr);
 		switch (token.type) {
 		case TCL_TOKEN_VARIABLE:
@@ -216,7 +214,7 @@ TclParser::ParseType TclParser::guessSubType(Tcl_Token* tokens, int i)
 {
 	// heuristic: if previous token is 'if' then assume this is an expression
 	if ((i >= 1) && (tokens[i - 1].type == TCL_TOKEN_TEXT)) {
-		string_ref prevText(tokens[i - 1].start, tokens[i - 1].size);
+		string_view prevText(tokens[i - 1].start, tokens[i - 1].size);
 		if ((prevText == "if") ||
 		    (prevText == "elseif") ||
 		    (prevText == "expr")) {
@@ -233,9 +231,9 @@ TclParser::ParseType TclParser::guessSubType(Tcl_Token* tokens, int i)
 	return OTHER;
 }
 
-bool TclParser::isProc(Tcl_Interp* interp, string_ref str)
+bool TclParser::isProc(Tcl_Interp* interp, string_view str)
 {
-	string command = "openmsx::is_command_name {" + str + '}';
+	string command = strCat("openmsx::is_command_name {", str, '}');
 	if (Tcl_Eval(interp, command.c_str()) != TCL_OK) return false;
 	int result;
 	if (Tcl_GetBooleanFromObj(interp, Tcl_GetObjResult(interp), &result)

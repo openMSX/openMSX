@@ -5,7 +5,7 @@
 #include "PluggingController.hh"
 #include "PlugException.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 using std::string;
 
@@ -16,7 +16,7 @@ void MidiOutWindows::registerAll(PluggingController& controller)
 	w32_midiOutInit();
 	unsigned devnum = w32_midiOutGetVFNsNum();
 	for (unsigned i = 0; i < devnum; ++i) {
-		controller.registerPluggable(make_unique<MidiOutWindows>(i));
+		controller.registerPluggable(std::make_unique<MidiOutWindows>(i));
 	}
 }
 
@@ -54,7 +54,7 @@ const string& MidiOutWindows::getName() const
 	return name;
 }
 
-string_ref MidiOutWindows::getDescription() const
+string_view MidiOutWindows::getDescription() const
 {
 	return desc;
 }

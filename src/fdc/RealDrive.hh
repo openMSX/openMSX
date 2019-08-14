@@ -22,7 +22,7 @@ class RealDrive final : public DiskDrive
 public:
 	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,
 	          bool signalsNeedMotorOn, bool doubleSided);
-	~RealDrive();
+	~RealDrive() override;
 
 	// DiskDrive interface
 	bool isDiskInserted() const override;
@@ -30,36 +30,41 @@ public:
 	bool isDoubleSided() const override;
 	bool isTrack00() const override;
 	void setSide(bool side) override;
+	bool getSide() const override;
 	void step(bool direction, EmuTime::param time) override;
 	void setMotor(bool status, EmuTime::param time) override;
+	bool getMotor() const override;
 	bool indexPulse(EmuTime::param time) override;
 	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
-	void setHeadLoaded(bool status, EmuTime::param time) override;
-	bool headLoaded(EmuTime::param time) override;
-	void writeTrack(const RawTrack& track) override;
-	void readTrack (      RawTrack& track) override;
-	EmuTime getNextSector(EmuTime::param time, RawTrack& track,
-	                      RawTrack::Sector& sector) override;
+
+	unsigned getTrackLength() override;
+	void writeTrackByte(int idx, byte val, bool addIdam) override;
+	byte  readTrackByte(int idx) override;
+	EmuTime getNextSector(EmuTime::param time, RawTrack::Sector& sector) override;
+	void flushTrack() override;
 	bool diskChanged() override;
 	bool peekDiskChanged() const override;
 	bool isDummyDrive() const override;
+
+	void applyWd2793ReadTrackQuirk() override;
+	void invalidateWd2793ReadTrackQuirk() override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	struct SyncLoadingTimeout : Schedulable {
+	struct SyncLoadingTimeout final : Schedulable {
 		friend class RealDrive;
-		SyncLoadingTimeout(Scheduler& s) : Schedulable(s) {}
+		explicit SyncLoadingTimeout(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param /*time*/) override {
 			auto& drive = OUTER(RealDrive, syncLoadingTimeout);
 			drive.execLoadingTimeout();
 		}
 	} syncLoadingTimeout;
 
-	struct SyncMotorTimeout : Schedulable {
+	struct SyncMotorTimeout final : Schedulable {
 		friend class RealDrive;
-		SyncMotorTimeout(Scheduler& s) : Schedulable(s) {}
+		explicit SyncMotorTimeout(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& drive = OUTER(RealDrive, syncMotorTimeout);
 			drive.execMotorTimeout(time);
@@ -74,6 +79,9 @@ private:
 	void setLoading(EmuTime::param time);
 	unsigned getCurrentAngle(EmuTime::param time) const;
 
+	void getTrack();
+	void invalidateTrack();
+
 	static const unsigned MAX_TRACK = 85;
 	static const unsigned TICKS_PER_ROTATION = 200000;
 	static const unsigned INDEX_DURATION = TICKS_PER_ROTATION / 50;
@@ -84,21 +92,23 @@ private:
 
 	using MotorClock = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>;
 	MotorClock motorTimer;
-	Clock<1000> headLoadTimer; // ms
 	std::unique_ptr<DiskChanger> changer;
 	unsigned headPos;
 	unsigned side;
 	unsigned startAngle;
 	bool motorStatus;
-	bool headLoadStatus;
 	const bool doubleSizedDrive;
 	const bool signalsNeedMotorOn;
 
 	static const unsigned MAX_DRIVES = 26; // a-z
 	using DrivesInUse = std::bitset<MAX_DRIVES>;
 	std::shared_ptr<DrivesInUse> drivesInUse;
+
+	RawTrack track;
+	bool trackValid;
+	bool trackDirty;
 };
-SERIALIZE_CLASS_VERSION(RealDrive, 4);
+SERIALIZE_CLASS_VERSION(RealDrive, 6);
 
 } // namespace openmsx
 

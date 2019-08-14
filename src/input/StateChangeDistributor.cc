@@ -2,16 +2,9 @@
 #include "StateChangeListener.hh"
 #include "StateChange.hh"
 #include "stl.hh"
-#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
-
-StateChangeDistributor::StateChangeDistributor()
-	: recorder(nullptr)
-	, viewOnlyMode(false)
-{
-}
 
 StateChangeDistributor::~StateChangeDistributor()
 {

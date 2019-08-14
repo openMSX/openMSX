@@ -15,8 +15,4 @@ WatchPoint::WatchPoint(TclObject command_, TclObject condition_,
 	assert(beginAddr <= endAddr);
 }
 
-WatchPoint::~WatchPoint()
-{
-}
-
 } // namespace openmsx

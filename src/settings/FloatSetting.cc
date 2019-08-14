@@ -1,10 +1,9 @@
 #include "FloatSetting.hh"
-#include "CommandController.hh"
 
 namespace openmsx {
 
 FloatSetting::FloatSetting(CommandController& commandController_,
-                           string_ref name_, string_ref description_,
+                           string_view name_, string_view description_,
                            double initialValue,
                            double minValue_, double maxValue_)
 	: Setting(commandController_, name_, description_,
@@ -15,23 +14,19 @@ FloatSetting::FloatSetting(CommandController& commandController_,
 	auto& interp = getInterpreter();
 	setChecker([this, &interp](TclObject& newValue) {
 		double val = newValue.getDouble(interp); // may throw
-		double clipped = std::min(std::max(val, minValue), maxValue);
-		newValue.setDouble(clipped);
+		newValue = std::min(std::max(val, minValue), maxValue);
 	});
 	init();
 }
 
-string_ref FloatSetting::getTypeString() const
+string_view FloatSetting::getTypeString() const
 {
 	return "float";
 }
 
 void FloatSetting::additionalInfo(TclObject& result) const
 {
-	TclObject range;
-	range.addListElement(minValue);
-	range.addListElement(maxValue);
-	result.addListElement(range);
+	result.addListElement(makeTclList(minValue, maxValue));
 }
 
 void FloatSetting::setDouble(double d)

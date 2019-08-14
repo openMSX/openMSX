@@ -2,7 +2,7 @@
 #include "MSXSwitchedDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
-#include "StringOp.hh"
+#include "ranges.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -11,19 +11,15 @@ namespace openmsx {
 MSXDeviceSwitch::MSXDeviceSwitch(const DeviceConfig& config)
 	: MSXDevice(config)
 {
-	for (auto& dev : devices) {
-		dev = nullptr;
-	}
+	ranges::fill(devices, nullptr);
 	count = 0;
 	selected = 0;
 }
 
 MSXDeviceSwitch::~MSXDeviceSwitch()
 {
-	for (auto& dev : devices) {
-		// all devices must be unregistered
-		assert(!dev); (void)dev;
-	}
+	// all devices must be unregistered
+	assert(ranges::all_of(devices, [](auto* dev) { return dev == nullptr; }));
 	assert(count == 0);
 }
 
@@ -31,8 +27,8 @@ void MSXDeviceSwitch::registerDevice(byte id, MSXSwitchedDevice* device)
 {
 	if (devices[id]) {
 		// TODO implement multiplexing
-		throw MSXException(StringOp::Builder() <<
-			"Already have a switched device with id " << int(id));
+		throw MSXException(
+			"Already have a switched device with id ", int(id));
 	}
 	devices[id] = device;
 	if (count == 0) {

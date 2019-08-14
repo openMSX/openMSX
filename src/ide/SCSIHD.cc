@@ -74,6 +74,8 @@ SCSIHD::SCSIHD(const DeviceConfig& targetconfig,
 	, mode(mode_)
 	, scsiId(targetconfig.getAttributeAsInt("id"))
 {
+	lun = 0; // move to reset() ?
+	message = 0;
 	reset();
 }
 
@@ -151,7 +153,7 @@ unsigned SCSIHD::modeSense()
 	byte* pBuffer = buffer;
 	if ((currentLength > 0) && (cdb[2] == 3)) {
 		// TODO check for too many sectors
-		unsigned total   = unsigned(getNbSectors());
+		auto total       = unsigned(getNbSectors());
 		byte media       = MT_UNKNOWN;
 		byte sectors     = 64;
 		byte blockLength = SECTOR_SIZE >> 8;
@@ -235,7 +237,7 @@ bool SCSIHD::checkReadOnly()
 unsigned SCSIHD::readCapacity()
 {
 	// TODO check for overflow
-	unsigned block = unsigned(getNbSectors());
+	auto block = unsigned(getNbSectors());
 
 	if (block == 0) {
 		// drive not ready
@@ -251,7 +253,7 @@ unsigned SCSIHD::readCapacity()
 
 bool SCSIHD::checkAddress()
 {
-	unsigned total = unsigned(getNbSectors());
+	auto total = unsigned(getNbSectors());
 	if (total == 0) {
 		// drive not ready
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
@@ -569,12 +571,12 @@ void SCSIHD::serialize(Archive& ar, unsigned /*version*/)
 	// don't serialize SCSIDevice, SectorAccessibleDisk, DiskContainer
 	// base classes
 	ar.template serializeBase<HD>(*this);
-	ar.serialize("keycode", keycode);
-	ar.serialize("currentSector", currentSector);
-	ar.serialize("currentLength", currentLength);
-	ar.serialize("unitAttention", unitAttention);
-	ar.serialize("message", message);
-	ar.serialize("lun", lun);
+	ar.serialize("keycode",       keycode,
+	             "currentSector", currentSector,
+	             "currentLength", currentLength,
+	             "unitAttention", unitAttention,
+	             "message",       message,
+	             "lun",           lun);
 	ar.serialize_blob("cdb", cdb, sizeof(cdb));
 }
 INSTANTIATE_SERIALIZE_METHODS(SCSIHD);

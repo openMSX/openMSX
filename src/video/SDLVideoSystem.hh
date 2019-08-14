@@ -3,6 +3,7 @@
 
 #include "VideoSystem.hh"
 #include "EventListener.hh"
+#include "gl_vec.hh"
 #include "Observer.hh"
 #include "components.hh"
 #include <memory>
@@ -28,7 +29,7 @@ public:
 
 	/** Deactivates this video system.
 	  */
-	~SDLVideoSystem();
+	~SDLVideoSystem() override;
 
 	// VideoSystem interface:
 	std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp) override;
@@ -41,7 +42,7 @@ public:
 	bool checkSettings() override;
 	void flush() override;
 	void takeScreenShot(const std::string& filename, bool withOsd) override;
-	void setWindowTitle(const std::string& title) override;
+	void updateWindowTitle() override;
 	OutputSurface* getOutputSurface() override;
 
 private:
@@ -50,7 +51,7 @@ private:
 	// Observer
 	void update(const Setting& subject) override;
 
-	void getWindowSize(unsigned& width, unsigned& height);
+	gl::ivec2 getWindowSize();
 	void resize();
 
 	Reactor& reactor;

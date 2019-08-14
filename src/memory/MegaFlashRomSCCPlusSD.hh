@@ -1,7 +1,8 @@
 #ifndef MEGAFLASHROMSCCPLUSSD_HH
 #define MEGAFLASHROMSCCPLUSSD_HH
 
-#include "MSXRom.hh"
+#include "MSXDevice.hh"
+#include "MSXMapperIO.hh"
 #include "AmdFlash.hh"
 #include "SCC.hh"
 #include "AY8910.hh"
@@ -12,11 +13,11 @@ namespace openmsx {
 class CheckedRam;
 class SdCard;
 
-class MegaFlashRomSCCPlusSD final : public MSXRom
+class MegaFlashRomSCCPlusSD final : public MSXDevice
 {
 public:
-	MegaFlashRomSCCPlusSD(const DeviceConfig& config, Rom&& rom);
-	~MegaFlashRomSCCPlusSD();
+	explicit MegaFlashRomSCCPlusSD(const DeviceConfig& config);
+	~MegaFlashRomSCCPlusSD() override;
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
@@ -26,8 +27,6 @@ public:
 	void writeMem(word address, byte value, EmuTime::param time) override;
 	byte* getWriteCacheLine(word address) const override;
 
-	byte readIO(word port, EmuTime::param time) override;
-	byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
@@ -100,7 +99,24 @@ private:
 	unsigned calcMemMapperAddress(word address) const;
 	unsigned calcAddress(word address) const;
 
+	class MapperIO final : public MSXMapperIOClient {
+	public:
+		MapperIO(MegaFlashRomSCCPlusSD& mega_)
+			: MSXMapperIOClient(mega_.getMotherBoard())
+			, mega(mega_)
+		{
+		}
+
+		byte readIO(word port, EmuTime::param time) override;
+		byte peekIO(word port, EmuTime::param time) const override;
+		void writeIO(word port, byte value, EmuTime::param time) override;
+		byte getSelectedSegment(byte page) const override;
+
+	private:
+		MegaFlashRomSCCPlusSD& mega;
+	};
 	const std::unique_ptr<CheckedRam> checkedRam; // can be nullptr
+	const std::unique_ptr<MapperIO> mapperIO; // nullptr iff checkedRam == nullptr
 	byte memMapperRegs[4];
 
 	// subslot 3

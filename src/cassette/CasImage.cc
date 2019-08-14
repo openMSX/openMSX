@@ -5,6 +5,7 @@
 #include "CliComm.hh"
 #include "Clock.hh"
 #include "MSXException.hh"
+#include "stl.hh"
 #include "xrange.hh"
 #include <cstring> // for memcmp
 
@@ -54,7 +55,7 @@ CasImage::CasImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 	convert(filename, filePool, cliComm);
 }
 
-short CasImage::getSampleAt(EmuTime::param time)
+int16_t CasImage::getSampleAt(EmuTime::param time)
 {
 	static const Clock<OUTPUT_FREQUENCY> zero(EmuTime::zero);
 	unsigned pos = zero.getTicksTill(time);
@@ -73,14 +74,14 @@ unsigned CasImage::getFrequency() const
 	return OUTPUT_FREQUENCY * AUDIO_OVERSAMPLE;
 }
 
-void CasImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
+void CasImage::fillBuffer(unsigned pos, float** bufs, unsigned num) const
 {
 	size_t nbSamples = output.size();
 	if ((pos / AUDIO_OVERSAMPLE) < nbSamples) {
 		for (auto i : xrange(num)) {
 			bufs[0][i] = ((pos / AUDIO_OVERSAMPLE) < nbSamples)
-			           ? output[pos / AUDIO_OVERSAMPLE] * 256
-			           : 0;
+			           ? output[pos / AUDIO_OVERSAMPLE]
+			           : 0.0f;
 			++pos;
 		}
 	} else {
@@ -88,13 +89,18 @@ void CasImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 	}
 }
 
+float CasImage::getAmplificationFactorImpl() const
+{
+	return 1.0f / 128;
+}
+
 void CasImage::write0()
 {
-	output.insert(end(output), { 127, 127, -127, -127 } );
+	append(output, {127, 127, -127, -127});
 }
 void CasImage::write1()
 {
-	output.insert(end(output), { 127, -127, 127, -127 } );
+	append(output, {127, -127, 127, -127});
 }
 
 // write a header signal
@@ -130,11 +136,11 @@ void CasImage::writeByte(byte b)
 }
 
 // write data until a header is detected
-bool CasImage::writeData(const byte* buf, size_t size, size_t& pos)
+bool CasImage::writeData(span<byte> buf, size_t& pos)
 {
 	bool eof = false;
-	while ((pos + 8) <= size) {
-		if (!memcmp(&buf[pos], CAS_HEADER, 8)) {
+	while ((pos + 8) <= buf.size()) {
+		if (memcmp(&buf[pos], CAS_HEADER, 8) == 0) {
 			return eof;
 		}
 		writeByte(buf[pos]);
@@ -143,7 +149,7 @@ bool CasImage::writeData(const byte* buf, size_t size, size_t& pos)
 		}
 		pos++;
 	}
-	while (pos < size) {
+	while (pos < buf.size()) {
 		writeByte(buf[pos++]);
 	}
 	return false;
@@ -152,16 +158,15 @@ bool CasImage::writeData(const byte* buf, size_t size, size_t& pos)
 void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cliComm)
 {
 	File file(filename);
-	size_t size;
-	const byte* buf = file.mmap(size);
+	auto buf = file.mmap();
 
 	// search for a header in the .cas file
 	bool issueWarning = false;
 	bool headerFound = false;
 	bool firstFile = true;
 	size_t pos = 0;
-	while ((pos + 8) <= size) {
-		if (!memcmp(&buf[pos], CAS_HEADER, 8)) {
+	while ((pos + 8) <= buf.size()) {
+		if (memcmp(&buf[pos], CAS_HEADER, 8) == 0) {
 			// it probably works fine if a long header is used for every
 			// header but since the msx bios makes a distinction between
 			// them, we do also (hence a lot of code).
@@ -169,44 +174,44 @@ void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cl
 			pos += 8;
 			writeSilence(LONG_SILENCE);
 			writeHeader(LONG_HEADER);
-			if ((pos + 10) <= size) {
+			if ((pos + 10) <= buf.size()) {
 				// determine file type
 				FileType type = CassetteImage::UNKNOWN;
-				if (!memcmp(&buf[pos], ASCII_HEADER, 10)) {
+				if (memcmp(&buf[pos], ASCII_HEADER, 10) == 0) {
 					type = CassetteImage::ASCII;
-				} else if (!memcmp(&buf[pos], BINARY_HEADER, 10)) {
+				} else if (memcmp(&buf[pos], BINARY_HEADER, 10) == 0) {
 					type = CassetteImage::BINARY;
-				} else if (!memcmp(&buf[pos], BASIC_HEADER, 10)) {
+				} else if (memcmp(&buf[pos], BASIC_HEADER, 10) == 0) {
 					type = CassetteImage::BASIC;
 				}
 				if (firstFile) setFirstFileType(type);
 				switch (type) {
 					case CassetteImage::ASCII:
-						writeData(buf, size, pos);
+						writeData(buf, pos);
 						bool eof;
 						do {
 							pos += 8;
 							writeSilence(SHORT_SILENCE);
 							writeHeader(SHORT_HEADER);
-							eof = writeData(buf, size, pos);
-						} while (!eof && ((pos + 8) <= size));
+							eof = writeData(buf, pos);
+						} while (!eof && ((pos + 8) <= buf.size()));
 						break;
 					case CassetteImage::BINARY:
 					case CassetteImage::BASIC:
-						writeData(buf, size, pos);
+						writeData(buf, pos);
 						writeSilence(SHORT_SILENCE);
 						writeHeader(SHORT_HEADER);
 						pos += 8;
-						writeData(buf, size, pos);
+						writeData(buf, pos);
 						break;
 					default:
 						// unknown file type: using long header
-						writeData(buf, size, pos);
+						writeData(buf, pos);
 						break;
 				}
 			} else {
 				// unknown file type: using long header
-				writeData(buf, size, pos);
+				writeData(buf, pos);
 			}
 			firstFile = false;
 		} else {
@@ -216,11 +221,10 @@ void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cl
 		}
 	}
 	if (!headerFound) {
-		throw MSXException(filename.getOriginal() +
-		                   ": not a valid CAS image");
+		throw MSXException(filename.getOriginal(), ": not a valid CAS image");
 	}
 	if (issueWarning) {
-		 cliComm.printWarning("Skipped unhandled data in " +
+		 cliComm.printWarning("Skipped unhandled data in ",
 		                      filename.getOriginal());
 	}
 

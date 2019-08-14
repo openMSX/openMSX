@@ -13,7 +13,6 @@ class PrinterPortLogger final : public PrinterPortDevice
 {
 public:
 	explicit PrinterPortLogger(CommandController& commandController);
-	~PrinterPortLogger();
 
 	// PrinterPortDevice
 	bool getStatus(EmuTime::param time) override;
@@ -22,7 +21,7 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 

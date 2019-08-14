@@ -11,10 +11,10 @@ namespace openmsx {
 
 // class CommandCompleter
 
-CommandCompleter::CommandCompleter(CommandController& commandController_,
-                                   string_ref name_)
+CommandCompleter::CommandCompleter(CommandController& controller_,
+                                   string_view name_)
 	: Completer(name_)
-	, commandController(commandController_)
+	, commandController(controller_)
 {
 	getCommandController().registerCompleter(*this, getName());
 }
@@ -50,8 +50,8 @@ CliComm& CommandCompleter::getCliComm() const
 
 // class Command
 
-Command::Command(CommandController& commandController_, string_ref name_)
-	: CommandCompleter(commandController_, name_)
+Command::Command(CommandController& controller_, string_view name_)
+	: CommandCompleter(controller_, name_)
 	, allowInEmptyMachine(true)
 	, token(nullptr)
 {

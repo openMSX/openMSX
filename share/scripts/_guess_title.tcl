@@ -22,7 +22,7 @@ set_help_text guess_title \
 # * MSX-DOS 2 (all pages are RAM)
 
 # this one checks on the checkpage for external or internal software
-proc guess_rom_title_z80space {internal checkpage} {
+proc guess_rom_device_z80space {internal checkpage} {
 	lassign [get_selected_slot $checkpage] ps ss
 	if {$ss eq "X"} {set ss 0}
 	set incorrectslottype [machine_info isexternalslot $ps $ss]
@@ -31,7 +31,7 @@ proc guess_rom_title_z80space {internal checkpage} {
 	}
 	if {$incorrectslottype} {
 		foreach device [machine_info slot $ps $ss $checkpage] {
-			set type [lindex [machine_info device $device] 0]
+			set type [dict get [machine_info device $device] "type"]
 			# try to ignore RAM devices
 			if {$type ne "RAM" && $type ne "MemoryMapper" && $type ne "PanasonicRAM"} {
 				return $device
@@ -41,7 +41,7 @@ proc guess_rom_title_z80space {internal checkpage} {
 	return ""
 }
 
-proc guess_rom_title_nonextension {} {
+proc guess_rom_device_nonextension {} {
 	set system_rom_paths [filepool::get_paths_for_type system_rom]
 	# Loop over all external slots which contain a ROM, return the first
 	# which is not located in one of the systemrom filepools.
@@ -49,7 +49,7 @@ proc guess_rom_title_nonextension {} {
 		for {set ss 0} {$ss < 4} {incr ss} {
 			if {![machine_info isexternalslot $ps $ss]} continue
 			foreach device [machine_info slot $ps $ss 1] {
-				set path [lindex [machine_info device $device] 3]
+				set path [dict get [machine_info device $device] "filename"]
 				if {$path eq ""} continue
 				set ok 1
 				foreach syspath $system_rom_paths {
@@ -64,7 +64,7 @@ proc guess_rom_title_nonextension {} {
 	return ""
 }
 
-proc guess_rom_title_naive {} {
+proc guess_rom_device_naive {} {
 	for {set ps 0} {$ps < 4} {incr ps} {
 		for {set ss 0} {$ss < 4} {incr ss} {
 			if {[machine_info isexternalslot $ps $ss]} {
@@ -97,8 +97,8 @@ proc guess_title {{fallback ""}} {
 	# that is often correct, if it gives a result...
 	# but it doesn't give a result for ROMs that copy themselves to RAM
 	# (e.g. Koei games, tape games converted to ROM, etc.).
-	set result [guess_rom_title_z80space false 1]
-	if {$result ne ""} {return $result}
+	set result [guess_rom_device_z80space false 1]
+	if {$result ne ""} {return [rom_device_to_title $result]}
 
 	# then try disks
 	# games typically run from drive A, almost never from another drive
@@ -110,45 +110,57 @@ proc guess_title {{fallback ""}} {
 	if {$title ne ""} {return $title}
 
 	# if that doesn't give a result, try non extension devices
-	set result [guess_rom_title_nonextension]
-	if {$result ne ""} {return $result}
+	set result [guess_rom_device_nonextension]
+	if {$result ne ""} {return [rom_device_to_title $result]}
 
 	# if that doesn't give a result, just return the first thing we find in
 	# an external slot
 	# ... this doesn't add much to the nonextension version
-#	set result [guess_rom_title_naive]
+#	set result [guess_rom_device_naive]
 
 	# perhaps we should simply return internal software if nothing found yet
 	# Do page 1 last, because BASIC is in there
-	set result [guess_rom_title_z80space true 3]
-	if {$result ne ""} {return $result}
-	set result [guess_rom_title_z80space true 2]
-	if {$result ne ""} {return $result}
-	set result [guess_rom_title_z80space true 1]
-	if {$result ne ""} {return $result}
+	set result [guess_rom_device_z80space true 3]
+	if {$result ne ""} {return [rom_device_to_title $result]}
+	set result [guess_rom_device_z80space true 2]
+	if {$result ne ""} {return [rom_device_to_title $result]}
+	set result [guess_rom_device_z80space true 1]
+	if {$result ne ""} {return [rom_device_to_title $result]}
 
 	# guess failed, return fallback
 	return $fallback
 }
 
-# use this internal proc if you only want to guess ROM titles
+proc rom_device_to_title {device} {
+	set result $device
+	if {[string tolower [file extension $device]] in [list .rom .ri .mx1 .mx2]} {
+		set result [string totitle [file rootname $device]]
+	}
+	return $result
+}
+
+# use this proc if you only want to guess ROM titles
 proc guess_rom_title {} {
-	set result [guess_rom_title_z80space false 1]
+	return [rom_device_to_title [guess_rom_device]]
+}
+
+proc guess_rom_device {} {
+	set result [guess_rom_device_z80space false 1]
 	if {$result ne ""} {return $result}
 
 	# if that doesn't give a result, try non extension devices
-	set result [guess_rom_title_nonextension]
+	set result [guess_rom_device_nonextension]
 	if {$result ne ""} {return $result}
 
 	# if that doesn't give a result, just return the first thing we find in
 	# an external slot
-	# ... this doesn't add much to the nonextension version
-	set result [guess_rom_title_naive]
+	set result [guess_rom_device_naive]
 	return $result
 }
 
 namespace export guess_title
 namespace export guess_rom_title
+namespace export guess_rom_device
 
 } ;# namespace guess_title
 

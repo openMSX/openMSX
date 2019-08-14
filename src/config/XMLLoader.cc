@@ -13,22 +13,22 @@ class XMLElementParser : public rapidsax::NullHandler
 {
 public:
 	// rapidsax handler interface
-	void start(string_ref name);
-	void attribute(string_ref name, string_ref value);
-	void text(string_ref text);
+	void start(string_view name);
+	void attribute(string_view name, string_view value);
+	void text(string_view txt);
 	void stop();
-	void doctype(string_ref text);
+	void doctype(string_view txt);
 
-	string_ref getSystemID() const { return systemID; }
+	string_view getSystemID() const { return systemID; }
 	XMLElement& getRoot() { return root; }
 
 private:
 	XMLElement root;
 	std::vector<XMLElement*> current;
-	string_ref systemID;
+	string_view systemID;
 };
 
-XMLElement load(string_ref filename, string_ref systemID)
+XMLElement load(string_view filename, string_view systemID)
 {
 	MemBuffer<char> buf;
 	try {
@@ -38,52 +38,63 @@ XMLElement load(string_ref filename, string_ref systemID)
 		file.read(buf.data(), size);
 		buf[size] = 0;
 	} catch (FileException& e) {
-		throw XMLException(filename + ": failed to read: " + e.getMessage());
+		throw XMLException(filename, ": failed to read: ", e.getMessage());
 	}
 
 	XMLElementParser handler;
 	try {
 		rapidsax::parse<rapidsax::trimWhitespace>(handler, buf.data());
 	} catch (rapidsax::ParseError& e) {
-		throw XMLException(filename + ": Document parsing failed: " + e.what());
+		throw XMLException(filename, ": Document parsing failed: ", e.what());
 	}
 	auto& root = handler.getRoot();
 	if (root.getName().empty()) {
-		throw XMLException(filename +
+		throw XMLException(filename,
 			": Document doesn't contain mandatory root Element");
 	}
 	if (handler.getSystemID().empty()) {
-		throw XMLException(filename + ": Missing systemID.\n"
+		throw XMLException(filename, ": Missing systemID.\n"
 			"You're probably using an old incompatible file format.");
 	}
 	if (handler.getSystemID() != systemID) {
-		throw XMLException(filename + ": systemID doesn't match "
-			"(expected " + systemID + ", got " + handler.getSystemID() + ")\n"
+		throw XMLException(filename, ": systemID doesn't match "
+			"(expected ", systemID, ", got ", handler.getSystemID(), ")\n"
 			"You're probably using an old incompatible file format.");
 	}
 	return std::move(root);
 }
 
-void XMLElementParser::start(string_ref name)
+void XMLElementParser::start(string_view name)
 {
 	XMLElement* newElem;
 	if (!current.empty()) {
-		newElem = &current.back()->addChild(name);
+		newElem = &current.back()->addChild(name.str());
 	} else {
-		root.setName(name);
+		root.setName(name.str());
 		newElem = &root;
 	}
 	current.push_back(newElem);
 }
 
-void XMLElementParser::attribute(string_ref name, string_ref value)
+void XMLElementParser::attribute(string_view name, string_view value)
 {
-	current.back()->addAttribute(name, value);
+	if (current.back()->hasAttribute(name)) {
+		throw XMLException(
+			"Found duplicate attribute \"", name, "\" in <",
+			current.back()->getName(), ">.");
+	}
+	current.back()->addAttribute(name.str(), value.str());
 }
 
-void XMLElementParser::text(string_ref txt)
+void XMLElementParser::text(string_view txt)
 {
-	current.back()->setData(txt);
+	if (current.back()->hasChildren()) {
+		// no mixed-content elements
+		throw XMLException(
+			"Mixed text+subtags in <", current.back()->getName(),
+			">: \"", txt, "\".");
+	}
+	current.back()->setData(txt.str());
 }
 
 void XMLElementParser::stop()
@@ -91,15 +102,16 @@ void XMLElementParser::stop()
 	current.pop_back();
 }
 
-void XMLElementParser::doctype(string_ref txt)
+void XMLElementParser::doctype(string_view txt)
 {
 	auto pos1 = txt.find(" SYSTEM ");
-	if (pos1 == string_ref::npos) return;
+	if (pos1 == string_view::npos) return;
+	if ((pos1 + 8) >= txt.size()) return;
 	char q = txt[pos1 + 8];
 	if ((q != '"') && (q != '\'')) return;
 	auto t = txt.substr(pos1 + 9);
 	auto pos2 = t.find(q);
-	if (pos2 == string_ref::npos) return;
+	if (pos2 == string_view::npos) return;
 
 	systemID = t.substr(0, pos2);
 }

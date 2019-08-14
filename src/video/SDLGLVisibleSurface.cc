@@ -5,39 +5,29 @@
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
 #include "InitException.hh"
-#include "RenderSettings.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
 SDLGLVisibleSurface::SDLGLVisibleSurface(
 		unsigned width, unsigned height,
-		RenderSettings& renderSettings_,
+		Display& display_,
 		RTScheduler& rtScheduler_,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
 		CliComm& cliComm_,
 		FrameBuffer frameBuffer_)
-	: VisibleSurface(renderSettings_, rtScheduler_, eventDistributor_, inputEventGenerator_,
+	: VisibleSurface(display_, rtScheduler_, eventDistributor_, inputEventGenerator_,
 			cliComm_)
 	, SDLGLOutputSurface(frameBuffer_)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
-	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF |
-	            (renderSettings_.getFullScreen() ? SDL_FULLSCREEN : 0);
+	int flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
-
-	// The created surface may be larger than requested.
-	// If that happens, center the area that we actually use.
-	SDL_Surface* surf = getSDLSurface();
-	unsigned actualWidth  = surf->w;
-	unsigned actualHeight = surf->h;
-	surf->w = width;
-	surf->h = height;
-	setPosition((actualWidth - width ) / 2, (actualHeight - height) / 2);
+	glContext = SDL_GL_CreateContext(window.get());
 
 	// From the glew documentation:
 	//   GLEW obtains information on the supported extensions from the
@@ -58,15 +48,23 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	GLenum glew_error = glewInit();
 	if (glew_error != GLEW_OK) {
 		throw InitException(
-			"Failed to init GLEW: " + std::string(
-				reinterpret_cast<const char*>(
-					glewGetErrorString(glew_error))));
+			"Failed to init GLEW: ",
+			reinterpret_cast<const char*>(
+				glewGetErrorString(glew_error)));
 	}
 	if (!GLEW_VERSION_2_0) {
 		throw InitException("Need at least openGL version 2.0.");
 	}
 
-	glViewport(getX(), getY(), width, height);
+	// The created surface may be larger than requested.
+	// If that happens, center the area that we actually use.
+	int w, h;
+	SDL_GL_GetDrawableSize(window.get(), &w, &h);
+	calculateViewPort(gl::ivec2(w, h));
+	gl::ivec2 offset = getViewOffset();
+	gl::ivec2 size   = getViewSize();
+	glViewport(offset[0], offset[1], size[0], size[1]);
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, width, height, 0, -1, 1);
@@ -78,12 +76,14 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	// is split in two phases.
 	SDLGLOutputSurface::init(*this);
 
-	gl::context = make_unique<gl::Context>(width, height);
+	gl::context = std::make_unique<gl::Context>(width, height);
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
+	// TODO: Move context creation/deletion into Context class?
 	gl::context.reset();
+	SDL_GL_DeleteContext(glContext);
 }
 
 void SDLGLVisibleSurface::flushFrameBuffer()
@@ -98,35 +98,35 @@ void SDLGLVisibleSurface::clearScreen()
 
 void SDLGLVisibleSurface::saveScreenshot(const std::string& filename)
 {
-	SDLGLOutputSurface::saveScreenshot(filename, getWidth(), getHeight());
+	SDLGLOutputSurface::saveScreenshot(filename, *this);
 }
 
 void SDLGLVisibleSurface::finish()
 {
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(window.get());
 }
 
-std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer(Display& display)
+std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
 {
-	return make_unique<GLSnow>(display);
+	return std::make_unique<GLSnow>(getDisplay());
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
 		Reactor& reactor, CommandConsole& console)
 {
 	const bool openGL = true;
-	return make_unique<OSDConsoleRenderer>(
+	return std::make_unique<OSDConsoleRenderer>(
 		reactor, console, getWidth(), getHeight(), openGL);
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
-	return make_unique<GLOSDGUILayer>(gui);
+	return std::make_unique<GLOSDGUILayer>(gui);
 }
 
 std::unique_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()
 {
-	return make_unique<SDLGLOffScreenSurface>(*this);
+	return std::make_unique<SDLGLOffScreenSurface>(*this);
 }
 
 } // namespace openmsx

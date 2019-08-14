@@ -1,17 +1,18 @@
 #include "ResampleLQ.hh"
 #include "ResampledSoundDevice.hh"
 #include "likely.hh"
-#include "memory.hh"
+#include "ranges.hh"
 #include <cassert>
 #include <cstring>
+#include <memory>
 #include <vector>
 
 namespace openmsx {
 
 // 16-byte aligned buffer of ints (shared among all instances of this resampler)
-static std::vector<int> bufferStorage; // (possibly) unaligned storage
+static std::vector<float> bufferStorage; // (possibly) unaligned storage
 static unsigned bufferSize = 0; // usable buffer size (aligned portion)
-static int* bufferInt = nullptr; // pointer to aligned sub-buffer
+static float* aBuffer = nullptr; // pointer to aligned sub-buffer
 
 ////
 
@@ -23,10 +24,10 @@ std::unique_ptr<ResampleLQ<CHANNELS>> ResampleLQ<CHANNELS>::create(
 	std::unique_ptr<ResampleLQ<CHANNELS>> result;
 	unsigned hostSampleRate = hostClock.getFreq();
 	if (emuSampleRate < hostSampleRate) {
-		result = make_unique<ResampleLQUp  <CHANNELS>>(
+		result = std::make_unique<ResampleLQUp  <CHANNELS>>(
 			input, hostClock, emuSampleRate);
 	} else {
-		result = make_unique<ResampleLQDown<CHANNELS>>(
+		result = std::make_unique<ResampleLQDown<CHANNELS>>(
 			input, hostClock, emuSampleRate);
 	}
 	return result;
@@ -41,7 +42,13 @@ ResampleLQ<CHANNELS>::ResampleLQ(
 	, emuClock(hostClock.getTime(), emuSampleRate)
 	, step(FP::roundRatioDown(emuSampleRate, hostClock.getFreq()))
 {
-	for (auto& l : lastInput) l = 0;
+	ranges::fill(lastInput, 0.0f);
+}
+
+static bool isSilent(float x)
+{
+	static const float threshold = 1.0f / 32768;
+	return std::abs(x) < threshold;
 }
 
 template <unsigned CHANNELS>
@@ -56,9 +63,9 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 		bufferStorage.resize(required + 3);
 		// align at 16-byte boundary
 		auto p = reinterpret_cast<uintptr_t>(bufferStorage.data());
-		bufferInt = reinterpret_cast<int*>((p + 15) & ~15);
+		aBuffer = reinterpret_cast<float*>((p + 15) & ~15);
 		// calculate actual usable size (the aligned portion)
-		bufferSize = (bufferStorage.data() + bufferStorage.size()) - bufferInt;
+		bufferSize = (bufferStorage.data() + bufferStorage.size()) - aBuffer;
 		assert(bufferSize >= required);
 	}
 
@@ -66,19 +73,17 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 	assert(emuClock.getTime() <= time);
 	assert(emuClock.getFastAdd(1) > time);
 
-	int* buffer = &bufferInt[4 - 2 * CHANNELS];
+	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
 	assert((uintptr_t(&buffer[2 * CHANNELS]) & 15) == 0);
 
 	if (!input.generateInput(&buffer[2 * CHANNELS], emuNum)) {
 		// New input is all zero
-		int last = 0;
-		for (auto& l : lastInput) last |= l;
-		if (last == 0) {
+		if (ranges::all_of(lastInput, [](auto& l) { return isSilent(l); })) {
 			// Old input was also all zero, then the resampled
 			// output will be all zero as well.
 			return false;
 		}
-		memset(&buffer[CHANNELS], 0, emuNum * CHANNELS * sizeof(int));
+		memset(&buffer[CHANNELS], 0, emuNum * CHANNELS * sizeof(float));
 	}
 	for (unsigned j = 0; j < 2 * CHANNELS; ++j) {
 		buffer[j] = lastInput[j];
@@ -100,7 +105,7 @@ ResampleLQUp<CHANNELS>::ResampleLQUp(
 
 template <unsigned CHANNELS>
 bool ResampleLQUp<CHANNELS>::generateOutput(
-	int* __restrict dataOut, unsigned hostNum, EmuTime::param time)
+	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
 	EmuTime host1 = this->hostClock.getFastAdd(1);
 	assert(host1 > this->emuClock.getTime());
@@ -114,7 +119,7 @@ bool ResampleLQUp<CHANNELS>::generateOutput(
 	// this is currently only used to upsample cassette player sound,
 	// sound quality is not so important here, so use 0-th order
 	// interpolation (instead of 1st-order).
-	int* buffer = &bufferInt[4 - 2 * CHANNELS];
+	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
 	for (unsigned i = 0; i < hostNum; ++i) {
 		unsigned p = pos.toInt();
 		assert(p < valid);
@@ -140,7 +145,7 @@ ResampleLQDown<CHANNELS>::ResampleLQDown(
 
 template <unsigned CHANNELS>
 bool ResampleLQDown<CHANNELS>::generateOutput(
-	int* __restrict dataOut, unsigned hostNum, EmuTime::param time)
+	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
 	EmuTime host1 = this->hostClock.getFastAdd(1);
 	assert(host1 > this->emuClock.getTime());
@@ -150,123 +155,19 @@ bool ResampleLQDown<CHANNELS>::generateOutput(
 	unsigned valid;
 	if (!this->fetchData(time, valid)) return false;
 
-	int* buffer = &bufferInt[4 - 2 * CHANNELS];
-#ifdef __arm__
-	if (CHANNELS == 1) {
-		unsigned dummy;
-		// This asm code is equivalent to the c++ code below (does
-		// 1st order interpolation). It's still a bit slow, so we
-		// use 0th order interpolation. Sound quality is still good
-		// especially on portable devices with only medium quality
-		// speakers.
-		/*asm volatile (
-		"0:\n\t"
-			"mov	r7,%[p],LSR #14\n\t"
-			"add	r7,%[buf],r7,LSL #2\n\t"
-			"ldmia	r7,{r7,r8}\n\t"
-			"sub	r8,r8,r7\n\t"
-			"and	%[t],%[p],%[m]\n\t"
-			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #14\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"mov	r7,%[p],LSR #14\n\t"
-			"add	r7,%[buf],r7,LSL #2\n\t"
-			"ldmia	r7,{r7,r8}\n\t"
-			"sub	r8,r8,r7\n\t"
-			"and	%[t],%[p],%[m]\n\t"
-			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #14\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"mov	r7,%[p],LSR #14\n\t"
-			"add	r7,%[buf],r7,LSL #2\n\t"
-			"ldmia	r7,{r7,r8}\n\t"
-			"sub	r8,r8,r7\n\t"
-			"and	%[t],%[p],%[m]\n\t"
-			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #14\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"mov	r7,%[p],LSR #14\n\t"
-			"add	r7,%[buf],r7,LSL #2\n\t"
-			"ldmia	r7,{r7,r8}\n\t"
-			"sub	r8,r8,r7\n\t"
-			"and	%[t],%[p],%[m]\n\t"
-			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #14\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"subs	%[n],%[n],#4\n\t"
-			"bgt	0b\n\t"
-			: [p]   "=r"  (pos)
-			, [t]   "=&r" (dummy)
-			:       "[p]" (pos)
-			, [buf] "r"   (buffer)
-			, [out] "r"   (dataOut)
-			, [s]   "r"   (step)
-			, [n]   "r"   (hostNum)
-			, [m]   "r"   (0x3FFF) // mask 14 bits
-			: "r7","r8"
-		);*/
-
-		// 0th order interpolation
-		asm volatile (
-		"0:\n\t"
-			"lsrs	%[t],%[p],#14\n\t"
-			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"lsrs	%[t],%[p],#14\n\t"
-			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"lsrs	%[t],%[p],#14\n\t"
-			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"lsrs	%[t],%[p],#14\n\t"
-			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
-			"str	%[t],[%[out]],#4\n\t"
-			"add	%[p],%[p],%[s]\n\t"
-
-			"subs	%[n],%[n],#4\n\t"
-			"bgt	0b\n\t"
-			: [p]   "=r"    (pos)
-			, [out] "=r"    (dataOut)
-			, [n]   "=r"    (hostNum)
-			, [t]   "=&r"   (dummy)
-			:       "[p]"   (pos)
-			,       "[out]" (dataOut)
-			,       "[n]"   (hostNum)
-			, [buf] "r"     (buffer)
-			, [s]   "r"     (this->step)
-			: "memory"
-		);
-	} else {
-#endif
-		for (unsigned i = 0; i < hostNum; ++i) {
-			unsigned p = pos.toInt();
-			assert((p + 1) < valid);
-			FP fract = pos.fract();
-			for (unsigned j = 0; j < CHANNELS; ++j) {
-				int s0 = buffer[(p + 0) * CHANNELS + j];
-				int s1 = buffer[(p + 1) * CHANNELS + j];
-				int out = s0 + (fract * (s1 - s0)).toInt();
-				dataOut[i * CHANNELS + j] = out;
-			}
-			pos += this->step;
+	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
+	for (unsigned i = 0; i < hostNum; ++i) {
+		unsigned p = pos.toInt();
+		assert((p + 1) < valid);
+		FP fract = pos.fract();
+		for (unsigned j = 0; j < CHANNELS; ++j) {
+			auto s0 = buffer[(p + 0) * CHANNELS + j];
+			auto s1 = buffer[(p + 1) * CHANNELS + j];
+			auto out = s0 + (fract.toFloat() * (s1 - s0));
+			dataOut[i * CHANNELS + j] = out;
 		}
-#ifdef __arm__
+		pos += this->step;
 	}
-#endif
 	return true;
 }
 

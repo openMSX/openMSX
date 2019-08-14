@@ -24,7 +24,6 @@ class MB89352
 {
 public:
 	explicit MB89352(const DeviceConfig& config);
-	~MB89352();
 
 	void reset(bool scsireset);
 	byte readRegister(byte reg);

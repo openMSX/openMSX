@@ -4,7 +4,7 @@
 #include "RecordedCommand.hh"
 #include "InfoTopic.hh"
 #include "EmuTime.hh"
-#include "string_ref.hh"
+#include "string_view.hh"
 #include <vector>
 #include <memory>
 
@@ -32,7 +32,7 @@ public:
 	/** Return the Connector with given name or
 	  * nullptr if there is none with this name.
 	  */
-	Connector* findConnector(string_ref name) const;
+	Connector* findConnector(string_view name) const;
 
 	/** Add a Pluggable to the registry.
 	 */
@@ -41,7 +41,7 @@ public:
 	/** Return the Pluggable with given name or
 	  * nullptr if there is none with this name.
 	  */
-	Pluggable* findPluggable(string_ref name) const;
+	Pluggable* findPluggable(string_view name) const;
 
 	/** Access to the MSX specific CliComm, so that Connectors can get it.
 	 */
@@ -52,8 +52,8 @@ public:
 	EmuTime::param getCurrentTime() const;
 
 private:
-	Connector& getConnector(string_ref name) const;
-	Pluggable& getPluggable(string_ref name) const;
+	Connector& getConnector(string_view name) const;
+	Pluggable& getPluggable(string_view name) const;
 
 	MSXMotherBoard& motherBoard;
 	std::vector<Connector*> connectors; // no order
@@ -63,42 +63,42 @@ private:
 		PlugCmd(CommandController& commandController,
 			StateChangeDistributor& stateChangeDistributor,
 			Scheduler& scheduler);
-		void execute(array_ref<TclObject> tokens, TclObject& result,
+		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-		bool needRecord(array_ref<TclObject> tokens) const override;
+		bool needRecord(span<const TclObject> tokens) const override;
 	} plugCmd;
 
 	struct UnplugCmd final : RecordedCommand {
 		UnplugCmd(CommandController& commandController,
 			  StateChangeDistributor& stateChangeDistributor,
 			  Scheduler& scheduler);
-		void execute(array_ref<TclObject> tokens, TclObject& result,
+		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} unplugCmd;
 
 	struct PluggableInfo final : InfoTopic {
-		PluggableInfo(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		explicit PluggableInfo(InfoCommand& machineInfoCommand);
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} pluggableInfo;
 
 	struct ConnectorInfo final : InfoTopic {
-		ConnectorInfo(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		explicit ConnectorInfo(InfoCommand& machineInfoCommand);
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
 	} connectorInfo;
 
 	struct ConnectionClassInfo final : InfoTopic {
-		ConnectionClassInfo(InfoCommand& machineInfoCommand);
-		void execute(array_ref<TclObject> tokens,
+		explicit ConnectionClassInfo(InfoCommand& machineInfoCommand);
+		void execute(span<const TclObject> tokens,
 			     TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;

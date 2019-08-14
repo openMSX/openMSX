@@ -5,6 +5,8 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "serialize_stl.hh"
+#include <cassert>
+#include <vector>
 
 namespace openmsx {
 
@@ -13,17 +15,15 @@ class Scheduler;
 // For backwards-compatible savestates
 struct SyncPointBW
 {
-	SyncPointBW() : time(EmuTime::zero), userData(0) {}
-
 	template <typename Archive>
 	void serialize(Archive& ar, unsigned /*version*/) {
 		assert(ar.isLoader());
-		ar.serialize("time", time);
-		ar.serialize("type", userData);
+		ar.serialize("time", time,
+		             "type", userData);
 	}
 
-	EmuTime time;
-	int userData;
+	EmuTime time = EmuTime::zero;
+	int userData = 0;
 };
 
 /**

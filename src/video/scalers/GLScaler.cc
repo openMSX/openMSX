@@ -1,6 +1,7 @@
 #include "GLScaler.hh"
 #include "GLContext.hh"
 #include "gl_vec.hh"
+#include "strCat.hh"
 
 using std::string;
 using namespace gl;
@@ -10,8 +11,7 @@ namespace openmsx {
 GLScaler::GLScaler(const string& progName)
 {
 	for (int i = 0; i < 2; ++i) {
-		string header = string("#define SUPERIMPOSE ")
-		              + char('0' + i) + '\n';
+		string header = strCat("#define SUPERIMPOSE ", char('0' + i), '\n');
 		VertexShader   vShader(header, progName + ".vert");
 		FragmentShader fShader(header, progName + ".frag");
 		program[i].attach(vShader);
@@ -90,6 +90,8 @@ void GLScaler::execute(
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
 }
 
 } // namespace openmsx

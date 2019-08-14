@@ -9,10 +9,9 @@
 #include "IntegerSetting.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "array_ref.hh"
+#include "span.hh"
 #include <atomic>
 #include <string>
-#include <memory>
 
 namespace openmsx {
 
@@ -26,6 +25,19 @@ enum Reg8  : int;
 enum Reg16 : int;
 
 class CPUBase {}; // only for bw-compat savestates
+
+struct II { // InstructionInfo
+	// Number of instruction byte fetches since the last M1 cycle.
+	// In other words, at the end of an instruction the PC register should
+	// be incremented by this amount.
+	int length;
+
+	// Total duration of the instruction. At the end of the instruction
+	// this value is added to the total cycle counter. For efficiency
+	// reasons we only want to adjust this total once per instruction
+	// instead of small incremental updates after each micro-code.
+	int cycles;
+};
 
 template<class CPU_POLICY>
 class CPUCore final : public CPUBase, public CPURegs, public CPU_POLICY
@@ -59,13 +71,13 @@ public:
 	void warp(EmuTime::param time);
 	EmuTime::param getCurrentTime() const;
 	void wait(EmuTime::param time);
-	void waitCycles(unsigned cycles);
+	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
 	void setNextSyncPoint(EmuTime::param time);
 	void invalidateMemCache(unsigned start, unsigned size);
 	bool isM1Cycle(unsigned address) const;
 
 	void disasmCommand(Interpreter& interp,
-	                   array_ref<TclObject> tokens,
+	                   span<const TclObject> tokens,
                            TclObject& result) const;
 
 	/**
@@ -163,6 +175,7 @@ private:
 	inline byte RDMEM_impl2(unsigned address, unsigned cc);
 	template<bool PRE_PB, bool POST_PB>
 	inline byte RDMEM_impl (unsigned address, unsigned cc);
+	template<unsigned PC_OFFSET>
 	inline byte RDMEM_OPCODE(unsigned cc);
 	inline byte RDMEM(unsigned address, unsigned cc);
 
@@ -172,6 +185,7 @@ private:
 	inline unsigned RD_WORD_impl2(unsigned address, unsigned cc);
 	template<bool PRE_PB, bool POST_PB>
 	inline unsigned RD_WORD_impl (unsigned address, unsigned cc);
+	template<unsigned PC_OFFSET>
 	inline unsigned RD_WORD_PC(unsigned cc);
 	inline unsigned RD_WORD(unsigned address, unsigned cc);
 
@@ -205,252 +219,252 @@ private:
 	template<Reg8>  inline void set8 (byte     x);
 	template<Reg16> inline void set16(unsigned x);
 
-	template<Reg8 DST, Reg8 SRC, int EE> inline int ld_R_R();
-	template<Reg16 REG, int EE> inline int ld_sp_SS();
-	template<Reg16 REG> inline int ld_SS_a();
-	template<Reg8 SRC> inline int ld_xhl_R();
-	template<Reg16 IXY, Reg8 SRC> inline int ld_xix_R();
+	template<Reg8 DST, Reg8 SRC, int EE> inline II ld_R_R();
+	template<Reg16 REG, int EE> inline II ld_sp_SS();
+	template<Reg16 REG> inline II ld_SS_a();
+	template<Reg8 SRC> inline II ld_xhl_R();
+	template<Reg16 IXY, Reg8 SRC> inline II ld_xix_R();
 
-	inline int ld_xhl_byte();
-	template<Reg16 IXY> inline int ld_xix_byte();
+	inline II ld_xhl_byte();
+	template<Reg16 IXY> inline II ld_xix_byte();
 
-	template<int EE> inline int WR_NN_Y(unsigned reg);
-	template<Reg16 REG, int EE> inline int ld_xword_SS();
-	template<Reg16 REG> inline int ld_xword_SS_ED();
-	template<Reg16 REG> inline int ld_a_SS();
+	template<int EE> inline II WR_NN_Y(unsigned reg);
+	template<Reg16 REG, int EE> inline II ld_xword_SS();
+	template<Reg16 REG> inline II ld_xword_SS_ED();
+	template<Reg16 REG> inline II ld_a_SS();
 
-	inline int ld_xbyte_a();
-	inline int ld_a_xbyte();
+	inline II ld_xbyte_a();
+	inline II ld_a_xbyte();
 
-	template<Reg8 DST, int EE> inline int ld_R_byte();
-	template<Reg8 DST> inline int ld_R_xhl();
-	template<Reg8 DST, Reg16 IXY> inline int ld_R_xix();
+	template<Reg8 DST, int EE> inline II ld_R_byte();
+	template<Reg8 DST> inline II ld_R_xhl();
+	template<Reg8 DST, Reg16 IXY> inline II ld_R_xix();
 
 	template<int EE> inline unsigned RD_P_XX();
-	template<Reg16 REG, int EE> inline int ld_SS_xword();
-	template<Reg16 REG> inline int ld_SS_xword_ED();
+	template<Reg16 REG, int EE> inline II ld_SS_xword();
+	template<Reg16 REG> inline II ld_SS_xword_ED();
 
-	template<Reg16 REG, int EE> inline int ld_SS_word();
+	template<Reg16 REG, int EE> inline II ld_SS_word();
 
 	inline void ADC(byte reg);
-	inline int adc_a_a();
-	template<Reg8 SRC, int EE> inline int adc_a_R();
-	inline int adc_a_byte();
-	inline int adc_a_xhl();
-	template<Reg16 IXY> inline int adc_a_xix();
+	inline II adc_a_a();
+	template<Reg8 SRC, int EE> inline II adc_a_R();
+	inline II adc_a_byte();
+	inline II adc_a_xhl();
+	template<Reg16 IXY> inline II adc_a_xix();
 
 	inline void ADD(byte reg);
-	inline int add_a_a();
-	template<Reg8 SRC, int EE> inline int add_a_R();
-	inline int add_a_byte();
-	inline int add_a_xhl();
-	template<Reg16 IXY> inline int add_a_xix();
+	inline II add_a_a();
+	template<Reg8 SRC, int EE> inline II add_a_R();
+	inline II add_a_byte();
+	inline II add_a_xhl();
+	template<Reg16 IXY> inline II add_a_xix();
 
 	inline void AND(byte reg);
-	inline int and_a();
-	template<Reg8 SRC, int EE> inline int and_R();
-	inline int and_byte();
-	inline int and_xhl();
-	template<Reg16 IXY> inline int and_xix();
+	inline II and_a();
+	template<Reg8 SRC, int EE> inline II and_R();
+	inline II and_byte();
+	inline II and_xhl();
+	template<Reg16 IXY> inline II and_xix();
 
 	inline void CP(byte reg);
-	inline int cp_a();
-	template<Reg8 SRC, int EE> inline int cp_R();
-	inline int cp_byte();
-	inline int cp_xhl();
-	template<Reg16 IXY> inline int cp_xix();
+	inline II cp_a();
+	template<Reg8 SRC, int EE> inline II cp_R();
+	inline II cp_byte();
+	inline II cp_xhl();
+	template<Reg16 IXY> inline II cp_xix();
 
 	inline void OR(byte reg);
-	inline int or_a();
-	template<Reg8 SRC, int EE> inline int or_R();
-	inline int or_byte();
-	inline int or_xhl();
-	template<Reg16 IXY> inline int or_xix();
+	inline II or_a();
+	template<Reg8 SRC, int EE> inline II or_R();
+	inline II or_byte();
+	inline II or_xhl();
+	template<Reg16 IXY> inline II or_xix();
 
 	inline void SBC(byte reg);
-	inline int sbc_a_a();
-	template<Reg8 SRC, int EE> inline int sbc_a_R();
-	inline int sbc_a_byte();
-	inline int sbc_a_xhl();
-	template<Reg16 IXY> inline int sbc_a_xix();
+	inline II sbc_a_a();
+	template<Reg8 SRC, int EE> inline II sbc_a_R();
+	inline II sbc_a_byte();
+	inline II sbc_a_xhl();
+	template<Reg16 IXY> inline II sbc_a_xix();
 
 	inline void SUB(byte reg);
-	inline int sub_a();
-	template<Reg8 SRC, int EE> inline int sub_R();
-	inline int sub_byte();
-	inline int sub_xhl();
-	template<Reg16 IXY> inline int sub_xix();
+	inline II sub_a();
+	template<Reg8 SRC, int EE> inline II sub_R();
+	inline II sub_byte();
+	inline II sub_xhl();
+	template<Reg16 IXY> inline II sub_xix();
 
 	inline void XOR(byte reg);
-	inline int xor_a();
-	template<Reg8 SRC, int EE> inline int xor_R();
-	inline int xor_byte();
-	inline int xor_xhl();
-	template<Reg16 IXY> inline int xor_xix();
+	inline II xor_a();
+	template<Reg8 SRC, int EE> inline II xor_R();
+	inline II xor_byte();
+	inline II xor_xhl();
+	template<Reg16 IXY> inline II xor_xix();
 
 	inline byte DEC(byte reg);
-	template<Reg8 REG, int EE> inline int dec_R();
-	template<int EE> inline int DEC_X(unsigned x);
-	inline int dec_xhl();
-	template<Reg16 IXY> inline int dec_xix();
+	template<Reg8 REG, int EE> inline II dec_R();
+	template<int EE> inline void DEC_X(unsigned x);
+	inline II dec_xhl();
+	template<Reg16 IXY> inline II dec_xix();
 
 	inline byte INC(byte reg);
-	template<Reg8 REG, int EE> inline int inc_R();
-	template<int EE> inline int INC_X(unsigned x);
-	inline int inc_xhl();
-	template<Reg16 IXY> inline int inc_xix();
+	template<Reg8 REG, int EE> inline II inc_R();
+	template<int EE> inline void INC_X(unsigned x);
+	inline II inc_xhl();
+	template<Reg16 IXY> inline II inc_xix();
 
-	template<Reg16 REG> inline int adc_hl_SS();
-	inline int adc_hl_hl();
-	template<Reg16 REG1, Reg16 REG2, int EE> inline int add_SS_TT();
-	template<Reg16 REG, int EE> inline int add_SS_SS();
-	template<Reg16 REG> inline int sbc_hl_SS();
-	inline int sbc_hl_hl();
+	template<Reg16 REG> inline II adc_hl_SS();
+	inline II adc_hl_hl();
+	template<Reg16 REG1, Reg16 REG2, int EE> inline II add_SS_TT();
+	template<Reg16 REG, int EE> inline II add_SS_SS();
+	template<Reg16 REG> inline II sbc_hl_SS();
+	inline II sbc_hl_hl();
 
-	template<Reg16 REG, int EE> inline int dec_SS();
-	template<Reg16 REG, int EE> inline int inc_SS();
+	template<Reg16 REG, int EE> inline II dec_SS();
+	template<Reg16 REG, int EE> inline II inc_SS();
 
-	template<unsigned N, Reg8 REG> inline int bit_N_R();
-	template<unsigned N> inline int bit_N_xhl();
-	template<unsigned N> inline int bit_N_xix(unsigned a);
+	template<unsigned N, Reg8 REG> inline II bit_N_R();
+	template<unsigned N> inline II bit_N_xhl();
+	template<unsigned N> inline II bit_N_xix(unsigned a);
 
-	template<unsigned N, Reg8 REG> inline int res_N_R();
+	template<unsigned N, Reg8 REG> inline II res_N_R();
 	template<int EE> inline byte RES_X(unsigned bit, unsigned addr);
-	template<unsigned N> inline int res_N_xhl();
-	template<unsigned N, Reg8 REG> inline int res_N_xix_R(unsigned a);
+	template<unsigned N> inline II res_N_xhl();
+	template<unsigned N, Reg8 REG> inline II res_N_xix_R(unsigned a);
 
-	template<unsigned N, Reg8 REG> inline int set_N_R();
+	template<unsigned N, Reg8 REG> inline II set_N_R();
 	template<int EE> inline byte SET_X(unsigned bit, unsigned addr);
-	template<unsigned N> inline int set_N_xhl();
-	template<unsigned N, Reg8 REG> inline int set_N_xix_R(unsigned a);
+	template<unsigned N> inline II set_N_xhl();
+	template<unsigned N, Reg8 REG> inline II set_N_xix_R(unsigned a);
 
 	inline byte RL(byte reg);
 	template<int EE> inline byte RL_X(unsigned x);
-	template<Reg8 REG> inline int rl_R();
-	inline int rl_xhl();
-	template<Reg8 REG> inline int rl_xix_R(unsigned a);
+	template<Reg8 REG> inline II rl_R();
+	inline II rl_xhl();
+	template<Reg8 REG> inline II rl_xix_R(unsigned a);
 
 	inline byte RLC(byte reg);
 	template<int EE> inline byte RLC_X(unsigned x);
-	template<Reg8 REG> inline int rlc_R();
-	inline int rlc_xhl();
-	template<Reg8 REG> inline int rlc_xix_R(unsigned a);
+	template<Reg8 REG> inline II rlc_R();
+	inline II rlc_xhl();
+	template<Reg8 REG> inline II rlc_xix_R(unsigned a);
 
 	inline byte RR(byte reg);
 	template<int EE> inline byte RR_X(unsigned x);
-	template<Reg8 REG> inline int rr_R();
-	inline int rr_xhl();
-	template<Reg8 REG> inline int rr_xix_R(unsigned a);
+	template<Reg8 REG> inline II rr_R();
+	inline II rr_xhl();
+	template<Reg8 REG> inline II rr_xix_R(unsigned a);
 
 	inline byte RRC(byte reg);
 	template<int EE> inline byte RRC_X(unsigned x);
-	template<Reg8 REG> inline int rrc_R();
-	inline int rrc_xhl();
-	template<Reg8 REG> inline int rrc_xix_R(unsigned a);
+	template<Reg8 REG> inline II rrc_R();
+	inline II rrc_xhl();
+	template<Reg8 REG> inline II rrc_xix_R(unsigned a);
 
 	inline byte SLA(byte reg);
 	template<int EE> inline byte SLA_X(unsigned x);
-	template<Reg8 REG> inline int sla_R();
-	inline int sla_xhl();
-	template<Reg8 REG> inline int sla_xix_R(unsigned a);
+	template<Reg8 REG> inline II sla_R();
+	inline II sla_xhl();
+	template<Reg8 REG> inline II sla_xix_R(unsigned a);
 
 	inline byte SLL(byte reg);
 	template<int EE> inline byte SLL_X(unsigned x);
-	template<Reg8 REG> inline int sll_R();
-	inline int sll_xhl();
-	template<Reg8 REG> inline int sll_xix_R(unsigned a);
-	inline int sll2();
+	template<Reg8 REG> inline II sll_R();
+	inline II sll_xhl();
+	template<Reg8 REG> inline II sll_xix_R(unsigned a);
+	inline II sll2();
 
 	inline byte SRA(byte reg);
 	template<int EE> inline byte SRA_X(unsigned x);
-	template<Reg8 REG> inline int sra_R();
-	inline int sra_xhl();
-	template<Reg8 REG> inline int sra_xix_R(unsigned a);
+	template<Reg8 REG> inline II sra_R();
+	inline II sra_xhl();
+	template<Reg8 REG> inline II sra_xix_R(unsigned a);
 
 	inline byte SRL(byte reg);
 	template<int EE> inline byte SRL_X(unsigned x);
-	template<Reg8 REG> inline int srl_R();
-	inline int srl_xhl();
-	template<Reg8 REG> inline int srl_xix_R(unsigned a);
+	template<Reg8 REG> inline II srl_R();
+	inline II srl_xhl();
+	template<Reg8 REG> inline II srl_xix_R(unsigned a);
 
-	inline int rla();
-	inline int rlca();
-	inline int rra();
-	inline int rrca();
+	inline II rla();
+	inline II rlca();
+	inline II rra();
+	inline II rrca();
 
-	inline int rld();
-	inline int rrd();
+	inline II rld();
+	inline II rrd();
 
 	template<int EE> inline void PUSH(unsigned reg);
-	template<Reg16 REG, int EE> inline int push_SS();
+	template<Reg16 REG, int EE> inline II push_SS();
 	template<int EE> inline unsigned POP();
-	template<Reg16 REG, int EE> inline int pop_SS();
+	template<Reg16 REG, int EE> inline II pop_SS();
 
-	template<typename COND> inline int call(COND cond);
-	template<unsigned ADDR> inline int rst();
+	template<typename COND> inline II call(COND cond);
+	template<unsigned ADDR> inline II rst();
 
-	template<int EE, typename COND> inline int RET(COND cond);
-	template<typename COND> inline int ret(COND cond);
-	inline int ret();
-	inline int retn();
+	template<int EE, typename COND> inline II RET(COND cond);
+	template<typename COND> inline II ret(COND cond);
+	inline II ret();
+	inline II retn();
 
-	template<Reg16 REG, int EE> inline int jp_SS();
-	template<typename COND> inline int jp(COND cond);
-	template<typename COND> inline int jr(COND cond);
-	inline int djnz();
+	template<Reg16 REG, int EE> inline II jp_SS();
+	template<typename COND> inline II jp(COND cond);
+	template<typename COND> inline II jr(COND cond);
+	inline II djnz();
 
-	template<Reg16 REG, int EE> inline int ex_xsp_SS();
+	template<Reg16 REG, int EE> inline II ex_xsp_SS();
 
-	template<Reg8 REG> inline int in_R_c();
-	inline int in_a_byte();
-	template<Reg8 REG> inline int out_c_R();
-	inline int out_c_0();
-	inline int out_byte_a();
+	template<Reg8 REG> inline II in_R_c();
+	inline II in_a_byte();
+	template<Reg8 REG> inline II out_c_R();
+	inline II out_c_0();
+	inline II out_byte_a();
 
-	inline int BLOCK_CP(int increase, bool repeat);
-	inline int cpd();
-	inline int cpi();
-	inline int cpdr();
-	inline int cpir();
+	inline II BLOCK_CP(int increase, bool repeat);
+	inline II cpd();
+	inline II cpi();
+	inline II cpdr();
+	inline II cpir();
 
-	inline int BLOCK_LD(int increase, bool repeat);
-	inline int ldd();
-	inline int ldi();
-	inline int lddr();
-	inline int ldir();
+	inline II BLOCK_LD(int increase, bool repeat);
+	inline II ldd();
+	inline II ldi();
+	inline II lddr();
+	inline II ldir();
 
-	inline int BLOCK_IN(int increase, bool repeat);
-	inline int ind();
-	inline int ini();
-	inline int indr();
-	inline int inir();
+	inline II BLOCK_IN(int increase, bool repeat);
+	inline II ind();
+	inline II ini();
+	inline II indr();
+	inline II inir();
 
-	inline int BLOCK_OUT(int increase, bool repeat);
-	inline int outd();
-	inline int outi();
-	inline int otdr();
-	inline int otir();
+	inline II BLOCK_OUT(int increase, bool repeat);
+	inline II outd();
+	inline II outi();
+	inline II otdr();
+	inline II otir();
 
-	inline int nop();
-	inline int ccf();
-	inline int cpl();
-	inline int daa();
-	inline int neg();
-	inline int scf();
-	inline int ex_af_af();
-	inline int ex_de_hl();
-	inline int exx();
-	inline int di();
-	inline int ei();
-	inline int halt();
-	template<unsigned N> inline int im_N();
+	inline II nop();
+	inline II ccf();
+	inline II cpl();
+	inline II daa();
+	inline II neg();
+	inline II scf();
+	inline II ex_af_af();
+	inline II ex_de_hl();
+	inline II exx();
+	inline II di();
+	inline II ei();
+	inline II halt();
+	template<unsigned N> inline II im_N();
 
-	template<Reg8 REG> inline int ld_a_IR();
-	inline int ld_r_a();
-	inline int ld_i_a();
+	template<Reg8 REG> inline II ld_a_IR();
+	inline II ld_r_a();
+	inline II ld_i_a();
 
-	template<Reg8 REG> int mulub_a_R();
-	template<Reg16 REG> int muluw_hl_SS();
+	template<Reg8 REG> inline II mulub_a_R();
+	template<Reg16 REG> inline II muluw_hl_SS();
 
 	friend class MSXCPU;
 	friend class Z80TYPE;
@@ -459,8 +473,8 @@ private:
 
 class Z80TYPE;
 class R800TYPE;
-SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  4);
-SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 4); // keep these two the same
+SERIALIZE_CLASS_VERSION(CPUCore<Z80TYPE>,  5);
+SERIALIZE_CLASS_VERSION(CPUCore<R800TYPE>, 5); // keep these two the same
 
 } // namespace openmsx
 

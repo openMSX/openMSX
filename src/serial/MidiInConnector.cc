@@ -3,27 +3,23 @@
 #include "DummyMidiInDevice.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
 MidiInConnector::MidiInConnector(PluggingController& pluggingController_,
-                                 string_ref name_)
-	: Connector(pluggingController_, name_,
-	            make_unique<DummyMidiInDevice>())
+                                 std::string name_)
+	: Connector(pluggingController_, std::move(name_),
+	            std::make_unique<DummyMidiInDevice>())
 {
 }
 
-MidiInConnector::~MidiInConnector()
-{
-}
-
-const std::string MidiInConnector::getDescription() const
+string_view MidiInConnector::getDescription() const
 {
 	return "MIDI-in connector";
 }
 
-string_ref MidiInConnector::getClass() const
+string_view MidiInConnector::getClass() const
 {
 	return "midi in";
 }

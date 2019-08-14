@@ -153,7 +153,7 @@ private:
 template <typename Pixel> class Scale_2on9
 {
 public:
-	Scale_2on9(PixelOperations<Pixel> pixelOps);
+	explicit Scale_2on9(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in, Pixel* out, size_t width);
 private:
 	PixelOperations<Pixel> pixelOps;
@@ -226,7 +226,7 @@ template <typename Pixel, unsigned w1 = 1, unsigned w2 = 1> class BlendLines
 public:
 	explicit BlendLines(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in1, const Pixel* in2,
-	                Pixel* out, unsigned width);
+	                Pixel* out, size_t width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -258,9 +258,9 @@ template <typename Pixel> class AlphaBlendLines
 public:
 	explicit AlphaBlendLines(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in1, const Pixel* in2,
-	                Pixel* out, unsigned width);
+	                Pixel* out, size_t width);
 	void operator()(Pixel in1, const Pixel* in2,
-	                Pixel* out, unsigned width);
+	                Pixel* out, size_t width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -300,14 +300,14 @@ public:
 	virtual bool isCopy() const = 0;
 
 protected:
-	~PolyLineScaler() {}
+	~PolyLineScaler() = default;
 };
 
 /** Polymorphic wrapper around another line scaler.
  * This version directly contains (and thus constructs) the wrapped Line Scaler.
  */
 template<typename Pixel, typename Scaler>
-class PolyScale : public PolyLineScaler<Pixel>
+class PolyScale final : public PolyLineScaler<Pixel>
 {
 public:
 	PolyScale()
@@ -334,7 +334,7 @@ private:
  * Can be used when the actual scaler is expensive to construct (e.g. Blur_1on3).
  */
 template<typename Pixel, typename Scaler>
-class PolyScaleRef : public PolyLineScaler<Pixel>
+class PolyScaleRef final : public PolyLineScaler<Pixel>
 {
 public:
 	explicit PolyScaleRef(Scaler& scaler_)
@@ -360,7 +360,7 @@ template <typename Pixel, unsigned N>
 static inline void scale_1onN(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	unsigned i = 0, j = 0;
+	size_t i = 0, j = 0;
 	for (/* */; i < (width - (N - 1)); i += N, j += 1) {
 		Pixel pix = in[j];
 		for (unsigned k = 0; k < N; ++k) {
@@ -415,9 +415,6 @@ template<typename Pixel> static inline __m128i unpackhi(__m128i x, __m128i y)
 template<typename Pixel>
 static inline void scale_1on2_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 {
-	assert((reinterpret_cast<size_t>(in_ ) % sizeof(__m128i)) == 0);
-	assert((reinterpret_cast<size_t>(out_) % sizeof(__m128i)) == 0);
-
 	size_t bytes = srcWidth * sizeof(Pixel);
 	assert((bytes % (4 * sizeof(__m128i))) == 0);
 	assert(bytes != 0);
@@ -427,10 +424,10 @@ static inline void scale_1on2_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth
 
 	auto x = -ptrdiff_t(bytes);
 	do {
-		__m128i a0 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + x +  0));
-		__m128i a1 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + x + 16));
-		__m128i a2 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + x + 32));
-		__m128i a3 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + x + 48));
+		__m128i a0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x +  0));
+		__m128i a1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x + 16));
+		__m128i a2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x + 32));
+		__m128i a3 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + x + 48));
 		__m128i l0 = unpacklo<Pixel>(a0, a0);
 		__m128i h0 = unpackhi<Pixel>(a0, a0);
 		__m128i l1 = unpacklo<Pixel>(a1, a1);
@@ -439,14 +436,14 @@ static inline void scale_1on2_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth
 		__m128i h2 = unpackhi<Pixel>(a2, a2);
 		__m128i l3 = unpacklo<Pixel>(a3, a3);
 		__m128i h3 = unpackhi<Pixel>(a3, a3);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2*x +   0), l0);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2*x +  16), h0);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2*x +  32), l1);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2*x +  48), h1);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2*x +  64), l2);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2*x +  80), h2);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2*x +  96), l3);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + 2*x + 112), h3);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +   0), l0);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  16), h0);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  32), l1);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  48), h1);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  64), l2);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  80), h2);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x +  96), l3);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + 2*x + 112), h3);
 		x += 4 * sizeof(__m128i);
 	} while (x < 0);
 }
@@ -533,35 +530,6 @@ void Scale_1on1<Pixel>::operator()(
 	in  += n128 / sizeof(Pixel);
 	out += n128 / sizeof(Pixel);
 #endif
-#ifdef __arm__
-	size_t n64 = nBytes & ~63;
-	assert((size_t(in)  & 3) == 0);
-	assert((size_t(out) & 3) == 0);
-	assert((n64 % 64) == 0);
-	assert(n64 > 0);
-
-	asm volatile (
-	"0:\n\t"
-		"ldmia	%[IN]! ,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
-		"stmia	%[OUT]!,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
-		"ldmia	%[IN]! ,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
-		"stmia	%[OUT]!,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
-		"subs	%[NUM],%[NUM],#64;\n\t"
-		"bne	0b;\n\t"
-
-		: [NUM] "=r"    (n64)
-		, [IN]  "=r"    (in)
-		, [OUT] "=r"    (out)
-		:       "[NUM]" (n64)
-		,       "[IN]"  (in)
-		,       "[OUT]" (out)
-		: "r3","r4","r5","r6","r8","r9","r10","r12"
-	);
-
-	// in,out-pointers are already updated
-	nBytes &= 63; // remaining bytes
-	if (likely(nBytes == 0)) return;
-#endif
 
 	memcpy(out, in, nBytes);
 }
@@ -635,8 +603,6 @@ static inline void scale_2on1_SSE(
 	const Pixel* __restrict in_, Pixel* __restrict out_, size_t dstBytes,
 	Pixel mask)
 {
-	assert((reinterpret_cast<size_t>(in_ ) % sizeof(__m128i)) == 0);
-	assert((reinterpret_cast<size_t>(out_) % sizeof(__m128i)) == 0);
 	assert((dstBytes % (4 * sizeof(__m128i))) == 0);
 	assert(dstBytes != 0);
 
@@ -645,22 +611,22 @@ static inline void scale_2on1_SSE(
 
 	auto x = -ptrdiff_t(dstBytes);
 	do {
-		__m128i a0 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +   0));
-		__m128i a1 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  16));
-		__m128i a2 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  32));
-		__m128i a3 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  48));
-		__m128i a4 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  64));
-		__m128i a5 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  80));
-		__m128i a6 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  96));
-		__m128i a7 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x + 112));
+		__m128i a0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +   0));
+		__m128i a1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  16));
+		__m128i a2 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  32));
+		__m128i a3 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  48));
+		__m128i a4 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  64));
+		__m128i a5 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  80));
+		__m128i a6 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x +  96));
+		__m128i a7 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + 2*x + 112));
 		__m128i b0 = blend(a0, a1, mask);
 		__m128i b1 = blend(a2, a3, mask);
 		__m128i b2 = blend(a4, a5, mask);
 		__m128i b3 = blend(a6, a7, mask);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + x +  0), b0);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + x + 16), b1);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + x + 32), b2);
-		_mm_store_si128(reinterpret_cast<__m128i*>(out + x + 48), b3);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x +  0), b0);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x + 16), b1);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x + 32), b2);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(out + x + 48), b3);
 		x += 4 * sizeof(__m128i);
 	} while (x < 0);
 }
@@ -698,7 +664,7 @@ template <typename Pixel>
 void Scale_6on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	for (unsigned i = 0; i < width; ++i) {
+	for (size_t i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend6<1, 1, 1, 1, 1, 1>(&in[6 * i]);
 	}
 }
@@ -714,7 +680,7 @@ template <typename Pixel>
 void Scale_4on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	for (unsigned i = 0; i < width; ++i) {
+	for (size_t i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend4<1, 1, 1, 1>(&in[4 * i]);
 	}
 }
@@ -730,7 +696,7 @@ template <typename Pixel>
 void Scale_3on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	for (unsigned i = 0; i < width; ++i) {
+	for (size_t i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend3<1, 1, 1>(&in[3 * i]);
 	}
 }
@@ -746,7 +712,7 @@ template <typename Pixel>
 void Scale_3on2<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	unsigned i = 0, j = 0;
+	size_t i = 0, j = 0;
 	for (/* */; i < (width - 1); i += 2, j += 3) {
 		out[i + 0] = pixelOps.template blend2<2, 1>(&in[j + 0]);
 		out[i + 1] = pixelOps.template blend2<1, 2>(&in[j + 1]);
@@ -765,14 +731,14 @@ template <typename Pixel>
 void Scale_3on4<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	unsigned i = 0, j = 0;
+	size_t i = 0, j = 0;
 	for (/* */; i < (width - 3); i += 4, j += 3) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] = pixelOps.template blend2<1, 2>(&in[j + 0]);
 		out[i + 2] = pixelOps.template blend2<2, 1>(&in[j + 1]);
 		out[i + 3] =                                 in[j + 2];
 	}
-	for (unsigned k = 0; k < (4 - 1); ++k) {
+	for (size_t k = 0; k < (4 - 1); ++k) {
 		if ((i + k) < width) out[i + k] = 0;
 	}
 }
@@ -788,7 +754,7 @@ template <typename Pixel>
 void Scale_3on8<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	unsigned i = 0, j = 0;
+	size_t i = 0, j = 0;
 	for (/* */; i < (width - 7); i += 8, j += 3) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] =                                 in[j + 0];
@@ -799,7 +765,7 @@ void Scale_3on8<Pixel>::operator()(
 		out[i + 6] =                                 in[j + 2];
 		out[i + 7] =                                 in[j + 2];
 	}
-	for (unsigned k = 0; k < (8 - 1); ++k) {
+	for (size_t k = 0; k < (8 - 1); ++k) {
 		if ((i + k) < width) out[i + k] = 0;
 	}
 }
@@ -815,7 +781,7 @@ template <typename Pixel>
 void Scale_2on3<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	unsigned i = 0, j = 0;
+	size_t i = 0, j = 0;
 	for (/* */; i < (width - 2); i += 3, j += 2) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] = pixelOps.template blend2<1, 1>(&in[j + 0]);
@@ -836,7 +802,7 @@ template <typename Pixel>
 void Scale_4on3<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	unsigned i = 0, j = 0;
+	size_t i = 0, j = 0;
 	for (/* */; i < (width - 2); i += 3, j += 4) {
 		out[i + 0] = pixelOps.template blend2<3, 1>(&in[j + 0]);
 		out[i + 1] = pixelOps.template blend2<1, 1>(&in[j + 1]);
@@ -857,7 +823,7 @@ template <typename Pixel>
 void Scale_8on3<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	unsigned i = 0, j = 0;
+	size_t i = 0, j = 0;
 	for (/* */; i < (width - 2); i += 3, j += 8) {
 		out[i + 0] = pixelOps.template blend3<3, 3, 2>   (&in[j + 0]);
 		out[i + 1] = pixelOps.template blend4<1, 3, 3, 1>(&in[j + 2]);
@@ -878,7 +844,7 @@ template <typename Pixel>
 void Scale_2on9<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	unsigned i = 0, j = 0;
+	size_t i = 0, j = 0;
 	for (/* */; i < (width - 8); i += 9, j += 2) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] =                                 in[j + 0];
@@ -911,7 +877,7 @@ template <typename Pixel>
 void Scale_4on9<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	unsigned i = 0, j = 0;
+	size_t i = 0, j = 0;
 	for (/* */; i < (width - 8); i += 9, j += 4) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] =                                 in[j + 0];
@@ -944,7 +910,7 @@ template <typename Pixel>
 void Scale_8on9<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
-	unsigned i = 0, j = 0;
+	size_t i = 0, j = 0;
 	for (/* */; i < width; i += 9, j += 8) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] = pixelOps.template blend2<1, 7>(&in[j + 0]);
@@ -978,7 +944,7 @@ void Scale_4on5<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	assert((width % 5) == 0);
-	for (unsigned i = 0, j = 0; i < width; i += 5, j += 4) {
+	for (size_t i = 0, j = 0; i < width; i += 5, j += 4) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] = pixelOps.template blend2<1, 3>(&in[j + 0]);
 		out[i + 2] = pixelOps.template blend2<1, 1>(&in[j + 1]);
@@ -999,7 +965,7 @@ void Scale_7on8<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	assert((width % 8) == 0);
-	for (unsigned i = 0, j = 0; i < width; i += 8, j += 7) {
+	for (size_t i = 0, j = 0; i < width; i += 8, j += 7) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] = pixelOps.template blend2<1, 6>(&in[j + 0]);
 		out[i + 2] = pixelOps.template blend2<2, 5>(&in[j + 1]);
@@ -1023,7 +989,7 @@ void Scale_17on20<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	assert((width % 20) == 0);
-	for (unsigned i = 0, j = 0; i < width; i += 20, j += 17) {
+	for (size_t i = 0, j = 0; i < width; i += 20, j += 17) {
 		out[i +  0] =                                   in[j +  0];
 		out[i +  1] = pixelOps.template blend2< 3, 14>(&in[j +  0]);
 		out[i +  2] = pixelOps.template blend2< 6, 11>(&in[j +  1]);
@@ -1059,7 +1025,7 @@ void Scale_9on10<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	assert((width % 10) == 0);
-	for (unsigned i = 0, j = 0; i < width; i += 10, j += 9) {
+	for (size_t i = 0, j = 0; i < width; i += 10, j += 9) {
 		out[i + 0] =                                 in[j + 0];
 		out[i + 1] = pixelOps.template blend2<1, 8>(&in[j + 0]);
 		out[i + 2] = pixelOps.template blend2<2, 7>(&in[j + 1]);
@@ -1082,12 +1048,12 @@ BlendLines<Pixel, w1, w2>::BlendLines(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel, unsigned w1, unsigned w2>
 void BlendLines<Pixel, w1, w2>::operator()(
-	const Pixel* in1, const Pixel* in2, Pixel* out, unsigned width)
+	const Pixel* in1, const Pixel* in2, Pixel* out, size_t width)
 {
 	// It _IS_ allowed that the output is the same as one of the inputs.
 	// TODO SSE optimizations
 	// pure C++ version
-	for (unsigned i = 0; i < width; ++i) {
+	for (size_t i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend<w1, w2>(in1[i], in2[i]);
 	}
 }
@@ -1125,17 +1091,17 @@ AlphaBlendLines<Pixel>::AlphaBlendLines(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void AlphaBlendLines<Pixel>::operator()(
-	const Pixel* in1, const Pixel* in2, Pixel* out, unsigned width)
+	const Pixel* in1, const Pixel* in2, Pixel* out, size_t width)
 {
 	// It _IS_ allowed that the output is the same as one of the inputs.
-	for (unsigned i = 0; i < width; ++i) {
+	for (size_t i = 0; i < width; ++i) {
 		out[i] = pixelOps.alphaBlend(in1[i], in2[i]);
 	}
 }
 
 template <typename Pixel>
 void AlphaBlendLines<Pixel>::operator()(
-	Pixel in1, const Pixel* in2, Pixel* out, unsigned width)
+	Pixel in1, const Pixel* in2, Pixel* out, size_t width)
 {
 	// It _IS_ allowed that the output is the same as the input.
 
@@ -1148,12 +1114,12 @@ void AlphaBlendLines<Pixel>::operator()(
 	// When one of the two colors is loop-invariant, using the
 	// pre-multiplied-alpha-blending equation is a tiny bit more efficient
 	// than using alphaBlend() or even lerp().
-	//    for (unsigned i = 0; i < width; ++i) {
+	//    for (size_t i = 0; i < width; ++i) {
 	//        out[i] = pixelOps.lerp(in1, in2[i], alpha);
 	//    }
 	Pixel in1M = pixelOps.multiply(in1, alpha);
 	unsigned alpha2 = 256 - alpha;
-	for (unsigned i = 0; i < width; ++i) {
+	for (size_t i = 0; i < width; ++i) {
 		out[i] = in1M + pixelOps.multiply(in2[i], alpha2);
 	}
 }

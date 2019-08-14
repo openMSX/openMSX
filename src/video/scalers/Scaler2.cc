@@ -23,7 +23,7 @@ void Scaler2<Pixel>::scaleBlank1to2(
 {
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 2) {
-		Pixel color = src.getLineColor<Pixel>(srcY);
+		auto color = src.getLineColor<Pixel>(srcY);
 		dst.fillLine(dstY + 0, color);
 		dst.fillLine(dstY + 1, color);
 	}
@@ -36,7 +36,7 @@ void Scaler2<Pixel>::scaleBlank1to1(
 {
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
-		Pixel color = src.getLineColor<Pixel>(srcY);
+		auto color = src.getLineColor<Pixel>(srcY);
 		dst.fillLine(dstY, color);
 	}
 }

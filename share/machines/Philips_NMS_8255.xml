@@ -43,6 +43,7 @@
       </sound>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
+      <ignorePortDirections>true</ignorePortDirections> <!-- not sure, but guess based on use of Engine IC -->
     </PSG>
 
     <RTC id="Real time clock">
@@ -101,6 +102,7 @@
           <drives>2</drives>
           <rom>
             <filename>nms8250_disk.rom</filename>
+            <sha1>dab3e6f36843392665b71b04178aadd8762c6589</sha1>
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
           </rom>
         </WD2793>

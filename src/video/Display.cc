@@ -16,6 +16,7 @@
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
+#include "TclArgParser.hh"
 #include "XMLElement.hh"
 #include "VideoSystemChangeListener.hh"
 #include "CommandException.hh"
@@ -24,9 +25,10 @@
 #include "build-info.hh"
 #include "checked_cast.hh"
 #include "outer.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <algorithm>
+#include "view.hh"
 #include <cassert>
 
 using std::string;
@@ -113,6 +115,11 @@ VideoSystem& Display::getVideoSystem()
 	return *videoSystem;
 }
 
+OutputSurface* Display::getOutputSurface()
+{
+	return videoSystem ? videoSystem->getOutputSurface() : nullptr;
+}
+
 void Display::resetVideoSystem()
 {
 	videoSystem.reset();
@@ -184,7 +191,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 	} else if (event->getType() == OPENMSX_SWITCH_RENDERER_EVENT) {
 		doRendererSwitch();
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
-		setWindowTitle();
+		videoSystem->updateWindowTitle();
 	} else if (event->getType() == OPENMSX_EXPOSE_EVENT) {
 		// Don't render too often, and certainly not when the screen
 		// will anyway soon be rendered.
@@ -212,23 +219,21 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 	return 0;
 }
 
-void Display::setWindowTitle()
+string Display::getWindowTitle()
 {
 	string title = Version::full();
 	if (!Version::RELEASE) {
-		title += " [";
-		title += BUILD_FLAVOUR;
-		title += ']';
+		strAppend(title, " [", BUILD_FLAVOUR, ']');
 	}
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
 		if (const HardwareConfig* machine = motherboard->getMachineConfig()) {
 			const XMLElement& config = machine->getConfig();
-			title += " - " +
-			    config.getChild("info").getChildData("manufacturer") + ' ' +
-			    config.getChild("info").getChildData("code");
+			strAppend(title, " - ",
+			          config.getChild("info").getChildData("manufacturer"), ' ',
+			          config.getChild("info").getChildData("code"));
 		}
 	}
-	videoSystem->setWindowTitle(title);
+	return title;
 }
 
 void Display::update(const Setting& setting)
@@ -277,9 +282,10 @@ void Display::doRendererSwitch()
 			success = true;
 		} catch (MSXException& e) {
 			auto& rendererSetting = renderSettings.getRendererSetting();
-			string errorMsg = "Couldn't activate renderer " +
-				rendererSetting.getString() +
-				": " + e.getMessage();
+			string errorMsg = strCat(
+				"Couldn't activate renderer ",
+				rendererSetting.getString(),
+				": ", e.getMessage());
 			// now try some things that might work against this:
 			if (rendererSetting.getEnum() != RenderSettings::SDL) {
 				errorMsg += "\nTrying to switch to SDL renderer instead...";
@@ -288,8 +294,13 @@ void Display::doRendererSwitch()
 			} else {
 				auto& scaleFactorSetting = renderSettings.getScaleFactorSetting();
 				unsigned curval = scaleFactorSetting.getInt();
-				if (curval == 1) throw MSXException(e.getMessage() + " (and I have no other ideas to try...)"); // give up and die... :(
-				errorMsg += "\nTrying to decrease scale_factor setting from " + StringOp::toString(curval) + " to " + StringOp::toString(curval - 1) + "...";
+				if (curval == 1) {
+					throw MSXException(
+						e.getMessage(),
+						" (and I have no other ideas to try...)"); // give up and die... :(
+				}
+				strAppend(errorMsg, "\nTrying to decrease scale_factor setting from ",
+                                          curval, " to ", curval - 1, "...");
 				scaleFactorSetting.setInt(curval - 1);
 			}
 			getCliComm().printWarning(errorMsg);
@@ -307,7 +318,6 @@ void Display::doRendererSwitch2()
 
 	resetVideoSystem();
 	videoSystem = RendererFactory::createVideoSystem(reactor);
-	setWindowTitle();
 
 	for (auto& l : listeners) {
 		l->postVideoSystemChange();
@@ -366,8 +376,7 @@ void Display::repaintDelayed(uint64_t delta)
 void Display::addLayer(Layer& layer)
 {
 	int z = layer.getZ();
-	auto it = find_if(begin(layers), end(layers),
-		[&](Layer* l) { return l->getZ() > z; });
+	auto it = ranges::find_if(layers, [&](Layer* l) { return l->getZ() > z; });
 	layers.insert(it, &layer);
 	layer.setDisplay(*this);
 }
@@ -393,45 +402,29 @@ Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController_)
 {
 }
 
-void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& result)
+void Display::ScreenShotCmd::execute(span<const TclObject> tokens, TclObject& result)
 {
-	auto& display = OUTER(Display, screenShotCmd);
+	string_view prefix = "openmsx";
 	bool rawShot = false;
-	bool withOsd = false;
+	bool msxOnly = false;
 	bool doubleSize = false;
-	string_ref prefix = "openmsx";
-	vector<TclObject> arguments;
-	for (unsigned i = 1; i < tokens.size(); ++i) {
-		string_ref tok = tokens[i].getString();
-		if (StringOp::startsWith(tok, '-')) {
-			if (tok == "--") {
-				arguments.insert(end(arguments),
-					std::begin(tokens) + i + 1, std::end(tokens));
-				break;
-			}
-			if (tok == "-prefix") {
-				if (++i == tokens.size()) {
-					throw CommandException("Missing argument");
-				}
-				prefix = tokens[i].getString();
-			} else if (tok == "-raw") {
-				rawShot = true;
-			} else if (tok == "-msxonly") {
-				display.getCliComm().printWarning(
-					"The -msxonly option has been deprecated and will "
-					"be removed in a future release. Instead, use the "
-					"-raw option for the same effect.");
-				rawShot = true;
-			} else if (tok == "-doublesize") {
-				doubleSize = true;
-			} else if (tok == "-with-osd") {
-				withOsd = true;
-			} else {
-				throw CommandException("Invalid option: " + tok);
-			}
-		} else {
-			arguments.push_back(tokens[i]);
-		}
+	bool withOsd = false;
+	ArgsInfo info[] = {
+		valueArg("-prefix", prefix),
+		flagArg("-raw", rawShot),
+		flagArg("-msxonly", msxOnly),
+		flagArg("-doublesize", doubleSize),
+		flagArg("-with-osd", withOsd)
+	};
+	auto arguments = parseTclArgs(getInterpreter(), tokens.subspan(1), info);
+
+	auto& display = OUTER(Display, screenShotCmd);
+	if (msxOnly) {
+		display.getCliComm().printWarning(
+			"The -msxonly option has been deprecated and will "
+			"be removed in a future release. Instead, use the "
+			"-raw option for the same effect.");
+		rawShot = true;
 	}
 	if (doubleSize && !rawShot) {
 		throw CommandException("-doublesize option can only be used in "
@@ -442,7 +435,7 @@ void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& res
 		                       "combination with -raw");
 	}
 
-	string_ref fname;
+	string_view fname;
 	switch (arguments.size()) {
 	case 0:
 		// nothing
@@ -462,7 +455,7 @@ void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& res
 			display.getVideoSystem().takeScreenShot(filename, withOsd);
 		} catch (MSXException& e) {
 			throw CommandException(
-				"Failed to take screenshot: " + e.getMessage());
+				"Failed to take screenshot: ", e.getMessage());
 		}
 	} else {
 		auto videoLayer = dynamic_cast<VideoLayer*>(
@@ -476,25 +469,24 @@ void Display::ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& res
 			videoLayer->takeRawScreenShot(height, filename);
 		} catch (MSXException& e) {
 			throw CommandException(
-				"Failed to take screenshot: " + e.getMessage());
+				"Failed to take screenshot: ", e.getMessage());
 		}
 	}
 
-	display.getCliComm().printInfo("Screen saved to " + filename);
-	result.setString(filename);
+	display.getCliComm().printInfo("Screen saved to ", filename);
+	result = filename;
 }
 
 string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 {
 	// Note: -no-sprites option is implemented in Tcl
-	return
-		"screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
-		"screenshot <filename>        Write screenshot to indicated file\n"
-		"screenshot -prefix foo       Write screenshot to file \"fooNNNN.png\"\n"
-		"screenshot -raw              320x240 raw screenshot (of MSX screen only)\n"
-		"screenshot -raw -doublesize  640x480 raw screenshot (of MSX screen only)\n"
-		"screenshot -with-osd         Include OSD elements in the screenshot\n"
-		"screenshot -no-sprites       Don't include sprites in the screenshot\n";
+	return "screenshot                   Write screenshot to file \"openmsxNNNN.png\"\n"
+	       "screenshot <filename>        Write screenshot to indicated file\n"
+	       "screenshot -prefix foo       Write screenshot to file \"fooNNNN.png\"\n"
+	       "screenshot -raw              320x240 raw screenshot (of MSX screen only)\n"
+	       "screenshot -raw -doublesize  640x480 raw screenshot (of MSX screen only)\n"
+	       "screenshot -with-osd         Include OSD elements in the screenshot\n"
+	       "screenshot -no-sprites       Don't include sprites in the screenshot\n";
 }
 
 void Display::ScreenShotCmd::tabCompletion(vector<string>& tokens) const
@@ -513,12 +505,11 @@ Display::FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void Display::FpsInfoTopic::execute(array_ref<TclObject> /*tokens*/,
+void Display::FpsInfoTopic::execute(span<const TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	auto& display = OUTER(Display, fpsInfo);
-	float fps = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
-	result.setDouble(fps);
+	result = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
 }
 
 string Display::FpsInfoTopic::help(const vector<string>& /*tokens*/) const

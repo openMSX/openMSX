@@ -8,6 +8,7 @@ TODO:
 
 #include "SpriteChecker.hh"
 #include "DisplayMode.hh"
+#include "likely.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -39,7 +40,7 @@ public:
 	}
 
 	/** Notify SpriteConverter of a display mode change.
-	  * @param mode The new display mode.
+	  * @param newMode The new display mode.
 	  */
 	void setDisplayMode(DisplayMode newMode)
 	{
@@ -49,7 +50,7 @@ public:
 	/** Set palette to use for converting sprites.
 	  * This palette is stored by reference, so any modifications to it
 	  * will be used while drawing.
-	  * @param palette 16-entry array containing the sprite palette.
+	  * @param newPalette 16-entry array containing the sprite palette.
 	  */
 	void setPalette(const Pixel* newPalette)
 	{
@@ -150,7 +151,16 @@ public:
 		// Lines without any sprites are very common in most programs.
 		if (visibleIndex == 0) return;
 
-		for (int i = visibleIndex - 1; i >= 0; --i) {
+		// Sprites with CC=1 are only visible if preceded by a sprite
+		// with CC=0. Therefor search for first sprite with CC=0.
+		int first = 0;
+		do {
+			if (likely((visibleSprites[first].colorAttrib & 0x40) == 0)) {
+				break;
+			}
+			++first;
+		} while (first < visibleIndex);
+		for (int i = visibleIndex - 1; i >= first; --i) {
 			const SpriteChecker::SpriteInfo& info = visibleSprites[i];
 			int x = info.x;
 			SpriteChecker::SpritePattern pattern = info.pattern;

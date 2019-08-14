@@ -104,7 +104,8 @@ public:
 	  * @see setFreq()
 	  */
 	unsigned getFreq() const {
-		return MAIN_FREQ32 / getStep();
+		auto step = getStep();
+		return (MAIN_FREQ + (step / 2)) / step;
 	}
 
 	/** Returns the length of one clock-cycle.
@@ -137,7 +138,7 @@ public:
 	/** Calculate the time at which this clock will have ticked the given
 	  * number of times (counted from its last tick).
 	  */
-	const EmuTime operator+(uint64_t n) const {
+	EmuTime operator+(uint64_t n) const {
 		return EmuTime(lastTick.time + n * getStep());
 	}
 
@@ -155,10 +156,13 @@ public:
 		lastTick.time += n * getStep();
 	}
 	EmuTime getFastAdd(unsigned n) const {
+		return add(lastTick, n);
+	}
+	EmuTime add(EmuTime::param time, unsigned n) const {
 		#ifdef DEBUG
 		assert((uint64_t(n) * getStep()) < (1ull << 32));
 		#endif
-		return EmuTime(lastTick.time + n * getStep());
+		return EmuTime(time.time + n * getStep());
 	}
 
 	template<typename Archive>

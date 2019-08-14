@@ -18,7 +18,7 @@ class PostProcessor;
 class V9990Renderer
 {
 public:
-	virtual ~V9990Renderer();
+	virtual ~V9990Renderer() = default;
 
 	/** See V9990::getPostProcessor. */
 	virtual PostProcessor* getPostProcessor() const = 0;
@@ -80,7 +80,7 @@ public:
 	virtual void updateScrollBYLow(EmuTime::param time) = 0;
 
 protected:
-	V9990Renderer();
+	V9990Renderer() = default;
 };
 
 } // namespace openmsx

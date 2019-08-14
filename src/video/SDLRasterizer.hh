@@ -35,7 +35,7 @@ public:
 	SDLRasterizer(
 		VDP& vdp, Display& display, VisibleSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
-	~SDLRasterizer();
+	~SDLRasterizer() override;
 
 	// Rasterizer interface:
 	PostProcessor* getPostProcessor() const override;
@@ -63,14 +63,6 @@ public:
 	bool isRecording() const override;
 
 private:
-	/** Translate from absolute VDP coordinates to screen coordinates:
-	  * Note: In reality, there are only 569.5 visible pixels on a line.
-	  *       Because it looks better, the borders are extended to 640.
-	  * @param absoluteX Absolute VDP coordinate.
-	  * @param narrow Is this a narrow (512 pixels wide) display mode?
-	  */
-	inline static int translateX(int absoluteX, bool narrow);
-
 	inline void renderBitmapLine(Pixel* buf, unsigned vramLine);
 
 	/** Reload entire palette from VDP.

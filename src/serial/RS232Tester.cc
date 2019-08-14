@@ -12,7 +12,6 @@ RS232Tester::RS232Tester(EventDistributor& eventDistributor_,
                          Scheduler& scheduler_,
                          CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this)
 	, rs232InputFilenameSetting(
 	        commandController, "rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
@@ -34,19 +33,19 @@ RS232Tester::~RS232Tester()
 void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	// output
-	string_ref outName = rs232OutputFilenameSetting.getString();
+	string_view outName = rs232OutputFilenameSetting.getString();
 	FileOperations::openofstream(outFile, outName.str());
 	if (outFile.fail()) {
 		outFile.clear();
-		throw PlugException("Error opening output file: " + outName);
+		throw PlugException("Error opening output file: ", outName);
 	}
 
 	// input
-	string_ref inName = rs232InputFilenameSetting.getString();
+	string_view inName = rs232InputFilenameSetting.getString();
 	inFile = FileOperations::openFile(inName.str(), "rb");
 	if (!inFile) {
 		outFile.close();
-		throw PlugException("Error opening input file: " + inName);
+		throw PlugException("Error opening input file: ", inName);
 	}
 
 	auto& rs232Connector = static_cast<RS232Connector&>(connector_);
@@ -56,7 +55,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
-	thread.start();
+	thread = std::thread([this]() { run(); });
 }
 
 void RS232Tester::unplugHelper(EmuTime::param /*time*/)
@@ -65,8 +64,8 @@ void RS232Tester::unplugHelper(EmuTime::param /*time*/)
 	outFile.close();
 
 	// input
-	std::lock_guard<std::mutex> lock(mutex);
-	thread.stop();
+	poller.abort();
+	thread.join();
 	inFile.reset();
 }
 
@@ -76,7 +75,7 @@ const std::string& RS232Tester::getName() const
 	return name;
 }
 
-string_ref RS232Tester::getDescription() const
+string_view RS232Tester::getDescription() const
 {
 	return	"RS232 tester pluggable. Reads all data from file specified "
 		"with the 'rs-232-inputfilename' setting. Writes all data "
@@ -84,13 +83,20 @@ string_ref RS232Tester::getDescription() const
 		"setting.";
 }
 
-// Runnable
 void RS232Tester::run()
 {
 	byte buf;
 	if (!inFile) return;
 	while (!feof(inFile.get())) {
+#ifndef _WIN32
+		if (poller.poll(fileno(inFile.get()))) {
+			break;
+		}
+#endif
 		size_t num = fread(&buf, 1, 1, inFile.get());
+		if (poller.aborted()) {
+			break;
+		}
 		if (num != 1) {
 			continue;
 		}

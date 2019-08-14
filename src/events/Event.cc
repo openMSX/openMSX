@@ -7,9 +7,7 @@ namespace openmsx {
 
 std::string Event::toString() const
 {
-	TclObject result;
-	toStringImpl(result);
-	return result.getString().str();
+	return toTclList().getString().str();
 }
 
 bool Event::operator<(const Event& other) const
@@ -17,6 +15,18 @@ bool Event::operator<(const Event& other) const
 	return (getType() != other.getType())
 	     ? (getType() <  other.getType())
 	     : lessImpl(other);
+}
+bool Event::operator>(const Event& other) const
+{
+	return other < *this;
+}
+bool Event::operator<=(const Event& other) const
+{
+	return !(other < *this);
+}
+bool Event::operator>=(const Event& other) const
+{
+	return !(*this < other);
 }
 
 bool Event::operator==(const Event& other) const
@@ -28,10 +38,9 @@ bool Event::operator!=(const Event& other) const
 	return !(*this == other);
 }
 
-void SimpleEvent::toStringImpl(TclObject& result) const
+TclObject SimpleEvent::toTclList() const
 {
-	result.addListElement("simple");
-	result.addListElement(int(getType()));
+	return makeTclList("simple", int(getType()));
 }
 
 bool SimpleEvent::lessImpl(const Event& /*other*/) const

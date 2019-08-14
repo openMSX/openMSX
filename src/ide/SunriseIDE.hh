@@ -14,7 +14,7 @@ class SunriseIDE final : public MSXDevice
 {
 public:
 	explicit SunriseIDE(const DeviceConfig& config);
-	~SunriseIDE();
+	~SunriseIDE() override;
 
 	void powerUp(EmuTime::param time) override;
 	void reset(EmuTime::param time) override;
@@ -27,6 +27,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	byte getBank() const;
 	void writeControl(byte value);
 
 	byte readDataLow(EmuTime::param time);
@@ -38,8 +39,12 @@ private:
 	void writeData(word value, EmuTime::param time);
 	void writeReg(nibble reg, byte value, EmuTime::param time);
 
+	struct Blocks final : RomBlockDebuggableBase {
+		explicit Blocks(SunriseIDE& device);
+		byte read(unsigned address) override;
+	} romBlockDebug;
+
 	Rom rom;
-	RomBlockDebuggable romBlockDebug;
 	std::unique_ptr<IDEDevice> device[2];
 	const byte* internalBank;
 	byte readLatch;

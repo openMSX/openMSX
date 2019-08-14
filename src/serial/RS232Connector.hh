@@ -15,8 +15,8 @@ public:
 	RS232Device& getPluggedRS232Dev() const;
 
 	// Connector
-	const std::string getDescription() const final override;
-	string_ref getClass() const final override;
+	string_view getDescription() const final override;
+	string_view getClass() const final override;
 
 	// input (SerialDataInterface)
 	void setDataBits(DataBits bits) override = 0;
@@ -31,8 +31,8 @@ public:
 
 protected:
 	RS232Connector(PluggingController& pluggingController,
-	               string_ref name);
-	~RS232Connector() {}
+	               std::string name);
+	~RS232Connector() = default;
 };
 
 REGISTER_BASE_CLASS(RS232Connector, "rs232connector");

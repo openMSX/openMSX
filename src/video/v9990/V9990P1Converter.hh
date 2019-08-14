@@ -34,7 +34,7 @@ private:
 	                    unsigned pattern, byte pal);
 	void determineVisibleSprites(int* visibleSprites, unsigned displayY);
 	void renderSprites(Pixel* buffer, int displayX, int displayEnd,
-	                   unsigned displayY, int* visibleSprites, bool front);
+	                   unsigned displayY, const int* visibleSprites, bool front);
 };
 
 } // namespace openmsx

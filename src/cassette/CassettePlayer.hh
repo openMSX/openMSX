@@ -27,21 +27,22 @@ class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
 {
 public:
 	explicit CassettePlayer(const HardwareConfig& hwConf);
-	~CassettePlayer();
+	~CassettePlayer() override;
 
 	// CassetteDevice
 	void setMotor(bool status, EmuTime::param time) override;
-	short readSample(EmuTime::param time) override;
+	int16_t readSample(EmuTime::param time) override;
 	void setSignal(bool output, EmuTime::param time) override;
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_ref getDescription() const override;
+	string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
 	// SoundDevice
-	void generateChannels(int** bufs, unsigned num) override;
+	void generateChannels(float** buffers, unsigned num) override;
+	float getAmplificationFactorImpl() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -60,7 +61,7 @@ private:
 	/** Insert a tape for use in PLAY mode.
 	 */
 	void playTape(const Filename& filename, EmuTime::param time);
-	void insertTape(const Filename& filename);
+	void insertTape(const Filename& filename, EmuTime::param time);
 
 	/** Removes tape (possibly stops recording). And go to STOP mode.
 	 */
@@ -114,17 +115,17 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// Schedulable
-	struct SyncEndOfTape : Schedulable {
+	struct SyncEndOfTape final : Schedulable {
 		friend class CassettePlayer;
-		SyncEndOfTape(Scheduler& s) : Schedulable(s) {}
+		explicit SyncEndOfTape(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& cp = OUTER(CassettePlayer, syncEndOfTape);
 			cp.execEndOfTape(time);
 		}
 	} syncEndOfTape;
-	struct SyncAudioEmu : Schedulable {
+	struct SyncAudioEmu final : Schedulable {
 		friend class CassettePlayer;
-		SyncAudioEmu(Scheduler& s) : Schedulable(s) {}
+		explicit SyncAudioEmu(Scheduler& s) : Schedulable(s) {}
 		void executeUntil(EmuTime::param time) override {
 			auto& cp = OUTER(CassettePlayer, syncAudioEmu);
 			cp.execSyncAudioEmu(time);
@@ -160,11 +161,11 @@ private:
 		TapeCommand(CommandController& commandController,
 			    StateChangeDistributor& stateChangeDistributor,
 			    Scheduler& scheduler);
-		void execute(array_ref<TclObject> tokens, TclObject& result,
+		void execute(span<const TclObject> tokens, TclObject& result,
 			     EmuTime::param time) override;
 		std::string help(const std::vector<std::string>& tokens) const override;
 		void tabCompletion(std::vector<std::string>& tokens) const override;
-		bool needRecord(array_ref<TclObject> tokens) const override;
+		bool needRecord(span<const TclObject> tokens) const override;
 	} tapeCommand;
 
 	LoadingIndicator loadingIndicator;

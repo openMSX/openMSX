@@ -2,7 +2,6 @@
 
 #include "utf8_checked.hh"
 #include "vla.hh"
-#include "StringOp.hh"
 #include "MSXException.hh"
 #include <windows.h>
 
@@ -43,15 +42,15 @@ std::string utf8toansi(const std::string& utf8)
 	std::wstring utf16;
 	if (!multibytetoutf16(utf8, CP_UTF8, MB_ERR_INVALID_CHARS, utf16))
 	{
-		throw openmsx::FatalError(StringOp::Builder() <<
-			"MultiByteToWideChar failed: " << GetLastError());
+		throw openmsx::FatalError(
+			"MultiByteToWideChar failed: ", GetLastError());
 	}
 
 	std::string ansi;
 	if (!utf16tomultibyte(utf16, CP_ACP, ansi))
 	{
-		throw openmsx::FatalError(StringOp::Builder() <<
-			"MultiByteToWideChar failed: " << GetLastError());
+		throw openmsx::FatalError(
+			"MultiByteToWideChar failed: ", GetLastError());
 	}
 	return ansi;
 }
@@ -61,8 +60,8 @@ std::wstring utf8to16(const std::string& utf8)
 	std::wstring utf16;
 	if (!multibytetoutf16(utf8, CP_UTF8, MB_ERR_INVALID_CHARS, utf16))
 	{
-		throw openmsx::FatalError(StringOp::Builder() <<
-			"MultiByteToWideChar failed: " << GetLastError());
+		throw openmsx::FatalError(
+			"MultiByteToWideChar failed: ", GetLastError());
 	}
 	return utf16;
 }
@@ -72,8 +71,8 @@ std::string utf16to8(const std::wstring& utf16)
 	std::string utf8;
 	if (!utf16tomultibyte(utf16, CP_UTF8, utf8))
 	{
-		throw openmsx::FatalError(StringOp::Builder() <<
-			"MultiByteToWideChar failed: " << GetLastError());
+		throw openmsx::FatalError(
+			"MultiByteToWideChar failed: ", GetLastError());
 	}
 	return utf8;
 }

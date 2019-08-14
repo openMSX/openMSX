@@ -1,7 +1,7 @@
 #include "MSXS1985.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
-#include "memory.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -14,20 +14,18 @@ MSXS1985::MSXS1985(const DeviceConfig& config)
 	if (!config.findChild("sramname")) {
 		// special case for backwards compatibility (S1985 didn't
 		// always have SRAM in its config...)
-		sram = make_unique<SRAM>(
+		sram = std::make_unique<SRAM>(
 			getName() + " SRAM", "S1985 Backup RAM",
-			0x10, config, SRAM::DONT_LOAD);
+			0x10, config, SRAM::DontLoadTag{});
 	} else {
-		sram = make_unique<SRAM>(
+		sram = std::make_unique<SRAM>(
 			getName() + " SRAM", "S1985 Backup RAM",
 			0x10, config);
 	}
 	reset(EmuTime::dummy());
 }
 
-MSXS1985::~MSXS1985()
-{
-}
+MSXS1985::~MSXS1985() = default;
 
 void MSXS1985::reset(EmuTime::param /*time*/)
 {
@@ -105,15 +103,15 @@ void MSXS1985::serialize(Archive& ar, unsigned version)
 		ar.beginTag("ram");
 		ar.serialize_blob("ram", tmp, sizeof(tmp));
 		ar.endTag("ram");
-		for (unsigned i = 0; i < sizeof(tmp); ++i) {
+		for (size_t i = 0; i < sizeof(tmp); ++i) {
 			sram->write(i, tmp[i]);
 		}
 	}
 
-	ar.serialize("address", address);
-	ar.serialize("color1", color1);
-	ar.serialize("color2", color2);
-	ar.serialize("pattern", pattern);
+	ar.serialize("address", address,
+	             "color1",  color1,
+	             "color2",  color2,
+	             "pattern", pattern);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXS1985);
 REGISTER_MSXDEVICE(MSXS1985, "S1985");

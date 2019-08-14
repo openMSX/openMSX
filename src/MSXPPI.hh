@@ -40,7 +40,7 @@ class MSXPPI final : public MSXDevice, public I8255Interface
 {
 public:
 	explicit MSXPPI(const DeviceConfig& config);
-	~MSXPPI();
+	~MSXPPI() override;
 
 	void reset(EmuTime::param time) override;
 	void powerDown(EmuTime::param time) override;
