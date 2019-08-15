@@ -740,6 +740,15 @@ void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 	breakPoints.erase(find_if_unguarded(range.first, range.second,
 		[&](const BreakPoint& i) { return &i == &bp; }));
 }
+void MSXCPUInterface::removeBreakPoint(unsigned id)
+{
+	auto it = ranges::find_if(breakPoints,
+		[&](const BreakPoint& i) { return i.getId() == id; });
+	// could be ==end for a breakpoint that removes itself AND has the -once flag set
+	if (it != breakPoints.end()) {
+		breakPoints.erase(it);
+	}
+}
 
 void MSXCPUInterface::checkBreakPoints(
 	std::pair<BreakPoints::const_iterator,
@@ -754,10 +763,16 @@ void MSXCPUInterface::checkBreakPoints(
 	auto& interp        = motherBoard.getReactor().getInterpreter();
 	for (auto& p : bpCopy) {
 		p.checkAndExecute(globalCliComm, interp);
+		if (p.onlyOnce()) {
+			removeBreakPoint(p.getId());
+		}
 	}
 	auto condCopy = conditions;
 	for (auto& c : condCopy) {
 		c.checkAndExecute(globalCliComm, interp);
+		if (c.onlyOnce()) {
+			removeCondition(c.getId());
+		}
 	}
 }
 
@@ -818,6 +833,16 @@ void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
 	conditions.erase(rfind_if_unguarded(conditions,
 		[&](DebugCondition& e) { return &e == &cond; }));
+}
+
+void MSXCPUInterface::removeCondition(unsigned id)
+{
+	auto it = ranges::find_if(conditions,
+		[&](DebugCondition& e) { return e.getId() == id; });
+	// could be ==end for a condition that removes itself AND has the -once flag set
+	if (it != conditions.end()) {
+		conditions.erase(it);
+	}
 }
 
 void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
@@ -909,6 +934,9 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 		    (w->getEndAddress()   >= address) &&
 		    (w->getType()         == type)) {
 			w->checkAndExecute(globalCliComm, interp);
+			if (w->onlyOnce()) {
+				removeWatchPoint(w);
+			}
 		}
 	}
 

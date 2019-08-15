@@ -2,7 +2,7 @@
 #define SUBJECT_HH
 
 #include "Observer.hh"
-#include "ScopedAssign.hh"
+#include "ranges.hh"
 #include "stl.hh"
 #include <algorithm>
 #include <vector>
@@ -26,15 +26,19 @@ protected:
 	void notify() const;
 
 private:
-	std::vector<Observer<T>*> observers; // unordered
-#ifndef NDEBUG
-	mutable bool notifyInProgress = false;
-#endif
+	enum NotifyState {
+		IDLE,        // no notify in progress
+		IN_PROGRESS, // notify in progress, no detach
+		DETACH,      // notify in progress, some observer(s) have been detached
+	};
+
+	mutable std::vector<Observer<T>*> observers; // unordered
+	mutable NotifyState notifyState = IDLE;
 };
 
 template <typename T> Subject<T>::~Subject()
 {
-	assert(!notifyInProgress);
+	assert(notifyState == IDLE);
 	auto copy = observers;
 	for (auto& o : copy) {
 		o->subjectDeleted(*static_cast<const T*>(this));
@@ -44,26 +48,34 @@ template <typename T> Subject<T>::~Subject()
 
 template <typename T> void Subject<T>::attach(Observer<T>& observer)
 {
-	assert(!notifyInProgress);
+	assert(notifyState == IDLE);
 	observers.push_back(&observer);
 }
 
 template <typename T> void Subject<T>::detach(Observer<T>& observer)
 {
-	assert(!notifyInProgress);
-	move_pop_back(observers, rfind_unguarded(observers, &observer));
+	auto it = rfind_unguarded(observers, &observer);
+	if (notifyState == IDLE) {
+		move_pop_back(observers, it);
+	} else {
+		*it = nullptr; // mark for removal
+		notifyState = DETACH; // schedule actual removal pass
+	}
 }
 
 template <typename T> void Subject<T>::notify() const
 {
-#ifndef NDEBUG
-	assert(!notifyInProgress);
-	ScopedAssign<bool> sa(notifyInProgress, true);
-#endif
+	assert(notifyState == IDLE);
+	notifyState = IN_PROGRESS;
 
 	for (auto& o : observers) {
 		o->update(*static_cast<const T*>(this));
 	}
+
+	if (notifyState == DETACH) {
+		observers.erase(ranges::remove(observers, nullptr), observers.end());
+	}
+	notifyState = IDLE;
 }
 
 } // namespace openmsx

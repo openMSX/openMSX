@@ -15,8 +15,8 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard_,
                  WatchPoint::Type type_,
                  unsigned beginAddr_, unsigned endAddr_,
                  TclObject command_, TclObject condition_,
-                 unsigned newId /*= -1*/)
-	: WatchPoint(command_, condition_, type_, beginAddr_, endAddr_, newId)
+                 bool once_, unsigned newId /*= -1*/)
+	: WatchPoint(command_, condition_, type_, beginAddr_, endAddr_, once_, newId)
 	, motherboard(motherboard_)
 {
 	for (unsigned i = byte(beginAddr_); i <= byte(endAddr_); ++i) {
@@ -44,6 +44,9 @@ void WatchIO::doReadCallback(unsigned port)
 	// this watchpoint deletes itself in checkAndExecute()
 	auto keepAlive = shared_from_this();
 	checkAndExecute(cliComm, interp);
+	if (onlyOnce()) {
+		cpuInterface.removeWatchPoint(keepAlive);
+	}
 
 	interp.unsetVariable("wp_last_address");
 }
@@ -61,6 +64,9 @@ void WatchIO::doWriteCallback(unsigned port, unsigned value)
 	// see comment in doReadCallback() above
 	auto keepAlive = shared_from_this();
 	checkAndExecute(cliComm, interp);
+	if (onlyOnce()) {
+		cpuInterface.removeWatchPoint(keepAlive);
+	}
 
 	interp.unsetVariable("wp_last_address");
 	interp.unsetVariable("wp_last_value");

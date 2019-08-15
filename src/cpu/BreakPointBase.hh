@@ -18,6 +18,7 @@ public:
 	string_view getCommand()   const { return command  .getString(); }
 	TclObject getConditionObj() const { return condition; }
 	TclObject getCommandObj()   const { return command; }
+	bool onlyOnce() const { return once; }
 
 	void checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp);
 
@@ -25,14 +26,18 @@ protected:
 	// Note: we require GlobalCliComm here because breakpoint objects can
 	// be transfered to different MSX machines, and so the MSXCliComm
 	// object won't remain valid.
-	BreakPointBase(TclObject command, TclObject condition);
+	BreakPointBase(TclObject command_, TclObject condition_, bool once_)
+		: command(std::move(command_))
+		, condition(std::move(condition_))
+		, once(once_) {}
 
 private:
 	bool isTrue(GlobalCliComm& cliComm, Interpreter& interp) const;
 
 	TclObject command;
 	TclObject condition;
-	bool executing;
+	bool once;
+	bool executing = false;
 };
 
 } // namespace openmsx

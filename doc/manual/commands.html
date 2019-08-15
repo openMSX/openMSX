@@ -680,12 +680,14 @@
     </tr>
 
     <tr>
-      <td><code>debug set_bp &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td><code>debug set_bp [-once] &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
 
       <td>Insert a new breakpoint at the given address. Optionally you can specify a condition and a command. When
       the CPU is about to execute the instruction at the given address, the condition will be evaluated, if this
       evaluates to true then the command is executed. The condition can be any Tcl expression and the command can be
-      any Tcl command. The default condition is 'true' and the default command is <code>"debug break"</code>.</td>
+      any Tcl command. The default condition is 'true' and the default command is <code>"debug break"</code>.
+      If the <code>-once</code> flag is passed, the breakpoint is automatically removed after it triggered.
+      In other words: it will only trigger once.</td>
     </tr>
 
     <tr>
@@ -701,10 +703,10 @@
     </tr>
 
     <tr>
-      <td><code>debug set_watchpoint &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td><code>debug set_watchpoint [-once] &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
 
       <td>Insert a new watchpoint. When the CPU is about to read or write to/from the specified memory or I/O region,
-      the condition is evaluated. If the condition evaluated to true, the command is executed. The condition and the
+      the condition is evaluated. If the condition evaluated to true, the command is executed. The -once flag, the condition and the
       command are similar to the ones in the <code>set_bp</code> subcommand. A watchpoint can either be set on a single memory
       address or I/O port (specify a single value), or on a whole memory or I/O port range (specify a begin/end pair).
       For example: <code>debug set_watchpoint write_mem {0x8000 0x8FFF}</code>. During the execution of <code>&lt;cmd&gt;</code>, the following global Tcl variables are set: <code>::wp_last_address</code>, which is the actual address of the mem/io read/write that triggered the watchpoint and <code>::wp_last_value</code>, the actual value that was written by the mem/io write that triggered the watchpoint.</td>
@@ -723,7 +725,7 @@
     </tr>
 
     <tr>
-      <td><code>debug set_condition &lt;cond&gt; [&lt;cmd&gt;]</code></td>
+      <td><code>debug set_condition [-once] &lt;cond&gt; [&lt;cmd&gt;]</code></td>
 
       <td>Set a new debugger condition. Conditions are like breakpoints, but not
           tied to a specific address. Simulation is much slower when conditions
@@ -758,7 +760,7 @@
       <td>Returns the current value of a probe. But note that not all probes have a value</td>
     </tr>
     <tr>
-      <td><code>debug probe set_bp &lt;probe&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td><code>debug probe set_bp [-once] &lt;probe&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
       <td>Set a breakpoint on a probe. Like in the 'set_bp' subcommand you can optionally specify a condition and a command.</td>
     </tr>
     <tr>

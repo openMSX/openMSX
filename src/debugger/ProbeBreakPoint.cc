@@ -14,8 +14,9 @@ ProbeBreakPoint::ProbeBreakPoint(
 		TclObject condition_,
 		Debugger& debugger_,
 		ProbeBase& probe_,
+		bool once_,
 		unsigned newId /*= -1*/)
-	: BreakPointBase(command_, condition_)
+	: BreakPointBase(command_, condition_, once_)
 	, debugger(debugger_)
 	, probe(probe_)
 	, id((newId == unsigned(-1)) ? ++lastId : newId)
@@ -34,6 +35,9 @@ void ProbeBreakPoint::update(const ProbeBase& /*subject*/)
 	auto& cliComm = reactor.getGlobalCliComm();
 	auto& interp  = reactor.getInterpreter();
 	checkAndExecute(cliComm, interp);
+	if (onlyOnce()) {
+		debugger.removeProbeBreakPoint(*this);
+	}
 }
 
 void ProbeBreakPoint::subjectDeleted(const ProbeBase& /*subject*/)

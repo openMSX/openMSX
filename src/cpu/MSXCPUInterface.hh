@@ -288,6 +288,8 @@ private:
 	static void checkBreakPoints(std::pair<BreakPoints::const_iterator,
 	                                       BreakPoints::const_iterator> range,
 	                             MSXMotherBoard& motherBoard);
+	static void removeBreakPoint(unsigned id);
+	static void removeCondition(unsigned id);
 
 	void removeAllWatchPoints();
 	void registerIOWatch  (WatchPoint& watchPoint, MSXDevice** devices);

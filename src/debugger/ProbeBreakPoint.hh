@@ -17,6 +17,7 @@ public:
 	                TclObject condition,
 	                Debugger& debugger,
 	                ProbeBase& probe,
+	                bool once,
 	                unsigned newId = -1);
 	~ProbeBreakPoint();
 

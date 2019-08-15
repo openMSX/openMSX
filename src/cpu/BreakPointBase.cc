@@ -5,12 +5,6 @@
 
 namespace openmsx {
 
-BreakPointBase::BreakPointBase(TclObject command_, TclObject condition_)
-	: command(std::move(command_)), condition(std::move(condition_))
-	, executing(false)
-{
-}
-
 bool BreakPointBase::isTrue(GlobalCliComm& cliComm, Interpreter& interp) const
 {
 	if (condition.getString().empty()) {

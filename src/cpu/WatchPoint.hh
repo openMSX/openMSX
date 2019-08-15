@@ -18,7 +18,7 @@ public:
 	 */
 	WatchPoint(TclObject command, TclObject condition,
 	           Type type, unsigned beginAddr, unsigned endAddr,
-	           unsigned newId = -1);
+	           bool once, unsigned newId = -1);
 	virtual ~WatchPoint() = default; // needed for dynamic_cast
 
 	unsigned getId()           const { return id; }

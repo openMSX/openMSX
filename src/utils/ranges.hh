@@ -164,6 +164,18 @@ auto transform(InputRange&& range, OutputIter out, UnaryOperation op)
 }
 
 template<typename ForwardRange, typename T>
+auto remove(ForwardRange&& range, const T& value)
+{
+	return std::remove(std::begin(range), std::end(range), value);
+}
+
+template<typename ForwardRange, typename UnaryPredicate>
+auto remove_if(ForwardRange&& range, UnaryPredicate pred)
+{
+	return std::remove_if(std::begin(range), std::end(range), pred);
+}
+
+template<typename ForwardRange, typename T>
 void replace(ForwardRange&& range, const T& old_value, const T& new_value)
 {
 	std::replace(std::begin(range), std::end(range), old_value, new_value);

@@ -49,13 +49,13 @@ private:
 
 	unsigned insertProbeBreakPoint(
 		TclObject command, TclObject condition,
-		ProbeBase& probe, unsigned newId = -1);
+		ProbeBase& probe, bool once, unsigned newId = -1);
 	void removeProbeBreakPoint(string_view name);
 
 	unsigned setWatchPoint(TclObject command, TclObject condition,
 	                       WatchPoint::Type type,
 	                       unsigned beginAddr, unsigned endAddr,
-	                       unsigned newId = -1);
+	                       bool once, unsigned newId = -1);
 
 	MSXMotherBoard& motherBoard;
 
