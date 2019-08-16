@@ -155,6 +155,7 @@ DEADKEY1, 25,
 25a7, 46, GRAPH       # ▧
 250c, 47, GRAPH       # ┌
 29d3, 50, GRAPH       # ⧓
+29d7, 50, SHIFT GRAPH # ⧗
 252c, 51, GRAPH       # ┬
 2582, 52, GRAPH       # ▂
 2514, 53, GRAPH       # └
