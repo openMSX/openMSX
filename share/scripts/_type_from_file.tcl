@@ -51,7 +51,9 @@ proc type_from_file {args} {
 	set the_text [read $f]
 	close $f
 
-	type {*}$options [string map {"\x0A" ""} $the_text]
+	set filtered_text [regsub -all "\r?\n" $the_text "\r"]
+
+	type {*}$options $filtered_text
 }
 
 proc tabcompletion_password {args} {
