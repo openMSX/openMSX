@@ -417,7 +417,6 @@ sources = files(
     'thread/Thread.cc',
     'thread/Timer.cc',
     'utils/Base64.cc',
-    'utils/CRC16.cc',
     'utils/Date.cc',
     'utils/DeltaBlock.cc',
     'utils/DivModBySame.cc',

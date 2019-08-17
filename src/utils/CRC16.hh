@@ -1,30 +1,28 @@
 #ifndef CRC16_HH
 #define CRC16_HH
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
 
 namespace openmsx {
 
-struct CRC16Lut { // replace with std::array in c++17
-	uint16_t a[8][0x100];
-};
-inline constexpr CRC16Lut calcTable()
+inline constexpr auto calcTable()
 {
-	CRC16Lut result = {};
+	std::array<std::array<uint16_t, 0x100>, 8> result = {}; // uint16_t[8][0x100]
 	for (unsigned i = 0; i < 0x100; ++i) {
 		uint16_t x = i << 8;
 		for (int j = 0; j < 8; ++j) {
 			x = (x << 1) ^ ((x & 0x8000) ? 0x1021 : 0);
 		}
-		result.a[0][i] = x;
+		result[0][i] = x;
 	}
 	for (unsigned i = 0; i < 0x100; ++i) {
-		uint16_t c = result.a[0][i];
+		uint16_t c = result[0][i];
 		for (unsigned j = 1; j < 8; ++j) {
-			c = result.a[0][c >> 8] ^ (c << 8);
-			result.a[j][i] = c;
+			c = result[0][c >> 8] ^ (c << 8);
+			result[j][i] = c;
 		}
 	}
 	return result;
@@ -64,7 +62,7 @@ public:
 	constexpr void update(uint8_t value)
 	{
 		// Classical byte-at-a-time algorithm by Dilip V. Sarwate
-		crc = (crc << 8) ^ tab.a[0][(crc >> 8) ^ value];
+		crc = (crc << 8) ^ tab[0][(crc >> 8) ^ value];
 	}
 
 	/** For large blocks (e.g. 512 bytes) this routine is approx 5x faster
@@ -86,19 +84,19 @@ public:
 		                  // on x86 and many other modern architectures
 		// calculate the bulk of the data 8 bytes at a time
 		for (auto n = size / 8; n; --n) {
-			c = tab.a[7][data[0] ^ (c >>  8)] ^
-			    tab.a[6][data[1] ^ (c & 255)] ^
-			    tab.a[5][data[2]] ^
-			    tab.a[4][data[3]] ^
-			    tab.a[3][data[4]] ^
-			    tab.a[2][data[5]] ^
-			    tab.a[1][data[6]] ^
-			    tab.a[0][data[7]];
+			c = tab[7][data[0] ^ (c >>  8)] ^
+			    tab[6][data[1] ^ (c & 255)] ^
+			    tab[5][data[2]] ^
+			    tab[4][data[3]] ^
+			    tab[3][data[4]] ^
+			    tab[2][data[5]] ^
+			    tab[1][data[6]] ^
+			    tab[0][data[7]];
 			data += 8;
 		}
 		// calculate the remaining bytes in the usual way
 		for (size &= 7; size; --size) {
-			c = uint16_t(c << 8) ^ tab.a[0][(c >> 8) ^ *data++];
+			c = uint16_t(c << 8) ^ tab[0][(c >> 8) ^ *data++];
 		}
 		crc = c; // store back in a 16-bit result
 	}
@@ -111,7 +109,7 @@ public:
 	}
 
 private:
-	static constexpr CRC16Lut tab = calcTable();
+	static inline constexpr auto tab = calcTable();
 
 	uint16_t crc;
 };

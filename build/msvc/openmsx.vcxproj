@@ -631,7 +631,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Base64.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\CRC16.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Date.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\DivModBySame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\HexDump.cc" />
