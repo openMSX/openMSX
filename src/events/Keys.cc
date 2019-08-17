@@ -348,7 +348,7 @@ KeyCode getCode(string_view name)
 		          : name.substr(lastPos);
 		auto it = ranges::lower_bound(keys, part, CmpKeys());
 		StringOp::casecmp cmp;
-		if ((it == end(keys)) || !cmp(it->first, part)) {
+		if ((it == std::end(keys)) || !cmp(it->first, part)) {
 			return K_NONE;
 		}
 		KeyCode partCode = it->second;

@@ -16,30 +16,12 @@ namespace cstd {
 // Constexpr reimplementations of standard algorithms or data-structures.
 //
 // Everything implemented in 'cstd' will very likely become part of standard
-// C++ in the future. Or it already is part of C++17. So in the future we can
-// remove our (re)implementation and change the callers from 'cstd::xxx()' to
-// 'std::xxx()'.
+// C++ in the future. So then we can remove our (re)implementation and change
+// the callers from 'cstd::xxx()' to 'std::xxx()'.
 
 //
 // Various constexpr reimplementation of STL algorithms.
 //
-// Many of these are already constexpr in C++17, or are proposed to be made
-// constexpr for the next C++ standard.
-//
-
-// begin/end are already constexpr in c++17
-template<typename Container>
-constexpr auto begin(Container&& c)
-{
-	return c.begin();
-}
-
-template<typename Container>
-constexpr auto end(Container&& c)
-{
-	return c.end();
-}
-
 
 template<typename Iter1, typename Iter2>
 constexpr void iter_swap(Iter1 a, Iter2 b)
@@ -118,7 +100,7 @@ constexpr void sort(RAIt first, RAIt last, Compare cmp = Compare{})
 template<typename RandomAccessRange, typename Compare = std::less<>>
 constexpr void sort(RandomAccessRange&& range, Compare cmp = Compare{})
 {
-	cstd::sort(cstd::begin(range), cstd::end(range), cmp);
+	cstd::sort(std::begin(range), std::end(range), cmp);
 }
 
 template<typename InputIt1, typename InputIt2>
