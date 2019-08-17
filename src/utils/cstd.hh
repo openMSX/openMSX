@@ -132,14 +132,6 @@ constexpr bool lexicographical_compare(InputIt1 first1, InputIt1 last1,
 	return (first1 == last1) && (first2 != last2);
 }
 
-// In C++17 this is (constexpr) available as std::char_traits::length().
-constexpr size_t strlen(const char* s) noexcept
-{
-	auto* p = s;
-	while (*p) ++p;
-	return p - s;
-}
-
 
 //
 // Constrexpr reimplementation of (a subset of) std::array.
