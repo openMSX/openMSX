@@ -33,7 +33,7 @@ Paddle::Paddle(MSXEventDistributor& eventDistributor_,
                StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, lastPulse(EmuTime::zero)
+	, lastPulse(EmuTime::zero())
 	, analogValue(128)
 	, lastInput(0)
 {
@@ -76,7 +76,7 @@ byte Paddle::read(EmuTime::param time)
 {
 	// The loop in the BIOS routine that reads the paddle status takes
 	// 41 Z80 cycles per iteration.
-	static const EmuDuration TICK = EmuDuration::hz(3579545) * 41;
+	static constexpr auto TICK = EmuDuration::hz(3579545) * 41;
 
 	assert(time >= lastPulse);
 	bool before = (time - lastPulse) < (TICK * analogValue);

@@ -326,7 +326,7 @@ private:
 	void update(const Setting& setting) override;
 
 	void setCommandMode();
-	EmuDuration getTiming(const unsigned table[4][3][4]) const;
+	EmuDuration getTiming(const EmuDuration table[4][3][4]) const;
 
 	inline unsigned getWrappedNX() const {
 		return NX ? NX : 2048;

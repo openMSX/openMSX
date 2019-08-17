@@ -63,8 +63,8 @@ TC8566AF::TC8566AF(Scheduler& scheduler_, DiskDrive* drv[4], CliComm& cliComm_,
                    EmuTime::param time)
 	: Schedulable(scheduler_)
 	, cliComm(cliComm_)
-	, delayTime(EmuTime::zero)
-	, headUnloadTime(EmuTime::zero) // head not loaded
+	, delayTime(EmuTime::zero())
+	, headUnloadTime(EmuTime::zero()) // head not loaded
 {
 	// avoid UMR (on savestate)
 	dataAvailable = 0;
@@ -107,7 +107,7 @@ void TC8566AF::reset(EmuTime::param time)
 	specifyData[0] = 0; // TODO check
 	specifyData[1] = 0; // TODO check
 	seekValue = 0;
-	headUnloadTime = EmuTime::zero; // head not loaded
+	headUnloadTime = EmuTime::zero(); // head not loaded
 
 	mainStatus = STM_RQM;
 	//interrupt = false;
@@ -437,12 +437,12 @@ EmuTime TC8566AF::locateSector(EmuTime::param time)
 			setDrqRate(drv->getTrackLength());
 			next = drv->getNextSector(next, sectorInfo);
 		} catch (MSXException& /*e*/) {
-			return EmuTime::infinity;
+			return EmuTime::infinity();
 		}
-		if ((next == EmuTime::infinity) ||
+		if ((next == EmuTime::infinity()) ||
 		    (sectorInfo.addrIdx == lastIdx)) {
 			// no sectors on track or sector already seen
-			return EmuTime::infinity;
+			return EmuTime::infinity();
 		}
 		if (lastIdx == -1) lastIdx = sectorInfo.addrIdx;
 		if (sectorInfo.addrCrcErr)               continue;
@@ -493,13 +493,13 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 			if (!isHeadLoaded(time)) {
 				ready += getHeadLoadDelay();
 				// set 'head is loaded'
-				headUnloadTime = EmuTime::infinity;
+				headUnloadTime = EmuTime::infinity();
 			}
 
 			// actually read sector: fills in
 			//   dataAvailable and dataCurrent
 			ready = locateSector(ready);
-			if (ready == EmuTime::infinity) {
+			if (ready == EmuTime::infinity()) {
 				status0 |= ST0_IC0;
 				status1 |= ST1_ND;
 				resultPhase();
@@ -782,7 +782,7 @@ void TC8566AF::endCommand(EmuTime::param time)
 	phase       = PHASE_IDLE;
 	mainStatus &= ~(STM_CB | STM_DIO);
 	delayTime.reset(time); // set STM_RQM
-	if (headUnloadTime == EmuTime::infinity) {
+	if (headUnloadTime == EmuTime::infinity()) {
 		headUnloadTime = time + getHeadUnloadDelay();
 	}
 }
@@ -894,7 +894,7 @@ void TC8566AF::serialize(Archive& ar, unsigned version)
 		assert(ar.isLoader());
 		specifyData[0] = 0xDF; // values normally set by TurboR disk rom
 		specifyData[1] = 0x03;
-		headUnloadTime = EmuTime::zero;
+		headUnloadTime = EmuTime::zero();
 		seekValue = 0;
 	}
 	if (ar.versionAtLeast(version, 3)) {

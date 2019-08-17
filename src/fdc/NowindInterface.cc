@@ -107,7 +107,7 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 		flash.write(bank * 0x4000 + address, value);
 	} else if (((0x4000 <= address) && (address < 0x6000)) ||
 	           ((0x8000 <= address) && (address < 0xA000))) {
-		static const Clock<1000> clock(EmuTime::zero);
+		constexpr Clock<1000> clock(EmuTime::zero());
 		host.write(value, clock.getTicksTill(time));
 	} else if (((0x6000 <= address) && (address < 0x8000)) ||
 	           ((0xA000 <= address) && (address < 0xC000))) {

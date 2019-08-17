@@ -84,13 +84,13 @@ MC6850::MC6850(const DeviceConfig& config)
 	, MidiInConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-in")
 	, syncRecv (getMotherBoard().getScheduler())
 	, syncTrans(getMotherBoard().getScheduler())
-	, txClock(EmuTime::zero)
+	, txClock(EmuTime::zero())
 	, rxIRQ(getMotherBoard(), MSXDevice::getName() + "-rx-IRQ")
 	, txIRQ(getMotherBoard(), MSXDevice::getName() + "-tx-IRQ")
 	, txDataReg(0), txShiftReg(0) // avoid UMR
 	, outConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-out")
 {
-	reset(EmuTime::zero);
+	reset(EmuTime::zero());
 	setDataFormat();
 }
 

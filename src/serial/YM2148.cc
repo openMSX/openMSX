@@ -25,8 +25,8 @@ static const unsigned CMD_IR    = 0x80; // Internal Reset
 // software). Some documentation *guesses* they are related to IM2
 // IRQ handling.
 
-static const EmuDuration BIT_DURATION = EmuDuration::hz(31250);
-static const EmuDuration CHAR_DURATION = BIT_DURATION * 10; // 1 start-bit, 8 data-bits, 1 stop-bit
+constexpr auto BIT_DURATION = EmuDuration::hz(31250);
+constexpr auto CHAR_DURATION = BIT_DURATION * 10; // 1 start-bit, 8 data-bits, 1 stop-bit
 
 YM2148::YM2148(const std::string& name_, MSXMotherBoard& motherBoard)
 	: MidiInConnector(motherBoard.getPluggingController(), name_ + "-MIDI-in")

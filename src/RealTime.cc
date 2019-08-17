@@ -29,7 +29,7 @@ RealTime::RealTime(
 	, speedSetting   (globalSettings.getSpeedSetting())
 	, pauseSetting   (globalSettings.getPauseSetting())
 	, powerSetting   (globalSettings.getPowerSetting())
-	, emuTime(EmuTime::zero)
+	, emuTime(EmuTime::zero())
 	, enabled(true)
 {
 	speedSetting.attach(*this);

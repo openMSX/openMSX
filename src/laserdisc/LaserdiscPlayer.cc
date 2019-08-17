@@ -114,12 +114,12 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, laserdiscCommand(motherBoard.getCommandController(),
 		           motherBoard.getStateChangeDistributor(),
 		           motherBoard.getScheduler())
-	, sampleClock(EmuTime::zero)
-	, start(EmuTime::zero)
+	, sampleClock(EmuTime::zero())
+	, start(EmuTime::zero())
 	, muteLeft(false)
 	, muteRight(false)
 	, remoteState(REMOTE_IDLE)
-	, remoteLastEdge(EmuTime::zero)
+	, remoteLastEdge(EmuTime::zero())
 	, remoteLastBit(false)
 	, remoteProtocol(IR_NONE)
 	, ack(false)

@@ -15,57 +15,62 @@
 
 namespace openmsx {
 
+static constexpr EmuDuration d(unsigned x)
+{
+	return Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND>::duration(x);
+}
+
 // 1st index  B0/2/4, B1/3/7, P1, P2
 // 2nd index  sprites-ON, sprites-OFF, display-OFF
 // 3th index  2bpp, 4bpp, 8bpp, 16bpp
 //            (for P1/P2 fill in the same value 4 times)
-const unsigned LMMV_TIMING[4][3][4] = {
-	{ {  8, 11, 15, 30}, { 7, 10, 13, 26}, { 7, 10, 13, 25} },
-	{ {  5,  7,  9, 18}, { 5,  6,  8, 17}, { 5,  6,  8, 17} },
-	{ { 56, 56, 56, 56}, {25, 25, 25, 25}, { 9,  9,  9,  9} },
-	{ { 28, 28, 28, 28}, {15, 15, 15, 15}, { 6,  6,  6,  6} }
+constexpr EmuDuration LMMV_TIMING[4][3][4] = {
+	{{ d( 8), d(11), d(15), d(30)}, {d( 7), d(10), d(13), d(26)}, {d( 7), d(10), d(13), d(25)}},
+	{{ d( 5), d( 7), d( 9), d(18)}, {d( 5), d( 6), d( 8), d(17)}, {d( 5), d( 6), d( 8), d(17)}},
+	{{ d(56), d(56), d(56), d(56)}, {d(25), d(25), d(25), d(25)}, {d( 9), d( 9), d( 9), d( 9)}},
+	{{ d(28), d(28), d(28), d(28)}, {d(15), d(15), d(15), d(15)}, {d( 6), d( 6), d( 6), d( 6)}}
 };
-const unsigned LMMM_TIMING[4][3][4] = {
-	{ { 10, 16, 32, 66}, { 8, 14, 28, 57}, { 8, 13, 27, 54} },
-	{ {  6, 10, 20, 39}, { 5,  9, 18, 35}, { 5,  9, 17, 35} },
-	{ {115,115,115,115}, {52, 52, 52, 52}, {18, 18, 18, 18} },
-	{ { 57, 57, 57, 57}, {25, 25, 25, 25}, { 9,  9,  9,  9} }
+constexpr EmuDuration LMMM_TIMING[4][3][4] = {
+	{{d (10),d (16),d( 32),d( 66)}, {d( 8), d(14), d(28), d(57)}, {d( 8), d(13), d(27), d(54)}},
+	{{d ( 6),d( 10),d( 20),d( 39)}, {d( 5), d( 9), d(18), d(35)}, {d( 5), d( 9), d(17), d(35)}},
+	{{d(115),d(115),d(115),d(115)}, {d(52), d(52), d(52), d(52)}, {d(18), d(18), d(18), d(18)}},
+	{{d( 57),d( 57),d( 57),d( 57)}, {d(25), d(25), d(25), d(25)}, {d( 9), d( 9), d( 9), d( 9)}}
 };
-const unsigned BMXL_TIMING[4][3][4] = { // NOTE: values are BYTE based here!
-	{ { 38, 33, 32, 33}, {33, 28, 28, 28}, {33, 27, 27, 27} }, // identical to LMMM (b)
-	{ { 24, 20, 20, 19}, {22, 18, 18, 18}, {21, 17, 17, 17} }, // identical to LMMM (b)
-	{ {171,171,171,171}, {82, 82, 82, 82}, {29, 29, 29, 29} },
-	{ {114,114,114,114}, {50, 50, 50, 50}, {18, 18, 18, 18} }
+constexpr EmuDuration BMXL_TIMING[4][3][4] = { // NOTE: values are BYTE based here!
+	{{d( 38),d( 33),d( 32),d( 33)}, {d(33), d(28), d(28), d(28)}, {d(33), d(27), d(27), d(27)}}, // identical to LMMM (b)
+	{{d( 24),d( 20),d( 20),d (19)}, {d(22), d(18), d(18), d(18)}, {d(21), d(17), d(17), d(17)}}, // identical to LMMM (b)
+	{{d(171),d(171),d(171),d(171)}, {d(82), d(82), d(82), d(82)}, {d(29), d(29), d(29), d(29)}},
+	{{d(114),d(114),d(114),d(114)}, {d(50), d(50), d(50), d(50)}, {d(18), d(18), d(18), d(18)}}
 };
-const unsigned BMLX_TIMING[4][3][4] = {
-	{ { 10, 16, 32, 66}, { 8, 14, 28, 57}, { 8, 13, 27, 54} }, // identical to LMMM
-	{ {  6, 10, 20, 39}, { 5,  9, 18, 35}, { 5,  9, 17, 35} }, // identical to LMMM
-	{ { 84, 84, 84, 84}, {44, 44, 44, 44}, {17, 17, 17, 17} },
-	{ { 57, 57, 57, 57}, {25, 25, 25, 25}, { 9,  9,  9,  9} }
+constexpr EmuDuration BMLX_TIMING[4][3][4] = {
+	{{ d(10), d(16), d(32), d(66)}, {d( 8), d(14), d(28), d(57)}, {d( 8), d(13), d(27), d(54)}}, // identical to LMMM
+	{{ d( 6), d(10), d(20), d(39)}, {d( 5), d( 9), d(18), d(35)}, {d( 5), d( 9), d(17), d(35)}}, // identical to LMMM
+	{{ d(84), d(84), d(84), d(84)}, {d(44), d(44), d(44), d(44)}, {d(17), d(17), d(17), d(17)}},
+	{{ d(57), d(57), d(57), d(57)}, {d(25), d(25), d(25), d(25)}, {d( 9), d( 9), d( 9), d( 9)}}
 };
-const unsigned BMLL_TIMING[4][3][4] = {
-	{ { 33, 33, 33, 33}, {28, 28, 28, 28}, {27, 27, 27, 27} },
-	{ { 20, 20, 20, 20}, {18, 18, 18, 18}, {18, 18, 18, 18} },
-	{ {118,118,118,118}, {52, 52, 52, 52}, {18, 18, 18, 18} },
-	{ {118,118,118,118}, {52, 52, 52, 52}, {18, 18, 18, 18} }
+constexpr EmuDuration BMLL_TIMING[4][3][4] = {
+	{{d( 33),d( 33),d( 33),d( 33)}, {d(28), d(28), d(28), d(28)}, {d(27), d(27), d(27), d(27)}},
+	{{d( 20),d( 20),d( 20),d( 20)}, {d(18), d(18), d(18), d(18)}, {d(18), d(18), d(18), d(18)}},
+	{{d(118),d(118),d(118),d(118)}, {d(52), d(52), d(52), d(52)}, {d(18), d(18), d(18), d(18)}},
+	{{d(118),d(118),d(118),d(118)}, {d(52), d(52), d(52), d(52)}, {d(18), d(18), d(18), d(18)}}
 };
-const unsigned CMMM_TIMING[4][3][4] = {
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }  // TODO
+constexpr EmuDuration CMMM_TIMING[4][3][4] = {
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}  // TODO
 };
-const unsigned LINE_TIMING[4][3][4] = {
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }  // TODO
+constexpr EmuDuration LINE_TIMING[4][3][4] = {
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}  // TODO
 };
-const unsigned SRCH_TIMING[4][3][4] = {
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }, // TODO
-	{ { 24, 24, 24, 24}, {24, 24, 24, 24}, {24, 24, 24, 24} }  // TODO
+constexpr EmuDuration SRCH_TIMING[4][3][4] = {
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}, // TODO
+	{{ d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}, {d(24), d(24), d(24), d(24)}}  // TODO
 };
 
 
@@ -911,7 +916,7 @@ void V9990CmdEngine::update(const Setting& setting)
 	brokenTiming = static_cast<const EnumSetting<bool>&>(setting).getEnum();
 }
 
-EmuDuration V9990CmdEngine::getTiming(const unsigned table[4][3][4]) const
+EmuDuration V9990CmdEngine::getTiming(const EmuDuration table[4][3][4]) const
 {
 	if (unlikely(brokenTiming)) return EmuDuration();
 
@@ -922,9 +927,7 @@ EmuDuration V9990CmdEngine::getTiming(const unsigned table[4][3][4]) const
 	unsigned idx2 = vdp.isDisplayEnabled() ? (vdp.spritesEnabled() ? 0 : 1)
 	                                       : 2;
 	unsigned idx3 = vdp.getColorDepth();
-	// TODO possible optimization: directly put EmuDurations in table
-	unsigned x = table[idx1][idx2][idx3];
-	return Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND>::duration(x);
+	return table[idx1][idx2][idx3];
 }
 
 
@@ -1767,19 +1770,19 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 	EmuDuration delta;
 	switch (CMD >> 4) {
 		case 0x00: // STOP
-			delta = EmuDuration::zero;
+			delta = EmuDuration::zero();
 			break;
 
 		case 0x01: // LMMC
 		case 0x05: // CMMC
 			// command terminates when CPU writes data, no need for extra sync
-			delta = EmuDuration::zero;
+			delta = EmuDuration::zero();
 			break;
 
 		case 0x03: // LMCM
 		case 0x0D: // POINT
 			// command terminates when CPU reads data, no need for extra sync
-			delta = EmuDuration::zero;
+			delta = EmuDuration::zero();
 			break;
 
 		case 0x02: // LMMV
@@ -1801,7 +1804,7 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 
 		case 0x06: // CMMK
 			// Not yet implemented.
-			delta = EmuDuration::zero;
+			delta = EmuDuration::zero();
 			break;
 
 		case 0x0A: // BMLL
@@ -1820,7 +1823,7 @@ EmuTime V9990CmdEngine::estimateCmdEnd() const
 		case 0x0E: // PSET
 		case 0x0F: // ADVN
 			// Current implementation of these commands execute instantly, no need for extra sync.
-			delta = EmuDuration::zero;
+			delta = EmuDuration::zero();
 			break;
 
 		default: UNREACHABLE;

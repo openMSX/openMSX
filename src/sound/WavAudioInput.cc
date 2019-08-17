@@ -13,7 +13,7 @@ WavAudioInput::WavAudioInput(CommandController& commandController)
 		commandController, "audio-inputfilename",
 		"filename of the file where the sampler reads data from",
 		"audio-input.wav")
-	, reference(EmuTime::zero)
+	, reference(EmuTime::zero())
 {
 	audioInputFilenameSetting.attach(*this);
 }

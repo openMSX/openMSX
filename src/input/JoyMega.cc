@@ -96,7 +96,7 @@ JoyMega::JoyMega(MSXEventDistributor& eventDistributor_,
 	, joyNum(SDL_JoystickInstanceID(joystick_))
 	, name("joymegaX") // 'X' is filled in below
 	, desc(string(SDL_JoystickName(joystick_)))
-	, lastTime(EmuTime::zero)
+	, lastTime(EmuTime::zero())
 {
 	const_cast<string&>(name)[7] = char('1' + joyNum);
 }

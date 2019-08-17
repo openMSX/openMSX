@@ -57,14 +57,14 @@ CasImage::CasImage(const Filename& filename, FilePool& filePool, CliComm& cliCom
 
 int16_t CasImage::getSampleAt(EmuTime::param time)
 {
-	static const Clock<OUTPUT_FREQUENCY> zero(EmuTime::zero);
+	constexpr Clock<OUTPUT_FREQUENCY> zero(EmuTime::zero());
 	unsigned pos = zero.getTicksTill(time);
 	return pos < output.size() ? output[pos] * 256 : 0;
 }
 
 EmuTime CasImage::getEndTime() const
 {
-	Clock<OUTPUT_FREQUENCY> clk(EmuTime::zero);
+	Clock<OUTPUT_FREQUENCY> clk(EmuTime::zero());
 	clk += unsigned(output.size());
 	return clk.getTime();
 }

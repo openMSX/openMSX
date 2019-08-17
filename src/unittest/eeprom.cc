@@ -6,7 +6,7 @@
 
 using namespace openmsx;
 
-static const EmuDuration step = EmuDuration::usec(10);
+constexpr auto step = EmuDuration::usec(10);
 
 static void input_pattern(EEPROM_93C46& eeprom, EmuTime& time, uint32_t pattern, unsigned len)
 {
@@ -212,7 +212,7 @@ TEST_CASE("EEPROM_93C46")
 	XMLElement xml;
 	EEPROM_93C46 eeprom(xml);
 	const uint8_t* data = eeprom.backdoor();
-	EmuTime time = EmuTime::zero;
+	EmuTime time = EmuTime::zero();
 
 	// initially filled with 255
 	for (auto addr : xrange(EEPROM_93C46::NUM_ADDRESSES)) {

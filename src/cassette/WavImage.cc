@@ -29,7 +29,7 @@ private:
 
 // Note: type detection not implemented yet for WAV images
 WavImage::WavImage(const Filename& filename, FilePool& filePool)
-	: clock(EmuTime::zero)
+	: clock(EmuTime::zero())
 {
 	File file(filename);
 	setSha1Sum(filePool.getSha1Sum(file));

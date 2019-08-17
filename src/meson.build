@@ -12,7 +12,6 @@ sources = files(
     'DummyPrinterPortDevice.cc',
     'DynamicClock.cc',
     'EmptyPatch.cc',
-    'EmuDuration.cc',
     'EmuTime.cc',
     'FirmwareSwitch.cc',
     'GlobalSettings.cc',

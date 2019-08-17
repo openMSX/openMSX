@@ -57,7 +57,7 @@ Mouse::Mouse(MSXEventDistributor& eventDistributor_,
              StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, lastTime(EmuTime::zero)
+	, lastTime(EmuTime::zero())
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	phase = PHASE_YLOW;
@@ -353,7 +353,7 @@ void Mouse::serialize(Archive& ar, unsigned version)
 
 	if (ar.versionBelow(version, 4)) {
 		assert(ar.isLoader());
-		Clock<1000> tmp(EmuTime::zero);
+		Clock<1000> tmp(EmuTime::zero());
 		ar.serialize("lastTime", tmp);
 		lastTime = tmp.getTime();
 	} else {

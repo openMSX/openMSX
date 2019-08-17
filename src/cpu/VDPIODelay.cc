@@ -10,7 +10,7 @@ namespace openmsx {
 VDPIODelay::VDPIODelay(const DeviceConfig& config, MSXCPUInterface& cpuInterface)
 	: MSXDevice(config)
 	, cpu(getCPU()) // used frequently, so cache it
-	, lastTime(EmuTime::zero)
+	, lastTime(EmuTime::zero())
 {
 	for (int port = 0x098; port <= 0x9B; ++port) {
 		getInDevicePtr (port) = &cpuInterface.getDummyDevice();

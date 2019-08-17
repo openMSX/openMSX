@@ -52,7 +52,7 @@ public:
 
 private:
 	struct ReverseChunk {
-		ReverseChunk() : time(EmuTime::zero) {}
+		ReverseChunk() : time(EmuTime::zero()) {}
 
 		EmuTime time;
 		std::vector<std::shared_ptr<DeltaBlock>> deltaBlocks;

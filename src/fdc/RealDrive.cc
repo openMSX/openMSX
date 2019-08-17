@@ -268,7 +268,7 @@ bool RealDrive::indexPulse(EmuTime::param time)
 EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time, int count)
 {
 	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
-		return EmuTime::infinity;
+		return EmuTime::infinity();
 	}
 	unsigned delta = TICKS_PER_ROTATION - getCurrentAngle(time);
 	auto dur1 = MotorClock::duration(delta);
@@ -340,7 +340,7 @@ EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 	// header. IOW we need a sector header that's at least 4 bytes removed
 	// from the current position.
 	if (!track.decodeNextSector(idx + 4, sector)) {
-		return EmuTime::infinity;
+		return EmuTime::infinity();
 	}
 	int sectorAngle = divUp(sector.addrIdx * TICKS_PER_ROTATION, trackLen);
 

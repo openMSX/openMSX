@@ -20,7 +20,7 @@ EventDelay::EventDelay(Scheduler& scheduler_,
 	: Schedulable(scheduler_)
 	, eventDistributor(eventDistributor_)
 	, msxEventDistributor(msxEventDistributor_)
-	, prevEmu(EmuTime::zero)
+	, prevEmu(EmuTime::zero())
 	, prevReal(Timer::getTime())
 	, delaySetting(
 		commandController, "inputdelay",

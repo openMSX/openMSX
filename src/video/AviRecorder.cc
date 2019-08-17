@@ -29,8 +29,8 @@ AviRecorder::AviRecorder(Reactor& reactor_)
 	: reactor(reactor_)
 	, recordCommand(reactor.getCommandController())
 	, mixer(nullptr)
-	, duration(EmuDuration::infinity)
-	, prevTime(EmuTime::infinity)
+	, duration(EmuDuration::infinity())
+	, prevTime(EmuTime::infinity())
 	, frameHeight(0)
 {
 }
@@ -80,8 +80,8 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 		// any source is fine because they all have the same bpp
 		unsigned bpp = postProcessors.front()->getBpp();
 		warnedFps = false;
-		duration = EmuDuration::infinity;
-		prevTime = EmuTime::infinity;
+		duration = EmuDuration::infinity();
+		prevTime = EmuTime::infinity();
 
 		try {
 			aviWriter = std::make_unique<AviWriter>(
@@ -174,7 +174,7 @@ void AviRecorder::addWave(unsigned num, float* fdata)
 void AviRecorder::addImage(FrameSource* frame, EmuTime::param time)
 {
 	assert(!wavWriter);
-	if (duration != EmuDuration::infinity) {
+	if (duration != EmuDuration::infinity()) {
 		if (!warnedFps && ((time - prevTime) != duration)) {
 			warnedFps = true;
 			reactor.getCliComm().printWarning(
@@ -182,7 +182,7 @@ void AviRecorder::addImage(FrameSource* frame, EmuTime::param time)
 				"during avi recording. Audio/video might get out of "
 				"sync because of this.");
 		}
-	} else if (prevTime != EmuTime::infinity) {
+	} else if (prevTime != EmuTime::infinity()) {
 		duration = time - prevTime;
 		aviWriter->setFps(1.0 / duration.toDouble());
 	}

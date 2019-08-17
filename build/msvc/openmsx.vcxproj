@@ -782,7 +782,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\DummyPrinterPortDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\DynamicClock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\EmptyPatch.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\EmuDuration.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\EmuTime.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\FirmwareSwitch.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\GlobalSettings.cc" />

@@ -69,8 +69,8 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), getName(), getDescription(), 1, DUMMY_INPUT_RATE, false)
 	, syncEndOfTape(hwConf.getMotherBoard().getScheduler())
 	, syncAudioEmu (hwConf.getMotherBoard().getScheduler())
-	, tapePos(EmuTime::zero)
-	, prevSyncTime(EmuTime::zero)
+	, tapePos(EmuTime::zero())
+	, prevSyncTime(EmuTime::zero())
 	, audioPos(0)
 	, motherBoard(hwConf.getMotherBoard())
 	, tapeCommand(
@@ -88,7 +88,7 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	, motor(false), motorControl(true)
 	, syncScheduled(false)
 {
-	removeTape(EmuTime::zero);
+	removeTape(EmuTime::zero());
 
 	static XMLElement xml = createXML();
 	registerSound(DeviceConfig(hwConf, xml));
@@ -200,13 +200,13 @@ bool CassettePlayer::isRolling() const
 double CassettePlayer::getTapePos(EmuTime::param time)
 {
 	sync(time);
-	return (tapePos - EmuTime::zero).toDouble();
+	return (tapePos - EmuTime::zero()).toDouble();
 }
 
 double CassettePlayer::getTapeLength(EmuTime::param time)
 {
 	if (playImage) {
-		return (playImage->getEndTime() - EmuTime::zero).toDouble();
+		return (playImage->getEndTime() - EmuTime::zero()).toDouble();
 	} else if (getState() == RECORD) {
 		return getTapePos(time);
 	} else {
@@ -368,7 +368,7 @@ void CassettePlayer::rewind(EmuTime::param time)
 {
 	sync(time); // before tapePos changes
 	assert(getState() != RECORD);
-	tapePos = EmuTime::zero;
+	tapePos = EmuTime::zero();
 	audioPos = 0;
 
 	if (getImageName().empty()) {
@@ -385,7 +385,7 @@ void CassettePlayer::recordTape(const Filename& filename, EmuTime::param time)
 {
 	removeTape(time); // flush (possible) previous recording
 	recordImage = std::make_unique<Wav8Writer>(filename, 1, RECORD_FREQ);
-	tapePos = EmuTime::zero;
+	tapePos = EmuTime::zero();
 	setState(RECORD, filename, time);
 }
 
@@ -393,7 +393,7 @@ void CassettePlayer::removeTape(EmuTime::param time)
 {
 	sync(time); // before tapePos changes
 	playImage.reset();
-	tapePos = EmuTime::zero;
+	tapePos = EmuTime::zero();
 	setState(STOP, Filename(), time);
 }
 
@@ -601,7 +601,7 @@ void CassettePlayer::execSyncAudioEmu(EmuTime::param time)
 	if (getState() == PLAY) {
 		updateStream(time);
 		sync(time);
-		DynamicClock clk(EmuTime::zero);
+		DynamicClock clk(EmuTime::zero());
 		clk.setFreq(playImage->getFrequency());
 		audioPos = clk.getTicksTill(tapePos);
 	}

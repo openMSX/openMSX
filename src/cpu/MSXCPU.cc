@@ -28,11 +28,11 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 		"Tcl proc called when the CPU executed a DI/HALT sequence")
 	, z80(std::make_unique<CPUCore<Z80TYPE>>(
 		motherboard, "z80", traceSetting,
-		diHaltCallback, EmuTime::zero))
+		diHaltCallback, EmuTime::zero()))
 	, r800(motherboard.isTurboR()
 		? std::make_unique<CPUCore<R800TYPE>>(
 			motherboard, "r800", traceSetting,
-			diHaltCallback, EmuTime::zero)
+			diHaltCallback, EmuTime::zero())
 		: nullptr)
 	, timeInfo(motherboard.getMachineInfoCommand())
 	, z80FreqInfo(motherboard.getMachineInfoCommand(), "z80_freq", *z80)
@@ -41,7 +41,7 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 			motherboard.getMachineInfoCommand(), "r800_freq", *r800)
 		: nullptr)
 	, debuggable(motherboard_)
-	, reference(EmuTime::zero)
+	, reference(EmuTime::zero())
 {
 	z80Active = true; // setActiveCPU(CPU_Z80);
 	newZ80Active = z80Active;

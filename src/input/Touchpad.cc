@@ -65,7 +65,7 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 		"2x3 matrix to transform host mouse coordinates to "
 		"MSX touchpad coordinates, see manual for details",
 		"{ 256 0 0 } { 0 256 0 }")
-	, start(EmuTime::zero)
+	, start(EmuTime::zero())
 	, hostButtons(0)
 	, x(0), y(0), touch(false), button(false)
 	, shift(0), channel(0), last(0)
@@ -155,7 +155,7 @@ byte Touchpad::read(EmuTime::param time)
 	// EOC remains zero for 56 cycles after CS 0->1
 	// TODO at what clock frequency does the UPD7001 run?
 	//    400kHz is only the recommended value from the UPD7001 datasheet.
-	static const EmuDuration delta = Clock<400000>::duration(56);
+	static constexpr EmuDuration delta = Clock<400000>::duration(56);
 	if ((time - start) > delta) {
 		result |= EOC;
 	}

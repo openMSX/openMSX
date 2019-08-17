@@ -113,7 +113,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	, logicalVRAMDebug (vdp)
 	, physicalVRAMDebug(vdp, size)
 	#ifdef DEBUG
-	, vramTime(EmuTime::zero)
+	, vramTime(EmuTime::zero())
 	#endif
 	, actualSize(size)
 	, cmdReadWindow(data)
@@ -134,7 +134,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	// Whole VRAM is cachable.
 	// Because this window has no observer, any EmuTime can be passed.
 	// TODO: Move this to cache registration.
-	bitmapCacheWindow.setMask(0x1FFFF, ~0u << 17, EmuTime::zero);
+	bitmapCacheWindow.setMask(0x1FFFF, ~0u << 17, EmuTime::zero());
 }
 
 void VDPVRAM::clear()

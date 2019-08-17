@@ -133,7 +133,7 @@ void DiskChanger::sendChangeDiskEvent(span<string> args)
 				args, scheduler->getCurrentTime()));
 	} else {
 		signalStateChange(std::make_shared<MSXCommandEvent>(
-			args, EmuTime::zero));
+			args, EmuTime::zero()));
 	}
 }
 
