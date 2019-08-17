@@ -39,6 +39,12 @@ struct II { // InstructionInfo
 	int cycles;
 };
 
+enum class ExecIRQ {
+	NMI,  // about to execute NMI routine
+	IRQ,  // about to execute normal IRQ routine
+	NONE, // about to execute regular instruction
+};
+
 template<class CPU_POLICY>
 class CPUCore final : public CPUBase, public CPURegs, public CPU_POLICY
 {
@@ -212,7 +218,8 @@ private:
 	inline void irq0();
 	inline void irq1();
 	inline void irq2();
-	void executeSlow();
+	ExecIRQ getExecIRQ() const;
+	void executeSlow(ExecIRQ execIRQ);
 
 	template<Reg8>  inline byte     get8()  const;
 	template<Reg16> inline unsigned get16() const;

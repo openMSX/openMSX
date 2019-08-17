@@ -2486,12 +2486,19 @@ template<class T> void CPUCore<T>::cpuTracePost_slow()
 	          << std::flush;
 }
 
-template<class T> void CPUCore<T>::executeSlow()
+template<class T> ExecIRQ CPUCore<T>::getExecIRQ() const
 {
-	if (unlikely(nmiEdge)) {
+	if (unlikely(nmiEdge)) return ExecIRQ::NMI;
+	if (unlikely(IRQStatus && getIFF1() && !prevWasEI())) return ExecIRQ::IRQ;
+	return ExecIRQ::NONE;
+}
+
+template<class T> void CPUCore<T>::executeSlow(ExecIRQ execIRQ)
+{
+	if (unlikely(execIRQ == ExecIRQ::NMI)) {
 		nmiEdge = false;
 		nmi(); // NMI occured
-	} else if (unlikely(IRQStatus && getIFF1() && !prevWasEI())) {
+	} else if (unlikely(execIRQ == ExecIRQ::IRQ)) {
 		// normal interrupt
 		if (unlikely(prevWasLDAI())) {
 			// HACK!!!
@@ -2578,7 +2585,7 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 	if (!fastForward && (interface->isContinue() || interface->isStep())) {
 		// at least one instruction
 		interface->setContinue(false);
-		executeSlow();
+		executeSlow(getExecIRQ());
 		scheduler.schedule(T::getTimeFast());
 		--slowInstructions;
 		if (interface->isStep()) {
@@ -2597,7 +2604,7 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 		while (!needExitCPULoop()) {
 			if (slowInstructions) {
 				--slowInstructions;
-				executeSlow();
+				executeSlow(getExecIRQ());
 				scheduler.schedule(T::getTimeFast());
 			} else {
 				while (slowInstructions == 0) {
@@ -2616,7 +2623,40 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 		}
 	} else {
 		while (!needExitCPULoop()) {
-			if (interface->checkBreakPoints(getPC(), motherboard)) {
+			// Only check for breakpoints when we're not about to jump to an IRQ handler.
+			//
+			// This fixes the following problem reported by Grauw:
+			//
+			//   I found a breakpoints bug: sometimes a breakpoint gets hit twice even
+			//   though the code is executed once. This manifests itself in my profiler
+			//   as an imbalance between section begin- and end-calls.
+			//
+			//   Turns out this occurs when an interrupt occurs exactly on the line of
+			//   the breakpoint, then the breakpoint gets hit before immediately going
+			//   to the ISR, as well as when returning from the ISR.
+			//
+			//   The IRQ is handled by the Z80 at the end of an instruction. So it
+			//   should change the PC before the next instruction is fetched and the
+			//   breakpoints should be evaluated during instruction fetch.
+			//
+			// I think Grauw's analysis is correct. Though for performance reasons we
+			// don't emulate the Z80 like that: we don't check for IRQs at the end of
+			// every instruction. In the openMSX emulation model, we can only enter an
+			// ISR:
+			//  - (One instruction after) switching from DI to EI mode.
+			//  - After emulating device code. This can be:
+			//    * When the Z80 communicated with the device (IO or memory mapped IO).
+			//    * The device had set a synchronization point.
+			//  In all cases disableLimit() gets called which will cause
+			//  limitReached() to return true (and possibly slowInstructions to be > 0).
+			// So after most emulated Z80 instructions there can't be a pending IRQ, so
+			// checking for it is wasteful. Also synchronization points are handled
+			// between emulated Z80 instructions, that means me must check for pending
+			// IRQs at the start (instead of end) of an instruction.
+			//
+			auto execIRQ = getExecIRQ();
+			if ((execIRQ == ExecIRQ::NONE) &&
+			    interface->checkBreakPoints(getPC(), motherboard)) {
 				assert(interface->isBreaked());
 				break;
 			}
@@ -2628,7 +2668,7 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 				cpuTracePost();
 			} else {
 				--slowInstructions;
-				executeSlow();
+				executeSlow(execIRQ);
 			}
 			// Don't use getTimeFast() here, we need a call to
 			// CPUClock::sync() 'once in a while'. (During a
