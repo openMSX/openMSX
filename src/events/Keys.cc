@@ -2,6 +2,7 @@
 #include "StringOp.hh"
 #include "cstd.hh"
 #include "ranges.hh"
+#include <array>
 
 using std::string;
 using std::string_view;
@@ -50,7 +51,7 @@ struct CmpKeys {
 #endif
 static KEYS_CONSTEXPR auto getSortedKeys()
 {
-	auto keys = cstd::array_of<P>(
+	auto keys = std::array{
 		P("BACKSPACE",	K_BACKSPACE),
 		P("TAB",	K_TAB),
 		P("CLEAR",	K_CLEAR),
@@ -330,7 +331,7 @@ static KEYS_CONSTEXPR auto getSortedKeys()
 		// Direction modifiers
 		P("PRESS",	KD_PRESS),
 		P("RELEASE",	KD_RELEASE)
-	);
+	};
 	KEYS_SORT(keys, CmpKeys());
 	return keys;
 }
