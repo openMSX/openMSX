@@ -588,7 +588,7 @@ std::string strCat(Ts&& ...ts)
 	// yet possible. Though see the following proposal (for c++20):
 	//   www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1072r0.html
 	std::string result(size, ' ');
-	char* dst = &result[0]; // C++17 result.data()
+	char* dst = result.data();
 	strCatImpl::copyUnits(dst, t);
 	return result;
 }
