@@ -57,30 +57,6 @@ constexpr ForwardIt partition(ForwardIt first, ForwardIt last, UnaryPredicate p)
 	return first;
 }
 
-// Workaround for lack of C++17 constexpr-lambda-functions.
-template<typename T, typename Compare>
-struct CmpLeft
-{
-	T pivot;
-	Compare cmp;
-
-	constexpr bool operator()(const T& elem) const {
-		return cmp(elem, pivot);
-	}
-};
-
-// Workaround for lack of C++17 constexpr-lambda-functions.
-template<typename T, typename Compare>
-struct CmpRight
-{
-	T pivot;
-	Compare cmp;
-
-	constexpr bool operator()(const T& elem) const {
-		return !cmp(pivot, elem);
-	}
-};
-
 // Textbook implementation of quick sort. Not optimized, but the intention is
 // that it only gets executed during compile-time.
 template<typename RAIt, typename Compare = std::less<>>
@@ -90,9 +66,9 @@ constexpr void sort(RAIt first, RAIt last, Compare cmp = Compare{})
 	if (N <= 1) return;
 	auto const pivot = *(first + N / 2);
 	auto const middle1 = cstd::partition(
-	        first, last, CmpLeft<decltype(pivot), Compare>{pivot, cmp});
+	        first, last, [&](const auto& elem) { return cmp(elem, pivot); });
 	auto const middle2 = cstd::partition(
-	        middle1, last, CmpRight<decltype(pivot), Compare>{pivot, cmp});
+	        middle1, last, [&](const auto& elem) { return !cmp(pivot, elem); });
 	cstd::sort(first, middle1, cmp);
 	cstd::sort(middle2, last, cmp);
 }

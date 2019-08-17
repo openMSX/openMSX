@@ -9,7 +9,7 @@ using std::string_view;
 
 namespace openmsx::Keys {
 
-// can be std::pair in C++17
+// can be std::pair in C++20
 struct P {
 	constexpr P(string_view s, KeyCode k)
 		: first(s), second(k) {}
