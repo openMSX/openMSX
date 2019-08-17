@@ -57,32 +57,6 @@ struct span_storage<E, dynamic_extent>
 };
 
 
-// Reimplementation of C++17 std::size() and std::data()
-template<typename C>
-constexpr auto size(const C& c) -> decltype(c.size()) { return c.size(); }
-
-template<typename T, size_t N>
-constexpr auto size(const T (&)[N]) noexcept { return N; }
-
-
-template<typename C>
-constexpr auto data(C& c) -> decltype(c.data()) { return c.data(); }
-
-template<typename C>
-constexpr auto data(const C& c) -> decltype(c.data()) { return c.data(); }
-
-template<typename T, size_t N>
-constexpr T* data(T (&array)[N]) noexcept { return array; }
-
-template<typename E>
-constexpr const E* data(std::initializer_list<E> il) noexcept { return il.begin(); }
-
-
-// Reimplementation of C++17 std::void_t
-template<typename...>
-using void_t = void;
-
-
 template<typename>
 struct is_span : std::false_type {};
 
@@ -102,8 +76,8 @@ struct has_size_and_data : std::false_type {};
 
 template<typename T>
 struct has_size_and_data<T,
-                         void_t<decltype(detail::size(std::declval<T>())),
-                                decltype(detail::data(std::declval<T>()))>>
+                         std::void_t<decltype(std::size(std::declval<T>())),
+                                     decltype(std::data(std::declval<T>()))>>
         : std::true_type {};
 
 
@@ -121,8 +95,8 @@ template<typename, typename, typename = void>
 struct is_container_element_type_compatible : std::false_type {};
 
 template<typename T, typename E>
-struct is_container_element_type_compatible<T, E, void_t<decltype(detail::data(std::declval<T>()))>>
-        : std::is_convertible<std::remove_pointer_t<decltype(detail::data(std::declval<T>()))> (*)[], E (*)[]>
+struct is_container_element_type_compatible<T, E, std::void_t<decltype(std::data(std::declval<T>()))>>
+        : std::is_convertible<std::remove_pointer_t<decltype(std::data(std::declval<T>()))> (*)[], E (*)[]>
 {};
 
 
@@ -215,7 +189,7 @@ public:
                               detail::is_container_element_type_compatible<std::array<value_type, N>&,
                                                                            ElementType>::value,
                               int> = 0>
-    /*constexpr*/ span(std::array<value_type, N>& arr) noexcept
+    constexpr span(std::array<value_type, N>& arr) noexcept
         : storage(arr.data(), N)
     {
     }
@@ -226,7 +200,7 @@ public:
                               detail::is_container_element_type_compatible<const std::array<value_type, N>&,
                                                                            ElementType>::value,
                       int> = 0>
-    /*constexpr*/ span(const std::array<value_type, N>& arr) noexcept
+    constexpr span(const std::array<value_type, N>& arr) noexcept
         : storage(arr.data(), N)
     {
     }
@@ -236,9 +210,9 @@ public:
                               detail::is_container_element_type_compatible<Container&, ElementType>::value,
                               int> = 0>
     constexpr span(Container& cont)
-        : storage(detail::data(cont), detail::size(cont))
+        : storage(std::data(cont), std::size(cont))
     {
-        assert(extent == dynamic_extent || detail::size(cont) == extent);
+        assert(extent == dynamic_extent || std::size(cont) == extent);
     }
 
     template<typename Container,
@@ -246,9 +220,9 @@ public:
                               detail::is_container_element_type_compatible<const Container&, ElementType>::value,
                               int> = 0>
     constexpr span(const Container& cont)
-        : storage(detail::data(cont), detail::size(cont))
+        : storage(std::data(cont), std::size(cont))
     {
-        assert(extent == dynamic_extent || detail::size(cont) == extent);
+        assert(extent == dynamic_extent || std::size(cont) == extent);
     }
 
     constexpr span(const span& other) noexcept = default;
@@ -354,10 +328,10 @@ public:
     constexpr const_iterator cbegin() const noexcept { return begin(); }
     constexpr const_iterator cend()   const noexcept { return end(); }
 
-    /*constexpr*/ auto rbegin()  const noexcept { return reverse_iterator(end()); }
-    /*constexpr*/ auto rend()    const noexcept { return reverse_iterator(begin()); }
-    /*constexpr*/ auto crbegin() const noexcept { return const_reverse_iterator(cend()); }
-    /*constexpr*/ auto crend()   const noexcept { return const_reverse_iterator(cbegin()); }
+    constexpr auto rbegin()  const noexcept { return reverse_iterator(end()); }
+    constexpr auto rend()    const noexcept { return reverse_iterator(begin()); }
+    constexpr auto crbegin() const noexcept { return const_reverse_iterator(cend()); }
+    constexpr auto crend()   const noexcept { return const_reverse_iterator(cbegin()); }
 
 private:
     storage_type storage;
