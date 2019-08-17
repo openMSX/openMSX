@@ -533,11 +533,7 @@ inline auto makeConcatUnit(const ConcatSpaces& t)
 template<typename Tuple, size_t... Is>
 size_t calcTotalSizeHelper(const Tuple& t, std::index_sequence<Is...>)
 {
-	// TODO implementation can be simplified by using c++17 fold expressions
-	size_t total = 0;
-	auto l = { ((total += std::get<Is>(t).size()) , 0)... };
-	(void)l;
-	return total;
+	return (... + std::get<Is>(t).size());
 }
 
 template<typename... Ts>
