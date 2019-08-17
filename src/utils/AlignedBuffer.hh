@@ -76,7 +76,7 @@ static_assert(sizeof(AlignedByteArray<32>) == 32,
   */
 template<typename T> static inline T aligned_cast(void* p)
 {
-	static_assert(std::is_pointer<T>::value,
+	static_assert(std::is_pointer_v<T>,
 	              "can only perform aligned_cast on pointers");
 	assert((reinterpret_cast<uintptr_t>(p) %
 	        alignof(std::remove_pointer_t<T>)) == 0);

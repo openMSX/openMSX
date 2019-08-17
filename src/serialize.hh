@@ -396,7 +396,7 @@ public:
 		// For polymorphic types you do sometimes use a base pointer
 		// to refer to a subtype. So there we only use the pointer
 		// value as key in the map.
-		if (std::is_polymorphic<T>::value) {
+		if constexpr (std::is_polymorphic_v<T>) {
 			return generateID1(p);
 		} else {
 			return generateID2(p, typeid(T));
@@ -405,7 +405,7 @@ public:
 
 	template<typename T> unsigned getId(const T* p)
 	{
-		if (std::is_polymorphic<T>::value) {
+		if constexpr (std::is_polymorphic_v<T>) {
 			return getID1(p);
 		} else {
 			return getID2(p, typeid(T));
@@ -475,7 +475,7 @@ public:
 	}
 	template<typename T> void serializePolymorphic(const char* tag, const T& t)
 	{
-		static_assert(std::is_polymorphic<T>::value,
+		static_assert(std::is_polymorphic_v<T>,
 		              "must be a polymorphic type");
 		PolymorphicSaverRegistry<Derived>::save(tag, this->self(), t);
 	}
@@ -575,7 +575,7 @@ public:
 	}
 	template<typename T> void serializePolymorphic(const char* tag, T& t)
 	{
-		static_assert(std::is_polymorphic<T>::value,
+		static_assert(std::is_polymorphic_v<T>,
 		              "must be a polymorphic type");
 		PolymorphicInitializerRegistry<Derived>::init(tag, this->self(), &t);
 	}
@@ -678,7 +678,7 @@ public:
 	}
 	template<typename T, size_t N>
 	ALWAYS_INLINE void serialize(const char* /*tag*/, const T(&t)[N],
-		typename std::enable_if<SerializeAsMemcpy<T>::value>::type* = nullptr)
+		std::enable_if_t<SerializeAsMemcpy<T>::value>* = nullptr)
 	{
 		buffer.insert(&t[0], N * sizeof(T));
 	}
@@ -791,7 +791,7 @@ public:
 
 	template<typename T, size_t N>
 	ALWAYS_INLINE void serialize(const char* /*tag*/, T(&t)[N],
-		typename std::enable_if<SerializeAsMemcpy<T>::value>::type* = nullptr)
+		std::enable_if_t<SerializeAsMemcpy<T>::value>* = nullptr)
 	{
 		buffer.read(&t[0], N * sizeof(T));
 	}
@@ -832,7 +832,7 @@ private:
 	template<typename TUPLE>
 	ALWAYS_INLINE void serialize_group(const TUPLE& tuple)
 	{
-		GroupLoader<0, std::tuple_size<TUPLE>::value, TUPLE> groupLoader;
+		GroupLoader<0, std::tuple_size_v<TUPLE>, TUPLE> groupLoader;
 		groupLoader(buffer, tuple);
 	}
 	template<typename TUPLE, typename T, typename ...Args>

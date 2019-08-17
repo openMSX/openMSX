@@ -311,7 +311,7 @@ auto sum(InputRange&& range)
 namespace detail {
 	template<typename T, typename Iterator>
 	using ToVectorType = std::conditional_t<
-		std::is_same<T, void>::value,
+		std::is_same_v<T, void>,
 		typename std::iterator_traits<Iterator>::value_type,
 		T>;
 }

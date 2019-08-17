@@ -68,7 +68,7 @@ public:
 		auto* newEnd = end + len;
 		if (unlikely(newEnd > finish)) grow(len);
 
-		InsertTupleHelper<TUPLE, 0, std::tuple_size<TUPLE>::value> helper;
+		InsertTupleHelper<TUPLE, 0, std::tuple_size_v<TUPLE>> helper;
 		helper(tuple, end);
 
 		end = newEnd;
@@ -159,7 +159,7 @@ private:
 		static const size_t value = 0;
 	};
 	template<typename TUPLE> struct TupleElementSize
-		: TupleElementSizeImpl<std::tuple_size<TUPLE>::value, TUPLE> {};
+		: TupleElementSizeImpl<std::tuple_size_v<TUPLE>, TUPLE> {};
 
 	// InsertTupleHelper
 	template<typename TUPLE, size_t I, size_t N> struct InsertTupleHelper {

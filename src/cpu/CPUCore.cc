@@ -329,7 +329,7 @@ template<class T> CPUCore<T>::CPUCore(
 	, tracingEnabled(traceSetting.getBoolean())
 	, isTurboR(motherboard.isTurboR())
 {
-	static_assert(!std::is_polymorphic<CPUCore<T>>::value,
+	static_assert(!std::is_polymorphic_v<CPUCore<T>>,
 		"keep CPUCore non-virtual to keep PC at offset 0");
 	doSetFreq();
 	doReset(time);

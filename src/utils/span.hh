@@ -86,7 +86,7 @@ struct is_container
 {
     static constexpr bool value = !is_span<U>::value &&
                                   !is_std_array<U>::value &&
-                                  !std::is_array<U>::value &&
+                                  !std::is_array_v<U> &&
                                   has_size_and_data<C>::value;
 };
 
@@ -127,13 +127,13 @@ class span
     static_assert(Extent == dynamic_extent || ptrdiff_t(Extent) >= 0,
                   "A span must have an extent greater than or equal to zero, "
                   "or a dynamic extent");
-    static_assert(std::is_object<ElementType>::value,
+    static_assert(std::is_object_v<ElementType>,
                   "A span's ElementType must be an object type (not a "
                   "reference type or void)");
     static_assert(detail::is_complete<ElementType>::value,
                   "A span's ElementType must be a complete type (not a forward "
                   "declaration)");
-    static_assert(!std::is_abstract<ElementType>::value,
+    static_assert(!std::is_abstract_v<ElementType>,
                   "A span's ElementType cannot be an abstract class type");
 
     using storage_type = detail::span_storage<ElementType, Extent>;
@@ -230,7 +230,7 @@ public:
     template<typename OtherElementType,
              size_t OtherExtent,
              std::enable_if_t<(Extent == OtherExtent || Extent == dynamic_extent) &&
-                              std::is_convertible<OtherElementType (*)[], ElementType (*)[]>::value,
+                              std::is_convertible_v<OtherElementType (*)[], ElementType (*)[]>,
                               int> = 0>
     constexpr span(const span<OtherElementType, OtherExtent>& other) noexcept
       : storage(other.data(), other.size())
@@ -346,7 +346,7 @@ as_bytes(span<ElementType, Extent> s) noexcept
 
 template<typename ElementType,
          size_t Extent,
-         std::enable_if_t<!std::is_const<ElementType>::value, int> = 0>
+         std::enable_if_t<!std::is_const_v<ElementType>, int> = 0>
 span<uint8_t, detail::calculate_byte_size<ElementType, Extent>::value>
 as_writable_bytes( span<ElementType, Extent> s) noexcept
 {

@@ -374,7 +374,7 @@ template<typename TP> struct PointerSaver
 		if (unsigned id = ar.getId(tp)) {
 			ar.attribute("id_ref", id);
 		} else {
-			if (std::is_polymorphic<T>::value) {
+			if constexpr (std::is_polymorphic_v<T>) {
 				PolymorphicSaverRegistry<Archive>::save(ar, tp);
 			} else {
 				ClassSaver<T> saver;
@@ -461,7 +461,7 @@ template<typename T> struct PrimitiveLoader
 	template<typename Archive, typename TUPLE>
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
-		static_assert(std::tuple_size<TUPLE>::value == 0,
+		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
 		ar.load(t);
 	}
@@ -471,7 +471,7 @@ template<typename T> struct EnumLoader
 	template<typename Archive, typename TUPLE>
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
-		static_assert(std::tuple_size<TUPLE>::value == 0,
+		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
 		if (ar.translateEnumToString()) {
 			std::string str;
@@ -505,7 +505,7 @@ template<typename T> struct ClassLoader
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int id = 0,
 	                int version = -1)
 	{
-		static_assert(std::tuple_size<TUPLE>::value == 0,
+		static_assert(std::tuple_size_v<TUPLE> == 0,
 		              "can't have constructor arguments");
 
 		// id == -1: don't load id, don't addPointer
@@ -559,7 +559,7 @@ template<typename T> struct PolymorphicPointerLoader
 	T* operator()(Archive& ar, unsigned id, TUPLE args)
 	{
 		using ArgsType = typename PolymorphicConstructorArgs<T>::type;
-		static_assert(std::is_same<TUPLE, ArgsType>::value,
+		static_assert(std::is_same_v<TUPLE, ArgsType>,
 		              "constructor arguments types must match");
 		return static_cast<T*>(
 			PolymorphicLoaderRegistry<Archive>::load(ar, id, &args));
@@ -569,7 +569,7 @@ template<typename T> struct PointerLoader2
 	// extra indirection needed because inlining the body of
 	// NonPolymorphicPointerLoader in PointerLoader does not compile
 	// for abstract types
-	: std::conditional_t<std::is_polymorphic<T>::value,
+	: std::conditional_t<std::is_polymorphic_v<T>,
 	                     PolymorphicPointerLoader<T>,
 	                     NonPolymorphicPointerLoader<T>> {};
 

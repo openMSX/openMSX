@@ -46,8 +46,8 @@ TEST_CASE("xrange")
 TEST_CASE("xrange, random-access")
 {
 	auto r = xrange(20, 45);
-	static_assert(std::is_same<decltype(r.begin())::iterator_category,
-	                           std::random_access_iterator_tag>::value);
+	static_assert(std::is_same_v<decltype(r.begin())::iterator_category,
+	                             std::random_access_iterator_tag>);
 
 	auto b = r.begin();  REQUIRE(*b == 20);
 	auto m = b + 10;

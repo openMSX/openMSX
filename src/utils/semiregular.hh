@@ -52,7 +52,7 @@ template <typename T> struct semiregular_move_assign : std::optional<T> {
 	operator=(const semiregular_move_assign&) = default;
 	semiregular_move_assign&
 	operator=(semiregular_move_assign&& that) noexcept(
-	        std::is_nothrow_move_constructible<T>::value)
+	        std::is_nothrow_move_constructible_v<T>)
 	{
 		this->reset();
 		if (that) { this->emplace(std::move(*that)); }
@@ -62,7 +62,7 @@ template <typename T> struct semiregular_move_assign : std::optional<T> {
 
 template <typename T>
 using semiregular_move_layer =
-        std::conditional_t<std::is_move_assignable<T>::value,
+        std::conditional_t<std::is_move_assignable_v<T>,
                            std::optional<T>,
                            semiregular_move_assign<T>>;
 
@@ -75,7 +75,7 @@ struct semiregular_copy_assign : semiregular_move_layer<T> {
 	semiregular_copy_assign(semiregular_copy_assign&&) = default;
 	semiregular_copy_assign&
 	operator=(const semiregular_copy_assign& that) noexcept(
-	        std::is_nothrow_copy_constructible<T>::value)
+	        std::is_nothrow_copy_constructible_v<T>)
 	{
 		this->reset();
 		if (that) { this->emplace(*that); }
@@ -86,7 +86,7 @@ struct semiregular_copy_assign : semiregular_move_layer<T> {
 
 template <typename T>
 using semiregular_copy_layer =
-        std::conditional_t<std::is_copy_assignable<T>::value,
+        std::conditional_t<std::is_copy_assignable_v<T>,
                            std::optional<T>,
                            semiregular_copy_assign<T>>;
 
@@ -174,8 +174,8 @@ struct semiregular<T&&> : private std::reference_wrapper<T&&> {
 
 template <typename T>
 using semiregular_t =
-        std::conditional_t<std::is_default_constructible<T>::value &&
-                                   std::is_copy_assignable<T>::value,
+        std::conditional_t<std::is_default_constructible_v<T> &&
+                                 std::is_copy_assignable_v<T>,
                            T, sreg_impl::semiregular<T>>;
 
 #endif

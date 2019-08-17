@@ -133,7 +133,7 @@ TEST_CASE("to_vector: from list")
 		CHECK(v[0] == 1);
 		CHECK(v[1] == 2);
 		CHECK(v[2] == 3);
-		CHECK(std::is_same<decltype(v)::value_type, int>::value);
+		CHECK(std::is_same_v<decltype(v)::value_type, int>);
 	}
 	SECTION("convert type") {
 		std::list<int> l = {1, 2, 3};
@@ -142,7 +142,7 @@ TEST_CASE("to_vector: from list")
 		CHECK(v[0] == 1);
 		CHECK(v[1] == 2);
 		CHECK(v[2] == 3);
-		CHECK(std::is_same<decltype(v)::value_type, char>::value);
+		CHECK(std::is_same_v<decltype(v)::value_type, char>);
 	}
 }
 
@@ -153,14 +153,14 @@ TEST_CASE("to_vector: from view")
 		auto v = to_vector(view::drop(v1, 2));
 		CHECK(v.size() == 1);
 		CHECK(v[0] == 3);
-		CHECK(std::is_same<decltype(v)::value_type, int>::value);
+		CHECK(std::is_same_v<decltype(v)::value_type, int>);
 	}
 	SECTION("convert type") {
 		auto v = to_vector<long long>(view::drop(v1, 1));
 		CHECK(v.size() == 2);
 		CHECK(v[0] == 2ll);
 		CHECK(v[1] == 3ll);
-		CHECK(std::is_same<decltype(v)::value_type, long long>::value);
+		CHECK(std::is_same_v<decltype(v)::value_type, long long>);
 	}
 }
 
