@@ -93,7 +93,7 @@ void CommandLineParser::registerFileType(
 {
 	append(fileTypes, view::transform(
 		StringOp::split(extensions, ','),
-		[&](auto& ext) { return std::make_pair(ext, &cliFileType); }));
+		[&](auto& ext) { return std::pair(ext, &cliFileType); }));
 }
 
 bool CommandLineParser::parseOption(

@@ -241,12 +241,6 @@ private:
 	const UnaryOp&  op() const { return std::get<1>(storage); }
 };
 
-template<typename Iterator, typename UnaryOp>
-auto make_transform_iterator(Iterator it, UnaryOp op)
-{
-	return TransformIterator<Iterator, UnaryOp>(it, op);
-}
-
 template<typename Range, typename UnaryOp> class Transform
 {
 public:
@@ -257,19 +251,19 @@ public:
 
 	auto begin() const
 	{
-		return make_transform_iterator(std::begin(range()), op());
+		return TransformIterator(std::begin(range()), op());
 	}
 	auto end() const
 	{
-		return make_transform_iterator(std::end(range()), op());
+		return TransformIterator(std::end(range()), op());
 	}
 	auto rbegin() const
 	{
-		return make_transform_iterator(std::rbegin(range()), op());
+		return TransformIterator(std::rbegin(range()), op());
 	}
 	auto rend() const
 	{
-		return make_transform_iterator(std::rend(range()), op());
+		return TransformIterator(std::rend(range()), op());
 	}
 
 	auto size()  const { return range().size(); }

@@ -408,7 +408,7 @@ template<> struct SerializeConstructorArgs<DiskChanger>
 	{
 		string driveName;
 		ar.serialize("driveName", driveName);
-		return make_tuple(driveName);
+		return std::tuple(driveName);
 	}
 };
 

@@ -59,8 +59,8 @@ EnumSetting<T>::EnumSetting(
 		CommandController& commandController_, std::string_view name,
 		std::string_view description_, T initialValue,
 		Map&& map, SaveSetting save_)
-	: EnumSettingBase(BaseMap(std::make_move_iterator(begin(map)),
-	                          std::make_move_iterator(end(map))))
+	: EnumSettingBase(BaseMap(std::move_iterator(begin(map)),
+	                          std::move_iterator(end(map))))
 	, Setting(commandController_, name, description_,
 	          TclObject(toString(initialValue)), save_)
 {

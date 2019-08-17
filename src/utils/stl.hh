@@ -238,7 +238,7 @@ l_true:				*out_true++  = std::move(*first++);
 			}
 		}
 	}
-	return std::make_pair(out_true, out_false);
+	return std::pair(out_true, out_false);
 }
 
 template<typename ForwardRange, typename OutputIt, typename UnaryPredicate>
@@ -381,8 +381,8 @@ template<typename Result, typename T2, typename... Tail>
 void append(Result& x, std::vector<T2>&& y, Tail&&... tail)
 {
 	x.insert(std::end(x),
-		 std::make_move_iterator(std::begin(y)),
-		 std::make_move_iterator(std::end(y)));
+		 std::move_iterator(std::begin(y)),
+		 std::move_iterator(std::end(y)));
 	detail::append(x, std::forward<Tail>(tail)...);
 }
 
@@ -411,8 +411,8 @@ void append(std::vector<T>& v, std::vector<T>&& range)
 		v = std::move(range);
 	} else {
 		v.insert(std::end(v),
-		         std::make_move_iterator(std::begin(range)),
-		         std::make_move_iterator(std::end(range)));
+		         std::move_iterator(std::begin(range)),
+		         std::move_iterator(std::end(range)));
 	}
 }
 

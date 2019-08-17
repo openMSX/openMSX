@@ -51,7 +51,7 @@ unsigned OutputArchiveBase2::generateID2(
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	auto key = std::make_pair(p, std::type_index(typeInfo));
+	auto key = std::pair(p, std::type_index(typeInfo));
 	assert(!idMap.contains(key));
 	idMap.emplace_noDuplicateCheck(key, lastId);
 	return lastId;
@@ -65,7 +65,7 @@ unsigned OutputArchiveBase2::getID1(const void* p)
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	auto v = lookup(idMap, std::make_pair(p, std::type_index(typeInfo)));
+	auto v = lookup(idMap, std::pair(p, std::type_index(typeInfo)));
 	return v ? *v : 0;
 }
 

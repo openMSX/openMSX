@@ -376,10 +376,9 @@ String32 DBParser::cIndex(string_view str)
 void DBParser::addEntries()
 {
 	append(db, view::transform(dumps, [&](auto& d) {
-		return std::make_pair(
-			d.hash,
-			RomInfo(title, year, company, country, d.origValue,
-			        d.origData, d.remark, d.type, genMSXid));
+		return std::pair(d.hash,
+		                 RomInfo(title, year, company, country, d.origValue,
+		                         d.origData, d.remark, d.type, genMSXid));
 	}));
 }
 

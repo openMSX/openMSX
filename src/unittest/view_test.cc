@@ -231,9 +231,9 @@ TEST_CASE("view::keys, view::values") {
 	}
 	SECTION("std::vector<tuple>") {
 		vector<tuple<int, char, double, string>> v = {
-			make_tuple(1, 2, 1.2, "foo"),
-			make_tuple(3, 4, 3.4, "bar"),
-			make_tuple(5, 6, 5.6, "qux")
+			tuple(1, 2, 1.2, "foo"),
+			tuple(3, 4, 3.4, "bar"),
+			tuple(5, 6, 5.6, "qux")
 		};
 		check(keys  (v), vector<int>{1, 3, 5});
 		check(values(v), vector<char>{2, 4, 6});

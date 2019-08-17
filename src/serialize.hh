@@ -561,7 +561,7 @@ public:
 		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
-		loader(this->self(), tnc, std::make_tuple(), -1); // don't load id
+		loader(this->self(), tnc, std::tuple(), -1); // don't load id
 		this->self().endTag(tag);
 	}
 	template<typename T> void serializePointerID(const char* tag, const T& t)
@@ -674,7 +674,7 @@ public:
 		// - Only do this when there are at least two pairs (it is
 		//   correct for a single pair, but it's less tuned for that
 		//   case).
-		serialize_group(std::make_tuple(), tag, t, std::forward<Args>(args)...);
+		serialize_group(std::tuple(), tag, t, std::forward<Args>(args)...);
 	}
 	template<typename T, size_t N>
 	ALWAYS_INLINE void serialize(const char* /*tag*/, const T(&t)[N],
@@ -725,7 +725,7 @@ private:
 	ALWAYS_INLINE void serialize_group_impl(std::true_type, const TUPLE& tuple, const char* /*tag*/, const T& t, Args&& ...args)
 	{
 		// add to the group and continue categorizing
-		serialize_group(std::tuple_cat(tuple, std::make_tuple(&t)), std::forward<Args>(args)...);
+		serialize_group(std::tuple_cat(tuple, std::tuple(&t)), std::forward<Args>(args)...);
 	}
 	template<typename TUPLE, typename T, typename ...Args>
 	ALWAYS_INLINE void serialize_group_impl(std::false_type, const TUPLE& tuple, const char* tag, const T& t, Args&& ...args)
@@ -786,7 +786,7 @@ public:
 	ALWAYS_INLINE void serialize(const char* tag, T& t, Args&& ...args)
 	{
 		// see comments in MemOutputArchive
-		serialize_group(std::make_tuple(), tag, t, std::forward<Args>(args)...);
+		serialize_group(std::tuple(), tag, t, std::forward<Args>(args)...);
 	}
 
 	template<typename T, size_t N>
@@ -838,7 +838,7 @@ private:
 	template<typename TUPLE, typename T, typename ...Args>
 	ALWAYS_INLINE void serialize_group_impl(std::true_type, const TUPLE& tuple, const char* /*tag*/, T& t, Args&& ...args)
 	{
-		serialize_group(std::tuple_cat(tuple, std::make_tuple(&t)), std::forward<Args>(args)...);
+		serialize_group(std::tuple_cat(tuple, std::tuple(&t)), std::forward<Args>(args)...);
 	}
 	template<typename TUPLE, typename T, typename ...Args>
 	ALWAYS_INLINE void serialize_group_impl(std::false_type, const TUPLE& tuple, const char* tag, T& t, Args&& ...args)

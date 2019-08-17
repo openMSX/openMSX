@@ -75,7 +75,7 @@ public:
 		} else {
 			// assign, return pair<iterator, false>
 			it->second = std::forward<V>(value);
-			return std::make_pair(it, false);
+			return std::pair(it, false);
 		}
 	}
 

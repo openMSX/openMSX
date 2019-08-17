@@ -20,7 +20,7 @@ namespace openmsx {
  *
  * For example:
  *       Creator<Foo> creator;
- *       tuple<int, float> args = std::make_tuple(42, 3.14);
+ *       auto args = std::tuple(42, 3.14);
  *       std::unique_ptr<Foo> foo = creator(args);
  * This is equivalent to
  *       auto foo = std::make_unique<Foo>(42, 3.14);
@@ -94,7 +94,7 @@ template<typename Base> struct MapConstrArgsEmpty
 	using TUPLEIn = typename PolymorphicConstructorArgs<Base>::type;
 	std::tuple<> operator()(const TUPLEIn& /*t*/)
 	{
-		return std::make_tuple();
+		return std::tuple();
 	}
 };
 template<typename Base, typename Derived> struct MapConstrArgsCopy
@@ -207,7 +207,7 @@ public:
 		}
 		auto t = static_cast<T*>(base);
 		ClassLoader<T> loader;
-		loader(ar, *t, std::make_tuple(), id);
+		loader(ar, *t, std::tuple(), id);
 	}
 };
 

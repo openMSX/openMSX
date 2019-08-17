@@ -356,7 +356,7 @@ void Reactor::createMachineSetting()
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	int count = 1;
 	append(machines, view::transform(getHwConfigs("machines"),
-		[&](auto& name) { return std::make_pair(name, count++); }));
+		[&](auto& name) { return std::pair(name, count++); }));
 	machines.emplace_back("C-BIOS_MSX2+", 0); // default machine
 
 	machineSetting = make_unique<EnumSetting<int>>(

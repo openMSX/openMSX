@@ -666,7 +666,7 @@ private:
 					if ((elem.hash == hash) &&
 					    equal(extract(elem.value), extract(value))) {
 						// already exists
-						return std::make_pair(iterator(this, elemIdx), false);
+						return std::pair(iterator(this, elemIdx), false);
 					}
 					elemIdx = elem.nextIdx;
 				}
@@ -682,7 +682,7 @@ private:
 		elemCount++;
 		unsigned idx = pool.create(std::forward<V>(value), hash, primary);
 		table[tableIdx] = idx;
-		return std::make_pair(iterator(this, idx), true);
+		return std::pair(iterator(this, idx), true);
 	}
 
 	template<bool CHECK_CAPACITY, bool CHECK_DUPLICATE, typename... Args>
@@ -704,7 +704,7 @@ private:
 					    equal(extract(elem.value), extract(poolElem.value))) {
 						// already exists
 						pool.destroy(poolIdx);
-						return std::make_pair(iterator(this, elemIdx), false);
+						return std::pair(iterator(this, elemIdx), false);
 					}
 					elemIdx = elem.nextIdx;
 				}
@@ -721,7 +721,7 @@ private:
 		poolElem.hash = hash;
 		poolElem.nextIdx = primary;
 		table[tableIdx] = poolIdx;
-		return std::make_pair(iterator(this, poolIdx), true);
+		return std::pair(iterator(this, poolIdx), true);
 	}
 
 	void grow()

@@ -578,7 +578,7 @@ std::string strCat(Ts&& ...ts)
 	// - We allocate a string of that total size.
 	// - We copy() each ConcatUnit into that string.
 
-	auto t = std::make_tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
+	auto t = std::tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
 	auto size = strCatImpl::calcTotalSize(t);
 	// Ideally we want an uninitialized string with given size, but that's not
 	// yet possible. Though see the following proposal (for c++20):
@@ -646,7 +646,7 @@ void strAppend(std::string& result, Ts&& ...ts)
 	// Implementation strategy is similar to strCat(). Main difference is
 	// that we now extend an existing string instead of creating a new one.
 
-	auto t = std::make_tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
+	auto t = std::tuple(strCatImpl::makeConcatUnit(std::forward<Ts>(ts))...);
 	auto extraSize = strCatImpl::calcTotalSize(t);
 	auto oldSize = result.size();
 	result.append(extraSize, ' '); // see note in strCat() about uninitialized string
