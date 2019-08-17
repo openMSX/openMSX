@@ -66,8 +66,8 @@ template<size_t N> struct SelectLoader
 // ScVal-little-endian
 template<typename T, T v, T m, T s, char ...Ns> struct ScValLeImpl;
 template<typename T, T v, T m, T s> struct ScValLeImpl<T, v, m, s> {
-	static const T value = v;
-	static const T mask  = m;
+	static constexpr T value = v;
+	static constexpr T mask  = m;
 };
 template<typename T, T v, T m, T s, char N0, char ...Ns> struct ScValLeImpl<T, v, m, s, N0, Ns...>
 	: ScValLeImpl<T, v + (T(N0 & 255) << s), (m << 8) + 255, s + 8, Ns...> {};
@@ -76,8 +76,8 @@ template<typename T, char ...Ns> struct ScValLe : ScValLeImpl<T, 0, 0, 0, Ns...>
 // ScVal-big-endian
 template<typename T, T v, T m, char ...Ns> struct ScValBeImpl;
 template<typename T, T v, T m> struct ScValBeImpl<T, v, m> {
-	static const T value = v;
-	static const T mask  = ~m;
+	static constexpr T value = v;
+	static constexpr T mask  = ~m;
 };
 template<typename T, T v, T m, char N0, char ...Ns> struct ScValBeImpl<T, v, m, N0, Ns...>
 	: ScValBeImpl<T, (v << 8) + T(N0 & 255), (m >> 8), Ns...> {};
@@ -93,8 +93,8 @@ template<typename T, char ...Ns> struct ScVal
 template<char ...Ns> struct SmallCompare {
 	using Loader = SelectLoader<sizeof...(Ns)>;
 	using C = ScVal<typename Loader::type, Ns...>;
-	static const auto value = C::value;
-	static const auto mask  = C::mask;
+	static constexpr auto value = C::value;
+	static constexpr auto mask  = C::mask;
 };
 
 // The actual small-fixed-string-comparison.

@@ -515,7 +515,6 @@ sources = files(
     'video/v9990/V9990.cc',
     'video/v9990/V9990BitmapConverter.cc',
     'video/v9990/V9990CmdEngine.cc',
-    'video/v9990/V9990DisplayTiming.cc',
     'video/v9990/V9990DummyRenderer.cc',
     'video/v9990/V9990PxConverter.cc',
     'video/v9990/V9990PixelRenderer.cc',

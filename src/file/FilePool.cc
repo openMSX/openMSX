@@ -339,7 +339,7 @@ static Sha1Sum calcSha1sum(File& file, Reactor& reactor)
 {
 	// Calculate sha1 in several steps so that we can show progress
 	// information. We take a fixed step size for an efficient calculation.
-	static const size_t STEP_SIZE = 1024 * 1024; // 1MB
+	constexpr size_t STEP_SIZE = 1024 * 1024; // 1MB
 
 	auto data = file.mmap();
 	string filename = file.getOriginalName();

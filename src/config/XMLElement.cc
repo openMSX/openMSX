@@ -286,7 +286,7 @@ void XMLElement::dump(string& result, unsigned indentNum) const
 // So to simplify things we always do these 5 substitutions.
 string XMLElement::XMLEscape(string_view s)
 {
-	static const char* const CHARS = "<>&\"'";
+	static constexpr const char* const CHARS = "<>&\"'";
 	size_t i = s.find_first_of(CHARS);
 	if (i == string::npos) return string(s); // common case, no substitutions
 

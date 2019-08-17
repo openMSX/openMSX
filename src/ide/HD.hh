@@ -64,7 +64,7 @@ private:
 	Filename filename;
 	size_t filesize;
 
-	static const unsigned MAX_HD = 26;
+	static constexpr unsigned MAX_HD = 26;
 	using HDInUse = std::bitset<MAX_HD>;
 	std::shared_ptr<HDInUse> hdInUse;
 

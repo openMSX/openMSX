@@ -14,7 +14,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0xCDB4);
 	}
 	SECTION("'3 x A1' in one chunk") {
-		static const uint8_t buf[3] = { 0xA1, 0xA1, 0xA1 };
+		static constexpr uint8_t buf[3] = { 0xA1, 0xA1, 0xA1 };
 		crc.update(buf, 3);
 		CHECK(crc.getValue() == 0xCDB4);
 	}
@@ -31,7 +31,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0x29B1);
 	}
 	SECTION("'123456789' in one chunk") {
-		static const char* const digits = "123456789";
+		static constexpr const char* const digits = "123456789";
 		crc.update(reinterpret_cast<const uint8_t*>(digits), 9);
 		CHECK(crc.getValue() == 0x29B1);
 	}
@@ -57,7 +57,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0xE3E0);
 	}
 	SECTION("'11' in one chunk") {
-		static const uint8_t buf[] = {0x11};
+		static constexpr uint8_t buf[] = {0x11};
 		crc.update(buf, sizeof(buf));
 		CHECK(crc.getValue() == 0xE3E0);
 	}
@@ -71,7 +71,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0x296D);
 	}
 	SECTION("'11 22' in one chunk") {
-		static const uint8_t buf[] = {0x11, 0x22};
+		static constexpr uint8_t buf[] = {0x11, 0x22};
 		crc.update(buf, sizeof(buf));
 		CHECK(crc.getValue() == 0x296D);
 	}
@@ -85,7 +85,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0xDE7B);
 	}
 	SECTION("'11 22 33' in one chunk") {
-		static const uint8_t buf[] = {0x11, 0x22, 0x33};
+		static constexpr uint8_t buf[] = {0x11, 0x22, 0x33};
 		crc.update(buf, sizeof(buf));
 		CHECK(crc.getValue() == 0xDE7B);
 	}
@@ -99,7 +99,7 @@ TEST_CASE("CRC16")
 		CHECK(crc.getValue() == 0x59F3);
 	}
 	SECTION("'11 22 33 44' in one chunk") {
-		static const uint8_t buf[] = {0x11, 0x22, 0x33, 0x44};
+		static constexpr uint8_t buf[] = {0x11, 0x22, 0x33, 0x44};
 		crc.update(buf, sizeof(buf));
 		CHECK(crc.getValue() == 0x59F3);
 	}

@@ -12,7 +12,7 @@ namespace openmsx {
 class DiskDrive
 {
 public:
-	static const unsigned ROTATIONS_PER_SECOND = 5; // 300rpm
+	static constexpr unsigned ROTATIONS_PER_SECOND = 5; // 300rpm
 
 	virtual ~DiskDrive() = default;
 

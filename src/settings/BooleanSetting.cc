@@ -25,7 +25,7 @@ std::string_view BooleanSetting::getTypeString() const
 
 void BooleanSetting::tabCompletion(std::vector<std::string>& tokens) const
 {
-	static const char* const values[] = {
+	static constexpr const char* const values[] = {
 		"true",  "on",  "yes",
 		"false", "off", "no",
 	};

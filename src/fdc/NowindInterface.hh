@@ -38,7 +38,7 @@ private:
 	std::string basename;
 	byte bank;
 
-	static const unsigned MAX_NOWINDS = 8; // a-h
+	static constexpr unsigned MAX_NOWINDS = 8; // a-h
 	using NowindsInUse = std::bitset<MAX_NOWINDS>;
 	std::shared_ptr<NowindsInUse> nowindsInUse;
 

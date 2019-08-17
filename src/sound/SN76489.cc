@@ -15,7 +15,7 @@ namespace openmsx {
 
 // The SN76489 divides the clock input by 8, but all users of the clock apply
 // another divider of 2.
-static constexpr auto NATIVE_FREQ_INT = unsigned(cstd::round((3579545.0 / 8) / 2));
+constexpr auto NATIVE_FREQ_INT = unsigned(cstd::round((3579545.0 / 8) / 2));
 
 // NoiseShifter:
 
@@ -325,7 +325,7 @@ INSTANTIATE_SERIALIZE_METHODS(SN76489);
 
 // The frequency registers are 10 bits wide, so we have to split them over
 // two debuggable entries.
-static const byte SN76489_DEBUG_MAP[][2] = {
+constexpr byte SN76489_DEBUG_MAP[][2] = {
 	{0, 0}, {0, 1}, {1, 0},
 	{2, 0}, {2, 1}, {3, 0},
 	{4, 0}, {4, 1}, {5, 0},

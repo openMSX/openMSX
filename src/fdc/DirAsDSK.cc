@@ -18,22 +18,22 @@ using std::vector;
 
 namespace openmsx {
 
-static const unsigned SECTOR_SIZE = sizeof(SectorBuffer);
-static const unsigned SECTORS_PER_DIR = 7;
-static const unsigned NUM_FATS = 2;
-static const unsigned NUM_TRACKS = 80;
-static const unsigned SECTORS_PER_CLUSTER = 2;
-static const unsigned SECTORS_PER_TRACK = 9;
-static const unsigned FIRST_FAT_SECTOR = 1;
-static const unsigned DIR_ENTRIES_PER_SECTOR =
+constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
+constexpr unsigned SECTORS_PER_DIR = 7;
+constexpr unsigned NUM_FATS = 2;
+constexpr unsigned NUM_TRACKS = 80;
+constexpr unsigned SECTORS_PER_CLUSTER = 2;
+constexpr unsigned SECTORS_PER_TRACK = 9;
+constexpr unsigned FIRST_FAT_SECTOR = 1;
+constexpr unsigned DIR_ENTRIES_PER_SECTOR =
 	SECTOR_SIZE / sizeof(MSXDirEntry);
 
 // First valid regular cluster number.
-static const unsigned FIRST_CLUSTER = 2;
+constexpr unsigned FIRST_CLUSTER = 2;
 
-static const unsigned FREE_FAT = 0x000;
-static const unsigned BAD_FAT  = 0xFF7;
-static const unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
+constexpr unsigned FREE_FAT = 0x000;
+constexpr unsigned BAD_FAT  = 0xFF7;
+constexpr unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
 
 
 // Transform BAD_FAT (0xFF7) and EOF_FAT-range (0xFF8-0xFFF)
@@ -798,8 +798,8 @@ void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
 	string fullHostName = hostDir + hostPath;
 
 	// TODO check for available free space on disk instead of max free space
-	static const int DISK_SPACE = (nofSectors - firstDataSector) * SECTOR_SIZE;
-	if (fst.st_size > DISK_SPACE) {
+	int diskSpace = (nofSectors - firstDataSector) * SECTOR_SIZE;
+	if (fst.st_size > diskSpace) {
 		cliComm.printWarning("File too large: ", fullHostName);
 		return;
 	}

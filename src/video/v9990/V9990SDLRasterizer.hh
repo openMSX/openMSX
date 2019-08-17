@@ -50,11 +50,11 @@ public:
 private:
 	/** screen width for SDLLo
 	  */
-	static const int SCREEN_WIDTH  = 320;
+	static constexpr int SCREEN_WIDTH  = 320;
 
 	/** screenheight for SDLLo
 	  */
-	static const int SCREEN_HEIGHT = 240;
+	static constexpr int SCREEN_HEIGHT = 240;
 
 	/** The VDP of which the video output is being rendered.
 	  */

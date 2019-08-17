@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-static const size_t BLOCK_SIZE = 1024;
+constexpr size_t BLOCK_SIZE = 1024;
 
 struct TTCacheEntry
 {

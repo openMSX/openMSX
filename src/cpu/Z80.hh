@@ -12,10 +12,10 @@ class CPURegs;
 class Z80TYPE : public CPUClock
 {
 protected:
-	template<bool> struct Normalize { static const bool value = false; };
+	template<bool> struct Normalize { static constexpr bool value = false; };
 
-	static const int CLOCK_FREQ = 3579545;
-	static const int WAIT_CYCLES = 1;
+	static constexpr int CLOCK_FREQ = 3579545;
+	static constexpr int WAIT_CYCLES = 1;
 
 	Z80TYPE(EmuTime::param time, Scheduler& scheduler_)
 		: CPUClock(time, scheduler_)
@@ -36,7 +36,7 @@ protected:
 	ALWAYS_INLINE void setMemPtr(unsigned x) { memptr = x; }
 	ALWAYS_INLINE unsigned getMemPtr() const { return memptr; }
 
-	static const int
+	static constexpr int
 	CC_LD_A_SS   = 5+3,       CC_LD_A_SS_1  = 5+1,
 	CC_LD_A_NN   = 5+3+3+3,   CC_LD_A_NN_1  = 5+1,   CC_LD_A_NN_2  = 5+3+3+1,
 	CC_LD_A_I    = 5+6,

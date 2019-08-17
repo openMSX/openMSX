@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-static const byte ID = 0xF7;
+constexpr byte ID = 0xF7;
 
 MSXKanji12::MSXKanji12(const DeviceConfig& config)
 	: MSXDevice(config)

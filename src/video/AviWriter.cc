@@ -12,7 +12,7 @@
 
 namespace openmsx {
 
-static const unsigned AVI_HEADER_SIZE = 500;
+constexpr unsigned AVI_HEADER_SIZE = 500;
 
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned channels_,
@@ -175,7 +175,7 @@ AviWriter::~AviWriter()
 	// snprintf output could be truncated (e.g. because the year is
 	// -2147483647). To silence this warning (and also to work around the
 	// windows _snprintf stuff) we add some extra buffer space.
-	static constexpr size_t size = (4 + 1 + 2 + 1 + 2 + 1) + 22;
+	constexpr size_t size = (4 + 1 + 2 + 1 + 2 + 1) + 22;
 	char dateStr[size];
 	time_t t = time(nullptr);
 	struct tm *tm = localtime(&t);

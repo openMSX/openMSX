@@ -961,15 +961,15 @@ vector<string> Debugger::Cmd::getConditionIds() const
 
 void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 {
-	static const char* const singleArgCmds[] = {
+	static constexpr const char* const singleArgCmds[] = {
 		"list", "step", "cont", "break", "breaked",
 		"list_bp", "list_watchpoints", "list_conditions",
 	};
-	static const char* const debuggableArgCmds[] = {
+	static constexpr const char* const debuggableArgCmds[] = {
 		"desc", "size", "read", "read_block",
 		"write", "write_block",
 	};
-	static const char* const otherCmds[] = {
+	static constexpr const char* const otherCmds[] = {
 		"disasm", "set_bp", "remove_bp", "set_watchpoint",
 		"remove_watchpoint", "set_condition", "remove_condition",
 		"probe",
@@ -995,13 +995,13 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 				// this one takes a cond id
 				completeString(tokens, getConditionIds());
 			} else if (tokens[1] == "set_watchpoint") {
-				static const char* const types[] = {
+				static constexpr const char* const types[] = {
 					"write_io", "write_mem",
 					"read_io", "read_mem",
 				};
 				completeString(tokens, types);
 			} else if (tokens[1] == "probe") {
-				static const char* const subCmds[] = {
+				static constexpr const char* const subCmds[] = {
 					"list", "desc", "read", "set_bp",
 					"remove_bp", "list_bp",
 				};

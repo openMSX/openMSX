@@ -10,7 +10,7 @@ namespace YM2413Okazaki {
 
 class YM2413;
 
-static constexpr int EP_FP_BITS = 15;
+constexpr int EP_FP_BITS = 15;
 using EnvPhaseIndex = FixedPoint<EP_FP_BITS>;
 
 enum EnvelopeState {

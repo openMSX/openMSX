@@ -52,7 +52,7 @@ void serialize(Archive& ar, std::pair<T1, T2>& p, unsigned /*version*/)
 }
 template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2>>
 {
-	static const unsigned value = 0;
+	static constexpr unsigned value = 0;
 };
 
 ///////////
@@ -234,14 +234,14 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 template<typename T> struct serialize_as_collection : std::false_type {};
 template<typename T, int N> struct serialize_as_collection<T[N]> : std::true_type
 {
-	static const int size = N; // fixed size
+	static constexpr int size = N; // fixed size
 	using value_type = T;
 	// save
 	using const_iterator = const T*;
 	static const T* begin(const T (&array)[N]) { return &array[0]; }
 	static const T* end  (const T (&array)[N]) { return &array[N]; }
 	// load
-	static const bool loadInPlace = true;
+	static constexpr bool loadInPlace = true;
 	static void prepare(T (&/*array*/)[N], int /*n*/) { }
 	static T* output(T (&array)[N]) { return &array[0]; }
 };

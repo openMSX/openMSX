@@ -201,35 +201,19 @@ using std::string;
 
 namespace openmsx {
 
-// This actually belongs in Z80.cc and R800.cc (these files don't exist yet).
-// As a quick hack I put these two lines here because I found it overkill to
-// create two files each containing only a single line.
-// Technically these two lines _are_ required according to the c++ standard.
-// Though usually it works just find without them, but during experiments I did
-// get a link error when these lines were missing (it only happened during a
-// debug build with some specific compiler version and only with some
-// combination of other code changes, but again when strictly following the
-// language rules, these lines should be here).
-// ... But visual studio is not fully standard compliant, see also comment
-//     in SectorAccesibleDisk.cc
-#ifndef _MSC_VER
-const int Z80TYPE ::CLOCK_FREQ;
-const int R800TYPE::CLOCK_FREQ;
-#endif
-
 enum Reg8  : int { A, F, B, C, D, E, H, L, IXH, IXL, IYH, IYL, REG_I, REG_R, DUMMY };
 enum Reg16 : int { AF, BC, DE, HL, IX, IY, SP };
 
 // flag positions
-static const byte S_FLAG = 0x80;
-static const byte Z_FLAG = 0x40;
-static const byte Y_FLAG = 0x20;
-static const byte H_FLAG = 0x10;
-static const byte X_FLAG = 0x08;
-static const byte V_FLAG = 0x04;
-static const byte P_FLAG = V_FLAG;
-static const byte N_FLAG = 0x02;
-static const byte C_FLAG = 0x01;
+constexpr byte S_FLAG = 0x80;
+constexpr byte Z_FLAG = 0x40;
+constexpr byte Y_FLAG = 0x20;
+constexpr byte H_FLAG = 0x10;
+constexpr byte X_FLAG = 0x08;
+constexpr byte V_FLAG = 0x04;
+constexpr byte P_FLAG = V_FLAG;
+constexpr byte N_FLAG = 0x02;
+constexpr byte C_FLAG = 0x01;
 
 // flag-register lookup tables
 struct Table {
@@ -240,12 +224,12 @@ struct Table {
 	byte ZSPH [256];
 };
 
-static const byte ZS0     = Z_FLAG;
-static const byte ZSXY0   = Z_FLAG;
-static const byte ZSP0    = Z_FLAG | V_FLAG;
-static const byte ZSPXY0  = Z_FLAG | V_FLAG;
-static const byte ZS255   = S_FLAG;
-static const byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
+constexpr byte ZS0     = Z_FLAG;
+constexpr byte ZSXY0   = Z_FLAG;
+constexpr byte ZSP0    = Z_FLAG | V_FLAG;
+constexpr byte ZSPXY0  = Z_FLAG | V_FLAG;
+constexpr byte ZS255   = S_FLAG;
+constexpr byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
 
 static constexpr Table initTables()
 {
@@ -276,7 +260,7 @@ static constexpr Table initTables()
 	return table;
 }
 
-static constexpr Table table = initTables();
+constexpr Table table = initTables();
 
 // Global variable, because it should be shared between Z80 and R800.
 // It must not be shared between the CPUs of different MSX machines, but
@@ -638,8 +622,8 @@ ALWAYS_INLINE byte CPUCore<T>::RDMEM_impl2(unsigned address, unsigned cc)
 template<class T> template<bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE byte CPUCore<T>::RDMEM_impl(unsigned address, unsigned cc)
 {
-	static const bool PRE  = T::template Normalize<PRE_PB >::value;
-	static const bool POST = T::template Normalize<POST_PB>::value;
+	constexpr bool PRE  = T::template Normalize<PRE_PB >::value;
+	constexpr bool POST = T::template Normalize<POST_PB>::value;
 	return RDMEM_impl2<PRE, POST>(address, cc);
 }
 template<class T> template<unsigned PC_OFFSET> ALWAYS_INLINE byte CPUCore<T>::RDMEM_OPCODE(unsigned cc)
@@ -685,8 +669,8 @@ ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl2(unsigned address, unsigned cc)
 template<class T> template<bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl(unsigned address, unsigned cc)
 {
-	static const bool PRE  = T::template Normalize<PRE_PB >::value;
-	static const bool POST = T::template Normalize<POST_PB>::value;
+	constexpr bool PRE  = T::template Normalize<PRE_PB >::value;
+	constexpr bool POST = T::template Normalize<POST_PB>::value;
 	return RD_WORD_impl2<PRE, POST>(address, cc);
 }
 template<class T> template<unsigned PC_OFFSET> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_PC(unsigned cc)
@@ -743,8 +727,8 @@ template<class T> template<bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE void CPUCore<T>::WRMEM_impl(
 	unsigned address, byte value, unsigned cc)
 {
-	static const bool PRE  = T::template Normalize<PRE_PB >::value;
-	static const bool POST = T::template Normalize<POST_PB>::value;
+	constexpr bool PRE  = T::template Normalize<PRE_PB >::value;
+	constexpr bool POST = T::template Normalize<POST_PB>::value;
 	WRMEM_impl2<PRE, POST>(address, value, cc);
 }
 template<class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(
@@ -801,8 +785,8 @@ template<class T> template<bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
 	unsigned address, unsigned value, unsigned cc)
 {
-	static const bool PRE  = T::template Normalize<PRE_PB >::value;
-	static const bool POST = T::template Normalize<POST_PB>::value;
+	constexpr bool PRE  = T::template Normalize<PRE_PB >::value;
+	constexpr bool POST = T::template Normalize<POST_PB>::value;
 	WR_WORD_rev2<PRE, POST>(address, value, cc);
 }
 

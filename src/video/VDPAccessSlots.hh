@@ -8,7 +8,7 @@
 
 namespace openmsx::VDPAccessSlots {
 
-static const int TICKS = VDP::TICKS_PER_LINE;
+constexpr int TICKS = VDP::TICKS_PER_LINE;
 
 enum Delta : int {
 	DELTA_0    =  0 * TICKS,

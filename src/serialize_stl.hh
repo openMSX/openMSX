@@ -10,13 +10,13 @@ namespace openmsx {
 
 template<typename T> struct serialize_as_stl_collection : std::true_type
 {
-	static const int size = -1; // variable size
+	static constexpr int size = -1; // variable size
 	using value_type = typename T::value_type;
 	// save
 	static auto begin(const T& t) { return t.begin(); }
 	static auto end  (const T& t) { return t.end();   }
 	// load
-	static const bool loadInPlace = false;
+	static constexpr bool loadInPlace = false;
 	static void prepare(T& t, int /*n*/) {
 		t.clear();
 	}
@@ -42,7 +42,7 @@ template<typename T> struct serialize_as_collection<std::vector<T>>
 	// and slightly more efficient. This is done to keep the correct vector
 	// size at all intermediate steps. This may be important in case an
 	// exception occurs during loading.
-	static const bool loadInPlace = false;
+	static constexpr bool loadInPlace = false;
 	static void prepare(std::vector<T>& v, int n) {
 		v.clear(); v.reserve(n);
 	}

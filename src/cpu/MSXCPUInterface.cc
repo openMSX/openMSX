@@ -43,9 +43,9 @@ static unsigned breakedSettingCount = 0;
 
 
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
-static const byte SECONDARY_SLOT_BIT = 0x01;
-static const byte MEMORY_WATCH_BIT   = 0x02;
-static const byte GLOBAL_RW_BIT      = 0x04;
+constexpr byte SECONDARY_SLOT_BIT = 0x01;
+constexpr byte MEMORY_WATCH_BIT   = 0x02;
+constexpr byte GLOBAL_RW_BIT      = 0x04;
 
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)

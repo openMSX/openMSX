@@ -96,7 +96,7 @@ private:
 	byte lun;
 	byte cdb[12];          // Command Descriptor Block
 
-	static const unsigned MAX_LS = 26;
+	static constexpr unsigned MAX_LS = 26;
 	using LSInUse = std::bitset<MAX_LS>;
 	std::shared_ptr<LSInUse> lsInUse;
 

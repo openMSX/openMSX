@@ -14,11 +14,11 @@
 namespace openmsx {
 
 #if defined(_WIN32)
-static const int defaultsamples = 2048;
+constexpr int defaultsamples = 2048;
 #elif PLATFORM_ANDROID
-static const int defaultsamples = 2560;
+constexpr int defaultsamples = 2560;
 #else
-static const int defaultsamples = 1024;
+constexpr int defaultsamples = 1024;
 #endif
 
 static EnumSetting<Mixer::SoundDriverType>::Map getSoundDriverMap()

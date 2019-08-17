@@ -1101,9 +1101,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990CmdEngine.cc">
       <Filter>video\v9990</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990DisplayTiming.cc">
-      <Filter>video\v9990</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990DummyRenderer.cc">
       <Filter>video\v9990</Filter>
     </ClCompile>

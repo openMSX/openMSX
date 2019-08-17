@@ -220,7 +220,7 @@ void OSDWidget::resortDown(OSDWidget* elem)
 
 vector<string_view> OSDWidget::getProperties() const
 {
-	static const char* const vals[] = {
+	static constexpr const char* const vals[] = {
 		"-type", "-x", "-y", "-z", "-relx", "-rely", "-scaled",
 		"-clip", "-mousecoord", "-suppressErrors",
 	};

@@ -90,13 +90,13 @@ namespace openmsx {
 
 
 // interpolator per frame
-static const int FR_SIZE = 4;
+constexpr int FR_SIZE = 4;
 // samples per interpolator
-static const int IP_SIZE_SLOWER = 240 / FR_SIZE;
-static const int IP_SIZE_SLOW   = 200 / FR_SIZE;
-static const int IP_SIZE_NORMAL = 160 / FR_SIZE;
-static const int IP_SIZE_FAST   = 120 / FR_SIZE;
-static const int IP_SIZE_FASTER =  80 / FR_SIZE;
+constexpr int IP_SIZE_SLOWER = 240 / FR_SIZE;
+constexpr int IP_SIZE_SLOW   = 200 / FR_SIZE;
+constexpr int IP_SIZE_NORMAL = 160 / FR_SIZE;
+constexpr int IP_SIZE_FAST   = 120 / FR_SIZE;
+constexpr int IP_SIZE_FASTER =  80 / FR_SIZE;
 
 // phase value
 enum {
@@ -116,7 +116,7 @@ enum {
 //  x   0   0  normal    (00h,04h) : 25.6ms (100%) : 40samplme
 //  0   0   1  fast      (01h)     : 20.2ms  (75%) : 30sample
 //  0   1   x  more fast (02h,03h) : 12.2ms  (50%) : 20sample
-static const int VLM5030_speed_table[8] =
+constexpr int VLM5030_speed_table[8] =
 {
 	IP_SIZE_NORMAL,
 	IP_SIZE_FAST,
@@ -142,7 +142,7 @@ static word energytable[0x20] =
 };
 
 // This is the pitch lookup table
-static const byte pitchtable [0x20] =
+constexpr byte pitchtable [0x20] =
 {
 	1,                               // 0     : random mode
 	22,                              // 1     : start=22
@@ -152,7 +152,7 @@ static const byte pitchtable [0x20] =
 	86, 94, 102,110,118,126          // 26-31 : 8step
 };
 
-static const int16_t K1_table[] = {
+constexpr int16_t K1_table[] = {
 	-24898,  -25672,  -26446,  -27091,  -27736,  -28252,  -28768,  -29155,
 	-29542,  -29929,  -30316,  -30574,  -30832,  -30961,  -31219,  -31348,
 	-31606,  -31735,  -31864,  -31864,  -31993,  -32122,  -32122,  -32251,
@@ -162,17 +162,17 @@ static const int16_t K1_table[] = {
 	     0,   -1935,   -3999,   -6063,   -7998,   -9804,  -11610,  -13416,
 	-15093,  -16642,  -18061,  -19480,  -20770,  -21931,  -22963,  -23995
 };
-static const int16_t K2_table[] = {
+constexpr int16_t K2_table[] = {
 	     0,   -3096,   -6321,   -9417,  -12513,  -15351,  -18061,  -20770,
 	-23092,  -25285,  -27220,  -28897,  -30187,  -31348,  -32122,  -32638,
 	     0,   32638,   32122,   31348,   30187,   28897,   27220,   25285,
 	 23092,   20770,   18061,   15351,   12513,    9417,    6321,    3096
 };
-static const int16_t K3_table[] = {
+constexpr int16_t K3_table[] = {
 	    0,   -3999,   -8127,  -12255,  -16384,  -20383,  -24511,  -28639,
 	32638,   28639,   24511,   20383,   16254,   12255,    8127,    3999
 };
-static const int16_t K5_table[] = {
+constexpr int16_t K5_table[] = {
 	0,   -8127,  -16384,  -24511,   32638,   24511,   16254,    8127
 };
 
@@ -520,7 +520,7 @@ static XMLElement getRomConfig(const std::string& name, const std::string& romFi
 	return voiceROMconfig;
 }
 
-static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
+constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
 
 VLM5030::VLM5030(const std::string& name_, const std::string& desc,
                  const std::string& romFilename, const DeviceConfig& config)

@@ -265,10 +265,10 @@ static const byte* getLogOpImpl(unsigned mode, unsigned op)
 }
 
 
-static const byte DIY = 0x08;
-static const byte DIX = 0x04;
-static const byte NEQ = 0x02;
-static const byte MAJ = 0x01;
+constexpr byte DIY = 0x08;
+constexpr byte DIX = 0x04;
+constexpr byte NEQ = 0x02;
+constexpr byte MAJ = 0x01;
 
 // P1 --------------------------------------------------------------
 inline unsigned V9990CmdEngine::V9990P1::getPitch(unsigned width)

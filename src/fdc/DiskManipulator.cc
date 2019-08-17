@@ -30,12 +30,6 @@ using std::vector;
 
 namespace openmsx {
 
-#ifndef _MSC_EXTENSIONS
-// #ifdef required to avoid link error with vc++, see also
-//   http://www.codeguru.com/forum/showthread.php?t=430949
-const unsigned DiskManipulator::MAX_PARTITIONS;
-#endif
-
 DiskManipulator::DiskManipulator(CommandController& commandController_,
                                  Reactor& reactor_)
 	: Command(commandController_, "diskmanipulator")
@@ -286,7 +280,7 @@ string DiskManipulator::help(const vector<string>& tokens) const
 void DiskManipulator::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const cmds[] = {
+		static constexpr const char* const cmds[] = {
 			"import", "export", "savedsk", "dir", "create",
 			"format", "chdir", "mkdir",
 		};
@@ -326,12 +320,12 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		    (tokens[1] == "export")) {
 			completeFileName(tokens, userFileContext());
 		} else if (tokens[1] == "create") {
-			static const char* const cmds[] = {
+			static constexpr const char* const cmds[] = {
 				"360", "720", "32M", "-dos1"
 			};
 			completeString(tokens, cmds);
 		} else if (tokens[1] == "format") {
-			static const char* const cmds[] = {
+			static constexpr const char* const cmds[] = {
 				"-dos1"
 			};
 			completeString(tokens, cmds);

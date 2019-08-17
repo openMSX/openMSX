@@ -12,9 +12,6 @@ using std::string_view;
 
 namespace openmsx {
 
-const unsigned UnicodeKeymap::NUM_DEAD_KEYS;
-
-
 /** Parses the given string reference as a hexadecimal integer.
   * If successful, returns the parsed value and sets "ok" to true.
   * If unsuccessful, returns 0 and sets "ok" to false.

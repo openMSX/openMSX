@@ -358,7 +358,7 @@ template<> struct PolymorphicBaseClass<C> { using type = B; };
 
 #define REGISTER_BASE_NAME_HELPER(B,N) \
 template<> struct BaseClassName<B> \
-{ static const char* getName() { static const char* name = N; return name; } };
+{ static const char* getName() { static constexpr const char* const name = N; return name; } };
 
 // public macros
 //   these are a more convenient way to define specializations of the
@@ -418,12 +418,12 @@ template<> struct BaseClassName<B> \
  */
 template<typename T> struct SerializeClassVersion
 {
-	static const unsigned value = 1;
+	static constexpr unsigned value = 1;
 };
 #define SERIALIZE_CLASS_VERSION(CLASS, VERSION) \
 template<> struct SerializeClassVersion<CLASS> \
 { \
-	static const unsigned value = VERSION; \
+	static constexpr unsigned value = VERSION; \
 };
 
 } // namespace openmsx

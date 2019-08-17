@@ -31,14 +31,14 @@ namespace openmsx {
   * Note that when using a background image on the GLConsole,
   * that image's alpha channel is used instead.
   */
-static const int CONSOLE_ALPHA = 180;
-static const uint64_t BLINK_RATE = 500000; // us
-static const int CHAR_BORDER = 4;
+constexpr int CONSOLE_ALPHA = 180;
+constexpr uint64_t BLINK_RATE = 500000; // us
+constexpr int CHAR_BORDER = 4;
 
 
 // class OSDConsoleRenderer
 
-static const string_view defaultFont = "skins/VeraMono.ttf.gz";
+constexpr string_view defaultFont = "skins/VeraMono.ttf.gz";
 
 OSDConsoleRenderer::OSDConsoleRenderer(
 		Reactor& reactor_, CommandConsole& console_,
@@ -390,7 +390,7 @@ void OSDConsoleRenderer::insertInCache(
 	string text, unsigned rgb, std::unique_ptr<BaseImage> image,
 	unsigned width)
 {
-	static const unsigned MAX_TEXT_CACHE_SIZE = 250;
+	constexpr unsigned MAX_TEXT_CACHE_SIZE = 250;
 	if (textCache.size() == MAX_TEXT_CACHE_SIZE) {
 		// flush the least recently used entry
 		auto it = std::prev(std::end(textCache));

@@ -563,7 +563,7 @@ void GlobalCommandController::UpdateCmd::tabCompletion(vector<string>& tokens) c
 {
 	switch (tokens.size()) {
 	case 2: {
-		static const char* const ops[] = { "enable", "disable" };
+		static constexpr const char* const ops[] = { "enable", "disable" };
 		completeString(tokens, ops);
 		break;
 	}

@@ -35,10 +35,10 @@ using std::move;
 namespace openmsx {
 
 // Time between two snapshots (in seconds)
-static const double SNAPSHOT_PERIOD = 1.0;
+constexpr double SNAPSHOT_PERIOD = 1.0;
 
 // Max number of snapshots in a replay file
-static const unsigned MAX_NOF_SNAPSHOTS = 10;
+constexpr unsigned MAX_NOF_SNAPSHOTS = 10;
 
 // Min distance between snapshots in replay file (in seconds)
 constexpr auto MIN_PARTITION_LENGTH = EmuDuration(60.0);
@@ -46,7 +46,7 @@ constexpr auto MIN_PARTITION_LENGTH = EmuDuration(60.0);
 // Max distance of one before last snapshot before the end time in replay file (in seconds)
 constexpr auto MAX_DIST_1_BEFORE_LAST_SNAPSHOT = EmuDuration(30.0);
 
-static const char* const REPLAY_DIR = "replays";
+constexpr const char* const REPLAY_DIR = "replays";
 
 // A replay is a struct that contains a vector of motherboards and an MSX event
 // log. Those combined are a replay, because you can replay the events from an
@@ -1010,7 +1010,7 @@ string ReverseManager::ReverseCmd::help(const vector<string>& /*tokens*/) const
 void ReverseManager::ReverseCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const subCommands[] = {
+		static constexpr const char* const subCommands[] = {
 			"start", "stop", "status", "goback", "goto",
 			"savereplay", "loadreplay", "viewonlymode",
 			"truncatereplay",
@@ -1024,7 +1024,7 @@ void ReverseManager::ReverseCmd::tabCompletion(vector<string>& tokens) const
 			}
 			completeFileName(tokens, userDataFileContext(REPLAY_DIR), cmds);
 		} else if (tokens[1] == "viewonlymode") {
-			static const char* const options[] = { "true", "false" };
+			static constexpr const char* const options[] = { "true", "false" };
 			completeString(tokens, options);
 		}
 	}

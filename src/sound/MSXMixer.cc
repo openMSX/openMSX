@@ -295,7 +295,7 @@ static inline void mulMix2Acc(
 //  we take R = 511/512
 //   44100Hz --> cutt-off freq = 14Hz
 //   22050Hz                     7Hz
-static constexpr auto R = 511.0f / 512.0f;
+constexpr auto R = 511.0f / 512.0f;
 
 // No new input, previous output was (non-zero) mono.
 static inline float filterMonoNull(float t0, float* __restrict out, int n)
@@ -403,7 +403,7 @@ filterBothStereo(float tl0, float tr0, const float* __restrict inM,
 
 static bool approxEqual(float x, float y)
 {
-	static const float threshold = 1.0f / 32768;
+	constexpr float threshold = 1.0f / 32768;
 	return std::abs(x - y) < threshold;
 }
 
@@ -432,8 +432,8 @@ void MSXMixer::generate(float* output, EmuTime::param time, unsigned samples)
 	VLA_SSE_ALIGNED(float, stereoBuf, 2 * samples + 3);
 	VLA_SSE_ALIGNED(float, tmpBuf,    2 * samples + 3);
 
-	static const unsigned HAS_MONO_FLAG = 1;
-	static const unsigned HAS_STEREO_FLAG = 2;
+	constexpr unsigned HAS_MONO_FLAG = 1;
+	constexpr unsigned HAS_STEREO_FLAG = 2;
 	unsigned usedBuffers = 0;
 
 	// FIXME: The Infos should be ordered such that all the mono

@@ -74,7 +74,7 @@ static inline unsigned clipNX_1_pixel(unsigned DX, unsigned NX, byte ARG)
 template<typename Mode>
 static inline unsigned clipNX_1_byte(unsigned DX, unsigned NX, byte ARG)
 {
-	static const unsigned BYTES_PER_LINE =
+	constexpr unsigned BYTES_PER_LINE =
 		Mode::PIXELS_PER_LINE >> Mode::PIXELS_PER_BYTE_SHIFT;
 
 	DX >>= Mode::PIXELS_PER_BYTE_SHIFT;
@@ -104,7 +104,7 @@ static inline unsigned clipNX_2_pixel(unsigned SX, unsigned DX, unsigned NX, byt
 template<typename Mode>
 static inline unsigned clipNX_2_byte(unsigned SX, unsigned DX, unsigned NX, byte ARG)
 {
-	static const unsigned BYTES_PER_LINE =
+	constexpr unsigned BYTES_PER_LINE =
 		Mode::PIXELS_PER_LINE >> Mode::PIXELS_PER_BYTE_SHIFT;
 
 	SX >>= Mode::PIXELS_PER_BYTE_SHIFT;
@@ -167,10 +167,10 @@ struct Graphic4Mode
 	//using IncrPixelAddr = IncrPixelAddr4;
 	//using IncrMask      = IncrMask4;
 	//using IncrShift     = IncrShift4;
-	static const byte COLOR_MASK = 0x0F;
-	static const byte PIXELS_PER_BYTE = 2;
-	static const byte PIXELS_PER_BYTE_SHIFT = 1;
-	static const unsigned PIXELS_PER_LINE = 256;
+	static constexpr byte COLOR_MASK = 0x0F;
+	static constexpr byte PIXELS_PER_BYTE = 2;
+	static constexpr byte PIXELS_PER_BYTE_SHIFT = 1;
+	static constexpr unsigned PIXELS_PER_LINE = 256;
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template <typename LogOp>
@@ -217,10 +217,10 @@ struct Graphic5Mode
 	//using IncrPixelAddr = IncrPixelAddr5;
 	//using IncrMask      = IncrMask5;
 	//using IncrShift     = IncrShift5;
-	static const byte COLOR_MASK = 0x03;
-	static const byte PIXELS_PER_BYTE = 4;
-	static const byte PIXELS_PER_BYTE_SHIFT = 2;
-	static const unsigned PIXELS_PER_LINE = 512;
+	static constexpr byte COLOR_MASK = 0x03;
+	static constexpr byte PIXELS_PER_BYTE = 4;
+	static constexpr byte PIXELS_PER_BYTE_SHIFT = 2;
+	static constexpr unsigned PIXELS_PER_LINE = 512;
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template <typename LogOp>
@@ -269,10 +269,10 @@ struct Graphic6Mode
 	//using IncrPixelAddr = IncrPixelAddr6;
 	//using IncrMask      = IncrMask6;
 	//using IncrShift     = IncrShift6;
-	static const byte COLOR_MASK = 0x0F;
-	static const byte PIXELS_PER_BYTE = 2;
-	static const byte PIXELS_PER_BYTE_SHIFT = 1;
-	static const unsigned PIXELS_PER_LINE = 512;
+	static constexpr byte COLOR_MASK = 0x0F;
+	static constexpr byte PIXELS_PER_BYTE = 2;
+	static constexpr byte PIXELS_PER_BYTE_SHIFT = 1;
+	static constexpr unsigned PIXELS_PER_LINE = 512;
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template <typename LogOp>
@@ -319,10 +319,10 @@ struct Graphic7Mode
 	//using IncrPixelAddr = IncrPixelAddr7;
 	//using IncrMask      = IncrMask7;
 	//using IncrShift     = IncrShift7;
-	static const byte COLOR_MASK = 0xFF;
-	static const byte PIXELS_PER_BYTE = 1;
-	static const byte PIXELS_PER_BYTE_SHIFT = 0;
-	static const unsigned PIXELS_PER_LINE = 256;
+	static constexpr byte COLOR_MASK = 0xFF;
+	static constexpr byte PIXELS_PER_BYTE = 1;
+	static constexpr byte PIXELS_PER_BYTE_SHIFT = 0;
+	static constexpr unsigned PIXELS_PER_LINE = 256;
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>
@@ -367,10 +367,10 @@ struct NonBitmapMode
 	//using IncrPixelAddr = IncrPixelAddrNonBitMap;
 	//using IncrMask      = IncrMaskNonBitMap;
 	//using IncrShift     = IncrShiftNonBitMap;
-	static const byte COLOR_MASK = 0xFF;
-	static const byte PIXELS_PER_BYTE = 1;
-	static const byte PIXELS_PER_BYTE_SHIFT = 0;
-	static const unsigned PIXELS_PER_LINE = 256;
+	static constexpr byte COLOR_MASK = 0xFF;
+	static constexpr byte PIXELS_PER_BYTE = 1;
+	static constexpr byte PIXELS_PER_BYTE_SHIFT = 0;
+	static constexpr unsigned PIXELS_PER_LINE = 256;
 	static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
 	static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 	template<typename LogOp>

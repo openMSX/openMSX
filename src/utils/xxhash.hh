@@ -48,11 +48,11 @@
 #include <cstring>
 #include <string_view>
 
-static const uint32_t PRIME32_1 = 2654435761;
-static const uint32_t PRIME32_2 = 2246822519;
-static const uint32_t PRIME32_3 = 3266489917;
-static const uint32_t PRIME32_4 =  668265263;
-static const uint32_t PRIME32_5 =  374761393;
+constexpr uint32_t PRIME32_1 = 2654435761;
+constexpr uint32_t PRIME32_2 = 2246822519;
+constexpr uint32_t PRIME32_3 = 3266489917;
+constexpr uint32_t PRIME32_4 =  668265263;
+constexpr uint32_t PRIME32_5 =  374761393;
 
 
 template<int R>
@@ -77,7 +77,7 @@ static inline uint32_t read32(const uint8_t* ptr)
 template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
 static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
 {
-	static const uint32_t MASK32 = MASK8 * 0x01010101U;
+	constexpr uint32_t MASK32 = MASK8 * 0x01010101U;
 
 	const uint8_t* const bEnd = p + size;
 	uint32_t h32;

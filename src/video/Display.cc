@@ -491,7 +491,7 @@ string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 
 void Display::ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 {
-	static const char* const extra[] = {
+	static constexpr const char* const extra[] = {
 		"-prefix", "-raw", "-doublesize", "-with-osd", "-no-sprites",
 	};
 	completeFileName(tokens, userFileContext(), extra);

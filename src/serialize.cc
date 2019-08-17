@@ -210,7 +210,7 @@ string_view MemInputArchive::loadStr()
 // compression has a relatively large setup time). I choose this value
 // semi-arbitrary. I only made it >= 52 so that the (incompressible) RP5C01
 // registers won't be compressed.
-static const size_t SMALL_SIZE = 64;
+constexpr size_t SMALL_SIZE = 64;
 void MemOutputArchive::serialize_blob(const char* /*tag*/, const void* data,
                                       size_t len, bool diff)
 {
@@ -443,7 +443,7 @@ template<typename T> static inline void fastAtoi(string_view str, T& t)
 	size_t i = 0;
 	size_t l = str.size();
 
-	static const bool IS_SIGNED = std::numeric_limits<T>::is_signed;
+	constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
 	if (IS_SIGNED) {
 		if (l == 0) return;
 		if (str[0] == '-') {

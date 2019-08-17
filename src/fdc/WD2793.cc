@@ -10,31 +10,31 @@
 namespace openmsx {
 
 // Status register
-static const int BUSY             = 0x01;
-static const int INDEX            = 0x02;
-static const int S_DRQ            = 0x02;
-static const int TRACK00          = 0x04;
-static const int LOST_DATA        = 0x04;
-static const int CRC_ERROR        = 0x08;
-static const int SEEK_ERROR       = 0x10;
-static const int RECORD_NOT_FOUND = 0x10;
-static const int HEAD_LOADED      = 0x20;
-static const int RECORD_TYPE      = 0x20;
-static const int WRITE_PROTECTED  = 0x40;
-static const int NOT_READY        = 0x80;
+constexpr int BUSY             = 0x01;
+constexpr int INDEX            = 0x02;
+constexpr int S_DRQ            = 0x02;
+constexpr int TRACK00          = 0x04;
+constexpr int LOST_DATA        = 0x04;
+constexpr int CRC_ERROR        = 0x08;
+constexpr int SEEK_ERROR       = 0x10;
+constexpr int RECORD_NOT_FOUND = 0x10;
+constexpr int HEAD_LOADED      = 0x20;
+constexpr int RECORD_TYPE      = 0x20;
+constexpr int WRITE_PROTECTED  = 0x40;
+constexpr int NOT_READY        = 0x80;
 
 // Command register
-static const int STEP_SPEED = 0x03;
-static const int V_FLAG     = 0x04;
-static const int E_FLAG     = 0x04;
-static const int H_FLAG     = 0x08;
-static const int T_FLAG     = 0x10;
-static const int M_FLAG     = 0x10;
-static const int A0_FLAG    = 0x01;
-static const int N2R_IRQ    = 0x01;
-static const int R2N_IRQ    = 0x02;
-static const int IDX_IRQ    = 0x04;
-static const int IMM_IRQ    = 0x08;
+constexpr int STEP_SPEED = 0x03;
+constexpr int V_FLAG     = 0x04;
+constexpr int E_FLAG     = 0x04;
+constexpr int H_FLAG     = 0x08;
+constexpr int T_FLAG     = 0x10;
+constexpr int M_FLAG     = 0x10;
+constexpr int A0_FLAG    = 0x01;
+constexpr int N2R_IRQ    = 0x01;
+constexpr int R2N_IRQ    = 0x02;
+constexpr int IDX_IRQ    = 0x04;
+constexpr int IMM_IRQ    = 0x08;
 
 // HLD/HLT timing constants
 constexpr auto IDLE = EmuDuration::sec(3);
@@ -1122,8 +1122,8 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	if (ar.versionAtLeast(version, 8)) {
 		ar.template serializeBase<Schedulable>(*this);
 	} else {
-		static const int SCHED_FSM     = 0;
-		static const int SCHED_IDX_IRQ = 1;
+		constexpr int SCHED_FSM     = 0;
+		constexpr int SCHED_IDX_IRQ = 1;
 		assert(ar.isLoader());
 		removeSyncPoint();
 		for (auto& old : Schedulable::serializeBW(ar)) {

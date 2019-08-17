@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-static const unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on frequency setting
+constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on frequency setting
 
 DACSound16S::DACSound16S(std::string_view name_, std::string_view desc,
                          const DeviceConfig& config)

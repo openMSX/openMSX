@@ -360,7 +360,7 @@ bool OsdControlEvent::isRepeatStopper(const Event& other) const
 
 TclObject OsdControlEvent::toTclHelper(std::string_view direction) const
 {
-	static const char* const names[] = {
+	static constexpr const char* const names[] = {
 		"LEFT", "RIGHT", "UP", "DOWN", "A", "B"
 	};
 	return makeTclList("OSDcontrol", names[getButton()], direction);

@@ -21,13 +21,13 @@ namespace openmsx {
 
 /** VDP ticks between start of line and start of left border.
   */
-static const int TICKS_LEFT_BORDER = 100 + 102;
+constexpr int TICKS_LEFT_BORDER = 100 + 102;
 
 /** The middle of the visible (display + borders) part of a line,
   * expressed in VDP ticks since the start of the line.
   * TODO: Move this to a central location?
   */
-static const int TICKS_VISIBLE_MIDDLE =
+constexpr int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
 
 /** Translate from absolute VDP coordinates to screen coordinates:

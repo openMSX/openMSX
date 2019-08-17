@@ -31,7 +31,7 @@ private:
 	auto* p() const { return reinterpret_cast<const uint8_t*>(this); }
 
 public:
-	static const size_t ALIGNMENT = alignof(std::max_align_t);
+	static constexpr size_t ALIGNMENT = alignof(std::max_align_t);
 
 	operator       uint8_t*()       { return p(); }
 	operator const uint8_t*() const { return p(); }

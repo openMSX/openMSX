@@ -51,8 +51,8 @@ inline Pixel SaI3xScaler<Pixel>::blend(Pixel p1, Pixel p2)
 	return pixelOps.template blend<1, 1>(p1, p2);
 }
 
-static const unsigned redblueMask = 0xF81F;
-static const unsigned greenMask = 0x7E0;
+constexpr unsigned redblueMask = 0xF81F;
+constexpr unsigned greenMask = 0x7E0;
 
 // TODO use PixelOperations::lerp()
 template <typename Pixel>
@@ -146,7 +146,7 @@ public:
 template <unsigned X, unsigned OLD, unsigned NEW>
 struct Round {
 	static_assert(OLD > NEW);
-	static const unsigned result =
+	static constexpr unsigned result =
 		(X >> (OLD - NEW)) + ((X >> (OLD - NEW - 1)) & 1);
 };
 

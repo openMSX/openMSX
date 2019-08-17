@@ -13,13 +13,13 @@
 
 namespace openmsx {
 
-static const uint8_t DBZV_VERSION_HIGH = 0;
-static const uint8_t DBZV_VERSION_LOW = 1;
-static const uint8_t COMPRESSION_ZLIB = 1;
-static const unsigned MAX_VECTOR = 16;
-static const unsigned BLOCK_WIDTH  = MAX_VECTOR;
-static const unsigned BLOCK_HEIGHT = MAX_VECTOR;
-static const unsigned FLAG_KEYFRAME = 0x01;
+constexpr uint8_t DBZV_VERSION_HIGH = 0;
+constexpr uint8_t DBZV_VERSION_LOW = 1;
+constexpr uint8_t COMPRESSION_ZLIB = 1;
+constexpr unsigned MAX_VECTOR = 16;
+constexpr unsigned BLOCK_WIDTH  = MAX_VECTOR;
+constexpr unsigned BLOCK_HEIGHT = MAX_VECTOR;
+constexpr unsigned FLAG_KEYFRAME = 0x01;
 
 struct CodecVector {
 	float cost() const {
@@ -44,7 +44,7 @@ static inline bool operator<(const CodecVector& l, const CodecVector& r)
 	return l.cost() < r.cost();
 }
 
-static const unsigned VECTOR_TAB_SIZE =
+constexpr unsigned VECTOR_TAB_SIZE =
 	1 +                                       // center
 	8 * MAX_VECTOR +                          // horizontal, vertial, diagonal
 	MAX_VECTOR * MAX_VECTOR - 2 * MAX_VECTOR; // rest (only MAX_VECTOR/2)
@@ -58,8 +58,6 @@ struct KeyframeHeader {
 	uint8_t blockwidth;
 	uint8_t blockheight;
 };
-
-const char* ZMBVEncoder::CODEC_4CC = "ZMBV";
 
 
 static inline void writePixel(

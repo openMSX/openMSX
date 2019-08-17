@@ -23,30 +23,30 @@ namespace DivModByConstPrivate {
 template<uint64_t RH, uint64_t RL, uint64_t QH, uint64_t QL, uint64_t DH, uint64_t DL, uint32_t BITS>
 struct Div128_helper
 {
-	static const uint64_t QL2 = (QL << 1);
-	static const uint64_t QH2 = (QH << 1) + (QL2 < QL);
-	static const uint64_t RL2 = (RL << 1) + (QH2 < QH);
-	static const uint64_t RH2 = (RH << 1) + (RL2 < RL);
+	static constexpr uint64_t QL2 = (QL << 1);
+	static constexpr uint64_t QH2 = (QH << 1) + (QL2 < QL);
+	static constexpr uint64_t RL2 = (RL << 1) + (QH2 < QH);
+	static constexpr uint64_t RH2 = (RH << 1) + (RL2 < RL);
 
-	static const bool C = (RH2 != DH) ? (RH2 < DH) : (RL2 < DL);
-	static const uint64_t RL3 = C ? RL2 : RL2 - DL;
-	static const uint64_t RH3 = C ? RH2 : RH2 - DH - (RL3 > RL2);
-	static const uint64_t QL3 = C ? QL2 : QL2 + 1;
-	static const uint64_t QH3 = C ? QH2 : ((QL3 != 0) ? QH2 : QH2 + 1);
+	static constexpr bool C = (RH2 != DH) ? (RH2 < DH) : (RL2 < DL);
+	static constexpr uint64_t RL3 = C ? RL2 : RL2 - DL;
+	static constexpr uint64_t RH3 = C ? RH2 : RH2 - DH - (RL3 > RL2);
+	static constexpr uint64_t QL3 = C ? QL2 : QL2 + 1;
+	static constexpr uint64_t QH3 = C ? QH2 : ((QL3 != 0) ? QH2 : QH2 + 1);
 
 	using Div = Div128_helper<RH3, RL3, QH3, QL3, DH, DL, BITS - 1>;
-	static const uint64_t quotientLow   = Div::quotientLow;
-	static const uint64_t quotientHigh  = Div::quotientHigh;
-	static const uint64_t remainderLow  = Div::remainderLow;
-	static const uint64_t remainderHigh = Div::remainderHigh;
+	static constexpr uint64_t quotientLow   = Div::quotientLow;
+	static constexpr uint64_t quotientHigh  = Div::quotientHigh;
+	static constexpr uint64_t remainderLow  = Div::remainderLow;
+	static constexpr uint64_t remainderHigh = Div::remainderHigh;
 };
 template<uint64_t RH, uint64_t RL, uint64_t QH, uint64_t QL, uint64_t DH, uint64_t DL>
 struct Div128_helper<RH, RL, QH, QL, DH, DL, 0>
 {
-	static const uint64_t quotientLow   = QL;
-	static const uint64_t quotientHigh  = QH;
-	static const uint64_t remainderLow  = RL;
-	static const uint64_t remainderHigh = RH;
+	static constexpr uint64_t quotientLow   = QL;
+	static constexpr uint64_t quotientHigh  = QH;
+	static constexpr uint64_t remainderLow  = RL;
+	static constexpr uint64_t remainderHigh = RH;
 };
 template<uint64_t DividendH, uint64_t DividendL, uint64_t DividerH, uint64_t DividerL>
 struct Div128
@@ -61,13 +61,13 @@ struct Div128
 template<uint64_t M, uint32_t S, bool B = M & 1> struct DBCReduce
 {
 	using R2 = DBCReduce<M / 2, S - 1>;
-	static const uint64_t   M2 = R2::M2;
-	static const uint32_t S2 = R2::S2;
+	static constexpr uint64_t   M2 = R2::M2;
+	static constexpr uint32_t S2 = R2::S2;
 };
 template<uint64_t M, uint32_t S> struct DBCReduce<M, S, true>
 {
-	static const uint64_t   M2 = M;
-	static const uint32_t S2 = S;
+	static constexpr uint64_t   M2 = M;
+	static constexpr uint32_t S2 = S;
 };
 
 // equivalent to the following run-tim loop:
@@ -79,18 +79,18 @@ template<uint64_t M, uint32_t S> struct DBCReduce<M, S, true>
 template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL>
 struct DBCReduce2Shift
 {
-	static const uint64_t AH2 = AH / 2;
-	static const uint64_t AL2 = AL / 2 + ((AH2 * 2 != AH) ? (1ull << 63) : 0);
-	static const uint64_t BH2 = BH / 2;
-	static const uint64_t BL2 = BL / 2 + ((BH2 * 2 != BH) ? (1ull << 63) : 0);
+	static constexpr uint64_t AH2 = AH / 2;
+	static constexpr uint64_t AL2 = AL / 2 + ((AH2 * 2 != AH) ? (1ull << 63) : 0);
+	static constexpr uint64_t BH2 = BH / 2;
+	static constexpr uint64_t BL2 = BL / 2 + ((BH2 * 2 != BH) ? (1ull << 63) : 0);
 };
 template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t L>
 struct DBCReduce2Test
 {
 	using S = DBCReduce2Shift<AH, AL, BH, BL>;
-	static const bool C = (S::AH2 != S::BH2) ? (S::AH2 < S::BH2)
+	static constexpr bool C = (S::AH2 != S::BH2) ? (S::AH2 < S::BH2)
 	                                         : (S::AL2 < S::BL2);
-	static const bool value = C && (L > 0);
+	static constexpr bool value = C && (L > 0);
 };
 template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t LL, bool B>
 struct DBCReduce2Loop
@@ -98,44 +98,44 @@ struct DBCReduce2Loop
 	using S = DBCReduce2Shift<AH, AL, BH, BL>;
 	using T = DBCReduce2Test<S::AH2, S::AL2, S::BH2, S::BL2, LL - 1>;
 	using R = DBCReduce2Loop<S::AH2, S::AL2, S::BH2, S::BL2, LL - 1, T::value>;
-	static const uint64_t MLH = R::MLH;
-	static const uint64_t MLL = R::MLL;
-	static const uint64_t MHH = R::MHH;
-	static const uint64_t MHL = R::MHL;
-	static const uint32_t L = R::L;
+	static constexpr uint64_t MLH = R::MLH;
+	static constexpr uint64_t MLL = R::MLL;
+	static constexpr uint64_t MHH = R::MHH;
+	static constexpr uint64_t MHL = R::MHL;
+	static constexpr uint32_t L = R::L;
 };
 template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t LL>
 struct DBCReduce2Loop<AH, AL, BH, BL, LL, false>
 {
-	static const uint64_t MLH = AH;
-	static const uint64_t MLL = AL;
-	static const uint64_t MHH = BH;
-	static const uint64_t MHL = BL;
-	static const uint32_t L = LL;
+	static constexpr uint64_t MLH = AH;
+	static constexpr uint64_t MLL = AL;
+	static constexpr uint64_t MHH = BH;
+	static constexpr uint64_t MHL = BL;
+	static constexpr uint32_t L = LL;
 };
 template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t LL>
 struct DBCReduce2
 {
 	using T = DBCReduce2Test<AH, AL, BH, BL, LL>;
 	using R = DBCReduce2Loop<AH, AL, BH, BL, LL, T::value>;
-	static const uint64_t MLH = R::MLH;
-	static const uint64_t MLL = R::MLL;
-	static const uint64_t MHH = R::MHH;
-	static const uint64_t MHL = R::MHL;
-	static const uint32_t L = R::L;
+	static constexpr uint64_t MLH = R::MLH;
+	static constexpr uint64_t MLL = R::MLL;
+	static constexpr uint64_t MHH = R::MHH;
+	static constexpr uint64_t MHL = R::MHL;
+	static constexpr uint32_t L = R::L;
 };
 
 
 template<uint32_t S> struct DBCAlgo1
 {
 	// division possible by only shifting
-	uint32_t operator()(uint64_t dividend) const
+	constexpr uint32_t operator()(uint64_t dividend) const
 	{
 		return dividend >> S;
 	}
 };
 
-static inline uint64_t mla64(uint64_t a, uint64_t b, uint64_t c)
+static constexpr uint64_t mla64(uint64_t a, uint64_t b, uint64_t c)
 {
 	// equivalent to this:
 	//    return (__uint128_t(a) * b + c) >> 64;
@@ -154,7 +154,7 @@ static inline uint64_t mla64(uint64_t a, uint64_t b, uint64_t c)
 template<uint64_t M, uint32_t S> struct DBCAlgo2
 {
 	// division possible by multiplication and shift
-	uint32_t operator()(uint64_t dividend) const
+	constexpr uint32_t operator()(uint64_t dividend) const
 	{
 		using R = DBCReduce<M, S>;
 		uint64_t h = mla64(dividend, R::M2, 0);
@@ -170,11 +170,11 @@ template<uint64_t M, uint32_t S> struct DBCAlgo2
 template<uint32_t DIVISOR, uint32_t N> struct DBCAlgo3
 {
 	// division possible by multiplication, addition and shift
-	static const uint32_t S = Math::log2p1(DIVISOR) - 1;
+	static constexpr uint32_t S = Math::log2p1(DIVISOR) - 1;
 	using D = Div128<1 << S, 0, 0, DIVISOR>;
-	static const uint64_t M = D::quotientLow + (D::remainderLow > (DIVISOR / 2));
+	static constexpr uint64_t M = D::quotientLow + (D::remainderLow > (DIVISOR / 2));
 
-	uint32_t operator()(uint64_t dividend) const
+	constexpr uint32_t operator()(uint64_t dividend) const
 	{
 		using R = DBCReduce<M, S + N>;
 		uint64_t h = mla64(dividend, R::M2, R::M2);
@@ -189,8 +189,8 @@ template<uint32_t DIVISOR, uint32_t N, typename RM> struct DBCHelper3
 
 template<uint32_t DIVISOR, uint32_t N> struct DBCHelper2
 {
-	static const uint32_t L = Math::log2p1(DIVISOR);
-	static const uint64_t J = 0xffffffffffffffffull % DIVISOR;
+	static constexpr uint32_t L = Math::log2p1(DIVISOR);
+	static constexpr uint64_t J = 0xffffffffffffffffull % DIVISOR;
 	using K = Div128<1 << L, 0, 0, 0xffffffffffffffffull - J>;
 
 	using M_LOW  = Div128< 1 << L,                    0,              0, DIVISOR>;
@@ -198,7 +198,7 @@ template<uint32_t DIVISOR, uint32_t N> struct DBCHelper2
 	using R = DBCReduce2<M_LOW ::quotientHigh, M_LOW ::quotientLow,
 	                     M_HIGH::quotientHigh, M_HIGH::quotientLow, L>;
 
-	uint32_t operator()(uint64_t dividend) const
+	constexpr uint32_t operator()(uint64_t dividend) const
 	{
 		DBCHelper3<DIVISOR, N, R> dbc;
 		return dbc(dividend);
@@ -217,7 +217,7 @@ template<uint32_t DIVISOR, uint32_t SHIFT> struct DBCHelper1
 
 template<uint32_t DIVISOR> struct DivModByConst
 {
-	uint32_t div(uint64_t dividend) const
+	constexpr uint32_t div(uint64_t dividend) const
 	{
 	#ifdef __x86_64
 		// on 64-bit CPUs gcc already does this
@@ -229,13 +229,12 @@ template<uint32_t DIVISOR> struct DivModByConst
 	#endif
 	}
 
-	uint32_t mod(uint64_t dividend) const
+	constexpr uint32_t mod(uint64_t dividend) const
 	{
-		uint64_t result;
 	#ifdef __x86_64
-		result = dividend % DIVISOR;
+		uint64_t result = dividend % DIVISOR;
 	#else
-		result = dividend - DIVISOR * div(dividend);
+		uint64_t result = dividend - DIVISOR * div(dividend);
 	#endif
 	#ifdef DEBUG
 		// we don't even want this overhead in devel builds

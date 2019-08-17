@@ -71,13 +71,13 @@ private:
 REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
 
 
-static const char* defaultKeymapForMatrix[] = {
+constexpr const char* const defaultKeymapForMatrix[] = {
 	"int", // MATRIX_MSX
 	"svi", // MATRIX_SVI
 	"cvjoy", // MATRIX_CVJOY
 };
 
-static const std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>
+constexpr std::array<KeyMatrixPosition, UnicodeKeymap::KeyInfo::NUM_MODIFIERS>
 		modifierPosForMatrix[] = {
 	{ // MATRIX_MSX
 		KeyMatrixPosition(6, 0), // SHIFT
@@ -1374,7 +1374,7 @@ INSTANTIATE_SERIALIZE_METHODS(Keyboard::MsxKeyEventQueue);
 /** Keyboard bindings ****************************************/
 
 // Mapping from SDL keys to emulated keys, ordered by MatrixType
-static const KeyMatrixPosition x = KeyMatrixPosition();
+constexpr KeyMatrixPosition x = KeyMatrixPosition();
 const KeyMatrixPosition Keyboard::keyTabs[][MAX_KEYSYM] = {
   {
 // MSX Key-Matrix table

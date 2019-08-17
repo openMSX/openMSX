@@ -306,8 +306,8 @@ template<> struct PutSignHelper<false>
 // result. This size can be used to calculate the start position in the buffer.
 template<typename T> struct ConcatIntegral
 {
-	static const bool IS_SIGNED = std::numeric_limits<T>::is_signed;
-	static const size_t BUF_SIZE = 1 + std::numeric_limits<T>::digits10 + IS_SIGNED;
+	static constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
+	static constexpr size_t BUF_SIZE = 1 + std::numeric_limits<T>::digits10 + IS_SIGNED;
 
 	ConcatIntegral(T t)
 	{

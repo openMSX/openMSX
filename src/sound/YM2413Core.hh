@@ -37,7 +37,7 @@ public:
 	 * to get to 44kHz, at the very least do linear interpolation. But
 	 * preferably use a better resample algorithm).
 	 */
-	static const int CLOCK_FREQ = 3579545;
+	static constexpr int CLOCK_FREQ = 3579545;
 
 	virtual ~YM2413Core() = default;
 

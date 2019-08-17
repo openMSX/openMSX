@@ -245,12 +245,12 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (tokens.size() == 2) {
-		static const char* const cmds[] = {
+		static constexpr const char* const cmds[] = {
 			"create", "destroy", "info", "exists", "configure"
 		};
 		completeString(tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		static const char* const types[] = { "rectangle", "text" };
+		static constexpr const char* const types[] = { "rectangle", "text" };
 		completeString(tokens, types);
 	} else if ((tokens.size() == 3) ||
 	           ((tokens.size() == 4) && (tokens[1] == "create"))) {

@@ -35,7 +35,7 @@ OSDImageBasedWidget::~OSDImageBasedWidget() = default;
 vector<std::string_view> OSDImageBasedWidget::getProperties() const
 {
 	auto result = OSDWidget::getProperties();
-	static const char* const vals[] = {
+	static constexpr const char* const vals[] = {
 		"-rgba", "-rgb", "-alpha", "-fadePeriod", "-fadeTarget",
 		"-fadeCurrent",
 	};

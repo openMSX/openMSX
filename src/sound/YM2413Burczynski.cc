@@ -30,25 +30,25 @@ namespace openmsx {
 namespace YM2413Burczynski {
 
 // envelope output entries
-static constexpr int ENV_BITS = 10;
-static constexpr double ENV_STEP = 128.0 / (1 << ENV_BITS);
+constexpr int ENV_BITS = 10;
+constexpr double ENV_STEP = 128.0 / (1 << ENV_BITS);
 
-static constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
-static constexpr int MIN_ATT_INDEX = 0;
+constexpr int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1; // 255
+constexpr int MIN_ATT_INDEX = 0;
 
 // sinwave entries
-static constexpr int SIN_BITS = 10;
-static constexpr int SIN_LEN  = 1 << SIN_BITS;
-static constexpr int SIN_MASK = SIN_LEN - 1;
+constexpr int SIN_BITS = 10;
+constexpr int SIN_LEN  = 1 << SIN_BITS;
+constexpr int SIN_MASK = SIN_LEN - 1;
 
-static constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
+constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
 // key scale level
 // table is 3dB/octave, DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
 #define DV(x) int((x) / 0.1875)
-static constexpr int ksl_tab[8 * 16] =
+constexpr int ksl_tab[8 * 16] =
 {
 	// OCT 0
 	DV( 0.000),DV( 0.000),DV( 0.000),DV( 0.000),
@@ -96,13 +96,13 @@ static constexpr int ksl_tab[8 * 16] =
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,45 (dB)
 #define SC(db) int((double(db)) / ENV_STEP)
-static constexpr int sl_tab[16] = {
+constexpr int sl_tab[16] = {
 	SC( 0),SC( 1),SC( 2),SC(3 ),SC(4 ),SC(5 ),SC(6 ),SC( 7),
 	SC( 8),SC( 9),SC(10),SC(11),SC(12),SC(13),SC(14),SC(15)
 };
 #undef SC
 
-static constexpr byte eg_inc[15][8] =
+constexpr byte eg_inc[15][8] =
 {
 	// cycle: 0 1  2 3  4 5  6 7
 
@@ -127,7 +127,7 @@ static constexpr byte eg_inc[15][8] =
 };
 
 // note that there is no value 13 in this table - it's directly in the code
-static constexpr byte eg_rate_select[16 + 64 + 16] =
+constexpr byte eg_rate_select[16 + 64 + 16] =
 {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -165,7 +165,7 @@ static constexpr byte eg_rate_select[16 + 64 + 16] =
 // shift 13,   12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0
 // mask  8191, 4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0
 
-static constexpr byte eg_rate_shift[16 + 64 + 16] =
+constexpr byte eg_rate_shift[16 + 64 + 16] =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -201,7 +201,7 @@ static constexpr byte eg_rate_shift[16 + 64 + 16] =
 
 // multiple table
 #define ML(x) byte(2 * (x))
-static constexpr byte mul_tab[16] =
+constexpr byte mul_tab[16] =
 {
 	ML( 0.50), ML( 1.00), ML( 2.00), ML( 3.00),
 	ML( 4.00), ML( 5.00), ML( 6.00), ML( 7.00),
@@ -214,7 +214,7 @@ static constexpr byte mul_tab[16] =
 //  11 - sinus amplitude bits     (Y axis)
 //  2  - sinus sign bit           (Y axis)
 //  TL_RES_LEN - sinus resolution (X axis)
-static constexpr int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
+constexpr int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
 struct TlTab {
 	int tab[TL_TAB_LEN];
 };
@@ -237,7 +237,7 @@ static constexpr TlTab makeTlTab()
 	}
 	return tl;
 }
-static constexpr TlTab tl = makeTlTab();
+constexpr TlTab tl = makeTlTab();
 
 // sin waveform table in 'decibel' scale
 // two waveforms on OPLL type chips
@@ -268,7 +268,7 @@ static constexpr SinTab makeSinTab()
 	}
 	return sin;
 }
-static constexpr SinTab sin = makeSinTab();
+constexpr SinTab sin = makeSinTab();
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 // 27 output levels (triangle waveform);
@@ -282,8 +282,8 @@ static constexpr SinTab sin = makeSinTab();
 //
 // We use data>>1, until we find what it really is on real chip...
 
-static constexpr int LFO_AM_TAB_ELEMENTS = 210;
-static constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
+constexpr int LFO_AM_TAB_ELEMENTS = 210;
+constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
@@ -340,7 +340,7 @@ static constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 };
 
 // LFO Phase Modulation table (verified on real YM2413)
-static constexpr signed char lfo_pm_table[8][8] =
+constexpr signed char lfo_pm_table[8][8] =
 {
 	// FNUM2/FNUM = 0 00xxxxxx (0x0000)
 	{ 0, 0, 0, 0, 0, 0, 0, 0, },
@@ -372,7 +372,7 @@ static constexpr signed char lfo_pm_table[8][8] =
 // - multi parameters are 100% correct (instruments and drums)
 // - LFO PM and AM enable are 100% correct
 // - waveform DC and DM select are 100% correct
-static constexpr byte table[16 + 3][8] = {
+constexpr byte table[16 + 3][8] = {
 	// MULT  MULT modTL DcDmFb AR/DR AR/DR SL/RR SL/RR
 	//   0     1     2     3     4     5     6     7
 	{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, // user instrument

@@ -19,28 +19,28 @@
 namespace openmsx {
 
 // Bitmask for register 0x07
-static const int R07_RESET       = 0x01;
-static const int R07_SP_OFF      = 0x08;
-static const int R07_REPEAT      = 0x10;
-static const int R07_MEMORY_DATA = 0x20;
-static const int R07_REC         = 0x40;
-static const int R07_START       = 0x80;
-static const int R07_MODE        = 0xE0;
+constexpr int R07_RESET       = 0x01;
+constexpr int R07_SP_OFF      = 0x08;
+constexpr int R07_REPEAT      = 0x10;
+constexpr int R07_MEMORY_DATA = 0x20;
+constexpr int R07_REC         = 0x40;
+constexpr int R07_START       = 0x80;
+constexpr int R07_MODE        = 0xE0;
 
 // Bitmask for register 0x08
-static const int R08_ROM         = 0x01;
-static const int R08_64K         = 0x02;
-static const int R08_DA_AD       = 0x04;
-static const int R08_SAMPL       = 0x08;
-static const int R08_NOTE_SET    = 0x40;
-static const int R08_CSM         = 0x80;
+constexpr int R08_ROM         = 0x01;
+constexpr int R08_64K         = 0x02;
+constexpr int R08_DA_AD       = 0x04;
+constexpr int R08_SAMPL       = 0x08;
+constexpr int R08_NOTE_SET    = 0x40;
+constexpr int R08_CSM         = 0x80;
 
-static const int DMAX = 0x6000;
-static const int DMIN = 0x7F;
-static const int DDEF = 0x7F;
+constexpr int DMAX = 0x6000;
+constexpr int DMIN = 0x7F;
+constexpr int DDEF = 0x7F;
 
-static const int STEP_BITS = 16;
-static const int STEP_MASK = (1 << STEP_BITS) -1;
+constexpr int STEP_BITS = 16;
+constexpr int STEP_MASK = (1 << STEP_BITS) -1;
 
 
 Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const DeviceConfig& config,
@@ -438,10 +438,10 @@ int Y8950Adpcm::calcSample()
 int Y8950Adpcm::calcSample(bool doEmu)
 {
 	// values taken from ymdelta.c by Tatsuyuki Satoh.
-	static const int F1[16] = {  1,   3,   5,   7,   9,  11,  13,  15,
-	                            -1,  -3,  -5,  -7,  -9, -11, -13, -15 };
-	static const int F2[16] = { 57,  57,  57,  57,  77, 102, 128, 153,
-	                            57,  57,  57,  57,  77, 102, 128, 153 };
+	static constexpr int F1[16] = {  1,   3,   5,   7,   9,  11,  13,  15,
+	                                -1,  -3,  -5,  -7,  -9, -11, -13, -15 };
+	static constexpr int F2[16] = { 57,  57,  57,  57,  77, 102, 128, 153,
+	                                57,  57,  57,  57,  77, 102, 128, 153 };
 
 	assert(isPlaying());
 

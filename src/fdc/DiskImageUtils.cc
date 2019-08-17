@@ -10,7 +10,7 @@
 
 namespace openmsx::DiskImageUtils {
 
-static const char PARTAB_HEADER[11] = {
+constexpr char PARTAB_HEADER[11] = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
 };
 static bool isPartitionTableSector(const PartitionTable& pt)

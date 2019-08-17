@@ -17,7 +17,7 @@ class V9990VRAM
 public:
 	/** VRAM Size
 	  */
-	static const unsigned VRAM_SIZE = 512 * 1024; // 512kB
+	static constexpr unsigned VRAM_SIZE = 512 * 1024; // 512kB
 
 	/** Construct V9990 VRAM.
 	  * @param vdp The V9990 vdp this VRAM belongs to

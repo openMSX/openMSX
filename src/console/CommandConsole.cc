@@ -97,9 +97,9 @@ ConsoleLine ConsoleLine::substr(size_t pos, size_t len) const
 
 // class CommandConsole
 
-static const char* const PROMPT_NEW  = "> ";
-static const char* const PROMPT_CONT = "| ";
-static const char* const PROMPT_BUSY = "*busy*";
+constexpr const char* const PROMPT_NEW  = "> ";
+constexpr const char* const PROMPT_CONT = "| ";
+constexpr const char* const PROMPT_BUSY = "*busy*";
 
 CommandConsole::CommandConsole(
 		GlobalCommandController& commandController_,

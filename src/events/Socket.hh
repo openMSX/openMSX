@@ -17,8 +17,8 @@
 namespace openmsx {
 
 #ifndef _WIN32
-static const int OPENMSX_INVALID_SOCKET = -1;
-static const int SOCKET_ERROR = -1;
+constexpr int OPENMSX_INVALID_SOCKET = -1;
+constexpr int SOCKET_ERROR = -1;
 using SOCKET = int;
 #else
 // INVALID_SOCKET is #defined as  (SOCKET)(~0)

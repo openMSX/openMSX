@@ -45,7 +45,7 @@ public:
 	  * a 5-6-5 format (not specified wihich component goes where, but
 	  * usually it will be BGR). This method is currently used to pick
 	  * a faster version for lerp() on dingoo. */
-	static const bool IS_RGB565 = false;
+	static constexpr bool IS_RGB565 = false;
 
 private:
 	inline Pixel calcBlendMask() const
@@ -92,7 +92,7 @@ public:
 
 	inline unsigned getBlendMask() const { return 0xFEFEFEFE; }
 
-	static const bool IS_RGB565 = false;
+	static constexpr bool IS_RGB565 = false;
 
 private:
 	const SDL_PixelFormat& format;
@@ -144,7 +144,7 @@ public:
 
 	inline uint16_t getBlendMask() const { return 0xF7DE; }
 
-	static const bool IS_RGB565 = true;
+	static constexpr bool IS_RGB565 = true;
 };
 #endif
 
@@ -448,9 +448,9 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 		// approximate with weights that sum to 256 (or 64)
 		// e.g. approximate <1,2> as <85,171> (or <21,43>)
 		//  ww1 = round(256 * w1 / total)   ww2 = 256 - ww1
-		static const unsigned newTotal = IS_RGB565 ? 64 : 256;
-		static const unsigned ww1 = (2 * w1 * newTotal + total) / (2 * total);
-		static const unsigned ww2 = 256 - ww1;
+		constexpr unsigned newTotal = IS_RGB565 ? 64 : 256;
+		constexpr unsigned ww1 = (2 * w1 * newTotal + total) / (2 * total);
+		constexpr unsigned ww2 = 256 - ww1;
 		return blend<ww1, ww2>(p1, p2);
 
 	} else if (sizeof(Pixel) == 4) {
@@ -468,11 +468,11 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 			// reduce to maximum 6-bit
 			// note: DIV64 only exists to work around a
 			//       division by zero in dead code
-			static const unsigned DIV64 = (total > 64) ? 64 : 1;
-			static const unsigned factor = total / DIV64;
-			static const unsigned round = factor / 2;
-			static const unsigned ww1 = (w1 + round) / factor;
-			static const unsigned ww2 = 64 - ww1;
+			constexpr unsigned DIV64 = (total > 64) ? 64 : 1;
+			constexpr unsigned factor = total / DIV64;
+			constexpr unsigned round = factor / 2;
+			constexpr unsigned ww1 = (w1 + round) / factor;
+			constexpr unsigned ww2 = 64 - ww1;
 			return blend<ww1, ww2>(p1, p2);
 		} else {
 			unsigned l2 = Math::log2p1(total) - 1;
@@ -496,7 +496,7 @@ template <typename Pixel>
 template <unsigned w1, unsigned w2, unsigned w3>
 inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2, Pixel p3) const
 {
-	static const unsigned total = w1 + w2 + w3;
+	constexpr unsigned total = w1 + w2 + w3;
 	if ((sizeof(Pixel) == 4) && Math::ispow2(total)) {
 		unsigned l2 = Math::log2p1(total) - 1;
 		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
@@ -519,7 +519,7 @@ template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 inline Pixel PixelOperations<Pixel>::blend(
 		Pixel p1, Pixel p2, Pixel p3, Pixel p4) const
 {
-	static const unsigned total = w1 + w2 + w3 + w4;
+	constexpr unsigned total = w1 + w2 + w3 + w4;
 	if ((sizeof(Pixel) == 4) && Math::ispow2(total)) {
 		unsigned l2 = Math::log2p1(total) - 1;
 		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
@@ -548,7 +548,7 @@ template <unsigned w1, unsigned w2, unsigned w3,
 inline Pixel PixelOperations<Pixel>::blend(
 	Pixel p1, Pixel p2, Pixel p3, Pixel p4, Pixel p5, Pixel p6) const
 {
-	static const unsigned total = w1 + w2 + w3 + w4 + w5 + w6;
+	constexpr unsigned total = w1 + w2 + w3 + w4 + w5 + w6;
 	if ((sizeof(Pixel) == 4) && Math::ispow2(total)) {
 		unsigned l2 = Math::log2p1(total) - 1;
 		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +

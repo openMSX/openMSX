@@ -8,12 +8,12 @@
 
 namespace openmsx {
 
-static const byte READ_BACK = 0xC0;
-static const byte RB_CNTR0  = 0x02;
-static const byte RB_CNTR1  = 0x04;
-static const byte RB_CNTR2  = 0x08;
-static const byte RB_STATUS = 0x10;
-static const byte RB_COUNT  = 0x20;
+constexpr byte READ_BACK = 0xC0;
+constexpr byte RB_CNTR0  = 0x02;
+constexpr byte RB_CNTR1  = 0x04;
+constexpr byte RB_CNTR2  = 0x08;
+constexpr byte RB_STATUS = 0x10;
+constexpr byte RB_COUNT  = 0x20;
 
 
 class Counter {
@@ -36,20 +36,20 @@ public:
 	enum ByteOrder {LOW, HIGH};
 
 private:
-	static const byte WRT_FRMT = 0x30;
-	static const byte WF_LATCH = 0x00;
-	static const byte WF_LOW   = 0x10;
-	static const byte WF_HIGH  = 0x20;
-	static const byte WF_BOTH  = 0x30;
-	static const byte CNTR_MODE = 0x0E;
-	static const byte CNTR_M0   = 0x00;
-	static const byte CNTR_M1   = 0x02;
-	static const byte CNTR_M2   = 0x04;
-	static const byte CNTR_M3   = 0x06;
-	static const byte CNTR_M4   = 0x08;
-	static const byte CNTR_M5   = 0x0A;
-	static const byte CNTR_M2_  = 0x0C;
-	static const byte CNTR_M3_  = 0x0E;
+	static constexpr byte WRT_FRMT = 0x30;
+	static constexpr byte WF_LATCH = 0x00;
+	static constexpr byte WF_LOW   = 0x10;
+	static constexpr byte WF_HIGH  = 0x20;
+	static constexpr byte WF_BOTH  = 0x30;
+	static constexpr byte CNTR_MODE = 0x0E;
+	static constexpr byte CNTR_M0   = 0x00;
+	static constexpr byte CNTR_M1   = 0x02;
+	static constexpr byte CNTR_M2   = 0x04;
+	static constexpr byte CNTR_M3   = 0x06;
+	static constexpr byte CNTR_M4   = 0x08;
+	static constexpr byte CNTR_M5   = 0x0A;
+	static constexpr byte CNTR_M2_  = 0x0C;
+	static constexpr byte CNTR_M3_  = 0x0E;
 
 	void writeLoad(word value, EmuTime::param time);
 	void advance(EmuTime::param time);

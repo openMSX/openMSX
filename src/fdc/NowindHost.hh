@@ -102,7 +102,7 @@ private:
 	void callImage(const std::string& filename);
 
 
-	static const unsigned MAX_DEVICES = 16;
+	static constexpr unsigned MAX_DEVICES = 16;
 
 	const Drives& drives;
 

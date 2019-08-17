@@ -290,7 +290,7 @@ string DiskCommand::help(const vector<string>& /*tokens*/) const
 void DiskCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() >= 2) {
-		static const char* const extra[] = {
+		static constexpr const char* const extra[] = {
 			"eject", "ramdsk", "insert",
 		};
 		completeFileName(tokens, userFileContext(), extra);

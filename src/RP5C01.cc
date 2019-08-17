@@ -9,28 +9,28 @@ namespace openmsx {
 // TODO  ALARM is not implemented        (not connected on MSX)
 // TODO  1Hz 16Hz output not implemented (not connected on MSX)
 
-static const nibble MODE_REG  = 13;
-static const nibble TEST_REG  = 14;
-static const nibble RESET_REG = 15;
+constexpr nibble MODE_REG  = 13;
+constexpr nibble TEST_REG  = 14;
+constexpr nibble RESET_REG = 15;
 
-static const nibble TIME_BLOCK  = 0;
-static const nibble ALARM_BLOCK = 1;
+constexpr nibble TIME_BLOCK  = 0;
+constexpr nibble ALARM_BLOCK = 1;
 
-static const nibble MODE_BLOKSELECT  = 0x3;
-static const nibble MODE_ALARMENABLE = 0x4;
-static const nibble MODE_TIMERENABLE = 0x8;
+constexpr nibble MODE_BLOKSELECT  = 0x3;
+constexpr nibble MODE_ALARMENABLE = 0x4;
+constexpr nibble MODE_TIMERENABLE = 0x8;
 
-static const nibble TEST_SECONDS = 0x1;
-static const nibble TEST_MINUTES = 0x2;
-static const nibble TEST_DAYS    = 0x4;
-static const nibble TEST_YEARS   = 0x8;
+constexpr nibble TEST_SECONDS = 0x1;
+constexpr nibble TEST_MINUTES = 0x2;
+constexpr nibble TEST_DAYS    = 0x4;
+constexpr nibble TEST_YEARS   = 0x8;
 
-static const nibble RESET_ALARM    = 0x1;
-static const nibble RESET_FRACTION = 0x2;
+constexpr nibble RESET_ALARM    = 0x1;
+constexpr nibble RESET_FRACTION = 0x2;
 
 
 // 0-bits are ignored on writing and return 0 on reading
-static const nibble mask[4][13] = {
+constexpr nibble mask[4][13] = {
 	{ 0xf, 0x7, 0xf, 0x7, 0xf, 0x3, 0x7, 0xf, 0x3, 0xf, 0x1, 0xf, 0xf},
 	{ 0x0, 0x0, 0xf, 0x7, 0xf, 0x3, 0x7, 0xf, 0x3, 0x0, 0x1, 0x3, 0x0},
 	{ 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf},

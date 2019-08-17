@@ -28,9 +28,9 @@ public:
 	}
 
 protected:
-	template<bool B> struct Normalize { static const bool value = B; };
+	template<bool B> struct Normalize { static constexpr bool value = B; };
 
-	static const int CLOCK_FREQ = 7159090;
+	static constexpr int CLOCK_FREQ = 7159090;
 
 	ALWAYS_INLINE unsigned haltStates() const { return 1; } // TODO check this
 	ALWAYS_INLINE bool isR800() const { return true; }
@@ -161,14 +161,14 @@ protected:
 	ALWAYS_INLINE void setMemPtr(unsigned /*x*/) { /* nothing*/ }
 	ALWAYS_INLINE unsigned getMemPtr() const { return 0; } // dummy value
 
-	static const int I  = 6; // cycles for an I/O operation
-	static const int O  = 1; // wait for one cycle and wait for next even
-	                         // clock cycle (to sync with slower IO bus)
-	                         // the latter part must be implemented
-	                         // dynamically (not here in static tables)
-	static const int P  = 1; // cycles for a (statically known) page-break
+	static constexpr int I  = 6; // cycles for an I/O operation
+	static constexpr int O  = 1; // wait for one cycle and wait for next even
+	                             // clock cycle (to sync with slower IO bus)
+	                             // the latter part must be implemented
+	                             // dynamically (not here in static tables)
+	static constexpr int P  = 1; // cycles for a (statically known) page-break
 
-	static const int
+	static constexpr int
 		CC_LD_A_SS   = 1+P+1, CC_LD_A_SS_1  = 1+P,
 		CC_LD_A_NN   = 3+P+1, CC_LD_A_NN_1  = 1, CC_LD_A_NN_2  = 3+P,
 		CC_LD_A_I    = 2,

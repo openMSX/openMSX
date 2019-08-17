@@ -26,7 +26,7 @@ public:
 	void unregisterDrive(DiskContainer& drive);
 
 private:
-	static const unsigned MAX_PARTITIONS = 31;
+	static constexpr unsigned MAX_PARTITIONS = 31;
 	struct DriveSettings
 	{
 		DiskContainer* drive;

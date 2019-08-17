@@ -54,9 +54,9 @@ using std::vector;
 
 namespace openmsx {
 
-static const unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .cas/.wav file
-static const unsigned RECORD_FREQ = 44100;
-static const double OUTPUT_AMP = 60.0;
+constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .cas/.wav file
+constexpr unsigned RECORD_FREQ = 44100;
+constexpr double OUTPUT_AMP = 60.0;
 
 static XMLElement createXML()
 {
@@ -490,7 +490,7 @@ void CassettePlayer::generateRecordOutput(EmuDuration::param duration)
 void CassettePlayer::fillBuf(size_t length, double x)
 {
 	assert(recordImage);
-	static const double A = 252.0 / 256.0;
+	constexpr double A = 252.0 / 256.0;
 
 	double y = lastY + (x - lastX);
 
@@ -810,7 +810,7 @@ string CassettePlayer::TapeCommand::help(const vector<string>& tokens) const
 void CassettePlayer::TapeCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const cmds[] = {
+		static constexpr const char* const cmds[] = {
 			"eject", "rewind", "motorcontrol", "insert", "new",
 			"play", "getpos", "getlength",
 			//"record",
@@ -819,7 +819,7 @@ void CassettePlayer::TapeCommand::tabCompletion(vector<string>& tokens) const
 	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {
 		completeFileName(tokens, userFileContext());
 	} else if ((tokens.size() == 3) && (tokens[1] == "motorcontrol")) {
-		static const char* const extra[] = { "on", "off" };
+		static constexpr const char* const extra[] = { "on", "off" };
 		completeString(tokens, extra);
 	}
 }

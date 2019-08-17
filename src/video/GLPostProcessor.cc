@@ -504,9 +504,9 @@ void GLPostProcessor::drawNoise()
 	glDisable(GL_BLEND);
 }
 
-static const int GRID_SIZE = 16;
-static const int GRID_SIZE1 = GRID_SIZE + 1;
-static const int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
+constexpr int GRID_SIZE = 16;
+constexpr int GRID_SIZE1 = GRID_SIZE + 1;
+constexpr int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
 struct Vertex {
 	vec3 position;
 	vec3 normal;
@@ -518,7 +518,7 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	// precalculate vertex-positions, -normals and -texture-coordinates
 	Vertex vertices[GRID_SIZE1][GRID_SIZE1];
 
-	static const float GRID_SIZE2 = float(GRID_SIZE) / 2.0f;
+	constexpr float GRID_SIZE2 = float(GRID_SIZE) / 2.0f;
 	float s = width / 320.0f;
 	float b = (320.0f - width) / (2.0f * 320.0f);
 

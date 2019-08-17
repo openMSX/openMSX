@@ -138,13 +138,13 @@ void Touchpad::unplugHelper(EmuTime::param /*time*/)
 }
 
 // JoystickDevice
-static const byte SENSE  = JoystickDevice::RD_PIN1;
-static const byte EOC    = JoystickDevice::RD_PIN2;
-static const byte SO     = JoystickDevice::RD_PIN3;
-static const byte BUTTON = JoystickDevice::RD_PIN4;
-static const byte SCK    = JoystickDevice::WR_PIN6;
-static const byte SI     = JoystickDevice::WR_PIN7;
-static const byte CS     = JoystickDevice::WR_PIN8;
+constexpr byte SENSE  = JoystickDevice::RD_PIN1;
+constexpr byte EOC    = JoystickDevice::RD_PIN2;
+constexpr byte SO     = JoystickDevice::RD_PIN3;
+constexpr byte BUTTON = JoystickDevice::RD_PIN4;
+constexpr byte SCK    = JoystickDevice::WR_PIN6;
+constexpr byte SI     = JoystickDevice::WR_PIN7;
+constexpr byte CS     = JoystickDevice::WR_PIN8;
 
 byte Touchpad::read(EmuTime::param time)
 {
@@ -155,7 +155,7 @@ byte Touchpad::read(EmuTime::param time)
 	// EOC remains zero for 56 cycles after CS 0->1
 	// TODO at what clock frequency does the UPD7001 run?
 	//    400kHz is only the recommended value from the UPD7001 datasheet.
-	static constexpr EmuDuration delta = Clock<400000>::duration(56);
+	constexpr EmuDuration delta = Clock<400000>::duration(56);
 	if ((time - start) > delta) {
 		result |= EOC;
 	}

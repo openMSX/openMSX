@@ -11,13 +11,13 @@ namespace openmsx {
 
 // The input sample stream can only use this many bits out of the available 32
 // bits. So 29 bits means the sample values must be in range [-256M, 256M].
-static constexpr int BLIP_SAMPLE_BITS = 29;
+constexpr int BLIP_SAMPLE_BITS = 29;
 
 // Number of samples in a (pre-calculated) impulse-response wave-form.
-static constexpr int BLIP_IMPULSE_WIDTH = 16;
+constexpr int BLIP_IMPULSE_WIDTH = 16;
 
 // Derived constants
-static constexpr int BLIP_RES = 1 << BlipBuffer::BLIP_PHASE_BITS;
+constexpr int BLIP_RES = 1 << BlipBuffer::BLIP_PHASE_BITS;
 
 
 // Precalculated impulse table.
@@ -83,7 +83,7 @@ static constexpr Impulses calcImpulses()
 	}
 	return impulses;
 }
-static constexpr Impulses impulses = calcImpulses();
+constexpr Impulses impulses = calcImpulses();
 
 
 BlipBuffer::BlipBuffer()
@@ -125,7 +125,7 @@ void BlipBuffer::addDelta(TimeIndex time, float delta)
 	}
 }
 
-static const float BASS_FACTOR = 511.0f / 512.0f;
+constexpr float BASS_FACTOR = 511.0f / 512.0f;
 
 template<unsigned PITCH>
 void BlipBuffer::readSamplesHelper(float* __restrict out, unsigned samples) __restrict
@@ -152,7 +152,7 @@ static bool isSilent(float x)
 	// input is in range [-1..+1] (does not say silent too soon). When the
 	// input is in range [-32768..+32767] it takes longer before we switch
 	// to silent mode (but still less than a second).
-	static const float threshold = 1.0f / 32768;
+	constexpr float threshold = 1.0f / 32768;
 	return std::abs(x) < threshold;
 }
 

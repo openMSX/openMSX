@@ -68,7 +68,7 @@ public:
 	// speed can vary and thus the disk can be formatted with slightly more
 	// or slightly less raw bytes per track. This class can also represent
 	// tracks of different lengths.
-	static const unsigned STANDARD_SIZE = 6250;
+	static constexpr unsigned STANDARD_SIZE = 6250;
 
 	struct Sector
 	{

@@ -29,7 +29,7 @@ OSDRectangle::OSDRectangle(Display& display_, const TclObject& name_)
 vector<std::string_view> OSDRectangle::getProperties() const
 {
 	auto result = OSDImageBasedWidget::getProperties();
-	static const char* const vals[] = {
+	static constexpr const char* const vals[] = {
 		"-w", "-h", "-relw", "-relh", "-scale", "-image",
 		"-bordersize", "-relbordersize", "-borderrgba",
 	};

@@ -333,12 +333,12 @@ string AviRecorder::Cmd::help(const vector<string>& /*tokens*/) const
 void AviRecorder::Cmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const cmds[] = {
+		static constexpr const char* const cmds[] = {
 			"start", "stop", "toggle", "status",
 		};
 		completeString(tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
-		static const char* const options[] = {
+		static constexpr const char* const options[] = {
 			"-prefix", "-videoonly", "-audioonly", "-doublesize", "-triplesize",
 			"-mono", "-stereo",
 		};

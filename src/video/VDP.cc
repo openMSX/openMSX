@@ -159,10 +159,10 @@ VDP::VDP(const DeviceConfig& config)
 	}
 
 	// Set up control register availability.
-	static const byte VALUE_MASKS_MSX1[32] = {
+	static constexpr byte VALUE_MASKS_MSX1[32] = {
 		0x03, 0xFB, 0x0F, 0xFF, 0x07, 0x7F, 0x07, 0xFF  // 00..07
 	};
-	static const byte VALUE_MASKS_MSX2[32] = {
+	static constexpr byte VALUE_MASKS_MSX2[32] = {
 		0x7E, 0x7F, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
 		0xFB, 0xBF, 0x07, 0x03, 0xFF, 0xFF, 0x07, 0x0F, // 08..15
 		0x0F, 0xBF, 0xFF, 0xFF, 0x3F, 0x3F, 0x3F, 0xFF, // 16..23
@@ -1411,7 +1411,7 @@ void VDP::update(const Setting& setting)
  *
  * Thanks to Tiago Valença and Carlos Mansur for measuring on a T7937A.
  */
-static const std::array<std::array<uint8_t,3>,16> TOSHIBA_PALETTE = {{
+constexpr std::array<std::array<uint8_t, 3>, 16> TOSHIBA_PALETTE = {{
 	{   0,   0,   0 },
 	{   0,   0,   0 },
 	{ 102, 204, 102 },
@@ -1438,7 +1438,7 @@ used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
 This seems to be the 24-bit RGB equivalent to the palette output by the FM-X on
 its RGB conector:
 */
-static const std::array<std::array<uint8_t,3>,16> THREE_BIT_RGB_PALETTE = {{
+constexpr std::array<std::array<uint8_t, 3>, 16> THREE_BIT_RGB_PALETTE = {{
 	{   0,   0,   0 },
 	{   0,   0,   0 },
 	{   0, 255,   0 },
@@ -1459,7 +1459,7 @@ static const std::array<std::array<uint8_t,3>,16> THREE_BIT_RGB_PALETTE = {{
 
 // Source: TMS9918/28/29 Data Book, page 2-17.
 
-const float TMS9XXXA_ANALOG_OUTPUT[16][3] = {
+constexpr float TMS9XXXA_ANALOG_OUTPUT[16][3] = {
 	//  Y     R-Y    B-Y    voltages
 	{ 0.00f, 0.47f, 0.47f },
 	{ 0.00f, 0.47f, 0.47f },

@@ -104,7 +104,7 @@ private:
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	static const int MAX_KEYSYM = 0x150;
+	static constexpr int MAX_KEYSYM = 0x150;
 	static const KeyMatrixPosition keyTabs[][MAX_KEYSYM];
 	const KeyMatrixPosition* keyTab;
 

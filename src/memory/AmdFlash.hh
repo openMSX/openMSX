@@ -101,7 +101,7 @@ private:
 	const word ID;
 	const bool use12bitAddressing;
 
-	static const unsigned MAX_CMD_SIZE = 8;
+	static constexpr unsigned MAX_CMD_SIZE = 8;
 	AmdCmd cmd[MAX_CMD_SIZE];
 	unsigned cmdIdx;
 	State state = ST_IDLE;

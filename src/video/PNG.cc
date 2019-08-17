@@ -186,7 +186,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		             &color_type, &interlace_type, nullptr, nullptr);
 
 		// Allocate the SDL surface to hold the image.
-		static const unsigned MAX_SIZE = 2048;
+		constexpr unsigned MAX_SIZE = 2048;
 		if (width > MAX_SIZE) {
 			throw MSXException(
 				"Attempted to create a surface with excessive width: ",

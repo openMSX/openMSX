@@ -263,7 +263,7 @@ std::pair<unsigned, byte> Carnivore2::decodeMultiMapper(word address) const
 
 		// check address
 		bool mirroringDisabled = mult & 0x40;
-		static const byte checkMasks[2][8] = {
+		static constexpr byte checkMasks[2][8] = {
 			{ 0x00, 0x00, 0x00, 0x30, 0x60, 0xc0, 0x80, 0x00 }, // mirroring enabled
 			{ 0x00, 0x00, 0x00, 0xf0, 0xe0, 0xc0, 0x80, 0x00 }, // mirroring disabled
 		};

@@ -13,13 +13,13 @@
 
 namespace openmsx {
 
-static const byte ALLOW_READ  = 1;
-static const byte ALLOW_WRITE = 2;
-static const byte NO_ACCESS = 0;
-static const byte RD_ONLY   = ALLOW_READ;
-static const byte WR_ONLY   = ALLOW_WRITE;
-static const byte RD_WR     = ALLOW_READ | ALLOW_WRITE;
-static const byte regAccess[64] = {
+constexpr byte ALLOW_READ  = 1;
+constexpr byte ALLOW_WRITE = 2;
+constexpr byte NO_ACCESS = 0;
+constexpr byte RD_ONLY   = ALLOW_READ;
+constexpr byte WR_ONLY   = ALLOW_WRITE;
+constexpr byte RD_WR     = ALLOW_READ | ALLOW_WRITE;
+constexpr byte regAccess[64] = {
 	WR_ONLY, WR_ONLY, WR_ONLY,          // VRAM Write Address
 	WR_ONLY, WR_ONLY, WR_ONLY,          // VRAM Read Address
 	RD_WR, RD_WR,                       // Screen Mode
@@ -582,7 +582,7 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 {
 	// Found this table by writing 0xFF to a register and reading
 	// back the value (only works for read/write registers)
-	static const byte regWriteMask[32] = {
+	static constexpr byte regWriteMask[32] = {
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 		0xFF, 0x87, 0xFF, 0x83, 0x0F, 0xFF, 0xFF, 0xFF,
 		0xFF, 0xFF, 0xDF, 0x07, 0xFF, 0xFF, 0xC1, 0x07,

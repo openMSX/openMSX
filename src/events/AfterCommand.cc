@@ -372,7 +372,7 @@ string AfterCommand::help(const vector<string>& /*tokens*/) const
 void AfterCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const cmds[] = {
+		static constexpr const char* const cmds[] = {
 			"time", "realtime", "idle", "frame", "break", "boot",
 			"machine_switch", "info", "cancel",
 		};

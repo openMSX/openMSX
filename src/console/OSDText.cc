@@ -37,7 +37,7 @@ OSDText::OSDText(Display& display_, const TclObject& name_)
 vector<string_view> OSDText::getProperties() const
 {
 	auto result = OSDImageBasedWidget::getProperties();
-	static const char* const vals[] = {
+	static constexpr const char* const vals[] = {
 		"-text", "-font", "-size", "-wrap", "-wrapw", "-wraprelw",
 		"-query-size",
 	};
@@ -246,7 +246,7 @@ static size_t findCharSplitPoint(const string& line, size_t min, size_t max)
 // all delimiter characters are single byte chars.
 static size_t findWordSplitPoint(string_view line, size_t min, size_t max)
 {
-	static const char* const delimiters = " -/";
+	static constexpr const char* const delimiters = " -/";
 
 	// initial guess for a good position
 	assert(min < max);

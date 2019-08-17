@@ -16,13 +16,13 @@ using std::shared_ptr;
 
 namespace openmsx {
 
-static const int TRESHOLD = 2;
-static const int SCALE = 2;
-static const int PHASE_XHIGH = 0;
-static const int PHASE_XLOW  = 1;
-static const int PHASE_YHIGH = 2;
-static const int PHASE_YLOW  = 3;
-static const int STROBE = 0x04;
+constexpr int TRESHOLD = 2;
+constexpr int SCALE = 2;
+constexpr int PHASE_XHIGH = 0;
+constexpr int PHASE_XLOW  = 1;
+constexpr int PHASE_YHIGH = 2;
+constexpr int PHASE_YLOW  = 3;
+constexpr int STROBE = 0x04;
 
 
 class MouseState final : public StateChange

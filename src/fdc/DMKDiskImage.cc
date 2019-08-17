@@ -20,9 +20,9 @@ struct DmkHeader
 };
 static_assert(sizeof(DmkHeader) == 16);
 
-static const byte FLAG_SINGLE_SIDED = 0x10;
-static const unsigned IDAM_FLAGS_MASK = 0xC000;
-static const unsigned FLAG_MFM_SECTOR = 0x8000;
+constexpr byte FLAG_SINGLE_SIDED = 0x10;
+constexpr unsigned IDAM_FLAGS_MASK = 0xC000;
+constexpr unsigned FLAG_MFM_SECTOR = 0x8000;
 
 
 static bool isValidDmkHeader(const DmkHeader& header)

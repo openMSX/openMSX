@@ -19,8 +19,8 @@ namespace openmsx {
 template<typename T> class SchedulerQueue
 {
 public:
-	static const int CAPACITY = 32; // initial capacity
-	static const int SPARE_FRONT = 1;
+	static constexpr int CAPACITY = 32; // initial capacity
+	static constexpr int SPARE_FRONT = 1;
 	SchedulerQueue()
 		: storage   (CAPACITY + 1) // one extra for sentinel
 		, storageEnd(storage.data() + CAPACITY)

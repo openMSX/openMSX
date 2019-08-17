@@ -84,7 +84,7 @@ string LaserdiscPlayer::Command::help(const vector<string>& tokens) const
 void LaserdiscPlayer::Command::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const extra[] = { "eject", "insert" };
+		static constexpr const char* const extra[] = { "eject", "insert" };
 		completeString(tokens, extra);
 	} else if (tokens.size() == 3 && tokens[1] == "insert") {
 		completeFileName(tokens, userFileContext());
@@ -93,7 +93,7 @@ void LaserdiscPlayer::Command::tabCompletion(vector<string>& tokens) const
 
 // LaserdiscPlayer
 
-static const unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .ogg file
+constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .ogg file
 
 static XMLElement createXML()
 {

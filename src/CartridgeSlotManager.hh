@@ -79,7 +79,7 @@ private:
 		int ps = 0;
 		int ss = 0;
 	};
-	static const unsigned MAX_SLOTS = 16 + 4;
+	static constexpr unsigned MAX_SLOTS = 16 + 4;
 	Slot slots[MAX_SLOTS];
 };
 

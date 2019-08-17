@@ -76,19 +76,22 @@ public:
 
 	// string representations of the LogLevel and UpdateType enums
 	static span<const char* const> getLevelStrings()  {
+		static constexpr const char* const levelStr [NUM_LEVELS] = {
+			"info", "warning", "error", "progress"
+		};
 		return levelStr;
 	}
 	static span<const char* const> getUpdateStrings() {
+		static constexpr const char* const updateStr[NUM_UPDATES] = {
+			"led", "setting", "setting-info", "hardware", "plug",
+			"media", "status", "extension", "sounddevice", "connector"
+		};
 		return updateStr;
 	}
 
 protected:
 	CliComm() = default;
 	~CliComm() = default;
-
-private:
-	static const char* const levelStr [NUM_LEVELS];
-	static const char* const updateStr[NUM_UPDATES];
 };
 
 } // namespace openmsx

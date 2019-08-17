@@ -37,18 +37,18 @@ template<int FLAGS, typename HANDLER> void parse(HANDLER& handler, char* xml);
 // than the filesize. The first of these bytes must be filled with zero
 // (zero-terminate the xml data). The other bytes are only there to allow to
 // read up-to 8 bytes past the end without triggering memory protection errors.
-static const size_t EXTRA_BUFFER_SPACE = 8;
+constexpr size_t EXTRA_BUFFER_SPACE = 8;
 
 
 // Flags that influence parsing behavior. The flags can be OR'ed together.
 
 // Should XML entities like &lt; be expanded or not?
-static const int noEntityTranslation = 0x1;
+constexpr int noEntityTranslation = 0x1;
 // Should leading and trailing whitespace be trimmed?
-static const int trimWhitespace      = 0x2;
+constexpr int trimWhitespace      = 0x2;
 // Should sequences of whitespace characters be replaced with a single
 // space character?
-static const int normalizeWhitespace = 0x4;
+constexpr int normalizeWhitespace = 0x4;
 
 
 // Callback handler with all empty implementations (can be used as a base
@@ -698,7 +698,7 @@ afterText:		// After parseText() jump here instead of continuing
 
 			// Extract attribute value and expand char refs in it
 			// No whitespace normalization in attributes
-			static const int FLAGS2 = FLAGS & ~normalizeWhitespace;
+			constexpr int FLAGS2 = FLAGS & ~normalizeWhitespace;
 			char* value = text;
 			char* valueEnd = (quote == '\'')
 				? skipAndExpand<AttPred1, AttPurePred1, FLAGS2>(text)

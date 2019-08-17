@@ -31,11 +31,11 @@ namespace openmsx {
 // The step clock for the tone and noise generators is the chip clock
 // divided by 8; for the envelope generator of the AY-3-8910, it is half
 // that much (clock/16).
-static const float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
-static const int NATIVE_FREQ_INT = lrintf(NATIVE_FREQ_FLOAT);
+constexpr float NATIVE_FREQ_FLOAT = (3579545.0f / 2) / 8;
+constexpr int NATIVE_FREQ_INT = int(cstd::round(NATIVE_FREQ_FLOAT));
 
-static const int PORT_A_DIRECTION = 0x40;
-static const int PORT_B_DIRECTION = 0x80;
+constexpr int PORT_A_DIRECTION = 0x40;
+constexpr int PORT_B_DIRECTION = 0x80;
 
 enum Register {
 	AY_AFINE = 0, AY_ACOARSE = 1, AY_BFINE = 2, AY_BCOARSE = 3,
@@ -80,7 +80,7 @@ static constexpr AY8910Tables calcTables()
 
 	return tables;
 }
-static constexpr AY8910Tables tables = calcTables();
+constexpr AY8910Tables tables = calcTables();
 
 
 // Perlin noise
@@ -564,7 +564,7 @@ byte AY8910::readRegister(unsigned reg, EmuTime::param time)
 	}
 
 	// TODO some AY8910 models have 1F as mask for registers 1, 3, 5
-	static const byte regMask[16] = {
+	static constexpr byte regMask[16] = {
 		0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0x1f, 0xff,
 		0x1f, 0x1f ,0x1f, 0xff, 0xff, 0x0f, 0xff, 0xff
 	};

@@ -10,10 +10,10 @@ namespace openmsx {
 // So, if the BIOS is disabled to show RAM and the SGM RAM is disabled, is
 // there is 8kB SGM RAM on 0-0x1FFF.
 
-static const unsigned MAIN_RAM_AREA_START = 0x6000;
-static const unsigned MAIN_RAM_SIZE = 0x400; // 1kB
-static const unsigned SGM_RAM_SIZE = 0x8000; // 32kB
-static const unsigned BIOS_ROM_SIZE = 0x2000; // 8kB
+constexpr unsigned MAIN_RAM_AREA_START = 0x6000;
+constexpr unsigned MAIN_RAM_SIZE = 0x400; // 1kB
+constexpr unsigned SGM_RAM_SIZE = 0x8000; // 32kB
+constexpr unsigned BIOS_ROM_SIZE = 0x2000; // 8kB
 
 ColecoSuperGameModule::ColecoSuperGameModule(const DeviceConfig& config)
 	: MSXDevice(config)

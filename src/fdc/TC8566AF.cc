@@ -13,50 +13,50 @@
 
 namespace openmsx {
 
-static const byte STM_DB0 = 0x01; // FDD 0 Busy
-static const byte STM_DB1 = 0x02; // FDD 1 Busy
-static const byte STM_DB2 = 0x04; // FDD 2 Busy
-static const byte STM_DB3 = 0x08; // FDD 3 Busy
-static const byte STM_CB  = 0x10; // FDC Busy
-static const byte STM_NDM = 0x20; // Non-DMA mode
-static const byte STM_DIO = 0x40; // Data Input/Output
-static const byte STM_RQM = 0x80; // Request for Master
+constexpr byte STM_DB0 = 0x01; // FDD 0 Busy
+constexpr byte STM_DB1 = 0x02; // FDD 1 Busy
+constexpr byte STM_DB2 = 0x04; // FDD 2 Busy
+constexpr byte STM_DB3 = 0x08; // FDD 3 Busy
+constexpr byte STM_CB  = 0x10; // FDC Busy
+constexpr byte STM_NDM = 0x20; // Non-DMA mode
+constexpr byte STM_DIO = 0x40; // Data Input/Output
+constexpr byte STM_RQM = 0x80; // Request for Master
 
-static const byte ST0_DS0 = 0x01; // Drive Select 0,1
-static const byte ST0_DS1 = 0x02; //
-static const byte ST0_HD  = 0x04; // Head Address
-static const byte ST0_NR  = 0x08; // Not Ready
-static const byte ST0_EC  = 0x10; // Equipment Check
-static const byte ST0_SE  = 0x20; // Seek End
-static const byte ST0_IC0 = 0x40; // Interrupt Code
-static const byte ST0_IC1 = 0x80; //
+constexpr byte ST0_DS0 = 0x01; // Drive Select 0,1
+constexpr byte ST0_DS1 = 0x02; //
+constexpr byte ST0_HD  = 0x04; // Head Address
+constexpr byte ST0_NR  = 0x08; // Not Ready
+constexpr byte ST0_EC  = 0x10; // Equipment Check
+constexpr byte ST0_SE  = 0x20; // Seek End
+constexpr byte ST0_IC0 = 0x40; // Interrupt Code
+constexpr byte ST0_IC1 = 0x80; //
 
-static const byte ST1_MA  = 0x01; // Missing Address Mark
-static const byte ST1_NW  = 0x02; // Not Writable
-static const byte ST1_ND  = 0x04; // No Data
+constexpr byte ST1_MA  = 0x01; // Missing Address Mark
+constexpr byte ST1_NW  = 0x02; // Not Writable
+constexpr byte ST1_ND  = 0x04; // No Data
 //                        = 0x08; // -
-static const byte ST1_OR  = 0x10; // Over Run
-static const byte ST1_DE  = 0x20; // Data Error
+constexpr byte ST1_OR  = 0x10; // Over Run
+constexpr byte ST1_DE  = 0x20; // Data Error
 //                        = 0x40; // -
-static const byte ST1_EN  = 0x80; // End of Cylinder
+constexpr byte ST1_EN  = 0x80; // End of Cylinder
 
-static const byte ST2_MD  = 0x01; // Missing Address Mark in Data Field
-static const byte ST2_BC  = 0x02; // Bad Cylinder
-static const byte ST2_SN  = 0x04; // Scan Not Satisfied
-static const byte ST2_SH  = 0x08; // Scan Equal Satisfied
-static const byte ST2_NC  = 0x10; // No cylinder
-static const byte ST2_DD  = 0x20; // Data Error in Data Field
-static const byte ST2_CM  = 0x40; // Control Mark
+constexpr byte ST2_MD  = 0x01; // Missing Address Mark in Data Field
+constexpr byte ST2_BC  = 0x02; // Bad Cylinder
+constexpr byte ST2_SN  = 0x04; // Scan Not Satisfied
+constexpr byte ST2_SH  = 0x08; // Scan Equal Satisfied
+constexpr byte ST2_NC  = 0x10; // No cylinder
+constexpr byte ST2_DD  = 0x20; // Data Error in Data Field
+constexpr byte ST2_CM  = 0x40; // Control Mark
 //                        = 0x80; // -
 
-static const byte ST3_DS0 = 0x01; // Drive Select 0
-static const byte ST3_DS1 = 0x02; // Drive Select 1
-static const byte ST3_HD  = 0x04; // Head Address
-static const byte ST3_2S  = 0x08; // Two Side
-static const byte ST3_TK0 = 0x10; // Track 0
-static const byte ST3_RDY = 0x20; // Ready
-static const byte ST3_WP  = 0x40; // Write Protect
-static const byte ST3_FLT = 0x80; // Fault
+constexpr byte ST3_DS0 = 0x01; // Drive Select 0
+constexpr byte ST3_DS1 = 0x02; // Drive Select 1
+constexpr byte ST3_HD  = 0x04; // Head Address
+constexpr byte ST3_2S  = 0x08; // Two Side
+constexpr byte ST3_TK0 = 0x10; // Track 0
+constexpr byte ST3_RDY = 0x20; // Ready
+constexpr byte ST3_WP  = 0x40; // Write Protect
+constexpr byte ST3_FLT = 0x80; // Fault
 
 
 TC8566AF::TC8566AF(Scheduler& scheduler_, DiskDrive* drv[4], CliComm& cliComm_,

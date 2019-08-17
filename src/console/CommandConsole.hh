@@ -120,7 +120,7 @@ private:
 	IntegerSetting historySizeSetting;
 	BooleanSetting removeDoublesSetting;
 
-	static const int LINESHISTORY = 1000;
+	static constexpr int LINESHISTORY = 1000;
 	CircularBuffer<ConsoleLine, LINESHISTORY> lines;
 	std::string commandBuffer;
 	std::string prompt;

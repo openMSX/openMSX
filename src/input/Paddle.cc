@@ -100,7 +100,7 @@ void Paddle::signalMSXEvent(const std::shared_ptr<const Event>& event,
 	if (event->getType() != OPENMSX_MOUSE_MOTION_EVENT) return;
 
 	auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-	static const int SCALE = 2;
+	constexpr int SCALE = 2;
 	int delta = mev.getX() / SCALE;
 	if (delta == 0) return;
 

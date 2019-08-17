@@ -42,7 +42,7 @@ static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
 	}
 }
 
-static constexpr auto INPUT_RATE = unsigned(cstd::round(YM2413Core::CLOCK_FREQ / 72.0));
+constexpr auto INPUT_RATE = unsigned(cstd::round(YM2413Core::CLOCK_FREQ / 72.0));
 
 YM2413::YM2413(const std::string& name_, const DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "MSX-MUSIC", 9 + 5, INPUT_RATE, false)

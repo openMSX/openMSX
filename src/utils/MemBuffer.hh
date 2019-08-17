@@ -13,9 +13,9 @@ namespace openmsx {
 // When SSE2 is enabled (some) buffers need to be 16-bytes aligned. If not
 // then don't enforce stricter than default alignment.
 #ifdef __SSE2__
-static const size_t SSE2_ALIGNMENT = 16;
+constexpr size_t SSE2_ALIGNMENT = 16;
 #else
-static const size_t SSE2_ALIGNMENT = 0;
+constexpr size_t SSE2_ALIGNMENT = 0;
 #endif
 
 
@@ -159,7 +159,7 @@ private:
 	// functions. The only disadvantage is that we cannot use realloc()
 	// in that case (there are no, not even platform specific, functions
 	// to realloc memory with bigger than default alignment).
-	static const bool SIMPLE_MALLOC = ALIGNMENT <= alignof(std::max_align_t);
+	static constexpr bool SIMPLE_MALLOC = ALIGNMENT <= alignof(std::max_align_t);
 
 	void* my_malloc(size_t bytes)
 	{

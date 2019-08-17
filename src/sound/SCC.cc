@@ -110,7 +110,7 @@ using std::string;
 
 namespace openmsx {
 
-static constexpr auto INPUT_RATE = unsigned(cstd::round(3579545.0 / 32));
+constexpr auto INPUT_RATE = unsigned(cstd::round(3579545.0 / 32));
 
 static string calcDescription(SCC::ChipMode mode)
 {

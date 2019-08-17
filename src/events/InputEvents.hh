@@ -59,9 +59,9 @@ public:
 class MouseButtonEvent : public TimedEvent
 {
 public:
-	static const unsigned LEFT      = 1;
-	static const unsigned MIDDLE    = 2;
-	static const unsigned RIGHT     = 3;
+	static constexpr unsigned LEFT      = 1;
+	static constexpr unsigned MIDDLE    = 2;
+	static constexpr unsigned RIGHT     = 3;
 
 	unsigned getButton() const { return button; }
 
@@ -169,8 +169,8 @@ public:
 class JoystickAxisMotionEvent final : public JoystickEvent
 {
 public:
-	static const unsigned X_AXIS = 0;
-	static const unsigned Y_AXIS = 1;
+	static constexpr unsigned X_AXIS = 0;
+	static constexpr unsigned Y_AXIS = 1;
 
 	JoystickAxisMotionEvent(unsigned joystick, unsigned axis, int value);
 	unsigned getAxis() const { return axis; }

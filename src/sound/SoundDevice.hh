@@ -16,7 +16,7 @@ class DynamicClock;
 class SoundDevice
 {
 public:
-	static const unsigned MAX_CHANNELS = 24;
+	static constexpr unsigned MAX_CHANNELS = 24;
 
 	/** Get the unique name that identifies this sound device.
 	  * Used to create setting names.

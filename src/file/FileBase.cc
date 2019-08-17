@@ -38,7 +38,7 @@ void FileBase::truncate(size_t newSize)
 	auto remaining = newSize - oldSize;
 	seek(oldSize);
 
-	static const size_t BUF_SIZE = 4096;
+	constexpr size_t BUF_SIZE = 4096;
 	uint8_t buf[BUF_SIZE];
 	memset(buf, 0, sizeof(buf));
 	while (remaining) {

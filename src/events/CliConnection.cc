@@ -158,7 +158,7 @@ int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 
 // class StdioConnection
 
-static const int BUF_SIZE = 4096;
+constexpr int BUF_SIZE = 4096;
 StdioConnection::StdioConnection(CommandController& commandController_,
                                  EventDistributor& eventDistributor_)
 	: CliConnection(commandController_, eventDistributor_)

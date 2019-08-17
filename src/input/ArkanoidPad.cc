@@ -23,10 +23,10 @@ using std::make_shared;
 
 namespace openmsx {
 
-static const int POS_MIN = 55; // measured by hap
-static const int POS_MAX = 325; // measured by hap
-static const int POS_CENTER = 236; // approx. middle used by games
-static const int SCALE = 2;
+constexpr int POS_MIN = 55; // measured by hap
+constexpr int POS_MAX = 325; // measured by hap
+constexpr int POS_CENTER = 236; // approx. middle used by games
+constexpr int SCALE = 2;
 
 
 class ArkanoidState final : public StateChange

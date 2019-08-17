@@ -33,17 +33,17 @@ namespace openmsx {
 // Note: without appending 'f' to the values in ResampleCoeffs.ii,
 // this will generate thousands of C4305 warnings in VC++
 // E.g. warning C4305: 'initializing' : truncation from 'double' to 'const float'
-static const float coeffs[] = {
+constexpr float coeffs[] = {
 	#include "ResampleCoeffs.ii"
 };
 
 using FilterIndex = FixedPoint<16>;
 
-static const int INDEX_INC = 128;
-static const int COEFF_LEN = countof(coeffs);
-static const int COEFF_HALF_LEN = COEFF_LEN - 1;
-static const unsigned TAB_LEN = 4096;
-static const unsigned HALF_TAB_LEN = TAB_LEN / 2;
+constexpr int INDEX_INC = 128;
+constexpr int COEFF_LEN = countof(coeffs);
+constexpr int COEFF_HALF_LEN = COEFF_LEN - 1;
+constexpr unsigned TAB_LEN = 4096;
+constexpr unsigned HALF_TAB_LEN = TAB_LEN / 2;
 
 class ResampleCoeffs
 {
@@ -221,9 +221,9 @@ void ResampleCoeffs::releaseCoeffs(double ratio)
 // table tells where in memory the i-th logical row of the original (half)
 // resample coefficient table is physically stored.
 
-static const unsigned N = TAB_LEN;
-static const unsigned N1 = N - 1;
-static const unsigned N2 = N / 2;
+constexpr unsigned N = TAB_LEN;
+constexpr unsigned N1 = N - 1;
+constexpr unsigned N2 = N / 2;
 
 static unsigned mapIdx(unsigned x)
 {

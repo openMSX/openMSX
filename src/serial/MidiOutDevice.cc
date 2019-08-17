@@ -4,9 +4,9 @@
 
 namespace openmsx {
 
-static constexpr uint8_t MIDI_MSG_SYSEX     = 0xF0;
-static constexpr uint8_t MIDI_MSG_SYSEX_END = 0xF7;
-static constexpr uint8_t MIDI_MSG_RESET     = 0xFF;
+constexpr uint8_t MIDI_MSG_SYSEX     = 0xF0;
+constexpr uint8_t MIDI_MSG_SYSEX_END = 0xF7;
+constexpr uint8_t MIDI_MSG_RESET     = 0xFF;
 
 /** Returns the size in bytes of a message that starts with the given status.
   */

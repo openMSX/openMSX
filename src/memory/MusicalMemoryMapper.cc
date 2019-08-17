@@ -5,11 +5,11 @@
 
 namespace openmsx {
 
-static const byte MEM_ACCESS_ENABLED = 1 << 7;
-static const byte SOUND_PORT_ENABLED = 1 << 6;
-static const byte PORT_ACCESS_DISABLED = 1 << 5;
-static const byte UNUSED = 1 << 4;
-static const byte WRITE_PROTECT = 0x0F;
+constexpr byte MEM_ACCESS_ENABLED = 1 << 7;
+constexpr byte SOUND_PORT_ENABLED = 1 << 6;
+constexpr byte PORT_ACCESS_DISABLED = 1 << 5;
+constexpr byte UNUSED = 1 << 4;
+constexpr byte WRITE_PROTECT = 0x0F;
 
 MusicalMemoryMapper::MusicalMemoryMapper(const DeviceConfig& config)
 	: MSXMemoryMapper(config)

@@ -329,7 +329,7 @@ string NowindCommand::help(const vector<string>& /*tokens*/) const
 
 void NowindCommand::tabCompletion(vector<string>& tokens) const
 {
-	static const char* const extra[] = {
+	static constexpr const char* const extra[] = {
 		"-c", "--ctrl",
 		"-C", "--no-ctrl",
 		"-a", "--allow",

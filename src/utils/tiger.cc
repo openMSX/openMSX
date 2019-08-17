@@ -8,7 +8,7 @@ namespace openmsx {
 
 std::string TigerHash::toString() const
 {
-	static const char* const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+	constexpr const char* const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 	std::string result;
 
@@ -39,7 +39,7 @@ std::string TigerHash::toString() const
 
 
 // Tiger S boxes
-static const uint64_t table[4 * 256] = {
+constexpr uint64_t table[4 * 256] = {
 	0x02AAB17CF7E90C5EULL, 0xAC424B03E243A8ECULL,  //    0
 	0x72CD5BE30DD5FCD3ULL, 0x6D019B93F6F97F3AULL,  //    2
 	0xCD9978FFD21F9193ULL, 0x7573A1C9708029E2ULL,  //    4

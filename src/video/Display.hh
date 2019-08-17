@@ -93,7 +93,7 @@ private:
 	std::vector<VideoSystemChangeListener*> listeners; // unordered
 
 	// fps related data
-	static const unsigned NUM_FRAME_DURATIONS = 50;
+	static constexpr unsigned NUM_FRAME_DURATIONS = 50;
 	CircularBuffer<uint64_t, NUM_FRAME_DURATIONS> frameDurations;
 	uint64_t frameDurationSum;
 	uint64_t prevTimeStamp;
