@@ -114,8 +114,8 @@ void MSXMixer::registerSound(SoundDevice& device, float volume,
 	}
 
 	device.setOutputRate(getSampleRate());
-	infos.push_back(std::move(info));
-	updateVolumeParams(infos.back());
+	auto& i = infos.emplace_back(std::move(info));
+	updateVolumeParams(i);
 
 	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "add");
 }

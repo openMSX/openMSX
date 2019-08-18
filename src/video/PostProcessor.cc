@@ -224,8 +224,7 @@ static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
 		if (line == work) {
 			// If work buffer was used in previous iteration,
 			// then allocate a new one.
-			workBuffer.emplace_back(pitch);
-			work = workBuffer.back().data();
+			work = workBuffer.emplace_back(pitch).data();
 		}
 #if HAVE_32BPP
 		if (bpp == 32) {

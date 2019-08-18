@@ -570,8 +570,8 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 	size_t bufferSize = 0;
 	for (auto& p : paths) {
 		try {
-			files.emplace_back(FileOperations::join(p, "softwaredb.xml"));
-			bufferSize += files.back().getSize() + rapidsax::EXTRA_BUFFER_SPACE;
+			auto& f = files.emplace_back(FileOperations::join(p, "softwaredb.xml"));
+			bufferSize += f.getSize() + rapidsax::EXTRA_BUFFER_SPACE;
 		} catch (MSXException& /*e*/) {
 			// Ignore. It's not unusual the DB in the user
 			// directory is not found. In case there's an error

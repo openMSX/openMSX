@@ -19,13 +19,11 @@ namespace openmsx {
 
 XMLElement& XMLElement::addChild(string childName)
 {
-	children.emplace_back(std::move(childName));
-	return children.back();
+	return children.emplace_back(std::move(childName));
 }
 XMLElement& XMLElement::addChild(string childName, string childData)
 {
-	children.emplace_back(std::move(childName), std::move(childData));
-	return children.back();
+	return children.emplace_back(std::move(childName), std::move(childData));
 }
 
 void XMLElement::removeChild(const XMLElement& child)
