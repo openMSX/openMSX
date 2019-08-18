@@ -29,7 +29,7 @@ XMLElement& XMLElement::addChild(string childName, string childData)
 void XMLElement::removeChild(const XMLElement& child)
 {
 	children.erase(rfind_if_unguarded(children,
-		[&](Children::value_type& v) { return &v == &child; }));
+		[&](auto& v) { return &v == &child; }));
 }
 
 XMLElement::Attributes::iterator XMLElement::getAttributeIter(string_view attrName)

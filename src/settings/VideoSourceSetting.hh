@@ -27,8 +27,7 @@ private:
 	bool has(int value) const;
 	int has(std::string_view value) const;
 
-	using Sources = std::vector<std::pair<std::string, int>>;
-	Sources sources; // unordered
+	std::vector<std::pair<std::string, int>> sources; // unordered
 };
 
 class VideoSourceActivator

@@ -112,8 +112,6 @@ public:
 	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
 
 private:
-	using Boards = std::vector<Board>;
-
 	void createMachineSetting();
 	void switchBoard(MSXMotherBoard* newBoard);
 	void deleteBoard(MSXMotherBoard* board);
@@ -177,8 +175,8 @@ private:
 	//  - non-main thread can only access activeBoard via specific
 	//    member functions (atm only via enterMainLoop()), it needs to take
 	//    the mbMutex lock
-	Boards boards; // unordered
-	Boards garbageBoards;
+	std::vector<Board> boards; // unordered
+	std::vector<Board> garbageBoards;
 	MSXMotherBoard* activeBoard = nullptr; // either nullptr or a board inside 'boards'
 
 	int blockedCounter = 0;

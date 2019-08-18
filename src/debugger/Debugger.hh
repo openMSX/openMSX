@@ -108,10 +108,9 @@ private:
 	};
 
 	hash_map<std::string, Debuggable*, XXHasher> debuggables;
-	hash_set<ProbeBase*, NameFromProbe, XXHasher>  probes;
-	using ProbeBreakPoints = std::vector<std::unique_ptr<ProbeBreakPoint>>;
-	ProbeBreakPoints probeBreakPoints; // unordered
-	MSXCPU* cpu;
+	hash_set<ProbeBase*, NameFromProbe, XXHasher> probes;
+	std::vector<std::unique_ptr<ProbeBreakPoint>> probeBreakPoints; // unordered
+	MSXCPU* cpu = nullptr;
 };
 
 } // namespace openmsx

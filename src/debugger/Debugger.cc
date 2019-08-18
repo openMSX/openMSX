@@ -35,7 +35,6 @@ Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	, cmd(motherBoard.getCommandController(),
 	      motherBoard.getStateChangeDistributor(),
 	      motherBoard.getScheduler())
-	, cpu(nullptr)
 {
 }
 
@@ -144,7 +143,7 @@ void Debugger::removeProbeBreakPoint(string_view name)
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
 	move_pop_back(probeBreakPoints, rfind_if_unguarded(probeBreakPoints,
-		[&](ProbeBreakPoints::value_type& v) { return v.get() == &bp; }));
+		[&](auto& v) { return v.get() == &bp; }));
 }
 
 unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,

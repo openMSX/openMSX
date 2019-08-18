@@ -407,7 +407,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 
 	// Lookup old board (it must be present).
 	auto it = find_if_unguarded(boards,
-		[&](Boards::value_type& b) { return b.get() == &oldBoard_; });
+		[&](auto& b) { return b.get() == &oldBoard_; });
 
 	// If the old board was the active board, then activate the new board
 	if (it->get() == activeBoard) {
@@ -488,7 +488,7 @@ void Reactor::deleteBoard(MSXMotherBoard* board)
 		switchBoard(nullptr);
 	}
 	auto it = rfind_if_unguarded(boards,
-		[&](Boards::value_type& b) { return b.get() == board; });
+		[&](auto& b) { return b.get() == board; });
 	auto board_ = move(*it);
 	move_pop_back(boards, it);
 	// Don't immediately delete old boards because it's possible this

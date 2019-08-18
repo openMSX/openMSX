@@ -61,7 +61,7 @@ int VideoSourceSetting::getSource() noexcept
 void VideoSourceSetting::setSource(int id)
 {
 	auto it = find_if_unguarded(sources,
-		[&](const Sources::value_type& p) { return p.second == id; });
+		[&](const auto& p) { return p.second == id; });
 	setValue(TclObject(it->first));
 }
 
@@ -117,7 +117,7 @@ int VideoSourceSetting::registerVideoSource(const std::string& source)
 void VideoSourceSetting::unregisterVideoSource(int source)
 {
 	move_pop_back(sources, rfind_if_unguarded(sources,
-		[&](Sources::value_type& p) { return p.second == source; }));
+		[&](auto& p) { return p.second == source; }));
 
 	// First notify the (possibly) changed value before announcing the
 	// shrinked set of values.
