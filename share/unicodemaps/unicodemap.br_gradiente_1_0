@@ -125,7 +125,7 @@ DEADKEY1, 25,
 2320, 06, GRAPH       # ⌠
 221a, 07, GRAPH       # √
 221e, 10, GRAPH       # ∞
-2027, 11, GRAPH       # ‧
+2022, 11, GRAPH       # •
 2500, 12, GRAPH       # ─
 00b1, 13, GRAPH       # ±
 2572, 14, GRAPH       # ╲
@@ -136,9 +136,9 @@ DEADKEY1, 25,
 2264, 22, GRAPH       # ≤
 2265, 23, GRAPH       # ≥
 2571, 24, GRAPH       # ╱
-25fe, 26, GRAPH       # ◾
+25ac, 26, GRAPH       # ▬
 2534, 27, GRAPH       # ┴
-25c7, 30, GRAPH       # ◇
+25ca, 30, GRAPH       # ◊
 259e, 31, GRAPH       # ▞
 25bc, 32, GRAPH       # ▼
 251c, 33, GRAPH       # ├
@@ -178,7 +178,7 @@ DEADKEY1, 25,
 00ab, 22, SHIFT GRAPH # «
 00bb, 23, SHIFT GRAPH # »
 00f7, 24, SHIFT GRAPH # ÷
-25fc, 26, SHIFT GRAPH # ◼
+25a0, 26, SHIFT GRAPH # ■
 00b7, 30, SHIFT GRAPH # ·
 259a, 31, SHIFT GRAPH # ▚
 25b2, 32, SHIFT GRAPH # ▲
@@ -195,12 +195,12 @@ DEADKEY1, 25,
 2310, 47, SHIFT GRAPH # ⌐
 259d, 53, SHIFT GRAPH # ▝
 25c0, 54, SHIFT GRAPH # ◀
-2022, 55, SHIFT GRAPH # •
+2219, 55, SHIFT GRAPH # ∙
 00ac, 56, SHIFT GRAPH # ¬
 00b0, 57, SHIFT GRAPH # °
 03b4, 00, CODE        # δ
 0192, 01, CODE        # ƒ
-2260, 02, CODE        # ≠
+2021, 02, CODE        # ‡
 00a7, 03, CODE        # §
 00a2, 04, CODE        # ¢
 00ff, 05, CODE        # ÿ
@@ -211,7 +211,7 @@ DEADKEY1, 25,
 00e7, 21,             # ç
 03b5, 12, CODE        # ε
 03b8, 13, CODE        # θ
-03c6, 15, CODE        # φ
+2300, 15, CODE        # ⌀
 03c9, 16, CODE        # ω
 0169, 17, CODE        # ũ
 0133, 20, CODE        # ĳ

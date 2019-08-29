@@ -216,8 +216,8 @@ DEADKEY1, 25,
 03c4, 10, CODE
 03c6, 15, CODE
 03c9, 16, CODE        # ω
-2022, 55, SHIFT GRAPH # •
-2027, 11, GRAPH       # ‧
+2219, 55, SHIFT GRAPH # ∙
+2022, 11, GRAPH       # •
 2030, 05, GRAPH       # ‰
 207f, 03, SHIFT GRAPH
 20a7, 02, SHIFT CODE
@@ -226,7 +226,7 @@ DEADKEY1, 25,
 2229, 04, GRAPH
 223d, 21, GRAPH       # ∽
 2248, 21, SHIFT GRAPH
-2260, 02, CODE        # ≠
+2021, 02, CODE        # ‡
 2261, 13, SHIFT GRAPH
 2264, 22, GRAPH
 2265, 23, GRAPH
@@ -271,12 +271,12 @@ DEADKEY1, 25,
 25b6, 54, GRAPH       # ▶
 25bc, 32, GRAPH       # ▼
 25c0, 54, SHIFT GRAPH # ◀
-25c7, 30, GRAPH       # ◇
+25ca, 30, GRAPH       # ◊
 25cb, 00, GRAPH       # ○
 25d8, 11, SHIFT GRAPH
 25d9, 00, SHIFT GRAPH
-25fc, 26, SHIFT GRAPH # ◼
-25fe, 26, GRAPH       # ◾
+25a0, 26, SHIFT GRAPH # ■
+25ac, 26, GRAPH       # ▬
 263a, 15, GRAPH
 263b, 15, SHIFT GRAPH
 263c, 57, GRAPH
