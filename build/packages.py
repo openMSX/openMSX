@@ -207,12 +207,14 @@ class ZLib(DownloadablePackage):
 		}
 
 # Build a dictionary of packages using introspection.
-def _discoverPackages(localObjects):
-	for obj in localObjects:
-		if isinstance(obj, type) and issubclass(obj, Package):
-			if not (obj is Package or obj is DownloadablePackage):
-				yield obj.getMakeName(), obj
-_packagesByName = dict(_discoverPackages(locals().itervalues()))
+_packagesByName = {
+	obj.getMakeName(): obj
+	for obj in locals().itervalues()
+	if isinstance(obj, type)
+		and issubclass(obj, Package)
+		and obj is not Package
+		and obj is not DownloadablePackage
+	}
 
 def getPackage(makeName):
 	return _packagesByName[makeName]

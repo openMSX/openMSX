@@ -135,12 +135,13 @@ class X86_64(CPU):
 	gccFlags = '-m64',
 
 # Build a dictionary of CPUs using introspection.
-def _discoverCPUs(localObjects):
-	for obj in localObjects:
-		if isinstance(obj, type) and issubclass(obj, CPU):
-			if not (obj is CPU):
-				yield obj.name, obj
-_cpusByName = dict(_discoverCPUs(locals().itervalues()))
+_cpusByName = {
+	obj.name: obj
+	for obj in locals().itervalues()
+	if isinstance(obj, type)
+		and issubclass(obj, CPU)
+		and obj is not CPU
+	}
 
 def getCPU(name):
 	return _cpusByName[name]

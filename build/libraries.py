@@ -562,12 +562,13 @@ class ZLib(Library):
 		return execute
 
 # Build a dictionary of libraries using introspection.
-def _discoverLibraries(localObjects):
-	for obj in localObjects:
-		if isinstance(obj, type) and issubclass(obj, Library):
-			if not (obj is Library):
-				yield obj.makeName, obj
-librariesByName = dict(_discoverLibraries(locals().itervalues()))
+librariesByName = {
+	obj.makeName: obj
+	for obj in locals().itervalues()
+	if isinstance(obj, type)
+		and issubclass(obj, Library)
+		and obj is not Library
+	}
 
 def allDependencies(makeNames):
 	'''Compute the set of all directly and indirectly required libraries to
