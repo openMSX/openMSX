@@ -14,7 +14,7 @@ INSTALL_SHARE_DIR:=$(APP_DIR)/share
 INSTALL_DOC_DIR:=Documentation
 
 PACKAGE_FULL:=$(shell PYTHONPATH=build $(PYTHON) -c \
-  "import version; print version.getVersionedPackageName()" \
+  "import version; print(version.getVersionedPackageName())" \
   )
 BINDIST_PACKAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
 BINDIST_README:=README.html

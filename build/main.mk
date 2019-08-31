@@ -211,7 +211,7 @@ BINDIST_PACKAGE:=
 
 ifeq ($(VERSION_EXEC),true)
   REVISION:=$(shell PYTHONPATH=build $(PYTHON) -c \
-    "import version; print version.extractRevisionString()" \
+    "import version; print(version.extractRevisionString())" \
     )
   BINARY_FULL:=$(BINARY_PATH)/openmsx-$(REVISION)$(EXEEXT)
 else
