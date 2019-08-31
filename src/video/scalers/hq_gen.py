@@ -1,3 +1,5 @@
+from functools import reduce
+
 # Edges in the same order as the edge bits in "case".
 edges = (
 	(1, 5), (5, 7), (3, 7), (1, 3),
@@ -37,19 +39,19 @@ def simplifyWeights(weights):
 	'''
 	weights = tuple(weights)
 	divider = reduce(gcd, weights, 0)
-	return tuple(w / divider for w in weights)
+	return tuple(w // divider for w in weights)
 
 def expandTopLeftWeights(weights):
 	return weights[0 : 2] + (0, ) + weights[2 : 4] + (0, 0, 0, 0)
 
 def expandQuadrant(topLeftQuadrant, zoom):
-	quadrantWidth = (zoom + 1) / 2
+	quadrantWidth = (zoom + 1) // 2
 	assert quadrantWidth ** 2 == len(topLeftQuadrant[0])
 	mirrorMap = [None] * (zoom ** 2)
 	permId = (0, 1, 2, 3, 4, 5, 6, 7, 8)
 	permLR = (2, 1, 0, 5, 4, 3, 8, 7, 6)
 	permTB = (6, 7, 8, 3, 4, 5, 0, 1, 2)
-	for quadrantIndex in xrange(quadrantWidth ** 2):
+	for quadrantIndex in range(quadrantWidth ** 2):
 		qy, qx = divmod(quadrantIndex, quadrantWidth)
 		for ty, py in ((zoom - qy - 1, permTB), (qy, permId)):
 			for tx, px in ((zoom - qx - 1, permLR), (qx, permId)):
@@ -65,7 +67,7 @@ def expandQuadrant(topLeftQuadrant, zoom):
 				)
 			for quadrantIndex, cperm, nperm in mirrorMap
 			]
-		for case in xrange(len(topLeftQuadrant))
+		for case in range(len(topLeftQuadrant))
 		]
 
 def computeZ2S0W0(case):
@@ -122,11 +124,11 @@ def computeZ2S0W1(case):
 def genExpr2():
 	quadrant = [
 		[ None ]
-		for case in xrange(1 << 12)
+		for case in range(1 << 12)
 		]
 	casePerm = computeCasePermutation((0, 3, 6, 1, 4, 7, 2, 5, 8))
 
-	for case in xrange(1 << 12):
+	for case in range(1 << 12):
 		w0 = computeZ2S0W0(case)
 		w1 = computeZ2S0W1(case)
 		w2 = computeZ2S0W1(permuteCase(case, casePerm))
@@ -202,28 +204,28 @@ def computeZ3S1W1(case):
 def genExpr3():
 	quadrant = [
 		[ None ] * 4
-		for case in xrange(1 << 12)
+		for case in range(1 << 12)
 		]
 	quadrantPerm = (0, 2, 1, 3)
 	casePerm = computeCasePermutation((0, 3, 6, 1, 4, 7, 2, 5, 8))
 
-	for case in xrange(1 << 12):
+	for case in range(1 << 12):
 		w0 = computeZ3S0W0(case)
 		w1 = computeZ3S0W1(case)
 		w2 = computeZ3S0W1(permuteCase(case, casePerm))
 		weights = (w0, w1, w2, 16 - w0 - w1 - w2)
 		quadrant[case][0] = simplifyWeights(weights)
 
-	for case in xrange(1 << 12):
+	for case in range(1 << 12):
 		w1 = computeZ3S1W1(case)
 		weights = (0, w1, 0, 16 - w1)
 		quadrant[case][1] = simplifyWeights(weights)
 
-	for case in xrange(1 << 12):
+	for case in range(1 << 12):
 		mirrorCase = permuteCase(case, casePerm)
 		quadrant[case][2] = permute(quadrant[mirrorCase][1], quadrantPerm)
 
-	for case in xrange(1 << 12):
+	for case in range(1 << 12):
 		quadrant[case][3] = (0, 0, 0, 1)
 
 	return quadrant
@@ -363,28 +365,28 @@ def computeZ4S3W1(case):
 def genExpr4():
 	quadrant = [
 		[ None ] * 4
-		for case in xrange(1 << 12)
+		for case in range(1 << 12)
 		]
 	quadrantPerm = (0, 2, 1, 3)
 	casePerm = computeCasePermutation((0, 3, 6, 1, 4, 7, 2, 5, 8))
 
-	for case in xrange(1 << 12):
+	for case in range(1 << 12):
 		w0 = computeZ4S0W0(case)
 		w1 = computeZ4S0W1(case)
 		w2 = computeZ4S0W1(permuteCase(case, casePerm))
 		quadrant[case][0] = simplifyWeights((w0, w1, w2, 16 - w0 - w1 - w2))
 
-	for case in xrange(1 << 12):
+	for case in range(1 << 12):
 		w0 = computeZ4S1W0(case)
 		w1 = computeZ4S1W1(case)
 		w2 = computeZ4S1W2(case)
 		quadrant[case][1] = simplifyWeights((w0, w1, w2, 16 - w0 - w1 - w2))
 
-	for case in xrange(1 << 12):
+	for case in range(1 << 12):
 		mirrorCase = permuteCase(case, casePerm)
 		quadrant[case][2] = permute(quadrant[mirrorCase][1], quadrantPerm)
 
-	for case in xrange(1 << 12):
+	for case in range(1 << 12):
 		w0 = computeZ4S3W0(case)
 		w1 = computeZ4S3W1(case)
 		w2 = computeZ4S3W1(permuteCase(case, casePerm))

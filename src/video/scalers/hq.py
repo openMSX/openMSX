@@ -1,8 +1,8 @@
 # To run:
-#   python hq.py
+#   python3 hq.py
 #
 # To profile:
-#   python -m cProfile -s cumulative hq.py > hq-profile.txt
+#   python3 -m cProfile -s cumulative hq.py > hq-profile.txt
 
 from hq_gen import (
 	edges, expandQuadrant, genExpr2, genExpr3, genExpr4,
@@ -10,7 +10,7 @@ from hq_gen import (
 	)
 
 from collections import defaultdict
-from itertools import count, izip
+from itertools import count
 from math import sqrt
 import sys
 
@@ -42,19 +42,14 @@ def printText(contents):
 	for text in contents:
 		sys.stdout.write(text)
 
-def writeFile(fileName, mode, contents):
-	content = ''.join(contents)
-	out = open(fileName, mode)
-	try:
-		out.write(content)
-	finally:
-		out.close()
-
 def writeTextFile(fileName, contents):
-	writeFile(fileName, 'w', contents)
+	with open(fileName, 'w') as out:
+		for content in contents:
+			out.write(content)
 
-def writeBinaryFile(fileName, bytes):
-	writeFile(fileName, 'wb', ( chr(byte) for byte in bytes ))
+def writeBinaryFile(fileName, data):
+	with open(fileName, 'wb') as out:
+		out.write(bytes(data))
 
 # Output as switch statement:
 
@@ -63,7 +58,7 @@ def genSwitch(pixelExpr):
 	#       the edge bits. So maybe this is a bit overengineered, but it does
 	#       express why this optimization is correct.
 	subExprForSubPixel = tuple(
-		set(expr[subPixel] for expr in pixelExpr if expr[subPixel] is not None)
+		{expr[subPixel] for expr in pixelExpr if expr[subPixel] is not None}
 		for subPixel in range(len(pixelExpr[0]))
 		)
 	isIndependentSubPixel = tuple(
@@ -82,7 +77,7 @@ def genSwitch(pixelExpr):
 	yield 'switch (pattern) {\n'
 	for cases, expr in sorted(
 		( sorted(cases), expr )
-		for expr, cases in exprToCases.iteritems()
+		for expr, cases in exprToCases.items()
 		):
 		if expr is not None:
 			for case in cases:
@@ -173,7 +168,7 @@ def isPow2(num):
 def permuteCases(permutation, pixelExpr):
 	return [
 		pixelExpr[permuteCase(case, permutation)]
-		for case in xrange(len(pixelExpr))
+		for case in range(len(pixelExpr))
 		]
 
 def computeNeighbours(weights):
@@ -186,7 +181,7 @@ def transformOffsets(weights):
 	for neighbour in computeNeighbours(weights):
 		yield (
 			min(255, (1 if neighbour is None else neighbour % 3) * 128),
-			min(255, (1 if neighbour is None else neighbour / 3) * 128)
+			min(255, (1 if neighbour is None else neighbour // 3) * 128)
 			)
 
 def transformWeights(weights, cellFunc):
@@ -199,10 +194,10 @@ def computeOffsets(pixelExpr):
 	Output is a 64N * 64N texture, where N is the zoom factor.
 	'''
 	zoom = getZoom(pixelExpr)
-	for caseMajor in xrange(0, len(pixelExpr), 64):
-		for subY in xrange(0, zoom ** 2, zoom):
-			for caseMinor in xrange(64):
-				for subX in xrange(zoom):
+	for caseMajor in range(0, len(pixelExpr), 64):
+		for subY in range(0, zoom ** 2, zoom):
+			for caseMinor in range(64):
+				for subX in range(zoom):
 					weights = pixelExpr[caseMajor + caseMinor][subY + subX]
 					for x, y in transformOffsets(weights):
 						yield x
@@ -213,10 +208,10 @@ def computeWeights(pixelExpr, cellFunc):
 	Output is a 64N * 64N texture, where N is the zoom factor.
 	'''
 	zoom = getZoom(pixelExpr)
-	for caseMajor in xrange(0, len(pixelExpr), 64):
-		for subY in xrange(0, zoom ** 2, zoom):
-			for caseMinor in xrange(64):
-				for subX in xrange(zoom):
+	for caseMajor in range(0, len(pixelExpr), 64):
+		for subY in range(0, zoom ** 2, zoom):
+			for caseMinor in range(64):
+				for subX in range(zoom):
 					weights = pixelExpr[caseMajor + caseMinor][subY + subX]
 					for tw in transformWeights(weights, cellFunc):
 						yield tw
@@ -251,17 +246,17 @@ def blendWeights(weights1, weights2, factor1 = 1, factor2 = 1):
 	factor2 *= sum(weights1)
 	return simplifyWeights(
 		factor1 * w1 + factor2 * w2
-		for w1, w2 in izip(weights1, weights2)
+		for w1, w2 in zip(weights1, weights2)
 		)
 
 def calcNeighbourToSet():
 	# Compute equivalence classes.
 	ret = []
-	for case in xrange(1 << len(edges)):
+	for case in range(1 << len(edges)):
 		if isContradiction(case):
 			ret.append(None)
 		else:
-			neighbourToSet = [ set([neighbour]) for neighbour in xrange(9) ]
+			neighbourToSet = [{neighbour} for neighbour in range(9)]
 			for edge, (neighbour1, neighbour2) in enumerate(edges):
 				if (case & (1 << edge)) == 0:
 					# No edge, so the two pixels are equal.
@@ -300,16 +295,16 @@ def makeLite(pixelExpr, biased):
 	biasLeft  = (4, 3, 5, 1, 7, 0, 2, 6, 8)
 	biasRight = (4, 5, 3, 1, 7, 2, 0, 8, 6)
 	if biased:
-		center = (zoom - 1) / 2.0
+		center = (zoom - 1) / 2
 		neighbourPreferences = [
 			biasRight if subPixel % zoom > center else biasLeft
-			for subPixel in xrange(zoom ** 2)
+			for subPixel in range(zoom ** 2)
 			]
 	else:
 		neighbourPreferences = [ biasLeft ] * (zoom ** 2)
 	return [
 		[ lighten(case, weights, pref)
-		  for weights, pref in izip(expr, neighbourPreferences) ]
+		  for weights, pref in zip(expr, neighbourPreferences) ]
 		for case, expr in enumerate(pixelExpr)
 		]
 
@@ -338,10 +333,10 @@ def genHQLiteOffsetsTable(pixelExpr):
 	Output is a 64N * 64N texture, where N is the zoom factor.
 	'''
 	zoom = getZoom(pixelExpr)
-	for caseMajor in xrange(0, len(pixelExpr), 64):
-		for subY in xrange(zoom):
-			for caseMinor in xrange(64):
-				for subX in xrange(zoom):
+	for caseMajor in range(0, len(pixelExpr), 64):
+		for subY in range(zoom):
+			for caseMinor in range(64):
+				for subX in range(zoom):
 					subPixel = zoom * subY + subX
 					weights = pixelExpr[caseMajor + caseMinor][subPixel]
 					if weights is None:
@@ -352,12 +347,12 @@ def genHQLiteOffsetsTable(pixelExpr):
 						neighbour = neighbours[0]
 						factor = sum(weights)
 
-					x = int(192.5 - 128.0 * (0.5 + subX) / zoom)
-					y = int(192.5 - 128.0 * (0.5 + subY) / zoom)
+					x = int(192.5 - 128 * (0.5 + subX) / zoom)
+					y = int(192.5 - 128 * (0.5 + subY) / zoom)
 					if neighbour == 3:
-						x -= 128 * weights[3] / factor
+						x -= 128 * weights[3] // factor
 					elif neighbour == 5:
-						x += 128 * weights[5] / factor
+						x += 128 * weights[5] // factor
 					else:
 						assert neighbour is None, neighbour
 					assert 0 <= x < 256, x
