@@ -1,4 +1,3 @@
-from __future__ import print_function
 from io import open
 from os import environ
 from os.path import isfile
@@ -54,7 +53,7 @@ def msysPathToNative(path):
 			# Support drive letters as top-level dirs.
 			return '%s:/%s' % (path[1], path[3 : ])
 		longestMatch = ''
-		for mountPoint in msysMounts.iterkeys():
+		for mountPoint in msysMounts.keys():
 			if path.startswith(mountPoint):
 				if len(mountPoint) > len(longestMatch):
 					longestMatch = mountPoint

@@ -46,7 +46,7 @@ class NftwFunction(SystemFunction):
 # Build a list of system functions using introspection.
 systemFunctions = [
 	obj
-	for obj in locals().itervalues()
+	for obj in locals().values()
 	if isinstance(obj, type)
 		and issubclass(obj, SystemFunction)
 		and obj is not SystemFunction

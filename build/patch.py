@@ -1,6 +1,5 @@
 # Applies a unified diff to a directory tree.
 
-from __future__ import print_function
 from io import open
 from os.path import abspath, isdir, join as joinpath, sep
 import re

@@ -1,6 +1,5 @@
 # Generates Windows resource header.
 
-from __future__ import print_function
 from outpututils import rewriteIfChanged
 from version import extractRevisionNumber, packageVersion
 

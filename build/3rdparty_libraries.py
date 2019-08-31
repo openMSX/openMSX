@@ -1,6 +1,5 @@
 # Prints which 3rd party libraries are desired for the given configuration.
 
-from __future__ import print_function
 from components import requiredLibrariesFor
 from configurations import getConfiguration
 from libraries import allDependencies, librariesByName

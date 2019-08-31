@@ -1,8 +1,7 @@
-from __future__ import print_function
 from os import remove, stat
 from os.path import basename, isdir, isfile, join as joinpath
-from urllib import FancyURLopener
-from urlparse import urlparse
+from urllib.parse import urlparse
+from urllib.request import FancyURLopener
 
 import sys
 

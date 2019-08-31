@@ -1,4 +1,3 @@
-from __future__ import print_function
 from cpu import getCPU, X86, X86_64
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged

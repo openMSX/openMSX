@@ -1,6 +1,5 @@
 # Contains the openMSX version number and versioning related functions.
 
-from __future__ import print_function
 from executils import captureStdout
 from makeutils import filterLines
 
@@ -36,11 +35,11 @@ def _extractRevisionFromStdout(log, command, regex):
 	# pylint 0.18.0 somehow thinks captureStdout() returns a list, not a string.
 	lines = text.split('\n') # pylint: disable-msg=E1103
 	for revision, in filterLines(lines, regex):
-		print(u'Revision number found by "%s": %s' % (command, revision), file=log)
+		print('Revision number found by "%s": %s' % (command, revision), file=log)
 		return revision
 	else:
-		print(u'Revision number not found in "%s" output:' % command, file=log)
-		print(unicode(text), file=log)
+		print('Revision number not found in "%s" output:' % command, file=log)
+		print(str(text), file=log)
 		return None
 
 def extractGitRevision(log):
@@ -67,11 +66,11 @@ def extractRevision():
 	if not isdir('derived'):
 		makedirs('derived')
 	with open('derived/version.log', 'w', encoding='utf-8') as log:
-		print(u'Extracting revision info...', file=log)
+		print('Extracting revision info...', file=log)
 		revision = extractGitRevision(log)
-		print(u'Revision string: %s' % revision, file=log)
+		print('Revision string: %s' % revision, file=log)
 		revisionNumber = extractNumberFromGitRevision(revision)
-		print(u'Revision number: %s' % revisionNumber, file=log)
+		print('Revision number: %s' % revisionNumber, file=log)
 	_cachedRevision = revision
 	return revision
 
@@ -93,9 +92,9 @@ def countGitCommits():
 	if not isdir('derived'):
 		makedirs('derived')
 	with open('derived/commitCountVersion.log', 'w', encoding='utf-8') as log:
-		print(u'Extracting commit count...', file=log)
+		print('Extracting commit count...', file=log)
 		commitCount = captureStdout(log, 'git rev-list HEAD --count')
-		print(u'Commit count: %s' % commitCount, file=log)
+		print('Commit count: %s' % commitCount, file=log)
 	return commitCount
 
 def getAndroidVersionCode():

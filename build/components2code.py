@@ -1,6 +1,5 @@
 # Creates the components header file.
 
-from __future__ import print_function
 from components import iterComponents
 from makeutils import extractMakeVariables
 from outpututils import rewriteIfChanged

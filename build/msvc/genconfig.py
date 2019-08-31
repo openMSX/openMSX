@@ -1,6 +1,5 @@
 # Generates configuration headers for VC++ builds
 
-from __future__ import print_function
 import sys
 import os.path
 import outpututils

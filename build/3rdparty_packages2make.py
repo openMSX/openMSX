@@ -1,4 +1,3 @@
-from __future__ import print_function
 from packages import getPackage, iterDownloadablePackages
 
 import sys
@@ -36,7 +35,7 @@ def printPackagesMake():
 		print('\t$(PYTHON) build/checksum.py %s %d %s' % (
 			tarball,
 			package.fileLength,
-			' '.join('%s=%s' % item for item in package.checksums.iteritems())
+			' '.join('%s=%s' % item for item in package.checksums.items())
 			))
 		print('\ttouch %s' % verifyMarker)
 		print('# Extract:')

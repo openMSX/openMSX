@@ -9,7 +9,6 @@
 # Conclusion: We have to specify the full path to each library that should be
 #             linked statically.
 
-from __future__ import print_function
 from executils import captureStdout, shjoin
 from msysutils import msysActive, msysPathToNative
 
@@ -67,7 +66,7 @@ class Library(object):
 	@classmethod
 	def getHeaders(cls, platform): # pylint: disable-msg=W0613
 		header = cls.header
-		return header if hasattr(header, '__iter__') else (header, )
+		return (header, ) if isinstance(header, str) else header
 
 	@classmethod
 	def getLibName(cls, platform): # pylint: disable-msg=W0613
@@ -239,8 +238,8 @@ class GL(Library):
 		def execute(cmd, log):
 			versionPairs = tuple(
 				( major, minor )
-				for major in xrange(1, 10)
-				for minor in xrange(0, 10)
+				for major in range(1, 10)
+				for minor in range(0, 10)
 				)
 			version = cmd.expand(log, cls.getHeaders(platform), *(
 				'GL_VERSION_%d_%d' % pair for pair in versionPairs
@@ -394,11 +393,11 @@ class TCL(Library):
 
 		tclConfigs = {}
 		with open('derived/tcl-search.log', 'w', encoding='utf-8') as log:
-			print(u'Looking for Tcl...', file=log)
+			print('Looking for Tcl...', file=log)
 			for location in iterLocations():
 				path = location + '/tclConfig.sh'
 				if isfile(path):
-					print(u'Config script: %s' % path, file=log)
+					print('Config script: %s' % path, file=log)
 					text = captureStdout(
 						log,
 						"sh -c '. %s && echo %s'" % (
@@ -413,7 +412,7 @@ class TCL(Library):
 						except ValueError:
 							pass
 						else:
-							print(u'Found: version %d.%d' % version, file=log)
+							print('Found: version %d.%d' % version, file=log)
 							tclConfigs[path] = version
 			try:
 				# Minimum required version is 8.5.
@@ -421,14 +420,14 @@ class TCL(Library):
 				# running into incompatible changes.
 				tclConfig = min(
 					( version, path )
-					for path, version in tclConfigs.iteritems()
+					for path, version in tclConfigs.items()
 					if version >= (8, 5)
 					)[1]
 			except ValueError:
 				tclConfig = None
-				print(u'No suitable versions found.', file=log)
+				print('No suitable versions found.', file=log)
 			else:
-				print(u'Selected: %s' % tclConfig, file=log)
+				print('Selected: %s' % tclConfig, file=log)
 
 		cls.tclConfig = tclConfig
 		return tclConfig
@@ -439,7 +438,7 @@ class TCL(Library):
 		if tclConfig is None:
 			return None
 		with open('derived/tcl-search.log', 'a', encoding='utf-8') as log:
-			print(u'Getting Tcl %s...' % description, file=log)
+			print('Getting Tcl %s...' % description, file=log)
 			text = captureStdout(
 				log,
 				shjoin([
@@ -448,7 +447,7 @@ class TCL(Library):
 					])
 				)
 			if text is not None:
-				print(u'Result: %s' % text.strip(), file=log)
+				print('Result: %s' % text.strip(), file=log)
 		return None if text is None else text.strip()
 
 	@classmethod
@@ -479,21 +478,21 @@ class TCL(Library):
 			if tclShared == '0':
 				if wantShared:
 					print(
-						u'Dynamic linking requested, but Tcl installation has '
-						u'static library.', file=log
+						'Dynamic linking requested, but Tcl installation has '
+						'static library.', file=log
 						)
 					return None
 			elif tclShared == '1':
 				if not wantShared:
 					print(
-						u'Static linking requested, but Tcl installation has '
-						u'dynamic library.', file=log
+						'Static linking requested, but Tcl installation has '
+						'dynamic library.', file=log
 						)
 					return None
 			else:
 				print(
-					u'Unable to determine whether Tcl installation has '
-					u'shared or static library.', file=log
+					'Unable to determine whether Tcl installation has '
+					'shared or static library.', file=log
 					)
 				return None
 
@@ -564,7 +563,7 @@ class ZLib(Library):
 # Build a dictionary of libraries using introspection.
 librariesByName = {
 	obj.makeName: obj
-	for obj in locals().itervalues()
+	for obj in locals().values()
 	if isinstance(obj, type)
 		and issubclass(obj, Library)
 		and obj is not Library

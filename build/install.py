@@ -1,4 +1,3 @@
-from __future__ import print_function
 from fileutils import (
 	installDirs, installFile, installSymlink, installTree, scanTree
 	)

@@ -1,4 +1,3 @@
-from __future__ import print_function
 from hashlib import new as newhash
 from os import stat
 from os.path import isfile
@@ -11,7 +10,7 @@ def verifyFile(filePath, fileLength, checksums):
 			'Expected length %d, actual length %d' % (fileLength, actualLength)
 			)
 	hashers = {}
-	for algo in checksums.iterkeys():
+	for algo in checksums.keys():
 		try:
 			hashers[algo] = newhash(algo)
 		except ValueError as ex:
@@ -22,9 +21,9 @@ def verifyFile(filePath, fileLength, checksums):
 			buf = inp.read(bufSize)
 			if not buf:
 				break
-			for hasher in hashers.itervalues():
+			for hasher in hashers.values():
 				hasher.update(buf)
-	for algo, hasher in sorted(hashers.iteritems()):
+	for algo, hasher in sorted(hashers.items()):
 		if checksums[algo] != hasher.hexdigest():
 			raise IOError('%s checksum mismatch' % algo)
 

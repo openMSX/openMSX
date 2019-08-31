@@ -1,4 +1,3 @@
-from __future__ import print_function
 from install import installAll
 from version import (
 	extractRevisionNumber, getVersionedPackageName, packageVersionNumber,

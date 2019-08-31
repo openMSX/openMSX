@@ -1,4 +1,3 @@
-from __future__ import print_function
 from systemfuncs import systemFunctions
 from outpututils import rewriteIfChanged
 

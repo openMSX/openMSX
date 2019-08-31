@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # Creates a source distribution package.
 
-from __future__ import print_function
 from os import makedirs, remove
 from os.path import isdir
 from subprocess import CalledProcessError, PIPE, Popen, check_output
@@ -102,13 +101,15 @@ def getDescription(committish):
 	if committish is not None:
 		args.append(committish)
 	try:
-		return check_output(args).rstrip('\n')
+		data = check_output(args)
 	except CalledProcessError as ex:
 		print(
 			'"%s" returned %d' % (' '.join(args), ex.returncode),
 			file=sys.stderr
 			)
 		raise
+	else:
+		return data.decode('utf-8', 'replace').rstrip('\n')
 
 def main(committish = None):
 	try:

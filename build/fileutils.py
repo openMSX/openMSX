@@ -1,4 +1,3 @@
-from __future__ import print_function
 from os import altsep, chmod, mkdir, remove, sep, stat, walk
 from os.path import dirname, exists, isdir, isfile, islink, join as joinpath
 from shutil import copyfile

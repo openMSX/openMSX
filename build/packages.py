@@ -1,4 +1,4 @@
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 class Package(object):
 	'''Abstract base class for packages.
@@ -209,7 +209,7 @@ class ZLib(DownloadablePackage):
 # Build a dictionary of packages using introspection.
 _packagesByName = {
 	obj.getMakeName(): obj
-	for obj in locals().itervalues()
+	for obj in locals().values()
 	if isinstance(obj, type)
 		and issubclass(obj, Package)
 		and obj is not Package
@@ -220,6 +220,6 @@ def getPackage(makeName):
 	return _packagesByName[makeName]
 
 def iterDownloadablePackages():
-	for package in _packagesByName.itervalues():
+	for package in _packagesByName.values():
 		if issubclass(package, DownloadablePackage):
 			yield package

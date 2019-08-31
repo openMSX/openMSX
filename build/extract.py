@@ -1,6 +1,5 @@
 # Extract files from archives.
 
-from __future__ import print_function
 from os import O_CREAT, O_WRONLY, fdopen, mkdir, open as osopen, utime
 try:
 	from os import O_BINARY

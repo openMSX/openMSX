@@ -1,6 +1,5 @@
 # Generates the contents of "components_defs.mk".
 
-from __future__ import print_function
 from components import (
 	EmulationCore, iterBuildableComponents, iterComponents,
 	requiredLibrariesFor

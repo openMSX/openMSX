@@ -1,6 +1,5 @@
 # Generates version include file.
 
-from __future__ import print_function
 from outpututils import rewriteIfChanged
 from version import extractRevisionString, packageVersion, releaseFlag
 

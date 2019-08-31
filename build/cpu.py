@@ -137,7 +137,7 @@ class X86_64(CPU):
 # Build a dictionary of CPUs using introspection.
 _cpusByName = {
 	obj.name: obj
-	for obj in locals().itervalues()
+	for obj in locals().values()
 	if isinstance(obj, type)
 		and issubclass(obj, CPU)
 		and obj is not CPU

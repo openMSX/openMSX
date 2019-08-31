@@ -1,6 +1,5 @@
 # Various utility functions for generating output files and directories.
 
-from __future__ import print_function
 from io import open
 from os import makedirs
 from os.path import dirname, isdir, isfile
@@ -18,7 +17,7 @@ def rewriteIfChanged(path, lines):
 	contents should change. The contents are given by the "lines" sequence.
 	Returns True if the file was (re)written, False otherwise.
 	'''
-	newLines = [u'%s\n' % line for line in lines]
+	newLines = [line + '\n' for line in lines]
 
 	if isfile(path):
 		with open(path, 'r', encoding='utf-8') as inp:

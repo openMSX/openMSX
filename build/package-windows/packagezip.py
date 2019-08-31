@@ -1,4 +1,3 @@
-from __future__ import print_function
 from packagewindows import PackageInfo, generateInstallFiles
 
 from os.path import abspath, basename, exists, join as joinpath, relpath
