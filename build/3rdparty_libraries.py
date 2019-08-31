@@ -35,7 +35,7 @@ if __name__ == '__main__':
 			sys.exit(2)
 	else:
 		print(
-			'Usage: python 3rdparty_libraries.py TARGET_OS LINK_MODE',
+			'Usage: python3 3rdparty_libraries.py TARGET_OS LINK_MODE',
 			file=sys.stderr
 			)
 		sys.exit(2)

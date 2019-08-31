@@ -64,7 +64,7 @@ if __name__ == '__main__':
 			)
 	else:
 		print(
-			'Usage: python checksum.py FILE LENGTH (ALGO=HASH)*',
+			'Usage: python3 checksum.py FILE LENGTH (ALGO=HASH)*',
 			file=sys.stderr
 			)
 		sys.exit(2)

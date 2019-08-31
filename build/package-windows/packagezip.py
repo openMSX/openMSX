@@ -78,7 +78,7 @@ if __name__ == '__main__':
 		packageZip(PackageInfo(*sys.argv[1 : ]))
 	else:
 		print(
-			'Usage: python packagezip.py '
+			'Usage: python3 packagezip.py '
 			'platform configuration catapultPath',
 			file=sys.stderr
 			)

@@ -23,7 +23,7 @@ if __name__ == '__main__':
 			iterSystemFuncsHeader(getSystemFuncsInfo())
 			)
 	else:
-		print('Usage: python systemfuncs2code.py CONFIG_HEADER ', file=sys.stderr)
+		print('Usage: python3 systemfuncs2code.py CONFIG_HEADER ', file=sys.stderr)
 		print(
 			'Note: Should only be called directly on systems '
 			'where the probe does not work.',

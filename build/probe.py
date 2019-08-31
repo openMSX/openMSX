@@ -394,7 +394,7 @@ if __name__ == '__main__':
 			sys.exit(2)
 	else:
 		print(
-			'Usage: python probe.py '
+			'Usage: python3 probe.py '
 			'COMPILE OUTDIR OPENMSX_TARGET_OS LINK_MODE 3RDPARTY_INSTALL_DIR',
 			file=sys.stderr
 			)

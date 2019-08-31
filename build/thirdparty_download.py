@@ -92,5 +92,5 @@ if __name__ == '__main__':
 			'build/3rdparty'
 			)
 	else:
-		print('Usage: python thirdparty_download.py TARGET_OS', file=sys.stderr)
+		print('Usage: python3 thirdparty_download.py TARGET_OS', file=sys.stderr)
 		sys.exit(2)

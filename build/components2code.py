@@ -37,7 +37,7 @@ if __name__ == '__main__':
 		rewriteIfChanged(sys.argv[1], iterComponentsHeader(sys.argv[2]))
 	else:
 		print(
-			'Usage: python components2code.py COMPONENTS_HEADER PROBE_MAKE',
+			'Usage: python3 components2code.py COMPONENTS_HEADER PROBE_MAKE',
 			file=sys.stderr
 			)
 		sys.exit(2)

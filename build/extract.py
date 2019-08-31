@@ -114,5 +114,5 @@ if __name__ == '__main__':
 			renameTopLevelDir = None
 		extract(sys.argv[1], sys.argv[2], renameTopLevelDir)
 	else:
-		print('Usage: python extract.py archive destination [new-top-level-dir]', file=sys.stderr)
+		print('Usage: python3 extract.py archive destination [new-top-level-dir]', file=sys.stderr)
 		sys.exit(2)

@@ -15,5 +15,5 @@ if __name__ == '__main__':
 	if len(sys.argv) == 2:
 		main(*sys.argv[1 : ])
 	else:
-		print('Usage: python list_system_libs.py TARGET_OS', file=sys.stderr)
+		print('Usage: python3 list_system_libs.py TARGET_OS', file=sys.stderr)
 		sys.exit(2)

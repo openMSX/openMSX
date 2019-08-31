@@ -332,5 +332,5 @@ if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		main(*sys.argv[1 : ])
 	else:
-		print('Usage: python patch.py diff target', file=sys.stderr)
+		print('Usage: python3 patch.py diff target', file=sys.stderr)
 		sys.exit(2)

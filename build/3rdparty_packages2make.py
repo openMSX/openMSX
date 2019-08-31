@@ -60,5 +60,5 @@ if __name__ == '__main__':
 	if len(sys.argv) == 1:
 		printPackagesMake()
 	else:
-		print('Usage: python 3rdparty_packages2make.py', file=sys.stderr)
+		print('Usage: python3 3rdparty_packages2make.py', file=sys.stderr)
 		sys.exit(2)

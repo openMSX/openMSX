@@ -14,5 +14,5 @@ if __name__ == '__main__':
 		except KeyError:
 			print('Unknown CPU "%s"' % cpuName, file=sys.stderr)
 	else:
-		print('Usage: python cpu2flags.py OPENMSX_TARGET_CPU', file=sys.stderr)
+		print('Usage: python3 cpu2flags.py OPENMSX_TARGET_CPU', file=sys.stderr)
 		sys.exit(2)

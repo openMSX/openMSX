@@ -87,5 +87,5 @@ if __name__ == '__main__':
 			print(ex, file=sys.stderr)
 			sys.exit(1)
 	else:
-		print('Usage: python download.py url localdir', file=sys.stderr)
+		print('Usage: python3 download.py url localdir', file=sys.stderr)
 		sys.exit(2)

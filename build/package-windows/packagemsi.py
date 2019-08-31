@@ -224,7 +224,7 @@ if __name__ == '__main__':
 		packageMSI(PackageInfo(*sys.argv[1 : ]))
 	else:
 		print(
-			'Usage: python packagemsi.py '
+			'Usage: python3 packagemsi.py '
 			'platform configuration catapultPath',
 			file=sys.stderr
 			)
