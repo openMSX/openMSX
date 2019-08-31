@@ -10,10 +10,7 @@ try:
 	from os import symlink
 except ImportError:
 	def symlink(source, link_name):
-		print(
-			'WARNING: OS does not support symlink creation: %s -> %s, skipping!'
-			% (link_name, source)
-			)
+		raise OSError('OS does not support symlink creation')
 from os.path import abspath, isdir, join as joinpath, sep, split as splitpath
 from stat import S_IRWXU, S_IRWXG, S_IRWXO, S_IXUSR, S_IXGRP, S_IXOTH
 from tarfile import TarFile
@@ -73,7 +70,13 @@ def extract(archivePath, destDir, rename = None):
 				if not isdir(absMemberPath):
 					mkdir(absMemberPath)
 			elif member.issym():
-				symlink(member.linkname, absMemberPath)
+				try:
+					symlink(member.linkname, absMemberPath)
+				except OSError as ex:
+					print(
+						'WARNING: Skipping symlink creation: %s -> %s: %s'
+						% (absMemberPath, member.linkname, ex)
+						)
 			else:
 				raise ValueError(
 					'Cannot extract tar entry "%s": '
