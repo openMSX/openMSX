@@ -24,7 +24,7 @@ class LineScanner(object):
 		self.__filter = lineFilter
 		self.__currLine = None
 		self.__lineNo = 0
-		self.next()
+		self.nextLine()
 
 	def end(self):
 		'''Returns True iff the end of the stream has been reached.
@@ -38,7 +38,7 @@ class LineScanner(object):
 		'''
 		return self.__currLine
 
-	def next(self):
+	def nextLine(self):
 		'''Moves on to the next line.
 		Raises IOError if there is a problem reading from the stream.
 		'''
@@ -127,7 +127,7 @@ class Hunk(object):
 			raise scanner.parseError('invalid delta line')
 		oldLine, oldLen, newLine, newLen = ( int(n) for n in delta.groups() )
 		deltaLineNo = scanner.getLineNumber()
-		scanner.next()
+		scanner.nextLine()
 		def lineCountMismatch(oldOrNew, declared, actual):
 			return scanner.parseError(
 				'hunk %s size mismatch: %d declared, %d actual' % (
@@ -155,12 +155,12 @@ class Hunk(object):
 				if changeClass is None:
 					break
 				content = line[1 : ]
-				scanner.next()
+				scanner.nextLine()
 				if not scanner.end() and scanner.peek().startswith('\\'):
 					# No newline at end of file.
 					assert content[-1] == '\n'
 					content = content[ : -1]
-					scanner.next()
+					scanner.nextLine()
 				change = changeClass(content)
 				yield change
 				oldCount += change.oldInc
@@ -210,11 +210,11 @@ class Diff(object):
 						break
 			while not scanner.end():
 				if scanner.peek().startswith('diff '):
-					scanner.next()
+					scanner.nextLine()
 				diffLineNo = scanner.getLineNumber()
 				if not scanner.peek().startswith('--- '):
 					raise error('"---" expected (not a unified diff?)')
-				scanner.next()
+				scanner.nextLine()
 				newFileLine = scanner.peek()
 				if not newFileLine.startswith('+++ '):
 					raise error('"+++" expected (not a unified diff?)')
@@ -223,7 +223,7 @@ class Diff(object):
 				while index < length and not newFileLine[index].isspace():
 					index += 1
 				filePath = newFileLine[4 : index]
-				scanner.next()
+				scanner.nextLine()
 				try:
 					yield cls(filePath, parseHunks())
 				except ValueError as ex:
