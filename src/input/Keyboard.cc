@@ -422,7 +422,10 @@ void Keyboard::processSdlKey(EmuTime::param time, bool down, Keys::KeyCode key)
  */
 void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition pos)
 {
-	assert(pos.isValid());
+	if (!pos.isValid()) {
+		// No such key.
+		return;
+	}
 	if (down) {
 		pressKeyMatrixEvent(time, pos);
 		// Keep track of the MSX modifiers.
