@@ -1367,7 +1367,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\DeltaBlock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\snappy.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\lz4.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.cc" />
@@ -2880,7 +2880,7 @@
     <None Include="$(OpenMSXSrcDir)\utils\DeltaBlock.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\snappy.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\lz4.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\events\AdhocCliCommParser.hh" />

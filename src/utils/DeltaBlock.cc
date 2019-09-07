@@ -1,7 +1,7 @@
 #include "DeltaBlock.hh"
 #include "likely.hh"
 #include "ranges.hh"
-#include "snappy.hh"
+#include "lz4.hh"
 #include <cassert>
 #include <cstring>
 #include <tuple>
@@ -274,9 +274,7 @@ DeltaBlockCopy::DeltaBlockCopy(const uint8_t* data, size_t size)
 void DeltaBlockCopy::apply(uint8_t* dst, size_t size) const
 {
 	if (compressed()) {
-		snappy::uncompress(
-			reinterpret_cast<const char*>(block.data()), compressedSize,
-			reinterpret_cast<char*>(dst), size);
+		LZ4::decompress(block.data(), dst, int(compressedSize), int(size));
 	} else {
 		memcpy(dst, block.data(), size);
 	}
@@ -289,10 +287,10 @@ void DeltaBlockCopy::compress(size_t size)
 {
 	if (compressed()) return;
 
-	size_t dstLen = snappy::maxCompressedLength(size);
+	size_t dstLen = LZ4::compressBound(size);
 	MemBuffer<uint8_t> buf2(dstLen);
-	snappy::compress(reinterpret_cast<const char*>(block.data()), size,
-	                 reinterpret_cast<char*>(buf2.data()), dstLen);
+	dstLen = LZ4::compress(block.data(), buf2.data(), int(size));
+
 	if (dstLen >= size) {
 		// compression isn't beneficial
 		return;

@@ -2,6 +2,7 @@
 #define ALIGNED_HH
 
 #include "build-info.hh"
+#include "inline.hh"
 #include <cstdint>
 #include <cassert>
 #include <cstring>
@@ -21,7 +22,7 @@
 
 
 // Unaligned loads and stores.
-template<typename T> static inline T unalignedLoad(const void* p)
+template<typename T> static ALWAYS_INLINE T unalignedLoad(const void* p)
 {
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		return *reinterpret_cast<const T*>(p);
@@ -31,7 +32,7 @@ template<typename T> static inline T unalignedLoad(const void* p)
 		return t;
 	}
 }
-template<typename T> static inline void unalignedStore(void* p, T t)
+template<typename T> static ALWAYS_INLINE void unalignedStore(void* p, T t)
 {
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		*reinterpret_cast<T*>(p) = t;
@@ -40,22 +41,22 @@ template<typename T> static inline void unalignedStore(void* p, T t)
 	}
 }
 
-static inline uint16_t unalignedLoad16(const void* p) {
+static ALWAYS_INLINE uint16_t unalignedLoad16(const void* p) {
 	return unalignedLoad<uint16_t>(p);
 }
-static inline uint32_t unalignedLoad32(const void* p) {
+static ALWAYS_INLINE uint32_t unalignedLoad32(const void* p) {
 	return unalignedLoad<uint32_t>(p);
 }
-static inline uint64_t unalignedLoad64(const void* p) {
+static ALWAYS_INLINE uint64_t unalignedLoad64(const void* p) {
 	return unalignedLoad<uint64_t>(p);
 }
-static inline void unalignedStore16(void* p, uint16_t v) {
+static ALWAYS_INLINE void unalignedStore16(void* p, uint16_t v) {
 	unalignedStore(p, v);
 }
-static inline void unalignedStore32(void* p, uint32_t v) {
+static ALWAYS_INLINE void unalignedStore32(void* p, uint32_t v) {
 	unalignedStore(p, v);
 }
-static inline void unalignedStore64(void* p, uint64_t v) {
+static ALWAYS_INLINE void unalignedStore64(void* p, uint64_t v) {
 	unalignedStore(p, v);
 }
 
@@ -84,7 +85,7 @@ static inline void unalignedStore64(void* p, uint64_t v) {
 #endif
 
 template<size_t A, typename T>
-static inline void assume_aligned(T* __restrict & ptr)
+static ALWAYS_INLINE void assume_aligned(T* __restrict & ptr)
 {
 #ifdef DEBUG // only check in debug build
 	assert((reinterpret_cast<uintptr_t>(ptr) % A) == 0);
@@ -97,7 +98,7 @@ static inline void assume_aligned(T* __restrict & ptr)
 #endif
 }
 
-template<typename T> static inline void assume_SSE_aligned(
+template<typename T> static ALWAYS_INLINE void assume_SSE_aligned(
 #ifdef __SSE2__
 		T* __restrict & ptr) { assume_aligned<16>(ptr); }
 #else

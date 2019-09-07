@@ -623,7 +623,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Date.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\DivModBySame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\HexDump.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\snappy.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\lz4.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\SerializeBuffer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\MemoryOps.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sha1.cc" />
@@ -1197,7 +1197,7 @@
     <None Include="$(OpenMSXSrcDir)\utils\inline.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\join.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\likely.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\snappy.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\lz4.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Math.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\MemBuffer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\MemoryOps.hh" />
