@@ -5,8 +5,8 @@
 namespace openmsx {
 
 WD2793BasedFDC::WD2793BasedFDC(const DeviceConfig& config, const std::string& romId,
-                               bool needROM)
-	: MSXFDC(config, romId, needROM)
+                               bool needROM, DiskDrive::TrackMode trackMode)
+	: MSXFDC(config, romId, needROM, trackMode)
 	, multiplexer(reinterpret_cast<DiskDrive**>(drives))
 	, controller(
 		getScheduler(), multiplexer, getCliComm(), getCurrentTime(),

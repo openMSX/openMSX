@@ -298,9 +298,10 @@ byte WD2793::getDataReg(EmuTime::param time)
 				if (!(commandReg & M_FLAG)) {
 					endCmd(time);
 				} else {
-					// TODO multi sector read
+					// multi sector read, wait for the next sector
+					drqTime.reset(EmuTime::infinity()); // DRQ = false
 					sectorReg++;
-					endCmd(time);
+					type2Loaded(time);
 				}
 			} else {
 				// read track, read address
@@ -804,9 +805,10 @@ void WD2793::postWriteSector(EmuTime::param time)
 			if (!(commandReg & M_FLAG)) {
 				endCmd(time);
 			} else {
-				// TODO multi sector write
+				// multi sector write, wait for next sector
+				drqTime.reset(EmuTime::infinity()); // DRQ = false
 				sectorReg++;
-				endCmd(time);
+				type2Loaded(time);
 			}
 		}
 	} catch (MSXException&) {
@@ -867,6 +869,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 			}
 			dataCurrent = sectorInfo.addrIdx;
 			dataAvailable = 6;
+			sectorReg = drive.readTrackByte(dataCurrent);
 		} catch (MSXException&) {
 			// read addr failed
 			statusReg |= RECORD_NOT_FOUND;

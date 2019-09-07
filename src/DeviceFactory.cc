@@ -50,6 +50,7 @@
 #include "SpectravideoFDC.hh"
 #include "TurboRFDC.hh"
 #include "SVIFDC.hh"
+#include "YamahaFDC.hh"
 #include "SunriseIDE.hh"
 #include "BeerIDE.hh"
 #include "GoudaSCSI.hh"
@@ -119,6 +120,8 @@ static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 		return make_unique<SpectravideoFDC>(conf);
 	} else if (type == "Victor") {
 		return make_unique<VictorFDC>(conf);
+	} else if (type == "Yamaha") {
+		return make_unique<YamahaFDC>(conf);
 	}
 	throw MSXException("Unknown WD2793 FDC connection style ", type);
 }
