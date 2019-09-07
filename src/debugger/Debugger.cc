@@ -355,10 +355,10 @@ void Debugger::Cmd::setBreakPoint(span<const TclObject> tokens, TclObject& resul
 	switch (arguments.size()) {
 	case 3: // command
 		command = arguments[2];
-		// fall-through
+		[[fallthrough]];
 	case 2: // condition
 		condition = arguments[1];
-		// fall-through
+		[[fallthrough]];
 	case 1: { // address
 		word addr = getAddress(getInterpreter(), arguments[0]);
 		BreakPoint bp(addr, command, condition, once);
@@ -442,10 +442,10 @@ void Debugger::Cmd::setWatchPoint(span<const TclObject> tokens, TclObject& resul
 	switch (arguments.size()) {
 	case 4: // command
 		command = arguments[3];
-		// fall-through
+		[[fallthrough]];
 	case 3: // condition
 		condition = arguments[2];
-		// fall-through
+		[[fallthrough]];
 	case 2: { // address + type
 		string_view typeStr = arguments[0].getString();
 		unsigned max;
@@ -570,7 +570,7 @@ void Debugger::Cmd::setCondition(span<const TclObject> tokens, TclObject& result
 	switch (arguments.size()) {
 	case 2: // command
 		command = arguments[1];
-		// fall-through
+		[[fallthrough]];
 	case 1: { // condition
 		condition = arguments[0];
 		DebugCondition dc(command, condition, once);
@@ -664,10 +664,10 @@ void Debugger::Cmd::probeSetBreakPoint(
 	switch (arguments.size()) {
 	case 3: // command
 		command = arguments[2];
-		// fall-through
+		[[fallthrough]];
 	case 2: // condition
 		condition = arguments[1];
-		// fall-through
+		[[fallthrough]];
 	case 1: { // probe
 		p = &debugger().getProbe(arguments[0].getString());
 		break;

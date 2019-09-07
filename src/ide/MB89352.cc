@@ -340,7 +340,7 @@ void MB89352::resetACKREQ()
 			break;
 		}
 		msgin = 0;
-		// fall-through
+		[[fallthrough]];
 	case SCSI::MSG_OUT: // Message Out phase
 		if (msgin == -1) {
 			disconnect();
@@ -622,8 +622,8 @@ void MB89352::writeRegister(byte reg, byte value)
 				softReset();
 			}
 		}
+		[[fallthrough]];
 	}
-		// fall-through
 	default:
 		regs[reg] = value;
 	}

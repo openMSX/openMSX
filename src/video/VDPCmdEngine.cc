@@ -796,7 +796,7 @@ void VDPCmdEngine::executePset(EmuTime::param limit)
 			tmpDst = vram.cmdWriteWindow.readNP(addr);
 		}
 		nextAccessSlot(DELTA_24); // TODO
-		// fall-through
+		[[fallthrough]];
 	case 1:
 		if (unlikely(engineTime >= limit)) { phase = 1; break; }
 		if (likely(doPset)) {
@@ -887,7 +887,7 @@ loop:		if (unlikely(calculator.limitReached())) { phase = 0; break; }
 			tmpDst = vram.cmdWriteWindow.readNP(addr);
 		}
 		calculator.next(DELTA_24);
-		// fall-through
+		[[fallthrough]];
 	case 1: {
 		if (unlikely(calculator.limitReached())) { phase = 1; break; }
 		if (likely(doPset)) {
@@ -980,7 +980,7 @@ loop:		if (unlikely(calculator.limitReached())) { phase = 0; break; }
 			tmpDst = vram.cmdWriteWindow.readNP(addr);
 		}
 		calculator.next(DELTA_24);
-		// fall-through
+		[[fallthrough]];
 	case 1: {
 		if (unlikely(calculator.limitReached())) { phase = 1; break; }
 		if (likely(doPset)) {
@@ -1106,14 +1106,14 @@ loop:		if (unlikely(calculator.limitReached())) { phase = 0; break; }
 		       ? Mode::point(vram, ASX, SY, srcExt)
 		       : 0xFF;
 		calculator.next(DELTA_32);
-		// fall-through
+		[[fallthrough]];
 	case 1:
 		if (unlikely(calculator.limitReached())) { phase = 1; break; }
 		if (likely(doPset)) {
 			tmpDst = vram.cmdWriteWindow.readNP(dstAddr);
 		}
 		calculator.next(DELTA_24);
-		// fall-through
+		[[fallthrough]];
 	case 2: {
 		if (unlikely(calculator.limitReached())) { phase = 2; break; }
 		if (likely(doPset)) {
@@ -1466,7 +1466,7 @@ loop:		if (unlikely(calculator.limitReached())) { phase = 0; break; }
 			       Mode::addressOf(ASX, SY, srcExt))
 			: 0xFF;
 		calculator.next(DELTA_24);
-		// fall-through
+		[[fallthrough]];
 	case 1: {
 		if (unlikely(calculator.limitReached())) { phase = 1; break; }
 		if (likely(doPset)) {
@@ -1600,7 +1600,7 @@ loop:		if (unlikely(calculator.limitReached())) { phase = 0; break; }
 			       Mode::addressOf(ADX, SY, dstExt));
 		}
 		calculator.next(DELTA_24);
-		// fall-through
+		[[fallthrough]];
 	case 1:
 		if (unlikely(calculator.limitReached())) { phase = 1; break; }
 		if (likely(doPset)) {

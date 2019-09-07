@@ -866,14 +866,14 @@ void MegaFlashRomSCCPlusSD::writeIO(word port, byte value, EmuTime::param time)
 	switch (port & 0xFF) {
 		case 0xA0:
 			if (!isPSGalsoMappedToNormalPorts()) return;
-			// fall-through
+			[[fallthrough]];
 		case 0x10:
 			psgLatch = value & 0x0F;
 			break;
 
 		case 0xA1:
 			if (!isPSGalsoMappedToNormalPorts()) return;
-			// fall-through
+			[[fallthrough]];
 		case 0x11:
 			psg.writeRegister(psgLatch, value, time);
 			break;

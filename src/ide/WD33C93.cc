@@ -185,7 +185,7 @@ void WD33C93::execCmd(byte value)
 
 	case 0x06: // Select with ATN (Lv2)
 		atn = true;
-		// fall-through
+		[[fallthrough]];
 	case 0x07: // Select Without ATN (Lv2)
 		targetId = regs[REG_DST_ID] & 7;
 		regs[REG_SCSI_STATUS] = SS_SEL_TIMEOUT;
@@ -195,7 +195,7 @@ void WD33C93::execCmd(byte value)
 
 	case 0x08: // Select with ATN and transfer (Lv2)
 		atn = true;
-		// fall-through
+		[[fallthrough]];
 	case 0x09: // Select without ATN and Transfer (Lv2)
 		targetId = regs[REG_DST_ID] & 7;
 

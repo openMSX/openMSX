@@ -1006,7 +1006,7 @@ void Y8950::writeReg(byte rg, byte data, EmuTime::param time)
 
 		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
 			periphery.setSPOFF((data & 8) != 0, time); // bit 3
-			// fall-through
+			[[fallthrough]];
 
 		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM
 		case 0x09: // START ADDRESS (L)

@@ -894,7 +894,7 @@ void ImagePrinterMSX::processCharacter(byte data)
 					break;
 				}
 				hpos = leftBorder;
-				// fall-through
+				[[fallthrough]];
 			case 10: // LF: Carriage return + Line feed
 			case 11: // VT: Vertical tabulator (like LF)
 				//hpos = leftBorder;
@@ -1589,7 +1589,7 @@ void ImagePrinterEpson::processCharacter(byte data)
 				break;
 			}
 			hpos = leftBorder;
-			// fall-through
+			[[fallthrough]];
 		case 10: // Line Feed
 		case 11: // Vertical TAB
 			vpos += lineFeed;
