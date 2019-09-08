@@ -80,7 +80,7 @@ class Library(object):
 		elif distroRoot is None or cls.isSystemLibrary(platform):
 			flags = []
 		else:
-			flags = [ '-I%s/include' % distroRoot ]
+			flags = [ '-isystem %s/include' % distroRoot ]
 		dependentFlags = [
 			librariesByName[name].getCompileFlags(
 				platform, linkStatic, distroRoot
@@ -216,7 +216,7 @@ class GL(Library):
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
 		if platform in ('netbsd', 'openbsd'):
-			return '-I/usr/X11R6/include -I/usr/X11R7/include'
+			return '-isystem /usr/X11R6/include -isystem /usr/X11R7/include'
 		else:
 			return super(GL, cls).getCompileFlags(
 				platform, linkStatic, distroRoot
