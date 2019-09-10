@@ -1741,6 +1741,11 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, CommandController& commandController)
 		" vdpcmdinprogress_callback",
 	        "Tcl proc to call when a write to the VDP command engine is "
 		"detected while the previous command is still in progress.")
+	, executingProbe(
+		vdp_.getMotherBoard().getDebugger(),
+		strCat(vdp.getName(), '.', "commandExecuting"),
+		"Is the V99x8 VDP is currently executing a command",
+		false)
 	, engineTime(EmuTime::zero)
 	, statusChangeTime(EmuTime::infinity)
 	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
@@ -1915,6 +1920,7 @@ void VDPCmdEngine::executeCommand(EmuTime::param time)
 
 	// Start command.
 	status |= 0x01;
+	executingProbe = true;
 
 	switch ((scrMode << 4) | (CMD >> 4)) {
 	case 0x00: case 0x10: case 0x20: case 0x30: case 0x40:
@@ -2567,6 +2573,7 @@ void VDPCmdEngine::commandDone(EmuTime::param time)
 {
 	// Note: TR is not reset yet; it is reset when S#2 is read next.
 	status &= 0xFE; // reset CE
+	executingProbe = false;
 	CMD = 0;
 	statusChangeTime = EmuTime::infinity;
 	vram.cmdReadWindow.disable(time);
