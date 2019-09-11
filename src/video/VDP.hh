@@ -521,6 +521,38 @@ public:
 	VDPAccessSlots::Calculator getAccessSlotCalculator(
 		EmuTime::param time, EmuTime::param limit) const;
 
+	/** Only used when there are commandExecuting-probe listeners.
+	 *
+	 * Call to announce a (lower-bound) estimate for when the VDP command
+	 * will finish executing. In response the VDP will schedule a
+	 * synchronization point to sync with VDPCmdEngine emulation.
+	 *
+	 * Normally it's not required to pro-actively sync with the end of a
+	 * VDP command. Instead these sync happen reactively on VDP status
+	 * reads (e.g. polling the CE bit) or on VRAM reads (rendering or CPU
+	 * VRAM read). This is in contrast with the V9990 where we DO need an
+	 * active sync because the V9990 can generate an IRQ on command end.
+	 *
+	 * Though when the VDP.commandExecuting probe is in use we do want a
+	 * reasonably timing accurate reaction of that probe. So (only) then we
+	 * do add the extra syncs (thus with extra emulation overhead when you
+	 * use that probe).
+	 */
+	void scheduleCmdSync(EmuTime t) {
+		auto now = getCurrentTime();
+		if (t <= now) {
+			// The largest amount of VDP cycles between 'progress'
+			// in command emulation:
+			// - worst case the LMMM takes 120+64 cycles to fully process one pixel
+			// - the largest gap between access slots is 70 cycles
+			// - but if we're unlucky the CPU steals that slot
+			int LARGEST_STALL = 184 + 2 * 70;
+
+			t = now + VDPClock::duration(LARGEST_STALL);
+		}
+		syncCmdDone.setSyncPoint(t);
+	}
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -645,6 +677,14 @@ private:
 		}
 	} syncCpuVramAccess;
 
+	struct SyncCmdDone final : public SyncBase {
+		explicit SyncCmdDone(VDP& vdp) : SyncBase(vdp) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncCmdDone);
+			vdp.execSyncCmdDone(time);
+		}
+	} syncCmdDone;
+
 	void execVSync(EmuTime::param time);
 	void execDisplayStart(EmuTime::param time);
 	void execVScan(EmuTime::param time);
@@ -653,6 +693,7 @@ private:
 	void execSetMode(EmuTime::param time);
 	void execSetBlank(EmuTime::param time);
 	void execCpuVramAccess(EmuTime::param time);
+	void execSyncCmdDone(EmuTime::param time);
 
 	/** Gets the number of display lines per screen.
 	  * @return 192 or 212.

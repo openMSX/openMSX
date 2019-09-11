@@ -71,6 +71,7 @@ VDP::VDP(const DeviceConfig& config)
 	, syncSetMode(*this)
 	, syncSetBlank(*this)
 	, syncCpuVramAccess(*this)
+	, syncCmdDone(*this)
 	, display(getReactor().getDisplay())
 	, cmdTiming    (display.getRenderSettings().getCmdTimingSetting())
 	, tooFastAccess(display.getRenderSettings().getTooFastAccessSetting())
@@ -323,6 +324,7 @@ void VDP::reset(EmuTime::param time)
 	syncSetMode      .removeSyncPoint();
 	syncSetBlank     .removeSyncPoint();
 	syncCpuVramAccess.removeSyncPoint();
+	syncCmdDone      .removeSyncPoint();
 	pendingCpuAccess = false;
 
 	// Reset subsystems.
@@ -424,6 +426,11 @@ void VDP::execCpuVramAccess(EmuTime::param time)
 	assert(!allowTooFastAccess);
 	pendingCpuAccess = false;
 	executeCpuVramAccess(time);
+}
+
+void VDP::execSyncCmdDone(EmuTime::param time)
+{
+	cmdEngine->sync(time);
 }
 
 // TODO: This approach assumes that an overscan-like approach can be used
@@ -1772,6 +1779,7 @@ void VDP::serialize(Archive& ar, unsigned serVersion)
 		             "syncSetMode",       syncSetMode,
 		             "syncSetBlank",      syncSetBlank,
 		             "syncCpuVramAccess", syncCpuVramAccess);
+		             // no need for syncCmdDone (only used for probe)
 	} else {
 		Schedulable::restoreOld(ar,
 			{&syncVSync, &syncDisplayStart, &syncVScan,

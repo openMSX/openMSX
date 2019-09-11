@@ -719,11 +719,19 @@ using TNotOp = TransparentOp<NotOp>;
 
 // Commands
 
+void VDPCmdEngine::setStatusChangeTime(EmuTime::param t)
+{
+	statusChangeTime = t;
+	if ((t != EmuTime::infinity) && executingProbe.anyObservers()) {
+		vdp.scheduleCmdSync(t);
+	}
+}
+
 void VDPCmdEngine::calcFinishTime(unsigned nx, unsigned ny, unsigned ticksPerPixel)
 {
 	if (!CMD) return;
 	if (vdp.getBrokenCmdTiming()) {
-		statusChangeTime = EmuTime::zero; // will finish soon
+		setStatusChangeTime(EmuTime::zero); // will finish soon
 		return;
 	}
 
@@ -732,7 +740,7 @@ void VDPCmdEngine::calcFinishTime(unsigned nx, unsigned ny, unsigned ticksPerPix
 	// per line.
 	auto t = VDP::VDPClock::duration(ticksPerPixel);
 	t *= ((nx * (ny - 1)) + ANX);
-	statusChangeTime = engineTime + t;
+	setStatusChangeTime(engineTime + t);
 }
 
 /** Abort
@@ -749,7 +757,7 @@ void VDPCmdEngine::startPoint(EmuTime::param time)
 	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
 	nextAccessSlot(time);
-	statusChangeTime = EmuTime::zero; // will finish soon
+	setStatusChangeTime(EmuTime::zero); // will finish soon
 }
 
 template<typename Mode>
@@ -770,7 +778,7 @@ void VDPCmdEngine::startPset(EmuTime::param time)
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
 	nextAccessSlot(time);
-	statusChangeTime = EmuTime::zero; // will finish soon
+	setStatusChangeTime(EmuTime::zero); // will finish soon
 	phase = 0;
 }
 
@@ -810,7 +818,7 @@ void VDPCmdEngine::startSrch(EmuTime::param time)
 	vram.cmdWriteWindow.disable(time);
 	ASX = SX;
 	nextAccessSlot(time);
-	statusChangeTime = EmuTime::zero; // we can find it any moment
+	setStatusChangeTime(EmuTime::zero); // we can find it any moment
 }
 
 template<typename Mode>
@@ -856,7 +864,7 @@ void VDPCmdEngine::startLine(EmuTime::param time)
 	ADX = DX;
 	ANX = 0;
 	nextAccessSlot(time);
-	statusChangeTime = EmuTime::zero; // TODO can still be optimized
+	setStatusChangeTime(EmuTime::zero); // TODO can still be optimized
 	phase = 0;
 }
 
@@ -1214,7 +1222,7 @@ void VDPCmdEngine::startLmcm(EmuTime::param time)
 	transfer = true;
 	status |= 0x80;
 	nextAccessSlot(time);
-	statusChangeTime = EmuTime::zero;
+	setStatusChangeTime(EmuTime::zero);
 }
 
 template<typename Mode>
@@ -1261,7 +1269,7 @@ void VDPCmdEngine::startLmmc(EmuTime::param time)
 	unsigned tmpNX = clipNX_1_pixel<Mode>(DX, NX, ARG);
 	ADX = DX;
 	ANX = tmpNX;
-	statusChangeTime = EmuTime::zero;
+	setStatusChangeTime(EmuTime::zero);
 	// do not set 'transfer = true', this fixes bug#1014
 	// Baltak Rampage: characters in greetings part are one pixel offset
 	status |= 0x80;
@@ -1686,7 +1694,7 @@ void VDPCmdEngine::startHmmc(EmuTime::param time)
 	unsigned tmpNX = clipNX_1_byte<Mode>(DX, NX, ARG);
 	ADX = DX;
 	ANX = tmpNX;
-	statusChangeTime = EmuTime::zero;
+	setStatusChangeTime(EmuTime::zero);
 	// do not set 'transfer = true', see startLmmc()
 	status |= 0x80;
 	nextAccessSlot(time);
@@ -2575,7 +2583,7 @@ void VDPCmdEngine::commandDone(EmuTime::param time)
 	status &= 0xFE; // reset CE
 	executingProbe = false;
 	CMD = 0;
-	statusChangeTime = EmuTime::infinity;
+	setStatusChangeTime(EmuTime::infinity);
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.disable(time);
 }

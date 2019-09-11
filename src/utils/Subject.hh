@@ -19,6 +19,7 @@ template <typename T> class Subject
 public:
 	void attach(Observer<T>& observer);
 	void detach(Observer<T>& observer);
+	bool anyObservers() const { return !observers.empty(); }
 
 protected:
 	Subject() = default;

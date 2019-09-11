@@ -122,6 +122,7 @@ public:
 private:
 	void executeCommand(EmuTime::param time);
 
+	void setStatusChangeTime(EmuTime::param t);
 	void calcFinishTime(unsigned NX, unsigned NY, unsigned ticksPerPixel);
 
 	                        void startAbrt(EmuTime::param time);
