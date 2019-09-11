@@ -44,7 +44,7 @@ proc get_volume_expr {soundchip channel} {
 		}
 		"MoonSound wave-part" {
 			set regs "\"${soundchip} regs\""
-			return "expr {(\[debug read $regs [expr {$channel + 0x68}]\]) ? (127 - (\[debug read $regs [expr {$channel + 0x50}]\] >> 1)) / 127.0 : 0.0}";
+			return "expr {((\[debug read $regs [expr {$channel + 0x68}]\]) >> 7) ? (127 - (\[debug read $regs [expr {$channel + 0x50}]\] >> 1)) / 127.0 : 0.0}";
 		}
 		"Konami SCC" -
 		"Konami SCC+" {
