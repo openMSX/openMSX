@@ -207,13 +207,15 @@ private:
 	UnicodeKeymap unicodeKeymap;
 	unsigned dynKeymap[MAX_KEYSYM];
 
-	/** Keyboard matrix state for keymatrix/type command. */
+	/** Keyboard matrix state for 'keymatrix' command. */
 	byte cmdKeyMatrix [KeyMatrixPosition::NUM_ROWS];
+	/** Keyboard matrix state for 'type' command. */
+	byte typeKeyMatrix [KeyMatrixPosition::NUM_ROWS];
 	/** Keyboard matrix state for pressed user keys (live or replay). */
 	byte userKeyMatrix[KeyMatrixPosition::NUM_ROWS];
 	/** Keyboard matrix state that is always in sync with host keyb, also during replay. */
 	byte hostKeyMatrix[KeyMatrixPosition::NUM_ROWS];
-	/** Combination of cmdKeyMatrix and userKeyMatrix. */
+	/** Combination of 'cmdKeyMatrix', 'typeKeyMatrix' and 'userKeyMatrix'. */
 	mutable byte keyMatrix[KeyMatrixPosition::NUM_ROWS];
 
 	byte msxmodifiers;
@@ -239,7 +241,7 @@ private:
 	  */
 	byte locksOn;
 };
-SERIALIZE_CLASS_VERSION(Keyboard, 2);
+SERIALIZE_CLASS_VERSION(Keyboard, 3);
 
 } // namespace openmsx
 

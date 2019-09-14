@@ -130,11 +130,12 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 {
 	keysChanged = false;
 	msxmodifiers = 0xff;
-	memset(keyMatrix,     255, sizeof(keyMatrix));
-	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
-	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
-	memset(hostKeyMatrix, 255, sizeof(hostKeyMatrix));
-	memset(dynKeymap,       0, sizeof(dynKeymap));
+	ranges::fill(keyMatrix,     255);
+	ranges::fill(cmdKeyMatrix,  255);
+	ranges::fill(typeKeyMatrix, 255);
+	ranges::fill(userKeyMatrix, 255);
+	ranges::fill(hostKeyMatrix, 255);
+	ranges::fill(dynKeymap,       0);
 
 	msxEventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);
@@ -212,7 +213,8 @@ const byte* Keyboard::getKeys() const
 	if (keysChanged) {
 		keysChanged = false;
 		for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
-			keyMatrix[row] = cmdKeyMatrix[row] & userKeyMatrix[row];
+			// TODO combine the matrices more intelligently
+			keyMatrix[row] = cmdKeyMatrix[row] & typeKeyMatrix[row] & userKeyMatrix[row];
 		}
 		if (keyGhosting) {
 			doKeyGhosting(keyMatrix, keyGhostingSGCprotected);
@@ -774,26 +776,26 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 				locksOn ^= 1 << i;
 				releaseMask |= 1 << i;
 				auto lockPos = modifierPos[i];
-				cmdKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();
+				typeKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();
 			}
 		}
 		if (releaseMask == 0) {
 			debug("Key pasted, unicode: 0x%04x, row: %02d, col: %d, modmask: %02x\n",
 			      unicode, keyInfo.pos.getRow(), keyInfo.pos.getColumn(), modmask);
-			cmdKeyMatrix[keyInfo.pos.getRow()] &= ~keyInfo.pos.getMask();
+			typeKeyMatrix[keyInfo.pos.getRow()] &= ~keyInfo.pos.getMask();
 			for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 				if ((modmask >> i) & 1) {
 					auto modPos = modifierPos[i];
-					cmdKeyMatrix[modPos.getRow()] &= ~modPos.getMask();
+					typeKeyMatrix[modPos.getRow()] &= ~modPos.getMask();
 				}
 			}
 		}
 	} else {
-		cmdKeyMatrix[keyInfo.pos.getRow()] |= keyInfo.pos.getMask();
+		typeKeyMatrix[keyInfo.pos.getRow()] |= keyInfo.pos.getMask();
 		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 			if ((modmask >> i) & 1) {
 				auto modPos = modifierPos[i];
-				cmdKeyMatrix[modPos.getRow()] |= modPos.getMask();
+				typeKeyMatrix[modPos.getRow()] |= modPos.getMask();
 			}
 		}
 	}
@@ -814,10 +816,10 @@ void Keyboard::pressLockKeys(byte lockKeysMask, bool down)
 			auto lockPos = modifierPos[i];
 			if (down) {
 				// press lock key
-				cmdKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();
+				typeKeyMatrix[lockPos.getRow()] &= ~lockPos.getMask();
 			} else {
 				// release lock key
-				cmdKeyMatrix[lockPos.getRow()] |= lockPos.getMask();
+				typeKeyMatrix[lockPos.getRow()] |= lockPos.getMask();
 			}
 		}
 	}
@@ -1239,6 +1241,7 @@ void Keyboard::KeyInserter::serialize(Archive& ar, unsigned /*version*/)
 //            time the savestate was created are cleared.
 // version 2: For reverse-replay it is important that snapshots contain the
 //            full state of the MSX keyboard, so now we do serialize it.
+// version 3: split cmdKeyMatrix into cmdKeyMatrix + typeKeyMatrix
 // TODO Is the assumption in version 1 correct (clear keyb state on load)?
 //      If it is still useful for 'regular' loadstate, then we could implement
 //      it by explicitly clearing the keyb state from the actual loadstate
@@ -1249,6 +1252,11 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("keyTypeCmd", keyTypeCmd,
 	             "cmdKeyMatrix", cmdKeyMatrix);
+	if (ar.versionAtLeast(version, 3)) {
+		ar.serialize("typeKeyMatrix", typeKeyMatrix);
+	} else {
+		ranges::copy(cmdKeyMatrix, typeKeyMatrix);
+	}
 
 	bool msxCapsLockOn, msxCodeKanaLockOn, msxGraphLockOn;
 	if (!ar.isLoader()) {
@@ -1275,7 +1283,6 @@ void Keyboard::serialize(Archive& ar, unsigned version)
 
 	if (ar.isLoader()) {
 		// force recalculation of keyMatrix
-		// (from cmdKeyMatrix and userKeyMatrix)
 		keysChanged = true;
 	}
 }
