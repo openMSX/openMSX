@@ -133,6 +133,7 @@ private:
 		KeyInserter(CommandController& commandController,
 			    StateChangeDistributor& stateChangeDistributor,
 			    Scheduler& scheduler);
+		bool isActive() const { return pendingSyncPoint(); }
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 

@@ -212,9 +212,9 @@ const byte* Keyboard::getKeys() const
 {
 	if (keysChanged) {
 		keysChanged = false;
+		const auto* matrix = keyTypeCmd.isActive() ? typeKeyMatrix : userKeyMatrix;
 		for (unsigned row = 0; row < KeyMatrixPosition::NUM_ROWS; ++row) {
-			// TODO combine the matrices more intelligently
-			keyMatrix[row] = cmdKeyMatrix[row] & typeKeyMatrix[row] & userKeyMatrix[row];
+			keyMatrix[row] = cmdKeyMatrix[row] & matrix[row];
 		}
 		if (keyGhosting) {
 			doKeyGhosting(keyMatrix, keyGhostingSGCprotected);
