@@ -150,6 +150,62 @@ Keyboard::~Keyboard()
 	msxEventDistributor.unregisterEventListener(*this);
 }
 
+template<unsigned NUM_ROWS>
+static void doKeyGhosting(byte (&matrix)[NUM_ROWS], bool protectRow6)
+{
+	// This routine enables keyghosting as seen on a real MSX
+	//
+	// If on a real MSX in the keyboardmatrix the
+	// real buttons are pressed as in the left matrix
+	//           then the matrix to the
+	// 10111111  right will be read by   10110101
+	// 11110101  because of the simple   10110101
+	// 10111101  electrical connections  10110101
+	//           that are established  by
+	// the closed switches
+	// However, some MSX models have protection against
+	// key-ghosting for SHIFT, GRAPH and CODE keys
+	// On those models, SHIFT, GRAPH and CODE are
+	// connected to row 6 via a diode. It prevents that
+	// SHIFT, GRAPH and CODE get ghosted to another
+	// row.
+	bool changedSomething;
+	do {
+		changedSomething = false;
+		for (unsigned i = 0; i < NUM_ROWS - 1; i++) {
+			auto row1 = matrix[i];
+			for (unsigned j = i + 1; j < NUM_ROWS; j++) {
+				auto row2 = matrix[j];
+				if ((row1 != row2) && ((row1 | row2) != 0xff)) {
+					auto rowIold = matrix[i];
+					auto rowJold = matrix[j];
+					// TODO: The shift/graph/code key ghosting protection
+					//       implementation is only correct for MSX.
+					if (protectRow6 && i == 6) {
+						matrix[i] = row1 & row2;
+						matrix[j] = (row1 | 0x15) & row2;
+						row1 &= row2;
+					} else if (protectRow6 && j == 6) {
+						matrix[i] = row1 & (row2 | 0x15);
+						matrix[j] = row1 & row2;
+						row1 &= (row2 | 0x15);
+					} else {
+						// not same and some common zero's
+						//  --> inherit other zero's
+						auto newRow = row1 & row2;
+						matrix[i] = newRow;
+						matrix[j] = newRow;
+						row1 = newRow;
+					}
+					if (rowIold != matrix[i] ||
+					    rowJold != matrix[j]) {
+						changedSomething = true;
+					}
+				}
+			}
+		}
+	} while (changedSomething);
+}
 
 const byte* Keyboard::getKeys() const
 {
@@ -159,7 +215,7 @@ const byte* Keyboard::getKeys() const
 			keyMatrix[row] = cmdKeyMatrix[row] & userKeyMatrix[row];
 		}
 		if (keyGhosting) {
-			doKeyGhosting();
+			doKeyGhosting(keyMatrix, keyGhostingSGCprotected);
 		}
 	}
 	return keyMatrix;
@@ -573,64 +629,6 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		}
 		return false;
 	}
-}
-
-void Keyboard::doKeyGhosting() const
-{
-	// This routine enables keyghosting as seen on a real MSX
-	//
-	// If on a real MSX in the keyboardmatrix the
-	// real buttons are pressed as in the left matrix
-	//           then the matrix to the
-	// 10111111  right will be read by   10110101
-	// 11110101  because of the simple   10110101
-	// 10111101  electrical connections  10110101
-	//           that are established  by
-	// the closed switches
-	// However, some MSX models have protection against
-	// key-ghosting for SHIFT, GRAPH and CODE keys
-	// On those models, SHIFT, GRAPH and CODE are
-	// connected to row 6 via a diode. It prevents that
-	// SHIFT, GRAPH and CODE get ghosted to another
-	// row.
-	bool changedSomething;
-	do {
-		changedSomething = false;
-		for (unsigned i = 0; i < KeyMatrixPosition::NUM_ROWS - 1; i++) {
-			byte row1 = keyMatrix[i];
-			for (unsigned j = i + 1; j < KeyMatrixPosition::NUM_ROWS; j++) {
-				byte row2 = keyMatrix[j];
-				if ((row1 != row2) && ((row1 | row2) != 0xff)) {
-					byte rowIold = keyMatrix[i];
-					byte rowJold = keyMatrix[j];
-					// TODO: The shift/graph/code key ghosting protection
-					//       implementation is only correct for MSX.
-					if (keyGhostingSGCprotected && i == 6) {
-						keyMatrix[i] = row1 & row2;
-						keyMatrix[j] = (row1 | 0x15) & row2;
-						row1 &= row2;
-					}
-					else if (keyGhostingSGCprotected && j == 6) {
-						keyMatrix[i] = row1 & (row2 | 0x15);
-						keyMatrix[j] = row1 & row2;
-						row1 &= (row2 | 0x15);
-					}
-					else {
-						// not same and some common zero's
-						//  --> inherit other zero's
-						byte newRow = row1 & row2;
-						keyMatrix[i] = newRow;
-						keyMatrix[j] = newRow;
-						row1 = newRow;
-					}
-					if (rowIold != keyMatrix[i] ||
-					    rowJold != keyMatrix[j]) {
-						changedSomething = true;
-					}
-				}
-			}
-		}
-	} while (changedSomething);
 }
 
 void Keyboard::processCmd(Interpreter& interp, span<const TclObject> tokens, bool up)
