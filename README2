@@ -1,0 +1,29 @@
+----------------------------------------------------------------------------
+openMSX - the MSX emulator that aims for perfection
+----------------------------------------------------------------------------
+
+openMSX comes with a set of HTML manuals that tell what you need to know
+to install, configure and run openMSX. You can find these manuals in the
+directory 'manual' inside the directory 'doc'. You can read them using
+a web browser.
+
+You can read what has changed in this and the previous releases in the
+release notes. You can find the release notes of this release in the file
+'release-notes.txt' in the directory 'doc'. Highlights of previous releases
+can be found in 'release-history.txt'.
+
+All source code and other works that are part of, or distributed with
+openMSX are copyrighted by their respective authors. The file 'authors.txt'
+contains a list of people who made works for openMSX or contributed works
+to openMSX.
+
+Some source files contain a license notice; all other source files are
+licensed under the GNU Public License (GPL), of which you can find a copy
+in the file 'GPL.txt'. If you got a binary release of openMSX and are
+interested in the sources, please visit our home page:
+    http://openmsx.org/
+
+Happy MSX-ing!
+                        the openMSX developers
+
+----------------------------------------------------------------------------
