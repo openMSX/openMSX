@@ -1117,10 +1117,12 @@ void Keyboard::KeyInserter::executeUntil(EmuTime::param time)
 				last = current;
 				releaseLast = true;
 				text_utf8.erase(begin(text_utf8), it);
-			} else {
+			} else if (lockKeysMask & TRY_AGAIN) {
 				lockKeysMask &= ~TRY_AGAIN;
+				releaseLast = false;
+			} else if (releaseBeforePress) {
+				releaseLast = true;
 			}
-			if (releaseBeforePress) releaseLast = true;
 		}
 		reschedule(time);
 	} catch (std::exception&) {
