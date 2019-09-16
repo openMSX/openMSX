@@ -308,8 +308,7 @@ void CartridgeSlotManager::CartCmd::execute(
 	//  TODO investigate whether it's a good idea to strip namespace at a
 	//       higher level for all commands. How does that interact with
 	//       the event recording feature?
-	auto pos = cartname.rfind("::");
-	if (pos != std::string_view::npos) {
+	if (auto pos = cartname.rfind("::"); pos != std::string_view::npos) {
 		cartname = cartname.substr(pos + 2);
 	}
 	if (tokens.size() == 1) {

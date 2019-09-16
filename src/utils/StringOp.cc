@@ -90,8 +90,7 @@ bool endsWith(string_view total, char part)
 
 void trimRight(string& str, const char* chars)
 {
-	auto pos = str.find_last_not_of(chars);
-	if (pos != string::npos) {
+	if (auto pos = str.find_last_not_of(chars); pos != string::npos) {
 		str.erase(pos + 1);
 	} else {
 		str.clear();
@@ -99,8 +98,7 @@ void trimRight(string& str, const char* chars)
 }
 void trimRight(string& str, char chars)
 {
-	auto pos = str.find_last_not_of(chars);
-	if (pos != string::npos) {
+	if (auto pos = str.find_last_not_of(chars); pos != string::npos) {
 		str.erase(pos + 1);
 	} else {
 		str.clear();
@@ -154,8 +152,7 @@ void trim(string_view& str, char chars)
 
 std::pair<string_view, string_view> splitOnFirst(string_view str, string_view chars)
 {
-	auto pos = str.find_first_of(chars);
-	if (pos == string_view::npos) {
+	if (auto pos = str.find_first_of(chars); pos == string_view::npos) {
 		return {str, string_view{}};
 	} else {
 		return {str.substr(0, pos), str.substr(pos + 1)};
@@ -163,8 +160,7 @@ std::pair<string_view, string_view> splitOnFirst(string_view str, string_view ch
 }
 std::pair<string_view, string_view> splitOnFirst(string_view str, char chars)
 {
-	auto pos = str.find_first_of(chars);
-	if (pos == string_view::npos) {
+	if (auto pos = str.find_first_of(chars); pos == string_view::npos) {
 		return {str, string_view{}};
 	} else {
 		return {str.substr(0, pos), str.substr(pos + 1)};
@@ -173,8 +169,7 @@ std::pair<string_view, string_view> splitOnFirst(string_view str, char chars)
 
 std::pair<string_view, string_view> splitOnLast(string_view str, string_view chars)
 {
-	auto pos = str.find_last_of(chars);
-	if (pos == string_view::npos) {
+	if (auto pos = str.find_last_of(chars); pos == string_view::npos) {
 		return {string_view{}, str};
 	} else {
 		return {str.substr(0, pos), str.substr(pos + 1)};
@@ -182,8 +177,7 @@ std::pair<string_view, string_view> splitOnLast(string_view str, string_view cha
 }
 std::pair<string_view, string_view> splitOnLast(string_view str, char chars)
 {
-	auto pos = str.find_last_of(chars);
-	if (pos == string_view::npos) {
+	if (auto pos = str.find_last_of(chars); pos == string_view::npos) {
 		return {string_view{}, str};
 	} else {
 		return {str.substr(0, pos), str.substr(pos + 1)};
@@ -232,8 +226,7 @@ static void parseRange2(string_view str, vector<unsigned>& result,
 	trimRight(str, " \t");
 	if (str.empty()) return;
 
-	auto pos = str.find('-');
-	if (pos == string_view::npos) {
+	if (auto pos = str.find('-'); pos == string_view::npos) {
 		insert(parseNumber(str), result, min, max);
 	} else {
 		unsigned begin = parseNumber(str.substr(0, pos));

@@ -258,8 +258,8 @@ static size_t findWordSplitPoint(string_view line, size_t min, size_t max)
 
 	// try searching backward (this also checks current position)
 	assert(pos > min);
-	auto pos2 = line.substr(min, pos - min).find_last_of(delimiters);
-	if (pos2 != string_view::npos) {
+	if (auto pos2 = line.substr(min, pos - min).find_last_of(delimiters);
+	    pos2 != string_view::npos) {
 		pos2 += min + 1;
 		assert(min < pos2);
 		assert(pos2 <= pos);
@@ -267,13 +267,13 @@ static size_t findWordSplitPoint(string_view line, size_t min, size_t max)
 	}
 
 	// try searching forward
-	auto pos3 = line.substr(pos, max - pos).find_first_of(delimiters);
-	if (pos3 != string_view::npos) {
-		pos3 += pos;
-		assert(pos3 < max);
-		pos3 += 1; // char directly after a delimiter;
-		if (pos3 < max) {
-			return pos3;
+	if (auto pos2 = line.substr(pos, max - pos).find_first_of(delimiters);
+	    pos2 != string_view::npos) {
+		pos2 += pos;
+		assert(pos2 < max);
+		pos2 += 1; // char directly after a delimiter;
+		if (pos2 < max) {
+			return pos2;
 		}
 	}
 

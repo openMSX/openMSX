@@ -34,8 +34,7 @@ LocalFile::LocalFile(std::string_view filename_, File::OpenMode mode)
 	, readOnly(false)
 {
 	if (mode == File::SAVE_PERSISTENT) {
-		auto pos = filename.find_last_of('/');
-		if (pos != string::npos) {
+		if (auto pos = filename.find_last_of('/'); pos != string::npos) {
 			FileOperations::mkdirp(std::string_view(filename).substr(0, pos));
 		}
 	}

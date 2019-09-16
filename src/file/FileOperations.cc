@@ -389,43 +389,35 @@ void openofstream(std::ofstream& stream, const std::string& filename,
 
 string_view getFilename(string_view path)
 {
-	auto pos = path.rfind('/');
-	if (pos == string_view::npos) {
-		return path;
-	} else {
+	if (auto pos = path.rfind('/'); pos != string_view::npos) {
 		return path.substr(pos + 1);
 	}
+	return path;
 }
 
 string_view getDirName(string_view path)
 {
-	auto pos = path.rfind('/');
-	if (pos == string_view::npos) {
-		return {};
-	} else {
+	if (auto pos = path.rfind('/'); pos != string_view::npos) {
 		return path.substr(0, pos + 1);
 	}
+	return {};
 }
 
 string_view getExtension(string_view path)
 {
 	string_view filename = getFilename(path);
-	auto pos = filename.rfind('.');
-	if (pos == string_view::npos) {
-		return string_view();
-	} else {
+	if (auto pos = filename.rfind('.'); pos != string_view::npos) {
 		return filename.substr(pos);
 	}
+	return {};
 }
 
 string_view stripExtension(string_view path)
 {
-	auto pos = path.rfind('.');
-	if (pos == string_view::npos) {
-		return path;
-	} else {
+	if (auto pos = path.rfind('.'); pos != string_view::npos) {
 		return path.substr(0, pos);
 	}
+	return path;
 }
 
 string join(string_view part1, string_view part2)
@@ -637,12 +629,11 @@ bool getStat(const std::string& filename, Stat& st)
 	std::string filename2 = filename;
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
 	// only character in the path)
-	auto pos = filename2.find_last_not_of('/');
-	if (pos == string::npos) {
+	if (auto pos = filename2.find_last_not_of('/'); pos != string::npos) {
+		filename.resize(pos + 1);
+	} else {
 		// string was either empty or a (sequence of) '/' character(s)
 		if (!filename2.empty()) filename2.resize(1);
-	} else {
-		filename2.resize(pos + 1);
 	}
 	return _wstat(utf8to16(filename2).c_str(), &st) == 0;
 #else

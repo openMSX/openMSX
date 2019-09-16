@@ -60,8 +60,8 @@ void NowindCommand::processHdimage(
 	// disambiguity we will always interpret the string as <filename> if
 	// it is an existing filename.
 	vector<unsigned> partitions;
-	auto pos = hdimage.find_last_of(':');
-	if ((pos != string::npos) && !FileOperations::exists(hdimage)) {
+	if (auto pos = hdimage.find_last_of(':');
+	    (pos != string::npos) && !FileOperations::exists(hdimage)) {
 		partitions = StringOp::parseRange(
 			hdimage.substr(pos + 1), 1, 31);
 	}
