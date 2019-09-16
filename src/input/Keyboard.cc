@@ -35,6 +35,8 @@ using std::make_shared;
 
 namespace openmsx {
 
+static const int TRY_AGAIN = 0x80; // see pressAscii()
+
 using KeyInfo = UnicodeKeymap::KeyInfo;
 
 class KeyMatrixState final : public StateChange
@@ -758,7 +760,13 @@ bool Keyboard::pressUnicodeByUser(
  * Press an ASCII character. It is used by the 'Insert characters'
  * function that is exposed to the console.
  * The characters are inserted in a separate keyboard matrix, to prevent
- * interference with the keypresses of the user on the MSX itself
+ * interference with the keypresses of the user on the MSX itself.
+ *
+ * @returns:
+ *   zero  : handling this character is done
+ * non-zero: typing this character needs additional actions
+ *    bits 0-4: release these modifiers and call again
+ *    bit   7 : simply call again (used by SHIFT+GRAPH heuristic)
  */
 int Keyboard::pressAscii(unsigned unicode, bool down)
 {
@@ -769,6 +777,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 	}
 	byte modmask = keyInfo.modmask & ~modifierIsLock;
 	if (down) {
+		// check for modifier toggles
 		byte toggleLocks = needsLockToggle(keyInfo);
 		for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 			if ((toggleLocks >> i) & 1) {
@@ -782,12 +791,39 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 		if (releaseMask == 0) {
 			debug("Key pasted, unicode: 0x%04x, row: %02d, col: %d, modmask: %02x\n",
 			      unicode, keyInfo.pos.getRow(), keyInfo.pos.getColumn(), modmask);
-			typeKeyMatrix[keyInfo.pos.getRow()] &= ~keyInfo.pos.getMask();
+			// Workaround MSX-BIOS(?) bug/limitation:
+			// Under these conditions:
+			// - Typing a graphical MSX character 00-1F (such a char 'x' gets
+			//   printed as chr$(1) followed by chr$(x+64)).
+			// - Typing this character requires pressing SHIFT+GRAPH and one
+			//   'regular' key.
+			// - And all 3 keys are immediately pressed simultaneously.
+			// Then, from time to time, instead of the intended character 'x'
+			// (00-1F), the wrong character 'x+64' gets printed.
+			// When first SHIFT+GRAPH is pressed, and only one frame later the
+			// other keys is pressed (additionally), this problem seems to
+			// disappear.
+			if (modmask == (KeyInfo::SHIFT_MASK | KeyInfo::GRAPH_MASK)) {
+				auto isPressed = [&](auto& key) {
+					return (typeKeyMatrix[key.getRow()] & key.getMask()) == 0;
+				};
+				if (!isPressed(modifierPos[KeyInfo::SHIFT]) ||
+				    !isPressed(modifierPos[KeyInfo::GRAPH])) {
+					// SHIFT+GRAPH not yet pressed ->
+					//  first press those before adding the 3rd key
+					releaseMask = TRY_AGAIN;
+				}
+			}
+			// press modifiers
 			for (unsigned i = 0; i < KeyInfo::NUM_MODIFIERS; i++) {
 				if ((modmask >> i) & 1) {
 					auto modPos = modifierPos[i];
 					typeKeyMatrix[modPos.getRow()] &= ~modPos.getMask();
 				}
+			}
+			if (releaseMask == 0) {
+				// press key
+				typeKeyMatrix[keyInfo.pos.getRow()] &= ~keyInfo.pos.getMask();
 			}
 		}
 	} else {
@@ -1081,8 +1117,12 @@ void Keyboard::KeyInserter::executeUntil(EmuTime::param time)
 				last = current;
 				releaseLast = true;
 				text_utf8.erase(begin(text_utf8), it);
+			} else if (lockKeysMask & TRY_AGAIN) {
+				lockKeysMask &= ~TRY_AGAIN;
+				releaseLast = false;
+			} else if (releaseBeforePress) {
+				releaseLast = true;
 			}
-			if (releaseBeforePress) releaseLast = true;
 		}
 		reschedule(time);
 	} catch (std::exception&) {
