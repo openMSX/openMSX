@@ -37,8 +37,7 @@ void CompressedFileAdapter::decompress()
 	if (decompressed) return;
 
 	string url = getURL();
-	auto it = decompressCache.find(url);
-	if (it != end(decompressCache)) {
+	if (auto it = decompressCache.find(url); it != end(decompressCache)) {
 		decompressed = *it;
 	} else {
 		decompressed = std::make_shared<Decompressed>();

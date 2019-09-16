@@ -396,8 +396,7 @@ File FilePoolCore::scanFile(const Sha1Sum& sha1sum, const string& filename,
 	}
 
 	auto time = FileOperations::getModificationDate(st);
-	auto [idx, entry] = findInDatabase(filename);
-	if (idx == Index(-1)) {
+	if (auto [idx, entry] = findInDatabase(filename); idx == Index(-1)) {
 		// not in pool
 		try {
 			File file(filename);

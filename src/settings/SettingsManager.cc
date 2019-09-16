@@ -203,13 +203,12 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, manager.getTabSettingNames(), false); // case insensitive
 		break;
 	}
-	case 3: {
+	case 3:
 		// complete setting value
 		if (auto* setting = manager.findSetting(tokens[1])) {
 			setting->tabCompletion(tokens);
 		}
 		break;
-	}
 	}
 }
 

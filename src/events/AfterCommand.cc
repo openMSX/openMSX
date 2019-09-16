@@ -333,9 +333,9 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	checkNumArgs(tokens, AtLeast{3}, "id|command");
 	if (tokens.size() == 3) {
 		auto id = tokens[2].getString();
-		auto it = ranges::find_if(afterCmds,
-		                          [&](auto& e) { return e->getId() == id; });
-		if (it != end(afterCmds)) {
+		if (auto it = ranges::find_if(afterCmds,
+		                              [&](auto& e) { return e->getId() == id; });
+		    it != end(afterCmds)) {
 			afterCmds.erase(it);
 			return;
 		}
@@ -343,9 +343,9 @@ void AfterCommand::afterCancel(span<const TclObject> tokens, TclObject& /*result
 	TclObject command;
 	command.addListElements(view::drop(tokens, 2));
 	string_view cmdStr = command.getString();
-	auto it = ranges::find_if(afterCmds,
-	                          [&](auto& e) { return e->getCommand() == cmdStr; });
-	if (it != end(afterCmds)) {
+	if (auto it = ranges::find_if(afterCmds,
+	                              [&](auto& e) { return e->getCommand() == cmdStr; });
+	    it != end(afterCmds)) {
 		afterCmds.erase(it);
 		// Tcl manual is not clear about this, but it seems
 		// there's only occurence of this command canceled.

@@ -213,8 +213,8 @@ static void insert(unsigned x, vector<unsigned>& result, unsigned min, unsigned 
 	if ((x < min) || (x > max)) {
 		throw openmsx::MSXException("Out of range");
 	}
-	auto it = ranges::lower_bound(result, x);
-	if ((it == end(result)) || (*it != x)) {
+	if (auto it = ranges::lower_bound(result, x);
+	    (it == end(result)) || (*it != x)) {
 		result.insert(it, x);
 	}
 }

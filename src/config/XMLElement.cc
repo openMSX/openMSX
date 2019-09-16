@@ -67,8 +67,7 @@ void XMLElement::setAttribute(string_view attrName, string value)
 
 void XMLElement::removeAttribute(string_view attrName)
 {
-	auto it = getAttributeIter(attrName);
-	if (it != end(attributes)) {
+	if (auto it = getAttributeIter(attrName); it != end(attributes)) {
 		attributes.erase(it);
 	}
 }

@@ -97,8 +97,8 @@ void CommandLineParser::registerFileType(
 bool CommandLineParser::parseOption(
 	const string& arg, span<string>& cmdLine, ParsePhase phase)
 {
-	auto it = ranges::lower_bound(options, arg, CmpOptions());
-	if ((it != end(options)) && (it->first == arg)) {
+	if (auto it = ranges::lower_bound(options, arg, CmpOptions());
+	    (it != end(options)) && (it->first == arg)) {
 		// parse option
 		if (it->second.phase <= phase) {
 			try {
@@ -254,8 +254,8 @@ void CommandLineParser::parse(int argc, char** argv)
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
-						auto it = ranges::lower_bound(options, arg, CmpOptions());
-						if ((it != end(options)) && (it->first == arg)) {
+						if (auto it = ranges::lower_bound(options, arg, CmpOptions());
+						    (it != end(options)) && (it->first == arg)) {
 							for (unsigned i = 0; i < it->second.length - 1; ++i) {
 								if (!cmdLine.empty()) {
 									backupCmdLine.push_back(std::move(cmdLine.front()));

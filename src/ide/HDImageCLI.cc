@@ -30,9 +30,9 @@ string HDImageCLI::getImageForId(int id)
 {
 	// HD queries image. Return (and clear) the remembered value, or return
 	// an empty string.
-	auto it = ranges::find_if(images, [&](auto& p) { return p.first == id; });
 	string result;
-	if (it != end(images)) {
+	if (auto it = ranges::find_if(images, [&](auto& p) { return p.first == id; });
+	    it != end(images)) {
 		result = std::move(it->second);
 		images.erase(it);
 	}

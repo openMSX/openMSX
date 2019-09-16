@@ -246,28 +246,27 @@ static bool contains(const vector<T>& v, const Event& event)
 template<typename T>
 static void erase(vector<T>& v, const Event& event)
 {
-	auto it = ranges::find_if(v, EqualEvent(event));
-	if (it != end(v)) move_pop_back(v, it);
+	if (auto it = ranges::find_if(v, EqualEvent(event)); it != end(v)) {
+		move_pop_back(v, it);
+	}
 }
 
 static void insert(HotKey::KeySet& set, HotKey::EventPtr event)
 {
-	auto it = ranges::find_if(set, EqualEvent(*event));
-	if (it == end(set)) {
-		set.push_back(event);
-	} else {
+	if (auto it = ranges::find_if(set, EqualEvent(*event)); it != end(set)) {
 		*it = event;
+	} else {
+		set.push_back(event);
 	}
 }
 
 template<typename HotKeyInfo>
 static void insert(HotKey::BindMap& map, HotKeyInfo&& info)
 {
-	auto it = ranges::find_if(map, EqualEvent(*info.event));
-	if (it == end(map)) {
-		map.push_back(std::forward<HotKeyInfo>(info));
-	} else {
+	if (auto it = ranges::find_if(map, EqualEvent(*info.event)); it != end(map)) {
 		*it = std::forward<HotKeyInfo>(info);
+	} else {
+		map.push_back(std::forward<HotKeyInfo>(info));
 	}
 }
 
@@ -283,8 +282,8 @@ void HotKey::bind(HotKeyInfo&& info)
 
 void HotKey::unbind(const EventPtr& event)
 {
-	auto it1 = ranges::find_if(boundKeys, EqualEvent(*event));
-	if (it1 == end(boundKeys)) {
+	if (auto it1 = ranges::find_if(boundKeys, EqualEvent(*event));
+	    it1 == end(boundKeys)) {
 		// only when not a regular bound event
 		insert(unboundKeys, event);
 	} else {
@@ -346,9 +345,9 @@ void HotKey::deactivateLayer(std::string_view layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
-	auto it = ranges::find_if(view::reverse(activeLayers),
-	                          [&](auto& info) { return info.layer == layer; });
-	if (it != activeLayers.rend()) {
+	if (auto it = ranges::find_if(view::reverse(activeLayers),
+	                              [&](auto& info) { return info.layer == layer; });
+	    it != activeLayers.rend()) {
 		// 'reverse_iterator' -> 'iterator' conversion is a bit tricky
 		activeLayers.erase((it + 1).base());
 	}
@@ -391,8 +390,7 @@ int HotKey::executeEvent(const EventPtr& event)
 	bool blocking = false;
 	for (auto& info : view::reverse(activeLayers)) {
 		auto& cmap = layerMap[info.layer]; // ok, if this entry doesn't exist yet
-		auto it = findMatch(cmap, *event);
-		if (it != end(cmap)) {
+		if (auto it = findMatch(cmap, *event); it != end(cmap)) {
 			executeBinding(event, *it);
 			// Deny event to MSX listeners, also don't pass event
 			// to other layers (including the default layer).
@@ -403,8 +401,7 @@ int HotKey::executeEvent(const EventPtr& event)
 	}
 
 	// If the event was not yet handled, try the default layer.
-	auto it = findMatch(cmdMap, *event);
-	if (it != end(cmdMap)) {
+	if (auto it = findMatch(cmdMap, *event); it != end(cmdMap)) {
 		executeBinding(event, *it);
 		return EventDistributor::MSX; // deny event to MSX listeners
 	}

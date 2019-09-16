@@ -1293,8 +1293,7 @@ void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
 	    ((msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) !=
 	     (        newEntry.attrib & MSXDirEntry::ATT_DIRECTORY))) {
 		// Name or file-type in the direntry was changed.
-		auto it = mapDirs.find(dirIndex);
-		if (it != end(mapDirs)) {
+		if (auto it = mapDirs.find(dirIndex); it != end(mapDirs)) {
 			// If there is an associated hostfile, then delete it
 			// (in case of a rename, the file will be recreated
 			// below).

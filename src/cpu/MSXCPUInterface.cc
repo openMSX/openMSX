@@ -794,10 +794,10 @@ void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 }
 void MSXCPUInterface::removeBreakPoint(unsigned id)
 {
-	auto it = ranges::find_if(breakPoints,
+	if (auto it = ranges::find_if(breakPoints,
 		[&](const BreakPoint& i) { return i.getId() == id; });
-	// could be ==end for a breakpoint that removes itself AND has the -once flag set
-	if (it != breakPoints.end()) {
+	    // could be ==end for a breakpoint that removes itself AND has the -once flag set
+	    it != breakPoints.end()) {
 		breakPoints.erase(it);
 	}
 }
@@ -854,8 +854,8 @@ void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
 	// Pass shared_ptr by value to keep the object alive for the duration
 	// of this function, otherwise it gets deleted as soon as it's removed
 	// from the watchPoints collection.
-	auto it = ranges::find(watchPoints, watchPoint);
-	if (it != end(watchPoints)) {
+	if (auto it = ranges::find(watchPoints, watchPoint);
+	    it != end(watchPoints)) {
 		// remove before calling updateMemWatch()
 		watchPoints.erase(it);
 		WatchPoint::Type type = watchPoint->getType();
@@ -889,10 +889,10 @@ void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 
 void MSXCPUInterface::removeCondition(unsigned id)
 {
-	auto it = ranges::find_if(conditions,
+	if (auto it = ranges::find_if(conditions,
 		[&](DebugCondition& e) { return e.getId() == id; });
-	// could be ==end for a condition that removes itself AND has the -once flag set
-	if (it != conditions.end()) {
+	    // could be ==end for a condition that removes itself AND has the -once flag set
+	    it != conditions.end()) {
 		conditions.erase(it);
 	}
 }
