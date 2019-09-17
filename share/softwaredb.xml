@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1568484401">
+<softwaredb timestamp="1568690985">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -819,6 +819,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII8</type><hash>bd71f818bf98e21fd1f3d7f35c4e77162a7c6c5a</hash></megarom></dump>
 </software>
 <software>
+	<title>Avalon RPG Sountrack</title>
+	<system>MSX</system>
+	<company>Mapax</company>
+	<year>2019</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>2cc42a70c24ae5003945cca829cc3fb9ee870d21</hash><remark>Moonsound Needed</remark></megarom></dump>
+</software>
+<software>
 	<title>Azzurro 8bit Jam</title>
 	<system>MSX</system>
 	<company>RELEVO Videogames</company>
@@ -1148,6 +1156,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2006</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash><remark>MSX-DEV06</remark></rom></dump>
+</software>
+<software>
+	<title>Believe Or Not</title>
+	<system>MSX</system>
+	<company>Al Alamiah</company>
+	<year>1986</year>
+	<country>KW</country>
+		<dump><rom><hash>1071420c786d882187ec277a47d486a92071231f</hash></rom></dump>
 </software>
 <software>
 	<title>Bengan</title>
@@ -3445,6 +3461,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><rom><hash>4b34bf7b950d9467bf701add259a32686f283d24</hash><remark>[b]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>e49f66e8ba45d0647c93a57bbc1fb7aba4665a6e</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>77f6f1e8a060b9ecac8c48541c9d4caf0a0778f8</hash><remark>Konami SCC Conversion</remark></megarom></dump>
 </software>
 <software>
 	<title>Eggy</title>
@@ -4364,6 +4381,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>19xx</year>
 	<country>KR</country>
 		<dump><megarom><type>Zemina80in1</type><hash>2de7891988a868f89f0c02fc84f762597d542d6f</hash></megarom></dump>
+		<dump><megarom><type>Zemina80in1</type><hash>a9835ebaa9d280b8c52f374065b86eff0fb96701</hash></megarom></dump>
 </software>
 <software>
 	<title>Game World - 64 Games</title>
@@ -4372,6 +4390,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>19xx</year>
 	<country>KR</country>
 		<dump><megarom><type>Zemina80in1</type><hash>5f912637565932c2bd7c0d7b9be6ad3dc971f96f</hash></megarom></dump>
+		<dump><megarom><type>Zemina80in1</type><hash>bf13ba021ed5bc1fd33ea9c896198eeb1c6afbe7</hash></megarom></dump>
 </software>
 <software>
 	<title>Game World - 80 Games</title>
@@ -4381,6 +4400,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>KR</country>
 		<dump><megarom><type>ASCII8</type><hash>30b41d0e9b3c59e8826112c618206e12e187fb5d</hash></megarom></dump>
 		<dump><megarom><type>Zemina80in1</type><hash>a4a75ed32c2af3c5f009661bb76be4f65e2e9a1f</hash></megarom></dump>
+		<dump><megarom><type>Zemina80in1</type><hash>922eccd546f7a7074bd5741eac2bde4a0075b8c0</hash></megarom></dump>
 </software>
 <software>
 	<title>Game World - 90 Games</title>
@@ -4390,6 +4410,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>KR</country>
 		<dump><megarom><type>Zemina90in1</type><hash>edd109e4b518c41eb30a2b6f2a492598c9a08008</hash></megarom></dump>
 		<dump><megarom><type>Zemina90in1</type><hash>517e2771e65fb6f2aebb3beb97bf501b61dbd1fa</hash><remark>bug fixed</remark></megarom></dump>
+		<dump><megarom><type>Zemina90in1</type><hash>c69cc2a48c286ea5c516f9c8a4214bab594eb523</hash><remark>bug fixed</remark></megarom></dump>
 </software>
 <software>
 	<title>Ganbare Goemon - Samurai</title>
@@ -4414,6 +4435,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash>04a3d73c71b0a8623a4952fba7c9bcc965c9f28d</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>3948f96c9c9e619a83a20b5eb3066f494b80a74e</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>45e4a266348c108b162e10d4fca71a98938ec0f4</hash></megarom></dump>
+</software>
+<software>
+	<title>Gang Man</title>
+	<system>MSX</system>
+	<company>Hudson Soft</company>
+	<year>1983</year>
+	<country>JP</country>
+		<dump><rom><hash>8fad8f6b53bd0e22296ea72fe346d61acce16b51</hash></rom></dump>
 </software>
 <software>
 	<title>Gang Master</title>
@@ -5552,7 +5581,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII16SRAM2</type><hash>a3537934a4d9dfbf27aca5aaf42e0f18e4975366</hash><remark>[a]</remark></megarom></dump>
 		<dump><megarom><type>ASCII16SRAM2</type><hash>b18d36cc60d0e3b325138bb98472b685cca89f90</hash><remark>[b]</remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>552a758f77a7c35969523dbaca74587f0b59eb2b</hash><remark>Zemina version</remark></megarom></dump>
-		<dump><original value="false">Translated</original><megarom><type>ASCII8SRAM8</type><hash>0fe07b5f62e179a1294253a505a296ffefca8c95</hash><remark>Woomb Retranslation</remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII16SRAM2</type><hash>0fe07b5f62e179a1294253a505a296ffefca8c95</hash><remark>Woomb Retranslation</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>ASCII16SRAM2</type><hash>1eae08241c0681d6b6d87c68ebdaaff1baa40069</hash><remark>Translated into English</remark></megarom></dump>
 </software>
 <software>
@@ -7016,6 +7045,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1986</year>
 	<country>KW</country>
 		<dump><rom><hash>bf3d9433bf32d3af7a7adc0ba77b9690ac754daa</hash></rom></dump>
+		<dump><rom><hash>0cc58a60e35303442abf82f28b7030ac1ae4e538</hash></rom></dump>
+		<dump><rom><hash>9ee1559df309a5d833808908a0aac3b811c45312</hash></rom></dump>
 </software>
 <software>
 	<title>Legendly Knight</title>
@@ -7062,6 +7093,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1990</year>
 	<country>KW</country>
 		<dump><rom><hash>73938f51fcb26349aa17e1ae1f1bd43b20ef227b</hash></rom></dump>
+</software>
+<software>
+	<title>Let's Think</title>
+	<system>MSX</system>
+	<company>Al Alamiah</company>
+	<year>1987</year>
+	<country>KW</country>
+		<dump><rom><hash>99107515d4985c101ed73cf45e27e3405fd62ca4</hash></rom></dump>
 </software>
 <software>
 	<title>Libreway</title>
@@ -7294,6 +7333,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>35abd4a14033710730da72edf278aad42d641621</hash></rom></dump>
 		<dump><rom><hash>3d107526c16ebbd43bb0e9e5be030531d5466ab0</hash></rom></dump>
+		<dump><rom><hash>35fdd1079a0ae5644de96cbc78d5ea766d2aa78e</hash><remark>Zemina hack</remark></rom></dump>
 </software>
 <software>
 	<title>MSX Shogi Game</title>
@@ -8387,6 +8427,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>7b6029bfd7cb4b9d4c5ec5b9b3e3c93d00558b5e</hash></rom></dump>
 </software>
 <software>
+	<title>Mr Wong''s Loopy Laundy</title>
+	<system>MSX</system>
+	<company>Artic Computing</company>
+	<year>1984</year>
+	<country>UK</country>
+		<dump><rom><hash>0b69f92b793911521e29a479a7ca3093bd38c229</hash></rom></dump>
+</software>
+<software>
 	<title>Mr. Balloon</title>
 	<system>MSX</system>
 	<company>Mapax</company>
@@ -9029,13 +9077,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>bb8f2d98925c0d407c78b88f77a9c0e3a759c021</hash></rom></dump>
 </software>
 <software>
-	<title>Our Arab World</title>
+	<title>Our Arabic World</title>
 	<genmsxid>1948</genmsxid>
 	<system>MSX</system>
 	<company>Al Alamiah</company>
 	<year>1987</year>
 	<country>KW</country>
 		<dump><rom><hash>6918679b2be2d014b60b4025a3877dee9ad5f407</hash></rom></dump>
+		<dump><rom><hash>6c684481c42106c1e8e5bfa5261a9d8cfde3323f</hash></rom></dump>
 </software>
 <software>
 	<title>Outrun</title>
@@ -12406,6 +12455,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1985</year>
 	<country>KW</country>
 		<dump><rom><hash>2f1aacc5d18973e59f9eafa20d7ffddca34d0ef9</hash></rom></dump>
+		<dump><rom><hash>e9d7957a45ef0ac4cb2b206af424332081d3d3cb</hash></rom></dump>
 </software>
 <software>
 	<title>Test your Intelligence 2</title>
@@ -12919,6 +12969,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1984</year>
 	<country>JP</country>
 		<dump><rom><hash>e93da3d1910d513dbb78ad599adbb05eb92b5930</hash></rom></dump>
+</software>
+<software>
+	<title>Trip to Mecca</title>
+	<system>MSX</system>
+	<company>Al Alamiah</company>
+	<year>1986</year>
+	<country>KW</country>
+		<dump><rom><hash>01e58fa57a8590595cb3cf5370e60ed53302e93d</hash></rom></dump>
 </software>
 <software>
 	<title>Tritorn</title>
@@ -13477,6 +13535,15 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>KR</country>
 		<dump><megarom><type>Konami</type><hash>f98f9c0fd32b2392b57b14105a9b730c8957d9b9</hash><remark>Very Rare Korean ROM</remark></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash>c7035f1e915d29eb6e3e44456570911881430d89</hash></megarom></dump>
+</software>
+<software>
+	<title>Wonderfull Child</title>
+	<genmsxid>1972</genmsxid>
+	<system>MSX</system>
+	<company>Al Alamiah</company>
+	<year>1985</year>
+	<country>KW</country>
+		<dump><rom><hash>e5a347daa39098a38918b1fceb756d93bbcf1dd0</hash></rom></dump>
 </software>
 <software>
 	<title>Woody Poco</title>
@@ -16475,4 +16542,4 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:4080 - Created on Sat Sep 14 2019 - 10:06:45 AKDT-->
+<!-- Roms in this XML file:4097 - Created on Mon Sep 16 2019 - 19:29:50 AKDT-->
