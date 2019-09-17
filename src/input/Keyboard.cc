@@ -792,6 +792,7 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 			debug("Key pasted, unicode: 0x%04x, row: %02d, col: %d, modmask: %02x\n",
 			      unicode, keyInfo.pos.getRow(), keyInfo.pos.getColumn(), modmask);
 			// Workaround MSX-BIOS(?) bug/limitation:
+			//
 			// Under these conditions:
 			// - Typing a graphical MSX character 00-1F (such a char 'x' gets
 			//   printed as chr$(1) followed by chr$(x+64)).
@@ -803,14 +804,27 @@ int Keyboard::pressAscii(unsigned unicode, bool down)
 			// When first SHIFT+GRAPH is pressed, and only one frame later the
 			// other keys is pressed (additionally), this problem seems to
 			// disappear.
-			if (modmask == (KeyInfo::SHIFT_MASK | KeyInfo::GRAPH_MASK)) {
+			//
+			// After implementing the above we found that a similar problem
+			// occurs when:
+			// - a GRAPH + <x> (without SHIFT) key combo is typed
+			// - immediately after a key combo with GRAPH + SHIFT + <x>.
+			// For example:
+			//   type "\u2666\u266a"
+			// from time to time 2nd character got wrongly typed as a
+			// 'M' (instead of a musical note symbol). But typing a sequence
+			// of \u266a chars without a preceding \u2666 just works.
+			//
+			// To fix both these problems (and possibly still undiscovered
+			// variations), I'm now extending the workaround to all characters
+			// that are typed via a key combination that includes GRAPH.
+			if (modmask & KeyInfo::GRAPH_MASK) {
 				auto isPressed = [&](auto& key) {
 					return (typeKeyMatrix[key.getRow()] & key.getMask()) == 0;
 				};
-				if (!isPressed(modifierPos[KeyInfo::SHIFT]) ||
-				    !isPressed(modifierPos[KeyInfo::GRAPH])) {
-					// SHIFT+GRAPH not yet pressed ->
-					//  first press those before adding the 3rd key
+				if (!isPressed(modifierPos[KeyInfo::GRAPH])) {
+					// GRAPH not yet pressed ->
+					//  first press it before adding the non-modifier key
 					releaseMask = TRY_AGAIN;
 				}
 			}
