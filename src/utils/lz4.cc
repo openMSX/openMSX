@@ -16,6 +16,13 @@
 #  pragma warning(disable : 4293)  // disable: C4293: too large shift (32-bits)
 #endif
 
+// 32 or 64 bits ?
+#if (defined(__x86_64__) || defined(__x86_64) || defined(__amd64__) || defined(__amd64) || defined(__ppc64__) || defined(_WIN64) || defined(__LP64__) || defined(_LP64) )
+#  define LZ4_ARCH64 1
+#else
+#  define LZ4_ARCH64 0
+#endif
+
 namespace LZ4 {
 
 static const int MEMORY_USAGE = 14;
@@ -39,7 +46,6 @@ static const uint32_t SKIP_TRIGGER = 6;  // Increase this value ==> compression 
 
 using reg_t = uintptr_t;
 static const int STEPSIZE = sizeof(reg_t);
-static const bool ARCH64 = sizeof(void*) == 8;
 
 
 static reg_t read_ARCH(const uint8_t* p)
@@ -132,7 +138,8 @@ static void memcpy_using_offset(uint8_t* dstPtr, const uint8_t* srcPtr, uint8_t*
 
 static inline int NbCommonBytes(size_t val)
 {
-	if (ARCH64 && openmsx::OPENMSX_BIGENDIAN) {
+#if LZ4_ARCH64
+	if (openmsx::OPENMSX_BIGENDIAN) {
 #ifdef _MSC_VER
 		unsigned long r;
 		_BitScanReverse64(&r, val);
@@ -146,7 +153,7 @@ static inline int NbCommonBytes(size_t val)
 		r += !val;
 		return r;
 #endif
-	} else if (ARCH64 && !openmsx::OPENMSX_BIGENDIAN) {
+	} else {
 #ifdef _MSC_VER
 		unsigned long r;
 		_BitScanForward64(&r, val);
@@ -162,7 +169,11 @@ static inline int NbCommonBytes(size_t val)
 		};
 		return DeBruijnBytePos[(uint64_t((val & -val) * 0x0218A392CDABBD3F)) >> 58];
 #endif
-	} else if (!ARCH64 && openmsx::OPENMSX_BIGENDIAN) {
+	}
+
+#else // LZ4_ARCH64
+
+	if (openmsx::OPENMSX_BIGENDIAN) {
 #ifdef _MSC_VER
 		unsigned long r;
 		_BitScanReverse(&r, val);
@@ -176,7 +187,6 @@ static inline int NbCommonBytes(size_t val)
 		return r;
 #endif
 	} else {
-	//} else if (!ARCH64 && !openmsx::OPENMSX_BIGENDIAN) {
 #ifdef _MSC_VER
 		unsigned long r;
 		_BitScanForward(&r, val);
@@ -191,6 +201,7 @@ static inline int NbCommonBytes(size_t val)
 		return DeBruijnBytePos[(uint32_t((val & -val) * 0x077CB531U)) >> 27];
 #endif
 	}
+#endif // LZ4_ARCH64
 }
 
 ALWAYS_INLINE unsigned count(const uint8_t* pIn, const uint8_t* pMatch, const uint8_t* pInLimit)
@@ -505,9 +516,9 @@ _last_literals:
 int compress(const uint8_t* src, uint8_t* dst, int srcSize)
 {
 	if (srcSize < LIMIT_64K) {
-		return compress_impl<true, ARCH64>(src, dst, srcSize);
+		return compress_impl<true, LZ4_ARCH64>(src, dst, srcSize);
 	} else {
-		return compress_impl<false, ARCH64>(src, dst, srcSize);
+		return compress_impl<false, LZ4_ARCH64>(src, dst, srcSize);
 	}
 }
 
