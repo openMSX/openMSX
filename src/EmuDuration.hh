@@ -1,5 +1,5 @@
-#ifndef EMUDUARTION_HH
-#define EMUDUARTION_HH
+#ifndef EMUDURATION_HH
+#define EMUDURATION_HH
 
 #include "serialize.hh"
 #include <cassert>

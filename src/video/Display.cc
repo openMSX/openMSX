@@ -123,7 +123,7 @@ OutputSurface* Display::getOutputSurface()
 void Display::resetVideoSystem()
 {
 	videoSystem.reset();
-	// At this point all layers expect for the Video9000 layer
+	// At this point all layers except for the Video9000 layer
 	// should be gone.
 	//assert(layers.empty());
 }
@@ -261,7 +261,7 @@ void Display::checkRendererSwitch()
 	if ((newRenderer != currentRenderer) ||
 	    !getVideoSystem().checkSettings()) {
 		currentRenderer = newRenderer;
-		// don't do the actualing swithing in the Tcl callback
+		// don't do the actual switching in the Tcl callback
 		// it seems creating and destroying Settings (= Tcl vars)
 		// causes problems???
 		switchInProgress = true;

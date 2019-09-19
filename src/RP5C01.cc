@@ -256,18 +256,18 @@ template<typename Archive>
 void RP5C01::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("reference", reference,
-                     "fraction",  fraction,
-                     "seconds",   seconds,
-                     "minutes",   minutes,
-                     "hours",     hours,
-                     "dayWeek",   dayWeek,
-                     "years",     years,
-                     "leapYear",  leapYear,
-                     "days",      days,
-                     "months",    months,
-                     "modeReg",   modeReg,
-                     "testReg",   testReg,
-                     "resetReg",  resetReg);
+	             "fraction",  fraction,
+	             "seconds",   seconds,
+	             "minutes",   minutes,
+	             "hours",     hours,
+	             "dayWeek",   dayWeek,
+	             "years",     years,
+	             "leapYear",  leapYear,
+	             "days",      days,
+	             "months",    months,
+	             "modeReg",   modeReg,
+	             "testReg",   testReg,
+	             "resetReg",  resetReg);
 }
 INSTANTIATE_SERIALIZE_METHODS(RP5C01);
 

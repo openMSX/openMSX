@@ -68,7 +68,7 @@ private:
 // Polymorphic class loader/saver
 
 // forward declarations
-// ClassSaver: used to save actually save a class. We also store the name of
+// ClassSaver: used to actually save a class. We also store the name of
 //   the class so that the loader knows which concrete class it should load.
 template<typename T> struct ClassSaver;
 // NonPolymorphicPointerLoader: once we know which concrete type to load,
