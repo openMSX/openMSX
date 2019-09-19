@@ -153,13 +153,17 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 		} else {
 			bool ok;
 			unicode = parseHex(token, ok);
-			if (!ok || unicode > 0xFFFF) {
+			if (!ok || unicode > 0x1FBAF) {
 				throw MSXException("Wrong unicode value in keymap file");
 			}
 		}
 
 		// Parse second token. It must be <ROW><COL>
 		token = nextToken(data);
+		if (token == "--") {
+			// Skip -- for now, it means the character cannot be typed.
+			continue;
+		}
 		bool ok;
 		unsigned rowcol = parseHex(token, ok);
 		if (!ok || rowcol >= 0x100) {
