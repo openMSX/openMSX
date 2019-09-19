@@ -543,15 +543,15 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		pageBorder = pageSplit;
 	}
 
-	if (mode.isBitmapMode()) {
-		// Which bits in the name mask determine the page?
-		int pageMaskOdd = (mode.isPlanar() ? 0x000 : 0x200) |
-		                  vdp.getEvenOddMask();
-		int pageMaskEven = vdp.isMultiPageScrolling()
-		                 ? (pageMaskOdd & ~0x100)
-		                 : pageMaskOdd;
+	if (mode.isBitmapMode()) {		
 
 		for (int y = screenY; y < screenLimitY; y++) {
+			// Which bits in the name mask determine the page?
+			int pageMaskOdd = (mode.isPlanar() ? 0x000 : 0x200) |
+				vdp.getEvenOddMask(y);
+			int pageMaskEven = vdp.isMultiPageScrolling()
+				? (pageMaskOdd & ~0x100)
+				: pageMaskOdd;
 			const int vramLine[2] = {
 				(vram.nameTable.getMask() >> 7) & (pageMaskEven | displayY),
 				(vram.nameTable.getMask() >> 7) & (pageMaskOdd  | displayY)

@@ -67,11 +67,13 @@ VDP::VDP(const DeviceConfig& config)
 	, syncDisplayStart(*this)
 	, syncVScan(*this)
 	, syncHScan(*this)
+	, syncLineScan(*this)
 	, syncHorAdjust(*this)
 	, syncSetMode(*this)
 	, syncSetBlank(*this)
 	, syncCpuVramAccess(*this)
 	, syncCmdDone(*this)
+	, fastBlinkInProgress(false)
 	, display(getReactor().getDisplay())
 	, cmdTiming    (display.getRenderSettings().getCmdTimingSetting())
 	, tooFastAccess(display.getRenderSettings().getTooFastAccessSetting())
@@ -163,7 +165,7 @@ VDP::VDP(const DeviceConfig& config)
 		0x03, 0xFB, 0x0F, 0xFF, 0x07, 0x7F, 0x07, 0xFF  // 00..07
 	};
 	static const byte VALUE_MASKS_MSX2[32] = {
-		0x7E, 0x7B, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
+		0x7E, 0x7F, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
 		0xFB, 0xBF, 0x07, 0x03, 0xFF, 0xFF, 0x07, 0x0F, // 08..15
 		0x0F, 0xBF, 0xFF, 0xFF, 0x3F, 0x3F, 0x3F, 0xFF, // 16..23
 		0,    0,    0,    0,    0,    0,    0,    0,    // 24..31
@@ -178,6 +180,8 @@ VDP::VDP(const DeviceConfig& config)
 		controlValueMasks[26] = 0x3F;
 		controlValueMasks[27] = 0x07;
 	}
+
+	memset(blinkStateMatrix, 0, sizeof(blinkStateMatrix));
 
 	resetInit(); // must be done early to avoid UMRs
 
@@ -320,12 +324,14 @@ void VDP::reset(EmuTime::param time)
 	syncDisplayStart .removeSyncPoint();
 	syncVScan        .removeSyncPoint();
 	syncHScan        .removeSyncPoint();
+	syncLineScan     .removeSyncPoint();
 	syncHorAdjust    .removeSyncPoint();
 	syncSetMode      .removeSyncPoint();
 	syncSetBlank     .removeSyncPoint();
 	syncCpuVramAccess.removeSyncPoint();
 	syncCmdDone      .removeSyncPoint();
 	pendingCpuAccess = false;
+	fastBlinkInProgress = false;
 
 	// Reset subsystems.
 	cmdEngine->sync(time);
@@ -341,6 +347,7 @@ void VDP::reset(EmuTime::param time)
 	frameCount = -1;
 	frameStart(time);
 	assert(frameCount == 0);
+	memset(blinkStateMatrix, 0, sizeof(blinkStateMatrix));
 }
 
 void VDP::execVSync(EmuTime::param time)
@@ -391,6 +398,29 @@ void VDP::execHScan()
 	// Horizontal scanning occurs.
 	if (controlRegs[0] & 0x10) {
 		irqHorizontal.set();
+	}
+}
+
+void VDP::execLineScan(EmuTime::param time)
+{
+	// Blinking.
+	if ((blinkCount != 0) && (controlRegs[1] & 0x04)) { // counter active?
+		int line = getTicksThisFrame(time) / TICKS_PER_LINE;
+		fastBlinkInProgress = true;
+		blinkCount--;
+		if (blinkCount == 0) {
+			renderer->updateBlinkState(!blinkState, time);
+			blinkState = !blinkState;
+			blinkCount = (blinkState
+				? controlRegs[13] >> 4 : controlRegs[13] & 0x0F) * 10;
+		}
+		blinkStateMatrix[line] = blinkState;
+		syncAtNextLine(syncLineScan, time);
+	}
+	else
+	{
+		fastBlinkInProgress = false;
+		memset(blinkStateMatrix, 0, sizeof(blinkStateMatrix));
 	}
 }
 
@@ -558,6 +588,19 @@ void VDP::scheduleHScan(EmuTime::param time)
 	}
 }
 
+void VDP::scheduleNextLineScan(EmuTime::param time)
+{
+	if (!fastBlinkInProgress)
+	{
+		// Remove pending LSCAN sync point, if any.
+		syncLineScan.removeSyncPoint();
+
+		fastBlinkInProgress = true;
+		// Schedule next SYNC.
+		syncAtNextLine(syncLineScan, time);
+	}
+}
+
 // TODO: inline?
 // TODO: Is it possible to get rid of this routine and its sync point?
 //       VSYNC, HSYNC and DISPLAY_START could be scheduled for the next
@@ -580,10 +623,10 @@ void VDP::frameStart(EmuTime::param time)
 	// TODO: Interlace is effectuated in border height, according to
 	//       the data book. Exactly when is the fixation point?
 	palTiming = (controlRegs[9] & 0x02) != 0;
-	interlaced = (controlRegs[9] & 0x08) != 0;
+	interlaced = (controlRegs[1] & 0x04) ? false : (controlRegs[9] & 0x08) != 0;
 
-	// Blinking.
-	if (blinkCount != 0) { // counter active?
+	// Blinking.	
+	if ((blinkCount != 0) && ( !(controlRegs[1] & 0x04 ))) { // counter active?
 		blinkCount--;
 		if (blinkCount == 0) {
 			renderer->updateBlinkState(!blinkState, time);
@@ -1001,6 +1044,8 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 			// Stable color.
 			blinkCount = 0;
 		}
+		if (controlRegs[1] & 0x04)
+			scheduleNextLineScan(time);
 	}
 
 	if (!change) return;
@@ -1127,6 +1172,11 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		}
 		break;
 	case 1:
+		if (change & 0x04) { // Cadari Bit
+			if (val & 0x04) {
+				scheduleNextLineScan(time);
+			}
+		}
 		if (change & 0x20) { // IE0
 			if (val & 0x20) {
 				// This behaviour is important. Without it,

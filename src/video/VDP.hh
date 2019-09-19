@@ -346,7 +346,7 @@ public:
 	  * @return True iff even/odd page alternation is enabled.
 	  */
 	inline bool isEvenOddEnabled() const {
-		return (controlRegs[9] & 4) != 0;
+		return (controlRegs[1] & 0x04) ? false : (controlRegs[9] & 4) != 0;
 	}
 
 	/** Is the even or odd field being displayed?
@@ -370,6 +370,31 @@ public:
 		// TODO: Verify which page is displayed on even fields.
 		return (((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7)) &
 		       (!blinkState << 8);
+	}
+
+	/** Expresses the state of even/odd page interchange in a mask
+	  * on the line number. If even/odd interchange is active, for some
+	  * frames lines 256..511 (page 1) are replaced by 0..255 (page 0)
+	  * and 768..1023 (page 3, if appicable) by 512..767 (page 2).
+	  * Together with the interlace setting this can be used to create
+	  * an interlaced display.
+	  * Even/odd interchange can also happen because of the 'blink'
+	  * feature in bitmap modes.
+	  * This version allow pulling the Mask Line per line, as it can
+	  * be affected by VDP R#1 third bit, if set, it will switch pages
+	  * not based on VSYNC but on HSYNC, changing page multiple times.
+	  * @return Line number mask that expressed even/odd state.
+	  */
+	inline int getEvenOddMask(int Line) const {
+		// TODO: Verify which page is displayed on even fields.
+		if (controlRegs[1] & 4)
+		{
+			return (((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7)) &
+				(!blinkStateMatrix[Line] << 8);
+		}
+		else
+			return (((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7)) &
+				(!blinkState << 8);
 	}
 
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between
@@ -645,6 +670,14 @@ private:
 		}
 	} syncHScan;
 
+	struct SyncLineScan final : public SyncBase {
+		explicit SyncLineScan(VDP& vdp) : SyncBase(vdp) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncLineScan);
+			vdp.execLineScan(time);
+		}
+	} syncLineScan;
+
 	struct SyncHorAdjust final : public SyncBase {
 		explicit SyncHorAdjust(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
@@ -689,6 +722,7 @@ private:
 	void execDisplayStart(EmuTime::param time);
 	void execVScan(EmuTime::param time);
 	void execHScan();
+	void execLineScan(EmuTime::param time);
 	void execHorAdjust(EmuTime::param time);
 	void execSetMode(EmuTime::param time);
 	void execSetBlank(EmuTime::param time);
@@ -778,6 +812,13 @@ private:
 	  *   Note: time is not the HSCAN sync time!
 	  */
 	void scheduleHScan(EmuTime::param time);
+
+	/** Schedules a LineSCAN sync point.
+	  * Also removes a pending LSCAN sync, if any.
+	  * @param time The moment in emulated time this call takes place.
+	  *   Note: time is not the LineSCAN sync time!
+	  */
+	void scheduleNextLineScan(EmuTime::param time);
 
 	/** Byte is written to VRAM by the CPU.
 	  */
@@ -1002,6 +1043,11 @@ private:
 	  */
 	int frameCount;
 
+	/*	Identify if Cadari's Bit Blinking proccess is in progress.
+	  */
+
+	bool fastBlinkInProgress;
+
 	/** VDP ticks between start of frame and start of display.
 	  */
 	int displayStart;
@@ -1086,6 +1132,7 @@ private:
 	/** Blinking state: should alternate color / page be displayed?
 	  */
 	bool blinkState;
+	bool blinkStateMatrix[314];
 
 	/** First byte written through port #99, #9A or #9B.
 	  */
