@@ -389,8 +389,8 @@ public:
 		// TODO: Verify which page is displayed on even fields.
 		if (controlRegs[1] & 4)
 		{
-			return (((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7)) &
-				(!blinkStateMatrix[Line] << 8);
+			//EO and IL not considered when this bit is set
+			return (!blinkStateMatrix[Line] << 8);
 		}
 		else
 			return (((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7)) &
