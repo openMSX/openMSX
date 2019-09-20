@@ -67,7 +67,6 @@ VDP::VDP(const DeviceConfig& config)
 	, syncDisplayStart(*this)
 	, syncVScan(*this)
 	, syncHScan(*this)
-	, syncLineScan(*this)
 	, syncHorAdjust(*this)
 	, syncSetMode(*this)
 	, syncSetBlank(*this)
@@ -181,8 +180,6 @@ VDP::VDP(const DeviceConfig& config)
 		controlValueMasks[27] = 0x07;
 	}
 
-	memset(blinkStateMatrix, 0, sizeof(blinkStateMatrix));
-
 	resetInit(); // must be done early to avoid UMRs
 
 	// Video RAM.
@@ -274,6 +271,7 @@ void VDP::resetInit()
 	paletteDataStored = false;
 	blinkState = false;
 	blinkCount = 0;
+	blinkPreviousFrameRemainder = 0;
 	horizontalAdjust = 7;
 
 	// TODO: Real VDP probably resets timing as well.
@@ -324,7 +322,6 @@ void VDP::reset(EmuTime::param time)
 	syncDisplayStart .removeSyncPoint();
 	syncVScan        .removeSyncPoint();
 	syncHScan        .removeSyncPoint();
-	syncLineScan     .removeSyncPoint();
 	syncHorAdjust    .removeSyncPoint();
 	syncSetMode      .removeSyncPoint();
 	syncSetBlank     .removeSyncPoint();
@@ -347,16 +344,24 @@ void VDP::reset(EmuTime::param time)
 	frameCount = -1;
 	frameStart(time);
 	assert(frameCount == 0);
-	memset(blinkStateMatrix, 0, sizeof(blinkStateMatrix));
+	blinkPreviousFrameRemainder = 0;
 }
 
 void VDP::execVSync(EmuTime::param time)
 {
 	// This frame is finished.
 	// Inform VDP subcomponents.
-	// TODO: Do this via VDPVRAM?
+	// TODO: Do this via VDPVRAM?	
 	renderer->frameEnd(time);
 	spriteChecker->frameEnd(time);
+
+	// If Cadari Bit is set
+	if (controlRegs[1] & 0x04)
+	{
+		// need to calculate blinkPreviousFrameRemainder and blinkState
+		blinkState = calculateLineBlinkState(palTiming ? 313 : 262,&blinkPreviousFrameRemainder);
+	}
+	
 	// Start next frame.
 	frameStart(time);
 }
@@ -398,29 +403,6 @@ void VDP::execHScan()
 	// Horizontal scanning occurs.
 	if (controlRegs[0] & 0x10) {
 		irqHorizontal.set();
-	}
-}
-
-void VDP::execLineScan(EmuTime::param time)
-{
-	// Blinking.
-	if ((blinkCount != 0) && (controlRegs[1] & 0x04)) { // counter active?
-		int line = getTicksThisFrame(time) / TICKS_PER_LINE;
-		fastBlinkInProgress = true;
-		blinkCount--;
-		if (blinkCount == 0) {
-			renderer->updateBlinkState(!blinkState, time);
-			blinkState = !blinkState;
-			blinkCount = (blinkState
-				? controlRegs[13] >> 4 : controlRegs[13] & 0x0F) * 10;
-		}
-		blinkStateMatrix[line] = blinkState;
-		syncAtNextLine(syncLineScan, time);
-	}
-	else
-	{
-		fastBlinkInProgress = false;
-		memset(blinkStateMatrix, 0, sizeof(blinkStateMatrix));
 	}
 }
 
@@ -585,19 +567,6 @@ void VDP::scheduleHScan(EmuTime::param time)
 		if (hScanSyncTime > time) {
 			syncHScan.setSyncPoint(hScanSyncTime);
 		}
-	}
-}
-
-void VDP::scheduleNextLineScan(EmuTime::param time)
-{
-	if (!fastBlinkInProgress)
-	{
-		// Remove pending LSCAN sync point, if any.
-		syncLineScan.removeSyncPoint();
-
-		fastBlinkInProgress = true;
-		// Schedule next SYNC.
-		syncAtNextLine(syncLineScan, time);
 	}
 }
 
@@ -1045,7 +1014,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 			blinkCount = 0;
 		}
 		if (controlRegs[1] & 0x04)
-			scheduleNextLineScan(time);
+			blinkPreviousFrameRemainder = 0;
 	}
 
 	if (!change) return;
@@ -1172,11 +1141,6 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		}
 		break;
 	case 1:
-		if (change & 0x04) { // Cadari Bit
-			if (val & 0x04) {
-				scheduleNextLineScan(time);
-			}
-		}
 		if (change & 0x20) { // IE0
 			if (val & 0x20) {
 				// This behaviour is important. Without it,

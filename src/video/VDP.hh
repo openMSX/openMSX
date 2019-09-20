@@ -390,11 +390,90 @@ public:
 		if (controlRegs[1] & 4)
 		{
 			//EO and IL not considered when this bit is set
-			return (!blinkStateMatrix[Line] << 8);
+			return (!calculateLineBlinkState(Line) << 8);
 		}
 		else
 			return (((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7)) &
 				(!blinkState << 8);
+	}
+
+	/** Calculates what should be the page used to drawn a given line when R1
+	  * third bit is set. If a RemainingCount variable pointer is passed, also
+	  * tell the state of blink counter on that given line.
+	  * @return whether blinkState was on or off during that line
+	  */
+	inline bool calculateLineBlinkState(int Line, int * RemainingCount = NULL) const {
+		int EvenCounter = (controlRegs[13] >> 4 & 0x0F) * 10;
+		int OddCounter = (controlRegs[13] & 0x0F) * 10;
+		int RemainingLines;		
+
+		if ((EvenCounter == 0) && (OddCounter == 0))
+		{
+			if (RemainingCount)
+				*RemainingCount = 0;
+			return false;
+		}
+
+		if (!blinkState)
+		{			
+			//Ok, so we start counting odd page			
+			if (Line < (OddCounter - blinkPreviousFrameRemainder))
+			{
+				if (RemainingCount)
+					*RemainingCount = blinkPreviousFrameRemainder + Line;
+				// Not enough to change
+				return blinkState;
+			}
+			RemainingLines = Line - (OddCounter - blinkPreviousFrameRemainder);
+			//Ok, this is # of lines after we know blinkState is true / even page
+			if (RemainingLines)
+			{
+				RemainingLines = RemainingLines % (EvenCounter + OddCounter);
+				if (RemainingCount)
+					*RemainingCount = (RemainingLines >= EvenCounter) ? (RemainingLines - EvenCounter) : RemainingLines;
+				//Here Remaining Lines after last time it was true 
+				if ((RemainingLines) && (RemainingLines >= EvenCounter))		
+					return false; //enough lines to flip even counter, so odd page
+				else //not enough lines to flip even counter, so even page
+					return true;
+			}
+			else
+			{
+				if (RemainingCount)
+					*RemainingCount = 0;
+				return true;
+			}
+		}
+		else
+		{
+			//Ok, so we start counting even page
+			if (Line < (EvenCounter - blinkPreviousFrameRemainder))
+			{
+				if (RemainingCount)
+					*RemainingCount = blinkPreviousFrameRemainder + Line;
+				// Not enough to change
+				return blinkState;
+			}
+			RemainingLines = Line - (OddCounter - blinkPreviousFrameRemainder);
+			//Ok, this is # of lines after we know blinkState is false / odd page
+			if (RemainingLines)
+			{
+				RemainingLines = RemainingLines % (EvenCounter + OddCounter);
+				if (RemainingCount)
+					*RemainingCount = (RemainingLines >= OddCounter) ? (RemainingLines - OddCounter) : RemainingLines;
+				//Here Remaining Lines after last time it was false
+				if ((RemainingLines) && (RemainingLines >= OddCounter))
+					return true; //enough lines to flip odd counter, so even page
+				else //not enough lines to flip odd counter, so odd page
+					return false;
+			}
+			else
+			{
+				if (RemainingCount)
+					*RemainingCount = 0;
+				return false;
+			}				
+		}
 	}
 
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between
@@ -670,14 +749,6 @@ private:
 		}
 	} syncHScan;
 
-	struct SyncLineScan final : public SyncBase {
-		explicit SyncLineScan(VDP& vdp) : SyncBase(vdp) {}
-		void executeUntil(EmuTime::param time) override {
-			auto& vdp = OUTER(VDP, syncLineScan);
-			vdp.execLineScan(time);
-		}
-	} syncLineScan;
-
 	struct SyncHorAdjust final : public SyncBase {
 		explicit SyncHorAdjust(VDP& vdp) : SyncBase(vdp) {}
 		void executeUntil(EmuTime::param time) override {
@@ -812,13 +883,6 @@ private:
 	  *   Note: time is not the HSCAN sync time!
 	  */
 	void scheduleHScan(EmuTime::param time);
-
-	/** Schedules a LineSCAN sync point.
-	  * Also removes a pending LSCAN sync, if any.
-	  * @param time The moment in emulated time this call takes place.
-	  *   Note: time is not the LineSCAN sync time!
-	  */
-	void scheduleNextLineScan(EmuTime::param time);
 
 	/** Byte is written to VRAM by the CPU.
 	  */
@@ -1085,6 +1149,8 @@ private:
 	  */
 	int blinkCount;
 
+	int blinkPreviousFrameRemainder;
+
 	/** VRAM read/write access pointer.
 	  * Contains the lower 14 bits of the current VRAM access address.
 	  */
@@ -1132,7 +1198,6 @@ private:
 	/** Blinking state: should alternate color / page be displayed?
 	  */
 	bool blinkState;
-	bool blinkStateMatrix[314];
 
 	/** First byte written through port #99, #9A or #9B.
 	  */
