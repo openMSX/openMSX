@@ -1107,11 +1107,6 @@ private:
 	  */
 	int frameCount;
 
-	/*	Identify if Cadari's Bit Blinking proccess is in progress.
-	  */
-
-	bool fastBlinkInProgress;
-
 	/** VDP ticks between start of frame and start of display.
 	  */
 	int displayStart;
@@ -1257,7 +1252,7 @@ private:
 	MSXCPU& cpu;
 	const byte fixedVDPIOdelayCycles;
 };
-SERIALIZE_CLASS_VERSION(VDP, 8);
+SERIALIZE_CLASS_VERSION(VDP, 9);
 
 } // namespace openmsx
 

@@ -72,7 +72,6 @@ VDP::VDP(const DeviceConfig& config)
 	, syncSetBlank(*this)
 	, syncCpuVramAccess(*this)
 	, syncCmdDone(*this)
-	, fastBlinkInProgress(false)
 	, display(getReactor().getDisplay())
 	, cmdTiming    (display.getRenderSettings().getCmdTimingSetting())
 	, tooFastAccess(display.getRenderSettings().getTooFastAccessSetting())
@@ -328,7 +327,6 @@ void VDP::reset(EmuTime::param time)
 	syncCpuVramAccess.removeSyncPoint();
 	syncCmdDone      .removeSyncPoint();
 	pendingCpuAccess = false;
-	fastBlinkInProgress = false;
 
 	// Reset subsystems.
 	cmdEngine->sync(time);
@@ -1779,10 +1777,15 @@ int VDP::MsxX512PosInfo::calc(const EmuTime& time) const
 // version 6: added cpuVramReqAddr to solve too_fast_vram_access issue
 // version 7: removed cpuVramReqAddr again, fixed issue in a different way
 // version 8: removed 'userData' from Schedulable
+// version 9: add blinkPreviousFrameRemainder
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned serVersion)
 {
 	ar.template serializeBase<MSXDevice>(*this);
+
+	if (ar.versionAtLeast(serVersion, 9)) {
+		ar.serialize("blinkPreviousFrameRemainder", blinkPreviousFrameRemainder);
+	}
 
 	if (ar.versionAtLeast(serVersion, 8)) {
 		ar.serialize("syncVSync",         syncVSync,
