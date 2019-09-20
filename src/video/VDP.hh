@@ -359,7 +359,7 @@ public:
 	/** Expresses the state of even/odd page interchange in a mask
 	  * on the line number. If even/odd interchange is active, for some
 	  * frames lines 256..511 (page 1) are replaced by 0..255 (page 0)
-	  * and 768..1023 (page 3, if appicable) by 512..767 (page 2).
+	  * and 768..1023 (page 3, if applicable) by 512..767 (page 2).
 	  * Together with the interlace setting this can be used to create
 	  * an interlaced display.
 	  * Even/odd interchange can also happen because of the 'blink'
@@ -375,7 +375,7 @@ public:
 	/** Expresses the state of even/odd page interchange in a mask
 	  * on the line number. If even/odd interchange is active, for some
 	  * frames lines 256..511 (page 1) are replaced by 0..255 (page 0)
-	  * and 768..1023 (page 3, if appicable) by 512..767 (page 2).
+	  * and 768..1023 (page 3, if applicable) by 512..767 (page 2).
 	  * Together with the interlace setting this can be used to create
 	  * an interlaced display.
 	  * Even/odd interchange can also happen because of the 'blink'
