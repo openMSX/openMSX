@@ -2582,26 +2582,13 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 	scheduler.schedule(T::getTime());
 	setSlowInstructions();
 
-	if (!fastForward && (interface->isContinue() || interface->isStep())) {
-		// at least one instruction
-		interface->setContinue(false);
-		executeSlow(getExecIRQ());
-		scheduler.schedule(T::getTimeFast());
-		--slowInstructions;
-		if (interface->isStep()) {
-			interface->setStep(false);
-			interface->doBreak();
-			return;
-		}
-	}
-
 	// Note: we call scheduler _after_ executing the instruction and before
 	// deciding between executeFast() and executeSlow() (because a
 	// SyncPoint could set an IRQ and then we must choose executeSlow())
 	if (fastForward ||
 	    (!interface->anyBreakPoints() && !tracingEnabled)) {
 		// fast path, no breakpoints, no tracing
-		while (!needExitCPULoop()) {
+		do {
 			if (slowInstructions) {
 				--slowInstructions;
 				executeSlow(getExecIRQ());
@@ -2620,9 +2607,24 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 					if (needExitCPULoop()) return;
 				}
 			}
-		}
+		} while (!needExitCPULoop());
 	} else {
-		while (!needExitCPULoop()) {
+		do {
+			if (slowInstructions == 0) {
+				cpuTracePre();
+				assert(T::limitReached()); // only one instruction
+				executeInstructions();
+				endInstruction();
+				cpuTracePost();
+			} else {
+				--slowInstructions;
+				executeSlow(getExecIRQ());
+			}
+			// Don't use getTimeFast() here, we need a call to
+			// CPUClock::sync() 'once in a while'. (During a
+			// reverse fast-forward this wasn't always the case).
+			scheduler.schedule(T::getTime());
+
 			// Only check for breakpoints when we're not about to jump to an IRQ handler.
 			//
 			// This fixes the following problem reported by Grauw:
@@ -2660,21 +2662,7 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 				assert(interface->isBreaked());
 				break;
 			}
-			if (slowInstructions == 0) {
-				cpuTracePre();
-				assert(T::limitReached()); // only one instruction
-				executeInstructions();
-				endInstruction();
-				cpuTracePost();
-			} else {
-				--slowInstructions;
-				executeSlow(execIRQ);
-			}
-			// Don't use getTimeFast() here, we need a call to
-			// CPUClock::sync() 'once in a while'. (During a
-			// reverse fast-forward this wasn't always the case).
-			scheduler.schedule(T::getTime());
-		}
+		} while (!needExitCPULoop());
 	}
 }
 
