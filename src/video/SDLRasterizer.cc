@@ -544,14 +544,19 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	}
 
 	if (mode.isBitmapMode()) {
-		// Which bits in the name mask determine the page?
-		int pageMaskOdd = (mode.isPlanar() ? 0x000 : 0x200) |
-		                  vdp.getEvenOddMask();
-		int pageMaskEven = vdp.isMultiPageScrolling()
-		                 ? (pageMaskOdd & ~0x100)
-		                 : pageMaskOdd;
-
 		for (int y = screenY; y < screenLimitY; y++) {
+			// Which bits in the name mask determine the page?
+			// TODO optimize this?
+			//   Calculating pageMaskOdd/Even is a non-trivial amount
+			//   of work. We used to do this per frame (more or less)
+			//   but now do it per line. Per-line is actually only
+			//   needed when vdp.isFastBlinkEnabled() is true.
+			//   Idea: can be cheaply calculated incrementally.
+			int pageMaskOdd = (mode.isPlanar() ? 0x000 : 0x200) |
+				vdp.getEvenOddMask(y);
+			int pageMaskEven = vdp.isMultiPageScrolling()
+				? (pageMaskOdd & ~0x100)
+				: pageMaskOdd;
 			const int vramLine[2] = {
 				(vram.nameTable.getMask() >> 7) & (pageMaskEven | displayY),
 				(vram.nameTable.getMask() >> 7) & (pageMaskOdd  | displayY)

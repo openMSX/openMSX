@@ -163,7 +163,7 @@ VDP::VDP(const DeviceConfig& config)
 		0x03, 0xFB, 0x0F, 0xFF, 0x07, 0x7F, 0x07, 0xFF  // 00..07
 	};
 	static const byte VALUE_MASKS_MSX2[32] = {
-		0x7E, 0x7B, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
+		0x7E, 0x7F, 0x7F, 0xFF, 0x3F, 0xFF, 0x3F, 0xFF, // 00..07
 		0xFB, 0xBF, 0x07, 0x03, 0xFF, 0xFF, 0x07, 0x0F, // 08..15
 		0x0F, 0xBF, 0xFF, 0xFF, 0x3F, 0x3F, 0x3F, 0xFF, // 16..23
 		0,    0,    0,    0,    0,    0,    0,    0,    // 24..31
@@ -350,6 +350,13 @@ void VDP::execVSync(EmuTime::param time)
 	// TODO: Do this via VDPVRAM?
 	renderer->frameEnd(time);
 	spriteChecker->frameEnd(time);
+
+	if (isFastBlinkEnabled()) {
+		// adjust blinkState and blinkCount for next frame
+		std::tie(blinkState, blinkCount) =
+			calculateLineBlinkState(getLinesPerFrame());
+	}
+
 	// Start next frame.
 	frameStart(time);
 }
@@ -580,10 +587,10 @@ void VDP::frameStart(EmuTime::param time)
 	// TODO: Interlace is effectuated in border height, according to
 	//       the data book. Exactly when is the fixation point?
 	palTiming = (controlRegs[9] & 0x02) != 0;
-	interlaced = (controlRegs[9] & 0x08) != 0;
+	interlaced = !isFastBlinkEnabled() && ((controlRegs[9] & 0x08) != 0);
 
 	// Blinking.
-	if (blinkCount != 0) { // counter active?
+	if ((blinkCount != 0) && !isFastBlinkEnabled()) { // counter active?
 		blinkCount--;
 		if (blinkCount == 0) {
 			renderer->updateBlinkState(!blinkState, time);
@@ -1001,6 +1008,10 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 			// Stable color.
 			blinkCount = 0;
 		}
+		// TODO when 'isFastBlinkEnabled()==true' the variables
+		// 'blinkState' and 'blinkCount' represent the values at line 0.
+		// This implementation is not correct for the partial remaining
+		// frame after register 13 got changed.
 	}
 
 	if (!change) return;

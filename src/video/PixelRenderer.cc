@@ -465,6 +465,10 @@ inline bool PixelRenderer::checkSync(int offset, EmuTime::param time)
 		return false;
 	case DisplayMode::GRAPHIC4:
 	case DisplayMode::GRAPHIC5: {
+		if (vdp.isFastBlinkEnabled()) {
+			// TODO could be improved
+			return true;
+		}
 		// Is the address inside the visual page(s)?
 		// TODO: Also look at which lines are touched inside pages.
 		int visiblePage = vram.nameTable.getMask()
