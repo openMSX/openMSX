@@ -424,13 +424,13 @@ public:
 
 		bool resultState = blinkState; // initial guess, adjusted later
 		if (blinkState) {
-			// We start in the 'even' period -> check 'line' counter
-			// againt 'evenLen', and if passed switch to 'odd' period
+			// We start in the 'even' period -> check first for
+			// even/odd transition, next for odd/even
 		} else {
 			// We start in the 'odd' period -> do the opposite
 			std::swap(evenLen, oddLen);
 		}
-		int newCount = evenLen - line;
+		int newCount = blinkCount - line;
 		if (newCount <= 0) {
 			// switch even->odd    (or odd->even)
 			resultState = !resultState;
