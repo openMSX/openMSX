@@ -726,10 +726,10 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 	}
 }
 
-void MSXCPUInterface::insertBreakPoint(const BreakPoint& bp)
+void MSXCPUInterface::insertBreakPoint(BreakPoint bp)
 {
 	auto it = ranges::upper_bound(breakPoints, bp, CompareBreakpoints());
-	breakPoints.insert(it, bp);
+	breakPoints.insert(it, std::move(bp));
 }
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
@@ -822,9 +822,9 @@ void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
 	}
 }
 
-void MSXCPUInterface::setCondition(const DebugCondition& cond)
+void MSXCPUInterface::setCondition(DebugCondition cond)
 {
-	conditions.push_back(cond);
+	conditions.push_back(std::move(cond));
 }
 
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
@@ -961,8 +961,8 @@ void MSXCPUInterface::doBreak()
 void MSXCPUInterface::doStep()
 {
 	assert(!isFastForward());
-	DebugCondition dc(TclObject("debug break"), TclObject("true"), true);
-	setCondition(dc);
+	setCondition(DebugCondition(
+		TclObject("debug break"), TclObject(), true));
 	doContinue();
 }
 

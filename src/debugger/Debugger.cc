@@ -361,7 +361,7 @@ void Debugger::Cmd::setBreakPoint(span<const TclObject> tokens, TclObject& resul
 		word addr = getAddress(getInterpreter(), arguments[0]);
 		BreakPoint bp(addr, command, condition, once);
 		result = strCat("bp#", bp.getId());
-		debugger().motherBoard.getCPUInterface().insertBreakPoint(bp);
+		debugger().motherBoard.getCPUInterface().insertBreakPoint(std::move(bp));
 		break;
 	}
 	}
@@ -573,7 +573,7 @@ void Debugger::Cmd::setCondition(span<const TclObject> tokens, TclObject& result
 		condition = arguments[0];
 		DebugCondition dc(command, condition, once);
 		result = strCat("cond#", dc.getId());
-		debugger().motherBoard.getCPUInterface().setCondition(dc);
+		debugger().motherBoard.getCPUInterface().setCondition(std::move(dc));
 		break;
 	}
 	}

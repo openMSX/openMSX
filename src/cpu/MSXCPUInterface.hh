@@ -213,7 +213,7 @@ public:
 
 	DummyDevice& getDummyDevice() { return *dummyDevice; }
 
-	static void insertBreakPoint(const BreakPoint& bp);
+	static void insertBreakPoint(BreakPoint bp);
 	static void removeBreakPoint(const BreakPoint& bp);
 	using BreakPoints = std::vector<BreakPoint>;
 	static const BreakPoints& getBreakPoints() { return breakPoints; }
@@ -224,7 +224,7 @@ public:
 	using WatchPoints = std::vector<std::shared_ptr<WatchPoint>>;
 	const WatchPoints& getWatchPoints() const { return watchPoints; }
 
-	static void setCondition(const DebugCondition& cond);
+	static void setCondition(DebugCondition cond);
 	static void removeCondition(const DebugCondition& cond);
 	using Conditions = std::vector<DebugCondition>;
 	static const Conditions& getConditions() { return conditions; }
