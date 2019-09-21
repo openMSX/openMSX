@@ -1091,13 +1091,11 @@ void YMF262::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 		// OPL3 mode when bit0=1 otherwise it is OPL2 mode
 		OPL3_mode = v & 0x01;
 
-		// When NEW2 bit is first set, a read from the status register
-		// (once) returns bit 1 set (0x02). This only happens once after
-		// reset, so clearing NEW2 and setting it again doesn't cause
-		// another change in the status register.
-		// This seems strange behaviour to me, but it is what I saw on
-		// a real YMF278. Also see page 10 in the 'OPL4 YMF278B
-		// Application Manual' (though it's not clear on the details).
+		// Verified on real YMF278: When NEW2 bit is first set, a read
+		// from the status register (once) returns bit 1 set (0x02).
+		// This only happens once after reset, so clearing NEW2 and
+		// setting it again doesn't cause another change in the status
+		// register. Also, only bit 1 changes.
 		if ((v & 0x02) && !alreadySignaledNEW2 && isYMF278) {
 			status2 = 0x02;
 			alreadySignaledNEW2 = true;
@@ -1716,6 +1714,10 @@ void YMF262::serialize(Archive& a, unsigned version)
 	            "statusMask",         statusMask);
 	if (a.versionAtLeast(version, 2)) {
 		a.serialize("alreadySignaledNEW2", alreadySignaledNEW2);
+	} else {
+		assert(a.isLoader());
+		alreadySignaledNEW2 = true; // we can't know the actual value,
+									// but 'true' is the safest value
 	}
 
 	// TODO restore more state by rewriting register values
