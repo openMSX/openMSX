@@ -114,7 +114,7 @@ class OpenGL(Package):
 	sourceName = 'gl'
 
 class PortAudio(Package):
-	niceName = 'Port Audio'
+	niceName = 'PortAudio'
 	sourceName = 'portaudio'
 
 class PkgConfig(DownloadablePackage):

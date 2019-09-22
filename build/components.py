@@ -34,7 +34,7 @@ class ALSAMIDI(Component):
 	dependsOn = ('ALSA', )
 
 class PortAudio(Component):
-	niceName = 'Port Audio'
+	niceName = 'PortAudio'
 	makeName = 'PORTAUDIO'
 	dependsOn = ('PORTAUDIO', )
 
