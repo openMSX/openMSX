@@ -1,5 +1,3 @@
-// $Id:$
-
 #include "SVIPrinterPort.hh"
 #include "DummyPrinterPortDevice.hh"
 #include "checked_cast.hh"

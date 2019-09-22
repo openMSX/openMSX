@@ -1,5 +1,3 @@
-// $Id:$
-
 #ifndef SVIPRINTERPORT_HH
 #define SVIPRINTERPORT_HH
 
