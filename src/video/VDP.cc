@@ -643,7 +643,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 	// It seems to originate from the T9769x and for x=C the delay is 1
 	// cycle and for other x it seems the delay is 2 cycles
 	if (fixedVDPIOdelayCycles > 0) {
-		time = cpu.waitCycles(time, fixedVDPIOdelayCycles);
+		time = cpu.waitCyclesZ80(time, fixedVDPIOdelayCycles);
 	}
 
 	assert(isInsideFrame(time));
