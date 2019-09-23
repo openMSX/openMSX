@@ -64,6 +64,19 @@ class Library(object):
 			return '%s/bin/%s' % (distroRoot, scriptName)
 
 	@classmethod
+	def getPkgConfig(cls, distroRoot): # pylint: disable-msg=W0613
+		if distroRoot is None:
+			return 'pkg-config'
+		elif distroRoot.startswith('derived/'):
+			toolsDir = '%s/../tools/bin' % distroRoot
+			for name in listdir(toolsDir):
+				if name.endswith('-pkg-config'):
+					return toolsDir + '/' + name
+			raise RuntimeError('No cross-pkg-config found in 3rdparty build')
+		else:
+			return '%s/bin/pkg-config' % distroRoot
+
+	@classmethod
 	def getHeaders(cls, platform): # pylint: disable-msg=W0613
 		header = cls.header
 		return (header, ) if isinstance(header, str) else header
@@ -180,16 +193,8 @@ class FreeType(Library):
 		# by default and expects pkg-config to be used instead.
 		if isfile(script):
 			return script
-		elif distroRoot is None:
-			return 'pkg-config freetype2'
-		elif distroRoot.startswith('derived/'):
-			toolsDir = '%s/../tools/bin' % distroRoot
-			for name in listdir(toolsDir):
-				if name.endswith('-pkg-config'):
-					return toolsDir + '/' + name + ' freetype2'
-			raise RuntimeError('No cross-pkg-config found in 3rdparty build')
 		else:
-			return '%s/bin/pkg-config freetype2' % distroRoot
+			return cls.getPkgConfig(distroRoot) + ' freetype2'
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
@@ -305,7 +310,11 @@ class PortAudio(Library):
 	makeName = 'PORTAUDIO'
 	header = '<portaudio.h>'
 	function = 'Pa_Initialize'
-	configScriptName = 'pkg-config portaudio-2.0'
+	staticLibsOption = '--static --libs'
+
+	@classmethod
+	def getConfigScript(cls, platform, linkStatic, distroRoot):
+		return cls.getPkgConfig(distroRoot) + ' portaudio-2.0'
 
 class SDL2(Library):
 	libName = 'SDL2'
