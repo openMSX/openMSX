@@ -1,0 +1,25 @@
+diff -ru portaudio-v190600_20161030.org/Makefile.in portaudio-v190600_20161030/Makefile.in
+--- portaudio-v190600_20161030.org/Makefile.in	2016-10-30 02:23:04.000000000 +0100
++++ portaudio-v190600_20161030/Makefile.in	2019-09-23 05:38:55.581144137 +0200
+@@ -56,8 +56,7 @@
+ 	src/common/pa_front.o \
+ 	src/common/pa_process.o \
+ 	src/common/pa_stream.o \
+-	src/common/pa_trace.o \
+-	src/hostapi/skeleton/pa_hostapi_skeleton.o
++	src/common/pa_trace.o
+ 
+ LOOPBACK_OBJS = \
+ 	qa/loopback/src/audio_analyzer.o \
+diff -ru portaudio-v190600_20161030.org/configure portaudio-v190600_20161030/configure
+--- portaudio-v190600_20161030.org/configure	2016-10-30 02:23:04.000000000 +0100
++++ portaudio-v190600_20161030/configure	2019-09-23 05:50:00.168636832 +0200
+@@ -15276,7 +15276,7 @@
+   $as_echo_n "(cached) " >&6
+ else
+   ac_check_lib_save_LIBS=$LIBS
+-LIBS="-lasound  $LIBS"
++LIBS="`$PKG_CONFIG alsa --libs --static`  $LIBS"
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 

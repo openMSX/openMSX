@@ -191,6 +191,28 @@ $(BUILD_DIR)/$(PACKAGE_ALSA)/Makefile: \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 
+# Configure PortAudio.
+# WASAPI is the lowest latency audio option for Windows. The reason it's
+# not default in many packages is that it was introduced in Vista, so not
+# available in XP, but we don't support XP anymore anyway.
+$(BUILD_DIR)/$(PACKAGE_PORTAUDIO)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_PORTAUDIO)/.extracted \
+  $(call installdeps,PKG_CONFIG $(filter ALSA,$(PACKAGES_3RD)))
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$(<D)/configure \
+		--enable-static \
+		--disable-shared \
+		--with-alsa --without-asihpi \
+		--with-winapi=wasapi \
+		--without-oss \
+		--without-jack \
+		--host=$(TARGET_TRIPLE) \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
+		CFLAGS="$(_CFLAGS)" \
+		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
+		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
+
 # Configure SDL2.
 $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL2)/.extracted \

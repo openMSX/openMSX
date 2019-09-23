@@ -113,9 +113,20 @@ class OpenGL(Package):
 	niceName = 'OpenGL'
 	sourceName = 'gl'
 
-class PortAudio(Package):
+class PortAudio(DownloadablePackage):
+	downloadURL = 'http://portaudio.com/archives'
 	niceName = 'PortAudio'
 	sourceName = 'portaudio'
+	version = 'v190600_20161030'
+	fileLength = 1450572
+	checksums = {
+		'sha256':
+			'f5a21d7dcd6ee84397446fa1fa1a0675bb2e8a4a6dceb4305a8404698d8d1513',
+		}
+
+	@classmethod
+	def getTarballName(cls):
+		return 'pa_stable_%s.tgz' % cls.version
 
 class PkgConfig(DownloadablePackage):
 	downloadURL = 'https://pkg-config.freedesktop.org/releases'
