@@ -32,6 +32,17 @@ diff -ru portaudio-v190600_20161030.org/configure portaudio-v190600_20161030/con
          fi
          ;;
  
+diff -ru portaudio-v190600_20161030.org/src/hostapi/alsa/pa_linux_alsa.c portaudio-v190600_20161030/src/hostapi/alsa/pa_linux_alsa.c
+--- portaudio-v190600_20161030.org/src/hostapi/alsa/pa_linux_alsa.c	2016-10-30 02:23:04.000000000 +0100
++++ portaudio-v190600_20161030/src/hostapi/alsa/pa_linux_alsa.c	2019-09-23 19:22:02.033192258 +0200
+@@ -762,6 +762,7 @@
+         Terminate function.
+     */
+     /*ENSURE_( snd_lib_error_set_handler(AlsaErrorHandler), paUnanticipatedHostError );*/
++	snd_lib_error_set_handler(NULL);
+ 
+     PA_ENSURE( BuildDeviceList( alsaHostApi ) );
+ 
 diff -ru portaudio-v190600_20161030.org/src/hostapi/wasapi/pa_win_wasapi.c portaudio-v190600_20161030/src/hostapi/wasapi/pa_win_wasapi.c
 --- portaudio-v190600_20161030.org/src/hostapi/wasapi/pa_win_wasapi.c	2016-10-30 02:23:04.000000000 +0100
 +++ portaudio-v190600_20161030/src/hostapi/wasapi/pa_win_wasapi.c	2019-09-23 07:05:01.040185589 +0200
