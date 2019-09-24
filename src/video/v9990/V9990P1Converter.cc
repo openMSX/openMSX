@@ -17,108 +17,101 @@ V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, const Pixel* palette64_)
 {
 }
 
+template<bool ALIGNED>
+static unsigned getPatternAddress(
+	V9990VRAM& vram, unsigned nameAddr, unsigned patternBase, unsigned x, unsigned y)
+{
+	assert(!ALIGNED || ((x & 7) == 0));
+	unsigned patternNum = (vram.readVRAMP1(nameAddr + 0) +
+	                       vram.readVRAMP1(nameAddr + 1) * 256) & 0x1FFF;
+	unsigned x2 = (patternNum % 32) * 4 + (ALIGNED ? 0 : ((x & 7) / 2));
+	unsigned y2 = (patternNum / 32) * 1024 + y;
+	return patternBase + y2 + x2;
+}
+
+static unsigned nextNameAddr(unsigned addr)
+{
+	return (addr & ~127) | ((addr + 2) & 127);
+}
+
+template<typename Pixel>
+static void draw1(const Pixel* palette, Pixel* __restrict buffer, size_t p)
+{
+	if (p) *buffer = palette[p];
+}
+
+template<bool CHECK_WIDTH, typename Pixel>
+static void draw2(
+	V9990VRAM& vram, const Pixel* palette, Pixel* __restrict& buffer,
+	unsigned& address, int& width)
+{
+	byte data = vram.readVRAMP1(address++);
+	draw1(palette, buffer + 0, data >> 4);
+	if (!CHECK_WIDTH || (width != 1)) {
+		draw1(palette, buffer + 1, data & 0x0F);
+	}
+	width  -= 2;
+	buffer += 2;
+}
+
 template<typename Pixel>
 static void renderPattern2(
-	V9990VRAM& vram, Pixel* __restrict buffer, unsigned width, unsigned x, unsigned y,
-	unsigned nameTable, unsigned patternTable, const Pixel* palette)
+	V9990VRAM& vram, Pixel* __restrict buffer, int width, unsigned x, unsigned y,
+	unsigned nameTable, unsigned patternBase, const Pixel* palette)
 {
-	x &= 511;
+	assert(x < 512);
+	if (width == 0) return;
 
 	unsigned nameAddr = nameTable + (((y / 8) * 64 + (x / 8)) * 2);
 	y = (y & 7) * 128;
 
 	if (x & 7) {
-		unsigned patternNum = (vram.readVRAMP1(nameAddr + 0) +
-		                       vram.readVRAMP1(nameAddr + 1) * 256) & 0x1FFF;
-		unsigned x2 = (patternNum % 32) * 4 + ((x & 7) / 2);
-		unsigned y2 = (patternNum / 32) * 1024 + y;
-		unsigned address = patternTable + y2 + x2;
-		byte data = vram.readVRAMP1(address);
-
-		while ((x & 7) && width) {
-			byte p;
-			if (x & 1) {
-				p = data & 0x0F;
-				++address;
-			} else {
-				data = vram.readVRAMP1(address);
-				p = data >> 4;
-			}
-			if (p) buffer[0] = palette[p];
+		unsigned address = getPatternAddress<false>(vram, nameAddr, patternBase, x, y);
+		if (x & 1) {
+			byte data = vram.readVRAMP1(address++);
+			draw1(palette, buffer, data & 0x0F);
 			++x;
 			++buffer;
 			--width;
 		}
-		nameAddr = (nameAddr & ~127) | ((nameAddr + 2) & 127);
+		while ((x & 7) && (width > 0)) {
+			draw2<true>(vram, palette, buffer, address, width);
+			x += 2;
+		}
+		nameAddr = nextNameAddr(nameAddr);
 	}
-	assert((x & 7) == 0 || (width == 0));
+	assert((x & 7) == 0 || (width <= 0));
 	while (width & ~7) {
-		unsigned patternNum = (vram.readVRAMP1(nameAddr + 0) +
-		                       vram.readVRAMP1(nameAddr + 1) * 256) & 0x1FFF;
-		unsigned x2 = (patternNum % 32) * 4;
-		unsigned y2 = (patternNum / 32) * 1024 + y;
-		unsigned address = patternTable + y2 + x2;
-
-		byte data0 = vram.readVRAMP1(address + 0);
-		byte p0 = data0 >> 4;
-		if (p0) buffer[0] = palette[p0];
-		byte p1 = data0 & 0x0F;
-		if (p1) buffer[1] = palette[p1];
-
-		byte data1 = vram.readVRAMP1(address + 1);
-		byte p2 = data1 >> 4;
-		if (p2) buffer[2] = palette[p2];
-		byte p3 = data1 & 0x0F;
-		if (p3) buffer[3] = palette[p3];
-
-		byte data2 = vram.readVRAMP1(address + 2);
-		byte p4 = data2 >> 4;
-		if (p4) buffer[4] = palette[p4];
-		byte p5 = data2 & 0x0F;
-		if (p5) buffer[5] = palette[p5];
-
-		byte data3 = vram.readVRAMP1(address + 3);
-		byte p6 = data3 >> 4;
-		if (p6) buffer[6] = palette[p6];
-		byte p7 = data3 & 0x0F;
-		if (p7) buffer[7] = palette[p7];
-
-		width -= 8;
-		buffer += 8;
-		nameAddr = (nameAddr & ~127) | ((nameAddr + 2) & 127);
+		unsigned address = getPatternAddress<true>(vram, nameAddr, patternBase, x, y);
+		draw2<false>(vram, palette, buffer, address, width);
+		draw2<false>(vram, palette, buffer, address, width);
+		draw2<false>(vram, palette, buffer, address, width);
+		draw2<false>(vram, palette, buffer, address, width);
+		nameAddr = nextNameAddr(nameAddr);
 	}
 	assert(width < 8);
 	if (width) {
-		unsigned patternNum = (vram.readVRAMP1(nameAddr + 0) +
-		                       vram.readVRAMP1(nameAddr + 1) * 256) & 0x1FFF;
-		unsigned x2 = (patternNum % 32) * 4;
-		unsigned y2 = (patternNum / 32) * 1024 + y;
-		unsigned address = patternTable + y2 + x2;
+		unsigned address = getPatternAddress<true>(vram, nameAddr, patternBase, x, y);
 		do {
-			byte data = vram.readVRAMP1(address++);
-			byte p0 = data >> 4;
-			if (p0) buffer[0] = palette[p0];
-			if (width != 1) {
-				byte p1 = data & 0x0F;
-				if (p1) buffer[1] = palette[p1];
-			}
-			width -= 2;
-			buffer += 2;
-		} while (int(width) > 0);
+			draw2<true>(vram, palette, buffer, address, width);
+		} while (width > 0);
 	}
 }
 
 template<typename Pixel>
 static void renderPattern(
 	V9990VRAM& vram, Pixel* buffer, unsigned width1, unsigned width2,
-	unsigned displayAX, unsigned displayAY, unsigned nameA,
-	unsigned patternA, const Pixel* palA,
-	unsigned displayBX, unsigned displayBY, unsigned nameB,
-	unsigned patternB, const Pixel* palB)
+	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, const Pixel* palA,
+	unsigned displayBX, unsigned displayBY, unsigned nameB, unsigned patternB, const Pixel* palB)
 {
-	renderPattern2(vram, &buffer[0],      width1, displayAX, displayAY,
+	renderPattern2(vram, buffer, width1, displayAX, displayAY,
 	               nameA, patternA, palA);
-	renderPattern2(vram, &buffer[width1], width2 - width1, displayBX + width1, displayBY,
+
+	buffer += width1;
+	width2 -= width1;
+	displayBX = (displayBX + width1) & 511;
+
+	renderPattern2(vram, buffer, width2, displayBX, displayBY,
 	               nameB, patternB, palB);
 }
 
@@ -173,17 +166,15 @@ static void renderSprites(
 			     + (  8 *  (spriteNo & 0x0F));
 			const Pixel* palette = palette64 + ((spriteAttr >> 2) & 0x30);
 			for (int x = 0; x < 16; x +=2) {
+				auto draw = [&](int xPos, size_t p) {
+					if ((displayX <= xPos) && (xPos < displayEnd)) {
+						size_t xx = xPos - displayX;
+						if (p) buffer[xx] = palette[p];
+					}
+				};
 				byte data = vram.readVRAMP1(patAddr++);
-				int xPos = spriteX + x;
-				if ((displayX <= xPos) && (xPos < displayEnd)) {
-					byte p = data >> 4;
-					if (p) buffer[xPos - displayX] = palette[p];
-				}
-				++xPos;
-				if ((displayX <= xPos) && (xPos < displayEnd)) {
-					byte p = data & 0x0F;
-					if (p) buffer[xPos - displayX] = palette[p];
-				}
+				draw(spriteX + x + 0, data >> 4);
+				draw(spriteX + x + 1, data & 0x0F);
 			}
 		}
 	}
