@@ -10,92 +10,19 @@
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, const Pixel* palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, palette64(palette64_)
 {
 }
 
-template <class Pixel>
-void V9990P1Converter<Pixel>::convertLine(
-	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
-	unsigned displayY, unsigned displayYA, unsigned displayYB,
-	bool drawSprites)
-{
-	unsigned prioX = vdp.getPriorityControlX();
-	unsigned prioY = vdp.getPriorityControlY();
-	if (displayY >= prioY) prioX = 0;
-
-	unsigned displayAX = (displayX + vdp.getScrollAX()) & 511;
-	unsigned displayBX = (displayX + vdp.getScrollBX()) & 511;
-
-	// Configurable 'roll' only applies to layer A.
-	// Layer B always rolls at 512 lines.
-	unsigned rollMask = vdp.getRollMask(0x1FF);
-	unsigned scrollAY = vdp.getScrollAY();
-	unsigned scrollBY = vdp.getScrollBY();
-	unsigned scrollAYBase = scrollAY & ~rollMask & 0x1FF;
-	unsigned displayAY = scrollAYBase + ((displayYA + scrollAY) & rollMask);
-	unsigned displayBY =                 (displayYB + scrollBY) & 0x1FF;
-
-	unsigned displayEnd = displayX + displayWidth;
-	unsigned end1 = std::max<int>(0, std::min<int>(prioX, displayEnd) - displayX);
-
-	// back drop color
-	Pixel bgcol = palette64[vdp.getBackDropColor()];
-	MemoryOps::MemSet<Pixel> memset;
-	memset(linePtr, displayWidth, bgcol);
-
-	// background
-	byte offset = vdp.getPaletteOffset();
-	byte palA = (offset & 0x03) << 4;
-	byte palB = (offset & 0x0C) << 2;
-	renderPattern(linePtr, end1, displayWidth,
-	              displayBX, displayBY, 0x7E000, 0x40000, palB,
-	              displayAX, displayAY, 0x7C000, 0x00000, palA);
-
-	// back sprite plane
-	int visibleSprites[16 + 1];
-	if (drawSprites) {
-		determineVisibleSprites(visibleSprites, displayY);
-		renderSprites(linePtr, displayX, displayEnd, displayY,
-		              visibleSprites, false);
-	}
-
-	// foreground
-	renderPattern(linePtr, end1, displayWidth,
-	              displayAX, displayAY, 0x7C000, 0x00000, palA,
-	              displayBX, displayBY, 0x7E000, 0x40000, palB);
-
-	// front sprite plane
-	if (drawSprites) {
-		renderSprites(linePtr, displayX, displayEnd, displayY,
-		              visibleSprites, true);
-	}
-}
-
-template <class Pixel>
-void V9990P1Converter<Pixel>::renderPattern(
-	Pixel* buffer, unsigned width1, unsigned width2,
-	unsigned displayAX, unsigned displayAY, unsigned nameA,
-	unsigned patternA, byte palA,
-	unsigned displayBX, unsigned displayBY, unsigned nameB,
-	unsigned patternB, byte palB)
-{
-	renderPattern2(&buffer[0],      width1, displayAX, displayAY,
-	               nameA, patternA, palA);
-	renderPattern2(&buffer[width1], width2 - width1, displayBX + width1, displayBY,
-	               nameB, patternB, palB);
-}
-
-template <class Pixel>
-void V9990P1Converter<Pixel>::renderPattern2(
-	Pixel* __restrict buffer, unsigned width, unsigned x, unsigned y,
-	unsigned nameTable, unsigned patternTable, byte pal)
+template<typename Pixel>
+static void renderPattern2(
+	V9990VRAM& vram, Pixel* __restrict buffer, unsigned width, unsigned x, unsigned y,
+	unsigned nameTable, unsigned patternTable, const Pixel* palette)
 {
 	x &= 511;
-	const Pixel* palette = palette64 + pal;
 
 	unsigned nameAddr = nameTable + (((y / 8) * 64 + (x / 8)) * 2);
 	y = (y & 7) * 128;
@@ -181,11 +108,24 @@ void V9990P1Converter<Pixel>::renderPattern2(
 	}
 }
 
-template <class Pixel>
-void V9990P1Converter<Pixel>::determineVisibleSprites(
-	int* __restrict visibleSprites, unsigned displayY)
+template<typename Pixel>
+static void renderPattern(
+	V9990VRAM& vram, Pixel* buffer, unsigned width1, unsigned width2,
+	unsigned displayAX, unsigned displayAY, unsigned nameA,
+	unsigned patternA, const Pixel* palA,
+	unsigned displayBX, unsigned displayBY, unsigned nameB,
+	unsigned patternB, const Pixel* palB)
 {
-	static const unsigned spriteTable = 0x3FE00;
+	renderPattern2(vram, &buffer[0],      width1, displayAX, displayAY,
+	               nameA, patternA, palA);
+	renderPattern2(vram, &buffer[width1], width2 - width1, displayBX + width1, displayBY,
+	               nameB, patternB, palB);
+}
+
+static void determineVisibleSprites(
+	V9990VRAM& vram, int* __restrict visibleSprites, unsigned displayY)
+{
+	constexpr unsigned spriteTable = 0x3FE00;
 
 	int index = 0;
 	int index_max = 16;
@@ -210,13 +150,13 @@ void V9990P1Converter<Pixel>::determineVisibleSprites(
 	visibleSprites[index] = -1;
 }
 
-template <class Pixel>
-void V9990P1Converter<Pixel>::renderSprites(
+template<typename Pixel>
+static void renderSprites(
+	V9990VRAM& vram, unsigned spritePatternTable, const Pixel* palette64,
 	Pixel* __restrict buffer, int displayX, int displayEnd, unsigned displayY,
 	const int* __restrict visibleSprites, bool front)
 {
 	static const unsigned spriteTable = 0x3FE00;
-	unsigned spritePatternTable = vdp.getSpritePatternAddress(P1);
 
 	for (unsigned sprite = 0; visibleSprites[sprite] != -1; ++sprite) {
 		unsigned addr = spriteTable + 4 * visibleSprites[sprite];
@@ -246,6 +186,67 @@ void V9990P1Converter<Pixel>::renderSprites(
 				}
 			}
 		}
+	}
+}
+
+template<typename Pixel>
+void V9990P1Converter<Pixel>::convertLine(
+	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
+	unsigned displayY, unsigned displayYA, unsigned displayYB,
+	bool drawSprites)
+{
+	unsigned prioX = vdp.getPriorityControlX();
+	unsigned prioY = vdp.getPriorityControlY();
+	if (displayY >= prioY) prioX = 0;
+
+	unsigned displayAX = (displayX + vdp.getScrollAX()) & 511;
+	unsigned displayBX = (displayX + vdp.getScrollBX()) & 511;
+
+	// Configurable 'roll' only applies to layer A.
+	// Layer B always rolls at 512 lines.
+	unsigned rollMask = vdp.getRollMask(0x1FF);
+	unsigned scrollAY = vdp.getScrollAY();
+	unsigned scrollBY = vdp.getScrollBY();
+	unsigned scrollAYBase = scrollAY & ~rollMask & 0x1FF;
+	unsigned displayAY = scrollAYBase + ((displayYA + scrollAY) & rollMask);
+	unsigned displayBY =                 (displayYB + scrollBY) & 0x1FF;
+
+	unsigned displayEnd = displayX + displayWidth;
+	unsigned end1 = std::max<int>(0, std::min<int>(prioX, displayEnd) - displayX);
+
+	// back drop color
+	Pixel bgcol = palette64[vdp.getBackDropColor()];
+	MemoryOps::MemSet<Pixel> memset;
+	memset(linePtr, displayWidth, bgcol);
+
+	// background
+	byte offset = vdp.getPaletteOffset();
+	const Pixel* palA = palette64 + ((offset & 0x03) << 4);
+	const Pixel* palB = palette64 + ((offset & 0x0C) << 2);
+	renderPattern(vram, linePtr, end1, displayWidth,
+	              displayBX, displayBY, 0x7E000, 0x40000, palB,
+	              displayAX, displayAY, 0x7C000, 0x00000, palA);
+
+	// back sprite plane
+	int visibleSprites[16 + 1];
+	unsigned spritePatternTable = vdp.getSpritePatternAddress(P1);
+	if (drawSprites) {
+		determineVisibleSprites(vram, visibleSprites, displayY);
+		renderSprites(vram, spritePatternTable, palette64,
+		              linePtr, displayX, displayEnd, displayY,
+		              visibleSprites, false);
+	}
+
+	// foreground
+	renderPattern(vram, linePtr, end1, displayWidth,
+	              displayAX, displayAY, 0x7C000, 0x00000, palA,
+	              displayBX, displayBY, 0x7E000, 0x40000, palB);
+
+	// front sprite plane
+	if (drawSprites) {
+		renderSprites(vram, spritePatternTable, palette64,
+		              linePtr, displayX, displayEnd, displayY,
+		              visibleSprites, true);
 	}
 }
 
