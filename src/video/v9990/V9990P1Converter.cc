@@ -2,6 +2,8 @@
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "MemoryOps.hh"
+#include "ScopedAssign.hh"
+#include "optional.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <cassert>
@@ -35,10 +37,10 @@ static unsigned nextNameAddr(unsigned addr)
 }
 
 template<bool BACKGROUND, typename Pixel>
-static void draw1(const Pixel* palette, Pixel* __restrict buffer, byte* __restrict info, Pixel bgcol, size_t p)
+static void draw1(const Pixel* palette, Pixel* __restrict buffer, byte* __restrict info, size_t p)
 {
 	if (BACKGROUND) {
-		*buffer = p ? palette[p] : bgcol;
+		*buffer = palette[p];
 	} else {
 		*info = bool(p);
 		if (p) *buffer = palette[p];
@@ -48,12 +50,12 @@ static void draw1(const Pixel* palette, Pixel* __restrict buffer, byte* __restri
 template<bool BACKGROUND, bool CHECK_WIDTH, typename Pixel>
 static void draw2(
 	V9990VRAM& vram, const Pixel* palette, Pixel* __restrict& buffer, byte* __restrict& info,
-	Pixel bgcol, unsigned& address, int& width)
+	unsigned& address, int& width)
 {
 	byte data = vram.readVRAMP1(address++);
-	draw1<BACKGROUND>(palette, buffer + 0, info + 0, bgcol, data >> 4);
+	draw1<BACKGROUND>(palette, buffer + 0, info + 0, data >> 4);
 	if (!CHECK_WIDTH || (width != 1)) {
-		draw1<BACKGROUND>(palette, buffer + 1, info + 1, bgcol, data & 0x0F);
+		draw1<BACKGROUND>(palette, buffer + 1, info + 1, data & 0x0F);
 	}
 	width  -= 2;
 	buffer += 2;
@@ -62,7 +64,7 @@ static void draw2(
 
 template<bool BACKGROUND, typename Pixel>
 static void renderPattern2(
-	V9990VRAM& vram, Pixel* __restrict buffer, byte* __restrict info, Pixel bgcol,
+	V9990VRAM& vram, Pixel* __restrict buffer, byte* __restrict info,
 	int width, unsigned x, unsigned y,
 	unsigned nameTable, unsigned patternBase, const Pixel* palette)
 {
@@ -76,13 +78,13 @@ static void renderPattern2(
 		unsigned address = getPatternAddress<false>(vram, nameAddr, patternBase, x, y);
 		if (x & 1) {
 			byte data = vram.readVRAMP1(address++);
-			draw1<BACKGROUND>(palette, buffer, info, bgcol, data & 0x0F);
+			draw1<BACKGROUND>(palette, buffer, info, data & 0x0F);
 			++x;
 			++buffer;
 			--width;
 		}
 		while ((x & 7) && (width > 0)) {
-			draw2<BACKGROUND, true>(vram, palette, buffer, info, bgcol, address, width);
+			draw2<BACKGROUND, true>(vram, palette, buffer, info, address, width);
 			x += 2;
 		}
 		nameAddr = nextNameAddr(nameAddr);
@@ -90,17 +92,17 @@ static void renderPattern2(
 	assert((x & 7) == 0 || (width <= 0));
 	while (width & ~7) {
 		unsigned address = getPatternAddress<true>(vram, nameAddr, patternBase, x, y);
-		draw2<BACKGROUND, false>(vram, palette, buffer, info, bgcol, address, width);
-		draw2<BACKGROUND, false>(vram, palette, buffer, info, bgcol, address, width);
-		draw2<BACKGROUND, false>(vram, palette, buffer, info, bgcol, address, width);
-		draw2<BACKGROUND, false>(vram, palette, buffer, info, bgcol, address, width);
+		draw2<BACKGROUND, false>(vram, palette, buffer, info, address, width);
+		draw2<BACKGROUND, false>(vram, palette, buffer, info, address, width);
+		draw2<BACKGROUND, false>(vram, palette, buffer, info, address, width);
+		draw2<BACKGROUND, false>(vram, palette, buffer, info, address, width);
 		nameAddr = nextNameAddr(nameAddr);
 	}
 	assert(width < 8);
 	if (width > 0) {
 		unsigned address = getPatternAddress<true>(vram, nameAddr, patternBase, x, y);
 		do {
-			draw2<BACKGROUND, true>(vram, palette, buffer, info, bgcol, address, width);
+			draw2<BACKGROUND, true>(vram, palette, buffer, info, address, width);
 		} while (width > 0);
 	}
 }
@@ -111,8 +113,16 @@ static void renderPattern(
 	unsigned displayAX, unsigned displayAY, unsigned nameA, unsigned patternA, const Pixel* palA,
 	unsigned displayBX, unsigned displayBY, unsigned nameB, unsigned patternB, const Pixel* palB)
 {
+	optional<ScopedAssign<Pixel>> col0A, col0B; // optimized away for '!BACKGROUND'
+	if (BACKGROUND) {
+		// Speedup drawing by temporarily replacing palette index 0.
+		// Only allowed when 'palA' and 'palB' either fully overlap or are disjuct.
+		col0A.emplace(const_cast<Pixel*>(palA)[0], bgcol);
+		col0B.emplace(const_cast<Pixel*>(palB)[0], bgcol);
+	}
+
 	renderPattern2<BACKGROUND>(
-		vram, buffer, info, bgcol, width1,
+		vram, buffer, info, width1,
 		displayAX, displayAY, nameA, patternA, palA);
 
 	buffer += width1;
@@ -121,7 +131,7 @@ static void renderPattern(
 	displayBX = (displayBX + width1) & 511;
 
 	renderPattern2<BACKGROUND>(
-		vram, buffer, info, bgcol, width2,
+		vram, buffer, info, width2,
 		displayBX, displayBY, nameB, patternB, palB);
 }
 
