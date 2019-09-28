@@ -1,0 +1,427 @@
+Goal of the experiment
+======================
+
+On a MSX2+ machine or a turboR machine in Z80 mode, there are extra wait cycles
+when accessing a VDP IO-port (0x98-0x9b) compared to other IO ports (these are
+introduced by the T9769{A,B,C} chip).
+
+In openMSX we also added those wait cycles in R800 mode. That's likely wrong.
+We verify this hypothesis in this experiment. Spoiler: in R800 mode there are
+indeed no extra wait cycles.
+
+
+
+Sub-goals
+=========
+
+I don't have my real MSX computers permanently connected anymore. When I do set
+them up, it's not too much extra effort to run a few more tests.
+
+Emulation of Z80 timing is pretty straight forward. R800 is more complex. We
+know about the following peculiarities:
+- Align to even cycle on IO instructions (because R800, which runs at 7MHz,
+  needs to access the IO bus, which runs at 3.5MHz).
+- Doing two accesses to VDP IO-ports introduces a delay when those accesses are
+  "too close together".
+- Refresh behavior. Every so many cycles (current estimate: 210 cycles @7MHz),
+  normal R800 instruction execution gets interrupted for a refresh period
+  (current estimate: this period lasts 25.5 cycles. Best guess for that half
+  cycle: because 50% chance it needs to align to an even cycle).
+
+
+
+Design of the experiment
+========================
+
+I (repeatedly) run test programs with the following structure:
+
+	DI
+	OUT (#20),A	; reset counter
+
+	<body>
+
+	IN A,(#20)      ; latch counter, and read 32-bit value in [DE:HL]
+	LD L,A
+	IN A,(#21)
+	LD H,A
+	IN A,(#22)
+	LD E,A
+	IN A,(#23)
+	LD D,A
+	EI
+	RET
+
+Where <body> varies from test-to-test.
+
+Alex Wulms gave me a FPGA test board that implements a 32-bit counter which
+runs at 3.5MHz and is accessed via IO-ports 0x20-0x23. In openMSX this device
+is emulated as the 'hirestimer' extension.
+- Writing (any) value to port 0x20 resets the counter to zero.
+- That counter increments at a frequency of 3.5MHz (because the MSX IO-bus runs
+  at this frequency).
+- Reading IO port 0x20 latches the value of the counter and returns the 8 LSB
+  bits.
+- Reading IO ports 0x21-0x23 retrieves the other bits of the latched value.
+
+So in Z80 mode (runs at 3.5MHz) this board allows to make cycle-accurate
+measurements. But the R800 runs at 7MHz, so we can only measure up-to 2 cycles
+accurate.
+
+The test code is located at the start of a 256-byte block (specifically at
+address 0x0100 in my case). This ensures that none of the instruction fetches
+take an extra cycle for the "page-break".
+
+I ran all tests on a turbor-GT machine, both in Z80 and R800 mode.
+
+(Not important) I ran all tests in compass, because that allows me to easily:
+- Edit the test program
+- Re-assemble (CTRL-A)
+- Execute (CTRL-G)
+- Look at the result: the value in registers DE:HL (F4)
+
+
+
+The actual tests
+================
+
+In this section I'll present _processed_ test results. Because often the
+details are not important for our main goal and too detailed results would only
+add confusion. However these details could be important to (in the future)
+investigate the sub-goals. Therefor I still included the raw results in an
+appendix.
+
+
+1) Establish a base-line
+------------------------
+
+Replace <body> with a sequence of n NOP instructions.
+
+     n | Z80 | R800
+    ---+-----+-----
+     0 | 12  | 5
+     1 | 17  | 5
+     2 | 22  | 6
+     3 | 27  | 6
+     4 | 32  | 7
+     5 | 37  | 7
+
+The case n=0 (an empty <body>) is important. It measures the time between
+resetting the counter and immediately after reading it back. Thus
+	OUT (#20),A	; reset counter
+	IN A,(#20)      ; read it back
+
+This means that for the actual duration of the <body>, we must subtract this
+n=0 result.
+
+On a Z80 both an 'OUT (n),A' and 'IN A,(n)' instruction take 12 cycles. So the
+value 12 in the above table makes sense. (Actually it also depends where
+exactly within the OUT instruction the counter gets reset and where exactly the
+counter gets latched, but apparently that happens at the same relative offsets
+in the OUT/IN instructions).
+
+On Z80, for the n>=1 cases we then get the, totally as expected, result that a
+NOP instruction takes 5 cycles.
+
+For R800 n=0 we measure 5 cycles at 3.5MHz, this could be either 9 or 10 cycles
+at 7MHz. In our current R800 emulation model an IN or OUT instruction takes 9
+cycles plus an optional cycle to 'align' the 7MHz R800-bus with the 3.5MHz
+IO-bus. So that would be 10 cycles @7MHz in this case which matches the
+measured value.
+
+The case R800 n=1 also measures 5, that's because the cost of the NOP
+instruction is "absorbed" by no longer having to wait for 1 cycle to align both
+buses. And also for n>=2, the measured value only goes up every 2nd increment
+of n.
+
+
+2a) Measure a single OUT instruction, non-VDP port
+--------------------------------------------------
+
+In these group of tests the body of our test program is
+	NOP, repeated m times
+	OUT (#30),A
+	NOP, repeated n times
+
+I arbitrarily picked IO port 0x30 because it has no function and because (I
+hoped) it introduces no extra wait cycles when accessing it. I put a variable
+amount (possibly zero) of NOP instruction both in front and after the OUT
+instruction.
+
+Here are the results:
+
+    m | n | Z80 | R800
+   ---+---+-----+------------
+    0 | 0 | 24  | 10  (sometimes 22)
+    0 | 1 | 29  | 10  (sometimes 23)
+    0 | 2 | 34  | 11  (sometimes 23)
+    0 | 3 | 39  | 11  (sometimes 24)
+    0 | 4 | 44  | 12  (sometimes 24)
+    0 | 5 | 49  | 12  (sometimes 25)
+    --+---+-----+------------
+    1 | 0 | 29  | 10  (*)
+    1 | 1 | 34  | 10  (*)
+    1 | 2 | 39  | 11  (sometimes 23,24,25)
+    --+---+-----+------------
+    2 | 0 | 34  | 11  (sometimes 23)
+    2 | 1 | 39  | 11  (sometimes 24)
+    2 | 2 | 44  | 12  (sometimes 24,25)
+
+  (*) The lack of a 'sometimes' annotation does not mean it never occurs,
+      instead it probably means I didn't measure long enough to observe it.
+
+Z80 is completely as expected. Here's the formula that predicts the result:
+   12 + 12 + 5*(m+n)
+
+The 'normal' R800 values (ignoring the 'sometimes' annotations) can also be
+explained. There are now two IO instructions that can 'absorb' the cost of a
+NOP. Thus again the measured value only goes up by 1 for every 2nd increment of
+'m' or 'n' independently.
+
+Now for the 'sometimes' values. For example for R800 n=0 we mostly measured
+value 11, but from time time instead we measured the value 23. Very roughly
+speaking, the chance of measuring the alternative value went up with the
+duration of the test (so mostly visible in test 3b with high 'n' values).
+
+This phenomenon can be explained by the R800 refresh stuff. At regular
+intervals the R800 gets interrupted from normal instruction execution for
+refresh. If such an interruption falls in the test then we'll measure a higher
+duration. The value of this extra duration is 12 or 13 (glossing over the m=1,
+n=2 result). This corresponds with ~25 R800 cycles. (This matches the current
+emulation model).
+
+
+2b) Measure a single OUT instruction, VDP port
+----------------------------------------------
+
+This is the most important test in this experiment (from the point of view of
+the original goal). It's the same test as in 2a) but with port 0x30 replaced
+with 0x98.
+
+    m | n | Z80 | R800
+   ---|---+-----+------------
+    0 | 0 | 25  | 10  (sometimes 22)
+    0 | 1 | 30  | 10  (sometimes 23)
+    0 | 2 | 35  | 11  (sometimes 23)
+    0 | 3 | 40  | 11  (sometimes 24)
+    0 | 4 | 45  | 12  (sometimes 24)
+    0 | 5 | 50  | 12  (sometimes 25)
+    --+---+-----+------------
+    1 | 0 | 30  | 10  (sometimes 22)
+    1 | 1 | 35  | 10  (sometimes 23)
+    1 | 2 | 40  | 11  (sometimes 23,25)
+    --+---+-----+------------
+    2 | 0 | 35  | 11  (sometimes 23)
+    2 | 1 | 40  | 11  (*)
+    2 | 2 | 45  | 12  (*)
+
+Comparing 2a) with 2b) gives:
+- Identical results for R800.
+- For Z80 2b) is exactly 1 cycle higher than 2a).
+
+Thus we can confirm our hypothesis:
+- On a turboR in Z80 mode, accessing IO-port 0x98-9b introduces 1 wait cycle.
+- But doing the same in R800 mode does not.
+
+
+
+3a) Two OUT instructions, VDP-port followed by non-VDP port
+-----------------------------------------------------------
+
+Ok, so in the previous test we've already accomplished our goal. But we know
+that there's something else going on in R800 (but not in Z80) mode, namely wait
+cycles between VDP accesses that are "too close together". While we're add it,
+let's also do some measurements on those.
+
+To get a new base-line, we first measure access to a VDP-port followed by
+access to a non-VDP port. More specifically, the new test body is:
+	OUT (#98),A
+	NOP, repeated n times
+	OUT (#30),A
+
+Which results in:
+    n | Z80 | R800
+   ---+-----+------------------
+    0 | 37  | 15  (sometimes 27)
+    1 | 42  | 15  (sometimes 28)
+    2 | 47  | 16  (sometimes 28)
+
+
+3b) Two VDP-OUT instructions
+----------------------------
+
+Now the more interesting test, we make the test body:
+	OUT (#98),A
+	NOP, repeated n times
+	OUT (#98),A
+
+And we get:
+
+     n | Z80 | R800
+    ---+-----+-------------------------
+     0 |  38 | 41  (sometimes 53)
+     1 |  43 | 41  (sometimes 53)
+     2 |  48 | 41  (sometimes 53)
+     5 |  63 | 41  (sometimes 53)
+    10 |  88 | 41  (sometimes 53)
+    20 | 138 | 41  (sometimes 53)
+    30 | 188 | 41  (sometimes 42,53)
+    40 | 238 | 41  (sometimes 47,48,53)
+    50 | 288 | 41  (sometimes 52,53)
+    51 | 293 | 41  (sometimes 53)
+    52 | 298 | 41  (sometimes 53,54)
+    53 | 303 | 41  (sometimes 54,55)
+    54 | 308 | 42  (sometimes 54,55)
+    55 | 313 | 42  (sometimes 55,56)
+    56 | 318 | 43  (sometimes 55,56)
+    57 | 323 | 43  (sometimes 56,57)
+    58 | 328 | 44  (sometimes 56,57)
+    59 | 333 | 44  (sometimes 56,57,58)
+    60 | 338 | 45  (sometimes 57,58)
+    65 | 363 | 47  (sometimes 59,60,61)
+    70 | 388 | 50  (sometimes 62,63)
+  (*) for higher values of 'n' the qualification 'sometimes' becomes more and
+      more frequent
+
+The trend is clear. For n<=53 the output remains constant. For n>53 the output
+is again linearly rising, and in fact following the same curve as for non-VDP
+ports.
+
+If you work out the details of how many wait cycles are added, you'll find that
+it matches pretty well with the current openMSX emulation model: openMSX
+requires at least 62 cycles @7MHz between two consecutive VDP IO access. (TODO
+see next chapter.
+
+
+
+TODO Comparison with openMSX
+============================
+
+TODO repeat these experiments in openMSX and compare.
+ [I plan to work on this soon, but need to take a break and want already to
+  publish this.]
+
+
+
+
+Appendix: raw test measurements
+===============================
+
+Notes:
+- Test results are written as hex values (all other values are decimal)
+- Comma separated values within one cell are repeated measurements of the same
+  test.
+- In some cases I did not repeated a test, in other cases many times. This is
+  based on when I 'guessed' the variation in the result was interesting. Or
+  when I was expecting some variation, but didn't get it in the initial
+  measurements, I kept measuring until I did see a different result.
+- Though that does mean there is some bias in the results. E.g. you cannot
+  use these results to get an accurate estimate of the frequency at which the
+  different values occur.
+
+
+1) No (extra) OUT instructions
+<body> =
+	NOP, repeated n times
+
+n | Z80   | R800
+--+-------+-----
+0 | c     | 5
+1 | 11,11 | 5,5
+2 | 16,16 | 6,6
+3 | 1b,1b | 6,6
+4 | 20,20 | 7,7
+5 | 25,25 | 7,7
+
+
+
+2a) Single OUT instruction, non-VDP port
+<body> =
+	NOP, repeated m times
+	OUT (#30),A
+	NOP, repeated n times
+
+m | n | Z80   | R800
+--+---+-------+------------
+0 | 0 | 18,18 | 16,a,a,a,16
+0 | 1 | 1d    | a,a,17,a,a
+0 | 2 | 22    | b,b,b,b,b,17
+0 | 3 | 27,27 | b,b,b,b,18
+0 | 4 | 2c    | 18,c,c,c
+0 | 5 | 31,31 | c,19,19,c,c
+--+---+-------+------------
+1 | 0 | 1d,1d | a,a,a,a,a,a,a ... (46 measurements)
+1 | 1 | 22    | a,a,a,a,a,a,a ... (11 measurements)
+1 | 2 | 27    | b,b,b,b,b,19,18,17,17
+--+---+-------+------------
+2 | 0 | 22    | b,b,b,b,17
+2 | 1 | 27    | b,b,b,b,b,b,b,18
+2 | 2 | 2c    | 19,c,c,c,18,c
+
+
+2b) Single OUT instruction, VDP port
+<body> =
+	NOP, repeated m times
+	OUT (#98),A
+	NOP, repeated n times
+
+m | n | Z80   | R800
+--|---+-------+------------
+0 | 0 | 19,19 | a,a,a,a,16
+0 | 1 | 1e    | a,a,a,17
+0 | 2 | 23    | b,b,b,17
+0 | 3 | 28    | b,b,b,b,b,18
+0 | 4 | 2d    | c,18,c
+0 | 5 | 32    | c,19,c,c
+--+---+-------+------------
+1 | 0 | 1e    | a,a,a,16,a,a
+1 | 1 | 23    | a,17,a,a,17
+1 | 2 | 28    | b,b,b,b,b,b,b,b,19,17,b,b
+--+---+-------+------------
+2 | 0 | 23    | b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,17,17,b
+2 | 1 | 28    | b,b,b,b,b,b,b
+2 | 2 | 2d    | c,c,c,c,c,c,c,c,c,c
+
+
+
+3a) Two OUT instructions, VDP-port followed by non-VDP port
+<body> =
+	OUT (#98),A
+	NOP, repeated n times
+	OUT (#30),A
+
+n | Z80   | R800
+--+-------+------------------
+0 | 25,25 | f,1b,f,f,f,f
+1 | 2a    | 1c,f,f,f,f
+2 | 2f    | 1c,10,10,1c,10,10
+
+
+3b) Two OUT instructions, VDP-port followed by another VDP port
+<body> =
+	OUT (#98),A
+	NOP, repeated n times
+	OUT (#98),A
+
+ n | Z80    | R800
+---+--------+-------------------------
+ 0 | 26,26  | 29,29,29,35,29,29,29
+ 1 | 2b     | 29,29,35,29,29,29,35
+ 2 | 30     | 29,35,29,35,29,29,29
+ 5 | 3f     | 35,29,29,29,29
+10 | 58     | 29,29,35,29,29,29,35
+20 | 8a     | 29,29,29,29,35
+30 | bc,bc  | 2a,29,35,29,29,29,29,29
+40 | ee,ee  | 29,29,30,35,29,29,2f,30,29,29,29,29,2f    (30 not a typo!)
+50 | 120,120| 35,29,34,29,29,29,29,34,29,29,29,25       (34 not a typo!)
+51 | 125    | 29,35,29,29,29,29,29,35,35,29,29
+52 | 12a    | 36,29,35,29,29,29,36,29,36,29,36,29,36,35
+53 | 12f,12f| 29,29,29,36,29,37,29,29,29,29,36,36,29,29
+54 | 134    | 2a,2a,2a,2a,2a,2a,37,2a,2a,2a,36,2a,2a,2a,37,2a,2a,2a,36,2a,37
+55 | 139    | 2a,38,36,38,2a,38,37,2a,37,2a,38,36,2a,37,2a,38
+56 | 13e    | 2b,2b,2b,2b,2b,38,37,2b,2b,37,2b,2b,38
+57 | 143    | 39,37,37,38,2b,39,38,2b,2b,2b,38,2b,2b,2b,38
+58 | 148    | 38,39,2c,38,2c,2c,2c,2c,39,38,38,2c,2c,2c,2c,39
+59 | 14d    | 39,2c,39,39,39,2c,38,3a,39,2c,2c,39,2c,2c,2c
+60 | 152,152| 39,2d,39,2d,3a,2d,3a,39,2d,39,2d
+65 | 16b    | 3d,3b,3c,3b,2f,2f,3d,3c,3b,2f,2f,2f,3c,2f
+70 | 184,184| 3e,3e,3f,32,3e,3e,32,32,3f,32,3f,32,3e,3f,32
