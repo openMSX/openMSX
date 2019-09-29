@@ -563,21 +563,27 @@ void Reactor::run(CommandLineParser& parser)
 		}
 	}
 
-	while (running) {
-		eventDistributor->deliverEvents();
-		assert(garbageBoards.empty());
-		bool blocked = (blockedCounter > 0) || !activeBoard;
-		if (!blocked) blocked = !activeBoard->execute();
-		if (blocked) {
-			// At first sight a better alternative is to use the
-			// SDL_WaitEvent() function. Though when inspecting
-			// the implementation of that function, it turns out
-			// to also use a sleep/poll loop, with even shorter
-			// sleep periods as we use here. Maybe in future
-			// SDL implementations this will be improved.
-			eventDistributor->sleep(20 * 1000);
-		}
+	while (doOneIteration()) {
+		// nothing
 	}
+}
+
+bool Reactor::doOneIteration()
+{
+	eventDistributor->deliverEvents();
+	assert(garbageBoards.empty());
+	bool blocked = (blockedCounter > 0) || !activeBoard;
+	if (!blocked) blocked = !activeBoard->execute();
+	if (blocked) {
+		// At first sight a better alternative is to use the
+		// SDL_WaitEvent() function. Though when inspecting
+		// the implementation of that function, it turns out
+		// to also use a sleep/poll loop, with even shorter
+		// sleep periods as we use here. Maybe in future
+		// SDL implementations this will be improved.
+		eventDistributor->sleep(20 * 1000);
+	}
+	return running;
 }
 
 void Reactor::unpause()
