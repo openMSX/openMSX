@@ -124,6 +124,8 @@ private:
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
+	bool iterate();
+
 	void unpause();
 	void pause();
 
