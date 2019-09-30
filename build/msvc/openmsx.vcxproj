@@ -708,6 +708,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLSnow.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SpriteChecker.cc" />
@@ -1312,6 +1313,7 @@
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SpriteChecker.hh" />

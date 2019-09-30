@@ -1,11 +1,11 @@
 #ifndef SDLVISIBLESURFACE_HH
 #define SDLVISIBLESURFACE_HH
 
-#include "VisibleSurface.hh"
+#include "SDLVisibleSurfaceBase.hh"
 
 namespace openmsx {
 
-class SDLVisibleSurface final : public VisibleSurface
+class SDLVisibleSurface final : public SDLVisibleSurfaceBase
 {
 public:
 	SDLVisibleSurface(unsigned width, unsigned height,
@@ -13,18 +13,18 @@ public:
 	                  RTScheduler& rtScheduler,
 	                  EventDistributor& eventDistributor,
 	                  InputEventGenerator& inputEventGenerator,
-	                  CliComm& cliComm);
+	                  CliComm& cliComm,
+	                  VideoSystem& videoSystem);
 
 	static void saveScreenshotSDL(const OutputSurface& output,
 	                              const std::string& filename);
 
-private:
 	// OutputSurface
 	void saveScreenshot(const std::string& filename) override;
+	void flushFrameBuffer() override;
 	void clearScreen() override;
 
 	// VisibleSurface
-	void flushFrameBuffer() override;
 	void finish() override;
 	std::unique_ptr<Layer> createSnowLayer() override;
 	std::unique_ptr<Layer> createConsoleLayer(

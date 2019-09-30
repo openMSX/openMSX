@@ -1062,6 +1062,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.cc">
       <Filter>video</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.cc">
+      <Filter>video</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\SpriteChecker.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -2543,6 +2546,9 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SpriteChecker.hh">

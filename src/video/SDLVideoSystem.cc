@@ -244,6 +244,11 @@ OutputSurface* SDLVideoSystem::getOutputSurface()
 	return screen.get();
 }
 
+void SDLVideoSystem::showCursor(bool show)
+{
+	SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+}
+
 void SDLVideoSystem::resize()
 {
 	auto& rtScheduler         = reactor.getRTScheduler();
@@ -259,14 +264,14 @@ void SDLVideoSystem::resize()
 		screen = std::make_unique<SDLVisibleSurface>(
 			width, height, display, rtScheduler,
 			eventDistributor, inputEventGenerator,
-			reactor.getCliComm());
+			reactor.getCliComm(), *this);
 		break;
 #if COMPONENT_GL
 	case RenderSettings::SDLGL_PP:
 		screen = std::make_unique<SDLGLVisibleSurface>(
 			width, height, display, rtScheduler,
 			eventDistributor, inputEventGenerator,
-			reactor.getCliComm());
+			reactor.getCliComm(), *this);
 		break;
 #endif
 	default:

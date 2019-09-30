@@ -467,6 +467,7 @@ sources = files(
     'video/SDLSnow.cc',
     'video/SDLVideoSystem.cc',
     'video/SDLVisibleSurface.cc',
+    'video/SDLVisibleSurfaceBase.cc',
     'video/SpriteChecker.cc',
     'video/SuperImposedFrame.cc',
     'video/SuperImposedVideoFrame.cc',
