@@ -1,13 +1,13 @@
 #ifndef SDLGLVISIBLESURFACE_HH
 #define SDLGLVISIBLESURFACE_HH
 
-#include "VisibleSurface.hh"
+#include "SDLCommonVisibleSurface.hh"
 
 namespace openmsx {
 
 /** Visible surface for SDL openGL renderers
  */
-class SDLGLVisibleSurface final : public VisibleSurface
+class SDLGLVisibleSurface final : public SDLCommonVisibleSurface
 {
 public:
 	SDLGLVisibleSurface(unsigned width, unsigned height,
@@ -15,13 +15,13 @@ public:
 	                    RTScheduler& rtScheduler,
 	                    EventDistributor& eventDistributor,
 	                    InputEventGenerator& inputEventGenerator,
-	                    CliComm& cliComm);
+	                    CliComm& cliComm,
+	                    VideoSystem& videoSystem);
 	~SDLGLVisibleSurface() override;
 
 	static void saveScreenshotGL(const OutputSurface& output,
 	                             const std::string& filename);
 
-private:
 	// OutputSurface
 	void saveScreenshot(const std::string& filename) override;
 

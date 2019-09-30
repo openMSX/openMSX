@@ -19,9 +19,10 @@ SDLVisibleSurface::SDLVisibleSurface(
 		RTScheduler& rtScheduler_,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
-		CliComm& cliComm_)
-	: VisibleSurface(display_, rtScheduler_, eventDistributor_,
-	                 inputEventGenerator_, cliComm_)
+		CliComm& cliComm_,
+		VideoSystem& videoSystem_)
+	: SDLCommonVisibleSurface(display_, rtScheduler_, eventDistributor_,
+	                 inputEventGenerator_, cliComm_, videoSystem_)
 {
 	int flags = 0;
 	createSurface(width, height, flags);

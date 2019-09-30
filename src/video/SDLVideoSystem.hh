@@ -44,6 +44,7 @@ public:
 	void takeScreenShot(const std::string& filename, bool withOsd) override;
 	void updateWindowTitle() override;
 	OutputSurface* getOutputSurface() override;
+	void showCursor(bool show) override;
 
 private:
 	// EventListener

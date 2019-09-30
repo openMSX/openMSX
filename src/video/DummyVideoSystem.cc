@@ -38,4 +38,8 @@ OutputSurface* DummyVideoSystem::getOutputSurface()
 	return nullptr;
 }
 
+void DummyVideoSystem::showCursor(bool /*show*/)
+{
+}
+
 } // namespace openmsx

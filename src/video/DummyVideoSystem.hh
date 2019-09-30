@@ -19,6 +19,7 @@ public:
 #endif
 	void flush() override;
 	OutputSurface* getOutputSurface() override;
+	void showCursor(bool show) override;
 };
 
 } // namespace openmsx

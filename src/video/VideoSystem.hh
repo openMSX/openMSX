@@ -74,6 +74,7 @@ public:
 
 	/** TODO */
 	virtual OutputSurface* getOutputSurface() = 0;
+	virtual void showCursor(bool show) = 0;
 
 protected:
 	VideoSystem() = default;

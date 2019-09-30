@@ -19,9 +19,10 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		RTScheduler& rtScheduler_,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
-		CliComm& cliComm_)
-	: VisibleSurface(display_, rtScheduler_, eventDistributor_, inputEventGenerator_,
-			cliComm_)
+		CliComm& cliComm_,
+		VideoSystem& videoSystem_)
+	: SDLCommonVisibleSurface(display_, rtScheduler_, eventDistributor_,
+		inputEventGenerator_, cliComm_, videoSystem_)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
@@ -83,7 +84,6 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
-	// TODO: Move context creation/deletion into Context class?
 	gl::context.reset();
 	SDL_GL_DeleteContext(glContext);
 }
