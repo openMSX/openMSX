@@ -11,7 +11,7 @@ import sys
 class DownloadURLOpener(FancyURLopener):
 
 	def http_error_default(self, url, fp, errcode, errmsg, headers):
-		raise IOError('%s: http:%s' % (errmsg, url))
+		raise OSError('%s: http:%s' % (errmsg, url))
 
 _urlOpener = DownloadURLOpener()
 
@@ -44,7 +44,7 @@ def createStatusLine(out):
 
 def downloadURL(url, localDir):
 	if not isdir(localDir):
-		raise IOError('Local directory "%s" does not exist' % localDir)
+		raise OSError('Local directory "%s" does not exist' % localDir)
 
 	fileName = basename(urlparse(url).path)
 	localPath = joinpath(localDir, fileName)
@@ -66,7 +66,7 @@ def downloadURL(url, localDir):
 	try:
 		try:
 			_urlOpener.retrieve(url, localPath, reportProgress)
-		except IOError:
+		except OSError:
 			statusLine(prefix + 'FAILED.')
 			raise
 		else:
@@ -83,7 +83,7 @@ if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		try:
 			downloadURL(*sys.argv[1 : ])
-		except IOError as ex:
+		except OSError as ex:
 			print(ex, file=sys.stderr)
 			sys.exit(1)
 	else:

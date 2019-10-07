@@ -124,7 +124,7 @@ def main(
 			installPrefix, binaryDestDir, shareDestDir, docDestDir,
 			binaryBuildPath, targetPlatform, cbios, symlinkForBinary
 			)
-	except IOError as ex:
+	except OSError as ex:
 		print('Installation failed:', ex, file=sys.stderr)
 		sys.exit(1)
 

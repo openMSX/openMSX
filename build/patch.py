@@ -39,7 +39,7 @@ class LineScanner(object):
 
 	def nextLine(self):
 		'''Moves on to the next line.
-		Raises IOError if there is a problem reading from the stream.
+		Raises OSError if there is a problem reading from the stream.
 		'''
 		stream = self.__stream
 		lineFilter = self.__filter
@@ -301,7 +301,7 @@ def patch(diff, targetDir):
 def main(diffPath, targetDir):
 	try:
 		differences = list(Diff.load(diffPath))
-	except IOError as ex:
+	except OSError as ex:
 		print('Error reading diff:', ex, file=sys.stderr)
 		sys.exit(1)
 	except ParseError as ex:
@@ -315,7 +315,7 @@ def main(diffPath, targetDir):
 		targetPath = joinpath(targetDir, diff.getPath())
 		try:
 			patch(diff, targetDir)
-		except IOError as ex:
+		except OSError as ex:
 			print('I/O error patching "%s": %s' % (
 				targetPath, ex
 				), file=sys.stderr)

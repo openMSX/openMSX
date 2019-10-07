@@ -6,7 +6,7 @@ import sys
 def verifyFile(filePath, fileLength, checksums):
 	actualLength = stat(filePath).st_size
 	if actualLength != fileLength:
-		raise IOError(
+		raise OSError(
 			'Expected length %d, actual length %d' % (fileLength, actualLength)
 			)
 	hashers = {}
@@ -14,7 +14,7 @@ def verifyFile(filePath, fileLength, checksums):
 		try:
 			hashers[algo] = newhash(algo)
 		except ValueError as ex:
-			raise IOError('Failed to create "%s" hasher: %s' % (algo, ex))
+			raise OSError('Failed to create "%s" hasher: %s' % (algo, ex))
 	bufSize = 16384
 	with open(filePath, 'rb') as inp:
 		while True:
@@ -25,7 +25,7 @@ def verifyFile(filePath, fileLength, checksums):
 				hasher.update(buf)
 	for algo, hasher in sorted(hashers.items()):
 		if checksums[algo] != hasher.hexdigest():
-			raise IOError('%s checksum mismatch' % algo)
+			raise OSError('%s checksum mismatch' % algo)
 
 def main(filePath, fileLengthStr, checksumStrs):
 	if not isfile(filePath):
@@ -48,7 +48,7 @@ def main(filePath, fileLengthStr, checksumStrs):
 	print('Validating: %s' % filePath)
 	try:
 		verifyFile(filePath, fileLength, checksums)
-	except IOError as ex:
+	except OSError as ex:
 		print('Validation FAILED: %s' % ex, file=sys.stderr)
 		sys.exit(1)
 	else:

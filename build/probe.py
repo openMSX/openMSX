@@ -27,7 +27,7 @@ def resolve(log, expr):
 	#       CFLAGS definition, it will be executed multiple times.
 	try:
 		return normalizeWhitespace(evaluateBackticks(log, expr))
-	except IOError:
+	except OSError:
 		# Executing a lib-config script is expected to fail if the
 		# script is not installed.
 		# TODO: Report this explicitly in the probe results table.
@@ -94,7 +94,7 @@ def evaluateBackticks(log, expression):
 		command = expression[start + 1 : end].strip()
 		result = captureStdout(log, command)
 		if result is None:
-			raise IOError('Backtick evaluation failed; see log')
+			raise OSError('Backtick evaluation failed; see log')
 		parts.append(result)
 		index = end + 1
 	return ''.join(parts)

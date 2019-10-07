@@ -23,7 +23,7 @@ def _determineMounts():
 			print('Error determining MSYS root:', stderrdata, file=sys.stderr)
 		if proc.returncode:
 			print('Exit code %d' % proc.returncode, file=sys.stderr)
-		raise IOError('Error determining MSYS root')
+		raise OSError('Error determining MSYS root')
 	msysRoot = stdoutdata.strip()
 
 	# Figure out all mount points of MSYS.
@@ -40,7 +40,7 @@ def _determineMounts():
 							)
 						if nativePath != 'none':
 							mounts[mountPoint] = nativePath
-		except IOError as ex:
+		except OSError as ex:
 			print('Failed to read MSYS fstab:', ex, file=sys.stderr)
 		except ValueError as ex:
 			print('Failed to parse MSYS fstab:', ex, file=sys.stderr)

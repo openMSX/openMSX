@@ -17,7 +17,7 @@ def scanTree(baseDir):
 	Hidden files and directories are not returned.
 	All paths returned use the OS native separator character (os.sep),
 	regardless of which separator characters were used in the arguments.
-	Raises IOError if there is an I/O error scanning the base directory.
+	Raises OSError if there is an I/O error scanning the base directory.
 	'''
 	if altsep is not None:
 		# Make sure all paths use the OS native separator, so we can safely
@@ -26,10 +26,10 @@ def scanTree(baseDir):
 	baseDir = baseDir.rstrip(sep)
 
 	if not isdir(baseDir):
-		raise IOError('Directory "%s" does not exist' % baseDir)
+		raise OSError('Directory "%s" does not exist' % baseDir)
 
 	def escalate(ex):
-		raise IOError(
+		raise OSError(
 			'Error scanning directory entry "%s": %s' % (ex.filename, ex)
 			)
 	for dirPath, dirNames, fileNames in walk(baseDir, onerror = escalate):
@@ -95,7 +95,7 @@ def installFile(srcPath, destPath):
 	The destination file is created with permissions such that all users can
 	read (and execute, if appropriate) what is installed and only the owner
 	can modify what is installed.
-	Raises IOError if there is a problem reading or writing files.
+	Raises OSError if there is a problem reading or writing files.
 	'''
 	copyfile(srcPath, destPath)
 	chmod(destPath, 0o755 if (stat(srcPath).st_mode & 0o100) else 0o644)
@@ -119,11 +119,11 @@ def installTree(srcDir, destDir, paths):
 	Files and directories are created with permissions such that all users can
 	read (and execute, if appropriate) what is installed and only the owner
 	can modify what is installed.
-	Raises IOError if there is a problem reading or writing files or
+	Raises OSError if there is a problem reading or writing files or
 	directories.
 	'''
 	if not isdir(destDir):
-		raise IOError('Destination directory "%s" does not exist' % destDir)
+		raise OSError('Destination directory "%s" does not exist' % destDir)
 
 	for relPath in paths:
 		if altsep is not None:
