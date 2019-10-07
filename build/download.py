@@ -1,19 +1,9 @@
 from os import remove, stat
 from os.path import basename, isdir, isfile, join as joinpath
 from urllib.parse import urlparse
-from urllib.request import FancyURLopener
+from urllib.request import urlopen
 
 import sys
-
-# FancyURLOpener, which is also used in urlretrieve(), does not raise
-# an exception on status codes like 404 and 500. However, for downloading it is
-# critical to write either what we requested or nothing at all.
-class DownloadURLOpener(FancyURLopener):
-
-	def http_error_default(self, url, fp, errcode, errmsg, headers):
-		raise OSError('%s: http:%s' % (errmsg, url))
-
-_urlOpener = DownloadURLOpener()
 
 class StatusLine(object):
 
@@ -53,8 +43,7 @@ def downloadURL(url, localDir):
 	statusLine = createStatusLine(sys.stdout)
 	statusLine(prefix + 'contacting server...')
 
-	def reportProgress(blocksDone, blockSize, totalSize):
-		doneSize = blocksDone * blockSize
+	def reportProgress(doneSize, totalSize):
 		statusLine(prefix + (
 			'%d/%d bytes (%1.1f%%)...' % (
 				doneSize, totalSize, (100.0 * doneSize) / totalSize
@@ -65,7 +54,18 @@ def downloadURL(url, localDir):
 
 	try:
 		try:
-			_urlOpener.retrieve(url, localPath, reportProgress)
+			with urlopen(url) as inp:
+				totalSize = int(inp.info().get('Content-Length', '0'))
+				with open(localPath, 'wb') as out:
+					doneSize = 0
+					reportProgress(doneSize, totalSize)
+					while True:
+						data = inp.read(16384)
+						if not data:
+							break
+						out.write(data)
+						doneSize += len(data)
+						reportProgress(doneSize, totalSize)
 		except OSError:
 			statusLine(prefix + 'FAILED.')
 			raise
