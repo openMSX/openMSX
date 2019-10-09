@@ -1,156 +1,119 @@
 #include "V9990P2Converter.hh"
 #include "V9990VRAM.hh"
 #include "V9990.hh"
-#include "MemoryOps.hh"
+#include "ScopedAssign.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 
 namespace openmsx {
 
-template <class Pixel>
+template<typename Pixel>
 V9990P2Converter<Pixel>::V9990P2Converter(V9990& vdp_, const Pixel* palette64_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palette64(palette64_)
 {
 }
 
-template <class Pixel>
-void V9990P2Converter<Pixel>::convertLine(
-	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
-	unsigned displayY, unsigned displayYA, bool drawSprites)
+template<bool ALIGNED>
+static unsigned getPatternAddress(
+	V9990VRAM& vram, unsigned nameAddr, unsigned patternBase, unsigned x, unsigned y)
 {
-	unsigned displayAX = (displayX + vdp.getScrollAX()) & 1023;
-
-	unsigned scrollY = vdp.getScrollAY();
-	unsigned rollMask = vdp.getRollMask(0x1FF);
-	unsigned scrollYBase = scrollY & ~rollMask & 0x1FF;
-	unsigned displayAY = scrollYBase + ((displayYA + scrollY) & rollMask);
-
-	unsigned displayEnd = displayX + displayWidth;
-
-	// backdrop color
-	Pixel bgcol = palette64[vdp.getBackDropColor()];
-	MemoryOps::MemSet<Pixel> memset;
-	memset(linePtr, displayWidth, bgcol);
-
-	// back sprite plane
-	int visibleSprites[16 + 1];
-	if (drawSprites) {
-		determineVisibleSprites(visibleSprites, displayY);
-		renderSprites(linePtr, displayX, displayEnd, displayY,
-		              visibleSprites, false);
-	}
-
-	// image plane
-	byte pal = (vdp.getPaletteOffset() & 0x03) << 4;
-	renderPattern(linePtr, displayWidth, displayAX, displayAY, pal);
-
-	// front sprite plane
-	if (drawSprites) {
-		renderSprites(linePtr, displayX, displayEnd, displayY,
-		              visibleSprites, true);
-	}
+	assert(!ALIGNED || ((x & 7) == 0));
+	unsigned patternNum = (vram.readVRAMDirect(nameAddr + 0) +
+	                       vram.readVRAMDirect(nameAddr + 1) * 256) & 0x1FFF;
+	unsigned x2 = (patternNum % 64) * 4 + (ALIGNED ? 0 : ((x & 7) / 2));
+	unsigned y2 = (patternNum / 64) * 2048 + y;
+	return patternBase + y2 + x2;
 }
 
-template <class Pixel>
-void V9990P2Converter<Pixel>::renderPattern(
-	Pixel* __restrict buffer, unsigned width, unsigned x, unsigned y,
-	byte pal)
+static unsigned nextNameAddr(unsigned addr)
 {
-	static const unsigned patternTable = 0x00000;
-	static const unsigned nameTable    = 0x7C000;
+	return (addr & ~255) | ((addr + 2) & 255);
+}
 
-	x &= 1023;
-	const Pixel* palette = palette64 + pal;
+template<typename Pixel>
+static void draw1(const Pixel* palette, Pixel* __restrict buffer, byte* __restrict info, size_t p)
+{
+	*info = bool(p);
+	*buffer = palette[p];
+}
+
+template<bool CHECK_WIDTH, typename Pixel>
+static void draw2(
+	V9990VRAM& vram, const Pixel* palette, Pixel* __restrict& buffer, byte* __restrict& info,
+	unsigned& address, int& width)
+{
+	byte data = vram.readVRAMBx(address++);
+	draw1(palette, buffer + 0, info + 0, data >> 4);
+	if (!CHECK_WIDTH || (width != 1)) {
+		draw1(palette, buffer + 1, info + 1, data & 0x0F);
+	}
+	width  -= 2;
+	buffer += 2;
+	info   += 2;
+}
+
+template<typename Pixel>
+static void renderPattern2(
+	V9990VRAM& vram, Pixel* __restrict buffer, byte* __restrict info,
+	int width, unsigned x, unsigned y,
+	unsigned nameTable, unsigned patternBase, const Pixel* palette)
+{
+	assert(x < 1024);
+	if (width == 0) return;
 
 	unsigned nameAddr = nameTable + (((y / 8) * 128 + (x / 8)) * 2);
 	y = (y & 7) * 256;
 
 	if (x & 7) {
-		unsigned patternNum = (vram.readVRAMDirect(nameAddr + 0) +
-		                       vram.readVRAMDirect(nameAddr + 1) * 256) & 0x1FFF;
-		unsigned x2 = (patternNum % 64) * 4 + ((x & 7) / 2);
-		unsigned y2 = (patternNum / 64) * 2048 + y;
-		unsigned address = patternTable + y2 + x2;
-		byte data = vram.readVRAMBx(address);
-
-		while ((x & 7) && width) {
-			byte p;
-			if (x & 1) {
-				p = data & 0x0F;
-				++address;
-			} else {
-				data = vram.readVRAMBx(address);
-				p = data >> 4;
-			}
-			if (p) buffer[0] = palette[p];
+		unsigned address = getPatternAddress<false>(vram, nameAddr, patternBase, x, y);
+		if (x & 1) {
+			byte data = vram.readVRAMBx(address++);
+			draw1(palette, buffer, info, data & 0x0F);
 			++x;
 			++buffer;
+			++info;
 			--width;
 		}
-		nameAddr = (nameAddr & ~255) | ((nameAddr + 2) & 255);
+		while ((x & 7) && (width > 0)) {
+			draw2<true>(vram, palette, buffer, info, address, width);
+			x += 2;
+		}
+		nameAddr = nextNameAddr(nameAddr);
 	}
-	assert((x & 7) == 0 || (width == 0));
+	assert((x & 7) == 0 || (width <= 0));
 	while (width & ~7) {
-		unsigned patternNum = (vram.readVRAMDirect(nameAddr + 0) +
-		                       vram.readVRAMDirect(nameAddr + 1) * 256) & 0x1FFF;
-		unsigned x2 = (patternNum % 64) * 4;
-		unsigned y2 = (patternNum / 64) * 2048 + y;
-		unsigned address = patternTable + y2 + x2;
-
-		byte data0 = vram.readVRAMBx(address + 0);
-		byte p0 = data0 >> 4;
-		if (p0) buffer[0] = palette[p0];
-		byte p1 = data0 & 0x0F;
-		if (p1) buffer[1] = palette[p1];
-
-		byte data1 = vram.readVRAMBx(address + 1);
-		byte p2 = data1 >> 4;
-		if (p2) buffer[2] = palette[p2];
-		byte p3 = data1 & 0x0F;
-		if (p3) buffer[3] = palette[p3];
-
-		byte data2 = vram.readVRAMBx(address + 2);
-		byte p4 = data2 >> 4;
-		if (p4) buffer[4] = palette[p4];
-		byte p5 = data2 & 0x0F;
-		if (p5) buffer[5] = palette[p5];
-
-		byte data3 = vram.readVRAMBx(address + 3);
-		byte p6 = data3 >> 4;
-		if (p6) buffer[6] = palette[p6];
-		byte p7 = data3 & 0x0F;
-		if (p7) buffer[7] = palette[p7];
-
-		width -= 8;
-		buffer += 8;
-		nameAddr = (nameAddr & ~255) | ((nameAddr + 2) & 255);
+		unsigned address = getPatternAddress<true>(vram, nameAddr, patternBase, x, y);
+		draw2<false>(vram, palette, buffer, info, address, width);
+		draw2<false>(vram, palette, buffer, info, address, width);
+		draw2<false>(vram, palette, buffer, info, address, width);
+		draw2<false>(vram, palette, buffer, info, address, width);
+		nameAddr = nextNameAddr(nameAddr);
 	}
 	assert(width < 8);
-	if (width) {
-		unsigned patternNum = (vram.readVRAMDirect(nameAddr + 0) +
-		                       vram.readVRAMDirect(nameAddr + 1) * 256) & 0x1FFF;
-		unsigned x2 = (patternNum % 64) * 4;
-		unsigned y2 = (patternNum / 64) * 2048 + y;
-		unsigned address = patternTable + y2 + x2;
+	if (width > 0) {
+		unsigned address = getPatternAddress<true>(vram, nameAddr, patternBase, x, y);
 		do {
-			byte data = vram.readVRAMBx(address++);
-			byte p0 = data >> 4;
-			if (p0) buffer[0] = palette[p0];
-			if (width != 1) {
-				byte p1 = data & 0x0F;
-				if (p1) buffer[1] = palette[p1];
-			}
-			width -= 2;
-			buffer += 2;
-		} while (int(width) > 0);
+			draw2<true>(vram, palette, buffer, info, address, width);
+		} while (width > 0);
 	}
 }
 
-template <class Pixel>
-void V9990P2Converter<Pixel>::determineVisibleSprites(
-	int* __restrict visibleSprites, int displayY)
+template<typename Pixel>
+static void renderPattern(
+	V9990VRAM& vram, Pixel* buffer, byte* info, Pixel bgcol, unsigned width,
+	unsigned displayX, unsigned displayY, unsigned name, unsigned pattern, const Pixel* pal)
+{
+	// Speedup drawing by temporarily replacing palette index 0.
+	ScopedAssign<Pixel> col0(const_cast<Pixel*>(pal)[0], bgcol);
+
+	renderPattern2(vram, buffer, info, width,
+	               displayX, displayY, name, pattern, pal);
+}
+static void determineVisibleSprites(
+	V9990VRAM& vram, int* __restrict visibleSprites, unsigned displayY)
 {
 	static const unsigned spriteTable = 0x3FE00;
 
@@ -172,48 +135,85 @@ void V9990P2Converter<Pixel>::determineVisibleSprites(
 			if (index == index_max) break;
 		}
 	}
-	// draw sprites in reverse order
-	std::reverse(visibleSprites, visibleSprites + index);
 	visibleSprites[index] = -1;
 }
 
 
-template <class Pixel>
-void V9990P2Converter<Pixel>::renderSprites(
-	Pixel* __restrict buffer, int displayX, int displayEnd, unsigned displayY,
-	const int* __restrict visibleSprites, bool front)
+template<typename Pixel>
+static void renderSprites(
+	V9990VRAM& vram, unsigned spritePatternTable, const Pixel* palette64,
+	Pixel* __restrict buffer, byte* __restrict info,
+	int displayX, int displayEnd, unsigned displayY,
+	const int* __restrict visibleSprites)
 {
 	static const unsigned spriteTable = 0x3FE00;
-	unsigned spritePatternTable = vdp.getSpritePatternAddress(P1); // TODO P2 ???
 
 	for (unsigned sprite = 0; visibleSprites[sprite] != -1; ++sprite) {
 		unsigned addr = spriteTable + 4 * visibleSprites[sprite];
 		byte spriteAttr = vram.readVRAMDirect(addr + 3);
-		if (front ^ !!(spriteAttr & 0x20)) {
-			int spriteX = vram.readVRAMDirect(addr + 2);
-			spriteX += 256 * (spriteAttr & 0x03);
-			if (spriteX > 1008) spriteX -= 1024; // hack X coord into -16..1008
-			byte spriteY  = vram.readVRAMDirect(addr + 0);
-			byte spriteNo = vram.readVRAMDirect(addr + 1);
-			spriteY = displayY - (spriteY + 1);
-			unsigned patAddr = spritePatternTable
-			     + (256 * (((spriteNo & 0xE0) >> 1) + spriteY))
-			     + (  8 *  (spriteNo & 0x1F));
-			const Pixel* palette = palette64 + ((spriteAttr >> 2) & 0x30);
-			for (int x = 0; x < 16; x +=2) {
-				byte data = vram.readVRAMBx(patAddr++);
-				int xPos = spriteX + x;
+		bool front = (spriteAttr & 0x20) == 0;
+		byte level = front ? 2 : 1;
+		int spriteX = vram.readVRAMDirect(addr + 2);
+		spriteX += 256 * (spriteAttr & 0x03);
+		if (spriteX > 1008) spriteX -= 1024; // hack X coord into -16..1008
+		byte spriteY  = vram.readVRAMDirect(addr + 0);
+		byte spriteNo = vram.readVRAMDirect(addr + 1);
+		spriteY = displayY - (spriteY + 1);
+		unsigned patAddr = spritePatternTable
+		     + (256 * (((spriteNo & 0xE0) >> 1) + spriteY))
+		     + (  8 *  (spriteNo & 0x1F));
+		const Pixel* palette = palette64 + ((spriteAttr >> 2) & 0x30);
+		for (int x = 0; x < 16; x +=2) {
+			auto draw = [&](int xPos, size_t p) {
 				if ((displayX <= xPos) && (xPos < displayEnd)) {
-					byte p = data >> 4;
-					if (p) buffer[xPos - displayX] = palette[p];
+					size_t xx = xPos - displayX;
+					if (p) {
+						if (info[xx] < level) {
+							buffer[xx] = palette[p];
+						}
+						info[xx] = 2; // also if back-sprite os behind foreground
+					}
 				}
-				++xPos;
-				if ((displayX <= xPos) && (xPos < displayEnd)) {
-					byte p = data & 0x0F;
-					if (p) buffer[xPos - displayX] = palette[p];
-				}
-			}
+			};
+			byte data = vram.readVRAMBx(patAddr++);
+			draw(spriteX + x + 0, data >> 4);
+			draw(spriteX + x + 1, data & 0x0F);
 		}
+	}
+}
+
+template<typename Pixel>
+void V9990P2Converter<Pixel>::convertLine(
+	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
+	unsigned displayY, unsigned displayYA, bool drawSprites)
+{
+	unsigned displayAX = (displayX + vdp.getScrollAX()) & 1023;
+
+	unsigned scrollY = vdp.getScrollAY();
+	unsigned rollMask = vdp.getRollMask(0x1FF);
+	unsigned scrollYBase = scrollY & ~rollMask & 0x1FF;
+	unsigned displayAY = scrollYBase + ((displayYA + scrollY) & rollMask);
+
+	unsigned displayEnd = displayX + displayWidth;
+
+	// image plane + backdrop color
+	assert(displayWidth <= 512);
+	byte info[512]; // left uninitialized
+	                // 0->background, 1->foreground, 2->sprite (front or back)
+	Pixel bgcol = palette64[vdp.getBackDropColor()];
+	byte offset = vdp.getPaletteOffset();
+	const Pixel* pal = palette64 + ((offset & 0x03) << 4);
+	renderPattern(vram, linePtr, info, bgcol, displayWidth,
+	              displayAX, displayAY, 0x7C000, 0x00000, pal);
+
+	// combined back+front sprite plane
+	if (drawSprites) {
+		int visibleSprites[16 + 1];
+		determineVisibleSprites(vram, visibleSprites, displayY);
+		unsigned spritePatternTable = vdp.getSpritePatternAddress(P1); // TODO P2 ???
+		renderSprites(vram, spritePatternTable, palette64,
+		              linePtr, info, displayX, displayEnd, displayY,
+		              visibleSprites);
 	}
 }
 

@@ -1,7 +1,6 @@
 #include "V9990P1Converter.hh"
 #include "V9990.hh"
 #include "V9990VRAM.hh"
-#include "MemoryOps.hh"
 #include "ScopedAssign.hh"
 #include "optional.hh"
 #include "build-info.hh"
@@ -81,6 +80,7 @@ static void renderPattern2(
 			draw1<BACKGROUND>(palette, buffer, info, data & 0x0F);
 			++x;
 			++buffer;
+			++info;
 			--width;
 		}
 		while ((x & 7) && (width > 0)) {
@@ -116,7 +116,7 @@ static void renderPattern(
 	optional<ScopedAssign<Pixel>> col0A, col0B; // optimized away for '!BACKGROUND'
 	if (BACKGROUND) {
 		// Speedup drawing by temporarily replacing palette index 0.
-		// Only allowed when 'palA' and 'palB' either fully overlap or are disjuct.
+		// Only allowed when 'palA' and 'palB' either fully overlap or are disjunct.
 		col0A.emplace(const_cast<Pixel*>(palA)[0], bgcol);
 		col0B.emplace(const_cast<Pixel*>(palB)[0], bgcol);
 	}
