@@ -1122,10 +1122,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990DummyRenderer.cc">
       <Filter>video\v9990</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990P1Converter.cc">
-      <Filter>video\v9990</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990P2Converter.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990PxConverter.cc">
       <Filter>video\v9990</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990PixelRenderer.cc">
@@ -2628,10 +2625,7 @@
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990ModeEnum.hh">
       <Filter>video\v9990</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\video\v9990\V9990P1Converter.hh">
-      <Filter>video\v9990</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\v9990\V9990P2Converter.hh">
+    <None Include="$(OpenMSXSrcDir)\video\v9990\V9990PxConverter.hh">
       <Filter>video\v9990</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990PixelRenderer.hh">

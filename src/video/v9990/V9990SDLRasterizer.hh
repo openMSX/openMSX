@@ -3,8 +3,7 @@
 
 #include "V9990Rasterizer.hh"
 #include "V9990BitmapConverter.hh"
-#include "V9990P1Converter.hh"
-#include "V9990P2Converter.hh"
+#include "V9990PxConverter.hh"
 #include "Observer.hh"
 #include <memory>
 

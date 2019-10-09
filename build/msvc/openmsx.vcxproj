@@ -721,8 +721,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990CmdEngine.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990DisplayTiming.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990DummyRenderer.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990P1Converter.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990P2Converter.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990PxConverter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990PixelRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990SDLRasterizer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990VRAM.cc" />
@@ -1333,8 +1332,7 @@
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990DisplayTiming.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990DummyRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990ModeEnum.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\v9990\V9990P1Converter.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\v9990\V9990P2Converter.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\v9990\V9990PxConverter.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990PixelRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990Rasterizer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990Renderer.hh" />
