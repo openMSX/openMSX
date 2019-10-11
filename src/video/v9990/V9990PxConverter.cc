@@ -129,15 +129,16 @@ template<typename Policy, typename Pixel>
 static void renderPattern(
 	V9990VRAM& vram, Pixel* __restrict buffer, byte* __restrict info,
 	Pixel bgcol, int width, unsigned x, unsigned y,
-	unsigned nameTable, unsigned patternBase, const Pixel* palette)
+	unsigned nameTable, unsigned patternBase, const Pixel* palette0, const Pixel* palette1)
 {
 	assert(x < Policy::IMAGE_WIDTH);
 	if (width == 0) return;
 
-	optional<ScopedAssign<Pixel>> col0; // optimized away when not used
+	optional<ScopedAssign<Pixel>> col0, col1; // optimized away when not used
 	if (Policy::DRAW_BACKDROP) {
 		// Speedup drawing by temporarily replacing palette index 0.
-		col0.emplace(const_cast<Pixel*>(palette)[0], bgcol);
+		col0.emplace(const_cast<Pixel*>(palette0)[0], bgcol);
+		col1.emplace(const_cast<Pixel*>(palette1)[0], bgcol);
 	}
 
 	unsigned nameAddr = nameTable + (((y / 8) * Policy::NAME_CHARS + (x / 8)) * 2);
@@ -146,15 +147,16 @@ static void renderPattern(
 	if (x & 7) {
 		unsigned address = getPatternAddress<Policy, false>(vram, nameAddr, patternBase, x, y);
 		if (x & 1) {
-			byte data = Policy::readPatternTable(vram, address++);
-			Policy::draw1(palette, buffer, info, data & 0x0F);
+			byte data = Policy::readPatternTable(vram, address);
+			Policy::draw1((address & 1) ? palette1 : palette0, buffer, info, data & 0x0F);
+			++address;
 			++x;
 			++buffer;
 			++info;
 			--width;
 		}
 		while ((x & 7) && (width > 0)) {
-			draw2<Policy, true>(vram, palette, buffer, info, address, width);
+			draw2<Policy, true>(vram, (address & 1) ? palette1 : palette0, buffer, info, address, width);
 			x += 2;
 		}
 		nameAddr = nextNameAddr<Policy>(nameAddr);
@@ -162,17 +164,17 @@ static void renderPattern(
 	assert((x & 7) == 0 || (width <= 0));
 	while (width & ~7) {
 		unsigned address = getPatternAddress<Policy, true>(vram, nameAddr, patternBase, x, y);
-		draw2<Policy, false>(vram, palette, buffer, info, address, width);
-		draw2<Policy, false>(vram, palette, buffer, info, address, width);
-		draw2<Policy, false>(vram, palette, buffer, info, address, width);
-		draw2<Policy, false>(vram, palette, buffer, info, address, width);
+		draw2<Policy, false>(vram, palette0, buffer, info, address, width);
+		draw2<Policy, false>(vram, palette1, buffer, info, address, width);
+		draw2<Policy, false>(vram, palette0, buffer, info, address, width);
+		draw2<Policy, false>(vram, palette1, buffer, info, address, width);
 		nameAddr = nextNameAddr<Policy>(nameAddr);
 	}
 	assert(width < 8);
 	if (width > 0) {
 		unsigned address = getPatternAddress<Policy, true>(vram, nameAddr, patternBase, x, y);
 		do {
-			draw2<Policy, true>(vram, palette, buffer, info, address, width);
+			draw2<Policy, true>(vram, (address & 1) ? palette1 : palette0, buffer, info, address, width);
 		} while (width > 0);
 	}
 }
@@ -185,7 +187,7 @@ static void renderPattern2(
 {
 	renderPattern<Policy>(
 		vram, buffer, info, bgcol, width1,
-		displayAX, displayAY, nameA, patternA, palA);
+		displayAX, displayAY, nameA, patternA, palA, palA);
 
 	buffer += width1;
 	info   += width1;
@@ -194,7 +196,7 @@ static void renderPattern2(
 
 	renderPattern<Policy>(
 		vram, buffer, info, bgcol, width2,
-		displayBX, displayBY, nameB, patternB, palB);
+		displayBX, displayBY, nameB, patternB, palB, palB);
 }
 
 template<typename Policy, typename Pixel>
@@ -333,10 +335,11 @@ void V9990P2Converter<Pixel>::convertLine(
 	                // 0->background, 1->foreground, 2->sprite (front or back)
 	Pixel bgcol = palette64[vdp.getBackDropColor()];
 	byte offset = vdp.getPaletteOffset();
-	const Pixel* pal = palette64 + ((offset & 0x03) << 4);
+	const Pixel* palette0 = palette64 + ((offset & 0x03) << 4);
+	const Pixel* palette1 = palette64 + ((offset & 0x0C) << 2);
 	renderPattern<P2Policy>(
 		vram, linePtr, info, bgcol, displayWidth,
-		displayAX, displayAY, 0x7C000, 0x00000, pal);
+		displayAX, displayAY, 0x7C000, 0x00000, palette0, palette1);
 
 	// combined back+front sprite plane
 	if (drawSprites) {
