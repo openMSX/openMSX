@@ -42,4 +42,3 @@ private:
 } // namespace openmsx
 
 #endif
-
