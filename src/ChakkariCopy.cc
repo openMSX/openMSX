@@ -29,7 +29,7 @@
 // The memory at 6800-7FFF is unused by the cartridge.
 //
 // Internal handling: during cartridge initialisation Chakkari Copy copies the
-// contents of BIOS page 0 into it's own RAM and patches some entries to
+// contents of BIOS page 0 into its own RAM and patches some entries to
 // capture the input of PAUSE and COPY buttons of the cartridge. Afterwards the
 // patched memory is set to read-only.
 // PAUSE and COPY itself are processed by the routines in the ROM. In case the
@@ -47,7 +47,7 @@
 // In case the printer is not ready or not available the printing can be
 // aborted by pressing Ctrl+Stop.
 //
-// The Chakkari Copy cartridge has one register, which controls it's complete
+// The Chakkari Copy cartridge has one register, which controls its complete
 // behavior. This register is available at MSX port &H7F.
 //
 // READ only:
