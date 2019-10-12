@@ -332,8 +332,8 @@ CXX?=g++
 WINDRES?=windres
 DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
-  # Enable C++14 (supported since clang-3.5)
-  COMPILE_FLAGS+=-std=c++14
+  # Enable C++17 (for the most part supported since clang-5)
+  COMPILE_FLAGS+=-std=c++17
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.
@@ -344,8 +344,8 @@ else
 ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Generic compilation flags.
   COMPILE_FLAGS+=-pipe
-  # Enable C++14
-  COMPILE_FLAGS+=-std=c++14
+  # Enable C++17  (almost fully supported since gcc-7)
+  COMPILE_FLAGS+=-std=c++17
   # Stricter warning and error reporting.
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
   # Empty definition of used headers, so header removal doesn't break things.
