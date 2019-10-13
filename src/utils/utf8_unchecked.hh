@@ -242,7 +242,7 @@ inline std::string_view substr(std::string_view utf8, std::string_view::size_typ
 	} else {
 		e = end(utf8);
 	}
-	return std::string_view(b, e - b);
+	return std::string_view(&*b, e - b);
 }
 
 } // namespace utf8::unchecked

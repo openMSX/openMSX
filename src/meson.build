@@ -430,7 +430,6 @@ sources = files(
     'utils/lz4.cc',
     'utils/rapidsax.cc',
     'utils/sha1.cc',
-    'utils/string_view.cc',
     'utils/tiger.cc',
     'utils/uint128.cc',
     'utils/utf8_checked.cc',

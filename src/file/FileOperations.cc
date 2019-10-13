@@ -237,7 +237,7 @@ void mkdir(const string& path, mode_t mode)
 static bool isUNCPath(string_view path)
 {
 #ifdef _WIN32
-	return path.starts_with("//") || path.starts_with("\\\\");
+	return StringOp::startWith(path, "//") || StringOp::startsWith(path, "\\\\");
 #else
 	(void)path;
 	return false;

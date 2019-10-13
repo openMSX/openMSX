@@ -1,6 +1,7 @@
 #ifndef CSTD_HH
 #define CSTD_HH
 
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <functional>

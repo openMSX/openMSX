@@ -640,7 +640,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\MemoryOps.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sha1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\StringOp.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\string_view.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\rapidsax.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\uint128.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\utf8_checked.cc" />
@@ -1223,7 +1222,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\statp.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\StringOp.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\stringsp.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\string_view.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\strCat.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\rapidsax.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Subject.hh" />

@@ -82,7 +82,7 @@ static string_view nextToken(string_view& str)
 		// Pop non-separator character.
 		str.remove_prefix(1);
 	}
-	return string_view(tokenBegin, str.begin() - tokenBegin);
+	return string_view(&*tokenBegin, str.begin() - tokenBegin);
 }
 
 

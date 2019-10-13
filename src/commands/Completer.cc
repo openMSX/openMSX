@@ -110,7 +110,7 @@ bool Completer::completeImpl(string& str, vector<string_view> matches,
 		auto b = begin(*it);
 		auto e = b + str.size();
 		utf8::unchecked::next(e); // one more utf8 char
-		string_view string2(b, e - b);
+		string_view string2(&*b, e - b);
 		for (/**/; it != end(matches); ++it) {
 			if (!equalHead(string2, *it, caseSensitive)) {
 				goto out; // TODO rewrite this
