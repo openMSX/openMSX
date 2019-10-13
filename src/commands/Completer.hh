@@ -3,6 +3,7 @@
 
 #include "inline.hh"
 #include "span.hh"
+#include <string>
 #include <string_view>
 #include <vector>
 
