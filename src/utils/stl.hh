@@ -366,7 +366,7 @@ void append(Result& x, Range&& y, Tail&&... tail)
 	// gcc/include/c++/7.1.0/debug/functions.h
 	// __foreign_iterator_aux functions). So avoid vector::insert
 	for (auto&& e : y) {
-		x.push_back(std::forward<decltype(e)>(e));
+		x.emplace_back(std::forward<decltype(e)>(e));
 	}
 #else
 	x.insert(std::end(x), std::begin(y), std::end(y));
