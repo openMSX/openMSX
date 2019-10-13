@@ -29,7 +29,7 @@ void MidiOutMessageBuffer::recvMessage(
 	if (!curPacket) {
 		fprintf(stderr, "Failed to package MIDI data\n");
 	} else if (OSStatus status = sendPacketList(&packetList)) {
-		fprintf(stderr, "Failed to send MIDI data (%d)\n", (int)status);
+		fprintf(stderr, "Failed to send MIDI data (%d)\n", int(status));
 	} else {
 		//fprintf(stderr, "MIDI send OK: %02X\n", value);
 	}
@@ -90,7 +90,7 @@ void MidiOutCoreMIDI::unplugHelper(EmuTime::param /*time*/)
 
 	// Dispose of the client; this automatically disposes of the port as well.
 	if (OSStatus status = MIDIClientDispose(client)) {
-		fprintf(stderr, "Failed to dispose of MIDI client (%d)\n", (int)status);
+		fprintf(stderr, "Failed to dispose of MIDI client (%d)\n", int(status));
 	}
 	port = 0;
 	client = 0;
@@ -146,11 +146,11 @@ void MidiOutCoreMIDIVirtual::unplugHelper(EmuTime::param /*time*/)
 	clearBuffer();
 
 	if (OSStatus status = MIDIEndpointDispose(endpoint)) {
-		fprintf(stderr, "Failed to dispose of MIDI port (%d)\n", (int)status);
+		fprintf(stderr, "Failed to dispose of MIDI port (%d)\n", int(status));
 	}
 	endpoint = 0;
 	if (OSStatus status = MIDIClientDispose(client)) {
-		fprintf(stderr, "Failed to dispose of MIDI client (%d)\n", (int)status);
+		fprintf(stderr, "Failed to dispose of MIDI client (%d)\n", int(status));
 	}
 	client = 0;
 }

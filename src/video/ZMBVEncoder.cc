@@ -425,7 +425,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	zstream.avail_out = outputSize - writeDone;
 	zstream.total_out = 0;
 	auto r = deflate(&zstream, Z_SYNC_FLUSH);
-	assert(r == Z_OK);
+	assert(r == Z_OK); (void)r;
 
 	buffer = output.data();
 	written = writeDone + zstream.total_out;
