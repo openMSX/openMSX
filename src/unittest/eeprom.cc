@@ -124,6 +124,7 @@ static uint8_t read(EEPROM_93C46& eeprom, EmuTime& time, unsigned addr)
 	CHECK(eeprom.read_DO(time) == false); // initial 0-bit
 	uint8_t result = 0;
 	for (auto i : xrange(EEPROM_93C46::DATA_BITS)) {
+		(void)i;
 		eeprom.write_CLK(true, time);
 		time += step;
 		result <<= 1;
@@ -155,8 +156,10 @@ static void read_block(EEPROM_93C46& eeprom, EmuTime& time, unsigned addr,
 
 	CHECK(eeprom.read_DO(time) == false); // initial 0-bit
 	for (auto j : xrange(num)) {
+		(void)j;
 		*output = 0;
 		for (auto i : xrange(EEPROM_93C46::DATA_BITS)) {
+			(void)i;
 			eeprom.write_CLK(true, time);
 			time += step;
 			*output <<= 1;
