@@ -5,7 +5,8 @@
 #include "strCat.hh"
 #include "view.hh"
 
-using namespace std;
+using std::string;
+using std::vector;
 
 
 TEST_CASE("join: vector<string_view>, char")
@@ -42,7 +43,7 @@ TEST_CASE("join: various types")
 		std::string result1 = join(range, sep);
 		CHECK(result1 == expected);
 
-		ostringstream ss;
+		std::ostringstream ss;
 		ss << join(range, sep);
 		std::string result2 = ss.str();
 		CHECK(result2 == expected);

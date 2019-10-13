@@ -1,10 +1,11 @@
 #include "catch.hpp"
 #include "StringOp.hh"
 
-using namespace std;
 using namespace StringOp;
+using std::string;
+using std::vector;
 
-static void testStringToInt(const std::string& s, bool ok, int expected)
+static void testStringToInt(const string& s, bool ok, int expected)
 {
 	int result;
 	bool success = stringToInt(s, result);
