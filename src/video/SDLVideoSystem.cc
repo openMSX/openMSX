@@ -202,9 +202,6 @@ gl::ivec2 SDLVideoSystem::getWindowSize()
 	case RenderSettings::SDLGL_PP:
 		// All scale factors are supported.
 		break;
-	case RenderSettings::DUMMY:
-		factor = 0;
-		break;
 	default:
 		UNREACHABLE;
 	}

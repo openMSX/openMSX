@@ -24,7 +24,7 @@ public:
 	EEPROM_93C46(const std::string& name, const DeviceConfig& config);
 
 	void reset();
-	
+
 	bool read_DO(EmuTime::param time) const;
 	void write_CS (bool value, EmuTime::param time);
 	void write_CLK(bool value, EmuTime::param time);

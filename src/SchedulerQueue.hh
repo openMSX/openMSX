@@ -47,7 +47,7 @@ public:
 
 	// Insert new element.
 	// Elements are sorted according to the given LESS predicate.
-	// SET_SENTINEL must set an element to it's maximum value (so that
+	// SET_SENTINEL must set an element to its maximum value (so that
 	// 'less(x, sentinel)' is true for any x).
 	// (Important) two elements that are equivalent according to 'less'
 	// keep their relative order, IOW newly inserted elements are inserted

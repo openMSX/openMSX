@@ -10,7 +10,7 @@ namespace openmsx {
 class OutputSurface;
 
 /** This is a common base class for SDLGLVisibleSurface and
-  * SDLGLOffScreenSurface. It's only purpose is to have a place to put common
+  * SDLGLOffScreenSurface. Its only purpose is to have a place to put common
   * code.
   */
 class SDLGLOutputSurface
