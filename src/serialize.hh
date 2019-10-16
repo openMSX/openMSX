@@ -561,7 +561,7 @@ public:
 		using TNC = std::remove_const_t<T>;
 		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
-		loader(this->self(), tnc, std::tuple(), -1); // don't load id
+		loader(this->self(), tnc, std::tuple<>(), -1); // don't load id
 		this->self().endTag(tag);
 	}
 	template<typename T> void serializePointerID(const char* tag, const T& t)
@@ -674,7 +674,7 @@ public:
 		// - Only do this when there are at least two pairs (it is
 		//   correct for a single pair, but it's less tuned for that
 		//   case).
-		serialize_group(std::tuple(), tag, t, std::forward<Args>(args)...);
+		serialize_group(std::tuple<>(), tag, t, std::forward<Args>(args)...);
 	}
 	template<typename T, size_t N>
 	ALWAYS_INLINE void serialize(const char* /*tag*/, const T(&t)[N],
@@ -786,7 +786,7 @@ public:
 	ALWAYS_INLINE void serialize(const char* tag, T& t, Args&& ...args)
 	{
 		// see comments in MemOutputArchive
-		serialize_group(std::tuple(), tag, t, std::forward<Args>(args)...);
+		serialize_group(std::tuple<>(), tag, t, std::forward<Args>(args)...);
 	}
 
 	template<typename T, size_t N>

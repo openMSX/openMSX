@@ -94,7 +94,7 @@ template<typename Base> struct MapConstrArgsEmpty
 	using TUPLEIn = typename PolymorphicConstructorArgs<Base>::type;
 	std::tuple<> operator()(const TUPLEIn& /*t*/)
 	{
-		return std::tuple();
+		return std::tuple<>();
 	}
 };
 template<typename Base, typename Derived> struct MapConstrArgsCopy
@@ -207,7 +207,7 @@ public:
 		}
 		auto t = static_cast<T*>(base);
 		ClassLoader<T> loader;
-		loader(ar, *t, std::tuple(), id);
+		loader(ar, *t, std::tuple<>(), id);
 	}
 };
 

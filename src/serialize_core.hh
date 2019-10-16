@@ -549,7 +549,7 @@ template<typename T> struct NonPolymorphicPointerLoader
 		Creator<T> creator;
 		auto tp = creator(args);
 		ClassLoader<T> loader;
-		loader(ar, *tp, std::tuple(), id, version);
+		loader(ar, *tp, std::tuple<>(), id, version);
 		return tp.release();
 	}
 };
