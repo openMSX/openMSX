@@ -88,6 +88,9 @@ public:
 	  */
 	EmuTime estimateCmdEnd() const;
 
+	const V9990& getVDP() const { return vdp; }
+	bool getBrokenTiming() const { return brokenTiming; }
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -326,7 +329,6 @@ private:
 	void update(const Setting& setting) override;
 
 	void setCommandMode();
-	EmuDuration getTiming(const EmuDuration table[4][3][4]) const;
 
 	inline unsigned getWrappedNX() const {
 		return NX ? NX : 2048;

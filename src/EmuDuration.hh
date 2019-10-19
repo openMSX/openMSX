@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cstdint>
 #include <limits>
+#include <type_traits>
 
 namespace openmsx {
 
@@ -133,6 +134,33 @@ private:
 
 template<> struct SerializeAsMemcpy<EmuDuration> : std::true_type {};
 
+
+template<typename T> class EmuDurationCompactStorage
+{
+public:
+	constexpr EmuDurationCompactStorage(EmuDuration e)
+		: time(T(e.length()))
+	{
+		assert(e.length() <= std::numeric_limits<T>::max());
+	}
+
+	constexpr operator EmuDuration() const
+	{
+		return EmuDuration(uint64_t(time));
+	}
+private:
+	T time;
+};
+
+using EmuDuration32 = EmuDurationCompactStorage<uint32_t>;
+using EmuDuration16 = EmuDurationCompactStorage<uint16_t>;
+using EmuDuration8  = EmuDurationCompactStorage<uint8_t>;
+
+template<uint64_t MAX>
+using EmuDurationStorageFor = std::conditional_t<(MAX > std::numeric_limits<uint32_t>::max()), EmuDuration,
+                              std::conditional_t<(MAX > std::numeric_limits<uint16_t>::max()), EmuDuration32,
+                              std::conditional_t<(MAX > std::numeric_limits<uint8_t >::max()), EmuDuration16,
+                                                                                               EmuDuration8>>>;
 } // namespace openmsx
 
 #endif
