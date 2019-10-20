@@ -5,8 +5,7 @@
 namespace openmsx {
 
 SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
-	: SDLGLOutputSurface(output.getFrameBufferType())
-	, fboTex(true) // enable interpolation   TODO why?
+	: fboTex(true) // enable interpolation   TODO why?
 {
 	// only used for width and height
 	setSDLSurface(const_cast<SDL_Surface*>(output.getSDLSurface()));
@@ -28,16 +27,6 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	fbo.push();
 
 	SDLGLOutputSurface::init(*this);
-}
-
-void SDLGLOffScreenSurface::flushFrameBuffer()
-{
-	SDLGLOutputSurface::flushFrameBuffer(getWidth(), getHeight());
-}
-
-void SDLGLOffScreenSurface::clearScreen()
-{
-	SDLGLOutputSurface::clearScreen();
 }
 
 void SDLGLOffScreenSurface::saveScreenshot(const std::string& filename)

@@ -66,8 +66,6 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	auto& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
-	case RenderSettings::SDLGL_FB16:
-	case RenderSettings::SDLGL_FB32:
 		switch (screen->getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 		case 2:
@@ -110,8 +108,6 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
-	case RenderSettings::SDLGL_FB16:
-	case RenderSettings::SDLGL_FB32:
 		switch (screen->getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 		case 2:
@@ -153,8 +149,6 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
-	case RenderSettings::SDLGL_FB16:
-	case RenderSettings::SDLGL_FB32:
 		switch (screen->getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 		case 2:
@@ -194,8 +188,6 @@ gl::ivec2 SDLVideoSystem::getWindowSize()
 	int factor = renderSettings.getScaleFactor();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
-	case RenderSettings::SDLGL_FB16:
-	case RenderSettings::SDLGL_FB32:
 		// We don't have 4x software scalers yet.
 		if (factor > 3) factor = 3;
 		break;
@@ -277,20 +269,6 @@ void SDLVideoSystem::resize()
 			width, height, display, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm());
-		break;
-	case RenderSettings::SDLGL_FB16:
-		screen = std::make_unique<SDLGLVisibleSurface>(
-			width, height, display, rtScheduler,
-			eventDistributor, inputEventGenerator,
-			reactor.getCliComm(),
-			SDLGLVisibleSurface::FB_16BPP);
-		break;
-	case RenderSettings::SDLGL_FB32:
-		screen = std::make_unique<SDLGLVisibleSurface>(
-			width, height, display, rtScheduler,
-			eventDistributor, inputEventGenerator,
-			reactor.getCliComm(),
-			SDLGLVisibleSurface::FB_32BPP);
 		break;
 #endif
 	default:

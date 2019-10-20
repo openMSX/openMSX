@@ -15,11 +15,9 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		RTScheduler& rtScheduler_,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
-		CliComm& cliComm_,
-		FrameBuffer frameBuffer_)
+		CliComm& cliComm_)
 	: VisibleSurface(display_, rtScheduler_, eventDistributor_, inputEventGenerator_,
 			cliComm_)
-	, SDLGLOutputSurface(frameBuffer_)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
@@ -84,16 +82,6 @@ SDLGLVisibleSurface::~SDLGLVisibleSurface()
 	// TODO: Move context creation/deletion into Context class?
 	gl::context.reset();
 	SDL_GL_DeleteContext(glContext);
-}
-
-void SDLGLVisibleSurface::flushFrameBuffer()
-{
-	SDLGLOutputSurface::flushFrameBuffer(getWidth(), getHeight());
-}
-
-void SDLGLVisibleSurface::clearScreen()
-{
-	SDLGLOutputSurface::clearScreen();
 }
 
 void SDLGLVisibleSurface::saveScreenshot(const std::string& filename)

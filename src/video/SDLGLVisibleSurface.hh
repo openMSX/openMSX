@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-/** Visible surface for openGL renderers, both SDLGL-PP and SDLGL-FBxx
+/** Visible surface for SDL openGL renderers
  */
 class SDLGLVisibleSurface final : public VisibleSurface
                                 , public SDLGLOutputSurface
@@ -17,15 +17,12 @@ public:
 	                    RTScheduler& rtScheduler,
 	                    EventDistributor& eventDistributor,
 	                    InputEventGenerator& inputEventGenerator,
-	                    CliComm& cliComm,
-	                    FrameBuffer frameBuffer = FB_NONE);
+	                    CliComm& cliComm);
 	~SDLGLVisibleSurface() override;
 
 private:
 	// OutputSurface
-	void flushFrameBuffer() override;
 	void saveScreenshot(const std::string& filename) override;
-	void clearScreen() override;
 
 	// VisibleSurface
 	void finish() override;
