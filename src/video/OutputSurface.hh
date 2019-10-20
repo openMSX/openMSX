@@ -157,8 +157,6 @@ private:
 	gl::vec2 m_viewScale{1.0f};
 
 	bool locked = false;
-
-	friend class SDLGLOutputSurface; // for setBufferPtr()
 };
 
 } // namespace openmsx
