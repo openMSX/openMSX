@@ -43,14 +43,6 @@ EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
 	// compiled with OpenGL-2.0, still need to test whether
 	// it's available at run time, but cannot be done here
 	rendererMap.emplace_back("SDLGL-PP", SDLGL_PP);
-	if (!Version::RELEASE) {
-		// disabled for the release:
-		//  these renderers don't offer anything more than the existing
-		//  renderers and sdlgl-fb32 still has endian problems on PPC
-		// TODO is this still true now that SDLGL is removed?
-		append(rendererMap, {{"SDLGL-FB16", SDLGL_FB16},
-		                     {"SDLGL-FB32", SDLGL_FB32}});
-	}
 #endif
 	return rendererMap;
 }

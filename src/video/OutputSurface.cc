@@ -72,4 +72,8 @@ void OutputSurface::flushFrameBuffer()
 {
 }
 
+void  OutputSurface::clearScreen()
+{
+}
+
 } // namespace openmsx

@@ -1050,9 +1050,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.cc">
       <Filter>video</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLOutputSurface.cc">
-      <Filter>video</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -2531,9 +2528,6 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\SDLGLOutputSurface.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.hh">

@@ -463,7 +463,6 @@ sources = files(
     'video/Renderer.cc',
     'video/RendererFactory.cc',
     'video/SDLGLOffScreenSurface.cc',
-    'video/SDLGLOutputSurface.cc',
     'video/SDLGLVisibleSurface.cc',
     'video/SDLImage.cc',
     'video/SDLOffScreenSurface.cc',

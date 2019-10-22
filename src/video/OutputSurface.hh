@@ -113,7 +113,7 @@ public:
 
 	/** Returns a pointer to the requested line in the pixel buffer.
 	  * Not all implementations support this operation, e.g. in SDLGL
-	  * (non FB version) you don't have direct access to a pixel buffer.
+	  * you don't have direct access to a pixel buffer.
 	  */
 	template <typename Pixel>
 	Pixel* getLinePtrDirect(unsigned y) {
@@ -121,7 +121,7 @@ public:
 		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 
-	/** For SDLGL-FB-nn, copy frame buffer to OpenGL display.
+	/** Copy frame buffer to display buffer.
 	  * The default implementation does nothing.
 	  */
 	virtual void flushFrameBuffer();
@@ -131,9 +131,10 @@ public:
 	  */
 	virtual void saveScreenshot(const std::string& filename) = 0;
 
-	/** Clear screen (paint it black).
+	/** Clear frame buffer (paint it black).
+	  * The default implementation does nothing.
 	 */
-	virtual void clearScreen() = 0;
+	virtual void clearScreen();
 
 protected:
 	OutputSurface() = default;
@@ -156,8 +157,6 @@ private:
 	gl::vec2 m_viewScale{1.0f};
 
 	bool locked = false;
-
-	friend class SDLGLOutputSurface; // for setBufferPtr()
 };
 
 } // namespace openmsx

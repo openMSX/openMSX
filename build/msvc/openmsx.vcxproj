@@ -704,7 +704,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\ScalerFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scanline.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLOutputSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLImage.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLOffScreenSurface.cc" />
@@ -1308,7 +1307,6 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\ScalerFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\video\Scanline.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\SDLGLOutputSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLImage.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLOffScreenSurface.hh" />

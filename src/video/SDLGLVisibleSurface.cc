@@ -4,6 +4,10 @@
 #include "GLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
+#include "PNG.hh"
+#include "build-info.hh"
+#include "MemBuffer.hh"
+#include "vla.hh"
 #include "InitException.hh"
 #include <memory>
 
@@ -15,11 +19,9 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		RTScheduler& rtScheduler_,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
-		CliComm& cliComm_,
-		FrameBuffer frameBuffer_)
+		CliComm& cliComm_)
 	: VisibleSurface(display_, rtScheduler_, eventDistributor_, inputEventGenerator_,
 			cliComm_)
-	, SDLGLOutputSurface(frameBuffer_)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
@@ -70,11 +72,11 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	glOrtho(0, width, height, 0, -1, 1);
 	glMatrixMode(GL_MODELVIEW);
 
-	// This stuff logically belongs in the SDLGLOutputSurface constructor,
-	// but it cannot be executed before the openGL context is created which
-	// is done in this constructor. So construction of SDLGLOutputSurface
-	// is split in two phases.
-	SDLGLOutputSurface::init(*this);
+	SDLAllocFormatPtr frmt(SDL_AllocFormat(
+		        OPENMSX_BIGENDIAN ? SDL_PIXELFORMAT_RGBA8888 :
+		                            SDL_PIXELFORMAT_ARGB8888));
+	setSDLFormat(*frmt);
+	setBufferPtr(nullptr, 0); // direct access not allowed
 
 	gl::context = std::make_unique<gl::Context>(width, height);
 }
@@ -86,19 +88,24 @@ SDLGLVisibleSurface::~SDLGLVisibleSurface()
 	SDL_GL_DeleteContext(glContext);
 }
 
-void SDLGLVisibleSurface::flushFrameBuffer()
-{
-	SDLGLOutputSurface::flushFrameBuffer(getWidth(), getHeight());
-}
-
-void SDLGLVisibleSurface::clearScreen()
-{
-	SDLGLOutputSurface::clearScreen();
-}
-
 void SDLGLVisibleSurface::saveScreenshot(const std::string& filename)
 {
-	SDLGLOutputSurface::saveScreenshot(filename, *this);
+	saveScreenshotGL(*this, filename);
+}
+
+void SDLGLVisibleSurface::saveScreenshotGL(
+	const OutputSurface& output, const std::string& filename)
+{
+	gl::ivec2 offset = output.getViewOffset();
+	gl::ivec2 size   = output.getViewSize();
+
+	VLA(const void*, rowPointers, size[1]);
+	MemBuffer<uint8_t> buffer(size[0] * size[1] * 3);
+	for (int i = 0; i < size[1]; ++i) {
+		rowPointers[size[1] - 1 - i] = &buffer[size[0] * 3 * i];
+	}
+	glReadPixels(offset[0], offset[1], size[0], size[1], GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+	PNG::save(size[0], size[1], rowPointers, filename);
 }
 
 void SDLGLVisibleSurface::finish()
