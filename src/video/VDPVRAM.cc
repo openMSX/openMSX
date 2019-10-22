@@ -11,8 +11,6 @@ namespace openmsx {
 
 // class VRAMWindow
 
-DummyVRAMOBserver VRAMWindow::dummyObserver;
-
 VRAMWindow::VRAMWindow(Ram& vram)
 	: data(&vram[0])
 {

@@ -33,7 +33,7 @@ public:
 
 #if STATISTICS
 protected:
-	static size_t globalAllocSize;
+	static inline size_t globalAllocSize = 0;
 	size_t allocSize;
 #endif
 };

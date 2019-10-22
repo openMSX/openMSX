@@ -1,6 +1,7 @@
 #ifndef MSXCPUINTERFACE_HH
 #define MSXCPUINTERFACE_HH
 
+#include "DebugCondition.hh"
 #include "SimpleDebuggable.hh"
 #include "InfoTopic.hh"
 #include "CacheLine.hh"
@@ -22,7 +23,6 @@ class MSXMotherBoard;
 class MSXCPU;
 class CliComm;
 class BreakPoint;
-class DebugCondition;
 class CartridgeSlotManager;
 
 struct CompareBreakpoints {
@@ -398,10 +398,10 @@ private:
 	bool fastForward; // no need to serialize
 
 	//  All CPUs (Z80 and R800) of all MSX machines share this state.
-	static BreakPoints breakPoints; // sorted on address
+	static inline BreakPoints breakPoints; // sorted on address
 	WatchPoints watchPoints; // ordered in creation order,  TODO must also be static
-	static Conditions conditions; // ordered in creation order
-	static bool breaked;
+	static inline Conditions conditions; // ordered in creation order
+	static inline bool breaked = false;
 };
 
 

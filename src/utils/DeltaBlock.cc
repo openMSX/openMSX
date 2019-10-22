@@ -241,8 +241,6 @@ static void applyDeltaInPlace(uint8_t* buf, size_t size, const uint8_t* delta)
 
 // class DeltaBlock
 
-size_t DeltaBlock::globalAllocSize = 0;
-
 DeltaBlock::~DeltaBlock()
 {
 	globalAllocSize -= allocSize;

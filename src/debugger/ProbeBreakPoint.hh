@@ -33,7 +33,7 @@ private:
 	ProbeBase& probe;
 	const unsigned id;
 
-	static unsigned lastId;
+	static inline unsigned lastId = 0;
 };
 
 } // namespace openmsx

@@ -144,9 +144,6 @@ void FrameBufferObject::pop()
 }
 
 
-bool PixelBuffers::enabled = true;
-
-
 // class Shader
 
 Shader::Shader(GLenum type, const string& filename)

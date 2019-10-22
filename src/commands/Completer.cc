@@ -18,9 +18,6 @@ using std::string_view;
 
 namespace openmsx {
 
-InterpreterOutput* Completer::output = nullptr;
-
-
 Completer::Completer(string_view name_)
 	: name(std::string(name_)) // TODO take std::string parameter instead and move()
 {

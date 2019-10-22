@@ -168,9 +168,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\console\TTFFont.cc">
       <Filter>console</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPoint.cc">
-      <Filter>cpu</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.cc">
       <Filter>cpu</Filter>
     </ClCompile>
@@ -184,9 +181,6 @@
       <Filter>cpu</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\Dasm.cc">
-      <Filter>cpu</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\DebugCondition.cc">
       <Filter>cpu</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\IRQHelper.cc">
@@ -211,9 +205,6 @@
       <Filter>cpu</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\VDPIODelay.cc">
-      <Filter>cpu</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\WatchPoint.cc">
       <Filter>cpu</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\DasmTables.cc">

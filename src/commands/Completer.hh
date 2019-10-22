@@ -83,7 +83,7 @@ private:
 	                                 std::vector<std::string_view> matches);
 
 	const std::string name;
-	static InterpreterOutput* output;
+	static inline InterpreterOutput* output = nullptr;
 };
 
 

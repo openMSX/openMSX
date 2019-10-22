@@ -348,13 +348,11 @@
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDTopWidget.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDWidget.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\TTFFont.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPoint.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPURegs.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUClock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUCore.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\Dasm.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\DebugCondition.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\IRQHelper.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXCPU.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXCPUInterface.cc" />
@@ -363,7 +361,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXMultiMemDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXWatchIODevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\VDPIODelay.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\WatchPoint.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\DasmTables.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\Debugger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\Probe.cc" />

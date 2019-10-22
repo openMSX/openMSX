@@ -18,9 +18,6 @@ using std::make_shared;
 
 namespace openmsx {
 
-bool InputEventGenerator::androidButtonA = false;
-bool InputEventGenerator::androidButtonB = false;
-
 InputEventGenerator::InputEventGenerator(CommandController& commandController,
                                          EventDistributor& eventDistributor_,
                                          GlobalSettings& globalSettings_)

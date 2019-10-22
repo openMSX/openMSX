@@ -21,10 +21,6 @@ using std::string;
 
 namespace openmsx {
 
-byte MSXDevice::unmappedRead[0x10000];
-byte MSXDevice::unmappedWrite[0x10000];
-
-
 MSXDevice::MSXDevice(const DeviceConfig& config, const string& name)
 	: deviceConfig(config)
 {

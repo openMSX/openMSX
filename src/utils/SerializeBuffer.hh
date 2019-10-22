@@ -163,7 +163,7 @@ private:
 	uint8_t* finish;        // points right after the last allocated byte
 	                        // so   finish - buf == capacity
 
-	static size_t lastSize;
+	static inline size_t lastSize = 50000; // initial estimate
 };
 
 

@@ -1,5 +1,4 @@
 #include "MSXCPUInterface.hh"
-#include "DebugCondition.hh"
 #include "DummyDevice.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
@@ -38,12 +37,6 @@ using std::min;
 using std::shared_ptr;
 
 namespace openmsx {
-
-// Global variables
-bool MSXCPUInterface::breaked = false;
-MSXCPUInterface::BreakPoints MSXCPUInterface::breakPoints;
-//TODO watchpoints
-MSXCPUInterface::Conditions  MSXCPUInterface::conditions;
 
 static std::unique_ptr<ReadOnlySetting> breakedSetting;
 static unsigned breakedSettingCount = 0;

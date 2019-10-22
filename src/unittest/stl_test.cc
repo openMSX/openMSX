@@ -21,19 +21,13 @@ struct S {
 		destructed = 0;
 	}
 
-	static int default_constructed;
-	static int copy_constructed;
-	static int move_constructed;
-	static int copy_assignment;
-	static int move_assignment;
-	static int destructed;
+	static inline int default_constructed = 0;
+	static inline int copy_constructed = 0;
+	static inline int move_constructed = 0;
+	static inline int copy_assignment = 0;
+	static inline int move_assignment = 0;
+	static inline int destructed = 0;
 };
-int S::default_constructed= 0;
-int S::copy_constructed = 0;
-int S::move_constructed = 0;
-int S::copy_assignment = 0;
-int S::move_assignment = 0;
-int S::destructed = 0;
 
 
 TEST_CASE("append")

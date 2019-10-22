@@ -271,8 +271,8 @@ protected:
 
 public:
 	// public to allow non-MSXDevices to use these same arrays
-	static byte unmappedRead [0x10000]; // Read only
-	static byte unmappedWrite[0x10000]; // Write only
+	static inline byte unmappedRead [0x10000]; // Read only
+	static inline byte unmappedWrite[0x10000]; // Write only
 
 private:
 	void initName(const std::string& name);

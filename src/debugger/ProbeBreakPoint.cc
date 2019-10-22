@@ -7,8 +7,6 @@
 
 namespace openmsx {
 
-unsigned ProbeBreakPoint::lastId = 0;
-
 ProbeBreakPoint::ProbeBreakPoint(
 		TclObject command_,
 		TclObject condition_,

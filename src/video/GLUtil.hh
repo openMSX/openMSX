@@ -138,7 +138,7 @@ struct PixelBuffers
 {
 	/** Global switch to disable pixel buffers using the "-nopbo" option.
 	  */
-	static bool enabled;
+	static inline bool enabled = true;
 };
 
 /** Wrapper around a pixel buffer.
