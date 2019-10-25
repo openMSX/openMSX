@@ -815,6 +815,21 @@
     offer convenience wrappers around these commands. For example: <a class="internal" href="#other"><code>showmem</code></a>, <a class="internal" href="#other"><code>disasm</code></a>, <a class="internal" href="#other"><code>cpuregs</code></a>, <a class="internal" href="#other"><code>save_debuggable</code></a>, etc.
   </div>
 
+  <h3><a id="disable_reversebar">disable_reversebar</a></h3>
+
+  <p>Disables the bar on top of the gui to reverse the emulator status. Use also <code>toggle_reversebar</code> command to enable/disable this feature.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>disable_reversebar</code></td>
+      <td>Disables reverse status emulator bar.</td>
+    </tr>
+  </table>
+
   <h3><a id="disk">disk&lt;x&gt; / virtual_drive</a></h3>
 
   <p>Insert a disk image in a drive. Optionally apply an IPS patch to the disk image.
@@ -890,6 +905,21 @@
     <tr>
       <td><code>exit</code></td>
       <td>Exits the emulator</td>
+    </tr>
+  </table>
+
+  <h3><a id="enable_reversebar">enable_reversebar</a></h3>
+
+  <p>Enables a bar on top of the gui to reverse the emulator status. Use also <code>toggle_reversebar</code> command to enable/disable this feature.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>enable_reversebar</code></td>
+      <td>Enable reverse status emulator bar.</td>
     </tr>
   </table>
 
@@ -2773,7 +2803,7 @@
     </tr>
     <tr>
       <td><code>set auto_enable_reverse gui</code></td>
-      <td>Enable the reverse feature and the reverse bar when openMSX starts</td>
+      <td>Enable the reverse feature and the reverse bar when openMSX starts. Default setting for Desktop/PC</td>
     </tr>
   </table>
 
