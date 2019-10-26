@@ -7,7 +7,7 @@
 #include "RenderSettings.hh"
 #include "PostProcessor.hh"
 #include "MemoryOps.hh"
-#include "VisibleSurface.hh"
+#include "OutputSurface.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
@@ -69,7 +69,7 @@ inline void SDLRasterizer<Pixel>::renderBitmapLine(Pixel* buf, unsigned vramLine
 
 template <class Pixel>
 SDLRasterizer<Pixel>::SDLRasterizer(
-		VDP& vdp_, Display& display, VisibleSurface& screen_,
+		VDP& vdp_, Display& display, OutputSurface& screen_,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)

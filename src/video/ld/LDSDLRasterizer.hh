@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class VisibleSurface;
+class OutputSurface;
 class RawFrame;
 class PostProcessor;
 
@@ -19,7 +19,7 @@ class LDSDLRasterizer final : public LDRasterizer
 {
 public:
 	LDSDLRasterizer(
-		VisibleSurface& screen,
+		OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
 	~LDSDLRasterizer() override;
 

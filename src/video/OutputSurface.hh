@@ -10,7 +10,7 @@ namespace openmsx {
 
 /** A frame buffer where pixels can be written to.
   * It could be an in-memory buffer or a video buffer visible to the user
-  * (see VisibleSurface subclass).
+  * (see *OffScreenSurface and *VisibleSurface classes).
   */
 class OutputSurface
 {

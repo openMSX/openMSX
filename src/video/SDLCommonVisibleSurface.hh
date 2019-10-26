@@ -1,6 +1,7 @@
 #ifndef SDLCOMMONVISIBLESURFACE_HH
 #define SDLCOMMONVISIBLESURFACE_HH
 
+#include "OutputSurface.hh"
 #include "VisibleSurface.hh"
 #include "SDLSurfacePtr.hh"
 
@@ -8,7 +9,7 @@ namespace openmsx {
 
 /** Common functionality for the plain SDL and SDLGL VisibleSurface classes.
   */
-class SDLCommonVisibleSurface : public VisibleSurface
+class SDLCommonVisibleSurface : public OutputSurface, public VisibleSurface
 {
 public:
 	void updateWindowTitle() override;

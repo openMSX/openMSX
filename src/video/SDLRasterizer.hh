@@ -15,7 +15,6 @@ class Display;
 class VDP;
 class VDPVRAM;
 class OutputSurface;
-class VisibleSurface;
 class RawFrame;
 class RenderSettings;
 class Setting;
@@ -33,7 +32,7 @@ public:
 	SDLRasterizer& operator=(const SDLRasterizer&) = delete;
 
 	SDLRasterizer(
-		VDP& vdp, Display& display, VisibleSurface& screen,
+		VDP& vdp, Display& display, OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
 	~SDLRasterizer() override;
 

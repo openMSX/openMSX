@@ -14,7 +14,7 @@ class Reactor;
 class CommandConsole;
 class Display;
 class RenderSettings;
-class VisibleSurface;
+class SDLCommonVisibleSurface;
 class Layer;
 class Setting;
 
@@ -58,7 +58,7 @@ private:
 	Reactor& reactor;
 	Display& display;
 	RenderSettings& renderSettings;
-	std::unique_ptr<VisibleSurface> screen;
+	std::unique_ptr<SDLCommonVisibleSurface> screen;
 	std::unique_ptr<Layer> consoleLayer;
 	std::unique_ptr<Layer> snowLayer;
 	std::unique_ptr<Layer> iconLayer;
