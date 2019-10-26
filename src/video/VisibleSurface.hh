@@ -1,7 +1,6 @@
 #ifndef VISIBLESURFACE_HH
 #define VISIBLESURFACE_HH
 
-#include "OutputSurface.hh"
 #include "Observer.hh"
 #include "EventListener.hh"
 #include "RTSchedulable.hh"
@@ -10,6 +9,7 @@
 namespace openmsx {
 
 class Layer;
+class OutputSurface;
 class Reactor;
 class CommandConsole;
 class EventDistributor;
@@ -23,11 +23,11 @@ class VideoSystem;
 /** An OutputSurface which is visible to the user, such as a window or a
   * full screen display.
   */
-class VisibleSurface : public OutputSurface, public EventListener,
-                       private Observer<Setting>, private RTSchedulable
+class VisibleSurface : public EventListener, private Observer<Setting>
+                     , private RTSchedulable
 {
 public:
-	~VisibleSurface() override;
+	virtual ~VisibleSurface();
 	virtual void updateWindowTitle() = 0;
 	virtual bool setFullScreen(bool fullscreen) = 0;
 

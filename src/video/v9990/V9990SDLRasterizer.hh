@@ -14,7 +14,6 @@ class V9990;
 class V9990VRAM;
 class RawFrame;
 class OutputSurface;
-class VisibleSurface;
 class RenderSettings;
 class Setting;
 class PostProcessor;
@@ -27,7 +26,7 @@ class V9990SDLRasterizer final : public V9990Rasterizer
 {
 public:
 	V9990SDLRasterizer(
-		V9990& vdp, Display& display, VisibleSurface& screen,
+		V9990& vdp, Display& display, OutputSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
 	~V9990SDLRasterizer() override;
 
