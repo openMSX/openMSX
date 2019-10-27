@@ -255,41 +255,42 @@ TEST_CASE("gl_mat: (in)equality")
 
 TEST_CASE("gl_mat: copy constructor, assignment")
 {
-	mat2 m2(vec2(2, 3));
-	mat2 n2(m2);
-	CHECK(n2 == m2);
-	m2[1][0] = 9; n2 = m2;
-	CHECK(n2 == m2);
-
-	imat2 i2(ivec2(2, 3));
-	imat2 j2(i2);
-	CHECK(j2 == i2);
-	i2[0][1] = 9; j2 = i2;
-	CHECK(j2 == i2);
-
-	mat3 m3(vec3(3, 4, 5));
-	mat3 n3(m3);
-	CHECK(n3 == m3);
-	m3[2][1] = 8; n3 = m3;
-	CHECK(n3 == m3);
-
-	imat3 i3(ivec3(3, 4, 5));
-	imat3 j3(i3);
-	CHECK(j3 == i3);
-	i3[1][2] = 8; j3 = i3;
-	CHECK(j3 == i3);
-
-	mat4 m4(vec4(4, 5, 6, 7));
-	mat4 n4(m4);
-	CHECK(n4 == m4);
-	m3[3][1] = 2; n4 = m4;
-	CHECK(n4 == m4);
-
-	imat4 i4(ivec4(4, 5, 6, 7));
-	imat4 j4(i4);
-	CHECK(i4 == j4);
-	i3[0][1] = 1; j4 = i4;
-	CHECK(i4 == j4);
+	SECTION("mat2") {
+		mat2 m(vec2(2, 3));
+		mat2 n(m);   CHECK(n == m);
+		m[1][0] = 9; CHECK(n != m);
+		n = m;       CHECK(n == m);
+	}
+	SECTION("imat2") {
+		imat2 m(ivec2(2, 3));
+		imat2 n(m);  CHECK(n == m);
+		m[0][1] = 9; CHECK(n != m);
+		n = m;       CHECK(n == m);
+	}
+	SECTION("mat3") {
+		mat3 m(vec3(3, 4, 5));
+		mat3 n(m);   CHECK(n == m);
+		m[2][1] = 8; CHECK(n != m);
+		n = m;       CHECK(n == m);
+	}
+	SECTION("imat3") {
+		imat3 m(ivec3(3, 4, 5));
+		imat3 n(m);  CHECK(n == m);
+		m[1][2] = 8; CHECK(n != m);
+		n = m;       CHECK(n == m);
+	}
+	SECTION("mat4") {
+		mat4 m(vec4(4, 5, 6, 7));
+		mat4 n(m);   CHECK(n == m);
+		m[3][1] = 2; CHECK(n != m);
+		n = m;       CHECK(n == m);
+	}
+	SECTION("imat3") {
+		imat4 m(ivec4(4, 5, 6, 7));
+		imat4 n(m);  CHECK(n == m);
+		m[0][1] = 1; CHECK(n != m);
+		n = m;       CHECK(n == m);
+	}
 }
 
 TEST_CASE("gl_mat: construct from larger matrix")
