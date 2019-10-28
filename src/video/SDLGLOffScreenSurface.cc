@@ -9,7 +9,6 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 {
 	// only used for width and height
 	setSDLSurface(const_cast<SDL_Surface*>(output.getSDLSurface()));
-	setSDLRenderer(output.getSDLRenderer());
 	calculateViewPort(output.getPhysicalSize());
 
 	auto [w, h] = getPhysicalSize();

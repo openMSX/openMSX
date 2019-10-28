@@ -1,6 +1,6 @@
 #include "SDLImage.hh"
 #include "PNG.hh"
-#include "OutputSurface.hh"
+#include "SDLOutputSurface.hh"
 #include <cassert>
 #include <cstdlib>
 #include <cmath>
@@ -247,7 +247,7 @@ SDLImage::SDLImage(OutputSurface& output, SDLSurfacePtr image)
 SDLTexturePtr SDLImage::toTexture(OutputSurface& output, SDL_Surface& surface)
 {
 	SDLTexturePtr result(SDL_CreateTextureFromSurface(
-		output.getSDLRenderer(), &surface));
+		dynamic_cast<SDLOutputSurface&>(output).getSDLRenderer(), &surface));
 	SDL_SetTextureBlendMode(result.get(), SDL_BLENDMODE_BLEND);
 	SDL_QueryTexture(result.get(), nullptr, nullptr, &size[0], &size[1]);
 	return result;
@@ -373,9 +373,10 @@ void SDLImage::draw(OutputSurface& output, gl::ivec2 pos, uint8_t r, uint8_t g, 
 	if (flipX) x -= w;
 	if (flipY) y -= h;
 
+	auto renderer = dynamic_cast<SDLOutputSurface&>(output).getSDLRenderer();
 	SDL_SetTextureAlphaMod(texture.get(), alpha);
 	SDL_Rect dst = {x, y, w, h};
-	SDL_RenderCopy(output.getSDLRenderer(), texture.get(), nullptr, &dst);
+	SDL_RenderCopy(renderer, texture.get(), nullptr, &dst);
 }
 
 } // namespace openmsx

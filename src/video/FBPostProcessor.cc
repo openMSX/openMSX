@@ -5,7 +5,7 @@
 #include "RenderSettings.hh"
 #include "Scaler.hh"
 #include "ScalerFactory.hh"
-#include "OutputSurface.hh"
+#include "SDLOutputSurface.hh"
 #include "Math.hh"
 #include "aligned.hh"
 #include "random.hh"
@@ -204,10 +204,11 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 }
 
 template <class Pixel>
-void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output)
+void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output_)
 {
 	if (renderSettings.getNoise() == 0.0f) return;
 
+	auto& output = dynamic_cast<SDLOutputSurface&>(output_);
 	unsigned h = output.getHeight();
 	unsigned w = output.getWidth();
 	output.lock();
@@ -254,8 +255,9 @@ FBPostProcessor<Pixel>::~FBPostProcessor()
 }
 
 template <class Pixel>
-void FBPostProcessor<Pixel>::paint(OutputSurface& output)
+void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 {
+	auto& output = dynamic_cast<SDLOutputSurface&>(output_);
 	if (renderSettings.getInterleaveBlackFrame()) {
 		interleaveCount ^= 1;
 		if (interleaveCount) {

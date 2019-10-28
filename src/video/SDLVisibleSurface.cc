@@ -89,7 +89,7 @@ void SDLVisibleSurface::saveScreenshot(const std::string& filename)
 }
 
 void SDLVisibleSurface::saveScreenshotSDL(
-	const OutputSurface& output, const std::string& filename)
+	const SDLOutputSurface& output, const std::string& filename)
 {
 	unsigned width = output.getWidth();
 	unsigned height = output.getHeight();

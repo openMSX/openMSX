@@ -1,5 +1,5 @@
 #include "SDLSnow.hh"
-#include "OutputSurface.hh"
+#include "SDLOutputSurface.hh"
 #include "Display.hh"
 #include "build-info.hh"
 #include "random.hh"
@@ -20,11 +20,12 @@ SDLSnow<Pixel>::SDLSnow(OutputSurface& output, Display& display_)
 }
 
 template <class Pixel>
-void SDLSnow<Pixel>::paint(OutputSurface& output)
+void SDLSnow<Pixel>::paint(OutputSurface& output_)
 {
 	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::uniform_int_distribution<int> distribution(0, 255);
 
+	auto& output = dynamic_cast<SDLOutputSurface&>(output_);
 	output.lock();
 	const unsigned width = output.getWidth();
 	const unsigned height = output.getHeight();

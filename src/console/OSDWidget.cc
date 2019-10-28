@@ -1,5 +1,5 @@
 #include "OSDWidget.hh"
-#include "OutputSurface.hh"
+#include "SDLOutputSurface.hh"
 #include "Display.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
@@ -56,7 +56,7 @@ private:
 
 
 SDLScopedClip::SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
-	: renderer(output.getSDLRenderer())
+	: renderer(dynamic_cast<SDLOutputSurface&>(output).getSDLRenderer())
 {
 	ivec2 i_xy = round(xy); auto [x, y] = i_xy;
 	ivec2 i_wh = round(wh); auto [w, h] = i_wh;

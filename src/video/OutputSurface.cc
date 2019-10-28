@@ -4,25 +4,6 @@
 
 namespace openmsx {
 
-void OutputSurface::lock()
-{
-	if (isLocked()) return;
-	locked = true;
-	if (surface && SDL_MUSTLOCK(surface)) {
-		// Note: we ignore the return value from SDL_LockSurface()
-		SDL_LockSurface(surface);
-	}
-}
-
-void OutputSurface::unlock()
-{
-	if (!isLocked()) return;
-	locked = false;
-	if (surface && SDL_MUSTLOCK(surface)) {
-		SDL_UnlockSurface(surface);
-	}
-}
-
 void OutputSurface::calculateViewPort(gl::ivec2 physSize_)
 {
 	m_physSize = physSize_;
@@ -62,18 +43,14 @@ void OutputSurface::setSDLFormat(const SDL_PixelFormat& format_)
 #endif
 }
 
-void OutputSurface::setBufferPtr(char* data_, unsigned pitch_)
-{
-	data = data_;
-	pitch = pitch_;
-}
-
 void OutputSurface::flushFrameBuffer()
 {
+	UNREACHABLE;
 }
 
 void  OutputSurface::clearScreen()
 {
+	UNREACHABLE;
 }
 
 } // namespace openmsx

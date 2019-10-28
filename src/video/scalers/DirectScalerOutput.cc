@@ -1,5 +1,5 @@
 #include "DirectScalerOutput.hh"
-#include "OutputSurface.hh"
+#include "SDLOutputSurface.hh"
 #include "MemoryOps.hh"
 #include "build-info.hh"
 #include <cstdint>
@@ -7,7 +7,7 @@
 namespace openmsx {
 
 template<typename Pixel>
-DirectScalerOutput<Pixel>::DirectScalerOutput(OutputSurface& output_)
+DirectScalerOutput<Pixel>::DirectScalerOutput(SDLOutputSurface& output_)
 	: output(output_)
 {
 }

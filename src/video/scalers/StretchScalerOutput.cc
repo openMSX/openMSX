@@ -266,7 +266,7 @@ StretchScalerOutput288<Pixel>::StretchScalerOutput288(
 
 template<typename Pixel>
 unique_ptr<ScalerOutput<Pixel>> StretchScalerOutputFactory<Pixel>::create(
-	OutputSurface& output,
+	SDLOutputSurface& output,
 	PixelOperations<Pixel> pixelOps,
 	unsigned inWidth)
 {

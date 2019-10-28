@@ -16,7 +16,7 @@ public:
 	                  CliComm& cliComm,
 	                  VideoSystem& videoSystem);
 
-	static void saveScreenshotSDL(const OutputSurface& output,
+	static void saveScreenshotSDL(const SDLOutputSurface& output,
 	                              const std::string& filename);
 
 	// OutputSurface
