@@ -63,7 +63,7 @@ static inline void memset_64_SSE(
 #endif
 
 static inline void memset_64(
-        uint64_t* out, size_t num64, uint64_t val64)
+	uint64_t* out, size_t num64, uint64_t val64)
 {
 	assert((size_t(out) % 8) == 0); // must be 8-byte aligned
 

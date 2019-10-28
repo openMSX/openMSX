@@ -534,7 +534,7 @@ void ReverseManager::saveReplay(
 		throw CommandException("No recording...");
 	}
 
-        std::string_view filenameArg;
+	std::string_view filenameArg;
 	int maxNofExtraSnapshots = MAX_NOF_SNAPSHOTS;
 	ArgsInfo info[] = { valueArg("-maxnofextrasnapshots", maxNofExtraSnapshots) };
 	auto args = parseTclArgs(interp, tokens.subspan(2), info);

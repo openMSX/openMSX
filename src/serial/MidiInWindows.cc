@@ -23,8 +23,8 @@ using std::string;
 namespace openmsx {
 
 void MidiInWindows::registerAll(EventDistributor& eventDistributor,
-                               Scheduler& scheduler,
-                               PluggingController& controller)
+                                Scheduler& scheduler,
+                                PluggingController& controller)
 {
 	w32_midiInInit();
 	unsigned devnum = w32_midiInGetVFNsNum();
@@ -36,7 +36,7 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
 
 
 MidiInWindows::MidiInWindows(EventDistributor& eventDistributor_,
-                           Scheduler& scheduler_, unsigned num)
+                             Scheduler& scheduler_, unsigned num)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
 	, devIdx(unsigned(-1))
 {

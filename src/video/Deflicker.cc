@@ -28,7 +28,7 @@ private:
 
 std::unique_ptr<Deflicker> Deflicker::create(
 	const SDL_PixelFormat& format,
-        std::unique_ptr<RawFrame>* lastFrames)
+	std::unique_ptr<RawFrame>* lastFrames)
 {
 #if HAVE_16BPP
 	if (format.BitsPerPixel == 15 || format.BitsPerPixel == 16) {

@@ -63,7 +63,7 @@ void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
 			break;
 		case MULTIBYTE:
 			outputMultiByte(value);
-                        break;
+			break;
 		default:
 			break;
 		}

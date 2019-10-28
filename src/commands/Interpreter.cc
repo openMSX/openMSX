@@ -339,7 +339,7 @@ static std::string_view removeColonColon(std::string_view s)
 #endif
 
 char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
-                           const char* part1, const char* /*part2*/, int flags)
+                             const char* part1, const char* /*part2*/, int flags)
 {
 	try {
 		// Lookup Setting object that belongs to this Tcl variable.

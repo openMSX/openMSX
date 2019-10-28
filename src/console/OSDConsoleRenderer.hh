@@ -49,7 +49,7 @@ private:
 	void drawText(OutputSurface& output, const ConsoleLine& line,
 	              gl::ivec2 pos, byte alpha);
 	void drawText2(OutputSurface& output, std::string_view text,
-                       int& x, int y, byte alpha, unsigned rgb);
+	               int& x, int y, byte alpha, unsigned rgb);
 	gl::ivec2 getTextPos(int cursorX, int cursorY);
 
 	bool getFromCache(std::string_view text, unsigned rgb,

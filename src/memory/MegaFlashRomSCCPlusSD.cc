@@ -567,13 +567,13 @@ byte MegaFlashRomSCCPlusSD::peekMemSubSlot1(word addr, EmuTime::param time) cons
 
 const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot1(word addr) const
 {
-        if (isKonamiSCCmapperConfigured()) {
-                SCCEnable enable = getSCCEnable();
-                if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
-                    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-                        return nullptr;
-                }
-        }
+	if (isKonamiSCCmapperConfigured()) {
+		SCCEnable enable = getSCCEnable();
+		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
+		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
+			return nullptr;
+		}
+	}
 
 	unsigned flashAddr = getFlashAddrSubSlot1(addr);
 	return (flashAddr != unsigned(-1))

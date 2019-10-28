@@ -9,7 +9,7 @@ namespace openmsx {
 class File;
 
 /** DMK disk image. A description of the file format can be found
-  *   in doc/DMK-Format-Details.txt or at the oriinal site:
+  *   in doc/DMK-Format-Details.txt or at the original site:
   *   http://www.trs-80.com/wordpress/dsk-and-dmk-image-utilities/
   *   (at the bottom of the page)
   */

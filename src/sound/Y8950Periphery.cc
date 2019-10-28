@@ -297,7 +297,7 @@ ToshibaAudioPeriphery::ToshibaAudioPeriphery(MSXAudio& audio_)
 }
 
 void ToshibaAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
-                                    EmuTime::param /*time*/)
+                                  EmuTime::param /*time*/)
 {
 	// TODO IO1-IO0 are programmed as output by HX-MU900 software rom
 	//      and it writes periodically the values 1/1/2/2/0/0 to

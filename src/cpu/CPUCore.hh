@@ -84,7 +84,7 @@ public:
 
 	void disasmCommand(Interpreter& interp,
 	                   span<const TclObject> tokens,
-                           TclObject& result) const;
+	                   TclObject& result) const;
 
 	/**
 	 * Raises the maskable interrupt count.

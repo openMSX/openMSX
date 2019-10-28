@@ -13,10 +13,10 @@ class RomInfo
 {
 public:
 	RomInfo(String32 title_,   String32 year_,
-                String32 company_, String32 country_,
-                bool original_,    String32 origType_,
-                String32 remark_,  RomType romType_,
-                int genMSXid_)
+	        String32 company_, String32 country_,
+	        bool original_,    String32 origType_,
+	        String32 remark_,  RomType romType_,
+	        int genMSXid_)
 		: title   (title_)
 		, year    (year_)
 		, company (company_)

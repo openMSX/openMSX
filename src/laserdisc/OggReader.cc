@@ -409,7 +409,7 @@ void OggReader::readVorbis(ogg_packet* packet)
 		} else {
 			if (vorbisPos != size_t(packet->granulepos)) {
 				cli.printWarning(
-                                        "vorbis audio out of sync, expected ",
+					"vorbis audio out of sync, expected ",
 					vorbisPos, ", got ", packet->granulepos);
 				vorbisPos = packet->granulepos;
 			}
@@ -636,7 +636,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 			// we're missing frames!
 			frame = frameList[0].get();
 			cli.printWarning(
-                                "Cannot find frame ", frameno, " using ",
+					"Cannot find frame ", frameno, " using ",
 			        frame->no, " instead");
 			break;
 		}

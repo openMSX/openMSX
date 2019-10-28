@@ -70,7 +70,7 @@ MidiOutCoreMIDI::MidiOutCoreMIDI(MIDIEndpointRef endpoint_)
 }
 
 void MidiOutCoreMIDI::plugHelper(Connector& /*connector*/,
-                               EmuTime::param /*time*/)
+                                 EmuTime::param /*time*/)
 {
 	// Create client.
 	if (OSStatus status = MIDIClientCreate(CFSTR("openMSX"), nullptr, nullptr, &client)) {
@@ -128,7 +128,7 @@ MidiOutCoreMIDIVirtual:: MidiOutCoreMIDIVirtual()
 }
 
 void MidiOutCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
-                               EmuTime::param /*time*/)
+                                        EmuTime::param /*time*/)
 {
 	// Create client.
 	if (OSStatus status = MIDIClientCreate(CFSTR("openMSX"), nullptr, nullptr, &client)) {

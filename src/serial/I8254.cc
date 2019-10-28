@@ -180,7 +180,7 @@ ClockPin& I8254::getOutputPin(unsigned cntr)
 // class Counter
 
 Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
-                        EmuTime::param time)
+                 EmuTime::param time)
 	: clock(scheduler), output(scheduler, listener)
 	, currentTime(time)
 {

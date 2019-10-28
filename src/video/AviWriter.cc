@@ -16,7 +16,7 @@ constexpr unsigned AVI_HEADER_SIZE = 500;
 
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned channels_,
-		     unsigned freq_)
+                     unsigned freq_)
 	: file(filename, "wb")
 	, codec(width_, height_, bpp)
 	, fps(0.0f) // will be filled in later

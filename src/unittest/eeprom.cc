@@ -141,7 +141,7 @@ static uint8_t read(EEPROM_93C46& eeprom, EmuTime& time, unsigned addr)
 }
 
 static void read_block(EEPROM_93C46& eeprom, EmuTime& time, unsigned addr,
-                          unsigned num, uint8_t* output)
+                       unsigned num, uint8_t* output)
 {
 	assert(addr < EEPROM_93C46::NUM_ADDRESSES);
 

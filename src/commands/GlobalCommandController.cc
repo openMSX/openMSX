@@ -282,7 +282,7 @@ string GlobalCommandController::addEscaping(const string& str, bool quote,
 	}
 	string result = escapeChars(str, "$[]");
 	if (quote) {
-                result.insert(result.begin(), '"');
+		result.insert(result.begin(), '"');
 		if (finished) {
 			result += '"';
 		}

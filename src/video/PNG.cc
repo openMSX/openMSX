@@ -154,20 +154,20 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 				currentMode.format, &bpp, &Rmask, &Gmask, &Bmask, &Amask);
 			if (bpp >= 24) {
 				if        (Rmask == 0x000000FF &&
-					   Gmask == 0x0000FF00 &&
-					   Bmask == 0x00FF0000) { // RGB(A)
+				           Gmask == 0x0000FF00 &&
+				           Bmask == 0x00FF0000) { // RGB(A)
 					bgr = false; swapAlpha = false;
 				} else if (Rmask == 0x00FF0000 &&
 				           Gmask == 0x0000FF00 &&
-					   Bmask == 0x000000FF) { // BGR(A)
+				           Bmask == 0x000000FF) { // BGR(A)
 					bgr = true;  swapAlpha = false;
 				} else if (Rmask == 0x0000FF00 &&
 				           Gmask == 0x00FF0000 &&
-					   Bmask == 0xFF000000) { // ARGB
+				           Bmask == 0xFF000000) { // ARGB
 					bgr = false; swapAlpha = true;
 				} else if (Rmask == 0xFF000000 &&
 				           Gmask == 0x00FF0000 &&
-					   Bmask == 0x0000FF00) { // ABGR
+				           Bmask == 0x0000FF00) { // ABGR
 					bgr = true;  swapAlpha = true;
 				}
 			}

@@ -915,7 +915,7 @@ string StoreMachineCommand::help(const vector<string>& /*tokens*/) const
 	return
 		"store_machine                       Save state of current machine to file \"openmsxNNNN.xml.gz\"\n"
 		"store_machine machineID             Save state of machine \"machineID\" to file \"openmsxNNNN.xml.gz\"\n"
-                "store_machine machineID <filename>  Save state of machine \"machineID\" to indicated file\n"
+		"store_machine machineID <filename>  Save state of machine \"machineID\" to indicated file\n"
 		"\n"
 		"This is a low-level command, the 'savestate' script is easier to use.";
 }

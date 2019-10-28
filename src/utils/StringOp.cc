@@ -37,7 +37,7 @@ bool stringToUint(const string& str, unsigned& result)
 
 uint64_t stringToUint64(const string& str)
 {
-       return strtoull(str.c_str(), nullptr, 0);
+	return strtoull(str.c_str(), nullptr, 0);
 }
 
 bool stringToBool(string_view str)

@@ -72,7 +72,7 @@ void MSXDevice::staticInit()
 
 MSXMotherBoard& MSXDevice::getMotherBoard() const
 {
-       return getHardwareConfig().getMotherBoard();
+	return getHardwareConfig().getMotherBoard();
 }
 
 void MSXDevice::testRemove(Devices removed) const

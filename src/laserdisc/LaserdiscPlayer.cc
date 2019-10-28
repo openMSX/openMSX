@@ -225,10 +225,10 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 		// is, we process the button here. Note that real hardware
 		// needs the trailing pulse to be at least 200µs
 		if (++remoteBitNr == 32) {
-			byte custom	 = ( remoteBits >>  0) & 0xff;
+			byte custom      = ( remoteBits >>  0) & 0xff;
 			byte customCompl = (~remoteBits >>  8) & 0xff;
-			byte code	 = ( remoteBits >> 16) & 0xff;
-			byte codeCompl	 = (~remoteBits >> 24) & 0xff;
+			byte code        = ( remoteBits >> 16) & 0xff;
+			byte codeCompl   = (~remoteBits >> 24) & 0xff;
 			if (custom == customCompl &&
 			    custom == 0xa8 &&
 			    code == codeCompl) {

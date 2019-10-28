@@ -62,7 +62,7 @@ byte* RomMatraCompilation::getWriteCacheLine(word address) const
 template<typename Archive>
 void RomMatraCompilation::serialize(Archive& ar, unsigned /*version*/)
 {
-        ar.template serializeBase<Rom8kBBlocks>(*this);
+	ar.template serializeBase<Rom8kBBlocks>(*this);
 
 	ar.serialize("blockOffset", blockOffset);
 }

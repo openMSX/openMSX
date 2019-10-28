@@ -29,7 +29,7 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 	setSDLSurface(surface.get());
 	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
 
-	// Used (only?) by 'screenshow -with-osd'.
+	// Used (only?) by 'screenshot -with-osd'.
 	renderer.reset(SDL_CreateSoftwareRenderer(surface.get()));
 	setSDLRenderer(renderer.get());
 }
