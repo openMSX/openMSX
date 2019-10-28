@@ -31,7 +31,8 @@ SDLVisibleSurface::SDLVisibleSurface(
 	setBufferPtr(static_cast<char*>(surf->pixels), surf->pitch);
 
 	// In the SDL renderer logical size is the same as physical size.
-	calculateViewPort(getLogicalSize());
+	gl::ivec2 size(surf->w, surf->h);
+	calculateViewPort(size, size);
 }
 
 void SDLVisibleSurface::flushFrameBuffer()
@@ -69,8 +70,9 @@ std::unique_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
 		Reactor& reactor, CommandConsole& console)
 {
 	const bool openGL = false;
+	auto [width, height] = getLogicalSize();
 	return std::make_unique<OSDConsoleRenderer>(
-		reactor, console, getWidth(), getHeight(), openGL);
+		reactor, console, width, height, openGL);
 }
 
 std::unique_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
@@ -89,13 +91,12 @@ void SDLVisibleSurface::saveScreenshot(const std::string& filename)
 }
 
 void SDLVisibleSurface::saveScreenshotSDL(
-	const OutputSurface& output, const std::string& filename)
+	const SDLOutputSurface& output, const std::string& filename)
 {
-	unsigned width = output.getWidth();
-	unsigned height = output.getHeight();
+	auto [width, height] = output.getLogicalSize();
 	VLA(const void*, rowPointers, height);
 	MemBuffer<uint8_t> buffer(width * height * 3);
-	for (unsigned i = 0; i < height; ++i) {
+	for (int i = 0; i < height; ++i) {
 		rowPointers[i] = &buffer[width * 3 * i];
 	}
 	if (SDL_RenderReadPixels(

@@ -48,11 +48,12 @@ GLPostProcessor::GLPostProcessor(
 	for (int i = 0; i < 2; ++i) {
 		colorTex[i].bind();
 		colorTex[i].setInterpolation(true);
+		auto [w, h] = screen.getLogicalSize();
 		glTexImage2D(GL_TEXTURE_2D,     // target
 			     0,                 // level
 			     GL_RGB8,           // internal format
-			     screen.getWidth(), // width
-			     screen.getHeight(),// height
+			     w,                 // width
+			     h,                 // height
 			     0,                 // border
 			     GL_RGB,            // format
 			     GL_UNSIGNED_BYTE,  // type
@@ -85,7 +86,7 @@ void GLPostProcessor::createRegions()
 	regions.clear();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	const unsigned dstHeight = screen.getHeight();
+	const unsigned dstHeight = screen.getLogicalHeight();
 
 	unsigned g = Math::gcd(srcHeight, dstHeight);
 	unsigned srcStep = srcHeight / g;
@@ -166,8 +167,9 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		uploadFrame();
 	}
 
+	auto [scrnWidth, scrnHeight] = screen.getLogicalSize();
 	if (renderToTexture) {
-		glViewport(0, 0, screen.getWidth(), screen.getHeight());
+		glViewport(0, 0, scrnWidth, scrnHeight);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		fbo[frameCounter & 1].push();
 	}
@@ -183,8 +185,8 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		                 ? &superImposeTex : nullptr;
 		currScaler->scaleImage(
 			it->second.tex, superImpose,
-			r.srcStartY, r.srcEndY, r.lineWidth,       // src
-			r.dstStartY, r.dstEndY, screen.getWidth(), // dst
+			r.srcStartY, r.srcEndY, r.lineWidth, // src
+			r.dstStartY, r.dstEndY, scrnWidth,   // dst
 			paintFrame->getHeight()); // dst
 		//GLUtil::checkGLError("GLPostProcessor::paint");
 	}

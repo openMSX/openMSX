@@ -1,9 +1,10 @@
 #include "OSDWidget.hh"
-#include "OutputSurface.hh"
+#include "SDLOutputSurface.hh"
 #include "Display.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "GLUtil.hh"
+#include "checked_cast.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include <SDL.h>
@@ -56,7 +57,7 @@ private:
 
 
 SDLScopedClip::SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
-	: renderer(output.getSDLRenderer())
+	: renderer(checked_cast<SDLOutputSurface&>(output).getSDLRenderer())
 {
 	ivec2 i_xy = round(xy); auto [x, y] = i_xy;
 	ivec2 i_wh = round(wh); auto [w, h] = i_wh;
@@ -101,7 +102,7 @@ GLScopedClip::GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 	auto& [x, y] = xy;
 	auto& [w, h] = wh;
 	normalize(x, w); normalize(y, h);
-	y = output.getHeight() - y - h; // openGL sets (0,0) in LOWER-left corner
+	y = output.getLogicalHeight() - y - h; // openGL sets (0,0) in LOWER-left corner
 
 	// transform view-space coordinates to clip-space coordinates
 	vec2 scale = output.getViewScale();
@@ -366,7 +367,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 int OSDWidget::getScaleFactor(const OutputSurface& output) const
 {
 	if (scaled) {
-		return output.getLogicalSize()[0] / 320;;
+		return output.getLogicalWidth() / 320;;
 	} else if (getParent()) {
 		return getParent()->getScaleFactor(output);
 	} else {

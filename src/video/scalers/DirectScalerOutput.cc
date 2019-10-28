@@ -1,5 +1,5 @@
 #include "DirectScalerOutput.hh"
-#include "OutputSurface.hh"
+#include "SDLOutputSurface.hh"
 #include "MemoryOps.hh"
 #include "build-info.hh"
 #include <cstdint>
@@ -7,7 +7,7 @@
 namespace openmsx {
 
 template<typename Pixel>
-DirectScalerOutput<Pixel>::DirectScalerOutput(OutputSurface& output_)
+DirectScalerOutput<Pixel>::DirectScalerOutput(SDLOutputSurface& output_)
 	: output(output_)
 {
 }
@@ -15,13 +15,13 @@ DirectScalerOutput<Pixel>::DirectScalerOutput(OutputSurface& output_)
 template<typename Pixel>
 unsigned DirectScalerOutput<Pixel>::getWidth()  const
 {
-	return output.getWidth();
+	return output.getLogicalWidth();
 }
 
 template<typename Pixel>
 unsigned DirectScalerOutput<Pixel>::getHeight() const
 {
-	return output.getHeight();
+	return output.getLogicalHeight();
 }
 
 template<typename Pixel>
@@ -41,7 +41,7 @@ void DirectScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 {
 	auto* dstLine = output.getLinePtrDirect<Pixel>(y);
 	MemoryOps::MemSet<Pixel> memset;
-	memset(dstLine, output.getWidth(), color);
+	memset(dstLine, output.getLogicalWidth(), color);
 }
 
 

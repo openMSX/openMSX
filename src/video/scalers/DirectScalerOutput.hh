@@ -5,13 +5,13 @@
 
 namespace openmsx {
 
-class OutputSurface;
+class SDLOutputSurface;
 
 template<typename Pixel>
 class DirectScalerOutput final : public ScalerOutput<Pixel>
 {
 public:
-	explicit DirectScalerOutput(OutputSurface& output);
+	explicit DirectScalerOutput(SDLOutputSurface& output);
 
 	unsigned getWidth()  const override;
 	unsigned getHeight() const override;
@@ -20,7 +20,7 @@ public:
 	void   fillLine   (unsigned y, Pixel color) override;
 
 private:
-	OutputSurface& output;
+	SDLOutputSurface& output;
 };
 
 } // namespace openmsx

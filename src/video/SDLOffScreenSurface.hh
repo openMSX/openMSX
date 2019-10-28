@@ -1,13 +1,13 @@
 #ifndef SDLOFFSCREENSURFACE_HH
 #define SDLOFFSCREENSURFACE_HH
 
-#include "OutputSurface.hh"
+#include "SDLOutputSurface.hh"
 #include "SDLSurfacePtr.hh"
 #include "MemBuffer.hh"
 
 namespace openmsx {
 
-class SDLOffScreenSurface final : public OutputSurface
+class SDLOffScreenSurface final : public SDLOutputSurface
 {
 public:
 	explicit SDLOffScreenSurface(const SDL_Surface& prototype);

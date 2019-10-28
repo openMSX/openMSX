@@ -1,7 +1,7 @@
 #ifndef SDLGLOFFSCREENSURFACE_HH
 #define SDLGLOFFSCREENSURFACE_HH
 
-#include "OutputSurface.hh"
+#include "SDLOutputSurface.hh"
 #include "GLUtil.hh"
 
 namespace openmsx {
@@ -11,7 +11,7 @@ class SDLGLVisibleSurface;
 /** This class installs a FrameBufferObject (FBO). So as long as this object
   * is live, all openGL draw commands will be redirected to this FBO.
   */
-class SDLGLOffScreenSurface final : public OutputSurface
+class SDLGLOffScreenSurface final : public SDLOutputSurface
 {
 public:
 	explicit SDLGLOffScreenSurface(const SDLGLVisibleSurface& output);

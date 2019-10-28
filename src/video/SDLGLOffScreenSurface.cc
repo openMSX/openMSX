@@ -7,10 +7,10 @@ namespace openmsx {
 SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	: fboTex(true) // enable interpolation   TODO why?
 {
-	// only used for width and height
-	setSDLSurface(const_cast<SDL_Surface*>(output.getSDLSurface()));
-	setSDLRenderer(output.getSDLRenderer());
-	calculateViewPort(output.getPhysicalSize());
+	// only used for width and height, TODO still needed?
+	setSDLSurface(output.getSDLSurface());
+
+	calculateViewPort(output.getLogicalSize(), output.getPhysicalSize());
 
 	auto [w, h] = getPhysicalSize();
 	fboTex.bind();
