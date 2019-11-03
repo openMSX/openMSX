@@ -243,14 +243,14 @@ public:
 
     // [span.sub], span subviews
     template<size_t Count>
-    constexpr span<element_type, Count> first() const
+    [[nodiscard]] constexpr span<element_type, Count> first() const
     {
         assert(Count >= 0 && Count <= size());
         return {data(), Count};
     }
 
     template<size_t Count>
-    constexpr span<element_type, Count> last() const
+    [[nodiscard]] constexpr span<element_type, Count> last() const
     {
         assert(Count >= 0 && Count <= size());
         return {data() + (size() - Count), Count};
@@ -263,7 +263,7 @@ public:
                                          : (Extent != dynamic_extent ? Extent - Offset : dynamic_extent)>;
 
     template<ptrdiff_t Offset, size_t Count = dynamic_extent>
-    constexpr subspan_return_t<Offset, Count> subspan() const
+    [[nodiscard]] constexpr subspan_return_t<Offset, Count> subspan() const
     {
         assert((Offset >= 0 && Offset <= size()) &&
                (Count == dynamic_extent || (Count >= 0 && Offset + Count <= size())));
@@ -272,20 +272,20 @@ public:
                                         : (Extent != dynamic_extent ? Extent - Offset : size() - Offset)};
     }
 
-    constexpr span<element_type, dynamic_extent> first(index_type count) const
+    [[nodiscard]] constexpr span<element_type, dynamic_extent> first(index_type count) const
     {
         assert(count >= 0 && count <= size());
         return {data(), count};
     }
 
-    constexpr span<element_type, dynamic_extent> last(index_type count) const
+    [[nodiscard]] constexpr span<element_type, dynamic_extent> last(index_type count) const
     {
         assert(count >= 0 && count <= size());
         return {data() + (size() - count), count};
     }
 
-    constexpr span<element_type, dynamic_extent> subspan(index_type offset,
-                                                         index_type count = dynamic_extent) const
+    [[nodiscard]] constexpr span<element_type, dynamic_extent> subspan(
+	index_type offset, index_type count = dynamic_extent) const
     {
         assert((offset >= 0 && offset <= size()) &&
                (count == dynamic_extent || (count >= 0 && offset + count <= size())));
@@ -293,52 +293,52 @@ public:
     }
 
     // [span.obs], span observers
-    constexpr index_type size() const noexcept { return storage.size; }
+    [[nodiscard]] constexpr index_type size() const noexcept { return storage.size; }
 
-    constexpr index_type size_bytes() const noexcept { return size() * sizeof(element_type); }
+    [[nodiscard]] constexpr index_type size_bytes() const noexcept { return size() * sizeof(element_type); }
 
-    constexpr bool empty() const noexcept { return size() == 0; }
+    [[nodiscard]] constexpr bool empty() const noexcept { return size() == 0; }
 
     // [span.elem], span element access
-    constexpr reference operator[](index_type idx) const
+    [[nodiscard]] constexpr reference operator[](index_type idx) const
     {
         assert(idx >= 0 && idx < size());
         return *(data() + idx);
     }
 
     // Extension: not in P0122
-    constexpr reference front() const
+    [[nodiscard]] constexpr reference front() const
     {
         assert(!empty());
         return *data();
     }
 
     // Extension: not in P0122
-    constexpr reference back() const
+    [[nodiscard]] constexpr reference back() const
     {
         assert(!empty());
         return *(data() + (size() - 1));
     }
 
-    constexpr pointer data() const noexcept { return storage.ptr; }
+    [[nodiscard]] constexpr pointer data() const noexcept { return storage.ptr; }
 
     // [span.iterators], span iterator support
-    constexpr iterator begin() const noexcept { return data(); }
-    constexpr iterator end()   const noexcept { return data() + size(); }
-    constexpr const_iterator cbegin() const noexcept { return begin(); }
-    constexpr const_iterator cend()   const noexcept { return end(); }
+    [[nodiscard]] constexpr iterator begin() const noexcept { return data(); }
+    [[nodiscard]] constexpr iterator end()   const noexcept { return data() + size(); }
+    [[nodiscard]] constexpr const_iterator cbegin() const noexcept { return begin(); }
+    [[nodiscard]] constexpr const_iterator cend()   const noexcept { return end(); }
 
-    constexpr auto rbegin()  const noexcept { return reverse_iterator(end()); }
-    constexpr auto rend()    const noexcept { return reverse_iterator(begin()); }
-    constexpr auto crbegin() const noexcept { return const_reverse_iterator(cend()); }
-    constexpr auto crend()   const noexcept { return const_reverse_iterator(cbegin()); }
+    [[nodiscard]] constexpr auto rbegin()  const noexcept { return reverse_iterator(end()); }
+    [[nodiscard]] constexpr auto rend()    const noexcept { return reverse_iterator(begin()); }
+    [[nodiscard]] constexpr auto crbegin() const noexcept { return const_reverse_iterator(cend()); }
+    [[nodiscard]] constexpr auto crend()   const noexcept { return const_reverse_iterator(cbegin()); }
 
 private:
     storage_type storage;
 };
 
 template<typename ElementType, size_t Extent>
-span<const uint8_t, detail::calculate_byte_size<ElementType, Extent>::value>
+[[nodiscard]] span<const uint8_t, detail::calculate_byte_size<ElementType, Extent>::value>
 as_bytes(span<ElementType, Extent> s) noexcept
 {
     return {reinterpret_cast<const uint8_t*>(s.data()), s.size_bytes()};
@@ -347,7 +347,7 @@ as_bytes(span<ElementType, Extent> s) noexcept
 template<typename ElementType,
          size_t Extent,
          std::enable_if_t<!std::is_const_v<ElementType>, int> = 0>
-span<uint8_t, detail::calculate_byte_size<ElementType, Extent>::value>
+[[nodiscard]] span<uint8_t, detail::calculate_byte_size<ElementType, Extent>::value>
 as_writable_bytes( span<ElementType, Extent> s) noexcept
 {
     return {reinterpret_cast<uint8_t*>(s.data()), s.size_bytes()};

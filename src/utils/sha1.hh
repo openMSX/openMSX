@@ -32,29 +32,29 @@ public:
 	 * @throws: MSXException if chars are not 0-9, a-f, A-F
 	 */
 	void parse40(const char* str);
-	std::string toString() const;
+	[[nodiscard]] std::string toString() const;
 
 	// Test or set 'null' value.
-	bool empty() const;
+	[[nodiscard]] bool empty() const;
 	void clear();
 
-	bool operator==(const Sha1Sum& other) const {
+	[[nodiscard]] bool operator==(const Sha1Sum& other) const {
 		for (int i = 0; i < 5; ++i) {
 			if (a[i] != other.a[i]) return false;
 		}
 		return true;
 	}
-	bool operator!=(const Sha1Sum& other) const { return !(*this == other); }
-	bool operator< (const Sha1Sum& other) const {
+	[[nodiscard]] bool operator!=(const Sha1Sum& other) const { return !(*this == other); }
+	[[nodiscard]] bool operator< (const Sha1Sum& other) const {
 		for (int i = 0; i < 5-1; ++i) {
 			if (a[i] != other.a[i]) return a[i] < other.a[i];
 		}
 		return a[5-1] < other.a[5-1];
 	}
 
-	bool operator<=(const Sha1Sum& other) const { return !(other <  *this); }
-	bool operator> (const Sha1Sum& other) const { return  (other <  *this); }
-	bool operator>=(const Sha1Sum& other) const { return !(*this <  other); }
+	[[nodiscard]] bool operator<=(const Sha1Sum& other) const { return !(other <  *this); }
+	[[nodiscard]] bool operator> (const Sha1Sum& other) const { return  (other <  *this); }
+	[[nodiscard]] bool operator>=(const Sha1Sum& other) const { return !(*this <  other); }
 
 	friend std::ostream& operator<<(std::ostream& os, const Sha1Sum& sum) {
 		os << sum.toString();
@@ -85,10 +85,10 @@ public:
 
 	/** Get the final hash. After this method is called, calls to update()
 	  * are invalid. */
-	Sha1Sum digest();
+	[[nodiscard]] Sha1Sum digest();
 
 	/** Easier to use interface, if you can pass all data in one go. */
-	static Sha1Sum calc(const uint8_t* data, size_t len);
+	[[nodiscard]] static Sha1Sum calc(const uint8_t* data, size_t len);
 
 private:
 	void transform(const uint8_t buffer[64]);

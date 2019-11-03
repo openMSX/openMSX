@@ -22,7 +22,7 @@
 
 
 // Unaligned loads and stores.
-template<typename T> static ALWAYS_INLINE T unalignedLoad(const void* p)
+template<typename T> [[nodiscard]] static ALWAYS_INLINE T unalignedLoad(const void* p)
 {
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		return *reinterpret_cast<const T*>(p);
@@ -41,13 +41,13 @@ template<typename T> static ALWAYS_INLINE void unalignedStore(void* p, T t)
 	}
 }
 
-static ALWAYS_INLINE uint16_t unalignedLoad16(const void* p) {
+[[nodiscard]] static ALWAYS_INLINE uint16_t unalignedLoad16(const void* p) {
 	return unalignedLoad<uint16_t>(p);
 }
-static ALWAYS_INLINE uint32_t unalignedLoad32(const void* p) {
+[[nodiscard]] static ALWAYS_INLINE uint32_t unalignedLoad32(const void* p) {
 	return unalignedLoad<uint32_t>(p);
 }
-static ALWAYS_INLINE uint64_t unalignedLoad64(const void* p) {
+[[nodiscard]] static ALWAYS_INLINE uint64_t unalignedLoad64(const void* p) {
 	return unalignedLoad<uint64_t>(p);
 }
 static ALWAYS_INLINE void unalignedStore16(void* p, uint16_t v) {

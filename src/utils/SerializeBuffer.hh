@@ -106,7 +106,7 @@ public:
 	  * when the buffer will be used for gzip output data), you can request
 	  * the maximum size and deallocate the unused space later.
 	  */
-	uint8_t* allocate(size_t len)
+	[[nodiscard]] uint8_t* allocate(size_t len)
 	{
 		auto* newEnd = end + len;
 		// Make sure the next OutputBuffer will start with an initial size
@@ -142,7 +142,7 @@ public:
 
 	/** Get the current size of the buffer.
 	 */
-	size_t getPosition() const
+	[[nodiscard]] size_t getPosition() const
 	{
 		return end - buf.data();
 	}
@@ -150,11 +150,11 @@ public:
 	/** Release ownership of the buffer.
 	 * Returns both the buffer and its size.
 	 */
-	MemBuffer<uint8_t> release(size_t& size);
+	[[nodiscard]] MemBuffer<uint8_t> release(size_t& size);
 
 private:
 	void insertGrow(const void* __restrict data, size_t len);
-	uint8_t* allocateGrow(size_t len);
+	[[nodiscard]] uint8_t* allocateGrow(size_t len);
 	void grow(size_t len);
 
 	MemBuffer<uint8_t> buf; // begin of allocated memory
@@ -205,7 +205,7 @@ public:
 	  * as input for an uncompress algorithm. You can later use skip() to
 	  * actually consume the data.
 	  */
-	const uint8_t* getCurrentPos() const { return buf; }
+	[[nodiscard]] const uint8_t* getCurrentPos() const { return buf; }
 
 private:
 	const uint8_t* buf;

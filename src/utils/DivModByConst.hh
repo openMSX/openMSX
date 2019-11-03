@@ -129,13 +129,13 @@ struct DBCReduce2
 template<uint32_t S> struct DBCAlgo1
 {
 	// division possible by only shifting
-	constexpr uint32_t operator()(uint64_t dividend) const
+	[[nodiscard]] constexpr uint32_t operator()(uint64_t dividend) const
 	{
 		return dividend >> S;
 	}
 };
 
-static constexpr uint64_t mla64(uint64_t a, uint64_t b, uint64_t c)
+[[nodiscard]] static constexpr uint64_t mla64(uint64_t a, uint64_t b, uint64_t c)
 {
 	// equivalent to this:
 	//    return (__uint128_t(a) * b + c) >> 64;
@@ -154,7 +154,7 @@ static constexpr uint64_t mla64(uint64_t a, uint64_t b, uint64_t c)
 template<uint64_t M, uint32_t S> struct DBCAlgo2
 {
 	// division possible by multiplication and shift
-	constexpr uint32_t operator()(uint64_t dividend) const
+	[[nodiscard]] constexpr uint32_t operator()(uint64_t dividend) const
 	{
 		using R = DBCReduce<M, S>;
 		uint64_t h = mla64(dividend, R::M2, 0);
@@ -174,7 +174,7 @@ template<uint32_t DIVISOR, uint32_t N> struct DBCAlgo3
 	using D = Div128<1 << S, 0, 0, DIVISOR>;
 	static constexpr uint64_t M = D::quotientLow + (D::remainderLow > (DIVISOR / 2));
 
-	constexpr uint32_t operator()(uint64_t dividend) const
+	[[nodiscard]] constexpr uint32_t operator()(uint64_t dividend) const
 	{
 		using R = DBCReduce<M, S + N>;
 		uint64_t h = mla64(dividend, R::M2, R::M2);
@@ -198,7 +198,7 @@ template<uint32_t DIVISOR, uint32_t N> struct DBCHelper2
 	using R = DBCReduce2<M_LOW ::quotientHigh, M_LOW ::quotientLow,
 	                     M_HIGH::quotientHigh, M_HIGH::quotientLow, L>;
 
-	constexpr uint32_t operator()(uint64_t dividend) const
+	[[nodiscard]] constexpr uint32_t operator()(uint64_t dividend) const
 	{
 		DBCHelper3<DIVISOR, N, R> dbc;
 		return dbc(dividend);
@@ -217,7 +217,7 @@ template<uint32_t DIVISOR, uint32_t SHIFT> struct DBCHelper1
 
 template<uint32_t DIVISOR> struct DivModByConst
 {
-	constexpr uint32_t div(uint64_t dividend) const
+	[[nodiscard]] constexpr uint32_t div(uint64_t dividend) const
 	{
 	#ifdef __x86_64
 		// on 64-bit CPUs gcc already does this
@@ -229,7 +229,7 @@ template<uint32_t DIVISOR> struct DivModByConst
 	#endif
 	}
 
-	constexpr uint32_t mod(uint64_t dividend) const
+	[[nodiscard]] constexpr uint32_t mod(uint64_t dividend) const
 	{
 	#ifdef __x86_64
 		uint64_t result = dividend % DIVISOR;

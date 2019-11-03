@@ -9,7 +9,7 @@
 namespace Endian {
 
 // Reverse bytes in a 16-bit number: 0x1234 becomes 0x3412
-static inline uint16_t bswap16(uint16_t x)
+[[nodiscard]] static inline uint16_t bswap16(uint16_t x)
 {
 	// This sequence generates 'optimal' code on a wide range of gcc/clang
 	// versions (a single rotate instruction on x86). The newer compiler
@@ -21,7 +21,7 @@ static inline uint16_t bswap16(uint16_t x)
 }
 
 // Reverse bytes in a 32-bit number: 0x12345678 becomes 0x78563412
-static inline uint32_t bswap32(uint32_t x)
+[[nodiscard]] static inline uint32_t bswap32(uint32_t x)
 {
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3))
 	// Starting from gcc-4.3 there's a builtin function for this.
@@ -36,7 +36,7 @@ static inline uint32_t bswap32(uint32_t x)
 }
 
 // Reverse bytes in a 64-bit value: 0x1122334455667788 becomes 0x8877665544332211
-static inline uint64_t bswap64(uint64_t x)
+[[nodiscard]] static inline uint64_t bswap64(uint64_t x)
 {
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3))
 	// Starting from gcc-4.3 there's a builtin function for this.
@@ -49,19 +49,19 @@ static inline uint64_t bswap64(uint64_t x)
 }
 
 // Use overloading to get a (statically) polymorphic bswap() function.
-static inline uint16_t bswap(uint16_t x) { return bswap16(x); }
-static inline uint32_t bswap(uint32_t x) { return bswap32(x); }
-static inline uint64_t bswap(uint64_t x) { return bswap64(x); }
+[[nodiscard]] static inline uint16_t bswap(uint16_t x) { return bswap16(x); }
+[[nodiscard]] static inline uint32_t bswap(uint32_t x) { return bswap32(x); }
+[[nodiscard]] static inline uint64_t bswap(uint64_t x) { return bswap64(x); }
 
 
 // Identity operator, simply returns the given value.
 struct Ident {
-	template <typename T> inline T operator()(T t) const { return t; }
+	template <typename T> [[nodiscard]] inline T operator()(T t) const { return t; }
 };
 
 // Byte-swap operator, swap bytes in the given value (16 or 32 bit).
 struct BSwap {
-	template <typename T> inline T operator()(T t) const { return bswap(t); }
+	template <typename T> [[nodiscard]] inline T operator()(T t) const { return bswap(t); }
 };
 
 // Helper class that stores a value and allows to read/write that value. Though
@@ -72,7 +72,7 @@ template<typename T, typename Op> class EndianT {
 public:
 	EndianT() = default; // leave uninitialized
 	EndianT(T t_)                  { Op op; t = op(t_); }
-	inline operator T() const      { Op op; return op(t); }
+	[[nodiscard]] inline operator T() const      { Op op; return op(t); }
 	inline EndianT& operator=(T a) { Op op; t = op(a); return *this; }
 private:
 	T t;
@@ -139,19 +139,19 @@ static inline void writeL32(void* p, uint32_t x)
 	*reinterpret_cast<L32*>(p) = x;
 }
 
-static inline uint16_t readB16(const void* p)
+[[nodiscard]] static inline uint16_t readB16(const void* p)
 {
 	return *reinterpret_cast<const B16*>(p);
 }
-static inline uint16_t readL16(const void* p)
+[[nodiscard]] static inline uint16_t readL16(const void* p)
 {
 	return *reinterpret_cast<const L16*>(p);
 }
-static inline uint32_t readB32(const void* p)
+[[nodiscard]] static inline uint32_t readB32(const void* p)
 {
 	return *reinterpret_cast<const B32*>(p);
 }
-static inline uint32_t readL32(const void* p)
+[[nodiscard]] static inline uint32_t readL32(const void* p)
 {
 	return *reinterpret_cast<const L32*>(p);
 }
@@ -193,34 +193,34 @@ static ALWAYS_INLINE void write_UA_L64(void* p, uint64_t x)
 	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
 
-template<bool SWAP, typename T> static ALWAYS_INLINE T read_UA(const void* p)
+template<bool SWAP, typename T> [[nodiscard]] static ALWAYS_INLINE T read_UA(const void* p)
 {
 	T x;
 	memcpy(&x, p, sizeof(x));
 	if (SWAP) x = bswap(x);
 	return x;
 }
-static ALWAYS_INLINE uint16_t read_UA_B16(const void* p)
+[[nodiscard]] static ALWAYS_INLINE uint16_t read_UA_B16(const void* p)
 {
 	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint16_t>(p);
 }
-static ALWAYS_INLINE uint16_t read_UA_L16(const void* p)
+[[nodiscard]] static ALWAYS_INLINE uint16_t read_UA_L16(const void* p)
 {
 	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint16_t>(p);
 }
-static ALWAYS_INLINE uint32_t read_UA_B32(const void* p)
+[[nodiscard]] static ALWAYS_INLINE uint32_t read_UA_B32(const void* p)
 {
 	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint32_t>(p);
 }
-static ALWAYS_INLINE uint32_t read_UA_L32(const void* p)
+[[nodiscard]] static ALWAYS_INLINE uint32_t read_UA_L32(const void* p)
 {
 	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint32_t>(p);
 }
-static ALWAYS_INLINE uint64_t read_UA_B64(const void* p)
+[[nodiscard]] static ALWAYS_INLINE uint64_t read_UA_B64(const void* p)
 {
 	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint64_t>(p);
 }
-static ALWAYS_INLINE uint64_t read_UA_L64(const void* p)
+[[nodiscard]] static ALWAYS_INLINE uint64_t read_UA_L64(const void* p)
 {
 	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint64_t>(p);
 }
@@ -230,7 +230,7 @@ static ALWAYS_INLINE uint64_t read_UA_L64(const void* p)
 
 class UA_B16 {
 public:
-	inline operator uint16_t() const     { return read_UA_B16(x); }
+	[[nodiscard]] inline operator uint16_t() const { return read_UA_B16(x); }
 	inline UA_B16& operator=(uint16_t a) { write_UA_B16(x, a); return *this; }
 private:
 	uint8_t x[2];
@@ -238,7 +238,7 @@ private:
 
 class UA_L16 {
 public:
-	inline operator uint16_t() const     { return read_UA_L16(x); }
+	[[nodiscard]] inline operator uint16_t() const { return read_UA_L16(x); }
 	inline UA_L16& operator=(uint16_t a) { write_UA_L16(x, a); return *this; }
 private:
 	uint8_t x[2];
@@ -246,7 +246,7 @@ private:
 
 class UA_B32 {
 public:
-	inline operator uint32_t() const     { return read_UA_B32(x); }
+	[[nodiscard]] inline operator uint32_t() const { return read_UA_B32(x); }
 	inline UA_B32& operator=(uint32_t a) { write_UA_B32(x, a); return *this; }
 private:
 	uint8_t x[4];
@@ -254,7 +254,7 @@ private:
 
 class UA_L32 {
 public:
-	inline operator uint32_t() const     { return read_UA_L32(x); }
+	[[nodiscard]] inline operator uint32_t() const { return read_UA_L32(x); }
 	inline UA_L32& operator=(uint32_t a) { write_UA_L32(x, a); return *this; }
 private:
 	uint8_t x[4];

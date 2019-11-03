@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-inline constexpr auto calcTable()
+[[nodiscard]] inline constexpr auto calcTable()
 {
 	std::array<std::array<uint16_t, 0x100>, 8> result = {}; // uint16_t[8][0x100]
 	for (unsigned i = 0; i < 0x100; ++i) {
@@ -103,7 +103,7 @@ public:
 
 	/** Get current CRC value
 	 */
-	constexpr uint16_t getValue() const
+	[[nodiscard]] constexpr uint16_t getValue() const
 	{
 		return crc;
 	}

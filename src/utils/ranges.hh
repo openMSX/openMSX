@@ -20,13 +20,13 @@
 namespace ranges {
 
 template<typename ForwardRange>
-bool is_sorted(ForwardRange&& range)
+[[nodiscard]] bool is_sorted(ForwardRange&& range)
 {
 	return std::is_sorted(std::begin(range), std::end(range));
 }
 
 template<typename ForwardRange, typename Compare>
-bool is_sorted(ForwardRange&& range, Compare comp)
+[[nodiscard]] bool is_sorted(ForwardRange&& range, Compare comp)
 {
 	return std::is_sorted(std::begin(range), std::end(range), comp);
 }
@@ -56,91 +56,91 @@ void stable_sort(RandomAccessRange&& range, Compare comp)
 }
 
 template<typename ForwardRange, typename T>
-bool binary_search(ForwardRange&& range, const T& value)
+[[nodiscard]] bool binary_search(ForwardRange&& range, const T& value)
 {
 	return std::binary_search(std::begin(range), std::end(range), value);
 }
 
 template<typename ForwardRange, typename T, typename Compare>
-bool binary_search(ForwardRange&& range, const T& value, Compare comp)
+[[nodiscard]] bool binary_search(ForwardRange&& range, const T& value, Compare comp)
 {
 	return std::binary_search(std::begin(range), std::end(range), value, comp);
 }
 
 template<typename ForwardRange, typename T>
-auto lower_bound(ForwardRange&& range, const T& value)
+[[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value)
 {
 	return std::lower_bound(std::begin(range), std::end(range), value);
 }
 
 template<typename ForwardRange, typename T, typename Compare>
-auto lower_bound(ForwardRange&& range, const T& value, Compare comp)
+[[nodiscard]] auto lower_bound(ForwardRange&& range, const T& value, Compare comp)
 {
 	return std::lower_bound(std::begin(range), std::end(range), value, comp);
 }
 
 template<typename ForwardRange, typename T>
-auto upper_bound(ForwardRange&& range, const T& value)
+[[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value)
 {
 	return std::upper_bound(std::begin(range), std::end(range), value);
 }
 
 template<typename ForwardRange, typename T, typename Compare>
-auto upper_bound(ForwardRange&& range, const T& value, Compare comp)
+[[nodiscard]] auto upper_bound(ForwardRange&& range, const T& value, Compare comp)
 {
 	return std::upper_bound(std::begin(range), std::end(range), value, comp);
 }
 
 template<typename ForwardRange, typename T>
-auto equal_range(ForwardRange&& range, const T& value)
+[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value)
 {
 	return std::equal_range(std::begin(range), std::end(range), value);
 }
 
 template<typename ForwardRange, typename T, typename Compare>
-auto equal_range(ForwardRange&& range, const T& value, Compare comp)
+[[nodiscard]] auto equal_range(ForwardRange&& range, const T& value, Compare comp)
 {
 	return std::equal_range(std::begin(range), std::end(range), value, comp);
 }
 
 template<typename InputRange, typename T>
-auto find(InputRange&& range, const T& value)
+[[nodiscard]] auto find(InputRange&& range, const T& value)
 {
 	return std::find(std::begin(range), std::end(range), value);
 }
 
 template<typename InputRange, typename UnaryPredicate>
-auto find_if(InputRange&& range, UnaryPredicate pred)
+[[nodiscard]] auto find_if(InputRange&& range, UnaryPredicate pred)
 {
 	return std::find_if(std::begin(range), std::end(range), pred);
 }
 
 template<typename InputRange, typename UnaryPredicate>
-bool all_of(InputRange&& range, UnaryPredicate pred)
+[[nodiscard]] bool all_of(InputRange&& range, UnaryPredicate pred)
 {
 	return std::all_of(std::begin(range), std::end(range), pred);
 }
 
 template<typename InputRange, typename UnaryPredicate>
-bool any_of(InputRange&& range, UnaryPredicate pred)
+[[nodiscard]] bool any_of(InputRange&& range, UnaryPredicate pred)
 {
 	return std::any_of(std::begin(range), std::end(range), pred);
 }
 
 template<typename InputRange, typename UnaryPredicate>
-bool none_of(InputRange&& range, UnaryPredicate pred)
+[[nodiscard]] bool none_of(InputRange&& range, UnaryPredicate pred)
 {
 	return std::none_of(std::begin(range), std::end(range), pred);
 }
 
 template<typename ForwardRange>
-auto unique(ForwardRange&& range)
+[[nodiscard]] auto unique(ForwardRange&& range)
 {
 	return std::unique(std::begin(range), std::end(range));
 }
 
 template<typename ForwardRange, typename BinaryPredicate>
-auto unique(ForwardRange&& range, BinaryPredicate pred)
+[[nodiscard]] auto unique(ForwardRange&& range, BinaryPredicate pred)
 {
 	return std::unique(std::begin(range), std::end(range), pred);
 }
@@ -164,13 +164,13 @@ auto transform(InputRange&& range, OutputIter out, UnaryOperation op)
 }
 
 template<typename ForwardRange, typename T>
-auto remove(ForwardRange&& range, const T& value)
+[[nodiscard]] auto remove(ForwardRange&& range, const T& value)
 {
 	return std::remove(std::begin(range), std::end(range), value);
 }
 
 template<typename ForwardRange, typename UnaryPredicate>
-auto remove_if(ForwardRange&& range, UnaryPredicate pred)
+[[nodiscard]] auto remove_if(ForwardRange&& range, UnaryPredicate pred)
 {
 	return std::remove_if(std::begin(range), std::end(range), pred);
 }
@@ -194,25 +194,25 @@ void fill(ForwardRange&& range, const T& value)
 }
 
 template<typename InputRange, typename T>
-T accumulate(InputRange&& range, T init)
+[[nodiscard]] T accumulate(InputRange&& range, T init)
 {
 	return std::accumulate(std::begin(range), std::end(range), init);
 }
 
 template<typename InputRange, typename T, typename BinaryOperation>
-T accumulate(InputRange&& range, T init, BinaryOperation op)
+[[nodiscard]] T accumulate(InputRange&& range, T init, BinaryOperation op)
 {
 	return std::accumulate(std::begin(range), std::end(range), init, op);
 }
 
 template<typename InputRange, typename T>
-auto count(InputRange&& range, const T& value)
+[[nodiscard]] auto count(InputRange&& range, const T& value)
 {
 	return std::count(std::begin(range), std::end(range), value);
 }
 
 template<typename InputRange, typename UnaryPredicate>
-auto count_if(InputRange&& range, UnaryPredicate pred)
+[[nodiscard]] auto count_if(InputRange&& range, UnaryPredicate pred)
 {
 	return std::count_if(std::begin(range), std::end(range), pred);
 }

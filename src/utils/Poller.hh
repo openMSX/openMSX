@@ -20,12 +20,12 @@ public:
 	/** Waits for an event to occur on the given file descriptor.
 	  * Returns true iff abort() was called or an error occurred.
 	  */
-	bool poll(int fd);
+	[[nodiscard]] bool poll(int fd);
 #endif
 
 	/** Returns true iff abort() was called.
 	  */
-	bool aborted() {
+	[[nodiscard]] bool aborted() {
 		return abortFlag;
 	}
 

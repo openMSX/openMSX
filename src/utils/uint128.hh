@@ -8,7 +8,7 @@
 // use that type because it's most likely much more efficient.
 // VC++ 2008 does not provide a 128-bit integer type
 using uint128 = __uint128_t;
-inline uint64_t toUint64(uint128 a) { return a; }
+[[nodiscard]] inline uint64_t toUint64(uint128 a) { return a; }
 
 #else // __x86_64 && !_MSC_VER
 
@@ -24,16 +24,16 @@ public:
 	uint128(const uint128& a) : lo(a.lo), hi(a.hi) {}
 	uint128(uint64_t a)       : lo(a), hi(0) {}
 
-	bool operator!() const
+	[[nodiscard]] bool operator!() const
 	{
 		return !(hi || lo);
 	}
 
-	uint128 operator~() const
+	[[nodiscard]] uint128 operator~() const
 	{
 		return uint128(~lo, ~hi);
 	}
-	uint128 operator-() const
+	[[nodiscard]] uint128 operator-() const
 	{
 		uint128 result = ~*this;
 		++result;
@@ -139,98 +139,98 @@ private:
 	uint128() {}
 	uint128(uint64_t a, uint64_t b) : lo(a), hi(b) {}
 	uint128 div(const uint128& ds, uint128& remainder) const;
-	bool bit(unsigned n) const;
+	[[nodiscard]] bool bit(unsigned n) const;
 	void setBit(unsigned n);
 
 	uint64_t lo;
 	uint64_t hi;
 
-	friend bool operator< (const uint128&, const uint128&);
-	friend bool operator==(const uint128&, const uint128&);
-	friend bool operator||(const uint128&, const uint128&);
-	friend bool operator&&(const uint128&, const uint128&);
-	friend uint64_t toUint64(const uint128&);
+	[[nodiscard]] friend bool operator< (const uint128&, const uint128&);
+	[[nodiscard]] friend bool operator==(const uint128&, const uint128&);
+	[[nodiscard]] friend bool operator||(const uint128&, const uint128&);
+	[[nodiscard]] friend bool operator&&(const uint128&, const uint128&);
+	[[nodiscard]] friend uint64_t toUint64(const uint128&);
 };
 
 
-inline uint128 operator+(const uint128& a, const uint128& b)
+[[nodiscard]] inline uint128 operator+(const uint128& a, const uint128& b)
 {
 	return uint128(a) += b;
 }
-inline uint128 operator-(const uint128& a, const uint128& b)
+[[nodiscard]] inline uint128 operator-(const uint128& a, const uint128& b)
 {
 	return uint128(a) -= b;
 }
-inline uint128 operator*(const uint128& a, const uint128& b)
+[[nodiscard]] inline uint128 operator*(const uint128& a, const uint128& b)
 {
 	return uint128(a) *= b;
 }
-inline uint128 operator/(const uint128& a, const uint128& b)
+[[nodiscard]] inline uint128 operator/(const uint128& a, const uint128& b)
 {
 	return uint128(a) /= b;
 }
-inline uint128 operator%(const uint128& a, const uint128& b)
+[[nodiscard]] inline uint128 operator%(const uint128& a, const uint128& b)
 {
 	return uint128(a) %= b;
 }
 
-inline uint128 operator>>(const uint128& a, unsigned n)
+[[nodiscard]] inline uint128 operator>>(const uint128& a, unsigned n)
 {
 	return uint128(a) >>= n;
 }
-inline uint128 operator<<(const uint128 & a, unsigned n)
+[[nodiscard]] inline uint128 operator<<(const uint128 & a, unsigned n)
 {
 	return uint128(a) <<= n;
 }
 
-inline uint128 operator&(const uint128& a, const uint128& b)
+[[nodiscard]] inline uint128 operator&(const uint128& a, const uint128& b)
 {
 	return uint128(a) &= b;
 }
-inline uint128 operator|(const uint128& a, const uint128& b)
+[[nodiscard]] inline uint128 operator|(const uint128& a, const uint128& b)
 {
 	return uint128(a) |= b;
 }
-inline uint128 operator^(const uint128& a, const uint128& b)
+[[nodiscard]] inline uint128 operator^(const uint128& a, const uint128& b)
 {
 	return uint128(a) ^= b;
 }
 
-inline bool operator<(const uint128& a, const uint128& b)
+[[nodiscard]] inline bool operator<(const uint128& a, const uint128& b)
 {
 	return (a.hi == b.hi) ? (a.lo < b.lo) : (a.hi < b.hi);
 }
-inline bool operator>(const uint128& a, const uint128& b)
+[[nodiscard]] inline bool operator>(const uint128& a, const uint128& b)
 {
 	return b < a;
 }
-inline bool operator<=(const uint128& a, const uint128& b)
+[[nodiscard]] inline bool operator<=(const uint128& a, const uint128& b)
 {
 	return !(b < a);
 }
-inline bool operator>=(const uint128& a, const uint128& b)
+[[nodiscard]] inline bool operator>=(const uint128& a, const uint128& b)
 {
 	return !(a < b);
 }
-inline bool operator==(const uint128& a, const uint128& b)
+[[nodiscard]] inline bool operator==(const uint128& a, const uint128& b)
 {
 	return (a.hi == b.hi) && (a.lo == b.lo);
 }
-inline bool operator!=(const uint128& a, const uint128& b)
+[[nodiscard]] inline bool operator!=(const uint128& a, const uint128& b)
 {
 	return !(a == b);
 }
 
-inline bool operator&&(const uint128& a, const uint128& b)
+[[nodiscard]] inline bool operator&&(const uint128& a, const uint128& b)
 {
 	return (a.hi || a.lo) && (b.hi || b.lo);
 }
-inline bool operator||(const uint128& a, const uint128& b)
+[[nodiscard]] inline bool operator||(const uint128& a, const uint128& b)
 {
 	return a.hi || a.lo || b.hi || b.lo;
 }
 
-inline uint64_t toUint64(const uint128& a)
+[[nodiscard]] inline uint64_t toUint64(const uint128& a)
 {
 	return a.lo;
 }

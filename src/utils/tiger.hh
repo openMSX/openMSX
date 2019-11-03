@@ -26,7 +26,7 @@ namespace openmsx {
  */
 struct TigerHash
 {
-	std::string toString() const;
+	[[nodiscard]] std::string toString() const;
 	union {
 		uint64_t h64[3];
 		uint8_t  h8[24];

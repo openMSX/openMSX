@@ -91,7 +91,7 @@ uint32_t next(octet_iterator& it)
 }
 
 template <typename octet_iterator>
-uint32_t peek_next(octet_iterator it)
+[[nodiscard]] uint32_t peek_next(octet_iterator it)
 {
 	return next(it);
 }
@@ -113,7 +113,7 @@ void advance(octet_iterator& it, distance_type n)
 }
 
 template <typename octet_iterator>
-auto distance(octet_iterator first, octet_iterator last)
+[[nodiscard]] auto distance(octet_iterator first, octet_iterator last)
 {
 	typename std::iterator_traits<octet_iterator>::difference_type dist;
 	for (dist = 0; first < last; ++dist) {
@@ -185,17 +185,17 @@ public:
 	explicit iterator(const octet_iterator& octet_it)
 		: it(octet_it) {}
 	// the default "big three" are OK
-	octet_iterator base() const { return it; }
-	uint32_t operator*() const
+	[[nodiscard]] octet_iterator base() const { return it; }
+	[[nodiscard]] uint32_t operator*() const
 	{
 		octet_iterator temp = it;
 		return next(temp);
 	}
-	bool operator==(const iterator& rhs) const
+	[[nodiscard]] bool operator==(const iterator& rhs) const
 	{
 		return it == rhs.it;
 	}
-	bool operator!=(const iterator& rhs) const
+	[[nodiscard]] bool operator!=(const iterator& rhs) const
 	{
 		return !(operator==(rhs));
 	}
@@ -224,12 +224,12 @@ public:
 };
 
 // convenience functions
-inline size_t size(std::string_view utf8)
+[[nodiscard]] inline size_t size(std::string_view utf8)
 {
 	return utf8::unchecked::distance(begin(utf8), end(utf8));
 }
-inline std::string_view substr(std::string_view utf8, std::string_view::size_type first = 0,
-                               std::string_view::size_type len = std::string_view::npos)
+[[nodiscard]] inline std::string_view substr(std::string_view utf8, std::string_view::size_type first = 0,
+                                             std::string_view::size_type len = std::string_view::npos)
 {
 	auto b = begin(utf8);
 	utf8::unchecked::advance(b, first);

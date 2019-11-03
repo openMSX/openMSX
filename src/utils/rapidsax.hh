@@ -107,8 +107,8 @@ public:
 	{
 	}
 
-	const char* what() const { return m_what; }
-	char* where() const { return m_where; }
+	[[nodiscard]] const char* what() const { return m_what; }
+	[[nodiscard]] char* where() const { return m_where; }
 
 private:
 	const char* m_what;
@@ -123,54 +123,54 @@ extern const uint8_t lutDigits[256]; // Digits
 
 // Detect whitespace character (space \n \r \t)
 struct WhitespacePred {
-	static bool test(char ch) { return (lutChar[uint8_t(ch)] & 0x02) != 0; }
+	[[nodiscard]] static bool test(char ch) { return (lutChar[uint8_t(ch)] & 0x02) != 0; }
 };
 
 // Detect node name character (anything but space \n \r \t / > ? \0)
 struct NodeNamePred {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x43); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x43); }
 };
 
 // Detect attribute name character (anything but space \n \r \t / < > = ? ! \0)
 struct AttributeNamePred {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0xC7); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0xC7); }
 };
 
 // Detect text character (PCDATA) (anything but < \0)
 struct TextPred {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x05); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x05); }
 };
 
 // Detect text character (PCDATA) that does not require processing when ws
 // normalization is disabled (anything but < \0 &)
 struct TextPureNoWsPred {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0D); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0D); }
 };
 
 // Detect text character (PCDATA) that does not require processing when ws
 // normalizationis is enabled (anything but < \0 & space \n \r \t)
 struct TextPureWithWsPred {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0F); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0F); }
 };
 
 // Detect attribute value character, single quote (anything but ' \0)
 struct AttPred1 {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x11); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x11); }
 };
 // Detect attribute value character, double quote (anything but " \0)
 struct AttPred2 {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x21); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x21); }
 };
 
 // Detect attribute value character, single quote, that does not require
 // processing (anything but ' \0 &)
 struct AttPurePred1 {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x19); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x19); }
 };
 // Detect attribute value character, double quote, that does not require
 // processing (anything but " \0 &)
 struct AttPurePred2 {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x29); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x29); }
 };
 
 // Insert coded character, using UTF8
@@ -199,20 +199,20 @@ static inline void insertUTF8char(char*& text, uint32_t code)
 	}
 }
 
-template<char C0, char C1> static inline bool next(const char* p)
+template<char C0, char C1> [[nodiscard]] static inline bool next(const char* p)
 {
 	return small_compare<C0, C1>(p);
 }
-template<char C0, char C1, char C2> static inline bool next(const char* p)
+template<char C0, char C1, char C2> [[nodiscard]] static inline bool next(const char* p)
 {
 	return small_compare<C0, C1, C2>(p);
 }
-template<char C0, char C1, char C2, char C3> static inline bool next(const char* p)
+template<char C0, char C1, char C2, char C3> [[nodiscard]] static inline bool next(const char* p)
 {
 	return small_compare<C0, C1, C2, C3>(p);
 }
 template<char C0, char C1, char C2, char C3, char C4, char C5>
-static inline bool next(const char* p)
+[[nodiscard]] static inline bool next(const char* p)
 {
 	return small_compare<C0, C1, C2, C3, C4, C5>(p);
 }
@@ -231,7 +231,7 @@ template<class StopPred> static inline void skip(char*& text)
 //   (&apos; &amp; &quot; &lt; &gt; &#...;)
 // - condensing whitespace sequences to single space character
 template<class StopPred, class StopPredPure, int FLAGS>
-static inline char* skipAndExpand(char*& text)
+[[nodiscard]] static inline char* skipAndExpand(char*& text)
 {
 	// If entity translation, whitespace condense and whitespace
 	// trimming is disabled, use plain skip.

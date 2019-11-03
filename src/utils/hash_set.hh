@@ -23,7 +23,7 @@ namespace hash_set_impl {
 // returns the exact same (reference) value.
 struct Identity {
 	template<typename T>
-	inline T& operator()(T&& t) const { return t; }
+	[[nodiscard]] inline T& operator()(T&& t) const { return t; }
 };
 
 // Holds the data that will be stored in the hash_set plus some extra
@@ -101,13 +101,13 @@ public:
 	// (External code) is only allowed to call this method with indices
 	// that were earlier returned from create() and have not yet been
 	// passed to destroy().
-	Elem& get(unsigned idx)
+	[[nodiscard]] Elem& get(unsigned idx)
 	{
 		assert(idx != 0);
 		assert(idx <= capacity_);
 		return buf1_[idx];
 	}
-	const Elem& get(unsigned idx) const
+	[[nodiscard]] const Elem& get(unsigned idx) const
 	{
 		return const_cast<Pool&>(*this).get(idx);
 	}
@@ -119,7 +119,7 @@ public:
 	// - Internally Pool keeps a list of pre-allocated objects, when this
 	//   list runs out Pool will automatically allocate more objects.
 	template<typename V>
-	unsigned create(V&& value, unsigned hash, unsigned nextIdx)
+	[[nodiscard]] unsigned create(V&& value, unsigned hash, unsigned nextIdx)
 	{
 		if (freeIdx_ == 0) grow();
 		unsigned idx = freeIdx_;
@@ -142,7 +142,7 @@ public:
 
 	// Leaves 'hash' and 'nextIdx' members uninitialized!
 	template<typename... Args>
-	unsigned emplace(Args&&... args)
+	[[nodiscard]] unsigned emplace(Args&&... args)
 	{
 		if (freeIdx_ == 0) grow();
 		unsigned idx = freeIdx_;
@@ -152,7 +152,7 @@ public:
 		return idx;
 	}
 
-	unsigned capacity() const
+	[[nodiscard]] unsigned capacity() const
 	{
 		return capacity_;
 	}
@@ -174,7 +174,7 @@ public:
 	}
 
 private:
-	static inline Elem* adjust(Elem* p) { return p - 1; }
+	[[nodiscard]] static inline Elem* adjust(Elem* p) { return p - 1; }
 
 	void grow()
 	{
@@ -289,11 +289,11 @@ public:
 			return *this;
 		}
 
-		bool operator==(const Iter& rhs) const {
+		[[nodiscard]] bool operator==(const Iter& rhs) const {
 			assert((hashSet == rhs.hashSet) || !hashSet || !rhs.hashSet);
 			return elemIdx == rhs.elemIdx;
 		}
-		bool operator!=(const Iter& rhs) const {
+		[[nodiscard]] bool operator!=(const Iter& rhs) const {
 			return !(*this == rhs);
 		}
 
@@ -315,10 +315,10 @@ public:
 			return tmp;
 		}
 
-		IValue& operator*() const {
+		[[nodiscard]] IValue& operator*() const {
 			return hashSet->pool.get(elemIdx).value;
 		}
-		IValue* operator->() const {
+		[[nodiscard]] IValue* operator->() const {
 			return &hashSet->pool.get(elemIdx).value;
 		}
 
@@ -328,7 +328,7 @@ public:
 		Iter(HashSet* m, unsigned idx)
 			: hashSet(m), elemIdx(idx) {}
 
-		unsigned getElementIdx() const {
+		[[nodiscard]] unsigned getElementIdx() const {
 			return elemIdx;
 		}
 
@@ -428,7 +428,7 @@ public:
 	}
 
 	template<typename K>
-	bool contains(const K& key) const
+	[[nodiscard]] bool contains(const K& key) const
 	{
 		return locateElement(key) != 0;
 	}
@@ -517,12 +517,12 @@ public:
 		--elemCount;
 	}
 
-	bool empty() const
+	[[nodiscard]] bool empty() const
 	{
 		return elemCount == 0;
 	}
 
-	unsigned size() const
+	[[nodiscard]] unsigned size() const
 	{
 		return elemCount;
 	}
@@ -543,18 +543,18 @@ public:
 	}
 
 	template<typename K>
-	iterator find(const K& key)
+	[[nodiscard]] iterator find(const K& key)
 	{
 		return iterator(this, locateElement(key));
 	}
 
 	template<typename K>
-	const_iterator find(const K& key) const
+	[[nodiscard]] const_iterator find(const K& key) const
 	{
 		return const_iterator(this, locateElement(key));
 	}
 
-	iterator begin()
+	[[nodiscard]] iterator begin()
 	{
 		if (elemCount == 0) return end();
 
@@ -567,7 +567,7 @@ public:
 		return end(); // avoid warning
 	}
 
-	const_iterator begin() const
+	[[nodiscard]] const_iterator begin() const
 	{
 		if (elemCount == 0) return end();
 
@@ -580,17 +580,17 @@ public:
 		return end(); // avoid warning
 	}
 
-	iterator end()
+	[[nodiscard]] iterator end()
 	{
 		return iterator();
 	}
 
-	const_iterator end() const
+	[[nodiscard]] const_iterator end() const
 	{
 		return const_iterator();
 	}
 
-	unsigned capacity() const
+	[[nodiscard]] unsigned capacity() const
 	{
 		unsigned poolCapacity = pool.capacity();
 		unsigned tableCapacity = (allocMask + 1) / 4 * 3;
@@ -631,15 +631,15 @@ public:
 		swap(x.equal    , y.equal);
 	}
 
-	friend auto begin(      hash_set& s) { return s.begin(); }
-	friend auto begin(const hash_set& s) { return s.begin(); }
-	friend auto end  (      hash_set& s) { return s.end();   }
-	friend auto end  (const hash_set& s) { return s.end();   }
+	[[nodiscard]] friend auto begin(      hash_set& s) { return s.begin(); }
+	[[nodiscard]] friend auto begin(const hash_set& s) { return s.begin(); }
+	[[nodiscard]] friend auto end  (      hash_set& s) { return s.end();   }
+	[[nodiscard]] friend auto end  (const hash_set& s) { return s.end();   }
 
 private:
 	// Returns the smallest value that is >= x that is also a power of 2.
 	// (for x=0 it returns 0)
-	static inline unsigned nextPowerOf2(unsigned x)
+	[[nodiscard]] static inline unsigned nextPowerOf2(unsigned x)
 	{
 		static_assert(sizeof(unsigned) == sizeof(uint32_t), "only works for exactly 32 bit");
 		x -= 1;
@@ -652,7 +652,7 @@ private:
 	}
 
 	template<bool CHECK_CAPACITY, bool CHECK_DUPLICATE, typename V>
-	std::pair<iterator, bool> insert_impl(V&& value)
+	[[nodiscard]] std::pair<iterator, bool> insert_impl(V&& value)
 	{
 		unsigned hash = hasher(extract(value));
 		unsigned tableIdx = hash & allocMask;
@@ -686,7 +686,7 @@ private:
 	}
 
 	template<bool CHECK_CAPACITY, bool CHECK_DUPLICATE, typename... Args>
-	std::pair<iterator, bool> emplace_impl(Args&&... args)
+	[[nodiscard]] std::pair<iterator, bool> emplace_impl(Args&&... args)
 	{
 		unsigned poolIdx = pool.emplace(std::forward<Args>(args)...);
 		auto& poolElem = pool.get(poolIdx);
@@ -760,7 +760,7 @@ private:
 	}
 
 	template<typename K>
-	unsigned locateElement(const K& key) const
+	[[nodiscard]] unsigned locateElement(const K& key) const
 	{
 		if (elemCount == 0) return 0;
 

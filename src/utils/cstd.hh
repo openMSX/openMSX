@@ -32,7 +32,7 @@ constexpr void iter_swap(Iter1 a, Iter2 b)
 }
 
 template<typename InputIt, typename UnaryPredicate>
-constexpr InputIt find_if_not(InputIt first, InputIt last, UnaryPredicate p)
+[[nodiscard]] constexpr InputIt find_if_not(InputIt first, InputIt last, UnaryPredicate p)
 {
 	for (/**/; first != last; ++first) {
 		if (!p(*first)) {
@@ -43,7 +43,7 @@ constexpr InputIt find_if_not(InputIt first, InputIt last, UnaryPredicate p)
 }
 
 template<typename ForwardIt, typename UnaryPredicate>
-constexpr ForwardIt partition(ForwardIt first, ForwardIt last, UnaryPredicate p)
+[[nodiscard]] constexpr ForwardIt partition(ForwardIt first, ForwardIt last, UnaryPredicate p)
 {
 	first = cstd::find_if_not(first, last, p);
 	if (first == last) return first;
@@ -80,8 +80,8 @@ constexpr void sort(RandomAccessRange&& range, Compare cmp = Compare{})
 }
 
 template<typename InputIt1, typename InputIt2>
-constexpr bool lexicographical_compare(InputIt1 first1, InputIt1 last1,
-                                       InputIt2 first2, InputIt2 last2)
+[[nodiscard]] constexpr bool lexicographical_compare(InputIt1 first1, InputIt1 last1,
+                                                     InputIt2 first2, InputIt2 last2)
 {
 	for (/**/; (first1 != last1) && (first2 != last2); ++first1, ++first2) {
 		if (*first1 < *first2) return true;
@@ -97,19 +97,19 @@ constexpr bool lexicographical_compare(InputIt1 first1, InputIt1 last1,
 
 // Gcc has constexpr versions of most mathematical functions (this is a
 // non-standard extension). Prefer those over our implementations.
-template<int>      constexpr double sin  (double x) { return std::sin  (x); }
-template<int>      constexpr double cos  (double x) { return std::cos  (x); }
-template<int, int> constexpr double log  (double x) { return std::log  (x); }
-template<int, int> constexpr double log2 (double x) { return    ::log  (x) / ::log(2); } // should be std::log2(x) but this doesn't seem to compile in g++-4.8/g++-4.9 (bug?)
-template<int, int> constexpr double log10(double x) { return std::log10(x); }
-template<int>      constexpr double exp  (double x) { return std::exp  (x); }
-template<int>      constexpr double exp2 (double x) { return    ::exp2 (x); } // see log2, but apparently no need to use exp(log(2) * x) here?!
-template<int, int> constexpr double pow(double x, double y) { return std::pow(x, y); }
-inline constexpr double round(double x) { return ::round(x); } // should be std::round(), see above
+template<int>      [[nodiscard]] constexpr double sin  (double x) { return std::sin  (x); }
+template<int>      [[nodiscard]] constexpr double cos  (double x) { return std::cos  (x); }
+template<int, int> [[nodiscard]] constexpr double log  (double x) { return std::log  (x); }
+template<int, int> [[nodiscard]] constexpr double log2 (double x) { return    ::log  (x) / ::log(2); } // should be std::log2(x) but this doesn't seem to compile in g++-4.8/g++-4.9 (bug?)
+template<int, int> [[nodiscard]] constexpr double log10(double x) { return std::log10(x); }
+template<int>      [[nodiscard]] constexpr double exp  (double x) { return std::exp  (x); }
+template<int>      [[nodiscard]] constexpr double exp2 (double x) { return    ::exp2 (x); } // see log2, but apparently no need to use exp(log(2) * x) here?!
+template<int, int> [[nodiscard]] constexpr double pow(double x, double y) { return std::pow(x, y); }
+[[nodiscard]] inline constexpr double round(double x) { return ::round(x); } // should be std::round(), see above
 
 #else
 
-constexpr double upow(double x, unsigned u)
+[[nodiscard]] constexpr double upow(double x, unsigned u)
 {
     double y = 1.0;
     while (u) {
@@ -120,13 +120,13 @@ constexpr double upow(double x, unsigned u)
     return y;
 }
 
-constexpr double ipow(double x, int i)
+[[nodiscard]] constexpr double ipow(double x, int i)
 {
 	return (i >= 0) ? upow(x, i) : upow(x, -i);
 }
 
 template<int ITERATIONS>
-constexpr double exp(double x)
+[[nodiscard]] constexpr double exp(double x)
 {
     // Split x into integral and fractional part:
     //   exp(x) = exp(i + f) = exp(i) * exp(f)
@@ -157,14 +157,14 @@ constexpr double exp(double x)
     }
 }
 
-constexpr double simple_fmod(double x, double y)
+[[nodiscard]] constexpr double simple_fmod(double x, double y)
 {
     assert(y > 0.0);
     return x - int(x / y) * y;
 }
 
 template<int ITERATIONS>
-constexpr double sin_iter(double x)
+[[nodiscard]] constexpr double sin_iter(double x)
 {
     double x2 = x * x;
     double y = 0.0;
@@ -185,7 +185,7 @@ constexpr double sin_iter(double x)
 }
 
 template<int ITERATIONS>
-constexpr double cos_iter(double x)
+[[nodiscard]] constexpr double cos_iter(double x)
 {
     double x2 = x * x;
     double y = 1.0;
@@ -206,7 +206,7 @@ constexpr double cos_iter(double x)
 }
 
 template<int ITERATIONS>
-constexpr double sin(double x)
+[[nodiscard]] constexpr double sin(double x)
 {
     double sign = 1.0;
 
@@ -240,7 +240,7 @@ constexpr double sin(double x)
 }
 
 template<int ITERATIONS>
-constexpr double cos(double x)
+[[nodiscard]] constexpr double cos(double x)
 {
     double sign = 1.0;
 
@@ -275,7 +275,7 @@ constexpr double cos(double x)
 
 // https://en.wikipedia.org/wiki/Natural_logarithm#High_precision
 template<int E_ITERATIONS, int L_ITERATIONS>
-constexpr double log(double x)
+[[nodiscard]] constexpr double log(double x)
 {
 	int a = 0;
 	while (x <= 0.25) {
@@ -291,30 +291,30 @@ constexpr double log(double x)
 }
 
 template<int E_ITERATIONS, int L_ITERATIONS>
-constexpr double log2(double x)
+[[nodiscard]] constexpr double log2(double x)
 {
 	return cstd::log<E_ITERATIONS, L_ITERATIONS>(x) / M_LN2;
 }
 
 template<int E_ITERATIONS, int L_ITERATIONS>
-constexpr double log10(double x)
+[[nodiscard]] constexpr double log10(double x)
 {
 	return cstd::log<E_ITERATIONS, L_ITERATIONS>(x) / M_LN10;
 }
 
 template<int E_ITERATIONS, int L_ITERATIONS>
-constexpr double pow(double x, double y)
+[[nodiscard]] constexpr double pow(double x, double y)
 {
 	return cstd::exp<E_ITERATIONS>(cstd::log<E_ITERATIONS, L_ITERATIONS>(x) * y);
 }
 
 template<int ITERATIONS>
-constexpr double exp2(double x)
+[[nodiscard]] constexpr double exp2(double x)
 {
 	return cstd::exp<ITERATIONS>(M_LN2 * x);
 }
 
-constexpr double round(double x)
+[[nodiscard]] constexpr double round(double x)
 {
 	return (x >= 0) ?  int( x + 0.5)
 	                : -int(-x + 0.5);

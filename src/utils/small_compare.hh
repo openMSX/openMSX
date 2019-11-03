@@ -40,19 +40,19 @@
 // Loader can load an 8/16/32/64 unaligned value.
 struct Load8 {
 	using type = uint8_t;
-	type operator()(const void* p) { return *reinterpret_cast<const uint8_t*>(p); }
+	[[nodiscard]] type operator()(const void* p) { return *reinterpret_cast<const uint8_t*>(p); }
 };
 struct Load16 {
 	using type = uint16_t;
-	type operator()(const void* p) { return unalignedLoad16(p); }
+	[[nodiscard]] type operator()(const void* p) { return unalignedLoad16(p); }
 };
 struct Load32 {
 	using type = uint32_t;
-	type operator()(const void* p) { return unalignedLoad32(p); }
+	[[nodiscard]] type operator()(const void* p) { return unalignedLoad32(p); }
 };
 struct Load64 {
 	using type = uint64_t;
-	type operator()(const void* p) { return unalignedLoad64(p); }
+	[[nodiscard]] type operator()(const void* p) { return unalignedLoad64(p); }
 };
 struct ErrorNotSupportedLoader; // load only implemented up to 64 bit
 template<size_t N> struct SelectLoader
@@ -98,14 +98,14 @@ template<char ...Ns> struct SmallCompare {
 };
 
 // The actual small-fixed-string-comparison.
-template<char ...Ns> bool small_compare(const char* p)
+template<char ...Ns> [[nodiscard]] bool small_compare(const char* p)
 {
 	using SC = SmallCompare<Ns...>;
 	typename SC::Loader loader;
 	return (loader(p) & SC::mask) == SC::value;
 }
 
-template<char ...Ns> bool small_compare(std::string_view str)
+template<char ...Ns> [[nodiscard]] bool small_compare(std::string_view str)
 {
 	if (str.size() != sizeof...(Ns)) return false;
 	return small_compare<Ns...>(str.data());

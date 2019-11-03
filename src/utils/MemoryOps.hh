@@ -14,7 +14,7 @@ namespace openmsx::MemoryOps {
 		                Pixel val0, Pixel val1) const;
 	};
 
-	void* mallocAligned(size_t alignment, size_t size);
+	[[nodiscard]] void* mallocAligned(size_t alignment, size_t size);
 	void freeAligned(void* aligned);
 
 } // namespace openmsx::MemoryOps

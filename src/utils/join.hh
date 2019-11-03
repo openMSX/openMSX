@@ -24,7 +24,7 @@ public:
         return joiner.execute(os);
     }
 
-    operator std::string() const
+    [[nodiscard]] operator std::string() const
     {
         std::ostringstream os;
         execute(os);
@@ -57,7 +57,7 @@ private:
 
 
 template<typename Collection, typename Separator>
-detail::Joiner<Collection, Separator> join(Collection&& col, Separator&& sep)
+[[nodiscard]] detail::Joiner<Collection, Separator> join(Collection&& col, Separator&& sep)
 {
     return { std::forward<Collection>(col), std::forward<Separator>(sep) };
 }

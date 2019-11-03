@@ -56,13 +56,13 @@ constexpr uint32_t PRIME32_5 =  374761393;
 
 
 template<int R>
-static inline uint32_t rotl(uint32_t x)
+[[nodiscard]] static inline uint32_t rotl(uint32_t x)
 {
 	return (x << R) | (x >> (32 - R));
 }
 
 template<bool ALIGNED>
-static inline uint32_t read32(const uint8_t* ptr)
+[[nodiscard]] static inline uint32_t read32(const uint8_t* ptr)
 {
 	if (ALIGNED) {
 		return *reinterpret_cast<const uint32_t*>(ptr);
@@ -75,7 +75,7 @@ static inline uint32_t read32(const uint8_t* ptr)
 
 
 template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
-static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
+[[nodiscard]] static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
 {
 	constexpr uint32_t MASK32 = MASK8 * 0x01010101U;
 
@@ -127,7 +127,7 @@ static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
 	return  h32 ^ (h32 >> 16);
 }
 
-template<uint8_t MASK8> static inline uint32_t xxhash_impl(std::string_view key)
+template<uint8_t MASK8> [[nodiscard]] static inline uint32_t xxhash_impl(std::string_view key)
 {
 	auto* data = reinterpret_cast<const uint8_t*>(key.data());
 	auto  size = key.size();
@@ -140,23 +140,23 @@ template<uint8_t MASK8> static inline uint32_t xxhash_impl(std::string_view key)
 	}
 }
 
-inline uint32_t xxhash(std::string_view key)
+[[nodiscard]] inline uint32_t xxhash(std::string_view key)
 {
 	return xxhash_impl<0xFF>(key);
 }
-inline uint32_t xxhash_case(std::string_view key)
+[[nodiscard]] inline uint32_t xxhash_case(std::string_view key)
 {
 	return xxhash_impl<static_cast<uint8_t>(~('a' - 'A'))>(key);
 }
 
 struct XXHasher {
-	uint32_t operator()(std::string_view key) const {
+	[[nodiscard]] uint32_t operator()(std::string_view key) const {
 		return xxhash(key);
 	}
 };
 
 struct XXHasher_IgnoreCase {
-	uint32_t operator()(std::string_view key) const {
+	[[nodiscard]] uint32_t operator()(std::string_view key) const {
 		return xxhash_case(key);
 	}
 };
