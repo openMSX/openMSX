@@ -939,9 +939,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\StringOp.cc">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\uint128.cc">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\utf8_checked.cc">
       <Filter>utils</Filter>
     </ClCompile>

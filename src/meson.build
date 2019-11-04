@@ -426,7 +426,6 @@ sources = files(
     'utils/rapidsax.cc',
     'utils/sha1.cc',
     'utils/tiger.cc',
-    'utils/uint128.cc',
     'utils/utf8_checked.cc',
     'utils/win32-arggen.cc',
     'utils/win32-dirent.cc',
