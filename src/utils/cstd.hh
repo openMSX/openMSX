@@ -106,6 +106,7 @@ template<int>      [[nodiscard]] constexpr double exp  (double x) { return std::
 template<int>      [[nodiscard]] constexpr double exp2 (double x) { return    ::exp2 (x); } // see log2, but apparently no need to use exp(log(2) * x) here?!
 template<int, int> [[nodiscard]] constexpr double pow(double x, double y) { return std::pow(x, y); }
 [[nodiscard]] inline constexpr double round(double x) { return ::round(x); } // should be std::round(), see above
+[[nodiscard]] inline constexpr float  round(float  x) { return ::round(x); }
 
 #else
 
@@ -318,6 +319,12 @@ template<int ITERATIONS>
 {
 	return (x >= 0) ?  int( x + 0.5)
 	                : -int(-x + 0.5);
+}
+
+[[nodiscard]] constexpr float round(float x)
+{
+	return (x >= 0) ?  int( x + 0.5f)
+	                : -int(-x + 0.5f);
 }
 
 #endif
