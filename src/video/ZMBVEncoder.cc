@@ -246,7 +246,7 @@ void ZMBVEncoder::addXorBlock(
 }
 
 template<class P>
-void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed)
+void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	PixelOperations<P> pixelOps(pixelFormat);
 	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
@@ -290,7 +290,7 @@ void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat, unsigned& work
 }
 
 template<class P>
-void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed)
+void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<P>::type;
 
@@ -386,12 +386,12 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		switch (pixelSize) {
 #if HAVE_16BPP
 		case 2:
-			addFullFrame<uint16_t>(frame->getSDLPixelFormat(), workUsed);
+			addFullFrame<uint16_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 #if HAVE_32BPP
 		case 4:
-			addFullFrame<uint32_t>(frame->getSDLPixelFormat(), workUsed);
+			addFullFrame<uint32_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 		default:
@@ -402,12 +402,12 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		switch (pixelSize) {
 #if HAVE_16BPP
 		case 2:
-			addXorFrame<uint16_t>(frame->getSDLPixelFormat(), workUsed);
+			addXorFrame<uint16_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 #if HAVE_32BPP
 		case 4:
-			addXorFrame<uint32_t>(frame->getSDLPixelFormat(), workUsed);
+			addXorFrame<uint32_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 		default:

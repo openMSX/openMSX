@@ -237,7 +237,7 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard_,
 		motherBoard_, display_, screen_, videoSource, maxWidth_, height_,
 		canDoInterlace_)
 	, noiseShift(screen.getLogicalHeight())
-	, pixelOps(screen.getSDLFormat())
+	, pixelOps(screen.getPixelFormat())
 {
 	scaleAlgorithm = RenderSettings::NO_SCALER;
 	scaleFactor = unsigned(-1);
@@ -275,7 +275,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
 		currScaler = ScalerFactory<Pixel>::createScaler(
-			PixelOperations<Pixel>(output.getSDLFormat()),
+			PixelOperations<Pixel>(output.getPixelFormat()),
 			renderSettings);
 	}
 

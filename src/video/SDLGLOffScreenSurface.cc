@@ -26,10 +26,7 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	fbo = gl::FrameBufferObject(fboTex);
 	fbo.push();
 
-	SDLAllocFormatPtr frmt(SDL_AllocFormat(
-		        OPENMSX_BIGENDIAN ? SDL_PIXELFORMAT_RGBA8888 :
-		                            SDL_PIXELFORMAT_ARGB8888));
-	setSDLFormat(*frmt);
+	setOpenGlPixelFormat();
 	setBufferPtr(nullptr, 0); // direct access not allowed
 }
 

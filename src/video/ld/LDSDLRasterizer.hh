@@ -2,7 +2,6 @@
 #define LDSDLRASTERIZER_HH
 
 #include "LDRasterizer.hh"
-#include <SDL.h>
 #include <memory>
 
 namespace openmsx {
@@ -38,8 +37,6 @@ private:
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
 	std::unique_ptr<RawFrame> workFrame;
-
-	const SDL_PixelFormat pixelFormat;
 };
 
 } // namespace openmsx

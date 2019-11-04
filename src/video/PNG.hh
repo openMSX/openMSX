@@ -1,10 +1,9 @@
 #ifndef PNG_HH
 #define PNG_HH
 
+#include "PixelFormat.hh"
 #include "SDLSurfacePtr.hh"
 #include <string>
-
-struct SDL_PixelFormat;
 
 /** Utility functions to hide the complexity of saving to a PNG file.
   */
@@ -18,7 +17,7 @@ namespace openmsx::PNG {
 	SDLSurfacePtr load(const std::string& filename, bool want32bpp);
 
 	void save(unsigned width, unsigned height, const void** rowPointers,
-	          const SDL_PixelFormat& format, const std::string& filename);
+	          const PixelFormat& format, const std::string& filename);
 	void save(unsigned width, unsigned height, const void** rowPointers,
 	          const std::string& filename);
 	void saveGrayscale(unsigned width, unsigned height,

@@ -14,7 +14,7 @@ namespace openmsx {
 template<typename Pixel> class DeflickerImpl final : public Deflicker
 {
 public:
-	DeflickerImpl(const SDL_PixelFormat& format,
+	DeflickerImpl(const PixelFormat& format,
 	              std::unique_ptr<RawFrame>* lastFrames);
 
 private:
@@ -27,16 +27,16 @@ private:
 
 
 std::unique_ptr<Deflicker> Deflicker::create(
-	const SDL_PixelFormat& format,
+	const PixelFormat& format,
 	std::unique_ptr<RawFrame>* lastFrames)
 {
 #if HAVE_16BPP
-	if (format.BitsPerPixel == 15 || format.BitsPerPixel == 16) {
+	if (format.getBytesPerPixel() == 2) {
 		return std::make_unique<DeflickerImpl<uint16_t>>(format, lastFrames);
 	}
 #endif
 #if HAVE_32BPP
-	if (format.BitsPerPixel == 32) {
+	if (format.getBytesPerPixel() == 4) {
 		return std::make_unique<DeflickerImpl<uint32_t>>(format, lastFrames);
 	}
 #endif
@@ -44,7 +44,7 @@ std::unique_ptr<Deflicker> Deflicker::create(
 }
 
 
-Deflicker::Deflicker(const SDL_PixelFormat& format,
+Deflicker::Deflicker(const PixelFormat& format,
                      std::unique_ptr<RawFrame>* lastFrames_)
 	: FrameSource(format)
 	, lastFrames(lastFrames_)
@@ -64,7 +64,7 @@ unsigned Deflicker::getLineWidth(unsigned line) const
 
 
 template<typename Pixel>
-DeflickerImpl<Pixel>::DeflickerImpl(const SDL_PixelFormat& format,
+DeflickerImpl<Pixel>::DeflickerImpl(const PixelFormat& format,
                                     std::unique_ptr<RawFrame>* lastFrames_)
 	: Deflicker(format, lastFrames_)
 	, pixelOps(format)

@@ -73,10 +73,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	glOrtho(0, width, height, 0, -1, 1);
 	glMatrixMode(GL_MODELVIEW);
 
-	SDLAllocFormatPtr frmt(SDL_AllocFormat(
-		        OPENMSX_BIGENDIAN ? SDL_PIXELFORMAT_RGBA8888 :
-		                            SDL_PIXELFORMAT_ARGB8888));
-	setSDLFormat(*frmt);
+	setOpenGlPixelFormat();
 	setBufferPtr(nullptr, 0); // direct access not allowed
 
 	gl::context = std::make_unique<gl::Context>(width, height);
