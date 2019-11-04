@@ -47,7 +47,6 @@
 #include "StringOp.hh"
 #include "statp.hh"
 #include "unistdp.hh"
-#include "countof.hh"
 #include "ranges.hh"
 #include "strCat.hh"
 #include "build-info.hh"
@@ -57,6 +56,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <cassert>
+#include <iterator>
 
 #ifndef _MSC_VER
 #include <dirent.h>
@@ -572,7 +572,7 @@ string getSystemDataDir()
 	string newValue;
 #ifdef _WIN32
 	wchar_t bufW[MAXPATHLEN + 1];
-	int res = GetModuleFileNameW(nullptr, bufW, countof(bufW));
+	int res = GetModuleFileNameW(nullptr, bufW, std::size(bufW));
 	if (!res) {
 		throw FatalError(
 			"Cannot detect openMSX directory. GetModuleFileNameW failed: ",

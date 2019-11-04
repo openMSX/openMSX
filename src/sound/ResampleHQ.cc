@@ -13,7 +13,6 @@
 #include "ResampledSoundDevice.hh"
 #include "FixedPoint.hh"
 #include "MemBuffer.hh"
-#include "countof.hh"
 #include "likely.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -24,6 +23,7 @@
 #include <cstddef>
 #include <cstring>
 #include <cassert>
+#include <iterator>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -40,7 +40,7 @@ constexpr float coeffs[] = {
 using FilterIndex = FixedPoint<16>;
 
 constexpr int INDEX_INC = 128;
-constexpr int COEFF_LEN = countof(coeffs);
+constexpr int COEFF_LEN = std::size(coeffs);
 constexpr int COEFF_HALF_LEN = COEFF_LEN - 1;
 constexpr unsigned TAB_LEN = 4096;
 constexpr unsigned HALF_TAB_LEN = TAB_LEN / 2;

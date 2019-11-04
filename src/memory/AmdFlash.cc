@@ -8,13 +8,13 @@
 #include "HardwareConfig.hh"
 #include "MSXException.hh"
 #include "Math.hh"
-#include "countof.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "view.hh"
 #include "xrange.hh"
 #include <cstring>
 #include <cassert>
+#include <iterator>
 #include <memory>
 
 using std::string;
@@ -349,19 +349,19 @@ bool AmdFlash::checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, 
 bool AmdFlash::checkCommandProgram()
 {
 	static constexpr byte cmdSeq[] = { 0xaa, 0x55, 0xa0 };
-	return checkCommandProgramHelper(1, cmdSeq, countof(cmdSeq));
+	return checkCommandProgramHelper(1, cmdSeq, std::size(cmdSeq));
 }
 
 bool AmdFlash::checkCommandDoubleByteProgram()
 {
 	static constexpr byte cmdSeq[] = { 0x50 };
-	return checkCommandProgramHelper(2, cmdSeq, countof(cmdSeq));
+	return checkCommandProgramHelper(2, cmdSeq, std::size(cmdSeq));
 }
 
 bool AmdFlash::checkCommandQuadrupleByteProgram()
 {
 	static constexpr byte cmdSeq[] = { 0x56 };
-	return checkCommandProgramHelper(4, cmdSeq, countof(cmdSeq));
+	return checkCommandProgramHelper(4, cmdSeq, std::size(cmdSeq));
 }
 
 bool AmdFlash::checkCommandManufacturer()
