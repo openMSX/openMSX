@@ -66,7 +66,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	auto& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
-		switch (screen->getSDLFormat().BytesPerPixel) {
+		switch (screen->getPixelFormat().getBytesPerPixel()) {
 #if HAVE_16BPP
 		case 2:
 			return std::make_unique<SDLRasterizer<uint16_t>>(
@@ -108,7 +108,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
-		switch (screen->getSDLFormat().BytesPerPixel) {
+		switch (screen->getPixelFormat().getBytesPerPixel()) {
 #if HAVE_16BPP
 		case 2:
 			return std::make_unique<V9990SDLRasterizer<uint16_t>>(
@@ -149,7 +149,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
 	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
-		switch (screen->getSDLFormat().BytesPerPixel) {
+		switch (screen->getPixelFormat().getBytesPerPixel()) {
 #if HAVE_16BPP
 		case 2:
 			return std::make_unique<LDSDLRasterizer<uint16_t>>(

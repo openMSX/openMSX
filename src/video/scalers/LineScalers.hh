@@ -4,6 +4,7 @@
 #include "PixelOperations.hh"
 #include "likely.hh"
 #include <type_traits>
+#include <cstddef>
 #include <cstring>
 #include <cassert>
 #ifdef __SSE2__

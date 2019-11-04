@@ -1,36 +1,39 @@
 #ifndef PIXELOPERATIONS_HH
 #define PIXELOPERATIONS_HH
 
+#include "PixelFormat.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include "Math.hh"
-#include <SDL.h>
+#if PLATFORM_DINGUX
+#include "SDLPixelFormat.hh"
+#endif
 
 namespace openmsx {
 
 template<typename Pixel> class PixelOpBase
 {
 public:
-	explicit PixelOpBase(const SDL_PixelFormat& format_)
+	explicit PixelOpBase(const PixelFormat& format_)
 		: format(format_)
 		, blendMask(calcBlendMask())
 	{
 	}
 
-	const SDL_PixelFormat& getSDLPixelFormat() const { return format; }
+	const PixelFormat& getPixelFormat() const { return format; }
 
-	inline int getRmask()  const { return format.Rmask;  }
-	inline int getGmask()  const { return format.Gmask;  }
-	inline int getBmask()  const { return format.Bmask;  }
-	inline int getAmask()  const { return format.Amask;  }
-	inline int getRshift() const { return format.Rshift; }
-	inline int getGshift() const { return format.Gshift; }
-	inline int getBshift() const { return format.Bshift; }
-	inline int getAshift() const { return format.Ashift; }
-	inline int getRloss()  const { return format.Rloss;  }
-	inline int getGloss()  const { return format.Gloss;  }
-	inline int getBloss()  const { return format.Bloss;  }
-	inline int getAloss()  const { return format.Aloss;  }
+	inline int getRmask()  const { return format.getRmask();  }
+	inline int getGmask()  const { return format.getGmask();  }
+	inline int getBmask()  const { return format.getBmask();  }
+	inline int getAmask()  const { return format.getAmask();  }
+	inline int getRshift() const { return format.getRshift(); }
+	inline int getGshift() const { return format.getGshift(); }
+	inline int getBshift() const { return format.getBshift(); }
+	inline int getAshift() const { return format.getAshift(); }
+	inline int getRloss()  const { return format.getRloss();  }
+	inline int getGloss()  const { return format.getGloss();  }
+	inline int getBloss()  const { return format.getBloss();  }
+	inline int getAloss()  const { return format.getAloss();  }
 
 	/** Returns a constant that is useful to calculate the average of
 	  * two pixel values. See the implementation of blend(p1, p2) for
@@ -56,7 +59,7 @@ private:
 		return ~(rBit | gBit | bBit);
 	}
 
-	const SDL_PixelFormat& format;
+	const PixelFormat& format;
 
 	/** Mask used for blending.
 	  * The least significant bit of R,G,B must be 0,
@@ -72,19 +75,19 @@ private:
 template<> class PixelOpBase<unsigned>
 {
 public:
-	explicit PixelOpBase(const SDL_PixelFormat& format_)
+	explicit PixelOpBase(const PixelFormat& format_)
 		: format(format_) {}
 
-	const SDL_PixelFormat& getSDLPixelFormat() const { return format; }
+	const PixelFormat& getPixelFormat() const { return format; }
 
-	inline int getRmask()  const { return format.Rmask;  }
-	inline int getGmask()  const { return format.Gmask;  }
-	inline int getBmask()  const { return format.Bmask;  }
-	inline int getAmask()  const { return format.Amask;  }
-	inline int getRshift() const { return format.Rshift; }
-	inline int getGshift() const { return format.Gshift; }
-	inline int getBshift() const { return format.Bshift; }
-	inline int getAshift() const { return format.Ashift; }
+	inline int getRmask()  const { return format.getRmask();  }
+	inline int getGmask()  const { return format.getGmask();  }
+	inline int getBmask()  const { return format.getBmask();  }
+	inline int getAmask()  const { return format.getAmask();  }
+	inline int getRshift() const { return format.getRshift(); }
+	inline int getGshift() const { return format.getGshift(); }
+	inline int getBshift() const { return format.getBshift(); }
+	inline int getAshift() const { return format.getAshift(); }
 	inline int getRloss()  const { return 0;             }
 	inline int getGloss()  const { return 0;             }
 	inline int getBloss()  const { return 0;             }
@@ -95,7 +98,7 @@ public:
 	static constexpr bool IS_RGB565 = false;
 
 private:
-	const SDL_PixelFormat& format;
+	const PixelFormat& format;
 };
 
 
@@ -106,26 +109,15 @@ private:
 template<> class PixelOpBase<uint16_t>
 {
 public:
-	explicit PixelOpBase(const SDL_PixelFormat& /*format*/) {}
+	explicit PixelOpBase(const PixelFormat& /*format*/) {}
 
-	const SDL_PixelFormat& getSDLPixelFormat() const
+	const PixelFormat& getPixelFormat() const
 	{
-		static SDL_PixelFormat format;
-		format.palette = nullptr;
-		format.BitsPerPixel = 16;
-		format.BytesPerPixel = 2;
-		format.Rloss = 3;
-		format.Gloss = 2;
-		format.Bloss = 3;
-		format.Aloss = 8;
-		format.Rshift =  0;
-		format.Gshift =  5;
-		format.Bshift = 11;
-		format.Ashift =  0;
-		format.Rmask = 0x001F;
-		format.Gmask = 0x07E0;
-		format.Bmask = 0xF800;
-		format.Amask = 0x0000;
+		static SDLPixelFormat format(16,
+			0x001F,  0, 3,
+			0x07E0,  5, 2,
+			0xF800, 11, 3,
+			0x0000,  0, 8);
 		return format;
 	}
 
@@ -153,7 +145,7 @@ public:
 template<typename Pixel> class PixelOperations : public PixelOpBase<Pixel>
 {
 public:
-	using PixelOpBase<Pixel>::getSDLPixelFormat;
+	using PixelOpBase<Pixel>::getPixelFormat;
 	using PixelOpBase<Pixel>::getRmask;
 	using PixelOpBase<Pixel>::getGmask;
 	using PixelOpBase<Pixel>::getBmask;
@@ -169,7 +161,7 @@ public:
 	using PixelOpBase<Pixel>::getBlendMask;
 	using PixelOpBase<Pixel>::IS_RGB565;
 
-	explicit PixelOperations(const SDL_PixelFormat& format);
+	explicit PixelOperations(const PixelFormat& format);
 
 	/** Extract RGB componts
 	  */
@@ -258,7 +250,7 @@ private:
 
 
 template <typename Pixel>
-PixelOperations<Pixel>::PixelOperations(const SDL_PixelFormat& format_)
+PixelOperations<Pixel>::PixelOperations(const PixelFormat& format_)
 	: PixelOpBase<Pixel>(format_)
 {
 }

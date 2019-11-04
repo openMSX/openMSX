@@ -1,5 +1,4 @@
 #include "PNG.hh"
-#include "SDLSurfacePtr.hh"
 #include "MSXException.hh"
 #include "File.hh"
 #include "build-info.hh"
@@ -379,15 +378,15 @@ static void save(SDL_Surface* image, const std::string& filename)
 }
 
 void save(unsigned width, unsigned height, const void** rowPointers,
-          const SDL_PixelFormat& format, const std::string& filename)
+          const PixelFormat& format, const std::string& filename)
 {
 	// this implementation creates 1 extra copy, can be optimized if required
 	SDLSurfacePtr surface(
-		width, height, format.BitsPerPixel,
-		format.Rmask, format.Gmask, format.Bmask, format.Amask);
+		width, height, format.getBpp(),
+		format.getRmask(), format.getGmask(), format.getBmask(), format.getAmask());
 	for (unsigned y = 0; y < height; ++y) {
 		memcpy(surface.getLinePtr(y),
-		       rowPointers[y], width * format.BytesPerPixel);
+		       rowPointers[y], width * format.getBytesPerPixel());
 	}
 	save(surface.get(), filename);
 }

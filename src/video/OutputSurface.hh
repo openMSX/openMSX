@@ -1,10 +1,10 @@
 #ifndef OUTPUTSURFACE_HH
 #define OUTPUTSURFACE_HH
 
+#include "PixelFormat.hh"
 #include "gl_vec.hh"
 #include <string>
 #include <cassert>
-#include <SDL.h>
 
 namespace openmsx {
 
@@ -30,7 +30,7 @@ public:
 	gl::vec2  getViewScale()  const { return m_viewScale; }
 	bool      isViewScaled()  const { return m_viewScale != gl::vec2(1.0f); }
 
-	const SDL_PixelFormat& getSDLFormat() const { return format; }
+	virtual const PixelFormat& getPixelFormat() const = 0;
 
 	/** Returns the pixel value for the given RGB color.
 	  * No effort is made to ensure that the returned pixel value is not the
@@ -43,11 +43,7 @@ public:
 
 	/** Same as mapRGB, but RGB components are in range [0..255].
 	 */
-	unsigned mapRGB255(gl::ivec3 rgb)
-	{
-		auto [r, g, b] = rgb;
-		return SDL_MapRGB(&format, r, g, b); // alpha is fully opaque
-	}
+	virtual unsigned mapRGB255(gl::ivec3 rgb) = 0;
 
 	/** Returns the color key for this output surface.
 	  */
@@ -114,10 +110,8 @@ protected:
 	OutputSurface() = default;
 
 	void calculateViewPort(gl::ivec2 physSize);
-	void setSDLFormat(const SDL_PixelFormat& format);
 
 private:
-	SDL_PixelFormat format;
 	gl::ivec2 m_physSize;
 	gl::ivec2 m_viewOffset;
 	gl::ivec2 m_viewSize;

@@ -2,6 +2,7 @@
 #define SDLOUTPUTSURFACE_HH
 
 #include "OutputSurface.hh"
+#include "SDLPixelFormat.hh"
 #include "gl_vec.hh"
 #include <cassert>
 #include <SDL.h>
@@ -21,8 +22,16 @@ public:
 	int getWidth()  const override { return surface->w; }
 	int getHeight() const override { return surface->h; }
 
+	const PixelFormat& getPixelFormat() const override { return pixelFormat; }
 	SDL_Surface*  getSDLSurface()  const { return surface; }
 	SDL_Renderer* getSDLRenderer() const { return renderer; }
+
+	/** Same as mapRGB, but RGB components are in range [0..255].
+	 */
+	unsigned mapRGB255(gl::ivec3 rgb) override
+	{
+		return pixelFormat.map(rgb[0], rgb[1], rgb[2]); // alpha is fully opaque
+	}
 
 	/** Lock this OutputSurface.
 	  * Direct pixel access is only allowed on a locked surface.
@@ -49,10 +58,24 @@ public:
 
 protected:
 	SDLOutputSurface() = default;
+	SDLOutputSurface(unsigned bpp,
+	                 unsigned Rmask, unsigned Rshift, unsigned Rloss,
+	                 unsigned Gmask, unsigned Gshift, unsigned Gloss,
+	                 unsigned Bmask, unsigned Bshift, unsigned Bloss,
+	                 unsigned Amask, unsigned Ashift, unsigned Aloss)
+		: pixelFormat(bpp, Rmask, Rshift, Rloss,
+		              Gmask, Gshift, Gloss,
+		              Bmask, Bshift, Bloss,
+		              Amask, Ashift, Aloss)
+	{
+	}
+	SDLOutputSurface(const SDL_PixelFormat& format) : pixelFormat(format) {}
 
 	void setSDLSurface(SDL_Surface* surface_) { surface = surface_; }
 	void setSDLRenderer(SDL_Renderer* r) { renderer = r; }
 	void setBufferPtr(char* data, unsigned pitch);
+
+	SDLPixelFormat pixelFormat;
 
 private:
 	SDL_Surface* surface = nullptr;

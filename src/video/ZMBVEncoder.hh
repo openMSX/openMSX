@@ -3,11 +3,10 @@
 #ifndef ZMBVENCODER_HH
 #define ZMBVENCODER_HH
 
+#include "PixelFormat.hh"
 #include "MemBuffer.hh"
 #include <cstdint>
 #include <zlib.h>
-
-struct SDL_PixelFormat;
 
 namespace openmsx {
 
@@ -32,8 +31,8 @@ private:
 
 	void setupBuffers(unsigned bpp);
 	unsigned neededSize();
-	template<class P> void addFullFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed);
-	template<class P> void addXorFrame (const SDL_PixelFormat& pixelFormat, unsigned& workUsed);
+	template<class P> void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
+	template<class P> void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
 	template<class P> unsigned possibleBlock(int vx, int vy, unsigned offset);
 	template<class P> unsigned compareBlock(int vx, int vy, unsigned offset);
 	template<class P> void addXorBlock(

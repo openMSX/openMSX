@@ -23,7 +23,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
-	, workFrame(std::make_unique<RawFrame>(screen.getSDLFormat(), 1280, 240))
+	, workFrame(std::make_unique<RawFrame>(screen.getPixelFormat(), 1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, displayMode(P1) // dummy value
 	, colorMode(PP)   //   avoid UMR

@@ -12,7 +12,7 @@
 
 namespace openmsx {
 
-FrameSource::FrameSource(const SDL_PixelFormat& format)
+FrameSource::FrameSource(const PixelFormat& format)
 	: pixelFormat(format)
 {
 }

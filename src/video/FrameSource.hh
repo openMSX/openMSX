@@ -1,11 +1,10 @@
 #ifndef FRAMESOURCE_HH
 #define FRAMESOURCE_HH
 
+#include "PixelFormat.hh"
 #include "aligned.hh"
 #include <algorithm>
 #include <cassert>
-
-struct SDL_PixelFormat;
 
 namespace openmsx {
 
@@ -187,12 +186,12 @@ public:
 		return 0;
 	}
 
-	const SDL_PixelFormat& getSDLPixelFormat() const {
+	const PixelFormat& getPixelFormat() const {
 		return pixelFormat;
 	}
 
 protected:
-	explicit FrameSource(const SDL_PixelFormat& format);
+	explicit FrameSource(const PixelFormat& format);
 	~FrameSource() = default;
 
 	void setHeight(unsigned height_) { height = height_; }
@@ -211,7 +210,7 @@ protected:
 private:
 	/** Pixel format. Needed for getLinePtr scaling
 	  */
-	const SDL_PixelFormat& pixelFormat;
+	const PixelFormat& pixelFormat;
 
 	/** Number of lines in this frame.
 	  */

@@ -27,7 +27,7 @@ SDLVisibleSurface::SDLVisibleSurface(
 	int flags = 0;
 	createSurface(width, height, flags);
 	const SDL_Surface* surf = getSDLSurface();
-	setSDLFormat(*surf->format);
+	pixelFormat = SDLPixelFormat(*surf->format);
 	setBufferPtr(static_cast<char*>(surf->pixels), surf->pitch);
 
 	// In the SDL renderer logical size is the same as physical size.
@@ -51,7 +51,7 @@ void SDLVisibleSurface::finish()
 
 std::unique_ptr<Layer> SDLVisibleSurface::createSnowLayer()
 {
-	switch (getSDLFormat().BytesPerPixel) {
+	switch (getPixelFormat().getBytesPerPixel()) {
 #if HAVE_16BPP
 	case 2:
 		return std::make_unique<SDLSnow<uint16_t>>(*this, getDisplay());

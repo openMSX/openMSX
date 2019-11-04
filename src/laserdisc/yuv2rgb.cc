@@ -1,9 +1,9 @@
 #include "yuv2rgb.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
+#include "PixelFormat.hh"
 #include <cassert>
 #include <cstdint>
-#include <SDL.h>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -281,7 +281,7 @@ static constexpr Coefs getCoefs()
 }
 
 template<typename Pixel>
-static inline Pixel calc(const SDL_PixelFormat& format,
+static inline Pixel calc(const PixelFormat& format,
                          int y, int ruv, int guv, int buv)
 {
 	uint8_t r = Math::clipIntToByte((y + ruv) >> PREC);
@@ -290,13 +290,13 @@ static inline Pixel calc(const SDL_PixelFormat& format,
 	if (sizeof(Pixel) == 4) {
 		return (r << 16) | (g << 8) | (b << 0);
 	} else {
-		return static_cast<Pixel>(SDL_MapRGB(&format, r, g, b));
+		return static_cast<Pixel>(format.map(r, g, b));
 	}
 }
 
 template<typename Pixel>
 static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
-                          const SDL_PixelFormat& format)
+                          const PixelFormat& format)
 {
 	assert(buffer[1].width  * 2 == buffer[0].width);
 	assert(buffer[1].height * 2 == buffer[0].height);
@@ -340,15 +340,15 @@ static void convertHelper(const th_ycbcr_buffer& buffer, RawFrame& output,
 
 void convert(const th_ycbcr_buffer& input, RawFrame& output)
 {
-	const SDL_PixelFormat& format = output.getSDLPixelFormat();
-	if (format.BytesPerPixel == 4) {
+	const PixelFormat& format = output.getPixelFormat();
+	if (format.getBytesPerPixel() == 4) {
 #ifdef __SSE2__
 		convertHelperSSE2(input, output);
 #else
 		convertHelper<uint32_t>(input, output, format);
 #endif
 	} else {
-		assert(format.BytesPerPixel == 2);
+		assert(format.getBytesPerPixel() == 2);
 		convertHelper<uint16_t>(input, output, format);
 	}
 }
