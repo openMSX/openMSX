@@ -941,7 +941,7 @@ Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandControlle
 }
 
 void Keyboard::KeyMatrixDownCmd::execute(span<const TclObject> tokens,
-                               TclObject& /*result*/, EmuTime::param /*time*/)
+                                         TclObject& /*result*/, EmuTime::param /*time*/)
 {
 	checkNumArgs(tokens, 3, Prefix{1}, "row mask");
 	auto& keyboard = OUTER(Keyboard, keyMatrixDownCmd);
@@ -1234,9 +1234,9 @@ void Keyboard::CapsLockAligner::alignCapsLock(EmuTime::param time)
 		// processCapslockEvent() because we want this to be recorded
 		auto event = make_shared<KeyDownEvent>(Keys::K_CAPSLOCK);
 		keyboard.msxEventDistributor.distributeEvent(event, time);
-        keyboard.debug("Sending fake CAPS release\n");
-        state = MUST_DISTRIBUTE_KEY_RELEASE;
-        setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (MSX time)
+		keyboard.debug("Sending fake CAPS release\n");
+		state = MUST_DISTRIBUTE_KEY_RELEASE;
+		setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (MSX time)
 	} else {
 		state = IDLE;
 	}

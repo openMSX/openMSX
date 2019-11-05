@@ -215,7 +215,7 @@ private:
 	  */
 	unsigned SX, SY, DX, DY, NX, NY; // registers that can be set by CPU
 	unsigned ASX, ADX, ANX; // Temporary registers used in the VDP commands
-                                // Register ASX can be read (via status register 8/9)
+	                        // Register ASX can be read (via status register 8/9)
 	byte COL, ARG, CMD;
 
 	/** When a command needs multiple VRAM accesses per pixel, the result

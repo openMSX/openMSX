@@ -171,7 +171,7 @@ const string& XMLElement::getChildData(string_view childName) const
 }
 
 string_view XMLElement::getChildData(string_view childName,
-                                    string_view defaultValue) const
+                                     string_view defaultValue) const
 {
 	auto* child = findChild(childName);
 	return child ? child->getData() : defaultValue;

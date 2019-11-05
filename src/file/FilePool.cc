@@ -463,7 +463,7 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 	if (now > (progress.lastTime + 250000)) { // 4Hz
 		progress.lastTime = now;
 		reactor.getCliComm().printProgress(
-                        "Searching for file with sha1sum ",
+			"Searching for file with sha1sum ",
 			sha1sum.toString(), "...\nIndexing filepool ", poolPath,
 			": [", progress.amountScanned, "]: ",
 			std::string_view(filename).substr(poolPath.size()));

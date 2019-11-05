@@ -451,7 +451,7 @@ void NowindHost::transferSectors(unsigned transferAddress, unsigned amount)
 	send(0x07); // used for validation
 }
 
- // sends "02" + "transfer_addr" + "amount" + "data" + "0F 07"
+// sends "02" + "transfer_addr" + "amount" + "data" + "0F 07"
 void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amount)
 {
 	sendHeader();

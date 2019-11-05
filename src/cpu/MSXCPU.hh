@@ -101,7 +101,7 @@ public:
 
 	void disasmCommand(Interpreter& interp,
 	                   span<const TclObject> tokens,
-                           TclObject& result) const;
+	                   TclObject& result) const;
 
 	/** (un)pause CPU. During pause the CPU executes NOP instructions
 	  * continuously (just like during HALT). Used by turbor hw pause. */

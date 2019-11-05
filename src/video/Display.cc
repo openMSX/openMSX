@@ -300,7 +300,7 @@ void Display::doRendererSwitch()
 						" (and I have no other ideas to try...)"); // give up and die... :(
 				}
 				strAppend(errorMsg, "\nTrying to decrease scale_factor setting from ",
-                                          curval, " to ", curval - 1, "...");
+				          curval, " to ", curval - 1, "...");
 				scaleFactorSetting.setInt(curval - 1);
 			}
 			getCliComm().printWarning(errorMsg);
@@ -506,7 +506,7 @@ Display::FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand)
 }
 
 void Display::FpsInfoTopic::execute(span<const TclObject> /*tokens*/,
-                           TclObject& result) const
+                                    TclObject& result) const
 {
 	auto& display = OUTER(Display, fpsInfo);
 	result = 1000000.0f * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;

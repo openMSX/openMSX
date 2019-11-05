@@ -77,7 +77,7 @@ public:
 private:
 	void init(const std::string& name, const DeviceConfig& config, bool load, const Rom* rom);
 	void getSectorInfo(unsigned address, unsigned& sector,
-                           unsigned& sectorSize, unsigned& offset) const;
+	                   unsigned& sectorSize, unsigned& offset) const;
 
 	void setState(State newState);
 	bool checkCommandReset();

@@ -97,18 +97,18 @@ constexpr byte DT_Communications   = 0x09;
 constexpr byte DT_Undefined        = 0x1f;
 
 enum Phase {
-    UNDEFINED, // used in MB89532
-    BUS_FREE,
-    ARBITRATION,
-    SELECTION,
-    RESELECTION,
-    COMMAND,
-    EXECUTE,
-    DATA_IN,
-    DATA_OUT,
-    STATUS,
-    MSG_OUT,
-    MSG_IN,
+	UNDEFINED, // used in MB89532
+	BUS_FREE,
+	ARBITRATION,
+	SELECTION,
+	RESELECTION,
+	COMMAND,
+	EXECUTE,
+	DATA_IN,
+	DATA_OUT,
+	STATUS,
+	MSG_OUT,
+	MSG_IN,
 };
 
 } // namespace openmsx::SCSI

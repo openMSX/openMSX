@@ -1049,7 +1049,7 @@ MSXCPUInterface::SlotInfo::SlotInfo(
 }
 
 void MSXCPUInterface::SlotInfo::execute(span<const TclObject> tokens,
-                       TclObject& result) const
+                                        TclObject& result) const
 {
 	checkNumArgs(tokens, 5, Prefix{2}, "primary secondary page");
 	auto& interp = getInterpreter();
@@ -1079,7 +1079,7 @@ MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(
 }
 
 void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
-                             TclObject& result) const
+                                              TclObject& result) const
 {
 	checkNumArgs(tokens, 3, "primary");
 	auto& interface = OUTER(MSXCPUInterface, subSlottedInfo);

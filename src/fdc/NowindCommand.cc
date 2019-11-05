@@ -322,7 +322,7 @@ string NowindCommand::help(const vector<string>& /*tokens*/) const
 	       "                            respectively.\n"
 	       "nowinda -m hdimage.dsk      Inserts a harddisk image. All available partitions\n"
 	       "                            will be mounted as drives.\n"
-               "nowinda -m hdimage.dsk:1    Inserts the first partition only.\n"
+	       "nowinda -m hdimage.dsk:1    Inserts the first partition only.\n"
 	       "nowinda -m hdimage.dsk:2-4  Inserts the 2nd, 3th and 4th partition as drive A:\n"
 	       "                            B: and C:.\n";
 }

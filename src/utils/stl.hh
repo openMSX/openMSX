@@ -22,8 +22,8 @@ struct LessDeref
 // Heterogeneous version of std::equal_to.
 struct EqualTo
 {
-       template<typename T1, typename T2>
-       [[nodiscard]] bool operator()(const T1& t1, const T2& t2) const { return t1 == t2; }
+	template<typename T1, typename T2>
+	[[nodiscard]] bool operator()(const T1& t1, const T2& t2) const { return t1 == t2; }
 };
 
 // Heterogeneous version of std::less.
@@ -426,17 +426,17 @@ void append(std::vector<T>& x, std::initializer_list<T> list)
 template<typename T = void, typename Range, typename... Tail>
 [[nodiscard]] auto concat(const Range& range, Tail&&... tail)
 {
-    using T2 = detail::ToVectorType<T, decltype(std::begin(range))>;
-    std::vector<T2> result;
-    append(result, range, std::forward<Tail>(tail)...);
-    return result;
+	using T2 = detail::ToVectorType<T, decltype(std::begin(range))>;
+	std::vector<T2> result;
+	append(result, range, std::forward<Tail>(tail)...);
+	return result;
 }
 
 template<typename T, typename... Tail>
 [[nodiscard]] std::vector<T> concat(std::vector<T>&& v, Tail&&... tail)
 {
-    append(v, std::forward<Tail>(tail)...);
-    return std::move(v);
+	append(v, std::forward<Tail>(tail)...);
+	return std::move(v);
 }
 
 

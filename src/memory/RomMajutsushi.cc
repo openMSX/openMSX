@@ -36,7 +36,7 @@ byte* RomMajutsushi::getWriteCacheLine(word address) const
 template<typename Archive>
 void RomMajutsushi::serialize(Archive& ar, unsigned /*version*/)
 {
-        ar.template serializeBase<RomKonami>(*this);
+	ar.template serializeBase<RomKonami>(*this);
 	ar.serialize("DAC", dac);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomMajutsushi);

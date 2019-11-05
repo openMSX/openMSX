@@ -24,8 +24,8 @@ constexpr int THRESHOLD = 32768 / 10;
 #endif
 
 void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
-                           StateChangeDistributor& stateChangeDistributor,
-                           PluggingController& controller)
+                          StateChangeDistributor& stateChangeDistributor,
+                          PluggingController& controller)
 {
 #ifdef SDL_JOYSTICK_DISABLED
 	(void)eventDistributor;

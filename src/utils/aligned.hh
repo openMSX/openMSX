@@ -79,7 +79,7 @@ static ALWAYS_INLINE void unalignedStore64(void* p, uint64_t v) {
 // gcc-version check macro
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
 #  define GNUC_PREREQ(maj, min) \
-    (((maj) * 100 + (min)) <= (__GNUC__ * 100 + __GNUC_MINOR__))
+	(((maj) * 100 + (min)) <= (__GNUC__ * 100 + __GNUC_MINOR__))
 #else
 #  define GNUC_PREREQ(maj, min) 0
 #endif

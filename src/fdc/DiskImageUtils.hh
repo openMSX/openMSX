@@ -88,11 +88,11 @@ static_assert(sizeof(PartitionTable) == 512);
 //  - This type has a stricter alignment, so memcpy() and memset() can work
 //    faster compared to using a raw byte array.
 union SectorBuffer {
-       byte raw[512];            // raw byte data
-       MSXBootSector bootSector; // interpreted as bootSector
-       MSXDirEntry dirEntry[16]; // interpreted as 16 dir entries
-       PartitionTable pt;        // interpreted as Sunrise-IDE partition table
-       AlignedBuffer aligned;    // force big alignment (for faster memcpy)
+	byte raw[512];            // raw byte data
+	MSXBootSector bootSector; // interpreted as bootSector
+	MSXDirEntry dirEntry[16]; // interpreted as 16 dir entries
+	PartitionTable pt;        // interpreted as Sunrise-IDE partition table
+	AlignedBuffer aligned;    // force big alignment (for faster memcpy)
 };
 static_assert(sizeof(SectorBuffer) == 512);
 

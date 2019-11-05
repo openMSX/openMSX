@@ -349,7 +349,7 @@ void CartridgeSlotManager::CartCmd::execute(
 				throw CommandException("Missing argument to insert subcommand");
 			}
 		}
-                auto options = tokens.subspan(extensionNameToken + 1);
+		auto options = tokens.subspan(extensionNameToken + 1);
 		try {
 			std::string_view romname = tokens[extensionNameToken].getString();
 			auto extension = HardwareConfig::createRomConfig(

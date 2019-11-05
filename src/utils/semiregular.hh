@@ -62,9 +62,9 @@ template <typename T> struct semiregular_move_assign : std::optional<T> {
 
 template <typename T>
 using semiregular_move_layer =
-        std::conditional_t<std::is_move_assignable_v<T>,
-                           std::optional<T>,
-                           semiregular_move_assign<T>>;
+	std::conditional_t<std::is_move_assignable_v<T>,
+	                   std::optional<T>,
+	                   semiregular_move_assign<T>>;
 
 template <typename T>
 struct semiregular_copy_assign : semiregular_move_layer<T> {
@@ -86,9 +86,9 @@ struct semiregular_copy_assign : semiregular_move_layer<T> {
 
 template <typename T>
 using semiregular_copy_layer =
-        std::conditional_t<std::is_copy_assignable_v<T>,
-                           std::optional<T>,
-                           semiregular_copy_assign<T>>;
+	std::conditional_t<std::is_copy_assignable_v<T>,
+	                   std::optional<T>,
+	                   semiregular_copy_assign<T>>;
 
 template <typename T> struct semiregular : semiregular_copy_layer<T> {
 	using semiregular_copy_layer<T>::semiregular_copy_layer;
@@ -174,8 +174,8 @@ struct semiregular<T&&> : private std::reference_wrapper<T&&> {
 
 template <typename T>
 using semiregular_t =
-        std::conditional_t<std::is_default_constructible_v<T> &&
-                                 std::is_copy_assignable_v<T>,
-                           T, sreg_impl::semiregular<T>>;
+	std::conditional_t<std::is_default_constructible_v<T> &&
+	                   std::is_copy_assignable_v<T>,
+	                   T, sreg_impl::semiregular<T>>;
 
 #endif

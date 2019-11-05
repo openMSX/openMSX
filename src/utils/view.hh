@@ -299,7 +299,7 @@ template<typename Range>
 template<typename Range>
 [[nodiscard]] auto reverse(Range&& range)
 {
-    return detail::Reverse<Range>(std::forward<Range>(range));
+	return detail::Reverse<Range>(std::forward<Range>(range));
 }
 
 template<typename Range, typename UnaryOp>

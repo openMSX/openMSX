@@ -165,7 +165,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			if (resolvedSha1Elem) {
 				strAppend(error, " (sha1: ", resolvedSha1Elem->getData(), ')');
 			} else if (!sums.empty()) {
-                               strAppend(error, " (sha1: ", sums.front()->getData(), ')');
+				strAppend(error, " (sha1: ", sums.front()->getData(), ')');
 			}
 			strAppend(error, '.');
 			throw MSXException(std::move(error));

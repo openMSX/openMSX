@@ -172,7 +172,7 @@ void CassettePlayer::autoRun()
 	} catch (CommandException& e) {
 		motherBoard.getMSXCliComm().printWarning(
 			"Error executing loading instruction using command \"",
-                        command, "\" for AutoRun: ",
+			command, "\" for AutoRun: ",
 			e.getMessage(), "\n Please report a bug.");
 	}
 }
@@ -641,8 +641,8 @@ void CassettePlayer::TapeCommand::execute(
 			directory, prefix, extension);
 		cassettePlayer.recordTape(Filename(filename), time);
 		result = strCat(
-                        "Created new cassette image file: ", filename,
-		        ", inserted it and set recording mode.");
+			"Created new cassette image file: ", filename,
+			", inserted it and set recording mode.");
 
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {

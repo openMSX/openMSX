@@ -112,13 +112,13 @@ template<int, int> [[nodiscard]] constexpr double pow(double x, double y) { retu
 
 [[nodiscard]] constexpr double upow(double x, unsigned u)
 {
-    double y = 1.0;
-    while (u) {
-        if (u & 1) y *= x;
-        x *= x;
-        u >>= 1;
-    }
-    return y;
+	double y = 1.0;
+	while (u) {
+		if (u & 1) y *= x;
+		x *= x;
+		u >>= 1;
+	}
+	return y;
 }
 
 [[nodiscard]] constexpr double ipow(double x, int i)
@@ -129,148 +129,148 @@ template<int, int> [[nodiscard]] constexpr double pow(double x, double y) { retu
 template<int ITERATIONS>
 [[nodiscard]] constexpr double exp(double x)
 {
-    // Split x into integral and fractional part:
-    //   exp(x) = exp(i + f) = exp(i) * exp(f)
-    //   with: i an int     (undefined if out of range)
-    //         -1 < f < 1
-    int i = int(x);
-    double f = x - i;
+	// Split x into integral and fractional part:
+	//   exp(x) = exp(i + f) = exp(i) * exp(f)
+	//   with: i an int     (undefined if out of range)
+	//         -1 < f < 1
+	int i = int(x);
+	double f = x - i;
 
-    // Approximate exp(f) with Taylor series.
-    double y = 1.0;
-    double t = f;
-    double n = 1.0;
-    for (int k = 2; k < (2 + ITERATIONS); ++k) {
-        y += t / n;
-        t *= f;
-        n *= k;
-    }
+	// Approximate exp(f) with Taylor series.
+	double y = 1.0;
+	double t = f;
+	double n = 1.0;
+	for (int k = 2; k < (2 + ITERATIONS); ++k) {
+		y += t / n;
+		t *= f;
+		n *= k;
+	}
 
-    // Approximate exp(i) by squaring.
-    int p = (i >= 0) ? i : -i; // abs(i);
-    double s = upow(M_E, p);
+	// Approximate exp(i) by squaring.
+	int p = (i >= 0) ? i : -i; // abs(i);
+	double s = upow(M_E, p);
 
-    // Combine the results.
-    if (i >= 0) {
-        return y * s;
-    } else {
-        return y / s;
-    }
+	// Combine the results.
+	if (i >= 0) {
+		return y * s;
+	} else {
+		return y / s;
+	}
 }
 
 [[nodiscard]] constexpr double simple_fmod(double x, double y)
 {
-    assert(y > 0.0);
-    return x - int(x / y) * y;
+	assert(y > 0.0);
+	return x - int(x / y) * y;
 }
 
 template<int ITERATIONS>
 [[nodiscard]] constexpr double sin_iter(double x)
 {
-    double x2 = x * x;
-    double y = 0.0;
-    double t = x;
-    double n = 1.0;
-    for (int k = 1; k < (1 + 4 * ITERATIONS); /**/) {
-        y += t / n;
-        t *= x2;
-        n *= ++k;
-        n *= ++k;
+	double x2 = x * x;
+	double y = 0.0;
+	double t = x;
+	double n = 1.0;
+	for (int k = 1; k < (1 + 4 * ITERATIONS); /**/) {
+		y += t / n;
+		t *= x2;
+		n *= ++k;
+		n *= ++k;
 
-        y -= t / n;
-        t *= x2;
-        n *= ++k;
-        n *= ++k;
-    }
-    return y;
+		y -= t / n;
+		t *= x2;
+		n *= ++k;
+		n *= ++k;
+	}
+	return y;
 }
 
 template<int ITERATIONS>
 [[nodiscard]] constexpr double cos_iter(double x)
 {
-    double x2 = x * x;
-    double y = 1.0;
-    double t = x2;
-    double n = 2.0;
-    for (int k = 2; k < (2 + 4 * ITERATIONS); /**/) {
-        y -= t / n;
-        t *= x2;
-        n *= ++k;
-        n *= ++k;
+	double x2 = x * x;
+	double y = 1.0;
+	double t = x2;
+	double n = 2.0;
+	for (int k = 2; k < (2 + 4 * ITERATIONS); /**/) {
+		y -= t / n;
+		t *= x2;
+		n *= ++k;
+		n *= ++k;
 
-        y += t / n;
-        t *= x2;
-        n *= ++k;
-        n *= ++k;
-    }
-    return y;
+		y += t / n;
+		t *= x2;
+		n *= ++k;
+		n *= ++k;
+	}
+	return y;
 }
 
 template<int ITERATIONS>
 [[nodiscard]] constexpr double sin(double x)
 {
-    double sign = 1.0;
+	double sign = 1.0;
 
-    // reduce to [0, +inf)
-    if (x < 0.0) {
-        sign = -1.0;
-        x = -x;
-    }
+	// reduce to [0, +inf)
+	if (x < 0.0) {
+		sign = -1.0;
+		x = -x;
+	}
 
-    // reduce to [0, 2pi)
-    x = simple_fmod(x, 2 * M_PI);
+	// reduce to [0, 2pi)
+	x = simple_fmod(x, 2 * M_PI);
 
-    // reduce to [0, pi]
-    if (x > M_PI) {
-        sign = -sign;
-        x -= M_PI;
-    }
+	// reduce to [0, pi]
+	if (x > M_PI) {
+		sign = -sign;
+		x -= M_PI;
+	}
 
-    // reduce to [0, pi/2]
-    if (x > M_PI/2) {
-        x = M_PI - x;
-    }
+	// reduce to [0, pi/2]
+	if (x > M_PI/2) {
+		x = M_PI - x;
+	}
 
-    // reduce to [0, pi/4]
-    if (x > M_PI/4) {
-        x = M_PI/2 - x;
-        return sign * cos_iter<ITERATIONS>(x);
-    } else {
-        return sign * sin_iter<ITERATIONS>(x);
-    }
+	// reduce to [0, pi/4]
+	if (x > M_PI/4) {
+		x = M_PI/2 - x;
+		return sign * cos_iter<ITERATIONS>(x);
+	} else {
+		return sign * sin_iter<ITERATIONS>(x);
+	}
 }
 
 template<int ITERATIONS>
 [[nodiscard]] constexpr double cos(double x)
 {
-    double sign = 1.0;
+	double sign = 1.0;
 
-    // reduce to [0, +inf)
-    if (x < 0.0) {
-        x = -x;
-    }
+	// reduce to [0, +inf)
+	if (x < 0.0) {
+		x = -x;
+	}
 
-    // reduce to [0, 2pi)
-    x = simple_fmod(x, 2 * M_PI);
+	// reduce to [0, 2pi)
+	x = simple_fmod(x, 2 * M_PI);
 
-    // reduce to [0, pi]
-    if (x > M_PI) {
-        x = 2.0 * M_PI - x;
-    }
+	// reduce to [0, pi]
+	if (x > M_PI) {
+		x = 2.0 * M_PI - x;
+	}
 
-    // reduce to [0, pi/2]
-    if (x > M_PI/2) {
-        sign = -sign;
-        x = M_PI - x;
-    }
+	// reduce to [0, pi/2]
+	if (x > M_PI/2) {
+		sign = -sign;
+		x = M_PI - x;
+	}
 
-    // reduce to [0, pi/4]
-    if (x > M_PI/4) {
-        x = M_PI/2 - x;
-        return sign * sin_iter<ITERATIONS>(x);
-    } else {
-        return sign * cos_iter<ITERATIONS>(x);
-    }
+	// reduce to [0, pi/4]
+	if (x > M_PI/4) {
+		x = M_PI/2 - x;
+		return sign * sin_iter<ITERATIONS>(x);
+	} else {
+		return sign * cos_iter<ITERATIONS>(x);
+	}
 }
 
 

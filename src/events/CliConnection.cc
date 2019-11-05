@@ -88,7 +88,7 @@ void CliConnection::log(CliComm::LogLevel level, std::string_view message)
 }
 
 void CliConnection::update(CliComm::UpdateType type, std::string_view machine,
-                              std::string_view name, std::string_view value)
+                           std::string_view name, std::string_view value)
 {
 	if (!getUpdateEnable(type)) return;
 

@@ -41,7 +41,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 	string weightsName = "shaders/HQ_xWeights.dat";
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
-                offsetsName[10] = char('0') + n;
+		offsetsName[10] = char('0') + n;
 		File offsetsFile(context.resolve(offsetsName));
 		offsetTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,       // target

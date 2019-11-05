@@ -57,9 +57,9 @@ public:
 	byte readMem(word address, EmuTime::param time) override;
 	const byte* getReadCacheLine(word start) const override;
 
-        byte peekIO(word port, EmuTime::param time) const override;
-        byte readIO(word port, EmuTime::param time) override;
-        void writeIO(word port, byte value, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	byte readIO(word port, EmuTime::param time) override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

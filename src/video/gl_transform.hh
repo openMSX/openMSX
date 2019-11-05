@@ -192,9 +192,9 @@ inline mat4 frustum(float left,    float right,
 	             (nearVal + farVal) / (nearVal - farVal),
 	             -1.0f),
 	        vec4(0.0f,
-                     0.0f,
-                     (2.0f * farVal * nearVal) / (nearVal - farVal),
-                     0.0f)};
+	             0.0f,
+	             (2.0f * farVal * nearVal) / (nearVal - farVal),
+	             0.0f)};
 }
 
 } // namespace gl

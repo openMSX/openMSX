@@ -50,7 +50,7 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	static void sendPacketList(const MIDIPacketList *pktlist,
-                         void *readProcRefCon, void *srcConnRefCon);
+	                           void *readProcRefCon, void *srcConnRefCon);
 	void sendPacketList(const MIDIPacketList *pktlist, void *srcConnRefCon);
 
 	EventDistributor& eventDistributor;
@@ -94,7 +94,7 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	static void sendPacketList(const MIDIPacketList *pktlist,
-                         void *readProcRefCon, void *srcConnRefCon);
+	                           void *readProcRefCon, void *srcConnRefCon);
 	void sendPacketList(const MIDIPacketList *pktlist, void *srcConnRefCon);
 
 	EventDistributor& eventDistributor;

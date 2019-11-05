@@ -43,8 +43,8 @@ constexpr byte REG_PCTL =  8;   // Phase Control        (r/w)
 constexpr byte REG_MBC  =  9;   // Modified Byte Counter(r)
 constexpr byte REG_DREG = 10;   // Data Register        (r/w)
 constexpr byte REG_TEMP = 11;   // Temporary Register   (r/w)
-                                       // Another value is maintained respec-
-                                       // tively for writing and for reading
+                                // Another value is maintained respec-
+                                // tively for writing and for reading
 constexpr byte REG_TCH  = 12;   // Transfer Counter High(r/w)
 constexpr byte REG_TCM  = 13;   // Transfer Counter Mid (r/w)
 constexpr byte REG_TCL  = 14;   // Transfer Counter Low (r/w)
