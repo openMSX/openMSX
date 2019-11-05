@@ -17,7 +17,7 @@ template<class P> class PixelOperations;
 class ZMBVEncoder
 {
 public:
-	static constexpr const char* const CODEC_4CC = "ZMBV";
+	static constexpr const char CODEC_4CC[5] = "ZMBV"; // 4 + zero-terminator
 
 	ZMBVEncoder(unsigned width, unsigned height, unsigned bpp);
 
