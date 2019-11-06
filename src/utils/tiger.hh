@@ -12,8 +12,8 @@
  * tiger-tree calculations.
  */
 
-#ifndef TIGER_H
-#define TIGER_H
+#ifndef TIGER_HH
+#define TIGER_HH
 
 #include <string>
 #include <cstdint>

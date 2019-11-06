@@ -1,5 +1,5 @@
-#ifndef DIVMODBYCONST
-#define DIVMODBYCONST
+#ifndef DIVMODBYCONST_HH
+#define DIVMODBYCONST_HH
 
 #include "Math.hh"
 #include "uint128.hh"

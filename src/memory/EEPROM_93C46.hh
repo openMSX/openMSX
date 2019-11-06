@@ -1,5 +1,5 @@
-#ifndef EEPROM_93C46_H
-#define EEPROM_93C46_H
+#ifndef EEPROM_93C46_HH
+#define EEPROM_93C46_HH
 
 #include "EmuTime.hh"
 #include "SRAM.hh"

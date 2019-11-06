@@ -1,5 +1,5 @@
-#ifndef STRCAT_H
-#define STRCAT_H
+#ifndef STRCAT_HH
+#define STRCAT_HH
 
 #include <climits>
 #include <cstring>
