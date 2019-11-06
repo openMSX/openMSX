@@ -72,7 +72,7 @@ public:
 	  */
 	template <typename Pixel>
 	inline Pixel getLineColor(unsigned line) const {
-		SSE_ALIGNED(Pixel buf[1280]); // large enough for widest line
+		alignas(SSE_ALIGNMENT) Pixel buf[1280]; // large enough for widest line
 		unsigned width; // not used
 		return reinterpret_cast<const Pixel*>(
 			getLineInfo(line, width, buf, 1280))[0];

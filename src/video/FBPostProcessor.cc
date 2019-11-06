@@ -23,7 +23,7 @@ namespace openmsx {
 
 constexpr unsigned NOISE_SHIFT = 8192;
 constexpr unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
-SSE_ALIGNED(static signed char noiseBuf[NOISE_BUF_SIZE]);
+alignas(SSE_ALIGNMENT) static signed char noiseBuf[NOISE_BUF_SIZE];
 
 template <class Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(float factor)

@@ -7,17 +7,11 @@
 #include <cassert>
 #include <cstring>
 
-#ifdef _MSC_VER
-#define ALIGNED(EXPRESSION, ALIGNMENT) __declspec (align(ALIGNMENT)) EXPRESSION
-#else // GCC style
-#define ALIGNED(EXPRESSION, ALIGNMENT) EXPRESSION __attribute__((__aligned__((ALIGNMENT))));
-#endif
-
 // Only need to (more strictly) align when SSE is actually enabled.
 #ifdef __SSE2__
-#define SSE_ALIGNED(EXPRESSION) ALIGNED(EXPRESSION, 16)
+constexpr auto SSE_ALIGNMENT = 16;
 #else
-#define SSE_ALIGNED(EXPRESSION) EXPRESSION
+constexpr auto SSE_ALIGNMENT = 0; // alignas(0) has no effect
 #endif
 
 
