@@ -91,7 +91,7 @@ constexpr int slot_array[32] = {
 // table is 3dB/octave , DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
-#define DV(x) int((x) / (0.1875 / 2.0))
+static constexpr int DV(double x) { return int(x / (0.1875 / 2.0)); }
 constexpr unsigned ksl_tab[8 * 16] = {
 	// OCT 0
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
@@ -134,16 +134,14 @@ constexpr unsigned ksl_tab[8 * 16] = {
 	DV(18.000), DV(18.750), DV(19.125), DV(19.500),
 	DV(19.875), DV(20.250), DV(20.625), DV(21.000)
 };
-#undef DV
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(db) unsigned((db) * (2.0 / ENV_STEP))
+static constexpr unsigned SC(int db) { return unsigned(db * (2.0 / ENV_STEP)); }
 constexpr unsigned sl_tab[16] = {
 	SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
 	SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
 };
-#undef SC
 
 
 constexpr byte RATE_STEPS = 8;
@@ -170,8 +168,8 @@ constexpr byte eg_inc[15 * RATE_STEPS] = {
 };
 
 
-#define O(a) ((a) * RATE_STEPS)
 // note that there is no O(13) in this table - it's directly in the code
+static constexpr byte O(int a) { return a * RATE_STEPS; }
 constexpr byte eg_rate_select[16 + 64 + 16] = {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -206,46 +204,43 @@ constexpr byte eg_rate_select[16 + 64 + 16] = {
 	O(12), O(12), O(12), O(12), O(12), O(12), O(12), O(12),
 	O(12), O(12), O(12), O(12), O(12), O(12), O(12), O(12),
 };
-#undef O
 
 // rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
 // shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
 // mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
-#define O(a) ((a) * 1)
 constexpr byte eg_rate_shift[16 + 64 + 16] =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
-	O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0),
-	O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0),
+	 0,  0,  0,  0,  0,  0,  0,  0,
+	 0,  0,  0,  0,  0,  0,  0,  0,
 
 	// rates 00-15
-	O(12), O(12), O(12), O(12),
-	O(11), O(11), O(11), O(11),
-	O(10), O(10), O(10), O(10),
-	O( 9), O( 9), O( 9), O( 9),
-	O( 8), O( 8), O( 8), O( 8),
-	O( 7), O( 7), O( 7), O( 7),
-	O( 6), O( 6), O( 6), O( 6),
-	O( 5), O( 5), O( 5), O( 5),
-	O( 4), O( 4), O( 4), O( 4),
-	O( 3), O( 3), O( 3), O( 3),
-	O( 2), O( 2), O( 2), O( 2),
-	O( 1), O( 1), O( 1), O( 1),
-	O( 0), O( 0), O( 0), O( 0),
-	O( 0), O( 0), O( 0), O( 0),
-	O( 0), O( 0), O( 0), O( 0),
-	O( 0), O( 0), O( 0), O( 0),
+	12, 12, 12, 12,
+	11, 11, 11, 11,
+	10, 10, 10, 10,
+	 9,  9,  9,  9,
+	 8,  8,  8,  8,
+	 7,  7,  7,  7,
+	 6,  6,  6,  6,
+	 5,  5,  5,  5,
+	 4,  4,  4,  4,
+	 3,  3,  3,  3,
+	 2,  2,  2,  2,
+	 1,  1,  1,  1,
+	 0,  0,  0,  0,
+	 0,  0,  0,  0,
+	 0,  0,  0,  0,
+	 0,  0,  0,  0,
 
 	// 16 dummy rates (same as 15 3)
-	O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0),
-	O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0), O( 0),
+	 0,  0,  0,  0,  0,  0,  0,  0,
+	 0,  0,  0,  0,  0,  0,  0,  0,
 };
-#undef O
 
 
 // multiple table
-#define ML(x) byte(2 * (x))
+static constexpr byte ML(double x) { return byte(2 * x); }
 constexpr byte mul_tab[16] = {
 	// 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,10,12,12,15,15
 	ML( 0.5), ML( 1.0), ML( 2.0), ML( 3.0),
@@ -253,7 +248,6 @@ constexpr byte mul_tab[16] = {
 	ML( 8.0), ML( 9.0), ML(10.0), ML(10.0),
 	ML(12.0), ML(12.0), ML(15.0), ML(15.0)
 };
-#undef ML
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 //  27 output levels (triangle waveform); 1 level takes one of: 192, 256 or 448 samples

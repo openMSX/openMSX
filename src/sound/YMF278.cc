@@ -70,12 +70,11 @@ constexpr uint8_t pan_right[16] = {
 
 // decay level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(dB) int16_t((dB) / 3 * 0x20)
+static constexpr int16_t SC(int dB) { return int16_t(dB / 3 * 0x20); }
 constexpr int16_t dl_tab[16] = {
  SC( 0), SC( 3), SC( 6), SC( 9), SC(12), SC(15), SC(18), SC(21),
  SC(24), SC(27), SC(30), SC(33), SC(36), SC(39), SC(42), SC(93)
 };
-#undef SC
 
 constexpr byte RATE_STEPS = 8;
 constexpr byte eg_inc[15 * RATE_STEPS] = {
@@ -100,7 +99,7 @@ constexpr byte eg_inc[15 * RATE_STEPS] = {
 	0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
 };
 
-#define O(a) ((a) * RATE_STEPS)
+static constexpr byte O(int a) { return a * RATE_STEPS; }
 constexpr byte eg_rate_select[64] = {
 	O(14),O(14),O(14),O(14), // inf rate
 	O( 0),O( 1),O( 2),O( 3),
@@ -119,46 +118,43 @@ constexpr byte eg_rate_select[64] = {
 	O( 8),O( 9),O(10),O(11),
 	O(12),O(12),O(12),O(12),
 };
-#undef O
 
 // rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
 // shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
 // mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
-#define O(a) (a)
 constexpr byte eg_rate_shift[64] = {
-	O(12),O(12),O(12),O(12),
-	O(11),O(11),O(11),O(11),
-	O(10),O(10),O(10),O(10),
-	O( 9),O( 9),O( 9),O( 9),
-	O( 8),O( 8),O( 8),O( 8),
-	O( 7),O( 7),O( 7),O( 7),
-	O( 6),O( 6),O( 6),O( 6),
-	O( 5),O( 5),O( 5),O( 5),
-	O( 4),O( 4),O( 4),O( 4),
-	O( 3),O( 3),O( 3),O( 3),
-	O( 2),O( 2),O( 2),O( 2),
-	O( 1),O( 1),O( 1),O( 1),
-	O( 0),O( 0),O( 0),O( 0),
-	O( 0),O( 0),O( 0),O( 0),
-	O( 0),O( 0),O( 0),O( 0),
-	O( 0),O( 0),O( 0),O( 0),
+	 12, 12, 12, 12,
+	 11, 11, 11, 11,
+	 10, 10, 10, 10,
+	  9,  9,  9,  9,
+	  8,  8,  8,  8,
+	  7,  7,  7,  7,
+	  6,  6,  6,  6,
+	  5,  5,  5,  5,
+	  4,  4,  4,  4,
+	  3,  3,  3,  3,
+	  2,  2,  2,  2,
+	  1,  1,  1,  1,
+	  0,  0,  0,  0,
+	  0,  0,  0,  0,
+	  0,  0,  0,  0,
+	  0,  0,  0,  0,
 };
-#undef O
 
 
 // number of steps the LFO counter advances per sample
-#define O(a) int((LFO_PERIOD * (a)) / 44100.0 + 0.5)  // LFO frequency (Hz) -> LFO counter steps per sample
+//   LFO frequency (Hz) -> LFO counter steps per sample
+static constexpr int L(double a) { return int((LFO_PERIOD * a) / 44100.0 + 0.5); }
 constexpr int lfo_period[8] = {
-	O(0.168), // step:  1, period: 262144 samples
-	O(2.019), // step: 12, period:  21845 samples
-	O(3.196), // step: 19, period:  13797 samples
-	O(4.206), // step: 25, period:  10486 samples
-	O(5.215), // step: 31, period:   8456 samples
-	O(5.888), // step: 35, period:   7490 samples
-	O(6.224), // step: 37, period:   7085 samples
-	O(7.066), // step: 42, period:   6242 samples
+	L(0.168), // step:  1, period: 262144 samples
+	L(2.019), // step: 12, period:  21845 samples
+	L(3.196), // step: 19, period:  13797 samples
+	L(4.206), // step: 25, period:  10486 samples
+	L(5.215), // step: 31, period:   8456 samples
+	L(5.888), // step: 35, period:   7490 samples
+	L(6.224), // step: 37, period:   7085 samples
+	L(7.066), // step: 42, period:   6242 samples
 };
-#undef O
 
 
 // formula used by Yamaha docs:

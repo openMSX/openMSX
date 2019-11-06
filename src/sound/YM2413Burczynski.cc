@@ -47,7 +47,7 @@ constexpr int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 // table is 3dB/octave, DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
-#define DV(x) int((x) / 0.1875)
+static constexpr int DV(double x) { return int(x / 0.1875); }
 constexpr int ksl_tab[8 * 16] =
 {
 	// OCT 0
@@ -91,16 +91,14 @@ constexpr int ksl_tab[8 * 16] =
 	DV(18.000),DV(18.750),DV(19.125),DV(19.500),
 	DV(19.875),DV(20.250),DV(20.625),DV(21.000)
 };
-#undef DV
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,45 (dB)
-#define SC(db) int((double(db)) / ENV_STEP)
+static constexpr int SC(int db) { return int(double(db) / ENV_STEP); }
 constexpr int sl_tab[16] = {
 	SC( 0),SC( 1),SC( 2),SC(3 ),SC(4 ),SC(5 ),SC(6 ),SC( 7),
 	SC( 8),SC( 9),SC(10),SC(11),SC(12),SC(13),SC(14),SC(15)
 };
-#undef SC
 
 constexpr byte eg_inc[15][8] =
 {
@@ -200,7 +198,7 @@ constexpr byte eg_rate_shift[16 + 64 + 16] =
 };
 
 // multiple table
-#define ML(x) byte(2 * (x))
+static constexpr byte ML(double x) { return byte(2 * x); }
 constexpr byte mul_tab[16] =
 {
 	ML( 0.50), ML( 1.00), ML( 2.00), ML( 3.00),
@@ -208,7 +206,6 @@ constexpr byte mul_tab[16] =
 	ML( 8.00), ML( 9.00), ML(10.00), ML(10.00),
 	ML(12.00), ML(12.00), ML(15.00), ML(15.00),
 };
-#undef ML
 
 //  TL_TAB_LEN is calculated as:
 //  11 - sinus amplitude bits     (Y axis)
