@@ -75,7 +75,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 
 	registerOption("-machine",    machineOption, PHASE_LOAD_MACHINE);
 
-	registerFileType("tcl", scriptOption);
+	registerFileType({"tcl"}, scriptOption);
 
 	// At this point all options and file-types must be registered
 	ranges::sort(options,   CmpOptions());
@@ -89,10 +89,9 @@ void CommandLineParser::registerOption(
 }
 
 void CommandLineParser::registerFileType(
-	string_view extensions, CLIFileType& cliFileType)
+	std::initializer_list<string_view> extensions, CLIFileType& cliFileType)
 {
-	append(fileTypes, view::transform(
-		StringOp::split(extensions, ','),
+	append(fileTypes, view::transform(extensions,
 		[&](auto& ext) { return std::pair(ext, &cliFileType); }));
 }
 

@@ -10,7 +10,7 @@ ReplayCLI::ReplayCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-replay", *this);
-	parser.registerFileType("omr", *this);
+	parser.registerFileType({"omr"}, *this);
 }
 
 void ReplayCLI::parseOption(const string& option, span<string>& cmdLine)

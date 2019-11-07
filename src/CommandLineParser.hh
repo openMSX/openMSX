@@ -12,6 +12,7 @@
 #include "CDImageCLI.hh"
 #include "span.hh"
 #include "components.hh"
+#include <initializer_list>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -46,7 +47,8 @@ public:
 	explicit CommandLineParser(Reactor& reactor);
 	void registerOption(const char* str, CLIOption& cliOption,
 		ParsePhase phase = PHASE_LAST, unsigned length = 2);
-	void registerFileType(std::string_view extensions, CLIFileType& cliFileType);
+	void registerFileType(std::initializer_list<std::string_view> extensions,
+	                      CLIFileType& cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
 

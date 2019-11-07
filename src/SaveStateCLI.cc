@@ -10,7 +10,7 @@ SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-savestate", *this);
-	parser.registerFileType("oms", *this);
+	parser.registerFileType({"oms"}, *this);
 }
 
 void SaveStateCLI::parseOption(const string& option, span<string>& cmdLine)

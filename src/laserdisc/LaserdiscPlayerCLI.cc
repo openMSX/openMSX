@@ -12,7 +12,7 @@ LaserdiscPlayerCLI::LaserdiscPlayerCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-laserdisc", *this);
-	parser.registerFileType("ogv", *this);
+	parser.registerFileType({"ogv"}, *this);
 }
 
 void LaserdiscPlayerCLI::parseOption(const string& option, span<string>& cmdLine)
