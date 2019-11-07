@@ -152,49 +152,41 @@ void trim(string_view& str, char chars)
 	trimLeft (str, chars);
 }
 
-void splitOnFirst(string_view str, string_view chars, string_view& first, string_view& last)
+std::pair<string_view, string_view> splitOnFirst(string_view str, string_view chars)
 {
 	auto pos = str.find_first_of(chars);
 	if (pos == string_view::npos) {
-		first = str;
-		last = string_view{};
+		return {str, string_view{}};
 	} else {
-		first = str.substr(0, pos);
-		last  = str.substr(pos + 1);
+		return {str.substr(0, pos), str.substr(pos + 1)};
 	}
 }
-void splitOnFirst(string_view str, char chars, string_view& first, string_view& last)
+std::pair<string_view, string_view> splitOnFirst(string_view str, char chars)
 {
 	auto pos = str.find_first_of(chars);
 	if (pos == string_view::npos) {
-		first = str;
-		last = string_view{};
+		return {str, string_view{}};
 	} else {
-		first = str.substr(0, pos);
-		last  = str.substr(pos + 1);
+		return {str.substr(0, pos), str.substr(pos + 1)};
 	}
 }
 
-void splitOnLast(string_view str, string_view chars, string_view& first, string_view& last)
+std::pair<string_view, string_view> splitOnLast(string_view str, string_view chars)
 {
 	auto pos = str.find_last_of(chars);
 	if (pos == string_view::npos) {
-		first = string_view{};
-		last = str;
+		return {string_view{}, str};
 	} else {
-		first = str.substr(0, pos);
-		last  = str.substr(pos + 1);
+		return {str.substr(0, pos), str.substr(pos + 1)};
 	}
 }
-void splitOnLast(string_view str, char chars, string_view& first, string_view& last)
+std::pair<string_view, string_view> splitOnLast(string_view str, char chars)
 {
 	auto pos = str.find_last_of(chars);
 	if (pos == string_view::npos) {
-		first = string_view{};
-		last = str;
+		return {string_view{}, str};
 	} else {
-		first = str.substr(0, pos);
-		last  = str.substr(pos + 1);
+		return {str.substr(0, pos), str.substr(pos + 1)};
 	}
 }
 
@@ -202,8 +194,7 @@ vector<string_view> split(string_view str, char chars)
 {
 	vector<string_view> result;
 	while (!str.empty()) {
-		string_view first, last;
-		splitOnFirst(str, chars, first, last);
+		auto [first, last] = splitOnFirst(str, chars);
 		result.push_back(first);
 		str = last;
 	}

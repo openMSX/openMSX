@@ -65,8 +65,7 @@ void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
 			fullnameStr);
 	}
 
-	string_view parentname, childName;
-	StringOp::splitOnLast(fullnameStr, '.', parentname, childName);
+	auto [parentname, childName] = StringOp::splitOnLast(fullnameStr, '.');
 	auto* parent = childName.empty() ? &top : top.findByName(parentname);
 	if (!parent) {
 		throw CommandException(

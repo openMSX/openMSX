@@ -229,8 +229,7 @@ static string hostToMsxName(string hostName)
 	transform_in_place(hostName, [](char a) {
 		return (a == ' ') ? '_' : ::toupper(a);
 	});
-	std::string_view file, ext;
-	StringOp::splitOnLast(hostName, '.', file, ext);
+	auto [file, ext] = StringOp::splitOnLast(hostName, '.');
 	if (file.empty()) std::swap(file, ext);
 
 	string result(8 + 3, ' ');
@@ -673,8 +672,7 @@ static size_t weight(const string& hostName)
 {
 	// TODO this weight function can most likely be improved
 	size_t result = 0;
-	std::string_view file, ext;
-	StringOp::splitOnLast(hostName, '.', file, ext);
+	auto [file, ext] = StringOp::splitOnLast(hostName, '.');
 	// too many '.' characters
 	result += ranges::count(file, '.') * 100;
 	// too long extension

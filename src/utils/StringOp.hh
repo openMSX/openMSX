@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 #if defined(__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
@@ -42,14 +43,14 @@ namespace StringOp
 	void trim     (std::string_view& str, std::string_view chars);
 	void trim     (std::string_view& str, char chars);
 
-	void splitOnFirst(std::string_view str, std::string_view chars,
-	                  std::string_view& first, std::string_view& last);
-	void splitOnFirst(std::string_view str, char chars,
-	                  std::string_view& first, std::string_view& last);
-	void splitOnLast (std::string_view str, std::string_view chars,
-	                  std::string_view& first, std::string_view& last);
-	void splitOnLast (std::string_view str, char chars,
-	                  std::string_view& first, std::string_view& last);
+	std::pair<std::string_view, std::string_view> splitOnFirst(
+		std::string_view str, std::string_view chars);
+	std::pair<std::string_view, std::string_view> splitOnFirst(
+		std::string_view str, char chars);
+	std::pair<std::string_view, std::string_view> splitOnLast(
+		std::string_view str, std::string_view chars);
+	std::pair<std::string_view, std::string_view> splitOnLast(
+		std::string_view str, char chars);
 	[[nodiscard]] std::vector<std::string_view> split(std::string_view str, char chars);
 	[[nodiscard]] std::vector<unsigned> parseRange(std::string_view str,
 	                                               unsigned min, unsigned max);

@@ -333,8 +333,7 @@ static char toMSXChr(char a)
 // direntries on an MSX
 static string makeSimpleMSXFileName(string_view fullFilename)
 {
-	string_view dir, fullFile;
-	StringOp::splitOnLast(fullFilename, '/', dir, fullFile);
+	auto [dir, fullFile] = StringOp::splitOnLast(fullFilename, '/');
 
 	// handle speciale case '.' and '..' first
 	string result(8 + 3, ' ');
@@ -343,8 +342,7 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 		return result;
 	}
 
-	string_view file, ext;
-	StringOp::splitOnLast(fullFile, '.', file, ext);
+	auto [file, ext] = StringOp::splitOnLast(fullFile, '.');
 	if (file.empty()) std::swap(file, ext);
 
 	StringOp::trimRight(file, ' ');
@@ -566,8 +564,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 // @throws when file could not be added
 string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 {
-	string_view directory, hostName;
-	StringOp::splitOnLast(fullHostName, "/\\", directory, hostName);
+	auto [directory, hostName] = StringOp::splitOnLast(fullHostName, "/\\");
 	string msxName = makeSimpleMSXFileName(hostName);
 
 	// first find out if the filename already exists in current dir
@@ -739,8 +736,7 @@ void MSXtar::chroot(string_view newRootDir, bool createDir)
 	}
 
 	while (!newRootDir.empty()) {
-		string_view firstPart, lastPart;
-		StringOp::splitOnFirst(newRootDir, "/\\", firstPart, lastPart);
+		auto [firstPart, lastPart] = StringOp::splitOnFirst(newRootDir, "/\\");
 		newRootDir = lastPart;
 		StringOp::trimLeft(newRootDir, "/\\");
 

@@ -314,8 +314,7 @@ void CommandLineParser::ControlOption::parseOption(
 	const string& option, span<string>& cmdLine)
 {
 	const auto& fullType = getArgument(option, cmdLine);
-	string_view type, arguments;
-	StringOp::splitOnFirst(fullType, ':', type, arguments);
+	auto [type, arguments] = StringOp::splitOnFirst(fullType, ':');
 
 	auto& parser = OUTER(CommandLineParser, controlOption);
 	auto& controller  = parser.getGlobalCommandController();
