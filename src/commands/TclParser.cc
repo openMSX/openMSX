@@ -82,8 +82,8 @@ TclParser::TclParser(Tcl_Interp* interp_, std::string_view input)
 
 void TclParser::parse(const char* p, int size, ParseType type)
 {
-	ScopedAssign<int>    sa1(offset, offset + (p - parseStr.data()));
-	ScopedAssign<string> sa2(parseStr, string(p, size));
+	ScopedAssign<int> sa1(offset, offset + (p - parseStr.data()));
+	ScopedAssign sa2(parseStr, string(p, size));
 	last.push_back(offset);
 
 	// The functions Tcl_ParseCommand() and Tcl_ParseExpr() are meant to
@@ -164,7 +164,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 void TclParser::printTokens(Tcl_Token* tokens, int numTokens)
 {
 #if DEBUG_TCLPARSER
-	ScopedAssign<int> sa(level, level + 1);
+	ScopedAssign sa(level, level + 1);
 #endif
 	for (int i = 0; i < numTokens; /**/) {
 		Tcl_Token& token = tokens[i];

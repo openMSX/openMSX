@@ -67,7 +67,7 @@ void GlobalCliComm::log(LogLevel level, std::string_view message)
 		std::cerr << "Recursive cliComm message: " << message << '\n';
 		return;
 	}
-	ScopedAssign<bool> sa(delivering, true);
+	ScopedAssign sa(delivering, true);
 
 	std::lock_guard<std::mutex> lock(mutex);
 	if (!listeners.empty()) {

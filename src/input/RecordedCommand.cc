@@ -35,7 +35,7 @@ void RecordedCommand::execute(span<const TclObject> tokens, TclObject& result)
 {
 	auto time = scheduler.getCurrentTime();
 	if (needRecord(tokens)) {
-		ScopedAssign<TclObject*> sa(currentResultObject, &result);
+		ScopedAssign sa(currentResultObject, &result);
 		stateChangeDistributor.distributeNew(
 			std::make_shared<MSXCommandEvent>(tokens, time));
 	} else {

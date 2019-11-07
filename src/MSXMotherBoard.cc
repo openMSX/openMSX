@@ -510,7 +510,7 @@ void MSXMotherBoard::fastForward(EmuTime::param time, bool fast)
 
 	if (time <= getCurrentTime()) return;
 
-	ScopedAssign<bool> sa(fastForwarding, fast);
+	ScopedAssign sa(fastForwarding, fast);
 	realTime->disable();
 	msxMixer->mute();
 	fastForwardHelper->setTarget(time);

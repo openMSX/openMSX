@@ -423,7 +423,7 @@ void CommandConsole::commandExecute()
 		putPrompt();
 
 		try {
-			ScopedAssign<bool> sa(executingCommand, true);
+			ScopedAssign sa(executingCommand, true);
 			auto resultObj = commandController.executeCommand(
 				commandBuffer);
 			auto result = resultObj.getString();
