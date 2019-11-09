@@ -19,20 +19,6 @@ struct LessDeref
 	[[nodiscard]] bool operator()(PTR p1, PTR p2) const { return *p1 < *p2; }
 };
 
-// Heterogeneous version of std::equal_to.
-struct EqualTo
-{
-	template<typename T1, typename T2>
-	[[nodiscard]] bool operator()(const T1& t1, const T2& t2) const { return t1 == t2; }
-};
-
-// Heterogeneous version of std::less.
-struct LessThan
-{
-	template<typename T1, typename T2>
-	[[nodiscard]] bool operator()(const T1& t1, const T2& t2) const { return t1 < t2; }
-};
-
 
 // Compare the N-th element of two tuples using a custom comparison functor.
 // Also provides overloads to compare the N-the element of a tuple with a
@@ -76,7 +62,7 @@ private:
 };
 
 // Similar to CmpTupleElement above, but uses the less-than operator.
-template<int N> using LessTupleElement = CmpTupleElement<N, LessThan>;
+template<int N> using LessTupleElement = CmpTupleElement<N, std::less<>>;
 
 
 // Check whether the N-the element of a tuple is equal to the given value.

@@ -261,7 +261,7 @@ using ExtractedType =
 template<typename Value,
          typename Extractor = hash_set_impl::Identity,
          typename Hasher = std::hash<hash_set_impl::ExtractedType<Value, Extractor>>,
-         typename Equal = EqualTo>
+         typename Equal = std::equal_to<>>
 class hash_set
 {
 public:

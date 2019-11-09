@@ -27,7 +27,7 @@ struct ExtractFirst {
 template<typename Key,
          typename Value,
          typename Hasher = std::hash<Key>,
-         typename Equal = EqualTo>
+         typename Equal = std::equal_to<>>
 class hash_map : public hash_set<std::pair<Key, Value>, hash_set_impl::ExtractFirst, Hasher, Equal>
 {
 	using BaseType = hash_set<std::pair<Key, Value>, hash_set_impl::ExtractFirst, Hasher, Equal>;
