@@ -76,8 +76,15 @@ void CheckedRam::write(unsigned addr, const byte value)
 		uninitialized[line][addr & CacheLine::LOW] = false;
 		if (unlikely(uninitialized[line].none())) {
 			completely_initialized_cacheline[line] = true;
-			msxcpu.invalidateAllSlotsRWCache(addr & CacheLine::HIGH,
-			                                 CacheLine::SIZE);
+			// This invalidates way too much stuff. But because
+			// (locally) we don't know exactly how this class ie
+			// being used in the MSXDevice, there's no easy way to
+			// figure out what exactly should be invalidated.
+			//
+			// This is anyway only a debug feature (usually it's
+			// not in use), therefor it's OK to implement this in a
+			// easy/slow way rather than complex/fast.
+			msxcpu.invalidateAllSlotsRWCache(0, 0x10000);
 		}
 	}
 	ram[addr] = value;
