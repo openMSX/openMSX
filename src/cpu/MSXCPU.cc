@@ -86,7 +86,7 @@ void MSXCPU::doReset(EmuTime::param time)
 	          z80 ->doReset(time);
 	if (r800) r800->doReset(time);
 
-	invalidateMemCache(0x0000, 0x10000);
+	invalidateAllSlotsRWCache(0x0000, 0x10000);
 
 	reference = time;
 }
@@ -179,7 +179,7 @@ void MSXCPU::updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
 	if (r800) r800->updateVisiblePage(page, primarySlot, secondarySlot);
 }
 
-void MSXCPU::invalidateMemCache(word start, unsigned size)
+void MSXCPU::invalidateAllSlotsRWCache(word start, unsigned size)
 {
 	if (interface) interface->tick(CacheLineCounters::InvalidateCache);
 	auto [cpuReadLines, cpuWriteLines] = z80Active ? z80->getCacheLines() : r800->getCacheLines();
@@ -466,7 +466,7 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 
 	if (ar.isLoader()) {
 		invalidateMemCacheSlot();
-		invalidateMemCache(0x0000, 0x10000);
+		invalidateAllSlotsRWCache(0x0000, 0x10000);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXCPU);

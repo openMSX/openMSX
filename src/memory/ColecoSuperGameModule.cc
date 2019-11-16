@@ -53,7 +53,7 @@ void ColecoSuperGameModule::reset(EmuTime::param time)
 	ramAtBiosEnabled = false;
 	psgLatch = 0;
 	psg.reset(time);
-	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+	invalidateAllSlotsRWCache(0x0000, 0x10000); // flush all to be sure
 }
 
 byte ColecoSuperGameModule::readIO(word port, EmuTime::param time)
@@ -83,11 +83,11 @@ void ColecoSuperGameModule::writeIO(word port, byte value, EmuTime::param time)
 			break;
 		case 0x53: // bit0=1 means enable SGM RAM in 0x2000-0x7FFF range
 			ramEnabled = (value & 1) != 0;
-			invalidateMemCache(0x0000, SGM_RAM_SIZE); // just flush the whole area
+			invalidateAllSlotsRWCache(0x0000, SGM_RAM_SIZE); // just flush the whole area
 			break;
 		case 0x7F: // bit1=0 means enable SGM RAM in BIOS area (0-0x1FFF), 1 means BIOS
 			ramAtBiosEnabled = (value & 2) == 0;
-			invalidateMemCache(0x0000, BIOS_ROM_SIZE);
+			invalidateAllSlotsRWCache(0x0000, BIOS_ROM_SIZE);
 			break;
 		default:
 			// ignore

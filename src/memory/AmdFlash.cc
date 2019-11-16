@@ -209,7 +209,7 @@ void AmdFlash::setState(State newState)
 {
 	if (state == newState) return;
 	state = newState;
-	motherBoard.getCPU().invalidateMemCache(0x0000, 0x10000);
+	motherBoard.getCPU().invalidateAllSlotsRWCache(0x0000, 0x10000);
 }
 
 byte AmdFlash::peek(unsigned address) const

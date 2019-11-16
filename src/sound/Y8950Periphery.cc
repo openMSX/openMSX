@@ -246,7 +246,7 @@ byte* PanasonicAudioPeriphery::getWriteCacheLine(word address) const
 void PanasonicAudioPeriphery::setBank(byte value)
 {
 	bankSelect = value & 3;
-	audio.getCPU().invalidateMemCache(0x0000, 0x10000);
+	audio.getCPU().invalidateAllSlotsRWCache(0x0000, 0x10000);
 }
 
 void PanasonicAudioPeriphery::setIOPorts(byte value)

@@ -313,7 +313,7 @@ void MSXCPUInterface::changeExpanded(bool newExpanded)
 		disallowReadCache [0xFF] &= ~SECONDARY_SLOT_BIT;
 		disallowWriteCache[0xFF] &= ~SECONDARY_SLOT_BIT;
 	}
-	msxcpu.invalidateMemCache(0xFFFF & CacheLine::HIGH, 0x100);
+	msxcpu.invalidateAllSlotsRWCache(0xFFFF & CacheLine::HIGH, 0x100);
 }
 
 MSXDevice*& MSXCPUInterface::getDevicePtr(byte port, bool isIn)
@@ -479,7 +479,7 @@ void MSXCPUInterface::registerSlot(
 			assert(false);
 		}
 	}
-	msxcpu.invalidateMemCache(base, size); // TODO optimize
+	msxcpu.invalidateAllSlotsRWCache(base, size); // TODO optimize
 	updateVisible(page);
 }
 
@@ -500,7 +500,7 @@ void MSXCPUInterface::unregisterSlot(
 		assert(slot == &device);
 		slot = dummyDevice.get();
 	}
-	msxcpu.invalidateMemCache(base, size); // TODO optimize
+	msxcpu.invalidateAllSlotsRWCache(base, size); // TODO optimize
 	updateVisible(page);
 }
 
@@ -551,7 +551,7 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 	globalWrites.push_back({&device, address});
 
 	disallowWriteCache[address >> CacheLine::BITS] |= GLOBAL_RW_BIT;
-	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
@@ -567,7 +567,7 @@ void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 		}
 	}
 	disallowWriteCache[address >> CacheLine::BITS] &= ~GLOBAL_RW_BIT;
-	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::registerGlobalRead(MSXDevice& device, word address)
@@ -575,7 +575,7 @@ void MSXCPUInterface::registerGlobalRead(MSXDevice& device, word address)
 	globalReads.push_back({&device, address});
 
 	disallowReadCache[address >> CacheLine::BITS] |= GLOBAL_RW_BIT;
-	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
@@ -591,7 +591,7 @@ void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
 		}
 	}
 	disallowReadCache[address >> CacheLine::BITS] &= ~GLOBAL_RW_BIT;
-	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
 ALWAYS_INLINE void MSXCPUInterface::updateVisible(int page, int ps, int ss)
@@ -924,7 +924,7 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 			disallowWriteCache[i] &= ~MEMORY_WATCH_BIT;
 		}
 	}
-	msxcpu.invalidateMemCache(0x0000, 0x10000);
+	msxcpu.invalidateAllSlotsRWCache(0x0000, 0x10000);
 }
 
 void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,

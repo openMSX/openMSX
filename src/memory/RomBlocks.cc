@@ -78,7 +78,7 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 	        ((extraMem <= adr) && (adr <= &extraMem[extraSize - 1]))));
 	bankPtr[region] = adr;
 	blockNr[region] = block; // only for debuggable
-	invalidateMemCache(region * BANK_SIZE, BANK_SIZE);
+	invalidateAllSlotsRWCache(region * BANK_SIZE, BANK_SIZE);
 }
 
 template <unsigned BANK_SIZE>

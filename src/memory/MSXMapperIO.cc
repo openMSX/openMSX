@@ -70,7 +70,7 @@ void MSXMapperIO::writeIO(word port, byte value, EmuTime::param time)
 	for (auto* mapper : mappers) {
 		mapper->writeIO(port, value, time);
 	}
-	invalidateMemCache(0x4000 * (port & 0x03), 0x4000);
+	invalidateAllSlotsRWCache(0x4000 * (port & 0x03), 0x4000);
 }
 
 

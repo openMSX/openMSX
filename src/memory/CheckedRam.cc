@@ -63,8 +63,8 @@ void CheckedRam::write(unsigned addr, const byte value)
 		uninitialized[line][addr & CacheLine::LOW] = false;
 		if (unlikely(uninitialized[line].none())) {
 			completely_initialized_cacheline[line] = true;
-			msxcpu.invalidateMemCache(addr & CacheLine::HIGH,
-			                          CacheLine::SIZE);
+			msxcpu.invalidateAllSlotsRWCache(addr & CacheLine::HIGH,
+			                                 CacheLine::SIZE);
 		}
 	}
 	ram[addr] = value;
@@ -92,7 +92,7 @@ void CheckedRam::init()
 		uninitialized.assign(
 			uninitialized.size(), getBitSetAllTrue());
 	}
-	msxcpu.invalidateMemCache(0, 0x10000);
+	msxcpu.invalidateAllSlotsRWCache(0, 0x10000);
 }
 
 void CheckedRam::update(const Setting& setting)

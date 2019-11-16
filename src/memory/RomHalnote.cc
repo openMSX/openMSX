@@ -89,7 +89,7 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 			if (subBanks[subBank] != value) {
 				subBanks[subBank] = value;
 				if (subMapperEnabled) {
-					invalidateMemCache(
+					invalidateAllSlotsRWCache(
 						0x7000 + subBank * 0x800, 0x800);
 				}
 			}
@@ -115,7 +115,7 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 				bool newSubMapperEnabled = (value & 0x80) != 0;
 				if (newSubMapperEnabled != subMapperEnabled) {
 					subMapperEnabled = newSubMapperEnabled;
-					invalidateMemCache(0x7000, 0x1000);
+					invalidateAllSlotsRWCache(0x7000, 0x1000);
 				}
 			}
 		}

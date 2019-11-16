@@ -203,10 +203,10 @@ public:
 	virtual void globalRead(word address, EmuTime::param time);
 
 	/** Invalidate CPU memory-mapping cache.
-	  * This is a shortcut to the MSXCPU::invalidateMemCache() method,
+	  * This is a shortcut to the MSXCPU::invalidateAllSlotsRWCache() method,
 	  * see that method for more details.
 	  */
-	void invalidateMemCache(word start, unsigned size);
+	void invalidateAllSlotsRWCache(word start, unsigned size);
 
 	/** Get the mother board this device belongs to
 	  */

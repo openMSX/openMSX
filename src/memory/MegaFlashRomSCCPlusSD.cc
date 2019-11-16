@@ -336,7 +336,7 @@ void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
 
 	selectedCard = 0;
 
-	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+	invalidateAllSlotsRWCache(0x0000, 0x10000); // flush all to be sure
 }
 
 byte MegaFlashRomSCCPlusSD::getSubSlot(unsigned addr) const
@@ -415,7 +415,7 @@ void MegaFlashRomSCCPlusSD::writeMem(word addr, byte value, EmuTime::param time)
 		subslotReg = value;
 		for (int i = 0; i < 4; ++i) {
 			if (diff & (3 << (2 * i))) {
-				invalidateMemCache(0x4000 * i, 0x4000);
+				invalidateAllSlotsRWCache(0x4000 * i, 0x4000);
 			}
 		}
 	}
@@ -497,7 +497,7 @@ void MegaFlashRomSCCPlusSD::updateConfigReg(byte value)
 	}
 	configReg = value;
 	flash.setVppWpPinLow(isFlashRomBlockProtectEnabled());
-	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+	invalidateAllSlotsRWCache(0x0000, 0x10000); // flush all to be sure
 }
 
 MegaFlashRomSCCPlusSD::SCCEnable MegaFlashRomSCCPlusSD::getSCCEnable() const
@@ -601,19 +601,19 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 	if (!isMapperRegisterDisabled() && (addr == 0x7FFF)) {
 		// write mapper register
 		mapperReg = value;
-		invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+		invalidateAllSlotsRWCache(0x0000, 0x10000); // flush all to be sure
 	}
 
 	if (!areBankRegsAndOffsetRegsDisabled() && (addr == 0x7FFD)) {
 		// write offset register low part
 		offsetReg = (offsetReg & 0x300) | value;
-		invalidateMemCache(0x0000, 0x10000);
+		invalidateAllSlotsRWCache(0x0000, 0x10000);
 	}
 
 	if (!areBankRegsAndOffsetRegsDisabled() && (addr == 0x7FFE)) {
 		// write offset register high part (bit 8 and 9)
 		offsetReg = (offsetReg & 0xFF) + ((value & 0x3) << 8);
-		invalidateMemCache(0x0000, 0x10000);
+		invalidateAllSlotsRWCache(0x0000, 0x10000);
 	}
 
 	if (isKonamiSCCmapperConfigured()) {
@@ -622,8 +622,8 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 			sccMode = value;
 			scc.setChipMode((value & 0x20) ? SCC::SCC_plusmode
 			                               : SCC::SCC_Compatible);
-			invalidateMemCache(0x9800, 0x800);
-			invalidateMemCache(0xB800, 0x800);
+			invalidateAllSlotsRWCache(0x9800, 0x800);
+			invalidateAllSlotsRWCache(0xB800, 0x800);
 		}
 		SCCEnable enable = getSCCEnable();
 		bool isRamSegment2 = ((sccMode & 0x24) == 0x24) ||
@@ -653,7 +653,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 				// write (and only in Konami(-scc) mode)
 				byte mask = areKonamiMapperLimitsEnabled() ? 0x3F : 0xFF;
 				bankRegsSubSlot1[page8kB] = value & mask;
-				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+				invalidateAllSlotsRWCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			}
 			break;
 		case 0x20: {
@@ -670,14 +670,14 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 			if ((addr < 0x5000) || ((0x5800 <= addr) && (addr < 0x6000))) break; // only SCC range works
 			byte mask = areKonamiMapperLimitsEnabled() ? 0x1F : 0xFF;
 			bankRegsSubSlot1[page8kB] = value & mask;
-			invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+			invalidateAllSlotsRWCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			break;
 		}
 		case 0x40:
 		case 0x60:
 			// 64kB
 			bankRegsSubSlot1[page8kB] = value;
-			invalidateMemCache(0x0000 + 0x4000 * page8kB, 0x4000);
+			invalidateAllSlotsRWCache(0x0000 + 0x4000 * page8kB, 0x4000);
 			break;
 		case 0x80:
 		case 0xA0:
@@ -685,7 +685,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 			if ((0x6000 <= addr) && (addr < 0x8000)) {
 				byte bank = (addr >> 11) & 0x03;
 				bankRegsSubSlot1[bank] = value;
-				invalidateMemCache(0x4000 + 0x2000 * bank, 0x2000);
+				invalidateAllSlotsRWCache(0x4000 + 0x2000 * bank, 0x2000);
 			}
 			break;
 		case 0xC0:
@@ -700,12 +700,12 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::par
 			if ((0x6000 <= addr) && (addr < 0x6800)) {
 				bankRegsSubSlot1[0] = 2 * value + 0;
 				bankRegsSubSlot1[1] = 2 * value + 1;
-				invalidateMemCache(0x4000, 0x4000);
+				invalidateAllSlotsRWCache(0x4000, 0x4000);
 			}
 			if ((0x7000 <= addr) && (addr < 0x7800)) {
 				bankRegsSubSlot1[2] = 2 * value + 0;
 				bankRegsSubSlot1[3] = 2 * value + 1;
-				invalidateMemCache(0x8000, 0x4000);
+				invalidateAllSlotsRWCache(0x8000, 0x4000);
 			}
 			break;
 		}
@@ -850,7 +850,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::par
 	if ((0x6000 <= addr) && (addr < 0x8000)) {
 		byte page8kB = (addr >> 11) & 0x03;
 		bankRegsSubSlot3[page8kB] = value;
-		invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+		invalidateAllSlotsRWCache(0x4000 + 0x2000 * page8kB, 0x2000);
 	}
 }
 

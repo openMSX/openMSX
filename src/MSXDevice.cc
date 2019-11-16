@@ -451,9 +451,9 @@ byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 	return nullptr; // uncacheable
 }
 
-void MSXDevice::invalidateMemCache(word start, unsigned size)
+void MSXDevice::invalidateAllSlotsRWCache(word start, unsigned size)
 {
-	getCPU().invalidateMemCache(start, size);
+	getCPU().invalidateAllSlotsRWCache(start, size);
 }
 
 template<typename Archive>

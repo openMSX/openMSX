@@ -158,7 +158,7 @@ void MSXMusicWX::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x7FF0 <= address) && (address < 0x8000)) {
 		control = value & 3;
-		invalidateMemCache(0x0000, 0x10000);
+		invalidateAllSlotsRWCache(0x0000, 0x10000);
 	}
 }
 

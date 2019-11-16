@@ -52,7 +52,7 @@ public:
 	/** Invalidate the CPU its cache for the interval [start, start + size)
 	  * For example MSXMemoryMapper and MSXGameCartrigde need to call this
 	  * method when a 'memory switch' occurs. */
-	void invalidateMemCache(word start, unsigned size);
+	void invalidateAllSlotsRWCache(word start, unsigned size);
 
 	/** This method raises a maskable interrupt. A device may call this
 	  * method more than once. If the device wants to lower the

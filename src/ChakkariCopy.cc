@@ -129,7 +129,7 @@ void ChakkariCopy::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 	if (diff & 0x04) {
 		if (modeSetting.getEnum() == COPY) {
 			// page 0 toggles writable/read-only
-			invalidateMemCache(0x0000, 0x4000);
+			invalidateAllSlotsRWCache(0x0000, 0x4000);
 		}
 	}
 }
@@ -210,7 +210,7 @@ byte* ChakkariCopy::getWriteCacheLine(word address) const
 void ChakkariCopy::update(const Setting& /*setting*/)
 {
 	// switch COPY <-> RAM mode, memory layout changes
-	invalidateMemCache(0x0000, 0x10000);
+	invalidateAllSlotsRWCache(0x0000, 0x10000);
 }
 
 template<typename Archive>

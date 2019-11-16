@@ -110,7 +110,7 @@ void MSXFmPac::writeMem(word address, byte value, EmuTime::param time)
 		byte newBank = value & 0x03;
 		if (bank != newBank) {
 			bank = newBank;
-			invalidateMemCache(0x0000, 0x10000);
+			invalidateAllSlotsRWCache(0x0000, 0x10000);
 		}
 		break;
 	}
@@ -142,7 +142,7 @@ void MSXFmPac::checkSramEnable()
 	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
-		invalidateMemCache(0x0000, 0x10000);
+		invalidateAllSlotsRWCache(0x0000, 0x10000);
 	}
 }
 
