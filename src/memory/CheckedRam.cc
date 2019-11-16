@@ -56,6 +56,19 @@ byte* CheckedRam::getWriteCacheLine(unsigned addr) const
 	     ? const_cast<byte*>(&ram[addr]) : nullptr;
 }
 
+byte* CheckedRam::getRWCacheLines(unsigned addr, unsigned size) const
+{
+	// TODO optimize
+	unsigned num = size >> CacheLine::BITS;
+	unsigned first = addr >> CacheLine::BITS;
+	for (unsigned i = 0; i < num; ++i) {
+		if (!completely_initialized_cacheline[first + i]) {
+			return nullptr;
+		}
+	}
+	return const_cast<byte*>(&ram[addr]);
+}
+
 void CheckedRam::write(unsigned addr, const byte value)
 {
 	unsigned line = addr >> CacheLine::BITS;

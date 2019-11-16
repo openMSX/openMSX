@@ -11,7 +11,12 @@ MSXMemoryMapper::MSXMemoryMapper(const DeviceConfig& config)
 void MSXMemoryMapper::writeIO(word port, byte value, EmuTime::param time)
 {
 	MSXMemoryMapperBase::writeIOImpl(port, value, time);
-	invalidateDeviceRWCache(0x4000 * (port & 0x03), 0x4000);
+	byte page = port & 3;
+	if (byte* data = checkedRam.getRWCacheLines(segmentOffset(page), 0x4000)) {
+		fillDeviceRWCache(page * 0x4000, 0x4000, data);
+	} else {
+		invalidateDeviceRWCache(page * 0x4000, 0x4000);
+	}
 }
 
 template<typename Archive>

@@ -27,6 +27,11 @@ MSXMemoryMapperBase::MSXMemoryMapperBase(const DeviceConfig& config)
 {
 }
 
+unsigned MSXMemoryMapperBase::getBaseSizeAlignment() const
+{
+	return 0x4000;
+}
+
 void MSXMemoryMapperBase::powerUp(EmuTime::param time)
 {
 	checkedRam.clear();
@@ -58,12 +63,17 @@ void MSXMemoryMapperBase::writeIOImpl(word port, byte value, EmuTime::param /*ti
 	// Note: subclasses are responsible for handling CPU cacheline stuff
 }
 
-unsigned MSXMemoryMapperBase::calcAddress(word address) const
+unsigned MSXMemoryMapperBase::segmentOffset(byte page) const
 {
-	unsigned segment = registers[address >> 14];
+	unsigned segment = registers[page];
 	unsigned numSegments = checkedRam.getSize() / 0x4000;
 	segment = (segment < numSegments) ? segment : segment & (numSegments - 1);
-	return (segment << 14) | (address & 0x3FFF);
+	return segment * 0x4000;
+}
+
+unsigned MSXMemoryMapperBase::calcAddress(word address) const
+{
+	return segmentOffset(address / 0x4000) | (address & 0x3fff);
 }
 
 byte MSXMemoryMapperBase::peekMem(word address, EmuTime::param /*time*/) const

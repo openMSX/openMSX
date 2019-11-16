@@ -30,6 +30,7 @@ public:
 	const byte* getReadCacheLine(word start) const override;
 	byte* getWriteCacheLine(word start) const override;
 	byte peekMem(word address, EmuTime::param time) const override;
+	unsigned getBaseSizeAlignment() const override;
 
 	// Subclasses _must_ override this method and
 	//  - call MSXMemoryMapperBase::writeIOImpl()
@@ -45,6 +46,7 @@ protected:
 	  * @return Index in RAM address space.
 	  */
 	unsigned calcAddress(word address) const;
+	unsigned segmentOffset(byte page) const;
 
 	void writeIOImpl(word port, byte value, EmuTime::param time);
 
