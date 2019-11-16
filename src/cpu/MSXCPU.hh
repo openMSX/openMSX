@@ -54,6 +54,34 @@ public:
 	  * method when a 'memory switch' occurs. */
 	void invalidateAllSlotsRWCache(word start, unsigned size);
 
+	/** Similar to the method above, but only invalidates one specific slot.
+	  * One small tweak: lines that are in 'disallowRead/Write' are
+	  * immediately marked as 'non-cachable' instead of (first) as
+	  * 'unknown'.
+	  */
+	void invalidateRWCache(unsigned start, unsigned size, int ps, int ss,
+                               const byte* disallowRead, const byte* disallowWrite);
+	void invalidateRCache (unsigned start, unsigned size, int ps, int ss,
+                               const byte* disallowRead);
+	void invalidateWCache (unsigned start, unsigned size, int ps, int ss,
+                               const byte* disallowWrite);
+
+	/** Fill the read and write cache lines for a specific slot with the
+	 * specified value. Except for the lines where the correponding
+	 * 'disallow{Read,Write}' array is non-zero, those lines are marked
+	 * non-cacheable.
+	 * This is useful on e.g. a memory mapper bank switch because:
+	 * - Marking the lines 'unknown' (as done by invalidateMemCache) is
+	 *   as much work as directly setting the correct value.
+	 * - Directly setting the correct value saves work later on.
+	 */
+	void fillRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
+                         const byte* disallowRead, const byte* disallowWrite);
+	void fillRCache (unsigned start, unsigned size, const byte* rData, int ps, int ss,
+                         const byte* disallowRead);
+	void fillWCache (unsigned start, unsigned size, byte* wData, int ps, int ss,
+                         const byte* disallowWrite);
+
 	/** This method raises a maskable interrupt. A device may call this
 	  * method more than once. If the device wants to lower the
 	  * interrupt again it must call the lowerIRQ() method exactly as
@@ -136,6 +164,11 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting) override;
 
+	template<bool READ, bool WRITE, bool SUB_START>
+	void setRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
+	                const byte* disallowRead, const byte* disallowWrite);
+
+private:
 	MSXMotherBoard& motherboard;
 	BooleanSetting traceSetting;
 	TclCallback diHaltCallback;

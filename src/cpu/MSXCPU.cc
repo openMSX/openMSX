@@ -181,7 +181,7 @@ void MSXCPU::updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
 
 void MSXCPU::invalidateAllSlotsRWCache(word start, unsigned size)
 {
-	if (interface) interface->tick(CacheLineCounters::InvalidateCache);
+	if (interface) interface->tick(CacheLineCounters::InvalidateAllSlots);
 	auto [cpuReadLines, cpuWriteLines] = z80Active ? z80->getCacheLines() : r800->getCacheLines();
 
 	unsigned first = start / CacheLine::SIZE;
@@ -193,6 +193,83 @@ void MSXCPU::invalidateAllSlotsRWCache(word start, unsigned size)
 		std::fill_n(slotReadLines[i] + first, num, nullptr);
 		std::fill_n(slotWriteLines[i] + first, num, nullptr);
 	}
+}
+
+template<bool READ, bool WRITE, bool SUB_START>
+void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
+                             const byte* disallowRead, const byte* disallowWrite)
+{
+	if (!SUB_START) {
+		assert(rData == nullptr);
+		assert(wData == nullptr);
+	}
+
+	// aligned on cache lines
+	assert((start & CacheLine::SIZE) == 0);
+	assert((size  & CacheLine::SIZE) == 0);
+
+	int slot = 4 * ps + ss;
+	unsigned page = start >> 14;
+	assert(((start + size - 1) >> 14) == page); // all in same page
+	if (SUB_START && READ)  rData -= start;
+	if (SUB_START && WRITE) wData -= start;
+
+	// select between 'active' or 'shadow' cache lines
+	const byte** readLines;
+	      byte** writeLines;
+	if (slot == slots[page]) {
+		auto cache = z80Active ? z80->getCacheLines() : r800->getCacheLines();
+		readLines  = cache.first;
+		writeLines = cache.second;
+	} else {
+		readLines  = slotReadLines [slot];
+		writeLines = slotWriteLines[slot];
+	}
+
+	unsigned first = start / CacheLine::SIZE;
+	readLines     += first;
+	writeLines    += first;
+	disallowRead  += first;
+	disallowWrite += first;
+	unsigned num = size / CacheLine::SIZE;
+
+	static const auto NON_CACHEABLE = reinterpret_cast<byte*>(1);
+	for (unsigned i = 0; i < num; ++i) {
+		if (READ)  readLines [i] = disallowRead [i] ? NON_CACHEABLE : rData;
+		if (WRITE) writeLines[i] = disallowWrite[i] ? NON_CACHEABLE : wData;
+	}
+}
+
+void MSXCPU::invalidateRWCache(unsigned start, unsigned size, int ps, int ss,
+                               const byte* disallowRead, const byte* disallowWrite)
+{
+	setRWCache<true, true, false>(start, size, nullptr, nullptr, ps, ss, disallowRead, disallowWrite);
+}
+void MSXCPU::invalidateRCache(unsigned start, unsigned size, int ps, int ss,
+                              const byte* disallowRead)
+{
+	setRWCache<true, false, false>(start, size, nullptr, nullptr, ps, ss, disallowRead, nullptr);
+}
+void MSXCPU::invalidateWCache(unsigned start, unsigned size, int ps, int ss,
+                              const byte* disallowWrite)
+{
+	setRWCache<false, true, false>(start, size, nullptr, nullptr, ps, ss, nullptr, disallowWrite);
+}
+
+void MSXCPU::fillRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss,
+                         const byte* disallowRead, const byte* disallowWrite)
+{
+	setRWCache<true, true, true>(start, size, rData, wData, ps, ss, disallowRead, disallowWrite);
+}
+void MSXCPU::fillRCache(unsigned start, unsigned size, const byte* rData, int ps, int ss,
+                        const byte* disallowRead)
+{
+	setRWCache<true, false, true>(start, size, rData, nullptr, ps, ss, disallowRead, nullptr);
+}
+void MSXCPU::fillWCache(unsigned start, unsigned size, byte* wData, int ps, int ss,
+                        const byte* disallowWrite)
+{
+	setRWCache<false, true, true>(start, size, nullptr, wData, ps, ss, nullptr, disallowWrite);
 }
 
 void MSXCPU::raiseIRQ()

@@ -456,6 +456,54 @@ void MSXDevice::invalidateAllSlotsRWCache(word start, unsigned size)
 	getCPU().invalidateAllSlotsRWCache(start, size);
 }
 
+// calls 'action(<start2>, <size2>, args..., ps, ss)'
+// with 'start', 'size' clipped to each of the ranges in 'memRegions'
+template<typename Action, typename... Args>
+void MSXDevice::clip(unsigned start, unsigned size, Action action, Args... args)
+{
+	int ss2 = (ss != -1) ? ss : 0;
+	unsigned end = start + size;
+	for (const auto& [base, bsize] : memRegions) {
+		unsigned baseEnd = base + bsize;
+		// intersect [start, end) with [base, baseEnd) -> [clipStart, clipEnd)
+		unsigned clipStart = std::max(start, base);
+		unsigned clipEnd   = std::min(end, baseEnd);
+		if (clipEnd <= clipStart) continue; // empty
+		unsigned clipSize = clipEnd - clipStart;
+		action(clipStart, clipSize, args..., ps, ss2);
+	}
+}
+
+void MSXDevice::invalidateDeviceRWCache(unsigned start, unsigned size)
+{
+	clip(start, size, [&](auto... args) { getCPUInterface().invalidateRWCache(args...); });
+}
+void MSXDevice::invalidateDeviceRCache(unsigned start, unsigned size)
+{
+	clip(start, size, [&](auto... args) { getCPUInterface().invalidateRCache(args...); });
+}
+void MSXDevice::invalidateDeviceWCache(unsigned start, unsigned size)
+{
+	clip(start, size, [&](auto... args) { getCPUInterface().invalidateWCache(args...); });
+}
+
+void MSXDevice::fillDeviceRWCache(unsigned start, unsigned size, byte* rwData)
+{
+	fillDeviceRWCache(start, size, rwData, rwData);
+}
+void MSXDevice::fillDeviceRWCache(unsigned start, unsigned size, const byte* rData, byte* wData)
+{
+	clip(start, size, [&](auto... args) { getCPUInterface().fillRWCache(args...); }, rData, wData);
+}
+void MSXDevice::fillDeviceRCache(unsigned start, unsigned size, const byte* rData)
+{
+	clip(start, size, [&](auto... args) { getCPUInterface().fillRCache(args...); }, rData);
+}
+void MSXDevice::fillDeviceWCache(unsigned start, unsigned size, byte* wData)
+{
+	clip(start, size, [&](auto... args) { getCPUInterface().fillWCache(args...); }, wData);
+}
+
 template<typename Archive>
 void MSXDevice::serialize(Archive& ar, unsigned /*version*/)
 {

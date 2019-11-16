@@ -202,11 +202,26 @@ public:
 	  */
 	virtual void globalRead(word address, EmuTime::param time);
 
-	/** Invalidate CPU memory-mapping cache.
-	  * This is a shortcut to the MSXCPU::invalidateAllSlotsRWCache() method,
-	  * see that method for more details.
-	  */
+	// TODO remove this (but keep MSXCPU::invalidateAllSlotsRWCache())
 	void invalidateAllSlotsRWCache(word start, unsigned size);
+
+	/** Calls MSXCPUInterface::invalidateXXCache() for the specific (part
+	  * of) the slot that this device is located in.
+	  */
+	void invalidateDeviceRWCache() { invalidateDeviceRWCache(0x0000, 0x10000); }
+	void invalidateDeviceRCache()  { invalidateDeviceRCache (0x0000, 0x10000); }
+	void invalidateDeviceWCache()  { invalidateDeviceWCache (0x0000, 0x10000); }
+	void invalidateDeviceRWCache(unsigned start, unsigned size);
+	void invalidateDeviceRCache (unsigned start, unsigned size);
+	void invalidateDeviceWCache (unsigned start, unsigned size);
+
+	/** Calls MSXCPUInterface::fillXXCache() for the specific (part of) the
+	  * slot that this device is located in.
+	  */
+	void fillDeviceRWCache(unsigned start, unsigned size, byte* rwData);
+	void fillDeviceRWCache(unsigned start, unsigned size, const byte* rData, byte* wData);
+	void fillDeviceRCache (unsigned start, unsigned size, const byte* rData);
+	void fillDeviceWCache (unsigned start, unsigned size, byte* wData);
 
 	/** Get the mother board this device belongs to
 	  */
@@ -275,6 +290,9 @@ public:
 	static inline byte unmappedWrite[0x10000]; // Write only
 
 private:
+	template<typename Action, typename... Args>
+	void clip(unsigned start, unsigned size, Action action, Args... args);
+
 	void initName(const std::string& name);
 	void staticInit();
 
@@ -287,6 +305,7 @@ private:
 	void registerPorts();
 	void unregisterPorts();
 
+private:
 	using MemRegions = std::vector<std::pair<unsigned, unsigned>>;
 	MemRegions memRegions;
 	std::vector<byte> inPorts;

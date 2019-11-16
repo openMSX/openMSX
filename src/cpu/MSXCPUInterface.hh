@@ -48,7 +48,13 @@ enum CacheLineCounters {
 	SlowWrite,
 	DisallowCacheRead,
 	DisallowCacheWrite,
-	InvalidateCache,
+	InvalidateAllSlots,
+	InvalidateReadWrite,
+	InvalidateRead,
+	InvalidateWrite,
+	FillReadWrite,
+	FillRead,
+	FillWrite,
 	NUM // must be last
 };
 std::ostream& operator<<(std::ostream& os, EnumTypeName<CacheLineCounters>);
@@ -215,6 +221,16 @@ public:
 	 *  TODO: make private / friend
 	 */
 	void setPrimarySlots(byte value);
+
+	/** @see MSXCPU::invalidateRWCache() */
+	void invalidateRWCache(word start, unsigned size, int ps, int ss);
+	void invalidateRCache (word start, unsigned size, int ps, int ss);
+	void invalidateWCache (word start, unsigned size, int ps, int ss);
+
+	/** @see MSXCPU::fillRWCache() */
+	void fillRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss);
+	void fillRCache (unsigned start, unsigned size, const byte* rData,              int ps, int ss);
+	void fillWCache (unsigned start, unsigned size,                    byte* wData, int ps, int ss);
 
 	/**
 	 * Peek memory location
