@@ -769,6 +769,7 @@ byte MegaFlashRomSCCPlusSD::MapperIO::peekIO(word port, EmuTime::param /*time*/)
 void MegaFlashRomSCCPlusSD::MapperIO::writeIO(word port, byte value, EmuTime::param /*time*/)
 {
 	mega.memMapperRegs[port & 3] = value & MEMORY_MAPPER_MASK;
+	mega.invalidateDeviceRWCache(0x4000 * (port & 0x03), 0x4000);
 }
 
 byte MegaFlashRomSCCPlusSD::MapperIO::getSelectedSegment(byte page) const

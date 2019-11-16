@@ -6,7 +6,7 @@
 namespace openmsx {
 
 PanasonicRam::PanasonicRam(const DeviceConfig& config)
-	: MSXMemoryMapper(config)
+	: MSXMemoryMapperBase(config)
 	, panasonicMemory(getMotherBoard().getPanasonicMemory())
 {
 	panasonicMemory.registerRam(checkedRam.getUncheckedRam());
@@ -30,10 +30,16 @@ byte* PanasonicRam::getWriteCacheLine(word start) const
 	}
 }
 
+void PanasonicRam::writeIO(word port, byte value, EmuTime::param time)
+{
+	MSXMemoryMapperBase::writeIOImpl(port, value, time);
+	invalidateDeviceRWCache(0x4000 * (port & 0x03), 0x4000);
+}
+
 template<typename Archive>
 void PanasonicRam::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.template serializeBase<MSXMemoryMapper>(*this);
+	ar.template serializeBase<MSXMemoryMapperBase>(*this);
 }
 INSTANTIATE_SERIALIZE_METHODS(PanasonicRam);
 REGISTER_MSXDEVICE(PanasonicRam, "PanasonicRam");

@@ -685,6 +685,7 @@ void Carnivore2::writeIO(word port, byte value, EmuTime::param time)
 	} else if ((port & 0xfc) == 0xfc) {
 		// memory mapper registers
 		memMapRegs[port & 0x03] = value & 0x3f;
+		invalidateDeviceRWCache(0x4000 * (port & 0x03), 0x4000);
 	}
 }
 

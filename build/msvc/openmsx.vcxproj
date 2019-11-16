@@ -494,6 +494,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMapperIO.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMegaRam.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMemoryMapper.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMemoryMapperBase.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMirrorDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXPac.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXRam.cc" />
@@ -1035,6 +1036,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\MSXMapperIO.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXMegaRam.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXMemoryMapper.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\MSXMemoryMapperBase.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXMirrorDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXPac.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXRam.hh" />

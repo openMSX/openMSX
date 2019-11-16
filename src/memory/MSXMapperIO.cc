@@ -1,6 +1,5 @@
 #include "MSXMapperIO.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXCPU.hh"
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
@@ -68,10 +67,11 @@ byte MSXMapperIO::peekIO(word port, EmuTime::param time) const
 
 void MSXMapperIO::writeIO(word port, byte value, EmuTime::param time)
 {
+	// Note: the mappers are responsible for invalidating/filling the CPU
+	// cache-lines.
 	for (auto* mapper : mappers) {
 		mapper->writeIO(port, value, time);
 	}
-	getCPU().invalidateAllSlotsRWCache(0x4000 * (port & 0x03), 0x4000); // TODO move to (each) mapper
 }
 
 

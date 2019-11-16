@@ -248,6 +248,7 @@ sources = files(
     'memory/MSXMapperIO.cc',
     'memory/MSXMegaRam.cc',
     'memory/MSXMemoryMapper.cc',
+    'memory/MSXMemoryMapperBase.cc',
     'memory/MSXMirrorDevice.cc',
     'memory/MSXPac.cc',
     'memory/MSXRam.cc',
