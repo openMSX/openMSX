@@ -113,8 +113,8 @@ void NowindInterface::writeMem(word address, byte value, EmuTime::param time)
 	           ((0xA000 <= address) && (address < 0xC000))) {
 		byte max = rom.getSize() / (16 * 1024);
 		bank = (value < max) ? value : value & (max - 1);
-		invalidateDeviceRWCache(0x4000, 0x4000);
-		invalidateDeviceRWCache(0xA000, 0x2000);
+		invalidateDeviceRCache(0x4000, 0x4000);
+		invalidateDeviceRCache(0xA000, 0x2000);
 	}
 }
 

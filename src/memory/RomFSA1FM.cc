@@ -125,7 +125,7 @@ void RomFSA1FM1::writeMem(word address, byte value, EmuTime::param /*time*/)
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		if (address == 0x7FC4) {
 			// switch rom bank
-			invalidateDeviceRWCache(0x4000, 0x2000);
+			invalidateDeviceRCache(0x4000, 0x2000);
 		}
 		fsSram->write(address & 0x1FFF, value);
 	}

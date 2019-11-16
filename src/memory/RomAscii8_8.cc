@@ -88,6 +88,8 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 			sramEnabled &= ~(1 << region);
 			setRom(region, value);
 		}
+		// 'R' is already handled
+		invalidateDeviceWCache(0x2000 * region, 0x2000);
 	} else {
 		byte bank = address / BANK_SIZE;
 		if ((1 << bank) & sramEnabled) {

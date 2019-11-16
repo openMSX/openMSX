@@ -89,7 +89,7 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 			if (subBanks[subBank] != value) {
 				subBanks[subBank] = value;
 				if (subMapperEnabled) {
-					invalidateDeviceRWCache(
+					invalidateDeviceRCache(
 						0x7000 + subBank * 0x800, 0x800);
 				}
 			}
@@ -109,13 +109,15 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 						setUnmapped(0);
 						setUnmapped(1);
 					}
+					// 'R' is already handled
+					invalidateDeviceWCache(0x0000, 0x4000);
 				}
 			} else if (bank == 3) {
 				// sub-mapper enable/disable
 				bool newSubMapperEnabled = (value & 0x80) != 0;
 				if (newSubMapperEnabled != subMapperEnabled) {
 					subMapperEnabled = newSubMapperEnabled;
-					invalidateDeviceRWCache(0x7000, 0x1000);
+					invalidateDeviceRCache(0x7000, 0x1000);
 				}
 			}
 		}

@@ -110,7 +110,7 @@ void MSXFmPac::writeMem(word address, byte value, EmuTime::param time)
 		byte newBank = value & 0x03;
 		if (bank != newBank) {
 			bank = newBank;
-			invalidateDeviceRWCache();
+			invalidateDeviceRCache();
 		}
 		break;
 	}

@@ -172,6 +172,7 @@ void RomPanasonic::changeBank(byte region, int bank)
 		// ROM
 		setRom(region, bank);
 	}
+	invalidateDeviceWCache(0x2000 * region, 0x2000); // 'R' is already handled
 }
 
 template<typename Archive>

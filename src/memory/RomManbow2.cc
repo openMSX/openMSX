@@ -87,7 +87,7 @@ void RomManbow2::setRom(unsigned region, unsigned block)
 	assert(region < 4);
 	unsigned nrBlocks = flash.getSize() / 0x2000;
 	bank[region] = block & (nrBlocks - 1);
-	invalidateDeviceRWCache(0x4000 + region * 0x2000, 0x2000);
+	invalidateDeviceRCache(0x4000 + region * 0x2000, 0x2000);
 }
 
 byte RomManbow2::peekMem(word address, EmuTime::param time) const
@@ -145,7 +145,7 @@ void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 		if ((address & 0xF800) == 0x9000) {
 			// SCC enable/disable
 			sccEnabled = ((value & 0x3F) == 0x3F);
-			invalidateDeviceRWCache(0x9800, 0x0800);
+			invalidateDeviceRCache(0x9800, 0x0800);
 		}
 		if ((address & 0x1800) == 0x1000) {
 			// page selection
