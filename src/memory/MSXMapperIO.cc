@@ -1,5 +1,6 @@
 #include "MSXMapperIO.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXCPU.hh"
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
@@ -70,7 +71,7 @@ void MSXMapperIO::writeIO(word port, byte value, EmuTime::param time)
 	for (auto* mapper : mappers) {
 		mapper->writeIO(port, value, time);
 	}
-	invalidateAllSlotsRWCache(0x4000 * (port & 0x03), 0x4000);
+	getCPU().invalidateAllSlotsRWCache(0x4000 * (port & 0x03), 0x4000); // TODO move to (each) mapper
 }
 
 

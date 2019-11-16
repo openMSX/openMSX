@@ -92,7 +92,7 @@ void MSXPac::checkSramEnable()
 	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
-		invalidateAllSlotsRWCache(0x0000, 0x10000);
+		invalidateDeviceRWCache();
 	}
 }
 

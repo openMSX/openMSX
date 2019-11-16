@@ -31,14 +31,14 @@ void FraelSwitchableROM::writeIO(word /*port*/, byte value, EmuTime::param /*tim
 	bool newValue = value & 0x80;
 	if (newValue != firmwareSelected) {
 		firmwareSelected = newValue;
-		invalidateAllSlotsRWCache(0x0000, 0x10000);
+		invalidateDeviceRWCache();
 	}
 }
 
 void FraelSwitchableROM::reset(EmuTime::param /*time*/)
 {
 	firmwareSelected = false;
-	invalidateAllSlotsRWCache(0x0000, 0x10000);
+	invalidateDeviceRWCache();
 }
 
 byte FraelSwitchableROM::readMem(word address, EmuTime::param /*time*/)

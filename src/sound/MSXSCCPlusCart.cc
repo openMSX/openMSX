@@ -208,15 +208,15 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 		isMapped[regio] = true;
 	}
 
-	checkEnable(); // invalidateAllSlotsRWCache() done below
+	checkEnable(); // invalidateDeviceRWCache() done below
 	internalMemoryBank[regio] = block;
-	invalidateAllSlotsRWCache(0x4000 + regio * 0x2000, 0x2000);
+	invalidateDeviceRWCache(0x4000 + regio * 0x2000, 0x2000);
 }
 
 void MSXSCCPlusCart::setModeRegister(byte value)
 {
 	modeRegister = value;
-	checkEnable(); // invalidateAllSlotsRWCache() done below
+	checkEnable(); // invalidateDeviceRWCache() done below
 
 	if (modeRegister & 0x20) {
 		scc.setChipMode(SCC::SCC_plusmode);
@@ -235,7 +235,7 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 		isRamSegment[2] = (modeRegister & 0x24) == 0x24; // extra requirement: SCC+ mode
 		isRamSegment[3] = false;
 	}
-	invalidateAllSlotsRWCache(0x4000, 0x8000);
+	invalidateDeviceRWCache(0x4000, 0x8000);
 }
 
 void MSXSCCPlusCart::checkEnable()

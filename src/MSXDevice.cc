@@ -451,10 +451,6 @@ byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 	return nullptr; // uncacheable
 }
 
-void MSXDevice::invalidateAllSlotsRWCache(word start, unsigned size)
-{
-	getCPU().invalidateAllSlotsRWCache(start, size);
-}
 
 // calls 'action(<start2>, <size2>, args..., ps, ss)'
 // with 'start', 'size' clipped to each of the ranges in 'memRegions'

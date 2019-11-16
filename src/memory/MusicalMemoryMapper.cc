@@ -139,7 +139,7 @@ void MusicalMemoryMapper::updateControlReg(byte value)
 
 		for (unsigned page = 0; page < 4; page++) {
 			if ((invalidate >> page) & 1) {
-				invalidateAllSlotsRWCache(0x4000 * page, 0x4000);
+				invalidateDeviceRWCache(0x4000 * page, 0x4000);
 			}
 		}
 	}

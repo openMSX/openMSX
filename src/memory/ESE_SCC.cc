@@ -120,7 +120,7 @@ void ESE_SCC::setMapperLow(unsigned page, byte value)
 		flush = true;
 	}
 	if (flush) {
-		invalidateAllSlotsRWCache(0x4000 + 0x2000 * page, 0x2000);
+		invalidateDeviceRWCache(0x4000 + 0x2000 * page, 0x2000);
 	}
 }
 
@@ -143,7 +143,7 @@ void ESE_SCC::setMapperHigh(byte value)
 		flush = true;
 	}
 	if (flush) {
-		invalidateAllSlotsRWCache(0x4000, 0x2000);
+		invalidateDeviceRWCache(0x4000, 0x2000);
 	}
 }
 

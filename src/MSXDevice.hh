@@ -202,9 +202,6 @@ public:
 	  */
 	virtual void globalRead(word address, EmuTime::param time);
 
-	// TODO remove this (but keep MSXCPU::invalidateAllSlotsRWCache())
-	void invalidateAllSlotsRWCache(word start, unsigned size);
-
 	/** Calls MSXCPUInterface::invalidateXXCache() for the specific (part
 	  * of) the slot that this device is located in.
 	  */
