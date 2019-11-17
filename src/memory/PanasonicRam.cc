@@ -33,7 +33,15 @@ byte* PanasonicRam::getWriteCacheLine(word start) const
 void PanasonicRam::writeIO(word port, byte value, EmuTime::param time)
 {
 	MSXMemoryMapperBase::writeIOImpl(port, value, time);
-	invalidateDeviceRWCache(0x4000 * (port & 0x03), 0x4000);
+	byte page = port & 3;
+	unsigned addr = segmentOffset(page);
+	if (byte* data = checkedRam.getRWCacheLines(addr, 0x4000)) {
+		const byte* rData = data;
+		byte* wData = panasonicMemory.isWritable(addr) ? data : unmappedWrite;
+		fillDeviceRWCache(page * 0x4000, 0x4000, rData, wData);
+	} else {
+		invalidateDeviceRWCache(page * 0x4000, 0x4000);
+	}
 }
 
 template<typename Archive>
