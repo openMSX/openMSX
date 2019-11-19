@@ -8,6 +8,7 @@
 #include "MSXDevice.hh"
 #include "BreakPoint.hh"
 #include "WatchPoint.hh"
+#include "ProfileCounters.hh"
 #include "openmsx.hh"
 #include "likely.hh"
 #include "ranges.hh"
@@ -37,7 +38,23 @@ struct CompareBreakpoints {
 	}
 };
 
-class MSXCPUInterface
+constexpr bool PROFILE_CACHELINES = false;
+enum CacheLineCounters {
+	NonCachedRead,
+	NonCachedWrite,
+	GetReadCacheLine,
+	GetWriteCacheLine,
+	SlowRead,
+	SlowWrite,
+	DisallowCacheRead,
+	DisallowCacheWrite,
+	InvalidateCache,
+	NUM // must be last
+};
+std::ostream& operator<<(std::ostream& os, EnumTypeName<CacheLineCounters>);
+std::ostream& operator<<(std::ostream& os, EnumValueName<CacheLineCounters> evn);
+
+class MSXCPUInterface : public ProfileCounters<PROFILE_CACHELINES, CacheLineCounters>
 {
 public:
 	MSXCPUInterface(const MSXCPUInterface&) = delete;
@@ -112,6 +129,7 @@ public:
 	 * This reads a byte from the currently selected device
 	 */
 	inline byte readMem(word address, EmuTime::param time) {
+		tick(CacheLineCounters::SlowRead);
 		if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
 			return readMemSlow(address, time);
 		}
@@ -122,6 +140,7 @@ public:
 	 * This writes a byte to the currently selected device
 	 */
 	inline void writeMem(word address, byte value, EmuTime::param time) {
+		tick(CacheLineCounters::SlowWrite);
 		if (unlikely(disallowWriteCache[address >> CacheLine::BITS])) {
 			writeMemSlow(address, value, time);
 			return;
@@ -158,6 +177,7 @@ public:
 	 * An interval will never contain the address 0xffff.
 	 */
 	inline const byte* getReadCacheLine(word start) const {
+		tick(CacheLineCounters::GetReadCacheLine);
 		if (unlikely(disallowReadCache[start >> CacheLine::BITS])) {
 			return nullptr;
 		}
@@ -177,6 +197,7 @@ public:
 	 * An interval will never contain the address 0xffff.
 	 */
 	inline byte* getWriteCacheLine(word start) const {
+		tick(CacheLineCounters::GetWriteCacheLine);
 		if (unlikely(disallowWriteCache[start >> CacheLine::BITS])) {
 			return nullptr;
 		}

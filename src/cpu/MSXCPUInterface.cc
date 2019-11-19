@@ -47,6 +47,25 @@ constexpr byte SECONDARY_SLOT_BIT = 0x01;
 constexpr byte MEMORY_WATCH_BIT   = 0x02;
 constexpr byte GLOBAL_RW_BIT      = 0x04;
 
+std::ostream& operator<<(std::ostream& os, EnumTypeName<CacheLineCounters>)
+{
+	return os << "CacheLineCounters";
+}
+std::ostream& operator<<(std::ostream& os, EnumValueName<CacheLineCounters> evn)
+{
+	std::string_view names[size_t(CacheLineCounters::NUM)] = {
+		"NonCachedRead",
+		"NonCachedWrite",
+		"GetReadCacheLine",
+		"GetWriteCacheLine",
+		"SlowRead",
+		"SlowWrite",
+		"DisallowCacheRead",
+		"DisallowCacheWrite",
+		"InvalidateCache",
+	};
+	return os << names[size_t(evn.e)];
+}
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	: memoryDebug       (motherBoard_)
@@ -164,6 +183,7 @@ void MSXCPUInterface::removeAllWatchPoints()
 
 byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 {
+	tick(CacheLineCounters::DisallowCacheRead);
 	// something special in this region?
 	if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
 		// slot-select-ignore reads (e.g. used in 'Carnivore2')
@@ -189,6 +209,7 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 
 void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time)
 {
+	tick(CacheLineCounters::DisallowCacheWrite);
 	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
 		setSubSlot(primarySlotState[3], value);
 		// Confirmed on turboR GT machine: write does _not_ also go to

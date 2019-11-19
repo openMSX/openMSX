@@ -332,6 +332,7 @@ template<class T> EmuTime::param CPUCore<T>::getCurrentTime() const
 
 template<class T> void CPUCore<T>::invalidateMemCache(unsigned start, unsigned size)
 {
+	if (interface) interface->tick(CacheLineCounters::InvalidateCache);
 	unsigned first = start / CacheLine::SIZE;
 	unsigned num = (size + CacheLine::SIZE - 1) / CacheLine::SIZE;
 	memset(&readCacheLine  [first], 0, num * sizeof(byte*)); // nullptr
@@ -584,6 +585,7 @@ template<class T> inline void CPUCore<T>::WRITE_PORT(unsigned port, byte value, 
 template<class T> template<bool PRE_PB, bool POST_PB>
 NEVER_INLINE byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
 {
+	interface->tick(CacheLineCounters::NonCachedRead);
 	// not cached
 	unsigned high = address >> CacheLine::BITS;
 	if (!readCacheTried[high]) {
@@ -687,6 +689,7 @@ template<class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD(
 template<class T> template<bool PRE_PB, bool POST_PB>
 NEVER_INLINE void CPUCore<T>::WRMEMslow(unsigned address, byte value, unsigned cc)
 {
+	interface->tick(CacheLineCounters::NonCachedWrite);
 	// not cached
 	unsigned high = address >> CacheLine::BITS;
 	if (!writeCacheTried[high]) {
