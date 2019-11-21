@@ -264,6 +264,7 @@ void VDP::resetInit()
 	displayMode.reset();
 	vramPointer = 0;
 	cpuVramData = 0;
+	cpuVramReqIsRead = false; // avoid UMR
 	dataLatch = 0;
 	cpuExtendedVram = false;
 	registerDataStored = false;

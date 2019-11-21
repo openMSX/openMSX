@@ -72,15 +72,16 @@ public:
 
 	struct Sector
 	{
-		int addrIdx;
-		int dataIdx;
-		byte track;
-		byte head;
-		byte sector;
-		byte sizeCode;
-		bool deleted;
-		bool addrCrcErr;
-		bool dataCrcErr;
+		// note: initialize to avoid UMR on savestate
+		int addrIdx = 0;
+		int dataIdx = 0;
+		byte track = 0;
+		byte head = 0;
+		byte sector = 0;
+		byte sizeCode = 0;
+		bool deleted = false;
+		bool addrCrcErr = false;
+		bool dataCrcErr = false;
 
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
