@@ -814,6 +814,7 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 	}
 
 	memadr = 0; // avoid UMR
+	ranges::fill(regs, 0);
 
 	registerSound(config);
 	reset(motherBoard.getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()
