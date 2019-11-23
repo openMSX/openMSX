@@ -473,14 +473,23 @@ void MSXDevice::clip(unsigned start, unsigned size, Action action, Args... args)
 {
 	int ss2 = (ss != -1) ? ss : 0;
 	unsigned end = start + size;
-	for (const auto& [base, bsize] : memRegions) {
-		unsigned baseEnd = base + bsize;
-		// intersect [start, end) with [base, baseEnd) -> [clipStart, clipEnd)
-		unsigned clipStart = std::max(start, base);
-		unsigned clipEnd   = std::min(end, baseEnd);
-		if (clipEnd <= clipStart) continue; // empty
-		unsigned clipSize = clipEnd - clipStart;
-		action(clipStart, clipSize, args..., ps, ss2);
+	for (auto [base, fullBsize] : memRegions) {
+		// split on 16kB boundaries
+		while (fullBsize > 0) {
+			unsigned bsize = std::min(fullBsize, ((base + 0x4000) & ~0x3fff) - base);
+
+			unsigned baseEnd = base + bsize;
+			// intersect [start, end) with [base, baseEnd) -> [clipStart, clipEnd)
+			unsigned clipStart = std::max(start, base);
+			unsigned clipEnd   = std::min(end, baseEnd);
+			if (clipStart < clipEnd) { // non-empty
+				unsigned clipSize = clipEnd - clipStart;
+				action(clipStart, clipSize, args..., ps, ss2);
+			}
+
+			base += bsize;
+			fullBsize -= bsize;
+		}
 	}
 }
 
