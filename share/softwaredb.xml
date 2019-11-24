@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1570419841">
+<softwaredb timestamp="1574627551">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -646,7 +646,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>XAIN / Sein</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><hash>ec53d72e41e114574f4c116cab19e1633f3da207</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash>ec53d72e41e114574f4c116cab19e1633f3da207</hash></rom></dump>
 		<dump><megarom><type>Normal</type><hash>c6683bcf9934d695d5ef828e11cb36eb4d86a7b5</hash></megarom></dump>
 </software>
 <software>
@@ -892,9 +892,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Pony Canyon</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><hash>469b07eef08348c9acc14e63ba0cd35aef236983</hash></rom></dump>
-		<dump><rom><start>0x4000</start><hash>1a6a751334c663fbfdf93f617a7d779f76f488ce</hash></rom></dump>
-		<dump><rom><start>0x4000</start><hash>a7cf4cbe12c8956c0a51a5c2336fe70aee7f4a65</hash><remark>Ulver crack</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash>469b07eef08348c9acc14e63ba0cd35aef236983</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>1a6a751334c663fbfdf93f617a7d779f76f488ce</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>a7cf4cbe12c8956c0a51a5c2336fe70aee7f4a65</hash><remark>Ulver crack</remark></rom></dump>
 </software>
 <software>
 	<title>Backgammon</title>
@@ -1098,7 +1098,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash>afe11b840b7bf0243b1c4f98309e274a3ddde35f</hash><remark>SCC supported / MSX-DEV07</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>8a3749af3d6ff88404df59da9d9ac7990bbc318d</hash><remark>SCC supported / MSX-DEV07</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>9267ea63e1d32095868eec1347a4eafbdfb5ef7e</hash><remark>Fixed - SCC supported / MSX-DEV07</remark></rom></dump>
-		<dump><rom><hash>3e219e8205a3a4867c307601683d96bc53ac4c8e</hash><remark>SCC supported / Retail</remark></rom></dump>
+		<dump><rom><type>Normal</type><hash>3e219e8205a3a4867c307601683d96bc53ac4c8e</hash><remark>SCC supported / Retail</remark></rom></dump>
 </software>
 <software>
 	<title>Beach Head</title>
@@ -1260,7 +1260,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Alligata</company>
 	<year>1984</year>
 	<country>UK</country>
-		<dump><rom><start>0x4000</start><hash>b4dd886d4a44cc42fc9e95d2db0943d422e4bda8</hash><remark>[MSX1 only]</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>b4dd886d4a44cc42fc9e95d2db0943d422e4bda8</hash><remark>[MSX1 only]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>65af16d35b8d8454ec07718e9f8948335ca73bad</hash></rom></dump>
 		<dump><rom><hash>6bc6acb11e684406a5d939337b29f33dc9816ad1</hash><remark>[Converted from tape by Alligata]</remark></rom></dump>
 </software>
@@ -1279,7 +1279,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>MSX-FAN</company>
 	<year>1992</year>
 	<country>JP</country>
-		<dump><rom><start>0x4000</start><hash>d2ce76cddb6cc12dc68e9683b072fb57947ec172</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>d2ce76cddb6cc12dc68e9683b072fb57947ec172</hash></rom></dump>
 </software>
 <software>
 	<title>Blockade Runner</title>
@@ -1315,7 +1315,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>ES</country>
 		<dump><megarom><type>Normal</type><hash>ae3bd2320892fb02ab9facce986af07807513600</hash></megarom></dump>
 		<dump><megarom><type>Normal</type><hash>f5551b5c88e645090cd9297aa1b3ca921526a6ba</hash></megarom></dump>
-		<dump><original value="true">Author</original><rom><hash>3e44a4e5608e01793877e62f82c12c2b82908461</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>3e44a4e5608e01793877e62f82c12c2b82908461</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Boggle Boggle</title>
@@ -1367,7 +1367,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1983</year>
 	<country>JP</country>
 		<dump><rom><hash>cef76580a01cc8e16704590d0d884d7eeadaa3a8</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>5c904e7d202d9df2ff2ef9c8300f00d207670e82</hash><remark>Kralizec MSX2 Version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>5c904e7d202d9df2ff2ef9c8300f00d207670e82</hash><remark>Kralizec MSX2 Version</remark></rom></dump>
 </software>
 <software>
 	<title>Bomb Jack</title>
@@ -1383,7 +1383,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>AG Software</company>
 	<year>2005</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><hash>46ecaf85f1ff1b4821670bf44ff1249fe1b13a35</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>46ecaf85f1ff1b4821670bf44ff1249fe1b13a35</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Bomber King</title>
@@ -1497,8 +1497,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>System Soft</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><hash>b15e73a5ff1ae17ac67f2cebb5862d5e5bd80bc0</hash><remark>A bug in this game will prevent is from running an several MSX computers.To solve this bug change the byte in the ROM images at address 0x003A from 0x03 to 0x0C,or try it in slot 3</remark></rom></dump>
-		<dump><rom><start>0x4000</start><hash>1ffef57e6c06068b330027294aae173103c8f141</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash>b15e73a5ff1ae17ac67f2cebb5862d5e5bd80bc0</hash><remark>A bug in this game will prevent is from running an several MSX computers.To solve this bug change the byte in the ROM images at address 0x003A from 0x03 to 0x0C,or try it in slot 3</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>1ffef57e6c06068b330027294aae173103c8f141</hash></rom></dump>
 </software>
 <software>
 	<title>Boulder Dash</title>
@@ -1596,7 +1596,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Filosoft</company>
 	<year>1991</year>
 	<country>NL</country>
-		<dump><rom><start>0x4000</start><hash>0d9a37ff931e5db2cdee2e0f312fd4bbef5cfd29</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>0d9a37ff931e5db2cdee2e0f312fd4bbef5cfd29</hash></rom></dump>
 </software>
 <software>
 	<title>Brik</title>
@@ -1983,8 +1983,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2005</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>6aa9f75720bb38e410d751225d18e8985ab4d61f</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>a5802d5fe8bcda79354519d7e7a7b710bb6f9db8</hash><remark>MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>983f97a0d8aedad52f5a2ade5fed6f2812218b2e</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>a5802d5fe8bcda79354519d7e7a7b710bb6f9db8</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>983f97a0d8aedad52f5a2ade5fed6f2812218b2e</hash><remark>MSX-DEV05</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>c5568fc07bfb193b43ad7c840787f274d9c1e42f</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
@@ -2087,7 +2087,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Crappysoft</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>ca770384382bd487dd7330552403f85d7edbb8ce</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>ca770384382bd487dd7330552403f85d7edbb8ce</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Checkers In Tantan Tanuki</title>
@@ -2134,8 +2134,16 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Philips</company>
 	<year>1985</year>
 	<country>NL</country>
-		<dump><rom><start>0x4000</start><hash>4075ef9f51b4e010bd2481a648e05b2c29b3329d</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>4075ef9f51b4e010bd2481a648e05b2c29b3329d</hash></rom></dump>
 		<dump><rom><hash>adc65666db35cd2ce694a8e2f32b95bd98d72291</hash></rom></dump>
+</software>
+<software>
+	<title>Chiller</title>
+	<system>MSX</system>
+	<company>Mastertronic</company>
+	<year>1985</year>
+	<country>UK</country>
+		<dump><original value="true">Author</original><rom><hash>b7670e9ec2db500286b9f87f111d913e305d42c2</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Chocobo Racing</title>
@@ -2257,7 +2265,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2010</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>50881d29421b9431b31f8b09fe26ee8b298ba76a</hash><remark>Demo Version</remark></rom></dump>
-		<dump><rom><start>0x4000</start><hash>8cde922a3c189889096970fb6e8a1670fcc4e8ed</hash><remark>Retail</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>8cde922a3c189889096970fb6e8a1670fcc4e8ed</hash><remark>Retail</remark></rom></dump>
 </software>
 <software>
 	<title>Color Ball</title>
@@ -2468,7 +2476,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Vendetta</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>30fa1447f8ef8e8ff9653dce6d7d672104f6e6ab</hash><remark>unfinished / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>30fa1447f8ef8e8ff9653dce6d7d672104f6e6ab</hash><remark>unfinished / MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Cosmo Explorer</title>
@@ -2597,9 +2605,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Compile</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><hash>d0e8bc3f5fd93dcd07cbb945b00018a491842242</hash></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><hash>3d2d0a2eb3d12fa67ecbbb90b7ac1bdc76ad8412</hash><remark>[a1]</remark></rom></dump>
-		<dump><rom><start>0x4000</start><hash>c6f090882886dcf783e5b65bff75c5e034fbb2eb</hash><remark>[a]</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash>d0e8bc3f5fd93dcd07cbb945b00018a491842242</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash>3d2d0a2eb3d12fa67ecbbb90b7ac1bdc76ad8412</hash><remark>[a1]</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>c6f090882886dcf783e5b65bff75c5e034fbb2eb</hash><remark>[a]</remark></rom></dump>
 		<dump><megarom><type>Normal</type><hash>b1e3d7aed6fa07b231f09bbae048b5797eeb5a81</hash></megarom></dump>
 </software>
 <software>
@@ -2871,7 +2879,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Gremlin Graphics</company>
 	<year>1986</year>
 	<country>UK</country>
-		<dump><rom><hash>6d49ac73a0cec2845b889c2c99cebbc08c327f8b</hash><remark>ROM Conversion</remark></rom></dump>
+		<dump><rom><hash>6d49ac73a0cec2845b889c2c99cebbc08c327f8b</hash><remark>Cas to ROM Conversion</remark></rom></dump>
+		<dump><rom><hash>718f5cd2ffb48ccc3787c84754628da671e39f35</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Destroyer</title>
@@ -2882,7 +2891,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>fd646f058d1d194a42daad034c17bb1a117555a4</hash></rom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>8e835c159e737e7fa7967ac4e8b5c4795fb3a5e0</hash><remark>SCC music only</remark></megarom></dump>
-		<dump><original value="true">Author</original><rom><hash>b1cb1eef123cd685dd22738cebeee4b67d00710b</hash><remark>Final / MSXDev14</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>b1cb1eef123cd685dd22738cebeee4b67d00710b</hash><remark>Final / MSXDev14</remark></rom></dump>
 </software>
 <software>
 	<title>Devil Zone</title>
@@ -3289,6 +3298,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2018</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>ASCII16</type><hash>ddeb8d9903c2ef90360fcf385e20e4e02e334b76</hash><remark>GFX9000 needed / MSXDev2018</remark></megarom></dump>
+</software>
+<software>
+	<title>Dribol</title>
+	<system>MSX</system>
+	<company>Onric Factor</company>
+	<year>2015</year>
+	<country>ES</country>
+		<dump><megarom><type>KonamiSCC</type><hash>f038609e4650626211bb7043be42503d0b2a223c</hash><remark>DSK to ROM Coversion</remark></megarom></dump>
 </software>
 <software>
 	<title>Driller Tanks</title>
@@ -3775,7 +3792,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>YAMAHA</company>
 	<year>1985</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><hash>e4c8f3b87d755c21572040c51cec1431ae59a0be</hash><remark>YRM-102 / Needs FM Sound Synthesizer Unit / No disk support</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash>e4c8f3b87d755c21572040c51cec1431ae59a0be</hash><remark>YRM-102 / Needs FM Sound Synthesizer Unit / No disk support</remark></rom></dump>
 		<dump><megarom><type>Normal</type><hash>057238307d93a8c2cbb2a296b9dc2f4585315af1</hash><remark>YRM-102</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>43dbcc9536fe61c8172eceeec1481778f7a2b9bd</hash><remark>YRM-506 / Needs FM Sound Synthesizer Unit / FB-01</remark></rom></dump>
 </software>
@@ -4781,7 +4798,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>BiFi Productions/Metal Soft (Vampier)</company>
 	<year>2009</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash>3e0360a4f235522498682a714f523039a5ab6c7c</hash><remark>Graphic Coder</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>3e0360a4f235522498682a714f523039a5ab6c7c</hash><remark>Graphic Coder</remark></rom></dump>
 </software>
 <software>
 	<title>Gradius - Nemesis</title>
@@ -4892,10 +4909,10 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Konami</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><rom><start>0x4000</start><hash>3ea788262557f578b25e4e36e61c1cf9fb1155d1</hash></rom></dump>
-		<dump><rom><start>0x4000</start><hash>dcf79362f68853733326a22eb8fdafa17bca281e</hash></rom></dump>
-		<dump><rom><start>0x4000</start><hash>acd46021a228b2b612c82d04c124b78e7d4c25e3</hash><remark>[a]</remark></rom></dump>
-		<dump><rom><start>0x4000</start><hash>a6b77c5873f220c00578339761552e5ee82fab62</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>3ea788262557f578b25e4e36e61c1cf9fb1155d1</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>dcf79362f68853733326a22eb8fdafa17bca281e</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>acd46021a228b2b612c82d04c124b78e7d4c25e3</hash><remark>[a]</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>a6b77c5873f220c00578339761552e5ee82fab62</hash></rom></dump>
 </software>
 <software>
 	<title>Gremlins 2</title>
@@ -4905,6 +4922,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1989</year>
 	<country>ES</country>
 		<dump><megarom><type>ASCII16</type><hash>d09d75c7f242a696931407458e717c9bdaadb7d9</hash></megarom></dump>
+</software>
+<software>
+	<title>Grey Wolf</title>
+	<system>MSX</system>
+	<company>Onric Factor</company>
+	<year>2017</year>
+	<country>ES</country>
+		<dump><megarom><type>KonamiSCC</type><hash>7ebc54affd5794422cb23cd9823e6af337ad01a7</hash><remark>DSK to ROM Coversion</remark></megarom></dump>
 </software>
 <software>
 	<title>Grid Wars</title>
@@ -4922,9 +4947,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2005</year>
 	<country>ES</country>
 		<dump><rom><hash>4785fafdef83b62103c9d3feeed582785b2e5189</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>989d9ba7c0f29694fa3b737d09cf102606b2fd5b</hash><remark>RK709 / MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>acb6e93227bc89da119443e03890b58a1befc0b0</hash><remark>RK709EX / MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>4dd2ec21474720eb56f012bb761117b4d507f331</hash><remark>RK709EX / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>989d9ba7c0f29694fa3b737d09cf102606b2fd5b</hash><remark>RK709 / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>acb6e93227bc89da119443e03890b58a1befc0b0</hash><remark>RK709EX / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>4dd2ec21474720eb56f012bb761117b4d507f331</hash><remark>RK709EX / MSX-DEV05</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>5a9364271ddca5208b625c891f01a89fd2367a8d</hash><remark>RK709 / MSX-DEV05</remark></rom></dump>
 </software>
 <software>
@@ -5247,6 +5272,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>HarryFox</type><hash>3626b5dd3188ec2a16e102d05c79f8f242fbd892</hash></megarom></dump>
+</software>
+<software>
+	<title>Haunted House</title>
+	<system>MSX</system>
+	<company>Eurosoft</company>
+	<year>1988</year>
+	<country>NL</country>
+		<dump><rom><hash>96db6c7766e78ae36a050b4e2a69e183d2a0e001</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Hayabusa - Moonsweeper</title>
@@ -5617,9 +5650,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>The Bytebusters</company>
 	<year>1987</year>
 	<country>NL</country>
-		<dump><rom><start>0x4000</start><hash>6ad2f111227d6d4659f0089b9397896d16f867a0</hash><remark>Published by Al Alamiah</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>6ad2f111227d6d4659f0089b9397896d16f867a0</hash><remark>Published by Al Alamiah</remark></rom></dump>
 		<dump><rom><hash>a9bf062f695475e84be4ab78afb9715fc3f6f40e</hash><remark>[b]</remark></rom></dump>
-		<dump><rom><start>0x4000</start><hash>1d881446dd40769bb3d97793e23a4ab093f333f4</hash><remark>ROM version by GDX</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>1d881446dd40769bb3d97793e23a4ab093f333f4</hash><remark>ROM version by GDX</remark></rom></dump>
 		<dump><rom><hash>a192bb6bc6726d09d32051dc9f2a885ab7b0b813</hash><remark>Published by Eaglesoft</remark></rom></dump>
 		<dump><megarom><type>ASCII8</type><hash>074d77d1bbb74fa58b40dd19663de0f7836b74a2</hash><remark>with FM by Icon Games - Needs a Turbo R</remark></megarom></dump>
 </software>
@@ -5732,7 +5765,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Andrea Rossetti</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>a53610adcf84bdb1b84d94d4c6d1f0a7d45e9ddd</hash><remark>MSX-DEV06</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>a53610adcf84bdb1b84d94d4c6d1f0a7d45e9ddd</hash><remark>MSX-DEV06</remark></rom></dump>
 </software>
 <software>
 	<title>INK - Exxon Surfing</title>
@@ -5780,6 +5813,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>167b226b54cc5b681a69d2c1509116ffaba868e4</hash></rom></dump>
+</software>
+<software>
+	<title>Icicle Works</title>
+	<system>MSX</system>
+	<company>State Soft</company>
+	<year>1984</year>
+	<country>UK</country>
+		<dump><rom><hash>1cd32d6f5497d84cecf16118556c7773d57afd43</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Ide Yousuke no Jissen Mahjong</title>
@@ -5992,7 +6033,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2011</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>cc13bac2f50f58bc466d605839187cf09dbe269c</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>8bda6f24ff3818542ea11428d58eb79282a509e1</hash><remark>Retail</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>8bda6f24ff3818542ea11428d58eb79282a509e1</hash><remark>Retail</remark></rom></dump>
 </software>
 <software>
 	<title>J.P. Winkle</title>
@@ -6106,7 +6147,15 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Aackosoft/The Bytebusters</company>
 	<year>1985</year>
 	<country>NL</country>
-		<dump><rom><start>0x4000</start><hash>53c6655b0ea7c07101018879f3bf60de071c247b</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>53c6655b0ea7c07101018879f3bf60de071c247b</hash></rom></dump>
+</software>
+<software>
+	<title>Jet Fighter</title>
+	<system>MSX</system>
+	<company>Aackosoft</company>
+	<year>1983</year>
+	<country>NL</country>
+		<dump><rom><hash>4ddc3e38216acd72b8005f80f56382ebe155d9a6</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Jet Set Willy</title>
@@ -6206,7 +6255,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2008</year>
 	<country>JP</country>
 		<dump><original value="true">Author</original><rom><hash>cfa30c1d6741e1b56b54622bbc3d89003f739a17</hash><remark>Muffie conversion</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>c9a89cceb355e5daf47ed5e8ee3e211ebd2494d8</hash><remark>Slotman conversion</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>c9a89cceb355e5daf47ed5e8ee3e211ebd2494d8</hash><remark>Slotman conversion</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>4e09d61162c3dd957d59ece0aa5d7222294b5c5a</hash><remark>muffie conversion (beta)</remark></rom></dump>
 </software>
 <software>
@@ -6333,7 +6382,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1984</year>
 	<country>JP</country>
 		<dump><rom><type>Keyboardmaster</type><hash>2308dd0f15fb5395a1d8a08489daff65ead8e0f2</hash><remark>the _voice ROM should always be with the ROM image</remark></rom></dump>
-		<dump><rom><start>0x4000</start><hash>4f36d139ee4baa7d5980f765de9895570ee05f40</hash><remark>the _voice ROM should always be with the ROM image</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>4f36d139ee4baa7d5980f765de9895570ee05f40</hash><remark>the _voice ROM should always be with the ROM image</remark></rom></dump>
 </software>
 <software>
 	<title>Keystone Kapers</title>
@@ -6590,7 +6639,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Prosoft</company>
 	<year>1989</year>
 	<country>KR</country>
-		<dump><rom><start>0x4000</start><hash>6147f63a319b44b60259b35a75b1c083280b92ea</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>6147f63a319b44b60259b35a75b1c083280b92ea</hash></rom></dump>
 </software>
 <software>
 	<title>Kobashi</title>
@@ -6909,6 +6958,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>1fbf5640df41fe48c7d64ffc51e33b57b41fd7e1</hash></rom></dump>
 </software>
 <software>
+	<title>Kung Fu</title>
+	<system>MSX</system>
+	<company>Onric Factor</company>
+	<year>2018</year>
+	<country>ES</country>
+		<dump><megarom><type>KonamiSCC</type><hash>30b8df57369707b6390fc87815b851543183c0ca</hash><remark>DSK to ROM Coversion</remark></megarom></dump>
+</software>
+<software>
 	<title>Kung-Fu Master</title>
 	<genmsxid>151</genmsxid>
 	<system>MSX</system>
@@ -7175,7 +7232,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>AG Software</company>
 	<year>2005</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><hash>ea774f43f9c02064fcc07d5131691f5bd4e9c4f5</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>ea774f43f9c02064fcc07d5131691f5bd4e9c4f5</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Lode Runner</title>
@@ -7222,7 +7279,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Hability game</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>ba6bff43e5773c6777f73ebc63b4f38466dc2630</hash><remark>MSX-DEV06</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>ba6bff43e5773c6777f73ebc63b4f38466dc2630</hash><remark>MSX-DEV06</remark></rom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>46611b1ab3b8ed272d989fe3b209ebe29a866718</hash><remark>MSX-DEV06</remark></megarom></dump>
 </software>
 <software>
@@ -7423,6 +7480,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>7752b6624fb80d9499aaad28dd5776ec74565576</hash><remark>MSX1 Mode</remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash>d784565474e82965e99e6314ff7e98b9addd4aa6</hash></megarom></dump>
+		<dump><megarom><type>ASCII8</type><hash>6a428f948695714b4c506a1bebac7c2790c0dcfd</hash></megarom></dump>
 </software>
 <software>
 	<title>MSX-FAN Fandom Library 3</title>
@@ -7595,8 +7653,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Dioniso</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>cb0d355627b8c036931a67666e425d8f9225a180</hash><remark>16Kb version / MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>38a3c6659080b38d9a2655e869e9fc0ce3e26c5e</hash><remark>8Kb Version / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>cb0d355627b8c036931a67666e425d8f9225a180</hash><remark>16Kb version / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>38a3c6659080b38d9a2655e869e9fc0ce3e26c5e</hash><remark>8Kb Version / MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Magical Tower Adventure Mini Edition</title>
@@ -7678,7 +7736,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2006</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>06cc2eca2930d67f23568ccf77a894f475f27efe</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>0c52d589f0c8e7e778a61d7f4561f37316a5fa63</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>0c52d589f0c8e7e778a61d7f4561f37316a5fa63</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>061aa9a046ba457a3743482a9a1af314c8019913</hash><remark>MultiROM version</remark></rom></dump>
 </software>
 <software>
@@ -8353,7 +8411,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2008</year>
 	<country>US</country>
 		<dump><original value="true">Author</original><rom><hash>b03786528689b2014c90493f3e02d941c73122bc</hash><remark>Muffie conversion</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>17e78fd405e65afa3763c2f7271c82ab155c004b</hash><remark>Slotman conversion</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>17e78fd405e65afa3763c2f7271c82ab155c004b</hash><remark>Slotman conversion</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>1dc5dfa6cd8d554844f484a1b4e680710c1b9515</hash><remark>Muffie conversion</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>bb422bc272c72979b50e2c2311c649b551c0fdfa</hash><remark>Muffie conversion</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>80669b2172dbaa2d4f9d5485d41db6995ec4e123</hash><remark>Muffie conversion</remark></rom></dump>
@@ -8646,8 +8704,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Buresto Faiya</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>a39568be17b6ee5d10a61d82d8480cc859be778a</hash><remark>MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>05b8109f4f0a4d9c1bcb837982abb573236be936</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>a39568be17b6ee5d10a61d82d8480cc859be778a</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>05b8109f4f0a4d9c1bcb837982abb573236be936</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Nausicaa</title>
@@ -9059,10 +9117,10 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Toybox</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>366cc928a5dd5948bf6cf2ab1e00efcb2b6a8fd8</hash><remark>MSX-DEV06 V1</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>016c63161d5112ef637d48920a85001c9eb6a10f</hash><remark>MSX-DEV06 V2</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>366cc928a5dd5948bf6cf2ab1e00efcb2b6a8fd8</hash><remark>MSX-DEV06 V1</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>016c63161d5112ef637d48920a85001c9eb6a10f</hash><remark>MSX-DEV06 V2</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>5971dd9906de38ff3668e9e0330008e204f60f23</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>6287c1f05ea958e1abe86b87de073bef50977478</hash><remark>MSX-DEV06 V3</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>6287c1f05ea958e1abe86b87de073bef50977478</hash><remark>MSX-DEV06 V3</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>d2de46235b396fe84b6331f3fa4ddfef6a6e88fa</hash><remark>MultiROM version</remark></rom></dump>
 </software>
 <software>
@@ -9303,7 +9361,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>AG Software</company>
 	<year>2005</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><hash>9ab584be0a054e76d345ca937917f1ea195f7967</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>9ab584be0a054e76d345ca937917f1ea195f7967</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Pairs</title>
@@ -9312,7 +9370,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>ASCII</company>
 	<year>1983</year>
 	<country>JP</country>
-		<dump><rom><start>0x4000</start><hash>80c82bb4010476a679cb616ac31fc691b8e8a526</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>80c82bb4010476a679cb616ac31fc691b8e8a526</hash></rom></dump>
 		<dump><rom><start>0x8000</start><type>Normal</type><hash>df13ed647ed4f5a6b04f1710fc1140ea65dc966f</hash><remark>[a2]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash>27bc809518fbb6c0d52c949e7cbe81980a801d32</hash></rom></dump>
 </software>
@@ -9322,11 +9380,11 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>BiFi Productions</company>
 	<year>2005</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>dc6437a5d52f77f524198b9d539b34dec6122854</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.0</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>b5414e11b227c3c828ee1de206bf2d8f14486bd4</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.1</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>58747cf76b7c2785dd70409be5d912eafa328616</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.1</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>98df3e94d3bbef5d18095b62e65274ebfa8d527c</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.2 updated</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>7e64658b7a4fd451b2f2aaef409953e3e4f1b033</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.3</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>dc6437a5d52f77f524198b9d539b34dec6122854</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.0</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>b5414e11b227c3c828ee1de206bf2d8f14486bd4</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.1</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>58747cf76b7c2785dd70409be5d912eafa328616</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.1</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>98df3e94d3bbef5d18095b62e65274ebfa8d527c</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.2 updated</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>7e64658b7a4fd451b2f2aaef409953e3e4f1b033</hash><remark>http://bifi.msxnet.org/paledit/ / Version 1.3</remark></rom></dump>
 </software>
 <software>
 	<title>Panic Junction</title>
@@ -9351,8 +9409,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Paxanga Soft</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>cda2df54006d98890feb1aac1dd955d0458132a4</hash><remark>MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>f0b65b71c505c68019e2285d3b8afcf068a74b9f</hash><remark>2nd release / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>cda2df54006d98890feb1aac1dd955d0458132a4</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>f0b65b71c505c68019e2285d3b8afcf068a74b9f</hash><remark>2nd release / MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Parodius - Tako Saves Earth</title>
@@ -9457,7 +9515,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>The MSX Café</company>
 	<year>2006</year>
 	<country>FR</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>058af0079b868387ad39c6b8a390b18b936d0e48</hash><remark>MSX-DEV06</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>058af0079b868387ad39c6b8a390b18b936d0e48</hash><remark>MSX-DEV06</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>bfa533c539035345cee719b4bbc7b30989e97372</hash></rom></dump>
 </software>
 <software>
@@ -9523,7 +9581,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2008</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>7ec25356abf3720806b2b97cbabdc1f19ed698f8</hash></rom></dump>
-		<dump><rom><hash>691b8adc93ec86a78dbccfafe7da1b33358d4cc1</hash><remark>Retail</remark></rom></dump>
+		<dump><rom><type>Normal</type><hash>691b8adc93ec86a78dbccfafe7da1b33358d4cc1</hash><remark>Retail</remark></rom></dump>
 		<dump><rom><hash>823b638419dc81767a8511db190212607908cece</hash></rom></dump>
 		<dump><megarom><type>Normal</type><hash>3c3707ba58fd287bc7ac4b485ea65cd7132f2464</hash></megarom></dump>
 </software>
@@ -9543,6 +9601,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2006</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>e59d739ecd56a11ecf4020430585ea4cc61b02a6</hash></rom></dump>
+</software>
+<software>
+	<title>Pharaoh''s Revenge</title>
+	<system>MSX</system>
+	<company>Eurosoft</company>
+	<year>1988</year>
+	<country>NL</country>
+		<dump><rom><hash>f2e40dc9c1feb8ecf5de456312c5cf0c680f5910</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Photon</title>
@@ -9652,7 +9718,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Nippon Dexter / JALECO</company>
 	<year>1984</year>
 	<country>JP</country>
-		<dump><rom><start>0x4000</start><hash>a4f15647a4e50f1ca7777604df07267dbaa8e12c</hash><remark>[b]</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>a4f15647a4e50f1ca7777604df07267dbaa8e12c</hash><remark>[b]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>be8bb7f5e812cd31a65aec3782a2d526bef9b3d6</hash></rom></dump>
 		<dump><rom><hash>f4519d8174f2f5cdbeb8bcf54ea0cafcf8feb66e</hash></rom></dump>
 		<dump><rom><hash>e05cd2d39e95d8d318d0ff92653e58ebd83b9384</hash></rom></dump>
@@ -9787,6 +9853,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>6f247c8af6fc1881242281f19912068b03ca4126</hash><remark>[Boot with Left Shift pressed down]</remark></rom></dump>
+</software>
+<software>
+	<title>Police Academy II</title>
+	<system>MSX</system>
+	<company>Methodic Solutions</company>
+	<year>1987</year>
+	<country>NL</country>
+		<dump><rom><hash>c23ef5966974e4958d57e57467921a8554aeb8c4</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Police Force 2</title>
@@ -10561,7 +10635,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>GenericKonami</type><hash>f6e0dff9f8674383a866902fddb72a280d331d9d</hash><remark>[a2]</remark></megarom></dump>
 		<dump><rom><hash>ff9877666d983759d41398c5e3e29801ad95a589</hash></rom></dump>
 		<dump><rom><hash>3325a55dc5cb88f79d3a25dc21521d6124a6a90b</hash><remark>[b]</remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>44baa180f6c9e0f140ac1f0afae75c412cb06b9e</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><type>Normal</type><hash>44baa180f6c9e0f140ac1f0afae75c412cb06b9e</hash></rom></dump>
 </software>
 <software>
 	<title>Rotating MSX</title>
@@ -10697,8 +10771,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Karoshi Corporation</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>f448289db0d5c8fe6c4b3ca863af73db3c4a5e45</hash><remark>Spanish / MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>fa29ca4486a089e32790a69a9598b051d6b7dac4</hash><remark>English / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>f448289db0d5c8fe6c4b3ca863af73db3c4a5e45</hash><remark>Spanish / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>fa29ca4486a089e32790a69a9598b051d6b7dac4</hash><remark>English / MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Sakhr Dictionary</title>
@@ -10928,6 +11002,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1984</year>
 	<country>UK</country>
 		<dump><rom><hash>c1d272645a249757b8be5bd913ba2d3447892387</hash></rom></dump>
+</software>
+<software>
+	<title>Sea King</title>
+	<system>MSX</system>
+	<company>Players</company>
+	<year>1986</year>
+	<country>UK</country>
+		<dump><rom><hash>2f1c53f0b5c03bc6f5e92509ff4848001363b782</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Sebaweh 1</title>
@@ -11167,7 +11249,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Casio</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><rom><start>0x4000</start><hash>3c0263c152e0feaa93cb15bfa04eea61acb5236d</hash><remark>[b]</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>3c0263c152e0feaa93cb15bfa04eea61acb5236d</hash><remark>[b]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>d120ca303c3e1dd56adee68f10e9e1ab51f50ab3</hash></rom></dump>
 		<dump><rom><hash>f40e43e321c9c0f6c17835c587c62981efbe0392</hash></rom></dump>
 </software>
@@ -11178,6 +11260,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2004</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>fc6292d49736e4f986d2f44eae19a2e0e3185f45</hash><remark>MSXDev04</remark></rom></dump>
+</software>
+<software>
+	<title>Sir Fred</title>
+	<system>MSX</system>
+	<company>Made in Spain</company>
+	<year>1986</year>
+	<country>ES</country>
+		<dump><rom><hash>e8295a0a3d6a3c24fb06f2e2e86a6800977d77bf</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Sirius' Squish'em</title>
@@ -11260,9 +11350,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>MagicalZoo</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><hash>136d838cc1297940d96cd8e27aea9f9e3c7088a6</hash></rom></dump>
-		<dump><rom><start>0x4000</start><hash>72845ccc50f714562ddb87f978c99b4076aa120a</hash></rom></dump>
-		<dump><rom><start>0x4000</start><hash>12f7eafa2e41135173dafed907c8643cf5298d31</hash><remark>[h Sammy]</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash>136d838cc1297940d96cd8e27aea9f9e3c7088a6</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>72845ccc50f714562ddb87f978c99b4076aa120a</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>12f7eafa2e41135173dafed907c8643cf5298d31</hash><remark>[h Sammy]</remark></rom></dump>
 		<dump><rom><hash>42b0405f6f986010ce16f33a33c3455fa7dd4db7</hash></rom></dump>
 		<dump><rom><hash>784a0a260ebf2e285f908fe7336fbf33646deca7</hash></rom></dump>
 		<dump><rom><hash>b737fa701906119eb61a567c54dd87af09e8b34c</hash></rom></dump>
@@ -11356,7 +11446,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>AG Software</company>
 	<year>2005</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><hash>e168d460c2acc0f25523e2b99861d187d1aaac00</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>e168d460c2acc0f25523e2b99861d187d1aaac00</hash><remark>MSX-DEV05</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x8000</start><type>Normal</type><hash>b9aad68e2338ab1814f2dac78b2c4b5877d29cee</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
@@ -11483,10 +11573,10 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Yermani Soft</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>a21d354ddda95975d737746d27fd59cb908ddf0a</hash><remark>English / MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>0856cba14ff2396ea257ff927da0767ae74084c5</hash><remark>Spanish / MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>5bff56d5671d1131056451025b20c1ce192e279b</hash><remark>English Version / MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>96e1f8fa1f4f3fdfa999f6a999d60d75b590f070</hash><remark>Spanish Version / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>a21d354ddda95975d737746d27fd59cb908ddf0a</hash><remark>English / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>0856cba14ff2396ea257ff927da0767ae74084c5</hash><remark>Spanish / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>5bff56d5671d1131056451025b20c1ce192e279b</hash><remark>English Version / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>96e1f8fa1f4f3fdfa999f6a999d60d75b590f070</hash><remark>Spanish Version / MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>Space Invader</title>
@@ -11582,6 +11672,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>US</country>
 		<dump><original value="true">Author</original><rom><hash>0303ca82776894ec8c6597e5c29afc4a605b2a59</hash></rom></dump>
 		<dump><rom><hash>17c5feed40350527ad5d80b4c8683dd75a514f05</hash></rom></dump>
+</software>
+<software>
+	<title>Speed King</title>
+	<system>MSX</system>
+	<company>Mastertronic</company>
+	<year>1986</year>
+	<country>UK</country>
+		<dump><rom><hash>a1e95f3e8e0298297543237a8b83cfe6a2209d6a</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Spelunker</title>
@@ -11706,6 +11804,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>5fe86465119343804a722ce4768eb33de806a39f</hash></rom></dump>
 </software>
 <software>
+	<title>Star Quake</title>
+	<system>MSX</system>
+	<company>Bubble Bus</company>
+	<year>1985</year>
+	<country>UK</country>
+		<dump><rom><hash>9b6af42dc9201ae3125cf07661b52b954c1455ca</hash><remark>Cas to ROM Conversion</remark></rom></dump>
+</software>
+<software>
 	<title>Star Soldier</title>
 	<genmsxid>775</genmsxid>
 	<system>MSX</system>
@@ -11823,7 +11929,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2009</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>c939da3791a6772b48be24553689ba4998244fe4</hash><remark>MSXDev09</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>cc39392b47f34dee1358d30fbdc4d613dc412f7c</hash><remark>Retail</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>cc39392b47f34dee1358d30fbdc4d613dc412f7c</hash><remark>Retail</remark></rom></dump>
 </software>
 <software>
 	<title>Street Master</title>
@@ -11849,7 +11955,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>DVIK &amp; Joyrex productions</company>
 	<year>2006</year>
 	<country>US</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>c44cccb53e2f0cc8560c288354744f29d2488850</hash><remark>MSX-DEV06</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>c44cccb53e2f0cc8560c288354744f29d2488850</hash><remark>MSX-DEV06</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>120d477cd28b48b8a63efb34920ac331b54e66e5</hash><remark>MSX-DEV06</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>f993369a54244b63a11fb4359f52af19859eb38b</hash></rom></dump>
 </software>
@@ -11945,6 +12051,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1991</year>
 	<country>KR</country>
 		<dump><original value="false">Bad</original><rom><hash>a3e8e076b9c8d4060082233a2f16184cf4911a85</hash></rom></dump>
+		<dump><megarom><type>Konami</type><hash>d0cfcf3e39199d2d893ce02f8157c596c1fc8e17</hash></megarom></dump>
 </software>
 <software>
 	<title>Super Bubble Bobble</title>
@@ -12246,6 +12353,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>626f0f095f284f1fa700e1c4911fa14c9ee8079f</hash></rom></dump>
 </software>
 <software>
+	<title>TT Racer</title>
+	<system>MSX</system>
+	<company>Methodic Solutions</company>
+	<year>1987</year>
+	<country>NL</country>
+		<dump><rom><hash>1b1158b72c4e3a233f8a07bba705f60cbb0ad9d4</hash><remark>Cas to ROM Conversion</remark></rom></dump>
+</software>
+<software>
 	<title>TZR Grand Prix Rider</title>
 	<genmsxid>796</genmsxid>
 	<system>MSX</system>
@@ -12273,7 +12388,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Hudson Soft</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><rom><start>0x4000</start><hash>b5cf03684c03dd74a9d5def34a4c2fc621c8b20d</hash><remark>[cr Star Frontiers]</remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>b5cf03684c03dd74a9d5def34a4c2fc621c8b20d</hash><remark>[cr Star Frontiers]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>d74c381ea17acb94527ef3abaa280793a824d322</hash></rom></dump>
 		<dump><rom><hash>2c86e339bb486a84baffee81e9eac06244363779</hash></rom></dump>
 		<dump><rom><hash>1672af5bc1740480e8302f7690589ea5b5391bcb</hash></rom></dump>
@@ -12406,6 +12521,15 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1986</year>
 	<country>NL</country>
 		<dump><rom><hash>b3b319311243e20a25712fbe861f4e6ea7f36915</hash></rom></dump>
+</software>
+<software>
+	<title>Temptations</title>
+	<genmsxid>2317</genmsxid>
+	<system>MSX</system>
+	<company>Erbe Software</company>
+	<year>1988</year>
+	<country>ES</country>
+		<dump><rom><hash>dee2ee3ca51e11719fe44cfb29a04dbb20aef890</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Tengoku Yoitoko - Heaven</title>
@@ -12600,8 +12724,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>XL2S Entertainment</company>
 	<year>2005</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash>882a63a9655e53fddb1cd48761a1a09b28f7e5a3</hash><remark>MSX-DEV05 (Winner)</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>e82bbd2d9dbbb30a2b4a259954c5484fa236733a</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>882a63a9655e53fddb1cd48761a1a09b28f7e5a3</hash><remark>MSX-DEV05 (Winner)</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>e82bbd2d9dbbb30a2b4a259954c5484fa236733a</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>The Energy</title>
@@ -12650,6 +12774,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>1c462c3629d43297a006ba9055b39a2dccba9f6c</hash></megarom></dump>
 </software>
 <software>
+	<title>The Last Mission</title>
+	<system>MSX</system>
+	<company>Opera Soft</company>
+	<year>1987</year>
+	<country>ES</country>
+		<dump><rom><hash>ee6985940487ed3d570c33a42a57596ac54eb429</hash><remark>Cas to ROM Conversion</remark></rom></dump>
+</software>
+<software>
 	<title>The Light Corridor</title>
 	<genmsxid>3217</genmsxid>
 	<system>MSX</system>
@@ -12664,8 +12796,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Yermani Soft</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>b433357683fb1154d75c677ba01893665880f483</hash><remark>MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>6600fab90ca395517d0845f8f380b0e67541b392</hash><remark>English / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>b433357683fb1154d75c677ba01893665880f483</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>6600fab90ca395517d0845f8f380b0e67541b392</hash><remark>English / MSX-DEV05</remark></rom></dump>
 </software>
 <software>
 	<title>The Maze of Galious - Knightmare II</title>
@@ -12931,8 +13063,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Imanok</company>
 	<year>2006</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>0f7f55fe448d20fc65dc03c2a4f1717761671e43</hash><remark>MSX-DEV06</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><hash>e6af71c99290b6ff2da9d3667e2046651e2c9fca</hash><remark>FM-Pac Support / Website Version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>0f7f55fe448d20fc65dc03c2a4f1717761671e43</hash><remark>MSX-DEV06</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>e6af71c99290b6ff2da9d3667e2046651e2c9fca</hash><remark>FM-Pac Support / Website Version</remark></rom></dump>
 </software>
 <software>
 	<title>Traga Perras</title>
@@ -12948,7 +13080,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>MSxNAKE</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>1074acd37ee42661d86b75a8491365ed8ceaa6e0</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>1074acd37ee42661d86b75a8491365ed8ceaa6e0</hash><remark>MSX-DEV05</remark></rom></dump>
 		<dump><megarom><type>Konami</type><hash>6e79675d20dba15755107c5760b7b4d3dedd6612</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>1066dd678bb21436eb2adb1158bbe76048879af4</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash>8bef0cb43dc3c1bb1bf2c4027fe38a67fb715d71</hash></megarom></dump>
@@ -13022,8 +13154,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>XAIN / Sein</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><hash>4a35065d97d81a94a7649d19b3f9abd34f834eab</hash></rom></dump>
-		<dump><rom><start>0x4000</start><hash>b1d515978727888ffe3eaf31caf296235893e01d</hash><remark>[b]</remark></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash>4a35065d97d81a94a7649d19b3f9abd34f834eab</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>b1d515978727888ffe3eaf31caf296235893e01d</hash><remark>[b]</remark></rom></dump>
 </software>
 <software>
 	<title>Tronkotron</title>
@@ -13068,6 +13200,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>NL</country>
 		<dump><rom><hash>e16ad038563724ffbba980a296ef624c0826bbb3</hash></rom></dump>
 		<dump><rom><hash>0ba265a6ec88f1b2e25d7a81a3e83e8be576444c</hash></rom></dump>
+</software>
+<software>
+	<title>Turbo Girl</title>
+	<system>MSX</system>
+	<company>Dinamic</company>
+	<year>1988</year>
+	<country>ES</country>
+		<dump><rom><hash>0b5f1d8ec7b33285b0267b336482d66278fca2e2</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Turboat</title>
@@ -13132,11 +13272,12 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash>d71b0de8ae4e1d57ace2d1f66cac1c1965102019</hash><remark>[RC-740] / Ulver crack</remark></rom></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>b813123219446f16cd10b916cc18ec4a8d7c69de</hash><remark>[SD Snatcher RAM SCC+][RC-740]</remark></sccpluscart></dump>
 		<dump><sccpluscart><boot>scc+</boot><hash>39a91558bba92b7310455cd7513276d487de0f9d</hash><remark>[The Snatcher RAM SCC+][RC-740]</remark></sccpluscart></dump>
-		<dump><rom><hash>c551d8cbe7a2e1e34d6662f5861336dffad05397</hash></rom></dump>
+		<dump><rom><hash>c551d8cbe7a2e1e34d6662f5861336dffad05397</hash><remark>[RC-740]</remark></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>ffb79f90f39c6cda8b2123169571e70fb1cf2c1e</hash><remark>[RC-740] / SCC Enhanced</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>7a8f50f5f74276905c9ee8e312f4d4f9271dbe0c</hash><remark>[RC-740] / SCC+ Enhanced</remark></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>4b72efc4e87073f5f11df9cbe5bbaa8136818bc2</hash><remark>Game Collection / SCC</remark></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>23e7e6e4aaa37fc74b9b788c6f56cb44aefc0223</hash><remark>Game Collection / SCC+</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>4b72efc4e87073f5f11df9cbe5bbaa8136818bc2</hash><remark>Game Collection [RC-740] / SCC</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>23e7e6e4aaa37fc74b9b788c6f56cb44aefc0223</hash><remark>Game Collection [RC-740] / SCC+</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>bb27aac7a087b37f0c08b94c3de48270420970ad</hash><remark>[RC-740] / No SCC Sound</remark></megarom></dump>
 </software>
 <software>
 	<title>Twinbee Theme</title>
@@ -13168,7 +13309,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>MSX-FAN</company>
 	<year>1990</year>
 	<country>JP</country>
-		<dump><rom><start>0x4000</start><hash>fa5badc3d9486d9789b05b909125bf74059d26e5</hash></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash>fa5badc3d9486d9789b05b909125bf74059d26e5</hash></rom></dump>
 </software>
 <software>
 	<title>U.F.0.</title>
@@ -13203,8 +13344,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Infinite</company>
 	<year>2005</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash>8ab1b72ce852a778a645f566a70fa18ee32fd021</hash><remark>Competition Version</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash>83dee5f1fd4bdad33b095ed15870c52c96becc63</hash><remark>Final Version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>8ab1b72ce852a778a645f566a70fa18ee32fd021</hash><remark>Competition Version</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>83dee5f1fd4bdad33b095ed15870c52c96becc63</hash><remark>Final Version</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>059ab9b167c0e71bda811145a6ea04f0a41a0bdf</hash><remark>MSX-DEV05</remark></rom></dump>
 </software>
 <software>
@@ -13254,6 +13395,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>ES</country>
 		<dump><rom><hash>8bd0de57be23b8d38a7901196f06050bfaf48980</hash></rom></dump>
 		<dump><rom><hash>aa471caed495eb52396903af4371177cb3c86236</hash></rom></dump>
+</software>
+<software>
+	<title>Valkyr</title>
+	<system>MSX</system>
+	<company>Gremlin Graphics</company>
+	<year>1985</year>
+	<country>UK</country>
+		<dump><rom><hash>2ad37038f37903a4773355d665aab4e1535250b9</hash><remark>Cas to ROM Conversion</remark></rom></dump>
 </software>
 <software>
 	<title>Vampire</title>
@@ -13393,7 +13542,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>José Luis Tur</company>
 	<year>2005</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash>91186f361c8323605c79dc4551a768a4b9c5a320</hash><remark>MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash>91186f361c8323605c79dc4551a768a4b9c5a320</hash><remark>MSX-DEV05</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>4db63ea453df9d17cf84a0f977f4768438ec9c45</hash><remark>MSX-DEV05</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>17315e6b40f89c2cd0d8929eefcb9394b04e4cc6</hash><remark>MSX-DEV05</remark></rom></dump>
 		<dump><megarom><type>Normal</type><hash>c5de32b837d16a066542e0ce36d5e85bd4931d49</hash></megarom></dump>
@@ -13664,6 +13813,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>ASCII16</type><hash>ab3f375b6890b2a9bb1b6124f0fa690950c749f2</hash><remark>[a]</remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash>f84d7fc089b31440cac1f4fbee3d45b2f6c90e37</hash></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash>28b54294007ec345aef7322a2fcaa18d3363a73e</hash><remark>Ulver crack</remark></megarom></dump>
+		<dump><original value="false">0</original><megarom><type>16kb</type><hash>84277f022b9ddf12d664a608f5da1e01b28416dd</hash></megarom></dump>
 </software>
 <software>
 	<title>Xevious Micro</title>
@@ -14110,7 +14260,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>2010 The Graphic Action Game</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14119,7 +14269,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>6 Noises Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>2006</year>
 	<country>US</country>
@@ -14127,7 +14277,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>A.E.</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14135,7 +14285,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Adam's Musicbox Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1987</year>
 	<country>US</country>
@@ -14143,7 +14293,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Adamcon 17 Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2005</year>
 	<country>US</country>
@@ -14151,7 +14301,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Adventurium3 Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>2000</year>
 	<country>US</country>
@@ -14159,7 +14309,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Air Battle V0.4</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -14167,7 +14317,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Alcazar - The Forgotten Fortress</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Telegames/Activision</company>
 	<year>1985</year>
 	<country>US</country>
@@ -14177,7 +14327,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Alphabet Zoo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Spinnaker</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14185,7 +14335,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Amazing Bumpman</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Telegames</company>
 	<year>1986</year>
 	<country>US</country>
@@ -14193,7 +14343,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Amazing Snake</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Serge-Eric Tremblay</company>
 	<year>2001</year>
 	<country>US</country>
@@ -14203,7 +14353,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Antarctic Adventure</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Konami</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -14212,7 +14362,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Aquattack</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Interphase</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -14221,7 +14371,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Artillery Duel</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Xonox</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14230,7 +14380,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>BC's Quest For Tires</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sierra On Line</company>
 	<year>1983</year>
 	<country>UK</country>
@@ -14240,7 +14390,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>BC's Quest For Tires II Grog's Revenge</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14252,7 +14402,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>BUsTin-Out</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -14264,7 +14414,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Beamrider</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Activision</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14273,7 +14423,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Bejeweled Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2002</year>
 	<country>US</country>
@@ -14282,7 +14432,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Bejeweled Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2001</year>
 	<country>US</country>
@@ -14290,7 +14440,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Berenstain Bears, The</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14298,7 +14448,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Blockade Runner</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Interphase</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -14307,7 +14457,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Boulder Dash</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Telegames</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14318,7 +14468,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Brain Strainers</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14326,7 +14476,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Breakout</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>1999</year>
 	<country>US</country>
@@ -14334,7 +14484,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Breakout Paddle Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2001</year>
 	<country>US</country>
@@ -14342,7 +14492,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Buck Rogers Planet Of Zoom</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14353,7 +14503,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Bulman Junior</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>1997</year>
 	<country>US</country>
@@ -14361,7 +14511,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Bump 'N' Jump</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Mattel</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14371,7 +14521,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>BurgerTime</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Mattel</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14380,7 +14530,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>CVDrum Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>E-Mancanics</company>
 	<year>2003</year>
 	<country>US</country>
@@ -14388,7 +14538,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Cabbage Patch Kids Adventures In The Park</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Konami</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -14401,7 +14551,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Cabbage Patch Kids Picture Show</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14411,7 +14561,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Campaign '84</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sunrise</company>
 	<year>1983</year>
 	<country>NL</country>
@@ -14420,7 +14570,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Carnival</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -14431,7 +14581,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Castelo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>SpliceVision</company>
 	<year>1985</year>
 	<country>BR</country>
@@ -14439,7 +14589,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Caverns of Titan</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>José Luis Tur</company>
 	<year>2005</year>
 	<country>ES</country>
@@ -14447,7 +14597,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Centipede</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Atarisoft</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14455,7 +14605,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Chateau du Dragon, Le</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2001</year>
 	<country>US</country>
@@ -14463,7 +14613,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Choplifter!</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14472,7 +14622,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Christmas Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2001</year>
 	<country>US</country>
@@ -14480,7 +14630,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Chuck Norris Super Kicks</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Xonox</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14488,7 +14638,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Chuck Norris Superkicks</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Xonox</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14496,7 +14646,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Cold Blood</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Paxanga Soft</company>
 	<year>2010</year>
 	<country>ES</country>
@@ -14504,7 +14654,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>ColecoVision BIOS</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -14514,7 +14664,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>ColecoVision Final Test</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -14522,7 +14672,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>ColecoVision Monitor Test</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -14530,7 +14680,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>ColecoVision Noise Generator</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Marcel de Kogel</company>
 	<year>1996</year>
 	<country>US</country>
@@ -14538,7 +14688,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Colecovision RPG Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Bruce Tomlin</company>
 	<year>2006</year>
 	<country>US</country>
@@ -14559,7 +14709,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Congo Bongo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14568,7 +14718,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Cosmic Avenger</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -14577,7 +14727,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Cosmic Crisis</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Bit Corp</company>
 	<year>1983</year>
 	<country>TW</country>
@@ -14587,7 +14737,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Cosmo Challenge</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Marcel de Kogel</company>
 	<year>1997</year>
 	<country>US</country>
@@ -14596,7 +14746,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Cosmo Fighter 2</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Marcel de Kogel</company>
 	<year>1996</year>
 	<country>US</country>
@@ -14604,7 +14754,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Cosmo Fighter 3</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Marcel de Kogel</company>
 	<year>2001</year>
 	<country>US</country>
@@ -14612,7 +14762,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Cosmo Trainer</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Marcel de Kogel</company>
 	<year>1997</year>
 	<country>US</country>
@@ -14620,7 +14770,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Dacman</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -14628,7 +14778,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Dacman</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -14644,7 +14794,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Dacmanh</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -14652,7 +14802,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Dam Busters, The</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14661,7 +14811,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Dance Fantasy</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Fisher-Price</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14670,7 +14820,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Danger Tower</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Danger Team</company>
 	<year>2009</year>
 	<country>NL</country>
@@ -14678,7 +14828,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Death Race</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>19xx</year>
 	<country>US</country>
@@ -14686,7 +14836,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Decathlon</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Activision</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14695,7 +14845,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Deep Dungeon Adventure</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Trilobyte</company>
 	<year>2009</year>
 	<country>NL</country>
@@ -14703,7 +14853,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Defender</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Atarisoft</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14713,7 +14863,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Demon2 Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Yannick Proulx</company>
 	<year>2001</year>
 	<country>US</country>
@@ -14721,7 +14871,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Destructor</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14729,7 +14879,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Diamond Dash</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2004</year>
 	<country>US</country>
@@ -14738,7 +14888,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Dig Dug</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Atarisoft</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14747,7 +14897,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Donkey Kong</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -14756,7 +14906,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Donkey Kong Arcade</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Eduardo Mello</company>
 	<year>2005</year>
 	<country>US</country>
@@ -14768,7 +14918,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Donkey Kong Junior</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14776,7 +14926,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Double Breakout</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2001</year>
 	<country>US</country>
@@ -14785,7 +14935,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Dr. Seuss Fix-Up The Mix-Up Puzzler</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14793,7 +14943,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Dragon's Lair</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14801,7 +14951,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Dragon's Lair</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14809,7 +14959,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>DragonFire</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imagic</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -14817,7 +14967,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Dukes Of Hazzard, The</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14825,7 +14975,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Escape From The Mind Master</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Epyx</company>
 	<year>1983</year>
 	<country>UK</country>
@@ -14833,7 +14983,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Evolution</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco Canada</company>
 	<year>1983</year>
 	<country>CA</country>
@@ -14843,7 +14993,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Explosion</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year></year>
 	<country>US</country>
@@ -14851,7 +15001,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Facemaker</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Spinnaker</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14861,7 +15011,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Fall Guy, The</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>20th Century Fox</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14870,7 +15020,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Fathom</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imagic</company>
 	<year>1983</year>
 	<country>JP</country>
@@ -14879,7 +15029,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Final Test Cartridge</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>19xx</year>
 	<country>US</country>
@@ -14888,7 +15038,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Fireman</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Nice Ideas</company>
 	<year>1984</year>
 	<country>FR</country>
@@ -14896,7 +15046,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Flipper Slipper</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Spectravideo</company>
 	<year>1983</year>
 	<country>UK</country>
@@ -14906,7 +15056,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Fortune Builder</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14914,7 +15064,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Fraction Fever</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Spinnaker</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14923,7 +15073,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Frantic Freddy</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Spectravideo</company>
 	<year>1983</year>
 	<country>UK</country>
@@ -14931,7 +15081,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Frenzy</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14942,7 +15092,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Frogger</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14952,7 +15102,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Frogger II Threeedeep!</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1984</year>
 	<country>US</country>
@@ -14961,7 +15111,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Front Line</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14969,7 +15119,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Frontline</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14979,7 +15129,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>GORF</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -14988,7 +15138,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Galaxian</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Atarisoft</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15001,7 +15151,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>GamePack</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2002</year>
 	<country>US</country>
@@ -15011,7 +15161,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Gateway To Apshai</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Epyx</company>
 	<year>1984</year>
 	<country>UK</country>
@@ -15020,7 +15170,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Get Booty</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Dale Wick</company>
 	<year>2005</year>
 	<country>US</country>
@@ -15028,7 +15178,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Goldorak Pic</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>19xx</year>
 	<country>US</country>
@@ -15036,7 +15186,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Gulkave</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Guy Foster</company>
 	<year>2006</year>
 	<country>US</country>
@@ -15044,7 +15194,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Gust Buster</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sunrise</company>
 	<year>1983</year>
 	<country>NL</country>
@@ -15053,7 +15203,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Gyruss</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15063,7 +15213,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>H.E.R.O.</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Activision</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15071,7 +15221,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Happy Halloween</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2001</year>
 	<country>US</country>
@@ -15079,7 +15229,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Heist, The</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Micro Fun</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15092,7 +15242,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Heroes Arena</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imanok</company>
 	<year>2011</year>
 	<country>ES</country>
@@ -15100,7 +15250,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Illusions</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15109,7 +15259,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>It's Only Rock 'N' Roll</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Xonox</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15118,7 +15268,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>J.E.T.P.A.C</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imanok</company>
 	<year>2011</year>
 	<country>ES</country>
@@ -15126,7 +15276,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>James Bond 007</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15136,7 +15286,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Jetpack</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Harvey deKleine</company>
 	<year>2006</year>
 	<country>US</country>
@@ -15145,7 +15295,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Joust</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Atarisoft</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15153,7 +15303,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Juke Box</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Spinnaker</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15161,7 +15311,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Jukebox</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Spinnaker</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15169,7 +15319,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Jump or Die</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2006</year>
 	<country>US</country>
@@ -15178,7 +15328,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Jumpman Junior</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Epyx</company>
 	<year>1984</year>
 	<country>UK</country>
@@ -15187,7 +15337,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Jungle Hunt</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Atarisoft</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15196,7 +15346,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Ken Uston Blackjack-Poker</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15205,7 +15355,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Kevtris</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Kevin Horton</company>
 	<year>1996</year>
 	<country>US</country>
@@ -15214,7 +15364,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Keystone Kapers</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Activision</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15223,7 +15373,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Kill Barney in Tokyo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>1997</year>
 	<country>US</country>
@@ -15231,7 +15381,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Killer Instinct</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>1997</year>
 	<country>US</country>
@@ -15239,7 +15389,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>King's Valley 1</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Konami</company>
 	<year>1985</year>
 	<country>JP</country>
@@ -15247,7 +15397,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Lady Bug</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -15255,7 +15405,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Learning With Leeper</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sierra On Line</company>
 	<year>1984</year>
 	<country>UK</country>
@@ -15263,7 +15413,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Linking Logic</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Fisher-Price</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15272,7 +15422,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Logic Levels</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Fisher-Price</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15281,7 +15431,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Looping</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15290,7 +15440,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Lord Of The Dungeon</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>NAP</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15298,7 +15448,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>M.A.S.H.</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>20th Century Fox</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15306,7 +15456,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Matrix Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2004</year>
 	<country>US</country>
@@ -15314,7 +15464,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Maze Maniac</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Charles-Mathieu Boyer</company>
 	<year>2006</year>
 	<country>US</country>
@@ -15322,7 +15472,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Mecha 8</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Oscar Toledo Gutiérrez</company>
 	<year>2012</year>
 	<country>ES</country>
@@ -15330,7 +15480,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Memory Manor</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Fisher-Price</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15340,7 +15490,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Meteoric Shower</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Bit Corp</company>
 	<year>1983</year>
 	<country>TW</country>
@@ -15349,7 +15499,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Miner 2049er</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Micro Fun</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15361,7 +15511,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Monkey Academy</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15372,7 +15522,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Montezuma's Revenge</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15381,7 +15531,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Moon Patrol</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Atarisoft</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15390,7 +15540,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Moonsweeper</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imagic</company>
 	<year>1983</year>
 	<country>JP</country>
@@ -15399,7 +15549,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Motocross Racer</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Xonox</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15408,7 +15558,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Mountain King</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sunrise</company>
 	<year>1984</year>
 	<country>NL</country>
@@ -15417,7 +15567,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Mouse Trap</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -15427,7 +15577,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Mr. Do!</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15436,7 +15586,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Mr. Do!'s Castle</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15445,7 +15595,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Ms. Space Fury</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Digital Press</company>
 	<year>2001</year>
 	<country>US</country>
@@ -15454,7 +15604,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Music Vol 1</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -15462,7 +15612,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>New</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>200X</year>
 	<country>US</country>
@@ -15470,7 +15620,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Nim</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -15479,7 +15629,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Nova Blast</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imagic</company>
 	<year>1983</year>
 	<country>JP</country>
@@ -15490,7 +15640,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Number Bumper</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sunrise</company>
 	<year>1984</year>
 	<country>NL</country>
@@ -15498,7 +15648,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Oil's Well</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sierra On Line</company>
 	<year>1984</year>
 	<country>UK</country>
@@ -15507,7 +15657,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Old Skool Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Guy Foster</company>
 	<year>2005</year>
 	<country>US</country>
@@ -15515,7 +15665,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Omega Race</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15524,7 +15674,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>One on One Basketball</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Micro Fun</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15532,7 +15682,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>One-On-One</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Micro Fun</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15540,7 +15690,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Orbit</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15548,7 +15698,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Pac-Man</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Atarisoft</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15557,7 +15707,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Pac-Man Collection</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Opcode</company>
 	<year>2006</year>
 	<country>BR</country>
@@ -15567,7 +15717,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Pepper II</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15575,7 +15725,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Pere Noel</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -15583,7 +15733,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Pitfall II Lost Caverns</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Activision</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15591,7 +15741,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Pitfall!</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Activision</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15601,7 +15751,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Pitstop</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Epyx</company>
 	<year>1983</year>
 	<country>UK</country>
@@ -15611,7 +15761,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Popeye</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15620,7 +15770,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Porky's</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>20th Century Fox</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15628,7 +15778,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Power Lords Quest For Volcan</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>NAP</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15637,7 +15787,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Puckman Sounds</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>2003</year>
 	<country>US</country>
@@ -15647,7 +15797,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Purple Dinosaur Massacre</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>John Dondzila</company>
 	<year>1996</year>
 	<country>US</country>
@@ -15655,7 +15805,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Q-Bert</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15665,7 +15815,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Q-Bert's QUBES</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15673,7 +15823,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Q-bert II</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15682,7 +15832,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Quest For Quintana Roo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sunrise</company>
 	<year>1983</year>
 	<country>NL</country>
@@ -15691,7 +15841,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Reversi</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2003</year>
 	<country>US</country>
@@ -15699,7 +15849,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Reversi Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2001</year>
 	<country>US</country>
@@ -15707,7 +15857,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>River Raid</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Activision</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15715,7 +15865,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Robin Hood</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Xonox</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15724,7 +15874,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Roc 'N Rope</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Konami</company>
 	<year>1983</year>
 	<country>JP</country>
@@ -15732,7 +15882,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Roc'N Rope</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15740,7 +15890,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Rock 'N Bolt</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Telegames</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15749,7 +15899,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Rocky Super Action Boxing</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15759,7 +15909,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Rolloverture</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sunrise</company>
 	<year>1983</year>
 	<country>NL</country>
@@ -15768,7 +15918,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Root Beer Tapper</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15776,7 +15926,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>SHMUP!</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imanok</company>
 	<year>2013</year>
 	<country>ES</country>
@@ -15784,7 +15934,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Sammy Lightfoot</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sierra On Line</company>
 	<year>1983</year>
 	<country>UK</country>
@@ -15793,7 +15943,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Schlange CV Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Philipp Klaus Krause</company>
 	<year>2005</year>
 	<country>US</country>
@@ -15803,7 +15953,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Scroll Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>200x</year>
 	<country>US</country>
@@ -15811,7 +15961,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Scroll Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2004</year>
 	<country>US</country>
@@ -15819,7 +15969,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Search for the Stolen Crown Jewels</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Philipp Klaus Krause</company>
 	<year>2005</year>
 	<country>US</country>
@@ -15831,7 +15981,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Search for the Stolen Crown Jewels 2</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Philipp Klaus Krause</company>
 	<year>2007</year>
 	<country>US</country>
@@ -15839,7 +15989,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Sector Alpha</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Spectravideo</company>
 	<year>1983</year>
 	<country>UK</country>
@@ -15851,7 +16001,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Sewer Sam</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Interphase</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -15860,7 +16010,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Shouganai</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Paxanga Soft</company>
 	<year>2013</year>
 	<country>ES</country>
@@ -15868,7 +16018,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Simple Screen Show</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2001</year>
 	<country>US</country>
@@ -15876,7 +16026,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Sir Lancelot</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Xonox</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15885,7 +16035,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Skiing</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Telegames</company>
 	<year>1986</year>
 	<country>US</country>
@@ -15894,7 +16044,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Sky Jaguar</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Konami</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -15902,7 +16052,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Slither</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15911,7 +16061,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Slurpy</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Xonox</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15920,7 +16070,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Smash</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2004</year>
 	<country>US</country>
@@ -15929,7 +16079,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Smurf Paint 'N' Play Workshop</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -15938,7 +16088,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Smurf Rescue In Gargamel's Castle</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -15947,7 +16097,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Smurfs Save the Day</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>198X</year>
 	<country>US</country>
@@ -15955,7 +16105,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Sound FX Vol 1</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -15963,7 +16113,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Sound FX Vol 2</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -15971,7 +16121,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Space Caverns</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Scott Huggins</company>
 	<year>2004</year>
 	<country>US</country>
@@ -15979,7 +16129,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Space Fury</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -15988,7 +16138,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Space Hunter</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Guy Foster</company>
 	<year>2005</year>
 	<country>US</country>
@@ -15997,7 +16147,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Space Invaders Collection</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>TAITO</company>
 	<year>2002</year>
 	<country>JP</country>
@@ -16006,7 +16156,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Space Invasion</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>John Dondzila</company>
 	<year>1998</year>
 	<country>US</country>
@@ -16015,7 +16165,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Space Panic</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16023,7 +16173,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Space Trainer</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2005</year>
 	<country>US</country>
@@ -16032,7 +16182,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Spaz Attak Teaser</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Howard Uman</company>
 	<year>2006</year>
 	<country>US</country>
@@ -16040,7 +16190,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Spectank Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -16048,7 +16198,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Spectron</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Spectravideo</company>
 	<year>1983</year>
 	<country>UK</country>
@@ -16057,7 +16207,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Spy Hunter</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16067,7 +16217,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Squares!</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Harvey deKleine</company>
 	<year>2006</year>
 	<country>US</country>
@@ -16077,7 +16227,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Squish'em Featuring Sam</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Interphase</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -16086,7 +16236,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>St. Valentine's Day</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>2002</year>
 	<country>US</country>
@@ -16095,7 +16245,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Star Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>200x</year>
 	<country>US</country>
@@ -16103,7 +16253,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Star Fortress by</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>John Dondzila</company>
 	<year>1997</year>
 	<country>US</country>
@@ -16111,7 +16261,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Star Trek Strategic Operations Simulator</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16121,7 +16271,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Star Wars The Arcade Game</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16129,7 +16279,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Starry Nights 3 Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Guy Foster</company>
 	<year>2004</year>
 	<country>US</country>
@@ -16137,7 +16287,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Starry Nights Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Guy Foster</company>
 	<year>2005</year>
 	<country>US</country>
@@ -16145,7 +16295,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Steamroller</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Activision</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16153,7 +16303,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Stray Cat</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imanok</company>
 	<year>2009</year>
 	<country>ES</country>
@@ -16161,7 +16311,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Strike It!</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Telegames</company>
 	<year>1986</year>
 	<country>US</country>
@@ -16170,7 +16320,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Stubby Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Yannick Proulx</company>
 	<year>2001</year>
 	<country>US</country>
@@ -16179,7 +16329,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>SubRoc</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16191,7 +16341,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Super Action Baseball</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16202,7 +16352,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Super Action Controller Test Cartridge</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Nuvatec</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16210,7 +16360,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Super Action Football</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16220,7 +16370,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Super Action Soccer</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16228,7 +16378,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Super Cobra</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16238,7 +16388,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Super Cross Force</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Spectravideo</company>
 	<year>1983</year>
 	<country>UK</country>
@@ -16248,7 +16398,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Super Donkey Kong</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16256,7 +16406,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Super Donkey Kong Junior</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16264,7 +16414,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Super Sketch Sketch-Master</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Personal Peripherals</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16272,7 +16422,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Superpong Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>2000</year>
 	<country>US</country>
@@ -16280,7 +16430,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Sword And The Sorcerer, The</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16288,7 +16438,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>TOMARC The Barbarian</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Xonox</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16297,7 +16447,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tank Wars</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Bit Corp</company>
 	<year>1983</year>
 	<country>TW</country>
@@ -16307,7 +16457,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tapper</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Midway</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16315,7 +16465,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tarzan</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16324,7 +16474,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Telly Turtle</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16332,7 +16482,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tenchi Muyo Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
 	<year>2000</year>
 	<country>US</country>
@@ -16340,7 +16490,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Thexder</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Game Arts</company>
 	<year>1986</year>
 	<country>JP</country>
@@ -16348,7 +16498,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Threshold</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sierra On Line</company>
 	<year>1983</year>
 	<country>UK</country>
@@ -16356,7 +16506,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tic Tac Toe</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Norman Nithman</company>
 	<year>1996</year>
 	<country>US</country>
@@ -16365,7 +16515,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Time Pilot</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16373,7 +16523,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tournament Tennis</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imagic</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -16382,7 +16532,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Traffic Jam</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imanok</company>
 	<year>2006</year>
 	<country>ES</country>
@@ -16390,7 +16540,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tunnels &amp; Trolls</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16398,7 +16548,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tunnels &amp; Trolls Demo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Adam</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16406,7 +16556,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Turbo</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -16415,7 +16565,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Tutankham</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Parker Brothers</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16425,7 +16575,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Txupinazo!</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imanok</company>
 	<year>2007</year>
 	<country>ES</country>
@@ -16433,7 +16583,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Up'n Down</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sega</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -16441,7 +16591,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Vampire</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -16449,7 +16599,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Venture</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -16458,7 +16608,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Victory</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sunrise</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16468,7 +16618,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Video Hustler</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Konami</company>
 	<year>1984</year>
 	<country>JP</country>
@@ -16478,7 +16628,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Vision 8</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Marcel de Kogel</company>
 	<year>1997</year>
 	<country>US</country>
@@ -16486,7 +16636,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>War Games</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>United Artists</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16494,7 +16644,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>War Room</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Probe 2000</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16504,7 +16654,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>WarGames</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16512,7 +16662,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Wing War</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Imagic</company>
 	<year>1983</year>
 	<country>JP</country>
@@ -16521,7 +16671,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Winky Trap</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>John Dondzila</company>
 	<year>1997</year>
 	<country>US</country>
@@ -16529,7 +16679,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Witch</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>PD</company>
 	<year>198x</year>
 	<country>US</country>
@@ -16537,7 +16687,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Wizard Of Id's Wizmath</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Sierra On Line</company>
 	<year>1984</year>
 	<country>UK</country>
@@ -16545,7 +16695,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Word Feud</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Xonox</company>
 	<year>1984</year>
 	<country>US</country>
@@ -16554,7 +16704,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Yolks On You, The</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>20th Century Fox</company>
 	<year>1983</year>
 	<country>US</country>
@@ -16562,7 +16712,7 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Zaxxon</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Coleco</company>
 	<year>1982</year>
 	<country>US</country>
@@ -16572,11 +16722,11 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title>Zenji</title>
-	<system>ColecoVision</system>
+	<system>COLECOVISION</system>
 	<company>Activision</company>
 	<year>1984</year>
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:4113 - Created on Sun Oct 6 2019 - 19:44:05 AKDT-->
+<!-- Roms in this XML file:4136 - Created on Sun Nov 24 2019 - 11:32:36 AKST-->
