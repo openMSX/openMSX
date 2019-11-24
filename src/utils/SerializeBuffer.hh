@@ -68,8 +68,10 @@ public:
 		auto accum = [&](auto* p) { len += sizeof(*p); };
 		std::apply([&](auto&&... args) { (accum(args), ...); }, tuple);
 
-		auto* newEnd = end + len;
-		if (unlikely(newEnd > finish)) grow(len);
+		uint8_t* newEnd = end + len;
+		if (unlikely(newEnd > finish)) {
+			grow(len); // reallocates, thus newEnd is no longer valid.
+		}
 
 		uint8_t* dst = end;
 		auto write = [&](auto* src) {
@@ -77,9 +79,9 @@ public:
 			dst += sizeof(*src);
 		};
 		std::apply([&](auto&&... args) { (write(args), ...); }, tuple);
-		assert(dst == newEnd);
+		assert(dst == (end + len));
 
-		end = newEnd;
+		end = dst;
 	}
 
 	template<typename T> ALWAYS_INLINE void insert_tuple_ptr(const std::tuple<T*>& tuple)
