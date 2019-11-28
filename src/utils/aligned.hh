@@ -1,7 +1,6 @@
 #ifndef ALIGNED_HH
 #define ALIGNED_HH
 
-#include "build-info.hh"
 #include "inline.hh"
 #include <cstdint>
 #include <cassert>
@@ -18,21 +17,13 @@ constexpr auto SSE_ALIGNMENT = 0; // alignas(0) has no effect
 // Unaligned loads and stores.
 template<typename T> [[nodiscard]] static ALWAYS_INLINE T unalignedLoad(const void* p)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		return *reinterpret_cast<const T*>(p);
-	} else {
-		T t;
-		memcpy(&t, p, sizeof(t));
-		return t;
-	}
+	T t;
+	memcpy(&t, p, sizeof(t));
+	return t;
 }
 template<typename T> static ALWAYS_INLINE void unalignedStore(void* p, T t)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		*reinterpret_cast<T*>(p) = t;
-	} else {
-		memcpy(p, &t, sizeof(t));
-	}
+	memcpy(p, &t, sizeof(t));
 }
 
 [[nodiscard]] static ALWAYS_INLINE uint16_t unalignedLoad16(const void* p) {

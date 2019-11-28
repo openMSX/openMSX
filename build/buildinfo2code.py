@@ -77,8 +77,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	#       that.
 	yield 'static const bool OPENMSX_BIGENDIAN = %s;' \
 		% str(targetCPU.bigEndian).lower()
-	yield 'static const bool OPENMSX_UNALIGNED_MEMORY_ACCESS = %s;' \
-		% str(targetCPU.unalignedMemoryAccess).lower()
 	yield 'static const bool OPENMSX_SET_WINDOW_ICON = %s;' \
 		% str(setWindowIcon).lower()
 	yield 'static const char* const DATADIR = "%s";' % installShareDir

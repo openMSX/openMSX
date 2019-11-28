@@ -43,7 +43,6 @@
 #define XXHASH_HH
 
 #include "likely.hh"
-#include "build-info.hh"
 #include <cstdint>
 #include <cstring>
 #include <string_view>
@@ -65,6 +64,9 @@ template<bool ALIGNED>
 [[nodiscard]] static inline uint32_t read32(const uint8_t* ptr)
 {
 	if (ALIGNED) {
+#ifdef DEBUG
+		assert((reinterpret_cast<intptr_t>(ptr) & 3) == 0) {
+#endif
 		return *reinterpret_cast<const uint32_t*>(ptr);
 	} else {
 		uint32_t result;
@@ -131,8 +133,7 @@ template<uint8_t MASK8> [[nodiscard]] static inline uint32_t xxhash_impl(std::st
 {
 	auto* data = reinterpret_cast<const uint8_t*>(key.data());
 	auto  size = key.size();
-	if (!openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS &&
-	    (reinterpret_cast<intptr_t>(data) & 3)) {
+	if (reinterpret_cast<intptr_t>(data) & 3) {
 		return xxhash_impl<false, MASK8>(data, size);
 	} else {
 		// Input is aligned, let's leverage the speed advantage

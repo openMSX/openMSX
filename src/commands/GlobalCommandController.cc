@@ -18,6 +18,7 @@
 #include "StringOp.hh"
 #include "view.hh"
 #include "xrange.hh"
+#include "build-info.hh"
 #include <cassert>
 #include <memory>
 
