@@ -65,7 +65,7 @@ template<bool ALIGNED>
 {
 	if (ALIGNED) {
 #ifdef DEBUG
-		assert((reinterpret_cast<intptr_t>(ptr) & 3) == 0) {
+		assert((reinterpret_cast<intptr_t>(ptr) & 3) == 0);
 #endif
 		return *reinterpret_cast<const uint32_t*>(ptr);
 	} else {
