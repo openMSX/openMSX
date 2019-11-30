@@ -35,7 +35,7 @@ public:
 	// Subclasses _must_ override this method and
 	//  - call MSXMemoryMapperBase::writeIOImpl()
 	//  - handle CPU cacheline stuff (e.g. invalidate)
-	void writeIO(word port, byte value, EmuTime::param time) = 0;
+	void writeIO(word port, byte value, EmuTime::param time) override = 0;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
