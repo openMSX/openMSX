@@ -47,7 +47,8 @@ public:
 	 */
 	unsigned mapRGB255(gl::ivec3 rgb)
 	{
-		return SDL_MapRGB(&format, rgb[0], rgb[1], rgb[2]); // alpha is fully opaque
+		auto [r, g, b] = rgb;
+		return SDL_MapRGB(&format, r, g, b); // alpha is fully opaque
 	}
 
 	/** Returns the color key for this output surface.

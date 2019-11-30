@@ -12,13 +12,13 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	setSDLRenderer(output.getSDLRenderer());
 	calculateViewPort(output.getPhysicalSize());
 
-	gl::ivec2 physSize = getPhysicalSize();
+	auto [w, h] = getPhysicalSize();
 	fboTex.bind();
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
 	             GL_RGB8,          // internal format
-	             physSize[0],      // width
-	             physSize[1],      // height
+	             w,                // width
+	             h,                // height
 	             0,                // border
 	             GL_RGB,           // format
 	             GL_UNSIGNED_BYTE, // type

@@ -27,6 +27,7 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <utility>
 
 namespace gl {
 
@@ -123,6 +124,10 @@ public:
 		#endif
 		return e[i];
 	}
+
+	// For structured bindings
+	template<size_t I> T  get() const noexcept { return (*this)[I]; }
+	template<size_t I> T& get()       noexcept { return (*this)[I]; }
 
 	// Assignment version of the +,-,* operations defined below.
 	vecN& operator+=(const vecN& x) { *this = *this + x; return *this; }
@@ -396,6 +401,12 @@ std::ostream& operator<<(std::ostream& os, const vecN<N, T>& x)
 
 } // namespace gl
 
+// Support for structured bindings
+namespace std {
+	template<int N, typename T> struct tuple_size<gl::vecN<N, T>> : std::integral_constant<size_t, N> {};
+	template<size_t I, int N, typename T> struct tuple_element<I, gl::vecN<N, T>> { using type = T; };
+}
+
 
 // --- SSE optimizations ---
 
@@ -448,7 +459,11 @@ public:
 
 	float  operator[](int i) const { return e_[i]; }
 	float& operator[](int i)       { return e_[i]; }
-	
+
+	// For structured bindings
+	template<size_t I> float  get() const noexcept { return (*this)[I]; }
+	template<size_t I> float& get()       noexcept { return (*this)[I]; }
+
 	vecN& operator+=(vecN  x) { *this = *this + x; ; return *this; }
 	vecN& operator-=(vecN  x) { *this = *this - x; ; return *this; }
 	vecN& operator*=(vecN  x) { *this = *this * x; ; return *this; }

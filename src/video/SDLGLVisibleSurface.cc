@@ -63,9 +63,9 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	int w, h;
 	SDL_GL_GetDrawableSize(window.get(), &w, &h);
 	calculateViewPort(gl::ivec2(w, h));
-	gl::ivec2 offset = getViewOffset();
-	gl::ivec2 size   = getViewSize();
-	glViewport(offset[0], offset[1], size[0], size[1]);
+	auto [vx, vy] = getViewOffset();
+	auto [vw, vh] = getViewSize();
+	glViewport(vx, vy, vw, vh);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -96,16 +96,16 @@ void SDLGLVisibleSurface::saveScreenshot(const std::string& filename)
 void SDLGLVisibleSurface::saveScreenshotGL(
 	const OutputSurface& output, const std::string& filename)
 {
-	gl::ivec2 offset = output.getViewOffset();
-	gl::ivec2 size   = output.getViewSize();
+	auto [x, y] = output.getViewOffset();
+	auto [w, h] = output.getViewSize();
 
-	VLA(const void*, rowPointers, size[1]);
-	MemBuffer<uint8_t> buffer(size[0] * size[1] * 3);
-	for (int i = 0; i < size[1]; ++i) {
-		rowPointers[size[1] - 1 - i] = &buffer[size[0] * 3 * i];
+	VLA(const void*, rowPointers, h);
+	MemBuffer<uint8_t> buffer(w * h * 3);
+	for (int i = 0; i < h; ++i) {
+		rowPointers[h - 1 - i] = &buffer[w * 3 * i];
 	}
-	glReadPixels(offset[0], offset[1], size[0], size[1], GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
-	PNG::save(size[0], size[1], rowPointers, filename);
+	glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+	PNG::save(w, h, rowPointers, filename);
 }
 
 void SDLGLVisibleSurface::finish()

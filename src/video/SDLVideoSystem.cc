@@ -250,9 +250,7 @@ void SDLVideoSystem::resize()
 	auto& eventDistributor    = reactor.getEventDistributor();
 	auto& inputEventGenerator = reactor.getInputEventGenerator();
 
-	auto windowSize = getWindowSize();
-	unsigned width  = windowSize[0];
-	unsigned height = windowSize[1];
+	auto [width, height] = getWindowSize();
 	// Destruct existing output surface before creating a new one.
 	screen.reset();
 

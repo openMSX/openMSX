@@ -367,11 +367,14 @@ void SDLImage::draw(OutputSurface& output, gl::ivec2 pos, uint8_t r, uint8_t g, 
 	assert(b == 255); (void)b;
 
 	if (!texture) return;
-	if (flipX) pos[0] -= size[0];
-	if (flipY) pos[1] -= size[1];
+
+	auto [x, y] = pos;
+	auto [w, h] = size;
+	if (flipX) x -= w;
+	if (flipY) y -= h;
 
 	SDL_SetTextureAlphaMod(texture.get(), alpha);
-	SDL_Rect dst = {pos[0], pos[1], size[0], size[1]};
+	SDL_Rect dst = {x, y, w, h};
 	SDL_RenderCopy(output.getSDLRenderer(), texture.get(), nullptr, &dst);
 }
 

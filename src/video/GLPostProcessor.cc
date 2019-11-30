@@ -195,9 +195,9 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	if (renderToTexture) {
 		fbo[frameCounter & 1].pop();
 		colorTex[frameCounter & 1].bind();
-		gl::ivec2 viewOffset = screen.getViewOffset();
-		gl::ivec2 viewSize   = screen.getViewSize();
-		glViewport(viewOffset[0], viewOffset[1], viewSize[0], viewSize[1]);
+		auto [x, y] = screen.getViewOffset();
+		auto [w, h] = screen.getViewSize();
+		glViewport(x, y, w, h);
 
 		if (deform == RenderSettings::DEFORM_3D) {
 			drawMonitor3D();
