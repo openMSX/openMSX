@@ -1069,6 +1069,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	case 8:
 		if (change & 0x20) {
 			renderer->updateTransparency((val & 0x20) == 0, time);
+			spriteChecker->updateTransparency((val & 0x20) == 0, time);
 		}
 		if (change & 0x02) {
 			vram->updateSpritesEnabled((val & 0x02) == 0, time);
