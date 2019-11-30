@@ -135,10 +135,11 @@ bool CommandLineParser::parseFileName(const string& arg, span<string>& cmdLine)
 
 bool CommandLineParser::parseFileNameInner(const string& arg, const string& originalPath, span<string>& cmdLine)
 {
-	string_view extension = FileOperations::getExtension(arg).substr(1);
-	if (extension.empty()) {
+	string_view extension = FileOperations::getExtension(arg); // includes leading '.' (if any)
+	if (extension.size() <= 1) {
 		return false; // no extension
 	}
+	extension.remove_prefix(1);
 
 	auto it = ranges::lower_bound(fileTypes, extension, CmpFileTypes());
 	StringOp::casecmp cmp;
