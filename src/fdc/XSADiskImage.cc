@@ -2,6 +2,7 @@
 #include "DiskExceptions.hh"
 #include "File.hh"
 #include <cstring>
+#include <utility>
 
 using std::string;
 
@@ -11,7 +12,7 @@ class XSAExtractor
 {
 public:
 	explicit XSAExtractor(File& file);
-	unsigned getData(MemBuffer<SectorBuffer>& data);
+	std::pair<MemBuffer<SectorBuffer>, unsigned> extractData();
 
 private:
 	static constexpr int MAXSTRLEN = 254;
@@ -59,7 +60,8 @@ XSADiskImage::XSADiskImage(Filename& filename, File& file)
 	: SectorBasedDisk(filename)
 {
 	XSAExtractor extractor(file);
-	unsigned sectors = extractor.getData(data);
+	unsigned sectors;
+	std::tie(data, sectors) = extractor.extractData();
 	setNbSectors(sectors);
 }
 
@@ -97,11 +99,10 @@ XSAExtractor::XSAExtractor(File& file)
 	unLz77();
 }
 
-unsigned XSAExtractor::getData(MemBuffer<SectorBuffer>& data)
+std::pair<MemBuffer<SectorBuffer>, unsigned> XSAExtractor::extractData()
 {
 	// destroys internal outBuf, but that's ok
-	data.swap(outBuf);
-	return sectors;
+	return {std::move(outBuf), sectors};
 }
 
 // Get the next character from the input buffer
