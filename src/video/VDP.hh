@@ -175,6 +175,17 @@ public:
 		return (controlRegs[8] & 0x20) == 0;
 	}
 
+	/** Can a sprite which has color=0 collide with some other sprite?
+	 */
+	bool canSpriteColor0Collide() const {
+		// On MSX1 (so far only tested a TMS9129(?)) sprites with
+		// color=0 can always collide with other sprites. Though on
+		// V99x8 (only tested V9958) collisions only occur when color 0
+		// is not transparent. For more details see:
+		//   https://github.com/openMSX/openMSX/issues/1198
+		return isMSX1VDP() || !getTransparency();
+	}
+
 	/** Gets the current foreground color.
 	  * @return Color index [0..15].
 	  */
