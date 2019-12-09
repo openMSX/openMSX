@@ -340,4 +340,18 @@ BufferObject::~BufferObject()
 	glDeleteBuffers(1, &bufferId); // ok to delete 0-buffer
 }
 
+
+// class VertexArray
+
+VertexArray::VertexArray()
+{
+	glGenVertexArrays(1, &bufferId);
+}
+
+VertexArray::~VertexArray()
+{
+	unbind();
+	glDeleteVertexArrays(1, &bufferId); // ok to delete 0-buffer
+}
+
 } // namespace gl
