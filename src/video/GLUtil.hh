@@ -473,6 +473,36 @@ private:
 	GLuint bufferId;
 };
 
+class VertexArray
+{
+public:
+	VertexArray();
+	~VertexArray();
+	VertexArray(VertexArray&& other) noexcept
+		: bufferId(other.bufferId)
+	{
+		other.bufferId = 0;
+	}
+	VertexArray& operator=(VertexArray&& other) noexcept {
+		std::swap(bufferId, other.bufferId);
+		return *this;
+	}
+
+	/** Bind this VertexArray. Must be called before glDraw*() and
+	  * glVertexAttribPointer() are used.
+	  */
+	void bind() const { glBindVertexArray(bufferId); }
+
+	/** Unbind this VertexArray.
+	  */
+	void unbind() const { glBindVertexArray(0); }
+
+	GLuint get() const { return bufferId; }
+
+private:
+	GLuint bufferId;
+};
+
 } // namespace gl
 
 #endif // COMPONENT_GL
