@@ -1624,7 +1624,7 @@ proc menu_create_tape_list {path} {
 	if {$inserted ne ""} {
 		lappend items "--eject--"
 		lappend presentation "--eject-- [file tail $inserted]"
-		lappend items "--rewind-"
+		lappend items "--rewind--"
 		lappend presentation "--rewind-- [file tail $inserted]"
 	}
 	if {$path ne $taperecordings_directory && [file exists $taperecordings_directory]} {
