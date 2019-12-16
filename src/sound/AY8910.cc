@@ -106,15 +106,7 @@ static float noiseValue(float x)
 	int xi = int(x);
 	float xf = x - xi;
 	xi &= 255;
-	float n0 = noiseTab[xi + 0];
-	float n1 = noiseTab[xi + 1];
-	float n2 = noiseTab[xi + 2];
-	float n3 = noiseTab[xi + 3];
-	float a = n3 - n2 + n1 - n0;
-	float b = n0 - n1 - a;
-	float c = n2 - n0;
-	float d = n1;
-	return ((a * xf + b) * xf + c) * xf + d;
+	return Math::cubicHermite(&noiseTab[xi + 1], xf);
 }
 
 

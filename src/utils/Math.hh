@@ -2,6 +2,7 @@
 #define MATH_HH
 
 #include "likely.hh"
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 
@@ -269,6 +270,31 @@ template <int LO, int HI>
 	if ((x & 0x0001) == 0) { pos +=  1; }
 	return pos + 1;
 #endif
+}
+
+// Cubic Hermite Interpolation:
+//   Given 4 points: (-1, y[-1]), (0, y[0]), (1, y[1]), (2, y[2])
+//   Fit a polynomial:  f(x) = a*x^3 + b*x^2 + c*x + d
+//     which passes through the given points at x=0 and x=1
+//       f(0) = y[0]
+//       f(1) = y[1]
+//     and which has specific derivatives at x=0 and x=1
+//       f'(0) = (y[1] - y[-1]) / 2
+//       f'(1) = (y[2] - y[ 0]) / 2
+//   Then evaluate this polynomial at the given x-position (x in [0, 1]).
+// For more details see:
+//   https://en.wikipedia.org/wiki/Cubic_Hermite_spline
+//   https://www.paulinternet.nl/?page=bicubic
+[[nodiscard]] inline float cubicHermite(const float* y, float x)
+{
+	assert(0.0f <= x); assert(x <= 1.0f);
+	float a = -0.5f*y[-1] + 1.5f*y[0] - 1.5f*y[1] + 0.5f*y[2];
+	float b =       y[-1] - 2.5f*y[0] + 2.0f*y[1] - 0.5f*y[2];
+	float c = -0.5f*y[-1]             + 0.5f*y[1];
+	float d =                    y[0];
+	float x2 = x * x;
+	float x3 = x * x2;
+	return a*x3 + b*x2 + c*x + d;
 }
 
 } // namespace Math

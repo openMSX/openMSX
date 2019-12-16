@@ -4,6 +4,7 @@
 #include "EmuTime.hh"
 #include "DivModBySame.hh"
 #include <cassert>
+#include <utility>
 
 namespace openmsx {
 
@@ -51,6 +52,22 @@ public:
 	unsigned getTicksTill(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		return divmod.div(e.time - lastTick.time);
+	}
+	/** Like getTicksTill(), but also returns the fractional part (in range [0, 1)).
+	  * This is equivalent to, but numerically more stable than:
+	  *   EmuDuration dur = e - this->getTime();
+	  *   double d = dur / this->getPeriod();
+	  *   int i = int(d);
+	  *   double frac = d - i;
+	  *   return {i, frac};
+	  */
+	std::pair<unsigned, float> getTicksTillAsIntFloat(EmuTime::param e) const {
+		assert(e.time >= lastTick.time);
+		auto dur = e.time - lastTick.time;
+		auto [q, r] = divmod.divMod(dur);
+		auto f = float(r) / float(getStep());
+		assert(0.0f <= f); assert(f < 1.0f);
+		return {q, f};
 	}
 
 	template<typename FIXED>

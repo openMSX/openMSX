@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <utility>
 
 namespace openmsx {
 
@@ -56,13 +57,21 @@ public:
 		return uint32_t(result);
 	}
 
-	[[nodiscard]] uint32_t mod(uint64_t dividend) const
+	[[nodiscard]] std::pair<uint32_t, uint32_t> divMod(uint64_t dividend) const
 	{
 		assert(uint32_t(divisor) == divisor); // must fit in 32-bit
 		uint64_t q = div(dividend);
 		assert(uint32_t(q) == q); // must fit in 32 bit
 		// result fits in 32-bit, so no 64-bit calculations required
-		return uint32_t(dividend) - uint32_t(q) * uint32_t(divisor);
+		uint32_t r = uint32_t(dividend) - uint32_t(q) * uint32_t(divisor);
+		return {q, r};
+	}
+
+	[[nodiscard]] uint32_t mod(uint64_t dividend) const
+	{
+		auto [q, r] = divMod(dividend);
+		(void)q;
+		return r;
 	}
 
 private:
