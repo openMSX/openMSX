@@ -101,6 +101,8 @@ private:
 	gl::VertexArray glowVAO;
 	gl::BufferObject vbo[2];
 	gl::BufferObject stretchVBO;
+	gl::VertexArray noiseVAO;
+	gl::BufferObject noiseVBO[2];
 
 	bool storedFrame;
 };

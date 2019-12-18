@@ -447,34 +447,31 @@ void GLPostProcessor::preCalcNoise(float factor)
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
-		GL_LUMINANCE,     // internal format
+		GL_RED,           // internal format
 		256,              // width
 		256,              // height
 		0,                // border
-		GL_LUMINANCE,     // format
+		GL_RED,           // format
 		GL_UNSIGNED_BYTE, // type
 		buf1);            // data
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 
 	noiseTextureB.bind();
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
-		GL_LUMINANCE,     // internal format
+		GL_RED,           // internal format
 		256,              // width
 		256,              // height
 		0,                // border
-		GL_LUMINANCE,     // format
+		GL_RED,           // format
 		GL_UNSIGNED_BYTE, // type
 		buf2);            // data
-}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 
-void GLPostProcessor::drawNoise()
-{
-	if (renderSettings.getNoise() == 0.0f) return;
-
-	// Rotate and mirror noise texture in consecutive frames to avoid
-	// seeing 'patterns' in the noise.
-	static const vec2 pos[8][4] = {
+	const vec2 pos[8][4] = {
 		{ { -1, -1 }, {  1, -1 }, {  1,  1 }, { -1,  1 } },
 		{ { -1,  1 }, {  1,  1 }, {  1, -1 }, { -1, -1 } },
 		{ { -1,  1 }, { -1, -1 }, {  1, -1 }, {  1,  1 } },
@@ -484,6 +481,16 @@ void GLPostProcessor::drawNoise()
 		{ {  1, -1 }, {  1,  1 }, { -1,  1 }, { -1, -1 } },
 		{ { -1, -1 }, { -1,  1 }, {  1,  1 }, {  1, -1 } }
 	};
+	glBindBuffer(GL_ARRAY_BUFFER, noiseVBO[0].get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
+}
+
+void GLPostProcessor::drawNoise()
+{
+	if (renderSettings.getNoise() == 0.0f) return;
+
+	// Rotate and mirror noise texture in consecutive frames to avoid
+	// seeing 'patterns' in the noise.
 	vec2 noise(noiseX, noiseY);
 	const vec2 tex[4] = {
 		noise + vec2(0.0f, 1.875f),
@@ -491,19 +498,23 @@ void GLPostProcessor::drawNoise()
 		noise + vec2(2.0f, 0.0f  ),
 		noise + vec2(0.0f, 0.0f  )
 	};
+	unsigned seq = frameCounter & 7;
 
 	gl::context->progTex.activate();
-
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 	glUniform4f(gl::context->unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
 	mat4 I;
 	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
 
-	unsigned seq = frameCounter & 7;
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[seq]);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+	noiseVAO.bind();
+	glBindBuffer(GL_ARRAY_BUFFER, noiseVBO[0].get());
+	vec2* base = nullptr;
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, base + seq * 4);
 	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, noiseVBO[1].get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(1);
 
 	noiseTextureA.bind();
@@ -511,9 +522,8 @@ void GLPostProcessor::drawNoise()
 	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
 	noiseTextureB.bind();
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	noiseVAO.unbind();
 
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(0);
 	glBlendEquation(GL_FUNC_ADD); // restore default
 	glDisable(GL_BLEND);
 }
