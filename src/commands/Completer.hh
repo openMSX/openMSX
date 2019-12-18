@@ -17,7 +17,7 @@ class TclObject;
 class Completer
 {
 public:
-	const std::string& getName() const { return name; }
+	const std::string& getName() const { return theName; }
 
 	/** Print help for this command.
 	  */
@@ -82,7 +82,7 @@ private:
 	                                 const FileContext& context,
 	                                 std::vector<std::string_view> matches);
 
-	const std::string name;
+	const std::string theName;
 	static inline InterpreterOutput* output = nullptr;
 };
 

@@ -18,8 +18,8 @@ using std::string_view;
 
 namespace openmsx {
 
-Completer::Completer(string_view name_)
-	: name(std::string(name_)) // TODO take std::string parameter instead and move()
+Completer::Completer(string_view name)
+	: theName(std::string(name)) // TODO take std::string parameter instead and move()
 {
 }
 
