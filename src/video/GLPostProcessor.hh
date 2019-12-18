@@ -93,6 +93,7 @@ private:
 	  */
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;
 
+	gl::VertexArray monitor3DVAO;
 	gl::ShaderProgram monitor3DProg;
 	gl::BufferObject arrayBuffer;
 	gl::BufferObject elementbuffer;
