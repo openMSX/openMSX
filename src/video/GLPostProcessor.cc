@@ -572,14 +572,25 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	}
 
 	// upload calculated values to buffers
+	monitor3DVAO.bind();
 	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
 	             GL_STATIC_DRAW);
+	char* base = nullptr;
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base + sizeof(vec3));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base + sizeof(vec3) + sizeof(vec3));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer.get());
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
 	             GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	monitor3DVAO.unbind();
 
 	// calculate transformation matrices
 	mat4 proj = frustum(-1, 1, -1, 1, 1, 10);
@@ -602,27 +613,9 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 void GLPostProcessor::drawMonitor3D()
 {
 	monitor3DProg.activate();
-
-	char* base = nullptr;
-	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer.get());
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-	                      base);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-	                      base + sizeof(vec3));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-	                      base + sizeof(vec3) + sizeof(vec3));
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
+	monitor3DVAO.bind();
 	glDrawElements(GL_TRIANGLE_STRIP, NUM_INDICES, GL_UNSIGNED_SHORT, nullptr);
-	glDisableVertexAttribArray(2);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	monitor3DVAO.unbind();
 }
 
 } // namespace openmsx
