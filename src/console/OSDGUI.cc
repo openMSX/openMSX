@@ -82,13 +82,13 @@ void OSDGUI::OSDCommand::create(span<const TclObject> tokens, TclObject& result)
 }
 
 unique_ptr<OSDWidget> OSDGUI::OSDCommand::create(
-	string_view type, const TclObject& newName) const
+	string_view type, const TclObject& name) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
 	if (type == "rectangle") {
-		return std::make_unique<OSDRectangle>(gui.display, newName);
+		return std::make_unique<OSDRectangle>(gui.display, name);
 	} else if (type == "text") {
-		return std::make_unique<OSDText>(gui.display, newName);
+		return std::make_unique<OSDText>(gui.display, name);
 	} else {
 		throw CommandException(
 			"Invalid widget type '", type, "', expected "
@@ -272,12 +272,12 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-OSDWidget& OSDGUI::OSDCommand::getWidget(string_view widgetName) const
+OSDWidget& OSDGUI::OSDCommand::getWidget(string_view name) const
 {
 	auto& gui = OUTER(OSDGUI, osdCommand);
-	auto* widget = gui.getTopWidget().findByName(widgetName);
+	auto* widget = gui.getTopWidget().findByName(name);
 	if (!widget) {
-		throw CommandException("No widget with name ", widgetName);
+		throw CommandException("No widget with name ", name);
 	}
 	return *widget;
 }

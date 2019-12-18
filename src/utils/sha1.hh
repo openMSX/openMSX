@@ -28,8 +28,8 @@ public:
 	explicit Sha1Sum(std::string_view hex);
 
 	/** Parse from a 40-character long buffer.
-	 * @pre: 'str' points to a buffer of at least 40 characters
-	 * @throws: MSXException if chars are not 0-9, a-f, A-F
+	 * @pre 'str' points to a buffer of at least 40 characters
+	 * @throws MSXException if chars are not 0-9, a-f, A-F
 	 */
 	void parse40(const char* str);
 	[[nodiscard]] std::string toString() const;

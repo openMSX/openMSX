@@ -43,9 +43,9 @@ XMLElement::Attributes::const_iterator XMLElement::getAttributeIter(string_view 
 	                       [&](auto& a) { return a.first == attrName; });
 }
 
-const string* XMLElement::findAttribute(string_view attName) const
+const string* XMLElement::findAttribute(string_view attrName) const
 {
-	auto it = getAttributeIter(attName);
+	auto it = getAttributeIter(attrName);
 	return (it != end(attributes)) ? &it->second : nullptr;
 }
 
@@ -114,11 +114,11 @@ const XMLElement* XMLElement::findNextChild(string_view childName,
 }
 
 XMLElement* XMLElement::findChildWithAttribute(string_view childName,
-	string_view attName, string_view attValue)
+	string_view attrName, string_view attValue)
 {
 	auto it = ranges::find_if(children, [&](auto& c) {
 		if (c.getName() != childName) return false;
-		auto* value = c.findAttribute(attName);
+		auto* value = c.findAttribute(attrName);
 		if (!value) return false;
 		return *value == attValue;
 	});
@@ -126,10 +126,10 @@ XMLElement* XMLElement::findChildWithAttribute(string_view childName,
 }
 
 const XMLElement* XMLElement::findChildWithAttribute(string_view childName,
-	string_view attName, string_view attValue) const
+	string_view attrName, string_view attValue) const
 {
 	return const_cast<XMLElement*>(this)->findChildWithAttribute(
-		childName, attName, attValue);
+		childName, attrName, attValue);
 }
 
 XMLElement& XMLElement::getChild(string_view childName)
@@ -154,14 +154,14 @@ XMLElement& XMLElement::getCreateChild(string_view childName,
 }
 
 XMLElement& XMLElement::getCreateChildWithAttribute(
-	string_view childName, string_view attName,
+	string_view childName, string_view attrName,
 	string_view attValue)
 {
-	if (auto* result = findChildWithAttribute(childName, attName, attValue)) {
+	if (auto* result = findChildWithAttribute(childName, attrName, attValue)) {
 		return *result;
 	}
 	auto& result = addChild(string(childName));
-	result.addAttribute(string(attName), string(attValue));
+	result.addAttribute(string(attrName), string(attValue));
 	return result;
 }
 
@@ -208,39 +208,39 @@ bool XMLElement::hasAttribute(string_view attrName) const
 	return findAttribute(attrName);
 }
 
-const string& XMLElement::getAttribute(string_view attName) const
+const string& XMLElement::getAttribute(string_view attrName) const
 {
-	if (auto* value = findAttribute(attName)) {
+	if (auto* value = findAttribute(attrName)) {
 		return *value;
 	}
-	throw ConfigException("Missing attribute \"", attName, "\".");
+	throw ConfigException("Missing attribute \"", attrName, "\".");
 }
 
-string_view XMLElement::getAttribute(string_view attName,
+string_view XMLElement::getAttribute(string_view attrName,
                                      string_view defaultValue) const
 {
-	auto* value = findAttribute(attName);
+	auto* value = findAttribute(attrName);
 	return value ? *value : defaultValue;
 }
 
-bool XMLElement::getAttributeAsBool(string_view attName,
+bool XMLElement::getAttributeAsBool(string_view attrName,
                                     bool defaultValue) const
 {
-	auto* value = findAttribute(attName);
+	auto* value = findAttribute(attrName);
 	return value ? StringOp::stringToBool(*value) : defaultValue;
 }
 
-int XMLElement::getAttributeAsInt(string_view attName,
+int XMLElement::getAttributeAsInt(string_view attrName,
                                   int defaultValue) const
 {
-	auto* value = findAttribute(attName);
+	auto* value = findAttribute(attrName);
 	return value ? StringOp::stringToInt(*value) : defaultValue;
 }
 
-bool XMLElement::findAttributeInt(string_view attName,
+bool XMLElement::findAttributeInt(string_view attrName,
                                   unsigned& result) const
 {
-	if (auto* value = findAttribute(attName)) {
+	if (auto* value = findAttribute(attrName)) {
 		result = StringOp::stringToInt(*value);
 		return true;
 	} else {

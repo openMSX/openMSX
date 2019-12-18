@@ -44,11 +44,11 @@ public:
 	void setAttribute(std::string_view name, std::string value);
 	void removeAttribute(std::string_view name);
 	bool hasAttribute(std::string_view name) const;
-	const std::string& getAttribute(std::string_view attName) const;
-	std::string_view getAttribute(std::string_view attName,
+	const std::string& getAttribute(std::string_view attrName) const;
+	std::string_view getAttribute(std::string_view attrName,
 	                              std::string_view defaultValue) const;
 	// Returns ptr to attribute value, or nullptr when not found.
-	const std::string* findAttribute(std::string_view attName) const;
+	const std::string* findAttribute(std::string_view attrName) const;
 
 	// child
 	using Children = std::vector<XMLElement>;
@@ -64,44 +64,44 @@ public:
 	//
 
 	// attribute
-	bool getAttributeAsBool(std::string_view attName,
+	bool getAttributeAsBool(std::string_view attrName,
 	                        bool defaultValue = false) const;
-	int getAttributeAsInt(std::string_view attName,
+	int getAttributeAsInt(std::string_view attrName,
 	                      int defaultValue = 0) const;
-	bool findAttributeInt(std::string_view attName,
+	bool findAttributeInt(std::string_view attrName,
 	                      unsigned& result) const;
 
 	// child
-	const XMLElement* findChild(std::string_view name) const;
-	XMLElement* findChild(std::string_view name);
-	const XMLElement& getChild(std::string_view name) const;
-	XMLElement& getChild(std::string_view name);
+	const XMLElement* findChild(std::string_view childName) const;
+	XMLElement* findChild(std::string_view childName);
+	const XMLElement& getChild(std::string_view childName) const;
+	XMLElement& getChild(std::string_view childName);
 
 	const XMLElement* findChildWithAttribute(
-		std::string_view name, std::string_view attName,
+		std::string_view childName, std::string_view attrName,
 		std::string_view attValue) const;
 	XMLElement* findChildWithAttribute(
-		std::string_view name, std::string_view attName,
+		std::string_view childName, std::string_view attrName,
 		std::string_view attValue);
 	const XMLElement* findNextChild(std::string_view name,
 	                                size_t& fromIndex) const;
 
-	std::vector<const XMLElement*> getChildren(std::string_view name) const;
+	std::vector<const XMLElement*> getChildren(std::string_view childName) const;
 
-	XMLElement& getCreateChild(std::string_view name,
+	XMLElement& getCreateChild(std::string_view childName,
 	                           std::string_view defaultValue = {});
 	XMLElement& getCreateChildWithAttribute(
-		std::string_view name, std::string_view attName,
+		std::string_view childName, std::string_view attrName,
 		std::string_view attValue);
 
-	const std::string& getChildData(std::string_view name) const;
-	std::string_view getChildData(std::string_view name,
+	const std::string& getChildData(std::string_view childName) const;
+	std::string_view getChildData(std::string_view childName,
 	                              std::string_view defaultValue) const;
-	bool getChildDataAsBool(std::string_view name,
+	bool getChildDataAsBool(std::string_view childName,
 	                        bool defaultValue = false) const;
-	int getChildDataAsInt(std::string_view name,
+	int getChildDataAsInt(std::string_view childName,
 	                      int defaultValue = 0) const;
-	void setChildData(std::string_view name, std::string value);
+	void setChildData(std::string_view childName, std::string value);
 
 	void removeAllChildren();
 
@@ -118,8 +118,8 @@ public:
 private:
 	using Attribute = std::pair<std::string, std::string>;
 	using Attributes = std::vector<Attribute>;
-	Attributes::iterator getAttributeIter(std::string_view name);
-	Attributes::const_iterator getAttributeIter(std::string_view name) const;
+	Attributes::iterator getAttributeIter(std::string_view attrName);
+	Attributes::const_iterator getAttributeIter(std::string_view attrName) const;
 	void dump(std::string& result, unsigned indentNum) const;
 
 	std::string name;
