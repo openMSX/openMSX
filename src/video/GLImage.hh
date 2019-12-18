@@ -25,6 +25,11 @@ public:
 	          uint8_t r, uint8_t g, uint8_t b, uint8_t alpha) override;
 
 private:
+	void initBuffers();
+
+	gl::VertexArray vao;
+	gl::BufferObject vbo[3];
+	gl::BufferObject elementsBuffer;
 	gl::Texture texture; // must come after size
 	int borderSize;
 	int bgA[4], borderA;
