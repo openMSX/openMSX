@@ -332,7 +332,7 @@ static void reportProgress(const string& filename, size_t percentage,
 {
 	reactor.getCliComm().printProgress(
 		"Calculating SHA1 sum for ", filename, "... ", percentage, '%');
-	reactor.getDisplay().repaint();
+	reactor.getDisplay().repaintDelayed(0);
 }
 
 static Sha1Sum calcSha1sum(File& file, Reactor& reactor)
@@ -467,7 +467,7 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 			sha1sum.toString(), "...\nIndexing filepool ", poolPath,
 			": [", progress.amountScanned, "]: ",
 			std::string_view(filename).substr(poolPath.size()));
-		reactor.getDisplay().repaint();
+		reactor.getDisplay().repaintDelayed(0);
 	}
 
 	// Note: do NOT call 'reactor.getEventDistributor().deliverEvents()'.

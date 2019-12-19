@@ -253,6 +253,11 @@ void SDLVideoSystem::showCursor(bool show)
 	}
 }
 
+void SDLVideoSystem::repaint()
+{
+	display.repaint();
+}
+
 void SDLVideoSystem::resize()
 {
 	auto& rtScheduler         = reactor.getRTScheduler();

@@ -46,6 +46,7 @@ public:
 	CommandConsole& getCommandConsole() { return commandConsole; }
 
 	/** Redraw the display.
+	  * repaint() should only be called from the VideoSystem.
 	  */
 	void repaint();
 	void repaint(OutputSurface& surface);
