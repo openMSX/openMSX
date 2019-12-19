@@ -42,4 +42,8 @@ void DummyVideoSystem::showCursor(bool /*show*/)
 {
 }
 
+void DummyVideoSystem::repaint()
+{
+}
+
 } // namespace openmsx

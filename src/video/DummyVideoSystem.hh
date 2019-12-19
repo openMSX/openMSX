@@ -20,6 +20,7 @@ public:
 	void flush() override;
 	OutputSurface* getOutputSurface() override;
 	void showCursor(bool show) override;
+	void repaint() override;
 };
 
 } // namespace openmsx

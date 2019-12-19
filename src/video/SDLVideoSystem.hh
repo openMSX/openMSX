@@ -45,6 +45,7 @@ public:
 	void updateWindowTitle() override;
 	OutputSurface* getOutputSurface() override;
 	void showCursor(bool show) override;
+	void repaint() override;
 
 private:
 	// EventListener

@@ -139,7 +139,7 @@ void HD::showProgress(size_t position, size_t maxPosition)
 		motherBoard.getMSXCliComm().printProgress(
 			"Calculating hash for ", filename.getResolved(),
 			"... ", percentage, '%');
-		motherBoard.getReactor().getDisplay().repaint();
+		motherBoard.getReactor().getDisplay().repaintDelayed(0);
 		everDidProgress = true;
 	}
 }

@@ -175,7 +175,7 @@ Display::Layers::iterator Display::baseLayer()
 
 void Display::executeRT()
 {
-	repaint();
+	videoSystem->repaint();
 }
 
 int Display::signalEvent(const std::shared_ptr<const Event>& event)
@@ -183,7 +183,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 		if (ffe.needRender()) {
-			repaint();
+			videoSystem->repaint();
 			reactor.getEventDistributor().distributeEvent(
 				std::make_shared<SimpleEvent>(
 					OPENMSX_FRAME_DRAWN_EVENT));
@@ -211,7 +211,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 		//  port discovers that the graphics context is gone.
 		// -When gaining the focus, this repaint does nothing as
 		//  the renderFrozen flag is still false
-		repaint();
+		videoSystem->repaint();
 		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
 		ad_printf("Setting renderFrozen to %d", !focusEvent.getGain());
 		renderFrozen = !focusEvent.getGain();
