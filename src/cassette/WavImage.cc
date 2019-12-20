@@ -57,7 +57,7 @@ int16_t WavImage::getSampleAt(EmuTime::param time)
 		float(wav.getSample(sample + 1)),
 		float(wav.getSample(sample + 2))
 	};
-	return int16_t(Math::cubicHermite(p + 1, x));
+	return Math::clipIntToShort(int(Math::cubicHermite(p + 1, x)));
 }
 
 EmuTime WavImage::getEndTime() const
