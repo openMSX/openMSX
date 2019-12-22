@@ -46,8 +46,21 @@ void SettingsManager::unregisterSetting(BaseSetting& setting)
 
 BaseSetting* SettingsManager::findSetting(string_view name) const
 {
-	auto it = settings.find(name);
-	return (it != end(settings)) ? *it : nullptr;
+	if (auto it = settings.find(name); it != end(settings)) {
+		return *it;
+	}
+	if (StringOp::startsWith(name, "::")) {
+		// try without leading ::
+		if (auto it = settings.find(name.substr(2)); it != end(settings)) {
+			return *it;
+		}
+	} else {
+		// try adding ::
+		if (auto it = settings.find(strCat("::", name)); it != end(settings)) {
+			return *it;
+		}
+	}
+	return nullptr;
 }
 
 BaseSetting* SettingsManager::findSetting(string_view prefix, string_view baseName) const
@@ -130,11 +143,11 @@ void SettingsManager::SettingInfo::execute(
 		break;
 	case 3: {
 		const auto& settingName = tokens[2].getString();
-		auto it = manager.settings.find(settingName);
-		if (it == end(manager.settings)) {
+		auto* setting = manager.findSetting(settingName);
+		if (!setting) {
 			throw CommandException("No such setting: ", settingName);
 		}
-		(*it)->info(result);
+		setting->info(result);
 		break;
 	}
 	default:
@@ -192,9 +205,8 @@ void SettingsManager::SetCompleter::tabCompletion(vector<string>& tokens) const
 	}
 	case 3: {
 		// complete setting value
-		auto it = manager.settings.find(tokens[1]);
-		if (it != end(manager.settings)) {
-			(*it)->tabCompletion(tokens);
+		if (auto* setting = manager.findSetting(tokens[1])) {
+			setting->tabCompletion(tokens);
 		}
 		break;
 	}
