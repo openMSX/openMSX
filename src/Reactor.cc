@@ -537,6 +537,14 @@ void Reactor::run(CommandLineParser& parser)
 			                 e.getMessage());
 		}
 	}
+	for (auto& cmd : parser.getStartupCommands()) {
+		try {
+			commandController.executeCommand(cmd);
+		} catch (CommandException& e) {
+			throw FatalError("Couldn't execute command: ", cmd,
+			                 '\n', e.getMessage());
+		}
+	}
 
 	// At this point openmsx is fully started, it's OK now to start
 	// accepting external commands

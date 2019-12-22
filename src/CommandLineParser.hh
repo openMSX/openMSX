@@ -52,8 +52,12 @@ public:
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
 
-	using Scripts = std::vector<std::string>;
-	const Scripts& getStartupScripts() const;
+	const std::vector<std::string>& getStartupScripts() const {
+		return scriptOption.scripts;
+	}
+	const std::vector<std::string>& getStartupCommands() const {
+		return commandOption.commands;
+	}
 
 	MSXMotherBoard* getMotherBoard() const;
 	GlobalCommandController& getGlobalCommandController() const;
@@ -105,8 +109,15 @@ private:
 				   span<std::string>& cmdLine) override;
 		std::string_view fileTypeHelp() const override;
 
-		CommandLineParser::Scripts scripts;
+		std::vector<std::string> scripts;
 	} scriptOption;
+
+	struct CommandOption final : CLIOption {
+		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
+		std::string_view optionHelp() const override;
+
+		std::vector<std::string> commands;
+	} commandOption;
 
 	struct MachineOption final : CLIOption {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;

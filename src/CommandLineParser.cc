@@ -68,6 +68,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-setting",    settingOption, PHASE_BEFORE_SETTINGS);
 	registerOption("-control",    controlOption, PHASE_BEFORE_SETTINGS, 1);
 	registerOption("-script",     scriptOption,  PHASE_BEFORE_SETTINGS, 1); // correct phase?
+	registerOption("-command",    commandOption, PHASE_BEFORE_SETTINGS, 1); // same phase as -script
 	#if COMPONENT_GL
 	registerOption("-nopbo",      noPBOOption,   PHASE_BEFORE_SETTINGS, 1);
 	#endif
@@ -287,11 +288,6 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 	return parseStatus;
 }
 
-const CommandLineParser::Scripts& CommandLineParser::getStartupScripts() const
-{
-	return scriptOption.scripts;
-}
-
 MSXMotherBoard* CommandLineParser::getMotherBoard() const
 {
 	return reactor.getMotherBoard();
@@ -365,6 +361,19 @@ void CommandLineParser::ScriptOption::parseFileType(
 string_view CommandLineParser::ScriptOption::fileTypeHelp() const
 {
 	return "Extra Tcl script to run at startup";
+}
+
+
+// Command option
+void CommandLineParser::CommandOption::parseOption(
+	const std::string& option, span<std::string>& cmdLine)
+{
+	commands.push_back(getArgument(option, cmdLine));
+}
+
+std::string_view CommandLineParser::CommandOption::optionHelp() const
+{
+	return "Run Tcl command at startup (see also -script)";
 }
 
 
