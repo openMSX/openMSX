@@ -327,11 +327,7 @@ void GLPostProcessor::uploadBlock(
 		TextureData textureData;
 
 		textureData.tex.resize(lineWidth, height * 2); // *2 for interlace
-
-		if (textureData.pbo.openGLSupported()) {
-			textureData.pbo.setImage(lineWidth, height * 2);
-		}
-
+		textureData.pbo.setImage(lineWidth, height * 2);
 		textures.emplace_back(lineWidth, std::move(textureData));
 		it = end(textures) - 1;
 	}
@@ -343,68 +339,35 @@ void GLPostProcessor::uploadBlock(
 
 	// upload data
 	uint32_t* mapped;
-	if (pbo.openGLSupported()) {
-		pbo.bind();
-		mapped = pbo.mapWrite();
-	} else {
-		mapped = nullptr;
-	}
-	if (mapped) {
-		for (unsigned y = srcStartY; y < srcEndY; ++y) {
-			auto* dest = mapped + y * lineWidth;
-			auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
-			if (data != dest) {
-				memcpy(dest, data, lineWidth * sizeof(uint32_t));
-			}
+	pbo.bind();
+	mapped = pbo.mapWrite();
+	for (unsigned y = srcStartY; y < srcEndY; ++y) {
+		auto* dest = mapped + y * lineWidth;
+		auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
+		if (data != dest) {
+			memcpy(dest, data, lineWidth * sizeof(uint32_t));
 		}
-		pbo.unmap();
+	}
+	pbo.unmap();
 #if defined(__APPLE__)
-		// The nVidia GL driver for the GeForce 8000/9000 series seems to hang
-		// on texture data replacements that are 1 pixel wide and start on a
-		// line number that is a non-zero multiple of 16.
-		if (lineWidth == 1 && srcStartY != 0 && srcStartY % 16 == 0) {
-			srcStartY--;
-		}
+	// The nVidia GL driver for the GeForce 8000/9000 series seems to hang
+	// on texture data replacements that are 1 pixel wide and start on a
+	// line number that is a non-zero multiple of 16.
+	if (lineWidth == 1 && srcStartY != 0 && srcStartY % 16 == 0) {
+		srcStartY--;
+	}
 #endif
-		glTexSubImage2D(
-			GL_TEXTURE_2D,       // target
-			0,                   // level
-			0,                   // offset x
-			srcStartY,           // offset y
-			lineWidth,           // width
-			srcEndY - srcStartY, // height
-			GL_BGRA,             // format
-			GL_UNSIGNED_BYTE,    // type
-			pbo.getOffset(0, srcStartY)); // data
-	}
-	if (pbo.openGLSupported()) {
-		pbo.unbind();
-	}
-	if (!mapped) {
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, paintFrame->getRowLength());
-		unsigned y = srcStartY;
-		unsigned remainingLines = srcEndY - srcStartY;
-		VLA_SSE_ALIGNED(uint32_t, buf, lineWidth);
-		while (remainingLines) {
-			unsigned lines;
-			auto* data = paintFrame->getMultiLinePtr(
-				y, remainingLines, lines, lineWidth, buf);
-			glTexSubImage2D(
-				GL_TEXTURE_2D,     // target
-				0,                 // level
-				0,                 // offset x
-				y,                 // offset y
-				lineWidth,         // width
-				lines,             // height
-				GL_BGRA,           // format
-				GL_UNSIGNED_BYTE,  // type
-				data);             // data
-
-			y += lines;
-			remainingLines -= lines;
-		}
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0); // restore default
-	}
+	glTexSubImage2D(
+		GL_TEXTURE_2D,       // target
+		0,                   // level
+		0,                   // offset x
+		srcStartY,           // offset y
+		lineWidth,           // width
+		srcEndY - srcStartY, // height
+		GL_BGRA,             // format
+		GL_UNSIGNED_BYTE,    // type
+		pbo.getOffset(0, srcStartY)); // data
+	pbo.unbind();
 
 	// possibly upload scaler specific data
 	if (currScaler) {

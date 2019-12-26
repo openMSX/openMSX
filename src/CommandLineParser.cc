@@ -69,9 +69,6 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-control",    controlOption, PHASE_BEFORE_SETTINGS, 1);
 	registerOption("-script",     scriptOption,  PHASE_BEFORE_SETTINGS, 1); // correct phase?
 	registerOption("-command",    commandOption, PHASE_BEFORE_SETTINGS, 1); // same phase as -script
-	#if COMPONENT_GL
-	registerOption("-nopbo",      noPBOOption,   PHASE_BEFORE_SETTINGS, 1);
-	#endif
 	registerOption("-testconfig", testConfigOption, PHASE_BEFORE_SETTINGS, 1);
 
 	registerOption("-machine",    machineOption, PHASE_LOAD_MACHINE);
@@ -548,23 +545,6 @@ void CommandLineParser::SettingOption::parseOption(
 string_view CommandLineParser::SettingOption::optionHelp() const
 {
 	return "Load an alternative settings file";
-}
-
-
-// class NoPBOOption
-
-void CommandLineParser::NoPBOOption::parseOption(
-	const string& /*option*/, span<string>& /*cmdLine*/)
-{
-	#if COMPONENT_GL
-	cout << "Disabling PBO\n";
-	gl::PixelBuffers::enabled = false;
-	#endif
-}
-
-string_view CommandLineParser::NoPBOOption::optionHelp() const
-{
-	return "Disables usage of openGL PBO (for debugging)";
 }
 
 
