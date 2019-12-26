@@ -7,11 +7,7 @@ namespace openmsx {
 SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	: fboTex(true) // enable interpolation   TODO why?
 {
-	// only used for width and height, TODO still needed?
-	setSDLSurface(output.getSDLSurface());
-
 	calculateViewPort(output.getLogicalSize(), output.getPhysicalSize());
-
 	auto [w, h] = getPhysicalSize();
 	fboTex.bind();
 	glTexImage2D(GL_TEXTURE_2D,    // target
@@ -27,7 +23,6 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	fbo.push();
 
 	setOpenGlPixelFormat();
-	setBufferPtr(nullptr, 0); // direct access not allowed
 }
 
 void SDLGLOffScreenSurface::saveScreenshot(const std::string& filename)

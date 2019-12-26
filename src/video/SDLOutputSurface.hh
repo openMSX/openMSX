@@ -65,8 +65,8 @@ protected:
 private:
 	SDL_Surface* surface = nullptr;
 	SDL_Renderer* renderer = nullptr;
-	char* data;
-	unsigned pitch;
+	char* data = nullptr;
+	unsigned pitch = 0;
 	bool locked = false;
 };
 

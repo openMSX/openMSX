@@ -63,7 +63,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	// If that happens, center the area that we actually use.
 	int w, h;
 	SDL_GL_GetDrawableSize(window.get(), &w, &h);
-	calculateViewPort(gl::ivec2(surface->w, surface->h), gl::ivec2(w, h));
+	calculateViewPort(gl::ivec2(width, height), gl::ivec2(w, h));
 	auto [vx, vy] = getViewOffset();
 	auto [vw, vh] = getViewSize();
 	glViewport(vx, vy, vw, vh);
@@ -74,8 +74,6 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	glMatrixMode(GL_MODELVIEW);
 
 	setOpenGlPixelFormat();
-	setBufferPtr(nullptr, 0); // direct access not allowed
-
 	gl::context = std::make_unique<gl::Context>(width, height);
 }
 

@@ -34,31 +34,6 @@ void SDLVisibleSurfaceBase::createSurface(int width, int height, unsigned flags)
 
 	updateWindowTitle();
 
-	renderer.reset(SDL_CreateRenderer(window.get(), -1, 0));
-	if (!renderer) {
-		std::string err = SDL_GetError();
-		throw InitException("Could not create renderer: " + err);
-	}
-	SDL_RenderSetLogicalSize(renderer.get(), width, height);
-	setSDLRenderer(renderer.get());
-
-	surface.reset(SDL_CreateRGBSurface(
-			0, width, height, 32,
-			0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
-	if (!surface) {
-		std::string err = SDL_GetError();
-		throw InitException("Could not create surface: " + err);
-	}
-	setSDLSurface(surface.get());
-
-	texture.reset(SDL_CreateTexture(
-			renderer.get(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-			width, height));
-	if (!texture) {
-		std::string err = SDL_GetError();
-		throw InitException("Could not create texture: " + err);
-	}
-
 	// prefer linear filtering (instead of nearest neighbour)
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
@@ -113,14 +88,6 @@ bool SDLVisibleSurfaceBase::setFullScreen(bool fullscreen)
 	// We now always create a new screen to make the code on both OSes
 	// more similar (we had a windows-only bug because of this difference)
 	return false;
-
-	/*
-	// try to toggle full screen
-	SDL_Surface* surf = getSDLSurface();
-	SDL_WM_ToggleFullScreen(surf);
-	bool newState = (surf->flags & SDL_FULLSCREEN) != 0;
-	return newState == fullscreen;
-	*/
 }
 
 } // namespace openmsx
