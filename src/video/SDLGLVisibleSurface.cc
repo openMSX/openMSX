@@ -30,7 +30,16 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	int flags = SDL_WINDOW_OPENGL;
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
+
+	// Create an OpenGL 3.3 Core profile
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	glContext = SDL_GL_CreateContext(window.get());
+	if (!glContext) {
+		throw InitException(
+			"Failed to create openGL-3.3 context: ", SDL_GetError());
+	}
 
 	// From the glew documentation:
 	//   GLEW obtains information on the supported extensions from the
@@ -46,17 +55,12 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	glewExperimental = GL_TRUE;
 
 	// Initialise GLEW library.
-	// This must happen after GL itself is initialised, which is done by
-	// the SDL_SetVideoMode() call in createSurface().
 	GLenum glew_error = glewInit();
 	if (glew_error != GLEW_OK) {
 		throw InitException(
 			"Failed to init GLEW: ",
 			reinterpret_cast<const char*>(
 				glewGetErrorString(glew_error)));
-	}
-	if (!GLEW_VERSION_2_0) {
-		throw InitException("Need at least openGL version 2.0.");
 	}
 
 	// The created surface may be larger than requested.
