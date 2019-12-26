@@ -21,9 +21,6 @@ protected:
 
 	SDLSubSystemInitializer<SDL_INIT_VIDEO> videoSubSystem;
 	SDLWindowPtr window;
-	SDLRendererPtr renderer;
-	SDLSurfacePtr surface;
-	SDLTexturePtr texture;
 };
 
 } // namespace openmsx
