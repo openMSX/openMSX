@@ -129,11 +129,6 @@ private:
 		std::string_view optionHelp() const override;
 	} settingOption;
 
-	struct NoPBOOption final : CLIOption {
-		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
-		std::string_view optionHelp() const override;
-	} noPBOOption;
-
 	struct TestConfigOption final : CLIOption {
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
 		std::string_view optionHelp() const override;

@@ -134,13 +134,6 @@ private:
 	GLuint bufferId = 0; // 0 is not a valid openGL name
 };
 
-struct PixelBuffers
-{
-	/** Global switch to disable pixel buffers using the "-nopbo" option.
-	  */
-	static inline bool enabled = true;
-};
-
 /** Wrapper around a pixel buffer.
   * The pixel buffer will be allocated in VRAM if possible, in main RAM
   * otherwise.
@@ -153,13 +146,6 @@ public:
 	PixelBuffer(PixelBuffer&& other) noexcept;
 	PixelBuffer& operator=(PixelBuffer&& other) noexcept;
 	~PixelBuffer();
-
-	/** Are PBOs supported by this openGL implementation?
-	  * This class implements a SW fallback in case PBOs are not directly
-	  * supported by this openGL implementation, but it will probably
-	  * be a lot slower.
-	  */
-	bool openGLSupported() const;
 
 	/** Sets the image for this buffer.
 	  * TODO: Actually, only image size for now;
@@ -224,12 +210,7 @@ private:
 template <typename T>
 PixelBuffer<T>::PixelBuffer()
 {
-	if (PixelBuffers::enabled && GLEW_ARB_pixel_buffer_object) {
-		glGenBuffers(1, &bufferId);
-	} else {
-		//std::cerr << "OpenGL pixel buffers are not available\n";
-		bufferId = 0;
-	}
+	glGenBuffers(1, &bufferId);
 }
 
 template <typename T>
@@ -259,12 +240,6 @@ PixelBuffer<T>::~PixelBuffer()
 }
 
 template <typename T>
-bool PixelBuffer<T>::openGLSupported() const
-{
-	return bufferId != 0;
-}
-
-template <typename T>
 void PixelBuffer<T>::setImage(GLuint width_, GLuint height_)
 {
 	width = width_;
@@ -272,7 +247,7 @@ void PixelBuffer<T>::setImage(GLuint width_, GLuint height_)
 	if (bufferId != 0) {
 		bind();
 		// TODO make performance hint configurable?
-		glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB,
+		glBufferData(GL_PIXEL_UNPACK_BUFFER,
 		             width * height * 4,
 		             nullptr, // leave data undefined
 		             GL_STREAM_DRAW); // performance hint
@@ -286,7 +261,7 @@ template <typename T>
 void PixelBuffer<T>::bind() const
 {
 	if (bufferId != 0) {
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferId);
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferId);
 	}
 }
 
@@ -294,7 +269,7 @@ template <typename T>
 void PixelBuffer<T>::unbind() const
 {
 	if (bufferId != 0) {
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	}
 }
 
@@ -316,7 +291,7 @@ T* PixelBuffer<T>::mapWrite()
 {
 	if (bufferId != 0) {
 		return reinterpret_cast<T*>(glMapBuffer(
-			GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY));
+			GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY));
 	} else {
 		return allocated.data();
 	}
@@ -326,7 +301,7 @@ template <typename T>
 void PixelBuffer<T>::unmap() const
 {
 	if (bufferId != 0) {
-		glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB);
+		glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
 	}
 }
 
