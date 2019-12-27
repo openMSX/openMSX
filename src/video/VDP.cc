@@ -131,8 +131,8 @@ VDP::VDP(const DeviceConfig& config)
 		version = TMS91X8;
 		defaultSaturation = 100;
 	} else if (versionString == "TMS9128") version = TMS91X8;
-	else if (versionString == "TMS9929A") {version = TMS9929A; slotTimeShift = 2500.0;}
-	else if (versionString == "TMS9129") version = TMS9129;
+	else if (versionString == "TMS9929A") version = TMS9929A;
+	else if (versionString == "TMS9129") {version = TMS9129; slotTimeShift = 2420.0;}
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
 	else throw MSXException("Unknown VDP version \"", versionString, '"');
