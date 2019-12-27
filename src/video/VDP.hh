@@ -1073,6 +1073,10 @@ private:
 	  */
 	VdpVersion version;
 
+    /** Model-dependent constant to compute the access slot time shift
+      */
+    double slotTimeShift;
+
 	/** Saturation of Pr component of TMS9XXXA output circuitry.
 	  * The output of the VDP and the circuitry between the output and the
 	  * output connector influences this value. Percentage in range [0:100]
