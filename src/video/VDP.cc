@@ -805,9 +805,18 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 			// other variables that influence the exact timing (7
 			// vs 8 cycles).
 			pendingCpuAccess = true;
-			auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_28
+
+            // It seems that the actual slot time access happens slightly sooner in a
+            // real MSX 1. Thus, correct the scheduled time for the next access window.
+            // This fixes Karateka and gives the same color corruption that can be seen in
+            // https://youtu.be/7HXZHeZIuJY?t=1867
+            // [ToDo] Check if the timing needs also to be corrected in MSX2.
+            // Related bug: https://github.com/openMSX/openMSX/issues/949
+			EmuTime access_slot_time = time - (isMSX1VDP() ? EmuDuration(double(4930.0/MAIN_FREQ)) :
+                                                             EmuDuration(double(0)));
+			auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_32
 						 : VDPAccessSlots::DELTA_16;
-			syncCpuVramAccess.setSyncPoint(getAccessSlot(time, delta));
+			syncCpuVramAccess.setSyncPoint(getAccessSlot(access_slot_time, delta));
 		}
 	}
 }
