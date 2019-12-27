@@ -90,19 +90,16 @@ void ColorTexture::resize(GLsizei width_, GLsizei height_)
 
 // class FrameBufferObject
 
-static GLuint currentId = 0;
-static std::vector<GLuint> stack;
-
 FrameBufferObject::FrameBufferObject(Texture& texture)
 {
 	glGenFramebuffers(1, &bufferId);
-	glBindFramebuffer(GL_FRAMEBUFFER, bufferId);
+	push();
 	glFramebufferTexture2D(GL_FRAMEBUFFER,
 	                       GL_COLOR_ATTACHMENT0,
 	                       GL_TEXTURE_2D, texture.textureId, 0);
 	bool success = glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
 	               GL_FRAMEBUFFER_COMPLETE;
-	glBindFramebuffer(GL_FRAMEBUFFER, currentId);
+	pop();
 	if (!success) {
 		throw InitException(
 			"Your OpenGL implementation support for "
@@ -112,30 +109,19 @@ FrameBufferObject::FrameBufferObject(Texture& texture)
 
 FrameBufferObject::~FrameBufferObject()
 {
-	// It's ok to delete '0' (it's a NOP), but we anyway have to check
-	// for pop().
-	if (!bufferId) return;
-
-	if (currentId == bufferId) {
-		pop();
-	}
+	pop();
 	glDeleteFramebuffers(1, &bufferId);
 }
 
 void FrameBufferObject::push()
 {
-	stack.push_back(currentId);
-	currentId = bufferId;
-	glBindFramebuffer(GL_FRAMEBUFFER, currentId);
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousId);
+	glBindFramebuffer(GL_FRAMEBUFFER, bufferId);
 }
 
 void FrameBufferObject::pop()
 {
-	assert(currentId == bufferId);
-	assert(!stack.empty());
-	currentId = stack.back();
-	stack.pop_back();
-	glBindFramebuffer(GL_FRAMEBUFFER, currentId);
+	glBindFramebuffer(GL_FRAMEBUFFER, GLuint(previousId));
 }
 
 

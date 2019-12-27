@@ -132,6 +132,7 @@ public:
 
 private:
 	GLuint bufferId = 0; // 0 is not a valid openGL name
+	GLint previousId = 0;
 };
 
 /** Wrapper around a pixel buffer.
