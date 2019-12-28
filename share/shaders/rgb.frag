@@ -2,9 +2,11 @@ uniform sampler2D tex;
 uniform sampler2D videoTex;
 uniform vec4 cnsts;
 
-varying vec4 scaled;
-varying vec2 pos;
-varying vec2 videoCoord;
+in vec4 scaled;
+in vec2 pos;
+in vec2 videoCoord;
+
+out vec4 fragColor;
 
 // saturate operations are free on nvidia hardware
 vec3 saturate(vec3 x)
@@ -24,15 +26,15 @@ void main()
 	const float BIG = 128.0; // big number, actual value is not important
 	vec3 m = saturate((-BIG * fract(scaled.zyx)) + vec3(2.0 * BIG / 3.0));
 
-	vec4 col = texture2D(tex, pos);
+	vec4 col = texture(tex, pos);
 #if SUPERIMPOSE
-	vec4 vid = texture2D(videoTex, videoCoord);
+	vec4 vid = texture(videoTex, videoCoord);
 	vec4 p = mix(vid, col, col.a);
 #else
 	vec4 p = col;
 #endif
 	vec3 n = p.rgb * scan_c2;
 	vec3 s_n = n * c1_2_2 + saturate((n - 1.0) / 2.0);
-	gl_FragColor.rgb = n + m * s_n;
-	gl_FragColor.a   = p.a;
+	fragColor.rgb = n + m * s_n;
+	fragColor.a   = p.a;
 }
