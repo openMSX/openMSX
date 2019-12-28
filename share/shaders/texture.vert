@@ -1,9 +1,9 @@
 uniform mat4 u_mvpMatrix;
 
-attribute vec4 a_position;
-attribute vec2 a_texCoord;
+in vec4 a_position;
+in vec2 a_texCoord;
 
-varying vec2 v_texCoord;
+out vec2 v_texCoord;
 
 void main()
 {

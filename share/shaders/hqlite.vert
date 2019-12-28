@@ -1,13 +1,13 @@
 uniform mat4 u_mvpMatrix;
 uniform vec3 texSize;
 
-attribute vec4 a_position;
-attribute vec3 a_texCoord;
+in vec4 a_position;
+in vec3 a_texCoord;
 
-varying vec2 leftTop;
-varying vec2 edgePos;
-varying vec4 misc;
-varying vec2 videoCoord;
+out vec2 leftTop;
+out vec2 edgePos;
+out vec4 misc;
+out vec2 videoCoord;
 
 void main()
 {

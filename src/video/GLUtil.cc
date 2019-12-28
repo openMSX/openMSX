@@ -140,7 +140,7 @@ Shader::Shader(GLenum type, const string& header, const string& filename)
 void Shader::init(GLenum type, const string& header, const string& filename)
 {
 	// Load shader source.
-	string source = "#version 110\n" + header;
+	string source = "#version 330\n" + header;
 	try {
 		File file(systemFileContext().resolve("shaders/" + filename));
 		auto mmap = file.mmap();

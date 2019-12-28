@@ -1,12 +1,12 @@
 uniform mat4 u_mvpMatrix;
 uniform mat3 u_normalMatrix;
 
-attribute vec3 a_position;
-attribute vec3 a_normal;
-attribute vec2 a_texCoord;
+in vec3 a_position;
+in vec3 a_normal;
+in vec2 a_texCoord;
 
-varying float v_color;
-varying vec2 v_texCoord;
+out float v_color;
+out vec2 v_texCoord;
 
 void main()
 {
