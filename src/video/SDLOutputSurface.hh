@@ -57,7 +57,6 @@ protected:
 	SDLOutputSurface() = default;
 
 	void setSDLPixelFormat(const SDL_PixelFormat& format);
-	void setOpenGlPixelFormat();
 	void setSDLSurface(SDL_Surface* surface_) { surface = surface_; }
 	void setSDLRenderer(SDL_Renderer* r) { renderer = r; }
 	void setBufferPtr(char* data, unsigned pitch);

@@ -1,6 +1,5 @@
 #include "SDLOutputSurface.hh"
 #include "unreachable.hh"
-#include "build-info.hh"
 
 namespace openmsx {
 
@@ -68,16 +67,6 @@ void SDLOutputSurface::setSDLPixelFormat(const SDL_PixelFormat& format)
 	                           Gmask, Gshift, Gloss,
 	                           Bmask, Bshift, Bloss,
 	                           Amask, Ashift, Aloss));
-}
-
-void SDLOutputSurface::setOpenGlPixelFormat()
-{
-	setPixelFormat(PixelFormat(
-		32,
-		OPENMSX_BIGENDIAN ? 0xFF000000 : 0x00FF0000, OPENMSX_BIGENDIAN ? 24 : 16, 0,
-		OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00, OPENMSX_BIGENDIAN ? 16 :  8, 0,
-		OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x000000FF, OPENMSX_BIGENDIAN ?  8 :  0, 0,
-		OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000, OPENMSX_BIGENDIAN ?  0 : 24, 0));
 }
 
 void SDLOutputSurface::setBufferPtr(char* data_, unsigned pitch_)

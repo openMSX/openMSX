@@ -110,6 +110,7 @@ protected:
 	// These two _must_ be called from (each) subclass constructor.
 	void calculateViewPort(gl::ivec2 logSize, gl::ivec2 physSize);
 	void setPixelFormat(const PixelFormat& format) { pixelFormat = format; }
+	void setOpenGlPixelFormat();
 
 private:
 	PixelFormat pixelFormat;

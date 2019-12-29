@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
+SDLGLOffScreenSurface::SDLGLOffScreenSurface(const OutputSurface& output)
 	: fboTex(true) // enable interpolation   TODO why?
 {
 	calculateViewPort(output.getLogicalSize(), output.getPhysicalSize());
