@@ -3,26 +3,23 @@
 
 namespace openmsx {
 
-void SDLOutputSurface::lock()
+SDLDirectPixelAccess::SDLDirectPixelAccess(SDL_Surface* surface_)
+	: surface(surface_)
 {
-	if (isLocked()) return;
-	locked = true;
-	auto* surf = getSDLSurface();
-	if (surf && SDL_MUSTLOCK(surf)) {
+	assert(surface);
+	if (SDL_MUSTLOCK(surface)) {
 		// Note: we ignore the return value from SDL_LockSurface()
-		SDL_LockSurface(surf);
+		SDL_LockSurface(surface);
 	}
 }
 
-void SDLOutputSurface::unlock()
+SDLDirectPixelAccess::~SDLDirectPixelAccess()
 {
-	if (!isLocked()) return;
-	locked = false;
-	auto* surf = getSDLSurface();
-	if (surf && SDL_MUSTLOCK(surf)) {
-		SDL_UnlockSurface(surf);
+	if (SDL_MUSTLOCK(surface)) {
+		SDL_UnlockSurface(surface);
 	}
 }
+
 
 void SDLOutputSurface::setSDLPixelFormat(const SDL_PixelFormat& format)
 {
@@ -67,12 +64,6 @@ void SDLOutputSurface::setSDLPixelFormat(const SDL_PixelFormat& format)
 	                           Gmask, Gshift, Gloss,
 	                           Bmask, Bshift, Bloss,
 	                           Amask, Ashift, Aloss));
-}
-
-void SDLOutputSurface::setBufferPtr(char* data_, unsigned pitch_)
-{
-	data = data_;
-	pitch = pitch_;
 }
 
 } // namespace openmsx

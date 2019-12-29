@@ -8,7 +8,7 @@ namespace openmsx {
 
 template<typename Pixel>
 DirectScalerOutput<Pixel>::DirectScalerOutput(SDLOutputSurface& output_)
-	: output(output_)
+	: output(output_), pixelAccess(output.getDirectPixelAccess())
 {
 }
 
@@ -27,7 +27,7 @@ unsigned DirectScalerOutput<Pixel>::getHeight() const
 template<typename Pixel>
 Pixel* DirectScalerOutput<Pixel>::acquireLine(unsigned y)
 {
-	return output.getLinePtrDirect<Pixel>(y);
+	return pixelAccess.getLinePtr<Pixel>(y);
 }
 
 template<typename Pixel>
@@ -39,7 +39,7 @@ void DirectScalerOutput<Pixel>::releaseLine(unsigned /*y*/, Pixel* /*buf*/)
 template<typename Pixel>
 void DirectScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 {
-	auto* dstLine = output.getLinePtrDirect<Pixel>(y);
+	auto* dstLine = pixelAccess.getLinePtr<Pixel>(y);
 	MemoryOps::MemSet<Pixel> memset;
 	memset(dstLine, output.getLogicalWidth(), color);
 }

@@ -2,10 +2,9 @@
 #define DIRECTSCALEROUTPUT_HH
 
 #include "ScalerOutput.hh"
+#include "SDLOutputSurface.hh"
 
 namespace openmsx {
-
-class SDLOutputSurface;
 
 template<typename Pixel>
 class DirectScalerOutput final : public ScalerOutput<Pixel>
@@ -21,6 +20,7 @@ public:
 
 private:
 	SDLOutputSurface& output;
+	SDLDirectPixelAccess pixelAccess;
 };
 
 } // namespace openmsx

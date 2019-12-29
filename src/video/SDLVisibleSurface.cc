@@ -53,7 +53,6 @@ SDLVisibleSurface::SDLVisibleSurface(
 	}
 
 	setSDLPixelFormat(*surface->format);
-	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
 
 	// In the SDL renderer logical size is the same as physical size.
 	gl::ivec2 size(width, height);
@@ -62,7 +61,6 @@ SDLVisibleSurface::SDLVisibleSurface(
 
 void SDLVisibleSurface::flushFrameBuffer()
 {
-	unlock();
 	SDL_Renderer* render = getSDLRenderer();
 	SDL_UpdateTexture(texture.get(), nullptr, surface->pixels, surface->pitch);
 	SDL_RenderClear(render);
@@ -133,7 +131,6 @@ void SDLVisibleSurface::saveScreenshotSDL(
 
 void SDLVisibleSurface::clearScreen()
 {
-	unlock();
 	SDL_FillRect(surface.get(), nullptr, 0);
 }
 

@@ -27,15 +27,17 @@ void SDLSnow<Pixel>::paint(OutputSurface& output_)
 	std::uniform_int_distribution<int> distribution(0, 255);
 
 	auto& output = checked_cast<SDLOutputSurface&>(output_);
-	output.lock();
-	auto [width, height] = output.getLogicalSize();
-	for (int y = 0; y < height; y += 2) {
-		auto* p0 = output.getLinePtrDirect<Pixel>(y + 0);
-		auto* p1 = output.getLinePtrDirect<Pixel>(y + 1);
-		for (int x = 0; x < width; x += 2) {
-			p0[x + 0] = p0[x + 1] = gray[distribution(generator)];
+	{
+		auto pixelAccess = output.getDirectPixelAccess();
+		auto [width, height] = output.getLogicalSize();
+		for (int y = 0; y < height; y += 2) {
+			auto* p0 = pixelAccess.getLinePtr<Pixel>(y + 0);
+			auto* p1 = pixelAccess.getLinePtr<Pixel>(y + 1);
+			for (int x = 0; x < width; x += 2) {
+				p0[x + 0] = p0[x + 1] = gray[distribution(generator)];
+			}
+			memcpy(p1, p0, width * sizeof(Pixel));
 		}
-		memcpy(p1, p0, width * sizeof(Pixel));
 	}
 	output.flushFrameBuffer();
 

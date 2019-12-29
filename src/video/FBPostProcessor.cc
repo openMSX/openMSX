@@ -211,9 +211,9 @@ void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output_)
 
 	auto& output = checked_cast<SDLOutputSurface&>(output_);
 	auto [w, h] = output.getLogicalSize();
-	output.lock();
+	auto pixelAccess = output.getDirectPixelAccess();
 	for (int y = 0; y < h; ++y) {
-		auto* buf = output.getLinePtrDirect<Pixel>(y);
+		auto* buf = pixelAccess.getLinePtr<Pixel>(y);
 		drawNoiseLine(buf, &noiseBuf[noiseShift[y]], w);
 	}
 }
@@ -309,7 +309,6 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output_)
 		// fill region
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
-		output.lock();
 		float horStretch = renderSettings.getHorizontalStretch();
 		unsigned inWidth = lrintf(horStretch);
 		std::unique_ptr<ScalerOutput<Pixel>> dst(
