@@ -8,9 +8,10 @@ void SDLOutputSurface::lock()
 {
 	if (isLocked()) return;
 	locked = true;
-	if (surface && SDL_MUSTLOCK(surface)) {
+	auto* surf = getSDLSurface();
+	if (surf && SDL_MUSTLOCK(surf)) {
 		// Note: we ignore the return value from SDL_LockSurface()
-		SDL_LockSurface(surface);
+		SDL_LockSurface(surf);
 	}
 }
 
@@ -18,8 +19,9 @@ void SDLOutputSurface::unlock()
 {
 	if (!isLocked()) return;
 	locked = false;
-	if (surface && SDL_MUSTLOCK(surface)) {
-		SDL_UnlockSurface(surface);
+	auto* surf = getSDLSurface();
+	if (surf && SDL_MUSTLOCK(surf)) {
+		SDL_UnlockSurface(surf);
 	}
 }
 

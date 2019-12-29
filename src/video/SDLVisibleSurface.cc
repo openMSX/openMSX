@@ -63,9 +63,8 @@ SDLVisibleSurface::SDLVisibleSurface(
 void SDLVisibleSurface::flushFrameBuffer()
 {
 	unlock();
-	SDL_Surface* surf = getSDLSurface();
 	SDL_Renderer* render = getSDLRenderer();
-	SDL_UpdateTexture(texture.get(), nullptr, surf->pixels, surf->pitch);
+	SDL_UpdateTexture(texture.get(), nullptr, surface->pixels, surface->pitch);
 	SDL_RenderClear(render);
 	SDL_RenderCopy(render, texture.get(), nullptr, nullptr);
 }
@@ -107,7 +106,7 @@ std::unique_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 
 std::unique_ptr<OutputSurface> SDLVisibleSurface::createOffScreenSurface()
 {
-	return std::make_unique<SDLOffScreenSurface>(*getSDLSurface());
+	return std::make_unique<SDLOffScreenSurface>(*surface);
 }
 
 void SDLVisibleSurface::saveScreenshot(const std::string& filename)
@@ -135,7 +134,7 @@ void SDLVisibleSurface::saveScreenshotSDL(
 void SDLVisibleSurface::clearScreen()
 {
 	unlock();
-	SDL_FillRect(getSDLSurface(), nullptr, 0);
+	SDL_FillRect(surface.get(), nullptr, 0);
 }
 
 } // namespace openmsx
