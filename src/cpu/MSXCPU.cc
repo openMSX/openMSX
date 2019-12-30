@@ -205,8 +205,8 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 	}
 
 	// aligned on cache lines
-	assert((start & CacheLine::SIZE) == 0);
-	assert((size  & CacheLine::SIZE) == 0);
+	assert((start & CacheLine::LOW) == 0);
+	assert((size  & CacheLine::LOW) == 0);
 
 	int slot = 4 * ps + ss;
 	unsigned page = start >> 14;
