@@ -447,8 +447,12 @@ void GlobalCommandController::HelpCmd::execute(
 		string text =
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
-		auto cmds = to_vector<string_view>(
-			view::keys(controller.commandCompleters));
+		auto cmds = concat<string_view>(
+			view::keys(controller.commandCompleters),
+			getInterpreter().execute("openmsx::all_command_names_with_help"));
+		cmds.erase(ranges::remove_if(cmds, [](const auto& c) {
+		                   return c.find("::") != std::string_view::npos; }),
+		           cmds.end());
 		ranges::sort(cmds);
 		for (auto& line : formatListInColumns(cmds)) {
 			strAppend(text, line, '\n');
