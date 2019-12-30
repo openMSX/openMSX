@@ -661,8 +661,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time_)
 					changeRegister(
 						value & controlRegMask,
 						dataLatch,
-						time
-						);
+						time);
 				} else {
 					// TODO what happens in this case?
 					// it's not a register write because
@@ -1549,6 +1548,11 @@ byte VDP::RegDebug::read(unsigned address)
 void VDP::RegDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	auto& vdp = OUTER(VDP, vdpRegDebug);
+	// Ignore writes to registers >= 8 on MSX1. An alternative is to only
+	// expose 8 registers. But changing that now breaks backwards
+	// compatibilty with some existing scripts. E.g. script that queries
+	// PAL vs NTSC in a VDP agnostic way.
+	if ((address >= 8) && vdp.isMSX1VDP()) return;
 	vdp.changeRegister(address, value, time);
 }
 
@@ -1586,6 +1590,11 @@ byte VDP::PaletteDebug::read(unsigned address)
 void VDP::PaletteDebug::write(unsigned address, byte value, EmuTime::param time)
 {
 	auto& vdp = OUTER(VDP, vdpPaletteDebug);
+	// Ignore writes on MSX1. An alternative could be to not expose the
+	// palette at all, but allowing read-only access could be useful for
+	// some scripts.
+	if (vdp.isMSX1VDP()) return;
+
 	int index = address / 2;
 	word grb = vdp.getPalette(index);
 	grb = (address & 1)
