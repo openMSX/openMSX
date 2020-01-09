@@ -403,7 +403,7 @@ std::ostream& operator<<(std::ostream& os, const vecN<N, T>& x)
 
 // Support for structured bindings
 namespace std {
-	template<int N, typename T> struct tuple_size<gl::vecN<N, T>>
+	template<int N, typename T> class tuple_size<gl::vecN<N, T>>
 		: public std::integral_constant<size_t, N> {};
 	template<size_t I, int N, typename T> class tuple_element<I, gl::vecN<N, T>> {
 	public:
