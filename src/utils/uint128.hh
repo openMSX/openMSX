@@ -161,23 +161,20 @@ private:
 		}
 	}
 
-	[[nodiscard]] friend constexpr uint64_t low64 (const uint128&);
-	[[nodiscard]] friend constexpr uint64_t high64(const uint128&);
+	[[nodiscard]] friend constexpr uint64_t low64(const uint128& a)
+	{
+		return a.lo;
+	}
+
+	[[nodiscard]] friend constexpr uint64_t high64(const uint128& a)
+	{
+		return a.hi;
+	}
 
 private:
 	uint64_t lo;
 	uint64_t hi;
 };
-
-[[nodiscard]] constexpr uint64_t low64 (const uint128& a)
-{
-	return a.lo;
-}
-
-[[nodiscard]] constexpr uint64_t high64(const uint128& a)
-{
-	return a.hi;
-}
 
 [[nodiscard]] inline constexpr uint128 operator+(const uint128& a, const uint128& b)
 {
