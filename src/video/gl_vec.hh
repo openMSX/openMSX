@@ -403,8 +403,14 @@ std::ostream& operator<<(std::ostream& os, const vecN<N, T>& x)
 
 // Support for structured bindings
 namespace std {
+// On some platforms tuple_size is a class and on others it is a struct.
+// Such a mismatch is only a problem when targeting the Microsoft C++ ABI,
+// which we don't do when compiling with Clang.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmismatched-tags"
 	template<int N, typename T> class tuple_size<gl::vecN<N, T>>
 		: public std::integral_constant<size_t, N> {};
+#pragma clang diagnostic pop
 	template<size_t I, int N, typename T> class tuple_element<I, gl::vecN<N, T>> {
 	public:
 		using type = T;
