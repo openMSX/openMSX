@@ -1,6 +1,7 @@
 #ifndef VIDEOSYSTEM_HH
 #define VIDEOSYSTEM_HH
 
+#include "gl_vec.hh"
 #include <string>
 #include <memory>
 #include "components.hh"
@@ -72,9 +73,14 @@ public:
 	  */
 	virtual void updateWindowTitle();
 
+	/** Returns the current mouse pointer coordinates.
+	  */
+	virtual gl::ivec2 getMouseCoord() = 0;
+
 	/** TODO */
 	[[nodiscard]] virtual OutputSurface* getOutputSurface() = 0;
 	virtual void showCursor(bool show) = 0;
+	virtual bool getCursorEnabled() = 0;
 	
 	/** Requests a repaint of the output surface. An implementation might
 	 *  start a repaint directly, or trigger a queued rendering. */
