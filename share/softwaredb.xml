@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1579026042">
+<softwaredb timestamp="1579040021">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2223,14 +2223,6 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>698afd758f7ae15ca4a9a81be197320206b1d2b5</hash></rom></dump>
 </software>
 <software>
-	<title>Castle Of Nasa</title>
-	<system>MSX</system>
-	<company>Unknown</company>
-	<year>19xx</year>
-	<country></country>
-		<dump><rom><hash>cf6a43181a15cfde3091d182ceaddf3d9bddd57b</hash></rom></dump>
-</software>
-<software>
 	<title>Castle Tomb</title>
 	<system>MSX</system>
 	<company>AG Software</company>
@@ -3914,6 +3906,15 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>194c7fd1fb3a2a52f4669e98e777b44df647a983</hash></rom></dump>
 </software>
 <software>
+	<title>Eagle Control</title>
+	<genmsxid>3054</genmsxid>
+	<system>MSX</system>
+	<company>Eurosoft</company>
+	<year>1988</year>
+	<country>NL</country>
+		<dump><megarom><type>ASCII16</type><hash>1362a9fefd8372420807a16a4bf08f23d0a131de</hash></megarom></dump>
+</software>
+<software>
 	<title>Eagle Fighter</title>
 	<genmsxid>379</genmsxid>
 	<system>MSX</system>
@@ -4001,6 +4002,15 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>cd8ee800822ff0cd295621faafafc73be4bacad0</hash></megarom></dump>
+</software>
+<software>
+	<title>El Cid</title>
+	<genmsxid>2152</genmsxid>
+	<system>MSX</system>
+	<company>Dro Soft</company>
+	<year>1987</year>
+	<country>ES</country>
+		<dump><megarom><type>ASCII16</type><hash>72493ae23be25d8caa1396f6fc8e8cce001c9ee0</hash></megarom></dump>
 </software>
 <software>
 	<title>Electromatic</title>
@@ -8315,14 +8325,6 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX</original><rom><hash>d2aa1605a6b56c118e18b385ab879536d74cc355</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>c76ca96ed23621a6267d9906cc4a1ee428677f98</hash><remark>[a1]</remark></rom></dump>
 		<dump><rom><hash>556071f03bfddef1bc84ae311ba286ad849868ad</hash></rom></dump>
-</software>
-<software>
-	<title>MSX Swimming Game</title>
-	<system>MSX</system>
-	<company>Unknown</company>
-	<year>19xx</year>
-	<country></country>
-		<dump><rom><hash>a3a502afd3e65b1605260b3739b196f6fd0931e2</hash></rom></dump>
 </software>
 <software>
 	<title>MSX Swimming Game</title>
@@ -12706,7 +12708,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>The Bytebusters</company>
 	<year>1987</year>
 	<country>NL</country>
-		<dump><megarom><type>Generic8kB</type><hash>2f8865a1d37eadd6a8c153e250caf9bcbe3ea271</hash></megarom></dump>
+		<dump><megarom><type>GenericKonami</type><hash>2f8865a1d37eadd6a8c153e250caf9bcbe3ea271</hash></megarom></dump>
 </software>
 <software>
 	<title>SkyFox</title>
@@ -18492,4 +18494,4 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:4412 - Created on Tue Jan 14 2020 - 9:20:48 AKST-->
+<!-- Roms in this XML file:4412 - Created on Tue Jan 14 2020 - 13:13:46 AKST-->
