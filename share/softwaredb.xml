@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1579151656">
+<softwaredb timestamp="1579818097">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -14,6 +14,14 @@ The softwaredb.xml file contains information about rom mapper types
 
 
 ]]>
+<software>
+	<title>Postrelease</title>
+	<system>SVI</system>
+	<company>Five Finger Punch</company>
+	<year>2016</year>
+	<country>CA</country>
+		<dump><rom><hash>3ea09d322ec7a91b8acd7fc7b4688570b85ed5f3</hash><remark>SVI 328 demo - Edison 2016</remark></rom></dump>
+</software>
 <software>
 	<title>1 2 3</title>
 	<genmsxid>1903</genmsxid>
@@ -951,14 +959,6 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1988</year>
 	<country>ES</country>
 		<dump><rom><hash>07758cd468178225be59b3536ed1f46e80e5ff6b</hash><remark>ROM version by Kabish</remark></rom></dump>
-</software>
-<software>
-	<title>Aspar GP Master</title>
-	<genmsxid>2111</genmsxid>
-	<system>MSX</system>
-	<company>Dinamic</company>
-	<year>1988</year>
-	<country>ES</country>
 		<dump><megarom><type>ASCII16</type><hash>4b7ca4cf9c730f4b81f3666770b7a0816d470425</hash></megarom></dump>
 </software>
 <software>
@@ -6414,14 +6414,6 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1988</year>
 	<country>ES</country>
 		<dump><rom><hash>78c0a3bd9f43bc1630741e7096fe14f42ccdf79b</hash><remark>ROM version by Kabish</remark></rom></dump>
-</software>
-<software>
-	<title>Humphrey</title>
-	<genmsxid>2222</genmsxid>
-	<system>MSX</system>
-	<company>Made in Spain</company>
-	<year>1988</year>
-	<country>ES</country>
 		<dump><megarom><type>ASCII16</type><hash>291c15552ee2b5761279a6a05685a673ef2d2514</hash></megarom></dump>
 </software>
 <software>
@@ -6849,22 +6841,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>ASCII8</type><hash>217b21d10d80fe2d5d04636ee8c2f97f6edfe34a</hash></megarom></dump>
 </software>
 <software>
-	<title>Inindo Tado Nobunaga</title>
-	<genmsxid>1545</genmsxid>
-	<system>MSX</system>
-	<company>KOEI</company>
-	<year>1991</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash>0cc6c30c6918fcf780e57d40f58a4cf2a82225cd</hash></megarom></dump>
-</software>
-<software>
-	<title>Inindo Tado Nobunaga</title>
+	<title>Inindo - Way of the Ninja</title>
 	<genmsxid>1545</genmsxid>
 	<system>MSX</system>
 	<company>KOEI</company>
 	<year>1991</year>
 	<country>JP</country>
 		<dump><megarom><type>KoeiSRAM32</type><hash>97f2cc1cd4c51dc20b86cd190016b8f0c006a968</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash>0cc6c30c6918fcf780e57d40f58a4cf2a82225cd</hash></megarom></dump>
 </software>
 <software>
 	<title>Instructor</title>
@@ -11149,7 +11133,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>KonamiSCC</type><hash>8b816f328958ba87388aa5a9abbd895f9c48e7ca</hash></megarom></dump>
 </software>
 <software>
-	<title>Perfect Math For Second Preparatory Class Part 1-1</title>
+	<title>Perfect Math For Second Preparatory Class Part 1-2</title>
 	<genmsxid>1886</genmsxid>
 	<system>MSX</system>
 	<company>Methali</company>
@@ -11158,7 +11142,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>KonamiSCC</type><hash>d5028fedcc9f990357e222b62c5c0fccc22698a6</hash></megarom></dump>
 </software>
 <software>
-	<title>Perfect Math For Third Preparatory Class Part 1-2</title>
+	<title>Perfect Math For Third Preparatory Class Part 1-1</title>
 	<genmsxid>1888</genmsxid>
 	<system>MSX</system>
 	<company>Methali</company>
@@ -11619,14 +11603,6 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX</original><rom><hash>c713ecd0e2ef89b2443e516d5ffa53d3a3422e22</hash></rom></dump>
 		<dump><rom><hash>b8f9248a6f2bc02ed2dcae3f21d6fe0e572e23fe</hash><remark>[h Boram Soft]</remark></rom></dump>
 		<dump><rom><hash>3871a4b6b8e6358f86d964110abaf263d32a6f8d</hash></rom></dump>
-</software>
-<software>
-	<title>Postrelease</title>
-	<system>MSX</system>
-	<company>Five Finger Punch</company>
-	<year>2016</year>
-	<country>CA</country>
-		<dump><rom><hash>3ea09d322ec7a91b8acd7fc7b4688570b85ed5f3</hash><remark>SVI 328 demo - Edison 2016</remark></rom></dump>
 </software>
 <software>
 	<title>Poyopoyo Life 1</title>
@@ -14356,413 +14332,6 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>cf088b4eefe7f426e438dd2fe7a3433140abba52</hash></megarom></dump>
 </software>
 <software>
-	<title>SystemRoms</title>
-	<system>MSX</system>
-	<company>Unknown</company>
-	<year>19xx</year>
-	<country>JP</country>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>01600d06d83072d4e757b29728555efde2c79705</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>02155fc25c9bd23e1654fe81c74486351e1ecc28</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0287b2ec897b9196788cd9f10c99e1487d7adbbb</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0340707c5de2310dcf5e569b7db4c6a6a5590cb7</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>03bf6d2ac86f5c9ab618e155442787c700f99fed</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>05338b8c499f48cf1a173a0671d891c62acd7d76</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>05fedd4b9bfcf4949020c79d32c4c3f03a54fb62</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>06ba91d6732ee8a2ecd5dcc38b0ce42403d86708</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>073feb8bb645d935e099afaf61e6f04f52adee42</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>07758272df475e5e06187aa3574241df1b14035b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>079c018739c37485f3d64ef2145a0267fce6e20e</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0958361ac9b19782cf7017b2e762b416e0203f37</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>09f7d788698a23aa7eec140237e907d4c37cbfe0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0c08e799a7cf130ae2b9bc93f28bd4959cee6fdc</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0cbe0df4af45e8f531e9c761403ac9e71808f20c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0ce800666c0d66bc2aa0b73a16f228289b9198be</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0dde59e8d98fa524961cd37b0e100dbfb42cf576</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0de3c802057560560a03d7965fcc4cff69f8575c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0e081572f84555dc13bdb0c7044a19d6c164d985</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0e253ee076eff37f7ee450c0b10c71763fac990b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0f4f09f1a6ef7535b243afabfb44a3a0eb0498d9</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0f5798850d11b316a4254b222ca08cc4ad6d4da2</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0f851ee7a1cf79819f61cc89e9948ee72a413802</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>10349ce675f6d6d47f0976e39cb7188eba858d89</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1166a93d7185ba024bdf2bfa9a30e1c447fb6db1</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>11d1c62fbf5f896de028174bd17a64451aec4613</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>12f2cc79b3d09723840bae774be48c0d721ec1c6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>141e61cc8e0e51382e508fbd77a34b778a4f8444</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1566532146fcfc28c707753777c66585dc12418a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>171b587bd5a947a13f3114120b6e7baca3b57d78</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>174c9254f09d99361ff7607630248ff9d7d8d4d6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>17b2810545e55d3fa5821d74d8b5ab5475165fba</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>181bf58da7184e128cd419da3109b93344a543cf</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>18559fa9c2d9e99a319550d809009ecdba6d396e</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1c9a5867d39f6f02a0a4ef291904623e2521c2c5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1e9a955943aeea9b1807ddf1250ba6436d8dd276</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1ebb06062428fcdc66808a03761818db2bba3c73</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1ee2abc68a81ae7e39548985021b6532f31171b2</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1ef3956f7f918873fb9b031339bba45d1e5e5878</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>21329398c0f350e330b353f45f21aa7ba338fc8d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>218d91eb6df2823c924d3774a9f455492a10aecb</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>21a9f60cb6370d0617ce54c42bb7d8e40a4ab560</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>22b3191d865010264001b9d896186a9818478a6b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>22d5f4e522250dc5eb17e15b68f4a51bb752cba1</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>24624c5fa3a8069b1d865cdea8a029f15c1955ea</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>24f3bea9f47a4d9f89be1ae1040facbfd0dba1bd</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>2752cd89754c05abdf7c23cba132d38e3ef0f27d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>29a9169b605b5881e4a15fcfd65209a4e8679285</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>2c9600c6e0025fee10d249e97448ecaa37e38c42</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>2d1880d1f5a6944fcb1b198b997a3d90ecd1903d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>2f997e8a57528518c82ab3693fdae243dbbcc508</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>2fcb40413e7d373f0f2dbdc815ce18746ddf3684</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>302afb5d8be26c758309ca3df611ae69cced2821</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>304bb59b8fcc19fd76b6879331243f42f53fc47d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>30737040d90c136d34dd409fe579bc4cca11c469</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>307a7be064442feb4ab2e1a2bc971b138c1a1169</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>30ba1144c872a0bb1c91768e75a2c28ab1f4e3c6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>30d914cda2180889a40a3328e0a0c1327f4eaa10</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>30fff22e3e3d464993707488442721a5e56a9707</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>31292b9ca9fe7d1d8833530f44c0a5671bfefe4e</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3288894e1be6af705871499b23c85732dbc40993</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3289336b2c12161fd926a7e5ce865770ae7038af</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3330d9b6b76e3c4ccb7cf252496ed15d08b95d3f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3376cf9dd2b1ac9b41bf6bf6598b33136e86f9d5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>347692f5a6bf2020709e5d7f6639637ec4d54343</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>35195ab67c289a0b470883464df66bc6ea5b00d3</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>358e69f427390041b5aa28018550a88f996bddb6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>38a645febd0e0fe86d594f27c2d14be995acc730</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>39dfc46260f99b670916b1e55f67a5d4136e6e54</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3a481c7b7e4f0406a55952bc5b9f8cf9d699376c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3a74e73b94d066b0187feb743c5eceddf0c61c2b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3a9a942ed888dd641cddf8deada1879c454df3c6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3abca440cba16ac5e162b602557d30169f77adab</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3ce8e35790eb4689b21e14c7ecdd4b63943ee158</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3e005832138ffde8b1c36025754f81c2112b236d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3e85d2a374c7ea0449d5a69b13f445376060611c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3f047469b62d93904005a0ea29092e892724ce0b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>421ac0dbfdf35b35fe5adba5d528efba28edcecb</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>42252cf87deeb58181a7bfec7c874190a1351779</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4421fa2504cbce18f7c84b5ea97f04e017007f07</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>44e0dd215b2a9f0770dd76fb49187c05b083eed9</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>47a9d9a24e4fc6f9467c6e7d61a02d45f5a753ef</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>47cc280f0d8b0611fdb1069e6fd7b854cae93546</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4811956f878c3e03da46317f787cdc4bebc86f47</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>49f1cc4b387ec870bc39646f84bec921ca076c5d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4a99f2444f29c2b642efd6f084081d6fd96bfa9b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4ab7b2030d022f5486abaab22aaeaf8aa23e05f3</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4b4508131dca6d811694ae6379f41364c477de58</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4b8385824b884e2e9dc184154f1f2b926724c6c7</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4b84465c2faa802bfd5f772118c4d31f993f29d0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4be8371f3b03e70ddaca495958345f3c4f8e2d36</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4c8ea05c09b40c41888fa18db065575a317fda16</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4cbceba8f37f08272b612b6fc212eeaf379da9c3</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4ce41fcc1a603411ec4e99556409c442078f0ecf</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4d0c37ad722366ac7aa3d64291c3db72884deb2d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4d253cfc87a88261a05ab1b5587bdbf723e47b10</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4dad9de7c28b452351cc12910849b51bd9a37ab3</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4e2ec9c0294a18a3ab463f182f9333d2af68cdca</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4e9384c9d137f0ab65ffc5a78f04cd8c9df6c8b7</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4f0102cdc27216fd9bcdb9663db728d2ccd8ca6d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5029cf47031b22bd5d1f68ebfd3be6d6da56dfe9</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5077b9c86ce1dc0a22c71782dac7fb3ca2a467e0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>521928db7bc81a8db4cac1e666851e2bf01c8d53</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>54ff13b58868018fcd43c916b8d7c7200ebdcabe</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>558b7383544542cf7333700ff90c3efbf93ba2a3</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>583cda86979ff4cd1eef75e79c7fda96e425317a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>58ac78bba29a06645ca8d6a94ef2ac68b743ad32</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>58accf41a90693874b86ce98d8d43c27beb8b6dc</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>58dbe73ae80c2c409e766c3ace730ecd7bec89d0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>59967765d6e9328909dee4dac1cbe4cf9d47d315</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5a4e7dbbfb759109c7d2a3b38bda9c60bf6ffef5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5aff2d9b6efc723bc395b0f96f0adfa83cc54a49</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5b496df8bd55c563aed1b4ae163271afa76db367</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5c5eb001e6a1fe29edb7abd428a3967bb388e5db</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5cf0abca6dbcf940bc33c433ecb4e4ada02fbfe6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5e094fca95ab8e91873ee372a3f1239b9a48a48d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5e1a4bd6826b29302a1eb88c340477e7cbd0b50a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5e7c8eab238712d1e18b0219c0f4d4dae180420d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5e872d5853698731a0ed22fb72dbcdfd59cd19c3</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>620a209bdfdb65a22380031fce654bd1df61def2</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>623cbca109b6410df08ee7062150a6bda4b5d5d4</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>63050d2d21214a721cc55f152c22b7be8061ac33</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>63098f27beac9eca6b39d837d2a552395df33fe1</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>6442c1c5cece64c6dae90cc6ae3675f070d93e06</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>64adb7fcf9b86f59d8658badb02f58e61bb15712</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>663f8c512d04d213fa616b0db5eefe3774012a4b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>665d805f96616e1037f1823050657b7849899283</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>6680d7118d85418813f1db9449bf3e20942b16da</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>688c1e790034205c36489ee90f2e9099bf6316ef</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>692cec5e5cf05504f438b656cf0810330c50f64b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>698eb9eb07dee1dc471a717af6ea1da85ad38618</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>69bf27b610e11437dad1f7a1c37a63179a293d12</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>6a50295ea35e720ba6f4ba5616c3441128b384ed</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>6acaf2eeb57f65f7408235d5e07b7563229de799</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>6b640c1d8cbeda6ca7d6facd16a206b62e059eee</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>6bb18cd2d69f124ad0c7c23a13eb0d2139037696</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>6ecf73a1dd55b363c2e68cc6245ece979aec1fc5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>716952eab41077f18e6835d11caad6761b17d400</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>73d1ce106501b9e8151b4214448537617d82667f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>73f5f868193a9c8ecc7614ce4f454b4329b9e1b9</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>74ee82cc09ffcf78f6e9a3f0d993f8f80d81444c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7574cc5655805ea316011a8123b064917f06f83c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>75f5f0a5a2e8f0935f33bb3cf07b83dd3e5f3347</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>77bd67d5d10d459d343e79eafcd8e17eb0f209dd</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>77f9fe964f6d8cb8c4af3b5fe63ce6591d5288e6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7850264dead5b05dd07fc79c1b7357940b92565e</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>78cd7f847e77fd8cd51a647efb2725ba93f4c471</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7a69e9b9595f3b0060155f4b419c915d4d9d8ca1</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7b4a96402847decfc110ff9eda713bdcd218bd83</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7bba23669b7abfb6a142f9e1735b847d6e4e8267</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7bbe3f355d3129592268ae87f40ea7e3ced88f98</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7dfb18262d48e559fffb4199acbe29d9b4bee9db</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7e6a267e1a3e075dcdad3669b651b1050f6375ac</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7ed7c55e0359737ac5e68d38cb6903f9e5d7c2b6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7edc5ec9a28c5dbb64295d41b62c381819ea5977</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7eea205044af48cfde9b7fff277d961704c4d45c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7efac54dd8f580f3b7809ab35db4ae58f0eb84d1</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7f440ec7295d889b097e1b66bf9bc5ce086f59aa</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7f498db2f431b9c0b42dac1c7ca46a236b780228</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7f5b76605e3d898cc4b5aacf1d7682b82fe84353</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7f86af13e81259a0db8f70d8a7e026fb918ee652</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7f8c94cb8913db32a696dec80ffc78e46693f1b7</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>807a823d4cac527c9f3758ed412aa2584c7f6d37</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>80872d997d18e1a633e70b9da35a0d28113073e5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8167117a003824220c36775682acbb36b3733c5e</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>816ceb21088b116ec34be0ff869d02222b525e58</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>82415ee031721d1954bfa42e1c6dd79d71c692d6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>829c00c3114f25b3dae5157c0a238b52a3ac37db</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>849f93867ff7846b27f84d0be418569faf058ac2</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>84a645becec0a25d3ab7a909cde1b242699a8662</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>85ab6946950d4e329d5703b5defcce46cd96a50e</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8674d000a52ec01fd80c8cb7cbaa66d4c3ca5cf7</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8779b004e7605a3c419825f0373a5d8fa84e1d5b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>87f4d0fa58cfe9cef818a3185df2735e6da6168c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>88611b54cdbb79aa5380570f3dfef8b3a1cc2057</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8954e59aa79310c7b719ecf0cde1e82fb731dcd1</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8963fc041975f31dc2ab1019cfdd4967999de53e</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>898630ad1497dc9a329580c682ee55c4bcb9c30c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8cc1f7ceeef745bb34e80253971e137213671486</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8e2376d78ffd1db75f6020a97651751ef841f105</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8e889999ecec302f05d3bd0a0f127b489fcf3739</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8ffc24677fd9d2606a79718764261cdf02434f0a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>914f6ccb25d78621186001f2f5e2aaa2d628cd0c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>917d1c079e03c4a44de864f123d03c4e32c8daae</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>92bac0b2995f54f0eebf167cd447361a6a4923eb</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>930338f45c08228108c0831cc4a26014c2674718</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>931d6318774bd495a32ec3dabf8d0edfc9913324</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>933719a975a62395068b0a251dd4395b67217630</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>9425815446d468058705bae545ffa13646744a87</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>97ce59892573cac3c440efff6d74c8a1c29a5ad3</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>97f9a0b45ee4b34d87ca3f163df32e1f48b0f09c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>98bbfa3ab07b7a5cad55d7ddf7cbd9440caa2a86</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>99990f4b262c6c6e0682041bf30d1ed24dc7dda5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>9a62d7a5ccda974261f7c0600476d85e10deb99b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>9d67fab55b85f4ac4f5924323a70020eb8589057</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>9db72bb78792595a12499c821048504dc96ef848</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>9ed3ab6d893632b9246e91b412cd5db519e7586b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>9efa744be8355675e7bfdd3976bbbfaf85d62e1d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>9f7cfa932bd7dfd0d9ecaadc51655fb557c2e125</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>9fbbe400dbaf186aeba42e170d9424b032412c42</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a08a940aa87313509e00bc5ac7494d53d8e03492</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a11949a2072d5a2f58cb63e934877bac46809285</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a3f4e2e4934074925d775afe30ac72f150ede543</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a4bdbdb20bf9fd3c492a890fbf541bf092eaa8e1</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a4f19371fd09b73f2776cb637b0e9cbd8415f8eb</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a5b02ea4a1530f2b96f0f4f4e2049f0de4a31e5a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a6d7b1fd4ee896ca7513d02c033fc9a8aa065235</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a7a23dc01314e88381eee88b4878b39931ab4818</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a7a34671bddb48fa6c74182e2977f9129558ec32</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a953bef071b603d6280bdf7ab6249c2e6f1a4cd8</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>aa78fc9bcd2343f84cf790310a768ee47f90c841</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>aad42ba4289b33d8eed225d42cea930b7fc5c228</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ace202e87337fbc54fea21e22c0b3af0abe6f4ae</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ade0c5ba5574f8114d7079050317099b4519e88f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ae4a6632d4456ef44603e72f5acd5bbcd6c0d124</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>affa3c5cd8db79a1450ad8a7f405a425b251653d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b003a5a12920facb30aa3e526a71fb557c669309</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b034764e6a8978db60b1d652917f5e24a66a7925</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b1ac74c2550d553579c1176f5dfde814218ec311</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b1cce60ef61c058f5e42ef7ac635018d1a431168</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b262aedc71b445303f84efe5e865cbb71fd7d952</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b2776159a7b92d74308b434a6b3e5feba161e2b7</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b484c8fa4549b79cff976001ac4beb19abf7cfb5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b4c9a06054cda5fd31311a79cc06e6f018cf828f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b677a861b67e8763a11d5dcf52416b42493ade57</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b6d3649a6647fa9f6bd61efc317485a20901128f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b6f2ca2e8a18d6c7cd326cb8d1a1d7d747f23059</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b746192dc333eaf2a725a44777303808a3649d63</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>baf2e9c69252fd9b350b488d89c71887b9d05eec</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>bb59c849898d46a23fdbd0cc04ab35088e74a18d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>bb608fe748ee88d45564ad8e3582c2222730b3b5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>bc7c9cc047a72b46e6b7b0d38efa178261a38d03</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>bcdb4dae303dfe5234f372d70a5e0271d3202c36</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>bd0ad648d728c691fcee08eaaaa95e15e29c0d0d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>befebc916bfdb5e8057040f0ae82b5517a7750db</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c1e46c00f1e38fc9e0ab487bf0513bd93ce61f3f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c212b11fda13f83dafed688c54d098e7e47ab225</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c2340313bfda751181e8a5287d60f77bc6a2f3e6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c289dad246364e2dd716c457ca5eecf98e76c9ab</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c3efedda7ab947a06d9345f7b8261076fa7ceeef</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c3f3ca454d66a0bc791f1d4b60e6857b44eb8755</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c53b3f2c00f31683914f7452f3f4d94ae2929c0d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c5bfa85f7315fb11928b27a721a908c93b7d3fbf</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c619d0cc997a5ec8fe62d756dc3d390c450baa21</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c63db26660da96af56f8a7d3ea18544b9ae5a37c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c6cf31d86344513f2efb0008fe0aaeca174266c6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c7a2c5baee6a9f0e1c6ee7d76944c0ab1886796c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c7c27e2d5da18438f956edc2ca41536ad09d0e75</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c9500da2151881ea40b005f383b8602450129bf3</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>caeffdd654394726c8c0824b21af7ff51c0b1031</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>cc1744c6c513d6409a142b4fb42fbe70a95d9b7f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>cc57c1dcd7249ea9f8e2547244592e7d97308ed0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>cdeb0ed8adecaaadb78d5a5364fd603238591685</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>cef16eb95502ba6ab2265fcafcedde470a101541</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>cfcc88355fb201967376ffae6bef04c87c54e11a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d0ad8e329b5c3bf37c6fca3ed1c0f165ad77362c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d37ab4bd2bfddd8c97476cbe7347ae581a6f2972</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d3af963e2529662eae63f04a2530454685a1989f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d4cea8c815f3eeabe0c6a1c845f902ec4318bf6b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d4e5b98ce23573669fb44447582d656e390791c0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d51eb5bdce84c23d3279b99e282ba1605f2bb80b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d552319a19814494e3016de4b8f010e8f7b97e02</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d5bf4814ea694481c8badbb8de8d56a08ee03cc0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d6720845928ee848cfa88a86accb067397685f02</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d6aad8b5f84fe1dcd3f9018b81aa0ff3e30e4886</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>dab3e6f36843392665b71b04178aadd8762c6589</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>db03211b7db46899df41db2b1dfbec972109a967</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>db2635ef7e3f8589518dca65f2e3b515edc5372d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>dcc3a67732aa01c4f2ee8d1ad886444a4dbafe06</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>dd1b577ea3ea69de84a68d311261392881f9eac3</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>dd3c39c8cfa06ec69f54c95c3b2291e3da7bd4f2</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>df07e89fa0b1c7874f9cdf184c136f964fea4ff4</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>df48902f5f12af8867ae1a87f255145f0e5e0774</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>df503d6f5d72a2a355db53c35950348fb7c767bf</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e0e99cd91e88ce2676445663f832c835d74d6fd4</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e194d290ebfa4595ce0349ea2fc15442508485b0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e2fbd56e42da637609d23ae9df9efd1b4241b18a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e3130d89a422db291142f366ab24cd0dbc921467</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e4fdf518a8b9c8ab4290c21b83be2c347965fc24</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e779c338eb91a7dea3ff75f3fde76b8af22c4a3a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e7905d16d2ccd57a013c122dc432106cd59ef52c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e84d3ec7a595ee36b50e979683c84105c1871857</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e89ea1e8e583392e2dd9debb8a4b6a162f58ba91</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e8fd2bbc1bdab12c73a0fec178a190f9063547bb</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e90f80a61d94c617850c415e12ad70ac41e66bb7</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e998f0c441f4f1800ef44e42cd1659150206cf79</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ea35cc2cad9cfdf56cae224d8ee41579de37f000</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ea4a723cf098be7d7b40f23a7ab831cf5e2190d7</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ea6a82cf8c6e65eb30b98755c8577cde8d9186c0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>eb729c5d4f514fd56c37ddc3268849d71643b274</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ebb76f9061e875365023523607db610f2eda1d26</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ed2fea5c2a3c2e58d4f69f9d636e08574486a2b1</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ed589da7f359a4e139a23cd82d9a6a6fa3d70db0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ee9c6a073766bef2220a57372f5c0dbfc6e55c8c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>eedb8e7fa7a3add746b76a87077b3af8c2fc07aa</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ef3e010eb57e4476700a3bbff9d2119ab3acdf62</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f1525de4e0b60a6687156c2a96f8a8b2044b6c56</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f1e3ebc87153a84df224fbe20131a5d622f6d9da</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f283ad736a8f3b88ca3bd940e28adf27c12cbda1</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f2def2d1f8be9c34e67e4e42675204a51aeae650</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f38ce627dcdfad39c892cc8125a0b3b2106775e9</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f4433752d3bf876bfefb363c749d4d2e08a218b6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f4dba5ba267b5dd1a35eb74a6ec4fd4d5ca9a1b4</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f4f7a54cdf5a9dd6c59f7cb219c2c5eb0a00fa8a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f5af1d2a8bcf247f78847e1a9d995e581df87e8e</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f5eb0a396097572589f2a6efeed045044e9425e4</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f794c86ad8895a152decdc439307adf29d6b60a5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f7c3ac138918a493eb91628ed88cf37999059579</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f8cd4c05083decfc098cff077e055a4ae1e91a73</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f929bd1d720b0ef7092c9add8accd0d56fc9c8a3</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>fb51c505adfbc174df94289fa894ef969f5357bc</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>fc760d1d7b16370abc7eea39955f230b95b37df6</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>fcc385b90c65575e29fc009aa00b5120fc4c251a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>fd9fa78bac25aa3c0792425b21d14e364cf7eea4</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>fe0254cbfc11405b79e7c86c7769bd6322b04995</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ff6e07d3976b0874164fae680ae028d598752049</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>005794c10a4237de3907ba4a44d436078d3c06c2</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>42f4e3360eb134857b0efa82c1abedf342680124</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>633ad62599361bbb8ba6803cdcfaa14c54521c43</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e92f47bd8320f94b8f7ae1943b31316002075ffb</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1ad39f7bfa384b8940073bf0c5ad0bff95aee004</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ffc1bafca38d20ed6e9a27c90c6ab089a8482d89</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>aa98b0822d768acb73ab729d736c8fb682685492</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e0c890f7dd2557cb66d0e61bd9da4671d34c1a7d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e89eb87f295a2c93688265c4f6f25a9ccb4e3697</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a363015286341ffabcdc38ef0d890897ed51e322</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>124126cee840e43c7668c11c2bec2f34b3d00c68</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>cab21a2cb40e9eeca2e9833128f6a1dfdec0c142</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d9c82e091b5fa1b5ee9b7f012f0084611762eb93</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>fc71561a64f73da0e0043d256f67fd18d7fc3a7f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f59d33311c95edc0168445f74eddd8a6772aa6a0</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>d1d516357b14da0efbdbf74734b27331aebf26b8</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>82a7912302b2bbd1969f12f0534626ca59f657ac</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8ecd9b5099e8ca2915183fdf1e93907566cc96ce</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f2da984b2076a00d7359df4803fccdc0552b0e5d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>95a537555e9ef890ca2578d98c81ba34d227ac54</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>4b08a057e5863ade179dcf8bc9377e90940e6d61</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>6996489fcec52934b8beed87643cc33d02ecc301</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>fec451b9256570a0e4869355a40329c57f40705f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>9d789166e3caf28e4742fe933d962e99618c633d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>19bf90b8d2e695ffad61fff6f47f7fcda2f24a1d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>36d47cf70618fdb460f97a8ceb75013ec4529063</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>930eae7057af1652abae794072b296a59decd61b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a2f70f911ccaa6831008bd473e92a3f0eb1e8b0f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>13007f9340670deda42c4b53c06c19d3d3c09704</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>608e8e9ab91c67f7015a67ea12f52ea3b0d609cd</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ab57b4c8e5d47c2a39031c2057b97d2d10546582</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e067ce2b444ec7a3dd45d9e2df4b34c1ba732872</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ba83a80a0041e3a8fb5c075a9b4a29ee92255d62</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>11bd12a95142185d18659ccf74748fc1bb20c60d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>5a14ac0a1cce3ceebdcd66c42b2d5c975d45b755</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0d246b0e3edc63803fcce861ea07eadf29dc488c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1c79c8fcfd661394f91be94b218955c84cabd742</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>93e41c7d479bc90c1d1f6d081af20fd9924b8ada</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>bb72819da1160bc375fa3623f2d0a5424d08c89b</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1621f623b834dc57cb2983f30b36bcc3ac56cafd</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>658bc7cd4b19bd5face14f09e4e2904157a5c298</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f0abc38f345c05e2112079239d09f25fb08a7c56</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>41c4810ec56ed0f61e0fc8b355d2aae91de12d99</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c4c50eaaa427b5ad4ac45ceabb29eba894839334</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f32b29dcd7b4e3a1a869dde52508a712513bd788</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3b02e5f45603df2c180f9c07d59b2ccc5a87bd0a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b344b5b7988f459354a2db49d7d339ceeee7d864</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>9c924cc79b17cfe468fc7c969868be86ccbe9d46</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>7f115ff923a1cc0d1944cf280168add946fde854</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c36c9e0f96738a340381e23b4f97245388801a46</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>3b4ac664b7b14d5481c41ff1891c20135c10b186</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>121314c28703ce85246ea80018b6d29887c6365d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>e88ca790ab58e7709cd99cbbb23ff7d33631b71f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>92bf102e175f67902659605e3e3b8f8ecf2daf1f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f081a884505af9a1080b2b57e86b6da93b784301</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>c7463e1fd0433c5d41b70670d6c10fd781b66426</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>10930164d65175645e348d896db1d821b5413aa5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>2a3d953a423fa513f0d26a8bf0bd50664688868c</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>20100697cc10c3a1e49d371bf647fed9c47c4d04</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>61cba1680ac6cb448dc3e8c710a43f4e7ab49457</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>ab1d6dc0cb851c0ca15b260674ad884d0b8d85fb</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>0b63e9cf99bc2a3d7f21cabf1cb668a6ca71ad2d</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>f0e0447a0872a2f09d7b28d9599fdd183acb5cb2</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>352ec8c99fe1397a88ecb3aee6dbb4d121c818e9</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>1d4c09166755c6569ff0ed3878bbf1b22d7e3864</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8afd1ec5843ecfdcbff11497fa8c55b870c0c6f5</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a45692849acf29ddb653707a62747985439f6d4f</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>92a433e877626461a6481ca75c252e643752f0c4</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>794aca3c2136933f1fe6405e56e0ce7fdbb10385</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>49a1750c10e407293af6bce27a02e99307ceba12</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>2cb1c373753d792b75609d81d57719d545c63c41</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>952c02cf180fb5c0384bba96f437d7ec59259c61</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>a337c9aede83cf684339f61a80468e73af31ebeb</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>2ba40f6520e3045326a985956f7d32ff6d7cd99a</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b88c507720a0617a27141c329755de1a48b89deb</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>b24ba3c1baf8f33999a60269513b2ccd3d144d37</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>adb90803ba6fd25df35d10ac0d90da23f1b9c164</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>8924e3e11eb1c8c1edcb7efa63c26d2bdc142473</hash></megarom></dump>
-		<dump><original value="false">System</original><megarom><type>System</type><hash>32760893ce06dbe3930627755ba065cc3d8ec6ca</hash></megarom></dump>
-</software>
-<software>
 	<title>T-Virus:Brain Dead!</title>
 	<system>MSX</system>
 	<company>Dioniso</company>
@@ -14978,15 +14547,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>936f9ba82c7cdb703a4b1fffce75b03508008e12</hash><remark>English Translation - Speed Boost / MSX Translations (Trainer Only)</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>807ccf770ea07edd4f9d0bc2ab68db607650f741</hash><remark>English Translation - Speed Boost / MSX Translations</remark></megarom></dump>
 		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>f194d9d7c632acfcc37b8438854551bfd88c2490</hash><remark>English Translation - Speed Boost / MSX Translations [Trained]</remark></megarom></dump>
-</software>
-<software>
-	<title>Tengoku Yoitoko - Heaven</title>
-	<genmsxid>976</genmsxid>
-	<system>MSX</system>
-	<company>TAITO</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>b1469b65b102a31fad91fc60960f243b626f4fe0</hash><remark>English Translation - Speed Boost / MSX Translations - Trained</remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>b1469b65b102a31fad91fc60960f243b626f4fe0</hash><remark>English Translation - Speed Boost / MSX Translations [Trained]</remark></megarom></dump>
 </software>
 <software>
 	<title>Tensai Rabbian Daifunsen</title>
@@ -16335,6 +15896,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>ASCII16</type><hash>60e71632591f1dc349e59c2679484384a4bacf69</hash></megarom></dump>
 </software>
 <software>
+	<title>Who Dares Wins - Remake</title>
+	<system>MSX</system>
+	<company>RetroForce</company>
+	<year>2016</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>4ebd62ae6a43846de266c193b92c962e464e4a6f</hash></megarom></dump>
+</software>
+<software>
 	<title>Who Dares Wins 2</title>
 	<genmsxid>2414</genmsxid>
 	<system>MSX</system>
@@ -17174,6 +16743,17 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>b365850d7247d1be9a5ee36da5250a1a577008b2</hash><remark>Volume 3</remark></rom></dump>
 </software>
 <software>
+	<title>Bankruptcy Builder</title>
+	<system>COLECOVISION</system>
+	<company>Philipp Klaus Krause</company>
+	<year>2008</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>f3a8887709bb8dce98e62c381cfccfc801053362</hash><remark>2008-05-15</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>9c74c597eac815b0bb16f58b584b916cd736964c</hash><remark>2008-05-17</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>b749d24bad5afd41b864d57735039aea58c57e15</hash><remark>2008-05-18</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>a797b4b2a7df9562e32c902ab6a1f89b7ffee3c8</hash><remark>2008-07-20</remark></rom></dump>
+</software>
+<software>
 	<title>Beamrider</title>
 	<system>COLECOVISION</system>
 	<company>Activision</company>
@@ -17206,6 +16786,19 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1984</year>
 	<country>US</country>
 		<dump><rom><type>page23</type><hash>cb68d5a70ca0567060eddfd0b7783cbeeffb399e</hash><remark>Demo</remark></rom></dump>
+</software>
+<software>
+	<title>Black Onyx</title>
+	<system>COLECOVISION</system>
+	<company>Bruce Tomlin</company>
+	<year>2007</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>751477c5fcf419e206913ec0c91f61287cf6fe0a</hash><remark>v001</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>a711d2e4edea4ddd6eb1edbb5edb42b65820a3f3</hash><remark>v002</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>88f4d23528dfb05e9a06201016360cc495407578</hash><remark>v003</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>f312f15f1f63167060960604b38d73a605892ff0</hash><remark>v004</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>f5cad21a2b0f9e4700d2d5d89b0e6fd47daa8d55</hash><remark>v005</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>fc2b2003bcec3ef388f28f615f8d82e583edf951</hash><remark>v006</remark></rom></dump>
 </software>
 <software>
 	<title>Blockade Runner</title>
@@ -17279,6 +16872,15 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>page23</type><hash>8df20c9c151b01b0d859c0ab4753d5cce3956224</hash></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>158f666aac5cf48c77b62beb77310a45f6c7e2ea</hash><remark>broken / Prototype</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>efeb5031064061e2f02eb442ff0857fa21ee042d</hash></rom></dump>
+</software>
+<software>
+	<title>Bunny</title>
+	<system>COLECOVISION</system>
+	<company>Daniel Bienvenu</company>
+	<year>2007</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>7cdb1b050f3ef25ab048ee1d64e99f1c5493fbea</hash></rom></dump>
+		<dump><rom><type>page23</type><hash>1e9c583fb812e99fb50875858035b41d8dcb497d</hash><remark>6K</remark></rom></dump>
 </software>
 <software>
 	<title>BurgerTime</title>
@@ -17469,6 +17071,20 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>af04e2249ce3196cca7c48ab9f455bcda2c70962</hash><remark>(V023)</remark></rom></dump>
 </software>
 <software>
+	<title>Colored Gravity Demo</title>
+	<system>COLECOVISION</system>
+	<company>Philipp Klaus Krause</company>
+	<year>2008</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>11063680e503fef9fc251475ae3ec5e633611ff3</hash></rom></dump>
+		<dump><rom><type>page23</type><hash>b59a00a0cd449cffd4912175e182ca4bdfe44f52</hash><remark>[a2]</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>cc976a53f55c9081dd1934c9e0442f1b6f1962fd</hash><remark>[a]</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>6ebccb60a5cddc15cc6c293e981da67d653b4e3d</hash><remark>[a3]</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>5e6aa842ce998a9caa35d124c230ea6d747e7af8</hash><remark>[a4]</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>8600619785a23424fc0e4afd945f6846d91f955a</hash><remark>[a5]</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>1ece86117289156f1fdb89d231df6bb24d50be45</hash><remark>[a6]</remark></rom></dump>
+</software>
+<software>
 	<title>Congo Bongo</title>
 	<system>COLECOVISION</system>
 	<company>Coleco</company>
@@ -17528,6 +17144,17 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1997</year>
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>4033ef529fd847627e9928db70365322d0de89da</hash></rom></dump>
+</software>
+<software>
+	<title>Cye</title>
+	<system>COLECOVISION</system>
+	<company>Philipp Klaus Krause</company>
+	<year>2007</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>22bdea2e5eca03d5fb733be7f18f5c6730b0ac4e</hash><remark>Demo</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>6e5f11826910a60e447b450e7f83c0775afd9d1e</hash><remark>Beta</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>8cf4c5b717fc9f808edfe9cb1a5021acb0e987b1</hash><remark>Final Demo</remark></rom></dump>
+		<dump><original value="false">0</original><rom><type>page23</type><hash>b544d650ed3d047e47d69fe8d0106458200b93c8</hash><remark>A / Final Demo</remark></rom></dump>
 </software>
 <software>
 	<title>Dacman</title>
@@ -17812,6 +17439,15 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>1e96e4847295b461382ed2ddbf9270f11ba0adc7</hash><remark>[o1]</remark></rom></dump>
 </software>
 <software>
+	<title>Frantic</title>
+	<system>COLECOVISION</system>
+	<company>Scott Huggins</company>
+	<year>2008</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>f0d0a7d96edf77aa11467c426a9b4ec3d692ac8e</hash><remark>2008-04-04</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>8a81e9b854e7f7fd5d4419cc9716d03ac2cfe023</hash><remark>2008-08-09</remark></rom></dump>
+</software>
+<software>
 	<title>Frantic Freddy</title>
 	<system>COLECOVISION</system>
 	<company>Spectravideo</company>
@@ -17829,6 +17465,19 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>77da39d6fa64e1b3849f61967f148dfe846a32b2</hash><remark>[o2]</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>f8a7bbff1dfc19b85428206522c0ab73d0d628e2</hash><remark>[o3]</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>1ec4f4ebdc02c4e03bc9dbc83e34ce49da33942a</hash><remark>[o1]</remark></rom></dump>
+</software>
+<software>
+	<title>Frog Feast</title>
+	<system>COLECOVISION</system>
+	<company>Mark2008</company>
+	<year>2006</year>
+	<country>GB</country>
+		<dump><rom><type>page23</type><hash>61761d3825d26b8ad8e7b650dee3740ebfc3bdab</hash><remark>2006-10-21</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>b1ccb5f93a6d9d4da7373d7aa258c90981ed2645</hash><remark>2007-12-05</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>c5b9e73342eaa04dcc207c0b527abcaa7f5d9954</hash><remark>2007-12-13</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>3c858ab0e7de43de0deabd6c6bb39f212df73676</hash><remark>2007-12-16</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>61425b053243a3d72661d149ed536caa054c939e</hash><remark>2007-12-22</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>a8b9cbc3675f61f364a762cff87aa8563522c667</hash><remark>2007-12-30</remark></rom></dump>
 </software>
 <software>
 	<title>Frogger</title>
@@ -17923,6 +17572,15 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2005</year>
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>f4182b3a690437bb36cdf184ee458634718f2489</hash><remark>4k</remark></rom></dump>
+</software>
+<software>
+	<title>Ghost Trap</title>
+	<system>COLECOVISION</system>
+	<company>Coleco</company>
+	<year>2009</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>8ec5527ba7f81eb8104dc420f08c21ae4fa34c74</hash><remark>2009-04-29</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>cd7067bb92588fa5407ff84353e049f54e27b19b</hash><remark>2009-04-27</remark></rom></dump>
 </software>
 <software>
 	<title>Goldorak Pic</title>
@@ -18128,6 +17786,15 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>77cd01e29071dece70d18cf9e7e2d2ce455d001f</hash><remark>[a1][!]</remark></rom></dump>
 </software>
 <software>
+	<title>Kick Gas!</title>
+	<system>COLECOVISION</system>
+	<company>Daniel Vik/Joyrex</company>
+	<year>2008</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>81f3f0d29458590dc4134c5f2c41c7cede37c1a4</hash><remark>2008-06-08 / Demo</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>5c2fa8cb7602383e1a901bf44641fd8bb01cb157</hash><remark>2008-06-11 / Demo</remark></rom></dump>
+</software>
+<software>
 	<title>Kill Barney in Tokyo</title>
 	<system>COLECOVISION</system>
 	<company>Daniel Bienvenu</company>
@@ -18150,6 +17817,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">Author</original><megarom><type>ColecoMegaCart</type><hash>70e267f45de3a91fd867d0bc17d8259018515648</hash><remark>SGM / Published by team Pixelboy</remark></megarom></dump>
+</software>
+<software>
+	<title>Kobashi</title>
+	<system>COLECOVISION</system>
+	<company>DVIK &amp; Joyrex productions</company>
+	<year>2008</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>4ce63f21e6d62220431f486ba75bef1ba127b1b8</hash></rom></dump>
 </software>
 <software>
 	<title>Kralizec Tetris</title>
@@ -18301,6 +17976,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>8a1e2db621b84e630960b2341ac459af2723a3f6</hash><remark>Prototype A1</remark></rom></dump>
 		<dump><rom><type>page23</type><hash>a801f587360782afe7ac1bb7a9b08525a8363531</hash><remark>Prototype</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>dada6846654d8d9b025e3e3d51841ba6d78ea139</hash><remark>Prototype</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>a739855468693a1f107e377d171815e2be9f8896</hash></rom></dump>
 </software>
 <software>
 	<title>Moonsweeper</title>
@@ -18459,6 +18136,15 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1983</year>
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>bcb3d6845b09adc1adf842cba1ca12f57aa47d79</hash><remark>Prototype</remark></rom></dump>
+</software>
+<software>
+	<title>Ostrich Farmer</title>
+	<system>COLECOVISION</system>
+	<company>hardhat</company>
+	<year>2007</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>90d7d226ebfe7df89cb5109c7a2e5e9d520c9ca3</hash><remark>v0.1 / 2007-11-01</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>810d9ff6f1c9c78cd201bc85dd585fd87e02d563</hash><remark>v0.2 / 2007-11-01</remark></rom></dump>
 </software>
 <software>
 	<title>Pac-Man</title>
@@ -18760,12 +18446,15 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>1e2e883604e3b8559bd36c88313567dabd8444ac</hash><remark>v1.0 Demo</remark></rom></dump>
 </software>
 <software>
-	<title>Search for the Stolen Crown Jewels 2</title>
+	<title>Search for the stolen Crown Jewels II</title>
 	<system>COLECOVISION</system>
 	<company>Philipp Klaus Krause</company>
 	<year>2007</year>
 	<country>US</country>
+		<dump><rom><type>page23</type><hash>3b61b43d42e4e205e502789cbf80384013cbbe5f</hash><remark>Gameconsole / Demo</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>8e20a89350277f4d6f2b67e4e84fce21c1c62fa9</hash><remark>Beta / Demo</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>bab03754b7e7047d6e32527d53b55c8e60c57924</hash><remark>Demo</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>0d144f191629570213694fd63b54e651338c89e3</hash><remark>Demo</remark></rom></dump>
 </software>
 <software>
 	<title>Sector Alpha</title>
@@ -18857,6 +18546,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>0692904ffcb39bb81564819e6925aecd2d4ca9df</hash></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9edc314ee0712dfada90fd1bc5454f862846d65e</hash></rom></dump>
+</software>
+<software>
+	<title>Smooth Criminal Demo</title>
+	<system>COLECOVISION</system>
+	<company>Daniel Bienvenu</company>
+	<year>2009</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>611be53da29900d00e94ca015616150b3b088f65</hash><remark>2009-03-09</remark></rom></dump>
 </software>
 <software>
 	<title>Smurf Paint 'N' Play Workshop</title>
@@ -18962,12 +18659,18 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>c81037c3d19d8c502fc6f37d8b99bfc640d882be</hash><remark>[a1]</remark></rom></dump>
 </software>
 <software>
-	<title>Spaz Attak Teaser</title>
+	<title>Spaz Attak</title>
 	<system>COLECOVISION</system>
 	<company>Howard Uman</company>
 	<year>2006</year>
 	<country>US</country>
-		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>0ccbe626bb22dfe8e245b43bc6d2e3b3d60e6899</hash></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>0ccbe626bb22dfe8e245b43bc6d2e3b3d60e6899</hash><remark>Teaser</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>90fec073dafc71dbdc7b1c4ae73221908cf87145</hash><remark>No Stuttering / 2009-02-09</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>08787352a004d1838a865131d4a1df160a438297</hash><remark>2009-02-22</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>9077e6defde16f11f11308091d3cc92a26e542a7</hash><remark>2009-02-03</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>0406205cce714dc259891bde8f45dedc45312cc8</hash><remark>2009-02-05</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>9e1f625fb9486fc9dda551c95b74f1ec6dda9eac</hash><remark>2009-02-08</remark></rom></dump>
+		<dump><rom><type>Normal</type><hash>491dacbf9880a871eee128befecf07882081bc4d</hash><remark>With Death Eggs / 2009-02-10</remark></rom></dump>
 </software>
 <software>
 	<title>Spectank Demo</title>
@@ -18995,6 +18698,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>page23</type><hash>f95fb554b211bde690a85d1f14ff5501cbcaf8bd</hash><remark>Prototype</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>97865d067bd531209857c3c8502c1260e0a30366</hash></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>e9814f694fad5548e9ce7295ddc9f8b9eee29332</hash><remark>[b1]</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>ff08b9fd67966ea299ee810fb4cde7b0aba98fd3</hash><remark>Prototype</remark></rom></dump>
 </software>
 <software>
 	<title>Squares!</title>
@@ -19127,6 +18831,15 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2016</year>
 	<country>US</country>
 		<dump><rom><type>page23</type><hash>78ad45a24d949651d8811336332d6af78fa9613e</hash></rom></dump>
+</software>
+<software>
+	<title>Sudoku</title>
+	<system>COLECOVISION</system>
+	<company>Luc Miron</company>
+	<year>2008</year>
+	<country>CA</country>
+		<dump><rom><type>page23</type><hash>0124ba683340188c7a9a89122af7a54db07e1edb</hash><remark>v01</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>499c9746f0dacab59a3fb23f80169df34cfbb91a</hash><remark>v02</remark></rom></dump>
 </software>
 <software>
 	<title>Super Action Baseball</title>
@@ -19278,6 +18991,16 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>e2345f516654f6d5c4a4adddd27a3dd5bbe2573c</hash></rom></dump>
 </software>
 <software>
+	<title>Terra Attack</title>
+	<system>COLECOVISION</system>
+	<company>Scott Huggins</company>
+	<year>2007</year>
+	<country>US</country>
+		<dump><rom><type>page23</type><hash>0276f344d63f4f9675c29730d97112b3123e6c18</hash><remark>Final</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>6659dd7b9ef8edb2822980007cb37e3c55d4cd7c</hash><remark>2007-03-10</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>76712e4e94d55183f361c9101037f708773b7f99</hash><remark>2007-03-17</remark></rom></dump>
+</software>
+<software>
 	<title>Thexder</title>
 	<system>COLECOVISION</system>
 	<company>Game Arts</company>
@@ -19342,6 +19065,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1983</year>
 	<country>US</country>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>19452eb2a020939245dc100d2736c6f479eb518f</hash><remark>[b1]</remark></rom></dump>
+		<dump><rom><type>page23</type><hash>50de0d2726b11873607fe776a8161b3f73c18e6d</hash></rom></dump>
 </software>
 <software>
 	<title>Turbo</title>
@@ -19500,6 +19224,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9b5bfb69d37042d131a5c9576f927e09f44f9666</hash><remark>Prototype</remark></rom></dump>
 </software>
 <software>
+	<title>Zap</title>
+	<system>COLECOVISION</system>
+	<company>Unknown</company>
+	<year>200x</year>
+	<country>JP</country>
+		<dump><rom><type>page23</type><hash>e8b8786eb34fbef4a055d285fa39970bdec018dd</hash><remark>v01</remark></rom></dump>
+</software>
+<software>
 	<title>Zaxxon</title>
 	<system>COLECOVISION</system>
 	<company>Coleco</company>
@@ -19518,4 +19250,4 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:4896 - Created on Wed Jan 15 2020 - 20:14:22 AKST-->
+<!-- Roms in this XML file:4555 - Created on Thu Jan 23 2020 - 13:21:43 AKST-->
