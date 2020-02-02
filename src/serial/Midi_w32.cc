@@ -376,6 +376,9 @@ unsigned w32_midiInOpen(const char *vfn, DWORD thrdid)
 	if (midiInAddBuffer(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle), static_cast<LPMIDIHDR>(&inhdr), sizeof(inhdr)) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
+	if (midiInStart(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle)) != MMSYSERR_NOERROR) {
+		return unsigned(-1);
+	}
 	return idx;
 }
 
