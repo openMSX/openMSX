@@ -63,10 +63,10 @@ void MidiInWindows::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 
 	setConnector(&connector_); // base class will do this in a moment,
 	                           // but thread already needs it
-	thread = std::thread([this]() { run(); });
 
 	{
 		std::unique_lock<std::mutex> threadIdLock(threadIdMutex);
+		thread = std::thread([this]() { run(); });
 		threadIdCond.wait(threadIdLock);
 	}
 	{
@@ -139,10 +139,10 @@ void MidiInWindows::run()
 		std::lock_guard<std::mutex> threadIdLock(threadIdMutex);
 		threadId = GetCurrentThreadId();
 	}
-	threadIdCond.notify_all();
 
 	{
 		std::unique_lock<std::mutex> devIdxLock(devIdxMutex);
+		threadIdCond.notify_all();
 		devIdxCond.wait(devIdxLock);
 	}
 
