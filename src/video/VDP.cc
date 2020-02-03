@@ -358,6 +358,9 @@ void VDP::execVSync(EmuTime::param time)
 			calculateLineBlinkState(getLinesPerFrame());
 	}
 
+	// Finish the previous frame, because access-slot calculations work within a frame.
+	cmdEngine->sync(time);
+
 	// Start next frame.
 	frameStart(time);
 }
