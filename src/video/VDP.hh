@@ -410,7 +410,7 @@ public:
 		if (isFastBlinkEnabled()) {
 			// EO and IL not considered in this mode
 			auto p = calculateLineBlinkState(line);
-			return (p.first) << 8;
+			return (!p.first) << 8;
 		} else {
 			return getEvenOddMask();
 		}
