@@ -66,7 +66,7 @@ def installAll(
 			scanTree('Contrib/cbios-old')
 			)
 
-	if hasattr(os, 'symlink'):
+	if hasattr(os, 'symlink') and os.name != 'nt':
 		print('  Creating symlinks...')
 		for machine, alias in (
 			('National_CF-3300', 'msx1'),
