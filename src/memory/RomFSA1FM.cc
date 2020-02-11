@@ -170,8 +170,10 @@ void RomFSA1FM2::reset(EmuTime::param /*time*/)
 	for (int region = 0; region < 6; ++region) {
 		changeBank(region, 0xA8);
 	}
-	changeBank(6, 0);
+	changeBank(6, 0); // for mapper-state read-back
 	changeBank(7, 0);
+	setUnmapped(6);
+	setUnmapped(7);
 }
 
 byte RomFSA1FM2::peekMem(word address, EmuTime::param time) const
@@ -278,6 +280,9 @@ void RomFSA1FM2::changeBank(byte region, byte bank)
 		isRam[region]   = false;
 		isEmpty[region] = false;
 		setRom(region, bank & 0x7F);
+		if (region == 3) {
+			invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
+		}
 	}
 }
 

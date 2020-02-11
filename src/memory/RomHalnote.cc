@@ -114,9 +114,8 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 				}
 			} else if (bank == 3) {
 				// sub-mapper enable/disable
-				bool newSubMapperEnabled = (value & 0x80) != 0;
-				if (newSubMapperEnabled != subMapperEnabled) {
-					subMapperEnabled = newSubMapperEnabled;
+				subMapperEnabled = (value & 0x80) != 0;
+				if (subMapperEnabled) {
 					invalidateDeviceRCache(0x7000, 0x1000);
 				}
 			}

@@ -84,6 +84,7 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 			sramEnabled |= (1 << region) & sramPages;
 			sramBlock[region] = value & (numBlocks - 1);
 			setBank(region, &(*sram)[sramBlock[region] * BANK_SIZE], value);
+			invalidateDeviceRCache(0x2000 * region, 0x2000); // do not cache
 		} else {
 			sramEnabled &= ~(1 << region);
 			setRom(region, value);

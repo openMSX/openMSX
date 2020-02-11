@@ -15,6 +15,7 @@ RomPlayBall::RomPlayBall(const DeviceConfig& config, Rom&& rom_)
 	setUnmapped(0);
 	setRom(1, 0);
 	setRom(2, 1);
+	invalidateDeviceRCache(0xBFFF & CacheLine::HIGH, CacheLine::SIZE);
 	setUnmapped(3);
 
 	reset(EmuTime::dummy());

@@ -106,7 +106,11 @@ void RomKonamiSCC::writeMem(word address, byte value, EmuTime::param time)
 	}
 	if ((address & 0x1800) == 0x1000) {
 		// page selection
-		setRom(address >> 13, value);
+		byte region = address >> 13;
+		setRom(region, value);
+		if ((region == 4) && sccEnabled) {
+			invalidateDeviceRCache(0x9800, 0x0800);
+		}
 	}
 }
 
