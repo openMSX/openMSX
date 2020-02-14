@@ -270,17 +270,17 @@ void Y8950Adpcm::writeData(byte data)
 
 			// setup a timer that will callback us in 10
 			// master clock cycles for Y8950. In the
-			// callback set the BRDY flag to 1 , which
+			// callback set the BRDY flag to 1, which
 			// means we have written the data. For now, we
 			// don't really do this; we simply reset and
 			// set the flag in zero time, so that the IRQ
 			// will work.
+			y8950.setStatus(Y8950::STATUS_BUF_RDY);
 
-			if (emu.memPntr <= stopAddr) {
-				// there's more to transfer: set BRDY
-				y8950.setStatus(Y8950::STATUS_BUF_RDY);
-			} else {
+			if (emu.memPntr > stopAddr) {
 				// we just received the last byte: set EOS
+				// verified on real HW:
+				//  in case of EOS, BUF_RDY is set as well
 				y8950.setStatus(Y8950::STATUS_EOS);
 				// Eugeny tested that pointer wraps when
 				// continue writing after EOS
