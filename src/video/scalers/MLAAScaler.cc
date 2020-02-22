@@ -49,8 +49,7 @@ void MLAAScaler<Pixel>::scaleImage(
 		if (line == work) {
 			// Allocate new workBuffer when needed
 			// e.g. when used in previous iteration
-			workBuffer.emplace_back(srcWidth);
-			work = workBuffer.back().data();
+			work = workBuffer.emplace_back(srcWidth).data();
 		}
 		line = src.getLinePtr(srcStartY + y, srcWidth, work);
 		srcLinePtrs[y] = line;

@@ -15,7 +15,7 @@ public:
 	virtual int16_t readSample(EmuTime::param time) = 0;
 
 	// Pluggable
-	string_view getClass() const final override;
+	std::string_view getClass() const final override;
 };
 
 } // namespace openmsx

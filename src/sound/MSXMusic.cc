@@ -14,7 +14,7 @@ MSXMusicBase::MSXMusicBase(const DeviceConfig& config)
 	, ym2413(getName(), config)
 {
 	auto sz = rom.getSize();
-	if ((sz == 0) || !Math::isPowerOfTwo(sz)) {
+	if ((sz == 0) || !Math::ispow2(sz)) {
 		throw MSXException("MSX-Music ROM-size must be a non-zero power of two");
 	}
 	MSXMusicBase::reset(getCurrentTime());
@@ -158,7 +158,7 @@ void MSXMusicWX::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x7FF0 <= address) && (address < 0x8000)) {
 		control = value & 3;
-		invalidateMemCache(0x0000, 0x10000);
+		invalidateDeviceRCache();
 	}
 }
 

@@ -26,13 +26,15 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 	edgeTexture.bind();
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
-	             GL_LUMINANCE16,   // internal format
+	             GL_R16,           // internal format
 	             320,              // width
 	             240,              // height
 	             0,                // border
-	             GL_LUMINANCE,     // format
+	             GL_RED,           // format
 	             GL_UNSIGNED_SHORT,// type
 	             nullptr);         // data
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 	edgeBuffer.setImage(320, 240);
 
 	auto context = systemFileContext();
@@ -41,7 +43,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 	string weightsName = "shaders/HQ_xWeights.dat";
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
-                offsetsName[10] = char('0') + n;
+		offsetsName[10] = char('0') + n;
 		File offsetsFile(context.resolve(offsetsName));
 		offsetTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,       // target
@@ -139,7 +141,7 @@ void GLHQScaler::uploadBlock(
 		                srcStartY,           // offset y
 		                lineWidth,           // width
 		                srcEndY - srcStartY, // height
-		                GL_LUMINANCE,        // format
+		                GL_RED,              // format
 		                GL_UNSIGNED_SHORT,   // type
 		                edgeBuffer.getOffset(0, srcStartY)); // data
 	}

@@ -27,7 +27,7 @@ public:
 	}
 
 protected:
-	StateChange() : time(EmuTime::zero) {} // for serialize
+	StateChange() : time(EmuTime::zero()) {} // for serialize
 	explicit StateChange(EmuTime::param time_)
 		: time(time_)
 	{

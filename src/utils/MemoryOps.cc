@@ -19,8 +19,7 @@
 #include <emmintrin.h>
 #endif
 
-namespace openmsx {
-namespace MemoryOps {
+namespace openmsx::MemoryOps {
 
 #ifdef __SSE2__
 #if ASM_X86_32 && defined _MSC_VER
@@ -64,7 +63,7 @@ static inline void memset_64_SSE(
 #endif
 
 static inline void memset_64(
-        uint64_t* out, size_t num64, uint64_t val64)
+	uint64_t* out, size_t num64, uint64_t val64)
 {
 	assert((size_t(out) % 8) == 0); // must be 8-byte aligned
 
@@ -251,7 +250,7 @@ private:
 
 void* mallocAligned(size_t alignment, size_t size)
 {
-	assert("must be a power of 2" && Math::isPowerOfTwo(alignment));
+	assert("must be a power of 2" && Math::ispow2(alignment));
 	assert(alignment >= sizeof(void*));
 #if HAVE_POSIX_MEMALIGN
 	void* aligned;
@@ -294,5 +293,4 @@ void freeAligned(void* aligned)
 #endif
 }
 
-} // namespace MemoryOps
-} // namespace openmsx
+} // namespace openmsx::MemoryOps

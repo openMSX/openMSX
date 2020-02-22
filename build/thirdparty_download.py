@@ -20,9 +20,9 @@ def downloadPackage(package, tarballsDir):
 		makedirs(tarballsDir)
 	filePath = joinpath(tarballsDir, package.getTarballName())
 	if isfile(filePath):
-		print '%s version %s - already downloaded' % (
+		print('%s version %s - already downloaded' % (
 			package.niceName, package.version
-			)
+			))
 	else:
 		downloadURL(package.getURL(), tarballsDir)
 
@@ -30,10 +30,10 @@ def verifyPackage(package, tarballsDir):
 	filePath = joinpath(tarballsDir, package.getTarballName())
 	try:
 		verifyFile(filePath, package.fileLength, package.checksums)
-	except IOError, ex:
-		print >> sys.stderr, '%s corrupt: %s' % (
+	except OSError as ex:
+		print('%s corrupt: %s' % (
 			package.getTarballName(), ex
-			)
+			), file=sys.stderr)
 		sys.exit(1)
 
 def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
@@ -52,7 +52,7 @@ def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
 	if isfile(diffPath):
 		for diff in Diff.load(diffPath):
 			patch(diff, sourcesDir)
-			print 'Patched:', diff.getPath()
+			print('Patched:', diff.getPath())
 
 
 def fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir):
@@ -92,7 +92,5 @@ if __name__ == '__main__':
 			'build/3rdparty'
 			)
 	else:
-		print >> sys.stderr, (
-			'Usage: python thirdparty_download.py TARGET_OS'
-			)
+		print('Usage: python3 thirdparty_download.py TARGET_OS', file=sys.stderr)
 		sys.exit(2)

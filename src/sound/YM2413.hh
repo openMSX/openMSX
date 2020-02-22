@@ -26,8 +26,8 @@ public:
 
 private:
 	// SoundDevice
-	void generateChannels(int** bufs, unsigned num) override;
-	int getAmplificationFactorImpl() const override;
+	void generateChannels(float** bufs, unsigned num) override;
+	float getAmplificationFactorImpl() const override;
 
 	const std::unique_ptr<YM2413Core> core;
 

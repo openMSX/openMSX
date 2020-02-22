@@ -6,7 +6,7 @@ namespace openmsx {
 
 static void throwException(Tcl_Interp* interp)
 {
-	string_view message = interp ? Tcl_GetStringResult(interp)
+	std::string_view message = interp ? Tcl_GetStringResult(interp)
 	                            : "TclObject error";
 	throw CommandException(message);
 }
@@ -99,11 +99,11 @@ double TclObject::getDouble(Interpreter& interp_) const
 	return result;
 }
 
-string_view TclObject::getString() const
+std::string_view TclObject::getString() const
 {
 	int length;
 	char* buf = Tcl_GetStringFromObj(obj, &length);
-	return string_view(buf, length);
+	return std::string_view(buf, length);
 }
 
 span<const uint8_t> TclObject::getBinary() const

@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-static const char* const PAC_Header = "PAC2 BACKUP DATA";
+constexpr const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXFmPac::MSXFmPac(const DeviceConfig& config)
 	: MSXMusicBase(config)
@@ -110,7 +110,7 @@ void MSXFmPac::writeMem(word address, byte value, EmuTime::param time)
 		byte newBank = value & 0x03;
 		if (bank != newBank) {
 			bank = newBank;
-			invalidateMemCache(0x0000, 0x10000);
+			invalidateDeviceRCache();
 		}
 		break;
 	}
@@ -142,7 +142,7 @@ void MSXFmPac::checkSramEnable()
 	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
-		invalidateMemCache(0x0000, 0x10000);
+		invalidateDeviceRWCache();
 	}
 }
 
@@ -151,11 +151,11 @@ template<typename Archive>
 void MSXFmPac::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeInlinedBase<MSXMusicBase>(*this, version);
-	ar.serialize("sram", sram);
-	ar.serialize("enable", enable);
-	ar.serialize("bank", bank);
-	ar.serialize("r1ffe", r1ffe);
-	ar.serialize("r1fff", r1fff);
+	ar.serialize("sram",   sram,
+	             "enable", enable,
+	             "bank",   bank,
+	             "r1ffe",  r1ffe,
+	             "r1fff",  r1fff);
 	if (ar.isLoader()) {
 		// sramEnabled can be calculated
 		checkSramEnable();

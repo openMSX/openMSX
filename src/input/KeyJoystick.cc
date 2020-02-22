@@ -26,9 +26,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("name", name);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("name",    name,
+		             "press",   press,
+		             "release", release);
 	}
 
 private:
@@ -75,7 +75,7 @@ const string& KeyJoystick::getName() const
 	return name;
 }
 
-string_view KeyJoystick::getDescription() const
+std::string_view KeyJoystick::getDescription() const
 {
 	return "Key-Joystick, use your keyboard to emulate an MSX joystick. "
 		"See manual for information on how to configure this.";

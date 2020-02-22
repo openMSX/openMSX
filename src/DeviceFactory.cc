@@ -286,10 +286,10 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 	return result;
 }
 
-static XMLElement createConfig(string_view name, string_view id)
+static XMLElement createConfig(std::string name, std::string id)
 {
-	XMLElement config(name);
-	config.addAttribute("id", id);
+	XMLElement config(std::move(name));
+	config.addAttribute("id", std::move(id));
 	return config;
 }
 

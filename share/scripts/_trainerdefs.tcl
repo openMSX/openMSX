@@ -2778,6 +2778,11 @@ create_trainer "Girly Block" {time 2} {
 	"Player 2 Life" {dpoke 0xe0f0 0}
 }
 
+create_trainer "Gladius" {time 1} {
+	"Life" {dpoke 0x4038 153}
+	"Shield" {dpoke 0x4049 255}
+}
+
 create_trainer "Gofer no Yabou Episode 2 - Nemesis 3 The Eve Of Destruction" {time 0.5} {
 	"Activate Expand" {dpoke 0xe39e 1}
 	"Activate Find" {dpoke 0xe39c 1}

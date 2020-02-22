@@ -50,7 +50,7 @@ void HDImageCLI::parseDone()
 	}
 }
 
-string_view HDImageCLI::optionHelp() const
+std::string_view HDImageCLI::optionHelp() const
 {
 	return "Use hard disk image in argument for the IDE or SCSI extensions";
 }

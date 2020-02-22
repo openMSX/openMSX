@@ -18,14 +18,14 @@ using std::shared_ptr;
 namespace openmsx {
 
 #if PLATFORM_ANDROID
-static const int THRESHOLD = 32768 / 4;
+constexpr int THRESHOLD = 32768 / 4;
 #else
-static const int THRESHOLD = 32768 / 10;
+constexpr int THRESHOLD = 32768 / 10;
 #endif
 
 void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
-                           StateChangeDistributor& stateChangeDistributor,
-                           PluggingController& controller)
+                          StateChangeDistributor& stateChangeDistributor,
+                          PluggingController& controller)
 {
 #ifdef SDL_JOYSTICK_DISABLED
 	(void)eventDistributor;
@@ -72,9 +72,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("joyNum", joyNum);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("joyNum",  joyNum,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	unsigned joyNum;
@@ -96,7 +96,7 @@ JoyMega::JoyMega(MSXEventDistributor& eventDistributor_,
 	, joyNum(SDL_JoystickInstanceID(joystick_))
 	, name("joymegaX") // 'X' is filled in below
 	, desc(string(SDL_JoystickName(joystick_)))
-	, lastTime(EmuTime::zero)
+	, lastTime(EmuTime::zero())
 {
 	const_cast<string&>(name)[7] = char('1' + joyNum);
 }
@@ -115,7 +115,7 @@ const string& JoyMega::getName() const
 	return name;
 }
 
-string_view JoyMega::getDescription() const
+std::string_view JoyMega::getDescription() const
 {
 	return desc;
 }
@@ -328,10 +328,10 @@ void JoyMega::stopReplay(EmuTime::param time)
 template<typename Archive>
 void JoyMega::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("lastTime", lastTime);
-	ar.serialize("status", status);
-	ar.serialize("cycle", cycle);
-	ar.serialize("cycleMask", cycleMask);
+	ar.serialize("lastTime",  lastTime,
+	             "status",    status,
+	             "cycle",     cycle,
+	             "cycleMask", cycleMask);
 	if (ar.isLoader()) {
 		if (isPluggedIn()) {
 			plugHelper2();

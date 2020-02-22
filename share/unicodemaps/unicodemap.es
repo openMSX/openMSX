@@ -4,40 +4,43 @@
 # <ROW>: row in keyboard matrix (hexadecimal: 0-B)
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
-#              SHIFT CTRL GRAPH CODE CAPSLOCK
+#              SHIFT CTRL GRAPH CODE
+#
+# Example characters in comments are encoded in UTF-8
+#
 DEADKEY1, 25,
-0000, 02, CTRL SHIFT # ^@
-0001, 26, CTRL       # ^A
-0002, 27, CTRL       # ^B
-0003, 30, CTRL       # ^C
-0004, 31, CTRL       # ^D
-0005, 32, CTRL       # ^E
-0006, 33, CTRL       # ^F
-0007, 34, CTRL       # ^G
-0008, 75,            # Backspace
-0009, 73,            # Tab
-000a, 37, CTRL       # ^J
-000b, 81,            # Home (is Home a unicode character?)
-000c, 41, CTRL       # ^L
-000d, 77,            # Enter/CR
-000e, 43, CTRL       # ^N
-000f, 44, CTRL       # ^O
-0010, 45, CTRL       # ^P
-0011, 46, CTRL       # ^Q
-0012, 82,            # Insert (is Insert a unicode character?)
-0013, 50, CTRL       # ^S
-0014, 51, CTRL       # ^T
-0015, 52, CTRL       # ^U
-0016, 53, CTRL       # ^V
-0017, 54, CTRL       # ^W
-0018, 76,            # Select (is Select a unicode character?)
-0019, 56, CTRL       # ^Y
-001a, 57, CTRL       # ^Z
-001b, 72,            # Escape(SDL maps ESC and ^[ to this code)
-001c, 87,            # Right (SDL maps ^\ to this code)
-001d, 84,            # Left  (SDL maps ^] to this code)
-001e, 85,            # Up    (SDL maps ^6 to this code)
-001f, 86,            # Down  (SDL maps ^/ to this code)
+0000, 02, CTRL SHIFT  # ^@
+0001, 26, CTRL        # ^A
+0002, 27, CTRL        # ^B
+0003, 30, CTRL        # ^C
+0004, 31, CTRL        # ^D
+0005, 32, CTRL        # ^E
+0006, 33, CTRL        # ^F
+0007, 34, CTRL        # ^G
+0008, 75,             # Backspace
+0009, 73,             # Tab
+000a, 37, CTRL        # ^J
+000b, 81,             # Home (is Home a unicode character?)
+000c, 41, CTRL        # ^L
+000d, 77,             # Enter/CR
+000e, 43, CTRL        # ^N
+000f, 44, CTRL        # ^O
+0010, 45, CTRL        # ^P
+0011, 46, CTRL        # ^Q
+0012, 82,             # Insert (is Insert a unicode character?)
+0013, 50, CTRL        # ^S
+0014, 51, CTRL        # ^T
+0015, 52, CTRL        # ^U
+0016, 53, CTRL        # ^V
+0017, 54, CTRL        # ^W
+0018, 76,             # Select (is Select a unicode character?)
+0019, 56, CTRL        # ^Y
+001a, 57, CTRL        # ^Z
+001b, 72,             # Escape(SDL maps ESC and ^[ to this code)
+001c, 87,             # Right (SDL maps ^\ to this code)
+001d, 84,             # Left  (SDL maps ^] to this code)
+001e, 85,             # Up    (SDL maps ^6 to this code)
+001f, 86,             # Down  (SDL maps ^/ to this code)
 0020, 80,
 0021, 01, SHIFT
 0022, 20, SHIFT
@@ -64,8 +67,8 @@ DEADKEY1, 25,
 0037, 07,
 0038, 10,
 0039, 11,
-003A, 21, SHIFT
-003B, 21,
+003a, 21, SHIFT
+003b, 21,
 003c, 22, SHIFT
 003d, 13,
 003e, 23, SHIFT
@@ -102,6 +105,7 @@ DEADKEY1, 25,
 005d, 16,
 005e, 06, SHIFT
 005f, 12, SHIFT
+#0060, 21,             # `
 0061, 26,
 0062, 27,
 0063, 30,
@@ -129,14 +133,14 @@ DEADKEY1, 25,
 0079, 56,
 007a, 57,
 007b, 15, SHIFT
+007c, 14, SHIFT       # |
 007d, 16, SHIFT
-007f, 83,            # Delete
+007f, 83,             # Delete
 00a0, 80,
 00a1, 01, SHIFT CODE
 00a2, 04, CODE
 00a3, 04, SHIFT CODE
 00a5, 05, SHIFT CODE
-00A6, 14, SHIFT
 00a7, 03, CODE
 00aa, 23, CODE
 00ab, 22, SHIFT GRAPH
@@ -145,7 +149,7 @@ DEADKEY1, 25,
 00b1, 13, GRAPH
 00b2, 02, SHIFT GRAPH
 00b5, 42, CODE
-00b6, 33, GRAPH
+00b6, 03, SHIFT CODE  # ¶
 00b7, 30, SHIFT GRAPH
 00ba, 24, CODE
 00bb, 23, SHIFT GRAPH
@@ -158,7 +162,7 @@ DEADKEY1, 25,
 00c6, 37, SHIFT CODE
 00c7, 11, SHIFT CODE
 00c9, 52, SHIFT CODE
-00D1, 17, SHIFT
+00d1, 17, SHIFT
 00d5, 41, SHIFT CODE
 00d6, 33, SHIFT CODE
 00dc, 34, SHIFT CODE
@@ -179,7 +183,7 @@ DEADKEY1, 25,
 00ed, 36, CODE
 00ee, 32, CODE
 00ef, 31, CODE
-00F1, 17,
+00f1, 17,
 00f2, 53, CODE
 00f3, 44, CODE
 00f4, 47, CODE
@@ -193,102 +197,86 @@ DEADKEY1, 25,
 00ff, 05, CODE
 0128, 40, SHIFT CODE
 0129, 40, CODE
+0132, 20, SHIFT CODE  # Ĳ
+0133, 20, CODE        # ĳ
 0168, 17, SHIFT CODE
 0169, 17, CODE
 0192, 01, CODE
 0393, 10, SHIFT CODE
-0398, 13, CODE
+0394, 00, SHIFT CODE  # Δ
 03a3, 21, SHIFT CODE
 03a6, 15, SHIFT CODE
 03a9, 16, SHIFT CODE
 03b1, 06, CODE
 03b4, 00, CODE
 03b5, 12, CODE
+03b8, 13, CODE        # θ
 03c0, 45, SHIFT CODE
 03c3, 21, CODE
 03c4, 10, CODE
 03c6, 15, CODE
-2022, 11, GRAPH
-203c, 35, GRAPH
+03c9, 16, CODE        # ω
+2219, 55, SHIFT GRAPH # ∙
+2022, 11, GRAPH       # •
+2030, 05, GRAPH       # ‰
 207f, 03, SHIFT GRAPH
 20a7, 02, SHIFT CODE
-2190, 43, GRAPH
-2191, 47, GRAPH
-2192, 53, GRAPH
-2193, 56, GRAPH
-2194, 24, GRAPH
-2195, 51, GRAPH
-21a8, 12, GRAPH
-2219, 55, SHIFT GRAPH
 221a, 07, GRAPH
 221e, 10, GRAPH
-221f, 55, GRAPH
 2229, 04, GRAPH
+223d, 21, GRAPH       # ∽
 2248, 21, SHIFT GRAPH
+2021, 02, CODE        # ‡
 2261, 13, SHIFT GRAPH
 2264, 22, GRAPH
 2265, 23, GRAPH
-2302, 00, SHIFT CODE
 2310, 47, SHIFT GRAPH
 2320, 06, GRAPH
 2321, 06, SHIFT GRAPH
-2500, 26, GRAPH
-2502, 40, CODE
-250c, 16, CODE
-2510, 03, CODE
-2514, 52, GRAPH
-2518, 02, CODE
-251c, 44, SHIFT GRAPH
-2524, 41, SHIFT CODE
-252c, 44, GRAPH
-2534, 31, SHIFT GRAPH
-253c, 52, SHIFT GRAPH
-2550, 32, GRAPH
-2551, 03, GRAPH
-2552, 53, SHIFT GRAPH
-2553, 35, SHIFT GRAPH
-2554, 41, SHIFT GRAPH
-2555, 20, SHIFT CODE
-2556, 17, CODE
-2557, 21, GRAPH
-2558, 33, SHIFT GRAPH
-2559, 43, SHIFT GRAPH
-255a, 41, GRAPH
-255b, 03, SHIFT CODE
-255c, 05, GRAPH
-255d, 30, GRAPH
-255e, 37, GRAPH
-255f, 31, GRAPH
-2560, 46, GRAPH
-2561, 41, CODE
-2562, 17, SHIFT CODE
-2563, 20, CODE
-2564, 50, SHIFT GRAPH
-2565, 50, GRAPH
-2566, 46, SHIFT GRAPH
-2567, 54, GRAPH
-2568, 54, SHIFT GRAPH
-2569, 37, SHIFT GRAPH
-256a, 00, SHIFT CODE
-256b, 45, SHIFT GRAPH
-256c, 32, SHIFT GRAPH
-2580, 36, SHIFT GRAPH
-2584, 36, GRAPH
-2588, 45, GRAPH
-258c, 40, GRAPH
-2590, 40, SHIFT GRAPH
-2591, 35, SHIFT CODE
-2592, 35, CODE
-2593, 40, SHIFT CODE
-25a0, 26, SHIFT GRAPH
-25ac, 14, SHIFT GRAPH
-25b2, 14, GRAPH
-25ba, 34, SHIFT GRAPH
-25bc, 12, SHIFT GRAPH
-25c4, 27, GRAPH
-25cb, 00, GRAPH
+2500, 12, GRAPH       # ─
+2502, 14, SHIFT GRAPH # │
+250c, 47, GRAPH       # ┌
+2510, 56, GRAPH       # ┐
+2514, 53, GRAPH       # └
+2518, 43, GRAPH       # ┘
+251c, 33, GRAPH       # ├
+2524, 35, GRAPH       # ┤
+252c, 51, GRAPH       # ┬
+2534, 27, GRAPH       # ┴
+253c, 34, GRAPH       # ┼
+2571, 24, GRAPH       # ╱
+2572, 14, GRAPH       # ╲
+2573, 55, GRAPH       # ╳
+2580, 36, SHIFT GRAPH # ▀
+2582, 52, GRAPH       # ▂
+2584, 36, GRAPH       # ▄
+2586, 44, GRAPH       # ▆
+2588, 45, GRAPH       # █
+258a, 41, GRAPH       # ▊
+258c, 40, GRAPH       # ▌
+258e, 37, GRAPH       # ▎
+2590, 40, SHIFT GRAPH # ▐
+1FB82, 44, SHIFT GRAPH # UPPER ONE QUARTER BLOCK
+1FB87, 41, SHIFT GRAPH # RIGHT ONE QUARTER BLOCK
+2596, 35, SHIFT GRAPH # ▖
+2597, 33, SHIFT GRAPH # ▗
+2598, 43, SHIFT GRAPH # ▘
+259a, 31, SHIFT GRAPH # ▚
+259d, 53, SHIFT GRAPH # ▝
+259e, 31, GRAPH       # ▞
+1FB98, 46, GRAPH       # UPPER LEFT TO LOWER RIGHT FILL
+1FB99, 46, SHIFT GRAPH # UPPER RIGHT TO LOWER LEFT FILL
+1FB96, 45, SHIFT GRAPH # INVERSE CHECKER BOARD FILL
+1FB6F, 32, SHIFT GRAPH # LOWER TRIANGULAR ONE QUARTER BLOCK
+1FB6C, 54, GRAPH       # LEFT TRIANGULAR ONE QUARTER BLOCK
+1FB6D, 32, GRAPH       # UPPER TRIANGULAR ONE QUARTER BLOCK
+1FB6E, 54, SHIFT GRAPH # RIGHT TRIANGULAR ONE QUARTER BLOCK
+25ca, 30, GRAPH       # ◊
+25cb, 00, GRAPH       # ○
 25d8, 11, SHIFT GRAPH
 25d9, 00, SHIFT GRAPH
+25a0, 26, SHIFT GRAPH # ■
+25ac, 26, GRAPH       # ▬
 263a, 15, GRAPH
 263b, 15, SHIFT GRAPH
 263c, 57, GRAPH
@@ -300,3 +288,5 @@ DEADKEY1, 25,
 2666, 17, SHIFT GRAPH
 266a, 16, GRAPH
 266b, 16, SHIFT GRAPH
+1FB9B, 50, GRAPH       # LEFT AND RIGHT TRIANGULAR HALF BLOCK
+1FB9A, 50, SHIFT GRAPH # UPPER AND LOWER TRIANGULAR HALF BLOCK

@@ -17,7 +17,7 @@ def scanTree(baseDir):
 	Hidden files and directories are not returned.
 	All paths returned use the OS native separator character (os.sep),
 	regardless of which separator characters were used in the arguments.
-	Raises IOError if there is an I/O error scanning the base directory.
+	Raises OSError if there is an I/O error scanning the base directory.
 	'''
 	if altsep is not None:
 		# Make sure all paths use the OS native separator, so we can safely
@@ -26,10 +26,10 @@ def scanTree(baseDir):
 	baseDir = baseDir.rstrip(sep)
 
 	if not isdir(baseDir):
-		raise IOError('Directory "%s" does not exist' % baseDir)
+		raise OSError('Directory "%s" does not exist' % baseDir)
 
 	def escalate(ex):
-		raise IOError(
+		raise OSError(
 			'Error scanning directory entry "%s": %s' % (ex.filename, ex)
 			)
 	for dirPath, dirNames, fileNames in walk(baseDir, onerror = escalate):
@@ -65,7 +65,7 @@ def installDir(path):
 		# We have to do chmod() separately because the "mode" argument of
 		# mkdir() is modified by umask.
 		mkdir(path)
-		chmod(path, 0755)
+		chmod(path, 0o755)
 
 def _installDirsRec(path):
 	'''Like installDirs(), except that "altsep" is not supported as directory
@@ -77,7 +77,7 @@ def _installDirsRec(path):
 		if index != -1:
 			_installDirsRec(path[ : index])
 		mkdir(path)
-		chmod(path, 0755)
+		chmod(path, 0o755)
 
 def installDirs(path):
 	'''Creates the given path, including any parent directories if necessary.
@@ -95,10 +95,10 @@ def installFile(srcPath, destPath):
 	The destination file is created with permissions such that all users can
 	read (and execute, if appropriate) what is installed and only the owner
 	can modify what is installed.
-	Raises IOError if there is a problem reading or writing files.
+	Raises OSError if there is a problem reading or writing files.
 	'''
 	copyfile(srcPath, destPath)
-	chmod(destPath, 0755 if (stat(srcPath).st_mode & 0100) else 0644)
+	chmod(destPath, 0o755 if (stat(srcPath).st_mode & 0o100) else 0o644)
 
 def installSymlink(target, link):
 	'''Creates a symbolic link with the given name to the given target.
@@ -119,11 +119,11 @@ def installTree(srcDir, destDir, paths):
 	Files and directories are created with permissions such that all users can
 	read (and execute, if appropriate) what is installed and only the owner
 	can modify what is installed.
-	Raises IOError if there is a problem reading or writing files or
+	Raises OSError if there is a problem reading or writing files or
 	directories.
 	'''
 	if not isdir(destDir):
-		raise IOError('Destination directory "%s" does not exist' % destDir)
+		raise OSError('Destination directory "%s" does not exist' % destDir)
 
 	for relPath in paths:
 		if altsep is not None:
@@ -131,13 +131,13 @@ def installTree(srcDir, destDir, paths):
 		srcPath = joinpath(srcDir, relPath)
 		destPath = joinpath(destDir, relPath)
 		if islink(srcPath):
-			print 'Skipping symbolic link:', srcPath
+			print('Skipping symbolic link:', srcPath)
 		elif isdir(srcPath):
 			_installDirsRec(destPath)
 		elif isfile(srcPath):
 			_installDirsRec(dirname(destPath))
 			installFile(srcPath, destPath)
 		elif exists(srcPath):
-			print 'Skipping unknown kind of file system entry:', srcPath
+			print('Skipping unknown kind of file system entry:', srcPath)
 		else:
-			print 'Skipping non-existing path:', srcPath
+			print('Skipping non-existing path:', srcPath)

@@ -233,8 +233,8 @@ private:
 	void reset() override;
 	void writeReg(byte reg, byte value) override;
 	byte peekReg(byte reg) const override;
-	void generateChannels(int* bufs[9 + 5], unsigned num) override;
-	int getAmplificationFactor() const override;
+	void generateChannels(float* bufs[9 + 5], unsigned num) override;
+	float getAmplificationFactor() const override;
 
 	/** Reset operator parameters.
 	 */

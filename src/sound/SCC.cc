@@ -98,6 +98,7 @@
 
 #include "SCC.hh"
 #include "DeviceConfig.hh"
+#include "cstd.hh"
 #include "likely.hh"
 #include "outer.hh"
 #include "ranges.hh"
@@ -109,6 +110,8 @@ using std::string;
 
 namespace openmsx {
 
+constexpr auto INPUT_RATE = unsigned(cstd::round(3579545.0 / 32));
+
 static string calcDescription(SCC::ChipMode mode)
 {
 	return (mode == SCC::SCC_Real) ? "Konami SCC" : "Konami SCC+";
@@ -117,16 +120,13 @@ static string calcDescription(SCC::ChipMode mode)
 SCC::SCC(const string& name_, const DeviceConfig& config,
          EmuTime::param time, ChipMode mode)
 	: ResampledSoundDevice(
-		config.getMotherBoard(), name_, calcDescription(mode), 5)
+		config.getMotherBoard(), name_, calcDescription(mode), 5, INPUT_RATE, false)
 	, debuggable(config.getMotherBoard(), getName())
 	, deformTimer(time)
 	, currentChipMode(mode)
 {
 	// Make valgrind happy
 	ranges::fill(orgPeriod, 0);
-
-	float input = 3579545.0f / 32;
-	setInputRate(lrintf(input));
 
 	powerUp(time);
 	registerSound(config);
@@ -340,14 +340,17 @@ void SCC::writeMem(byte address, byte value, EmuTime::param time)
 	}
 }
 
-int SCC::getAmplificationFactorImpl() const
+float SCC::getAmplificationFactorImpl() const
 {
-	return 256;
+	return 1.0f / 128.0f;
 }
 
-inline int SCC::adjust(signed char wav, byte vol)
+inline float SCC::adjust(signed char wav, byte vol)
 {
-	return (int(wav) * vol) >> 4;
+	// The result is an integer value, but we store it as a float because
+	// then we need fewer int->float conversion (compared to converting in
+	// generateChannels()).
+	return float((int(wav) * vol) >> 4);
 }
 
 void SCC::writeWave(unsigned channel, unsigned address, byte value)
@@ -460,12 +463,12 @@ void SCC::setDeformRegHelper(byte value)
 	}
 }
 
-void SCC::generateChannels(int** bufs, unsigned num)
+void SCC::generateChannels(float** bufs, unsigned num)
 {
 	unsigned enable = ch_enable;
 	for (unsigned i = 0; i < 5; ++i, enable >>= 1) {
 		if ((enable & 1) && (volume[i] || out[i])) {
-			int out2 = out[i];
+			auto out2 = out[i];
 			unsigned count2 = count[i];
 			unsigned pos2 = pos[i];
 			unsigned incr2 = incr[i];
@@ -491,7 +494,7 @@ void SCC::generateChannels(int** bufs, unsigned num)
 			count[i] = newCount % (period[i] + 1);
 			pos[i] = (pos[i] + newCount / (period[i] + 1)) % 32;
 			// Channel stays off until next waveform index.
-			out[i] = 0;
+			out[i] = 0.0f;
 		}
 	}
 }
@@ -550,12 +553,12 @@ SERIALIZE_ENUM(SCC::ChipMode, chipModeInfo);
 template<typename Archive>
 void SCC::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mode", currentChipMode);
-	ar.serialize("period", orgPeriod);
-	ar.serialize("volume", volume);
-	ar.serialize("ch_enable", ch_enable);
-	ar.serialize("deformTimer", deformTimer);
-	ar.serialize("deform", deformValue);
+	ar.serialize("mode",        currentChipMode,
+	             "period",      orgPeriod,
+	             "volume",      volume,
+	             "ch_enable",   ch_enable,
+	             "deformTimer", deformTimer,
+	             "deform",      deformValue);
 	// multi-dimensional arrays are not directly support by the
 	// serialization framework, maybe in the future. So for now
 	// manually loop over the channels.
@@ -591,9 +594,9 @@ void SCC::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	// call to setFreqVol() modifies these variables, see above
-	ar.serialize("count", count);
-	ar.serialize("pos", pos);
-	ar.serialize("out", out);
+	ar.serialize("count", count,
+	             "pos",   pos,
+	             "out",   out); // note: changed int->float, but no need to bump serialize-version
 }
 INSTANTIATE_SERIALIZE_METHODS(SCC);
 

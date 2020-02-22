@@ -23,8 +23,7 @@
 
 using std::unique_ptr;
 
-namespace openmsx {
-namespace RendererFactory {
+namespace openmsx::RendererFactory {
 
 unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 {
@@ -34,8 +33,6 @@ unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 			return std::make_unique<DummyVideoSystem>();
 		case RenderSettings::SDL:
 		case RenderSettings::SDLGL_PP:
-		case RenderSettings::SDLGL_FB16:
-		case RenderSettings::SDLGL_FB32:
 			return std::make_unique<SDLVideoSystem>(
 				reactor, display.getCommandConsole());
 		default:
@@ -50,8 +47,6 @@ unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 			return std::make_unique<DummyRenderer>();
 		case RenderSettings::SDL:
 		case RenderSettings::SDLGL_PP:
-		case RenderSettings::SDLGL_FB16:
-		case RenderSettings::SDLGL_FB32:
 			return std::make_unique<PixelRenderer>(vdp, display);
 		default:
 			UNREACHABLE; return nullptr;
@@ -65,8 +60,6 @@ unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 			return std::make_unique<V9990DummyRenderer>();
 		case RenderSettings::SDL:
 		case RenderSettings::SDLGL_PP:
-		case RenderSettings::SDLGL_FB16:
-		case RenderSettings::SDLGL_FB32:
 			return std::make_unique<V9990PixelRenderer>(vdp);
 		default:
 			UNREACHABLE; return nullptr;
@@ -81,8 +74,6 @@ unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 			return std::make_unique<LDDummyRenderer>();
 		case RenderSettings::SDL:
 		case RenderSettings::SDLGL_PP:
-		case RenderSettings::SDLGL_FB16:
-		case RenderSettings::SDLGL_FB32:
 			return std::make_unique<LDPixelRenderer>(ld, display);
 		default:
 			UNREACHABLE; return nullptr;
@@ -90,5 +81,4 @@ unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 }
 #endif
 
-} // namespace RendererFactory
-} // namespace openmsx
+} // namespace openmsx::RendererFactory

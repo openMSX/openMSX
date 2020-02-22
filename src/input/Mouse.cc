@@ -16,13 +16,13 @@ using std::shared_ptr;
 
 namespace openmsx {
 
-static const int TRESHOLD = 2;
-static const int SCALE = 2;
-static const int PHASE_XHIGH = 0;
-static const int PHASE_XLOW  = 1;
-static const int PHASE_YHIGH = 2;
-static const int PHASE_YLOW  = 3;
-static const int STROBE = 0x04;
+constexpr int TRESHOLD = 2;
+constexpr int SCALE = 2;
+constexpr int PHASE_XHIGH = 0;
+constexpr int PHASE_XLOW  = 1;
+constexpr int PHASE_YHIGH = 2;
+constexpr int PHASE_YLOW  = 3;
+constexpr int STROBE = 0x04;
 
 
 class MouseState final : public StateChange
@@ -41,10 +41,10 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("deltaX", deltaX);
-		ar.serialize("deltaY", deltaY);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("deltaX",  deltaX,
+		             "deltaY",  deltaY,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	int deltaX, deltaY;
@@ -57,7 +57,7 @@ Mouse::Mouse(MSXEventDistributor& eventDistributor_,
              StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, lastTime(EmuTime::zero)
+	, lastTime(EmuTime::zero())
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	phase = PHASE_YLOW;
@@ -81,7 +81,7 @@ const string& Mouse::getName() const
 	return name;
 }
 
-string_view Mouse::getDescription() const
+std::string_view Mouse::getDescription() const
 {
 	return "MSX mouse";
 }
@@ -353,21 +353,21 @@ void Mouse::serialize(Archive& ar, unsigned version)
 
 	if (ar.versionBelow(version, 4)) {
 		assert(ar.isLoader());
-		Clock<1000> tmp(EmuTime::zero);
+		Clock<1000> tmp(EmuTime::zero());
 		ar.serialize("lastTime", tmp);
 		lastTime = tmp.getTime();
 	} else {
 		ar.serialize("lastTime", lastTime);
 	}
-	ar.serialize("faze", phase); // TODO fix spelling if there's ever a need
-	                             // to bump the serialization verion
-	ar.serialize("xrel", xrel);
-	ar.serialize("yrel", yrel);
-	ar.serialize("mouseMode", mouseMode);
+	ar.serialize("faze",      phase, // TODO fix spelling if there's ever a need
+	                                 // to bump the serialization verion
+	             "xrel",      xrel,
+	             "yrel",      yrel,
+	             "mouseMode", mouseMode);
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("curxrel", curxrel);
-		ar.serialize("curyrel", curyrel);
-		ar.serialize("status",  status);
+		ar.serialize("curxrel", curxrel,
+		             "curyrel", curyrel,
+		             "status",  status);
 	}
 	if (ar.versionBelow(version, 3)) {
 		xrel    /= SCALE;

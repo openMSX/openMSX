@@ -44,7 +44,7 @@ static int decode(char x)
 		return -1;
 	}
 }
-std::pair<MemBuffer<uint8_t>, size_t> decode(string_view input)
+std::pair<MemBuffer<uint8_t>, size_t> decode(std::string_view input)
 {
 	auto inSize = input.size();
 	auto outSize = inSize / 2; // overestimation
@@ -66,10 +66,10 @@ std::pair<MemBuffer<uint8_t>, size_t> decode(string_view input)
 
 	assert(outSize >= out);
 	ret.resize(out); // shrink to correct size
-	return std::make_pair(std::move(ret), out);
+	return std::pair(std::move(ret), out);
 }
 
-bool decode_inplace(string_view input, uint8_t* output, size_t outSize)
+bool decode_inplace(std::string_view input, uint8_t* output, size_t outSize)
 {
 	size_t out = 0;
 	bool flip = true;

@@ -131,10 +131,10 @@ const byte* MSXYamahaSFG::getReadCacheLine(word start) const
 template<typename Archive>
 void MSXYamahaSFG::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("YM2151", ym2151);
-	ar.serialize("YM2148", ym2148);
-	ar.serialize("registerLatch", registerLatch);
-	ar.serialize("irqVector", irqVector);
+	ar.serialize("YM2151",        ym2151,
+	             "YM2148",        ym2148,
+	             "registerLatch", registerLatch,
+	             "irqVector",     irqVector);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("irqVector2148", irqVector2148);
 	} else {

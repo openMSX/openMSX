@@ -3,8 +3,7 @@
 
 #include <cstdint>
 
-namespace openmsx {
-namespace Timer {
+namespace openmsx::Timer {
 
 	/** Get current (real) time in us. Absolute value has no meaning.
 	  */
@@ -15,7 +14,6 @@ namespace Timer {
 	  */
 	void sleep(uint64_t us);
 
-} // namespace Timer
-} // namespace openmsx
+} // namespace openmsx::Timer
 
 #endif

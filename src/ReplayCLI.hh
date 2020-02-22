@@ -13,10 +13,10 @@ public:
 	explicit ReplayCLI(CommandLineParser& parser);
 	void parseOption(const std::string& option,
 	                 span<std::string>& cmdLine) override;
-	string_view optionHelp() const override;
+	std::string_view optionHelp() const override;
 	void parseFileType(const std::string& filename,
 	                   span<std::string>& cmdLine) override;
-	string_view fileTypeHelp() const override;
+	std::string_view fileTypeHelp() const override;
 
 private:
 	CommandLineParser& parser;

@@ -17,7 +17,7 @@ string coreName;
 string testName;
 
 
-static const unsigned CHANNELS = 11;
+constexpr unsigned CHANNELS = 11;
 
 
 struct RegWrite
@@ -52,10 +52,8 @@ static void loadWav(const string& filename, Samples& data)
 {
 	WavData wav(filename);
 	assert(wav.getFreq() == 3579545 / 72);
-	assert(wav.getBits() == 16);
-	assert(wav.getChannels() == 1);
 
-	auto rawData = reinterpret_cast<const int16_t*>(wav.getData());
+	auto rawData = wav.getData();
 	data.assign(rawData, rawData + wav.getSize());
 }
 
@@ -128,8 +126,8 @@ static void test(YM2413Core& core, const Log& log,
 		}
 		if (err) {
 			string filename = strCat(
-                                "bad-", coreName, '-', testName,
-			         "-ch", i, ".wav");
+				"bad-", coreName, '-', testName,
+				"-ch", i, ".wav");
 			strAppend(msg, " writing data to ", filename);
 			error(msg);
 			saveWav(filename, generatedSamples[i]);

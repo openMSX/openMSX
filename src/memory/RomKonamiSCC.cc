@@ -98,12 +98,19 @@ void RomKonamiSCC::writeMem(word address, byte value, EmuTime::param time)
 	}
 	if ((address & 0xF800) == 0x9000) {
 		// SCC enable/disable
-		sccEnabled = ((value & 0x3F) == 0x3F);
-		invalidateMemCache(0x9800, 0x0800);
+		bool newSccEnabled = ((value & 0x3F) == 0x3F);
+		if (newSccEnabled != sccEnabled) {
+			sccEnabled = newSccEnabled;
+			invalidateDeviceRWCache(0x9800, 0x0800);
+		}
 	}
 	if ((address & 0x1800) == 0x1000) {
 		// page selection
-		setRom(address >> 13, value);
+		byte region = address >> 13;
+		setRom(region, value);
+		if ((region == 4) && sccEnabled) {
+			invalidateDeviceRCache(0x9800, 0x0800);
+		}
 	}
 }
 
@@ -129,8 +136,8 @@ template<typename Archive>
 void RomKonamiSCC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("scc", scc);
-	ar.serialize("sccEnabled", sccEnabled);
+	ar.serialize("scc",        scc,
+	             "sccEnabled", sccEnabled);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomKonamiSCC);
 REGISTER_MSXDEVICE(RomKonamiSCC, "RomKonamiSCC");

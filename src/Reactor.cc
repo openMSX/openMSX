@@ -42,6 +42,7 @@
 #include "ranges.hh"
 #include "statp.hh"
 #include "stl.hh"
+#include "StringOp.hh"
 #include "unreachable.hh"
 #include "view.hh"
 #include "build-info.hh"
@@ -51,6 +52,7 @@
 using std::make_shared;
 using std::make_unique;
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -154,6 +156,22 @@ private:
 	Reactor& reactor;
 };
 
+class GetClipboardCommand final : public Command
+{
+public:
+	GetClipboardCommand(CommandController& commandController);
+	void execute(span<const TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+};
+
+class SetClipboardCommand final : public Command
+{
+public:
+	SetClipboardCommand(CommandController& commandController);
+	void execute(span<const TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+};
+
 class ConfigInfo final : public InfoTopic
 {
 public:
@@ -235,6 +253,10 @@ void Reactor::init()
 		*globalCommandController, *this);
 	restoreMachineCommand = make_unique<RestoreMachineCommand>(
 		*globalCommandController, *this);
+	getClipboardCommand = make_unique<GetClipboardCommand>(
+		*globalCommandController);
+	setClipboardCommand = make_unique<SetClipboardCommand>(
+		*globalCommandController);
 	aviRecordCommand = make_unique<AviRecorder>(*this);
 	extensionInfo = make_unique<ConfigInfo>(
 		getOpenMSXInfoCommand(), "extensions");
@@ -252,7 +274,9 @@ void Reactor::init()
 	getGlobalSettings().getPauseSetting().attach(*this);
 
 	eventDistributor->registerEventListener(OPENMSX_QUIT_EVENT, *this);
+#if PLATFORM_ANDROID
 	eventDistributor->registerEventListener(OPENMSX_FOCUS_EVENT, *this);
+#endif
 	eventDistributor->registerEventListener(OPENMSX_DELETE_BOARDS, *this);
 	isInit = true;
 }
@@ -263,7 +287,9 @@ Reactor::~Reactor()
 	deleteBoard(activeBoard);
 
 	eventDistributor->unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
+#if PLATFORM_ANDROID
 	eventDistributor->unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
+#endif
 	eventDistributor->unregisterEventListener(OPENMSX_DELETE_BOARDS, *this);
 
 	getGlobalSettings().getPauseSetting().detach(*this);
@@ -306,15 +332,15 @@ vector<string> Reactor::getHwConfigs(string_view type)
 		while (auto* entry = configsDir.getEntry()) {
 			string_view name = entry->d_name;
 			const auto& fullname = FileOperations::join(path, name);
-			if (name.ends_with(".xml") &&
+			if (StringOp::endsWith(name, ".xml") &&
 			    FileOperations::isRegularFile(fullname)) {
 				name.remove_suffix(4);
-				result.push_back(name.str());
+				result.emplace_back(name);
 			} else if (FileOperations::isDirectory(fullname)) {
 				const auto& config = FileOperations::join(
 					fullname, "hardwareconfig.xml");
 				if (FileOperations::isRegularFile(config)) {
-					result.push_back(name.str());
+					result.emplace_back(name);
 				}
 			}
 		}
@@ -330,7 +356,7 @@ void Reactor::createMachineSetting()
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	int count = 1;
 	append(machines, view::transform(getHwConfigs("machines"),
-		[&](auto& name) { return std::make_pair(name, count++); }));
+		[&](auto& name) { return std::pair(name, count++); }));
 	machines.emplace_back("C-BIOS_MSX2+", 0); // default machine
 
 	machineSetting = make_unique<EnumSetting<int>>(
@@ -381,7 +407,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 
 	// Lookup old board (it must be present).
 	auto it = find_if_unguarded(boards,
-		[&](Boards::value_type& b) { return b.get() == &oldBoard_; });
+		[&](auto& b) { return b.get() == &oldBoard_; });
 
 	// If the old board was the active board, then activate the new board
 	if (it->get() == activeBoard) {
@@ -462,7 +488,7 @@ void Reactor::deleteBoard(MSXMotherBoard* board)
 		switchBoard(nullptr);
 	}
 	auto it = rfind_if_unguarded(boards,
-		[&](Boards::value_type& b) { return b.get() == board; });
+		[&](auto& b) { return b.get() == board; });
 	auto board_ = move(*it);
 	move_pop_back(boards, it);
 	// Don't immediately delete old boards because it's possible this
@@ -511,6 +537,14 @@ void Reactor::run(CommandLineParser& parser)
 			                 e.getMessage());
 		}
 	}
+	for (auto& cmd : parser.getStartupCommands()) {
+		try {
+			commandController.executeCommand(cmd);
+		} catch (CommandException& e) {
+			throw FatalError("Couldn't execute command: ", cmd,
+			                 '\n', e.getMessage());
+		}
+	}
 
 	// At this point openmsx is fully started, it's OK now to start
 	// accepting external commands
@@ -529,21 +563,27 @@ void Reactor::run(CommandLineParser& parser)
 		}
 	}
 
-	while (running) {
-		eventDistributor->deliverEvents();
-		assert(garbageBoards.empty());
-		bool blocked = (blockedCounter > 0) || !activeBoard;
-		if (!blocked) blocked = !activeBoard->execute();
-		if (blocked) {
-			// At first sight a better alternative is to use the
-			// SDL_WaitEvent() function. Though when inspecting
-			// the implementation of that function, it turns out
-			// to also use a sleep/poll loop, with even shorter
-			// sleep periods as we use here. Maybe in future
-			// SDL implementations this will be improved.
-			eventDistributor->sleep(20 * 1000);
-		}
+	while (doOneIteration()) {
+		// nothing
 	}
+}
+
+bool Reactor::doOneIteration()
+{
+	eventDistributor->deliverEvents();
+	assert(garbageBoards.empty());
+	bool blocked = (blockedCounter > 0) || !activeBoard;
+	if (!blocked) blocked = !activeBoard->execute();
+	if (blocked) {
+		// At first sight a better alternative is to use the
+		// SDL_WaitEvent() function. Though when inspecting
+		// the implementation of that function, it turns out
+		// to also use a sleep/poll loop, with even shorter
+		// sleep periods as we use here. Maybe in future
+		// SDL implementations this will be improved.
+		eventDistributor->sleep(20 * 1000);
+	}
+	return running;
 }
 
 void Reactor::unpause()
@@ -599,8 +639,8 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 	if (type == OPENMSX_QUIT_EVENT) {
 		enterMainLoop();
 		running = false;
-	} else if (type == OPENMSX_FOCUS_EVENT) {
 #if PLATFORM_ANDROID
+	} else if (type == OPENMSX_FOCUS_EVENT) {
 		// Android SDL port sends a (un)focus event when an app is put in background
 		// by the OS for whatever reason (like an incoming phone call) and all screen
 		// resources are taken away from the app.
@@ -615,22 +655,6 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 			unblock();
 		} else {
 			block();
-		}
-#else
-		// On other platforms, the user may specify if openMSX should be
-		// halted on loss of focus.
-		if (!getGlobalSettings().getPauseOnLostFocusSetting().getBoolean()) {
-			return 0;
-		}
-		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
-		if (focusEvent.getGain()) {
-			// gained focus
-			if (!getGlobalSettings().getPauseSetting().getBoolean()) {
-				unpause();
-			}
-		} else {
-			// lost focus
-			pause();
 		}
 #endif
 	} else if (type == OPENMSX_DELETE_BOARDS) {
@@ -693,7 +717,7 @@ void MachineCommand::execute(span<const TclObject> tokens, TclObject& result)
 		break;
 	case 2:
 		try {
-			reactor.switchMachine(tokens[1].getString().str());
+			reactor.switchMachine(string(tokens[1].getString()));
 		} catch (MSXException& e) {
 			throw CommandException("Machine switching failed: ",
 			                       e.getMessage());
@@ -730,7 +754,7 @@ void TestMachineCommand::execute(span<const TclObject> tokens,
 	checkNumArgs(tokens, 2, "machinetype");
 	try {
 		MSXMotherBoard mb(reactor);
-		mb.loadMachine(tokens[1].getString().str());
+		mb.loadMachine(string(tokens[1].getString()));
 	} catch (MSXException& e) {
 		result = e.getMessage(); // error
 	}
@@ -888,7 +912,7 @@ void StoreMachineCommand::execute(span<const TclObject> tokens, TclObject& resul
 		break;
 	case 3:
 		machineID = tokens[1].getString();
-		filename = tokens[2].getString().str();
+		filename = tokens[2].getString();
 		break;
 	}
 
@@ -896,6 +920,7 @@ void StoreMachineCommand::execute(span<const TclObject> tokens, TclObject& resul
 
 	XmlOutputArchive out(filename);
 	out.serialize("machine", board);
+	out.close();
 	result = filename;
 }
 
@@ -904,7 +929,7 @@ string StoreMachineCommand::help(const vector<string>& /*tokens*/) const
 	return
 		"store_machine                       Save state of current machine to file \"openmsxNNNN.xml.gz\"\n"
 		"store_machine machineID             Save state of machine \"machineID\" to file \"openmsxNNNN.xml.gz\"\n"
-                "store_machine machineID <filename>  Save state of machine \"machineID\" to indicated file\n"
+		"store_machine machineID <filename>  Save state of machine \"machineID\" to indicated file\n"
 		"\n"
 		"This is a low-level command, the 'savestate' script is easier to use.";
 }
@@ -956,7 +981,7 @@ void RestoreMachineCommand::execute(span<const TclObject> tokens,
 		break;
 	}
 	case 2:
-		filename = tokens[1].getString().str();
+		filename = tokens[1].getString();
 		break;
 	}
 
@@ -992,6 +1017,52 @@ void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	// TODO: add the default files (state files in user's savestates dir)
 	completeFileName(tokens, userFileContext());
+}
+
+
+// class GetClipboardCommand
+
+GetClipboardCommand::GetClipboardCommand(CommandController& commandController_)
+	: Command(commandController_, "get_clipboard_text")
+{
+}
+
+void GetClipboardCommand::execute(span<const TclObject> tokens, TclObject& result)
+{
+	checkNumArgs(tokens, 1, Prefix{1}, nullptr);
+	if (char* text = SDL_GetClipboardText()) {
+		result = text;
+		SDL_free(text);
+	}
+}
+
+string GetClipboardCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Returns the (text) content of the clipboard as a string.";
+}
+
+
+// class SetClipboardCommand
+
+SetClipboardCommand::SetClipboardCommand(CommandController& commandController_)
+	: Command(commandController_, "set_clipboard_text")
+{
+}
+
+void SetClipboardCommand::execute(span<const TclObject> tokens, TclObject& /*result*/)
+{
+	checkNumArgs(tokens, 2, "text");
+	string text(tokens[1].getString());
+	if (SDL_SetClipboardText(text.c_str()) != 0) {
+		const char* err = SDL_GetError();
+		SDL_ClearError();
+		throw CommandException(err);
+	}
+}
+
+string SetClipboardCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Send the given string to the clipboard.";
 }
 
 

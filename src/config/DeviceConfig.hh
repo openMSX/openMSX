@@ -1,8 +1,8 @@
 #ifndef DEVICECONFIG_HH
 #define DEVICECONFIG_HH
 
-#include "string_view.hh"
 #include <cassert>
+#include <string_view>
 
 namespace openmsx {
 
@@ -67,16 +67,16 @@ public:
 	Reactor& getReactor() const;
 	GlobalSettings& getGlobalSettings() const;
 
-	const XMLElement& getChild(string_view name) const;
-	const std::string& getChildData(string_view name) const;
-	string_view getChildData(string_view name,
-	                        string_view defaultValue) const;
-	int getChildDataAsInt(string_view name, int defaultValue = 0) const;
-	bool getChildDataAsBool(string_view name,
+	const XMLElement& getChild(std::string_view name) const;
+	const std::string& getChildData(std::string_view name) const;
+	std::string_view getChildData(std::string_view name,
+	                              std::string_view defaultValue) const;
+	int getChildDataAsInt(std::string_view name, int defaultValue = 0) const;
+	bool getChildDataAsBool(std::string_view name,
 	                        bool defaultValue = false) const;
-	const XMLElement* findChild(string_view name) const;
-	const std::string& getAttribute(string_view attName) const;
-	int getAttributeAsInt(string_view attName, int defaultValue = 0) const;
+	const XMLElement* findChild(std::string_view name) const;
+	const std::string& getAttribute(std::string_view attName) const;
+	int getAttributeAsInt(std::string_view attName, int defaultValue = 0) const;
 
 private:
 	const HardwareConfig* hwConf = nullptr;

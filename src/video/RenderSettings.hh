@@ -24,8 +24,7 @@ public:
 	/** Enumeration of Renderers known to openMSX.
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
-	enum RendererID { UNINITIALIZED, DUMMY, SDL,
-	                  SDLGL_PP, SDLGL_FB16, SDLGL_FB32 };
+	enum RendererID { UNINITIALIZED, DUMMY, SDL, SDLGL_PP };
 	using RendererSetting = EnumSetting<RendererID>;
 
 	/** Render accuracy: granularity of the rendered area.

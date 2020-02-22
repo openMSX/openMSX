@@ -19,39 +19,39 @@ namespace openmsx {
 namespace YM2413Okazaki {
 
 // Number of bits in 'PhaseModulation' fixed point type.
-static constexpr int PM_FP_BITS =  8;
+constexpr int PM_FP_BITS =  8;
 
 // Dynamic range (Accuracy of sin table)
-static constexpr int DB_BITS = 8;
-static constexpr int DB_MUTE = 1 << DB_BITS;
-static constexpr int DBTABLEN = 3 * DB_MUTE; // enough to not have to check for overflow
+constexpr int DB_BITS = 8;
+constexpr int DB_MUTE = 1 << DB_BITS;
+constexpr int DBTABLEN = 3 * DB_MUTE; // enough to not have to check for overflow
 
-static constexpr double DB_STEP = 48.0 / DB_MUTE;
-static constexpr double EG_STEP = 0.375;
-static constexpr double TL_STEP = 0.75;
+constexpr double DB_STEP = 48.0 / DB_MUTE;
+constexpr double EG_STEP = 0.375;
+constexpr double TL_STEP = 0.75;
 
 // Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
-static constexpr int PG_BITS = 9;
-static constexpr int PG_WIDTH = 1 << PG_BITS;
-static constexpr int PG_MASK = PG_WIDTH - 1;
+constexpr int PG_BITS = 9;
+constexpr int PG_WIDTH = 1 << PG_BITS;
+constexpr int PG_MASK = PG_WIDTH - 1;
 
 // Phase increment counter
-static constexpr int DP_BITS = 18;
-static constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
+constexpr int DP_BITS = 18;
+constexpr int DP_BASE_BITS = DP_BITS - PG_BITS;
 
 // Dynamic range of envelope
-static constexpr int EG_BITS = 7;
+constexpr int EG_BITS = 7;
 
 // Bits for linear value
-static constexpr int DB2LIN_AMP_BITS = 8;
-static constexpr int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
+constexpr int DB2LIN_AMP_BITS = 8;
+constexpr int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
 // Bits for Amp modulator
-static constexpr int AM_PG_BITS = 8;
-static constexpr int AM_PG_WIDTH = 1 << AM_PG_BITS;
-static constexpr int AM_DP_BITS = 16;
-static constexpr int AM_DP_WIDTH = 1 << AM_DP_BITS;
-static constexpr int AM_DP_MASK = AM_DP_WIDTH - 1;
+constexpr int AM_PG_BITS = 8;
+constexpr int AM_PG_WIDTH = 1 << AM_PG_BITS;
+constexpr int AM_DP_BITS = 16;
+constexpr int AM_DP_WIDTH = 1 << AM_DP_BITS;
+constexpr int AM_DP_MASK = AM_DP_WIDTH - 1;
 
 // LFO Amplitude Modulation table (verified on real YM3812)
 // 27 output levels (triangle waveform);
@@ -68,14 +68,14 @@ static constexpr int AM_DP_MASK = AM_DP_WIDTH - 1;
 //    depth = 4.875dB
 // Also this approch can be easily implemented in HW, the previous one (see SVN
 // history) could not.
-static constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
+constexpr unsigned LFO_AM_TAB_ELEMENTS = 210;
 
 // Extra (derived) constants
-static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
-static const EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
+constexpr EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
+constexpr EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
 
 // LFO Phase Modulation table (copied from Burczynski core)
-static const signed char pmTable[8][8] =
+constexpr signed char pmTable[8][8] =
 {
 	{ 0, 0, 0, 0, 0, 0, 0, 0, }, // FNUM = 000xxxxxx
 	{ 0, 0, 1, 0, 0, 0,-1, 0, }, // FNUM = 001xxxxxx
@@ -88,7 +88,7 @@ static const signed char pmTable[8][8] =
 };
 
 // LFO Amplitude Modulation table (verified on real YM3812)
-static const unsigned char lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
+constexpr unsigned char lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
 	2,2,2,2,
@@ -144,7 +144,7 @@ static const unsigned char lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 };
 
 // ML-table
-static const byte mlTable[16] = {
+constexpr byte mlTable[16] = {
 	1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,
 	8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
 };
@@ -176,7 +176,7 @@ static constexpr Db2LinTab makeDB2LinTable()
 
 	return dB2Lin;
 }
-static constexpr Db2LinTab dB2Lin = makeDB2LinTable();
+constexpr Db2LinTab dB2Lin = makeDB2LinTable();
 
 // Linear to Log curve conversion table (for Attack rate)
 struct ArAdjustTable {
@@ -195,7 +195,7 @@ static constexpr ArAdjustTable makeAdjustTable()
 
 	return arAdjust;
 }
-static constexpr ArAdjustTable arAdjust = makeAdjustTable();
+constexpr ArAdjustTable arAdjust = makeAdjustTable();
 
 // KSL + TL Table   values are in range [0, 112]
 struct TllTable {
@@ -226,7 +226,7 @@ static constexpr TllTable makeTllTable()
 
 	return tll;
 }
-static constexpr TllTable tll = makeTllTable();
+constexpr TllTable tll = makeTllTable();
 
 // WaveTable for each envelope amp
 //  values are in range [0, DB_MUTE)             (for positive values)
@@ -242,7 +242,7 @@ static constexpr int lin2db(double d)
 		? DB_MUTE - 1
 		: std::min(-int(20.0 * cstd::log10<5, 2>(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
 }
-static constexpr SinTable makeSinTable()
+constexpr SinTable makeSinTable()
 {
 	SinTable sinTable = {};
 
@@ -265,8 +265,8 @@ static constexpr SinTable makeSinTable()
 
 	return sinTable;
 }
-static constexpr SinTable sinTable = makeSinTable();
-static constexpr unsigned const * const waveform[2] = {sinTable.full, sinTable.half};
+constexpr SinTable sinTable = makeSinTable();
+constexpr unsigned const * const waveform[2] = {sinTable.full, sinTable.half};
 
 // Phase incr table for attack, decay and release
 //  note: original code had indices swapped. It also had
@@ -291,7 +291,7 @@ static constexpr DphaseDRTable makeDphaseDRTable()
 
 	return dphaseDR;
 }
-static constexpr DphaseDRTable dphaseDR = makeDphaseDRTable();
+constexpr DphaseDRTable dphaseDR = makeDphaseDRTable();
 
 // Sustain level (17.15 fixed point)
 struct SlTable {
@@ -308,7 +308,7 @@ static constexpr SlTable makeSusLevTable()
 
 	return sl;
 }
-static constexpr SlTable sl = makeSusLevTable();
+constexpr SlTable sl = makeSusLevTable();
 
 //
 // Helper functions
@@ -1075,9 +1075,9 @@ ALWAYS_INLINE int Slot::calc_slot_hat(unsigned phase7, unsigned phase8, bool noi
 	return dB2Lin.tab[dbout + egout];
 }
 
-int YM2413::getAmplificationFactor() const
+float YM2413::getAmplificationFactor() const
 {
-	return 1 << (15 - DB2LIN_AMP_BITS);
+	return 1.0f / (1 << DB2LIN_AMP_BITS);
 }
 
 bool YM2413::isRhythm() const
@@ -1098,7 +1098,7 @@ Patch& YM2413::getPatch(unsigned instrument, bool carrier)
 }
 
 template <unsigned FLAGS>
-ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
+ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, float* buf, unsigned num)
 {
 	// VC++ requires explicit conversion to bool. Compiler bug??
 	const bool HAS_CAR_PM = (FLAGS &  1) != 0;
@@ -1152,7 +1152,7 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 	} while (sample < num);
 }
 
-void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
+void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 {
 	assert(num != 0);
 
@@ -1546,7 +1546,7 @@ void YM2413::writeReg(byte r, byte data)
 	case 0x19: case 0x1A: case 0x1B: case 0x1C:
 	case 0x1D: case 0x1E: case 0x1F:
 		r -= 9; // verified on real YM2413
-		// fall-through
+		[[fallthrough]];
 	case 0x10: case 0x11: case 0x12: case 0x13: case 0x14:
 	case 0x15: case 0x16: case 0x17: case 0x18: {
 		reg[r] = data;
@@ -1561,7 +1561,7 @@ void YM2413::writeReg(byte r, byte data)
 	case 0x29: case 0x2A: case 0x2B: case 0x2C:
 	case 0x2D: case 0x2E: case 0x2F:
 		r -= 9; // verified on real YM2413
-		// fall-through
+		[[fallthrough]];
 	case 0x20: case 0x21: case 0x22: case 0x23: case 0x24:
 	case 0x25: case 0x26: case 0x27: case 0x28: {
 		reg[r] = data;
@@ -1582,7 +1582,7 @@ void YM2413::writeReg(byte r, byte data)
 	case 0x39: case 0x3A: case 0x3B: case 0x3C:
 	case 0x3D: case 0x3E: case 0x3F:
 		r -= 9; // verified on real YM2413
-		// fall-through
+		[[fallthrough]];
 	case 0x30: case 0x31: case 0x32: case 0x33: case 0x34:
 	case 0x35: case 0x36: case 0x37: case 0x38: {
 		reg[r] = data;
@@ -1636,12 +1636,12 @@ namespace YM2413Okazaki {
 template<typename Archive>
 void Slot::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("feedback", feedback);
-	ar.serialize("output", output);
-	ar.serialize("cphase", cphase);
-	ar.serialize("state", state);
-	ar.serialize("eg_phase", eg_phase);
-	ar.serialize("sustain", sustain);
+	ar.serialize("feedback", feedback,
+	             "output",   output,
+	             "cphase",   cphase,
+	             "state",    state,
+	             "eg_phase", eg_phase,
+	             "sustain",  sustain);
 
 	// These are restored by calls to
 	//  updateAll():         eg_dphase, dphaseDRTableRks, tll, dphase
@@ -1656,8 +1656,8 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Channel::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("mod", mod);
-	ar.serialize("car", car);
+	ar.serialize("mod", mod,
+	             "car", car);
 }
 
 
@@ -1673,10 +1673,10 @@ void YM2413::serialize(Archive& ar, unsigned version)
 
 	// no need to serialize patches[]
 	//   patches[0] is restored from registers, the others are read-only
-	ar.serialize("channels", channels);
-	ar.serialize("pm_phase", pm_phase);
-	ar.serialize("am_phase", am_phase);
-	ar.serialize("noise_seed", noise_seed);
+	ar.serialize("channels",   channels,
+	             "pm_phase",   pm_phase,
+	             "am_phase",   am_phase,
+	             "noise_seed", noise_seed);
 
 	if (ar.isLoader()) {
 		patches[0][0].initModulator(&reg[0]);

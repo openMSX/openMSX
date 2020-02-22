@@ -17,6 +17,5 @@ if __name__ == '__main__':
 	if len(sys.argv) == 2:
 		rewriteIfChanged(sys.argv[1], iterVersionInclude())
 	else:
-		print >> sys.stderr, \
-			'Usage: python version2code.py VERSION_HEADER'
+		print('Usage: python3 version2code.py VERSION_HEADER', file=sys.stderr)
 		sys.exit(2)

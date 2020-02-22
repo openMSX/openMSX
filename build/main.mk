@@ -31,17 +31,7 @@ endif
 # Python Interpreter
 # ==================
 
-# We need Python from the 2.x series, version 2.6 or higher.
-# Usually this executable is available as just "python", but on some systems
-# you might have to be more specific, for example "python2" or "python2.6".
-# Or if the Python interpreter is not in the search path, you can specify its
-# full path.
-ifeq ($(PYTHON),)
-PYTHON:=$(shell build/python-search.sh)
-ifeq ($(PYTHON),)
-$(error No suitable Python interpreter found. Please install Python version 2.x where x >= 5. If your Python interpreter is installed in a non-standard location, please set the environment variable PYTHON to the full path of the interpreter binary.)
-endif
-endif
+PYTHON?=python3
 $(info Using Python: $(PYTHON))
 
 
@@ -221,7 +211,7 @@ BINDIST_PACKAGE:=
 
 ifeq ($(VERSION_EXEC),true)
   REVISION:=$(shell PYTHONPATH=build $(PYTHON) -c \
-    "import version; print version.extractRevisionString()" \
+    "import version; print(version.extractRevisionString())" \
     )
   BINARY_FULL:=$(BINARY_PATH)/openmsx-$(REVISION)$(EXEEXT)
 else
@@ -342,8 +332,8 @@ CXX?=g++
 WINDRES?=windres
 DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
-  # Enable C++14 (supported since clang-3.5)
-  COMPILE_FLAGS+=-std=c++14
+  # Enable C++17 (for the most part supported since clang-5)
+  COMPILE_FLAGS+=-std=c++17
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
   # Hardware descriptions can contain constants that are not used in the code
   # but still useful as documentation.
@@ -354,8 +344,8 @@ else
 ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Generic compilation flags.
   COMPILE_FLAGS+=-pipe
-  # Enable C++14
-  COMPILE_FLAGS+=-std=c++14
+  # Enable C++17  (almost fully supported since gcc-7)
+  COMPILE_FLAGS+=-std=c++17
   # Stricter warning and error reporting.
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wno-invalid-offsetof -Wunused-macros -Wdouble-promotion -Wmissing-declarations -Wshadow -Wold-style-cast -Wzero-as-null-pointer-constant
   # Empty definition of used headers, so header removal doesn't break things.

@@ -43,14 +43,6 @@ EnumSetting<RenderSettings::RendererID>::Map RenderSettings::getRendererMap()
 	// compiled with OpenGL-2.0, still need to test whether
 	// it's available at run time, but cannot be done here
 	rendererMap.emplace_back("SDLGL-PP", SDLGL_PP);
-	if (!Version::RELEASE) {
-		// disabled for the release:
-		//  these renderers don't offer anything more than the existing
-		//  renderers and sdlgl-fb32 still has endian problems on PPC
-		// TODO is this still true now that SDLGL is removed?
-		append(rendererMap, {{"SDLGL-FB16", SDLGL_FB16},
-		                     {"SDLGL-FB32", SDLGL_FB32}});
-	}
 #endif
 	return rendererMap;
 }
@@ -266,11 +258,11 @@ float RenderSettings::transformComponent(float c) const
 
 vec3 RenderSettings::transformRGB(vec3 rgb) const
 {
-	vec3 t = colorMatrix * (rgb * contrast + vec3(brightness));
+	auto [r, g, b] = colorMatrix * (rgb * contrast + vec3(brightness));
 	float gamma = 1.0f / getGamma();
-	return {conv2(t[0], gamma),
-	        conv2(t[1], gamma),
-	        conv2(t[2], gamma)};
+	return {conv2(r, gamma),
+	        conv2(g, gamma),
+	        conv2(b, gamma)};
 }
 
 void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& value)

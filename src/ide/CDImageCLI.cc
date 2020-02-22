@@ -17,7 +17,7 @@ CDImageCLI::CDImageCLI(CommandLineParser& parser_)
 
 void CDImageCLI::parseOption(const string& option, span<string>& cmdLine)
 {
-	string_view cd = string_view(option).substr(1); // cda
+	auto cd = std::string_view(option).substr(1); // cda
 	string filename = getArgument(option, cmdLine);
 	if (!parser.getGlobalCommandController().hasCommand(cd)) { // TODO WIP
 		throw MSXException("No CDROM named '", cd, "'.");
@@ -25,7 +25,7 @@ void CDImageCLI::parseOption(const string& option, span<string>& cmdLine)
 	TclObject command = makeTclList(cd, filename);
 	command.executeCommand(parser.getInterpreter());
 }
-string_view CDImageCLI::optionHelp() const
+std::string_view CDImageCLI::optionHelp() const
 {
 	return "Use iso image in argument for the CDROM extension";
 }

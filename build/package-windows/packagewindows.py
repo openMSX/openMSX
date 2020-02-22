@@ -107,7 +107,9 @@ if __name__ == '__main__':
 	if len(sys.argv) == 4:
 		PackageInfo(*sys.argv[1 : ])
 	else:
-		print >> sys.stderr, \
-			'Usage: python packagewindows.py ' \
-			'platform configuration catapultPath'
+		print(
+			'Usage: python3 packagewindows.py '
+			'platform configuration catapultPath',
+			file=sys.stderr
+			)
 		sys.exit(2)

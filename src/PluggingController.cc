@@ -13,6 +13,7 @@
 #include <iostream>
 
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {

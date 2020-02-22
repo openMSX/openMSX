@@ -90,9 +90,9 @@ byte MSXRS232::readMem(word address, EmuTime::param time)
 
 const byte* MSXRS232::getReadCacheLine(word start) const
 {
-        if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
-                return nullptr;
-        }
+	if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
+		return nullptr;
+	}
 	word addr = start & 0x3FFF;
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
@@ -125,9 +125,9 @@ void MSXRS232::writeMem(word address, byte value, EmuTime::param time)
 
 byte* MSXRS232::getWriteCacheLine(word start) const
 {
-        if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
-                return nullptr;
-        }
+	if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
+		return nullptr;
+	}
 	word addr = start & 0x3FFF;
 	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
@@ -433,12 +433,12 @@ void MSXRS232::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<RS232Connector>(*this);
 
-	ar.serialize("I8254", i8254);
-	ar.serialize("I8251", i8251);
+	ar.serialize("I8254", i8254,
+	             "I8251", i8251);
 	if (ram) ar.serialize("ram", *ram);
-	ar.serialize("rxrdyIRQ", rxrdyIRQ);
-	ar.serialize("rxrdyIRQlatch", rxrdyIRQlatch);
-	ar.serialize("rxrdyIRQenabled", rxrdyIRQenabled);
+	ar.serialize("rxrdyIRQ",        rxrdyIRQ,
+	             "rxrdyIRQlatch",   rxrdyIRQlatch,
+	             "rxrdyIRQenabled", rxrdyIRQenabled);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("ioAccessEnabled", ioAccessEnabled);
 	} else {

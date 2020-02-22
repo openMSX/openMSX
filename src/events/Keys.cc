@@ -2,16 +2,16 @@
 #include "StringOp.hh"
 #include "cstd.hh"
 #include "ranges.hh"
+#include <array>
 
 using std::string;
+using std::string_view;
 
-namespace openmsx {
+namespace openmsx::Keys {
 
-namespace Keys {
-
-// can be std::pair in C++17
+// can be std::pair in C++20
 struct P {
-	constexpr P(cstd::string s, KeyCode k)
+	constexpr P(string_view s, KeyCode k)
 		: first(s), second(k) {}
 
 	// Needed for gcc-6.3. Compiler bug?
@@ -20,8 +20,9 @@ struct P {
 		second = o.second;
 		return *this;
 	}
+	constexpr P(const P& p) = default;
 
-	cstd::string first;
+	string_view first;
 	KeyCode second;
 };
 
@@ -50,7 +51,7 @@ struct CmpKeys {
 #endif
 static KEYS_CONSTEXPR auto getSortedKeys()
 {
-	auto keys = cstd::array_of<P>(
+	auto keys = std::array{
 		P("BACKSPACE",	K_BACKSPACE),
 		P("TAB",	K_TAB),
 		P("CLEAR",	K_CLEAR),
@@ -330,7 +331,7 @@ static KEYS_CONSTEXPR auto getSortedKeys()
 		// Direction modifiers
 		P("PRESS",	KD_PRESS),
 		P("RELEASE",	KD_RELEASE)
-	);
+	};
 	KEYS_SORT(keys, CmpKeys());
 	return keys;
 }
@@ -348,7 +349,7 @@ KeyCode getCode(string_view name)
 		          : name.substr(lastPos);
 		auto it = ranges::lower_bound(keys, part, CmpKeys());
 		StringOp::casecmp cmp;
-		if ((it == end(keys)) || !cmp(it->first, part)) {
+		if ((it == std::end(keys)) || !cmp(it->first, part)) {
 			return K_NONE;
 		}
 		KeyCode partCode = it->second;
@@ -520,6 +521,7 @@ KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release
 	case SDLK_PRINTSCREEN:    result = K_PRINT;             break;
 	case SDLK_SYSREQ:         result = K_SYSREQ;            break;
 //	case SDLK_BREAK:          result = K_BREAK;             break;
+	case SDLK_APPLICATION:    result = K_MENU;              break;
 	case SDLK_MENU:           result = K_MENU;              break;
 	case SDLK_POWER:          result = K_POWER;             break; // Power Macintosh power key
 //	case SDLK_EURO:           result = K_EURO;              break; // Some european keyboards
@@ -587,9 +589,9 @@ KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release
 string getName(KeyCode keyCode)
 {
 	string result;
-	for (auto& p : keys) {
-		if (p.second == (keyCode & K_MASK)) {
-			result = string_view(p.first).str();
+	for (const auto& [name, code] : keys) {
+		if (code == (keyCode & K_MASK)) {
+			result = name;
 			break;
 		}
 	}
@@ -617,6 +619,4 @@ string getName(KeyCode keyCode)
 	return result;
 }
 
-} // namespace Keys
-
-} // namespace openmsx
+} // namespace openmsx::Keys

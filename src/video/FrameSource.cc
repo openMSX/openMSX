@@ -12,7 +12,7 @@
 
 namespace openmsx {
 
-FrameSource::FrameSource(const SDL_PixelFormat& format)
+FrameSource::FrameSource(const PixelFormat& format)
 	: pixelFormat(format)
 {
 }
@@ -24,7 +24,7 @@ const Pixel* FrameSource::getLinePtr320_240(unsigned line, Pixel* buf0) const
 		return getLinePtr(line, 320, buf0);
 	} else {
 		assert(getHeight() == 480);
-		SSE_ALIGNED(Pixel buf1[320]);
+		alignas(SSE_ALIGNMENT) Pixel buf1[320];
 		auto* line0 = getLinePtr(2 * line + 0, 320, buf0);
 		auto* line1 = getLinePtr(2 * line + 1, 320, buf1);
 		PixelOperations<Pixel> pixelOps(pixelFormat);
@@ -54,7 +54,7 @@ const Pixel* FrameSource::getLinePtr960_720(unsigned line, Pixel* buf0) const
 		if ((line % 3) != 1) {
 			return line0;
 		}
-		SSE_ALIGNED(Pixel buf1[960]);
+		alignas(SSE_ALIGNMENT) Pixel buf1[960];
 		auto* line1 = getLinePtr(l2 + 1, 960, buf1);
 		PixelOperations<Pixel> pixelOps(pixelFormat);
 		BlendLines<Pixel> blend(pixelOps);

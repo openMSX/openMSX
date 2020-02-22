@@ -23,7 +23,7 @@ class _Command(object):
 	def fromLine(cls, commandStr, flagsStr):
 		commandParts = shsplit(commandStr)
 		flags = shsplit(flagsStr)
-		env = {}
+		env = {'LC_ALL': 'C.UTF-8'}
 		while commandParts:
 			if '=' in commandParts[0]:
 				name, value = commandParts[0].split('=', 1)
@@ -52,7 +52,7 @@ class _Command(object):
 			[ self.__executable ] + self.__flags + (
 				[ '(%s)' % ' '.join(
 					'%s=%s' % item
-					for item in sorted(self.__env.iteritems())
+					for item in sorted(self.__env.items())
 					) ] if self.__env else []
 				)
 			)
@@ -68,22 +68,24 @@ class _Command(object):
 				stdout = PIPE,
 				stderr = PIPE if captureOutput else STDOUT,
 				)
-		except OSError, ex:
-			print >> log, 'failed to execute %s: %s' % (name, ex)
+		except OSError as ex:
+			print('failed to execute %s: %s' % (name, ex), file=log)
 			return None if captureOutput else False
-		inputText = None if inputSeq is None else '\n'.join(inputSeq) + '\n'
+		inputText = None if inputSeq is None \
+				else ('\n'.join(inputSeq) + '\n').encode('utf-8')
 		stdoutdata, stderrdata = proc.communicate(inputText)
+		stdouttext = stdoutdata.decode('utf-8', 'replace')
 		if captureOutput:
 			assert stderrdata is not None
-			messages = stderrdata
+			messages = stderrdata.decode('utf-8', 'replace')
 		else:
 			assert stderrdata is None
-			messages = stdoutdata
+			messages = stdouttext
 		if messages:
 			log.write('%s command: %s\n' % (name, ' '.join(commandLine)))
 			if inputText is not None:
 				log.write('input:\n')
-				log.write(inputText)
+				log.write(str(inputText))
 				if not inputText.endswith('\n'):
 					log.write('\n')
 				log.write('end input.\n')
@@ -94,9 +96,9 @@ class _Command(object):
 			if not messages.endswith('\n'):
 				log.write('\n')
 		if proc.returncode == 0:
-			return stdoutdata if captureOutput else True
+			return stdouttext if captureOutput else True
 		else:
-			print >> log, 'return code from %s: %d' % (name, proc.returncode)
+			print('return code from %s: %d' % (name, proc.returncode), file=log)
 			return None if captureOutput else False
 
 class CompileCommand(_Command):

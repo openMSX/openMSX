@@ -24,7 +24,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	// MidiOutDevice
 	void recvMessage(
@@ -83,7 +83,7 @@ void MidiOutALSA::connect()
 		0, SND_SEQ_PORT_TYPE_MIDI_GENERIC);
 	if (sourcePort < 0) {
 		throw PlugException(
-                        "Failed to create ALSA port: ", snd_strerror(sourcePort));
+			"Failed to create ALSA port: ", snd_strerror(sourcePort));
 	}
 
 	int err = snd_seq_connect_to(&seq, sourcePort, destClient, destPort);
@@ -114,7 +114,7 @@ const std::string& MidiOutALSA::getName() const
 	return name;
 }
 
-string_view MidiOutALSA::getDescription() const
+std::string_view MidiOutALSA::getDescription() const
 {
 	return desc;
 }
@@ -178,7 +178,7 @@ void MidiSessionALSA::registerAll(
 		int err = snd_seq_open(&seq, "default", SND_SEQ_OPEN_DUPLEX, 0);
 		if (err < 0) {
 			cliComm.printError(
-                                "Could not open sequencer: ", snd_strerror(err));
+				"Could not open sequencer: ", snd_strerror(err));
 			return;
 		}
 		snd_seq_set_client_name(seq, "openMSX");

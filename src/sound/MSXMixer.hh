@@ -6,7 +6,6 @@
 #include "InfoTopic.hh"
 #include "EmuTime.hh"
 #include "DynamicClock.hh"
-#include <cstdint>
 #include <vector>
 #include <memory>
 
@@ -110,7 +109,7 @@ public:
 	// Returns the nominal host sample rate (not adjusted for speed setting)
 	unsigned getSampleRate() const { return hostSampleRate; }
 
-	SoundDevice* findDevice(string_view name) const;
+	SoundDevice* findDevice(std::string_view name) const;
 
 	void reInit();
 
@@ -125,14 +124,14 @@ private:
 			std::unique_ptr<BooleanSetting> muteSetting;
 		};
 		std::vector<ChannelSettings> channelSettings;
-		int left1, right1, left2, right2;
+		float left1, right1, left2, right2;
 	};
 
 	void updateVolumeParams(SoundDeviceInfo& info);
 	void updateMasterVolume();
 	void reschedule();
 	void reschedule2();
-	void generate(int16_t* output, EmuTime::param time, unsigned samples);
+	void generate(float* output, EmuTime::param time, unsigned samples);
 
 	// Schedulable
 	void executeUntil(EmuTime::param time) override;
@@ -173,7 +172,7 @@ private:
 	unsigned synchronousCounter;
 
 	unsigned muteCount;
-	int32_t tl0, tr0; // internal DC-filter state
+	float tl0, tr0; // internal DC-filter state
 };
 
 } // namespace openmsx

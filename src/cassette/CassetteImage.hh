@@ -17,7 +17,8 @@ public:
 	virtual int16_t getSampleAt(EmuTime::param time) = 0;
 	virtual EmuTime getEndTime() const = 0;
 	virtual unsigned getFrequency() const = 0;
-	virtual void fillBuffer(unsigned pos, int** bufs, unsigned num) const = 0;
+	virtual void fillBuffer(unsigned pos, float** bufs, unsigned num) const = 0;
+	virtual float getAmplificationFactorImpl() const = 0;
 
 	FileType getFirstFileType() const { return firstFileType; }
 	std::string getFirstFileTypeAsString() const;

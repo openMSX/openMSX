@@ -40,7 +40,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	// MidiOutMessageBuffer
 	OSStatus sendPacketList(MIDIPacketList *myPacketList) override;
@@ -70,7 +70,7 @@ public:
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 
 	// MidiOutMessageBuffer
 	OSStatus sendPacketList(MIDIPacketList *myPacketList) override;

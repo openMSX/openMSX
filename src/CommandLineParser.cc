@@ -31,6 +31,7 @@
 
 using std::cout;
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -67,14 +68,12 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-setting",    settingOption, PHASE_BEFORE_SETTINGS);
 	registerOption("-control",    controlOption, PHASE_BEFORE_SETTINGS, 1);
 	registerOption("-script",     scriptOption,  PHASE_BEFORE_SETTINGS, 1); // correct phase?
-	#if COMPONENT_GL
-	registerOption("-nopbo",      noPBOOption,   PHASE_BEFORE_SETTINGS, 1);
-	#endif
+	registerOption("-command",    commandOption, PHASE_BEFORE_SETTINGS, 1); // same phase as -script
 	registerOption("-testconfig", testConfigOption, PHASE_BEFORE_SETTINGS, 1);
 
 	registerOption("-machine",    machineOption, PHASE_LOAD_MACHINE);
 
-	registerFileType("tcl", scriptOption);
+	registerFileType({"tcl"}, scriptOption);
 
 	// At this point all options and file-types must be registered
 	ranges::sort(options,   CmpOptions());
@@ -88,11 +87,10 @@ void CommandLineParser::registerOption(
 }
 
 void CommandLineParser::registerFileType(
-	string_view extensions, CLIFileType& cliFileType)
+	std::initializer_list<string_view> extensions, CLIFileType& cliFileType)
 {
-	append(fileTypes, view::transform(
-		StringOp::split(extensions, ','),
-		[&](auto& ext) { return std::make_pair(ext, &cliFileType); }));
+	append(fileTypes, view::transform(extensions,
+		[&](auto& ext) { return std::pair(ext, &cliFileType); }));
 }
 
 bool CommandLineParser::parseOption(
@@ -135,10 +133,11 @@ bool CommandLineParser::parseFileName(const string& arg, span<string>& cmdLine)
 
 bool CommandLineParser::parseFileNameInner(const string& arg, const string& originalPath, span<string>& cmdLine)
 {
-	string_view extension = FileOperations::getExtension(arg).substr(1);
-	if (extension.empty()) {
+	string_view extension = FileOperations::getExtension(arg); // includes leading '.' (if any)
+	if (extension.size() <= 1) {
 		return false; // no extension
 	}
+	extension.remove_prefix(1);
 
 	auto it = ranges::lower_bound(fileTypes, extension, CmpFileTypes());
 	StringOp::casecmp cmp;
@@ -214,7 +213,7 @@ void CommandLineParser::parse(int argc, char** argv)
 				const auto& machine =
 					reactor.getMachineSetting().getString();
 				try {
-					reactor.switchMachine(machine.str());
+					reactor.switchMachine(string(machine));
 				} catch (MSXException& e) {
 					reactor.getCliComm().printInfo(
 						"Failed to initialize default machine: ",
@@ -225,7 +224,7 @@ void CommandLineParser::parse(int argc, char** argv)
 					reactor.getCliComm().printInfo(
 						"Using fallback machine: ", fallbackMachine);
 					try {
-						reactor.switchMachine(fallbackMachine.str());
+						reactor.switchMachine(string(fallbackMachine));
 					} catch (MSXException& e2) {
 						// Fallback machine failed as well; we're out of options.
 						throw FatalError(std::move(e2).getMessage());
@@ -265,8 +264,8 @@ void CommandLineParser::parse(int argc, char** argv)
 			break;
 		}
 	}
-	for (auto& p : options) {
-		p.second.option->parseDone();
+	for (auto& opData : view::values(options)) {
+		opData.option->parseDone();
 	}
 	if (!cmdLine.empty() && (parseStatus != EXIT)) {
 		throw FatalError(
@@ -284,11 +283,6 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 {
 	assert(parseStatus != UNPARSED);
 	return parseStatus;
-}
-
-const CommandLineParser::Scripts& CommandLineParser::getStartupScripts() const
-{
-	return scriptOption.scripts;
 }
 
 MSXMotherBoard* CommandLineParser::getMotherBoard() const
@@ -313,8 +307,7 @@ void CommandLineParser::ControlOption::parseOption(
 	const string& option, span<string>& cmdLine)
 {
 	const auto& fullType = getArgument(option, cmdLine);
-	string_view type, arguments;
-	StringOp::splitOnFirst(fullType, ':', type, arguments);
+	auto [type, arguments] = StringOp::splitOnFirst(fullType, ':');
 
 	auto& parser = OUTER(CommandLineParser, controlOption);
 	auto& controller  = parser.getGlobalCommandController();
@@ -365,6 +358,19 @@ void CommandLineParser::ScriptOption::parseFileType(
 string_view CommandLineParser::ScriptOption::fileTypeHelp() const
 {
 	return "Extra Tcl script to run at startup";
+}
+
+
+// Command option
+void CommandLineParser::CommandOption::parseOption(
+	const std::string& option, span<std::string>& cmdLine)
+{
+	commands.push_back(getArgument(option, cmdLine));
+}
+
+std::string_view CommandLineParser::CommandOption::optionHelp() const
+{
+	return "Run Tcl command at startup (see also -script)";
 }
 
 
@@ -448,10 +454,10 @@ void CommandLineParser::HelpOption::parseOption(
 	        "  this is the list of supported options:\n";
 
 	GroupedItems itemMap;
-	for (auto& p : parser.options) {
-		const auto& helpText = p.second.option->optionHelp();
+	for (const auto& [name, data] : parser.options) {
+		const auto& helpText = data.option->optionHelp();
 		if (!helpText.empty()) {
-			itemMap[helpText].push_back(p.first);
+			itemMap[helpText].push_back(name);
 		}
 	}
 	printItemMap(itemMap);
@@ -460,8 +466,8 @@ void CommandLineParser::HelpOption::parseOption(
 	        "  this is the list of supported file types:\n";
 
 	itemMap.clear();
-	for (auto& p : parser.fileTypes) {
-		itemMap[p.second->fileTypeHelp()].push_back(p.first);
+	for (const auto& [ext, data] : parser.fileTypes) {
+		itemMap[data->fileTypeHelp()].push_back(ext);
 	}
 	printItemMap(itemMap);
 
@@ -542,23 +548,6 @@ string_view CommandLineParser::SettingOption::optionHelp() const
 }
 
 
-// class NoPBOOption
-
-void CommandLineParser::NoPBOOption::parseOption(
-	const string& /*option*/, span<string>& /*cmdLine*/)
-{
-	#if COMPONENT_GL
-	cout << "Disabling PBO\n";
-	gl::PixelBuffers::enabled = false;
-	#endif
-}
-
-string_view CommandLineParser::NoPBOOption::optionHelp() const
-{
-	return "Disables usage of openGL PBO (for debugging)";
-}
-
-
 // class TestConfigOption
 
 void CommandLineParser::TestConfigOption::parseOption(
@@ -595,8 +584,8 @@ void CommandLineParser::BashOption::parseOption(
 			cout << s << '\n';
 		}
 	} else {
-		for (auto& p : parser.options) {
-			cout << p.first << '\n';
+		for (const auto& name : view::keys(parser.options)) {
+			cout << name << '\n';
 		}
 	}
 	parser.parseStatus = CommandLineParser::EXIT;

@@ -19,7 +19,7 @@ using std::string;
 
 namespace openmsx {
 
-static MemBuffer<int, SSE2_ALIGNMENT> mixBuffer;
+static MemBuffer<float, SSE2_ALIGNMENT> mixBuffer;
 static unsigned mixBufferSize = 0;
 
 static void allocateMixBuffer(unsigned size)
@@ -30,9 +30,9 @@ static void allocateMixBuffer(unsigned size)
 	}
 }
 
-static string makeUnique(MSXMixer& mixer, string_view name)
+static string makeUnique(MSXMixer& mixer, std::string_view name)
 {
-	string result = name.str();
+	string result(name);
 	if (mixer.findDevice(result)) {
 		unsigned n = 0;
 		do {
@@ -42,7 +42,7 @@ static string makeUnique(MSXMixer& mixer, string_view name)
 	return result;
 }
 
-void SoundDevice::addFill(int*& buf, int val, unsigned num)
+void SoundDevice::addFill(float*& buf, float val, unsigned num)
 {
 	// Note: in the past we tried to optimize this by always producing
 	// a multiple of 4 output values. In the general case a sounddevice is
@@ -55,12 +55,11 @@ void SoundDevice::addFill(int*& buf, int val, unsigned num)
 	} while (--num);
 }
 
-SoundDevice::SoundDevice(MSXMixer& mixer_, string_view name_,
-			 string_view description_,
-			 unsigned numChannels_, bool stereo_)
+SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, std::string_view description_,
+			 unsigned numChannels_, unsigned inputRate, bool stereo_)
 	: mixer(mixer_)
 	, name(makeUnique(mixer, name_))
-	, description(description_.str())
+	, description(description_)
 	, numChannels(numChannels_)
 	, stereo(stereo_ ? 2 : 1)
 	, numRecordChannels(0)
@@ -68,6 +67,8 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, string_view name_,
 {
 	assert(numChannels <= MAX_CHANNELS);
 	assert(stereo == 1 || stereo == 2);
+
+	setInputRate(inputRate);
 
 	// initially no channels are muted
 	ranges::fill(channelMuted, false);
@@ -81,9 +82,9 @@ bool SoundDevice::isStereo() const
 	return stereo == 2 || !balanceCenter;
 }
 
-int SoundDevice::getAmplificationFactorImpl() const
+float SoundDevice::getAmplificationFactorImpl() const
 {
-	return 1;
+	return 1.0f / 32768.0f;
 }
 
 void SoundDevice::registerSound(const DeviceConfig& config)
@@ -91,7 +92,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 	const XMLElement& soundConfig = config.getChild("sound");
 	float volume = soundConfig.getChildDataAsInt("volume") / 32767.0f;
 	int devBalance = 0;
-	string_view mode = soundConfig.getChildData("mode", "mono");
+	std::string_view mode = soundConfig.getChildData("mode", "mono");
 	if (mode == "mono") {
 		devBalance = 0;
 	} else if (mode == "left") {
@@ -137,12 +138,12 @@ void SoundDevice::updateStream(EmuTime::param time)
 	mixer.updateStream(time);
 }
 
-void SoundDevice::setSoftwareVolume(VolumeType volume, EmuTime::param time)
+void SoundDevice::setSoftwareVolume(float volume, EmuTime::param time)
 {
 	setSoftwareVolume(volume, volume, time);
 }
 
-void SoundDevice::setSoftwareVolume(VolumeType left, VolumeType right, EmuTime::param time)
+void SoundDevice::setSoftwareVolume(float left, float right, EmuTime::param time)
 {
 	updateStream(time);
 	softwareVolumeLeft  = left;
@@ -184,7 +185,7 @@ void SoundDevice::muteChannel(unsigned channel, bool muted)
 	channelMuted[channel] = muted;
 }
 
-bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
+bool SoundDevice::mixChannels(float* dataOut, unsigned samples)
 {
 #ifdef __SSE2__
 	assert((uintptr_t(dataOut) & 15) == 0); // must be 16-byte aligned
@@ -192,17 +193,18 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	if (samples == 0) return true;
 	unsigned outputStereo = isStereo() ? 2 : 1;
 
-	MemoryOps::MemSet<unsigned> mset;
+	static_assert(sizeof(float) == sizeof(uint32_t));
+	MemoryOps::MemSet<uint32_t> mset;
 	if (numChannels != 1) {
 		// The generateChannels() method of SoundDevices with more than
 		// one channel will _add_ the generated channel data in the
 		// provided buffers. Those with only one channel will directly
 		// replace the content of the buffer. For the former we must
 		// start from a buffer containing all zeros.
-		mset(reinterpret_cast<unsigned*>(dataOut), outputStereo * samples, 0);
+		mset(reinterpret_cast<uint32_t*>(dataOut), outputStereo * samples, 0);
 	}
 
-	VLA(int*, bufs, numChannels);
+	VLA(float*, bufs, numChannels);
 	unsigned separateChannels = 0;
 	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
 	// TODO optimization: All channels with the same balance (according to
@@ -220,7 +222,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	}
 	if (separateChannels) {
 		allocateMixBuffer(pitch * separateChannels);
-		mset(reinterpret_cast<unsigned*>(mixBuffer.data()),
+		mset(reinterpret_cast<uint32_t*>(mixBuffer.data()),
 		     pitch * separateChannels, 0);
 		// still need to fill in (some) bufs[i] pointers
 		unsigned count = 0;
@@ -247,8 +249,8 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 				auto amp = getAmplificationFactor();
 				writer[i]->write(
 					bufs[i], stereo, samples,
-					amp.first.toFloat(),
-					amp.second.toFloat());
+					amp.first,
+					amp.second);
 			} else {
 				writer[i]->writeSilence(stereo, samples);
 			}
@@ -279,10 +281,10 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	if (!balanceCenter) {
 		unsigned i = 0;
 		do {
-			int left0  = 0;
-			int right0 = 0;
-			int left1  = 0;
-			int right1 = 0;
+			float left0  = 0.0f;
+			float right0 = 0.0f;
+			float left1  = 0.0f;
+			float right1 = 0.0f;
 			unsigned j = 0;
 			do {
 				if (mixBalance[j] <= 0) {
@@ -312,10 +314,10 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	unsigned num = samples * stereo;
 	unsigned i = 0;
 	do {
-		int out0 = dataOut[i + 0];
-		int out1 = dataOut[i + 1];
-		int out2 = dataOut[i + 2];
-		int out3 = dataOut[i + 3];
+		auto out0 = dataOut[i + 0];
+		auto out1 = dataOut[i + 1];
+		auto out2 = dataOut[i + 2];
+		auto out3 = dataOut[i + 3];
 		unsigned j = 0;
 		do {
 			out0 += bufs[j][i + 0];

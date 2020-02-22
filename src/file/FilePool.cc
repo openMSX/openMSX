@@ -49,7 +49,7 @@ static string initialFilePoolSettingValue()
 			makeTclDict("-path", FileOperations::join(p, "software"),
 			            "-types", "rom disk tape"));
 	}
-	return result.getString().str();
+	return string(result.getString());
 }
 
 FilePool::FilePool(CommandController& controller, Reactor& reactor_)
@@ -235,7 +235,7 @@ static int parseTypes(Interpreter& interp, const TclObject& list)
 	int result = 0;
 	unsigned num = list.getListLength(interp);
 	for (unsigned i = 0; i < num; ++i) {
-		string_view elem = list.getListIndex(interp, i).getString();
+		std::string_view elem = list.getListIndex(interp, i).getString();
 		if (elem == "system_rom") {
 			result |= FilePool::SYSTEM_ROM;
 		} else if (elem == "rom") {
@@ -275,10 +275,10 @@ FilePool::Directories FilePool::getDirectories() const
 				"of elements, but got ", line.getString());
 		}
 		for (unsigned j = 0; j < numItems; j += 2) {
-			string_view name  = line.getListIndex(interp, j + 0).getString();
+			std::string_view name  = line.getListIndex(interp, j + 0).getString();
 			TclObject value = line.getListIndex(interp, j + 1);
 			if (name == "-path") {
-				entry.path = value.getString().str();
+				entry.path = value.getString();
 				hasPath = true;
 			} else if (name == "-types") {
 				entry.types = parseTypes(interp, value);
@@ -332,14 +332,14 @@ static void reportProgress(const string& filename, size_t percentage,
 {
 	reactor.getCliComm().printProgress(
 		"Calculating SHA1 sum for ", filename, "... ", percentage, '%');
-	reactor.getDisplay().repaint();
+	reactor.getDisplay().repaintDelayed(0);
 }
 
 static Sha1Sum calcSha1sum(File& file, Reactor& reactor)
 {
 	// Calculate sha1 in several steps so that we can show progress
 	// information. We take a fixed step size for an efficient calculation.
-	static const size_t STEP_SIZE = 1024 * 1024; // 1MB
+	constexpr size_t STEP_SIZE = 1024 * 1024; // 1MB
 
 	auto data = file.mmap();
 	string filename = file.getOriginalName();
@@ -374,10 +374,10 @@ static Sha1Sum calcSha1sum(File& file, Reactor& reactor)
 
 File FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
-	auto bound = ranges::equal_range(pool, sha1sum, ComparePool());
+	auto [b, e] = ranges::equal_range(pool, sha1sum, ComparePool());
 	// use indices instead of iterators
-	auto i    = distance(begin(pool), bound.first);
-	auto last = distance(begin(pool), bound.second);
+	auto i    = distance(begin(pool), b);
+	auto last = distance(begin(pool), e);
 	while (i != last) {
 		auto it = begin(pool) + i;
 		if (it->getTime() == time_t(-1)) {
@@ -463,11 +463,11 @@ File FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
 	if (now > (progress.lastTime + 250000)) { // 4Hz
 		progress.lastTime = now;
 		reactor.getCliComm().printProgress(
-                        "Searching for file with sha1sum ",
+			"Searching for file with sha1sum ",
 			sha1sum.toString(), "...\nIndexing filepool ", poolPath,
 			": [", progress.amountScanned, "]: ",
-			string_view(filename).substr(poolPath.size()));
-		reactor.getDisplay().repaint();
+			std::string_view(filename).substr(poolPath.size()));
+		reactor.getDisplay().repaintDelayed(0);
 	}
 
 	// Note: do NOT call 'reactor.getEventDistributor().deliverEvents()'.

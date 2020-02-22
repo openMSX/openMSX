@@ -8,12 +8,12 @@
 
 namespace openmsx {
 
-static const byte READ_BACK = 0xC0;
-static const byte RB_CNTR0  = 0x02;
-static const byte RB_CNTR1  = 0x04;
-static const byte RB_CNTR2  = 0x08;
-static const byte RB_STATUS = 0x10;
-static const byte RB_COUNT  = 0x20;
+constexpr byte READ_BACK = 0xC0;
+constexpr byte RB_CNTR0  = 0x02;
+constexpr byte RB_CNTR1  = 0x04;
+constexpr byte RB_CNTR2  = 0x08;
+constexpr byte RB_STATUS = 0x10;
+constexpr byte RB_COUNT  = 0x20;
 
 
 class Counter {
@@ -36,20 +36,20 @@ public:
 	enum ByteOrder {LOW, HIGH};
 
 private:
-	static const byte WRT_FRMT = 0x30;
-	static const byte WF_LATCH = 0x00;
-	static const byte WF_LOW   = 0x10;
-	static const byte WF_HIGH  = 0x20;
-	static const byte WF_BOTH  = 0x30;
-	static const byte CNTR_MODE = 0x0E;
-	static const byte CNTR_M0   = 0x00;
-	static const byte CNTR_M1   = 0x02;
-	static const byte CNTR_M2   = 0x04;
-	static const byte CNTR_M3   = 0x06;
-	static const byte CNTR_M4   = 0x08;
-	static const byte CNTR_M5   = 0x0A;
-	static const byte CNTR_M2_  = 0x0C;
-	static const byte CNTR_M3_  = 0x0E;
+	static constexpr byte WRT_FRMT = 0x30;
+	static constexpr byte WF_LATCH = 0x00;
+	static constexpr byte WF_LOW   = 0x10;
+	static constexpr byte WF_HIGH  = 0x20;
+	static constexpr byte WF_BOTH  = 0x30;
+	static constexpr byte CNTR_MODE = 0x0E;
+	static constexpr byte CNTR_M0   = 0x00;
+	static constexpr byte CNTR_M1   = 0x02;
+	static constexpr byte CNTR_M2   = 0x04;
+	static constexpr byte CNTR_M3   = 0x06;
+	static constexpr byte CNTR_M4   = 0x08;
+	static constexpr byte CNTR_M5   = 0x0A;
+	static constexpr byte CNTR_M2_  = 0x0C;
+	static constexpr byte CNTR_M3_  = 0x0E;
 
 	void writeLoad(word value, EmuTime::param time);
 	void advance(EmuTime::param time);
@@ -180,7 +180,7 @@ ClockPin& I8254::getOutputPin(unsigned cntr)
 // class Counter
 
 Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
-                        EmuTime::param time)
+                 EmuTime::param time)
 	: clock(scheduler), output(scheduler, listener)
 	, currentTime(time)
 {
@@ -515,23 +515,23 @@ SERIALIZE_ENUM(Counter::ByteOrder, byteOrderInfo);
 template<typename Archive>
 void Counter::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("clock", clock);
-	ar.serialize("output", output);
-	ar.serialize("currentTime", currentTime);
-	ar.serialize("counter", counter);
-	ar.serialize("latchedCounter", latchedCounter);
-	ar.serialize("counterLoad", counterLoad);
-	ar.serialize("control", control);
-	ar.serialize("latchedControl", latchedControl);
-	ar.serialize("ltchCtrl", ltchCtrl);
-	ar.serialize("ltchCntr", ltchCntr);
-	ar.serialize("readOrder", readOrder);
-	ar.serialize("writeOrder", writeOrder);
-	ar.serialize("writeLatch", writeLatch);
-	ar.serialize("gate", gate);
-	ar.serialize("active", active);
-	ar.serialize("triggered", triggered);
-	ar.serialize("counting", counting);
+	ar.serialize("clock",          clock,
+	             "output",         output,
+	             "currentTime",    currentTime,
+	             "counter",        counter,
+	             "latchedCounter", latchedCounter,
+	             "counterLoad",    counterLoad,
+	             "control",        control,
+	             "latchedControl", latchedControl,
+	             "ltchCtrl",       ltchCtrl,
+	             "ltchCntr",       ltchCntr,
+	             "readOrder",      readOrder,
+	             "writeOrder",     writeOrder,
+	             "writeLatch",     writeLatch,
+	             "gate",           gate,
+	             "active",         active,
+	             "triggered",      triggered,
+	             "counting",       counting);
 }
 
 template<typename Archive>

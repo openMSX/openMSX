@@ -12,6 +12,7 @@
 from executils import captureStdout, shjoin
 from msysutils import msysActive, msysPathToNative
 
+from io import open
 from os import listdir
 from os.path import isdir, isfile
 from os import environ
@@ -65,7 +66,7 @@ class Library(object):
 	@classmethod
 	def getHeaders(cls, platform): # pylint: disable-msg=W0613
 		header = cls.header
-		return header if hasattr(header, '__iter__') else (header, )
+		return (header, ) if isinstance(header, str) else header
 
 	@classmethod
 	def getLibName(cls, platform): # pylint: disable-msg=W0613
@@ -79,7 +80,7 @@ class Library(object):
 		elif distroRoot is None or cls.isSystemLibrary(platform):
 			flags = []
 		else:
-			flags = [ '-I%s/include' % distroRoot ]
+			flags = [ '-isystem %s/include' % distroRoot ]
 		dependentFlags = [
 			librariesByName[name].getCompileFlags(
 				platform, linkStatic, distroRoot
@@ -175,12 +176,20 @@ class FreeType(Library):
 		script = super(FreeType, cls).getConfigScript(
 			platform, linkStatic, distroRoot
 			)
+		# FreeType 2.9.1 no longer installs the freetype-config script
+		# by default and expects pkg-config to be used instead.
 		if isfile(script):
 			return script
-		else:
-			# FreeType 2.9.1 no longer installs the freetype-config script
-			# by default and expects pkg-config to be used instead.
+		elif distroRoot is None:
 			return 'pkg-config freetype2'
+		elif distroRoot.startswith('derived/'):
+			toolsDir = '%s/../tools/bin' % distroRoot
+			for name in listdir(toolsDir):
+				if name.endswith('-pkg-config'):
+					return toolsDir + '/' + name + ' freetype2'
+			raise RuntimeError('No cross-pkg-config found in 3rdparty build')
+		else:
+			return '%s/bin/pkg-config freetype2' % distroRoot
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
@@ -207,7 +216,7 @@ class GL(Library):
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
 		if platform in ('netbsd', 'openbsd'):
-			return '-I/usr/X11R6/include -I/usr/X11R7/include'
+			return '-isystem /usr/X11R6/include -isystem /usr/X11R7/include'
 		else:
 			return super(GL, cls).getCompileFlags(
 				platform, linkStatic, distroRoot
@@ -383,13 +392,12 @@ class TCL(Library):
 										yield tclpath
 
 		tclConfigs = {}
-		log = open('derived/tcl-search.log', 'w')
-		print >> log, 'Looking for Tcl...'
-		try:
+		with open('derived/tcl-search.log', 'w', encoding='utf-8') as log:
+			print('Looking for Tcl...', file=log)
 			for location in iterLocations():
 				path = location + '/tclConfig.sh'
 				if isfile(path):
-					print >> log, 'Config script:', path
+					print('Config script: %s' % path, file=log)
 					text = captureStdout(
 						log,
 						"sh -c '. %s && echo %s'" % (
@@ -404,7 +412,7 @@ class TCL(Library):
 						except ValueError:
 							pass
 						else:
-							print >> log, 'Found: version %d.%d' % version
+							print('Found: version %d.%d' % version, file=log)
 							tclConfigs[path] = version
 			try:
 				# Minimum required version is 8.5.
@@ -412,16 +420,14 @@ class TCL(Library):
 				# running into incompatible changes.
 				tclConfig = min(
 					( version, path )
-					for path, version in tclConfigs.iteritems()
+					for path, version in tclConfigs.items()
 					if version >= (8, 5)
 					)[1]
 			except ValueError:
 				tclConfig = None
-				print >> log, 'No suitable versions found.'
+				print('No suitable versions found.', file=log)
 			else:
-				print >> log, 'Selected:', tclConfig
-		finally:
-			log.close()
+				print('Selected: %s' % tclConfig, file=log)
 
 		cls.tclConfig = tclConfig
 		return tclConfig
@@ -431,9 +437,8 @@ class TCL(Library):
 		tclConfig = cls.getTclConfig(platform, distroRoot)
 		if tclConfig is None:
 			return None
-		log = open('derived/tcl-search.log', 'a')
-		try:
-			print >> log, 'Getting Tcl %s...' % description
+		with open('derived/tcl-search.log', 'a', encoding='utf-8') as log:
+			print('Getting Tcl %s...' % description, file=log)
 			text = captureStdout(
 				log,
 				shjoin([
@@ -442,9 +447,7 @@ class TCL(Library):
 					])
 				)
 			if text is not None:
-				print >> log, 'Result: %s' % text.strip()
-		finally:
-			log.close()
+				print('Result: %s' % text.strip(), file=log)
 		return None if text is None else text.strip()
 
 	@classmethod
@@ -471,30 +474,27 @@ class TCL(Library):
 			'${TCL_SHARED_BUILD}',
 			'library type (shared/static)'
 			)
-		log = open('derived/tcl-search.log', 'a')
-		try:
+		with open('derived/tcl-search.log', 'a', encoding='utf-8') as log:
 			if tclShared == '0':
 				if wantShared:
-					print >> log, (
+					print(
 						'Dynamic linking requested, but Tcl installation has '
-						'static library.'
+						'static library.', file=log
 						)
 					return None
 			elif tclShared == '1':
 				if not wantShared:
-					print >> log, (
+					print(
 						'Static linking requested, but Tcl installation has '
-						'dynamic library.'
+						'dynamic library.', file=log
 						)
 					return None
 			else:
-				print >> log, (
+				print(
 					'Unable to determine whether Tcl installation has '
-					'shared or static library.'
+					'shared or static library.', file=log
 					)
 				return None
-		finally:
-			log.close()
 
 		# Now get the link flags.
 		if wantShared:
@@ -561,12 +561,13 @@ class ZLib(Library):
 		return execute
 
 # Build a dictionary of libraries using introspection.
-def _discoverLibraries(localObjects):
-	for obj in localObjects:
-		if isinstance(obj, type) and issubclass(obj, Library):
-			if not (obj is Library):
-				yield obj.makeName, obj
-librariesByName = dict(_discoverLibraries(locals().itervalues()))
+librariesByName = {
+	obj.makeName: obj
+	for obj in locals().values()
+	if isinstance(obj, type)
+		and issubclass(obj, Library)
+		and obj is not Library
+	}
 
 def allDependencies(makeNames):
 	'''Compute the set of all directly and indirectly required libraries to

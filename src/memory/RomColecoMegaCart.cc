@@ -28,6 +28,7 @@ void RomColecoMegaCart::reset(EmuTime::param /*time*/)
 	// always contain the highest/last 16K segment of the EPROM.
 	setRom(2, unsigned(-1)); // select last block
 	setRom(3, 0);
+	invalidateDeviceRCache(0xFFC0 & CacheLine::HIGH, CacheLine::SIZE);
 }
 
 byte RomColecoMegaCart::readMem(word address, EmuTime::param time)
@@ -38,6 +39,7 @@ byte RomColecoMegaCart::readMem(word address, EmuTime::param time)
 	// FFD0, FFE0, or FFF0.
 	if (address >= 0xFFC0) {
 		setRom(3, address); // mirroring is handled in superclass
+		invalidateDeviceRCache(0xFFC0 & CacheLine::HIGH, CacheLine::SIZE);
 	}
 	return Rom16kBBlocks::readMem(address, time);
 }

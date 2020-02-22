@@ -33,7 +33,7 @@ public:
 
 #if STATISTICS
 protected:
-	static size_t globalAllocSize;
+	static inline size_t globalAllocSize = 0;
 	size_t allocSize;
 #endif
 };
@@ -45,10 +45,10 @@ public:
 	DeltaBlockCopy(const uint8_t* data, size_t size);
 	void apply(uint8_t* dst, size_t size) const override;
 	void compress(size_t size);
-	const uint8_t* getData();
+	[[nodiscard]] const uint8_t* getData();
 
 private:
-	bool compressed() const { return compressedSize != 0; }
+	[[nodiscard]] bool compressed() const { return compressedSize != 0; }
 
 	MemBuffer<uint8_t> block;
 	size_t compressedSize;
@@ -61,7 +61,7 @@ public:
 	DeltaBlockDiff(std::shared_ptr<DeltaBlockCopy> prev_,
 	               const uint8_t* data, size_t size);
 	void apply(uint8_t* dst, size_t size) const override;
-	size_t getDeltaSize() const;
+	[[nodiscard]] size_t getDeltaSize() const;
 
 private:
 	const std::shared_ptr<DeltaBlockCopy> prev;
@@ -72,9 +72,9 @@ private:
 class LastDeltaBlocks
 {
 public:
-	std::shared_ptr<DeltaBlock> createNew(
+	[[nodiscard]] std::shared_ptr<DeltaBlock> createNew(
 		const void* id, const uint8_t* data, size_t size);
-	std::shared_ptr<DeltaBlock> createNullDiff(
+	[[nodiscard]] std::shared_ptr<DeltaBlock> createNullDiff(
 		const void* id, const uint8_t* data, size_t size);
 	void clear();
 

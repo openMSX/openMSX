@@ -16,7 +16,7 @@ public:
 	ResampleBlip(ResampledSoundDevice& input,
 	             const DynamicClock& hostClock, unsigned emuSampleRate);
 
-	bool generateOutput(int* dataOut, unsigned num,
+	bool generateOutput(float* dataOut, unsigned num,
 	                    EmuTime::param time) override;
 
 private:
@@ -28,7 +28,7 @@ private:
 	                               //    ticks once per emu-sample
 	using FP = FixedPoint<16>;
 	const FP step;
-	int lastInput[CHANNELS];
+	float lastInput[CHANNELS];
 };
 
 } // namespace openmsx

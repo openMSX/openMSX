@@ -47,7 +47,7 @@
 
 namespace openmsx {
 
-static const byte SPC = 0x7F;
+constexpr byte SPC = 0x7F;
 
 unsigned MegaSCSI::getSramSize() const
 {
@@ -167,7 +167,7 @@ byte* MegaSCSI::getWriteCacheLine(word address) const
 
 void MegaSCSI::setSRAM(unsigned region, byte block)
 {
-	invalidateMemCache(region * 0x2000 + 0x4000, 0x2000);
+	invalidateDeviceRWCache(region * 0x2000 + 0x4000, 0x2000);
 	assert(region < 4);
 	isWriteable[region] = (block & 0x80) != 0;
 	mapped[region] = ((block & 0xC0) == 0x40) ? 0x7F : (block & blockMask);
@@ -176,10 +176,10 @@ void MegaSCSI::setSRAM(unsigned region, byte block)
 template<typename Archive>
 void MegaSCSI::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("SRAM", sram);
-	ar.serialize("MB89352", mb89352);
-	ar.serialize("isWriteable", isWriteable);
-	ar.serialize("mapped", mapped);
+	ar.serialize("SRAM",        sram,
+	             "MB89352",     mb89352,
+	             "isWriteable", isWriteable,
+	             "mapped",      mapped);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaSCSI);
 REGISTER_MSXDEVICE(MegaSCSI, "MegaSCSI");

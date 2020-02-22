@@ -77,8 +77,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	#       that.
 	yield 'static const bool OPENMSX_BIGENDIAN = %s;' \
 		% str(targetCPU.bigEndian).lower()
-	yield 'static const bool OPENMSX_UNALIGNED_MEMORY_ACCESS = %s;' \
-		% str(targetCPU.unalignedMemoryAccess).lower()
 	yield 'static const bool OPENMSX_SET_WINDOW_ICON = %s;' \
 		% str(setWindowIcon).lower()
 	yield 'static const char* const DATADIR = "%s";' % installShareDir
@@ -93,7 +91,9 @@ if __name__ == '__main__':
 	if len(sys.argv) == 6:
 		rewriteIfChanged(sys.argv[1], iterBuildInfoHeader(*sys.argv[2 : ]))
 	else:
-		print >> sys.stderr, \
-			'Usage: python buildinfo2code.py CONFIG_HEADER ' \
-			'platform cpu flavour share-install-dir'
+		print(
+			'Usage: python3 buildinfo2code.py CONFIG_HEADER '
+			'platform cpu flavour share-install-dir',
+			file=sys.stderr
+			)
 		sys.exit(2)

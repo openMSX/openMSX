@@ -26,7 +26,7 @@ Toshiba TCX-1007
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>gb</keyboard_type>
+      <keyboard_type>gb</keyboard_type> <!-- It's not fully GB... There's something weird with typing a `, that goes with row/col 2 1 (like int), but in normal GB that works with CODE 1 4. -->
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>

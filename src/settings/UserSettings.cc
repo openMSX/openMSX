@@ -15,8 +15,8 @@
 #include <memory>
 
 using std::string;
-using std::vector;
 using std::unique_ptr;
+using std::vector;
 
 namespace openmsx {
 
@@ -39,7 +39,7 @@ void UserSettings::deleteSetting(Setting& setting)
 		[&](unique_ptr<Setting>& p) { return p.get() == &setting; }));
 }
 
-Setting* UserSettings::findSetting(string_view name) const
+Setting* UserSettings::findSetting(std::string_view name) const
 {
 	auto it = ranges::find_if(
 	        settings, [&](auto& s) { return s->getFullName() == name; });
@@ -57,18 +57,10 @@ UserSettings::Cmd::Cmd(CommandController& commandController_)
 void UserSettings::Cmd::execute(span<const TclObject> tokens, TclObject& result)
 {
 	checkNumArgs(tokens, AtLeast{2}, "subcommand ?arg ...?");
-	const auto& subCommand = tokens[1].getString();
-	if (subCommand == "create") {
-		create(tokens, result);
-	} else if (subCommand == "destroy") {
-		destroy(tokens, result);
-	} else if (subCommand == "info") {
-		info(tokens, result);
-	} else {
-		throw CommandException(
-			"Invalid subcommand '", subCommand,
-			"', expected 'create', 'destroy' or 'info'.");
-	}
+	executeSubCommand(tokens[1].getString(),
+		"create",  [&]{ create(tokens, result); },
+		"destroy", [&]{ destroy(tokens, result); },
+		"info",    [&]{ info(tokens, result); });
 }
 
 void UserSettings::Cmd::create(span<const TclObject> tokens, TclObject& result)
@@ -225,12 +217,12 @@ string UserSettings::Cmd::help(const vector<string>& tokens) const
 void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const cmds[] = {
+		static constexpr const char* const cmds[] = {
 			"create", "destroy", "info"
 		};
 		completeString(tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		static const char* const types[] = {
+		static constexpr const char* const types[] = {
 			"string", "boolean", "integer", "float"
 		};
 		completeString(tokens, types);
@@ -239,7 +231,7 @@ void UserSettings::Cmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-vector<string_view> UserSettings::Cmd::getSettingNames() const
+vector<std::string_view> UserSettings::Cmd::getSettingNames() const
 {
 	return to_vector(view::transform(
 		OUTER(UserSettings, userSettingCommand).getSettings(),

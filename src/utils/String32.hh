@@ -32,10 +32,10 @@ inline void toString32(const char* /*buffer*/, const char* str, const char*& res
 }
 
 // convert String32 back to string in buffer
-inline const char* fromString32(const char* buffer, uint32_t str32) {
+[[nodiscard]] inline const char* fromString32(const char* buffer, uint32_t str32) {
 	return buffer + str32;
 }
-inline const char* fromString32(const char* /*buffer*/, const char* str32) {
+[[nodiscard]] inline const char* fromString32(const char* /*buffer*/, const char* str32) {
 	return str32;
 }
 

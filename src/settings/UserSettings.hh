@@ -2,9 +2,9 @@
 #define USERSETTINGS_HH
 
 #include "Command.hh"
-#include "string_view.hh"
-#include <vector>
 #include <memory>
+#include <string_view>
+#include <vector>
 
 namespace openmsx {
 
@@ -19,7 +19,7 @@ public:
 
 	void addSetting(std::unique_ptr<Setting> setting);
 	void deleteSetting(Setting& setting);
-	Setting* findSetting(string_view name) const;
+	Setting* findSetting(std::string_view name) const;
 	const Settings& getSettings() const { return settings; }
 
 private:
@@ -41,7 +41,7 @@ private:
 		std::unique_ptr<Setting> createInteger(span<const TclObject> tokens);
 		std::unique_ptr<Setting> createFloat  (span<const TclObject> tokens);
 
-		std::vector<string_view> getSettingNames() const;
+		std::vector<std::string_view> getSettingNames() const;
 	} userSettingCommand;
 
 	Settings settings; // unordered

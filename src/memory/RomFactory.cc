@@ -39,8 +39,12 @@
 #include "RomFSA1FM.hh"
 #include "RomManbow2.hh"
 #include "RomMatraInk.hh"
+#include "RomMatraCompilation.hh"
 #include "RomArc.hh"
+#include "ROMHunterMk2.hh"
 #include "MegaFlashRomSCCPlus.hh"
+#include "ReproCartridgeV1.hh"
+#include "ReproCartridgeV2.hh"
 #include "KonamiUltimateCollection.hh"
 #include "RomDooly.hh"
 #include "RomMSXtra.hh"
@@ -61,8 +65,7 @@ using std::move;
 using std::string;
 using std::unique_ptr;
 
-namespace openmsx {
-namespace RomFactory {
+namespace openmsx::RomFactory {
 
 static RomType guessRomType(const Rom& rom)
 {
@@ -158,7 +161,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	RomType type;
 	// if no type is mentioned, we assume 'mirrored' which works for most
 	// plain ROMs...
-	string_view typestr = config.getChildData("mappertype", "Mirrored");
+	std::string_view typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
 		// First check whether the (possibly patched) SHA1 is in the DB
 		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom.getSHA1());
@@ -199,7 +202,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	// We do it at this point so that constructors used below can use this
 	// information for warning messages etc.
 	auto& writableConfig = const_cast<XMLElement&>(*config.getXML());
-	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type));
+	writableConfig.setChildData("mappertype", string(RomInfo::romTypeToName(type)));
 
 	unique_ptr<MSXRom> result;
 	switch (type) {
@@ -377,11 +380,23 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_MATRAINK:
 		result = make_unique<RomMatraInk>(config, move(rom));
 		break;
+	case ROM_MATRACOMPILATION:
+		result = make_unique<RomMatraCompilation>(config, move(rom));
+		break;
 	case ROM_ARC:
 		result = make_unique<RomArc>(config, move(rom));
 		break;
+	case ROM_ROMHUNTERMK2:
+		result = make_unique<ROMHunterMk2>(config, move(rom));
+		break;
 	case ROM_MEGAFLASHROMSCCPLUS:
 		result = make_unique<MegaFlashRomSCCPlus>(config, move(rom));
+		break;
+	case ROM_REPRO_CARTRIDGE1:
+		result = make_unique<ReproCartridgeV1>(config, move(rom));
+		break;
+	case ROM_REPRO_CARTRIDGE2:
+		result = make_unique<ReproCartridgeV2>(config, move(rom));
 		break;
 	case ROM_KONAMI_ULTIMATE_COLLECTION:
 		result = make_unique<KonamiUltimateCollection>(config, move(rom));
@@ -405,8 +420,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		throw MSXException("Unknown ROM type");
 	}
 
-	return move(result);
+	return result;
 }
 
-} // namespace RomFactory
-} // namespace openmsx
+} // namespace openmsx::RomFactory

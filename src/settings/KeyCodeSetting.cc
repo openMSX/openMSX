@@ -4,7 +4,7 @@
 namespace openmsx {
 
 KeyCodeSetting::KeyCodeSetting(CommandController& commandController_,
-                               string_view name_, string_view description_,
+                               std::string_view name_, std::string_view description_,
                                Keys::KeyCode initialValue)
 	: Setting(commandController_, name_, description_,
 	          TclObject(Keys::getName(initialValue)), SAVE)
@@ -18,12 +18,12 @@ KeyCodeSetting::KeyCodeSetting(CommandController& commandController_,
 	init();
 }
 
-string_view KeyCodeSetting::getTypeString() const
+std::string_view KeyCodeSetting::getTypeString() const
 {
 	return "key";
 }
 
-Keys::KeyCode KeyCodeSetting::getKey() const
+Keys::KeyCode KeyCodeSetting::getKey() const noexcept
 {
 	return Keys::getCode(getValue().getString());
 }

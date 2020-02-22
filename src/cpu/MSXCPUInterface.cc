@@ -1,5 +1,4 @@
 #include "MSXCPUInterface.hh"
-#include "DebugCondition.hh"
 #include "DummyDevice.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
@@ -39,23 +38,40 @@ using std::shared_ptr;
 
 namespace openmsx {
 
-// Global variables
-bool MSXCPUInterface::breaked = false;
-bool MSXCPUInterface::continued = false;
-bool MSXCPUInterface::step = false;
-MSXCPUInterface::BreakPoints MSXCPUInterface::breakPoints;
-//TODO watchpoints
-MSXCPUInterface::Conditions  MSXCPUInterface::conditions;
-
 static std::unique_ptr<ReadOnlySetting> breakedSetting;
 static unsigned breakedSettingCount = 0;
 
 
 // Bitfields used in the disallowReadCache and disallowWriteCache arrays
-static const byte SECONDARY_SLOT_BIT = 0x01;
-static const byte MEMORY_WATCH_BIT   = 0x02;
-static const byte GLOBAL_RW_BIT      = 0x04;
+constexpr byte SECONDARY_SLOT_BIT = 0x01;
+constexpr byte MEMORY_WATCH_BIT   = 0x02;
+constexpr byte GLOBAL_RW_BIT      = 0x04;
 
+std::ostream& operator<<(std::ostream& os, EnumTypeName<CacheLineCounters>)
+{
+	return os << "CacheLineCounters";
+}
+std::ostream& operator<<(std::ostream& os, EnumValueName<CacheLineCounters> evn)
+{
+	std::string_view names[size_t(CacheLineCounters::NUM)] = {
+		"NonCachedRead",
+		"NonCachedWrite",
+		"GetReadCacheLine",
+		"GetWriteCacheLine",
+		"SlowRead",
+		"SlowWrite",
+		"DisallowCacheRead",
+		"DisallowCacheWrite",
+		"InvalidateAllSlots",
+		"InvalidateReadWrite",
+		"InvalidateRead",
+		"InvalidateWrite",
+		"FillReadWrite",
+		"FillRead",
+		"FillWrite",
+	};
+	return os << names[size_t(evn.e)];
+}
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	: memoryDebug       (motherBoard_)
@@ -173,6 +189,7 @@ void MSXCPUInterface::removeAllWatchPoints()
 
 byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 {
+	tick(CacheLineCounters::DisallowCacheRead);
 	// something special in this region?
 	if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
 		// slot-select-ignore reads (e.g. used in 'Carnivore2')
@@ -198,6 +215,7 @@ byte MSXCPUInterface::readMemSlow(word address, EmuTime::param time)
 
 void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time)
 {
+	tick(CacheLineCounters::DisallowCacheWrite);
 	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
 		setSubSlot(primarySlotState[3], value);
 		// Confirmed on turboR GT machine: write does _not_ also go to
@@ -301,7 +319,7 @@ void MSXCPUInterface::changeExpanded(bool newExpanded)
 		disallowReadCache [0xFF] &= ~SECONDARY_SLOT_BIT;
 		disallowWriteCache[0xFF] &= ~SECONDARY_SLOT_BIT;
 	}
-	msxcpu.invalidateMemCache(0xFFFF & CacheLine::HIGH, 0x100);
+	msxcpu.invalidateAllSlotsRWCache(0xFFFF & CacheLine::HIGH, 0x100);
 }
 
 MSXDevice*& MSXCPUInterface::getDevicePtr(byte port, bool isIn)
@@ -467,6 +485,7 @@ void MSXCPUInterface::registerSlot(
 			assert(false);
 		}
 	}
+	invalidateRWCache(base, size, ps, ss);
 	updateVisible(page);
 }
 
@@ -487,6 +506,7 @@ void MSXCPUInterface::unregisterSlot(
 		assert(slot == &device);
 		slot = dummyDevice.get();
 	}
+	invalidateRWCache(base, size, ps, ss);
 	updateVisible(page);
 }
 
@@ -537,7 +557,7 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 	globalWrites.push_back({&device, address});
 
 	disallowWriteCache[address >> CacheLine::BITS] |= GLOBAL_RW_BIT;
-	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
@@ -553,7 +573,7 @@ void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 		}
 	}
 	disallowWriteCache[address >> CacheLine::BITS] &= ~GLOBAL_RW_BIT;
-	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::registerGlobalRead(MSXDevice& device, word address)
@@ -561,7 +581,7 @@ void MSXCPUInterface::registerGlobalRead(MSXDevice& device, word address)
 	globalReads.push_back({&device, address});
 
 	disallowReadCache[address >> CacheLine::BITS] |= GLOBAL_RW_BIT;
-	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
@@ -577,7 +597,7 @@ void MSXCPUInterface::unregisterGlobalRead(MSXDevice& device, word address)
 		}
 	}
 	disallowReadCache[address >> CacheLine::BITS] &= ~GLOBAL_RW_BIT;
-	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
+	msxcpu.invalidateAllSlotsRWCache(address & CacheLine::HIGH, 0x100);
 }
 
 ALWAYS_INLINE void MSXCPUInterface::updateVisible(int page, int ps, int ss)
@@ -591,6 +611,38 @@ ALWAYS_INLINE void MSXCPUInterface::updateVisible(int page, int ps, int ss)
 void MSXCPUInterface::updateVisible(int page)
 {
 	updateVisible(page, primarySlotState[page], secondarySlotState[page]);
+}
+
+void MSXCPUInterface::invalidateRWCache(word start, unsigned size, int ps, int ss)
+{
+	tick(CacheLineCounters::InvalidateReadWrite);
+	msxcpu.invalidateRWCache(start, size, ps, ss, disallowReadCache, disallowWriteCache);
+}
+void MSXCPUInterface::invalidateRCache (word start, unsigned size, int ps, int ss)
+{
+	tick(CacheLineCounters::InvalidateRead);
+	msxcpu.invalidateRCache(start, size, ps, ss, disallowReadCache);
+}
+void MSXCPUInterface::invalidateWCache (word start, unsigned size, int ps, int ss)
+{
+	tick(CacheLineCounters::InvalidateWrite);
+	msxcpu.invalidateWCache(start, size, ps, ss, disallowWriteCache);
+}
+
+void MSXCPUInterface::fillRWCache(unsigned start, unsigned size, const byte* rData, byte* wData, int ps, int ss)
+{
+	tick(CacheLineCounters::FillReadWrite);
+	msxcpu.fillRWCache(start, size, rData, wData, ps, ss, disallowReadCache, disallowWriteCache);
+}
+void MSXCPUInterface::fillRCache(unsigned start, unsigned size, const byte* rData, int ps, int ss)
+{
+	tick(CacheLineCounters::FillRead);
+	msxcpu.fillRCache(start, size, rData, ps, ss, disallowReadCache);
+}
+void MSXCPUInterface::fillWCache(unsigned start, unsigned size, byte* wData, int ps, int ss)
+{
+	tick(CacheLineCounters::FillWrite);
+	msxcpu.fillWCache(start, size, wData, ps, ss, disallowWriteCache);
 }
 
 void MSXCPUInterface::reset()
@@ -728,17 +780,26 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 	}
 }
 
-void MSXCPUInterface::insertBreakPoint(const BreakPoint& bp)
+void MSXCPUInterface::insertBreakPoint(BreakPoint bp)
 {
 	auto it = ranges::upper_bound(breakPoints, bp, CompareBreakpoints());
-	breakPoints.insert(it, bp);
+	breakPoints.insert(it, std::move(bp));
 }
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
-	auto range = ranges::equal_range(breakPoints, bp.getAddress(), CompareBreakpoints());
-	breakPoints.erase(find_if_unguarded(range.first, range.second,
+	auto [first, last] = ranges::equal_range(breakPoints, bp.getAddress(), CompareBreakpoints());
+	breakPoints.erase(find_if_unguarded(first, last,
 		[&](const BreakPoint& i) { return &i == &bp; }));
+}
+void MSXCPUInterface::removeBreakPoint(unsigned id)
+{
+	auto it = ranges::find_if(breakPoints,
+		[&](const BreakPoint& i) { return i.getId() == id; });
+	// could be ==end for a breakpoint that removes itself AND has the -once flag set
+	if (it != breakPoints.end()) {
+		breakPoints.erase(it);
+	}
 }
 
 void MSXCPUInterface::checkBreakPoints(
@@ -754,10 +815,16 @@ void MSXCPUInterface::checkBreakPoints(
 	auto& interp        = motherBoard.getReactor().getInterpreter();
 	for (auto& p : bpCopy) {
 		p.checkAndExecute(globalCliComm, interp);
+		if (p.onlyOnce()) {
+			removeBreakPoint(p.getId());
+		}
 	}
 	auto condCopy = conditions;
 	for (auto& c : condCopy) {
 		c.checkAndExecute(globalCliComm, interp);
+		if (c.onlyOnce()) {
+			removeCondition(c.getId());
+		}
 	}
 }
 
@@ -809,15 +876,25 @@ void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
 	}
 }
 
-void MSXCPUInterface::setCondition(const DebugCondition& cond)
+void MSXCPUInterface::setCondition(DebugCondition cond)
 {
-	conditions.push_back(cond);
+	conditions.push_back(std::move(cond));
 }
 
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
 	conditions.erase(rfind_if_unguarded(conditions,
 		[&](DebugCondition& e) { return &e == &cond; }));
+}
+
+void MSXCPUInterface::removeCondition(unsigned id)
+{
+	auto it = ranges::find_if(conditions,
+		[&](DebugCondition& e) { return e.getId() == id; });
+	// could be ==end for a condition that removes itself AND has the -once flag set
+	if (it != conditions.end()) {
+		conditions.erase(it);
+	}
 }
 
 void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
@@ -885,7 +962,7 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 			disallowWriteCache[i] &= ~MEMORY_WATCH_BIT;
 		}
 	}
-	msxcpu.invalidateMemCache(0x0000, 0x10000);
+	msxcpu.invalidateAllSlotsRWCache(0x0000, 0x10000);
 }
 
 void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
@@ -909,6 +986,9 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 		    (w->getEndAddress()   >= address) &&
 		    (w->getType()         == type)) {
 			w->checkAndExecute(globalCliComm, interp);
+			if (w->onlyOnce()) {
+				removeWatchPoint(w);
+			}
 		}
 	}
 
@@ -935,29 +1015,23 @@ void MSXCPUInterface::doBreak()
 void MSXCPUInterface::doStep()
 {
 	assert(!isFastForward());
-	if (breaked) {
-		step = true;
-		doContinue2();
-	}
+	setCondition(DebugCondition(
+		TclObject("debug break"), TclObject(), true));
+	doContinue();
 }
 
 void MSXCPUInterface::doContinue()
 {
 	assert(!isFastForward());
 	if (breaked) {
-		continued = true;
-		doContinue2();
-	}
-}
+		breaked = false;
 
-void MSXCPUInterface::doContinue2()
-{
-	breaked = false;
-	Reactor& reactor = motherBoard.getReactor();
-	breakedSetting->setReadOnlyValue(TclObject("false"));
-	reactor.getCliComm().update(CliComm::STATUS, "cpu", "running");
-	reactor.unblock();
-	motherBoard.getRealTime().resync();
+		Reactor& reactor = motherBoard.getReactor();
+		breakedSetting->setReadOnlyValue(TclObject("false"));
+		reactor.getCliComm().update(CliComm::STATUS, "cpu", "running");
+		reactor.unblock();
+		motherBoard.getRealTime().resync();
+	}
 }
 
 void MSXCPUInterface::cleanup()
@@ -1036,7 +1110,7 @@ MSXCPUInterface::SlotInfo::SlotInfo(
 }
 
 void MSXCPUInterface::SlotInfo::execute(span<const TclObject> tokens,
-                       TclObject& result) const
+                                        TclObject& result) const
 {
 	checkNumArgs(tokens, 5, Prefix{2}, "primary secondary page");
 	auto& interp = getInterpreter();
@@ -1066,7 +1140,7 @@ MSXCPUInterface::SubSlottedInfo::SubSlottedInfo(
 }
 
 void MSXCPUInterface::SubSlottedInfo::execute(span<const TclObject> tokens,
-                             TclObject& result) const
+                                              TclObject& result) const
 {
 	checkNumArgs(tokens, 3, "primary");
 	auto& interface = OUTER(MSXCPUInterface, subSlottedInfo);
@@ -1184,8 +1258,8 @@ void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
 			prim |= primarySlotState[i] << (2 * i);
 		}
 	}
-	ar.serialize("primarySlots", prim);
-	ar.serialize("subSlotRegs", subSlotRegister);
+	ar.serialize("primarySlots", prim,
+	             "subSlotRegs",  subSlotRegister);
 	if (ar.isLoader()) {
 		setPrimarySlots(prim);
 		for (int i = 0; i < 4; ++i) {

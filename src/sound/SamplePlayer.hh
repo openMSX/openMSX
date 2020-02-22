@@ -45,21 +45,18 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	int getSample(unsigned idx);
 	void setWavParams();
 	void doRepeat();
 
 	// SoundDevice
-	void generateChannels(int** bufs, unsigned num) override;
+	void generateChannels(float** bufs, unsigned num) override;
 
 	std::vector<WavData> samples;
 
-	const void* sampBuf;
 	unsigned index;
 	unsigned bufferSize;
 	unsigned currentSampleNum;
 	unsigned nextSampleNum;
-	bool bits8;
 };
 
 } // namespace openmsx

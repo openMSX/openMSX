@@ -64,12 +64,12 @@ class VDP final : public MSXDevice, private VideoSystemChangeListener
 public:
 	/** Number of VDP clock ticks per second.
 	  */
-	static const int TICKS_PER_SECOND = 3579545 * 6; // 21.5MHz;
+	static constexpr int TICKS_PER_SECOND = 3579545 * 6; // 21.5MHz;
 	using VDPClock = Clock<TICKS_PER_SECOND>;
 
 	/** Number of VDP clock ticks per line.
 	  */
-	static const int TICKS_PER_LINE = 1368;
+	static constexpr int TICKS_PER_LINE = 1368;
 
 	explicit VDP(const DeviceConfig& config);
 	~VDP() override;
@@ -173,6 +173,17 @@ public:
 	  */
 	inline bool getTransparency() const {
 		return (controlRegs[8] & 0x20) == 0;
+	}
+
+	/** Can a sprite which has color=0 collide with some other sprite?
+	 */
+	bool canSpriteColor0Collide() const {
+		// On MSX1 (so far only tested a TMS9129(?)) sprites with
+		// color=0 can always collide with other sprites. Though on
+		// V99x8 (only tested V9958) collisions only occur when color 0
+		// is not transparent. For more details see:
+		//   https://github.com/openMSX/openMSX/issues/1198
+		return isMSX1VDP() || !getTransparency();
 	}
 
 	/** Gets the current foreground color.
@@ -334,6 +345,20 @@ public:
 		return interlaced;
 	}
 
+	/** Get 'fast-blink' status.
+	  * Normally blinking timing (alternating between pages) is based on
+	  * frames. Though the V99x8 has an undocumented feature which changes
+	  * this timing to lines. Sometimes this is called the "Cadari" feature
+	  * after Luciano Cadari who discovered it.
+	  *
+	  * See ticket#1091: "Support for undocumented V99x8 register 1 bit 2"
+	  *    https://github.com/openMSX/openMSX/issues/1091
+	  * for testcases and links to more information.
+	  */
+	inline bool isFastBlinkEnabled() const {
+		return (controlRegs[1] & 4) != 0;
+	}
+
 	/** Get even/odd page alternation status.
 	  * Interlace means the odd fields are displayed half a line lower
 	  * than the even fields. Together with even/odd page alternation
@@ -346,6 +371,7 @@ public:
 	  * @return True iff even/odd page alternation is enabled.
 	  */
 	inline bool isEvenOddEnabled() const {
+		if (isFastBlinkEnabled()) return false;
 		return (controlRegs[9] & 4) != 0;
 	}
 
@@ -359,17 +385,75 @@ public:
 	/** Expresses the state of even/odd page interchange in a mask
 	  * on the line number. If even/odd interchange is active, for some
 	  * frames lines 256..511 (page 1) are replaced by 0..255 (page 0)
-	  * and 768..1023 (page 3, if appicable) by 512..767 (page 2).
+	  * and 768..1023 (page 3, if applicable) by 512..767 (page 2).
 	  * Together with the interlace setting this can be used to create
 	  * an interlaced display.
 	  * Even/odd interchange can also happen because of the 'blink'
 	  * feature in bitmap modes.
+	  * @pre !isFastBlinkEnabled()
 	  * @return Line number mask that expressed even/odd state.
 	  */
 	inline int getEvenOddMask() const {
 		// TODO: Verify which page is displayed on even fields.
+		assert(!isFastBlinkEnabled());
 		return (((~controlRegs[9] & 4) << 6) | ((statusReg2 & 2) << 7)) &
 		       (!blinkState << 8);
+	}
+
+	/** Similar to the above getEvenOddMask() method, but can also be
+	  * called when 'isFastBlinkEnabled() == true'. In the latter case
+	  * the timinig is based on lines instead of frames. This means the
+	  * result is no longer fixed per frame, and thus this method takes
+	  * an additional line parameter.
+	  */
+	inline int getEvenOddMask(int line) const {
+		if (isFastBlinkEnabled()) {
+			// EO and IL not considered in this mode
+			auto p = calculateLineBlinkState(line);
+			return (!p.first) << 8;
+		} else {
+			return getEvenOddMask();
+		}
+	}
+
+	/** Calculates what 'blinkState' and 'blinkCount' would be at a specific line.
+	  * (The actual 'blinkState' and 'blinkCount' variables represent the values
+	  * for line 0 and remain fixed for the duration of the frame.
+	  */
+	inline std::pair<bool, int> calculateLineBlinkState(unsigned line) const {
+		assert(isFastBlinkEnabled());
+
+		if (blinkCount == 0) { // not changing
+			return {blinkState, blinkCount};
+		}
+
+		unsigned evenLen = ((controlRegs[13] >> 4) & 0x0F) * 10;
+		unsigned oddLen  = ((controlRegs[13] >> 0) & 0x0F) * 10;
+		unsigned totalLen = evenLen + oddLen;
+		assert(totalLen != 0); // because this implies 'blinkCount == 0'
+		line %= totalLen; // reduce double flips
+
+		bool resultState = blinkState; // initial guess, adjusted later
+		if (blinkState) {
+			// We start in the 'even' period -> check first for
+			// even/odd transition, next for odd/even
+		} else {
+			// We start in the 'odd' period -> do the opposite
+			std::swap(evenLen, oddLen);
+		}
+		int newCount = blinkCount - line;
+		if (newCount <= 0) {
+			// switch even->odd    (or odd->even)
+			resultState = !resultState;
+			newCount += oddLen;
+			if (newCount <= 0) {
+				// switch odd->even   (or even->odd)
+				resultState = !resultState;
+				newCount += evenLen;
+				assert(newCount > 0);
+			}
+		}
+		return {resultState, newCount};
 	}
 
 	/** Gets the number of VDP clock ticks (21MHz) elapsed between
@@ -402,10 +486,16 @@ public:
 		return (controlRegs[25] & 0x40) != 0;
 	}
 
+	/** Gets the number of lines per frame.
+	  */
+	inline int getLinesPerFrame() const {
+		return palTiming ? 313 : 262;
+	}
+
 	/** Gets the number of VDP clockticks (21MHz) per frame.
 	  */
 	inline int getTicksPerFrame() const {
-		return palTiming ? TICKS_PER_LINE * 313 : TICKS_PER_LINE * 262;
+		return getLinesPerFrame() * TICKS_PER_LINE;
 	}
 
 	/** Is the given timestamp inside the current frame?
@@ -521,6 +611,38 @@ public:
 	VDPAccessSlots::Calculator getAccessSlotCalculator(
 		EmuTime::param time, EmuTime::param limit) const;
 
+	/** Only used when there are commandExecuting-probe listeners.
+	 *
+	 * Call to announce a (lower-bound) estimate for when the VDP command
+	 * will finish executing. In response the VDP will schedule a
+	 * synchronization point to sync with VDPCmdEngine emulation.
+	 *
+	 * Normally it's not required to pro-actively sync with the end of a
+	 * VDP command. Instead these sync happen reactively on VDP status
+	 * reads (e.g. polling the CE bit) or on VRAM reads (rendering or CPU
+	 * VRAM read). This is in contrast with the V9990 where we DO need an
+	 * active sync because the V9990 can generate an IRQ on command end.
+	 *
+	 * Though when the VDP.commandExecuting probe is in use we do want a
+	 * reasonably timing accurate reaction of that probe. So (only) then we
+	 * do add the extra syncs (thus with extra emulation overhead when you
+	 * use that probe).
+	 */
+	void scheduleCmdSync(EmuTime t) {
+		auto now = getCurrentTime();
+		if (t <= now) {
+			// The largest amount of VDP cycles between 'progress'
+			// in command emulation:
+			// - worst case the LMMM takes 120+64 cycles to fully process one pixel
+			// - the largest gap between access slots is 70 cycles
+			// - but if we're unlucky the CPU steals that slot
+			int LARGEST_STALL = 184 + 2 * 70;
+
+			t = now + VDPClock::duration(LARGEST_STALL);
+		}
+		syncCmdDone.setSyncPoint(t);
+	}
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -528,13 +650,13 @@ private:
 	void initTables();
 
 	// VdpVersion bitmasks
-	static const unsigned VM_MSX1             =  1; // set-> MSX1,       unset-> MSX2 or MSX2+
-	static const unsigned VM_PAL              =  2; // set-> fixed PAL,  unset-> fixed NTSC or switchable
-	static const unsigned VM_NO_MIRRORING     =  4; // set-> no (screen2) mirroring
-	static const unsigned VM_PALCOL_MIRRORING =  8; // set-> pattern/color-table mirroring
-	static const unsigned VM_VRAM_REMAPPING   = 16; // set-> 4k,8/16k VRAM remapping
-	static const unsigned VM_TOSHIBA_PALETTE  = 32; // set-> has Toshiba palette
-	static const unsigned VM_YJK              = 64; // set-> has YJK (MSX2+)
+	static constexpr unsigned VM_MSX1             =  1; // set-> MSX1,       unset-> MSX2 or MSX2+
+	static constexpr unsigned VM_PAL              =  2; // set-> fixed PAL,  unset-> fixed NTSC or switchable
+	static constexpr unsigned VM_NO_MIRRORING     =  4; // set-> no (screen2) mirroring
+	static constexpr unsigned VM_PALCOL_MIRRORING =  8; // set-> pattern/color-table mirroring
+	static constexpr unsigned VM_VRAM_REMAPPING   = 16; // set-> 4k,8/16k VRAM remapping
+	static constexpr unsigned VM_TOSHIBA_PALETTE  = 32; // set-> has Toshiba palette
+	static constexpr unsigned VM_YJK              = 64; // set-> has YJK (MSX2+)
 
 	/** VDP version: the VDP model being emulated. */
 	enum VdpVersion {
@@ -645,6 +767,14 @@ private:
 		}
 	} syncCpuVramAccess;
 
+	struct SyncCmdDone final : public SyncBase {
+		explicit SyncCmdDone(VDP& vdp) : SyncBase(vdp) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& vdp = OUTER(VDP, syncCmdDone);
+			vdp.execSyncCmdDone(time);
+		}
+	} syncCmdDone;
+
 	void execVSync(EmuTime::param time);
 	void execDisplayStart(EmuTime::param time);
 	void execVScan(EmuTime::param time);
@@ -653,24 +783,20 @@ private:
 	void execSetMode(EmuTime::param time);
 	void execSetBlank(EmuTime::param time);
 	void execCpuVramAccess(EmuTime::param time);
-
-	/** Time at which the internal VDP display line counter is reset,
-	  * expressed in ticks after vsync.
-	  * I would expect the counter to reset at line 16, but measurements
-	  * on NMS8250 show it is one line earlier. I'm not sure whether the
-	  * actual counter reset happens on line 15 or whether the VDP
-	  * timing may be one line off for some reason.
-	  * TODO: This is just an assumption, more measurements on real MSX
-	  *       are necessary to verify there is really such a thing and
-	  *       if so, that the value is accurate.
-	  */
-	static const int LINE_COUNT_RESET_TICKS = 15 * TICKS_PER_LINE;
+	void execSyncCmdDone(EmuTime::param time);
 
 	/** Gets the number of display lines per screen.
 	  * @return 192 or 212.
 	  */
 	inline int getNumberOfLines() const {
 		return controlRegs[9] & 0x80 ? 212 : 192;
+	}
+
+	/** Returns the amount of vertical set-adjust 0..15.
+	  * Neutral set-adjust (that is 'set adjust(0,0)') returns the value '7'.
+	  */
+	int getVerticalAdjust() const {
+		return (controlRegs[18] >> 4) ^ 0x07;
 	}
 
 	/** Gets the value of the horizontal retrace status bit.
@@ -688,11 +814,11 @@ private:
 		/** Length of horizontal blank (HR=1) in text mode, measured in VDP
 		  * ticks.
 		  */
-		static const int HBLANK_LEN_TXT = 404;
+		static constexpr int HBLANK_LEN_TXT = 404;
 		/** Length of horizontal blank (HR=1) in graphics mode, measured in VDP
 		  * ticks.
 		  */
-		static const int HBLANK_LEN_GFX = 312;
+		static constexpr int HBLANK_LEN_GFX = 312;
 		return
 			( ticksThisFrame + TICKS_PER_LINE - getRightBorder()
 				) % TICKS_PER_LINE

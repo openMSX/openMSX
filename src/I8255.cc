@@ -363,10 +363,10 @@ void I8255::writeControlPort(byte value, EmuTime::param time)
 template<typename Archive>
 void I8255::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("latchPortA", latchPortA);
-	ar.serialize("latchPortB", latchPortB);
-	ar.serialize("latchPortC", latchPortC);
-	ar.serialize("control",    control);
+	ar.serialize("latchPortA", latchPortA,
+	             "latchPortB", latchPortB,
+	             "latchPortC", latchPortC,
+	             "control",    control);
 
 	// note: don't write to any output ports (is handled elsewhere)
 	//       don't serialize 'warningPrinted'

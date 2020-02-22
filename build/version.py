@@ -3,9 +3,9 @@
 from executils import captureStdout
 from makeutils import filterLines
 
+from io import open
 from os import makedirs
 from os.path import isdir
-
 import re
 
 # Name used for packaging.
@@ -35,11 +35,11 @@ def _extractRevisionFromStdout(log, command, regex):
 	# pylint 0.18.0 somehow thinks captureStdout() returns a list, not a string.
 	lines = text.split('\n') # pylint: disable-msg=E1103
 	for revision, in filterLines(lines, regex):
-		print >> log, 'Revision number found by "%s": %s' % (command, revision)
+		print('Revision number found by "%s": %s' % (command, revision), file=log)
 		return revision
 	else:
-		print >> log, 'Revision number not found in "%s" output:' % command
-		print >> log, text
+		print('Revision number not found in "%s" output:' % command, file=log)
+		print(str(text), file=log)
 		return None
 
 def extractGitRevision(log):
@@ -65,14 +65,12 @@ def extractRevision():
 		return None
 	if not isdir('derived'):
 		makedirs('derived')
-	log = open('derived/version.log', 'w')
-	print >> log, 'Extracting revision info...'
-	try:
+	with open('derived/version.log', 'w', encoding='utf-8') as log:
+		print('Extracting revision info...', file=log)
 		revision = extractGitRevision(log)
-		print >> log, 'Revision string: %s' % revision
-		print >> log, 'Revision number: %s' % extractNumberFromGitRevision(revision)
-	finally:
-		log.close()
+		print('Revision string: %s' % revision, file=log)
+		revisionNumber = extractNumberFromGitRevision(revision)
+		print('Revision number: %s' % revisionNumber, file=log)
 	_cachedRevision = revision
 	return revision
 
@@ -93,13 +91,10 @@ def getVersionedPackageName():
 def countGitCommits():
 	if not isdir('derived'):
 		makedirs('derived')
-	log = open('derived/commitCountVersion.log', 'w')
-	print >> log, 'Extracting commit count...'
-	try:
+	with open('derived/commitCountVersion.log', 'w', encoding='utf-8') as log:
+		print('Extracting commit count...', file=log)
 		commitCount = captureStdout(log, 'git rev-list HEAD --count')
-		print >> log, 'Commit count: %s' % commitCount
-	finally:
-		log.close()
+		print('Commit count: %s' % commitCount, file=log)
 	return commitCount
 
 def getAndroidVersionCode():
@@ -109,4 +104,4 @@ def getAndroidVersionCode():
 		return '%s' % ( countGitCommits() )
 
 if __name__ == '__main__':
-	print packageVersionNumber
+	print(packageVersionNumber)

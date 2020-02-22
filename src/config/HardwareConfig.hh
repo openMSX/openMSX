@@ -7,8 +7,8 @@
 #include "serialize_meta.hh"
 #include "serialize_constr.hh"
 #include "span.hh"
-#include "string_view.hh"
 #include <string>
+#include <string_view>
 #include <vector>
 #include <memory>
 
@@ -24,15 +24,16 @@ public:
 	HardwareConfig(const HardwareConfig&) = delete;
 	HardwareConfig& operator=(const HardwareConfig&) = delete;
 
-	static XMLElement loadConfig(string_view type, string_view name);
+	static XMLElement loadConfig(std::string_view type, std::string_view name);
 
 	static std::unique_ptr<HardwareConfig> createMachineConfig(
-		MSXMotherBoard& motherBoard, const std::string& machineName);
+		MSXMotherBoard& motherBoard, std::string machineName);
 	static std::unique_ptr<HardwareConfig> createExtensionConfig(
-		MSXMotherBoard& motherBoard, string_view extensionName, string_view slotname);
+		MSXMotherBoard& motherBoard, std::string extensionName,
+		std::string slotname);
 	static std::unique_ptr<HardwareConfig> createRomConfig(
-		MSXMotherBoard& motherBoard, string_view romfile,
-		string_view slotname, span<const TclObject> options);
+		MSXMotherBoard& motherBoard, std::string romfile,
+		std::string slotname, span<const TclObject> options);
 
 	HardwareConfig(MSXMotherBoard& motherBoard, std::string hwName);
 	~HardwareConfig();
@@ -63,10 +64,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	static std::string getFilename(string_view type, string_view name);
-	static XMLElement loadConfig(const std::string& filename);
 	void setConfig(XMLElement config_) { config = std::move(config_); }
-	void load(string_view type);
+	void load(std::string_view type);
 
 	const XMLElement& getDevices() const;
 	void createDevices(const XMLElement& elem,
@@ -77,8 +76,8 @@ private:
 	int getAnyFreePrimarySlot();
 	int getSpecificFreePrimarySlot(unsigned slot);
 	void addDevice(std::unique_ptr<MSXDevice> device);
-	void setName(string_view proposedName);
-	void setSlot(string_view slotname);
+	void setName(std::string_view proposedName);
+	void setSlot(std::string slotname);
 
 	MSXMotherBoard& motherBoard;
 	std::string hwName;
@@ -111,7 +110,7 @@ template<> struct SerializeConstructorArgs<HardwareConfig>
 	{
 		std::string name;
 		ar.serialize("hwname", name);
-		return std::make_tuple(name);
+		return std::tuple(name);
 	}
 };
 

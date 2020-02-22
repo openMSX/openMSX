@@ -107,9 +107,10 @@ private:
 	void createRenderer();
 
 	// SoundDevice
-	void generateChannels(int** buffers, unsigned num) override;
-	bool updateBuffer(unsigned length, int* buffer,
+	void generateChannels(float** buffers, unsigned num) override;
+	bool updateBuffer(unsigned length, float* buffer,
 	                  EmuTime::param time) override;
+	float getAmplificationFactorImpl() const override;
 
 	// Schedulable
 	struct SyncAck final : public Schedulable {

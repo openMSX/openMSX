@@ -13,13 +13,13 @@
 
 namespace openmsx {
 
-static const uint8_t DBZV_VERSION_HIGH = 0;
-static const uint8_t DBZV_VERSION_LOW = 1;
-static const uint8_t COMPRESSION_ZLIB = 1;
-static const unsigned MAX_VECTOR = 16;
-static const unsigned BLOCK_WIDTH  = MAX_VECTOR;
-static const unsigned BLOCK_HEIGHT = MAX_VECTOR;
-static const unsigned FLAG_KEYFRAME = 0x01;
+constexpr uint8_t DBZV_VERSION_HIGH = 0;
+constexpr uint8_t DBZV_VERSION_LOW = 1;
+constexpr uint8_t COMPRESSION_ZLIB = 1;
+constexpr unsigned MAX_VECTOR = 16;
+constexpr unsigned BLOCK_WIDTH  = MAX_VECTOR;
+constexpr unsigned BLOCK_HEIGHT = MAX_VECTOR;
+constexpr unsigned FLAG_KEYFRAME = 0x01;
 
 struct CodecVector {
 	float cost() const {
@@ -44,7 +44,7 @@ static inline bool operator<(const CodecVector& l, const CodecVector& r)
 	return l.cost() < r.cost();
 }
 
-static const unsigned VECTOR_TAB_SIZE =
+constexpr unsigned VECTOR_TAB_SIZE =
 	1 +                                       // center
 	8 * MAX_VECTOR +                          // horizontal, vertial, diagonal
 	MAX_VECTOR * MAX_VECTOR - 2 * MAX_VECTOR; // rest (only MAX_VECTOR/2)
@@ -58,8 +58,6 @@ struct KeyframeHeader {
 	uint8_t blockwidth;
 	uint8_t blockheight;
 };
-
-const char* ZMBVEncoder::CODEC_4CC = "ZMBV";
 
 
 static inline void writePixel(
@@ -248,7 +246,7 @@ void ZMBVEncoder::addXorBlock(
 }
 
 template<class P>
-void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed)
+void ZMBVEncoder::addXorFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	PixelOperations<P> pixelOps(pixelFormat);
 	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
@@ -292,7 +290,7 @@ void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat, unsigned& work
 }
 
 template<class P>
-void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed)
+void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	using LE_P = typename Endian::Little<P>::type;
 
@@ -388,12 +386,12 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		switch (pixelSize) {
 #if HAVE_16BPP
 		case 2:
-			addFullFrame<uint16_t>(frame->getSDLPixelFormat(), workUsed);
+			addFullFrame<uint16_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 #if HAVE_32BPP
 		case 4:
-			addFullFrame<uint32_t>(frame->getSDLPixelFormat(), workUsed);
+			addFullFrame<uint32_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 		default:
@@ -404,12 +402,12 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		switch (pixelSize) {
 #if HAVE_16BPP
 		case 2:
-			addXorFrame<uint16_t>(frame->getSDLPixelFormat(), workUsed);
+			addXorFrame<uint16_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 #if HAVE_32BPP
 		case 4:
-			addXorFrame<uint32_t>(frame->getSDLPixelFormat(), workUsed);
+			addXorFrame<uint32_t>(frame->getPixelFormat(), workUsed);
 			break;
 #endif
 		default:
@@ -424,7 +422,8 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	zstream.next_out = static_cast<Bytef*>(writeBuf + writeDone);
 	zstream.avail_out = outputSize - writeDone;
 	zstream.total_out = 0;
-	deflate(&zstream, Z_SYNC_FLUSH);
+	auto r = deflate(&zstream, Z_SYNC_FLUSH);
+	assert(r == Z_OK); (void)r;
 
 	buffer = output.data();
 	written = writeDone + zstream.total_out;

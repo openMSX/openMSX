@@ -186,7 +186,7 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time_)
 
 void TurboRFDC::setBank(byte value)
 {
-	invalidateMemCache(0x4000, 0x4000);
+	invalidateDeviceRCache(0x4000, 0x4000);
 	bank = value & blockMask;
 	memory = &(*rom)[0x4000 * bank];
 }
@@ -206,8 +206,8 @@ template<typename Archive>
 void TurboRFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXFDC>(*this);
-	ar.serialize("TC8566AF", controller);
-	ar.serialize("bank", bank);
+	ar.serialize("TC8566AF", controller,
+	             "bank",     bank);
 	if (ar.isLoader()) {
 		setBank(bank);
 	}

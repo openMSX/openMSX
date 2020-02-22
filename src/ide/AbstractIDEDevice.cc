@@ -434,7 +434,7 @@ void AbstractIDEDevice::createIdentifyBlock(AlignedBuffer& buf)
 		// Use openMSX version as firmware revision, because most of our
 		// IDE emulation code is in fact emulating the firmware.
 		Version::RELEASE ? strCat('v', Version::VERSION)
-                                 : strCat('d', Version::REVISION));
+		                 : strCat('d', Version::REVISION));
 	writeIdentifyString(&buf[27 * 2], 20, getDeviceName()); // model
 
 	fillIdentifyBlock(buf);
@@ -446,22 +446,22 @@ void AbstractIDEDevice::serialize(Archive& ar, unsigned /*version*/)
 {
 	// no need to serialize IDEDevice base class
 	ar.serialize_blob("buffer", buffer, sizeof(buffer));
-	ar.serialize("transferIdx", transferIdx);
-	ar.serialize("bufferLeft", bufferLeft);
-	ar.serialize("transferCount", transferCount);
-	ar.serialize("errorReg", errorReg);
-	ar.serialize("sectorCountReg", sectorCountReg);
-	ar.serialize("sectorNumReg", sectorNumReg);
-	ar.serialize("cylinderLowReg", cylinderLowReg);
-	ar.serialize("cylinderHighReg", cylinderHighReg);
-	ar.serialize("devHeadReg", devHeadReg);
-	ar.serialize("statusReg", statusReg);
-	ar.serialize("featureReg", featureReg);
+	ar.serialize("transferIdx",     transferIdx,
+	             "bufferLeft",      bufferLeft,
+	             "transferCount",   transferCount,
+	             "errorReg",        errorReg,
+	             "sectorCountReg",  sectorCountReg,
+	             "sectorNumReg",    sectorNumReg,
+	             "cylinderLowReg",  cylinderLowReg,
+	             "cylinderHighReg", cylinderHighReg,
+	             "devHeadReg",      devHeadReg,
+	             "statusReg",       statusReg,
+	             "featureReg",      featureReg);
 	bool transferIdentifyBlock = false; // remove on next version increment
 	                                    // no need to break bw-compat now
-	ar.serialize("transferIdentifyBlock", transferIdentifyBlock);
-	ar.serialize("transferRead", transferRead);
-	ar.serialize("transferWrite", transferWrite);
+	ar.serialize("transferIdentifyBlock", transferIdentifyBlock,
+	             "transferRead",          transferRead,
+	             "transferWrite",         transferWrite);
 }
 INSTANTIATE_SERIALIZE_METHODS(AbstractIDEDevice);
 

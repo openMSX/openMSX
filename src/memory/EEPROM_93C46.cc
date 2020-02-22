@@ -15,7 +15,7 @@ EEPROM_93C46::EEPROM_93C46(const std::string& name, const DeviceConfig& config)
 
 void EEPROM_93C46::reset()
 {
-	completionTime = EmuTime::zero;
+	completionTime = EmuTime::zero();
 	state = IN_RESET;
 	writeProtected = true;
 	bits = 0;
@@ -237,17 +237,17 @@ SERIALIZE_ENUM(EEPROM_93C46::State, stateInfo);
 template<typename Archive>
 void EEPROM_93C46::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("sram", sram);
-	ar.serialize("completionTime", completionTime);
-	ar.serialize("csTime", csTime);
-	ar.serialize("state", state);
-	ar.serialize("shiftRegister", shiftRegister);
-	ar.serialize("bits", bits);
-	ar.serialize("address", address);
-	ar.serialize("pinCS", pinCS);
-	ar.serialize("pinCLK", pinCLK);
-	ar.serialize("pinDI", pinDI);
-	ar.serialize("writeProtected", writeProtected);
+	ar.serialize("sram",           sram,
+	             "completionTime", completionTime,
+	             "csTime",         csTime,
+	             "state",          state,
+	             "shiftRegister",  shiftRegister,
+	             "bits",           bits,
+	             "address",        address,
+	             "pinCS",          pinCS,
+	             "pinCLK",         pinCLK,
+	             "pinDI",          pinDI,
+	             "writeProtected", writeProtected);
 }
 INSTANTIATE_SERIALIZE_METHODS(EEPROM_93C46);
 

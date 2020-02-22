@@ -114,16 +114,16 @@ void SunriseIDE::writeControl(byte value)
 	control = value;
 	if (ideRegsEnabled != (control & 1)) {
 		ideRegsEnabled = control & 1;
-		invalidateMemCache(0x3C00, 0x0300);
-		invalidateMemCache(0x7C00, 0x0300);
-		invalidateMemCache(0xBC00, 0x0300);
-		invalidateMemCache(0xFC00, 0x0300);
+		invalidateDeviceRCache(0x3C00, 0x0300);
+		invalidateDeviceRCache(0x7C00, 0x0300);
+		invalidateDeviceRCache(0xBC00, 0x0300);
+		invalidateDeviceRCache(0xFC00, 0x0300);
 	}
 
 	byte bank = getBank();
 	if (internalBank != &rom[0x4000 * bank]) {
 		internalBank = &rom[0x4000 * bank];
-		invalidateMemCache(0x4000, 0x4000);
+		invalidateDeviceRCache(0x4000, 0x4000);
 	}
 }
 
@@ -219,11 +219,11 @@ void SunriseIDE::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serializePolymorphic("master", *device[0]);
 	ar.serializePolymorphic("slave",  *device[1]);
-	ar.serialize("readLatch", readLatch);
-	ar.serialize("writeLatch", writeLatch);
-	ar.serialize("selectedDevice", selectedDevice);
-	ar.serialize("control", control);
-	ar.serialize("softReset", softReset);
+	ar.serialize("readLatch",      readLatch,
+	             "writeLatch",     writeLatch,
+	             "selectedDevice", selectedDevice,
+	             "control",        control,
+	             "softReset",      softReset);
 
 	if (ar.isLoader()) {
 		// restore internalBank, ideRegsEnabled

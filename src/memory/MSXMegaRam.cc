@@ -38,7 +38,7 @@ MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	      ? std::make_unique<Rom>(getName() + " ROM", "Mega-RAM DiskROM", config)
 	      : nullptr)
 	, romBlockDebug(*this, bank, 0x0000, 0x10000, 13, 0, 3)
-	, maskBlocks(Math::powerOfTwo(numBlocks) - 1)
+	, maskBlocks(Math::ceil2(numBlocks) - 1)
 {
 	powerUp(EmuTime::dummy());
 }
@@ -115,7 +115,7 @@ byte MSXMegaRam::readIO(word port, EmuTime::param /*time*/)
 			if (rom) romMode = true;
 			break;
 	}
-	invalidateMemCache(0x0000, 0x10000);
+	invalidateDeviceRWCache();
 	return 0xFF; // return value doesn't matter
 }
 
@@ -136,25 +136,25 @@ void MSXMegaRam::writeIO(word port, byte /*value*/, EmuTime::param /*time*/)
 			if (rom) romMode = true;
 			break;
 	}
-	invalidateMemCache(0x0000, 0x10000);
+	invalidateDeviceRWCache();
 }
 
 void MSXMegaRam::setBank(byte page, byte block)
 {
 	bank[page] = block & maskBlocks;
 	word adr = page * 0x2000;
-	invalidateMemCache(adr + 0x0000, 0x2000);
-	invalidateMemCache(adr + 0x8000, 0x2000);
+	invalidateDeviceRWCache(adr + 0x0000, 0x2000);
+	invalidateDeviceRWCache(adr + 0x8000, 0x2000);
 }
 
 template<typename Archive>
 void MSXMegaRam::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("ram", ram);
-	ar.serialize("bank", bank);
-	ar.serialize("writeMode", writeMode);
-	ar.serialize("romMode", romMode);
+	ar.serialize("ram",       ram,
+	             "bank",      bank,
+	             "writeMode", writeMode,
+	             "romMode",   romMode);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMegaRam);
 REGISTER_MSXDEVICE(MSXMegaRam, "MegaRAM");

@@ -24,13 +24,14 @@
 using std::min;
 using std::max;
 using std::string;
+using std::string_view;
 
 namespace openmsx {
 
 // class ConsoleLine
 
-ConsoleLine::ConsoleLine(string_view line_, uint32_t rgb)
-	: line(line_.str())
+ConsoleLine::ConsoleLine(string line_, uint32_t rgb)
+	: line(std::move(line_))
 	, chunks(1, {rgb, 0})
 {
 }
@@ -96,9 +97,9 @@ ConsoleLine ConsoleLine::substr(size_t pos, size_t len) const
 
 // class CommandConsole
 
-static const char* const PROMPT_NEW  = "> ";
-static const char* const PROMPT_CONT = "| ";
-static const char* const PROMPT_BUSY = "*busy*";
+constexpr const char* const PROMPT_NEW  = "> ";
+constexpr const char* const PROMPT_CONT = "| ";
+constexpr const char* const PROMPT_BUSY = "*busy*";
 
 CommandConsole::CommandConsole(
 		GlobalCommandController& commandController_,
@@ -371,16 +372,16 @@ void CommandConsole::print(string_view text, unsigned rgb)
 {
 	while (true) {
 		auto pos = text.find('\n');
-		newLineConsole(ConsoleLine(text.substr(0, pos), rgb));
+		newLineConsole(ConsoleLine(string(text.substr(0, pos)), rgb));
 		if (pos == string_view::npos) return;
 		text = text.substr(pos + 1); // skip newline
 		if (text.empty()) return;
 	}
 }
 
-void CommandConsole::newLineConsole(string_view line)
+void CommandConsole::newLineConsole(string line)
 {
-	newLineConsole(ConsoleLine(line));
+	newLineConsole(ConsoleLine(std::move(line)));
 }
 
 void CommandConsole::newLineConsole(ConsoleLine line)
@@ -388,9 +389,9 @@ void CommandConsole::newLineConsole(ConsoleLine line)
 	if (lines.isFull()) {
 		lines.removeBack();
 	}
-	ConsoleLine tmp = lines[0];
+	ConsoleLine tmp = std::move(lines[0]);
 	lines[0] = std::move(line);
-	lines.addFront(tmp);
+	lines.addFront(std::move(tmp));
 }
 
 void CommandConsole::putCommandHistory(const string& command)
@@ -400,7 +401,6 @@ void CommandConsole::putCommandHistory(const string& command)
 	    (history.back() == command)) {
 		return;
 	}
-
 	if (history.full()) history.pop_front();
 	history.push_back(command);
 }
@@ -423,7 +423,7 @@ void CommandConsole::commandExecute()
 		putPrompt();
 
 		try {
-			ScopedAssign<bool> sa(executingCommand, true);
+			ScopedAssign sa(executingCommand, true);
 			auto resultObj = commandController.executeCommand(
 				commandBuffer);
 			auto result = resultObj.getString();
@@ -485,8 +485,8 @@ void CommandConsole::tabCompletion()
 {
 	resetScrollBack();
 	auto pl = unsigned(prompt.size());
-	string front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl).str();
-	string back  = utf8::unchecked::substr(lines[0].str(), cursorPosition).str();
+	string front(utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl));
+	string back (utf8::unchecked::substr(lines[0].str(), cursorPosition));
 	string newFront = commandController.tabCompletion(front);
 	cursorPosition = pl + unsigned(utf8::unchecked::size(newFront));
 	currentLine = newFront + back;

@@ -84,10 +84,13 @@ void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 			sramEnabled |= (1 << region) & sramPages;
 			sramBlock[region] = value & (numBlocks - 1);
 			setBank(region, &(*sram)[sramBlock[region] * BANK_SIZE], value);
+			invalidateDeviceRCache(0x2000 * region, 0x2000); // do not cache
 		} else {
 			sramEnabled &= ~(1 << region);
 			setRom(region, value);
 		}
+		// 'R' is already handled
+		invalidateDeviceWCache(0x2000 * region, 0x2000);
 	} else {
 		byte bank = address / BANK_SIZE;
 		if ((1 << bank) & sramEnabled) {
@@ -116,8 +119,8 @@ template<typename Archive>
 void RomAscii8_8::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("sramEnabled", sramEnabled);
-	ar.serialize("sramBlock", sramBlock);
+	ar.serialize("sramEnabled", sramEnabled,
+	             "sramBlock",   sramBlock);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomAscii8_8);
 REGISTER_MSXDEVICE(RomAscii8_8, "RomAscii8_8");

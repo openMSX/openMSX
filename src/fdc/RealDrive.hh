@@ -30,8 +30,10 @@ public:
 	bool isDoubleSided() const override;
 	bool isTrack00() const override;
 	void setSide(bool side) override;
+	bool getSide() const override;
 	void step(bool direction, EmuTime::param time) override;
 	void setMotor(bool status, EmuTime::param time) override;
+	bool getMotor() const override;
 	bool indexPulse(EmuTime::param time) override;
 	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
 
@@ -80,9 +82,9 @@ private:
 	void getTrack();
 	void invalidateTrack();
 
-	static const unsigned MAX_TRACK = 85;
-	static const unsigned TICKS_PER_ROTATION = 200000;
-	static const unsigned INDEX_DURATION = TICKS_PER_ROTATION / 50;
+	static constexpr unsigned MAX_TRACK = 85;
+	static constexpr unsigned TICKS_PER_ROTATION = 200000;
+	static constexpr unsigned INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
 	MSXMotherBoard& motherBoard;
 	LoadingIndicator loadingIndicator;
@@ -98,7 +100,7 @@ private:
 	const bool doubleSizedDrive;
 	const bool signalsNeedMotorOn;
 
-	static const unsigned MAX_DRIVES = 26; // a-z
+	static constexpr unsigned MAX_DRIVES = 26; // a-z
 	using DrivesInUse = std::bitset<MAX_DRIVES>;
 	std::shared_ptr<DrivesInUse> drivesInUse;
 

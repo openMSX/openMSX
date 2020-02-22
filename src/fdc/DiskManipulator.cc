@@ -24,16 +24,11 @@
 #include <stdexcept>
 
 using std::string;
-using std::vector;
+using std::string_view;
 using std::unique_ptr;
+using std::vector;
 
 namespace openmsx {
-
-#ifndef _MSC_EXTENSIONS
-// #ifdef required to avoid link error with vc++, see also
-//   http://www.codeguru.com/forum/showthread.php?t=430949
-const unsigned DiskManipulator::MAX_PARTITIONS;
-#endif
 
 DiskManipulator::DiskManipulator(CommandController& commandController_,
                                  Reactor& reactor_)
@@ -118,7 +113,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		it->partition = 0;
 	} else {
 		try {
-			unsigned partition = fast_stou(diskname.substr(pos2));
+			unsigned partition = StringOp::fast_stou(diskname.substr(pos2));
 			DiskImageUtils::checkFAT12Partition(*disk, partition);
 			it->partition = partition;
 		} catch (std::invalid_argument&) {
@@ -285,7 +280,7 @@ string DiskManipulator::help(const vector<string>& tokens) const
 void DiskManipulator::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		static const char* const cmds[] = {
+		static constexpr const char* const cmds[] = {
 			"import", "export", "savedsk", "dir", "create",
 			"format", "chdir", "mkdir",
 		};
@@ -325,12 +320,12 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		    (tokens[1] == "export")) {
 			completeFileName(tokens, userFileContext());
 		} else if (tokens[1] == "create") {
-			static const char* const cmds[] = {
+			static constexpr const char* const cmds[] = {
 				"360", "720", "32M", "-dos1"
 			};
 			completeString(tokens, cmds);
 		} else if (tokens[1] == "format") {
-			static const char* const cmds[] = {
+			static constexpr const char* const cmds[] = {
 				"-dos1"
 			};
 			completeString(tokens, cmds);
@@ -366,7 +361,7 @@ void DiskManipulator::create(span<const TclObject> tokens)
 			throw CommandException(
 				"Maximum number of partitions is ", MAX_PARTITIONS);
 		}
-		string tok = tokens[i].getString().str();
+		string tok(tokens[i].getString());
 		char* q;
 		int sectors = strtol(tok.c_str(), &q, 0);
 		int scale = 1024; // default is kilobytes
@@ -416,7 +411,7 @@ void DiskManipulator::create(span<const TclObject> tokens)
 	}
 
 	// create file with correct size
-	Filename filename(tokens[2].getString().str());
+	Filename filename(string(tokens[2].getString()));
 	try {
 		File file(filename, File::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
@@ -480,7 +475,7 @@ string DiskManipulator::chdir(DriveSettings& driveData, string_view filename)
 	// TODO clean-up this temp hack, used to enable relative paths
 	string& cwd = driveData.workingDir[driveData.partition];
 	if (StringOp::startsWith(filename, '/')) {
-		cwd = filename.str();
+		cwd = filename;
 	} else {
 		if (!StringOp::endsWith(cwd, '/')) cwd += '/';
 		cwd.append(filename.data(), filename.size());
@@ -519,7 +514,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 				if (FileOperations::isDirectory(st)) {
 					messages += workhorse->addDir(s);
 				} else if (FileOperations::isRegularFile(st)) {
-					messages += workhorse->addFile(s.str());
+					messages += workhorse->addFile(string(s));
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
 					strAppend(messages, "Ignoring ", s, '\n');

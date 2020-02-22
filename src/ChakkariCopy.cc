@@ -29,7 +29,7 @@
 // The memory at 6800-7FFF is unused by the cartridge.
 //
 // Internal handling: during cartridge initialisation Chakkari Copy copies the
-// contents of BIOS page 0 into it's own RAM and patches some entries to
+// contents of BIOS page 0 into its own RAM and patches some entries to
 // capture the input of PAUSE and COPY buttons of the cartridge. Afterwards the
 // patched memory is set to read-only.
 // PAUSE and COPY itself are processed by the routines in the ROM. In case the
@@ -47,7 +47,7 @@
 // In case the printer is not ready or not available the printing can be
 // aborted by pressing Ctrl+Stop.
 //
-// The Chakkari Copy cartridge has one register, which controls it's complete
+// The Chakkari Copy cartridge has one register, which controls its complete
 // behavior. This register is available at MSX port &H7F.
 //
 // READ only:
@@ -129,7 +129,7 @@ void ChakkariCopy::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 	if (diff & 0x04) {
 		if (modeSetting.getEnum() == COPY) {
 			// page 0 toggles writable/read-only
-			invalidateMemCache(0x0000, 0x4000);
+			invalidateDeviceRWCache(0x0000, 0x4000);
 		}
 	}
 }
@@ -210,16 +210,16 @@ byte* ChakkariCopy::getWriteCacheLine(word address) const
 void ChakkariCopy::update(const Setting& /*setting*/)
 {
 	// switch COPY <-> RAM mode, memory layout changes
-	invalidateMemCache(0x0000, 0x10000);
+	invalidateDeviceRWCache();
 }
 
 template<typename Archive>
 void ChakkariCopy::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("biosRam", biosRam);
-	ar.serialize("workRam", workRam);
-	ar.serialize("reg", reg);
+	ar.serialize("biosRam", biosRam,
+	             "workRam", workRam,
+	             "reg", reg);
 	if (ar.isLoader()) {
 		writeIO(0, reg, getCurrentTime());
 	}

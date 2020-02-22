@@ -10,14 +10,11 @@ try:
 	from os import symlink
 except ImportError:
 	def symlink(source, link_name):
-		print(
-			'WARNING: OS does not support symlink creation: %s -> %s, skipping!'
-			% (link_name, source)
-			)
+		raise OSError('OS does not support symlink creation')
 from os.path import abspath, isdir, join as joinpath, sep, split as splitpath
 from stat import S_IRWXU, S_IRWXG, S_IRWXO, S_IXUSR, S_IXGRP, S_IXOTH
+from tarfile import TarFile
 import sys
-import tarfile
 
 from detectsys import detectOS
 
@@ -41,13 +38,7 @@ def extract(archivePath, destDir, rename = None):
 			'Destination directory "%s" does not exist' % absDestDir
 			)
 
-	tar = tarfile.open(archivePath)
-	# Note: According to the Python 2.6 docs, errorlevel can be passed as a
-	#       keyword argument to the open() call, but on Python 2.5 this does
-	#       not work.
-	tar.errorlevel = 2
-
-	try:
+	with TarFile.open(archivePath, errorlevel=2) as tar:
 		for member in tar.getmembers():
 			absMemberPath = abspath(joinpath(absDestDir, member.name))
 			if member.isdir():
@@ -67,25 +58,25 @@ def extract(archivePath, destDir, rename = None):
 				mode = S_IRWXU | S_IRWXG | S_IRWXO
 				if not (member.mode & S_IXUSR):
 					mode &= ~(S_IXUSR | S_IXGRP | S_IXOTH)
-				out = fdopen(
-					osopen(absMemberPath, O_CREAT | O_WRONLY | O_BINARY, mode),
-					'wb'
-					)
-				try:
+				fd = osopen(absMemberPath, O_CREAT | O_WRONLY | O_BINARY, mode)
+				with fdopen(fd, 'wb') as out:
 					inp = tar.extractfile(member)
 					bytesLeft = member.size
 					while bytesLeft > 0:
 						buf = inp.read(bufSize)
 						out.write(buf)
 						bytesLeft -= len(buf)
-					buf = None
-				finally:
-					out.close()
 			elif member.isdir():
 				if not isdir(absMemberPath):
 					mkdir(absMemberPath)
 			elif member.issym():
-				symlink(member.linkname, absMemberPath)
+				try:
+					symlink(member.linkname, absMemberPath)
+				except OSError as ex:
+					print(
+						'WARNING: Skipping symlink creation: %s -> %s: %s'
+						% (absMemberPath, member.linkname, ex)
+						)
 			else:
 				raise ValueError(
 					'Cannot extract tar entry "%s": '
@@ -102,8 +93,6 @@ def extract(archivePath, destDir, rename = None):
 				member.isdir() and not hostOS.startswith('mingw')
 				):
 				utime(absMemberPath, (member.mtime, member.mtime))
-	finally:
-		tar.close()
 
 class TopLevelDirRenamer(object):
 
@@ -128,6 +117,5 @@ if __name__ == '__main__':
 			renameTopLevelDir = None
 		extract(sys.argv[1], sys.argv[2], renameTopLevelDir)
 	else:
-		print >> sys.stderr, \
-			'Usage: python extract.py archive destination [new-top-level-dir]'
+		print('Usage: python3 extract.py archive destination [new-top-level-dir]', file=sys.stderr)
 		sys.exit(2)

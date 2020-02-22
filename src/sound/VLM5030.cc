@@ -79,6 +79,7 @@ chirp 12-..: vokume   0   : silent
 #include "XMLElement.hh"
 #include "FileOperations.hh"
 #include "Math.hh"
+#include "cstd.hh"
 #include "serialize.hh"
 #include "random.hh"
 #include "ranges.hh"
@@ -89,13 +90,13 @@ namespace openmsx {
 
 
 // interpolator per frame
-static const int FR_SIZE = 4;
+constexpr int FR_SIZE = 4;
 // samples per interpolator
-static const int IP_SIZE_SLOWER = 240 / FR_SIZE;
-static const int IP_SIZE_SLOW   = 200 / FR_SIZE;
-static const int IP_SIZE_NORMAL = 160 / FR_SIZE;
-static const int IP_SIZE_FAST   = 120 / FR_SIZE;
-static const int IP_SIZE_FASTER =  80 / FR_SIZE;
+constexpr int IP_SIZE_SLOWER = 240 / FR_SIZE;
+constexpr int IP_SIZE_SLOW   = 200 / FR_SIZE;
+constexpr int IP_SIZE_NORMAL = 160 / FR_SIZE;
+constexpr int IP_SIZE_FAST   = 120 / FR_SIZE;
+constexpr int IP_SIZE_FASTER =  80 / FR_SIZE;
 
 // phase value
 enum {
@@ -115,7 +116,7 @@ enum {
 //  x   0   0  normal    (00h,04h) : 25.6ms (100%) : 40samplme
 //  0   0   1  fast      (01h)     : 20.2ms  (75%) : 30sample
 //  0   1   x  more fast (02h,03h) : 12.2ms  (50%) : 20sample
-static const int VLM5030_speed_table[8] =
+constexpr int VLM5030_speed_table[8] =
 {
 	IP_SIZE_NORMAL,
 	IP_SIZE_FAST,
@@ -141,7 +142,7 @@ static word energytable[0x20] =
 };
 
 // This is the pitch lookup table
-static const byte pitchtable [0x20] =
+constexpr byte pitchtable [0x20] =
 {
 	1,                               // 0     : random mode
 	22,                              // 1     : start=22
@@ -151,7 +152,7 @@ static const byte pitchtable [0x20] =
 	86, 94, 102,110,118,126          // 26-31 : 8step
 };
 
-static const int16_t K1_table[] = {
+constexpr int16_t K1_table[] = {
 	-24898,  -25672,  -26446,  -27091,  -27736,  -28252,  -28768,  -29155,
 	-29542,  -29929,  -30316,  -30574,  -30832,  -30961,  -31219,  -31348,
 	-31606,  -31735,  -31864,  -31864,  -31993,  -32122,  -32122,  -32251,
@@ -161,17 +162,17 @@ static const int16_t K1_table[] = {
 	     0,   -1935,   -3999,   -6063,   -7998,   -9804,  -11610,  -13416,
 	-15093,  -16642,  -18061,  -19480,  -20770,  -21931,  -22963,  -23995
 };
-static const int16_t K2_table[] = {
+constexpr int16_t K2_table[] = {
 	     0,   -3096,   -6321,   -9417,  -12513,  -15351,  -18061,  -20770,
 	-23092,  -25285,  -27220,  -28897,  -30187,  -31348,  -32122,  -32638,
 	     0,   32638,   32122,   31348,   30187,   28897,   27220,   25285,
 	 23092,   20770,   18061,   15351,   12513,    9417,    6321,    3096
 };
-static const int16_t K3_table[] = {
+constexpr int16_t K3_table[] = {
 	    0,   -3999,   -8127,  -12255,  -16384,  -20383,  -24511,  -28639,
 	32638,   28639,   24511,   20383,   16254,   12255,    8127,    3999
 };
-static const int16_t K5_table[] = {
+constexpr int16_t K5_table[] = {
 	0,   -8127,  -16384,  -24511,   32638,   24511,   16254,    8127
 };
 
@@ -232,7 +233,7 @@ int VLM5030::parseFrame()
 }
 
 // decode and buffering data
-void VLM5030::generateChannels(int** bufs, unsigned num)
+void VLM5030::generateChannels(float** bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
 	if (phase == PH_IDLE) {
@@ -362,9 +363,9 @@ phase_stop:
 	}
 }
 
-int VLM5030::getAmplificationFactorImpl() const
+float VLM5030::getAmplificationFactorImpl() const
 {
-	return 1 << (15 - 9);
+	return 1.0f / (1 << 9);
 }
 
 // setup parameteroption when RST=H
@@ -519,9 +520,11 @@ static XMLElement getRomConfig(const std::string& name, const std::string& romFi
 	return voiceROMconfig;
 }
 
+constexpr auto INPUT_RATE = unsigned(cstd::round(3579545 / 440.0));
+
 VLM5030::VLM5030(const std::string& name_, const std::string& desc,
                  const std::string& romFilename, const DeviceConfig& config)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, INPUT_RATE, false)
 	, rom(name_ + " ROM", "rom", DeviceConfig(config, getRomConfig(name_, romFilename)))
 {
 	// reset input pins
@@ -532,10 +535,6 @@ VLM5030::VLM5030(const std::string& name_, const std::string& desc,
 	phase = PH_IDLE;
 
 	address_mask = rom.getSize() - 1;
-
-	const int CLOCK_FREQ = 3579545;
-	float input = CLOCK_FREQ / 440.0f;
-	setInputRate(lrintf(input));
 
 	registerSound(config);
 }
@@ -548,35 +547,35 @@ VLM5030::~VLM5030()
 template<typename Archive>
 void VLM5030::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("address_mask", address_mask);
-	ar.serialize("frame_size", frame_size);
-	ar.serialize("pitch_offset", pitch_offset);
-	ar.serialize("current_energy", current_energy);
-	ar.serialize("current_pitch", current_pitch);
-	ar.serialize("current_k", current_k);
-	ar.serialize("x", x);
-	ar.serialize("address", address);
-	ar.serialize("vcu_addr_h", vcu_addr_h);
-	ar.serialize("old_k", old_k);
-	ar.serialize("new_k", new_k);
-	ar.serialize("target_k", target_k);
-	ar.serialize("old_energy", old_energy);
-	ar.serialize("new_energy", new_energy);
-	ar.serialize("target_energy", target_energy);
-	ar.serialize("old_pitch", old_pitch);
-	ar.serialize("new_pitch", new_pitch);
-	ar.serialize("target_pitch", target_pitch);
-	ar.serialize("interp_step", interp_step);
-	ar.serialize("interp_count", interp_count);
-	ar.serialize("sample_count", sample_count);
-	ar.serialize("pitch_count", pitch_count);
-	ar.serialize("latch_data", latch_data);
-	ar.serialize("parameter", parameter);
-	ar.serialize("phase", phase);
-	ar.serialize("pin_BSY", pin_BSY);
-	ar.serialize("pin_ST", pin_ST);
-	ar.serialize("pin_VCU", pin_VCU);
-	ar.serialize("pin_RST", pin_RST);
+	ar.serialize("address_mask",   address_mask,
+	             "frame_size",     frame_size,
+	             "pitch_offset",   pitch_offset,
+	             "current_energy", current_energy,
+	             "current_pitch",  current_pitch,
+	             "current_k",      current_k,
+	             "x",              x,
+	             "address",        address,
+	             "vcu_addr_h",     vcu_addr_h,
+	             "old_k",          old_k,
+	             "new_k",          new_k,
+	             "target_k",       target_k,
+	             "old_energy",     old_energy,
+	             "new_energy",     new_energy,
+	             "target_energy",  target_energy,
+	             "old_pitch",      old_pitch,
+	             "new_pitch",      new_pitch,
+	             "target_pitch",   target_pitch,
+	             "interp_step",    interp_step,
+	             "interp_count",   interp_count,
+	             "sample_count",   sample_count,
+	             "pitch_count",    pitch_count,
+	             "latch_data",     latch_data,
+	             "parameter",      parameter,
+	             "phase",          phase,
+	             "pin_BSY",        pin_BSY,
+	             "pin_ST",         pin_ST,
+	             "pin_VCU",        pin_VCU,
+	             "pin_RST",        pin_RST);
 }
 
 INSTANTIATE_SERIALIZE_METHODS(VLM5030);

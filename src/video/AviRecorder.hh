@@ -26,7 +26,7 @@ public:
 	explicit AviRecorder(Reactor& reactor);
 	~AviRecorder();
 
-	void addWave(unsigned num, int16_t* data);
+	void addWave(unsigned num, float* data);
 	void addImage(FrameSource* frame, EmuTime::param time);
 	void stop();
 	unsigned getFrameHeight() const;

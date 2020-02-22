@@ -266,14 +266,14 @@ StretchScalerOutput288<Pixel>::StretchScalerOutput288(
 
 template<typename Pixel>
 unique_ptr<ScalerOutput<Pixel>> StretchScalerOutputFactory<Pixel>::create(
-	OutputSurface& output,
+	SDLOutputSurface& output,
 	PixelOperations<Pixel> pixelOps,
 	unsigned inWidth)
 {
 	auto direct = std::make_unique<DirectScalerOutput<Pixel>>(output);
 	switch (inWidth) {
 	case 320:
-		return std::move(direct);
+		return direct;
 	case 288:
 		return std::make_unique<StretchScalerOutput288<Pixel>>(
 			std::move(direct), std::move(pixelOps));

@@ -46,6 +46,7 @@ void RomPanasonic::reset(EmuTime::param /*time*/)
 		bankSelect[region] = 0;
 		setRom(region, 0);
 	}
+	invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
 }
 
 byte RomPanasonic::peekMem(word address, EmuTime::param time) const
@@ -172,14 +173,19 @@ void RomPanasonic::changeBank(byte region, int bank)
 		// ROM
 		setRom(region, bank);
 	}
+	invalidateDeviceWCache(0x2000 * region, 0x2000); // 'R' is already handled
+	if (region == 3) {
+		// don't pre-fill [0x7ff0, 0x7fff]
+		invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
+	}
 }
 
 template<typename Archive>
 void RomPanasonic::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("bankSelect", bankSelect);
-	ar.serialize("control", control);
+	ar.serialize("bankSelect", bankSelect,
+	             "control",    control);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomPanasonic);
 REGISTER_MSXDEVICE(RomPanasonic, "RomPanasonic");

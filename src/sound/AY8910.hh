@@ -117,29 +117,27 @@ private:
 	class Amplitude {
 	public:
 		explicit Amplitude(const DeviceConfig& config);
-		const unsigned* getEnvVolTable() const;
-		inline unsigned getVolume(unsigned chan) const;
+		const float* getEnvVolTable() const;
+		inline float getVolume(unsigned chan) const;
 		inline void setChannelVolume(unsigned chan, unsigned value);
-		inline void setMasterVolume(int volume);
 		inline bool followsEnvelope(unsigned chan) const;
 
 	private:
-		unsigned volTable[16];
-		unsigned envVolTable[32];
-		unsigned vol[3];
+		const float* envVolTable;
+		float vol[3];
 		bool envChan[3];
 		const bool isAY8910;
 	};
 
 	class Envelope {
 	public:
-		explicit inline Envelope(const unsigned* envVolTable);
+		explicit inline Envelope(const float* envVolTable);
 		inline void reset();
 		inline void setPeriod(int value);
 		inline void setShape(unsigned shape);
 		inline bool isChanging() const;
 		inline void advance(int duration);
-		inline unsigned getVolume() const;
+		inline float getVolume() const;
 
 		inline unsigned getNextEventTime() const;
 		inline void advanceFast(unsigned duration);
@@ -151,7 +149,7 @@ private:
 	private:
 		inline void doSteps(int steps);
 
-		const unsigned* envVolTable;
+		const float* envVolTable;
 		int period;
 		int count;
 		int step;
@@ -160,7 +158,8 @@ private:
 	};
 
 	// SoundDevice
-	void generateChannels(int** bufs, unsigned num) override;
+	void generateChannels(float** bufs, unsigned num) override;
+	float getAmplificationFactorImpl() const override;
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;

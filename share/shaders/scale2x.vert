@@ -1,13 +1,13 @@
 uniform mat4 u_mvpMatrix;
 uniform vec3 texSize;
 
-attribute vec4 a_position;
-attribute vec3 a_texCoord;
+in vec4 a_position;
+in vec3 a_texCoord;
 
-varying vec2 texStep; // could be uniform
-varying vec2 coord2pi;
-varying vec2 texCoord;
-varying vec2 videoCoord;
+out vec2 texStep; // could be uniform
+out vec2 coord2pi;
+out vec2 texCoord;
+out vec2 videoCoord;
 
 float pi = 4.0 * atan(1.0);
 float pi2 = 2.0 * pi;

@@ -14,17 +14,17 @@ class OSDTopWidget final : public OSDWidget
 {
 public:
 	explicit OSDTopWidget(Display& display);
-	string_view getType() const override;
+	std::string_view getType() const override;
 	gl::vec2 getSize(const OutputSurface& output) const override;
 
 	void queueError(std::string message);
 	void showAllErrors();
 
-	OSDWidget* findByName(string_view name);
-	const OSDWidget* findByName(string_view name) const;
+	OSDWidget* findByName(std::string_view name);
+	const OSDWidget* findByName(std::string_view name) const;
 	void addName(OSDWidget& widget);
 	void removeName(OSDWidget& widget);
-	std::vector<string_view> getAllWidgetNames() const;
+	std::vector<std::string_view> getAllWidgetNames() const;
 
 protected:
 	void invalidateLocal() override;
@@ -35,7 +35,7 @@ private:
 	std::vector<std::string> errors;
 
 	struct NameFromWidget {
-		string_view operator()(const OSDWidget* w) const {
+		std::string_view operator()(const OSDWidget* w) const {
 			return w->getName();
 		}
 	};

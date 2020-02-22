@@ -1,5 +1,3 @@
-// $Id:$
-
 #include "SVIPrinterPort.hh"
 #include "DummyPrinterPortDevice.hh"
 #include "checked_cast.hh"
@@ -71,12 +69,12 @@ void SVIPrinterPort::writeData(byte newData, EmuTime::param time)
 	}
 }
 
-string_view SVIPrinterPort::getDescription() const
+std::string_view SVIPrinterPort::getDescription() const
 {
 	return "Spectravideo SVI-328 Printer port";
 }
 
-string_view SVIPrinterPort::getClass() const
+std::string_view SVIPrinterPort::getClass() const
 {
 	return "Printer Port";
 }
@@ -98,8 +96,8 @@ void SVIPrinterPort::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<Connector>(*this);
-	ar.serialize("strobe", strobe);
-	ar.serialize("data", data);
+	ar.serialize("strobe", strobe,
+	             "data",   data);
 	// TODO force writing data to port??
 }
 INSTANTIATE_SERIALIZE_METHODS(SVIPrinterPort);

@@ -1,3 +1,4 @@
+from io import open
 from os.path import isdir
 import re
 
@@ -19,12 +20,9 @@ def filterFile(filePath, regex):
 	expression string. For each match, a tuple containing the text matching
 	each capture group from the regular expression is yielded.
 	'''
-	inp = open(filePath, 'r')
-	try:
+	with open(filePath, 'r', encoding='utf-8') as inp:
 		for groups in filterLines(inp, regex):
 			yield groups
-	finally:
-		inp.close()
 
 def joinContinuedLines(lines):
 	'''Iterates through the given lines, replacing lines that are continued
@@ -86,8 +84,7 @@ def extractMakeVariables(filePath, makeVars = None):
 	Returns a dictionary that maps each variable name to its value.
 	'''
 	makeVars = {} if makeVars is None else dict(makeVars)
-	inp = open(filePath, 'r')
-	try:
+	with open(filePath, 'r', encoding='utf-8') as inp:
 		for name, assign, value in filterLines(
 			joinContinuedLines(inp),
 			r'[ ]*([A-Za-z0-9_]+)[ ]*([+:]?=)(.*)'
@@ -103,8 +100,6 @@ def extractMakeVariables(filePath, makeVars = None):
 				makeVars[name] = makeVars[name] + ' ' + value.strip()
 			else:
 				assert False, assign
-	finally:
-		inp.close()
 	return makeVars
 
 def parseBool(valueStr):

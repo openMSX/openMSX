@@ -18,11 +18,11 @@ public:
 	           const DynamicClock& hostClock, unsigned emuSampleRate);
 	~ResampleHQ() override;
 
-	bool generateOutput(int* dataOut, unsigned num,
+	bool generateOutput(float* dataOut, unsigned num,
 	                    EmuTime::param time) override;
 
 private:
-	void calcOutput(float pos, int* output);
+	void calcOutput(float pos, float* output);
 	void prepareData(unsigned emuNum);
 
 	ResampledSoundDevice& input;

@@ -1,14 +1,14 @@
 #ifndef INTERPRETEROUTPUT_HH
 #define INTERPRETEROUTPUT_HH
 
-#include "string_view.hh"
+#include <string_view>
 
 namespace openmsx {
 
 class InterpreterOutput
 {
 public:
-	virtual void output(string_view text) = 0;
+	virtual void output(std::string_view text) = 0;
 	virtual unsigned getOutputColumns() const = 0;
 
 protected:

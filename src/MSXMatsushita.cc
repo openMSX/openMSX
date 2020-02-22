@@ -9,14 +9,14 @@
 
 namespace openmsx {
 
-static const byte ID = 0x08;
+constexpr byte ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
 	, cpu(getCPU()) // used frequently, so cache it
 	, vdp(nullptr)
-	, lastTime(EmuTime::zero)
+	, lastTime(EmuTime::zero())
 	, firmwareSwitch(config)
 	, sram(config.findChild("sramname") ? std::make_unique<SRAM>(getName() + " SRAM", 0x800, config) : nullptr)
 	, turboAvailable(config.getChildDataAsBool("hasturbo", false))
@@ -214,14 +214,14 @@ void MSXMatsushita::serialize(Archive& ar, unsigned version)
 	// no need to serialize MSXSwitchedDevice base class
 
 	if (sram) ar.serialize("SRAM", *sram);
-	ar.serialize("address", address);
-	ar.serialize("color1", color1);
-	ar.serialize("color2", color2);
-	ar.serialize("pattern", pattern);
+	ar.serialize("address", address,
+	             "color1", color1,
+	             "color2", color2,
+	             "pattern", pattern);
 
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("lastTime", lastTime);
-		ar.serialize("turboEnabled", turboEnabled);
+		ar.serialize("lastTime", lastTime,
+		             "turboEnabled", turboEnabled);
 	} else {
 		// keep 'lastTime == zero'
 		// keep 'turboEnabled == false'

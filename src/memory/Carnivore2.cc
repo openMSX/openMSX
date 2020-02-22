@@ -198,10 +198,10 @@ byte Carnivore2::readConfigRegister(word address, EmuTime::param time)
 	}
 }
 
-static SoundDevice::VolumeType volumeLevel(byte volume)
+static float volumeLevel(byte volume)
 {
 	static constexpr byte tab[8] = {5, 6, 7, 8, 10, 12, 14, 16};
-	return SoundDevice::VolumeType(tab[volume & 7]) / 16;
+	return tab[volume & 7] / 16.0f;
 }
 
 void Carnivore2::writeSndLVL(byte value, EmuTime::param time)
@@ -263,7 +263,7 @@ std::pair<unsigned, byte> Carnivore2::decodeMultiMapper(word address) const
 
 		// check address
 		bool mirroringDisabled = mult & 0x40;
-		static const byte checkMasks[2][8] = {
+		static constexpr byte checkMasks[2][8] = {
 			{ 0x00, 0x00, 0x00, 0x30, 0x60, 0xc0, 0x80, 0x00 }, // mirroring enabled
 			{ 0x00, 0x00, 0x00, 0xf0, 0xe0, 0xc0, 0x80, 0x00 }, // mirroring disabled
 		};
@@ -685,6 +685,7 @@ void Carnivore2::writeIO(word port, byte value, EmuTime::param time)
 	} else if ((port & 0xfc) == 0xfc) {
 		// memory mapper registers
 		memMapRegs[port & 0x03] = value & 0x3f;
+		invalidateDeviceRWCache(0x4000 * (port & 0x03), 0x4000);
 	}
 }
 
@@ -697,34 +698,34 @@ template<typename Archive>
 void Carnivore2::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.serialize("flash", flash);
-	ar.serialize("ram", ram);
-	ar.serialize("eeprom", eeprom);
-	ar.serialize("configRegs", configRegs);
-	ar.serialize("shadowConfigRegs", shadowConfigRegs);
-	ar.serialize("subSlotReg", subSlotReg);
-	ar.serialize("port3C", port3C);
+	ar.serialize("flash",            flash,
+	             "ram",              ram,
+	             "eeprom",           eeprom,
+	             "configRegs",       configRegs,
+	             "shadowConfigRegs", shadowConfigRegs,
+	             "subSlotReg",       subSlotReg,
+	             "port3C",           port3C,
 
-	ar.serialize("scc", scc);
-	ar.serialize("sccMode", sccMode);
-	ar.serialize("sccBank", sccBank);
+	             "scc",              scc,
+	             "sccMode",          sccMode,
+	             "sccBank",          sccBank);
 
 	ar.serializePolymorphic("master", *ideDevices[0]);
 	ar.serializePolymorphic("slave",  *ideDevices[1]);
-	ar.serialize("ideSoftReset", ideSoftReset);
-	ar.serialize("ideSelectedDevice", ideSelectedDevice);
-	ar.serialize("ideControlReg", ideControlReg);
-	ar.serialize("ideRead", ideRead);
-	ar.serialize("ideWrite", ideWrite);
+	ar.serialize("ideSoftReset",      ideSoftReset,
+	             "ideSelectedDevice", ideSelectedDevice,
+	             "ideControlReg",     ideControlReg,
+	             "ideRead",           ideRead,
+	             "ideWrite",          ideWrite,
 
-	ar.serialize("memMapRegs", memMapRegs);
+	             "memMapRegs",        memMapRegs,
 	
-	ar.serialize("ym2413", ym2413);
-	ar.serialize("fmPacEnable", fmPacEnable);
-	ar.serialize("fmPacBank", fmPacBank);
-	ar.serialize("fmPac5ffe", fmPac5ffe);
-	ar.serialize("fmPac5fff", fmPac5fff);
-	ar.serialize("fmPacRegSelect", fmPacRegSelect);
+	             "ym2413",            ym2413,
+	             "fmPacEnable",       fmPacEnable,
+	             "fmPacBank",         fmPacBank,
+	             "fmPac5ffe",         fmPac5ffe,
+	             "fmPac5fff",         fmPac5fff,
+	             "fmPacRegSelect",    fmPacRegSelect);
 	
 	if (ar.isLoader()) {
 		auto time = getCurrentTime();

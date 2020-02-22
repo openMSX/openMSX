@@ -30,6 +30,11 @@ void DummyDrive::setSide(bool /*side*/)
 	// ignore
 }
 
+bool DummyDrive::getSide() const
+{
+	return false;
+}
+
 void DummyDrive::step(bool /*direction*/, EmuTime::param /*time*/)
 {
 	// ignore
@@ -40,6 +45,11 @@ void DummyDrive::setMotor(bool /*status*/, EmuTime::param /*time*/)
 	// ignore
 }
 
+bool DummyDrive::getMotor() const
+{
+	return false;
+}
+
 bool DummyDrive::indexPulse(EmuTime::param /*time*/)
 {
 	return false;
@@ -47,7 +57,7 @@ bool DummyDrive::indexPulse(EmuTime::param /*time*/)
 
 EmuTime DummyDrive::getTimeTillIndexPulse(EmuTime::param /*time*/, int /*count*/)
 {
-	return EmuTime::infinity;
+	return EmuTime::infinity();
 }
 
 unsigned DummyDrive::getTrackLength()
@@ -67,7 +77,7 @@ byte DummyDrive::readTrackByte(int /*idx*/)
 
 EmuTime DummyDrive::getNextSector(EmuTime::param /*time*/, RawTrack::Sector& /*sector*/)
 {
-	return EmuTime::infinity;
+	return EmuTime::infinity();
 }
 
 void DummyDrive::flushTrack()

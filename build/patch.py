@@ -1,5 +1,6 @@
 # Applies a unified diff to a directory tree.
 
+from io import open
 from os.path import abspath, isdir, join as joinpath, sep
 import re
 import sys
@@ -22,7 +23,7 @@ class LineScanner(object):
 		self.__filter = lineFilter
 		self.__currLine = None
 		self.__lineNo = 0
-		self.next()
+		self.nextLine()
 
 	def end(self):
 		'''Returns True iff the end of the stream has been reached.
@@ -36,9 +37,9 @@ class LineScanner(object):
 		'''
 		return self.__currLine
 
-	def next(self):
+	def nextLine(self):
 		'''Moves on to the next line.
-		Raises IOError if there is a problem reading from the stream.
+		Raises OSError if there is a problem reading from the stream.
 		'''
 		stream = self.__stream
 		lineFilter = self.__filter
@@ -125,7 +126,7 @@ class Hunk(object):
 			raise scanner.parseError('invalid delta line')
 		oldLine, oldLen, newLine, newLen = ( int(n) for n in delta.groups() )
 		deltaLineNo = scanner.getLineNumber()
-		scanner.next()
+		scanner.nextLine()
 		def lineCountMismatch(oldOrNew, declared, actual):
 			return scanner.parseError(
 				'hunk %s size mismatch: %d declared, %d actual' % (
@@ -153,12 +154,12 @@ class Hunk(object):
 				if changeClass is None:
 					break
 				content = line[1 : ]
-				scanner.next()
+				scanner.nextLine()
 				if not scanner.end() and scanner.peek().startswith('\\'):
 					# No newline at end of file.
 					assert content[-1] == '\n'
 					content = content[ : -1]
-					scanner.next()
+					scanner.nextLine()
 				change = changeClass(content)
 				yield change
 				oldCount += change.oldInc
@@ -197,8 +198,7 @@ class Diff(object):
 		Each element returned is a Diff object containing the differences to
 		a single file.
 		'''
-		inp = open(path, 'r')
-		try:
+		with open(path, 'r', encoding='utf-8') as inp:
 			scanner = LineScanner(inp, lambda line: not line.startswith('#'))
 			error = scanner.parseError
 			def parseHunks():
@@ -209,11 +209,11 @@ class Diff(object):
 						break
 			while not scanner.end():
 				if scanner.peek().startswith('diff '):
-					scanner.next()
+					scanner.nextLine()
 				diffLineNo = scanner.getLineNumber()
 				if not scanner.peek().startswith('--- '):
 					raise error('"---" expected (not a unified diff?)')
-				scanner.next()
+				scanner.nextLine()
 				newFileLine = scanner.peek()
 				if not newFileLine.startswith('+++ '):
 					raise error('"+++" expected (not a unified diff?)')
@@ -222,13 +222,11 @@ class Diff(object):
 				while index < length and not newFileLine[index].isspace():
 					index += 1
 				filePath = newFileLine[4 : index]
-				scanner.next()
+				scanner.nextLine()
 				try:
 					yield cls(filePath, parseHunks())
-				except ValueError, ex:
+				except ValueError as ex:
 					raise error('inconsistent hunks: %s' % ex, diffLineNo)
-		finally:
-			inp.close()
 
 	def __init__(self, path, hunks):
 		self.__path = path
@@ -276,11 +274,8 @@ def patch(diff, targetDir):
 	# Read entire file into memory.
 	# The largest file we expect to patch is the "configure" script, which is
 	# typically about 1MB.
-	inp = open(absFilePath, 'r')
-	try:
+	with open(absFilePath, 'r', encoding='utf-8') as inp:
 		lines = inp.readlines()
-	finally:
-		inp.close()
 
 	for hunk in diff.iterHunks():
 		# We will be modifying "lines" at index "newLine", while "oldLine" is
@@ -300,47 +295,42 @@ def patch(diff, targetDir):
 			oldLine += change.oldInc
 			newLine += change.newInc
 
-	out = open(absFilePath, 'w')
-	try:
+	with open(absFilePath, 'w', encoding='utf-8') as out:
 		out.writelines(lines)
-	finally:
-		out.close()
 
 def main(diffPath, targetDir):
 	try:
 		differences = list(Diff.load(diffPath))
-	except IOError, ex:
-		print >> sys.stderr, 'Error reading diff:', ex
+	except OSError as ex:
+		print('Error reading diff:', ex, file=sys.stderr)
 		sys.exit(1)
-	except ParseError, ex:
-		print >> sys.stderr, ex
+	except ParseError as ex:
+		print(ex, file=sys.stderr)
 		sys.exit(1)
 
 	if not isdir(targetDir):
-		print >> sys.stderr, \
-			'Destination directory "%s" does not exist' % targetDir
+		print('Destination directory "%s" does not exist' % targetDir, file=sys.stderr)
 		sys.exit(1)
 	for diff in differences:
 		targetPath = joinpath(targetDir, diff.getPath())
 		try:
 			patch(diff, targetDir)
-		except IOError, ex:
-			print >> sys.stderr, 'I/O error patching "%s": %s' % (
+		except OSError as ex:
+			print('I/O error patching "%s": %s' % (
 				targetPath, ex
-				)
+				), file=sys.stderr)
 			sys.exit(1)
-		except ValueError, ex:
-			print >> sys.stderr, 'Patch could not be applied to "%s": %s' % (
+		except ValueError as ex:
+			print('Patch could not be applied to "%s": %s' % (
 				targetPath, ex
-				)
+				), file=sys.stderr)
 			sys.exit(1)
 		else:
-			print 'Patched:', targetPath
+			print('Patched:', targetPath)
 
 if __name__ == '__main__':
 	if len(sys.argv) == 3:
 		main(*sys.argv[1 : ])
 	else:
-		print >> sys.stderr, \
-			'Usage: python patch.py diff target'
+		print('Usage: python3 patch.py diff target', file=sys.stderr)
 		sys.exit(2)

@@ -9,17 +9,6 @@ using std::vector;
 
 namespace openmsx {
 
-#ifndef _MSC_VER
-// Workaround vc++ bug???
-//  I'm reasonably sure the following line is required. If it's left out I get
-//  a link error when compiling with gcc (though only in a debug build). This
-//  page also says it's required:
-//    http://www.parashift.com/c++-faq-lite/ctors.html#faq-10.13
-//  Though with this line Vampier got a link error in vc++, removing the line
-//  fixed the problem.
-const unsigned RawTrack::STANDARD_SIZE;
-#endif
-
 RawTrack::RawTrack(unsigned size)
 {
 	clear(size);
@@ -291,15 +280,15 @@ INSTANTIATE_SERIALIZE_METHODS(RawTrack);
 template<typename Archive>
 void RawTrack::Sector::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("addrIdx", addrIdx);
-	ar.serialize("dataIdx", dataIdx);
-	ar.serialize("track", track);
-	ar.serialize("head", head);
-	ar.serialize("sector", sector);
-	ar.serialize("sizeCode", sizeCode);
-	ar.serialize("deleted", deleted);
-	ar.serialize("addrCrcErr", addrCrcErr);
-	ar.serialize("dataCrcErr", dataCrcErr);
+	ar.serialize("addrIdx",    addrIdx,
+	             "dataIdx",    dataIdx,
+	             "track",      track,
+	             "head",       head,
+	             "sector",     sector,
+	             "sizeCode",   sizeCode,
+	             "deleted",    deleted,
+	             "addrCrcErr", addrCrcErr,
+	             "dataCrcErr", dataCrcErr);
 }
 INSTANTIATE_SERIALIZE_METHODS(RawTrack::Sector);
 

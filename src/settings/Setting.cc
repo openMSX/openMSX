@@ -10,19 +10,20 @@
 #include "checked_cast.hh"
 
 using std::string;
+using std::string_view;
 
 namespace openmsx {
 
 // class BaseSetting
 
-BaseSetting::BaseSetting(string_view name_)
-	: fullName(name_)
+BaseSetting::BaseSetting(string_view name)
+	: fullName(name)
 	, baseName(fullName)
 {
 }
 
-BaseSetting::BaseSetting(const TclObject& name_)
-	: fullName(name_)
+BaseSetting::BaseSetting(const TclObject& name)
+	: fullName(name)
 	, baseName(fullName)
 {
 }
@@ -37,11 +38,11 @@ void BaseSetting::info(TclObject& result) const
 // class Setting
 
 Setting::Setting(CommandController& commandController_,
-                 string_view name_, string_view description_,
+                 string_view name, string_view description_,
                  const TclObject& initialValue, SaveSetting save_)
-	: BaseSetting(name_)
+	: BaseSetting(name)
 	, commandController(commandController_)
-	, description(description_.str())
+	, description(description_)
 	, value(initialValue)
 	, defaultValue(initialValue)
 	, restoreValue(initialValue)
@@ -121,7 +122,7 @@ void Setting::notify() const
 		// check for non-saveable value
 		// (mechanism can be generalize later when needed)
 		if (val == dontSaveValue) val = getRestoreValue();
-		elem.setData(val.getString());
+		elem.setData(string(val.getString()));
 	}
 }
 

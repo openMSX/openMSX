@@ -13,7 +13,7 @@ NinjaTap::NinjaTap(PluggingController& pluggingController_, std::string name_)
 	ranges::fill(buf, 0xFF);
 }
 
-string_view NinjaTap::getDescription() const
+std::string_view NinjaTap::getDescription() const
 {
 	return "MSX Ninja Tap device";
 }
@@ -73,9 +73,9 @@ template<typename Archive>
 void NinjaTap::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<JoyTap>(*this);
-	ar.serialize("status", status);
-	ar.serialize("previous", previous);
-	ar.serialize("buf", buf);
+	ar.serialize("status",   status,
+	             "previous", previous,
+	             "buf",      buf);
 }
 INSTANTIATE_SERIALIZE_METHODS(NinjaTap);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, NinjaTap, "NinjaTap");

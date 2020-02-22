@@ -1,17 +1,18 @@
 #include "catch.hpp"
 #include "join.hh"
 
-#include "string_view.hh"
 #include "strCat.hh"
 #include "view.hh"
+#include <string_view>
 
-using namespace std;
+using std::string;
+using std::vector;
 
 
 TEST_CASE("join: vector<string_view>, char")
 {
-	auto check = [](const vector<string_view>& v, const string& expected) {
-		std::string result = join(v, '-');
+	auto check = [](const vector<std::string_view>& v, const string& expected) {
+		string result = join(v, '-');
 		CHECK(result == expected);
 	};
 
@@ -39,12 +40,12 @@ TEST_CASE("join: various types")
 	int sep4 = 123;
 
 	auto check = [](const auto& range, const auto& sep, const string& expected) {
-		std::string result1 = join(range, sep);
+		string result1 = join(range, sep);
 		CHECK(result1 == expected);
 
-		ostringstream ss;
+		std::ostringstream ss;
 		ss << join(range, sep);
-		std::string result2 = ss.str();
+		string result2 = ss.str();
 		CHECK(result2 == expected);
 	};
 

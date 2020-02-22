@@ -74,7 +74,7 @@
         </ROM>
       </secondary>
       <secondary slot="1">
-        <ROM id="Al-Alamiah BASIC 2.03 ROM">
+        <ROM id="Al Alamiah BASIC 2.03 ROM">
           <rom>
             <filename>ax370_rom01.rom</filename>
             <sha1>0c08e799a7cf130ae2b9bc93f28bd4959cee6fdc</sha1>

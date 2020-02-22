@@ -374,7 +374,7 @@ private:
 	  */
 	int sizeMask;
 
-	static DummyVRAMOBserver dummyObserver;
+	static inline DummyVRAMOBserver dummyObserver;
 };
 
 /** Manages VRAM contents and synchronises the various users of the VRAM.

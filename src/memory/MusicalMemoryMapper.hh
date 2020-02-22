@@ -1,7 +1,7 @@
 #ifndef MUSICALMEMORYMAPPER_HH
 #define MUSICALMEMORYMAPPER_HH
 
-#include "MSXMemoryMapper.hh"
+#include "MSXMemoryMapperBase.hh"
 #include <memory>
 
 namespace openmsx {
@@ -12,7 +12,7 @@ class SN76489;
   *
   * http://map.grauw.nl/resources/sound/musical-memory-mapper.pdf
   */
-class MusicalMemoryMapper final : public MSXMemoryMapper
+class MusicalMemoryMapper final : public MSXMemoryMapperBase
 {
 public:
 	MusicalMemoryMapper(const DeviceConfig& config);

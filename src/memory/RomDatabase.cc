@@ -18,6 +18,7 @@
 #include <stdexcept>
 
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace openmsx {
@@ -121,7 +122,7 @@ void DBParser::start(string_view tag)
 		throw MSXException("Expected <softwaredb> as root tag.");
 	case SOFTWAREDB:
 		if (small_compare<'s','o','f','t','w','a','r','e'>(tag)) {
-			system.clear();
+			system = string_view();
 			toString32(bufStart, bufStart, title);
 			toString32(bufStart, bufStart, company);
 			toString32(bufStart, bufStart, year);
@@ -141,7 +142,7 @@ void DBParser::start(string_view tag)
 			}
 			break;
 		case 't':
-			tag.pop_front();
+			tag.remove_prefix(1);
 			if (small_compare<'i','t','l','e'>(tag)) {
 				state = TITLE;
 				return;
@@ -193,17 +194,17 @@ void DBParser::start(string_view tag)
 			break;
 		case 'm':
 			if (small_compare<'m','e','g','a','r','o','m'>(tag)) {
-				type.clear();
-				startVal.clear();
+				type = string_view();
+				startVal = string_view();
 				state = ROM;
 				return;
 			}
 			break;
 		case 'r':
-			tag.pop_front();
+			tag.remove_prefix(1);
 			if (small_compare<'o','m'>(tag)) {
 				type = "Mirrored";
-				startVal.clear();
+				startVal = string_view();
 				state = ROM;
 				return;
 			}
@@ -220,7 +221,7 @@ void DBParser::start(string_view tag)
 			}
 			break;
 		case 's':
-			tag.pop_front();
+			tag.remove_prefix(1);
 			if (small_compare<'t','a','r','t'>(tag)) {
 				state = START;
 				return;
@@ -325,7 +326,7 @@ void DBParser::text(string_view txt)
 		break;
 	case GENMSXID:
 		try {
-			genMSXid = fast_stou(txt);
+			genMSXid = StringOp::fast_stou(txt);
 		} catch (std::invalid_argument&) {
 			cliComm.printWarning(
 				"Ignoring bad Generation MSX id (genmsxid) "
@@ -375,10 +376,9 @@ String32 DBParser::cIndex(string_view str)
 void DBParser::addEntries()
 {
 	append(db, view::transform(dumps, [&](auto& d) {
-		return std::make_pair(
-			d.hash,
-			RomInfo(title, year, company, country, d.origValue,
-			        d.origData, d.remark, d.type, genMSXid));
+		return std::pair(d.hash,
+		                 RomInfo(title, year, company, country, d.origValue,
+		                         d.origData, d.remark, d.type, genMSXid));
 	}));
 }
 
@@ -457,7 +457,7 @@ void DBParser::addAllEntries()
 static const char* parseStart(string_view s)
 {
 	// we expect "0x0000", "0x4000", "0x8000", "0xc000" or ""
-	return ((s.size() == 6) && s.starts_with("0x")) ? (s.data() + 2) : nullptr;
+	return ((s.size() == 6) && StringOp::startsWith(s, "0x")) ? (s.data() + 2) : nullptr;
 }
 
 void DBParser::stop()
@@ -512,7 +512,7 @@ void DBParser::stop()
 		}
 		RomType romType = RomInfo::nameToRomType(t);
 		if (romType == ROM_UNKNOWN) {
-			unknownTypes[t.str()]++;
+			unknownTypes[string(t)]++;
 		}
 		dumps.back().type = romType;
 		state = DUMP;
@@ -570,8 +570,8 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 	size_t bufferSize = 0;
 	for (auto& p : paths) {
 		try {
-			files.emplace_back(FileOperations::join(p, "softwaredb.xml"));
-			bufferSize += files.back().getSize() + rapidsax::EXTRA_BUFFER_SPACE;
+			auto& f = files.emplace_back(FileOperations::join(p, "softwaredb.xml"));
+			bufferSize += f.getSize() + rapidsax::EXTRA_BUFFER_SPACE;
 		} catch (MSXException& /*e*/) {
 			// Ignore. It's not unusual the DB in the user
 			// directory is not found. In case there's an error
@@ -605,8 +605,8 @@ RomDatabase::RomDatabase(CliComm& cliComm)
 	}
 	if (!unknownTypes.empty()) {
 		string output = "Unknown mapper types in software database: ";
-		for (auto& p : unknownTypes) {
-			strAppend(output, p.first, " (", p.second, "x); ");
+		for (const auto& [type, count] : unknownTypes) {
+			strAppend(output, type, " (", count, "x); ");
 		}
 		cliComm.printWarning(output);
 	}

@@ -20,7 +20,7 @@ using std::ios;
 
 namespace openmsx {
 
-static const unsigned SECTOR_SIZE = sizeof(SectorBuffer);
+constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 
 static void DBERR(const char* message, ...)
 {
@@ -373,7 +373,7 @@ void NowindHost::doDiskRead1()
 		return;
 	}
 
-	static const unsigned NUMBEROFBLOCKS = 32; // 32 * 64 bytes = 2048 bytes
+	constexpr unsigned NUMBEROFBLOCKS = 32; // 32 * 64 bytes = 2048 bytes
 	transferSize = std::min(bytesLeft, NUMBEROFBLOCKS * 64); // hardcoded in firmware
 
 	unsigned address = getCurrentAddress();
@@ -451,7 +451,7 @@ void NowindHost::transferSectors(unsigned transferAddress, unsigned amount)
 	send(0x07); // used for validation
 }
 
- // sends "02" + "transfer_addr" + "amount" + "data" + "0F 07"
+// sends "02" + "transfer_addr" + "amount" + "data" + "0F 07"
 void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amount)
 {
 	sendHeader();
@@ -502,7 +502,7 @@ void NowindHost::doDiskWrite1()
 		return;
 	}
 
-	static const unsigned BLOCKSIZE = 240;
+	constexpr unsigned BLOCKSIZE = 240;
 	transferSize = std::min(bytesLeft, BLOCKSIZE);
 
 	unsigned address = getCurrentAddress();
@@ -735,7 +735,7 @@ void NowindHost::readHelper2(unsigned len, const char* buf)
 
 // strips a string from outer double-quotes and anything outside them
 // ie: 'pre("foo")bar' will result in 'foo'
-static string_view stripquotes(string_view str)
+static std::string_view stripquotes(std::string_view str)
 {
 	auto first = str.find_first_of('\"');
 	if (first == string::npos) {
@@ -780,12 +780,12 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 {
 	// drives is serialized elsewhere
 
-	ar.serialize("hostToMsxFifo", hostToMsxFifo);
-	ar.serialize("lastTime", lastTime);
-	ar.serialize("state", state);
-	ar.serialize("recvCount", recvCount);
-	ar.serialize("cmdData", cmdData);
-	ar.serialize("extraData", extraData);
+	ar.serialize("hostToMsxFifo", hostToMsxFifo,
+	             "lastTime",      lastTime,
+	             "state",         state,
+	             "recvCount",     recvCount,
+	             "cmdData",       cmdData,
+	             "extraData",     extraData);
 
 	// for backwards compatibility, serialize buffer as a vector<byte>
 	size_t bufSize = buffer.size() * sizeof(SectorBuffer);
@@ -794,12 +794,12 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("buffer", tmp);
 	memcpy(bufRaw, tmp.data(), bufSize);
 
-	ar.serialize("transfered", transfered);
-	ar.serialize("retryCount", retryCount);
-	ar.serialize("transferSize", transferSize);
-	ar.serialize("romdisk", romdisk);
-	ar.serialize("allowOtherDiskroms", allowOtherDiskroms);
-	ar.serialize("enablePhantomDrives", enablePhantomDrives);
+	ar.serialize("transfered",          transfered,
+	             "retryCount",          retryCount,
+	             "transferSize",        transferSize,
+	             "romdisk",             romdisk,
+	             "allowOtherDiskroms",  allowOtherDiskroms,
+	             "enablePhantomDrives", enablePhantomDrives);
 
 	// Note: We don't serialize 'devices'. So after a loadstate it will be
 	// as-if the devices are closed again. The reason for not serializing

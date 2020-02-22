@@ -7,8 +7,9 @@
 #include "xxhash.hh"
 #include <cassert>
 
-using std::vector;
 using std::string;
+using std::string_view;
+using std::vector;
 
 namespace openmsx {
 
@@ -103,7 +104,9 @@ static void init()
 	init(ROM_HAMARAJANIGHT,  "HamarajaNight",  0x2000, "Best of Hamaraja Night");
 	init(ROM_MEGAFLASHROMSCC,"MegaFlashRomScc",0x2000, "Mega Flash ROM SCC");
 	init(ROM_MATRAINK,       "MatraInk",       0x0000, "Matra Ink");
+	init(ROM_MATRACOMPILATION,"MatraCompilation",0x2000, "Matra Compilation");
 	init(ROM_ARC,            "Arc",            0x4000, "Parallax' ARC"); // officially plain 32K
+	init(ROM_ROMHUNTERMK2,   "ROMHunterMk2",   0x0000, "ROM Hunter Mk2");
 	init(ROM_DOOLY,          "Dooly",          0x4000, "Baby Dinosaur Dooly"); // officially 32K blocksize, but spread over 2 pages
 	init(ROM_MSXTRA,         "MSXtra",         0x0000, "PTC MSXtra");
 	init(ROM_MSXWRITE,       "MSXWrite",       0x4000, "Japanese MSX Write");
@@ -111,6 +114,8 @@ static void init()
 	init(ROM_RAMFILE,        "RAMFILE",        0x0000, "Tecall MSX RAMFILE");
 	init(ROM_COLECOMEGACART, "ColecoMegaCart", 0x4000, "ColecoVision MegaCart");
 	init(ROM_MEGAFLASHROMSCCPLUS,"MegaFlashRomSccPlus",0x0000, "Mega Flash ROM SCC Plus");
+	init(ROM_REPRO_CARTRIDGE1,"ReproCartridgeV1",0x0000, "Repro Cartridge V1");
+	init(ROM_REPRO_CARTRIDGE2,"ReproCartridgeV2",0x0000, "Repro Cartridge V2");
 	init(ROM_KONAMI_ULTIMATE_COLLECTION,"KonamiUltimateCollection",0x0000, "Konami Ultimate Collection");
 
 	// ROM mapper types used for system ROMs in machines
@@ -190,9 +195,9 @@ RomType RomInfo::nameToRomType(string_view name)
 string_view RomInfo::romTypeToName(RomType type)
 {
 	assert(!isAlias(type));
-	for (auto& p : getRomTypeMap()) {
-		if (p.second == type) {
-			return p.first;
+	for (const auto& [name, romType] : getRomTypeMap()) {
+		if (romType == type) {
+			return name;
 		}
 	}
 	UNREACHABLE; return {};
@@ -201,9 +206,9 @@ string_view RomInfo::romTypeToName(RomType type)
 vector<string_view> RomInfo::getAllRomTypes()
 {
 	vector<string_view> result;
-	for (auto& p : getRomTypeMap()) {
-		if (!isAlias(p.second)) {
-			result.push_back(p.first);
+	for (const auto& [name, romType] : getRomTypeMap()) {
+		if (!isAlias(romType)) {
+			result.push_back(name);
 		}
 	}
 	return result;

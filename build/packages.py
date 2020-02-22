@@ -1,4 +1,4 @@
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 class Package(object):
 	'''Abstract base class for packages.
@@ -128,11 +128,11 @@ class SDL2(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/release'
 	niceName = 'SDL2'
 	sourceName = 'SDL2'
-	version = '2.0.9'
-	fileLength = 5246942
+	version = '2.0.10'
+	fileLength = 5550762
 	checksums = {
 		'sha256':
-			'255186dc676ecd0c1dbf10ec8a2cc5d6869b5079d8a38194c2aecdff54b324b1',
+			'b4656c13a1f0d0023ae2f4a9cf08ec92fffb464e0f24238337784159b8b91d57',
 		}
 
 class SDL2_ttf(DownloadablePackage):
@@ -207,17 +207,19 @@ class ZLib(DownloadablePackage):
 		}
 
 # Build a dictionary of packages using introspection.
-def _discoverPackages(localObjects):
-	for obj in localObjects:
-		if isinstance(obj, type) and issubclass(obj, Package):
-			if not (obj is Package or obj is DownloadablePackage):
-				yield obj.getMakeName(), obj
-_packagesByName = dict(_discoverPackages(locals().itervalues()))
+_packagesByName = {
+	obj.getMakeName(): obj
+	for obj in locals().values()
+	if isinstance(obj, type)
+		and issubclass(obj, Package)
+		and obj is not Package
+		and obj is not DownloadablePackage
+	}
 
 def getPackage(makeName):
 	return _packagesByName[makeName]
 
 def iterDownloadablePackages():
-	for package in _packagesByName.itervalues():
+	for package in _packagesByName.values():
 		if issubclass(package, DownloadablePackage):
 			yield package

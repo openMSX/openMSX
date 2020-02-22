@@ -2,7 +2,7 @@
 #define PLUGGABLE_HH
 
 #include "EmuTime.hh"
-#include "string_view.hh"
+#include <string_view>
 
 namespace openmsx {
 
@@ -20,11 +20,11 @@ public:
 	/** A pluggable belongs to a certain class. A pluggable only fits in
 	  * connectors of the same class.
 	  */
-	virtual string_view getClass() const = 0;
+	virtual std::string_view getClass() const = 0;
 
 	/** Description for this pluggable.
 	  */
-	virtual string_view getDescription() const = 0;
+	virtual std::string_view getDescription() const = 0;
 
 	/** This method is called when this pluggable is inserted in a
 	  * connector.

@@ -9,11 +9,6 @@
 #include <vector>
 #include <cstdio>
 
-#ifndef glGetShaderiv
-#error The version of GLEW you have installed is missing some OpenGL 2.0 entry points. \
-       Please upgrade to GLEW 1.3.2 or higher.
-#endif
-
 using std::string;
 using namespace openmsx;
 
@@ -95,19 +90,16 @@ void ColorTexture::resize(GLsizei width_, GLsizei height_)
 
 // class FrameBufferObject
 
-static GLuint currentId = 0;
-static std::vector<GLuint> stack;
-
 FrameBufferObject::FrameBufferObject(Texture& texture)
 {
-	glGenFramebuffersEXT(1, &bufferId);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferId);
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-	                          GL_COLOR_ATTACHMENT0_EXT,
-	                          GL_TEXTURE_2D, texture.textureId, 0);
-	bool success = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) ==
-	               GL_FRAMEBUFFER_COMPLETE_EXT;
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+	glGenFramebuffers(1, &bufferId);
+	push();
+	glFramebufferTexture2D(GL_FRAMEBUFFER,
+	                       GL_COLOR_ATTACHMENT0,
+	                       GL_TEXTURE_2D, texture.textureId, 0);
+	bool success = glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
+	               GL_FRAMEBUFFER_COMPLETE;
+	pop();
 	if (!success) {
 		throw InitException(
 			"Your OpenGL implementation support for "
@@ -117,34 +109,20 @@ FrameBufferObject::FrameBufferObject(Texture& texture)
 
 FrameBufferObject::~FrameBufferObject()
 {
-	// It's ok to delete '0' (it's a NOP), but we anyway have to check
-	// for pop().
-	if (!bufferId) return;
-
-	if (currentId == bufferId) {
-		pop();
-	}
-	glDeleteFramebuffersEXT(1, &bufferId);
+	pop();
+	glDeleteFramebuffers(1, &bufferId);
 }
 
 void FrameBufferObject::push()
 {
-	stack.push_back(currentId);
-	currentId = bufferId;
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousId);
+	glBindFramebuffer(GL_FRAMEBUFFER, bufferId);
 }
 
 void FrameBufferObject::pop()
 {
-	assert(currentId == bufferId);
-	assert(!stack.empty());
-	currentId = stack.back();
-	stack.pop_back();
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+	glBindFramebuffer(GL_FRAMEBUFFER, GLuint(previousId));
 }
-
-
-bool PixelBuffers::enabled = true;
 
 
 // class Shader
@@ -162,7 +140,7 @@ Shader::Shader(GLenum type, const string& header, const string& filename)
 void Shader::init(GLenum type, const string& header, const string& filename)
 {
 	// Load shader source.
-	string source = "#version 110\n" + header;
+	string source = "#version 330\n" + header;
 	try {
 		File file(systemFileContext().resolve("shaders/" + filename));
 		auto mmap = file.mmap();
@@ -341,6 +319,20 @@ BufferObject::BufferObject()
 BufferObject::~BufferObject()
 {
 	glDeleteBuffers(1, &bufferId); // ok to delete 0-buffer
+}
+
+
+// class VertexArray
+
+VertexArray::VertexArray()
+{
+	glGenVertexArrays(1, &bufferId);
+}
+
+VertexArray::~VertexArray()
+{
+	unbind();
+	glDeleteVertexArrays(1, &bufferId); // ok to delete 0-buffer
 }
 
 } // namespace gl

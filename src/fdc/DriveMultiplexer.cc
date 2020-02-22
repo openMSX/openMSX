@@ -46,6 +46,11 @@ void DriveMultiplexer::setSide(bool side_)
 	drive[selected]->setSide(side);
 }
 
+bool DriveMultiplexer::getSide() const
+{
+	return side;
+}
+
 void DriveMultiplexer::step(bool direction, EmuTime::param time)
 {
 	drive[selected]->step(direction, time);
@@ -60,6 +65,11 @@ void DriveMultiplexer::setMotor(bool status, EmuTime::param time)
 {
 	motor = status;
 	drive[selected]->setMotor(status, time);
+}
+
+bool DriveMultiplexer::getMotor() const
+{
+	return motor;
 }
 
 bool DriveMultiplexer::indexPulse(EmuTime::param time)
@@ -135,9 +145,9 @@ SERIALIZE_ENUM(DriveMultiplexer::DriveNum, driveNumInfo);
 template<typename Archive>
 void DriveMultiplexer::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("selected", selected);
-	ar.serialize("motor", motor);
-	ar.serialize("side", side);
+	ar.serialize("selected", selected,
+	             "motor",    motor,
+	             "side",     side);
 }
 INSTANTIATE_SERIALIZE_METHODS(DriveMultiplexer);
 

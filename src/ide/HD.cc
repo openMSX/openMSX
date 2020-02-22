@@ -139,7 +139,7 @@ void HD::showProgress(size_t position, size_t maxPosition)
 		motherBoard.getMSXCliComm().printProgress(
 			"Calculating hash for ", filename.getResolved(),
 			"... ", percentage, '%');
-		motherBoard.getReactor().getDisplay().repaint();
+		motherBoard.getReactor().getDisplay().repaintDelayed(0);
 		everDidProgress = true;
 	}
 }
@@ -196,10 +196,10 @@ bool HD::diskChanged()
 	return false; // TODO not implemented
 }
 
-int HD::insertDisk(string_view newFilename)
+int HD::insertDisk(std::string_view newFilename)
 {
 	try {
-		switchImage(Filename(newFilename.str()));
+		switchImage(Filename(string(newFilename)));
 		return 0;
 	} catch (MSXException&) {
 		return -1;

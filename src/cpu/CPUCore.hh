@@ -39,6 +39,12 @@ struct II { // InstructionInfo
 	int cycles;
 };
 
+enum class ExecIRQ {
+	NMI,  // about to execute NMI routine
+	IRQ,  // about to execute normal IRQ routine
+	NONE, // about to execute regular instruction
+};
+
 template<class CPU_POLICY>
 class CPUCore final : public CPUBase, public CPURegs, public CPU_POLICY
 {
@@ -73,12 +79,14 @@ public:
 	void wait(EmuTime::param time);
 	EmuTime waitCycles(EmuTime::param time, unsigned cycles);
 	void setNextSyncPoint(EmuTime::param time);
-	void invalidateMemCache(unsigned start, unsigned size);
+	auto getCacheLines() {
+		return std::pair(readCacheLine, writeCacheLine);
+	}
 	bool isM1Cycle(unsigned address) const;
 
 	void disasmCommand(Interpreter& interp,
 	                   span<const TclObject> tokens,
-                           TclObject& result) const;
+	                   TclObject& result) const;
 
 	/**
 	 * Raises the maskable interrupt count.
@@ -124,8 +132,6 @@ private:
 	// memory cache
 	const byte* readCacheLine[CacheLine::NUM];
 	byte* writeCacheLine[CacheLine::NUM];
-	bool readCacheTried [CacheLine::NUM];
-	bool writeCacheTried[CacheLine::NUM];
 
 	MSXMotherBoard& motherboard;
 	Scheduler& scheduler;
@@ -212,7 +218,8 @@ private:
 	inline void irq0();
 	inline void irq1();
 	inline void irq2();
-	void executeSlow();
+	ExecIRQ getExecIRQ() const;
+	void executeSlow(ExecIRQ execIRQ);
 
 	template<Reg8>  inline byte     get8()  const;
 	template<Reg16> inline unsigned get16() const;

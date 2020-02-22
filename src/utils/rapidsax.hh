@@ -14,9 +14,9 @@
 // RapidXml produces a DOM-like output. This parser has a SAX-like interface.
 
 #include "small_compare.hh"
-#include "string_view.hh"
 #include <cassert>
 #include <cstdint>
+#include <string_view>
 
 namespace rapidsax {
 
@@ -37,18 +37,18 @@ template<int FLAGS, typename HANDLER> void parse(HANDLER& handler, char* xml);
 // than the filesize. The first of these bytes must be filled with zero
 // (zero-terminate the xml data). The other bytes are only there to allow to
 // read up-to 8 bytes past the end without triggering memory protection errors.
-static const size_t EXTRA_BUFFER_SPACE = 8;
+constexpr size_t EXTRA_BUFFER_SPACE = 8;
 
 
 // Flags that influence parsing behavior. The flags can be OR'ed together.
 
 // Should XML entities like &lt; be expanded or not?
-static const int noEntityTranslation = 0x1;
+constexpr int noEntityTranslation = 0x1;
 // Should leading and trailing whitespace be trimmed?
-static const int trimWhitespace      = 0x2;
+constexpr int trimWhitespace      = 0x2;
 // Should sequences of whitespace characters be replaced with a single
 // space character?
-static const int normalizeWhitespace = 0x4;
+constexpr int normalizeWhitespace = 0x4;
 
 
 // Callback handler with all empty implementations (can be used as a base
@@ -58,7 +58,7 @@ class NullHandler
 public:
 	// Called when an opening XML tag is encountered.
 	// 'name' is the name of the XML tag.
-	void start(string_view /*name*/) {}
+	void start(std::string_view /*name*/) {}
 
 	// Called when a XML tag is closed.
 	// Note: the parser does currently not check whether the name of the
@@ -72,29 +72,29 @@ public:
 	// (Unlike other SAX parsers) the whole text string is always
 	// passed in a single chunk (so no need to concatenate this text
 	// with previous chunks in the callback).
-	void text(string_view /*text*/) {}
+	void text(std::string_view /*text*/) {}
 
 	// Called for each parsed attribute.
 	// Attributes can occur inside xml tags or inside XML declarations.
-	void attribute(string_view /*name*/, string_view /*value*/) {}
+	void attribute(std::string_view /*name*/, std::string_view /*value*/) {}
 
 	// Called for parsed CDATA sections.
-	void cdata(string_view /*value*/) {}
+	void cdata(std::string_view /*value*/) {}
 
 	// Called when a XML comment (<!-- ... -->) is parsed.
-	void comment(string_view /*value*/) {}
+	void comment(std::string_view /*value*/) {}
 
 	// Called when XML declaration (<?xml .. ?>) is parsed.
 	// Inside a XML declaration there can be attributes.
 	void declarationStart() {}
-	void declAttribute(string_view /*name*/, string_view /*value*/) {}
+	void declAttribute(std::string_view /*name*/, std::string_view /*value*/) {}
 	void declarationStop() {}
 
 	// Called when the <!DOCTYPE ..> is parsed.
-	void doctype(string_view /*text*/) {}
+	void doctype(std::string_view /*text*/) {}
 
 	// Called when XML processing instructions (<? .. ?>) are parsed.
-	void procInstr(string_view /*target*/, string_view /*instr*/) {}
+	void procInstr(std::string_view /*target*/, std::string_view /*instr*/) {}
 };
 
 
@@ -107,8 +107,8 @@ public:
 	{
 	}
 
-	const char* what() const { return m_what; }
-	char* where() const { return m_where; }
+	[[nodiscard]] const char* what() const { return m_what; }
+	[[nodiscard]] char* where() const { return m_where; }
 
 private:
 	const char* m_what;
@@ -123,54 +123,54 @@ extern const uint8_t lutDigits[256]; // Digits
 
 // Detect whitespace character (space \n \r \t)
 struct WhitespacePred {
-	static bool test(char ch) { return (lutChar[uint8_t(ch)] & 0x02) != 0; }
+	[[nodiscard]] static bool test(char ch) { return (lutChar[uint8_t(ch)] & 0x02) != 0; }
 };
 
 // Detect node name character (anything but space \n \r \t / > ? \0)
 struct NodeNamePred {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x43); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x43); }
 };
 
 // Detect attribute name character (anything but space \n \r \t / < > = ? ! \0)
 struct AttributeNamePred {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0xC7); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0xC7); }
 };
 
 // Detect text character (PCDATA) (anything but < \0)
 struct TextPred {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x05); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x05); }
 };
 
 // Detect text character (PCDATA) that does not require processing when ws
 // normalization is disabled (anything but < \0 &)
 struct TextPureNoWsPred {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0D); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0D); }
 };
 
 // Detect text character (PCDATA) that does not require processing when ws
 // normalizationis is enabled (anything but < \0 & space \n \r \t)
 struct TextPureWithWsPred {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0F); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x0F); }
 };
 
 // Detect attribute value character, single quote (anything but ' \0)
 struct AttPred1 {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x11); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x11); }
 };
 // Detect attribute value character, double quote (anything but " \0)
 struct AttPred2 {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x21); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x21); }
 };
 
 // Detect attribute value character, single quote, that does not require
 // processing (anything but ' \0 &)
 struct AttPurePred1 {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x19); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x19); }
 };
 // Detect attribute value character, double quote, that does not require
 // processing (anything but " \0 &)
 struct AttPurePred2 {
-	static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x29); }
+	[[nodiscard]] static bool test(char ch) { return !(lutChar[uint8_t(ch)] & 0x29); }
 };
 
 // Insert coded character, using UTF8
@@ -199,20 +199,20 @@ static inline void insertUTF8char(char*& text, uint32_t code)
 	}
 }
 
-template<char C0, char C1> static inline bool next(const char* p)
+template<char C0, char C1> [[nodiscard]] static inline bool next(const char* p)
 {
 	return small_compare<C0, C1>(p);
 }
-template<char C0, char C1, char C2> static inline bool next(const char* p)
+template<char C0, char C1, char C2> [[nodiscard]] static inline bool next(const char* p)
 {
 	return small_compare<C0, C1, C2>(p);
 }
-template<char C0, char C1, char C2, char C3> static inline bool next(const char* p)
+template<char C0, char C1, char C2, char C3> [[nodiscard]] static inline bool next(const char* p)
 {
 	return small_compare<C0, C1, C2, C3>(p);
 }
 template<char C0, char C1, char C2, char C3, char C4, char C5>
-static inline bool next(const char* p)
+[[nodiscard]] static inline bool next(const char* p)
 {
 	return small_compare<C0, C1, C2, C3, C4, C5>(p);
 }
@@ -231,7 +231,7 @@ template<class StopPred> static inline void skip(char*& text)
 //   (&apos; &amp; &quot; &lt; &gt; &#...;)
 // - condensing whitespace sequences to single space character
 template<class StopPred, class StopPredPure, int FLAGS>
-static inline char* skipAndExpand(char*& text)
+[[nodiscard]] static inline char* skipAndExpand(char*& text)
 {
 	// If entity translation, whitespace condense and whitespace
 	// trimming is disabled, use plain skip.
@@ -405,7 +405,7 @@ private:
 			}
 			++text;
 		}
-		handler.comment(string_view(value, text));
+		handler.comment(std::string_view(value, text - value));
 		text += 3; // skip '-->'
 	}
 
@@ -442,7 +442,7 @@ private:
 			}
 		}
 
-		handler.doctype(string_view(value, text));
+		handler.doctype(std::string_view(value, text - value));
 		text += 1; // skip '>'
 	}
 
@@ -468,8 +468,8 @@ private:
 			++text;
 		}
 		// Set pi value (verbatim, no entity expansion or ws normalization)
-		handler.procInstr(string_view(name,  nameEnd),
-			          string_view(value, text));
+		handler.procInstr(std::string_view(name,  nameEnd - name),
+			          std::string_view(value, text - value));
 		text += 2; // skip '?>'
 	}
 
@@ -512,7 +512,7 @@ private:
 
 		// Handle text, but only if non-empty.
 		auto len = end - value;
-		if (len) handler.text(string_view(value, len));
+		if (len) handler.text(std::string_view(value, len));
 	}
 
 	void parseCdata(char*& text)
@@ -525,7 +525,7 @@ private:
 			}
 			++text;
 		}
-		handler.cdata(string_view(value, text));
+		handler.cdata(std::string_view(value, text - value));
 		text += 3; // skip ]]>
 	}
 
@@ -538,7 +538,7 @@ private:
 		if (name == nameEnd) {
 			throw ParseError("expected element name", text);
 		}
-		handler.start(string_view(name, nameEnd));
+		handler.start(std::string_view(name, nameEnd - name));
 
 		skip<WhitespacePred>(text); // skip ws before attributes or >
 		parseAttributes(text, false);
@@ -698,7 +698,7 @@ afterText:		// After parseText() jump here instead of continuing
 
 			// Extract attribute value and expand char refs in it
 			// No whitespace normalization in attributes
-			static const int FLAGS2 = FLAGS & ~normalizeWhitespace;
+			constexpr int FLAGS2 = FLAGS & ~normalizeWhitespace;
 			char* value = text;
 			char* valueEnd = (quote == '\'')
 				? skipAndExpand<AttPred1, AttPurePred1, FLAGS2>(text)
@@ -711,11 +711,11 @@ afterText:		// After parseText() jump here instead of continuing
 			++text; // skip quote
 
 			if (!declaration) {
-				handler.attribute(string_view(name, nameEnd),
-				                  string_view(value, valueEnd));
+				handler.attribute(std::string_view(name, nameEnd - name),
+				                  std::string_view(value, valueEnd - value));
 			} else {
-				handler.declAttribute(string_view(name, nameEnd),
-				                      string_view(value, valueEnd));
+				handler.declAttribute(std::string_view(name, nameEnd - name),
+				                      std::string_view(value, valueEnd - value));
 			}
 
 			skip<WhitespacePred>(text); // skip ws after value

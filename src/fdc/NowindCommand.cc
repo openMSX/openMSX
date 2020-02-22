@@ -14,8 +14,9 @@
 #include <cassert>
 #include <memory>
 
-using std::unique_ptr;
 using std::string;
+using std::string_view;
+using std::unique_ptr;
 using std::vector;
 
 namespace openmsx {
@@ -64,7 +65,7 @@ void NowindCommand::processHdimage(
 			hdimage.substr(pos + 1), 1, 31);
 	}
 
-	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdimage.str()));
+	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(string(hdimage)));
 	bool failOnError = true;
 	if (partitions.empty()) {
 		// insert all partitions
@@ -321,14 +322,14 @@ string NowindCommand::help(const vector<string>& /*tokens*/) const
 	       "                            respectively.\n"
 	       "nowinda -m hdimage.dsk      Inserts a harddisk image. All available partitions\n"
 	       "                            will be mounted as drives.\n"
-               "nowinda -m hdimage.dsk:1    Inserts the first partition only.\n"
+	       "nowinda -m hdimage.dsk:1    Inserts the first partition only.\n"
 	       "nowinda -m hdimage.dsk:2-4  Inserts the 2nd, 3th and 4th partition as drive A:\n"
 	       "                            B: and C:.\n";
 }
 
 void NowindCommand::tabCompletion(vector<string>& tokens) const
 {
-	static const char* const extra[] = {
+	static constexpr const char* const extra[] = {
 		"-c", "--ctrl",
 		"-C", "--no-ctrl",
 		"-a", "--allow",

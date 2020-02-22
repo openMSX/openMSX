@@ -23,6 +23,7 @@ private:
 	Rom rom;
 	unsigned adr1, adr2;
 	const bool isLascom;
+	const byte highAddressMask;
 };
 
 } // namespace openmsx

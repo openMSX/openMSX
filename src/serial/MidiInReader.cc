@@ -33,7 +33,7 @@ MidiInReader::~MidiInReader()
 // Pluggable
 void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
-	file = FileOperations::openFile(readFilenameSetting.getString().str(), "rb");
+	file = FileOperations::openFile(string(readFilenameSetting.getString()), "rb");
 	if (!file) {
 		throw PlugException("Failed to open input: ", strerror(errno));
 	}
@@ -61,7 +61,7 @@ const string& MidiInReader::getName() const
 	return name;
 }
 
-string_view MidiInReader::getDescription() const
+std::string_view MidiInReader::getDescription() const
 {
 	return "MIDI in file reader. Sends data from an input file to the "
 	       "MIDI port it is connected to. The filename is set with "

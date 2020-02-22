@@ -13,9 +13,11 @@
 #include "stl.hh"
 #include "cstdiop.hh" // for dup()
 #include <cstring>
+#include <iostream>
 #include <limits>
 
 using std::string;
+using std::string_view;
 
 namespace openmsx {
 
@@ -37,8 +39,8 @@ unsigned OutputArchiveBase2::generateID1(const void* p)
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	assert(!polyIdMap.count(p)); // c++20 contains()
-	polyIdMap[p] = lastId;
+	assert(!polyIdMap.contains(p));
+	polyIdMap.emplace_noDuplicateCheck(p, lastId);
 	return lastId;
 }
 unsigned OutputArchiveBase2::generateID2(
@@ -49,9 +51,9 @@ unsigned OutputArchiveBase2::generateID2(
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	auto key = std::make_pair(p, std::type_index(typeInfo));
-	assert(!idMap.count(key)); // c++20 contains()
-	idMap[key] = lastId;
+	auto key = std::pair(p, std::type_index(typeInfo));
+	assert(!idMap.contains(key));
+	idMap.emplace_noDuplicateCheck(key, lastId);
 	return lastId;
 }
 
@@ -63,7 +65,7 @@ unsigned OutputArchiveBase2::getID1(const void* p)
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	auto v = lookup(idMap, std::make_pair(p, std::type_index(typeInfo)));
+	auto v = lookup(idMap, std::pair(p, std::type_index(typeInfo)));
 	return v ? *v : 0;
 }
 
@@ -87,7 +89,7 @@ void OutputArchiveBase<Derived>::serialize_blob(
 		encoding = "gz-base64";
 		// TODO check for overflow?
 		auto dstLen = uLongf(len + len / 1000 + 12 + 1); // worst-case
-		MemBuffer<byte> buf(dstLen);
+		MemBuffer<uint8_t> buf(dstLen);
 		if (compress2(buf.data(), &dstLen,
 		              reinterpret_cast<const Bytef*>(data),
 		              uLong(len), 9)
@@ -116,14 +118,14 @@ void* InputArchiveBase2::getPointer(unsigned id)
 
 void InputArchiveBase2::addPointer(unsigned id, const void* p)
 {
-	assert(!idMap.count(id)); // c++20 contains()
-	idMap[id] = const_cast<void*>(p);
+	assert(!idMap.contains(id));
+	idMap.emplace_noDuplicateCheck(id, const_cast<void*>(p));
 }
 
 unsigned InputArchiveBase2::getId(const void* ptr) const
 {
-	for (const auto& p : idMap) {
-		if (p.second == ptr) return p.first;
+	for (const auto& [id, pt] : idMap) {
+		if (pt == ptr) return id;
 	}
 	return 0;
 }
@@ -140,10 +142,10 @@ void InputArchiveBase<Derived>::serialize_blob(
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {
-		auto p = Base64::decode(tmp);
+		auto [buf, bufSize] = Base64::decode(tmp);
 		auto dstLen = uLongf(len); // TODO check for overflow?
 		if ((uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
-		                reinterpret_cast<const Bytef*>(p.first.data()), uLong(p.second))
+		                reinterpret_cast<const Bytef*>(buf.data()), uLong(bufSize))
 		     != Z_OK) ||
 		    (dstLen != len)) {
 			throw MSXException("Error while decompressing blob.");
@@ -170,12 +172,12 @@ template class InputArchiveBase<XmlInputArchive>;
 void MemOutputArchive::save(const std::string& s)
 {
 	auto size = s.size();
-	byte* buf = buffer.allocate(sizeof(size) + size);
+	uint8_t* buf = buffer.allocate(sizeof(size) + size);
 	memcpy(buf, &size, sizeof(size));
 	memcpy(buf + sizeof(size), s.data(), size);
 }
 
-MemBuffer<byte> MemOutputArchive::releaseBuffer(size_t& size)
+MemBuffer<uint8_t> MemOutputArchive::releaseBuffer(size_t& size)
 {
 	return buffer.release(size);
 }
@@ -196,7 +198,7 @@ string_view MemInputArchive::loadStr()
 {
 	size_t length;
 	load(length);
-	const byte* p = buffer.getCurrentPos();
+	const uint8_t* p = buffer.getCurrentPos();
 	buffer.skip(length);
 	return string_view(reinterpret_cast<const char*>(p), length);
 }
@@ -208,7 +210,7 @@ string_view MemInputArchive::loadStr()
 // compression has a relatively large setup time). I choose this value
 // semi-arbitrary. I only made it >= 52 so that the (incompressible) RP5C01
 // registers won't be compressed.
-static const size_t SMALL_SIZE = 64;
+constexpr size_t SMALL_SIZE = 64;
 void MemOutputArchive::serialize_blob(const char* /*tag*/, const void* data,
                                       size_t len, bool diff)
 {
@@ -222,7 +224,7 @@ void MemOutputArchive::serialize_blob(const char* /*tag*/, const void* data,
 			: lastDeltaBlocks.createNullDiff(
 				data, static_cast<const uint8_t*>(data), len));
 	} else {
-		byte* buf = buffer.allocate(len);
+		uint8_t* buf = buffer.allocate(len);
 		memcpy(buf, data, len);
 	}
 
@@ -263,7 +265,7 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 		if (duped_fd == -1) goto error;
 		file = gzdopen(duped_fd, "wb9");
 		if (!file) {
-			close(duped_fd);
+			::close(duped_fd);
 			goto error;
 		}
 		current.push_back(&root);
@@ -276,16 +278,31 @@ error:
 	throw XMLException("Could not open compressed file \"", filename, "\"");
 }
 
-XmlOutputArchive::~XmlOutputArchive()
+void XmlOutputArchive::close()
 {
+	if (!file) return; // already closed
+
 	assert(current.back() == &root);
 	const char* header =
 	    "<?xml version=\"1.0\" ?>\n"
 	    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
-	gzwrite(file, const_cast<char*>(header), unsigned(strlen(header)));
 	string dump = root.dump();
-	gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size()));
-	gzclose(file);
+	if ((gzwrite(file, const_cast<char*>(header), unsigned(strlen(header))) == 0) ||
+	    (gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size())) == 0) ||
+	    (gzclose(file) != Z_OK)) {
+		throw XMLException("Could not write savestate file.");
+	}
+
+	file = nullptr;
+}
+
+XmlOutputArchive::~XmlOutputArchive()
+{
+	try {
+		close();
+	} catch (...) {
+		// Eat exception. Explicitly call close() if you want to handle errors.
+	}
 }
 
 void XmlOutputArchive::saveChar(char c)
@@ -374,7 +391,7 @@ string_view XmlInputArchive::loadStr()
 }
 void XmlInputArchive::load(string& t)
 {
-	t = loadStr().str();
+	t = loadStr();
 }
 void XmlInputArchive::loadChar(char& c)
 {
@@ -426,7 +443,7 @@ template<typename T> static inline void fastAtoi(string_view str, T& t)
 	size_t i = 0;
 	size_t l = str.size();
 
-	static const bool IS_SIGNED = std::numeric_limits<T>::is_signed;
+	constexpr bool IS_SIGNED = std::numeric_limits<T>::is_signed;
 	if (IS_SIGNED) {
 		if (l == 0) return;
 		if (str[0] == '-') {

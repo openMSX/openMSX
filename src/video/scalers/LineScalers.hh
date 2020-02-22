@@ -4,6 +4,7 @@
 #include "PixelOperations.hh"
 #include "likely.hh"
 #include <type_traits>
+#include <cstddef>
 #include <cstring>
 #include <cassert>
 #ifdef __SSE2__
@@ -1070,7 +1071,7 @@ void ZoomLine<Pixel>::operator()(
 	const Pixel* in,  unsigned inWidth,
 	      Pixel* out, unsigned outWidth) const
 {
-	static const unsigned FACTOR = 256;
+	constexpr unsigned FACTOR = 256;
 
 	unsigned step = FACTOR * inWidth / outWidth;
 	unsigned i = 0 * FACTOR;

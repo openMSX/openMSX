@@ -18,22 +18,22 @@ using std::vector;
 
 namespace openmsx {
 
-static const unsigned SECTOR_SIZE = sizeof(SectorBuffer);
-static const unsigned SECTORS_PER_DIR = 7;
-static const unsigned NUM_FATS = 2;
-static const unsigned NUM_TRACKS = 80;
-static const unsigned SECTORS_PER_CLUSTER = 2;
-static const unsigned SECTORS_PER_TRACK = 9;
-static const unsigned FIRST_FAT_SECTOR = 1;
-static const unsigned DIR_ENTRIES_PER_SECTOR =
+constexpr unsigned SECTOR_SIZE = sizeof(SectorBuffer);
+constexpr unsigned SECTORS_PER_DIR = 7;
+constexpr unsigned NUM_FATS = 2;
+constexpr unsigned NUM_TRACKS = 80;
+constexpr unsigned SECTORS_PER_CLUSTER = 2;
+constexpr unsigned SECTORS_PER_TRACK = 9;
+constexpr unsigned FIRST_FAT_SECTOR = 1;
+constexpr unsigned DIR_ENTRIES_PER_SECTOR =
 	SECTOR_SIZE / sizeof(MSXDirEntry);
 
 // First valid regular cluster number.
-static const unsigned FIRST_CLUSTER = 2;
+constexpr unsigned FIRST_CLUSTER = 2;
 
-static const unsigned FREE_FAT = 0x000;
-static const unsigned BAD_FAT  = 0xFF7;
-static const unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
+constexpr unsigned FREE_FAT = 0x000;
+constexpr unsigned BAD_FAT  = 0xFF7;
+constexpr unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
 
 
 // Transform BAD_FAT (0xFF7) and EOF_FAT-range (0xFF8-0xFFF)
@@ -208,9 +208,9 @@ bool DirAsDSK::checkMSXFileExists(
 // is not mapped in the virtual disk.
 DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(const string& hostName)
 {
-	for (auto& p : mapDirs) {
-		if (p.second.hostName == hostName) {
-			return p.first;
+	for (const auto& [dirIdx, mapDir] : mapDirs) {
+		if (mapDir.hostName == hostName) {
+			return dirIdx;
 		}
 	}
 	return {unsigned(-1), unsigned(-1)};
@@ -229,14 +229,12 @@ static string hostToMsxName(string hostName)
 	transform_in_place(hostName, [](char a) {
 		return (a == ' ') ? '_' : ::toupper(a);
 	});
-	string_view file, ext;
-	StringOp::splitOnLast(hostName, '.', file, ext);
+	auto [file, ext] = StringOp::splitOnLast(hostName, '.');
 	if (file.empty()) std::swap(file, ext);
 
 	string result(8 + 3, ' ');
-	// c++17: use result.data()
-	memcpy(&*begin(result) + 0, file.data(), std::min<size_t>(8, file.size()));
-	memcpy(&*begin(result) + 8, ext .data(), std::min<size_t>(3, ext .size()));
+	memcpy(result.data() + 0, file.data(), std::min<size_t>(8, file.size()));
+	memcpy(result.data() + 8, ext .data(), std::min<size_t>(3, ext .size()));
 	ranges::replace(result, '.', '_');
 	return result;
 }
@@ -265,7 +263,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	, cliComm(cliComm_)
 	, hostDir(hostDir_.getResolved() + '/')
 	, syncMode(syncMode_)
-	, lastAccess(EmuTime::zero)
+	, lastAccess(EmuTime::zero())
 	, nofSectors((diskChanger_.isDoubleSidedDrive() ? 2 : 1) * SECTORS_PER_TRACK * NUM_TRACKS)
 	, nofSectorsPerFat((((3 * nofSectors) / (2 * SECTORS_PER_CLUSTER)) + SECTOR_SIZE - 1) / SECTOR_SIZE)
 	, firstSector2ndFAT(FIRST_FAT_SECTOR + nofSectorsPerFat)
@@ -401,8 +399,8 @@ void DirAsDSK::checkDeletedHostFiles()
 {
 	// This handles both host files and directories.
 	auto copy = mapDirs;
-	for (auto& p : copy) {
-		if (!mapDirs.count(p.first)) { // c++20 contains()
+	for (const auto& [dirIdx, mapDir] : copy) {
+		if (!mapDirs.contains(dirIdx)) {
 			// While iterating over (the copy of) mapDirs we delete
 			// entries of mapDirs (when we delete files only the
 			// current entry is deleted, when we delete
@@ -413,10 +411,8 @@ void DirAsDSK::checkDeletedHostFiles()
 			// mapDirs. Ignore it.
 			continue;
 		}
-		const DirIndex& dirIndex = p.first;
-		MapDir& mapDir = p.second;
 		string fullHostName = hostDir + mapDir.hostName;
-		bool isMSXDirectory = (msxDir(dirIndex).attrib &
+		bool isMSXDirectory = (msxDir(dirIdx).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
 		FileOperations::Stat fst;
 		if ((!FileOperations::getStat(fullHostName, fst)) ||
@@ -427,7 +423,7 @@ void DirAsDSK::checkDeletedHostFiles()
 			// has been removed and a host directory with the same
 			// name has been created). In both cases delete the msx
 			// entry (if needed it will be recreated soon).
-			deleteMSXFile(dirIndex);
+			deleteMSXFile(dirIdx);
 		}
 	}
 }
@@ -498,15 +494,13 @@ void DirAsDSK::freeFATChain(unsigned cluster)
 void DirAsDSK::checkModifiedHostFiles()
 {
 	auto copy = mapDirs;
-	for (auto& p : copy) {
-		if (!mapDirs.count(p.first)) { // c++20 contains()
+	for (const auto& [dirIdx, mapDir] : copy) {
+		if (!mapDirs.contains(dirIdx)) {
 			// See comment in checkDeletedHostFiles().
 			continue;
 		}
-		const DirIndex& dirIndex = p.first;
-		MapDir& mapDir = p.second;
 		string fullHostName = hostDir + mapDir.hostName;
-		bool isMSXDirectory = (msxDir(dirIndex).attrib &
+		bool isMSXDirectory = (msxDir(dirIdx).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
 		FileOperations::Stat fst;
 		if (FileOperations::getStat(fullHostName, fst) &&
@@ -523,12 +517,12 @@ void DirAsDSK::checkModifiedHostFiles()
 			if (!isMSXDirectory &&
 			    ((mapDir.mtime    != fst.st_mtime) ||
 			     (mapDir.filesize != size_t(fst.st_size)))) {
-				importHostFile(dirIndex, fst);
+				importHostFile(dirIdx, fst);
 			}
 		} else {
 			// Only very rarely happens (because checkDeletedHostFiles()
 			// checked this just recently).
-			deleteMSXFile(dirIndex);
+			deleteMSXFile(dirIdx);
 		}
 	}
 }
@@ -536,7 +530,7 @@ void DirAsDSK::checkModifiedHostFiles()
 void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 {
 	assert(!(msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY));
-	assert(mapDirs.count(dirIndex)); // c++20 contains()
+	assert(mapDirs.contains(dirIndex));
 
 	// Set _msx_ modification time.
 	setMSXTimeStamp(dirIndex, fst);
@@ -678,8 +672,7 @@ static size_t weight(const string& hostName)
 {
 	// TODO this weight function can most likely be improved
 	size_t result = 0;
-	string_view file, ext;
-	StringOp::splitOnLast(hostName, '.', file, ext);
+	auto [file, ext] = StringOp::splitOnLast(hostName, '.');
 	// too many '.' characters
 	result += ranges::count(file, '.') * 100;
 	// too long extension
@@ -803,8 +796,8 @@ void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
 	string fullHostName = hostDir + hostPath;
 
 	// TODO check for available free space on disk instead of max free space
-	static const int DISK_SPACE = (nofSectors - firstDataSector) * SECTOR_SIZE;
-	if (fst.st_size > DISK_SPACE) {
+	int diskSpace = (nofSectors - firstDataSector) * SECTOR_SIZE;
+	if (fst.st_size > diskSpace) {
 		cliComm.printWarning("File too large: ", fullHostName);
 		return;
 	}
@@ -859,7 +852,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 			    (msxName[0] == char(0xE5))) {
 				// Found an unused msx entry. There shouldn't
 				// be any hostfile mapped to this entry.
-				assert(!mapDirs.count(dirIndex)); // c++20 contains()
+				assert(!mapDirs.contains(dirIndex));
 				return dirIndex;
 			}
 		}

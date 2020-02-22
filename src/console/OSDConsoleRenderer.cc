@@ -22,6 +22,7 @@
 #endif
 
 using std::string;
+using std::string_view;
 using namespace gl;
 
 namespace openmsx {
@@ -30,24 +31,14 @@ namespace openmsx {
   * Note that when using a background image on the GLConsole,
   * that image's alpha channel is used instead.
   */
-static const int CONSOLE_ALPHA = 180;
-static const uint64_t BLINK_RATE = 500000; // us
-static const int CHAR_BORDER = 4;
-
-
-// class OSDConsoleRenderer::TextCacheElement
-
-OSDConsoleRenderer::TextCacheElement::TextCacheElement(
-		std::string&& text_, unsigned rgb_,
-		std::unique_ptr<BaseImage> image_, unsigned width_)
-	: text(std::move(text_)), image(std::move(image_)), rgb(rgb_), width(width_)
-{
-}
+constexpr int CONSOLE_ALPHA = 180;
+constexpr uint64_t BLINK_RATE = 500000; // us
+constexpr int CHAR_BORDER = 4;
 
 
 // class OSDConsoleRenderer
 
-static const string_view defaultFont = "skins/VeraMono.ttf.gz";
+constexpr string_view defaultFont = "skins/VeraMono.ttf.gz";
 
 OSDConsoleRenderer::OSDConsoleRenderer(
 		Reactor& reactor_, CommandConsole& console_,
@@ -122,7 +113,7 @@ int OSDConsoleRenderer::initFontAndGetColumns()
 {
 	// init font
 	fontSetting.setChecker([this](TclObject& value) {
-		loadFont(value.getString().str());
+		loadFont(string(value.getString()));
 	});
 	try {
 		loadFont(fontSetting.getString());
@@ -316,7 +307,7 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_view text,
 	unsigned width;
 	BaseImage* image;
 	if (!getFromCache(text, rgb, image, width)) {
-		string textStr = text.str();
+		string textStr(text);
 		SDLSurfacePtr surf;
 		unsigned rgb2 = openGL ? 0xffffff : rgb; // openGL -> always render white
 		try {
@@ -396,10 +387,10 @@ found:		image = it->image.get();
 }
 
 void OSDConsoleRenderer::insertInCache(
-	string&& text, unsigned rgb, std::unique_ptr<BaseImage> image,
+	string text, unsigned rgb, std::unique_ptr<BaseImage> image,
 	unsigned width)
 {
-	static const unsigned MAX_TEXT_CACHE_SIZE = 250;
+	constexpr unsigned MAX_TEXT_CACHE_SIZE = 250;
 	if (textCache.size() == MAX_TEXT_CACHE_SIZE) {
 		// flush the least recently used entry
 		auto it = std::prev(std::end(textCache));

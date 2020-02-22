@@ -13,16 +13,16 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
 {
 	parser.registerOption("-diska", *this);
 	parser.registerOption("-diskb", *this);
-	parser.registerFileType("di1,di2,dmk,dsk,xsa", *this);
+	parser.registerFileType({"di1", "di2", "dmk", "dsk", "xsa", "fd1", "fd2"}, *this);
 	driveLetter = 'a';
 }
 
 void DiskImageCLI::parseOption(const string& option, span<string>& cmdLine)
 {
 	string filename = getArgument(option, cmdLine);
-	parse(string_view(option).substr(1), filename, cmdLine);
+	parse(std::string_view(option).substr(1), filename, cmdLine);
 }
-string_view DiskImageCLI::optionHelp() const
+std::string_view DiskImageCLI::optionHelp() const
 {
 	return "Insert the disk image specified in argument";
 }
@@ -33,12 +33,12 @@ void DiskImageCLI::parseFileType(const string& filename, span<string>& cmdLine)
 	++driveLetter;
 }
 
-string_view DiskImageCLI::fileTypeHelp() const
+std::string_view DiskImageCLI::fileTypeHelp() const
 {
 	return "Disk image";
 }
 
-void DiskImageCLI::parse(string_view drive, string_view image,
+void DiskImageCLI::parse(std::string_view drive, std::string_view image,
                          span<string>& cmdLine)
 {
 	if (!parser.getGlobalCommandController().hasCommand(drive)) { // TODO WIP

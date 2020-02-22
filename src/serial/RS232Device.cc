@@ -2,7 +2,7 @@
 
 namespace openmsx {
 
-string_view RS232Device::getClass() const
+std::string_view RS232Device::getClass() const
 {
 	return "RS232";
 }

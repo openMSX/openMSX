@@ -45,7 +45,7 @@ byte RomDooly::peekMem(word address, EmuTime::param /*time*/) const
 				if (conversion == 2) return (value & 0xf8) | (((value << 2 & 0x04) | (value >> 1 & 0x03)) ^ 0x07);
 				if (conversion == 5) return value ^ 0x07;
 				if (conversion == 6) return (value & 0xf8) | (((value >> 2 & 0x01) | (value << 1 & 0x06)) ^ 0x07);
-				// fall-through
+				[[fallthrough]];
 			default:
 				return value;
 			}

@@ -1,16 +1,16 @@
 #include "InputEventFactory.hh"
 #include "InputEvents.hh"
 #include "CommandException.hh"
+#include "StringOp.hh"
 #include "TclObject.hh"
 #include <stdexcept>
 #include <SDL.h>
 
 using std::make_shared;
 
-namespace openmsx {
-namespace InputEventFactory {
+namespace openmsx::InputEventFactory {
 
-static EventPtr parseKeyEvent(string_view str, uint32_t unicode)
+static EventPtr parseKeyEvent(std::string_view str, uint32_t unicode)
 {
 	auto keyCode = Keys::getCode(str);
 	if (keyCode == Keys::K_NONE) {
@@ -37,10 +37,10 @@ static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
 	} else if (len == 3) {
 		auto comp1 = str.getListIndex(interp, 1).getString();
 		auto comp2 = str.getListIndex(interp, 2).getString();
-		if (comp2.starts_with("unicode")) {
+		if (StringOp::startsWith(comp2, "unicode")) {
 			try {
 				return parseKeyEvent(
-					comp1, fast_stou(comp2.substr(7)));
+					comp1, StringOp::fast_stou(comp2.substr(7)));
 			} catch (std::invalid_argument&) {
 				// parse error in fast_stou()
 			}
@@ -49,7 +49,7 @@ static EventPtr parseKeyEvent(const TclObject& str, Interpreter& interp)
 	throw CommandException("Invalid keyboard event: ", str.getString());
 }
 
-static bool upDown(string_view str)
+static bool upDown(std::string_view str)
 {
 	if (str == "up") {
 		return true;
@@ -84,7 +84,7 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 					str.getListIndex(interp, 3).getInt(interp),
 					absX, absY);
 			}
-		} else if (comp1.starts_with("button")) {
+		} else if (StringOp::startsWith(comp1, "button")) {
 			if (len == 2) {
 				return make_shared<GroupEvent>(
 					OPENMSX_MOUSE_BUTTON_GROUP_EVENT,
@@ -92,7 +92,7 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 					makeTclList("mouse", "button"));
 			} else if (len == 3) {
 				try {
-					unsigned button = fast_stou(comp1.substr(6));
+					unsigned button = StringOp::fast_stou(comp1.substr(6));
 					if (upDown(str.getListIndex(interp, 2).getString())) {
 						return make_shared<MouseButtonUpEvent>  (button);
 					} else {
@@ -156,17 +156,17 @@ static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
 		auto comp1 = str.getListIndex(interp, 1).getString();
 
 		if (len == 2) {
-			if (comp1.starts_with("button")) {
+			if (StringOp::startsWith(comp1, "button")) {
 				return make_shared<GroupEvent>(
 					OPENMSX_JOY_BUTTON_GROUP_EVENT,
 					std::vector<EventType>{OPENMSX_JOY_BUTTON_UP_EVENT, OPENMSX_JOY_BUTTON_DOWN_EVENT},
 					makeTclList("joy", "button"));
-			} else if (comp1.starts_with("axis")) {
+			} else if (StringOp::startsWith(comp1, "axis")) {
 				return make_shared<GroupEvent>(
 					OPENMSX_JOY_AXIS_MOTION_GROUP_EVENT,
 					std::vector<EventType>{OPENMSX_JOY_AXIS_MOTION_EVENT},
 					makeTclList("joy", "axis"));
-			} else if (comp1.starts_with("hat")) {
+			} else if (StringOp::startsWith(comp1, "hat")) {
 				return make_shared<GroupEvent>(
 					OPENMSX_JOY_HAT_GROUP_EVENT,
 					std::vector<EventType>{OPENMSX_JOY_HAT_EVENT},
@@ -175,21 +175,21 @@ static EventPtr parseJoystickEvent(const TclObject& str, Interpreter& interp)
 		} else if (len == 3) {
 			try {
 				auto comp2 = str.getListIndex(interp, 2);
-				unsigned joystick = fast_stou(comp0.substr(3)) - 1;
+				unsigned joystick = StringOp::fast_stou(comp0.substr(3)) - 1;
 
-				if (comp1.starts_with("button")) {
-					unsigned button = fast_stou(comp1.substr(6));
+				if (StringOp::startsWith(comp1, "button")) {
+					unsigned button = StringOp::fast_stou(comp1.substr(6));
 					if (upDown(comp2.getString())) {
 						return make_shared<JoystickButtonUpEvent>  (joystick, button);
 					} else {
 						return make_shared<JoystickButtonDownEvent>(joystick, button);
 					}
-				} else if (comp1.starts_with("axis")) {
-					unsigned axis = fast_stou(comp1.substr(4));
+				} else if (StringOp::startsWith(comp1, "axis")) {
+					unsigned axis = StringOp::fast_stou(comp1.substr(4));
 					int value = str.getListIndex(interp, 2).getInt(interp);
 					return make_shared<JoystickAxisMotionEvent>(joystick, axis, value);
-				} else if (comp1.starts_with("hat")) {
-					unsigned hat = fast_stou(comp1.substr(3));
+				} else if (StringOp::startsWith(comp1, "hat")) {
+					unsigned hat = StringOp::fast_stou(comp1.substr(3));
 					auto valueStr = str.getListIndex(interp, 2).getString();
 					int value;
 					if      (valueStr == "up")        value = SDL_HAT_UP;
@@ -250,7 +250,7 @@ EventPtr createInputEvent(const TclObject& str, Interpreter& interp)
 		return parseKeyEvent(str, interp);
 	} else if (type == "mouse") {
 		return parseMouseEvent(str, interp);
-	} else if (type.starts_with("joy")) {
+	} else if (StringOp::startsWith(type, "joy")) {
 		return parseJoystickEvent(str, interp);
 	} else if (type == "focus") {
 		return parseFocusEvent(str, interp);
@@ -268,10 +268,9 @@ EventPtr createInputEvent(const TclObject& str, Interpreter& interp)
 		return parseKeyEvent(type, 0);
 	}
 }
-EventPtr createInputEvent(string_view str, Interpreter& interp)
+EventPtr createInputEvent(std::string_view str, Interpreter& interp)
 {
 	return createInputEvent(TclObject(str), interp);
 }
 
-} // namespace InputEventFactory
-} // namespace openmsx
+} // namespace openmsx::InputEventFactory

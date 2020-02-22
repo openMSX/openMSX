@@ -24,7 +24,8 @@ public:
 	int16_t getSampleAt(EmuTime::param time) override;
 	EmuTime getEndTime() const override;
 	unsigned getFrequency() const override;
-	void fillBuffer(unsigned pos, int** bufs, unsigned num) const override;
+	void fillBuffer(unsigned pos, float** bufs, unsigned num) const override;
+	float getAmplificationFactorImpl() const override;
 
 private:
 	void write0();

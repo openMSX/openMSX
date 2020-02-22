@@ -121,7 +121,7 @@ public:
 
 	/**
 	 * Read a byte from a given IO port. Reading via this method has no
-	 * side effects (doesn't change the device status). If save reading
+	 * side effects (doesn't change the device status). If safe reading
 	 * is not possible this method returns 0xFF.
 	 * This method is not used by the emulation. It can however be used
 	 * by a debugger.
@@ -202,11 +202,23 @@ public:
 	  */
 	virtual void globalRead(word address, EmuTime::param time);
 
-	/** Invalidate CPU memory-mapping cache.
-	  * This is a shortcut to the MSXCPU::invalidateMemCache() method,
-	  * see that method for more details.
+	/** Calls MSXCPUInterface::invalidateXXCache() for the specific (part
+	  * of) the slot that this device is located in.
 	  */
-	void invalidateMemCache(word start, unsigned size);
+	void invalidateDeviceRWCache() { invalidateDeviceRWCache(0x0000, 0x10000); }
+	void invalidateDeviceRCache()  { invalidateDeviceRCache (0x0000, 0x10000); }
+	void invalidateDeviceWCache()  { invalidateDeviceWCache (0x0000, 0x10000); }
+	void invalidateDeviceRWCache(unsigned start, unsigned size);
+	void invalidateDeviceRCache (unsigned start, unsigned size);
+	void invalidateDeviceWCache (unsigned start, unsigned size);
+
+	/** Calls MSXCPUInterface::fillXXCache() for the specific (part of) the
+	  * slot that this device is located in.
+	  */
+	void fillDeviceRWCache(unsigned start, unsigned size, byte* rwData);
+	void fillDeviceRWCache(unsigned start, unsigned size, const byte* rData, byte* wData);
+	void fillDeviceRCache (unsigned start, unsigned size, const byte* rData);
+	void fillDeviceWCache (unsigned start, unsigned size, byte* wData);
 
 	/** Get the mother board this device belongs to
 	  */
@@ -263,6 +275,12 @@ protected:
 	friend class DeviceFactory;
 	virtual void init();
 
+	/** The 'base' and 'size' attribute values need to be at least aligned
+	  * to CacheLine::SIZE. Though some devices may need a stricter
+	  * alignment. In that case they must override this method.
+	  */
+	virtual unsigned getBaseSizeAlignment() const;
+
 	/** @see getDeviceInfo()
 	 * Default implementation does nothing. Subclasses can override this
 	 * method to add extra info (like subtypes).
@@ -271,10 +289,13 @@ protected:
 
 public:
 	// public to allow non-MSXDevices to use these same arrays
-	static byte unmappedRead [0x10000]; // Read only
-	static byte unmappedWrite[0x10000]; // Write only
+	static inline byte unmappedRead [0x10000]; // Read only
+	static inline byte unmappedWrite[0x10000]; // Write only
 
 private:
+	template<typename Action, typename... Args>
+	void clip(unsigned start, unsigned size, Action action, Args... args);
+
 	void initName(const std::string& name);
 	void staticInit();
 
@@ -287,6 +308,7 @@ private:
 	void registerPorts();
 	void unregisterPorts();
 
+private:
 	using MemRegions = std::vector<std::pair<unsigned, unsigned>>;
 	MemRegions memRegions;
 	std::vector<byte> inPorts;

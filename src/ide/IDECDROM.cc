@@ -364,7 +364,7 @@ void CDXCommand::execute(span<const TclObject> tokens, TclObject& result,
 		}
 		try {
 			string filename = userFileContext().resolve(
-				tokens[fileToken].getString().str());
+				string(tokens[fileToken].getString()));
 			cd.insert(filename);
 			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {
@@ -387,7 +387,7 @@ string CDXCommand::help(const vector<string>& /*tokens*/) const
 
 void CDXCommand::tabCompletion(vector<string>& tokens) const
 {
-	static const char* const extra[] = { "eject", "insert" };
+	static constexpr const char* const extra[] = { "eject", "insert" };
 	completeFileName(tokens, userFileContext(), extra);
 }
 
@@ -408,12 +408,12 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 		}
 	}
 
-	ar.serialize("byteCountLimit", byteCountLimit);
-	ar.serialize("transferOffset", transferOffset);
-	ar.serialize("senseKey", senseKey);
-	ar.serialize("readSectorData", readSectorData);
-	ar.serialize("remMedStatNotifEnabled", remMedStatNotifEnabled);
-	ar.serialize("mediaChanged", mediaChanged);
+	ar.serialize("byteCountLimit",         byteCountLimit,
+	             "transferOffset",         transferOffset,
+	             "senseKey",               senseKey,
+	             "readSectorData",         readSectorData,
+	             "remMedStatNotifEnabled", remMedStatNotifEnabled,
+	             "mediaChanged",           mediaChanged);
 }
 INSTANTIATE_SERIALIZE_METHODS(IDECDROM);
 REGISTER_POLYMORPHIC_INITIALIZER(IDEDevice, IDECDROM, "IDECDROM");

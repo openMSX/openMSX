@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # Creates a source distribution package.
 
 from os import makedirs, remove
@@ -33,49 +33,45 @@ def archiveFromGit(versionedPackageName, committish):
 			)
 	try:
 		outTarPath = distBase + versionedPackageName + '.tar.gz'
-		print 'archive:', outTarPath
+		print('archive:', outTarPath)
 		if not isdir(distBase):
 			makedirs(distBase)
-		outTar = TarFile.open(outTarPath, 'w:gz')
 		try:
-			# Copy entries from "git archive" into output tarball, except for
-			# excluded entries.
-			numIncluded = numExcluded = 0
-			inTar = TarFile.open(mode = 'r|', fileobj = proc.stdout)
-			try:
-				for info in inTar:
-					if exclude(info):
-						if verbose:
-							print 'EX', info.name
-						numExcluded += 1
-					else:
-						if verbose:
-							print 'IN', info.name
-						numIncluded += 1
-						info.uid = info.gid = 1000
-						info.uname = info.gname = 'openmsx'
-						info.mode = info.mode & umask
-						outTar.addfile(info, inTar.extractfile(info))
-			finally:
-				inTar.close()
-			print 'entries: %d included, %d excluded' % (
-					numIncluded, numExcluded)
+			with TarFile.open(outTarPath, 'w:gz') as outTar:
+				# Copy entries from "git archive" into output tarball,
+				# except for excluded entries.
+				numIncluded = numExcluded = 0
+				with TarFile.open(mode='r|', fileobj=proc.stdout) as inTar:
+					for info in inTar:
+						if exclude(info):
+							if verbose:
+								print('EX', info.name)
+							numExcluded += 1
+						else:
+							if verbose:
+								print('IN', info.name)
+							numIncluded += 1
+							info.uid = info.gid = 1000
+							info.uname = info.gname = 'openmsx'
+							info.mode = info.mode & umask
+							outTar.addfile(info, inTar.extractfile(info))
+				print('entries: %d included, %d excluded' % (
+						numIncluded, numExcluded))
 		except:
 			# Clean up partial output file.
-			outTar.close()
 			remove(outTarPath)
 			raise
-		else:
-			outTar.close()
 	except:
 		proc.terminate()
 		raise
 	else:
 		data, _ = proc.communicate()
 		if len(data) != 0:
-			print >> sys.stderr, (
-					'WARNING: %d more bytes of data from "git archive" after '
-					'tar stream ended' % len(data))
+			print(
+				'WARNING: %d more bytes of data from "git archive" after '
+				'tar stream ended' % len(data),
+				file=sys.stderr
+				)
 
 def niceVersionFromGitDescription(description):
 	'''Our release tag names are still based on naming limitations from CVS;
@@ -105,12 +101,15 @@ def getDescription(committish):
 	if committish is not None:
 		args.append(committish)
 	try:
-		return check_output(args).rstrip('\n')
+		data = check_output(args)
 	except CalledProcessError as ex:
-		print >> sys.stderr, '"%s" returned %d' % (
-				' '.join(args), ex.returncode
-				)
+		print(
+			'"%s" returned %d' % (' '.join(args), ex.returncode),
+			file=sys.stderr
+			)
 		raise
+	else:
+		return data.decode('utf-8', 'replace').rstrip('\n')
 
 def main(committish = None):
 	try:
@@ -121,7 +120,7 @@ def main(committish = None):
 	try:
 		archiveFromGit('openmsx-%s' % version, description)
 	except (OSError, TarError) as ex:
-		print >> sys.stderr, 'ERROR: %s' % ex
+		print('ERROR: %s' % ex, file=sys.stderr)
 		sys.exit(1)
 
 if __name__ == '__main__':
@@ -130,5 +129,5 @@ if __name__ == '__main__':
 	elif len(sys.argv) == 2:
 		main(sys.argv[1])
 	else:
-		print >> sys.stderr, 'Usage: gitdist.py [branch | tag]'
+		print('Usage: gitdist.py [branch | tag]', file=sys.stderr)
 		sys.exit(2)

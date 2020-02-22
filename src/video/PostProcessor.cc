@@ -48,13 +48,13 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard_,
 {
 	if (canDoInterlace) {
 		deinterlacedFrame = std::make_unique<DeinterlacedFrame>(
-			screen.getSDLFormat());
+			screen.getPixelFormat());
 		interlacedFrame   = std::make_unique<DoubledFrame>(
-			screen.getSDLFormat());
+			screen.getPixelFormat());
 		deflicker = Deflicker::create(
-			screen.getSDLFormat(), lastFrames);
+			screen.getPixelFormat(), lastFrames);
 		superImposedFrame = SuperImposedFrame::create(
-			screen.getSDLFormat());
+			screen.getPixelFormat());
 	} else {
 		// Laserdisc always produces non-interlaced frames, so we don't
 		// need lastFrames[1..3], deinterlacedFrame and
@@ -195,7 +195,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	if (canDoInterlace) {
 		if (unlikely(!recycleFrame)) {
 			recycleFrame = std::make_unique<RawFrame>(
-				screen.getSDLFormat(), maxWidth, height);
+				screen.getPixelFormat(), maxWidth, height);
 		}
 		return recycleFrame;
 	} else {
@@ -224,8 +224,7 @@ static void getScaledFrame(FrameSource& paintFrame, unsigned bpp,
 		if (line == work) {
 			// If work buffer was used in previous iteration,
 			// then allocate a new one.
-			workBuffer.emplace_back(pitch);
-			work = workBuffer.back().data();
+			work = workBuffer.emplace_back(pitch).data();
 		}
 #if HAVE_32BPP
 		if (bpp == 32) {
@@ -265,12 +264,12 @@ void PostProcessor::takeRawScreenShot(unsigned height2, const std::string& filen
 	WorkBuffer workBuffer;
 	getScaledFrame(*paintFrame, getBpp(), height2, lines, workBuffer);
 	unsigned width = (height2 == 240) ? 320 : 640;
-	PNG::save(width, height2, lines, paintFrame->getSDLPixelFormat(), filename);
+	PNG::save(width, height2, lines, paintFrame->getPixelFormat(), filename);
 }
 
 unsigned PostProcessor::getBpp() const
 {
-	return screen.getSDLFormat().BitsPerPixel;
+	return screen.getPixelFormat().getBpp();
 }
 
 } // namespace openmsx

@@ -1,9 +1,9 @@
 #ifndef SHA1_HH
 #define SHA1_HH
 
-#include "string_view.hh"
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <cstdint>
 
 namespace openmsx {
@@ -25,36 +25,36 @@ public:
 	// note: default copy and assign are ok
 	Sha1Sum();
 	/** Construct from string, throws when string is malformed. */
-	explicit Sha1Sum(string_view hex);
+	explicit Sha1Sum(std::string_view hex);
 
 	/** Parse from a 40-character long buffer.
-	 * @pre: 'str' points to a buffer of at least 40 characters
-	 * @throws: MSXException if chars are not 0-9, a-f, A-F
+	 * @pre 'str' points to a buffer of at least 40 characters
+	 * @throws MSXException if chars are not 0-9, a-f, A-F
 	 */
 	void parse40(const char* str);
-	std::string toString() const;
+	[[nodiscard]] std::string toString() const;
 
 	// Test or set 'null' value.
-	bool empty() const;
+	[[nodiscard]] bool empty() const;
 	void clear();
 
-	bool operator==(const Sha1Sum& other) const {
+	[[nodiscard]] bool operator==(const Sha1Sum& other) const {
 		for (int i = 0; i < 5; ++i) {
 			if (a[i] != other.a[i]) return false;
 		}
 		return true;
 	}
-	bool operator!=(const Sha1Sum& other) const { return !(*this == other); }
-	bool operator< (const Sha1Sum& other) const {
+	[[nodiscard]] bool operator!=(const Sha1Sum& other) const { return !(*this == other); }
+	[[nodiscard]] bool operator< (const Sha1Sum& other) const {
 		for (int i = 0; i < 5-1; ++i) {
 			if (a[i] != other.a[i]) return a[i] < other.a[i];
 		}
 		return a[5-1] < other.a[5-1];
 	}
 
-	bool operator<=(const Sha1Sum& other) const { return !(other <  *this); }
-	bool operator> (const Sha1Sum& other) const { return  (other <  *this); }
-	bool operator>=(const Sha1Sum& other) const { return !(*this <  other); }
+	[[nodiscard]] bool operator<=(const Sha1Sum& other) const { return !(other <  *this); }
+	[[nodiscard]] bool operator> (const Sha1Sum& other) const { return  (other <  *this); }
+	[[nodiscard]] bool operator>=(const Sha1Sum& other) const { return !(*this <  other); }
 
 	friend std::ostream& operator<<(std::ostream& os, const Sha1Sum& sum) {
 		os << sum.toString();
@@ -85,10 +85,10 @@ public:
 
 	/** Get the final hash. After this method is called, calls to update()
 	  * are invalid. */
-	Sha1Sum digest();
+	[[nodiscard]] Sha1Sum digest();
 
 	/** Easier to use interface, if you can pass all data in one go. */
-	static Sha1Sum calc(const uint8_t* data, size_t len);
+	[[nodiscard]] static Sha1Sum calc(const uint8_t* data, size_t len);
 
 private:
 	void transform(const uint8_t buffer[64]);

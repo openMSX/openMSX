@@ -9,7 +9,7 @@ class DummyRS232Device final : public RS232Device
 {
 public:
 	void signal(EmuTime::param time) override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 

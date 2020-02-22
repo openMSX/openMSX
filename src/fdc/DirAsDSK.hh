@@ -5,7 +5,7 @@
 #include "DiskImageUtils.hh"
 #include "FileOperations.hh"
 #include "EmuTime.hh"
-#include <map>
+#include "hash_map.hh"
 
 namespace openmsx {
 
@@ -34,12 +34,19 @@ private:
 		DirIndex() = default;
 		DirIndex(unsigned sector_, unsigned idx_)
 			: sector(sector_), idx(idx_) {}
-		bool operator<(const DirIndex& rhs) const {
-			if (sector != rhs.sector) return sector < rhs.sector;
-			return idx < rhs.idx;
+		friend bool operator==(const DirIndex& x, const DirIndex& y) {
+			return (x.sector == y.sector) &&
+			       (x.idx    == y.idx);
 		}
 		unsigned sector;
 		unsigned idx;
+	};
+	struct HashDirIndex {
+		auto operator()(const DirIndex& d) const {
+			std::hash<unsigned> subHasher;
+			return 31 * subHasher(d.sector)
+			          + subHasher(d.idx);
+		}
 	};
 	struct MapDir {
 		std::string hostName; // path relative to 'hostDir'
@@ -68,7 +75,7 @@ private:
 	void freeFATChain(unsigned cluster);
 	void addNewHostFiles(const std::string& hostSubDir, unsigned msxDirSector);
 	void addNewDirectory(const std::string& hostSubDir, const std::string& hostName,
-                             unsigned msxDirSector, FileOperations::Stat& fst);
+	                     unsigned msxDirSector, FileOperations::Stat& fst);
 	void addNewHostFile(const std::string& hostSubDir, const std::string& hostName,
 	                    unsigned msxDirSector, FileOperations::Stat& fst);
 	DirIndex fillMSXDirEntry(
@@ -124,7 +131,7 @@ private:
 	// For each directory entry that has a mapped host file/directory we
 	// store the name, last modification time and size of the corresponding
 	// host file/dir.
-	using MapDirs = std::map<DirIndex, MapDir>;
+	using MapDirs = hash_map<DirIndex, MapDir, HashDirIndex>;
 	MapDirs mapDirs;
 
 	// format parameters which depend on single/double sided

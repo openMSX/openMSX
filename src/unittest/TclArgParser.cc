@@ -2,8 +2,8 @@
 #include "TclArgParser.hh"
 
 #include "Interpreter.hh"
-#include "optional.hh"
 #include "span.hh"
+#include <optional>
 
 using namespace openmsx;
 
@@ -13,11 +13,11 @@ TEST_CASE("TclArgParser")
 
 	// variables (possibly) filled in by parser
 	int int1 = -1;
-	optional<int> int2;
+	std::optional<int> int2;
 	double dbl1 = -1.0;
-	optional<double> dbl2;
+	std::optional<double> dbl2;
 	std::string s1;
-	optional<std::string> s2;
+	std::optional<std::string> s2;
 	std::vector<int> ints;
 	bool flag = false;
 

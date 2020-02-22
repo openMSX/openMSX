@@ -9,7 +9,7 @@ std::string Version::full()
 {
 	std::string result = strCat("openMSX ", VERSION);
 	if (!RELEASE) strAppend(result, '-', REVISION);
-        return result;
+	return result;
 }
 
 } // namespace openmsx

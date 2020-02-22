@@ -43,42 +43,41 @@ namespace openmsx {
 
 // envelope output entries
 // fixed to match recordings from actual OPL4 -Valley Bell
-static const int MAX_ATT_INDEX = 0x280; // makes attack phase right and also goes well with "envelope stops at -60dB"
-static const int MIN_ATT_INDEX = 0;
-static const int TL_SHIFT      = 2; // envelope values are 4x as fine as TL levels
+constexpr int MAX_ATT_INDEX = 0x280; // makes attack phase right and also goes well with "envelope stops at -60dB"
+constexpr int MIN_ATT_INDEX = 0;
+constexpr int TL_SHIFT      = 2; // envelope values are 4x as fine as TL levels
 
-static const unsigned LFO_SHIFT = 18; // LFO period of up to 0x40000 sample
-static const unsigned LFO_PERIOD = 1 << LFO_SHIFT;
+constexpr unsigned LFO_SHIFT = 18; // LFO period of up to 0x40000 sample
+constexpr unsigned LFO_PERIOD = 1 << LFO_SHIFT;
 
 // Envelope Generator phases
-static const int EG_ATT = 4;
-static const int EG_DEC = 3;
-static const int EG_SUS = 2;
-static const int EG_REL = 1;
-static const int EG_OFF = 0;
+constexpr int EG_ATT = 4;
+constexpr int EG_DEC = 3;
+constexpr int EG_SUS = 2;
+constexpr int EG_REL = 1;
+constexpr int EG_OFF = 0;
 // these 2 are only used in old savestates (and are converted to EG_REL on load)
-static const int EG_REV = 5; // pseudo reverb
-static const int EG_DMP = 6; // damp
+constexpr int EG_REV = 5; // pseudo reverb
+constexpr int EG_DMP = 6; // damp
 
 // Pan values, units are -3dB, i.e. 8.
-static const uint8_t pan_left[16]  = {
+constexpr uint8_t pan_left[16]  = {
 	0, 8, 16, 24, 32, 40, 48, 255, 255,   0,  0,  0,  0,  0,  0, 0
 };
-static const uint8_t pan_right[16] = {
+constexpr uint8_t pan_right[16] = {
 	0, 0,  0,  0,  0,  0,  0,   0, 255, 255, 48, 40, 32, 24, 16, 8
 };
 
 // decay level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(dB) int16_t((dB) / 3 * 0x20)
-static const int16_t dl_tab[16] = {
+static constexpr int16_t SC(int dB) { return int16_t(dB / 3 * 0x20); }
+constexpr int16_t dl_tab[16] = {
  SC( 0), SC( 3), SC( 6), SC( 9), SC(12), SC(15), SC(18), SC(21),
  SC(24), SC(27), SC(30), SC(33), SC(36), SC(39), SC(42), SC(93)
 };
-#undef SC
 
-static const byte RATE_STEPS = 8;
-static const byte eg_inc[15 * RATE_STEPS] = {
+constexpr byte RATE_STEPS = 8;
+constexpr byte eg_inc[15 * RATE_STEPS] = {
 //cycle:0  1   2  3   4  5   6  7
 	0, 1,  0, 1,  0, 1,  0, 1, //  0  rates 00..12 0 (increment by 0 or 1)
 	0, 1,  0, 1,  1, 1,  0, 1, //  1  rates 00..12 1
@@ -100,8 +99,8 @@ static const byte eg_inc[15 * RATE_STEPS] = {
 	0, 0,  0, 0,  0, 0,  0, 0, // 14  infinity rates for attack and decay(s)
 };
 
-#define O(a) ((a) * RATE_STEPS)
-static const byte eg_rate_select[64] = {
+static constexpr byte O(int a) { return a * RATE_STEPS; }
+constexpr byte eg_rate_select[64] = {
 	O(14),O(14),O(14),O(14), // inf rate
 	O( 0),O( 1),O( 2),O( 3),
 	O( 0),O( 1),O( 2),O( 3),
@@ -119,51 +118,48 @@ static const byte eg_rate_select[64] = {
 	O( 8),O( 9),O(10),O(11),
 	O(12),O(12),O(12),O(12),
 };
-#undef O
 
 // rate  0,    1,    2,    3,   4,   5,   6,  7,  8,  9,  10, 11, 12, 13, 14, 15
 // shift 12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0,  0
 // mask  4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0,  0
-#define O(a) (a)
-static const byte eg_rate_shift[64] = {
-	O(12),O(12),O(12),O(12),
-	O(11),O(11),O(11),O(11),
-	O(10),O(10),O(10),O(10),
-	O( 9),O( 9),O( 9),O( 9),
-	O( 8),O( 8),O( 8),O( 8),
-	O( 7),O( 7),O( 7),O( 7),
-	O( 6),O( 6),O( 6),O( 6),
-	O( 5),O( 5),O( 5),O( 5),
-	O( 4),O( 4),O( 4),O( 4),
-	O( 3),O( 3),O( 3),O( 3),
-	O( 2),O( 2),O( 2),O( 2),
-	O( 1),O( 1),O( 1),O( 1),
-	O( 0),O( 0),O( 0),O( 0),
-	O( 0),O( 0),O( 0),O( 0),
-	O( 0),O( 0),O( 0),O( 0),
-	O( 0),O( 0),O( 0),O( 0),
+constexpr byte eg_rate_shift[64] = {
+	 12, 12, 12, 12,
+	 11, 11, 11, 11,
+	 10, 10, 10, 10,
+	  9,  9,  9,  9,
+	  8,  8,  8,  8,
+	  7,  7,  7,  7,
+	  6,  6,  6,  6,
+	  5,  5,  5,  5,
+	  4,  4,  4,  4,
+	  3,  3,  3,  3,
+	  2,  2,  2,  2,
+	  1,  1,  1,  1,
+	  0,  0,  0,  0,
+	  0,  0,  0,  0,
+	  0,  0,  0,  0,
+	  0,  0,  0,  0,
 };
-#undef O
 
 
 // number of steps the LFO counter advances per sample
-#define O(a) int((LFO_PERIOD * (a)) / 44100.0 + 0.5)  // LFO frequency (Hz) -> LFO counter steps per sample
-static const int lfo_period[8] = {
-	O(0.168), // step:  1, period: 262144 samples
-	O(2.019), // step: 12, period:  21845 samples
-	O(3.196), // step: 19, period:  13797 samples
-	O(4.206), // step: 25, period:  10486 samples
-	O(5.215), // step: 31, period:   8456 samples
-	O(5.888), // step: 35, period:   7490 samples
-	O(6.224), // step: 37, period:   7085 samples
-	O(7.066), // step: 42, period:   6242 samples
+//   LFO frequency (Hz) -> LFO counter steps per sample
+static constexpr int L(double a) { return int((LFO_PERIOD * a) / 44100.0 + 0.5); }
+constexpr int lfo_period[8] = {
+	L(0.168), // step:  1, period: 262144 samples
+	L(2.019), // step: 12, period:  21845 samples
+	L(3.196), // step: 19, period:  13797 samples
+	L(4.206), // step: 25, period:  10486 samples
+	L(5.215), // step: 31, period:   8456 samples
+	L(5.888), // step: 35, period:   7490 samples
+	L(6.224), // step: 37, period:   7085 samples
+	L(7.066), // step: 42, period:   6242 samples
 };
-#undef O
 
 
 // formula used by Yamaha docs:
 //     vib_depth_cents(x) = (log2(0x400 + x) - 10) * 1200
-static const int16_t vib_depth[8] = {
+constexpr int16_t vib_depth[8] = {
 	0,      //  0.000 cents
 	2,      //  3.378 cents
 	3,      //  5.065 cents
@@ -181,7 +177,7 @@ static const int16_t vib_depth[8] = {
 //     Thus the maximum attenuation with x=0x80 is (0x7F * 0x80) >> 7 = 0x7F.
 // reversed formula:
 //     am_depth(dB) = round(dB / 6.0 * 0x40) + 1
-static const uint8_t am_depth[8] = {
+constexpr uint8_t am_depth[8] = {
 	0x00,   //  0.000 dB
 	0x14,   //  1.781 dB
 	0x20,   //  2.906 dB
@@ -230,6 +226,7 @@ void YMF278::Slot::reset()
 
 	lfo_active = false;
 	lfo_cnt = 0;
+	lfo = 0;
 
 	state = EG_OFF;
 
@@ -475,21 +472,20 @@ static int vol_factor(int x, unsigned envVol)
 
 void YMF278::setMixLevel(uint8_t x, EmuTime::param time)
 {
-	using T = SoundDevice::VolumeType;
-	static const T level[8] = {
-		T(1.00 / 1), //   0dB
-		T(0.75 / 1), //  -3dB (approx)
-		T(1.00 / 2), //  -6dB
-		T(0.75 / 2), //  -9dB (approx)
-		T(1.00 / 4), // -12dB
-		T(0.75 / 4), // -15dB (approx)
-		T(1.00 / 8), // -18dB
-		T(0.0     ), // -inf dB
+	static constexpr float level[8] = {
+		(1.00f / 1), //   0dB
+		(0.75f / 1), //  -3dB (approx)
+		(1.00f / 2), //  -6dB
+		(0.75f / 2), //  -9dB (approx)
+		(1.00f / 4), // -12dB
+		(0.75f / 4), // -15dB (approx)
+		(1.00f / 8), // -18dB
+		(0.00f    ), // -inf dB
 	};
 	setSoftwareVolume(level[x & 7], level[(x >> 3) & 7], time);
 }
 
-void YMF278::generateChannels(int** bufs, unsigned num)
+void YMF278::generateChannels(float** bufs, unsigned num)
 {
 	if (!anyActive()) {
 		// TODO update internal state, even if muted
@@ -786,10 +782,12 @@ byte YMF278::peekReg(byte reg) const
 	return result;
 }
 
+constexpr unsigned INPUT_RATE = 44100;
+
 YMF278::YMF278(const std::string& name_, int ramSize_,
                const DeviceConfig& config)
 	: ResampledSoundDevice(config.getMotherBoard(), name_, "MoonSound wave-part",
-	                       24, true)
+	                       24, INPUT_RATE, true)
 	, motherBoard(config.getMotherBoard())
 	, debugRegisters(motherBoard, getName())
 	, debugMemory   (motherBoard, getName())
@@ -816,8 +814,7 @@ YMF278::YMF278(const std::string& name_, int ramSize_,
 	}
 
 	memadr = 0; // avoid UMR
-
-	setInputRate(44100);
+	ranges::fill(regs, 0);
 
 	registerSound(config);
 	reset(motherBoard.getCurrentTime()); // must come after registerSound() because of call to setSoftwareVolume() via setMixLevel()
@@ -995,20 +992,20 @@ template<typename Archive>
 void YMF278::Slot::serialize(Archive& ar, unsigned version)
 {
 	// TODO restore more state from registers
-	ar.serialize("startaddr", startaddr);
-	ar.serialize("loopaddr", loopaddr);
-	ar.serialize("stepptr", stepptr);
-	ar.serialize("pos", pos);
-	ar.serialize("sample1", sample1);
-	ar.serialize("sample2", sample2);
-	ar.serialize("env_vol", env_vol);
-	ar.serialize("lfo_cnt", lfo_cnt);
-	ar.serialize("DL", DL);
-	ar.serialize("wave", wave);
-	ar.serialize("FN", FN);
+	ar.serialize("startaddr", startaddr,
+	             "loopaddr",  loopaddr,
+	             "stepptr",   stepptr,
+	             "pos",       pos,
+	             "sample1",   sample1,
+	             "sample2",   sample2,
+	             "env_vol",   env_vol,
+	             "lfo_cnt",   lfo_cnt,
+	             "DL",        DL,
+	             "wave",      wave,
+	             "FN",        FN);
 	if (ar.versionAtLeast(version, 4)) {
-		ar.serialize("endaddr", endaddr);
-		ar.serialize("OCT", OCT);
+		ar.serialize("endaddr", endaddr,
+		             "OCT",     OCT);
 	} else {
 		unsigned e = 0; ar.serialize("endaddr", e); endaddr = (e ^ 0xffff) + 1;
 
@@ -1022,16 +1019,16 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("PRVB", PRVB);
-		ar.serialize("TL", TL);
-		ar.serialize("pan", pan);
-		ar.serialize("vib", vib);
-		ar.serialize("AM", AM);
-		ar.serialize("AR", AR);
-		ar.serialize("D1R", D1R);
-		ar.serialize("D2R", D2R);
-		ar.serialize("RC", RC);
-		ar.serialize("RR", RR);
+		ar.serialize("PRVB", PRVB,
+		             "TL",   TL,
+		             "pan",  pan,
+		             "vib",  vib,
+		             "AM",   AM,
+		             "AR",   AR,
+		             "D1R",  D1R,
+		             "D2R",  D2R,
+		             "RC",   RC,
+		             "RR",   RR);
 	} else {
 		// for backwards compatibility with old savestates
 		char PRVB_ = 0; ar.serializeChar("PRVB", PRVB_); PRVB = PRVB_;
@@ -1045,8 +1042,8 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 		char RC_  = 0; ar.serializeChar("RC",  RC_ ); RC  = RC_;
 		char RR_  = 0; ar.serializeChar("RR",  RR_ ); RR  = RR_;
 	}
-	ar.serialize("bits", bits);
-	ar.serialize("lfo_active", lfo_active);
+	ar.serialize("bits",       bits,
+	             "lfo_active", lfo_active);
 
 	ar.serialize("state", state);
 	if (ar.versionBelow(version, 4)) {
@@ -1080,8 +1077,8 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 template<typename Archive>
 void YMF278::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("slots", slots);
-	ar.serialize("eg_cnt", eg_cnt);
+	ar.serialize("slots",  slots,
+	             "eg_cnt", eg_cnt);
 	if (ar.versionAtLeast(version, 4)) {
 		ar.serialize("ram", ram);
 	} else {

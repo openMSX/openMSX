@@ -38,7 +38,7 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device)
 
 	// Push sync point into queue.
 	queue.insert(SynchronizationPoint(time, &device),
-	             [](SynchronizationPoint& sp) { sp.setTime(EmuTime::infinity); },
+	             [](SynchronizationPoint& sp) { sp.setTime(EmuTime::infinity()); },
 	             [](const SynchronizationPoint& x, const SynchronizationPoint& y) {
 	                     return x.getTime() < y.getTime(); });
 

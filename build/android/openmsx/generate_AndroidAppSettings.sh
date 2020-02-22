@@ -21,12 +21,14 @@ cd "${my_home_dir}"
 # The easiest way to get an increasing number for new builds in git is by
 # counting the number of commit messages.
 #VERSION_CODE=$(git log --oneline | wc -l)
-VERSION_CODE=$(python -c "import version; print version.getAndroidVersionCode()")
+VERSION_CODE=$(python3 -c \
+	"import version; print(version.getAndroidVersionCode())")
 
 # The (Android) version name can be any arbitrary string that is hopefully
 # meaningfull to the user. Best is to use the version package name
 # to be aligned with the version name used for builds for other platforms.
-VERSION_NAME=$(python -c "import version; print version.getVersionedPackageName()")
+VERSION_NAME=$(python3 -c \
+	"import version; print(version.getVersionedPackageName())")
 
 # Return to the directory containing this script and the AndroidAppSettings files
 cd "${my_home_dir}/build/android/openmsx"

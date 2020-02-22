@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="iso-8859-1" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN"
-"http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
-<link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
-<link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
-<title>openMSX Compilation Guide</title>
+  <meta charset="utf-8">
+  <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css">
+  <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css">
+  <link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css">
+  <title>openMSX Compilation Guide</title>
 </head>
 
 <body>
@@ -142,13 +140,10 @@ If you have compiled packages from source before, you probably have some of thes
 <dl>
 
 <dt><a class="external" href="http://www.python.org/download/">Python</a></dt>
-<dd>A compact and dynamic programming language. Version 2.6 or later is
-required. However, Python 3.0 contains incompatible changes in the language, so
-make sure you install a version from the 2.x series. Eventually Python will
-replace Make completely in our build system, but at the moment both are
-required. Note: on Windows 7 you may have to add the path to Python (e.g. <code>C:\Python26</code>) to your <code>PATH</code> manually.</dd>
-<dt>There are three compilers that are supported to build openMSX: GCC, clang
-and Visual C++. The GCC compiler builds openMSX on all supported platforms, clang is the default on macOS, while Visual C++ is the primary compiler for Windows.</dt>
+<dd>A compact and dynamic programming language. The latest version should work fine. Note: on Windows 7 you may have to add the path to Python (e.g. <code>C:\Python</code>) to your <code>PATH</code> manually.</dd>
+<dt>C++ compiler</dt>
+<dd>There are three compilers that are supported to build openMSX: GCC, clang
+and Visual C++. The GCC compiler builds openMSX on all supported platforms, clang is the default on macOS, while Visual C++ is the primary compiler for Windows.</dd>
 
 </dl>
 
@@ -165,7 +160,7 @@ Version 3.79 or higher should suffice, but 3.80 or higher is recommended and eve
 
 <dt>g++</dt>
 <dd>The GNU C++ compiler.
-Version 6 or later is required to build openMSX.
+Version 7 or later is required to build openMSX.
 </dd>
 
 </dl>
@@ -189,13 +184,6 @@ GCW Zero toolchain. This toolchain is for x86 Linux; if you have an x86 machine 
 
 <p>
 Install Xcode from Apple, which you can find in the Mac App Store. The openMSX build is not done inside the Xcode IDE, but it uses the SDK and command line tools that are provided by Xcode.
-</p>
-
-<p>
-<strong>Note:</strong> Currently Xcode 10 and higher have a
-<a href="https://github.com/openMSX/openMSX/issues/1126">known issue</a> and are
-not supported. You can get the older Xcode 9.4.1 distribution from the
-<a href="https://developer.apple.com/download/more/">Apple Developer Portal</a>.
 </p>
 
 <h4>Visual C++</h4>

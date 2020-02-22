@@ -5,12 +5,12 @@
 #include "FileException.hh"
 #include "ranges.hh"
 #include "stl.hh"
+#include "StringOp.hh"
 #include <cstring>
 
+using std::string_view;
+
 namespace openmsx {
-
-const unsigned UnicodeKeymap::NUM_DEAD_KEYS;
-
 
 /** Parses the given string reference as a hexadecimal integer.
   * If successful, returns the parsed value and sets "ok" to true.
@@ -61,10 +61,10 @@ static void skipSep(string_view& str)
 		if (!isSep(c)) break;
 		if (c == '#') {
 			// Skip till end of line.
-			while (!str.empty() && str.front() != '\n') str.pop_front();
+			while (!str.empty() && str.front() != '\n') str.remove_prefix(1);
 			break;
 		}
-		str.pop_front();
+		str.remove_prefix(1);
 	}
 }
 
@@ -77,9 +77,9 @@ static string_view nextToken(string_view& str)
 	auto tokenBegin = str.begin();
 	while (!str.empty() && str.front() != '\n' && !isSep(str.front())) {
 		// Pop non-separator character.
-		str.pop_front();
+		str.remove_prefix(1);
 	}
-	return string_view(tokenBegin, str.begin());
+	return string_view(&*tokenBegin, str.begin() - tokenBegin);
 }
 
 
@@ -117,7 +117,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 	while (!data.empty()) {
 		if (data.front() == '\n') {
 			// Next line.
-			data.pop_front();
+			data.remove_prefix(1);
 		}
 
 		string_view token = nextToken(data);
@@ -129,7 +129,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 		// Parse first token: a unicode value or the keyword DEADKEY.
 		unsigned unicode = 0;
 		unsigned deadKeyIndex = 0;
-		bool isDeadKey = token.starts_with("DEADKEY");
+		bool isDeadKey = StringOp::startsWith(token, "DEADKEY");
 		if (isDeadKey) {
 			token.remove_prefix(strlen("DEADKEY"));
 			if (token.empty()) {
@@ -150,13 +150,17 @@ void UnicodeKeymap::parseUnicodeKeymapfile(string_view data)
 		} else {
 			bool ok;
 			unicode = parseHex(token, ok);
-			if (!ok || unicode > 0xFFFF) {
+			if (!ok || unicode > 0x1FBAF) {
 				throw MSXException("Wrong unicode value in keymap file");
 			}
 		}
 
 		// Parse second token. It must be <ROW><COL>
 		token = nextToken(data);
+		if (token == "--") {
+			// Skip -- for now, it means the character cannot be typed.
+			continue;
+		}
 		bool ok;
 		unsigned rowcol = parseHex(token, ok);
 		if (!ok || rowcol >= 0x100) {

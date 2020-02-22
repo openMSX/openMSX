@@ -32,8 +32,10 @@ public:
 	bool isDoubleSided() const override;
 	bool isTrack00() const override;
 	void setSide(bool side) override;
+	bool getSide() const override;
 	void step(bool direction, EmuTime::param time) override;
 	void setMotor(bool status, EmuTime::param time) override;
+	bool getMotor() const override;
 	bool indexPulse(EmuTime::param time) override;
 	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
 	unsigned getTrackLength() override;

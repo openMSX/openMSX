@@ -22,7 +22,7 @@ using std::string;
 
 namespace openmsx {
 
-LocalFile::LocalFile(string_view filename_, File::OpenMode mode)
+LocalFile::LocalFile(std::string_view filename_, File::OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
@@ -35,7 +35,7 @@ LocalFile::LocalFile(string_view filename_, File::OpenMode mode)
 	if (mode == File::SAVE_PERSISTENT) {
 		auto pos = filename.find_last_of('/');
 		if (pos != string::npos) {
-			FileOperations::mkdirp(string_view(filename).substr(0, pos));
+			FileOperations::mkdirp(std::string_view(filename).substr(0, pos));
 		}
 	}
 
@@ -73,7 +73,7 @@ LocalFile::LocalFile(string_view filename_, File::OpenMode mode)
 	getSize(); // check filesize
 }
 
-LocalFile::LocalFile(string_view filename_, const char* mode)
+LocalFile::LocalFile(std::string_view filename_, const char* mode)
 	: filename(FileOperations::expandTilde(filename_))
 #if HAVE_MMAP || defined _WIN32
 	, mmem(nullptr)
@@ -202,7 +202,12 @@ span<uint8_t> LocalFile::mmap()
 void LocalFile::munmap()
 {
 	if (mmem) {
-		::munmap(const_cast<uint8_t*>(mmem), getSize());
+		try {
+			::munmap(const_cast<uint8_t*>(mmem), getSize());
+		} catch (FileException&) {
+			// In theory getSize() could throw. Does that ever
+			// happen in practice?
+		}
 		mmem = nullptr;
 	}
 }

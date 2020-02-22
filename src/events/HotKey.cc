@@ -339,7 +339,7 @@ void HotKey::activateLayer(std::string layer, bool blocking)
 	activeLayers.push_back({std::move(layer), blocking});
 }
 
-void HotKey::deactivateLayer(string_view layer)
+void HotKey::deactivateLayer(std::string_view layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
@@ -453,9 +453,9 @@ void HotKey::startRepeat(const EventPtr& event)
 	// On android, because of the sensitivity of the touch screen it's
 	// very hard to have touches of short durations. So half a second is
 	// too short for the key-repeat-delay. A full second should be fine.
-	static const unsigned DELAY = PLATFORM_ANDROID ? 1000 : 500;
+	static constexpr unsigned DELAY = PLATFORM_ANDROID ? 1000 : 500;
 	// Repeat period.
-	static const unsigned PERIOD = 30;
+	static constexpr unsigned PERIOD = 30;
 
 	unsigned delay = (lastEvent ? PERIOD : DELAY) * 1000;
 	lastEvent = event;
@@ -471,7 +471,7 @@ void HotKey::stopRepeat()
 
 // class BindCmd
 
-static string_view getBindCmdName(bool defaultCmd)
+static std::string_view getBindCmdName(bool defaultCmd)
 {
 	return defaultCmd ? "bind_default" : "bind";
 }
@@ -513,11 +513,11 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
 		                : hotKey.layerMap[layer];
 
 	if (layers) {
-		for (auto& p : hotKey.layerMap) {
+		for (const auto& [layerName, bindings] : hotKey.layerMap) {
 			// An alternative for this test is to always properly
 			// prune layerMap. ATM this approach seems simpler.
-			if (!p.second.empty()) {
-				result.addListElement(p.first);
+			if (!bindings.empty()) {
+				result.addListElement(layerName);
 			}
 		}
 		return;
@@ -545,7 +545,7 @@ void HotKey::BindCmd::execute(span<const TclObject> tokens, TclObject& result)
 	}
 	default: {
 		// make a new binding
-		string command = arguments[1].getString().str();
+		string command(arguments[1].getString());
 		for (const auto& arg : view::drop(arguments, 2)) {
 			strAppend(command, ' ', arg.getString());
 		}
@@ -663,8 +663,8 @@ void HotKey::ActivateCmd::execute(span<const TclObject> tokens, TclObject& resul
 		break;
 	}
 	case 1: {
-		string_view layer = args[0].getString();
-		hotKey.activateLayer(layer.str(), blocking);
+		std::string_view layer = args[0].getString();
+		hotKey.activateLayer(string(layer), blocking);
 		break;
 	}
 	default:

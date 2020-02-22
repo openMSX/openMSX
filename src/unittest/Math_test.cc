@@ -1,63 +1,84 @@
 #include "catch.hpp"
 #include "Math.hh"
 
-TEST_CASE("Math::isPowerOfTwo")
+TEST_CASE("Math::log2p1")
 {
-	// don't check 0
-	CHECK( Math::isPowerOfTwo(1));
-	CHECK( Math::isPowerOfTwo(2));
-	CHECK(!Math::isPowerOfTwo(3));
-	CHECK( Math::isPowerOfTwo(4));
-	CHECK(!Math::isPowerOfTwo(5));
-	CHECK(!Math::isPowerOfTwo(6));
-	CHECK(!Math::isPowerOfTwo(7));
-	CHECK( Math::isPowerOfTwo(8));
-	CHECK(!Math::isPowerOfTwo(9));
-	CHECK(!Math::isPowerOfTwo(15));
-	CHECK( Math::isPowerOfTwo(16));
-	CHECK(!Math::isPowerOfTwo(17));
-	CHECK( Math::isPowerOfTwo(32));
-	CHECK( Math::isPowerOfTwo(64));
-	CHECK(!Math::isPowerOfTwo(255));
-	CHECK( Math::isPowerOfTwo(256));
-	CHECK( Math::isPowerOfTwo(512));
-	CHECK( Math::isPowerOfTwo(1024));
-	CHECK( Math::isPowerOfTwo(2048));
-	CHECK( Math::isPowerOfTwo(4096));
-	CHECK( Math::isPowerOfTwo(8192));
-	CHECK(!Math::isPowerOfTwo(0xffff));
-	CHECK( Math::isPowerOfTwo(0x10000));
-	CHECK( Math::isPowerOfTwo(0x80000000));
-	CHECK(!Math::isPowerOfTwo(0xffffffff));
+	CHECK(Math::log2p1(0) == 0);
+	CHECK(Math::log2p1(1) == 1);
+	CHECK(Math::log2p1(2) == 2);
+	CHECK(Math::log2p1(3) == 2);
+	CHECK(Math::log2p1(4) == 3);
+	CHECK(Math::log2p1(5) == 3);
+	CHECK(Math::log2p1(6) == 3);
+	CHECK(Math::log2p1(7) == 3);
+	CHECK(Math::log2p1(8) == 4);
+	CHECK(Math::log2p1(9) == 4);
+	CHECK(Math::log2p1(127) == 7);
+	CHECK(Math::log2p1(128) == 8);
+	CHECK(Math::log2p1(129) == 8);
+	CHECK(Math::log2p1(255) == 8);
+	CHECK(Math::log2p1(256) == 9);
+
+	constexpr auto x = Math::log2p1(255); static_assert(x == 8);
 }
 
-TEST_CASE("Math::powerOfTwo")
+TEST_CASE("Math::ispow2")
 {
-	CHECK(Math::powerOfTwo(0) == 1);
-	CHECK(Math::powerOfTwo(1) == 1);
-	CHECK(Math::powerOfTwo(2) == 2);
-	CHECK(Math::powerOfTwo(3) == 4);
-	CHECK(Math::powerOfTwo(4) == 4);
-	CHECK(Math::powerOfTwo(5) == 8);
-	CHECK(Math::powerOfTwo(6) == 8);
-	CHECK(Math::powerOfTwo(7) == 8);
-	CHECK(Math::powerOfTwo(8) == 8);
-	CHECK(Math::powerOfTwo(9) == 16);
-	CHECK(Math::powerOfTwo(15) == 16);
-	CHECK(Math::powerOfTwo(16) == 16);
-	CHECK(Math::powerOfTwo(17) == 32);
-	CHECK(Math::powerOfTwo(32) == 32);
-	CHECK(Math::powerOfTwo(64) == 64);
-	CHECK(Math::powerOfTwo(255) == 256);
-	CHECK(Math::powerOfTwo(256) == 256);
-	CHECK(Math::powerOfTwo(512) == 512);
-	CHECK(Math::powerOfTwo(1024) == 1024);
-	CHECK(Math::powerOfTwo(2048) == 2048);
-	CHECK(Math::powerOfTwo(4096) == 4096);
-	CHECK(Math::powerOfTwo(8192) == 8192);
-	CHECK(Math::powerOfTwo(0xffff) == 0x10000);
-	CHECK(Math::powerOfTwo(0x10000) == 0x10000);
-	CHECK(Math::powerOfTwo(0x80000000) == 0x80000000);
+	CHECK(!Math::ispow2(0));
+	CHECK( Math::ispow2(1));
+	CHECK( Math::ispow2(2));
+	CHECK(!Math::ispow2(3));
+	CHECK( Math::ispow2(4));
+	CHECK(!Math::ispow2(5));
+	CHECK(!Math::ispow2(6));
+	CHECK(!Math::ispow2(7));
+	CHECK( Math::ispow2(8));
+	CHECK(!Math::ispow2(9));
+	CHECK(!Math::ispow2(15));
+	CHECK( Math::ispow2(16));
+	CHECK(!Math::ispow2(17));
+	CHECK( Math::ispow2(32));
+	CHECK( Math::ispow2(64));
+	CHECK(!Math::ispow2(255));
+	CHECK( Math::ispow2(256));
+	CHECK( Math::ispow2(512));
+	CHECK( Math::ispow2(1024));
+	CHECK( Math::ispow2(2048));
+	CHECK( Math::ispow2(4096));
+	CHECK( Math::ispow2(8192));
+	CHECK(!Math::ispow2(0xffff));
+	CHECK( Math::ispow2(0x10000));
+	CHECK( Math::ispow2(0x80000000));
+	CHECK(!Math::ispow2(0xffffffff));
+}
+
+TEST_CASE("Math::ceil2")
+{
+	CHECK(Math::ceil2(0) == 1);
+	CHECK(Math::ceil2(1) == 1);
+	CHECK(Math::ceil2(2) == 2);
+	CHECK(Math::ceil2(3) == 4);
+	CHECK(Math::ceil2(4) == 4);
+	CHECK(Math::ceil2(5) == 8);
+	CHECK(Math::ceil2(6) == 8);
+	CHECK(Math::ceil2(7) == 8);
+	CHECK(Math::ceil2(8) == 8);
+	CHECK(Math::ceil2(9) == 16);
+	CHECK(Math::ceil2(15) == 16);
+	CHECK(Math::ceil2(16) == 16);
+	CHECK(Math::ceil2(17) == 32);
+	CHECK(Math::ceil2(32) == 32);
+	CHECK(Math::ceil2(64) == 64);
+	CHECK(Math::ceil2(255) == 256);
+	CHECK(Math::ceil2(256) == 256);
+	CHECK(Math::ceil2(512) == 512);
+	CHECK(Math::ceil2(1024) == 1024);
+	CHECK(Math::ceil2(2048) == 2048);
+	CHECK(Math::ceil2(4096) == 4096);
+	CHECK(Math::ceil2(8192) == 8192);
+	CHECK(Math::ceil2(0xffff) == 0x10000);
+	CHECK(Math::ceil2(0x10000) == 0x10000);
+	CHECK(Math::ceil2(0x80000000) == 0x80000000);
 	// values > 0x80000000 don't work,
 	//   result can't be represented in 32bit
 }

@@ -1,14 +1,10 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
-  <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
-  <link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
-
+  <meta charset="utf-8">
+  <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css">
+  <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css">
+  <link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css">
   <title>openMSX Console Command Reference</title>
 </head>
 
@@ -289,11 +285,11 @@
   <p>Associate events (such as key presses) with commands. Whenever the
   specified event occurs (e.g. you press the specified key), the corresponding
   command will be executed. Any Tcl command or combination of commands
-  separated with <tt>;</tt> (normal Tcl syntax) can be used. To customize your
+  separated with <code>;</code> (normal Tcl syntax) can be used. To customize your
   bindings you should use the (un)bind commands. A script that wants to provide
-  a default binding for its functionality needs to use <tt>bind_default</tt>,
+  a default binding for its functionality needs to use <code>bind_default</code>,
   this allows users with different preferences to overrule the default
-  bindings. Using the <tt>-repeat</tt> option makes sure that if the event is
+  bindings. Using the <code>-repeat</code> option makes sure that if the event is
   repeated (e.g. keyboard events when keeping a key pressed), the command is
   repeated as well.</p>
 
@@ -680,12 +676,14 @@
     </tr>
 
     <tr>
-      <td><code>debug set_bp &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td><code>debug set_bp [-once] &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
 
       <td>Insert a new breakpoint at the given address. Optionally you can specify a condition and a command. When
       the CPU is about to execute the instruction at the given address, the condition will be evaluated, if this
       evaluates to true then the command is executed. The condition can be any Tcl expression and the command can be
-      any Tcl command. The default condition is 'true' and the default command is <code>"debug break"</code>.</td>
+      any Tcl command. The default condition is 'true' and the default command is <code>"debug break"</code>.
+      If the <code>-once</code> flag is passed, the breakpoint is automatically removed after it triggered.
+      In other words: it will only trigger once.</td>
     </tr>
 
     <tr>
@@ -701,10 +699,10 @@
     </tr>
 
     <tr>
-      <td><code>debug set_watchpoint &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td><code>debug set_watchpoint [-once] &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
 
       <td>Insert a new watchpoint. When the CPU is about to read or write to/from the specified memory or I/O region,
-      the condition is evaluated. If the condition evaluated to true, the command is executed. The condition and the
+      the condition is evaluated. If the condition evaluated to true, the command is executed. The -once flag, the condition and the
       command are similar to the ones in the <code>set_bp</code> subcommand. A watchpoint can either be set on a single memory
       address or I/O port (specify a single value), or on a whole memory or I/O port range (specify a begin/end pair).
       For example: <code>debug set_watchpoint write_mem {0x8000 0x8FFF}</code>. During the execution of <code>&lt;cmd&gt;</code>, the following global Tcl variables are set: <code>::wp_last_address</code>, which is the actual address of the mem/io read/write that triggered the watchpoint and <code>::wp_last_value</code>, the actual value that was written by the mem/io write that triggered the watchpoint.</td>
@@ -723,7 +721,7 @@
     </tr>
 
     <tr>
-      <td><code>debug set_condition &lt;cond&gt; [&lt;cmd&gt;]</code></td>
+      <td><code>debug set_condition [-once] &lt;cond&gt; [&lt;cmd&gt;]</code></td>
 
       <td>Set a new debugger condition. Conditions are like breakpoints, but not
           tied to a specific address. Simulation is much slower when conditions
@@ -758,7 +756,7 @@
       <td>Returns the current value of a probe. But note that not all probes have a value</td>
     </tr>
     <tr>
-      <td><code>debug probe set_bp &lt;probe&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+      <td><code>debug probe set_bp [-once] &lt;probe&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
       <td>Set a breakpoint on a probe. Like in the 'set_bp' subcommand you can optionally specify a condition and a command.</td>
     </tr>
     <tr>
@@ -816,6 +814,21 @@
     Note: Some of the commands are pretty low level. In the share/scripts directory you'll find some Tcl scripts that
     offer convenience wrappers around these commands. For example: <a class="internal" href="#other"><code>showmem</code></a>, <a class="internal" href="#other"><code>disasm</code></a>, <a class="internal" href="#other"><code>cpuregs</code></a>, <a class="internal" href="#other"><code>save_debuggable</code></a>, etc.
   </div>
+
+  <h3><a id="disable_reversebar">disable_reversebar</a></h3>
+
+  <p>Disables the bar on top of the gui to reverse the emulator status. Use also <code>toggle_reversebar</code> command to enable/disable this feature.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>disable_reversebar</code></td>
+      <td>Disables reverse status emulator bar.</td>
+    </tr>
+  </table>
 
   <h3><a id="disk">disk&lt;x&gt; / virtual_drive</a></h3>
 
@@ -892,6 +905,21 @@
     <tr>
       <td><code>exit</code></td>
       <td>Exits the emulator</td>
+    </tr>
+  </table>
+
+  <h3><a id="enable_reversebar">enable_reversebar</a></h3>
+
+  <p>Enables a bar on top of the gui to reverse the emulator status. Use also <code>toggle_reversebar</code> command to enable/disable this feature.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>enable_reversebar</code></td>
+      <td>Enable reverse status emulator bar.</td>
     </tr>
   </table>
 
@@ -2775,7 +2803,7 @@
     </tr>
     <tr>
       <td><code>set auto_enable_reverse gui</code></td>
-      <td>Enable the reverse feature and the reverse bar when openMSX starts</td>
+      <td>Enable the reverse feature and the reverse bar when openMSX starts. Default setting for Desktop/PC</td>
     </tr>
   </table>
 

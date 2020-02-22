@@ -6,8 +6,10 @@
 #include "MemBuffer.hh"
 #include "rapidsax.hh"
 
-namespace openmsx {
-namespace XMLLoader {
+using std::string;
+using std::string_view;
+
+namespace openmsx::XMLLoader {
 
 class XMLElementParser : public rapidsax::NullHandler
 {
@@ -68,9 +70,9 @@ void XMLElementParser::start(string_view name)
 {
 	XMLElement* newElem;
 	if (!current.empty()) {
-		newElem = &current.back()->addChild(name);
+		newElem = &current.back()->addChild(string(name));
 	} else {
-		root.setName(name);
+		root.setName(string(name));
 		newElem = &root;
 	}
 	current.push_back(newElem);
@@ -83,7 +85,7 @@ void XMLElementParser::attribute(string_view name, string_view value)
 			"Found duplicate attribute \"", name, "\" in <",
 			current.back()->getName(), ">.");
 	}
-	current.back()->addAttribute(name, value);
+	current.back()->addAttribute(string(name), string(value));
 }
 
 void XMLElementParser::text(string_view txt)
@@ -94,7 +96,7 @@ void XMLElementParser::text(string_view txt)
 			"Mixed text+subtags in <", current.back()->getName(),
 			">: \"", txt, "\".");
 	}
-	current.back()->setData(txt);
+	current.back()->setData(string(txt));
 }
 
 void XMLElementParser::stop()
@@ -116,5 +118,4 @@ void XMLElementParser::doctype(string_view txt)
 	systemID = t.substr(0, pos2);
 }
 
-} // namespace XMLLoader
-} // namespace openmsx
+} // namespace openmsx::XMLLoader

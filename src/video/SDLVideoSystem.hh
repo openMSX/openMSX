@@ -14,7 +14,7 @@ class Reactor;
 class CommandConsole;
 class Display;
 class RenderSettings;
-class VisibleSurface;
+class SDLVisibleSurfaceBase;
 class Layer;
 class Setting;
 
@@ -44,6 +44,8 @@ public:
 	void takeScreenShot(const std::string& filename, bool withOsd) override;
 	void updateWindowTitle() override;
 	OutputSurface* getOutputSurface() override;
+	void showCursor(bool show) override;
+	void repaint() override;
 
 private:
 	// EventListener
@@ -57,7 +59,7 @@ private:
 	Reactor& reactor;
 	Display& display;
 	RenderSettings& renderSettings;
-	std::unique_ptr<VisibleSurface> screen;
+	std::unique_ptr<SDLVisibleSurfaceBase> screen;
 	std::unique_ptr<Layer> consoleLayer;
 	std::unique_ptr<Layer> snowLayer;
 	std::unique_ptr<Layer> iconLayer;

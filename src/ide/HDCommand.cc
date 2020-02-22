@@ -52,7 +52,7 @@ void HDCommand::execute(span<const TclObject> tokens, TclObject& result,
 			}
 		}
 		try {
-			Filename filename(tokens[fileToken].getString().str(),
+			Filename filename(string(tokens[fileToken].getString()),
 			                  userFileContext());
 			hd.switchImage(filename);
 			// Note: the diskX command doesn't do this either,

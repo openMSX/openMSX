@@ -45,11 +45,8 @@ public:
 	bool lessImpl(const Event& other) const override
 	{
 		auto& e = checked_cast<const FinishFrameEvent&>(other);
-		auto t1 = std::make_tuple(
-			getSource(), getSelectedSource(), isSkipped());
-		auto t2 = std::make_tuple(
-			e.getSource(), e.getSelectedSource(), e.isSkipped());
-		return t1 < t2;
+		return std::tuple(  getSource(),   getSelectedSource(),   isSkipped()) <
+		       std::tuple(e.getSource(), e.getSelectedSource(), e.isSkipped());
 	}
 
 private:

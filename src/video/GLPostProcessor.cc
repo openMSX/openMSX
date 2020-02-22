@@ -29,30 +29,23 @@ GLPostProcessor::GLPostProcessor(
 	, noiseTextureB(true, true)
 	, height(height_)
 {
-	if (!glewIsSupported("GL_EXT_framebuffer_object")) {
-		throw InitException(
-			"The OpenGL framebuffer object is not supported by "
-			"this glew library. Please upgrade your glew library.\n"
-			"It's also possible (but less likely) your video card "
-			"or video card driver doesn't support framebuffer "
-			"objects.");
-	}
-
 	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
 
 	frameCounter = 0;
 	noiseX = noiseY = 0.0f;
 	preCalcNoise(renderSettings.getNoise());
+	initBuffers();
 
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
 		colorTex[i].bind();
 		colorTex[i].setInterpolation(true);
+		auto [w, h] = screen.getLogicalSize();
 		glTexImage2D(GL_TEXTURE_2D,     // target
 			     0,                 // level
 			     GL_RGB8,           // internal format
-			     screen.getWidth(), // width
-			     screen.getHeight(),// height
+			     w,                 // width
+			     h,                 // height
 			     0,                 // border
 			     GL_RGB,            // format
 			     GL_UNSIGNED_BYTE,  // type
@@ -80,12 +73,44 @@ GLPostProcessor::~GLPostProcessor()
 	renderSettings.getNoiseSetting().detach(*this);
 }
 
+void GLPostProcessor::initBuffers()
+{
+	const vec2 pos[4] = {
+		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
+	};
+	const vec2 tex[4] = {
+		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1)
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0].get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1].get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STATIC_DRAW);
+
+	vao.bind();
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0].get());
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1].get());
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(1);
+	vao.unbind();
+
+	glowVAO.bind();
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0].get());
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1].get());
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(1);
+	glowVAO.unbind();
+}
+
 void GLPostProcessor::createRegions()
 {
 	regions.clear();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	const unsigned dstHeight = screen.getHeight();
+	const unsigned dstHeight = screen.getLogicalHeight();
 
 	unsigned g = Math::gcd(srcHeight, dstHeight);
 	unsigned srcStep = srcHeight / g;
@@ -166,8 +191,9 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		uploadFrame();
 	}
 
+	auto [scrnWidth, scrnHeight] = screen.getLogicalSize();
 	if (renderToTexture) {
-		glViewport(0, 0, screen.getWidth(), screen.getHeight());
+		glViewport(0, 0, scrnWidth, scrnHeight);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		fbo[frameCounter & 1].push();
 	}
@@ -183,8 +209,8 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		                 ? &superImposeTex : nullptr;
 		currScaler->scaleImage(
 			it->second.tex, superImpose,
-			r.srcStartY, r.srcEndY, r.lineWidth,       // src
-			r.dstStartY, r.dstEndY, screen.getWidth(), // dst
+			r.srcStartY, r.srcEndY, r.lineWidth, // src
+			r.dstStartY, r.dstEndY, scrnWidth,   // dst
 			paintFrame->getHeight()); // dst
 		//GLUtil::checkGLError("GLPostProcessor::paint");
 	}
@@ -195,36 +221,35 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	if (renderToTexture) {
 		fbo[frameCounter & 1].pop();
 		colorTex[frameCounter & 1].bind();
-		gl::ivec2 viewOffset = screen.getViewOffset();
-		gl::ivec2 viewSize   = screen.getViewSize();
-		glViewport(viewOffset[0], viewOffset[1], viewSize[0], viewSize[1]);
+		auto [x, y] = screen.getViewOffset();
+		auto [w, h] = screen.getViewSize();
+		glViewport(x, y, w, h);
 
 		if (deform == RenderSettings::DEFORM_3D) {
 			drawMonitor3D();
 		} else {
-			float x1 = (320.0f - float(horStretch)) / (2.0f * 320.0f);
-			float x2 = 1.0f - x1;
-
-			static const vec2 pos[4] = {
-				vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
-			};
-			vec2 tex[4] = {
-				vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
-			};
-
 			gl::context->progTex.activate();
 			glUniform4f(gl::context->unifTexColor,
 			            1.0f, 1.0f, 1.0f, 1.0f);
 			mat4 I;
 			glUniformMatrix4fv(gl::context->unifTexMvp,
 			                   1, GL_FALSE, &I[0][0]);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
-			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
+
+			vao.bind();
+			if (horStretch != 320.0f) {
+				float x1 = (320.0f - float(horStretch)) / (2.0f * 320.0f);
+				float x2 = 1.0f - x1;
+				vec2 tex[4] = {
+					vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
+				};
+				glBindBuffer(GL_ARRAY_BUFFER, stretchVBO.get());
+				glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STATIC_DRAW);
+			} else {
+				glBindBuffer(GL_ARRAY_BUFFER, vbo[1].get());
+			}
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-			glDisableVertexAttribArray(1);
-			glDisableVertexAttribArray(0);
+			vao.unbind();
 		}
 		storedFrame = true;
 	} else {
@@ -302,11 +327,7 @@ void GLPostProcessor::uploadBlock(
 		TextureData textureData;
 
 		textureData.tex.resize(lineWidth, height * 2); // *2 for interlace
-
-		if (textureData.pbo.openGLSupported()) {
-			textureData.pbo.setImage(lineWidth, height * 2);
-		}
-
+		textureData.pbo.setImage(lineWidth, height * 2);
 		textures.emplace_back(lineWidth, std::move(textureData));
 		it = end(textures) - 1;
 	}
@@ -318,68 +339,35 @@ void GLPostProcessor::uploadBlock(
 
 	// upload data
 	uint32_t* mapped;
-	if (pbo.openGLSupported()) {
-		pbo.bind();
-		mapped = pbo.mapWrite();
-	} else {
-		mapped = nullptr;
-	}
-	if (mapped) {
-		for (unsigned y = srcStartY; y < srcEndY; ++y) {
-			auto* dest = mapped + y * lineWidth;
-			auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
-			if (data != dest) {
-				memcpy(dest, data, lineWidth * sizeof(uint32_t));
-			}
+	pbo.bind();
+	mapped = pbo.mapWrite();
+	for (unsigned y = srcStartY; y < srcEndY; ++y) {
+		auto* dest = mapped + y * lineWidth;
+		auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
+		if (data != dest) {
+			memcpy(dest, data, lineWidth * sizeof(uint32_t));
 		}
-		pbo.unmap();
+	}
+	pbo.unmap();
 #if defined(__APPLE__)
-		// The nVidia GL driver for the GeForce 8000/9000 series seems to hang
-		// on texture data replacements that are 1 pixel wide and start on a
-		// line number that is a non-zero multiple of 16.
-		if (lineWidth == 1 && srcStartY != 0 && srcStartY % 16 == 0) {
-			srcStartY--;
-		}
+	// The nVidia GL driver for the GeForce 8000/9000 series seems to hang
+	// on texture data replacements that are 1 pixel wide and start on a
+	// line number that is a non-zero multiple of 16.
+	if (lineWidth == 1 && srcStartY != 0 && srcStartY % 16 == 0) {
+		srcStartY--;
+	}
 #endif
-		glTexSubImage2D(
-			GL_TEXTURE_2D,       // target
-			0,                   // level
-			0,                   // offset x
-			srcStartY,           // offset y
-			lineWidth,           // width
-			srcEndY - srcStartY, // height
-			GL_BGRA,             // format
-			GL_UNSIGNED_BYTE,    // type
-			pbo.getOffset(0, srcStartY)); // data
-	}
-	if (pbo.openGLSupported()) {
-		pbo.unbind();
-	}
-	if (!mapped) {
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, paintFrame->getRowLength());
-		unsigned y = srcStartY;
-		unsigned remainingLines = srcEndY - srcStartY;
-		VLA_SSE_ALIGNED(uint32_t, buf, lineWidth);
-		while (remainingLines) {
-			unsigned lines;
-			auto* data = paintFrame->getMultiLinePtr(
-				y, remainingLines, lines, lineWidth, buf);
-			glTexSubImage2D(
-				GL_TEXTURE_2D,     // target
-				0,                 // level
-				0,                 // offset x
-				y,                 // offset y
-				lineWidth,         // width
-				lines,             // height
-				GL_BGRA,           // format
-				GL_UNSIGNED_BYTE,  // type
-				data);             // data
-
-			y += lines;
-			remainingLines -= lines;
-		}
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0); // restore default
-	}
+	glTexSubImage2D(
+		GL_TEXTURE_2D,       // target
+		0,                   // level
+		0,                   // offset x
+		srcStartY,           // offset y
+		lineWidth,           // width
+		srcEndY - srcStartY, // height
+		GL_BGRA,             // format
+		GL_UNSIGNED_BYTE,    // type
+		pbo.getOffset(0, srcStartY)); // data
+	pbo.unbind();
 
 	// possibly upload scaler specific data
 	if (currScaler) {
@@ -391,13 +379,6 @@ void GLPostProcessor::drawGlow(int glow)
 {
 	if ((glow == 0) || !storedFrame) return;
 
-	static const vec2 pos[4] = {
-		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
-	};
-	static const vec2 tex[4] = {
-		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1)
-	};
-
 	gl::context->progTex.activate();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -406,13 +387,9 @@ void GLPostProcessor::drawGlow(int glow)
 	            1.0f, 1.0f, 1.0f, glow * 31 / 3200.0f);
 	mat4 I;
 	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
+	glowVAO.bind();
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(0);
+	glowVAO.unbind();
 	glDisable(GL_BLEND);
 }
 
@@ -433,34 +410,31 @@ void GLPostProcessor::preCalcNoise(float factor)
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
-		GL_LUMINANCE,     // internal format
+		GL_RED,           // internal format
 		256,              // width
 		256,              // height
 		0,                // border
-		GL_LUMINANCE,     // format
+		GL_RED,           // format
 		GL_UNSIGNED_BYTE, // type
 		buf1);            // data
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 
 	noiseTextureB.bind();
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
-		GL_LUMINANCE,     // internal format
+		GL_RED,           // internal format
 		256,              // width
 		256,              // height
 		0,                // border
-		GL_LUMINANCE,     // format
+		GL_RED,           // format
 		GL_UNSIGNED_BYTE, // type
 		buf2);            // data
-}
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 
-void GLPostProcessor::drawNoise()
-{
-	if (renderSettings.getNoise() == 0.0f) return;
-
-	// Rotate and mirror noise texture in consecutive frames to avoid
-	// seeing 'patterns' in the noise.
-	static const vec2 pos[8][4] = {
+	const vec2 pos[8][4] = {
 		{ { -1, -1 }, {  1, -1 }, {  1,  1 }, { -1,  1 } },
 		{ { -1,  1 }, {  1,  1 }, {  1, -1 }, { -1, -1 } },
 		{ { -1,  1 }, { -1, -1 }, {  1, -1 }, {  1,  1 } },
@@ -470,6 +444,16 @@ void GLPostProcessor::drawNoise()
 		{ {  1, -1 }, {  1,  1 }, { -1,  1 }, { -1, -1 } },
 		{ { -1, -1 }, { -1,  1 }, {  1,  1 }, {  1, -1 } }
 	};
+	glBindBuffer(GL_ARRAY_BUFFER, noiseVBO[0].get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
+}
+
+void GLPostProcessor::drawNoise()
+{
+	if (renderSettings.getNoise() == 0.0f) return;
+
+	// Rotate and mirror noise texture in consecutive frames to avoid
+	// seeing 'patterns' in the noise.
 	vec2 noise(noiseX, noiseY);
 	const vec2 tex[4] = {
 		noise + vec2(0.0f, 1.875f),
@@ -477,19 +461,23 @@ void GLPostProcessor::drawNoise()
 		noise + vec2(2.0f, 0.0f  ),
 		noise + vec2(0.0f, 0.0f  )
 	};
+	unsigned seq = frameCounter & 7;
 
 	gl::context->progTex.activate();
-
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 	glUniform4f(gl::context->unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
 	mat4 I;
 	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
 
-	unsigned seq = frameCounter & 7;
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[seq]);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+	noiseVAO.bind();
+	glBindBuffer(GL_ARRAY_BUFFER, noiseVBO[0].get());
+	vec2* base = nullptr;
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, base + seq * 4);
 	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, noiseVBO[1].get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(tex), tex, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(1);
 
 	noiseTextureA.bind();
@@ -497,16 +485,15 @@ void GLPostProcessor::drawNoise()
 	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
 	noiseTextureB.bind();
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	noiseVAO.unbind();
 
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(0);
 	glBlendEquation(GL_FUNC_ADD); // restore default
 	glDisable(GL_BLEND);
 }
 
-static const int GRID_SIZE = 16;
-static const int GRID_SIZE1 = GRID_SIZE + 1;
-static const int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
+constexpr int GRID_SIZE = 16;
+constexpr int GRID_SIZE1 = GRID_SIZE + 1;
+constexpr int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
 struct Vertex {
 	vec3 position;
 	vec3 normal;
@@ -518,7 +505,7 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	// precalculate vertex-positions, -normals and -texture-coordinates
 	Vertex vertices[GRID_SIZE1][GRID_SIZE1];
 
-	static const float GRID_SIZE2 = float(GRID_SIZE) / 2.0f;
+	constexpr float GRID_SIZE2 = float(GRID_SIZE) / 2.0f;
 	float s = width / 320.0f;
 	float b = (320.0f - width) / (2.0f * 320.0f);
 
@@ -558,14 +545,25 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 	}
 
 	// upload calculated values to buffers
+	monitor3DVAO.bind();
 	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
 	             GL_STATIC_DRAW);
+	char* base = nullptr;
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base + sizeof(vec3));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base + sizeof(vec3) + sizeof(vec3));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer.get());
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
 	             GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	monitor3DVAO.unbind();
 
 	// calculate transformation matrices
 	mat4 proj = frustum(-1, 1, -1, 1, 1, 10);
@@ -588,27 +586,9 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 void GLPostProcessor::drawMonitor3D()
 {
 	monitor3DProg.activate();
-
-	char* base = nullptr;
-	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer.get());
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-	                      base);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-	                      base + sizeof(vec3));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-	                      base + sizeof(vec3) + sizeof(vec3));
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
+	monitor3DVAO.bind();
 	glDrawElements(GL_TRIANGLE_STRIP, NUM_INDICES, GL_UNSIGNED_SHORT, nullptr);
-	glDisableVertexAttribArray(2);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	monitor3DVAO.unbind();
 }
 
 } // namespace openmsx

@@ -36,12 +36,13 @@ public:
 
 	// Pluggable
 	const std::string& getName() const override;
-	string_view getDescription() const override;
+	std::string_view getDescription() const override;
 	void plugHelper(Connector& connector, EmuTime::param time) override;
 	void unplugHelper(EmuTime::param time) override;
 
 	// SoundDevice
-	void generateChannels(int** buffers, unsigned num) override;
+	void generateChannels(float** buffers, unsigned num) override;
+	float getAmplificationFactorImpl() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -60,7 +61,7 @@ private:
 	/** Insert a tape for use in PLAY mode.
 	 */
 	void playTape(const Filename& filename, EmuTime::param time);
-	void insertTape(const Filename& filename);
+	void insertTape(const Filename& filename, EmuTime::param time);
 
 	/** Removes tape (possibly stops recording). And go to STOP mode.
 	 */
@@ -135,7 +136,7 @@ private:
 	void execSyncAudioEmu(EmuTime::param time);
 	EmuTime::param getCurrentTime() const { return syncEndOfTape.getCurrentTime(); }
 
-	static const size_t BUF_SIZE = 1024;
+	static constexpr size_t BUF_SIZE = 1024;
 	unsigned char buf[BUF_SIZE];
 
 	double lastX; // last unfiltered output

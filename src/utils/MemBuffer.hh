@@ -13,9 +13,9 @@ namespace openmsx {
 // When SSE2 is enabled (some) buffers need to be 16-bytes aligned. If not
 // then don't enforce stricter than default alignment.
 #ifdef __SSE2__
-static const size_t SSE2_ALIGNMENT = 16;
+constexpr size_t SSE2_ALIGNMENT = 16;
 #else
-static const size_t SSE2_ALIGNMENT = 0;
+constexpr size_t SSE2_ALIGNMENT = 0;
 #endif
 
 
@@ -87,19 +87,19 @@ public:
 	/** Returns pointer to the start of the memory buffer.
 	  * This method can be called even when there's no buffer allocated.
 	  */
-	const T* data() const { return dat; }
-	      T* data()       { return dat; }
+	[[nodiscard]] const T* data() const { return dat; }
+	[[nodiscard]]       T* data()       { return dat; }
 
 	/** Access elements in the memory buffer.
 	 */
-	const T& operator[](size_t i) const
+	[[nodiscard]] const T& operator[](size_t i) const
 	{
 #ifdef DEBUG
 		assert(i < sz);
 #endif
 		return dat[i];
 	}
-	T& operator[](size_t i)
+	[[nodiscard]] T& operator[](size_t i)
 	{
 #ifdef DEBUG
 		assert(i < sz);
@@ -109,7 +109,7 @@ public:
 
 	/** No memory allocated?
 	 */
-	bool empty() const { return !dat; }
+	[[nodiscard]] bool empty() const { return !dat; }
 
 	/** Grow or shrink the memory block.
 	  * In case of growing, the extra space is left uninitialized.
@@ -159,9 +159,9 @@ private:
 	// functions. The only disadvantage is that we cannot use realloc()
 	// in that case (there are no, not even platform specific, functions
 	// to realloc memory with bigger than default alignment).
-	static const bool SIMPLE_MALLOC = ALIGNMENT <= alignof(std::max_align_t);
+	static constexpr bool SIMPLE_MALLOC = ALIGNMENT <= alignof(std::max_align_t);
 
-	void* my_malloc(size_t bytes)
+	[[nodiscard]] void* my_malloc(size_t bytes)
 	{
 		void* result;
 		if (SIMPLE_MALLOC) {
@@ -183,7 +183,7 @@ private:
 		}
 	}
 
-	void* my_realloc(void* old, size_t bytes)
+	[[nodiscard]] void* my_realloc(void* old, size_t bytes)
 	{
 		void* result;
 		if (SIMPLE_MALLOC) {

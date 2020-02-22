@@ -1,11 +1,13 @@
 uniform sampler2D tex;
 uniform sampler2D videoTex;
 
-varying vec4 posABCD;
-varying vec4 posEL;
-varying vec4 posGJ;
-varying vec3 scaled;
-varying vec2 videoCoord;
+in vec4 posABCD;
+in vec4 posEL;
+in vec4 posGJ;
+in vec3 scaled;
+in vec2 videoCoord;
+
+out vec4 fragColor;
 
 void swap(inout vec4 a, inout vec4 b)
 {
@@ -14,10 +16,10 @@ void swap(inout vec4 a, inout vec4 b)
 
 vec4 sai()
 {
-	vec4 A = texture2D(tex, posABCD.xy);
-	vec4 B = texture2D(tex, posABCD.zy);
-	vec4 C = texture2D(tex, posABCD.xw);
-	vec4 D = texture2D(tex, posABCD.zw);
+	vec4 A = texture(tex, posABCD.xy);
+	vec4 B = texture(tex, posABCD.zy);
+	vec4 C = texture(tex, posABCD.xw);
+	vec4 D = texture(tex, posABCD.zw);
 	vec3 pp = fract(scaled);
 
 	bvec2 b1 = bvec2(A.rgb == D.rgb, B.rgb == C.rgb);
@@ -33,10 +35,10 @@ vec4 sai()
 			pos2 = posGJ.zyxw;
 			p = pp.yz;
 		}
-		vec4 E = texture2D(tex, pos1.xy);
-		vec4 L = texture2D(tex, pos1.zw);
-		vec4 G = texture2D(tex, pos2.xy);
-		vec4 J = texture2D(tex, pos2.zw);
+		vec4 E = texture(tex, pos1.xy);
+		vec4 L = texture(tex, pos1.zw);
+		vec4 G = texture(tex, pos2.xy);
+		vec4 J = texture(tex, pos2.zw);
 
 		vec2 d = p / 2.0 - 0.25;
 		float d2 = p.y - p.x;
@@ -71,9 +73,9 @@ void main()
 {
 #if SUPERIMPOSE
 	vec4 col = sai();
-	vec4 vid = texture2D(videoTex, videoCoord);
-	gl_FragColor = mix(vid, col, col.a);
+	vec4 vid = texture(videoTex, videoCoord);
+	fragColor = mix(vid, col, col.a);
 #else
-	gl_FragColor = sai();
+	fragColor = sai();
 #endif
 }

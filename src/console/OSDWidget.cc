@@ -1,16 +1,19 @@
 #include "OSDWidget.hh"
-#include "OutputSurface.hh"
+#include "SDLOutputSurface.hh"
 #include "Display.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "GLUtil.hh"
-#include "optional.hh"
+#include "checked_cast.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include <SDL.h>
+#include <array>
 #include <limits>
+#include <optional>
 
 using std::string;
+using std::string_view;
 using std::vector;
 using std::unique_ptr;
 using namespace gl;
@@ -48,31 +51,36 @@ public:
 	SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~SDLScopedClip();
 private:
-	SDL_Surface* surface;
-	SDL_Rect origClip;
+	SDL_Renderer* renderer;
+	std::optional<SDL_Rect> origClip;
 };
 
 
 SDLScopedClip::SDLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
-	: surface(output.getSDLSurface())
+	: renderer(checked_cast<SDLOutputSurface&>(output).getSDLRenderer())
 {
-	ivec2 i_xy = round(xy); int x = i_xy[0]; int y = i_xy[1];
-	ivec2 i_wh = round(wh); int w = i_wh[0]; int h = i_wh[1];
-
+	ivec2 i_xy = round(xy); auto [x, y] = i_xy;
+	ivec2 i_wh = round(wh); auto [w, h] = i_wh;
 	normalize(x, w); normalize(y, h);
-	SDL_GetClipRect(surface, &origClip);
 
 	int xn, yn, wn, hn;
-	intersect(origClip.x, origClip.y, origClip.w, origClip.h,
-	          x,  y,  w,  h,
-	          xn, yn, wn, hn);
+	if (SDL_RenderIsClipEnabled(renderer)) {
+		origClip.emplace();
+		SDL_RenderGetClipRect(renderer, &*origClip);
+
+		intersect(origClip->x, origClip->y, origClip->w, origClip->h,
+			  x,  y,  w,  h,
+			  xn, yn, wn, hn);
+	} else {
+		xn = x; yn = y; wn = w; hn = h;
+	}
 	SDL_Rect newClip = { Sint16(xn), Sint16(yn), Uint16(wn), Uint16(hn) };
-	SDL_SetClipRect(surface, &newClip);
+	SDL_RenderSetClipRect(renderer, &newClip);
 }
 
 SDLScopedClip::~SDLScopedClip()
 {
-	SDL_SetClipRect(surface, &origClip);
+	SDL_RenderSetClipRect(renderer, origClip ? &*origClip : nullptr);
 }
 
 ////
@@ -85,39 +93,40 @@ public:
 	GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh);
 	~GLScopedClip();
 private:
-	GLint box[4]; // x, y, w, h;
-	GLboolean wasEnabled;
+	std::optional<std::array<GLint, 4>> origClip; // x, y, w, h;
 };
 
 
 GLScopedClip::GLScopedClip(OutputSurface& output, vec2 xy, vec2 wh)
 {
-	normalize(xy[0], wh[0]); normalize(xy[1], wh[1]);
-	xy[1] = output.getHeight() - xy[1] - wh[1]; // openGL sets (0,0) in LOWER-left corner
+	auto& [x, y] = xy;
+	auto& [w, h] = wh;
+	normalize(x, w); normalize(y, h);
+	y = output.getLogicalHeight() - y - h; // openGL sets (0,0) in LOWER-left corner
 
 	// transform view-space coordinates to clip-space coordinates
 	vec2 scale = output.getViewScale();
-	ivec2 i_xy = round(xy * scale) + output.getViewOffset();
-	ivec2 i_wh = round(wh * scale);
+	auto [ix, iy] = round(xy * scale) + output.getViewOffset();
+	auto [iw, ih] = round(wh * scale);
 
-	wasEnabled = glIsEnabled(GL_SCISSOR_TEST);
-	if (wasEnabled == GL_TRUE) {
-		glGetIntegerv(GL_SCISSOR_BOX, box);
+	if (glIsEnabled(GL_SCISSOR_TEST) == GL_TRUE) {
+		origClip.emplace();
+		glGetIntegerv(GL_SCISSOR_BOX, origClip->data());
 		int xn, yn, wn, hn;
-		intersect(box[0], box[1], box[2], box[3],
-		          i_xy[0], i_xy[1], i_wh[0], i_wh[1],
+		intersect((*origClip)[0], (*origClip)[1], (*origClip)[2], (*origClip)[3],
+		          ix, iy, iw, ih,
 		          xn, yn, wn, hn);
 		glScissor(xn, yn, wn, hn);
 	} else {
-		glScissor(i_xy[0], i_xy[1], i_wh[0], i_wh[1]);
+		glScissor(ix, iy, iw, ih);
 		glEnable(GL_SCISSOR_TEST);
 	}
 }
 
 GLScopedClip::~GLScopedClip()
 {
-	if (wasEnabled == GL_TRUE) {
-		glScissor(box[0], box[1], box[2], box[3]);
+	if (origClip) {
+		glScissor((*origClip)[0], (*origClip)[1], (*origClip)[2], (*origClip)[3]);
 	} else {
 		glDisable(GL_SCISSOR_TEST);
 	}
@@ -214,7 +223,7 @@ void OSDWidget::resortDown(OSDWidget* elem)
 
 vector<string_view> OSDWidget::getProperties() const
 {
-	static const char* const vals[] = {
+	static constexpr const char* const vals[] = {
 		"-type", "-x", "-y", "-z", "-relx", "-rely", "-scaled",
 		"-clip", "-mousecoord", "-suppressErrors",
 	};
@@ -284,8 +293,8 @@ void OSDWidget::getProperty(string_view propName, TclObject& result) const
 	} else if (propName == "-clip") {
 		result = clip;
 	} else if (propName == "-mousecoord") {
-		vec2 coord = getMouseCoord();
-		result.addListElement(coord[0], coord[1]);
+		auto [x, y] = getMouseCoord();
+		result.addListElement(x, y);
 	} else if (propName == "-suppressErrors") {
 		result = suppressErrors;
 	} else {
@@ -324,7 +333,7 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 {
 	paintSDL(output);
 
-	optional<SDLScopedClip> scopedClip;
+	std::optional<SDLScopedClip> scopedClip;
 	if (clip) {
 		vec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
@@ -342,7 +351,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 #if COMPONENT_GL
 	paintGL(output);
 
-	optional<GLScopedClip> scopedClip;
+	std::optional<GLScopedClip> scopedClip;
 	if (clip) {
 		vec2 clipPos, size;
 		getBoundingBox(output, clipPos, size);
@@ -358,7 +367,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 int OSDWidget::getScaleFactor(const OutputSurface& output) const
 {
 	if (scaled) {
-		return output.getLogicalSize()[0] / 320;;
+		return output.getLogicalWidth() / 320;;
 	} else if (getParent()) {
 		return getParent()->getScaleFactor(output);
 	} else {

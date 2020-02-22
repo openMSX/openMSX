@@ -10,8 +10,8 @@
 namespace openmsx {
 
 // Documented in MSX-Datapack Vol. 3, section 4 (MSX-MIDI), from page 634
-static const byte LIMITED_RANGE_VALUE = 0x01; // b0 = "E8" => determines port range
-static const byte DISABLED_VALUE      = 0x80; // b7 = EN
+constexpr byte LIMITED_RANGE_VALUE = 0x01; // b0 = "E8" => determines port range
+constexpr byte DISABLED_VALUE      = 0x80; // b7 = EN
 
 MSXMidi::MSXMidi(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -402,21 +402,20 @@ void MSXMidi::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	ar.template serializeBase<MidiInConnector>(*this);
-	ar.serialize("outConnector", outConnector);
-
-	ar.serialize("timerIRQ", timerIRQ);
-	ar.serialize("rxrdyIRQ", rxrdyIRQ);
-	ar.serialize("timerIRQlatch", timerIRQlatch);
-	ar.serialize("timerIRQenabled", timerIRQenabled);
-	ar.serialize("rxrdyIRQlatch", rxrdyIRQlatch);
-	ar.serialize("rxrdyIRQenabled", rxrdyIRQenabled);
-	ar.serialize("I8251", i8251);
-	ar.serialize("I8254", i8254);
+	ar.serialize("outConnector",    outConnector,
+	             "timerIRQ",        timerIRQ,
+	             "rxrdyIRQ",        rxrdyIRQ,
+	             "timerIRQlatch",   timerIRQlatch,
+	             "timerIRQenabled", timerIRQenabled,
+	             "rxrdyIRQlatch",   rxrdyIRQlatch,
+	             "rxrdyIRQenabled", rxrdyIRQenabled,
+	             "I8251",           i8251,
+	             "I8254",           i8254);
 	if (ar.versionAtLeast(version, 2)) {
 		bool newIsEnabled = isEnabled; // copy for saver
 		bool newIsLimitedTo8251 = isLimitedTo8251; // copy for saver
-		ar.serialize("isEnabled", newIsEnabled);
-		ar.serialize("isLimitedTo8251", newIsLimitedTo8251);
+		ar.serialize("isEnabled",       newIsEnabled,
+		             "isLimitedTo8251", newIsLimitedTo8251);
 		if (ar.isLoader() && isExternalMSXMIDI) {
 			registerIOports((newIsEnabled ? 0x00 : DISABLED_VALUE) | (newIsLimitedTo8251 ? LIMITED_RANGE_VALUE : 0x00));
 		}

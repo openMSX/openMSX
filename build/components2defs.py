@@ -32,7 +32,8 @@ def iterComponentDefs(probeMakePath):
 if len(sys.argv) == 3:
 	rewriteIfChanged(sys.argv[1], iterComponentDefs(sys.argv[2]))
 else:
-	print >> sys.stderr, (
-		'Usage: python components2defs.py COMPONENTS_DEFS PROBE_MAKE'
+	print(
+		'Usage: python3 components2defs.py COMPONENTS_DEFS PROBE_MAKE',
+		file=sys.stderr
 		)
 	sys.exit(2)

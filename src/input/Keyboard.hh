@@ -11,10 +11,10 @@
 #include "EventListener.hh"
 #include "serialize_meta.hh"
 #include "span.hh"
-#include "string_view.hh"
 #include "openmsx.hh"
 #include <array>
 #include <deque>
+#include <string_view>
 #include <vector>
 #include <memory>
 
@@ -85,7 +85,6 @@ private:
 	bool processQueuedEvent(const Event& event, EmuTime::param time);
 	bool processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition pos);
-	void doKeyGhosting() const;
 	void processCmd(Interpreter& interp, span<const TclObject> tokens, bool up);
 	bool pressUnicodeByUser(
 			EmuTime::param time, UnicodeKeymap::KeyInfo keyInfo, unsigned unicode,
@@ -105,7 +104,7 @@ private:
 	MSXEventDistributor& msxEventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	static const int MAX_KEYSYM = 0x150;
+	static constexpr int MAX_KEYSYM = 0x150;
 	static const KeyMatrixPosition keyTabs[][MAX_KEYSYM];
 	const KeyMatrixPosition* keyTab;
 
@@ -134,11 +133,12 @@ private:
 		KeyInserter(CommandController& commandController,
 			    StateChangeDistributor& stateChangeDistributor,
 			    Scheduler& scheduler);
+		bool isActive() const { return pendingSyncPoint(); }
 		template<typename Archive>
 		void serialize(Archive& ar, unsigned version);
 
 	private:
-		void type(string_view str);
+		void type(std::string_view str);
 		void reschedule(EmuTime::param time);
 
 		// Command
@@ -208,13 +208,15 @@ private:
 	UnicodeKeymap unicodeKeymap;
 	unsigned dynKeymap[MAX_KEYSYM];
 
-	/** Keyboard matrix state for keymatrix/type command. */
+	/** Keyboard matrix state for 'keymatrix' command. */
 	byte cmdKeyMatrix [KeyMatrixPosition::NUM_ROWS];
+	/** Keyboard matrix state for 'type' command. */
+	byte typeKeyMatrix [KeyMatrixPosition::NUM_ROWS];
 	/** Keyboard matrix state for pressed user keys (live or replay). */
 	byte userKeyMatrix[KeyMatrixPosition::NUM_ROWS];
 	/** Keyboard matrix state that is always in sync with host keyb, also during replay. */
 	byte hostKeyMatrix[KeyMatrixPosition::NUM_ROWS];
-	/** Combination of cmdKeyMatrix and userKeyMatrix. */
+	/** Combination of 'cmdKeyMatrix', 'typeKeyMatrix' and 'userKeyMatrix'. */
 	mutable byte keyMatrix[KeyMatrixPosition::NUM_ROWS];
 
 	byte msxmodifiers;
@@ -240,7 +242,7 @@ private:
 	  */
 	byte locksOn;
 };
-SERIALIZE_CLASS_VERSION(Keyboard, 2);
+SERIALIZE_CLASS_VERSION(Keyboard, 3);
 
 } // namespace openmsx
 

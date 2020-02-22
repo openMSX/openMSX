@@ -404,11 +404,20 @@ private:
 		}
 	} syncSetMode;
 
+	struct SyncCmdEnd final : SyncBase {
+		explicit SyncCmdEnd(V9990& v9990) : SyncBase(v9990) {}
+		void executeUntil(EmuTime::param time) override {
+			auto& v9990 = OUTER(V9990, syncCmdEnd);
+			v9990.execCheckCmdEnd(time);
+		}
+	} syncCmdEnd;
+
 	void execVSync(EmuTime::param time);
 	void execDisplayStart(EmuTime::param time);
 	void execVScan(EmuTime::param time);
 	void execHScan();
 	void execSetMode(EmuTime::param time);
+	void execCheckCmdEnd(EmuTime::param time);
 
 	// --- types ------------------------------------------------------
 
@@ -680,8 +689,12 @@ private:
 	  * @result Timestamp for next hor irq
 	  */
 	void scheduleHscan(EmuTime::param time);
+
+	/** Estimate when the current (if any) command will finish.
+	 */
+	void scheduleCmdEnd(EmuTime::param time);
 };
-SERIALIZE_CLASS_VERSION(V9990, 4);
+SERIALIZE_CLASS_VERSION(V9990, 5);
 
 } // namespace openmsx
 

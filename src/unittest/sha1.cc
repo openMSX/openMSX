@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "sha1.hh"
+#include <cstring>
 #include <sstream>
 
 using namespace openmsx;

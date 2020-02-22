@@ -74,8 +74,8 @@ public:
 	bool lastOut() const override;
 
 	// Connector
-	string_view getDescription() const override;
-	string_view getClass() const override;
+	std::string_view getDescription() const override;
+	std::string_view getClass() const override;
 	void unplug(EmuTime::param time) override;
 
 	template<typename Archive>

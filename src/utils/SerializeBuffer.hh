@@ -3,15 +3,18 @@
 
 #include "MemBuffer.hh"
 #include "openmsx.hh"
+#include "inline.hh"
+#include "likely.hh"
 #include <algorithm>
 #include <cstring>
 #include <cassert>
+#include <tuple>
 
 namespace openmsx {
 
 /** Memory output buffer
  *
-  * Acts as a replacement for std::vector<byte>. You can insert data in the
+  * Acts as a replacement for std::vector<uint8_t>. You can insert data in the
   * buffer and the buffer will automatically grow. Like std::vector it manages
   * an internal memory buffer that will automatically reallocate and grow
   * exponentially.
@@ -54,6 +57,39 @@ public:
 #endif
 	void insertN(const void* __restrict data, size_t len);
 
+	/** Insert all the elements of the given tuple.
+	  * Equivalent to repeatedly calling insert() for all the elements of
+	  * the tuple. Though using this method the implementation only has to
+	  * check once whether enough memory is allocated.
+	  */
+	template<typename TUPLE> ALWAYS_INLINE void insert_tuple_ptr(const TUPLE& tuple)
+	{
+		size_t len = 0;
+		auto accum = [&](auto* p) { len += sizeof(*p); };
+		std::apply([&](auto&&... args) { (accum(args), ...); }, tuple);
+
+		uint8_t* newEnd = end + len;
+		if (unlikely(newEnd > finish)) {
+			grow(len); // reallocates, thus newEnd is no longer valid.
+		}
+
+		uint8_t* dst = end;
+		auto write = [&](auto* src) {
+			memcpy(dst, src, sizeof(*src));
+			dst += sizeof(*src);
+		};
+		std::apply([&](auto&&... args) { (write(args), ...); }, tuple);
+		assert(dst == (end + len));
+
+		end = dst;
+	}
+
+	template<typename T> ALWAYS_INLINE void insert_tuple_ptr(const std::tuple<T*>& tuple)
+	{
+		// single-element tuple -> use insert() because it's better tuned
+		insert(std::get<0>(tuple), sizeof(T));
+	}
+
 	/** Insert data at a given position. This will overwrite the old data.
 	  * It's not possible to grow the buffer via this method (so the buffer
 	  * must already be big enough to hold the new data).
@@ -72,15 +108,15 @@ public:
 	  * when the buffer will be used for gzip output data), you can request
 	  * the maximum size and deallocate the unused space later.
 	  */
-	byte* allocate(size_t len)
+	[[nodiscard]] uint8_t* allocate(size_t len)
 	{
-		byte* newEnd = end + len;
+		auto* newEnd = end + len;
 		// Make sure the next OutputBuffer will start with an initial size
 		// that can hold this much space plus some slack.
 		size_t newSize = newEnd - buf.data();
 		lastSize = std::max(lastSize, newSize + 1000);
 		if (newEnd <= finish) {
-			byte* result = end;
+			uint8_t* result = end;
 			end = newEnd;
 			return result;
 		} else {
@@ -99,7 +135,7 @@ public:
 	  * allocate() call, there cannot be any other (non-const) call to this
 	  * object in between.
 	  */
-	void deallocate(byte* pos)
+	void deallocate(uint8_t* pos)
 	{
 		assert(buf.data() <= pos);
 		assert(pos <= end);
@@ -108,7 +144,7 @@ public:
 
 	/** Get the current size of the buffer.
 	 */
-	size_t getPosition() const
+	[[nodiscard]] size_t getPosition() const
 	{
 		return end - buf.data();
 	}
@@ -116,19 +152,20 @@ public:
 	/** Release ownership of the buffer.
 	 * Returns both the buffer and its size.
 	 */
-	MemBuffer<byte> release(size_t& size);
+	[[nodiscard]] MemBuffer<uint8_t> release(size_t& size);
 
 private:
 	void insertGrow(const void* __restrict data, size_t len);
-	byte* allocateGrow(size_t len);
+	[[nodiscard]] uint8_t* allocateGrow(size_t len);
+	void grow(size_t len);
 
-	MemBuffer<byte> buf; // begin of allocated memory
-	byte* end;           // points right after the last used byte
-	                     // so   end - buf == size
-	byte* finish;        // points right after the last allocated byte
-	                     // so   finish - buf == capacity
+	MemBuffer<uint8_t> buf; // begin of allocated memory
+	uint8_t* end;           // points right after the last used byte
+	                        // so   end - buf == size
+	uint8_t* finish;        // points right after the last allocated byte
+	                        // so   finish - buf == capacity
 
-	static size_t lastSize;
+	static inline size_t lastSize = 50000; // initial estimate
 };
 
 
@@ -142,7 +179,7 @@ public:
 	/** Construct new InputBuffer, typically the data and size parameters
 	  * will come from a MemBuffer object.
 	  */
-	InputBuffer(const byte* data, size_t size);
+	InputBuffer(const uint8_t* data, size_t size);
 
 	/** Read the given number of bytes.
 	  * This 'consumes' the read bytes, so a future read() will continue
@@ -170,12 +207,12 @@ public:
 	  * as input for an uncompress algorithm. You can later use skip() to
 	  * actually consume the data.
 	  */
-	const byte* getCurrentPos() const { return buf; }
+	[[nodiscard]] const uint8_t* getCurrentPos() const { return buf; }
 
 private:
-	const byte* buf;
+	const uint8_t* buf;
 #ifndef NDEBUG
-	const byte* finish; // only used to check asserts
+	const uint8_t* finish; // only used to check asserts
 #endif
 };
 

@@ -3,7 +3,7 @@
 
 #include "TclObject.hh"
 #include "gl_vec.hh"
-#include "string_view.hh"
+#include <string_view>
 #include <vector>
 #include <memory>
 
@@ -19,7 +19,7 @@ class OSDWidget
 public:
 	virtual ~OSDWidget() = default;
 
-	string_view getName() const { return name.getString(); }
+	std::string_view getName() const { return name.getString(); }
 	gl::vec2 getPos()    const { return pos; }
 	gl::vec2 getRelPos() const { return relPos; }
 	float    getZ()      const { return z; }
@@ -30,12 +30,12 @@ public:
 	void addWidget(std::unique_ptr<OSDWidget> widget);
 	void deleteWidget(OSDWidget& widget);
 
-	virtual std::vector<string_view> getProperties() const;
+	virtual std::vector<std::string_view> getProperties() const;
 	virtual void setProperty(Interpreter& interp,
-	                         string_view name, const TclObject& value);
-	virtual void getProperty(string_view name, TclObject& result) const;
+	                         std::string_view name, const TclObject& value);
+	virtual void getProperty(std::string_view name, TclObject& result) const;
 	virtual float getRecursiveFadeValue() const;
-	virtual string_view getType() const = 0;
+	virtual std::string_view getType() const = 0;
 
 	void invalidateRecursive();
 	void paintSDLRecursive(OutputSurface& output);

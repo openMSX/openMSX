@@ -115,12 +115,14 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -146,12 +148,14 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;DEBUG;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -170,6 +174,7 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -187,6 +192,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -211,6 +217,7 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -226,6 +233,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -246,6 +254,7 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;WIN32_LEAN_AND_MEAN;UNICODE;_UNICODE;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
@@ -253,6 +262,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -278,6 +288,7 @@
     <ClCompile>
       <AdditionalOptions>/constexpr:steps20000000 /MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(DXSDK_DIR)\Include;$(ThirdPartySrcDir)\$(LibNameFreeType);$(ThirdPartySrcDir)\$(LibNameGlew)\include;$(ThirdPartySrcDir)\$(LibNameLibPng);$(ThirdPartySrcDir)\$(LibNameSDL)\include;$(ThirdPartySrcDir)\$(LibNameSDL_ttf);$(ThirdPartySrcDir)\$(LibNameTheora)\include;$(ThirdPartySrcDir)\$(LibNameVorbis)\include;$(ThirdPartySrcDir)\$(LibNameOgg)\include;$(ThirdPartySrcDir)\$(LibNameTcl)\generic;$(ThirdPartySrcDir)\$(LibNameZlib);$(OpenMSXSrcDir);$(OpenMSXSrcDir)\cassette;$(OpenMSXSrcDir)\commands;$(OpenMSXSrcDir)\config;$(OpenMSXSrcDir)\console;$(OpenMSXSrcDir)\cpu;$(OpenMSXSrcDir)\debugger;$(OpenMSXSrcDir)\events;$(OpenMSXSrcDir)\fdc;$(OpenMSXSrcDir)\file;$(OpenMSXSrcDir)\ide;$(OpenMSXSrcDir)\input;$(OpenMSXSrcDir)\laserdisc;$(OpenMSXSrcDir)\memory;$(OpenMSXSrcDir)\resource;$(OpenMSXSrcDir)\security;$(OpenMSXSrcDir)\serial;$(OpenMSXSrcDir)\settings;$(OpenMSXSrcDir)\sound;$(OpenMSXSrcDir)\thread;$(OpenMSXSrcDir)\utils;$(OpenMSXSrcDir)\video;$(OpenMSXSrcDir)\video\scalers;$(OpenMSXSrcDir)\video\ld;$(OpenMSXSrcDir)\video\v9990;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__SSE__;__SSE2__;WIN32;_WIN64;__x86_64;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;SECURITY_WIN32;_DEBUG;_CONSOLE;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;GLEW_STATIC;STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
@@ -285,6 +296,7 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -336,13 +348,11 @@
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDTopWidget.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDWidget.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\TTFFont.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPoint.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPURegs.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUClock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUCore.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\Dasm.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\DebugCondition.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\IRQHelper.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXCPU.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXCPUInterface.cc" />
@@ -351,7 +361,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXMultiMemDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\MSXWatchIODevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\VDPIODelay.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\WatchPoint.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\DasmTables.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\Debugger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\debugger\Probe.cc" />
@@ -485,6 +494,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMapperIO.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMegaRam.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMemoryMapper.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMemoryMapperBase.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXMirrorDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXPac.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MSXRam.cc" />
@@ -525,6 +535,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXWrite.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMitsubishiMLTS2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMultiRom.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraCompilation.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraInk.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNational.cc" />
@@ -543,9 +554,12 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina80in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina90in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\SRAM.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\KonamiUltimateCollection.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\ROMHunterMk2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\SdCard.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomDooly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\BooleanSetting.cc" />
@@ -597,7 +611,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\SoundDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\VLM5030.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavAudioInput.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\sound\WavData.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\WavWriter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8950.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Y8950Adpcm.cc" />
@@ -616,19 +629,15 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Base64.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\CRC16.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Date.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\DivModBySame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\HexDump.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\snappy.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\Math.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\lz4.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\SerializeBuffer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\MemoryOps.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sha1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\StringOp.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\string_view.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\rapidsax.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\uint128.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\utf8_checked.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-arggen.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-dirent.cc" />
@@ -674,6 +683,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLContext.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Multiply32.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\OutputSurface.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLOutputSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\PixelRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\PNG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\PostProcessor.cc" />
@@ -692,7 +702,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\ScalerFactory.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Scanline.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLOutputSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLImage.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLOffScreenSurface.cc" />
@@ -700,6 +709,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLSnow.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SpriteChecker.cc" />
@@ -717,10 +727,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\Video9000.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990BitmapConverter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990CmdEngine.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990DisplayTiming.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990DummyRenderer.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990P1Converter.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990P2Converter.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990PxConverter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990PixelRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990SDLRasterizer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990VRAM.cc" />
@@ -771,7 +779,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\DummyPrinterPortDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\DynamicClock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\EmptyPatch.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\EmuDuration.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\EmuTime.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\FirmwareSwitch.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\GlobalSettings.cc" />
@@ -1031,6 +1038,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\MSXMapperIO.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXMegaRam.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXMemoryMapper.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\MSXMemoryMapperBase.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXMirrorDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXPac.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MSXRam.hh" />
@@ -1071,6 +1079,7 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXtra.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXWrite.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMultiRom.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomMatraCompilation.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMatraInk.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomNational.hh" />
@@ -1090,9 +1099,12 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina80in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina90in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\SRAM.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV1.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\ReproCartridgeV2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\KonamiUltimateCollection.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlusSD.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\ROMHunterMk2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\SdCard.cc.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomDooly.hh" />
     <None Include="$(OpenMSXSrcDir)\resource\openmsx.ico" />
@@ -1191,7 +1203,7 @@
     <None Include="$(OpenMSXSrcDir)\utils\inline.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\join.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\likely.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\snappy.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\lz4.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Math.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\MemBuffer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\MemoryOps.hh" />
@@ -1206,7 +1218,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\statp.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\StringOp.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\stringsp.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\string_view.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\strCat.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\rapidsax.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Subject.hh" />
@@ -1273,6 +1284,7 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\LineScalers.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\Multiply32.hh" />
     <None Include="$(OpenMSXSrcDir)\video\OutputSurface.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SDLOutputSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\PixelOperations.hh" />
     <None Include="$(OpenMSXSrcDir)\video\PixelRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\PNG.hh" />
@@ -1295,7 +1307,6 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\ScalerFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\video\Scanline.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLGLOffScreenSurface.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\SDLGLOutputSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLGLVisibleSurface.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLImage.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLOffScreenSurface.hh" />
@@ -1304,6 +1315,7 @@
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurfaceBase.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SpriteChecker.hh" />
@@ -1327,8 +1339,7 @@
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990DisplayTiming.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990DummyRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990ModeEnum.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\v9990\V9990P1Converter.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\v9990\V9990P2Converter.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\v9990\V9990PxConverter.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990PixelRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990Rasterizer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990Renderer.hh" />
@@ -1446,7 +1457,7 @@ rem echo MSVC_DIR=%MSVC_DIR%
 set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
 rem echo PYTHONPATH=%PYTHONPATH%
 pushd %ROOT_DIR%
-python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+python3 "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
 popd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating config headers...</Message>
@@ -1461,7 +1472,7 @@ rem echo MSVC_DIR=%MSVC_DIR%
 set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
 rem echo PYTHONPATH=%PYTHONPATH%
 pushd %ROOT_DIR%
-python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+python3 "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
 popd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">Generating config headers...</Message>
@@ -1476,7 +1487,7 @@ rem echo MSVC_DIR=%MSVC_DIR%
 set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
 rem echo PYTHONPATH=%PYTHONPATH%
 pushd %ROOT_DIR%
-python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+python3 "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
 popd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">Generating config headers...</Message>
@@ -1491,7 +1502,7 @@ rem echo MSVC_DIR=%MSVC_DIR%
 set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
 rem echo PYTHONPATH=%PYTHONPATH%
 pushd %ROOT_DIR%
-python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+python3 "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
 popd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating config headers...</Message>
@@ -1506,7 +1517,7 @@ rem echo MSVC_DIR=%MSVC_DIR%
 set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
 rem echo PYTHONPATH=%PYTHONPATH%
 pushd %ROOT_DIR%
-python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+python3 "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
 popd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating config headers...</Message>
@@ -1521,7 +1532,7 @@ rem echo MSVC_DIR=%MSVC_DIR%
 set PYTHONPATH=%PYTHONPATH%;%BUILD_DIR%
 rem echo PYTHONPATH=%PYTHONPATH%
 pushd %ROOT_DIR%
-python "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
+python3 "%MSVC_DIR%\genconfig.py" $(Platform) "$(Configuration)" "%CONFIG_DIR%"
 popd</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">build-info.hh;components.hh;probed_defs.hh;resource-info.h;Version.ii;%(Outputs)</Outputs>
     </CustomBuild>

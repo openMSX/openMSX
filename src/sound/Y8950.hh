@@ -74,8 +74,8 @@ public:
 
 private:
 	// SoundDevice
-	int getAmplificationFactorImpl() const override;
-	void generateChannels(int** bufs, unsigned num) override;
+	float getAmplificationFactorImpl() const override;
+	void generateChannels(float** bufs, unsigned num) override;
 
 	inline void keyOn_BD();
 	inline void keyOn_SD();

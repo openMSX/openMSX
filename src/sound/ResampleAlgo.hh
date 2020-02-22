@@ -9,7 +9,7 @@ class ResampleAlgo
 {
 public:
 	virtual ~ResampleAlgo() = default;
-	virtual bool generateOutput(int* dataOut, unsigned num,
+	virtual bool generateOutput(float* dataOut, unsigned num,
 	                            EmuTime::param time) = 0;
 };
 

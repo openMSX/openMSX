@@ -125,7 +125,7 @@ void RomFSA1FM1::writeMem(word address, byte value, EmuTime::param /*time*/)
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		if (address == 0x7FC4) {
 			// switch rom bank
-			invalidateMemCache(0x4000, 0x2000);
+			invalidateDeviceRCache(0x4000, 0x2000);
 		}
 		fsSram->write(address & 0x1FFF, value);
 	}
@@ -170,8 +170,10 @@ void RomFSA1FM2::reset(EmuTime::param /*time*/)
 	for (int region = 0; region < 6; ++region) {
 		changeBank(region, 0xA8);
 	}
-	changeBank(6, 0);
+	changeBank(6, 0); // for mapper-state read-back
 	changeBank(7, 0);
+	setUnmapped(6);
+	setUnmapped(7);
 }
 
 byte RomFSA1FM2::peekMem(word address, EmuTime::param time) const
@@ -273,11 +275,14 @@ void RomFSA1FM2::changeBank(byte region, byte bank)
 			isRam[region]   = false;
 			isEmpty[region] = true;
 		}
-		invalidateMemCache(0x2000 * region, 0x2000);
+		invalidateDeviceRWCache(0x2000 * region, 0x2000);
 	} else {
 		isRam[region]   = false;
 		isEmpty[region] = false;
 		setRom(region, bank & 0x7F);
+		if (region == 3) {
+			invalidateDeviceRCache(0x7FF0 & CacheLine::HIGH, CacheLine::SIZE);
+		}
 	}
 }
 
@@ -287,9 +292,9 @@ void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	// note: SRAM can be serialized in this class (as opposed to
 	//       Rom8kBBlocks), because we don't use setBank to map it
-	ar.serialize("SRAM", *fsSram);
-	ar.serialize("bankSelect", bankSelect);
-	ar.serialize("control", control);
+	ar.serialize("SRAM",       *fsSram,
+	             "bankSelect", bankSelect,
+	             "control",    control);
 	if (ar.isLoader()) {
 		// recalculate 'isRam' and 'isEmpty' from bankSelect
 		for (int region = 0; region < 8; ++region) {

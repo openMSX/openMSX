@@ -182,8 +182,8 @@ template<typename Archive>
 void PhilipsFDC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<WD2793BasedFDC>(*this);
-	ar.serialize("sideReg", sideReg);
-	ar.serialize("driveReg", driveReg);
+	ar.serialize("sideReg",  sideReg,
+	             "driveReg", driveReg);
 }
 INSTANTIATE_SERIALIZE_METHODS(PhilipsFDC);
 REGISTER_MSXDEVICE(PhilipsFDC, "PhilipsFDC");

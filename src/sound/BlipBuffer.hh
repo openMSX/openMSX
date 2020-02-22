@@ -24,21 +24,21 @@ public:
 
 	// Update amplitude of waveform at given time. Time is in output sample
 	// units and since the last time readSamples() was called.
-	void addDelta(TimeIndex time, int delta);
+	void addDelta(TimeIndex time, float delta);
 
 	// Read the given amount of samples into destination buffer.
 	template <unsigned PITCH>
-	bool readSamples(int* out, unsigned samples);
+	bool readSamples(float* out, unsigned samples);
 
 private:
 	template <unsigned PITCH>
-	void readSamplesHelper(int* out, unsigned samples) __restrict;
+	void readSamplesHelper(float* out, unsigned samples) __restrict;
 
 	static constexpr unsigned BUFFER_SIZE = 1 << 14;
 	static constexpr unsigned BUFFER_MASK = BUFFER_SIZE - 1;
-	int buffer[BUFFER_SIZE];
+	float buffer[BUFFER_SIZE];
 	unsigned offset;
-	int accum;
+	float accum;
 	int availSamp;
 };
 

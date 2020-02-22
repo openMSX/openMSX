@@ -23,10 +23,10 @@ using std::make_shared;
 
 namespace openmsx {
 
-static const int POS_MIN = 55; // measured by hap
-static const int POS_MAX = 325; // measured by hap
-static const int POS_CENTER = 236; // approx. middle used by games
-static const int SCALE = 2;
+constexpr int POS_MIN = 55; // measured by hap
+constexpr int POS_MAX = 325; // measured by hap
+constexpr int POS_CENTER = 236; // approx. middle used by games
+constexpr int SCALE = 2;
 
 
 class ArkanoidState final : public StateChange
@@ -43,9 +43,9 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("delta", delta);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("delta",   delta,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	int delta;
@@ -79,7 +79,7 @@ const string& ArkanoidPad::getName() const
 	return name;
 }
 
-string_view ArkanoidPad::getDescription() const
+std::string_view ArkanoidPad::getDescription() const
 {
 	return "Arkanoid pad";
 }
@@ -187,11 +187,11 @@ void ArkanoidPad::stopReplay(EmuTime::param time)
 template<typename Archive>
 void ArkanoidPad::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("shiftreg", shiftreg);
-	ar.serialize("lastValue", lastValue);
+	ar.serialize("shiftreg",  shiftreg,
+	             "lastValue", lastValue);
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("dialpos", dialpos);
-		ar.serialize("buttonStatus", buttonStatus);
+		ar.serialize("dialpos",      dialpos,
+		             "buttonStatus", buttonStatus);
 	}
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());

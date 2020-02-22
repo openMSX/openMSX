@@ -4,12 +4,12 @@
 
 namespace openmsx {
 
-static const uint8_t ASCII_FLAG  = 0x01; // bit 0 set: file probably ascii text
-static const uint8_t HEAD_CRC    = 0x02; // bit 1 set: header CRC present
-static const uint8_t EXTRA_FIELD = 0x04; // bit 2 set: extra field present
-static const uint8_t ORIG_NAME   = 0x08; // bit 3 set: original file name present
-static const uint8_t COMMENT     = 0x10; // bit 4 set: file comment present
-static const uint8_t RESERVED    = 0xE0; // bits 5..7: reserved
+constexpr uint8_t ASCII_FLAG  = 0x01; // bit 0 set: file probably ascii text
+constexpr uint8_t HEAD_CRC    = 0x02; // bit 1 set: header CRC present
+constexpr uint8_t EXTRA_FIELD = 0x04; // bit 2 set: extra field present
+constexpr uint8_t ORIG_NAME   = 0x08; // bit 3 set: original file name present
+constexpr uint8_t COMMENT     = 0x10; // bit 4 set: file comment present
+constexpr uint8_t RESERVED    = 0xE0; // bits 5..7: reserved
 
 
 GZFileAdapter::GZFileAdapter(std::unique_ptr<FileBase> file_)

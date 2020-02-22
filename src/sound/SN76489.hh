@@ -28,7 +28,7 @@ public:
 	~SN76489();
 
 	// ResampledSoundDevice
-	void generateChannels(int** buffers, unsigned num) override;
+	void generateChannels(float** buffers, unsigned num) override;
 
 	void reset(EmuTime::param time);
 	void write(byte value, EmuTime::param time);
@@ -87,7 +87,7 @@ private:
 	word peekRegister(unsigned reg, EmuTime::param time) const;
 	void writeRegister(unsigned reg, word value, EmuTime::param time);
 	template <bool NOISE> void synthesizeChannel(
-		int*& buffer, unsigned num, unsigned generator);
+		float*& buffer, unsigned num, unsigned generator);
 
 	unsigned volTable[16];
 
@@ -117,7 +117,6 @@ private:
 		byte read(unsigned address, EmuTime::param time) override;
 		void write(unsigned address, byte value, EmuTime::param time) override;
 	} debuggable;
-
 };
 
 } // namespace openmsx

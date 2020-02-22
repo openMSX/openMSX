@@ -105,8 +105,8 @@ void MSXPSG::serialize(Archive& ar, unsigned version)
 	if (ar.versionBelow(version, 2)) {
 		assert(ar.isLoader());
 		// in older versions there were always 2 real joytsick ports
-		ar.serialize("joystickportA", *checked_cast<JoystickPort*>(ports[0]));
-		ar.serialize("joystickportB", *checked_cast<JoystickPort*>(ports[1]));
+		ar.serialize("joystickportA", *checked_cast<JoystickPort*>(ports[0]),
+		             "joystickportB", *checked_cast<JoystickPort*>(ports[1]));
 	}
 	ar.serialize("registerLatch", registerLatch);
 	byte portB = prev;

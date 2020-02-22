@@ -5,12 +5,6 @@
 
 namespace openmsx {
 
-BreakPointBase::BreakPointBase(TclObject command_, TclObject condition_)
-	: command(std::move(command_)), condition(std::move(condition_))
-	, executing(false)
-{
-}
-
 bool BreakPointBase::isTrue(GlobalCliComm& cliComm, Interpreter& interp) const
 {
 	if (condition.getString().empty()) {
@@ -31,7 +25,7 @@ void BreakPointBase::checkAndExecute(GlobalCliComm& cliComm, Interpreter& interp
 		// no recursive execution
 		return;
 	}
-	ScopedAssign<bool> sa(executing, true);
+	ScopedAssign sa(executing, true);
 	if (isTrue(cliComm, interp)) {
 		try {
 			command.executeCommand(interp, true); // compile command

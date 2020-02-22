@@ -41,10 +41,10 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("x",      x);
-		ar.serialize("y",      y);
-		ar.serialize("touch",  touch);
-		ar.serialize("button", button);
+		ar.serialize("x",      x,
+		             "y",      y,
+		             "touch",  touch,
+		             "button", button);
 	}
 private:
 	byte x, y;
@@ -65,7 +65,7 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 		"2x3 matrix to transform host mouse coordinates to "
 		"MSX touchpad coordinates, see manual for details",
 		"{ 256 0 0 } { 0 256 0 }")
-	, start(EmuTime::zero)
+	, start(EmuTime::zero())
 	, hostButtons(0)
 	, x(0), y(0), touch(false), button(false)
 	, shift(0), channel(0), last(0)
@@ -120,7 +120,7 @@ const std::string& Touchpad::getName() const
 	return name;
 }
 
-string_view Touchpad::getDescription() const
+std::string_view Touchpad::getDescription() const
 {
 	return "MSX Touchpad";
 }
@@ -138,13 +138,13 @@ void Touchpad::unplugHelper(EmuTime::param /*time*/)
 }
 
 // JoystickDevice
-static const byte SENSE  = JoystickDevice::RD_PIN1;
-static const byte EOC    = JoystickDevice::RD_PIN2;
-static const byte SO     = JoystickDevice::RD_PIN3;
-static const byte BUTTON = JoystickDevice::RD_PIN4;
-static const byte SCK    = JoystickDevice::WR_PIN6;
-static const byte SI     = JoystickDevice::WR_PIN7;
-static const byte CS     = JoystickDevice::WR_PIN8;
+constexpr byte SENSE  = JoystickDevice::RD_PIN1;
+constexpr byte EOC    = JoystickDevice::RD_PIN2;
+constexpr byte SO     = JoystickDevice::RD_PIN3;
+constexpr byte BUTTON = JoystickDevice::RD_PIN4;
+constexpr byte SCK    = JoystickDevice::WR_PIN6;
+constexpr byte SI     = JoystickDevice::WR_PIN7;
+constexpr byte CS     = JoystickDevice::WR_PIN8;
 
 byte Touchpad::read(EmuTime::param time)
 {
@@ -155,7 +155,7 @@ byte Touchpad::read(EmuTime::param time)
 	// EOC remains zero for 56 cycles after CS 0->1
 	// TODO at what clock frequency does the UPD7001 run?
 	//    400kHz is only the recommended value from the UPD7001 datasheet.
-	static const EmuDuration delta = Clock<400000>::duration(56);
+	constexpr EmuDuration delta = Clock<400000>::duration(56);
 	if ((time - start) > delta) {
 		result |= EOC;
 	}
@@ -291,14 +291,14 @@ void Touchpad::serialize(Archive& ar, unsigned /*version*/)
 {
 	// no need to serialize hostX, hostY, hostButtons,
 	//                      transformSetting, m[][]
-	ar.serialize("start", start);
-	ar.serialize("x", x);
-	ar.serialize("y", y);
-	ar.serialize("touch", touch);
-	ar.serialize("button", button);
-	ar.serialize("shift", shift);
-	ar.serialize("channel", channel);
-	ar.serialize("last", last);
+	ar.serialize("start",   start,
+	             "x",       x,
+	             "y",       y,
+	             "touch",   touch,
+	             "button",  button,
+	             "shift",   shift,
+	             "channel", channel,
+	             "last",    last);
 
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());

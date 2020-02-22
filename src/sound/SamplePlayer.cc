@@ -8,14 +8,14 @@
 
 namespace openmsx {
 
+constexpr unsigned DUMMY_INPUT_RATE = 44100; // actual rate depends on .wav files
+
 SamplePlayer::SamplePlayer(const std::string& name_, const std::string& desc,
                            const DeviceConfig& config,
                            const std::string& samplesBaseName, unsigned numSamples,
                            const std::string& alternativeName)
-	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1)
+	: ResampledSoundDevice(config.getMotherBoard(), name_, desc, 1, DUMMY_INPUT_RATE, false)
 {
-	setInputRate(44100); // Initialize with dummy value
-
 	bool alreadyWarned = false;
 	samples.resize(numSamples); // initialize with empty wavs
 	auto context = systemFileContext();
@@ -73,12 +73,7 @@ void SamplePlayer::setWavParams()
 	if ((currentSampleNum < samples.size()) &&
 	    samples[currentSampleNum].getSize()) {
 		auto& wav = samples[currentSampleNum];
-		sampBuf = wav.getData();
 		bufferSize = wav.getSize();
-
-		unsigned bits = wav.getBits();
-		assert((bits == 8) || (bits == 16));
-		bits8 = (bits == 8);
 
 		unsigned freq = wav.getFreq();
 		if (freq != getInputRate()) {
@@ -102,20 +97,15 @@ void SamplePlayer::repeat(unsigned sampleNum)
 	}
 }
 
-inline int SamplePlayer::getSample(unsigned idx)
-{
-	return bits8
-	     ? (static_cast<const uint8_t*>(sampBuf)[idx] - 0x80) * 256
-	     :  static_cast<const int16_t*>(sampBuf)[idx];
-}
-
-void SamplePlayer::generateChannels(int** bufs, unsigned num)
+void SamplePlayer::generateChannels(float** bufs, unsigned num)
 {
 	// Single channel device: replace content of bufs[0] (not add to it).
 	if (!isPlaying()) {
 		bufs[0] = nullptr;
 		return;
 	}
+
+	auto& wav = samples[currentSampleNum];
 	for (unsigned i = 0; i < num; ++i) {
 		if (index >= bufferSize) {
 			if (nextSampleNum != unsigned(-1)) {
@@ -124,12 +114,12 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 				currentSampleNum = unsigned(-1);
 				// fill remaining buffer with zeros
 				do {
-					bufs[0][i++] = 0;
+					bufs[0][i++] = 0.0f;
 				} while (i < num);
 				break;
 			}
 		}
-		bufs[0][i] = 3 * getSample(index++);
+		bufs[0][i] = 3 * wav.getSample(index++);
 	}
 }
 
@@ -141,9 +131,9 @@ void SamplePlayer::doRepeat()
 template<typename Archive>
 void SamplePlayer::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("index", index);
-	ar.serialize("currentSampleNum", currentSampleNum);
-	ar.serialize("nextSampleNum", nextSampleNum);
+	ar.serialize("index",            index,
+	             "currentSampleNum", currentSampleNum,
+	             "nextSampleNum",    nextSampleNum);
 	if (ar.isLoader()) {
 		setWavParams();
 	}

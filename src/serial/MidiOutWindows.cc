@@ -54,15 +54,15 @@ const string& MidiOutWindows::getName() const
 	return name;
 }
 
-string_view MidiOutWindows::getDescription() const
+std::string_view MidiOutWindows::getDescription() const
 {
 	return desc;
 }
 
-void MidiOutWindows::recvByte(byte value, EmuTime::param /*time*/)
+void MidiOutWindows::recvMessage(const std::vector<uint8_t>& message, EmuTime::param /*time*/)
 {
 	if (devidx != unsigned(-1)) {
-		w32_midiOutPut(value, devidx);
+		w32_midiOutMsg(message.size(), message.data(), devidx);
 	}
 }
 

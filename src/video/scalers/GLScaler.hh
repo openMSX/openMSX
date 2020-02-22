@@ -74,6 +74,8 @@ protected:
 	             bool textureFromZero = false);
 
 protected:
+	gl::VertexArray vao;
+	gl::BufferObject vbo[2];
 	gl::ShaderProgram program[2];
 	GLint unifTexSize[2];
 };

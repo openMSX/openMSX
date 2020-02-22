@@ -10,6 +10,10 @@
     <type>MSX2</type>
   </info>
 
+  <!-- All ROMs except font ROM verified by Alwin Henseler with EPROM dumps -->
+  <!-- Note that the content of these EPROMs were identical to what was
+       specified in this file before using the EPROM dumps. -->
+
   <MapperReadBackBits>largest</MapperReadBackBits>
 
   <CassettePort/>
@@ -17,9 +21,10 @@
   <devices>
 
     <Kanji id="Hangul ROM">
+      <type>hangul</type>
       <rom>
         <filename>cpc-400s_hangulfont.rom</filename>
-        <sha1>30fff22e3e3d464993707488442721a5e56a9707</sha1>
+        <sha1>22d5f4e522250dc5eb17e15b68f4a51bb752cba1</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD9" num="1" type="I"/>
@@ -73,20 +78,30 @@
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <rom>
-            <filename>cpc-400s_basic-bios2.rom</filename>
-            <sha1>affa3c5cd8db79a1450ad8a7f405a425b251653d</sha1>
+            <filename>CPC-400S.U38</filename>
+            <sha1>75f5f0a5a2e8f0935f33bb3cf07b83dd3e5f3347</sha1>
+            <window base="0x0000" size="0x8000"/>
           </rom>
           <mem base="0x0000" size="0x8000"/>
         </ROM>
       </secondary>
 
       <secondary slot="1">
-        <ROM id="MSX Hangul Driver">
+        <ROM id="Hangul ROM 1">
           <rom>
-            <filename>cpc-400s_hangul.rom</filename>
-            <sha1>6a50295ea35e720ba6f4ba5616c3441128b384ed</sha1>
+            <filename>CPC-400S.U44</filename>
+            <sha1>6b640c1d8cbeda6ca7d6facd16a206b62e059eee</sha1>
+            <window base="0x4000" size="0x4000"/>
           </rom>
-          <mem base="0x4000" size="0x8000"/>
+          <mem base="0x4000" size="0x4000"/>
+        </ROM>
+        <ROM id="Kanji control ROM">
+          <rom>
+            <filename>CPC-400S.U44</filename>
+            <sha1>6b640c1d8cbeda6ca7d6facd16a206b62e059eee</sha1>
+            <window base="0xC000" size="0x4000"/>
+          </rom>
+          <mem base="0x8000" size="0x4000"/>
         </ROM>
       </secondary>
 
@@ -98,12 +113,21 @@
       </secondary>
 
       <secondary slot="3">
-        <ROM id="MSX Sub ROM">
+        <ROM id="EXTEND BIOS ROM">
           <rom>
-            <filename>cpc-400s_msx2sub.rom</filename>
-            <sha1>b6d3649a6647fa9f6bd61efc317485a20901128f</sha1>
+            <filename>CPC-400S.U38</filename>
+            <sha1>75f5f0a5a2e8f0935f33bb3cf07b83dd3e5f3347</sha1>
+            <window base="0xC000" size="0x4000"/>
           </rom>
-          <mem base="0x0000" size="0x8000"/>
+          <mem base="0x0000" size="0x4000"/>
+        </ROM>
+        <ROM id="Hangul ROM 2">
+          <rom>
+            <filename>CPC-400S.U44</filename>
+            <sha1>6b640c1d8cbeda6ca7d6facd16a206b62e059eee</sha1>
+            <window base="0x0000" size="0x4000"/>
+          </rom>
+          <mem base="0x4000" size="0x4000"/>
         </ROM>
       </secondary>
 
@@ -116,8 +140,9 @@
         <connectionstyle>National</connectionstyle>
         <drives>1</drives>
         <rom>
-          <filename>cpc-400s_disk.rom</filename>
-          <sha1>914f6ccb25d78621186001f2f5e2aaa2d628cd0c</sha1>
+          <filename>CPC-400S.U38</filename>
+          <sha1>75f5f0a5a2e8f0935f33bb3cf07b83dd3e5f3347</sha1>
+          <window base="0x8000" size="0x4000"/>
         </rom>
         <mem base="0x4000" size="0x8000"/>
       </WD2793>

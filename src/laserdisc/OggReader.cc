@@ -409,7 +409,7 @@ void OggReader::readVorbis(ogg_packet* packet)
 		} else {
 			if (vorbisPos != size_t(packet->granulepos)) {
 				cli.printWarning(
-                                        "vorbis audio out of sync, expected ",
+					"vorbis audio out of sync, expected ",
 					vorbisPos, ", got ", packet->granulepos);
 				vorbisPos = packet->granulepos;
 			}
@@ -636,7 +636,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 			// we're missing frames!
 			frame = frameList[0].get();
 			cli.printWarning(
-                                "Cannot find frame ", frameno, " using ",
+					"Cannot find frame ", frameno, " using ",
 			        frame->no, " instead");
 			break;
 		}
@@ -768,7 +768,7 @@ bool OggReader::nextPacket()
 
 bool OggReader::nextPage(ogg_page* page)
 {
-	static const size_t CHUNK = 4096;
+	constexpr size_t CHUNK = 4096;
 
 	int ret;
 	while ((ret = ogg_sync_pageseek(&sync, page)) <= 0) {
@@ -803,7 +803,7 @@ size_t OggReader::bisection(
 {
 	// Defined to be a power-of-two such that the arthmetic can be done faster.
 	// Note that the sample-number is in the range of: 1..(44100*60*60)
-	static const uint64_t SHIFT = 0x20000000ull;
+	constexpr uint64_t SHIFT = 0x20000000ull;
 
 	uint64_t offsetA = 0, offsetB = maxOffset;
 	uint64_t sampleA = 0, sampleB = maxSamples;
@@ -855,7 +855,7 @@ size_t OggReader::bisection(
 
 size_t OggReader::findOffset(size_t frame, size_t sample)
 {
-	static const size_t STEP = 32 * 1024;
+	constexpr size_t STEP = 32 * 1024;
 
 	// first calculate total length in bytes, samples and frames
 
@@ -937,8 +937,8 @@ bool OggReader::seek(size_t frame, size_t samples)
 {
 	// Remove all queued frames
 	recycleFrameList.insert(end(recycleFrameList),
-		make_move_iterator(begin(frameList)),
-		make_move_iterator(end  (frameList)));
+		std::move_iterator(begin(frameList)),
+		std::move_iterator(end  (frameList)));
 	frameList.clear();
 
 	// Remove all queued audio

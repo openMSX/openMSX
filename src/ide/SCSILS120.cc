@@ -44,19 +44,19 @@ using std::vector;
 namespace openmsx {
 
 // Medium type (value like LS-120)
-static const byte MT_UNKNOWN   = 0x00;
-static const byte MT_2DD_UN    = 0x10;
-static const byte MT_2DD       = 0x11;
-static const byte MT_2HD_UN    = 0x20;
-static const byte MT_2HD_12_98 = 0x22;
-static const byte MT_2HD_12    = 0x23;
-static const byte MT_2HD_144   = 0x24;
-static const byte MT_LS120     = 0x31;
-static const byte MT_NO_DISK   = 0x70;
-static const byte MT_DOOR_OPEN = 0x71;
-static const byte MT_FMT_ERROR = 0x72;
+constexpr byte MT_UNKNOWN   = 0x00;
+constexpr byte MT_2DD_UN    = 0x10;
+constexpr byte MT_2DD       = 0x11;
+constexpr byte MT_2HD_UN    = 0x20;
+constexpr byte MT_2HD_12_98 = 0x22;
+constexpr byte MT_2HD_12    = 0x23;
+constexpr byte MT_2HD_144   = 0x24;
+constexpr byte MT_LS120     = 0x31;
+constexpr byte MT_NO_DISK   = 0x70;
+constexpr byte MT_DOOR_OPEN = 0x71;
+constexpr byte MT_FMT_ERROR = 0x72;
 
-static const byte inqdata[36] = {
+constexpr byte inqdata[36] = {
 	  0,   // bit5-0 device type code.
 	  0,   // bit7 = 1 removable device
 	  2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
@@ -74,10 +74,10 @@ static const byte inqdata[36] = {
 };
 
 // for FDSFORM.COM
-static const char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
+constexpr char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 
-static const unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE /
-                                          SectorAccessibleDisk::SECTOR_SIZE;
+constexpr unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE /
+                                       SectorAccessibleDisk::SECTOR_SIZE;
 
 class LSXCommand final : public RecordedCommand
 {
@@ -117,6 +117,8 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getScheduler(), *this);
 
+	lun = 0; // TODO move to reset() ?
+	message = 0;
 	reset();
 }
 
@@ -233,7 +235,7 @@ unsigned SCSILS120::inquiry()
 	}
 
 	if (length > 36) {
-		string filename = FileOperations::getFilename(file.getURL()).str();
+		string filename(FileOperations::getFilename(file.getURL()));
 		filename.resize(20, ' ');
 		memcpy(buffer + 36, filename.data(), 20);
 	}
@@ -475,7 +477,7 @@ void SCSILS120::eject()
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, {});
 }
 
-void SCSILS120::insert(string_view filename)
+void SCSILS120::insert(std::string_view filename)
 {
 	file = File(filename);
 	mediaChanged = true;
@@ -679,7 +681,7 @@ int SCSILS120::msgOut(byte value)
 
 	case SCSI::MSG_BUS_DEVICE_RESET:
 		busReset();
-		// fall-through
+		[[fallthrough]];
 	case SCSI::MSG_ABORT:
 		return -1;
 
@@ -737,7 +739,7 @@ bool SCSILS120::diskChanged()
 	return mediaChanged; // TODO not reset on read
 }
 
-int SCSILS120::insertDisk(string_view filename)
+int SCSILS120::insertDisk(std::string_view filename)
 {
 	try {
 		insert(filename);
@@ -788,7 +790,7 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 		}
 		try {
 			string filename = userFileContext().resolve(
-				tokens[fileToken].getString().str());
+				string(tokens[fileToken].getString()));
 			ls.insert(filename);
 			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {
@@ -811,7 +813,7 @@ string LSXCommand::help(const vector<string>& /*tokens*/) const
 
 void LSXCommand::tabCompletion(vector<string>& tokens) const
 {
-	static const char* const extra[] = { "eject", "insert" };
+	static constexpr const char* const extra[] = { "eject", "insert" };
 	completeFileName(tokens, userFileContext(), extra);
 }
 
@@ -830,13 +832,13 @@ void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 		}
 	}
 
-	ar.serialize("keycode", keycode);
-	ar.serialize("currentSector", currentSector);
-	ar.serialize("currentLength", currentLength);
-	ar.serialize("unitAttention", unitAttention);
-	ar.serialize("mediaChanged", mediaChanged);
-	ar.serialize("message", message);
-	ar.serialize("lun", lun);
+	ar.serialize("keycode",       keycode,
+	             "currentSector", currentSector,
+	             "currentLength", currentLength,
+	             "unitAttention", unitAttention,
+	             "mediaChanged",  mediaChanged,
+	             "message",       message,
+	             "lun",           lun);
 	ar.serialize_blob("cdb", cdb, sizeof(cdb));
 }
 INSTANTIATE_SERIALIZE_METHODS(SCSILS120);

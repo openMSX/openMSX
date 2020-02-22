@@ -63,7 +63,7 @@ class WixFragment(object):
 		line = self.indent(
 			'<%s %s>' % (
 				elementName,
-				' '.join('%s="%s"' % item for item in args.iteritems())
+				' '.join('%s="%s"' % item for item in args.items())
 				)
 			)
 		self.incrementIndent()
@@ -217,7 +217,7 @@ def run():
 		options.sourcePath, options.componentGroup, options.directoryRef,
 		options.virtualDir, options.excludedFile, options.win64
 		):
-		print line
+		print(line)
 
 if __name__ == '__main__':
 	run()

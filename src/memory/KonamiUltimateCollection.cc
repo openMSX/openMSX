@@ -71,7 +71,7 @@ void KonamiUltimateCollection::reset(EmuTime::param time)
 	scc.reset(time);
 	dac.reset(time);
 
-	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+	invalidateDeviceRWCache(); // flush all to be sure
 }
 
 unsigned KonamiUltimateCollection::getFlashAddr(unsigned addr) const
@@ -165,7 +165,7 @@ void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param ti
 		} else if (addr == 0x7FFE) {
 			offsetReg = value;
 		}
-		invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+		invalidateDeviceRCache(); // flush all to be sure
 	}
 
 
@@ -183,7 +183,7 @@ void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param ti
 				// [0x9000,0x97FF] [0xB000,0xB7FF]
 				// Masking of the mapper bits is done on write
 				bankRegs[page8kB] = value;
-				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+				invalidateDeviceRCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			}
 		} else {
 			// Konami
@@ -195,7 +195,7 @@ void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param ti
 				if (!((addr < 0x5000) || ((0x5800 <= addr) && (addr < 0x6000)))) {
 					// Masking of the mapper bits is done on write
 					bankRegs[page8kB] = value;
-					invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+					invalidateDeviceRCache(0x4000 + 0x2000 * page8kB, 0x2000);
 				}
 			}
 		}
@@ -205,8 +205,8 @@ void KonamiUltimateCollection::writeMem(word addr, byte value, EmuTime::param ti
 			sccMode = value;
 			scc.setChipMode((value & 0x20) ? SCC::SCC_plusmode
 						       : SCC::SCC_Compatible);
-			invalidateMemCache(0x9800, 0x800);
-			invalidateMemCache(0xB800, 0x800);
+			invalidateDeviceRCache(0x9800, 0x800);
+			invalidateDeviceRCache(0xB800, 0x800);
 		}
 	}
 
@@ -228,13 +228,13 @@ void KonamiUltimateCollection::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	ar.serialize("flash", flash);
-	ar.serialize("scc", scc);
-	ar.serialize("DAC", dac);
-	ar.serialize("mapperReg", mapperReg);
-	ar.serialize("offsetReg", offsetReg);
-	ar.serialize("sccMode", sccMode);
-	ar.serialize("bankRegs", bankRegs);
+	ar.serialize("flash",     flash,
+	             "scc",       scc,
+	             "DAC",       dac,
+	             "mapperReg", mapperReg,
+	             "offsetReg", offsetReg,
+	             "sccMode",   sccMode,
+	             "bankRegs",  bankRegs);
 }
 INSTANTIATE_SERIALIZE_METHODS(KonamiUltimateCollection);
 REGISTER_MSXDEVICE(KonamiUltimateCollection, "KonamiUltimateCollection");

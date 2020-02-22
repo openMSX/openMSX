@@ -3,7 +3,7 @@
 #include "RawFrame.hh"
 #include "PostProcessor.hh"
 #include "Display.hh"
-#include "VisibleSurface.hh"
+#include "OutputSurface.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
 #include "build-info.hh"
@@ -19,11 +19,11 @@ namespace openmsx {
 
 template <class Pixel>
 V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
-		V9990& vdp_, Display& display, VisibleSurface& screen_,
+		V9990& vdp_, Display& display, OutputSurface& screen_,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
-	, workFrame(std::make_unique<RawFrame>(screen.getSDLFormat(), 1280, 240))
+	, workFrame(std::make_unique<RawFrame>(screen.getPixelFormat(), 1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, displayMode(P1) // dummy value
 	, colorMode(PP)   //   avoid UMR

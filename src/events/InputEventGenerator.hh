@@ -98,8 +98,8 @@ private:
 	unsigned osdControlButtonsState; // 0 is pressed, 1 is released
 
 	// only for Android
-	static bool androidButtonA;
-	static bool androidButtonB;
+	static inline bool androidButtonA = false;
+	static inline bool androidButtonB = false;
 };
 
 } // namespace openmsx

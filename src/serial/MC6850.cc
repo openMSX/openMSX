@@ -15,20 +15,20 @@ namespace openmsx {
 // 5    R    Receive Data Register
 
 // control register bits
-static const unsigned CR_CDS1 = 0x01; // Counter Divide Select 1
-static const unsigned CR_CDS2 = 0x02; // Counter Divide Select 2
-static const unsigned CR_CDS  = CR_CDS1 | CR_CDS2;
-static const unsigned CR_MR   = CR_CDS1 | CR_CDS2; // Master Reset
+constexpr unsigned CR_CDS1 = 0x01; // Counter Divide Select 1
+constexpr unsigned CR_CDS2 = 0x02; // Counter Divide Select 2
+constexpr unsigned CR_CDS  = CR_CDS1 | CR_CDS2;
+constexpr unsigned CR_MR   = CR_CDS1 | CR_CDS2; // Master Reset
 // CDS2 CDS1
 // 0    0     divide by 1
 // 0    1     divide by 16
 // 1    0     divide by 64
 // 1    1     master reset (!)
 
-static const unsigned CR_WS1  = 0x04; // Word Select 1 (mostly parity)
-static const unsigned CR_WS2  = 0x08; // Word Select 2 (mostly nof stop bits)
-static const unsigned CR_WS3  = 0x10; // Word Select 3: 7/8 bits
-static const unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
+constexpr unsigned CR_WS1  = 0x04; // Word Select 1 (mostly parity)
+constexpr unsigned CR_WS2  = 0x08; // Word Select 2 (mostly nof stop bits)
+constexpr unsigned CR_WS3  = 0x10; // Word Select 3: 7/8 bits
+constexpr unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
 // WS3 WS2 WS1
 // 0   0   0   7 bits - 2 stop bits - Even parity
 // 0   0   1   7 bits - 2 stop bits - Odd  parity
@@ -39,9 +39,9 @@ static const unsigned CR_WS   = CR_WS1 | CR_WS2 | CR_WS3; // Word Select
 // 1   1   0   8 bits - 1 stop bit  - Even parity
 // 1   1   1   8 bits - 1 stop bit  - Odd  parity
 
-static const unsigned CR_TC1  = 0x20; // Transmit Control 1
-static const unsigned CR_TC2  = 0x40; // Transmit Control 2
-static const unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
+constexpr unsigned CR_TC1  = 0x20; // Transmit Control 1
+constexpr unsigned CR_TC2  = 0x40; // Transmit Control 2
+constexpr unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
 // TC2 TC1
 // 0   0   /RTS low,  Transmitting Interrupt disabled
 // 0   1   /RTS low,  Transmitting Interrupt enabled
@@ -49,19 +49,19 @@ static const unsigned CR_TC   = CR_TC1 | CR_TC2; // Transmit Control
 // 1   1   /RTS low,  Transmits a Break level on the Transmit Data Output.
 //                                 Interrupt disabled
 
-static const unsigned CR_RIE  = 0x80; // Receive Interrupt Enable: interrupt
+constexpr unsigned CR_RIE  = 0x80; // Receive Interrupt Enable: interrupt
 // at Receive Data Register Full, Overrun, low-to-high transition on the Data
 // Carrier Detect (/DCD) signal line
 
 // status register bits
-static const unsigned STAT_RDRF = 0x01; // Receive Data Register Full
-static const unsigned STAT_TDRE = 0x02; // Transmit Data Register Empty
-static const unsigned STAT_DCD  = 0x04; // Data Carrier Detect (/DCD)
-static const unsigned STAT_CTS  = 0x08; // Clear-to-Send (/CTS)
-static const unsigned STAT_FE   = 0x10; // Framing Error
-static const unsigned STAT_OVRN = 0x20; // Receiver Overrun
-static const unsigned STAT_PE   = 0x40; // Parity Error
-static const unsigned STAT_IRQ  = 0x80; // Interrupt Request (/IRQ)
+constexpr unsigned STAT_RDRF = 0x01; // Receive Data Register Full
+constexpr unsigned STAT_TDRE = 0x02; // Transmit Data Register Empty
+constexpr unsigned STAT_DCD  = 0x04; // Data Carrier Detect (/DCD)
+constexpr unsigned STAT_CTS  = 0x08; // Clear-to-Send (/CTS)
+constexpr unsigned STAT_FE   = 0x10; // Framing Error
+constexpr unsigned STAT_OVRN = 0x20; // Receiver Overrun
+constexpr unsigned STAT_PE   = 0x40; // Parity Error
+constexpr unsigned STAT_IRQ  = 0x80; // Interrupt Request (/IRQ)
 
 
 // Some existing Music-Module detection routines:
@@ -84,13 +84,13 @@ MC6850::MC6850(const DeviceConfig& config)
 	, MidiInConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-in")
 	, syncRecv (getMotherBoard().getScheduler())
 	, syncTrans(getMotherBoard().getScheduler())
-	, txClock(EmuTime::zero)
+	, txClock(EmuTime::zero())
 	, rxIRQ(getMotherBoard(), MSXDevice::getName() + "-rx-IRQ")
 	, txIRQ(getMotherBoard(), MSXDevice::getName() + "-tx-IRQ")
 	, txDataReg(0), txShiftReg(0) // avoid UMR
 	, outConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-out")
 {
-	reset(EmuTime::zero);
+	reset(EmuTime::zero());
 	setDataFormat();
 }
 
@@ -357,24 +357,24 @@ void MC6850::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 	if (ar.versionAtLeast(version, 3)) {
 		ar.template serializeBase<MidiInConnector>(*this);
-		ar.serialize("outConnector", outConnector);
+		ar.serialize("outConnector", outConnector,
 
-		ar.serialize("syncRecv",  syncRecv);
-		ar.serialize("syncTrans", syncTrans);
+		             "syncRecv",  syncRecv,
+		             "syncTrans", syncTrans,
 
-		ar.serialize("txClock", txClock);
-		ar.serialize("rxIRQ", rxIRQ);
-		ar.serialize("txIRQ", txIRQ);
+		             "txClock", txClock,
+		             "rxIRQ", rxIRQ,
+		             "txIRQ", txIRQ,
 
-		ar.serialize("rxReady",         rxReady);
-		ar.serialize("txShiftRegValid", txShiftRegValid);
-		ar.serialize("pendingOVRN",     pendingOVRN);
+		             "rxReady",         rxReady,
+		             "txShiftRegValid", txShiftRegValid,
+		             "pendingOVRN",     pendingOVRN,
 
-		ar.serialize("rxDataReg",  rxDataReg);
-		ar.serialize("txDataReg",  txDataReg);
-		ar.serialize("txShiftReg", txShiftReg);
-		ar.serialize("controlReg", controlReg);
-		ar.serialize("statusReg",  statusReg);
+		             "rxDataReg",  rxDataReg,
+		             "txDataReg",  txDataReg,
+		             "txShiftReg", txShiftReg,
+		             "controlReg", controlReg,
+		             "statusReg",  statusReg);
 	} else if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("control", controlReg);
 	} else {

@@ -41,10 +41,6 @@
       <ignorePortDirections>false</ignorePortDirections> <!-- not sure, but guess based on discrete PSG chip -->
     </PSG>
 
-    <PrinterPort id="Printer Port">
-      <io base="0x90" num="2"/>
-    </PrinterPort>
-
     <primary slot="0">
       <RAM id="Main RAM">
         <mem base="0xC000" size="0x4000"/>

@@ -26,7 +26,7 @@ public:
 
 private:
 	bool isSCCAccess(word addr) const;
-        unsigned getFlashAddr(unsigned addr) const;
+	unsigned getFlashAddr(unsigned addr) const;
 
 	bool isKonamiSCCmode()         const { return (mapperReg & 0x20) == 0; }
 	bool isFlashRomWriteEnabled()  const { return (mapperReg & 0x10) != 0; }

@@ -36,7 +36,7 @@ void CliExtension::parseOption(const string& option, span<string>& cmdLine)
 	}
 }
 
-string_view CliExtension::optionHelp() const
+std::string_view CliExtension::optionHelp() const
 {
 	return "Insert the extension specified in argument";
 }

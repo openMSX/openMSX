@@ -47,7 +47,7 @@ public:
 	 * Special requirement: it should be allowed to temporarily overwrite
 	 * the byte one position before the returned pointer.
 	 */
-	virtual uint8_t* getData(size_t offset, size_t size) = 0;
+	[[nodiscard]] virtual uint8_t* getData(size_t offset, size_t size) = 0;
 
 	/** Because TTH calculation of a large file takes some time (a few
 	  * 1/10s for a harddisk image) we try to cache previous calculations.
@@ -57,7 +57,7 @@ public:
 	  * Note that the current implementation of the caching is only
 	  * suited for files. Refactor this if we ever need some different.
 	  */
-	virtual bool isCacheStillValid(time_t& time) = 0;
+	[[nodiscard]] virtual bool isCacheStillValid(time_t& time) = 0;
 
 protected:
 	~TTData() = default;
@@ -79,7 +79,7 @@ public:
 
 	/** Calculate the hash value.
 	 */
-	const TigerHash& calcHash(const std::function<void(size_t, size_t)>& progressCallback);
+	[[nodiscard]] const TigerHash& calcHash(const std::function<void(size_t, size_t)>& progressCallback);
 
 	/** Inform this calculator about changes in the input data. This is
 	 * used to (not) skip re-calculations on future calcHash() calls. So
@@ -95,13 +95,13 @@ private:
 		size_t n; // node number
 		size_t l; // level number
 	};
-	Node getTop() const;
-	Node getLeaf(size_t block) const;
-	Node getParent(Node node) const;
-	Node getLeftChild(Node node) const;
-	Node getRightChild(Node node) const;
+	[[nodiscard]] Node getTop() const;
+	[[nodiscard]] Node getLeaf(size_t block) const;
+	[[nodiscard]] Node getParent(Node node) const;
+	[[nodiscard]] Node getLeftChild(Node node) const;
+	[[nodiscard]] Node getRightChild(Node node) const;
 
-	const TigerHash& calcHash(Node node, const std::function<void(size_t, size_t)>& progressCallback);
+	[[nodiscard]] const TigerHash& calcHash(Node node, const std::function<void(size_t, size_t)>& progressCallback);
 
 	TTData& data;
 	const size_t dataSize;

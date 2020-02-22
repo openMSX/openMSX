@@ -8,13 +8,13 @@
 #include "HardwareConfig.hh"
 #include "MSXException.hh"
 #include "Math.hh"
-#include "countof.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "view.hh"
 #include "xrange.hh"
 #include <cstring>
 #include <cassert>
+#include <iterator>
 #include <memory>
 
 using std::string;
@@ -54,7 +54,7 @@ static bool sramEmpty(const SRAM& ram)
 
 void AmdFlash::init(const string& name, const DeviceConfig& config, bool load, const Rom* rom)
 {
-	assert(Math::isPowerOfTwo(getSize()));
+	assert(Math::ispow2(getSize()));
 
 	auto numSectors = sectorInfo.size();
 
@@ -209,7 +209,7 @@ void AmdFlash::setState(State newState)
 {
 	if (state == newState) return;
 	state = newState;
-	motherBoard.getCPU().invalidateMemCache(0x0000, 0x10000);
+	motherBoard.getCPU().invalidateAllSlotsRWCache(0x0000, 0x10000);
 }
 
 byte AmdFlash::peek(unsigned address) const
@@ -301,7 +301,7 @@ bool AmdFlash::checkCommandReset()
 
 bool AmdFlash::checkCommandEraseSector()
 {
-	static const byte cmdSeq[] = { 0xaa, 0x55, 0x80, 0xaa, 0x55 };
+	static constexpr byte cmdSeq[] = { 0xaa, 0x55, 0x80, 0xaa, 0x55 };
 	if (partialMatch(5, cmdSeq)) {
 		if (cmdIdx < 6) return true;
 		if (cmd[5].value == 0x30) {
@@ -319,7 +319,7 @@ bool AmdFlash::checkCommandEraseSector()
 
 bool AmdFlash::checkCommandEraseChip()
 {
-	static const byte cmdSeq[] = { 0xaa, 0x55, 0x80, 0xaa, 0x55 };
+	static constexpr byte cmdSeq[] = { 0xaa, 0x55, 0x80, 0xaa, 0x55 };
 	if (partialMatch(5, cmdSeq)) {
 		if (cmdIdx < 6) return true;
 		if (cmd[5].value == 0x10) {
@@ -348,25 +348,25 @@ bool AmdFlash::checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, 
 
 bool AmdFlash::checkCommandProgram()
 {
-	static const byte cmdSeq[] = { 0xaa, 0x55, 0xa0 };
-	return checkCommandProgramHelper(1, cmdSeq, countof(cmdSeq));
+	static constexpr byte cmdSeq[] = { 0xaa, 0x55, 0xa0 };
+	return checkCommandProgramHelper(1, cmdSeq, std::size(cmdSeq));
 }
 
 bool AmdFlash::checkCommandDoubleByteProgram()
 {
-	static const byte cmdSeq[] = { 0x50 };
-	return checkCommandProgramHelper(2, cmdSeq, countof(cmdSeq));
+	static constexpr byte cmdSeq[] = { 0x50 };
+	return checkCommandProgramHelper(2, cmdSeq, std::size(cmdSeq));
 }
 
 bool AmdFlash::checkCommandQuadrupleByteProgram()
 {
-	static const byte cmdSeq[] = { 0x56 };
-	return checkCommandProgramHelper(4, cmdSeq, countof(cmdSeq));
+	static constexpr byte cmdSeq[] = { 0x56 };
+	return checkCommandProgramHelper(4, cmdSeq, std::size(cmdSeq));
 }
 
 bool AmdFlash::checkCommandManufacturer()
 {
-	static const byte cmdSeq[] = { 0xaa, 0x55, 0x90 };
+	static constexpr byte cmdSeq[] = { 0xaa, 0x55, 0x90 };
 	if (partialMatch(3, cmdSeq)) {
 		if (cmdIdx == 3) {
 			setState(ST_IDENT);
@@ -378,7 +378,7 @@ bool AmdFlash::checkCommandManufacturer()
 
 bool AmdFlash::partialMatch(size_t len, const byte* dataSeq) const
 {
-	static const unsigned addrSeq[] = { 0, 1, 0, 0, 1 };
+	static constexpr unsigned addrSeq[] = { 0, 1, 0, 0, 1 };
 	unsigned cmdAddr[2] = { 0x555, 0x2aa };
 
 	assert(len <= 5);
@@ -404,17 +404,17 @@ SERIALIZE_ENUM(AmdFlash::State, stateInfo);
 template<typename Archive>
 void AmdFlash::AmdCmd::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("address", addr);
-	ar.serialize("value", value);
+	ar.serialize("address", addr,
+	             "value",   value);
 }
 
 template<typename Archive>
 void AmdFlash::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("ram", *ram);
-	ar.serialize("cmd", cmd);
-	ar.serialize("cmdIdx", cmdIdx);
-	ar.serialize("state", state);
+	ar.serialize("ram",    *ram,
+	             "cmd",    cmd,
+	             "cmdIdx", cmdIdx,
+	             "state",  state);
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("vppWpPinLow", vppWpPinLow);
 	}

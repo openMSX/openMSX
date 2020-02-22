@@ -21,19 +21,13 @@ struct S {
 		destructed = 0;
 	}
 
-	static int default_constructed;
-	static int copy_constructed;
-	static int move_constructed;
-	static int copy_assignment;
-	static int move_assignment;
-	static int destructed;
+	static inline int default_constructed = 0;
+	static inline int copy_constructed = 0;
+	static inline int move_constructed = 0;
+	static inline int copy_assignment = 0;
+	static inline int move_assignment = 0;
+	static inline int destructed = 0;
 };
-int S::default_constructed= 0;
-int S::copy_constructed = 0;
-int S::move_constructed = 0;
-int S::copy_assignment = 0;
-int S::move_assignment = 0;
-int S::destructed = 0;
 
 
 TEST_CASE("append")
@@ -133,7 +127,7 @@ TEST_CASE("to_vector: from list")
 		CHECK(v[0] == 1);
 		CHECK(v[1] == 2);
 		CHECK(v[2] == 3);
-		CHECK(std::is_same<decltype(v)::value_type, int>::value);
+		CHECK(std::is_same_v<decltype(v)::value_type, int>);
 	}
 	SECTION("convert type") {
 		std::list<int> l = {1, 2, 3};
@@ -142,7 +136,7 @@ TEST_CASE("to_vector: from list")
 		CHECK(v[0] == 1);
 		CHECK(v[1] == 2);
 		CHECK(v[2] == 3);
-		CHECK(std::is_same<decltype(v)::value_type, char>::value);
+		CHECK(std::is_same_v<decltype(v)::value_type, char>);
 	}
 }
 
@@ -153,14 +147,14 @@ TEST_CASE("to_vector: from view")
 		auto v = to_vector(view::drop(v1, 2));
 		CHECK(v.size() == 1);
 		CHECK(v[0] == 3);
-		CHECK(std::is_same<decltype(v)::value_type, int>::value);
+		CHECK(std::is_same_v<decltype(v)::value_type, int>);
 	}
 	SECTION("convert type") {
 		auto v = to_vector<long long>(view::drop(v1, 1));
 		CHECK(v.size() == 2);
 		CHECK(v[0] == 2ll);
 		CHECK(v[1] == 3ll);
-		CHECK(std::is_same<decltype(v)::value_type, long long>::value);
+		CHECK(std::is_same_v<decltype(v)::value_type, long long>);
 	}
 }
 

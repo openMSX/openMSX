@@ -5,7 +5,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 import os, sys
 
 def addFile(zipFile, path, zipPath):
-	print 'Adding ' + path
+	print('Adding ' + path)
 	zipFile.write(path, zipPath, ZIP_DEFLATED)
 
 def addDirectory(zipFile, root, zipPath):
@@ -19,7 +19,7 @@ def addDirectory(zipFile, root, zipPath):
 			addFile(zipFile, joinpath(path, name), joinpath(thisZipPath, name))
 
 def packageZip(info):
-	print 'Generating install files...'
+	print('Generating install files...')
 	generateInstallFiles(info)
 
 	if not exists(info.packagePath):
@@ -30,7 +30,7 @@ def packageZip(info):
 	if exists(zipFilePath):
 		os.unlink(zipFilePath)
 
-	print 'Generating ' + zipFilePath
+	print('Generating ' + zipFilePath)
 	zipFile = ZipFile(zipFilePath, 'w')
 
 	addDirectory(zipFile, joinpath(info.makeInstallPath, 'doc'), 'doc')
@@ -67,7 +67,7 @@ def packageZip(info):
 	if exists(zipFilePath):
 		os.unlink(zipFilePath)
 
-	print 'Generating ' + zipFilePath
+	print('Generating ' + zipFilePath)
 	zipFile = ZipFile(zipFilePath, 'w')
 	addFile(zipFile, info.openmsxPdbPath, basename(info.openmsxPdbPath))
 	addFile(zipFile, info.catapultPdbPath, basename(info.catapultPdbPath))
@@ -77,6 +77,9 @@ if __name__ == '__main__':
 	if len(sys.argv) == 4:
 		packageZip(PackageInfo(*sys.argv[1 : ]))
 	else:
-		print >> sys.stderr, 'Usage: python packagezip.py ' \
-			'platform configuration catapultPath'
+		print(
+			'Usage: python3 packagezip.py '
+			'platform configuration catapultPath',
+			file=sys.stderr
+			)
 		sys.exit(2)

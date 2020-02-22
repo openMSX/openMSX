@@ -1,11 +1,12 @@
 #include "catch.hpp"
 #include "HexDump.hh"
+#include <cstring>
 
 static void test_decode(const std::string& encoded, const std::string& decoded)
 {
-	auto p = HexDump::decode(encoded);
-	REQUIRE(p.second == decoded.size());
-	CHECK(memcmp(p.first.data(), decoded.data(), decoded.size()) == 0);
+	auto [buf, bufSize] = HexDump::decode(encoded);
+	REQUIRE(bufSize == decoded.size());
+	CHECK(memcmp(buf.data(), decoded.data(), decoded.size()) == 0);
 }
 
 static void test(const std::string& decoded, const std::string& encoded)

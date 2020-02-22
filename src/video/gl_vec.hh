@@ -27,6 +27,7 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <utility>
 
 namespace gl {
 
@@ -123,6 +124,10 @@ public:
 		#endif
 		return e[i];
 	}
+
+	// For structured bindings
+	template<size_t I> T  get() const noexcept { return (*this)[I]; }
+	template<size_t I> T& get()       noexcept { return (*this)[I]; }
 
 	// Assignment version of the +,-,* operations defined below.
 	vecN& operator+=(const vecN& x) { *this = *this + x; return *this; }
@@ -396,6 +401,26 @@ std::ostream& operator<<(std::ostream& os, const vecN<N, T>& x)
 
 } // namespace gl
 
+// Support for structured bindings
+namespace std {
+// On some platforms tuple_size is a class and on others it is a struct.
+// Such a mismatch is only a problem when targeting the Microsoft C++ ABI,
+// which we don't do when compiling with Clang.
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmismatched-tags"
+#endif
+	template<int N, typename T> class tuple_size<gl::vecN<N, T>>
+		: public std::integral_constant<size_t, N> {};
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+	template<size_t I, int N, typename T> class tuple_element<I, gl::vecN<N, T>> {
+	public:
+		using type = T;
+	};
+}
+
 
 // --- SSE optimizations ---
 
@@ -448,7 +473,11 @@ public:
 
 	float  operator[](int i) const { return e_[i]; }
 	float& operator[](int i)       { return e_[i]; }
-	
+
+	// For structured bindings
+	template<size_t I> float  get() const noexcept { return (*this)[I]; }
+	template<size_t I> float& get()       noexcept { return (*this)[I]; }
+
 	vecN& operator+=(vecN  x) { *this = *this + x; ; return *this; }
 	vecN& operator-=(vecN  x) { *this = *this - x; ; return *this; }
 	vecN& operator*=(vecN  x) { *this = *this * x; ; return *this; }

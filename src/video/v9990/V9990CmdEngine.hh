@@ -21,9 +21,9 @@ class V9990CmdEngine final : private Observer<Setting>
 {
 public:
 	// status bits
-	static const byte TR = 0x80;
-	static const byte BD = 0x10;
-	static const byte CE = 0x01;
+	static constexpr byte TR = 0x80;
+	static constexpr byte BD = 0x10;
+	static constexpr byte CE = 0x01;
 
 	V9990CmdEngine(V9990& vdp, EmuTime::param time,
 	               RenderSettings& settings);
@@ -75,6 +75,22 @@ public:
 		return borderX;
 	}
 
+	/** Calculate an (under-)estimation for when the command will finish.
+	  * The main purpose of this function is to insert extra sync points
+	  * so that the Command-End (CE) interrupt properly synchronizes with
+	  * CPU emulation.
+	  * This estimation:
+	  * - Is the current time (engineTime) when no command is executing
+	  *   or the command doesn't require extra syncs.
+	  * - Is allowed to be an underestimation, on the condition that (when
+	  *   that point in time is reached) the new estimation is more
+	  *   accurate and converges to the actual end time.
+	  */
+	EmuTime estimateCmdEnd() const;
+
+	const V9990& getVDP() const { return vdp; }
+	bool getBrokenTiming() const { return brokenTiming; }
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -82,8 +98,8 @@ private:
 	class V9990P1 {
 	public:
 		using Type = byte;
-		static const word BITS_PER_PIXEL  = 4;
-		static const word PIXELS_PER_BYTE = 2;
+		static constexpr word BITS_PER_PIXEL  = 4;
+		static constexpr word PIXELS_PER_BYTE = 2;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
 		static inline byte point(V9990VRAM& vram,
@@ -103,8 +119,8 @@ private:
 	class V9990P2 {
 	public:
 		using Type = byte;
-		static const word BITS_PER_PIXEL  = 4;
-		static const word PIXELS_PER_BYTE = 2;
+		static constexpr word BITS_PER_PIXEL  = 4;
+		static constexpr word PIXELS_PER_BYTE = 2;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
 		static inline byte point(V9990VRAM& vram,
@@ -124,8 +140,8 @@ private:
 	class V9990Bpp2 {
 	public:
 		using Type = byte;
-		static const word BITS_PER_PIXEL  = 2;
-		static const word PIXELS_PER_BYTE = 4;
+		static constexpr word BITS_PER_PIXEL  = 2;
+		static constexpr word PIXELS_PER_BYTE = 4;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
 		static inline byte point(V9990VRAM& vram,
@@ -145,8 +161,8 @@ private:
 	class V9990Bpp4 {
 	public:
 		using Type = byte;
-		static const word BITS_PER_PIXEL  = 4;
-		static const word PIXELS_PER_BYTE = 2;
+		static constexpr word BITS_PER_PIXEL  = 4;
+		static constexpr word PIXELS_PER_BYTE = 2;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
 		static inline byte point(V9990VRAM& vram,
@@ -166,8 +182,8 @@ private:
 	class V9990Bpp8 {
 	public:
 		using Type = byte;
-		static const word BITS_PER_PIXEL  = 8;
-		static const word PIXELS_PER_BYTE = 1;
+		static constexpr word BITS_PER_PIXEL  = 8;
+		static constexpr word PIXELS_PER_BYTE = 1;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
 		static inline byte point(V9990VRAM& vram,
@@ -187,8 +203,8 @@ private:
 	class V9990Bpp16 {
 	public:
 		using Type = word;
-		static const word BITS_PER_PIXEL  = 16;
-		static const word PIXELS_PER_BYTE = 0;
+		static constexpr word BITS_PER_PIXEL  = 16;
+		static constexpr word PIXELS_PER_BYTE = 0;
 		static inline unsigned getPitch(unsigned width);
 		static inline unsigned addressOf(unsigned x, unsigned y, unsigned pitch);
 		static inline word point(V9990VRAM& vram,
@@ -313,7 +329,6 @@ private:
 	void update(const Setting& setting) override;
 
 	void setCommandMode();
-	EmuDuration getTiming(const unsigned table[4][3][4]) const;
 
 	inline unsigned getWrappedNX() const {
 		return NX ? NX : 2048;

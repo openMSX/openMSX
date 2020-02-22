@@ -105,6 +105,11 @@ void RealDrive::setSide(bool side_)
 	side = side_ ? 1 : 0; // also for single-sided drives
 }
 
+bool RealDrive::getSide() const
+{
+	return side;
+}
+
 void RealDrive::step(bool direction, EmuTime::param time)
 {
 	invalidateTrack();
@@ -191,6 +196,14 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 	}
 }
 
+bool RealDrive::getMotor() const
+{
+	// note: currently unused because of the implementation in DriveMultiplexer
+	// note: currently returns the actual motor status, could be differnt from the
+	//       last set status because of 'syncMotorTimeout'.
+	return motorStatus;
+}
+
 unsigned RealDrive::getCurrentAngle(EmuTime::param time) const
 {
 	if (motorStatus) {
@@ -255,7 +268,7 @@ bool RealDrive::indexPulse(EmuTime::param time)
 EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time, int count)
 {
 	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
-		return EmuTime::infinity;
+		return EmuTime::infinity();
 	}
 	unsigned delta = TICKS_PER_ROTATION - getCurrentAngle(time);
 	auto dur1 = MotorClock::duration(delta);
@@ -327,7 +340,7 @@ EmuTime RealDrive::getNextSector(EmuTime::param time, RawTrack::Sector& sector)
 	// header. IOW we need a sector header that's at least 4 bytes removed
 	// from the current position.
 	if (!track.decodeNextSector(idx + 4, sector)) {
-		return EmuTime::infinity;
+		return EmuTime::infinity();
 	}
 	int sectorAngle = divUp(sector.addrIdx * TICKS_PER_ROTATION, trackLen);
 
@@ -384,16 +397,16 @@ template<typename Archive>
 void RealDrive::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 4)) {
-		ar.serialize("syncLoadingTimeout", syncLoadingTimeout);
-		ar.serialize("syncMotorTimeout",   syncMotorTimeout);
+		ar.serialize("syncLoadingTimeout", syncLoadingTimeout,
+		             "syncMotorTimeout",   syncMotorTimeout);
 	} else {
 		Schedulable::restoreOld(ar, {&syncLoadingTimeout, &syncMotorTimeout});
 	}
-	ar.serialize("motorTimer", motorTimer);
-	ar.serialize("changer", *changer);
-	ar.serialize("headPos", headPos);
-	ar.serialize("side", side);
-	ar.serialize("motorStatus", motorStatus);
+	ar.serialize("motorTimer", motorTimer,
+	             "changer",    *changer,
+	             "headPos",    headPos,
+	             "side",       side,
+	             "motorStatus", motorStatus);
 	if (ar.versionAtLeast(version, 3)) {
 		ar.serialize("startAngle", startAngle);
 	} else {
@@ -401,8 +414,8 @@ void RealDrive::serialize(Archive& ar, unsigned version)
 		startAngle = 0;
 	}
 	if (ar.versionAtLeast(version, 5)) {
-		ar.serialize("track", track);
-		ar.serialize("trackValid" ,trackValid);
+		ar.serialize("track",      track);
+		ar.serialize("trackValid", trackValid);
 		ar.serialize("trackDirty", trackDirty);
 	}
 	if (ar.isLoader()) {

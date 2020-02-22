@@ -17,10 +17,10 @@ public:
 
 	virtual uint8_t getFadedAlpha() const = 0;
 
-	std::vector<string_view> getProperties() const override;
+	std::vector<std::string_view> getProperties() const override;
 	void setProperty(Interpreter& interp,
-	                 string_view name, const TclObject& value) override;
-	void getProperty(string_view name, TclObject& result) const override;
+	                 std::string_view name, const TclObject& value) override;
+	void getProperty(std::string_view name, TclObject& result) const override;
 	float getRecursiveFadeValue() const override;
 
 protected:

@@ -34,7 +34,7 @@ public:
 	void setLed(Led led, bool status);
 
 private:
-	void handleEvent(Led led);
+	void handleEvent(Led led) noexcept;
 
 	// RTSchedulable
 	void executeRT() override;

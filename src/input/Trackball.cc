@@ -40,10 +40,10 @@ public:
 	template<typename Archive> void serialize(Archive& ar, unsigned /*version*/)
 	{
 		ar.template serializeBase<StateChange>(*this);
-		ar.serialize("deltaX", deltaX);
-		ar.serialize("deltaY", deltaY);
-		ar.serialize("press", press);
-		ar.serialize("release", release);
+		ar.serialize("deltaX",  deltaX,
+		             "deltaY",  deltaY,
+		             "press",   press,
+		             "release", release);
 	}
 private:
 	int deltaX, deltaY;
@@ -56,7 +56,7 @@ Trackball::Trackball(MSXEventDistributor& eventDistributor_,
                      StateChangeDistributor& stateChangeDistributor_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, lastSync(EmuTime::zero)
+	, lastSync(EmuTime::zero())
 	, targetDeltaX(0), targetDeltaY(0)
 	, currentDeltaX(0), currentDeltaY(0)
 	, lastValue(0)
@@ -80,7 +80,7 @@ const string& Trackball::getName() const
 	return name;
 }
 
-string_view Trackball::getDescription() const
+std::string_view Trackball::getDescription() const
 {
 	return "MSX Trackball";
 }
@@ -186,7 +186,7 @@ void Trackball::syncCurrentWithTarget(EmuTime::param time)
 		return;
 	}
 
-	static const EmuDuration INTERVAL = EmuDuration::msec(1);
+	static constexpr auto INTERVAL = EmuDuration::msec(1);
 
 	int maxSteps = (time - lastSync) / INTERVAL;
 	lastSync += INTERVAL * maxSteps;
@@ -210,7 +210,7 @@ void Trackball::signalMSXEvent(const shared_ptr<const Event>& event,
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
 		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-		static const int SCALE = 2;
+		constexpr int SCALE = 2;
 		int dx = mev.getX() / SCALE;
 		int dy = mev.getY() / SCALE;
 		if ((dx != 0) || (dy != 0)) {
@@ -290,20 +290,20 @@ template<typename Archive>
 void Trackball::serialize(Archive& ar, unsigned version)
 {
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("lastSync" ,lastSync);
-		ar.serialize("targetDeltaX", targetDeltaX);
-		ar.serialize("targetDeltaY", targetDeltaY);
-		ar.serialize("currentDeltaX", currentDeltaX);
-		ar.serialize("currentDeltaY", currentDeltaY);
+		ar.serialize("lastSync",      lastSync,
+		             "targetDeltaX",  targetDeltaX,
+		             "targetDeltaY",  targetDeltaY,
+		             "currentDeltaX", currentDeltaX,
+		             "currentDeltaY", currentDeltaY);
 	} else {
-		ar.serialize("deltaX", targetDeltaX);
-		ar.serialize("deltaY", targetDeltaY);
+		ar.serialize("deltaX", targetDeltaX,
+		             "deltaY", targetDeltaY);
 		currentDeltaX = targetDeltaX;
 		currentDeltaY = targetDeltaY;
 		smooth = false;
 	}
-	ar.serialize("lastValue", lastValue);
-	ar.serialize("status", status);
+	ar.serialize("lastValue", lastValue,
+	             "status",    status);
 
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());

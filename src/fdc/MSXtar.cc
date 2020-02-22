@@ -21,24 +21,25 @@
 #include <sys/stat.h>
 
 using std::string;
+using std::string_view;
 
 namespace openmsx {
 
-static const unsigned BAD_FAT = 0xFF7;
-static const unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
-static const unsigned SECTOR_SIZE = SectorAccessibleDisk::SECTOR_SIZE;
+constexpr unsigned BAD_FAT = 0xFF7;
+constexpr unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
+constexpr unsigned SECTOR_SIZE = SectorAccessibleDisk::SECTOR_SIZE;
 
-static const byte T_MSX_REG  = 0x00; // Normal file
-static const byte T_MSX_READ = 0x01; // Read-Only file
-static const byte T_MSX_HID  = 0x02; // Hidden file
-static const byte T_MSX_SYS  = 0x04; // System file
-static const byte T_MSX_VOL  = 0x08; // filename is Volume Label
-static const byte T_MSX_DIR  = 0x10; // entry is a subdir
-static const byte T_MSX_ARC  = 0x20; // Archive bit
+constexpr byte T_MSX_REG  = 0x00; // Normal file
+constexpr byte T_MSX_READ = 0x01; // Read-Only file
+constexpr byte T_MSX_HID  = 0x02; // Hidden file
+constexpr byte T_MSX_SYS  = 0x04; // System file
+constexpr byte T_MSX_VOL  = 0x08; // filename is Volume Label
+constexpr byte T_MSX_DIR  = 0x10; // entry is a subdir
+constexpr byte T_MSX_ARC  = 0x20; // Archive bit
 // This particular combination of flags indicates that this dir entry is used
 // to store a long Unicode file name.
 // For details, read http://home.teleport.com/~brainy/lfn.htm
-static const byte T_MSX_LFN  = 0x0F; // LFN entry (long files names)
+constexpr byte T_MSX_LFN  = 0x0F; // LFN entry (long files names)
 
 /** Transforms a clusternumber towards the first sector of this cluster
   * The calculation uses info read fom the bootsector
@@ -332,18 +333,16 @@ static char toMSXChr(char a)
 // direntries on an MSX
 static string makeSimpleMSXFileName(string_view fullFilename)
 {
-	string_view dir, fullFile;
-	StringOp::splitOnLast(fullFilename, '/', dir, fullFile);
+	auto [dir, fullFile] = StringOp::splitOnLast(fullFilename, '/');
 
 	// handle speciale case '.' and '..' first
 	string result(8 + 3, ' ');
 	if ((fullFile == ".") || (fullFile == "..")) {
-		memcpy(&*begin(result), fullFile.data(), fullFile.size()); // c++17: result.data()
+		memcpy(result.data(), fullFile.data(), fullFile.size());
 		return result;
 	}
 
-	string_view file, ext;
-	StringOp::splitOnLast(fullFile, '.', file, ext);
+	auto [file, ext] = StringOp::splitOnLast(fullFile, '.');
 	if (file.empty()) std::swap(file, ext);
 
 	StringOp::trimRight(file, ' ');
@@ -356,8 +355,8 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 	transform_in_place(extS,  toMSXChr);
 
 	// add correct number of spaces
-	memcpy(&*begin(result) + 0, fileS.data(), fileS.size()); // c++17: result.data()
-	memcpy(&*begin(result) + 8, extS .data(), extS .size());
+	memcpy(result.data() + 0, fileS.data(), fileS.size());
+	memcpy(result.data() + 8, extS .data(), extS .size());
 	return result;
 }
 
@@ -565,8 +564,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 // @throws when file could not be added
 string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 {
-	string_view directory, hostName;
-	StringOp::splitOnLast(fullHostName, "/\\", directory, hostName);
+	auto [directory, hostName] = StringOp::splitOnLast(fullHostName, "/\\");
 	string msxName = makeSimpleMSXFileName(hostName);
 
 	// first find out if the filename already exists in current dir
@@ -607,7 +605,7 @@ string MSXtar::addFileToDSK(const string& fullHostName, unsigned rootSector)
 string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 {
 	string messages;
-	ReadDir readDir(dirName.str());
+	ReadDir readDir{string(dirName)};
 	while (dirent* d = readDir.getEntry()) {
 		string name(d->d_name);
 		string fullName = strCat(dirName, '/', name);
@@ -731,15 +729,14 @@ void MSXtar::mkdir(string_view newRootDir)
 
 void MSXtar::chroot(string_view newRootDir, bool createDir)
 {
-	if (newRootDir.starts_with('/') || newRootDir.starts_with('\\')) {
+	if (StringOp::startsWith(newRootDir, '/') || StringOp::startsWith(newRootDir, '\\')) {
 		// absolute path, reset chrootSector
 		chrootSector = rootDirStart;
 		StringOp::trimLeft(newRootDir, "/\\");
 	}
 
 	while (!newRootDir.empty()) {
-		string_view firstPart, lastPart;
-		StringOp::splitOnFirst(newRootDir, "/\\", firstPart, lastPart);
+		auto [firstPart, lastPart] = StringOp::splitOnFirst(newRootDir, "/\\");
 		newRootDir = lastPart;
 		StringOp::trimLeft(newRootDir, "/\\");
 
