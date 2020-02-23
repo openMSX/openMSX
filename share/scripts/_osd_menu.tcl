@@ -1745,28 +1745,38 @@ proc confirm_change_hdd {item result} {
 }
 
 proc menu_create_ld_list {path} {
-	set eject_item [list]
-	set inserted [lindex [laserdiscplayer] 1]
-	if {$inserted ne ""} {
-		lappend eject_item "--eject-- [file tail $inserted]"
+	set menu_def [list execute menu_select_ld \
+		font-size 8 \
+		border-size 2 \
+		width 200 \
+		xpos 100 \
+		ypos 120 \
+		header { text "LaserDiscs $::osd_ld_path" \
+			font-size 10 \
+			post-spacing 6 }]
+	set cur_image [lindex [laserdiscplayer] 1]
+	set extensions "ogv"
+	set items [list]
+	set presentation [list]
+	if {$cur_image ne ""} {
+		lappend items "--eject--"
+		lappend presentation "--eject-- [file tail $cur_image]"
 	}
-	return [prepare_menu_list [concat $eject_item [ls $path "ogv"]] \
-	                          10 \
-	                          { execute menu_select_ld
-	                            font-size 8
-	                            border-size 2
-	                            width 200
-	                            xpos 100
-	                            ypos 120
-	                            header { text "Laserdiscs $::osd_ld_path"
-	                                     font-size 10
-	                                     post-spacing 6 }}]
+
+	set files [ls $path $extensions]
+	set items [concat $items $files]
+	set presentation [concat $presentation $files]
+
+	lappend menu_def presentation $presentation
+	return [prepare_menu_list $items 10 $menu_def]
 }
 
 proc menu_select_ld {item} {
-	if {[string range $item 0 8] eq "--eject--"} {
+	if {$item eq "--eject--"} {
 		menu_close_all
 		osd::display_message [laserdiscplayer eject]
+		set cur_image [lindex [laserdiscplayer] 1]
+		osd::display_message "LaserDisc $cur_image ejected!"
 	} else {
 		set fullname [file join $::osd_ld_path $item]
 		if {[file isdirectory $fullname]} {
