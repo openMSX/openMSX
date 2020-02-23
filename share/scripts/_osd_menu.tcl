@@ -696,7 +696,7 @@ proc create_main_menu {} {
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_state] }}
 	         post-spacing 3 }
 	lappend items { text "Hardware..."
-	         actions { A { osd_menu::menu_create $osd_menu::hardware_menu }}
+	         actions { A { osd_menu::menu_create [osd_menu::create_hardware_menu] }}
 	         post-spacing 3 }
 	lappend items { text "Misc Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::misc_setting_menu }}}
@@ -909,25 +909,36 @@ proc create_video_setting_menu {} {
 	return $menu_def
 }
 
-set hardware_menu {
-	font-size 8
-	border-size 2
-	width 175
-	xpos 100
-	ypos 120
-	items {{ text "Hardware"
-	         font-size 10
-	         post-spacing 6
-	         selectable false }
-	       { text "Change Machine..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list]; catch { osd_menu::select_menu_item [machine_info config_name]} }}}
-	       { text "Set Current Machine as Default"
-	         actions { A { set ::default_machine [machine_info config_name]; osd_menu::menu_close_top }}}
-	       { text "Extensions..."
-	         actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}
-	       { text "Connectors..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_connectors_list] }}}
-	 }}
+proc create_hardware_menu {} {
+
+	set menu_def {
+		font-size 8
+		border-size 2
+		width 175
+		xpos 100
+		ypos 120
+	}
+	lappend items { text "Hardware"
+			 font-size 10
+			 post-spacing 6
+			 selectable false }
+	lappend items { text "Change Machine..."
+			 actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list]; catch { osd_menu::select_menu_item [machine_info config_name]} }}}
+	lappend items { text "Set Current Machine as Default"
+			 actions { A { set ::default_machine [machine_info config_name]; osd_menu::menu_close_top }}}
+	lappend items { text "Extensions..."
+			 actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}
+	lappend items { text "Connectors..."
+			 actions { A { osd_menu::menu_create [osd_menu::menu_create_connectors_list] }}}
+	if {![catch {openmsx_info setting firmwareswitch}]} {
+		lappend items { text "Firmware switch active: $::firmwareswitch"
+			actions { LEFT  { osd_menu::menu_setting [cycle_back firmwareswitch] }
+			          RIGHT { osd_menu::menu_setting [cycle      firmwareswitch] }}}
+
+	}
+	dict set menu_def items $items
+	return $menu_def
+}
 
 set extensions_menu {
 	font-size 8
