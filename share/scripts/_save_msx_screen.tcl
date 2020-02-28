@@ -3,7 +3,7 @@ set_help_text save_msx_screen \
 file. This file can for example be loaded in MSX-BASIC using the BLOAD command.
 
 This script was originally developed by NYYRIKKI, see also this forum thread:
-  <a href="http://www.msx.org/forum/msx-talk/general-discussion/taking-sc5-snapshot-games" title="http://www.msx.org/forum/msx-talk/general-discussion/taking-sc5-snapshot-games">http://www.msx.org/forum/msx-talk/general-discussion/taking-...</a>
+http://www.msx.org/forum/msx-talk/general-discussion/taking-sc5-snapshot-games
 }
 
 proc save_msx_screen {basename} {
