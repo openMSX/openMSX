@@ -351,6 +351,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\PhilipsFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\YamahaFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\RamDSKDiskImage.cc">
       <Filter>fdc</Filter>
     </ClCompile>
@@ -1679,6 +1682,9 @@
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\PhilipsFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\fdc\YamahaFDC.hh">
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\RamDSKDiskImage.hh">
