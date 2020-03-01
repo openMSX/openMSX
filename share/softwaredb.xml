@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1582776902">
+<softwaredb timestamp="1583096975">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2593,7 +2593,6 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>-</year>
 	<country>JP</country>
 		<dump><rom><hash>777fdfe12c1fc29310ece4e71359221626c3a1ff</hash></rom></dump>
-		<dump><rom><hash>777fdfe12c1fc29310ece4e71359221626c3a1ff</hash></rom></dump>
 </software>
 <software>
 	<title>C.C.R. Anexo 1 El Algoritmo</title>
@@ -4341,7 +4340,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>NOP</company>
 	<year>2020</year>
 	<country>NL</country>
-		<dump><rom><hash>42213dfdc2b348eeb0905cb3c764a7059114b4d5</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>42213dfdc2b348eeb0905cb3c764a7059114b4d5</hash><remark>MSXDev2020 v1.0</remark></rom></dump>
 </software>
 <software>
 	<title>Double Dragon</title>
@@ -5851,6 +5850,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1990</year>
 	<country>UK</country>
 		<dump><megarom><type>ASCII16</type><hash>075aba75be6e55ae3b94bb4a66b2b84f66c8deee</hash><remark>Spanish</remark></megarom></dump>
+		<dump><original value="false">Bad</original><rom><hash>4f7b41030ae51b6684ff26f8aa632d8b26487469</hash><remark>Unknown - File</remark></rom></dump>
 </software>
 <software>
 	<title>Forbidden Fruit</title>
@@ -6875,6 +6875,16 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1985</year>
 	<country>JP</country>
 		<dump><rom><hash>2a6d5512a1b4bfb3e616ded0a825db23bb143fba</hash></rom></dump>
+		<dump><rom><hash>8d26d4bcd727e057a37d2ec7f72626af68cbcdfb</hash></rom></dump>
+</software>
+<software>
+	<title>Graphic Card Program</title>
+	<genmsxid>4055</genmsxid>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>05e519caf911a4b4a66c820cadc37feba9b85d68</hash></rom></dump>
 </software>
 <software>
 	<title>Graphic Master</title>
@@ -8297,6 +8307,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1989</year>
 	<country>UK</country>
 		<dump><megarom><type>ASCII16</type><hash>a838ca10e9fe306b5c5d14111f48a39dbebf49d3</hash></megarom></dump>
+</software>
+<software>
+	<title>Jaasta</title>
+	<system>MSX</system>
+	<company>Uninteresting</company>
+	<year>2020</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash>e5e0da269094bd2bf1e2aadd92d6523518f4de89</hash><remark>MSXDev2020 v1.1</remark></rom></dump>
 </software>
 <software>
 	<title>Jabato</title>
@@ -9755,6 +9773,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>ASCII16</type><hash>6f15201359b39b9af38b76d56f2ba37dafbb540d</hash></megarom></dump>
 </software>
 <software>
+	<title>Light Pen</title>
+	<system>MSX</system>
+	<company>HAL Laboratory</company>
+	<year>1984</year>
+	<country>JP</country>
+		<dump><rom><hash>c3a47480c9dd2235f40f9a53dab68e3c48adca01</hash></rom></dump>
+</software>
+<software>
 	<title>Limaribu</title>
 	<system>MSX</system>
 	<company>Arnold Metselaar</company>
@@ -10236,6 +10262,15 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>-</year>
 	<country>NL</country>
 		<dump><rom><hash>32c06b6247a40863458481df60a8111551dbaefb</hash></rom></dump>
+</software>
+<software>
+	<title>MT-Telcom</title>
+	<genmsxid>2522</genmsxid>
+	<system>MSX</system>
+	<company>Micro Technology</company>
+	<year>1985</year>
+	<country>NL</country>
+		<dump><rom><hash>520cbc45dac2080171b0274ff9e842d4ce4af556</hash></rom></dump>
 </software>
 <software>
 	<title>Mac Attack</title>
@@ -14898,6 +14933,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>ES</country>
 		<dump><megarom><type>KonamiSCC</type><hash>0d8bf2f88162d4a32c1b85dbf519b94e6ec6abda</hash></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>7912c35396604c1a67843778d235871a52fd5588</hash></megarom></dump>
+		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>72dfb0e3550123978b16f1ea1ea2549f92a00ee7</hash></megarom></dump>
 </software>
 <software>
 	<title>Sega Game Case</title>
@@ -16635,7 +16671,6 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>JP</country>
 		<dump><megarom><type>KonamiSCC</type><hash>a1c5c34f8025456616748b7d56baaf1003235307</hash><remark>BMP</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>fae9fc6890c870268992c5e9c25d82c5b7d50144</hash><remark>RAS</remark></megarom></dump>
-		<dump><rom><hash>fae9fc6890c870268992c5e9c25d82c5b7d50144</hash><remark>RAS</remark></rom></dump>
 </software>
 <software>
 	<title>TT Racer</title>
@@ -16794,6 +16829,15 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2003</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>f373723b18cb7534ba1e8de61d484800478ee604</hash></rom></dump>
+</software>
+<software>
+	<title>Tel-Tron</title>
+	<genmsxid>143</genmsxid>
+	<system>MSX</system>
+	<company>DCS</company>
+	<year>1986</year>
+	<country>NL</country>
+		<dump><rom><hash>5b7d35b38034e2e50b49c89e563a5614ea125e98</hash></rom></dump>
 </software>
 <software>
 	<title>Telebunnie</title>
@@ -17387,6 +17431,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1986</year>
 	<country>JP</country>
 		<dump><megarom><type>Normal</type><hash>7fd2a28c4fdaeb140f3c8c8fb90271b1472c97b9</hash></megarom></dump>
+		<dump><original value="false">Bad</original><rom><hash>f7441675e606fe153972c00c88f5a8148c42438f</hash></rom></dump>
 </software>
 <software>
 	<title>The Price Of Magik</title>
@@ -17687,6 +17732,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2017</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash>37d3202239bca95da7585ea36bb2307b702aeb79</hash></rom></dump>
+</software>
+<software>
+	<title>Tiny Slot Checker</title>
+	<system>MSX</system>
+	<company>Tiny Yarou</company>
+	<year>2018</year>
+	<country>JP</country>
+		<dump><original value="true">Author</original><rom><hash>849a3e72e2d9015deb9ab14166b49934e31c933c</hash><remark>2018.12.22 update</remark></rom></dump>
 </software>
 <software>
 	<title>Title Memory</title>
@@ -22311,4 +22364,4 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:5752 - Created on Wed Feb 26 2020 - 19:15:12 AKST-->
+<!-- Roms in this XML file:5760 - Created on Sun Mar 1 2020 - 12:09:45 AKST-->
