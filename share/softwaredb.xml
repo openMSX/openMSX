@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb timestamp="1583096975">
+<softwaredb timestamp="1583438698">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -517,38 +517,6 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>3e0a376b92967e9c6ea86a4add21a8a912291e70</hash><remark>FRS Hack</remark></rom></dump>
 </software>
 <software>
-	<title>Akumajyo Drakyula - Vampire Killer</title>
-	<genmsxid>696</genmsxid>
-	<system>MSX</system>
-	<company>Konami</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><megarom><type>ASCII8</type><hash>cb544661b6da6a35c20bfe503974f2b79a3c4550</hash><remark>[RC-744]</remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>5ef7d03b138a2023f6def241b671c666f97ed83b</hash><remark>[RC-744]</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>eb58b57f468e12c4300d3a88337e6c45e532c7d3</hash><remark>[RC-744]</remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>5460a88c25386b1b950b57fc1325fd75587cc825</hash><remark>[RC-744] / [a1]</remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>b58e77f819dfbde72845801cff4b4e0a2f20ef5f</hash><remark>[RC-744] / [a2]</remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>e78511a2b8cca37a96aa396c938863c92a20c797</hash><remark>[RC-744] / [a3]</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>43084db72dd13112450a7af4b513e13e9266defb</hash><remark>[RC-744] / cheat version</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>90b57b582675360916ad68ba65e9284926d93f4a</hash><remark>[RC-744] / Ulver crack</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>aa13b346e11644f8426fc546b359bc6fd7c6b357</hash><remark>[RC-744]</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>bf0e576c84efc27941a378b6c77d3a999bac9bb1</hash><remark>[RC-744] / ProSoft rip</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>971241cc529d06281f26c3b7438ed59a3d63aa4f</hash><remark>[RC-744]</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>d8d8fc9cc46eda73724a2f869808773ba241c6b3</hash><remark>[RC-744] / Castlevania Rom Hack</remark></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>ac571b218a07e9ec511a4994276cf6e90e5259c3</hash><remark>[RC-744] / Jan van Valburg SCC version</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>357ef7bb23c9beeb0ccffb6b5cf8a4f842341be7</hash><remark>[RC-744] / CST</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>875bd160d83db2e49c24bba60efd37a49b0c63db</hash><remark>[RC-744] / TurboCST</remark></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>f8741d82531d2f80ee34fa8bb50c674858eb73c8</hash><remark>[RC-744] / Jan van Valburg SCC version</remark></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>e44d3c58e3e779e50dbbfab023f4fa7a1cd3975c</hash><remark>[RC-744] / Dynamic vsync SCC</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>f3272be16866d4e26f606e0ddaecf460f2b2e0bb</hash><remark>[RC-744] / Dynamic vsync fixed  - JoySNES</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>2c63f52341e94f1fc8648fe4fd68cb40d2fa7bb7</hash><remark>[RC-744] / a2 - JoySNES</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>9d8e738577c95710437e4ff6e5204e9265efe7b9</hash><remark>[RC-744] / a3 - JoySNES</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>83550d07eaa427c40ac687bb51b041efd8e72d84</hash><remark>[RC-744] / a - JoySNES</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>fe9d85f49e6846461a81939c24df9f00a32c981b</hash><remark>[RC-744] / JoySNES</remark></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>1d44a7626672a06e3f8bc6b8477cf1ba8badc16d</hash><remark>[RC-744] / Castlevania Rom Hack a</remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash>6371013c49c1f7bb7f1a924d1250b36b5e69a09d</hash><remark>Castlevania Rom Hack / Castlevania Rom Hack - JoySNES</remark></megarom></dump>
-</software>
-<software>
 	<title>Aladdin</title>
 	<genmsxid>1852</genmsxid>
 	<system>MSX</system>
@@ -651,6 +619,16 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>2007</year>
 	<country>ES</country>
 		<dump><rom><hash>0025565bf89b8dd698fcf49f10345ca29adbc2f6</hash></rom></dump>
+</software>
+<software>
+	<title>Aleste Gaiden</title>
+	<genmsxid>1367</genmsxid>
+	<system>MSX</system>
+	<company>Compile</company>
+	<year>1989</year>
+	<country>JP</country>
+		<dump><original value="false">Bad</original><megarom><type>ASCII8</type><hash>6f525137cc13910feeb9de4000a23d30470ead0e</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>a27a0c9b2ddfa1987d51216313c07313741db320</hash></megarom></dump>
 </software>
 <software>
 	<title>Alibaba</title>
@@ -1017,6 +995,15 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>KW</country>
 		<dump><rom><hash>3ce544aaefdb8a916a1639afea774eb75ec4702f</hash></rom></dump>
 		<dump><rom><hash>80a2c10a28307efc765260ff4d422c58b65921fe</hash></rom></dump>
+</software>
+<software>
+	<title>Arabic Sakhr Basic</title>
+	<genmsxid>1911</genmsxid>
+	<system>MSX</system>
+	<company>Al Alamiah</company>
+	<year>1987</year>
+	<country>KW</country>
+		<dump><original value="false"></original><megarom><type>KonamiSCC</type><hash>2da83f3d46d613f5f21e63aaa451b05012b4e20e</hash><remark>v2.02</remark></megarom></dump>
 </software>
 <software>
 	<title>Aramo</title>
@@ -2627,10 +2614,10 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>286094c7127bf98d53d8862427487b49132b16da</hash><remark>[RC-716]</remark></rom></dump>
 		<dump><rom><hash>c6e0b0bc71059583e7e9da22fe13be9e937ad7dc</hash><remark>[RC-716] / [h]</remark></rom></dump>
 		<dump><rom><hash>2a0f9899a4d8dba76db501d6e3435546cc7cd9aa</hash><remark>[RC-716]</remark></rom></dump>
-		<dump><rom><hash>ed547caf3e45f621b588cb1fa91008c9c1bc9ed7</hash></rom></dump>
-		<dump><rom><hash>55819eb8d38095c77d45b834cf15e6753044fc87</hash></rom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>363e898c52f47ad01493490a7ae62bb5e1f8d1a4</hash><remark>GDX SCC Version</remark></megarom></dump>
-		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>a2c588a644e9422f03b4721ad58ce3370ff99bfa</hash></megarom></dump>
+		<dump><rom><hash>ed547caf3e45f621b588cb1fa91008c9c1bc9ed7</hash><remark>[RC-716] / [o] [Zemina]</remark></rom></dump>
+		<dump><rom><hash>55819eb8d38095c77d45b834cf15e6753044fc87</hash><remark>[RC-716]</remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>363e898c52f47ad01493490a7ae62bb5e1f8d1a4</hash><remark>[RC-716] / GDX SCC Version</remark></megarom></dump>
+		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>a2c588a644e9422f03b4721ad58ce3370ff99bfa</hash><remark>[RC-716]</remark></megarom></dump>
 </software>
 <software>
 	<title>Camelot Warriors</title>
@@ -4465,7 +4452,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1983</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>761ab0aa7f528bf0f51ea9de75c847ea949478d7</hash></rom></dump>
-		<dump><rom><hash>533dc6d28ca60c090740879dcb3cfa386544ee45</hash></rom></dump>
+		<dump><rom><hash>533dc6d28ca60c090740879dcb3cfa386544ee45</hash><remark>[o]</remark></rom></dump>
 		<dump><rom><hash>0a04143b9357c6f2f0dc177c2acc5b27562e2a76</hash></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>03a496f08946a344fff343509f596f7030bf5a50</hash><remark>GDX SCC Version</remark></megarom></dump>
 </software>
@@ -4647,11 +4634,12 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>Dream Runaway</title>
 	<system>MSX</system>
 	<company>Popcom Soft</company>
-	<year>-</year>
+	<year>1985</year>
 	<country>JP</country>
-		<dump><rom><hash>43775897f10d7ae5c612a6182c3f19302c53aa50</hash></rom></dump>
+		<dump><original value="false">Bad</original><rom><hash>43775897f10d7ae5c612a6182c3f19302c53aa50</hash><remark>[a2]</remark></rom></dump>
 		<dump><rom><hash>d241c478381841d72fea1b536ac0ca5fb758bf97</hash></rom></dump>
-		<dump><rom><hash>2ce05c1e7707a1eec9411c551e68a5065ca5c4d4</hash><remark>[a]</remark></rom></dump>
+		<dump><original value="false">Bad</original><rom><hash>2ce05c1e7707a1eec9411c551e68a5065ca5c4d4</hash><remark>[a]</remark></rom></dump>
+		<dump><rom><hash>639695be1fa8ba9d937295ff80a5f8485df4d196</hash><remark>Keyclick fix</remark></rom></dump>
 </software>
 <software>
 	<title>Dribol</title>
@@ -5527,7 +5515,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Tecno Soft</company>
 	<year>1988</year>
 	<country>JP</country>
-		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>4408a71e6cfab8015d00baa793725d28525c53ac</hash><remark>English Translation</remark></megarom></dump>
+		<dump><original value="false">Bad</original><megarom><type>ASCII8</type><hash>4408a71e6cfab8015d00baa793725d28525c53ac</hash><remark>English Translation - bad music on pre-stages</remark></megarom></dump>
+		<dump><original value="false"></original><megarom><type>ASCII8</type><hash>8a0dc63d375702efb7e525cd115e612ecf466490</hash><remark>Disk to ROM conversion</remark></megarom></dump>
 </software>
 <software>
 	<title>Fernando Martí­n Basket Master</title>
@@ -5747,27 +5736,6 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">Bad</original><rom><hash>5d2bb062d5d783d4d08fe04c2f5c13d618b096f2</hash><remark>[b]</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>5999cc1407afe5ba8a760f16178c4cac9c3fa192</hash></rom></dump>
 		<dump><rom><hash>2a77bfd0fb9b6d9e60aa9ae243299ebd236d3373</hash><remark>MSX1 Only</remark></rom></dump>
-</software>
-<software>
-	<title>Flics, Les</title>
-	<genmsxid>681</genmsxid>
-	<system>MSX</system>
-	<company>PSS</company>
-	<year>1985</year>
-	<country>UK</country>
-		<dump><rom><hash>7bf28813fb11e9db3bf78cc73ee5fb2d76b547de</hash><remark>Personal Soft Services</remark></rom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>1565529fed9c59a3c24b2bee153ea679ff1e1027</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>d745bc68f6f28abedbaea99d8819952731a8d9b0</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>ce2dfc37f4ec587c7cb6eb055bea1b064f074053</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>8f9594954724753c91615497b58641fea25fd223</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>3d549ac05347997c2e2db9c8dbf264103de4c6f4</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>f6f0c4f3d847a9cd4a92b29f095a3cf33854164d</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>448b56548d8aaa67978b5d066545f34af85b5345</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>5bc448cbc3163062ad18dfb5b1f269adc077ec34</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>37b08a5f01e70cd27ee502850adfe7bbb172b4ab</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>df60f831c6b56ed38d9697ed4d993a82a8523f48</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>dd4ab0425e94c2dfa376a98718573e3f18dc55c2</hash></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>2f3e79b6ff156f2055f549676274addf8ab52102</hash></megarom></dump>
 </software>
 <software>
 	<title>Flight Deck 2</title>
@@ -6735,6 +6703,15 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>ASCII16</type><hash>044207a4e1900bc6e68d22cd293c7b032ff4d398</hash></megarom></dump>
 </software>
 <software>
+	<title>Gorby's Pipeline</title>
+	<genmsxid>1607</genmsxid>
+	<system>MSX</system>
+	<company>Compile</company>
+	<year>1991</year>
+	<country>JP</country>
+		<dump><megarom><type>KonamiSCC</type><hash>b0a4da76c29e50826e48e90445a1b1b82f4a4fc8</hash><remark>Disk to ROM converstion</remark></megarom></dump>
+</software>
+<software>
 	<title>Gorgeous Gemma in Escape from the Space Disposal Planet</title>
 	<system>MSX</system>
 	<company>Impulse9</company>
@@ -6977,7 +6954,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>ES</country>
 		<dump><rom><hash>4785fafdef83b62103c9d3feeed582785b2e5189</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>989d9ba7c0f29694fa3b737d09cf102606b2fd5b</hash><remark>RK709 / MSX-DEV05</remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>acb6e93227bc89da119443e03890b58a1befc0b0</hash><remark>RK709EX / MSX-DEV05</remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>acb6e93227bc89da119443e03890b58a1befc0b0</hash><remark>RK709EX / [MSX-DEV05] [Extended Edition]</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash>4dd2ec21474720eb56f012bb761117b4d507f331</hash><remark>RK709EX / MSX-DEV05</remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash>5a9364271ddca5208b625c891f01a89fd2367a8d</hash><remark>RK709 / MSX-DEV05</remark></rom></dump>
 </software>
@@ -7776,7 +7753,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>56c4813ac549af8711b2e2e42d7db1b960c4c040</hash><remark>[RC-710]</remark></rom></dump>
-		<dump><rom><hash>82a15beb8b31d250c12666e5e773a539ad5e47c5</hash><remark>[RC-710]</remark></rom></dump>
+		<dump><rom><hash>82a15beb8b31d250c12666e5e773a539ad5e47c5</hash><remark>[RC-710] / ProSoft Hack [o]</remark></rom></dump>
 		<dump><rom><hash>9b55970341aaab59a73ae921c6ccf29009c1a8f0</hash><remark>[RC-710] / Track and Field 1</remark></rom></dump>
 		<dump><rom><hash>b6973b07a574fb0077ce39c408b47b5ecfcc3788</hash><remark>[RC-710]</remark></rom></dump>
 		<dump><rom><hash>2b84d0b790bd6b0022923adb4a43fbdf00bc230d</hash><remark>[RC-710]</remark></rom></dump>
@@ -9166,6 +9143,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>JP</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiUltimateCollection</type><hash>3d94e0998690325bcb3640e1646d8e4e13f652cf</hash><remark>M. Pazos collection of MSX games</remark></megarom></dump>
 		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>3cdc3e5c91052b6b629dd6a179e26280681a87fe</hash></megarom></dump>
+		<dump><rom><hash>870a34785bce4e125c16d85635bd238511ff8be6</hash><remark>Add on fix?</remark></rom></dump>
 </software>
 <software>
 	<title>Konami's Baseball</title>
@@ -9304,7 +9282,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>a0ed2c50e55241d23bb5d12cb6528a2a0c3bc156</hash><remark>[RC-732] / [a3]</remark></rom></dump>
 		<dump><rom><hash>79c1bf77c08b733ae04e069deaf25fd24b28beb7</hash><remark>[RC-732]</remark></rom></dump>
 		<dump><rom><hash>34019d5bc3687ec1255fd7ad7571830a67241ddd</hash><remark>[RC-732] / Konami Antiques MSX Collection 3</remark></rom></dump>
-		<dump><rom><hash>5bef9572d71848966222819c3a1dd954994a4028</hash><remark>[RC-732] / enhancement patch</remark></rom></dump>
+		<dump><rom><hash>5bef9572d71848966222819c3a1dd954994a4028</hash><remark>[RC-732] / TurboFix version by FRS</remark></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>10c31f1327d047a08a99f6bcad5f7c4910385012</hash><remark>[RC-732] / Game Collection - SCC</remark></megarom></dump>
 		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>c0961ba9186523a19465de88167fedb3ce622e1f</hash><remark>[RC-732] / Game Collection - SCC+</remark></megarom></dump>
 		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>7afd779fc7507170e21b4bb76374b09210b0da38</hash><remark>[RC-732] / No Sound</remark></megarom></dump>
@@ -9338,13 +9316,13 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash>5f6972e9e374753faf092409f1ee10bba5231b66</hash><remark>[RC-720]</remark></rom></dump>
 		<dump><rom><hash>27dc3ae8a5d6bef8532c9c210a44bbcbaad436d5</hash><remark>[RC-720]</remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash>d5f5d2850b0bfda45ba4dfff70d3fd9986399a94</hash><remark>[a1][RC-720]</remark></rom></dump>
-		<dump><rom><hash>54008fe7cd7f1a47fca70462a0a7b5682146099b</hash><remark>[h Prosoft][RC-720]</remark></rom></dump>
-		<dump><rom><hash>608a3000428ccfd4c53d7c71b5514de721169fa6</hash></rom></dump>
-		<dump><rom><hash>11e69bb4bad230382688a38e76733c665019435c</hash><remark>Game Collection</remark></rom></dump>
-		<dump><rom><hash>fbaebd9281a0fc97aead473f66fa72b905a60b42</hash></rom></dump>
-		<dump><rom><hash>543d1a20f92e78758d76eba2a2fd21748b290c4e</hash></rom></dump>
-		<dump><rom><hash>0916f5616008e21fd646bf601c21365003ae4167</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash>d5f5d2850b0bfda45ba4dfff70d3fd9986399a94</hash><remark>[RC-720] / [a1]</remark></rom></dump>
+		<dump><rom><hash>54008fe7cd7f1a47fca70462a0a7b5682146099b</hash><remark>[RC-720] / [h Prosoft][o]</remark></rom></dump>
+		<dump><rom><hash>608a3000428ccfd4c53d7c71b5514de721169fa6</hash><remark>[RC-720]</remark></rom></dump>
+		<dump><rom><hash>11e69bb4bad230382688a38e76733c665019435c</hash><remark>[RC-720] / Game Collection</remark></rom></dump>
+		<dump><rom><hash>fbaebd9281a0fc97aead473f66fa72b905a60b42</hash><remark>[RC-720]</remark></rom></dump>
+		<dump><rom><hash>543d1a20f92e78758d76eba2a2fd21748b290c4e</hash><remark>[RC-720]</remark></rom></dump>
+		<dump><rom><hash>0916f5616008e21fd646bf601c21365003ae4167</hash><remark>[RC-720]</remark></rom></dump>
 </software>
 <software>
 	<title>Koneko no Daibouken - Catboy</title>
@@ -9705,6 +9683,29 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>3103f0170bae627bdeb77108e0e782284e4581c9</hash><remark>Mindgames Espana S.A.</remark></rom></dump>
 </software>
 <software>
+	<title>Les Flics</title>
+	<genmsxid>681</genmsxid>
+	<system>MSX</system>
+	<company>PSS</company>
+	<year>1985</year>
+	<country>UK</country>
+		<dump><original value="false">Bad</original><rom><hash>7bf28813fb11e9db3bf78cc73ee5fb2d76b547de</hash><remark>Personal Soft Services</remark></rom></dump>
+		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash>1565529fed9c59a3c24b2bee153ea679ff1e1027</hash><remark>English</remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash>d745bc68f6f28abedbaea99d8819952731a8d9b0</hash><remark>English</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>ce2dfc37f4ec587c7cb6eb055bea1b064f074053</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>8f9594954724753c91615497b58641fea25fd223</hash></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash>3d549ac05347997c2e2db9c8dbf264103de4c6f4</hash><remark>French</remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash>f6f0c4f3d847a9cd4a92b29f095a3cf33854164d</hash><remark>French</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>448b56548d8aaa67978b5d066545f34af85b5345</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>5bc448cbc3163062ad18dfb5b1f269adc077ec34</hash></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash>37b08a5f01e70cd27ee502850adfe7bbb172b4ab</hash><remark>Spanish (Menus only)</remark></megarom></dump>
+		<dump><original value="false">Translated</original><megarom><type>KonamiSCC</type><hash>df60f831c6b56ed38d9697ed4d993a82a8523f48</hash><remark>Spanish (Menus only)</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>dd4ab0425e94c2dfa376a98718573e3f18dc55c2</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>2f3e79b6ff156f2055f549676274addf8ab52102</hash></megarom></dump>
+		<dump><rom><hash>2d5d93cd94e223ba620b43bb468b2e7708a16f8c</hash></rom></dump>
+		<dump><original value="false">Translated</original><rom><hash>473df67e57972a543c8e507b74ce2701adc65e06</hash><remark>French</remark></rom></dump>
+</software>
+<software>
 	<title>Let's Count 1</title>
 	<genmsxid>1936</genmsxid>
 	<system>MSX</system>
@@ -9779,6 +9780,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1984</year>
 	<country>JP</country>
 		<dump><rom><hash>c3a47480c9dd2235f40f9a53dab68e3c48adca01</hash></rom></dump>
+		<dump><original value="false"></original><rom><hash>40348c56add3cf5a4b40b8cbc94a39e0ec94ff0a</hash></rom></dump>
 </software>
 <software>
 	<title>Limaribu</title>
@@ -9879,8 +9881,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Micro Art</company>
 	<year>1984</year>
 	<country>JP</country>
-		<dump><rom><hash>f19277bea52bda98fe2da18e89d1e60535120f92</hash></rom></dump>
 		<dump><rom><hash>32071bb3f5dae7d774e9f11ccf527299adbc94fe</hash></rom></dump>
+		<dump><original value="false">Bad</original><rom><hash>f19277bea52bda98fe2da18e89d1e60535120f92</hash><remark>Missing Enemies</remark></rom></dump>
 </software>
 <software>
 	<title>Looping</title>
@@ -10194,7 +10196,6 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1988</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash>c2f4df1bd91f7dee1536774b9d7089086b9bf835</hash><remark>MSX1 Mode</remark></megarom></dump>
-		<dump><rom><hash>e45ddc5bf1a1e63756d11fb43fc50276ca35cab0</hash></rom></dump>
 		<dump><rom><hash>c07f47c59f83038c16d6d5052aaf6c271bff4334</hash></rom></dump>
 		<dump><rom><hash>4141eb7540003f4abd31dee14fa1ee8be1b01a97</hash></rom></dump>
 </software>
@@ -10202,10 +10203,11 @@ The softwaredb.xml file contains information about rom mapper types
 	<title>MSX-Logo</title>
 	<genmsxid>724</genmsxid>
 	<system>MSX</system>
-	<company>Promotic International</company>
+	<company>Logo Computer Systems Inc</company>
 	<year>1985</year>
-	<country>JP</country>
-		<dump><rom><hash>47663f883f98ab9ddaa0bf0c2831c567919f56f1</hash><remark>Logo Computer Systems Inc.</remark></rom></dump>
+	<country>US</country>
+		<dump><rom><hash>47663f883f98ab9ddaa0bf0c2831c567919f56f1</hash><remark>Dutch</remark></rom></dump>
+		<dump><rom><hash>e45ddc5bf1a1e63756d11fb43fc50276ca35cab0</hash><remark>Spanish</remark></rom></dump>
 </software>
 <software>
 	<title>MSX-Modem TM-2 + Videotexto</title>
@@ -10259,7 +10261,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<genmsxid>2519</genmsxid>
 	<system>MSX</system>
 	<company>Micro Technology</company>
-	<year>-</year>
+	<year>1985</year>
 	<country>NL</country>
 		<dump><rom><hash>32c06b6247a40863458481df60a8111551dbaefb</hash></rom></dump>
 </software>
@@ -10271,6 +10273,15 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1985</year>
 	<country>NL</country>
 		<dump><rom><hash>520cbc45dac2080171b0274ff9e842d4ce4af556</hash></rom></dump>
+</software>
+<software>
+	<title>MT-Viditel</title>
+	<genmsxid>2524</genmsxid>
+	<system>MSX</system>
+	<company>Micro Technology</company>
+	<year>1984</year>
+	<country>NL</country>
+		<dump><original value="false"></original><rom><hash>468c4994a4a58f56bfb0e9a6a966cbd8b21dd546</hash><remark>VG 8180</remark></rom></dump>
 </software>
 <software>
 	<title>Mac Attack</title>
@@ -10347,6 +10358,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>a703668bf35b369642fe1894b60ba96faf09f990</hash><remark>v1</remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash>a931da49a6a99648ec0e6c594828dfa236edc05b</hash><remark>MSX2 Only</remark></megarom></dump>
+</software>
+<software>
+	<title>Mag the Magician</title>
+	<system>MSX</system>
+	<company>Radastan</company>
+	<year>2019</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash>ce2568c7dbe0495c78299632cf771743114dd36e</hash></rom></dump>
 </software>
 <software>
 	<title>Magic Pinball</title>
@@ -10622,7 +10641,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>NAMCO</company>
 	<year>1984</year>
 	<country>JP</country>
-		<dump><rom><hash>20ce82112ba0c50063667d61e43979ac464a3bb4</hash></rom></dump>
+		<dump><original value="false">Bad</original><rom><hash>20ce82112ba0c50063667d61e43979ac464a3bb4</hash><remark>one byte is corrupted, 06h instead of 87h at 03C5h</remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>e7d06c0a5c7f256c061e5b8173fdcc145d2fc4d6</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash>a8313b0dce35faa80b399a220f19b04333fdec1d</hash><remark>[a1]</remark></rom></dump>
 		<dump><rom><hash>43ec23bbdb3af0f5dbc6d17ea0b8d745e8833c86</hash></rom></dump>
@@ -11450,7 +11469,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>ddc458bb3c70e0708841e516d9b89220c0e098a1</hash><remark>[RC-728] / [a3]</remark></rom></dump>
 		<dump><rom><hash>1b3059c7873765a476fb7791a4d6fc846ab05ade</hash><remark>[RC-728]</remark></rom></dump>
 		<dump><rom><hash>9d8029aafc4125af7f151f377978389963432d49</hash><remark>[RC-728] / Konami Antiques MSX Collection 1</remark></rom></dump>
-		<dump><rom><hash>dd9d6ed442122d142987fd691001efcc2bc18c7c</hash><remark>[RC-728]</remark></rom></dump>
+		<dump><rom><hash>dd9d6ed442122d142987fd691001efcc2bc18c7c</hash><remark>[RC-728] / [o]</remark></rom></dump>
 		<dump><rom><hash>0c2ccefcf5713b26a1b63f52d1499349e9dac4e1</hash><remark>[RC-728] / Hack</remark></rom></dump>
 		<dump><original value="false">Bad</original><rom><hash>20d57dd58316828c598f743ad035179a6ae74fa1</hash><remark>[RC-728]</remark></rom></dump>
 		<dump><rom><hash>4bda1e031fa1398fd432f9ca4dbbc037227f78e5</hash><remark>[RC-728] / [a2]</remark></rom></dump>
@@ -11821,6 +11840,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>ASCII8</type><hash>688b70e60dc272654ac6b0a72237fefdce2ef9ff</hash></megarom></dump>
 </software>
 <software>
+	<title>Nemesis 3 Scroll Demo</title>
+	<system>MSX</system>
+	<company>Unknown</company>
+	<year>-</year>
+	<country>JP</country>
+		<dump><original value="false"></original><rom><hash>cab21a2cb40e9eeca2e9833128f6a1dfdec0c142</hash></rom></dump>
+</software>
+<software>
 	<title>Nenokatas</title>
 	<system>MSX</system>
 	<company>Baa</company>
@@ -12179,7 +12206,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<country>KW</country>
 		<dump><rom><hash>ce493944b6b57ffa56e7eb09df76e73b65dcb800</hash></rom></dump>
 		<dump><rom><hash>99e56e458a41784fb33909d02945d7a619096369</hash></rom></dump>
-		<dump><rom><hash>ddfb953e6c6d9c1be15362b9a0299259a66a2c98</hash></rom></dump>
+		<dump><rom><hash>ddfb953e6c6d9c1be15362b9a0299259a66a2c98</hash><remark>[o]</remark></rom></dump>
 </software>
 <software>
 	<title>Numbers World</title>
@@ -12333,7 +12360,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Panochi Games</company>
 	<year>2014</year>
 	<country>BR</country>
-		<dump><rom><hash>2ef6363477f50c3ba38f0b11f6182428abe71f77</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash>2ef6363477f50c3ba38f0b11f6182428abe71f77</hash><remark>bitbitJAM1 entry</remark></rom></dump>
 </software>
 <software>
 	<title>Operation Crossbow</title>
@@ -16331,7 +16358,7 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><hash>31472edf134c8ba532e6a1eded0dcc1aa088e8ba</hash><remark>[RC-705] / [o]</remark></rom></dump>
 		<dump><rom><hash>87a9f78c0bba4e38d98890e34033a7b14f75f5e2</hash><remark>[RC-705] / [o2]</remark></rom></dump>
 		<dump><rom><hash>de2dd71730922168428dbc11a82fe91b84c23192</hash><remark>[RC-705] / [o3]</remark></rom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash>32972530da19cac5956f83c2253c7cbf41e14dc3</hash><remark>[RC-705] / SCC Version</remark></megarom></dump>
+		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>32972530da19cac5956f83c2253c7cbf41e14dc3</hash><remark>[RC-705] / SCC Version - Interrupt issue</remark></megarom></dump>
 		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>93ab050bc4965667ee863773b8ecd36dd4f3f86c</hash><remark>[RC-705] / SD Snatcher RAM SCC+</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>9539999ed728aa6dbe4bef8b4be9876c7d1392c7</hash><remark>[RC-705] / GDX SCC Version</remark></megarom></dump>
 		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>7d84c73f20f6d8f478e4ece338dcdbe944a226b4</hash><remark>[RC-705]</remark></megarom></dump>
@@ -16935,6 +16962,14 @@ The softwaredb.xml file contains information about rom mapper types
 	<year>1987</year>
 	<country>UK</country>
 		<dump><megarom><type>ASCII16</type><hash>6cde17f9805aac9d5c9f9cb5bb15da656895bbbc</hash></megarom></dump>
+</software>
+<software>
+	<title>Terrahawk</title>
+	<system>MSX</system>
+	<company>anemotionalfish</company>
+	<year>2020</year>
+	<country>NL</country>
+		<dump><rom><hash>1906301d80d5a7e31e226b69a59f7a830e3331cd</hash><remark>ROM Conversion by GDX</remark></rom></dump>
 </software>
 <software>
 	<title>Terrorpods</title>
@@ -18309,7 +18344,7 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>T&amp;ESOFT</company>
 	<year>1989</year>
 	<country>JP</country>
-		<dump><megarom><type>ASCII8</type><hash>03846c166e5c9d374835dcded0393f0f8e9b06b4</hash><remark>dsk2rom</remark></megarom></dump>
+		<dump><megarom><type>ASCII8</type><hash>03846c166e5c9d374835dcded0393f0f8e9b06b4</hash><remark>Disk to ROM conversion</remark></megarom></dump>
 </software>
 <software>
 	<title>Universe Unknown</title>
@@ -18429,6 +18464,38 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><megarom><type>KonamiSCC</type><hash>a83f21c1e6ebaf134e40116e4a23e8afb4bae58c</hash><remark>GDX Conversion</remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash>cd3d237f8c6430e6912baaa17c099397431d9f49</hash><remark>GDX Conversion</remark></megarom></dump>
 		<dump><original value="false">Bad</original><megarom><type>KonamiSCC</type><hash>63b1165f7bdea77059cf94547b137a0e58c641f0</hash></megarom></dump>
+</software>
+<software>
+	<title>Vampire Killer - Akumajyo Drakyula</title>
+	<genmsxid>696</genmsxid>
+	<system>MSX</system>
+	<company>Konami</company>
+	<year>1986</year>
+	<country>JP</country>
+		<dump><megarom><type>ASCII8</type><hash>cb544661b6da6a35c20bfe503974f2b79a3c4550</hash><remark>[RC-744]</remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>5ef7d03b138a2023f6def241b671c666f97ed83b</hash><remark>[RC-744]</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>eb58b57f468e12c4300d3a88337e6c45e532c7d3</hash><remark>[RC-744]</remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>5460a88c25386b1b950b57fc1325fd75587cc825</hash><remark>[RC-744] / [a1]</remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>b58e77f819dfbde72845801cff4b4e0a2f20ef5f</hash><remark>[RC-744] / [a2]</remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash>e78511a2b8cca37a96aa396c938863c92a20c797</hash><remark>[RC-744] / [a3]</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>43084db72dd13112450a7af4b513e13e9266defb</hash><remark>[RC-744] / cheat version</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>90b57b582675360916ad68ba65e9284926d93f4a</hash><remark>[RC-744] / Ulver crack</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>aa13b346e11644f8426fc546b359bc6fd7c6b357</hash><remark>[RC-744]</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>bf0e576c84efc27941a378b6c77d3a999bac9bb1</hash><remark>[RC-744] / ProSoft rip</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>971241cc529d06281f26c3b7438ed59a3d63aa4f</hash><remark>[RC-744]</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>d8d8fc9cc46eda73724a2f869808773ba241c6b3</hash><remark>[RC-744] / Castlevania Rom Hack</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>ac571b218a07e9ec511a4994276cf6e90e5259c3</hash><remark>[RC-744] / Jan van Valburg SCC version</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>357ef7bb23c9beeb0ccffb6b5cf8a4f842341be7</hash><remark>[RC-744] / CST</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>875bd160d83db2e49c24bba60efd37a49b0c63db</hash><remark>[RC-744] / TurboCST</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>f8741d82531d2f80ee34fa8bb50c674858eb73c8</hash><remark>[RC-744] / Jan van Valburg SCC version</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>e44d3c58e3e779e50dbbfab023f4fa7a1cd3975c</hash><remark>[RC-744] / Dynamic vsync SCC</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>f3272be16866d4e26f606e0ddaecf460f2b2e0bb</hash><remark>[RC-744] / Dynamic vsync fixed  - JoySNES</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>2c63f52341e94f1fc8648fe4fd68cb40d2fa7bb7</hash><remark>[RC-744] / a2 - JoySNES</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>9d8e738577c95710437e4ff6e5204e9265efe7b9</hash><remark>[RC-744] / a3 - JoySNES</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>83550d07eaa427c40ac687bb51b041efd8e72d84</hash><remark>[RC-744] / a - JoySNES</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>fe9d85f49e6846461a81939c24df9f00a32c981b</hash><remark>[RC-744] / JoySNES</remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash>1d44a7626672a06e3f8bc6b8477cf1ba8badc16d</hash><remark>[RC-744] / Castlevania Rom Hack a</remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash>6371013c49c1f7bb7f1a924d1250b36b5e69a09d</hash><remark>[RC-744] / Castlevania Rom Hack - JoySNES</remark></megarom></dump>
 </software>
 <software>
 	<title>Vaxol - Heavy Armed Storm Vehicle</title>
@@ -19510,6 +19577,14 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="false">Translated</original><megarom><type>ASCII8</type><hash>757b07b197f56f34b15263262c4953036771dd56</hash><remark>English</remark></megarom></dump>
 </software>
 <software>
+	<title>dsk2rom support ROM</title>
+	<system>MSX</system>
+	<company>Joyrex</company>
+	<year>-</year>
+	<country>NL</country>
+		<dump><original value="false"></original><rom><hash>7e60b5c5fc5903b70a5acd7a48813f065fb126ea</hash><remark>This ROM is not meant to be executed</remark></rom></dump>
+</software>
+<software>
 	<title>z80rogue</title>
 	<system>MSX</system>
 	<company>Oscar Toledo Gutiérrez</company>
@@ -19583,15 +19658,6 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><rom><type>page23</type><hash>c3a820e6a73ef42dc88982d835c60c36b4b9505f</hash></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>5935266be6c77ca977c9e55cf0426da9471ecd90</hash><remark>[o1]</remark></rom></dump>
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>1582cbb23eb5464bd6b9dfdbeb0b161ec90af60a</hash></rom></dump>
-</software>
-<software>
-	<title>Aleste Gaiden</title>
-	<genmsxid>1367</genmsxid>
-	<system>COLECOVISION</system>
-	<company>Compile</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="false">Bad</original><megarom><type>ASCII8</type><hash>6f525137cc13910feeb9de4000a23d30470ead0e</hash></megarom></dump>
 </software>
 <software>
 	<title>Alphabet Zoo</title>
@@ -22364,4 +22430,4 @@ The softwaredb.xml file contains information about rom mapper types
 		<dump><original value="true">GoodCol</original><rom><type>page23</type><hash>9119f3a485eb4215e7d41c7cf0e412d903458647</hash></rom></dump>
 </software>
 </softwaredb>
-<!-- Roms in this XML file:5760 - Created on Sun Mar 1 2020 - 12:09:45 AKST-->
+<!-- Roms in this XML file:5774 - Created on Thu Mar 5 2020 - 11:05:07 AKST-->
