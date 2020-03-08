@@ -13,6 +13,14 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: Cache sources for third party dependencies
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-third-parties-sources
+      with:
+        path: derived/3rdparty
+        key:  ${{ runner.os }}-x86_64-mingw-w64-opt-3rd
+        restore-keys: ${{ runner.os }}-x86_64-mingw-w64-opt-3rd
     - name: Cache third party dependencies
       uses: actions/cache@v1
       env:
