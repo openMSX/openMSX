@@ -38,12 +38,12 @@ jobs:
         OPENMSX_BUILD_REVISION=`fgrep "Revision string:" derived/version.log | sed -e "s/.*: //"`
         OPENMSX_VERSION=$OPENMSX_MAJOR_VERSION-$OPENMSX_BUILD_REVISION
         echo ::set-output name=OPENMSX_VERSION::$OPENMSX_VERSION
-    - name: Create redistributable zip
+    - name: Rename redistributable dmg
       run: |
-        cd derived/x86_64-darwin-opt-3rd/bindist/install
-        zip -r ../openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-x86_64-darwin-opt-3rd.zip *
+        cd derived/x86_64-darwin-opt-3rd
+        mv openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-mac-x86_64-bin.dmg openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-x86_64-darwin-opt-3rd.dmg
     - name: Upload redistributable zip
       uses: actions/upload-artifact@v1
       with:
-        name: openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-x86_64-darwin-opt-3rd.zip
-        path: derived/x86_64-darwin-opt-3rd/bindist/openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-x86_64-darwin-opt-3rd.zip
+        name: openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-x86_64-darwin-opt-3rd.dmg
+        path: derived/x86_64-darwin-opt-3rd/openmsx-${{ steps.get_version.outputs.OPENMSX_VERSION }}-x86_64-darwin-opt-3rd.dmg
