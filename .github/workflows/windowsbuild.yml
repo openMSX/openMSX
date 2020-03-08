@@ -1,0 +1,27 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: install prerequisites
+      run: sudo apt-get install mingw-w64 gcc make tcl
+    - name: configure i686-w64-mingw32-gcc
+      run: sudo update-alternatives --config i686-w64-mingw32-gcc < echo "1"
+    - name: configure i686-w64-mingw32-g++
+      run: sudo update-alternatives --config i686-w64-mingw32-g++ < echo "1"
+    - name: configure x86_64-w64-mingw32-gcc
+      run: sudo update-alternatives --config x86_64-w64-mingw32-gcc < echo "1"
+    - name: configure x86_64-w64-mingw32-g++
+      run: sudo update-alternatives --config x86_64-w64-mingw32-g++ < echo "1"   
+    - name: make
+      run: make OPENMSX_TARGET_CPU=x86_64 OPENMSX_TARGET_OS=mingw-w64 OPENMSX_FLAVOUR=opt staticbindist
