@@ -1,4 +1,4 @@
-name: Build Linux static binary distribution
+name: Build Linux Distributable
 
 on:
   push:
