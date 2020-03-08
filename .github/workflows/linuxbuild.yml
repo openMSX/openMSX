@@ -19,16 +19,14 @@ jobs:
         cache-name: cache-third-parties-sources
       with:
         path: derived/3rdparty
-        key:  ${{ runner.os }}-sources-x86_64-linux-opt-3rd
-        restore-keys: ${{ runner.os }}-sources-x86_64-linux-opt-3rd
+        key:  ${{ runner.os }}-${{ env.cache-name }}-x86_64-linux-opt-3rd
     - name: Cache third party dependencies
       uses: actions/cache@v1
       env:
         cache-name: cache-third-parties
       with:
         path: derived/x86_64-linux-opt-3rd/3rdparty
-        key:  ${{ runner.os }}-built-x86_64-linux-opt-3rd
-        restore-keys: ${{ runner.os }}-built-x86_64-linux-opt-3rd 
+        key:  ${{ runner.os }}-${{ env.cache-name }}-x86_64-linux-opt-3rd
     - name: Install prerequisites
       run: sudo apt-get install libgl1-mesa-dev
     - name: Make
