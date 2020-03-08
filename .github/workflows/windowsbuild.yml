@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Build Windows static binary distribution
 
 on:
   push:
