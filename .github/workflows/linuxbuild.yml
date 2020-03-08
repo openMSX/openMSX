@@ -13,6 +13,14 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: cache third party dependencies
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-third-parties
+      with:
+        path: derived/x86_64-linux-opt-3rd/3rdparty
+        key:  ${{ runner.os }}-x86_64-linux-opt-3rd
+        restore-keys: ${{ runner.os }}-x86_64-linux-opt-3rd
     - name: install prerequisites
       run: sudo apt-get install libgl1-mesa-dev
     - name: make
