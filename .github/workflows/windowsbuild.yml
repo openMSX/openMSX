@@ -16,12 +16,12 @@ jobs:
     - name: install prerequisites
       run: sudo apt-get install mingw-w64 gcc make tcl
     - name: configure i686-w64-mingw32-gcc
-      run: sudo update-alternatives --config i686-w64-mingw32-gcc < echo "1"
+      run: sudo update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
     - name: configure i686-w64-mingw32-g++
-      run: sudo update-alternatives --config i686-w64-mingw32-g++ < echo "1"
+      run: sudo update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
     - name: configure x86_64-w64-mingw32-gcc
-      run: sudo update-alternatives --config x86_64-w64-mingw32-gcc < echo "1"
+      run: sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
     - name: configure x86_64-w64-mingw32-g++
-      run: sudo update-alternatives --config x86_64-w64-mingw32-g++ < echo "1"   
+      run: sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix   
     - name: make
       run: make OPENMSX_TARGET_CPU=x86_64 OPENMSX_TARGET_OS=mingw-w64 OPENMSX_FLAVOUR=opt staticbindist
