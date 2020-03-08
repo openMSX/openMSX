@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: install prerequisites
-      run: apt install libgl1-mesa-dev
+      run: sudo apt-get install libgl1-mesa-dev
     - name: make
       run: make staticbindist
 
