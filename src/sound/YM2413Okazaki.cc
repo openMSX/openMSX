@@ -144,7 +144,7 @@ constexpr unsigned char lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 };
 
 // ML-table
-constexpr byte mlTable[16] = {
+constexpr uint8_t mlTable[16] = {
 	1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,
 	8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
 };
@@ -199,7 +199,7 @@ constexpr ArAdjustTable arAdjust = makeAdjustTable();
 
 // KSL + TL Table   values are in range [0, 112]
 struct TllTable {
-	byte tab[4][16 * 8];
+	uint8_t tab[4][16 * 8];
 };
 static constexpr TllTable makeTllTable()
 {
@@ -355,7 +355,7 @@ Patch::Patch()
 	setSL(0);
 }
 
-void Patch::initModulator(const byte* data)
+void Patch::initModulator(const uint8_t* data)
 {
 	AMPM = (data[0] >> 6) &  3;
 	EG   = (data[0] >> 5) &  1;
@@ -371,7 +371,7 @@ void Patch::initModulator(const byte* data)
 	RR   = (data[6] >> 0) & 15;
 }
 
-void Patch::initCarrier(const byte* data)
+void Patch::initCarrier(const uint8_t* data)
 {
 	AMPM = (data[1] >> 6) &  3;
 	EG   = (data[1] >> 5) &  1;
@@ -387,33 +387,33 @@ void Patch::initCarrier(const byte* data)
 	RR   = (data[7] >> 0) & 15;
 }
 
-void Patch::setKR(byte value)
+void Patch::setKR(uint8_t value)
 {
 	KR = value ? 8 : 10;
 }
-void Patch::setML(byte value)
+void Patch::setML(uint8_t value)
 {
 	ML = mlTable[value];
 }
-void Patch::setKL(byte value)
+void Patch::setKL(uint8_t value)
 {
 	KL = tll.tab[value];
 }
-void Patch::setTL(byte value)
+void Patch::setTL(uint8_t value)
 {
 	assert(value < 64);
 	assert(TL2EG(value) < 256);
 	TL = TL2EG(value);
 }
-void Patch::setWF(byte value)
+void Patch::setWF(uint8_t value)
 {
 	WF = waveform[value];
 }
-void Patch::setFB(byte value)
+void Patch::setFB(uint8_t value)
 {
 	FB = value ? 8 - value : 0;
 }
-void Patch::setSL(byte value)
+void Patch::setSL(uint8_t value)
 {
 	SL = sl.tab[value];
 }
@@ -664,7 +664,7 @@ void Channel::keyOff()
 // YM2413
 //
 
-static byte inst_data[16 + 3][8] = {
+static uint8_t inst_data[16 + 3][8] = {
 	{ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 }, // user instrument
 	{ 0x61,0x61,0x1e,0x17,0xf0,0x7f,0x00,0x17 }, // violin
 	{ 0x13,0x41,0x16,0x0e,0xfd,0xf4,0x23,0x23 }, // guitar
@@ -843,14 +843,14 @@ void YM2413::keyOff_CYM()
 	}
 }
 
-void YM2413::setRhythmFlags(byte old)
+void YM2413::setRhythmFlags(uint8_t old)
 {
 	Channel& ch6 = channels[6];
 	Channel& ch7 = channels[7];
 	Channel& ch8 = channels[8];
 
 	// flags = X | X | mode | BD | SD | TOM | TC | HH
-	byte flags = reg[0x0E];
+	uint8_t flags = reg[0x0E];
 	if ((flags ^ old) & 0x20) {
 		if (flags & 0x20) {
 			// OFF -> ON
@@ -1395,7 +1395,7 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 	}
 }
 
-void YM2413::writeReg(byte r, byte data)
+void YM2413::writeReg(uint8_t r, uint8_t data)
 {
 	assert(r < 0x40);
 
@@ -1538,7 +1538,7 @@ void YM2413::writeReg(byte r, byte data)
 		break;
 	}
 	case 0x0E: {
-		byte old = reg[r];
+		uint8_t old = reg[r];
 		reg[r] = data;
 		setRhythmFlags(old);
 		break;
@@ -1608,7 +1608,7 @@ void YM2413::writeReg(byte r, byte data)
 	}
 }
 
-byte YM2413::peekReg(byte r) const
+uint8_t YM2413::peekReg(uint8_t r) const
 {
 	return reg[r];
 }

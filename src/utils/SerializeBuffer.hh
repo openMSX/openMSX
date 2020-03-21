@@ -2,7 +2,6 @@
 #define SERIALIZEBUFFER_HH
 
 #include "MemBuffer.hh"
-#include "openmsx.hh"
 #include "inline.hh"
 #include "likely.hh"
 #include <algorithm>

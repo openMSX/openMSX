@@ -1,7 +1,7 @@
 #ifndef YM2413CORE_HH
 #define YM2413CORE_HH
 
-#include "openmsx.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -47,7 +47,7 @@ public:
 
 	/** Write to a YM2413 register.
 	 */
-	virtual void writeReg(byte reg, byte value) = 0;
+	virtual void writeReg(uint8_t reg, uint8_t value) = 0;
 
 	/** Read from a YM2413 register.
 	 * Note that the real YM2413 chip doesn't allow to read the registers.
@@ -55,7 +55,7 @@ public:
 	 * register hasn't been written to since the last reset() call.
 	 * Reading registers has no influence on the generated sound.
 	 */
-	virtual byte peekReg(byte reg) const = 0;
+	virtual uint8_t peekReg(uint8_t reg) const = 0;
 
 	/** Generate the sound output.
 	 * @param bufs Pointers to output buffers.

@@ -100,7 +100,7 @@ constexpr int sl_tab[16] = {
 	SC( 8),SC( 9),SC(10),SC(11),SC(12),SC(13),SC(14),SC(15)
 };
 
-constexpr byte eg_inc[15][8] =
+constexpr uint8_t eg_inc[15][8] =
 {
 	// cycle: 0 1  2 3  4 5  6 7
 
@@ -125,7 +125,7 @@ constexpr byte eg_inc[15][8] =
 };
 
 // note that there is no value 13 in this table - it's directly in the code
-constexpr byte eg_rate_select[16 + 64 + 16] =
+constexpr uint8_t eg_rate_select[16 + 64 + 16] =
 {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -163,7 +163,7 @@ constexpr byte eg_rate_select[16 + 64 + 16] =
 // shift 13,   12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0
 // mask  8191, 4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0
 
-constexpr byte eg_rate_shift[16 + 64 + 16] =
+constexpr uint8_t eg_rate_shift[16 + 64 + 16] =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
@@ -198,8 +198,8 @@ constexpr byte eg_rate_shift[16 + 64 + 16] =
 };
 
 // multiple table
-static constexpr byte ML(double x) { return byte(2 * x); }
-constexpr byte mul_tab[16] =
+static constexpr uint8_t ML(double x) { return uint8_t(2 * x); }
+constexpr uint8_t mul_tab[16] =
 {
 	ML( 0.50), ML( 1.00), ML( 2.00), ML( 3.00),
 	ML( 4.00), ML( 5.00), ML( 6.00), ML( 7.00),
@@ -280,7 +280,7 @@ constexpr SinTab sin = makeSinTab();
 // We use data>>1, until we find what it really is on real chip...
 
 constexpr int LFO_AM_TAB_ELEMENTS = 210;
-constexpr byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
+constexpr uint8_t lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 {
 	0,0,0,0,0,0,0,
 	1,1,1,1,
@@ -369,7 +369,7 @@ constexpr signed char lfo_pm_table[8][8] =
 // - multi parameters are 100% correct (instruments and drums)
 // - LFO PM and AM enable are 100% correct
 // - waveform DC and DM select are 100% correct
-constexpr byte table[16 + 3][8] = {
+constexpr uint8_t table[16 + 3][8] = {
 	// MULT  MULT modTL DcDmFb AR/DR AR/DR SL/RR SL/RR
 	//   0     1     2     3     4     5     6     7
 	{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, // user instrument
@@ -474,8 +474,8 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 			const bool sustain = !eg_sustain || channel.isSustained();
 			const unsigned mask = sustain ? eg_mask_rs : eg_mask_rr;
 			if (!(eg_cnt & mask)) {
-				const byte shift = sustain ? eg_sh_rs : eg_sh_rr;
-				const byte* sel = sustain ? eg_sel_rs : eg_sel_rr;
+				const uint8_t shift = sustain ? eg_sh_rs : eg_sh_rr;
+				const uint8_t* sel = sustain ? eg_sel_rs : eg_sel_rr;
 				egout += sel[(eg_cnt >> shift) & 7];
 				if (egout >= MAX_ATT_INDEX) {
 					egout = MAX_ATT_INDEX;
@@ -707,7 +707,7 @@ void Slot::setEnvelopeState(EnvelopeState state_)
 	state = state_;
 }
 
-void Slot::setFrequencyMultiplier(byte value)
+void Slot::setFrequencyMultiplier(uint8_t value)
 {
 	mul = mul_tab[value];
 }
@@ -732,50 +732,50 @@ void Slot::setAmplitudeModulation(bool value)
 	AMmask = value ? ~0 : 0;
 }
 
-void Slot::setTotalLevel(Channel& channel, byte value)
+void Slot::setTotalLevel(Channel& channel, uint8_t value)
 {
 	TL = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 	updateTotalLevel(channel);
 }
 
-void Slot::setKeyScaleLevel(Channel& channel, byte value)
+void Slot::setKeyScaleLevel(Channel& channel, uint8_t value)
 {
 	ksl = value ? (3 - value) : 31;
 	updateTotalLevel(channel);
 }
 
-void Slot::setWaveform(byte value)
+void Slot::setWaveform(uint8_t value)
 {
 	wavetable = &sin.tab[value * SIN_LEN];
 }
 
-void Slot::setFeedbackShift(byte value)
+void Slot::setFeedbackShift(uint8_t value)
 {
 	fb_shift = value ? 8 - value : 0;
 }
 
-void Slot::setAttackRate(const Channel& channel, byte value)
+void Slot::setAttackRate(const Channel& channel, uint8_t value)
 {
 	int kcodeScaled = channel.getKeyCode() >> KSR;
 	ar = value ? 16 + (value << 2) : 0;
 	updateAttackRate(kcodeScaled);
 }
 
-void Slot::setDecayRate(const Channel& channel, byte value)
+void Slot::setDecayRate(const Channel& channel, uint8_t value)
 {
 	int kcodeScaled = channel.getKeyCode() >> KSR;
 	dr = value ? 16 + (value << 2) : 0;
 	updateDecayRate(kcodeScaled);
 }
 
-void Slot::setReleaseRate(const Channel& channel, byte value)
+void Slot::setReleaseRate(const Channel& channel, uint8_t value)
 {
 	int kcodeScaled = channel.getKeyCode() >> KSR;
 	rr = value ? 16 + (value << 2) : 0;
 	updateReleaseRate(kcodeScaled);
 }
 
-void Slot::setSustainLevel(byte value)
+void Slot::setSustainLevel(uint8_t value)
 {
 	sl = sl_tab[value];
 }
@@ -836,12 +836,12 @@ void Channel::setFrequency(int block_fnum_)
 	car.updateFrequency(*this);
 }
 
-void Channel::setFrequencyLow(byte value)
+void Channel::setFrequencyLow(uint8_t value)
 {
 	setFrequency((block_fnum & 0x0F00) | value);
 }
 
-void Channel::setFrequencyHigh(byte value)
+void Channel::setFrequencyHigh(uint8_t value)
 {
 	setFrequency((value << 8) | (block_fnum & 0x00FF));
 }
@@ -861,7 +861,7 @@ int Channel::getKeyScaleLevelBase() const
 	return ksl_base;
 }
 
-byte Channel::getKeyCode() const
+uint8_t Channel::getKeyCode() const
 {
 	// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
 	return (block_fnum & 0x0F00) >> 8;
@@ -877,7 +877,7 @@ void Channel::setSustain(bool sustained)
 	sus = sustained;
 }
 
-void Channel::updateInstrumentPart(int part, byte value)
+void Channel::updateInstrumentPart(int part, uint8_t value)
 {
 	switch (part) {
 	case 0:
@@ -925,7 +925,7 @@ void Channel::updateInstrumentPart(int part, byte value)
 	}
 }
 
-void Channel::updateInstrument(const byte* inst)
+void Channel::updateInstrument(const uint8_t* inst)
 {
 	for (int part = 0; part < 8; ++part) {
 		updateInstrumentPart(part, inst[part]);
@@ -948,7 +948,7 @@ YM2413::YM2413()
 	reset();
 }
 
-void YM2413::updateCustomInstrument(int part, byte value)
+void YM2413::updateCustomInstrument(int part, uint8_t value)
 {
 	// Update instrument definition.
 	inst_tab[0][part] = value;
@@ -963,14 +963,14 @@ void YM2413::updateCustomInstrument(int part, byte value)
 	}
 }
 
-void YM2413::setRhythmFlags(byte old)
+void YM2413::setRhythmFlags(uint8_t old)
 {
 	Channel& ch6 = channels[6];
 	Channel& ch7 = channels[7];
 	Channel& ch8 = channels[8];
 
 	// flags = X | X | mode | BD | SD | TOM | TC | HH
-	byte flags = reg[0x0E];
+	uint8_t flags = reg[0x0E];
 	if ((flags ^ old) & 0x20) {
 		if (flags & 0x20) { // OFF -> ON
 			// Bass drum.
@@ -1048,9 +1048,9 @@ bool YM2413::isRhythm() const
 	return (reg[0x0E] & 0x20) != 0;
 }
 
-Channel& YM2413::getChannelForReg(byte r)
+Channel& YM2413::getChannelForReg(uint8_t r)
 {
-	byte chan = (r & 0x0F) % 9; // verified on real YM2413
+	uint8_t chan = (r & 0x0F) % 9; // verified on real YM2413
 	return channels[chan];
 }
 
@@ -1219,9 +1219,9 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 	}
 }
 
-void YM2413::writeReg(byte r, byte v)
+void YM2413::writeReg(uint8_t r, uint8_t v)
 {
-	byte old = reg[r];
+	uint8_t old = reg[r];
 	reg[r] = v;
 
 	switch (r & 0xF0) {
@@ -1269,7 +1269,7 @@ void YM2413::writeReg(byte r, byte v)
 		// Check wether we are in rhythm mode and handle instrument/volume
 		// register accordingly.
 
-		byte chan = (r & 0x0F) % 9; // verified on real YM2413
+		uint8_t chan = (r & 0x0F) % 9; // verified on real YM2413
 		if (isRhythm() && (chan >= 6)) {
 			if (chan > 6) {
 				// channel 7 or 8 in ryhthm mode
@@ -1288,7 +1288,7 @@ void YM2413::writeReg(byte r, byte v)
 	}
 }
 
-byte YM2413::peekReg(byte r) const
+uint8_t YM2413::peekReg(uint8_t r) const
 {
 	return reg[r];
 }
