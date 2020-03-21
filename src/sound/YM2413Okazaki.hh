@@ -135,6 +135,19 @@ class YM2413 final : public YM2413Core
 public:
 	YM2413();
 
+	// YM2413Core
+	void reset() override;
+	void writeReg(uint8_t reg, uint8_t data) override;
+	uint8_t peekReg(uint8_t reg) const override;
+	void generateChannels(float* bufs[9 + 5], unsigned num) override;
+	float getAmplificationFactor() const override;
+
+	Patch& getPatch(unsigned instrument, bool carrier);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+private:
 	inline void keyOn_BD();
 	inline void keyOn_SD();
 	inline void keyOn_TOM();
@@ -149,22 +162,11 @@ public:
 	inline void update_key_status();
 	inline bool isRhythm() const;
 	inline unsigned getFreq(unsigned channel) const;
-	Patch& getPatch(unsigned instrument, bool carrier);
 
 	template <unsigned FLAGS>
 	inline void calcChannel(Channel& ch, float* buf, unsigned num);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
 private:
-	// YM2413Core
-	void reset() override;
-	void writeReg(uint8_t reg, uint8_t data) override;
-	uint8_t peekReg(uint8_t reg) const override;
-	void generateChannels(float* bufs[9 + 5], unsigned num) override;
-	float getAmplificationFactor() const override;
-
 	/** Channel & Slot */
 	Channel channels[9];
 
