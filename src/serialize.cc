@@ -11,6 +11,7 @@
 #include "Version.hh"
 #include "Date.hh"
 #include "stl.hh"
+#include "build-info.hh"
 #include "cstdiop.hh" // for dup()
 #include <cstring>
 #include <iostream>

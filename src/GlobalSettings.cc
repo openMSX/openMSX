@@ -27,6 +27,10 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		"invalid_psg_directions_callback",
 		"Tcl proc called when the MSX program has set invalid PSG port directions",
 		{})
+	, invalidPpiModeSetting(commandController,
+		"invalid_ppi_mode_callback",
+		"Tcl proc called when the MSX program has set an invalid PPI mode",
+		{})
 	, resampleSetting(commandController, "resampler", "Resample algorithm",
 #if PLATFORM_DINGUX
 		// For Dingux, LQ is good compromise between quality and performance

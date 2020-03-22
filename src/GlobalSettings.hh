@@ -44,6 +44,9 @@ public:
 	StringSetting& getInvalidPsgDirectionsSetting() {
 		return invalidPsgDirectionsSetting;
 	}
+	StringSetting& getInvalidPpiModeSetting() {
+		return invalidPpiModeSetting;
+	}
 	EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting() {
 		return resampleSetting;
 	}
@@ -66,6 +69,7 @@ private:
 	BooleanSetting autoSaveSetting;
 	StringSetting  umrCallBackSetting;
 	StringSetting  invalidPsgDirectionsSetting;
+	StringSetting  invalidPpiModeSetting;
 	EnumSetting<ResampledSoundDevice::ResampleType> resampleSetting;
 	std::vector<std::unique_ptr<IntegerSetting>> deadzoneSettings;
 	ThrottleManager throttleManager;

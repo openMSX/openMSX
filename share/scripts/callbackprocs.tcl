@@ -53,6 +53,16 @@ Real (older) MSX machines can get damaged by this.} warning
 set invalid_psg_directions_callback psgdirectioncallback
 
 
+# Callback on setting an invalid PPI mode.
+set ppi_mode_warning_printed false
+proc ppimodecallback {} {
+	if {$::ppi_mode_warning_printed} return
+	set ::ppi_mode_warning_printed true
+	message {Invalid PPI mode selected. This is not yet correctly emulated. On a real MSX this will most likely hang.} warning
+}
+set invalid_ppi_mode_callback ppimodecallback
+
+
 # Callback on DI;HALT.
 proc dihaltcallback {} {
 	set machine [machine_info type]

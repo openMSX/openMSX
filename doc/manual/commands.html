@@ -120,6 +120,7 @@
         <li><a class="internal" href="#horizontal_stretch">horizontal_stretch</a></li>
         <li><a class="internal" href="#inputdelay">inputdelay</a></li>
         <li><a class="internal" href="#interleave_black_frame">interleave_black_frame</a></li>
+        <li><a class="internal" href="#invalid_ppi_mode_callback">invalid_ppi_mode_callback</a></li>
         <li><a class="internal" href="#invalid_psg_directions_callback">invalid_psg_directions_callback</a></li>
         <li><a class="internal" href="#joystickN_config">joystick&lt;n&gt;_config</a></li>
         <li><a class="internal" href="#joystickN_deadzone">joystick&lt;n&gt;_deadzone</a></li>
@@ -3757,6 +3758,27 @@
     <tr>
       <td><code>set interleave_black_frame true</code></td>
       <td>Enable this feature.</td>
+    </tr>
+  </table>
+
+
+  <h3><a id="invalid_ppi_mode_callback">invalid_ppi_mode_callback</a></h3>
+
+  <p>Selects the Tcl procedure to be called when the running MSX software has selected an invalid PPI mode. Or at least a PPI mode that's not yet correctly emulated. Typically on a real machine these modes will hang the MSX.</p>
+
+  <p>The default openmsx startup scripts initialize this setting with a proc that prints a warning message just once. Though if you're a developer you may want to change this to always print the warning or automatically break emulation when this happens so you can debug the problem.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>set invalid_ppi_mode_callback</code></td>
+      <td>Shows the current setting</td>
+    </tr>
+    <tr>
+      <td><code>set invalid_ppi_mode_callback my_callback_proc</code></td>
+      <td>Sets a new callback proc</td>
     </tr>
   </table>
 

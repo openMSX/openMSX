@@ -8,18 +8,20 @@
 #define I8255_HH
 
 #include "EmuTime.hh"
+#include "TclCallback.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
 
 class I8255Interface;
 class CliComm;
+class StringSetting;
 
 class I8255
 {
 public:
 	I8255(I8255Interface& interf, EmuTime::param time,
-	      CliComm& cliComm);
+	      CliComm& cliComm, StringSetting& invalidPpiModeSetting);
 
 	void reset(EmuTime::param time);
 
@@ -59,7 +61,7 @@ private:
 	byte latchPortB;
 	byte latchPortC;
 
-	bool warningPrinted;
+	TclCallback ppiModeCallback;
 };
 
 } // namespace openmsx
