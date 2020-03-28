@@ -66,7 +66,12 @@ void YM2413::reset(EmuTime::param time)
 void YM2413::writePort(bool port, byte value, EmuTime::param time)
 {
 	updateStream(time);
-	int offset = 0; // TODO
+
+	auto [integral, fractional] = getEmuClock().getTicksTillAsIntFloat(time);
+	auto offset = unsigned(18 * fractional);
+	assert(integral == 0);
+	assert(offset < 18);
+
 	core->writePort(port, value, offset);
 }
 
