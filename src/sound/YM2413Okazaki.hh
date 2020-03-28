@@ -137,7 +137,8 @@ public:
 
 	// YM2413Core
 	void reset() override;
-	void writeReg(uint8_t reg, uint8_t data) override;
+	void writePort(bool port, uint8_t value, int offset) override;
+	void pokeReg(uint8_t reg, uint8_t data) override;
 	uint8_t peekReg(uint8_t reg) const override;
 	void generateChannels(float* bufs[9 + 5], unsigned num) override;
 	float getAmplificationFactor() const override;
@@ -148,6 +149,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void writeReg(uint8_t r, uint8_t data);
+
 	inline void keyOn_BD();
 	inline void keyOn_SD();
 	inline void keyOn_TOM();
@@ -184,13 +187,14 @@ private:
 
 	/** Registers */
 	uint8_t reg[0x40];
+	uint8_t registerLatch;
 };
 
 } // namespace YM2413Okazaki
 
 SERIALIZE_CLASS_VERSION(YM2413Okazaki::Slot, 4);
 SERIALIZE_CLASS_VERSION(YM2413Okazaki::Channel, 2);
-SERIALIZE_CLASS_VERSION(YM2413Okazaki::YM2413, 3);
+SERIALIZE_CLASS_VERSION(YM2413Okazaki::YM2413, 4);
 
 } // namespace openmsx
 

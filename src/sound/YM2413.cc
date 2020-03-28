@@ -27,7 +27,7 @@ byte YM2413::Debuggable::read(unsigned address)
 void YM2413::Debuggable::write(unsigned address, byte value, EmuTime::param time)
 {
 	auto& ym2413 = OUTER(YM2413, debuggable);
-	ym2413.writeReg(address, value, time);
+	ym2413.pokeReg(address, value, time);
 }
 
 
@@ -63,10 +63,17 @@ void YM2413::reset(EmuTime::param time)
 	core->reset();
 }
 
-void YM2413::writeReg(byte reg, byte value, EmuTime::param time)
+void YM2413::writePort(bool port, byte value, EmuTime::param time)
 {
 	updateStream(time);
-	core->writeReg(reg, value);
+	int offset = 0; // TODO
+	core->writePort(port, value, offset);
+}
+
+void YM2413::pokeReg(byte reg, byte value, EmuTime::param time)
+{
+	updateStream(time);
+	core->pokeReg(reg, value);
 }
 
 void YM2413::generateChannels(float** bufs, unsigned num)

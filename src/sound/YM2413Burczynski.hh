@@ -225,16 +225,19 @@ class YM2413 final : public YM2413Core
 public:
 	YM2413();
 
+	// YM2413Core
+	void reset() override;
+	void writePort(bool port, uint8_t value, int offset) override;
+	void pokeReg(uint8_t reg, uint8_t value) override;
+	uint8_t peekReg(uint8_t reg) const override;
+	void generateChannels(float* bufs[9 + 5], unsigned num) override;
+	float getAmplificationFactor() const override;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	// YM2413Core
-	void reset() override;
-	void writeReg(uint8_t reg, uint8_t value) override;
-	uint8_t peekReg(uint8_t reg) const override;
-	void generateChannels(float* bufs[9 + 5], unsigned num) override;
-	float getAmplificationFactor() const override;
+	void writeReg(uint8_t reg, uint8_t value);
 
 	/** Reset operator parameters.
 	 */
@@ -279,11 +282,12 @@ private:
 
 	/** Registers */
 	uint8_t reg[0x40];
+	uint8_t registerLatch;
 };
 
 } // namespace YM2413Burczynski
 
-SERIALIZE_CLASS_VERSION(YM2413Burczynski::YM2413, 3);
+SERIALIZE_CLASS_VERSION(YM2413Burczynski::YM2413, 4);
 SERIALIZE_CLASS_VERSION(YM2413Burczynski::Channel, 3);
 SERIALIZE_CLASS_VERSION(YM2413Burczynski::Slot, 2);
 

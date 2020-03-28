@@ -126,7 +126,7 @@ public: // Will be called by Mixer:
 	  *
 	  * This method is regularly called from the Mixer, it should return a
 	  * pointer to a buffer filled with the required number of samples.
-	  * Samples are always ints, later they are converted to the systems
+	  * Samples are always floats, later they are converted to the systems
 	  * native format (e.g. 16-bit signed).
 	  *
 	  * Note: To enable various optimizations (like SSE), this method can

@@ -33,7 +33,7 @@ private:
 	byte r1ffe, r1fff;
 	bool sramEnabled;
 };
-SERIALIZE_CLASS_VERSION(MSXFmPac, 2); // must be in-sync with MSXMusicBase
+SERIALIZE_CLASS_VERSION(MSXFmPac, 3); // must be in-sync with MSXMusicBase
 
 } // namespace openmsx
 

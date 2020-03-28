@@ -93,11 +93,9 @@ void MSXFmPac::writeMem(word address, byte value, EmuTime::param time)
 			checkSramEnable();
 		}
 		break;
-	case 0x3FF4:
-		writeRegisterPort(value, time);
-		break;
-	case 0x3FF5:
-		writeDataPort(value, time);
+	case 0x3FF4: // address
+	case 0x3FF5: // data
+		writePort(address & 1, value, time);
 		break;
 	case 0x3FF6:
 		enable = value & 0x11;

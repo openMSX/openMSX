@@ -743,6 +743,7 @@ void YM2413::reset()
 	for (unsigned i = 0; i < 0x40; ++i) {
 		writeReg(i, 0);
 	}
+	registerLatch = 0;
 }
 
 // Drum key on
@@ -1395,6 +1396,20 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 	}
 }
 
+void YM2413::writePort(bool port, uint8_t value, int /*offset*/)
+{
+	if (port == 0) {
+		registerLatch = value;
+	} else {
+		writeReg(registerLatch & 0x3f, value);
+	}
+}
+
+void YM2413::pokeReg(uint8_t r, uint8_t data)
+{
+	writeReg(r, data);
+}
+
 void YM2413::writeReg(uint8_t r, uint8_t data)
 {
 	assert(r < 0x40);
@@ -1664,6 +1679,7 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 // version 1: initial version
 // version 2: 'registers' are moved here (no longer serialized in base class)
 // version 3: no longer serialize 'user_patch_mod' and 'user_patch_car'
+// version 4: added 'registerLatch'
 template<typename Archive>
 void YM2413::serialize(Archive& ar, unsigned version)
 {
@@ -1702,6 +1718,11 @@ void YM2413::serialize(Archive& ar, unsigned version)
 			ch.car.setEnvelopeState(ch.car.state);
 		}
 		update_key_status();
+	}
+	if (ar.versionAtLeast(version, 4)) {
+		ar.serialize("registerLatch", registerLatch);
+	} else {
+		// could be restored from MSXMusicBase, worth the effort?
 	}
 }
 

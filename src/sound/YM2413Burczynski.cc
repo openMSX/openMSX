@@ -1031,6 +1031,7 @@ void YM2413::reset()
 	for (int i = 0x3F; i >= 0x10; --i) {
 		writeReg(i, 0);
 	}
+	registerLatch = 0;
 
 	resetOperators();
 }
@@ -1219,6 +1220,20 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 	}
 }
 
+void YM2413::writePort(bool port, uint8_t value, int /*offset*/)
+{
+	if (port == 0) {
+		registerLatch = value;
+	} else {
+		writeReg(registerLatch & 0x3f, value);
+	}
+}
+
+void YM2413::pokeReg(uint8_t r, uint8_t v)
+{
+	writeReg(r, v);
+}
+
 void YM2413::writeReg(uint8_t r, uint8_t v)
 {
 	uint8_t old = reg[r];
@@ -1375,6 +1390,7 @@ void Channel::serialize(Archive& a, unsigned /*version*/)
 // version 1: initial version
 // version 2: 'registers' are moved here (no longer serialized in base class)
 // version 3: removed 'rhythm' variable
+// version 4: added 'registerLatch'
 template<typename Archive>
 void YM2413::serialize(Archive& a, unsigned version)
 {
@@ -1389,6 +1405,11 @@ void YM2413::serialize(Archive& a, unsigned version)
 	            "noise_rng",  noise_rng,
 	            "lfo_am_cnt", lfo_am_cnt,
 	            "lfo_pm_cnt", lfo_pm_cnt);
+	if (a.versionAtLeast(version, 4)) {
+		a.serialize("registerLatch", registerLatch);
+	} else {
+		// could be restored from MSXMusicBase, worth the effort?
+	}
 	// don't serialize idleSamples, it's only an optimization
 }
 

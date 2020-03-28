@@ -45,11 +45,35 @@ public:
 	 */
 	virtual void reset() = 0;
 
-	/** Write to a YM2413 register.
+	/** Write to the YM2413 register/data port.
+	 * Writing to a register is a 2-step process: First write the register
+	 * number to the register port (0), then write the value for that
+	 * register to the data port (1). There are various timing constraits
+	 * that must be taken into account (not described here).
+	 *
+	 * We emulate the YM2413 as-if it generates a stream at 49.7kHz and at
+	 * each step it produces one sample for each of the 9+5 sound channels.
+	 * Though in reality the YM2413 spreads out the generation of the
+	 * channels over time. So it's like a stream at 18 x 49.7kHz where the
+	 * 9+5 channels have a fixed position in the 18 possible slots (so not
+	 * all 18 slots produce a (non-zero) output).
+	 *
+	 * In other words: we emulate the YM2413 18 steps at a time. Though for
+	 * accurate emulation we still need to take the exact timing of
+	 * register writes into account. That's what the 'offset' parameter is
+	 * for. It must have a value [0..17] and indicates the sub-sample
+	 * timing of the port-write.
 	 */
-	virtual void writeReg(uint8_t reg, uint8_t value) = 0;
+	virtual void writePort(bool port, uint8_t value, int offset) = 0;
 
-	/** Read from a YM2413 register.
+	/** Write to a YM2413 register (for debug).
+	 * Because of the timing constraint on writing registers via
+	 * writePort(), writing registers via that way is not very suited
+	 * for use in a debugger. Use this method as an alternative.
+	 */
+	virtual void pokeReg(uint8_t reg, uint8_t value) = 0;
+
+	/** Read from a YM2413 register (for debug).
 	 * Note that the real YM2413 chip doesn't allow to read the registers.
 	 * This returns the last written value or the default value if this
 	 * register hasn't been written to since the last reset() call.
