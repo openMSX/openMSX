@@ -37,9 +37,8 @@ template <unsigned CHANNELS>
 ResampleLQ<CHANNELS>::ResampleLQ(
 		ResampledSoundDevice& input_,
 		const DynamicClock& hostClock_, unsigned emuSampleRate)
-	: input(input_)
+	: ResampleAlgo(input_)
 	, hostClock(hostClock_)
-	, emuClock(hostClock.getTime(), emuSampleRate)
 	, step(FP::roundRatioDown(emuSampleRate, hostClock.getFreq()))
 {
 	ranges::fill(lastInput, 0.0f);
@@ -54,7 +53,8 @@ static bool isSilent(float x)
 template <unsigned CHANNELS>
 bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 {
-	unsigned emuNum = emuClock.getTicksTill(time);
+	auto& emuClk = getEmuClock();
+	unsigned emuNum = emuClk.getTicksTill(time);
 	valid = 2 + emuNum;
 
 	unsigned required = emuNum + 4;
@@ -69,9 +69,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 		assert(bufferSize >= required);
 	}
 
-	emuClock += emuNum;
-	assert(emuClock.getTime() <= time);
-	assert(emuClock.getFastAdd(1) > time);
+	emuClk += emuNum;
 
 	auto* buffer = &aBuffer[4 - 2 * CHANNELS];
 	assert((uintptr_t(&buffer[2 * CHANNELS]) & 15) == 0);
@@ -104,13 +102,14 @@ ResampleLQUp<CHANNELS>::ResampleLQUp(
 }
 
 template <unsigned CHANNELS>
-bool ResampleLQUp<CHANNELS>::generateOutput(
+bool ResampleLQUp<CHANNELS>::generateOutputImpl(
 	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
+	auto& emuClk = this->getEmuClock();
 	EmuTime host1 = this->hostClock.getFastAdd(1);
-	assert(host1 > this->emuClock.getTime());
+	assert(host1 > emuClk.getTime());
 	FP pos;
-	this->emuClock.getTicksTill(host1, pos);
+	emuClk.getTicksTill(host1, pos);
 	assert(pos.toInt() < 2);
 
 	unsigned valid; // only indices smaller than this number are valid
@@ -144,13 +143,14 @@ ResampleLQDown<CHANNELS>::ResampleLQDown(
 }
 
 template <unsigned CHANNELS>
-bool ResampleLQDown<CHANNELS>::generateOutput(
+bool ResampleLQDown<CHANNELS>::generateOutputImpl(
 	float* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
+	auto& emuClk = this->getEmuClock();
 	EmuTime host1 = this->hostClock.getFastAdd(1);
-	assert(host1 > this->emuClock.getTime());
+	assert(host1 > emuClk.getTime());
 	FP pos;
-	this->emuClock.getTicksTill(host1, pos);
+	emuClk.getTicksTill(host1, pos);
 
 	unsigned valid;
 	if (!this->fetchData(time, valid)) return false;

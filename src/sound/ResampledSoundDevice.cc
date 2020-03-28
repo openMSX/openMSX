@@ -20,6 +20,7 @@ ResampledSoundDevice::ResampledSoundDevice(
 	: SoundDevice(motherBoard.getMSXMixer(), name_, description_,
 	              channels, inputSampleRate_, stereo_)
 	, resampleSetting(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
+	, emuClock(EmuTime::zero())
 {
 	resampleSetting.attach(*this);
 }
@@ -59,6 +60,8 @@ void ResampledSoundDevice::createResampler()
 	const DynamicClock& hostClock = getHostSampleClock();
 	unsigned outputRate = hostClock.getFreq();
 	unsigned inputRate  = getInputRate() / getEffectiveSpeed();
+	emuClock.reset(hostClock.getTime());
+	emuClock.setFreq(inputRate);
 
 	if (outputRate == inputRate) {
 		algo = std::make_unique<ResampleTrivial>(*this);

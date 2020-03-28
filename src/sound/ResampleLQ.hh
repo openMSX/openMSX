@@ -23,9 +23,7 @@ protected:
 	           const DynamicClock& hostClock, unsigned emuSampleRate);
 	bool fetchData(EmuTime::param time, unsigned& valid);
 
-	ResampledSoundDevice& input;
 	const DynamicClock& hostClock;
-	DynamicClock emuClock;
 	using FP = FixedPoint<14>;
 	const FP step;
 	float lastInput[2 * CHANNELS];
@@ -38,8 +36,8 @@ public:
 	ResampleLQDown(ResampledSoundDevice& input,
 	               const DynamicClock& hostClock, unsigned emuSampleRate);
 private:
-	bool generateOutput(float* dataOut, unsigned num,
-	                    EmuTime::param time) override;
+	bool generateOutputImpl(float* dataOut, unsigned num,
+	                        EmuTime::param time) override;
 	using FP = typename ResampleLQ<CHANNELS>::FP;
 };
 
@@ -50,8 +48,8 @@ public:
 	ResampleLQUp(ResampledSoundDevice& input,
 	             const DynamicClock& hostClock, unsigned emuSampleRate);
 private:
-	bool generateOutput(float* dataOut, unsigned num,
-	                    EmuTime::param time) override;
+	bool generateOutputImpl(float* dataOut, unsigned num,
+	                        EmuTime::param time) override;
 	using FP = typename ResampleLQ<CHANNELS>::FP;
 };
 

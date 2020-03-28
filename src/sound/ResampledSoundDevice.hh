@@ -2,6 +2,7 @@
 #define RESAMPLEDSOUNDDEVICE_HH
 
 #include "SoundDevice.hh"
+#include "DynamicClock.hh"
 #include "Observer.hh"
 #include <memory>
 
@@ -23,6 +24,8 @@ public:
 	  */
 	bool generateInput(float* buffer, unsigned num);
 
+	DynamicClock& getEmuClock() { return emuClock; }
+
 protected:
 	ResampledSoundDevice(MSXMotherBoard& motherBoard, std::string_view name,
 	                     std::string_view description, unsigned channels,
@@ -42,6 +45,8 @@ protected:
 private:
 	EnumSetting<ResampleType>& resampleSetting;
 	std::unique_ptr<ResampleAlgo> algo;
+	DynamicClock emuClock; // time of the last produced emu-sample,
+	                       //    ticks once per emu-sample
 };
 
 } // namespace openmsx

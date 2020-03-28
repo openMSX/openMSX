@@ -11,26 +11,26 @@ template <unsigned CHANNELS>
 ResampleBlip<CHANNELS>::ResampleBlip(
 		ResampledSoundDevice& input_,
 		const DynamicClock& hostClock_, unsigned emuSampleRate)
-	: input(input_)
+	: ResampleAlgo(input_)
 	, hostClock(hostClock_)
-	, emuClock(hostClock.getTime(), emuSampleRate)
 	, step(FP::roundRatioDown(hostClock.getFreq(), emuSampleRate))
 {
 	ranges::fill(lastInput, 0.0f);
 }
 
 template <unsigned CHANNELS>
-bool ResampleBlip<CHANNELS>::generateOutput(float* dataOut, unsigned hostNum,
-                                            EmuTime::param time)
+bool ResampleBlip<CHANNELS>::generateOutputImpl(float* dataOut, unsigned hostNum,
+                                                EmuTime::param time)
 {
-	unsigned emuNum = emuClock.getTicksTill(time);
+	auto& emuClk = getEmuClock();
+	unsigned emuNum = emuClk.getTicksTill(time);
 	if (emuNum > 0) {
 		// 3 extra for padding, CHANNELS extra for sentinel
 		// Clang will produce a link error if the length expression is put
 		// inside the macro.
 		const unsigned len = emuNum * CHANNELS + std::max(3u, CHANNELS);
 		VLA_SSE_ALIGNED(float, buf, len);
-		EmuTime emu1 = emuClock.getFastAdd(1); // time of 1st emu-sample
+		EmuTime emu1 = emuClk.getFastAdd(1); // time of 1st emu-sample
 		assert(emu1 > hostClock.getTime());
 		if (input.generateInput(buf, emuNum)) {
 			FP pos1;
@@ -73,9 +73,7 @@ bool ResampleBlip<CHANNELS>::generateOutput(float* dataOut, unsigned hostNum,
 				}
 			}
 		}
-		emuClock += emuNum;
-		assert(emuClock.getTime() <= time);
-		assert(emuClock.getFastAdd(1) > time);
+		emuClk += emuNum;
 	}
 
 	bool results[CHANNELS];
