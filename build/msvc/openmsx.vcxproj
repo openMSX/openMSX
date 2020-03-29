@@ -622,6 +622,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413Burczynski.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413Okazaki.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKT.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413OriginalNukeYKT.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\opll.cc.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF262.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Thread.cc" />
@@ -1180,6 +1183,10 @@
     <None Include="$(OpenMSXSrcDir)\sound\YM2413Core.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YM2413Interface.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YM2413Okazaki.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKT.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\YM2413NukeYktTables.ii" />
+    <None Include="$(OpenMSXSrcDir)\sound\YM2413OriginalNukeYKT.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\opll.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YMF262.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YMF278.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Thread.hh" />
@@ -1211,6 +1218,7 @@
     <None Include="$(OpenMSXSrcDir)\utils\MemoryOps.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\my_auto_ptr.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Observer.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\one_of.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\ref.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\ScopedAssign.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\sdlwin32.hh" />

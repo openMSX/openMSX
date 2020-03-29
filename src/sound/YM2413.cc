@@ -1,7 +1,10 @@
 #include "YM2413.hh"
 #include "YM2413Okazaki.hh"
 #include "YM2413Burczynski.hh"
+#include "YM2413NukeYKT.hh"
+#include "YM2413OriginalNukeYKT.hh"
 #include "DeviceConfig.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
 #include "cstd.hh"
 #include "outer.hh"
@@ -35,10 +38,19 @@ void YM2413::Debuggable::write(unsigned address, byte value, EmuTime::param time
 
 static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
 {
-	if (config.getChildDataAsBool("alternative", false)) {
-		return std::make_unique<YM2413Burczynski::YM2413>();
-	} else {
+	std::string_view variant = config.getChildData("alternative", "NukeYKT");
+	// variants "true"/"false" for backwards compatibility
+	if (variant == "Okazaki" || variant == "false") {
 		return std::make_unique<YM2413Okazaki::YM2413>();
+	} else if (variant == "Burczynski" || variant == "true") {
+		return std::make_unique<YM2413Burczynski::YM2413>();
+	} else if (variant == "NukeYKT") {
+		return std::make_unique<YM2413NukeYKT::YM2413>();
+	} else if (variant == "Original-NukeYKT") {
+		return std::make_unique<YM2413OriginalNukeYKT::YM2413>(); // for debug
+	} else {
+		throw MSXException("Unknown YM2413 alternative '", variant,
+		                   "'. Must be one of 'Okazaki', 'Burczynski', 'NukeYKT', 'Original-NukeYKT'.");
 	}
 }
 
