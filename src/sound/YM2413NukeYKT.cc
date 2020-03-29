@@ -324,19 +324,19 @@ template<uint32_t CYCLES> ALWAYS_INLINE void YM2413::envelopeGenerate2(const Pat
 			switch (rm_for_cycle(CYCLES)) {
 				case rm_num_bd0:
 				case rm_num_bd1:
-					result |= rhythm & 0x10;
+					result |= bool(rhythm & 0x10);
 					break;
 				case rm_num_sd:
-					result |= rhythm & 0x08;
+					result |= bool(rhythm & 0x08);
 					break;
 				case rm_num_tom:
-					result |= rhythm & 0x04;
+					result |= bool(rhythm & 0x04);
 					break;
 				case rm_num_tc:
-					result |= rhythm & 0x02;
+					result |= bool(rhythm & 0x02);
 					break;
 				case rm_num_hh:
-					result |= rhythm & 0x01;
+					result |= bool(rhythm & 0x01);
 					break;
 				default:
 					break; // suppress warning
@@ -451,7 +451,7 @@ template<uint32_t CYCLES, bool TEST_MODE> ALWAYS_INLINE void YM2413::doRhythm()
 {
 	if (TEST_MODE) {
 		bool nbit = (rm_noise ^ (rm_noise >> 14)) & 1;
-		nbit |= testmode & 2;
+		nbit |= bool(testmode & 2);
 		rm_noise = (nbit << 22) | (rm_noise >> 1);
 	} else {
 		// When test-mode does not interfere, the formula for a single step is:
