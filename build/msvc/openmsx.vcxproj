@@ -624,7 +624,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413Okazaki.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413NukeYKT.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413OriginalNukeYKT.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\sound\opll.cc.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\opll.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF262.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Thread.cc" />
