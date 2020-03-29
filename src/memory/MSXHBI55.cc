@@ -40,7 +40,7 @@ namespace openmsx {
 
 MSXHBI55::MSXHBI55(const DeviceConfig& config)
 	: MSXDevice(config)
-	, i8255(*this, getCurrentTime(), getCliComm(), config.getGlobalSettings().getInvalidPpiModeSetting())
+	, i8255(*this, getCurrentTime(), config.getGlobalSettings().getInvalidPpiModeSetting())
 	, sram(getName() + " SRAM", 0x1000, config)
 {
 	reset(getCurrentTime());

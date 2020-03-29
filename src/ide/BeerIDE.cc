@@ -8,7 +8,7 @@ namespace openmsx {
 
 BeerIDE::BeerIDE(const DeviceConfig& config)
 	: MSXDevice(config)
-	, i8255(*this, getCurrentTime(), getCliComm(), config.getGlobalSettings().getInvalidPpiModeSetting())
+	, i8255(*this, getCurrentTime(), config.getGlobalSettings().getInvalidPpiModeSetting())
 	, rom(getName() + " ROM", "rom", config)
 {
 	device = IDEDeviceFactory::create(

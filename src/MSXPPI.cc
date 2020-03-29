@@ -14,7 +14,7 @@ MSXPPI::MSXPPI(const DeviceConfig& config)
 	: MSXDevice(config)
 	, cassettePort(getMotherBoard().getCassettePort())
 	, renshaTurbo(getMotherBoard().getRenShaTurbo())
-	, i8255(*this, getCurrentTime(), getCliComm(), config.getGlobalSettings().getInvalidPpiModeSetting())
+	, i8255(*this, getCurrentTime(), config.getGlobalSettings().getInvalidPpiModeSetting())
 	, click(config)
 	, keyboard(
 		config.getMotherBoard(),
