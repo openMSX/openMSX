@@ -1197,6 +1197,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXMidi.cc">
       <Filter>serial</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\MusicModuleMIDI.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MSXRS232.cc">
       <Filter>serial</Filter>
     </ClCompile>
@@ -2717,6 +2720,9 @@
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\MSXMidi.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\serial\MusicModuleMIDI.hh">
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\MSXRS232.hh">

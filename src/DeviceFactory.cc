@@ -26,7 +26,7 @@
 #include "MSXMoonSound.hh"
 #include "MSXOPL3Cartridge.hh"
 #include "MSXYamahaSFG.hh"
-#include "MC6850.hh"
+#include "MusicModuleMIDI.hh"
 #include "MSXKanji.hh"
 #include "MSXBunsetsu.hh"
 #include "MSXMemoryMapper.hh"
@@ -171,7 +171,7 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 	} else if (type == "MSX-AUDIO") {
 		result = make_unique<MSXAudio>(conf);
 	} else if (type == "MusicModuleMIDI") {
-		result = make_unique<MC6850>(conf);
+		result = make_unique<MusicModuleMIDI>(conf);
 	} else if (type == "FACMIDIInterface") {
 		result = make_unique<MSXFacMidiInterface>(conf);
 	} else if (type == "YamahaSFG") {

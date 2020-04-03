@@ -7,13 +7,6 @@
 
 namespace openmsx {
 
-// MSX interface:
-// port R/W
-// 0    W    Control Register
-// 1    W    Transmit Data Register
-// 4    R    Status Register
-// 5    R    Receive Data Register
-
 // control register bits
 constexpr unsigned CR_CDS1 = 0x01; // Counter Divide Select 1
 constexpr unsigned CR_CDS2 = 0x02; // Counter Divide Select 2
@@ -63,32 +56,16 @@ constexpr unsigned STAT_OVRN = 0x20; // Receiver Overrun
 constexpr unsigned STAT_PE   = 0x40; // Parity Error
 constexpr unsigned STAT_IRQ  = 0x80; // Interrupt Request (/IRQ)
 
-
-// Some existing Music-Module detection routines:
-// - fac demo 5: does OUT 0,3 : OUT 0,21 : INP(4) and expects to read 2
-// - tetris 2 special edition: does INP(4) and expects to read 0
-// - Synthesix: does INP(4), expects 0; OUT 0,3 : OUT 0,21: INP(4) and expects
-//   bit 1 to be 1 and bit 2, 3 and 7 to be 0. Then does OUT 5,0xFE : INP(4)
-//   and expects bit 1 to be 0.
-// I did some _very_basic_ investigation and found the following:
-// - after a reset reading from port 4 returns 0
-// - after initializing the control register, reading port 4 returns 0 (of
-//   course this will change when you start to actually receive/transmit data)
-// - writing any value with the lower 2 bits set to 1 returns to the initial
-//   state, and reading port 4 again returns 0.
-// -  ?INP(4) : OUT0,3 : ?INP(4) : OUT0,21 : ? INP(4) : OUT0,3 :  ?INP(4)
-//    outputs: 0, 0, 2, 0
-
-MC6850::MC6850(const DeviceConfig& config)
-	: MSXDevice(config)
-	, MidiInConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-in")
-	, syncRecv (getMotherBoard().getScheduler())
-	, syncTrans(getMotherBoard().getScheduler())
+MC6850::MC6850(const std::string& name_, MSXMotherBoard& motherBoard, unsigned clockFreq_)
+	: MidiInConnector(motherBoard.getPluggingController(), name_ + "-in")
+	, syncRecv (motherBoard.getScheduler())
+	, syncTrans(motherBoard.getScheduler())
 	, txClock(EmuTime::zero())
-	, rxIRQ(getMotherBoard(), MSXDevice::getName() + "-rx-IRQ")
-	, txIRQ(getMotherBoard(), MSXDevice::getName() + "-tx-IRQ")
+	, clockFreq(clockFreq_)
+	, rxIRQ(motherBoard, name_ + "-rx-IRQ")
+	, txIRQ(motherBoard, name_ + "-tx-IRQ")
 	, txDataReg(0), txShiftReg(0) // avoid UMR
-	, outConnector(getMotherBoard().getPluggingController(), MSXDevice::getName() + "-out")
+	, outConnector(motherBoard.getPluggingController(), name_ + "-out")
 {
 	reset(EmuTime::zero());
 	setDataFormat();
@@ -100,7 +77,7 @@ void MC6850::reset(EmuTime::param time)
 	syncRecv .removeSyncPoint();
 	syncTrans.removeSyncPoint();
 	txClock.reset(time);
-	txClock.setFreq(500000); // 500kHz
+	txClock.setFreq(clockFreq);
 	rxIRQ.reset();
 	txIRQ.reset();
 	rxReady = false;
@@ -110,42 +87,6 @@ void MC6850::reset(EmuTime::param time)
 	statusReg = 0;
 	rxDataReg = 0;
 	setDataFormat();
-}
-
-byte MC6850::readIO(word port, EmuTime::param /*time*/)
-{
-	switch (port & 0x1) {
-	case 0:
-		return readStatusReg();
-	case 1:
-		return readDataReg();
-	}
-	UNREACHABLE;
-	return 0xFF;
-}
-
-byte MC6850::peekIO(word port, EmuTime::param /*time*/) const
-{
-	switch (port & 0x1) {
-	case 0:
-		return peekStatusReg();
-	case 1:
-		return peekDataReg();
-	}
-	UNREACHABLE;
-	return 0xFF;
-}
-
-void MC6850::writeIO(word port, byte value, EmuTime::param time)
-{
-	switch (port & 0x01) {
-	case 0:
-		writeControlReg(value, time);
-		break;
-	case 1:
-		writeDataReg(value, time);
-		break;
-	}
 }
 
 byte MC6850::readStatusReg()
@@ -190,9 +131,9 @@ void MC6850::writeControlReg(byte value, EmuTime::param time)
 
 			txClock.reset(time);
 			switch (value & CR_CDS) {
-			case 0: txClock.setFreq(500000,  1); break; // 500kHz
-			case 1: txClock.setFreq(500000, 16); break; // 31250Hz (MIDI)
-			case 2: txClock.setFreq(500000, 64); break; // 7812.5Hz
+			case 0: txClock.setFreq(clockFreq,  1); break;
+			case 1: txClock.setFreq(clockFreq, 16); break;
+			case 2: txClock.setFreq(clockFreq, 64); break;
 			}
 		}
 	}
@@ -306,8 +247,8 @@ void MC6850::recvByte(byte value, EmuTime::param time)
 	rxReady = false;
 
 	// The MC6850 has separate TxCLK and RxCLK inputs, but both share a
-	// common divider. This implementation hard-codes an input frequency of
-	// 500kHz for both. Below we want the receive clock period, but it's OK
+	// common divider. This implementation hard-codes an input frequency
+	// for both. Below we want the receive clock period, but it's OK
 	// to calculate that as 'txClock.getPeriod()'.
 	syncRecv.setSyncPoint(time + txClock.getPeriod() * charLen);
 }
@@ -354,7 +295,6 @@ void MC6850::setParityBit(bool /*enable*/, ParityBit /*parity*/)
 template<typename Archive>
 void MC6850::serialize(Archive& ar, unsigned version)
 {
-	ar.template serializeBase<MSXDevice>(*this);
 	if (ar.versionAtLeast(version, 3)) {
 		ar.template serializeBase<MidiInConnector>(*this);
 		ar.serialize("outConnector", outConnector,
@@ -386,6 +326,5 @@ void MC6850::serialize(Archive& ar, unsigned version)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MC6850);
-REGISTER_MSXDEVICE(MC6850, "MC6850");
 
 } // namespace openmsx
