@@ -745,6 +745,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\DummyRS232Device.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\I8251.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\I8254.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\JVCMSXMIDI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MC6850.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\Midi_w32.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MidiInConnector.cc" />
@@ -1377,6 +1378,7 @@
     <None Include="$(OpenMSXSrcDir)\serial\DummyRS232Device.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\I8251.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\I8254.hh" />
+    <None Include="$(OpenMSXSrcDir)\serial\JVCMSXMIDI.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\MC6850.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\Midi_w32.hh" />
     <None Include="$(OpenMSXSrcDir)\serial\MidiInConnector.hh" />

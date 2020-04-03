@@ -1161,6 +1161,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serial\I8254.cc">
       <Filter>serial</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\serial\JVCMSXMIDI.cc">
+      <Filter>serial</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\serial\MC6850.cc">
       <Filter>serial</Filter>
     </ClCompile>
@@ -2684,6 +2687,9 @@
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\I8254.hh">
+      <Filter>serial</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\serial\JVCMSXMIDI.hh">
       <Filter>serial</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\serial\MC6850.hh">

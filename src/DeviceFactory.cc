@@ -27,6 +27,7 @@
 #include "MSXOPL3Cartridge.hh"
 #include "MSXYamahaSFG.hh"
 #include "MusicModuleMIDI.hh"
+#include "JVCMSXMIDI.hh"
 #include "MSXKanji.hh"
 #include "MSXBunsetsu.hh"
 #include "MSXMemoryMapper.hh"
@@ -172,6 +173,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXAudio>(conf);
 	} else if (type == "MusicModuleMIDI") {
 		result = make_unique<MusicModuleMIDI>(conf);
+	} else if (type == "JVCMSXMIDI") {
+		result = make_unique<JVCMSXMIDI>(conf);
 	} else if (type == "FACMIDIInterface") {
 		result = make_unique<MSXFacMidiInterface>(conf);
 	} else if (type == "YamahaSFG") {
