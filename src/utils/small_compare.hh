@@ -70,7 +70,7 @@ template<typename T, T v, T m, T s> struct ScValLeImpl<T, v, m, s> {
 	static constexpr T mask  = m;
 };
 template<typename T, T v, T m, T s, char N0, char ...Ns> struct ScValLeImpl<T, v, m, s, N0, Ns...>
-	: ScValLeImpl<T, v + (T(N0 & 255) << s), m + (T(255) << s), s + 8, Ns...> {};
+	: ScValLeImpl<T, v + (T(N0 & 255) << s), m + (T(255) << s), T(s + 8), Ns...> {};
 template<typename T, char ...Ns> struct ScValLe : ScValLeImpl<T, 0, 0, 0, Ns...> {};
 
 // ScVal-big-endian
@@ -80,7 +80,7 @@ template<typename T, T v, T m, T s> struct ScValBeImpl<T, v, m, s> {
 	static constexpr T mask  = m;
 };
 template<typename T, T v, T m, T s, char N0, char ...Ns> struct ScValBeImpl<T, v, m, s, N0, Ns...>
-	: ScValBeImpl<T, v + (T(N0 & 255) << s), m + (T(255) << s), s - 8, Ns...> {};
+	: ScValBeImpl<T, v + (T(N0 & 255) << s), m + (T(255) << s), T(s - 8), Ns...> {};
 template<typename T, char ...Ns> struct ScValBe : ScValBeImpl<T, 0, 0, 8 * (sizeof(T) - 1), Ns...> {};
 
 // ScVal: combines all given characters in one value of type T, also computes a
