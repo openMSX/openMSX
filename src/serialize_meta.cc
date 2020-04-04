@@ -123,7 +123,9 @@ void PolymorphicInitializerRegistry<Archive>::init(
 
 	auto& reg = PolymorphicInitializerRegistry<Archive>::instance();
 	auto v = lookup(reg.initializerMap, type);
-	assert(v);
+	if (!v) {
+		throw MSXException("Deserialize unknown polymorphic type: '", type, "'.");
+	}
 	(*v)->init(ar, t, id);
 
 	ar.endTag(tag);
