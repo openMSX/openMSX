@@ -176,6 +176,7 @@ For more info, see http://frs.badcoffee.info/MSXAcidTests.html
             <volume>9000</volume>
             <balance>-75</balance>
           </sound>
+          <ym2413-core>NukeYKT</ym2413-core>
           <io base="0x7C" num="2" type="O"/>
           <mem base="0x4000" size="0x4000"/>
         </MSX-MUSIC>

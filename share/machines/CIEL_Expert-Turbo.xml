@@ -117,6 +117,7 @@
             <balance channel="1-9">-100</balance>
             <balance channel="10-14">100</balance>
           </sound>
+          <ym2413-core>NukeYKT</ym2413-core>
           <io base="0x7C" num="2" type="O"/>
           <mem base="0x4000" size="0x4000"/>
         </MSX-MUSIC>

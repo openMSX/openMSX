@@ -38,20 +38,27 @@ void YM2413::Debuggable::write(unsigned address, byte value, EmuTime::param time
 
 static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
 {
-	std::string_view variant = config.getChildData("alternative", "NukeYKT");
-	// variants "true"/"false" for backwards compatibility
-	if (variant == "Okazaki" || variant == "false") {
+	auto core = config.getChildData("ym2413-core", "");
+	if (core == "Okazaki") {
 		return std::make_unique<YM2413Okazaki::YM2413>();
-	} else if (variant == "Burczynski" || variant == "true") {
+	} else if (core == "Burczynski") {
 		return std::make_unique<YM2413Burczynski::YM2413>();
-	} else if (variant == "NukeYKT") {
+	} else if (core == "NukeYKT") {
 		return std::make_unique<YM2413NukeYKT::YM2413>();
-	} else if (variant == "Original-NukeYKT") {
+	} else if (core == "Original-NukeYKT") {
 		return std::make_unique<YM2413OriginalNukeYKT::YM2413>(); // for debug
-	} else {
-		throw MSXException("Unknown YM2413 alternative '", variant,
-		                   "'. Must be one of 'Okazaki', 'Burczynski', 'NukeYKT', 'Original-NukeYKT'.");
+	} else if (core == "") {
+		// The preferred way to select the core is via the <core> tag.
+		// But for backwards compatibility, when that tag is missing,
+		// fallback to using the <alternative> tag.
+		if (config.getChildDataAsBool("alternative", false)) {
+			return std::make_unique<YM2413Burczynski::YM2413>();
+		} else {
+			return std::make_unique<YM2413Okazaki::YM2413>();
+		}
 	}
+	throw MSXException("Unknown YM2413 core '", core,
+	                   "'. Must be one of 'Okazaki', 'Burczynski', 'NukeYKT', 'Original-NukeYKT'.");
 }
 
 constexpr auto INPUT_RATE = unsigned(cstd::round(YM2413Core::CLOCK_FREQ / 72.0));
