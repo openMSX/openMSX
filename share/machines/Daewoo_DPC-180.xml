@@ -65,7 +65,7 @@
 
     <primary slot="2">
       <RAM id="Main RAM">
-        <mem base="0x8000" size="0x8000"/>
+        <mem base="0x0000" size="0x10000"/>
       </RAM>
     </primary>
 
