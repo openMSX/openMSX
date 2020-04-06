@@ -650,13 +650,14 @@ private:
 	void initTables();
 
 	// VdpVersion bitmasks
-	static constexpr unsigned VM_MSX1             =  1; // set-> MSX1,       unset-> MSX2 or MSX2+
-	static constexpr unsigned VM_PAL              =  2; // set-> fixed PAL,  unset-> fixed NTSC or switchable
-	static constexpr unsigned VM_NO_MIRRORING     =  4; // set-> no (screen2) mirroring
-	static constexpr unsigned VM_PALCOL_MIRRORING =  8; // set-> pattern/color-table mirroring
-	static constexpr unsigned VM_VRAM_REMAPPING   = 16; // set-> 4k,8/16k VRAM remapping
-	static constexpr unsigned VM_TOSHIBA_PALETTE  = 32; // set-> has Toshiba palette
-	static constexpr unsigned VM_YJK              = 64; // set-> has YJK (MSX2+)
+	static constexpr unsigned VM_MSX1             =   1; // set-> MSX1,       unset-> MSX2 or MSX2+
+	static constexpr unsigned VM_PAL              =   2; // set-> fixed PAL,  unset-> fixed NTSC or switchable
+	static constexpr unsigned VM_NO_MIRRORING     =   4; // set-> no (screen2) mirroring
+	static constexpr unsigned VM_PALCOL_MIRRORING =   8; // set-> pattern/color-table mirroring
+	static constexpr unsigned VM_VRAM_REMAPPING   =  16; // set-> 4k,8/16k VRAM remapping
+	static constexpr unsigned VM_TOSHIBA_PALETTE  =  32; // set-> has Toshiba palette
+	static constexpr unsigned VM_YJK              =  64; // set-> has YJK (MSX2+)
+	static constexpr unsigned VM_YM2220_PALETTE   = 128; // set-> has YM2220 palette
 
 	/** VDP version: the VDP model being emulated. */
 	enum VdpVersion {
@@ -686,6 +687,12 @@ private:
 
 		/** VDP in Toshiba T7937A engine (hardwired as NTSC). */
 		T7937ANTSC = VM_MSX1 | VM_TOSHIBA_PALETTE,
+
+		/** Yamaha clone (hardwired as PAL). */
+		YM2220PAL  = VM_MSX1 | VM_YM2220_PALETTE | VM_PALCOL_MIRRORING | VM_PAL,
+
+		/** Yamaha clone (hardwired as NTSC). */
+		YM2220NTSC = VM_MSX1 | VM_YM2220_PALETTE | VM_PALCOL_MIRRORING,
 
 		/** MSX2 VDP. */
 		V9938      = 0,

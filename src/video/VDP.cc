@@ -133,6 +133,8 @@ VDP::VDP(const DeviceConfig& config)
 	else if (versionString == "TMS9129") version = TMS9129;
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
+	else if (versionString == "YM2220PAL") version = YM2220PAL;
+	else if (versionString == "YM2220NTSC") version = YM2220NTSC;
 	else throw MSXException("Unknown VDP version \"", versionString, '"');
 
 	// saturation parameters only make sense when using TMS VDP's
@@ -1435,6 +1437,32 @@ constexpr std::array<std::array<uint8_t, 3>, 16> TOSHIBA_PALETTE = {{
 }};
 
 /*
+ * Palette for the YM2220 is a crude approximantion based on the fact that the
+ * pictures of a Yamaha AX-150 (YM2220) and a Philips NMS-8250 (V9938) have a
+ * quite similar appearance. See first post here:
+ *
+ * https://www.msx.org/forum/msx-talk/hardware/unknown-vdp-yamaha-ym2220?page=3
+ */
+constexpr std::array<std::array<uint8_t, 3>, 16> YM2220_PALETTE = {{
+	{   0,   0,   0 },
+	{   0,   0,   0 },
+	{  36, 218,  36 },
+	{ 200, 255, 109 },
+	{  36,  36, 255 },
+	{  72, 109, 255 },
+	{ 182,  36,  36 },
+	{  72, 218, 255 },
+	{ 255,  36,  36 },
+	{ 255, 175, 175 },
+	{ 230, 230,   0 },
+	{ 230, 230, 200 },
+	{  36, 195,  36 },
+	{ 218,  72, 182 },
+	{ 182, 182, 182 },
+	{ 255, 255, 255 },
+}};
+
+/*
 How come the FM-X has a distinct palette while it clearly has a TMS9928 VDP?
 Because it has an additional circuit that rework the palette for the same one
 used in the Fujitsu FM-7. It's encoded in 3-bit RGB.
@@ -1491,6 +1519,9 @@ std::array<std::array<uint8_t, 3>, 16> VDP::getMSX1Palette() const
 	}
 	if ((version & VM_TOSHIBA_PALETTE) != 0) {
 		return TOSHIBA_PALETTE;
+	}
+	if ((version & VM_YM2220_PALETTE) != 0) {
+		return YM2220_PALETTE;
 	}
 	std::array<std::array<uint8_t, 3>, 16> tmsPalette;
 	for (int color = 0; color < 16; color++) {
