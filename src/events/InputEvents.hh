@@ -226,6 +226,19 @@ private:
 };
 
 
+class FileDropEvent final : public Event
+{
+public:
+	explicit FileDropEvent(std::string fileName);
+	const std::string& getFileName() const { return fileName; }
+	TclObject toTclList() const override;
+
+private:
+	bool lessImpl(const Event& other) const override;
+	const std::string fileName;
+};
+
+
 class QuitEvent final : public Event
 {
 public:

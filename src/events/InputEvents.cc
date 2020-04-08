@@ -317,6 +317,25 @@ bool ResizeEvent::lessImpl(const Event& other) const
 }
 
 
+// class FileDropEvent
+
+FileDropEvent::FileDropEvent(std::string fileName_)
+	: Event(OPENMSX_FILEDROP_EVENT), fileName(std::move(fileName_))
+{
+}
+
+TclObject FileDropEvent::toTclList() const
+{
+	return makeTclList("filedrop", fileName);
+}
+
+bool FileDropEvent::lessImpl(const Event& other) const
+{
+	auto& o = checked_cast<const FileDropEvent&>(other);
+	return getFileName() < o.getFileName();
+}
+
+
 // class QuitEvent
 
 QuitEvent::QuitEvent() : Event(OPENMSX_QUIT_EVENT)

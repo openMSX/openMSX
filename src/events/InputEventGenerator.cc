@@ -387,6 +387,11 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		}
 		break;
 
+	case SDL_DROPFILE:
+		event = make_shared<FileDropEvent>(evt.drop.file);
+		SDL_free(evt.drop.file);
+		break;
+
 	case SDL_QUIT:
 		event = make_shared<QuitEvent>();
 		break;
