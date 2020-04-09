@@ -222,6 +222,17 @@ static EventPtr parseFocusEvent(const TclObject& str, Interpreter& interp)
 	return make_shared<FocusEvent>(str.getListIndex(interp, 1).getBoolean(interp));
 }
 
+static EventPtr parseFileDropEvent(const TclObject& str, Interpreter& interp)
+{
+	if (str.getListLength(interp) != 1) {
+		throw CommandException("Invalid filedrop event: ", str.getString());
+	}
+	return make_shared<GroupEvent>(
+		OPENMSX_FILEDROP_GROUP_EVENT,
+		std::vector<EventType>{OPENMSX_FILEDROP_EVENT},
+		makeTclList("filename"));
+}
+
 static EventPtr parseResizeEvent(const TclObject& str, Interpreter& interp)
 {
 	if (str.getListLength(interp) != 3) {
@@ -254,6 +265,8 @@ EventPtr createInputEvent(const TclObject& str, Interpreter& interp)
 		return parseJoystickEvent(str, interp);
 	} else if (type == "focus") {
 		return parseFocusEvent(str, interp);
+	} else if (type == "filedrop") {
+		return parseFileDropEvent(str, interp);
 	} else if (type == "resize") {
 		return parseResizeEvent(str, interp);
 	} else if (type == "quit") {

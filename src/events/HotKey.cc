@@ -74,6 +74,8 @@ HotKey::HotKey(RTScheduler& rtScheduler,
 	eventDistributor.registerEventListener(
 		OPENMSX_FOCUS_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
+		OPENMSX_FILEDROP_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
 		OPENMSX_OSD_CONTROL_RELEASE_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		OPENMSX_OSD_CONTROL_PRESS_EVENT, *this, EventDistributor::HOTKEY);
@@ -83,6 +85,7 @@ HotKey::~HotKey()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_OSD_CONTROL_PRESS_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_OSD_CONTROL_RELEASE_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_FILEDROP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
