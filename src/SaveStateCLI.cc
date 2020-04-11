@@ -50,4 +50,9 @@ std::string_view SaveStateCLI::fileTypeHelp() const
 	return "openMSX savestate";
 }
 
+std::string_view SaveStateCLI::fileTypeCategoryName() const
+{
+	return "savestate";
+}
+
 } // namespace openmsx

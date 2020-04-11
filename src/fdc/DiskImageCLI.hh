@@ -17,6 +17,7 @@ public:
 	void parseFileType(const std::string& filename,
 	                   span<std::string>& cmdLine) override;
 	std::string_view fileTypeHelp() const override;
+	std::string_view fileTypeCategoryName() const override;
 
 private:
 	void parse(std::string_view drive, std::string_view image,

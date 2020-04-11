@@ -35,4 +35,9 @@ std::string_view ReplayCLI::fileTypeHelp() const
 	return "openMSX replay";
 }
 
+std::string_view ReplayCLI::fileTypeCategoryName() const
+{
+	return "replay";
+}
+
 } // namespace openmsx

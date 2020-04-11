@@ -26,6 +26,7 @@ class CLIFileType
 public:
 	virtual void parseFileType(const std::string& filename,
 	                           span<std::string>& cmdLine) = 0;
+	virtual std::string_view fileTypeCategoryName() const = 0;
 	virtual std::string_view fileTypeHelp() const = 0;
 
 protected:

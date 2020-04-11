@@ -50,6 +50,11 @@ std::string_view MSXRomCLI::fileTypeHelp() const
 	return text;
 }
 
+std::string_view MSXRomCLI::fileTypeCategoryName() const
+{
+	return "rom";
+}
+
 void MSXRomCLI::parse(const string& arg, const string& slotname,
                       span<string>& cmdLine)
 {

@@ -41,4 +41,9 @@ std::string_view LaserdiscPlayerCLI::fileTypeHelp() const
 	return "Laserdisc image, Ogg Vorbis/Theora";
 }
 
+std::string_view LaserdiscPlayerCLI::fileTypeCategoryName() const
+{
+	return "laserdisc";
+}
+
 } // namespace openmsx

@@ -41,4 +41,9 @@ std::string_view CassettePlayerCLI::fileTypeHelp() const
 	return "Cassette image, raw recording or fMSX CAS image";
 }
 
+std::string_view CassettePlayerCLI::fileTypeCategoryName() const
+{
+	return "cassette";
+}
+
 } // namespace openmsx

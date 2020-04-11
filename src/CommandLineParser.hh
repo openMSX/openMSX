@@ -10,8 +10,10 @@
 #include "DiskImageCLI.hh"
 #include "HDImageCLI.hh"
 #include "CDImageCLI.hh"
+#include "InfoTopic.hh"
 #include "span.hh"
 #include "components.hh"
+#include <memory>
 #include <initializer_list>
 #include <string>
 #include <string_view>
@@ -76,8 +78,8 @@ private:
 
 	bool parseFileName(const std::string& arg,
 	                   span<std::string>& cmdLine);
-	bool parseFileNameInner(const std::string& arg, const std::string&
-	                   originalPath, span<std::string>& cmdLine);
+	CLIFileType *getFileTypeHandlerForFileName(const std::string_view& arg);
+	CLIFileType *getFileTypeHandlerForFileNameInner(const std::string_view& arg);
 	bool parseOption(const std::string& arg,
 	                 span<std::string>& cmdLine, ParsePhase phase);
 	void createMachineSetting();
@@ -107,6 +109,7 @@ private:
 		std::string_view optionHelp() const override;
 		void parseFileType(const std::string& filename,
 				   span<std::string>& cmdLine) override;
+		std::string_view fileTypeCategoryName() const override;
 		std::string_view fileTypeHelp() const override;
 
 		std::vector<std::string> scripts;
@@ -138,6 +141,16 @@ private:
 		void parseOption(const std::string& option, span<std::string>& cmdLine) override;
 		std::string_view optionHelp() const override;
 	} bashOption;
+
+	struct FileTypeCategoryInfoTopic final : InfoTopic {
+		FileTypeCategoryInfoTopic(InfoCommand& openMSXInfoCommand, CommandLineParser *parser);
+		void execute(span<const TclObject> tokens,
+			     TclObject& result) const override;
+		std::string help(const std::vector<std::string>& tokens) const override;
+		CommandLineParser* parser;
+	};
+
+	std::unique_ptr<FileTypeCategoryInfoTopic> fileTypeCategoryInfo;
 
 	MSXRomCLI msxRomCLI;
 	CliExtension cliExtension;

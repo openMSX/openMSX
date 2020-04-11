@@ -19,6 +19,7 @@ public:
 	void parseFileType(const std::string& arg,
 	                   span<std::string>& cmdLine) override;
 	std::string_view fileTypeHelp() const override;
+	std::string_view fileTypeCategoryName() const override;
 
 private:
 	void parse(const std::string& arg, const std::string& slotname,
