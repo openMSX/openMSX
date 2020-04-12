@@ -105,7 +105,7 @@ public:
 	  * time (IOW this method does not sync the complete CmdEngine)
 	  * @param index The register [0..14] to read from.
 	  */
-	byte peekCmdReg(byte index);
+	byte peekCmdReg(byte index) const;
 
 	/** Informs the command engine of a VDP display mode change.
 	  * @param mode The new display mode.
@@ -172,7 +172,7 @@ private:
 
 	/** Report the VDP command specified in the registers.
 	  */
-	void reportVdpCommand();
+	void reportVdpCommand() const;
 
 
 	/** The VDP this command engine is part of.

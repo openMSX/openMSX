@@ -415,7 +415,7 @@ void YMF278::advance()
 	}
 }
 
-int16_t YMF278::getSample(Slot& op)
+int16_t YMF278::getSample(Slot& op) const
 {
 	// TODO How does this behave when R#2 bit 0 = 1?
 	//      As-if read returns 0xff? (Like for CPU memory reads.) Or is

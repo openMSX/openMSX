@@ -257,7 +257,7 @@ void AbstractIDEDevice::setInterruptReason(byte value)
 	sectorCountReg = value;
 }
 
-unsigned AbstractIDEDevice::getByteCount()
+unsigned AbstractIDEDevice::getByteCount() const
 {
 	return cylinderLowReg | (cylinderHighReg << 8);
 }

@@ -907,7 +907,7 @@ void V9990CmdEngine::setCommandMode()
 	}
 }
 
-void V9990CmdEngine::reportV9990Command()
+void V9990CmdEngine::reportV9990Command() const
 {
 	const char* const COMMANDS[16] = {
 		"STOP", "LMMC", "LMMV", "LMCM",

@@ -109,7 +109,7 @@ protected:
 	/** Reads the byte count limit of a packet transfer in the registers.
 	  * The cylinder low/high registers are used for this.
 	  */
-	unsigned getByteCount();
+	unsigned getByteCount() const;
 
 	/** Writes the byte count of a packet transfer in the registers.
 	  * The cylinder low/high registers are used for this.

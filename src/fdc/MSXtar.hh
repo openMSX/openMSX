@@ -38,8 +38,8 @@ private:
 	void writeLogicalSector(unsigned sector, const SectorBuffer& buf);
 	void readLogicalSector (unsigned sector,       SectorBuffer& buf);
 
-	unsigned clusterToSector(unsigned cluster);
-	unsigned sectorToCluster(unsigned sector);
+	unsigned clusterToSector(unsigned cluster) const;
+	unsigned sectorToCluster(unsigned sector) const;
 	void parseBootSector(const MSXBootSector& boot);
 	unsigned readFAT(unsigned clnr) const;
 	void writeFAT(unsigned clnr, unsigned val);

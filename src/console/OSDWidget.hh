@@ -45,7 +45,7 @@ public:
 	gl::vec2 transformPos(const OutputSurface& output,
 	                      gl::vec2 pos, gl::vec2 relPos) const;
 	void getBoundingBox(const OutputSurface& output,
-	                    gl::vec2& pos, gl::vec2& size);
+	                    gl::vec2& pos, gl::vec2& size) const;
 	virtual gl::vec2 getSize(const OutputSurface& output) const = 0;
 
 	Display& getDisplay() const { return display; }

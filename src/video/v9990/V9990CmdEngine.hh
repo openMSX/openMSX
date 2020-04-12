@@ -323,7 +323,7 @@ private:
 
 	/** For debugging: Print the info about the current command.
 	  */
-	void reportV9990Command();
+	void reportV9990Command() const;
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;

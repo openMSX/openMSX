@@ -318,7 +318,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 }
 
-bool Rom::checkSHA1(const XMLElement& config)
+bool Rom::checkSHA1(const XMLElement& config) const
 {
 	auto sums = config.getChildren("sha1");
 	if (sums.empty()) {

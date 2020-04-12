@@ -44,7 +44,7 @@ constexpr byte T_MSX_LFN  = 0x0F; // LFN entry (long files names)
 /** Transforms a clusternumber towards the first sector of this cluster
   * The calculation uses info read fom the bootsector
   */
-unsigned MSXtar::clusterToSector(unsigned cluster)
+unsigned MSXtar::clusterToSector(unsigned cluster) const
 {
 	return 1 + rootDirLast + sectorsPerCluster * (cluster - 2);
 }
@@ -52,7 +52,7 @@ unsigned MSXtar::clusterToSector(unsigned cluster)
 /** Transforms a sectornumber towards it containing cluster
   * The calculation uses info read fom the bootsector
   */
-unsigned MSXtar::sectorToCluster(unsigned sector)
+unsigned MSXtar::sectorToCluster(unsigned sector) const
 {
 	return 2 + ((sector - (1 + rootDirLast)) / sectorsPerCluster);
 }

@@ -1846,7 +1846,7 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, EmuTime::param time)
 	}
 }
 
-byte VDPCmdEngine::peekCmdReg(byte index)
+byte VDPCmdEngine::peekCmdReg(byte index) const
 {
 	switch (index) {
 	case 0x00: return SX & 0xFF;
@@ -2559,7 +2559,7 @@ void VDPCmdEngine::sync2(EmuTime::param time)
 	}
 }
 
-void VDPCmdEngine::reportVdpCommand()
+void VDPCmdEngine::reportVdpCommand() const
 {
 	const char* const COMMANDS[16] = {
 		" ABRT"," ????"," ????"," ????","POINT"," PSET"," SRCH"," LINE",

@@ -187,7 +187,7 @@ void ZMBVEncoder::setupBuffers(unsigned bpp)
 	}
 }
 
-unsigned ZMBVEncoder::neededSize()
+unsigned ZMBVEncoder::neededSize() const
 {
 	unsigned f = pixelSize;
 	f = f * width * height + 2 * (1 + (width / 8)) * (1 + (height / 8)) + 1024;
@@ -308,7 +308,7 @@ void ZMBVEncoder::addFullFrame(const PixelFormat& pixelFormat, unsigned& workUse
 	}
 }
 
-const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* workBuf_)
+const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* workBuf_) const
 {
 #if HAVE_32BPP
 	if (pixelSize == 4) { // 32bpp

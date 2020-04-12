@@ -441,7 +441,7 @@ vec2 OSDWidget::getMouseCoord() const
 }
 
 void OSDWidget::getBoundingBox(const OutputSurface& output,
-                               vec2& bbPos, vec2& bbSize)
+                               vec2& bbPos, vec2& bbSize) const
 {
 	vec2 topLeft     = transformPos(output, vec2(), vec2(0.0f));
 	vec2 bottomRight = transformPos(output, vec2(), vec2(1.0f));

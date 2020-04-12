@@ -422,7 +422,7 @@ public:
 	  */
 	void activate() const;
 
-	void validate();
+	void validate() const;
 
 private:
 	GLuint handle;

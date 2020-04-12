@@ -68,7 +68,7 @@ private:
 	bool nextPacket();
 	void recycleAudio(std::unique_ptr<AudioFragment> audio);
 	void vorbisFoundPosition();
-	size_t frameNo(ogg_packet* packet);
+	size_t frameNo(ogg_packet* packet) const;
 
 	size_t findOffset(size_t frame, size_t sample);
 	size_t bisection(size_t frame, size_t sample,

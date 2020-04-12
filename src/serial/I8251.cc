@@ -315,7 +315,7 @@ void I8251::recvByte(byte value, EmuTime::param time)
 	}
 }
 
-bool I8251::isRecvEnabled()
+bool I8251::isRecvEnabled() const
 {
 	return (command & CMD_RXE) != 0;
 }

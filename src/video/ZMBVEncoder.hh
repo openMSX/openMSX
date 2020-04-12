@@ -30,7 +30,7 @@ private:
 	};
 
 	void setupBuffers(unsigned bpp);
-	unsigned neededSize();
+	unsigned neededSize() const;
 	template<class P> void addFullFrame(const PixelFormat& pixelFormat, unsigned& workUsed);
 	template<class P> void addXorFrame (const PixelFormat& pixelFormat, unsigned& workUsed);
 	template<class P> unsigned possibleBlock(int vx, int vy, unsigned offset);
@@ -38,7 +38,7 @@ private:
 	template<class P> void addXorBlock(
 		const PixelOperations<P>& pixelOps, int vx, int vy,
 		unsigned offset, unsigned& workUsed);
-	const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf);
+	const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf) const;
 
 	MemBuffer<uint8_t, SSE2_ALIGNMENT> oldframe;
 	MemBuffer<uint8_t, SSE2_ALIGNMENT> newframe;

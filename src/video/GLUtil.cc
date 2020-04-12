@@ -293,7 +293,7 @@ void ShaderProgram::activate() const
 }
 
 // only useful for debugging
-void ShaderProgram::validate()
+void ShaderProgram::validate() const
 {
 	glValidateProgram(handle);
 	GLint validateStatus = GL_FALSE;

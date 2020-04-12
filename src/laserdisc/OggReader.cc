@@ -420,7 +420,7 @@ void OggReader::readVorbis(ogg_packet* packet)
 	vorbis_synthesis_read(&vd, decoded);
 }
 
-size_t OggReader::frameNo(ogg_packet* packet)
+size_t OggReader::frameNo(ogg_packet* packet) const
 {
 	if (packet->granulepos == -1) {
 		return size_t(-1);
