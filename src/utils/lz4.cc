@@ -537,13 +537,13 @@ static ALWAYS_INLINE unsigned read_variable_length(const uint8_t** ip)
 	return length;
 }
 
-int decompress(const uint8_t* src, uint8_t* dst, int srcSize, int outputSize)
+int decompress(const uint8_t* src, uint8_t* dst, int compressedSize, int dstCapacity)
 {
 	const uint8_t* ip = src;
-	const uint8_t* const iend = ip + srcSize;
+	const uint8_t* const iend = ip + compressedSize;
 
 	uint8_t* op = dst;
-	uint8_t* const oend = op + outputSize;
+	uint8_t* const oend = op + dstCapacity;
 	uint8_t* cpy;
 
 	// Set up the "end" pointers for the shortcut.
