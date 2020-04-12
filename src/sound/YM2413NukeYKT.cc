@@ -174,6 +174,11 @@ void YM2413::reset()
 	rm_tc_bits = 0;
 
 	delay6 = delay7 = delay10 = delay11 = delay12 = 0;
+
+	for (int i = 0; i < 64; ++i) {
+		regs[i] = 0;
+	}
+	latch = 0;
 }
 
 template<uint32_t CYCLES> ALWAYS_INLINE const YM2413::Patch& YM2413::preparePatch1(bool use_rm_patches) const
