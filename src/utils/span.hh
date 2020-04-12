@@ -154,7 +154,7 @@ public:
 	static constexpr index_type extent = Extent;
 
 	// [span.cons], span constructors, copy, assignment, and destructor
-	template<size_t E = Extent, std::enable_if_t<E <= 0, int> = 0>
+	template<size_t E = Extent, std::enable_if_t<(E == 0) || (E == dynamic_extent), int> = 0>
 	constexpr span() noexcept
 	{
 	}
