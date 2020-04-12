@@ -1945,7 +1945,7 @@ proc menu_loadscript_exec {item} {
 }
 
 proc create_slot_actions_to_put_stuff_in_slot {slot path listtype} {
-	return [list actions [list A "osd_menu::menu_select_$listtype $slot $path"]]
+	return [list actions [list A [list osd_menu::menu_select_$listtype $slot $path]]]
 }
 
 proc drop_handler { event } {
