@@ -15,20 +15,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Fetch entire repository
       run: git fetch --prune --unshallow
-    - name: Cache sources for third party dependencies
-      uses: actions/cache@v1
-      env:
-        cache-name: cache-third-parties-sources
-      with:
-        path: derived/3rdparty
-        key:  ${{ runner.os }}-${{ env.cache-name }}-x86_64-linux-opt-3rd
-    - name: Cache third party dependencies
-      uses: actions/cache@v1
-      env:
-        cache-name: cache-third-parties
-      with:
-        path: derived/x86_64-linux-opt-3rd/3rdparty
-        key:  ${{ runner.os }}-${{ env.cache-name }}-x86_64-linux-opt-3rd
     - name: Install prerequisites
       run: sudo apt-get install libgl1-mesa-dev
     - name: Make
