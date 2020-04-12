@@ -113,13 +113,10 @@ bool CommandLineParser::parseOption(
 
 bool CommandLineParser::parseFileName(const string& arg, span<string>& cmdLine)
 {
-	CLIFileType *fileTypeHandler = getFileTypeHandlerForFileName(arg);
-
-	if (fileTypeHandler)
-	{
+	if (auto* handler = getFileTypeHandlerForFileName(arg)) {
 		try {
 			// parse filetype
-			fileTypeHandler->parseFileType(arg, cmdLine);
+			handler->parseFileType(arg, cmdLine);
 			return true; // file processed
 		} catch (MSXException& e) {
 			throw FatalError(std::move(e).getMessage());
@@ -128,41 +125,38 @@ bool CommandLineParser::parseFileName(const string& arg, span<string>& cmdLine)
 	return false;
 }
 
-CLIFileType *CommandLineParser::getFileTypeHandlerForFileName(const string_view& arg)
+CLIFileType* CommandLineParser::getFileTypeHandlerForFileName(string_view filename) const
 {
+	auto inner = [&](string_view arg) -> CLIFileType* {
+		string_view extension = FileOperations::getExtension(arg); // includes leading '.' (if any)
+		if (extension.size() <= 1) {
+			return nullptr; // no extension -> no handler
+		}
+		extension.remove_prefix(1);
+
+		auto it = ranges::lower_bound(fileTypes, extension, CmpFileTypes());
+		StringOp::casecmp cmp;
+		if ((it == end(fileTypes)) || !cmp(it->first, extension)) {
+			return nullptr; // unknown extension
+		}
+		return it->second;
+	};
+
 	// First try the fileName as we get it from the commandline. This may
 	// be more interesting than the original fileName of a (g)zipped file:
 	// in case of an OMR file for instance, we want to select on the
 	// original extension, and not on the extension inside the gzipped
 	// file.
-	CLIFileType *fileTypeHandler = getFileTypeHandlerForFileNameInner(arg);
-	if (!fileTypeHandler) {
+	auto* result = inner(filename);
+	if (!result) {
 		try {
-			File file(userFileContext().resolve(arg));
-			string originalName = file.getOriginalName();
-			fileTypeHandler = getFileTypeHandlerForFileNameInner(originalName);
+			File file(userFileContext().resolve(filename));
+			result = inner(file.getOriginalName());
 		} catch (FileException&) {
 			// ignore
 		}
 	}
-	return fileTypeHandler;
-}
-
-CLIFileType *CommandLineParser::getFileTypeHandlerForFileNameInner(const string_view& arg)
-{
-	string_view extension = FileOperations::getExtension(arg); // includes leading '.' (if any)
-	if (extension.size() <= 1) {
-		return nullptr; // no extension -> no handler
-	}
-	extension.remove_prefix(1);
-
-	auto it = ranges::lower_bound(fileTypes, extension, CmpFileTypes());
-	StringOp::casecmp cmp;
-	if ((it == end(fileTypes)) || !cmp(it->first, extension)) {
-		return nullptr; // unknown extension
-	}
-
-	return it->second;
+	return result;
 }
 
 void CommandLineParser::parse(int argc, char** argv)
@@ -181,7 +175,8 @@ void CommandLineParser::parse(int argc, char** argv)
 		switch (phase) {
 		case PHASE_INIT:
 			reactor.init();
-			fileTypeCategoryInfo.reset(new FileTypeCategoryInfoTopic(reactor.getOpenMSXInfoCommand(), this));
+			fileTypeCategoryInfo = std::make_unique<FileTypeCategoryInfoTopic>(
+				reactor.getOpenMSXInfoCommand(), *this);
 			getInterpreter().init(argv[0]);
 			break;
 		case PHASE_LOAD_SETTINGS:
@@ -615,38 +610,31 @@ string_view CommandLineParser::BashOption::optionHelp() const
 
 // class FileTypeCategoryInfoTopic
 
-CommandLineParser::FileTypeCategoryInfoTopic::FileTypeCategoryInfoTopic(InfoCommand& openMSXInfoCommand, CommandLineParser* parser_)
-                  : InfoTopic(openMSXInfoCommand, "file_type_category")
-                  , parser(parser_)
+CommandLineParser::FileTypeCategoryInfoTopic::FileTypeCategoryInfoTopic(
+		InfoCommand& openMSXInfoCommand, const CommandLineParser& parser_)
+	: InfoTopic(openMSXInfoCommand, "file_type_category")
+	, parser(parser_)
 {
 }
 
-void CommandLineParser::FileTypeCategoryInfoTopic::execute(span<const TclObject> tokens,
-                             TclObject& result) const
+void CommandLineParser::FileTypeCategoryInfoTopic::execute(
+	span<const TclObject> tokens, TclObject& result) const
 {
-	switch (tokens.size()) {
-	case 2: throw CommandException("Please specify a filename argument");
-		break;
-	case 3: {
-		// get the category and add it to result
-		std::string_view fileName = tokens[2].getString();
-		CLIFileType *fileTypeHandler = parser->getFileTypeHandlerForFileName(fileName);
-		if (fileTypeHandler)
-		{
-			result.addListElement(fileTypeHandler->fileTypeCategoryName());
-		} else {
-			throw CommandException("File \"", fileName, "\" not found or not recognized.");
-		}
-		break;
-	}
-	default:
-		throw CommandException("Too many parameters");
+	checkNumArgs(tokens, 3, "filename");
+	assert(tokens.size() == 3);
+
+	// get the category and add it to result
+	std::string_view fileName = tokens[2].getString();
+	if (const auto* handler = parser.getFileTypeHandlerForFileName(fileName)) {
+		result.addListElement(handler->fileTypeCategoryName());
+	} else {
+		result.addListElement("unknown");
 	}
 }
 
 string CommandLineParser::FileTypeCategoryInfoTopic::help(const std::vector<std::string>& /*tokens*/) const
 {
-	return "Returns the file type category of the given file.";
+	return "Returns the file type category for the given file.";
 }
 
 } // namespace openmsx

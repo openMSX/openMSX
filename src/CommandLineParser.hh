@@ -78,8 +78,7 @@ private:
 
 	bool parseFileName(const std::string& arg,
 	                   span<std::string>& cmdLine);
-	CLIFileType *getFileTypeHandlerForFileName(const std::string_view& arg);
-	CLIFileType *getFileTypeHandlerForFileNameInner(const std::string_view& arg);
+	CLIFileType* getFileTypeHandlerForFileName(std::string_view filename) const;
 	bool parseOption(const std::string& arg,
 	                 span<std::string>& cmdLine, ParsePhase phase);
 	void createMachineSetting();
@@ -143,13 +142,12 @@ private:
 	} bashOption;
 
 	struct FileTypeCategoryInfoTopic final : InfoTopic {
-		FileTypeCategoryInfoTopic(InfoCommand& openMSXInfoCommand, CommandLineParser *parser);
-		void execute(span<const TclObject> tokens,
-			     TclObject& result) const override;
+		FileTypeCategoryInfoTopic(InfoCommand& openMSXInfoCommand, const CommandLineParser& parser);
+		void execute(span<const TclObject> tokens, TclObject& result) const override;
 		std::string help(const std::vector<std::string>& tokens) const override;
-		CommandLineParser* parser;
+	private:
+		const CommandLineParser& parser;
 	};
-
 	std::unique_ptr<FileTypeCategoryInfoTopic> fileTypeCategoryInfo;
 
 	MSXRomCLI msxRomCLI;
