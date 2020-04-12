@@ -1986,7 +1986,12 @@ proc drop_handler { event } {
 	} elseif {$category eq "script"} {
 		osd_menu::menu_loadscript_exec $filename
 	} else {
-		osd::display_message "Don't know how to handle dropped file $filename..." error
+		# stuff we can implement outside openMSX
+		if {[file extension $filename] eq ".txt"} {
+			type_from_file $filename
+		} else {
+			osd::display_message "Don't know how to handle dropped file $filename..." error
+		}
 	}
 }
 
