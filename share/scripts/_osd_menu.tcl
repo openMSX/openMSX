@@ -599,7 +599,13 @@ proc select_next_menu_item_starting_with {text} {
 	select_menu_idx $index
 }
 
-proc create_slot_actions {slot path listtype} {
+variable mediaslot_info [dict create \
+"rom"      [dict create mediabasecommand "cart"           mediapath "::osd_rom_path"  listtype "rom"  itemtext "Load ROM"    shortmediaslotname "slot"  longmediaslotname "cartridge slot"]\
+"disk"     [dict create mediabasecommand "disk"           mediapath "::osd_disk_path" listtype "disk" itemtext "Insert disk" shortmediaslotname "drive" longmediaslotname "disk drive"]\
+#"cassette" [dict create mediabasecommand "cassetteplayer" mediapath "::osd_tape_path" listtype "tape" itemtext "Set tape"    shortmediaslotname "xxx"   longmediaslotname "cassette player"]\
+]
+
+proc create_slot_actions_to_select_file {slot path listtype} {
 	# the action A is checking what is currently in that media slot (e.g. diska) and if it's not empty, it puts that path as last known path. Then it creates the menu and afterwards selects the current item.
 	return [list actions [list A "set curSel \[lindex \[$slot\] 1\]; set $path \[expr {\$curSel ne {} ? \[file dirname \$curSel\] : \$$path}\]; osd_menu::menu_create \[osd_menu::menu_create_${listtype}_list \$$path $slot\]; catch { osd_menu::select_menu_item \[file tail \$curSel\]}"]]
 }
@@ -607,7 +613,7 @@ proc create_slot_actions {slot path listtype} {
 proc get_slot_str {slot} {
 	return [string toupper [string index $slot end]]
 }
-proc create_slot_menu {slots path listtype menutitle} {
+proc create_slot_menu_def {slots path listtype menutitle create_action_proc} {
 	set menudef {
 		font-size 8
 		border-size 2
@@ -625,28 +631,35 @@ proc create_slot_menu {slots path listtype menutitle} {
 		if {![string match "empty*" [lindex [$slot] 2]]} {
 			set slotcontent [file tail [lindex [$slot] 1]]
 		}
-		lappend items [list text "[get_slot_str $slot]: $slotcontent" {*}[create_slot_actions $slot $path $listtype]]
+		lappend items [list text "[get_slot_str $slot]: $slotcontent" {*}[$create_action_proc $slot $path $listtype]]
 	}
 	dict set menudef items $items
-	osd_menu::menu_create $menudef
+	return $menudef
 }
 
-proc create_media_menu_items {media mediapath listtype itemtext shortmediaslotname longmediaslotname} {
-	if {[catch ${media}a]} {; # example: Philips NMS 801 without cart slot, or no diskdrives
+proc create_media_menu_items {file_type_category} {
+	variable mediaslot_info
+	set longmediaslotname [dict get $mediaslot_info $file_type_category longmediaslotname]
+	set shortmediaslotname [dict get $mediaslot_info $file_type_category shortmediaslotname]
+	set mediapath [dict get $mediaslot_info $file_type_category mediapath]
+	set listtype [dict get $mediaslot_info $file_type_category listtype]
+	set itemtext [dict get $mediaslot_info $file_type_category itemtext]
+	set mediabasecommand [dict get $mediaslot_info $file_type_category mediabasecommand]
+	if {[catch ${mediabasecommand}a]} {; # example: Philips NMS 801 without cart slot, or no diskdrives. TODO: make more generic
 		lappend menuitems [list text "(No $longmediaslotname present...)"\
 			selectable false\
 			text-color 0x808080ff\
 		]
 	} else {
-		set slots [lsort [info command ${media}?]]
+		set slots [lsort [info command ${mediabasecommand}?]]; # TODO: make more generic
 		if {[llength $slots] <= 2} {
 			foreach slot $slots {
-				lappend menuitems [list text "${itemtext}... (${shortmediaslotname} [get_slot_str $slot])" {*}[create_slot_actions $slot $mediapath $listtype]]
+				lappend menuitems [list text "${itemtext}... (${shortmediaslotname} [get_slot_str $slot])" {*}[create_slot_actions_to_select_file $slot $mediapath $listtype]]
 			}
 		} else {
 			set slot [lindex $slots 0]
-			lappend menuitems [list text "${itemtext}... (${shortmediaslotname} [get_slot_str $slot])" {*}[create_slot_actions $slot $mediapath $listtype]]
-			lappend menuitems [list text "${itemtext}... (any ${shortmediaslotname})" actions [list A "osd_menu::create_slot_menu \[list $slots\] \{$mediapath\} \{$listtype\} \{Select $longmediaslotname...\}"]]
+			lappend menuitems [list text "${itemtext}... (${shortmediaslotname} [get_slot_str $slot])" {*}[create_slot_actions_to_select_file $slot $mediapath $listtype]]
+			lappend menuitems [list text "${itemtext}... (any ${shortmediaslotname})" actions [list A "osd_menu::menu_create \[osd_menu::create_slot_menu_def \[list $slots\] \{$mediapath\} \{$listtype\} \{Select $longmediaslotname...\} \{create_slot_actions_to_select_file\}\]"]]
 		}
 	}
 	return $menuitems
@@ -665,8 +678,8 @@ proc create_main_menu {} {
 	         font-size 12
 	         post-spacing 6
 	         selectable false }
-	lappend items {*}[create_media_menu_items "cart" "::osd_rom_path"  "ROM"  "Load ROM"    "slot"  "cartridge slot"]
-	lappend items {*}[create_media_menu_items "disk" "::osd_disk_path" "disk" "Insert disk" "drive" "disk drive"    ]
+	lappend items {*}[create_media_menu_items "rom"]
+	lappend items {*}[create_media_menu_items "disk"]
 	if {[info command hda] ne ""} {; # only exists when hard disk extension available
 		foreach drive [lrange [lsort [info command hd?]] 0 1] {
 			set drive_str [string toupper [string index $drive end]]
@@ -1417,7 +1430,7 @@ proc is_empty_dir {directory extensions} {
 	return true
 }
 
-proc menu_create_ROM_list {path slot} {
+proc menu_create_rom_list {path slot} {
 	set menu_def [list execute [list menu_select_rom $slot] \
 		font-size 8 \
 		border-size 2 \
@@ -1451,7 +1464,7 @@ proc menu_create_ROM_list {path slot} {
 	return [prepare_menu_list $items 10 $menu_def]
 }
 
-proc menu_select_rom {slot item} {
+proc menu_select_rom {slot item {open_main false}} {
 	if {$item eq "--eject--"} {
 		menu_close_all
 		$slot eject
@@ -1461,13 +1474,15 @@ proc menu_select_rom {slot item} {
 		if {[file isdirectory $fullname]} {
 			menu_close_top
 			set ::osd_rom_path [file normalize $fullname]
-			menu_create [menu_create_ROM_list $::osd_rom_path $slot]
+			menu_create [menu_create_rom_list $::osd_rom_path $slot]
 		} else {
 			set mappertype ""
 			set hash [sha1sum $fullname]
 			if {[catch {set mappertype [dict get [openmsx_info software $hash] mapper_type_name]}]} {
 				# not in the database, execute after selecting mapper type
-				menu_create [menu_create_mappertype_list $slot $fullname]
+				set menu_proc menu_create
+				if {$open_main} { set menu_proc do_menu_open }
+				${menu_proc} [menu_create_mappertype_list $slot $fullname]
 			} else {
 				# in the database, so just execute
 				menu_rom_with_mappertype_exec $slot $fullname $mappertype
@@ -1589,12 +1604,12 @@ proc menu_create_disk_list {path drive} {
 	return [prepare_menu_list $items 10 $menu_def]
 }
 
-proc menu_select_disk {drive item} {
+proc menu_select_disk {drive item {dummy false}} {
 	if {$item eq "--eject--"} {
 		set cur_image [lindex [$drive] 1]
 		menu_close_all
 		$drive eject
-		osd::display_message "Disk $cur_image ejected!"
+		osd::display_message "Disk $cur_image ejected from drive [get_slot_str $drive]!"
 	} else {
 		set fullname [file normalize [file join $::osd_disk_path $item]]
 		if {[file isdirectory $fullname] && $item ne "."} {
@@ -1607,7 +1622,7 @@ proc menu_select_disk {drive item} {
 			} else {
 				menu_close_all
 				if {$item eq "."} { set item $fullname }
-				osd::display_message "Disk $item inserted!"
+				osd::display_message "Disk $item inserted in drive [get_slot_str $drive]!"
 			}
 		}
 	}
@@ -1913,6 +1928,66 @@ proc confirm_action {text action item} {
 					post-spacing 6 ]]
 
 	osd_menu::menu_create [osd_menu::prepare_menu_list $items [llength $items] $menu_def]
+}
+
+proc menu_loadreplay_exec {item} {
+	if {[catch {reverse loadreplay $item} errorText]} {
+		osd::display_message $errorText error
+	} else {
+		menu_close_all
+	}
+}
+
+proc menu_loadscript_exec {item} {
+	if {[catch {source $item} errorText]} {
+		osd::display_message $errorText error
+	}
+}
+
+proc create_slot_actions_to_put_stuff_in_slot {slot path listtype} {
+	return [list actions [list A "osd_menu::menu_select_$listtype $slot $path"]]
+}
+
+proc drop_handler { event } {
+	variable mediaslot_info
+	lassign $event type filename
+	set category [openmsx_info file_type_category $filename]
+	if {$category eq "disk" || $category eq "rom"} {
+		set longmediaslotname [dict get $mediaslot_info $category longmediaslotname]
+		set listtype [dict get $mediaslot_info $category listtype]
+		set mediabasecommand [dict get $mediaslot_info $category mediabasecommand]
+		set slots [lsort [info command ${mediabasecommand}?]]
+		if {[llength $slots] == 0} {
+			osd::display_message "Can't handle dropped file $filename, no $longmediaslotname present." error
+		} elseif {[llength $slots] > 1} {
+			set path $filename
+			set menutitle "Select ${longmediaslotname}"
+			set create_action_proc "create_slot_actions_to_put_stuff_in_slot"
+			osd_menu::do_menu_open [create_slot_menu_def $slots $path $listtype $menutitle $create_action_proc]
+		} else {
+			osd_menu::menu_select_$listtype "${mediabasecommand}a" $filename true
+		}
+	} elseif {$category eq "laserdisc"} {
+		if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
+			osd_menu::menu_select_ld $filename
+		} else {
+			osd::display_message "Can't handle dropped file $filename, no laser disc player present." error
+		}
+	} elseif {$category eq "cassette"} {
+		if {[catch "machine_info connector cassetteport"]} {; # example: turboR
+			osd::display_message "Can't handle dropped file $filename, no cassette port present." error
+		} else {
+			osd_menu::menu_select_tape $filename
+		}
+	} elseif {$category eq "savestate"} {
+		osd_menu::menu_loadstate_exec [file rootname $filename]
+	} elseif {$category eq "replay"} {
+		osd_menu::menu_loadreplay_exec $filename
+	} elseif {$category eq "script"} {
+		osd_menu::menu_loadscript_exec $filename
+	} else {
+		osd::display_message "Don't know how to handle dropped file $filename..." error
+	}
 }
 
 # Keep openmsx console from interfering with the osd menu:
