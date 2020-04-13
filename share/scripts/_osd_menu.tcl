@@ -1611,8 +1611,15 @@ proc menu_select_disk {drive item {dummy false}} {
 		$drive eject
 		osd::display_message "Disk $cur_image ejected from drive [get_slot_str $drive]!"
 	} else {
-		set fullname [file normalize [file join $::osd_disk_path $item]]
-		if {[file isdirectory $fullname] && $item ne "."} {
+		# if the item is already a directory, it's an absolute path, use that as fullname
+		if {[file isdirectory $item] && $item ne "."} {
+			set fullname $item
+			set abspath true
+		} else {
+			set fullname [file normalize [file join $::osd_disk_path $item]]
+			set abspath false
+		}
+		if {[file isdirectory $fullname] && $item ne "." && !$abspath} {
 			menu_close_top
 			set ::osd_disk_path [file normalize $fullname]
 			menu_create [menu_create_disk_list $::osd_disk_path $drive]
@@ -1952,13 +1959,21 @@ proc drop_handler { event } {
 	variable mediaslot_info
 	lassign $event type filename
 	set category [openmsx_info file_type_category $filename]
+	set isdir [file isdirectory $filename]
+	if {$category eq "unknown" && $isdir} {
+		set category "disk"
+	}
+	set filetext "file"
+	if {$isdir} {
+		set filetext "folder"
+	}
 	if {$category eq "disk" || $category eq "rom"} {
 		set longmediaslotname [dict get $mediaslot_info $category longmediaslotname]
 		set listtype [dict get $mediaslot_info $category listtype]
 		set mediabasecommand [dict get $mediaslot_info $category mediabasecommand]
 		set slots [lsort [info command ${mediabasecommand}?]]
 		if {[llength $slots] == 0} {
-			osd::display_message "Can't handle dropped file $filename, no $longmediaslotname present." error
+			osd::display_message "Can't handle dropped $filetext $filename, no $longmediaslotname present." error
 		} elseif {[llength $slots] > 1} {
 			set path $filename
 			set menutitle "Select ${longmediaslotname}"
@@ -1971,11 +1986,11 @@ proc drop_handler { event } {
 		if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
 			osd_menu::menu_select_ld $filename
 		} else {
-			osd::display_message "Can't handle dropped file $filename, no laser disc player present." error
+			osd::display_message "Can't handle dropped $filetext $filename, no laser disc player present." error
 		}
 	} elseif {$category eq "cassette"} {
 		if {[catch "machine_info connector cassetteport"]} {; # example: turboR
-			osd::display_message "Can't handle dropped file $filename, no cassette port present." error
+			osd::display_message "Can't handle dropped $filetext $filename, no cassette port present." error
 		} else {
 			osd_menu::menu_select_tape $filename
 		}
@@ -1990,7 +2005,7 @@ proc drop_handler { event } {
 		if {[file extension $filename] eq ".txt"} {
 			type_from_file $filename
 		} else {
-			osd::display_message "Don't know how to handle dropped file $filename..." error
+			osd::display_message "Don't know how to handle dropped $filetext $filename..." error
 		}
 	}
 }
