@@ -1612,7 +1612,7 @@ proc menu_select_disk {drive item {dummy false}} {
 		osd::display_message "Disk $cur_image ejected from drive [get_slot_str $drive]!"
 	} else {
 		# if the item is already a directory, it's an absolute path, use that as fullname
-		if {[file isdirectory $item] && $item ne "."} {
+		if {[file isdirectory $item] && $item ne "." && $item ne ".."} {
 			set fullname $item
 			set abspath true
 		} else {
