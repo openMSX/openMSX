@@ -139,16 +139,16 @@ void CassettePlayer::autoRun()
 	string instr1, instr2;
 	switch (type) {
 		case CassetteImage::ASCII:
-			instr1 = R"(RUN\"CAS:\")";
+			instr1 = R"({RUN\"CAS:\"\r})";
 			break;
 		case CassetteImage::BINARY:
-			instr1 = R"(BLOAD\"CAS:\",R)";
+			instr1 = R"({BLOAD\"CAS:\",R\r})";
 			break;
 		case CassetteImage::BASIC:
 			// Note that CLOAD:RUN won't work: BASIC ignores stuff
 			// after the CLOAD command. That's why it's split in two.
-			instr1 = "CLOAD";
-			instr2 = "RUN";
+			instr1 = "{CLOAD\\r}";
+			instr2 = "{RUN\\r}";
 			break;
 		default:
 			UNREACHABLE; // Shouldn't be possible
@@ -164,22 +164,20 @@ void CassettePlayer::autoRun()
 
 		// Without the 0.1s delay here, the type command gets messed up
 		// on MSX1 machines for some reason (starting to type too early?)
-		"    after time 0.1 \"type [lindex $args 0]\\\\r\"\n"
+		"    after time 0.1 \"type [lindex $args 0]\"\n"
 
 		"    set next [lrange $args 1 end]\n"
 		"    if {[llength $next] == 0} return\n"
 
-		// H_READ isn't called after CLOAD, but H_MAIN is. However, it's
-		// also called right after H_READ, so we wait a little before
-		// setting up the breakpoint.
-		"    set cmd1 \"openmsx::auto_run_cb $next\"\n"
-		"    set cmd2 \"set openmsx::auto_run_bp \\[debug set_bp 0xFF0C 1 \\\"$cmd1\\\"\\]\"\n" // H_MAIN
-		"    after time 0.2 $cmd2\n"
+		// H_READ is used by some firmwares; we need to hook the
+		// H_MAIN that happens immediately after H_READ.
+		"    set cmd \"openmsx::auto_run_cb $next\"\n"
+		"    set openmsx::auto_run_bp [debug set_bp 0xFF0C 1 \"$cmd\"]\n" // H_MAIN
 		"  }\n"
 
 		"  if {[info exists auto_run_bp]} {debug remove_bp $auto_run_bp\n}\n"
 		"  set auto_run_bp [debug set_bp 0xFF07 1 {\n" // H_READ
-		"    openmsx::auto_run_cb ", instr1, ' ', instr2, "\n"
+		"    openmsx::auto_run_cb {{}} ", instr1, ' ', instr2, "\n"
 		"  }]\n"
 
 		// re-trigger hook(s), needed when already booted in BASIC
