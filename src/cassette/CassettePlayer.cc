@@ -391,10 +391,12 @@ void CassettePlayer::recordTape(const Filename& filename, EmuTime::param time)
 
 void CassettePlayer::removeTape(EmuTime::param time)
 {
-	sync(time); // before tapePos changes
+	// first stop with tape still inserted
+	setState(STOP, getImageName(), time);
+	// then remove the tape
 	playImage.reset();
 	tapePos = EmuTime::zero();
-	setState(STOP, Filename(), time);
+	setImageName({});
 }
 
 void CassettePlayer::setMotor(bool status, EmuTime::param time)
