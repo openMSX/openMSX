@@ -32,8 +32,9 @@ proc push_menu_info {} {
 	variable $levelname
 	set $levelname [uplevel {dict create \
 		name $name lst $lst menu_len $menu_len presentation $presentation \
-		menutexts $menutexts selectinfo $selectinfo selectidx $selectidx \
-		scrollidx $scrollidx on_close $on_close}]
+		menutextexpressions $menutextexpressions menutexts $menutexts \
+		selectinfo $selectinfo selectidx $selectidx scrollidx \
+		$scrollidx on_close $on_close}]
 }
 
 proc peek_menu_info {} {
@@ -75,6 +76,7 @@ proc menu_create {menudef} {
 
 	set y $bordersize
 	set selectinfo [list]
+	set menutextexpressions [list]
 	set menutexts [list]
 	foreach itemdef [dict get $menudef items] {
 		set selectable  [get_optional itemdef "selectable" true]
@@ -88,8 +90,13 @@ proc menu_create {menudef} {
 		set on_select   [get_optional itemdef "on-select"   ""]
 		set on_deselect [get_optional itemdef "on-deselect" ""]
 		set textid "${name}.item${y}"
-		set text [dict get $itemdef text]
-		lappend menutexts $textid $text
+		if {[dict exists $itemdef textexpr]} {
+			set textexpr [dict get $itemdef textexpr]
+			lappend menutextexpressions $textid $textexpr
+		} else {
+			set text [dict get $itemdef text]
+			lappend menutexts $textid $text
+		}
 		osd create text $textid -font $font -size $fontsize \
 					-rgba $textcolor -x $bordersize -y $y
 		if {$selectable} {
@@ -157,9 +164,12 @@ proc menu_update_scrollbar {} {
 
 proc menu_refresh_top {} {
 	peek_menu_info
-	foreach {osdid text} [dict get $menuinfo menutexts] {
-		set cmd [list subst $text]
+	foreach {osdid textexpr} [dict get $menuinfo menutextexpressions] {
+		set cmd [list subst $textexpr]
 		osd configure $osdid -text [uplevel #0 $cmd]
+	}
+	foreach {osdid text} [dict get $menuinfo menutexts] {
+		osd configure $osdid -text $text
 	}
 
 	set selectinfo [dict get $menuinfo selectinfo]
@@ -464,7 +474,7 @@ proc prepare_menu_list {lst num menudef} {
 		}
 		lappend actions "LEFT"  "osd_menu::move_selection -$menu_len"
 		lappend actions "RIGHT" "osd_menu::move_selection  $menu_len"
-		set item [list "text" "\[osd_menu::list_menu_item_show $i\]" \
+		set item [list "textexpr" "\[osd_menu::list_menu_item_show $i\]" \
 		               "actions" $actions]
 		if {$on_select ne ""} {
 			lappend item "on-select" "osd_menu::list_menu_item_select $i $on_select"
@@ -674,7 +684,7 @@ proc create_main_menu {} {
 		border-size 2
 		width 160
 	}
-	lappend items { text "[openmsx_info version]"
+	lappend items { textexpr "[openmsx_info version]"
 	         font-size 12
 	         post-spacing 6
 	         selectable false }
@@ -739,13 +749,13 @@ set misc_setting_menu {
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
-	       { text "Speed: $speed"
+	       { textexpr "Speed: $speed"
 	         actions { LEFT  { osd_menu::menu_setting [incr speed -1] }
 	                   RIGHT { osd_menu::menu_setting [incr speed  1] }}}
-	       { text "Minimal Frameskip: $minframeskip"
+	       { textexpr "Minimal Frameskip: $minframeskip"
 	         actions { LEFT  { osd_menu::menu_setting [incr minframeskip -1] }
 	                   RIGHT { osd_menu::menu_setting [incr minframeskip  1] }}}
-	       { text "Maximal Frameskip: $maxframeskip"
+	       { textexpr "Maximal Frameskip: $maxframeskip"
 	         actions { LEFT  { osd_menu::menu_setting [incr maxframeskip -1] }
 	                   RIGHT { osd_menu::menu_setting [incr maxframeskip  1] }}}}}
 
@@ -761,15 +771,15 @@ set sound_setting_menu {
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
-	       { text "Volume: $master_volume"
+	       { textexpr "Volume: $master_volume"
 	         actions { LEFT  { osd_menu::menu_setting [incr master_volume -5] }
 	                   RIGHT { osd_menu::menu_setting [incr master_volume  5] }}}
-	       { text "Mute: $mute"
+	       { textexpr "Mute: $mute"
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back mute] }
 	                   RIGHT { osd_menu::menu_setting [cycle      mute] }}}
 	       { text "Individual Sound Device Settings..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_sound_device_list]}}}
-	       { text "Resampler: [osd_menu::get_resampler_presentation $resampler]"
+	       { textexpr "Resampler: [osd_menu::get_resampler_presentation $resampler]"
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back resampler] }
 	                   RIGHT { osd_menu::menu_setting [cycle      resampler] }}}}}
 
@@ -814,7 +824,7 @@ proc create_sound_device_settings_menu {device} {
 	foreach aspect [list volume balance] {
 		set var_name ::${device}_${aspect}
 		set item [list]
-		lappend item "text"
+		lappend item "textexpr"
 		set first [string range $aspect 0 0]
 		set rest [string range $aspect 1 end]
 		set first [string toupper $first]
@@ -834,7 +844,7 @@ proc create_sound_device_settings_menu {device} {
 	for {set channel 1} {$channel <= $channel_count} {incr channel} {
 		set chmute_var_name ${device}_ch${channel}_mute
 		set item [list]
-		lappend item "text"
+		lappend item "textexpr"
 		set pretext ""
 		if {$channel_count > 1} {
 			set pretext "Channel $channel "
@@ -875,47 +885,47 @@ proc create_video_setting_menu {} {
 	         post-spacing 6
 	         selectable false }
 	if {[expr {[lindex [lindex [openmsx_info setting videosource] 2] 1] > 1}]} {
-		lappend items { text "Video source: $videosource"
+		lappend items { textexpr "Video source: $videosource"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back videosource] }
 			          RIGHT { osd_menu::menu_setting [cycle      videosource] }}
 				  post-spacing 6}
 	}
 	if {$scaling_available} {
-		lappend items { text "Scaler: $scale_algorithm"
+		lappend items { textexpr "Scaler: $scale_algorithm"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back scale_algorithm] }
 			          RIGHT { osd_menu::menu_setting [cycle      scale_algorithm] }}}
 		# only add scale factor setting if it can actually be changed
 		set scale_minmax [lindex [openmsx_info setting scale_factor] 2]
 		if {[expr {[lindex $scale_minmax 0] != [lindex $scale_minmax 1]}]} {
-			lappend items { text "Scale Factor: ${scale_factor}x"
+			lappend items { textexpr "Scale Factor: ${scale_factor}x"
 				actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
 				          RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
 		}
 	}
-	lappend items { text "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $horizontal_stretch]"
+	lappend items { textexpr "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $horizontal_stretch]"
 	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $horizontal_stretch }}
 	         post-spacing 6 }
 	if {$scaling_available} {
-		lappend items { text "Scanline: $scanline%"
+		lappend items { textexpr "Scanline: $scanline%"
 			actions { LEFT  { osd_menu::menu_setting [incr scanline -1] }
 			          RIGHT { osd_menu::menu_setting [incr scanline  1] }}}
-		lappend items { text "Blur: $blur%"
+		lappend items { textexpr "Blur: $blur%"
 			actions { LEFT  { osd_menu::menu_setting [incr blur -1] }
 			          RIGHT { osd_menu::menu_setting [incr blur  1] }}}
 	}
 	if {$::renderer eq "SDLGL-PP"} {
-		lappend items { text "Glow: $glow%"
+		lappend items { textexpr "Glow: $glow%"
 			actions { LEFT  { osd_menu::menu_setting [incr glow -1] }
 			          RIGHT { osd_menu::menu_setting [incr glow  1] }}}
-		lappend items { text "Display Deform: $display_deform"
+		lappend items { textexpr "Display Deform: $display_deform"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back display_deform] }
 			          RIGHT { osd_menu::menu_setting [cycle      display_deform] }}}
 	}
-	lappend items { text "Noise: $noise%"
+	lappend items { textexpr "Noise: $noise%"
 		actions { LEFT  { osd_menu::menu_setting [set noise [expr $noise - 1]] }
 		          RIGHT { osd_menu::menu_setting [set noise [expr $noise + 1]] }}
 			  post-spacing 6}
-	lappend items { text "Enforce VDP Sprites-per-line Limit: $limitsprites"
+	lappend items { textexpr "Enforce VDP Sprites-per-line Limit: $limitsprites"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back limitsprites] }
 			          RIGHT { osd_menu::menu_setting [cycle      limitsprites] }}}
 	dict set menu_def items $items
@@ -944,7 +954,7 @@ proc create_hardware_menu {} {
 	lappend items { text "Connectors..."
 			 actions { A { osd_menu::menu_create [osd_menu::menu_create_connectors_list] }}}
 	if {![catch {openmsx_info setting firmwareswitch}]} {
-		lappend items { text "Firmware switch active: $::firmwareswitch"
+		lappend items { textexpr "Firmware switch active: $::firmwareswitch"
 			actions { LEFT  { osd_menu::menu_setting [cycle_back firmwareswitch] }
 			          RIGHT { osd_menu::menu_setting [cycle      firmwareswitch] }}}
 
@@ -993,7 +1003,7 @@ set running_machines_menu {
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
-	       { text "Select Running Machine Tab: [utils::get_machine_display_name]"
+	       { textexpr "Select Running Machine Tab: [utils::get_machine_display_name]"
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_running_machine_list] }}}
 	       { text "New Running Machine Tab"
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list "add"] }}}
@@ -1437,7 +1447,7 @@ proc menu_create_rom_list {path slot} {
 		width 200 \
 		xpos 100 \
 		ypos 120 \
-		header { text "ROMs $::osd_rom_path" \
+		header { textexpr "ROMs $::osd_rom_path" \
 			font-size 10 \
 			post-spacing 6 }]
 	set extensions "rom|ri|mx1|mx2|zip|gz"
@@ -1570,7 +1580,7 @@ proc menu_create_disk_list {path drive} {
 		width 200 \
 		xpos 100 \
 		ypos 120 \
-		header { text "Disks $::osd_disk_path" \
+		header { textexpr "Disks $::osd_disk_path" \
 			font-size 10 \
 			post-spacing 6 }]
 	set cur_image [lindex [$drive] 1]
@@ -1644,7 +1654,7 @@ proc menu_create_tape_list {path} {
 		width 200
 		xpos 100
 		ypos 120
-		header { text "Tapes $::osd_tape_path"
+		header { textexpr "Tapes $::osd_tape_path"
 			font-size 10
 			post-spacing 6 }}
 	set extensions "cas|wav|zip|gz"
@@ -1735,7 +1745,7 @@ proc menu_create_hdd_list {path drive} {
 	                            width 200 \
 	                            xpos 100 \
 	                            ypos 120 \
-	                            header { text "Hard disk images $::osd_hdd_path"
+	                            header { textexpr "Hard disk images $::osd_hdd_path"
 	                                     font-size 10
 	                                     post-spacing 6 }]]
 }
@@ -1773,7 +1783,7 @@ proc menu_create_ld_list {path} {
 		width 200 \
 		xpos 100 \
 		ypos 120 \
-		header { text "LaserDiscs $::osd_ld_path" \
+		header { textexpr "LaserDiscs $::osd_ld_path" \
 			font-size 10 \
 			post-spacing 6 }]
 	set cur_image [lindex [laserdiscplayer] 1]
