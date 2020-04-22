@@ -88,14 +88,14 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	, motor(false), motorControl(true)
 	, syncScheduled(false)
 {
-	removeTape(EmuTime::zero());
-
 	static XMLElement xml = createXML();
 	registerSound(DeviceConfig(hwConf, xml));
 
 	motherBoard.getReactor().getEventDistributor().registerEventListener(
 		OPENMSX_BOOT_EVENT, *this);
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getName(), "add");
+
+	removeTape(EmuTime::zero());
 }
 
 CassettePlayer::~CassettePlayer()
