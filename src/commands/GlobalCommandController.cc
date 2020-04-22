@@ -548,7 +548,7 @@ CliConnection& GlobalCommandController::UpdateCmd::getConnection()
 void GlobalCommandController::UpdateCmd::execute(
 	span<const TclObject> tokens, TclObject& /*result*/)
 {
-	checkNumArgs(tokens, 3, "enable|disable type");
+	checkNumArgs(tokens, 3, Prefix{1}, "enable|disable type");
 	if (tokens[1] == "enable") {
 		getConnection().setUpdateEnable(getType(tokens[2]), true);
 	} else if (tokens[1] == "disable") {
