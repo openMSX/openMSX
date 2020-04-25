@@ -164,6 +164,12 @@ byte* VictorFDC::getWriteCacheLine(word address) const
 	}
 }
 
+bool VictorFDC::allowUnaligned() const
+{
+	// OK, because this device doesn't call any 'fillDeviceXXXCache()'functions.
+	return true;
+}
+
 
 template<typename Archive>
 void VictorFDC::serialize(Archive& ar, unsigned /*version*/)

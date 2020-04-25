@@ -240,19 +240,33 @@ void MSXCPU::setRWCache(unsigned start, unsigned size, const byte* rData, byte* 
 	}
 }
 
+static void extendForAlignment(unsigned& start, unsigned& size)
+{
+	static constexpr unsigned MASK = ~(CacheLine::LOW); // not CacheLine::HIGH because 0x0000ff00 != 0xffffff00
+
+	auto end = start + size;
+	start &= MASK;                            // round down to cacheline
+	end = (end + CacheLine::SIZE - 1) & MASK; // round up to cacheline
+	size = end - start;
+}
+
 void MSXCPU::invalidateRWCache(unsigned start, unsigned size, int ps, int ss,
                                const byte* disallowRead, const byte* disallowWrite)
 {
+	// unaligned [start, start+size) is OK for invalidate, then simply invalidate a little more.
+	extendForAlignment(start, size);
 	setRWCache<true, true, false>(start, size, nullptr, nullptr, ps, ss, disallowRead, disallowWrite);
 }
 void MSXCPU::invalidateRCache(unsigned start, unsigned size, int ps, int ss,
                               const byte* disallowRead)
 {
+	extendForAlignment(start, size);
 	setRWCache<true, false, false>(start, size, nullptr, nullptr, ps, ss, disallowRead, nullptr);
 }
 void MSXCPU::invalidateWCache(unsigned start, unsigned size, int ps, int ss,
                               const byte* disallowWrite)
 {
+	extendForAlignment(start, size);
 	setRWCache<false, true, false>(start, size, nullptr, nullptr, ps, ss, nullptr, disallowWrite);
 }
 

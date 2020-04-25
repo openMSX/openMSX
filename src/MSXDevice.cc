@@ -178,7 +178,8 @@ void MSXDevice::registerSlots()
 				getName(), " should be in range "
 				"[0x0000,0x10000).");
 		}
-		if ((base & (align - 1)) || (size & (align - 1))) {
+		if (((base & (align - 1)) || (size & (align - 1))) &&
+		    !allowUnaligned()) {
 			throw MSXException(
 				"invalid memory specification for device ",
 				getName(), " should be aligned on at least 0x",
@@ -512,14 +513,17 @@ void MSXDevice::fillDeviceRWCache(unsigned start, unsigned size, byte* rwData)
 }
 void MSXDevice::fillDeviceRWCache(unsigned start, unsigned size, const byte* rData, byte* wData)
 {
+	assert(!allowUnaligned());
 	clip(start, size, [&](auto... args) { getCPUInterface().fillRWCache(args...); }, rData, wData);
 }
 void MSXDevice::fillDeviceRCache(unsigned start, unsigned size, const byte* rData)
 {
+	assert(!allowUnaligned());
 	clip(start, size, [&](auto... args) { getCPUInterface().fillRCache(args...); }, rData);
 }
 void MSXDevice::fillDeviceWCache(unsigned start, unsigned size, byte* wData)
 {
+	assert(!allowUnaligned());
 	clip(start, size, [&](auto... args) { getCPUInterface().fillWCache(args...); }, wData);
 }
 

@@ -13,6 +13,7 @@ public:
 	byte readMem(word address, EmuTime::param time) override;
 	byte peekMem(word address, EmuTime::param time) const override;
 	void writeMem(word address, byte value, EmuTime::param time) override;
+	bool allowUnaligned() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

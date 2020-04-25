@@ -131,7 +131,7 @@ const byte* MSXMultiMemDevice::getReadCacheLine(word start) const
 		// cacheline. This can't be cached.
 		return nullptr;
 	}
-	return searchDevice(start)->getReadCacheLine(start);
+	return range.device->getReadCacheLine(start);
 }
 
 byte* MSXMultiMemDevice::getWriteCacheLine(word start) const
@@ -141,7 +141,7 @@ byte* MSXMultiMemDevice::getWriteCacheLine(word start) const
 	if (unlikely(((range.base + range.size) & CacheLine::HIGH) == start)) {
 		return nullptr;
 	}
-	return searchDevice(start)->getWriteCacheLine(start);
+	return range.device->getWriteCacheLine(start);
 }
 
 } // namespace openmsx

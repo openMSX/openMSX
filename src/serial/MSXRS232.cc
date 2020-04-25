@@ -136,6 +136,12 @@ byte* MSXRS232::getWriteCacheLine(word start) const
 	}
 }
 
+bool MSXRS232::allowUnaligned() const
+{
+	// OK, because this device doesn't call any 'fillDeviceXXXCache()'functions.
+	return true;
+}
+
 byte MSXRS232::readIO(word port, EmuTime::param time)
 {
 	if (ioAccessEnabled) {

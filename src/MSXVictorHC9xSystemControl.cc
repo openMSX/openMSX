@@ -42,6 +42,12 @@ void MSXVictorHC9xSystemControl::writeMem(word address, byte value, EmuTime::par
 	systemControlRegister = (value & 0x3F) | (0x80);
 }
 
+bool MSXVictorHC9xSystemControl::allowUnaligned() const
+{
+	// OK, because this device doesn't call any 'fillDeviceXXXCache()'functions.
+	return true;
+}
+
 template<typename Archive>
 void MSXVictorHC9xSystemControl::serialize(Archive& ar, unsigned /*version*/)
 {

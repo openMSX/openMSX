@@ -281,6 +281,14 @@ protected:
 	  */
 	virtual unsigned getBaseSizeAlignment() const;
 
+	/** By default we don't allow unaligned <mem> specifications in the
+	  * config file. Though for a machine like 'Victor HC-95A' is it useful
+	  * to model it with combinations of unaligned devices. So we do allow
+	  * it for a select few devices: devices that promise to not call any
+	  * of the 'fillDeviceXXXCache()' methods.
+	  */
+	virtual bool allowUnaligned() const { return false; }
+
 	/** @see getDeviceInfo()
 	 * Default implementation does nothing. Subclasses can override this
 	 * method to add extra info (like subtypes).
