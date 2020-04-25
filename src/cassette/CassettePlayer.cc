@@ -868,7 +868,6 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	if (ar.isLoader()) {
 		FilePool& filePool = motherBoard.getReactor().getFilePool();
 		auto time = getCurrentTime();
-		removeTape(time);
 		casImage.updateAfterLoadState();
 		if (!oldChecksum.empty() &&
 		    !FileOperations::exists(casImage.getResolved())) {
