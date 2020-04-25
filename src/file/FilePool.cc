@@ -365,7 +365,9 @@ static Sha1Sum calcSha1sum(File& file, Reactor& reactor)
 		}
 	}
 	// last block
-	sha1.update(&data[done], remaining);
+	if (remaining) {
+		sha1.update(&data[done], remaining);
+	}
 	if (everShowedProgress) {
 		reportProgress(filename, 100, reactor);
 	}
