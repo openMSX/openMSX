@@ -5,6 +5,7 @@
 #include "GlobalSettings.hh"
 #include "Keys.hh"
 #include "checked_cast.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include "utf8_unchecked.hh"
@@ -243,6 +244,20 @@ void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
 	}
 }
 
+static Uint16 normalizeModifier(SDL_Keycode sym, Uint16 mod)
+{
+	// Apparently modifier-keys also have the corresponding
+	// modifier attribute set. See here for a discussion:
+	//     https://github.com/openMSX/openMSX/issues/1202
+	// As a solution, on pure modifier keys, we now clear the
+	// modifier attributes.
+	return (sym == one_of(SDLK_LCTRL, SDLK_LSHIFT, SDLK_LALT, SDLK_LGUI,
+	                      SDLK_RCTRL, SDLK_RSHIFT, SDLK_RALT, SDLK_RGUI,
+	                      SDLK_MODE))
+		? 0
+		: mod;
+}
+
 void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode)
 {
 	EventPtr event;
@@ -257,9 +272,9 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 			1, false, event);
 		androidButtonB = true;
 	} else*/ {
+		auto mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
 		auto keyCode = Keys::getCode(
-			key.keysym.sym, key.keysym.mod,
-			key.keysym.scancode, false);
+			key.keysym.sym, mod, key.keysym.scancode, false);
 		event = make_shared<KeyDownEvent>(keyCode, unicode);
 		triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
 	}
@@ -299,9 +314,9 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 				1, true, event);
 			androidButtonB = false;
 		} else*/ {
+			auto mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
 			auto keyCode = Keys::getCode(
-				evt.key.keysym.sym, evt.key.keysym.mod,
-				evt.key.keysym.scancode, true);
+				evt.key.keysym.sym, mod, evt.key.keysym.scancode, true);
 			event = make_shared<KeyUpEvent>(keyCode);
 			triggerOsdControlEventsFromKeyEvent(keyCode, true, event);
 		}
