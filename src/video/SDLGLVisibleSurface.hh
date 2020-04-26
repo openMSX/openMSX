@@ -34,6 +34,10 @@ public:
 	std::unique_ptr<OutputSurface> createOffScreenSurface() override;
 
 private:
+	struct SyncToVBlankModeObserver : Observer<Setting> {
+		void update(const Setting& setting) override;
+	} syncToVBlankModeObserver;
+
 	SDL_GLContext glContext;
 };
 

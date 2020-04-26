@@ -147,10 +147,24 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	, displayDeformSetting(
 		commandController,
 		"display_deform", "Display deform (for the moment this only "
-		"works with the SDLGL-PP renderer", DEFORM_NORMAL,
+		"works with the SDLGL-PP renderer)", DEFORM_NORMAL,
 		EnumSetting<DisplayDeform>::Map{
 			{"normal", DEFORM_NORMAL},
 			{"3d",     DEFORM_3D}})
+
+	, syncToVBlankModeSetting(
+		commandController,
+		"sync_to_vblank_mode", "Sync-to-VBlank mode (for the moment this only "
+		"works with the SDLGL-PP renderer)\n"
+		"immediate:     no sync to vblank, just render immediately\n"
+		"sync:          sync to vblank always\n"
+		"sync_adaptive: sync to vblank, but if too late, sync "
+		"immediately (not supported on all hardware)",
+		SyncToVBlankMode::IMMEDIATE,
+		EnumSetting<SyncToVBlankMode>::Map{
+			{"immediate",     SyncToVBlankMode::IMMEDIATE},
+			{"sync",          SyncToVBlankMode::SYNC},
+			{"sync_adaptive", SyncToVBlankMode::ADAPTIVE_SYNC}})
 
 	// Many android devices are relatively low powered. Therefore use
 	// no stretch (value 320) as default for Android because it gives

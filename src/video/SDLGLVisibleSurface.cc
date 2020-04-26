@@ -4,11 +4,16 @@
 #include "GLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
+#include "Display.hh"
+#include "RenderSettings.hh"
+#include "CliComm.hh"
 #include "PNG.hh"
 #include "build-info.hh"
 #include "MemBuffer.hh"
+#include "outer.hh"
 #include "vla.hh"
 #include "InitException.hh"
+#include "unreachable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -79,10 +84,16 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 
 	setOpenGlPixelFormat();
 	gl::context = std::make_unique<gl::Context>(width, height);
+
+	getDisplay().getRenderSettings().getSyncToVBlankModeSetting().attach(syncToVBlankModeObserver);
+	// set initial value
+	syncToVBlankModeObserver.update(getDisplay().getRenderSettings().getSyncToVBlankModeSetting());
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
+	getDisplay().getRenderSettings().getSyncToVBlankModeSetting().detach(syncToVBlankModeObserver);
+
 	gl::context.reset();
 	SDL_GL_DeleteContext(glContext);
 }
@@ -134,6 +145,25 @@ std::unique_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 std::unique_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()
 {
 	return std::make_unique<SDLGLOffScreenSurface>(*this);
+}
+
+void SDLGLVisibleSurface::SyncToVBlankModeObserver::update(const Setting& setting)
+{
+	auto& surface = OUTER(SDLGLVisibleSurface, syncToVBlankModeObserver);
+	auto& syncSetting = surface.getDisplay().getRenderSettings().getSyncToVBlankModeSetting();
+	assert(&setting == &syncSetting);
+
+	int interval = [&] {
+		switch (syncSetting.getEnum()) {
+			case RenderSettings::SyncToVBlankMode::IMMEDIATE:     return 0;
+			case RenderSettings::SyncToVBlankMode::SYNC:          return 1;
+			case RenderSettings::SyncToVBlankMode::ADAPTIVE_SYNC: return -1;
+		}
+		UNREACHABLE; return 0;
+	}();
+	if (SDL_GL_SetSwapInterval(interval) < 0) {
+		surface.getCliComm().printWarning("Couldn't switch sync-to-vblank to ", syncSetting.getString());
+	}
 }
 
 } // namespace openmsx
