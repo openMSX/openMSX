@@ -172,6 +172,7 @@
         <li><a class="internal" href="#soundchip_vibrato_frequency">&lt;soundchip&gt;_vibrato_frequency</a></li>
         <li><a class="internal" href="#soundchip_vibrato_percent">&lt;soundchip&gt;_vibrato_percent</a></li>
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
+        <li><a class="internal" href="#sync_to_vblank_mode">sync_to_vblank_mode</a></li>
         <li><a class="internal" href="#throttle">throttle</a></li>
         <li><a class="internal" href="#too_fast_vram_access">too_fast_vram_access</a></li>
         <li><a class="internal" href="#too_fast_vram_access_callback">too_fast_vram_access_callback</a></li>
@@ -5354,9 +5355,45 @@
     <code>set "FMPAC_volume" 50</code>
   </div>
 
+  <h3><a id="sync_to_vblank_mode">sync_to_vblank_mode</a></h3>
+
+  <p>Sets the sync to vblank mode. This setting determines whether the SDLGL-PP renderer should synchronizes its frames to your host monitors frame rate (e.g. 60fps).</p>
+  <p>The default value is not to synchronize ("<code>immediate</code>"). To synchronize with the host monitor, set the value to <code>sync</code> or <code>sync_adaptive</code>. The former means that the frame will always be only output in sync with the monitor. If the host system is busy it may mean that a frame is too late for the monitor and it will be displayed one frame later. Adaptive sync means that if the frame is too late, it will be drawn anyway, but immediately, not waiting for next monitor frame.</p>
+  <p>Use one of the synchronization modes if your MSX is running at about the same frame rate as your monitor (e.g. 60Hz MSX output on a 60Hz host monitor) and you want to avoid (or reduce) tearing, which can be quite visible in smooth horizontal scrolling demos. Keep in mind <a class="internal" href="throttle">throttle mode</a> off works a bit differently in the <code>sync</code> mode (see there). The adaptive sync can help there, but it's not supported on all hardware.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set sync_to_vblank_mode</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set sync_to_vblank_mode immediate</code></td>
+
+      <td>No synchronization to monitor frame rate: draw immediately (default)</td>
+    </tr>
+
+    <tr>
+      <td><code>set sync_to_vblank_mode sync</code></td>
+
+      <td>Synchronize to monitor frame rate always</td>
+    </tr>
+
+    <tr>
+      <td><code>set sync_to_vblank_mode sync_adaptive</code></td>
+
+      <td>Synchronize to monitor frame rate when possible, otherwise draw immediately. Not available on all host hardware.</td>
+    </tr>
+  </table>
+
   <h3><a id="throttle">throttle</a></h3>
 
-  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible. The speed may be limited to the framerate of your monitor (e.g. 60fps) due to how the OpenGL driver works, when using the (default) SDLGL-PP renderer. To increase the speed, set the <a class="internal" href="#maxframeskip">maxframeskip</a> setting to a high value (e.g. 100).</p>
+  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible. The speed may be limited to the framerate of your monitor (e.g. 60fps) if you have set <a class="internal" href="sync_to_vblank_mode">sync to vblank_mode</a> to <code>sync</code>, when using the (default) SDLGL-PP renderer. In that case, to increase the speed, set the <a class="internal" href="#maxframeskip">maxframeskip</a> setting to a high value (e.g. 100).</p>
 
   <div class="subsectiontitle">
     usage:
@@ -5381,7 +5418,6 @@
       <td>Turn throttle mode off (fast forward)</td>
     </tr>
   </table>
-
 
   <h3><a id="too_fast_vram_access">too_fast_vram_access</a></h3>
 
