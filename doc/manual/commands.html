@@ -5359,7 +5359,7 @@
 
   <p>Sets the sync to vblank mode. This setting determines whether the SDLGL-PP renderer should synchronizes its frames to your host monitors frame rate (e.g. 60fps).</p>
   <p>The default value is not to synchronize ("<code>immediate</code>"). To synchronize with the host monitor, set the value to <code>sync</code> or <code>sync_adaptive</code>. The former means that the frame will always be only output in sync with the monitor. If the host system is busy it may mean that a frame is too late for the monitor and it will be displayed one frame later. Adaptive sync means that if the frame is too late, it will be drawn anyway, but immediately, not waiting for next monitor frame.</p>
-  <p>Use one of the synchronization modes if your MSX is running at about the same frame rate as your monitor (e.g. 60Hz MSX output on a 60Hz host monitor) and you want to avoid (or reduce) tearing, which can be quite visible in smooth horizontal scrolling demos. Keep in mind <a class="internal" href="throttle">throttle mode</a> off works a bit differently in the <code>sync</code> mode (see there). The adaptive sync can help there, but it's not supported on all hardware.</p>
+  <p>Use one of the synchronization modes if your MSX is running at about the same frame rate as your monitor (e.g. 60Hz MSX output on a 60Hz host monitor) and you want to avoid (or reduce) tearing, which can be quite visible in smooth horizontal scrolling demos. Keep in mind <a class="internal" href="throttle">throttle mode</a> off works a bit differently in the <code>sync</code> mode (see there). The adaptive sync can help there, but it's not supported on all hardware (when adaptive sync is not supported it falls back to normal sync).</p>
 
   <div class="subsectiontitle">
     usage:
