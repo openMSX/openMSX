@@ -30,6 +30,7 @@
 #include "MSXException.hh"
 #include "MemBuffer.hh"
 #include "cstdiop.hh"
+#include "one_of.hh"
 
 #include <cstring>
 #include <cstdlib>
@@ -217,10 +218,10 @@ int w32_midiOutMsg(unsigned size, const uint8_t* data, unsigned idx)
 	if (size <= 0)
 		return 0;
 	HMIDIOUT hMidiOut = reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle);
-	if (data[0] == 0xF0 || data[0] == 0xF7)	// SysEx
-	{
-		if (size > OPENMSX_W32_MIDI_SYSMES_MAXLEN)
+	if (data[0] == one_of(0xF0, 0xF7)) { // SysEx
+		if (size > OPENMSX_W32_MIDI_SYSMES_MAXLEN) {
 			return -1;
+		}
 		auto& buf = buf_out[idx];
 		// Note: We have to be careful with the const_cast here.
 		// Even though Windows doesn't write to the buffer, it fails if you don't have
@@ -228,9 +229,7 @@ int w32_midiOutMsg(unsigned size, const uint8_t* data, unsigned idx)
 		buf.header.lpData = const_cast<LPSTR>(reinterpret_cast<LPCSTR>(data));
 		buf.header.dwBufferLength = size;
 		w32_midiOutFlushExclusiveMsg(idx);
-	}
-	else
-	{
+	} else {
 		DWORD midiMsg = 0x000000;
 		for (unsigned i = 0; i < size && i < 4; i++)
 			midiMsg |= data[i] << (8 * i);

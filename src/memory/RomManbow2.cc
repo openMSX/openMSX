@@ -2,6 +2,7 @@
 #include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <cassert>
 #include <memory>
@@ -12,7 +13,7 @@ namespace openmsx {
 static std::vector<AmdFlash::SectorInfo> getSectorInfo(RomType type)
 {
 	std::vector<AmdFlash::SectorInfo> sectorInfo(512 / 64, {0x10000, true}); // none writable
-	assert((type == ROM_MANBOW2) || (type == ROM_MEGAFLASHROMSCC) || (type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT));
+	assert(type == one_of(ROM_MANBOW2, ROM_MEGAFLASHROMSCC, ROM_MANBOW2_2, ROM_HAMARAJANIGHT));
 	switch (type) {
 	case ROM_MANBOW2:
 	case ROM_MANBOW2_2: // only the last 64kb is writeable
@@ -33,7 +34,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, Rom&& rom_,
                        RomType type)
 	: MSXRom(config, std::move(rom_))
 	, scc(getName() + " SCC", config, getCurrentTime())
-	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT))
+	, psg((type == one_of(ROM_MANBOW2_2, ROM_HAMARAJANIGHT))
 		? std::make_unique<AY8910>(
 			getName() + " PSG", DummyAY8910Periphery::instance(),
 			config, getCurrentTime())

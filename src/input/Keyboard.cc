@@ -19,6 +19,7 @@
 #include "serialize_stl.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "stl.hh"
 #include "view.hh"
@@ -255,9 +256,7 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
 void Keyboard::signalMSXEvent(const shared_ptr<const Event>& event,
                               EmuTime::param time)
 {
-	EventType type = event->getType();
-	if ((type == OPENMSX_KEY_DOWN_EVENT) ||
-	    (type == OPENMSX_KEY_UP_EVENT)) {
+	if (event->getType() == one_of(OPENMSX_KEY_DOWN_EVENT, OPENMSX_KEY_UP_EVENT)) {
 		// Ignore possible console on/off events:
 		// we do not rescan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
@@ -523,13 +522,10 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		int(keyCode) & int(Keys::K_MASK));
 	unsigned unicode;
 
-	bool isOnKeypad = (
+	bool isOnKeypad =
 		(key >= Keys::K_KP0 && key <= Keys::K_KP9) ||
-		(key == Keys::K_KP_PERIOD) ||
-		(key == Keys::K_KP_DIVIDE) ||
-		(key == Keys::K_KP_MULTIPLY) ||
-		(key == Keys::K_KP_MINUS) ||
-		(key == Keys::K_KP_PLUS));
+		(key == one_of(Keys::K_KP_PERIOD, Keys::K_KP_DIVIDE, Keys::K_KP_MULTIPLY,
+		               Keys::K_KP_MINUS,  Keys::K_KP_PLUS));
 
 	if (isOnKeypad && !hasKeypad &&
 	    !keyboardSettings.getAlwaysEnableKeypad()) {

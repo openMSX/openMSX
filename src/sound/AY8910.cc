@@ -18,6 +18,7 @@
 #include "serialize.hh"
 #include "cstd.hh"
 #include "likely.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "random.hh"
 #include <cassert>
@@ -966,8 +967,7 @@ float AY8910::getAmplificationFactorImpl() const
 
 void AY8910::update(const Setting& setting)
 {
-	if ((&setting == &vibratoPercent) ||
-	    (&setting == &detunePercent)) {
+	if (&setting == one_of(&vibratoPercent, &detunePercent)) {
 		doDetune = (vibratoPercent.getDouble() != 0) ||
 			   (detunePercent .getDouble() != 0);
 		if (doDetune && !detuneInitialized) {

@@ -19,6 +19,7 @@
 #include "Reactor.hh"
 #include "RomInfo.hh"
 #include "hash_map.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "stl.hh"
@@ -283,7 +284,7 @@ void CommandLineParser::parse(int argc, char** argv)
 
 bool CommandLineParser::isHiddenStartup() const
 {
-	return (parseStatus == CONTROL) || (parseStatus == TEST);
+	return parseStatus == one_of(CONTROL, TEST);
 }
 
 CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const

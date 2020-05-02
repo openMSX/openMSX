@@ -47,6 +47,7 @@
 #include "StringOp.hh"
 #include "statp.hh"
 #include "unistdp.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "strCat.hh"
 #include "build-info.hh"
@@ -500,8 +501,7 @@ bool isAbsolutePath(string_view path)
 {
 	if (isUNCPath(path)) return true;
 #ifdef _WIN32
-	if ((path.size() >= 3) && (((path[1] == ':') &&
-	    ((path[2] == '/') || (path[2] == '\\'))))) {
+	if ((path.size() >= 3) && (path[1] == ':') && (path[2] == one_of('/', '\\'))) {
 		char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
 			return true;

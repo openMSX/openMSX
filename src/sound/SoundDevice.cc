@@ -10,6 +10,7 @@
 #include "MSXException.hh"
 #include "likely.hh"
 #include "ranges.hh"
+#include "one_of.hh"
 #include "vla.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -66,7 +67,7 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, std::string_view name_, std::string_v
 	, balanceCenter(true)
 {
 	assert(numChannels <= MAX_CHANNELS);
-	assert(stereo == 1 || stereo == 2);
+	assert(stereo == one_of(1u, 2u));
 
 	setInputRate(inputRate);
 

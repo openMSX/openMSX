@@ -6,11 +6,16 @@
 template<typename... Ts>
 class one_of {
 public:
-	one_of(Ts... ts) : tup(ts...) {}
+	constexpr one_of(Ts... ts) : tup(ts...) {}
 
 	template<typename T>
-	friend bool operator==(const T& t, const one_of& o) {
+	friend constexpr bool operator==(const T& t, const one_of& o) {
 		return std::apply([&](const Ts& ... ts) { return (... || (t == ts)); }, o.tup);
+	}
+
+	template<typename T>
+	friend constexpr bool operator!=(const T& t, const one_of& o) {
+		return !(t == o);
 	}
 
 private:

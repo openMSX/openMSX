@@ -19,6 +19,7 @@
 #include "Reactor.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
@@ -1017,7 +1018,7 @@ void ReverseManager::ReverseCmd::tabCompletion(vector<string>& tokens) const
 		};
 		completeString(tokens, subCommands);
 	} else if ((tokens.size() == 3) || (tokens[1] == "loadreplay")) {
-		if (tokens[1] == "loadreplay" || tokens[1] == "savereplay") {
+		if (tokens[1] == one_of("loadreplay", "savereplay")) {
 			std::vector<const char*> cmds;
 			if (tokens[1] == "loadreplay") {
 				cmds = { "-goto", "-viewonly" };

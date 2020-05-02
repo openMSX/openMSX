@@ -1,6 +1,7 @@
 #include "I8254.hh"
 #include "EmuTime.hh"
 #include "ClockPin.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <cassert>
@@ -299,11 +300,10 @@ void Counter::writeLoad(word value, EmuTime::param time)
 {
 	counterLoad = value;
 	byte mode = control & CNTR_MODE;
-	if ((mode==CNTR_M0) || (mode==CNTR_M4)) {
+	if (mode == one_of(CNTR_M0, CNTR_M4)) {
 		counter = counterLoad;
 	}
-	if (!active && ((mode == CNTR_M2) || (mode == CNTR_M2_) ||
-	                 (mode == CNTR_M3) || (mode == CNTR_M3_))) {
+	if (!active && (mode == one_of(CNTR_M2, CNTR_M2_, CNTR_M3, CNTR_M3_))) {
 		if (clock.isPeriodic()) {
 			counter = counterLoad;
 			EmuDuration::param high = clock.getTotalDuration();

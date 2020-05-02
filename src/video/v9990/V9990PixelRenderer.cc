@@ -15,7 +15,9 @@
 #include "Reactor.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
+#include "one_of.hh"
 #include "unreachable.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -317,13 +319,10 @@ void V9990PixelRenderer::updateScrollBYLow(EmuTime::param time)
 
 void V9990PixelRenderer::update(const Setting& setting)
 {
-	if (&setting == &renderSettings.getMinFrameSkipSetting() ||
-	    &setting == &renderSettings.getMaxFrameSkipSetting()) {
-		// Force drawing of frame
-		frameSkipCounter = 999;
-	} else {
-		UNREACHABLE;
-	}
+	assert(&setting == one_of(&renderSettings.getMinFrameSkipSetting(),
+	                          &renderSettings.getMaxFrameSkipSetting()));
+	// Force drawing of frame
+	frameSkipCounter = 999;
 }
 
 } // namespace openmsx

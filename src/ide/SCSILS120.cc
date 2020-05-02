@@ -32,6 +32,7 @@
 #include "CommandException.hh"
 #include "FileContext.hh"
 #include "endian.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <cstring>
@@ -769,8 +770,7 @@ void LSXCommand::execute(span<const TclObject> tokens, TclObject& result,
 		result.addListElement(ls.name + ':',
 		                      file.is_open() ? file.getURL() : string{});
 		if (!file.is_open()) result.addListElement("empty");
-	} else if ((tokens.size() == 2) &&
-	           ((tokens[1] == "eject") || (tokens[1] == "-eject"))) {
+	} else if ((tokens.size() == 2) && (tokens[1] == one_of("eject", "-eject"))) {
 		ls.eject();
 		// TODO check for locked tray
 		if (tokens[1] == "-eject") {

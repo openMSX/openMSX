@@ -5,6 +5,7 @@
 #include "PlugException.hh"
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <cstring>
 #include <cerrno>
@@ -149,8 +150,7 @@ void MidiInWindows::run()
 	bool fexit = devIdx == unsigned(-1);
 	while (!fexit) {
 		MSG msg;
-		int gmer = GetMessage(&msg, nullptr, 0, 0);
-		if (gmer == 0 || gmer == -1) {
+		if (GetMessage(&msg, nullptr, 0, 0) == one_of(0, -1)) {
 			break;
 		}
 		switch (msg.message) {

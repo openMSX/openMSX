@@ -5,6 +5,7 @@
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
@@ -162,9 +163,7 @@ void Mixer::update(const Setting& setting)
 		} else {
 			unmute();
 		}
-	} else if ((&setting == &samplesSetting) ||
-	           (&setting == &soundDriverSetting) ||
-	           (&setting == &frequencySetting)) {
+	} else if (&setting == one_of(&samplesSetting, &soundDriverSetting, &frequencySetting)) {
 		reloadDriver();
 	} else {
 		UNREACHABLE;

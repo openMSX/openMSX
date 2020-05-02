@@ -1,8 +1,9 @@
 #include "WavWriter.hh"
 #include "MSXException.hh"
 #include "Math.hh"
-#include "vla.hh"
 #include "endian.hh"
+#include "one_of.hh"
+#include "vla.hh"
 #include <cstring>
 #include <vector>
 
@@ -108,7 +109,7 @@ static int16_t float2int16(float f)
 void Wav16Writer::write(const float* buffer, unsigned stereo, unsigned samples,
                         float ampLeft, float ampRight)
 {
-	assert(stereo == 1 || stereo == 2);
+	assert(stereo == one_of(1u, 2u));
 	std::vector<Endian::L16> buf(samples * stereo);
 	if (stereo == 1) {
 		assert(ampLeft == ampRight);

@@ -8,6 +8,7 @@
 #include "Math.hh"
 #include "cstd.hh"
 #include "inline.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -964,7 +965,7 @@ void Slot::calc_envelope_outline(unsigned& out)
 template <bool HAS_AM, bool FIXED_ENV>
 ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 {
-	assert(!FIXED_ENV || (state == SUSHOLD) || (state == FINISH));
+	assert(!FIXED_ENV || (state == one_of(SUSHOLD, FINISH)));
 
 	if (FIXED_ENV) {
 		unsigned out = fixed_env;
@@ -993,7 +994,7 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 }
 template <bool HAS_AM> unsigned Slot::calc_fixed_env() const
 {
-	assert((state == SUSHOLD) || (state == FINISH));
+	assert(state == one_of(SUSHOLD, FINISH));
 	assert(eg_dphase == EnvPhaseIndex(0));
 	unsigned out = eg_phase.toInt(); // in range [0, 128)
 	out = EG2DB(out + tll); // [0, 480)
@@ -1164,10 +1165,8 @@ void YM2413::generateChannels(float* bufs[9 + 5], unsigned num)
 			// Below we choose between 128 specialized versions of
 			// calcChannel(). This allows to move a lot of
 			// conditional code out of the inner-loop.
-			bool carFixedEnv = (ch.car.state == SUSHOLD) ||
-			                   (ch.car.state == FINISH);
-			bool modFixedEnv = (ch.mod.state == SUSHOLD) ||
-			                   (ch.mod.state == FINISH);
+			bool carFixedEnv = ch.car.state == one_of(SUSHOLD, FINISH);
+			bool modFixedEnv = ch.mod.state == one_of(SUSHOLD, FINISH);
 			if (ch.car.state == SETTLE) {
 				modFixedEnv = false;
 			}

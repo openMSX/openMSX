@@ -35,6 +35,7 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "likely.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "serialize.hh"
@@ -1048,7 +1049,7 @@ void YMF278::Slot::serialize(Archive& ar, unsigned version)
 	ar.serialize("state", state);
 	if (ar.versionBelow(version, 4)) {
 		assert(ar.isLoader());
-		if ((state == EG_REV) || (state == EG_DMP)) {
+		if (state == one_of(EG_REV, EG_DMP)) {
 			state = EG_REL;
 		}
 	}

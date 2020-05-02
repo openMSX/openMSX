@@ -12,6 +12,7 @@
 #include "CliComm.hh"
 #include "Reactor.hh"
 #include "Timer.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "sha1.hh"
 #include <fstream>
@@ -197,7 +198,7 @@ void FilePool::readSha1sums()
 		}
 
 		data = std::find_if(it + 1, data_end, [](char c) {
-			return !(c == '\n' || c == '\r');
+			return c != one_of('\n', '\r');
 		});
 	}
 

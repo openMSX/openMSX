@@ -10,6 +10,7 @@
 #include "FileOperations.hh"
 #include "Version.hh"
 #include "Date.hh"
+#include "one_of.hh"
 #include "stl.hh"
 #include "build-info.hh"
 #include "cstdiop.hh" // for dup()
@@ -151,7 +152,7 @@ void InputArchiveBase<Derived>::serialize_blob(
 		    (dstLen != len)) {
 			throw MSXException("Error while decompressing blob.");
 		}
-	} else if ((encoding == "hex") || (encoding == "base64")) {
+	} else if (encoding == one_of("hex", "base64")) {
 		bool ok = (encoding == "hex")
 		        ? HexDump::decode_inplace(tmp, static_cast<uint8_t*>(data), len)
 		        : Base64 ::decode_inplace(tmp, static_cast<uint8_t*>(data), len);
@@ -404,9 +405,9 @@ void XmlInputArchive::loadChar(char& c)
 void XmlInputArchive::load(bool& b)
 {
 	string_view s = loadStr();
-	if ((s == "true") || (s == "1")) {
+	if (s == one_of("true", "1")) {
 		b = true;
-	} else if ((s == "false") || (s == "0")) {
+	} else if (s == one_of("false", "0")) {
 		b = false;
 	} else {
 		throw XMLException("Bad value found for boolean: ", s);

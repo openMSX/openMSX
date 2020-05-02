@@ -2,6 +2,7 @@
 #define DISPLAYMODE_HH
 
 #include "openmsx.hh"
+#include "one_of.hh"
 
 namespace openmsx {
 
@@ -127,10 +128,7 @@ public:
 	  * @return True iff the current mode is a text mode.
 	  */
 	constexpr bool isTextMode() const {
-		byte base = getBase();
-		return (base == TEXT1) ||
-		       (base == TEXT2) ||
-		       (base == TEXT1Q);
+		return getBase() == one_of(TEXT1, TEXT2, TEXT1Q);
 	}
 
 	/** Is the current mode a bitmap mode?
@@ -190,7 +188,7 @@ public:
 	constexpr unsigned getLineWidth() const {
 		// Note: Testing "mode" instead of "base mode" ensures that YJK
 		//       modes are treated as 256 pixels wide.
-		return mode == TEXT2 || mode == GRAPHIC5 || mode == GRAPHIC6
+		return mode == one_of(TEXT2, GRAPHIC5, GRAPHIC6)
 			? 512
 			: 256;
 	}

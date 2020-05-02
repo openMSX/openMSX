@@ -2,6 +2,7 @@
 #include "IDEDevice.hh"
 #include "IDEDeviceFactory.hh"
 #include "MSXCPU.hh"
+#include "one_of.hh"
 
 namespace openmsx {
 
@@ -637,7 +638,7 @@ void Carnivore2::writeFmPacSlot(word address, byte value, EmuTime::param time)
 		fmPac5ffe = value;
 	} else if (address == 0x5fff) {
 		fmPac5fff = value;
-	} else if ((address == 0x7ff4) || (address == 0x7ff5)) {
+	} else if (address == one_of(0x7ff4, 0x7ff5)) {
 		ym2413.writePort(address & 1, value, time);
 	} else if (address == 0x7ff6) {
 		fmPacEnable = value & 0x11;

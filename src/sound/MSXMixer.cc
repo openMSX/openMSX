@@ -15,6 +15,7 @@
 #include "CliComm.hh"
 #include "stl.hh"
 #include "aligned.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
@@ -618,8 +619,8 @@ void MSXMixer::update(const Setting& setting)
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
 		auto it = find_if_unguarded(infos,
 			[&](const SoundDeviceInfo& i) {
-				return (i.volumeSetting .get() == &setting) ||
-				       (i.balanceSetting.get() == &setting); });
+				return &setting == one_of(i.volumeSetting .get(),
+				                          i.balanceSetting.get()); });
 		updateVolumeParams(*it);
 	} else if (dynamic_cast<const StringSetting*>(&setting)) {
 		changeRecordSetting(setting);

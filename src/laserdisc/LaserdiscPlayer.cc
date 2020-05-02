@@ -18,6 +18,7 @@
 #include "RendererFactory.hh"
 #include "Math.hh"
 #include "likely.hh"
+#include "one_of.hh"
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
@@ -248,7 +249,7 @@ void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
 	// The END command for seeking/waiting acknowledges repeats,
 	// Esh's Aurunmilla needs play as well.
 	if (protocol != remoteProtocol || code != remoteCode ||
-	    (protocol == IR_NEC && (code == 0x42 || code == 0x17))) {
+	    (protocol == IR_NEC && (code == one_of(0x42u, 0x17u)))) {
 		remoteProtocol = protocol;
 		remoteCode = code;
 		remoteVblanksBack = 0;
@@ -324,7 +325,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 	// 0x49, 0x4a, 0x4b (ack sent)
 	// if 0x49 is a repeat then no ACK is sent
 	// if 0x49 is followed by 0x4a then ACK is sent
-	if (code == 0x49 || code == 0x4a || code == 0x4b) {
+	if (code == one_of(0x49u, 0x4au, 0x4bu)) {
 		updateStream(time);
 
 		switch (code) {
@@ -618,7 +619,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	}
 
 	// freeze if stop frame
-	if ((playerState == PLAYER_PLAYING || playerState == PLAYER_MULTISPEED)
+	if ((playerState == one_of(PLAYER_PLAYING, PLAYER_MULTISPEED))
 	     && video->stopFrame(currentFrame)) {
 		// stop frame reached
 		playingFromSample = getCurrentSample(time);

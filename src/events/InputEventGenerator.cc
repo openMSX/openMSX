@@ -235,7 +235,7 @@ void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
 	} else if (keyCode == Keys::K_DOWN) {
 		osdControlChangeButton(up, 1 << OsdControlEvent::DOWN_BUTTON,
 		                       origEvent);
-	} else if (keyCode == Keys::K_SPACE || keyCode == Keys::K_RETURN) {
+	} else if (keyCode == one_of(Keys::K_SPACE, Keys::K_RETURN)) {
 		osdControlChangeButton(up, 1 << OsdControlEvent::A_BUTTON,
 		                       origEvent);
 	} else if (keyCode == Keys::K_ESCAPE) {

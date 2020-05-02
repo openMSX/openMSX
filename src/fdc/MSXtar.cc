@@ -14,6 +14,7 @@
 #include "StringOp.hh"
 #include "strCat.hh"
 #include "File.hh"
+#include "one_of.hh"
 #include "stl.hh"
 #include <cstring>
 #include <cassert>
@@ -274,8 +275,7 @@ unsigned MSXtar::findUsableIndexInSector(unsigned sector)
 
 	// find a not used (0x00) or delete entry (0xE5)
 	for (unsigned i = 0; i < 16; ++i) {
-		byte tmp = buf.dirEntry[i].filename[0];
-		if ((tmp == 0x00) || (tmp == 0xE5)) {
+		if (buf.dirEntry[i].filename[0] == one_of(0x00, char(0xE5))) {
 			return i;
 		}
 	}
@@ -323,7 +323,7 @@ MSXtar::DirEntry MSXtar::addEntryToDir(unsigned sector)
 static char toMSXChr(char a)
 {
 	a = toupper(a);
-	if (a == ' ' || a == '.') {
+	if (a == one_of(' ', '.')) {
 		a = '_';
 	}
 	return a;
@@ -337,7 +337,7 @@ static string makeSimpleMSXFileName(string_view fullFilename)
 
 	// handle speciale case '.' and '..' first
 	string result(8 + 3, ' ');
-	if ((fullFile == ".") || (fullFile == "..")) {
+	if (fullFile == one_of(".", "..")) {
 		memcpy(result.data(), fullFile.data(), fullFile.size());
 		return result;
 	}
@@ -483,7 +483,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	while (remaining) {
 		// allocate new cluster if needed
 		try {
-			if ((curCl == 0) || (curCl == EOF_FAT)) {
+			if (curCl == one_of(0u, EOF_FAT)) {
 				unsigned newCl = findFirstFreeCluster();
 				if (prevCl == 0) {
 					msxDirEntry.startCluster = newCl;
@@ -692,8 +692,7 @@ string MSXtar::dir()
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
 		for (auto& dirEntry : buf.dirEntry) {
-			if ((dirEntry.filename[0] == char(0xe5)) ||
-			    (dirEntry.filename[0] == char(0x00)) ||
+			if ((dirEntry.filename[0] == one_of(char(0xe5), char(0x00))) ||
 			    (dirEntry.attrib == T_MSX_LFN)) continue;
 
 			// filename first (in condensed form for human readablitly)
@@ -821,10 +820,9 @@ void MSXtar::recurseDirExtract(string_view dirName, unsigned sector)
 		SectorBuffer buf;
 		readLogicalSector(sector, buf);
 		for (auto& dirEntry : buf.dirEntry) {
-			if ((dirEntry.filename[0] == char(0xe5)) ||
-			    (dirEntry.filename[0] == char(0x00)) ||
-			    (dirEntry.filename[0] == '.')) continue;
-
+			if (dirEntry.filename[0] == one_of(char(0xe5), char(0x00), '.')) {
+				continue;
+			}
 			string filename = condensName(dirEntry);
 			string fullName = filename;
 			if (!dirName.empty()) {

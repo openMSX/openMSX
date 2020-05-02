@@ -6,6 +6,7 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include <memory>
 #include <utility>
@@ -260,8 +261,7 @@ void OSDGUI::OSDCommand::tabCompletion(vector<string>& tokens) const
 			if (tokens[1] == "create") {
 				auto widget = create(tokens[2], TclObject());
 				properties = widget->getProperties();
-			} else if ((tokens[1] == "configure") ||
-			           (tokens[1] == "info")) {
+			} else if (tokens[1] == one_of("configure", "info")) {
 				const auto& widget = getWidget(tokens[2]);
 				properties = widget.getProperties();
 			}

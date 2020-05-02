@@ -3,6 +3,7 @@
 #include "File.hh"
 #include "build-info.hh"
 #include "Version.hh"
+#include "one_of.hh"
 #include "vla.hh"
 #include "cstdiop.hh"
 #include <cassert>
@@ -197,7 +198,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 				height, ", max ", MAX_SIZE);
 		}
 		int bpp = png_get_channels(png.ptr, png.info) * 8;
-		assert(bpp == 24 || bpp == 32);
+		assert(bpp == one_of(24, 32));
 		Uint32 redMask, grnMask, bluMask, alpMask;
 		if (OPENMSX_BIGENDIAN) {
 			if (bpp == 32) {

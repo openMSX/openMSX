@@ -7,6 +7,7 @@
 #include "MSXException.hh"
 #include "CliComm.hh"
 #include "unreachable.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "StringOp.hh"
 #include "xrange.hh"
@@ -320,7 +321,7 @@ void CartridgeSlotManager::CartCmd::execute(
 			TclObject options = makeTclList("empty");
 			result.addListElement(options);
 		}
-	} else if ((tokens[1] == "eject") || (tokens[1] == "-eject")) {
+	} else if (tokens[1] == one_of("eject", "-eject")) {
 		// remove cartridge (or extension)
 		if (tokens[1] == "-eject") {
 			result =

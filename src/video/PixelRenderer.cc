@@ -20,6 +20,7 @@ TODO:
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "Timer.hh"
+#include "one_of.hh"
 #include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
@@ -319,7 +320,7 @@ void PixelRenderer::updatePalette(
 		DisplayMode mode = vdp.getDisplayMode();
 		if (mode.getBase() == DisplayMode::GRAPHIC5) {
 			int bgColor = vdp.getBackgroundColor();
-			if (index == (bgColor & 3) || (index == (bgColor >> 2))) {
+			if (index == one_of(bgColor & 3, bgColor >> 2)) {
 				sync(time);
 			}
 		} else if (mode.getByte() != DisplayMode::GRAPHIC7) {
@@ -606,13 +607,10 @@ void PixelRenderer::renderUntil(EmuTime::param time)
 
 void PixelRenderer::update(const Setting& setting)
 {
-	if (&setting == &renderSettings.getMinFrameSkipSetting() ||
-	    &setting == &renderSettings.getMaxFrameSkipSetting()) {
-		// Force drawing of frame.
-		frameSkipCounter = 999;
-	} else {
-		UNREACHABLE;
-	}
+	assert(&setting == one_of(&renderSettings.getMinFrameSkipSetting(),
+	                          &renderSettings.getMaxFrameSkipSetting()));
+	// Force drawing of frame.
+	frameSkipCounter = 999;
 }
 
 } // namespace openmsx

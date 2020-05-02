@@ -4,6 +4,7 @@
 #include "likely.hh"
 #include "CliComm.hh"
 #include "MemoryOps.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "stringsp.hh" // for strncasecmp
@@ -926,7 +927,7 @@ size_t OggReader::findOffset(size_t frame, size_t sample)
 
 	state = PLAYING;
 
-	if ((keyFrame == size_t(-1)) || (frame == keyFrame)) {
+	if (keyFrame == one_of(size_t(-1), frame)) {
 		return offset;
 	}
 

@@ -3,6 +3,7 @@
 
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
+#include "one_of.hh"
 #include <string>
 #include <type_traits>
 #include <cassert>
@@ -660,7 +661,7 @@ template<typename TC> struct CollectionLoader
 	template<typename Archive, typename TUPLE>
 	void operator()(Archive& ar, TC& tc, TUPLE args, int id = 0)
 	{
-		assert((id == 0) || (id == -1));
+		assert(id == one_of(0, -1));
 		using sac = serialize_as_collection<TC>;
 		static_assert(sac::value, "must be serialized as a collection");
 		int n = sac::size;

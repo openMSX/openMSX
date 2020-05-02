@@ -9,6 +9,7 @@
 #include "Clock.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -691,7 +692,7 @@ void TC8566AF::doSeek(EmuTime::param time)
 
 void TC8566AF::executeUntil(EmuTime::param time)
 {
-	if ((command == CMD_SEEK) || (command == CMD_RECALIBRATE)) {
+	if (command == one_of(CMD_SEEK, CMD_RECALIBRATE)) {
 		doSeek(time);
 	}
 }

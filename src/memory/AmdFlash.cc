@@ -8,6 +8,7 @@
 #include "HardwareConfig.hh"
 #include "MSXException.hh"
 #include "Math.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "view.hh"
@@ -246,7 +247,7 @@ byte AmdFlash::peek(unsigned address) const
 
 bool AmdFlash::isSectorWritable(unsigned sector) const
 {
-	return vppWpPinLow && (sector == 0 || sector == 1) ? false : (writeAddress[sector] != -1) ;
+	return vppWpPinLow && (sector == one_of(0u, 1u)) ? false : (writeAddress[sector] != -1) ;
 }
 
 byte AmdFlash::read(unsigned address)

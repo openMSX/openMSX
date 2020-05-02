@@ -8,6 +8,7 @@
 #include "MemoryOps.hh"
 #include "build-info.hh"
 #include "components.hh"
+#include "one_of.hh"
 #include <algorithm>
 #include <cstdint>
 #include <memory>
@@ -374,10 +375,10 @@ bool V9990SDLRasterizer<Pixel>::isRecording() const
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::update(const Setting& setting)
 {
-	if ((&setting == &renderSettings.getGammaSetting()) ||
-	    (&setting == &renderSettings.getBrightnessSetting()) ||
-	    (&setting == &renderSettings.getContrastSetting()) ||
-	    (&setting == &renderSettings.getColorMatrixSetting())) {
+	if (&setting == one_of(&renderSettings.getGammaSetting(),
+	                       &renderSettings.getBrightnessSetting(),
+	                       &renderSettings.getContrastSetting(),
+	                       &renderSettings.getColorMatrixSetting())) {
 		preCalcPalettes();
 	}
 }

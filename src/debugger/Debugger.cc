@@ -11,6 +11,7 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "MemBuffer.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "StringOp.hh"
@@ -152,7 +153,7 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
                                  bool once, unsigned newId /*= -1*/)
 {
 	shared_ptr<WatchPoint> wp;
-	if ((type == WatchPoint::READ_IO) || (type == WatchPoint::WRITE_IO)) {
+	if (type == one_of(WatchPoint::READ_IO, WatchPoint::WRITE_IO)) {
 		wp = make_shared<WatchIO>(
 			motherBoard, type, beginAddr, endAddr,
 			command, condition, once, newId);
@@ -217,8 +218,7 @@ bool Debugger::Cmd::needRecord(span<const TclObject> tokens) const
 	// example would allow to set a callback that can execute arbitrary Tcl
 	// code. See comments in RecordedCommand for more details.
 	if (tokens.size() < 2) return false;
-	string_view subCmd = tokens[1].getString();
-	return (subCmd == "write") || (subCmd == "write_block");
+	return tokens[1].getString() == one_of("write", "write_block");
 }
 
 void Debugger::Cmd::execute(
@@ -1011,8 +1011,7 @@ void Debugger::Cmd::tabCompletion(vector<string>& tokens) const
 		break;
 	case 4:
 		if ((tokens[1] == "probe") &&
-		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
-		     (tokens[2] == "set_bp"))) {
+		    (tokens[2] == one_of("desc", "read", "set_bp"))) {
 			auto probeNames = to_vector(view::transform(
 				debugger().probes,
 				[](auto* p) { return p->getName(); }));

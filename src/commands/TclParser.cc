@@ -1,5 +1,6 @@
 #include "TclParser.hh"
 #include "ScopedAssign.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "strCat.hh"
 #include "StringOp.hh"
@@ -216,9 +217,7 @@ TclParser::ParseType TclParser::guessSubType(Tcl_Token* tokens, int i)
 	// heuristic: if previous token is 'if' then assume this is an expression
 	if ((i >= 1) && (tokens[i - 1].type == TCL_TOKEN_TEXT)) {
 		std::string_view prevText(tokens[i - 1].start, tokens[i - 1].size);
-		if ((prevText == "if") ||
-		    (prevText == "elseif") ||
-		    (prevText == "expr")) {
+		if (prevText == one_of("if", "elseif", "expr")) {
 			return EXPRESSION;
 		}
 	}

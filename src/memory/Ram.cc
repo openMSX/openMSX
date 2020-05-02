@@ -5,6 +5,7 @@
 #include "Base64.hh"
 #include "HexDump.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <zlib.h>
 #include <algorithm>
@@ -63,7 +64,7 @@ void Ram::clear(byte c)
 				throw MSXException("Error while decompressing initialContent.");
 			}
 			done = dstLen;
-		} else if ((encoding == "hex") || (encoding == "base64")) {
+		} else if (encoding == one_of("hex", "base64")) {
 			auto [buf, bufSize] = (encoding == "hex")
 			       ? HexDump::decode(init->getData())
 			       : Base64 ::decode(init->getData());

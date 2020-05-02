@@ -10,6 +10,7 @@
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
+#include "one_of.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -162,8 +163,7 @@ void OSDConsoleRenderer::update(const Setting& setting)
 {
 	if (&setting == &consoleSetting) {
 		setActive(consoleSetting.getBoolean());
-	} else if ((&setting == &fontSetting) ||
-	           (&setting == &fontSizeSetting)) {
+	} else if (&setting == one_of(&fontSetting, &fontSizeSetting)) {
 		loadFont(fontSetting.getString());
 	} else {
 		UNREACHABLE;

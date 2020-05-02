@@ -7,6 +7,7 @@
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
+#include "one_of.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -67,11 +68,9 @@ void VisibleSurface::executeRT()
 
 int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event)
 {
-	EventType type = event->getType();
-	assert((type == OPENMSX_MOUSE_MOTION_EVENT) ||
-	       (type == OPENMSX_MOUSE_BUTTON_UP_EVENT) ||
-	       (type == OPENMSX_MOUSE_BUTTON_DOWN_EVENT));
-	(void)type;
+	assert(event->getType() == one_of(OPENMSX_MOUSE_MOTION_EVENT,
+	                                  OPENMSX_MOUSE_BUTTON_UP_EVENT,
+	                                  OPENMSX_MOUSE_BUTTON_DOWN_EVENT));
 	updateCursor();
 	return 0;
 }

@@ -6,6 +6,7 @@
 #include "Clock.hh"
 #include "likely.hh"
 #include "inline.hh"
+#include "one_of.hh"
 
 namespace openmsx {
 
@@ -46,7 +47,7 @@ protected:
 			for (int prim = 0; prim < 4; ++prim) {
 				for (int sec = 0; sec < 4; ++sec) {
 					unsigned val;
-					if ((prim == 1) || (prim == 2)) {
+					if (prim == one_of(1, 2)) {
 						// external slot
 						val = 2;
 					} else if ((prim == 3) && (sec == 0)) {

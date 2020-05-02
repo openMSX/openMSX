@@ -3,6 +3,7 @@
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include "TclObject.hh"
+#include "one_of.hh"
 #include <stdexcept>
 #include <SDL.h>
 
@@ -71,7 +72,7 @@ static EventPtr parseMouseEvent(const TclObject& str, Interpreter& interp)
 					OPENMSX_MOUSE_MOTION_GROUP_EVENT,
 					std::vector<EventType>{OPENMSX_MOUSE_MOTION_EVENT},
 					makeTclList("mouse", comp1));
-			} else if ((len == 4) || (len == 6)) {
+			} else if (len == one_of(4u, 6u)) {
 				int absX = 0, absY = 0;
 				if (len == 6) {
 					absX = str.getListIndex(interp, 4).getInt(interp);

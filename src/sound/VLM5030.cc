@@ -80,9 +80,10 @@ chirp 12-..: vokume   0   : silent
 #include "FileOperations.hh"
 #include "Math.hh"
 #include "cstd.hh"
-#include "serialize.hh"
+#include "one_of.hh"
 #include "random.hh"
 #include "ranges.hh"
+#include "serialize.hh"
 #include <cmath>
 #include <cstring>
 
@@ -244,7 +245,7 @@ void VLM5030::generateChannels(float** bufs, unsigned num)
 	int buf_count = 0;
 
 	// running
-	if (phase == PH_RUN || phase == PH_STOP) {
+	if (phase == one_of(PH_RUN, PH_STOP)) {
 		// playing speech
 		while (num > 0) {
 			int current_val;

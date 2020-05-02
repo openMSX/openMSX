@@ -13,6 +13,7 @@
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
 #include "PreCacheFile.hh"
+#include "one_of.hh"
 #include <cstring> // for strchr, strerror
 #include <cerrno>
 #include <cassert>
@@ -40,7 +41,7 @@ LocalFile::LocalFile(std::string_view filename_, File::OpenMode mode)
 	}
 
 	const string name = FileOperations::getNativePath(filename);
-	if ((mode == File::SAVE_PERSISTENT) || (mode == File::TRUNCATE)) {
+	if (mode == one_of(File::SAVE_PERSISTENT, File::TRUNCATE)) {
 		// open file read/write truncated
 		file = FileOperations::openFile(name, "wb+");
 	} else if (mode == File::CREATE) {

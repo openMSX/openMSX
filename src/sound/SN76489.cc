@@ -2,6 +2,7 @@
 #include "DeviceConfig.hh"
 #include "Math.hh"
 #include "cstd.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -356,7 +357,7 @@ void SN76489::Debuggable::write(unsigned address, byte value, EmuTime::param tim
 
 	auto& sn76489 = OUTER(SN76489, debuggable);
 	word data;
-	if (reg == 0 || reg == 2 || reg == 4) {
+	if (reg == one_of(0, 2, 4)) {
 		data = sn76489.peekRegister(reg, time);
 		if (hi) {
 			data = ((value & 0x3F) << 4) | (data & 0x0F);

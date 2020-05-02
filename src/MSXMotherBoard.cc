@@ -41,6 +41,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "ScopedAssign.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "stl.hh"
 #include "unreachable.hh"
@@ -437,13 +438,13 @@ JoystickPortIf& MSXMotherBoard::getJoystickPort(unsigned port)
 				"should be one of '', 'A', 'B' or 'AB'.");
 		}
 		PluggingController& ctrl = getPluggingController();
-		if ((ports == "AB") || (ports == "A")) {
+		if (ports == one_of("AB", "A")) {
 			joystickPort[0] = make_unique<JoystickPort>(
 				ctrl, "joyporta", "MSX Joystick port A");
 		} else {
 			joystickPort[0] = make_unique<DummyJoystickPort>();
 		}
-		if ((ports == "AB") || (ports == "B")) {
+		if (ports == one_of("AB", "B")) {
 			joystickPort[1] = make_unique<JoystickPort>(
 				ctrl, "joyportb", "MSX Joystick port B");
 		} else {

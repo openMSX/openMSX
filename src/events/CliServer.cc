@@ -3,6 +3,7 @@
 #include "CliConnection.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "random.hh"
 #include "statp.hh"
 #include "StringOp.hh"
@@ -247,7 +248,7 @@ void CliServer::mainLoop()
 			break;
 		}
 		if (sd == OPENMSX_INVALID_SOCKET) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			if (errno == one_of(EAGAIN, EWOULDBLOCK)) {
 				continue;
 			} else {
 				break;

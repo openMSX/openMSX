@@ -4,6 +4,7 @@
 #include "File.hh"
 #include "FilePool.hh"
 #include "likely.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include <cassert>
 
@@ -27,8 +28,7 @@ constexpr unsigned FLAG_MFM_SECTOR = 0x8000;
 
 static bool isValidDmkHeader(const DmkHeader& header)
 {
-	if (!((header.writeProtected == 0x00) ||
-	      (header.writeProtected == 0xff))) {
+	if (header.writeProtected != one_of(0x00, 0xff)) {
 		return false;
 	}
 	unsigned trackLen = header.trackLen[0] + 256 * header.trackLen[1];

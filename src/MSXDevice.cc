@@ -9,6 +9,7 @@
 #include "TclObject.hh"
 #include "Math.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "serialize.hh"
 #include "stl.hh"
@@ -334,11 +335,11 @@ void MSXDevice::registerPorts()
 			throw MSXException("Invalid IO port specification");
 		}
 		for (unsigned port = base; port < base + num; ++port) {
-			if ((type == "I") || (type == "IO")) {
+			if (type == one_of("I", "IO")) {
 				getCPUInterface().register_IO_In(port, this);
 				inPorts.push_back(port);
 			}
-			if ((type == "O") || (type == "IO")) {
+			if (type == one_of("O", "IO")) {
 				getCPUInterface().register_IO_Out(port, this);
 				outPorts.push_back(port);
 			}

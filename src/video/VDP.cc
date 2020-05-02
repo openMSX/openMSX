@@ -33,6 +33,7 @@ TODO:
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
+#include "one_of.hh"
 #include "ranges.hh"
 #include "unreachable.hh"
 #include <cstring>
@@ -1386,8 +1387,7 @@ void VDP::updateDisplayMode(DisplayMode newMode, bool cmdBit, EmuTime::param tim
 
 void VDP::update(const Setting& setting)
 {
-	assert((&setting == &cmdTiming) ||
-	       (&setting == &tooFastAccess));
+	assert(&setting == one_of(&cmdTiming, &tooFastAccess));
 	(void)setting;
 	brokenCmdTiming    = cmdTiming    .getEnum();
 	allowTooFastAccess = tooFastAccess.getEnum();

@@ -3,6 +3,7 @@
 #include "SectorAccessibleDisk.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "one_of.hh"
 #include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
@@ -118,7 +119,7 @@ void NowindHost::write(byte data, unsigned time)
 	case STATE_IMAGE:
 		assert(recvCount < 40);
 		extraData[recvCount] = data;
-		if ((data == 0) || (data == ':') ||
+		if (data == one_of(0, ':') ||
 		    (++recvCount == 40)) {
 			char* eData = reinterpret_cast<char*>(extraData);
 			callImage(string(eData, recvCount));

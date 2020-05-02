@@ -27,6 +27,7 @@
 #include "CacheLine.hh"
 #include "SRAM.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -83,7 +84,7 @@ void RomHalnote::writeMem(word address, byte value, EmuTime::param /*time*/)
 			sram->write(address, value);
 		}
 	} else if (address < 0xC000) {
-		if ((address == 0x77FF) || (address == 0x7FFF)) {
+		if (address == one_of(0x77FF, 0x7FFF)) {
 			// sub-mapper bank switch region
 			int subBank = address < 0x7800 ? 0 : 1;
 			if (subBanks[subBank] != value) {
@@ -131,8 +132,8 @@ byte* RomHalnote::getWriteCacheLine(word address) const
 			return nullptr;
 		}
 	} else if (address < 0xC000) {
-		if (((address & CacheLine::HIGH) == (0x77FF & CacheLine::HIGH)) ||
-		    ((address & CacheLine::HIGH) == (0x7FFF & CacheLine::HIGH))) {
+		if ((address & CacheLine::HIGH) == one_of(0x77FF & CacheLine::HIGH,
+		                                          0x7FFF & CacheLine::HIGH)) {
 			// sub-mapper bank switch region
 			return nullptr;
 		} else if ((address & 0x1FFF & CacheLine::HIGH) ==

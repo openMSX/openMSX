@@ -11,6 +11,7 @@
 #include "Clock.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include <memory>
@@ -129,7 +130,7 @@ public:
 	/** Returns true iff in overscan mode
 	  */
 	inline bool isOverScan() const {
-		return (mode == B0) || (mode == B2) || (mode == B4);
+		return mode == one_of(B0, B2, B4);
 	}
 
 	/** Should this frame be superimposed?
