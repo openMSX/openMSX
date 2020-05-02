@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include "Rom.hh"
 #include "WD2793.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 
 // This is derived by disassembly of the Yamaha FD-03 diskrom
@@ -44,7 +45,7 @@ static const int INTR_REQUEST  = 0x80;
 YamahaFDC::YamahaFDC(const DeviceConfig& config)
 	: WD2793BasedFDC(config, "", true, DiskDrive::TrackMode::YAMAHA_FD_03)
 {
-	if ((rom->getSize() != 0x4000) && (rom->getSize() != 0x8000)) {
+	if (rom->getSize() != one_of(0x4000u, 0x8000u)) {
 		throw MSXException("YamahaFDC ROM size must be 16kB or 32kB.");
 	}
 	reset(getCurrentTime());

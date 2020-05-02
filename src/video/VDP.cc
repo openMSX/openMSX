@@ -188,8 +188,7 @@ VDP::VDP(const DeviceConfig& config)
 	EmuTime::param time = getCurrentTime();
 	unsigned vramSize =
 		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
-	if ((vramSize !=  16) && (vramSize !=  64) &&
-	    (vramSize != 128) && (vramSize != 192)) {
+	if (vramSize != one_of(16u, 64u, 128u, 192u)) {
 		throw MSXException(
 			"VRAM size of ", vramSize, "kB is not supported!");
 	}

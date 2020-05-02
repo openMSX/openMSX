@@ -522,7 +522,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 	}
 
 	// free rest of FAT chain
-	while ((curCl != EOF_FAT) && (curCl != 0)) {
+	while (curCl != one_of(EOF_FAT, 0u)) {
 		unsigned nextCl = readFAT(curCl);
 		writeFAT(curCl, 0);
 		curCl = nextCl;
@@ -620,8 +620,7 @@ string MSXtar::recurseDirFill(string_view dirName, unsigned sector)
 			// add new file
 			messages += addFileToDSK(fullName, sector);
 
-		} else if (FileOperations::isDirectory(st) &&
-			   (name != ".") && (name != "..")) {
+		} else if (FileOperations::isDirectory(st) && name != one_of(".", "..")) {
 			string msxFileName = makeSimpleMSXFileName(name);
 			SectorBuffer buf;
 			DirEntry entry = findEntryInDir(msxFileName, sector, buf);

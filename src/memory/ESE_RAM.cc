@@ -21,6 +21,7 @@
 
 #include "ESE_RAM.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -29,7 +30,7 @@ namespace openmsx {
 unsigned ESE_RAM::getSramSize() const
 {
 	unsigned sramSize = getDeviceConfig().getChildDataAsInt("sramsize", 256); // size in kb
-	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
+	if (sramSize != one_of(1024u, 512u, 256u, 128u)) {
 		throw MSXException(
 			"SRAM size for ", getName(),
 			" should be 128, 256, 512 or 1024kB and not ",

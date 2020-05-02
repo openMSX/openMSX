@@ -37,6 +37,7 @@
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 #include <memory>
 
@@ -59,8 +60,7 @@ RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, Rom&& rom_)
 	, fsSram(getSram(config))
 	, firmwareSwitch(config)
 {
-	if ((rom.getSize() != 0x100000) &&
-	    (rom.getSize() != 0x200000)) {
+	if (rom.getSize() != one_of(0x100000u, 0x200000u)) {
 		throw MSXException(
 			"Rom for FSA1FM mapper must be 1MB in size "
 			"(some dumps are 2MB, those can be used as well).");

@@ -2,6 +2,7 @@
 #include "serialize.hh"
 #include "MSXException.hh"
 #include "CacheLine.hh"
+#include "one_of.hh"
 
 // information source:
 // https://github.com/openMSX/openMSX/files/2118720/MegaCart.FAQ.V1-2.pdf
@@ -11,8 +12,8 @@ namespace openmsx {
 RomColecoMegaCart::RomColecoMegaCart(const DeviceConfig& config, Rom&& rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
 {
-	size_t size = rom.getSize() / 1024;
-	if ((size != 128) && (size != 256) && (size != 512) && (size != 1024)) {
+	auto size = rom.getSize() / 1024;
+	if (size != one_of(128u, 256u, 512u, 1024u)) {
 		throw MSXException(
 			"MegaCart only supports ROMs of 128kB, 256kB, 512kB and 1024kB "
 			"size and not of ", size, "kB.");

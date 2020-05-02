@@ -13,6 +13,7 @@
 //
 // RapidXml produces a DOM-like output. This parser has a SAX-like interface.
 
+#include "one_of.hh"
 #include "small_compare.hh"
 #include <cassert>
 #include <cstdint>
@@ -691,7 +692,7 @@ afterText:		// After parseText() jump here instead of continuing
 
 			// Skip quote and remember if it was ' or "
 			char quote = *text;
-			if (quote != '\'' && quote != '"') {
+			if (quote != one_of('\'', '"')) {
 				throw ParseError("expected ' or \"", text);
 			}
 			++text;

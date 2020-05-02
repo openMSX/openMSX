@@ -14,6 +14,7 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "StringOp.hh"
+#include "one_of.hh"
 #include "xrange.hh"
 #include <memory>
 
@@ -98,9 +99,7 @@ static void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 	for (unsigned i = 0; i < n; i += 2) {
 		std::string_view key  = newValue.getListIndex(interp, i + 0).getString();
 		TclObject value = newValue.getListIndex(interp, i + 1);
-		if ((key != "A"   ) && (key != "B"    ) &&
-		    (key != "LEFT") && (key != "RIGHT") &&
-		    (key != "UP"  ) && (key != "DOWN" )) {
+		if (key != one_of("A", "B", "LEFT", "RIGHT", "UP", "DOWN")) {
 			throw CommandException(
 				"Invalid MSX joystick action: must be one of "
 				"'A', 'B', 'LEFT', 'RIGHT', 'UP', 'DOWN'.");

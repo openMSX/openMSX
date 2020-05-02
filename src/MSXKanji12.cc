@@ -1,5 +1,6 @@
 #include "MSXKanji12.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -11,8 +12,7 @@ MSXKanji12::MSXKanji12(const DeviceConfig& config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
 	, rom(getName(), "Kanji-12 ROM", config)
 {
-	unsigned size = rom.getSize();
-	if ((size != 0x20000) && (size != 0x40000)) {
+	if (rom.getSize() != one_of(0x20000u, 0x40000u)) {
 		throw MSXException("MSXKanji12: wrong kanji ROM, it should be either 128kB or 256kB.");
 	}
 

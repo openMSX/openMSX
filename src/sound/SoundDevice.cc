@@ -113,7 +113,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 		}
 
 		// TODO Support other balances
-		if (balance != 0 && balance != -100 && balance != 100) {
+		if (balance != one_of(0, -100, 100)) {
 			throw MSXException("balance ", balance, " illegal");
 		}
 		if (balance != 0) {

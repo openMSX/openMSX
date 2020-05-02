@@ -31,6 +31,7 @@ DEALINGS IN THE SOFTWARE.
 #ifndef UTF8_CORE_HH
 #define UTF8_CORE_HH
 
+#include "one_of.hh"
 #include <iterator>
 #include <cstdint>
 
@@ -66,7 +67,7 @@ const uint32_t CODE_POINT_MAX      = 0x0010ffffu;
 [[nodiscard]] inline bool is_code_point_valid(uint32_t cp)
 {
 	return (cp <= CODE_POINT_MAX) && !is_surrogate(cp) &&
-	       (cp != 0xfffe) && (cp != 0xffff);
+	       (cp != one_of(0xfffeu, 0xffffu));
 }
 
 [[nodiscard]] inline unsigned sequence_length(uint8_t lead)

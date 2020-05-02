@@ -6,6 +6,7 @@
 #include "BooleanSetting.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "one_of.hh"
 #include "outer.hh"
 #include "unreachable.hh"
 #include <cassert>
@@ -40,7 +41,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 		"toshiba_rs232c_switch", "status of the RS-232C enable switch",
 		true) : nullptr)
 {
-	if (rom && rom->getSize() != 0x2000 && rom->getSize() != 0x4000) {
+	if (rom && (rom->getSize() != one_of(0x2000u, 0x4000u))) {
 		throw MSXException("RS232C only supports 8kB or 16kB ROMs.");
 	}
 

@@ -587,8 +587,7 @@ void OggReader::readTheora(ogg_packet* packet)
 	// postion
 	Frame* last = frameList.empty() ? nullptr : frameList.back().get();
 	if (last && (last->no != size_t(-1))) {
-		if ((frameno != size_t(-1)) &&
-		    (frameno != last->no + last->length)) {
+		if (frameno != one_of(size_t(-1), last->no + last->length)) {
 			cli.printWarning("Theora frame sequence wrong");
 		} else {
 			frameno = last->no + last->length;

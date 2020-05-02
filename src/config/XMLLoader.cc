@@ -4,6 +4,7 @@
 #include "File.hh"
 #include "FileException.hh"
 #include "MemBuffer.hh"
+#include "one_of.hh"
 #include "rapidsax.hh"
 
 using std::string;
@@ -110,7 +111,7 @@ void XMLElementParser::doctype(string_view txt)
 	if (pos1 == string_view::npos) return;
 	if ((pos1 + 8) >= txt.size()) return;
 	char q = txt[pos1 + 8];
-	if ((q != '"') && (q != '\'')) return;
+	if (q != one_of('"', '\'')) return;
 	auto t = txt.substr(pos1 + 9);
 	auto pos2 = t.find(q);
 	if (pos2 == string_view::npos) return;

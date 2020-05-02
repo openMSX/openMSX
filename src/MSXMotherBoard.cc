@@ -431,8 +431,7 @@ JoystickPortIf& MSXMotherBoard::getJoystickPort(unsigned port)
 		// some MSX machines only have 1 instead of 2 joystick ports
 		std::string_view ports = getMachineConfig()->getConfig().getChildData(
 			"JoystickPorts", "AB");
-		if ((ports != "AB") && (!ports.empty()) &&
-		    (ports != "A") && (ports != "B")) {
+		if (ports != one_of("AB", "", "A", "B")) {
 			throw ConfigException(
 				"Invalid JoystickPorts specification, "
 				"should be one of '', 'A', 'B' or 'AB'.");

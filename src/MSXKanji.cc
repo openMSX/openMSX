@@ -1,5 +1,6 @@
 #include "MSXKanji.hh"
 #include "MSXException.hh"
+#include "one_of.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -11,7 +12,7 @@ MSXKanji::MSXKanji(const DeviceConfig& config)
 	, highAddressMask(config.getChildData("type", {}) == "hangul" ? 0x7F : 0x3F)
 {
 	int size = rom.getSize();
-	if ((size != 0x20000) && (size != 0x40000)) {
+	if (size != one_of(0x20000, 0x40000)) {
 		throw MSXException("MSXKanji: wrong kanji ROM, it should be either 128kB or 256kB.");
 	}
 	if ((highAddressMask == 0x7F) && (size != 0x40000)) {

@@ -331,7 +331,7 @@ void MSXDevice::registerPorts()
 		unsigned num  = i->getAttributeAsInt("num");
 		const auto& type = i->getAttribute("type", "IO");
 		if (((base + num) > 256) || (num == 0) ||
-		    ((type != "I") && (type != "O") && (type != "IO"))) {
+		    (type != one_of("I", "O", "IO"))) {
 			throw MSXException("Invalid IO port specification");
 		}
 		for (unsigned port = base; port < base + num; ++port) {

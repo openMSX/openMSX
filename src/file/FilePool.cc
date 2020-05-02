@@ -446,7 +446,7 @@ File FilePool::scanDirectory(
 			if (FileOperations::isRegularFile(st)) {
 				result = scanFile(sha1sum, path, st, poolPath, progress);
 			} else if (FileOperations::isDirectory(st)) {
-				if ((file != ".") && (file != "..")) {
+				if (file != one_of(".", "..")) {
 					result = scanDirectory(sha1sum, path, poolPath, progress);
 				}
 			}
