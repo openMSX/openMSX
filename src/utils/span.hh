@@ -20,7 +20,6 @@
 #ifndef SPAN_HH
 #define SPAN_HH
 
-#include "one_of.hh"
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -155,7 +154,7 @@ public:
 	static constexpr index_type extent = Extent;
 
 	// [span.cons], span constructors, copy, assignment, and destructor
-	template<size_t E = Extent, std::enable_if_t<E == one_of(0, dynamic_extent), int> = 0>
+	template<size_t E = Extent, std::enable_if_t<(E == 0) || (E == dynamic_extent), int> = 0>
 	constexpr span() noexcept
 	{
 	}
@@ -163,19 +162,19 @@ public:
 	constexpr span(pointer ptr, index_type count)
 		: storage(ptr, count)
 	{
-		assert(extent == one_of(dynamic_extent, count));
+		assert(extent == dynamic_extent || count == extent);
 	}
 
 	constexpr span(pointer first_elem, pointer last_elem)
 		: storage(first_elem, last_elem - first_elem)
 	{
-		assert(extent == one_of(dynamic_extent,
-		                        static_cast<index_type>(last_elem - first_elem)));
+		assert(extent == dynamic_extent ||
+		       static_cast<index_type>(last_elem - first_elem) == extent);
 	}
 
 	template<size_t N,
 	         size_t E = Extent,
-	         std::enable_if_t<E == one_of(dynamic_extent, N) &&
+	         std::enable_if_t<(E == dynamic_extent || N == E) &&
 	                          detail::is_container_element_type_compatible<element_type (&)[N],
 	                                                                       ElementType>::value,
 	                          int> = 0>
@@ -186,7 +185,7 @@ public:
 
 	template<size_t N,
 	         size_t E = Extent,
-	         std::enable_if_t<E == one_of(dynamic_extent, N) &&
+	         std::enable_if_t<(E == dynamic_extent || N == E) &&
 	                          detail::is_container_element_type_compatible<std::array<value_type, N>&,
 	                                                                       ElementType>::value,
 	                          int> = 0>
@@ -197,7 +196,7 @@ public:
 
 	template<size_t N,
 	         size_t E = Extent,
-	         std::enable_if_t<E == one_of(dynamic_extent, N) &&
+	         std::enable_if_t<(E == dynamic_extent || N == E) &&
 	                          detail::is_container_element_type_compatible<const std::array<value_type, N>&,
 	                                                                       ElementType>::value,
 	                  int> = 0>
@@ -213,7 +212,7 @@ public:
 	constexpr span(Container& cont)
 		: storage(std::data(cont), std::size(cont))
 	{
-		assert(extent == one_of(dynamic_extent, std::size(cont)));
+		assert(extent == dynamic_extent || std::size(cont) == extent);
 	}
 
 	template<typename Container,
@@ -223,14 +222,14 @@ public:
 	constexpr span(const Container& cont)
 		: storage(std::data(cont), std::size(cont))
 	{
-		assert(extent == one_of(dynamic_extent, std::size(cont)));
+		assert(extent == dynamic_extent || std::size(cont) == extent);
 	}
 
 	constexpr span(const span& other) noexcept = default;
 
 	template<typename OtherElementType,
 	         size_t OtherExtent,
-	         std::enable_if_t<Extent == one_of(OtherExtent, dynamic_extent) &&
+	         std::enable_if_t<(Extent == OtherExtent || Extent == dynamic_extent) &&
 	                          std::is_convertible_v<OtherElementType (*)[], ElementType (*)[]>,
 	                          int> = 0>
 	constexpr span(const span<OtherElementType, OtherExtent>& other) noexcept
