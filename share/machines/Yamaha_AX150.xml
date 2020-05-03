@@ -14,9 +14,20 @@
 Information obtained from Yamaha/Sakhr AX-150 with S/N: 011501
 Motherboard ID: GCMK-77X YAMAHA XB155[B]
 Contains:
-- S3527 MSX-ENGINE (not visible, presumed from info in the wiki)
-- Zilog Z8400APS Z80 CPU (confirmed)
+- S3527 MSX-ENGINE (not seen, it's on the back side)
+- Zilog Z8400APS Z80 CPU (confirmed) - 8509 (or 8609)
 - YM2220 VDP (confirmed)
+- On the ROM chip marked with "BASIC" on the PCB, there is no sticker. It's a Yamaha YM2301-23976 // 64 24 75 A
+- On the ROM chip marked with "SUB" on the PCB, there is a code "XB3<something> A 0"
+- ROM contains Sakhr BASIC 1.01
+
+From the AX-150 with S/N 016381 we additionally see:
+- S3527 MSX-ENGINE (3527B 690770H)
+- Zilog Z8400APS Z80 CPU (confirmed) - 8627
+- YM2220 VDP (confirmed)
+- On the ROM chip marked with "BASIC" on the PCB, there is a code "XC276 A 0"
+- On the ROM chip marked with "SUB" on the PCB, there is a code "XB329 B 0"
+- ROM contains Sakhr BASIC 1.02
 -->
 
   <CassettePort/>
@@ -73,7 +84,8 @@ Contains:
         <ROM id="Arabic ROM">
           <rom>
             <filename>ax-150_arabic.rom</filename>
-            <sha1>0cbc9b73e052e6ea25becf57c839f173f2bc01b3</sha1>
+            <sha1>786091b8744e78b9201e302f798469c8ace2ab95</sha1> <!-- version 1.02 -->
+            <sha1>0cbc9b73e052e6ea25becf57c839f173f2bc01b3</sha1> <!-- version 1.01 -->
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </ROM>
