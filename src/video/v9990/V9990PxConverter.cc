@@ -165,7 +165,7 @@ static void renderPattern(
 		nameAddr = nextNameAddr<Policy>(nameAddr);
 	}
 	assert((x & 7) == 0 || (width <= 0));
-	while (width & ~7) {
+	while ((width & ~7) > 0) {
 		unsigned address = getPatternAddress<Policy, true>(vram, nameAddr, patternBase, x, y);
 		draw2<Policy, false>(vram, palette0, buffer, info, address, width);
 		draw2<Policy, false>(vram, palette1, buffer, info, address, width);
