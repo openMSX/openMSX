@@ -19,7 +19,7 @@ Contains:
 - YM2220 VDP (confirmed)
 - On the ROM chip marked with "BASIC" on the PCB, there is no sticker. It's a Yamaha YM2301-23976 // 64 24 75 A
 - On the ROM chip marked with "SUB" on the PCB, there is a code "XB3<something> A 0"
-- ROM contains Sakhr BASIC 1.01
+- The "Arabic" ROM is version 1.01
 
 From the AX-150 with S/N 016381 we additionally see:
 - S3527 MSX-ENGINE (3527B 690770H)
@@ -27,7 +27,7 @@ From the AX-150 with S/N 016381 we additionally see:
 - YM2220 VDP (confirmed)
 - On the ROM chip marked with "BASIC" on the PCB, there is a code "XC276 A 0"
 - On the ROM chip marked with "SUB" on the PCB, there is a code "XB329 B 0"
-- ROM contains Sakhr BASIC 1.02
+- The "Arabic" ROM is version 1.02
 -->
 
   <CassettePort/>
