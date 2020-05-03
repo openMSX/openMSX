@@ -1,7 +1,6 @@
 #ifndef INPUTEVENTGENERATOR_HH
 #define INPUTEVENTGENERATOR_HH
 
-#include "Observer.hh"
 #include "BooleanSetting.hh"
 #include "EventListener.hh"
 #include "Command.hh"
@@ -15,8 +14,7 @@ class CommandController;
 class EventDistributor;
 class GlobalSettings;
 
-class InputEventGenerator final : private Observer<Setting>
-                                , private EventListener
+class InputEventGenerator final : private EventListener
 {
 public:
 	InputEventGenerator(const InputEventGenerator&) = delete;
@@ -39,6 +37,8 @@ public:
 
 	/** Input Grab on or off */
 	BooleanSetting& getGrabInput() { return grabInput; }
+	/** Must be called when 'grabinput' or 'fullscreen' setting changes. */
+	void updateGrab();
 
 	/** Normally the following two functions simply delegate to
 	 * SDL_JoystickNumButtons() and SDL_JoystickGetButton(). Except on
@@ -56,9 +56,6 @@ private:
 	void handleKeyDown(const SDL_KeyboardEvent& key, uint32_t unicode);
 	void handleText(const char* utf8);
 	void setGrabInput(bool grab);
-
-	// Observer<Setting>
-	void update(const Setting& setting) override;
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;

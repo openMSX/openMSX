@@ -33,7 +33,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 	, keyRepeat(false)
 {
 	setGrabInput(grabInput.getBoolean());
-	grabInput.attach(*this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 
 	osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
@@ -46,7 +45,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 InputEventGenerator::~InputEventGenerator()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
-	grabInput.detach(*this);
 }
 
 void InputEventGenerator::wait()
@@ -427,9 +425,8 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 }
 
 
-void InputEventGenerator::update(const Setting& setting)
+void InputEventGenerator::updateGrab()
 {
-	assert(&setting == &grabInput); (void)setting;
 	escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
 	setGrabInput(grabInput.getBoolean());
 }
