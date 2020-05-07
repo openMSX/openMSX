@@ -6,6 +6,7 @@
 #include "OSDGUILayer.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
+#include "CliComm.hh"
 #include "PNG.hh"
 #include "build-info.hh"
 #include "MemBuffer.hh"
@@ -164,6 +165,8 @@ void SDLGLVisibleSurface::SyncToVBlankModeObserver::update(const Setting& settin
 		// "Adaptive vsync" is not supported by all drivers. SDL
 		// documentation suggests to fallback to "regular vsync" in
 		// that case.
+		surface.getCliComm().printWarning(
+				"Adaptive vsync not supported; falling back to regular vsync");
 		SDL_GL_SetSwapInterval(1);
 	}
 }
