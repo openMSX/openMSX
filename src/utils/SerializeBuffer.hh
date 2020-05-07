@@ -5,6 +5,7 @@
 #include "inline.hh"
 #include "likely.hh"
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <cassert>
 #include <tuple>
