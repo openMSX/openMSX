@@ -158,13 +158,13 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"works with the SDLGL-PP renderer)\n"
 		"immediate:     no sync to vblank, just render immediately\n"
 		"sync:          sync to vblank always\n"
-		"sync_adaptive: sync to vblank, but if too late, sync "
-		"immediately (not supported on all hardware)",
+		"adaptive:      sync to vblank, but if too late, sync immediately "
+		"(not supported on all systems)",
 		SyncToVBlankMode::IMMEDIATE,
 		EnumSetting<SyncToVBlankMode>::Map{
-			{"immediate",     SyncToVBlankMode::IMMEDIATE},
-			{"sync",          SyncToVBlankMode::SYNC},
-			{"sync_adaptive", SyncToVBlankMode::ADAPTIVE_SYNC}})
+			{"immediate", SyncToVBlankMode::IMMEDIATE},
+			{"sync",      SyncToVBlankMode::SYNC},
+			{"adaptive",  SyncToVBlankMode::ADAPTIVE}})
 
 	// Many android devices are relatively low powered. Therefore use
 	// no stretch (value 320) as default for Android because it gives

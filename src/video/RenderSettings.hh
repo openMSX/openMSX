@@ -44,7 +44,7 @@ public:
 	};
 
 	enum SyncToVBlankMode {
-		IMMEDIATE, SYNC, ADAPTIVE_SYNC
+		IMMEDIATE, SYNC, ADAPTIVE
 	};
 
 	explicit RenderSettings(CommandController& commandController);

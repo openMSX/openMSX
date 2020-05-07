@@ -154,9 +154,9 @@ void SDLGLVisibleSurface::SyncToVBlankModeObserver::update(const Setting& settin
 
 	int interval = [&] {
 		switch (syncSetting.getEnum()) {
-			case RenderSettings::SyncToVBlankMode::IMMEDIATE:     return 0;
-			case RenderSettings::SyncToVBlankMode::SYNC:          return 1;
-			case RenderSettings::SyncToVBlankMode::ADAPTIVE_SYNC: return -1;
+			case RenderSettings::SyncToVBlankMode::IMMEDIATE: return 0;
+			case RenderSettings::SyncToVBlankMode::SYNC:      return 1;
+			case RenderSettings::SyncToVBlankMode::ADAPTIVE:  return -1;
 		}
 		UNREACHABLE; return 0;
 	}();
