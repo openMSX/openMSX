@@ -38,7 +38,7 @@ public:
 	/** Input Grab on or off */
 	BooleanSetting& getGrabInput() { return grabInput; }
 	/** Must be called when 'grabinput' or 'fullscreen' setting changes. */
-	void updateGrab();
+	void updateGrab(bool grab);
 
 	/** Normally the following two functions simply delegate to
 	 * SDL_JoystickNumButtons() and SDL_JoystickGetButton(). Except on

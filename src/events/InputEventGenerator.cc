@@ -425,10 +425,10 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 }
 
 
-void InputEventGenerator::updateGrab()
+void InputEventGenerator::updateGrab(bool grab)
 {
 	escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
-	setGrabInput(grabInput.getBoolean());
+	setGrabInput(grab);
 }
 
 int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)

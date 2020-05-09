@@ -64,7 +64,7 @@ void VisibleSurface::executeRT()
 {
 	// timer expired, hide cursor
 	videoSystem.showCursor(false);
-	inputEventGenerator.updateGrab();
+	inputEventGenerator.updateGrab(true); // fullscreen or grabinput=true
 }
 
 int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event)
@@ -87,7 +87,7 @@ void VisibleSurface::updateCursor()
 		scheduleRT(0);
 		return;
 	}
-	inputEventGenerator.updateGrab();
+	inputEventGenerator.updateGrab(false);
 	float delay = renderSettings.getPointerHideDelay();
 	if (delay == 0.0f) {
 		videoSystem.showCursor(false);
