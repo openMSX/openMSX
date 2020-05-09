@@ -228,8 +228,8 @@ void Mouse::write(byte value, EmuTime::param time)
 				// sdsnatcher's post of 30 aug 2018 for a
 				// motivation for this difference:
 				//   https://github.com/openMSX/openMSX/issues/892
-				xrel = Math::clip<-128, 127>(curxrel);
-				yrel = Math::clip<-128, 127>(curyrel);
+				xrel = Math::clip<-127, 127>(curxrel);
+				yrel = Math::clip<-127, 127>(curyrel);
 				curxrel -= xrel;
 				curyrel -= yrel;
 #endif
