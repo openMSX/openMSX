@@ -74,6 +74,7 @@ private:
 	InputEventGenerator& inputEventGenerator;
 	CliComm& cliComm;
 	VideoSystem& videoSystem;
+	bool grab = false;
 };
 
 } // namespace openmsx

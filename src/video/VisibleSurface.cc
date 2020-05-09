@@ -64,7 +64,7 @@ void VisibleSurface::executeRT()
 {
 	// timer expired, hide cursor
 	videoSystem.showCursor(false);
-	inputEventGenerator.updateGrab(true); // fullscreen or grabinput=true
+	inputEventGenerator.updateGrab(grab);
 }
 
 int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event)
@@ -80,14 +80,15 @@ void VisibleSurface::updateCursor()
 {
 	cancelRT();
 	auto& renderSettings = display.getRenderSettings();
-	if (renderSettings.getFullScreen() ||
-	    inputEventGenerator.getGrabInput().getBoolean()) {
+	grab = renderSettings.getFullScreen() ||
+	       inputEventGenerator.getGrabInput().getBoolean();
+	if (grab) {
 		// always hide cursor in fullscreen or grabinput mode, but do it
 		// after the derived class is constructed to avoid an SDL bug.
 		scheduleRT(0);
 		return;
 	}
-	inputEventGenerator.updateGrab(false);
+	inputEventGenerator.updateGrab(grab);
 	float delay = renderSettings.getPointerHideDelay();
 	if (delay == 0.0f) {
 		videoSystem.showCursor(false);
