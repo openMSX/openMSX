@@ -219,7 +219,7 @@ enum KeyCode {
 KeyCode getCode(std::string_view name);
 
 /** Translate SDL_Keycode/SDL_Scancode into openMSX key/scan Keycode's. */
-std::pair<KeyCode, KeyCode> getCode(
+std::pair<KeyCode, KeyCode> getCodes(
 	SDL_Keycode keycode, Uint16 mod = KMOD_NONE, SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN, bool release = false);
 
 /**

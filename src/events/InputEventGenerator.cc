@@ -271,7 +271,7 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		androidButtonB = true;
 	} else*/ {
 		auto mod = normalizeModifier(key.keysym.sym, key.keysym.mod);
-		auto [keyCode, scanCode] = Keys::getCode(
+		auto [keyCode, scanCode] = Keys::getCodes(
 			key.keysym.sym, mod, key.keysym.scancode, false);
 		event = make_shared<KeyDownEvent>(keyCode, scanCode, unicode);
 		triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
@@ -313,7 +313,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			androidButtonB = false;
 		} else*/ {
 			auto mod = normalizeModifier(evt.key.keysym.sym, evt.key.keysym.mod);
-			auto [keyCode, scanCode] = Keys::getCode(
+			auto [keyCode, scanCode] = Keys::getCodes(
 				evt.key.keysym.sym, mod, evt.key.keysym.scancode, true);
 			event = make_shared<KeyUpEvent>(keyCode, scanCode);
 			triggerOsdControlEventsFromKeyEvent(keyCode, true, event);
