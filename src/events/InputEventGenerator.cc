@@ -212,27 +212,25 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickButtonEvent(
 }
 
 void InputEventGenerator::triggerOsdControlEventsFromKeyEvent(
-	Keys::KeyCode keyCode, bool up, const EventPtr& origEvent)
+	Keys::KeyCode keyCode, bool up, bool repeat, const EventPtr& origEvent)
 {
-	keyCode = static_cast<Keys::KeyCode>(keyCode & Keys::K_MASK);
-	if (keyCode == Keys::K_LEFT) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::LEFT_BUTTON,
-		                       origEvent);
-	} else if (keyCode == Keys::K_RIGHT) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::RIGHT_BUTTON,
-		                       origEvent);
-	} else if (keyCode == Keys::K_UP) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::UP_BUTTON,
-		                       origEvent);
-	} else if (keyCode == Keys::K_DOWN) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::DOWN_BUTTON,
-		                       origEvent);
-	} else if (keyCode == one_of(Keys::K_SPACE, Keys::K_RETURN)) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::A_BUTTON,
-		                       origEvent);
-	} else if (keyCode == Keys::K_ESCAPE) {
-		osdControlChangeButton(up, 1 << OsdControlEvent::B_BUTTON,
-		                       origEvent);
+	unsigned buttonMask = [&] {
+		switch (static_cast<Keys::KeyCode>(keyCode & Keys::K_MASK)) {
+		case Keys::K_LEFT:   return 1 << OsdControlEvent::LEFT_BUTTON;
+		case Keys::K_RIGHT:  return 1 << OsdControlEvent::RIGHT_BUTTON;
+		case Keys::K_UP:     return 1 << OsdControlEvent::UP_BUTTON;
+		case Keys::K_DOWN:   return 1 << OsdControlEvent::DOWN_BUTTON;
+		case Keys::K_SPACE:  return 1 << OsdControlEvent::A_BUTTON;
+		case Keys::K_RETURN: return 1 << OsdControlEvent::A_BUTTON;
+		case Keys::K_ESCAPE: return 1 << OsdControlEvent::B_BUTTON;
+		default: return 0;
+		}
+	}();
+	if (buttonMask) {
+		if (repeat) {
+			osdControlChangeButton(!up, buttonMask, origEvent);
+		}
+		osdControlChangeButton(up, buttonMask, origEvent);
 	}
 }
 
@@ -268,7 +266,7 @@ void InputEventGenerator::handleKeyDown(const SDL_KeyboardEvent& key, uint32_t u
 		auto [keyCode, scanCode] = Keys::getCodes(
 			key.keysym.sym, mod, key.keysym.scancode, false);
 		event = make_shared<KeyDownEvent>(keyCode, scanCode, unicode);
-		triggerOsdControlEventsFromKeyEvent(keyCode, false, event);
+		triggerOsdControlEventsFromKeyEvent(keyCode, false, key.repeat, event);
 	}
 	eventDistributor.distributeEvent(event);
 }
@@ -310,7 +308,8 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			auto [keyCode, scanCode] = Keys::getCodes(
 				evt.key.keysym.sym, mod, evt.key.keysym.scancode, true);
 			event = make_shared<KeyUpEvent>(keyCode, scanCode);
-			triggerOsdControlEventsFromKeyEvent(keyCode, true, event);
+			bool repeat = false;
+			triggerOsdControlEventsFromKeyEvent(keyCode, true, repeat, event);
 		}
 		break;
 	case SDL_KEYDOWN:
