@@ -4095,22 +4095,26 @@
 
   <h3><a id="kbd_mapping_mode">kbd_mapping_mode</a></h3>
 
-  <p>The keyboard driver can work in two mapping modes; KEY mapping and CHARACTER mapping.</p>
+  <p>The keyboard driver can work in several mapping modes: CHARACTER, POSITIONAL or KEY.</p>
 
   <dl>
-    <dt>KEY mapping:</dt>
-    <dd>A key pressed on the host keyboard maps to one specific key on the MSX keyboard. This mode
-  is convenient when the host keyboard and the MSX keyboard have the same layout or when working with a program
-  that directly reads the keyboard matrix and forces the user to enter a certain key combination that can not
-  be auto-generated in the CHARACTER mapping mode.</dd>
     <dt>CHARACTER mapping:</dt>
-    <dd>A character entered by the user is mapped to the correct key combination on the MSX to
-  enter that character. For example, when the user enters an ! character and openMSX is emulating an 'international'
-  MSX model, the keyboard driver will press SHIFT and 1 on the MSX keyboard. This will be done regardless of the key
-  or keys that the user pressed on the host keyboard to enter the ! character.<br/>
+    <dd>A character entered by the user on the host keyboard is mapped to the correct key combination on the MSX keyboard to
+  enter that same character. For example, when the user enters an '!' character and openMSX is emulating an 'international'
+  MSX model, the keyboard driver will press SHIFT and '1' on the MSX keyboard. This will be done regardless of the key
+  or keys that the user pressed on the host keyboard to enter that '!' character.<br/>
   This is especially useful when the user has an AZERTY host keyboard and is working on a QWERTY style MSX or
   when he has a US-QWERTY keyboard and is working on a Japanese MSX.<br/>
-  Note that special keys (like CAPSLOCK) are mapped directly, just like in the KEY mapping mode.</dd>
+  In other words: in this mode openMSX is aware of both the host and the MSX keyboard layout and tries to remap host key-combinations to the corresponding MSX key-combinations that produce the same character.<br/>
+  Special host keys (like CURSOR keys or CAPSLOCK) are mapped directly to the corresponding MSX keys.<br/>
+  Note that CHARACTER mode isn't perfect (help to improve it is always appreciated). In some cases it may be more convenient or even required to use one of the other mapping modes.</dd>
+
+    <dt>POSITIONAL mapping:</dt>
+    <dd>In this mode both the host and the MSX keyboard layout are ignored. Host keys get mapped to MSX keys that are (approximately) in the same position on both keyboards. (More technical: host 'scan-codes' get mapped to MSX 'keyboard-matrix positions'.)</dd>
+
+    <dt>KEY mapping:</dt>
+    <dd>This mode is deprecated, it's superseded by the previous two modes and may get removed in a future openMSX release.<br/>
+    This mode has rudimentary knowledge about the host keyboard layout, but no knowledge about the MSX keyboard layout. It remaps individual keys, not key combinations. Take for example a french AZERTY host keyboard and an emulated MSX with 'international' keyboard layout. Pressing the 'A' host key correctly maps to the 'A' MSX key. But Pressing SHIFT+'3' on the host (which produces '3'), maps to SHIFT+'3' on the MSX keyboard (which produces '#').</dd>
   </dl>
 
   <div class="subsectiontitle">
@@ -4131,9 +4135,9 @@
     </tr>
 
     <tr>
-      <td><code>set&nbsp;kbd_mapping_mode&nbsp;KEY</code></td>
+      <td><code>set&nbsp;kbd_mapping_mode&nbsp;POSITIONAL</code></td>
 
-      <td>Set the KEY mapping mode</td>
+      <td>Set the POSITIONAL mapping mode</td>
     </tr>
 
   </table>

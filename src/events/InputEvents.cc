@@ -24,13 +24,24 @@ TimedEvent::TimedEvent(EventType type_)
 
 // class KeyEvent
 
-KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, uint32_t unicode_)
-	: TimedEvent(type_), keyCode(keyCode_), unicode(unicode_)
+KeyEvent::KeyEvent(EventType type_, Keys::KeyCode keyCode_, Keys::KeyCode scanCode_, uint32_t unicode_)
+	: TimedEvent(type_), keyCode(keyCode_), scanCode(scanCode_), unicode(unicode_)
 {
 }
 
 TclObject KeyEvent::toTclList() const
 {
+	// Note: 'scanCode' is not included (also not in lessImpl()).
+	//
+	// At the moment 'scanCode' is only used in the MSX Keyboard code when
+	// the POSITIONAL mapping mode is active. It is not used for key
+	// bindings (the 'bind' or the 'after' commands) or for the openMSX
+	// console. KeyEvents also don't end up in 'reverse replay' files
+	// (instead those files contain more low level MSX keyboard matrix
+	// changes).
+	//
+	// Within these constraints it's fine to ignore 'scanCode' in this
+	// method.
 	auto result = makeTclList("keyb", Keys::getName(getKeyCode()));
 	if (getUnicode() != 0) {
 		result.addListElement(strCat("unicode", getUnicode()));
@@ -40,25 +51,9 @@ TclObject KeyEvent::toTclList() const
 
 bool KeyEvent::lessImpl(const Event& other) const
 {
-	// note: don't compare unicode
+	// note: don't compare scancode, unicode
 	auto& o = checked_cast<const KeyEvent&>(other);
 	return getKeyCode() < o.getKeyCode();
-}
-
-
-// class KeyUpEvent
-
-KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode_)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, 0)
-{
-}
-
-
-// class KeyDownEvent
-
-KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode_, uint32_t unicode_)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, unicode_)
-{
 }
 
 

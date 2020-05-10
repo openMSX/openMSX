@@ -366,175 +366,319 @@ KeyCode getCode(string_view name)
 	return result;
 }
 
-KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release)
+std::pair<KeyCode, KeyCode> getCode(SDL_Keycode keycode, Uint16 mod, SDL_Scancode scancode, bool release)
 {
-	KeyCode result;
-	switch (key) {
-	case SDLK_BACKSPACE:      result = K_BACKSPACE;         break;
-	case SDLK_TAB:            result = K_TAB;               break;
-	case SDLK_CLEAR:          result = K_CLEAR;             break;
-	case SDLK_RETURN:         result = K_RETURN;            break;
-	case SDLK_PAUSE:          result = K_PAUSE;             break;
-	case SDLK_ESCAPE:         result = K_ESCAPE;            break;
-	case SDLK_SPACE:          result = K_SPACE;             break;
-	case SDLK_EXCLAIM:        result = K_EXCLAIM;           break;
-	case SDLK_QUOTEDBL:       result = K_QUOTEDBL;          break;
-	case SDLK_HASH:           result = K_HASH;              break;
-	case SDLK_DOLLAR:         result = K_DOLLAR;            break;
-	case SDLK_AMPERSAND:      result = K_AMPERSAND;         break;
-	case SDLK_QUOTE:          result = K_QUOTE;             break;
-	case SDLK_LEFTPAREN:      result = K_LEFTPAREN;         break;
-	case SDLK_RIGHTPAREN:     result = K_RIGHTPAREN;        break;
-	case SDLK_ASTERISK:       result = K_ASTERISK;          break;
-	case SDLK_PLUS:           result = K_PLUS;              break;
-	case SDLK_COMMA:          result = K_COMMA;             break;
-	case SDLK_MINUS:          result = K_MINUS;             break;
-	case SDLK_PERIOD:         result = K_PERIOD;            break;
-	case SDLK_SLASH:          result = K_SLASH;             break;
-	case SDLK_0:              result = K_0;                 break;
-	case SDLK_1:              result = K_1;                 break;
-	case SDLK_2:              result = K_2;                 break;
-	case SDLK_3:              result = K_3;                 break;
-	case SDLK_4:              result = K_4;                 break;
-	case SDLK_5:              result = K_5;                 break;
-	case SDLK_6:              result = K_6;                 break;
-	case SDLK_7:              result = K_7;                 break;
-	case SDLK_8:              result = K_8;                 break;
-	case SDLK_9:              result = K_9;                 break;
-	case SDLK_COLON:          result = K_COLON;             break;
-	case SDLK_SEMICOLON:      result = K_SEMICOLON;         break;
-	case SDLK_LESS:           result = K_LESS;              break;
-	case SDLK_EQUALS:         result = K_EQUALS;            break;
-	case SDLK_GREATER:        result = K_GREATER;           break;
-	case SDLK_QUESTION:       result = K_QUESTION;          break;
-	case SDLK_AT:             result = K_AT;                break;
+	KeyCode key;
+	switch (keycode) {
+	case SDLK_BACKSPACE:      key = K_BACKSPACE;         break;
+	case SDLK_TAB:            key = K_TAB;               break;
+	case SDLK_CLEAR:          key = K_CLEAR;             break;
+	case SDLK_RETURN:         key = K_RETURN;            break;
+	case SDLK_PAUSE:          key = K_PAUSE;             break;
+	case SDLK_ESCAPE:         key = K_ESCAPE;            break;
+	case SDLK_SPACE:          key = K_SPACE;             break;
+	case SDLK_EXCLAIM:        key = K_EXCLAIM;           break;
+	case SDLK_QUOTEDBL:       key = K_QUOTEDBL;          break;
+	case SDLK_HASH:           key = K_HASH;              break;
+	case SDLK_DOLLAR:         key = K_DOLLAR;            break;
+	case SDLK_AMPERSAND:      key = K_AMPERSAND;         break;
+	case SDLK_QUOTE:          key = K_QUOTE;             break;
+	case SDLK_LEFTPAREN:      key = K_LEFTPAREN;         break;
+	case SDLK_RIGHTPAREN:     key = K_RIGHTPAREN;        break;
+	case SDLK_ASTERISK:       key = K_ASTERISK;          break;
+	case SDLK_PLUS:           key = K_PLUS;              break;
+	case SDLK_COMMA:          key = K_COMMA;             break;
+	case SDLK_MINUS:          key = K_MINUS;             break;
+	case SDLK_PERIOD:         key = K_PERIOD;            break;
+	case SDLK_SLASH:          key = K_SLASH;             break;
+	case SDLK_0:              key = K_0;                 break;
+	case SDLK_1:              key = K_1;                 break;
+	case SDLK_2:              key = K_2;                 break;
+	case SDLK_3:              key = K_3;                 break;
+	case SDLK_4:              key = K_4;                 break;
+	case SDLK_5:              key = K_5;                 break;
+	case SDLK_6:              key = K_6;                 break;
+	case SDLK_7:              key = K_7;                 break;
+	case SDLK_8:              key = K_8;                 break;
+	case SDLK_9:              key = K_9;                 break;
+	case SDLK_COLON:          key = K_COLON;             break;
+	case SDLK_SEMICOLON:      key = K_SEMICOLON;         break;
+	case SDLK_LESS:           key = K_LESS;              break;
+	case SDLK_EQUALS:         key = K_EQUALS;            break;
+	case SDLK_GREATER:        key = K_GREATER;           break;
+	case SDLK_QUESTION:       key = K_QUESTION;          break;
+	case SDLK_AT:             key = K_AT;                break;
 
-	case SDLK_LEFTBRACKET:    result = K_LEFTBRACKET;       break;
-	case SDLK_BACKSLASH:      result = K_BACKSLASH;         break;
-	case SDLK_RIGHTBRACKET:   result = K_RIGHTBRACKET;      break;
-	case SDLK_CARET:          result = K_CARET;             break;
-	case SDLK_UNDERSCORE:     result = K_UNDERSCORE;        break;
-	case SDLK_BACKQUOTE:      result = K_BACKQUOTE;         break;
-	case SDLK_a:              result = K_A;                 break;
-	case SDLK_b:              result = K_B;                 break;
-	case SDLK_c:              result = K_C;                 break;
-	case SDLK_d:              result = K_D;                 break;
-	case SDLK_e:              result = K_E;                 break;
-	case SDLK_f:              result = K_F;                 break;
-	case SDLK_g:              result = K_G;                 break;
-	case SDLK_h:              result = K_H;                 break;
-	case SDLK_i:              result = K_I;                 break;
-	case SDLK_j:              result = K_J;                 break;
-	case SDLK_k:              result = K_K;                 break;
-	case SDLK_l:              result = K_L;                 break;
-	case SDLK_m:              result = K_M;                 break;
-	case SDLK_n:              result = K_N;                 break;
-	case SDLK_o:              result = K_O;                 break;
-	case SDLK_p:              result = K_P;                 break;
-	case SDLK_q:              result = K_Q;                 break;
-	case SDLK_r:              result = K_R;                 break;
-	case SDLK_s:              result = K_S;                 break;
-	case SDLK_t:              result = K_T;                 break;
-	case SDLK_u:              result = K_U;                 break;
-	case SDLK_v:              result = K_V;                 break;
-	case SDLK_w:              result = K_W;                 break;
-	case SDLK_x:              result = K_X;                 break;
-	case SDLK_y:              result = K_Y;                 break;
-	case SDLK_z:              result = K_Z;                 break;
-	case SDLK_DELETE:         result = K_DELETE;            break;
+	case SDLK_LEFTBRACKET:    key = K_LEFTBRACKET;       break;
+	case SDLK_BACKSLASH:      key = K_BACKSLASH;         break;
+	case SDLK_RIGHTBRACKET:   key = K_RIGHTBRACKET;      break;
+	case SDLK_CARET:          key = K_CARET;             break;
+	case SDLK_UNDERSCORE:     key = K_UNDERSCORE;        break;
+	case SDLK_BACKQUOTE:      key = K_BACKQUOTE;         break;
+	case SDLK_a:              key = K_A;                 break;
+	case SDLK_b:              key = K_B;                 break;
+	case SDLK_c:              key = K_C;                 break;
+	case SDLK_d:              key = K_D;                 break;
+	case SDLK_e:              key = K_E;                 break;
+	case SDLK_f:              key = K_F;                 break;
+	case SDLK_g:              key = K_G;                 break;
+	case SDLK_h:              key = K_H;                 break;
+	case SDLK_i:              key = K_I;                 break;
+	case SDLK_j:              key = K_J;                 break;
+	case SDLK_k:              key = K_K;                 break;
+	case SDLK_l:              key = K_L;                 break;
+	case SDLK_m:              key = K_M;                 break;
+	case SDLK_n:              key = K_N;                 break;
+	case SDLK_o:              key = K_O;                 break;
+	case SDLK_p:              key = K_P;                 break;
+	case SDLK_q:              key = K_Q;                 break;
+	case SDLK_r:              key = K_R;                 break;
+	case SDLK_s:              key = K_S;                 break;
+	case SDLK_t:              key = K_T;                 break;
+	case SDLK_u:              key = K_U;                 break;
+	case SDLK_v:              key = K_V;                 break;
+	case SDLK_w:              key = K_W;                 break;
+	case SDLK_x:              key = K_X;                 break;
+	case SDLK_y:              key = K_Y;                 break;
+	case SDLK_z:              key = K_Z;                 break;
+	case SDLK_DELETE:         key = K_DELETE;            break;
 
 	// Numeric keypad
-	case SDLK_KP_0:           result = K_KP0;               break;
-	case SDLK_KP_1:           result = K_KP1;               break;
-	case SDLK_KP_2:           result = K_KP2;               break;
-	case SDLK_KP_3:           result = K_KP3;               break;
-	case SDLK_KP_4:           result = K_KP4;               break;
-	case SDLK_KP_5:           result = K_KP5;               break;
-	case SDLK_KP_6:           result = K_KP6;               break;
-	case SDLK_KP_7:           result = K_KP7;               break;
-	case SDLK_KP_8:           result = K_KP8;               break;
-	case SDLK_KP_9:           result = K_KP9;               break;
-	case SDLK_KP_PERIOD:      result = K_KP_PERIOD;         break;
-	case SDLK_KP_DIVIDE:      result = K_KP_DIVIDE;         break;
-	case SDLK_KP_MULTIPLY:    result = K_KP_MULTIPLY;       break;
-	case SDLK_KP_MINUS:       result = K_KP_MINUS;          break;
-	case SDLK_KP_PLUS:        result = K_KP_PLUS;           break;
-	case SDLK_KP_ENTER:       result = K_KP_ENTER;          break;
-	case SDLK_KP_EQUALS:      result = K_KP_EQUALS;         break;
+	case SDLK_KP_0:           key = K_KP0;               break;
+	case SDLK_KP_1:           key = K_KP1;               break;
+	case SDLK_KP_2:           key = K_KP2;               break;
+	case SDLK_KP_3:           key = K_KP3;               break;
+	case SDLK_KP_4:           key = K_KP4;               break;
+	case SDLK_KP_5:           key = K_KP5;               break;
+	case SDLK_KP_6:           key = K_KP6;               break;
+	case SDLK_KP_7:           key = K_KP7;               break;
+	case SDLK_KP_8:           key = K_KP8;               break;
+	case SDLK_KP_9:           key = K_KP9;               break;
+	case SDLK_KP_PERIOD:      key = K_KP_PERIOD;         break;
+	case SDLK_KP_DIVIDE:      key = K_KP_DIVIDE;         break;
+	case SDLK_KP_MULTIPLY:    key = K_KP_MULTIPLY;       break;
+	case SDLK_KP_MINUS:       key = K_KP_MINUS;          break;
+	case SDLK_KP_PLUS:        key = K_KP_PLUS;           break;
+	case SDLK_KP_ENTER:       key = K_KP_ENTER;          break;
+	case SDLK_KP_EQUALS:      key = K_KP_EQUALS;         break;
 
 	// Arrows + Home/End pad
-	case SDLK_UP:             result = K_UP;                break;
-	case SDLK_DOWN:           result = K_DOWN;              break;
-	case SDLK_RIGHT:          result = K_RIGHT;             break;
-	case SDLK_LEFT:           result = K_LEFT;              break;
-	case SDLK_INSERT:         result = K_INSERT;            break;
-	case SDLK_HOME:           result = K_HOME;              break;
-	case SDLK_END:            result = K_END;               break;
-	case SDLK_PAGEUP:         result = K_PAGEUP;            break;
-	case SDLK_PAGEDOWN:       result = K_PAGEDOWN;          break;
+	case SDLK_UP:             key = K_UP;                break;
+	case SDLK_DOWN:           key = K_DOWN;              break;
+	case SDLK_RIGHT:          key = K_RIGHT;             break;
+	case SDLK_LEFT:           key = K_LEFT;              break;
+	case SDLK_INSERT:         key = K_INSERT;            break;
+	case SDLK_HOME:           key = K_HOME;              break;
+	case SDLK_END:            key = K_END;               break;
+	case SDLK_PAGEUP:         key = K_PAGEUP;            break;
+	case SDLK_PAGEDOWN:       key = K_PAGEDOWN;          break;
 
 	// Function keys
-	case SDLK_F1:             result = K_F1;                break;
-	case SDLK_F2:             result = K_F2;                break;
-	case SDLK_F3:             result = K_F3;                break;
-	case SDLK_F4:             result = K_F4;                break;
-	case SDLK_F5:             result = K_F5;                break;
-	case SDLK_F6:             result = K_F6;                break;
-	case SDLK_F7:             result = K_F7;                break;
-	case SDLK_F8:             result = K_F8;                break;
-	case SDLK_F9:             result = K_F9;                break;
-	case SDLK_F10:            result = K_F10;               break;
-	case SDLK_F11:            result = K_F11;               break;
-	case SDLK_F12:            result = K_F12;               break;
-	case SDLK_F13:            result = K_F13;               break;
-	case SDLK_F14:            result = K_F14;               break;
-	case SDLK_F15:            result = K_F15;               break;
-	case SDLK_F16:            result = K_F16;               break;
-	case SDLK_F17:            result = K_F17;               break;
-	case SDLK_F18:            result = K_F18;               break;
-	case SDLK_F19:            result = K_F19;               break;
-	case SDLK_F20:            result = K_F20;               break;
-	case SDLK_F21:            result = K_F21;               break;
-	case SDLK_F22:            result = K_F22;               break;
-	case SDLK_F23:            result = K_F23;               break;
-	case SDLK_F24:            result = K_F24;               break;
+	case SDLK_F1:             key = K_F1;                break;
+	case SDLK_F2:             key = K_F2;                break;
+	case SDLK_F3:             key = K_F3;                break;
+	case SDLK_F4:             key = K_F4;                break;
+	case SDLK_F5:             key = K_F5;                break;
+	case SDLK_F6:             key = K_F6;                break;
+	case SDLK_F7:             key = K_F7;                break;
+	case SDLK_F8:             key = K_F8;                break;
+	case SDLK_F9:             key = K_F9;                break;
+	case SDLK_F10:            key = K_F10;               break;
+	case SDLK_F11:            key = K_F11;               break;
+	case SDLK_F12:            key = K_F12;               break;
+	case SDLK_F13:            key = K_F13;               break;
+	case SDLK_F14:            key = K_F14;               break;
+	case SDLK_F15:            key = K_F15;               break;
+	case SDLK_F16:            key = K_F16;               break;
+	case SDLK_F17:            key = K_F17;               break;
+	case SDLK_F18:            key = K_F18;               break;
+	case SDLK_F19:            key = K_F19;               break;
+	case SDLK_F20:            key = K_F20;               break;
+	case SDLK_F21:            key = K_F21;               break;
+	case SDLK_F22:            key = K_F22;               break;
+	case SDLK_F23:            key = K_F23;               break;
+	case SDLK_F24:            key = K_F24;               break;
 
 	// Key state modifier keys
-	case SDLK_NUMLOCKCLEAR:   result = K_NUMLOCK;           break;
-	case SDLK_CAPSLOCK:       result = K_CAPSLOCK;          break;
-	case SDLK_SCROLLLOCK:     result = K_SCROLLLOCK;        break;
-	case SDLK_RSHIFT:         result = K_RSHIFT;            break;
-	case SDLK_LSHIFT:         result = K_LSHIFT;            break;
-	case SDLK_RCTRL:          result = K_RCTRL;             break;
-	case SDLK_LCTRL:          result = K_LCTRL;             break;
-	case SDLK_RALT:           result = K_RALT;              break;
-	case SDLK_LALT:           result = K_LALT;              break;
-//	case SDLK_RMETA:          result = K_RMETA;             break;
-//	case SDLK_LMETA:          result = K_LMETA;             break;
-	case SDLK_LGUI:           result = K_LSUPER;            break; // Left "Windows" key
-	case SDLK_RGUI:           result = K_RSUPER;            break; // Right "Windows" key
-	case SDLK_MODE:           result = K_MODE;              break; // "Alt Gr" key
-//	case SDLK_COMPOSE:        result = K_COMPOSE;           break; // Multi-key compose key
+	case SDLK_NUMLOCKCLEAR:   key = K_NUMLOCK;           break;
+	case SDLK_CAPSLOCK:       key = K_CAPSLOCK;          break;
+	case SDLK_SCROLLLOCK:     key = K_SCROLLLOCK;        break;
+	case SDLK_RSHIFT:         key = K_RSHIFT;            break;
+	case SDLK_LSHIFT:         key = K_LSHIFT;            break;
+	case SDLK_RCTRL:          key = K_RCTRL;             break;
+	case SDLK_LCTRL:          key = K_LCTRL;             break;
+	case SDLK_RALT:           key = K_RALT;              break;
+	case SDLK_LALT:           key = K_LALT;              break;
+//	case SDLK_RMETA:          key = K_RMETA;             break;
+//	case SDLK_LMETA:          key = K_LMETA;             break;
+	case SDLK_LGUI:           key = K_LSUPER;            break; // Left "Windows" key
+	case SDLK_RGUI:           key = K_RSUPER;            break; // Right "Windows" key
+	case SDLK_MODE:           key = K_MODE;              break; // "Alt Gr" key
+//	case SDLK_COMPOSE:        key = K_COMPOSE;           break; // Multi-key compose key
 
 	// Miscellaneous function keys
-	case SDLK_HELP:           result = K_HELP;              break;
-	case SDLK_PRINTSCREEN:    result = K_PRINT;             break;
-	case SDLK_SYSREQ:         result = K_SYSREQ;            break;
-//	case SDLK_BREAK:          result = K_BREAK;             break;
-	case SDLK_APPLICATION:    result = K_MENU;              break;
-	case SDLK_MENU:           result = K_MENU;              break;
-	case SDLK_POWER:          result = K_POWER;             break; // Power Macintosh power key
-//	case SDLK_EURO:           result = K_EURO;              break; // Some european keyboards
-	case SDLK_UNDO:           result = K_UNDO;              break;
+	case SDLK_HELP:           key = K_HELP;              break;
+	case SDLK_PRINTSCREEN:    key = K_PRINT;             break;
+	case SDLK_SYSREQ:         key = K_SYSREQ;            break;
+//	case SDLK_BREAK:          key = K_BREAK;             break;
+	case SDLK_APPLICATION:    key = K_MENU;              break;
+	case SDLK_MENU:           key = K_MENU;              break;
+	case SDLK_POWER:          key = K_POWER;             break; // Power Macintosh power key
+//	case SDLK_EURO:           key = K_EURO;              break; // Some european keyboards
+	case SDLK_UNDO:           key = K_UNDO;              break;
 
 	// Application Control keys
-	case SDLK_AC_BACK:        result = K_BACK;              break;
+	case SDLK_AC_BACK:        key = K_BACK;              break;
 
-	default:                  result = K_UNKNOWN;           break;
+	default:                  key = K_UNKNOWN;           break;
+	}
+
+	KeyCode scan;
+	switch (scancode) {
+	case SDL_SCANCODE_BACKSPACE:      scan = K_BACKSPACE;         break;
+	case SDL_SCANCODE_TAB:            scan = K_TAB;               break;
+	case SDL_SCANCODE_CLEAR:          scan = K_CLEAR;             break;
+	case SDL_SCANCODE_RETURN:         scan = K_RETURN;            break;
+	case SDL_SCANCODE_PAUSE:          scan = K_PAUSE;             break;
+	case SDL_SCANCODE_ESCAPE:         scan = K_ESCAPE;            break;
+	case SDL_SCANCODE_SPACE:          scan = K_SPACE;             break;
+	case SDL_SCANCODE_APOSTROPHE:     scan = K_QUOTE;             break;
+	case SDL_SCANCODE_COMMA:          scan = K_COMMA;             break;
+	case SDL_SCANCODE_MINUS:          scan = K_MINUS;             break;
+	case SDL_SCANCODE_PERIOD:         scan = K_PERIOD;            break;
+	case SDL_SCANCODE_SLASH:          scan = K_SLASH;             break;
+	case SDL_SCANCODE_0:              scan = K_0;                 break;
+	case SDL_SCANCODE_1:              scan = K_1;                 break;
+	case SDL_SCANCODE_2:              scan = K_2;                 break;
+	case SDL_SCANCODE_3:              scan = K_3;                 break;
+	case SDL_SCANCODE_4:              scan = K_4;                 break;
+	case SDL_SCANCODE_5:              scan = K_5;                 break;
+	case SDL_SCANCODE_6:              scan = K_6;                 break;
+	case SDL_SCANCODE_7:              scan = K_7;                 break;
+	case SDL_SCANCODE_8:              scan = K_8;                 break;
+	case SDL_SCANCODE_9:              scan = K_9;                 break;
+	case SDL_SCANCODE_SEMICOLON:      scan = K_SEMICOLON;         break;
+	case SDL_SCANCODE_EQUALS:         scan = K_EQUALS;            break;
+
+	case SDL_SCANCODE_LEFTBRACKET:    scan = K_LEFTBRACKET;       break;
+	case SDL_SCANCODE_BACKSLASH:      scan = K_BACKSLASH;         break;
+	case SDL_SCANCODE_RIGHTBRACKET:   scan = K_RIGHTBRACKET;      break;
+	case SDL_SCANCODE_GRAVE:          scan = K_BACKQUOTE;         break;
+	case SDL_SCANCODE_A:              scan = K_A;                 break;
+	case SDL_SCANCODE_B:              scan = K_B;                 break;
+	case SDL_SCANCODE_C:              scan = K_C;                 break;
+	case SDL_SCANCODE_D:              scan = K_D;                 break;
+	case SDL_SCANCODE_E:              scan = K_E;                 break;
+	case SDL_SCANCODE_F:              scan = K_F;                 break;
+	case SDL_SCANCODE_G:              scan = K_G;                 break;
+	case SDL_SCANCODE_H:              scan = K_H;                 break;
+	case SDL_SCANCODE_I:              scan = K_I;                 break;
+	case SDL_SCANCODE_J:              scan = K_J;                 break;
+	case SDL_SCANCODE_K:              scan = K_K;                 break;
+	case SDL_SCANCODE_L:              scan = K_L;                 break;
+	case SDL_SCANCODE_M:              scan = K_M;                 break;
+	case SDL_SCANCODE_N:              scan = K_N;                 break;
+	case SDL_SCANCODE_O:              scan = K_O;                 break;
+	case SDL_SCANCODE_P:              scan = K_P;                 break;
+	case SDL_SCANCODE_Q:              scan = K_Q;                 break;
+	case SDL_SCANCODE_R:              scan = K_R;                 break;
+	case SDL_SCANCODE_S:              scan = K_S;                 break;
+	case SDL_SCANCODE_T:              scan = K_T;                 break;
+	case SDL_SCANCODE_U:              scan = K_U;                 break;
+	case SDL_SCANCODE_V:              scan = K_V;                 break;
+	case SDL_SCANCODE_W:              scan = K_W;                 break;
+	case SDL_SCANCODE_X:              scan = K_X;                 break;
+	case SDL_SCANCODE_Y:              scan = K_Y;                 break;
+	case SDL_SCANCODE_Z:              scan = K_Z;                 break;
+	case SDL_SCANCODE_DELETE:         scan = K_DELETE;            break;
+
+	// Numeric keypad
+	case SDL_SCANCODE_KP_0:           scan = K_KP0;               break;
+	case SDL_SCANCODE_KP_1:           scan = K_KP1;               break;
+	case SDL_SCANCODE_KP_2:           scan = K_KP2;               break;
+	case SDL_SCANCODE_KP_3:           scan = K_KP3;               break;
+	case SDL_SCANCODE_KP_4:           scan = K_KP4;               break;
+	case SDL_SCANCODE_KP_5:           scan = K_KP5;               break;
+	case SDL_SCANCODE_KP_6:           scan = K_KP6;               break;
+	case SDL_SCANCODE_KP_7:           scan = K_KP7;               break;
+	case SDL_SCANCODE_KP_8:           scan = K_KP8;               break;
+	case SDL_SCANCODE_KP_9:           scan = K_KP9;               break;
+	case SDL_SCANCODE_KP_PERIOD:      scan = K_KP_PERIOD;         break;
+	case SDL_SCANCODE_KP_DIVIDE:      scan = K_KP_DIVIDE;         break;
+	case SDL_SCANCODE_KP_MULTIPLY:    scan = K_KP_MULTIPLY;       break;
+	case SDL_SCANCODE_KP_MINUS:       scan = K_KP_MINUS;          break;
+	case SDL_SCANCODE_KP_PLUS:        scan = K_KP_PLUS;           break;
+	case SDL_SCANCODE_KP_ENTER:       scan = K_KP_ENTER;          break;
+	case SDL_SCANCODE_KP_EQUALS:      scan = K_KP_EQUALS;         break;
+
+	// Arrows + Home/End pad
+	case SDL_SCANCODE_UP:             scan = K_UP;                break;
+	case SDL_SCANCODE_DOWN:           scan = K_DOWN;              break;
+	case SDL_SCANCODE_RIGHT:          scan = K_RIGHT;             break;
+	case SDL_SCANCODE_LEFT:           scan = K_LEFT;              break;
+	case SDL_SCANCODE_INSERT:         scan = K_INSERT;            break;
+	case SDL_SCANCODE_HOME:           scan = K_HOME;              break;
+	case SDL_SCANCODE_END:            scan = K_END;               break;
+	case SDL_SCANCODE_PAGEUP:         scan = K_PAGEUP;            break;
+	case SDL_SCANCODE_PAGEDOWN:       scan = K_PAGEDOWN;          break;
+
+	// Function keys
+	case SDL_SCANCODE_F1:             scan = K_F1;                break;
+	case SDL_SCANCODE_F2:             scan = K_F2;                break;
+	case SDL_SCANCODE_F3:             scan = K_F3;                break;
+	case SDL_SCANCODE_F4:             scan = K_F4;                break;
+	case SDL_SCANCODE_F5:             scan = K_F5;                break;
+	case SDL_SCANCODE_F6:             scan = K_F6;                break;
+	case SDL_SCANCODE_F7:             scan = K_F7;                break;
+	case SDL_SCANCODE_F8:             scan = K_F8;                break;
+	case SDL_SCANCODE_F9:             scan = K_F9;                break;
+	case SDL_SCANCODE_F10:            scan = K_F10;               break;
+	case SDL_SCANCODE_F11:            scan = K_F11;               break;
+	case SDL_SCANCODE_F12:            scan = K_F12;               break;
+	case SDL_SCANCODE_F13:            scan = K_F13;               break;
+	case SDL_SCANCODE_F14:            scan = K_F14;               break;
+	case SDL_SCANCODE_F15:            scan = K_F15;               break;
+	case SDL_SCANCODE_F16:            scan = K_F16;               break;
+	case SDL_SCANCODE_F17:            scan = K_F17;               break;
+	case SDL_SCANCODE_F18:            scan = K_F18;               break;
+	case SDL_SCANCODE_F19:            scan = K_F19;               break;
+	case SDL_SCANCODE_F20:            scan = K_F20;               break;
+	case SDL_SCANCODE_F21:            scan = K_F21;               break;
+	case SDL_SCANCODE_F22:            scan = K_F22;               break;
+	case SDL_SCANCODE_F23:            scan = K_F23;               break;
+	case SDL_SCANCODE_F24:            scan = K_F24;               break;
+
+	// Key state modifier keys
+	case SDL_SCANCODE_NUMLOCKCLEAR:   scan = K_NUMLOCK;           break;
+	case SDL_SCANCODE_CAPSLOCK:       scan = K_CAPSLOCK;          break;
+	case SDL_SCANCODE_SCROLLLOCK:     scan = K_SCROLLLOCK;        break;
+	case SDL_SCANCODE_RSHIFT:         scan = K_RSHIFT;            break;
+	case SDL_SCANCODE_LSHIFT:         scan = K_LSHIFT;            break;
+	case SDL_SCANCODE_RCTRL:          scan = K_RCTRL;             break;
+	case SDL_SCANCODE_LCTRL:          scan = K_LCTRL;             break;
+	case SDL_SCANCODE_RALT:           scan = K_RALT;              break;
+	case SDL_SCANCODE_LALT:           scan = K_LALT;              break;
+	case SDL_SCANCODE_LGUI:           scan = K_LSUPER;            break; // Left "Windows" key
+	case SDL_SCANCODE_RGUI:           scan = K_RSUPER;            break; // Right "Windows" key
+	case SDL_SCANCODE_MODE:           scan = K_MODE;              break; // "Alt Gr" key
+
+	// Miscellaneous function keys
+	case SDL_SCANCODE_HELP:           scan = K_HELP;              break;
+	case SDL_SCANCODE_PRINTSCREEN:    scan = K_PRINT;             break;
+	case SDL_SCANCODE_SYSREQ:         scan = K_SYSREQ;            break;
+	case SDL_SCANCODE_APPLICATION:    scan = K_MENU;              break;
+	case SDL_SCANCODE_MENU:           scan = K_MENU;              break;
+	case SDL_SCANCODE_POWER:          scan = K_POWER;             break; // Power Macintosh power key
+	case SDL_SCANCODE_UNDO:           scan = K_UNDO;              break;
+
+	// Application Control keys
+	case SDL_SCANCODE_AC_BACK:        scan = K_BACK;              break;
+
+	default:                          scan = K_UNKNOWN;           break;
 	}
 
 	// Handle keys that don't have a key code but do have a scan code.
-	if (result == K_UNKNOWN) {
+	if (key == K_UNKNOWN) {
 		// Assume it is a Japanese keyboard and check
 		// scancode to recognize a few japanese
 		// specific keys for which SDL does not have an
@@ -542,48 +686,56 @@ KeyCode getCode(SDL_Keycode key, Uint16 mod, SDL_Scancode scancode, bool release
 		switch (scancode) {
 		// Keys found on Japanese keyboards:
 		case 49:
-			result = K_ZENKAKU_HENKAKU;
+			key = K_ZENKAKU_HENKAKU;
 			break;
 		case 129:
-			result = K_HENKAN_MODE;
+			key = K_HENKAN_MODE;
 			break;
 		//case 131:
-		//	result = K_MUHENKAN;
+		//	key = K_MUHENKAN;
 		//	break;
 		case 208:
-			result = K_HIRAGANA_KATAKANA;
+			key = K_HIRAGANA_KATAKANA;
 			break;
 		// Keys found on Korean keyboards:
 		case 56:
 			// On Korean keyboard this code is used for R-ALT key but SDL does
 			// not seem to recognize it, as reported by Miso Kim.
-			result = K_RALT;
+			key = K_RALT;
+			break;
 		default:
-			break; // nothing, silence compiler warning
+			key = scan;
+			break;
 		}
 	}
 
 	// Apply modifiers.
 	if (mod & KMOD_CTRL) {
-		result = static_cast<KeyCode>(result | KM_CTRL);
+		key  = combine(key,  KM_CTRL);
+		scan = combine(scan, KM_CTRL);
 	}
 	if (mod & KMOD_SHIFT) {
-		result = static_cast<KeyCode>(result | KM_SHIFT);
+		key  = combine(key,  KM_SHIFT);
+		scan = combine(scan, KM_SHIFT);
 	}
 	if (mod & KMOD_ALT) {
-		result = static_cast<KeyCode>(result | KM_ALT);
+		key  = combine(key,  KM_ALT);
+		scan = combine(scan, KM_ALT);
 	}
 	if (mod & KMOD_GUI) {
-		result = static_cast<KeyCode>(result | KM_META);
+		key  = combine(key,  KM_META);
+		scan = combine(scan, KM_META);
 	}
 	if (mod & KMOD_MODE) {
-		result = static_cast<KeyCode>(result | KM_MODE);
+		key  = combine(key,  KM_MODE);
+		scan = combine(scan, KM_MODE);
 	}
 
 	if (release) {
-		result = static_cast<KeyCode>(result | KD_RELEASE);
+		key  = combine(key,  KD_RELEASE);
+		scan = combine(scan, KD_RELEASE);
 	}
-	return result;
+	return {key, scan};
 }
 
 string getName(KeyCode keyCode)

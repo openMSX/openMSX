@@ -27,32 +27,45 @@ class KeyEvent : public TimedEvent
 {
 public:
 	Keys::KeyCode getKeyCode() const { return keyCode; }
+	Keys::KeyCode getScanCode() const { return scanCode; }
 	uint32_t getUnicode() const { return unicode; }
 
 protected:
-	KeyEvent(EventType type, Keys::KeyCode keyCode, uint32_t unicode);
+	KeyEvent(EventType type, Keys::KeyCode keyCode, Keys::KeyCode scanCode, uint32_t unicode);
 	~KeyEvent() = default;
 
 private:
 	TclObject toTclList() const override;
 	bool lessImpl(const Event& other) const override;
 	const Keys::KeyCode keyCode;
+	const Keys::KeyCode scanCode; // 2nd class support, see comments in toTclList()
 	const uint32_t unicode;
 };
 
 class KeyUpEvent final : public KeyEvent
 {
 public:
-	explicit KeyUpEvent(Keys::KeyCode keyCode);
+	explicit KeyUpEvent(Keys::KeyCode keyCode_)
+		: KeyUpEvent(keyCode_, keyCode_) {}
+
+	explicit KeyUpEvent(Keys::KeyCode keyCode_, Keys::KeyCode scanCode_)
+		: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode_, scanCode_, 0) {}
 };
 
 class KeyDownEvent final : public KeyEvent
 {
 public:
 	explicit KeyDownEvent(Keys::KeyCode keyCode_)
-		: KeyDownEvent(keyCode_, 0) {}
+		: KeyDownEvent(keyCode_, keyCode_, 0) {}
 
-	explicit KeyDownEvent(Keys::KeyCode keyCode, uint32_t unicode);
+	explicit KeyDownEvent(Keys::KeyCode keyCode_, Keys::KeyCode scanCode_)
+		: KeyDownEvent(keyCode_, scanCode_, 0) {}
+
+	explicit KeyDownEvent(Keys::KeyCode keyCode_, uint32_t unicode_)
+		: KeyDownEvent(keyCode_, keyCode_, unicode_) {}
+
+	explicit KeyDownEvent(Keys::KeyCode keyCode_, Keys::KeyCode scanCode_, uint32_t unicode_)
+		: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode_, scanCode_, unicode_) {}
 };
 
 

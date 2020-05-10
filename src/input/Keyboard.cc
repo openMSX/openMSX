@@ -346,10 +346,14 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
  */
 bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 {
+	auto mode = keyboardSettings.getMappingMode();
+
 	auto& keyEvent = checked_cast<const KeyEvent&>(event);
 	bool down = event.getType() == OPENMSX_KEY_DOWN_EVENT;
-	auto key = static_cast<Keys::KeyCode>(
-		int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
+	auto code = (mode == KeyboardSettings::POSITIONAL_MAPPING)
+	          ? keyEvent.getScanCode() : keyEvent.getKeyCode();
+	auto key = static_cast<Keys::KeyCode>(int(code) & int(Keys::K_MASK));
+
 	if (down) {
 		// TODO: refactor debug(...) method to expect a std::string and then adapt
 		// all invocations of it to provide a properly formatted string, using the C++
@@ -375,7 +379,7 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 	}
 
 	// Process deadkeys.
-	if (keyboardSettings.getMappingMode() == KeyboardSettings::CHARACTER_MAPPING) {
+	if (mode == KeyboardSettings::CHARACTER_MAPPING) {
 		for (unsigned n = 0; n < 3; n++) {
 			if (key == keyboardSettings.getDeadkeyHostKey(n)) {
 				UnicodeKeymap::KeyInfo deadkey = unicodeKeymap.getDeadkey(n);
@@ -517,10 +521,12 @@ void Keyboard::updateKeyMatrix(EmuTime::param time, bool down, KeyMatrixPosition
  */
 bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent)
 {
-	Keys::KeyCode keyCode = keyEvent.getKeyCode();
-	auto key = static_cast<Keys::KeyCode>(
-		int(keyCode) & int(Keys::K_MASK));
-	unsigned unicode;
+	auto mode = keyboardSettings.getMappingMode();
+
+	auto keyCode  = keyEvent.getKeyCode();
+	auto scanCode = keyEvent.getScanCode();
+	auto code = (mode == KeyboardSettings::POSITIONAL_MAPPING) ? scanCode : keyCode;
+	auto key = static_cast<Keys::KeyCode>(int(code) & int(Keys::K_MASK));
 
 	bool isOnKeypad =
 		(key >= Keys::K_KP0 && key <= Keys::K_KP9) ||
@@ -536,10 +542,12 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 
 	if (down) {
 		UnicodeKeymap::KeyInfo keyInfo;
+		unsigned unicode;
 		if (isOnKeypad ||
-		    keyboardSettings.getMappingMode() == KeyboardSettings::KEY_MAPPING) {
-			// User entered a key on numeric keypad or the driver is in KEY
-			// mapping mode.
+		    mode == one_of(KeyboardSettings::KEY_MAPPING,
+		                   KeyboardSettings::POSITIONAL_MAPPING)) {
+			// User entered a key on numeric keypad or the driver is in
+			// KEY/POSITIONAL mapping mode.
 			// First option (keypad) maps to same unicode as some other key
 			// combinations (e.g. digit on main keyboard or TAB/DEL).
 			// Use unicode to handle the more common combination and use direct
@@ -611,6 +619,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			keyCode = key = Keys::K_INSERT;
 		}
 #endif
+		unsigned unicode;
 		if (key < MAX_KEYSYM) {
 			unicode = dynKeymap[key]; // Get the unicode that was derived from this key
 		} else {

@@ -15,7 +15,7 @@ class KeyboardSettings
 {
 public:
 	enum KpEnterMode { MSX_KP_COMMA, MSX_ENTER };
-	enum MappingMode { KEY_MAPPING, CHARACTER_MAPPING };
+	enum MappingMode { KEY_MAPPING, CHARACTER_MAPPING, POSITIONAL_MAPPING };
 
 	explicit KeyboardSettings(CommandController& commandController);
 

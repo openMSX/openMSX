@@ -3,6 +3,7 @@
 
 #include <SDL_stdinc.h>
 #include <SDL_keycode.h>
+#include <SDL_scancode.h>
 #include <string>
 #include <string_view>
 
@@ -217,7 +218,9 @@ enum KeyCode {
  */
 KeyCode getCode(std::string_view name);
 
-KeyCode getCode(SDL_Keycode key, Uint16 mod = KMOD_NONE, SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN, bool release = false);
+/** Translate SDL_Keycode/SDL_Scancode into openMSX key/scan Keycode's. */
+std::pair<KeyCode, KeyCode> getCode(
+	SDL_Keycode keycode, Uint16 mod = KMOD_NONE, SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN, bool release = false);
 
 /**
  * Translate key code to key name.
