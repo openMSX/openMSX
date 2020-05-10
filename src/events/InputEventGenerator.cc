@@ -30,7 +30,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		false, Setting::DONT_SAVE)
 	, escapeGrabCmd(commandController)
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
-	, keyRepeat(false)
 {
 	setGrabInput(grabInput.getBoolean());
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
@@ -120,11 +119,6 @@ void InputEventGenerator::poll()
 	if (pending) {
 		handle(*prev);
 	}
-}
-
-void InputEventGenerator::setKeyRepeat(bool enable)
-{
-	keyRepeat = enable;
 }
 
 void InputEventGenerator::setNewOsdControlButtonState(

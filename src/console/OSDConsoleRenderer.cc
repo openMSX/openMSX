@@ -178,8 +178,6 @@ void OSDConsoleRenderer::setActive(bool active_)
 	display.repaintDelayed(40000); // 25 fps
 
 	activeTime = Timer::getTime();
-
-	reactor.getInputEventGenerator().setKeyRepeat(active);
 }
 
 byte OSDConsoleRenderer::getVisibility() const

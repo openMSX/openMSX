@@ -30,11 +30,6 @@ public:
 	  */
 	void wait();
 
-	/**
-	 * Enable or disable keyboard event repeats
-	 */
-	void setKeyRepeat(bool enable);
-
 	/** Input Grab on or off */
 	BooleanSetting& getGrabInput() { return grabInput; }
 	/** Must be called when 'grabinput' or 'fullscreen' setting changes. */
@@ -91,7 +86,6 @@ private:
 		Keys::KeyCode keyCode, bool up, const EventPtr& origEvent);
 
 
-	bool keyRepeat;
 	unsigned osdControlButtonsState; // 0 is pressed, 1 is released
 
 	// only for Android
