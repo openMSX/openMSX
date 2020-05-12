@@ -42,11 +42,10 @@ string HDImageCLI::getImageForId(int id)
 void HDImageCLI::parseDone()
 {
 	// After parsing all remembered values should be cleared. If not there
-	// was no 'hdX' hard disk.
+	// was no hard disk as specified.
 	if (!images.empty()) {
-		string hd = "hdX";
-		hd[2] = 'a' + images.front().first;
-		throw MSXException("No hard disk named '", hd, "'.");
+		char hd = char(::toupper('a' + images.front().first));
+		throw MSXException("No hard disk ", hd, " present.");
 	}
 }
 

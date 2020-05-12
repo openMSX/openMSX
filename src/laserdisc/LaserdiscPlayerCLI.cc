@@ -22,15 +22,15 @@ void LaserdiscPlayerCLI::parseOption(const string& option, span<string>& cmdLine
 
 std::string_view LaserdiscPlayerCLI::optionHelp() const
 {
-	return "Put laserdisc image specified in argument in "
-	       "virtual laserdiscplayer";
+	return "Put LaserDisc image specified in argument in "
+	       "virtual LaserDisc player";
 }
 
 void LaserdiscPlayerCLI::parseFileType(const string& filename,
                                        span<string>& /*cmdLine*/)
 {
 	if (!parser.getGlobalCommandController().hasCommand("laserdiscplayer")) {
-		throw MSXException("No laserdiscplayer.");
+		throw MSXException("No LaserDisc player present.");
 	}
 	TclObject command = makeTclList("laserdiscplayer", "insert", filename);
 	command.executeCommand(parser.getInterpreter());
@@ -38,7 +38,7 @@ void LaserdiscPlayerCLI::parseFileType(const string& filename,
 
 std::string_view LaserdiscPlayerCLI::fileTypeHelp() const
 {
-	return "Laserdisc image, Ogg Vorbis/Theora";
+	return "LaserDisc image, Ogg Vorbis/Theora";
 }
 
 std::string_view LaserdiscPlayerCLI::fileTypeCategoryName() const
