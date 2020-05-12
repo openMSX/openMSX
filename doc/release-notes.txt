@@ -50,8 +50,8 @@ MSX device support:
 - fixed RAM size of Daewoo DPC-180
 - added new machines: Yamaha AX500 (thanks Hashem Khalifa), Toshiba HX-20E
   (thanks Isaac Santaolalla), Yamaha YIS-503, YIS-503II, CX5F, YIS-604/128
-  (thanks Peter Hanraets), Yamaha AX150 (thanks pgimeno), Olympia PHC-2 (thanks
-  Patrick)
+  (thanks Peter Hanraets), Yamaha AX150 (thanks Pedro Gimeno), Olympia PHC-2
+  (thanks Patrick)
 - added new extensions: Yamaha FD-03 (thanks Arjen) and FD-05 disk drive,
   Toshiba HX-F101PE disk drive, ROM Hunter Mk2 (thanks BiFi, Takamichi), Sony
   HBI-J1 (thanks Sandy), JVC MSX MIDI (thanks gflores)
