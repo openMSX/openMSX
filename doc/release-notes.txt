@@ -24,7 +24,6 @@ MSX device support:
   - added synchronization for the CE IRQ
   - fixed sprite rendering algorithm on P modes
   - fixed background rendering in P2
-  - fixed crash with P1 mode rendering of 1 pixel wide image
 - V99x8:
   - fixed that set adjust has no influence on maximum horizontal interrupt line
   - fixed right border on V9958 horizontal scroll
@@ -43,11 +42,10 @@ MSX device support:
 - fixed initial RAM pattern of ColecoVision to 0x00, which fixes The Heist
 - fixed register mirroring of Yamaha SFG modules
 - improved loading bad quality WAV cassette images using cubic interpolation
-- added very accurate NukeYKT YM2413 core (now also the default)
+- added very accurate (but also slower) NukeYKT YM2413 core (now also the default)
 - added emulation of 256kB hangul font ROM of the Daewoo CPC-400S
-- added emulation of mappers:
-  - Repro Cartridge mapper (v1 and v2)
-  - Matra Compilation (e.g. Konami Compilation 1 and 2)
+- added emulation of mappers Repro Cartridge mapper (v1 and v2) and Matra
+  Compilation (e.g. Konami Compilation 1 and 2)
 - fixed keyboard type of CIEL Expert Turbo
 - fixed RAM size of Daewoo DPC-180
 - added new machines: Yamaha AX500 (thanks Hashem Khalifa), Toshiba HX-20E
@@ -55,40 +53,23 @@ MSX device support:
   (thanks Peter Hanraets), Yamaha AX150 (thanks pgimeno), Olympia PHC-2 (thanks
   Patrick)
 - added new extensions: Yamaha FD-03 (thanks Arjen) and FD-05 disk drive,
-  Toshiba HX-F101PE disk drive, ROM Hunter Mk2, Sony HBI-J1 (thanks Sandy), JVC
-  MSX MIDI (thanks gflores)
+  Toshiba HX-F101PE disk drive, ROM Hunter Mk2 (thanks BiFi, Takamichi), Sony
+  HBI-J1 (thanks Sandy), JVC MSX MIDI (thanks gflores)
 
 New or improved emulator features:
-- WARNING: backwards incompatible change to the 'machine_info device <device>'
-  command. The result for ROM devices is now a dict (instead of a list) with at
-  least one key-value pair, with key "type". For certain devices more key-value
-  pairs are present, that were previously in list elements 1 to 3. Example to
-  get the mapper type of device 'usas':
-  dict get [machine_info device usas] "mappertype"
-  And to get the device type (works for any device) of MyCoolDevice:
-  dict get [machine_info device MyCoolDevice] "type"
-- added an optional <exit-code>-parameter to the exist command
-- added script and MSX-DOS tool to give openMSX commands from within the
-  emulated MSX
-- fixed crash when using a relative path with the -setting command line option
-- fixed 'kbd_code_kana_host_key' setting (did (sometimes?) not work anymore)
 - fixed crash in ColecoVision when e.g. ALT+SPACE was pressed
-- fixed crash wen ejecting tape during cassette loading
+- fixed crash when ejecting tape during cassette loading
 - fixed MIDI-in/out support on Windows
-- huge updates to the Software DB:
-  - many fixes
-  - countless new entries for many ROM files you can find on the web
-- when using IPS patches, the patched ROM will be looked up in the Software DB
-- make it easier to handle non-specific input events in Tcl scripts
-- use soft-fullscreen now, instead of changing display modes. This looks better
-  on almost all modern monitors. As a consequence, a screenshot made on full
-  screen will be larger and will probably show letter boxes at the sides.
-- support host system function keys up to F24 now
-- improved error messages on console commands (e.g. wrong number of arguments,
-  unknown options, wrong subcommands)
-- fixed cursor grabbing when going to and coming back from fullscreen
 - fixed possible crashes when using reverse
-- major speed up in loading WAV files
+- added drag and drop support of files on the openMSX window. Supports ROM
+  files, disk images (and folders), cassette images, LaserDisc images,
+  savestates, replays, text files, Tcl scripts.
+- added copy/paste functionality: with CTRL+Win+V (Cmd+V on Mac) or the middle
+  mouse button, the clipboard text will be pasted into the MSX and with
+  CTRL+Win+C (Cmd+C on Mac), the current MSX text screen will be copied to the
+  clipboard
+- added new POSITIONAL keyboard mapping mode, which is a much improved version
+  of the KEY mode. Use when CHARACTER mode isn't working properly for you
 - add file extensions to OSD menu and command line (e.g. .fd1/.fd2/.fd?/.1/.2)
 - OSD menu:
   - when browsing for a media (ROM, disk, etc.) the menu now starts with the
@@ -100,50 +81,67 @@ New or improved emulator features:
   - go to the top of a list with HOME or CTRL+LEFT. Go to the end by pressing UP
     after that, as the lists wrap around :)
   - now all cartridge slots and disk drives can be controlled from OSD
+- added setting to control sync to vblank. Default is now enabled
+- added new OSD icon set, which positions icons as far to the bottom as
+  possible (set3)
+- use soft-fullscreen now, instead of changing display modes. This looks better
+  on almost all modern monitors. As a consequence, a screenshot made on full
+  screen will be larger and will probably show letter boxes at the sides.
+- huge updates to the Software DB:
+  - many fixes
+  - countless new entries for many ROM files you can find on the web
+- when using IPS patches, the patched ROM will be looked up in the Software DB
+- support host system function keys up to F24 now
+- improved error messages on console commands (e.g. wrong number of arguments,
+  unknown options, wrong subcommands)
+- fixed cursor grabbing when going to and coming back from fullscreen
 - enable HighDPI support (at least fixes some issues on macOS)
-- added copy/paste functionality: with CTRL+Win+V (Cmd+V on Mac) or the middle
-  mouse button, the clipboard text will be pasted into the MSX and with
-  CTRL+Win+C (Cmd+C on Mac), the current MSX text screen will be copied to the
-  clipboard
+- fixed (removed) influence of user pressing modifier keys (CTRL/SHIFT/...)
+  when text is typed into the MSX (e.g. with type command, auto cassette run,
+  text pasting)
 - added -once flag to 'debug set_bp' (and related commands) to trigger once
 - several fixes to the unicode map files, so that pasting and CHARACTER
   keyboard mode works better (especially on Spanish MSX machines)
 - added a debug probe on the V99x8 command execution and with that made the
   vdp_busy script more accurate
-- fixed (removed) influence of user pressing modifier keys (CTRL/SHIFT/...)
-  when text is typed into the MSX (e.g. with type command, auto cassette run,
-  text pasting)
 - worked around bug/limitation of MSX-BIOS when typing MSX characters 00-1F,
   which now works reliably
-- Use Rebecca Bettencourts officially proposed Unicode mapping of MSX character
+- fixed crash when using a relative path with the -setting command line option
+- fixed 'kbd_code_kana_host_key' setting (did (sometimes?) not work anymore)
+- use Rebecca Bettencourts officially proposed Unicode mapping of MSX character
   set
 - save_msx_screen script now also supports interlaced images
 - added '-command' command line option to execute the given command after
   starting
 - disable V99x8 specific debug writes on MSX1 VDP's
-- added drag and drop support of files on the openMSX window. Supports ROM
-  files, disk images (and folders), cassette images, LaserDisc images,
-  savestates, replays, text files, Tcl scripts.
-- added setting to control sync to vblank. Default is now enabled
-- added new OSD icon set, which positions icons as far to the bottom as
-  possible (set3)
-- added new POSITIONAL keyboard mapping mode, which is a much improved version
-  of the KEY mode. Use when CHARACTER mode isn't working properly for you
+- added an optional <exit-code>-parameter to the exit command
+- added script and MSX-DOS tool to give openMSX commands from within the
+  emulated MSX (which is not enabled by default)
+- make it easier to handle non-specific input events in Tcl scripts
+- WARNING: backwards incompatible change to the 'machine_info device <device>'
+  command. The result for ROM devices is now a dict (instead of a list) with at
+  least one key-value pair, with key "type". For certain devices more key-value
+  pairs are present, that were previously in list elements 1 to 3. Example to
+  get the mapper type of device 'usas':
+  dict get [machine_info device usas] "mappertype"
+  And to get the device type (works for any device) of MyCoolDevice:
+  dict get [machine_info device MyCoolDevice] "type"
 
 Build system, packaging, documentation:
 - migrated to SDL2
+- unfortunately, the Android port is for now broken, as we did not integrate it
+  into our build system yet (and that's not easy). The C++ code does compile,
+  and now requires NDK20 and API level 18 (Android 4.3)
 - updated all other 3rdparty libraries as well, like upgrading to Tcl 8.6
-- support for pkg-config in the build system, e.g. to buil FreeType
+- SDLGL-PP renderer now requires OpenGL 3.3, shaders are now in GLSL 3.30
+- support for pkg-config in the build system, e.g. to build FreeType
 - C++ code is based on C++17 and thus requires a compiler supporting it, e.g.
   g++ 7 or later.
 - fixed endianness on ppc64le
 - fixed compilation for big-endian CPUs with g++-9
-- unfortunately, the Android port is for now broken, as we did not integrate it
-  into our build system yet (and that's not easy). The C++ code does compile,
-  and now requires NDK20 and API level 18 (Android 4.3)
-- migrated build system to Python 3, as Python 2 is now officially dead
+- migrated build system and all other Python scripts to Python 3, as Python 2
+  is now officially dead
 - documentation is now in HTML5 instead of XHTML
-- SDLGL-PP renderer now requires OpenGL 3.3, shaders are now in GLSL 3.30
 
 
 And of course the usual various bug fixes and performance improvements.
