@@ -120,7 +120,8 @@ New or improved emulator features:
   starting
 - disable V99x8 specific debug writes on MSX1 VDP's
 - added drag and drop support of files on the openMSX window. Supports ROM
-  files, disk images (and folders), cassette images, text files, Tcl, scripts.
+  files, disk images (and folders), cassette images, LaserDisc images,
+  savestates, replays, text files, Tcl scripts.
 - added setting to control sync to vblank. Default is now enabled
 - added new OSD icon set, which positions icons as far to the bottom as
   possible (set3)
