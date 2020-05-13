@@ -5708,7 +5708,7 @@
 
   <h3><a id="z80_freq">z80_freq / z80_freq_locked</a></h3>
 
-  <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.579545 MHz (or optionally 5.369318 MHz on some machines). When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency.</p>
+  <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.579545 MHz (or optionally 5.369318 MHz on some machines). In other words: the MSX is in control of the CPU frequency. When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency.</p>
 
   <p>WARNING: be careful when changing these settings. When saving the settings in which a different clock is activated, this will be applied for all machines, as these are global settings. Some software (like demos) may stop working properly with a changed CPU clock frequency. Specifically, using a value (just) below the normal value may cause problems loading CAS images, as these are converted to a high baud rate WAV file internally and when the MSX becomes slower it cannot handle that high baud rate.</p>
 
