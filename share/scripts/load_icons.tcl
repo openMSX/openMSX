@@ -88,13 +88,25 @@ proc load_icons {{set_name "-show"} {position_param "default"}} {
 	variable current_fade_delay_active
 	variable current_fade_delay_non_active
 
+	set possible_positions [list "top" "bottom" "left" "right" "default"]
+
+	if {$set_name eq ""} {
+	}
+
 	if {$set_name eq "-show"} {
 		# Show list of available skins
-		set user_skins   \
-		    [glob -tails -types d -directory $::env(OPENMSX_USER_DATA)/skins   *]
-		set system_skins \
-		    [glob -tails -types d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
-		return [lsort -unique [concat $user_skins $system_skins]]
+		set user_skins [list]
+		catch {
+			set user_skins   \
+			    [glob -tails -types d -directory $::env(OPENMSX_USER_DATA)/skins   *]
+		}
+		
+		set system_skins [list]
+		catch {
+			set system_skins \
+			    [glob -tails -types d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
+		}
+		return "Current icon set is $::osd_leds_set at position $::osd_leds_pos.\nAvailable sets: [lsort -unique [concat $user_skins $system_skins]]\nPossible positions: $possible_positions"
 	}
 
 	# Check skin directory
@@ -108,7 +120,7 @@ proc load_icons {{set_name "-show"} {position_param "default"}} {
 	}
 
 	# Check position
-	if {$position_param ni [list "top" "bottom" "left" "right" "default"]} {
+	if {$position_param ni $possible_positions} {
 		error "Invalid position: $position_param"
 	}
 
