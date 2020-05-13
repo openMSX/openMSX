@@ -1509,36 +1509,56 @@ proc menu_rom_with_mappertype_exec {slot fullname mappertype} {
 
 		set rominfo [getlist_rom_info]
 
-		if {$rominfo eq ""} {
-			osd::display_message "No ROM information available..."
-		} else {
-			osd::display_message "Now running ROM:\nTitle:\nYear:\nCompany:\nCountry:\nStatus:\nRemark:"
+		set message1 "Now running ROM:\n"
+		set message2 " \n"
 
-			append result " \n" \
-						  "[dict get $rominfo title]\n" \
-						  "[dict get $rominfo year]\n" \
-						  "[dict get $rominfo company]\n" \
-						  "[dict get $rominfo country]\n" \
-						  "[dict get $rominfo status]\n"
+		dict with rominfo {
 
-			if {[dict get $rominfo remark] ne ""} {
-				append result [dict get $rominfo remark]
-			} else {
-				append result "None"
+			if {$title ne ""} {
+				append message1 "Title:\n"
+				append message2 "$title\n"
+			} elseif {$filename ne ""} {
+				append message1 "File:\n"
+				append message2 "$filename\n"
 			}
-
-			set txt_size 6
-			set xpos 35
-
-			# TODO: prevent this from being duplicated from osd_widgets::text_box
-			if {$::scale_factor == 1} {
-				set txt_size 9
-				set xpos 53
+			if {$year ne ""} {
+				append message1 "Year:\n"
+				append message2 "$year\n"
 			}
-
-			# TODO: this code knows the internal name of the widget of osd::display_message proc... it shouldn't need to.
-			osd create text osd_display_message.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$result"
+			if {$company ne ""} {
+				append message1 "Company:\n"
+				append message2 "$company\n"
+			}
+			if {$country ne ""} {
+				append message1 "Country:\n"
+				append message2 "$country\n"
+			}
+			if {$status ne ""} {
+				append message1 "Status:\n"
+				append message2 "$status\n"
+			}
+			if {$remark ne ""} {
+				append message1 "Remark:\n"
+				append message2 "$remark\n"
+			}
+			if {$mappertype ne ""} {
+				append message1 "Mapper:\n"
+				append message2 "$mappertype\n"
+			}
 		}
+		osd::display_message $message1
+
+		set txt_size 6
+		set xpos 35
+
+		# TODO: prevent this from being duplicated from osd_widgets::text_box
+		if {$::scale_factor == 1} {
+			set txt_size 9
+			set xpos 53
+		}
+
+		# TODO: this code knows the internal name of the widget of osd::display_message proc... it shouldn't need to.
+		osd create text osd_display_message.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$message2"
 		reset
 	}
 }
