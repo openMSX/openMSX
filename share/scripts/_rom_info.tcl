@@ -35,6 +35,23 @@ proc getlist_rom_info {{romdevice ""}} {
 		error [format "Device is not of type ROM, but %s" $device_type]
 	}
 
+	set filename [dict get $device_info "filename"]
+
+	set slotname ""
+	set slot ""
+	foreach slotcmd [info command cart?] {
+		if {[lindex [$slotcmd] 1] eq $filename} {
+			set slotname [string index $slotcmd end]
+			set slotinfo [machine_info external_slot slot$slotname]
+			set slotname [string toupper $slotname]
+			set slot [lindex $slotinfo 0]
+			set subslot [lindex $slotinfo 1]
+			if {$subslot ne "X"} {
+				append slot "-$subslot"
+			}
+		}
+	}
+
 	set actualSHA1 [dict get $device_info "actualSHA1"]
 	set originalSHA1 [dict get $device_info "originalSHA1"]
 
@@ -45,7 +62,6 @@ proc getlist_rom_info {{romdevice ""}} {
 	}
 	set softPatched [expr {$actualSHA1 ne $originalSHA1}]
 	set mappertype [dict get $device_info "mappertype"]
-	set filename [dict get $device_info "filename"]
 
 	set title ""
 	set company ""
@@ -92,35 +108,40 @@ proc getlist_rom_info {{romdevice ""}} {
 			"country"	$country \
 			"status"	$status \
 			"remark"	$remark \
-			"mappertype"	$mappertype]
+			"mappertype"	$mappertype \
+			"slotname"	$slotname \
+			"slot"		$slot]
 }
 
 proc rom_info {{romdevice ""}} {
 	set rominfo [rom_info::getlist_rom_info $romdevice]
 
 	dict with rominfo {
+		if {$slotname ne "" && $slot ne ""} {
+			append result "Cart. slot: $slotname (slot $slot)\n"
+		}
 		if {$title ne ""} {
-			append result "Title:    $title\n"
+			append result "Title:      $title\n"
 		} elseif {$filename ne ""} {
-			append result "File:     $filename\n"
+			append result "File:       $filename\n"
 		}
 		if {$year ne ""} {
-			append result "Year:     $year\n"
+			append result "Year:       $year\n"
 		}
 		if {$company ne ""} {
-			append result "Company:  $company\n"
+			append result "Company:    $company\n"
 		}
 		if {$country ne ""} {
-			append result "Country:  $country\n"
+			append result "Country:    $country\n"
 		}
 		if {$status ne ""} {
-			append result "Status:   $status\n"
+			append result "Status:     $status\n"
 		}
 		if {$remark ne ""} {
-			append result "Remark:   $remark\n"
+			append result "Remark:     $remark\n"
 		}
 		if {$mappertype ne ""} {
-			append result "Mapper:   $mappertype\n"
+			append result "Mapper:     $mappertype\n"
 		}
 	}
 	return $result

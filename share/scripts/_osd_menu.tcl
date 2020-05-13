@@ -1509,10 +1509,15 @@ proc menu_rom_with_mappertype_exec {slot fullname mappertype} {
 
 		set rominfo [getlist_rom_info]
 
-		set message1 "Now running ROM:\n"
+		set message1 "Now running ROM"
 		set message2 " \n"
 
 		dict with rominfo {
+
+			if {$slotname ne "" && $slot ne ""} {
+				append message1 " in cartridge slot $slotname (slot $slot)"
+			}
+			append message1 ":\n"
 
 			if {$title ne ""} {
 				append message1 "Title:\n"
