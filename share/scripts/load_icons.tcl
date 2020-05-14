@@ -90,9 +90,6 @@ proc load_icons {{set_name "-show"} {position_param "default"}} {
 
 	set possible_positions [list "top" "bottom" "left" "right" "default"]
 
-	if {$set_name eq ""} {
-	}
-
 	if {$set_name eq "-show"} {
 		# Show list of available skins
 		set user_skins [list]
@@ -100,7 +97,7 @@ proc load_icons {{set_name "-show"} {position_param "default"}} {
 			set user_skins   \
 			    [glob -tails -types d -directory $::env(OPENMSX_USER_DATA)/skins   *]
 		}
-		
+
 		set system_skins [list]
 		catch {
 			set system_skins \
