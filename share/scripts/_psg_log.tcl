@@ -71,6 +71,7 @@ proc psg_log { subcommand {filename "log.psg"} } {
 		debug remove_watchpoint $psg_log_wp
 		close $psg_log_file
 		set psg_log_file -1
+		set psg_log_wp ""
 		return ""
 	} else {
 		error "bad option \"$subcommand\": must be start, stop"
