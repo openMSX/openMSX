@@ -11,6 +11,7 @@
 #include "InputEvents.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
+#include "SDL.h"
 #include "Version.hh"
 #include "checked_cast.hh"
 #include "utf8_unchecked.hh"
@@ -261,6 +262,27 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			return true;
 		case Keys::K_C:
 			clearCommand();
+			return true;
+		case Keys::K_V:
+			if (char* text = SDL_GetClipboardText()) {
+				auto pastedLines = StringOp::split(text, '\n');
+				// do not free text yet, as pastedLines is just a string_view container
+				auto numPastedLines = pastedLines.size();
+				std::string onlyEnter;
+				if (numPastedLines > 1) {
+					// for multi lines, paste and execute all but the last lane
+					for (size_t lineIdx = 0; lineIdx < (numPastedLines - 1); ++lineIdx) {
+						lines[0] = highLight(pastedLines[lineIdx]);
+						commandExecute();
+					}
+					onlyEnter = pastedLines[numPastedLines - 1];
+				} else {
+					onlyEnter = pastedLines[0];
+				}
+				lines[0] = highLight(onlyEnter);
+				cursorPosition = unsigned(lines[0].numChars());
+				SDL_free(text);
+			}
 			return true;
 		}
 		break;
