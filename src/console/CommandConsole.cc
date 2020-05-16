@@ -510,8 +510,7 @@ void CommandConsole::tabCompletion()
 
 void CommandConsole::scroll(int delta)
 {
-	consoleScrollBack = min(max(consoleScrollBack + delta, 0),
-	                        int(lines.size()));
+	consoleScrollBack = max(min(consoleScrollBack + delta, int(lines.size()) - int(rows)), 0);
 }
 
 void CommandConsole::prevCommand()
