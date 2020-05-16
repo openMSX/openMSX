@@ -17,6 +17,8 @@
 #include "utf8_unchecked.hh"
 #include "StringOp.hh"
 #include "ScopedAssign.hh"
+#include "scope_exit.hh"
+#include "view.hh"
 #include "xrange.hh"
 #include <algorithm>
 #include <fstream>
@@ -264,25 +266,21 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			clearCommand();
 			return true;
 		case Keys::K_V:
-			if (char* text = SDL_GetClipboardText()) {
-				auto pastedLines = StringOp::split(text, '\n');
-				// do not free text yet, as pastedLines is just a string_view container
-				auto numPastedLines = pastedLines.size();
-				std::string onlyEnter;
-				if (numPastedLines > 1) {
-					// for multi lines, paste and execute all but the last lane
-					for (size_t lineIdx = 0; lineIdx < (numPastedLines - 1); ++lineIdx) {
-						lines[0] = highLight(pastedLines[lineIdx]);
-						commandExecute();
-					}
-					onlyEnter = pastedLines[numPastedLines - 1];
-				} else {
-					onlyEnter = pastedLines[0];
-				}
-				lines[0] = highLight(onlyEnter);
-				cursorPosition = unsigned(lines[0].numChars());
-				SDL_free(text);
+			char* text = SDL_GetClipboardText();
+			if (!text) return true;
+			scope_exit e([&]{ SDL_free(text); });
+
+			auto pastedLines = StringOp::split(text, '\n');
+			if (pastedLines.empty()) return true;
+
+			// execute all but the last line
+			for (const auto& line : view::drop_back(pastedLines, 1)) {
+				lines[0] = highLight(line);
+				commandExecute();
 			}
+			// only enter (not execute) the last line
+			lines[0] = highLight(pastedLines.back());
+			cursorPosition = unsigned(lines[0].numChars());
 			return true;
 		}
 		break;
