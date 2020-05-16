@@ -373,6 +373,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_MANBOW2_2:
 	case ROM_HAMARAJANIGHT:
 	case ROM_MEGAFLASHROMSCC:
+	case ROM_RBSC_FLASH_KONAMI_SCC:
 		result = make_unique<RomManbow2>(config, move(rom), type);
 		break;
 	case ROM_MATRAINK:

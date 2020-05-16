@@ -101,6 +101,7 @@ static void init()
 	init(ROM_MITSUBISHIMLTS2,"MitsubishiMLTS2",0x2000, "Mitsubishi ML-TS2 firmware");
 	init(ROM_MANBOW2,        "Manbow2",        0x2000, "Manbow2");
 	init(ROM_MANBOW2_2,      "Manbow2_2",      0x2000, "Manbow2 - Second Release");
+	init(ROM_RBSC_FLASH_KONAMI_SCC, "RBSC_Flash_KonamiSCC", 0x2000, "RBSC 2MB flash, Konami SCC mapper");
 	init(ROM_HAMARAJANIGHT,  "HamarajaNight",  0x2000, "Best of Hamaraja Night");
 	init(ROM_MEGAFLASHROMSCC,"MegaFlashRomScc",0x2000, "Mega Flash ROM SCC");
 	init(ROM_MATRAINK,       "MatraInk",       0x0000, "Matra Ink");
