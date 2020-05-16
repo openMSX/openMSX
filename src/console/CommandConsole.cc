@@ -244,28 +244,6 @@ int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 	return EventDistributor::MSX; // block MSX
 }
 
-static std::vector<std::string_view> splitLines(std::string_view str)
-{
-	// This differs from StringOp::split() in two ways:
-	// - If the input is an empty string, then the resulting vector
-	//   contains 1 element which is the empty string (StringOp::split()
-	//   would return an empty vector).
-	// - If the input ends on a newline character, then the final item in
-	//   the result vector is an empty string (StringOp::split() would not
-	//   include that last empty string).
-	// TODO can we come up with a good name for this function and move it
-	//      to StringOp?
-	std::vector<std::string_view> result;
-	while (true) {
-		auto pos = str.find_first_of('\n');
-		if (pos == std::string_view::npos) break;
-		result.push_back(str.substr(0, pos));
-		str = str.substr(pos + 1);
-	}
-	result.push_back(str);
-	return result;
-}
-
 bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 {
 	auto keyCode = keyEvent.getKeyCode();
@@ -636,6 +614,28 @@ void CommandConsole::resetScrollBack()
 	consoleScrollBack = 0;
 }
 
+static std::vector<std::string_view> splitLines(std::string_view str)
+{
+	// This differs from StringOp::split() in two ways:
+	// - If the input is an empty string, then the resulting vector
+	//   contains 1 element which is the empty string (StringOp::split()
+	//   would return an empty vector).
+	// - If the input ends on a newline character, then the final item in
+	//   the result vector is an empty string (StringOp::split() would not
+	//   include that last empty string).
+	// TODO can we come up with a good name for this function and move it
+	//      to StringOp?
+	std::vector<std::string_view> result;
+	while (true) {
+		auto pos = str.find_first_of('\n');
+		if (pos == std::string_view::npos) break;
+		result.push_back(str.substr(0, pos));
+		str = str.substr(pos + 1);
+	}
+	result.push_back(str);
+	return result;
+}
+
 void CommandConsole::paste()
 {
 	char* text = SDL_GetClipboardText();
@@ -645,13 +645,24 @@ void CommandConsole::paste()
 	auto pastedLines = splitLines(text);
 	assert(!pastedLines.empty());
 
+	// helper function 'append()' to append to the existing text
+	std::string_view prefix = lines[0].str();
+	prefix.remove_prefix(prompt.size());
+	auto append = [&](std::string_view suffix) {
+		if (prefix.empty()) {
+			lines[0] = highLight(suffix);
+		} else {
+			lines[0] = highLight(strCat(prefix, suffix));
+			prefix = "";
+		}
+	};
 	// execute all but the last line
 	for (const auto& line : view::drop_back(pastedLines, 1)) {
-		lines[0] = highLight(line);
+		append(line);
 		commandExecute();
 	}
 	// only enter (not execute) the last line
-	lines[0] = highLight(pastedLines.back());
+	append(pastedLines.back());
 	cursorPosition = unsigned(lines[0].numChars());
 }
 
