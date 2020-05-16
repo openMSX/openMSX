@@ -104,6 +104,7 @@ private:
 	void newLineConsole(ConsoleLine line);
 	void putPrompt();
 	void resetScrollBack();
+	void paste();
 	ConsoleLine highLight(std::string_view line);
 
 	/** Prints a string on the console.

@@ -288,21 +288,7 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			clearCommand();
 			return true;
 		case Keys::K_V:
-			char* text = SDL_GetClipboardText();
-			if (!text) return true;
-			scope_exit e([&]{ SDL_free(text); });
-
-			auto pastedLines = splitLines(text);
-			assert(!pastedLines.empty());
-
-			// execute all but the last line
-			for (const auto& line : view::drop_back(pastedLines, 1)) {
-				lines[0] = highLight(line);
-				commandExecute();
-			}
-			// only enter (not execute) the last line
-			lines[0] = highLight(pastedLines.back());
-			cursorPosition = unsigned(lines[0].numChars());
+			paste();
 			return true;
 		}
 		break;
@@ -639,6 +625,25 @@ void CommandConsole::normalKey(uint32_t chr)
 void CommandConsole::resetScrollBack()
 {
 	consoleScrollBack = 0;
+}
+
+void CommandConsole::paste()
+{
+	char* text = SDL_GetClipboardText();
+	if (!text) return;
+	scope_exit e([&]{ SDL_free(text); });
+
+	auto pastedLines = splitLines(text);
+	assert(!pastedLines.empty());
+
+	// execute all but the last line
+	for (const auto& line : view::drop_back(pastedLines, 1)) {
+		lines[0] = highLight(line);
+		commandExecute();
+	}
+	// only enter (not execute) the last line
+	lines[0] = highLight(pastedLines.back());
+	cursorPosition = unsigned(lines[0].numChars());
 }
 
 } // namespace openmsx
