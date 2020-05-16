@@ -265,9 +265,11 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		case Keys::K_C:
 			clearCommand();
 			return true;
+#ifndef __APPLE__
 		case Keys::K_V:
 			paste();
 			return true;
+#endif
 		}
 		break;
 	case Keys::KM_SHIFT:
@@ -285,6 +287,12 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 #ifdef __APPLE__
 		case Keys::K_V:
 			paste();
+			return true;
+		case Keys::K_LEFT:
+			cursorPosition = unsigned(prompt.size());
+			return true;
+		case Keys::K_RIGHT:
+			cursorPosition = unsigned(lines[0].numChars());
 			return true;
 #endif
 		}
@@ -328,10 +336,18 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			}
 			return true;
 		case Keys::K_HOME:
+#ifdef __APPLE__
+			scroll(lines.size());
+#else
 			cursorPosition = unsigned(prompt.size());
+#endif
 			return true;
 		case Keys::K_END:
+#ifdef __APPLE__
+			scroll(-lines.size());
+#else
 			cursorPosition = unsigned(lines[0].numChars());
+#endif
 			return true;
 		}
 		break;
