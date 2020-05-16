@@ -244,6 +244,28 @@ int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 	return EventDistributor::MSX; // block MSX
 }
 
+static std::vector<std::string_view> splitLines(std::string_view str)
+{
+	// This differs from StringOp::split() in two ways:
+	// - If the input is an empty string, then the resulting vector
+	//   contains 1 element which is the empty string (StringOp::split()
+	//   would return an empty vector).
+	// - If the input ends on a newline character, then the final item in
+	//   the result vector is an empty string (StringOp::split() would not
+	//   include that last empty string).
+	// TODO can we come up with a good name for this function and move it
+	//      to StringOp?
+	std::vector<std::string_view> result;
+	while (true) {
+		auto pos = str.find_first_of('\n');
+		if (pos == std::string_view::npos) break;
+		result.push_back(str.substr(0, pos));
+		str = str.substr(pos + 1);
+	}
+	result.push_back(str);
+	return result;
+}
+
 bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 {
 	auto keyCode = keyEvent.getKeyCode();
@@ -270,8 +292,8 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			if (!text) return true;
 			scope_exit e([&]{ SDL_free(text); });
 
-			auto pastedLines = StringOp::split(text, '\n');
-			if (pastedLines.empty()) return true;
+			auto pastedLines = splitLines(text);
+			assert(!pastedLines.empty());
 
 			// execute all but the last line
 			for (const auto& line : view::drop_back(pastedLines, 1)) {
