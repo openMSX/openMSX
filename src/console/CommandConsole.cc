@@ -302,6 +302,15 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			return true;
 		}
 		break;
+	case Keys::KM_META:
+		switch (key) {
+#ifdef __APPLE__
+		case Keys::K_V:
+			paste();
+			return true;
+#endif
+		}
+		break;
 	case 0: // no modifier
 		switch (key) {
 		case Keys::K_PAGEUP:
