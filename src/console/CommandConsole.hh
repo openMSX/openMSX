@@ -93,6 +93,8 @@ private:
 	void tabCompletion();
 	void commandExecute();
 	void scroll(int delta);
+	void prevWord();
+	void nextWord();
 	void prevCommand();
 	void nextCommand();
 	void clearCommand();

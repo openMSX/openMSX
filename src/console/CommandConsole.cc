@@ -297,6 +297,16 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 #endif
 		}
 		break;
+	case Keys::KM_ALT:
+		switch (key) {
+		case Keys::K_LEFT:
+			prevWord();
+			return true;
+		case Keys::K_RIGHT:
+			nextWord();
+			return true;
+		}
+		break;
 	case 0: // no modifier
 		switch (key) {
 		case Keys::K_PAGEUP:
@@ -527,6 +537,28 @@ void CommandConsole::tabCompletion()
 void CommandConsole::scroll(int delta)
 {
 	consoleScrollBack = max(min(consoleScrollBack + delta, int(lines.size()) - int(rows)), 0);
+}
+
+void CommandConsole::prevWord()
+{
+	const auto& line = lines[0].str();
+	while (cursorPosition > prompt.size() && line[cursorPosition - 1] == ' ') {
+		--cursorPosition;
+	}
+	while (cursorPosition > prompt.size() && line[cursorPosition - 1] != ' ') {
+		--cursorPosition;
+	}
+}
+
+void CommandConsole::nextWord()
+{
+	const auto& line = lines[0].str();
+	while (cursorPosition < lines[0].numChars() && line[cursorPosition] != ' ') {
+		++cursorPosition;
+	}
+	while (cursorPosition < lines[0].numChars() && line[cursorPosition] == ' ') {
+		++cursorPosition;
+	}
 }
 
 void CommandConsole::prevCommand()
