@@ -68,6 +68,7 @@ New or improved emulator features:
   mouse button, the clipboard text will be pasted into the MSX and with
   CTRL+Win+C (Cmd+C on Mac), the current MSX text screen will be copied to the
   clipboard
+- added paste functionality to the console (CTRL+V)
 - added new POSITIONAL keyboard mapping mode, which is a much improved version
   of the KEY mode. Use when CHARACTER mode isn't working properly for you
 - add file extensions to OSD menu and command line (e.g. .fd1/.fd2/.fd?/.1/.2)
