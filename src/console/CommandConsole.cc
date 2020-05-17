@@ -265,9 +265,14 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		case Keys::K_C:
 			clearCommand();
 			return true;
+		case Keys::K_L:
+			clearHistory();
+			return true;
+#ifndef __APPLE__
 		case Keys::K_V:
 			paste();
 			return true;
+#endif
 		}
 		break;
 	case Keys::KM_SHIFT:
@@ -286,7 +291,26 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		case Keys::K_V:
 			paste();
 			return true;
+		case Keys::K_K:
+			clearHistory();
+			return true;
+		case Keys::K_LEFT:
+			cursorPosition = unsigned(prompt.size());
+			return true;
+		case Keys::K_RIGHT:
+			cursorPosition = unsigned(lines[0].numChars());
+			return true;
 #endif
+		}
+		break;
+	case Keys::KM_ALT:
+		switch (key) {
+		case Keys::K_LEFT:
+			prevWord();
+			return true;
+		case Keys::K_RIGHT:
+			nextWord();
+			return true;
 		}
 		break;
 	case 0: // no modifier
@@ -328,10 +352,18 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			}
 			return true;
 		case Keys::K_HOME:
+#ifdef __APPLE__
+			scroll(lines.size());
+#else
 			cursorPosition = unsigned(prompt.size());
+#endif
 			return true;
 		case Keys::K_END:
+#ifdef __APPLE__
+			scroll(-lines.size());
+#else
 			cursorPosition = unsigned(lines[0].numChars());
+#endif
 			return true;
 		}
 		break;
@@ -510,8 +542,29 @@ void CommandConsole::tabCompletion()
 
 void CommandConsole::scroll(int delta)
 {
-	consoleScrollBack = min(max(consoleScrollBack + delta, 0),
-	                        int(lines.size()));
+	consoleScrollBack = max(min(consoleScrollBack + delta, int(lines.size()) - int(rows)), 0);
+}
+
+void CommandConsole::prevWord()
+{
+	const auto& line = lines[0].str();
+	while (cursorPosition > prompt.size() && line[cursorPosition - 1] == ' ') {
+		--cursorPosition;
+	}
+	while (cursorPosition > prompt.size() && line[cursorPosition - 1] != ' ') {
+		--cursorPosition;
+	}
+}
+
+void CommandConsole::nextWord()
+{
+	const auto& line = lines[0].str();
+	while (cursorPosition < lines[0].numChars() && line[cursorPosition] != ' ') {
+		++cursorPosition;
+	}
+	while (cursorPosition < lines[0].numChars() && line[cursorPosition] == ' ') {
+		++cursorPosition;
+	}
 }
 
 void CommandConsole::prevCommand()
@@ -563,6 +616,13 @@ void CommandConsole::clearCommand()
 	currentLine.clear();
 	lines[0] = highLight(currentLine);
 	cursorPosition = unsigned(prompt.size());
+}
+
+void CommandConsole::clearHistory()
+{
+	while (lines.size() > 1) {
+		lines.removeBack();
+	}
 }
 
 void CommandConsole::backspace()
