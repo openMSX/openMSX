@@ -101,7 +101,7 @@ uint32_t prior(octet_iterator& it)
 {
 	while (internal::is_trail(*(--it))) ;
 	auto temp = it;
-	return next(temp);
+	return unchecked::next(temp);
 }
 
 template <typename octet_iterator, typename distance_type>

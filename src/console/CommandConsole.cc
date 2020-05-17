@@ -305,11 +305,17 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		break;
 	case Keys::KM_ALT:
 		switch (key) {
+		case Keys::K_BACKSPACE:
+			deleteToStartOfWord();
+			return true;
+		case Keys::K_D:
+			deleteToEndOfWord();
+			return true;
 		case Keys::K_LEFT:
-			prevWord();
+			gotoStartOfWord();
 			return true;
 		case Keys::K_RIGHT:
-			nextWord();
+			gotoEndOfWord();
 			return true;
 		}
 		break;
@@ -545,26 +551,106 @@ void CommandConsole::scroll(int delta)
 	consoleScrollBack = max(min(consoleScrollBack + delta, int(lines.size()) - int(rows)), 0);
 }
 
-void CommandConsole::prevWord()
+// Returns the position of the start of the word relative to the current cursor position.
+// If the cursor is already located at the start of a word then return the start of the previous word.
+// If there is no previous word, then return the start of the line (position of the prompt).
+//
+// One complication is that the line is utf8 encoded and the positions are
+// given in character-counts instead of byte-counts. To solve this this
+// function returns a tuple:
+//  * an iterator to the start of the word (likely the new cursor position).
+//  * an iterator to the current cursor position.
+//  * the distance (in characters, not bytes) between these two iterators.
+// The first item in this tuple is the actual result. The other two are only
+// returned for efficiency (this function calculates them anyway, and it's
+// likely the caller will need them as well).
+static std::tuple<std::string::const_iterator, std::string::const_iterator, unsigned>
+	getStartOfWord(const std::string& line, unsigned cursorPos, unsigned promptSize)
 {
-	const auto& line = lines[0].str();
-	while (cursorPosition > prompt.size() && line[cursorPosition - 1] == ' ') {
-		--cursorPosition;
+	auto begin  = std::begin(line);
+	auto prompt = begin + promptSize; // assumes prompt only contains single-byte utf8 chars
+	auto cursor = begin; utf8::unchecked::advance(cursor, cursorPos);
+	auto pos    = cursor;
+
+	// search (backwards) for first non-white-space
+	unsigned distance = 0;
+	while (pos > prompt) {
+		auto pos2 = pos;
+		utf8::unchecked::prior(pos2);
+		if (*pos2 != one_of(' ', '\t')) break;
+		pos = pos2;
+		++distance;
 	}
-	while (cursorPosition > prompt.size() && line[cursorPosition - 1] != ' ') {
-		--cursorPosition;
+	// search (backwards) for first white-space
+	while (pos > prompt) {
+		auto pos2 = pos;
+		utf8::unchecked::prior(pos2);
+		if (*pos2 == one_of(' ', '\t')) break;
+		pos = pos2;
+		++distance;
 	}
+	return {pos, cursor, distance};
 }
 
-void CommandConsole::nextWord()
+// Similar to getStartOfWord() but locates the end of the word instead.
+// The end of the word is the 2nd (instead of the 1st) element in the tuple.
+// This is done so that both getStartOfWord() and getEndOfWord() have the invariant:
+//  result = [begin, end, distance]
+//   -> begin <= end
+//   -> end - begin == distance
+static std::tuple<std::string::const_iterator, std::string::const_iterator, unsigned>
+	getEndOfWord(const std::string& line, unsigned cursorPos)
 {
-	const auto& line = lines[0].str();
-	while (cursorPosition < lines[0].numChars() && line[cursorPosition] != ' ') {
-		++cursorPosition;
+	auto begin  = std::begin(line);
+	auto end    = std::end  (line);
+	auto cursor = begin; utf8::unchecked::advance(cursor, cursorPos);
+	auto pos    = cursor;
+
+	// search (forwards) for first non-white-space
+	unsigned distance = 0;
+	while ((pos < end) && (*pos == one_of(' ', '\t'))) {
+		++pos; // single-byte utf8 character
+		++distance;
 	}
-	while (cursorPosition < lines[0].numChars() && line[cursorPosition] == ' ') {
-		++cursorPosition;
+	// search (forwards) for first white-space
+	while ((pos < end) && (*pos != one_of(' ', '\t'))) {
+		utf8::unchecked::next(pos);
+		++distance;
 	}
+	return {cursor, pos, distance};
+}
+
+void CommandConsole::gotoStartOfWord()
+{
+	auto [begin, end, distance] = getStartOfWord(lines[0].str(), cursorPosition, prompt.size());
+	cursorPosition -= distance;
+}
+
+void CommandConsole::deleteToStartOfWord()
+{
+	resetScrollBack();
+	currentLine = lines[0].str();
+	auto [begin, end, distance] = getStartOfWord(currentLine, cursorPosition, prompt.size());
+	currentLine.erase(begin, end);
+	currentLine.erase(0, prompt.size());
+	lines[0] = highLight(currentLine);
+	cursorPosition -= distance;
+}
+
+void CommandConsole::gotoEndOfWord()
+{
+	auto [begin, end, distance] = getEndOfWord(lines[0].str(), cursorPosition);
+	cursorPosition += distance;
+}
+
+void CommandConsole::deleteToEndOfWord()
+{
+	resetScrollBack();
+	currentLine = lines[0].str();
+	auto [begin, end, distance] = getEndOfWord(currentLine, cursorPosition);
+	currentLine.erase(begin, end);
+	currentLine.erase(0, prompt.size());
+	lines[0] = highLight(currentLine);
 }
 
 void CommandConsole::prevCommand()
