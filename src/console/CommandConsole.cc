@@ -620,6 +620,7 @@ void CommandConsole::clearCommand()
 
 void CommandConsole::clearHistory()
 {
+	resetScrollBack();
 	while (lines.size() > 1) {
 		lines.removeBack();
 	}
