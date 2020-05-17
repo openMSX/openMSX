@@ -308,9 +308,15 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		case Keys::K_BACKSPACE:
 			deleteToStartOfWord();
 			return true;
+#ifdef __APPLE__
+		case Keys::K_DELETE:
+			deleteToEndOfWord();
+			return true;
+#else
 		case Keys::K_D:
 			deleteToEndOfWord();
 			return true;
+#endif
 		case Keys::K_LEFT:
 			gotoStartOfWord();
 			return true;
