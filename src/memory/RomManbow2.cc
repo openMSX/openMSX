@@ -211,9 +211,9 @@ void RomManbow2::serialize(Archive& ar, unsigned version)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	if ((ar.versionAtLeast(version, 3)) && scc) {
+	if (scc) {
 		ar.serialize("scc",        *scc,
-	                     "sccEnabled", sccEnabled);
+		             "sccEnabled", sccEnabled);
 	}
 	if ((ar.versionAtLeast(version, 2)) && psg) {
 		ar.serialize("psg",      *psg,
