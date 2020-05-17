@@ -265,6 +265,9 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		case Keys::K_C:
 			clearCommand();
 			return true;
+		case Keys::K_L:
+			clearHistory();
+			return true;
 #ifndef __APPLE__
 		case Keys::K_V:
 			paste();
@@ -287,6 +290,9 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 #ifdef __APPLE__
 		case Keys::K_V:
 			paste();
+			return true;
+		case Keys::K_K:
+			clearHistory();
 			return true;
 		case Keys::K_LEFT:
 			cursorPosition = unsigned(prompt.size());
@@ -610,6 +616,13 @@ void CommandConsole::clearCommand()
 	currentLine.clear();
 	lines[0] = highLight(currentLine);
 	cursorPosition = unsigned(prompt.size());
+}
+
+void CommandConsole::clearHistory()
+{
+	while (lines.size() > 1) {
+		lines.removeBack();
+	}
 }
 
 void CommandConsole::backspace()
