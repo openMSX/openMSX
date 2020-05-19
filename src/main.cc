@@ -40,7 +40,6 @@
 namespace openmsx {
 
 #ifdef _WIN32
-#include <stdlib.h>
 // wrapper for Windows, as the MS runtime doesn't provide setenv!?
 int setenv(const char *name, const char *value, int overwrite);
 int setenv(const char *name, const char *value, int overwrite)
