@@ -57,7 +57,7 @@ MSX device support:
   HBI-J1 (thanks Sandy), JVC MSX MIDI (thanks gflores)
 
 New or improved emulator features:
-- F11 now toggles full screen mode on PC, to be consistent with other
+- F11 now toggles fullscreen mode on PC, to be consistent with other
   applications such as web browsers; mute is now under F12
 - fixed crash in ColecoVision when e.g. ALT+SPACE was pressed
 - fixed crash when ejecting tape during cassette loading
@@ -111,7 +111,7 @@ New or improved emulator features:
   which now works reliably
 - fixed crash when using a relative path with the -setting command line option
 - fixed 'kbd_code_kana_host_key' setting (did (sometimes?) not work anymore)
-- use Rebecca Bettencourts officially proposed Unicode mapping of MSX character
+- use Rebecca Bettencourt's officially proposed Unicode mapping of MSX character
   set
 - save_msx_screen script now also supports interlaced images
 - added '-command' command line option to execute the given command after
