@@ -174,6 +174,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL2)/Makefile: \
 		--disable-esd \
 		--disable-arts \
 		--disable-shared \
+		$(if $(filter %clang,$(CC)),--disable-arm-simd,) \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--libdir=$(PWD)/$(INSTALL_DIR)/lib \
