@@ -125,14 +125,14 @@ class PkgConfig(DownloadablePackage):
 		}
 
 class SDL2(DownloadablePackage):
-	downloadURL = 'http://www.libsdl.org/release'
+	downloadURL = 'https://www.libsdl.org/release'
 	niceName = 'SDL2'
 	sourceName = 'SDL2'
-	version = '2.0.10'
-	fileLength = 5550762
+	version = '2.0.12'
+	fileLength = 5720162
 	checksums = {
 		'sha256':
-			'b4656c13a1f0d0023ae2f4a9cf08ec92fffb464e0f24238337784159b8b91d57',
+			'349268f695c02efbc9b9148a70b85e58cefbbf704abd3e91be654db7f1e2c863',
 		}
 
 class SDL2_ttf(DownloadablePackage):
