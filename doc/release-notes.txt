@@ -57,6 +57,8 @@ MSX device support:
   HBI-J1 (thanks Sandy), JVC MSX MIDI (thanks gflores)
 
 New or improved emulator features:
+- F11 now toggles full screen mode on PC, to be consistent with other
+  applications such as web browsers; mute is now under F12
 - fixed crash in ColecoVision when e.g. ALT+SPACE was pressed
 - fixed crash when ejecting tape during cassette loading
 - fixed MIDI-in/out support on Windows
