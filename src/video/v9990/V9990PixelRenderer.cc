@@ -321,6 +321,7 @@ void V9990PixelRenderer::update(const Setting& setting)
 {
 	assert(&setting == one_of(&renderSettings.getMinFrameSkipSetting(),
 	                          &renderSettings.getMaxFrameSkipSetting()));
+	(void)setting;
 	// Force drawing of frame
 	frameSkipCounter = 999;
 }

@@ -72,6 +72,7 @@ int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event)
 	assert(event->getType() == one_of(OPENMSX_MOUSE_MOTION_EVENT,
 	                                  OPENMSX_MOUSE_BUTTON_UP_EVENT,
 	                                  OPENMSX_MOUSE_BUTTON_DOWN_EVENT));
+	(void)event;
 	updateCursor();
 	return 0;
 }

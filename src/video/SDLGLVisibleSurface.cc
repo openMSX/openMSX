@@ -151,7 +151,7 @@ void SDLGLVisibleSurface::SyncToVBlankModeObserver::update(const Setting& settin
 {
 	auto& surface = OUTER(SDLGLVisibleSurface, syncToVBlankModeObserver);
 	auto& syncSetting = surface.getDisplay().getRenderSettings().getSyncToVBlankModeSetting();
-	assert(&setting == &syncSetting);
+	assert(&setting == &syncSetting); (void)setting;
 
 	int interval = [&] {
 		switch (syncSetting.getEnum()) {
