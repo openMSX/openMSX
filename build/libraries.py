@@ -142,7 +142,7 @@ class ALSA(Library):
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		flags = super(ALSA, cls).getLinkFlags(platform, linkStatic, distroRoot)
+		flags = super().getLinkFlags(platform, linkStatic, distroRoot)
 		if linkStatic:
 			flags += ' -lpthread'
 		return flags
@@ -173,7 +173,7 @@ class FreeType(Library):
 			if distroRoot == '/usr/local':
 				# FreeType is located in the X11 tree, not the ports tree.
 				distroRoot = '/usr/X11R6'
-		script = super(FreeType, cls).getConfigScript(
+		script = super().getConfigScript(
 			platform, linkStatic, distroRoot
 			)
 		# FreeType 2.9.1 no longer installs the freetype-config script
@@ -218,7 +218,7 @@ class GL(Library):
 		if platform in ('netbsd', 'openbsd'):
 			return '-isystem /usr/X11R6/include -isystem /usr/X11R7/include'
 		else:
-			return super(GL, cls).getCompileFlags(
+			return super().getCompileFlags(
 				platform, linkStatic, distroRoot
 				)
 
@@ -231,7 +231,7 @@ class GL(Library):
 		elif platform in ('netbsd', 'openbsd'):
 			return '-L/usr/X11R6/lib -L/usr/X11R7/lib -lGL'
 		else:
-			return super(GL, cls).getLinkFlags(platform, linkStatic, distroRoot)
+			return super().getLinkFlags(platform, linkStatic, distroRoot)
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
@@ -269,7 +269,7 @@ class GLEW(Library):
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
-		flags = super(GLEW, cls).getCompileFlags(
+		flags = super().getCompileFlags(
 			platform, linkStatic, distroRoot
 			)
 		if platform.startswith('mingw') and linkStatic:
@@ -325,7 +325,7 @@ class SDL2_ttf(Library):
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
-		flags = super(SDL2_ttf, cls).getLinkFlags(
+		flags = super().getLinkFlags(
 			platform, linkStatic, distroRoot
 			)
 		if not linkStatic:
