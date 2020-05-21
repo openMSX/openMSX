@@ -138,7 +138,7 @@ class ALSA(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('dingux',)
+		return True
 
 	@classmethod
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):

@@ -17,12 +17,6 @@ def main(platform, linkMode):
 		if not librariesByName[makeName].isSystemLibrary(platform)
 		)
 
-	# ALSA exists on Linux only.
-	# While Android has the necessary kernel interfaces, the lib doesn't
-	# support Android.
-	if platform != 'linux':
-		thirdPartyLibs.discard('ALSA')
-
 	print(' '.join(sorted(thirdPartyLibs)))
 
 if __name__ == '__main__':

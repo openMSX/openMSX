@@ -73,13 +73,6 @@ def main(platform, tarballsDir, sourcesDir, patchesDir):
 		if not librariesByName[makeName].isSystemLibrary(platform)
 		)
 
-	if platform == 'windows':
-		# Avoid ALSA, since we won't be building it and extracting it will
-		# fail on file systems that don't support symlinks.
-		# TODO: 3rdparty.mk filters out ALSA on non-Linux platforms;
-		#       figure out a way to do that in a single location.
-		thirdPartyLibs.discard('ALSA')
-
 	for makeName in sorted(thirdPartyLibs):
 		fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir)
 
