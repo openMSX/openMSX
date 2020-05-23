@@ -39,7 +39,7 @@ namespace openmsx {
 // How does the CAPSLOCK key behave?
 #ifdef __APPLE__
 // See the comments in this issue:
-//    https://github.com/openMSX/openMSX/issues/1212
+//    https://github.com/openMSX/openMSX/issues/1261
 // Basically it means on apple:
 //   when the host capslock key is pressed,       SDL sends capslock-pressed
 //   when the host capslock key is released,      SDL sends nothing
