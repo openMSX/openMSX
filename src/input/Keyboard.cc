@@ -36,6 +36,24 @@ using std::make_shared;
 
 namespace openmsx {
 
+// How does the CAPSLOCK key behave?
+#ifdef __APPLE__
+// See the comments in this issue:
+//    https://github.com/openMSX/openMSX/issues/1212
+// Basically it means on apple:
+//   when the host capslock key is pressed,       SDL sends capslock-pressed
+//   when the host capslock key is released,      SDL sends nothing
+//   when the host capslock key is pressed again, SDL sends capslock-released
+//   when the host capslock key is released,      SDL sends nothing
+static constexpr bool SANE_CAPSLOCK_BEHAVIOR = false;
+#else
+// We get sane capslock events from SDL:
+//  when the host capslock key is pressed,  SDL sends capslock-pressed
+//  when the host capslock key is released, SDL sends capslock-released
+static constexpr bool SANE_CAPSLOCK_BEHAVIOR = true;
+#endif
+
+
 static const int TRY_AGAIN = 0x80; // see pressAscii()
 
 using KeyInfo = UnicodeKeymap::KeyInfo;
@@ -106,7 +124,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    StateChangeDistributor& stateChangeDistributor_,
                    MatrixType matrix,
                    const DeviceConfig& config)
-	: commandController(commandController_)
+	: Schedulable(scheduler_)
+	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, keyTab(keyTabs[matrix])
@@ -441,11 +460,24 @@ void Keyboard::processGraphChange(EmuTime::param time, bool down)
  */
 void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 {
-	debug("Changing CAPS lock state according to SDL request\n");
-	if (down) {
+	if (SANE_CAPSLOCK_BEHAVIOR) {
+		debug("Changing CAPS lock state according to SDL request\n");
+		if (down) {
+			locksOn ^= KeyInfo::CAPS_MASK;
+		}
+		updateKeyMatrix(time, down, modifierPos[KeyInfo::CAPS]);
+	} else {
+		debug("Pressing CAPS lock and scheduling a release\n");
 		locksOn ^= KeyInfo::CAPS_MASK;
+		updateKeyMatrix(time, true, modifierPos[KeyInfo::CAPS]);
+		setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (in MSX time)
 	}
-	updateKeyMatrix(time, down, modifierPos[KeyInfo::CAPS]);
+}
+
+void Keyboard::executeUntil(EmuTime::param time)
+{
+	debug("Releasing CAPS lock\n");
+	updateKeyMatrix(time, false, modifierPos[KeyInfo::CAPS]);
 }
 
 void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
@@ -1186,6 +1218,11 @@ Keyboard::CapsLockAligner::~CapsLockAligner()
 
 int Keyboard::CapsLockAligner::signalEvent(const shared_ptr<const Event>& event)
 {
+	if (!SANE_CAPSLOCK_BEHAVIOR) {
+		// don't even try
+		return 0;
+	}
+
 	if (state == IDLE) {
 		EmuTime::param time = getCurrentTime();
 		EventType type = event->getType();
