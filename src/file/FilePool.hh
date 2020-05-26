@@ -12,6 +12,7 @@
 #include <ctime>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace openmsx {
@@ -55,12 +56,12 @@ private:
 	using Directories = std::vector<Entry>;
 
 	struct PoolEntry {
-		PoolEntry(const Sha1Sum& s, time_t t, const char* f)
+		PoolEntry(const Sha1Sum& s, time_t t, std::string_view f)
 			: filename(f), time(t), sum(s)
 		{
 			assert(time != time_t(-1));
 		}
-		PoolEntry(const Sha1Sum& s, const char* t, const char* f)
+		PoolEntry(const Sha1Sum& s, const char* t, std::string_view f)
 			: filename(f), timeStr(t), sum(s)
 		{
 			assert(timeStr != nullptr);
@@ -71,7 +72,7 @@ private:
 
 		// - At least one of 'timeStr' or 'time' is valid.
 		// - 'filename' and 'timeStr' are non-owning pointers.
-		const char* filename;
+		std::string_view filename;
 		const char* timeStr = nullptr; // might be nullptr
 		time_t time = time_t(-1);      // might be -1
 		Sha1Sum sum;

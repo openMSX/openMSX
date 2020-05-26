@@ -17,6 +17,8 @@
 #include "sha1.hh"
 #include <fstream>
 #include <memory>
+#include <optional>
+#include <tuple>
 
 using std::ifstream;
 using std::ofstream;
@@ -87,7 +89,7 @@ void FilePool::insert(const Sha1Sum& sum, time_t time, const string& filename)
 {
 	auto it = ranges::upper_bound(pool, sum, ComparePool());
 	stringBuffer.push_back(filename);
-	pool.emplace(it, sum, time, stringBuffer.back().c_str());
+	pool.emplace(it, sum, time, stringBuffer.back());
 	needWrite = true;
 }
 
@@ -138,35 +140,37 @@ void FilePool::PoolEntry::setTime(time_t t)
 	timeStr = nullptr;
 }
 
-static bool parse(char* line, char* line_end,
-                  Sha1Sum& sha1, const char*& timeStr, const char*& filename)
+// returns: <sha1, time-string, filename>
+static std::optional<std::tuple<Sha1Sum, const char*, std::string_view>> parse(
+	char* line, char* line_end)
 {
-	if ((line_end - line) <= 68) return false; // minumum length (only filename is variable)
+	if ((line_end - line) <= 68) return {}; // minumum length (only filename is variable)
 
 	// only perform quick sanity check on date/time format
-	if (line[40] != ' ') return false; // two space between sha1sum and date
-	if (line[41] != ' ') return false;
-	if (line[45] != ' ') return false; // space between day-of-week and month
-	if (line[49] != ' ') return false; // space between month and day of month
-	if (line[52] != ' ') return false; // space between day of month and hour
-	if (line[55] != ':') return false; // colon between hour and minutes
-	if (line[58] != ':') return false; // colon between minutes and seconds
-	if (line[61] != ' ') return false; // space between seconds and year
-	if (line[66] != ' ') return false; // two spaces between date and filename
-	if (line[67] != ' ') return false;
+	if (line[40] != ' ') return {}; // two space between sha1sum and date
+	if (line[41] != ' ') return {};
+	if (line[45] != ' ') return {}; // space between day-of-week and month
+	if (line[49] != ' ') return {}; // space between month and day of month
+	if (line[52] != ' ') return {}; // space between day of month and hour
+	if (line[55] != ':') return {}; // colon between hour and minutes
+	if (line[58] != ':') return {}; // colon between minutes and seconds
+	if (line[61] != ' ') return {}; // space between seconds and year
+	if (line[66] != ' ') return {}; // two spaces between date and filename
+	if (line[67] != ' ') return {};
 
+	Sha1Sum sha1(Sha1Sum::UninitializedTag{});
 	try {
 		sha1.parse40(line);
 	} catch (MSXException& /*e*/) {
-		return false;
+		return {};
 	}
 
-	timeStr = line + 42; // not guaranteed to be a correct date/time
+	const char* timeStr = line + 42; // not guaranteed to be a correct date/time
 	line[66] = '\0'; // zero-terminate timeStr, so that it can be printed
 
-	filename = line + 68;
-	*line_end = '\0'; // ok because there is certainly a '\n' after this line
-	return true;
+	std::string_view filename(line + 68, line_end - (line + 68)); // TODO c++20 [begin, end)
+
+	return std::tuple{sha1, timeStr, filename};
 }
 
 void FilePool::readSha1sums()
@@ -190,10 +194,8 @@ void FilePool::readSha1sums()
 		if (it == nullptr) it = data_end;
 		if ((it != data) && (it[-1] == '\r')) --it;
 
-		Sha1Sum sum(Sha1Sum::UninitializedTag{});
-		const char* timeStr;
-		const char* filename;
-		if (parse(data, it, sum, timeStr, filename)) {
+		if (auto r = parse(data, it)) {
+			auto [sum, timeStr, filename] = *r;
 			pool.emplace_back(sum, timeStr, filename);
 		}
 
