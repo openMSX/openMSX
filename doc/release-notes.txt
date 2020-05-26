@@ -139,7 +139,7 @@ Build system, packaging, documentation:
 - SDLGL-PP renderer now requires OpenGL 3.3, shaders are now in GLSL 3.30
 - support for pkg-config in the build system, e.g. to build FreeType
 - C++ code is based on C++17 and thus requires a compiler supporting it, e.g.
-  g++ 7 or later.
+  g++ 7 or later or Visual Studio 2019 or later
 - fixed endianness on ppc64le
 - fixed compilation for big-endian CPUs with g++-9
 - migrated build system and all other Python scripts to Python 3, as Python 2
