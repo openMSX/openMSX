@@ -21682,8 +21682,8 @@ The softwaredb.xml file contains information about rom mapper types
 	<company>Sierra On Line</company>
 	<year>1983</year>
 	<country>UK</country>
-		<dump><original value="true">GoodCol</original><rom><type>Normal</type><hash>b011dc446bb20bcdf5ee8404919d039b690d976b</hash></rom></dump>
-		<dump><original value="true">GoodCol</original><rom><type>Normal</type><hash>88fa56b294294110a4cc2c0f109e09e8c1cdeae9</hash></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>Normal8000</type><hash>b011dc446bb20bcdf5ee8404919d039b690d976b</hash></rom></dump>
+		<dump><original value="true">GoodCol</original><rom><type>Normal8000</type><hash>88fa56b294294110a4cc2c0f109e09e8c1cdeae9</hash></rom></dump>
 </software>
 <software>
 	<title>Schlange CV Demo</title>
