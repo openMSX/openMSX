@@ -7,8 +7,6 @@
 #include <cstdio>
 #include <cassert>
 
-using std::string;
-
 namespace openmsx {
 
 LocalFileReference::LocalFileReference(File& file)
@@ -16,7 +14,7 @@ LocalFileReference::LocalFileReference(File& file)
 	init(file);
 }
 
-LocalFileReference::LocalFileReference(const string& filename)
+LocalFileReference::LocalFileReference(const std::string& filename)
 {
 	File file(filename);
 	init(file);
@@ -25,6 +23,27 @@ LocalFileReference::LocalFileReference(const string& filename)
 LocalFileReference::LocalFileReference(const Filename& filename)
 	: LocalFileReference(filename.getResolved())
 {
+}
+
+LocalFileReference::LocalFileReference(LocalFileReference&& other)
+	: tmpFile(std::move(other.tmpFile))
+	, tmpDir (std::move(other.tmpDir ))
+{
+	other.tmpDir.clear();
+}
+
+LocalFileReference& LocalFileReference::operator=(LocalFileReference&& other)
+{
+	cleanup();
+	tmpFile = std::move(other.tmpFile);
+	tmpDir  = std::move(other.tmpDir);
+	other.tmpDir.clear();
+	return *this;
+}
+
+LocalFileReference::~LocalFileReference()
+{
+	cleanup();
 }
 
 void LocalFileReference::init(File& file)
@@ -61,7 +80,7 @@ void LocalFileReference::init(File& file)
 	}
 }
 
-LocalFileReference::~LocalFileReference()
+void LocalFileReference::cleanup()
 {
 	if (!tmpDir.empty()) {
 		FileOperations::unlink(tmpFile);
@@ -71,7 +90,7 @@ LocalFileReference::~LocalFileReference()
 	}
 }
 
-const string& LocalFileReference::getFilename() const
+const std::string& LocalFileReference::getFilename() const
 {
 	assert(!tmpFile.empty());
 	return tmpFile;

@@ -38,8 +38,8 @@ public:
 	// non-copyable, but moveable
 	LocalFileReference(const LocalFileReference&) = delete;
 	LocalFileReference& operator=(const LocalFileReference&) = delete;
-	LocalFileReference(LocalFileReference&&) = default;
-	LocalFileReference& operator=(LocalFileReference&&) = default;
+	LocalFileReference(LocalFileReference&&);
+	LocalFileReference& operator=(LocalFileReference&&);
 
 	/** Returns path to a local uncompressed version of this file.
 	  * This path only remains valid as long as this object is in scope.
@@ -48,6 +48,7 @@ public:
 
 private:
 	void init(File& file);
+	void cleanup();
 
 	std::string tmpFile;
 	std::string tmpDir;
