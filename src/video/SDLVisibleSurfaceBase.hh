@@ -14,6 +14,7 @@ class SDLVisibleSurfaceBase : public SDLOutputSurface, public VisibleSurface
 public:
 	void updateWindowTitle() override;
 	bool setFullScreen(bool fullscreen) override;
+	~SDLVisibleSurfaceBase() override;
 
 protected:
 	using VisibleSurface::VisibleSurface;
@@ -21,6 +22,10 @@ protected:
 
 	SDLSubSystemInitializer<SDL_INIT_VIDEO> videoSubSystem;
 	SDLWindowPtr window;
+
+private:
+	static int windowPosX;
+	static int windowPosY;
 };
 
 } // namespace openmsx
