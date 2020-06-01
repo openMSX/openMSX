@@ -75,12 +75,12 @@ static void skipSep(string_view& str)
 static string_view nextToken(string_view& str)
 {
 	skipSep(str);
-	auto tokenBegin = str.begin();
+	auto tokenBegin = str.data();
 	while (!str.empty() && str.front() != '\n' && !isSep(str.front())) {
 		// Pop non-separator character.
 		str.remove_prefix(1);
 	}
-	return string_view(&*tokenBegin, str.begin() - tokenBegin);
+	return string_view(tokenBegin, str.data() - tokenBegin);
 }
 
 
