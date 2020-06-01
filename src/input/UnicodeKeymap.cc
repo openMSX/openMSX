@@ -76,11 +76,13 @@ static string_view nextToken(string_view& str)
 {
 	skipSep(str);
 	auto tokenBegin = str.begin();
+	size_t tokenLength = 0;
 	while (!str.empty() && str.front() != '\n' && !isSep(str.front())) {
 		// Pop non-separator character.
 		str.remove_prefix(1);
+		tokenLength++;
 	}
-	return string_view(&*tokenBegin, str.begin() - tokenBegin);
+	return tokenLength ? string_view(&*tokenBegin, tokenLength) : string_view();
 }
 
 
