@@ -1,6 +1,0 @@
-# TODO: make sure that these do not end up in this dir...
-AndroidAppSettings.cfg
-AndroidData/
-environment.props
-icon.png
-libapplication.so
