@@ -95,7 +95,7 @@
           <drives>1</drives>
           <rom>
             <filename>hb-f700d_disk.rom</filename>
-            <sha1>0e081572f84555dc13bdb0c7044a19d6c164d985</sha1> <!-- Except for register area of course, verified by George -->
+            <sha1>12f2cc79b3d09723840bae774be48c0d721ec1c6</sha1> <!-- Except for register area of course, verified by George -->
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </WD2793>
