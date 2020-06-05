@@ -1,9 +1,9 @@
-Release Notes for openMSX 16.0 (2020-xx-xx)
+Release Notes for openMSX 16.0 (2020-06-xx)
 =============================================
 
 A major release in which we finally migrated to SDL2 and Tcl 8.6. And we moved
-to a simpler versioning scheme, stripping of that 0. now :) Other than that,
-there are loads and loads of improvements. Some often requested ones are
+to a simpler versioning scheme, stripping of that 0. prefix now :) Other than
+that, there are loads and loads of improvements. Some often requested ones are
 copy/paste functionality and drag and drop support. But we also added a super
 accurate YM2413 emulation (originally written by NukeYKT), fixed MIDI-in/out
 support on Windows, a new keyboard mode, much improved OSD menu, etc. See below
@@ -48,10 +48,11 @@ MSX device support:
   Compilation (e.g. Konami Compilation 1 and 2)
 - fixed keyboard type of CIEL Expert Turbo
 - fixed RAM size of Daewoo DPC-180
+- added mapper type for RBSC Flash cartridges with KonamiSCC mapper
 - added new machines: Yamaha AX500 (thanks Hashem Khalifa), Toshiba HX-20E
-  (thanks Isaac Santaolalla), Yamaha YIS-503, YIS-503II, CX5F, YIS-604/128
-  (thanks Peter Hanraets), Yamaha AX150 (thanks Pedro Gimeno), Olympia PHC-2
-  (thanks Patrick)
+  (thanks Isaac Santaolalla), Yamaha YIS-503, YIS-503II, CX5F, YIS-604/128,
+  Sony HB-G900D (thanks Peter Hanraets), Yamaha AX150 (thanks Pedro Gimeno),
+  Olympia PHC-2 (thanks Patrick)
 - added new extensions: Yamaha FD-03 (thanks Arjen) and FD-05 disk drive,
   Toshiba HX-F101PE disk drive, ROM Hunter Mk2 (thanks BiFi, Takamichi), Sony
   HBI-J1 (thanks Sandy), JVC MSX MIDI (thanks gflores)
@@ -71,9 +72,19 @@ New or improved emulator features:
   CTRL+Win+C (Cmd+C on Mac), the current MSX text screen will be copied to the
   clipboard
 - added paste functionality to the console (CTRL+V/Cmd+V on Mac)
+- several other small console improvements:
+  - for macOS: Home/End moves to top/end of history, Cmd+Left/Right moves
+    cursor to start/end of the line
+  - move cursor per word with Alt+Left/Right
+  - clear console with Ctrl+L and Cmd+K on macOS
+  - Alt+BackSpace: delete backwards up to the start of the word
+  - Alt+D (Alt+Del on macOS): delete util the end of the word
+- now remember window position when the window is recreated (e.g. when changing
+  renderers or full screen)
 - added new POSITIONAL keyboard mapping mode, which is a much improved version
   of the KEY mode. Use when CHARACTER mode isn't working properly for you
-- add file extensions to OSD menu and command line (e.g. .fd1/.fd2/.fd?/.1/.2)
+- added file extensions to OSD menu and command line (e.g.
+  .fd1/.fd2/.fd?/.1/.2)
 - OSD menu:
   - when browsing for a media (ROM, disk, etc.) the menu now starts with the
     currently selected item. Makes it much easier to set disk B of a game, for
@@ -131,7 +142,7 @@ New or improved emulator features:
   dict get [machine_info device MyCoolDevice] "type"
 
 Build system, packaging, documentation:
-- migrated to SDL2
+- migrated to SDL2 (2.0.12)
 - unfortunately, the Android port is for now broken, as we did not integrate it
   into our build system yet (and that's not easy). The C++ code does compile,
   and now requires NDK20 and API level 18 (Android 4.3)
