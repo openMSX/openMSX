@@ -3,6 +3,7 @@
 
 #include "cstd.hh"
 #include "Math.hh"
+#include "ranges.hh"
 #include "static_vector.hh"
 #include "stl.hh"
 #include "xrange.hh"
@@ -93,8 +94,14 @@ template<size_t N, typename Hash, typename GetKey>
 	}
 
 	// Step 2: Sort the buckets to process the ones with the most items first.
-	cstd::sort(buckets, [](const auto& x, const auto& y) {
-		return x.size() > y.size(); // sort largest first
+	ranges::sort(buckets, [](const auto& x, const auto& y) {
+		// sort largest first
+		if (x.size() != y.size()) {
+			return x.size() > y.size();
+		}
+		// same size, sort lexicographic
+		return cstd::lexicographical_compare(x.begin(), x.end(),
+		                                     y.begin(), y.end());
 	});
 
 	// Step 3: Map the items in buckets into hash tables.

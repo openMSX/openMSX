@@ -85,7 +85,7 @@ constexpr auto vectorTable = [] {
 		return std::tuple(cost(l), l.x, l.y) <
 		       std::tuple(cost(r), r.x, r.y);
 	};
-	cstd::sort(result, compare);
+	ranges::sort(result, compare);
 
 	return result;
 }();

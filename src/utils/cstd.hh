@@ -12,41 +12,6 @@
 
 namespace cstd {
 
-// Inspired by this post:
-//    http://tristanbrindle.com/posts/a-more-useful-compile-time-quicksort
-
-// Constexpr reimplementations of standard algorithms or data-structures.
-//
-// Everything implemented in 'cstd' will very likely become part of standard
-// C++ in the future. So then we can remove our (re)implementation and change
-// the callers from 'cstd::xxx()' to 'std::xxx()'.
-
-//
-// Various constexpr reimplementations of STL algorithms.
-//
-
-// Textbook implementation of quick sort. Not optimized, but the intention is
-// that it only gets executed during compile-time.
-template<typename RAIt, typename Compare = std::less<>>
-constexpr void sort(RAIt first, RAIt last, Compare cmp = Compare{})
-{
-	auto const N = last - first;
-	if (N <= 1) return;
-	auto const pivot = *(first + N / 2);
-	auto const middle1 = std::partition(
-	        first, last, [&](const auto& elem) { return cmp(elem, pivot); });
-	auto const middle2 = std::partition(
-	        middle1, last, [&](const auto& elem) { return !cmp(pivot, elem); });
-	cstd::sort(first, middle1, cmp);
-	cstd::sort(middle2, last, cmp);
-}
-
-template<typename RandomAccessRange, typename Compare = std::less<>>
-constexpr void sort(RandomAccessRange&& range, Compare cmp = Compare{})
-{
-	cstd::sort(std::begin(range), std::end(range), cmp);
-}
-
 template<typename InputIt1, typename InputIt2>
 [[nodiscard]] constexpr bool lexicographical_compare(InputIt1 first1, InputIt1 last1,
                                                      InputIt2 first2, InputIt2 last2)

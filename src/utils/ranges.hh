@@ -31,13 +31,13 @@ template<typename ForwardRange, typename Compare = std::less<>, typename Proj = 
 }
 
 template<typename RandomAccessRange>
-void sort(RandomAccessRange&& range)
+constexpr void sort(RandomAccessRange&& range)
 {
 	std::sort(std::begin(range), std::end(range));
 }
 
 template<typename RandomAccessRange, typename Compare>
-void sort(RandomAccessRange&& range, Compare comp)
+constexpr void sort(RandomAccessRange&& range, Compare comp)
 {
 	std::sort(std::begin(range), std::end(range), comp);
 }
