@@ -99,9 +99,9 @@ template<size_t N, typename Hash, typename GetKey>
 		if (x.size() != y.size()) {
 			return x.size() > y.size();
 		}
-		// same size, sort lexicographic
-		return cstd::lexicographical_compare(x.begin(), x.end(),
-		                                     y.begin(), y.end());
+		// same size, sort lexicographical
+		return std::lexicographical_compare(x.begin(), x.end(),
+		                                    y.begin(), y.end());
 	});
 
 	// Step 3: Map the items in buckets into hash tables.
